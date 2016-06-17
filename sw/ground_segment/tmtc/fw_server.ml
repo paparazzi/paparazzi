@@ -22,13 +22,14 @@
  *
  *)
 
+
 open Printf
 open Server_globals
 open Aircraft
 open Latlong
 module LL = Latlong
 module U = Unix
-module Dl_Pprz = Pprz.Messages (struct let name = "datalink" end)
+module Dl_Pprz = PprzLink.Messages (struct let name = "datalink" end)
 
 
 (* FIXME: bound the loop *)
@@ -42,25 +43,25 @@ let rec norm_course =
 
 let fvalue = fun x ->
   match x with
-      Pprz.Float x -> x
-    | Pprz.Int32 x -> Int32.to_float x
-    | Pprz.Int64 x -> Int64.to_float x
-    | Pprz.Int x -> float_of_int x
-    | _ -> failwith (sprintf "Receive.log_and_parse: float expected, got '%s'" (Pprz.string_of_value x))
+      PprzLink.Float x -> x
+    | PprzLink.Int32 x -> Int32.to_float x
+    | PprzLink.Int64 x -> Int64.to_float x
+    | PprzLink.Int x -> float_of_int x
+    | _ -> failwith (sprintf "Receive.log_and_parse: float expected, got '%s'" (PprzLink.string_of_value x))
 
 
 let ivalue = fun x ->
   match x with
-      Pprz.Int x -> x
-    | Pprz.Int32 x -> Int32.to_int x
-    | Pprz.Int64 x -> Int64.to_int x
+      PprzLink.Int x -> x
+    | PprzLink.Int32 x -> Int32.to_int x
+    | PprzLink.Int64 x -> Int64.to_int x
     | _ -> failwith "Receive.log_and_parse: int expected"
 
 let format_string_field = fun s ->
-  let s = String.copy s in
-  for i = 0 to String.length s - 1 do
+  let s = Compat.bytes_copy s in
+  for i = 0 to Compat.bytes_length s - 1 do
     match s.[i] with
-        ' ' -> s.[i] <- '_'
+        ' ' ->  Compat.bytes_set s i '_'
       | _ -> ()
   done;
   s
@@ -88,20 +89,20 @@ let update_waypoint = fun ac wp_id p alt ->
 let heading_from_course = ref false
 
 let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
-  let value = fun x -> try Pprz.assoc x values with Not_found -> failwith (sprintf "Error: field '%s' not found\n" x) in
+  let value = fun x -> try PprzLink.assoc x values with Not_found -> failwith (sprintf "Error: field '%s' not found\n" x) in
 
   let fvalue = fun x ->
     let f = fvalue (value x) in
     match classify_float f with
         FP_infinite | FP_nan ->
-          let msg = sprintf "Non normal number: %f in '%s %s %s'" f ac_name msg.Pprz.name (string_of_values values) in
+          let msg = sprintf "Non normal number: %f in '%s %s %s'" f ac_name msg.PprzLink.name (string_of_values values) in
           raise (Telemetry_error (ac_name, format_string_field msg))
 
       | _ -> f
   and ivalue = fun x -> ivalue (value x) in
-  if not (msg.Pprz.name = "DOWNLINK_STATUS") then
+  if not (msg.PprzLink.name = "DOWNLINK_STATUS") then
     a.last_msg_date <- U.gettimeofday ();
-  match msg.Pprz.name with
+  match msg.PprzLink.name with
       "GPS" ->
         a.gps_mode <- check_index (ivalue "mode") gps_modes "GPS_MODE";
         if a.gps_mode = _3D then begin
@@ -110,7 +111,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
                     utm_zone = ivalue "utm_zone" } in
           a.pos <- LL.of_utm WGS84 p;
           a.unix_time <- LL.unix_time_of_tow (truncate (fvalue "itow" /. 1000.));
-          a.itow <- Int32.of_float (fvalue "itow");
+          a.itow <- Int64.of_float (fvalue "itow");
           a.gspeed  <- fvalue "speed" /. 100.;
           a.course  <- norm_course ((Deg>>Rad)(fvalue "course" /. 10.));
           if !heading_from_course then
@@ -125,7 +126,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       let geo = make_geo_deg (float lat /. 1e7) (float lon /. 1e7) in
       a.pos <- geo;
       a.unix_time <- LL.unix_time_of_tow (truncate (fvalue "itow" /. 1000.));
-      a.itow <- Int32.of_float (fvalue "itow");
+      a.itow <- Int64.of_float (fvalue "itow");
       a.gspeed  <- fvalue "speed" /. 100.;
       a.course  <- norm_course ((Deg>>Rad)(fvalue "course" /. 10.));
       if !heading_from_course then
@@ -177,7 +178,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
     | "ATTITUDE" ->
       let roll = fvalue "phi"
       and pitch = fvalue "theta" in
-      if (List.assoc "phi" msg.Pprz.fields).Pprz._type = Pprz.Scalar "int16" then begin (* Compatibility with old message in degrees *)
+      if (List.assoc "phi" msg.PprzLink.fields).PprzLink._type = PprzLink.Scalar "int16" then begin (* Compatibility with old message in degrees *)
         a.roll <- roll /. 180. *. pi;
         a.pitch <- pitch /. 180. *. pi;
         heading_from_course := true; (* Awfull hack to get heading from GPS *)
@@ -200,7 +201,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       a.block_time <- ivalue "block_time";
       a.energy <- ivalue "energy"
     | "FBW_STATUS" ->
-      a.bat <- fvalue "vsupply" /. 10.;
+      a.fbw.fbw_bat <- fvalue "vsupply" /. 10.;
       a.fbw.pprz_mode_msgs_since_last_fbw_status_msg <- 0;
       a.fbw.rc_rate <- ivalue "frame_rate";
       let fbw_rc_mode = ivalue "rc_status" in
@@ -345,9 +346,9 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       Dl_Pprz.message_send "ground_dl" "FORMATION_STATUS" values
     | "TCAS_RA" ->
       let vs = [
-        "ac_id", Pprz.Int (ivalue "ac_id");
-        "ac_id_conflict", Pprz.Int (int_of_string a.id);
-        "resolve", Pprz.Int (ivalue "resolve")
+        "ac_id", PprzLink.Int (ivalue "ac_id");
+        "ac_id_conflict", PprzLink.Int (int_of_string a.id);
+        "resolve", PprzLink.Int (ivalue "resolve")
       ] in
       Dl_Pprz.message_send "ground_dl" "TCAS_RESOLVE" vs
     | "DATALINK_REPORT" ->
@@ -356,4 +357,3 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       a.datalink_status.downlink_rate <- ivalue "downlink_rate";
       a.datalink_status.downlink_msgs <- ivalue "downlink_nb_msgs"
     | _ -> ()
-

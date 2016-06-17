@@ -37,8 +37,8 @@ int main(int argc, char **argv)
 static void report(void)
 {
 
-  int output_sensors = FALSE;
-  int output_pos = FALSE;
+  int output_sensors = false;
+  int output_pos = false;
 
   printf("%f ", aos.time);
 

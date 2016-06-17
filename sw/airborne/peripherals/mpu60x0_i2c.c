@@ -41,8 +41,8 @@ void mpu60x0_i2c_init(struct Mpu60x0_I2c *mpu, struct i2c_periph *i2c_p, uint8_t
   /* set default MPU60X0 config options */
   mpu60x0_set_default_config(&(mpu->config));
 
-  mpu->data_available = FALSE;
-  mpu->config.initialized = FALSE;
+  mpu->data_available = false;
+  mpu->config.initialized = false;
   mpu->config.init_status = MPU60X0_CONF_UNINIT;
 
   mpu->slave_init_status = MPU60X0_I2C_CONF_UNINIT;
@@ -95,6 +95,9 @@ void mpu60x0_i2c_event(struct Mpu60x0_I2c *mpu)
         mpu->data_rates.rates.q = Int16FromBuf(mpu->i2c_trans.buf, 11);
         mpu->data_rates.rates.r = Int16FromBuf(mpu->i2c_trans.buf, 13);
 
+        int16_t temp_raw = Int16FromBuf(mpu->i2c_trans.buf, 7);
+        mpu->temp = (float)temp_raw / 340.0f + 36.53f;
+
         // if we are reading slaves through the mpu, copy the ext_sens_data
         if ((mpu->config.i2c_bypass == FALSE) && (mpu->config.nb_slaves > 0)) {
           /* the buffer is volatile, since filled from ISR
@@ -106,7 +109,7 @@ void mpu60x0_i2c_event(struct Mpu60x0_I2c *mpu)
 #pragma GCC diagnostic pop
         }
 
-        mpu->data_available = TRUE;
+        mpu->data_available = true;
       }
       mpu->i2c_trans.status = I2CTransDone;
     }
@@ -127,8 +130,8 @@ void mpu60x0_i2c_event(struct Mpu60x0_I2c *mpu)
   }
 }
 
-/** @todo: only one slave so far. */
-bool_t mpu60x0_configure_i2c_slaves(Mpu60x0ConfigSet mpu_set, void *mpu)
+/** configure the registered I2C slaves */
+bool mpu60x0_configure_i2c_slaves(Mpu60x0ConfigSet mpu_set, void *mpu)
 {
   struct Mpu60x0_I2c *mpu_i2c = (struct Mpu60x0_I2c *)(mpu);
 
@@ -147,8 +150,15 @@ bool_t mpu60x0_configure_i2c_slaves(Mpu60x0ConfigSet mpu_set, void *mpu)
       mpu_i2c->slave_init_status++;
       break;
     case MPU60X0_I2C_CONF_SLAVES_CONFIGURE:
-      /* configure each slave. TODO: currently only one */
-      if (mpu_i2c->config.slaves[0].configure(mpu_set, mpu)) {
+      /* configure each slave until all nb_slaves are done */
+      if (mpu_i2c->config.nb_slave_init < mpu_i2c->config.nb_slaves && mpu_i2c->config.nb_slave_init < MPU60X0_I2C_NB_SLAVES) {
+         // proceed to next slave if configure for current one returns true
+        if (mpu_i2c->config.slaves[mpu_i2c->config.nb_slave_init].configure(mpu_set, mpu)) {
+          mpu_i2c->config.nb_slave_init++;
+        }
+      }
+      else {
+        /* all slave devies configured, continue MPU side configuration of I2C slave stuff */
         mpu_i2c->slave_init_status++;
       }
       break;
@@ -184,9 +194,9 @@ bool_t mpu60x0_configure_i2c_slaves(Mpu60x0ConfigSet mpu_set, void *mpu)
       mpu_i2c->slave_init_status++;
       break;
     case MPU60X0_I2C_CONF_DONE:
-      return TRUE;
+      return true;
     default:
       break;
   }
-  return FALSE;
+  return false;
 }

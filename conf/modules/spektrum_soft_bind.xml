@@ -1,0 +1,25 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="spektrum_soft_bind" dir="spektrum_soft_bind">
+  <doc>
+    <description>Puts Spektrum in binding mode through software</description>
+  </doc>
+  <settings target="ap">
+    <dl_settings>
+      <dl_settings name="Spektrum soft bind">
+        <dl_setting MAX="1" MIN="0" STEP="1" VAR="bind_soft_value" values="FALSE|TRUE" shortname="Bind Spektrum" module="spektrum_soft_bind/spektrum_soft_bind" handler="click"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header >
+    <file name="spektrum_soft_bind.h"/>
+  </header>
+  <init fun="spektrum_soft_bind_init()"/>
+  <makefile target="ap">
+    <file name="spektrum_soft_bind_ap.c"/>
+  </makefile>
+  <makefile target="fbw">
+    <file name="spektrum_soft_bind_fbw.c"/>
+  </makefile>
+</module>
+

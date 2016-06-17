@@ -26,6 +26,13 @@
 
 #include <inttypes.h>
 #include "math/pprz_algebra_float.h"
+#include "math/pprz_orientation_conversion.h"
+#include "subsystems/gps.h"
+
+enum AhrsDCMStatus {
+  AHRS_DCM_UNINIT,
+  AHRS_DCM_RUNNING
+};
 
 struct AhrsFloatDCM {
   struct FloatRates gyro_bias;
@@ -37,11 +44,15 @@ struct AhrsFloatDCM {
   float gps_speed;
   float gps_acceleration;
   float gps_course;
-  bool_t gps_course_valid;
+  bool gps_course_valid;
   uint8_t gps_age;
-};
-extern struct AhrsFloatDCM ahrs_impl;
 
+  struct OrientationReps body_to_imu;
+
+  enum AhrsDCMStatus status;
+  bool is_aligned;
+};
+extern struct AhrsFloatDCM ahrs_dcm;
 
 // DCM Parameters
 
@@ -68,5 +79,15 @@ extern int renorm_sqrt_count;
 extern int renorm_blowup_count;
 extern float imu_health;
 #endif
+
+extern void ahrs_dcm_init(void);
+extern void ahrs_dcm_set_body_to_imu(struct OrientationReps *body_to_imu);
+extern void ahrs_dcm_set_body_to_imu_quat(struct FloatQuat *q_b2i);
+extern bool ahrs_dcm_align(struct FloatRates *lp_gyro, struct FloatVect3 *lp_accel,
+                             struct FloatVect3 *lp_mag);
+extern void ahrs_dcm_propagate(struct FloatRates *gyro, float dt);
+extern void ahrs_dcm_update_accel(struct FloatVect3 *accel);
+extern void ahrs_dcm_update_mag(struct FloatVect3 *mag);
+extern void ahrs_dcm_update_gps(struct GpsState *gps_s);
 
 #endif // AHRS_FLOAT_DCM_H

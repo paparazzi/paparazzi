@@ -7,10 +7,6 @@
 
 <airframe name="FireStorm">
 
-  <modules>
-    <load name="poles.xml"/>
-  </modules>
-
   <firmware name="fixedwing">
     <define name="AGR_CLIMB"/>
     <define name="LOITER_TRIM"/>
@@ -23,25 +19,26 @@
       <define name="USE_I2C1"/>
     </target>
 
-    <subsystem name="radio_control" type="ppm"/>
+    <module name="radio_control" type="ppm"/>
 
     <!-- Communication -->
-    <subsystem name="telemetry" type="transparent">
+    <module name="telemetry" type="transparent">
       <configure name="MODEM_BAUD" value="B57600"/>
-    </subsystem>
+    </module>
 
     <!-- Actuators are automatically chosen according to board-->
-    <subsystem name="imu"     type="umarim"/>
-    <subsystem name="ahrs"    type="float_dcm"/>
-    <subsystem name="ins"     type="alt_float"/>
-    <subsystem name="control" type="adaptive"/>
-    <subsystem name="navigation"/>
+    <module name="imu"     type="umarim"/>
+    <module name="ahrs"    type="float_dcm"/>
+    <module name="ins"     type="alt_float"/>
+    <module name="control" type="adaptive"/>
+    <module name="navigation"/>
+    <module name="nav"     type="poles"/>
     <!-- Sensors -->
-    <subsystem name="gps" type="ublox"/>
+    <module name="gps" type="ublox"/>
 
-    <subsystem name="current_sensor">
+    <module name="current_sensor">
       <configure name="ADC_CURRENT_SENSOR" value="ADC_0"/>
-    </subsystem>
+    </module>
   </firmware>
 
   <!-- commands section -->

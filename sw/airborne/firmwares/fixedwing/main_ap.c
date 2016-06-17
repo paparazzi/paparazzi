@@ -72,9 +72,13 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 #endif
 
 // datalink & telemetry
+#if DATALINK || SITL
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/datalink/downlink.h"
+#endif
+#if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
+#endif
 #include "subsystems/settings.h"
 
 // modules & settings
@@ -104,6 +108,9 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 #define COMMAND_YAW_TRIM 0
 #endif
 
+/* Geofence exceptions */
+#include "modules/nav/nav_geofence.h"
+
 /* if PRINT_CONFIG is defined, print some config options */
 PRINT_CONFIG_VAR(PERIODIC_FREQUENCY)
 PRINT_CONFIG_VAR(NAVIGATION_FREQUENCY)
@@ -112,6 +119,9 @@ PRINT_CONFIG_VAR(CONTROL_FREQUENCY)
 /* TELEMETRY_FREQUENCY is defined in generated/periodic_telemetry.h
  * defaults to 60Hz or set by TELEMETRY_FREQUENCY configure option in airframe file
  */
+#ifndef TELEMETRY_FREQUENCY
+#define TELEMETRY_FREQUENCY 60
+#endif
 PRINT_CONFIG_VAR(TELEMETRY_FREQUENCY)
 
 /* MODULES_FREQUENCY is defined in generated/modules.h
@@ -126,35 +136,15 @@ PRINT_CONFIG_VAR(MODULES_FREQUENCY)
 PRINT_CONFIG_VAR(BARO_PERIODIC_FREQUENCY)
 #endif
 
-#if USE_AHRS && USE_IMU
 
+#if USE_IMU
 #ifdef AHRS_PROPAGATE_FREQUENCY
 #if (AHRS_PROPAGATE_FREQUENCY > PERIODIC_FREQUENCY)
 #warning "PERIODIC_FREQUENCY should be least equal or greater than AHRS_PROPAGATE_FREQUENCY"
 INFO_VALUE("it is recommended to configure in your airframe PERIODIC_FREQUENCY to at least ", AHRS_PROPAGATE_FREQUENCY)
 #endif
 #endif
-
-static inline void on_gyro_event(void);
-static inline void on_accel_event(void);
-static inline void on_mag_event(void);
-volatile uint8_t ahrs_timeout_counter = 0;
-
-//FIXME not the correct place
-static void send_filter_status(struct transport_tx *trans, struct link_device *dev)
-{
-  uint8_t mde = 3;
-  if (ahrs.status == AHRS_UNINIT) { mde = 2; }
-  if (ahrs_timeout_counter > 10) { mde = 5; }
-  uint16_t val = 0;
-  pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &mde, &val);
-}
-
-#endif // USE_AHRS && USE_IMU
-
-#if USE_GPS
-static inline void on_gps_solution(void);
-#endif
+#endif // USE_IMU
 
 #if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
 static uint8_t  mcu1_ppm_cpt;
@@ -171,20 +161,35 @@ tid_t monitor_tid;     ///< id for monitor_task() timer
 tid_t baro_tid;          ///< id for baro_periodic() timer
 #endif
 
+
+/// @todo, properly implement or remove
+#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
+volatile uint8_t new_ins_attitude = 0;
+static abi_event new_att_ev;
+static void new_att_cb(uint8_t sender_id __attribute__((unused)),
+                       uint32_t stamp __attribute__((unused)),
+                       struct Int32Rates *gyro __attribute__((unused)))
+{
+  new_ins_attitude = 1;
+}
+#endif
+
+
 void init_ap(void)
 {
 #ifndef SINGLE_MCU /** init done in main_fbw in single MCU */
   mcu_init();
 #endif /* SINGLE_MCU */
 
+#if defined(PPRZ_TRIG_INT_COMPR_FLASH)
+  pprz_trig_int_init();
+#endif
+
   /****** initialize and reset state interface ********/
 
   stateInit();
 
   /************* Sensors initialization ***************/
-#if USE_GPS
-  gps_init();
-#endif
 
 #if USE_IMU
   imu_init();
@@ -194,19 +199,20 @@ void init_ap(void)
   ahrs_aligner_init();
 #endif
 
+  ///@todo: properly implement/fix a triggered attitude loop
+#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
+  AbiBindMsgIMU_GYRO_INT32(ABI_BROADCAST, &new_att_ev, &new_att_cb);
+#endif
+
 #if USE_AHRS
   ahrs_init();
 #endif
 
-#if USE_AHRS && USE_IMU
-  register_periodic_telemetry(DefaultPeriodic, "STATE_FILTER_STATUS", send_filter_status);
-#endif
+  ins_init();
 
 #if USE_BARO_BOARD
   baro_init();
 #endif
-
-  ins_init();
 
   /************* Links initialization ***************/
 #if defined MCU_SPI_LINK || defined MCU_UART_LINK || defined MCU_CAN_LINK
@@ -261,6 +267,11 @@ void init_ap(void)
   ap_state->command_roll_trim = COMMAND_ROLL_TRIM;
   ap_state->command_pitch_trim = COMMAND_PITCH_TRIM;
   ap_state->command_yaw_trim = COMMAND_YAW_TRIM;
+
+#if USE_IMU
+  // send body_to_imu from here for now
+  AbiSendMsgBODY_TO_IMU_QUAT(1, orientationGetQuat_f(&imu.body_to_imu));
+#endif
 }
 
 
@@ -313,7 +324,7 @@ static inline uint8_t pprz_mode_update(void)
   if ((pprz_mode != PPRZ_MODE_HOME &&
        pprz_mode != PPRZ_MODE_GPS_OUT_OF_ORDER)
 #ifdef UNLOCKED_HOME_MODE
-      || TRUE
+      || true
 #endif
      ) {
 #ifndef RADIO_AUTO_MODE
@@ -336,13 +347,13 @@ static inline uint8_t pprz_mode_update(void)
     }
 #endif // RADIO_AUTO_MODE
   } else {
-    return FALSE;
+    return false;
   }
 }
 #else // not RADIO_CONTROL
 static inline uint8_t pprz_mode_update(void)
 {
-  return FALSE;
+  return false;
 }
 #endif
 
@@ -350,11 +361,11 @@ static inline uint8_t mcu1_status_update(void)
 {
   uint8_t new_status = fbw_state->status;
   if (mcu1_status != new_status) {
-    bool_t changed = ((mcu1_status & MASK_FBW_CHANGED) != (new_status & MASK_FBW_CHANGED));
+    bool changed = ((mcu1_status & MASK_FBW_CHANGED) != (new_status & MASK_FBW_CHANGED));
     mcu1_status = new_status;
     return changed;
   }
-  return FALSE;
+  return false;
 }
 
 
@@ -379,7 +390,7 @@ static inline void copy_from_to_fbw(void)
  */
 static inline void telecommand_task(void)
 {
-  uint8_t mode_changed = FALSE;
+  uint8_t mode_changed = false;
   copy_from_to_fbw();
 
   /* really_lost is true if we lost RC in MANUAL or AUTO1 */
@@ -387,20 +398,20 @@ static inline void telecommand_task(void)
     (pprz_mode == PPRZ_MODE_AUTO1 || pprz_mode == PPRZ_MODE_MANUAL);
 
   if (pprz_mode != PPRZ_MODE_HOME && pprz_mode != PPRZ_MODE_GPS_OUT_OF_ORDER && launch) {
-    if (too_far_from_home) {
+    if (too_far_from_home || datalink_lost() || higher_than_max_altitude()) {
       pprz_mode = PPRZ_MODE_HOME;
-      mode_changed = TRUE;
+      mode_changed = true;
     }
     if (really_lost) {
       pprz_mode = RC_LOST_MODE;
-      mode_changed = TRUE;
+      mode_changed = true;
     }
   }
   if (bit_is_set(fbw_state->status, AVERAGED_CHANNELS_SENT)) {
-    bool_t pprz_mode_changed = pprz_mode_update();
+    bool pprz_mode_changed = pprz_mode_update();
     mode_changed |= pprz_mode_changed;
 #if defined RADIO_CALIB && defined RADIO_CONTROL_SETTINGS
-    bool_t calib_mode_changed = RcSettingsModeUpdate(fbw_state->channels);
+    bool calib_mode_changed = RcSettingsModeUpdate(fbw_state->channels);
     rc_settings(calib_mode_changed || pprz_mode_changed);
     mode_changed |= calib_mode_changed;
 #endif
@@ -418,6 +429,10 @@ static inline void telecommand_task(void)
 
     /** Pitch is bounded between [-AUTO1_MAX_PITCH;AUTO1_MAX_PITCH] */
     h_ctl_pitch_setpoint = FLOAT_OF_PPRZ(fbw_state->channels[RADIO_PITCH], 0., AUTO1_MAX_PITCH);
+#if H_CTL_YAW_LOOP && defined RADIO_YAW
+    /** Yaw is bounded between [-AUTO1_MAX_YAW_RATE;AUTO1_MAX_YAW_RATE] */
+    h_ctl_yaw_rate_setpoint = FLOAT_OF_PPRZ(fbw_state->channels[RADIO_YAW], 0., AUTO1_MAX_YAW_RATE);
+#endif
   } /** Else asynchronously set by \a h_ctl_course_loop() */
 
   /** In AUTO1, throttle comes from RADIO_THROTTLE
@@ -440,7 +455,7 @@ static inline void telecommand_task(void)
 #ifndef SITL
   if (!autopilot_flight_time) {
     if (pprz_mode == PPRZ_MODE_AUTO2 && fbw_state->channels[RADIO_THROTTLE] > THROTTLE_THRESHOLD_TAKEOFF) {
-      launch = TRUE;
+      launch = true;
     }
   }
 #endif
@@ -456,20 +471,20 @@ static inline void telecommand_task(void)
  */
 void reporting_task(void)
 {
-  static uint8_t boot = TRUE;
+  static uint8_t boot = true;
 
   /* initialisation phase during boot */
   if (boot) {
 #if DOWNLINK
     send_autopilot_version(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
 #endif
-    boot = FALSE;
+    boot = false;
   }
   /* then report periodicly */
   else {
     //PeriodicSendAp(DefaultChannel, DefaultDevice);
 #if PERIODIC_TELEMETRY
-    periodic_telemetry_send_Ap(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
+    periodic_telemetry_send_Ap(DefaultPeriodic, &(DefaultChannel).trans_tx, &(DefaultDevice).device);
 #endif
   }
 }
@@ -496,12 +511,12 @@ void navigation_task(void)
         last_pprz_mode = pprz_mode;
         pprz_mode = PPRZ_MODE_GPS_OUT_OF_ORDER;
         autopilot_send_mode();
-        gps_lost = TRUE;
+        gps_lost = true;
       }
     } else if (gps_lost) { /* GPS is ok */
       /** If aircraft was in failsafe mode, come back in previous mode */
       pprz_mode = last_pprz_mode;
-      gps_lost = FALSE;
+      gps_lost = false;
       autopilot_send_mode();
     }
   }
@@ -520,7 +535,7 @@ void navigation_task(void)
   CallTCAS();
 #endif
 
-#ifndef PERIOD_NAVIGATION_Ap_0 // If not sent periodically (in default 0 mode)
+#if DOWNLINK && !defined PERIOD_NAVIGATION_Ap_0 // If not sent periodically (in default 0 mode)
   SEND_NAVIGATION(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
 #endif
 
@@ -535,7 +550,7 @@ void navigation_task(void)
       || pprz_mode == PPRZ_MODE_GPS_OUT_OF_ORDER) {
 #ifdef H_CTL_RATE_LOOP
     /* Be sure to be in attitude mode, not roll */
-    h_ctl_auto1_rate = FALSE;
+    h_ctl_auto1_rate = false;
 #endif
     if (lateral_mode >= LATERAL_MODE_COURSE) {
       h_ctl_course_loop();  /* aka compute nav_desired_roll */
@@ -546,24 +561,26 @@ void navigation_task(void)
 }
 
 
-#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
-volatile uint8_t new_ins_attitude = 0;
-#endif
-
 void attitude_loop(void)
 {
 
-#if USE_INFRARED
-  ahrs_update_infrared();
-#endif /* USE_INFRARED */
-
   if (pprz_mode >= PPRZ_MODE_AUTO2) {
-    if (v_ctl_mode == V_CTL_MODE_AUTO_THROTTLE) {
-      v_ctl_throttle_setpoint = nav_throttle_setpoint;
-      v_ctl_pitch_setpoint = nav_pitch;
-    } else if (v_ctl_mode >= V_CTL_MODE_AUTO_CLIMB) {
-      v_ctl_climb_loop();
-    }
+#if CTRL_VERTICAL_LANDING
+    if (v_ctl_mode == V_CTL_MODE_LANDING) {
+      v_ctl_landing_loop();
+    } else {
+#endif
+      if (v_ctl_mode == V_CTL_MODE_AUTO_THROTTLE) {
+        v_ctl_throttle_setpoint = nav_throttle_setpoint;
+        v_ctl_pitch_setpoint = nav_pitch;
+      } else {
+        if (v_ctl_mode >= V_CTL_MODE_AUTO_CLIMB) {
+          v_ctl_climb_loop();
+        } /* v_ctl_mode >= V_CTL_MODE_AUTO_CLIMB */
+      } /* v_ctl_mode == V_CTL_MODE_AUTO_THROTTLE */
+#if CTRL_VERTICAL_LANDING
+    } /* v_ctl_mode == V_CTL_MODE_LANDING */
+#endif
 
 #if defined V_CTL_THROTTLE_IDLE
     Bound(v_ctl_throttle_setpoint, TRIM_PPRZ(V_CTL_THROTTLE_IDLE * MAX_PPRZ), MAX_PPRZ);
@@ -588,14 +605,19 @@ void attitude_loop(void)
   v_ctl_throttle_slew();
   ap_state->commands[COMMAND_THROTTLE] = v_ctl_throttle_slewed;
   ap_state->commands[COMMAND_ROLL] = -h_ctl_aileron_setpoint;
-
   ap_state->commands[COMMAND_PITCH] = h_ctl_elevator_setpoint;
+#if H_CTL_YAW_LOOP && defined COMMAND_YAW
+  ap_state->commands[COMMAND_YAW] = h_ctl_rudder_setpoint;
+#endif
+#if H_CTL_CL_LOOP && defined COMMAND_CL
+  ap_state->commands[COMMAND_CL] = h_ctl_flaps_setpoint;
+#endif
 
 #if defined MCU_SPI_LINK || defined MCU_UART_LINK || defined MCU_CAN_LINK
   link_mcu_send();
 #elif defined INTER_MCU && defined SINGLE_MCU
   /**Directly set the flag indicating to FBW that shared buffer is available*/
-  inter_mcu_received_ap = TRUE;
+  inter_mcu_received_ap = true;
 #endif
 
 }
@@ -606,25 +628,17 @@ void sensors_task(void)
 {
 #if USE_IMU
   imu_periodic();
-
-#if USE_AHRS
-  if (ahrs_timeout_counter < 255) {
-    ahrs_timeout_counter ++;
-  }
-#endif // USE_AHRS
 #endif // USE_IMU
 
   //FIXME: this is just a kludge
 #if USE_AHRS && defined SITL && !USE_NPS
-  // dt is not really used in ahrs_sim
-  ahrs_propagate(1. / PERIODIC_FREQUENCY);
+  update_ahrs_from_sim();
 #endif
 
-#if USE_GPS
-  gps_periodic_check();
+  //FIXME: temporary hack, remove me
+#ifdef InsPeriodic
+  InsPeriodic();
 #endif
-
-  ins_periodic();
 }
 
 
@@ -667,11 +681,13 @@ void monitor_task(void)
   kill_throttle |= launch && (dist2_to_home > Square(KILL_MODE_DISTANCE));
 
   if (!autopilot_flight_time &&
-      *stateGetHorizontalSpeedNorm_f() > MIN_SPEED_FOR_TAKEOFF) {
+      stateGetHorizontalSpeedNorm_f() > MIN_SPEED_FOR_TAKEOFF) {
     autopilot_flight_time = 1;
-    launch = TRUE; /* Not set in non auto launch */
+    launch = true; /* Not set in non auto launch */
+#if DOWNLINK
     uint16_t time_sec = sys_time.nb_sec;
     DOWNLINK_SEND_TAKEOFF(DefaultChannel, DefaultDevice, &time_sec);
+#endif
   }
 
 }
@@ -682,29 +698,19 @@ void event_task_ap(void)
 {
 
 #ifndef SINGLE_MCU
-#if USE_I2C0 || USE_I2C1 || USE_I2C2 || USE_I2C3
-  i2c_event();
-#endif
+  /* for SINGLE_MCU done in main_fbw */
+  /* event functions for mcu peripherals: i2c, usb_serial.. */
+  mcu_event();
+#endif /* SINGLE_MCU */
 
-  uart_event();
-#endif
-
-#if USE_USB_SERIAL
-  VCOM_event();
-#endif
-
-#if USE_AHRS && USE_IMU
-  ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
+#if USE_IMU
+  ImuEvent();
 #endif
 
 #ifdef InsEvent
   TODO("calling InsEvent, remove me..")
-  InsEvent(NULL);
+  InsEvent();
 #endif
-
-#if USE_GPS
-  GpsEvent(on_gps_solution);
-#endif /* USE_GPS */
 
 #if USE_BARO_BOARD
   BaroEvent();
@@ -719,7 +725,7 @@ void event_task_ap(void)
 
   if (inter_mcu_received_fbw) {
     /* receive radio control task from fbw */
-    inter_mcu_received_fbw = FALSE;
+    inter_mcu_received_fbw = false;
     telecommand_task();
   }
 
@@ -734,115 +740,3 @@ void event_task_ap(void)
 
 } /* event_task_ap() */
 
-
-#if USE_GPS
-static inline void on_gps_solution(void)
-{
-  ins_update_gps();
-#if USE_AHRS
-  ahrs_update_gps();
-#endif
-#ifdef GPS_TRIGGERED_FUNCTION
-  GPS_TRIGGERED_FUNCTION();
-#endif
-}
-#endif
-
-
-#if USE_AHRS
-#if USE_IMU
-static inline void on_accel_event(void)
-{
-#if USE_AUTO_AHRS_FREQ || !defined(AHRS_CORRECT_FREQUENCY)
-  PRINT_CONFIG_MSG("Calculating dt for AHRS accel update.")
-  // timestamp in usec when last callback was received
-  static uint32_t last_ts = 0;
-  // current timestamp
-  uint32_t now_ts = get_sys_time_usec();
-  // dt between this and last callback in seconds
-  float dt = (float)(now_ts - last_ts) / 1e6;
-  last_ts = now_ts;
-#else
-  PRINT_CONFIG_MSG("Using fixed AHRS_CORRECT_FREQUENCY for AHRS accel update.")
-  PRINT_CONFIG_VAR(AHRS_CORRECT_FREQUENCY)
-  const float dt = 1. / AHRS_CORRECT_FREQUENCY;
-#endif
-
-  imu_scale_accel(&imu);
-  if (ahrs.status != AHRS_UNINIT) {
-    ahrs_update_accel(dt);
-  }
-}
-
-static inline void on_gyro_event(void)
-{
-#if USE_AUTO_AHRS_FREQ || !defined(AHRS_PROPAGATE_FREQUENCY)
-  PRINT_CONFIG_MSG("Calculating dt for AHRS/INS propagation.")
-  // timestamp in usec when last callback was received
-  static uint32_t last_ts = 0;
-  // current timestamp
-  uint32_t now_ts = get_sys_time_usec();
-  // dt between this and last callback in seconds
-  float dt = (float)(now_ts - last_ts) / 1e6;
-  last_ts = now_ts;
-#else
-  PRINT_CONFIG_MSG("Using fixed AHRS_PROPAGATE_FREQUENCY for AHRS/INS propagation.")
-  PRINT_CONFIG_VAR(AHRS_PROPAGATE_FREQUENCY)
-  const float dt = 1. / (AHRS_PROPAGATE_FREQUENCY);
-#endif
-
-  ahrs_timeout_counter = 0;
-
-  imu_scale_gyro(&imu);
-
-#if USE_AHRS_ALIGNER
-  // Run aligner on raw data as it also makes averages.
-  if (ahrs.status == AHRS_UNINIT) {
-    ahrs_aligner_run();
-    if (ahrs_aligner.status == AHRS_ALIGNER_LOCKED) {
-      ahrs_align();
-    }
-    return;
-  }
-#endif
-
-  ahrs_propagate(dt);
-
-#if defined SITL && USE_NPS
-  if (nps_bypass_ahrs) { sim_overwrite_ahrs(); }
-#endif
-
-#ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
-  new_ins_attitude = 1;
-#endif
-
-}
-
-static inline void on_mag_event(void)
-{
-#if USE_MAGNETOMETER
-#if USE_AUTO_AHRS_FREQ || !defined(AHRS_MAG_CORRECT_FREQUENCY)
-  PRINT_CONFIG_MSG("Calculating dt for AHRS mag update.")
-  // timestamp in usec when last callback was received
-  static uint32_t last_ts = 0;
-  // current timestamp
-  uint32_t now_ts = get_sys_time_usec();
-  // dt between this and last callback in seconds
-  float dt = (float)(now_ts - last_ts) / 1e6;
-  last_ts = now_ts;
-#else
-  PRINT_CONFIG_MSG("Using fixed AHRS_MAG_CORRECT_FREQUENCY for AHRS mag update.")
-  PRINT_CONFIG_VAR(AHRS_MAG_CORRECT_FREQUENCY)
-  const float dt = 1. / (AHRS_MAG_CORRECT_FREQUENCY);
-#endif
-
-  imu_scale_mag(&imu);
-  if (ahrs.status == AHRS_RUNNING) {
-    ahrs_update_mag(dt);
-  }
-#endif
-}
-
-#endif // USE_IMU
-
-#endif // USE_AHRS

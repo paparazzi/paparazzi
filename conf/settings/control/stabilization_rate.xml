@@ -1,20 +1,16 @@
 <!DOCTYPE settings SYSTEM "../settings.dtd">
 
-<settings>
+<settings target="ap|nps">
   <dl_settings>
 
     <dl_settings NAME="Rate Loop">
-      <dl_setting var="stabilization_rate_gain.p" min="1" step="1" max="1000" module="stabilization/stabilization_rate" shortname="pgain p" param="STABILIZATION_RATE_GAIN_P"/>
-      <dl_setting var="stabilization_rate_gain.q" min="1" step="1" max="1000" module="stabilization/stabilization_rate" shortname="pgain q" param="STABILIZATION_RATE_GAIN_Q"/>
-      <dl_setting var="stabilization_rate_gain.r" min="1" step="1" max="1000" module="stabilization/stabilization_rate" shortname="pgain r" param="STABILIZATION_RATE_GAIN_R"/>
+      <dl_setting var="stabilization_rate_gain.p" min="1" step="1" max="1000" module="stabilization/stabilization_rate" shortname="pgain p" param="STABILIZATION_RATE_GAIN_P" type="int32" persistent="true"/>
+      <dl_setting var="stabilization_rate_gain.q" min="1" step="1" max="1000" module="stabilization/stabilization_rate" shortname="pgain q" param="STABILIZATION_RATE_GAIN_Q" type="int32" persistent="true"/>
+      <dl_setting var="stabilization_rate_gain.r" min="1" step="1" max="1000" module="stabilization/stabilization_rate" shortname="pgain r" param="STABILIZATION_RATE_GAIN_R" type="int32" persistent="true"/>
 
-      <dl_setting var="stabilization_rate_igain.p" min="0" step="1" max="500" module="stabilization/stabilization_rate" shortname="igain p" param="STABILIZATION_RATE_IGAIN_P"/>
-      <dl_setting var="stabilization_rate_igain.q" min="0" step="1" max="500" module="stabilization/stabilization_rate" shortname="igain q" param="STABILIZATION_RATE_IGAIN_Q"/>
-      <dl_setting var="stabilization_rate_igain.r" min="0" step="1" max="500" module="stabilization/stabilization_rate" shortname="igain r" param="STABILIZATION_RATE_IGAIN_R"/>
-
-      <dl_setting var="stabilization_rate_ddgain.p" min="0" step="1" max="500" module="stabilization/stabilization_rate" shortname="ddgain p" param="STABILIZATION_RATE_DDGAIN_P"/>
-      <dl_setting var="stabilization_rate_ddgain.q" min="0" step="1" max="500" module="stabilization/stabilization_rate" shortname="ddgain q" param="STABILIZATION_RATE_DDGAIN_Q"/>
-      <dl_setting var="stabilization_rate_ddgain.r" min="0" step="1" max="500" module="stabilization/stabilization_rate" shortname="ddgain r" param="STABILIZATION_RATE_DDGAIN_R"/>
+      <dl_setting var="stabilization_rate_igain.p" min="0" step="1" max="500" module="stabilization/stabilization_rate" shortname="igain p" param="STABILIZATION_RATE_IGAIN_P" type="int32" persistent="true"/>
+      <dl_setting var="stabilization_rate_igain.q" min="0" step="1" max="500" module="stabilization/stabilization_rate" shortname="igain q" param="STABILIZATION_RATE_IGAIN_Q" type="int32" persistent="true"/>
+      <dl_setting var="stabilization_rate_igain.r" min="0" step="1" max="500" module="stabilization/stabilization_rate" shortname="igain r" param="STABILIZATION_RATE_IGAIN_R" type="int32" persistent="true"/>
     </dl_settings>
 
   </dl_settings>

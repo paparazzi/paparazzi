@@ -3,7 +3,7 @@
 <module name="baro_hca" dir="sensors">
   <doc>
     <description>Baro sensortechnics HCA (I2C)</description>
-    <define name="BARO_HCA_I2C_DEV" value="i2cX" description="select which i2c peripheral to use (default i2c0)"/>
+    <configure name="BARO_HCA_I2C_DEV" value="i2cX" description="select which i2c peripheral to use (default i2c0)"/>
   </doc>
 
   <header>
@@ -14,6 +14,9 @@
   <event fun="BaroHcaEvent()"/>
 
   <makefile target="ap">
+    <configure name="BARO_HCA_I2C_DEV" default="i2c0" case="upper|lower"/>
+    <define name="USE_$(BARO_HCA_I2C_DEV_UPPER)"/>
+    <define name="BARO_HCA_I2C_DEV" value="$(BARO_HCA_I2C_DEV_LOWER)"/>
     <file name="baro_hca.c"/>
   </makefile>
 

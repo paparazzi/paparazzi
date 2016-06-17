@@ -10,56 +10,55 @@
 
 <airframe name="Funjet II">
 
-  <modules>
-    <load name="mag_hmc58xx.xml">
-      <define name="MODULE_HMC58XX_UPDATE_AHRS"/>
-      <define name="MAG_HMC58XX_I2C_DEV" value="i2c2"/>
-    </load>
-    <!--load name="sys_mon.xml"/-->
-    <!--load name="light.xml">
-      <define name="LIGHT_LED_STROBE" value="5"/>
-      <define name="LIGHT_LED_NAV" value="3"/>
-    </load-->
-    <!--load name="pbn.xml"/-->
-  </modules>
-
   <firmware name="fixedwing">
-    <define name="USE_I2C2"/>
     <configure name="PERIODIC_FREQUENCY" value="125"/>
 
-    <target name="ap" board="apogee_1.0"/>
-    <target name="sim" board="pc"/>
+    <target name="ap" board="apogee_1.0">
+      <module name="radio_control" type="sbus"/>
+    </target>
+    <target name="sim" board="pc">
+      <module name="radio_control" type="ppm"/>
+    </target>
 
-    <subsystem name="radio_control" type="sbus"/>
 
     <!-- Communication -->
-    <subsystem name="telemetry" type="transparent"/>
+    <module name="telemetry" type="transparent"/>
 
     <!-- Actuators are automatically chosen according to board-->
-    <subsystem name="imu" type="apogee">
+    <module name="imu" type="apogee">
       <!--define name="USE_MAGNETOMETER"/-->
       <define name="APOGEE_LOWPASS_FILTER" value="MPU60X0_DLPF_20HZ"/>
       <define name="APOGEE_SMPLRT_DIV" value="7"/>
-    </subsystem>
-    <!--subsystem name="ins"     type="float_invariant">
+    </module>
+    <!--module name="ins"     type="float_invariant">
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="125"/>
       <configure name="AHRS_CORRECT_FREQUENCY" value="125"/>
       <define name="BARO_BOARD_APOGEE_FREQ" value="50"/>
       <define name="MPL3115_OVERSAMPLING" value="2"/>
-    </subsystem-->
-    <subsystem name="ahrs" type="float_dcm"/>
-    <subsystem name="ins" type="alt_float"/>
-    <subsystem name="control" type="new"/>
-    <subsystem name="navigation"/>
+    </module-->
+    <module name="ahrs" type="float_dcm"/>
+    <module name="ins" type="alt_float"/>
+    <module name="control" type="new"/>
+    <module name="navigation"/>
     <!-- Sensors -->
-    <subsystem name="gps" type="ublox">
+    <module name="gps" type="ublox">
       <configure name="GPS_BAUD" value="B57600"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="current_sensor">
+    <module name="current_sensor">
       <configure name="ADC_CURRENT_SENSOR" value="ADC_1"/>
-    </subsystem>
+    </module>
 
+    <module name="mag" type="hmc58xx">
+      <define name="MODULE_HMC58XX_UPDATE_AHRS"/>
+      <configure name="MAG_HMC58XX_I2C_DEV" value="i2c2"/>
+    </module>
+    <!--module name="sys_mon"/-->
+    <!--module name="light">
+      <define name="LIGHT_LED_STROBE" value="5"/>
+      <define name="LIGHT_LED_NAV" value="3"/>
+    </module-->
+    <!--module name="pbn"/-->
   </firmware>
 
 <!-- commands section -->
@@ -238,8 +237,8 @@
   <section name="SIMU">
     <!--define name="ROLL_RESPONSE_FACTOR" value="10"/>
     <define name="MAX_ROLL_DOT" value="20" unit="rad/s"/-->
-    <define name="JSBSIM_MODEL" value="&quot;Malolo1&quot;"/>
-    <!--define name="JSBSIM_INIT"	value="&quot;Malolo1-IC&quot;"/-->
+    <define name="JSBSIM_MODEL" value="Malolo1" type="string"/>
+    <!--define name="JSBSIM_INIT"	value="Malolo1-IC"/-->
     <define name="JSBSIM_LAUNCHSPEED" value="15.0"/>
     <define name="JSBSIM_IR_ROLL_NEUTRAL" value="RadOfDeg(0.)"/>
     <define name="JSBSIM_IR_PITCH_NEUTRAL" value="RadOfDeg(0.)"/>

@@ -1,6 +1,6 @@
 # Hey Emacs, this is a -*- makefile -*-
 
-BLACKSPHERE = http://blacksphere.co.nz/builds
+BLACKSPHERE = http://blacksphere.co.nz/builds/archive/2014
 BLACKMAGIC = blackmagic-20141017.bin
 
 Q=@

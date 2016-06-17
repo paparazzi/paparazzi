@@ -1,6 +1,6 @@
 <!-- Paparazzi flight plan DTD -->
 
-<!ELEMENT flight_plan (header?,waypoints,sectors?,includes?,exceptions?,blocks)>
+<!ELEMENT flight_plan (header?,waypoints,sectors?,variables?,modules?,includes?,exceptions?,blocks)>
 
 <!ELEMENT procedure (param*,header?,waypoints?,sectors?,exceptions?,blocks?)>
 
@@ -14,26 +14,36 @@
 <!ELEMENT corner EMPTY>
 <!ELEMENT kml EMPTY>
 
+<!ELEMENT variables (variable*)>
+<!ELEMENT variable EMPTY>
+
+<!ELEMENT modules (module*)>
+<!ELEMENT module  (configure|define)*>
+<!ELEMENT configure EMPTY>
+<!ELEMENT define EMPTY>
+
 <!ELEMENT includes (include*)>
 
 <!ELEMENT exceptions (exception*)>
 
 <!ELEMENT blocks (block+)>
-<!ELEMENT block (exception|while|heading|attitude|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|home|path)*>
+<!ELEMENT block (exception|while|heading|attitude|manual|go|xyz|set|call|call_once|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|home|path)*>
 
 <!ELEMENT include (arg|with)*>
 <!ELEMENT arg EMPTY>
 <!ELEMENT with EMPTY>
 
-<!ELEMENT while (exception|while|heading|attitude|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|path)*>
-<!ELEMENT for (exception|while|heading|attitude|go|xyz|set|call|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|path)*>
+<!ELEMENT while (exception|while|heading|attitude|manual|go|xyz|set|call|call_once|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|path)*>
+<!ELEMENT for (exception|while|heading|attitude|manual|go|xyz|set|call|call_once|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|path)*>
 <!ELEMENT exception EMPTY>
 <!ELEMENT heading EMPTY>
 <!ELEMENT attitude EMPTY>
+<!ELEMENT manual EMPTY>
 <!ELEMENT go EMPTY>
 <!ELEMENT xyz EMPTY>
 <!ELEMENT set EMPTY>
 <!ELEMENT call EMPTY>
+<!ELEMENT call_once EMPTY>
 <!ELEMENT circle EMPTY>
 <!ELEMENT home EMPTY>
 <!ELEMENT eight EMPTY>
@@ -56,7 +66,9 @@ ground_alt CDATA #REQUIRED
 security_height CDATA #REQUIRED
 alt CDATA #REQUIRED
 qfu CDATA #IMPLIED
-home_mode_height CDATA #IMPLIED>
+home_mode_height CDATA #IMPLIED
+geofence_max_alt CDATA #IMPLIED
+geofence_sector CDATA #IMPLIED>
 
 <!ATTLIST waypoints
 utm_x0 CDATA #IMPLIED
@@ -77,7 +89,8 @@ height CDATA #IMPLIED>
 
 <!ATTLIST sector
 name CDATA #REQUIRED
-color CDATA #IMPLIED>
+color CDATA #IMPLIED
+type CDATA #IMPLIED>
 
 <!ATTLIST corner
 name CDATA #REQUIRED>
@@ -85,9 +98,38 @@ name CDATA #REQUIRED>
 <!ATTLIST kml
 file CDATA #REQUIRED>
 
+<!ATTLIST variables>
+
+<!ATTLIST variable
+var CDATA #REQUIRED
+type CDATA #IMPLIED
+init CDATA #IMPLIED
+shortname CDATA #IMPLIED
+min CDATA #IMPLIED
+max CDATA #IMPLIED
+step CDATA #IMPLIED
+unit CDATA #IMPLIED
+alt_unit CDATA #IMPLIED
+alt_unit_coef CDATA #IMPLIED
+values CDATA #IMPLIED>
+
+<!ATTLIST modules>
+
+<!ATTLIST module
+name CDATA #REQUIRED
+type CDATA #IMPLIED>
+
+<!ATTLIST define
+name CDATA #REQUIRED
+value CDATA #IMPLIED>
+
+<!ATTLIST configure
+name CDATA #REQUIRED
+value CDATA #REQUIRED>
+
 <!ATTLIST blocks>
 
-<!ATTLIST block 
+<!ATTLIST block
 name CDATA #REQUIRED
 pre_call CDATA #IMPLIED
 post_call CDATA #IMPLIED
@@ -108,7 +150,7 @@ var CDATA #REQUIRED
 from CDATA #REQUIRED
 to CDATA #REQUIRED>
 
-<!ATTLIST heading 
+<!ATTLIST heading
 course CDATA #REQUIRED
 vmode CDATA #IMPLIED
 alt CDATA #IMPLIED
@@ -128,7 +170,18 @@ climb CDATA #IMPLIED
 pitch CDATA #IMPLIED
 until CDATA #IMPLIED>
 
-<!ATTLIST go 
+<!ATTLIST manual
+pitch CDATA #REQUIRED
+roll CDATA #REQUIRED
+yaw CDATA #REQUIRED
+vmode CDATA #IMPLIED
+alt CDATA #IMPLIED
+height CDATA #IMPLIED
+throttle CDATA #IMPLIED
+climb CDATA #IMPLIED
+until CDATA #IMPLIED>
+
+<!ATTLIST go
 wp CDATA #REQUIRED
 wp_qdr CDATA #IMPLIED
 wp_dist CDATA #IMPLIED
@@ -164,6 +217,10 @@ value CDATA #REQUIRED>
 fun CDATA #REQUIRED
 until CDATA #IMPLIED
 loop CDATA #IMPLIED
+break CDATA #IMPLIED>
+
+<!ATTLIST call_once
+fun CDATA #REQUIRED
 break CDATA #IMPLIED>
 
 <!ATTLIST follow

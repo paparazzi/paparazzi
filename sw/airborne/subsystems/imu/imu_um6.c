@@ -32,6 +32,7 @@
 */
 #include "subsystems/imu/imu_um6.h"
 #include "subsystems/imu.h"
+#include "subsystems/abi.h"
 #include "mcu_periph/sys_time.h"
 
 struct UM6Packet UM6_packet;
@@ -55,9 +56,9 @@ struct FloatQuat UM6_quat;
 inline void UM6_imu_align(void);
 inline void UM6_send_packet(uint8_t *packet_buffer, uint8_t packet_length);
 inline uint16_t UM6_calculate_checksum(uint8_t packet_buffer[], uint8_t packet_length);
-inline bool_t UM6_verify_chk(uint8_t packet_buffer[], uint8_t packet_length);
+inline bool UM6_verify_chk(uint8_t packet_buffer[], uint8_t packet_length);
 
-inline bool_t UM6_verify_chk(uint8_t packet_buffer[], uint8_t packet_length)
+inline bool UM6_verify_chk(uint8_t packet_buffer[], uint8_t packet_length)
 {
   chk_rec = (packet_buffer[packet_length - 2] << 8) | packet_buffer[packet_length - 1];
   chk_calc = UM6_calculate_checksum(packet_buffer, packet_length - 2);
@@ -76,7 +77,7 @@ inline uint16_t UM6_calculate_checksum(uint8_t packet_buffer[], uint8_t packet_l
 inline void UM6_send_packet(uint8_t *packet_buffer, uint8_t packet_length)
 {
   for (int i = 0; i < packet_length; i++) {
-    UM6Link(Transmit(packet_buffer[i]));
+    uart_put_byte(&(UM6_LINK), 0, packet_buffer[i]);
   }
 }
 
@@ -139,7 +140,7 @@ void imu_impl_init(void)
   // Initialize packet
   UM6_packet.status = UM6PacketWaiting;
   UM6_packet.msg_idx = 0;
-  UM6_packet.msg_available = FALSE;
+  UM6_packet.msg_available = false;
   UM6_packet.chksm_error = 0;
   UM6_packet.hdr_error = 0;
 
@@ -344,9 +345,9 @@ void UM6_packet_parse(uint8_t c)
       UM6_packet.msg_idx++;
       if (UM6_packet.msg_idx == PacketLength) {
         if (UM6_verify_chk(UM6_packet.msg_buf, PacketLength)) {
-          UM6_packet.msg_available = TRUE;
+          UM6_packet.msg_available = true;
         } else {
-          UM6_packet.msg_available = FALSE;
+          UM6_packet.msg_available = false;
           UM6_packet.chksm_error++;
         }
         UM6_packet.status = UM6PacketWaiting;
@@ -363,3 +364,12 @@ void UM6_packet_parse(uint8_t c)
 void imu_scale_gyro(struct Imu *_imu __attribute__((unused))) {}
 void imu_scale_accel(struct Imu *_imu __attribute__((unused))) {}
 void imu_scale_mag(struct Imu *_imu __attribute__((unused))) {}
+
+
+void imu_um6_publish(void)
+{
+  uint32_t now_ts = get_sys_time_usec();
+  AbiSendMsgIMU_GYRO_INT32(IMU_UM6_ID, now_ts, &imu.gyro);
+  AbiSendMsgIMU_ACCEL_INT32(IMU_UM6_ID, now_ts, &imu.accel);
+  AbiSendMsgIMU_MAG_INT32(IMU_UM6_ID, now_ts, &imu.mag);
+}

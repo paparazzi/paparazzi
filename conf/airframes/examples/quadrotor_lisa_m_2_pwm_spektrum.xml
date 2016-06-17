@@ -16,28 +16,28 @@
     </target>
 
     <target name="nps" board="pc">
-      <subsystem name="fdm" type="jsbsim"/>
+      <module name="fdm" type="jsbsim"/>
     </target>
 
-    <subsystem name="radio_control" type="spektrum">
+    <module name="radio_control" type="spektrum">
       <define name="RADIO_MODE" value="RADIO_AUX1"/>
       <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="motor_mixing"/>
-    <subsystem name="actuators"     type="pwm">
+    <module name="motor_mixing"/>
+    <module name="actuators"     type="pwm">
       <define name="SERVO_HZ" value="400"/>
       <!--define name="USE_SERVOS_7AND8"/-->
-    </subsystem>
+    </module>
 
-    <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="imu"           type="aspirin_v2.2"/>
-    <subsystem name="gps"           type="ublox"/>
-    <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="ahrs"          type="int_cmpl_quat">
+    <module name="telemetry"     type="transparent"/>
+    <module name="imu"           type="aspirin_v2.2"/>
+    <module name="gps"           type="ublox"/>
+    <module name="stabilization" type="int_quat"/>
+    <module name="ahrs"          type="int_cmpl_quat">
       <define name="AHRS_GRAVITY_HEURISTIC_FACTOR" value="30"/>
-    </subsystem>
-    <subsystem name="ins"/>
+    </module>
+    <module name="ins"/>
 
     <!--define name="KILL_ON_GROUND_DETECT" value="TRUE"/-->
   </firmware>
@@ -49,6 +49,12 @@
     <servo name="LEFT"    no="3" min="1000" neutral="1100" max="1900"/>
   </servos>
 
+  <modules>
+    <module name="gps" type="ubx_ucenter"/>
+    <module name="geo_mag"/>
+    <module name="air_data"/>
+  </modules>
+
   <commands>
     <axis name="ROLL"   failsafe_value="0"/>
     <axis name="PITCH"  failsafe_value="0"/>
@@ -57,24 +63,16 @@
   </commands>
 
   <section name="MIXING" prefix="MOTOR_MIXING_">
-    <define name="TRIM_ROLL" value="0"/>
-    <define name="TRIM_PITCH" value="0"/>
-    <define name="TRIM_YAW" value="0"/>
-    <define name="NB_MOTOR" value="4"/>
-    <define name="SCALE" value="256"/>
-    <!-- front/back turning CW, right/left CCW -->
-    <define name="ROLL_COEF"   value="{    0,    0, -256,  256 }"/>
-    <define name="PITCH_COEF"  value="{  256, -256,    0,    0 }"/>
-    <define name="YAW_COEF"    value="{ -256, -256,  256,  256 }"/>
-    <define name="THRUST_COEF" value="{  256,  256,  256,  256 }"/>
+    <!-- front (CW), right (CCW), back (CW), left (CCW) -->
+    <define name="TYPE" value="QUAD_PLUS"/>
   </section>
 
   <command_laws>
     <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
-    <set servo="FRONT"  value="motor_mixing.commands[0]"/>
-    <set servo="BACK"   value="motor_mixing.commands[1]"/>
-    <set servo="RIGHT"  value="motor_mixing.commands[2]"/>
-    <set servo="LEFT"   value="motor_mixing.commands[3]"/>
+    <set servo="FRONT" value="motor_mixing.commands[MOTOR_FRONT]"/>
+    <set servo="RIGHT" value="motor_mixing.commands[MOTOR_RIGHT]"/>
+    <set servo="BACK"  value="motor_mixing.commands[MOTOR_BACK]"/>
+    <set servo="LEFT"  value="motor_mixing.commands[MOTOR_LEFT]"/>
   </command_laws>
 
   <section name="IMU" prefix="IMU_">
@@ -96,39 +94,15 @@
   </section>
 
   <section name="AHRS" prefix="AHRS_">
-    <define name="H_X" value="0.3770441"/>
-    <define name="H_Y" value="0.0193986"/>
-    <define name="H_Z" value="0.9259921"/>
+    <!-- values used if no GPS fix, on 3D fix is update by geo_mag module -->
+    <!-- Toulouse -->
+    <define name="H_X" value="0.513081"/>
+    <define name="H_Y" value="-0.00242783"/>
+    <define name="H_Z" value="0.858336"/>
   </section>
 
   <section name="INS" prefix="INS_">
   </section>
-
-  <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
-    <!-- setpoints -->
-    <define name="SP_MAX_P" value="10000"/>
-    <define name="SP_MAX_Q" value="10000"/>
-    <define name="SP_MAX_R" value="10000"/>
-    <define name="DEADBAND_P" value="20"/>
-    <define name="DEADBAND_Q" value="20"/>
-    <define name="DEADBAND_R" value="200"/>
-    <define name="REF_TAU" value="4"/>
-
-    <!-- feedback -->
-    <define name="GAIN_P" value="400"/>
-    <define name="GAIN_Q" value="400"/>
-    <define name="GAIN_R" value="350"/>
-
-    <define name="IGAIN_P" value="75"/>
-    <define name="IGAIN_Q" value="75"/>
-    <define name="IGAIN_R" value="50"/>
-
-    <!-- feedforward -->
-    <define name="DDGAIN_P" value="300"/>
-    <define name="DDGAIN_Q" value="300"/>
-    <define name="DDGAIN_R" value="300"/>
-  </section>
-
 
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
     <!-- setpoints -->
@@ -196,9 +170,9 @@
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
-    <define name="ACTUATOR_NAMES"  value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}"/>
-    <define name="JSBSIM_MODEL" value="&quot;simple_quad&quot;"/>
-    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
+    <define name="ACTUATOR_NAMES"  value="front_motor, right_motor, back_motor, left_motor" type="string[]"/>
+    <define name="JSBSIM_MODEL" value="simple_quad" type="string"/>
+    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
     <!-- mode switch on joystick channel 5 (axis numbering starting at zero) -->
     <define name="JS_AXIS_MODE" value="4"/>
   </section>

@@ -37,7 +37,9 @@
 
 #include "subsystems/ahrs/ahrs_float_utils.h"
 
-static inline void ahrs_int_get_euler_from_accel_mag(struct Int32Eulers* e, struct Int32Vect3* accel, struct Int32Vect3* mag) {
+static inline void ahrs_int_get_euler_from_accel_mag(struct Int32Eulers *e, struct Int32Vect3 *accel,
+    struct Int32Vect3 *mag)
+{
   //  DISPLAY_INT32_VECT3("# accel", (*accel));
   const float fphi = atan2f(-accel->y, -accel->z);
   //  printf("# atan float %f\n", DegOfRad(fphi));
@@ -56,8 +58,8 @@ static inline void ahrs_int_get_euler_from_accel_mag(struct Int32Eulers* e, stru
   int32_t ctheta;
   PPRZ_ITRIG_COS(ctheta, e->theta);
 
-  int32_t sphi_stheta = (sphi*stheta)>>INT32_TRIG_FRAC;
-  int32_t cphi_stheta = (cphi*stheta)>>INT32_TRIG_FRAC;
+  int32_t sphi_stheta = (sphi * stheta) >> INT32_TRIG_FRAC;
+  int32_t cphi_stheta = (cphi * stheta) >> INT32_TRIG_FRAC;
   //int32_t sphi_ctheta = (sphi*ctheta)>>INT32_TRIG_FRAC;
   //int32_t cphi_ctheta = (cphi*ctheta)>>INT32_TRIG_FRAC;
 
@@ -75,16 +77,24 @@ static inline void ahrs_int_get_euler_from_accel_mag(struct Int32Eulers* e, stru
 
 }
 
-static inline void ahrs_int_get_quat_from_accel(struct Int32Quat* q, struct Int32Vect3* accel) {
+static inline void ahrs_int_get_quat_from_accel(struct Int32Quat *q, struct Int32Vect3 *accel)
+{
   struct FloatQuat q_f;
-  ahrs_float_get_quat_from_accel(&q_f, accel);
+  struct FloatVect3 accel_f;
+  ACCELS_FLOAT_OF_BFP(accel_f, *accel);
+  ahrs_float_get_quat_from_accel(&q_f, &accel_f);
   QUAT_BFP_OF_REAL(*q, q_f);
 }
 
-static inline void ahrs_int_get_quat_from_accel_mag(struct Int32Quat* q, struct Int32Vect3* accel, struct Int32Vect3* mag) {
-
+static inline void ahrs_int_get_quat_from_accel_mag(struct Int32Quat *q, struct Int32Vect3 *accel,
+    struct Int32Vect3 *mag)
+{
   struct FloatQuat q_f;
-  ahrs_float_get_quat_from_accel_mag(&q_f, accel, mag);
+  struct FloatVect3 accel_f;
+  ACCELS_FLOAT_OF_BFP(accel_f, *accel);
+  struct FloatVect3 mag_f;
+  MAGS_FLOAT_OF_BFP(mag_f, *mag);
+  ahrs_float_get_quat_from_accel_mag(&q_f, &accel_f, &mag_f);
   QUAT_BFP_OF_REAL(*q, q_f);
 }
 

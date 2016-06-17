@@ -2,17 +2,22 @@
 
 <module name="digital_cam_servo" dir="digital_cam">
   <doc>
-    <description>Digital camera control (trigger using servo)</description>
+    <description>
+      Digital Photo Camera Triggering (using a servo)
+
+      This module controls triggering of an attached external digital camera via a servo channel.
+      It can trigger photos based on GPS distance, time or circle radius in both fixedwings and rotorcraft.
+    </description>
     <define name="DC_SHOOT_ON_BUTTON_RELEASE" description="if defined, call dc_send_shot_postion on button release instead of on push"/>
     <define name="DC_SHUTTER_SERVO" value="servo" description="mandatory, Servo to control shutter"/>
     <define name="DC_ZOOM_IN_SERVO" value="servo" description="optional, Servo to activate zoom in"/>
     <define name="DC_ZOOM_OUT_SERVO" value="servo" description="optional, Servo to activate zoom out"/>
     <define name="DC_POWER_SERVO" value="servo" description="optional, Servo to control power"/>
-    <define name="DC_AUTOSHOOT_QUARTERSEC_PERIOD" value="6" description="quarter_second"/>
+    <define name="DC_AUTOSHOOT_PERIOD" value="0.5" description="time period for DC_AUTOSHOOT_PERIODIC in seconds"/>
     <define name="DC_AUTOSHOOT_DISTANCE_INTERVAL" value="50" description="grid in meters"/>
   </doc>
 
-  <conflicts>digital_cam,digital_cam_i2c,digital_cam_uart</conflicts>
+  <conflicts>digital_cam,digital_cam_i2c,digital_cam_uart,digital_cam_video</conflicts>
 
   <header>
     <file name="servo_cam_ctrl.h"/>
@@ -21,9 +26,9 @@
 
   <init fun="servo_cam_ctrl_init()"/>
 
-  <periodic fun="servo_cam_ctrl_periodic()" freq="4" autorun="TRUE"/>
+  <periodic fun="servo_cam_ctrl_periodic()" freq="10" autorun="TRUE"/>
 
-  <makefile target="ap|sim|nps|jsbsim">
+  <makefile target="ap|sim|nps">
     <define name="DIGITAL_CAM"/>
     <file name="servo_cam_ctrl.c"/>
     <file name="dc.c"/>

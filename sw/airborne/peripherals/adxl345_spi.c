@@ -60,8 +60,8 @@ void adxl345_spi_init(struct Adxl345_Spi *adxl, struct spi_periph *spi_p, uint8_
   /* set default ADXL345 config options */
   adxl345_set_default_config(&(adxl->config));
 
-  adxl->initialized = FALSE;
-  adxl->data_available = FALSE;
+  adxl->initialized = false;
+  adxl->data_available = false;
   adxl->init_status = ADXL_CONF_UNINIT;
 }
 
@@ -97,7 +97,7 @@ static void adxl345_spi_send_config(struct Adxl345_Spi *adxl)
       adxl->init_status++;
       break;
     case ADXL_CONF_DONE:
-      adxl->initialized = TRUE;
+      adxl->initialized = true;
       adxl->spi_trans.status = SPITransDone;
       break;
     default:
@@ -138,7 +138,7 @@ void adxl345_spi_event(struct Adxl345_Spi *adxl)
       adxl->data.vect.x = Int16FromBuf(adxl->rx_buf, 1);
       adxl->data.vect.y = Int16FromBuf(adxl->rx_buf, 3);
       adxl->data.vect.z = Int16FromBuf(adxl->rx_buf, 5);
-      adxl->data_available = TRUE;
+      adxl->data_available = true;
       adxl->spi_trans.status = SPITransDone;
     }
   } else if (adxl->init_status != ADXL_CONF_UNINIT) { // Configuring but not yet initialized

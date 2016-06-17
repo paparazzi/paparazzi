@@ -79,6 +79,7 @@
 #include "subsystems/navigation/common_nav.h"
 #include "subsystems/gps.h"
 #include "math/pprz_geodetic_float.h"
+#include "state.h"
 
 typedef struct {
   float fx;
@@ -94,7 +95,7 @@ typedef struct {
 
 float cam_theta;
 float cam_phi;
-bool_t heading_positive = 0;
+bool heading_positive = 0;
 float  memory_x, memory_y, memory_z;
 #if defined(SHOW_CAM_COORDINATES)
 float   cam_point_x;
@@ -340,8 +341,8 @@ void vPoint(float fPlaneEast, float fPlaneNorth, float fPlaneAltitude,
       vMultiplyMatrixByVector(&sv_cam_projection, smRotation, sv_cam_projection_buf);
 
 #if defined(RADIO_CAM_LOCK)
-      if ((float)(*fbw_state).channels[RADIO_CAM_LOCK] > MAX_PPRZ / 2)) && pprz_mode == PPRZ_MODE_AUTO2) { cam_lock = TRUE; }
-      if ((float)(*fbw_state).channels[RADIO_CAM_LOCK] < MIN_PPRZ / 2 && pprz_mode == PPRZ_MODE_AUTO2) { cam_lock = FALSE; }
+      if ((float)(*fbw_state).channels[RADIO_CAM_LOCK] > MAX_PPRZ / 2)) && pprz_mode == PPRZ_MODE_AUTO2) { cam_lock = true; }
+      if ((float)(*fbw_state).channels[RADIO_CAM_LOCK] < MIN_PPRZ / 2 && pprz_mode == PPRZ_MODE_AUTO2) { cam_lock = false; }
 #endif
     // When the variable "cam_lock" is set then the last calculated position is set as the target waypoint.
     if (cam_lock == FALSE) {
@@ -363,10 +364,9 @@ void vPoint(float fPlaneEast, float fPlaneNorth, float fPlaneAltitude,
         cam_point_distance_from_home = distance_correction * (uint16_t)(sqrt((cam_point_x * cam_point_x) +
                                        (cam_point_y * cam_point_y)));
 
-        struct UtmCoor_f utm;
-        utm.east = gps.utm_pos.east / 100. + sv_cam_projection.fx;
-        utm.north = gps.utm_pos.north / 100. + sv_cam_projection.fy;
-        utm.zone = gps.utm_pos.zone;
+        struct UtmCoor_f utm = *stateGetPositionUtm_f();
+        utm.east += sv_cam_projection.fx;
+        utm.north += sv_cam_projection.fy;
         struct LlaCoor_f lla;
         lla_of_utm_f(&lla, &utm);
         cam_point_lon = lla.lon * (180 / M_PI);
@@ -408,7 +408,7 @@ void vPoint(float fPlaneEast, float fPlaneNorth, float fPlaneAltitude,
       struct UtmCoor_f utm;
       utm.east = nav_utm_east0 + fObjectEast;
       utm.north = nav_utm_north0 + fObjectNorth;
-      utm.zone = gps.utm_pos.zone;
+      utm.zone = nav_utm_zone0;
       struct LlaCoor_f lla;
       lla_of_utm_f(&lla, &utm);
       cam_point_lon = lla.lon * (180 / M_PI);

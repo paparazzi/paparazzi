@@ -6,6 +6,7 @@
 <!ATTLIST telemetry>
 <!ATTLIST process
   name CDATA #REQUIRED
+  type CDATA #IMPLIED
 >
 <!ATTLIST mode
   name CDATA #REQUIRED
@@ -15,5 +16,4 @@
   name CDATA #REQUIRED
   period CDATA #REQUIRED
   phase CDATA #IMPLIED
-  module CDATA #IMPLIED
 >

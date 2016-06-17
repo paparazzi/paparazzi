@@ -19,10 +19,22 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/** @file gps_mtk.h
+ * @brief Mediatek MT3329 specific code
+ *
+ * supports:
+ *   DIYDrones V1.4 protocol (AXN1.30_2278)
+ *   DIYDrones V1.6 protocol (AXN1.30_2389)
+ *
+ * documentation is partly incorrect, see mtk.xml for what seems
+ * to be "real"
+ *
+ */
 
 #ifndef MTK_H
 #define MTK_H
 
+#include "subsystems/gps.h"
 #include "mcu_periph/uart.h"
 
 /** Includes macros generated from mtk.xml */
@@ -30,8 +42,12 @@
 
 #define GPS_MTK_MAX_PAYLOAD 255
 
+#ifndef PRIMARY_GPS
+#define PRIMARY_GPS GPS_MTK
+#endif
+
 struct GpsMtk {
-  bool_t msg_available;
+  bool msg_available;
   uint8_t msg_buf[GPS_MTK_MAX_PAYLOAD] __attribute__((aligned));
   uint8_t msg_id;
   uint8_t msg_class;
@@ -46,22 +62,21 @@ struct GpsMtk {
 
   uint8_t status_flags;
   uint8_t sol_flags;
+
+  struct GpsState state;
 };
 
 extern struct GpsMtk gps_mtk;
 
+extern void gps_mtk_event(void);
+extern void gps_mtk_init(void);
 
-/*
- * This part is used by the autopilot to read data from a uart
- */
-#define __GpsLink(dev, _x) dev##_x
-#define _GpsLink(dev, _x)  __GpsLink(dev, _x)
-#define GpsLink(_x) _GpsLink(GPS_LINK, _x)
-
-#define GpsBuffer() GpsLink(ChAvailable())
+#define gps_mtk_periodic_check() gps_periodic_check(&gps_mtk.state)
 
 #ifdef GPS_CONFIGURE
-extern bool_t gps_configuring;
+extern void gps_configure(void);
+extern void gps_configure_uart(void);
+extern bool gps_configuring;
 #define GpsConfigure() {            \
     if (gps_configuring)            \
       gps_configure();              \
@@ -70,50 +85,5 @@ extern bool_t gps_configuring;
 #define GpsConfigure() {}
 #endif
 
-#define GpsEvent(_sol_available_callback) {             \
-    if (GpsBuffer()) {                                  \
-      ReadGpsBuffer();                                  \
-      GpsConfigure();                                   \
-    }                                                   \
-    if (gps_mtk.msg_available) {                        \
-      gps.last_msg_ticks = sys_time.nb_sec_rem;         \
-      gps.last_msg_time = sys_time.nb_sec;              \
-      gps_mtk_read_message();                           \
-      if (gps_mtk.msg_class == MTK_DIY14_ID &&          \
-          gps_mtk.msg_id == MTK_DIY14_NAV_ID) {         \
-        if (gps.fix == GPS_FIX_3D) {                    \
-          gps.last_3dfix_ticks = sys_time.nb_sec_rem;   \
-          gps.last_3dfix_time = sys_time.nb_sec;        \
-        }                                               \
-        _sol_available_callback();                      \
-      }                                                 \
-      if (gps_mtk.msg_class == MTK_DIY16_ID &&          \
-          gps_mtk.msg_id == MTK_DIY16_NAV_ID) {         \
-        if (gps.fix == GPS_FIX_3D) {                    \
-          gps.last_3dfix_ticks = sys_time.nb_sec_rem;   \
-          gps.last_3dfix_time = sys_time.nb_sec;        \
-        }                                               \
-        _sol_available_callback();                      \
-      }                                                 \
-      gps_mtk.msg_available = FALSE;                    \
-    }                                                   \
-  }
-
-#define ReadGpsBuffer() {         \
-    while (GpsLink(ChAvailable())&&!gps_mtk.msg_available)  \
-      gps_mtk_parse(GpsLink(Getch()));      \
-  }
-
-
-extern void gps_mtk_read_message(void);
-extern void gps_mtk_parse(uint8_t c);
-
-/*
- * dynamic GPS configuration
- */
-#ifdef GPS_CONFIGURE
-extern void gps_configure(void);
-extern void gps_configure_uart(void);
-#endif
 
 #endif /* MTK_H */

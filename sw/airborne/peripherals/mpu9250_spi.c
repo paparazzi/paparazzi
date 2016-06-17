@@ -55,8 +55,8 @@ void mpu9250_spi_init(struct Mpu9250_Spi *mpu, struct spi_periph *spi_p, uint8_t
   /* set default MPU9250 config options */
   mpu9250_set_default_config(&(mpu->config));
 
-  mpu->data_available = FALSE;
-  mpu->config.initialized = FALSE;
+  mpu->data_available = false;
+  mpu->config.initialized = false;
   mpu->config.init_status = MPU9250_CONF_UNINIT;
 
   mpu->slave_init_status = MPU9250_SPI_CONF_UNINIT;
@@ -124,7 +124,7 @@ void mpu9250_spi_event(struct Mpu9250_Spi *mpu)
 #pragma GCC diagnostic pop
         }
 
-        mpu->data_available = TRUE;
+        mpu->data_available = true;
       }
       mpu->spi_trans.status = SPITransDone;
     }
@@ -145,8 +145,8 @@ void mpu9250_spi_event(struct Mpu9250_Spi *mpu)
   }
 }
 
-/** @todo: only one slave so far. */
-bool_t mpu9250_configure_i2c_slaves(Mpu9250ConfigSet mpu_set, void *mpu)
+/** configure the registered I2C slaves */
+bool mpu9250_configure_i2c_slaves(Mpu9250ConfigSet mpu_set, void *mpu)
 {
   struct Mpu9250_Spi *mpu_spi = (struct Mpu9250_Spi *)(mpu);
 
@@ -172,15 +172,22 @@ bool_t mpu9250_configure_i2c_slaves(Mpu9250ConfigSet mpu_set, void *mpu)
       mpu_spi->slave_init_status++;
       break;
     case MPU9250_SPI_CONF_SLAVES_CONFIGURE:
-      /* configure first slave, only one slave supported so far */
-      if (mpu_spi->config.slaves[0].configure(mpu_set, mpu)) {
+      /* configure each slave until all nb_slaves are done */
+      if (mpu_spi->config.nb_slave_init < mpu_spi->config.nb_slaves && mpu_spi->config.nb_slave_init < MPU9250_I2C_NB_SLAVES) {
+         // proceed to next slave if configure for current one returns true
+        if (mpu_spi->config.slaves[mpu_spi->config.nb_slave_init].configure(mpu_set, mpu)) {
+          mpu_spi->config.nb_slave_init++;
+        }
+      }
+      else {
+        /* all slave devies configured, continue MPU side configuration of I2C slave stuff */
         mpu_spi->slave_init_status++;
       }
       break;
     case MPU9250_SPI_CONF_DONE:
-      return TRUE;
+      return true;
     default:
       break;
   }
-  return FALSE;
+  return false;
 }

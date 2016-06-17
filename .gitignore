@@ -21,6 +21,8 @@
 
 *.aux
 
+*.gdb_history
+
 # Eclipse IDE project files
 *.cproject
 *.project
@@ -36,6 +38,13 @@ paparazzi.sublime-workspace
 # JetBrains (PyCharm, etc) IDE project files
 .idea
 
+# QtCreator IDE
+*.creator
+*.creator.user
+*.config
+*.files
+*.includes
+
 # Vagrant VM files
 /.vagrant
 
@@ -49,6 +58,7 @@ paparazzi.sublime-workspace
 /conf/conf.xml.20*
 /conf/conf_personal.xml.20*
 /conf/control_panel.xml
+/conf/control_panel.xml.20*
 /conf/%gconf.xml
 /conf/maps_data/*
 /conf/maps.xml
@@ -71,8 +81,6 @@ paparazzi.sublime-workspace
 # /sw/ground_segment/lpc21iap/
 /sw/ground_segment/lpc21iap/lpc21iap
 
-/sw/ground_segment/misc/ivy2serial
-
 # /sw/ground_segment/multimon/
 /sw/ground_segment/multimon/costabf.c
 /sw/ground_segment/multimon/mkcostab
@@ -88,6 +96,7 @@ paparazzi.sublime-workspace
 /sw/ground_segment/tmtc/broadcaster
 /sw/ground_segment/tmtc/dia
 /sw/ground_segment/tmtc/ivy2udp
+/sw/ground_segment/tmtc/ivy2serial
 /sw/ground_segment/tmtc/server
 /sw/ground_segment/tmtc/server.opt
 /sw/ground_segment/tmtc/diadec
@@ -116,7 +125,7 @@ paparazzi.sublime-workspace
 /sw/lib/ocaml/META.pprz
 
 # /sw/logalizer/
-/sw/logalizer/plot
+/sw/logalizer/logplotter
 /sw/logalizer/play
 /sw/logalizer/plotter
 /sw/logalizer/gtk_export.ml
@@ -128,6 +137,7 @@ paparazzi.sublime-workspace
 /sw/logalizer/openlog2tlm
 /sw/logalizer/ahrs2fg
 /sw/logalizer/disp3d
+/sw/logalizer/sdlogger_download
 
 # /sw/simulator/
 /sw/simulator/gaia
@@ -146,7 +156,10 @@ paparazzi.sublime-workspace
 /sw/ground_segment/misc/davis2ivy
 /sw/ground_segment/misc/kestrel2ivy
 /sw/ground_segment/misc/natnet2ivy
+/sw/ground_segment/misc/sbp2ivy
 /sw/ground_segment/misc/video_synchronizer
+/sw/ground_segment/misc/ivy2serial
+/sw/ground_segment/misc/sbs2ivy
 
 # /sw/airborne/arch/lpc21/test/bootloader
 /sw/airborne/arch/lpc21/test/bootloader/bl.dmp
@@ -174,3 +187,5 @@ tests/results/*
 
 *.dSYM
 
+# K-develop
+*.kate-swp

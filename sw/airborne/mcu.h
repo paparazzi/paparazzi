@@ -43,6 +43,17 @@
  */
 extern void mcu_init(void);
 
+/**
+ * MCU event functions.
+ * Calls the event functions of used peripherals like i2c, uart, etc.
+ */
+extern void mcu_event(void);
+
+/**
+ * Optional board init function called at the end of mcu_init().
+ */
+extern void board_init(void);
+
 /** @}*/
 
 #endif /* MCU_H */

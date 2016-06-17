@@ -1,0 +1,290 @@
+<!DOCTYPE layout SYSTEM "../layout.dtd">
+
+<layout width="1203" height="856">
+  <columns>
+    <rows SIZE="400">
+      <widget NAME="strips" size="849"/>
+      <widget NAME="alarms" size="1"/>
+    </rows>
+    <rows>
+      <widget NAME="map2d" size="849">
+        <papget type="goto_block" display="button" x="10" y="208">
+          <property name="block_name" value="Start Motors"/>
+          <property name="icon" value="flat_theme/start_motors.png"/>
+          <property name="ac_id" value="218"/>
+        </papget>
+        <papget type="goto_block" display="button" x="10" y="236">
+          <property name="block_name" value="Takeoff"/>
+          <property name="icon" value="flat_theme/launch.png"/>
+          <property name="ac_id" value="218"/>
+        </papget>
+        <papget type="goto_block" display="button" x="10" y="264">
+          <property name="block_name" value="Standby"/>
+          <property name="icon" value="flat_theme/standby.png"/>
+          <property name="ac_id" value="218"/>
+        </papget>
+        <papget type="goto_block" display="button" x="10" y="292">
+          <property name="block_name" value="stay_p1"/>
+          <property name="icon" value="flat_theme/waypoint_one.png"/>
+          <property name="ac_id" value="218"/>
+        </papget>
+        <papget type="goto_block" display="button" x="10" y="320">
+          <property name="block_name" value="stay_p2"/>
+          <property name="icon" value="flat_theme/waypoint_two.png"/>
+          <property name="ac_id" value="218"/>
+        </papget>
+        <papget type="goto_block" display="button" x="10" y="348">
+          <property name="block_name" value="stay_p3"/>
+          <property name="icon" value="flat_theme/waypoint_three.png"/>
+          <property name="ac_id" value="218"/>
+        </papget>
+        <papget type="goto_block" display="button" x="10" y="376">
+          <property name="block_name" value="stay_p4"/>
+          <property name="icon" value="flat_theme/waypoint_four.png"/>
+          <property name="ac_id" value="218"/>
+        </papget>
+        <papget type="goto_block" display="button" x="10" y="404">
+          <property name="block_name" value="go_HOV_0"/>
+          <property name="icon" value="flat_theme/pano_hov.png"/>
+          <property name="ac_id" value="218"/>
+        </papget>
+        <papget type="goto_block" display="button" x="10" y="432">
+          <property name="block_name" value="go_HOV_Pano"/>
+          <property name="icon" value="flat_theme/pano_run.png"/>
+          <property name="ac_id" value="218"/>
+        </papget>
+        <papget type="goto_block" display="button" x="10" y="460">
+          <property name="block_name" value="Survey S1-S2 Sweep NS SET"/>
+          <property name="icon" value="flat_theme/survey_rect_ns.png"/>
+          <property name="ac_id" value="218"/>
+        </papget>
+        <papget type="goto_block" display="button" x="10" y="488">
+          <property name="block_name" value="Survey S1-S2 Sweep WE SET"/>
+          <property name="icon" value="flat_theme/survey_rect_we.png"/>
+          <property name="ac_id" value="218"/>
+        </papget>
+        <papget type="goto_block" display="button" x="10" y="516">
+          <property name="block_name" value="Survey RECTANGLE RUN"/>
+          <property name="icon" value="flat_theme/survey_rect_run.png"/>
+          <property name="ac_id" value="218"/>
+        </papget>
+        <papget type="goto_block" display="button" x="10" y="544">
+          <property name="block_name" value="land here"/>
+          <property name="icon" value="flat_theme/land_here.png"/>
+          <property name="ac_id" value="218"/>
+        </papget>
+        <papget type="goto_block" display="button" x="10" y="572">
+          <property name="block_name" value="land"/>
+          <property name="icon" value="flat_theme/land.png"/>
+          <property name="ac_id" value="218"/>
+        </papget>
+        <papget type="goto_block" display="button" x="38" y="208">
+          <property name="block_name" value="Start Motors"/>
+          <property name="icon" value="flat_theme/start_motors.png"/>
+          <property name="ac_id" value="219"/>
+        </papget>
+        <papget type="goto_block" display="button" x="38" y="236">
+          <property name="block_name" value="Takeoff"/>
+          <property name="icon" value="flat_theme/launch.png"/>
+          <property name="ac_id" value="219"/>
+        </papget>
+        <papget type="goto_block" display="button" x="38" y="264">
+          <property name="block_name" value="Standby"/>
+          <property name="icon" value="flat_theme/standby.png"/>
+          <property name="ac_id" value="219"/>
+        </papget>
+        <papget type="goto_block" display="button" x="38" y="292">
+          <property name="block_name" value="stay_p1"/>
+          <property name="icon" value="flat_theme/waypoint_one.png"/>
+          <property name="ac_id" value="219"/>
+        </papget>
+        <papget type="goto_block" display="button" x="38" y="320">
+          <property name="block_name" value="stay_p2"/>
+          <property name="icon" value="flat_theme/waypoint_two.png"/>
+          <property name="ac_id" value="219"/>
+        </papget>
+        <papget type="goto_block" display="button" x="38" y="348">
+          <property name="block_name" value="stay_p3"/>
+          <property name="icon" value="flat_theme/waypoint_three.png"/>
+          <property name="ac_id" value="219"/>
+        </papget>
+        <papget type="goto_block" display="button" x="38" y="376">
+          <property name="block_name" value="stay_p4"/>
+          <property name="icon" value="flat_theme/waypoint_four.png"/>
+          <property name="ac_id" value="219"/>
+        </papget>
+        <papget type="goto_block" display="button" x="38" y="404">
+          <property name="block_name" value="go_HOV_0"/>
+          <property name="icon" value="flat_theme/pano_hov.png"/>
+          <property name="ac_id" value="219"/>
+        </papget>
+        <papget type="goto_block" display="button" x="38" y="432">
+          <property name="block_name" value="go_HOV_Pano"/>
+          <property name="icon" value="flat_theme/pano_run.png"/>
+          <property name="ac_id" value="219"/>
+        </papget>
+        <papget type="goto_block" display="button" x="38" y="460">
+          <property name="block_name" value="Survey S1-S2 Sweep NS SET"/>
+          <property name="icon" value="flat_theme/survey_rect_ns.png"/>
+          <property name="ac_id" value="219"/>
+        </papget>
+        <papget type="goto_block" display="button" x="38" y="488">
+          <property name="block_name" value="Survey S1-S2 Sweep WE SET"/>
+          <property name="icon" value="flat_theme/survey_rect_we.png"/>
+          <property name="ac_id" value="219"/>
+        </papget>
+        <papget type="goto_block" display="button" x="38" y="516">
+          <property name="block_name" value="Survey RECTANGLE RUN"/>
+          <property name="icon" value="flat_theme/survey_rect_run.png"/>
+          <property name="ac_id" value="219"/>
+        </papget>
+        <papget type="goto_block" display="button" x="38" y="544">
+          <property name="block_name" value="land here"/>
+          <property name="icon" value="flat_theme/land_here.png"/>
+          <property name="ac_id" value="219"/>
+        </papget>
+        <papget type="goto_block" display="button" x="38" y="572">
+          <property name="block_name" value="land"/>
+          <property name="icon" value="flat_theme/land.png"/>
+          <property name="ac_id" value="219"/>
+        </papget>
+        <papget type="goto_block" display="button" x="66" y="208">
+          <property name="block_name" value="Start Motors"/>
+          <property name="icon" value="flat_theme/start_motors.png"/>
+          <property name="ac_id" value="220"/>
+        </papget>
+        <papget type="goto_block" display="button" x="66" y="236">
+          <property name="block_name" value="Takeoff"/>
+          <property name="icon" value="flat_theme/launch.png"/>
+          <property name="ac_id" value="220"/>
+        </papget>
+        <papget type="goto_block" display="button" x="66" y="264">
+          <property name="block_name" value="Standby"/>
+          <property name="icon" value="flat_theme/standby.png"/>
+          <property name="ac_id" value="220"/>
+        </papget>
+        <papget type="goto_block" display="button" x="66" y="292">
+          <property name="block_name" value="stay_p1"/>
+          <property name="icon" value="flat_theme/waypoint_one.png"/>
+          <property name="ac_id" value="220"/>
+        </papget>
+        <papget type="goto_block" display="button" x="66" y="320">
+          <property name="block_name" value="stay_p2"/>
+          <property name="icon" value="flat_theme/waypoint_two.png"/>
+          <property name="ac_id" value="220"/>
+        </papget>
+        <papget type="goto_block" display="button" x="66" y="348">
+          <property name="block_name" value="stay_p3"/>
+          <property name="icon" value="flat_theme/waypoint_three.png"/>
+          <property name="ac_id" value="220"/>
+        </papget>
+        <papget type="goto_block" display="button" x="66" y="376">
+          <property name="block_name" value="stay_p4"/>
+          <property name="icon" value="flat_theme/waypoint_four.png"/>
+          <property name="ac_id" value="220"/>
+        </papget>
+        <papget type="goto_block" display="button" x="66" y="404">
+          <property name="block_name" value="go_HOV_0"/>
+          <property name="icon" value="flat_theme/pano_hov.png"/>
+          <property name="ac_id" value="220"/>
+        </papget>
+        <papget type="goto_block" display="button" x="66" y="432">
+          <property name="block_name" value="go_HOV_Pano"/>
+          <property name="icon" value="flat_theme/pano_run.png"/>
+          <property name="ac_id" value="220"/>
+        </papget>
+        <papget type="goto_block" display="button" x="66" y="460">
+          <property name="block_name" value="Survey S1-S2 Sweep NS SET"/>
+          <property name="icon" value="flat_theme/survey_rect_ns.png"/>
+          <property name="ac_id" value="220"/>
+        </papget>
+        <papget type="goto_block" display="button" x="66" y="488">
+          <property name="block_name" value="Survey S1-S2 Sweep WE SET"/>
+          <property name="icon" value="flat_theme/survey_rect_we.png"/>
+          <property name="ac_id" value="220"/>
+        </papget>
+        <papget type="goto_block" display="button" x="66" y="516">
+          <property name="block_name" value="Survey RECTANGLE RUN"/>
+          <property name="icon" value="flat_theme/survey_rect_run.png"/>
+          <property name="ac_id" value="220"/>
+        </papget>
+        <papget type="goto_block" display="button" x="66" y="544">
+          <property name="block_name" value="land here"/>
+          <property name="icon" value="flat_theme/land_here.png"/>
+          <property name="ac_id" value="220"/>
+        </papget>
+        <papget type="goto_block" display="button" x="66" y="572">
+          <property name="block_name" value="land"/>
+          <property name="icon" value="flat_theme/land.png"/>
+          <property name="ac_id" value="220"/>
+        </papget>
+        <papget type="goto_block" display="button" x="10" y="650">
+          <property name="block_name" value="Start Motors"/>
+          <property name="icon" value="flat_theme/start_motors.png"/>
+        </papget>
+        <papget type="goto_block" display="button" x="38" y="650">
+          <property name="block_name" value="Takeoff"/>
+          <property name="icon" value="flat_theme/launch.png"/>
+        </papget>
+        <papget type="goto_block" display="button" x="66" y="650">
+          <property name="block_name" value="Standby"/>
+          <property name="icon" value="flat_theme/standby.png"/>
+        </papget>
+        <papget type="goto_block" display="button" x="94" y="650">
+          <property name="block_name" value="stay_p1"/>
+          <property name="icon" value="flat_theme/waypoint_one.png"/>
+        </papget>
+        <papget type="goto_block" display="button" x="122" y="650">
+          <property name="block_name" value="stay_p2"/>
+          <property name="icon" value="flat_theme/waypoint_two.png"/>
+        </papget>
+        <papget type="goto_block" display="button" x="150" y="650">
+          <property name="block_name" value="stay_p3"/>
+          <property name="icon" value="flat_theme/waypoint_three.png"/>
+        </papget>
+        <papget type="goto_block" display="button" x="178" y="650">
+          <property name="block_name" value="stay_p4"/>
+          <property name="icon" value="flat_theme/waypoint_four.png"/>
+        </papget>
+        <papget type="goto_block" display="button" x="206" y="650">
+          <property name="block_name" value="go_HOV_0"/>
+          <property name="icon" value="flat_theme/pano_hov.png"/>
+        </papget>
+        <papget type="goto_block" display="button" x="234" y="650">
+          <property name="block_name" value="go_HOV_Pano"/>
+          <property name="icon" value="flat_theme/pano_run.png"/>
+        </papget>
+        <papget type="goto_block" display="button" x="262" y="650">
+          <property name="block_name" value="Survey S1-S2 Sweep NS SET"/>
+          <property name="icon" value="flat_theme/survey_rect_ns.png"/>
+        </papget>
+        <papget type="goto_block" display="button" x="290" y="650">
+          <property name="block_name" value="Survey S1-S2 Sweep WE SET"/>
+          <property name="icon" value="flat_theme/survey_rect_we.png"/>
+        </papget>
+        <papget type="goto_block" display="button" x="318" y="650">
+          <property name="block_name" value="Survey RECTANGLE RUN"/>
+          <property name="icon" value="flat_theme/survey_rect_run.png"/>
+        </papget>
+        <papget type="goto_block" display="button" x="346" y="650">
+          <property name="block_name" value="land here"/>
+          <property name="icon" value="flat_theme/land_here.png"/>
+        </papget>
+        <papget type="goto_block" display="button" x="374" y="650">
+          <property name="block_name" value="land"/>
+          <property name="icon" value="flat_theme/land.png"/>
+        </papget>
+        <papget type="goto_block" display="button" x="402" y="650">
+          <property name="block_name" value="go_HOV_spin_clockwise"/>
+          <property name="icon" value="flat_theme/circle-right.png"/>
+        </papget>
+        <papget type="goto_block" display="button" x="430" y="650">
+          <property name="block_name" value="go_HOV_spin_counterclockwise"/>
+          <property name="icon" value="flat_theme/circle-left.png"/>
+        </papget>
+      </widget>
+      <widget name="altgraph" size="100"/>
+      <widget NAME="aircraft" size="1"/>
+    </rows>
+  </columns>
+</layout>

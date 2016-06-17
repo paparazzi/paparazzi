@@ -28,120 +28,176 @@
 
 #include "opticflow_module.h"
 
-// Computervision Runs in a thread
-#include "opticflow/opticflow_thread.h"
-#include "opticflow/inter_thread_data.h"
-
-// Navigate Based On Vision, needed to call init/run_hover_stabilization_onvision
-#include "opticflow/hover_stabilization.h"
-
-// Threaded computer vision
-#include <pthread.h>
-
-// Sockets
-#include <errno.h>
 #include <stdio.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-
-int cv_sockets[2];
-
-// Paparazzi Data
+#include <pthread.h>
 #include "state.h"
 #include "subsystems/abi.h"
 
-// Downlink
-#include "subsystems/datalink/downlink.h"
+#include "lib/v4l/v4l2.h"
+#include "lib/encoding/jpeg.h"
+#include "lib/encoding/rtp.h"
+#include "errno.h"
 
+#include "cv.h"
 
-struct PPRZinfo opticflow_module_data;
-
-/** height above ground level, from ABI
- * Used for scale computation, negative value means invalid.
- */
-/** default sonar/agl to use in opticflow visual_estimator */
+/* Default sonar/agl to use in opticflow visual_estimator */
 #ifndef OPTICFLOW_AGL_ID
-#define OPTICFLOW_AGL_ID ABI_BROADCAST
+#define OPTICFLOW_AGL_ID ABI_BROADCAST    ///< Default sonar/agl to use in opticflow visual_estimator
 #endif
-abi_event agl_ev;
-static void agl_cb(uint8_t sender_id, float distance);
+PRINT_CONFIG_VAR(OPTICFLOW_AGL_ID)
 
-static void agl_cb(uint8_t sender_id __attribute__((unused)), float distance)
+#ifndef OPTICFLOW_SENDER_ID
+#define OPTICFLOW_SENDER_ID 1
+#endif
+
+/* The main opticflow variables */
+struct opticflow_t opticflow;                      ///< Opticflow calculations
+static struct opticflow_result_t opticflow_result; ///< The opticflow result
+static struct opticflow_state_t opticflow_state;   ///< State of the drone to communicate with the opticflow
+static abi_event opticflow_agl_ev;                 ///< The altitude ABI event
+static bool opticflow_got_result;                ///< When we have an optical flow calculation
+static pthread_mutex_t opticflow_mutex;            ///< Mutex lock fo thread safety
+
+/* Static functions */
+struct image_t *opticflow_module_calc(struct image_t *img);     ///< The main optical flow calculation thread
+static void opticflow_agl_cb(uint8_t sender_id, float distance);    ///< Callback function of the ground altitude
+
+#if PERIODIC_TELEMETRY
+#include "subsystems/datalink/telemetry.h"
+/**
+ * Send optical flow telemetry information
+ * @param[in] *trans The transport structure to send the information over
+ * @param[in] *dev The link to send the data over
+ */
+static void opticflow_telem_send(struct transport_tx *trans, struct link_device *dev)
 {
-  if (distance > 0) {
-    opticflow_module_data.agl = distance;
-  }
+  pthread_mutex_lock(&opticflow_mutex);
+  pprz_msg_send_OPTIC_FLOW_EST(trans, dev, AC_ID,
+                               &opticflow_result.fps, &opticflow_result.corner_cnt,
+                               &opticflow_result.tracked_cnt, &opticflow_result.flow_x,
+                               &opticflow_result.flow_y, &opticflow_result.flow_der_x,
+                               &opticflow_result.flow_der_y, &opticflow_result.vel_x,
+                               &opticflow_result.vel_y, &opticflow_result.div_size,
+                               &opticflow_result.surface_roughness, &opticflow_result.divergence); // TODO: no noise measurement here...
+  pthread_mutex_unlock(&opticflow_mutex);
 }
+#endif
 
-#define DEBUG_INFO(X, ...) ;
-
+/**
+ * Initialize the optical flow module for the bottom camera
+ */
 void opticflow_module_init(void)
 {
-  // get AGL from sonar via ABI
-  AbiBindMsgAGL(OPTICFLOW_AGL_ID, &agl_ev, agl_cb);
+  // Subscribe to the altitude above ground level ABI messages
+  AbiBindMsgAGL(OPTICFLOW_AGL_ID, &opticflow_agl_ev, opticflow_agl_cb);
 
-  // Initialize local data
-  opticflow_module_data.cnt = 0;
-  opticflow_module_data.phi = 0;
-  opticflow_module_data.theta = 0;
-  opticflow_module_data.agl = 0;
+  // Set the opticflow state to 0
+  opticflow_state.phi = 0;
+  opticflow_state.theta = 0;
+  opticflow_state.agl = 0;
 
-  // Stabilization Code Initialization
-  init_hover_stabilization_onvision();
+  // Initialize the opticflow calculation
+  opticflow_got_result = false;
+
+  cv_add_to_device(&OPTICFLOW_CAMERA, opticflow_module_calc);
+
+#if PERIODIC_TELEMETRY
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_OPTIC_FLOW_EST, opticflow_telem_send);
+#endif
+
 }
 
-
+/**
+ * Update the optical flow state for the calculation thread
+ * and update the stabilization loops with the newest result
+ */
 void opticflow_module_run(void)
 {
   // Send Updated data to thread
-  opticflow_module_data.cnt++;
-  opticflow_module_data.phi = stateGetNedToBodyEulers_f()->phi;
-  opticflow_module_data.theta = stateGetNedToBodyEulers_f()->theta;
-  int bytes_written = write(cv_sockets[0], &opticflow_module_data, sizeof(opticflow_module_data));
-  if (bytes_written != sizeof(opticflow_module_data)){
-    printf("[module] Failed to write to socket: written = %d, error=%d.\n",bytes_written, errno);
-  }
-  else {
-    DEBUG_INFO("[module] Write # %d (%d bytes)\n",opticflow_module_data.cnt, bytes_written);
-  }
+  pthread_mutex_lock(&opticflow_mutex);
+  opticflow_state.phi = stateGetNedToBodyEulers_f()->phi;
+  opticflow_state.theta = stateGetNedToBodyEulers_f()->theta;
 
-  // Read Latest Vision Module Results
-  struct CVresults vision_results;
-  // Warning: if the vision runs faster than the module, you need to read multiple times
-  int bytes_read = recv(cv_sockets[0], &vision_results, sizeof(vision_results), MSG_DONTWAIT);
-  if (bytes_read != sizeof(vision_results)) {
-    if (bytes_read != -1) {
-      printf("[module] Failed to read %d bytes: CV results from socket errno=%d.\n",bytes_read, errno);
+  // Update the stabilization loops on the current calculation
+  if (opticflow_got_result) {
+    uint32_t now_ts = get_sys_time_usec();
+    uint8_t quality = opticflow_result.divergence; // FIXME, scale to some quality measure 0-255
+    AbiSendMsgOPTICAL_FLOW(OPTICFLOW_SENDER_ID, now_ts,
+                           opticflow_result.flow_x,
+                           opticflow_result.flow_y,
+                           opticflow_result.flow_der_x,
+                           opticflow_result.flow_der_y,
+                           quality,
+                           opticflow_result.div_size,
+                           opticflow_state.agl);
+    //TODO Find an appropiate quality measure for the noise model in the state filter, for now it is tracked_cnt
+    if (opticflow_result.tracked_cnt > 0) {
+      AbiSendMsgVELOCITY_ESTIMATE(OPTICFLOW_SENDER_ID, now_ts,
+                                  opticflow_result.vel_body_x,
+                                  opticflow_result.vel_body_y,
+                                  0.0f,
+                                  opticflow_result.noise_measurement
+                                 );
     }
-  } else {
-    ////////////////////////////////////////////
-    // Module-Side Code
-    ////////////////////////////////////////////
-    DEBUG_INFO("[module] Read vision %d\n",vision_results.cnt);
-    run_hover_stabilization_onvision(&vision_results);
+    opticflow_got_result = false;
   }
+  pthread_mutex_unlock(&opticflow_mutex);
 }
 
-void opticflow_module_start(void)
+/**
+ * The main optical flow calculation thread
+ * This thread passes the images trough the optical flow
+ * calculator
+ * @param[in] *img The image_t structure of the captured image
+ * @return *img The processed image structure
+ */
+struct image_t *opticflow_module_calc(struct image_t *img)
 {
-  pthread_t computervision_thread;
-  if (socketpair(AF_UNIX, SOCK_DGRAM, 0, cv_sockets) == 0) {
-    ////////////////////////////////////////////
-    // Thread-Side Code
-    ////////////////////////////////////////////
-    int rc = pthread_create(&computervision_thread, NULL, computervision_thread_main,
-                            &cv_sockets[1]);
-    if (rc) {
-      printf("ctl_Init: Return code from pthread_create(mot_thread) is %d\n", rc);
-    }
-  }
-  else {
-    perror("Could not create socket.\n");
-  }
+
+  // Copy the state
+
+  pthread_mutex_lock(&opticflow_mutex);
+  struct opticflow_state_t temp_state;
+  memcpy(&temp_state, &opticflow_state, sizeof(struct opticflow_state_t));
+  pthread_mutex_unlock(&opticflow_mutex);
+
+  // Do the optical flow calculation
+  struct opticflow_result_t temp_result = {}; // new initialization
+  opticflow_calc_frame(&opticflow, &temp_state, img, &temp_result);
+
+  // Copy the result if finished
+  pthread_mutex_lock(&opticflow_mutex);
+  memcpy(&opticflow_result, &temp_result, sizeof(struct opticflow_result_t));
+  opticflow_got_result = true;
+  pthread_mutex_unlock(&opticflow_mutex);
+
+  // TODO: why is there a mutex above and not below when changing opticflow_result?
+
+  /* Rotate velocities from camera frame coordinates to body coordinates for control
+  * IMPORTANT!!! This frame to body orientation should be the case for the Parrot
+  * ARdrone and Bebop, however this can be different for other quadcopters
+  * ALWAYS double check!
+  */
+#if CAMERA_ROTATED_180 == 0 //Case for ARDrone 2.0
+  opticflow_result.vel_body_x = opticflow_result.vel_y;
+  opticflow_result.vel_body_y = - opticflow_result.vel_x;
+#else   // Case for Bebop 2
+  opticflow_result.vel_body_x = - opticflow_result.vel_y;
+  opticflow_result.vel_body_y = opticflow_result.vel_x;
+#endif
+
+  return img;
 }
 
-void opticflow_module_stop(void)
+/**
+ * Get the altitude above ground of the drone
+ * @param[in] sender_id The id that send the ABI message (unused)
+ * @param[in] distance The distance above ground level in meters
+ */
+static void opticflow_agl_cb(uint8_t sender_id __attribute__((unused)), float distance)
 {
-  computervision_thread_request_exit();
+  // Update the distance if we got a valid measurement
+  if (distance > 0) {
+    opticflow_state.agl = distance;
+  }
 }

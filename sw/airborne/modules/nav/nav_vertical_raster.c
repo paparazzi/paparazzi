@@ -40,13 +40,13 @@
 enum line_status { LR12, LQC21, LTC2, LQC22, LR21, LQC12, LTC1, LQC11 };
 static enum line_status line_status;
 
-bool_t nav_vertical_raster_setup(void)
+bool nav_vertical_raster_setup(void)
 {
   line_status = LR12;
-  return FALSE;
+  return false;
 }
 
-bool_t nav_vertical_raster_run(uint8_t l1, uint8_t l2, float radius, float AltSweep)
+bool nav_vertical_raster_run(uint8_t l1, uint8_t l2, float radius, float AltSweep)
 {
   radius = fabs(radius);
   float alt = waypoints[l1].a;
@@ -156,5 +156,5 @@ bool_t nav_vertical_raster_run(uint8_t l1, uint8_t l2, float radius, float AltSw
     default:
       break;
   }
-  return TRUE; /* This pattern never ends */
+  return true; /* This pattern never ends */
 }

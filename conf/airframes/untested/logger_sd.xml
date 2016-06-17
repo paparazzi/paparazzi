@@ -1,0 +1,48 @@
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+
+<!--
+
+    Connects a microSD card to the SPI port of the Paparazzi Tiny. Keep cables
+    short, microSD card can be directly soldered to Molex cable. For now only
+    non SDHC SD cards (<= 2GB) are supported. martinmm@pfump.org
+
+    microSD         TinyV2 SPI J3
+    8 nc
+    7 DO            5 MISO
+    6 GND           1 GND
+    5 CLK           7 SCK
+    4 Vcc           2 +3V3
+    3 DI            4 MOSI
+    2 CS            3 SSEL
+    1 nc
+
+    Looking onto the gold plated connector side of the microSD card:
+
+    ###############
+    I 8
+    I 7
+    I 6
+    I 5
+    I 4
+    I 3
+    I 2
+    I 1
+    ######    ##
+          \  I  \
+           ##    ##
+
+-->
+
+<airframe name="Logger">
+
+  <firmware name="logger">
+    <target name="ap" board="tiny_2.11" >
+      <configure name="LOG_MSG_FMT" value="LOG_PPRZ"/>
+      <configure name="SPI_CHANNEL" value="1" />
+      <configure name="UART0_BAUD" value="B9600" />
+      <configure name="UART1_BAUD" value="B9600" />
+    </target>
+  </firmware>
+
+</airframe>
+

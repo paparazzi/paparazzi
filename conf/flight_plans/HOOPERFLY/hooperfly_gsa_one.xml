@@ -1,0 +1,131 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+
+<flight_plan alt="61" ground_alt="49" lat0="45.564133" lon0="-122.622467" max_dist_from_home="125" name="GSA 1 - Rotorcraft Multiflight (Portland)" security_height="2">
+  <header>
+#include "autopilot.h"
+</header>
+  <waypoints>
+    <waypoint name="HOME" x="-0.2" y="-7.1"/>
+    <waypoint name="CLIMB" x="-4.9" y="-3.4"/>
+    <waypoint name="STDBY" x="2.5" y="-0.2"/>
+    <waypoint name="p1" x="-0.2" y="36.2"/>
+    <waypoint name="p2" x="40.7" y="9.4"/>
+    <waypoint name="p3" x="40.9" y="37.5"/>
+    <waypoint name="p4" x="-0.3" y="10.1"/>
+    <waypoint name="HOV" x="20.0" y="15.0"/>
+    <waypoint name="CAM" x="30.0" y="15.0"/>
+    <waypoint name="S1" x="-8.4" y="39.2"/>
+    <waypoint name="S2" x="49.3" y="5.9"/>
+    <waypoint name="TD" x="8.4" y="-8.0"/>
+  </waypoints>
+  <blocks>
+    <block name="Wait GPS">
+      <call fun="NavKillThrottle()"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+      <call fun="NavSetGroundReferenceHere()"/>
+    </block>
+    <block name="Holding point">
+      <call fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block group="init_control" name="Start Motors" strip_button="Start Motors" strip_icon="start_motors.png">
+      <call fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block group="init_control" name="Takeoff" strip_button="Takeoff" strip_icon="launch.png">
+      <exception cond="stateGetPositionEnu_f()->z > 2.0" deroute="Standby"/>
+      <call fun="NavSetWaypointHere(WP_CLIMB)"/>
+      <stay vmode="climb" climb="nav_climb_vspeed" wp="CLIMB"/>
+    </block>
+    <block group="waypoint_control_col1" name="Standby" strip_button="Standby" strip_icon="standby.png">
+      <stay wp="STDBY"/>
+    </block>
+    <block group="waypoint_control_col1" name="stay_p1" strip_button="Waypoint 1" strip_icon="waypoint_one.png">
+      <stay wp="p1"/>
+    </block>
+    <block group="waypoint_control_col2" name="stay_p2" strip_button="Waypoint 2" strip_icon="waypoint_two.png">
+      <stay wp="p2"/>
+    </block>
+    <block group="waypoint_control_col2" name="stay_p3" strip_button="Waypoint 3" strip_icon="waypoint_three.png">
+      <stay wp="p3"/>
+    </block>
+    <block group="waypoint_control_col2" name="stay_p4" strip_button="Waypoint 4" strip_icon="waypoint_four.png">
+      <stay wp="p4"/>
+    </block>
+    <block name="p1_nav">
+      <call fun="nav_set_heading_towards_waypoint(WP_p1)"/>
+      <go wp="p1"/>
+      <deroute block="stay_p1"/>
+    </block>
+    <block name="p2_nav">
+      <call fun="nav_set_heading_towards_waypoint(WP_p2)"/>
+      <go wp="p2"/>
+      <deroute block="stay_p2"/>
+    </block>
+    <block name="stay_HOV">
+      <stay wp="HOV"/>
+    </block>
+    <block name="line_p1_p2">
+      <go from="p1" hmode="route" wp="p2"/>
+      <stay until="stage_time>10" wp="p2"/>
+      <go from="p2" hmode="route" wp="p1"/>
+      <deroute block="stay_p1"/>
+    </block>
+    <block name="route_tri">
+      <go from="p1" hmode="route" wp="p3"/>
+      <go from="p3" hmode="route" wp="p4"/>
+      <go from="p4" hmode="route" wp="p1"/>
+      <deroute block="stay_p1"/>
+    </block>
+    <block name="route_quad">
+      <go from="p1" hmode="route" wp="p3"/>
+      <go from="p3" hmode="route" wp="p2"/>
+      <go from="p2" hmode="route" wp="p4"/>
+      <go from="p4" hmode="route" wp="p1"/>
+      <deroute block="stay_p1"/>
+    </block>
+    <block name="path_rev_quad">
+      <path wpts="p1, p4, p2, p3, p1"/>
+      <deroute block="stay_p1"/>
+    </block>
+    <block name="route_x">
+      <go approaching_time="0" from="p1" hmode="route" wp="p2"/>
+      <go approaching_time="0" from="p2" hmode="route" wp="p3"/>
+      <go approaching_time="0" from="p3" hmode="route" wp="p4"/>
+      <go approaching_time="0" from="p4" hmode="route" wp="p1"/>
+      <deroute block="stay_p1"/>
+    </block>
+    <block name="route_x_nav">
+      <call fun="nav_set_heading_towards_waypoint(WP_p2)"/>
+      <go approaching_time="0" from="p1" hmode="route" wp="p2"/>
+      <call fun="nav_set_heading_towards_waypoint(WP_p3)"/>
+      <go approaching_time="0" from="p2" hmode="route" wp="p3"/>
+      <call fun="nav_set_heading_towards_waypoint(WP_p4)"/>
+      <go approaching_time="0" from="p3" hmode="route" wp="p4"/>
+      <call fun="nav_set_heading_towards_waypoint(WP_p1)"/>
+      <go approaching_time="0" from="p4" hmode="route" wp="p1"/>
+      <deroute block="stay_p1"/>
+    </block>
+    <block name="circle CAM" pre_call="nav_set_heading_towards_waypoint(WP_CAM)">
+      <circle radius="nav_radius" wp="CAM"/>
+    </block>
+    <block group="land_pattern" name="land here" strip_button="Land Here" strip_icon="land_here.png">
+      <call fun="NavSetWaypointHere(WP_TD)"/>
+    </block>
+    <block group="land_pattern" name="land" strip_button="Land" strip_icon="land.png">
+      <go wp="TD"/>
+    </block>
+    <block name="flare">
+      <exception cond="NavDetectGround()" deroute="Holding point"/>
+      <exception cond="!nav_is_in_flight()" deroute="landed"/>
+      <call fun="NavStartDetectGround()"/>
+      <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
+    </block>
+    <block name="landed">
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+    </block>
+  </blocks>
+</flight_plan>

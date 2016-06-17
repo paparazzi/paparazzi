@@ -31,38 +31,38 @@ twog_1.0 + aspirin + ETS baro + ETS speed
     <define name="WIND_INFO"/>
     <define name="WIND_INFO_RET"/>
 
-    <subsystem name="radio_control" type="ppm"/>          <!-- Radio -->
-    <subsystem name="gps" type="ublox"/>                  <!-- GPS -->
-    <subsystem name="telemetry"     type="transparent"/>  <!-- Communication -->
-    <subsystem name="imu"	type="aspirin_i2c_v1.5">      <!-- IMU -->
+    <module name="radio_control" type="ppm"/>          <!-- Radio -->
+    <module name="gps" type="ublox"/>                  <!-- GPS -->
+    <module name="telemetry"     type="transparent"/>  <!-- Communication -->
+    <module name="imu"	type="aspirin_i2c_v1.5">      <!-- IMU -->
       <configure name="ASPIRIN_I2C_DEV" value="i2c0"/>
-    </subsystem>
-    <subsystem name="ahrs"      type="int_cmpl_quat"/>
-    <subsystem name="ins"	type="alt_float">
+    </module>
+    <module name="ahrs"      type="int_cmpl_quat"/>
+    <module name="ins"	type="alt_float">
       <define name="USE_BAROMETER"/>
-    </subsystem>
-    <subsystem name="control" type="energyadaptive"/>
-    <subsystem name="navigation"/>
+    </module>
+    <module name="control" type="energyadaptive"/>
+    <module name="navigation"/>
 </firmware>
 
   <modules>
-    <load name="airspeed_ets.xml">
+    <module name="airspeed_ets">
       <define name="AIRSPEED_ETS_SYNC_SEND"/>
       <define name="AIRSPEED_ETS_SCALE"   value="1.44"/> <!-- default 1.8-->
      <!-- <define name="AIRSPEED_ETS_OFFSET"  value="50"/> --> <!-- default 0 -->
-     <!-- <define name="AIRSPEED_ETS_I2C_DEV" value="i2c1"/> -->
-    </load>
-    <load name="baro_ets.xml">
+     <!-- <configure name="AIRSPEED_ETS_I2C_DEV" value="i2c1"/> -->
+    </module>
+    <module name="baro_ets">
       <define name="BARO_ETS_SCALE" value="40.0"/>
       <define name="BARO_ETS_ALT_SCALE" value="0.3"/>
       <define name="BARO_ETS_SYNC_SEND"/>
-    </load>
-    <load name="baro_sim.xml"/>
-    <load name="air_data.xml"/>
-    <load name="digital_cam.xml">
+    </module>
+    <module name="baro_sim"/>
+    <module name="air_data"/>
+    <module name="digital_cam">
       <define name="DC_SHUTTER_GPIO" value="GPIOB,GPIO22"/><!-- 18:aux 22:camsw-->
-    </load>
-    <load name="nav_survey_polygon.xml"/>
+    </module>
+    <module name="nav" type="survey_polygon"/>
   </modules>
 
 <!-- ################################################## -->
@@ -244,7 +244,7 @@ twog_1.0 + aspirin + ETS baro + ETS speed
   </section>
 
   <section name="DIGITAL_CAMERA" prefix="DC_">
-    <define name="AUTOSHOOT_QUARTERSEC_PERIOD" value="12" unit="quarter_second"/>
+    <define name="AUTOSHOOT_PERIOD" value="3.0" unit="sec"/>
     <define name="AUTOSHOOT_DISTANCE_INTERVAL" value="50" unit="meter"/>
   </section>
 

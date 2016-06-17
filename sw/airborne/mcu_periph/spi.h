@@ -135,7 +135,7 @@ typedef void (*SPICallback)(struct spi_transaction *trans);
  * - The input/output buffers needs to be created separately
  * - Take care of pointing input_buf/ouput_buf correctly
  * - input_length and output_length can be different, the larger number
- *   of the two specifies the toal number of exchanged words,
+ *   of the two specifies the total number of exchanged words,
  * - if input_length is larger than output length,
  *   0 is sent for the remaining words
  */
@@ -198,7 +198,7 @@ struct spi_periph {
 extern struct spi_periph spi0;
 extern void spi0_init(void);
 
-/** Architecture dependant SPI0 initialization.
+/** Architecture dependent SPI0 initialization.
  * Must be implemented by underlying architecture
  */
 extern void spi0_arch_init(void);
@@ -210,7 +210,7 @@ extern void spi0_arch_init(void);
 extern struct spi_periph spi1;
 extern void spi1_init(void);
 
-/** Architecture dependant SPI1 initialization.
+/** Architecture dependent SPI1 initialization.
  * Must be implemented by underlying architecture
  */
 extern void spi1_arch_init(void);
@@ -222,7 +222,7 @@ extern void spi1_arch_init(void);
 extern struct spi_periph spi2;
 extern void spi2_init(void);
 
-/** Architecture dependant SPI2 initialization.
+/** Architecture dependent SPI2 initialization.
  * Must be implemented by underlying architecture
  */
 extern void spi2_arch_init(void);
@@ -234,7 +234,7 @@ extern void spi2_arch_init(void);
 extern struct spi_periph spi3;
 extern void spi3_init(void);
 
-/** Architecture dependant SPI3 initialization.
+/** Architecture dependent SPI3 initialization.
  * Must be implemented by underlying architecture
  */
 extern void spi3_arch_init(void);
@@ -246,7 +246,7 @@ extern void spi3_arch_init(void);
  */
 extern void spi_init(struct spi_periph *p);
 
-/** Initialize all used slaves and uselect them.
+/** Initialize all used slaves and unselect them.
  */
 extern void spi_init_slaves(void);
 
@@ -254,9 +254,9 @@ extern void spi_init_slaves(void);
  * Must be implemented by the underlying architecture
  * @param p spi peripheral to be used
  * @param t spi transaction
- * @return TRUE if insertion to the transaction queue succeded
+ * @return TRUE if insertion to the transaction queue succeeded
  */
-extern bool_t spi_submit(struct spi_periph *p, struct spi_transaction *t);
+extern bool spi_submit(struct spi_periph *p, struct spi_transaction *t);
 
 /** Select a slave.
  * @param slave slave id
@@ -276,7 +276,7 @@ extern void spi_slave_unselect(uint8_t slave);
  * @param slave slave id
  * @return true if correctly locked
  */
-extern bool_t spi_lock(struct spi_periph *p, uint8_t slave);
+extern bool spi_lock(struct spi_periph *p, uint8_t slave);
 
 /** Resume the SPI fifo.
  * Only the slave that locks the fifo can unlock it.
@@ -284,7 +284,7 @@ extern bool_t spi_lock(struct spi_periph *p, uint8_t slave);
  * @param slave slave id
  * @return true if correctly unlocked
  */
-extern bool_t spi_resume(struct spi_periph *p, uint8_t slave);
+extern bool spi_resume(struct spi_periph *p, uint8_t slave);
 
 #endif /* SPI_MASTER */
 
@@ -295,7 +295,7 @@ extern bool_t spi_resume(struct spi_periph *p, uint8_t slave);
 extern struct spi_periph spi0;
 extern void spi0_slave_init(void);
 
-/** Architecture dependant SPI0 initialization as slave.
+/** Architecture dependent SPI0 initialization as slave.
  * Must be implemented by underlying architecture
  */
 extern void spi0_slave_arch_init(void);
@@ -307,7 +307,7 @@ extern void spi0_slave_arch_init(void);
 extern struct spi_periph spi1;
 extern void spi1_slave_init(void);
 
-/** Architecture dependant SPI1 initialization as slave.
+/** Architecture dependent SPI1 initialization as slave.
  * Must be implemented by underlying architecture
  */
 extern void spi1_slave_arch_init(void);
@@ -319,7 +319,7 @@ extern void spi1_slave_arch_init(void);
 extern struct spi_periph spi2;
 extern void spi2_slave_init(void);
 
-/** Architecture dependant SPI2 initialization as slave.
+/** Architecture dependent SPI2 initialization as slave.
  * Must be implemented by underlying architecture
  */
 extern void spi2_slave_arch_init(void);
@@ -331,7 +331,7 @@ extern void spi2_slave_arch_init(void);
 extern struct spi_periph spi3;
 extern void spi3_slave_init(void);
 
-/** Architecture dependant SPI3 initialization as slave.
+/** Architecture dependent SPI3 initialization as slave.
  * Must be implemented by underlying architecture
  */
 extern void spi3_slave_arch_init(void);
@@ -349,7 +349,7 @@ extern void spi_slave_init(struct spi_periph *p);
  * @param t spi transaction
  * @return return true if registered with success
  */
-extern bool_t spi_slave_register(struct spi_periph *p, struct spi_transaction *t);
+extern bool spi_slave_register(struct spi_periph *p, struct spi_transaction *t);
 
 /** Initialized and wait for the next transaction.
  * If a transaction is registered for this peripheral, the spi will be
@@ -357,7 +357,7 @@ extern bool_t spi_slave_register(struct spi_periph *p, struct spi_transaction *t
  * @param p spi peripheral to be used
  * @return return true if a transaction was register for this peripheral
  */
-extern bool_t spi_slave_wait(struct spi_periph *p);
+extern bool spi_slave_wait(struct spi_periph *p);
 
 #endif /* SPI_SLAVE */
 
@@ -365,6 +365,7 @@ extern bool_t spi_slave_wait(struct spi_periph *p);
 /** @}*/
 
 #if SPI_SLAVE_HS
+#include "mcu_periph/spi_slave_hs_arch.h"
 extern void spi_slave_hs_init(void);
 #endif
 

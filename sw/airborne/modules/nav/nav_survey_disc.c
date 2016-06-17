@@ -46,17 +46,17 @@ struct DiscSurvey {
 static struct DiscSurvey disc_survey;
 
 
-bool_t nav_survey_disc_setup(float grid)
+bool nav_survey_disc_setup(float grid)
 {
   nav_survey_shift = grid;
   disc_survey.status = DOWNWIND;
   disc_survey.sign = 1;
   disc_survey.c1.x = stateGetPositionEnu_f()->x;
   disc_survey.c1.y = stateGetPositionEnu_f()->y;
-  return FALSE;
+  return false;
 }
 
-bool_t nav_survey_disc_run(uint8_t center_wp, float radius)
+bool nav_survey_disc_run(uint8_t center_wp, float radius)
 {
   struct FloatVect2 *wind = stateGetHorizontalWindspeed_f();
   float wind_dir = atan2(wind->x, wind->y) + M_PI;
@@ -120,5 +120,5 @@ bool_t nav_survey_disc_run(uint8_t center_wp, float radius)
   NavVerticalAutoThrottleMode(0.); /* No pitch */
   NavVerticalAltitudeMode(WaypointAlt(center_wp), 0.); /* No preclimb */
 
-  return TRUE;
+  return true;
 }

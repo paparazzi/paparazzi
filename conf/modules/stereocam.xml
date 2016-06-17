@@ -1,0 +1,29 @@
+ <!DOCTYPE module SYSTEM "module.dtd">
+
+ <module name="stereocam" dir="stereocam">
+  <doc>
+    <description>
+      StereoCamera read and decode.
+      Module to read and decode messages from the TU Delft stereo camera over uart.
+      The stereo camera is designed and produced by Christophe de Wagter from the TU Delft.
+      Baud rates tested include B38400, B230400, B921600.
+      If entire images are being sent, it is recommended to use a STEREO_BAUD of B921600 and a STEREO_BUF_SIZE of 32768.
+    </description>
+    <configure name="STEREO_UART" value="UARTX" description="Sets the UART port number of the connected camera (required)"/>
+    <configure name="STEREO_BAUD" value="BXXXXX" description="Sets the BAUD rate of the connected camera (required: must be same as camera)"/>
+    <define name="SEND_STEREO" value="TRUE|FALSE" description="If TRUE, a copy of received messages is sent to the ground station over the datalink (default: TRUE)"/>
+    <define name="STEREO_BUF_SIZE" value="NUM" description="Size of the receiving buffer, must be at least as large as the message being sent (default: 1024)"/>
+  </doc>
+  <header>
+    <file name="stereocam.h"/>
+  </header>
+  <periodic fun="stereocam_periodic()" start="stereocam_start()" stop="stereocam_stop()" autorun="TRUE" freq="512"/>
+  <makefile>
+    <file name="stereoprotocol.c" dir="modules/stereocam"/>
+    <configure name="STEREO_UART" case="upper|lower"/>
+    <define name="USE_$(STEREO_UART_UPPER)"/>
+    <define name="UART_LINK" value="$(STEREO_UART_LOWER)"/>
+    <define name="$(STEREO_UART_UPPER)_BAUD" value="$(STEREO_BAUD)"/>
+    <file name="stereocam.c"/>
+  </makefile>
+ </module>

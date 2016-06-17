@@ -46,7 +46,7 @@ struct PBNState {
   float altitude;
   float airspeed;
   float airspeed_filter;
-  bool_t data_valid;
+  bool data_valid;
 };
 
 extern struct PBNState pbn;

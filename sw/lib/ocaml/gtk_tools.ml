@@ -25,6 +25,7 @@
 (** GTK utilities
 *)
 
+
 class pixmap_in_drawin_area = fun ?drawing_area ?width ?height ?packing () ->
   let da =
     match drawing_area with
@@ -78,9 +79,9 @@ let combo_values_list = fun (combo : combo) ->
 
 let combo_separator = "--"
 
-let combo = fun strings vbox ->
+let combo = fun ?width strings vbox ->
   let (combo, (tree, column)) =
-    GEdit.combo_box_text ~packing:vbox#add ~strings () in
+    GEdit.combo_box_text ~packing:vbox#add ~strings ?width () in
   combo#set_active 0;
   combo#set_row_separator_func
     (Some (fun m row -> m#get ~row ~column = combo_separator)) ;
@@ -148,7 +149,7 @@ let tree_values = fun ?(only_checked=true) (tree : tree) ->
   store#foreach (fun _ row ->
     let v = store#get ~row ~column:name
     and c = store#get ~row ~column:check in
-    let space = if String.length !values > 0 then " " else "" in
+    let space = if Compat.bytes_length !values > 0 then " " else "" in
     let v =
       if c then v else
         if only_checked then ""
@@ -168,13 +169,13 @@ let get_selected_in_tree = fun  (tree : tree) ->
  * if element is between brackets, set to unchecked
  * and remove brackets in tree name
  *)
-let add_to_tree = fun (tree : tree) string ->
+let add_to_tree = fun ?(force_unselect=false) (tree : tree) string ->
   let (store, name, check, _) = tree_model tree in
   let row = store#append () in
-  let l = String.length string in
+  let l = Compat.bytes_length string in
   let checked = not (string.[0] = '[' && string.[l - 1] = ']') in
-  let string = if not checked then String.sub string 1 (l - 2) else string in
-  store#set ~row ~column:check checked;
+  let string = if not checked then Compat.bytes_sub string 1 (l - 2) else string in
+  store#set ~row ~column:check (checked && not force_unselect);
   store#set ~row ~column:name string
 
 let remove_selected_from_tree = fun (tree : tree) ->

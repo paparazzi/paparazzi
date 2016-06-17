@@ -7,9 +7,21 @@
 [submodule "sw/ext/fatfs"]
 	path = sw/ext/fatfs
 	url = https://github.com/enacuavlab/fatfs.git
-[submodule "sw/ext/ardrone2_vision"]
-	path = sw/ext/ardrone2_vision
-	url = https://github.com/tudelft/ardrone2_vision.git
 [submodule "sw/ext/chibios"]
 	path = sw/ext/chibios
-	url = https://github.com/mabl/ChibiOS.git
+	url = https://github.com/ChibiOS/ChibiOS.git
+[submodule "sw/ext/libzbar"]
+	path = sw/ext/libzbar
+	url = https://github.com/paparazzi/libzbar
+[submodule "sw/ext/libsbp"]
+	path = sw/ext/libsbp
+	url = https://github.com/swift-nav/libsbp.git
+[submodule "sw/ext/mavlink"]
+	path = sw/ext/mavlink
+	url = https://github.com/paparazzi/mavlink.git
+[submodule "sw/ext/pprzlink"]
+	path = sw/ext/pprzlink
+	url = https://github.com/paparazzi/pprzlink.git
+[submodule "sw/ext/opencv_bebop"]
+	path = sw/ext/opencv_bebop
+	url = https://github.com/tudelft/opencv_bebop.git

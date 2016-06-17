@@ -196,34 +196,34 @@
   </section>
 
   <section name="DIGITAL_CAMERA" prefix="DC_">
-    <define name="AUTOSHOOT_QUARTERSEC_PERIOD" value="6" unit="quarter_second"/>
+    <define name="AUTOSHOOT_PERIOD" value="1.5" unit="sec"/>
     <define name="AUTOSHOOT_DISTANCE_INTERVAL" value="50" unit="meter"/>
   </section>
 
 
   <modules>
-    <load name="gps_ubx_ucenter.xml"/>
+    <module name="gps" type="ubx_ucenter"/>
 <!--
-    <load name="adc_generic.xml">
+    <module name="adc_generic">
       <configure name="ADC_CHANNEL_GENERIC1" value="ADC_1" />
       <configure name="ADC_CHANNEL_GENERIC2" value="ADC_2" />
-    </load>
+    </module>
 -->
-    <load name="light.xml">
+    <module name="light">
       <define name="LIGHT_LED_STROBE" value="2"/>
       <define name="LIGHT_LED_NAV" value="3"/>
       <define name="STROBE_LIGHT_MODE_DEFAULT" value="6"/>
       <define name="NAV_LIGHT_MODE_DEFAULT" value="4"/>
-    </load>
+    </module>
 
-<!--    <load name="digital_cam_i2c.xml"/>  -->
-    <load name="digital_cam.xml">
+<!--    <module name="digital_cam_i2c"/>  -->
+    <module name="digital_cam">
       <define name="DC_SHUTTER_GPIO" value="GPIOC,GPIO12"/>
-    </load>
+    </module>
 
-    <load name="nav_catapult.xml"/>
-    <load name="nav_line.xml"/>
-    <load name="air_data.xml"/>
+    <module name="nav" type="catapult"/>
+    <module name="nav" type="line"/>
+    <module name="air_data"/>
   </modules>
 
   <firmware name="fixedwing">
@@ -242,14 +242,14 @@
       <configure name="CPU_LED" value="1"/>
       <define name="LINK_MCU_LED" value="4"/>
 
-      <!-- split of ap/fbw specific subsystems for ap -->
-      <subsystem name="actuators" type="dummy"/>
-      <subsystem name="intermcu" type="uart">
+      <!-- split of ap/fbw specific modules for ap -->
+      <module name="actuators" type="dummy"/>
+      <module name="intermcu" type="uart">
         <configure name="INTERMCU_PORT" value="UART5"/>
-      </subsystem>
+      </module>
 
-      <subsystem name="control"/>
-      <subsystem name="navigation"/>
+      <module name="control"/>
+      <module name="navigation"/>
     </target>
 
     <target name="fbw" board="lisa_m_2.0">
@@ -262,16 +262,16 @@
       <define name="OUTBACK_CHALLENGE_DANGEROUS_RULE_RC_LOST_NO_AP" value="1"/>
       <define name="OUTBACK_CHALLENGE_VERY_DANGEROUS_RULE_AP_CAN_FORCE_FAILSAFE" value="1"/>
 
-      <!-- split of ap/fbw specific subsystems for fbw -->
-      <subsystem name="actuators" type="pwm"/>
-      <subsystem name="intermcu" type="uart">
+      <!-- split of ap/fbw specific modules for fbw -->
+      <module name="actuators" type="pwm"/>
+      <module name="intermcu" type="uart">
         <configure name="INTERMCU_PORT" value="UART2"/>
-      </subsystem>
+      </module>
     </target>
 
     <target name="sim" board="pc">
-      <subsystem name="control"/>
-      <subsystem name="navigation"/>
+      <module name="control"/>
+      <module name="navigation"/>
     </target>
 
     <configure name="FLASH_MODE" value="JTAG"/>
@@ -284,24 +284,24 @@
     <define name="WIND_INFO_RET"/>
     <define name="RADIO_CONTROL_AUTO1"/>
 
-    <subsystem name="radio_control" type="spektrum">
+    <module name="radio_control" type="spektrum">
       <define name="RADIO_CONTROL_NB_CHANNEL" value="8"/>
-    </subsystem>
+    </module>
 
     <!-- Communication -->
-    <subsystem name="telemetry" type="transparent">
+    <module name="telemetry" type="transparent">
       <configure name="MODEM_BAUD" value="B9600"/>
       <configure name="MODEM_PORT" value="UART2"/>
-    </subsystem>
+    </module>
 
     <!-- Sensors -->
-    <subsystem name="imu" type="aspirin_v2.1"/>
-    <subsystem name="gps" type="ublox">
+    <module name="imu" type="aspirin_v2.1"/>
+    <module name="gps" type="ublox">
       <configure name="GPS_PORT" value="UART1"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="ahrs" type="float_dcm"/>
-    <subsystem name="ins" type="alt_float"/>
+    <module name="ahrs" type="float_dcm"/>
+    <module name="ins" type="alt_float"/>
 
   </firmware>
 

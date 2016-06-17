@@ -1,0 +1,35 @@
+<conf>
+  <aircraft
+   name="ardrone2"
+   ac_id="201"
+   airframe="airframes/TUDELFT/tudelft_ardrone2_oa_clint_roland.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_optitrack.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml [settings/control/stabilization_indi.xml] settings/control/stabilization_att_int_quat.xml"
+   settings_modules=""
+   gui_color="red"
+  />
+  <aircraft
+   name="ardrone2_follow_me"
+   ac_id="2"
+   airframe="airframes/TUDELFT/tudelft_selfie.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_oa_avoid.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml [settings/control/stabilization_indi.xml] settings/control/stabilization_att_int_quat.xml"
+   settings_modules=""
+   gui_color="red"
+  />
+  <aircraft
+   name="pocketdrone"
+   ac_id="1"
+   airframe="airframes/BR/ladybird_kit_bart_bluegiga_optitrack.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_optitrack.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
+   settings_modules=""
+   gui_color="blue"
+  />
+</conf>

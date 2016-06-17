@@ -1,10 +1,10 @@
 <!DOCTYPE settings SYSTEM "../settings.dtd">
 
 <settings>
-  <dl_settings>
+  <dl_settings target="ap|nps|test_ahrs">
 
     <dl_settings NAME="Filter">
-       <dl_setting var="ahrs_impl.reinj_1" min="512" step="512" max="262144" module="subsystems/ahrs/ahrs_int_cmpl_euler" shortname="reinj_1"/>
+       <dl_setting var="ahrs_ice.reinj_1" min="512" step="512" max="262144" module="subsystems/ahrs/ahrs_int_cmpl_euler" shortname="reinj_1" type="int32" persistent="true"/>
     </dl_settings>
 
   </dl_settings>

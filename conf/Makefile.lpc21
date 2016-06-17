@@ -70,6 +70,8 @@ ASRCARM = crt0.S
 # Optimization level, can be [0, 1, 2, 3, s].
 # 0 = turn off optimization. s = optimize for size.
 OPT ?= s
+# Slightly bigger .elf files but gains the ability to decode macros
+DEBUG_FLAGS ?= -ggdb3
 
 CSTANDARD = -std=gnu99
 
@@ -78,6 +80,8 @@ CINCS = $(INCLUDES) -I$(SRC_ARCH)/include
 # Compiler flags.
 CFLAGS = $(CINCS)
 CFLAGS += -O$(OPT)
+CFLAGS += $(DEBUG_FLAGS)
+
 # CFLAGS += -malignment-traps
 CFLAGS += -Wa,-adhlns=$(OBJDIR)/$(notdir $(subst $(suffix $<),.lst,$<))
 CFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
@@ -96,7 +100,12 @@ CFLAGS += -Wshadow
 CFLAGS += -Wnested-externs
 
 CFLAGS += $(CSTANDARD)
-CFLAGS += $($(TARGET).CFLAGS) $(USER_CFLAGS)
+CFLAGS += $($(TARGET).CFLAGS) $(USER_CFLAGS) $(BOARD_CFLAGS)
+# on old lpc, avoid using double precision in some geodetic functions
+CFLAGS += -DUSE_SINGLE_PRECISION_LLA_ECEF
+
+# LPC21 doesn't support unaligned data access
+CFLAGS += -DPPRZLINK_UNALIGNED_ACCESS=0
 
 # Assembler flags.
 ASFLAGS = -Wa,-adhlns=$(OBJDIR)/$(notdir $(<:.S=.lst))
@@ -111,6 +120,7 @@ LDFLAGS += $(MATH_LIB)
 LDFLAGS += -lc -lgcc
 LDFLAGS += $(CPLUSPLUS_LIB)
 LDFLAGS += -Wl,--gc-sections
+LDFLAGS += $(BOARD_LDFLAGS)
 
 ifndef LDSCRIPT
 ifeq ($(FLASH_MODE),ISP)

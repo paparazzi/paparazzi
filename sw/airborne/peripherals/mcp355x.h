@@ -28,7 +28,7 @@
 
 #include "std.h"
 
-extern bool_t mcp355x_data_available;
+extern bool mcp355x_data_available;
 extern int32_t mcp355x_data;
 
 extern void mcp355x_init(void);

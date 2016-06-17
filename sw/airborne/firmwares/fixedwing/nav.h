@@ -45,6 +45,10 @@
 #define Square(_x) ((_x)*(_x))
 #define DistanceSquare(p1_x, p1_y, p2_x, p2_y) (Square(p1_x-p2_x)+Square(p1_y-p2_y))
 
+#define PowerVoltage() (vsupply/10.)
+#define RcRoll(travel) (fbw_state->channels[RADIO_ROLL]* (float)travel /(float)MAX_PPRZ)
+
+
 enum oval_status { OR12, OC2, OR21, OC1 };
 
 extern float cur_pos_x;
@@ -57,15 +61,19 @@ extern pprz_t nav_throttle_setpoint;
 extern float nav_pitch; /* Rad */
 extern float rc_pitch;
 extern float fp_pitch; /* Degrees */
+extern float fp_throttle; /* [0-1] */
+extern float fp_climb; /* m/s */
 
 extern float carrot_x, carrot_y;
 
 extern float nav_circle_radians; /* Cumulated */
 extern float nav_circle_radians_no_rewind; /* Cumulated */
-extern bool_t nav_in_circle;
-extern bool_t nav_in_segment;
+extern bool nav_in_circle;
+extern bool nav_in_segment;
 extern float nav_circle_x, nav_circle_y, nav_circle_radius; /* m */
 extern float nav_segment_x_1, nav_segment_y_1, nav_segment_x_2, nav_segment_y_2; /* m */
+
+extern uint8_t last_wp __attribute__((unused));
 
 extern int nav_mode;
 #define NAV_MODE_ROLL 1
@@ -104,15 +112,27 @@ extern float nav_ground_speed_pgain, nav_ground_speed_setpoint;
 
 extern float nav_survey_shift;
 extern float nav_survey_west, nav_survey_east, nav_survey_north, nav_survey_south;
-extern bool_t nav_survey_active;
+extern bool nav_survey_active;
 
-void nav_periodic_task(void);
-void nav_home(void);
-void nav_init(void);
-void nav_without_gps(void);
+extern void nav_periodic_task(void);
+extern void nav_home(void);
+extern void nav_init(void);
+extern void nav_without_gps(void);
 
 extern float nav_circle_trigo_qdr; /** Angle from center to mobile */
 extern void nav_circle_XY(float x, float y, float radius);
+
+extern float baseleg_out_qdr;
+extern bool nav_compute_baseleg(uint8_t wp_af, uint8_t wp_td, uint8_t wp_baseleg, float radius);
+extern bool nav_compute_final_from_glide(uint8_t wp_af, uint8_t wp_td, float glide);
+
+#define RCLost() bit_is_set(fbw_state->status, STATUS_RADIO_REALLY_LOST)
+
+extern void nav_follow(uint8_t _ac_id, float _distance, float _height);
+#define NavFollow(_ac_id, _distance, _height) nav_follow(_ac_id, _distance, _height)
+
+extern void nav_glide(uint8_t start_wp, uint8_t wp);
+#define NavGlide(_start_wp, _wp) nav_glide(_start_wp, _wp)
 
 #define NavCircleWaypoint(wp, radius) \
   nav_circle_XY(waypoints[wp].x, waypoints[wp].y, radius)
@@ -133,14 +153,14 @@ extern void nav_circle_XY(float x, float y, float radius);
 /** True if x (in degrees) is close to the current QDR (less than 10 degrees)*/
 #define NavQdrCloseTo(x) CloseDegAngles(x, NavCircleQdr())
 
-#define NavCourseCloseTo(x) CloseDegAngles(x, DegOfRad(*stateGetHorizontalSpeedDir_f()))
+#define NavCourseCloseTo(x) CloseDegAngles(x, DegOfRad(stateGetHorizontalSpeedDir_f()))
 
 /*********** Navigation along a line *************************************/
 extern void nav_route_xy(float last_wp_x, float last_wp_y, float wp_x, float wp_y);
 #define NavSegment(_start, _end) \
   nav_route_xy(waypoints[_start].x, waypoints[_start].y, waypoints[_end].x, waypoints[_end].y)
 
-bool_t nav_approaching_xy(float x, float y, float from_x, float from_y, float approaching_time);
+bool nav_approaching_xy(float x, float y, float from_x, float from_y, float approaching_time);
 #define NavApproaching(wp, time) nav_approaching_xy(waypoints[wp].x, waypoints[wp].y, last_x, last_y, time)
 #define NavApproachingFrom(wp, from, time) nav_approaching_xy(waypoints[wp].x, waypoints[wp].y, waypoints[from].x, waypoints[from].y, time)
 
@@ -190,17 +210,30 @@ bool_t nav_approaching_xy(float x, float y, float from_x, float from_y, float ap
     {h_ctl_roll_setpoint = _roll;} \
   }
 
+#define NavSetManual(_roll, _pitch, _yaw) _Pragma("GCC error \"Manual mode in flight plan for fixedwing is not available\"")
+
+
 #define nav_IncreaseShift(x) { if (x==0) nav_shift = 0; else nav_shift += x; }
 
 #define nav_SetNavRadius(x) { if (x==1) nav_radius = DEFAULT_CIRCLE_RADIUS; else if (x==-1) nav_radius = -DEFAULT_CIRCLE_RADIUS; else nav_radius = x; }
 
 #define NavKillThrottle() { kill_throttle = 1; }
 
+/// Get current x (east) position in local coordinates
 #define GetPosX() (stateGetPositionEnu_f()->x)
+/// Get current y (north) position in local coordinates
 #define GetPosY() (stateGetPositionEnu_f()->y)
+/// Get current altitude above MSL
 #define GetPosAlt() (stateGetPositionUtm_f()->alt)
+/**
+ * Get current altitude reference for local coordinates.
+ * This is the ground_alt from the flight plan at first,
+ * but might be updated later through a call to NavSetGroundReferenceHere() or
+ * NavSetAltitudeReferenceHere(), e.g. in the GeoInit flight plan block.
+ */
 #define GetAltRef() (ground_alt)
 
+#if DOWNLINK
 #define SEND_NAVIGATION(_trans, _dev) { \
     uint8_t _circle_count = NavCircleCount(); \
     struct EnuCoor_f* pos = stateGetPositionEnu_f(); \
@@ -209,12 +242,13 @@ bool_t nav_approaching_xy(float x, float y, float from_x, float from_y, float ap
     pprz_msg_send_NAVIGATION(_trans, _dev, AC_ID, &nav_block, &nav_stage, &(pos->x), &(pos->y), &dist_wp, &dist_home, &_circle_count, &nav_oval_count); \
   }
 
-extern bool_t DownlinkSendWpNr(uint8_t _wp);
+extern bool DownlinkSendWpNr(uint8_t _wp);
 
 #define DownlinkSendWp(_trans, _dev, i) {    \
     float x = nav_utm_east0 +  waypoints[i].x; \
     float y = nav_utm_north0 + waypoints[i].y; \
     pprz_msg_send_WP_MOVED(_trans, _dev, AC_ID, &i, &x, &y, &(waypoints[i].a),&nav_utm_zone0); \
   }
+#endif /* DOWNLINK */
 
 #endif /* NAV_H */

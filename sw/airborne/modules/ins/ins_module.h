@@ -71,33 +71,34 @@ void handle_ins_msg(void);
 void parse_ins_msg(void);
 void parse_ins_buffer(uint8_t);
 
+#include "pprzlink/pprzlink_device.h"
+
+#define InsLinkDevice (&((INS_LINK).device))
+
 #ifndef SITL
 #include "mcu_periph/uart.h"
+#include "mcu_periph/spi.h"
 
-#define __InsLink(dev, _x) dev##_x
-#define _InsLink(dev, _x)  __InsLink(dev, _x)
-#define InsLink(_x) _InsLink(INS_LINK, _x)
-
-#define InsBuffer() InsLink(ChAvailable())
-#define ReadInsBuffer() { while (InsLink(ChAvailable())&&!ins_msg_received) parse_ins_buffer(InsLink(Getch())); }
-#define InsSend1(c) InsLink(Transmit(c))
+#define InsSend1(c) InsLinkDevice->put_byte(InsLinkDevice->periph, 0, c)
 #define InsUartSend1(c) InsSend1(c)
 #define InsSend(_dat,_len) { for (uint8_t i = 0; i< (_len); i++) InsSend1(_dat[i]); };
-#define InsUartSetBaudrate(_b) InsLink(SetBaudrate(_b))
-#define InsUartRunning InsLink(TxRunning)
+#define InsUartSetBaudrate(_b) uart_periph_set_baudrate(INS_LINK, _b)
 
 #endif /** !SITL */
 
-#define InsEventCheckAndHandle(handler) {     \
-    if (InsBuffer()) {            \
-      ReadInsBuffer();            \
-    }                           \
-    if (ins_msg_received) {         \
-      parse_ins_msg();            \
-      handler;              \
-      ins_msg_received = FALSE;         \
-    }                           \
+static inline void ins_event_check_and_handle(void (* handler)(void))
+{
+  struct link_device *dev = InsLinkDevice;
+  if (dev->char_available(dev->periph)) {
+    while (dev->char_available(dev->periph) && !ins_msg_received) {
+      parse_ins_buffer(dev->get_byte(dev->periph));
+    }
   }
-
+  if (ins_msg_received) {
+    parse_ins_msg();
+    handler();
+    ins_msg_received = false;
+  }
+}
 
 #endif /* INS_MODULE_H */

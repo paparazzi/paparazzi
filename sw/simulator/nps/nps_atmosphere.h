@@ -31,14 +31,19 @@
 
 struct NpsAtmosphere {
   double qnh;         ///< barometric pressure at sea level in Pascal
-  double wind_speed;  ///< wind magnitude in m/s
-  double wind_dir;    ///< wind direction in radians north=0, increasing CCW
+  double wind_speed;  ///< horizontal wind magnitude in m/s
+  double wind_dir;    ///< horitzontal wind direction in radians north=0, increasing CCW
+  struct DoubleVect3 wind; ///< wind speed in NED in m/s
   int turbulence_severity; ///< turbulence severity from 0-7
+  double last_world_env_req; ///< last world env request time
 };
 
 extern struct NpsAtmosphere nps_atmosphere;
 
 extern void nps_atmosphere_init(void);
+extern void nps_atmosphere_set_wind_speed(double speed);
+extern void nps_atmosphere_set_wind_dir(double dir);
+extern void nps_atmosphere_set_wind_ned(double wind_north, double wind_east, double wind_down);
 extern void nps_atmosphere_update(double dt);
 
 #endif /* NPS_ATMOSPHERE_H */

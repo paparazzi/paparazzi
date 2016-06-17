@@ -47,7 +47,7 @@
 
 struct NavSpiral nav_spiral;
 
-bool_t nav_spiral_setup(uint8_t center_wp, uint8_t edge_wp, float radius_start, float radius_inc, float segments)
+bool nav_spiral_setup(uint8_t center_wp, uint8_t edge_wp, float radius_start, float radius_inc, float segments)
 {
   VECT2_COPY(nav_spiral.center, waypoints[center_wp]);    // center of the helix
   nav_spiral.center.z = waypoints[center_wp].a;
@@ -65,8 +65,7 @@ bool_t nav_spiral_setup(uint8_t center_wp, uint8_t edge_wp, float radius_start, 
   nav_spiral.radius = float_vect2_norm(&edge);
 
   // get a copy of the current position
-  struct EnuCoor_f pos_enu;
-  memcpy(&pos_enu, stateGetPositionEnu_f(), sizeof(struct EnuCoor_f));
+  struct EnuCoor_f pos_enu = *stateGetPositionEnu_f();
 
   VECT2_DIFF(nav_spiral.trans_current, pos_enu, nav_spiral.center);
   nav_spiral.trans_current.z = stateGetPositionUtm_f()->alt - nav_spiral.center.z;
@@ -82,13 +81,12 @@ bool_t nav_spiral_setup(uint8_t center_wp, uint8_t edge_wp, float radius_start, 
   if (nav_spiral.dist_from_center > nav_spiral.radius) {
     nav_spiral.status = SpiralOutside;
   }
-  return FALSE;
+  return false;
 }
 
-bool_t nav_spiral_run(void)
+bool nav_spiral_run(void)
 {
-  struct EnuCoor_f pos_enu;
-  memcpy(&pos_enu, stateGetPositionEnu_f(), sizeof(struct EnuCoor_f));
+  struct EnuCoor_f pos_enu = *stateGetPositionEnu_f();
 
   VECT2_DIFF(nav_spiral.trans_current, pos_enu, nav_spiral.center);
   nav_spiral.dist_from_center = FLOAT_VECT3_NORM(nav_spiral.trans_current);
@@ -168,5 +166,5 @@ bool_t nav_spiral_run(void)
   NavVerticalAutoThrottleMode(0.); /* No pitch */
   NavVerticalAltitudeMode(nav_spiral.center.z, 0.); /* No preclimb */
 
-  return TRUE;
+  return true;
 }

@@ -23,6 +23,7 @@
 #include BOARD_CONFIG
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
+#define DATALINK_C
 #include "subsystems/datalink/downlink.h"
 #include "peripherals/ms2100.h"
 #include "led.h"
@@ -71,6 +72,8 @@ static inline void main_periodic_task(void)
 
 static inline void main_event_task(void)
 {
+  mcu_event();
+
   ms2100_event(&ms2100);
   if (ms2100.status == MS2100_DATA_AVAILABLE) {
     RunOnceEvery(10, {

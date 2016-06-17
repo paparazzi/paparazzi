@@ -10,17 +10,6 @@
 
 <airframe name="Funjet II">
 
-  <modules>
-    <!--load name="light.xml">
-      <define name="LIGHT_LED_STROBE" value="5"/>
-      <define name="LIGHT_LED_NAV" value="3"/>
-    </load-->
-    <!--load name="baro_board.xml">
-      <define name="BARO_ABS_EVENT" value="BaroPbnUpdate"/>
-    </load-->
-    <load name="pbn.xml"/>
-  </modules>
-
   <firmware name="fixedwing">
     <define name="USE_I2C0"/>
     <define name="USE_I2C1"/>
@@ -29,35 +18,44 @@
     <define name="USE_AIRSPEED"/>
 
     <target name="sim" board="pc">
-      <subsystem name="imu"     type="umarim"/>
+      <module name="imu"     type="umarim"/>
     </target>
     <target name="nps" board="pc">
-      <subsystem name="fdm" type="crrcsim"/>
-      <subsystem name="imu"     type="nps"/>
+      <module name="fdm" type="crrcsim"/>
+      <module name="imu"     type="nps"/>
     </target>
     <target name="ap" board="umarim_lite_2.0">
-      <subsystem name="imu"     type="umarim"/>
+      <module name="imu"     type="umarim"/>
     </target>
 
-    <subsystem name="radio_control" type="ppm"/>
+    <module name="radio_control" type="ppm"/>
 
     <!-- Communication -->
-    <subsystem name="telemetry"     type="transparent"/>
+    <module name="telemetry"     type="transparent"/>
 
     <!-- Actuators are automatically chosen according to board-->
-    <subsystem name="ahrs"    type="float_dcm"/>
-    <subsystem name="ins"     type="alt_float"/>
-    <subsystem name="control" type="new">
+    <module name="ahrs"    type="float_dcm"/>
+    <module name="ins"     type="alt_float"/>
+    <module name="control" type="new">
       <define name="USE_GYRO_PITCH_RATE"/>
-    </subsystem>
+    </module>
     <!-- Sensors -->
-    <subsystem name="gps"           type="ublox"/>
+    <module name="gps"           type="ublox"/>
 
-    <subsystem name="current_sensor">
+    <module name="current_sensor">
       <configure name="ADC_CURRENT_SENSOR" value="ADC_0"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="navigation"/>
+    <module name="navigation"/>
+
+    <!--module name="light">
+      <define name="LIGHT_LED_STROBE" value="5"/>
+      <define name="LIGHT_LED_NAV" value="3"/>
+    </module-->
+    <!--module name="baro_board">
+      <define name="BARO_ABS_EVENT" value="BaroPbnUpdate"/>
+    </module-->
+    <module name="pbn"/>
   </firmware>
 
   <servos>
@@ -249,7 +247,7 @@
     <define name="CRRCSIM_COMMAND_THROTTLE" value="0"/>
     <define name="CRRCSIM_ROLL_NEUTRAL" value="0." unit="deg"/>
     <define name="CRRCSIM_PITCH_NEUTRAL" value="12." unit="deg"/>
-    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
+    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
   </section>
 
 </airframe>

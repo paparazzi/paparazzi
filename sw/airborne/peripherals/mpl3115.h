@@ -72,10 +72,10 @@ struct Mpl3115 {
   struct i2c_transaction trans;       ///< I2C transaction for reading and configuring
   struct i2c_transaction req_trans;   ///< I2C transaction for conversion request
   enum Mpl3115Status init_status;
-  bool_t initialized;                 ///< config done flag
-  volatile bool_t data_available;     ///< data ready flag
-  bool_t raw_mode;                    ///< set to TRUE to enable raw output
-  bool_t alt_mode;                    ///< set to TRUE to enable altitude output (otherwise pressure)
+  bool initialized;                 ///< config done flag
+  volatile bool data_available;     ///< data ready flag
+  bool raw_mode;                    ///< set to TRUE to enable raw output
+  bool alt_mode;                    ///< set to TRUE to enable altitude output (otherwise pressure)
   int16_t temperature;                ///< temperature in 1/16 degrees Celcius
   uint32_t pressure;                  ///< pressure in 1/4 Pascal
   float altitude;                     ///< altitude in meters

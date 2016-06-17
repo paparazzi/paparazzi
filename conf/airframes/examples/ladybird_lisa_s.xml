@@ -28,7 +28,7 @@
      radio="radios/cockpitSX.xml"
      telemetry="telemetry/default_rotorcraft.xml"
      flight_plan="flight_plans/rotorcraft_basic.xml"
-     settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/control/stabilization_rate.xml"
+     settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
 -->
 
 <airframe name="quadrotor_lisa_s">
@@ -105,19 +105,6 @@
     <define name="MAX_BAT_LEVEL" value="4.1" unit="V"/>
  </section>
 
-  <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
-    <define name="SP_MAX_P" value="15000"/>
-    <define name="SP_MAX_Q" value="15000"/>
-    <define name="SP_MAX_R" value="15000"/>
-
-    <define name="GAIN_P" value="400"/>
-    <define name="GAIN_Q" value="400"/>
-    <define name="GAIN_R" value="418"/>
-
-    <define name="IGAIN_P" value="301"/>
-    <define name="IGAIN_Q" value="302"/>
-    <define name="IGAIN_R" value="303"/>
-  </section>
 
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
 
@@ -192,19 +179,19 @@
  </section>
 
  <section name="SIMULATOR" prefix="NPS_">
-   <define name="ACTUATOR_NAMES" value="{&quot;ne_motor&quot;, &quot;se_motor&quot;, &quot;sw_motor&quot;, &quot;nw_motor&quot;}"/>
-   <define name="JSBSIM_MODEL" value="&quot;simple_x_quad_ccw&quot;"/>
-   <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
+   <define name="ACTUATOR_NAMES" value="ne_motor, se_motor, sw_motor, nw_motor" type="string[]"/>
+   <define name="JSBSIM_MODEL" value="simple_x_quad_ccw" type="string"/>
+   <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
  </section>
 
  <modules main_freq="512">
-   <load name="gps_ubx_ucenter.xml"/>
-   <load name="send_imu_mag_current.xml"/>
+   <module name="gps" type="ubx_ucenter"/>
+   <module name="send_imu_mag_current"/>
  </modules>
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_s_1.0">
-      <subsystem name="radio_control" type="superbitrf_rc">
+      <module name="radio_control" type="superbitrf_rc">
 	<!-- To store the binding parameters for the superbit radio in your
              airframe file uncomment the following three lines and set the
              correct values based on the output of the superbitrf telemetry
@@ -214,19 +201,19 @@
         <!--define name="RADIO_TRANSMITTER_PROTOCOL" value="0x01"/-->
         <define name="RADIO_MODE" value="RADIO_FLAP"/>
         <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
-      </subsystem>
+      </module>
 
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
       <define name="USE_PERSISTENT_SETTINGS" value="TRUE"/>
     </target>
 
     <target name="nps" board="pc">
-      <subsystem name="fdm" type="jsbsim"/>
-      <subsystem name="radio_control" type="ppm"/>
+      <module name="fdm" type="jsbsim"/>
+      <module name="radio_control" type="ppm"/>
     </target>
 
-    <subsystem name="motor_mixing"/>
-    <subsystem name="actuators" type="pwm">
+    <module name="motor_mixing"/>
+    <module name="actuators" type="pwm">
       <!-- This airframe is using the servo PWM outputs directly to drive mosfets, which in turn directly drive brushed motors.
            With the following settings we will be driving the motors with a 36KHz signal that should be well above anyone's hearing range.
            If we went with the 500Hz that woul be the default we would be hearing a very annoying high pitched sound coming from the motors.
@@ -236,18 +223,18 @@
       <!-- Setting the PWM interval to 36KHz -->
       <define name="SERVO_HZ" value="36000"/>
       <define name="USE_SERVOS_1AND2"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="telemetry" type="superbitrf"/>
+    <module name="telemetry" type="superbitrf"/>
     <!-- Comment the previous line and uncomment the following one if you need
          to use the debug serial interface for telemetry. -->
-    <!--subsystem name="telemetry" type="transparent"/-->
-    <subsystem name="imu" type="lisa_s_v1.0">
+    <!--module name="telemetry" type="transparent"/-->
+    <module name="imu" type="lisa_s_v1.0">
       <define name="LISA_S_UPSIDE_DOWN"/> <!-- Upside down is a relative term. :) -->
-    </subsystem>
-    <subsystem name="gps" type="ublox"/>
-    <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="ahrs" type="int_cmpl_quat"/>
-    <subsystem name="ins"/>
+    </module>
+    <module name="gps" type="ublox"/>
+    <module name="stabilization" type="int_quat"/>
+    <module name="ahrs" type="int_cmpl_quat"/>
+    <module name="ins"/>
   </firmware>
 </airframe>

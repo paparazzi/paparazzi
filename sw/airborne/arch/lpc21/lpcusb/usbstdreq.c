@@ -117,7 +117,10 @@ BOOL USBGetDescriptor(U16 wTypeIndex, U16 wLangID __attribute__ ((unused)), int 
 		if (pab[DESC_bDescriptorType] == bType) {
 			if (iCurIndex == bIndex) {
 				// set data pointer
+#pragma GCC diagnostic push // require GCC 4.6
+#pragma GCC diagnostic ignored "-Wcast-qual"
 			  *ppbData = (U8*)pab;
+#pragma GCC diagnostic pop // require GCC 4.6
 				// get length from structure
 				if (bType == DESC_CONFIGURATION) {
 					// configuration descriptor is an exception, length is at offset 2 and 3

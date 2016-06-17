@@ -45,11 +45,11 @@
 
 #include "state.h"
 
-#define __CameraLink(dev, _x) dev##_x
-#define _CameraLink(dev, _x)  __CameraLink(dev, _x)
-#define CameraLink(_x) _CameraLink(CAMERA_LINK, _x)
 
-#define CameraBuffer() CameraLink(ChAvailable())
+#define CameraLinkDev (&((CAMERA_LINK).device))
+#define CameraLinkTransmit(c) CameraLinkDev->put_byte(CameraLinkDev->periph, 0, c)
+#define CameraLinkChAvailable() CameraLinkDev->char_available(CameraLinkDev->periph)
+#define CameraLinkGetch() CameraLinkDev->get_byte(CameraLinkDev->periph)
 
 union dc_shot_union dc_shot_msg;
 union mora_status_union mora_status_msg;
@@ -62,16 +62,10 @@ static uint8_t thumbs[THUMB_COUNT][THUMB_MSG_SIZE];
 static uint8_t thumb_pointer = 0;
 
 
-
-#define ReadCameraBuffer() {                  \
-    while (CameraLink(ChAvailable()))         \
-      digital_cam_uart_parse(CameraLink(Getch()));      \
-  }
-
 void digital_cam_uart_event(void)
 {
-  while (CameraLink(ChAvailable())) {
-    parse_mora(&mora_protocol, CameraLink(Getch()));
+  while (CameraLinkChAvailable()) {
+    parse_mora(&mora_protocol, CameraLinkGetch());
     if (mora_protocol.msg_received) {
       switch (mora_protocol.msg_id) {
         case MORA_STATUS:
@@ -130,7 +124,7 @@ void digital_cam_uart_init(void)
     }
   }
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(&telemetry_Ap, "PAYLOAD", send_thumbnails);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_PAYLOAD, send_thumbnails);
 #endif
 
 #ifdef SITL
@@ -141,7 +135,7 @@ void digital_cam_uart_init(void)
 void digital_cam_uart_periodic(void)
 {
   // Common DC Periodic task
-  dc_periodic_4Hz();
+  dc_periodic();
 }
 
 
@@ -158,8 +152,8 @@ void dc_send_command(uint8_t cmd)
       dc_shot_msg.data.phi = stateGetNedToBodyEulers_i()->phi;
       dc_shot_msg.data.theta = stateGetNedToBodyEulers_i()->theta;
       dc_shot_msg.data.psi = stateGetNedToBodyEulers_i()->psi;
-      dc_shot_msg.data.vground = *stateGetHorizontalSpeedNorm_i();
-      dc_shot_msg.data.course = *stateGetHorizontalSpeedDir_i();
+      dc_shot_msg.data.vground = stateGetHorizontalSpeedNorm_i();
+      dc_shot_msg.data.course = stateGetHorizontalSpeedDir_i();
       dc_shot_msg.data.groundalt = POS_BFP_OF_REAL(state.alt_agl_f);
 
       MoraHeader(MORA_SHOOT, MORA_SHOOT_MSG_SIZE);

@@ -26,12 +26,11 @@
  *
  */
 
+#include <stdint.h>
 #include "firmwares/fixedwing/autopilot.h"
 
 #include "state.h"
-#include "subsystems/datalink/telemetry.h"
 #include "firmwares/fixedwing/nav.h"
-#include "generated/settings.h"
 
 #ifdef POWER_SWITCH_GPIO
 #include "mcu_periph/gpio.h"
@@ -40,10 +39,10 @@
 #include "pprz_version.h"
 
 uint8_t pprz_mode;
-bool_t kill_throttle;
+bool kill_throttle;
 uint8_t  mcu1_status;
 
-bool_t launch;
+bool launch;
 
 /** flight time in seconds. */
 uint16_t autopilot_flight_time;
@@ -54,9 +53,13 @@ uint16_t vsupply;
 int32_t current;
 float energy;
 
-bool_t gps_lost;
+bool gps_lost;
 
-bool_t power_switch;
+bool power_switch;
+
+#if PERIODIC_TELEMETRY
+#include "subsystems/datalink/telemetry.h"
+#include "generated/settings.h"
 
 void send_autopilot_version(struct transport_tx *trans, struct link_device *dev)
 {
@@ -88,14 +91,6 @@ static void send_mode(struct transport_tx *trans, struct link_device *dev)
                           &pprz_mode, &v_ctl_mode, &lateral_mode, &horizontal_mode, &rc_settings_mode, &mcu1_status);
 }
 
-void autopilot_send_mode(void)
-{
-  // use default telemetry here
-#if DOWNLINK
-  send_mode(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
-#endif
-}
-
 static void send_attitude(struct transport_tx *trans, struct link_device *dev)
 {
   struct FloatEulers *att = stateGetNedToBodyEulers_f();
@@ -113,6 +108,10 @@ static void send_bat(struct transport_tx *trans, struct link_device *dev)
 {
   int16_t amps = (int16_t)(current / 10);
   int16_t e = energy;
+  // prevent overflow
+  if (fabs(energy) >= INT16_MAX) {
+    e = INT16_MAX;
+  }
   pprz_msg_send_BAT(trans, dev, AC_ID,
                     &v_ctl_throttle_slewed, &vsupply, &amps,
                     &autopilot_flight_time, (uint8_t *)(&kill_throttle),
@@ -122,6 +121,9 @@ static void send_bat(struct transport_tx *trans, struct link_device *dev)
 static void send_energy(struct transport_tx *trans, struct link_device *dev)
 {
   uint16_t e = energy;
+  if (fabs(energy) >= INT16_MAX) {
+    e = INT16_MAX;
+  }
   float vsup = ((float)vsupply) / 10.0f;
   float curs = ((float)current) / 1000.0f;
   float power = vsup * curs;
@@ -150,46 +152,58 @@ static void send_desired(struct transport_tx *trans, struct link_device *dev)
 static void send_airspeed(struct transport_tx *trans __attribute__((unused)),
                           struct link_device *dev __attribute__((unused)))
 {
+  float airspeed = stateGetAirspeed_f();
 #if USE_AIRSPEED
   pprz_msg_send_AIRSPEED(trans, dev, AC_ID,
-                         stateGetAirspeed_f(), &v_ctl_auto_airspeed_setpoint,
+                         &airspeed, &v_ctl_auto_airspeed_setpoint,
                          &v_ctl_auto_airspeed_controlled, &v_ctl_auto_groundspeed_setpoint);
 #else
   float zero = 0;
-  pprz_msg_send_AIRSPEED(trans, dev, AC_ID, stateGetAirspeed_f(), &zero, &zero, &zero);
+  pprz_msg_send_AIRSPEED(trans, dev, AC_ID, &airspeed, &zero, &zero, &zero);
+#endif
+}
+#endif /* PERIODIC_TELEMETRY */
+
+void autopilot_send_mode(void)
+{
+  // use default telemetry here
+#if DOWNLINK
+  send_mode(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
 #endif
 }
 
 void autopilot_init(void)
 {
   pprz_mode = PPRZ_MODE_AUTO2;
-  kill_throttle = FALSE;
-  launch = FALSE;
+  kill_throttle = false;
+  launch = false;
   autopilot_flight_time = 0;
 
   lateral_mode = LATERAL_MODE_MANUAL;
 
-  gps_lost = FALSE;
+  gps_lost = false;
 
-  power_switch = FALSE;
+  power_switch = false;
 #ifdef POWER_SWITCH_GPIO
   gpio_setup_output(POWER_SWITCH_GPIO);
   gpio_clear(POWER_SWITCH_GPIO);
 #endif
 
+#if PERIODIC_TELEMETRY
   /* register some periodic message */
-  register_periodic_telemetry(DefaultPeriodic, "AUTOPILOT_VERSION", send_autopilot_version);
-  register_periodic_telemetry(DefaultPeriodic, "ALIVE", send_alive);
-  register_periodic_telemetry(DefaultPeriodic, "PPRZ_MODE", send_mode);
-  register_periodic_telemetry(DefaultPeriodic, "ATTITUDE", send_attitude);
-  register_periodic_telemetry(DefaultPeriodic, "ESTIMATOR", send_estimator);
-  register_periodic_telemetry(DefaultPeriodic, "AIRSPEED", send_airspeed);
-  register_periodic_telemetry(DefaultPeriodic, "BAT", send_bat);
-  register_periodic_telemetry(DefaultPeriodic, "ENERGY", send_energy);
-  register_periodic_telemetry(DefaultPeriodic, "DL_VALUE", send_dl_value);
-  register_periodic_telemetry(DefaultPeriodic, "DESIRED", send_desired);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AUTOPILOT_VERSION, send_autopilot_version);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ALIVE, send_alive);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_PPRZ_MODE, send_mode);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ATTITUDE, send_attitude);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ESTIMATOR, send_estimator);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AIRSPEED, send_airspeed);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_BAT, send_bat);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ENERGY, send_energy);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DL_VALUE, send_dl_value);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DESIRED, send_desired);
 #if defined RADIO_CALIB && defined RADIO_CONTROL_SETTINGS
-  register_periodic_telemetry(DefaultPeriodic, "RC_SETTINGS", send_rc_settings);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_RC_SETTINGS, send_rc_settings);
+#endif
 #endif
 }
 

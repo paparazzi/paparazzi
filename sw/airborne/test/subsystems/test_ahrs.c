@@ -21,28 +21,38 @@
 
 #include <inttypes.h>
 
+#define DATALINK_C
+
+/* PERIODIC_C_MAIN is defined before generated/periodic_telemetry.h
+ * in order to implement telemetry_mode_Main_*
+ */
+#define PERIODIC_C_MAIN
+
+#include "generated/periodic_telemetry.h"
+
+#define ABI_C
+#include "subsystems/abi.h"
+
 #include "std.h"
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
 #include "led.h"
 #include "mcu_periph/i2c.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 #include "subsystems/datalink/telemetry.h"
+
+#include "subsystems/datalink/datalink.h"
+#include "generated/settings.h"
 
 #include "subsystems/imu.h"
 #include "subsystems/ahrs.h"
 #include "subsystems/ahrs/ahrs_aligner.h"
 
-
 static inline void main_init(void);
 static inline void main_periodic_task(void);
 static inline void main_event_task(void);
 static inline void main_report(void);
-
-static inline void on_gyro_event(void);
-static inline void on_accel_event(void);
-static inline void on_mag_event(void);
 
 int main(void)
 {
@@ -61,7 +71,9 @@ static inline void main_init(void)
   mcu_init();
   sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
   imu_init();
+#if USE_AHRS_ALIGNER
   ahrs_aligner_init();
+#endif
   ahrs_init();
   downlink_init();
 
@@ -74,171 +86,49 @@ static inline void main_periodic_task(void)
     imu_periodic();
   }
   RunOnceEvery(10, { LED_PERIODIC();});
-
-  RunOnceEvery(20, main_report());
+  RunOnceEvery(PERIODIC_FREQUENCY, { datalink_time++; });
+  main_report();
 }
 
 static inline void main_event_task(void)
 {
-#if USE_UDP
-  udp_event();
-#else
-  uart_event();
-#endif
-  ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
+  mcu_event();
+  DatalinkEvent();
+  ImuEvent();
 }
-
-static inline void on_gyro_event(void)
-{
-  // timestamp in usec when last callback was received
-  static uint32_t last_ts = 0;
-  // current timestamp
-  uint32_t now_ts = get_sys_time_usec();
-  // dt between this and last callback in seconds
-  float dt = (float)(now_ts - last_ts) / 1e6;
-  last_ts = now_ts;
-
-  imu_scale_gyro(&imu);
-  if (ahrs.status == AHRS_UNINIT) {
-    ahrs_aligner_run();
-    if (ahrs_aligner.status == AHRS_ALIGNER_LOCKED) {
-      ahrs_align();
-    }
-  } else {
-    ahrs_propagate(dt);
-  }
-}
-
-static inline void on_accel_event(void)
-{
-  // timestamp in usec when last callback was received
-  static uint32_t last_ts = 0;
-  // current timestamp
-  uint32_t now_ts = get_sys_time_usec();
-  // dt between this and last callback in seconds
-  float dt = (float)(now_ts - last_ts) / 1e6;
-  last_ts = now_ts;
-
-  imu_scale_accel(&imu);
-  if (ahrs.status != AHRS_UNINIT) {
-    ahrs_update_accel(dt);
-  }
-}
-
-static inline void on_mag_event(void)
-{
-  // timestamp in usec when last callback was received
-  static uint32_t last_ts = 0;
-  // current timestamp
-  uint32_t now_ts = get_sys_time_usec();
-  // dt between this and last callback in seconds
-  float dt = (float)(now_ts - last_ts) / 1e6;
-  last_ts = now_ts;
-
-  imu_scale_mag(&imu);
-  if (ahrs.status == AHRS_RUNNING) {
-    ahrs_update_mag(dt);
-  }
-}
-
 
 static inline void main_report(void)
 {
+  RunOnceEvery(512, DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM));
 
-  PeriodicPrescaleBy10({
-    DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel, DefaultDevice,
-    &imu.accel_unscaled.x,
-    &imu.accel_unscaled.y,
-    &imu.accel_unscaled.z);
-  }, {
-    DOWNLINK_SEND_IMU_GYRO_RAW(DefaultChannel, DefaultDevice,
-                               &imu.gyro_unscaled.p,
-                               &imu.gyro_unscaled.q,
-                               &imu.gyro_unscaled.r);
-  }, {
-    DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice,
-    &imu.mag_unscaled.x,
-    &imu.mag_unscaled.y,
-    &imu.mag_unscaled.z);
-  }, {
-    DOWNLINK_SEND_IMU_ACCEL_SCALED(DefaultChannel, DefaultDevice,
-                                   &imu.accel.x,
-                                   &imu.accel.y,
-                                   &imu.accel.z);
-  }, {
-    DOWNLINK_SEND_IMU_GYRO_SCALED(DefaultChannel, DefaultDevice,
-    &imu.gyro.p,
-    &imu.gyro.q,
-    &imu.gyro.r);
-  },
+  periodic_telemetry_send_Main(DefaultPeriodic, &(DefaultChannel).trans_tx, &(DefaultDevice).device);
+}
 
-  {
-    DOWNLINK_SEND_IMU_MAG_SCALED(DefaultChannel, DefaultDevice,
-    &imu.mag.x,
-    &imu.mag.y,
-    &imu.mag.z);
-  },
+void dl_parse_msg(void)
+{
+  uint8_t msg_id = dl_buffer[1];
+  switch (msg_id) {
 
-  {
-    DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
-  }, {
-#if USE_I2C2
-    uint16_t i2c2_queue_full_cnt        = i2c2.errors->queue_full_cnt;
-    uint16_t i2c2_ack_fail_cnt          = i2c2.errors->ack_fail_cnt;
-    uint16_t i2c2_miss_start_stop_cnt   = i2c2.errors->miss_start_stop_cnt;
-    uint16_t i2c2_arb_lost_cnt          = i2c2.errors->arb_lost_cnt;
-    uint16_t i2c2_over_under_cnt        = i2c2.errors->over_under_cnt;
-    uint16_t i2c2_pec_recep_cnt         = i2c2.errors->pec_recep_cnt;
-    uint16_t i2c2_timeout_tlow_cnt      = i2c2.errors->timeout_tlow_cnt;
-    uint16_t i2c2_smbus_alert_cnt       = i2c2.errors->smbus_alert_cnt;
-    uint16_t i2c2_unexpected_event_cnt  = i2c2.errors->unexpected_event_cnt;
-    uint32_t i2c2_last_unexpected_event = i2c2.errors->last_unexpected_event;
-    const uint8_t _bus2 = 2;
-    DOWNLINK_SEND_I2C_ERRORS(DefaultChannel, DefaultDevice,
-                             &i2c2_queue_full_cnt,
-                             &i2c2_ack_fail_cnt,
-                             &i2c2_miss_start_stop_cnt,
-                             &i2c2_arb_lost_cnt,
-                             &i2c2_over_under_cnt,
-                             &i2c2_pec_recep_cnt,
-                             &i2c2_timeout_tlow_cnt,
-                             &i2c2_smbus_alert_cnt,
-                             &i2c2_unexpected_event_cnt,
-                             &i2c2_last_unexpected_event,
-                             &_bus2);
-#endif
-  }, {
-#ifdef AHRS_FLOAT
-    struct FloatEulers ltp_to_imu_euler;
-    float_eulers_of_quat(&ltp_to_imu_euler, &ahrs_impl.ltp_to_imu_quat);
-    struct Int32Eulers euler_i;
-    EULERS_BFP_OF_REAL(euler_i, ltp_to_imu_euler);
-    struct Int32Eulers *eulers_body = stateGetNedToBodyEulers_i();
-    DOWNLINK_SEND_AHRS_EULER_INT(DefaultChannel, DefaultDevice,
-    &euler_i.phi,
-    &euler_i.theta,
-    &euler_i.psi,
-    &(eulers_body->phi),
-    &(eulers_body->theta),
-    &(eulers_body->psi));
-#else
-    struct Int32Eulers ltp_to_imu_euler;
-    int32_eulers_of_quat(&ltp_to_imu_euler, &ahrs_impl.ltp_to_imu_quat);
-    struct Int32Eulers *eulers = stateGetNedToBodyEulers_i();
-    DOWNLINK_SEND_AHRS_EULER_INT(DefaultChannel, DefaultDevice,
-    &ltp_to_imu_euler.phi,
-    &ltp_to_imu_euler.theta,
-    &ltp_to_imu_euler.psi,
-    &(eulers->phi),
-    &(eulers->theta),
-    &(eulers->psi));
-#endif
-  }, {
-#ifndef AHRS_FLOAT
-    DOWNLINK_SEND_AHRS_GYRO_BIAS_INT(DefaultChannel, DefaultDevice,
-                                     &ahrs_impl.gyro_bias.p,
-                                     &ahrs_impl.gyro_bias.q,
-                                     &ahrs_impl.gyro_bias.r);
-#endif
-  });
+    case  DL_PING: {
+      DOWNLINK_SEND_PONG(DefaultChannel, DefaultDevice);
+    }
+    break;
+    case DL_SETTING:
+      if (DL_SETTING_ac_id(dl_buffer) == AC_ID) {
+        uint8_t i = DL_SETTING_index(dl_buffer);
+        float val = DL_SETTING_value(dl_buffer);
+        DlSetting(i, val);
+        DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &val);
+      }
+      break;
+    case DL_GET_SETTING : {
+      if (DL_GET_SETTING_ac_id(dl_buffer) != AC_ID) { break; }
+      uint8_t i = DL_GET_SETTING_index(dl_buffer);
+      float val = settings_get_value(i);
+      DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &val);
+    }
+    break;
+    default:
+      break;
+  }
 }

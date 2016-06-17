@@ -30,10 +30,10 @@ void exti9_5_isr(void)
   /* clear EXTI */
   if (EXTI_PR & EXTI6) {
     exti_reset_request(EXTI6);
-    imu_krooz.hmc_eoc = TRUE;
+    imu_krooz.hmc_eoc = true;
   }
   if (EXTI_PR & EXTI5) {
     exti_reset_request(EXTI5);
-    imu_krooz.mpu_eoc = TRUE;
+    imu_krooz.mpu_eoc = true;
   }
 }

@@ -41,6 +41,9 @@
 
 /// Motors ON check state machine states
 enum arming_state {
+  STATUS_INITIALISE_RC,
+  STATUS_MOTORS_AUTOMATICALLY_OFF,
+  STATUS_MOTORS_AUTOMATICALLY_OFF_SAFETY_WAIT,
   STATUS_MOTORS_OFF,
   STATUS_M_OFF_STICK_PUSHED,
   STATUS_START_MOTORS,
@@ -56,18 +59,18 @@ enum arming_state autopilot_check_motor_status;
 static inline void autopilot_arming_init(void)
 {
   autopilot_motors_on_counter = 0;
-  autopilot_check_motor_status = STATUS_MOTORS_OFF;
+  autopilot_check_motor_status = STATUS_INITIALISE_RC;
 }
 
 
 /** Update the status of the check_motors state machine.
  */
-static inline void autopilot_arming_set(bool_t motors_on)
+static inline void autopilot_arming_set(bool motors_on)
 {
   if (motors_on) {
     autopilot_check_motor_status = STATUS_MOTORS_ON;
   } else {
-    autopilot_check_motor_status = STATUS_MOTORS_OFF;
+    autopilot_check_motor_status = STATUS_MOTORS_AUTOMATICALLY_OFF;
   }
 }
 
@@ -83,15 +86,35 @@ static inline void autopilot_arming_check_motors_on(void)
   if (autopilot_mode != AP_MODE_KILL) {
 
     switch (autopilot_check_motor_status) {
+      case STATUS_INITIALISE_RC: // Wait until RC is initialised (it being centered is a good pointer to this)
+        if (THROTTLE_STICK_DOWN() && YAW_STICK_CENTERED() && PITCH_STICK_CENTERED() && ROLL_STICK_CENTERED()) {
+          autopilot_check_motor_status = STATUS_MOTORS_OFF;
+        }
+        break;
+      case STATUS_MOTORS_AUTOMATICALLY_OFF: // Motors were disarmed externally
+        //(possibly due to crash)
+        //wait extra delay before enabling the normal arming state machine
+        autopilot_motors_on = false;
+        autopilot_motors_on_counter = 0;
+        if (THROTTLE_STICK_DOWN() && YAW_STICK_CENTERED()) { // stick released
+          autopilot_check_motor_status = STATUS_MOTORS_AUTOMATICALLY_OFF_SAFETY_WAIT;
+        }
+        break;
+      case STATUS_MOTORS_AUTOMATICALLY_OFF_SAFETY_WAIT:
+          autopilot_motors_on_counter++;
+          if (autopilot_motors_on_counter >= MOTOR_ARMING_DELAY) {
+            autopilot_check_motor_status = STATUS_MOTORS_OFF;
+          }
+        break;
       case STATUS_MOTORS_OFF:
-        autopilot_motors_on = FALSE;
+        autopilot_motors_on = false;
         autopilot_motors_on_counter = 0;
         if (THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED()) { // stick pushed
           autopilot_check_motor_status = STATUS_M_OFF_STICK_PUSHED;
         }
         break;
       case STATUS_M_OFF_STICK_PUSHED:
-        autopilot_motors_on = FALSE;
+        autopilot_motors_on = false;
         autopilot_motors_on_counter++;
         if (autopilot_motors_on_counter >= MOTOR_ARMING_DELAY) {
           autopilot_check_motor_status = STATUS_START_MOTORS;
@@ -100,21 +123,21 @@ static inline void autopilot_arming_check_motors_on(void)
         }
         break;
       case STATUS_START_MOTORS:
-        autopilot_motors_on = TRUE;
+        autopilot_motors_on = true;
         autopilot_motors_on_counter = MOTOR_ARMING_DELAY;
         if (!(THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED())) { // wait until stick released
           autopilot_check_motor_status = STATUS_MOTORS_ON;
         }
         break;
       case STATUS_MOTORS_ON:
-        autopilot_motors_on = TRUE;
+        autopilot_motors_on = true;
         autopilot_motors_on_counter = MOTOR_ARMING_DELAY;
         if (THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED()) { // stick pushed
           autopilot_check_motor_status = STATUS_M_ON_STICK_PUSHED;
         }
         break;
       case STATUS_M_ON_STICK_PUSHED:
-        autopilot_motors_on = TRUE;
+        autopilot_motors_on = true;
         autopilot_motors_on_counter--;
         if (autopilot_motors_on_counter == 0) {
           autopilot_check_motor_status = STATUS_STOP_MOTORS;
@@ -123,7 +146,7 @@ static inline void autopilot_arming_check_motors_on(void)
         }
         break;
       case STATUS_STOP_MOTORS:
-        autopilot_motors_on = FALSE;
+        autopilot_motors_on = false;
         autopilot_motors_on_counter = 0;
         if (!(THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED())) { // wait until stick released
           autopilot_check_motor_status = STATUS_MOTORS_OFF;

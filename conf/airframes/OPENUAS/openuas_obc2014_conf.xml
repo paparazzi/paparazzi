@@ -1,0 +1,13 @@
+<conf>
+  <aircraft
+   name="Vivify"
+   ac_id="217"
+   airframe="airframes/OPENUAS/openuas_vivify.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/default_fixedwing_imu_9k6.xml"
+   flight_plan="flight_plans/OPENUAS/openuas_obc2014_kingaroy.xml"
+   settings="settings/control/ctl_energy.xml settings/estimation/ac_char.xml settings/fixedwing_basic.xml"
+   settings_modules="modules/air_data.xml modules/gps_ubx_ucenter.xml modules/airspeed_adc.xml modules/tune_airspeed.xml modules/photogrammetry_calculator.xml modules/digital_cam_uart.xml modules/nav_survey_poly_osam.xml modules/nav_smooth.xml"
+   gui_color="#fffffac7c07a"
+  />
+</conf>

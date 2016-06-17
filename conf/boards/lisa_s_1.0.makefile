@@ -33,6 +33,7 @@ BARO_LED           ?= none
 AHRS_ALIGNER_LED   ?= 2
 GPS_LED            ?= none
 SYS_TIME_LED       ?= 1
+MODEM_LED          ?= 3
 
 #
 # default uart configuration
@@ -45,6 +46,22 @@ MODEM_BAUD ?= B57600
 
 GPS_PORT ?= UART3
 GPS_BAUD ?= B38400
+
+#
+# default PPM input is on PA03 (Aux RX)
+#
+RADIO_CONTROL_PPM_PIN ?= PA03
+ifeq ($(RADIO_CONTROL_PPM_PIN),$(filter $(RADIO_CONTROL_PPM_PIN),PA_10 PA10 UART1_RX))
+  PPM_CONFIG=1
+else ifeq ($(RADIO_CONTROL_PPM_PIN),$(filter $(RADIO_CONTROL_PPM_PIN),PA_01 PA01 PA1 SERVO6))
+  PPM_CONFIG=2
+else ifeq ($(RADIO_CONTROL_PPM_PIN),$(filter $(RADIO_CONTROL_PPM_PIN),PA_03 PA03 PA3))
+  PPM_CONFIG=3
+else ifeq ($(RADIO_CONTROL_PPM_PIN),$(filter $(RADIO_CONTROL_PPM_PIN), PC_09 PC09 PC9 SUPERBIT_RST))
+  PPM_CONFIG=4
+else
+$(error Unknown RADIO_CONTROL_PPM_PIN, configure it to either PA01, PA03, PA10 or PC9)
+endif
 
 #
 # default actuator configuration

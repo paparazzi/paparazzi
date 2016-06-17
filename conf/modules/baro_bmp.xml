@@ -3,7 +3,7 @@
 <module name="baro_bmp" dir="sensors">
   <doc>
     <description>Bosch BMP085 pressure sensor</description>
-    <define name="BMP_I2C_DEV" value="i2cX" description="select which i2c peripheral to use (default i2c0)"/>
+    <configure name="BMP_I2C_DEV" value="i2cX" description="select which i2c peripheral to use (default i2c0)"/>
     <define name="SENSOR_SYNC_SEND" description="flag to transmit the data as it is acquired"/>
   </doc>
   <header>
@@ -13,6 +13,9 @@
   <periodic fun="baro_bmp_periodic()" freq="15"/>
   <event fun="baro_bmp_event()"/>
   <makefile target="ap">
+    <configure name="BMP_I2C_DEV" default="i2c0" case="upper|lower"/>
+    <define name="USE_$(BMP_I2C_DEV_UPPER)"/>
+    <define name="BMP_I2C_DEV" value="$(BMP_I2C_DEV_LOWER)"/>
     <file name="baro_bmp.c"/>
     <file name="bmp085.c" dir="peripherals"/>
   </makefile>

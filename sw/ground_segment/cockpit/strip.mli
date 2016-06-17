@@ -29,7 +29,7 @@ type t = <
     connect_shift_alt : (float -> unit) -> unit;
     connect_shift_lateral : (float -> unit) -> unit;
     connect_launch : (float -> unit) -> unit;
-    connect_kill : (float -> unit) -> unit;
+    connect_kill : bool -> (float -> unit) -> unit;
     connect_mode : float -> (float -> unit) -> unit;
     connect_flight_time : (float -> unit) -> unit;
 
@@ -57,10 +57,9 @@ type strip_param = {
   max_bat : float;
   alt_shift_plus_plus : float;
   alt_shift_plus : float;
-  alt_shift_minus : float; }
+  alt_shift_minus : float;
+  icons_theme : string; }
 
 
-val scrolled : GBin.scrolled_window
-
-val add : Pprz.values -> strip_param -> t
+val add : PprzLink.values -> strip_param -> GPack.box -> t
 (** [add config params] *)

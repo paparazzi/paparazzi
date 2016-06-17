@@ -1,0 +1,44 @@
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+
+<!-- BeagleBoneBlack test airframe -->
+
+<airframe name="test_bbb">
+
+  <firmware name="test_progs">
+    <target name="test_uart_echo"           board="beagle_bone_black">
+      <define name="USE_UART4"/>
+      <define name="UART4_BAUD" value="B9600"/>
+      <configure name="PERIODIC_FREQUENCY" value="5"/>
+    </target>
+    <target name="test_uart_send"           board="beagle_bone_black">
+      <define name="USE_UART2"/>
+      <define name="UART2_BAUD" value="B9600"/>
+      <configure name="PERIODIC_FREQUENCY" value="10"/>
+    </target>
+    <target name="test_uart_recv"           board="beagle_bone_black">
+      <define name="USE_UART4"/>
+      <define name="UART4_BAUD" value="B9600"/>
+      <configure name="PERIODIC_FREQUENCY" value="10"/>
+    </target>
+
+    <target name="test_settings"            board="beagle_bone_black"/>
+    <target name="test_telemetry"           board="beagle_bone_black"/>
+    <target name="test_imu"                 board="beagle_bone_black">
+      <module name="imu" type="mpu60x0_i2c">
+        <configure name="IMU_MPU60X0_I2C_DEV" value="i2c1"/>
+      </module>
+      <configure name="PERIODIC_FREQUENCY" value="60"/>
+    </target>
+
+    <!-- use UDP telemetry via usb-gadget with netmask 255.255.255.252 -->
+    <configure name="MODEM_DEV" value="UDP0"/>
+    <configure name="MODEM_HOST" value="192.168.7.3"/>
+
+    <configure name="DEBUG_INFO" value="yes"/>
+    <configure name="OPT" value="0"/>
+    <!-- upload to USER@HOST -->
+    <configure name="HOST" value="192.168.7.2"/>
+    <configure name="USER" value="ubuntu"/>
+  </firmware>
+
+</airframe>

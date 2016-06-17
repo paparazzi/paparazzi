@@ -22,6 +22,7 @@
  * @file modules/ctrl/ctrl_module_demo.c
  * @brief example empty controller
  *
+ * Implements an example simple rate controller in a module.
  */
 
 #ifndef CTRL_MODULE_DEMO_H_
@@ -43,13 +44,14 @@ extern float ctrl_module_demo_y_d_gain;
 #define GUIDANCE_V_MODE_MODULE_SETTING GUIDANCE_V_MODE_MODULE
 
 // Implement own Horizontal loops
+extern void guidance_h_module_init(void);
 extern void guidance_h_module_enter(void);
 extern void guidance_h_module_read_rc(void);
-extern void guidance_h_module_run(bool_t in_flight);
+extern void guidance_h_module_run(bool in_flight);
 
-// Implement own Horizontal loops
+// Implement own Vertical loops
+extern void guidance_v_module_init(void);
 extern void guidance_v_module_enter(void);
-extern void guidance_v_module_run(bool_t in_flight);
+extern void guidance_v_module_run(bool in_flight);
 
-
-#endif /* HOVER_STABILIZATION_H_ */
+#endif /* CTRL_MODULE_DEMO_H_ */

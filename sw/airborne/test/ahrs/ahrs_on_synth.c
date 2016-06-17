@@ -215,11 +215,11 @@ void aos_compute_sensors(void)
 #ifdef AHRS_GRAVITY_UPDATE_COORDINATED_TURN
 #if AHRS_TYPE == AHRS_TYPE_FCQ || AHRS_TYPE == AHRS_TYPE_FLQ
   ahrs_impl.ltp_vel_norm = FLOAT_VECT3_NORM(aos.ltp_vel);
-  ahrs_impl.ltp_vel_norm_valid = TRUE;
+  ahrs_impl.ltp_vel_norm_valid = true;
 #endif
 #if AHRS_TYPE == AHRS_TYPE_FCR2
   ahrs_impl.ltp_vel_norm = FLOAT_VECT3_NORM(aos.ltp_vel);
-  ahrs_impl.ltp_vel_norm_valid = TRUE;
+  ahrs_impl.ltp_vel_norm_valid = true;
 #endif
 #if AHRS_TYPE == AHRS_TYPE_FCR
   ahrs_impl.gps_speed = FLOAT_VECT3_NORM(aos.ltp_vel);
@@ -229,7 +229,7 @@ void aos_compute_sensors(void)
 #endif
 #if AHRS_TYPE == AHRS_TYPE_ICQ
   ahrs_impl.ltp_vel_norm = SPEED_BFP_OF_REAL(FLOAT_VECT3_NORM(aos.ltp_vel));
-  ahrs_impl.ltp_vel_norm_valid = TRUE;
+  ahrs_impl.ltp_vel_norm_valid = true;
 #endif
 #endif
 
@@ -276,7 +276,7 @@ void aos_run(void)
 
 #if AHRS_TYPE == AHRS_TYPE_FCR
     ahrs_impl.gps_course = aos.heading_meas;
-    ahrs_impl.gps_course_valid = TRUE;
+    ahrs_impl.gps_course_valid = true;
 #else
     if (aos.time > 10) {
       if (!ahrs_impl.heading_aligned) {

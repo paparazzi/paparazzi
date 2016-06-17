@@ -56,7 +56,7 @@ The goal of this flightplan is to have a safe, simple no-brainer flightplan for 
   <blocks>
     <block name="Init">
       <call fun="NavKillThrottle()"/>
-      <while cond="!GpsFixValid() || gps.pacc > 400 || !(ahrs.status == AHRS_RUNNING)"/>
+      <while cond="!GpsFixValid() || gps.pacc > 400 || !(stateIsAttitudeValid())"/>
     </block>
     <block name="Geo init">
       <while cond="LessThan(NavBlockTime(), 8)"/>
@@ -82,7 +82,7 @@ The goal of this flightplan is to have a safe, simple no-brainer flightplan for 
      <!-- To make sure that takoff is straight up -->
     <attitude pitch="0" roll="0" throttle="0.90" until="stage_time > 1" vmode="throttle"/>
 <!--Alternative <exception cond="WaypointAlt(WP_A) > stateGetPositionEnu_f()->z" deroute="A_to_B_and_back"/>-->
-     <stay vmode="climb" climb="0.9" until="WaypointAlt(WP_STDBY) > stateGetPositionEnu_f()->z" wp="CLIMB"/>
+     <stay vmode="climb" climb="nav_climb_vspeed" until="WaypointAlt(WP_STDBY) > stateGetPositionEnu_f()->z" wp="CLIMB"/>
      </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png" pre_call="if(!InsideKill(GetPosX(), GetPosY())) NavKillThrottle()">
       <exception cond="block_time > 60" deroute="land"/>
@@ -118,7 +118,7 @@ The goal of this flightplan is to have a safe, simple no-brainer flightplan for 
       <go wp="TD"/>
       <exception cond="NavDetectGround()" deroute="landed"/>
       <exception cond="!nav_is_in_flight()" deroute="Holding point"/>
-      <stay climb="-0.5" vmode="climb" wp="TD"/>
+      <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
     </block>
     <block name="flare">
       <exception cond="NavDetectGround()" deroute="landed"/>

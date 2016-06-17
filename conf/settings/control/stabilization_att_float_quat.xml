@@ -1,33 +1,33 @@
 <!DOCTYPE settings SYSTEM "../settings.dtd">
 
-<settings>
+<settings target="ap|nps">
   <dl_settings>
 
     <dl_settings NAME="Att Loop">
-      <dl_setting var="stabilization_gains[0].p.x" min="1" step="1" max="8000"   module="stabilization/stabilization_attitude" shortname="pgain phi" param="STABILIZATION_ATTITUDE_PHI_PGAIN"/>
-      <dl_setting var="stabilization_gains[0].i.x" min="0" step="1" max="800"    module="stabilization/stabilization_attitude" shortname="igain phi" param="STABILIZATION_ATTITUDE_PHI_IGAIN" />
-      <dl_setting var="stabilization_gains[0].d.x" min="1" step="1" max="4000"   module="stabilization/stabilization_attitude" shortname="dgain p" param="STABILIZATION_ATTITUDE_PHI_DGAIN"/>
-      <dl_setting var="stabilization_gains[0].rates_d.x" min="0" step="1" max="500" module="stabilization/stabilization_attitude" shortname="dgaind p" param="STABILIZATION_ATTITUDE_PHI_DGAIN_D"/>
-      <dl_setting var="stabilization_gains[0].dd.x" min="0" step="1" max="1000" module="stabilization/stabilization_attitude" shortname="ddgain p" param="STABILIZATION_ATTITUDE_PHI_DDGAIN"/>
+      <dl_setting var="stabilization_gains[0].p.x" min="1" step="1" max="8000"   module="stabilization/stabilization_attitude" shortname="pgain phi" param="STABILIZATION_ATTITUDE_PHI_PGAIN" persistent="true"/>
+      <dl_setting var="stabilization_gains[0].i.x" min="0" step="1" max="800"    module="stabilization/stabilization_attitude" shortname="igain phi" param="STABILIZATION_ATTITUDE_PHI_IGAIN" persistent="true"/>
+      <dl_setting var="stabilization_gains[0].d.x" min="1" step="1" max="4000"   module="stabilization/stabilization_attitude" shortname="dgain p" param="STABILIZATION_ATTITUDE_PHI_DGAIN" persistent="true"/>
+      <dl_setting var="stabilization_gains[0].rates_d.x" min="0" step="1" max="500" module="stabilization/stabilization_attitude" shortname="dgaind p" param="STABILIZATION_ATTITUDE_PHI_DGAIN_D" persistent="true"/>
+      <dl_setting var="stabilization_gains[0].dd.x" min="0" step="1" max="1000" module="stabilization/stabilization_attitude" shortname="ddgain p" param="STABILIZATION_ATTITUDE_PHI_DDGAIN" persistent="true"/>
 
-      <dl_setting var="stabilization_gains[0].p.y" min="1" step="1" max="8000"   module="stabilization/stabilization_attitude" shortname="pgain theta" param="STABILIZATION_ATTITUDE_THETA_PGAIN"/>
-      <dl_setting var="stabilization_gains[0].i.y" min="0"  step="1" max="800"    module="stabilization/stabilization_attitude" shortname="igain theta" param="STABILIZATION_ATTITUDE_THETA_IGAIN"/>
-      <dl_setting var="stabilization_gains[0].d.y" min="1" step="1" max="4000"   module="stabilization/stabilization_attitude" shortname="dgain q" param="STABILIZATION_ATTITUDE_THETA_DGAIN"/>
-      <dl_setting var="stabilization_gains[0].rates_d.y" min="0" step="1" max="500" module="stabilization/stabilization_attitude" shortname="dgaind q" param="STABILIZATION_ATTITUDE_THETA_DGAIN_D"/>
-      <dl_setting var="stabilization_gains[0].dd.y" min="0"    step="1" max="1000"  module="stabilization/stabilization_attitude" shortname="ddgain q" param="STABILIZATION_ATTITUDE_THETA_DDGAIN"/>
+      <dl_setting var="stabilization_gains[0].p.y" min="1" step="1" max="8000"   module="stabilization/stabilization_attitude" shortname="pgain theta" param="STABILIZATION_ATTITUDE_THETA_PGAIN" persistent="true"/>
+      <dl_setting var="stabilization_gains[0].i.y" min="0"  step="1" max="800"    module="stabilization/stabilization_attitude" shortname="igain theta" param="STABILIZATION_ATTITUDE_THETA_IGAIN" persistent="true"/>
+      <dl_setting var="stabilization_gains[0].d.y" min="1" step="1" max="4000"   module="stabilization/stabilization_attitude" shortname="dgain q" param="STABILIZATION_ATTITUDE_THETA_DGAIN" persistent="true"/>
+      <dl_setting var="stabilization_gains[0].rates_d.y" min="0" step="1" max="500" module="stabilization/stabilization_attitude" shortname="dgaind q" param="STABILIZATION_ATTITUDE_THETA_DGAIN_D" persistent="true"/>
+      <dl_setting var="stabilization_gains[0].dd.y" min="0"    step="1" max="1000"  module="stabilization/stabilization_attitude" shortname="ddgain q" param="STABILIZATION_ATTITUDE_THETA_DDGAIN" persistent="true"/>
 
-      <dl_setting var="stabilization_gains[0].p.z" min="1" step="1" max="4000"   module="stabilization/stabilization_attitude" shortname="pgain psi" param="STABILIZATION_ATTITUDE_PSI_PGAIN"/>
-      <dl_setting var="stabilization_gains[0].i.z" min="0"  step="1" max="400"    module="stabilization/stabilization_attitude" shortname="igain psi" param="STABILIZATION_ATTITUDE_PSI_IGAIN"/>
-      <dl_setting var="stabilization_gains[0].d.z" min="1" step="1" max="4000"   module="stabilization/stabilization_attitude" shortname="dgain r" param="STABILIZATION_ATTITUDE_PSI_DGAIN"/>
-      <dl_setting var="stabilization_gains[0].rates_d.z" min="0" step="1" max="500" module="stabilization/stabilization_attitude" shortname="dgaind r" param="STABILIZATION_ATTITUDE_PHI_DGAIN_D"/>
-      <dl_setting var="stabilization_gains[0].dd.z" min="0" step="1" max="1000"  module="stabilization/stabilization_attitude" shortname="ddgain r" param="STABILIZATION_ATTITUDE_PSI_DDGAIN"/>
+      <dl_setting var="stabilization_gains[0].p.z" min="1" step="1" max="4000"   module="stabilization/stabilization_attitude" shortname="pgain psi" param="STABILIZATION_ATTITUDE_PSI_PGAIN" persistent="true"/>
+      <dl_setting var="stabilization_gains[0].i.z" min="0"  step="1" max="400"    module="stabilization/stabilization_attitude" shortname="igain psi" param="STABILIZATION_ATTITUDE_PSI_IGAIN" persistent="true"/>
+      <dl_setting var="stabilization_gains[0].d.z" min="1" step="1" max="4000"   module="stabilization/stabilization_attitude" shortname="dgain r" param="STABILIZATION_ATTITUDE_PSI_DGAIN" persistent="true"/>
+      <dl_setting var="stabilization_gains[0].rates_d.z" min="0" step="1" max="500" module="stabilization/stabilization_attitude" shortname="dgaind r" param="STABILIZATION_ATTITUDE_PHI_DGAIN_D" persistent="true"/>
+      <dl_setting var="stabilization_gains[0].dd.z" min="0" step="1" max="1000"  module="stabilization/stabilization_attitude" shortname="ddgain r" param="STABILIZATION_ATTITUDE_PSI_DDGAIN" persistent="true"/>
 
-      <dl_setting var="stab_att_ref_model[0].omega.p" min="1" step="1" max="1000" unit="rad/s" alt_unit="deg/s" module="stabilization/stabilization_attitude_ref_quat_float" shortname="omega p" param="STABILIZATION_ATTITUDE_REF_OMEGA_P" handler="SetOmegaP"/>
-      <dl_setting var="stab_att_ref_model[0].zeta.p" min="0.5" step="0.05" max="1.2" module="stabilization/stabilization_attitude_ref_quat_float" shortname="zeta p" param="STABILIZATION_ATTITUDE_REF_ZETA_P"/>
-      <dl_setting var="stab_att_ref_model[0].omega.q" min="1" step="1" max="1000" unit="rad/s" alt_unit="deg/s" module="stabilization/stabilization_attitude_ref_quat_float" shortname="omega q" param="STABILIZATION_ATTITUDE_REF_OMEGA_Q" handler="SetOmegaQ"/>
-      <dl_setting var="stab_att_ref_model[0].zeta.q" min="0.5" step="0.05" max="1.2" module="stabilization/stabilization_attitude_ref_quat_float" shortname="zeta q" param="STABILIZATION_ATTITUDE_REF_ZETA_Q"/>
-      <dl_setting var="stab_att_ref_model[0].omega.r" min="1" step="1" max="1000" unit="rad/s" alt_unit="deg/s" module="stabilization/stabilization_attitude_ref_quat_float" shortname="omega r" param="STABILIZATION_ATTITUDE_REF_OMEGA_P" handler="SetOmegaR"/>
-      <dl_setting var="stab_att_ref_model[0].zeta.r" min="0.5" step="0.05" max="1.2" module="stabilization/stabilization_attitude_ref_quat_float" shortname="zeta r" param="STABILIZATION_ATTITUDE_REF_ZETA_R"/>
+      <dl_setting var="att_ref_quat_f.model[0].omega.p" min="1" step="1" max="1000" unit="rad/s" alt_unit="deg/s" module="stabilization/stabilization_attitude_quat_float" shortname="omega p" param="STABILIZATION_ATTITUDE_REF_OMEGA_P" handler="SetOmegaP"/>
+      <dl_setting var="att_ref_quat_f.model[0].zeta.p" min="0.5" step="0.05" max="1.2" module="stabilization/stabilization_attitude_quat_float" shortname="zeta p" param="STABILIZATION_ATTITUDE_REF_ZETA_P"/>
+      <dl_setting var="att_ref_quat_f.model[0].omega.q" min="1" step="1" max="1000" unit="rad/s" alt_unit="deg/s" module="stabilization/stabilization_attitude_quat_float" shortname="omega q" param="STABILIZATION_ATTITUDE_REF_OMEGA_Q" handler="SetOmegaQ"/>
+      <dl_setting var="att_ref_quat_f.model[0].zeta.q" min="0.5" step="0.05" max="1.2" module="stabilization/stabilization_attitude_quat_float" shortname="zeta q" param="STABILIZATION_ATTITUDE_REF_ZETA_Q"/>
+      <dl_setting var="att_ref_quat_f.model[0].omega.r" min="1" step="1" max="1000" unit="rad/s" alt_unit="deg/s" module="stabilization/stabilization_attitude_quat_float" shortname="omega r" param="STABILIZATION_ATTITUDE_REF_OMEGA_R" handler="SetOmegaR"/>
+      <dl_setting var="att_ref_quat_f.model[0].zeta.r" min="0.5" step="0.05" max="1.2" module="stabilization/stabilization_attitude_quat_float" shortname="zeta r" param="STABILIZATION_ATTITUDE_REF_ZETA_R"/>
     </dl_settings>
 
   </dl_settings>

@@ -24,6 +24,16 @@
 
 #define DATALINK_C
 
+/* PERIODIC_C_MAIN is defined before generated/periodic_telemetry.h
+ * in order to implement telemetry_mode_Main_*
+ */
+#define PERIODIC_C_MAIN
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#include "generated/periodic_telemetry.h"
+#pragma GCC diagnostic pop
+
 #include "generated/airframe.h"
 #include "generated/settings.h"
 
@@ -86,11 +96,8 @@ static inline void main_periodic(void)
 
 static inline void main_event(void)
 {
-#if USE_UDP
-  udp_event();
-#else
-  uart_event();
-#endif
+  mcu_event();
+
   DatalinkEvent();
 }
 
@@ -102,7 +109,7 @@ void dl_parse_msg(void)
   uint8_t msg_id = IdOfMsg(dl_buffer);
   if (msg_id == DL_SET_ACTUATOR) {
     uint8_t actuator_no = DL_SET_ACTUATOR_no(dl_buffer);
-    uint16_t actuator_value = DL_SET_ACTUATOR_value(dl_buffer);
+    uint16_t actuator_value __attribute__((unused)) = DL_SET_ACTUATOR_value(dl_buffer);
     LED_TOGGLE(2);
 
     /* bad hack:

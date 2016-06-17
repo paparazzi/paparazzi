@@ -6,9 +6,10 @@
       Airspeed AMSYS (I2C)
       Driver for a Amsys Differential Presure Sensor I2C
       (AMS 5812-0003-D)
+      (AMS 5812-0001-D)
     </description>
-    <define name="AIRSPEED_AMSYS_I2C_DEV" value="i2c0" description="change default i2c peripheral"/>
-    <define name="AIRSPEED_AMSYS_MAXPRESURE" value="2068" description="max sensor pressure (Pa) (default: 2068 for -003)(for -001 use 689)"/>
+    <configure name="AIRSPEED_AMSYS_I2C_DEV" value="i2c0" description="change default i2c peripheral"/>
+    <define name="AIRSPEED_AMSYS_MAXPRESURE" value="2068" description="max sensor pressure (Pa) (default: 2068 for AMS 5812-0003-D)(for AMS 5812-0001-D use 1034)"/>
     <define name="AIRSPEED_AMSYS_SCALE" value="1.0" description="sensor scale factor (default: 1.0)"/>
     <define name="AIRSPEED_AMSYS_FILTER" value="0." description="sensor filter (default: 0. max:1)"/>
     <define name="AIRSPEED_AMSYS_SYNC_SEND" description="flag to transmit the data as it is acquired"/>
@@ -29,10 +30,13 @@
     <file name="airspeed_amsys.h"/>
   </header>
   <init fun="airspeed_amsys_init()"/>
-  <periodic fun="airspeed_amsys_read_periodic()" freq="10."/>
+  <periodic fun="airspeed_amsys_read_periodic()" freq="60."/>
   <event fun="AirspeedAmsysEvent()"/>
 
   <makefile>
+    <configure name="AIRSPEED_AMSYS_I2C_DEV" default="i2c0" case="upper|lower"/>
+    <define name="USE_$(AIRSPEED_AMSYS_I2C_DEV_UPPER)"/>
+    <define name="AIRSPEED_AMSYS_I2C_DEV" value="$(AIRSPEED_AMSYS_I2C_DEV_LOWER)"/>
     <file name="airspeed_amsys.c"/>
   </makefile>
 

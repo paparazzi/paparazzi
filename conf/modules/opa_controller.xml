@@ -1,0 +1,34 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="opa_controller" dir="boards">
+  <doc>
+    <description>Controller for OPA board functionalities</description>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="Board">
+         <dl_setting var="opa_controller_vision_power" min="0" step="1" max="1" shortname="vision_pwr" values="OFF|ON" />
+         <dl_setting var="opa_controller_ftd_disarm" min="0" step="1" max="1" shortname="ftd_disarm" values="NONE|DISARM" module="boards/opa_controller_ap" handler="disarm" />
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="opa_controller_ap.h"/>
+  </header>
+  <init fun="opa_controller_init()"/>
+  <periodic fun="opa_controller_periodic()" freq="20" autorun="TRUE"/>
+
+  <!-- FBW (FTD) part of the controller -->
+  <makefile target="fbw">
+    <file name="opa_controller_fbw.c"/>
+
+    <configure name="ARMING_LED" default="none"/>
+    <define name="ARMING_LED" value="$(ARMING_LED)" cond="ifneq ($(ARMING_LED),none)"/>
+  </makefile>
+
+  <!-- AP part of the controller -->
+  <makefile target="ap">
+    <file name="opa_controller_ap.c"/>
+  </makefile>
+</module>
+

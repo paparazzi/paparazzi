@@ -24,7 +24,7 @@
 
 val dump_store : bool -> Xml.xml list
 val has_papgets : unit -> bool
-val create : #GnoCanvas.group -> Xml.xml -> unit
+val create : #GnoCanvas.group -> GData.adjustment -> Xml.xml -> unit
 val dnd_data_received :
-  #GnoCanvas.group ->
+  #GnoCanvas.group -> GData.adjustment ->
   'a -> x:int -> y:int -> < data : string; .. > -> info:'b -> time:'c -> unit

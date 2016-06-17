@@ -5,45 +5,47 @@
   <firmware name="rotorcraft">
     <define name="DEBUG_VFF_EXTENDED"/>
     <configure name="HOST" value="192.168.1.$(AC_ID)"/>
-    <target name="ap" board="ardrone2_raw">
+    <target name="ap" board="ardrone2">
       <define name="USE_SONAR"/>
       <define name="USE_BARO_MEDIAN_FILTER"/>
       <define name="AUTOPILOT_DISABLE_AHRS_KILL"/>
-      <subsystem name="telemetry" type="transparent_udp"/>
-      <subsystem name="radio_control" type="datalink"/>
+      <module name="telemetry" type="transparent_udp"/>
+      <module name="radio_control" type="datalink"/>
     </target>
 
     <target name="nps" board="pc">
-      <subsystem name="fdm" type="jsbsim"/>
-      <subsystem name="radio_control" type="ppm"/>
+      <module name="fdm" type="jsbsim"/>
+      <module name="radio_control" type="ppm"/>
     </target>
 
 	<!-- Subsystem section -->
-    <subsystem name="motor_mixing"/>
-    <subsystem name="actuators" type="ardrone2"/>
-    <subsystem name="imu" type="ardrone2"/>
-    <subsystem name="gps" type="ublox"/>
-    <subsystem name="stabilization" type="int_quat"/>
+    <module name="motor_mixing"/>
+    <module name="actuators" type="ardrone2"/>
+    <module name="imu" type="ardrone2"/>
+    <module name="gps" type="ublox"/>
+    <!--module name="gps" type="ubx_ucenter"/-->
+    <module name="stabilization" type="int_quat"/>
     <!-- AHRS + INS for indoor or outdoor -->
-    <!--subsystem name="ahrs" type="int_cmpl_euler"/>
-    <subsystem name="ins" type="extended"/-->
+    <!--module name="ahrs" type="int_cmpl_euler"/>
+    <module name="ins" type="extended"/-->
     <!-- INS for outdoor only -->
-    <subsystem name="ins" type="float_invariant"/>
-  </firmware>
+    <module name="ins" type="float_invariant"/>
 
-  <modules main_freq="512">
-    <!--load name="gps_ubx_ucenter.xml"/-->
-    <load name="agl_dist.xml">
+    <module name="agl_dist">
       <define name="USE_SONAR"/>
-    </load>
-    <load name="video_rtp_stream.xml">
+    </module>
+    <module name="video_thread"/>
+    <module name="video_rtp_stream">
+      <define name="VIEWVIDEO_CAMERA" value="front_camera"/>
       <define name="VIDEO_SOCK_OUT_OFFSET" value="$(AC_ID)"/>
       <define name="VIDEO_DOWNSIZE_FACTOR" value="2"/>
       <define name="VIDEO_QUALITY_FACTOR" value="80"/>
       <define name="VIDEO_FPS" value="1"/>
-    </load>
-    <load name="rotorcraft_cam.xml"/>
-  </modules>
+    </module>
+    <module name="rotorcraft_cam"/>
+  </firmware>
+
+  <modules main_freq="512"/>
 
   <!-- include common control -->
   <include href="conf/airframes/ENAC/quadrotor/ard2_base_control.xml"/>

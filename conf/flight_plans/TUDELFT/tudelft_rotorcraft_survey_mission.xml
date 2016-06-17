@@ -1,0 +1,258 @@
+<!DOCTYPE procedure SYSTEM "../flight_plan.dtd">
+
+<procedure>
+
+  <header>
+#include "autopilot.h"
+#include "subsystems/electrical.h"
+#ifdef dc_Survey
+#define LINE_START_FUNCTION dc_Survey(dc_distance_interval);
+#define LINE_STOP_FUNCTION {dc_autoshoot = DC_AUTOSHOOT_STOP;}
+#endif
+#ifndef DropOpen
+#define DropOpen() FALSE
+#endif
+#ifndef StartVision
+#define StartVision() FALSE
+#endif
+#ifndef StartVisionLand
+#define StartVisionLand() FALSE
+#endif
+#ifndef StopVision
+#define StopVision() FALSE
+#endif
+#define WpAlt(X) (30)
+  </header>
+
+  <exceptions>
+      <exception cond="electrical.bat_low && (exception_flag[0] == 0)" deroute="ComeBackAndLand" exec="set_exception_flag(0)"/>
+      <exception cond="electrical.bat_critical && (exception_flag[1] == 0)" deroute="land_here" exec="set_exception_flag(1)"/>
+    <exception cond="(!InsideRED(GetPosX(), GetPosY()) && !(nav_block == IndexOfBlock('flare')) && !(nav_block == IndexOfBlock('landed')) && !(nav_block == IndexOfBlock('WaitGPS')) && !(nav_block == IndexOfBlock('GeoInit')))" deroute="land_emergency"/>
+  </exceptions>
+
+  <blocks>
+
+<!-- BOOT -->
+    <block name="WaitGPS">
+      <call fun="NavKillThrottle()"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="GeoInit">
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+      <call fun="NavSetGroundReferenceHere()"/>
+    </block>
+    <block name="holding_point">
+      <call fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+
+<!-- START -->
+    <block name="Start Engine" strip_button="Start Engine" strip_icon="resurrect.png" group="engine">
+      <call fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Takeoff-Standby" strip_button="Takeoff-Standby" strip_icon="takeoff.png" group="takeoff">
+      <exception cond="stateGetPositionEnu_f()->z > 10.0" deroute="Standby"/>
+      <call fun="NavSetWaypointHere(WP_CLIMB)"/>
+      <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
+    </block>
+    <block name="Takeoff-Map" strip_button="Takeoff-Map" strip_icon="survey.png" group="takeoff">
+      <exception cond="stateGetPositionEnu_f()->z > 10.0" deroute="SurveyPoly"/>
+      <call fun="NavSetWaypointHere(WP_CLIMB)"/>
+      <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
+    </block>
+    <block name="Takeoff-Drop" strip_button="Takeoff-Drop" strip_icon="parachute.png" group="takeoff">
+      <exception cond="stateGetPositionEnu_f()->z > 10.0" deroute="drop"/>
+      <call fun="NavSetWaypointHere(WP_CLIMB)"/>
+      <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
+    </block>
+    <block name="Takeoff-Water" strip_button="Takeoff-Water" group="takeoff">
+      <exception cond="stateGetPositionEnu_f()->z > 27.0" deroute="drop_water"/>
+      <call fun="NavSetWaypointHere(WP_CLIMB)"/>
+      <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
+    </block>
+
+<!-- OBSERVE -->
+    <block name="Standby" strip_button="Standby" strip_icon="home.png" group="hover">
+      <stay wp="STDBY"/>
+    </block>
+
+    <block name="GoTennis" strip_button="LookRobot-FC" strip_icon="lookdown.png" group="hover">
+      <call fun="NavCopyWaypointPositionOnly(WP_CRUISE,WP_FC)"/>
+      <go wp="CRUISE"/>
+    </block>
+    <block name="LookRobot" >
+      <stay climb="nav_descend_vspeed" vmode="climb" wp="FC" until="LessThan(stateGetPositionEnu_f()->z, 20)"/>
+      <call fun="NavCopyWaypointPositionOnly(WP_CAM,WP_FC)"/>
+    </block>
+    <block name="Vision" >
+      <exception cond="! InsideTENNIS(GetPosX(), GetPosY())" deroute="NoVision"/>
+      <exception cond="block_time > 60" deroute="ComeBackAndVisualLand"/>
+      <call fun="StartVision()"/>
+      <stay wp="CAM"/>
+    </block>
+    <block name="NoVision" >
+      <exception cond="block_time > 60" deroute="ComeBackAndLand"/>
+      <call fun="StartVision()"/>
+      <stay wp="FC"/>
+    </block>
+    <block name="ComeBackAndLand" strip_button="ComeBackAndLand" strip_icon="land-right.png" group="hover">
+      <call fun="StopVision()"/>
+      <call fun="NavSetWaypointHere(WP_CRUISE)"/>
+      <stay climb="nav_climb_vspeed" vmode="climb" wp="CRUISE" until="stateGetPositionEnu_f()->z > 30"/>
+      <call fun="NavCopyWaypointPositionOnly(WP_CRUISE,WP_TD)"/>
+      <go wp="CRUISE"/>
+      <deroute block="land"/>
+    </block>
+    <block name="ComeBackAndVisualLand">
+      <call fun="StopVision()"/>
+      <call fun="NavSetWaypointHere(WP_CRUISE)"/>
+      <stay climb="nav_climb_vspeed" vmode="climb" wp="CRUISE" until="stateGetPositionEnu_f()->z > 30"/>
+      <call fun="NavCopyWaypointPositionOnly(WP_CRUISE,WP_TD)"/>
+      <call fun="NavCopyWaypointPositionOnly(WP_CAM,WP_TD)"/>
+      <go wp="CRUISE"/>
+      <deroute block="visual_flare"/>
+    </block>
+
+    <block name="CAM" strip_button="Follow-Vision-Geolocation-Results" strip_icon="lookdown.png" group="hover">
+      <stay wp="CAM"/>
+    </block>
+
+    <block name="stay_p1">
+      <stay wp="p1"/>
+    </block>
+    <block name="go_p2">
+      <go wp="p2"/>
+      <deroute block="stay_p1"/>
+    </block>
+    <block name="line_p1_p2">
+      <go from="p1" hmode="route" wp="p2"/>
+      <stay until="stage_time>10" wp="p2"/>
+      <go from="p2" hmode="route" wp="p1"/>
+      <deroute block="stay_p1"/>
+    </block>
+    <block name="circle CV" pre_call="nav_set_heading_towards_waypoint(WP_CAM)">
+      <circle radius="nav_radius" wp="CAM"/>
+    </block>
+
+<!-- DROPPINGS -->
+    <block name="drop" group="drop">
+       <go wp="DROP"/>
+       <stay climb="nav_descend_vspeed" vmode="climb" wp="DROP" until="LessThan(stateGetPositionEnu_f()->z, 6)"/>
+       <call fun="DropOpen()"/>
+       <stay climb="nav_climb_vspeed" vmode="climb" wp="DROP" until="stateGetPositionEnu_f()->z > 13"/>
+       <deroute block="land"/>
+    </block>
+    <block name="drop_zone1" group="drop">
+       <go wp="RZ1"/>
+       <stay climb="nav_descend_vspeed" vmode="climb" wp="RZ1" until="LessThan(stateGetPositionEnu_f()->z, 6)"/>
+       <call fun="DropOpen()"/>
+       <stay climb="nav_climb_vspeed" vmode="climb" wp="RZ1" until="stateGetPositionEnu_f()->z > 13"/>
+       <deroute block="land"/>
+    </block>
+    <block name="drop_zone2" group="drop">
+       <go wp="RZ2"/>
+       <stay climb="nav_descend_vspeed" vmode="climb" wp="RZ2" until="LessThan(stateGetPositionEnu_f()->z, 6)"/>
+       <call fun="DropOpen()"/>
+       <stay climb="nav_climb_vspeed" vmode="climb" wp="RZ2" until="stateGetPositionEnu_f()->z > 13"/>
+       <deroute block="land"/>
+    </block>
+    <block name="drop_zone3" group="drop">
+       <go wp="RZ3"/>
+       <stay climb="nav_descend_vspeed" vmode="climb" wp="RZ3" until="LessThan(stateGetPositionEnu_f()->z, 6)"/>
+       <call fun="DropOpen()"/>
+       <stay climb="nav_climb_vspeed" vmode="climb" wp="RZ3" until="stateGetPositionEnu_f()->z > 13"/>
+       <deroute block="land"/>
+    </block>
+    <block name="drop_water" group="drop">
+       <go wp="WD"/>
+       <stay climb="nav_descend_vspeed" vmode="climb" wp="WD" until="LessThan(stateGetPositionEnu_f()->z, 8)"/>
+       <call fun="DropOpen()"/>
+       <stay climb="nav_climb_vspeed" vmode="climb" wp="WD" until="stateGetPositionEnu_f()->z > 12"/>
+       <deroute block="land"/>
+    </block>
+
+<!-- LAPS -->
+    <block name="race" strip_button="Oval p1-p2-p3-p4" strip_icon="oval.png" group="race">
+      <go from="p1" hmode="route" wp="p2"/>
+      <go from="p2" hmode="route" wp="p3"/>
+      <go from="p3" hmode="route" wp="p4"/>
+      <go from="p4" hmode="route" wp="p1"/>
+      <deroute block="race"/>
+    </block>
+    <block name="raceline" strip_button="Line raceA-raceB" strip_icon="line.png" group="race">
+      <go from="raceA" hmode="route" wp="raceB"/>
+      <go from="raceB" hmode="route" wp="raceA"/>
+      <deroute block="raceline"/>
+    </block>
+
+<!-- SURVEYS -->
+<!--
+    <block group="survey" name="Survey S1-S2 NS" strip_button="Survey-NS-S1-S2" strip_icon="survey.png">
+      <call fun="nav_survey_rectangle_rotorcraft_setup(WP_S1, WP_S2, sweep, NS)"/>
+      <deroute block="Survey RECTANGLE RUN"/>
+    </block>
+    <block group="survey" name="Survey S1-S2 EW" strip_button="Survey-EW-S1-S2" strip_icon="survey_we.png">
+      <call fun="nav_survey_rectangle_rotorcraft_setup(WP_S1, WP_S2, sweep, WE)"/>
+      <deroute block="Survey RECTANGLE RUN"/>
+    </block>
+    <block name="Survey RECTANGLE RUN">
+      <exception cond="rectangle_survey_sweep_num >= 1" deroute="Standby"/>
+      <call fun="nav_survey_rectangle_rotorcraft_run(WP_S1, WP_S2)"/>
+    </block>
+-->
+    <block group="survey" name="SurveyPoly" strip_button="Survey-Polygon-S1-S2-S3-S4" strip_icon="googleearth.png">
+      <call fun="nav_survey_poly_setup_towards(WP_S1, 4, sweep, WP_S2)"/>
+      <deroute block="Survey Poly RUN"/>
+    </block>
+    <block name="Survey Poly RUN">
+      <exception cond="PolySurveySweepNum >= 5" deroute="GoTennis"/>
+      <call fun="nav_survey_poly_run()"/>
+    </block>
+
+<!-- LANDINGS -->
+    <block name="land_here" strip_button="Land Here" strip_icon="downdown.png" group="landing">
+      <call fun="NavCopyWaypoint(WP_CAM,WP_TD)"/><!-- Backup TD location -->
+      <call fun="NavSetWaypointHere(WP_TD)"/>
+      <deroute block="flare"/>
+    </block>
+    <block name="land" strip_button="Land at TD" strip_icon="land-right.png" group="landing">
+      <go wp="TD"/>
+      <call fun="StartVisionLand()"/>
+      <deroute block="flare"/>
+    </block>
+    <block name="visual_flare" strip_button="VisualLanding-CAM" strip_icon="cam_lock.png" group="landing">
+      <exception cond="NavDetectGround()" deroute="holding_point"/>
+      <exception cond="!nav_is_in_flight()" deroute="landed"/>
+      <exception cond="!InsideLAND(GetPosX(), GetPosY())" deroute="land"/>
+      <call fun="NavStartDetectGround()"/>
+      <stay climb="-0.2" vmode="climb" wp="CAM"/>
+      <deroute block="landed"/>
+    </block>
+    <block name="flare">
+      <exception cond="NavDetectGround()" deroute="holding_point"/>
+      <exception cond="!nav_is_in_flight()" deroute="landed"/>
+      <call fun="NavStartDetectGround()"/>
+      <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
+      <deroute block="landed"/>
+    </block>
+    <block name="landed" strip_button="Kill" strip_icon="kill.png" group="landing">
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="land_emergency">
+      <call fun="NavSetWaypointHere(WP_ETD)"/>
+      <deroute block="flare_emergency"/>
+    </block>
+    <block name="flare_emergency">
+      <exception cond="NavDetectGround()" deroute="landed_emergency"/>
+      <exception cond="!nav_is_in_flight()" deroute="landed_emergency"/>
+      <call fun="NavStartDetectGround()"/>
+      <stay climb="nav_descend_vspeed" vmode="climb" wp="ETD"/>
+      <deroute block="landed"/>
+    </block>
+    <block name="landed_emergency">
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+  </blocks>
+
+</procedure>

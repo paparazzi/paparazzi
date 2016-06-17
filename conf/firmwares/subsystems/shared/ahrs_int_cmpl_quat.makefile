@@ -8,35 +8,39 @@
 USE_MAGNETOMETER ?= 1
 AHRS_ALIGNER_LED ?= none
 
-AHRS_CFLAGS  = -DUSE_AHRS
-AHRS_CFLAGS += -DUSE_AHRS_ALIGNER
+AHRS_ICQ_CFLAGS  = -DUSE_AHRS
+AHRS_ICQ_CFLAGS += -DUSE_AHRS_ALIGNER
 
 ifeq (,$(findstring $(USE_MAGNETOMETER),0 FALSE))
-  AHRS_CFLAGS += -DUSE_MAGNETOMETER
+  AHRS_ICQ_CFLAGS += -DUSE_MAGNETOMETER
 endif
 
 ifneq ($(AHRS_ALIGNER_LED),none)
-  AHRS_CFLAGS += -DAHRS_ALIGNER_LED=$(AHRS_ALIGNER_LED)
+  AHRS_ICQ_CFLAGS += -DAHRS_ALIGNER_LED=$(AHRS_ALIGNER_LED)
 endif
 
-AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl_quat.h\"
-AHRS_SRCS   += subsystems/ahrs.c
-AHRS_SRCS   += subsystems/ahrs/ahrs_int_cmpl_quat.c
-AHRS_SRCS   += subsystems/ahrs/ahrs_aligner.c
-
-ifdef AHRS_PROPAGATE_FREQUENCY
-AHRS_CFLAGS += -DAHRS_PROPAGATE_FREQUENCY=$(AHRS_PROPAGATE_FREQUENCY)
+ifdef SECONDARY_AHRS
+ifneq (,$(findstring $(SECONDARY_AHRS),ahrs_icq int_cmpl_quat))
+# this is the secondary AHRS
+AHRS_ICQ_CFLAGS += -DAHRS_SECONDARY_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl_quat_wrapper.h\"
+AHRS_ICQ_CFLAGS += -DSECONDARY_AHRS=ahrs_icq
+else
+# this is the primary AHRS
+AHRS_ICQ_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl_quat_wrapper.h\"
+AHRS_ICQ_CFLAGS += -DPRIMARY_AHRS=ahrs_icq
+endif
+else
+# plain old single AHRS usage
+AHRS_ICQ_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl_quat_wrapper.h\"
 endif
 
-ifdef AHRS_CORRECT_FREQUENCY
-AHRS_CFLAGS += -DAHRS_CORRECT_FREQUENCY=$(AHRS_CORRECT_FREQUENCY)
+AHRS_ICQ_SRCS   += subsystems/ahrs.c
+AHRS_ICQ_SRCS   += subsystems/ahrs/ahrs_int_cmpl_quat.c
+AHRS_ICQ_SRCS   += subsystems/ahrs/ahrs_int_cmpl_quat_wrapper.c
+AHRS_ICQ_SRCS   += subsystems/ahrs/ahrs_aligner.c
+
+# add it for all targets except sim and fbw
+ifeq (,$(findstring $(TARGET),sim fbw))
+$(TARGET).CFLAGS += $(AHRS_ICQ_CFLAGS)
+$(TARGET).srcs += $(AHRS_ICQ_SRCS)
 endif
-
-ap.CFLAGS += $(AHRS_CFLAGS)
-ap.srcs += $(AHRS_SRCS)
-
-nps.CFLAGS += $(AHRS_CFLAGS)
-nps.srcs += $(AHRS_SRCS)
-
-test_ahrs.CFLAGS += $(AHRS_CFLAGS)
-test_ahrs.srcs += $(AHRS_SRCS)

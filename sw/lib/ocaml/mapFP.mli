@@ -45,7 +45,12 @@ class flight_plan :
     method insert_path : (MapWaypoints.waypoint * float) list -> unit
     method highlight_stage : int -> int -> unit
     method connect_activated : (XmlEdit.node->unit) -> unit
+    method update_sectors : string -> unit
   end
 
 (** Extracts [lat0] and [Lon0] attributes *)
 val georef_of_xml : Xml.xml -> Latlong.geographic
+
+(** Display a polygon based on a kml file *)
+val display_kml : ?group:GnoCanvas.group -> string -> MapCanvas.widget -> Xml.xml -> unit
+

@@ -22,7 +22,7 @@
 /**
  * @file peripherals/ms5611_i2c.h
  *
- * Measurement Specialties (Intersema) MS5611-01BA pressure/temperature sensor interface for I2C.
+ * Measurement Specialties (Intersema) MS5611-01BA and MS5607-02BA03 pressure/temperature sensor interface for I2C.
  */
 
 #ifndef MS5611_I2C_H
@@ -37,14 +37,16 @@ struct Ms5611_I2c {
   struct i2c_periph *i2c_p;
   struct i2c_transaction i2c_trans;
   enum Ms5611Status status;
-  bool_t initialized;                 ///< config done flag
-  volatile bool_t data_available;     ///< data ready flag
+  bool is_ms5607;                   ///< TRUE if MS5607, FALSE if MS5611
+  bool initialized;                 ///< config done flag
+  volatile bool data_available;     ///< data ready flag
   struct Ms5611Data data;
   int32_t prom_cnt;                   ///< number of bytes read from PROM
 };
 
 // Functions
-extern void ms5611_i2c_init(struct Ms5611_I2c *ms, struct i2c_periph *i2c_p, uint8_t addr);
+extern void ms5611_i2c_init(struct Ms5611_I2c *ms, struct i2c_periph *i2c_p, uint8_t addr,
+                            bool is_ms5607);
 extern void ms5611_i2c_start_configure(struct Ms5611_I2c *ms);
 extern void ms5611_i2c_start_conversion(struct Ms5611_I2c *ms);
 extern void ms5611_i2c_periodic_check(struct Ms5611_I2c *ms);

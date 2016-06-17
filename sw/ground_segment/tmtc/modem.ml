@@ -22,6 +22,7 @@
  *
  *)
 
+
 open Printf
 
 module Protocol = struct
@@ -32,20 +33,20 @@ module Protocol = struct
   let stx = Char.chr 0x02
   let etx = 0x03
   let index_start = fun buf ->
-    String.index buf stx
+    Compat.bytes_index buf stx
 
   let payload_length = fun buf start ->
     Char.code buf.[start+1] - 1
 
   let length = fun buf start ->
-    let len = String.length buf - start in
+    let len = Compat.bytes_length buf - start in
     if len >= 2 then
       Char.code buf.[start+1] + 3
     else
       raise Serial.Not_enough
 
   let checksum = fun msg ->
-    let l = String.length msg in
+    let l = Compat.bytes_length msg in
     let ck_a = ref 0 in
     for i = 1 to l - 3 do
       ck_a := Char.code msg.[i] lxor !ck_a
@@ -53,9 +54,9 @@ module Protocol = struct
     !ck_a = Char.code msg.[l-2] && Char.code msg.[l-1] = etx
 
   let payload = fun msg ->
-    let l = String.length msg in
+    let l = Compat.bytes_length msg in
     assert(l >= 4);
-    Serial.payload_of_string (String.sub msg 2 (l-4))
+    Serial.payload_of_string (Compat.bytes_sub msg 2 (l-4))
 
   let packet = fun _payload ->
     failwith "Modem.Protocol.packet not implemented"
@@ -95,12 +96,12 @@ let valim = fun x -> float x *. 0.0162863 -. 1.17483
 let parse_payload = fun payload ->
   let payload = Serial.string_of_payload payload in
   status.detected <- 1;
-  let len = String.length payload in
+  let len = Compat.bytes_length payload in
   status.nb_byte <- status.nb_byte + len;
   status.nb_msg <- status.nb_msg + 1;
   let id = Char.code payload.[0] in
   if id = msg_data then
-    Some (String.sub payload 1 (len-1))
+    Some (Compat.bytes_sub payload 1 (len-1))
   else begin
     begin
       match id with

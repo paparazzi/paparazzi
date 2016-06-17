@@ -69,18 +69,8 @@
 #include "subsystems/imu.h"
 
 
-extern volatile bool_t analog_imu_available;
 extern int imu_overrun;
 
-static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void),
-                            void (* _mag_handler)(void) __attribute__((unused)))
-{
-  if (analog_imu_available) {
-    analog_imu_available = FALSE;
-    _gyro_handler();
-    _accel_handler();
-  }
-}
-
+#define ImuEvent() {}
 
 #endif /* IMU_ANALOG_H */

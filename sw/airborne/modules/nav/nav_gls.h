@@ -30,7 +30,7 @@
 #include "std.h"
 #include "paparazzi.h"
 
-extern bool_t gls_start(uint8_t _af, uint8_t _sd, uint8_t _tod, uint8_t _td);
-extern bool_t gls_run(uint8_t _af, uint8_t _sd, uint8_t _tod, uint8_t _td);
+extern bool gls_start(uint8_t _af, uint8_t _sd, uint8_t _tod, uint8_t _td);
+extern bool gls_run(uint8_t _af, uint8_t _sd, uint8_t _tod, uint8_t _td);
 
 #endif // NAV_GLS_H

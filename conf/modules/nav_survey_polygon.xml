@@ -3,18 +3,18 @@
 <module name="nav_survey_polygon" dir="nav">
   <doc>
     <description>
-Survey a polygon with a fixedwing.
-From Uni Stuttgart.
-In the flight plan, the survey blocks call init and run functions:
-1. Initialize the variables needed for the survey to start, with nav_survey_polygon_setup(first_wp, size, angle, sweep_width, shot_dist, min_rad, altitude):
-  - first_wp      the first Waypoint of the polygon (WP_waypoint_name)
-  - size          the number of points that make up the polygon
-  - angle         angle in which to do the flyovers
-  - sweep_width   distance between the sweeps
-  - shot_dist     distance between the shots
-  - min_rad       minimal radius when navigating
-  - altitude      the altitude that must be reached before the flyover starts
-2. Run the survey with nav_survey_polygon_run()
+      Survey a polygon with a fixedwing.
+      From Uni Stuttgart.
+      In the flight plan, the survey blocks call init and run functions:
+      1. Initialize the variables needed for the survey to start, with nav_survey_polygon_setup(first_wp, size, angle, sweep_width, shot_dist, min_rad, altitude):
+        - first_wp      the first Waypoint of the polygon (WP_waypoint_name)
+        - size          the number of points that make up the polygon
+        - angle         angle in which to do the flyovers
+        - sweep_width   distance between the sweeps
+        - shot_dist     distance between the shots
+        - min_rad       minimal radius when navigating
+        - altitude      the altitude that must be reached before the flyover starts
+      2. Run the survey with nav_survey_polygon_run()
 <!--
 Block example:
 @verbatim
@@ -29,7 +29,7 @@ Block example:
   <header>
     <file name="nav_survey_polygon.h"/>
   </header>
-  <makefile target="ap|sim|jsbsim|nps">
+  <makefile target="ap|sim|nps">
     <file name="nav_survey_polygon.c"/>
   </makefile>
 </module>

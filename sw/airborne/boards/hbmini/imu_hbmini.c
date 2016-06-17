@@ -34,10 +34,11 @@
 #include "imu_hbmini.h"
 #include "mcu_periph/i2c.h"
 #include "led.h"
+#include "subsystems/abi.h"
 
 // Downlink
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 
 
@@ -61,17 +62,11 @@ struct ImuHbmini imu_hbmini;
 
 void imu_impl_init(void)
 {
-
   max1168_init();
 
   /////////////////////////////////////////////////////////////////////
   // HMC58XX
   hmc58xx_init(&imu_hbmini.hmc, &(IMU_HBMINI_I2C_DEV), HMC58XX_ADDR);
-
-  imu_hbmini.gyr_valid = FALSE;
-  imu_hbmini.acc_valid = FALSE;
-  imu_hbmini.mag_valid = FALSE;
-
 }
 
 void imu_periodic(void)
@@ -97,9 +92,9 @@ void imu_hbmini_downlink_raw(void)
 
 void imu_hbmini_event(void)
 {
+  uint32_t now_ts = get_sys_time_usec();
 
   max1168_event();
-
 
   if (max1168_status == MAX1168_DATA_AVAILABLE) {
     imu.gyro_unscaled.p  = max1168_values[IMU_GYRO_P_CHAN];
@@ -109,8 +104,10 @@ void imu_hbmini_event(void)
     imu.accel_unscaled.y = max1168_values[IMU_ACCEL_Y_CHAN];
     imu.accel_unscaled.z = max1168_values[IMU_ACCEL_Z_CHAN];
     max1168_status = MAX1168_IDLE;
-    imu_hbmini.gyr_valid = TRUE;
-    imu_hbmini.acc_valid = TRUE;
+    imu_scale_gyro(&imu);
+    imu_scale_accel(&imu);
+    AbiSendMsgIMU_GYRO_INT32(IMU_BOARD_ID, now_ts, &imu.gyro);
+    AbiSendMsgIMU_ACCEL_INT32(IMU_BOARD_ID, now_ts, &imu.accel);
   }
 
   // HMC58XX event task
@@ -120,8 +117,9 @@ void imu_hbmini_event(void)
     imu.mag_unscaled.y = imu_hbmini.hmc.data.value[IMU_MAG_Y_CHAN];
     imu.mag_unscaled.x = imu_hbmini.hmc.data.value[IMU_MAG_Z_CHAN];
 
-    imu_hbmini.hmc.data_available = FALSE;
-    imu_hbmini.mag_valid = TRUE;
+    imu_hbmini.hmc.data_available = false;
+    imu_scale_mag(&imu);
+    AbiSendMsgIMU_MAG_INT32(IMU_BOARD_ID, now_ts, &imu.mag);
   }
 
 }

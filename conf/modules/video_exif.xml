@@ -1,0 +1,47 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="video_exif" dir="computer_vision">
+  <doc>
+    <description>
+      Add EXIF data to any JPEG
+
+      - Image size
+      - GPS location
+    </description>
+  </doc>
+
+  <depends>video_thread</depends>
+
+  <header>
+    <file name="lib/exif/exif_module.h"/>
+  </header>
+  <periodic fun="push_gps_to_vision()" freq="8"/>
+  <makefile target="ap">
+    <include name="modules/computer_vision"/>
+    <file name="exif_module.c" dir="modules/computer_vision/lib/exif"/>
+
+    <!-- libexif -->
+    <configure name="EXTSW" value="$(PAPARAZZI_SRC)/sw/ext" />
+    <configure name="LIBEXIF" value="$(EXTSW)/libexif" />
+    <file name="exif-content.c" dir="$(LIBEXIF)"/>
+    <file name="exif-entry.c" dir="$(LIBEXIF)"/>
+    <file name="exif-tag.c" dir="$(LIBEXIF)"/>
+    <file name="exif-format.c" dir="$(LIBEXIF)"/>
+    <file name="exif-utils.c" dir="$(LIBEXIF)"/>
+    <file name="exif-mem.c" dir="$(LIBEXIF)"/>
+    <file name="exif-data.c" dir="$(LIBEXIF)"/>
+    <file name="exif-log.c" dir="$(LIBEXIF)"/>
+    <file name="exif-loader.c" dir="$(LIBEXIF)"/>
+    <file name="exif-ifd.c" dir="$(LIBEXIF)"/>
+    <file name="exif-mnote-data.c" dir="$(LIBEXIF)"/>
+
+
+    <!-- libexif flags -->
+    <include name="$(EXTSW)"/>
+    <include name="$(LIBEXIF)"/>
+    <define name="NO_VERBOSE_TAG_DATA"/>
+    <define name="NO_VERBOSE_TAG_STRINGS"/>
+    <define name="JPEG_WITH_EXIF_HEADER" value="1"/>
+  </makefile>
+</module>
+

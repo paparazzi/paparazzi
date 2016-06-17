@@ -21,7 +21,7 @@ extern volatile uint16_t  mb_tacho_nb_pulse;
     mb_tacho_averaged += diff;            \
     mb_tacho_nb_pulse++;            \
     tmb_last = t_now;             \
-    got_one_pulse = TRUE;                                               \
+    got_one_pulse = true;                                               \
   }
 
 #endif /* MB_TACHO_H */

@@ -6,7 +6,7 @@
       Baro AMSYS (I2C).
       Module to read a Amsys AMS 5812-0150-A barometric sensor via I2C.
     </description>
-    <define name="BARO_AMSYS_I2C_DEV" value="i2cX" description="select which i2c peripheral to use (default i2c0)"/>
+    <configure name="BARO_AMSYS_I2C_DEV" value="i2cX" description="select which i2c peripheral to use (default i2c0)"/>
     <define name="BARO_AMSYS_MAX_PRESSURE" value="103400" description="max sensor pressure (Pa) (default: 103400 for -0150)"/>
     <define name="BARO_AMSYS_SCALE" value="1" description="sensor scale factor (default: 1)"/>
     <define name="BARO_AMSYS_FILTER" value="0." description="sensor filter (default: 0. max:1)"/>
@@ -30,6 +30,9 @@
   <event fun="BaroAmsysEvent()"/>
 
   <makefile target="ap">
+    <configure name="BARO_AMSYS_I2C_DEV" default="i2c0" case="upper|lower"/>
+    <define name="USE_$(BARO_AMSYS_I2C_DEV_UPPER)"/>
+    <define name="BARO_AMSYS_I2C_DEV" value="$(BARO_AMSYS_I2C_DEV_LOWER)"/>
     <file name="baro_amsys.c"/>
   </makefile>
 

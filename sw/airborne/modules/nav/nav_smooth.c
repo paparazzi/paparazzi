@@ -46,7 +46,7 @@ static float u_a_ca_x, u_a_ca_y;
 static uint8_t ground_speed_timer;
 
 /* D is the current position */
-bool_t snav_init(uint8_t a, float desired_course_rad, float radius)
+bool snav_init(uint8_t a, float desired_course_rad, float radius)
 {
   wp_a = a;
   radius = fabs(radius);
@@ -55,8 +55,8 @@ bool_t snav_init(uint8_t a, float desired_course_rad, float radius)
   float da_y = WaypointY(wp_a) - stateGetPositionEnu_f()->y;
 
   /* D_CD orthogonal to current course, CD on the side of A */
-  float u_x = cos(M_PI_2 - (*stateGetHorizontalSpeedDir_f()));
-  float u_y = sin(M_PI_2 - (*stateGetHorizontalSpeedDir_f()));
+  float u_x = cos(M_PI_2 - stateGetHorizontalSpeedDir_f());
+  float u_y = sin(M_PI_2 - stateGetHorizontalSpeedDir_f());
   d_radius = - Sign(u_x * da_y - u_y * da_x) * radius;
   wp_cd.x = stateGetPositionEnu_f()->x + d_radius * u_y;
   wp_cd.y = stateGetPositionEnu_f()->y - d_radius * u_x;
@@ -114,11 +114,11 @@ bool_t snav_init(uint8_t a, float desired_course_rad, float radius)
   wp_ta.a = wp_ca.a;
   ground_speed_timer = 0;
 
-  return FALSE;
+  return false;
 }
 
 
-bool_t snav_circle1(void)
+bool snav_circle1(void)
 {
   /* circle around CD until QDR_TD */
   NavVerticalAutoThrottleMode(0); /* No pitch */
@@ -127,7 +127,7 @@ bool_t snav_circle1(void)
   return (! NavQdrCloseTo(DegOfRad(qdr_td)));
 }
 
-bool_t snav_route(void)
+bool snav_route(void)
 {
   /* Straight route from TD to TA */
   NavVerticalAutoThrottleMode(0); /* No pitch */
@@ -137,7 +137,7 @@ bool_t snav_route(void)
   return (! nav_approaching_xy(wp_ta.x, wp_ta.y, wp_td.x, wp_td.y, CARROT));
 }
 
-bool_t snav_circle2(void)
+bool snav_circle2(void)
 {
   /* circle around CA until QDR_A */
   NavVerticalAutoThrottleMode(0); /* No pitch */
@@ -176,7 +176,7 @@ static void compute_ground_speed(float airspeed,
 }
 
 /* Adjusting a circle around CA, tangent in A, to end at snav_desired_tow */
-bool_t snav_on_time(float nominal_radius)
+bool snav_on_time(float nominal_radius)
 {
   nominal_radius = fabs(nominal_radius);
 
@@ -185,7 +185,7 @@ bool_t snav_on_time(float nominal_radius)
   float remaining_time = snav_desired_tow - gps.tow / 1000.;
 
   /* Use the nominal airspeed if the estimated one is not realistic */
-  float airspeed = *stateGetAirspeed_f();
+  float airspeed = stateGetAirspeed_f();
   if (airspeed < NOMINAL_AIRSPEED / 2. ||
       airspeed > 2.* NOMINAL_AIRSPEED) {
     airspeed = NOMINAL_AIRSPEED;

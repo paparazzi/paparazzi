@@ -35,8 +35,15 @@
 #include "math/pprz_algebra_float.h"
 #include "state.h"
 
+#ifndef USE_ATT_REF
+#define USE_ATT_REF 1
+#endif
+
 struct FloatAttitudeGains stabilization_gains;
 struct FloatEulers stabilization_att_sum_err;
+
+struct FloatEulers stab_att_sp_euler;
+struct AttRefEulerFloat att_ref_euler_f;
 
 float stabilization_att_fb_cmd[COMMANDS_NB];
 float stabilization_att_ff_cmd[COMMANDS_NB];
@@ -76,22 +83,22 @@ static void send_att_ref(struct transport_tx *trans, struct link_device *dev)
                                         &stab_att_sp_euler.phi,
                                         &stab_att_sp_euler.theta,
                                         &stab_att_sp_euler.psi,
-                                        &stab_att_ref_euler.phi,
-                                        &stab_att_ref_euler.theta,
-                                        &stab_att_ref_euler.psi,
-                                        &stab_att_ref_rate.p,
-                                        &stab_att_ref_rate.q,
-                                        &stab_att_ref_rate.r,
-                                        &stab_att_ref_accel.p,
-                                        &stab_att_ref_accel.q,
-                                        &stab_att_ref_accel.r);
+                                        &att_ref_euler_f.euler.phi,
+                                        &att_ref_euler_f.euler.theta,
+                                        &att_ref_euler_f.euler.psi,
+                                        &att_ref_euler_f.rate.p,
+                                        &att_ref_euler_f.rate.q,
+                                        &att_ref_euler_f.rate.r,
+                                        &att_ref_euler_f.accel.p,
+                                        &att_ref_euler_f.accel.q,
+                                        &att_ref_euler_f.accel.r);
 }
 #endif
 
 void stabilization_attitude_init(void)
 {
 
-  stabilization_attitude_ref_init();
+  attitude_ref_euler_float_init(&att_ref_euler_f);
 
   VECT3_ASSIGN(stabilization_gains.p,
                STABILIZATION_ATTITUDE_PHI_PGAIN,
@@ -116,12 +123,12 @@ void stabilization_attitude_init(void)
   FLOAT_EULERS_ZERO(stabilization_att_sum_err);
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "STAB_ATTITUDE", send_att);
-  register_periodic_telemetry(DefaultPeriodic, "STAB_ATTITUDE_REF", send_att_ref);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STAB_ATTITUDE_FLOAT, send_att);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STAB_ATTITUDE_REF_FLOAT, send_att_ref);
 #endif
 }
 
-void stabilization_attitude_read_rc(bool_t in_flight, bool_t in_carefree, bool_t coordinated_turn)
+void stabilization_attitude_read_rc(bool in_flight, bool in_carefree, bool coordinated_turn)
 {
   stabilization_attitude_read_rc_setpoint_eulers_f(&stab_att_sp_euler, in_flight, in_carefree, coordinated_turn);
 }
@@ -132,7 +139,7 @@ void stabilization_attitude_enter(void)
   /* reset psi setpoint to current psi angle */
   stab_att_sp_euler.psi = stabilization_attitude_get_heading_f();
 
-  stabilization_attitude_ref_enter();
+  attitude_ref_euler_float_enter(&att_ref_euler_f, stab_att_sp_euler.psi);
 
   FLOAT_EULERS_ZERO(stabilization_att_sum_err);
 }
@@ -166,24 +173,31 @@ void stabilization_attitude_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t head
 
 #define MAX_SUM_ERR 200
 
-void stabilization_attitude_run(bool_t  in_flight)
+void stabilization_attitude_run(bool  in_flight)
 {
 
-  stabilization_attitude_ref_update();
+#if USE_ATT_REF
+  static const float dt = (1./PERIODIC_FREQUENCY);
+  attitude_ref_euler_float_update(&att_ref_euler_f, &stab_att_sp_euler, dt);
+#else
+  EULERS_COPY(att_ref_euler_f.euler, stab_att_sp_euler);
+  FLOAT_RATES_ZERO(att_ref_euler_f.rate);
+  FLOAT_RATES_ZERO(att_ref_euler_f.accel);
+#endif
 
   /* Compute feedforward */
   stabilization_att_ff_cmd[COMMAND_ROLL] =
-    stabilization_gains.dd.x * stab_att_ref_accel.p;
+    stabilization_gains.dd.x * att_ref_euler_f.accel.p;
   stabilization_att_ff_cmd[COMMAND_PITCH] =
-    stabilization_gains.dd.y * stab_att_ref_accel.q;
+    stabilization_gains.dd.y * att_ref_euler_f.accel.q;
   stabilization_att_ff_cmd[COMMAND_YAW] =
-    stabilization_gains.dd.z * stab_att_ref_accel.r;
+    stabilization_gains.dd.z * att_ref_euler_f.accel.r;
 
   /* Compute feedback                  */
   /* attitude error            */
   struct FloatEulers *att_float = stateGetNedToBodyEulers_f();
   struct FloatEulers att_err;
-  EULERS_DIFF(att_err, stab_att_ref_euler, *att_float);
+  EULERS_DIFF(att_err, att_ref_euler_f.euler, *att_float);
   FLOAT_ANGLE_NORMALIZE(att_err.psi);
 
   if (in_flight) {
@@ -197,7 +211,7 @@ void stabilization_attitude_run(bool_t  in_flight)
   /*  rate error                */
   struct FloatRates *rate_float = stateGetBodyRates_f();
   struct FloatRates rate_err;
-  RATES_DIFF(rate_err, stab_att_ref_rate, *rate_float);
+  RATES_DIFF(rate_err, att_ref_euler_f.rate, *rate_float);
 
   /*  PID                  */
 

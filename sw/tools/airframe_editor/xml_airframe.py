@@ -188,7 +188,7 @@ if __name__ == '__main__':
             if len(sys.argv) > 3:
                 outputfile = airframe_file
     else:
-        airframe_file = "../../../conf/airframes/CDW/yapa_xsens.xml"
+        airframe_file = "../../../conf/airframes/examples/microjet.xml"
 
     print(airframe_file)
     [e, airframe, hdr] = load(airframe_file)

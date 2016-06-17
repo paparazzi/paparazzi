@@ -727,7 +727,7 @@ let in_tesselation_fans l =
     add_val p1; add_val p2; add_val p3) l ;
   let lst = List.fast_sort (fun (_, n1) (_, n2) -> n2-n1) (Array.to_list tt) in
 
-  let tt2 = Array.create (Array.length tt) (0, []) in
+  let tt2 = Array.make (Array.length tt) (0, []) in
   let i = ref 0 in
   List.iter (fun (x, _) -> tt2.(x) <- (!i, []); incr i) lst ;
   List.iter (fun (p1, p2, p3) ->

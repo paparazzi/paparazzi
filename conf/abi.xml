@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!DOCTYPE protocol SYSTEM "messages.dtd">
+<!DOCTYPE protocol SYSTEM "abi.dtd">
 <protocol>
 
   <msg_class name="airborne">
@@ -20,7 +20,66 @@
       <field name="temp" type="float" unit="deg Celcius"/>
     </message>
 
-  </msg_class>
+    <message name="IMU_GYRO_INT32" id="4">
+      <field name="stamp" type="uint32_t" unit="us"/>
+      <field name="gyro" type="struct Int32Rates *"/>
+    </message>
 
+    <message name="IMU_ACCEL_INT32" id="5">
+      <field name="stamp" type="uint32_t" unit="us"/>
+      <field name="accel" type="struct Int32Vect3 *"/>
+    </message>
+
+    <message name="IMU_MAG_INT32" id="6">
+      <field name="stamp" type="uint32_t" unit="us"/>
+      <field name="mag" type="struct Int32Vect3 *"/>
+    </message>
+
+    <message name="IMU_LOWPASSED" id="7">
+      <field name="stamp" type="uint32_t" unit="us"/>
+      <field name="gyro" type="struct Int32Rates *"/>
+      <field name="accel" type="struct Int32Vect3 *"/>
+      <field name="mag" type="struct Int32Vect3 *"/>
+    </message>
+
+    <message name="BODY_TO_IMU_QUAT" id="8">
+      <field name="q_b2i_f" type="struct FloatQuat *"/>
+    </message>
+
+    <message name="GEO_MAG" id="9">
+      <field name="h" type="struct FloatVect3 *" unit="1.0"/>
+    </message>
+
+    <message name="GPS" id="10">
+      <field name="stamp" type="uint32_t" unit="us"/>
+      <field name="gps_s" type="struct GpsState *"/>
+    </message>
+
+    <message name="OPTICAL_FLOW" id="11">
+      <field name="stamp" type="uint32_t" unit="us"/>
+      <field name="flow_x" type="int16_t">Flow in x direction from the camera (in subpixels)</field>
+      <field name="flow_y" type="int16_t">Flow in y direction from the camera (in subpixels)</field>
+      <field name="flow_der_x" type="int16_t">The derotated flow calculation in the x direction (in subpixels)</field>
+      <field name="flow_der_y" type="int16_t">The derotated flow calculation in the y direction (in subpixels)</field>
+      <field name="quality" type="uint8_t"/>
+      <field name="size_divergence" type="float">Divergence as determined with the size method (in 1/seconds)</field>
+      <field name="dist" type="float">Distance to ground</field>
+    </message>
+
+    <message name="VELOCITY_ESTIMATE" id="12">
+      <field name="stamp" type="uint32_t" unit="us"/>
+      <field name="x" type="float" unit="m/s"/>
+      <field name="y" type="float" unit="m/s"/>
+      <field name="z" type="float" unit="m/s"/>
+      <field name="noise" type="float"/>
+    </message>
+    
+    <message name="RSSI" id="13">
+      <field name="ac_id" type="uint8_t"/>
+      <field name="source_strength" type="int8_t" unit="dB"/>
+      <field name="rssi" type="int8_t" unit="dB"/>
+    </message>
+
+  </msg_class>
 
 </protocol>

@@ -73,14 +73,11 @@ IMU_DROTEK_2_CFLAGS += -DDROTEK_2_I2C_DEV=$(DROTEK_2_I2C_DEV_LOWER)
 IMU_DROTEK_2_CFLAGS += -DUSE_$(DROTEK_2_I2C_DEV_UPPER)
 
 
-# Keep CFLAGS/Srcs for imu in separate expression so we can assign it to other targets
-
-ap.CFLAGS += $(IMU_DROTEK_2_CFLAGS)
-ap.srcs   += $(IMU_DROTEK_2_SRCS)
-
-test_imu.CFLAGS += $(IMU_DROTEK_2_CFLAGS)
-test_imu.srcs   += $(IMU_DROTEK_2_SRCS)
-
+# add it for all targets except sim, fbw and nps
+ifeq (,$(findstring $(TARGET),sim fbw nps))
+$(TARGET).CFLAGS += $(IMU_DROTEK_2_CFLAGS)
+$(TARGET).srcs += $(IMU_DROTEK_2_SRCS)
+endif
 
 #
 # NPS simulator

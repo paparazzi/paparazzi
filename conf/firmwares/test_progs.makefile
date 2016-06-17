@@ -35,6 +35,7 @@ SRC_MODULES=modules
 
 CFG_SHARED=$(PAPARAZZI_SRC)/conf/firmwares/subsystems/shared
 
+VPATH += $(PAPARAZZI_HOME)/var/share
 
 #
 # common test
@@ -54,6 +55,10 @@ ifneq ($(SYS_TIME_LED),none)
 endif
 COMMON_TEST_CFLAGS += -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
 COMMON_TEST_SRCS   += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
+ifeq ($(ARCH), linux)
+# seems that we need to link agains librt for glibc < 2.17
+$(TARGET).LDFLAGS += -lrt
+endif
 
 COMMON_TEST_CFLAGS += -DUSE_LED
 
@@ -66,7 +71,7 @@ endif
 
 # pprz downlink/datalink
 COMMON_TELEMETRY_CFLAGS = -DDOWNLINK -DDOWNLINK_TRANSPORT=pprz_tp -DDATALINK=PPRZ
-COMMON_TELEMETRY_SRCS   = subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
+COMMON_TELEMETRY_SRCS   = subsystems/datalink/downlink.c pprzlink/src/pprz_transport.c
 
 # check if we are using UDP
 ifneq (,$(findstring UDP, $(MODEM_DEV)))
@@ -77,8 +82,8 @@ MODEM_BROADCAST   ?= TRUE
 UDP_MODEM_PORT_LOWER=$(shell echo $(MODEM_DEV) | tr A-Z a-z)
 
 COMMON_TELEMETRY_CFLAGS += -DUSE_$(MODEM_DEV) -D$(MODEM_DEV)_PORT_OUT=$(MODEM_PORT_OUT) -D$(MODEM_DEV)_PORT_IN=$(MODEM_PORT_IN)
-COMMON_TELEMETRY_CFLAGS += -D$(MODEM_DEV)_BROADCAST=$(MODEM_BROADCAST) -D$(MODEM_DEV)_HOST=\"$(MODEM_HOST)\"
-COMMON_TELEMETRY_CFLAGS += -DPPRZ_UART=$(MODEM_DEV)
+COMMON_TELEMETRY_CFLAGS += -D$(MODEM_DEV)_BROADCAST=$(MODEM_BROADCAST) -D$(MODEM_DEV)_HOST=$(MODEM_HOST)
+COMMON_TELEMETRY_CFLAGS += -DPPRZ_UART=$(UDP_MODEM_PORT_LOWER)
 COMMON_TELEMETRY_CFLAGS += -DDOWNLINK_DEVICE=$(UDP_MODEM_PORT_LOWER)
 else
 # via UART
@@ -87,7 +92,7 @@ else
 #endif
 COMMON_TELEMETRY_MODEM_PORT_LOWER=$(shell echo $(MODEM_PORT) | tr A-Z a-z)
 COMMON_TELEMETRY_CFLAGS += -DUSE_$(MODEM_PORT) -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
-COMMON_TELEMETRY_CFLAGS += -DPPRZ_UART=$(MODEM_PORT)
+COMMON_TELEMETRY_CFLAGS += -DPPRZ_UART=$(COMMON_TELEMETRY_MODEM_PORT_LOWER)
 COMMON_TELEMETRY_CFLAGS += -DDOWNLINK_DEVICE=$(COMMON_TELEMETRY_MODEM_PORT_LOWER)
 COMMON_TELEMETRY_SRCS  += mcu_periph/uart.c
 COMMON_TELEMETRY_SRCS  += $(SRC_ARCH)/mcu_periph/uart_arch.c
@@ -109,6 +114,12 @@ LED_DEFINES = -DLED_BLUE=3 -DLED_RED=4 -DLED_GREEN=5
 endif
 endif
 ifeq ($(BOARD), navstik)
+LED_DEFINES = -DLED_RED=1 -DLED_GREEN=2
+endif
+ifeq ($(BOARD), cc3d)
+LED_DEFINES = -DLED_BLUE=1
+endif
+ifeq ($(BOARD), naze32)
 LED_DEFINES = -DLED_RED=1 -DLED_GREEN=2
 endif
 LED_DEFINES ?= -DLED_RED=2 -DLED_GREEN=3
@@ -217,6 +228,38 @@ test_telemetry.srcs   += $(COMMON_TEST_SRCS)
 test_telemetry.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
 test_telemetry.srcs   += $(COMMON_TELEMETRY_SRCS)
 test_telemetry.srcs   += test/test_telemetry.c
+
+#
+# test_datalink : Sends ALIVE and pong telemetry messages
+#
+# configuration
+#   MODEM_PORT :
+#   MODEM_BAUD :
+#
+test_datalink.ARCHDIR = $(ARCH)
+test_datalink.CFLAGS += $(COMMON_TEST_CFLAGS)
+test_datalink.srcs   += $(COMMON_TEST_SRCS)
+test_datalink.CFLAGS += $(COMMON_DATALINK_CFLAGS)
+test_datalink.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
+test_datalink.srcs   += $(COMMON_DATALINK_SRCS)
+test_datalink.srcs   += $(COMMON_TELEMETRY_SRCS)
+test_datalink.srcs   += test/test_datalink.c
+
+
+#
+# test_math_trig_compressed: Test math trigonometric using compressed data
+#
+# configuration
+#   MODEM_PORT :
+#   MODEM_BAUD :
+#
+test_math_trig_compressed.ARCHDIR = $(ARCH)
+test_math_trig_compressed.CFLAGS += $(COMMON_TEST_CFLAGS)
+test_math_trig_compressed.srcs   += $(COMMON_TEST_SRCS)
+test_math_trig_compressed.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
+test_math_trig_compressed.CFLAGS += -DPPRZ_TRIG_INT_TEST
+test_math_trig_compressed.srcs   += $(COMMON_TELEMETRY_SRCS)
+test_math_trig_compressed.srcs   += test/test_math_trig_compressed.c math/pprz_trig_int.c
 
 
 #
@@ -371,6 +414,9 @@ include $(CFG_SHARED)/baro_board.makefile
 endif
 test_baro_board.CFLAGS += $(BARO_BOARD_CFLAGS)
 test_baro_board.srcs += $(BARO_BOARD_SRCS)
+ifeq ($(IMU_INIT),1)
+test_baro_board.srcs += test/test_baro_board_imu.c
+endif
 
 
 #
@@ -406,6 +452,7 @@ test_imu.srcs   += $(COMMON_TEST_SRCS)
 test_imu.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
 test_imu.srcs   += $(COMMON_TELEMETRY_SRCS)
 test_imu.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
+test_imu.srcs   += state.c
 test_imu.srcs   += test/subsystems/test_imu.c
 test_imu.srcs   += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c math/pprz_trig_int.c math/pprz_orientation_conversion.c math/pprz_algebra_int.c math/pprz_algebra_float.c math/pprz_algebra_double.c
 
@@ -425,6 +472,8 @@ test_ahrs.CFLAGS += $(COMMON_TEST_CFLAGS)
 test_ahrs.srcs   += $(COMMON_TEST_SRCS)
 test_ahrs.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
 test_ahrs.srcs   += $(COMMON_TELEMETRY_SRCS)
+test_ahrs.srcs   += subsystems/datalink/telemetry.c
+test_ahrs.CFLAGS += -DPERIODIC_TELEMETRY
 test_ahrs.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
 test_ahrs.srcs   += test/subsystems/test_ahrs.c
 test_ahrs.srcs   += state.c
@@ -460,3 +509,20 @@ test_settings.srcs   += subsystems/settings.c
 test_settings.srcs   += $(SRC_ARCH)/subsystems/settings_arch.c
 test_settings.srcs   += test/subsystems/test_settings.c
 test_settings.CFLAGS += -DUSE_PERSISTENT_SETTINGS
+
+
+#
+# test_module
+#
+# configuration
+#   SYS_TIME_LED
+#   MODEM_PORT
+#   MODEM_BAUD
+#
+test_module.ARCHDIR = $(ARCH)
+test_module.CFLAGS += $(COMMON_TEST_CFLAGS)
+test_module.srcs   += $(COMMON_TEST_SRCS)
+test_module.CFLAGS += $(COMMON_TELEMETRY_CFLAGS)
+test_module.srcs   += $(COMMON_TELEMETRY_SRCS)
+test_module.srcs   += mcu_periph/i2c.c $(SRC_ARCH)/mcu_periph/i2c_arch.c
+test_module.srcs   += test/test_module.c

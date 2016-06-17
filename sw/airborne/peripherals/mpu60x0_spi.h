@@ -53,7 +53,7 @@ struct Mpu60x0_Spi {
   struct spi_transaction spi_trans;
   volatile uint8_t tx_buf[2];
   volatile uint8_t rx_buf[MPU60X0_BUFFER_LEN];
-  volatile bool_t data_available;     ///< data ready flag
+  volatile bool data_available;     ///< data ready flag
   union {
     struct Int16Vect3 vect;           ///< accel data vector in accel coordinate system
     int16_t value[3];                 ///< accel data values accessible by channel index
@@ -62,6 +62,7 @@ struct Mpu60x0_Spi {
     struct Int16Rates rates;          ///< rates data as angular rates in gyro coordinate system
     int16_t value[3];                 ///< rates data values accessible by channel index
   } data_rates;
+  float temp;                         ///< temperature in degrees Celcius
   uint8_t data_ext[MPU60X0_BUFFER_EXT_LEN];
   struct Mpu60x0Config config;
   enum Mpu60x0SpiSlaveInitStatus slave_init_status;

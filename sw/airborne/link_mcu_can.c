@@ -71,7 +71,7 @@ void link_mcu_on_can_msg(uint32_t id, uint8_t *data, int len)
 #ifdef LINK_MCU_LED
     LED_TOGGLE(LINK_MCU_LED);
 #endif
-    inter_mcu_received_ap = TRUE;
+    inter_mcu_received_ap = true;
   }
 
   if (id ==  MSG_INTERMCU_COMMAND_EXTRA_ID) {
@@ -108,7 +108,7 @@ void link_mcu_on_can_msg(uint32_t id, uint8_t *data, int len)
 #ifdef LINK_MCU_LED
     LED_TOGGLE(LINK_MCU_LED);
 #endif
-    inter_mcu_received_fbw = TRUE;
+    inter_mcu_received_fbw = true;
   }
 }
 
@@ -218,8 +218,8 @@ void link_mcu_init(void)
 #ifdef AP
 #if PERIODIC_TELEMETRY
   // If FBW has not telemetry, then AP can send some of the info
-  register_periodic_telemetry(DefaultPeriodic, "COMMANDS", send_commands);
-  register_periodic_telemetry(DefaultPeriodic, "FBW_STATUS", send_fbw_status);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_COMMANDS, send_commands);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_FBW_STATUS, send_fbw_status);
 #endif
 #endif
 }

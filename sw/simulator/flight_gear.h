@@ -3,94 +3,113 @@
 
 #include <stdint.h>
 
-#define FG_NET_CTRLS_VERSION 26
+#define FG_NET_CTRLS_VERSION 27
 #define FG_NET_CTRLS_MAX_ENGINES 4
 #define FG_NET_CTRLS_MAX_WHEELS  16
-#define FG_NET_CTRLS_MAX_TANKS   6
+#define FG_NET_CTRLS_MAX_TANKS   8
+#define FG_NET_CTRLS_RESERVED_SPACE 25
 
 struct FGNetCtrls {
-  uint32_t version;                    // increment when data values change
+    uint32_t version;            // increment when data values change
 
-  // Aero controls
-  double aileron;                      // -1 ... 1
-  double elevator;                     // -1 ... 1
-  double rudder;                       // -1 ... 1
-  double aileron_trim;                 // -1 ... 1
-  double elevator_trim;                // -1 ... 1
-  double rudder_trim;                  // -1 ... 1
-  double flaps;                        //  0 ... 1
+    // Aero controls
+    double aileron;            // -1 ... 1
+    double elevator;             // -1 ... 1
+    double rudder;             // -1 ... 1
+    double aileron_trim;           // -1 ... 1
+    double elevator_trim;          // -1 ... 1
+    double rudder_trim;            // -1 ... 1
+    double flaps;            //  0 ... 1
+    double spoilers;
+    double speedbrake;
 
-  // Aero control faults
-  uint32_t flaps_power;                 // true = power available
-  uint32_t flap_motor_ok;
+    // Aero control faults
+    uint32_t flaps_power;                 // true = power available
+    uint32_t flap_motor_ok;
 
-  // Engine controls
-  uint32_t num_engines;                // number of valid engines
-  uint32_t master_bat[FG_NET_CTRLS_MAX_ENGINES];
-  uint32_t master_alt[FG_NET_CTRLS_MAX_ENGINES];
-  uint32_t magnetos[FG_NET_CTRLS_MAX_ENGINES];
-  uint32_t starter_power[FG_NET_CTRLS_MAX_ENGINES];// true = starter power
-  double throttle[FG_NET_CTRLS_MAX_ENGINES];     //  0 ... 1
-  double mixture[FG_NET_CTRLS_MAX_ENGINES];      //  0 ... 1
-  double condition[FG_NET_CTRLS_MAX_ENGINES];    //  0 ... 1
-  uint32_t fuel_pump_power[FG_NET_CTRLS_MAX_ENGINES];// true = on
-  double prop_advance[FG_NET_CTRLS_MAX_ENGINES]; //  0 ... 1
+    // Engine controls
+    uint32_t num_engines;    // number of valid engines
+    uint32_t master_bat[FG_NET_CTRLS_MAX_ENGINES];
+    uint32_t master_alt[FG_NET_CTRLS_MAX_ENGINES];
+    uint32_t magnetos[FG_NET_CTRLS_MAX_ENGINES];
+    uint32_t starter_power[FG_NET_CTRLS_MAX_ENGINES];// true = starter power
+    double throttle[FG_NET_CTRLS_MAX_ENGINES];     //  0 ... 1
+    double mixture[FG_NET_CTRLS_MAX_ENGINES];      //  0 ... 1
+    double condition[FG_NET_CTRLS_MAX_ENGINES];    //  0 ... 1
+    uint32_t fuel_pump_power[FG_NET_CTRLS_MAX_ENGINES];// true = on
+    double prop_advance[FG_NET_CTRLS_MAX_ENGINES]; //  0 ... 1
+    uint32_t feed_tank_to[4];
+    uint32_t reverse[4];
 
-  // Engine faults
-  uint32_t engine_ok[FG_NET_CTRLS_MAX_ENGINES];
-  uint32_t mag_left_ok[FG_NET_CTRLS_MAX_ENGINES];
-  uint32_t mag_right_ok[FG_NET_CTRLS_MAX_ENGINES];
-  uint32_t spark_plugs_ok[FG_NET_CTRLS_MAX_ENGINES];  // false = fouled plugs
-  uint32_t oil_press_status[FG_NET_CTRLS_MAX_ENGINES];// 0 = normal, 1 = low, 2 = full fail
-  uint32_t fuel_pump_ok[FG_NET_CTRLS_MAX_ENGINES];
+    // Engine faults
+    uint32_t engine_ok[FG_NET_CTRLS_MAX_ENGINES];
+    uint32_t mag_left_ok[FG_NET_CTRLS_MAX_ENGINES];
+    uint32_t mag_right_ok[FG_NET_CTRLS_MAX_ENGINES];
+    uint32_t spark_plugs_ok[FG_NET_CTRLS_MAX_ENGINES];  // false = fouled plugs
+    uint32_t oil_press_status[FG_NET_CTRLS_MAX_ENGINES];// 0 = normal, 1 = low, 2 = full fail
+    uint32_t fuel_pump_ok[FG_NET_CTRLS_MAX_ENGINES];
 
-  // Fuel management
-  uint32_t num_tanks;                      // number of valid tanks
-  uint32_t fuel_selector[FG_NET_CTRLS_MAX_TANKS];    // false = off, true = on
-  uint32_t cross_feed;                     // false = off, true = on
+    // Fuel management
+    uint32_t num_tanks;                      // number of valid tanks
+    uint32_t fuel_selector[FG_NET_CTRLS_MAX_TANKS];    // false = off, true = on
+    uint32_t xfer_pump[5];                   // specifies transfer from array
+                                             // value tank to tank specified by
+                                             // int value
+    uint32_t cross_feed;                     // false = off, true = on
 
-  // Brake controls
-  double brake_left;
-  double brake_right;
-  double copilot_brake_left;
-  double copilot_brake_right;
-  double brake_parking;
+    // Brake controls
+    double brake_left;
+    double brake_right;
+    double copilot_brake_left;
+    double copilot_brake_right;
+    double brake_parking;
 
-  // Landing Gear
-  uint32_t gear_handle; // true=gear handle down; false= gear handle up
+    // Landing Gear
+    uint32_t gear_handle; // true=gear handle down; false= gear handle up
 
-  // Switches
-  uint32_t master_avionics;
+    // Switches
+    uint32_t master_avionics;
 
-  // wind and turbulance
-  double wind_speed_kt;
-  double wind_dir_deg;
-  double turbulence_norm;
+        // nav and Comm
+    double  comm_1;
+    double  comm_2;
+    double  nav_1;
+    double  nav_2;
 
-  // temp and pressure
-  double temp_c;
-  double press_inhg;
+    // wind and turbulance
+    double wind_speed_kt;
+    double wind_dir_deg;
+    double turbulence_norm;
 
-  // other information about environment
-  double hground;                      // ground elevation (meters)
-  double magvar;                       // local magnetic variation in degs.
+    // temp and pressure
+    double temp_c;
+    double press_inhg;
 
-  // hazards
-  uint32_t icing;                      // icing status could me much
-  // more complex but I'm
-  // starting simple here.
+    // other information about environment
+    double hground;            // ground elevation (meters)
+    double magvar;             // local magnetic variation in degs.
 
-  // simulation control
-  uint32_t speedup;                    // integer speedup multiplier
-  uint32_t freeze;                     // 0=normal
-                                       // 0x01=master
-                                       // 0x02=position
-                                       // 0x04=fuel
+    // hazards
+    uint32_t icing;                      // icing status could me much
+                                         // more complex but I'm
+                                         // starting simple here.
 
+    // simulation control
+    uint32_t speedup;            // integer speedup multiplier
+    uint32_t freeze;             // 0=normal
+                 // 0x01=master
+                 // 0x02=position
+                 // 0x04=fuel
+
+    // --- New since FlightGear 0.9.10 (FG_NET_CTRLS_VERSION = 27)
+
+    // --- Add new variables just before this line.
+
+    uint32_t reserved[FG_NET_CTRLS_RESERVED_SPACE];  // 100 bytes reserved for future use.
 };
 
 
-#define FG_NET_FDM_VERSION 23
+#define FG_NET_FDM_VERSION 24
 #define FG_NET_FDM_MAX_ENGINES 4
 #define FG_NET_FDM_MAX_WHEELS  3
 #define FG_NET_FDM_MAX_TANKS   4
@@ -122,12 +141,9 @@ struct FGNetFDM {
   float v_north;              // north velocity in local/body frame, fps
   float v_east;               // east velocity in local/body frame, fps
   float v_down;               // down/vertical velocity in local/body frame, fps
-  float v_wind_body_north;    // north velocity in local/body frame
-                              // relative to local airmass, fps
-  float v_wind_body_east;     // east velocity in local/body frame
-                              // relative to local airmass, fps
-  float v_wind_body_down;     // down/vertical velocity in local/body
-                              // frame relative to local airmass, fps
+  float v_body_u;             // ECEF velocity in body frame
+  float v_body_v;             // ECEF velocity in body frame
+  float v_body_w;             // ECEF velocity in body frame
 
   // Accelerations
   float A_X_pilot;            // X accel in body frame ft/sec^2
@@ -140,16 +156,17 @@ struct FGNetFDM {
   // Pressure
 
   // Engine status
-  uint32_t num_engines;            // Number of valid engines
-  uint32_t eng_state[FG_NET_FDM_MAX_ENGINES];// Engine state (off, cranking, running)
-  float rpm[FG_NET_FDM_MAX_ENGINES];       // Engine RPM rev/min
-  float fuel_flow[FG_NET_FDM_MAX_ENGINES]; // Fuel flow gallons/hr
-  float egt[FG_NET_FDM_MAX_ENGINES];       // Exhuast gas temp deg F
-  float cht[FG_NET_FDM_MAX_ENGINES];       // Cylinder head temp deg F
-  float mp_osi[FG_NET_FDM_MAX_ENGINES];    // Manifold pressure
-  float tit[FG_NET_FDM_MAX_ENGINES];       // Turbine Inlet Temperature
-  float oil_temp[FG_NET_FDM_MAX_ENGINES];  // Oil temp deg F
-  float oil_px[FG_NET_FDM_MAX_ENGINES];    // Oil pressure psi
+  uint32_t num_engines;                       // Number of valid engines
+  uint32_t eng_state[FG_NET_FDM_MAX_ENGINES]; // Engine state (off, cranking, running)
+  float rpm[FG_NET_FDM_MAX_ENGINES];          // Engine RPM rev/min
+  float fuel_flow[FG_NET_FDM_MAX_ENGINES];    // Fuel flow gallons/hr
+  float fuel_px[FG_NET_FDM_MAX_ENGINES];      // Fuel pressure psi
+  float egt[FG_NET_FDM_MAX_ENGINES];          // Exhuast gas temp deg F
+  float cht[FG_NET_FDM_MAX_ENGINES];          // Cylinder head temp deg F
+  float mp_osi[FG_NET_FDM_MAX_ENGINES];       // Manifold pressure
+  float tit[FG_NET_FDM_MAX_ENGINES];          // Turbine Inlet Temperature
+  float oil_temp[FG_NET_FDM_MAX_ENGINES];     // Oil temp deg F
+  float oil_px[FG_NET_FDM_MAX_ENGINES];       // Oil pressure psi
 
   // Consumables
   uint32_t num_tanks;         // Max number of fuel tanks
@@ -273,6 +290,20 @@ struct FGNetGUI {
 #pragma pack(pop)
 #endif /*__x86_64__*/
 #endif /*FG_2_4*/
+
+
+#define FG_ENVIRONMENT_FOOTER_MAGIC 0x12345678
+// described in file fg_environment.xml (generic protocol)
+struct FGEnvironment{
+  double elapsed_sec;       // elapsed sim seconds
+  float wind_from_north;    // wind from north in m/s
+  float wind_from_east;     // wind from east in m/s
+  float wind_from_down;     // wind from down in m/s
+  float wind_from_heading;  // wind N-E heading in degrees
+  float wind_speed;         // wind N-E speed in m/s
+  uint32_t footer_magic;    // magic footer 0x12345678
+};
+
 
 
 extern void net_fdm_dump (struct FGNetFDM* fdm);

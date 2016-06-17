@@ -1,16 +1,71 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="ins">
+<module name="ins_xsens" dir="ins">
   <doc>
-    <description>XSens</description>
+    <description>
+      XSens Mti-G INS
+    </description>
+    <configure name="XSENS_PORT" value="uart1" description="The (uart) port the XSens is connected to"/>
+    <configure name="XSENS_BAUD" value="B115200" description="UART baud rate"/>
   </doc>
   <header>
-    <file name="ins_module.h"/>
+    <file name="ins_xsens.h"/>
   </header>
-  <init fun="ins_init()"/>
-  <periodic fun="ins_periodic()" freq="60"/>
-  <makefile>
+  <!-- ins_init is still called explicitly in main -->
+  <!--init fun="ins_init()"/-->
+  <periodic fun="xsens_periodic()" freq="60"/>
+  <event fun="ins_xsens_event()"/>
+  <makefile target="ap">
+    <file name="xsens.c"/>
+    <file name="xsens_common.c"/>
     <file name="ins_xsens.c"/>
+    <file name="ins.c" dir="subsystems"/>
+    <configure name="XSENS_PORT" default="uart1" case="upper|lower"/>
+    <configure name="XSENS_BAUD" default="B115200"/>
+    <define name="USE_$(XSENS_PORT_UPPER)" value="1"/>
+    <define name="XSENS_LINK" value="$(XSENS_PORT_LOWER)"/>
+    <define name="$(XSENS_PORT_UPPER)_BAUD" value="$(XSENS_BAUD)"/>
+    <define name="XSENS_OUTPUT_MODE" value="0x1836"/>
+    <define name="AHRS_TRIGGERED_ATTITUDE_LOOP"/>
+
+    <file name="gps.c" dir="subsystems"/>
+    <define name="USE_GPS"/>
+    <define name="USE_GPS_XSENS"/>
+    <define name="USE_GPS_XSENS_RAW_DATA"/>
+    <define name="GPS_NB_CHANNELS" value="16"/>
+    <define name="GPS_TYPE_H" value="modules/ins/ins_xsens.h" type="string"/>
+  </makefile>
+
+  <makefile target="sim">
+    <file name="ahrs.c" dir="subsystems"/>
+    <file name="ahrs_sim.c" dir="subsystems/ahrs"/>
+    <define name="USE_AHRS"/>
+    <define name="AHRS_TYPE_H" value="subsystems/ahrs/ahrs_sim.h" type="string"/>
+
+    <file name="ins.c" dir="subsystems"/>
+    <file name="ins_gps_passthrough_utm.c" dir="subsystems/ins"/>
+    <define name="INS_TYPE_H" value="subsystems/ins/ins_gps_passthrough_utm.h" type="string"/>
+
+    <file name="gps.c" dir="subsystems"/>
+    <file name="gps_sim.c" dir="subsystems/gps"/>
+    <define name="USE_GPS"/>
+    <define name="GPS_TYPE_H" value="subsystems/gps/gps_sim.h" type="string"/>
+  </makefile>
+
+  <makefile target="nps">
+    <!-- nps dummy ahrs missing -->
+    <file name="ahrs.c" dir="subsystems"/>
+    <define name="USE_AHRS"/>
+    <define name="NPS_BYPASS_AHRS" value="TRUE"/>
+
+    <file name="ins.c" dir="subsystems"/>
+    <file name="ins_gps_passthrough_utm.c" dir="subsystems/ins"/>
+    <define name="INS_TYPE_H" value="subsystems/ins/ins_gps_passthrough_utm.h" type="string"/>
+
+    <file name="gps.c" dir="subsystems"/>
+    <file name="gps_sim_nps.c" dir="subsystems/gps"/>
+    <define name="USE_GPS"/>
+    <define name="GPS_TYPE_H" value="subsystems/gps/gps_sim_nps.h" type="string"/>
   </makefile>
 </module>
 

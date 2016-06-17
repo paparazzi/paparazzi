@@ -41,7 +41,7 @@ typedef struct {
 } MATRIX;
 
 float   airborne_ant_pan;
-static bool_t ant_pan_positive = 0;
+static bool ant_pan_positive = 0;
 
 void ant_point(void);
 static void vSubtractVectors(VECTOR *svA, VECTOR svB, VECTOR svC);
@@ -100,8 +100,8 @@ void airborne_ant_point_periodic(void)
   vSubtractVectors(&Home_PositionForPlane, Home_Position, svPlanePosition);
 
   /* yaw */
-  smRotation.fx1 = (float)(cos((*stateGetHorizontalSpeedDir_f())));
-  smRotation.fx2 = (float)(sin((*stateGetHorizontalSpeedDir_f())));
+  smRotation.fx1 = cosf(stateGetHorizontalSpeedDir_f());
+  smRotation.fx2 = sinf(stateGetHorizontalSpeedDir_f());
   smRotation.fx3 = 0.;
   smRotation.fy1 = -smRotation.fx2;
   smRotation.fy2 = smRotation.fx1;

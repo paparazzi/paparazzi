@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+
+<PropertyList>
+  <generic>
+    <output>
+      <binary_mode>true</binary_mode>
+      <byte_order>host</byte_order>
+
+      <chunk>
+        <name>time (s)</name>
+        <type>double</type>
+        <node>/sim/time/elapsed-sec</node>
+      </chunk>
+
+      <chunk>
+        <name>wind-from-north (m/s)</name>
+        <type>float</type>
+        <node>/environment/wind-from-north-fps</node>
+        <factor>0.3048</factor>
+      </chunk>
+
+      <chunk>
+        <name>wind-from-east (m/s)</name>
+        <type>float</type>
+        <node>/environment/wind-from-east-fps</node>
+        <factor>0.3048</factor>
+      </chunk>
+
+      <chunk>
+        <name>wind-from-down (m/s)</name>
+        <type>float</type>
+        <node>/environment/wind-from-down-fps</node>
+        <factor>0.3048</factor>
+      </chunk>
+
+      <chunk>
+        <name>wind-from-heading (deg)</name>
+        <type>float</type>
+        <node>/environment/wind-from-heading-deg</node>
+      </chunk>
+
+      <chunk>
+        <name>wind-speed (m/s)</name>
+        <type>float</type>
+        <factor>0.514444444</factor>
+        <node>/environment/wind-speed-kt</node>
+      </chunk>
+
+      <binary_footer>magic,0x12345678</binary_footer>  
+
+    </output>
+  </generic>
+</PropertyList>

@@ -11,7 +11,7 @@
     <file name="send_imu_mag_current.h"/>
   </header>
   <periodic fun="send_imu_mag_current()" freq="20" autorun="FALSE"/>
-  <makefile>
+  <makefile target="ap">
     <file name="send_imu_mag_current.c"/>
   </makefile>
 </module>

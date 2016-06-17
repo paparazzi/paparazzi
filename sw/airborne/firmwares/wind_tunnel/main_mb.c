@@ -4,12 +4,12 @@
 #include "led.h"
 #include "mcu_periph/uart.h"
 
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 
 #include "subsystems/datalink/datalink.h"
 #include "generated/settings.h"
-#include "dl_protocol.h"
+#include "pprzlink/dl_protocol.h"
 
 #include "i2c.h"
 #include "mb_twi_controller_mkk.h"
@@ -22,7 +22,7 @@ static inline void main_event_task(void);
 
 //uint16_t motor_power;
 uint8_t dl_buffer[MSG_SIZE]  __attribute__((aligned));
-bool_t dl_msg_available;
+bool dl_msg_available;
 uint16_t datalink_time;
 
 int main(void)

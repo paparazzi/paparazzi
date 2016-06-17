@@ -8,12 +8,13 @@
 
 struct NpsSensorBaro {
   double  value;          ///< pressure in Pascal
+  double  noise_std_dev;  ///< noise standard deviation
   double  next_update;
-  bool_t  data_available;
+  bool  data_available;
 };
 
 
-extern void nps_sensor_baro_init(struct NpsSensorBaro* baro, double time);
-extern void nps_sensor_baro_run_step(struct NpsSensorBaro* baro, double time);
+extern void nps_sensor_baro_init(struct NpsSensorBaro *baro, double time);
+extern void nps_sensor_baro_run_step(struct NpsSensorBaro *baro, double time);
 
 #endif /* NPS_SENSOR_BARO_H */

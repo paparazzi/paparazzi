@@ -31,9 +31,16 @@
 #include "std.h"
 #include "mcu_periph/gpio.h"
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 #include "humid_sht.h"
+
+// sd-log
+#if SHT_SDLOG
+#include "modules/loggers/sdlog_chibios.h"
+#include "subsystems/gps.h"
+bool log_sht_started;
+#endif
 
 //#include "led.h"
 
@@ -78,7 +85,7 @@
 
 uint16_t humidsht, tempsht;
 float fhumidsht, ftempsht;
-bool_t humid_sht_available;
+bool humid_sht_available;
 uint8_t humid_sht_status;
 
 uint8_t s_write_byte(uint8_t value);
@@ -297,8 +304,13 @@ void humid_sht_init(void)
   gpio_clear(SHT_SCK_GPIO);
 
 
-  humid_sht_available = FALSE;
+  humid_sht_available = false;
   humid_sht_status = SHT_IDLE;
+
+#if SHT_SDLOG
+  log_sht_started = false;
+#endif
+
 }
 
 void humid_sht_periodic(void)
@@ -332,12 +344,27 @@ void humid_sht_periodic(void)
       //LED_TOGGLE(2);
     } else {
       calc_sht(humidsht, tempsht, &fhumidsht, &ftempsht);
-      humid_sht_available = TRUE;
+      humid_sht_available = true;
       s_connectionreset();
       s_start_measure(HUMI);
       humid_sht_status = SHT_MEASURING_HUMID;
       DOWNLINK_SEND_SHT_STATUS(DefaultChannel, DefaultDevice, &humidsht, &tempsht, &fhumidsht, &ftempsht);
-      humid_sht_available = FALSE;
+      humid_sht_available = false;
+
+#if SHT_SDLOG
+  if (pprzLogFile != -1) {
+    if (!log_sht_started) {
+      sdLogWriteLog(pprzLogFile, "SHT75: Humid(pct) Temp(degC) GPS_fix TOW(ms) Week Lat(1e7deg) Lon(1e7deg) HMSL(mm) gspeed(cm/s) course(1e7deg) climb(cm/s)\n");
+      log_sht_started = true;
+    }
+    sdLogWriteLog(pprzLogFile, "sht75: %9.4f %9.4f    %d %d %d   %d %d %d   %d %d %d\n",
+		  fhumidsht, ftempsht,
+		  gps.fix, gps.tow, gps.week,
+		  gps.lla_pos.lat, gps.lla_pos.lon, gps.hmsl,
+		  gps.gspeed, gps.course, -gps.ned_vel.z);
+  }
+#endif
+
     }
   }
 }

@@ -19,6 +19,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/**
+ * @file test_datalink.c
+ *
+ * Periodically sends ALIVE (10Hz) and ping/pong (every 5s) telemetry messages.
+ */
 #define DATALINK_C
 
 #include BOARD_CONFIG
@@ -50,6 +55,7 @@ static inline void main_init(void)
 {
   mcu_init();
   sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
+  downlink_init();
 }
 
 static inline void main_periodic(void)
@@ -59,19 +65,20 @@ static inline void main_periodic(void)
 
 static inline void main_event(void)
 {
+  mcu_event();
   DatalinkEvent();
 }
 
 void dl_parse_msg(void)
 {
-  // FIXME : when i remove the datalink=0 line it stops working !!!!
-  datalink_time = 0;
   uint8_t msg_id = dl_buffer[1];
   switch (msg_id) {
 
     case  DL_PING: {
       DOWNLINK_SEND_PONG(DefaultChannel, DefaultDevice);
     }
-    break;
+    default:
+      break;
   }
 }
+

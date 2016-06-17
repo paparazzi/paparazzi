@@ -124,6 +124,22 @@ let icon_quadrotor_x_template = {
   width = 1
 }
 
+let icon_quadrotor_xi_template = {
+  lines = [
+   [| 6.;-15.; 0.;-24.; -6.;-15.|];       (** Front Marker **)
+   [| 0.; -4.; 0.;  4.|];
+   [|-4.; -6.; 0.; -4.;  4.; -6.|];
+   [|-4.;  6.; 0.;  4.;  4.;  6.|];
+  ];
+  ellipse = [
+    [|  4.19;  4.19;  14.19;  14.19|];
+    [| -4.19; -4.19; -14.19; -14.19|];
+    [| -4.19;  4.19; -14.19;  14.19|];
+    [|  4.19; -4.19;  14.19; -14.19|];
+  ];
+  width = 1
+}
+
 let icon_hexarotor_x_template = {
   lines = [
    [| 6.; -15.; 0.; -24.;  -6.; -15.|];   (** Front Marker **)
@@ -165,6 +181,17 @@ let icon_home_template = {
   ];
   ellipse = [];
   width = 3;
+}
+
+let icon_intruder_template = {
+  lines = [
+    [| 0.; 0.; 0.; -24. |];
+    [| 6.; -15.; 0.; -24.;  -6.; -15.|];   (** Front Marker **)
+  ];
+  ellipse = [
+    [| -8.; -8.; 8.; 8.|];
+  ];
+  width = 1
 }
 
 class widget = fun ?(color="red") ?(icon_template=icon_fixedwing_template) (group:GnoCanvas.group) ->

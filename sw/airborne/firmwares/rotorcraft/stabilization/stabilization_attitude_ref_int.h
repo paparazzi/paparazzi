@@ -33,12 +33,4 @@
 #define REF_RATE_FRAC  16
 #define REF_ANGLE_FRAC 20
 
-extern struct Int32Eulers stab_att_sp_euler; ///< with #INT32_ANGLE_FRAC
-extern struct Int32Eulers stab_att_ref_euler; ///< with #REF_ANGLE_FRAC
-extern struct Int32Rates  stab_att_ref_rate;  ///< with #REF_RATE_FRAC
-extern struct Int32Rates  stab_att_ref_accel; ///< with #REF_ACCEL_FRAC
-
-extern void stabilization_attitude_ref_init(void);
-extern void stabilization_attitude_ref_update(void);
-
 #endif /* STABILIZATION_ATTITUDE_REF_INT_H */

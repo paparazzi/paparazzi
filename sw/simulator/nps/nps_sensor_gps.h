@@ -22,16 +22,16 @@ struct NpsSensorGps {
   struct DoubleVect3  pos_bias_random_walk_value;
   double pos_latency;
   double speed_latency;
-  GSList* hmsl_history;
-  GSList* pos_history;
-  GSList* lla_history;
-  GSList* speed_history;
+  GSList *hmsl_history;
+  GSList *pos_history;
+  GSList *lla_history;
+  GSList *speed_history;
   double next_update;
-  bool_t data_available;
+  bool data_available;
 };
 
 
-extern void nps_sensor_gps_init(struct NpsSensorGps* gps, double time);
-extern void nps_sensor_gps_run_step(struct NpsSensorGps* gps, double time);
+extern void nps_sensor_gps_init(struct NpsSensorGps *gps, double time);
+extern void nps_sensor_gps_run_step(struct NpsSensorGps *gps, double time);
 
 #endif /* NPS_SENSOR_GPS_H */

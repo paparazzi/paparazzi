@@ -18,5 +18,6 @@
 #define USE_BARO_BOARD 0
 #endif
 #endif
+extern struct video_config_t webcam;
 
 #endif /* CONFIG_PC_SIM_H */

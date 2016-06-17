@@ -1,0 +1,76 @@
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+
+<!-- this is a quadrotor frame equiped with Lisa/M and MKK motor controllers -->
+
+<airframe name="setup_apogee">
+
+  <firmware name="setup">
+    <target name="tunnel"           board="apogee_1.0"/>
+    <target name="usb_tunnel"       board="apogee_1.0">
+      <configure name="TUNNEL_PORT" value="UART6"/>
+    </target>
+    <target name="setup_actuators"  board="apogee_1.0">
+      <module name="actuators" type="pwm"/>
+    </target>
+  </firmware>
+
+  <firmware name="test_progs">
+    <target name="test_manual"      board="apogee_1.0"/>
+    <target name="test_sys_time_timer"      board="apogee_1.0"/>
+    <target name="test_sys_time_usleep"     board="apogee_1.0"/>
+    <target name="test_telemetry"           board="apogee_1.0"/>
+
+    <target name="test_actuators_pwm"       board="apogee_1.0">
+    </target>
+    <target name="test_actuators_pwm_sin"   board="apogee_1.0">
+    </target>
+    <target name="test_baro_board"          board="apogee_1.0">
+      <module name="imu" type="apogee"/>
+      <configure name="IMU_INIT" value="1"/>
+    </target>
+    <target name="test_imu" board="apogee_1.0">
+      <module name="imu" type="apogee"/>
+    </target>
+    <target name="test_adc"                 board="apogee_1.0"/>
+    <target name="test_uart"                board="apogee_1.0">
+      <define name="USE_UART4"/>
+      <define name="UART4_BAUD" value="B57600"/>
+      <define name="USE_UART6"/>
+      <define name="UART6_BAUD" value="B57600"/>
+    </target>
+
+    <!-- Communication -->
+    <module name="radio_control" type="ppm">
+    </module>
+  </firmware>
+
+  <servos>
+    <servo name="1"   no="0" min="950" neutral="1500" max="2050"/>
+    <servo name="2"   no="1" min="950" neutral="1500" max="2050"/>
+    <servo name="3"   no="2" min="950" neutral="1500" max="2050"/>
+    <servo name="4"   no="3" min="950" neutral="1500" max="2050"/>
+    <servo name="5"   no="4" min="950" neutral="1500" max="2050"/>
+    <servo name="6"   no="5" min="950" neutral="1500" max="2050"/>
+    <servo name="7"   no="6" min="950" neutral="1500" max="2050"/>
+  </servos>
+
+ <commands>
+  <axis name="ROLL"     failsafe_value="0"/>
+  <axis name="PITCH"    failsafe_value="0"/>
+  <axis name="YAW"      failsafe_value="0"/>
+  <axis name="THRUST"   failsafe_value="0"/>
+  <axis name="AUX5"   failsafe_value="0"/>
+  <axis name="AUX6"   failsafe_value="0"/>
+ </commands>
+
+ <command_laws>
+  <set servo="1"         value="@ROLL"/>
+  <set servo="2"         value="@PITCH"/>
+  <set servo="3"         value="@YAW"/>
+  <set servo="4"         value="@THRUST"/>
+  <set servo="5"         value="@AUX5"/>
+  <set servo="6"         value="@AUX6"/>
+  <set servo="7"         value="@AUX7"/>
+ </command_laws>
+
+</airframe>

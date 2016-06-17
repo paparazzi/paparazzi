@@ -29,9 +29,9 @@
 
 #include "mcu_periph/gpio.h"
 #include "peripherals/cyrf6936.h"
-#include "mcu_periph/link_device.h"
+#include "pprzlink/pprzlink_device.h"
 #include "subsystems/datalink/datalink.h"
-#include "subsystems/datalink/pprz_transport.h"
+#include "pprzlink/pprz_transport.h"
 
 /* The timings in microseconds */
 #define SUPERBITRF_BIND_RECV_TIME       10000       /**< The time to wait for a bind packet on a channel in microseconds */
@@ -78,12 +78,12 @@ struct SuperbitRF {
   volatile enum SuperbitRFStatus status;    /**< The status of the superbitRF */
   uint8_t state;                            /**< The states each status can be in */
   uint32_t timer;                           /**< The timer in microseconds */
-  bool_t timer_overflow;                    /**< When the timer overflows */
+  bool timer_overflow;                    /**< When the timer overflows */
   uint8_t timeouts;                         /**< The amount of timeouts */
   uint32_t transfer_timeouts;               /**< The amount of timeouts during transfer */
   uint32_t resync_count;                    /**< The amount of resyncs needed during transfer */
   uint8_t packet_loss_bit;                  /**< The packet loss indicating bit */
-  bool_t packet_loss;                       /**< When we have packet loss last packet */
+  bool packet_loss;                       /**< When we have packet loss last packet */
 
   uint8_t channels[23];                     /**< The channels used for DSM2/DSMX */
   uint8_t channel_idx;                      /**< The current channel index */
@@ -103,7 +103,7 @@ struct SuperbitRF {
   uint8_t sop_col;                          /**< The sop code column number calculated with the bind MFG id */
   uint8_t data_col;                         /**< The data code column number calculated with the bind MFG id */
 
-  bool_t rc_frame_available;                /**< When a RC frame is available */
+  bool rc_frame_available;                /**< When a RC frame is available */
   uint32_t timing1;                         /**< Time between last receive in microseconds */
   uint32_t timing2;                         /**< Time between second last receive in microseconds */
   int16_t rc_values[14];                    /**< The rc values from the packet */
@@ -125,14 +125,6 @@ extern void superbitrf_event(void);
 extern void superbitrf_set_mfg_id(uint32_t id);
 extern void superbitrf_set_protocol(uint8_t protocol);
 
-/* The datalink defines */
-#define SuperbitRFInit() { }//superbitrf_init(); }
-#define SuperbitRFCheckFreeSpace(_x) (((superbitrf.tx_insert_idx+1) %SUPERBITRF_TX_BUFFER_SIZE) != superbitrf.tx_extract_idx)
-#define SuperbitRFTransmit(_x) {                                    \
-    superbitrf.tx_buffer[superbitrf.tx_insert_idx] = _x;            \
-    superbitrf.tx_insert_idx = (superbitrf.tx_insert_idx+1) %SUPERBITRF_TX_BUFFER_SIZE;   \
-  }
-#define SuperbitRFSendMessage() { }
 #define SuperbitRFCheckAndParse() { }
 
 #endif /* DATALINK_SUPERBITRF_H */

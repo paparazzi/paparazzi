@@ -58,7 +58,7 @@ extern void ppm_arch_init(void);
 #define PPM_PULSE_TYPE_NEGATIVE 1
 
 extern uint16_t ppm_pulses[RADIO_CTL_NB];
-extern volatile bool_t ppm_frame_available;
+extern volatile bool ppm_frame_available;
 
 /**
  * RC event function with handler callback.
@@ -70,12 +70,21 @@ extern void radio_control_impl_event(void (* _received_frame_handler)(void));
 
 
 /**
- * Decode a PPM frame.
+ * Decode a PPM frame from global timer value.
  * A valid ppm frame:
  * - synchro blank
  * - correct number of channels
  * - synchro blank
  */
 extern void ppm_decode_frame(uint32_t ppm_time);
+
+/**
+ * Decode a PPM frame from last width.
+ * A valid ppm frame:
+ * - synchro blank
+ * - correct number of channels
+ * - synchro blank
+ */
+extern void ppm_decode_frame_width(uint32_t ppm_width);
 
 #endif /* RC_PPM_H */

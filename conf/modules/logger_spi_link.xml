@@ -1,0 +1,29 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="logger_spi_link" dir="loggers">
+  <doc>
+    <description>Stream all IMU data to external High-Speed SD-logger via SPI</description>
+    <configure name="HS_LOG_SPI_DEV" value="SPI1|SPI2|SPI3|SPI4|SPI5|SPI6" description="SPI bus which the logger is connected to (default: spi1)"/>
+    <configure name="HS_LOG_SPI_SLAVE_IDX" value="SPI_SLAVE1|SPI_SLAVE2|SPI_SLAVE3|SPI_SLAVE4|SPI_SLAVE5|SPI_SLAVE6" description="SPI slave which the logger is connected to (default: SPI_SLAVE1)"/>
+  </doc>
+  <header>
+    <file name="high_speed_logger_spi_link.h"/>
+  </header>
+  <init fun="high_speed_logger_spi_link_init()"/>
+  <periodic fun="high_speed_logger_spi_link_periodic()" autorun="TRUE"/>
+  <makefile target="ap">
+    <configure name="HS_LOG_SPI_DEV" default="spi1" case="upper|lower"/>
+    <configure name="HS_LOG_SPI_SLAVE_IDX" default="spi_slave1" case="upper|lower"/>
+    <raw>
+      include $(CFG_SHARED)/spi_master.makefile
+    </raw>
+
+    <define name="USE_$(HS_LOG_SPI_DEV_UPPER)" value="1" />
+    <define name="USE_$(HS_LOG_SPI_SLAVE_IDX_UPPER)" value="1" />
+    <define name="HIGH_SPEED_LOGGER_SPI_LINK_DEVICE" value="$(HS_LOG_SPI_DEV_LOWER)" />
+    <define name="HIGH_SPEED_LOGGER_SPI_LINK_SLAVE_NUMBER" value="$(HS_LOG_SPI_SLAVE_IDX_UPPER)" />
+
+    <file name="high_speed_logger_spi_link.c"/>
+  </makefile>
+</module>
+

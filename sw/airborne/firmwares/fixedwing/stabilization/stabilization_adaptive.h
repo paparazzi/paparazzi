@@ -44,6 +44,12 @@ extern float h_ctl_pitch_Kffa;
 extern float h_ctl_pitch_Kffd;
 extern float h_ctl_pitch_of_roll;
 
+#if H_CTL_YAW_LOOP
+extern float h_ctl_yaw_dgain;
+extern float h_ctl_yaw_ny_igain;
+#endif
+
+
 #define H_CTL_ROLL_SUM_ERR_MAX (MAX_PPRZ/2.)
 #define H_CTL_PITCH_SUM_ERR_MAX (MAX_PPRZ/2.)
 
@@ -57,6 +63,6 @@ extern float h_ctl_pitch_of_roll;
     h_ctl_pitch_igain = _gain; \
   }
 
-extern bool_t use_airspeed_ratio;
+extern bool use_airspeed_ratio;
 
 #endif /* FW_H_CTL_A_H */

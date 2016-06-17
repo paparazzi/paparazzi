@@ -38,6 +38,7 @@
 #define MORA_TRANSPORT_H
 
 #include <inttypes.h>
+#include <stdbool.h>
 #include "std.h"
 
 /////////////////////////////////////////////////////////////////////
@@ -102,20 +103,20 @@ extern uint8_t mora_ck_a, mora_ck_b;
 #define MoraPutUint8( _byte) {     \
     mora_ck_a += _byte;              \
     mora_ck_b += mora_ck_a;          \
-    CameraLink(Transmit(_byte));     \
+    CameraLinkTransmit(_byte);     \
   }
 
 #define MoraHeader(msg_id, payload_len) {           \
-    CameraLink(Transmit(STX));                        \
+    CameraLinkTransmit(STX);                        \
     uint8_t msg_len = MoraSizeOf( payload_len);       \
-    CameraLink(Transmit(msg_len));                    \
+    CameraLinkTransmit(msg_len);                    \
     mora_ck_a = msg_len; mora_ck_b = msg_len;         \
     MoraPutUint8(msg_id);                             \
   }
 
 #define MoraTrailer() {               \
-    CameraLink(Transmit(mora_ck_a));    \
-    CameraLink(Transmit(mora_ck_b));    \
+    CameraLinkTransmit(mora_ck_a);    \
+    CameraLinkTransmit(mora_ck_b);    \
   }
 
 #define MoraPut1ByteByAddr( _byte) {  \
@@ -131,7 +132,7 @@ struct mora_transport {
   uint8_t payload[256];
   uint8_t error;
   uint8_t msg_id;
-  uint8_t msg_received;
+  bool    msg_received;
   uint8_t payload_len;
   // specific pprz transport variables
   uint8_t status;

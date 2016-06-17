@@ -42,7 +42,7 @@ void adxl345_i2c_init(struct Adxl345_I2c *adxl, struct i2c_periph *i2c_p, uint8_
   adxl->i2c_trans.status = I2CTransDone;
   /* set default config options */
   adxl345_set_default_config(&(adxl->config));
-  adxl->initialized = FALSE;
+  adxl->initialized = false;
   adxl->init_status = ADXL_CONF_UNINIT;
 }
 
@@ -78,7 +78,7 @@ static void adxl345_i2c_send_config(struct Adxl345_I2c *adxl)
       adxl->init_status++;
       break;
     case ADXL_CONF_DONE:
-      adxl->initialized = TRUE;
+      adxl->initialized = true;
       adxl->i2c_trans.status = I2CTransDone;
       break;
     default:
@@ -121,7 +121,7 @@ void adxl345_i2c_event(struct Adxl345_I2c *adxl)
       adxl->data.vect.x = Int16FromBuf(adxl->i2c_trans.buf, 0);
       adxl->data.vect.y = Int16FromBuf(adxl->i2c_trans.buf, 2);
       adxl->data.vect.z = Int16FromBuf(adxl->i2c_trans.buf, 4);
-      adxl->data_available = TRUE;
+      adxl->data_available = true;
       adxl->i2c_trans.status = I2CTransDone;
     }
   } else if (adxl->init_status != ADXL_CONF_UNINIT) { // Configuring but not yet initialized

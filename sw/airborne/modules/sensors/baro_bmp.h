@@ -38,7 +38,7 @@ extern struct Bmp085 baro_bmp;
 /// new measurement every 3rd baro_bmp_periodic
 #define BARO_BMP_DT (BARO_BMP_PERIODIC_PERIOD / 3)
 
-extern bool_t baro_bmp_enabled;
+extern bool baro_bmp_enabled;
 extern float baro_bmp_r;
 extern float baro_bmp_sigma2;
 extern int32_t baro_bmp_alt;

@@ -22,7 +22,7 @@
 
 /**
  * @file peripherals/ms5611_spi.c
- * Measurement Specialties (Intersema) MS5611-01BA pressure/temperature sensor interface for SPI.
+ * Measurement Specialties (Intersema) MS5611-01BA and MS5607-02BA03 pressure/temperature sensor interface for SPI.
  *
  */
 
@@ -30,7 +30,8 @@
 #include "peripherals/ms5611_spi.h"
 
 
-void ms5611_spi_init(struct Ms5611_Spi *ms, struct spi_periph *spi_p, uint8_t slave_idx)
+void ms5611_spi_init(struct Ms5611_Spi *ms, struct spi_periph *spi_p, uint8_t slave_idx,
+                     bool is_ms5607)
 {
   /* set spi_peripheral */
   ms->spi_p = spi_p;
@@ -54,16 +55,17 @@ void ms5611_spi_init(struct Ms5611_Spi *ms, struct spi_periph *spi_p, uint8_t sl
   /* set initial status: Success or Done */
   ms->spi_trans.status = SPITransDone;
 
-  ms->data_available = FALSE;
-  ms->initialized = FALSE;
+  ms->data_available = false;
+  ms->initialized = false;
   ms->status = MS5611_STATUS_UNINIT;
   ms->prom_cnt = 0;
+  ms->is_ms5607 = is_ms5607;
 }
 
 void ms5611_spi_start_configure(struct Ms5611_Spi *ms)
 {
   if (ms->status == MS5611_STATUS_UNINIT) {
-    ms->initialized = FALSE;
+    ms->initialized = false;
     ms->prom_cnt = 0;
     ms->tx_buf[0] = MS5611_SOFT_RESET;
     spi_submit(ms->spi_p, &(ms->spi_trans));
@@ -164,8 +166,11 @@ void ms5611_spi_event(struct Ms5611_Spi *ms)
             ms->status = MS5611_STATUS_IDLE;
           } else {
             /* calculate temp and pressure from measurements and set available if valid */
-            if (ms5611_calc(&(ms->data))) {
-              ms->data_available = TRUE;
+            if (ms->is_ms5607) {
+              ms->data_available = ms5607_calc(&(ms->data));
+            }
+            else {
+              ms->data_available = ms5611_calc(&(ms->data));
             }
             ms->status = MS5611_STATUS_IDLE;
           }
@@ -197,7 +202,7 @@ void ms5611_spi_event(struct Ms5611_Spi *ms)
           } else {
             /* done reading prom, check prom crc */
             if (ms5611_prom_crc_ok(ms->data.c)) {
-              ms->initialized = TRUE;
+              ms->initialized = true;
               ms->status = MS5611_STATUS_IDLE;
             } else {
               /* checksum error, try again */

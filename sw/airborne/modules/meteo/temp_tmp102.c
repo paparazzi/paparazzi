@@ -32,7 +32,7 @@
 #include "mcu_periph/i2c.h"
 #include "led.h"
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 
 
@@ -62,7 +62,7 @@ struct i2c_transaction tmp_trans;
 
 void tmp102_init(void)
 {
-  tmp_meas_started = FALSE;
+  tmp_meas_started = false;
   /* configure 8Hz and enhanced mode */
   tmp_trans.buf[0] = TMP102_CONF_REG;
   tmp_trans.buf[1] = TMP102_CONF1;
@@ -74,7 +74,7 @@ void tmp102_periodic(void)
 {
   tmp_trans.buf[0] = TMP102_TEMP_REG;
   i2c_transceive(&TMP_I2C_DEV, &tmp_trans, TMP102_SLAVE_ADDR, 1, 2);
-  tmp_meas_started = TRUE;
+  tmp_meas_started = true;
 }
 
 void tmp102_event(void)

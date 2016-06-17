@@ -63,7 +63,7 @@ void parse_mora(struct mora_transport *t, uint8_t c)
       if (c != t->ck_b) {
         goto error;
       }
-      t->msg_received = TRUE;
+      t->msg_received = true;
       goto restart;
     default:
       goto error;
@@ -75,28 +75,3 @@ restart:
   t->status = UNINIT;
   return;
 }
-
-
-/*
-static inline void pprz_parse_payload(struct pprz_transport * t) {
-  uint8_t i;
-  for(i = 0; i < t->trans.payload_len; i++)
-    dl_buffer[i] = t->trans.payload[i];
-  dl_msg_available = TRUE;
-}
-
-
-#define PprzBuffer(_dev) TransportLink(_dev,ChAvailable())
-#define ReadPprzBuffer(_dev,_trans) { while (TransportLink(_dev,ChAvailable())&&!(_trans.trans.msg_received)) parse_pprz(&(_trans),TransportLink(_dev,Getch())); }
-#define PprzCheckAndParse(_dev,_trans) {  \
-  if (PprzBuffer(_dev)) {                 \
-    ReadPprzBuffer(_dev,_trans);          \
-    if (_trans.trans.msg_received) {      \
-      pprz_parse_payload(&(_trans));      \
-      _trans.trans.msg_received = FALSE;  \
-    }                                     \
-  }                                       \
-}
-*/
-
-

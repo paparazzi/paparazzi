@@ -116,7 +116,7 @@
     <define name="NOMINAL_AIRSPEED" value="13." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
     <define name="CONTROL_FREQUENCY" value="60" unit="Hz"/>
-    <define name="XBEE_INIT" value="&quot;ATPL2\rATRN5\rATTT80\r&quot;"/>
+    <define name="XBEE_INIT" value="ATPL2\rATRN5\rATTT80\r" type="string"/>
 <!--    <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
 
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
@@ -207,29 +207,29 @@
 
     <!-- Sensors -->
     <!--
-    <subsystem name="ahrs" type="int_cmpl_quat">
+    <module name="ahrs" type="int_cmpl_quat">
       <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN" />
-    </subsystem>
-    <subsystem name="imu" type="aspirin_i2c"/>
+    </module>
+    <module name="imu" type="aspirin_i2c"/>
     -->
-    <subsystem name="imu" type="ppzuav"/>
-    <subsystem name="ahrs" type="float_dcm">
+    <module name="imu" type="ppzuav"/>
+    <module name="ahrs" type="float_dcm">
 <!--      <configure name="USE_MAGNETOMETER" /> -->
-    </subsystem>
-    <subsystem name="ins" type="alt_float"/>
+    </module>
+    <module name="ins" type="alt_float"/>
 
-    <subsystem name="radio_control" type="ppm"/>
+    <module name="radio_control" type="ppm"/>
 
     <!-- Communication -->
-    <subsystem name="telemetry" type="xbee_api">
+    <module name="telemetry" type="xbee_api">
       <configure name="MODEM_BAUD" value="B9600"/>
-    </subsystem>
+    </module>
 
     <!-- Actuators -->
-    <subsystem name="control"/>
+    <module name="control"/>
     <!-- Sensors -->
-    <subsystem name="navigation"/>
-    <subsystem name="gps" type="ublox_utm"/>
+    <module name="navigation"/>
+    <module name="gps" type="ublox_utm"/>
 
 
 </firmware>

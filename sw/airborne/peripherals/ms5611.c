@@ -23,7 +23,7 @@
 /**
  * @file peripherals/ms5611.c
  *
- * MS5611 barometer driver common functions (I2C and SPI).
+ * MS5611 and MS5607 barometer driver common functions (I2C and SPI).
  */
 
 #include "peripherals/ms5611.h"
@@ -33,7 +33,7 @@
  * Check if CRC of PROM data is OK.
  * @return TRUE if OK, FALSE otherwise
  */
-bool_t ms5611_prom_crc_ok(uint16_t *prom)
+bool ms5611_prom_crc_ok(uint16_t *prom)
 {
   int32_t i, j;
   uint32_t res = 0;
@@ -54,17 +54,17 @@ bool_t ms5611_prom_crc_ok(uint16_t *prom)
   }
   prom[7] |= crc;
   if (crc == ((res >> 12) & 0xF)) {
-    return TRUE;
+    return true;
   } else {
-    return FALSE;
+    return false;
   }
 }
 
 /**
- * Calculate temperature and compensated pressure.
+ * Calculate temperature and compensated pressure for MS5611.
  * @return TRUE if measurement was valid, FALSE otherwise
  */
-bool_t ms5611_calc(struct Ms5611Data *ms)
+bool ms5611_calc(struct Ms5611Data *ms)
 {
   int64_t dt, tempms, off, sens, t2, off2, sens2;
 
@@ -97,7 +97,50 @@ bool_t ms5611_calc(struct Ms5611Data *ms)
     /* temperature in deg Celsius with 0.01 degC resolultion */
     ms->temperature = (int32_t)tempms;
     ms->pressure = p;
-    return TRUE;
+    return true;
   }
-  return FALSE;
+  return false;
+}
+
+/**
+ * Calculate temperature and compensated pressure for MS5607.
+ * MS5607 basically has half the resolution of the MS5611.
+ * @return TRUE if measurement was valid, FALSE otherwise
+ */
+bool ms5607_calc(struct Ms5611Data *ms)
+{
+  int64_t dt, tempms, off, sens, t2, off2, sens2;
+
+  /* difference between actual and ref temperature */
+  dt = ms->d2 - (int64_t)ms->c[5] * (1 << 8);
+  /* actual temperature */
+  tempms = 2000 + ((int64_t)dt * ms->c[6]) / (1 << 23);
+  /* offset at actual temperature */
+  off = ((int64_t)ms->c[2] * (1 << 17)) + ((int64_t)ms->c[4] * dt) / (1 << 6);
+  /* sensitivity at actual temperature */
+  sens = ((int64_t)ms->c[1] * (1 << 16)) + ((int64_t)ms->c[3] * dt) / (1 << 7);
+  /* second order temperature compensation */
+  if (tempms < 2000) {
+    t2 = (dt * dt) / (1 << 31);
+    off2 = 61 * ((int64_t)(tempms - 2000) * (tempms - 2000)) / (1 << 4);
+    sens2 = 2 * ((int64_t)(tempms - 2000) * (tempms - 2000));
+    if (tempms < -1500) {
+      off2 = off2 + 15 * (int64_t)(tempms + 1500) * (tempms + 1500);
+      sens2 = sens2 + 8 * ((int64_t)(tempms + 1500) * (tempms + 1500));
+    }
+    tempms = tempms - t2;
+    off = off - off2;
+    sens = sens - sens2;
+  }
+
+  /* temperature compensated pressure in Pascal (0.01mbar) */
+  uint32_t p = (((int64_t)ms->d1 * sens) / (1 << 21) - off) / (1 << 15);
+  /* if temp and pressare are in valid bounds, copy and return TRUE (valid) */
+  if ((tempms > -4000) && (tempms < 8500) && (p > 1000) && (p < 120000)) {
+    /* temperature in deg Celsius with 0.01 degC resolultion */
+    ms->temperature = (int32_t)tempms;
+    ms->pressure = p;
+    return true;
+  }
+  return false;
 }

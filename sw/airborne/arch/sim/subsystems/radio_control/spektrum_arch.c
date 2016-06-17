@@ -33,17 +33,17 @@
 
 #if USE_NPS
 #include "nps_radio_control.h"
-#elif !USE_JSBSIM
+#else
 #include <caml/mlvalues.h>
 #endif
 
-static bool_t spektrum_available;
+static bool spektrum_available;
 
 void radio_control_spektrum_try_bind(void) {}
 
 void radio_control_impl_init(void)
 {
-  spektrum_available = FALSE;
+  spektrum_available = false;
 }
 void RadioControlEventImp(void (*frame_handler)(void))
 {
@@ -53,7 +53,7 @@ void RadioControlEventImp(void (*frame_handler)(void))
     radio_control.status = RC_OK;
     (*frame_handler)();
   }
-  spektrum_available = FALSE;
+  spektrum_available = false;
 }
 
 #if USE_NPS
@@ -65,13 +65,13 @@ void radio_control_feed(void)
   radio_control.values[RADIO_YAW]      = nps_radio_control.yaw * MAX_PPRZ;
   radio_control.values[RADIO_THROTTLE] = nps_radio_control.throttle * MAX_PPRZ;
   radio_control.values[RADIO_MODE]     = nps_radio_control.mode * MAX_PPRZ;
-  spektrum_available = TRUE;
+  spektrum_available = true;
 }
 #else //RADIO_CONTROL
 void radio_control_feed(void) {}
 #endif //RADIO_CONTROL
 
-#elif !USE_JSBSIM // not NPS and not JSBSIM -> simple ocaml sim
+#else // not NPS -> simple ocaml sim
 #ifdef RADIO_CONTROL
 value update_rc_channel(value c, value v)
 {
@@ -89,7 +89,7 @@ value update_rc_channel(value c, value v)
 
 value send_ppm(value unit)
 {
-  spektrum_available = TRUE;
+  spektrum_available = true;
   return unit;
 }
 #else // RADIO_CONTROL

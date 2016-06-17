@@ -16,7 +16,7 @@ ap.MAKEFILE = bebop
 # -----------------------------------------------------------------------
 USER=foobar
 HOST?=192.168.42.1
-SUB_DIR=paparazzi
+SUB_DIR=internal_000/paparazzi
 FTP_DIR=/data/ftp
 TARGET_DIR=$(FTP_DIR)/$(SUB_DIR)
 # -----------------------------------------------------------------------
@@ -29,7 +29,20 @@ GPS_PORT           ?= UART1
 GPS_BAUD           ?= B230400
 
 # handle linux signals by hand
-$(TARGET).CFLAGS += -DUSE_LINUX_SIGNAL
+$(TARGET).CFLAGS += -DUSE_LINUX_SIGNAL -D_GNU_SOURCE
+
+# board specific init function
+$(TARGET).srcs +=  $(SRC_BOARD)/board.c
+
+# Compile the video specific parts
+$(TARGET).srcs +=  $(SRC_BOARD)/video.c
+
+# Link static (Done for GLIBC)
+$(TARGET).CFLAGS += -DLINUX_LINK_STATIC
+$(TARGET).LDFLAGS += -static
+
+# limit main loop to 1kHz so ap doesn't need 100% cpu
+#$(TARGET).CFLAGS += -DLIMIT_EVENT_POLLING
 
 # -----------------------------------------------------------------------
 

@@ -1,0 +1,584 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+<!-- This is the Flightplan of Team OpenUAS for use in the 
+     Australian UAV Outback Challenge of 2014.
+
+     Read about this challenge here:
+     http://www.uavoutbackchallenge.com.au/
+
+     Thanks to all involved, specifically all the help from CdW, DD, BR, GdC, AvdL
+     * TU Delft University of Technology, L&R http://www.tudelft.nl
+     * MAVLab - http://mavlab.info
+     * 1 bit squared http://1bitsquesred.com
+     * everyone else who helped out
+
+TYPE 1 OPERATION Flightplan, fully autonomous in-air joe detection integration
+
+Now with integrated TYPE2 operations option (soon...)
+TYPE 2 OPERATION Flightplan, fully autonomous search, but on ground joe detection integration
+
+STRATEGY:
+
+# Have one flightplan which does it all, no need to upload anything!
+
+USAGE:
+
+NOTES:
+
+# This flightplan contains both the SR, as default mission and the Scruteneering flight.
+# Mission boundary coodinates are for both Scrutineering and SnR the same
+# Alert boundaries are different for Scrutineering and SnR Missions
+
+TODO:
+# Latest coordinates of KMZ of 20131017, a 100% validationcheck.
+# TODO:
+# add times to blocks to prevent to early forcedcrash. e.g after 2 second from tkeof border cannot be crossed in reality, so if triggered do a softcircledown or so
+# or mabye calculate distance and look at airframe REAL max ground speed(with wind in backeve) and deduct time it would take, if within < margin it cannot be missionborder
+# but if scrutineering day, than it can be since we test it closeby mission boundary
+
+TESTS:
+#If we set the air crowbrake make sure it is retracted again when contining normal ops (maybe or above a certain airspeed?)
+
+-->
+
+<!-- Test via command xmlwf yourfligtplanname.xml for welformedness of the xml document -->
+<!-- The base lat lon of the flightplan is the AIRFIELDHOME point -->
+<!-- The ground_alt will be set later on also with real testflight, mind the ground height profile please -->
+<procedure>
+<!-- ******************************** HEADERS ****************************** -->
+<header>
+
+#ifndef FLIGHTPLAN_HEADER_DEFINES
+#define FLIGHTPLAN_HEADER_DEFINES
+
+//Set Generic options
+    #include "autopilot.h"
+//Enable AHRS Health test functions
+    #include "subsystems/ahrs/ahrs_aligner.h"
+//Enable advanced electrical power functions
+    #include "subsystems/electrical.h"
+//Enable datalink tests
+    #include "subsystems/datalink/datalink.h"
+//For interaction with the Flight termination Device (FTD)
+    #define RCChannel(_x) ((*fbw_state).channels[_x])
+
+//DANGER WARNING
+// define ACTIVATED_FTD 0
+
+
+// PHOTOGRAMMETRY settings
+    #define PHOTOGRAMMETRY_OVERLAP 30		// 1-99 Procent
+    #define PHOTOGRAMMETRY_SIDELAP 20		// 1-99 Procent
+    #define PHOTOGRAMMETRY_RESOLUTION 50		// mm pixel projection size
+
+// Incluse airframe.h To be able to use specific variables
+    #include "generated/airframe.h"
+
+// Completly replace with onboard recon copmpter interface
+    #ifdef DC_AUTOSHOOT_PERIOD
+    //TODO make shooting distance not periodic
+    #define LINE_START_FUNCTION dc_autoshoot = DC_AUTOSHOOT_PERIODIC;
+    #define LINE_STOP_FUNCTION dc_autoshoot = DC_AUTOSHOOT_STOP;
+    #endif
+
+//Enable energy control commands from within flightplan
+    #include "firmwares/fixedwing/guidance/energy_ctrl.h"
+
+// States
+    #define AircraftIsBooting()  LessThan(nav_block,4)  // LessThan(nav_block,IndexOfBlock('Mission.ReadyForDeparture'))
+
+
+#endif
+
+  </header>
+<!-- ******************************* WAYPOINTS ***************************** -->
+  <waypoints>
+
+<!-- Scrutineering Course -->
+<!-- South * East
+TST-1 = -26° 34' 58.9" * 151° 50' 16.2"
+TST-2 = -26° 35' 04.1" * 151° 50' 44.5"
+TST-3 = -26° 35' 23.2" * 151° 50' 45.9"
+-->
+<!-- extra boundary maybe add it -->
+<!-- ABS = Alert Boundary scrutineering flight -->
+<!-- TODO real positions and better naming-->
+<!--
+    <waypoint name="_ABS1" lat="" lon="" height="400."/>
+    <waypoint name="_ABS2" lat="" lon="" height="400."/>
+    <waypoint name="_ABS3" lat="" lon="" height="400."/>
+-->
+
+    <waypoint name="FLARE" x="-100." y="400." height="-40."/>
+
+<!-- Additional VIA_EL2 Waypoint since we must go *via* EL2, and to have a little
+    more meters optimal for our scan strips entry, otherwhise we could miss one
+    photo and not spot Joe. -->
+
+<!-- Position where Outback Joe would be located. If this waypoint is situated
+     outside search area(The default situation), by this way the flightplane
+     -knows if it should start a search phase. If it is moved inside the area it
+      will start a rescue phase, a.k.a bottledrop.  -->
+
+ <!-- The START from here towards target(Joe), wile dynamically calculating the RELEASE point to target the OUTBACKJOE -->
+    <waypoint name="START" x="-100" y="300"/>
+    <waypoint name="OUTBACKJOE" x="222." y="333."/>
+    <!-- Note that 70m is the release height, we are not allowed to go below
+    60 meters and need at least some GPS height fluctuation into account
+    Also if we steeply move UP from START to RELEASE the release will maybe a
+    little more accurate, hmmmm theoretically -->
+    <waypoint name="RELEASE" x="-100." y="400." height="61."/>
+
+<!-- For autonomous landing and drop -->
+    <waypoint name="_BASELEG" x="100" y="300"/>
+    <waypoint name="_CLIMB" x="100" y="300"/>
+    </waypoints>
+
+<!-- ******************************** SECTORS ****************************** -->
+<!-- Sectors are good for displaying an overlay -->
+  <sectors>
+    <sector name="SurveyArea" color="green">
+      <corner name="SA1"/>
+      <corner name="SA2"/>
+      <corner name="SA3"/>
+      <corner name="SA4"/>
+      <corner name="SA5"/>
+    </sector>
+  </sectors>
+
+<!-- ****************************** EXCEPTIONS ***************************** -->
+  <exceptions>
+<!-- WARNING these are Global Exeption, bettersome to stuff in a flightplan block-->
+    <!-- If datalink is lost for more than 10 seconds and we are in launched state -->
+
+    <!-- below for the real SnR --> <!--  TODO: if datalinkloss but still closeby move to commhold? strange better airfiledhome loiter IMHO -->
+    <exception cond="And((datalink_time/2) > 9, launch > 0) && (!AircraftIsBooting())" deroute="CommsHoldLoiter"/> <!-- deroute="AirfieldHomeLoiter"/> -->
+
+ <!--   <exception cond="if Joefoundandretunvalformticket deroute="Waitforjudges"/>-->
+
+    <!-- Optional check, if at seconds of launch GPS is lost -->
+    <!-- <exception cond="And(launch, gps_lost)" deroute="killengine" or test for heighht 40M or so/> -->
+    <!-- see if we can get correct AP voltage -->
+
+    <!-- not used yet maybe switch it on <exception cond="10.0 > PowerVoltage()" deroute="Standby"/> -->
+    <!-- not used yet maybe switch it on <exception cond="11.0 > vsupply" deroute="Standby"/> -->
+ <!--  is less safe and has less chance of AC recovery. It states battery LOW, not battery critical -->
+<!--  <exception cond="electrical.bat_low && !(nav_block == IndexOfBlock('Setting_home_location')) && !(nav_block == IndexOfBlock('Holding_point') && !(nav_block == IndexOfBlock('Land')))" deroute="Land"/>-->
+<!--<TODO: Add somethin like pre_call="if (!InsideRed(GetPosX(), GetPosY())) NavKillThrottle();-->
+  </exceptions>
+
+
+
+
+
+
+
+
+
+<!-- *********************************************************************** -->
+<!-- ********************** FLIGHTPLAN STARTINGPOINT *********************** -->
+<!-- *********************************************************************** -->
+
+<!-- *********** Wait for GPS fix, 3D by default *********** -->
+  <blocks>
+    <block name="WaitForGPS" pre_call="NavKillThrottle()" >
+      <!-- Do Not Kill -->
+      <call fun="Fly()"/>
+      <!-- IDEA Close the hatch so not able to insert payload before there is a 3D fix , however maybe not so handy anyhow since we need to wat be fre we can insert-->
+      <!--  <set value="NavDropCloseHatch" var="unit"/> -->
+      <!-- if no valid fix or gps accuracy> 15m or no AHRS , it a no-go wait-->
+      <while cond="!GpsFixValid() || gps.pacc > 1500 || stateIsAttitudeValid()"/>
+    </block>
+
+<!-- *********** Set the ground reference height and the home position *********** -->
+<!-- a second init will follow since the plane thrower will still walk to launchpoint -->
+
+    <block name="Geo Init">
+      <while cond="LessThan(NavBlockTime(), 3)"/>
+<!--
+      <while cond="LessThan(nav_block,IndexOfBlock('Mission.ReadyForDeparture'))"/>
+      <call fun="NavSetGroundReferenceHere()"/>
+      <call fun="NavSetWaypointHere(WP_HOME)"/>
+-->
+      <!--  TODO Set QNH here based on GPS height if allowed from commitee -->
+      <call fun="NavSetAltitudeReferenceHere()" />
+      <set var="air_data.calc_qnh_once" value="TRUE"/>
+    </block>
+
+    <!-- *********** Set the ground reference height and the home position *********** -->
+
+<!-- a second init will follow since the plane thrower will still walk to launchpoint-->
+
+    <block name="Wait for RC">
+      <!-- We must have RC at least once switched on just to test, this check can be deleted if everything works 100% in Auto2 -->
+      <while cond="RCLost()"/> <!-- to make sure we do not hop to AUTO2 and engine starts running , at least switch on then maybe off if you wantto -->
+      <!-- TODO maybe switch on ACL blick as soon as we are ready to go  -->
+    </block>
+
+    <block name="Set Landing Position" pre_call="NavKillThrottle()">
+      <set value="AirbrakesOff()" var="unit"/>
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/><!-- maybe not moving the plane would still make a test of defelction possible -->
+    </block>
+
+    <block name="Landing Position Stored" pre_call="NavKillThrottle()" strip_button="Store" strip_icon="recenter.png">
+      <call fun="NavSetWaypointPosAndAltHere(WP_TD)"/>
+      <set value="DownlinkSendWpNr(WP_TD)" var="unit"/>
+      <!-- CDW set value="SetAltitudeForFinalFromTo(WP_TD,WP_AF)" var="unit"/-->
+      <call fun="nav_compute_final_from_glide(WP_AF, WP_TD, V_CTL_GLIDE_RATIO)"/>
+      <!-- CDW call fun="nav_compute_flare_from_aftd(WP_AF, WP_TD, WP_FLARE)"/-->
+      <set value="DownlinkSendWpNr(WP_AF)" var="unit"/>
+      <set value="DownlinkSendWpNr(WP_FLARE)" var="unit"/>
+      <deroute block="HoldingPoint"/>
+    </block>
+
+<!-- *********** Throttle off holdingpoint *********** -->
+    <block name="HoldingPoint" pre_call="NavKillThrottle()" >
+      <!--  TODO: make some movements on all defelctros as a sign we are in holding and to see if all works Maybe a separate testblock-->
+      <!-- <set var="waypoints[WP_START].x" value="WaypointX(WP_EL2) + 50"/> -->
+      <!-- <set var="waypoints[WP_START].y" value="WaypointY(WP_EL2) + 50"/> -->
+      <!-- <set value="0" var="ap_state->commands[COMMAND_CAMBER]"/> -->
+      <!-- <set value="0" var="ap_state->commands[COMMAND_BRAKE]"/> -->
+      <set value="AirbrakesOff()" var="unit"/>
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/><!-- maybe not moving the plane would still make a test of defelction possible -->
+    </block>
+
+<!-- *********************************************************
+     *********** Search Area Entry Procedure Start ***********
+     ***************************************************** -->
+    <block name="Start Scruteneering Flight" strip_button="Scrut" group="TO">
+      <!-- CDW set value="SCRUTENEERING_FLIGHT" var="obc_flight_mode" /-->
+      <deroute block="ReadyForDeparture"/>
+    </block>
+
+    <block name="Start Search Flight" strip_button="Search" group="TO">
+      <!-- CDW set value="SEARCH_FLIGHT" var="obc_flight_mode" /-->
+      <deroute block="ReadyForDeparture"/>
+    </block>
+
+    <block name="Start Drop Flight" strip_button="Drop" group="TO">
+      <!-- CDW set value="DROP_FLIGHT" var="obc_flight_mode" /-->
+      <deroute block="ReadyForDeparture"/>
+    </block>
+
+    <block name="ReadyForDeparture" >
+      <exception cond="ThrottleHigh()" deroute="Takeoff"/>
+      <attitude pitch="nav_takeoff_pitch_setting" roll="0" throttle="0.0" until="FALSE" vmode="throttle"/>
+    </block>
+
+    <block key="t" name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
+      <!-- <set value="3000" var="ap_state->commands[COMMAND_CAMBER]"/> -->
+      <set value="0" var="kill_throttle"/>
+      <set value="1" var="launch"/>
+      <set value="0" var="autopilot_flight_time"/>
+      <set var="unit" value="AirbrakesOff()"/>
+      <set value="nav_airspeed_nominal_setting" var="v_ctl_auto_airspeed_setpoint"/>
+      <attitude pitch="nav_takeoff_pitch_setting" roll="0" throttle="1.0" until="MoreThan(NavBlockTime(), 2)" vmode="throttle"/>
+    </block>
+
+    <block name="Climb-Out">
+      <!--<exception cond="rc_status==RC_REALLY_LOST" after 3 seconds and no IMU deroute="softlydown">if using RC stil on with a Auto2 mode switch-->
+      <attitude pitch="nav_takeoff_pitch_setting" roll="0" throttle="1.0" until="GetPosAlt() > ground_alt+40" vmode="throttle"/>
+      <set var="v_ctl_auto_throttle_nominal_cruise_throttle" value="1.0" />
+      <set var="v_ctl_auto_throttle_nominal_cruise_pitch" value="nav_takeoff_pitch_setting" />
+    </block>
+
+    <block name="determineflighttype">
+      <!-- CDW exception cond="(obc_flight_mode == SCRUTENEERING_FLIGHT)" deroute="ScrutineeringAutonomyTriangle"/-->
+      <!-- otherwise goto search area via entry lane -->
+      <deroute block="EntryLane1"/>
+    </block>
+
+<!-- *********************************************************
+     **************** Scrutineering Flight *******************
+     ***************************************************** -->
+
+<!--
+As part of the scrutineering the Search and Rescue entrants of the UAV Challenge
+Outback Rescue will be required to take off, track TST-1, TST-2, TST-3, TST-1... Until
+requested to land.
+
+All emergency and failure requirements of the Challenge must be met,
+
+with the exception that for Loss of Data Link the procedure will be track direct
+to “Airfield Home” and orbit for either a landing or regain of Data Link.
+-->
+
+    <block name="ScrutineeringAutonomyTriangle" strip_button="Triangle" strip_icon="path.png" group="Mission">
+      <!-- TODO: while we are up there take some pictures anyhow :) -->
+      <for var="i" from="1" to="3">
+        <go from="TST-3" hmode="route" wp="TST-1"/>
+        <go from="TST-1" hmode="route" wp="TST-2"/>
+        <go from="TST-2" hmode="route" wp="TST-3"/>
+      </for>
+      <deroute block="ComputeLandingApproach" />
+    </block>
+
+<!-- *********************************************************
+     *********** Search Area Entry Procedure Start ***********
+     ***************************************************** -->
+
+<!-- maybe a HelperWaypoint to gettart n return from a mission Tracking to EL1
+      <set value="0" var="ap_state->commands[COMMAND_CAMBER]"/>-->
+
+<!-- *********** Track to EL-1 *********** -->
+    <block name="EntryLane1" strip_button="Joe" strip_icon="lookdown.png" group="Mission">
+      <set value="nav_airspeed_tracking_setting" var="v_ctl_auto_airspeed_setpoint"/>
+      <go from="AIRFIELDHOME" wp="EL1" hmode="route"/>
+    </block>
+    <!--  maybe add other waypoint to enterarea in a better way -->
+
+<!-- *********** Track Direct to EL-2, Entry to Search Area only via EL-2 *********** -->
+    <block name="EntryLane2">
+      <set value="nav_airspeed_tracking_setting" var="v_ctl_auto_airspeed_setpoint"/>
+      <go from="EL1" wp="EL2" hmode="route" approaching_time="10" />
+    </block>
+
+    <block name="determinerescuetype">
+      <!-- CDW exception cond="(obc_flight_mode == DROP_FLIGHT)" deroute="RescueJoe"/-->
+      <deroute block="SearchForJoe" />
+    </block>
+
+<!-- "Type 1" operation:
+     an areascan with taking pictures of ground realtime anyyse and if joe found an accknolege signal given , autonomous drop and return.
+
+     "Type 2"
+     * There is a search phase and a rescue phase.
+     ** Search means areascan gathering the imagery needed to pinpoint the location of lost Joe ("Type 1" operation)
+     ** Rescue means the payload dropping phase. ("Type 1" operation)
+     -->
+     <!-- TODO: if defined TYPE2 then -->
+<!--
+    <block name="determine_search_or_rescue_phase">
+      <exception cond="InsideSurveyArea(WaypointX(WP_OUTBACKJOE), WaypointY(WP_OUTBACKJOE))" deroute="RescueJoe"/>
+    </block>-->
+
+<!-- ***********
+See for calculations of camera values used
+http://www.openuas.org/intranet/webapps/pmwiki/pmwiki.php?n=UAS.Targetcalc
+Max Scanwidh at 120m is 180m
+Mission scanwidh is 144m thus with a 20% overlap. Overlap depends on lots of factors,
+best to perform many real life tests with the CAM
+*********** -->
+
+    <block name="SearchForJoeLateral">
+      <call fun="nav_survey_poly_osam_setup_towards(WP_SA1, 5, 158, WP_SA2)"/> <!-- TODO correct angle of how we want to search -->
+      <deroute block="Searching" />
+    </block>
+
+    <block name="SearchForJoeDiagonal1">
+      <call fun="nav_survey_poly_osam_setup(WP_SA1, 5, 158, 30)"/> <!-- TODO correct angle of how we want to search -->
+      <deroute block="Searching" />
+    </block>
+
+    <block name="SearchForJoeDiagonal2">
+      <call fun="nav_survey_poly_osam_setup(WP_SA1, 5, 158, 55)"/> <!-- TODO correct angle of how we want to search -->
+      <deroute block="Searching" />
+    </block>
+
+    <block name="SearchForJoe">
+      <!-- <exception cond="FoundJoe" deroute="WaitForJugesDropApprovale"/> -->
+      <!-- Parameters
+      The orientation of the sweeps can ranges from north south to east west and
+       any where in between (-90 <-> 90 degrees respectively).
+       The side of the polygon the aircraft starts on (ex. north or south) is
+       determined by the side of the polygon the entry point is located.
+       call fun="InitializePolygonSurvey(WP_S1, NumOfCorners, SweepWidth, Orientation)"/> -->
+
+       <!-- SweepWidth  max photo with at height - 20 pct overlap 180- etc-->
+      <call fun="nav_survey_poly_osam_setup_towards(WP_SA1, 5, 158, WP_SA5)"/> <!-- TODO correct angle of how we want to search -->
+    </block>
+
+    <block name="Searching">
+      <exception cond="PolySurveySweepBackNum >= 1" deroute="ReturnToBase"/> <!-- ? TODO decide to search in reverse again on until battery < volts needed to return home? if nothing found, go back?-->
+      <set value="nav_airspeed_nominal_setting" var="v_ctl_auto_airspeed_setpoint"/>
+      <call fun="nav_survey_poly_osam_run()"/>
+    </block>
+
+<!--WaitForJugesDropApproval if we do a Type 1 search otherwise it would be approved already Warning then never enter this block -->
+<block name="WaitForJugesDropApproval">
+<!-- circle with circle border already alligend with Drop align route, or maybe some better ideas... -->
+<!-- TODO: if blocktime approval takes to long do what? -->
+</block>
+
+<!-- *********************************************************
+     *********** Search Area Departure Procedure *************
+     ***************************************************** -->
+
+<!-- *********** Exit Search Area only via EL-3 *********** -->
+    <block name="ReturnToBase">
+      <set value="nav_airspeed_tracking_setting" var="v_ctl_auto_airspeed_setpoint"/>
+      <go wp="EL3"/>
+    </block>
+
+<!-- *********** Track Direct to EL-4 *********** -->
+    <block name="ExitLane3">
+      <set value="nav_airspeed_tracking_setting" var="v_ctl_auto_airspeed_setpoint"/>
+      <go from="EL3" wp="EL4" hmode="route"/>
+    </block>
+
+<!-- ************ Track to Kingaroy Airport *********** -->
+    <block name="ExitLane4">
+      <set value="nav_airspeed_tracking_setting" var="v_ctl_auto_airspeed_setpoint"/>
+      <go from="EL4" wp="AIRFIELDHOME" hmode="route"/>
+      <deroute block="ComputeLandingApproach"/>
+    </block>
+
+<!-- *********************************************************
+     **************** Deliver the Payload ********************
+     ***************************************************** -->
+
+    <block name="RescueJoe" strip_button="Drop" strip_icon="parachute.png" group="Mission">
+      <!-- <go wp="VIAEL2" hmode="route"/>--> <!-- TODO maybe not needed -->
+      <deroute block="drop"/>
+    </block>
+
+ <!--  AS REMINDER
+ extern unit_t nav_drop_compute_approach( uint8_t wp_target, uint8_t wp_start, float radius );
+extern unit_t nav_drop_update_release( uint8_t wp_target );
+extern unit_t nav_drop_shoot( void );
+extern float nav_drop_trigger_delay, nav_drop_start_qdr;
+extern bool_t compute_alignment(uint8_t w1, uint8_t w2, uint8_t start, uint8_t end, float d_before, float d_after);
+
+#define NavDropComputeApproach(_target, _start, _radius) nav_drop_compute_approach(_target, _start, _radius)
+#define NavDropUpdateRelease(_wp) nav_drop_update_release(_wp)
+#define NavDropShoot() nav_drop_shoot()
+#define NavDropCloseHatch() ({ ap_state->commands[COMMAND_HATCH] = MIN_PPRZ; })
+#define NavDropAligned() Qdr(DegOfRad(nav_drop_qdr_aligned)) -->
+
+
+<!-- *********** Drop Compute Approach *********** -->
+    <block name="drop">
+ <!-- TODO set Height to minimum height AGL allowed by commitee ?60M -->
+ <!-- TODO determine what still is success and is fastest value for this 100  -->
+      <!--set var="waypoints[WP_START].x" value="WaypointX(WP_OUTBACKJOE) + 100"/-->
+      <!--set var="waypoints[WP_START].y" value="WaypointY(WP_OUTBACKJOE) + 100"/-->
+
+      <set value="nav_drop_compute_approach(WP_OUTBACKJOE, WP_START, WP__BASELEG, WP__CLIMB, nav_radius)" var="unit"/>
+      <set value="DownlinkSendWpNr(WP_RELEASE)" var="unit"/>
+      <circle radius="nav_radius" until="NavQdrCloseTo(DegOfRad(nav_drop_start_qdr)-15)" wp="_BASELEG"/>
+    </block>
+
+<!-- *********** Align on release path *********** -->
+    <block name="align">
+      <!-- TODO set AIRSPEED_AT_RELEASE-->
+      <!--TODO set HEIGHT to 60m -->
+      <exception cond="nav_drop_update_release(WP_OUTBACKJOE)" deroute="ReturnToBase"/>
+      <go approaching_time="nav_drop_trigger_delay" from="START" hmode="route" wp="RELEASE"/>
+    </block>
+
+<!-- *********** Release Payload *********** -->
+    <block name="shoot">
+      <!-- TODO maybe extend crowbreak 80%? for slowes possible speed? -->
+      <!-- <set value="0" var="ap_state->commands[COMMAND_BRAKE]"/> -->
+      <!-- TODO is electrcal plane and almost there maybe stop proppelor from spinning for a few seconds -->
+      <set value="NavDropShoot()" var="unit"/>
+      <!-- TODO add maxspeed again -->
+      <go from="RELEASE" hmode="route" wp="EL3"/>
+      <!-- Maybe better not to close, more chance of delivery, TODO maybe even add a sensor to detect release if not try again -->
+      <!-- <set value="NavDropCloseHatch" var="unit"/> -->
+
+      <deroute block="ReturnToBase"/><!-- Just To Make Sure -->
+    </block>
+
+<!-- *********************************************************
+     ********************* Autolanding ***********************
+     ***************************************************** -->
+
+<!-- *********** Initiate landing *********** -->
+<!--TODO better routing in combination with calced wind direction-->
+
+<!-- *********** Land *********** -->
+
+    <block key="r" name="ConstantSlopeLandRightAFTD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png"  group="Land">
+      <set value="LANDING_CIRCLE_RADIUS" var="nav_radius"/>
+      <deroute block="ComputeLandingApproach"/>
+    </block>
+
+    <block key="l" name="ConstantSlopeLandLeftAFTD" strip_button="Land left (wp AF-TD)" strip_icon="land-left.png"  group="Land">
+      <set value="-LANDING_CIRCLE_RADIUS" var="nav_radius"/>
+      <deroute block="ComputeLandingApproach"/>
+    </block>
+
+    <block name="ComputeLandingApproach" >
+      <call fun="nav_compute_final_from_glide(WP_AF, WP_TD, V_CTL_GLIDE_RATIO)"/>
+      <!-- CDW call fun="nav_compute_flare_from_aftd(WP_AF, WP_TD, WP_FLARE)"/-->
+      <set value="DownlinkSendWpNr(WP_AF)" var="unit"/>
+      <set value="DownlinkSendWpNr(WP_FLARE)" var="unit"/>
+      </block>
+
+    <block name="Land">
+      <set value="nav_airspeed_nominal_setting" var="v_ctl_auto_airspeed_setpoint"/>
+      <call fun="nav_compute_baseleg(WP_AF, WP_TD, WP__BASELEG, nav_radius)"/>
+      <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="_BASELEG"/>
+      <set value="nav_airspeed_landing_setting" var="v_ctl_auto_airspeed_setpoint"/>
+      <circle radius="nav_radius" until="NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10) && 15 > fabs(GetPosAlt() - WaypointAlt(WP__BASELEG))" wp="_BASELEG"/>
+    </block>
+
+    <block name="Final">
+      <set value="AirbrakesOn()" var="unit"/>
+      <go approaching_time="8" from="AF" hmode="route" wp="TD"/>
+    </block>
+
+    <block name="Flare">
+      <call fun="NavKillThrottle()" />
+      <set value="nav_airspeed_landing_setting*0.8" var="v_ctl_auto_airspeed_setpoint"/>
+      <go approaching_time="0" from="TD" hmode="route" wp="FLARE"/>
+      <!-- TODO: retract brake after landed is true (with +3seconds margin) better a sensor(witch) that detects IsAircraftOnSolidGround -->
+    </block>
+
+
+<!-- *********************************************************
+     ********** Loss of Data Link – Rally Point **************
+     ***************************************************** -->
+<!--
+TODO: get OBC2014Rules in 5.5.2.1 Loss of Data Link – Rally Point
+
+* This flight mode must be activated if the data link is lost for 10 seconds.
+
+* This flight mode, once activated, must return the aircraft directly to the
+waypoint “Comms Hold” (Figure 1, Table 1) (no time limit for transit, but it
+must be direct to the waypoint)
+
+* and enter a loiter centred on that waypoint.
+* After 2 minutes of loitering,
+
+* if the data link has not been re-established, the aircraft must be programmed to return directly to
+waypoint “Airfield Home” (Figure 1, Table 1), where the RC link
+maybe re-established for a manual recovery. There is no time limit for
+the transit, but it must be direct to the waypoint.
+
+* On arriving at “Airfield Home”, the aircraft must enter a loiter centred
+on that waypoint.
+
+* If after 2 minutes, RC contact has not been re-established, an autopilot initiated and controlled flight termination
+mode must be activated. A controlled flight termination mode may be
+(but not limited to) an autonomous landing or entering the flight
+termination mode (Section 5.6).
+-->
+
+    <block name="CommsHoldLoiter" strip_button="CommsHold" strip_icon="recenter.png" group="Link" >  <!-- TODO other ICON -->
+      <!-- stop streaming thumbnails -->
+      <!-- CDW set value="0" var="ticket_thumbnails"/ -->
+      <!-- TODO: maybe set a little lower speed ? max endurence speed? -->
+      <set value="nav_airspeed_nominal_setting" var="v_ctl_auto_airspeed_setpoint"/>
+      <!-- Rules 2014 state a loiter of maximum 2 minutes = 120seconds is allowed -->
+      <exception cond="(stage_time > 120)" deroute="AirfieldHomeLoiter"/>
+      <!-- resume if datalink is regained-->
+      <!--TODO If the data link is regained prior to the conclusion of 2 minutes of loiter at
+      Comms Hold the mission maybe continued otherwise any subsequent  TODO -->
+      <!--exception cond="LessThan(datalink_time0, 10)" deroute="EntryLane2"/-->      <!-- As soon as we have a link again Go EL2 and continue mission> -->
+      <!-- TODO: better continue where we had our last telemerty still OK point if possible -->
+      <!-- Since it arrived we must raise a counter by one. it's not alowed by rules to occur  more than twice, then we must move to airfieldhome -->
+      <!-- TODO: set only after aircraft **arrived!** in the loiter not before the ETA < 1sec -->
+      <!-- <while no link then -->
+       <circle wp="COMMSHOLD" radius="nav_radius"/> <!-- TODO maybe bigger than default radius -->
+    </block>
+
+    <block name="AirfieldHomeLoiter" strip_button="AirfieldHome" strip_icon="home.png" group="Link">
+      <exception cond="stage_time > 120" deroute="ConstantSlopeLandRightAFTD"/>
+      <circle wp="AIRFIELDHOME" radius="nav_radius*1.5"/><!-- 1.5 x  mean it will be a bit bigger circle -->
+    </block>
+
+
+  </blocks>
+</procedure>
+

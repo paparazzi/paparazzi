@@ -35,41 +35,37 @@
 
 #include "std.h" // for ABS
 
-static inline void ahrs_float_get_euler_from_accel_mag(struct FloatEulers* e, struct Int32Vect3* accel, struct Int32Vect3* mag) {
+static inline void ahrs_float_get_euler_from_accel_mag(struct FloatEulers *e, struct FloatVect3 *accel,
+    struct FloatVect3 *mag)
+{
   /* get phi and theta from accelerometer */
-  struct FloatVect3 accelf;
-  ACCELS_FLOAT_OF_BFP(accelf, *accel);
-  const float phi   = atan2f(-accelf.y, -accelf.z);
+  const float phi   = atan2f(-accel->y, -accel->z);
   const float cphi = cosf(phi);
-  const float theta = atan2f(cphi*accelf.x, -accelf.z);
+  const float theta = atan2f(cphi * accel->x, -accel->z);
 
   /* get psi from magnetometer */
   /* project mag on local tangeant plane */
-  struct FloatVect3 magf;
-  MAGS_FLOAT_OF_BFP(magf, *mag);
   const float sphi   = sinf(phi);
   const float ctheta = cosf(theta);
   const float stheta = sinf(theta);
-  const float mn = ctheta * magf.x + sphi*stheta*magf.y + cphi*stheta*magf.z;
-  const float me =     0. * magf.x + cphi       *magf.y - sphi       *magf.z;
+  const float mn = ctheta * mag->x + sphi * stheta * mag->y + cphi * stheta * mag->z;
+  const float me =     0. * mag->x + cphi          * mag->y - sphi          * mag->z;
   float psi = -atan2f(me, mn) + atan2(AHRS_H_Y, AHRS_H_X);
-  if (psi > M_PI) psi -= 2.*M_PI; if (psi < -M_PI) psi+= 2.*M_PI;
+  if (psi > M_PI) { psi -= 2.*M_PI; } if (psi < -M_PI) { psi += 2.*M_PI; }
   EULERS_ASSIGN(*e, phi, theta, psi);
-
 }
 
 /** Compute a quaternion representing roll and pitch from an accelerometer measurement. */
-static inline void ahrs_float_get_quat_from_accel(struct FloatQuat* q, struct Int32Vect3* accel) {
-  /* normalized accel measurement in floating point */
-  struct FloatVect3 acc_normalized;
-  ACCELS_FLOAT_OF_BFP(acc_normalized, *accel);
-  FLOAT_VECT3_NORMALIZE(acc_normalized);
+static inline void ahrs_float_get_quat_from_accel(struct FloatQuat *q, struct FloatVect3 *accel)
+{
+  /* normalized accel measurement */
+  struct FloatVect3 acc_normalized = *accel;
+  float_vect3_normalize(&acc_normalized);
 
   /* check for 180deg case */
-  if ( ABS(acc_normalized.z - 1.0) < 5*FLT_MIN ) {
+  if (ABS(acc_normalized.z - 1.0) < 5 * FLT_MIN) {
     QUAT_ASSIGN(*q, 0.0, 1.0, 0.0, 0.0);
-  }
-  else {
+  } else {
     /*
      * axis we want to rotate around is cross product of accel and reference [0,0,-g]
      * normalized: cross(acc_normalized, [0,0,-1])
@@ -84,22 +80,19 @@ static inline void ahrs_float_get_quat_from_accel(struct FloatQuat* q, struct In
   }
 }
 
-static inline void ahrs_float_get_quat_from_accel_mag(struct FloatQuat* q, struct Int32Vect3* accel, struct Int32Vect3* mag) {
+static inline void ahrs_float_get_quat_from_accel_mag(struct FloatQuat *q, struct FloatVect3 *accel,
+    struct FloatVect3 *mag)
+{
 
   /* the quaternion representing roll and pitch from acc measurement */
   struct FloatQuat q_a;
   ahrs_float_get_quat_from_accel(&q_a, accel);
 
-
-  /* convert mag measurement to float */
-  struct FloatVect3 mag_float;
-  MAGS_FLOAT_OF_BFP(mag_float, *mag);
-
   /* and rotate to horizontal plane using the quat from above */
   struct FloatRMat rmat_phi_theta;
   float_rmat_of_quat(&rmat_phi_theta, &q_a);
   struct FloatVect3 mag_ltp;
-  float_rmat_transp_vmult(&mag_ltp, &rmat_phi_theta, &mag_float);
+  float_rmat_transp_vmult(&mag_ltp, &rmat_phi_theta, mag);
 
   /* heading from mag -> make quaternion to rotate around ltp z axis*/
   struct FloatQuat q_m;
@@ -109,10 +102,10 @@ static inline void ahrs_float_get_quat_from_accel_mag(struct FloatQuat* q, struc
 
   /* |v1||v2| */
   float norm2 = sqrtf(SQUARE(mag_ltp.x) + SQUARE(mag_ltp.y))
-    * sqrtf(SQUARE(AHRS_H_X) + SQUARE(AHRS_H_Y));
+                * sqrtf(SQUARE(AHRS_H_X) + SQUARE(AHRS_H_Y));
 
   // catch 180deg case
-  if (ABS(norm2 + dot) < 5*FLT_MIN) {
+  if (ABS(norm2 + dot) < 5 * FLT_MIN) {
     QUAT_ASSIGN(q_m, 0.0, 0.0, 0.0, 1.0);
   } else {
     /* q_xyz = cross([mag_n.x, mag_n.y, 0], [AHRS_H_X, AHRS_H_Y, 0]) */

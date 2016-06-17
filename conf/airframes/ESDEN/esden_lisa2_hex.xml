@@ -1,0 +1,201 @@
+<!-- This is a star hexacopter frame equiped with Lisa/M 2.0, Aspirin 2.1 and hobbyking blue series 12A ESCs with SimonK firmware and 10/4.5 props -->
+
+<!--
+     Applicable configuration:
+     airframe="airframes/ESDEN/hexy_lm2a2pwm.xml"
+     radio="radios/cockpitSX.xml"
+     telemetry="telemetry/default_rotorcraft.xml"
+     flight_plan="flight_plans/rotorcraft_tri.xml"
+     settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
+-->
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+
+<airframe name="E-LisaM2">
+
+  <servos driver="Pwm">
+    <servo name="FRONT_LEFT"   no="0" min="1000" neutral="1100" max="1950"/>
+    <servo name="FRONT_RIGHT"  no="1" min="1000" neutral="1100" max="1950"/>
+    <servo name="RIGHT"        no="2" min="1000" neutral="1100" max="1950"/>
+    <servo name="BACK_RIGHT"   no="3" min="1000" neutral="1100" max="1950"/>
+    <servo name="BACK_LEFT"    no="4" min="1000" neutral="1100" max="1950"/>
+    <servo name="LEFT"         no="5" min="1000" neutral="1100" max="1950"/>
+  </servos>
+
+  <commands>
+    <axis name="PITCH"  failsafe_value="0"/>
+    <axis name="ROLL"   failsafe_value="0"/>
+    <axis name="YAW"    failsafe_value="0"/>
+    <axis name="THRUST" failsafe_value="0"/>
+  </commands>
+
+  <command_laws>
+    <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
+    <set servo="FRONT_LEFT"   value="motor_mixing.commands[0]"/>
+    <set servo="FRONT_RIGHT"  value="motor_mixing.commands[1]"/>
+    <set servo="RIGHT"        value="motor_mixing.commands[2]"/>
+    <set servo="BACK_RIGHT"   value="motor_mixing.commands[3]"/>
+    <set servo="BACK_LEFT"    value="motor_mixing.commands[4]"/>
+    <set servo="LEFT"         value="motor_mixing.commands[5]"/>
+  </command_laws>
+
+  <section name="MIXING" prefix="MOTOR_MIXING_">
+    <define name="TRIM_ROLL" value="0"/>
+    <define name="TRIM_PITCH" value="0"/>
+    <define name="TRIM_YAW" value="0"/>
+    <define name="NB_MOTOR" value="6"/>
+    <define name="SCALE" value="256"/>
+<!--    <define name="ROLL_COEF"   value="{  256, -256, -256, -256,  256,  256 }"/>
+    <define name="PITCH_COEF"  value="{  256,  256,    0, -256, -256,    0 }"/>
+    <define name="YAW_COEF"    value="{  256, -256,  256, -256,  256, -256 }"/>-->
+
+ <define name="ROLL_COEF"   value="{  0,0,0,0,0,0}"/>
+ <define name="PITCH_COEF"  value="{  0,0,0,0,0,0 }"/>
+ <define name="YAW_COEF"    value="{  0,0,0,0,0,0 }"/>
+    <define name="THRUST_COEF" value="{  256,  256,  256,  256,  256,  256 }"/>
+  </section>
+
+  <include href="conf/airframes/ESDEN/calib/esden_asp21-026.xml"/>
+
+  <section name="IMU" prefix="IMU_">
+	  <define name="BODY_TO_IMU_PHI"   value="0."  unit="deg"/>
+	  <define name="BODY_TO_IMU_THETA" value="0."  unit="deg"/>
+	  <define name="BODY_TO_IMU_PSI"   value="-30." unit="deg"/>
+  </section>
+
+ <section name="AUTOPILOT">
+   <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
+   <define name="MODE_AUTO1"  value="AP_MODE_ATTITUDE_DIRECT"/>
+   <define name="MODE_AUTO2"  value="AP_MODE_ATTITUDE_DIRECT"/>
+
+   <define name="USE_THROTTLE_FOR_MOTOR_ARMING" value="TRUE"/>
+ </section>
+
+ <section name="BAT">
+   <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
+ </section>
+
+
+  <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
+
+    <!-- setpoints -->
+    <define name="SP_MAX_PHI"     value="45." unit="deg"/>
+    <define name="SP_MAX_THETA"   value="45." unit="deg"/>
+    <define name="SP_MAX_PSI"     value="45." unit="deg"/>
+    <define name="SP_MAX_R"       value="90." unit="deg/s"/>
+    <define name="SP_MAX_P"       value="90." unit="deg/s"/>
+    <define name="DEADBAND_R"     value="250"/>
+    <define name="DEADBAND_A"     value="250"/>
+    <define name="SP_PSI_DELTA_LIMIT" value="90" unit="deg"/>
+
+    <!-- reference -->
+    <define name="REF_OMEGA_P"  value="800" unit="deg/s"/>
+    <define name="REF_ZETA_P"   value="0.85"/>
+    <define name="REF_MAX_P"    value="300." unit="deg/s"/>
+    <define name="REF_MAX_PDOT" value="7000." unit="deg/s"/>
+
+    <define name="REF_OMEGA_Q"  value="800" unit="deg/s"/>
+    <define name="REF_ZETA_Q"   value="0.85"/>
+    <define name="REF_MAX_Q"    value="300." unit="deg/s"/>
+    <define name="REF_MAX_QDOT" value="7000." unit="deg/s"/>
+
+    <define name="REF_OMEGA_R"  value="500" unit="deg/s"/>
+    <define name="REF_ZETA_R"   value="0.9"/>
+    <define name="REF_MAX_R"    value="90." unit="deg/s"/>
+    <define name="REF_MAX_RDOT" value="900." unit="deg/s"/>
+
+    <!-- feedback -->
+    <!--350/310-->
+    <define name="PHI_PGAIN"  value="450"/>
+    <define name="PHI_DGAIN"  value="220"/>
+    <define name="PHI_IGAIN"  value="40"/>
+
+    <define name="THETA_PGAIN"  value="450"/>
+    <define name="THETA_DGAIN"  value="220"/>
+    <define name="THETA_IGAIN"  value="40"/>
+
+    <define name="PSI_PGAIN"  value="700"/>
+    <define name="PSI_DGAIN"  value="400"/>
+    <define name="PSI_IGAIN"  value="10"/>
+
+    <!-- feedforward -->
+    <define name="PHI_DDGAIN"   value=" 0"/>
+    <define name="THETA_DDGAIN" value=" 0"/>
+    <define name="PSI_DDGAIN"   value=" 0"/>
+
+  </section>
+
+  <section name="INS" prefix="INS_">
+  </section>
+
+ <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
+   <define name="HOVER_KP"    value="830"/>
+   <define name="HOVER_KD"    value="650"/>
+   <define name="HOVER_KI"    value="100"/>
+   <!--define name="GUIDANCE_V_NOMINAL_HOVER_THROTTLE" value ="0.9"/-->
+  </section>
+
+  <section name="AHRS" prefix="AHRS_">
+    <define name="H_X" value=" 0.47577"/>
+    <define name="H_Y" value=" 0.11811"/>
+    <define name="H_Z" value=" 0.87161"/>
+  </section>
+
+ <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
+   <define name="PGAIN" value="50"/>
+   <define name="DGAIN" value="50"/>
+   <define name="IGAIN" value="0"/>
+ </section>
+
+ <section name="MISC">
+   <define name="USE_EARTH_BOUND_RC_SETPOINT" value="FALSE"/>
+   <define name="USE_REFERENCE_SYSTEM" value="FALSE"/>
+   <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
+   <define name="MILLIAMP_AT_FULL_THROTTLE" value="66000"/>
+ </section>
+
+ <section name="SIMULATOR" prefix="NPS_">
+   <define name="ACTUATOR_NAMES"  value="front_motor, back_motor, right_motor, left_motor" type="string[]"/>
+   <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
+ </section>
+
+ <modules main_freq="512">
+   <module name="gps" type="ubx_ucenter"/>
+   <module name="led_safety_status">
+     <define name="USE_LED_BODY" value="1"/>
+     <define name="SAFETY_WARNING_LED" value="5"/>
+   </module>
+ </modules>
+
+  <firmware name="rotorcraft">
+    <target name="ap" board="lisa_m_2.0">
+      <module name="radio_control" type="ppm">
+        <configure name="RADIO_CONTROL_PPM_PIN" value="UART1_RX"/>
+      </module>
+    </target>
+
+    <target name="nps" board="pc">
+      <module name="fdm"           type="jsbsim"/>
+      <module name="radio_control" type="ppm"/>
+    </target>
+
+    <module name="motor_mixing"/>
+    <module name="actuators"     type="pwm">
+      <define name="SERVO_HZ" value="400"/>
+      <define name="USE_SERVOS_7AND8"/>
+    </module>
+
+    <module name="telemetry"     type="transparent"/>
+    <module name="imu"           type="aspirin_v2.1"/>
+    <define name="LISA_M_LONGITUDINAL_X"/>
+    <module name="gps"           type="ublox"/>
+    <module name="stabilization" type="int_quat"/>
+    <module name="ahrs"          type="int_cmpl_quat">
+      <configure name="USE_MAGNETOMETER" value="0"/>
+    </module>
+    <module name="ins"/>
+    <!--define name="USE_INS_NAV_INIT"/-->
+    <!--module name="stabilization"   type="int_euler"/>
+    <module name="ahrs"          type="int_cmpl_euler"/-->
+  </firmware>
+
+</airframe>

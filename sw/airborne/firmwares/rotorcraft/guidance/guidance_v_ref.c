@@ -60,7 +60,7 @@ int64_t gv_z_ref;
 
 /** maximum distance altitude setpoint is advanced in climb mode */
 #ifndef GUIDANCE_V_REF_MAX_Z_DIFF
-#define GUIDANCE_V_REF_MAX_Z_DIFF 2.0
+#define GUIDANCE_V_REF_MAX_Z_DIFF 10.0
 #endif
 #define GV_MAX_Z_DIFF BFP_OF_REAL(GUIDANCE_V_REF_MAX_Z_DIFF, GV_Z_REF_FRAC)
 

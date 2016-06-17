@@ -117,7 +117,7 @@ let ac_id_prop = fun config ->
     [PC.property "ac_id" (PC.get_property "ac_id" config)]
   with _ -> []
 
-let create = fun canvas_group papget ->
+let create = fun canvas_group zoom_adj papget ->
   try
     let type_ = ExtXml.attrib papget "type"
     and display = ExtXml.attrib papget "display"
@@ -203,7 +203,7 @@ let create = fun canvas_group papget ->
             | _ -> failwith (sprintf "Unexpected papget display: %s" display) in
 
         let properties = locked papget in
-        let p = new Papget.canvas_video_plugin_item properties renderer in
+        let p = new Papget.canvas_video_plugin_item properties renderer zoom_adj in
         let p = (p :> Papget.item) in
         register_papget p
 
@@ -220,7 +220,7 @@ let parse_message_dnd =
     match Str.split sep s with
         [s; c; m; f;scale] -> (s, c, m, f,scale)
       | _ -> raise (Parse_message_dnd (Printf.sprintf "parse_dnd: %s" s))
-let dnd_data_received = fun canvas_group _context ~x ~y data ~info ~time ->
+let dnd_data_received = fun canvas_group zoom_adj _context ~x ~y data ~info ~time ->
   try (* With the format sent by Messages *)
     let (sender, _class_name, msg_name, field_name,scale) = parse_message_dnd data#data in
     let attrs =
@@ -232,7 +232,7 @@ let dnd_data_received = fun canvas_group _context ~x ~y data ~info ~time ->
         Papget_common.property "ac_id" sender;
         Papget_common.property "scale" scale ] in
     let papget_xml = Xml.Element ("papget", attrs, props) in
-    create canvas_group papget_xml
+    create canvas_group zoom_adj papget_xml
   with
       Parse_message_dnd _ ->
         try (* XML spec *)
@@ -240,6 +240,6 @@ let dnd_data_received = fun canvas_group _context ~x ~y data ~info ~time ->
     (* Add x and y attributes *)
           let attrs = Xml.attribs xml @ ["x", string_of_int x; "y", string_of_int y] in
           let papget_xml = Xml.Element (Xml.tag xml,attrs,Xml.children xml) in
-          create canvas_group papget_xml
+          create canvas_group zoom_adj papget_xml
         with
             exc -> prerr_endline (Printexc.to_string exc)

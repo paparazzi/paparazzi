@@ -24,8 +24,8 @@
 
 open Printf
 
-module Ground_Pprz = Pprz.Messages(struct let name = "ground" end)
-module Dl_Pprz = Pprz.Messages(struct let name = "datalink" end)
+module Ground_Pprz = PprzLink.Messages(struct let name = "ground" end)
+module Dl_Pprz = PprzLink.Messages(struct let name = "datalink" end)
 
 let ground_id = 0 (* cf tmtc/link.ml *)
 
@@ -178,11 +178,11 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
     let set = fun () ->
       let msg_id, _ = Dl_Pprz.message_of_name name in
       let s = Dl_Pprz.payload_of_values msg_id ground_id vs in
-      set_message (Serial.string_of_payload s) in
-    let ac_id = Pprz.int_assoc "ac_id" vs in
+      set_message (Protocol.string_of_payload s) in
+    let ac_id = PprzLink.int_assoc "ac_id" vs in
     match link_mode with
-      Pprz.Forwarded when ac_id = !my_id -> if dl_button#active then set ()
-    | Pprz.Broadcasted -> if dl_button#active then set ()
+      PprzLink.Forwarded when ac_id = !my_id -> if dl_button#active then set ()
+    | PprzLink.Broadcasted -> if dl_button#active then set ()
     | _ -> ()
 
   let message_bind = fun name link_mode ->
@@ -198,8 +198,8 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
     (* Forward or broacast messages according to "link" mode *)
     Hashtbl.iter
       (fun _m_id msg ->
-	match msg.Pprz.link with
-	  Some x -> message_bind msg.Pprz.name x
+	match msg.PprzLink.link with
+	  Some x -> message_bind msg.PprzLink.name x
 	| _ -> ())
       Dl_Pprz.messages;;
 

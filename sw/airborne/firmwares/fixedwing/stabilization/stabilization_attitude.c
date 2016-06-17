@@ -44,10 +44,10 @@ float h_ctl_course_dgain;
 float h_ctl_roll_max_setpoint;
 
 /* roll and pitch disabling */
-bool_t h_ctl_disabled;
+bool h_ctl_disabled;
 
 /* AUTO1 rate mode */
-bool_t h_ctl_auto1_rate;
+bool h_ctl_auto1_rate;
 
 
 /* inner roll loop parameters */
@@ -62,6 +62,17 @@ float  h_ctl_pitch_loop_setpoint;
 float  h_ctl_pitch_pgain;
 float  h_ctl_pitch_dgain;
 pprz_t h_ctl_elevator_setpoint;
+
+/* inner yaw loop parameters */
+#if H_CTL_YAW_LOOP
+float  h_ctl_yaw_rate_setpoint;
+pprz_t h_ctl_rudder_setpoint;
+#endif
+
+/* inner CL loop parameters */
+#if H_CTL_CL_LOOP
+pprz_t h_ctl_flaps_setpoint;
+#endif
 
 #ifdef USE_AOA
 uint8_t h_ctl_pitch_mode;
@@ -134,7 +145,7 @@ void h_ctl_init(void)
   h_ctl_pitch_mode = 0;
 #endif
 
-  h_ctl_disabled = FALSE;
+  h_ctl_disabled = false;
 
   h_ctl_roll_setpoint = 0.;
 #ifdef H_CTL_ROLL_PGAIN
@@ -179,7 +190,7 @@ void h_ctl_init(void)
 #endif
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "CALIBRATION", send_calibration);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_CALIBRATION, send_calibration);
 #endif
 }
 
@@ -192,17 +203,17 @@ void h_ctl_course_loop(void)
   static float last_err;
 
   // Ground path error
-  float err = *stateGetHorizontalSpeedDir_f() - h_ctl_course_setpoint;
+  float err = stateGetHorizontalSpeedDir_f() - h_ctl_course_setpoint;
   NormRadAngle(err);
 
 #ifdef STRONG_WIND
   // Usefull path speed
   const float reference_advance = (NOMINAL_AIRSPEED / 2.);
-  float advance = cos(err) * (*stateGetHorizontalSpeedNorm_f()) / reference_advance;
+  float advance = cos(err) * stateGetHorizontalSpeedNorm_f() / reference_advance;
 
   if (
     (advance < 1.)  &&                          // Path speed is small
-    ((*stateGetHorizontalSpeedNorm_f()) < reference_advance)  // Small path speed is due to wind (small groundspeed)
+    (stateGetHorizontalSpeedNorm_f() < reference_advance)  // Small path speed is due to wind (small groundspeed)
   ) {
     /*
     // rough crabangle approximation
@@ -271,7 +282,7 @@ void h_ctl_course_loop(void)
   }
 #endif
 
-  float speed_depend_nav = (*stateGetHorizontalSpeedNorm_f()) / NOMINAL_AIRSPEED;
+  float speed_depend_nav = stateGetHorizontalSpeedNorm_f() / NOMINAL_AIRSPEED;
   Bound(speed_depend_nav, 0.66, 1.5);
 
   float cmd = -h_ctl_course_pgain * speed_depend_nav * (err + d_err * h_ctl_course_dgain);
@@ -281,7 +292,8 @@ void h_ctl_course_loop(void)
 #if defined(AGR_CLIMB) && !USE_AIRSPEED
   /** limit navigation during extreme altitude changes */
   if (AGR_BLEND_START > AGR_BLEND_END && AGR_BLEND_END > 0) { /* prevent divide by zero, reversed or negative values */
-    if (v_ctl_auto_throttle_submode == V_CTL_AUTO_THROTTLE_AGRESSIVE || V_CTL_AUTO_THROTTLE_BLENDED) {
+    if (v_ctl_auto_throttle_submode == V_CTL_AUTO_THROTTLE_AGRESSIVE ||
+        v_ctl_auto_throttle_submode == V_CTL_AUTO_THROTTLE_BLENDED) {
       BoundAbs(cmd, h_ctl_roll_max_setpoint); /* bound cmd before NAV_RATIO and again after */
       /* altitude: z-up is positive -> positive error -> too low */
       if (v_ctl_altitude_error > 0) {
@@ -439,7 +451,12 @@ inline static void h_ctl_pitch_loop(void)
     h_ctl_elevator_of_roll = 0.;
   }
 
-  h_ctl_pitch_loop_setpoint =  h_ctl_pitch_setpoint + h_ctl_elevator_of_roll / h_ctl_pitch_pgain * fabs(att->phi);
+  if (v_ctl_mode == V_CTL_MODE_LANDING) {
+    h_ctl_pitch_loop_setpoint =  h_ctl_pitch_setpoint;
+  }
+  else {
+    h_ctl_pitch_loop_setpoint =  h_ctl_pitch_setpoint + h_ctl_elevator_of_roll / h_ctl_pitch_pgain * fabs(att->phi);
+  }
 
   float err = 0;
 
@@ -449,7 +466,7 @@ inline static void h_ctl_pitch_loop(void)
       err = att->theta - h_ctl_pitch_loop_setpoint;
       break;
     case H_CTL_PITCH_MODE_AOA:
-      err = (*stateGetAngleOfAttack_f()) - h_ctl_pitch_loop_setpoint;
+      err = stateGetAngleOfAttack_f() - h_ctl_pitch_loop_setpoint;
       break;
     default:
       err = att->theta - h_ctl_pitch_loop_setpoint;

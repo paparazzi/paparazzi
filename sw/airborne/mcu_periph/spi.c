@@ -81,7 +81,7 @@ void spi_init(struct spi_periph *p)
   p->trans_extract_idx = 0;
   p->status = SPIIdle;
   p->mode = SPIMaster;
-  p->suspend = FALSE;
+  p->suspend = false;
 }
 
 #endif /* SPI_MASTER */
@@ -139,7 +139,7 @@ extern void spi_slave_init(struct spi_periph *p)
   p->trans_extract_idx = 0;
   p->status = SPIIdle;
   p->mode = SPISlave;
-  p->suspend = FALSE;
+  p->suspend = false;
 }
 
 #endif /* SPI_SLAVE */

@@ -10,11 +10,6 @@
 
   <autopilot name="fixedwing_autopilot.xml"/>
 
-  <modules>
-    <!--load name="airspeed_ads1114.xml"/-->
-    <!--load name="mcp355x.xml"/-->
-  </modules>
-
   <firmware name="fixedwing">
     <define name="USE_I2C0"/>
     <define name="USE_I2C1"/>
@@ -27,26 +22,29 @@
     <target name="sim" board="pc"/>
     <target name="ap" board="umarim_1.0"/>
 
-    <subsystem name="radio_control" type="ppm">
+    <module name="radio_control" type="ppm">
       <define name="USE_PPM_RSSI_GPIO"/>
       <define name="PPM_RSSI_IOPIN" value="IO0PIN"/>
       <define name="PPM_RSSI_PIN" value="17"/>
       <define name="PPM_RSSI_VALID_LEVEL" value="0"/>
-    </subsystem>
+    </module>
 
     <!-- Communication -->
-    <subsystem name="telemetry" type="xbee_api"/>
+    <module name="telemetry" type="xbee_api"/>
+
+    <!--module name="airspeed" type="ads1114"/-->
+    <!--module name="mcp355x"/-->
 
     <!-- Actuators are automatically chosen according to board-->
-    <subsystem name="imu" type="umarim"/>
-    <subsystem name="ahrs" type="float_dcm"/>
-    <subsystem name="ins" type="alt_float"/>
-    <subsystem name="control" type="new"/>
-    <subsystem name="navigation"/>
+    <module name="imu" type="umarim"/>
+    <module name="ahrs" type="float_dcm"/>
+    <module name="ins" type="alt_float"/>
+    <module name="control" type="new"/>
+    <module name="navigation"/>
     <!-- Sensors -->
-    <subsystem name="gps" type="ublox"/>
+    <module name="gps" type="ublox"/>
 
-    <!--subsystem name="spi"/-->
+    <!--module name="spi"/-->
   </firmware>
 
 <!-- commands section -->
@@ -224,8 +222,8 @@
   <section name="SIMU">
     <!--define name="ROLL_RESPONSE_FACTOR" value="10"/>
     <define name="MAX_ROLL_DOT" value="20" unit="rad/s"/-->
-    <define name="JSBSIM_MODEL" value="&quot;Malolo1&quot;"/>
-    <!--define name="JSBSIM_INIT"	value="&quot;Malolo1-IC&quot;"/-->
+    <define name="JSBSIM_MODEL" value="Malolo1" type="string"/>
+    <!--define name="JSBSIM_INIT"	value="Malolo1-IC"/-->
     <define name="JSBSIM_LAUNCHSPEED" value="15.0"/>
     <define name="JSBSIM_IR_ROLL_NEUTRAL" value="0." unit="deg"/>
     <define name="JSBSIM_IR_PITCH_NEUTRAL" value="0." unit="deg"/>

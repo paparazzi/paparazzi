@@ -34,11 +34,9 @@
 
 #include "generated/airframe.h"
 #include "subsystems/imu.h"
-#include "subsystems/ahrs.h"
 #include "subsystems/ins.h"
 #include "subsystems/gps.h"
 #include "mcu_periph/uart.h"
-#include "subsystems/ahrs/ahrs_aligner.h"
 
 #include "state.h"
 #include "led.h"
@@ -54,12 +52,12 @@ extern void gx3_packet_read_message(void);
 extern void gx3_packet_parse(uint8_t c);
 
 struct GX3Packet {
-  bool_t  msg_available;
+  bool  msg_available;
   uint32_t chksm_error;
   uint32_t hdr_error;
   uint8_t msg_buf[GX3_MAX_PAYLOAD];
-  uint8_t  status;
-  uint8_t  msg_idx;
+  uint8_t status;
+  uint8_t msg_idx;
 };
 
 enum GX3PacketStatus {
@@ -67,44 +65,50 @@ enum GX3PacketStatus {
   GX3PacketReading
 };
 
-enum GX3Status {
-  GX3Uninit,
-  GX3Running
-};
 
 //AHRS
-struct AhrsFloatQuat {
+struct AhrsGX3 {
   struct FloatQuat   ltp_to_imu_quat;  ///< Rotation from LocalTangentPlane to IMU frame as quaternions
   float mag_offset;                    ///< Difference between true and magnetic north
 
-  struct GX3Packet gx3_packet;       ///< Packet struct
-  enum GX3Status gx3_status;          ///< GX3 status
-  float gx3_freq;                     ///< data frequency
-  uint16_t gx3_chksm;                 ///< aux variable for checksum
-  uint32_t gx3_time;                  ///< GX3 time stamp
-  uint32_t gx3_ltime;                 ///< aux time stamp
-  struct FloatVect3 gx3_accel;        ///< measured acceleration in IMU frame
-  struct FloatRates gx3_rate;         ///< measured angular rates in IMU frame
-  struct FloatRMat  gx3_rmat;         ///< measured attitude in IMU frame (rotational matrix)
+  struct GX3Packet packet;       ///< Packet struct
+  float freq;                     ///< data frequency
+  uint16_t chksm;                 ///< aux variable for checksum
+  uint32_t time;                  ///< GX3 time stamp
+  uint32_t ltime;                 ///< aux time stamp
+  struct FloatVect3 accel;        ///< measured acceleration in IMU frame
+  struct FloatRates rate;         ///< measured angular rates in IMU frame
+  struct FloatRMat  rmat;         ///< measured attitude in IMU frame (rotational matrix)
+  bool is_aligned;
 };
 
-extern struct AhrsFloatQuat ahrs_impl;
+extern struct AhrsGX3 ahrs_gx3;
 
-static inline void ReadGX3Buffer(void) {
-  while (uart_char_available(&GX3_PORT) && !ahrs_impl.gx3_packet.msg_available)
+#ifndef PRIMARY_AHRS
+#define PRIMARY_AHRS ahrs_gx3
+#endif
+
+extern void ahrs_gx3_init(void);
+extern void ahrs_gx3_align(void);
+extern void ahrs_gx3_register(void);
+extern void ahrs_gx3_publish_imu(void);
+
+static inline void ReadGX3Buffer(void)
+{
+  while (uart_char_available(&GX3_PORT) && !ahrs_gx3.packet.msg_available) {
     gx3_packet_parse(uart_getch(&GX3_PORT));
+  }
 }
 
-static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void)) {
+static inline void ImuEvent(void)
+{
   if (uart_char_available(&GX3_PORT)) {
     ReadGX3Buffer();
   }
-  if (ahrs_impl.gx3_packet.msg_available) {
+  if (ahrs_gx3.packet.msg_available) {
     gx3_packet_read_message();
-    _gyro_handler();
-    _accel_handler();
-    _mag_handler();
-    ahrs_impl.gx3_packet.msg_available = FALSE;
+    ahrs_gx3_publish_imu();
+    ahrs_gx3.packet.msg_available = false;
   }
 }
 

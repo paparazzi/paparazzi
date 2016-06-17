@@ -1,0 +1,195 @@
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+
+<!-- this is a quadrotor frame in X-configuration equiped with
+     * Autopilot:   Lisa/MX 2.1 with STM32F4  http://wiki.paparazziuav.org/wiki/Lisa/M_v21
+     * IMU:         Integrated Aspirin 2.2    http://wiki.paparazziuav.org/wiki/AspirinIMU
+     * Actuators:   Asctec motor controllers  http://wiki.paparazziuav.org/wiki/Subsystem/actuators#Asctec_v2
+     * GPS:         UBlox                     http://wiki.paparazziuav.org/wiki/Subsystem/gps
+     * RC:          one Spektrum sats         http://wiki.paparazziuav.org/wiki/Subsystem/radio_control#Spektrum
+-->
+
+<airframe name="MAVTec4">
+
+  <firmware name="rotorcraft">
+    <target name="ap" board="lisa_mx_2.1"/>
+    <target name="nps" board="pc">
+      <module name="fdm" type="jsbsim"/>
+    </target>
+
+    <module name="radio_control" type="spektrum">
+      <define name="RADIO_KILL_SWITCH" value="RADIO_AUX2"/>
+      <define name="RADIO_MODE" value="RADIO_GEAR"/>
+    </module>
+
+    <module name="motor_mixing"/>
+    <module name="actuators"     type="asctec_v2"/>
+    <module name="actuators"     type="pwm"/>
+    <module name="telemetry"     type="xbee_api"/>
+    <module name="imu"           type="lisa_mx_v2.1"/>
+    <module name="gps"           type="piksi">
+      <define name="USE_PIKSI_EXT_ANTENNA" value="TRUE"/>
+    </module>
+    <module name="stabilization" type="int_quat"/>
+    <module name="ahrs"          type="int_cmpl_quat"/>
+    <module name="ins"           type="hff"/>
+    <module name="guidance"      type="indi"/>
+  </firmware>
+
+  <modules>
+    <module name="geo_mag"/>
+    <module name="air_data"/>
+    <module name="servo_switch"/>
+    <!--module name="gps" type="ubx_ucenter"/-->
+  </modules>
+
+  <servos driver="Asctec_v2">
+    <servo name="FRONT"   no="0" min="0" neutral="3" max="200"/>
+    <servo name="RIGHT"   no="1" min="0" neutral="3" max="200"/>
+    <servo name="BACK"    no="2" min="0" neutral="3" max="200"/>
+    <servo name="LEFT"    no="3" min="0" neutral="3" max="200"/>
+  </servos>
+
+  <servos driver="Pwm">
+     <servo name="DROP" no="4" min="900" neutral="1500" max="2000"/>
+  </servos>
+
+  <commands>
+    <axis name="ROLL"   failsafe_value="0"/>
+    <axis name="PITCH"  failsafe_value="0"/>
+    <axis name="YAW"    failsafe_value="0"/>
+    <axis name="THRUST" failsafe_value="0"/>
+  </commands>
+
+  <section name="MIXING" prefix="MOTOR_MIXING_">
+    <!-- front left (CW), front right (CCW), back right (CW), back left (CCW) -->
+    <define name="TYPE" value="QUAD_X"/>
+    <define name="REVERSE" value="TRUE"/>
+  </section>
+
+  <section name="SERVO_SWITCH">
+    <define name="SERVO_SWITCH_SERVO" value="DROP"/>
+    <define name="SERVO_SWITCH_ON_VALUE" value="SERVO_DROP_MIN"/>
+    <define name="SERVO_SWITCH_OFF_VALUE" value="SERVO_DROP_MAX"/>
+    <define name="DropOpen()" value="ServoSwitchOn()"/>
+    <define name="DropClose()" value="ServoSwitchOff()"/>
+  </section>
+
+  <command_laws>
+    <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
+    <set servo="FRONT"   value="motor_mixing.commands[MOTOR_FRONT_LEFT]"/>
+    <set servo="RIGHT"   value="motor_mixing.commands[MOTOR_FRONT_RIGHT]"/>
+    <set servo="BACK"    value="motor_mixing.commands[MOTOR_BACK_RIGHT]"/>
+    <set servo="LEFT"    value="motor_mixing.commands[MOTOR_BACK_LEFT]"/>
+  </command_laws>
+
+  <section name="MISC">
+    <define name="NAV_CLIMB_VSPEED" value="2.5"/>
+    <define name="NAV_DESCEND_VSPEED" value="-1.0"/>
+    <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
+  </section>
+
+  <section name="IMU" prefix="IMU_">
+    <define name="ACCEL_X_NEUTRAL" value="11"/>
+    <define name="ACCEL_Y_NEUTRAL" value="11"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-25"/>
+
+    <!-- replace this with your own calibration -->
+    <define name="MAG_X_NEUTRAL" value="-2"/>
+    <define name="MAG_Y_NEUTRAL" value="484"/>
+    <define name="MAG_Z_NEUTRAL" value="53"/>
+    <define name="MAG_X_SENS" value="4.02836351262" integer="16"/>
+    <define name="MAG_Y_SENS" value="3.97184580645" integer="16"/>
+    <define name="MAG_Z_SENS" value="4.08689235615" integer="16"/>
+
+
+    <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"   value="-90." unit="deg"/>
+  </section>
+
+  <section name="AHRS" prefix="AHRS_">
+    <!-- values used if no GPS fix, on 3D fix is update by geo_mag module -->
+    <define name="H_X" value="0.3770441"/>
+    <define name="H_Y" value="0.0193986"/>
+    <define name="H_Z" value="0.9259921"/>
+  </section>
+
+
+
+  <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
+    <!-- setpoints -->
+    <define name="SP_MAX_PHI" value="65." unit="deg"/>
+    <define name="SP_MAX_THETA" value="65." unit="deg"/>
+    <define name="SP_MAX_R" value="250." unit="deg/s"/>
+    <define name="DEADBAND_R" value="200"/>
+
+    <!-- reference -->
+    <define name="REF_OMEGA_P" value="800" unit="deg/s"/>
+    <define name="REF_ZETA_P" value="0.85"/>
+    <define name="REF_MAX_P" value="300." unit="deg/s"/>
+    <define name="REF_MAX_PDOT" value="RadOfDeg(7000.)"/>
+    <define name="REF_OMEGA_Q" value="800" unit="deg/s"/>
+    <define name="REF_ZETA_Q" value="0.85"/>
+    <define name="REF_MAX_Q" value="300." unit="deg/s"/>
+    <define name="REF_MAX_QDOT" value="RadOfDeg(7000.)"/>
+    <define name="REF_OMEGA_R" value="500" unit="deg/s"/>
+    <define name="REF_ZETA_R" value="0.85"/>
+    <define name="REF_MAX_R" value="180." unit="deg/s"/>
+    <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
+
+    <!-- feedback -->
+    <define name="PHI_PGAIN" value="900"/>
+    <define name="PHI_DGAIN" value="200"/>
+    <define name="PHI_IGAIN" value="200"/>
+    <define name="THETA_PGAIN" value="900"/>
+    <define name="THETA_DGAIN" value="200"/>
+    <define name="THETA_IGAIN" value="200"/>
+    <define name="PSI_PGAIN" value="900"/>
+    <define name="PSI_DGAIN" value="200"/>
+    <define name="PSI_IGAIN" value="10"/>
+
+    <!-- feedforward -->
+    <define name="PHI_DDGAIN" value=" 200"/>
+    <define name="THETA_DDGAIN" value=" 200"/>
+    <define name="PSI_DDGAIN" value=" 200"/>
+  </section>
+
+  <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
+    <define name="HOVER_KP"    value="150"/>
+    <define name="HOVER_KD"    value="80"/>
+    <define name="HOVER_KI"    value="20"/>
+    <define name="NOMINAL_HOVER_THROTTLE" value="0.5"/>
+    <define name="ADAPT_THROTTLE_ENABLED" value="TRUE"/>
+  </section>
+
+  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
+    <define name="MAX_BANK" value="35" unit="deg"/>
+    <define name="USE_SPEED_REF" value="TRUE"/>
+    <define name="PGAIN" value="50"/>
+    <define name="DGAIN" value="100"/>
+    <define name="AGAIN" value="70"/>
+    <define name="IGAIN" value="20"/>
+  </section>
+
+  <section name="SIMULATOR" prefix="NPS_">
+    <define name="ACTUATOR_NAMES"  value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
+    <define name="JSBSIM_MODEL" value="simple_x_quad" type="string"/>
+    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
+    <!-- mode switch on joystick channel 5 (axis numbering starting at zero) -->
+    <define name="JS_AXIS_MODE" value="4"/>
+  </section>
+
+  <section name="AUTOPILOT">
+    <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
+    <define name="MODE_AUTO1"  value="AP_MODE_HOVER_Z_HOLD"/>
+    <define name="MODE_AUTO2"  value="AP_MODE_NAV"/>
+  </section>
+
+  <section name="BAT">
+    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="9.6" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="10.1" unit="V"/>
+    <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
+  </section>
+
+</airframe>

@@ -1,0 +1,52 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="opticflow_hover" dir="guidance_opticflow">
+  <doc>
+    <description>
+        Hovers the drone based on optical flow made for Linux video Devices.
+
+        Computes Pitch- and roll attide from downward looking camera looking at a textured floor.
+        - Sonar is required.
+        - Controller can hold position
+    </description>
+
+    <!-- Satbilization parameters and gains -->
+    <section name="VISION" prefix="VISION_">
+      <define name="PHI_PGAIN" value="400" description="Optic flow proportional gain on the roll velocity error"/>
+      <define name="PHI_IGAIN" value="20" description="Optic flow integrated gain on the summed roll velocity error"/>
+      <define name="THETA_PGAIN" value="400" description="Optic flow proportional gain on the pitch velocity error"/>
+      <define name="THETA_IGAIN" value="20" description="Optic flow integrated gain on the summed pitch velocity error"/>
+      <define name="DESIRED_VX" value="0" description="The desired velocity in the body frame x direction"/>
+      <define name="DESIRED_VY" value="0" description="The desired velocity in the body frame y direction"/>
+    </section>
+  </doc>
+
+  <settings>
+	<dl_settings NAME="Vision stabilization">
+      <!-- Satabilization loop parameters and gains -->
+      <dl_settings name="vision_stab">
+        <dl_setting var="opticflow_stab.phi_pgain" module="guidance_opticflow/guidance_opticflow_hover" min="0" step="1" max="10000" shortname="kp_v_phi" param="VISION_PHI_PGAIN"/>
+        <dl_setting var="opticflow_stab.phi_igain" module="guidance_opticflow/guidance_opticflow_hover" min="0" step="1" max="1000" shortname="ki_v_phi" param="VISION_PHI_IGAIN"/>
+        <dl_setting var="opticflow_stab.theta_pgain" module="guidance_opticflow/guidance_opticflow_hover" min="0" step="1" max="10000" shortname="kp_v_theta" param="VISION_THETA_PGAIN"/>
+        <dl_setting var="opticflow_stab.theta_igain" module="guidance_opticflow/guidance_opticflow_hover" min="0" step="1" max="1000" shortname="ki_v_theta" param="VISION_THETA_IGAIN"/>
+        <dl_setting var="opticflow_stab.desired_vx" module="guidance_opticflow/guidance_opticflow_hover" min="-5" step="0.01" max="5" shortname="desired_vx" param="VISION_DESIRED_VX"/>
+        <dl_setting var="opticflow_stab.desired_vy" module="guidance_opticflow/guidance_opticflow_hover" min="-5" step="0.01" max="5" shortname="desired_vy" param="VISION_DESIRED_VY"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <!--depends>cv_opticflow</depends-->
+
+  <header>
+    <file name="guidance_opticflow_hover.h"/>
+  </header>
+
+  <makefile>
+    <file name="guidance_opticflow_hover.c"/>
+    <raw>
+      ap.CFLAGS += -DGUIDANCE_V_MODE_MODULE_SETTING=GUIDANCE_V_MODE_HOVER
+      ap.CFLAGS += -DGUIDANCE_H_MODE_MODULE_SETTING=GUIDANCE_H_MODE_MODULE
+    </raw>
+  </makefile>
+
+</module>

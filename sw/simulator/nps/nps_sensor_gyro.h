@@ -17,12 +17,12 @@ struct NpsSensorGyro {
   struct DoubleVect3  bias_random_walk_std_dev;
   struct DoubleVect3  bias_random_walk_value;
   double       next_update;
-  bool_t       data_available;
+  bool       data_available;
 };
 
 
-extern void   nps_sensor_gyro_init(struct NpsSensorGyro* gyro, double time);
-extern void   nps_sensor_gyro_run_step(struct NpsSensorGyro* gyro, double time, struct DoubleRMat* body_to_imu);
+extern void   nps_sensor_gyro_init(struct NpsSensorGyro *gyro, double time);
+extern void   nps_sensor_gyro_run_step(struct NpsSensorGyro *gyro, double time, struct DoubleRMat *body_to_imu);
 
 #endif /* NPS_SENSOR_GYRO_H */
 

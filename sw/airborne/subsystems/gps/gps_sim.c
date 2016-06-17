@@ -19,28 +19,22 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "subsystems/gps.h"
+#include "subsystems/gps/gps_sim.h"
+#include "subsystems/abi.h"
 
-bool_t gps_available;
-
-
-#if 0
-void  gps_feed_values(double utm_north, double utm_east, double utm_alt, double gspeed, double course, double climb)
-{
-  gps.utm_pos.north = CM_OF_M(utm_north);
-  gps.utm_pos.east = CM_OF_M(utm_east);
-  //TODO set height above ellipsoid properly
-  gps.hmsl = utm_alt * 1000.;
-  gps.gspeed = CM_OF_M(gspeed);
-  gps.course = EM7RAD_OF_RAD(RadOfDeg(course / 10.));
-  gps.ned_vel.z = -climb * 100.;
-  gps.fix = GPS_FIX_3D;
-  gps_available = TRUE;
-}
-#endif
-
-void gps_impl_init(void)
+void gps_sim_init(void)
 {
   gps.fix = GPS_FIX_NONE;
-  gps_available = FALSE;
+}
+
+void gps_sim_publish(void)
+{
+  uint32_t now_ts = get_sys_time_usec();
+  gps.last_msg_ticks = sys_time.nb_sec_rem;
+  gps.last_msg_time = sys_time.nb_sec;
+  if (gps.fix == GPS_FIX_3D) {
+    gps.last_3dfix_ticks = sys_time.nb_sec_rem;
+    gps.last_3dfix_time = sys_time.nb_sec;
+  }
+  AbiSendMsgGPS(GPS_SIM_ID, now_ts, &gps);
 }

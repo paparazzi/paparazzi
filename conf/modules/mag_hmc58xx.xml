@@ -8,17 +8,32 @@
     </description>
     <configure name="MAG_HMC58XX_I2C_DEV" value="i2c1" description="I2C device to use (e.g. i2c1)"/>
     <define name="MODULE_HMC58XX_SYNC_SEND" value="TRUE|FALSE" description="Send IMU_RAW message with each new measurement (default: FALSE)"/>
+    <define name="MODULE_HMC58XX_UPDATE_AHRS" value="TRUE|FALSE" description="Copy measurements to imu and send as ABI message (default: FALSE)"/>
+    <define name="HMC58XX_CHAN_X_SIGN" value="+|-" description="Reverse polarity of x axis (default: +)"/>
+    <define name="HMC58XX_CHAN_Y_SIGN" value="+|-" description="Reverse polarity of y axis (default: +)"/>
+    <define name="HMC58XX_CHAN_Z_SIGN" value="+|-" description="Reverse polarity of z axis (default: +)"/>
+    <define name="HMC58XX_CHAN_X" value="0|1|2" description="Channel id of x axis (default: 0)"/>
+    <define name="HMC58XX_CHAN_Y" value="0|1|2" description="Channel id of y axis (default: 1)"/>
+    <define name="HMC58XX_CHAN_Z" value="0|1|2" description="Channel id of z axis (default: 2)"/>
   </doc>
   <header>
     <file name="mag_hmc58xx.h"/>
   </header>
   <init fun="mag_hmc58xx_module_init()"/>
   <periodic fun="mag_hmc58xx_module_periodic()" freq="60"/>
-  <periodic fun="mag_hmc58xx_report()" freq="10" autorun="TRUE"/>
+  <periodic fun="mag_hmc58xx_report()" freq="10" autorun="FALSE"/>
   <event fun="mag_hmc58xx_module_event()"/>
   <makefile target="ap">
     <file name="mag_hmc58xx.c"/>
     <file name="hmc58xx.c" dir="peripherals"/>
-    <define name="USE_I2C"/>
+
+    <raw>
+      ifeq ($(MAG_HMC58XX_I2C_DEV),)
+        $(error mag_hmc58xx module error: please configure MAG_HMC58XX_I2C_DEV)
+      endif
+    </raw>
+    <configure name="MAG_HMC58XX_I2C_DEV" default="TRUE" case="upper|lower"/>
+    <define name="USE_$(MAG_HMC58XX_I2C_DEV_UPPER)"/>
+    <define name="MAG_HMC58XX_I2C_DEV" value="$(MAG_HMC58XX_I2C_DEV_LOWER)"/>
   </makefile>
 </module>

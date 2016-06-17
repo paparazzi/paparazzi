@@ -37,12 +37,6 @@ struct Sbus sbus1, sbus2;
 
 // Telemetry function
 #if PERIODIC_TELEMETRY
-#ifdef FBW
-#define DOWNLINK_TELEMETRY &telemetry_Fbw
-#else
-#define DOWNLINK_TELEMETRY DefaultPeriodic
-#endif
-
 #include "subsystems/datalink/telemetry.h"
 
 static void send_sbus(struct transport_tx *trans, struct link_device *dev)
@@ -61,7 +55,7 @@ void radio_control_impl_init(void)
 
   // Register telemetry message
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DOWNLINK_TELEMETRY, "PPM", send_sbus);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_PPM, send_sbus);
 #endif
 }
 
@@ -84,7 +78,7 @@ void radio_control_impl_event(void (* _received_frame_handler)(void))
       NormalizePpmIIR(sbus2.pulses, radio_control);
       _received_frame_handler();
     }
-    sbus2.frame_available = FALSE;
+    sbus2.frame_available = false;
   }
   if (sbus1.frame_available) {
     radio_control.frame_cpt++;
@@ -96,6 +90,6 @@ void radio_control_impl_event(void (* _received_frame_handler)(void))
       NormalizePpmIIR(sbus1.pulses, radio_control);
       _received_frame_handler();
     }
-    sbus1.frame_available = FALSE;
+    sbus1.frame_available = false;
   }
 }

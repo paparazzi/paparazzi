@@ -20,7 +20,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file actuators.h
+/** @file subsystems/actuators.h
  *  Hardware independent API for actuators (servos, motor controllers).
  *
  */
@@ -42,7 +42,7 @@
 extern void actuators_init(void);
 
 extern uint32_t actuators_delay_time;
-extern bool_t   actuators_delay_done;
+extern bool   actuators_delay_done;
 
 /** Actuators array.
  * Temporary storage (for debugging purpose, downlinked via telemetry)

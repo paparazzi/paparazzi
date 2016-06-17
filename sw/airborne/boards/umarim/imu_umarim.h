@@ -102,12 +102,10 @@
 #define IMU_ACCEL_Z_NEUTRAL 0
 #endif
 
-extern volatile bool_t gyr_valid;
-extern volatile bool_t acc_valid;
+extern volatile bool gyr_valid;
+extern volatile bool acc_valid;
 
 struct ImuUmarim {
-  volatile bool_t gyr_valid;
-  volatile bool_t acc_valid;
   struct Itg3200 itg;
   struct Adxl345_I2c adxl;
 };
@@ -124,19 +122,6 @@ extern void imu_periodic(void);
 extern void imu_umarim_event(void);
 extern void imu_umarim_downlink_raw(void);
 
-
-static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void),
-                            void (* _mag_handler)(void) __attribute__((unused)))
-{
-  imu_umarim_event();
-  if (imu_umarim.gyr_valid) {
-    imu_umarim.gyr_valid = FALSE;
-    _gyro_handler();
-  }
-  if (imu_umarim.acc_valid) {
-    imu_umarim.acc_valid = FALSE;
-    _accel_handler();
-  }
-}
+#define ImuEvent imu_umarim_event
 
 #endif // PPZUAVIMU_H

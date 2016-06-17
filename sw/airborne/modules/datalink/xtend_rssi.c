@@ -33,7 +33,7 @@
 
 
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 
 //from Digi XTend manual
@@ -56,7 +56,7 @@ void xtend_rssi_periodic(void)
   if (pwm_input_duty_valid[XTEND_RSSI_PWM_ARRAY_INDEX]) {
     duty_percent = (duty_tics * 100) / cpu_ticks_of_usec(XTEND_RSSI_PWM_PERIOD_USEC);
     rssi_dB_fade_margin = (2 * duty_percent + 10) / 3; //not sure if this is right, datasheet isn't very informative
-    pwm_input_duty_valid[XTEND_RSSI_PWM_ARRAY_INDEX] = FALSE;
+    pwm_input_duty_valid[XTEND_RSSI_PWM_ARRAY_INDEX] = false;
   }
   DOWNLINK_SEND_XTEND_RSSI(DefaultChannel, DefaultDevice,
                            &datalink_time,

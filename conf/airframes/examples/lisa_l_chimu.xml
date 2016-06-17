@@ -5,33 +5,30 @@
   <firmware name="fixedwing">
     <target name="ap" 			board="lisa_l_1.0"/>
     <target name="sim" board="pc">
-      <subsystem name="ahrs" type="int_cmpl_quat"/>
-    </target>
-    <target name="jsbsim"       board="pc">
-      <subsystem name="ahrs" type="int_cmpl_quat"/>
+      <module name="ahrs" type="int_cmpl_quat"/>
     </target>
 
     <define name="AGR_CLIMB" />
     <define name="LOITER_TRIM" />
 
-    <subsystem name="radio_control" type="ppm"/>
+    <module name="radio_control" type="ppm"/>
 
     <!-- Communication -->
-    <subsystem name="telemetry" 	type="transparent">
+    <module name="telemetry" 	type="transparent">
       <configure name="MODEM_BAUD" 		value="B9600"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="control"/>
+    <module name="control"/>
     <!-- Sensors -->
-    <subsystem name="gps" 		    type="ublox"/>
-    <subsystem name="navigation"/>
-    <subsystem name="ins" type="alt_float"/>
+    <module name="gps" 		    type="ublox"/>
+    <module name="navigation"/>
+    <module name="ins" type="alt_float"/>
   </firmware>
 
   <modules>
-    <load name="ahrs_chimu_uart.xml">
+    <module name="ahrs_chimu_uart">
       <configure name="CHIMU_UART_NR" value="3"/>
-    </load>
+    </module>
   </modules>
 
   <servos>
@@ -81,7 +78,7 @@
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_FREQUENCY" value="60" unit="Hz"/>
-    <define name="XBEE_INIT" value="&quot;ATPL2\rATRN5\rATTT80\r&quot;"/>
+    <define name="XBEE_INIT" value="ATPL2\rATRN5\rATTT80\r" type="string"/>
 <!--    <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
 
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
@@ -143,12 +140,6 @@
     <define name="DEFAULT_THROTTLE" value="0.3" unit="%"/>
     <define name="DEFAULT_ROLL" value="0.3" unit="rad"/>
     <define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
-  </section>
-
-  <section name="SIMU">
-    <define name="JSBSIM_MODEL" value="&quot;Malolo1&quot;"/>
-    <define name="JSBSIM_IR_ROLL_NEUTRAL" value="0." unit="deg"/>
-    <define name="JSBSIM_IR_PITCH_NEUTRAL" value="0." unit="deg"/>
   </section>
 
   <section name="INS" prefix="INS_">

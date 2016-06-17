@@ -80,9 +80,6 @@
 
 
 struct ImuPpzuav {
-  volatile uint8_t accel_valid;
-  volatile uint8_t gyro_valid;
-  volatile uint8_t mag_valid;
   struct Adxl345_I2c acc_adxl;
   struct Itg3200 gyro_itg;
   struct Hmc58xx mag_hmc;
@@ -92,21 +89,6 @@ extern struct ImuPpzuav imu_ppzuav;
 
 extern void imu_ppzuav_event(void);
 
-static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
-{
-  imu_ppzuav_event();
-  if (imu_ppzuav.gyro_valid) {
-    imu_ppzuav.gyro_valid = FALSE;
-    _gyro_handler();
-  }
-  if (imu_ppzuav.accel_valid) {
-    imu_ppzuav.accel_valid = FALSE;
-    _accel_handler();
-  }
-  if (imu_ppzuav.mag_valid) {
-    imu_ppzuav.mag_valid = FALSE;
-    _mag_handler();
-  }
-}
+#define ImuEvent imu_ppzuav_event
 
 #endif /* IMU_PPZUAV_H */

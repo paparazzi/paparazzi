@@ -22,6 +22,7 @@
  *
  *)
 
+
 module U = Unix
 
 (** How to have them local ? *)
@@ -145,7 +146,7 @@ let fill_data = fun (model:GTree.tree_store) settings airframe_xml ->
               | None -> ""
           in
           (* Printf.fprintf stderr "param %s: unit_code=%s unit_airframe=%s\n" param unit_code unit_airframe; flush stderr; *)
-          Pprz.scale_of_units unit_airframe unit_code
+          PprzLink.scale_of_units unit_airframe unit_code
         with
           | Invalid_argument s -> prerr_endline s; flush stderr; raise Exit
           |  _ -> 1.
@@ -154,7 +155,7 @@ let fill_data = fun (model:GTree.tree_store) settings airframe_xml ->
        * settings are displayed in alt_unit specified in settings file
        * first try the alt_coef, otherwise try to convert the units
        *)
-      let display_scale = float_of_string (Pprz.alt_unit_coef_of_xml dl_setting) in
+      let display_scale = float_of_string (PprzLink.alt_unit_coef_of_xml dl_setting) in
       let val_list = Str.split (Str.regexp "[ ()]+") airframe_value in
       let (scale_macros, str_val) = List.partition (fun x -> Str.string_match (Str.regexp "RadOfDeg\\|DegOfRad") x 0) val_list in
       let extra_scale =
@@ -198,7 +199,7 @@ let fill_data = fun (model:GTree.tree_store) settings airframe_xml ->
 
   (* Warning if needed *)
   if !not_in_airframe_file <> [] then begin
-    GToolbox.message_box ~title:"Warning" (Printf.sprintf "Some parameters not writable in the airframe file:\n\n%s" (String.concat "\n" !not_in_airframe_file));
+    GToolbox.message_box ~title:"Warning" (Printf.sprintf "Some parameters not writable in the airframe file:\n\n%s" (Compat.bytes_concat "\n" !not_in_airframe_file));
   end
 
 

@@ -75,8 +75,8 @@ struct Vi_command {
 };
 
 struct VehicleInterface {
-  bool_t enabled;
-  bool_t timeouted;
+  bool enabled;
+  bool timeouted;
   uint8_t last_msg;
   struct Vi_info info;
   struct Vi_command input;
@@ -86,7 +86,7 @@ struct VehicleInterface {
 extern struct VehicleInterface vi;
 
 extern void vi_init(void);
-extern void vi_set_enabled(bool_t enabled);
+extern void vi_set_enabled(bool enabled);
 extern void vi_periodic(void);
 extern void vi_update_info(void);
 
@@ -98,7 +98,7 @@ extern void vi_notify_baro_abs_available(void);
 /* must be implemented by specific module */
 extern void vi_impl_init(void);
 extern void vi_impl_periodic(void);
-extern void vi_impl_set_enabled(bool_t enabled);
+extern void vi_impl_set_enabled(bool enabled);
 
 
 #define vi_SetEnabled(_val) {     \

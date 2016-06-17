@@ -16,19 +16,21 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
- *
  */
 
-
-/*
+/**
+ * @file subsystems/ins/ins_float_invariant.h
+ * INS using invariant filter.
  * For more information, please send an email to "jp.condomines@gmail.com"
  */
 
 #ifndef INS_FLOAT_INVARIANT_H
 #define INS_FLOAT_INVARIANT_H
 
-#include "subsystems/ahrs.h"
 #include "subsystems/ins.h"
+#include "subsystems/gps.h"
+#include "math/pprz_algebra_float.h"
+#include "math/pprz_orientation_conversion.h"
 
 /** Invariant filter state dimension
  */
@@ -108,14 +110,27 @@ struct InsFloatInv {
   struct inv_correction_gains corr;   ///< correction gains
   struct inv_gains gains;             ///< tuning gains
 
-  bool_t reset;                       ///< flag to request reset/reinit the filter
+  bool reset;                       ///< flag to request reset/reinit the filter
+
+  /** body_to_imu rotation */
+  struct OrientationReps body_to_imu;
 
   struct FloatVect3 mag_h;
+  bool is_aligned;
 };
 
-extern struct InsFloatInv ins_impl;
+extern struct InsFloatInv ins_float_inv;
 
-#define ahrs_impl ins_impl
+extern void ins_float_invariant_init(void);
+extern void ins_float_inv_set_body_to_imu_quat(struct FloatQuat *q_b2i);
+extern void ins_float_invariant_align(struct FloatRates *lp_gyro,
+                                      struct FloatVect3 *lp_accel,
+                                      struct FloatVect3 *lp_mag);
+extern void ins_float_invariant_propagate(struct FloatRates* gyro,
+                                          struct FloatVect3* accel, float dt);
+extern void ins_float_invariant_update_mag(struct FloatVect3* mag);
+extern void ins_float_invariant_update_baro(float pressure);
+extern void ins_float_invariant_update_gps(struct GpsState *gps_s);
 
 #endif /* INS_FLOAT_INVARIANT_H */
 

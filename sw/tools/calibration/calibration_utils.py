@@ -63,6 +63,22 @@ def read_log(ac_id, filename, sensor):
     return np.array(list_meas)
 
 
+def read_log_scaled(ac_id, filename, sensor, t_start, t_end):
+    """Extracts scaled sensor measurements from a log."""
+    f = open(filename, 'r')
+    pattern = re.compile("(\S+) "+ac_id+" IMU_"+sensor+"_SCALED (\S+) (\S+) (\S+)")
+    list_meas = []
+    while True:
+        line = f.readline().strip()
+        if line == '':
+            break
+        m = re.match(pattern, line)
+        if m:
+            if (float(m.group(1)) >= float(t_start)) and (float(m.group(1)) < (float(t_end)+1.0)):
+                list_meas.append([float(m.group(1)), float(m.group(2)), float(m.group(3)), float(m.group(4))])
+    return np.array(list_meas)
+
+
 def read_log_mag_current(ac_id, filename):
     """Extracts raw magnetometer and current measurements from a log."""
     f = open(filename, 'r')
@@ -94,9 +110,14 @@ def get_min_max_guess(meas, scale):
     """Initial boundary based calibration."""
     max_meas = meas[:, :].max(axis=0)
     min_meas = meas[:, :].min(axis=0)
-    n = (max_meas + min_meas) / 2
-    sf = 2*scale/(max_meas - min_meas)
-    return np.array([n[0], n[1], n[2], sf[0], sf[1], sf[2]])
+    range = max_meas - min_meas
+    # check if we would get division by zero
+    if range.all():
+        n = (max_meas + min_meas) / 2
+        sf = 2*scale/range
+        return np.array([n[0], n[1], n[2], sf[0], sf[1], sf[2]])
+    else:
+        return np.array([0, 0, 0, 0])
 
 
 def scale_measurements(meas, p):
@@ -128,10 +149,31 @@ def print_xml(p, sensor, res):
     print("<define name=\""+sensor+"_X_SENS\" value=\""+str(p[3]*2**res)+"\" integer=\"16\"/>")
     print("<define name=\""+sensor+"_Y_SENS\" value=\""+str(p[4]*2**res)+"\" integer=\"16\"/>")
     print("<define name=\""+sensor+"_Z_SENS\" value=\""+str(p[5]*2**res)+"\" integer=\"16\"/>")
+    print("")
 
 
-def plot_results(block, measurements, flt_idx, flt_meas, cp0, np0, cp1, np1, sensor_ref):
+def print_imu_scaled(sensor, measurements, attrs):
+    print("")
+    print(sensor+" : Time Range("+str(measurements[:,0].min(axis=0))+" : "+str(measurements[:,0].max(axis=0))+")")
+    np.set_printoptions(formatter={'float': '{:-7.3f}'.format})
+    print("         " + attrs[2] + "      " + attrs[3] + "      " + attrs[4])
+    print("Min   " + str(measurements[:,1:].min(axis=0)*attrs[0])  + " " + attrs[1])
+    print("Max   " + str(measurements[:,1:].max(axis=0)*attrs[0])  + " " + attrs[1])
+    print("Mean  " + str(measurements[:,1:].mean(axis=0)*attrs[0]) + " " + attrs[1])
+    print("StDev " + str(measurements[:,1:].std(axis=0)*attrs[0])  + " " + attrs[1])
+
+
+def plot_measurements(sensor, measurements):
+    plt.plot(measurements[:, 0])
+    plt.plot(measurements[:, 1])
+    plt.plot(measurements[:, 2])
+    plt.ylabel('ADC')
+    plt.title("Raw %s measurements" % sensor)
+    plt.show()
+
+def plot_results(sensor, measurements, flt_idx, flt_meas, cp0, np0, cp1, np1, sensor_ref, blocking=True):
     """Plot calibration results."""
+    # plot raw measurements with filtered ones marked as red circles
     plt.subplot(3, 1, 1)
     plt.plot(measurements[:, 0])
     plt.plot(measurements[:, 1])
@@ -139,38 +181,104 @@ def plot_results(block, measurements, flt_idx, flt_meas, cp0, np0, cp1, np1, sen
     plt.plot(flt_idx, flt_meas[:, 0], 'ro')
     plt.plot(flt_idx, flt_meas[:, 1], 'ro')
     plt.plot(flt_idx, flt_meas[:, 2], 'ro')
-    plt.xlabel('time (s)')
     plt.ylabel('ADC')
-    plt.title('Raw sensors')
+    plt.title('Raw '+sensor+', red dots are actually used measurements')
 
+    plt.tight_layout()
+    # show scaled measurements with initial guess
     plt.subplot(3, 2, 3)
     plt.plot(cp0[:, 0])
     plt.plot(cp0[:, 1])
     plt.plot(cp0[:, 2])
     plt.plot(-sensor_ref*np.ones(len(flt_meas)))
     plt.plot(sensor_ref*np.ones(len(flt_meas)))
+    plt.title('scaled '+sensor+' (initial guess)')
+    plt.xticks([])
 
     plt.subplot(3, 2, 4)
     plt.plot(np0)
     plt.plot(sensor_ref*np.ones(len(flt_meas)))
+    plt.title('norm of '+sensor+' (initial guess)')
+    plt.xticks([])
 
+    # show scaled measurements after optimization
     plt.subplot(3, 2, 5)
     plt.plot(cp1[:, 0])
     plt.plot(cp1[:, 1])
     plt.plot(cp1[:, 2])
     plt.plot(-sensor_ref*np.ones(len(flt_meas)))
     plt.plot(sensor_ref*np.ones(len(flt_meas)))
+    plt.title('scaled '+sensor+' (optimized)')
+    plt.xticks([])
 
     plt.subplot(3, 2, 6)
     plt.plot(np1)
     plt.plot(sensor_ref*np.ones(len(flt_meas)))
+    plt.title('norm of '+sensor+' (optimized)')
+    plt.xticks([])
 
     # if we want to have another plot we only draw the figure (non-blocking)
     # also in matplotlib before 1.0.0 there is only one call to show possible
-    if block:
+    if blocking:
         plt.show()
     else:
         plt.draw()
+
+
+def plot_imu_scaled(sensor, measurements, attrs):
+    """Plot imu scaled results."""
+    plt.figure("Sensor Scaled")
+
+    plt.subplot(4, 1, 1)
+    plt.plot(measurements[:, 0], measurements[:, 1]*attrs[0])
+    plt.plot(measurements[:, 0], measurements[:, 2]*attrs[0])
+    plt.plot(measurements[:, 0], measurements[:, 3]*attrs[0])
+    #plt.xlabel('Time (s)')
+    plt.ylabel(attrs[1])
+    plt.title(sensor)
+
+    plt.subplot(4, 1, 2)
+    plt.plot(measurements[:, 0], measurements[:, 1]*attrs[0], 'b')
+    #plt.xlabel('Time (s)')
+    plt.ylabel(attrs[2])
+
+    plt.subplot(4, 1, 3)
+    plt.plot(measurements[:, 0], measurements[:, 2]*attrs[0], 'g')
+    #plt.xlabel('Time (s)')
+    plt.ylabel(attrs[3])
+
+    plt.subplot(4, 1, 4)
+    plt.plot(measurements[:, 0], measurements[:, 3]*attrs[0], 'r')
+    plt.xlabel('Time (s)')
+    plt.ylabel(attrs[4])
+
+    plt.show()
+
+
+def plot_imu_scaled_fft(sensor, measurements, attrs):
+    """Plot imu scaled fft results."""
+    #dt = 0.0769
+    #Fs = 1/dt
+    Fs = 26.0
+
+    plt.figure("Sensor Scaled - FFT")
+
+    plt.subplot(3, 1, 1)
+    plt.magnitude_spectrum(measurements[:, 1]*attrs[0], Fs=Fs, scale='linear')
+    plt.ylabel(attrs[2])
+    plt.title(sensor)
+
+    plt.subplot(3, 1, 2)
+    plt.magnitude_spectrum(measurements[:, 2]*attrs[0], Fs=Fs, scale='linear')
+    plt.ylabel(attrs[3])
+
+    plt.subplot(3, 1, 3)
+    plt.magnitude_spectrum(measurements[:, 3]*attrs[0], Fs=Fs, scale='linear')
+    plt.xlabel('Frequency')
+    plt.ylabel(attrs[4])
+
+    plt.show()
+
 
 
 def plot_mag_3d(measured, calibrated, p):

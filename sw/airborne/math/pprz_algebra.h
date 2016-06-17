@@ -23,6 +23,14 @@
  * @file pprz_algebra.h
  * @brief Paparazzi generic algebra macros.
  *
+ * @addtogroup math
+ * @{
+ * Paparazzi math functions.
+ * @addtogroup math_algebra Algebra functions
+ * @{
+ * Algebra functions and macros.
+ * @addtogroup math_algebra_generic Generic Algebra macros
+ * @{
  */
 
 #ifndef PPRZ_ALGEBRA_H
@@ -401,6 +409,12 @@ extern "C" {
     if ((_v).r > (_v_max).r) (_v).r = (_v_max).r; else if ((_v).r < (_v_min).r) (_v).r = (_v_min).r; \
   }
 
+#define RATES_BOUND_BOX_ABS(_v, _v_max) {       \
+    if ((_v).p > (_v_max).p) (_v).p = (_v_max).p; else if ((_v).p < -(_v_max).p) (_v).p = -(_v_max).p; \
+    if ((_v).q > (_v_max).q) (_v).q = (_v_max).q; else if ((_v).q < -(_v_max).q) (_v).q = -(_v_max).q; \
+    if ((_v).r > (_v_max).r) (_v).r = (_v_max).r; else if ((_v).r < -(_v_max).r) (_v).r = -(_v_max).r; \
+  }
+
 #define RATES_ADD_SCALED_VECT(_ro, _v, _s) {    \
     (_ro).p += (_v).x * (_s);                   \
     (_ro).q += (_v).y * (_s);                   \
@@ -740,3 +754,6 @@ extern "C" {
 #endif
 
 #endif /* PPRZ_ALGEBRA_H */
+/** @}*/
+/** @}*/
+/** @}*/

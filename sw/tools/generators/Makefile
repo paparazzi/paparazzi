@@ -26,19 +26,19 @@ include ../../Makefile.ocaml
 
 INCLUDES =
 PKG = -package pprz
-LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz
+LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz,pprzlink
 
-all: gen_aircraft.out gen_airframe.out gen_messages2.out gen_messages.out gen_ubx.out gen_mtk.out gen_flight_plan.out gen_radio.out gen_periodic.out gen_settings.out gen_xsens.out gen_modules.out gen_autopilot.out gen_abi.out gen_srtm.out
+all: gen_aircraft.out gen_airframe.out gen_ubx.out gen_mtk.out gen_flight_plan.out gen_radio.out gen_periodic.out gen_settings.out gen_xsens.out gen_modules.out gen_autopilot.out gen_abi.out gen_srtm.out
 
-gen_flight_plan.out : gen_flight_plan.cmo $(LIBPPRZCMA)
+gen_flight_plan.out : gen_flight_plan.cmo $(LIBPPRZCMA) $(LIBPPRZLINKCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $^
 
-gen_srtm.out : gen_srtm.ml $(LIBPPRZCMA)
+gen_srtm.out : gen_srtm.ml $(LIBPPRZCMA) $(LIBPPRZLINKCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $<
 
-%.out : %.ml $(LIBPPRZCMA)
+%.out : %.ml $(LIBPPRZCMA) $(LIBPPRZLINKCMA)
 	@echo OL $<
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) $<
 

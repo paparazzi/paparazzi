@@ -55,8 +55,8 @@ void l3gd20_spi_init(struct L3gd20_Spi *l3g, struct spi_periph *spi_p, uint8_t s
   /* set default L3GD20 config options */
   l3gd20_set_default_config(&(l3g->config));
 
-  l3g->initialized = FALSE;
-  l3g->data_available = FALSE;
+  l3g->initialized = false;
+  l3g->data_available = false;
   l3g->init_status = L3G_CONF_UNINIT;
 }
 
@@ -101,7 +101,7 @@ static void l3gd20_spi_send_config(struct L3gd20_Spi *l3g)
       l3g->init_status++;
       break;
     case L3G_CONF_DONE:
-      l3g->initialized = TRUE;
+      l3g->initialized = true;
       l3g->spi_trans.status = SPITransDone;
       break;
     default:
@@ -144,7 +144,7 @@ void l3gd20_spi_event(struct L3gd20_Spi *l3g)
         l3g->data_rates.rates.p = Int16FromBuf(l3g->rx_buf, 2);
         l3g->data_rates.rates.q = Int16FromBuf(l3g->rx_buf, 4);
         l3g->data_rates.rates.r = Int16FromBuf(l3g->rx_buf, 6);
-        l3g->data_available = TRUE;
+        l3g->data_available = true;
       }
       l3g->spi_trans.status = SPITransDone;
     }

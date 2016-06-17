@@ -2,7 +2,12 @@
 
 <module name="digital_cam">
   <doc>
-    <description>Digital camera control (trigger using GPIO)</description>
+    <description>
+      Digital Photo Camera Triggering (using a GPIO pin)
+
+      This module controls triggering of an attached external digital camera via one or more GPIO pins for on/off/shoot/zoom.
+      It can trigger photos based on GPS distance, time or circle radius in both fixedwings and rotorcraft.
+    </description>
     <define name="DC_SHOOT_ON_BUTTON_RELEASE" description="if defined, call dc_send_shot_postion on button release instead of on push"/>
     <define name="DC_SHUTTER_GPIO" value="GPIOC,GPIO12" description="mandatory, gpio to control shutter"/>
     <define name="DC_ZOOM_IN_GPIO" value="GPIOC,GPIO2" description="optional, gpio to activate zoom in"/>
@@ -11,8 +16,10 @@
     <define name="DC_POWER_OFF_GPIO" value="GPIOC,GPIO1" description="optional, gpio to turn power off"/>
     <define name="DC_PUSH" value="gpio_set|gpio_clear" description="specifies whether to set or clear gpio to push the shutter (default: gpio_set)"/>
     <define name="DC_RELEASE" value="gpio_clear|gpio_set" description="specifies whether to set or clear gpio to release the shutter (default: gpio_clear)"/>
+    <define name="DC_SHUTTER_DELAY" value="0.5" description="how long to push shutter in seconds"/>
+    <define name="DC_POWER_OFF_DELAY" value="0.75" description="how long to send power off in seconds"/>
 
-    <define name="DC_AUTOSHOOT_QUARTERSEC_PERIOD" value="6" description="quarter_second"/>
+    <define name="DC_AUTOSHOOT_PERIOD" value="1.0" description="time period for DC_AUTOSHOOT_PERIODIC in seconds"/>
     <define name="DC_AUTOSHOOT_DISTANCE_INTERVAL" value="50" description="distance interval for DC_AUTOSHOOT_DISTANCE in meters"/>
     <define name="DC_AUTOSHOOT_SURVEY_INTERVAL" value="50" description="distance interval for DC_AUTOSHOOT_SURVEY in meters"/>
     <define name="DC_SHOT_SYNC_SEND" value="TRUE|FALSE" description="send DC_SHOT message when photo was taken (default: TRUE)"/>
@@ -29,11 +36,11 @@
         </dl_setting>
 
         <dl_setting max="3" min="0" step="1" var="dc_autoshoot" values="STOP|PERIODIC|DISTANCE|EXT_TRIG">
-          <strip_button name="Start Autoshoot" icon="on.png" value="1" group="dcauto"/>
-          <strip_button name="Stop Autoshoot" icon="off.png" value="0" group="dcauto"/>
+          <strip_button name="Start Autoshoot" icon="dcstart.png" value="1" group="dcauto"/>
+          <strip_button name="Stop Autoshoot" icon="dcstart.png" value="0" group="dcauto"/>
         </dl_setting>
 
-        <dl_setting max="255" min="1" step="1" var="dc_autoshoot_quartersec_period" shortname="Periodic" param="DC_AUTOSHOOT_QUARTERSEC_PERIOD" unit="quarter-sec"/>
+        <dl_setting max="60" min="0.1" step="0.5" var="dc_autoshoot_period" shortname="Periodic" param="DC_AUTOSHOOT_PERIOD" unit="sec"/>
         <dl_setting max="255" min="0" step="1" var="dc_distance_interval" shortname="dist" param="DC_AUTOSHOOT_DISTANCE_INTERVAL" unit="meter"/>
 
         <dl_setting max="250" min="0" step="5" module="digital_cam/dc" var="dc_survey_interval" handler="Survey" shortname="Survey-Interval"/>
@@ -43,7 +50,7 @@
     </dl_settings>
   </settings>
 
-  <conflicts>digital_cam_i2c,digital_cam_servo,digital_cam_uart</conflicts>
+  <conflicts>digital_cam_i2c,digital_cam_servo,digital_cam_uart,digital_cam_video</conflicts>
 
   <header>
     <file name="gpio_cam_ctrl.h"/>
@@ -52,9 +59,9 @@
 
   <init fun="gpio_cam_ctrl_init()"/>
 
-  <periodic fun="gpio_cam_ctrl_periodic()" freq="4" autorun="TRUE"/>
+  <periodic fun="gpio_cam_ctrl_periodic()" freq="10" autorun="TRUE"/>
 
-  <makefile target="ap|sim|nps|jsbsim">
+  <makefile target="ap|sim|nps">
     <define name="DIGITAL_CAM" />
     <file name="gpio_cam_ctrl.c"/>
     <file name="dc.c"/>

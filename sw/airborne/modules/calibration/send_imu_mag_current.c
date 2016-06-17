@@ -27,7 +27,7 @@
 #include "subsystems/imu.h"
 #include "subsystems/electrical.h"
 
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "mcu_periph/uart.h"
 #include "subsystems/datalink/downlink.h"
 

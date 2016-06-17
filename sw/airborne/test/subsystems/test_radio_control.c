@@ -23,6 +23,7 @@
 
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
+#define DATALINK_C
 #include "subsystems/datalink/downlink.h"
 #include "subsystems/radio_control.h"
 
@@ -86,11 +87,7 @@ static inline void main_periodic_task(void)
 
 static inline void main_event_task(void)
 {
-#if USE_UDP
-  udp_event();
-#else
-  uart_event();
-#endif
+  mcu_event();
   RadioControlEvent(main_on_radio_control_frame);
 }
 

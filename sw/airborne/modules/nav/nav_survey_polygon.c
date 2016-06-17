@@ -52,21 +52,21 @@ static void nav_points(struct FloatVect2 start, struct FloatVect2 end)
  * @param x, y            first line is defined by point x and y (goes through this points)
  * @param a1, a2, b1, b2  second line by coordinates a1/a2, b1/b2
  */
-static bool_t intercept_two_lines(struct FloatVect2 *p, struct FloatVect2 x, struct FloatVect2 y, float a1, float a2,
+static bool intercept_two_lines(struct FloatVect2 *p, struct FloatVect2 x, struct FloatVect2 y, float a1, float a2,
                                   float b1, float b2)
 {
   float divider, fac;
 
   divider = (((b2 - a2) * (y.x - x.x)) + ((x.y - y.y) * (b1 - a1)));
-  if (divider == 0) { return FALSE; }
+  if (divider == 0) { return false; }
   fac = ((y.x * (x.y - a2)) + (x.x * (a2 - y.y)) + (a1 * (y.y - x.y))) / divider;
-  if (fac > 1.0) { return FALSE; }
-  if (fac < 0.0) { return FALSE; }
+  if (fac > 1.0) { return false; }
+  if (fac < 0.0) { return false; }
 
   p->x = a1 + fac * (b1 - a1);
   p->y = a2 + fac * (b2 - a2);
 
-  return TRUE;
+  return true;
 }
 
 /**
@@ -75,7 +75,7 @@ static bool_t intercept_two_lines(struct FloatVect2 *p, struct FloatVect2 x, str
  *  @param x, y     intersection points
  *  @param a, b     define the line to intersection
  */
-static bool_t get_two_intersects(struct FloatVect2 *x, struct FloatVect2 *y, struct FloatVect2 a, struct FloatVect2 b)
+static bool get_two_intersects(struct FloatVect2 *x, struct FloatVect2 *y, struct FloatVect2 a, struct FloatVect2 b)
 {
   int i, count = 0;
   struct FloatVect2 tmp;
@@ -103,7 +103,7 @@ static bool_t get_two_intersects(struct FloatVect2 *x, struct FloatVect2 *y, str
   }
 
   if (count != 2) {
-    return FALSE;
+    return false;
   }
 
   //change points
@@ -119,7 +119,7 @@ static bool_t get_two_intersects(struct FloatVect2 *x, struct FloatVect2 *y, str
     *y = tmp;
   }
 
-  return TRUE;
+  return true;
 }
 
 /**
@@ -132,7 +132,7 @@ static bool_t get_two_intersects(struct FloatVect2 *x, struct FloatVect2 *y, str
  *  @param min_rad       minimal radius when navigating
  *  @param altitude      the altitude that must be reached before the flyover starts
  **/
-bool_t nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, float sweep_width, float shot_dist,
+bool nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, float sweep_width, float shot_dist,
                                 float min_rad, float altitude)
 {
   int i;
@@ -212,7 +212,7 @@ bool_t nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, flo
 
   if (!get_two_intersects(&survey.seg_start, &survey.seg_end, survey.seg_start, survey.seg_end)) {
     survey.stage = ERR;
-    return FALSE;
+    return false;
   }
 
   //center of the entry circle
@@ -224,7 +224,7 @@ bool_t nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, flo
 
   survey.stage = ENTRY;
 
-  return FALSE;
+  return false;
 }
 
 /**
@@ -232,7 +232,7 @@ bool_t nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, flo
  * Position and stage and navigates accordingly.
  * @returns True until the survey is finished
  */
-bool_t nav_survey_polygon_run(void)
+bool nav_survey_polygon_run(void)
 {
   NavVerticalAutoThrottleMode(0.0);
   NavVerticalAltitudeMode(survey.psa_altitude, 0.0);
@@ -269,7 +269,7 @@ bool_t nav_survey_polygon_run(void)
       VECT2_SUM(sum_start_sweep, survey.seg_start, survey.sweep_vec);
       VECT2_SUM(sum_end_sweep, survey.seg_end, survey.sweep_vec);
       if (!get_two_intersects(&survey.seg_start, &survey.seg_end, sum_start_sweep, sum_end_sweep)) {
-        return FALSE;
+        return false;
       }
 
       survey.ret_end.x = survey.seg_start.x - survey.sweep_vec.x - 2 * survey.rad_vec.x;
@@ -309,5 +309,5 @@ bool_t nav_survey_polygon_run(void)
     }
   }
 
-  return TRUE;
+  return true;
 }

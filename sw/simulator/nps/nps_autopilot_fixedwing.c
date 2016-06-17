@@ -52,9 +52,12 @@
 // for launch
 #include "firmwares/fixedwing/autopilot.h"
 
+// for datalink_time hack
+#include "subsystems/datalink/datalink.h"
+
 struct NpsAutopilot autopilot;
-bool_t nps_bypass_ahrs;
-bool_t nps_bypass_ins;
+bool nps_bypass_ahrs;
+bool nps_bypass_ins;
 
 #ifndef NPS_BYPASS_AHRS
 #define NPS_BYPASS_AHRS FALSE
@@ -69,7 +72,8 @@ bool_t nps_bypass_ins;
 #error NPS does not currently support dual processor simulation for FBW and AP on fixedwing!
 #endif
 
-void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, char* rc_dev) {
+void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, char *rc_dev)
+{
 
   autopilot.launch = FALSE;
 
@@ -84,21 +88,25 @@ void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, cha
 
 }
 
-void nps_autopilot_run_systime_step( void ) {
+void nps_autopilot_run_systime_step(void)
+{
   sys_tick_handler();
 }
 
 #include <stdio.h>
 #include "subsystems/gps.h"
 
-void nps_autopilot_run_step(double time) {
+void nps_autopilot_run_step(double time)
+{
 
   nps_electrical_run_step(time);
 
+#if RADIO_CONTROL && !RADIO_CONTROL_TYPE_DATALINK
   if (nps_radio_control_available(time)) {
     radio_control_feed();
     Fbw(event_task);
   }
+#endif
 
   if (nps_sensors_gyro_available()) {
     imu_feed_gyro_accel();
@@ -110,7 +118,7 @@ void nps_autopilot_run_step(double time) {
     imu_feed_mag();
     Fbw(event_task);
     Ap(event_task);
- }
+  }
 
   if (nps_sensors_baro_available()) {
     float pressure = (float) sensors.baro.value;
@@ -118,6 +126,18 @@ void nps_autopilot_run_step(double time) {
     Fbw(event_task);
     Ap(event_task);
   }
+
+  if (nps_sensors_temperature_available()) {
+    AbiSendMsgTEMPERATURE(BARO_SIM_SENDER_ID, (float)sensors.temp.value);
+  }
+
+#if USE_AIRSPEED
+  if (nps_sensors_airspeed_available()) {
+    stateSetAirspeed_f((float)sensors.airspeed.value);
+    Fbw(event_task);
+    Ap(event_task);
+  }
+#endif
 
   if (nps_sensors_gps_available()) {
     gps_feed_value();
@@ -137,19 +157,43 @@ void nps_autopilot_run_step(double time) {
   Ap(handle_periodic_tasks);
 
   /* scale final motor commands to 0-1 for feeding the fdm */
-  for (uint8_t i=0; i < NPS_COMMANDS_NB; i++)
-    autopilot.commands[i] = (double)commands[i]/MAX_PPRZ;
+#ifdef NPS_ACTUATOR_NAMES
+  PRINT_CONFIG_MSG("actuators for JSBSim explicitly set.")
+  PRINT_CONFIG_VAR(NPS_COMMANDS_NB)
+  //PRINT_CONFIG_VAR(NPS_ACTUATOR_NAMES)
+
+  for (uint8_t i = 0; i < NPS_COMMANDS_NB; i++) {
+    autopilot.commands[i] = (double)commands[i] / MAX_PPRZ;
+  }
   // hack: invert pitch to fit most JSBSim models
-  autopilot.commands[COMMAND_PITCH] = -(double)commands[COMMAND_PITCH]/MAX_PPRZ;
+  autopilot.commands[COMMAND_PITCH] = -(double)commands[COMMAND_PITCH] / MAX_PPRZ;
+#else
+  PRINT_CONFIG_MSG("Using throttle, roll, pitch, yaw commands instead of explicit actuators.")
+  PRINT_CONFIG_VAR(COMMAND_THROTTLE)
+  PRINT_CONFIG_VAR(COMMAND_ROLL)
+  PRINT_CONFIG_VAR(COMMAND_PITCH)
+
+  autopilot.commands[COMMAND_THROTTLE] = (double)commands[COMMAND_THROTTLE] / MAX_PPRZ;
+  autopilot.commands[COMMAND_ROLL] = (double)commands[COMMAND_ROLL] / MAX_PPRZ;
+  // hack: invert pitch to fit most JSBSim models
+  autopilot.commands[COMMAND_PITCH] = -(double)commands[COMMAND_PITCH] / MAX_PPRZ;
+#ifdef COMMAND_YAW
+  PRINT_CONFIG_VAR(COMMAND_YAW)
+  autopilot.commands[COMMAND_YAW] = (double)commands[COMMAND_YAW] / MAX_PPRZ;
+#else
+  autopilot.commands[3] = 0.;
+#endif
+#endif
 
   // do the launch when clicking launch in GCS
   autopilot.launch = launch && !kill_throttle;
-  if (!launch)
+  if (!launch) {
     autopilot.commands[COMMAND_THROTTLE] = 0;
-
+  }
 }
 
-void sim_overwrite_ahrs(void) {
+void sim_overwrite_ahrs(void)
+{
 
   struct FloatQuat quat_f;
   QUAT_COPY(quat_f, fdm.ltp_to_body_quat);
@@ -161,11 +205,22 @@ void sim_overwrite_ahrs(void) {
 
 }
 
-void sim_overwrite_ins(void) {
+void sim_overwrite_ins(void)
+{
 
-  struct NedCoor_f ltp_pos;
-  VECT3_COPY(ltp_pos, fdm.ltpprz_pos);
-  stateSetPositionNed_f(&ltp_pos);
+  if (state.ned_initialized_i || state.ned_initialized_f) {
+    struct NedCoor_f ltp_pos;
+    VECT3_COPY(ltp_pos, fdm.ltpprz_pos);
+    stateSetPositionNed_f(&ltp_pos);
+  }
+  else if (state.utm_initialized_f) {
+    struct LlaCoor_f lla;
+    LLA_COPY(lla, fdm.lla_pos);
+    struct UtmCoor_f utm;
+    utm.zone = (lla.lon / 1e7 + 180) / 6 + 1;
+    utm_of_lla_f(&utm, &lla);
+    stateSetPositionUtm_f(&utm);
+  }
 
   struct NedCoor_f ltp_speed;
   VECT3_COPY(ltp_speed, fdm.ltpprz_ecef_vel);

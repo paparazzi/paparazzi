@@ -1,0 +1,15 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="bat_voltage_ardrone2" dir="sensors">
+  <doc>
+    <description>Battery voltage reading for ARDrone2</description>
+  </doc>
+  <header>
+    <file name="bat_voltage_ardrone2.h"/>
+  </header>
+  <init fun="bat_voltage_ardrone2_init()"/>
+  <periodic fun="bat_voltage_ardrone2_periodic()" freq="10"/>
+  <makefile target="ap">
+    <file name="bat_voltage_ardrone2.c"/>
+  </makefile>
+</module>

@@ -8,7 +8,7 @@ int serial_init(char *port_name);
 
 static inline int ttyUSB0ChAvailable(void)
 {
-  return FALSE;
+  return false;
 }
 
 #define ttyUSB0Transmit(_char)     \

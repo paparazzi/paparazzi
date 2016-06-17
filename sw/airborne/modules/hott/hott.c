@@ -51,20 +51,20 @@
 #define HOTT_TELEMETRY_VARIO_SENSOR_ID  0x89
 
 static uint32_t hott_event_timer; // 1ms software timer
-static bool_t hott_telemetry_is_sending = FALSE;
+static bool hott_telemetry_is_sending = false;
 static uint16_t hott_telemetry_sendig_msgs_id = 0;
 
 #if HOTT_SIM_GPS_SENSOR
-bool_t  HOTT_REQ_UPDATE_GPS = FALSE;
+bool  HOTT_REQ_UPDATE_GPS = false;
 #endif
 #if HOTT_SIM_EAM_SENSOR
-bool_t  HOTT_REQ_UPDATE_EAM = FALSE;
+bool  HOTT_REQ_UPDATE_EAM = false;
 #endif
 #if HOTT_SIM_VARIO_SENSOR
-bool_t  HOTT_REQ_UPDATE_VARIO = FALSE;
+bool  HOTT_REQ_UPDATE_VARIO = false;
 #endif
 #if HOTT_SIM_GAM_SENSOR
-bool_t  HOTT_REQ_UPDATE_GAM  = FALSE;
+bool  HOTT_REQ_UPDATE_GAM  = false;
 #endif
 
 // HoTT serial send buffer pointer
@@ -132,28 +132,28 @@ void hott_periodic(void)
   if ((hott_telemetry_sendig_msgs_id != HOTT_TELEMETRY_EAM_SENSOR_ID) &&
       HOTT_REQ_UPDATE_EAM == TRUE) {
     hott_update_eam_msg(&hott_eam_msg);
-    HOTT_REQ_UPDATE_EAM = FALSE;
+    HOTT_REQ_UPDATE_EAM = false;
   }
 #endif
 #if HOTT_SIM_GAM_SENSOR
   if ((hott_telemetry_sendig_msgs_id != HOTT_TELEMETRY_GAM_SENSOR_ID) &&
       HOTT_REQ_UPDATE_GAM == TRUE) {
     hott_update_gam_msg(&hott_gam_msg);
-    HOTT_REQ_UPDATE_GAM = FALSE;
+    HOTT_REQ_UPDATE_GAM = false;
   }
 #endif
 #if HOTT_SIM_GPS_SENSOR
   if ((hott_telemetry_sendig_msgs_id != HOTT_TELEMETRY_GPS_SENSOR_ID) &&
       HOTT_REQ_UPDATE_GPS == TRUE) {
     hott_update_gps_msg(&hott_gam_msg);
-    HOTT_REQ_UPDATE_GPS = FALSE;
+    HOTT_REQ_UPDATE_GPS = false;
   }
 #endif
 #if HOTT_SIM_VARIO_SENSOR
   if ((hott_telemetry_sendig_msgs_id != HOTT_TELEMETRY_VARIO_SENSOR_ID) &&
       HOTT_REQ_UPDATE_VARIO == TRUE) {
     hott_update_vario_msg(&hott_gam_msg);
-    HOTT_REQ_UPDATE_VARIO = FALSE;
+    HOTT_REQ_UPDATE_VARIO = false;
   }
 #endif
 }
@@ -170,13 +170,13 @@ static void hott_send_telemetry_data(void)
 {
   static int16_t msg_crc = 0;
   if (!hott_telemetry_is_sending) {
-    hott_telemetry_is_sending = TRUE;
+    hott_telemetry_is_sending = true;
     hott_enable_transmitter();
   }
 
   if (hott_msg_len == 0) {
     hott_msg_ptr = 0;
-    hott_telemetry_is_sending = FALSE;
+    hott_telemetry_is_sending = false;
     hott_telemetry_sendig_msgs_id = 0;
     msg_crc = 0;
     hott_enable_receiver();
@@ -187,9 +187,9 @@ static void hott_send_telemetry_data(void)
     --hott_msg_len;
     if (hott_msg_len != 0) {
       msg_crc += *hott_msg_ptr;
-      uart_transmit(&HOTT_PORT, *hott_msg_ptr++);
+      uart_put_byte(&HOTT_PORT, 0, *hott_msg_ptr++);
     } else {
-      uart_transmit(&HOTT_PORT, (int8_t)msg_crc);
+      uart_put_byte(&HOTT_PORT, 0, (int8_t)msg_crc);
     }
   }
 }
@@ -232,28 +232,28 @@ static void hott_check_serial_data(uint32_t tnow)
 #if HOTT_SIM_EAM_SENSOR
           if (addr == HOTT_TELEMETRY_EAM_SENSOR_ID) {
             hott_send_msg((int8_t *)&hott_eam_msg, sizeof(struct HOTT_EAM_MSG));
-            HOTT_REQ_UPDATE_EAM = TRUE;
+            HOTT_REQ_UPDATE_EAM = true;
             break;
           }
 #endif
 #if HOTT_SIM_GAM_SENSOR
           if (addr == HOTT_TELEMETRY_GAM_SENSOR_ID) {
             hott_send_msg((int8_t *)&hott_gam_msg, sizeof(struct HOTT_GAM_MSG));
-            HOTT_REQ_UPDATE_GAM = TRUE;
+            HOTT_REQ_UPDATE_GAM = true;
             break;
           }
 #endif
 #if HOTT_SIM_GPS_SENSOR
           if (addr == HOTT_TELEMETRY_GPS_SENSOR_ID) {
             hott_send_msg((int8_t *)&hott_gps_msg, sizeof(struct HOTT_GPS_MSG));
-            HOTT_REQ_UPDATE_GPS = TRUE;
+            HOTT_REQ_UPDATE_GPS = true;
             break;
           }
 #endif
 #if HOTT_SIM_VARIO_SENSOR
           if (addr == HOTT_TELEMETRY_VARIO_SENSOR_ID) {
             hott_send_msg((int8_t *)&hott_vario_msg, sizeof(struct HOTT_VARIO_MSG));
-            HOTT_REQ_UPDATE_VARIO = TRUE;
+            HOTT_REQ_UPDATE_VARIO = true;
             break;
           }
 #endif

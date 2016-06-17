@@ -9,7 +9,7 @@
   <header>
     <file name="nav_flower.h"/>
   </header>
-  <makefile target="ap|sim|jsbsim|nps">
+  <makefile target="ap|sim|nps">
     <file name="nav_flower.c"/>
   </makefile>
 </module>

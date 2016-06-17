@@ -8,40 +8,7 @@
 
 <airframe name="Funjet">
 
-  <modules>
-    <load name="airspeed_adc.xml">
-      <configure name="ADC_AIRSPEED" value="ADC_0"/>
-      <define name="AIRSPEED_ADC_QUADRATIC_SCALE" value="1.09378"/>
-      <define name="AIRSPEED_ADC_BIAS" value="110"/>
-    </load>
-    <load name="AOA_adc.xml">
-      <configure name="ADC_AOA" value="ADC_2"/>
-    </load>
-    <!--load name="adc_generic.xml">
-      <configure name="ADC_CHANNEL_GENERIC1" value="ADC_2"/>
-    </load-->
-    <!--load name="baro_hca.xml">
-      <define name="I2C0_SCLL" value="25"/>
-      <define name="I2C0_SCLH" value="25"/>
-    </load-->
-    <!--load name="baro_bmp.xml">
-      <define name="BMP_I2C_DEV" value="i2c1"/>
-    </load-->
-    <!--load name="baro_ms5611_i2c.xml">
-      <define name="MS5611_I2C_DEV" value="i2c0"/>
-    </load-->
-    <!--load name="baro_mpl3115.xml">
-      <define name="MPL3115_I2C_DEV" value="i2c0"/>
-      <define name="SENSOR_SYNC_SEND"/>
-    </load-->
-    <!--load name="airspeed_ads1114.xml"/-->
-    <!--load name="mcp355x.xml"/-->
-    <!--load name="sys_mon.xml"/-->
-  </modules>
-
   <firmware name="fixedwing">
-    <define name="USE_I2C0"/>
-    <define name="USE_I2C1"/>
     <!--define name="AGR_CLIMB"/-->
     <define name="USE_AIRSPEED"/>
     <!--define name="LOITER_TRIM"/-->
@@ -51,30 +18,59 @@
     <target name="sim" board="pc"/>
     <target name="ap" board="umarim_1.0"/>
 
-    <subsystem name="radio_control" type="ppm">
+    <module name="radio_control" type="ppm">
       <define name="USE_PPM_RSSI_GPIO"/>
       <define name="PPM_RSSI_IOPIN" value="IO0PIN"/>
       <define name="PPM_RSSI_PIN" value="10"/>
       <define name="PPM_RSSI_VALID_LEVEL" value="0"/>
-    </subsystem>
+    </module>
 
     <!-- Communication -->
-    <subsystem name="telemetry" type="xbee_api"/>
+    <module name="telemetry" type="xbee_api"/>
+
+    <module name="airspeed"  type="adc">
+      <configure name="ADC_AIRSPEED" value="ADC_0"/>
+      <define name="AIRSPEED_ADC_QUADRATIC_SCALE" value="1.09378"/>
+      <define name="AIRSPEED_ADC_BIAS" value="110"/>
+    </module>
+    <!--module name="airspeed"  type="ads1114"/-->
+    <module name="AOA"       type="adc">
+      <configure name="ADC_AOA" value="ADC_2"/>
+    </module>
+    <!--module name="adc"    type="generic">
+      <configure name="ADC_CHANNEL_GENERIC1" value="ADC_2"/>
+    </module-->
+    <!--module name="baro"   type="hca">
+      <define name="I2C0_SCLL" value="25"/>
+      <define name="I2C0_SCLH" value="25"/>
+    </module-->
+    <!--module name="baro"   type="bmp">
+      <configure name="BMP_I2C_DEV" value="i2c1"/>
+    </module-->
+    <!--module name="baro"   type="ms5611_i2c">
+      <configure name="MS5611_I2C_DEV" value="i2c0"/>
+    </module-->
+    <!--module name="baro"   type="mpl3115">
+      <configure name="MPL3115_I2C_DEV" value="i2c0"/>
+      <define name="SENSOR_SYNC_SEND"/>
+    </module-->
+    <!--module name="mcp355x"/-->
+    <!--module name="sys_mon"/-->
 
     <!-- Actuators are automatically chosen according to board-->
-    <subsystem name="imu"     type="umarim"/>
-    <subsystem name="ahrs"    type="float_dcm"/>
-    <subsystem name="ins"     type="alt_float"/>
-    <subsystem name="control" type="new"/>
-    <subsystem name="navigation"/>
+    <module name="imu"     type="umarim"/>
+    <module name="ahrs"    type="float_dcm"/>
+    <module name="ins"     type="alt_float"/>
+    <module name="control" type="new"/>
+    <module name="navigation"/>
     <!-- Sensors -->
-    <subsystem name="gps" type="ublox"/>
+    <module name="gps" type="ublox"/>
 
-    <subsystem name="current_sensor">
+    <module name="current_sensor">
       <configure name="ADC_CURRENT_SENSOR" value="ADC_1"/>
-    </subsystem>
+    </module>
 
-    <!--subsystem name="spi"/-->
+    <!--module name="spi"/-->
   </firmware>
 
 <!-- commands section -->
@@ -259,8 +255,8 @@
   <section name="SIMU">
     <!--define name="ROLL_RESPONSE_FACTOR" value="10"/>
     <define name="MAX_ROLL_DOT" value="20" unit="rad/s"/-->
-    <define name="JSBSIM_MODEL" value="&quot;Malolo1&quot;"/>
-    <!--define name="JSBSIM_INIT"	value="&quot;Malolo1-IC&quot;"/-->
+    <define name="JSBSIM_MODEL" value="Malolo1" type="string"/>
+    <!--define name="JSBSIM_INIT"	value="Malolo1-IC"/-->
     <define name="JSBSIM_LAUNCHSPEED"	value="15.0"/>
     <define name="JSBSIM_IR_ROLL_NEUTRAL" value="RadOfDeg(0.)"/>
     <define name="JSBSIM_IR_PITCH_NEUTRAL" value="RadOfDeg(0.)"/>

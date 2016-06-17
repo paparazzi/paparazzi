@@ -8,7 +8,7 @@
 
 #include "firmwares/fixedwing/guidance/guidance_v.h"
 #include "state.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 #include "mcu_periph/uart.h"
 #include "generated/airframe.h"
@@ -26,8 +26,8 @@ float SquareSumErr_position;
 float ToleranceAispeed;
 float ToleranceAltitude;
 float TolerancePosition;
-bool_t benchm_reset;
-bool_t benchm_go;
+bool benchm_reset;
+bool benchm_go;
 
 
 //uint8_t numOfCount;
@@ -59,7 +59,7 @@ void flight_benchmark_periodic(void)
 
   if (benchm_go) {
 #if USE_AIRSPEED && defined(BENCHMARK_AIRSPEED)
-    Err_airspeed = fabs(*stateGetAirspeed_f() - v_ctl_auto_airspeed_setpoint);
+    Err_airspeed = fabs(stateGetAirspeed_f() - v_ctl_auto_airspeed_setpoint);
     if (Err_airspeed > ToleranceAispeed) {
       Err_airspeed = Err_airspeed - ToleranceAispeed;
       SquareSumErr_airspeed += (Err_airspeed * Err_airspeed);

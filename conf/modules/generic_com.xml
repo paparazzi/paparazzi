@@ -6,7 +6,7 @@
       Generic com.
       Can be used for Satcom/GSM
     </description>
-    <define name="GENERIC_COM_I2C_DEV" value="i2cX" description="select i2c peripheral to use (default i2c0)"/>
+    <configure name="GENERIC_COM_I2C_DEV" value="i2cX" description="select i2c peripheral to use (default i2c0)"/>
     <define name="GENERIC_COM_SLAVE_ADDR" value="i2c address"/>
   </doc>
   <header>
@@ -16,6 +16,9 @@
   <periodic fun="generic_com_periodic()" period="180" start="start_com()" stop="stop_com()" autorun="TRUE"/>
   <event fun="generic_com_event()"/>
   <makefile>
+    <configure name="GENERIC_COM_I2C_DEV" default="i2c0" case="upper|lower"/>
+    <define name="USE_$(GENERIC_COM_I2C_DEV_UPPER)"/>
+    <define name="GENERIC_COM_I2C_DEV" value="$(GENERIC_COM_I2C_DEV_LOWER)"/>
     <file name="generic_com.c"/>
   </makefile>
 </module>

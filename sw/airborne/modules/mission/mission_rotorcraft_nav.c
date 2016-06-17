@@ -38,11 +38,11 @@
 #define BUFFER_ZONE_DIST 10
 
 /// Utility function: converts lla (int) to local point (float)
-bool_t mission_point_of_lla(struct EnuCoor_f *point, struct LlaCoor_i *lla)
+bool mission_point_of_lla(struct EnuCoor_f *point, struct LlaCoor_i *lla)
 {
   // return FALSE if there is no valid local coordinate system
   if (!state.ned_initialized_i) {
-    return FALSE;
+    return false;
   }
 
   // change geoid alt to ellipsoid alt
@@ -52,11 +52,13 @@ bool_t mission_point_of_lla(struct EnuCoor_f *point, struct LlaCoor_i *lla)
   struct EnuCoor_i tmp_enu_point_i;
   enu_of_lla_point_i(&tmp_enu_point_i, &state.ned_origin_i, lla);
   struct EnuCoor_f tmp_enu_point_f;
-  ENU_FLOAT_OF_BFP(tmp_enu_point_f, tmp_enu_point_i);
+  // result of enu_of_lla_point_i is in cm, convert to float in m
+  VECT3_SMUL(tmp_enu_point_f, tmp_enu_point_i, 0.01);
 
   //Bound the new waypoint with max distance from home
-  struct EnuCoor_f home;
-  ENU_FLOAT_OF_BFP(home, waypoints[WP_HOME]);
+  struct FloatVect2 home;
+  home.x = waypoint_get_x(WP_HOME);
+  home.y = waypoint_get_y(WP_HOME);
   struct FloatVect2 vect_from_home;
   VECT2_DIFF(vect_from_home, tmp_enu_point_f, home);
   //Saturate the mission wp not to overflow max_dist_from_home
@@ -70,11 +72,11 @@ bool_t mission_point_of_lla(struct EnuCoor_f *point, struct LlaCoor_i *lla)
   VECT2_SUM(*point, home, vect_from_home);
   point->z = tmp_enu_point_f.z;
 
-  return TRUE;
+  return true;
 }
 
 //Function that converts target wp from float point versions to int
-bool_t mission_element_convert(struct _mission_element *el)
+bool mission_element_convert(struct _mission_element *el)
 {
   struct _mission_element tmp_element = *el;
   uint8_t i = 0;
@@ -97,11 +99,11 @@ bool_t mission_element_convert(struct _mission_element *el)
       break;
     default:
       // invalid element type
-      return FALSE;
+      return false;
       break;
   }
 
-  return TRUE;
+  return true;
 }
 
 // navigation time step
@@ -112,7 +114,7 @@ struct EnuCoor_i last_mission_wp = { 0., 0., 0. };
 
 /** Navigation function to a single waypoint
 */
-static inline bool_t mission_nav_wp(struct _mission_element *el)
+static inline bool mission_nav_wp(struct _mission_element *el)
 {
   struct EnuCoor_i *target_wp = &(el->element.mission_wp.wp.wp_i);
 
@@ -121,8 +123,8 @@ static inline bool_t mission_nav_wp(struct _mission_element *el)
     last_mission_wp = *target_wp;
 
     if (el->duration > 0.) {
-      if (nav_check_wp_time(target_wp, el->duration)) { return FALSE; }
-    } else { return FALSE; }
+      if (nav_check_wp_time(target_wp, el->duration)) { return false; }
+    } else { return false; }
 
   }
   //Go to Mission Waypoint
@@ -131,12 +133,12 @@ static inline bool_t mission_nav_wp(struct _mission_element *el)
   NavVerticalAutoThrottleMode(RadOfDeg(0.000000));
   NavVerticalAltitudeMode(POS_FLOAT_OF_BFP(target_wp->z), 0.);
 
-  return TRUE;
+  return true;
 }
 
 /** Navigation function on a circle
 */
-static inline bool_t mission_nav_circle(struct _mission_element *el)
+static inline bool mission_nav_circle(struct _mission_element *el)
 {
   struct EnuCoor_i *center_wp = &(el->element.mission_circle.center.center_i);
   int32_t radius = el->element.mission_circle.radius;
@@ -148,15 +150,15 @@ static inline bool_t mission_nav_circle(struct _mission_element *el)
   NavVerticalAltitudeMode(POS_FLOAT_OF_BFP(center_wp->z), 0.);
 
   if (el->duration > 0. && mission.element_time >= el->duration) {
-    return FALSE;
+    return false;
   }
 
-  return TRUE;
+  return true;
 }
 
 /** Navigation function along a segment
 */
-static inline bool_t mission_nav_segment(struct _mission_element *el)
+static inline bool mission_nav_segment(struct _mission_element *el)
 {
   struct EnuCoor_i *from_wp = &(el->element.mission_segment.from.from_i);
   struct EnuCoor_i *to_wp   = &(el->element.mission_segment.to.to_i);
@@ -166,8 +168,8 @@ static inline bool_t mission_nav_segment(struct _mission_element *el)
     last_mission_wp = *to_wp;
 
     if (el->duration > 0.) {
-      if (nav_check_wp_time(to_wp, el->duration)) { return FALSE; }
-    } else { return FALSE; }
+      if (nav_check_wp_time(to_wp, el->duration)) { return false; }
+    } else { return false; }
   }
 
   //Route Between from-to
@@ -176,16 +178,16 @@ static inline bool_t mission_nav_segment(struct _mission_element *el)
   NavVerticalAutoThrottleMode(RadOfDeg(0.0));
   NavVerticalAltitudeMode(POS_FLOAT_OF_BFP(to_wp->z), 0.);
 
-  return TRUE;
+  return true;
 }
 
 
 /** Navigation function along a path
 */
-static inline bool_t mission_nav_path(struct _mission_element *el)
+static inline bool mission_nav_path(struct _mission_element *el)
 {
   if (el->element.mission_path.nb == 0) {
-    return FALSE; // nothing to do
+    return false; // nothing to do
   }
 
   if (el->element.mission_path.path_idx == 0) { //first wp of path
@@ -213,9 +215,9 @@ static inline bool_t mission_nav_path(struct _mission_element *el)
     nav_route(from_wp, to_wp);
     NavVerticalAutoThrottleMode(RadOfDeg(0.0));
     NavVerticalAltitudeMode(POS_FLOAT_OF_BFP(from_wp->z), 0.);
-  } else { return FALSE; } //end of path
+  } else { return false; } //end of path
 
-  return TRUE;
+  return true;
 }
 
 int mission_run()
@@ -225,10 +227,10 @@ int mission_run()
   if ((el = mission_get()) == NULL) {
     mission.element_time = 0;
     mission.current_idx  = 0;
-    return FALSE; // end of mission
+    return false; // end of mission
   }
 
-  bool_t el_running = FALSE;
+  bool el_running = false;
   switch (el->type) {
     case MissionWP:
       el_running = mission_nav_wp(el);
@@ -256,6 +258,6 @@ int mission_run()
     // go to next element
     mission.current_idx = (mission.current_idx + 1) % MISSION_ELEMENT_NB;
   }
-  return TRUE;
+  return true;
 }
 

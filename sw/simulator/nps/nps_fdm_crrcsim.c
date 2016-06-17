@@ -44,6 +44,7 @@
 #include "math/pprz_geodetic_float.h"
 #include "math/pprz_algebra.h"
 #include "math/pprz_algebra_float.h"
+#include "math/pprz_isa.h"
 
 #include "generated/airframe.h"
 #include "generated/flight_plan.h"
@@ -74,7 +75,7 @@
 
 // uNAV packet length definition
 #define IMU_PACKET_LENGTH 51
-#define GPS_PACKET_LENGTH	86
+#define GPS_PACKET_LENGTH 86
 #define AHRS_PACKET_LENGTH 93
 #define FULL_PACKET_SIZE 93
 
@@ -85,9 +86,9 @@ struct NpsFdm fdm;
 #define INPUT_BUFFER_SIZE (3*FULL_PACKET_SIZE)
 // Input buffer
 struct inputbuf {
-   byte buf[INPUT_BUFFER_SIZE];
-   byte start;
-   int  length;
+  byte buf[INPUT_BUFFER_SIZE];
+  byte start;
+  int  length;
 };
 
 // Socket structure
@@ -104,21 +105,27 @@ static struct _crrcsim crrcsim;
 static struct LtpDef_d ltpdef;
 
 // static functions declaration
-static void open_udp(char* host, int port, int blocking);
-static void inputbuf_init(struct inputbuf* c);
-static void read_into_buffer(struct _crrcsim* io);
+static void open_udp(char *host, int port, int blocking);
+static void inputbuf_init(struct inputbuf *c);
+static void read_into_buffer(struct _crrcsim *io);
 static void init_ltp(void);
-static int get_msg(struct _crrcsim* io, byte* data_buffer);
-static void decode_imupacket(struct NpsFdm * fdm, byte* buffer);
-static void decode_gpspacket(struct NpsFdm * fdm, byte* buffer);
-static void decode_ahrspacket(struct NpsFdm * fdm, byte* buffer);
-static void send_servo_cmd(struct _crrcsim* io, double* commands);
+static int get_msg(struct _crrcsim *io, byte *data_buffer);
+static void decode_imupacket(struct NpsFdm *fdm, byte *buffer);
+static void decode_gpspacket(struct NpsFdm *fdm, byte *buffer);
+static void decode_ahrspacket(struct NpsFdm *fdm, byte *buffer);
+static void send_servo_cmd(struct _crrcsim *io, double *commands);
 
 // NPS FDM interface
-void nps_fdm_init(double dt) {
+void nps_fdm_init(double dt)
+{
   fdm.init_dt = dt;
   fdm.curr_dt = dt;
   fdm.nan_count = 0;
+  fdm.pressure = -1;
+  fdm.pressure_sl = PPRZ_ISA_SEA_LEVEL_PRESSURE;
+  fdm.total_pressure = -1;
+  fdm.dynamic_pressure = -1;
+  fdm.temperature = -1;
 
   init_ltp();
 
@@ -126,13 +133,12 @@ void nps_fdm_init(double dt) {
   inputbuf_init(&crrcsim.buf);
 
   printf("Starting to connect to CRRCsim server.\n");
-  open_udp((char*)(NPS_CRRCSIM_HOST_IP), NPS_CRRCSIM_HOST_PORT, UDP_NONBLOCKING);
+  open_udp((char *)(NPS_CRRCSIM_HOST_IP), NPS_CRRCSIM_HOST_PORT, UDP_NONBLOCKING);
 
   if (crrcsim.socket < 0) {
     printf("Connection to CRRCsim failed\n");
     exit(0);
-  }
-  else {
+  } else {
     printf("Connection to CRRCsim succed\n");
   }
 
@@ -141,7 +147,8 @@ void nps_fdm_init(double dt) {
   send_servo_cmd(&crrcsim, zero);
 }
 
-void nps_fdm_run_step(bool_t launch __attribute__((unused)), double* commands, int commands_nb) {
+void nps_fdm_run_step(bool launch __attribute__((unused)), double *commands, int commands_nb)
+{
   // read state
   if (get_msg(&crrcsim, crrcsim.data_buffer) <= 0) {
     return; // nothing on the socket
@@ -151,8 +158,7 @@ void nps_fdm_run_step(bool_t launch __attribute__((unused)), double* commands, i
   send_servo_cmd(&crrcsim, commands);
 
   //printf("new data %c %c\n", crrcsim.data_buffer[2], crrcsim.data_buffer[33]);
-  switch (crrcsim.data_buffer[2])
-  {
+  switch (crrcsim.data_buffer[2]) {
     case 'S': /* IMU packet without GPS */
       decode_imupacket(&fdm, crrcsim.data_buffer);
       break;
@@ -165,7 +171,7 @@ void nps_fdm_run_step(bool_t launch __attribute__((unused)), double* commands, i
        *check GPS data packet
        ******************************************/
       //if(data_buffer[31]==(byte)0x55 && data_buffer[32]==(byte)0x55 && data_buffer[33]=='G')
-      if(crrcsim.data_buffer[33]=='G') {
+      if (crrcsim.data_buffer[33] == 'G') {
         decode_gpspacket(&fdm, &crrcsim.data_buffer[31]);
       }
       break;
@@ -177,10 +183,10 @@ void nps_fdm_run_step(bool_t launch __attribute__((unused)), double* commands, i
       /******************************************
        *check GPS data packet
        ******************************************/
-      if(crrcsim.data_buffer[33]=='G') {
+      if (crrcsim.data_buffer[33] == 'G') {
         decode_gpspacket(&fdm, &crrcsim.data_buffer[31]);
       }
-      if(crrcsim.data_buffer[66]=='A') {
+      if (crrcsim.data_buffer[66] == 'A') {
         decode_ahrspacket(&fdm, &crrcsim.data_buffer[66]);
       }
       break;
@@ -191,14 +197,27 @@ void nps_fdm_run_step(bool_t launch __attribute__((unused)), double* commands, i
 
 }
 
-void nps_fdm_set_wind(double speed __attribute__((unused)), double dir __attribute__((unused)), int turbulence_severity __attribute__((unused))) {
+void nps_fdm_set_wind(double speed __attribute__((unused)),
+                      double dir __attribute__((unused)))
+{
+}
+
+void nps_fdm_set_wind_ned(double wind_north __attribute__((unused)),
+                          double wind_east __attribute__((unused)),
+                          double wind_down __attribute__((unused)))
+{
+}
+
+void nps_fdm_set_turbulence(double wind_speed __attribute__((unused)),
+                            int turbulence_severity __attribute__((unused)))
+{
 }
 
 /***************************************************************************
  ** Open and configure UDP connection
  ****************************************************************************/
 
-static void open_udp(char* host, int port, int blocking)
+static void open_udp(char *host, int port, int blocking)
 {
   int    flags;
 
@@ -212,25 +231,24 @@ static void open_udp(char* host, int port, int blocking)
   flags = fcntl(crrcsim.socket, F_GETFL, 0);
   fcntl(crrcsim.socket, F_SETFL, flags | O_NONBLOCK);
 
-  if (connect(crrcsim.socket,(struct sockaddr*)&crrcsim.addr,sizeof(crrcsim.addr)) < 0) {
+  if (connect(crrcsim.socket, (struct sockaddr *)&crrcsim.addr, sizeof(crrcsim.addr)) < 0) {
     close(crrcsim.socket);
     crrcsim.socket = -1;
   }
 
-  if(crrcsim.socket != -1 && blocking == UDP_BLOCKING)
-  {
+  if (crrcsim.socket != -1 && blocking == UDP_BLOCKING) {
     //restore
     fcntl(crrcsim.socket, F_SETFL, flags);
   }
 }
 
-static void inputbuf_init(struct inputbuf* c)
+static void inputbuf_init(struct inputbuf *c)
 {
   c->start = 0;
   c->length = 0;
 }
 
-static void read_into_buffer(struct _crrcsim* io)
+static void read_into_buffer(struct _crrcsim *io)
 {
   struct inputbuf *c = &io->buf;
   int res;
@@ -244,13 +262,14 @@ static void read_into_buffer(struct _crrcsim* io)
   }
 }
 
-static void init_ltp(void) {
+static void init_ltp(void)
+{
 
   struct LlaCoor_d llh_nav0; /* Height above the ellipsoid */
-  llh_nav0.lat = RadOfDeg((double)NAV_LAT0/1e7);
-  llh_nav0.lon = RadOfDeg((double)NAV_LON0/1e7);
+  llh_nav0.lat = RadOfDeg((double)NAV_LAT0 / 1e7);
+  llh_nav0.lon = RadOfDeg((double)NAV_LON0 / 1e7);
   /* NAV_ALT0 = ground alt above msl, NAV_MSL0 = geoid-height (msl) over ellipsoid */
-  llh_nav0.alt = (NAV_ALT0 + NAV_MSL0)/1000.;
+  llh_nav0.alt = (NAV_ALT0 + NAV_MSL0) / 1000.;
 
   struct EcefCoor_d ecef_nav0;
   ecef_of_lla_d(&ecef_nav0, &llh_nav0);
@@ -274,7 +293,7 @@ static void init_ltp(void) {
 
 }
 
-static int get_msg(struct _crrcsim* io, byte* data_buffer)
+static int get_msg(struct _crrcsim *io, byte *data_buffer)
 {
   struct inputbuf *c = &io->buf;
   int count = 0;
@@ -287,19 +306,19 @@ static int get_msg(struct _crrcsim* io, byte* data_buffer)
     /*********************************************************************
      * Find start of packet: the header (2 bytes) starts with 0x5555
      *********************************************************************/
-    while(c->length >= 4 && (c->buf[c->start] != (byte)0x55 || c->buf[(byte)(c->start + 1)] != (byte)0x55)) {
+    while (c->length >= 4 && (c->buf[c->start] != (byte)0x55 || c->buf[(byte)(c->start + 1)] != (byte)0x55)) {
       c->start++;
       c->length--;
     }
-    if(c->length < 4)
+    if (c->length < 4) {
       return count;
+    }
 
     /*********************************************************************
      * Read packet contents
      *********************************************************************/
     packet_len = 0;
-    switch (c->buf[(byte)(c->start + 2)])
-    {
+    switch (c->buf[(byte)(c->start + 2)]) {
       case 'S':
         packet_len = IMU_PACKET_LENGTH;
         break;
@@ -316,33 +335,34 @@ static int get_msg(struct _crrcsim* io, byte* data_buffer)
         break;
     }
 
-    if(packet_len > 0 && c->length < packet_len)
-      return count; // not enough data
-    if(packet_len > 0) {
+    if (packet_len > 0 && c->length < packet_len) {
+      return count;  // not enough data
+    }
+    if (packet_len > 0) {
       byte ib;
       word rcvchecksum = 0;
       word sum = 0;
 
-      for(i = 2, ib = c->start + (byte)2; i < packet_len - 2; i++, ib++)
+      for (i = 2, ib = c->start + (byte)2; i < packet_len - 2; i++, ib++) {
         sum += c->buf[ib];
+      }
       rcvchecksum = c->buf[ib++] << 8;
       rcvchecksum = rcvchecksum | c->buf[ib++];
 
-      if(rcvchecksum != sum) {
+      if (rcvchecksum != sum) {
         packet_len = 0;
         printf("checksum error\n");
       }
     }
     // fill data buffer or go to next bytes
-    if(packet_len > 0) {
-      for(i = 0; i < packet_len; i++) {
+    if (packet_len > 0) {
+      for (i = 0; i < packet_len; i++) {
         data_buffer[i] = c->buf[c->start];
         c->start++;
         c->length--;
       }
       count++;
-    }
-    else {
+    } else {
       c->start += 3;
       c->length -= 3;
     }
@@ -361,21 +381,28 @@ static int get_msg(struct _crrcsim* io, byte* data_buffer)
 /***************************************************************************************
  *decode the gps data packet
  ***************************************************************************************/
-static void decode_gpspacket(struct NpsFdm * fdm, byte* buffer)
+static void decode_gpspacket(struct NpsFdm *fdm, byte *buffer)
 {
   /* gps velocity (1e2 m/s to  m/s */
   struct NedCoor_d vel;
-  vel.x = (double)LongOfBuf(buffer,3)*1.0e-2;
-  vel.y = (double)LongOfBuf(buffer,7)*1.0e-2;
-  vel.z = (double)LongOfBuf(buffer,11)*1.0e-2;
+  vel.x = (double)LongOfBuf(buffer, 3) * 1.0e-2;
+  vel.y = (double)LongOfBuf(buffer, 7) * 1.0e-2;
+  vel.z = (double)LongOfBuf(buffer, 11) * 1.0e-2;
   fdm->ltp_ecef_vel = vel;
   ecef_of_ned_vect_d(&fdm->ecef_ecef_vel, &ltpdef, &vel);
 
+  /* No airspeed from CRRCSIM?
+   * use ground speed for now, since we also don't know wind
+   */
+  struct DoubleVect3 ltp_airspeed;
+  VECT3_COPY(ltp_airspeed, vel);
+  fdm.airspeed = double_vect3_norm(&ltp_airspeed);
+
   /* gps position (1e7 deg to rad and 1e3 m to m) */
   struct LlaCoor_d pos;
-  pos.lon=(double)LongOfBuf(buffer,15)*1.74533e-9;
-  pos.lat=(double)LongOfBuf(buffer,19)*1.74533e-9;
-  pos.alt=(double)LongOfBuf(buffer,23)*1.0e-3;
+  pos.lon = (double)LongOfBuf(buffer, 15) * 1.74533e-9;
+  pos.lat = (double)LongOfBuf(buffer, 19) * 1.74533e-9;
+  pos.alt = (double)LongOfBuf(buffer, 23) * 1.0e-3;
 
   pos.lat += ltpdef.lla.lat;
   pos.lon += ltpdef.lla.lon;
@@ -383,10 +410,12 @@ static void decode_gpspacket(struct NpsFdm * fdm, byte* buffer)
 
   fdm->lla_pos = pos;
   ecef_of_lla_d(&fdm->ecef_pos, &pos);
-  fdm->hmsl = pos.alt - NAV_MSL0/1000.;
+  fdm->hmsl = pos.alt - NAV_MSL0 / 1000.;
+
+  fdm->pressure = pprz_isa_pressure_of_altitude(fdm->hmsl);
 
   /* gps time */
-  fdm->time = (double)UShortOfBuf(buffer,27);
+  fdm->time = (double)UShortOfBuf(buffer, 27);
 
   /* in LTP pprz */
   ned_of_ecef_point_d(&fdm->ltpprz_pos, &ltpdef, &fdm->ecef_pos);
@@ -395,50 +424,60 @@ static void decode_gpspacket(struct NpsFdm * fdm, byte* buffer)
 
 #if NPS_CRRCSIM_DEBUG
   printf("decode gps | pos %f %f %f | vel %f %f %f | time %f\n",
-      57.3*fdm->lla_pos.lat,
-      57.3*fdm->lla_pos.lon,
-      fdm->lla_pos.alt,
-      fdm->ltp_ecef_vel.x,
-      fdm->ltp_ecef_vel.y,
-      fdm->ltp_ecef_vel.z,
-      fdm->time);
+         57.3 * fdm->lla_pos.lat,
+         57.3 * fdm->lla_pos.lon,
+         fdm->lla_pos.alt,
+         fdm->ltp_ecef_vel.x,
+         fdm->ltp_ecef_vel.y,
+         fdm->ltp_ecef_vel.z,
+         fdm->time);
 #endif
 }
 
 /***************************************************************************************
  *decode the ahrs data packet
  ***************************************************************************************/
-static void decode_ahrspacket(struct NpsFdm * fdm, byte* buffer)
+static void decode_ahrspacket(struct NpsFdm *fdm, byte *buffer)
 {
   /* euler angles (0.9387340515702713e04 rad to rad) */
-  fdm->ltp_to_body_eulers.phi = (double)ShortOfBuf(buffer,1)*0.000106526 - NPS_CRRCSIM_ROLL_NEUTRAL;
-  fdm->ltp_to_body_eulers.theta = (double)ShortOfBuf(buffer,3)*0.000106526 - NPS_CRRCSIM_PITCH_NEUTRAL;
-  fdm->ltp_to_body_eulers.psi = (double)ShortOfBuf(buffer,5)*0.000106526;
+  fdm->ltp_to_body_eulers.phi = (double)ShortOfBuf(buffer, 1) * 0.000106526 - NPS_CRRCSIM_ROLL_NEUTRAL;
+  fdm->ltp_to_body_eulers.theta = (double)ShortOfBuf(buffer, 3) * 0.000106526 - NPS_CRRCSIM_PITCH_NEUTRAL;
+  fdm->ltp_to_body_eulers.psi = (double)ShortOfBuf(buffer, 5) * 0.000106526;
   DOUBLE_QUAT_OF_EULERS(fdm->ltp_to_body_quat, fdm->ltp_to_body_eulers);
 
 #if NPS_CRRCSIM_DEBUG
   printf("decode ahrs %f %f %f\n",
-      fdm->ltp_to_body_eulers.phi*57.3,
-      fdm->ltp_to_body_eulers.theta*57.3,
-      fdm->ltp_to_body_eulers.psi*57.3);
+         fdm->ltp_to_body_eulers.phi * 57.3,
+         fdm->ltp_to_body_eulers.theta * 57.3,
+         fdm->ltp_to_body_eulers.psi * 57.3);
 #endif
 }
 
 /***************************************************************************************
  *decode the imu data packet
  ***************************************************************************************/
-void decode_imupacket(struct NpsFdm * fdm, byte* buffer)
+void decode_imupacket(struct NpsFdm *fdm, byte *buffer)
 {
   /* acceleration (0.1670132517315938e04 m/s^2 to m/s^2) */
-  fdm->body_ecef_accel.x = (double)ShortOfBuf(buffer,3)*5.98755e-04;
-  fdm->body_ecef_accel.y = (double)ShortOfBuf(buffer,5)*5.98755e-04;
-  fdm->body_ecef_accel.z = (double)ShortOfBuf(buffer,7)*5.98755e-04;
+  fdm->body_accel.x = (double)ShortOfBuf(buffer, 3) * 5.98755e-04;
+  fdm->body_accel.y = (double)ShortOfBuf(buffer, 5) * 5.98755e-04;
+  fdm->body_accel.z = (double)ShortOfBuf(buffer, 7) * 5.98755e-04;
+
+  /* since we don't get acceleration in ecef frame, use ECI for now */
+  fdm->body_ecef_accel.x = fdm->body_accel.x;
+  fdm->body_ecef_accel.y = fdm->body_accel.y;
+  fdm->body_ecef_accel.z = fdm->body_accel.z;
 
 
   /* angular rate (0.9387340515702713e4 rad/s to rad/s) */
-  fdm->body_ecef_rotvel.p  = (double)ShortOfBuf(buffer,9)*1.06526e-04;
-  fdm->body_ecef_rotvel.q  = (double)ShortOfBuf(buffer,11)*1.06526e-04;
-  fdm->body_ecef_rotvel.r  = (double)ShortOfBuf(buffer,13)*1.06526e-04;
+  fdm->body_inertial_rotvel.p = (double)ShortOfBuf(buffer, 9) * 1.06526e-04;
+  fdm->body_inertial_rotvel.q = (double)ShortOfBuf(buffer, 11) * 1.06526e-04;
+  fdm->body_inertial_rotvel.r = (double)ShortOfBuf(buffer, 13) * 1.06526e-04;
+
+  /* since we don't get angular velocity in ECEF frame, use the rotvel in ECI frame for now */
+  fdm->body_ecef_rotvel.p = fdm->body_inertial_rotvel.p;
+  fdm->body_ecef_rotvel.q = fdm->body_inertial_rotvel.q;
+  fdm->body_ecef_rotvel.r = fdm->body_inertial_rotvel.r;
 
   /* magnetic field in Gauss */
   //fdm->mag.x = (double)ShortOfBuf(buffer,15)*6.10352e-05;
@@ -451,12 +490,12 @@ void decode_imupacket(struct NpsFdm * fdm, byte* buffer)
 
 #if NPS_CRRCSIM_DEBUG
   printf("decode imu | accel %f %f %f | gyro %f %f %f\n",
-      fdm->body_ecef_accel.x,
-      fdm->body_ecef_accel.y,
-      fdm->body_ecef_accel.z,
-      fdm->body_ecef_rotvel.p,
-      fdm->body_ecef_rotvel.q,
-      fdm->body_ecef_rotvel.r);
+         fdm->body_accel.x,
+         fdm->body_accel.y,
+         fdm->body_accel.z,
+         fdm->body_inertial_rotvel.p,
+         fdm->body_inertial_rotvel.q,
+         fdm->body_inertial_rotvel.r);
 #endif
 }
 
@@ -468,30 +507,30 @@ void decode_imupacket(struct NpsFdm * fdm, byte* buffer)
 /***************************************************************************************
  * send servo command over udp
  ***************************************************************************************/
-static void send_servo_cmd(struct _crrcsim* io, double* commands)
+static void send_servo_cmd(struct _crrcsim *io, double *commands)
 {
   //cnt_cmd[1] = ch1:elevator, cnt_cmd[0] = ch0:aileron, cnt_cmd[2] = ch2:throttle
   word cnt_cmd[3];
-  byte  data[24]={0,};
+  byte  data[24] = {0,};
   short i = 0;
-  word  sum=0;
+  word  sum = 0;
 
-  word roll = (word)((65535/4)*commands[NPS_CRRCSIM_COMMAND_ROLL] + (65536/2));
-  word pitch = (word)((65535/4)*commands[NPS_CRRCSIM_COMMAND_PITCH] + (65536/2));
+  word roll = (word)((65535 / 4) * commands[NPS_CRRCSIM_COMMAND_ROLL] + (65536 / 2));
+  word pitch = (word)((65535 / 4) * commands[NPS_CRRCSIM_COMMAND_PITCH] + (65536 / 2));
 
   cnt_cmd[0] = roll;
   cnt_cmd[1] = -pitch;
-  cnt_cmd[2] = (word)(65535*commands[NPS_CRRCSIM_COMMAND_THROTTLE]);
+  cnt_cmd[2] = (word)(65535 * commands[NPS_CRRCSIM_COMMAND_THROTTLE]);
 
 #if NPS_CRRCSIM_DEBUG
   printf("send servo %f %f %f | %d %d %d | %d %d\n",
-      commands[0],
-      commands[1],
-      commands[2],
-      cnt_cmd[0],
-      cnt_cmd[1],
-      cnt_cmd[2],
-      roll, pitch);
+         commands[0],
+         commands[1],
+         commands[2],
+         cnt_cmd[0],
+         cnt_cmd[1],
+         cnt_cmd[2],
+         roll, pitch);
 #endif
 
   data[0] = 0x55;
@@ -512,14 +551,14 @@ static void send_servo_cmd(struct _crrcsim* io, double* commands)
 
   //checksum
   sum = 0xa6; //0x53+0x53
-  for(i=4;i<22;i++) sum += data[i];
+  for (i = 4; i < 22; i++) { sum += data[i]; }
 
   data[22] = (byte)(sum >> 8);
   data[23] = (byte)sum;
 
   //sendout the command packet
   if (io->socket >= 0) {
-    send(io->socket, (char*)data, 24, MSG_NOSIGNAL);
+    send(io->socket, (char *)data, 24, MSG_NOSIGNAL);
   }
 }
 

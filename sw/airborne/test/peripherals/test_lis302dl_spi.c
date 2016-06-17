@@ -28,6 +28,7 @@
 #include BOARD_CONFIG
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
+#define DATALINK_C
 #include "subsystems/datalink/downlink.h"
 #include "led.h"
 
@@ -88,6 +89,8 @@ static inline void main_periodic_task(void)
 
 static inline void main_event_task(void)
 {
+  mcu_event();
+
   if (sys_time.nb_sec > 1) {
     lis302dl_spi_event(&lis302);
   }
@@ -95,7 +98,7 @@ static inline void main_event_task(void)
   if (lis302.data_available) {
     struct Int32Vect3 accel;
     VECT3_COPY(accel, lis302.data.vect);
-    lis302.data_available = FALSE;
+    lis302.data_available = false;
 
     RunOnceEvery(10, {
       DOWNLINK_SEND_IMU_ACCEL_RAW(DefaultChannel, DefaultDevice,

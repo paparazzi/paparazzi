@@ -96,7 +96,7 @@ uint16_t camera_snapshot_image_number = 0;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
-bool_t survey_losange_uturn;//this flag indicates if the aircraft is turning between 2 rails (1) or if it is flying straight forward in the rail direction (0)
+bool survey_losange_uturn;//this flag indicates if the aircraft is turning between 2 rails (1) or if it is flying straight forward in the rail direction (0)
 
 int railnumber;  //indicate the number of the rail being acquired
 int numberofrailtodo;
@@ -130,7 +130,7 @@ float normBM, normAM, distancefromrail;
 float course_next_rail;
 float angle_between;
 
-bool_t ProjectionInsideLimitOfRail;
+bool ProjectionInsideLimitOfRail;
 
 
 
@@ -165,41 +165,41 @@ void stop_carto(void)
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
-bool_t nav_survey_Inc_railnumberSinceBoot(void)
+bool nav_survey_Inc_railnumberSinceBoot(void)
 {
   railnumberSinceBoot++;
-  return FALSE;
+  return false;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////
-bool_t nav_survey_Snapshoot(void)
+bool nav_survey_Snapshoot(void)
 {
   camera_snapshot_image_number = railnumberSinceBoot;
   PRTDEBSTR(SNAPSHOT)
   cartography_periodic_downlink_carto_status = MODULES_START;
-  return FALSE;
+  return false;
 
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////
-bool_t nav_survey_Snapshoot_Continu(void)
+bool nav_survey_Snapshoot_Continu(void)
 {
   camera_snapshot_image_number = railnumberSinceBoot;
   PRTDEBSTR(SNAPSHOT)
   cartography_periodic_downlink_carto_status = MODULES_START;
-  return TRUE;
+  return true;
 
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////
-bool_t nav_survey_StopSnapshoot(void)
+bool nav_survey_StopSnapshoot(void)
 {
   camera_snapshot_image_number = 0;
   PRTDEBSTR(STOP SNAPSHOT)
   cartography_periodic_downlink_carto_status = MODULES_START;
-  return FALSE;
+  return false;
 
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-bool_t nav_survey_computefourth_corner(uint8_t wp1, uint8_t wp2,  uint8_t wp3, uint8_t wp4)
+bool nav_survey_computefourth_corner(uint8_t wp1, uint8_t wp2,  uint8_t wp3, uint8_t wp4)
 {
   waypoints[wp4].x = waypoints[wp2].x + waypoints[wp3].x - waypoints[wp1].x;
   waypoints[wp4].y = waypoints[wp2].y + waypoints[wp3].y - waypoints[wp1].y;
@@ -207,15 +207,15 @@ bool_t nav_survey_computefourth_corner(uint8_t wp1, uint8_t wp2,  uint8_t wp3, u
   PRTDEBSTR(nav_survey_computefourth_corner)
   PRTDEB(f, waypoints[wp4].x)
   PRTDEB(f, waypoints[wp4].y)
-  return FALSE;
+  return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
-bool_t  nav_survey_ComputeProjectionOnLine(struct point pointAf, struct point pointBf, float pos_xf, float pos_yf,
+bool  nav_survey_ComputeProjectionOnLine(struct point pointAf, struct point pointBf, float pos_xf, float pos_yf,
     float *normAMf, float *normBMf, float *distancefromrailf);
 
 
-bool_t  nav_survey_ComputeProjectionOnLine(struct point pointAf, struct point pointBf, float pos_xf, float pos_yf,
+bool  nav_survey_ComputeProjectionOnLine(struct point pointAf, struct point pointBf, float pos_xf, float pos_yf,
     float *normAMf, float *normBMf, float *distancefromrailf)
 //return if the projection of the estimator on the AB line is located inside the AB interval
 {
@@ -310,10 +310,10 @@ bool_t  nav_survey_ComputeProjectionOnLine(struct point pointAf, struct point po
 ///////////////////////////////////////////////////////////////////////////
 //if distrailinit = 0, the aircraft travel from  wp1 -> wp2 then do the inverse travel passing through  the wp3,
 //This mode could be use to register bands of images aquired in a first nav_survey_losange_carto, done perpendicularly
-bool_t nav_survey_losange_carto_init(uint8_t wp1, uint8_t wp2,  uint8_t wp3, float distrailinit, float distplusinit)
+bool nav_survey_losange_carto_init(uint8_t wp1, uint8_t wp2,  uint8_t wp3, float distrailinit, float distplusinit)
 {
   //PRTDEBSTR(nav_survey_losange_carto_init)
-  survey_losange_uturn = FALSE;
+  survey_losange_uturn = false;
 
 
   point1.x = waypoints[wp1].x; //the coordinates are in meter units, taken from the flight plan, in float type
@@ -357,7 +357,7 @@ bool_t nav_survey_losange_carto_init(uint8_t wp1, uint8_t wp2,  uint8_t wp3, flo
   PRTDEB(f, norm13)
 
   //if (distrail<1e-15)  //inutile distrail=0 pour recollage et dans ce cas, il prend la valeur norm13
-  //  return FALSE;
+  //  return false;
 
 
   if (fabs(distrailinit) <= 1) {
@@ -382,10 +382,10 @@ bool_t nav_survey_losange_carto_init(uint8_t wp1, uint8_t wp2,  uint8_t wp3, flo
   railnumber = -1; // the state is before the first rail, which is numbered 0
 
   if (norm12 < 1e-15) {
-    return FALSE;
+    return false;
   }
   if (norm13 < 1e-15) {
-    return FALSE;
+    return false;
   }
 
 
@@ -405,13 +405,13 @@ bool_t nav_survey_losange_carto_init(uint8_t wp1, uint8_t wp2,  uint8_t wp3, flo
   }
 
 
-  return FALSE; //Init function must return false, so that the next function in the flight plan is automatically executed
+  return false; //Init function must return false, so that the next function in the flight plan is automatically executed
   //dans le flight_plan.h
   //        if (! (nav_survey_losange_carto()))
   //          NextStageAndBreak();
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////
-bool_t nav_survey_losange_carto(void)
+bool nav_survey_losange_carto(void)
 {
   //test pour modifier en vol la valeur distrail
 
@@ -438,15 +438,15 @@ bool_t nav_survey_losange_carto(void)
   //sortir du bloc si données abhérantes
   if (norm13 < 1e-15) {
     PRTDEBSTR(norm13 < 1e-15)
-    return FALSE;
+    return false;
   }
   if (norm12 < 1e-15) {
     PRTDEBSTR(norm13 < 1e-15)
-    return FALSE;
+    return false;
   }
   if (distrail < 1e-15) {
     PRTDEBSTR(distrail < 1e-15)
-    return FALSE;
+    return false;
   }
 
   if (survey_losange_uturn == FALSE) {
@@ -537,7 +537,7 @@ bool_t nav_survey_losange_carto(void)
         //  nav_survey_ComputeProjectionOnLine(pointA,pointB,stateGetPositionEnu_f()->x,stateGetPositionEnu_f()->y,&normAM,&normBM,&distancefromrail);
 
         if ((normAM > distplus) && (normBM > distplus) && (distancefromrail < distrail / 2)) {
-          //CAMERA_SNAPSHOT_REQUIERED=TRUE;
+          //CAMERA_SNAPSHOT_REQUIERED=true;
           //camera_snapshot_image_number++;
           camera_snapshot_image_number = railnumberSinceBoot;
           PRTDEBSTR(SNAPSHOT)
@@ -552,17 +552,17 @@ bool_t nav_survey_losange_carto(void)
 
         PRTDEB(d, railnumber)
         PRTDEB(d, railnumberSinceBoot)
-        //CAMERA_SNAPSHOT_REQUIERED=TRUE;
+        //CAMERA_SNAPSHOT_REQUIERED=true;
         //camera_snapshot_image_number++;
 
         PRTDEBSTR(UTURN)
-        survey_losange_uturn = TRUE;
+        survey_losange_uturn = true;
 
       }
 
       if (railnumber > numberofrailtodo) {
         PRTDEBSTR(fin nav_survey_losange_carto)
-        return FALSE; //apparament, l'avion va au bloc suivant lorsque la fonction renvoie false
+        return false; //apparament, l'avion va au bloc suivant lorsque la fonction renvoie false
       }
 
     }
@@ -599,9 +599,9 @@ bool_t nav_survey_losange_carto(void)
 
         course_next_rail = atan2(pointC.x - pointB.x, pointC.y - pointB.y);
         PRTDEB(f, course_next_rail)
-        PRTDEB(f, (*stateGetHorizontalSpeedDir_f()))
+        PRTDEB(f, stateGetHorizontalSpeedDir_f())
 
-        angle_between = (course_next_rail - (*stateGetHorizontalSpeedDir_f()));
+        angle_between = (course_next_rail - stateGetHorizontalSpeedDir_f());
         while (angle_between > M_PI) { angle_between -= 2 * M_PI; }
         while (angle_between < -M_PI) { angle_between += 2 * M_PI; }
 
@@ -613,7 +613,7 @@ bool_t nav_survey_losange_carto(void)
         if ((DISTXY(stateGetPositionEnu_f()->x, stateGetPositionEnu_f()->y, pointB.x, pointB.y)  < DISTLIMIT)
             || (angle_between > -10 && angle_between < 10)) {
           //l'avion fait le rail suivant
-          survey_losange_uturn = FALSE;
+          survey_losange_uturn = false;
           PRTDEBSTR(FIN UTURN - IMPAIR)
         }
       } else { //if ((railnumber %2)==0) //rail précédent n1, 3, 5, donc seconde direction, de wp2 vers wp1
@@ -643,9 +643,9 @@ bool_t nav_survey_losange_carto(void)
 
         course_next_rail = atan2(pointC.x - pointB.x, pointC.y - pointB.y);
         PRTDEB(f, course_next_rail)
-        PRTDEB(f, (*stateGetHorizontalSpeedDir_f()))
+        PRTDEB(f, stateGetHorizontalSpeedDir_f())
 
-        angle_between = (course_next_rail - (*stateGetHorizontalSpeedDir_f()));
+        angle_between = (course_next_rail - stateGetHorizontalSpeedDir_f());
         while (angle_between > M_PI) { angle_between -= 2 * M_PI; }
         while (angle_between < -M_PI) { angle_between += 2 * M_PI; }
 
@@ -657,7 +657,7 @@ bool_t nav_survey_losange_carto(void)
         if ((DISTXY(stateGetPositionEnu_f()->x, stateGetPositionEnu_f()->y, pointB.x, pointB.y)  < DISTLIMIT)
             || (angle_between > -10 && angle_between < 10)) {
           //l'avion fait le rail suivant
-          survey_losange_uturn = FALSE;
+          survey_losange_uturn = false;
           PRTDEBSTR(FIN UTURN - PAIR)
         }
       }
@@ -675,7 +675,7 @@ bool_t nav_survey_losange_carto(void)
         nav_route_xy(pointA.x, pointA.y, pointB.x, pointB.y);
         if (DISTXY(stateGetPositionEnu_f()->x, stateGetPositionEnu_f()->y, pointB.x, pointB.y)  < DISTLIMIT) {
           //l'avion fait le rail suivant
-          survey_losange_uturn = FALSE;
+          survey_losange_uturn = false;
           PRTDEBSTR(FIN TRANSIT - IMPAIR)
         }
       } else { //if ((railnumber %2)==0) //rail précédent n1, 3, 5, donc seconde direction, de wp2 vers wp1
@@ -689,7 +689,7 @@ bool_t nav_survey_losange_carto(void)
         nav_route_xy(pointA.x, pointA.y, pointB.x, pointB.y);
         if (DISTXY(stateGetPositionEnu_f()->x, stateGetPositionEnu_f()->y, pointB.x, pointB.y)  < DISTLIMIT) {
           //l'avion fait le rail suivant
-          survey_losange_uturn = FALSE;
+          survey_losange_uturn = false;
           PRTDEBSTR(FIN TRANSIT - PAIR)
         }
 
@@ -707,7 +707,7 @@ bool_t nav_survey_losange_carto(void)
 
   cartography_periodic_downlink_carto_status = MODULES_START;
 
-  return TRUE; //apparament pour les fonctions de tache=> true
+  return true; //apparament pour les fonctions de tache=> true
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////
 

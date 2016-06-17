@@ -37,6 +37,11 @@ struct FloatEulers {
   float psi; ///< in radians
 };
 
+struct FloatRates {
+  float p; ///< in rad/s
+  float q; ///< in rad/s
+  float r; ///< in rad/s
+};
 
 %extend FloatVect2 {
   char *__str__() {
@@ -263,5 +268,34 @@ struct FloatEulers {
     struct FloatRMat r;
     float_rmat_of_eulers(&r, $self);
     return r;
+  }
+};
+
+%extend FloatRates {
+  char *__str__() {
+    static char tmp[1024];
+    sprintf(tmp,"Rates(%g, %g, %g)", $self->p ,$self->q, $self->r);
+    return tmp;
+  }
+  FloatRates(float p=0.0, float q=0.0, float r=0.0) {
+    struct FloatRates *fr = (struct FloatRates *) malloc(sizeof(struct FloatRates));
+    fr->p = p;
+    fr->q = q;
+    fr->r = r;
+    return fr;
+  }
+  struct FloatRates __add__(struct FloatRates *other) {
+    struct FloatRates fr;
+    fr.p = $self->p + other->p;
+    fr.q = $self->q + other->q;
+    fr.r = $self->r + other->r;
+    return fr;
+  }
+  struct FloatRates __sub__(struct FloatRates *other) {
+    struct FloatRates fr;
+    fr.p = $self->p - other->p;
+    fr.q = $self->q - other->q;
+    fr.r = $self->r - other->r;
+    return fr;
   }
 };

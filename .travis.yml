@@ -1,18 +1,18 @@
+sudo: required
+dist: trusty
 language: c
 compiler:
   - gcc
   - clang
 before_install:
   - sudo add-apt-repository ppa:paparazzi-uav/ppa -y
-  - sudo add-apt-repository ppa:terry.guo/gcc-arm-embedded -y
+  - sudo add-apt-repository ppa:team-gcc-arm-embedded/ppa -y
   - sudo apt-get update -q
 install:
-  - sudo apt-get install paparazzi-dev paparazzi-jsbsim gcc-arm-none-eabi libipc-run-perl
-before_script: cd conf && ln -s conf_tests.xml conf.xml && cd ..
+  - sudo apt-get install -y paparazzi-dev paparazzi-jsbsim gcc-arm-embedded libipc-run-perl
 script:
-  - make
-  - make -C tests/math test
-  - PAPARAZZI_SRC=$PWD PAPARAZZI_HOME=$PWD J=AUTO prove tests/examples/
+  - arm-none-eabi-gcc --version
+  - make test
 
 notifications:
   webhooks:

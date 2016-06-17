@@ -12,25 +12,28 @@
 
   <init fun="mavlink_init()"/>
   <periodic fun="mavlink_periodic()" freq="10" autorun="TRUE"/>
+  <periodic fun="mavlink_periodic_telemetry()" freq="$TELEMETRY_FREQUENCY" autorun="TRUE"/>
   <event fun="mavlink_event()"/>
 
   <makefile>
     <file name="mavlink.c"/>
+    <file name="mission_manager.c" dir="modules/datalink/missionlib"/>
+    <file name="waypoints.c" dir="modules/datalink/missionlib"/>
+    <file name="blocks.c" dir="modules/datalink/missionlib"/>
+    <configure name="MAVLINK_PORT" default="uart1" case="upper|lower"/>
     <raw>
-      MAVLINK_PORT ?= UART1
-      MAVLINK_PORT_UPPER=$(shell echo $(MAVLINK_PORT) | tr a-z A-Z)
-      ifeq ($(MAVLINK_PORT), UsbS)
+      ifneq (,$(findstring usb,$(MAVLINK_PORT_LOWER)))
       ap.CFLAGS += -DUSE_USB_SERIAL
       ap.srcs += $(SRC_ARCH)/usb_ser_hw.c
-      ap.CFLAGS += -DMAVLINK_DEV=UsbS
+      ap.CFLAGS += -DMAVLINK_DEV=usb_serial
       else
-      ifeq ($(findstring UDP,$(MAVLINK_PORT)), UDP)
+      ifneq (,$(findstring udp,$(MAVLINK_PORT_LOWER)))
       include $(CFG_SHARED)/udp.makefile
-      $(TARGET).CFLAGS += -DMAVLINK_DEV=$(MAVLINK_PORT_UPPER)
+      $(TARGET).CFLAGS += -DMAVLINK_DEV=$(MAVLINK_PORT_LOWER)
       $(TARGET).CFLAGS += -DUSE_$(MAVLINK_PORT_UPPER)
       else
       MAVLINK_BAUD ?= B57600
-      ap.CFLAGS += -DMAVLINK_DEV=$(MAVLINK_PORT_UPPER)
+      ap.CFLAGS += -DMAVLINK_DEV=$(MAVLINK_PORT_LOWER)
       ap.CFLAGS += -DUSE_$(MAVLINK_PORT_UPPER)
       ap.CFLAGS += -D$(MAVLINK_PORT_UPPER)_BAUD=$(MAVLINK_BAUD)
       endif

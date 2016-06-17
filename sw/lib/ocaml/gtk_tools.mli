@@ -48,7 +48,7 @@ type combo
 val combo_widget : combo -> GEdit.combo_box
 val combo_model : combo -> (GTree.list_store * string GTree.column)
 
-val combo : string list -> < add : GObj.widget -> unit; .. > -> combo
+val combo : ?width:int -> string list -> < add : GObj.widget -> unit; .. > -> combo
 
 val add_to_combo : combo -> string -> unit
 val combo_separator : string
@@ -68,7 +68,7 @@ val tree_of : GTree.view -> (GTree.list_store * string GTree.column * bool GTree
 
 val tree_values : ?only_checked:bool -> tree -> string
 val get_selected_in_tree : tree -> GTree.row_reference list
-val add_to_tree : tree -> string -> unit
+val add_to_tree : ?force_unselect:bool -> tree -> string -> unit
 val remove_selected_from_tree : tree -> unit
 val clear_tree : tree -> unit
 

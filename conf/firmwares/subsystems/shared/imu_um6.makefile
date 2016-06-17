@@ -7,6 +7,7 @@ endif
 ifndef UM6_BAUD
   UM6_BAUD=B115200
 endif
+UM6_PORT_LOWER=$(shell echo $(UM6_PORT) | tr A-Z a-z)
 
 IMU_UM6_CFLAGS += -DUSE_IMU
 IMU_UM6_CFLAGS += -DIMU_TYPE_H=\"imu/imu_um6.h\"
@@ -14,7 +15,10 @@ IMU_UM6_SRCS   += $(SRC_SUBSYSTEMS)/imu.c
 IMU_UM6_SRCS   += $(SRC_SUBSYSTEMS)/imu/imu_um6.c
 
 IMU_UM6_CFLAGS += -DUSE_$(UM6_PORT) -D$(UM6_PORT)_BAUD=$(UM6_BAUD)
-IMU_UM6_CFLAGS += -DUM6_LINK=$(UM6_PORT)
+IMU_UM6_CFLAGS += -DUM6_LINK=$(UM6_PORT_LOWER)
 
-ap.CFLAGS += $(IMU_UM6_CFLAGS)
-ap.srcs   += $(IMU_UM6_SRCS)
+# add it for all targets except sim, fbw and nps
+ifeq (,$(findstring $(TARGET),sim fbw nps))
+$(TARGET).CFLAGS += $(IMU_UM6_CFLAGS)
+$(TARGET).srcs += $(IMU_UM6_SRCS)
+endif

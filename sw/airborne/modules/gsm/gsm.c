@@ -58,9 +58,7 @@ Receiving:
 #include "gsm.h"
 #include "mcu_periph/uart.h"
 #include "std.h"
-#include "mcu_periph/uart.h"
 #include "subsystems/datalink/downlink.h"
-#include "ap_subsystems/datalink/downlink.h"
 #include "subsystems/gps.h"
 #include "autopilot.h"
 //#include "subsystems/navigation/common_nav.h"  //why is should this be needed?
@@ -72,14 +70,13 @@ Receiving:
 
 #define GSM_MAX_PAYLOAD 160
 
-#define __GSMLink(dev, _x) dev##_x
-#define _GSMLink(dev, _x)  __GSMLink(dev, _x)
-#define GSMLink(_x) _GSMLink(GSM_LINK, _x)
+#define GSMLinkDev (&(GSM_LINK).device)
 
-#define GSMBuffer() GSMLink(ChAvailable())
-#define ReadGSMBuffer() { while (GSMLink(ChAvailable())&&!gsm_line_received) gsm_parse(GSMLink(Getch())); }
+#define GSMLinkChAvailable() GSMLinkDev->check_available(GSMLinkDev->periph)
+#define GSMLinkTransmit(_c) GSMLinkDev->put_byte(GSMLinkDev->periph, 0, _c)
+#define GSMLinkGetch() GSMLinkDev->get_byte(GSMLinkDev->periph)
+#define ReadGSMBuffer() { while (GSMLinkChAvailable&&!gsm_line_received) gsm_parse(GSMLinkGetch()); }
 
-#define GSMTransmit(_c) GSMLink(Transmit(_c))
 
 #define CTRLZ     0x1A
 #define GSM_ORIGIN_MAXLEN 32
@@ -153,7 +150,7 @@ void gsm_init(void)
     //
     //  Send_AT();
     //  gsm_status = STATUS_SEND_AT;
-    //  gsm_gsm_init_status = FALSE;
+    //  gsm_gsm_init_status = false;
   }
   gcs_index = 0;
   gcs_index_max = 0;
@@ -173,13 +170,13 @@ void gsm_init_report(void)   /* Second call */
 
     Send_AT();
     gsm_status = STATUS_SEND_AT;
-    gsm_gsm_init_report_status = FALSE;
+    gsm_gsm_init_report_status = false;
   }
 }
 
 void gsm_event(void)
 {
-  if (GSMBuffer()) {
+  if (GSMLinkChAvailable()) {
     ReadGSMBuffer();
   }
 

@@ -29,7 +29,7 @@ include ../../Makefile.ocaml
 CC = gcc
 
 PKG = -package pprz,glibivy
-LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz
+LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz,pprzlink
 
 GLIB_CFLAGS  = -Wall -fPIC $(shell pkg-config glib-2.0 --cflags)
 GLIB_LDFLAGS = $(shell pkg-config glib-2.0 --libs)
@@ -73,7 +73,7 @@ test_stick: test_sdl_stick.o
 	@echo BUILD $@
 	$(Q)$(CC) -g -O2 -DSTICK_DBG $(GLIB_CFLAGS) -o $@ $^ sdl_stick.c $(GLIB_LDFLAGS) $(SDL_LDFLAGS)
 
-input2ivy: $(LIBPPRZCMA) $(INPUT2IVY_DEPS)
+input2ivy: $(LIBPPRZCMA) $(LIBPPRZLINKCMA) $(INPUT2IVY_DEPS)
 	@echo OL $@
 	$(Q)$(OCAMLC) -o $@ $(LINKPKG) $^ $(ML_SDL_OCAMLFLAGS) $(ML_SDL_LFLAGS)
 

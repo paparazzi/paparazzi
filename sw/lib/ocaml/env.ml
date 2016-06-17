@@ -24,6 +24,7 @@
 
 open Printf
 
+
 let (//) = Filename.concat
 let space_regexp = Str.regexp "[ \t]+"
 let make_element = fun t a c -> Xml.Element (t,a,c)
@@ -56,6 +57,18 @@ let icon_sim_file = paparazzi_home // "data/pictures/penguin_icon_sim.png"
 let gconf_file = paparazzi_home // "conf" // "%gconf.xml"
 
 let gcs_icons_path = paparazzi_home // "data" // "pictures" // "gcs_icons"
+let gcs_default_icons_theme = "."
+
+let get_gcs_icon_path = fun theme icon ->
+  if Sys.file_exists (gcs_icons_path // theme // icon) then
+    (* test if file exists *)
+    gcs_icons_path // theme // icon
+  else if Sys.file_exists (gcs_icons_path // icon) then
+    (* else try default path *)
+    gcs_icons_path // icon
+  else
+    (* or raise not found *)
+    raise Not_found
 
 let dump_fp = paparazzi_src // "sw" // "tools" // "generators" // "gen_flight_plan.out -dump"
 
@@ -68,8 +81,8 @@ let filter_absolute_path = fun path ->
 (* filter settings and keep the ones without brackets *)
 let filter_settings = fun settings ->
   let sl = Str.split (Str.regexp "[ ]+") settings in
-  let sl = List.filter (fun s -> not (s.[0] = '[' && s.[String.length s - 1] = ']')) sl in
-  String.concat " " sl
+  let sl = List.filter (fun s -> not (s.[0] = '[' && s.[Compat.bytes_length s - 1] = ']')) sl in
+  Compat.bytes_concat " " sl
 
 (* filter on modules based on target *)
 let filter_modules_target = fun module_file ->
@@ -81,7 +94,7 @@ let filter_modules_target = fun module_file ->
     | [f; n] -> f, n
     | _ -> module_file, ""
   in
-  let module_xml = Xml.parse_file xml_file in
+  let module_xml = ExtXml.parse_file xml_file in
   if Xml.tag module_xml = "module"
   then
     begin
@@ -153,3 +166,35 @@ let expand_ac_xml = fun ?(raise_exception = true) ac_conf ->
 
   let children = Xml.children ac_conf@optionals in
   make_element (Xml.tag ac_conf) (Xml.attribs ac_conf) children
+
+(* Run a command and return its results as a string. *)
+let read_process command =
+  let buffer_size = 2048 in
+  let buffer = Buffer.create buffer_size in
+  let string = Compat.bytes_create buffer_size in
+  let in_channel = Unix.open_process_in command in
+  let chars_read = ref 1 in
+  while !chars_read <> 0 do
+    chars_read := input in_channel string 0 buffer_size;
+    Buffer.add_substring buffer string 0 !chars_read
+  done;
+  ignore (Unix.close_process_in in_channel);
+  Buffer.contents buffer
+
+let get_paparazzi_version = fun () ->
+  try
+    Str.replace_first (Str.regexp "[ \n]+$") "" (read_process (paparazzi_src ^ "/paparazzi_version"))
+  with _ -> "UNKNOWN"
+
+
+let key_modifiers_of_string = fun key ->
+  let key_split = Str.split (Str.regexp "\\+") key in
+  let keys = List.map (fun k ->
+    match k with
+    | "Ctrl" -> "<Control>"
+    | "Alt" -> "<Alt>"
+    | "Shift" -> "<Shift>"
+    | "Meta" -> "<Meta>"
+    | x -> x
+  ) key_split in
+  Compat.bytes_concat "" keys

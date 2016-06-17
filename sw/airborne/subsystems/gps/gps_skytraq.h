@@ -26,6 +26,10 @@
 
 #define SKYTRAQ_ID_NAVIGATION_DATA 0XA8
 
+#ifndef PRIMARY_GPS
+#define PRIMARY_GPS GPS_SKYTRAQ
+#endif
+
 /* last error type */
 enum GpsSkytraqError {
   GPS_SKYTRAQ_ERR_NONE = 0,
@@ -39,7 +43,7 @@ enum GpsSkytraqError {
 #define GPS_SKYTRAQ_MAX_PAYLOAD 255
 struct GpsSkytraq {
   uint8_t msg_buf[GPS_SKYTRAQ_MAX_PAYLOAD];
-  bool_t  msg_available;
+  bool  msg_available;
   uint8_t msg_id;
 
   uint8_t status;
@@ -50,46 +54,15 @@ struct GpsSkytraq {
   enum GpsSkytraqError error_last;
 
   struct LtpDef_i ref_ltp;
+
+  struct GpsState state;
 };
 
 extern struct GpsSkytraq gps_skytraq;
 
+extern void gps_skytraq_init(void);
+extern void gps_skytraq_event(void);
 
-/*
- * This part is used by the autopilot to read data from a uart
- */
-#define __GpsLink(dev, _x) dev##_x
-#define _GpsLink(dev, _x)  __GpsLink(dev, _x)
-#define GpsLink(_x) _GpsLink(GPS_LINK, _x)
-
-#define GpsBuffer() GpsLink(ChAvailable())
-
-#define GpsEvent(_sol_available_callback) {                     \
-    if (GpsBuffer()) {                                          \
-      ReadGpsBuffer();                                          \
-    }                                                           \
-    if (gps_skytraq.msg_available) {                            \
-      gps.last_msg_ticks = sys_time.nb_sec_rem;                 \
-      gps.last_msg_time = sys_time.nb_sec;                      \
-      gps_skytraq_read_message();                               \
-      if (gps_skytraq.msg_id == SKYTRAQ_ID_NAVIGATION_DATA) { \
-        if (gps.fix == GPS_FIX_3D) {                            \
-          gps.last_3dfix_ticks = sys_time.nb_sec_rem;           \
-          gps.last_3dfix_time = sys_time.nb_sec;                \
-        }                                                       \
-        _sol_available_callback();                              \
-      }                                                         \
-      gps_skytraq.msg_available = FALSE;                        \
-    }                                                           \
-  }
-
-#define ReadGpsBuffer() {           \
-    while (GpsLink(ChAvailable())&&!gps_skytraq.msg_available)  \
-      gps_skytraq_parse(GpsLink(Getch()));        \
-  }
-
-
-extern void gps_skytraq_read_message(void);
-extern void gps_skytraq_parse(uint8_t c);
+#define gps_skytraq_periodic_check() gps_periodic_check(&gps_skytraq.state)
 
 #endif /* GPS_SKYTRAQ_H */

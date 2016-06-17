@@ -9,15 +9,15 @@
 <airframe name="EasyStar">
 
   <modules>
-    <load name="gps_ubx_ucenter.xml"/>
-    <load name="pwm_meas.xml"/>
-    <load name="meteo_stick.xml">
+    <module name="gps" type="ubx_ucenter"/>
+    <module name="pwm_meas"/>
+    <module name="meteo_stick">
       <configure name="MS_SPI_DEV" value="SPI1"/>
       <configure name="MS_PRESSURE_SLAVE_IDX" value="0"/>
       <configure name="MS_DIFF_PRESSURE_SLAVE_IDX" value="3"/>
       <configure name="MS_TEMPERATURE_SLAVE_IDX" value="2"/>
       <configure name="MS_HUMIDITY_PWM_INPUT" value="PWM_INPUT1"/>
-    </load>
+    </module>
   </modules>
 
   <firmware name="fixedwing">
@@ -30,31 +30,31 @@
     <configure name="PERIODIC_FREQUENCY" value="100"/>
 
     <target name="ap" board="apogee_1.0_chibios">
-      <subsystem name="radio_control" type="sbus"/>
+      <module name="radio_control" type="sbus"/>
     </target>
     <target name="sim" board="pc">
-      <subsystem name="radio_control" type="ppm"/>
+      <module name="radio_control" type="ppm"/>
     </target>
 
 
     <!-- Communication -->
-    <subsystem name="telemetry" type="xbee_api"/>
-    <subsystem name="sdlog"/>
+    <module name="telemetry" type="xbee_api"/>
+    <module name="sdlog"/>
 
     <!-- Actuators are automatically chosen according to board-->
-    <subsystem name="imu" type="apogee"/>
-    <subsystem name="ahrs" type="float_dcm"/>
-    <subsystem name="ins" type="alt_float"/>
-    <subsystem name="control"/>
-    <subsystem name="navigation"/>
+    <module name="imu" type="apogee"/>
+    <module name="ahrs" type="float_dcm"/>
+    <module name="ins" type="alt_float"/>
+    <module name="control"/>
+    <module name="navigation"/>
     <!-- Sensors -->
-    <subsystem name="gps" type="ublox"/>
+    <module name="gps" type="ublox"/>
 
-    <subsystem name="current_sensor">
+    <module name="current_sensor">
       <configure name="ADC_CURRENT_SENSOR" value="ADC_1"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="spi_master"/>
+    <module name="spi_master"/>
 
   </firmware>
 

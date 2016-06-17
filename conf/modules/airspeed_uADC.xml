@@ -1,0 +1,31 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="airspeed_uADC" dir="sensors">
+  <doc>
+    <description>
+      Driver for the Aeroprobe uADC air data computer.
+
+      The Aeroprobe uADC air data computer measures
+      air pressure from a 5-hole pitot tube and can write
+      resulting data to an SD card or transmit it through an
+      UART. It outputs speed, angle of attack, angle of
+      sideslip, altitude, total pressure and static pressure.
+    </description>
+    <configure name="UADC_UART" value="UARTX" description="UART on which computer is connected"/>
+  </doc>
+  <header>
+    <file name="met_module.h"/>
+    <file name="airspeed_uADC.h"/>
+  </header>
+  <init fun="airspeed_uADC_init()"/>
+  <periodic fun="airspeed_uADC_periodic()" freq="1" autorun="TRUE"/>
+  <event fun="airspeed_uADC_event()"/>
+  <makefile target="ap">
+    <configure name="UADC_UART" case="upper|lower"/>
+    <file name="airspeed_uADC.c"/>
+    <define name="USE_$(UADC_UART_UPPER)"/>
+    <define name="uADC_DEV" value="$(UADC_UART_LOWER)"/>
+    <define name="$(UADC_UART_UPPER)_BAUD" value="B115200"/>
+  </makefile>
+</module>
+

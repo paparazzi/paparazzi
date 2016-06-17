@@ -3,8 +3,25 @@ ACTION!="add|change", GOTO="paparazzi_rules_end"
 # your own XBee ground modem with FTDI USB adapter (adapt serial number and uncomment line below)
 #SUBSYSTEM=="tty", ATTRS{product}=="FT232R USB UART", ATTRS{serial}=="A80081ej", SYMLINK+="paparazzi/xbee", GROUP="plugdev", GOTO="tty_FTDI232_end"
 
+# FLOSS-JTAG serial cable
+SUBSYSTEM=="tty", ATTRS{interface}=="FLOSS-JTAG", SYMLINK+="jtag%n"
+SUBSYSTEM=="tty", ATTRS{interface}=="FLOSS-JTAG", ATTRS{bInterfaceNumber}=="01", SYMLINK+="jtag-serial"
+
+# Black Magic Probe
+SUBSYSTEM=="tty", ATTRS{interface}=="Black Magic GDB Server", SYMLINK+="bmp-gdb"
+SUBSYSTEM=="tty", ATTRS{interface}=="Black Magic UART Port", SYMLINK+="bmp-serial"
+
+# FTDI 3.3V serial cable
+SUBSYSTEM=="tty", ATTRS{interface}=="TTL232R-3V3", SYMLINK+="ftdi-serial"
+
 # other bare FT232R FTDI chip without EEPROM
-SUBSYSTEM=="tty", ATTRS{product}=="FT232R USB UART", SYMLINK+="paparazzi/serial", GROUP="plugdev"
+SUBSYSTEM=="tty", ATTRS{product}=="FT232R USB UART", SYMLINK+="ftdi-serial", GROUP="plugdev"
+
+# Paparazzi STM32 Autopilot board USB CDC serial device
+SUBSYSTEM=="tty", ATTRS{manufacturer}=="Paparazzi UAV", ATTRS{product}=="CDC Serial STM32", SYMLINK+="paparazzi/stm32-usb-serial"
+
+# Paparazzi 3dr radio
+SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6015", SYMLINK+="paparazzi/link", GROUP="plugdev"
 
 # MaxStream xbee pro box
 SUBSYSTEM=="tty", ATTRS{product}=="MaxStream PKG-U", SYMLINK+="paparazzi/xbee", GROUP="plugdev"
@@ -21,7 +38,7 @@ LABEL="tty_FTDI232_end"
 SUBSYSTEM!="usb", GOTO="paparazzi_rules_end"
 ENV{DEVTYPE}!="usb_device", GOTO="paparazzi_rules_end"
 
-ATTR{product}=="Lisa/M (Upgrade)*", GROUP="plugdev"
+ATTR{product}=="Lisa/M *(Upgrade)*", GROUP="plugdev"
 
 #SUBSYSTEMS=="usb", ATTRS{serial}=="*_fbw", NAME="test_fbw", SYMLINK+="paparazzi/%s{serial}", MODE="0666"
 

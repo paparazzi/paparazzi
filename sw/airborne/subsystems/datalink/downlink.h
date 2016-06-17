@@ -30,34 +30,44 @@
 
 #include <inttypes.h>
 
-#ifndef PPRZ_DATALINK_EXPORT
-
+#include "generated/airframe.h"
 #include "generated/modules.h"
-#include "messages.h"
-#include "generated/airframe.h" // AC_ID is required
+#include "pprzlink/messages.h"
+#include "subsystems/datalink/datalink.h"
 
-#if defined SITL
 
-#ifdef SIM_UART
-#include "sim_uart.h"
-#include "subsystems/datalink/pprz_transport.h"
-#include "subsystems/datalink/xbee.h"
-#else /* SIM_UART */
+#if defined SITL && !USE_NPS
 /** Software In The Loop simulation uses IVY bus directly as the transport layer */
-#include "ivy_transport.h"
-#endif
+#include "pprzlink/ivy_transport.h"
+extern struct ivy_transport ivy_tp;
 
 #else /** SITL */
 
-#include "subsystems/datalink/pprz_transport.h"
-#include "subsystems/datalink/pprzlog_transport.h"
-#include "subsystems/datalink/xbee.h"
+#if DATALINK == PPRZ || DATALINK == SUPERBITRF || DATALINK == W5100 || DATALINK == BLUEGIGA
+#include "pprzlink/pprz_transport.h"
+extern struct pprz_transport pprz_tp;
+#endif
+
+#if USE_PPRZLOG
+#include "pprzlink/pprzlog_transport.h"
+extern struct pprzlog_transport pprzlog_tp;
+#endif
+
+#if DATALINK == XBEE
+#include "pprzlink/xbee_transport.h"
+extern struct xbee_transport xbee_tp;
+#endif
+
+#if DATALINK == W5100
 #include "subsystems/datalink/w5100.h"
+#endif
+
+#if DATALINK == BLUEGIGA
+#include "subsystems/datalink/bluegiga.h"
+#endif
+
 #if USE_SUPERBITRF
 #include "subsystems/datalink/superbitrf.h"
-#endif
-#if USE_AUDIO_TELEMETRY
-#include "subsystems/datalink/audio_telemetry.h"
 #endif
 #if USE_USB_SERIAL
 #include "mcu_periph/usb_serial.h"
@@ -69,38 +79,14 @@
 
 #endif /** !SITL */
 
-#else /* PPRZ_DATALINK_EXPORT defined */
-
-#include "messages.h"
-#include "pprz_transport.h"
-#ifndef AC_ID
-#define AC_ID 0
-#endif
-
-#endif
 
 #ifndef DefaultChannel
 #define DefaultChannel DOWNLINK_TRANSPORT
 #endif
 
-// FIXME are DOWNLINK_AP|FBW_DEVICE distinction really necessary ?
-// by default use AP_DEVICE if nothing is set ?
-#ifndef DOWNLINK_DEVICE
-#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
-#endif
-
 #ifndef DefaultDevice
 #define DefaultDevice DOWNLINK_DEVICE
 #endif
-
-/** Downlink structure */
-struct downlink {
-  uint8_t nb_ovrn;    ///< Counter of messages not sent because of unavailibity of the output buffer
-  uint16_t nb_bytes;  ///< Number of bytes send over telemetry
-  uint16_t nb_msgs;   ///< Number of messages send over telemetry
-};
-
-extern struct downlink downlink;
 
 // Init function
 extern void downlink_init(void);

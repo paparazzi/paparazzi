@@ -31,10 +31,7 @@
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
 #include "firmwares/rotorcraft/autopilot_rc_helpers.h"
-
-#ifndef RC_UPDATE_FREQ
-#define RC_UPDATE_FREQ 40
-#endif
+#include "mcu_periph/sys_time.h"
 
 #ifndef STABILIZATION_ATTITUDE_DEADBAND_A
 #define STABILIZATION_ATTITUDE_DEADBAND_A 0
@@ -146,7 +143,7 @@ float stabilization_attitude_get_heading_f(void)
 
   float heading;
 
-  if (abs(att->phi) < M_PI / 2) {
+  if (fabsf(att->phi) < M_PI / 2) {
     heading = att->psi - sinf(att->theta) * att->phi;
   } else if (att->theta > 0) {
     heading = att->psi - att->phi;
@@ -164,16 +161,24 @@ float stabilization_attitude_get_heading_f(void)
  * @param[in]  in_flight         true if in flight
  * @param[out] sp                attitude setpoint as euler angles
  */
-void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eulers *sp, bool_t in_flight, bool_t in_carefree,
-    bool_t coordinated_turn)
+void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eulers *sp, bool in_flight, bool in_carefree,
+    bool coordinated_turn)
 {
+  /* last time this function was called, used to calculate yaw setpoint update */
+  static float last_ts = 0.f;
+
   sp->phi = get_rc_roll();
   sp->theta = get_rc_pitch();
 
   if (in_flight) {
+    /* calculate dt for yaw integration */
+    float dt = get_sys_time_float() - last_ts;
+    /* make sure nothing drastically weird happens, bound dt to 0.5sec */
+    Bound(dt, 0, 0.5);
+
     /* do not advance yaw setpoint if within a small deadband around stick center or if throttle is zero */
     if (YAW_DEADBAND_EXCEEDED() && !THROTTLE_STICK_DOWN()) {
-      sp->psi += get_rc_yaw() / RC_UPDATE_FREQ;
+      sp->psi += get_rc_yaw() * dt;
       INT32_ANGLE_NORMALIZE(sp->psi);
     }
     if (coordinated_turn) {
@@ -188,7 +193,7 @@ void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eulers *sp, bool
         omega = ANGLE_BFP_OF_REAL(1.3 * 1.72305 * ((sp->phi > 0) - (sp->phi < 0)));
       }
 
-      sp->psi += omega / RC_UPDATE_FREQ;
+      sp->psi += omega * dt;
     }
 #ifdef STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT
     // Make sure the yaw setpoint does not differ too much from the real yaw
@@ -230,19 +235,30 @@ void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eulers *sp, bool
   } else { /* if not flying, use current yaw as setpoint */
     sp->psi = stateGetNedToBodyEulers_i()->psi;
   }
+
+  /* update timestamp for dt calculation */
+  last_ts = get_sys_time_float();
 }
 
 
-void stabilization_attitude_read_rc_setpoint_eulers_f(struct FloatEulers *sp, bool_t in_flight, bool_t in_carefree,
-    bool_t coordinated_turn)
+void stabilization_attitude_read_rc_setpoint_eulers_f(struct FloatEulers *sp, bool in_flight, bool in_carefree,
+    bool coordinated_turn)
 {
+  /* last time this function was called, used to calculate yaw setpoint update */
+  static float last_ts = 0.f;
+
   sp->phi = get_rc_roll_f();
   sp->theta = get_rc_pitch_f();
 
   if (in_flight) {
+    /* calculate dt for yaw integration */
+    float dt = get_sys_time_float() - last_ts;
+    /* make sure nothing drastically weird happens, bound dt to 0.5sec */
+    Bound(dt, 0, 0.5);
+
     /* do not advance yaw setpoint if within a small deadband around stick center or if throttle is zero */
     if (YAW_DEADBAND_EXCEEDED() && !THROTTLE_STICK_DOWN()) {
-      sp->psi += get_rc_yaw_f() / RC_UPDATE_FREQ;
+      sp->psi += get_rc_yaw_f() * dt;
       FLOAT_ANGLE_NORMALIZE(sp->psi);
     }
     if (coordinated_turn) {
@@ -251,13 +267,13 @@ void stabilization_attitude_read_rc_setpoint_eulers_f(struct FloatEulers *sp, bo
       //Take v = 9.81/1.3 m/s
       float omega;
       const float max_phi = RadOfDeg(85.0);
-      if (abs(sp->phi) < max_phi) {
+      if (fabsf(sp->phi) < max_phi) {
         omega = 1.3 * tanf(sp->phi);
       } else { //max 60 degrees roll, then take constant omega
         omega = 1.3 * 1.72305 * ((sp->phi > 0) - (sp->phi < 0));
       }
 
-      sp->psi += omega / RC_UPDATE_FREQ;
+      sp->psi += omega * dt;
     }
 #ifdef STABILIZATION_ATTITUDE_SP_PSI_DELTA_LIMIT
     // Make sure the yaw setpoint does not differ too much from the real yaw
@@ -295,6 +311,9 @@ void stabilization_attitude_read_rc_setpoint_eulers_f(struct FloatEulers *sp, bo
   } else { /* if not flying, use current yaw as setpoint */
     sp->psi = stateGetNedToBodyEulers_f()->psi;
   }
+
+  /* update timestamp for dt calculation */
+  last_ts = get_sys_time_float();
 }
 
 
@@ -345,8 +364,8 @@ void stabilization_attitude_read_rc_roll_pitch_earth_quat_f(struct FloatQuat *q)
  * @param[in]  in_flight         true if in flight
  * @param[out] q_sp              attitude setpoint as quaternion
  */
-void stabilization_attitude_read_rc_setpoint_quat_f(struct FloatQuat *q_sp, bool_t in_flight, bool_t in_carefree,
-    bool_t coordinated_turn)
+void stabilization_attitude_read_rc_setpoint_quat_f(struct FloatQuat *q_sp, bool in_flight, bool in_carefree,
+    bool coordinated_turn)
 {
 
   // FIXME: remove me, do in quaternion directly
@@ -398,8 +417,8 @@ void stabilization_attitude_read_rc_setpoint_quat_f(struct FloatQuat *q_sp, bool
 }
 
 //Function that reads the rc setpoint in an earth bound frame
-void stabilization_attitude_read_rc_setpoint_quat_earth_bound_f(struct FloatQuat *q_sp, bool_t in_flight,
-    bool_t in_carefree, bool_t coordinated_turn)
+void stabilization_attitude_read_rc_setpoint_quat_earth_bound_f(struct FloatQuat *q_sp, bool in_flight,
+    bool in_carefree, bool coordinated_turn)
 {
   // FIXME: remove me, do in quaternion directly
   // is currently still needed, since the yaw setpoint integration is done in eulers

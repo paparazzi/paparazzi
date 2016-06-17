@@ -15,7 +15,6 @@ float sim_psi;    ///< in radians
 float sim_p;      ///< in radians/s
 float sim_q;      ///< in radians/s
 float sim_r;      ///< in radians/s
-bool_t ahrs_sim_available;
 
 // Updates from Ocaml sim
 
@@ -25,8 +24,6 @@ value provide_attitude(value phi, value theta, value psi)
   sim_theta = Double_val(theta);
   sim_psi = - Double_val(psi) + M_PI / 2.;
 
-  ahrs_sim_available = TRUE;
-
   return Val_unit;
 }
 
@@ -35,8 +32,6 @@ value provide_rates(value p, value q, value r)
   sim_p = Double_val(p);
   sim_q = Double_val(q);
   sim_r = Double_val(r);
-
-  ahrs_sim_available = TRUE;
 
   return Val_unit;
 }

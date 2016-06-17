@@ -24,9 +24,8 @@ include $(CFG_SHARED)/imu_aspirin_i2c_common.makefile
 
 IMU_ASPIRIN_CFLAGS += -DIMU_ASPIRIN_VERSION_1_5
 
-# Keep CFLAGS/Srcs for imu in separate expression so we can assign it to other targets
-ap.CFLAGS += $(IMU_ASPIRIN_CFLAGS)
-ap.srcs   += $(IMU_ASPIRIN_SRCS)
-
-test_imu.CFLAGS += $(IMU_ASPIRIN_CFLAGS)
-test_imu.srcs   += $(IMU_ASPIRIN_SRCS)
+# add it for all targets except sim, fbw and nps
+ifeq (,$(findstring $(TARGET),sim fbw nps))
+$(TARGET).CFLAGS += $(IMU_ASPIRIN_CFLAGS)
+$(TARGET).srcs += $(IMU_ASPIRIN_SRCS)
+endif

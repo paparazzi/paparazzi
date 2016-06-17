@@ -14,7 +14,7 @@
   <header>
     <file name="nav_line.h"/>
   </header>
-  <makefile target="ap|sim|jsbsim|nps">
+  <makefile target="ap|sim|nps">
     <file name="nav_line.c"/>
   </makefile>
 </module>

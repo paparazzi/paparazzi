@@ -74,9 +74,6 @@
 
 
 struct ImuDrotek2 {
-  volatile bool_t gyro_valid;
-  volatile bool_t accel_valid;
-  volatile bool_t mag_valid;
   struct Mpu60x0_I2c mpu;
   struct Hmc58xx hmc;
 };
@@ -84,24 +81,8 @@ struct ImuDrotek2 {
 extern struct ImuDrotek2 imu_drotek2;
 
 extern void imu_drotek2_event(void);
-extern bool_t imu_drotek2_configure_mag_slave(Mpu60x0ConfigSet mpu_set, void *mpu);
+extern bool imu_drotek2_configure_mag_slave(Mpu60x0ConfigSet mpu_set, void *mpu);
 
-
-static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
-{
-  imu_drotek2_event();
-  if (imu_drotek2.gyro_valid) {
-    imu_drotek2.gyro_valid = FALSE;
-    _gyro_handler();
-  }
-  if (imu_drotek2.accel_valid) {
-    imu_drotek2.accel_valid = FALSE;
-    _accel_handler();
-  }
-  if (imu_drotek2.mag_valid) {
-    imu_drotek2.mag_valid = FALSE;
-    _mag_handler();
-  }
-}
+#define ImuEvent imu_drotek2_event
 
 #endif /* IMU_DROTEK_10DOF_V2_H */

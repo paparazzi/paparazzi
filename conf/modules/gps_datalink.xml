@@ -1,0 +1,39 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="gps_datalink">
+  <doc>
+    <description>
+      Remote GPS via datalink.
+      Parses the REMOTE_GPS and REMOTE_GPS_SMALL datalink messages and publishes it onboard via ABI.
+    </description>
+  </doc>
+  <autoload name="gps"/>
+  <autoload name="gps_nps"/>
+  <autoload name="gps_sim"/>
+  <header>
+    <file name="gps.h" dir="subsystems"/>
+  </header>
+  <init fun="gps_datalink_init()"/>
+  <periodic fun="gps_datalink_periodic_check()" freq="1." autorun="TRUE"/>
+  <datalink message="REMOTE_GPS" fun="gps_datalink_parse_REMOTE_GPS()"/>
+  <datalink message="REMOTE_GPS_SMALL" fun="gps_datalink_parse_REMOTE_GPS_SMALL()"/>
+  <makefile target="ap">
+    <file name="gps_datalink.c" dir="subsystems/gps"/>
+    <raw>
+      ifdef SECONDARY_GPS
+      ifneq (,$(findstring $(SECONDARY_GPS), datalink))
+      # this is the secondary GPS
+      ap.CFLAGS += -DGPS_SECONDARY_TYPE_H=\"subsystems/gps/gps_datalink.h\"
+      ap.CFLAGS += -DSECONDARY_GPS=GPS_DATALINK
+      else
+      ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_datalink.h\"
+      ap.CFLAGS += -DPRIMARY_GPS=GPS_DATALINK
+      endif
+      else
+      # plain old single GPS usage
+      ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_datalink.h\"
+      endif
+    </raw>
+  </makefile>
+</module>
+

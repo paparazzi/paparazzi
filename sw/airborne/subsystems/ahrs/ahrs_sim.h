@@ -32,11 +32,12 @@
 #include "subsystems/ahrs.h"
 #include "std.h"
 
-extern bool_t ahrs_sim_available;
-
 extern float ins_roll_neutral;
 extern float ins_pitch_neutral;
 
 extern void update_ahrs_from_sim(void);
+extern void ahrs_sim_register(void);
+
+#define PRIMARY_AHRS ahrs_sim
 
 #endif /* AHRS_SIM_H */

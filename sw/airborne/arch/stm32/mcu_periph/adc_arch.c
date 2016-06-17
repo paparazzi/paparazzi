@@ -147,7 +147,7 @@ PRINT_CONFIG_MSG("Analog to Digital Coverter 2 active")
 #if USE_AD3
 PRINT_CONFIG_MSG("Analog to Digital Coverter 3 active")
 #endif
-#if !USE_AD1 && !USE_AD2 && !USE_AD3
+#if !USE_AD1 && !USE_AD2 && !USE_AD3 && !defined FBW
 #warning ALL ADC CONVERTERS INACTIVE
 #endif
 
@@ -222,48 +222,49 @@ static struct {
 
 void adc_init(void)
 {
-
+#if USE_AD1 || USE_AD2 || USE_AD3
   uint8_t x = 0;
 
   // ADC channel mapping
   uint8_t adc_channel_map[4];
+#endif
 
   /* Init GPIO ports for ADC operation
    */
 #if USE_ADC_1
-  PRINT_CONFIG_MSG("Info: Using ADC_1");
+  PRINT_CONFIG_MSG("Info: Using ADC_1")
   gpio_setup_pin_analog(ADC_1_GPIO_PORT, ADC_1_GPIO_PIN);
 #endif
 #if USE_ADC_2
-  PRINT_CONFIG_MSG("Info: Using ADC_2");
+  PRINT_CONFIG_MSG("Info: Using ADC_2")
   gpio_setup_pin_analog(ADC_2_GPIO_PORT, ADC_2_GPIO_PIN);
 #endif
 #if USE_ADC_3
-  PRINT_CONFIG_MSG("Info: Using ADC_3");
+  PRINT_CONFIG_MSG("Info: Using ADC_3")
   gpio_setup_pin_analog(ADC_3_GPIO_PORT, ADC_3_GPIO_PIN);
 #endif
 #if USE_ADC_4
-  PRINT_CONFIG_MSG("Info: Using ADC_4");
+  PRINT_CONFIG_MSG("Info: Using ADC_4")
   gpio_setup_pin_analog(ADC_4_GPIO_PORT, ADC_4_GPIO_PIN);
 #endif
 #if USE_ADC_5
-  PRINT_CONFIG_MSG("Info: Using ADC_5");
+  PRINT_CONFIG_MSG("Info: Using ADC_5")
   gpio_setup_pin_analog(ADC_5_GPIO_PORT, ADC_5_GPIO_PIN);
 #endif
 #if USE_ADC_6
-  PRINT_CONFIG_MSG("Info: Using ADC_6");
+  PRINT_CONFIG_MSG("Info: Using ADC_6")
   gpio_setup_pin_analog(ADC_6_GPIO_PORT, ADC_6_GPIO_PIN);
 #endif
 #if USE_ADC_7
-  PRINT_CONFIG_MSG("Info: Using ADC_7");
+  PRINT_CONFIG_MSG("Info: Using ADC_7")
   gpio_setup_pin_analog(ADC_7_GPIO_PORT, ADC_7_GPIO_PIN);
 #endif
 #if USE_ADC_8
-  PRINT_CONFIG_MSG("Info: Using ADC_8");
+  PRINT_CONFIG_MSG("Info: Using ADC_8")
   gpio_setup_pin_analog(ADC_8_GPIO_PORT, ADC_8_GPIO_PIN);
 #endif
 #if USE_ADC_9
-  PRINT_CONFIG_MSG("Info: Using ADC_9");
+  PRINT_CONFIG_MSG("Info: Using ADC_9")
   gpio_setup_pin_analog(ADC_9_GPIO_PORT, ADC_9_GPIO_PIN);
 #endif
 
@@ -582,9 +583,11 @@ void adc1_2_isr(void)
 void adc_isr(void)
 #endif
 {
+#if USE_AD1 || USE_AD2 || USE_AD3
   uint8_t channel = 0;
   uint16_t value  = 0;
   struct adc_buf *buf;
+#endif
 
 #if USE_ADC_WATCHDOG
   /*
@@ -593,7 +596,7 @@ void adc_isr(void)
     at least 500 hz, but we inject adc value in sampling buffer only at 50hz
    */
   const uint32_t timeStampDiff = get_sys_time_msec() - adc_watchdog.timeStamp;
-  const bool_t shouldAccumulateValue = timeStampDiff > 20;
+  const bool shouldAccumulateValue = timeStampDiff > 20;
   if (shouldAccumulateValue) {
     adc_watchdog.timeStamp = get_sys_time_msec();
   }

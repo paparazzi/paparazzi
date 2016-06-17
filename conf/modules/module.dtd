@@ -1,22 +1,24 @@
 <!-- Paparazzi Modules DTD -->
 
-<!ELEMENT module (doc?,settings_file*,settings*,depends?,conflicts?,header,init*,periodic*,event*,datalink*,makefile*)>
-<!ELEMENT doc (description|define|configure|section)*>
+<!ELEMENT module (doc,settings_file*,settings*,depends?,conflicts?,autoload*,header?,init*,periodic*,event*,datalink*,makefile*)>
+<!ELEMENT doc (description,(define|configure|section)*)>
 <!ELEMENT settings_file (file*)>
 <!ELEMENT settings (dl_settings?)>
 <!ELEMENT depends (#PCDATA)>
 <!ELEMENT conflicts (#PCDATA)>
+<!ELEMENT autoload EMPTY>
 <!ELEMENT header (file*)>
 <!ELEMENT init EMPTY>
 <!ELEMENT periodic EMPTY>
 <!ELEMENT event (handler*)>
 <!ELEMENT handler EMPTY>
 <!ELEMENT datalink EMPTY>
-<!ELEMENT makefile (configure|define|flag|file|file_arch|raw)*>
+<!ELEMENT makefile (configure|define|include|flag|file|file_arch|raw)*>
 <!ELEMENT section (define|configure)*>
 <!ELEMENT description (#PCDATA)>
 <!ELEMENT configure EMPTY>
 <!ELEMENT define EMPTY>
+<!ELEMENT include EMPTY>
 <!ELEMENT flag EMPTY>
 <!ELEMENT file EMPTY>
 <!ELEMENT file_arch EMPTY>
@@ -29,6 +31,10 @@
 <!ATTLIST module
 name CDATA #REQUIRED
 dir CDATA #IMPLIED>
+
+<!ATTLIST autoload
+name CDATA #REQUIRED
+type CDATA #IMPLIED>
 
 <!ATTLIST header>
 
@@ -55,7 +61,8 @@ message CDATA #REQUIRED
 fun CDATA #REQUIRED>
 
 <!ATTLIST makefile
-target CDATA #IMPLIED>
+target CDATA #IMPLIED
+firmware CDATA #IMPLIED>
 
 <!ATTLIST section
 name CDATA #REQUIRED
@@ -63,7 +70,9 @@ prefix CDATA #IMPLIED>
 
 <!ATTLIST configure
 name CDATA #REQUIRED
-value CDATA #REQUIRED
+value CDATA #IMPLIED
+case CDATA #IMPLIED
+default CDATA #IMPLIED
 description CDATA #IMPLIED>
 
 <!ATTLIST define
@@ -72,6 +81,10 @@ value CDATA #IMPLIED
 unit CDATA #IMPLIED
 type CDATA #IMPLIED
 description CDATA #IMPLIED
+cond CDATA #IMPLIED>
+
+<!ATTLIST include
+name CDATA #REQUIRED
 cond CDATA #IMPLIED>
 
 <!ATTLIST flag
@@ -92,6 +105,7 @@ name CDATA #REQUIRED
 
 <!ATTLIST settings
 name CDATA #IMPLIED
+target CDATA #IMPLIED
 >
 
 <!ATTLIST dl_settings

@@ -60,11 +60,16 @@ struct Int32Quat stabilization_att_sum_err_quat;
 int32_t stabilization_att_fb_cmd[COMMANDS_NB];
 int32_t stabilization_att_ff_cmd[COMMANDS_NB];
 
-#define IERROR_SCALE 1024
+struct Int32Quat   stab_att_sp_quat;
+struct Int32Eulers stab_att_sp_euler;
+
+struct AttRefQuatInt att_ref_quat_i;
+
+#define IERROR_SCALE 128
 #define GAIN_PRESCALER_FF 48
-#define GAIN_PRESCALER_P 48
-#define GAIN_PRESCALER_D 48
-#define GAIN_PRESCALER_I 48
+#define GAIN_PRESCALER_P 12
+#define GAIN_PRESCALER_D 3
+#define GAIN_PRESCALER_I 3
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
@@ -95,29 +100,32 @@ static void send_att(struct transport_tx *trans, struct link_device *dev)   //FI
 
 static void send_att_ref(struct transport_tx *trans, struct link_device *dev)
 {
+  // ref eulers in message are with REF_ANGLE_FRAC, convert
+  struct Int32Eulers ref_euler;
+  INT32_EULERS_LSHIFT(ref_euler, att_ref_quat_i.euler, (REF_ANGLE_FRAC - INT32_ANGLE_FRAC));
   pprz_msg_send_STAB_ATTITUDE_REF_INT(trans, dev, AC_ID,
                                       &stab_att_sp_euler.phi,
                                       &stab_att_sp_euler.theta,
                                       &stab_att_sp_euler.psi,
-                                      &stab_att_ref_euler.phi,
-                                      &stab_att_ref_euler.theta,
-                                      &stab_att_ref_euler.psi,
-                                      &stab_att_ref_rate.p,
-                                      &stab_att_ref_rate.q,
-                                      &stab_att_ref_rate.r,
-                                      &stab_att_ref_accel.p,
-                                      &stab_att_ref_accel.q,
-                                      &stab_att_ref_accel.r);
+                                      &ref_euler.phi,
+                                      &ref_euler.theta,
+                                      &ref_euler.psi,
+                                      &att_ref_quat_i.rate.p,
+                                      &att_ref_quat_i.rate.q,
+                                      &att_ref_quat_i.rate.r,
+                                      &att_ref_quat_i.accel.p,
+                                      &att_ref_quat_i.accel.q,
+                                      &att_ref_quat_i.accel.r);
 }
 
 static void send_ahrs_ref_quat(struct transport_tx *trans, struct link_device *dev)
 {
   struct Int32Quat *quat = stateGetNedToBodyQuat_i();
   pprz_msg_send_AHRS_REF_QUAT(trans, dev, AC_ID,
-                              &stab_att_ref_quat.qi,
-                              &stab_att_ref_quat.qx,
-                              &stab_att_ref_quat.qy,
-                              &stab_att_ref_quat.qz,
+                              &att_ref_quat_i.quat.qi,
+                              &att_ref_quat_i.quat.qx,
+                              &att_ref_quat_i.quat.qy,
+                              &att_ref_quat_i.quat.qz,
                               &(quat->qi),
                               &(quat->qx),
                               &(quat->qy),
@@ -128,14 +136,14 @@ static void send_ahrs_ref_quat(struct transport_tx *trans, struct link_device *d
 void stabilization_attitude_init(void)
 {
 
-  stabilization_attitude_ref_init();
+  attitude_ref_quat_int_init(&att_ref_quat_i);
 
   int32_quat_identity(&stabilization_att_sum_err_quat);
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "STAB_ATTITUDE", send_att);
-  register_periodic_telemetry(DefaultPeriodic, "STAB_ATTITUDE_REF", send_att_ref);
-  register_periodic_telemetry(DefaultPeriodic, "AHRS_REF_QUAT", send_ahrs_ref_quat);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STAB_ATTITUDE_INT, send_att);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STAB_ATTITUDE_REF_INT, send_att_ref);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AHRS_REF_QUAT, send_ahrs_ref_quat);
 #endif
 }
 
@@ -145,7 +153,7 @@ void stabilization_attitude_enter(void)
   /* reset psi setpoint to current psi angle */
   stab_att_sp_euler.psi = stabilization_attitude_get_heading_i();
 
-  stabilization_attitude_ref_enter();
+  attitude_ref_quat_int_enter(&att_ref_quat_i, stab_att_sp_euler.psi);
 
   int32_quat_identity(&stabilization_att_sum_err_quat);
 
@@ -164,9 +172,9 @@ void stabilization_attitude_set_failsafe_setpoint(void)
 void stabilization_attitude_set_rpy_setpoint_i(struct Int32Eulers *rpy)
 {
   // stab_att_sp_euler.psi still used in ref..
-  memcpy(&stab_att_sp_euler, rpy, sizeof(struct Int32Eulers));
+  stab_att_sp_euler = *rpy;
 
-  quat_from_rpy_cmd_i(&stab_att_sp_quat, &stab_att_sp_euler);
+  int32_quat_of_eulers(&stab_att_sp_quat, &stab_att_sp_euler);
 }
 
 void stabilization_attitude_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading)
@@ -203,29 +211,32 @@ static void attitude_run_fb(int32_t fb_commands[], struct Int32AttitudeGains *ga
 {
   /*  PID feedback */
   fb_commands[COMMAND_ROLL] =
-    GAIN_PRESCALER_P * gains->p.x  * QUAT1_FLOAT_OF_BFP(att_err->qx) / 4 +
-    GAIN_PRESCALER_D * gains->d.x  * RATE_FLOAT_OF_BFP(rate_err->p) / 16 +
-    GAIN_PRESCALER_I * gains->i.x  * QUAT1_FLOAT_OF_BFP(sum_err->qx) / 2;
+    GAIN_PRESCALER_P * gains->p.x  * QUAT1_FLOAT_OF_BFP(att_err->qx) +
+    GAIN_PRESCALER_D * gains->d.x  * RATE_FLOAT_OF_BFP(rate_err->p) +
+    GAIN_PRESCALER_I * gains->i.x  * QUAT1_FLOAT_OF_BFP(sum_err->qx);
 
   fb_commands[COMMAND_PITCH] =
-    GAIN_PRESCALER_P * gains->p.y  * QUAT1_FLOAT_OF_BFP(att_err->qy) / 4 +
-    GAIN_PRESCALER_D * gains->d.y  * RATE_FLOAT_OF_BFP(rate_err->q)  / 16 +
-    GAIN_PRESCALER_I * gains->i.y  * QUAT1_FLOAT_OF_BFP(sum_err->qy) / 2;
+    GAIN_PRESCALER_P * gains->p.y  * QUAT1_FLOAT_OF_BFP(att_err->qy) +
+    GAIN_PRESCALER_D * gains->d.y  * RATE_FLOAT_OF_BFP(rate_err->q) +
+    GAIN_PRESCALER_I * gains->i.y  * QUAT1_FLOAT_OF_BFP(sum_err->qy);
 
   fb_commands[COMMAND_YAW] =
-    GAIN_PRESCALER_P * gains->p.z  * QUAT1_FLOAT_OF_BFP(att_err->qz) / 4 +
-    GAIN_PRESCALER_D * gains->d.z  * RATE_FLOAT_OF_BFP(rate_err->r)  / 16 +
-    GAIN_PRESCALER_I * gains->i.z  * QUAT1_FLOAT_OF_BFP(sum_err->qz) / 2;
+    GAIN_PRESCALER_P * gains->p.z  * QUAT1_FLOAT_OF_BFP(att_err->qz) +
+    GAIN_PRESCALER_D * gains->d.z  * RATE_FLOAT_OF_BFP(rate_err->r) +
+    GAIN_PRESCALER_I * gains->i.z  * QUAT1_FLOAT_OF_BFP(sum_err->qz);
 
 }
 
-void stabilization_attitude_run(bool_t enable_integrator)
+void stabilization_attitude_run(bool enable_integrator)
 {
 
   /*
    * Update reference
+   * Warning: dt is currently not used in the quat_int ref impl
+   * PERIODIC_FREQUENCY is assumed to be 512Hz
    */
-  stabilization_attitude_ref_update();
+  static const float dt = (1./PERIODIC_FREQUENCY);
+  attitude_ref_quat_int_update(&att_ref_quat_i, &stab_att_sp_quat, dt);
 
   /*
    * Compute errors for feedback
@@ -234,16 +245,16 @@ void stabilization_attitude_run(bool_t enable_integrator)
   /* attitude error                          */
   struct Int32Quat att_err;
   struct Int32Quat *att_quat = stateGetNedToBodyQuat_i();
-  INT32_QUAT_INV_COMP(att_err, *att_quat, stab_att_ref_quat);
+  INT32_QUAT_INV_COMP(att_err, *att_quat, att_ref_quat_i.quat);
   /* wrap it in the shortest direction       */
   int32_quat_wrap_shortest(&att_err);
   int32_quat_normalize(&att_err);
 
   /*  rate error                */
   const struct Int32Rates rate_ref_scaled = {
-    OFFSET_AND_ROUND(stab_att_ref_rate.p, (REF_RATE_FRAC - INT32_RATE_FRAC)),
-    OFFSET_AND_ROUND(stab_att_ref_rate.q, (REF_RATE_FRAC - INT32_RATE_FRAC)),
-    OFFSET_AND_ROUND(stab_att_ref_rate.r, (REF_RATE_FRAC - INT32_RATE_FRAC))
+    OFFSET_AND_ROUND(att_ref_quat_i.rate.p, (REF_RATE_FRAC - INT32_RATE_FRAC)),
+    OFFSET_AND_ROUND(att_ref_quat_i.rate.q, (REF_RATE_FRAC - INT32_RATE_FRAC)),
+    OFFSET_AND_ROUND(att_ref_quat_i.rate.r, (REF_RATE_FRAC - INT32_RATE_FRAC))
   };
   struct Int32Rates rate_err;
   struct Int32Rates *body_rate = stateGetBodyRates_i();
@@ -264,7 +275,7 @@ void stabilization_attitude_run(bool_t enable_integrator)
   }
 
   /* compute the feed forward command */
-  attitude_run_ff(stabilization_att_ff_cmd, &stabilization_gains, &stab_att_ref_accel);
+  attitude_run_ff(stabilization_att_ff_cmd, &stabilization_gains, &att_ref_quat_i.accel);
 
   /* compute the feed back command */
   attitude_run_fb(stabilization_att_fb_cmd, &stabilization_gains, &att_err, &rate_err, &stabilization_att_sum_err_quat);
@@ -280,7 +291,7 @@ void stabilization_attitude_run(bool_t enable_integrator)
   BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ);
 }
 
-void stabilization_attitude_read_rc(bool_t in_flight, bool_t in_carefree, bool_t coordinated_turn)
+void stabilization_attitude_read_rc(bool in_flight, bool in_carefree, bool coordinated_turn)
 {
   struct FloatQuat q_sp;
 #if USE_EARTH_BOUND_RC_SETPOINT

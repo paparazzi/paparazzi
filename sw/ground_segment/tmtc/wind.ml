@@ -50,7 +50,7 @@
 type id = string
 
 let (//) = Filename.concat
-let conf_xml = Xml.parse_file (Env.paparazzi_home // "conf" // "conf.xml")
+let conf_xml = ExtXml.parse_file (Env.paparazzi_home // "conf" // "conf.xml")
 
 open Geometry_2d
 
@@ -192,7 +192,7 @@ type wind_ac = {
 let h = Hashtbl.create 17
 
 let create_wind_ac max_nb_sample =
-  {speeds = Array.create max_nb_sample None ; wind_init = null_vector; index = 0; length = 0}
+  {speeds = Array.make max_nb_sample None ; wind_init = null_vector; index = 0; length = 0}
 
 let new_ac = fun id max_nb_sample ->
   Hashtbl.add h id (create_wind_ac max_nb_sample)

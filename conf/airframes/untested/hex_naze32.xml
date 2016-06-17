@@ -1,0 +1,189 @@
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+
+<!-- this is a test file for the Abusemark Naze32 rev5 board:
+     * Autopilot:   Abusemark Naze32       https://code.google.com/p/afrodevices/wiki/AfroFlight32
+     * Actuators:   PWM motor controllers  http://wiki.paparazziuav.org/wiki/Subsystem/actuators#PWM
+     * RC:          PPM input              http://wiki.paparazziuav.org/wiki/Subsystem/radio_control#PPM
+
+     hex copter configuration (USE_SERVOS_5AND6) moves the PPM input from "1" to "6" on RC input
+     pwm motor connectors are in "standard mode" M1-M6 on the servo headers
+-->
+
+<airframe name="Hexcopter Naze32">
+
+  <firmware name="rotorcraft">
+    <!-- configure PPM input to PA7 instead of PA0 to have all 6 servos -->
+    <configure name="RADIO_CONTROL_PPM_PIN" value="PA7"/>
+    <define name="PPRZ_TRIG_INT_COMPR_FLASH"/>
+    <define name="PPRZ_TRIG_INT_COMPR_HIGHEST"/>
+    <target name="ap" board="naze32_rev5">
+    </target>
+
+    <module name="radio_control" type="ppm"/>
+
+    <module name="motor_mixing"/>
+    <module name="actuators"     type="pwm">
+      <define name="SERVO_HZ" value="400"/>
+    </module>
+
+    <module name="telemetry"     type="transparent"/>
+    <module name="imu"           type="mpu60x0_i2c">
+      <configure name="IMU_MPU60X0_I2C_DEV" value="i2c2"/>
+      <configure name="USE_MAGNETOMETER" value="FALSE"/>
+    </module>
+    <module name="stabilization" type="int_quat"/>
+    <module name="ahrs"          type="int_cmpl_quat">
+      <define name="AHRS_GRAVITY_HEURISTIC_FACTOR" value="30"/>
+    </module>
+    <module name="ins"/>
+    <module name="gps"           type="ublox"/>
+  </firmware>
+
+  <firmware name="test_progs">
+    <target name="test_sys_time_timer" board="naze32_rev5"/>
+    <target name="test_sys_time_usleep" board="naze32_rev5"/>
+    <target name="test_telemetry" board="naze32_rev5"/>
+    <target name="test_math_trig_lut" board="naze32_rev5"/>
+    <target name="test_imu" board="naze32_rev5">
+      <module name="imu" type="mpu6000"/>
+    </target>
+    <target name="test_ahrs" board="naze32_rev5">
+      <module name="imu" type="mpu6000"/>
+      <module name="ahrs" type="int_cmpl_quat"/>
+      <configure name="USE_MAGNETOMETER" value="FALSE"/>
+    </target>
+  </firmware>
+
+  <modules>
+    <module name="mag" type="hmc58xx">
+      <define name="MODULE_HMC58XX_UPDATE_AHRS"/>
+      <configure name="MAG_HMC58XX_I2C_DEV" value="i2c2"/>
+    </module>
+    <module name="gps" type="ubx_ucenter"/>
+  </modules>
+
+  <servos driver="Pwm">
+    <!-- Naze32 Hexa-X standard -->
+    <servo name="BACK_RIGHT"   no="0" min="1000" neutral="1100" max="1900"/>
+    <servo name="FRONT_RIGHT"  no="1" min="1000" neutral="1100" max="1900"/>
+    <servo name="BACK_LEFT"    no="2" min="1000" neutral="1100" max="1900"/>
+    <servo name="FRONT_LEFT"   no="3" min="1000" neutral="1100" max="1900"/>
+    <servo name="CENTER_RIGHT" no="4" min="1000" neutral="1100" max="1900"/>
+    <servo name="CENTER_LEFT"  no="5" min="1000" neutral="1100" max="1900"/>
+  </servos>
+
+  <commands>
+    <axis name="ROLL"   failsafe_value="0"/>
+    <axis name="PITCH"  failsafe_value="0"/>
+    <axis name="YAW"    failsafe_value="0"/>
+    <axis name="THRUST" failsafe_value="0"/>
+  </commands>
+
+  <section name="MIXING" prefix="MOTOR_MIXING_">
+    <define name="TRIM_ROLL" value="0"/>
+    <define name="TRIM_PITCH" value="0"/>
+    <define name="TRIM_YAW" value="0"/>
+    <define name="NB_MOTOR" value="6"/>
+    <define name="SCALE" value="256"/>
+    <!-- https://github.com/gearwolf-OP/Mini-Hexacopter >
+    <    Naze32 Hexa-X standard        BR_CC FR_CC  BL_C  FL_C  CR_C CL_CC  -->
+    <define name="ROLL_COEF"   value="{ 106,  150, -106, -150,  256, -256}"/>
+    <define name="PITCH_COEF"  value="{-256,  256, -256,  256,    0,    0}"/>
+    <define name="YAW_COEF"    value="{ 199,  192, -199, -192, -256,  256}"/>
+    <define name="THRUST_COEF" value="{ 256,  256,  256,  256,  256,  256}"/>
+  </section>
+
+  <command_laws>
+    <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
+    <set servo="BACK_RIGHT"   value="motor_mixing.commands[0]"/>
+    <set servo="FRONT_RIGHT"  value="motor_mixing.commands[1]"/>
+    <set servo="BACK_LEFT"    value="motor_mixing.commands[2]"/>
+    <set servo="FRONT_LEFT"   value="motor_mixing.commands[3]"/>
+    <set servo="CENTER_RIGHT" value="motor_mixing.commands[4]"/>
+    <set servo="CENTER_LEFT"  value="motor_mixing.commands[5]"/>
+  </command_laws>
+
+  <section name="IMU" prefix="IMU_">
+    <define name="BODY_TO_IMU_PHI"   value="180." unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
+  </section>
+
+
+
+  <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
+    <!-- setpoints -->
+    <define name="SP_MAX_PHI"     value="45." unit="deg"/>
+    <define name="SP_MAX_THETA"   value="45." unit="deg"/>
+    <define name="SP_MAX_R"       value="90." unit="deg/s"/>
+    <define name="DEADBAND_A"     value="0"/>
+    <define name="DEADBAND_E"     value="0"/>
+    <define name="DEADBAND_R"     value="250"/>
+
+    <!-- reference -->
+    <define name="REF_OMEGA_P"  value="400" unit="deg/s"/>
+    <define name="REF_ZETA_P"   value="0.85"/>
+    <define name="REF_MAX_P"    value="400." unit="deg/s"/>
+    <define name="REF_MAX_PDOT" value="RadOfDeg(8000.)"/>
+
+    <define name="REF_OMEGA_Q"  value="400" unit="deg/s"/>
+    <define name="REF_ZETA_Q"   value="0.85"/>
+    <define name="REF_MAX_Q"    value="400." unit="deg/s"/>
+    <define name="REF_MAX_QDOT" value="RadOfDeg(8000.)"/>
+
+    <define name="REF_OMEGA_R"  value="250" unit="deg/s"/>
+    <define name="REF_ZETA_R"   value="0.85"/>
+    <define name="REF_MAX_R"    value="180." unit="deg/s"/>
+    <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
+
+    <!-- feedback -->
+    <define name="PHI_PGAIN"  value="1000"/>
+    <define name="PHI_DGAIN"  value="400"/>
+    <define name="PHI_IGAIN"  value="200"/>
+
+    <define name="THETA_PGAIN"  value="1000"/>
+    <define name="THETA_DGAIN"  value="400"/>
+    <define name="THETA_IGAIN"  value="200"/>
+
+    <define name="PSI_PGAIN"  value="500"/>
+    <define name="PSI_DGAIN"  value="300"/>
+    <define name="PSI_IGAIN"  value="10"/>
+
+    <!-- feedforward -->
+    <define name="PHI_DDGAIN"   value="300"/>
+    <define name="THETA_DDGAIN" value="300"/>
+    <define name="PSI_DDGAIN"   value="300"/>
+  </section>
+
+  <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
+    <define name="HOVER_KP"    value="150"/>
+    <define name="HOVER_KD"    value="80"/>
+    <define name="HOVER_KI"    value="20"/>
+    <define name="NOMINAL_HOVER_THROTTLE" value="0.5"/>
+    <define name="ADAPT_THROTTLE_ENABLED" value="TRUE"/>
+  </section>
+
+  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
+    <define name="MAX_BANK" value="20" unit="deg"/>
+    <define name="USE_SPEED_REF" value="TRUE"/>
+    <define name="PGAIN" value="50"/>
+    <define name="DGAIN" value="100"/>
+    <define name="AGAIN" value="70"/>
+    <define name="IGAIN" value="20"/>
+  </section>
+
+  <section name="AUTOPILOT">
+    <define name="MODE_MANUAL" value="AP_MODE_RATE_DIRECT"/>
+    <define name="MODE_AUTO1"  value="AP_MODE_ATTITUDE_DIRECT"/>
+    <define name="MODE_AUTO2"  value="AP_MODE_HOVER_Z_HOLD"/>
+  </section>
+
+  <section name="BAT">
+    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="9.6" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="10.1" unit="V"/>
+    <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
+    <define name="MILLIAMP_AT_FULL_THROTTLE" value="30000"/>
+  </section>
+
+</airframe>

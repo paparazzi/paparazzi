@@ -17,12 +17,13 @@
   <periodic fun="imu_mpu9250_report()" freq="10" autorun="TRUE"/>
   <event fun="imu_mpu9250_event()"/>
   <makefile>
+    <configure name="IMU_MPU9250_I2C_DEV" default="i2c1" case="upper|lower"/>
+    <define name="USE_$(IMU_MPU9250_I2C_DEV_UPPER)"/>
+    <define name="IMU_MPU9250_I2C_DEV" value="$(IMU_MPU9250_I2C_DEV_LOWER)"/>
     <file name="imu_mpu9250.c"/>
     <file name="mpu9250.c" dir="peripherals"/>
     <file name="mpu9250_i2c.c" dir="peripherals"/>
     <file name="ak8963.c" dir="peripherals"/>
-    <define name="USE_I2C"/>
-    <define name="IMU_MPU9250_I2C_DEV" value="$(IMU_MPU9250_I2C_DEV)"/>
   </makefile>
 </module>
 

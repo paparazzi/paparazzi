@@ -30,6 +30,7 @@
 #include "firmwares/fixedwing/nav.h"
 #include "generated/airframe.h"
 #include "firmwares/fixedwing/autopilot.h"
+#include "firmwares/fixedwing/stabilization/stabilization_attitude.h" //> allow for roll control during landing final flare
 
 /* mode */
 uint8_t v_ctl_mode;
@@ -118,11 +119,74 @@ float v_ctl_auto_groundspeed_sum_err;
 #define V_CTL_ALTITUDE_PRE_CLIMB_CORRECTION 1.0f
 #endif
 
+#if CTRL_VERTICAL_LANDING
+#ifndef V_CTL_LANDING_THROTTLE_PGAIN
+#error "V_CTL_LANDING_THROTTLE_PGAIN undefined, please define it in your airfame config file"
+#endif
+#ifndef V_CTL_LANDING_THROTTLE_IGAIN
+#error "V_CTL_LANDING_THROTTLE_IGAIN undefined, please define it in your airfame config file"
+#endif
+#ifndef V_CTL_LANDING_THROTTLE_MAX
+INFO("V_CTL_LANDING_THROTTLE_MAX undefined, using V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE instead")
+#define V_CTL_LANDING_THROTTLE_MAX V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE
+#endif
+#ifndef V_CTL_LANDING_DESIRED_SPEED
+#error "V_CTL_LANDING_DESIRED_SPEED undefined, please define it in your airfame config file"
+#endif
+
+
+#ifndef V_CTL_LANDING_PITCH_PGAIN
+INFO("V_CTL_LANDING_PITCH_PGAIN undefined, using V_CTL_AUTO_PITCH_PGAIN instead")
+#define V_CTL_LANDING_PITCH_PGAIN V_CTL_AUTO_PITCH_PGAIN
+#endif
+#ifndef V_CTL_LANDING_PITCH_IGAIN
+INFO("V_CTL_LANDING_PITCH_IGAIN undefined, using V_CTL_AUTO_PITCH_IGAIN instead")
+#define V_CTL_LANDING_PITCH_IGAIN V_CTL_AUTO_PITCH_IGAIN
+#endif
+#ifndef V_CTL_LANDING_PITCH_LIMITS
+INFO("V_CTL_LANDING_PITCH_LIMITS undefined, using V_CTL_AUTO_PITCH_MAX_PITCH instead")
+#define V_CTL_LANDING_PITCH_LIMITS V_CTL_AUTO_PITCH_MAX_PITCH
+#endif
+#ifndef V_CTL_LANDING_PITCH_FLARE
+#error "V_CTL_LANDING_PITCH_FLARE undefined, please define it in your airfame config file"
+#endif
+#ifndef V_CTL_LANDING_ALT_THROTTLE_KILL
+#error "V_CTL_LANDING_ALT_THROTTLE_KILL undefined, please define it in your airfame config file"
+#endif
+#ifndef V_CTL_LANDING_ALT_FLARE
+#error "V_CTL_LANDING_ALT_FLARE undefined, please define it in your airfame config file"
+#endif
+
+float v_ctl_landing_throttle_pgain;
+float v_ctl_landing_throttle_igain;
+float v_ctl_landing_throttle_max;
+float v_ctl_landing_desired_speed;
+float v_ctl_landing_pitch_pgain;
+float v_ctl_landing_pitch_igain;
+float v_ctl_landing_pitch_limits;
+float v_ctl_landing_pitch_flare;
+float v_ctl_landing_alt_throttle_kill; //> must be greater than alt_flare
+float v_ctl_landing_alt_flare;
+#endif /* CTRL_VERTICAL_LANDING */
 
 void v_ctl_init(void)
 {
   /* mode */
   v_ctl_mode = V_CTL_MODE_MANUAL;
+
+#if CTRL_VERTICAL_LANDING
+  /* improved landing routine */
+  v_ctl_landing_throttle_pgain = V_CTL_LANDING_THROTTLE_PGAIN;
+  v_ctl_landing_throttle_igain = V_CTL_LANDING_THROTTLE_IGAIN;
+  v_ctl_landing_throttle_max = V_CTL_LANDING_THROTTLE_MAX;
+  v_ctl_landing_desired_speed = V_CTL_LANDING_DESIRED_SPEED;
+  v_ctl_landing_pitch_pgain = V_CTL_LANDING_PITCH_PGAIN;
+  v_ctl_landing_pitch_igain = V_CTL_LANDING_PITCH_IGAIN;
+  v_ctl_landing_pitch_limits = V_CTL_LANDING_PITCH_LIMITS;
+  v_ctl_landing_pitch_flare = V_CTL_LANDING_PITCH_FLARE;
+  v_ctl_landing_alt_throttle_kill = V_CTL_LANDING_ALT_THROTTLE_KILL;
+  v_ctl_landing_alt_flare = V_CTL_LANDING_ALT_FLARE;
+#endif /* CTRL_VERTICAL_LANDING */
 
   /* outer loop */
   v_ctl_altitude_setpoint = 0.;
@@ -251,6 +315,51 @@ void v_ctl_climb_loop(void)
   }
 }
 
+void v_ctl_landing_loop(void)
+{
+#if CTRL_VERTICAL_LANDING
+  static float land_speed_i_err;
+  static float land_alt_i_err;
+  static float kill_alt;
+  float land_speed_err = v_ctl_landing_desired_speed - stateGetHorizontalSpeedNorm_f();
+  float land_alt_err = v_ctl_altitude_setpoint - stateGetPositionUtm_f()->alt;
+
+  if (kill_throttle
+      && (kill_alt - v_ctl_altitude_setpoint)
+          > (v_ctl_landing_alt_throttle_kill - v_ctl_landing_alt_flare)) {
+    v_ctl_throttle_setpoint = 0.0;  // Throttle is already in KILL (command redundancy)
+    nav_pitch = v_ctl_landing_pitch_flare;  // desired final flare pitch
+    lateral_mode = LATERAL_MODE_ROLL;  //override course correction during flare - eliminate possibility of catching wing tip due to course correction
+    h_ctl_roll_setpoint = 0.0;  // command zero roll during flare
+  } else {
+    // set throttle based on altitude error
+    v_ctl_throttle_setpoint = land_alt_err * v_ctl_landing_throttle_pgain
+        + land_alt_i_err * v_ctl_landing_throttle_igain;
+    Bound(v_ctl_throttle_setpoint, 0, v_ctl_landing_throttle_max * MAX_PPRZ);  // cut off throttle cmd at specified MAX
+
+    land_alt_i_err += land_alt_err / CONTROL_FREQUENCY;  // integrator land_alt_err, divide by control frequency
+    BoundAbs(land_alt_i_err, 50);  // integrator sat limits
+
+    // set pitch based on ground speed error
+    nav_pitch -= land_speed_err * v_ctl_landing_pitch_pgain / 1000
+        + land_speed_i_err * v_ctl_landing_pitch_igain / 1000;  // 1000 is a multiplier to get more reasonable gains for ctl_basic
+    Bound(nav_pitch, -v_ctl_landing_pitch_limits, v_ctl_landing_pitch_limits);  //max pitch authority for landing
+
+    land_speed_i_err += land_speed_err / CONTROL_FREQUENCY;  // integrator land_speed_err, divide by control frequency
+    BoundAbs(land_speed_i_err, .2);  // integrator sat limits
+
+    // update kill_alt until final kill throttle is initiated - allows for mode switch to first part of if statement above
+    // eliminates the need for knowing the altitude of TD
+    if (!kill_throttle) {
+      kill_alt = v_ctl_altitude_setpoint;  //
+      if (land_alt_err > 0.0) {
+        nav_pitch = 0.01;  //  if below desired alt close to ground command level pitch
+      }
+    }
+  }
+#endif /* CTRL_VERTICAL_LANDING */
+}
+
 /**
  * auto throttle inner loop
  * \brief
@@ -344,7 +453,7 @@ inline static void v_ctl_climb_auto_throttle_loop(void)
                       (err + v_ctl_auto_pitch_igain * v_ctl_auto_pitch_sum_err);
 
   // Ground speed control loop (input: groundspeed error, output: airspeed controlled)
-  float err_groundspeed = (v_ctl_auto_groundspeed_setpoint - *stateGetHorizontalSpeedNorm_f());
+  float err_groundspeed = (v_ctl_auto_groundspeed_setpoint - stateGetHorizontalSpeedNorm_f());
   v_ctl_auto_groundspeed_sum_err += err_groundspeed;
   BoundAbs(v_ctl_auto_groundspeed_sum_err, V_CTL_AUTO_GROUNDSPEED_MAX_SUM_ERR);
   v_ctl_auto_airspeed_controlled = (err_groundspeed + v_ctl_auto_groundspeed_sum_err * v_ctl_auto_groundspeed_igain) *
@@ -358,7 +467,7 @@ inline static void v_ctl_climb_auto_throttle_loop(void)
   }
 
   // Airspeed control loop (input: airspeed controlled, output: throttle controlled)
-  float err_airspeed = (v_ctl_auto_airspeed_controlled - *stateGetAirspeed_f());
+  float err_airspeed = (v_ctl_auto_airspeed_controlled - stateGetAirspeed_f());
   v_ctl_auto_airspeed_sum_err += err_airspeed;
   BoundAbs(v_ctl_auto_airspeed_sum_err, V_CTL_AUTO_AIRSPEED_MAX_SUM_ERR);
   controlled_throttle = (err_airspeed + v_ctl_auto_airspeed_sum_err * v_ctl_auto_airspeed_igain) *

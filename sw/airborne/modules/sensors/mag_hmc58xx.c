@@ -27,12 +27,8 @@
 
 #include "modules/sensors/mag_hmc58xx.h"
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
-
-#if MODULE_HMC58XX_UPDATE_AHRS
-#include "subsystems/imu.h"
-#include "subsystems/ahrs.h"
 
 #ifndef HMC58XX_CHAN_X
 #define HMC58XX_CHAN_X 0
@@ -43,7 +39,19 @@
 #ifndef HMC58XX_CHAN_Z
 #define HMC58XX_CHAN_Z 2
 #endif
+#ifndef HMC58XX_CHAN_X_SIGN
+#define HMC58XX_CHAN_X_SIGN +
+#endif
+#ifndef HMC58XX_CHAN_Y_SIGN
+#define HMC58XX_CHAN_Y_SIGN +
+#endif
+#ifndef HMC58XX_CHAN_Z_SIGN
+#define HMC58XX_CHAN_Z_SIGN +
+#endif
 
+#if MODULE_HMC58XX_UPDATE_AHRS
+#include "subsystems/imu.h"
+#include "subsystems/abi.h"
 #endif
 
 struct Hmc58xx mag_hmc58xx;
@@ -60,58 +68,41 @@ void mag_hmc58xx_module_periodic(void)
 
 void mag_hmc58xx_module_event(void)
 {
-#if USE_AUTO_AHRS_FREQ || !defined(AHRS_MAG_CORRECT_FREQUENCY)
-  PRINT_CONFIG_MSG("Calculating dt for AHRS mag update.")
-  // timestamp in usec when last callback was received
-  static uint32_t last_ts = 0;
-#else
-  PRINT_CONFIG_MSG("Using fixed AHRS_MAG_CORRECT_FREQUENCY for AHRS mag update.")
-  PRINT_CONFIG_VAR(AHRS_MAG_CORRECT_FREQUENCY)
-  const float dt = 1. / (AHRS_MAG_CORRECT_FREQUENCY);
-#endif
-
   hmc58xx_event(&mag_hmc58xx);
 
-#if MODULE_HMC58XX_UPDATE_AHRS
   if (mag_hmc58xx.data_available) {
+#if MODULE_HMC58XX_UPDATE_AHRS
+    // current timestamp
+    uint32_t now_ts = get_sys_time_usec();
+
     // set channel order
     struct Int32Vect3 mag = {
-      (int32_t)(mag_hmc58xx.data.value[HMC58XX_CHAN_X]),
-      (int32_t)(mag_hmc58xx.data.value[HMC58XX_CHAN_Y]),
-      (int32_t)(mag_hmc58xx.data.value[HMC58XX_CHAN_Z])
+      HMC58XX_CHAN_X_SIGN(int32_t)(mag_hmc58xx.data.value[HMC58XX_CHAN_X]),
+      HMC58XX_CHAN_Y_SIGN(int32_t)(mag_hmc58xx.data.value[HMC58XX_CHAN_Y]),
+      HMC58XX_CHAN_Z_SIGN(int32_t)(mag_hmc58xx.data.value[HMC58XX_CHAN_Z])
     };
     // unscaled vector
     VECT3_COPY(imu.mag_unscaled, mag);
     // scale vector
     imu_scale_mag(&imu);
-    // update ahrs
-    if (ahrs.status == AHRS_RUNNING) {
-#if USE_AUTO_AHRS_FREQ || !defined(AHRS_MAG_CORRECT_FREQUENCY)
-      // current timestamp
-      uint32_t now_ts = get_sys_time_usec();
-      // dt between this and last callback in seconds
-      float dt = (float)(now_ts - last_ts) / 1e6;
-      last_ts = now_ts;
-#endif
-      ahrs_update_mag(dt);
-    }
-    mag_hmc58xx.data_available = FALSE;
-  }
+
+    AbiSendMsgIMU_MAG_INT32(MAG_HMC58XX_SENDER_ID, now_ts, &imu.mag);
 #endif
 #if MODULE_HMC58XX_SYNC_SEND
-  if (mag_hmc58xx.data_available) {
     mag_hmc58xx_report();
-    mag_hmc58xx.data_available = FALSE;
-  }
 #endif
+#if MODULE_HMC58XX_UPDATE_AHRS ||  MODULE_HMC58XX_SYNC_SEND
+    mag_hmc58xx.data_available = false;
+#endif
+  }
 }
 
 void mag_hmc58xx_report(void)
 {
   struct Int32Vect3 mag = {
-    (int32_t)(mag_hmc58xx.data.vect.x),
-    (int32_t)(mag_hmc58xx.data.vect.y),
-    (int32_t)(mag_hmc58xx.data.vect.z)
+    HMC58XX_CHAN_X_SIGN(int32_t)(mag_hmc58xx.data.value[HMC58XX_CHAN_X]),
+    HMC58XX_CHAN_Y_SIGN(int32_t)(mag_hmc58xx.data.value[HMC58XX_CHAN_Y]),
+    HMC58XX_CHAN_Z_SIGN(int32_t)(mag_hmc58xx.data.value[HMC58XX_CHAN_Z])
   };
   DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice, &mag.x, &mag.y, &mag.z);
 }

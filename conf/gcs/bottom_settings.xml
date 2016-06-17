@@ -1,0 +1,72 @@
+<!DOCTYPE layout SYSTEM "layout.dtd">
+
+<layout width="1855" height="932">
+  <rows>
+    <columns SIZE="400">
+      <rows SIZE="300">
+        <widget NAME="strips" size="242"/>
+        <widget NAME="alarms" size="73"/>
+        <widget NAME="plugin" size="73"/>
+      </rows>
+      <widget NAME="map2d" size="1547">
+        <papget type="message_field" display="text" x="322" y="36">
+          <property name="scale" value="1."/>
+          <property name="field" value="TEMP_ADC:temp1"/>
+          <property name="ac_id" value="6"/>
+          <property name="format" value="Mot %.1f °C"/>
+          <property name="size" value="15."/>
+          <property name="color" value="#00ff00"/>
+        </papget>
+        <papget type="message_field" display="text" x="322" y="9">
+          <property name="scale" value="1."/>
+          <property name="field" value="ENERGY:amp"/>
+          <property name="ac_id" value="6"/>
+          <property name="format" value="Mot %.2f A"/>
+          <property name="size" value="15."/>
+          <property name="color" value="#00ff00"/>
+        </papget>
+        <papget type="message_field" display="text" x="322" y="63">
+          <property name="scale" value="1."/>
+          <property name="field" value="MOTOR:rpm"/>
+          <property name="ac_id" value="6"/>
+          <property name="format" value="RPM %.0f"/>
+          <property name="size" value="15."/>
+          <property name="color" value="#00ff00"/>
+        </papget>
+        <papget type="message_field" display="text" x="489" y="8">
+          <property name="scale" value="0.1"/>
+          <property name="field" value="FBW_STATUS:vsupply"/>
+          <property name="ac_id" value="6"/>
+          <property name="format" value="FTD %.1f V"/>
+          <property name="size" value="15."/>
+          <property name="color" value="#00ff00"/>
+        </papget>
+        <papget type="message_field" display="text" x="164" y="37">
+          <property name="scale" value="1."/>
+          <property name="field" value="TEMP_ADC:temp2"/>
+          <property name="ac_id" value="6"/>
+          <property name="format" value="Bat %.1f °C"/>
+          <property name="size" value="15."/>
+          <property name="color" value="#00ff00"/>
+        </papget>
+        <papget type="message_field" display="text" x="488" y="32">
+          <property name="scale" value="1."/>
+          <property name="field" value="FBW_STATUS:frame_rate"/>
+          <property name="ac_id" value="6"/>
+          <property name="format" value="RC %.1f Hz"/>
+          <property name="size" value="15."/>
+          <property name="color" value="#00ff00"/>
+        </papget>
+        <papget type="message_field" display="text" x="164" y="9">
+          <property name="scale" value="0.1"/>
+          <property name="field" value="ROTORCRAFT_STATUS:vsupply"/>
+          <property name="ac_id" value="6"/>
+          <property name="format" value="Bat %.1f V"/>
+          <property name="size" value="15."/>
+          <property name="color" value="#00ff00"/>
+        </papget>
+      </widget>
+    </columns>
+    <widget NAME="aircraft" size="524"/>
+  </rows>
+</layout>

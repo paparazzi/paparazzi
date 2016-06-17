@@ -27,37 +27,50 @@
  *
  */
 
-#ifndef STABILIZATION_ATTITUDE_FLOAT_REF_QUAT_FLOAT_H
-#define STABILIZATION_ATTITUDE_FLOAT_REF_QUAT_FLOAT_H
+#ifndef STABILIZATION_ATTITUDE_REF_QUAT_FLOAT_H
+#define STABILIZATION_ATTITUDE_REF_QUAT_FLOAT_H
 
-#include "stabilization_attitude_ref_float.h"
+#include "generated/airframe.h"
+#include "math/pprz_algebra_float.h"
+#include "attitude_ref_saturate_naive.h"
 
 #ifndef STABILIZATION_ATTITUDE_GAIN_NB
 #define STABILIZATION_ATTITUDE_GAIN_NB 1
 #endif
 
-#ifndef STABILIZATION_ATTITUDE_GAIN_IDX_DEFAULT
-#define STABILIZATION_ATTITUDE_GAIN_IDX_DEFAULT 0
-#endif
+/** Attitude reference model parameters (float) */
+struct FloatRefModel {
+  struct FloatRates omega;
+  struct FloatRates zeta;
+  /// cached value of 2*omega*omega
+  struct FloatRates two_omega2;
+};
 
-void stabilization_attitude_ref_enter(void);
-void stabilization_attitude_ref_schedule(uint8_t idx);
+/** Attitude reference models and state/output (float) */
+struct AttRefQuatFloat {
+  struct FloatEulers euler;
+  struct FloatQuat   quat;
+  struct FloatRates  rate;
+  struct FloatRates  accel;
+  uint8_t cur_idx;
+  struct FloatRefModel  model[STABILIZATION_ATTITUDE_GAIN_NB];
+  struct FloatRefSat saturation;
+};
 
-extern void stabilization_attitude_ref_idx_set_omega_p(uint8_t idx, float omega);
-extern void stabilization_attitude_ref_idx_set_omega_q(uint8_t idx, float omega);
-extern void stabilization_attitude_ref_idx_set_omega_r(uint8_t idx, float omega);
-extern void stabilization_attitude_ref_set_omega_p(float omega);
-extern void stabilization_attitude_ref_set_omega_q(float omega);
-extern void stabilization_attitude_ref_set_omega_r(float omega);
 
-#define stabilization_attitude_ref_quat_float_SetOmegaP(_val) { \
-    stabilization_attitude_ref_set_omega_p(_val);               \
-  }
-#define stabilization_attitude_ref_quat_float_SetOmegaQ(_val) { \
-    stabilization_attitude_ref_set_omega_q(_val);               \
-  }
-#define stabilization_attitude_ref_quat_float_SetOmegaR(_val) { \
-    stabilization_attitude_ref_set_omega_r(_val);               \
-  }
+extern void attitude_ref_quat_float_init(struct AttRefQuatFloat *ref);
+extern void attitude_ref_quat_float_enter(struct AttRefQuatFloat *ref, float psi);
+extern void attitude_ref_quat_float_update(struct AttRefQuatFloat *ref, struct FloatQuat *sp_quat, float dt);
 
-#endif /* STABILIZATION_ATTITUDE_FLOAT_REF_QUAT_FLOAT_H */
+
+extern void attitude_ref_quat_float_schedule(struct AttRefQuatFloat *ref, uint8_t idx);
+
+extern void attitude_ref_quat_float_idx_set_omega_p(struct AttRefQuatFloat *ref, uint8_t idx, float omega);
+extern void attitude_ref_quat_float_idx_set_omega_q(struct AttRefQuatFloat *ref, uint8_t idx, float omega);
+extern void attitude_ref_quat_float_idx_set_omega_r(struct AttRefQuatFloat *ref, uint8_t idx, float omega);
+extern void attitude_ref_quat_float_set_omega_p(struct AttRefQuatFloat *ref, float omega);
+extern void attitude_ref_quat_float_set_omega_q(struct AttRefQuatFloat *ref, float omega);
+extern void attitude_ref_quat_float_set_omega_r(struct AttRefQuatFloat *ref, float omega);
+
+
+#endif /* STABILIZATION_ATTITUDE_REF_QUAT_FLOAT_H */

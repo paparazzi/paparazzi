@@ -20,6 +20,8 @@
  *
  */
 
+#define DATALINK_C
+
 #include BOARD_CONFIG
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
@@ -103,5 +105,5 @@ static inline void main_periodic_task(void)
 
 static inline void main_event_task(void)
 {
-
+  mcu_event();
 }

@@ -26,6 +26,9 @@ module G = MapCanvas
 open Printf
 open Latlong
 
+
+let locale = GtkMain.Main.init ~setlocale:false ()
+
 let soi = string_of_int
 
 let home = Env.paparazzi_home
@@ -339,6 +342,7 @@ and wid = ref None
 and srtm = ref false
 and hide_fp = ref false
 and timestamp = ref false
+and confirm_kill = ref true
 
 let options =
   [
@@ -373,6 +377,8 @@ let options =
     "-zoom", Arg.Set_float zoom, "Initial zoom";
     "-auto_hide_fp", Arg.Unit (fun () -> Live.auto_hide_fp true; hide_fp := true), "Automatically hide flight plans of unselected aircraft";
     "-timestamp", Arg.Set timestamp, "Bind on timestampped telemetry messages";
+    "-ac_ids", Arg.String (fun s -> Live.filter_ac_ids s), "comma separated list of AC IDs to show in GCS";
+    "-no_confirm_kill", Arg.Unit (fun () -> confirm_kill := false), "Disable kill confirmation from strip button";
   ]
 
 
@@ -449,6 +455,7 @@ let create_geomap = fun switch_fullscreen editor_frame ->
   ignore (map_menu_fact#add_item "Map of Region" ~key:GdkKeysyms._R ~callback:(map_from_region geomap));
   ignore (map_menu_fact#add_item "Dump map of Tiles" ~key:GdkKeysyms._T ~callback:(GM.map_from_tiles geomap));
   ignore (map_menu_fact#add_item "Load sector" ~callback:(Sectors.load geomap));
+  ignore (map_menu_fact#add_item "Load KML" ~callback:(Sectors.load_kml geomap));
 
   (** Connect Maps display to view change *)
   geomap#connect_view (fun () -> GM.update geomap);
@@ -492,7 +499,7 @@ let resize = fun (widget:GObj.widget) orientation size ->
 
 let rec pack_widgets = fun orientation xml widgets packing ->
   let size = try Some (ExtXml.int_attrib xml "size") with _ -> None in
-  match String.lowercase (Xml.tag xml) with
+  match Compat.bytes_lowercase (Xml.tag xml) with
       "widget" ->
         let name = ExtXml.attrib xml "name" in
         let widget =
@@ -519,7 +526,7 @@ and pack_list = fun resize orientation xmls widgets packing ->
 
 let rec find_widget_children = fun name xml ->
   let xmls = Xml.children xml in
-  match String.lowercase (Xml.tag xml) with
+  match Compat.bytes_lowercase (Xml.tag xml) with
       "widget" when ExtXml.attrib xml "name" = name -> xmls
     | "rows" | "columns" ->
       let rec loop = function
@@ -533,7 +540,7 @@ let rec find_widget_children = fun name xml ->
 
 let rec replace_widget_children = fun name children xml ->
   let xmls = Xml.children xml
-  and tag = String.lowercase (Xml.tag xml) in
+  and tag = Compat.bytes_lowercase (Xml.tag xml) in
   match tag with
       "widget" ->
         Xml.Element("widget",
@@ -555,7 +562,7 @@ let rec update_widget_size = fun orientation widgets xml ->
     if orientation = `HORIZONTAL then rect.Gtk.width else rect.Gtk.height
   in
   let xmls = Xml.children xml
-  and tag = String.lowercase (Xml.tag xml) in
+  and tag = Compat.bytes_lowercase (Xml.tag xml) in
   match tag with
       "widget" ->
         let name = ExtXml.attrib xml "name" in
@@ -603,7 +610,7 @@ let save_layout = fun filename contents ->
 let listen_dropped_papgets = fun (geomap:G.widget) ->
   let dnd_targets = [ { Gtk.target = "STRING"; flags = []; info = 0 } ] in
   geomap#canvas#drag#dest_set dnd_targets ~actions:[`COPY];
-  ignore (geomap#canvas#drag#connect#data_received ~callback:(Papgets.dnd_data_received geomap#still))
+  ignore (geomap#canvas#drag#connect#data_received ~callback:(Papgets.dnd_data_received geomap#still geomap#zoom_adj))
 
 
 
@@ -660,7 +667,14 @@ let () =
               window#unfullscreen () in
           (window:>GWindow.window_skel),switch_fullscreen
 
-      | Some window ->
+      | Some xid ->
+        let window =
+          IFDEF GDK_NATIVE_WINDOW THEN
+            Gdk.Window.native_of_xid xid
+          ELSE
+            xid
+          END
+        in
         (GWindow.plug ~window ~width ~height ():>GWindow.window_skel), fun _ -> () in
 
   (* Editor frame *)
@@ -671,6 +685,10 @@ let () =
   let map_frame = GPack.vbox () in
   (** Put the canvas in a frame *)
   map_frame#add geomap#frame#coerce;
+
+  (** window for the strip panel *)
+  let scrolled = GBin.scrolled_window ~hpolicy:`AUTOMATIC ~vpolicy:`AUTOMATIC () in
+  let strips_table = GPack.vbox ~spacing:5 ~packing:scrolled#add_with_viewport () in
 
   (** Aircraft notebook *)
   let ac_notebook = GPack.notebook ~tab_border:0 () in
@@ -687,7 +705,7 @@ let () =
   let plugin_frame = GPack.vbox ~width:plugin_width () in
 
   let widgets = ["map2d", map_frame#coerce;
-                 "strips", Strip.scrolled#coerce;
+                 "strips", scrolled#coerce;
                  "aircraft", ac_notebook#coerce;
                  "editor", editor_frame#coerce;
                  "alarms", alert_page#coerce;
@@ -699,7 +717,7 @@ let () =
 
   (** packing papgets *)
   let papgets = try find_widget_children "map2d" the_layout with Not_found -> [] in
-  List.iter (Papgets.create geomap#still) papgets;
+  List.iter (Papgets.create geomap#still geomap#zoom_adj) papgets;
   listen_dropped_papgets geomap;
 
   let save_layout = fun () ->
@@ -773,7 +791,7 @@ let () =
     begin
       my_alert#add "Waiting for telemetry...";
       Speech.say "Waiting for telemetry...";
-      Live.listen_acs_and_msgs geomap ac_notebook my_alert !auto_center_new_ac alt_graph !timestamp
+      Live.listen_acs_and_msgs geomap ac_notebook strips_table !confirm_kill my_alert !auto_center_new_ac alt_graph !timestamp
     end;
 
   (** Display the window *)

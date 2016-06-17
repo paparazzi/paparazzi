@@ -34,7 +34,7 @@
 #include "subsystems/gps.h"
 #include "mcu_periph/sys_time.h"
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 
 
@@ -58,7 +58,7 @@ void trigger_ext_periodic(void)
                                       &turb_id,
                                       &sync_itow,
                                       &cycle_time);
-    trig_ext_valid = FALSE;
+    trig_ext_valid = false;
   }
 }
 

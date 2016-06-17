@@ -90,7 +90,7 @@
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_FREQUENCY" value="60" unit="Hz"/>
-    <define name="XBEE_INIT" value="&quot;ATPL2\rATRN5\rATTT80\r&quot;"/>
+    <define name="XBEE_INIT" value="ATPL2\rATRN5\rATTT80\r" type="string"/>
 <!--    <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
 
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
@@ -155,61 +155,53 @@
     <define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
   </section>
 
-  <section name="SIMU">
-    <define name="JSBSIM_MODEL" value="&quot;Malolo1&quot;"/>
-    <define name="JSBSIM_IR_ROLL_NEUTRAL" value="0." unit="deg"/>
-    <define name="JSBSIM_IR_PITCH_NEUTRAL" value="0." unit="deg"/>
-  </section>
-
 
   <firmware name="fixedwing">
     <target name="sim" 			board="pc" />
-    <target name="jsbsim"       board="pc"/>
-    <target name="ap" 			board="tiny_1.1"/>
+    <target name="ap" 			board="tiny_1.1">
+      <module name="tune_airspeed"/>
+      <module name="digital_cam" type="servo">
+        <define name="DC_SHUTTER_SERVO" value="COMMAND_SHUTTER" />
+      </module>
+      <module name="openlog"/>
+    </target>
 
     <define name="AGR_CLIMB" />
     <define name="LOITER_TRIM" />
 
-    <subsystem name="radio_control" type="ppm"/>
+    <module name="radio_control" type="ppm"/>
 
     <!-- Communication -->
-    <subsystem name="telemetry" 	type="xbee_api">
+    <module name="telemetry" 	type="xbee_api">
       <configure name="MODEM_BAUD" 		value="B9600"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="control"/>
     <!-- Sensors -->
-    <subsystem name="imu"       type="analog">
+    <module name="imu"       type="analog">
       <configure name="GYRO_P" value="ADC_3"/>
-    </subsystem>
-    <subsystem name="ahrs"      type="infrared"/>
-    <subsystem name="gps"       type="ublox_utm"/>
-    <subsystem name="navigation"/>
-    <subsystem name="ins" type="alt_float"/>
+    </module>
+    <module name="gps"       type="ublox"/>
+    <module name="infrared_adc"/>
+    <module name="ahrs" type="infrared"/>
+    <module name="ins" type="alt_float"/>
+
+    <module name="control"/>
+    <module name="navigation"/>
+    <module name="nav" type="survey_polygon"/>
+    <module name="nav" type="line_border"/>
+    <module name="nav" type="line"/>
+    <module name="nav" type="smooth"/>
+    <module name="nav" type="flower"/>
+    <module name="nav" type="line_osam"/>
+    <module name="nav" type="survey_poly_osam"/>
+    <module name="nav" type="vertical_raster"/>
+    <module name="nav" type="bungee_takeoff"/>
+
   </firmware>
 
-<section name="GCS">
+  <section name="GCS">
     <define name="AC_ICON" value="flyingwing"/>
   </section>
-
-  <modules>
-    <load name="openlog.xml"/>
-    <load name="nav_survey_polygon.xml"/>
-    <load name="nav_line_border.xml"/>
-    <load name="nav_line.xml"/>
-    <load name="nav_smooth.xml"/>
-    <load name="nav_flower.xml"/>
-    <load name="nav_line_osam.xml"/>
-    <load name="nav_survey_poly_osam.xml"/>
-    <load name="nav_vertical_raster.xml"/>
-    <load name="nav_bungee_takeoff.xml"/>
-    <load name="infrared_adc.xml"/>
-    <load name="tune_airspeed.xml"/>
-    <load name="digital_cam_servo.xml">
-      <define name="DC_SHUTTER_SERVO" value="COMMAND_SHUTTER" />
-    </load>
-  </modules>
-
 
   <firmware name="setup">
     <target name="tunnel"           board="tiny_1.1" />

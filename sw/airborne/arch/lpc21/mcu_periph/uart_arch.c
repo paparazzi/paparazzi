@@ -48,6 +48,8 @@ static inline void uart_enable_interrupts(struct uart_periph *p)
 
 static inline void uart_set_baudrate(struct uart_periph *p, uint32_t baud)
 {
+  p->baudrate = baud;
+
   /* calculate the baudrate */
   uint32_t _baud_reg_val = (uint16_t)((PCLK / (((float)baud) * 16.0)) + 0.5);
   /* select divisor latches */
@@ -78,7 +80,7 @@ void uart_periph_set_bits_stop_parity(struct uart_periph *p __attribute__((unuse
   // TBD
 }
 
-void uart_transmit(struct uart_periph *p, uint8_t data)
+void uart_put_byte(struct uart_periph *p, long fd __attribute__((unused)), uint8_t data)
 {
   uint16_t temp;
   unsigned cpsr;

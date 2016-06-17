@@ -5,37 +5,41 @@
 USE_MAGNETOMETER ?= 1
 AHRS_ALIGNER_LED ?= none
 
-AHRS_CFLAGS  = -DUSE_AHRS -DAHRS_FLOAT
-AHRS_CFLAGS += -DUSE_AHRS_ALIGNER
+AHRS_MLKF_CFLAGS  = -DUSE_AHRS
+AHRS_MLKF_CFLAGS += -DUSE_AHRS_ALIGNER
 
 ifeq (,$(findstring $(USE_MAGNETOMETER),0 FALSE))
-  AHRS_CFLAGS += -DUSE_MAGNETOMETER
+  AHRS_MLKF_CFLAGS += -DUSE_MAGNETOMETER
 else
 $(error ahrs_float_mlkf needs a magnetometer)
 endif
 
 ifneq ($(AHRS_ALIGNER_LED),none)
-  AHRS_CFLAGS += -DAHRS_ALIGNER_LED=$(AHRS_ALIGNER_LED)
+  AHRS_MLKF_CFLAGS += -DAHRS_ALIGNER_LED=$(AHRS_ALIGNER_LED)
 endif
 
-AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_mlkf.h\"
-AHRS_SRCS   += subsystems/ahrs.c
-AHRS_SRCS   += subsystems/ahrs/ahrs_float_mlkf.c
-AHRS_SRCS   += subsystems/ahrs/ahrs_aligner.c
-
-ifdef AHRS_PROPAGATE_FREQUENCY
-AHRS_CFLAGS += -DAHRS_PROPAGATE_FREQUENCY=$(AHRS_PROPAGATE_FREQUENCY)
+ifdef SECONDARY_AHRS
+ifneq (,$(findstring $(SECONDARY_AHRS), mlkf))
+# this is the secondary AHRS
+AHRS_MLKF_CFLAGS += -DAHRS_SECONDARY_TYPE_H=\"subsystems/ahrs/ahrs_float_mlkf_wrapper.h\"
+AHRS_MLKF_CFLAGS += -DSECONDARY_AHRS=ahrs_mlkf
+else
+# this is the primary AHRS
+AHRS_MLKF_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_mlkf_wrapper.h\"
+AHRS_MLKF_CFLAGS += -DPRIMARY_AHRS=ahrs_mlkf
+endif
+else
+# plain old single AHRS usage
+AHRS_MLKF_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_mlkf_wrapper.h\"
 endif
 
-ifdef AHRS_CORRECT_FREQUENCY
-AHRS_CFLAGS += -DAHRS_CORRECT_FREQUENCY=$(AHRS_CORRECT_FREQUENCY)
+AHRS_MLKF_SRCS   += subsystems/ahrs.c
+AHRS_MLKF_SRCS   += subsystems/ahrs/ahrs_float_mlkf.c
+AHRS_MLKF_SRCS   += subsystems/ahrs/ahrs_float_mlkf_wrapper.c
+AHRS_MLKF_SRCS   += subsystems/ahrs/ahrs_aligner.c
+
+# add it for all targets except sim and fbw
+ifeq (,$(findstring $(TARGET),sim fbw))
+$(TARGET).CFLAGS += $(AHRS_MLKF_CFLAGS)
+$(TARGET).srcs += $(AHRS_MLKF_SRCS)
 endif
-
-ap.CFLAGS += $(AHRS_CFLAGS)
-ap.srcs += $(AHRS_SRCS)
-
-nps.CFLAGS += $(AHRS_CFLAGS)
-nps.srcs += $(AHRS_SRCS)
-
-test_ahrs.CFLAGS += $(AHRS_CFLAGS)
-test_ahrs.srcs += $(AHRS_SRCS)

@@ -31,7 +31,7 @@
 
 
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 #include "state.h"
 
@@ -43,7 +43,7 @@ void atmega_i2c_cam_ctrl_init(void)
 
 void atmega_i2c_cam_ctrl_periodic(void)
 {
-  dc_periodic_4Hz();
+  dc_periodic();
 
   // Request Status
   dc_send_command(DC_GET_STATUS);

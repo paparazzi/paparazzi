@@ -1,0 +1,341 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+<!--
+This fightplan is designed to aid in tuning default control loops on a fixed wing aircraft. It should work in both simulation and for real flights, provided the main information is changed and waypoints are adapted to a suitable location for your airspace. The airspeed tuning may not work correctly in simulation **CHECK IT**!.
+
+This flightplan is designed to be used in the first parts of the tuning process, and does NOT contain a landing block. It is likely extensive use of manual and auto1 modes are required. Ensure you are comfortable with manual flight, stall recovery, spin recovery, power-on landings, deadstick landings etc. Also ensure you do not fly beyond R/C range.
+
+Since it is likely the aircraft is not tuned, do NOT rely on any stabilization or navigation features. For example, the STANDBY block may not work properly if the control loops are unstable. In addition, the flightplan blocks used to tune loops will not bring the aircraft back and will often let the aircraft continue on a straight course indefinitely. They may also allow unlimited climbs or descents.
+
+This flightplan was inspired by versatile.xml. For further information about flightplans, visit:
+http://paparazziuav.org/wiki/Flight_Plans
+
+When obtaining values, sometimes they can be gleaned from standard GCS display widgets, but better is to use the realtime plotter and the average functionality or visually estimate from the plotter.
+
+You will probably need at least two people (one pilot, one GCS operator; a spotter and/or data recorder may help as well).
+
+It is expected the airframe file contain most default parameters. In addition, this tuning assumes some flags are NOT set, in particular AGR_CLIMB and STRONG_WIND.
+
+Most controllers for the aircraft are PID controllers with variations. Most common, there is no D term and sometimes no I term. Some controllers implement ramping, feed-forward, etc. A good review of PID control loops and tuning methodology is available on Wikipedia:
+http://en.wikipedia.org/wiki/PID_controller
+
+After preliminary tuning, fine tuning will undoubtedly help your aircraft perform better. The Flight Benchmark module is useful for this process:
+http://paparazziuav.org/wiki/FlightBenchmark
+
+See http://paparazziuav.org/wiki/Tuning first for more information and to get started.
+
+Tuning Procedure:
+1. Try some manual flights, adjust trim mechanically and in the airframe file for nominal aircraft cruise speed. Make sure the GPS, datalink and others sensors are in correct working order. During the flight(s), record the following information:
+a. V_CTL_AUTO_THROTTLE_(NOMINAL|MIN|MAX)_CRUISE_THROTTLE and V_CTL_AUTO_THROTTLE_(LOITER|DASH)_TRIM
+	-Fly straight and level at the nominal cruise, where the aircraft is trimmed properly, and write down the throttle setting and airspeed (if available from an airspeed sensor) or groundspeed. Ground speed will be affected by wind, but try to make a good guess by flying in different directions. Adjust any trims mechanically and/or in airframe file if this hasn't been done.
+	-Fly straight and level at a low speed, but still comfortably above stall (i.e. the lowest speed you would want the aircraft to loiter at), then trim the aircraft in pitch (up) to maintain altitude. Write down the throttle setting, speed and the trim of the pitch (look at COMMANDS:values[0]).
+	-Same as before, but at the highest speed the aircraft can maintain level flight forward (without climbing) and the highest speed you would like the aircraft to travel. Trim the aircraft in pitch (down) to maintain constant altitude. Write down the throttle setting, speed and pitch trim as before.
+b. INS_(ROLL|PITCH)_NEUTRAL_DEFAULT (or IR_*)
+	-Fly straight and level at nominal cruise throttle after mechanical trims have been set and write down the pitch and roll readings.
+c. AUTO1_MAX_(ROLL|PITCH) and H_CTL_(ROLL|PITCH)_(MAX|MIN)_SETPOINT
+	-Fly the aircraft through a series of banked turns (same altitude) with an aggressiveness you are comfortable with, and you feel the aircraft can handle. More aggressive means faster autopilot response. Write down the average maximum roll values (will need to visually check).
+	-Fly the aircraft through a series of short and longer climbs and descents, primarily using the elevator to induce pitch changes (as opposed to throttle). Write down the maximum corrective and climb/descent pitches observed.
+	-NOTE: If your radio is not producing 1000us - 2000us pulses over the full stick range (i.e. maximum throw usually, full rates) then it is likely your radio will never make the auto1 setpoints reach their maximum value. Either adjust radio settings, airframe file and radio file to ensure full range, or increase the maximum auto1 pitch and roll to account for this. Otherwise, you may have trouble having sufficient control authority in auto1.
+d. DEFAULT_CIRCLE_RADIUS and HOME_RADIUS
+	-Fly the aircraft continuous in circles. Try to find a comfortable diameter that isn't difficult to maintain, but is small enough the aircraft doesn't fly far away during circles. Lean towards a larger diameter. Check approximate diameter by plotting NAVIGATION:pos_x and NAVIGATION:pos_y and looking at the amplitude of the sinusoids generated during the circles.
+e. FAILSAFE_(DEFAULT_THROTTLE|DEFAULT_ROLL|DEFAULT_PITCH)
+	-Fly the aircraft in a gentle circle slowly with a slow (<1m/s) descent. Write down the pitch, roll and throttle. You should not have to correct pitch, roll or throttle very much during this action. In the event of the failsafe mode kicking in, and you want your aircraft to survive, envision the aircraft descending in this manner to the ground. Feel free to adjust to a different pattern if required (full dive for quick kill or straight and level descent if you have an extremely large flight region).
+f. ALTITUDE_MAX_CLIMB and AGR_(CLIMB|DESCENT)_(THROTTLE|PITCH)
+	-Fly the aircraft at a constant average climb rate both up and down, and write down the average climb rate. Be sure the same value is comfortable for both climbs and descents
+	-Fly the aircraft at a constant aggressive climb rate, both up and down, and write down the pitch and throttle settings for both up and down. The aggressive climbs and descents may have different settings, depending on what looks reasonable.
+
+After flying and trimming the aircraft, and recording the various parameters for the trimmed aircraft, land and update the airframe file. Use judgement when supplying values to the airframe file. For the INS_(ROLL|PITCH)_NEUTRAL_DEFAULT, put the negative of the recorded value in the airframe file.
+
+2. Use auto1 to do the pitch/roll stabilization loop tuning. (In simulation, try it with the block Sim Pitch Roll Tuning)
+WARNING: The Sim Pitch Roll Tuning block will undoubtedly cause a runaway aircraft with no altitude control if used and left on. Best if only used in simulation, and use auto1 in real flight testing.
+a. Fly to a safe altitude and start a pass at cruise throttle in front of the pilot.
+b. Switch to auto1 and immediately check if you can turn (roll) left AND right, and if you can pitch up and down. Be prepared to immediately take back manual control if something goes wrong (i.e. sudden dive or roll). If the response is extremely sluggish, you may need to increase gains (try double) or the max pitch/roll in auto1 may need to be increased.
+c. Fly at cruise and adjust ROLL_ATTITUDE_GAIN (or ROLL_PGAIN). Increase the gain (more negative) if the response is sluggish, and decrease the gain if the aircraft oscillates in roll. The goal is to get the aircraft to have fast response without oscillating. It may help to use the realtime plotter and adjust ATTITUDE:phi and DESIRED:roll together. If the aircraft is behaving, attempt some aggressive (i.e. step) setpoint changes and watch the response on the realtime plot. Also, you may try adjusting the ROLL_RATE_GAIN. Try varying the speed to ensure the control is reasonable over the aircrafts speed range.
+d. Do the same as above for the pitch (PITCH_PGAIN, ATTITUDE:theta, DESIRED:pitch, PITCH_IGAIN, PITCH_DGAIN).
+e. If the aircraft seems to drift a bit in roll or pitch, you may need to adjust the *_(ROLL|PITCH)_NEUTRAL_DEFAULT; check the attitude readout when the elevator and aileron are neutral. If changing the throttle seems to induce a bit of roll, you can try adjusting AILERON_OF_THROTTLE, but this is best fixed mechanically with engine mounting.
+f. It is ideal if the aircraft does not climb or descend as a result of rolling the aircraft. In addition, the "bank and yank" method of heading control in Paparazzi requires up elevator in addition to roll to properly turn. Normally in flight, when an aircraft banks the nose will fall off (sink) without any additional pitch input. Even when maintaining level flight in pitch (i.e. pitch setpoint of 0), under the same velocity, the effective lifting area/vector of the aircraft is reduced, likely resulting in a descent. To counter this, the pitch control loop uses the ELEVATOR_OF_ROLL gain to increase the pitch setpoint (thereby increasing angle of attack and thus lift). In auto1, hold a constant bank (experiment with different magnitudes) and bbserve the aircraft and data from ESTIMATOR:z_dot and DESIRED:climb. Adjust the ELEVATOR_OF_ROLL until climb is zero in banked turns.
+
+After completing this, your aircraft should be able to stabilize itself. However, higher level control loops may still be unstable, so don't count on the autopilot bringing your plane back yet.
+
+In tuning the remainder of the control loops, the goal is to slowly move upwards in the hiearchy of control enabling different control loops as you go while attempting to decouple any untuned control loops. To do this, various flight modes will be used.
+
+3. Tune the auto throttle climb loop
+a. Fly to a safe altitude some distance away on a course such that the aircraft will fly by the pilot/GCS.
+b. Activate the block Level Auto Throttle Tuning and switch to auto2 (optionally, use block Variable Auto Throttle Tuning, where climb is initialized to zero and adjustable in the GCS notebook settings with nav_climb).
+c. Observe the aircraft and data from ESTIMATOR:z_dot and DESIRED:climb. The aircraft should remain wings level and near constant pitch, with the climb rate remaining at zero. If oscillations in climb rate, aircraft pitch, or throttle setting occur, reduce gains. There are a significant number of gains in the auto throttle control loop, and several may need to be adjusted. You may also experiment adjusting the cruise, dash and loiter values if previous tests aren't providing sufficient performance. If slower oscillations or climb rate is drifting from zero, consider increasing the gains for crisper response without causing oscillations.
+d. Activate the blocks Ascent Auto Throttle Tuning and Descent Auto Throttle Tuning and repeat C realizing the climb rate should be a minimum or maximum as set with V_CTL_ALTITUDE_MAX_CLIMB (optionally, change the nav_climb value with the notebook settings instead).
+e. Try changing between Loiter, Cruise and Dash throttle settings corresponding to V_CTL_AUTO_THROTTLE_(NOMINAL|MIN|MAX)_CRUISE_THROTTLE and ensure climb remains stable. Adjust gains if required as in C.
+f. Ensure the aircraft switched to manual control as it passes and gets further away from the pilot, at the pilot's discretion. Turn and line up for another pass, and switch to auto2. The previous block should still be active.
+g. To help with tuning, a climb rate other than that specified in the current block could be induced by the pilot just prior to switching to auto2 to check various climb rate setpoint step changes. This also helps if one is nervous about allowing the autopilot to command a steep descent. One can descend manually and then switch to auto2 when the Level Auto Throttle Tuning block is active, which will cause the autopilot to stop the aircraft descending.
+
+4. Tune the auto pitch climb loop
+a. Fly to a safe altitude some distance away on a course such that the aircraft will fly by the pilot/GCS.
+b. Activate the block Level Auto Pitch Tuning and switch to auto2 (optionally, use block Variable Auto Pitch Tuning, where climb is initialized to zero and adjustable in the GCS notebook settings with nav_climb).
+c. Observe the aircraft and data from ESTIMATOR:z_dot and DESIRED:climb. The aircraft should remain wings level, with the climb rate remaining at zero. If fast oscillations in climb rate occur, reduce gains. Consider increasing gains until just before the onset of oscillations.
+d. Activate the blocks Ascent Auto Pitch Tuning and Descent Auto Pitch Tuning and repeat C realizing the climb rate should be a minimum or maximum as set with V_CTL_ALTITUDE_MAX_CLIMB (optionally, change the nav_climb value with the notebook settings instead).
+e. Try changing between Loiter, Cruise and Dash throttle settings corresponding to V_CTL_AUTO_THROTTLE_(NOMINAL|MIN|MAX)_CRUISE_THROTTLE and ensure climb remains stable. Adjust gains if required as in C.
+f. Ensure the aircraft switched to manual control as it passes and gets further away from the pilot, at the pilot's discretion. Turn and line up for another pass, and switch to auto2. The previous block should still be active.
+g. To help with tuning, a climb rate other than that specified in the current block could be induced by the pilot just prior to switching to auto2 to check various climb rate setpoint step changes. This also helps if one is nervous about allowing the autopilot to command a steep descent. One can descend manually and then switch to auto2 when the Level Auto Throttle Tuning block is active, which will cause the autopilot to stop the aircraft descending. If the aircraft does not seem to stabilize at the desired climb rate while in Loiter or Dash throttle modes (i.e always climbs or descends with a 0.0 climb setpoint), chances are the settings for V_CTL_AUTO_THROTTLE_(LOITER|DASH)_TRIM are set incorrectly. 
+
+The climb loop(s) should now be sufficiently tuned, unless one wishes to use the airspeed loops. If you plan to use airspeed, please tune the airspeed loop, which replaces the traditional Auto Throttle control loop.
+
+5. Tune the altitude loop
+a. Fly to a safe altitude some distance away on a course such that the aircraft will fly by the pilot/GCS.
+b. Activate the block Altitude Tuning and switch to auto2.
+c. Observe the aircraft and data from ESTIMATOR:z and DESIRED:altitude. The aircraft should remain wings level, with a constant altitude equal to the altitude which the aircraft was at what the Altitude Tuning block was activated. If oscillations occur in altitude, reduce the altitude_pgain. If the aircraft very slowly drifts or doesn't reach altitude, increase gain until just before oscillations begin.
+d. You can adjust the altitude setpoint in the notebook using the altitude slider under flight params. Check response to step changes in altitude setpoints and adjust gain as required.
+e. Try changing between Loiter, Cruise and Dash throttle settings corresponding to V_CTL_AUTO_THROTTLE_(NOMINAL|MIN|MAX)_CRUISE_THROTTLE and ensure climb remains stable. Adjust gains if required as in C.
+f. Ensure the aircraft switched to manual control as it passes and gets further away from the pilot, at the pilot's discretion. Turn and line up for another pass, and switch to auto2. The previous block should still be active.
+
+Now, all of the vertical loops should be tuned decently. Finally, the course loop can be tuned.
+
+6. Tune the course loop
+a. Fly to a safe altitude on a course you wish the aircraft to attempt to follow. A good suggestion would be away from the pilot perpendicular to the flight line.
+b. While flying this course, but being near the pilot/GCS, activate the block Course Tuning then switch to auto2. This will use the aircrafts current course at the moment of activating the Course Tuning block. Note that no altitude control will be enabled, only a fixed throttle setting.
+c. When the aircraft starts getting far away (but before it leaves piloting range!) return to manual control and complete a pattern that will bring the aircraft across the front of the pilot/GCS approximately parallel to the flight line (i.e. perpendicular to the course setpoint). When the aircraft is approaching the pilot/GCS, switch back to auto2. The aircraft will attempt to match the desired heading.
+d. When switching to auto2, observe the behaviour of the aircraft and ATTITUDE:psi and DESIRED:course. It should maintain the setpoint altitude and turn to the desired course. If the aircraft overshoots the course and oscillates back and forth, reduce the course_pgain in settings and/or adjust the course_dgain. If the aircraft is sluggish in meeting the desired course or doesn't quite reach the proper course, increase the gain.  If the aircraft tends to lose altitude during the course correction, try increasing elevator_of_roll (for climbs, reduce the gain).
+e. Repeat C as necessary to tune the loop for crisp response without oscillations. Preferably, begin the course changes from both directions. Also, one can induce setpoint changes under auto2 continuously by adjusting nav_course in the settings.
+f. Experiment with Loiter and Dash throttle settings.
+
+The primary control loops should now be decently tuned!
+
+7. Try activating STANDBY
+a. Now that the control loops have been tuned, activate the Standby block. The aircraft should have no trouble joining and maintaining orbit around the waypoint. If there are oscillations across many parameters, you may need to tune (or detune) some loops more closely. This will undoubtedly take some practice and time. One gain to look at ELEVATOR_OF_ROLL. Experience has shown trying to maintain a circular loiter can be helped by adjusting this gain. In addition, increasing the radius of the circle may help as well.
+
+Other things to consider:
+This tuning only considers the base number of parameters. For many loops, PI, PD or full PID controllers (sometimes with feedforward and biases) are available. In addition, various flags and extra features introduce further parameters to adjust. For example, AGR_CLIMB modifies the altitude loop, the auto throttle loop and the course loop. The COURSE_SLEW_INCREMENT flag and value limits the change rate of the course setpoint, which may help with the course loop tuning or under extreme course setpoint changes. The COURSE_PRE_BANK_CORRECTION value adjusts a bias used if the aircraft is navigating a circle to tune the best bank angle when circling. The Flight Benchmark module may help in fine-tuning.
+
+In addition, these loops were tuned with an effort to isolate loops (especially untuned ones) during tuning. Under normal navigation, there may be some interaction between these loops. This can be addressed with some gain and parameter fine-tuning. A good example is if the aircraft significantly loses altitude when banked, for example during a course correction. This may cause some oscillation between altitude and course loops.
+
+Take a look at other airframe files for examples of other available parameters. For better understanding of control loops and how some of the flags add features and affect loops, the best method is to look at the code.
+
+8. Tune the airspeed loop
+The altitude loop has a couple different cascaded loops. Thus a number of state variables need to be watched. Climb is controlled by the pitch, as in the auto pitch loop (PI controller). As the pitch/climb will affect airspeed, this is compensated for in the airspeed loops. The airspeed and ground speed setpoints can be used in two ways. First, never set the airspeed setpoint below a safe low speed, i.e. above stall speed. If the airspeed setpoint is set above the ground speed setpoint, the controller will attempt to maintain constant airspeed, unless the groundspeed falls below its setpoint, in which case a minimum ground speed will be maintained using a higher airspeed to avoid being unable to return upwind in high winds. If the ground speed setpoint is set higher than the airspeed setpoint, the controller will attempt to maintain constant groundspeed, unless the airspeed falls below its setpoint, in which case the minimum airspeed will be maintained to avoid stall.
+
+The groundspeed setpoint is set from the airframe file. A PI loop on the groundspeed generates the airspeed setpoint. This is bounded low by the airspeed setpoint in the airframe file. A PI loop on the airspeed generates the desired throttle setting. To tune these loops, an attempt will be made to decouple them. First, the airspeed loop will be tuned, then the groundspeed loop, then the pitch loop.
+
+Before tuning the airspeed loop, be sure to measure the approximate cruise airspeed and groundspeed of the aircraft and use these as setpoints for tuning (can use the same value). After tuning, set each according to the desired control style (airspeed or groundspeed). In addition, be sure to use the settings file airspeed_ctl_tuning.xml.
+
+a. Fly to a safe altitude some distance away on a course such that the aircraft will fly by the pilot/GCS.
+b. Activate the block Airspeed (Airspeed) Tuning and switch to auto2.
+c. Observe the aircraft and data from AIRSPEED:airspeed and AIRSPEED:airspeed_sp. The aircraft should remain wings level, with the airspeed constant around the setpoint. If there are oscillations or control is sluggish, adjust auto airspeed gains. You may also experiment adjusting the airspeed setpoint in settings to induce step changes.
+d. Activate the block Airspeed (Groundspeed) Tuning and switch to auto2.
+e. Observe the aircraft and data from GPS:speed and AIRSPEED:groundspeed_sp. The aircraft should remain wings level, with the groundspeed constant around the setpoint. If there are oscillations or control is sluggish, adjust auto groundspeed gains. You may also experiment adjusting the groundspeed setpoint in settings to induce step changes.
+f. Activate the block Airspeed (Auto Pitch) Tuning and switch to auto2.
+g. Observe the aircraft and data from ESTIMATOR:z_dot and DESIRED:climb. The aircraft should remain wings level, with the climb rate remaining at zero. If fast oscillations in climb rate occur, reduce gains. Consider increasing gains until just before the onset of oscillations. Adjust the  nav_climb value with the notebook settings to induce step changes.
+h. Ensure the aircraft switched to manual control as it passes and gets further away from the pilot, at the pilot's discretion. Turn and line up for another pass, and switch to auto2. The previous block should still be active.
+
+After this, the airspeed loops should be tuned.
+
+
+!!!!!!!!!!!!!!!!!SHOULD THE BLOCKS AUTOMATICALLY PROTECT AGAINST ALTITUDE AND OTHER STUFF? TIMEOUTS?!!!!!!!!!!!!!!
+something like 20m/s*15s = 300m away, so do a 15sec timeout on blocks?
+perhaps a few global alt exceptions? But where do they deroute to assuming the aircraft isn't tuned?
+
+-->
+<!-- Change the root element to match your airspace -->
+<flight_plan alt="75" ground_alt="0" lat0="43.4622" lon0="1.2729" max_dist_from_home="1000" name="Tuning_FW" security_height="25" qfu="270">
+
+  <!-- The header section allows one to include advanced navigation routines and header files that allow access to variables that may be useful for exceptions or advanced flightplan routines dependent on various internal autopilot variables -->
+  <header>
+#include "subsystems/navigation/nav_line.h"
+#include "datalink.h"
+  </header>
+  <!-- The waypoints section must contain 1 or more waypoints. For tuning, setup STDBY in a location in front of the pilot at least DEFAULT_CIRCLE_RADIUS metres away from the flight line if restricted to no overflights. Setup 1 and 2 in front of and to the left and right of the pilot, respectively. These are only used for testing ovals and eights after tuning. Again, waypoints should be at least a radius away from the flight line (probably 1.5xRadius) to prevent overflights. HOME can be set somewhere in the vicinity of STDBY or the pilot. CLIMB is for takeoff (mostly for sim, should manually takeoff for tuning)-->
+  <waypoints>
+    <waypoint name="HOME" x="0" y="0"/>
+    <waypoint name="STDBY" x="30." y="100."/>
+    <waypoint name="1" x="100.1" y="70.9"/>
+    <waypoint name="2" x="-100.3" y="80.1"/>
+    <waypoint name="CLIMB" x="-125.0" y="45.0"/>
+  </waypoints>
+  <!-- The sectors section allows the definiton of regions of space from waypoints, useful for restricting flight area with exceptions -->
+  <sectors/>
+  <!-- The includes section allows predefined blocks of flightplan to be included -->
+  <includes/>
+  <!-- The exceptions section allows for global error and failsafe handling -->
+  <exceptions>
+    <!-- <exception cond="datalink_time > 15" deroute="Standby"/> -->
+  </exceptions>
+  <!-- The blocks section contains each block of the flightplan, which actually make the aircraft do something -->
+  <blocks>
+    <block name="Wait GPS">
+      <set value="1" var="kill_throttle"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+      <call fun="NavSetGroundReferenceHere()"/>
+    </block>
+    <block name="Holding point">
+      <!--set var="nav_mode" value="NAV_MODE_ROLL"/-->
+      <set value="1" var="kill_throttle"/>
+      <attitude roll="0" throttle="0" vmode="throttle"/>
+    </block>
+    <!-- need this for simulation, manual takeoff for real testing -->
+    <block key="t" name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png" group="home">
+      <exception cond="estimator_z > (ground_alt+25)" deroute="Standby"/>
+      <set value="0" var="kill_throttle"/>
+      <set value="0" var="estimator_flight_time"/>
+      <go from="HOME" throttle="1.0" vmode="throttle" wp="CLIMB" pitch="15"/>
+    </block>
+    <block key="<Control>a" name="Standby" strip_button="Standby" strip_icon="home.png" group="home">
+      <circle radius="nav_radius" wp="STDBY"/>
+    </block>
+    <!-- first, tune the pitch and roll loops. This can be done using auto1. Here for sim demos. This block may cause a fly-away or crash -->
+    <block name="Sim Pitch Roll Tuning">
+      <while cond="TRUE">
+    	<attitude roll="0.0" pitch="0.0" vmode="throttle" throttle="V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" until="stage_time>7"/>
+    	<attitude roll="30.0" pitch="0.0" vmode="throttle" throttle="V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" until="stage_time>7"/>
+    	<attitude roll="0.0" pitch="0.0" vmode="throttle" throttle="V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" until="stage_time>7"/>
+    	<attitude roll="-30.0" pitch="0.0" vmode="throttle" throttle="V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" until="stage_time>7"/>
+    	<attitude roll="0.0" pitch="0.0" vmode="throttle" throttle="V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" until="stage_time>7"/>
+    	<attitude roll="0.0" pitch="20.0" vmode="throttle" throttle="V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" until="stage_time>7"/>
+    	<attitude roll="0.0" pitch="0.0" vmode="throttle" throttle="V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" until="stage_time>7"/>
+    	<attitude roll="0.0" pitch="-20.0" vmode="throttle" throttle="V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" until="stage_time>7"/>
+    	<attitude roll="0.0" pitch="0.0" vmode="throttle" throttle="V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" until="stage_time>7"/>
+      </while>
+    </block>
+    <!-- now tune the auto throttle climb loop -->
+    <!-- 	lateral_mode = LATERAL_MODE_ROLL
+    		h_ctl_roll_setpoint = 0.0deg
+    		v_ctl_climb_mode = V_CTL_CLIMB_MODE_AUTO_THROTTLE
+    		nav_pitch = 0.0deg
+    		v_ctl_mode = V_CTL_MODE_AUTO_CLIMB
+    		v_ctl_climb_setpoint = 0.0
+    --> 
+    <block name="Level Auto Throttle Tuning">
+      <while cond="TRUE">
+      	<attitude roll="0.0" vmode="climb" climb="0.0"/>
+      </while>
+    </block>
+    <block name="Ascent Auto Throttle Tuning">
+      <while cond="TRUE">
+      	<attitude roll="0.0" vmode="climb" climb="V_CTL_ALTITUDE_MAX_CLIMB"/>
+      </while>
+    </block>
+    <block name="Descent Auto Throttle Tuning">
+      <while cond="estimator_z > (ground_alt + 25)">
+      	<attitude roll="0.0" vmode="climb" climb="-V_CTL_ALTITUDE_MAX_CLIMB"/>
+      </while>
+    </block>
+    <block name="Variable Auto Throttle Tuning">
+      <set var="nav_climb" value="0.0"/>
+      <while cond="TRUE">
+      	<attitude roll="0.0" vmode="climb" climb="nav_climb"/>
+      </while>
+    </block>
+    <!-- now tune the auto pitch loop -->
+    <!-- 	lateral_mode = LATERAL_MODE_ROLL
+    		h_ctl_roll_setpoint = 0.0deg
+    		v_ctl_climb_mode = V_CTL_CLIMB_MODE_AUTO_PITCH
+    		nav_throttle_setpoint = 9600*(V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE)
+    		v_ctl_mode = V_CTL_MODE_AUTO_CLIMB
+    		v_ctl_climb_setpoint = 0.0
+    --> 
+    <block name="Level Auto Pitch Tuning">
+      <while cond="TRUE">
+      	<attitude roll="0.0" pitch="auto" throttle="V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" vmode="climb" climb="0.0"/>
+      </while>
+    </block>
+    <block name="Ascent Auto Pitch Tuning">
+      <while cond="TRUE">
+      	<attitude roll="0.0" pitch="auto" throttle="V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" vmode="climb" climb="V_CTL_ALTITUDE_MAX_CLIMB"/>
+      </while>
+    </block>
+    <block name="Descent Auto Pitch Tuning">
+      <while cond="estimator_z > (ground_alt + 25)">
+      	<attitude roll="0.0" pitch="auto" throttle="V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" vmode="climb" climb="-V_CTL_ALTITUDE_MAX_CLIMB"/>
+      </while>
+    </block>
+    <block name="Variable Auto Pitch Tuning">
+      <set var="nav_climb" value="0.0"/>
+      <while cond="TRUE">
+      	<attitude roll="0.0" pitch="auto" throttle="V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" vmode="climb" climb="nav_climb"/>
+      </while>
+    </block>
+    <!-- now tune the altitude loop -->
+    <!-- 	lateral_mode = LATERAL_MODE_ROLL
+    		h_ctl_roll_setpoint = 0.0deg
+    		v_ctl_climb_mode = V_CTL_CLIMB_MODE_AUTO_THROTTLE
+    		nav_pitch = 0.0deg
+    		v_ctl_mode = V_CTL_MODE_AUTO_ALT
+    		nav_altitude = flight_altitude -> can be set in the flight params setting page
+    --> 
+	<block name="Altitude Tuning">
+      <set var="flight_altitude" value="estimator_z"/>
+      <while cond="TRUE">
+      	<attitude roll="0.0" vmode="alt" alt="flight_altitude"/>
+      </while>
+    </block>
+    <!-- now that the stabilization and altitude working, tune the course loop -->
+    <!-- 	lateral_mode = LATERAL_MODE_COURSE
+    		h_ctl_course_setpoint = nav_course
+    		v_ctl_climb_mode = V_CTL_CLIMB_MODE_AUTO_THROTTLE
+    		nav_pitch = 0.0deg
+    		v_ctl_mode = V_CTL_MODE_AUTO_THROTTLE
+    		nav_throttle_setpoint = 9600*(V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE)
+    -->
+    <block name="Course Tuning">
+      <set var="nav_course" value="estimator_hspeed_dir"/>
+      <while cond="TRUE">
+      	<heading course="nav_course" vmode="throttle" throttle="V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" until="FALSE"/> <!--continues forever-->
+      </while>
+    </block>
+    <!-- everything should be good, try some stuff -->
+
+    <!-- airspeed control loop tuning -->
+    <!-- be sure to use the settings file airspeed_ctl_tuning.xml -->
+    <!--	airspeed will take precedence as groundspeed set lower
+    		setting pitch pgain to zero disables the auto pitch part of the airspeed loop, no climb control
+    -->
+    <!--
+    <block name="Airspeed (Airspeed) Tuning">
+      <set var="v_ctl_auto_groundspeed_setpoint" value="0.5*V_CTL_AUTO_AIRSPEED_SETPOINT"/> 
+      <set var="v_ctl_auto_airspeed_setpoint" value="V_CTL_AUTO_AIRSPEED_SETPOINT"/>
+      <set var="v_ctl_auto_pitch_pgain" value="0.0"/>
+      <while cond="TRUE">
+      	<attitude roll="0.0" vmode="climb" climb="0.0"/>
+      </while>
+  	</block>
+  	-->
+
+  	<!--	groundspeed will take precedence as airspeed set lower
+    		setting pitch pgain to zero disables the auto pitch part of the airspeed loop, no climb control
+    -->
+    <!--
+  	<block name="Airspeed (Groundspeed) Tuning">
+      <set var="v_ctl_auto_groundspeed_setpoint" value="V_CTL_AUTO_GROUNDSPEED_SETPOINT"/>
+      <set var="v_ctl_auto_airspeed_setpoint" value="0.5*V_CTL_AUTO_GROUNDSPEED_SETPOINT"/>
+      <set var="v_ctl_auto_pitch_pgain" value="0.0"/>
+      <while cond="TRUE">
+      	<attitude roll="0.0" vmode="climb" climb="0.0"/>
+      </while>
+  	</block>
+ 	-->
+  	<!-- airspeed should be tuned now, use in addition to pitch, airspeed will take precedence (coupled with climb more than groundspeed) -->
+  	<!--
+  	<block name="Airspeed (Auto Pitch) Tuning">
+      <set var="v_ctl_auto_groundspeed_setpoint" value="0.5*V_CTL_AUTO_AIRSPEED_SETPOINT"/>
+      <set var="v_ctl_auto_airspeed_setpoint" value="V_CTL_AUTO_AIRSPEED_SETPOINT"/>
+      <set var="v_ctl_auto_pitch_pgain" value="V_CTL_AUTO_PITCH_PGAIN"/>
+      <set var="nav_climb" value="0.0"/>
+      <while cond="TRUE">
+      	<attitude roll="0.0" vmode="climb" climb="nav_climb"/>
+      </while>
+  	</block>
+  -->
+
+  	<!-- extra typical blocks for testing after tuning -->
+    <block key="F8" name="Figure 8 around wp 1" strip_button="Figure 8 (wp 1-2)" strip_icon="eight.png" group="base_pattern">
+      <eight center="1" radius="nav_radius" turn_around="2"/>
+    </block>
+    <block name="Oval 1-2" strip_button="Oval (wp 1-2)" strip_icon="oval.png" group="base_pattern">
+      <oval p1="1" p2="2" radius="nav_radius"/>
+    </block>
+    <block name="Line 1-2" strip_button="Line (wp 1-2)" strip_icon="line.png" group="base_pattern">
+      <call fun="nav_line_init()"/>
+      <call fun="nav_line(WP_1, WP_2, nav_radius)"/>
+    </block>
+
+  </blocks>
+</flight_plan>

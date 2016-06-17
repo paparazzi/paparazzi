@@ -35,8 +35,7 @@
 
 void ltp_def_from_ecef_f(struct LtpDef_f *def, struct EcefCoor_f *ecef)
 {
-
-  /* store the origin of the tangeant plane       */
+  /* store the origin of the tangent plane       */
   VECT3_COPY(def->ecef, *ecef);
   /* compute the lla representation of the origin */
   lla_of_ecef_f(&def->lla, &def->ecef);
@@ -60,7 +59,7 @@ void ltp_def_from_ecef_f(struct LtpDef_f *def, struct EcefCoor_f *ecef)
 
 void ltp_def_from_lla_f(struct LtpDef_f *def, struct LlaCoor_f *lla)
 {
-  /* store the origin of the tangeant plane */
+  /* store the origin of the tangent plane */
   LLA_COPY(def->lla, *lla);
   /* compute the ecef representation of the origin */
   ecef_of_lla_f(&def->ecef, &def->lla);
@@ -125,7 +124,7 @@ void ned_of_lla_point_f(struct NedCoor_f *ned, struct LtpDef_f *def, struct LlaC
 }
 
 /*
- * not enought precision with float - use double
+ * not enough precision with float - use double
  */
 void ecef_of_enu_point_f(struct EcefCoor_f *ecef, struct LtpDef_f *def, struct EnuCoor_f *enu)
 {
@@ -272,49 +271,54 @@ struct complex { float re; float im; };
 #define CExp(z) { float e = exp(z.re); z.re = e*cos(z.im); z.im = e*sin(z.im); }
 /* Expanded #define CSin(z) { CI(z); struct complex _z = {-z.re, -z.im}; CExp(z); CExp(_z); CSub(_z, z); CScal(-0.5, z); CI(z); } */
 
-#define CSin(z) { CI(z); struct complex _z = {-z.re, -z.im}; float e = exp(z.re); float cos_z_im = cos(z.im); z.re = e*cos_z_im; float sin_z_im = sin(z.im); z.im = e*sin_z_im; _z.re = cos_z_im/e; _z.im = -sin_z_im/e; CSub(_z, z); CScal(-0.5, z); CI(z); }
+#define CSin(z) { CI(z); struct complex _z = {-z.re, -z.im}; float e = exp(z.re); float cos_z_im = cosf(z.im); z.re = e*cos_z_im; float sin_z_im = sinf(z.im); z.im = e*sin_z_im; _z.re = cos_z_im/e; _z.im = -sin_z_im/e; CSub(_z, z); CScal(-0.5, z); CI(z); }
 
 
 static inline float isometric_latitude_f(float phi, float e)
 {
-  return log(tan(M_PI_4 + phi / 2.0)) - e / 2.0 * log((1.0 + e * sin(phi)) / (1.0 - e * sin(phi)));
+  return logf(tanf(M_PI_4 + phi / 2.0)) - e / 2.0 * logf((1.0 + e * sinf(phi)) / (1.0 - e * sinf(phi)));
 }
 
 static inline float isometric_latitude_fast_f(float phi)
 {
-  return log(tan(M_PI_4 + phi / 2.0));
+  return logf(tanf(M_PI_4 + phi / 2.0));
 }
 
 static inline float inverse_isometric_latitude_f(float lat, float e, float epsilon)
 {
-  float exp_l = exp(lat);
-  float phi0 = 2 * atan(exp_l) - M_PI_2;
+  float exp_l = expf(lat);
+  float phi0 = 2 * atanf(exp_l) - M_PI_2;
   float phi_;
   uint8_t max_iter = 3; /* To be sure to return */
 
   do {
     phi_ = phi0;
-    float sin_phi = e * sin(phi_);
-    phi0 = 2 * atan(pow((1 + sin_phi) / (1. - sin_phi), e / 2.) * exp_l) - M_PI_2;
+    float sin_phi = e * sinf(phi_);
+    phi0 = 2 * atanf(powf((1 + sin_phi) / (1. - sin_phi), e / 2.) * exp_l) - M_PI_2;
     max_iter--;
-  } while (max_iter && fabs(phi_ - phi0) > epsilon);
+  } while (max_iter && fabsf(phi_ - phi0) > epsilon);
   return phi0;
 }
 
 void utm_of_lla_f(struct UtmCoor_f *utm, struct LlaCoor_f *lla)
 {
+  // compute zone if not initialised
+  if (utm->zone == 0) {
+    utm->zone = UtmZoneOfLlaLonRad(lla->lon);
+  }
+
   float lambda_c = LambdaOfUtmZone(utm->zone);
   float ll = isometric_latitude_f(lla->lat , E);
   float dl = lla->lon - lambda_c;
-  float phi_ = asin(sin(dl) / cosh(ll));
+  float phi_ = asinf(sinf(dl) / coshf(ll));
   float ll_ = isometric_latitude_fast_f(phi_);
-  float lambda_ = atan(sinh(ll) / cos(dl));
+  float lambda_ = atanf(sinhf(ll) / cosf(dl));
   struct complex z_ = { lambda_,  ll_ };
   CScal(serie_coeff_proj_mercator[0], z_);
-  uint8_t k;
+  int8_t k;
   for (k = 1; k < 3; k++) {
-    struct complex z = { lambda_,  ll_ };
-    CScal(2 * k, z);
+    struct complex z = { lambda_, ll_ };
+    CScal(2.*k, z);
     CSin(z);
     CScal(serie_coeff_proj_mercator[k], z);
     CAdd(z, z_);
@@ -334,18 +338,18 @@ void lla_of_utm_f(struct LlaCoor_f *lla, struct UtmCoor_f *utm)
   float img = (utm->east - DELTA_EAST) * scale;
   struct complex z = { real, img };
 
-  uint8_t k;
+  int8_t k;
   for (k = 1; k < 2; k++) {
     struct complex z_ = { real, img };
-    CScal(2 * k, z_);
+    CScal(2.*k, z_);
     CSin(z_);
     CScal(serie_coeff_proj_mercator_inverse[k], z_);
     CSub(z_, z);
   }
 
   float lambda_c = LambdaOfUtmZone(utm->zone);
-  lla->lon = lambda_c + atan(sinh(z.im) / cos(z.re));
-  float phi_ = asin(sin(z.re) / cosh(z.im));
+  lla->lon = lambda_c + atanf(sinhf(z.im) / cosf(z.re));
+  float phi_ = asinf(sinf(z.re) / coshf(z.im));
   float il = isometric_latitude_fast_f(phi_);
   lla->lat = inverse_isometric_latitude_f(il, E, 1e-8);
 

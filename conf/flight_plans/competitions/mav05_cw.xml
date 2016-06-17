@@ -1,0 +1,20 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+
+<flight_plan SECURITY_HEIGHT="25" lat0="47.4820" lon0="11.0945" ground_alt="730" qfu="280" alt="780" max_dist_from_home="300" name="Garmisch">
+
+  <waypoints>
+    <waypoint name="HOME" x="-30" y="30" alt="730."/>
+  </waypoints>
+
+  <include name="zz" procedure="zigzag.xml" x="0" y="0" rotate="0">
+    <arg name="alt" value="GROUND_ALT+30"/>
+    <arg name="rad" value="30"/>
+    <with from="end" to="init"/>
+  </include>
+
+  <blocks>
+    <block NAME="init">
+      <deroute BLOCK="zz.takeoff"/>
+    </block>
+  </blocks>
+</flight_plan>

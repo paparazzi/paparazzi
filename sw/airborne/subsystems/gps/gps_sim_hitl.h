@@ -27,57 +27,11 @@
 #ifndef GPS_SIM_HITL_H
 #define GPS_SIM_HITL_H
 
-#include "std.h"
-#include "state.h"
-#include "guidance/guidance_h.h"
-#include "guidance/guidance_v.h"
+#ifndef PRIMARY_GPS
+#define PRIMARY_GPS GPS_SIM
+#endif
 
-extern bool_t gps_available;
-extern uint32_t gps_sim_hitl_timer;
-
-#define GpsEvent(_sol_available_callback) {                             \
-    if (SysTimeTimer(gps_sim_hitl_timer) > 100000) {                    \
-      SysTimeTimerStart(gps_sim_hitl_timer);                            \
-      gps.last_msg_ticks = sys_time.nb_sec_rem;                         \
-      gps.last_msg_time = sys_time.nb_sec;                              \
-      if (state.ned_initialized_i) {                                    \
-        if (!autopilot_in_flight) {                                     \
-          struct Int32Vect2 zero_vector;                                \
-          INT_VECT2_ZERO(zero_vector);                                  \
-          gh_set_ref(zero_vector, zero_vector, zero_vector);            \
-          INT_VECT2_ZERO(guidance_h_pos_ref);                           \
-          INT_VECT2_ZERO(guidance_h_speed_ref);                         \
-          INT_VECT2_ZERO(guidance_h_accel_ref);                         \
-          gv_set_ref(0, 0, 0);                                          \
-          guidance_v_z_ref = 0;                                         \
-          guidance_v_zd_ref = 0;                                        \
-          guidance_v_zdd_ref = 0;                                       \
-        }                                                               \
-        struct NedCoor_i ned_c;                                      \
-        ned_c.x = guidance_h_pos_ref.x * INT32_POS_OF_CM_DEN / INT32_POS_OF_CM_NUM; \
-        ned_c.y = guidance_h_pos_ref.y * INT32_POS_OF_CM_DEN / INT32_POS_OF_CM_NUM; \
-        ned_c.z = guidance_v_z_ref * INT32_POS_OF_CM_DEN / INT32_POS_OF_CM_NUM; \
-        ecef_of_ned_point_i(&gps.ecef_pos, &state.ned_origin_i, &ned_c); \
-        gps.lla_pos.alt = state.ned_origin_i.lla.alt - ned_c.z;         \
-        gps.hmsl = state.ned_origin_i.hmsl - ned_c.z;                   \
-        ned_c.x = guidance_h_speed_ref.x * INT32_SPEED_OF_CM_S_DEN / INT32_SPEED_OF_CM_S_NUM; \
-        ned_c.y = guidance_h_speed_ref.y * INT32_SPEED_OF_CM_S_DEN / INT32_SPEED_OF_CM_S_NUM; \
-        ned_c.z = guidance_v_zd_ref * INT32_SPEED_OF_CM_S_DEN / INT32_SPEED_OF_CM_S_NUM; \
-        ecef_of_ned_vect_i(&gps.ecef_vel, &state.ned_origin_i, &ned_c); \
-        gps.fix = GPS_FIX_3D;                                           \
-        gps.last_3dfix_ticks = sys_time.nb_sec_rem;                     \
-        gps.last_3dfix_time = sys_time.nb_sec;                          \
-        gps_available = TRUE;                                           \
-      }                                                                 \
-      else {                                                            \
-        struct Int32Vect2 zero_vector;                                  \
-        INT_VECT2_ZERO(zero_vector);                                    \
-        gh_set_ref(zero_vector, zero_vector, zero_vector);              \
-        gv_set_ref(0, 0, 0);                                            \
-      }                                                                 \
-      _sol_available_callback();                                        \
-      gps_available = FALSE;                                            \
-    }                                                                   \
-  }
+extern void gps_sim_hitl_event(void);
+extern void gps_sim_hitl_init(void);
 
 #endif /* GPS_SIM_HITL_H */

@@ -40,27 +40,38 @@
 #endif
 #include "mcu_periph/uart.h"
 
+#ifndef MAVLINK_DEBUG
+#define MAVLINK_DEBUG(...) {}
+#endif
+
+#if MAVLINK_DEBUG == printf
+#include <stdio.h>
+#endif
+
 /*
  * MAVLink description before main MAVLink include
  */
 extern mavlink_system_t mavlink_system;
 
 #ifndef MAVLINK_DEV
-#define MAVLINK_DEV UART1
+#define MAVLINK_DEV uart1
 #endif
 
 /*
  * The MAVLink link description
  */
-#define __MAVLink(dev, _x) dev##_x
-#define _MAVLink(dev, _x)  __MAVLink(dev, _x)
-#define MAVLink(_x) _MAVLink(MAVLINK_DEV, _x)
+#define MAVLinkDev (&(MAVLINK_DEV).device)
+#define MAVLinkTransmit(c) MAVLinkDev->put_byte(MAVLinkDev->periph, 0, c)
+#define MAVLinkChAvailable() MAVLinkDev->char_available(MAVLinkDev->periph)
+#define MAVLinkGetch() MAVLinkDev->get_byte(MAVLinkDev->periph)
+#define MAVLinkSendMessage() MAVLinkDev->send_message(MAVLinkDev->periph, 0)
 
 /**
  * Module functions
  */
 void mavlink_init(void);
 void mavlink_periodic(void);
+void mavlink_periodic_telemetry(void);
 void mavlink_event(void);
 
 /**
@@ -72,7 +83,7 @@ void mavlink_event(void);
 static inline void comm_send_ch(mavlink_channel_t chan __attribute__((unused)), uint8_t ch)
 {
   // Send bytes
-  MAVLink(Transmit(ch));
+  MAVLinkTransmit(ch);
 }
 
 #endif // DATALINK_MAVLINK_H

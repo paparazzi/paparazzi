@@ -18,7 +18,7 @@
       - Brown wire: SCL
 
     </description>
-    <define name="BARO_ETS_I2C_DEV" value="i2cX" description="set i2c peripheral (default: i2c0)"/>
+    <configure name="BARO_ETS_I2C_DEV" value="i2cX" description="set i2c peripheral (default: i2c0)"/>
     <define name="BARO_ETS_SCALE" value="scale" description="scale factor to convert raw ADC measurement to pressure in Pascal (default: 37.5)"/>
     <define name="BARO_ETS_ALT_SCALE" value="scale" description="scale factor to convert raw ADC measurement to altitude change in meters (default: 0.32)"/>
     <define name="BARO_ETS_ALT_SCALE" value="scale" description="pressure offset in Pascal when converting raw adc to real pressure (default: 101325.0="/>
@@ -34,6 +34,9 @@
   <event fun="BaroEtsEvent()"/>
 
   <makefile target="ap">
+    <configure name="BARO_ETS_I2C_DEV" default="i2c0" case="upper|lower"/>
+    <define name="USE_$(BARO_ETS_I2C_DEV_UPPER)"/>
+    <define name="BARO_ETS_I2C_DEV" value="$(BARO_ETS_I2C_DEV_LOWER)"/>
     <file name="baro_ets.c"/>
   </makefile>
 

@@ -32,7 +32,7 @@
 
 //Messages
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 //#include "gps.h"
 
@@ -57,7 +57,7 @@
 #ifdef MEASURE_AMSYS_TEMPERATURE
 #define TEMPERATURE_AMSYS_OFFSET_MAX 29491
 #define TEMPERATURE_AMSYS_OFFSET_MIN 3277
-#define TEMPERATURE_AMSYS_MAX 110
+#define TEMPERATURE_AMSYS_MAX 85
 #define TEMPERATURE_AMSYS_MIN -25
 #endif
 
@@ -72,9 +72,9 @@ uint16_t pBaroRaw;
 uint16_t tBaroRaw;
 uint16_t baro_amsys_adc;
 float baro_amsys_offset;
-bool_t baro_amsys_valid;
+bool baro_amsys_valid;
 float baro_amsys_altitude;
-bool_t baro_amsys_enabled;
+bool baro_amsys_enabled;
 float baro_amsys_r;
 float baro_amsys_sigma2;
 float baro_amsys_temp;
@@ -90,7 +90,7 @@ float baro_old;
 struct i2c_transaction baro_amsys_i2c_trans;
 
 // Local variables
-bool_t baro_amsys_offset_init;
+bool baro_amsys_offset_init;
 double baro_amsys_offset_tmp;
 uint16_t baro_amsys_cnt;
 
@@ -103,9 +103,9 @@ void baro_amsys_init(void)
   baro_amsys_p = 0.0;
   baro_amsys_offset = 0;
   baro_amsys_offset_tmp = 0;
-  baro_amsys_valid = TRUE;
-  baro_amsys_offset_init = FALSE;
-  baro_amsys_enabled = TRUE;
+  baro_amsys_valid = true;
+  baro_amsys_offset_init = false;
+  baro_amsys_enabled = true;
   baro_scale = BARO_AMSYS_SCALE;
   baro_amsys_cnt = BARO_AMSYS_OFFSET_NBSAMPLES_INIT + BARO_AMSYS_OFFSET_NBSAMPLES_AVRG;
   baro_amsys_r = BARO_AMSYS_R;
@@ -142,14 +142,17 @@ void baro_amsys_read_event(void)
   pBaroRaw = (baro_amsys_i2c_trans.buf[0] << 8) | baro_amsys_i2c_trans.buf[1];
 #ifdef MEASURE_AMSYS_TEMPERATURE
   tBaroRaw = (baro_amsys_i2c_trans.buf[2] << 8) | baro_amsys_i2c_trans.buf[3];
-  baro_amsys_temp = (float)(tBaroRaw - TEMPERATURE_AMSYS_OFFSET_MIN) * TEMPERATURE_AMSYS_MAX / (float)(
-                      TEMPERATURE_AMSYS_OFFSET_MAX - TEMPERATURE_AMSYS_OFFSET_MIN) + (float)TEMPERATURE_AMSYS_MIN;
+  const float temp_off_scale = (float)(TEMPERATURE_AMSYS_MAX - TEMPERATURE_AMSYS_MIN) /
+                               (TEMPERATURE_AMSYS_OFFSET_MAX - TEMPERATURE_AMSYS_OFFSET_MIN);
+  // Tmin=-25, Tmax=85
+  baro_amsys_temp = temp_off_scale * (tBaroRaw - TEMPERATURE_AMSYS_OFFSET_MIN) +
+                         TEMPERATURE_AMSYS_MIN;
 #endif
   // Check if this is valid altimeter
   if (pBaroRaw == 0) {
-    baro_amsys_valid = FALSE;
+    baro_amsys_valid = false;
   } else {
-    baro_amsys_valid = TRUE;
+    baro_amsys_valid = true;
   }
 
   baro_amsys_adc = pBaroRaw;
@@ -178,7 +181,7 @@ void baro_amsys_read_event(void)
         // Calculate average
         baro_amsys_offset = (float)(baro_amsys_offset_tmp / BARO_AMSYS_OFFSET_NBSAMPLES_AVRG);
         ref_alt_init = GROUND_ALT;
-        baro_amsys_offset_init = TRUE;
+        baro_amsys_offset_init = true;
 
         // hight over Sea level at init point
         //baro_amsys_offset_altitude = 288.15 / 0.0065 * (1 - pow((baro_amsys_p)/1013.25 , 1/5.255));

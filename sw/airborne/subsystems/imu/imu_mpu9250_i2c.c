@@ -26,8 +26,9 @@
  */
 
 #include "subsystems/imu.h"
-
 #include "mcu_periph/i2c.h"
+#include "mcu_periph/sys_time.h"
+#include "subsystems/abi.h"
 
 #if !defined IMU_MPU9250_GYRO_LOWPASS_FILTER && !defined IMU_MPU9250_ACCEL_LOWPASS_FILTER && !defined  IMU_MPU9250_SMPLRT_DIV
 #if (PERIODIC_FREQUENCY == 60) || (PERIODIC_FREQUENCY == 120)
@@ -102,10 +103,6 @@ void imu_impl_init(void)
   imu_mpu9250.mpu.config.dlpf_accel_cfg = IMU_MPU9250_ACCEL_LOWPASS_FILTER;
   imu_mpu9250.mpu.config.gyro_range = IMU_MPU9250_GYRO_RANGE;
   imu_mpu9250.mpu.config.accel_range = IMU_MPU9250_ACCEL_RANGE;
-
-  imu_mpu9250.gyro_valid = FALSE;
-  imu_mpu9250.accel_valid = FALSE;
-  imu_mpu9250.mag_valid = FALSE;
 }
 
 void imu_periodic(void)
@@ -115,6 +112,8 @@ void imu_periodic(void)
 
 void imu_mpu9250_event(void)
 {
+  uint32_t now_ts = get_sys_time_usec();
+
   // If the MPU9250 I2C transaction has succeeded: convert the data
   mpu9250_i2c_event(&imu_mpu9250.mpu);
 
@@ -134,10 +133,14 @@ void imu_mpu9250_event(void)
     VECT3_COPY(imu.accel_unscaled, accel);
     RATES_COPY(imu.gyro_unscaled, rates);
 
-    imu_mpu9250.mpu.data_available = FALSE;
-    imu_mpu9250.gyro_valid = TRUE;
-    imu_mpu9250.accel_valid = TRUE;
+    imu_mpu9250.mpu.data_available = false;
+
+    imu_scale_gyro(&imu);
+    imu_scale_accel(&imu);
+    AbiSendMsgIMU_GYRO_INT32(IMU_MPU9250_ID, now_ts, &imu.gyro);
+    AbiSendMsgIMU_ACCEL_INT32(IMU_MPU9250_ID, now_ts, &imu.accel);
   }
+
   // Test if mag data are updated
   if (imu_mpu9250.mpu.akm.data_available) {
     struct Int32Vect3 mag = {
@@ -146,8 +149,9 @@ void imu_mpu9250_event(void)
       -(int32_t)(imu_mpu9250.mpu.akm.data.value[IMU_MPU9250_CHAN_Z])
     };
     VECT3_COPY(imu.mag_unscaled, mag);
-    imu_mpu9250.mag_valid = TRUE;
-    imu_mpu9250.mpu.akm.data_available = FALSE;
+    imu_mpu9250.mpu.akm.data_available = false;
+    imu_scale_mag(&imu);
+    AbiSendMsgIMU_MAG_INT32(IMU_MPU9250_ID, now_ts, &imu.mag);
   }
 
 }

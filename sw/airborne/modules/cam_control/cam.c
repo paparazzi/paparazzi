@@ -89,7 +89,7 @@ uint8_t cam_target_ac;
 #define CAM_MODE0 CAM_MODE_OFF
 #endif
 uint8_t cam_mode;
-bool_t cam_lock;
+bool cam_lock;
 
 int16_t cam_pan_command;
 int16_t cam_tilt_command;
@@ -121,9 +121,9 @@ void cam_init(void)
 {
   cam_mode = CAM_MODE0;
 
-  register_periodic_telemetry(DefaultPeriodic, "CAM", send_cam);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_CAM, send_cam);
 #ifdef SHOW_CAM_COORDINATES
-  register_periodic_telemetry(DefaultPeriodic, "CAM_POINT", send_cam_point);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_CAM_POINT, send_cam_point);
 #endif
 }
 
@@ -270,7 +270,7 @@ void cam_target(void)
   struct EnuCoor_f *pos = stateGetPositionEnu_f();
   struct FloatEulers *att = stateGetNedToBodyEulers_f();
   vPoint(pos->x, pos->y, stateGetPositionUtm_f()->alt,
-         att->phi, att->theta, *stateGetHorizontalSpeedDir_f(),
+         att->phi, att->theta, stateGetHorizontalSpeedDir_f(),
          cam_target_x, cam_target_y, cam_target_alt,
          &cam_pan_c, &cam_tilt_c);
 #endif

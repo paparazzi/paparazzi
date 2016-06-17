@@ -3,73 +3,103 @@
 <module name="cv_opticflow" dir="computer_vision">
   <doc>
     <description>
-        Compute Optic Flow from Ardrone2 Bottom Camera
-
-        Computes Pitch- and rollrate corrected optic flow from downward looking
-        ARDrone2 camera looking at a textured floor.
-
-        - Sonar is required.
-        - Controller can hold position
+      Compute optical flow.
+      Made for Linux video Devices.
+      Computes x and y velocity using optical flow and distance to ground (using sonar).
     </description>
 
-    <section name="VISION" prefix="VISION_">
-      <define name="HOVER" value="FALSE" description="TRUE/FALSE active or not"/>
-      <define name="PHI_PGAIN" value="500" description="optic flow pgain"/>
-      <define name="PHI_IGAIN" value="10" description="optic flow igain"/>
-      <define name="THETA_PGAIN" value="500" description="optic flow pgain"/>
-      <define name="THETA_IGAIN" value="10" description="optic flow igain"/>
-      <define name="DESIRED_VX" value="0" description="feedforward optic flow vx"/>
-      <define name="DESIRED_VY" value="0" description="feedforward optic flow vy"/>
+    <!-- Optical flow calculation parameters -->
+    <section name="OPTICFLOW" prefix="OPTICFLOW_">
+      <define name="AGL_ID" value="ABI_SENDER_ID" description="ABI sender id for AGL message (sonar measurement) (default: ABI_BROADCAST)"/>
+
+      <!-- Video device parameters -->
+      <define name="CAMERA" value="VIDEO1" description="The V4L2 camera device that is used for the calculations"/>
+
+      <!-- Camera parameters -->
+      <define name="FOV_W" value="0.89360857702" description="The field of view width of the bottom camera (Defaults are from an ARDrone 2)"/>
+      <define name="FOV_H" value="0.67020643276" description="The field of view height of the bottom camera (Defaults are from an ARDrone 2)"/>
+      <define name="FX" value="343.1211" description="Field in the x direction of the camera (Defaults are from an ARDrone 2)"/>
+      <define name="FY" value="348.5053" description="Field in the y direction of the camera (Defaults are from an ARDrone 2)"/>
+
+      <!-- General optical flow calculation parameters -->
+      <define name="METHOD" value="0" description="Method used to calculate optical flow"/>
+      <define name="WINDOW_SIZE" value="10" description="Window size used for block matching (pixels)"/>
+      <define name="SEARCH_DISTANCE" value="10" description="Maximum search distance for blockmatching (pixels)"/>
+      <define name="SUBPIXEL_FACTOR" value="10" description="Amount of subpixels per pixel, used for more precise (subpixel) calculations of the flow"/>
+      <define name="DEROTATION" value="1" description="Derotation either turned on or off (depended on gyroscope measurements)"/>
+
+      <!-- Lucas Kanade optical flow calculation parameters -->
+      <define name="MAX_TRACK_CORNERS" value="25" description="The maximum amount of corners the Lucas Kanade algorithm is tracking between two frames"/>
+      <define name="MAX_ITERATIONS" value="10" description="Maximum number of iterations the Lucas Kanade algorithm should take"/>
+      <define name="THRESHOLD_VEC" value="2" description="TThreshold in subpixels when the iterations of Lucas Kanade should stop"/>
+
+      <!-- FAST9 corner detection parameters -->
+      <define name="FAST9_ADAPTIVE" value="TRUE" description="Whether we should use and adapative FAST9 crner detection threshold"/>
+      <define name="FAST9_THRESHOLD" value="20" description="FAST9 default threshold"/>
+      <define name="FAST9_MIN_DISTANCE" value="10" description="The amount of pixels between corners that should be detected"/>
+      <define name="FAST9_PADDING" value="20" description="The outer border in which no corners will be searched"/>
     </section>
-    <define name="DOWNLINK_VIDEO" value="FALSE" description="Also stream video: warning: this makes the optic flow slow: DEBUGGING only" />
-    <define name="OPTICFLOW_AGL_ID" value="ABI_SENDER_ID" description="ABI sender id for AGL message (sonar measurement) (default: ABI_BROADCAST)"/>
   </doc>
+
   <settings>
-    <dl_settings>
-	<dl_settings NAME="Vision Loop">
-        <dl_setting var="activate_opticflow_hover" min="0" step="1" max="1" module="computer_vision/opticflow/hover_stabilization" shortname="hover" param="VISION_HOVER" values="FALSE|TRUE"/>
-        <dl_setting var="vision_phi_pgain" min="0" step="1" max="10000" shortname="kp_v_phi" param="VISION_PHI_PGAIN"/>
-        <dl_setting var="vision_phi_igain" min="0" step="1" max="1000" shortname="ki_v_phi" param="VISION_PHI_IGAIN"/>
-        <dl_setting var="vision_theta_pgain" min="0" step="1" max="10000" shortname="kp_v_theta" param="VISION_THETA_PGAIN"/>
-        <dl_setting var="vision_theta_igain" min="0" step="1" max="1000" shortname="ki_v_theta" param="VISION_THETA_IGAIN"/>
-        <dl_setting var="vision_desired_vx" min="-5" step="0.01" max="5" shortname="desired_vx" param="VISION_DESIRED_VX"/>
-        <dl_setting var="vision_desired_vy" min="-5" step="0.01" max="5" shortname="desired_vy" param="VISION_DESIRED_VY"/>
-    </dl_settings>    </dl_settings>
+	<dl_settings NAME="Vision stabilization">
+
+      	<!-- Optical flow calculations parameters -->
+      <dl_settings name="vision_calc">
+      <dl_setting var="opticflow.method" min="0" step="1" max="1" module="computer_vision/opticflow_module" shortname="method" values="LK_Fast9|EdgeFlow" param="METHOD"/>
+        <dl_setting var="opticflow.window_size" module="computer_vision/opticflow_module" min="0" step="1" max="20" shortname="window_size" param="OPTICFLOW_WINDOW_SIZE"/>
+        <dl_setting var="opticflow.search_distance" module="computer_vision/opticflow_module" min="0" step="1" max="50" shortname="search_distance" param="SEARCH_DISTANCE"/>
+        <dl_setting var="opticflow.subpixel_factor" module="computer_vision/opticflow_module" min="0" step="10" max="1000" shortname="subpixel_factor" param="OPTICFLOW_SUBPIXEL_FACTOR"/>
+        <dl_setting var="opticflow.derotation" min="0" step="1" max="1" module="computer_vision/opticflow_module" values="OFF|ON" shortname="derotation" param="OPTICFLOW_DEROTATION"/>
+
+	<!-- Specifically for Lucas Kanade and FAST9 -->
+        <dl_setting var="opticflow.max_track_corners" module="computer_vision/opticflow_module" min="0" step="1" max="500" shortname="max_trck_corners" param="OPTICFLOW_MAX_TRACK_CORNERS"/>
+        <dl_setting var="opticflow.max_iterations" module="computer_vision/opticflow_module" min="0" step="1" max="100" shortname="max_iterations" param="OPTICFLOW_MAX_ITERATIONS"/>
+        <dl_setting var="opticflow.threshold_vec" module="computer_vision/opticflow_module" min="0" step="1" max="100" shortname="threshold_vec" param="OPTICFLOW_THRESHOLD_VEC"/>
+
+        <dl_setting var="opticflow.fast9_adaptive" module="computer_vision/opticflow_module" min="0" step="1" max="1" values="FALSE|TRUE" shortname="fast9_adaptive" param="OPTICFLOW_FAST9_ADAPTIVE"/>
+        <dl_setting var="opticflow.fast9_threshold" module="computer_vision/opticflow_module" min="0" step="1" max="255" shortname="fast9_threshold" param="OPTICFLOW_FAST9_THRESHOLD"/>
+        <dl_setting var="opticflow.fast9_min_distance" module="computer_vision/opticflow_module" min="0" step="1" max="500" shortname="fast9_min_distance" param="OPTICFLOW_FAST9_MIN_DISTANCE"/>
+        <dl_setting var="opticflow.fast9_padding" module="computer_vision/opticflow_module" min="0" step="1" max="50" shortname="fast9_padding" param="OPTICFLOW_FAST9_PADDING"/>
+
+	<!-- Changes pyramid level of lucas kanade optical flow. -->
+        <dl_setting var="opticflow.pyramid_level" module="computer_vision/opticflow_module" min="0" step="1" max="10" shortname="pyramid_level" param="OPTICFLOW_PYRAMID_LEVEL"/>
+
+      </dl_settings>
+    </dl_settings>
   </settings>
+
+  <depends>video_thread</depends>
 
   <header>
     <file name="opticflow_module.h"/>
   </header>
 
   <init fun="opticflow_module_init()"/>
+  <periodic fun="opticflow_module_run()" autorun="TRUE"/>
 
-  <periodic fun="opticflow_module_run()" start="opticflow_module_start()" stop="opticflow_module_stop()" autorun="TRUE"/>
   <makefile target="ap">
-    <define name="ARDRONE_VIDEO_PORT" value="2002" />
+    <!-- Include the needed Computer Vision files -->
+    <include name="modules/computer_vision"/>
+    <file name="image.c" dir="modules/computer_vision/lib/vision"/>
+    <file name="jpeg.c" dir="modules/computer_vision/lib/encoding"/>
+    <file name="rtp.c" dir="modules/computer_vision/lib/encoding"/>
+    <file name="v4l2.c" dir="modules/computer_vision/lib/v4l"/>
 
+    <!-- The optical flow module (calculator) -->
     <file name="opticflow_module.c"/>
-    <file name="opticflow_thread.c" dir="modules/computer_vision/opticflow"/>
-    <file name="visual_estimator.c" dir="modules/computer_vision/opticflow"/>
-    <file name="hover_stabilization.c" dir="modules/computer_vision/opticflow"/>
-    <file name="optic_flow_int.c" dir="modules/computer_vision/cv/opticflow"/>
-    <file name="fastRosten.c" dir="modules/computer_vision/cv/opticflow/fast9"/>
-    <file name="trig.c" dir="modules/computer_vision/cv"/>
-    <file name="framerate.c" dir="modules/computer_vision/cv"/>
-    <file name="jpeg.c" dir="modules/computer_vision/cv/encoding"/>
-    <file name="rtp.c" dir="modules/computer_vision/cv/encoding"/>
-    <file name="socket.c" dir="modules/computer_vision/lib/udp"/>
-    <file name="video.c" dir="modules/computer_vision/lib/v4l"/>
-    <define name="modules/computer_vision/cv" type="include"/>
-    <define name="modules/computer_vision/lib" type="include"/>
-    <define name="pthread" type="raw"/>
-    <define name="__USE_GNU"/>
-    <flag name="LDFLAGS" value="pthread"/>
-    <flag name="LDFLAGS" value="lrt"/>
-    <flag name="LDFLAGS" value="static"/>
+    <file name="opticflow_calculator.c" dir="modules/computer_vision/opticflow"/>
+    <file name="size_divergence.c" dir="modules/computer_vision/opticflow"/>
+    <file name="linear_flow_fit.c" dir="modules/computer_vision/opticflow"/>
+    <file name="pprz_algebra_float.c" dir="math"/>
+    <file name="pprz_matrix_decomp_float.c" dir="math"/>
+
+    <!-- Main vision calculations -->
+    <file name="fast_rosten.c" dir="modules/computer_vision/lib/vision"/>
+    <file name="lucas_kanade.c" dir="modules/computer_vision/lib/vision"/>
+    <file name="edge_flow.c" dir="modules/computer_vision/lib/vision"/>
   </makefile>
-  <makefile target="nps">
-    <file name="viewvideo_nps.c"/>
-  </makefile>
+
 
 </module>
 

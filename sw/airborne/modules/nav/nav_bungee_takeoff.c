@@ -142,7 +142,7 @@ static void compute_points_from_bungee(void)
   VECT2_SUM(throttle_point, bungee_point, throttle_point);
 }
 
-bool_t nav_bungee_takeoff_setup(uint8_t bungee_wp)
+bool nav_bungee_takeoff_setup(uint8_t bungee_wp)
 {
   // Store bungee point (from WP id, altitude should be ground alt)
   // FIXME use current alt instead ?
@@ -155,10 +155,10 @@ bool_t nav_bungee_takeoff_setup(uint8_t bungee_wp)
   CTakeoffStatus = Launch;
   kill_throttle = 1;
 
-  return FALSE;
+  return false;
 }
 
-bool_t nav_bungee_takeoff_run(void)
+bool nav_bungee_takeoff_run(void)
 {
   float cross = 0.;
 
@@ -169,7 +169,7 @@ bool_t nav_bungee_takeoff_run(void)
   switch (CTakeoffStatus) {
     case Launch:
       // Recalculate lines if below min speed
-      if ((*stateGetHorizontalSpeedNorm_f()) < BUNGEE_TAKEOFF_MIN_SPEED) {
+      if (stateGetHorizontalSpeedNorm_f() < BUNGEE_TAKEOFF_MIN_SPEED) {
         compute_points_from_bungee();
       }
 
@@ -186,7 +186,7 @@ bool_t nav_bungee_takeoff_run(void)
       VECT2_DIFF(pos, pos, throttle_point); // position local to throttle_point
       cross = VECT2_DOT_PRODUCT(pos, takeoff_dir);
 
-      if (cross > 0. && (*stateGetHorizontalSpeedNorm_f()) > BUNGEE_TAKEOFF_MIN_SPEED) {
+      if (cross > 0. && stateGetHorizontalSpeedNorm_f() > BUNGEE_TAKEOFF_MIN_SPEED) {
         CTakeoffStatus = Throttle;
         kill_throttle = 0;
         nav_init_stage();
@@ -204,19 +204,19 @@ bool_t nav_bungee_takeoff_run(void)
 
       if ((stateGetPositionUtm_f()->alt > bungee_point.z + BUNGEE_TAKEOFF_HEIGHT)
 #if USE_AIRSPEED
-          && ((*stateGetAirspeed_f()) > BUNGEE_TAKEOFF_AIRSPEED)
+          && (stateGetAirspeed_f() > BUNGEE_TAKEOFF_AIRSPEED)
 #endif
           ) {
         CTakeoffStatus = Finished;
-        return FALSE;
+        return false;
       } else {
-        return TRUE;
+        return true;
       }
       break;
     default:
       // Invalid status or Finished, end function
-      return FALSE;
+      return false;
   }
-  return TRUE;
+  return true;
 }
 

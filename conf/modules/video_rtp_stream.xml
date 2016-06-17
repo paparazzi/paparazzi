@@ -3,45 +3,61 @@
 <module name="video_rtp_stream" dir="computer_vision">
   <doc>
     <description>
-      Video stream of ARDone 2 front camera.
-
-      - sends a RTP/UDP stream of the from camera
-      - possibility to save an image on the internal memory (JPEG, full size, best quality, 100 pictures max if nothing else)
+      Video streaming for Linux based devices.
+      Works e.g. in conjunction with Parrot Drones where the autopilot is the Paparazzi autopilot.
+      Features:
+       - Sends a RTP/UDP stream of the camera image, a.k.a. live video
+       - Possibility to save an image(shot) on internal or external storage space even in full size, best quality
+      Example to add to ARdrone2 airframe with extra USB stick plugger in:
     </description>
-    <define name="VIDEO_SOCK_IP" value="192.168.1.255" description="IP broadcast address"/>
-    <define name="VIDEO_DOWNSIZE_FACTOR" value="4" description="Reduction factor of the video stream"/>
-    <define name="VIDEO_QUALITY_FACTOR" value="50" description="JPEG encoding compression factor [0-99]"/>
-    <define name="VIDEO_FPS" value="4." description="Video stream frame rate"/>
+    <configure name="VIEWVIDEO_USE_NETCAT" value="FALSE|TRUE" description="Use netcat for transfering images instead of RTP stream (default: FALSE)"/>
+    <configure name="VIEWVIDEO_HOST" value="192.168.1.255" description="GCS IP (default: MODEM_HOST)"/>
+    <configure name="VIEWVIDEO_PORT_OUT" value="5000" description="Port (default: 5000)"/>
+    <configure name="VIEWVIDEO_BROADCAST" value="FALSE|TRUE" description="Enable broadcast of image stream (default: TRUE)"/>
+
+    <define name="VIEWVIDEO_CAMERA" value="front_camera|bottom_camera" description="Video device to use"/>
+    <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="4" description="Reduction factor of the video stream"/>
+    <define name="VIEWVIDEO_QUALITY_FACTOR" value="50" description="JPEG encoding compression factor [0-99]"/>
+    <define name="VIEWVIDEO_USE_RTP" value="TRUE|FALSE" description="Enable RTP at startup for transfering images (default: TRUE)"/>
   </doc>
   <settings>
     <dl_settings>
       <dl_settings name="video">
-        <dl_setting var="viewvideo_shot" min="0" step="1" max="1" shortname="save_shot" module="computer_vision/viewvideo" handler="SaveShot"/>
+        <dl_setting var="viewvideo.use_rtp" min="0" step="1" max="1" values="FALSE|TRUE" shortname="rtp" module="computer_vision/viewvideo" param="VIEWVIDEO_USE_RTP"/>
       </dl_settings>
     </dl_settings>
   </settings>
 
+  <depends>video_thread</depends>
   <header>
     <file name="viewvideo.h"/>
   </header>
 
-  <periodic fun="viewvideo_run()" freq="1" start="viewvideo_start()" stop="viewvideo_stop()" autorun="TRUE"/>
+  <init fun="viewvideo_init()"/>
   <makefile target="ap">
+
     <file name="viewvideo.c"/>
-    <file name="jpeg.c" dir="modules/computer_vision/cv/encoding"/>
-    <file name="rtp.c" dir="modules/computer_vision/cv/encoding"/>
-    <file name="socket.c" dir="modules/computer_vision/lib/udp"/>
-    <file name="video.c" dir="modules/computer_vision/lib/v4l"/>
-    <define name="modules/computer_vision/cv" type="include"/>
-    <define name="modules/computer_vision/lib" type="include"/>
-    <define name="pthread" type="raw"/>
-    <define name="__USE_GNU"/>
-    <flag name="LDFLAGS" value="pthread"/>
-    <flag name="LDFLAGS" value="lrt"/>
-    <flag name="LDFLAGS" value="static"/>
-  </makefile>
-  <makefile target="nps">
-    <file name="viewvideo_nps.c"/>
+    <!-- Include the needed Computer Vision files -->
+    <include name="modules/computer_vision"/>
+    <file name="rtp.c" dir="modules/computer_vision/lib/encoding"/>
+
+    <!-- Define the network connection to send images over -->
+    <raw>
+      include $(CFG_SHARED)/udp.makefile
+
+      VIEWVIDEO_HOST        ?= $(MODEM_HOST)
+      VIEWVIDEO_PORT_OUT    ?= 5000
+      VIEWVIDEO_BROADCAST   ?= TRUE
+      VIEWVIDEO_USE_NETCAT  ?= FALSE
+
+      VIEWVID_CFLAGS  = -DVIEWVIDEO_HOST=$(VIEWVIDEO_HOST) -DVIEWVIDEO_PORT_OUT=$(VIEWVIDEO_PORT_OUT)
+      ifneq (,$(findstring $(VIEWVIDEO_USE_NETCAT),0 FALSE))
+        ap.CFLAGS += $(VIEWVID_CFLAGS) -DVIEWVIDEO_BROADCAST=$(VIEWVIDEO_BROADCAST)
+        nps.CFLAGS += $(VIEWVID_CFLAGS) -DVIEWVIDEO_BROADCAST=FALSE
+      else
+        $(TARGET).CFLAGS += $(VIEWVID_CFLAGS) -DVIEWVIDEO_USE_NETCAT
+      endif
+    </raw>
+
   </makefile>
 </module>
-

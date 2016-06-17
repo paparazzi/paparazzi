@@ -25,7 +25,7 @@
  * Provides the control of a camera over serial, typically connected to a computer which has
  * full control of all camera functions via USB, including downloading of digital thumbnails
  *
- * The required initialization (digital_cam_uart_init()) and periodic (4Hz) process.
+ * The required initialization (digital_cam_uart_init()) and periodic process.
  */
 
 #ifndef DIGITAL_CAM_UART_H
@@ -35,7 +35,6 @@
 
 extern void digital_cam_uart_init(void);
 
-/** 4Hz Periodic */
 extern void digital_cam_uart_periodic(void);
 extern void digital_cam_uart_event(void);
 

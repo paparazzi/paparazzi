@@ -33,6 +33,9 @@
 #include "std.h"
 #include "generated/airframe.h"
 #include "subsystems/imu.h"
+#if APOGEE_USE_MPU9150
+#include "peripherals/ak8975.h"
+#endif
 
 #include "peripherals/mpu60x0_i2c.h"
 
@@ -95,9 +98,10 @@
 #endif
 
 struct ImuApogee {
-  volatile bool_t gyr_valid;
-  volatile bool_t acc_valid;
   struct Mpu60x0_I2c mpu;
+#if APOGEE_USE_MPU9150
+  struct Ak8975 ak;
+#endif
 };
 
 extern struct ImuApogee imu_apogee;
@@ -112,19 +116,6 @@ extern void imu_periodic(void);
 extern void imu_apogee_event(void);
 extern void imu_apogee_downlink_raw(void);
 
-
-static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void),
-                            void (* _mag_handler)(void) __attribute__((unused)))
-{
-  imu_apogee_event();
-  if (imu_apogee.gyr_valid) {
-    imu_apogee.gyr_valid = FALSE;
-    _gyro_handler();
-  }
-  if (imu_apogee.acc_valid) {
-    imu_apogee.acc_valid = FALSE;
-    _accel_handler();
-  }
-}
+#define ImuEvent imu_apogee_event
 
 #endif // IMU_APOGEE_H

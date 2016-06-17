@@ -2,10 +2,6 @@
 
 <airframe name="Quark">
 
-  <modules>
-    <load name="gps_ubx_ucenter.xml"/>
-  </modules>
-
   <firmware name="fixedwing">
     <define name="USE_I2C0"/>
     <define name="USE_I2C1"/>
@@ -20,19 +16,20 @@
     <target name="sim" board="pc"/>
     <target name="ap" board="umarim_lite_2.0"/>
 
-    <subsystem name="radio_control" type="datalink"/>
+    <module name="radio_control" type="datalink"/>
 
     <!-- Communication -->
-    <subsystem name="telemetry" type="transparent"/>
+    <module name="telemetry" type="transparent"/>
 
     <!-- Actuators are automatically chosen according to board-->
-    <subsystem name="imu"   type="umarim"/>
-    <subsystem name="ahrs"  type="float_dcm"/>
-    <subsystem name="ins"   type="alt_float"/>
-    <subsystem name="control" type="new"/>
-    <subsystem name="navigation"/>
+    <module name="imu"   type="umarim"/>
+    <module name="ahrs"  type="float_dcm"/>
+    <module name="ins"   type="alt_float"/>
+    <module name="control" type="new"/>
+    <module name="navigation"/>
     <!-- Sensors -->
-    <subsystem name="gps" type="ublox"/>
+    <module name="gps" type="ublox"/>
+    <module name="gps" type="ubx_ucenter"/>
   </firmware>
 
 

@@ -1,1 +1,1 @@
-# for classix and AP only boards
+# for split AP/FBW

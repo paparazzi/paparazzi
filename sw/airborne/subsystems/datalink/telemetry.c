@@ -28,30 +28,42 @@
  */
 
 #include "subsystems/datalink/telemetry_common.h"
+#include "generated/periodic_telemetry.h"
+
+/* Implement global structures from generated header.
+ * Can register up to #TELEMETRY_NB_CBS callbacks per periodic message.
+ */
+struct telemetry_cb_slots telemetry_cbs[TELEMETRY_PPRZ_NB_MSG] = TELEMETRY_PPRZ_CBS;
+struct periodic_telemetry pprz_telemetry = { TELEMETRY_PPRZ_NB_MSG, telemetry_cbs };
+
 
 /** Register a telemetry callback function.
  * @param _pt periodic telemetry structure to register
- * @param _msg message name (string) as defined in telemetry xml file
+ * @param _id message ID (use PPRZ_MSG_ID_<message_name> define)
  * @param _cb callback function, called according to telemetry mode and specified period
- * @return TRUE if message registered with success, FALSE otherwise
+ * @return -1 on failure to register, index of callback otherwise
  */
-bool_t register_periodic_telemetry(struct pprz_telemetry *_pt, const char *_msg, telemetry_cb _cb)
+int8_t register_periodic_telemetry(struct periodic_telemetry *_pt, uint8_t _id, telemetry_cb _cb)
 {
-  // return FALSE if NULL is passed as pprz_telemetry
-  if (_pt == NULL) { return FALSE; }
-  // look for message name
-  uint8_t i;
+  uint8_t i, j;
+  // return if NULL is passed as periodic_telemetry
+  if (_pt == NULL) { return -1; }
+  // check if message with id _msgn has a periodic entery in telemetry file
   for (i = 0; i < _pt->nb; i++) {
-    if (str_equal(_pt->msgs[i].msg, _msg)) {
-      // register callback if not already done
-      if (_pt->msgs[i].cb == NULL) {
-        _pt->msgs[i].cb = _cb;
-        return TRUE;
-      } else { return FALSE; }
+    if (_pt->cbs[i].id == _id) {
+      // msg found, register another callback if not all TELEMETRY_NB_CBS slots taken
+      for (j = 0; j < TELEMETRY_NB_CBS; j++) {
+        if (_pt->cbs[i].slots[j] == NULL) {
+          _pt->cbs[i].slots[j] = _cb;
+          return j;
+        }
+      }
+      // message matched but no more empty slots available
+      return -1;
     }
   }
-  // message name is not in telemetry file
-  return FALSE;
+  // message is not in telemetry file
+  return -1;
 }
 
 #if USE_PERIODIC_TELEMETRY_REPORT

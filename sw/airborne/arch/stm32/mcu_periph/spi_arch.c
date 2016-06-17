@@ -97,10 +97,10 @@ struct spi_periph_dma {
   uint8_t  rx_nvic_irq;            ///< receive interrupt
   uint8_t  tx_nvic_irq;            ///< transmit interrupt
   uint16_t tx_dummy_buf;           ///< dummy tx buffer for receive only cases
-  bool_t tx_extra_dummy_dma;       ///< extra tx dummy dma flag for tx_len < rx_len
+  bool tx_extra_dummy_dma;       ///< extra tx dummy dma flag for tx_len < rx_len
   uint16_t rx_dummy_buf;           ///< dummy rx buffer for receive only cases
-  bool_t rx_extra_dummy_dma;       ///< extra rx dummy dma flag for tx_len > rx_len
-  struct locm3_spi_comm comm;      ///< current communication paramters
+  bool rx_extra_dummy_dma;       ///< extra rx dummy dma flag for tx_len > rx_len
+  struct locm3_spi_comm comm;      ///< current communication parameters
   uint8_t  comm_sig;               ///< comm config signature used to check for changes
 };
 
@@ -121,9 +121,9 @@ static struct spi_periph_dma spi3_dma;
 static void spi_start_dma_transaction(struct spi_periph *periph, struct spi_transaction *_trans);
 static void spi_next_transaction(struct spi_periph *periph);
 static void spi_configure_dma(uint32_t dma, uint32_t rcc_dma, uint8_t chan, uint32_t periph_addr, uint32_t buf_addr,
-                              uint16_t len, enum SPIDataSizeSelect dss, bool_t increment);
-static void process_rx_dma_interrupt(struct spi_periph *periph);
-static void process_tx_dma_interrupt(struct spi_periph *periph);
+                              uint16_t len, enum SPIDataSizeSelect dss, bool increment);
+static void __attribute__((unused)) process_rx_dma_interrupt(struct spi_periph *periph);
+static void __attribute__((unused)) process_tx_dma_interrupt(struct spi_periph *periph);
 static void spi_arch_int_enable(struct spi_periph *spi);
 static void spi_arch_int_disable(struct spi_periph *spi);
 
@@ -260,14 +260,14 @@ void spi_init_slaves(void)
  * Implementation of the generic SPI functions
  *
  *****************************************************************************/
-bool_t spi_submit(struct spi_periph *p, struct spi_transaction *t)
+bool spi_submit(struct spi_periph *p, struct spi_transaction *t)
 {
   uint8_t idx;
   idx = p->trans_insert_idx + 1;
   if (idx >= SPI_TRANSACTION_QUEUE_LEN) { idx = 0; }
   if ((idx == p->trans_extract_idx) || ((t->input_length == 0) && (t->output_length == 0))) {
     t->status = SPITransFailed;
-    return FALSE; /* queue full or input_length and output_length both 0 */
+    return false; /* queue full or input_length and output_length both 0 */
     // TODO can't tell why it failed here if it does
   }
 
@@ -287,22 +287,22 @@ bool_t spi_submit(struct spi_periph *p, struct spi_transaction *t)
   }
   //FIXME
   spi_arch_int_enable(p);
-  return TRUE;
+  return true;
 }
 
-bool_t spi_lock(struct spi_periph *p, uint8_t slave)
+bool spi_lock(struct spi_periph *p, uint8_t slave)
 {
   spi_arch_int_disable(p);
   if (slave < 254 && p->suspend == 0) {
     p->suspend = slave + 1; // 0 is reserved for unlock state
     spi_arch_int_enable(p);
-    return TRUE;
+    return true;
   }
   spi_arch_int_enable(p);
-  return FALSE;
+  return false;
 }
 
-bool_t spi_resume(struct spi_periph *p, uint8_t slave)
+bool spi_resume(struct spi_periph *p, uint8_t slave)
 {
   spi_arch_int_disable(p);
   if (p->suspend == slave + 1) {
@@ -312,10 +312,10 @@ bool_t spi_resume(struct spi_periph *p, uint8_t slave)
       spi_start_dma_transaction(p, p->trans[p->trans_extract_idx]);
     }
     spi_arch_int_enable(p);
-    return TRUE;
+    return true;
   }
   spi_arch_int_enable(p);
-  return FALSE;
+  return false;
 }
 
 
@@ -324,7 +324,7 @@ bool_t spi_resume(struct spi_periph *p, uint8_t slave)
  * Transaction configuration helper functions
  *
  *****************************************************************************/
-static void set_default_comm_config(struct locm3_spi_comm *c)
+static void __attribute__((unused)) set_default_comm_config(struct locm3_spi_comm *c)
 {
   c->br = SPI_CR1_BAUDRATE_FPCLK_DIV_64;
   c->cpol = SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE;
@@ -339,7 +339,7 @@ static inline uint8_t get_transaction_signature(struct spi_transaction *t)
           (t->cpha << 1) | (t->cpol));
 }
 
-static uint8_t get_comm_signature(struct locm3_spi_comm *c)
+static uint8_t __attribute__((unused)) get_comm_signature(struct locm3_spi_comm *c)
 {
   uint8_t sig = 0;
   if (c->cpol == SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE) {
@@ -456,7 +456,7 @@ static void set_comm_from_transaction(struct locm3_spi_comm *c, struct spi_trans
  *
  *****************************************************************************/
 static void spi_configure_dma(uint32_t dma, uint32_t rcc_dma, uint8_t chan, uint32_t periph_addr, uint32_t buf_addr,
-                              uint16_t len, enum SPIDataSizeSelect dss, bool_t increment)
+                              uint16_t len, enum SPIDataSizeSelect dss, bool increment)
 {
   rcc_periph_clock_enable(rcc_dma);
 #ifdef STM32F1
@@ -603,7 +603,7 @@ static void spi_start_dma_transaction(struct spi_periph *periph, struct spi_tran
     /* use dummy rx dma for the rest */
     if (trans->output_length > trans->input_length) {
       /* Enable use of second dma transfer with dummy buffer (cleared in ISR) */
-      dma->rx_extra_dummy_dma = TRUE;
+      dma->rx_extra_dummy_dma = true;
     }
   }
 #ifdef STM32F1
@@ -623,7 +623,7 @@ static void spi_start_dma_transaction(struct spi_periph *periph, struct spi_tran
    * To receive data, the clock must run, so something has to be transmitted.
    * If needed, use a dummy DMA transmitting zeros for the remaining length.
    *
-   * In the reveive only case (output_length == 0),
+   * In the receive only case (output_length == 0),
    * the dummy is used right from the start.
    */
   if (trans->output_length == 0) {
@@ -634,7 +634,7 @@ static void spi_start_dma_transaction(struct spi_periph *periph, struct spi_tran
                       (uint32_t)trans->output_buf, trans->output_length, trans->dss, TRUE);
     if (trans->input_length > trans->output_length) {
       /* Enable use of second dma transfer with dummy buffer (cleared in ISR) */
-      dma->tx_extra_dummy_dma = TRUE;
+      dma->tx_extra_dummy_dma = true;
     }
   }
 #ifdef STM32F1
@@ -696,9 +696,9 @@ void spi1_arch_init(void)
   spi1_dma.tx_nvic_irq = NVIC_DMA2_STREAM5_IRQ;
 #endif
   spi1_dma.tx_dummy_buf = 0;
-  spi1_dma.tx_extra_dummy_dma = FALSE;
+  spi1_dma.tx_extra_dummy_dma = false;
   spi1_dma.rx_dummy_buf = 0;
-  spi1_dma.rx_extra_dummy_dma = FALSE;
+  spi1_dma.rx_extra_dummy_dma = false;
 
   // set the default configuration
   set_default_comm_config(&spi1_dma.comm);
@@ -717,13 +717,9 @@ void spi1_arch_init(void)
 
   // Configure GPIOs: SCK, MISO and MOSI
 #ifdef STM32F1
-  // TODO configure lisa board files to use gpio_setup_pin_af function
-  gpio_set_mode(GPIO_BANK_SPI1_SCK, GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
-                GPIO_SPI1_SCK | GPIO_SPI1_MOSI);
-
-  gpio_set_mode(GPIO_BANK_SPI1_MISO, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT,
-                GPIO_SPI1_MISO);
+  gpio_setup_pin_af(GPIO_BANK_SPI1_MISO, GPIO_SPI1_MISO, 0, FALSE);
+  gpio_setup_pin_af(GPIO_BANK_SPI1_MOSI, GPIO_SPI1_MOSI, 0, TRUE);
+  gpio_setup_pin_af(GPIO_BANK_SPI1_SCK, GPIO_SPI1_SCK, 0, TRUE);
 #elif defined STM32F4
   gpio_setup_pin_af(SPI1_GPIO_PORT_MISO, SPI1_GPIO_MISO, SPI1_GPIO_AF, FALSE);
   gpio_setup_pin_af(SPI1_GPIO_PORT_MOSI, SPI1_GPIO_MOSI, SPI1_GPIO_AF, TRUE);
@@ -788,9 +784,9 @@ void spi2_arch_init(void)
   spi2_dma.tx_nvic_irq = NVIC_DMA1_STREAM4_IRQ;
 #endif
   spi2_dma.tx_dummy_buf = 0;
-  spi2_dma.tx_extra_dummy_dma = FALSE;
+  spi2_dma.tx_extra_dummy_dma = false;
   spi2_dma.rx_dummy_buf = 0;
-  spi2_dma.rx_extra_dummy_dma = FALSE;
+  spi2_dma.rx_extra_dummy_dma = false;
 
   // set the default configuration
   set_default_comm_config(&spi2_dma.comm);
@@ -809,13 +805,9 @@ void spi2_arch_init(void)
 
   // Configure GPIOs: SCK, MISO and MOSI
 #ifdef STM32F1
-  // TODO configure lisa board files to use gpio_setup_pin_af function
-  gpio_set_mode(GPIO_BANK_SPI2_SCK, GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
-                GPIO_SPI2_SCK | GPIO_SPI2_MOSI);
-
-  gpio_set_mode(GPIO_BANK_SPI2_MISO, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT,
-                GPIO_SPI2_MISO);
+  gpio_setup_pin_af(GPIO_BANK_SPI2_MISO, GPIO_SPI2_MISO, 0, FALSE);
+  gpio_setup_pin_af(GPIO_BANK_SPI2_MOSI, GPIO_SPI2_MOSI, 0, TRUE);
+  gpio_setup_pin_af(GPIO_BANK_SPI2_SCK, GPIO_SPI2_SCK, 0, TRUE);
 #elif defined STM32F4
   gpio_setup_pin_af(SPI2_GPIO_PORT_MISO, SPI2_GPIO_MISO, SPI2_GPIO_AF, FALSE);
   gpio_setup_pin_af(SPI2_GPIO_PORT_MOSI, SPI2_GPIO_MOSI, SPI2_GPIO_AF, TRUE);
@@ -881,9 +873,9 @@ void spi3_arch_init(void)
   spi3_dma.tx_nvic_irq = NVIC_DMA1_STREAM5_IRQ;
 #endif
   spi3_dma.tx_dummy_buf = 0;
-  spi3_dma.tx_extra_dummy_dma = FALSE;
+  spi3_dma.tx_extra_dummy_dma = false;
   spi3_dma.rx_dummy_buf = 0;
-  spi3_dma.rx_extra_dummy_dma = FALSE;
+  spi3_dma.rx_extra_dummy_dma = false;
 
   // set the default configuration
   set_default_comm_config(&spi3_dma.comm);
@@ -902,13 +894,9 @@ void spi3_arch_init(void)
 
   // Configure GPIOs: SCK, MISO and MOSI
 #ifdef STM32F1
-  // TODO configure lisa board files to use gpio_setup_pin_af function
-  gpio_set_mode(GPIO_BANK_SPI3_SCK, GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
-                GPIO_SPI3_SCK | GPIO_SPI3_MOSI);
-
-  gpio_set_mode(GPIO_BANK_SPI3_MISO, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT,
-                GPIO_SPI3_MISO);
+  gpio_setup_pin_af(GPIO_BANK_SPI3_MISO, GPIO_SPI3_MISO, 0, FALSE);
+  gpio_setup_pin_af(GPIO_BANK_SPI3_MOSI, GPIO_SPI3_MOSI, 0, TRUE);
+  gpio_setup_pin_af(GPIO_BANK_SPI3_SCK, GPIO_SPI3_SCK, 0, TRUE);
 #elif defined STM32F4
   gpio_setup_pin_af(SPI3_GPIO_PORT_MISO, SPI3_GPIO_MISO, SPI3_GPIO_AF, FALSE);
   gpio_setup_pin_af(SPI3_GPIO_PORT_MOSI, SPI3_GPIO_MOSI, SPI3_GPIO_AF, TRUE);
@@ -1099,7 +1087,7 @@ void process_rx_dma_interrupt(struct spi_periph * periph) {
      */
 
     /* Reset the flag so this only happens once in a transaction */
-    dma->rx_extra_dummy_dma = FALSE;
+    dma->rx_extra_dummy_dma = false;
 
     /* Use the difference in length between rx and tx */
     uint16_t len_remaining = trans->output_length - trans->input_length;
@@ -1173,7 +1161,7 @@ void process_tx_dma_interrupt(struct spi_periph * periph) {
      */
 
     /* Reset the flag so this only happens once in a transaction */
-    dma->tx_extra_dummy_dma = FALSE;
+    dma->tx_extra_dummy_dma = false;
 
     /* Use the difference in length between tx and rx */
     uint16_t len_remaining = trans->input_length - trans->output_length;
@@ -1209,21 +1197,17 @@ void process_tx_dma_interrupt(struct spi_periph * periph) {
 /*
  *
  * SPI Slave code
- * Currently only for F1, SPI1
+ * Currently only for F1
  *
  */
 #ifdef SPI_SLAVE
 
+static void process_slave_tx_dma_interrupt(struct spi_periph * periph);
 static void process_slave_rx_dma_interrupt(struct spi_periph * periph);
 
-
-// SPI arch slave init
+/****************** Slave 1 ******************/
 #if USE_SPI1_SLAVE
 #warning "SPI1 slave: Untested code!"
-
-#ifndef STM32F1
-#error "SPI1 slave on STM32 only implemented for STM32F1"
-#endif
 
 #if USE_SPI1
 #error "Using SPI1 as a slave and master at the same time is not possible."
@@ -1234,16 +1218,27 @@ static struct spi_periph_dma spi1_dma;
 void spi1_slave_arch_init(void) {
   // set dma options
   spi1_dma.spidr = (uint32_t)&SPI1_DR;
+#ifdef STM32F1
   spi1_dma.dma = DMA1;
   spi1_dma.rcc_dma = RCC_DMA1;
   spi1_dma.rx_chan = DMA_CHANNEL2;
   spi1_dma.tx_chan = DMA_CHANNEL3;
   spi1_dma.rx_nvic_irq = NVIC_DMA1_CHANNEL2_IRQ;
   spi1_dma.tx_nvic_irq = NVIC_DMA1_CHANNEL3_IRQ;
+#elif defined STM32F4
+  spi1_dma.dma = DMA2;
+  spi1_dma.rcc_dma = RCC_DMA2;
+  spi1_dma.rx_chan = DMA_STREAM0;
+  spi1_dma.tx_chan = DMA_STREAM5;
+  spi1_dma.rx_chan_sel = DMA_SxCR_CHSEL_3;
+  spi1_dma.tx_chan_sel = DMA_SxCR_CHSEL_3;
+  spi1_dma.rx_nvic_irq = NVIC_DMA2_STREAM0_IRQ;
+  spi1_dma.tx_nvic_irq = NVIC_DMA2_STREAM5_IRQ;
+#endif
   spi1_dma.tx_dummy_buf = 0;
-  spi1_dma.tx_extra_dummy_dma = FALSE;
+  spi1_dma.tx_extra_dummy_dma = false;
   spi1_dma.rx_dummy_buf = 0;
-  spi1_dma.rx_extra_dummy_dma = FALSE;
+  spi1_dma.rx_extra_dummy_dma = false;
 
   // set the default configuration
   set_default_comm_config(&spi1_dma.comm);
@@ -1260,18 +1255,19 @@ void spi1_slave_arch_init(void) {
   rcc_periph_clock_enable(RCC_SPI1);
 
   // Configure GPIOs: SCK, MISO and MOSI
-  // TODO configure lisa board files to use gpio_setup_pin_af function
-  gpio_set_mode(GPIO_BANK_SPI1_SCK, GPIO_MODE_INPUT,
-                GPIO_CNF_INPUT_FLOAT,
-                GPIO_SPI1_SCK | GPIO_SPI1_MOSI);
+#if defined STM32F1
+  gpio_setup_pin_af(GPIO_BANK_SPI1_MISO, GPIO_SPI1_MISO, 0, TRUE);
+  gpio_setup_pin_af(GPIO_BANK_SPI1_MOSI, GPIO_SPI1_MOSI, 0, FALSE);
+  gpio_setup_pin_af(GPIO_BANK_SPI1_SCK, GPIO_SPI1_SCK, 0, FALSE);
+  gpio_setup_pin_af(GPIO_BANK_SPI1_NSS, GPIO_SPI1_NSS, 0, FALSE);
+#elif defined STM32F4
+  gpio_setup_pin_af(SPI1_GPIO_PORT_MISO, SPI1_GPIO_MISO, SPI1_GPIO_AF, TRUE);
+  gpio_setup_pin_af(SPI1_GPIO_PORT_MOSI, SPI1_GPIO_MOSI, SPI1_GPIO_AF, FALSE);
+  gpio_setup_pin_af(SPI1_GPIO_PORT_SCK, SPI1_GPIO_SCK, SPI1_GPIO_AF, FALSE);
+  gpio_setup_pin_af(SPI1_GPIO_PORT_NSS, SPI1_GPIO_NSS, SPI1_GPIO_AF, FALSE);
 
-  gpio_set_mode(GPIO_BANK_SPI1_MISO, GPIO_MODE_OUTPUT_50_MHZ,
-                GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
-                GPIO_SPI1_MISO);
-
-  gpio_set_mode(GPIO_BANK_SPI1_NSS, GPIO_MODE_INPUT,
-                GPIO_CNF_INPUT_FLOAT,
-                GPIO_SPI1_NSS);
+  gpio_set_output_options(SPI1_GPIO_PORT_MISO, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI1_GPIO_MISO);
+#endif
 
   // reset SPI
   spi_reset(SPI1);
@@ -1279,15 +1275,17 @@ void spi1_slave_arch_init(void) {
   // Disable SPI peripheral
   spi_disable(SPI1);
 
-  // Force SPI mode over I2S.
+  // Force SPI mode over I2S
   SPI1_I2SCFGR = 0;
 
-  // configure master SPI.
+  // configure default spi settings
   spi_init_master(SPI1, spi1_dma.comm.br, spi1_dma.comm.cpol, spi1_dma.comm.cpha,
                   spi1_dma.comm.dff, spi1_dma.comm.lsbfirst);
 
+  // configure slave select management
   spi_disable_software_slave_management(SPI1);
 
+  // set slave mode
   spi_set_slave_mode(SPI1);
 
   // Enable SPI_1 DMA clock
@@ -1295,50 +1293,336 @@ void spi1_slave_arch_init(void) {
 
   // Enable SPI1 periph.
   spi_enable(SPI1);
-
-  spi_arch_int_enable(&spi1);
 }
 
 /// receive transferred over DMA
+#ifdef STM32F1
 void dma1_channel2_isr(void) {
   if ((DMA1_ISR & DMA_ISR_TCIF2) != 0) {
     // clear int pending bit
     DMA1_IFCR |= DMA_IFCR_CTCIF2;
   }
+#elif defined STM32F4
+void dma2_stream0_isr(void) {
+  if ((DMA2_LISR & DMA_LISR_TCIF0) != 0) {
+    // clear int pending bit
+    DMA2_LIFCR |= DMA_LIFCR_CTCIF0;
+  }
+#endif
   process_slave_rx_dma_interrupt(&spi1);
 }
 
+/// transmit transferred over DMA
+#ifdef STM32F1
+void dma1_channel3_isr(void) {
+  if ((DMA1_ISR & DMA_ISR_TCIF3) != 0) {
+    // clear int pending bit
+    DMA1_IFCR |= DMA_IFCR_CTCIF3;
+  }
+#elif defined STM32F4
+void dma2_stream5_isr(void) {
+  if ((DMA2_HISR & DMA_HISR_TCIF5) != 0) {
+    // clear int pending bit
+    DMA2_HIFCR |= DMA_HIFCR_CTCIF5;
+  }
+#endif
+  process_slave_tx_dma_interrupt(&spi1);
+}
 
 #endif /* USE_SPI1_SLAVE */
 
+/****************** Slave 2 ******************/
+#if USE_SPI2_SLAVE
+#ifndef STM32F1
+#warning "SPI2 slave only tested on STM32F1!"
+#endif
 
+#if USE_SPI2
+#error "Using SPI2 as a slave and master at the same time is not possible."
+#endif
+
+static struct spi_periph_dma spi2_dma;
+
+void spi2_slave_arch_init(void) {
+  // set dma options
+  spi2_dma.spidr = (uint32_t)&SPI2_DR;
+  spi2_dma.dma = DMA1;
+  spi2_dma.rcc_dma = RCC_DMA1;
+#ifdef STM32F1
+  spi2_dma.rx_chan = DMA_CHANNEL4;
+  spi2_dma.tx_chan = DMA_CHANNEL5;
+  spi2_dma.rx_nvic_irq = NVIC_DMA1_CHANNEL4_IRQ;
+  spi2_dma.tx_nvic_irq = NVIC_DMA1_CHANNEL5_IRQ;
+#elif defined STM32F4
+  spi2_dma.rx_chan = DMA_STREAM3;
+  spi2_dma.tx_chan = DMA_STREAM4;
+  spi2_dma.rx_chan_sel = DMA_SxCR_CHSEL_0;
+  spi2_dma.tx_chan_sel = DMA_SxCR_CHSEL_0;
+  spi2_dma.rx_nvic_irq = NVIC_DMA1_STREAM3_IRQ;
+  spi2_dma.tx_nvic_irq = NVIC_DMA1_STREAM4_IRQ;
+#endif
+  spi2_dma.tx_dummy_buf = 0;
+  spi2_dma.tx_extra_dummy_dma = false;
+  spi2_dma.rx_dummy_buf = 0;
+  spi2_dma.rx_extra_dummy_dma = false;
+
+  // set the default configuration
+  set_default_comm_config(&spi2_dma.comm);
+  spi2_dma.comm_sig = get_comm_signature(&spi2_dma.comm);
+
+  // set init struct, indices and status
+  spi2.reg_addr = (void *)SPI2;
+  spi2.init_struct = &spi2_dma;
+  spi2.trans_insert_idx = 0;
+  spi2.trans_extract_idx = 0;
+  spi2.status = SPIIdle;
+
+  // Enable SPI2 Periph and gpio clocks
+  rcc_periph_clock_enable(RCC_SPI2);
+
+  // Configure GPIOs: SCK, MISO and MOSI
+#ifdef STM32F1
+  gpio_setup_pin_af(GPIO_BANK_SPI2_MISO, GPIO_SPI2_MISO, 0, TRUE);
+  gpio_setup_pin_af(GPIO_BANK_SPI2_MOSI, GPIO_SPI2_MOSI, 0, FALSE);
+  gpio_setup_pin_af(GPIO_BANK_SPI2_SCK, GPIO_SPI2_SCK, 0, FALSE);
+  gpio_setup_pin_af(GPIO_BANK_SPI2_NSS, GPIO_SPI2_NSS, 0, FALSE);
+#elif defined STM32F4
+  gpio_setup_pin_af(SPI2_GPIO_PORT_MISO, SPI2_GPIO_MISO, SPI2_GPIO_AF, TRUE);
+  gpio_setup_pin_af(SPI2_GPIO_PORT_MOSI, SPI2_GPIO_MOSI, SPI2_GPIO_AF, FALSE);
+  gpio_setup_pin_af(SPI2_GPIO_PORT_SCK, SPI2_GPIO_SCK, SPI2_GPIO_AF, FALSE);
+  gpio_setup_pin_af(SPI2_GPIO_PORT_NSS, SPI2_GPIO_NSS, SPI2_GPIO_AF, FALSE);
+
+  gpio_set_output_options(SPI2_GPIO_PORT_MISO, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI2_GPIO_MISO);
+#endif
+
+  // reset SPI
+  spi_reset(SPI2);
+
+  // Disable SPI peripheral
+  spi_disable(SPI2);
+
+  // Force SPI mode over I2S
+  SPI2_I2SCFGR = 0;
+
+  // configure default spi settings
+  spi_init_master(SPI2, spi2_dma.comm.br, spi2_dma.comm.cpol, spi2_dma.comm.cpha,
+                  spi2_dma.comm.dff, spi2_dma.comm.lsbfirst);
+
+  // configure slave select management
+  spi_disable_software_slave_management(SPI2);
+
+  // set slave mode
+  spi_set_slave_mode(SPI2);
+
+  // Enable SPI_2 DMA clock
+  rcc_periph_clock_enable(spi2_dma.rcc_dma);
+
+  // Enable SPI2 periph
+  spi_enable(SPI2);
+}
+
+/// receive transferred over DMA
+#ifdef STM32F1
+void dma1_channel4_isr(void) {
+  if ((DMA1_ISR & DMA_ISR_TCIF4) != 0) {
+    // clear int pending bit
+    DMA1_IFCR |= DMA_IFCR_CTCIF4;
+  }
+#elif defined STM32F4
+void dma1_stream3_isr(void) {
+  if ((DMA1_LISR & DMA_LISR_TCIF3) != 0) {
+    // clear int pending bit
+    DMA1_LIFCR |= DMA_LIFCR_CTCIF3;
+  }
+#endif
+  process_slave_rx_dma_interrupt(&spi2);
+}
+
+/// transmit transferred over DMA
+#ifdef STM32F1
+void dma1_channel5_isr(void) {
+  if ((DMA1_ISR & DMA_ISR_TCIF5) != 0) {
+    // clear int pending bit
+    DMA1_IFCR |= DMA_IFCR_CTCIF5;
+  }
+#elif defined STM32F4
+void dma1_stream4_isr(void) {
+  if ((DMA1_HISR & DMA_HISR_TCIF4) != 0) {
+    // clear int pending bit
+    DMA1_HIFCR |= DMA_HIFCR_CTCIF4;
+  }
+#endif
+  process_slave_tx_dma_interrupt(&spi2);
+}
+
+#endif /* USE_SPI2_SLAVE */
+
+
+#if USE_SPI3_SLAVE
+#ifndef STM32F4
+#warning "SPI3 slave only tested on STM32F4!"
+#endif
+
+/****************** Slave 3 ******************/
+#if USE_SPI3
+#error "Using SPI3 as a slave and master at the same time is not possible."
+#endif
+
+static struct spi_periph_dma spi3_dma;
+
+void spi3_slave_arch_init(void) {
+  // set dma options
+  spi3_dma.spidr = (uint32_t)&SPI3_DR;
+#if defined STM32F1
+  spi3_dma.dma = DMA2;
+  spi3_dma.rcc_dma = RCC_DMA2;
+  spi3_dma.rx_chan = DMA_CHANNEL1;
+  spi3_dma.tx_chan = DMA_CHANNEL2;
+  spi3_dma.rx_nvic_irq = NVIC_DMA2_CHANNEL1_IRQ;
+  spi3_dma.tx_nvic_irq = NVIC_DMA2_CHANNEL2_IRQ;
+#elif defined STM32F4
+  spi3_dma.dma = DMA1;
+  spi3_dma.rcc_dma = RCC_DMA1;
+  spi3_dma.rx_chan = DMA_STREAM0;
+  spi3_dma.tx_chan = DMA_STREAM5;
+  spi3_dma.rx_chan_sel = DMA_SxCR_CHSEL_0;
+  spi3_dma.tx_chan_sel = DMA_SxCR_CHSEL_0;
+  spi3_dma.rx_nvic_irq = NVIC_DMA1_STREAM0_IRQ;
+  spi3_dma.tx_nvic_irq = NVIC_DMA1_STREAM5_IRQ;
+#endif
+  spi3_dma.tx_dummy_buf = 0;
+  spi3_dma.tx_extra_dummy_dma = false;
+  spi3_dma.rx_dummy_buf = 0;
+  spi3_dma.rx_extra_dummy_dma = false;
+
+  // set the default configuration
+  set_default_comm_config(&spi3_dma.comm);
+  spi3_dma.comm_sig = get_comm_signature(&spi3_dma.comm);
+
+  // set init struct, indices and status
+  spi3.reg_addr = (void *)SPI3;
+  spi3.init_struct = &spi3_dma;
+  spi3.trans_insert_idx = 0;
+  spi3.trans_extract_idx = 0;
+  spi3.status = SPIIdle;
+
+  // Enable SPI3 Periph and gpio clocks
+  rcc_periph_clock_enable(RCC_SPI3);
+
+  // Configure GPIOs: SCK, MISO and MOSI
+#if defined STM32F1
+  gpio_setup_pin_af(GPIO_BANK_SPI3_MISO, GPIO_SPI3_MISO, 0, TRUE);
+  gpio_setup_pin_af(GPIO_BANK_SPI3_MOSI, GPIO_SPI3_MOSI, 0, FALSE);
+  gpio_setup_pin_af(GPIO_BANK_SPI3_SCK, GPIO_SPI3_SCK, 0, FALSE);
+  // set NSS as input
+  gpio_setup_pin_af(GPIO_BANK_SPI3_NSS, GPIO_SPI3_NSS, 0, FALSE);
+#elif defined STM32F4
+  gpio_setup_pin_af(SPI3_GPIO_PORT_MISO, SPI3_GPIO_MISO, SPI3_GPIO_AF, TRUE);
+  gpio_setup_pin_af(SPI3_GPIO_PORT_MOSI, SPI3_GPIO_MOSI, SPI3_GPIO_AF, FALSE);
+  gpio_setup_pin_af(SPI3_GPIO_PORT_SCK, SPI3_GPIO_SCK, SPI3_GPIO_AF, FALSE);
+  gpio_setup_pin_af(SPI3_GPIO_PORT_NSS, SPI3_GPIO_NSS, SPI3_GPIO_AF, FALSE);
+
+  gpio_set_output_options(SPI3_GPIO_PORT_MISO, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, SPI3_GPIO_MISO);
+#endif
+
+  // reset SPI
+  spi_reset(SPI3);
+
+  // Disable SPI peripheral
+  spi_disable(SPI3);
+
+  // Force SPI mode over I2S
+  SPI3_I2SCFGR = 0;
+
+  // configure default spi settings
+  spi_init_master(SPI3, spi3_dma.comm.br, spi3_dma.comm.cpol, spi3_dma.comm.cpha,
+                  spi3_dma.comm.dff, spi3_dma.comm.lsbfirst);
+
+  // configure slave select management
+  spi_disable_software_slave_management(SPI3);
+
+  // set slave mode
+  spi_set_slave_mode(SPI3);
+
+  // Enable SPI_2 DMA clock
+  rcc_periph_clock_enable(spi3_dma.rcc_dma);
+
+  // Enable SPI3 periph
+  spi_enable(SPI3);
+}
+
+/// receive transferred over DMA
+#ifdef STM32F1
+void dma2_channel1_isr(void) {
+  if ((DMA2_ISR & DMA_ISR_TCIF1) != 0) {
+    // clear int pending bit
+    DMA2_IFCR |= DMA_IFCR_CTCIF1;
+  }
+#elif defined STM32F4
+void dma1_stream0_isr(void) {
+  if ((DMA1_LISR & DMA_LISR_TCIF0) != 0) {
+    // clear int pending bit
+    DMA1_LIFCR |= DMA_LIFCR_CTCIF0;
+  }
+#endif
+  process_slave_rx_dma_interrupt(&spi3);
+}
+
+/// transmit transferred over DMA
+#ifdef STM32F1
+void dma2_channel2_isr(void) {
+  if ((DMA2_ISR & DMA_ISR_TCIF2) != 0) {
+    // clear int pending bit
+    DMA2_IFCR |= DMA_IFCR_CTCIF2;
+  }
+#elif defined STM32F4
+void dma1_stream5_isr(void) {
+  if ((DMA1_HISR & DMA_HISR_TCIF5) != 0) {
+    // clear int pending bit
+    DMA1_HIFCR |= DMA_HIFCR_CTCIF5;
+  }
+#endif
+  process_slave_tx_dma_interrupt(&spi3);
+}
+
+#endif /* USE_SPI3_SLAVE */
+
+/****************** General SPI slave Functions ******************/
 static void spi_slave_set_config(struct spi_periph * periph, struct spi_transaction * trans) {
   struct spi_periph_dma *dma;
 
   dma = periph->init_struct;
 
+  /* set the new configuration */
   set_comm_from_transaction(&(dma->comm), trans);
 
   /* remember the new conf signature */
-  //dma->comm_sig = sig;
+  dma->comm_sig = get_transaction_signature(trans);
 
   /* apply the new configuration */
   spi_disable((uint32_t)periph->reg_addr);
   spi_init_master((uint32_t)periph->reg_addr, dma->comm.br, dma->comm.cpol,
                   dma->comm.cpha, dma->comm.dff, dma->comm.lsbfirst);
+
+  // configure slave select management
   spi_disable_software_slave_management((uint32_t)periph->reg_addr);
+
+  // set slave mode
   spi_set_slave_mode((uint32_t)periph->reg_addr);
+
+  // enable spi peripheral
   spi_enable((uint32_t)periph->reg_addr);
 }
 
-
-
 //static void spi_start_slave_dma_transaction(struct spi_periph* periph, struct spi_transaction* trans)
-bool_t spi_slave_register(struct spi_periph * periph, struct spi_transaction * trans) {
-  spi_slave_set_config(periph, trans);
 
-  struct spi_periph_dma *dma;
-  uint8_t sig = 0x00;
+/*
+ * Please note: Spi_slave_register will set-up the DMA which will automatically load the first byte of the transmit buffer
+ * Therefore, to ensure that the first byte of your data will be set, you have to set the transmit buffer before you call
+ * this function
+ */
+bool spi_slave_register(struct spi_periph * periph, struct spi_transaction * trans) {
+  struct spi_periph_dma *dma = periph->init_struct;
 
   /* Store local copy to notify of the results */
   trans->status = SPITransRunning;
@@ -1347,17 +1631,11 @@ bool_t spi_slave_register(struct spi_periph * periph, struct spi_transaction * t
   periph->trans_insert_idx = 0;
   periph->trans[periph->trans_insert_idx] = trans;
 
-  dma = periph->init_struct;
-
-  /*
-   * Receive DMA channel configuration ----------------------------------------
-   */
-  spi_configure_dma(dma->dma, dma->rcc_dma, dma->rx_chan, (uint32_t)dma->spidr,
-                    (uint32_t)trans->input_buf, trans->input_length, trans->dss, TRUE);
-
-  dma_set_read_from_peripheral(dma->dma, dma->rx_chan);
-  dma_set_priority(dma->dma, dma->rx_chan, DMA_CCR_PL_VERY_HIGH);
-
+  /* update peripheral if changed */
+  uint8_t sig = get_transaction_signature(trans);
+  if (sig != dma->comm_sig) {
+    spi_slave_set_config(periph, trans);
+  }
 
   /*
    * Transmit DMA channel configuration ---------------------------------------
@@ -1365,21 +1643,51 @@ bool_t spi_slave_register(struct spi_periph * periph, struct spi_transaction * t
   spi_configure_dma(dma->dma, dma->rcc_dma, dma->tx_chan, (uint32_t)dma->spidr,
                     (uint32_t)trans->output_buf, trans->output_length, trans->dss, TRUE);
 
+#ifdef STM32F1
   dma_set_read_from_memory(dma->dma, dma->tx_chan);
   dma_set_priority(dma->dma, dma->tx_chan, DMA_CCR_PL_MEDIUM);
+#elif defined STM32F4
+  dma_channel_select(dma->dma, dma->tx_chan, dma->tx_chan_sel);
+  dma_set_transfer_mode(dma->dma, dma->tx_chan, DMA_SxCR_DIR_MEM_TO_PERIPHERAL);
+  dma_set_priority(dma->dma, dma->tx_chan, DMA_SxCR_PL_MEDIUM);
+#endif
+
+  /*
+   * Receive DMA channel configuration ----------------------------------------
+   */
+  spi_configure_dma(dma->dma, dma->rcc_dma, dma->rx_chan, (uint32_t)dma->spidr,
+                    (uint32_t)trans->input_buf, trans->input_length, trans->dss, TRUE);
+
+#ifdef STM32F1
+  dma_set_read_from_peripheral(dma->dma, dma->rx_chan);
+  dma_set_priority(dma->dma, dma->rx_chan, DMA_CCR_PL_VERY_HIGH);
+#elif defined STM32F4
+  dma_channel_select(dma->dma, dma->rx_chan, dma->rx_chan_sel);
+  dma_set_transfer_mode(dma->dma, dma->rx_chan, DMA_SxCR_DIR_PERIPHERAL_TO_MEM);
+  dma_set_priority(dma->dma, dma->rx_chan, DMA_SxCR_PL_VERY_HIGH);
+#endif
 
   /* Enable DMA transfer complete interrupts. */
+  dma_enable_transfer_complete_interrupt(dma->dma, dma->tx_chan);
   dma_enable_transfer_complete_interrupt(dma->dma, dma->rx_chan);
 
   /* Enable DMA channels */
-  dma_enable_channel(dma->dma, dma->rx_chan);
+#ifdef STM32F1
   dma_enable_channel(dma->dma, dma->tx_chan);
+  dma_enable_channel(dma->dma, dma->rx_chan);
+#elif defined STM32F4
+  dma_enable_stream(dma->dma, dma->tx_chan);
+  dma_enable_stream(dma->dma, dma->rx_chan);
+#endif
 
   /* Enable SPI transfers via DMA */
-  spi_enable_rx_dma((uint32_t)periph->reg_addr);
   spi_enable_tx_dma((uint32_t)periph->reg_addr);
+  spi_enable_rx_dma((uint32_t)periph->reg_addr);
 
-  return TRUE;
+  /* enable dma interrupt */
+  spi_arch_int_enable(periph);
+
+  return true;
 }
 
 void process_slave_rx_dma_interrupt(struct spi_periph * periph) {
@@ -1389,31 +1697,42 @@ void process_slave_rx_dma_interrupt(struct spi_periph * periph) {
   /* Disable DMA Channel */
   dma_disable_transfer_complete_interrupt(dma->dma, dma->rx_chan);
 
-  /* Disable SPI Rx request */
+  /* disable dma interrupts */
+  spi_arch_int_disable(periph);
+
+  /* Disable SPI rx request */
   spi_disable_rx_dma((uint32_t)periph->reg_addr);
 
   /* Disable DMA rx channel */
+#ifdef STM32F1
   dma_disable_channel(dma->dma, dma->rx_chan);
+#elif defined STM32F4
+  dma_disable_stream(dma->dma, dma->rx_chan);
+#endif
 
   /* Run the callback */
   trans->status = SPITransSuccess;
-  //return;
+
   if (trans->after_cb != 0) {
     trans->after_cb(trans);
   }
-
-  /*dma_enable_transfer_complete_interrupt(dma->dma, dma->rx_chan);
-  dma_enable_channel(dma->dma, dma->rx_chan);
-  spi_enable_rx_dma((uint32_t)periph->reg_addr);*/
 }
 
+void process_slave_tx_dma_interrupt(struct spi_periph * periph) {
+  struct spi_periph_dma *dma = periph->init_struct;
 
-// Slave Select / NSS pin GPIO config
+  /* Disable DMA Channel */
+  dma_disable_transfer_complete_interrupt(dma->dma, dma->tx_chan);
 
+  /* Disable SPI tx request */
+  spi_disable_tx_dma((uint32_t)periph->reg_addr);
 
-// DMA config?
-
-
-// SPI transaction handling
+  /* Disable DMA tx channel */
+#ifdef STM32F1
+  dma_disable_channel(dma->dma, dma->tx_chan);
+#elif defined STM32F4
+  dma_disable_stream(dma->dma, dma->tx_chan);
+#endif
+}
 
 #endif /* SPI_SLAVE */

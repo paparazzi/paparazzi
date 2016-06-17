@@ -39,12 +39,15 @@ else
 FLOAT_ABI ?= -mfloat-abi=softfp -mfpu=vfp
 endif
 
-ARCH_FLAGS ?= -mtune=cortex-a8 -march=armv7-a
+ARCH_CFLAGS ?= -mtune=cortex-a8 -march=armv7-a
+
+# with armv7, unaligned data can still be read
+CFLAGS += -DPPRZLINK_UNALIGNED_ACCESS=1
 
 # add ARM specifc flags to CFLAGS, LDFLAGS
-CFLAGS += $(FLOAT_ABI) $(ARCH_FLAGS)
+CFLAGS += $(FLOAT_ABI) $(ARCH_CFLAGS)
 LDFLAGS += $(FLOAT_ABI)
-CXXFLAGS += $(FLOAT_ABI) $(ARCH_FLAGS)
+CXXFLAGS += $(FLOAT_ABI) $(ARCH_CFLAGS)
 
 # include the common linux Makefile (common CFLAGS, actual targets)
 include $(PAPARAZZI_SRC)/conf/Makefile.linux

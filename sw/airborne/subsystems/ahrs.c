@@ -21,20 +21,79 @@
 
 /**
  * @file subsystems/ahrs.c
- * Attitude and Heading Reference System interface.
+ * Dispatcher to register actual AHRS implementations.
  */
 
 
 #include "subsystems/ahrs.h"
 
-struct Ahrs ahrs;
+#ifndef PRIMARY_AHRS
+#error "PRIMARY_AHRS not set!"
+#else
+PRINT_CONFIG_VAR(PRIMARY_AHRS)
+#endif
 
-// weak functions, used if not explicitly provided by implementation
+#ifdef SECONDARY_AHRS
+PRINT_CONFIG_VAR(SECONDARY_AHRS)
+#endif
 
-void WEAK ahrs_propagate(float dt __attribute__((unused))) {}
+#define __RegisterAhrs(_x) _x ## _register()
+#define _RegisterAhrs(_x) __RegisterAhrs(_x)
+#define RegisterAhrs(_x) _RegisterAhrs(_x)
 
-void WEAK ahrs_update_accel(float dt __attribute__((unused))) {}
+/** maximum number of AHRS implementations that can register */
+#ifndef AHRS_NB_IMPL
+#define AHRS_NB_IMPL 2
+#endif
 
-void WEAK ahrs_update_mag(float dt __attribute__((unused))) {}
+/** references a registered AHRS implementation */
+struct AhrsImpl {
+  AhrsEnableOutput enable;
+};
 
-void WEAK ahrs_update_gps(void) {}
+struct AhrsImpl ahrs_impls[AHRS_NB_IMPL];
+uint8_t ahrs_output_idx;
+
+void ahrs_register_impl(AhrsEnableOutput enable)
+{
+  int i;
+  for (i=0; i < AHRS_NB_IMPL; i++) {
+    if (ahrs_impls[i].enable == NULL) {
+      ahrs_impls[i].enable = enable;
+      break;
+    }
+  }
+}
+
+void ahrs_init(void)
+{
+  int i;
+  for (i=0; i < AHRS_NB_IMPL; i++) {
+    ahrs_impls[i].enable = NULL;
+  }
+
+  RegisterAhrs(PRIMARY_AHRS);
+#ifdef SECONDARY_AHRS
+  RegisterAhrs(SECONDARY_AHRS);
+#endif
+
+  // enable primary AHRS by default
+  ahrs_switch(0);
+}
+
+int ahrs_switch(uint8_t idx)
+{
+  if (idx >= AHRS_NB_IMPL) { return -1; }
+  if (ahrs_impls[idx].enable == NULL) { return -1; }
+  /* first disable other AHRS output */
+  int i;
+  for (i=0; i < AHRS_NB_IMPL; i++) {
+    if (ahrs_impls[i].enable != NULL) {
+      ahrs_impls[i].enable(FALSE);
+    }
+  }
+  /* enable requested AHRS */
+  ahrs_impls[idx].enable(TRUE);
+  ahrs_output_idx = idx;
+  return ahrs_output_idx;
+}

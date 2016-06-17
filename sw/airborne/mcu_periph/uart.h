@@ -29,11 +29,25 @@
 #define MCU_PERIPH_UART_H
 
 #include "mcu_periph/uart_arch.h"
-#include "mcu_periph/link_device.h"
+#include "pprzlink/pprzlink_device.h"
 #include "std.h"
 
+#ifndef UART_RX_BUFFER_SIZE
+#ifdef STM32F4  //the F4 has enough memory
+#define UART_RX_BUFFER_SIZE 256
+#else
 #define UART_RX_BUFFER_SIZE 128
+#endif
+#endif
+
+#ifndef UART_TX_BUFFER_SIZE
+#ifdef STM32F4  //the F4 has enough memory, and the PX4 bootloader needs more then 128
+#define UART_TX_BUFFER_SIZE 256
+#else
 #define UART_TX_BUFFER_SIZE 128
+#endif
+#endif
+
 #define UART_DEV_NAME_SIZE 16
 
 /*
@@ -62,9 +76,13 @@ struct uart_periph {
   uint8_t tx_buf[UART_TX_BUFFER_SIZE];
   uint16_t tx_insert_idx;
   uint16_t tx_extract_idx;
-  uint8_t tx_running;
+  volatile uint8_t tx_running;
   /** UART Register */
   void *reg_addr;
+  /** UART Baudrate */
+  int baudrate;
+  /** User init struct */
+  void *init_struct;
   /** UART Dev (linux) */
   char dev[UART_DEV_NAME_SIZE];
   volatile uint16_t ore;    ///< overrun error counter
@@ -78,136 +96,65 @@ struct uart_periph {
 extern void uart_periph_init(struct uart_periph *p);
 extern void uart_periph_set_baudrate(struct uart_periph *p, uint32_t baud);
 extern void uart_periph_set_bits_stop_parity(struct uart_periph *p, uint8_t bits, uint8_t stop, uint8_t parity);
-extern void uart_periph_set_mode(struct uart_periph *p, bool_t tx_enabled, bool_t rx_enabled, bool_t hw_flow_control);
-extern void uart_transmit(struct uart_periph *p, uint8_t data);
-extern bool_t uart_check_free_space(struct uart_periph *p, uint8_t len);
+extern void uart_periph_set_mode(struct uart_periph *p, bool tx_enabled, bool rx_enabled, bool hw_flow_control);
+extern void uart_put_byte(struct uart_periph *p, long fd, uint8_t data);
+extern void uart_put_buffer(struct uart_periph *p, long fd, const uint8_t *data, uint16_t len);
+extern bool uart_check_free_space(struct uart_periph *p, long *fd, uint16_t len);
+extern void uart_send_message(struct uart_periph *p, long fd);
 extern uint8_t uart_getch(struct uart_periph *p);
-extern void uart_event(void);
 
 /**
  * Check UART for available chars in receive buffer.
  * @return number of chars in the buffer
  */
-static inline uint16_t uart_char_available(struct uart_periph *p)
-{
-  int16_t available = p->rx_insert_idx - p->rx_extract_idx;
-  if (available < 0) {
-    available += UART_RX_BUFFER_SIZE;
-  }
-  return (uint16_t)available;
-}
+extern uint16_t uart_char_available(struct uart_periph *p);
 
+
+extern void uart_arch_init(void);
 
 #if USE_UART0
 extern struct uart_periph uart0;
 extern void uart0_init(void);
-
-#define UART0Init() uart_periph_init(&uart0)
-#define UART0CheckFreeSpace(_x) uart_check_free_space(&uart0, _x)
-#define UART0Transmit(_x) uart_transmit(&uart0, _x)
-#define UART0SendMessage() {}
-#define UART0ChAvailable() uart_char_available(&uart0)
-#define UART0Getch() uart_getch(&uart0)
-#define UART0TxRunning uart0.tx_running
-#define UART0SetBaudrate(_b) uart_periph_set_baudrate(&uart0, _b)
-#define UART0SetBitsStopParity(_b, _s, _p) uart_periph_set_bits_stop_parity(&uart0, _b, _s, _p)
-
 #endif // USE_UART0
 
 #if USE_UART1
 extern struct uart_periph uart1;
 extern void uart1_init(void);
-
-#define UART1Init() uart_periph_init(&uart1)
-#define UART1CheckFreeSpace(_x) uart_check_free_space(&uart1, _x)
-#define UART1Transmit(_x) uart_transmit(&uart1, _x)
-#define UART1SendMessage() {}
-#define UART1ChAvailable() uart_char_available(&uart1)
-#define UART1Getch() uart_getch(&uart1)
-#define UART1TxRunning uart1.tx_running
-#define UART1SetBaudrate(_b) uart_periph_set_baudrate(&uart1, _b)
-#define UART1SetBitsStopParity(_b, _s, _p) uart_periph_set_bits_stop_parity(&uart1, _b, _s, _p)
-
 #endif // USE_UART1
 
 #if USE_UART2
 extern struct uart_periph uart2;
 extern void uart2_init(void);
-
-#define UART2Init() uart_periph_init(&uart2)
-#define UART2CheckFreeSpace(_x) uart_check_free_space(&uart2, _x)
-#define UART2Transmit(_x) uart_transmit(&uart2, _x)
-#define UART2SendMessage() {}
-#define UART2ChAvailable() uart_char_available(&uart2)
-#define UART2Getch() uart_getch(&uart2)
-#define UART2TxRunning uart2.tx_running
-#define UART2SetBaudrate(_b) uart_periph_set_baudrate(&uart2, _b)
-#define UART2SetBitsStopParity(_b, _s, _p) uart_periph_set_bits_stop_parity(&uart2, _b, _s, _p)
-
 #endif // USE_UART2
 
 #if USE_UART3
 extern struct uart_periph uart3;
 extern void uart3_init(void);
-
-#define UART3Init() uart_periph_init(&uart3)
-#define UART3CheckFreeSpace(_x) uart_check_free_space(&uart3, _x)
-#define UART3Transmit(_x) uart_transmit(&uart3, _x)
-#define UART3SendMessage() {}
-#define UART3ChAvailable() uart_char_available(&uart3)
-#define UART3Getch() uart_getch(&uart3)
-#define UART3TxRunning uart3.tx_running
-#define UART3SetBaudrate(_b) uart_periph_set_baudrate(&uart3, _b)
-#define UART3SetBitsStopParity(_b, _s, _p) uart_periph_set_bits_stop_parity(&uart3, _b, _s, _p)
-
 #endif // USE_UART3
 
 #if USE_UART4
 extern struct uart_periph uart4;
 extern void uart4_init(void);
-
-#define UART4Init() uart_periph_init(&uart4)
-#define UART4CheckFreeSpace(_x) uart_check_free_space(&uart4, _x)
-#define UART4Transmit(_x) uart_transmit(&uart4, _x)
-#define UART4SendMessage() {}
-#define UART4ChAvailable() uart_char_available(&uart4)
-#define UART4Getch() uart_getch(&uart4)
-#define UART4TxRunning uart4.tx_running
-#define UART4SetBaudrate(_b) uart_periph_set_baudrate(&uart4, _b)
-#define UART4SetBitsStopParity(_b, _s, _p) uart_periph_set_bits_stop_parity(&uart4, _b, _s, _p)
-
 #endif // USE_UART4
 
 #if USE_UART5
 extern struct uart_periph uart5;
 extern void uart5_init(void);
-
-#define UART5Init() uart_periph_init(&uart5)
-#define UART5CheckFreeSpace(_x) uart_check_free_space(&uart5, _x)
-#define UART5Transmit(_x) uart_transmit(&uart5, _x)
-#define UART5SendMessage() {}
-#define UART5ChAvailable() uart_char_available(&uart5)
-#define UART5Getch() uart_getch(&uart5)
-#define UART5TxRunning uart5.tx_running
-#define UART5SetBaudrate(_b) uart_periph_set_baudrate(&uart5, _b)
-#define UART5SetBitsStopParity(_b, _s, _p) uart_periph_set_bits_stop_parity(&uart5, _b, _s, _p)
-
 #endif // USE_UART5
 
 #if USE_UART6
 extern struct uart_periph uart6;
 extern void uart6_init(void);
-
-#define UART6Init() uart_periph_init(&uart6)
-#define UART6CheckFreeSpace(_x) uart_check_free_space(&uart6, _x)
-#define UART6Transmit(_x) uart_transmit(&uart6, _x)
-#define UART6SendMessage() {}
-#define UART6ChAvailable() uart_char_available(&uart6)
-#define UART6Getch() uart_getch(&uart6)
-#define UART6TxRunning uart6.tx_running
-#define UART6SetBaudrate(_b) uart_periph_set_baudrate(&uart6, _b)
-#define UART6SetBitsStopParity(_b, _s, _p) uart_periph_set_bits_stop_parity(&uart6, _b, _s, _p)
-
 #endif // USE_UART6
+
+#if USE_UART7
+extern struct uart_periph uart7;
+extern void uart7_init(void);
+#endif // USE_UART7
+
+#if USE_UART8
+extern struct uart_periph uart8;
+extern void uart8_init(void);
+#endif // USE_UART8
 
 #endif /* MCU_PERIPH_UART_H */

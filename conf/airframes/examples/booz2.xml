@@ -90,17 +90,6 @@
 
   </section>
 
-  <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
-
-    <define name="SP_MAX_P" value="10000"/>
-    <define name="SP_MAX_Q" value="10000"/>
-    <define name="SP_MAX_R" value="10000"/>
-
-    <define name="GAIN_P" value="400"/>
-    <define name="GAIN_Q" value="400"/>
-    <define name="GAIN_R" value="350"/>
-
-  </section>
 
 
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
@@ -178,26 +167,26 @@
  </section>
 
  <section name="SIMULATOR" prefix="NPS_">
-   <define name="ACTUATOR_NAMES"  value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}"/>
-   <define name="JSBSIM_MODEL" value="&quot;simple_quad&quot;"/>
-   <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_booz2_a1.h&quot;"/>
+   <define name="ACTUATOR_NAMES"  value="front_motor, back_motor, right_motor, left_motor" type="string[]"/>
+    <define name="JSBSIM_MODEL" value="simple_quad" type="string"/>
+    <define name="SENSORS_PARAMS" value="nps_sensors_params_booz2_a1.h" type="string"/>
  </section>
 
 
   <firmware name="rotorcraft">
     <target name="ap" board="booz_1.0"/>
     <target name="nps" board="pc">
-      <subsystem name="fdm"         type="jsbsim"/>
+      <module name="fdm"         type="jsbsim"/>
     </target>
-    <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="motor_mixing"/>
-    <subsystem name="actuators"     type="mkk"/>
-    <subsystem name="imu"           type="b2_v1.0"/>
-    <subsystem name="gps"           type="ublox"/>
-    <subsystem name="stabilization"   type="int_euler"/>
-    <subsystem name="ahrs"          type="int_cmpl_euler"/>
-    <subsystem name="ins"           type="hff"/>
+    <module name="radio_control" type="ppm"/>
+    <module name="telemetry"     type="transparent"/>
+    <module name="motor_mixing"/>
+    <module name="actuators"     type="mkk"/>
+    <module name="imu"           type="b2_v1.0"/>
+    <module name="gps"           type="ublox"/>
+    <module name="stabilization"   type="int_euler"/>
+    <module name="ahrs"          type="int_cmpl_euler"/>
+    <module name="ins"           type="hff"/>
   </firmware>
 
 

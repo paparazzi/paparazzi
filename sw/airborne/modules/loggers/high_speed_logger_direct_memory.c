@@ -168,7 +168,7 @@ uint32_t current_unerased_addr = 0x00000000;
 ///The address at wich we will read next time
 uint32_t current_reading_addr = 0x00000000;
 ///Flag stating if the memory is being used
-static volatile bool_t memory_ready = TRUE;
+static volatile bool memory_ready = true;
 ///Structure used for general comunication with the memory
 struct spi_transaction memory_transaction;
 ///Structure used for sending values to the memory
@@ -200,7 +200,7 @@ static void memory_read_values_cb(struct spi_transaction *trans);
 void memory_read_id(void)
 {
 
-  memory_ready = FALSE;
+  memory_ready = false;
   msg[0] = 0x9F;
 
   memory_transaction.output_buf    = (uint8_t *) msg;
@@ -219,7 +219,7 @@ void memory_read_id(void)
  */
 void memory_send_wren(void)
 {
-  memory_ready = FALSE;
+  memory_ready = false;
   msg[0] = 0x06;
 
   memory_transaction.output_buf    = (uint8_t *) msg;
@@ -238,7 +238,7 @@ void memory_send_wren(void)
  */
 void memory_send_wrdi(void)
 {
-  memory_ready = FALSE;
+  memory_ready = false;
   msg[0] = 0x04;
 
   memory_transaction.output_buf    = (uint8_t *) msg;
@@ -257,7 +257,7 @@ void memory_send_wrdi(void)
  */
 void memory_read_status_1(void)
 {
-  memory_ready = FALSE;
+  memory_ready = false;
   msg[0] = 0x05;
 
   memory_transaction.output_buf    = (uint8_t *) msg;
@@ -279,7 +279,7 @@ void memory_read_status_1(void)
 static void memory_read_status_cb(struct spi_transaction *trans __attribute__((unused)))
 {
 
-  memory_ready = TRUE;
+  memory_ready = true;
 
   memory_status_byte = buff[1];
   wait_answear_from_reading_memory = 0;
@@ -295,7 +295,7 @@ void memory_erase_4k(uint32_t mem_addr)
 
   uint8_t *addr = (uint8_t *) &mem_addr;
 
-  memory_ready = FALSE;
+  memory_ready = false;
   msg[0] = 0x21;
   msg[1] = addr[3];
   msg[2] = addr[2];
@@ -319,7 +319,7 @@ void memory_erase_4k(uint32_t mem_addr)
 void memory_completly_erase(void)
 {
 
-  memory_ready = FALSE;
+  memory_ready = false;
   msg[0] = 0xC7;
 
   memory_transaction.output_buf    = (uint8_t *) msg;
@@ -346,7 +346,7 @@ void memory_write_values(uint32_t mem_addr, uint8_t *values, uint8_t size)
   uint8_t *addr = (uint8_t *) &mem_addr;
   uint8_t i;
 
-  memory_ready = FALSE;
+  memory_ready = false;
   values_send_buffer[0] = 0x12;
   values_send_buffer[1] = addr[3];
   values_send_buffer[2] = addr[2];
@@ -379,7 +379,7 @@ void memory_read_values(uint32_t mem_addr, uint8_t size)
 
   uint8_t *addr = (uint8_t *) &mem_addr;
 
-  memory_ready = FALSE;
+  memory_ready = false;
   msg[0] = 0x13;
   msg[1] = addr[3];
   msg[2] = addr[2];
@@ -408,7 +408,7 @@ static void memory_read_values_cb(struct spi_transaction *trans __attribute__((u
 
   uint8_t msg_size = memory_transaction.input_length;
 
-  memory_ready = TRUE;
+  memory_ready = true;
 
   if (msg_size) {
 
@@ -434,7 +434,7 @@ static void memory_read_values_cb(struct spi_transaction *trans __attribute__((u
  */
 static void memory_transaction_done_cb(struct spi_transaction *trans __attribute__((unused)))
 {
-  memory_ready = TRUE;
+  memory_ready = true;
 }
 
 
@@ -740,10 +740,11 @@ void send_buffer_to_uart(void)
 
   uint8_t msg_size = memory_transaction.input_length;
   static uint8_t i = MEMORY_READ_LATTENCY;
+  long fd = 0;
 
   if (sending_buffer_to_uart) {
 
-    while (uart_check_free_space(&HS_LOG_UART, 1)) {
+    while (uart_check_free_space(&HS_LOG_UART, &fd, 1)) {
 
       if (i >= msg_size) {
 
@@ -756,7 +757,7 @@ void send_buffer_to_uart(void)
         }
         break;
       }
-      uart_transmit(&HS_LOG_UART, uart_read_buff[i]);
+      uart_put_byte(&HS_LOG_UART, fd, uart_read_buff[i]);
       i++;
     }
 

@@ -1,0 +1,19 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="px4_gimbal">
+  <doc>
+    <description>Control gimbal camera axis through px4 from rc</description>
+    <define name="PX4_GIMBAL_PWM_CHAN" value="0-5" description="PWM channel id gimbal output (default: 0)"/>
+    <define name="PX4_GIMBAL_RC_CHAN" value="0-7" description="Radio channel id gimbal input (default: RADIO_AUX2)"/>
+    <define name="PX4_GIMBAL_PWM_MIN" value="0-1024" description="Minimum pwm value (default: 900)"/>
+    <define name="PX4_GIMBAL_PWM_MAX" value="0-1024" description="Maximum pwm value (default: 1500)"/>
+  </doc>
+  <header>
+    <file name="px4_gimbal.h"/>
+  </header>  
+  <periodic fun="px4_set_gimbal_angle_periodic()" start="px4_gimbal_init()" freq="100" autorun="TRUE"/>
+  <makefile>
+    <file name="px4_gimbal.c"/>
+  </makefile>
+</module>
+

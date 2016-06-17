@@ -21,6 +21,10 @@
 /**
  * @file pprz_geodetic_utm.h
  * @brief Constants UTM (Mercator) projections.
+ * @addtogroup math_geodetic
+ * @{
+ * @addtogroup math_geodetic_utm UTM (Mercator) projections
+ * @{
  */
 
 #ifndef PPRZ_GEODETIC_UTM_H
@@ -29,6 +33,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#include "std.h"
 
 /* Computation for the WGS84 geoid only */
 #define E 0.08181919106
@@ -39,6 +45,8 @@ extern "C" {
 #define N (K0*A)
 
 #define LambdaOfUtmZone(utm_zone) RadOfDeg((utm_zone-1)*6-180+3)
+#define UtmZoneOfLlaLonRad(lla_lon) (floor(DegOfRad(lla_lon) + 180) / 6) + 1
+#define UtmZoneOfLlaLonDeg(lla_lon) (floor((lla_lon) / 1e7 + 180) / 6) + 1
 
 static const float serie_coeff_proj_mercator[5] = {
   0.99832429842242842444,
@@ -61,3 +69,5 @@ static const float serie_coeff_proj_mercator_inverse[5] = {
 #endif
 
 #endif /* PPRZ_GEODETIC_UTM_H */
+/** @}*/
+/** @}*/

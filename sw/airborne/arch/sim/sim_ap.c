@@ -20,7 +20,6 @@
 #include "firmwares/fixedwing/guidance/guidance_v.h"
 #include "subsystems/commands.h"
 #include "firmwares/fixedwing/main_ap.h"
-#include "sim_uart.h"
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/datalink/telemetry.h"
 #include "generated/flight_plan.h"
@@ -36,13 +35,13 @@
 uint8_t ir_estim_mode;
 uint8_t vertical_mode;
 uint8_t inflight_calib_mode;
-bool_t rc_event_1, rc_event_2;
-bool_t launch;
+bool rc_event_1, rc_event_2;
+bool launch;
 uint8_t gps_nb_ovrn, link_fbw_fbw_nb_err, link_fbw_nb_err;
 float alt_roll_pgain;
 float roll_rate_pgain;
 uint16_t datalink_time = 0;
-
+uint16_t datalink_nb_msgs = 0;
 
 
 uint8_t ac_id;
@@ -100,26 +99,6 @@ value sim_init(value unit)
 {
   init_fbw();
   init_ap();
-#ifdef SIM_UART
-  /* open named pipe */
-  char link_pipe_name[128];
-#ifdef SIM_XBEE
-  sprintf(link_pipe_name, "/tmp/pprz_xbee");
-#else
-  sprintf(link_pipe_name, "/tmp/pprz_link_%d", AC_ID);
-#endif
-  struct stat st;
-  if (stat(link_pipe_name, &st)) {
-    if (mkfifo(link_pipe_name, 0644) == -1) {
-      perror("make pipe");
-      exit(10);
-    }
-  }
-  if (!(pipe_stream = fopen(link_pipe_name, "w"))) {
-    perror("open pipe");
-    exit(10);
-  }
-#endif
 
   return unit;
 }
@@ -159,7 +138,9 @@ value set_datalink_message(value s)
     dl_buffer[i] = ss[i];
   }
 
-  dl_parse_msg();
+  dl_msg_available = true;
+  DlCheckAndParse();
+
   return Val_unit;
 }
 

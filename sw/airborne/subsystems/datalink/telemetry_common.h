@@ -31,54 +31,54 @@
 
 #include <inttypes.h>
 #include "std.h"
-#include "mcu_periph/link_device.h"
-#include "subsystems/datalink/transport.h"
-
-/** Set default periodic telemetry to NULL
- */
-#ifndef DefaultPeriodic
-#define DefaultPeriodic NULL
-#endif
+#include "pprzlink/pprzlink_device.h"
+#include "pprzlink/pprzlink_transport.h"
+#include "pprzlink/messages.h"
 
 /** Telemetry callback definition
  */
 typedef void (*telemetry_cb)(struct transport_tx *trans, struct link_device *dev);
 
-/** Telemetry header
+/** periodic telemetry msg name definition
  */
-struct telemetry_msg {
-  char msg[64];     ///< name in telemetry xml file
-  telemetry_cb cb;  ///< callback funtion
+typedef const char telemetry_msg[64];
+
+/** number of callbacks that can be registered per msg */
+#define TELEMETRY_NB_CBS 4
+
+struct telemetry_cb_slots {
+  uint8_t id;  ///< id of telemetry message
+  telemetry_cb slots[TELEMETRY_NB_CBS];
 };
 
-/** Telemetry structure.
+/** Periodic telemetry structure.
  *  Contains the total number of messages (from generated telemetry file)
  *  and the list of registered callbacks
  */
-struct pprz_telemetry {
-  uint8_t nb;                 ///< number of messages
-  struct telemetry_msg *msgs; ///< the list of (msg name, callbacks)
+struct periodic_telemetry {
+  uint8_t nb;                     ///< number of messages
+  struct telemetry_cb_slots *cbs; ///< array of callbacks defined through TELEMETRY_MSG
 };
 
 /** Register a telemetry callback function.
  * empty implementation is provided if PERIODIC_TELEMETRY is not set or set to FALSE
  * @param _pt periodic telemetry structure to register
- * @param _msg message name (string) as defined in telemetry xml file
+ * @param _id message ID (use PPRZ_MSG_ID_<message_name> define)
  * @param _cb callback function, called according to telemetry mode and specified period
- * @return TRUE if message registered with success, FALSE otherwise
+ * @return -1 on failure to register, index of callback otherwise
  */
 #if PERIODIC_TELEMETRY
-extern bool_t register_periodic_telemetry(struct pprz_telemetry *_pt, const char *_msg, telemetry_cb _cb);
+extern int8_t register_periodic_telemetry(struct periodic_telemetry *_pt, uint8_t _id, telemetry_cb _cb);
 #else
-static inline bool_t register_periodic_telemetry(struct pprz_telemetry *_pt __attribute__((unused)),
-    const char *_msg __attribute__((unused)), telemetry_cb _cb __attribute__((unused))) { return FALSE; }
+static inline int8_t register_periodic_telemetry(struct periodic_telemetry *_pt __attribute__((unused)),
+    uint8_t _id __attribute__((unused)), telemetry_cb _cb __attribute__((unused))) { return -1; }
 #endif
 
 #if USE_PERIODIC_TELEMETRY_REPORT
 /** Send an error report when trying to send message that as not been register
  * @param _process telemetry process id
  * @param _mode telemetry mode
- * @param _id id of the message in telemetry system (see var/<AC>/generated/periodic_telemetry.h)
+ * @param _id id of the message
  */
 extern void periodic_telemetry_err_report(uint8_t _process, uint8_t _mode, uint8_t _id);
 #endif

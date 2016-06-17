@@ -92,7 +92,7 @@ void hmc5843_idle_task(void)
     hmc5843.sent_rx = 0;
     hmc5843.sent_tx = 0;
     hmc5843.timeout = 0;
-    hmc5843.data_available = TRUE;
+    hmc5843.data_available = true;
     memcpy(hmc5843.data.buf, (const void *) hmc5843.i2c_trans.buf, 6);
     for (int i = 0; i < 3; i++) {
       hmc5843.data.value[i] = bswap_16(hmc5843.data.value[i]);
@@ -104,7 +104,7 @@ void hmc5843_periodic(void)
 {
   if (!hmc5843.initialized) {
     send_config();
-    hmc5843.initialized = TRUE;
+    hmc5843.initialized = true;
   } else if (hmc5843.timeout++ > HMC5843_TIMEOUT && HMC5843_I2C_DEV.status == I2CIdle && i2c_idle(&HMC5843_I2C_DEV)) {
 #ifdef USE_HMC59843_ARCH_RESET
     hmc5843_arch_reset();

@@ -38,15 +38,24 @@ struct InsAltFloat {
   float alt;     ///< estimated altitude above MSL in meters
   float alt_dot; ///< estimated vertical speed in m/s (positive-up)
 
-  bool_t reset_alt_ref;  ///< flag to request reset of altitude reference to current alt
+  bool reset_alt_ref;  ///< flag to request reset of altitude reference to current alt
+  bool origin_initialized; ///< TRUE if UTM origin was initialized
 
 #if USE_BAROMETER
   float qfe;
   float baro_alt;
-  bool_t baro_initialized;
+  bool baro_initialized;
 #endif
 };
 
-extern struct InsAltFloat ins_impl;
+extern struct InsAltFloat ins_altf;
+
+extern void ins_alt_float_init(void);
+extern void ins_alt_float_update_baro(float pressure);
+
+#ifndef DefaultInsImpl
+#define DefaultInsImpl ins_altf
+#endif
+extern void ins_altf_register(void);
 
 #endif /* INS_ALT_FLOAT_H */

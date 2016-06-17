@@ -176,6 +176,7 @@ static inline void PPRZ_I2C_SEND_START(struct i2c_periph *periph)
 
   // Reset the buffer pointer to the first byte
   periph->idx_buf = 0;
+  periph->watchdog = 0;
 
 #ifdef I2C_DEBUG_LED
   LED_SHOW_ACTIVE_BITS(regs);
@@ -534,7 +535,7 @@ static inline void i2c_error(struct i2c_periph *periph)
 #ifdef I2C_DEBUG_LED
   uint8_t err_nr = 0;
 #endif
-  periph->errors->er_irq_cnt;
+  periph->errors->er_irq_cnt++;
   if ((I2C_SR1((uint32_t)periph->reg_addr) & I2C_SR1_AF) != 0) { /* Acknowledge failure */
     periph->errors->ack_fail_cnt++;
     I2C_SR1((uint32_t)periph->reg_addr) &= ~I2C_SR1_AF;
@@ -976,7 +977,7 @@ void i2c1_ev_isr(void)
   uint32_t i2c = (uint32_t) i2c1.reg_addr;
   i2c_disable_interrupt(i2c, I2C_CR2_ITERREN);
   i2c1.watchdog = 0; // restart watchdog
-  i2c_irq(&i2c1);;
+  i2c_irq(&i2c1);
   i2c_enable_interrupt(i2c, I2C_CR2_ITERREN);
 }
 
@@ -1129,7 +1130,6 @@ void i2c3_er_isr(void)
 {
   uint32_t i2c = (uint32_t) i2c3.reg_addr;
   i2c_disable_interrupt(i2c, I2C_CR2_ITEVTEN);
-  I2C_CR2(i2c) &= ~I2C_CR2_ITEVTEN;
   i2c3.watchdog = 0;  // restart watchdog
   i2c_irq(&i2c3);
   i2c_enable_interrupt(i2c, I2C_CR2_ITEVTEN);
@@ -1241,6 +1241,9 @@ void i2c_setbitrate(struct i2c_periph *periph, int bitrate)
   }
 }
 
+#define WD_DELAY 20           // number of ticks with 2ms - 40ms delay before resetting the bus
+#define WD_RECOVERY_TICKS 18  // number of generated SCL clocking pulses
+
 #if USE_I2C1 || USE_I2C2 || USE_I2C3
 static inline void i2c_scl_set(uint32_t i2c)
 {
@@ -1261,27 +1264,45 @@ static inline void i2c_scl_set(uint32_t i2c)
 #endif
 }
 
-static inline void i2c_scl_clear(uint32_t i2c)
+static inline void i2c_scl_toggle(uint32_t i2c)
 {
 #if USE_I2C1
   if (i2c == I2C1) {
-    gpio_clear(I2C1_GPIO_PORT, I2C1_GPIO_SCL);
+    gpio_toggle(I2C1_GPIO_PORT, I2C1_GPIO_SCL);
   }
 #endif
 #if USE_I2C2
   if (i2c == I2C2) {
-    gpio_clear(I2C2_GPIO_PORT, I2C2_GPIO_SCL);
+    gpio_toggle(I2C2_GPIO_PORT, I2C2_GPIO_SCL);
   }
 #endif
 #if USE_I2C3
   if (i2c == I2C3) {
-    gpio_clear(I2C3_GPIO_PORT_SCL, I2C3_GPIO_SCL);
+    gpio_toggle(I2C3_GPIO_PORT_SCL, I2C3_GPIO_SCL);
   }
 #endif
 }
 
-#define WD_DELAY 20           // number of ticks with 2ms - 40ms delay before resetting the bus
-#define WD_RECOVERY_TICKS 10  // number of generated SCL clocking pulses
+static inline bool i2c_sda_get(uint32_t i2c)
+{
+  bool res = false;
+#if USE_I2C1
+  if (i2c == I2C1) {
+    res = gpio_get(I2C1_GPIO_PORT, I2C1_GPIO_SDA);
+  }
+#endif
+#if USE_I2C2
+  if (i2c == I2C2) {
+    res = gpio_get(I2C2_GPIO_PORT, I2C2_GPIO_SDA);
+  }
+#endif
+#if USE_I2C3
+  if (i2c == I2C3) {
+    res = gpio_get(I2C3_GPIO_PORT_SDA, I2C3_GPIO_SDA);
+  }
+#endif
+  return res;
+}
 
 static void i2c_wd_check(struct i2c_periph *periph)
 {
@@ -1292,6 +1313,15 @@ static void i2c_wd_check(struct i2c_periph *periph)
 
       i2c_disable_interrupt(i2c, I2C_CR2_ITEVTEN);
       i2c_disable_interrupt(i2c, I2C_CR2_ITERREN);
+
+      periph->trans_insert_idx = 0;
+      periph->trans_extract_idx = 0;
+      periph->status = I2CIdle;
+      struct i2c_transaction *trans;
+      for (uint8_t i = 0; i < I2C_TRANSACTION_QUEUE_LEN; i++) {
+        trans = periph->trans[i];
+        trans->status = I2CTransFailed;
+      }
 
       i2c_peripheral_disable(i2c);
 
@@ -1314,30 +1344,43 @@ static void i2c_wd_check(struct i2c_periph *periph)
       }
 #endif
 
-      i2c_scl_clear(i2c);
+      i2c_scl_set(i2c);
     } else if (periph->watchdog < WD_DELAY + WD_RECOVERY_TICKS) {
-      if ((periph->watchdog - WD_DELAY) % 2) {
-        i2c_scl_clear(i2c);
-      } else {
-        i2c_scl_set(i2c);
+      if (i2c_sda_get(i2c)) {
+        periph->watchdog = WD_DELAY + WD_RECOVERY_TICKS;
       }
+      i2c_scl_toggle(i2c);
     } else {
       i2c_scl_set(i2c);
 
       /* setup gpios for normal i2c operation again */
       i2c_setup_gpio(i2c);
 
-      periph->trans_insert_idx = 0;
-      periph->trans_extract_idx = 0;
-      periph->status = I2CIdle;
-
-      i2c_enable_interrupt(i2c, I2C_CR2_ITEVTEN);
-      i2c_enable_interrupt(i2c, I2C_CR2_ITERREN);
+      i2c_reset(i2c);
 
       i2c_peripheral_enable(i2c);
+      i2c_set_own_7bit_slave_address(i2c, 0);
+      i2c_enable_interrupt(i2c, I2C_CR2_ITERREN);
+
+#if USE_I2C1
+      if (i2c == I2C1) {
+        i2c_setbitrate(periph, I2C1_CLOCK_SPEED);
+      }
+#endif
+#if USE_I2C2
+      if (i2c == I2C2) {
+        i2c_setbitrate(periph, I2C2_CLOCK_SPEED);
+      }
+#endif
+#if USE_I2C3
+      if (i2c == I2C3) {
+        i2c_setbitrate(periph, I2C3_CLOCK_SPEED);
+      }
+#endif
+
       periph->watchdog = 0; // restart watchdog
 
-      periph->errors->timeout_tlow_cnt++;
+      periph->errors->wd_reset_cnt++;
 
       return;
     }
@@ -1372,8 +1415,11 @@ void i2c_event(void)
 /////////////////////////////////////////////////////////
 // Implement Interface Functions
 
-bool_t i2c_submit(struct i2c_periph *periph, struct i2c_transaction *t)
+bool i2c_submit(struct i2c_periph *periph, struct i2c_transaction *t)
 {
+  if (periph->watchdog > WD_DELAY) {
+    return false;
+  }
 
   uint8_t temp;
   temp = periph->trans_insert_idx + 1;
@@ -1382,7 +1428,7 @@ bool_t i2c_submit(struct i2c_periph *periph, struct i2c_transaction *t)
     // queue full
     periph->errors->queue_full_cnt++;
     t->status = I2CTransFailed;
-    return FALSE;
+    return false;
   }
 
   t->status = I2CTransPending;
@@ -1416,10 +1462,10 @@ bool_t i2c_submit(struct i2c_periph *periph, struct i2c_transaction *t)
   /* else it will be started by the interrupt handler when the previous transactions completes */
   __enable_irq();
 
-  return TRUE;
+  return true;
 }
 
-bool_t i2c_idle(struct i2c_periph *periph)
+bool i2c_idle(struct i2c_periph *periph)
 {
   // This is actually a difficult function:
   // -simply reading the status flags can clear bits and corrupt the transaction
@@ -1429,7 +1475,7 @@ bool_t i2c_idle(struct i2c_periph *periph)
 #ifdef I2C_DEBUG_LED
 #if USE_I2C1
   if (periph == &i2c1) {
-    return TRUE;
+    return true;
   }
 #endif
 #endif
@@ -1438,6 +1484,6 @@ bool_t i2c_idle(struct i2c_periph *periph)
   if (periph->status == I2CIdle) {
     return !(BIT_X_IS_SET_IN_REG(I2C_SR2_BUSY, I2C_SR2(i2c)));
   } else {
-    return FALSE;
+    return false;
   }
 }

@@ -90,17 +90,6 @@
  </section>
 
 
-  <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
-
-    <define name="SP_MAX_P" value="10000"/>
-    <define name="SP_MAX_Q" value="10000"/>
-    <define name="SP_MAX_R" value="10000"/>
-
-    <define name="GAIN_P" value="400"/>
-    <define name="GAIN_Q" value="400"/>
-    <define name="GAIN_R" value="350"/>
-
-  </section>
 
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
 
@@ -166,17 +155,17 @@
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_l_1.0">
 <!--      <define name="ACTUATORS_START_DELAY" value="1"/> -->
-      <subsystem name="radio_control" type="spektrum"/>
-      <subsystem name="motor_mixing"/>
-      <subsystem name="actuators"     type="mkk"/>
+      <module name="radio_control" type="spektrum"/>
+      <module name="motor_mixing"/>
+      <module name="actuators"     type="mkk"/>
     </target>
-    <subsystem name="telemetry"     type="transparent"/>
-<!--    <subsystem name="imu"           type="b2_v1.1"/> -->
-    <subsystem name="imu"           type="aspirin_v1.0"/>
-    <subsystem name="gps"           type="ublox"/>
-    <subsystem name="stabilization"   type="int_euler"/>
-    <subsystem name="ahrs"          type="int_cmpl_euler"/>
-    <subsystem name="ins"/>
+    <module name="telemetry"     type="transparent"/>
+<!--    <module name="imu"           type="b2_v1.1"/> -->
+    <module name="imu"           type="aspirin_v1.0"/>
+    <module name="gps"           type="ublox"/>
+    <module name="stabilization"   type="int_euler"/>
+    <module name="ahrs"          type="int_cmpl_euler"/>
+    <module name="ins"/>
   </firmware>
 
 

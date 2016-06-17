@@ -48,10 +48,10 @@ extern float v_ctl_auto_throttle_dash_trim;
 #endif
 
 /* roll and pitch disabling */
-extern bool_t h_ctl_disabled;
+extern bool h_ctl_disabled;
 
 /* AUTO1 rate mode */
-extern bool_t h_ctl_auto1_rate;
+extern bool h_ctl_auto1_rate;
 
 /* inner roll loop parameters */
 extern float  h_ctl_roll_setpoint;
@@ -72,6 +72,18 @@ extern float  h_ctl_pitch_loop_setpoint;
 extern float  h_ctl_pitch_pgain;
 extern float  h_ctl_pitch_dgain;
 extern pprz_t h_ctl_elevator_setpoint;
+
+/* inner yaw loop parameters */
+#if H_CTL_YAW_LOOP
+extern float  h_ctl_yaw_rate_setpoint;
+extern pprz_t h_ctl_rudder_setpoint;
+#endif
+
+/* inner CL loop parameters */
+#if H_CTL_CL_LOOP
+extern pprz_t h_ctl_flaps_setpoint;
+#endif
+
 
 /* inner loop pre-command */
 extern float h_ctl_aileron_of_throttle;

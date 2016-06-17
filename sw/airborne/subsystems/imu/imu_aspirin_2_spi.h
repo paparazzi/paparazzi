@@ -36,37 +36,18 @@
 #include "peripherals/mpu60x0_spi.h"
 
 struct ImuAspirin2Spi {
-  volatile bool_t gyro_valid;
-  volatile bool_t accel_valid;
-  volatile bool_t mag_valid;
   struct Mpu60x0_Spi mpu;
 
   struct spi_transaction wait_slave4_trans;
   volatile uint8_t wait_slave4_tx_buf[1];
   volatile uint8_t wait_slave4_rx_buf[2];
-  volatile bool_t slave4_ready;
+  volatile bool slave4_ready;
 };
 
 extern struct ImuAspirin2Spi imu_aspirin2;
 
 extern void imu_aspirin2_event(void);
 
-
-static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
-{
-  imu_aspirin2_event();
-  if (imu_aspirin2.gyro_valid) {
-    imu_aspirin2.gyro_valid = FALSE;
-    _gyro_handler();
-  }
-  if (imu_aspirin2.accel_valid) {
-    imu_aspirin2.accel_valid = FALSE;
-    _accel_handler();
-  }
-  if (imu_aspirin2.mag_valid) {
-    imu_aspirin2.mag_valid = FALSE;
-    _mag_handler();
-  }
-}
+#define ImuEvent imu_aspirin2_event
 
 #endif /* IMU_ASPIRIN_2_H */

@@ -15,19 +15,19 @@
     <target name="sim" board="pc"/>
     <target name="ap" board="umarim_lite_2.0"/>
 
-    <subsystem name="radio_control" type="ppm"/>
+    <module name="radio_control" type="ppm"/>
 
     <!-- Communication -->
-    <subsystem name="telemetry" type="transparent"/>
+    <module name="telemetry" type="transparent"/>
 
     <!-- Actuators are automatically chosen according to board-->
-    <subsystem name="imu"     type="umarim"/>
-    <subsystem name="ahrs"    type="float_dcm"/>
-    <subsystem name="control"/>
-    <subsystem name="navigation"/>
+    <module name="imu"     type="umarim"/>
+    <module name="ahrs"    type="float_dcm"/>
+    <module name="control"/>
+    <module name="navigation"/>
     <!-- Sensors -->
-    <subsystem name="gps" type="ublox"/>
-    <subsystem name="ins" type="alt_float"/>
+    <module name="gps" type="ublox"/>
+    <module name="ins" type="alt_float"/>
   </firmware>
 
 <!-- commands section -->

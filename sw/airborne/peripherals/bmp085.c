@@ -64,16 +64,16 @@ static int32_t bmp085_compensated_pressure(struct Bmp085Calib *calib, int32_t ra
  * Dummy function to always return TRUE on EndOfConversion check.
  * Ensure proper timing trough frequency of bmp085_periodic instead!
  */
-static bool_t bmp085_eoc_true(void)
+static bool bmp085_eoc_true(void)
 {
-  return TRUE;
+  return true;
 }
 
 
 void bmp085_read_eeprom_calib(struct Bmp085 *bmp)
 {
   if (bmp->status == BMP085_STATUS_UNINIT && bmp->i2c_trans.status == I2CTransDone) {
-    bmp->initialized = FALSE;
+    bmp->initialized = false;
     bmp->i2c_trans.buf[0] = BMP085_EEPROM_AC1;
     i2c_transceive(bmp->i2c_p, &(bmp->i2c_trans), bmp->i2c_trans.slave_addr, 1, 22);
   }
@@ -90,8 +90,8 @@ void bmp085_init(struct Bmp085 *bmp, struct i2c_periph *i2c_p, uint8_t addr)
   /* set initial status: Success or Done */
   bmp->i2c_trans.status = I2CTransDone;
 
-  bmp->data_available = FALSE;
-  bmp->initialized = FALSE;
+  bmp->data_available = false;
+  bmp->initialized = false;
   bmp->status = BMP085_STATUS_UNINIT;
 
   /* by default assign EOC function that always returns TRUE
@@ -156,7 +156,7 @@ void bmp085_event(struct Bmp085 *bmp)
         bmp->calib.mc  = (bmp->i2c_trans.buf[18] << 8) | bmp->i2c_trans.buf[19];
         bmp->calib.md  = (bmp->i2c_trans.buf[20] << 8) | bmp->i2c_trans.buf[21];
         bmp->status = BMP085_STATUS_IDLE;
-        bmp->initialized = TRUE;
+        bmp->initialized = true;
         break;
 
       case BMP085_STATUS_READ_TEMP:
@@ -177,7 +177,7 @@ void bmp085_event(struct Bmp085 *bmp)
                   bmp->i2c_trans.buf[2];
         bmp->up = bmp->up >> (8 - BMP085_OSS);
         bmp->pressure = bmp085_compensated_pressure(&(bmp->calib), bmp->up);
-        bmp->data_available = TRUE;
+        bmp->data_available = true;
         bmp->status = BMP085_STATUS_IDLE;
         break;
 

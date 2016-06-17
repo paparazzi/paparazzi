@@ -33,7 +33,7 @@
 #include "mcu_periph/sys_time.h"
 #include "subsystems/abi.h"
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 
 
@@ -50,8 +50,8 @@ struct Ms5611_I2c baro_ms5611;
 
 float fbaroms, ftempms;
 float baro_ms5611_alt;
-bool_t baro_ms5611_alt_valid;
-bool_t baro_ms5611_enabled;
+bool baro_ms5611_alt_valid;
+bool baro_ms5611_enabled;
 
 float baro_ms5611_r;
 float baro_ms5611_sigma2;
@@ -59,10 +59,10 @@ float baro_ms5611_sigma2;
 
 void baro_ms5611_init(void)
 {
-  ms5611_i2c_init(&baro_ms5611, &MS5611_I2C_DEV, MS5611_SLAVE_ADDR);
+  ms5611_i2c_init(&baro_ms5611, &MS5611_I2C_DEV, MS5611_SLAVE_ADDR, FALSE);
 
-  baro_ms5611_enabled = TRUE;
-  baro_ms5611_alt_valid = FALSE;
+  baro_ms5611_enabled = true;
+  baro_ms5611_alt_valid = false;
 
   baro_ms5611_r = BARO_MS5611_R;
   baro_ms5611_sigma2 = BARO_MS5611_SIGMA2;
@@ -97,10 +97,10 @@ void baro_ms5611_event(void)
     AbiSendMsgBARO_ABS(BARO_MS5611_SENDER_ID, pressure);
     float temp = baro_ms5611.data.temperature / 100.0f;
     AbiSendMsgTEMPERATURE(BARO_MS5611_SENDER_ID, temp);
-    baro_ms5611.data_available = FALSE;
+    baro_ms5611.data_available = false;
 
     baro_ms5611_alt = pprz_isa_altitude_of_pressure(pressure);
-    baro_ms5611_alt_valid = TRUE;
+    baro_ms5611_alt_valid = true;
 
 #ifdef SENSOR_SYNC_SEND
     fbaroms = baro_ms5611.data.pressure / 100.;

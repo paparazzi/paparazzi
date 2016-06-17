@@ -24,6 +24,7 @@
 
 open Printf
 open Latlong
+
 let (//) = Filename.concat
 
 let sof = string_of_float
@@ -33,7 +34,7 @@ let float_attr = fun xml a -> float_of_string (ExtXml.attrib xml a)
 let rec assoc_nocase at = function
 [] -> raise Not_found
   | (a, v)::avs ->
-    if String.uppercase at = String.uppercase a then v else assoc_nocase at avs
+    if Compat.bytes_uppercase at = Compat.bytes_uppercase a then v else assoc_nocase at avs
 
 (** Returns the WGS84 coordinates of a waypoint, either from its relative x and
     y coordinates or from its lat and long *)
@@ -63,7 +64,7 @@ XmlEdit.Deleted -> wp#delete ()
       let wgs84 = geo_of_xml utm_ref float_attrib in
 
       wp#geomap#edit_georef_name wp#name (assoc_nocase "name" attribs);
-      wp#set wgs84;      
+      wp#set wgs84;
       wp#set_name (assoc_nocase "name" attribs)
     with
         _ -> ()
@@ -180,9 +181,11 @@ let georef_of_xml = fun xml ->
 
 let display_lines = fun ?group color (geomap:MapCanvas.widget) points ->
   let n = Array.length points in
+  let l = ref [] in
   for i = 0 to n - 1 do
-    ignore (geomap#segment ?group ~width:3 ~fill_color:color points.(i) points.((i+1)mod n))
-  done
+    l := !l @ [(geomap#segment ?group ~width:3 ~fill_color:color points.(i) points.((i+1)mod n))]
+  done;
+  !l
 
 let space_regexp = Str.regexp " "
 let comma_regexp = Str.regexp ","
@@ -200,20 +203,21 @@ let display_kml = fun ?group color geomap xml ->
   try
     let document = ExtXml.child xml "Document" in
     let rec loop = fun child ->
-      match String.lowercase (Xml.tag child) with
-          "placemark" ->
-            let linestring = ExtXml.child child "LineString" in
-            let coordinates = ExtXml.child linestring "coordinates" in
+      let tag = Compat.bytes_lowercase (Xml.tag child) in
+      match tag with
+        | "linestring" | "linearring" ->
+            let coordinates = ExtXml.child child "coordinates" in
             begin
               match Xml.children coordinates with
                   [Xml.PCData text] ->
                     let points = Str.split space_regexp text in
                     let points = List.map wgs84_of_kml_point points in
-                    display_lines ?group color geomap (Array.of_list points)
+                    (* remove a point if polygon (first in this case) since first and last are the same *)
+                    let points = if tag = "linearring" && List.length points > 0 then List.tl points else points in
+                    ignore(display_lines ?group color geomap (Array.of_list points))
                 | _ -> failwith "coordinates expected"
             end
-
-        | "folder" ->
+        | "folder" | "placemark" | "polygon" | "outerboundaryis" ->
           List.iter loop (Xml.children child)
         | _ -> () in
     List.iter loop (Xml.children document)
@@ -236,11 +240,11 @@ class flight_plan = fun ?format_attribs ?editable ~show_moved geomap color fp_dt
   (** The graphical waypoints *)
   let wpts_group = new MapWaypoints.group ~show_moved ~color ?editable geomap in
 
-  let array_of_waypoints = ref (Array.create 13 None) in
+  let array_of_waypoints = ref (Array.make 13 None) in
   let add_wp_to_array = fun index w ->
     let n = Array.length !array_of_waypoints in
     if index >= n then begin
-      let new_array = Array.create (n*2) None in
+      let new_array = Array.make (n*2) None in
       Array.blit !array_of_waypoints 0 new_array 0 n;
       array_of_waypoints := new_array
     end;
@@ -257,14 +261,16 @@ class flight_plan = fun ?format_attribs ?editable ~show_moved geomap color fp_dt
       w in
 
   (* The sectors *)
-  let _ =
+  (* Parse sectors and store dynamic ones *)
+  let sectors =
     let waypoints = ExtXml.child xml "waypoints" in
     try
-      List.iter (fun x ->
-        match String.lowercase (Xml.tag x) with
+      List.fold_left (fun l x ->
+        match Compat.bytes_lowercase (Xml.tag x) with
             "kml" ->
               let file = ExtXml.attrib x "file" in
-              display_kml ~group:wpts_group#group color geomap (ExtXml.parse_file (Env.flight_plans_path // file))
+              display_kml ~group:wpts_group#group color geomap (ExtXml.parse_file (Env.flight_plans_path // file));
+              l
           | "sector" ->
             let wgs84 = fun wp_name ->
               let wp_name = Xml.attrib wp_name "name" in
@@ -275,10 +281,15 @@ class flight_plan = fun ?format_attribs ?editable ~show_moved geomap color fp_dt
             let points = List.map wgs84 (Xml.children x) in
             let points = Array.of_list points in
             let color_sector = ExtXml.attrib_or_default x "color" color in
-            display_lines ~group:wpts_group#group color_sector geomap points
+            let segments = display_lines ~group:wpts_group#group color_sector geomap points in
+            let wp_names = List.map (fun wp -> Xml.attrib wp "name") (Xml.children x) in
+            if ExtXml.attrib_or_default x "type" "" = "dynamic" then
+              [(wp_names, segments, color_sector)] @ l
+            else
+              l
           | _ -> failwith "Unknown sectors child")
-        (Xml.children (ExtXml.child xml "sectors"))
-    with Not_found -> () in
+      [] (Xml.children (ExtXml.child xml "sectors"))
+    with Not_found -> [] in
 
   (* The waypoints *)
   let _ = List.iter
@@ -367,6 +378,24 @@ object
       path
 
   method connect_activated = fun cb -> XmlEdit.connect_activated xml_tree_view cb
+
+  method update_sectors = fun wp_name ->
+    List.iter (fun (wps_name, segments, color) ->
+      let wp_in_sector = List.exists (fun name -> name = wp_name) wps_name in
+      if wp_in_sector then begin
+        (* Build WP array *)
+        let points = List.map (fun n -> let (_, w) = Hashtbl.find yaws n in w#pos) wps_name in
+        let points = Array.of_list points in
+        let segments = Array.of_list segments in
+        let n = Array.length points in
+        (* Update segments *)
+        for i = 0 to n - 1 do
+          let (x1, y1) = geomap#world_of points.(i)
+          and (x2, y2) = geomap#world_of (points.((i+1)mod n)) in
+          segments.(i)#set [`POINTS [|x1; y1; x2;  y2 |]]
+        done
+      end
+    ) sectors
 
   initializer (
       (** Create a graphic waypoint when it is created from the xml editor *)

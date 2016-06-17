@@ -48,7 +48,7 @@ extern struct link_mcu_msg link_mcu_from_fbw_msg;
 
 extern struct spi_transaction link_mcu_trans;
 
-extern bool_t link_mcu_received;
+extern bool link_mcu_received;
 
 extern void link_mcu_init(void);
 extern void link_mcu_event_task(void);

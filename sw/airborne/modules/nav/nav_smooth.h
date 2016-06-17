@@ -34,10 +34,10 @@
 
 extern float snav_desired_tow; /* time of week, s */
 
-bool_t snav_init(uint8_t wp_a, float desired_course_rad, float radius);
-bool_t snav_circle1(void);
-bool_t snav_route(void);
-bool_t snav_circle2(void);
-bool_t snav_on_time(float radius);
+bool snav_init(uint8_t wp_a, float desired_course_rad, float radius);
+bool snav_circle1(void);
+bool snav_route(void);
+bool snav_circle2(void);
+bool snav_on_time(float radius);
 
 #endif // SNAV_H

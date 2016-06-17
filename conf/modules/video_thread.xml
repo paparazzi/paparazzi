@@ -1,0 +1,45 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="video_thread" dir="computer_vision">
+  <doc>
+    <description>
+      Read video in a thread.
+      Only for Linux devices.
+      To be used in other modules for further processing (e.g. opticflow, QR code, streaming).
+
+      - Possibility to save an image(shot) on the internal memory (JPEG, full size, best quality)
+    </description>
+  </doc>
+
+  <header>
+    <file name="video_thread.h"/>
+  </header>
+
+  <init fun="video_thread_init()"/>
+  <periodic fun="video_thread_periodic()" freq="1" start="video_thread_start()" stop="video_thread_stop()" autorun="TRUE"/>
+  <makefile target="ap">
+
+    <file name="video_thread.c"/>
+    <file name="cv.c"/>
+
+    <!-- Include the needed Computer Vision files -->
+    <include name="modules/computer_vision"/>
+    <file name="image.c" dir="modules/computer_vision/lib/vision"/>
+    <file name="v4l2.c" dir="modules/computer_vision/lib/v4l"/>
+    <file name="jpeg.c" dir="modules/computer_vision/lib/encoding"/>
+
+    <!-- Random flags -->
+    <!-- Does this influence the compilation of fast9? -->
+    <define name="__USE_GNU"/>
+    <flag name="LDFLAGS" value="lrt"/>
+    <flag name="LDFLAGS" value="static-libgcc"/>
+  </makefile>
+  <makefile target="nps">
+    <file name="video_thread_nps.c"/>
+    <file name="cv.c"/>
+    <include name="modules/computer_vision"/>
+    <file name="image.c" dir="modules/computer_vision/lib/vision"/>
+    <file name="jpeg.c" dir="modules/computer_vision/lib/encoding"/>
+    <flag name="LDFLAGS" value="lpthread"/>
+  </makefile>
+</module>

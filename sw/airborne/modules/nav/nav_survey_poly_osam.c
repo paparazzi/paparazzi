@@ -67,11 +67,18 @@
 #define POLY_OSAM_USE_FULL_CIRCLE TRUE
 #endif
 
+// use half sweep at the end of polygon
+#ifndef POLY_OSAM_HALF_SWEEP_ENABLED
+#define POLY_OSAM_HALF_SWEEP_ENABLED TRUE
+#endif
+
 uint8_t Poly_Size = POLY_OSAM_DEFAULT_SIZE;
 float Poly_Sweep = POLY_OSAM_DEFAULT_SWEEP;
-bool_t use_full_circle = POLY_OSAM_USE_FULL_CIRCLE;
+bool use_full_circle = POLY_OSAM_USE_FULL_CIRCLE;
+bool Half_Sweep_Enabled = POLY_OSAM_HALF_SWEEP_ENABLED;
+bool Reset_Sweep = FALSE;
 
-bool_t nav_survey_poly_osam_setup_towards(uint8_t FirstWP, uint8_t Size, float Sweep, int SecondWP)
+bool nav_survey_poly_osam_setup_towards(uint8_t FirstWP, uint8_t Size, float Sweep, int SecondWP)
 {
   float dx = waypoints[SecondWP].x - waypoints[FirstWP].x;
   float dy = waypoints[SecondWP].y - waypoints[FirstWP].y;
@@ -90,6 +97,14 @@ static void TranslateAndRotateFromWorld(struct Point2D *p, float Zrot, float tra
 static void RotateAndTranslateToWorld(struct Point2D *p, float Zrot, float transX, float transY);
 static void FindInterceptOfTwoLines(float *x, float *y, struct Line L1, struct Line L2);
 static float EvaluateLineForX(float y, struct Line L);
+
+void nav_survey_poly_osam_ResetSweepNumber(bool rst)
+{
+  if (rst) {
+    PolySurveySweepBackNum = 0;
+    Reset_Sweep = FALSE;
+  }
+}
 
 #define PolygonSize POLY_OSAM_POLYGONSIZE
 #define MaxFloat   1000000000
@@ -127,7 +142,7 @@ uint16_t PolySurveySweepNum;
 uint16_t PolySurveySweepBackNum;
 float EntryRadius;
 
-bool_t nav_survey_poly_osam_setup(uint8_t EntryWP, uint8_t Size, float sw, float Orientation)
+bool nav_survey_poly_osam_setup(uint8_t EntryWP, uint8_t Size, float sw, float Orientation)
 {
   SmallestCorner.x = 0;
   SmallestCorner.y = 0;
@@ -168,7 +183,7 @@ bool_t nav_survey_poly_osam_setup(uint8_t EntryWP, uint8_t Size, float sw, float
   CSurveyStatus = Init;
 
   if (Size == 0) {
-    return TRUE;
+    return true;
   }
 
   //Don't initialize if Polygon is too big or if the orientation is not between 0 and 90
@@ -329,10 +344,10 @@ bool_t nav_survey_poly_osam_setup(uint8_t EntryWP, uint8_t Size, float sw, float
     LINE_STOP_FUNCTION;
   }
 
-  return FALSE;
+  return false;
 }
 
-bool_t nav_survey_poly_osam_run(void)
+bool nav_survey_poly_osam_run(void)
 {
   struct Point2D C;
   struct Point2D ToP;
@@ -340,8 +355,8 @@ bool_t nav_survey_poly_osam_run(void)
   float ys;
   static struct Point2D LastPoint;
   int i;
-  bool_t LastHalfSweep;
-  static bool_t HalfSweep = FALSE;
+  bool LastHalfSweep;
+  static bool HalfSweep = false;
   float XIntercept1 = 0;
   float XIntercept2 = 0;
   float DInt1 = 0;
@@ -409,13 +424,14 @@ bool_t nav_survey_poly_osam_run(void)
         LastPoint.y = SurveyToWP.y;
 
         if (LastPoint.y + dSweep >= MaxY || LastPoint.y + dSweep <= 0) { //Your out of the Polygon so Sweep Back or Half Sweep
-          if (LastPoint.y + (dSweep / 2) >= MaxY || LastPoint.y + (dSweep / 2) <= 0) { //Sweep back
+
+          if (LastPoint.y + (dSweep / 2) >= MaxY || LastPoint.y + (dSweep / 2) <= 0 || !Half_Sweep_Enabled) { //Sweep back
             dSweep = -dSweep;
             if (LastHalfSweep) {
-              HalfSweep = FALSE;
+              HalfSweep = false;
               ys = LastPoint.y + (dSweep);
             } else {
-              HalfSweep = TRUE;
+              HalfSweep = true;
               ys = LastPoint.y + (dSweep / 2);
             }
 
@@ -433,13 +449,13 @@ bool_t nav_survey_poly_osam_run(void)
             } else {
               SurveyCircleQdr = 180 - DegOfRad(SurveyTheta);
             }
-            HalfSweep = TRUE;
+            HalfSweep = true;
           }
 
 
         } else { // Normal sweep
           //Find y value of the first sweep
-          HalfSweep = FALSE;
+          HalfSweep = false;
           ys = LastPoint.y + dSweep;
         }
 
@@ -547,11 +563,11 @@ bool_t nav_survey_poly_osam_run(void)
       }
       break;
     case Init:
-      return FALSE;
+      return false;
     default:
-      return FALSE;
+      return false;
   }
-  return TRUE;
+  return true;
 }
 
 

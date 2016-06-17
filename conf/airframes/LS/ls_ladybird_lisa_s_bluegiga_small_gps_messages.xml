@@ -1,0 +1,239 @@
+<!-- this is a LadyBird quadrotor frame equiped with Lisa/S 1.0 -->
+<!-- The LadyBird frame comes with four brushed motors in an X configuration. -->
+
+<!--
+     The motor and rotor configuration is the following:
+
+	   Front
+             ^
+             |
+
+    Motor3(NW)  Motor0(NE)
+        CW      CCW
+          \     /
+           ,___,
+           |   |
+           |   |
+           |___|
+          /     \
+        CCW      CW
+     Motor2(SW)  Motor1(SE)
+
+    The Lisa/S is rotated by 13deg CCW against the frame.
+-->
+
+<!--
+     Applicable configuration:
+     airframe="airframes/examples/ladybird_lisa_s.xml"
+     radio="radios/cockpitSX.xml"
+     telemetry="telemetry/default_rotorcraft.xml"
+     flight_plan="flight_plans/rotorcraft_basic.xml"
+     settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
+-->
+
+<airframe name="quadrotor_lisa_s">
+
+  <servos driver="Pwm">
+    <servo name="NE" no="0" min="0" neutral="50" max="1000"/>
+    <servo name="SE" no="1" min="0" neutral="50" max="1000"/>
+    <servo name="SW" no="2" min="0" neutral="50" max="1000"/>
+    <servo name="NW" no="3" min="0" neutral="50" max="1000"/>
+  </servos>
+
+  <commands>
+    <axis name="PITCH" failsafe_value="0"/>
+    <axis name="ROLL" failsafe_value="0"/>
+    <axis name="YAW" failsafe_value="0"/>
+    <axis name="THRUST" failsafe_value="0"/>
+  </commands>
+
+  <command_laws>
+    <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
+    <set servo="NE" value="motor_mixing.commands[0]"/>
+    <set servo="SE" value="motor_mixing.commands[1]"/>
+    <set servo="SW" value="motor_mixing.commands[2]"/>
+    <set servo="NW" value="motor_mixing.commands[3]"/>
+  </command_laws>
+
+  <section name="MIXING" prefix="MOTOR_MIXING_">
+    <define name="TRIM_ROLL" value="0"/>
+    <define name="TRIM_PITCH" value="0"/>
+    <define name="TRIM_YAW" value="0"/>
+    <define name="NB_MOTOR" value="4"/>
+    <define name="SCALE" value="256"/>
+    <define name="ROLL_COEF" value="{  -256, -256,  256,  256 }"/>
+    <define name="PITCH_COEF" value="{  256, -256, -256,  256 }"/>
+    <define name="YAW_COEF" value="{    256, -256,  256, -256 }"/>
+    <define name="THRUST_COEF" value="{ 256,  256,  256,  256 }"/>
+  </section>
+
+  <section name="IMU" prefix="IMU_">
+    <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"   value="-13." unit="deg"/>
+
+    <define name="ACCEL_X_NEUTRAL" value="0"/>
+    <define name="ACCEL_Y_NEUTRAL" value="0"/>
+    <define name="ACCEL_Z_NEUTRAL" value="0"/>
+
+    <!-- MAGNETO CALIBRATION DELFT -->
+    <define name="MAG_X_NEUTRAL" value="286"/>
+    <define name="MAG_Y_NEUTRAL" value="-72"/>
+    <define name="MAG_Z_NEUTRAL" value="97"/>
+    <define name="MAG_X_SENS" value="3.94431833863" integer="16"/>
+    <define name="MAG_Y_SENS" value="4.14629702271" integer="16"/>
+    <define name="MAG_Z_SENS" value="4.54518768636" integer="16"/>
+
+    <!-- MAGNETO CURRENT CALIBRATION -->
+    <define name="MAG_X_CURRENT_COEF" value="0.0103422023767"/>
+    <define name="MAG_Y_CURRENT_COEF" value="0.0084568317783"/>
+    <define name="MAG_Z_CURRENT_COEF" value="-0.01935617335"/>
+  </section>
+
+ <section name="AUTOPILOT">
+   <define name="MODE_STARTUP" value="AP_MODE_NAV"/>
+   <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
+   <define name="MODE_AUTO1" value="AP_MODE_HOVER_Z_HOLD"/>
+   <define name="MODE_AUTO2" value="AP_MODE_NAV"/>
+ </section>
+
+ <section name="BAT">
+   <define name="MILLIAMP_AT_FULL_THROTTLE" value="14000"/>
+   <define name="CATASTROPHIC_BAT_LEVEL" value="3.0" unit="V"/>
+   <define name="CRITIC_BAT_LEVEL" value="3.3" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="3.5" unit="V"/>
+    <define name="MAX_BAT_LEVEL" value="4.1" unit="V"/>
+ </section>
+
+
+  <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
+
+    <!-- setpoints -->
+    <define name="SP_MAX_PHI" value="45." unit="deg"/>
+    <define name="SP_MAX_THETA" value="45." unit="deg"/>
+    <define name="SP_MAX_PSI" value="45." unit="deg"/>
+    <define name="SP_MAX_R" value="90." unit="deg/s"/>
+    <define name="SP_MAX_P" value="90." unit="deg/s"/>
+    <define name="DEADBAND_R" value="250"/>
+    <define name="DEADBAND_A" value="250"/>
+
+    <!-- reference -->
+    <define name="REF_OMEGA_P" value="800" unit="deg/s"/>
+    <define name="REF_ZETA_P" value="0.85"/>
+    <define name="REF_MAX_P" value="400." unit="deg/s"/>
+    <define name="REF_MAX_PDOT" value="RadOfDeg(8000.)"/>
+
+    <define name="REF_OMEGA_Q" value="800" unit="deg/s"/>
+    <define name="REF_ZETA_Q" value="0.85"/>
+    <define name="REF_MAX_Q" value="400." unit="deg/s"/>
+    <define name="REF_MAX_QDOT" value="RadOfDeg(8000.)"/>
+
+    <define name="REF_OMEGA_R" value="500" unit="deg/s"/>
+    <define name="REF_ZETA_R" value="0.85"/>
+    <define name="REF_MAX_R" value="90." unit="deg/s"/>
+    <define name="REF_MAX_RDOT" value="RadOfDeg(900.)"/>
+
+    <!-- feedback -->
+    <define name="PHI_PGAIN" value="400"/>
+    <define name="PHI_DGAIN" value="200"/>
+    <define name="PHI_IGAIN" value="100"/>
+
+    <define name="THETA_PGAIN" value="400"/>
+    <define name="THETA_DGAIN" value="200"/>
+    <define name="THETA_IGAIN" value="100"/>
+
+    <define name="PSI_PGAIN" value="2000"/>
+    <define name="PSI_DGAIN" value="300"/>
+    <define name="PSI_IGAIN" value="10"/>
+
+    <!-- feedforward -->
+    <define name="PHI_DDGAIN" value="0"/>
+    <define name="THETA_DDGAIN" value="0"/>
+    <define name="PSI_DDGAIN" value=" 300"/>
+
+    <define name="PHI_AGAIN" value="0"/>
+    <define name="THETA_AGAIN" value="0"/>
+    <define name="PSI_AGAIN" value="0"/>
+  </section>
+
+  <section name="INS" prefix="INS_">
+    <define name="USE_GPS_ALT" value="1"/>
+  </section>
+
+ <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
+   <define name="HOVER_KP" value="276"/>
+   <define name="HOVER_KD" value="455"/>
+   <define name="HOVER_KI" value="100"/>
+   <define name="GUIDANCE_V_NOMINAL_HOVER_THROTTLE" value="0.5"/>
+  </section>
+
+  <section name="AHRS" prefix="AHRS_">
+    <define name="H_X" value=" 0.47577"/>
+    <define name="H_Y" value=" 0.11811"/>
+    <define name="H_Z" value=" 0.87161"/>
+    <define name="USE_GPS_HEADING" value="1"/>
+  </section>
+
+ <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
+   <define name="PGAIN" value="39"/>
+   <define name="DGAIN" value="50"/>
+   <define name="IGAIN" value="19"/>
+ </section>
+
+ <section name="SIMULATOR" prefix="NPS_">
+   <define name="ACTUATOR_NAMES" value="ne_motor, se_motor, sw_motor, nw_motor" type="string[]"/>
+   <define name="JSBSIM_MODEL" value="simple_x_quad_ccw" type="string"/>
+   <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
+ </section>
+
+ <modules main_freq="512">
+   <module name="send_imu_mag_current"/>
+ </modules>
+
+  <firmware name="rotorcraft">
+    <target name="ap" board="lisa_s_1.0">
+      <module name="radio_control" type="datalink">
+	<!-- To store the binding parameters for the superbit radio in your
+             airframe file uncomment the following three lines and set the
+             correct values based on the output of the superbitrf telemetry
+             messages. -->
+        <!--define name="RADIO_TRANSMITTER_ID" value="1335259868"/--> <!-- Esden (1BitSquared) Dx6i: TX 1 -->
+        <!--define name="RADIO_TRANSMITTER_CHAN" value="6"/-->
+        <!--define name="RADIO_TRANSMITTER_PROTOCOL" value="0x01"/-->
+      </module>
+      <configure name="USE_MAGNETOMETER" value="0"/>
+      <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
+      <define name="USE_PERSISTENT_SETTINGS" value="TRUE"/>
+    </target>
+
+    <target name="nps" board="pc">
+      <module name="fdm" type="jsbsim"/>
+      <module name="radio_control" type="ppm"/>
+    </target>
+
+    <module name="motor_mixing"/>
+    <module name="actuators" type="pwm">
+      <!-- This airframe is using the servo PWM outputs directly to drive mosfets, which in turn directly drive brushed motors.
+           With the following settings we will be driving the motors with a 36KHz signal that should be well above anyone's hearing range.
+           If we went with the 500Hz that woul be the default we would be hearing a very annoying high pitched sound coming from the motors.
+      -->
+      <!-- Setting the PWM timer base frequency to 36MHz -->
+      <define name="PWM_BASE_FREQ" value="36000000"/>
+      <!-- Setting the PWM interval to 36KHz -->
+      <define name="SERVO_HZ" value="36000"/>
+      <define name="USE_SERVOS_1AND2"/>
+    </module>
+
+    <module name="telemetry" type="bluegiga"/>
+    <!-- Comment the previous line and uncomment the following one if you need
+         to use the debug serial interface for telemetry. -->
+    <!--module name="telemetry" type="transparent"/-->
+    <module name="imu" type="lisa_s_v1.0">
+      <define name="LISA_S_UPSIDE_DOWN"/> <!-- Upside down is a relative term. :) -->
+    </module>
+    <module name="gps" type="datalink"/>
+    <module name="stabilization" type="int_quat"/>
+    <module name="ahrs" type="int_cmpl_quat"/>
+    <module name="ins"/>
+  </firmware>
+</airframe>

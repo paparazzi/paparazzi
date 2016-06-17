@@ -186,7 +186,7 @@ void decode_and_send_to_ivy() {
   if (want_alive_msg)
     IvySendMsg("%d ALIVE 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n", ac_id);
 
-  // format has to match declaration in conf/messages.xml
+  // format has to match declaration in var/messages.xml
   IvySendMsg("%d WEATHER %f %f %f %f %f\n",
     ac_id, pstatic_Pa, temp_degC, windspeed_mps, winddir_deg, rel_humidity);
 }

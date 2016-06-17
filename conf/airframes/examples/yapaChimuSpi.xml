@@ -5,10 +5,10 @@
 
   <firmware name="fixedwing">
     <target name="ap" board="twog_1.0">
-      <subsystem name="spi_slave_hs"/>
+      <module name="spi_slave_hs"/>
     </target>
     <target name="sim" board="pc">
-      <subsystem name="ahrs" type="int_cmpl_quat"/>
+      <module name="ahrs" type="int_cmpl_quat"/>
     </target>
 
     <define name="STRONG_WIND"/>
@@ -16,22 +16,22 @@
     <define name="WIND_INFO_RET"/>
     <define name="LOITER_TRIM"/>
 
-    <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="gps" type="ublox" />
-    <subsystem name="telemetry" type="xbee_api">
+    <module name="radio_control" type="ppm"/>
+    <module name="gps" type="ublox" />
+    <module name="telemetry" type="xbee_api">
       <configure name="MODEM_BAUD" value="B9600"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="control"/>
-    <subsystem name="navigation"/>
-    <subsystem name="ins" type="alt_float"/>
+    <module name="control"/>
+    <module name="navigation"/>
+    <module name="ins" type="alt_float"/>
   </firmware>
 
   <modules>
-    <load name="ahrs_chimu_spi.xml" >
+    <module name="ahrs_chimu_spi" >
       <define name="CHIMU_BIG_ENDIAN" />
-    </load>
-    <load name="nav_line.xml"/>
+    </module>
+    <module name="nav" type="line"/>
   </modules>
 
   <servos>
@@ -107,7 +107,7 @@
     <define name="NOMINAL_AIRSPEED" value="13." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
     <define name="CONTROL_FREQUENCY" value="60" unit="Hz"/>
-    <define name="XBEE_INIT" value="&quot;ATPL2\rATRN5\rATTT80\r&quot;"/>
+    <define name="XBEE_INIT" value="ATPL2\rATRN5\rATTT80\r" type="string"/>
 <!--    <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
 
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
@@ -175,7 +175,7 @@
   </section>
 
   <section name="DIGITAL_CAMERA" prefix="DC_">
-    <define name="AUTOSHOOT_QUARTERSEC_PERIOD" value="6" unit="quarter_second"/>
+    <define name="AUTOSHOOT_PERIOD" value="1.5" unit="sec"/>
     <define name="AUTOSHOOT_DISTANCE_INTERVAL" value="50" unit="meter"/>
   </section>
 

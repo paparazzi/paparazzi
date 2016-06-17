@@ -21,10 +21,11 @@
 
 /**
  * @file subsystems/imu/imu_bebop.c
- * Driver for the Bebop magnetometer, accelerometer and gyroscope
+ * Driver for the Bebop (2) magnetometer, accelerometer and gyroscope
  */
 
 #include "subsystems/imu.h"
+#include "subsystems/abi.h"
 #include "mcu_periph/i2c.h"
 
 
@@ -77,19 +78,15 @@ struct ImuBebop imu_bebop;
  */
 void imu_impl_init(void)
 {
-  imu_bebop.accel_valid = FALSE;
-  imu_bebop.gyro_valid = FALSE;
-  imu_bebop.mag_valid = FALSE;
-
   /* MPU-60X0 */
-  mpu60x0_i2c_init(&imu_bebop.mpu, &(BEBOP_MPU_I2C_DEV), MPU60X0_ADDR >> 1);
+  mpu60x0_i2c_init(&imu_bebop.mpu, &(BEBOP_MPU_I2C_DEV), MPU60X0_ADDR);
   imu_bebop.mpu.config.smplrt_div = BEBOP_SMPLRT_DIV;
   imu_bebop.mpu.config.dlpf_cfg = BEBOP_LOWPASS_FILTER;
   imu_bebop.mpu.config.gyro_range = BEBOP_GYRO_RANGE;
   imu_bebop.mpu.config.accel_range = BEBOP_ACCEL_RANGE;
 
   /* AKM8963 */
-  ak8963_init(&imu_bebop.ak, &(BEBOP_MAG_I2C_DEV), AK8963_ADDR >> 1);
+  ak8963_init(&imu_bebop.ak, &(BEBOP_MAG_I2C_DEV), AK8963_ADDR);
 }
 
 /**
@@ -111,6 +108,8 @@ void imu_periodic(void)
  */
 void imu_bebop_event(void)
 {
+  uint32_t now_ts = get_sys_time_usec();
+
   /* MPU-60x0 event taks */
   mpu60x0_i2c_event(&imu_bebop.mpu);
 
@@ -121,19 +120,26 @@ void imu_bebop_event(void)
     VECT3_ASSIGN(imu.accel_unscaled, imu_bebop.mpu.data_accel.vect.x, -imu_bebop.mpu.data_accel.vect.y,
                  -imu_bebop.mpu.data_accel.vect.z);
 
-    imu_bebop.mpu.data_available = FALSE;
-    imu_bebop.gyro_valid = TRUE;
-    imu_bebop.accel_valid = TRUE;
+    imu_bebop.mpu.data_available = false;
+    imu_scale_gyro(&imu);
+    imu_scale_accel(&imu);
+    AbiSendMsgIMU_GYRO_INT32(IMU_BOARD_ID, now_ts, &imu.gyro);
+    AbiSendMsgIMU_ACCEL_INT32(IMU_BOARD_ID, now_ts, &imu.accel);
   }
 
   /* AKM8963 event task */
   ak8963_event(&imu_bebop.ak);
 
   if (imu_bebop.ak.data_available) {
-    //32760 to -32760
+#if BEBOP_VERSION2
+    // In the second bebop version the magneto is turned 90 degrees
+    VECT3_ASSIGN(imu.mag_unscaled, -imu_bebop.ak.data.vect.x, -imu_bebop.ak.data.vect.y, imu_bebop.ak.data.vect.z);
+#else //BEBOP regular first verion
     VECT3_ASSIGN(imu.mag_unscaled, -imu_bebop.ak.data.vect.y, imu_bebop.ak.data.vect.x, imu_bebop.ak.data.vect.z);
+#endif
 
-    imu_bebop.ak.data_available = FALSE;
-    imu_bebop.mag_valid = TRUE;
+    imu_bebop.ak.data_available = false;
+    imu_scale_mag(&imu);
+    AbiSendMsgIMU_MAG_INT32(IMU_BOARD_ID, now_ts, &imu.mag);
   }
 }

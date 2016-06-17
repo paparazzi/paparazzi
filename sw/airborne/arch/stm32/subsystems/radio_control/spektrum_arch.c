@@ -35,6 +35,8 @@
 // for timer_get_frequency
 #include "mcu_arch.h"
 
+INFO("Radio-Control now follows PPRZ sign convention: this means you might need to reverese some channels in your transmitter: RollRight / PitchUp / YawRight / FullThrottle / Auto2 are positive deflections")
+
 // for Min macro
 #include "std.h"
 
@@ -54,14 +56,55 @@
 #define MIN_FRAME_SPACE  70  // 7ms
 #define MAX_BYTE_SPACE  3   // .3ms
 
+
+//not all f1's have a timer 6, so, some redefines have to happen
+#define PASTER3(x,y,z) x  ## y ## z
+#define EVALUATOR3(x,y,z)  PASTER3(x,y,z)
+#define NVIC_TIMx_IRQ EVALUATOR3(NVIC_TIM, SPEKTRUM_TIMER,_IRQ)
+#define NVIC_TIMx_DAC_IRQ EVALUATOR3(NVIC_TIM, SPEKTRUM_TIMER,_DAC_IRQ) // not really necessary, only for f4 which probably always has a timer 4
+#define TIMx_ISR EVALUATOR3(tim, SPEKTRUM_TIMER,_isr)
+#define TIMx_DAC_ISR EVALUATOR3(tim, SPEKTRUM_TIMER,_dac_isr)
+
+#define PASTER2(x,y) x  ## y
+#define EVALUATOR2(x,y)  PASTER2(x,y)
+#define TIMx EVALUATOR2(TIM, SPEKTRUM_TIMER)
+#define RCC_TIMx EVALUATOR2(RCC_TIM, SPEKTRUM_TIMER)
+
+#ifndef SPEKTRUM_TIMER
+#define SPEKTRUM_TIMER 6
+#endif
+
+#if (SPEKTRUM_TIMER == 6)
 #ifndef NVIC_TIM6_IRQ_PRIO
 #define NVIC_TIM6_IRQ_PRIO 2
+#define NVIC_TIMx_IRQ_PRIO 2
+#else
+#define NVIC_TIMx_IRQ_PRIO NVIC_TIM6_IRQ_PRIO
 #endif
-
 #ifndef NVIC_TIM6_DAC_IRQ_PRIO
 #define NVIC_TIM6_DAC_IRQ_PRIO 2
+#define NVIC_TIMx_DAC_IRQ_PRIO 2
+#else
+#define NVIC_TIMx_DAC_IRQ_PRIO NVIC_TIM6_DAC_IRQ_PRIO
+#endif
 #endif
 
+#if (SPEKTRUM_TIMER == 3)
+#ifndef NVIC_TIM3_IRQ_PRIO
+#define NVIC_TIM3_IRQ_PRIO 2
+#define NVIC_TIMx_IRQ_PRIO 2
+#else
+#define NVIC_TIMx_IRQ_PRIO NVIC_TIM6_IRQ_PRIO
+#endif
+#ifndef NVIC_TIM3_DAC_IRQ_PRIO
+#define NVIC_TIM3_DAC_IRQ_PRIO 2
+#define NVIC_TIMx_DAC_IRQ_PRIO 2
+#else
+#define NVIC_TIMx_DAC_IRQ_PRIO NVIC_TIM6_DAC_IRQ_PRIO
+#endif
+#endif
+
+PRINT_CONFIG_MSG_VALUE("SPEKTRUM_TIMER: " , SPEKTRUM_TIMER)
 
 #ifdef NVIC_UART_IRQ_PRIO
 #define NVIC_PRIMARY_UART_PRIO NVIC_UART_IRQ_PRIO
@@ -134,12 +177,9 @@ int8_t SpektrumSigns[] = RADIO_CONTROL_SPEKTRUM_SIGNS;
 /* Parser state variables */
 static uint8_t EncodingType = 0;
 static uint8_t ExpectedFrames = 0;
-/* initialise the uarts used by the parser */
-void SpektrumUartInit(void);
+
 /* initialise the timer used by the parser to ensure sync */
 void SpektrumTimerInit(void);
-
-void tim6_irq_handler(void);
 
 /** Set polarity using RC_POLARITY_GPIO.
  * SBUS signal has a reversed polarity compared to normal UART
@@ -284,8 +324,10 @@ void radio_control_impl_init(void)
 *
 *****************************************************************************/
 
-static inline void SpektrumParser(uint8_t _c, SpektrumStateType *spektrum_state, bool_t secondary_receiver)
+static inline void SpektrumParser(uint8_t _c, SpektrumStateType *spektrum_state, bool secondary_receiver)
 {
+
+
 
   uint16_t ChannelData;
   uint8_t TimedOut;
@@ -297,7 +339,7 @@ static inline void SpektrumParser(uint8_t _c, SpektrumStateType *spektrum_state,
   /* If we have just started the resync process or */
   /* if we have recieved a character before our    */
   /* 7ms wait has finished                         */
-  if ((spektrum_state->ReSync == 1) ||
+  if ((spektrum_state->ReSync == 1)  ||
       ((spektrum_state->Sync == 0) && (!TimedOut))) {
 
     spektrum_state->ReSync = 0;
@@ -308,6 +350,7 @@ static inline void SpektrumParser(uint8_t _c, SpektrumStateType *spektrum_state,
     spektrum_state->SecondFrame = 0;
     return;
   }
+//LED_OFF(1);
 
   /* the first byte of a new frame. It was received */
   /* more than 7ms after the last received byte.    */
@@ -487,6 +530,8 @@ void RadioControlEventImp(void (*frame_handler)(void))
        */
       for (int i = 0; i < Min(RADIO_CONTROL_NB_CHANNEL, (MaxChannelNum + 1)); i++) {
         radio_control.values[i] = SpektrumBuf[i];
+        //Only values between +-MAX_PPRZ are allowed
+        Bound(radio_control.values[i], -MAX_PPRZ, MAX_PPRZ);
         if (i == RADIO_THROTTLE) {
           radio_control.values[i] += MAX_PPRZ;
           radio_control.values[i] /= 2;
@@ -501,55 +546,56 @@ void RadioControlEventImp(void (*frame_handler)(void))
 
 /*****************************************************************************
  *
- * Initialise TIM6 to fire an interrupt every 100 microseconds to provide
+ * Initialise TIMx to fire an interrupt every 100 microseconds to provide
  * timebase for SpektrumParser
  *
  *****************************************************************************/
 void SpektrumTimerInit(void)
 {
 
-  /* enable TIM6 clock */
-  rcc_periph_clock_enable(RCC_TIM6);
+  /* enable TIMx clock */
+  rcc_periph_clock_enable(RCC_TIMx);
 
-  /* TIM6 configuration, always counts up */
-  timer_set_mode(TIM6, TIM_CR1_CKD_CK_INT, 0, 0);
+  timer_reset(TIMx);
+  /* TIMx configuration, always counts up */
+  timer_set_mode(TIMx, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP); // used to be 0 0
   /* 100 microseconds ie 0.1 millisecond */
-  timer_set_period(TIM6, TIM_TICS_FOR_100us - 1);
-  uint32_t tim6_clk = timer_get_frequency(TIM6);
+  timer_set_period(TIMx, TIM_TICS_FOR_100us - 1);
+  uint32_t TIMx_clk = timer_get_frequency(TIMx);
   /* timer ticks with 1us */
-  timer_set_prescaler(TIM6, ((tim6_clk / ONE_MHZ) - 1));
+  timer_set_prescaler(TIMx, ((TIMx_clk / ONE_MHZ) - 1));
 
-  /* Enable TIM6 interrupts */
+  /* Enable TIMx interrupts */
 #ifdef STM32F1
-  nvic_set_priority(NVIC_TIM6_IRQ, NVIC_TIM6_IRQ_PRIO);
-  nvic_enable_irq(NVIC_TIM6_IRQ);
+  nvic_set_priority(NVIC_TIMx_IRQ, NVIC_TIMx_IRQ_PRIO);
+  nvic_enable_irq(NVIC_TIMx_IRQ);
 #elif defined STM32F4
-  /* the define says DAC IRQ, but it is also the global TIM6 IRQ*/
-  nvic_set_priority(NVIC_TIM6_DAC_IRQ, NVIC_TIM6_DAC_IRQ_PRIO);
-  nvic_enable_irq(NVIC_TIM6_DAC_IRQ);
+  /* the define says DAC IRQ, but it is also the global TIMx IRQ*/
+  nvic_set_priority(NVIC_TIMx_DAC_IRQ, NVIC_TIMx_DAC_IRQ_PRIO);
+  nvic_enable_irq(NVIC_TIMx_DAC_IRQ);
 #endif
 
-  /* Enable TIM6 Update interrupt */
-  timer_enable_irq(TIM6, TIM_DIER_UIE);
-  timer_clear_flag(TIM6, TIM_SR_UIF);
+  /* Enable TIMx Update interrupt */
+  timer_enable_irq(TIMx, TIM_DIER_UIE);
+  timer_clear_flag(TIMx, TIM_SR_UIF);
 
-  /* TIM6 enable counter */
-  timer_enable_counter(TIM6);
+  /* TIMx enable counter */
+  timer_enable_counter(TIMx);
 }
 
 /*****************************************************************************
  *
- * TIM6 interrupt request handler updates times used by SpektrumParser
+ * TIMx interrupt request handler updates times used by SpektrumParser
  *
  *****************************************************************************/
 #ifdef STM32F1
-void tim6_isr(void)
+void TIMx_ISR(void)
 {
 #elif defined STM32F4
-void tim6_dac_isr(void) {
+void TIMx_DAC_ISR(void) {
 #endif
 
-  timer_clear_flag(TIM6, TIM_SR_UIF);
+  timer_clear_flag(TIMx, TIM_SR_UIF);
 
   if (PrimarySpektrumState.SpektrumTimer) {
     --PrimarySpektrumState.SpektrumTimer;
@@ -580,7 +626,7 @@ void SpektrumUartInit(void) {
   gpio_setup_pin_af(PrimaryUart(_BANK), PrimaryUart(_PIN), PrimaryUart(_AF), FALSE);
 
   /* Configure Primary UART */
-  usart_set_baudrate(PrimaryUart(_DEV), 115200);
+  usart_set_baudrate(PrimaryUart(_DEV), B115200);
   usart_set_databits(PrimaryUart(_DEV), 8);
   usart_set_stopbits(PrimaryUart(_DEV), USART_STOPBITS_1);
   usart_set_parity(PrimaryUart(_DEV), USART_PARITY_NONE);
@@ -607,7 +653,7 @@ void SpektrumUartInit(void) {
   gpio_setup_pin_af(SecondaryUart(_BANK), SecondaryUart(_PIN), SecondaryUart(_AF), FALSE);
 
   /* Configure secondary UART */
-  usart_set_baudrate(SecondaryUart(_DEV), 115200);
+  usart_set_baudrate(SecondaryUart(_DEV), B115200);
   usart_set_databits(SecondaryUart(_DEV), 8);
   usart_set_stopbits(SecondaryUart(_DEV), USART_STOPBITS_1);
   usart_set_parity(SecondaryUart(_DEV), USART_PARITY_NONE);
@@ -699,7 +745,7 @@ void SecondaryUart(_ISR)(void) {
  *
  *****************************************************************************/
 void radio_control_spektrum_try_bind(void) {
-
+#ifdef SPEKTRUM_BIND_PIN_PORT
 #ifdef SPEKTRUM_BIND_PIN_HIGH
   /* Init GPIO for the bind pin, we enable the pulldown resistor.
    * (esden) As far as I can tell only navstick is using the PIN LOW version of
@@ -725,6 +771,7 @@ void radio_control_spektrum_try_bind(void) {
   if (gpio_get(SPEKTRUM_BIND_PIN_PORT, SPEKTRUM_BIND_PIN) != 0) {
     return;
   }
+#endif
 #endif
 
   /* Master receiver Rx push-pull */

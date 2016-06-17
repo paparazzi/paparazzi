@@ -29,7 +29,7 @@
       <call fun="stop_formation()"/>
       <circle radius="nav_radius" until="FALSE" wp="WAIT2"/>
     </block>
-    <block name="formation"> <!-- start formation for a follower, leader has to be ready and in formation -->
+    <block name="formation" strip_button="formation" strip_icon="on.png"> <!-- start formation for a follower, leader has to be ready and in formation -->
       <call fun="start_formation()"/> <!-- inform other AC that formation is started -->
       <call fun="formation_flight()"/> <!-- formation control loop -->
     </block>

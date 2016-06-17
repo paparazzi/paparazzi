@@ -116,8 +116,8 @@
 struct ads1114_periph {
   struct i2c_transaction trans;
   uint8_t i2c_addr;
-  bool_t config_done;
-  bool_t data_available;
+  bool config_done;
+  bool data_available;
 };
 
 #if USE_ADS1114_1
@@ -134,10 +134,10 @@ extern void ads1114_read(struct ads1114_periph *p);
 // Generic Event Macro
 #define _Ads1114Event(_p) {\
     if (!_p.config_done) { \
-      if (_p.trans.status == I2CTransSuccess) { _p.config_done = TRUE; _p.trans.status = I2CTransDone; } \
+      if (_p.trans.status == I2CTransSuccess) { _p.config_done = true; _p.trans.status = I2CTransDone; } \
       if (_p.trans.status == I2CTransFailed) { _p.trans.status = I2CTransDone; } \
     } else { \
-      if (_p.trans.status == I2CTransSuccess) { _p.data_available = TRUE; _p.trans.status = I2CTransDone; } \
+      if (_p.trans.status == I2CTransSuccess) { _p.data_available = true; _p.trans.status = I2CTransDone; } \
       if (_p.trans.status == I2CTransFailed) { _p.trans.status = I2CTransDone; } \
     } \
   }

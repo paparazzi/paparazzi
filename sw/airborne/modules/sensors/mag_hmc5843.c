@@ -19,7 +19,7 @@
  */
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 #include <math.h>
 
@@ -27,7 +27,7 @@
 
 
 int32_t mag_x, mag_y, mag_z;
-bool_t mag_valid;
+bool mag_valid;
 
 
 

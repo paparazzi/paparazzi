@@ -1,0 +1,12 @@
+<!DOCTYPE settings SYSTEM "../settings.dtd">
+
+<!-- A conf to use to tune a new A/C -->
+
+<settings>
+  <dl_settings>
+    <dl_settings NAME="yaw">
+      <dl_setting MAX="10000" MIN="0" STEP="10" VAR="h_ctl_yaw_dgain" shortname="yaw_dgain" param="H_CTL_YAW_DGAIN" module="stabilization/stabilization_adaptive"/>
+      <dl_setting MAX="10000" MIN="0" STEP="10" VAR="h_ctl_yaw_ny_igain" shortname="yaw_ny_igain" param="H_CTL_YAW_NY_IGAIN" module="stabilization/stabilization_adaptive"/>
+    </dl_settings>
+  </dl_settings>
+</settings>

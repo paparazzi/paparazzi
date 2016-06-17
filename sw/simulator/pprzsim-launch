@@ -39,9 +39,9 @@ def main():
                       action="store", metavar="NAME",
                       help="Aircraft name to use")
     parser.add_option("-t", "--type", dest="simtype",
-                      type='choice', choices=['sim', 'jsbsim', 'nps'],
-                      action="store", default="sim",
-                      help="Simlator type to start: sim, jsbsim or nps (Default: %default)")
+                      type='choice', choices=['sim', 'nps'],
+                      action="store", default=None,
+                      help="Simulator type to start: sim or nps")
     parser.add_option("-b", "--ivy_bus", dest="ivy_bus", action="store",
                       metavar="BUS", help="Ivy Bus broadcast address (127.255.255.255)")
     parser.add_option("-f", "--fg_host", dest="fg_host", action="store", metavar="HOST",
@@ -66,6 +66,9 @@ def main():
     nps_opts.add_option("-p", "--fg_port", dest="fg_port", metavar="PORT",
                         type="int", default=5501, action="store",
                         help="Port on FlightGear host to connect to (Default: %default)")
+    nps_opts.add_option("-P", "--fg_port_in", dest="fg_port_in", metavar="PORT_IN",
+                        type="int", default=5502, action="store",
+                        help="Port to receive from FlightGear host (Default: %default)")
     nps_opts.add_option("--fg_time_offset", type="int", action="store", metavar="SEC",
                         help="FlightGear time offset in seconds (e.g. 21600 for 6h)")
     nps_opts.add_option("-j", "--js_dev", dest="js_dev", metavar="IDX",
@@ -78,24 +81,43 @@ def main():
                         help="Number of RC script to use")
     nps_opts.add_option("--time_factor", type="float", action="store", metavar="factor",
                         help="Time factor (default 1.0)")
-
-    # special options for the JSBSim sim (without sensor models)
-    #jsbsim_opts = OptionGroup(parser, "JSBSim options",
-    #                          "These are only relevant to the jsbsim sim")
+    nps_opts.add_option("--fg_fdm", action="store_true",
+                        help="Use FlightGear native-fdm protocol instead of native-gui")
 
     parser.add_option_group(ocamlsim_opts)
     parser.add_option_group(nps_opts)
-    #parser.add_option_group(jsbsim_opts)
 
     (options, args) = parser.parse_args()
 
     if not options.ac_name:
         parser.error("Please specify the aircraft name.")
 
+    # get environment
+    paparazzi_home = os.environ['PAPARAZZI_HOME']
+    if not paparazzi_home:
+        paparazzi_home = os.getcwd()
+    if options.verbose:
+        print("Using "+paparazzi_home+" as Paparazzi home dir.")
+    ac_dir = os.path.join(paparazzi_home, "var", "aircrafts", options.ac_name)
+
+     # if sim type not explicitly specified: check which one is built
+    if options.simtype is None:
+        nps_sitl = os.path.join(ac_dir, "nps", "simsitl")
+        nps_sitl = nps_sitl if os.path.isfile(nps_sitl) else None
+        sim_sitl = os.path.join(ac_dir, "sim", "simsitl")
+        sim_sitl = sim_sitl if os.path.isfile(sim_sitl) else None
+        if nps_sitl and sim_sitl:
+            print("Error: Both sim and nps targets built for aircraft " + options.ac_name + ". Please specify sim type to use...")
+            sys.exit(1)
+        elif nps_sitl is None and sim_sitl is None:
+            print("Error: No simulator target (sim or nps) built for aircraft " + options.ac_name)
+            sys.exit(1)
+        else:
+            options.simtype = "nps" if nps_sitl is not None else "sim"
+
     simargs = []
 
     if options.simtype == "sim":
-        simdir = "sim"
         if options.boot:
             simargs.append("-boot")
         if options.norc:
@@ -110,21 +132,14 @@ def main():
         if options.fg_host:
             simargs.append("-fg")
             simargs.append(options.fg_host)
-    elif options.simtype == "jsbsim":
-        simdir = "jsbsim"
-        if options.ivy_bus:
-            simargs.append("-b")
-            simargs.append(options.ivy_bus)
-        if options.fg_host:
-            simargs.append("-fg")
-            simargs.append(options.fg_host)
     elif options.simtype == "nps":
-        simdir = "nps"
         if options.fg_host:
             simargs.append("--fg_host")
             simargs.append(options.fg_host)
             simargs.append("--fg_port")
             simargs.append(str(options.fg_port))
+            simargs.append("--fg_port_in")
+            simargs.append(str(options.fg_port_in))
             if options.fg_time_offset:
                 simargs.append("--fg_time_offset")
                 simargs.append(str(options.fg_time_offset))
@@ -143,22 +158,17 @@ def main():
         if options.time_factor:
             simargs.append("--time_factor")
             simargs.append(str(options.time_factor))
+        if options.fg_fdm:
+            simargs.append("--fg_fdm")
     else:
         parser.error("Please specify a valid sim type.")
 
     # pass additional args through to the sim
     simargs += args
 
-    # get environment
-    paparazzi_home = os.environ['PAPARAZZI_HOME']
-    if not paparazzi_home:
-        paparazzi_home = os.getcwd()
-    if options.verbose:
-        print("Using "+paparazzi_home+" as Paparazzi home dir.")
-
-    simsitl = os.path.join(paparazzi_home, "var", "aircrafts", options.ac_name, simdir, "simsitl")
+    simsitl = os.path.join(ac_dir, options.simtype, "simsitl")
     if not os.path.isfile(simsitl):
-        print("Error: " + simsitl + " is missing. Is target " + simdir + " built for aircraft " + options.ac_name + "?")
+        print("Error: " + simsitl + " is missing. Is target " + options.simtype + " built for aircraft " + options.ac_name + "?")
         sys.exit(1)
 
     if options.verbose:

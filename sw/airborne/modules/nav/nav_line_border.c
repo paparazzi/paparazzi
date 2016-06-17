@@ -37,13 +37,13 @@
 enum line_border_status { LR12, LQC21, LTC2, LQC22, LR21, LQC12, LTC1, LQC11 };
 static enum line_border_status line_border_status;
 
-bool_t nav_line_border_setup(void)
+bool nav_line_border_setup(void)
 {
   line_border_status = LR12;
-  return FALSE;
+  return false;
 }
 
-bool_t nav_line_border_run(uint8_t l1, uint8_t l2, float radius)
+bool nav_line_border_run(uint8_t l1, uint8_t l2, float radius)
 {
   radius = fabs(radius);
   float alt = waypoints[l1].a;
@@ -133,7 +133,7 @@ bool_t nav_line_border_run(uint8_t l1, uint8_t l2, float radius)
       break;
 
     default: /* Should not occur !!! End the pattern */
-      return FALSE;
+      return false;
   }
-  return TRUE; /* This pattern never ends */
+  return true; /* This pattern never ends */
 }

@@ -20,22 +20,15 @@
  */
 
 #include "subsystems/gps.h"
-
-bool_t gps_available;
-
+#include "subsystems/abi.h"
 
 #include "fms/fms_network.h"
 #include <string.h>
 #include <stdio.h>
 
-#if GPS_USE_LATLONG
-#include "subsystems/navigation/common_nav.h"
-#include "math/pprz_geodetic_float.h"
-#endif
-
 //Check if variables are set and else define them
 #ifndef GPS_UDP_HOST
-#define GPS_UDP_HOST            "192.168.1.2"
+#define GPS_UDP_HOST            192.168.1.2
 #endif
 
 #define GPS_UDP_MSG_LEN         (11*4)
@@ -44,18 +37,19 @@ bool_t gps_available;
 unsigned char gps_udp_read_buffer[256];
 struct FmsNetwork *gps_network = NULL;
 
-void gps_impl_init(void)
+struct GpsState gps_udp;
+
+void gps_udp_init(void)
 {
-  gps.fix = GPS_FIX_NONE;
-  gps_available = FALSE;
-  gps_network = network_new(GPS_UDP_HOST, 6000 /*out*/, 7000 /*in*/, TRUE);
+  gps_udp.fix = GPS_FIX_NONE;
+  gps_network = network_new(STRINGIFY(GPS_UDP_HOST), 6000 /*out*/, 7000 /*in*/, TRUE);
 }
 
 #define STX 99
 
 #define UDP_GPS_INT(_udp_gps_payload) (int32_t)(*((uint8_t*)_udp_gps_payload)|*((uint8_t*)_udp_gps_payload+1)<<8|((int32_t)*((uint8_t*)_udp_gps_payload+2))<<16|((int32_t)*((uint8_t*)_udp_gps_payload+3))<<24)
 
-void gps_parse(void)
+void gps_udp_parse(void)
 {
   if (gps_network == NULL) { return; }
 
@@ -65,36 +59,35 @@ void gps_parse(void)
   if (size > 0) {
     // Correct MSG
     if ((size == GPS_UDP_MSG_LEN) && (gps_udp_read_buffer[0] == STX)) {
-      gps.lla_pos.lat = UDP_GPS_INT(gps_udp_read_buffer + 4);
-      gps.lla_pos.lon = UDP_GPS_INT(gps_udp_read_buffer + 8);
-      gps.lla_pos.alt = UDP_GPS_INT(gps_udp_read_buffer + 12);
-      gps.hmsl        = UDP_GPS_INT(gps_udp_read_buffer + 16);
+      gps_udp.lla_pos.lat = UDP_GPS_INT(gps_udp_read_buffer + 4);
+      gps_udp.lla_pos.lon = UDP_GPS_INT(gps_udp_read_buffer + 8);
+      gps_udp.lla_pos.alt = UDP_GPS_INT(gps_udp_read_buffer + 12);
+      SetBit(gps_udp.valid_fields, GPS_VALID_POS_LLA_BIT);
 
-      gps.ecef_pos.x = UDP_GPS_INT(gps_udp_read_buffer + 20);
-      gps.ecef_pos.y = UDP_GPS_INT(gps_udp_read_buffer + 24);
-      gps.ecef_pos.z = UDP_GPS_INT(gps_udp_read_buffer + 28);
+      gps_udp.hmsl        = UDP_GPS_INT(gps_udp_read_buffer + 16);
+      SetBit(gps_udp.valid_fields, GPS_VALID_HMSL_BIT);
 
-      gps.ecef_vel.x = UDP_GPS_INT(gps_udp_read_buffer + 32);
-      gps.ecef_vel.y = UDP_GPS_INT(gps_udp_read_buffer + 36);
-      gps.ecef_vel.z = UDP_GPS_INT(gps_udp_read_buffer + 40);
+      gps_udp.ecef_pos.x = UDP_GPS_INT(gps_udp_read_buffer + 20);
+      gps_udp.ecef_pos.y = UDP_GPS_INT(gps_udp_read_buffer + 24);
+      gps_udp.ecef_pos.z = UDP_GPS_INT(gps_udp_read_buffer + 28);
+      SetBit(gps_udp.valid_fields, GPS_VALID_POS_ECEF_BIT);
 
-      gps.fix = GPS_FIX_3D;
-      gps_available = TRUE;
+      gps_udp.ecef_vel.x = UDP_GPS_INT(gps_udp_read_buffer + 32);
+      gps_udp.ecef_vel.y = UDP_GPS_INT(gps_udp_read_buffer + 36);
+      gps_udp.ecef_vel.z = UDP_GPS_INT(gps_udp_read_buffer + 40);
+      SetBit(gps_udp.valid_fields, GPS_VALID_VEL_ECEF_BIT);
 
-#if GPS_USE_LATLONG
-      // Computes from (lat, long) in the referenced UTM zone
-      struct LlaCoor_f lla_f;
-      LLA_FLOAT_OF_BFP(lla_f, gps.lla_pos);
-      struct UtmCoor_f utm_f;
-      utm_f.zone = nav_utm_zone0;
-      // convert to utm
-      utm_of_lla_f(&utm_f, &lla_f);
-      // copy results of utm conversion
-      gps.utm_pos.east = utm_f.east * 100;
-      gps.utm_pos.north = utm_f.north * 100;
-      gps.utm_pos.alt = gps.lla_pos.alt;
-      gps.utm_pos.zone = nav_utm_zone0;
-#endif
+      gps_udp.fix = GPS_FIX_3D;
+
+      // publish new GPS data
+      uint32_t now_ts = get_sys_time_usec();
+      gps_udp.last_msg_ticks = sys_time.nb_sec_rem;
+      gps_udp.last_msg_time = sys_time.nb_sec;
+      if (gps_udp.fix == GPS_FIX_3D) {
+        gps_udp.last_3dfix_ticks = sys_time.nb_sec_rem;
+        gps_udp.last_3dfix_time = sys_time.nb_sec;
+      }
+      AbiSendMsgGPS(GPS_UDP_ID, now_ts, &gps_udp);
 
     } else {
       printf("gps_udp error: msg len invalid %d bytes\n", size);
@@ -102,4 +95,3 @@ void gps_parse(void)
     memset(&gps_udp_read_buffer[0], 0, sizeof(gps_udp_read_buffer));
   }
 }
-

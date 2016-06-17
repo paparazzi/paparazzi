@@ -21,12 +21,14 @@
  * Boston, MA 02111-1307, USA.
  *
  *)
+
+
 let current_os = ref "not_set"
 
 let read_process_output command =
   let buffer_size = 2048 in
   let buffer = Buffer.create buffer_size in
-  let string = String.create buffer_size in
+  let string = Compat.bytes_create buffer_size in
   let in_channel = Unix.open_process_in command in
   let chars_read = ref 1 in
   while !chars_read <> 0 do
@@ -41,7 +43,7 @@ let contains s substring =
   try ignore (Str.search_forward (Str.regexp_string substring) s 0); true
   with Not_found -> false
 
-let os_name = String.copy (
+let os_name = Compat.bytes_copy (
   if contains !current_os "not_set" then (
     current_os := read_process_output "uname" );
   !current_os

@@ -27,24 +27,8 @@
 #define UDP_ARCH_H
 
 #include "mcu_periph/udp.h"
-#include <sys/socket.h>
-#include <arpa/inet.h>
+#include "udp_socket.h"
 
-struct UdpNetwork {
-  int socket_in;
-  int socket_out;
-  struct sockaddr_in addr_in;
-  struct sockaddr_in addr_out;
-};
-
-/**
- * Create UDP network (in/out sockets).
- * @param[out] network   pointer to already allocated UdpNetwork struct
- * @param[in]  host      hostname/address
- * @param[in]  port_out  output port
- * @param[in]  port_in   input port
- * @param[in]  broadcast if TRUE enable broadcasting
- */
-extern void udp_create_network(struct UdpNetwork *network, char *host, int port_out, int port_in, bool_t broadcast);
+extern void udp_arch_init(void);
 
 #endif /* UDP_ARCH_H */

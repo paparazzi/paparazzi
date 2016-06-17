@@ -12,7 +12,7 @@
   <header>
     <file name="nav_gls.h"/>
   </header>
-  <makefile target="ap|sim|jsbsim|nps">
+  <makefile target="ap|sim|nps">
     <file name="nav_gls.c"/>
   </makefile>
 </module>

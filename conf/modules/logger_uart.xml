@@ -1,0 +1,18 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="logger_uart" dir="loggers">
+  <doc>
+    <description>Stream IMU raw data over UART for off-board logging.</description>
+    <configure name="LOGGER_PORT" value="UART1|UART2|UART3|UART4|UART5|UART6" description="Port to stream the realtime log"/>
+    </doc>
+  <header>
+    <file name="logger_uart.h"/>
+  </header>
+  <periodic fun="logger_uart_periodic()" autorun="TRUE"/>
+  <makefile>
+    <file name="logger_uart.c"/>
+    <define name="USE_UART1" />
+    <configure name="UART1_BAUD" value="B230400"/>
+    <define name="USE_LED_1" />
+    </makefile>
+</module>

@@ -18,7 +18,7 @@ uint16_t enose_PID_val;
 #define ENOSE_HEAT_INIT 237
 
 static uint8_t enose_conf_requested;
-static volatile bool_t enose_i2c_done;
+static volatile bool enose_i2c_done;
 static struct adc_buf buf_PID;
 
 
@@ -30,8 +30,8 @@ void enose_init(void)
     enose_val[i] = 0;
   }
   enose_status = ENOSE_IDLE;
-  enose_conf_requested = TRUE;
-  enose_i2c_done = TRUE;
+  enose_conf_requested = true;
+  enose_i2c_done = true;
 
 #ifdef ADC_CHANNEL_PID
   adc_buf_channel(ADC_CHANNEL_PID, &buf_PID, ADC_CHANNEL_PID_NB_SAMPLES);
@@ -42,12 +42,12 @@ void enose_init(void)
 void enose_set_heat(uint8_t no_sensor, uint8_t value)
 {
   enose_heat[no_sensor] = value;
-  enose_conf_requested = TRUE;
+  enose_conf_requested = true;
 }
 
 
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 
 void enose_periodic(void)
@@ -59,18 +59,18 @@ void enose_periodic(void)
       const uint8_t msg[] = { ENOSE_PWM_ADDR, enose_heat[0], enose_heat[1], enose_heat[2] };
       memcpy((void *)i2c0_buf, msg, sizeof(msg));
       i2c0_transmit(ENOSE_SLAVE_ADDR, sizeof(msg), &enose_i2c_done);
-      enose_i2c_done = FALSE;
-      enose_conf_requested = FALSE;
+      enose_i2c_done = false;
+      enose_conf_requested = false;
     } else if (enose_status == ENOSE_IDLE) {
       enose_status = ENOSE_MEASURING_WR;
       const uint8_t msg[] = { ENOSE_DATA_ADDR };
       memcpy((void *)i2c0_buf, msg, sizeof(msg));
       i2c0_transmit(ENOSE_SLAVE_ADDR, sizeof(msg), &enose_i2c_done);
-      enose_i2c_done = FALSE;
+      enose_i2c_done = false;
     } else if (enose_status == ENOSE_MEASURING_WR) {
       enose_status = ENOSE_MEASURING_RD;
       i2c0_receive(ENOSE_SLAVE_ADDR, 6, &enose_i2c_done);
-      enose_i2c_done = FALSE;
+      enose_i2c_done = false;
     } else if (enose_status == ENOSE_MEASURING_RD) {
       uint16_t val = (i2c0_buf[0] << 8) | i2c0_buf[1];
       if (val < 5000) {

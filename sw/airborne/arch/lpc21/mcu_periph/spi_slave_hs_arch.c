@@ -38,6 +38,7 @@
 #include "pprz_debug.h"
 #include "armVIC.h"
 
+struct spi_slave_hs spi_slave_hs;
 
 /* High Speed SPI Slave Circular Buffer */
 uint16_t spi_slave_hs_rx_insert_idx, spi_slave_hs_rx_extract_idx;
@@ -103,6 +104,44 @@ static void SSP_ISR(void) __attribute__((naked));
 #endif
 
 
+// Functions for the generic device API
+static int spi_slave_hs_check_free_space(struct spi_slave_hs *p __attribute__((unused)), long *fd __attribute__((unused)), uint16_t len __attribute__((unused)))
+{
+  return true;
+}
+
+static void spi_slave_hs_transmit(struct spi_slave_hs *p __attribute__((unused)), long fd __attribute__((unused)), uint8_t byte)
+{
+  uint8_t temp = (spi_slave_hs_tx_insert_idx + 1) % SPI_SLAVE_HS_TX_BUFFER_SIZE;
+  if (temp != spi_slave_hs_tx_extract_idx)  /* there is room left */
+  {
+    spi_slave_hs_tx_buffer[spi_slave_hs_tx_insert_idx] = byte;
+    spi_slave_hs_tx_insert_idx = temp;
+  }
+}
+
+static void spi_slave_hs_transmit_buffer(struct spi_slave_hs *p __attribute__((unused)), long fd, uint8_t *data, uint16_t len)
+{
+  int i;
+  for (i = 0; i < len; i++) {
+    spi_slave_hs_transmit(p, fd, data[i]);
+  }
+}
+
+static void spi_slave_hs_send(struct spi_slave_hs *p __attribute__((unused)), long fd __attribute__((unused))) { }
+
+static int spi_slave_hs_char_available(struct spi_slave_hs *p __attribute__((unused)))
+{
+  return spi_slave_hs_rx_insert_idx != spi_slave_hs_rx_extract_idx;
+}
+
+static uint8_t spi_slave_hs_getch(struct spi_slave_hs *p __attribute__((unused)))
+{
+  uint8_t ret = spi_slave_hs_rx_buffer[spi_slave_hs_rx_extract_idx];
+  spi_slave_hs_rx_extract_idx = (spi_slave_hs_rx_extract_idx + 1)%SPI_SLAVE_HS_RX_BUFFER_SIZE;
+  return ret;
+}
+
 void spi_slave_hs_init(void)
 {
 
@@ -128,6 +167,15 @@ void spi_slave_hs_init(void)
 
   // Enable Receive interrupt
   SetBit(SSPIMSC, RXIM);
+
+  // Configure generic device
+  spi_slave_hs.device.periph = (void *)(&spi_slave_hs);
+  spi_slave_hs.device.check_free_space = (check_free_space_t) spi_slave_hs_check_free_space;
+  spi_slave_hs.device.put_byte = (put_byte_t) spi_slave_hs_transmit;
+  spi_slave_hs.device.put_buffer = (put_buffer_t) spi_slave_hs_transmit_buffer;
+  spi_slave_hs.device.send_message = (send_message_t) spi_slave_hs_send;
+  spi_slave_hs.device.char_available = (char_available_t) spi_slave_hs_char_available;
+  spi_slave_hs.device.get_byte = (get_byte_t) spi_slave_hs_getch;
 
 }
 

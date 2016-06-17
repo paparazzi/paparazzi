@@ -121,8 +121,8 @@ unit_t nav_drop_update_release(uint8_t wp_target)
   nav_drop_x = 0.;
   nav_drop_y = 0.;
 
-  nav_drop_vx = (*stateGetHorizontalSpeedNorm_f()) * sin((*stateGetHorizontalSpeedDir_f()));
-  nav_drop_vy = (*stateGetHorizontalSpeedNorm_f()) * cos((*stateGetHorizontalSpeedDir_f()));
+  nav_drop_vx = stateGetHorizontalSpeedNorm_f() * sin(stateGetHorizontalSpeedDir_f());
+  nav_drop_vy = stateGetHorizontalSpeedNorm_f() * cos(stateGetHorizontalSpeedDir_f());
   nav_drop_vz = 0.;
 
   integrate(wp_target);
@@ -161,8 +161,8 @@ unit_t nav_drop_compute_approach(uint8_t wp_target, uint8_t wp_start, uint8_t wp
 
   // wind in NED frame
   if (stateIsAirspeedValid()) {
-    nav_drop_vx = x1 **stateGetAirspeed_f() + stateGetHorizontalWindspeed_f()->y;
-    nav_drop_vy = y_1 **stateGetAirspeed_f() + stateGetHorizontalWindspeed_f()->x;
+    nav_drop_vx = x1 * stateGetAirspeed_f() + stateGetHorizontalWindspeed_f()->y;
+    nav_drop_vy = y_1 * stateGetAirspeed_f() + stateGetHorizontalWindspeed_f()->x;
   } else {
     // use approximate airspeed, initially set to AIRSPEED_AT_RELEASE
     nav_drop_vx = x1 * airspeed + stateGetHorizontalWindspeed_f()->y;
@@ -191,7 +191,7 @@ unit_t nav_drop_shoot(void)
 }
 
 /* Compute start and end waypoints to be aligned on w1-w2 */
-bool_t compute_alignment(uint8_t w1, uint8_t w2, uint8_t wp_before, uint8_t wp_after, float d_before, float d_after)
+bool compute_alignment(uint8_t w1, uint8_t w2, uint8_t wp_before, uint8_t wp_after, float d_before, float d_after)
 {
   float x_0 = waypoints[w2].x - waypoints[w1].x;
   float y_0 = waypoints[w2].y - waypoints[w1].y;
@@ -206,7 +206,7 @@ bool_t compute_alignment(uint8_t w1, uint8_t w2, uint8_t wp_before, uint8_t wp_a
   waypoints[wp_after].x = waypoints[w2].x + d_after * x_0;
   waypoints[wp_after].y = waypoints[w2].y + d_after * y_0;
 
-  return FALSE;
+  return false;
 }
 
 #endif /* WP_RELEASE */

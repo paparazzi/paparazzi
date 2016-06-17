@@ -168,7 +168,7 @@ static inline void sys_tick_irq_handler(void)
     if (sys_time.timer[i].in_use &&
         sys_time.nb_tick >= sys_time.timer[i].end_time) {
       sys_time.timer[i].end_time += sys_time.timer[i].duration;
-      sys_time.timer[i].elapsed = TRUE;
+      sys_time.timer[i].elapsed = true;
       if (sys_time.timer[i].cb) {
         sys_time.timer[i].cb(i);
       }

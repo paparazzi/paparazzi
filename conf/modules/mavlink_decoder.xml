@@ -11,9 +11,10 @@
   </header>
   <event fun="MavlinkDatalinkEvent()"/>
   <makefile>
-    <define name="MAVLINK_UART" value="$(MAVLINK_PORT)"/>
-    <define name="USE_$(MAVLINK_PORT)"/>
-    <define name="$(MAVLINK_PORT)_BAUD" value="$(MAVLINK_BAUD)"/>
+    <configure name="MAVLINK_PORT" case="upper|lower"/>
+    <define name="MAVLINK_UART" value="$(MAVLINK_PORT_LOWER)"/>
+    <define name="USE_$(MAVLINK_PORT_UPPER)"/>
+    <define name="$(MAVLINK_PORT_UPPER)_BAUD" value="$(MAVLINK_BAUD)"/>
     <file name="mavlink_decoder.c"/>
   </makefile>
 </module>

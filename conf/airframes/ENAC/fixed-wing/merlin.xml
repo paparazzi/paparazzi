@@ -15,28 +15,23 @@
     <target name="ap" 			        board="tiny_2.11"/>
     <target name="sim" 			        board="pc"/>
 
-    <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="control"/>
-    <subsystem name="ahrs"          type="infrared"/>
-    <subsystem name="ins"           type="alt_float"/>
-    <subsystem name="gps"           type="ublox"/>
-    <subsystem name="navigation"/>
+    <module name="radio_control" type="ppm"/>
+    <module name="telemetry"     type="transparent"/>
+    <module name="control"/>
+    <module name="infrared"      type="adc"/>
+    <module name="ahrs"          type="infrared"/>
+    <!--module name="ins"         type="vn100"/-->
+    <module name="ins"           type="alt_float"/>
+    <module name="gps"           type="ublox"/>
+    <module name="navigation"/>
 
-    <!--subsystem name="spi">
+    <!--module name="spi">
       <define name="USE_SPI_SLAVE0"/>
       <define name="USE_SPI1"/>
-    </subsystem-->
-  </firmware>
-
-  <firmware name="setup">
-    <target name="tunnel" 		      board="tiny_2.11" />
-    <target name="setup_actuators" 	board="tiny_2.11" />
+    </module-->
   </firmware>
 
   <modules>
-    <load name="infrared_adc.xml"/>
-    <!--load name="ins_vn100.xml"/-->
   </modules>
 
 <!-- commands section -->
@@ -112,7 +107,7 @@
     <define name="MAXIMUM_AIRSPEED" value="18." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
-<!--    <define name="XBEE_INIT" value="&quot;ATPL2\rATRN1\rATTT80\r&quot;"/> -->
+<!--    <define name="XBEE_INIT" value="ATPL2\rATRN1\rATTT80\r" type="string"/> -->
 <!--    <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
 
     <define name="TRIGGER_DELAY" value="1."/>

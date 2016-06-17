@@ -33,11 +33,15 @@
 /* some convenience macros to print debug/config messages at compile time */
 #include "message_pragmas.h"
 
+/* stringify a define, e.g. one that was not quoted */
+#define _STRINGIFY(s) #s
+#define STRINGIFY(s) _STRINGIFY(s)
+
 #ifndef FALSE
-#define FALSE 0
+#define FALSE false
 #endif
 #ifndef TRUE
-#define TRUE (!FALSE)
+#define TRUE true
 #endif
 
 #ifndef NULL
@@ -46,17 +50,6 @@
 #else
 #define NULL ((void *)0)
 #endif
-#endif
-
-/* Boolean values */
-#ifdef RTOS_IS_CHIBIOS
-/* make bool_t an alias to bool instead of uint8_t dor chibios port
-  probably a bad idea since sizeof(bool) is 4, and this will break
-  message coding/decoding **** FIX NEEDEED ****
-*/
-typedef bool bool_t;
-#else
-typedef uint8_t bool_t;
 #endif
 
 /* Unit (void) values */
@@ -100,6 +93,9 @@ typedef uint8_t unit_t;
 #ifndef ABS
 #define ABS(val) ((val) < 0 ? -(val) : (val))
 #endif
+
+#define BoundUpper(_x, _max) { if (_x > (_max)) _x = (_max);}
+
 
 #define Bound(_x, _min, _max) { if (_x > (_max)) _x = (_max); else if (_x < (_min)) _x = (_min); }
 #define BoundInverted(_x, _min, _max) {           \
@@ -217,7 +213,7 @@ typedef uint8_t unit_t;
     }									\
   }
 
-static inline bool_t str_equal(const char * a, const char * b) {
+static inline bool str_equal(const char * a, const char * b) {
   int i = 0;
   while (!(a[i] == 0 && b[i] == 0)) {
     if (a[i] != b[i]) return FALSE;

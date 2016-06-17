@@ -4,10 +4,23 @@
   <doc>
     <description>
       GeoMagnetic field vector.
-      Calculation of the normalized geomagnetic field vector (saved to ahrs_impl.mag_h) at startup using GPS fix.
-      Based on the WMM2010 model (http://www.ngdc.noaa.gov/geomag/models.shtml).
+      Calculation of the normalized geomagnetic field vector at startup as soon as a valid location is aquired.
+      The result is published via the GEO_MAG ABI message.
+      The AHRS algorithms need to know the magnetic field vector at the current position in order to accurately calculate the heading.
+
+      Method uses is based on the the ngdc noaa DODWMM model and data (http://www.ngdc.noaa.gov/geomag/WMM/DoDWMM.shtml).
+      The WMM is based on earth magnetic field measuring at an high number of sites on the whole globe and on its mathematical representation through a series of characteristic values listed in a file (WMM.COF) which has a five-year validity.
+      The autopilot used data derived from this file to make the complex calculation of declination.
+      Every 5 years (2015, 2020) an updated geomagnetic model is released and datatables in the code must be updated accordingly for more accurate flight.
     </description>
   </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings name="geo_mag">
+        <dl_setting min="0" max="1" step="1" values="OFF|CALC" var="geo_mag.calc_once" module="geo_mag/geo_mag" shortname="calcNow"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
   <header>
     <file name="geo_mag.h"/>
   </header>
@@ -16,7 +29,7 @@
   <event fun="geo_mag_event()"/>
   <makefile target="ap|nps">
     <file name="geo_mag.c"/>
-    <file name="pprz_geodetic_wmm2010.c" dir="math"/>
+    <file name="pprz_geodetic_wmm2015.c" dir="math"/>
   </makefile>
   <makefile target="nps">
     <define name="NPS_CALC_GEO_MAG"/>

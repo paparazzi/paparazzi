@@ -24,29 +24,29 @@
     </target>
 
     <target name="nps" board="pc">
-      <subsystem name="fdm" type="jsbsim"/>
+      <module name="fdm" type="jsbsim"/>
     </target>
 
-    <subsystem name="radio_control" type="spektrum">
+    <module name="radio_control" type="spektrum">
       <define name="RADIO_MODE" value="RADIO_FLAP"/>
       <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
       <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="motor_mixing"/>
-    <subsystem name="actuators"     type="pwm">
+    <module name="motor_mixing"/>
+    <module name="actuators"     type="pwm">
       <define name="SERVO_HZ" value="400"/>
       <!--define name="USE_SERVOS_7AND8"/-->
-    </subsystem>
+    </module>
 
-    <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="imu"           type="aspirin_v2.1"/>
-    <subsystem name="gps"           type="ublox"/>
-    <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="ahrs"          type="int_cmpl_quat">
+    <module name="telemetry"     type="transparent"/>
+    <module name="imu"           type="aspirin_v2.1"/>
+    <module name="gps"           type="ublox"/>
+    <module name="stabilization" type="int_quat"/>
+    <module name="ahrs"          type="int_cmpl_quat">
       <define name="AHRS_GRAVITY_HEURISTIC_FACTOR" value="30"/>
-    </subsystem>
-    <subsystem name="ins"/>
+    </module>
+    <module name="ins"/>
 
     <!--define name="KILL_ON_GROUND_DETECT" value="TRUE"/-->
   </firmware>
@@ -123,47 +123,23 @@
     <!-- This will automatically configure your UBLOX GPS on startup. No need
 	 for manual configuration.
       -->
-    <load name="gps_ubx_ucenter.xml"/>
+    <module name="gps" type="ubx_ucenter"/>
 
     <!-- Uncomment the following module if you want to update the normalized
 	 magnetic field at startup using GPS fix.
       -->
-    <!--load name="geo_mag.xml"/-->
+    <!--module name="geo_mag"/-->
 
     <!-- Uncomment the following line if you want to calculate the motor
 	 current to magnetic field distortion curve.
 	 http://wiki.paparazziuav.org/wiki/ImuCalibration#Calibrating_for_Current
       -->
-    <!--load name="send_imu_mag_current.xml"/-->
+    <!--module name="send_imu_mag_current"/-->
   </modules>
 
   <section name="INS" prefix="INS_">
   </section>
 
-  <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
-    <!-- setpoints -->
-    <define name="SP_MAX_P" value="10000"/>
-    <define name="SP_MAX_Q" value="10000"/>
-    <define name="SP_MAX_R" value="10000"/>
-    <define name="DEADBAND_P" value="20"/>
-    <define name="DEADBAND_Q" value="20"/>
-    <define name="DEADBAND_R" value="200"/>
-    <define name="REF_TAU" value="4"/>
-
-    <!-- feedback -->
-    <define name="GAIN_P" value="400"/>
-    <define name="GAIN_Q" value="400"/>
-    <define name="GAIN_R" value="350"/>
-
-    <define name="IGAIN_P" value="75"/>
-    <define name="IGAIN_Q" value="75"/>
-    <define name="IGAIN_R" value="50"/>
-
-    <!-- feedforward -->
-    <define name="DDGAIN_P" value="300"/>
-    <define name="DDGAIN_Q" value="300"/>
-    <define name="DDGAIN_R" value="300"/>
-  </section>
 
 
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
@@ -233,10 +209,9 @@
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
-    <!--define name="ACTUATOR_NAMES"  value="{&quot;ne_motor&quot;, &quot;se_motor&quot;, &quot;sw_motor&quot;, &quot;nw_motor&quot;}"/-->
-    <define name="ACTUATOR_NAMES"  value="{&quot;se_motor&quot;, &quot;sw_motor&quot;, &quot;nw_motor&quot;, &quot;ne_motor&quot;}"/>
-    <define name="JSBSIM_MODEL" value="&quot;simple_x_quad&quot;"/>
-    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
+    <define name="ACTUATOR_NAMES"  value="se_motor, sw_motor, nw_motor, ne_motor" type="string[]"/>
+    <define name="JSBSIM_MODEL" value="simple_x_quad" type="string"/>
+    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
     <!-- mode switch on joystick channel 5 (axis numbering starting at zero) -->
     <define name="JS_AXIS_MODE" value="4"/>
   </section>

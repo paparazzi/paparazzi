@@ -31,7 +31,7 @@
 #include <stdint.h>
 #include BOARD_CONFIG
 
-#if defined BOARD_ARDRONE2_SDK || defined BOARD_ARDRONE2_RAW
+#if defined BOARD_ARDRONE2
 extern uint32_t led_hw_values;
 #define LED_INIT(i) { led_hw_values &= ~(1<<i); }
 #define LED_ON(i) { led_hw_values |= (1<<i); }

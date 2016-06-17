@@ -10,7 +10,7 @@
      airframe="airframes/BR/DelFlyDualPWMServo.xml"
      telemetry="telemetry/default_rotorcraft.xml"
      flight_plan="flight_plans/rotorcraft_basic.xml"
-     settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/control/stabilization_rate.xml"
+     settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
 -->
 
 <airframe name="quadrotor_lisa_s">
@@ -115,19 +115,6 @@
     <define name="MAX_BAT_LEVEL" value="4.1" unit="V"/>
  </section>
 
-  <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
-    <define name="SP_MAX_P" value="15000"/>
-    <define name="SP_MAX_Q" value="15000"/>
-    <define name="SP_MAX_R" value="15000"/>
-
-    <define name="GAIN_P" value="400"/>
-    <define name="GAIN_Q" value="400"/>
-    <define name="GAIN_R" value="418"/>
-
-    <define name="IGAIN_P" value="301"/>
-    <define name="IGAIN_Q" value="302"/>
-    <define name="IGAIN_R" value="303"/>
-  </section>
 
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
 
@@ -203,56 +190,45 @@
    <define name="IGAIN" value="24"/>
  </section>
 
- <section name="SIMULATOR" prefix="NPS_">
-   <define name="ACTUATOR_NAMES" value="{&quot;ne_motor&quot;, &quot;se_motor&quot;, &quot;sw_motor&quot;, &quot;nw_motor&quot;}"/>
-   <define name="JSBSIM_MODEL" value="&quot;simple_x_quad_ccw&quot;"/>
-   <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
- </section>
-
  <modules main_freq="512">
-   <load name="gps_ubx_ucenter.xml"/>
-   <load name="send_imu_mag_current.xml"/>
+   <module name="gps" type="ubx_ucenter"/>
+   <module name="send_imu_mag_current"/>
  </modules>
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_s_1.0">
-      <subsystem name="radio_control" type="superbitrf_rc">
+      <module name="radio_control" type="superbitrf_rc">
         <define name="RADIO_MODE" value="RADIO_GEAR"/>
         <!--<define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>-->
         <define name="USE_PERSISTENT_SETTINGS" value="TRUE"/>
-      </subsystem>
+      </module>
 
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
     </target>
 
-    <target name="nps" board="pc">
-      <subsystem name="fdm" type="jsbsim"/>
-      <subsystem name="radio_control" type="ppm"/>
-    </target>
+    <module name="motor_mixing"/>
 
-    <subsystem name="motor_mixing"/>
-
-    <subsystem name="actuators" type="pwm">
+    <module name="actuators" type="pwm">
       <define name="SERVO_HZ" value="50"/>
       <define name="USE_SERVOS_1AND2"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="actuators" type="dualpwm">
+    <module name="actuators" type="dualpwm">
       <define name="DUAL_PWM_ON"/>
-    </subsystem>
-    <!--<subsystem name="telemetry" type="superbitrf"/>-->
+    </module>
+    <!--<module name="telemetry" type="superbitrf"/>-->
     <!-- Comment the previous line and uncomment the following one if you need
          to use the debug serial interface for telemetry. -->
-    <subsystem name="telemetry" type="superbitrf"/>
-    <subsystem name="imu" type="lisa_s_v1.0">
+    <module name="telemetry" type="superbitrf"/>
+    <module name="imu" type="lisa_s_v1.0">
       <define name="LISA_S_UPSIDE_DOWN"/> <!-- Upside down is a relative term. :) -->
-    </subsystem>
-    <subsystem name="gps" type="ublox"/>
-    <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="ahrs" type="int_cmpl_quat">
+    </module>
+    <module name="gps" type="ublox"/>
+    <module name="stabilization" type="int_quat"/>
+    <module name="ahrs" type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="1"/>
       <define name="AHRS_USE_GPS_HEADING" value="0"/>
-    </subsystem>
-    <subsystem name="ins"/>
+    </module>
+    <module name="ins"/>
   </firmware>
 </airframe>

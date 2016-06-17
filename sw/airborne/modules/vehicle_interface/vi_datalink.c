@@ -29,7 +29,7 @@ void vi_impl_periodic(void)
 {
 }
 
-void vi_impl_set_enabled(bool_t enabled __attribute__((unused)))
+void vi_impl_set_enabled(bool enabled __attribute__((unused)))
 {
 }
 

@@ -38,10 +38,6 @@ static int32_t seq_in_array(uint8_t *array, uint16_t array_size, uint8_t *sequen
 static uint8_t start_log_sequence[6] = {0xAA, 0x55, 0xFF, 0x00, 0x55, 0xAA};
 static uint8_t stop_log_sequence[6] = {0xFF, 0x00, 0x55, 0xAA, 0x10, 0xFF};
 
-// The logging output connection
-#define __DMLoggerLink(dev, _x) dev##_x
-#define _DMLoggerLink(dev, _x)  __DMLoggerLink(dev, _x)
-#define DMLoggerLink(_x) _DMLoggerLink(DM_LOG_UART, _x)
 
 // Logging struct
 struct LogStruct {
@@ -149,7 +145,7 @@ void direct_memory_logger_periodic(void)
       dml.status = DML_READING;
     case DML_READING:
 
-      if (DMLoggerLink(TxRunning) || dml.sst.status != SST25VFXXXX_IDLE) {
+      if (DM_LOG_UART.tx_running || dml.sst.status != SST25VFXXXX_IDLE) {
         break;
       }
 
@@ -163,7 +159,7 @@ void direct_memory_logger_periodic(void)
       }
 
       for (i = 5; i < end_idx; i++) {
-        DMLoggerLink(Transmit(dml.buffer[i]));
+        uart_put_byte(&DM_LOG_UART, 0, dml.buffer[i]);
       }
 
       // Read next bytes

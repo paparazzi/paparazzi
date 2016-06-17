@@ -22,6 +22,7 @@
  *
  *)
 
+
 open Printf
 module Utils = Pc_common
 
@@ -36,12 +37,15 @@ let programs =
     (fun p -> Hashtbl.add h (ExtXml.attrib p "name") p)
     (Xml.children s);
   h
+
 let program_command = fun x ->
   try
     let xml = Hashtbl.find programs x in
     let cmd = ExtXml.attrib xml "command" in
     if cmd.[0] = '/' then
       cmd
+    else if cmd.[0] = '$' then
+      Compat.bytes_sub cmd 1 ((Compat.bytes_length cmd) - 1)
     else
       Env.paparazzi_src // cmd
   with Not_found ->
@@ -73,7 +77,7 @@ let flash_modes =
     let options = List.map (fun o ->
       sprintf "%s=%s" (Xml.attrib o "name") (Xml.attrib o "value")
       ) (List.filter (fun t -> Xml.tag t = "variable") (Xml.children m)) in
-    let options = String.concat " " options in
+    let options = Compat.bytes_concat " " options in
     (* add to hash tables *)
     Hashtbl.add modes mode options;
     List.iter (fun b ->
@@ -114,9 +118,9 @@ let parse_process_args = fun (name, args) ->
   (* Mark spaces into args *)
   let marked_space = Char.chr 0 in
   let in_quotes = ref false in
-  for i = 0 to String.length args - 1 do
+  for i = 0 to Compat.bytes_length args - 1 do
     match args.[i] with
-      ' ' when !in_quotes -> args.[i] <- marked_space
+      ' ' when !in_quotes -> Compat.bytes_set args i marked_space
     | '"' -> in_quotes := not !in_quotes
     | _ -> ()
   done;
@@ -124,19 +128,19 @@ let parse_process_args = fun (name, args) ->
   let args = Str.split (Str.regexp "[ ]+") args in
   (* Restore spaces and remove quotes *)
   let restore_spaces = fun s ->
-    let n = String.length s in
+    let n = Compat.bytes_length s in
     for i = 0 to n - 1 do
-      if s.[i] = marked_space then s.[i] <- ' '
+      if s.[i] = marked_space then Compat.bytes_set s i ' '
     done;
     if n >= 2 && s.[0] = '"' then
-      String.sub s 1 (n-2)
+      Compat.bytes_sub s 1 (n-2)
     else
       s in
   let args = List.map restore_spaces args in
   (* Remove the first "arg" which is the command *)
   let args = List.tl args in
   (* Build the XML arg list *)
-  let is_option = fun s -> String.length s > 0 && s.[0] = '-' in
+  let is_option = fun s -> Compat.bytes_length s > 0 && s.[0] = '-' in
   let rec xml_args = function
       [] -> []
     | option::value::l when not (is_option value) ->
@@ -170,7 +174,7 @@ let save_session = fun gui session_combo ->
       name
 
 let double_quote = fun s ->
-  if String.contains s ' ' then
+  if Compat.bytes_contains s ' ' then
     sprintf "\"%s\"" s
   else
     s
@@ -179,7 +183,7 @@ let get_simtype = fun (target_combo : Gtk_tools.combo) ->
   (* get the list of possible targets *)
   let targets = Gtk_tools.combo_values_list target_combo in
   (* filter non simulator targets *)
-  let sim_targets = ["sim"; "jsbsim"; "nps"] in
+  let sim_targets = ["sim"; "nps"] in
   let targets = List.filter (fun t -> List.mem t sim_targets) targets in
   (* open question box and return corresponding simulator type *)
   match targets with
@@ -191,15 +195,28 @@ let get_simtype = fun (target_combo : Gtk_tools.combo) ->
       | choice -> List.nth targets (choice-1)
 
 let supervision = fun ?file gui log (ac_combo : Gtk_tools.combo) (target_combo : Gtk_tools.combo) ->
+  let get_program_args = fun program ->
+    let args = ref "" in
+    List.iter
+	  (fun arg ->
+	    let constant =
+          match try double_quote (Xml.attrib arg "constant") with _ -> "" with
+            "@AIRCRAFT" -> (Gtk_tools.combo_value ac_combo)
+          | "@AC_ID" -> gui#entry_ac_id#text
+          | const -> const in
+	    args := sprintf "%s %s %s" !args (ExtXml.attrib arg "flag") constant)
+	  (Xml.children program);
+    !args
+  in
+
   let run_gcs = fun () ->
-    run_and_monitor ?file gui log "GCS" ""
-  and run_server = fun args ->
-    run_and_monitor ?file gui log "Server" args
-  and choose_and_run_sitl = fun ac_name ->
+    let args = get_program_args (Hashtbl.find programs "GCS") in
+    run_and_monitor ?file gui log "GCS" args in
+  let run_server = fun args -> run_and_monitor ?file gui log "Server" args in
+  let choose_and_run_sitl = fun ac_name ->
     let get_args = fun simtype ac_name ->
       match simtype with
           "sim" -> sprintf "-a %s -t %s --boot --norc" ac_name simtype
-        | "jsbsim" -> sprintf "-a %s -t %s" ac_name simtype
         | "nps" -> sprintf "-a %s -t %s" ac_name simtype
         | _ -> "none"
     in
@@ -207,13 +224,15 @@ let supervision = fun ?file gui log (ac_combo : Gtk_tools.combo) (target_combo :
     let args = get_args sim_type ac_name in
     if args <> "none" then begin
       run_and_monitor ?file gui log "Simulator" args;
-      run_and_monitor ?file gui log "GCS" "";
-      run_and_monitor ?file gui log "Server" "-n"
+      run_gcs ();
+      run_server "-n";
+      if sim_type = "nps" then
+        run_and_monitor ?file gui log "Data Link" "-udp -udp_broadcast"
     end
   in
 
   (* Sessions *)
-  let session_combo = Gtk_tools.combo [] gui#vbox_session in
+  let session_combo = Gtk_tools.combo ~width:50 [] gui#vbox_session in
 
   let remove_custom_sessions = fun () ->
     let (store, _column) = Gtk_tools.combo_model session_combo in
@@ -227,7 +246,7 @@ let supervision = fun ?file gui log (ac_combo : Gtk_tools.combo) (target_combo :
     Gtk_tools.add_to_combo session_combo Gtk_tools.combo_separator;
     let strings = ref [] in
     Hashtbl.iter (fun name _session -> strings := name :: !strings) sessions;
-    let ordered = List.sort String.compare !strings in
+    let ordered = List.sort Compat.bytes_compare !strings in
     List.iter (fun name -> Gtk_tools.add_to_combo session_combo name) ordered
   in
 
@@ -238,15 +257,9 @@ let supervision = fun ?file gui log (ac_combo : Gtk_tools.combo) (target_combo :
     let session = try Hashtbl.find sessions session_name with Not_found -> failwith (sprintf "Unknown session: %s" session_name) in
     List.iter
       (fun program ->
-	let name = ExtXml.attrib program "name" in
-	let p = ref "" in
-	List.iter
-	  (fun arg ->
-	    let constant =
-	      try double_quote (Xml.attrib arg "constant") with _ -> "" in
-	    p := sprintf "%s %s %s" !p (ExtXml.attrib arg "flag") constant)
-	  (Xml.children program);
-	run_and_monitor ?file gui log name !p)
+        let name = ExtXml.attrib program "name" in
+	    let args = get_program_args program in
+	    run_and_monitor ?file gui log name args)
       (Xml.children session)
   in
 
@@ -276,9 +289,10 @@ let supervision = fun ?file gui log (ac_combo : Gtk_tools.combo) (target_combo :
   (* Tools *)
   let entries = ref [] in
   Hashtbl.iter
-    (fun name _prog ->
+    (fun name prog ->
       let cb = fun () ->
-	run_and_monitor ?file gui log name "" in
+        let args = get_program_args prog in
+	    run_and_monitor ?file gui log name args in
       entries := `I (name, cb) :: !entries)
     programs;
   let compare = fun x y ->
@@ -323,4 +337,3 @@ let supervision = fun ?file gui log (ac_combo : Gtk_tools.combo) (target_combo :
   in
   ignore (gui#menu_item_delete_session#connect#activate ~callback);
   session_combo, execute_custom
-

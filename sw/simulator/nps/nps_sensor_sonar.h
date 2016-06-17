@@ -35,13 +35,15 @@
 #include "std.h"
 
 struct NpsSensorSonar {
-  double  value;          ///< sonar reading in meters
-  double  next_update;
-  bool_t  data_available;
+  double value;          ///< sonar reading in meters
+  double offset;         ///< offset in meters
+  double noise_std_dev;  ///< noise standard deviation
+  double next_update;
+  bool data_available;
 };
 
 
-extern void nps_sensor_sonar_init(struct NpsSensorSonar* sonar, double time);
-extern void nps_sensor_sonar_run_step(struct NpsSensorSonar* sonar, double time);
+extern void nps_sensor_sonar_init(struct NpsSensorSonar *sonar, double time);
+extern void nps_sensor_sonar_run_step(struct NpsSensorSonar *sonar, double time);
 
 #endif /* NPS_SENSOR_SONAR_H */

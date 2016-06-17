@@ -50,7 +50,7 @@
 
 #ifdef ARDUIMU_SYNC_SEND
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 #endif
 
@@ -68,15 +68,15 @@ float ins_pitch_neutral;
 
 // Ask the arduimu to recalibrate the gyros and accels neutrals
 // After calibration, values are store in the arduimu eeprom
-bool_t arduimu_calibrate_neutrals;
+bool arduimu_calibrate_neutrals;
 
 // High Accel Flag
 #define HIGH_ACCEL_LOW_SPEED 15.0
 #define HIGH_ACCEL_LOW_SPEED_RESUME 4.0 // Hysteresis
 #define HIGH_ACCEL_HIGH_THRUST (0.8*MAX_PPRZ)
 #define HIGH_ACCEL_HIGH_THRUST_RESUME (0.1*MAX_PPRZ) // Hysteresis
-bool_t high_accel_done;
-bool_t high_accel_flag;
+bool high_accel_done;
+bool high_accel_flag;
 
 void ArduIMU_init(void)
 {
@@ -89,10 +89,10 @@ void ArduIMU_init(void)
 
   ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
   ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
-  arduimu_calibrate_neutrals = FALSE;
+  arduimu_calibrate_neutrals = false;
 
-  high_accel_done = FALSE;
-  high_accel_flag = FALSE;
+  high_accel_done = false;
+  high_accel_flag = false;
 }
 
 #define FillBufWith32bit(_buf, _index, _value) {  \
@@ -111,16 +111,16 @@ void ArduIMU_periodicGPS(void)
   // Test for high acceleration:
   //  - low speed
   //  - high thrust
-  float speed = *stateGetHorizontalSpeedNorm_f();
+  float speed = stateGetHorizontalSpeedNorm_f();
   if (speed < HIGH_ACCEL_LOW_SPEED && ap_state->commands[COMMAND_THROTTLE] > HIGH_ACCEL_HIGH_THRUST && !high_accel_done) {
-    high_accel_flag = TRUE;
+    high_accel_flag = true;
   } else {
-    high_accel_flag = FALSE;
+    high_accel_flag = false;
     if (speed > HIGH_ACCEL_LOW_SPEED && !high_accel_done) {
-      high_accel_done = TRUE; // After takeoff, don't use high accel before landing (GS small, Throttle small)
+      high_accel_done = true; // After takeoff, don't use high accel before landing (GS small, Throttle small)
     }
     if (speed < HIGH_ACCEL_HIGH_THRUST_RESUME && ap_state->commands[COMMAND_THROTTLE] < HIGH_ACCEL_HIGH_THRUST_RESUME) {
-      high_accel_done = FALSE; // Activate high accel after landing
+      high_accel_done = false; // Activate high accel after landing
     }
   }
 #endif
@@ -135,7 +135,7 @@ void ArduIMU_periodicGPS(void)
   i2c_transmit(&ARDUIMU_I2C_DEV, &ardu_gps_trans, ArduIMU_SLAVE_ADDR, 15);
 
   // Reset calibration flag
-  if (arduimu_calibrate_neutrals) { arduimu_calibrate_neutrals = FALSE; }
+  if (arduimu_calibrate_neutrals) { arduimu_calibrate_neutrals = false; }
 }
 
 void ArduIMU_periodic(void)
@@ -194,7 +194,8 @@ void ArduIMU_event(void)
     ardu_ins_trans.status = I2CTransDone;
 
 #ifdef ARDUIMU_SYNC_SEND
-    //RunOnceEvery(15, DOWNLINK_SEND_AHRS_EULER(DefaultChannel, DefaultDevice, &arduimu_eulers.phi, &arduimu_eulers.theta, &arduimu_eulers.psi));
+    // uint8_t arduimu_id = 102;
+    //RunOnceEvery(15, DOWNLINK_SEND_AHRS_EULER(DefaultChannel, DefaultDevice, &arduimu_eulers.phi, &arduimu_eulers.theta, &arduimu_eulers.psi, &arduimu_id));
     RunOnceEvery(15, DOWNLINK_SEND_IMU_GYRO(DefaultChannel, DefaultDevice, &arduimu_rates.p, &arduimu_rates.q,
                                             &arduimu_rates.r));
     RunOnceEvery(15, DOWNLINK_SEND_IMU_ACCEL(DefaultChannel, DefaultDevice, &arduimu_accel.x, &arduimu_accel.y,

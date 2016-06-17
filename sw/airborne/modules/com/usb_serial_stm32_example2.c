@@ -44,7 +44,7 @@ uint8_t big_buffer[] =
 void init_usb_serial(void)
 {
   VCOM_init();
-  run = FALSE;
+  run = false;
 }
 
 /**
@@ -77,10 +77,10 @@ void usb_serial_parse_packet(int data)
   VCOM_putchar('\n');
 
   if (c == 'S') {
-    run = FALSE;
+    run = false;
   }
   if (c == 'R') {
-    run = TRUE;
+    run = true;
   }
   VCOM_send_message();
 }
@@ -91,7 +91,7 @@ void usb_serial_parse_packet(int data)
 void event_usb_serial(void)
 {
   VCOM_event();
-  if (UsbSChAvailable()) {
-    usb_serial_parse_packet(UsbSGetch());
+  if (VCOM_check_available()) {
+    usb_serial_parse_packet(VCOM_getchar());
   }
 }

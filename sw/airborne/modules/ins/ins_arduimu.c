@@ -31,7 +31,7 @@ int32_t GPS_Data[14];
 
 
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 
 struct i2c_transaction ardu_gps_trans;
@@ -55,10 +55,10 @@ void ArduIMU_init(void)
   ardu_gps_trans.buf[0] = 0;
   ardu_gps_trans.buf[1] = 0;
   messageNr = 0;
-  imu_daten_angefordert = FALSE;
-  gps_daten_abgespeichert = FALSE;
-  gps_daten_versendet_msg1 = FALSE;
-  gps_daten_versendet_msg2 = FALSE;
+  imu_daten_angefordert = false;
+  gps_daten_abgespeichert = false;
+  gps_daten_versendet_msg1 = false;
+  gps_daten_versendet_msg2 = false;
   ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
   ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
 //  pitch_of_throttle_gain = PITCH_OF_THROTTLE_GAIN;
@@ -70,7 +70,7 @@ void ArduIMU_periodicGPS(void)
 {
 
   if (gps_daten_versendet_msg1 == TRUE && gps_daten_versendet_msg2 == TRUE) {
-    gps_daten_abgespeichert = FALSE;
+    gps_daten_abgespeichert = false;
   }
 
   if (imu_daten_angefordert == TRUE) {
@@ -97,7 +97,7 @@ void ArduIMU_periodicGPS(void)
     GPS_Data [12] = -gps.ned_vel.z;
     GPS_Data [13] = gps.num_sv;
 
-    gps_daten_abgespeichert = TRUE;
+    gps_daten_abgespeichert = true;
   }
 
   if (messageNr == 0) {
@@ -136,7 +136,7 @@ void ArduIMU_periodicGPS(void)
     ardu_gps_trans.buf[28] = (uint8_t)(GPS_Data[6] >> 24);
     i2c_transmit(&ARDUIMU_I2C_DEV, &ardu_gps_trans, ArduIMU_SLAVE_ADDR, 28);
 
-    gps_daten_versendet_msg1 = TRUE;
+    gps_daten_versendet_msg1 = true;
     messageNr = 1;
   } else {
 
@@ -156,7 +156,7 @@ void ArduIMU_periodicGPS(void)
     ardu_gps_trans.buf[13] = GPS_Data[11];    //sol flags
     i2c_transmit(&ARDUIMU_I2C_DEV, &ardu_gps_trans, ArduIMU_SLAVE_ADDR, 13);
 
-    gps_daten_versendet_msg2 = TRUE;
+    gps_daten_versendet_msg2 = true;
     messageNr = 0;
   }
 
@@ -173,7 +173,7 @@ void ArduIMU_periodic(void)
   }
   i2c_receive(&ARDUIMU_I2C_DEV, &ardu_ins_trans, ArduIMU_SLAVE_ADDR, 12);
 
-  imu_daten_angefordert = TRUE;
+  imu_daten_angefordert = true;
   /*
   Buffer O: Roll
   Buffer 1: Pitch
@@ -213,8 +213,9 @@ void IMU_Daten_verarbeiten(void)
   att.phi = (float)ArduIMU_data[0] * 0.01745329252 - ins_roll_neutral;
   att.theta = (float)ArduIMU_data[1] * 0.01745329252 - ins_pitch_neutral;
   att.psi = 0.;
-  imu_daten_angefordert = FALSE;
+  imu_daten_angefordert = false;
   stateSetNedToBodyEulers_f(&att);
+  uint8_t arduimu_id = 102;
 
-  RunOnceEvery(15, DOWNLINK_SEND_AHRS_EULER(DefaultChannel, DefaultDevice, &att->phi, &att->theta, &att->psi));
+  RunOnceEvery(15, DOWNLINK_SEND_AHRS_EULER(DefaultChannel, DefaultDevice, &att->phi, &att->theta, &att->psi, &arduimu_id));
 }

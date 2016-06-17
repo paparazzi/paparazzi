@@ -30,7 +30,7 @@
 
 #include <inttypes.h>
 #include "std.h"
-#include "mcu_periph/link_device.h"
+#include "pprzlink/pprzlink_device.h"
 
 struct usb_serial_periph {
   /** Generic device interface */
@@ -42,22 +42,11 @@ extern struct usb_serial_periph usb_serial;
 void VCOM_init(void);
 int  VCOM_putchar(int c);
 int  VCOM_getchar(void);
-bool_t VCOM_check_free_space(uint8_t len);
+bool VCOM_check_free_space(uint16_t len);
 int VCOM_check_available(void);
 void VCOM_set_linecoding(uint8_t mode);
 void VCOM_allow_linecoding(uint8_t mode);
 void VCOM_send_message(void);
 void VCOM_event(void);
-
-/*
- * Macros can be used in subsystems that normally work with serial ports
- * e.g. use UsbS instead of UART1
- */
-#define UsbSInit() VCOM_init()
-#define UsbSCheckFreeSpace(_x) VCOM_check_free_space(_x)
-#define UsbSTransmit(_x) VCOM_putchar(_x)
-#define UsbSSendMessage() VCOM_send_message()
-#define UsbSGetch() VCOM_getchar()
-#define UsbSChAvailable() VCOM_check_available()
 
 #endif /* USB_S_H */

@@ -2,22 +2,30 @@ exception Failure of string
 exception Not_Found of string
 exception Blocked of string
 
-open Http_client
+IFDEF NETCLIENT_V_4 THEN
+module H = Nethttp_client
+ELSE
+module H = Http_client
+END
 
 let file_of_url = fun ?dest url ->
-  if String.sub url 0 7 = "file://" then
-    String.sub url 7 (String.length url - 7)
+  if Compat.bytes_sub url 0 7 = "file://" then
+    Compat.bytes_sub url 7 (Compat.bytes_length url - 7)
   else
     let tmp_file =
       match dest with
           Some s -> s
         | None -> Filename.temp_file "fp" ".wget" in
-    let call = new Http_client.get url in
+    let call = new H.get url in
     call#set_response_body_storage (`File (fun () -> tmp_file));
-    let pipeline = new Http_client.pipeline in
-    pipeline#set_proxy_from_environment ();
-    pipeline#add call;
-    pipeline#run ();
+    let pipeline = new H.pipeline in
+    IFDEF NETCLIENT_V_404 THEN
+    pipeline # set_proxy_from_environment (~insecure:false) ()
+    ELSE
+    pipeline # set_proxy_from_environment ()
+    END;
+    pipeline # add call;
+    pipeline # run ();
     match call#status with
       | `Successful ->
         (* prerr_endline (Printf.sprintf "file sucessfull: %s, '%s'" tmp_file url); *)

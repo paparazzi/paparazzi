@@ -34,7 +34,7 @@
 #include "led.h"
 
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 
 // In I2C mode we can not inline this function:
@@ -65,7 +65,7 @@ void atmega_i2c_cam_ctrl_init(void)
 void atmega_i2c_cam_ctrl_periodic(void)
 {
   atmega_i2c_cam_ctrl_just_sent_command = 0;
-  dc_periodic_4Hz();
+  dc_periodic();
 
   // Request Status
   if (atmega_i2c_cam_ctrl_just_sent_command == 0) {

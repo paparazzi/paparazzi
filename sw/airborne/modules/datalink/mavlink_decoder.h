@@ -29,7 +29,7 @@
 #define MAVLINK_DECODER_H
 
 #include "std.h"
-#include "subsystems/datalink/transport.h"
+#include "pprzlink/pprzlink_transport.h"
 #include "mcu_periph/uart.h"
 
 /* MAVLINK Transport
@@ -216,7 +216,7 @@ static inline void parse_mavlink(struct mavlink_transport *t, uint8_t c)
       if (c != (t->checksum >> 8)) {
         goto error;
       }
-      t->trans.msg_received = TRUE;
+      t->trans.msg_received = true;
       goto restart;
     default:
       goto error;
@@ -251,22 +251,21 @@ static inline void mavlink_parse_payload(struct mavlink_transport *t)
   }
 }
 
-
-#define MavlinkBuffer(_dev) TransportLink(_dev,ChAvailable())
-#define ReadMavlinkBuffer(_dev,_trans) { while (TransportLink(_dev,ChAvailable())&&!(_trans.trans.msg_received)) parse_mavlink(&(_trans),TransportLink(_dev,Getch())); }
-
-#define MavlinkCheckAndParse(_dev,_trans) {  \
-    if (MavlinkBuffer(_dev)) {                 \
-      ReadMavlinkBuffer(_dev,_trans);          \
-      if (_trans.trans.msg_received) {         \
-        mavlink_parse_payload(&(_trans));      \
-        _trans.trans.msg_received = FALSE;     \
-      }                                        \
-    }                                          \
+static inline void mavlink_check_and_parse(struct link_device *dev, struct mavlink_transport *trans)
+{
+  if (dev->char_available(dev->periph)) {
+    while (dev->char_available(dev->periph) && !trans->trans.msg_received) {
+      parse_mavlink(trans, dev->get_byte(dev->periph));
+    }
+    if (trans->trans.msg_received) {
+      mavlink_parse_payload(trans);
+      trans->trans.msg_received = false;
+    }
   }
+}
 
 /* Datalink Event Macro */
-#define MavlinkDatalinkEvent() MavlinkCheckAndParse(MAVLINK_UART, mavlink_tp)
+#define MavlinkDatalinkEvent() mavlink_check_and_parse(&(MAVLINK_UART).device, &mavlink_tp)
 
 #endif /* MAVLINK_DECODER_H */
 

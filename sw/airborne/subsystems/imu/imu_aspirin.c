@@ -26,7 +26,7 @@
  */
 
 #include "subsystems/imu.h"
-
+#include "subsystems/abi.h"
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/spi.h"
 
@@ -67,16 +67,16 @@ struct ImuAspirin imu_aspirin;
 
 void imu_impl_init(void)
 {
-  imu_aspirin.accel_valid = FALSE;
-  imu_aspirin.gyro_valid = FALSE;
-  imu_aspirin.mag_valid = FALSE;
+  imu_aspirin.accel_valid = false;
+  imu_aspirin.gyro_valid = false;
+  imu_aspirin.mag_valid = false;
 
   /* Set accel configuration */
   adxl345_spi_init(&imu_aspirin.acc_adxl, &(ASPIRIN_SPI_DEV), ASPIRIN_SPI_SLAVE_IDX);
   // set the data rate
   imu_aspirin.acc_adxl.config.rate = ASPIRIN_ACCEL_RATE;
   /// @todo drdy int handling for adxl345
-  //imu_aspirin.acc_adxl.config.drdy_int_enable = TRUE;
+  //imu_aspirin.acc_adxl.config.drdy_int_enable = true;
 
   /* Gyro configuration and initalization */
   itg3200_init(&imu_aspirin.gyro_itg, &(ASPIRIN_I2C_DEV), ITG3200_ADDR);
@@ -117,19 +117,21 @@ void imu_periodic(void)
 
 void imu_aspirin_event(void)
 {
+  uint32_t now_ts = get_sys_time_usec();
+
   adxl345_spi_event(&imu_aspirin.acc_adxl);
   if (imu_aspirin.acc_adxl.data_available) {
     VECT3_COPY(imu.accel_unscaled, imu_aspirin.acc_adxl.data.vect);
-    imu_aspirin.acc_adxl.data_available = FALSE;
-    imu_aspirin.accel_valid = TRUE;
+    imu_aspirin.acc_adxl.data_available = false;
+    imu_aspirin.accel_valid = true;
   }
 
   /* If the itg3200 I2C transaction has succeeded: convert the data */
   itg3200_event(&imu_aspirin.gyro_itg);
   if (imu_aspirin.gyro_itg.data_available) {
     RATES_COPY(imu.gyro_unscaled, imu_aspirin.gyro_itg.data.rates);
-    imu_aspirin.gyro_itg.data_available = FALSE;
-    imu_aspirin.gyro_valid = TRUE;
+    imu_aspirin.gyro_itg.data_available = false;
+    imu_aspirin.gyro_valid = true;
   }
 
   /* HMC58XX event task */
@@ -142,7 +144,23 @@ void imu_aspirin_event(void)
     imu.mag_unscaled.y = -imu_aspirin.mag_hmc.data.vect.x;
     imu.mag_unscaled.z =  imu_aspirin.mag_hmc.data.vect.z;
 #endif
-    imu_aspirin.mag_hmc.data_available = FALSE;
-    imu_aspirin.mag_valid = TRUE;
+    imu_aspirin.mag_hmc.data_available = false;
+    imu_aspirin.mag_valid = true;
+  }
+
+  if (imu_aspirin.gyro_valid) {
+    imu_aspirin.gyro_valid = false;
+    imu_scale_gyro(&imu);
+    AbiSendMsgIMU_GYRO_INT32(IMU_ASPIRIN_ID, now_ts, &imu.gyro);
+  }
+  if (imu_aspirin.accel_valid) {
+    imu_aspirin.accel_valid = false;
+    imu_scale_accel(&imu);
+    AbiSendMsgIMU_ACCEL_INT32(IMU_ASPIRIN_ID, now_ts, &imu.accel);
+  }
+  if (imu_aspirin.mag_valid) {
+    imu_aspirin.mag_valid = false;
+    imu_scale_mag(&imu);
+    AbiSendMsgIMU_MAG_INT32(IMU_ASPIRIN_ID, now_ts, &imu.mag);
   }
 }

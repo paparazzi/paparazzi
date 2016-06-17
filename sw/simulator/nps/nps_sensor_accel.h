@@ -15,11 +15,11 @@ struct NpsSensorAccel {
   struct DoubleVect3  noise_std_dev;
   struct DoubleVect3  bias;
   double       next_update;
-  bool_t       data_available;
+  bool       data_available;
 };
 
 
-extern void   nps_sensor_accel_init(struct NpsSensorAccel* accel, double time);
-extern void   nps_sensor_accel_run_step(struct NpsSensorAccel* accel, double time, struct DoubleRMat* body_to_imu);
+extern void   nps_sensor_accel_init(struct NpsSensorAccel *accel, double time);
+extern void   nps_sensor_accel_run_step(struct NpsSensorAccel *accel, double time, struct DoubleRMat *body_to_imu);
 
 #endif /* NPS_SENSOR_ACCEL_H */

@@ -1,0 +1,31 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+
+<flight_plan alt="152" ground_alt="147" lat0="51.2788881" lon0="4.4135337" max_dist_from_home="150" name="Rotorcraft Survey Antwerpen" security_height="2">
+
+  <waypoints>
+    <waypoint name="HOME" x="-8.9" y="21.1"/>
+    <waypoint name="CLIMB" x="-11.9" y="20.1"/>
+    <waypoint name="STDBY" x="-14.4" y="21.6"/>
+    <waypoint name="p1" x="-3.2" y="17.7"/>
+    <waypoint name="p2" x="-31.8" y="38.5"/>
+    <waypoint name="p3" x="-26.6" y="14.0"/>
+    <waypoint name="p4" x="-20.4" y="37.2"/>
+    <waypoint name="CAM" x="-44.3" y="-9.5"/>
+    <waypoint name="TD" x="-9.5" y="14.8"/>
+    <waypoint name="S1" height="30" x="-57.6" y="32.8"/>
+    <waypoint name="S2" height="30" x="17.3" y="19.4"/>
+    <waypoint name="p1" x="-3.2" y="17.7"/>
+    <waypoint name="p2" x="-31.8" y="38.5"/>
+    <waypoint name="raceA" x="-3.2" y="17.7"/>
+    <waypoint name="raceB" x="-31.8" y="38.5"/>
+  </waypoints>
+
+  <includes>
+    <include name="Mission" procedure="tudelft_rotorcraft_survey_mission.xml"/>
+  </includes>
+
+  <blocks>
+    <block name="Dummy"/>
+  </blocks>
+
+</flight_plan>

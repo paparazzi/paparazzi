@@ -46,7 +46,7 @@ void stabilization_attitude_init(void)
   INT_EULERS_ZERO(stab_att_sp_euler);
 }
 
-void stabilization_attitude_read_rc(bool_t in_flight, bool_t in_carefree, bool_t coordinated_turn)
+void stabilization_attitude_read_rc(bool in_flight, bool in_carefree, bool coordinated_turn)
 {
   //Read from RC
   stabilization_attitude_read_rc_setpoint_eulers(&stab_att_sp_euler, in_flight, in_carefree, coordinated_turn);
@@ -57,7 +57,7 @@ void stabilization_attitude_enter(void)
 
 }
 
-void stabilization_attitude_run(bool_t  in_flight __attribute__((unused)))
+void stabilization_attitude_run(bool  in_flight __attribute__((unused)))
 {
 
   /* For roll and pitch we pass trough the desired angles as stabilization command */
@@ -85,7 +85,7 @@ void stabilization_attitude_set_failsafe_setpoint(void)
 
 void stabilization_attitude_set_rpy_setpoint_i(struct Int32Eulers *rpy)
 {
-  memcpy(&stab_att_sp_euler, rpy, sizeof(struct Int32Eulers));
+  stab_att_sp_euler = *rpy;
 }
 
 void stabilization_attitude_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading)

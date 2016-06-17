@@ -94,7 +94,7 @@ void eeprom25AA256_event(struct Eeprom25AA256 *eeprom)
     eeprom->spi_trans.status = SPITransDone;
   } else if (eeprom->spi_trans.status == SPITransSuccess) {
     // Successfull reading
-    eeprom->data_available = TRUE;
+    eeprom->data_available = true;
     eeprom->spi_trans.status = SPITransDone;
   }
 }

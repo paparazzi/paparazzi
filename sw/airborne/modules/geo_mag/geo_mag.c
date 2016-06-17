@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2012  Sergey Krukowski <softsr@yahoo.de>
+ * Copyright (C) 2015  OpenUAS <info@openuas.org>
  *
  * This file is part of paparazzi.
  *
@@ -21,42 +22,47 @@
 
 /**
  * @file modules/geo_mag/geo_mag.c
- * @brief Calculation of the Geomagnetic field vector from current GPS fix.
- * This module is based on the WMM2010 model (http://www.ngdc.noaa.gov/geomag/models.shtml).
+ * @brief Calculation of the Geomagnetic field vector from current location.
+ * This module is based on the WMM2015 model (http://www.ngdc.noaa.gov/geomag/WMM/DoDWMM.shtml).
  */
 
 #include "modules/geo_mag/geo_mag.h"
-#include "math/pprz_geodetic_wmm2010.h"
+#include "math/pprz_geodetic_wmm2015.h"
 #include "math/pprz_algebra_double.h"
 #include "subsystems/gps.h"
+#include "subsystems/abi.h"
+
+//FIXME: should not be in this spot
+//for kill_throttle check
 #include "autopilot.h"
 
-#include "subsystems/ahrs.h"
+#ifndef GEO_MAG_SENDER_ID
+#define GEO_MAG_SENDER_ID 1
+#endif
 
-bool_t geo_mag_calc_flag;
 struct GeoMag geo_mag;
 
 void geo_mag_init(void)
 {
-  geo_mag_calc_flag = FALSE;
-  geo_mag.ready = FALSE;
+  geo_mag.calc_once = false;
+  geo_mag.ready = false;
 }
 
 void geo_mag_periodic(void)
 {
-  if (!geo_mag.ready && gps.fix == GPS_FIX_3D && kill_throttle) {
-    geo_mag_calc_flag = TRUE;
+  //FIXME: kill_throttle has no place  in a geomag module
+  if (!geo_mag.ready && GpsFixValid() && kill_throttle) {
+    geo_mag.calc_once = true;
   }
 }
 
 void geo_mag_event(void)
 {
-
-  if (geo_mag_calc_flag) {
+  if (geo_mag.calc_once) {
     double gha[MAXCOEFF]; // Geomag global variables
     int32_t nmax;
 
-    /* Current date in decimal year, for example 2012.68 */
+    /* Current date in decimal year, for example 2015.68 */
     double sdate = GPS_EPOCH_BEGIN +
                    (double)gps.week / WEEKS_IN_YEAR +
                    (double)gps.tow / 1000 / SECS_IN_YEAR;
@@ -72,18 +78,15 @@ void geo_mag_event(void)
     mag_calc(1, latitude, longitude, alt, nmax, gha,
              &geo_mag.vect.x, &geo_mag.vect.y, &geo_mag.vect.z,
              IEXT, EXT_COEFF1, EXT_COEFF2, EXT_COEFF3);
-    double_vect3_normalize(&geo_mag.vect);
 
-    // copy to ahrs
-#ifdef AHRS_FLOAT
-    VECT3_COPY(ahrs_impl.mag_h, geo_mag.vect);
-#else
-    // convert to MAG_BFP and copy to ahrs
-    VECT3_ASSIGN(ahrs_impl.mag_h, MAG_BFP_OF_REAL(geo_mag.vect.x), MAG_BFP_OF_REAL(geo_mag.vect.y),
-                 MAG_BFP_OF_REAL(geo_mag.vect.z));
-#endif
+    // send as normalized float vector via ABI
+    struct FloatVect3 h = { .x = geo_mag.vect.x,
+                            .y = geo_mag.vect.y,
+                            .z = geo_mag.vect.z };
+    float_vect3_normalize(&h);
+    AbiSendMsgGEO_MAG(GEO_MAG_SENDER_ID, &h);
 
-    geo_mag.ready = TRUE;
+    geo_mag.ready = true;
   }
-  geo_mag_calc_flag = FALSE;
+  geo_mag.calc_once = false;
 }

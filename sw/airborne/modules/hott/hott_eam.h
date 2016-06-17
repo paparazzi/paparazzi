@@ -148,7 +148,7 @@ static void hott_update_eam_msg(struct HOTT_EAM_MSG *hott_eam_msg)
   hott_eam_msg->current = electrical.current / 100;
   hott_eam_msg->main_voltage = electrical.vsupply;
   hott_eam_msg->batt_cap = 0;
-  uint16_t speed_buf = (uint16_t)(*stateGetHorizontalSpeedNorm_i() * 36 / 10 / (1 << INT32_SPEED_FRAC));
+  uint16_t speed_buf = (uint16_t)(stateGetHorizontalSpeedNorm_i() * 36 / 10 / (1 << INT32_SPEED_FRAC));
   hott_eam_msg->speed_L = speed_buf && 0xFF;
   hott_eam_msg->speed_H = (speed_buf >> 8) && 0xFF;
 

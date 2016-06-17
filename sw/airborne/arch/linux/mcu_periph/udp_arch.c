@@ -24,58 +24,83 @@
  */
 
 #include "mcu_periph/udp.h"
-#include <netdb.h>
-#include <netinet/in.h>
+#include "udp_socket.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include <errno.h>
 
-static inline void udp_create_socket(int *sock, const int protocol, const bool_t reuse_addr, const bool_t broadcast);
+#include <pthread.h>
+#include <sys/select.h>
 
-/**
- * Create UDP network (in/out sockets).
- * @param[out] network   pointer to already allocated UdpNetwork struct
- * @param[in]  host      hostname/address
- * @param[in]  port_out  output port
- * @param[in]  port_in   input port
- * @param[in]  broadcast if TRUE enable broadcasting
- */
-void udp_create_network(struct UdpNetwork *network, char *host, int port_out, int port_in, bool_t broadcast)
+#include "rt_priority.h"
+
+#ifndef UDP_THREAD_PRIO
+#define UDP_THREAD_PRIO 10
+#endif
+
+static void *udp_thread(void *data __attribute__((unused)));
+static pthread_mutex_t udp_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+void udp_arch_init(void)
 {
-  if (network == NULL) {
+  pthread_mutex_init(&udp_mutex, NULL);
+
+#ifdef USE_UDP0
+  UDP0Init();
+#endif
+#ifdef USE_UDP1
+  UDP1Init();
+#endif
+#ifdef USE_UDP2
+  UDP2Init();
+#endif
+
+  pthread_t tid;
+  if (pthread_create(&tid, NULL, udp_thread, NULL) != 0) {
+    fprintf(stderr, "udp_arch_init: Could not create UDP reading thread.\n");
     return;
-  }
-  if (port_out >= 0) {
-    // Create the output socket (enable reuse of the address, and broadcast if necessary)
-    udp_create_socket(&network->socket_out, 0, TRUE, broadcast);
-
-    // Setup the output address
-    network->addr_out.sin_family = PF_INET;
-    network->addr_out.sin_port = htons(port_out);
-    network->addr_out.sin_addr.s_addr = inet_addr(host);
-  }
-
-  if (port_in >= 0) {
-    // Creat the input socket (enable reuse of the address, and disable broadcast)
-    udp_create_socket(&network->socket_in, 0, TRUE, FALSE);
-
-    // Create the input address
-    network->addr_in.sin_family = PF_INET;
-    network->addr_in.sin_port = htons(port_in);
-    network->addr_in.sin_addr.s_addr = htonl(INADDR_ANY);
-
-    bind(network->socket_in, (struct sockaddr *)&network->addr_in, sizeof(network->addr_in));
   }
 }
 
 /**
  * Initialize the UDP peripheral.
- * Allocate network struct and create the udp sockets.
+ * Allocate UdpSocket struct and create and bind the UDP socket.
  */
-void udp_arch_periph_init(struct udp_periph *p, char *host, int port_out, int port_in, bool_t broadcast)
+void udp_arch_periph_init(struct udp_periph *p, char *host, int port_out, int port_in, bool broadcast)
 {
-  struct UdpNetwork *network = malloc(sizeof(struct UdpNetwork));
-  udp_create_network(network, host, port_out, port_in, broadcast);
-  p->network = (void *)network;
+  struct UdpSocket *sock = malloc(sizeof(struct UdpSocket));
+  udp_socket_create(sock, host, port_out, port_in, broadcast);
+  p->network = (void *)sock;
+}
+
+/**
+ * Get number of bytes available in receive buffer.
+ * @param p pointer to UDP peripheral
+ * @return number of bytes available in receive buffer
+ */
+uint16_t udp_char_available(struct udp_periph *p)
+{
+  pthread_mutex_lock(&udp_mutex);
+  int16_t available = p->rx_insert_idx - p->rx_extract_idx;
+  if (available < 0) {
+    available += UDP_RX_BUFFER_SIZE;
+  }
+  pthread_mutex_unlock(&udp_mutex);
+  return (uint16_t)available;
+}
+
+/**
+ * Get the last character from the receive buffer.
+ * @param p pointer to UDP peripheral
+ * @return last byte
+ */
+uint8_t udp_getch(struct udp_periph *p)
+{
+  pthread_mutex_lock(&udp_mutex);
+  uint8_t ret = p->rx_buf[p->rx_extract_idx];
+  p->rx_extract_idx = (p->rx_extract_idx + 1) % UDP_RX_BUFFER_SIZE;
+  pthread_mutex_unlock(&udp_mutex);
+  return ret;
 }
 
 /**
@@ -89,15 +114,17 @@ void udp_receive(struct udp_periph *p)
   int16_t i;
   int16_t available = UDP_RX_BUFFER_SIZE - udp_char_available(p);
   uint8_t buf[UDP_RX_BUFFER_SIZE];
-  struct UdpNetwork *network = (struct UdpNetwork *) p->network;
+  struct UdpSocket *sock = (struct UdpSocket *) p->network;
 
   if (available <= 0) {
     return;  // No space
   }
 
   socklen_t slen = sizeof(struct sockaddr_in);
-  ssize_t byte_read = recvfrom(network->socket_in, buf, UDP_RX_BUFFER_SIZE, MSG_DONTWAIT,
-                               (struct sockaddr *)&network->addr_in, &slen);
+  ssize_t byte_read = recvfrom(sock->sockfd, buf, available, MSG_DONTWAIT,
+                               (struct sockaddr *)&sock->addr_in, &slen);
+
+  pthread_mutex_lock(&udp_mutex);
 
   if (byte_read > 0) {
     for (i = 0; i < byte_read; i++) {
@@ -105,21 +132,32 @@ void udp_receive(struct udp_periph *p)
       p->rx_insert_idx = (p->rx_insert_idx + 1) % UDP_RX_BUFFER_SIZE;
     }
   }
+
+  pthread_mutex_unlock(&udp_mutex);
 }
 
 /**
  * Send a message
  */
-void udp_send_message(struct udp_periph *p)
+void udp_send_message(struct udp_periph *p, long fd __attribute__((unused)))
 {
   if (p == NULL) return;
   if (p->network == NULL) return;
 
-  struct UdpNetwork *network = (struct UdpNetwork *) p->network;
+  struct UdpSocket *sock = (struct UdpSocket *) p->network;
 
   if (p->tx_insert_idx > 0) {
-    ssize_t test __attribute__((unused)) = sendto(network->socket_out, p->tx_buf, p->tx_insert_idx, MSG_DONTWAIT,
-                                           (struct sockaddr *)&network->addr_out, sizeof(network->addr_out));
+    ssize_t bytes_sent = sendto(sock->sockfd, p->tx_buf, p->tx_insert_idx, MSG_DONTWAIT,
+                                (struct sockaddr *)&sock->addr_out, sizeof(sock->addr_out));
+    if (bytes_sent != p->tx_insert_idx) {
+      if (bytes_sent < 0) {
+        perror("udp_send_message failed");
+      }
+      else {
+        fprintf(stderr, "udp_send_message: only sent %d bytes instead of %d\n",
+                (int)bytes_sent, p->tx_insert_idx);
+      }
+    }
     p->tx_insert_idx = 0;
   }
 }
@@ -127,32 +165,84 @@ void udp_send_message(struct udp_periph *p)
 /**
  * Send a packet from another buffer
  */
-void udp_send_raw(struct udp_periph *p, uint8_t *buffer, uint16_t size)
+void udp_send_raw(struct udp_periph *p, long fd __attribute__((unused)), uint8_t *buffer, uint16_t size)
 {
   if (p == NULL) return;
   if (p->network == NULL) return;
 
-  struct UdpNetwork *network = (struct UdpNetwork *) p->network;
-  ssize_t test __attribute__((unused)) = sendto(network->socket_out, buffer, size, MSG_DONTWAIT,
-                                         (struct sockaddr *)&network->addr_out, sizeof(network->addr_out));
+  struct UdpSocket *sock = (struct UdpSocket *) p->network;
+  ssize_t test __attribute__((unused)) = sendto(sock->sockfd, buffer, size, MSG_DONTWAIT,
+                                         (struct sockaddr *)&sock->addr_out, sizeof(sock->addr_out));
 }
 
 /**
- * Create a new udp socket
+ * check for new udp packets to receive or send.
  */
-static inline void udp_create_socket(int *sock, const int protocol, const bool_t reuse_addr, const bool_t broadcast)
+static void *udp_thread(void *data __attribute__((unused)))
 {
-  // Create the socket with the correct protocl
-  *sock = socket(PF_INET, SOCK_DGRAM, protocol);
-  int one = 1;
+  get_rt_prio(UDP_THREAD_PRIO);
 
-  // Enable reusing of addres
-  if (reuse_addr) {
-    setsockopt(*sock, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one));
-  }
+  /* file descriptor list */
+  fd_set socks_master;
+  /* maximum file descriptor number */
+  int fdmax = 0;
 
-  // Enable broadcasting
-  if (broadcast) {
-    setsockopt(*sock, SOL_SOCKET, SO_BROADCAST, &one, sizeof(one));
+  /* clear the fd list */
+  FD_ZERO(&socks_master);
+  /* add used sockets */
+  int fd __attribute__((unused));
+#if USE_UDP0
+  fd = ((struct UdpSocket *)udp0.network)->sockfd;
+  FD_SET(fd, &socks_master);
+  if (fd > fdmax) {
+    fdmax =fd;
   }
+#endif
+#if USE_UDP1
+  fd = ((struct UdpSocket *)udp1.network)->sockfd;
+  FD_SET(fd, &socks_master);
+  if (fd > fdmax) {
+    fdmax =fd;
+  }
+#endif
+#if USE_UDP2
+  fd = ((struct UdpSocket *)udp2.network)->sockfd;
+  FD_SET(fd, &socks_master);
+  if (fd > fdmax) {
+    fdmax =fd;
+  }
+#endif
+
+  /* socks to be read, modified after each select */
+  fd_set socks;
+
+  while (1) {
+    /* reset list of socks to check */
+    socks = socks_master;
+
+    if (select(fdmax + 1, &socks, NULL, NULL, NULL) < 0) {
+      fprintf(stderr, "udp_thread: select failed!");
+    }
+    else {
+#if USE_UDP0
+      fd = ((struct UdpSocket *)udp0.network)->sockfd;
+      if (FD_ISSET(fd, &socks)) {
+        udp_receive(&udp0);
+      }
+#endif
+#if USE_UDP1
+      fd = ((struct UdpSocket *)udp1.network)->sockfd;
+      if (FD_ISSET(fd, &socks)) {
+        udp_receive(&udp1);
+      }
+#endif
+#if USE_UDP2
+      fd = ((struct UdpSocket *)udp2.network)->sockfd;
+      if (FD_ISSET(fd, &socks)) {
+        udp_receive(&udp2);
+      }
+#endif
+    }
+  }
+  return 0;
 }

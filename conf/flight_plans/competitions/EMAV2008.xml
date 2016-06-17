@@ -1,0 +1,160 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+
+<flight_plan alt="140" ground_alt="55" lat0="52.523886" lon0="10.463764" max_dist_from_home="2500" name="Gifhorn-Wilsche EMAV08" qfu="-90" security_height="81">
+  <header>
+#include "datalink.h"
+</header>
+  <waypoints>
+    <waypoint name="HOME" x="16.9" y="-0.4"/>
+    <waypoint alt="140.0" name="STDBY" x="30.2" y="104.6"/>
+    <waypoint alt="160.0" name="1" x="-57.1" y="225.8"/>
+    <waypoint alt="160.0" name="2" x="-117.1" y="225.8"/>
+    <waypoint name="MOB" x="259.3" y="-353.7"/>
+    <waypoint name="S1" x="-250.3" y="-279.9"/>
+    <waypoint name="S2" x="-359.7" y="-350.8"/>
+    <waypoint alt="95.0" name="AF" x="200" y="8"/>
+    <waypoint alt="70.0" name="TD" x="-23." y="10."/>
+    <waypoint alt="100.0" name="BASELEG" x="62.3" y="-80.5"/>
+    <waypoint alt="160.0" name="CLIMB" x="-300" y="60"/>
+    <waypoint alt="140.0" name="farm" x="164.2" y="-489.3"/>
+    <waypoint alt="140.0" name="garage" x="-407.1" y="-493.3"/>
+    <waypoint alt="140.0" name="sloop" x="-74.6" y="-491.7"/>
+    <waypoint alt="110.0" name="START" x="200.0" y="-22.6"/>
+    <waypoint lat="52.526086" lon="10.462278" alt="120.0" name="CAR" x="-97.1" y="225.8"/>
+    <waypoint lat="52.523886" lon="10.463764" alt="100.0" name="DROP" x="97.6" y="-18.0"/>
+    <waypoint lat="52.525274" lon="10.455028" name="A" x="-594.7" y="152.2"/>
+    <waypoint lat="52.522920" lon="10.455855" name="B" x="-530.9" y="-105.4"/>
+    <waypoint lat="52.524853" lon="10.469823" name="C" x="413.5" y="111.4"/>
+    <waypoint lat="52.522956" lon="10.470376" name="D" x="439.8" y="-82.9"/>
+    <waypoint lat="52.524103" lon="10.463924" name="arch1" x="-114.1" y="114.2"/>
+    <waypoint lat="52.524103" lon="10.464661" name="arch2" x="-97.1" y="109.4"/>
+    <waypoint lat="52.524553" lon="10.464708" name="arch3" x="-79.7" y="104.0"/>
+    <waypoint lat="52.523960" lon="10.463400" name="Land1" x="-13.6" y="17.5"/>
+    <waypoint lat="52.523960" lon="10.461930" name="Land2" x="-143.1" y="27.1"/>
+    <waypoint alt="78.0" name="SF" x="90.2" y="9"/>
+  </waypoints>
+  <sectors/>
+  <exceptions>
+    <exception cond="datalink_time > 60" deroute="Standby"/>
+  </exceptions>
+  <blocks>
+    <block name="Wait GPS">
+      <set value="1" var="kill_throttle"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Holding point">
+      <set value="1" var="kill_throttle"/>
+      <attitude roll="0" throttle="0" vmode="throttle"/>
+    </block>
+    <block name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
+      <exception cond="GetPosAlt() > GetAltRef()+40" deroute="Standby"/>
+      <set value="0" var="kill_throttle"/>
+      <go wp="CLIMB"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <circle radius="nav_radius" wp="STDBY"/>
+    </block>
+    <block name="Figure 8 around wp 1" strip_button="Figure 8 (wp 1-2)" strip_icon="eight.png">
+      <eight center="1" radius="nav_radius" turn_around="2"/>
+    </block>
+    <block name="Oval 1-2" strip_button="Oval (wp 1-2)" strip_icon="oval.png">
+
+      <oval p1="1" p2="2" radius="nav_radius"/>
+    </block>
+    <block name="MOB" strip_button="Circle around here" strip_icon="mob.png">
+      <call fun="NavSetWaypointHere(WP_MOB)"/>
+      <circle radius="100" wp="MOB"/>
+    </block>
+    <block name="Line 1-2" strip_button="Line (wp 1-2)" strip_icon="line.png">
+      <exception cond="datalink_time > 22" deroute="Standby"/>
+      <call fun="nav_line_setup()"/>
+      <call fun="nav_line_run(WP_1, WP_2, nav_radius)"/>
+    </block>
+    <block name="Survey S1-S2" strip_button="Survey (wp S1-S2)" strip_icon="survey.png">
+      <survey_rectangle grid="150" wp1="S1" wp2="S2"/>
+    </block>
+    <block name="Land Right AF-TD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png">
+      <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
+      <deroute block="land"/>
+    </block>
+    <block name="Land Left AF-TD" strip_button="Land left (wp AF-TD)" strip_icon="land-left.png">
+      <set value="-DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
+      <deroute block="land"/>
+    </block>
+    <block name="land">
+      <call fun="nav_compute_baseleg(WP_AF, WP_TD, WP_BASELEG, nav_radius)"/>
+      <circle radius="nav_radius" until="NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10) && 15 > fabs(GetPosAlt() - WaypointAlt(WP_BASELEG))" wp="BASELEG"/>
+    </block>
+    <block name="final">
+<!--      <exception cond="GetAltRef() + 6 > GetPosAlt()" deroute="flare"/> -->
+      <go approaching_time="0" from="AF" hmode="route" wp="SF"/>
+    </block>
+    <block name="shortfinal">
+<!--      <exception cond="GetAltRef() + 6 > GetPosAlt()" deroute="flare"/> -->
+      <go approaching_time="0" from="SF" hmode="route" wp="TD"/>
+    </block>
+    <block name="flare">
+      <go approaching_time="0" from="TD" hmode="route" throttle="0.0" vmode="throttle" wp="CLIMB"/>
+      <deroute block="flare" />
+<!--      <attitude roll="0.0" throttle="0.0" until="FALSE" vmode="throttle"/> -->
+    </block>
+    <block name="Test datalink (go to wp 2)">
+      <exception cond="datalink_time > 22" deroute="Standby"/>
+      <go from="STDBY" hmode="route" wp="2"/>
+      <go from="2" hmode="route" wp="STDBY"/>
+    </block>
+    <block name="Visit Farm">
+      <go approaching_time="-3" from="STDBY" hmode="route" wp="farm"/>
+    </block>
+    <block name="Visit Garage">
+      <go approaching_time="-3" from="farm" hmode="route" wp="garage"/>
+      <go approaching_time="-3" from="garage" hmode="route" wp="sloop"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Circle 1">
+      <exception cond="datalink_time > 25" deroute="Standby"/>
+      <circle alt="WaypointAlt(WP_1)" radius="nav_radius" until="15 > fabs(GetPosAlt() - WaypointAlt(WP_1))" wp="STDBY"/>
+      <go alt="WaypointAlt(WP_1)" approaching_time="-15" from="STDBY" hmode="route" wp="1"/>
+      <circle radius="nav_radius" until="NavCircleCount() > 0.7" wp="1"/>
+      <go alt="WaypointAlt(WP_1)" approaching_time="-15" from="1" hmode="route" wp="STDBY"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Bomb Right" strip_button="Bomb">
+      <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
+      <deroute block="bomb"/>
+    </block>
+    <block name="Bomb Left">
+      <set value="-DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
+      <deroute block="bomb"/>
+    </block>
+    <block name="bomb">
+      <call fun="nav_compute_baseleg(WP_START, WP_DROP, WP_BASELEG, nav_radius)"/>
+      <circle radius="nav_radius" until="NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10)" wp="BASELEG"/>
+    </block>
+    <block name="align">
+      <go approaching_time="0" from="START" hmode="route" wp="DROP"/>
+    </block>
+    <block name="shoot">
+      <!-- Put your shoot code here -->
+      <deroute block="Takeoff"/>
+    </block>
+    <block name="Bomb Right Fake" strip_button="Fake">
+      <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
+      <deroute block="bombfake"/>
+    </block>
+    <block name="Bomb Left Fake">
+      <set value="-DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
+      <deroute block="bombfake"/>
+    </block>
+    <block name="bombfake">
+      <call fun="nav_compute_baseleg(WP_START, WP_DROP, WP_BASELEG, nav_radius)"/>
+      <circle radius="nav_radius" until="NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10)" wp="BASELEG"/>
+    </block>
+    <block name="alignfake">
+      <go approaching_time="0" from="START" hmode="route" wp="DROP"/>
+    </block>
+    <block name="shootfake">
+      <deroute block="Takeoff"/>
+    </block>
+  </blocks>
+</flight_plan>

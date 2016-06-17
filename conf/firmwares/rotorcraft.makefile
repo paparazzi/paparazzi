@@ -33,9 +33,10 @@ SRC_ARCH=arch/$(ARCH)
 
 ROTORCRAFT_INC = -I$(SRC_FIRMWARE) -I$(SRC_BOARD)
 
-
 ap.ARCHDIR = $(ARCH)
 
+
+VPATH += $(PAPARAZZI_HOME)/var/share
 
 ######################################################################
 ##
@@ -52,23 +53,43 @@ $(TARGET).srcs   += $(SRC_ARCH)/mcu_arch.c
 PERIODIC_FREQUENCY ?= 512
 $(TARGET).CFLAGS += -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
 
+ifdef AHRS_PROPAGATE_FREQUENCY
+$(TARGET).CFLAGS += -DAHRS_PROPAGATE_FREQUENCY=$(AHRS_PROPAGATE_FREQUENCY)
+endif
+
+ifdef AHRS_CORRECT_FREQUENCY
+$(TARGET).CFLAGS += -DAHRS_CORRECT_FREQUENCY=$(AHRS_CORRECT_FREQUENCY)
+endif
+
+ifdef AHRS_MAG_CORRECT_FREQUENCY
+$(TARGET).CFLAGS += -DAHRS_MAG_CORRECT_FREQUENCY=$(AHRS_MAG_CORRECT_FREQUENCY)
+endif
+
+
 #
 # Systime
 #
 $(TARGET).srcs += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
+ifeq ($(ARCH), linux)
+# seems that we need to link against librt for glibc < 2.17
+$(TARGET).LDFLAGS += -lrt
+endif
 
 
 #
 # Math functions
 #
+ifneq ($(TARGET), fbw)
 $(TARGET).srcs += math/pprz_geodetic_int.c math/pprz_geodetic_float.c math/pprz_geodetic_double.c math/pprz_trig_int.c math/pprz_orientation_conversion.c math/pprz_algebra_int.c math/pprz_algebra_float.c math/pprz_algebra_double.c
 
 $(TARGET).srcs += subsystems/settings.c
 $(TARGET).srcs += $(SRC_ARCH)/subsystems/settings_arch.c
+endif
 
 $(TARGET).srcs += subsystems/actuators.c
 $(TARGET).srcs += subsystems/commands.c
 
+ifneq ($(TARGET), fbw)
 $(TARGET).srcs += state.c
 
 #
@@ -79,36 +100,45 @@ include $(CFG_SHARED)/baro_board.makefile
 
 $(TARGET).srcs += $(SRC_FIRMWARE)/stabilization.c
 $(TARGET).srcs += $(SRC_FIRMWARE)/stabilization/stabilization_none.c
-$(TARGET).srcs += $(SRC_FIRMWARE)/stabilization/stabilization_rate.c
 
 $(TARGET).srcs += $(SRC_FIRMWARE)/guidance/guidance_h.c
 $(TARGET).srcs += $(SRC_FIRMWARE)/guidance/guidance_h_ref.c
 $(TARGET).srcs += $(SRC_FIRMWARE)/guidance/guidance_v.c
 $(TARGET).srcs += $(SRC_FIRMWARE)/guidance/guidance_v_ref.c
 $(TARGET).srcs += $(SRC_FIRMWARE)/guidance/guidance_v_adapt.c
+$(TARGET).srcs += $(SRC_FIRMWARE)/guidance/guidance_flip.c
 
 include $(CFG_ROTORCRAFT)/navigation.makefile
+else
+$(TARGET).CFLAGS += -DFBW=1
+endif
 
+ifneq ($(TARGET), fbw)
 $(TARGET).srcs += $(SRC_FIRMWARE)/main.c
 $(TARGET).srcs += $(SRC_FIRMWARE)/autopilot.c
+else
+$(TARGET).srcs += $(SRC_FIRMWARE)/main_fbw.c
+endif
 
 ######################################################################
 ##
 ## COMMON HARDWARE SUPPORT FOR ALL TARGETS
 ##
 
+ifneq ($(TARGET), fbw)
 $(TARGET).srcs += mcu_periph/i2c.c
 $(TARGET).srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
+endif
+
+include $(CFG_SHARED)/uart.makefile
 
 
 #
 # Electrical subsystem / Analog Backend
 #
-ifneq ($(ARCH), linux)
 $(TARGET).CFLAGS += -DUSE_ADC
 $(TARGET).srcs   += $(SRC_ARCH)/mcu_periph/adc_arch.c
 $(TARGET).srcs   += subsystems/electrical.c
-endif
 
 
 ######################################################################
@@ -120,12 +150,6 @@ endif
 ifeq ($(BOARD), booz)
 ns_CFLAGS += -DUSE_DAC
 ns_srcs   += $(SRC_ARCH)/mcu_periph/dac_arch.c
-else ifeq ($(BOARD)$(BOARD_TYPE), ardronesdk)
-ns_srcs   += $(SRC_BOARD)/electrical_dummy.c
-else ifeq ($(BOARD)$(BOARD_TYPE), ardroneraw)
-ns_srcs   += $(SRC_BOARD)/electrical_raw.c
-else ifeq ($(BOARD), bebop)
-ns_srcs   += $(SRC_BOARD)/electrical.c
 endif
 
 #
@@ -152,17 +176,9 @@ ifeq ($(ARCH), stm32)
 ns_srcs += $(SRC_ARCH)/led_hw.c
 endif
 
-ifeq ($(BOARD)$(BOARD_TYPE), ardroneraw)
+ifeq ($(BOARD), ardrone)
 ns_srcs += $(SRC_BOARD)/gpio_ardrone.c
 endif
-
-
-ns_srcs += mcu_periph/uart.c
-ns_srcs += $(SRC_ARCH)/mcu_periph/uart_arch.c
-ifeq ($(ARCH), linux)
-ns_srcs += $(SRC_ARCH)/serial_port.c
-endif
-
 
 #
 # add other subsystems to rotorcraft firmware in airframe file:
@@ -184,3 +200,14 @@ endif
 
 ap.CFLAGS 		+= $(ns_CFLAGS)
 ap.srcs 		+= $(ns_srcs)
+fbw.CFLAGS 		+= $(ns_CFLAGS)
+fbw.srcs 		+= $(ns_srcs)
+
+######################################################################
+##
+## include firmware independent nps makefile and add rotorcraft specifics
+##
+include $(CFG_SHARED)/nps.makefile
+nps.srcs += nps/nps_autopilot_rotorcraft.c
+nps.srcs += $(SRC_FIRMWARE)/rotorcraft_telemetry.c
+nps.srcs += subsystems/datalink/datalink.c $(SRC_FIRMWARE)/rotorcraft_datalink.c

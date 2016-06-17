@@ -47,6 +47,11 @@
 /// Default clock: PLL with X gyro reference
 #define MPU9250_DEFAULT_CLK_SEL 1
 
+// Default number of I2C slaves
+#ifndef MPU9250_I2C_NB_SLAVES
+#define MPU9250_I2C_NB_SLAVES 5
+#endif
+
 enum Mpu9250ConfStatus {
   MPU9250_CONF_UNINIT,
   MPU9250_CONF_RESET,
@@ -66,7 +71,7 @@ enum Mpu9250ConfStatus {
 typedef void (*Mpu9250ConfigSet)(void *mpu, uint8_t _reg, uint8_t _val);
 
 /// function prototype for configuration of a single I2C slave
-typedef bool_t (*Mpu9250I2cSlaveConfigure)(Mpu9250ConfigSet mpu_set, void *mpu);
+typedef bool (*Mpu9250I2cSlaveConfigure)(Mpu9250ConfigSet mpu_set, void *mpu);
 
 struct Mpu9250I2cSlave {
   Mpu9250I2cSlaveConfigure configure;
@@ -78,19 +83,20 @@ struct Mpu9250Config {
   enum Mpu9250DLPFGyro dlpf_gyro_cfg;   ///< Digital Low Pass Filter for gyroscope
   enum Mpu9250GyroRanges gyro_range;    ///< deg/s Range
   enum Mpu9250AccelRanges accel_range;  ///< g Range
-  bool_t drdy_int_enable;               ///< Enable Data Ready Interrupt
+  bool drdy_int_enable;               ///< Enable Data Ready Interrupt
   uint8_t clk_sel;                      ///< Clock select
   uint8_t nb_bytes;                     ///< number of bytes to read starting with MPU9250_REG_INT_STATUS
   enum Mpu9250ConfStatus init_status;   ///< init status
-  bool_t initialized;                   ///< config done flag
+  bool initialized;                   ///< config done flag
 
   /** Bypass MPU I2C.
    * Only effective if using the I2C implementation.
    */
-  bool_t i2c_bypass;
+  bool i2c_bypass;
 
   uint8_t nb_slaves;                    ///< number of used I2C slaves
-  struct Mpu9250I2cSlave slaves[5];     ///< I2C slaves
+  uint8_t nb_slave_init;                ///< number of already configured/initialized slaves
+  struct Mpu9250I2cSlave slaves[MPU9250_I2C_NB_SLAVES];     ///< I2C slaves
   enum Mpu9250MstClk i2c_mst_clk;       ///< MPU I2C master clock speed
   uint8_t i2c_mst_delay;                ///< MPU I2C slaves delayed sample rate
 };
@@ -107,6 +113,6 @@ extern void mpu9250_send_config(Mpu9250ConfigSet mpu_set, void *mpu, struct Mpu9
  * @param mpu Mpu9250Spi or Mpu9250I2c peripheral
  * @return TRUE when all slaves are configured
  */
-extern bool_t mpu9250_configure_i2c_slaves(Mpu9250ConfigSet mpu_set, void *mpu);
+extern bool mpu9250_configure_i2c_slaves(Mpu9250ConfigSet mpu_set, void *mpu);
 
 #endif // MPU9250_H

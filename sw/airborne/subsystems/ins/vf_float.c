@@ -24,34 +24,27 @@
  *
  * Vertical filter (in float) estimating altitude, velocity and accel bias.
  *
+ * X = [ z zdot bias ]
+ *
  */
 
 #include "subsystems/ins/vf_float.h"
 #include "generated/airframe.h"
 #include "std.h"
 
-/*
-
-X = [ z zdot bias ]
-
-temps :
-  propagate 86us
-  update    46us
-
-*/
-/* initial error covariance diagonal */
-#ifndef VF_FLOAT_INIT_PXX
-#define VF_FLOAT_INIT_PXX 1.0
+/** initial error covariance diagonal */
+#ifndef VFF_INIT_PXX
+#define VFF_INIT_PXX 1.0
 #endif
 
-/* process noise covariance Q */
-#ifndef VF_FLOAT_ACCEL_NOISE
-#define VF_FLOAT_ACCEL_NOISE 0.5
+/** process noise covariance Q */
+#ifndef VFF_ACCEL_NOISE
+#define VFF_ACCEL_NOISE 0.5
 #endif
 
-/* measurement noise covariance R */
-#ifndef VF_FLOAT_MEAS_NOISE
-#define VF_FLOAT_MEAS_NOISE 1.0
+/** measurement noise covariance R */
+#ifndef VFF_MEAS_NOISE
+#define VFF_MEAS_NOISE 1.0
 #endif
 
 /* default parameters */
@@ -85,32 +78,33 @@ void vff_init(float init_z, float init_zdot, float init_bias)
     for (j = 0; j < VFF_STATE_SIZE; j++) {
       vff.P[i][j] = 0.;
     }
-    vff.P[i][i] = VF_FLOAT_INIT_PXX;
+    vff.P[i][i] = VFF_INIT_PXX;
   }
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "VFF", send_vff);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_VFF, send_vff);
 #endif
 }
 
 
-/*
-
- F = [ 1 dt -dt^2/2
-       0  1 -dt
-       0  0   1     ];
-
- B = [ dt^2/2 dt 0]';
-
- Q = [ 0.01  0     0
-       0     0.01  0
-       0     0     0.001 ];
-
- Xk1 = F * Xk0 + B * accel;
-
- Pk1 = F * Pk0 * F' + Q;
-
-*/
+/**
+ * Propagate the filter in time.
+ *
+ * F = [ 1 dt -dt^2/2
+ *       0  1 -dt
+ *       0  0   1     ];
+ *
+ * B = [ dt^2/2 dt 0]';
+ *
+ * Q = [ 0.01  0     0
+ *       0     0.01  0
+ *       0     0     0.001 ];
+ *
+ * Xk1 = F * Xk0 + B * accel;
+ *
+ * Pk1 = F * Pk0 * F' + Q;
+ *
+ */
 void vff_propagate(float accel, float dt)
 {
   /* update state (Xk1) */
@@ -128,31 +122,34 @@ void vff_propagate(float accel, float dt)
   const float FPF21 = vff.P[2][1] + dt * (-vff.P[2][2]);
   const float FPF22 = vff.P[2][2];
 
-  vff.P[0][0] = FPF00 + VF_FLOAT_ACCEL_NOISE * dt * dt / 2.;
+  vff.P[0][0] = FPF00 + VFF_ACCEL_NOISE * dt * dt / 2.;
   vff.P[0][1] = FPF01;
   vff.P[0][2] = FPF02;
   vff.P[1][0] = FPF10;
-  vff.P[1][1] = FPF11 + VF_FLOAT_ACCEL_NOISE * dt;
+  vff.P[1][1] = FPF11 + VFF_ACCEL_NOISE * dt;
   vff.P[1][2] = FPF12;
   vff.P[2][0] = FPF20;
   vff.P[2][1] = FPF21;
   vff.P[2][2] = FPF22 + Qbiasbias;
 
 }
-/*
-  H = [1 0 0];
-  R = 0.1;
-  // state residual
-  y = rangemeter - H * Xm;
-  // covariance residual
-  S = H*Pm*H' + R;
-  // kalman gain
-  K = Pm*H'*inv(S);
-  // update state
-  Xp = Xm + K*y;
-  // update covariance
-  Pp = Pm - K*H*Pm;
-*/
+
+/**
+ * Update altitude.
+ *
+ * H = [1 0 0];
+ * R = 0.1;
+ * // state residual
+ * y = rangemeter - H * Xm;
+ * // covariance residual
+ * S = H*Pm*H' + R;
+ * // kalman gain
+ * K = Pm*H'*inv(S);
+ * // update state
+ * Xp = Xm + K*y;
+ * // update covariance
+ * Pp = Pm - K*H*Pm;
+ */
 static inline void update_z_conf(float z_meas, float conf)
 {
   vff.z_meas = z_meas;
@@ -191,7 +188,7 @@ static inline void update_z_conf(float z_meas, float conf)
 
 void vff_update(float z_meas)
 {
-  update_z_conf(z_meas, VF_FLOAT_MEAS_NOISE);
+  update_z_conf(z_meas, VFF_MEAS_NOISE);
 }
 
 void vff_update_z_conf(float z_meas, float conf)
@@ -254,6 +251,5 @@ void vff_update_vz_conf(float vz_meas, float conf)
 
 void vff_realign(float z_meas)
 {
-  vff.z = z_meas;
-  vff.zdot = 0;
+  vff_init(z_meas, 0., 0.);
 }

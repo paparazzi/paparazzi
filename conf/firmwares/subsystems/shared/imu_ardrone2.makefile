@@ -1,19 +1,17 @@
 # imu AR.Drone2
 
-ifeq ($(BOARD_TYPE), sdk)
-imu_CFLAGS += -DIMU_TYPE_H=\"subsystems/imu/imu_ardrone2_sdk.h\" -DUSE_IMU
+imu_CFLAGS += -DIMU_TYPE_H=\"subsystems/imu/imu_ardrone2.h\" -DUSE_IMU
 imu_srcs   += $(SRC_SUBSYSTEMS)/imu.c
-imu_srcs   += $(SRC_SUBSYSTEMS)/imu/imu_ardrone2_sdk.c
-else ifeq ($(BOARD_TYPE), raw)
-imu_CFLAGS += -DIMU_TYPE_H=\"subsystems/imu/imu_ardrone2_raw.h\" -DUSE_IMU
-imu_srcs   += $(SRC_SUBSYSTEMS)/imu.c
-imu_srcs   += $(SRC_SUBSYSTEMS)/imu/imu_ardrone2_raw.c
+imu_srcs   += $(SRC_SUBSYSTEMS)/imu/imu_ardrone2.c
 imu_srcs   += $(SRC_BOARD)/navdata.c
+
+
+# add it for all targets except sim, fbw and nps
+ifeq (,$(findstring $(TARGET),sim fbw nps))
+$(TARGET).CFLAGS += $(imu_CFLAGS)
+$(TARGET).srcs += $(imu_srcs)
 endif
 
-# Keep CFLAGS/Srcs for imu in separate expression so we can assign it to other targets
-ap.CFLAGS += $(imu_CFLAGS)
-ap.srcs += $(imu_srcs)
 
 # Set the AHRS propegation frequencies
 AHRS_PROPAGATE_FREQUENCY ?= 200

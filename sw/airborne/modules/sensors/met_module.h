@@ -37,17 +37,16 @@
 #ifndef SITL
 #include "mcu_periph/uart.h"
 
-#define __MetLink(dev, _x) dev##_x
-#define _MetLink(dev, _x)  __MetLink(dev, _x)
-#define MetLink(_x) _MetLink(MET_LINK, _x)
+#define MetLinkDevice (&(MET_LINK).device)
 
-#define MetBuffer() MetLink(ChAvailable())
-#define ReadMetBuffer() { while (MetLink(ChAvailable())&&!met_msg_received) parse_met_buffer(MetLink(Getch())); }
-#define MetSend1(c) MetLink(Transmit(c))
+#define MetBuffer() MetLinkDevice->char_available(MetLinkDevice->periph)
+#define MetGetch() MetLinkDevice->get_byte(MetLinkDevice->periph)
+#define ReadMetBuffer() { while (MetBuffer()&&!met_msg_received) parse_met_buffer(MetGetch()); }
+#define MetSend1(c) MetLinkDevice->put_byte(MetLinkDevice->periph, 0, c)
 #define MetUartSend1(c) MetSend1(c)
 #define MetSend(_dat,_len) { for (uint8_t i = 0; i< (_len); i++) MetSend1(_dat[i]); };
-#define MetUartSetBaudrate(_b) MetLink(SetBaudrate(_b))
-#define MetUartRunning MetLink(TxRunning)
+#define MetUartSetBaudrate(_b) uart_periph_set_baudrate(&(MET_LINK), _b)
+#define MetUartRunning (MET_LINK).tx_running
 
 #endif /** !SITL */
 

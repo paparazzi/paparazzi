@@ -2,7 +2,7 @@
 
 <!-- A conf to use for setup_actuators -->
 
-<settings>
+<settings target="setup_actuators">
   <dl_settings>
     <dl_settings NAME="Actuators" >
       <dl_setting VAR="actuators[0]" MIN="900" STEP="1" MAX="2100" module="subsystems/actuators" shortname="chan0"/>

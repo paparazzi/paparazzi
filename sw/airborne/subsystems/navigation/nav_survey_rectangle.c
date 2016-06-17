@@ -32,7 +32,7 @@
 
 static struct point survey_from;
 static struct point survey_to;
-static bool_t survey_uturn __attribute__((unused)) = FALSE;
+static bool survey_uturn __attribute__((unused)) = false;
 static survey_orientation_t survey_orientation = NS;
 
 #define SurveyGoingNorth() ((survey_orientation == NS) && (survey_to.y > survey_from.y))
@@ -62,7 +62,7 @@ void nav_survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid, survey_orie
     survey_from.x = survey_to.x = Min(Max(stateGetPositionEnu_f()->x, nav_survey_west + grid / 2.),
                                       nav_survey_east - grid / 2.);
     if (stateGetPositionEnu_f()->y > nav_survey_north || (stateGetPositionEnu_f()->y > nav_survey_south
-        && (*stateGetHorizontalSpeedDir_f()) > M_PI / 2. && (*stateGetHorizontalSpeedDir_f()) < 3 * M_PI / 2)) {
+                                                          && stateGetHorizontalSpeedDir_f() > M_PI / 2. && stateGetHorizontalSpeedDir_f() < 3 * M_PI / 2)) {
       survey_to.y = nav_survey_south;
       survey_from.y = nav_survey_north;
     } else {
@@ -73,7 +73,7 @@ void nav_survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid, survey_orie
     survey_from.y = survey_to.y = Min(Max(stateGetPositionEnu_f()->y, nav_survey_south + grid / 2.),
                                       nav_survey_north - grid / 2.);
     if (stateGetPositionEnu_f()->x > nav_survey_east || (stateGetPositionEnu_f()->x > nav_survey_west
-        && (*stateGetHorizontalSpeedDir_f()) > M_PI)) {
+        && stateGetHorizontalSpeedDir_f() > M_PI)) {
       survey_to.x = nav_survey_west;
       survey_from.x = nav_survey_east;
     } else {
@@ -82,7 +82,7 @@ void nav_survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid, survey_orie
     }
   }
   nav_survey_shift = grid;
-  survey_uturn = FALSE;
+  survey_uturn = false;
   LINE_START_FUNCTION;
 }
 
@@ -91,7 +91,7 @@ void nav_survey_rectangle(uint8_t wp1, uint8_t wp2)
 {
   static float survey_radius;
 
-  nav_survey_active = TRUE;
+  nav_survey_active = true;
 
   nav_survey_west = Min(WaypointX(wp1), WaypointX(wp2));
   nav_survey_east = Max(WaypointX(wp1), WaypointX(wp2));
@@ -174,8 +174,8 @@ void nav_survey_rectangle(uint8_t wp1, uint8_t wp2)
         }
       }
 
-      nav_in_segment = FALSE;
-      survey_uturn = TRUE;
+      nav_in_segment = false;
+      survey_uturn = true;
       LINE_STOP_FUNCTION;
     }
   } else { /* U-turn */
@@ -184,8 +184,8 @@ void nav_survey_rectangle(uint8_t wp1, uint8_t wp2)
         (SurveyGoingEast() && NavCourseCloseTo(90)) ||
         (SurveyGoingWest() && NavCourseCloseTo(270))) {
       /* U-turn finished, back on a segment */
-      survey_uturn = FALSE;
-      nav_in_circle = FALSE;
+      survey_uturn = false;
+      nav_in_circle = false;
       LINE_START_FUNCTION;
     } else {
       NavCircleWaypoint(0, survey_radius);

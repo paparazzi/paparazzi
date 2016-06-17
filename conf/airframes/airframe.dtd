@@ -1,6 +1,6 @@
 <!-- Paparazzi airframe DTD -->
 
-<!ELEMENT airframe (include|servos|commands|rc_commands|auto_rc_commands|ap_only_commands|command_laws|section|makefile|modules|firmware|autopilot)*>
+<!ELEMENT airframe (include|servos|commands|rc_commands|auto_rc_commands|ap_only_commands|command_laws|section|makefile|modules|firmware|autopilot|heli_curves)*>
 <!ELEMENT include EMPTY>
 <!ELEMENT servos (servo)*>
 <!ELEMENT commands (axis)*>
@@ -8,6 +8,7 @@
 <!ELEMENT auto_rc_commands (set)*>
 <!ELEMENT ap_only_commands (copy)*>
 <!ELEMENT command_laws (let|set|call|ratelimit)*>
+<!ELEMENT heli_curves (curve)*>
 <!ELEMENT section (define|linear)*>
 <!ELEMENT servo EMPTY>
 <!ELEMENT axis EMPTY>
@@ -15,16 +16,18 @@
 <!ELEMENT call EMPTY>
 <!ELEMENT ratelimit EMPTY>
 <!ELEMENT copy EMPTY>
+<!ELEMENT curve EMPTY>
 <!ELEMENT let EMPTY>
 <!ELEMENT define EMPTY>
 <!ELEMENT linear EMPTY>
 <!ELEMENT makefile (#PCDATA)>
-<!ELEMENT modules (load)*>
+<!ELEMENT modules (load|module)*>
 <!ELEMENT load (configure|define)*>
 <!ELEMENT configure EMPTY>
-<!ELEMENT firmware (target|subsystem|configure|define)*>
-<!ELEMENT target (subsystem|configure|define)*>
+<!ELEMENT firmware (target|subsystem|module|configure|define)*>
+<!ELEMENT target (subsystem|module|configure|define)*>
 <!ELEMENT subsystem (configure|define)*>
+<!ELEMENT module (configure|define)*>
 <!ELEMENT autopilot EMPTY>
 
 <!ATTLIST include
@@ -57,6 +60,8 @@ driver CDATA #IMPLIED>
 <!ATTLIST ap_only_commands>
 <!ATTLIST command_laws>
 
+<!ATTLIST heli_curves>
+
 <!ATTLIST section
 name CDATA #IMPLIED
 prefix CDATA #IMPLIED>
@@ -67,6 +72,10 @@ no CDATA #REQUIRED
 min CDATA #REQUIRED
 neutral CDATA #REQUIRED
 max CDATA #REQUIRED>
+
+<!ATTLIST curve
+throttle CDATA #REQUIRED
+collective CDATA #REQUIRED>
 
 <!ATTLIST axis
 name CDATA #REQUIRED
@@ -98,7 +107,8 @@ name CDATA #REQUIRED
 value CDATA #IMPLIED
 unit CDATA #IMPLIED
 code_unit CDATA #IMPLIED
-integer CDATA #IMPLIED>
+integer CDATA #IMPLIED
+type CDATA #IMPLIED>
 
 <!ATTLIST configure
 name CDATA #REQUIRED
@@ -122,4 +132,9 @@ target CDATA #IMPLIED>
 <!ATTLIST load
 name CDATA #REQUIRED
 target CDATA #IMPLIED
+dir CDATA #IMPLIED>
+
+<!ATTLIST module
+name CDATA #REQUIRED
+type CDATA #IMPLIED
 dir CDATA #IMPLIED>

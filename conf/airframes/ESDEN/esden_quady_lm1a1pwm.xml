@@ -1,0 +1,178 @@
+<!-- this is a quadrocopter frame equiped with Lisa/M 1.0, Aspirin 1.0 and generic china pwm motor controllers -->
+
+<!--
+     Applicable configuration:
+     airframe="airframes/ESDEN/quady_lm1a1pwm.xml"
+     radio="radios/cockpitSX.xml"
+     telemetry="telemetry/default_rotorcraft.xml"
+     flight_plan="flight_plans/dummy.xml"
+     settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
+-->
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+
+<airframe name="E-QuadyApricot">
+
+  <servos driver="Pwm">
+    <servo name="FRONT" no="0" min="1000" neutral="1100" max="1950"/>
+    <servo name="RIGHT" no="1" min="1000" neutral="1100" max="1950"/>
+    <servo name="BACK"  no="2" min="1000" neutral="1100" max="1950"/>
+    <servo name="LEFT"  no="3" min="1000" neutral="1100" max="1950"/>
+  </servos>
+
+  <commands>
+    <axis name="PITCH"  failsafe_value="0"/>
+    <axis name="ROLL"   failsafe_value="0"/>
+    <axis name="YAW"    failsafe_value="0"/>
+    <axis name="THRUST" failsafe_value="0"/>
+  </commands>
+
+  <command_laws>
+    <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
+    <set servo="FRONT" value="motor_mixing.commands[0]"/>
+    <set servo="BACK"  value="motor_mixing.commands[1]"/>
+    <set servo="RIGHT" value="motor_mixing.commands[2]"/>
+    <set servo="LEFT"  value="motor_mixing.commands[3]"/>
+  </command_laws>
+
+  <section name="MIXING" prefix="MOTOR_MIXING_">
+    <define name="TRIM_ROLL" value="0"/>
+    <define name="TRIM_PITCH" value="0"/>
+    <define name="TRIM_YAW" value="0"/>
+    <define name="NB_MOTOR" value="4"/>
+    <define name="SCALE" value="256"/>
+    <define name="ROLL_COEF"   value="{    0, -256,    0,  256 }"/>
+    <define name="PITCH_COEF"  value="{  256,    0, -256,    0 }"/>
+    <define name="YAW_COEF"    value="{ -256,  256, -256,  256 }"/>
+    <define name="THRUST_COEF" value="{  256,  256,  256,  256 }"/>
+  </section>
+
+  <include href="conf/airframes/ESDEN/calib/esden_asp21-018.xml"/>
+
+  <section name="IMU" prefix="IMU_">
+    <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"   value="45." unit="deg"/>
+  </section>
+
+ <section name="AUTOPILOT">
+   <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
+   <define name="MODE_AUTO1"  value="AP_MODE_ATTITUDE_Z_HOLD"/>
+   <define name="MODE_AUTO2"  value="AP_MODE_HOVER_Z_HOLD"/>
+ </section>
+
+ <section name="BAT">
+   <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
+ </section>
+
+
+
+  <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
+
+    <!-- setpoints -->
+    <define name="SP_MAX_PHI"     value="45." unit="deg"/>
+    <define name="SP_MAX_THETA"   value="45." unit="deg"/>
+    <define name="SP_MAX_PSI"     value="45."  unit="deg"/>
+    <define name="SP_MAX_R"       value="90." unit="deg/s"/>
+    <define name="SP_MAX_P"       value="90." unit="deg/s"/>
+    <define name="DEADBAND_R"     value="250"/>
+    <define name="DEADBAND_A"     value="250"/>
+
+    <!-- reference -->
+    <define name="REF_OMEGA_P"  value="800" unit="deg/s"/>
+    <define name="REF_ZETA_P"   value="0.85"/>
+    <define name="REF_MAX_P"    value="400." unit="deg/s"/>
+    <define name="REF_MAX_PDOT" value="RadOfDeg(8000.)"/>
+
+    <define name="REF_OMEGA_Q"  value="800" unit="deg/s"/>
+    <define name="REF_ZETA_Q"   value="0.85"/>
+    <define name="REF_MAX_Q"    value="400." unit="deg/s"/>
+    <define name="REF_MAX_QDOT" value="RadOfDeg(8000.)"/>
+
+    <define name="REF_OMEGA_R"  value="500" unit="deg/s"/>
+    <define name="REF_ZETA_R"   value="0.85"/>
+    <define name="REF_MAX_R"    value="180." unit="deg/s"/>
+    <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
+
+    <!-- feedback -->
+    <define name="PHI_PGAIN"  value="1500"/>
+    <define name="PHI_DGAIN"  value="1000"/>
+    <define name="PHI_IGAIN"  value="100"/>
+
+    <define name="THETA_PGAIN"  value="1500"/>
+    <define name="THETA_DGAIN"  value="1000"/>
+    <define name="THETA_IGAIN"  value="100"/>
+
+    <define name="PSI_PGAIN"  value="1500"/>
+    <define name="PSI_DGAIN"  value="1000"/>
+    <define name="PSI_IGAIN"  value="10"/>
+
+    <!-- feedforward -->
+    <define name="PHI_DDGAIN"   value=" 300"/>
+    <define name="THETA_DDGAIN" value=" 300"/>
+    <define name="PSI_DDGAIN"   value=" 300"/>
+
+  </section>
+
+  <section name="INS" prefix="INS_">
+  </section>
+
+ <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
+   <define name="HOVER_KP"    value="400"/>
+   <define name="HOVER_KD"    value="350"/>
+   <define name="HOVER_KI"    value="144"/>
+   <define name="GUIDANCE_V_NOMINAL_HOVER_THROTTLE" value ="0.9"/>
+  </section>
+
+  <section name="AHRS" prefix="AHRS_">
+    <define name="H_X" value=" 0.47577"/>
+    <define name="H_Y" value=" 0.11811"/>
+    <define name="H_Z" value=" 0.87161"/>
+  </section>
+
+ <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
+   <define name="PGAIN" value="50"/>
+   <define name="DGAIN" value="50"/>
+   <define name="IGAIN" value="0"/>
+ </section>
+
+ <section name="SIMULATOR" prefix="NPS_">
+   <define name="ACTUATOR_NAMES"  value="front_motor, back_motor, right_motor, left_motor" type="string[]"/>
+   <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
+ </section>
+
+ <modules main_freq="512">
+   <module name="gps" type="ubx_ucenter"/>
+</modules>
+
+  <firmware name="rotorcraft">
+    <target name="ap" board="lisa_m_1.0">
+      <module name="radio_control" type="spektrum">
+        <define name="RADIO_MODE" value="RADIO_FLAP"/>
+        <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
+        <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/>
+      </module>
+    </target>
+
+    <target name="nps" board="pc">
+      <module name="fdm"           type="jsbsim"/>
+      <module name="radio_control" type="ppm"/>
+    </target>
+
+    <module name="motor_mixing"/>
+    <module name="actuators"     type="pwm">
+      <define name="SERVO_HZ" value="400"/>
+      <define name="USE_SERVOS_7AND8"/>
+    </module>
+
+    <module name="telemetry"     type="transparent"/>
+    <module name="imu"           type="aspirin_v1.0"/>
+    <module name="gps"           type="ublox"/>
+    <module name="stabilization" type="int_quat"/>
+    <module name="ahrs"          type="int_cmpl_quat"/>
+    <module name="ins"/>
+    <!--define name="USE_INS_NAV_INIT"/-->
+    <!--module name="stabilization"   type="int_euler"/>
+    <module name="ahrs"          type="int_cmpl_euler"/-->
+  </firmware>
+
+</airframe>

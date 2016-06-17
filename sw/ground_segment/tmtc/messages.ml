@@ -71,7 +71,7 @@ let one_page = fun sender class_name (notebook:GPack.notebook) (topnote:GPack.no
           let literal_values = values_of_field f in
           let alt_value =
             try
-              let coeff = float_of_string (Pprz.alt_unit_coef_of_xml ~auto:"display" f)
+              let coeff = float_of_string (PprzLink.alt_unit_coef_of_xml ~auto:"display" f)
               and unit = Xml.attrib f "alt_unit" in
               fun value -> sprintf "%s (%f%s)" value (coeff*.float_of_string value) unit
             with
@@ -79,12 +79,12 @@ let one_page = fun sender class_name (notebook:GPack.notebook) (topnote:GPack.no
           let update = fun (_a, x) ->
             value :=
               try
-                let i = Pprz.int_of_value x in
+                let i = PprzLink.int_of_value x in
                 sprintf "%s (%d)" literal_values.(i) i
               with _ ->
                 match format_ with
-                | Some f -> alt_value (Pprz.string_of_value_format f x)
-                | _ -> alt_value (Pprz.string_of_value x)
+                | Some f -> alt_value (PprzLink.formatted_string_of_value f x)
+                | _ -> alt_value (PprzLink.string_of_value x)
           and display_value = fun () ->
             if notebook#page_num v#coerce = notebook#current_page then
               if l#label <> !value then l#set_text !value in
@@ -92,11 +92,11 @@ let one_page = fun sender class_name (notebook:GPack.notebook) (topnote:GPack.no
           (* box dragger *)
           field_label#drag#source_set dnd_targets ~modi:[`BUTTON1] ~actions:[`COPY];
           let data_get = fun _ (sel:GObj.selection_context) ~info ~time ->
-            let scale = Pprz.alt_unit_coef_of_xml ~auto:"display" f in
+            let scale = PprzLink.alt_unit_coef_of_xml ~auto:"display" f in
             let v = List.hd (Str.split (Str.regexp " ") l#text) in (* get value *)
             let nb = List.length (Str.split (Str.regexp ",") v) in (* get number of values if array *)
             let range = if nb > 1 then sprintf "0-%d" (nb-1) else "0" in
-            if Pprz.is_array_type type_ then
+            if PprzLink.is_array_type type_ then
               match GToolbox.input_string ~title:"Index of value to drag" ~text:range "Index or range in the array ?" with
                 None -> ()
               | Some i -> sel#return (sprintf "%s:%s:%s:%s[%s]:%s" sender class_name id field_name i scale)
@@ -173,7 +173,7 @@ let one_page = fun sender class_name (notebook:GPack.notebook) (topnote:GPack.no
 let rec one_class = fun (notebook:GPack.notebook) (help_label:GObj.widget) (window:GWindow.window) timestamp force (ident, xml_class, sender) ->
   let class_name = (Xml.attrib xml_class "name") in
   let messages = Xml.children xml_class in
-  let module P = Pprz.Messages (struct let name = class_name end) in
+  let module P = PprzLink.Messages (struct let name = class_name end) in
   let senders = Hashtbl.create 5 in
   match sender with
     | Some "*" ->
@@ -209,11 +209,13 @@ let _ =
   let classes = ref ["telemetry:*"] in
   let timestamp = ref false in
   let force = ref false in
+  let geometry = ref "" in
   Arg.parse
     [ "-b", Arg.String (fun x -> ivy_bus := x), (sprintf "<ivy bus> Default is %s" !ivy_bus);
       "-c",  Arg.String (fun x -> classes := x :: !classes), "class name";
       "-timestamp", Arg.Set timestamp, "Bind to timestampped messages";
-      "-force", Arg.Set force, "Force waiting on all messages, not only ALIVE for telemetry class (increase network load)" ]
+      "-force", Arg.Set force, "Force waiting on all messages, not only ALIVE for telemetry class (increase network load)";
+      "-g", Arg.String (fun x -> geometry := x), "<geometry>  Set the window geometry ( '500x500+100+100' )"]
     (fun x -> prerr_endline ("WARNING: don't do anything with "^x))
     "Usage: ";
 
@@ -225,6 +227,7 @@ let _ =
   let icon = GdkPixbuf.from_file Env.icon_mes_file in
   let window = GWindow.window ~type_hint:`DIALOG ~icon ~title:"Messages" () in
   window#set_default_size ~width:200 ~height:50;
+  ignore (window#parse_geometry !geometry);
   let quit = fun () -> GMain.Main.quit (); exit 0 in
   ignore (window#connect#destroy ~callback:quit);
   let vbox = GPack.vbox ~packing:window#add () in
@@ -234,7 +237,7 @@ let _ =
 
   (** Get the XML description of the required classes *)
   let xml_classes =
-    let xml = Pprz.messages_xml () in
+    let xml = PprzLink.messages_xml () in
     let class_of = fun n ->
       try
         List.find (fun x -> ExtXml.attrib x "name" = n) (Xml.children xml)

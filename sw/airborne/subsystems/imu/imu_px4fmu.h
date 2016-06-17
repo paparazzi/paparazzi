@@ -36,9 +36,6 @@
 #include "peripherals/hmc58xx.h"
 
 struct ImuPx4fmu {
-  volatile bool_t gyro_valid;
-  volatile bool_t accel_valid;
-  volatile bool_t mag_valid;
   struct Mpu60x0_Spi mpu;
   struct Hmc58xx hmc;
 };
@@ -47,22 +44,6 @@ extern struct ImuPx4fmu imu_px4fmu;
 
 extern void imu_px4fmu_event(void);
 
-
-static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
-{
-  imu_px4fmu_event();
-  if (imu_px4fmu.gyro_valid) {
-    imu_px4fmu.gyro_valid = FALSE;
-    _gyro_handler();
-  }
-  if (imu_px4fmu.accel_valid) {
-    imu_px4fmu.accel_valid = FALSE;
-    _accel_handler();
-  }
-  if (imu_px4fmu.mag_valid) {
-    imu_px4fmu.mag_valid = FALSE;
-    _mag_handler();
-  }
-}
+#define ImuEvent imu_px4fmu_event
 
 #endif /* IMU_PX4FMU_H */

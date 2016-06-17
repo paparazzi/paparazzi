@@ -32,10 +32,10 @@
 float dist2_to_home;
 float dist2_to_wp;
 
-bool_t too_far_from_home;
+bool too_far_from_home;
 
 const uint8_t nb_waypoint = NB_WAYPOINT;
-struct point waypoints[NB_WAYPOINT] = WAYPOINTS;
+struct point waypoints[NB_WAYPOINT] = WAYPOINTS_UTM;
 
 float ground_alt;
 
@@ -54,8 +54,8 @@ void compute_dist2_to_home(void)
   float ph_y = waypoints[WP_HOME].y - pos->y;
   dist2_to_home = ph_x * ph_x + ph_y * ph_y;
   too_far_from_home = dist2_to_home > (MAX_DIST_FROM_HOME * MAX_DIST_FROM_HOME);
-#if defined InAirspace
-  too_far_from_home = too_far_from_home || !(InAirspace(pos_x, pos_y));
+#ifdef InGeofenceSector
+  too_far_from_home = too_far_from_home || !(InGeofenceSector(pos->x, pos->y));
 #endif
 }
 

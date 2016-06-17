@@ -14,7 +14,7 @@ from fnmatch import fnmatch
 import subprocess
 
 
-class ConfChooser:
+class ConfChooser(object):
 
     # General Functions
 
@@ -110,7 +110,7 @@ class ConfChooser:
 
     def sure(self, widget, filename):
         dialog = gtk.MessageDialog(self.window, gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_QUESTION, gtk.BUTTONS_OK_CANCEL, "Are you sure you want to delete?")
-        dialog.format_secondary_text( "File: " + filename)
+        dialog.format_secondary_text("File: " + filename)
         response = dialog.run()
         ret = False
         if response == gtk.RESPONSE_OK:
@@ -132,38 +132,38 @@ class ConfChooser:
         timestr = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M")
         if os.path.islink(self.conf_xml):
             if self.verbose:
-                print("Symlink does not need backup")
+                self.print_status("Symlink does not need backup")
         else:
             if os.path.exists(self.conf_xml):
                 newname = "conf.xml." + timestr
                 backup_file = os.path.join(self.conf_dir, newname)
                 shutil.copyfile(self.conf_xml, backup_file)
-                print("Made a backup: " + newname)
+                self.print_status("Made a backup: " + newname)
 
         if use_personal:
             backup_name = self.conf_personal_name + "." + timestr
             conf_personal_backup = os.path.join(self.conf_dir, backup_name)
             if os.path.exists(self.conf_personal):
-                print("Backup conf.xml.personal to " + backup_name)
+                self.print_status("Backup conf.xml.personal to " + backup_name)
                 shutil.copyfile(self.conf_personal, conf_personal_backup)
 
     def backupcontrolpanel(self, use_personal=False):
         timestr = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M")
         if os.path.islink(self.controlpanel_xml):
             if self.verbose:
-                print("Symlink does not need backup")
+                self.print_status("Symlink does not need backup")
         else:
             if os.path.exists(self.controlpanel_xml):
                 newname = "control_panel.xml." + timestr
                 backup_file = os.path.join(self.conf_dir, newname)
                 shutil.copyfile(self.controlpanel_xml, backup_file)
-                print("Made a backup: " + newname)
+                self.print_status("Made a backup: " + newname)
 
         if use_personal:
             backup_name = self.controlpanel_personal_name + "." + timestr
             controlpanel_personal_backup = os.path.join(self.conf_dir, backup_name)
             if os.path.exists(self.controlpanel_personal):
-                print("Backup control_panel.xml.personal to " + backup_name)
+                self.print_status("Backup control_panel.xml.personal to " + backup_name)
                 shutil.copyfile(self.controlpanel_personal, controlpanel_personal_backup)
 
     def delete_conf(self, widget):
@@ -174,7 +174,7 @@ class ConfChooser:
                 os.remove(filename)
             self.update_conf_label()
             self.find_conf_files()
-            print("Deleted: " + filename)
+            self.print_status("Deleted: " + filename)
 
     def delete_controlpanel(self, widget):
         filename = os.path.join(self.conf_dir, self.controlpanel_file_combo.get_active_text())
@@ -184,15 +184,14 @@ class ConfChooser:
                 os.remove(filename)
             self.update_controlpanel_label()
             self.find_controlpanel_files()
-            print("Deleted: " + filename)
+            self.print_status("Deleted: " + filename)
 
     def accept(self, widget):
         selected = self.conf_file_combo.get_active_text()
         if selected == "conf.xml":
-            print("conf.xml is not a symlink, maybe you want to copy it to your personal file first?")
+            self.print_status("conf.xml is not a symlink, maybe you want to copy it to your personal file first?")
         else:
             self.backupconf()
-            link_source = self.conf_file_combo.get_active_text()
             if os.path.islink(self.conf_xml) or os.path.exists(self.conf_xml):
                 os.remove(self.conf_xml)
             os.symlink(selected, self.conf_xml)
@@ -201,10 +200,9 @@ class ConfChooser:
 
         selected = self.controlpanel_file_combo.get_active_text()
         if selected == "control_panel.xml":
-            print("control_panel.xml is not a symlink, maybe you want to copy it to your personal file first?")
+            self.print_status("control_panel.xml is not a symlink, maybe you want to copy it to your personal file first?")
         else:
             self.backupcontrolpanel()
-            link_source = self.controlpanel_file_combo.get_active_text()
             if os.path.islink(self.controlpanel_xml) or os.path.exists(self.controlpanel_xml):
                 os.remove(self.controlpanel_xml)
             os.symlink(selected, self.controlpanel_xml)
@@ -213,7 +211,7 @@ class ConfChooser:
 
     def personal_conf(self, widget):
         if os.path.exists(self.conf_personal):
-            print("Your personal conf file already exists!")
+            self.print_status("Your personal conf file already exists!")
         else:
             self.backupconf(True)
             template_file = os.path.join(self.conf_dir, self.conf_file_combo.get_active_text())
@@ -225,7 +223,7 @@ class ConfChooser:
 
     def personal_controlpanel(self, widget):
         if os.path.exists(self.controlpanel_personal):
-            print("Your personal control_panel file already exists!")
+            self.print_status("Your personal control_panel file already exists!")
         else:
             self.backupcontrolpanel(True)
             template_file = os.path.join(self.conf_dir, self.controlpanel_file_combo.get_active_text())
@@ -234,6 +232,9 @@ class ConfChooser:
             os.symlink(self.controlpanel_personal_name, self.controlpanel_xml)
             self.update_controlpanel_label()
             self.find_controlpanel_files()
+
+    def print_status(self, text):
+        self.statusbar.push(self.context_id, text)
 
     # Constructor Functions
     def __init__(self):
@@ -289,7 +290,7 @@ class ConfChooser:
 
         mb.append(helpm)
 
-        self.my_vbox.pack_start(mb,False)
+        self.my_vbox.pack_start(mb, False)
 
         # Combo Bar
 
@@ -389,6 +390,12 @@ class ConfChooser:
 
         self.my_vbox.pack_start(self.toolbar, False)
 
+        # status bar
+        self.statusbar = gtk.Statusbar()
+        self.context_id = self.statusbar.get_context_id("info")
+        #self.statusbar.push(self.context_id, "Waiting for you to do something...")
+        self.my_vbox.pack_end(self.statusbar, False)
+
         # Bottom
 
         self.window.add(self.my_vbox)
@@ -400,6 +407,7 @@ class ConfChooser:
         gtk.main()
         if self.pp:
             self.pp.wait()
+
 
 if __name__ == "__main__":
     import sys

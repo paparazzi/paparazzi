@@ -101,19 +101,6 @@
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
   </section>
 
-  <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
-    <define name="SP_MAX_P" value="10000"/>
-    <define name="SP_MAX_Q" value="10000"/>
-    <define name="SP_MAX_R" value="10000"/>
-
-    <define name="GAIN_P" value="350"/>
-    <define name="GAIN_Q" value="250"/>
-    <define name="GAIN_R" value="350"/>
-
-    <define name="IGAIN_P" value="200"/>
-    <define name="IGAIN_Q" value="200"/>
-    <define name="IGAIN_R" value="200"/>
-  </section>
 
   <!-- These gains are used when the gain scheduling module is enabled (by loading it in the modules section)-->
   <section name ="GAIN_SETS">
@@ -216,34 +203,31 @@
   </section>
 
   <modules main_freq="512">
-    <load name="gps_ubx_ucenter.xml"/>
+    <module name="gps" type="ubx_ucenter"/>
 
     <!-- The the led_safety_status module will make the Quadshot LEDs blink in certain patterns when there are safety violations-->
-    <load name="led_safety_status.xml">
+    <module name="led_safety_status">
       <define name="USE_LED_BODY" value="1"/>
       <define name="SAFETY_WARNING_LED" value="BODY"/>
-    </load>
+    </module>
 
     <!--Use an airspeed sensor and get the measured airspeed in the messages-->
-    <load name="airspeed_ets.xml">
-      <define name="AIRSPEED_ETS_I2C_DEV" value="i2c2"/>
+    <module name="airspeed_ets">
+      <configure name="AIRSPEED_ETS_I2C_DEV" value="i2c2"/>
       <define name="AIRSPEED_ETS_SYNC_SEND"/>
-    </load>
+    </module>
 
     <!-- Load this module to use multiple gain sets, which have to be specified in the gain sets section -->
-    <!--load name="gain_scheduling.xml"/-->
+    <!--module name="gain_scheduling"/-->
   </modules>
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_m_2.0">
-      <subsystem name="radio_control" type="spektrum">
+      <module name="radio_control" type="spektrum">
         <!-- Put the mode on channel AUX1-->
         <define name="RADIO_MODE" value="RADIO_AUX1"/>
         <!--       <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/> -->
-      </subsystem>
-
-      <!-- To use an airspeed sensor on I2C, enable I2C2-->
-      <define name="USE_I2C2"/>
+      </module>
 
       <define name="USE_AIRSPEED" value="TRUE"/>
 
@@ -253,22 +237,22 @@
       <!--       <configure name="LISA_M_BARO" value="BARO_MS5611_SPI"/> -->
     </target>
 
-    <subsystem name="motor_mixing"/>
-    <subsystem name="actuators"     type="pwm">
+    <module name="motor_mixing"/>
+    <module name="actuators"     type="pwm">
       <define name="SERVO_HZ" value="400"/>
       <define name="USE_SERVOS_7AND8"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="imu"           type="aspirin_v2.1"/>
-    <subsystem name="gps"           type="ublox"/>
-    <subsystem name="stabilization" type="int_quat"/>
+    <module name="telemetry"     type="xbee_api"/>
+    <module name="imu"           type="aspirin_v2.1"/>
+    <module name="gps"           type="ublox"/>
+    <module name="stabilization" type="int_quat"/>
 
-    <subsystem name="ahrs"          type="int_cmpl_quat">
+    <module name="ahrs"          type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="TRUE"/>
       <!--define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN" value="TRUE"/-->
-    </subsystem>
+    </module>
 
-    <subsystem name="ins"/>
+    <module name="ins"/>
   </firmware>
 </airframe>

@@ -28,9 +28,18 @@ include conf/Makefile.local
 # main directory where the generated files and compilation results for an aircraft are stored
 AIRCRAFT_BUILD_DIR = $(PAPARAZZI_HOME)/var/aircrafts/$(AIRCRAFT)
 CONF=$(PAPARAZZI_HOME)/conf
-CONF_XML=$(CONF)/conf.xml
+VAR=$(PAPARAZZI_HOME)/var
+CONF_XML ?= $(CONF)/conf.xml
 AIRBORNE=sw/airborne
-MESSAGES_XML = $(CONF)/messages.xml
+MESSAGES_XML = $(VAR)/messages.xml
+
+# make sure the TARGET variable is set if needed for current make target
+ifneq (,$(findstring $(MAKECMDGOALS),all_ac_h radio_ac_h flight_plan_ac_h))
+ifeq ($(TARGET),)
+$(warning No TARGET specified! Defaulting to "TARGET=ap")
+override TARGET=ap
+endif
+endif
 
 AIRCRAFT_CONF_DIR = $(AIRCRAFT_BUILD_DIR)/conf
 AC_GENERATED = $(AIRCRAFT_BUILD_DIR)/$(TARGET)/generated
@@ -47,6 +56,7 @@ SETTINGS_XML=$(AIRCRAFT_BUILD_DIR)/settings.xml
 SETTINGS_MODULES=$(AIRCRAFT_BUILD_DIR)/settings_modules.xml
 SETTINGS_TELEMETRY=$(AIRCRAFT_BUILD_DIR)/settings_telemetry.xml
 SETTINGS_AUTOPILOT=$(AIRCRAFT_BUILD_DIR)/settings_autopilot.xml
+SETTINGS_FLIGHTPLAN=$(AIRCRAFT_BUILD_DIR)/settings_flightplan.xml
 MAKEFILE_AC=$(AIRCRAFT_BUILD_DIR)/Makefile.ac
 MODULES_H=$(AC_GENERATED)/modules.h
 MODULES_DIR=$(PAPARAZZI_HOME)/conf/modules/
@@ -128,10 +138,6 @@ endif
 endif
 
 
-init:
-	@[ -d $(PAPARAZZI_HOME) ] || (echo "Copying config example in your $(PAPARAZZI_HOME) directory"; mkdir -p $(PAPARAZZI_HOME); cp -a conf $(PAPARAZZI_HOME); cp -a data $(PAPARAZZI_HOME); mkdir -p $(PAPARAZZI_HOME)/var/maps; mkdir -p $(PAPARAZZI_HOME)/var/include)
-
-
 print_version:
 	@echo "-----------------------------------------------------------------------"
 	@echo "Paparazzi version" $(GIT_DESC)$(VERSION_MATCH)
@@ -168,11 +174,11 @@ $(RADIO_H) : $(CONF)/$(RADIO) $(CONF_XML) $(GENERATORS)/gen_radio.out
 	$(Q)chmod a+r $@
 	$(Q)cp $< $(AIRCRAFT_CONF_DIR)/radios
 
-$(PERIODIC_H) : $(CONF)/$(AIRFRAME_XML) $(MESSAGES_XML) $(CONF_XML) $(CONF)/$(TELEMETRY) $(MAKEFILE_AC)
+$(PERIODIC_H) : $(MESSAGES_XML) $(CONF_XML) $(CONF)/$(TELEMETRY) $(MAKEFILE_AC)
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
 	@echo GENERATE $@ from $(TELEMETRY)
 	$(eval $@_TMP := $(shell $(MKTEMP)))
-	$(Q)$(GENERATORS)/gen_periodic.out $(CONF)/$(AIRFRAME_XML) $(MESSAGES_XML) $(CONF)/$(TELEMETRY) $(TELEMETRY_FREQUENCY) $(SETTINGS_TELEMETRY) > $($@_TMP)
+	$(Q)$(GENERATORS)/gen_periodic.out $(MESSAGES_XML) $(CONF)/$(TELEMETRY) $(TELEMETRY_FREQUENCY) $(SETTINGS_TELEMETRY) > $($@_TMP)
 	$(Q)mv $($@_TMP) $@
 	$(Q)chmod a+r $@
 	$(Q)cp $(CONF)/$(TELEMETRY) $(AIRCRAFT_CONF_DIR)/telemetry
@@ -181,7 +187,7 @@ $(FLIGHT_PLAN_H) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML) $(GENERATORS)/gen_flight_p
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
 	@echo GENERATE $@ from $(FLIGHT_PLAN)
 	$(eval $@_TMP := $(shell $(MKTEMP)))
-	$(Q)$(GENERATORS)/gen_flight_plan.out $< > $($@_TMP)
+	$(Q)$(GENERATORS)/gen_flight_plan.out -settings $(SETTINGS_FLIGHTPLAN) $< > $($@_TMP)
 	$(Q)mv $($@_TMP) $@
 	$(Q)chmod a+r $@
 	$(Q)cp $< $(AIRCRAFT_CONF_DIR)/flight_plans
@@ -197,16 +203,16 @@ $(SETTINGS_H) : $(SETTINGS_XMLS_DEP) $(CONF_XML) $(SETTINGS_MODULES) $(SETTINGS_
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
 	@echo GENERATE $@
 	$(eval $@_TMP := $(shell $(MKTEMP)))
-	$(Q)$(GENERATORS)/gen_settings.out $(SETTINGS_XML) $(SETTINGS_TELEMETRY) $(SETTINGS_XMLS) $(SETTINGS_MODULES) > $($@_TMP)
+	$(Q)$(GENERATORS)/gen_settings.out $(SETTINGS_XML) $(SETTINGS_TELEMETRY) $(SETTINGS_XMLS) $(SETTINGS_FLIGHTPLAN) $(SETTINGS_MODULES) > $($@_TMP)
 	$(Q)mv $($@_TMP) $@
 	$(Q)chmod a+r $@
 	$(Q)cp $(SETTINGS_XMLS_DEP) $(AIRCRAFT_CONF_DIR)/settings
 
-$(MODULES_H) : $(CONF)/$(AIRFRAME_XML) $(GENERATORS)/gen_modules.out $(CONF)/modules/*.xml
+$(MODULES_H) : $(CONF)/$(AIRFRAME_XML) $(FLIGHT_PLAN_XML) $(GENERATORS)/gen_modules.out $(CONF)/modules/*.xml
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
 	@echo GENERATE $@
 	$(eval $@_TMP := $(shell $(MKTEMP)))
-	$(Q)$(GENERATORS)/gen_modules.out $(SETTINGS_MODULES) $(DEFAULT_MODULES_FREQUENCY) $< > $($@_TMP)
+	$(Q)$(GENERATORS)/gen_modules.out $(SETTINGS_MODULES) $(DEFAULT_MODULES_FREQUENCY) $(FLIGHT_PLAN_XML) $< > $($@_TMP)
 	$(Q)mv $($@_TMP) $@
 	$(Q)chmod a+r $@
 
@@ -217,13 +223,14 @@ autopilot_h : $(CONF)/$(AIRFRAME_XML) $(GENERATORS)/gen_autopilot.out $(CONF)/au
 
 $(SETTINGS_MODULES) : $(MODULES_H)
 $(SETTINGS_TELEMETRY) : $(PERIODIC_H)
+$(SETTINGS_FLIGHTPLAN) : $(FLIGHT_PLAN_H)
 
 %.ac_h : $(GENERATORS)/gen_aircraft.out
 	$(Q)if (expr "$(AIRCRAFT)") > /dev/null; then : ; else echo "AIRCRAFT undefined: type 'make AIRCRAFT=AircraftName ...'"; exit 1; fi
 	@echo "#######################################"
 	@echo "# BUILD AIRCRAFT=$(AIRCRAFT), TARGET $*"
 	@echo "#######################################"
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) TARGET=$* Q=$(Q) $(GENERATORS)/gen_aircraft.out $(AIRCRAFT)
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) TARGET=$* Q=$(Q) $(GENERATORS)/gen_aircraft.out $(AIRCRAFT) $(CONF_XML)
 
 %.compile: %.ac_h | print_version
 	cd $(AIRBORNE); $(MAKE) -j$(NPROCS) TARGET=$* all
@@ -231,11 +238,8 @@ $(SETTINGS_TELEMETRY) : $(PERIODIC_H)
 %.upload: %.compile
 	cd $(AIRBORNE); $(MAKE) TARGET=$* upload
 
-jsbsim jsbsim.compile: jsbsim.ac_h print_version
-	cd $(AIRBORNE); $(MAKE) TARGET=jsbsim ARCHI=jsbsim ARCH=jsbsim all
-
-sim sim.compile: sim.ac_h print_version
-	cd $(AIRBORNE); $(MAKE) TARGET=sim ARCHI=sim ARCH=sim all
+sim sim.compile: sim.ac_h | print_version
+	cd $(AIRBORNE); $(MAKE) -j$(NPROCS) TARGET=sim ARCHI=sim ARCH=sim all
 
 # Rules for backward compatibility (old guys are used to !)
 fbw : fbw.compile
@@ -246,4 +250,4 @@ clean_ac :
 	@echo "CLEANING $(AIRCRAFT)"
 	$(Q)rm -fr $(AIRCRAFT_BUILD_DIR)
 
-.PHONY: init all_ac_h radio_ac_h flight_plan_ac_h makefile_ac clean_ac print_version
+.PHONY: all_ac_h radio_ac_h flight_plan_ac_h makefile_ac clean_ac print_version

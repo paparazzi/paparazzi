@@ -50,7 +50,7 @@ void actuators_mkk_set(void)
     if (SysTimeTimer(actuators_delay_time) < USEC_OF_SEC(ACTUATORS_START_DELAY)) {
       return;
     } else {
-      actuators_delay_done = TRUE;
+      actuators_delay_done = true;
     }
   }
 #endif

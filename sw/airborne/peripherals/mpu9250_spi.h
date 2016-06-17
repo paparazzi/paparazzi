@@ -53,7 +53,7 @@ struct Mpu9250_Spi {
   struct spi_transaction spi_trans;
   volatile uint8_t tx_buf[2];
   volatile uint8_t rx_buf[MPU9250_BUFFER_LEN];
-  volatile bool_t data_available;     ///< data ready flag
+  volatile bool data_available;     ///< data ready flag
   union {
     struct Int16Vect3 vect;           ///< accel data vector in accel coordinate system
     int16_t value[3];                 ///< accel data values accessible by channel index

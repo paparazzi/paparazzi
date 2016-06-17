@@ -32,7 +32,7 @@
 
 #if USE_NPS
 #include "nps_radio_control.h"
-#elif !USE_JSBSIM
+#else
 #include <caml/mlvalues.h>
 #endif
 
@@ -68,7 +68,7 @@ void radio_control_feed(void)
                                           RADIO_MODE_NEUTRAL,          \
                                           RADIO_MODE_MIN,              \
                                           RADIO_MODE_MAX);
-  ppm_frame_available = TRUE;
+  ppm_frame_available = true;
 }
 #else //RADIO_CONTROL
 void radio_control_feed(void) {}
@@ -84,7 +84,7 @@ value update_rc_channel(value c, value v)
 
 value send_ppm(value unit)
 {
-  ppm_frame_available = TRUE;
+  ppm_frame_available = true;
   return unit;
 }
 #else // RADIO_CONTROL

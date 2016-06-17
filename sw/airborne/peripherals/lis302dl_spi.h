@@ -42,8 +42,8 @@ struct Lis302dl_Spi {
   volatile uint8_t tx_buf[2];
   volatile uint8_t rx_buf[8];
   enum Lis302dlConfStatus init_status; ///< init status
-  bool_t initialized;                  ///< config done flag
-  volatile bool_t data_available;      ///< data ready flag
+  bool initialized;                  ///< config done flag
+  volatile bool data_available;      ///< data ready flag
   union {
     struct Int8Vect3 vect;           ///< data vector in accel coordinate system
     int8_t value[3];                 ///< data values accessible by channel index

@@ -30,7 +30,7 @@
 #include "mcu_periph/i2c.h"
 #include "alt_srf08.h"
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 #include "led.h"
 
@@ -40,7 +40,7 @@
 #endif
 
 /* Global Variables */
-bool_t srf08_received, srf08_got;
+bool srf08_received, srf08_got;
 struct i2c_transaction srf_trans;
 uint16_t srf08_range;
 
@@ -49,8 +49,8 @@ uint16_t srf08_range;
 
 void srf08_init(void)
 {
-  srf08_received = FALSE;
-  srf08_got = FALSE;
+  srf08_received = false;
+  srf08_got = false;
 
   srf_trans.buf[0] = 0x00;
   srf_trans.buf[1] = 0x51;
@@ -78,14 +78,14 @@ void srf08_receive(void)
 {
   LED_OFF(2);
   srf_trans.buf[0] = SRF08_ECHO_1;
-  srf08_received = TRUE;
+  srf08_received = true;
   i2c_transmit(&SRF08_I2C_DEV, &srf_trans, SRF08_UNIT_0, 1);
 }
 
 /** Read values on the bus */
 void srf08_read(void)
 {
-  srf08_got = TRUE;
+  srf08_got = true;
   i2c_receive(&SRF08_I2C_DEV, &srf_trans, SRF08_UNIT_0, 2);
 }
 
@@ -144,10 +144,10 @@ void srf08_event(void)
   /** Handling of data sent by the device (initiated by srf08_receive() */
   if (srf_trans.status == I2CTransSuccess) {
     if (srf08_received) {
-      srf08_received = FALSE;
+      srf08_received = false;
       srf08_read();
     } else if (srf08_got) {
-      srf08_got = FALSE;
+      srf08_got = false;
       srf08_copy();
       DOWNLINK_SEND_RANGEFINDER(DefaultChannel, DefaultDevice, &srf08_range, &f, &f, &f, &f, &f, &i);
     }

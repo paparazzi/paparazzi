@@ -24,7 +24,15 @@ top of things.
     my_contribution master` then checkout the new branch with `git
     checkout my_contribution`.  Please avoid working directly on the
     `master` branch.
-* Make commits of logical units.
+* Make commits of logical units with descriptive commit messages and note the corresponding issue (which GitHub will autolink), e.g.:
+```
+[modules] air_data: fix altitude calculation
+
+- fix altitude calculation from differential pressure
+- take geoid separation into account when calculating QNH
+
+Fixes issue #123
+```
 * Check for unnecessary whitespace with `git diff --check` before committing.
 
 ## Style
@@ -37,13 +45,13 @@ top of things.
 ## Submitting Changes
 
 * Push your changes to a topic branch in your fork of the repository.
-* Submit a pull request to the repository in the paparazzi organization.
+* Submit a [pull request](https://github.com/paparazzi/paparazzi/compare/) to the repository in the paparazzi organization.
 
 # Additional Resources
 
-* [More information on contributing](http://paparazzi.enac.fr/wiki/Contributing)
+* [More information on contributing](http://wiki.paparazziuav.org/wiki/Contributing)
 * [Coding style guidelines](http://docs.paparazziuav.org/latest/styleguide.html)
 * [Issue tracker](https://github.com/paparazzi/paparazzi/issues)
 * [General GitHub documentation](http://help.github.com/)
 * [GitHub pull request documentation](http://help.github.com/send-pull-requests/)
-* #paparazzi-devel IRC channel on freenode.org
+* [![Gitter chat](https://badges.gitter.im/paparazzi/discuss.svg)](https://gitter.im/paparazzi/discuss)

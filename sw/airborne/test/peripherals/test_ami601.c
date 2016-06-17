@@ -25,6 +25,7 @@
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
 #include "led.h"
+#define DATALINK_C
 #include "subsystems/datalink/downlink.h"
 
 #include "mcu_periph/i2c.h"
@@ -71,9 +72,9 @@ static inline void main_periodic_task(void)
 
 static inline void main_event_task(void)
 {
+  mcu_event();
 
   AMI601Event(on_mag);
-
 }
 
 static inline void on_mag(void)
@@ -82,5 +83,4 @@ static inline void on_mag(void)
   ami601_status = AMI601_IDLE;
   struct Int32Vect3 bla = {ami601_values[0], ami601_values[1], ami601_values[2]};
   DOWNLINK_SEND_IMU_MAG_RAW(DefaultChannel, DefaultDevice, &bla.x, &bla.y, &bla.z);
-
 }

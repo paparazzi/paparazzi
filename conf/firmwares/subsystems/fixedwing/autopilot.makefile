@@ -49,15 +49,32 @@ endif
 
 $(TARGET).CFLAGS 	+= -DTRAFFIC_INFO
 
-
-
 #
-# Sys-time
+# frequencies
 #
 PERIODIC_FREQUENCY ?= 60
 $(TARGET).CFLAGS += -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
 
+ifdef AHRS_PROPAGATE_FREQUENCY
+$(TARGET).CFLAGS += -DAHRS_PROPAGATE_FREQUENCY=$(AHRS_PROPAGATE_FREQUENCY)
+endif
+
+ifdef AHRS_CORRECT_FREQUENCY
+$(TARGET).CFLAGS += -DAHRS_CORRECT_FREQUENCY=$(AHRS_CORRECT_FREQUENCY)
+endif
+
+ifdef AHRS_MAG_CORRECT_FREQUENCY
+$(TARGET).CFLAGS += -DAHRS_MAG_CORRECT_FREQUENCY=$(AHRS_MAG_CORRECT_FREQUENCY)
+endif
+
+#
+# Sys-time
+#
 $(TARGET).srcs   += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
+ifeq ($(ARCH), linux)
+# seems that we need to link against librt for glibc < 2.17
+$(TARGET).LDFLAGS += -lrt
+endif
 
 #
 # InterMCU & Commands
@@ -96,13 +113,16 @@ ifeq ($(ARCH), stm32)
   ns_srcs       += $(SRC_ARCH)/mcu_periph/gpio_arch.c
 endif
 
+ifeq ($(ARCH), chibios)
+  ns_srcs       += $(SRC_ARCH)/mcu_periph/gpio_arch.c
+endif
+
 
 #
 # Main
 #
-ifeq ($(RTOS), chibios-libopencm3)
- ns_srcs += $(SRC_FIRMWARE)/main_chibios_libopencm3.c
- ns_srcs += $(SRC_FIRMWARE)/chibios-libopencm3/chibios_init.c
+ifeq ($(RTOS), chibios)
+ ns_srcs += $(SRC_FIRMWARE)/main_chibios.c
 else
  ns_srcs += $(SRC_FIRMWARE)/main.c
 endif
@@ -115,7 +135,7 @@ ns_CFLAGS 		+= -DUSE_LED
 ifneq ($(SYS_TIME_LED),none)
   ns_CFLAGS 	+= -DSYS_TIME_LED=$(SYS_TIME_LED)
 endif
-ifneq ($(ARCH), lpc21)
+ifeq ($(ARCH), $(filter $(ARCH), stm32 sim))
   ns_srcs 	+= $(SRC_ARCH)/led_hw.c
 endif
 
@@ -178,50 +198,13 @@ sim.srcs 		+= $(fbw_srcs) $(ap_srcs)
 sim.CFLAGS 		+= -DSITL
 sim.srcs 		+= $(SRC_ARCH)/sim_ap.c
 
-sim.CFLAGS 		+= -DDOWNLINK -DPERIODIC_TELEMETRY -DDOWNLINK_TRANSPORT=ivy_tp -DDOWNLINK_DEVICE=ivy_tp -DDefaultPeriodic='&telemetry_Ap'
-sim.srcs 		+= subsystems/datalink/downlink.c $(SRC_FIRMWARE)/datalink.c subsystems/datalink/ivy_transport.c subsystems/datalink/telemetry.c $(SRC_FIRMWARE)/ap_downlink.c $(SRC_FIRMWARE)/fbw_downlink.c
+sim.CFLAGS 		+= -DDOWNLINK -DPERIODIC_TELEMETRY -DDOWNLINK_TRANSPORT=ivy_tp -DDOWNLINK_DEVICE=ivy_tp
+sim.srcs 		+= subsystems/datalink/downlink.c subsystems/datalink/datalink.c $(SRC_FIRMWARE)/fixedwing_datalink.c pprzlink/src/ivy_transport.c subsystems/datalink/telemetry.c $(SRC_FIRMWARE)/ap_downlink.c $(SRC_FIRMWARE)/fbw_downlink.c
 
 sim.srcs 		+= $(SRC_ARCH)/sim_gps.c $(SRC_ARCH)/sim_adc_generic.c
 
 # hack: always compile some of the sim functions, so ocaml sim does not complain about no-existing functions
 sim.srcs        += $(SRC_ARCH)/sim_ahrs.c $(SRC_ARCH)/sim_ir.c
-
-######################################################################
-##
-## JSBSIM THREAD SPECIFIC
-##
-
-JSBSIM_ROOT ?= /opt/jsbsim
-JSBSIM_INC = $(JSBSIM_ROOT)/include/JSBSim
-JSBSIM_LIB = $(JSBSIM_ROOT)/lib
-
-# use the paparazzi-jsbsim package if it is installed,
-# otherwise look for JSBsim under /opt/jsbsim
-JSBSIM_PKG ?= $(shell pkg-config JSBSim --exists && echo 'yes')
-ifeq ($(JSBSIM_PKG), yes)
-	jsbsim.CFLAGS  += $(shell pkg-config JSBSim --cflags)
-	jsbsim.LDFLAGS += $(shell pkg-config JSBSim --libs)
-else
-	JSBSIM_PKG = no
-	jsbsim.CFLAGS  += -I$(JSBSIM_INC)
-	jsbsim.LDFLAGS += -L$(JSBSIM_LIB) -lJSBSim
-endif
-
-
-jsbsim.CFLAGS 		+= $(fbw_CFLAGS) $(ap_CFLAGS)
-jsbsim.srcs 		+= $(fbw_srcs) $(ap_srcs)
-
-jsbsim.CFLAGS 		+= -DSITL -DUSE_JSBSIM
-jsbsim.srcs 		+= $(SIMDIR)/sim_ac_jsbsim.c $(SIMDIR)/sim_ac_fw.c $(SIMDIR)/sim_ac_flightgear.c
-
-# external libraries
-jsbsim.CFLAGS 		+= -I/usr/include $(shell pkg-config glib-2.0 --cflags)
-jsbsim.LDFLAGS		+= $(shell pkg-config glib-2.0 --libs) -lglibivy -lm $(shell pcre-config --libs)
-
-jsbsim.CFLAGS 		+= -DDOWNLINK -DPERIODIC_TELEMETRY -DDOWNLINK_TRANSPORT=ivy_tp -DDOWNLINK_DEVICE=ivy_tp -DDefaultPeriodic='&telemetry_Ap'
-jsbsim.srcs 		+= subsystems/datalink/downlink.c $(SRC_FIRMWARE)/datalink.c subsystems/datalink/ivy_transport.c $(SRC_FIRMWARE)/ap_downlink.c $(SRC_FIRMWARE)/fbw_downlink.c subsystems/datalink/telemetry.c
-
-jsbsim.srcs 		+= $(SRC_ARCH)/jsbsim_hw.c $(SRC_ARCH)/jsbsim_ir.c $(SRC_ARCH)/jsbsim_gps.c $(SRC_ARCH)/jsbsim_ahrs.c $(SRC_ARCH)/jsbsim_transport.c
 
 ######################################################################
 ##
@@ -232,14 +215,11 @@ jsbsim.srcs 		+= $(SRC_ARCH)/jsbsim_hw.c $(SRC_ARCH)/jsbsim_ir.c $(SRC_ARCH)/jsb
 # SINGLE MCU / DUAL MCU
 #
 
-ifeq ($(BOARD),classix)
-  include $(CFG_FIXEDWING)/intermcu_spi.makefile
-else
-  # Single MCU's run both
-  ifeq ($(SEPARATE_FBW),)
-    ap.CFLAGS 		+= $(fbw_CFLAGS)
-    ap.srcs 		+= $(fbw_srcs)
-  endif
+
+# Single MCU's run both
+ifeq ($(SEPARATE_FBW),)
+  ap.CFLAGS 		+= $(fbw_CFLAGS)
+  ap.srcs 		+= $(fbw_srcs)
 endif
 
 #
@@ -251,3 +231,16 @@ fbw.srcs 		+= $(fbw_srcs) $(ns_srcs)
 
 ap.CFLAGS 		+= $(ap_CFLAGS) $(ns_CFLAGS)
 ap.srcs 		+= $(ap_srcs) $(ns_srcs)
+
+######################################################################
+##
+## include firmware independent nps makefile and add fixedwing specifics
+##
+include $(CFG_SHARED)/nps.makefile
+nps.srcs += nps/nps_autopilot_fixedwing.c
+nps.srcs += subsystems/datalink/datalink.c $(SRC_FIRMWARE)/fixedwing_datalink.c
+nps.srcs += $(SRC_FIRMWARE)/ap_downlink.c $(SRC_FIRMWARE)/fbw_downlink.c
+
+# add normal ap and fbw sources
+nps.CFLAGS  += $(fbw_CFLAGS) $(ap_CFLAGS)
+nps.srcs    += $(fbw_srcs) $(ap_srcs)

@@ -3,12 +3,13 @@
 <airframe name="Blender">
 
   <modules main_freq="512">
-    <load name="servo_switch.xml"/>
-    <load name="rotorcraft_cam.xml"/>
-    <load name="digital_cam.xml">
+    <module name="servo_switch"/>
+    <module name="rotorcraft_cam"/>
+    <module name="digital_cam">
       <!-- AUX1 -->
       <define name="DC_SHUTTER_GPIO" value="GPIOA,GPIO7"/>
-    </load>
+    </module>
+    <module name="nav" type="survey_rectangle_rotorcraft"/>
   </modules>
 
   <firmware name="rotorcraft">
@@ -21,25 +22,25 @@
       <define name="ACTUATORS_START_DELAY" value="3"/>
     </target>
     <target name="nps" board="pc">
-      <subsystem name="fdm"         type="jsbsim"/>
+      <module name="fdm"         type="jsbsim"/>
     </target>
 
-    <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="actuators"     type="mkk">
+    <module name="radio_control" type="ppm"/>
+    <module name="telemetry"     type="transparent"/>
+    <module name="actuators"     type="mkk">
       <define name="MKK_I2C_SCL_TIME" value="25"/>
-    </subsystem>
-    <subsystem name="motor_mixing"/>
-    <subsystem name="actuators"     type="pwm">
+    </module>
+    <module name="motor_mixing"/>
+    <module name="actuators"     type="pwm">
       <define name="USE_PWM0"/>
-    </subsystem>
-    <subsystem name="imu"           type="navgo"/>
-    <subsystem name="gps"           type="ublox">
+    </module>
+    <module name="imu"           type="navgo"/>
+    <module name="gps"           type="ublox">
       <configure name="GPS_BAUD" value="B57600"/>
-    </subsystem>
-    <subsystem name="stabilization" type="int_euler"/>
-    <subsystem name="ahrs"          type="int_cmpl_quat"/>
-    <subsystem name="ins"           type="hff"/>
+    </module>
+    <module name="stabilization" type="int_euler"/>
+    <module name="ahrs"          type="int_cmpl_quat"/>
+    <module name="ins"           type="hff"/>
 
     <configure name="AHRS_PROPAGATE_FREQUENCY" value="512"/>
   </firmware>
@@ -48,13 +49,9 @@
     <define name="TRIM_ROLL" value="0"/>
     <define name="TRIM_PITCH" value="0"/>
     <define name="TRIM_YAW" value="0"/>
-    <define name="NB_MOTOR" value="4"/>
-    <define name="SCALE" value="256"/>
+
     <!-- FRONT CW, RIGHT CCW, BACK CW, LEFT CCW -->
-    <define name="ROLL_COEF"  value="{    0, -256,    0,  256}"/>
-    <define name="PITCH_COEF" value="{  256,    0, -256,    0}"/>
-    <define name="YAW_COEF"   value="{ -256,  256, -256,  256}"/>
-    <define name="THRUST_COEF" value="{ 256,  256,  256,  256}"/>
+    <define name="TYPE" value="QUAD_PLUS"/>
   </section>
 
   <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
@@ -139,17 +136,6 @@
   </section>
 
 
-  <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
-
-    <define name="SP_MAX_P" value="10000"/>
-    <define name="SP_MAX_Q" value="10000"/>
-    <define name="SP_MAX_R" value="10000"/>
-
-    <define name="GAIN_P" value="400"/>
-    <define name="GAIN_Q" value="400"/>
-    <define name="GAIN_R" value="350"/>
-
-  </section>
 
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
 
@@ -215,7 +201,7 @@
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
     <define name="MAX_BANK" value="30" unit="deg"/>
     <define name="PGAIN" value="50"/>
-    <define name="DGAIN" value="80"/>
+    <define name="DGAIN" value="140"/>
     <define name="IGAIN" value="20"/>
     <define name="NGAIN" value="0"/>
     <!-- feedforward -->
@@ -265,9 +251,9 @@
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
-    <define name="ACTUATOR_NAMES"  value="{&quot;front_motor&quot;, &quot;right_motor&quot;, &quot;back_motor&quot;, &quot;left_motor&quot;}"/>
-    <define name="JSBSIM_MODEL" value="&quot;simple_quad&quot;"/>
-    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
+    <define name="ACTUATOR_NAMES"  value="front_motor, right_motor, back_motor, left_motor" type="string[]"/>
+    <define name="JSBSIM_MODEL" value="simple_quad" type="string"/>
+    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
   </section>
 
 </airframe>

@@ -3,7 +3,7 @@
 <module name="baro_scp_i2c" dir="sensors">
   <doc>
     <description>VTI SCP1000 pressure sensor (I2C)</description>
-    <define name="SCP_I2C_DEV" value="i2cX" description="select i2c peripheral to use (default i2c0)"/>
+    <configure name="SCP_I2C_DEV" value="i2cX" description="select i2c peripheral to use (default i2c0)"/>
     <define name="SENSOR_SYNC_SEND" description="flag to transmit the data as it is acquired"/>
   </doc>
   <header>
@@ -13,6 +13,9 @@
   <periodic fun="baro_scp_periodic()" freq="1.8"/>
   <event fun="baro_scp_event()"/>
   <makefile target="ap">
+    <configure name="SCP_I2C_DEV" default="i2c0" case="upper|lower"/>
+    <define name="USE_$(SCP_I2C_DEV_UPPER)"/>
+    <define name="SCP_I2C_DEV" value="$(SCP_I2C_DEV_LOWER)"/>
     <file name="baro_scp_i2c.c"/>
   </makefile>
 </module>

@@ -28,23 +28,18 @@
 #ifndef STABILIZATION_RATE
 #define STABILIZATION_RATE
 
-#include "math/pprz_algebra_int.h"
+#include "math/pprz_algebra_float.h"
 
 extern void stabilization_rate_init(void);
 extern void stabilization_rate_read_rc(void);
 extern void stabilization_rate_read_rc_switched_sticks(void);
-extern void stabilization_rate_run(bool_t in_flight);
+extern void stabilization_rate_run(bool in_flight);
 extern void stabilization_rate_enter(void);
 
-extern struct Int32Rates stabilization_rate_sp;
-extern struct Int32Rates stabilization_rate_gain;
-extern struct Int32Rates stabilization_rate_igain;
-extern struct Int32Rates stabilization_rate_ddgain;
-extern struct Int32Rates stabilization_rate_ref;
-extern struct Int32Rates stabilization_rate_refdot;
-extern struct Int32Rates stabilization_rate_sum_err;
-
-extern struct Int32Rates stabilization_rate_fb_cmd;
-extern struct Int32Rates stabilization_rate_ff_cmd;
+extern struct FloatRates stabilization_rate_sp;
+extern struct FloatRates stabilization_rate_gain;
+extern struct FloatRates stabilization_rate_igain;
+extern struct FloatRates stabilization_rate_sum_err;
+extern struct FloatRates stabilization_rate_fb_cmd;
 
 #endif /* STABILIZATION_RATE */

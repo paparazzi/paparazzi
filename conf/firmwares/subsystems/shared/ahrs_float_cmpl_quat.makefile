@@ -8,36 +8,40 @@
 USE_MAGNETOMETER ?= 1
 AHRS_ALIGNER_LED ?= none
 
-AHRS_CFLAGS  = -DUSE_AHRS -DAHRS_FLOAT
-AHRS_CFLAGS += -DUSE_AHRS_ALIGNER
+AHRS_FC_CFLAGS  = -DUSE_AHRS
+AHRS_FC_CFLAGS += -DUSE_AHRS_ALIGNER
 
 ifeq (,$(findstring $(USE_MAGNETOMETER),0 FALSE))
-  AHRS_CFLAGS += -DUSE_MAGNETOMETER
+  AHRS_FC_CFLAGS += -DUSE_MAGNETOMETER
 endif
 
 ifneq ($(AHRS_ALIGNER_LED),none)
-  AHRS_CFLAGS += -DAHRS_ALIGNER_LED=$(AHRS_ALIGNER_LED)
+  AHRS_FC_CFLAGS += -DAHRS_ALIGNER_LED=$(AHRS_ALIGNER_LED)
 endif
 
-AHRS_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_cmpl.h\"
-AHRS_CFLAGS += -DAHRS_PROPAGATE_QUAT
-AHRS_SRCS   += subsystems/ahrs.c
-AHRS_SRCS   += subsystems/ahrs/ahrs_float_cmpl.c
-AHRS_SRCS   += subsystems/ahrs/ahrs_aligner.c
-
-ifdef AHRS_PROPAGATE_FREQUENCY
-AHRS_CFLAGS += -DAHRS_PROPAGATE_FREQUENCY=$(AHRS_PROPAGATE_FREQUENCY)
+ifdef SECONDARY_AHRS
+ifneq (,$(findstring $(SECONDARY_AHRS), fcq float_cmpl_quat))
+# this is the secondary AHRS
+AHRS_FC_CFLAGS += -DAHRS_SECONDARY_TYPE_H=\"subsystems/ahrs/ahrs_float_cmpl_wrapper.h\"
+AHRS_FC_CFLAGS += -DSECONDARY_AHRS=ahrs_fc
+else
+# this is the primary AHRS
+AHRS_FC_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_cmpl_wrapper.h\"
+AHRS_FC_CFLAGS += -DPRIMARY_AHRS=ahrs_fc
+endif
+else
+# plain old single AHRS usage
+AHRS_FC_CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_cmpl_wrapper.h\"
 endif
 
-ifdef AHRS_CORRECT_FREQUENCY
-AHRS_CFLAGS += -DAHRS_CORRECT_FREQUENCY=$(AHRS_CORRECT_FREQUENCY)
+AHRS_FC_CFLAGS += -DAHRS_PROPAGATE_QUAT
+AHRS_FC_SRCS   += subsystems/ahrs.c
+AHRS_FC_SRCS   += subsystems/ahrs/ahrs_float_cmpl.c
+AHRS_FC_SRCS   += subsystems/ahrs/ahrs_float_cmpl_wrapper.c
+AHRS_FC_SRCS   += subsystems/ahrs/ahrs_aligner.c
+
+# add it for all targets except sim and fbw
+ifeq (,$(findstring $(TARGET),sim fbw))
+$(TARGET).CFLAGS += $(AHRS_FC_CFLAGS)
+$(TARGET).srcs += $(AHRS_FC_SRCS)
 endif
-
-ap.CFLAGS += $(AHRS_CFLAGS)
-ap.srcs += $(AHRS_SRCS)
-
-nps.CFLAGS += $(AHRS_CFLAGS)
-nps.srcs += $(AHRS_SRCS)
-
-test_ahrs.CFLAGS += $(AHRS_CFLAGS)
-test_ahrs.srcs += $(AHRS_SRCS)

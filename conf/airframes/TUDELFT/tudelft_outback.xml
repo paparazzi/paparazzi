@@ -1,0 +1,277 @@
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+
+<!-- this is a helicopter with a double wing as frame
+     * Autopilot:   OPA/FTD 1.0 and OPA/AP 1.0 with STM32F4
+     * IMU:         MPU6000 (FTD), MPU6000 (AP)
+     * Baro:        MS5611 (AP)
+     * Actuators:   10 PWM (FTD)
+     * GPS:         UBlox ??
+     * RC:          Spektrum sats (2x)
+     * Telemetry:   Iridium (FTD), 900Mhz ??? (AP)
+-->
+
+<airframe name="Outback">
+
+  <firmware name="rotorcraft">
+    <!-- AP (autopilot) part of the board -->
+    <target name="ap" board="opa_ap_1.0">
+      <!--target name="nps" board="pc">
+        <subsystem name="fdm" type="jsbsim"/>
+      </target-->
+
+      <module name="telemetry"     type="xbee_api"/>
+      <module name="imu"           type="mpu6000"/>
+      <module name="gps"           type="ublox"/>
+      <module name="stabilization" type="int_quat"/>
+      <module name="stabilization" type="rate"/>
+      <module name="ahrs"          type="int_cmpl_quat"/>
+      <module name="ins"           type="hff"/>
+      <module name="guidance"      type="indi"/>
+      <module name="intermcu"      type="uart"/>
+      <module name="current_sensor"/>
+      <module name="opa_controller"/>
+      <module name="mag_pitot_uart" />
+      <module name="pwm_meas"/>
+      <module name="rpm_sensor"/>
+
+      <!--module name="geo_mag"/-->
+      <module name="air_data"/>
+      <module name="temp_adc"/>
+      <module name="logger_sd_spi_direct"/>
+      <module name="gps_ubx_ucenter"/>
+      <module name="heli_throttle_curve"/>
+      <define name="ROTORCRAFT_IS_HELI" value="TRUE" />
+    </target>
+
+    <!-- FBW (Flight by Wire) part of the board -->
+    <target name="fbw" board="opa_ftd_1.0">
+
+      <module name="radio_control" type="spektrum">
+        <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/>
+        <define name="RADIO_CONTROL_SPEKTRUM_NO_SIGN" value="1"/>
+      </module>
+
+      <module name="actuators"     type="pwm"/>
+      <module name="intermcu"      type="uart"/>
+      <module name="opa_controller"/>
+      <module name="heli_throttle_curve"/>
+      <module name="heli_swashplate_mixing"/>
+
+      <define name="RC_LOST_FBW_MODE" value="FBW_MODE_FAILSAFE"/><!-- Switch to Failsafe or to Autopilot on RC loss? -->
+      <define name="RC_LOST_IN_AUTO_FBW_MODE" value="FBW_MODE_FAILSAFE"/><!-- Switch to Failsafe with a working autopilot on RC loss? -->
+      <define name="AP_LOST_FBW_MODE" value="FBW_MODE_MANUAL"/><!-- Switch to Failsafe or to Manual on AP loss? -->
+    </target>
+  </firmware>
+
+  <!-- This should be different for AP and FBW -->
+  <section name="BAT">
+    <define name="CATASTROPHIC_BAT_LEVEL" value="21.0" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="21.6" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="22.2" unit="V"/>
+    <define name="MAX_BAT_LEVEL" value="25.2" unit="V"/>
+  </section>
+
+  <servos driver="Pwm">
+     <servo name="THROTTLE"       no="0" min="1100" neutral="1100" max="1900"/>
+     <servo name="SW_BACK"        no="1" min="1950" neutral="1550" max="1150"/>
+     <servo name="SW_LEFTFRONT"   no="2" min="1100" neutral="1500" max="1900"/>
+     <servo name="SW_RIGHTFRONT"  no="3" min="1880" neutral="1480" max="1080"/>
+     <servo name="TAIL_LEFT"      no="4" min="1100" neutral="1500" max="1900"/>
+     <servo name="TAIL_RIGHT"     no="5" min="1100" neutral="1500" max="1900"/>
+     <servo name="AIL_LEFTLOW"    no="6" min="1100" neutral="1475" max="1900"/>
+     <servo name="AIL_RIGHTLOW"   no="7" min="1100" neutral="1520" max="1900"/>
+     <servo name="AIL_LEFTUP"     no="8" min="1100" neutral="1530" max="1900"/>
+     <servo name="AIL_RIGHTUP"    no="9" min="1100" neutral="1565" max="1900"/>
+  </servos>
+
+  <section name="RADIO">
+    <define name="RADIO_TH_HOLD" value="RADIO_AUX1"/>
+    <define name="RADIO_FMODE"   value="RADIO_AUX2"/>
+  </section>
+
+  <rc_commands>
+    <set command="THRUST"   value="@THROTTLE"/>
+    <set command="ROLL"     value="@ROLL"/>
+    <set command="PITCH"    value="@PITCH"/>
+    <set command="YAW"      value="@YAW"/>
+    <set command="FMODE"    value="@FMODE"/>
+  </rc_commands>
+
+  <commands>
+    <axis name="THRUST"     failsafe_value="0"/>
+    <axis name="ROLL"       failsafe_value="0"/>
+    <axis name="PITCH"      failsafe_value="0"/>
+    <axis name="YAW"        failsafe_value="0"/>
+    <axis name="FMODE"      failsafe_value="-9600"/>
+    <axis name="TH_HOLD"    failsafe_value="-9600"/>
+    <axis name="MODE"       failsafe_value="-9600"/>
+  </commands>
+
+  <section name="MIXING" prefix="SW_MIXING_">
+    <define name="TYPE"       value="HR120"/>
+    <define name="TRIM_ROLL"  value="0"/>
+    <define name="TRIM_PITCH" value="0"/>
+    <define name="TRIM_COLL"  value="0"/>
+  </section>
+
+  <command_laws>
+    <call fun="throttle_curve_run(fbw_motors_on, values)"/>
+    <call fun="swashplate_mixing_run(values)"/>
+    <let var="th_hold"          value="LessThan(RadioControlValues(RADIO_TH_HOLD), -4800)"/>
+    <let var="man_mode"         value="LessThan(RadioControlValues(RADIO_MODE), -4800)"/>
+
+    <set servo="THROTTLE"       value="($th_hold? -9600 : throttle_curve.throttle)"/>
+    <set servo="SW_BACK"        value="swashplate_mixing.commands[SW_BACK]"/>
+    <set servo="SW_LEFTFRONT"   value="swashplate_mixing.commands[SW_LEFTFRONT]"/>
+    <set servo="SW_RIGHTFRONT"  value="swashplate_mixing.commands[SW_RIGHTFRONT]"/>
+    <set servo="TAIL_LEFT"      value="($th_hold? 0 : (-@YAW - throttle_curve.throttle*0.25) )"/>
+    <set servo="TAIL_RIGHT"     value="($th_hold? 0 : (-@YAW - throttle_curve.throttle*0.25) )"/>
+    <set servo="AIL_LEFTLOW"    value="($man_mode? ( @PITCH - @ROLL) : 0)"/>
+    <set servo="AIL_RIGHTLOW"   value="($man_mode? (-@PITCH - @ROLL) : 0)"/>
+    <set servo="AIL_LEFTUP"     value="($man_mode? ( @PITCH - @ROLL) : 0)"/>
+    <set servo="AIL_RIGHTUP"    value="($man_mode? (-@PITCH - @ROLL) : 0)"/>
+  </command_laws>
+
+
+  <!-- Pitch RODS black laminated props: 52mm top links 65mm bottom links -->
+  <heli_curves>
+    <curve throttle="0,7000,7000" collective="-7500,-5000,-2500"/>
+    <curve throttle="7500,9000,9600" collective="-7500,-5200,-2000"/>
+    <curve throttle="7500,7500,7500" collective="-7000,500,8000"/>
+  </heli_curves>
+
+  <!-- Pitch RODS white symmetric props: 56mm top links 65mm bottom links -->
+  <!--heli_curves>
+    <curve throttle="0,7000,7000" collective="0,2000,4000"/>
+    <curve throttle="5000,7000,9000" collective="0,2000,4000"/>
+    <curve throttle="7500,8500,9600" collective="0,2000,4000"/>
+  </heli_curves-->
+
+  <section name="MISC">
+    <define name="NAV_CLIMB_VSPEED" value="2.5"/>
+    <define name="NAV_DESCEND_VSPEED" value="-0.7"/>
+    <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
+  </section>
+
+  <section name="IMU" prefix="IMU_">
+    <define name="ACCEL_X_NEUTRAL" value="11"/>
+    <define name="ACCEL_Y_NEUTRAL" value="11"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-25"/>
+
+    <!-- replace this with your own calibration -->
+    <define name="MAG_X_NEUTRAL" value="21"/>
+    <define name="MAG_Y_NEUTRAL" value="-40"/>
+    <define name="MAG_Z_NEUTRAL" value="23"/>
+    <define name="MAG_X_SENS" value="18.8762961741" integer="16"/>
+    <define name="MAG_Y_SENS" value="16.257695261" integer="16"/>
+    <define name="MAG_Z_SENS" value="16.4921417833" integer="16"/>
+
+    <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"   value="180." unit="deg"/>
+
+    <!-- Rotate magneto compared to imu -90 degress -->
+    <define name="TO_MAG_PHI"   value="0." unit="deg"/>
+    <define name="TO_MAG_THETA" value="0." unit="deg"/>
+    <define name="TO_MAG_PSI"   value="-90." unit="deg"/>
+
+    <!-- Change sign to fix axis -->
+    <define name="MAG_X_SIGN" value="1"/>
+    <define name="MAG_Y_SIGN" value="1"/>
+    <define name="MAG_Z_SIGN" value="-1"/>
+  </section>
+
+  <section name="AHRS" prefix="AHRS_">
+    <!--This airframe vibrates a lot, which causes accel measurements in excess of 1g continuously-->
+    <define name="GRAVITY_HEURISTIC_FACTOR" value="0"/>
+    <define name="PROPAGATE_LOW_PASS_RATES" value="TRUE"/>
+    <define name="PROPAGATE_LOW_PASS_RATES_MUL" value="19"/>
+    <define name="PROPAGATE_LOW_PASS_RATES_DIV" value="20"/>
+
+    <!-- values used if no GPS fix, on 3D fix is update by geo_mag module -->
+    <define name="H_X" value="0.3770441"/>
+    <define name="H_Y" value="0.0193986"/>
+    <define name="H_Z" value="0.9259921"/>
+  </section>
+
+  <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
+    <!-- setpoints -->
+    <define name="SP_MAX_P" unit="deg/s" value="280"/>
+    <define name="SP_MAX_Q" unit="deg/s" value="280"/>
+    <define name="SP_MAX_R" unit="deg/s" value="140"/>
+    <define name="DEADBAND_P" value="20"/>
+    <define name="DEADBAND_Q" value="20"/>
+    <define name="DEADBAND_R" value="200"/>
+
+    <!-- feedback -->
+    <define name="GAIN_P" value="400"/>
+    <define name="GAIN_Q" value="400"/>
+    <define name="GAIN_R" value="700"/>
+
+    <define name="IGAIN_P" value="75"/>
+    <define name="IGAIN_Q" value="75"/>
+    <define name="IGAIN_R" value="50"/>
+  </section>
+
+  <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
+    <!-- setpoints -->
+    <define name="SP_MAX_PHI" value="45." unit="deg"/>
+    <define name="SP_MAX_THETA" value="45." unit="deg"/>
+    <define name="SP_MAX_R" value="150." unit="deg/s"/>
+    <define name="DEADBAND_R" value="200"/>
+
+    <!-- reference -->
+    <define name="REF_OMEGA_P" value="800" unit="deg/s"/>
+    <define name="REF_ZETA_P" value="0.85"/>
+    <define name="REF_MAX_P" value="300." unit="deg/s"/>
+    <define name="REF_MAX_PDOT" value="RadOfDeg(7000.)"/>
+    <define name="REF_OMEGA_Q" value="800" unit="deg/s"/>
+    <define name="REF_ZETA_Q" value="0.85"/>
+    <define name="REF_MAX_Q" value="300." unit="deg/s"/>
+    <define name="REF_MAX_QDOT" value="RadOfDeg(7000.)"/>
+    <define name="REF_OMEGA_R" value="500" unit="deg/s"/>
+    <define name="REF_ZETA_R" value="0.85"/>
+    <define name="REF_MAX_R" value="180." unit="deg/s"/>
+    <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
+
+    <!-- feedback -->
+    <define name="PHI_PGAIN" value="600"/>
+    <define name="PHI_DGAIN" value="260"/>
+    <define name="PHI_IGAIN" value="0"/>
+    <define name="THETA_PGAIN" value="600"/>
+    <define name="THETA_DGAIN" value="260"/>
+    <define name="THETA_IGAIN" value="0"/>
+    <define name="PSI_PGAIN" value="500"/>
+    <define name="PSI_DGAIN" value="460"/>
+    <define name="PSI_IGAIN" value="0"/>
+
+    <!-- feedforward -->
+    <define name="PHI_DDGAIN" value="0"/>
+    <define name="THETA_DDGAIN" value="0"/>
+    <define name="PSI_DDGAIN" value="0"/>
+  </section>
+
+  <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
+    <define name="HOVER_KP"    value="75"/>
+    <define name="HOVER_KD"    value="40"/>
+    <define name="HOVER_KI"    value="6"/>
+    <define name="NOMINAL_HOVER_THROTTLE" value="0.42"/>
+    <define name="ADAPT_THROTTLE_ENABLED" value="FALSE"/>
+  </section>
+
+  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
+    <define name="MAX_BANK" value="35" unit="deg"/>
+    <define name="USE_SPEED_REF" value="TRUE"/>
+    <define name="PGAIN" value="20"/>
+    <define name="DGAIN" value="40"/>
+    <define name="AGAIN" value="30"/>
+    <define name="IGAIN" value="10"/>
+  </section>
+
+  <section name="AUTOPILOT">
+    <define name="MODE_MANUAL" value="AP_MODE_RATE_DIRECT"/>
+    <define name="MODE_AUTO1"  value="AP_MODE_RATE_DIRECT"/>
+    <define name="MODE_AUTO2"  value="AP_MODE_ATTITUDE_DIRECT"/>
+  </section>
+
+</airframe>

@@ -59,14 +59,14 @@ extern void autopilot_init(void);
    (pprz > THRESHOLD1 ? PPRZ_MODE_AUTO1 : PPRZ_MODE_MANUAL))
 
 extern uint8_t pprz_mode;
-extern bool_t kill_throttle;
+extern bool kill_throttle;
 extern uint8_t  mcu1_status;
 
 /** flight time in seconds. */
 extern uint16_t autopilot_flight_time;
 
 #define autopilot_ResetFlightTimeAndLaunch(_) { \
-    autopilot_flight_time = 0; launch = FALSE; \
+    autopilot_flight_time = 0; launch = false; \
   }
 
 
@@ -98,9 +98,9 @@ extern int32_t current; // milliAmpere
  */
 extern float energy;
 
-extern bool_t launch;
+extern bool launch;
 
-extern bool_t gps_lost;
+extern bool gps_lost;
 
 /** Assignment, returning _old_value != _value
  * Using GCC expression statements */
@@ -115,7 +115,7 @@ extern void autopilot_send_mode(void);
 
 /** Power switch control.
  */
-extern bool_t power_switch;
+extern bool power_switch;
 
 #ifdef POWER_SWITCH_GPIO
 #include "mcu_periph/gpio.h"
@@ -147,6 +147,7 @@ extern bool_t power_switch;
 
 #include "subsystems/settings.h"
 
+/* try to make sure that we don't write to flash while flying */
 static inline void autopilot_StoreSettings(float store)
 {
   if (kill_throttle && store) {
@@ -155,8 +156,16 @@ static inline void autopilot_StoreSettings(float store)
   }
 }
 
+static inline void autopilot_ClearSettings(float clear)
+{
+  if (kill_throttle && clear) {
+    settings_clear_flag = clear;
+    settings_clear();
+  }
+}
+
 #if DOWNLINK
-#include "subsystems/datalink/transport.h"
+#include "pprzlink/pprzlink_transport.h"
 extern void send_autopilot_version(struct transport_tx *trans, struct link_device *dev);
 #endif
 

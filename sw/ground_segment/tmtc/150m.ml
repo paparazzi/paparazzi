@@ -17,18 +17,18 @@ let index_pprz_mode = 5 (* From var/include/basic.h *)
 let autopilot_HOME_mode_value = 3 (* From sw/airborne/autopilot.h *)
 
 (* Build the module to listen telemetry *)
-module Tele_Pprz = Pprz.Messages(struct let name = "telemetry" end)
+module Tele_Pprz = PprzLink.Messages(struct let name = "telemetry" end)
 
 (* Build the module to send uplink messages *)
-module Datalink_Pprz = Pprz.Messages(struct let name = "datalink" end)
+module Datalink_Pprz = PprzLink.Messages(struct let name = "datalink" end)
 
 
 
 (******************************* Send the message to the A/C to set it in HOME mode *)
 let set_to_HOME = fun () ->
-  let vs = ["ac_id", Pprz.String ac_id;
-            "index", Pprz.Int index_pprz_mode;
-            "value", Pprz.Float (float autopilot_HOME_mode_value)] in
+  let vs = ["ac_id", PprzLink.String ac_id;
+            "index", PprzLink.Int index_pprz_mode;
+            "value", PprzLink.Float (float autopilot_HOME_mode_value)] in
   Datalink_Pprz.message_send "dl" "SETTING" vs
 
 
@@ -36,10 +36,10 @@ let set_to_HOME = fun () ->
                                  model, and set to HOME if higher than 150m *)
 let get_gps_message = fun label _sender vs ->
   (* Extract data from the message *)
-  let alt_m = Pprz.int_assoc "alt" vs / 100
-  and utm_east = Pprz.int_assoc "utm_east" vs / 100
-  and utm_north = Pprz.int_assoc "utm_north" vs / 100
-  and utm_zone = Pprz.int_assoc "utm_zone" vs in
+  let alt_m = PprzLink.int_assoc "alt" vs / 100
+  and utm_east = PprzLink.int_assoc "utm_east" vs / 100
+  and utm_north = PprzLink.int_assoc "utm_north" vs / 100
+  and utm_zone = PprzLink.int_assoc "utm_zone" vs in
 
   (* Build the geographic position *)
   let utm = { Latlong.utm_x    = float utm_east;

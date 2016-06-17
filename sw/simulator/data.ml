@@ -26,14 +26,13 @@ open Printf
 
 let (//) = Filename.concat
 
-(* let pprz_conf_path = Env.paparazzi_src // "conf" *)
 let user_conf_path = Env.paparazzi_home // "conf"
+let user_var_path = Env.paparazzi_home // "var"
 
-let conf_xml = Xml.parse_file (user_conf_path // "conf.xml")
+let conf_xml = ExtXml.parse_file (user_conf_path // "conf.xml")
 
 let messages_ap =
-(*  let xml = Xml.parse_file (pprz_conf_path // "messages.xml") in *)
-  let xml = Xml.parse_file (user_conf_path // "messages.xml") in
+  let xml = ExtXml.parse_file (user_var_path // "messages.xml") in
   try
     ExtXml.child xml ~select:(fun x -> Xml.attrib x "name" = "telemetry") "msg_class"
   with
@@ -66,9 +65,9 @@ let aircraft = fun name ->
   let airframe_file = user_conf_path // ExtXml.attrib aircraft_xml "airframe" in
 
   { id = id; name = name;
-    airframe = Xml.parse_file airframe_file;
-    flight_plan = Xml.parse_file (user_conf_path // ExtXml.attrib aircraft_xml "flight_plan");
-    radio = Xml.parse_file (user_conf_path // ExtXml.attrib aircraft_xml "radio")
+    airframe = ExtXml.parse_file airframe_file;
+    flight_plan = ExtXml.parse_file (user_conf_path // ExtXml.attrib aircraft_xml "flight_plan");
+    radio = ExtXml.parse_file (user_conf_path // ExtXml.attrib aircraft_xml "radio")
   }
 
 module type MISSION = sig val ac : aircraft end

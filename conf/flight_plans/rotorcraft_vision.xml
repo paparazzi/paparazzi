@@ -27,7 +27,7 @@
     <block name="flare">
       <exception cond="NavDetectGround()" deroute="Holding point"/>
       <call fun="NavStartDetectGround()"/>
-      <stay climb="-0.8" vmode="climb" wp="HOME"/>
+      <stay climb="nav_descend_vspeed" vmode="climb" wp="HOME"/>
     </block>
   </blocks>
 </flight_plan>

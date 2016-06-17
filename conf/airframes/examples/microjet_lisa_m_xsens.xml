@@ -15,24 +15,24 @@
     <define name="AGR_CLIMB" />
     <define name="LOITER_TRIM" />
 
-    <subsystem name="radio_control" type="ppm"/>
+    <module name="radio_control" type="ppm"/>
 
     <!-- Communication -->
-    <subsystem name="telemetry" 	type="transparent"/>
+    <module name="telemetry" 	type="transparent"/>
 
     <!-- Sensors -->
-    <subsystem name="ins"           type="xsens">
-      <configure name="XSENS_UART_NR" value="3"/>
-      <configure name="XSENS_UART_BAUD" value="B115200"/>
-    </subsystem>
+    <module name="ins" type="xsens">
+      <configure name="XSENS_PORT" value="uart3"/>
+      <configure name="XSENS_BAUD" value="B115200"/>
+    </module>
 
-    <subsystem name="control"/>
-    <subsystem name="navigation"/>
+    <module name="control"/>
+    <module name="navigation"/>
   </firmware>
 
   <modules>
-    <load name="sys_mon.xml"/>
-    <load name="nav_line.xml"/>
+    <module name="sys_mon"/>
+    <module name="nav" type="line"/>
   </modules>
 
   <servos>

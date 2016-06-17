@@ -37,11 +37,12 @@ NAVSTIK_MPU_I2C_DEV_LOWER=$(shell echo $(NAVSTIK_MPU_I2C_DEV) | tr A-Z a-z)
 IMU_CFLAGS  += -DNAVSTIK_MAG_I2C_DEV=$(NAVSTIK_MAG_I2C_DEV_LOWER) -DNAVSTIK_MPU_I2C_DEV=$(NAVSTIK_MPU_I2C_DEV_LOWER)
 IMU_CFLAGS  += -DUSE_$(NAVSTIK_MAG_I2C_DEV_UPPER)=1 -DUSE_$(NAVSTIK_MPU_I2C_DEV_UPPER)=1
 
-ap.CFLAGS += $(IMU_CFLAGS)
-ap.srcs   += $(IMU_SRCS)
 
-test_imu.CFLAGS += $(IMU_CFLAGS)
-test_imu.srcs   += $(IMU_SRCS)
+# add it for all targets except sim, fbw and nps
+ifeq (,$(findstring $(TARGET),sim fbw nps))
+$(TARGET).CFLAGS += $(IMU_CFLAGS)
+$(TARGET).srcs += $(IMU_SRCS)
+endif
 
 #
 # NPS simulator

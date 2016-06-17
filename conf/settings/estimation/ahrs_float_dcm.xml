@@ -2,7 +2,7 @@
 
 <!-- A conf to use to tune a new A/C -->
 
-<settings>
+<settings target="ap|nps|test_ahrs">
   <dl_settings>
 
     <dl_settings NAME="ins">

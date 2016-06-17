@@ -53,10 +53,10 @@ void actuators_pwm_arch_channel_init(uint32_t timer_peripheral,
 
 /** Set Timer configuration
  * @param[in] timer Timer register address base
- * @param[in] period period in us
+ * @param[in] freq PWM frequency in Hz (1 / auto-reload period)
  * @param[in] channels_mask output compare channels to enable
  */
-void set_servo_timer(uint32_t timer, uint32_t period, uint8_t channels_mask)
+void set_servo_timer(uint32_t timer, uint32_t freq, uint8_t channels_mask)
 {
   // WARNING, this reset is only implemented for TIM1-8 in libopencm3!!
   timer_reset(timer);
@@ -83,7 +83,7 @@ void set_servo_timer(uint32_t timer, uint32_t period, uint8_t channels_mask)
 
   timer_continuous_mode(timer);
 
-  timer_set_period(timer, (PWM_BASE_FREQ / period) - 1);
+  timer_set_period(timer, (PWM_BASE_FREQ / freq) - 1);
 
   /* Disable outputs and configure channel if needed. */
   if (bit_is_set(channels_mask, 0)) {

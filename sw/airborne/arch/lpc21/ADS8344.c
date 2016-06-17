@@ -35,7 +35,7 @@
 #define ADS8344Select()   SetBit(ADS8344_SS_IOCLR,ADS8344_SS_PIN)
 #define ADS8344Unselect() SetBit(ADS8344_SS_IOSET,ADS8344_SS_PIN)
 
-bool_t ADS8344_available;
+bool ADS8344_available;
 uint16_t ADS8344_values[NB_CHANNELS];
 
 #define POWER_MODE (1 << 1 | 1)
@@ -88,7 +88,7 @@ static uint8_t channel;
 void ADS8344_init(void)
 {
   channel = 0;
-  ADS8344_available = FALSE;
+  ADS8344_available = false;
 
   /* setup pins for SSP (SCK, MISO, MOSI) */
   PINSEL1 |= 2 << 2 | 2 << 4 | 2 << 6;
@@ -146,7 +146,7 @@ void SPI1_ISR(void)
   channel++;
   if (channel > 7) {
     channel = 0;
-    ADS8344_available = TRUE;
+    ADS8344_available = true;
   }
   send_request();
   SpiClearRti();

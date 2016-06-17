@@ -121,7 +121,7 @@ void rotorcraft_cam_init(void)
   rotorcraft_cam_tilt = 0;
   rotorcraft_cam_pan = 0;
 
-  register_periodic_telemetry(DefaultPeriodic, "ROTORCRAFT_CAM", send_cam);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ROTORCRAFT_CAM, send_cam);
 }
 
 void rotorcraft_cam_periodic(void)

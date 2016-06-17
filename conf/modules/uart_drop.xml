@@ -1,0 +1,19 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="uart_drop" dir="com">
+  <doc>
+    <description>Module for dropping balls using UART</description>
+  </doc>
+  <header>
+    <file name="uart_drop.h"/>
+  </header>
+  <makefile>
+    <file name="uart_drop.c"/>
+    <configure name="UART_DROP_PORT" default="uart1" case="upper|lower"/>
+    <configure name="UART_DROP_BAUD" default="B115200"/>
+    <define name="UART_DROP_PORT" value="$(UART_DROP_PORT_LOWER)"/>
+    <define name="USE_$(UART_DROP_PORT_UPPER)"/>
+    <define name="$(UART_DROP_PORT_UPPER)_BAUD" value="$(UART_DROP_BAUD)"/>
+  </makefile>
+</module>
+

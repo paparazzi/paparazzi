@@ -50,8 +50,8 @@
 
 extern uint16_t baro_ets_adc;
 extern uint16_t baro_ets_offset;
-extern bool_t baro_ets_valid;
-extern bool_t baro_ets_enabled;
+extern bool baro_ets_valid;
+extern bool baro_ets_enabled;
 extern float baro_ets_altitude;
 extern float baro_ets_r;
 extern float baro_ets_sigma2;

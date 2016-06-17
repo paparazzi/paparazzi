@@ -2,11 +2,12 @@
 
 open Printf
 
+
 let (//) = Filename.concat
 
 let rec display = fun (geomap:MapCanvas.widget) r ->
 
-  match String.lowercase (Xml.tag r) with
+  match Compat.bytes_lowercase (Xml.tag r) with
       "disc" ->
         let rad = float_of_string (ExtXml.attrib r "radius")
         and geo = Latlong.of_string (ExtXml.attrib (ExtXml.child r "point") "pos") in
@@ -39,3 +40,14 @@ let load = fun geomap () ->
             let m = sprintf "Error while loading %s:\n%s" f (Dtd.prove_error e) in
             GToolbox.message_box "Error" m
 
+let load_kml = fun geomap () ->
+  match GToolbox.select_file ~title:"Load KML" ~filename:(Env.flight_plans_path // "*.kml") () with
+      None -> ()
+    | Some f ->
+      try
+        let xml = Xml.parse_file f in
+        MapFP.display_kml "red" geomap xml
+      with
+      | Dtd.Prove_error(e) ->
+          let m = sprintf "Error while loading KML %s:\n%s" f (Dtd.prove_error e) in
+          GToolbox.message_box "Error" m

@@ -17,8 +17,7 @@
     </target>
     <target name="sim" board="pc"/>
     <target name="nps" board="pc">
-      <!-- Note NPS needs the ppm type radio_control subsystem -->
-      <subsystem name="fdm" type="jsbsim"/>
+      <module name="fdm" type="jsbsim"/>
     </target>
     <define name="USE_AIRSPEED"/>
     <define name="AGR_CLIMB"/>
@@ -27,58 +26,58 @@
     <define name="WIND_INFO_RET"/>
 
     <!-- Sensors -->
-    <subsystem name="imu" type="aspirin_v2.1"/>
+    <module name="imu" type="aspirin_v2.1"/>
     <!--
-    <subsystem name="ahrs" type="float_dcm">
+    <module name="ahrs" type="float_dcm">
       <configure name="USE_MAGNETOMETER" value="FALSE"/>
       <define name="USE_AHRS_GPS_ACCELERATIONS"/>
-    </subsystem>
+    </module>
     -->
-    <subsystem name="ahrs" type="int_cmpl_quat">
+    <module name="ahrs" type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="TRUE"/>
       <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN"/>
-    </subsystem>
-    <subsystem name="ins" type="alt_float"/>
-    <subsystem name="radio_control" type="ppm"/>
+    </module>
+    <module name="ins" type="alt_float"/>
+    <module name="radio_control" type="ppm"/>
     <!-- Communication -->
-    <subsystem name="telemetry" type="xbee_api">
+    <module name="telemetry" type="xbee_api">
       <configure name="MODEM_BAUD" value="B57600"/>
       <configure name="MODEM_PORT" value="UART2"/>
-    </subsystem>
+    </module>
     <!-- Actuators -->
-    <subsystem name="control" type="energy"/>
+    <module name="control" type="energy"/>
     <!-- Sensors -->
-    <subsystem name="navigation"/>
-    <subsystem name="gps" type="ublox">
+    <module name="navigation"/>
+    <module name="gps" type="ublox">
       <configure name="GPS_PORT" value="UART1"/>
-    </subsystem>
+    </module>
   </firmware>
 
   <!-- ************************* MODULES ************************* -->
 
   <modules>
-    <load name="geo_mag.xml"/>
-    <load name="gps_ubx_ucenter.xml"/>
-    <load name="airspeed_ets.xml">
+    <module name="air_data"/>
+    <module name="geo_mag"/>
+    <module name="gps" type="ubx_ucenter"/>
+    <module name="airspeed_ets">
       <define name="AIRSPEED_ETS_SYNC_SEND"/>
-      <define name="AIRSPEED_ETS_I2C_DEV" value="i2c2"/>
-      <define name="USE_I2C2"/>
-    </load>
-    <load name="adc_generic.xml">
+      <configure name="AIRSPEED_ETS_I2C_DEV" value="i2c2"/>
+    </module>
+    <module name="adc_generic">
       <configure name="ADC_CHANNEL_GENERIC1" value="ADC_1"/>
       <configure name="ADC_CHANNEL_GENERIC2" value="ADC_2"/>
-    </load>
-    <load name="light.xml">
+    </module>
+    <module name="light">
       <define name="LIGHT_LED_STROBE" value="2"/>
       <define name="LIGHT_LED_NAV" value="3"/>
       <define name="STROBE_LIGHT_MODE_DEFAULT" value="6"/>
       <define name="NAV_LIGHT_MODE_DEFAULT" value="4"/>
-    </load>
-    <load name="digital_cam.xml">
+    </module>
+    <module name="digital_cam">
       <define name="DC_SHUTTER_GPIO" value="GPIOC,GPIO12"/>
-    </load>
-    <!-- load name="nav_catapult.xml"/-->
-    <load name="nav_line.xml"/>
+    </module>
+    <!-- module name="nav" type="catapult"/-->
+    <module name="nav" type="line"/>
   </modules>
 
   <!-- ************************* ACTUATORS ************************* -->
@@ -244,15 +243,15 @@
   </section>
 
   <section name="DIGITAL_CAMERA" prefix="DC_">
-    <define name="AUTOSHOOT_QUARTERSEC_PERIOD" value="6" unit="quarter_second"/>
+    <define name="AUTOSHOOT_PERIOD" value="1.5" unit="sec"/>
     <define name="AUTOSHOOT_DISTANCE_INTERVAL" value="50" unit="meter"/>
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
-    <define name="JSBSIM_MODEL" value="&quot;Malolo1&quot;"/>
+    <define name="JSBSIM_MODEL" value="Malolo1" type="string"/>
     <define name="COMMANDS_NB" value="4"/>
-    <define name="ACTUATOR_NAMES" value="{&quot;throttle-cmd-norm&quot;, &quot;aileron-cmd-norm&quot;, &quot;elevator-cmd-norm&quot;, &quot;rudder-cmd-norm&quot;}"/>
-    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
+    <define name="ACTUATOR_NAMES" value="throttle-cmd-norm, aileron-cmd-norm, elevator-cmd-norm, rudder-cmd-norm" type="string[]"/>
+    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
     <define name="JS_AXIS_MODE" value="4"/>
     <define name="BYPASS_AHRS" value="TRUE"/>
     <define name="BYPASS_INS" value="TRUE"/>

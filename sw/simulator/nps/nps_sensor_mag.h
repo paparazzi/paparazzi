@@ -15,11 +15,11 @@ struct NpsSensorMag {
   struct DoubleVect3 noise_std_dev;
   struct DoubleRMat  imu_to_sensor_rmat;
   double       next_update;
-  bool_t       data_available;
+  bool       data_available;
 };
 
 
-extern void nps_sensor_mag_init(struct NpsSensorMag* mag, double time);
-extern void nps_sensor_mag_run_step(struct NpsSensorMag* mag, double time, struct DoubleRMat* body_to_imu);
+extern void nps_sensor_mag_init(struct NpsSensorMag *mag, double time);
+extern void nps_sensor_mag_run_step(struct NpsSensorMag *mag, double time, struct DoubleRMat *body_to_imu);
 
 #endif /* NPS_SENSOR_MAG_H */

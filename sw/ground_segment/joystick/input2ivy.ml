@@ -49,8 +49,8 @@ let trim_file_name = ref ""
 let joystick_id = ref (Random.int 255)
 
 (** Messages libraries *)
-module DL = Pprz.Messages(struct let name = "datalink" end)
-module G = Pprz.Messages(struct let name = "ground" end)
+module DL = PprzLink.Messages(struct let name = "datalink" end)
+module G = PprzLink.Messages(struct let name = "ground" end)
 
 (** Syntax for expressions *)
 module Syntax = Expr_syntax
@@ -85,7 +85,7 @@ type input =
 type msg = {
   msg_name : string;
   msg_class : string;
-  fields : (string * Syntax.expression) list;
+  fields : (string * PprzLink._type * Syntax.expression) list;
   on_event : Syntax.expression option;
   send_always : bool;
   has_ac_id : bool
@@ -129,7 +129,7 @@ let get_message = fun class_name msg_name ->
 
 (** Get the A/C id from its name in conf/conf.xml *)
 let ac_id_of_name = fun ac_name ->
-  let conf_xml = Xml.parse_file (conf_dir // "conf.xml") in
+  let conf_xml = ExtXml.parse_file (conf_dir // "conf.xml") in
   try
     let aircraft = ExtXml.child ~select:(fun x -> Xml.attrib x "name" = ac_name) conf_xml "aircraft" in
     ExtXml.int_attrib aircraft "ac_id"
@@ -140,7 +140,7 @@ let ac_id_of_name = fun ac_name ->
 (** Fill the index_of_settings table from var/AC/settings.xml *)
 let hash_index_of_settings = fun ac_name ->
   let xml_file = Env.paparazzi_home // "var" // "aircrafts" // ac_name // "settings.xml" in
-  let xml = Xml.parse_file xml_file in
+  let xml = ExtXml.parse_file xml_file in
   let index = ref 0 in
   let rec loop = fun xml ->
     if Xml.tag xml = "dl_settings" then
@@ -155,7 +155,7 @@ let hash_index_of_settings = fun ac_name ->
 (** Fill the index_of_blocks table from var/aircrafts/AC/flight_plan.xml *)
 let hash_index_of_blocks = fun ac_name ->
   let xml_file = Env.paparazzi_home // "var" // "aircrafts" // ac_name // "flight_plan.xml" in
-  let dump = Xml.parse_file xml_file in
+  let dump = ExtXml.parse_file xml_file in
   let flight_plan = ExtXml.child dump "flight_plan" in
   let blocks = ExtXml.child flight_plan "blocks" in
   List.iter (fun block ->
@@ -178,7 +178,7 @@ let rank = fun x l ->
 let eval_settings_and_blocks = fun field_descr expr ->
   let rec loop = function
   Syntax.Call ("IndexOfEnum", [Syntax.Ident enum]) -> begin
-    try Syntax.Int (rank enum field_descr.Pprz.enum) with
+    try Syntax.Int (rank enum field_descr.PprzLink.enum) with
         Not_found -> failwith (sprintf "IndexOfEnum: unknown value '%s'" enum)
   end
     | Syntax.Call ("IndexOfSetting", [Syntax.Ident var]) -> begin
@@ -220,12 +220,12 @@ let parse_value = fun s ->
 (** Parse a message field and eval *)
 let parse_msg_field = fun msg_descr field ->
   let name = Xml.attrib field "name" in
-  let field_descr = try List.assoc name msg_descr.Pprz.fields with _ ->
+  let field_descr = try List.assoc name msg_descr.PprzLink.fields with _ ->
     Printf.printf "parse_msg_field: field %s not found\n" name;
     raise (Failure "field not found") in
 
   let value = eval_settings_and_blocks field_descr (parse_value (Xml.attrib field "value")) in
-  (name, value)
+  (name, field_descr.PprzLink._type, value)
 
 (** Parse a complete message and build its representation *)
 let parse_msg = fun msg ->
@@ -240,9 +240,9 @@ let parse_msg = fun msg ->
             let msg_descr = get_message msg_class msg_name in
             try
               (List.map (parse_msg_field msg_descr) (Xml.children msg),
-               List.mem_assoc "ac_id" msg_descr.Pprz.fields)
-            with _ ->
-              failwith (sprintf "Couldn't parse message %s" msg_name)
+               List.mem_assoc "ac_id" msg_descr.PprzLink.fields)
+            with Failure e ->
+              failwith (sprintf "Couldn't parse message %s (%s)" msg_name e)
           end
       | "Trim" -> ([], false)
       | _ -> failwith ("Unknown message class type") in
@@ -305,7 +305,7 @@ let trim_set = fun inputs value ->
 (** Input the trim file if it exists *)
 let parse_trim_file = fun trim_file_name inputs ->
   if Sys.file_exists trim_file_name then begin
-    let trim = Xml.parse_file trim_file_name in
+    let trim = ExtXml.parse_file trim_file_name in
     let trim_values = List.map
       (fun x ->
         let axis = ExtXml.attrib x "axis"
@@ -318,7 +318,7 @@ let parse_trim_file = fun trim_file_name inputs ->
 (** Parse the complete (input and messages) XML desxription
     Also parses the trim xml file if it exists *)
 let parse_descr = fun xml_file trim_file ->
-  let xml = Xml.parse_file xml_file in
+  let xml = ExtXml.parse_file xml_file in
 
   let inputs = parse_input (ExtXml.child xml "input")
   and messages_xml = ExtXml.child xml "messages"
@@ -490,7 +490,10 @@ let update_variables = fun inputs buttons hat axis variables ->
 let execute_action = fun ac_id inputs buttons hat axis variables message ->
   let values =
     List.map
-      (fun (name, expr) -> (name, Pprz.Int (eval_expr buttons hat axis inputs variables expr)))
+      (fun (name, _type, expr) ->
+        let v = eval_expr buttons hat axis inputs variables expr in
+        (name, PprzLink.value _type (sprintf "%d" v))
+      )
       message.fields
 
   and on_event =
@@ -501,10 +504,13 @@ let execute_action = fun ac_id inputs buttons hat axis variables message ->
   let previous_values = get_previous_values message.msg_name in
   (* FIXME ((value <> previous) && on_event) || send_always ??? *)
   if ( ( (on_event, values) <> previous_values ) || message.send_always ) && on_event then begin
-    let vs = if message.has_ac_id then ("ac_id", Pprz.Int ac_id) :: values else values in
     match message.msg_class with
-        "datalink" -> DL.message_send "input2ivy" message.msg_name vs
-      | "ground" -> G.message_send "input2ivy" message.msg_name vs
+        "datalink" ->
+          let vs = if message.has_ac_id then ("ac_id", PprzLink.Int ac_id) :: values else values in
+          DL.message_send "input2ivy" message.msg_name vs
+      | "ground" ->
+          let vs = if message.has_ac_id then ("ac_id", PprzLink.String (sprintf "%d" ac_id)) :: values else values in
+          G.message_send "input2ivy" message.msg_name vs
       | "trim_plus" -> trim_adjust message.msg_name trim_step inputs
       | "trim_minus" -> trim_adjust message.msg_name (-.trim_step) inputs
       | "trim_save" -> trim_save inputs

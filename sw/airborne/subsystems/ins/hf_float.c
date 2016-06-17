@@ -193,10 +193,10 @@ static int b2_hff_rb_n; ///< ringbuffer fill count
 
 
 /** by how many steps the estimated GPS validity point in time differed from GPS_LAG_N */
-static int lag_counter_err;
+static int16_t lag_counter_err;
 
 /** counts down the propagation steps until the filter state is saved again */
-static int save_counter;
+static int16_t save_counter;
 static int past_save_counter;
 #define SAVE_NOW 0
 #define SAVING -1
@@ -278,7 +278,7 @@ void b2_hff_init(float init_x, float init_xdot, float init_y, float init_ydot)
   acc_buf_n = 0;
   b2_hff_rb_put = b2_hff_rb;
   b2_hff_rb_last = b2_hff_rb;
-  b2_hff_rb_last->rollback = FALSE;
+  b2_hff_rb_last->rollback = false;
   b2_hff_rb_last->lag_counter = 0;
   b2_hff_state.lag_counter = GPS_LAG_N;
 #ifdef SITL
@@ -293,7 +293,7 @@ void b2_hff_init(float init_x, float init_xdot, float init_y, float init_ydot)
   b2_hff_state.lag_counter = 0;
 #endif
   b2_hff_rb_n = 0;
-  b2_hff_state.rollback = FALSE;
+  b2_hff_state.rollback = false;
   lag_counter_err = 0;
   save_counter = -1;
   past_save_counter = SAVE_DONE;
@@ -302,10 +302,10 @@ void b2_hff_init(float init_x, float init_xdot, float init_y, float init_ydot)
   b2_hff_lost_limit = HFF_LOST_LIMIT;
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "HFF", send_hff);
-  register_periodic_telemetry(DefaultPeriodic, "HFF_DBG", send_hff_debug);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_HFF, send_hff);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_HFF_DBG, send_hff_debug);
 #ifdef GPS_LAG
-  register_periodic_telemetry(DefaultPeriodic, "HFF_GPS", send_hff_gps);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_HFF_GPS, send_hff_gps);
 #endif
 #endif
 
@@ -381,7 +381,7 @@ static void b2_hff_rb_put_state(struct HfilterFloat *source)
   /* copy state from source into buffer */
   b2_hff_set_state(b2_hff_rb_put, source);
   b2_hff_rb_put->lag_counter = 0;
-  b2_hff_rb_put->rollback = FALSE;
+  b2_hff_rb_put->rollback = false;
 
   /* forward write pointer */
   INC_RB_POINTER(b2_hff_rb_put);
@@ -403,7 +403,7 @@ static void b2_hff_rb_drop_last(void)
   } else {
     PRINT_DBG(2, ("hff ringbuffer empty!\n"));
     b2_hff_rb_last->lag_counter = 0;
-    b2_hff_rb_last->rollback = FALSE;
+    b2_hff_rb_last->rollback = false;
   }
   PRINT_DBG(2, ("drop last state. fill count now: %d\n", b2_hff_rb_n));
 }
@@ -565,7 +565,7 @@ void b2_hff_update_gps(struct FloatVect2 *pos_ned, struct FloatVect2 *speed_ned)
     PRINT_DBG(2, ("update. rb_n: %d  lag_counter: %d  lag_cnt_err: %d\n", b2_hff_rb_n, b2_hff_rb_last->lag_counter,
                   lag_counter_err));
     if (abs(lag_counter_err) <= GPS_LAG_TOL_N) {
-      b2_hff_rb_last->rollback = TRUE;
+      b2_hff_rb_last->rollback = true;
       b2_hff_update_x(b2_hff_rb_last, pos_ned->x, Rgps_pos);
       b2_hff_update_y(b2_hff_rb_last, pos_ned->y, Rgps_pos);
 #if HFF_UPDATE_SPEED

@@ -22,7 +22,7 @@
 /**
  * @file peripherals/ms5611_spi.h
  *
- * Measurement Specialties (Intersema) MS5611-01BA pressure/temperature sensor interface for SPI.
+ * Measurement Specialties (Intersema) MS5611-01BA and MS5607-02BA03 pressure/temperature sensor interface for SPI.
  */
 
 #ifndef MS5611_SPI_H
@@ -39,14 +39,16 @@ struct Ms5611_Spi {
   volatile uint8_t tx_buf[1];
   volatile uint8_t rx_buf[4];
   enum Ms5611Status status;
-  bool_t initialized;                 ///< config done flag
-  volatile bool_t data_available;     ///< data ready flag
+  bool is_ms5607;                   ///< TRUE if MS5607, FALSE if MS5611
+  bool initialized;                 ///< config done flag
+  volatile bool data_available;     ///< data ready flag
   struct Ms5611Data data;
   int32_t prom_cnt;                   ///< number of bytes read from PROM
 };
 
 // Functions
-extern void ms5611_spi_init(struct Ms5611_Spi *ms, struct spi_periph *spi_p, uint8_t addr);
+extern void ms5611_spi_init(struct Ms5611_Spi *ms, struct spi_periph *spi_p, uint8_t addr,
+                            bool is_ms5607);
 extern void ms5611_spi_start_configure(struct Ms5611_Spi *ms);
 extern void ms5611_spi_start_conversion(struct Ms5611_Spi *ms);
 extern void ms5611_spi_periodic_check(struct Ms5611_Spi *ms);

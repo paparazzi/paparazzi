@@ -1,0 +1,19 @@
+<!DOCTYPE airframe SYSTEM "../../airframe.dtd">
+
+<airframe>
+  <section name="IMU" prefix="IMU_">
+    <!-- Magneto calibration -->
+<define name="MAG_X_NEUTRAL" value="36"/>
+<define name="MAG_Y_NEUTRAL" value="-111"/>
+<define name="MAG_Z_NEUTRAL" value="-20"/>
+<define name="MAG_X_SENS" value="7.22919606283" integer="16"/>
+<define name="MAG_Y_SENS" value="7.52917093882" integer="16"/>
+<define name="MAG_Z_SENS" value="7.70031467762" integer="16"/>
+
+    <!-- Magneto current calibration -->
+<define name= "MAG_X_CURRENT_COEF" value="-0.00540348745714"/>
+<define name= "MAG_Y_CURRENT_COEF" value="0.0284318061235"/>
+<define name= "MAG_Z_CURRENT_COEF" value="0.00203773950934"/>
+
+  </section>
+</airframe>

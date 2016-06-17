@@ -22,6 +22,10 @@
  * @file pprz_algebra_float.h
  * @brief Paparazzi floating point algebra.
  *
+ * @addtogroup math_algebra
+ * @{
+ * @defgroup math_algebra_float Float Algebra
+ * @{
  */
 
 #ifndef PPRZ_ALGEBRA_FLOAT_H
@@ -429,7 +433,7 @@ extern void float_quat_integrate(struct FloatQuat *q, struct FloatRates *omega, 
 /** rotate 3D vector by quaternion.
  * vb = q_a2b * va * q_a2b^-1
  */
-extern void float_quat_vmult(struct FloatVect3 *v_out, struct FloatQuat *q, struct FloatVect3 *v_in);
+extern void float_quat_vmult(struct FloatVect3 *v_out, struct FloatQuat *q, const struct FloatVect3 *v_in);
 
 /// Quaternion from Euler angles.
 extern void float_quat_of_eulers(struct FloatQuat *q, struct FloatEulers *e);
@@ -581,8 +585,8 @@ static inline float float_vect_norm(const float *a, const int n)
 #define MAKE_MATRIX_PTR(_ptr, _mat, _rows) \
   float * _ptr[_rows]; \
   { \
-    int i; \
-    for (i = 0; i < _rows; i++) { _ptr[i] = &_mat[i][0]; } \
+    int __i; \
+    for (__i = 0; __i < _rows; __i++) { _ptr[__i] = &_mat[__i][0]; } \
   }
 
 /** a = 0 */
@@ -699,3 +703,5 @@ static inline void float_mat_col(float *o, float **a, int m, int c)
 #endif
 
 #endif /* PPRZ_ALGEBRA_FLOAT_H */
+/** @}*/
+/** @}*/

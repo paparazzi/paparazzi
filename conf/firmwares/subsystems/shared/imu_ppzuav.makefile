@@ -18,8 +18,9 @@ else ifeq ($(ARCH), lpc21)
 	IMU_PPZUAV_CFLAGS += -DIMU_PPZUAV_I2C_DEV=i2c0
 endif
 
-ap.CFLAGS += $(IMU_PPZUAV_CFLAGS)
-ap.srcs   += $(IMU_PPZUAV_SRCS)
 
-test_imu.CFLAGS += $(IMU_PPZUAV_CFLAGS)
-test_imu.srcs   += $(IMU_PPZUAV_SRCS)
+# add it for all targets except sim, fbw and nps
+ifeq (,$(findstring $(TARGET),sim fbw nps))
+$(TARGET).CFLAGS += $(IMU_PPZUAV_CFLAGS)
+$(TARGET).srcs += $(IMU_PPZUAV_SRCS)
+endif

@@ -41,6 +41,7 @@
 
 void uart_periph_set_baudrate(struct uart_periph *p, uint32_t baud)
 {
+  p->baudrate = baud;
 
   /* Configure USART baudrate */
   usart_set_baudrate((uint32_t)p->reg_addr, baud);
@@ -88,7 +89,7 @@ void uart_periph_set_bits_stop_parity(struct uart_periph *p, uint8_t bits, uint8
   }
 }
 
-void uart_periph_set_mode(struct uart_periph *p, bool_t tx_enabled, bool_t rx_enabled, bool_t hw_flow_control)
+void uart_periph_set_mode(struct uart_periph *p, bool tx_enabled, bool rx_enabled, bool hw_flow_control)
 {
   uint32_t mode = 0;
   if (tx_enabled) {
@@ -108,7 +109,7 @@ void uart_periph_set_mode(struct uart_periph *p, bool_t tx_enabled, bool_t rx_en
   }
 }
 
-void uart_transmit(struct uart_periph *p, uint8_t data)
+void uart_put_byte(struct uart_periph *p, long fd __attribute__((unused)), uint8_t data)
 {
 
   uint16_t temp = (p->tx_insert_idx + 1) % UART_TX_BUFFER_SIZE;
@@ -124,7 +125,7 @@ void uart_transmit(struct uart_periph *p, uint8_t data)
     p->tx_buf[p->tx_insert_idx] = data;
     p->tx_insert_idx = temp;
   } else { // no, set running flag and write to output register
-    p->tx_running = TRUE;
+    p->tx_running = true;
     usart_send((uint32_t)p->reg_addr, data);
   }
 
@@ -143,7 +144,7 @@ static inline void usart_isr(struct uart_periph *p)
       p->tx_extract_idx++;
       p->tx_extract_idx %= UART_TX_BUFFER_SIZE;
     } else {
-      p->tx_running = FALSE;   // clear running flag
+      p->tx_running = false;   // clear running flag
       USART_CR1((uint32_t)p->reg_addr) &= ~USART_CR1_TXEIE; // Disable TX interrupt
     }
   }
@@ -385,7 +386,7 @@ void usart3_isr(void) { usart_isr(&uart3); }
 #endif /* USE_UART3 */
 
 
-#if USE_UART4 && defined STM32F4
+#if USE_UART4
 
 /* by default enable UART Tx and Rx */
 #ifndef USE_UART4_TX
@@ -551,3 +552,107 @@ void uart6_init(void)
 void usart6_isr(void) { usart_isr(&uart6); }
 
 #endif /* USE_UART6 */
+
+
+#if USE_UART7
+
+/* by default enable UART Tx and Rx */
+#ifndef USE_UART7_TX
+#define USE_UART7_TX TRUE
+#endif
+#ifndef USE_UART7_RX
+#define USE_UART7_RX TRUE
+#endif
+
+#ifndef UART7_BITS
+#define UART7_BITS UBITS_8
+#endif
+
+#ifndef UART7_STOP
+#define UART7_STOP USTOP_1
+#endif
+
+#ifndef UART7_PARITY
+#define UART7_PARITY UPARITY_NO
+#endif
+
+void uart7_init(void)
+{
+
+  uart_periph_init(&uart7);
+  uart7.reg_addr = (void *)UART7;
+
+  /* init RCC and GPIOs */
+  rcc_periph_clock_enable(RCC_UART7);
+
+#if USE_UART7_TX
+  gpio_setup_pin_af(UART7_GPIO_PORT_TX, UART7_GPIO_TX, UART7_GPIO_AF, TRUE);
+#endif
+#if USE_UART7_RX
+  gpio_setup_pin_af(UART7_GPIO_PORT_RX, UART7_GPIO_RX, UART7_GPIO_AF, FALSE);
+#endif
+
+  /* Enable USART interrupts in the interrupt controller */
+  usart_enable_irq(NVIC_UART7_IRQ);
+
+  /* Configure USART */
+  uart_periph_set_mode(&uart7, USE_UART7_TX, USE_UART7_RX, FALSE);
+  uart_periph_set_bits_stop_parity(&uart7, UART7_BITS, UART7_STOP, UART7_PARITY);
+  uart_periph_set_baudrate(&uart7, UART7_BAUD);
+}
+
+void uart7_isr(void) { usart_isr(&uart7); }
+
+#endif /* USE_UART7 */
+
+
+#if USE_UART8
+
+/* by default enable UART Tx and Rx */
+#ifndef USE_UART8_TX
+#define USE_UART8_TX TRUE
+#endif
+#ifndef USE_UART8_RX
+#define USE_UART8_RX TRUE
+#endif
+
+#ifndef UART8_BITS
+#define UART8_BITS UBITS_8
+#endif
+
+#ifndef UART8_STOP
+#define UART8_STOP USTOP_1
+#endif
+
+#ifndef UART8_PARITY
+#define UART8_PARITY UPARITY_NO
+#endif
+
+void uart8_init(void)
+{
+
+  uart_periph_init(&uart8);
+  uart8.reg_addr = (void *)UART8;
+
+  /* init RCC and GPIOs */
+  rcc_periph_clock_enable(RCC_UART8);
+
+#if USE_UART8_TX
+  gpio_setup_pin_af(UART8_GPIO_PORT_TX, UART8_GPIO_TX, UART8_GPIO_AF, TRUE);
+#endif
+#if USE_UART8_RX
+  gpio_setup_pin_af(UART8_GPIO_PORT_RX, UART8_GPIO_RX, UART8_GPIO_AF, FALSE);
+#endif
+
+  /* Enable USART interrupts in the interrupt controller */
+  usart_enable_irq(NVIC_UART8_IRQ);
+
+  /* Configure USART */
+  uart_periph_set_mode(&uart8, USE_UART8_TX, USE_UART8_RX, FALSE);
+  uart_periph_set_bits_stop_parity(&uart8, UART8_BITS, UART8_STOP, UART8_PARITY);
+  uart_periph_set_baudrate(&uart8, UART8_BAUD);
+}
+
+void uart8_isr(void) { usart_isr(&uart8); }
+
+#endif /* USE_UART8 */

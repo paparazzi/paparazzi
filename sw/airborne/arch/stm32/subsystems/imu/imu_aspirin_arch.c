@@ -97,7 +97,7 @@ void exti15_10_isr(void)
   exti_reset_request(EXTI14);
 
 #ifdef ASPIRIN_USE_GYRO_INT
-  imu_aspirin.gyro_eoc = TRUE;
+  imu_aspirin.gyro_eoc = true;
   imu_aspirin.status = AspirinStatusReadingGyro;
 #endif
 

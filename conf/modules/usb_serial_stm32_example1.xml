@@ -17,10 +17,8 @@
   <init fun="init_usb_serial()"/>
   <event fun="event_usb_serial()"/>
 
-  <makefile target="ap">
-    <raw>
-      ap.srcs += $(SRC_ARCH)/usb_ser_hw.c
-    </raw>
+  <makefile target="!nps|sim">
+    <file_arch name="usb_ser_hw.c" dir=""/>
     <define name="USE_USB_SERIAL"/>
     <file name="usb_serial_stm32_example1.c"/>
   </makefile>

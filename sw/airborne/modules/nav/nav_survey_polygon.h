@@ -82,8 +82,8 @@ struct SurveyPolyAdv {
   struct FloatVect2 ret_end;
 };
 
-extern bool_t nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, float sweep_width, float shot_dist,
+extern bool nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, float sweep_width, float shot_dist,
                                        float min_rad, float altitude);
-extern bool_t nav_survey_polygon_run(void);
+extern bool nav_survey_polygon_run(void);
 
 #endif

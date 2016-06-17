@@ -2,26 +2,17 @@
 #define GPS_UDP_H
 
 #include "std.h"
+#include "subsystems/gps.h"
 
-#define GPS_NB_CHANNELS 16
+#ifndef PRIMARY_GPS
+#define PRIMARY_GPS GPS_UDP
+#endif
 
-extern bool_t gps_available;
+extern struct GpsState gps_udp;
 
-extern void gps_parse(void);
+extern void gps_udp_parse(void);
+extern void gps_udp_init(void);
 
-#define GpsEvent(_sol_available_callback) {         \
-    gps_parse();                                    \
-    if (gps_available) {                            \
-      gps.last_msg_ticks = sys_time.nb_sec_rem;     \
-      gps.last_msg_time = sys_time.nb_sec;          \
-      if (gps.fix == GPS_FIX_3D) {                  \
-        gps.last_3dfix_ticks = sys_time.nb_sec_rem; \
-        gps.last_3dfix_time = sys_time.nb_sec;      \
-      }                                             \
-      _sol_available_callback();                    \
-      gps_available = FALSE;                        \
-    }                                               \
-  }
-
+#define gps_udp_periodic_check() gps_periodic_check(&gps_udp)
 
 #endif /* GPS_UDP_H */

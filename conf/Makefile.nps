@@ -27,7 +27,8 @@
 SRC_ARCH = arch/sim
 
 OPT ?= 2
-SIMDIR = $(PAPARAZZI_SRC)/sw/simulator
+# Slightly bigger .elf files but gains the ability to decode macros
+DEBUG_FLAGS ?= -ggdb3
 
 # Launch with "make Q=''" to get full command display
 Q=@
@@ -35,21 +36,25 @@ Q=@
 CFLAGS  = -W -Wall
 CFLAGS += $(INCLUDES)
 CFLAGS += $($(TARGET).CFLAGS)
-CFLAGS += $(USER_CFLAGS)
+CFLAGS += $(USER_CFLAGS) $(BOARD_CFLAGS)
 CFLAGS += -O$(OPT)
-CFLAGS += -g
+CFLAGS += $(DEBUG_FLAGS)
 CFLAGS += -std=gnu99
 CFLAGS += $(shell pkg-config --cflags-only-I ivy-glib)
 
 CXXFLAGS  = -W -Wall
 CXXFLAGS += $(INCLUDES)
 CXXFLAGS += $($(TARGET).CFLAGS)
-CXXFLAGS += $(USER_CFLAGS)
+CXXFLAGS += $(USER_CFLAGS) $(BOARD_CFLAGS)
 CXXFLAGS += -O$(OPT)
-CXXFLAGS += -g
+CXXFLAGS += $(DEBUG_FLAGS)
 CXXFLAGS += $(shell pkg-config --cflags-only-I ivy-glib)
 
-LDFLAGS	+= $($(TARGET).LDFLAGS)
+LDFLAGS	+= $($(TARGET).LDFLAGS) -pthread
+LDFLAGS += $(BOARD_LDFLAGS)
+
+# x86/64 and armv7 allow unaligned access
+CFLAGS += -DPPRZLINK_UNALIGNED_ACCESS=1
 
 #
 # General rules
@@ -91,29 +96,21 @@ $(OBJDIR)/%.s: %.cpp
 $(OBJDIR)/%.o: %.c $(OBJDIR)/../Makefile.ac
 	@echo CC $@
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
-	$(Q)$(CC) $(CFLAGS) -c -o $@ $<
+	$(Q)$(CC) -MMD $(CFLAGS) -c -o $@ $<
 
 $(OBJDIR)/%.o: %.cpp $(OBJDIR)/../Makefile.ac
 	@echo CXX $@
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
-	$(Q)$(CXX) $(CXXFLAGS) -c -o $@ $<
+	$(Q)$(CXX) -MMD $(CXXFLAGS) -c -o $@ $<
 
 .PHONY: all compile check_jsbsim
+
 
 #
 # Dependencies
 #
-
-$(OBJDIR)/%.d: %.c
-	@echo DEP $@
-	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
-	$(Q)$(CC) -MM -MG $(CFLAGS) $< | sed 's|\([^\.]*\.o\)|$(OBJDIR)/\1|' > $(OBJDIR)/$*.d
-
-$(OBJDIR)/%.d: %.cpp $(OBJDIR)/../Makefile.ac
-	@echo DEP $@
-	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
-	$(Q)$(CXX) -MM -MG $(CXXFLAGS) $< | sed 's|\([^\.]*\.o\)|$(OBJDIR)/\1|' > $(OBJDIR)/$*.d
- 
 ifneq ($(MAKECMDGOALS),clean)
--include $($(TARGET).objs:.o=.d)
+DEPS = $(addprefix $(OBJDIR)/,$($(TARGET).srcs:.c=.d))
+DEPS += $(addprefix $(OBJDIR)/,$($(TARGET).srcs:.cpp=.d))
+-include $(DEPS)
 endif

@@ -19,21 +19,24 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** Dummy C implementation for simulation
+/**
+ * Dummy C implementation for simulation
+ * The V4L2 could also work in simulation, but must be adapted a bit.
  */
 
 // Own header
 #include "viewvideo.h"
 
-int viewvideo_shot = 0;
+// Initialize the viewvideo structure with the defaults
+struct viewvideo_t viewvideo = {
+  .is_streaming = FALSE,
+  .downsize_factor = 1,
+  .quality_factor = 99,
+};
 
-void viewvideo_run(void) {}
+// All dummy functions
+void viewvideo_init(void) {}
+void viewvideo_periodic(void) {}
 void viewvideo_start(void) {}
 void viewvideo_stop(void) {}
-
-int viewvideo_save_shot(void)
-{
-  return 0;
-}
-
-
+void viewvideo_take_shot(bool take __attribute__((unused))) {}

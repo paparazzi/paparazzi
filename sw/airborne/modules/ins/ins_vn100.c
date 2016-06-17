@@ -33,7 +33,7 @@
 // for telemetry report
 #include "mcu_periph/uart.h"
 #include "subsystems/datalink/downlink.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 
 #ifndef INS_YAW_NEUTRAL_DEFAULT
 #define INS_YAW_NEUTRAL_DEFAULT 0.
@@ -106,7 +106,7 @@ void vn100_init(void)
 
 }
 
-static inline bool_t ins_configure(void)
+static inline bool ins_configure(void)
 {
   // nothing to receive during conf
   vn100_trans.input_length = 0;
@@ -128,13 +128,13 @@ static inline bool_t ins_configure(void)
       ins_init_status++;
       break;
     case INS_VN100_READY :
-      return TRUE;
+      return true;
   }
   last_send_packet.CmdID = VN100_CmdID_WriteRegister;
 
   spi_submit(&(VN100_SPI_DEV), &vn100_trans);
 
-  return FALSE;
+  return false;
 }
 
 void vn100_periodic_task(void)
@@ -305,7 +305,7 @@ static inline void parse_ins_msg(void)
 }
 
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 
 extern void vn100_report_task(void)

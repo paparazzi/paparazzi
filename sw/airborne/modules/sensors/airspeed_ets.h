@@ -46,7 +46,7 @@
 
 extern uint16_t airspeed_ets_raw;
 extern uint16_t airspeed_ets_offset;
-extern bool_t airspeed_ets_valid;
+extern bool airspeed_ets_valid;
 extern float airspeed_ets;
 
 extern struct i2c_transaction airspeed_ets_i2c_trans;

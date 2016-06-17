@@ -27,6 +27,7 @@
  */
 
 #include "subsystems/imu.h"
+#include "subsystems/abi.h"
 #include "mcu_periph/i2c.h"
 
 PRINT_CONFIG_VAR(GL1_I2C_DEV)
@@ -78,16 +79,12 @@ struct ImuGL1I2c imu_gl1;
 
 void imu_impl_init(void)
 {
-  imu_gl1.accel_valid = FALSE;
-  imu_gl1.gyro_valid = FALSE;
-  imu_gl1.mag_valid = FALSE;
-
   /* Set accel configuration */
   adxl345_i2c_init(&imu_gl1.acc_adxl, &(GL1_I2C_DEV), ADXL345_ADDR);
   // set the data rate
   imu_gl1.acc_adxl.config.rate = GL1_ACCEL_RATE;
   /// @todo drdy int handling for adxl345
-  //imu_aspirin.acc_adxl.config.drdy_int_enable = TRUE;
+  //imu_aspirin.acc_adxl.config.drdy_int_enable = true;
 
 
   /* Gyro configuration and initalization */
@@ -120,14 +117,17 @@ void imu_periodic(void)
 
 void imu_gl1_i2c_event(void)
 {
+  uint32_t now_ts = get_sys_time_usec();
+
   adxl345_i2c_event(&imu_gl1.acc_adxl);
   if (imu_gl1.acc_adxl.data_available) {
     VECT3_COPY(imu.accel_unscaled, imu_gl1.acc_adxl.data.vect);
     imu.accel_unscaled.x =  imu_gl1.acc_adxl.data.vect.y;
     imu.accel_unscaled.y =  imu_gl1.acc_adxl.data.vect.x;
     imu.accel_unscaled.z = -imu_gl1.acc_adxl.data.vect.z;
-    imu_gl1.acc_adxl.data_available = FALSE;
-    imu_gl1.accel_valid = TRUE;
+    imu_gl1.acc_adxl.data_available = false;
+    imu_scale_accel(&imu);
+    AbiSendMsgIMU_ACCEL_INT32(IMU_GL1_ID, now_ts, &imu.accel);
   }
 
   /* If the lg34200 I2C transaction has succeeded: convert the data */
@@ -137,8 +137,9 @@ void imu_gl1_i2c_event(void)
     imu.gyro_unscaled.p =  imu_gl1.gyro_l3g.data.rates.q;
     imu.gyro_unscaled.q =  imu_gl1.gyro_l3g.data.rates.p;
     imu.gyro_unscaled.r = -imu_gl1.gyro_l3g.data.rates.r;
-    imu_gl1.gyro_l3g.data_available = FALSE;
-    imu_gl1.gyro_valid = TRUE;
+    imu_gl1.gyro_l3g.data_available = false;
+    imu_scale_gyro(&imu);
+    AbiSendMsgIMU_GYRO_INT32(IMU_GL1_ID, now_ts, &imu.gyro);
   }
 
   /* HMC58XX event task */
@@ -148,7 +149,8 @@ void imu_gl1_i2c_event(void)
     imu.mag_unscaled.y =  imu_gl1.mag_hmc.data.vect.x;
     imu.mag_unscaled.x =  imu_gl1.mag_hmc.data.vect.y;
     imu.mag_unscaled.z = -imu_gl1.mag_hmc.data.vect.z;
-    imu_gl1.mag_hmc.data_available = FALSE;
-    imu_gl1.mag_valid = TRUE;
+    imu_gl1.mag_hmc.data_available = false;
+    imu_scale_mag(&imu);
+    AbiSendMsgIMU_MAG_INT32(IMU_GL1_ID, now_ts, &imu.mag);
   }
 }

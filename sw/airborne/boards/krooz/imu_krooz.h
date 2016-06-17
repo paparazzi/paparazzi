@@ -105,11 +105,8 @@
 #endif
 
 struct ImuKrooz {
-  volatile bool_t gyr_valid;
-  volatile bool_t acc_valid;
-  volatile bool_t mag_valid;
-  volatile bool_t mpu_eoc;
-  volatile bool_t hmc_eoc;
+  volatile bool mpu_eoc;
+  volatile bool hmc_eoc;
   struct Mpu60x0_I2c mpu;
   struct Hmc58xx hmc;
   struct Int32Rates rates_sum;
@@ -131,22 +128,6 @@ extern void imu_periodic(void);
 extern void imu_krooz_event(void);
 extern void imu_krooz_downlink_raw(void);
 
-static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void),
-                            void (* _mag_handler)(void) __attribute__((unused)))
-{
-  imu_krooz_event();
-  if (imu_krooz.gyr_valid) {
-    imu_krooz.gyr_valid = FALSE;
-    _gyro_handler();
-  }
-  if (imu_krooz.acc_valid) {
-    imu_krooz.acc_valid = FALSE;
-    _accel_handler();
-  }
-  if (imu_krooz.mag_valid) {
-    imu_krooz.mag_valid = FALSE;
-    _mag_handler();
-  }
-}
+#define ImuEvent imu_krooz_event
 
 #endif // IMU_KROOZ_H

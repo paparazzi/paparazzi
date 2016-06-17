@@ -1,0 +1,5 @@
+#!/bin/sh
+
+echo "Warning: plot has been renamed to logplotter, please update your conf/control_panel.xml"
+
+exec $PAPARAZZI_SRC/sw/logalizer/logplotter

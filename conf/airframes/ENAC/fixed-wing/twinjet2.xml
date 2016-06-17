@@ -7,24 +7,21 @@
 
 <airframe name="Black Cat">
 
-  <modules>
-    <load name="light.xml"/>
-  </modules>
-
   <firmware name="fixedwing">
     <define name="PITCH_TRIM"/>
 
     <target name="ap" 			board="tiny_2.11"/>
     <target name="sim" 			board="pc"/>
 
-    <subsystem name="radio_control" type="ppm"/>
-    <subsystem name="telemetry"     type="xbee_api"/>
-    <subsystem name="control"       type="adaptive"/>
-    <subsystem name="imu"           type="mpu9250_i2c"/>
-    <subsystem name="ahrs"          type="float_dcm"/>
-    <subsystem name="ins"           type="alt_float"/>
-    <subsystem name="gps"           type="ublox"/>
-    <subsystem name="navigation"/>
+    <module name="radio_control" type="ppm"/>
+    <module name="telemetry"     type="xbee_api"/>
+    <module name="control"       type="adaptive"/>
+    <module name="imu"           type="mpu9250_i2c"/>
+    <module name="ahrs"          type="float_dcm"/>
+    <module name="ins"           type="alt_float"/>
+    <module name="gps"           type="ublox"/>
+    <module name="navigation"/>
+    <module name="light"/>
   </firmware>
 
   <firmware name="setup">
@@ -129,7 +126,7 @@
     <define name="MAXIMUM_AIRSPEED" value="20." unit="m/s"/>
     <define name="CARROT" value="5." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
-<!--    <define name="XBEE_INIT" value="&quot;ATPL2\rATRN1\rATTT80\r&quot;"/> -->
+<!--    <define name="XBEE_INIT" value="ATPL2\rATRN1\rATTT80\r" type="string"/> -->
 <!--    <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
     <define name="LIGHT_LED_NAV" value="3"/>

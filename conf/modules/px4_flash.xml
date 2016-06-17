@@ -1,0 +1,35 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="px4_flash">
+  <doc>
+    <description>
+      Flash pixhawk via PX4 bootloader.
+      Flashes the PX4IO (STM32F1) through the PX4 bootloader, or resets the PX4FMU (STM32F4) to be flashed directly by the F4' PX4 bootloader.
+    </description>
+    <configure name="PX4IO_UART" value="uart6" description="Uart on PX4FMU connected to PX4IO"/>
+    <configure name="PX4IO_BAUD" value="B1500000" description="Baud rate for PX4IO flashing"/>
+    <configure name="FLASH_PORT" value="usb_serial" description="Port used to connect to the PX4FMU for flashing."/>
+    <configure name="FLASH_BAUD" value="B115200" description="Baud rate for FLASH_PORT if a UART"/>
+  </doc>
+  <header>
+    <file name="px4_flash.h"/>
+  </header>
+  <init fun="px4flash_init()"/>
+  <event fun="px4flash_event()"/>
+  <makefile target="ap">
+    <file name="px4_flash.c"/>
+    <file name="usb_ser_hw.c"  dir="arch/stm32"/>
+    <configure name="PX4IO_UART" default="uart6" case="upper|lower"/>
+    <configure name="PX4IO_BAUD" default="B1500000"/>
+    <define name="USE_$(PX4IO_UART_UPPER)"/>
+    <define name="PX4IO_UART" value="$(PX4IO_UART_LOWER)"/>
+    <define name="$(PX4IO_UART_UPPER)_BAUD" value="$(PX4IO_BAUD)"/>
+
+    <configure name="FLASH_PORT" default="usb_serial" case="upper|lower"/>
+    <configure name="FLASH_BAUD" default="B115200"/>
+    <define name="USE_$(FLASH_PORT_UPPER)"/>
+    <define name="FLASH_UART" value="$(FLASH_PORT_LOWER)"/>
+    <define name="$(FLASH_PORT_UPPER)_BAUD" value="$(FLASH_BAUD)"/>
+  </makefile>
+</module>
+

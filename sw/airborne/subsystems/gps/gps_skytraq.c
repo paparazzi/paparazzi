@@ -20,15 +20,10 @@
  */
 
 #include "subsystems/gps.h"
+#include "subsystems/gps/gps_skytraq.h"
+#include "subsystems/abi.h"
 #include "led.h"
-
-#if GPS_USE_LATLONG
-/* currently needed to get nav_utm_zone0 */
-#include "subsystems/navigation/common_nav.h"
-#include "math/pprz_geodetic_float.h"
-#endif
-
-struct GpsSkytraq gps_skytraq;
+#include "pprzlink/pprzlink_device.h"
 
 /* parser status */
 #define UNINIT        0
@@ -53,6 +48,11 @@ struct GpsSkytraq gps_skytraq;
 #define SKYTRAQ_SYNC3 0x0D
 #define SKYTRAQ_SYNC4 0x0A
 
+struct GpsSkytraq gps_skytraq;
+
+void gps_skytraq_read_message(void);
+void gps_skytraq_parse(uint8_t c);
+void gps_skytraq_msg(void);
 
 static inline uint16_t bswap16(uint16_t a)
 {
@@ -90,84 +90,105 @@ static inline uint16_t bswap16(uint16_t a)
 
 static int distance_too_great(struct EcefCoor_i *ecef_ref, struct EcefCoor_i *ecef_pos);
 
-void gps_impl_init(void)
+void gps_skytraq_init(void)
 {
-
   gps_skytraq.status = UNINIT;
-
 }
 
+void gps_skytraq_msg(void)
+{
+  // current timestamp
+  uint32_t now_ts = get_sys_time_usec();
+  gps_skytraq.state.last_msg_ticks = sys_time.nb_sec_rem;
+  gps_skytraq.state.last_msg_time = sys_time.nb_sec;
+  gps_skytraq_read_message();
+  if (gps_skytraq.msg_id == SKYTRAQ_ID_NAVIGATION_DATA) {
+    if (gps_skytraq.state.fix == GPS_FIX_3D) {
+      gps_skytraq.state.last_3dfix_ticks = sys_time.nb_sec_rem;
+      gps_skytraq.state.last_3dfix_time = sys_time.nb_sec;
+    }
+    AbiSendMsgGPS(GPS_SKYTRAQ_ID, now_ts, &gps_skytraq.state);
+  }
+  gps_skytraq.msg_available = false;
+}
+
+void gps_skytraq_event(void)
+{
+  struct link_device *dev = &((SKYTRAQ_GPS_LINK).device);
+
+  while (dev->char_available(dev->periph)) {
+    gps_skytraq_parse(dev->get_byte(dev->periph));
+    if (gps_skytraq.msg_available) {
+      gps_skytraq_msg();
+    }
+  }
+}
 
 void gps_skytraq_read_message(void)
 {
 
   if (gps_skytraq.msg_id == SKYTRAQ_ID_NAVIGATION_DATA) {
-    gps.ecef_pos.x  = SKYTRAQ_NAVIGATION_DATA_ECEFX(gps_skytraq.msg_buf);
-    gps.ecef_pos.y  = SKYTRAQ_NAVIGATION_DATA_ECEFY(gps_skytraq.msg_buf);
-    gps.ecef_pos.z  = SKYTRAQ_NAVIGATION_DATA_ECEFZ(gps_skytraq.msg_buf);
-    gps.ecef_vel.x  = SKYTRAQ_NAVIGATION_DATA_ECEFVX(gps_skytraq.msg_buf);
-    gps.ecef_vel.y  = SKYTRAQ_NAVIGATION_DATA_ECEFVY(gps_skytraq.msg_buf);
-    gps.ecef_vel.z  = SKYTRAQ_NAVIGATION_DATA_ECEFVZ(gps_skytraq.msg_buf);
-    gps.lla_pos.lat = SKYTRAQ_NAVIGATION_DATA_LAT(gps_skytraq.msg_buf);
-    gps.lla_pos.lon = SKYTRAQ_NAVIGATION_DATA_LON(gps_skytraq.msg_buf);
-    gps.lla_pos.alt = SKYTRAQ_NAVIGATION_DATA_AEL(gps_skytraq.msg_buf) * 10;
-    gps.hmsl        = SKYTRAQ_NAVIGATION_DATA_ASL(gps_skytraq.msg_buf) * 10;
+    gps_skytraq.state.ecef_pos.x  = SKYTRAQ_NAVIGATION_DATA_ECEFX(gps_skytraq.msg_buf);
+    gps_skytraq.state.ecef_pos.y  = SKYTRAQ_NAVIGATION_DATA_ECEFY(gps_skytraq.msg_buf);
+    gps_skytraq.state.ecef_pos.z  = SKYTRAQ_NAVIGATION_DATA_ECEFZ(gps_skytraq.msg_buf);
+    SetBit(gps_skytraq.state.valid_fields, GPS_VALID_POS_ECEF_BIT);
+
+    gps_skytraq.state.ecef_vel.x  = SKYTRAQ_NAVIGATION_DATA_ECEFVX(gps_skytraq.msg_buf);
+    gps_skytraq.state.ecef_vel.y  = SKYTRAQ_NAVIGATION_DATA_ECEFVY(gps_skytraq.msg_buf);
+    gps_skytraq.state.ecef_vel.z  = SKYTRAQ_NAVIGATION_DATA_ECEFVZ(gps_skytraq.msg_buf);
+    SetBit(gps_skytraq.state.valid_fields, GPS_VALID_VEL_ECEF_BIT);
+
+    gps_skytraq.state.lla_pos.lat = SKYTRAQ_NAVIGATION_DATA_LAT(gps_skytraq.msg_buf);
+    gps_skytraq.state.lla_pos.lon = SKYTRAQ_NAVIGATION_DATA_LON(gps_skytraq.msg_buf);
+    gps_skytraq.state.lla_pos.alt = SKYTRAQ_NAVIGATION_DATA_AEL(gps_skytraq.msg_buf) * 10;
+    SetBit(gps_skytraq.state.valid_fields, GPS_VALID_POS_LLA_BIT);
+
+    gps_skytraq.state.hmsl        = SKYTRAQ_NAVIGATION_DATA_ASL(gps_skytraq.msg_buf) * 10;
+    SetBit(gps_skytraq.state.valid_fields, GPS_VALID_HMSL_BIT);
+
     //   pacc;
     //   sacc;
-    gps.pdop        = SKYTRAQ_NAVIGATION_DATA_PDOP(gps_skytraq.msg_buf);
-    gps.num_sv      = SKYTRAQ_NAVIGATION_DATA_NumSV(gps_skytraq.msg_buf);
-    gps.tow         = SKYTRAQ_NAVIGATION_DATA_TOW(gps_skytraq.msg_buf) * 10;
+    gps_skytraq.state.pdop        = SKYTRAQ_NAVIGATION_DATA_PDOP(gps_skytraq.msg_buf);
+    gps_skytraq.state.num_sv      = SKYTRAQ_NAVIGATION_DATA_NumSV(gps_skytraq.msg_buf);
+    gps_skytraq.state.tow         = SKYTRAQ_NAVIGATION_DATA_TOW(gps_skytraq.msg_buf) * 10;
 
     switch (SKYTRAQ_NAVIGATION_DATA_FixMode(gps_skytraq.msg_buf)) {
       case SKYTRAQ_FIX_3D_DGPS:
       case SKYTRAQ_FIX_3D:
-        gps.fix = GPS_FIX_3D;
+        gps_skytraq.state.fix = GPS_FIX_3D;
         break;
       case SKYTRAQ_FIX_2D:
-        gps.fix = GPS_FIX_2D;
+        gps_skytraq.state.fix = GPS_FIX_2D;
         break;
       default:
-        gps.fix = GPS_FIX_NONE;
+        gps_skytraq.state.fix = GPS_FIX_NONE;
     }
 
-#if GPS_USE_LATLONG
-    /* Computes from (lat, long) in the referenced UTM zone */
-    struct LlaCoor_f lla_f;
-    LLA_FLOAT_OF_BFP(lla_f, gps.lla_pos);
-    struct UtmCoor_f utm_f;
-    utm_f.zone = nav_utm_zone0;
-    /* convert to utm */
-    utm_of_lla_f(&utm_f, &lla_f);
-    /* copy results of utm conversion */
-    gps.utm_pos.east = utm_f.east * 100;
-    gps.utm_pos.north = utm_f.north * 100;
-    gps.utm_pos.alt = gps.lla_pos.alt;
-    gps.utm_pos.zone = nav_utm_zone0;
-#endif
-
-    if (gps.fix == GPS_FIX_3D) {
-      if (distance_too_great(&gps_skytraq.ref_ltp.ecef, &gps.ecef_pos)) {
+    if (gps_skytraq.state.fix == GPS_FIX_3D) {
+      if (distance_too_great(&gps_skytraq.ref_ltp.ecef, &gps_skytraq.state.ecef_pos)) {
         // just grab current ecef_pos as reference.
-        ltp_def_from_ecef_i(&gps_skytraq.ref_ltp, &gps.ecef_pos);
+        ltp_def_from_ecef_i(&gps_skytraq.ref_ltp, &gps_skytraq.state.ecef_pos);
       }
       // convert ecef velocity vector to NED vector.
-      ned_of_ecef_vect_i(&gps.ned_vel, &gps_skytraq.ref_ltp, &gps.ecef_vel);
+      ned_of_ecef_vect_i(&gps_skytraq.state.ned_vel, &gps_skytraq.ref_ltp, &gps_skytraq.state.ecef_vel);
+      SetBit(gps_skytraq.state.valid_fields, GPS_VALID_VEL_NED_BIT);
 
       // ground course in radians
-      gps.course = (atan2f((float)gps.ned_vel.y, (float)gps.ned_vel.x)) * 1e7;
-      // GT: gps.cacc = ... ? what should course accuracy be?
+      gps_skytraq.state.course = (atan2f((float)gps_skytraq.state.ned_vel.y, (float)gps_skytraq.state.ned_vel.x)) * 1e7;
+      SetBit(gps_skytraq.state.valid_fields, GPS_VALID_COURSE_BIT);
+      // GT: gps_skytraq.state.cacc = ... ? what should course accuracy be?
 
       // ground speed
-      gps.gspeed = sqrt(gps.ned_vel.x * gps.ned_vel.x + gps.ned_vel.y * gps.ned_vel.y);
-      gps.speed_3d = sqrt(gps.ned_vel.x * gps.ned_vel.x + gps.ned_vel.y * gps.ned_vel.y + gps.ned_vel.z * gps.ned_vel.z);
+      gps_skytraq.state.gspeed = sqrt(gps_skytraq.state.ned_vel.x * gps_skytraq.state.ned_vel.x + gps_skytraq.state.ned_vel.y * gps_skytraq.state.ned_vel.y);
+      gps_skytraq.state.speed_3d = sqrt(gps_skytraq.state.ned_vel.x * gps_skytraq.state.ned_vel.x + gps_skytraq.state.ned_vel.y * gps_skytraq.state.ned_vel.y + gps_skytraq.state.ned_vel.z * gps_skytraq.state.ned_vel.z);
 
       // vertical speed (climb)
-      // solved by gps.ned.z?
+      // solved by gps_skytraq.state.ned.z?
     }
 
 
 #ifdef GPS_LED
-    if (gps.fix == GPS_FIX_3D) {
+    if (gps_skytraq.state.fix == GPS_FIX_3D) {
       LED_ON(GPS_LED);
     } else {
       LED_TOGGLE(GPS_LED);
@@ -235,7 +256,7 @@ void gps_skytraq_parse(uint8_t c)
       gps_skytraq.status = GOT_SYNC3;
       break;
     case GOT_SYNC3:
-      gps_skytraq.msg_available = TRUE;
+      gps_skytraq.msg_available = true;
       goto restart;
     default:
       gps_skytraq.error_last = GPS_SKYTRAQ_ERR_UNEXPECTED;
@@ -253,16 +274,16 @@ static int distance_too_great(struct EcefCoor_i *ecef_ref, struct EcefCoor_i *ec
 {
   int32_t xdiff = abs(ecef_ref->x - ecef_pos->x);
   if (xdiff > MAX_DISTANCE) {
-    return TRUE;
+    return true;
   }
   int32_t ydiff = abs(ecef_ref->y - ecef_pos->y);
   if (ydiff > MAX_DISTANCE) {
-    return TRUE;
+    return true;
   }
   int32_t zdiff = abs(ecef_ref->z - ecef_pos->z);
   if (zdiff > MAX_DISTANCE) {
-    return TRUE;
+    return true;
   }
 
-  return FALSE;
+  return false;
 }

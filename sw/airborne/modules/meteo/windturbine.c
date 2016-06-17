@@ -34,7 +34,7 @@
 
 
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 
 
@@ -53,7 +53,7 @@ void windturbine_periodic(void)
                                       &turb_id,
                                       &sync_itow,
                                       &cycle_time);
-    trigger_ext_valid = FALSE;
+    trigger_ext_valid = false;
   }
 }
 

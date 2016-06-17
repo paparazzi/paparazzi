@@ -106,32 +106,7 @@ let parse_message = fun class_name m ->
     with
         Xml.No_attribute("length") -> () (** Undefined length authorized *)
   end;
-
-  (** Generating send function *)
-  let param_name = fun f -> String.lowercase (field_name f) in
-  let rec param_names = fun f r ->
-    if Xml.tag f = "field" then
-      param_name f :: r
-    else
-      List.fold_right param_names (Xml.children f) r in
-  let param_type = fun f -> c_type (format f) in
-  fprintf out "\n#define MtkSend_%s_%s(" class_name msg_name;
-  fprintf out "%s" (String.concat "," (param_names m []));
-  fprintf out ") { \\\n";
-  fprintf out "  MtkHeader(MTK_%s_ID, %s, %d);\\\n" class_name msg_id !offset;
-  let rec send_one_field = fun f ->
-    match Xml.tag f with
-        "field" ->
-          let s = sizeof (format f) in
-          let p = param_name f in
-          let t = param_type f in
-          fprintf out "  %s _%s = %s; MtkSend%dByAddr((uint8_t*)&_%s);\\\n" t p p s p
-      | "block" ->
-        List.iter send_one_field (Xml.children f)
-      | _ -> assert (false) in
-  List.iter send_one_field (Xml.children m);
-  fprintf out "  MtkTrailer();\\\n";
-  fprintf out "}\n\n#define MTK_%s_%s_LENGTH %d\n" class_name msg_name !offset
+  fprintf out "\n#define MTK_%s_%s_LENGTH %d\n" class_name msg_name !offset
 
 
 let parse_class = fun c ->

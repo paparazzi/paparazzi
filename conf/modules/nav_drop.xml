@@ -11,7 +11,7 @@
   <header>
     <file name="nav_drop.h"/>
   </header>
-  <makefile target="ap|sim|jsbsim|nps">
+  <makefile target="ap|sim|nps">
     <file name="nav_drop.c"/>
   </makefile>
 </module>

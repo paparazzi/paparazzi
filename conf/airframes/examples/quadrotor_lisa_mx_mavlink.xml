@@ -7,9 +7,11 @@
      * GPS:         Ublox                     http://wiki.paparazziuav.org/wiki/Subsystem/gps
      * RC:          two Spektrum sats         http://wiki.paparazziuav.org/wiki/Subsystem/radio_control#Spektrum
 
-     This airframe is meant for testing the mavlink module and will:
+     This airframe is meant for testing and will:
      - send normal Paparazzi telemetry on the modem uart
      - send mavlink messages on usb serial or via UDP in nps simulation
+
+     Also has two AHRS algos running in parallel, which can be switched at runtime.
 -->
 
 <airframe name="Quadrotor LisaMX_2.1 pwm">
@@ -21,44 +23,69 @@
     </target>
 
     <target name="nps" board="pc">
-      <subsystem name="fdm" type="jsbsim"/>
-      <configure name="MAVLINK_PORT" value="UDP0"/>
+      <module name="fdm" type="jsbsim"/>
+      <configure name="MAVLINK_PORT" value="UDP1"/>
+      <define name="UDP1_PORT_OUT" value="14550"/>
+      <define name="UDP1_PORT_IN" value="14555"/>
+      <define name="MAVLINK_DEBUG" value="printf"/>
     </target>
 
-    <subsystem name="radio_control" type="spektrum">
+    <module name="radio_control" type="spektrum">
       <define name="RADIO_MODE" value="RADIO_AUX1"/>
       <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="motor_mixing"/>
-    <subsystem name="actuators"     type="pwm">
+    <module name="motor_mixing"/>
+    <module name="actuators"     type="pwm">
       <define name="SERVO_HZ" value="400"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="telemetry"     type="transparent"/>
-    <subsystem name="imu"           type="lisa_mx_v2.1"/>
-    <subsystem name="gps"           type="ublox"/>
-    <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="ahrs"          type="float_mlkf"/>
-    <subsystem name="ins" type="hff"/>
+    <module name="telemetry"     type="transparent"/>
+    <module name="imu"           type="lisa_mx_v2.1"/>
+    <module name="gps"           type="ublox"/>
+    <module name="stabilization" type="int_quat"/>
+    <module name="ahrs"          type="float_mlkf"/>
+    <module name="ahrs" type="int_cmpl_quat">
+      <configure name="SECONDARY_AHRS" value="int_cmpl_quat"/>
+    </module>
+    <module name="ins" type="hff"/>
 
-    <!--define name="KILL_ON_GROUND_DETECT" value="TRUE"/-->
+    <!-- optional modules -->
+    <module name="adc_generic">
+      <configure name="ADC_CHANNEL_GENERIC1" value="ADC_1"/>
+      <configure name="ADC_CHANNEL_GENERIC2" value="ADC_2"/>
+    </module>
+    <module name="gps" type="ubx_ucenter"/>
+    <module name="geo_mag"/>
+    <module name="air_data"/>
+    <module name="mavlink">
+      <!--configure name="MAVLINK_PORT" value="UsbS"/-->
+    </module>
   </firmware>
 
-  <modules>
-    <load name="gps_ubx_ucenter.xml"/>
-    <load name="geo_mag.xml"/>
-    <load name="air_data.xml"/>
-    <load name="mavlink.xml">
-      <!--configure name="MAVLINK_PORT" value="UsbS"/-->
-    </load>
-  </modules>
+  <firmware name="test_progs">
+    <target name="test_sys_time_timer" board="lisa_mx_2.1"/>
+    <target name="test_adc" board="lisa_mx_2.1"/>
+    <target name="test_telemetry" board="lisa_mx_2.1"/>
+    <target name="test_baro_board" board="lisa_mx_2.1">
+      <configure name="BARO_LED" value="5"/>
+    </target>
+    <target name="test_radio_control" board="lisa_mx_2.1">
+      <module name="radio_control" type="spektrum">
+        <define name="RADIO_MODE" value="RADIO_AUX1"/>
+        <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="0"/>
+      </module>
+    </target>
+    <target name="test_imu" board="lisa_mx_2.1">
+      <module name="imu" type="lisa_mx_v2.1"/>
+    </target>
+  </firmware>
 
   <servos driver="Pwm">
-    <servo name="FRONT"   no="0" min="1000" neutral="1100" max="1900"/>
-    <servo name="BACK"    no="1" min="1000" neutral="1100" max="1900"/>
-    <servo name="RIGHT"   no="2" min="1000" neutral="1100" max="1900"/>
-    <servo name="LEFT"    no="3" min="1000" neutral="1100" max="1900"/>
+    <servo name="FL" no="0" min="1000" neutral="1100" max="1900"/>
+    <servo name="FR" no="1" min="1000" neutral="1100" max="1900"/>
+    <servo name="BR" no="2" min="1000" neutral="1100" max="1900"/>
+    <servo name="BL" no="3" min="1000" neutral="1100" max="1900"/>
   </servos>
 
   <commands>
@@ -69,24 +96,16 @@
   </commands>
 
   <section name="MIXING" prefix="MOTOR_MIXING_">
-    <define name="TRIM_ROLL" value="0"/>
-    <define name="TRIM_PITCH" value="0"/>
-    <define name="TRIM_YAW" value="0"/>
-    <define name="NB_MOTOR" value="4"/>
-    <define name="SCALE" value="256"/>
-    <!-- order (and rotation direction) : NE (CW), SE (CCW), SW (CW), NW (CCW) -->
-    <define name="ROLL_COEF"   value="{ -256, -256,  256,  256 }"/>
-    <define name="PITCH_COEF"  value="{  256, -256, -256,  256 }"/>
-    <define name="YAW_COEF"    value="{ -256,  256, -256,  256 }"/>
-    <define name="THRUST_COEF" value="{  256,  256,  256,  256 }"/>
+    <!-- front left (CW), front right (CCW), back right (CW), back left (CCW) -->
+    <define name="TYPE" value="QUAD_X"/>
   </section>
 
   <command_laws>
     <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
-    <set servo="FRONT"  value="motor_mixing.commands[0]"/>
-    <set servo="BACK"   value="motor_mixing.commands[1]"/>
-    <set servo="RIGHT"  value="motor_mixing.commands[2]"/>
-    <set servo="LEFT"   value="motor_mixing.commands[3]"/>
+    <set servo="FL" value="motor_mixing.commands[MOTOR_FRONT_LEFT]"/>
+    <set servo="FR" value="motor_mixing.commands[MOTOR_FRONT_RIGHT]"/>
+    <set servo="BR" value="motor_mixing.commands[MOTOR_BACK_RIGHT]"/>
+    <set servo="BL" value="motor_mixing.commands[MOTOR_BACK_LEFT]"/>
   </command_laws>
 
   <section name="IMU" prefix="IMU_">
@@ -114,30 +133,6 @@
     <define name="H_Z" value="0.9259921"/>
   </section>
 
-  <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
-    <!-- setpoints -->
-    <define name="SP_MAX_P" value="10000"/>
-    <define name="SP_MAX_Q" value="10000"/>
-    <define name="SP_MAX_R" value="10000"/>
-    <define name="DEADBAND_P" value="20"/>
-    <define name="DEADBAND_Q" value="20"/>
-    <define name="DEADBAND_R" value="200"/>
-    <define name="REF_TAU" value="4"/>
-
-    <!-- feedback -->
-    <define name="GAIN_P" value="400"/>
-    <define name="GAIN_Q" value="400"/>
-    <define name="GAIN_R" value="350"/>
-
-    <define name="IGAIN_P" value="75"/>
-    <define name="IGAIN_Q" value="75"/>
-    <define name="IGAIN_R" value="50"/>
-
-    <!-- feedforward -->
-    <define name="DDGAIN_P" value="300"/>
-    <define name="DDGAIN_Q" value="300"/>
-    <define name="DDGAIN_R" value="300"/>
-  </section>
 
 
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
@@ -202,9 +197,9 @@
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
-    <define name="ACTUATOR_NAMES"  value="{&quot;ne_motor&quot;, &quot;se_motor&quot;, &quot;sw_motor&quot;, &quot;nw_motor&quot;}"/>
-    <define name="JSBSIM_MODEL" value="&quot;simple_x_quad&quot;"/>
-    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
+    <define name="ACTUATOR_NAMES" value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
+    <define name="JSBSIM_MODEL" value="simple_x_quad_ccw" type="string"/>
+    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
     <!-- mode switch on joystick channel 5 (axis numbering starting at zero) -->
     <define name="JS_AXIS_MODE" value="4"/>
   </section>

@@ -17,21 +17,23 @@
     </target>
 
     <target name="nps" board="pc">
-      <subsystem name="fdm" type="jsbsim"/>
+      <module name="fdm" type="jsbsim"/>
     </target>
 
-    <subsystem name="radio_control" type="spektrum">
+    <module name="radio_control" type="spektrum">
       <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
       <define name="RADIO_MODE" value="RADIO_AUX1"/>
-    </subsystem>
-    <subsystem name="motor_mixing"/>
-    <subsystem name="actuators"     type="asctec_v2"/>
-    <subsystem name="telemetry"     type="xbee_api"/>
-    <subsystem name="imu"           type="navstik"/>
-    <subsystem name="gps"           type="ublox"/>
-    <subsystem name="stabilization" type="int_quat"/>
-    <subsystem name="ahrs"          type="int_cmpl_quat"/>
-    <subsystem name="ins"           type="hff"/>
+    </module>
+    <module name="motor_mixing"/>
+    <module name="actuators"     type="asctec_v2"/>
+    <module name="telemetry"     type="xbee_api"/>
+    <module name="imu"           type="navstik"/>
+    <module name="gps"           type="ublox"/>
+    <module name="stabilization" type="indi"/>
+    <module name="ahrs"          type="int_cmpl_quat">
+      <configure name="USE_MAGNETOMETER" value="FALSE"/>
+    </module>
+    <module name="ins"           type="hff"/>
   </firmware>
 
   <firmware name="test_progs">
@@ -43,12 +45,11 @@
   </firmware>
 
   <modules>
-    <load name="gps_ubx_ucenter.xml"/>
-    <load name="airspeed_ms45xx_i2c.xml">
-      <define name="MS45XX_I2C_DEV" value="i2c3"/>
-      <define name="USE_I2C3"/>
-    </load>
-    <load name="direct_memory_logger.xml"/>
+    <module name="gps" type="ubx_ucenter"/>
+    <!--module name="airspeed_ms45xx_i2c">
+      <configure name="MS45XX_I2C_DEV" value="i2c3"/>
+    </module>
+    <module name="direct_memory_logger"/-->
   </modules>
 
   <servos driver="Asctec_v2">
@@ -110,29 +111,36 @@
     <define name="H_Z" value="0.9259921"/>
   </section>
 
-  <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
-    <!-- setpoints -->
-    <define name="SP_MAX_P" value="10000"/>
-    <define name="SP_MAX_Q" value="10000"/>
-    <define name="SP_MAX_R" value="10000"/>
-    <define name="DEADBAND_P" value="20"/>
-    <define name="DEADBAND_Q" value="20"/>
-    <define name="DEADBAND_R" value="200"/>
-    <define name="REF_TAU" value="4"/>
 
-    <!-- feedback -->
-    <define name="GAIN_P" value="400"/>
-    <define name="GAIN_Q" value="400"/>
-    <define name="GAIN_R" value="350"/>
+  <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
+    <!-- control effectiveness -->
+    <define name="G1_P" value="0.150"/>
+    <define name="G1_Q" value="0.150"/>
+    <define name="G1_R" value="0.005119"/>
+    <define name="G2_R" value="0.2166"/>
 
-    <define name="IGAIN_P" value="75"/>
-    <define name="IGAIN_Q" value="75"/>
-    <define name="IGAIN_R" value="50"/>
+    <!-- reference acceleration for attitude control -->
+    <define name="REF_ERR_P" value="900.0"/>
+    <define name="REF_ERR_Q" value="900.0"/>
+    <define name="REF_ERR_R" value="500.0"/>
+    <define name="REF_RATE_P" value="38.0"/>
+    <define name="REF_RATE_Q" value="38.0"/>
+    <define name="REF_RATE_R" value="25.0"/>
 
-    <!-- feedforward -->
-    <define name="DDGAIN_P" value="300"/>
-    <define name="DDGAIN_Q" value="300"/>
-    <define name="DDGAIN_R" value="300"/>
+    <!-- second order filter parameters -->
+    <define name="FILT_OMEGA" value="50.0"/>
+    <define name="FILT_ZETA" value="0.55"/>
+    <define name="FILT_OMEGA_R" value="50.0"/>
+    <define name="FILT_ZETA_R" value="0.55"/>
+
+    <!-- first order actuator dynamics -->
+    <define name="ACT_DYN_P" value="0.2"/>
+    <define name="ACT_DYN_Q" value="0.2"/>
+    <define name="ACT_DYN_R" value="0.2"/>
+
+    <!-- Adaptive Learning Rate -->
+    <define name="USE_ADAPTIVE" value="FALSE"/>
+    <define name="ADAPTIVE_MU" value="0.0001"/>
   </section>
 
 
@@ -194,9 +202,9 @@
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
-    <define name="ACTUATOR_NAMES" value="{&quot;ne_motor&quot;, &quot;se_motor&quot;, &quot;sw_motor&quot;, &quot;nw_motor&quot;}"/>
-    <define name="JSBSIM_MODEL" value="&quot;simple_x_quad&quot;"/>
-    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
+    <define name="ACTUATOR_NAMES" value="ne_motor, se_motor, sw_motor, nw_motor" type="string[]"/>
+    <define name="JSBSIM_MODEL" value="simple_x_quad" type="string"/>
+    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
   </section>
 
   <section name="AUTOPILOT">

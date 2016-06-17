@@ -12,6 +12,8 @@ CFG_SHARED=$(PAPARAZZI_SRC)/conf/firmwares/subsystems/shared
 
 SRC_FIRMWARE=firmwares/setup
 
+VPATH += $(PAPARAZZI_HOME)/var/share
+
 #
 # common setup
 #
@@ -30,6 +32,10 @@ ifneq ($(SYS_TIME_LED),none)
 endif
 COMMON_SETUP_CFLAGS += -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
 COMMON_SETUP_SRCS   += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
+ifeq ($(ARCH), linux)
+# seems that we need to link against librt for glibc < 2.17
+$(TARGET).LDFLAGS += -lrt
+endif
 
 COMMON_SETUP_CFLAGS += -DUSE_LED
 
@@ -104,9 +110,9 @@ setup_actuators.srcs   += mcu_periph/uart.c $(SRC_ARCH)/mcu_periph/uart_arch.c
 setup_actuators.CFLAGS += -DUSE_$(MODEM_PORT)
 setup_actuators.CFLAGS += -D$(MODEM_PORT)_BAUD=$(MODEM_BAUD)
 SETUP_ACTUATORS_MODEM_PORT_LOWER=$(shell echo $(MODEM_PORT) | tr A-Z a-z)
-setup_actuators.CFLAGS += -DDOWNLINK -DDOWNLINK_DEVICE=$(SETUP_ACTUATORS_MODEM_PORT_LOWER) -DPPRZ_UART=$(MODEM_PORT)
+setup_actuators.CFLAGS += -DDOWNLINK -DDOWNLINK_DEVICE=$(SETUP_ACTUATORS_MODEM_PORT_LOWER) -DPPRZ_UART=$(SETUP_ACTUATORS_MODEM_PORT_LOWER)
 setup_actuators.CFLAGS += -DDOWNLINK_TRANSPORT=pprz_tp -DDATALINK=PPRZ
-setup_actuators.srcs += subsystems/datalink/downlink.c subsystems/datalink/pprz_transport.c
+setup_actuators.srcs += subsystems/datalink/downlink.c pprzlink/src/pprz_transport.c
 
 setup_actuators.srcs   += subsystems/actuators.c
 setup_actuators.srcs   += $(SRC_FIRMWARE)/setup_actuators.c

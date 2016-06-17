@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (C) 2014 Freek van Tienen <freek.v.tienen@gmail.com>
+ * Copyright (C) 2014-2015 Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -22,7 +22,7 @@
 
 /**
  * @file boards/bebop/actuators.c
- * Actuator driver for the bebop
+ * Actuator driver for the bebop and bebop 2
  */
 
 #include "subsystems/actuators.h"
@@ -36,7 +36,7 @@
 #include "subsystems/datalink/telemetry.h"
 #include "firmwares/rotorcraft/stabilization.h"
 
-static void send_actuators_bebop(struct transport_tx *trans, struct link_device *dev)
+static void send_bebop_actuators(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_BEBOP_ACTUATORS(trans, dev, AC_ID,
                                 &stabilization_cmd[COMMAND_THRUST],
@@ -66,7 +66,7 @@ void actuators_bebop_init(void)
   actuators_bebop.led = 0;
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "ACTUATORS_BEBOP", send_actuators_bebop);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_BEBOP_ACTUATORS, send_bebop_actuators);
 #endif
 }
 
@@ -78,13 +78,11 @@ void actuators_bebop_commit(void)
 
   // Update status
   electrical.vsupply = (actuators_bebop.i2c_trans.buf[9] + (actuators_bebop.i2c_trans.buf[8] << 8)) / 100;
-  actuators_bebop.rpm_obs[0] = (actuators_bebop.i2c_trans.buf[1] + (actuators_bebop.i2c_trans.buf[0] << 8));
-  actuators_bebop.rpm_obs[1] = (actuators_bebop.i2c_trans.buf[3] + (actuators_bebop.i2c_trans.buf[2] << 8));
-  actuators_bebop.rpm_obs[2] = (actuators_bebop.i2c_trans.buf[5] + (actuators_bebop.i2c_trans.buf[4] << 8));
-  actuators_bebop.rpm_obs[3] = (actuators_bebop.i2c_trans.buf[7] + (actuators_bebop.i2c_trans.buf[6] << 8));
-
-  // Saturate the bebop motors
-  //actuators_bebop_saturate();
+  // The 15th bit contains saturation information, so it needs to be removed to get the rpm
+  actuators_bebop.rpm_obs[0] = (actuators_bebop.i2c_trans.buf[1] + (actuators_bebop.i2c_trans.buf[0] << 8)) & ~(1<<15);
+  actuators_bebop.rpm_obs[1] = (actuators_bebop.i2c_trans.buf[3] + (actuators_bebop.i2c_trans.buf[2] << 8)) & ~(1<<15);
+  actuators_bebop.rpm_obs[2] = (actuators_bebop.i2c_trans.buf[5] + (actuators_bebop.i2c_trans.buf[4] << 8)) & ~(1<<15);
+  actuators_bebop.rpm_obs[3] = (actuators_bebop.i2c_trans.buf[7] + (actuators_bebop.i2c_trans.buf[6] << 8)) & ~(1<<15);
 
   // When detected a suicide
   actuators_bebop.i2c_trans.buf[10] = actuators_bebop.i2c_trans.buf[10] & 0x7;
@@ -100,7 +98,13 @@ void actuators_bebop_commit(void)
 
     // Start the motors
     actuators_bebop.i2c_trans.buf[0] = ACTUATORS_BEBOP_START_PROP;
-    i2c_transmit(&i2c1, &actuators_bebop.i2c_trans, actuators_bebop.i2c_trans.slave_addr, 1);
+#if BEBOP_VERSION2
+    // For Bebop version 2 some motors are reversed (FIXME: test final version)
+    actuators_bebop.i2c_trans.buf[1] = 0b00001010;
+#else
+    actuators_bebop.i2c_trans.buf[1] = 0b00000101;
+#endif
+    i2c_transmit(&i2c1, &actuators_bebop.i2c_trans, actuators_bebop.i2c_trans.slave_addr, 2);
   }
   // Stop the motors
   else if (actuators_bebop.i2c_trans.buf[10] == 4 && !autopilot_motors_on) {
@@ -144,36 +148,3 @@ static uint8_t actuators_bebop_checksum(uint8_t *bytes, uint8_t size)
 
   return checksum;
 }
-
-/*static void actuators_bebop_saturate(void) {
-  // Find the lowest and highest commands
-  int32_t max_cmd = 9000; // Should be gotton from airframe file per motor
-  int32_t min_cmd = 3000; // Should be gotton from airframe file per motor
-  for(int i = 0; i < 4; i++) {
-    if(actuators_bebop.rpm_ref[i] > max_cmd)
-      max_cmd = actuators_bebop.rpm_ref[i];
-    if(actuators_bebop.rpm_ref[i] < min_cmd)
-      min_cmd = actuators_bebop.rpm_ref[i];
-  }
-
-  // Find the maximum motor command (Saturated motor or either MOTOR_MIXING_MAX_MOTOR)
-  int32_t max_motor = 9000;
-  for(int i = 0; i < 4; i++) {
-    if(actuators_bebop.rpm_obs[i] & (1<<15) && max_cmd > (actuators_bebop.rpm_obs[i] & ~(1<<15)))
-      max_motor = actuators_bebop.rpm_obs[i] & ~(1<<15);
-  }
-
-  // Saturate the offsets
-  if(max_cmd > max_motor) {
-    int32_t saturation_offset = 9000 - max_cmd;
-    for(int i = 0; i < 4; i++)
-      actuators_bebop.rpm_ref[i] += saturation_offset;
-    motor_mixing.nb_saturation++;
-  }
-  else if(min_cmd < 3000) {
-    int32_t saturation_offset = 3000 - min_cmd;
-    for(int i = 0; i < 4; i++)
-      actuators_bebop.rpm_ref[i] += saturation_offset;
-    motor_mixing.nb_saturation++;
-  }
-}*/

@@ -21,6 +21,8 @@ You can use:
       <dl_settings NAME="P_Survey">
         <dl_setting min="0" max="20" step="1" var="Poly_Size" type="uint8_t" shortname="Size" module="modules/nav/nav_survey_poly_osam"/>
         <dl_setting min="0" max="500" step="1" var="Poly_Sweep" type="float" shortname="Sweep" module="modules/nav/nav_survey_poly_osam"/>
+        <dl_setting min="0" max="1" step="1" values="FALSE|TRUE" var="Half_Sweep_Enabled" type="bool" shortname="Half Sweep" module="modules/nav/nav_survey_poly_osam"/>
+        <dl_setting min="0" max="1" step="1" values="FALSE|TRUE" var="Reset_Sweep" type="bool" shortname="Reset Sweep" module="modules/nav/nav_survey_poly_osam" handler="ResetSweepNumber"/>
       </dl_settings>
     </dl_settings>
   </settings>
@@ -28,7 +30,7 @@ You can use:
   <header>
     <file name="nav_survey_poly_osam.h"/>
   </header>
-  <makefile target="ap|sim|jsbsim|nps">
+  <makefile target="ap|sim|nps">
     <file name="nav_survey_poly_osam.c"/>
   </makefile>
 </module>

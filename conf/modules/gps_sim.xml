@@ -1,0 +1,20 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="gps_sim">
+  <doc>
+    <description>
+      Simulated GPS
+      For simple fixedwing OCaml simulator. Does not model any GPS inaccuracies/noise.
+    </description>
+  </doc>
+  <autoload name="gps"/>
+  <header>
+    <file name="gps.h" dir="subsystems"/>
+  </header>
+  <init fun="gps_sim_init()"/>
+  <periodic fun="gps_sim_periodic_check()" freq="1." autorun="TRUE"/>
+  <makefile target="sim">
+    <file name="gps_sim.c" dir="subsystems/gps"/>
+    <define name="GPS_TYPE_H" value="subsystems/gps/gps_sim.h" type="string"/>
+  </makefile>
+</module>

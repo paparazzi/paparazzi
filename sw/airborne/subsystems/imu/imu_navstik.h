@@ -71,9 +71,6 @@
 
 
 struct ImuNavstik {
-  volatile uint8_t accel_valid;
-  volatile uint8_t gyro_valid;
-  volatile uint8_t mag_valid;
   struct Mpu60x0_I2c mpu;
   struct Hmc58xx hmc;
 };
@@ -81,22 +78,6 @@ struct ImuNavstik {
 extern struct ImuNavstik imu_navstik;
 extern void imu_navstik_event(void);
 
-
-static inline void ImuEvent(void (* _gyro_handler)(void), void (* _accel_handler)(void), void (* _mag_handler)(void))
-{
-  imu_navstik_event();
-  if (imu_navstik.gyro_valid) {
-    imu_navstik.gyro_valid = FALSE;
-    _gyro_handler();
-  }
-  if (imu_navstik.accel_valid) {
-    imu_navstik.accel_valid = FALSE;
-    _accel_handler();
-  }
-  if (imu_navstik.mag_valid) {
-    imu_navstik.mag_valid = FALSE;
-    _mag_handler();
-  }
-}
+#define ImuEvent imu_navstik_event
 
 #endif /* IMU_NAVSTIK_H */

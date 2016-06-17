@@ -20,7 +20,7 @@
  *
  */
 
-/** @file modules/computer_vission/video_usb_logger.h
+/** @file modules/computer_vision/video_usb_logger.h
  *  @brief Camera image logger for Linux based autopilots
  */
 

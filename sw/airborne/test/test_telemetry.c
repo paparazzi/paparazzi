@@ -25,6 +25,8 @@
  * Periodically sends ALIVE telemetry messages.
  */
 
+#define DATALINK_C
+
 #include BOARD_CONFIG
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
@@ -59,15 +61,16 @@ static inline void main_init(void)
 
 static inline void main_periodic(void)
 {
-  RunOnceEvery(10, {DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);});
+  RunOnceEvery(50, {
+      DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
+#ifdef UART_TX_LED
+      LED_TOGGLE(UART_TX_LED);
+#endif
+    });
   LED_PERIODIC();
 }
 
 static inline void main_event(void)
 {
-#if USE_UDP
-  udp_event();
-#else
-  uart_event();
-#endif
+  mcu_event();
 }

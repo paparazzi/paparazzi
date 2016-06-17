@@ -1,0 +1,260 @@
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+
+<!--
+	Lisa + Aspirin v2 using SPI only
+-->
+
+<airframe name="LisaAspirin2">
+  <!-- ************************* FIRMWARE ************************* -->
+
+  <firmware name="fixedwing">
+    <target name="ap" board="lisa_m_1.0">
+      <define name="LISA_M_LONGITUDINAL_X"/>
+      <configure name="PERIODIC_FREQUENCY" value="120"/>
+      <configure name="AHRS_PROPAGATE_FREQUENCY" value="100"/>
+      <configure name="AHRS_CORRECT_FREQUENCY" value="100"/>
+      <define name="AHRS_TRIGGERED_ATTITUDE_LOOP"/>
+    </target>
+    <target name="sim" board="pc"/>
+    <target name="nps" board="pc">
+      <!-- Note NPS needs the ppm type radio_control module -->
+      <module name="fdm" type="jsbsim"/>
+    </target>
+    <define name="USE_AIRSPEED"/>
+    <define name="AGR_CLIMB"/>
+    <define name="STRONG_WIND"/>
+    <define name="WIND_INFO"/>
+    <define name="WIND_INFO_RET"/>
+
+    <!-- Sensors -->
+    <module name="imu" type="aspirin_v2.1"/>
+    <!--
+    <module name="ahrs" type="float_dcm">
+      <configure name="USE_MAGNETOMETER" value="FALSE"/>
+      <define name="USE_AHRS_GPS_ACCELERATIONS"/>
+    </module>
+    -->
+    <module name="ahrs" type="int_cmpl_quat">
+      <configure name="USE_MAGNETOMETER" value="TRUE"/>
+      <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN"/>
+    </module>
+    <module name="ins" type="alt_float"/>
+    <module name="radio_control" type="ppm"/>
+    <!-- Communication -->
+    <module name="telemetry" type="xbee_api">
+      <configure name="MODEM_BAUD" value="B57600"/>
+      <configure name="MODEM_PORT" value="UART2"/>
+    </module>
+    <!-- Actuators -->
+    <module name="control" type="energy"/>
+    <!-- Sensors -->
+    <module name="navigation"/>
+    <module name="gps" type="ublox">
+      <configure name="GPS_PORT" value="UART1"/>
+    </module>
+  </firmware>
+
+  <!-- ************************* MODULES ************************* -->
+
+  <modules>
+    <module name="geo_mag"/>
+    <module name="gps" type="ubx_ucenter"/>
+    <module name="airspeed_ets">
+      <define name="AIRSPEED_ETS_SYNC_SEND"/>
+      <configure name="AIRSPEED_ETS_I2C_DEV" value="i2c2"/>
+    </module>
+    <module name="adc_generic">
+      <configure name="ADC_CHANNEL_GENERIC1" value="ADC_1"/>
+      <configure name="ADC_CHANNEL_GENERIC2" value="ADC_2"/>
+    </module>
+    <module name="light">
+      <define name="LIGHT_LED_STROBE" value="2"/>
+      <define name="LIGHT_LED_NAV" value="3"/>
+      <define name="STROBE_LIGHT_MODE_DEFAULT" value="6"/>
+      <define name="NAV_LIGHT_MODE_DEFAULT" value="4"/>
+    </module>
+    <module name="digital_cam">
+      <define name="DC_SHUTTER_GPIO" value="GPIOC,GPIO12"/>
+    </module>
+    <!-- module name="nav" type="catapult"/-->
+    <module name="nav" type="line"/>
+  </modules>
+
+  <!-- ************************* ACTUATORS ************************* -->
+
+  <servos>
+    <servo name="THROTTLE" no="0" min="1000" neutral="1000" max="2000"/>
+    <servo name="AILEVON_LEFT" no="1" min="1200" neutral="1500" max="1800"/>
+    <servo name="ELEVATOR" no="2" min="2000" neutral="1500" max="1000"/>
+    <servo name="RUDDER" no="3" min="1100" neutral="1500" max="1900"/>
+    <servo name="AILEVON_RIGHT" no="4" min="1800" neutral="1500" max="1200"/>
+  </servos>
+
+  <commands>
+    <axis name="THROTTLE" failsafe_value="0"/>
+    <axis name="ROLL" failsafe_value="0"/>
+    <axis name="PITCH" failsafe_value="0"/>
+    <axis name="YAW" failsafe_value="0"/>
+  </commands>
+
+  <rc_commands>
+    <set command="THROTTLE" value="@THROTTLE"/>
+    <set command="ROLL" value="@ROLL"/>
+    <set command="PITCH" value="@PITCH"/>
+    <set command="YAW" value="@YAW"/>
+  </rc_commands>
+
+  <section name="AUTO1" prefix="AUTO1_">
+    <define name="MAX_ROLL" value="0.8"/>
+    <define name="MAX_PITCH" value="0.8"/>
+  </section>
+
+  <command_laws>
+    <set servo="AILEVON_LEFT" value="@ROLL"/>
+    <set servo="AILEVON_RIGHT" value="-@ROLL"/>
+    <set servo="THROTTLE" value="@THROTTLE"/>
+    <set servo="ELEVATOR" value="@PITCH"/>
+    <set servo="RUDDER" value="@YAW"/>
+  </command_laws>
+
+  <section name="TRIM" prefix="COMMAND_">
+    <define name="ROLL_TRIM" value="0"/>
+    <define name="PITCH_TRIM" value="788."/>
+  </section>
+
+  <section name="FAILSAFE" prefix="FAILSAFE_">
+    <define name="DEFAULT_THROTTLE" value="0.35" unit="%"/>
+    <define name="DEFAULT_ROLL" value="10.0" unit="deg"/>
+    <define name="DEFAULT_PITCH" value="5.0" unit="deg"/>
+    <define name="HOME_RADIUS" value="DEFAULT_CIRCLE_RADIUS" unit="m"/>
+    <define name="KILL_MODE_DISTANCE" value="(MAX_DIST_FROM_HOME*1.5)"/>
+    <define name="DELAY_WITHOUT_GPS" value="3" unit="s"/>
+  </section>
+
+  <!-- ************************* SENSORS ************************* -->
+
+  <section name="IMU" prefix="IMU_">
+    <!-- replace this with your own calibration -->
+    <define name="MAG_X_NEUTRAL" value="-179"/>
+    <define name="MAG_Y_NEUTRAL" value="-21"/>
+    <define name="MAG_Z_NEUTRAL" value="79"/>
+    <define name="MAG_X_SENS" value="4.17334785618" integer="16"/>
+    <define name="MAG_Y_SENS" value="3.98885954135" integer="16"/>
+    <define name="MAG_Z_SENS" value="4.40442339014" integer="16"/>
+
+    <define name="BODY_TO_IMU_PHI" value="0"/>
+    <define name="BODY_TO_IMU_THETA" value="0"/>
+    <define name="BODY_TO_IMU_PSI" value="0"/>
+  </section>
+
+  <section name="AHRS" prefix="AHRS_">
+    <!-- Local magnetic field, on 3D fix is update by geo_mag module -->
+    <define name="H_X" value="0.51562740288882"/>
+    <define name="H_Y" value="-0.05707735220832"/>
+    <define name="H_Z" value="0.85490967783446"/>
+  </section>
+
+  <section name="INS" prefix="INS_">
+    <define name="ROLL_NEUTRAL_DEFAULT" value="0.0" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="5.9" unit="deg"/>
+  </section>
+
+  <!-- ************************* GAINS ************************* -->
+
+  <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
+    <define name="COURSE_PGAIN" value="0.89"/>
+    <define name="COURSE_DGAIN" value="0.27"/>
+    <define name="COURSE_PRE_BANK_CORRECTION" value="1.0"/>
+    <define name="ROLL_MAX_SETPOINT" value="45" unit="deg"/>
+    <define name="PITCH_MAX_SETPOINT" value="50" unit="deg"/>
+    <define name="PITCH_MIN_SETPOINT" value="-50" unit="deg"/>
+    <define name="PITCH_PGAIN" value="12000"/>
+    <define name="PITCH_DGAIN" value="1.5"/>
+    <define name="ELEVATOR_OF_ROLL" value="1273.88500977"/>
+    <define name="ROLL_SLEW" value="1."/>
+    <define name="ROLL_ATTITUDE_GAIN" value="7972.02783203"/>
+    <define name="ROLL_RATE_GAIN" value="500."/>
+  </section>
+
+  <section name="VERTICAL CONTROL" prefix="V_CTL_">
+    <!-- power -->
+    <define name="POWER_CTL_BAT_NOMINAL" value="11.1" unit="volt"/>
+    <!-- outer loop proportional gain -->
+    <define name="ALTITUDE_PGAIN" value="0.183"/>
+    <define name="AIRSPEED_PGAIN" value="0.217"/>
+    <!-- outer loop saturation -->
+    <define name="ALTITUDE_MAX_CLIMB" value="10."/>
+    <define name="MAX_ACCELERATION" value="2."/>
+    <!-- energy -->
+    <define name="ENERGY_TOT_PGAIN" value="0.205"/>
+    <define name="ENERGY_TOT_IGAIN" value="0.403"/>
+    <define name="ENERGY_DIFF_PGAIN" value="0.403"/>
+    <define name="ENERGY_DIFF_IGAIN" value="0.259"/>
+    <define name="GLIDE_RATIO" value="7."/>
+    <!-- auto throttle -->
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.5"/>
+    <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0." unit="%/(m/s)"/>
+    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0."/>
+    <!-- extra's -->
+    <define name="AUTO_THROTTLE_OF_AIRSPEED_PGAIN" value="0.0"/>
+    <define name="AUTO_THROTTLE_OF_AIRSPEED_IGAIN" value="0.0"/>
+    <!-- extra's -->
+    <define name="AUTO_PITCH_OF_AIRSPEED_PGAIN" value="0.0"/>
+    <define name="AUTO_PITCH_OF_AIRSPEED_IGAIN" value="0.0"/>
+    <define name="AUTO_PITCH_OF_AIRSPEED_DGAIN" value="0.0"/>
+    <define name="THROTTLE_SLEW_LIMITER" value="1" unit="m/s/s"/>
+    <!--define name="AUTO_GROUNDSPEED_SETPOINT" value="15." unit="m/s"/>
+    <define name="AUTO_GROUNDSPEED_PGAIN" value="1."/>
+    <define name="AUTO_GROUNDSPEED_IGAIN" value="0"/-->
+  </section>
+
+  <!-- ************************* MISC ************************* -->
+
+  <section name="BAT">
+    <define name="MilliAmpereOfAdc(adc)" value="((adc) - 505) * 124.0f"/>
+    <define name="LOW_BAT_LEVEL" value="10.5" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="10" unit="V"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="9.1" unit="V"/>
+  </section>
+
+  <section name="MISC">
+    <define name="CLIMB_AIRSPEED" value="14." unit="m/s"/>
+    <define name="NOMINAL_AIRSPEED" value="16." unit="m/s"/>
+    <define name="GLIDE_AIRSPEED" value="12." unit="m/s"/>
+    <define name="RACE_AIRSPEED" value="25." unit="m/s"/>
+    <define name="STALL_AIRSPEED" value="10." unit="m/s"/>
+    <define name="CARROT" value="5." unit="s"/>
+    <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
+    <define name="NAV_GLIDE_PITCH_TRIM" value="0."/>
+  </section>
+
+  <section name="CATAPULT" prefix="NAV_CATAPULT_">
+    <define name="MOTOR_DELAY" value="0.75" unit="seconds"/>
+    <define name="HEADING_DELAY" value="3.0" unit="seconds"/>
+    <define name="ACCELERATION_THRESHOLD" value="1.75"/>
+    <define name="INITIAL_PITCH" value="15.0" unit="deg"/>
+    <define name="INITIAL_THROTTLE" value="1.0"/>
+  </section>
+
+  <section name="GLS_APPROACH" prefix="APP_">
+    <define name="ANGLE" value="5" unit="deg"/>
+    <define name="INTERCEPT_AF_SD" value="10" unit="m"/>
+    <define name="TARGET_SPEED" value="13" unit="m/s"/>
+  </section>
+
+  <section name="DIGITAL_CAMERA" prefix="DC_">
+    <define name="AUTOSHOOT_PERIOD" value="1.5" unit="sec"/>
+    <define name="AUTOSHOOT_DISTANCE_INTERVAL" value="50" unit="meter"/>
+  </section>
+
+  <section name="SIMULATOR" prefix="NPS_">
+    <define name="JSBSIM_MODEL" value="Malolo1" type="string"/>
+    <define name="COMMANDS_NB" value="4"/>
+    <define name="ACTUATOR_NAMES" value="throttle-cmd-norm, aileron-cmd-norm, elevator-cmd-norm, rudder-cmd-norm" type="string[]"/>
+    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
+    <define name="JS_AXIS_MODE" value="4"/>
+    <define name="BYPASS_AHRS" value="TRUE"/>
+    <define name="BYPASS_INS" value="TRUE"/>
+  </section>
+
+  </airframe>

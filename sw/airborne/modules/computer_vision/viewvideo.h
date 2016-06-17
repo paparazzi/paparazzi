@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2012-2014 The Paparazzi Community
+ *               2015 Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of Paparazzi.
  *
@@ -31,21 +32,19 @@
 #ifndef VIEW_VIDEO_H
 #define VIEW_VIDEO_H
 
+#include "std.h"
+
+// Main viewvideo structure
+struct viewvideo_t {
+  volatile bool is_streaming;   ///< When the device is streaming
+  uint8_t downsize_factor;        ///< Downsize factor during the stream
+  uint8_t quality_factor;         ///< Quality factor during the stream
+  bool use_rtp;                 ///< Stream over RTP
+};
+extern struct viewvideo_t viewvideo;
+
 // Module functions
-extern void viewvideo_run(void);
-extern void viewvideo_start(void);
-extern void viewvideo_stop(void);
-
-// Save picture on disk at full resolution
-// can be called from flight plan
-extern int viewvideo_save_shot(void);
-extern volatile int viewvideo_save_shot_number;
-
-extern int viewvideo_shot;
-#define viewvideo_SaveShot(_v) {  \
-    viewvideo_shot = 1;             \
-    viewvideo_save_shot();          \
-  }
+extern void viewvideo_init(void);
 
 #endif /* VIEW_VIDEO_H */
 

@@ -30,6 +30,7 @@
 #define INS_INT_H
 
 #include "subsystems/ins.h"
+#include "subsystems/gps.h"
 #include "std.h"
 #include "math/pprz_geodetic_int.h"
 #include "math/pprz_algebra_float.h"
@@ -37,17 +38,19 @@
 /** Ins implementation state (fixed point) */
 struct InsInt {
   struct LtpDef_i  ltp_def;
-  bool_t           ltp_initialized;
+  bool           ltp_initialized;
+
+  uint32_t propagation_cnt; ///< number of propagation steps since the last measurement update
 
   /** request to realign horizontal filter.
    * Sets to current position (local origin unchanged).
    */
-  bool_t hf_realign;
+  bool hf_realign;
 
   /** request to reset vertical filter.
    * Sets the z-position to zero and resets the the z-reference to current altitude.
    */
-  bool_t vf_reset;
+  bool vf_reset;
 
   /* output LTP NED */
   struct NedCoor_i ltp_pos;
@@ -57,14 +60,25 @@ struct InsInt {
   /* baro */
   float baro_z;  ///< z-position calculated from baro in meters (z-down)
   float qfe;
-  bool_t baro_initialized;
+  bool baro_initialized;
 
 #if USE_SONAR
-  bool_t update_on_agl; ///< use sonar to update agl if available
+  bool update_on_agl; ///< use sonar to update agl if available
 #endif
 };
 
 /** global INS state */
-extern struct InsInt ins_impl;
+extern struct InsInt ins_int;
+
+extern void ins_int_init(void);
+extern void ins_int_propagate(struct Int32Vect3 *accel, float dt);
+extern void ins_int_update_gps(struct GpsState *gps_s);
+
+
+#ifndef DefaultInsImpl
+#define DefaultInsImpl ins_int
+#endif
+
+extern void ins_int_register(void);
 
 #endif /* INS_INT_H */

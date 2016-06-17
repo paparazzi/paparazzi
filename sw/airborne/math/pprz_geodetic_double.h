@@ -22,7 +22,11 @@
  * @file pprz_geodetic_double.h
  * @brief Paparazzi double-precision floating point math for geodetic calculations.
  *
- *
+ * @addtogroup math_geodetic
+ * @{
+ * Double Geodetic functions and macros.
+ * @addtogroup math_geodetic_double Double Geodetic functions
+ * @{
  */
 
 #ifndef PPRZ_GEODETIC_DOUBLE_H
@@ -97,8 +101,10 @@ struct LtpDef_d {
   double hmsl; ///< height in meters above mean sea level
 };
 
-extern void lla_of_utm_d(struct LlaCoor_d *out, struct UtmCoor_d *in);
+extern void lla_of_utm_d(struct LlaCoor_d *lla, struct UtmCoor_d *utm);
+extern void utm_of_lla_d(struct UtmCoor_d *utm, struct LlaCoor_d *lla);
 extern void ltp_def_from_ecef_d(struct LtpDef_d *def, struct EcefCoor_d *ecef);
+extern void ltp_def_from_lla_d(struct LtpDef_d *def, struct LlaCoor_d *lla);
 extern void lla_of_ecef_d(struct LlaCoor_d *out, struct EcefCoor_d *in);
 extern void ecef_of_lla_d(struct EcefCoor_d *out, struct LlaCoor_d *in);
 
@@ -124,3 +130,5 @@ extern double gc_of_gd_lat_d(double gd_lat, double hmsl);
 #endif
 
 #endif /* PPRZ_GEODETIC_DOUBLE_H */
+/** @}*/
+/** @}*/

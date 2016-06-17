@@ -57,13 +57,11 @@ IMU_PX4FMU_SRCS   += peripherals/hmc58xx.c
 IMU_PX4FMU_CFLAGS += -DUSE_I2C2
 
 
-# Keep CFLAGS/Srcs for imu in separate expression so we can assign it to other targets
-
-ap.CFLAGS += $(IMU_PX4FMU_CFLAGS)
-ap.srcs   += $(IMU_PX4FMU_SRCS)
-
-test_imu.CFLAGS += $(IMU_PX4FMU_CFLAGS)
-test_imu.srcs   += $(IMU_PX4FMU_SRCS)
+# add it for all targets except sim, fbw and nps
+ifeq (,$(findstring $(TARGET),sim fbw nps))
+$(TARGET).CFLAGS += $(IMU_PX4FMU_CFLAGS)
+$(TARGET).srcs += $(IMU_PX4FMU_SRCS)
+endif
 
 #
 # NPS simulator

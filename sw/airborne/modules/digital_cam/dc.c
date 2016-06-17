@@ -41,9 +41,11 @@
 #include "firmwares/rotorcraft/navigation.h"
 #endif
 
-/** default quartersec perioid = 0.5s */
-#ifndef DC_AUTOSHOOT_QUARTERSEC_PERIOD
-#define DC_AUTOSHOOT_QUARTERSEC_PERIOD 2
+#include "mcu_periph/sys_time.h"
+
+/** default time interval for periodic mode: 1sec */
+#ifndef DC_AUTOSHOOT_PERIOD
+#define DC_AUTOSHOOT_PERIOD 1.0
 #endif
 
 /** default distance interval for distance mode: 50m */
@@ -74,8 +76,7 @@ float dc_gps_y = 0;
 
 static struct FloatVect2 last_shot_pos = {0.0, 0.0};
 float dc_distance_interval;
-
-uint8_t dc_autoshoot_quartersec_period;
+float dc_autoshoot_period;
 
 /** by default send DC_SHOT message when photo was taken */
 #ifndef DC_SHOT_SYNC_SEND
@@ -87,7 +88,7 @@ uint8_t dc_autoshoot_quartersec_period;
 uint16_t dc_photo_nr = 0;
 
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 #include "state.h"
 #include "subsystems/gps.h"
@@ -99,9 +100,9 @@ void dc_send_shot_position(void)
   int16_t theta = DegOfRad(stateGetNedToBodyEulers_f()->theta * 10.0f);
   int16_t psi = DegOfRad(stateGetNedToBodyEulers_f()->psi * 10.0f);
   // course in decideg
-  int16_t course = DegOfRad(*stateGetHorizontalSpeedDir_f()) * 10;
+  int16_t course = DegOfRad(stateGetHorizontalSpeedDir_f()) * 10;
   // ground speed in cm/s
-  uint16_t speed = (*stateGetHorizontalSpeedNorm_f()) * 10;
+  uint16_t speed = stateGetHorizontalSpeedNorm_f() * 10;
   int16_t photo_nr = -1;
 
   if (dc_photo_nr < DC_IMAGE_BUFFER) {
@@ -131,7 +132,7 @@ void dc_send_shot_position(void)
 void dc_init(void)
 {
   dc_autoshoot = DC_AUTOSHOOT_STOP;
-  dc_autoshoot_quartersec_period = DC_AUTOSHOOT_QUARTERSEC_PERIOD;
+  dc_autoshoot_period = DC_AUTOSHOOT_PERIOD;
   dc_distance_interval = DC_AUTOSHOOT_DISTANCE_INTERVAL;
 }
 
@@ -140,6 +141,7 @@ uint8_t dc_info(void)
 #ifdef DOWNLINK_SEND_DC_INFO
   float course = DegOfRad(stateGetNedToBodyEulers_f()->psi);
   int16_t mode = dc_autoshoot;
+  uint8_t shutter = dc_autoshoot_period * 10;
   DOWNLINK_SEND_DC_INFO(DefaultChannel, DefaultDevice,
                         &mode,
                         &stateGetPositionLla_i()->lat,
@@ -155,7 +157,7 @@ uint8_t dc_info(void)
                         &dc_circle_interval,
                         &dc_circle_last_block,
                         &dc_gps_count,
-                        &dc_autoshoot_quartersec_period);
+                        &shutter);
 #endif
   return 0;
 }
@@ -235,20 +237,20 @@ static float dim_mod(float a, float b, float m)
   return fminf(a - b, b + m - a);
 }
 
-void dc_periodic_4Hz(void)
+void dc_periodic(void)
 {
-  static uint8_t dc_shutter_timer = 0;
+  static float last_shot_time = 0.;
 
   switch (dc_autoshoot) {
 
-    case DC_AUTOSHOOT_PERIODIC:
-      if (dc_shutter_timer) {
-        dc_shutter_timer--;
-      } else {
-        dc_shutter_timer = dc_autoshoot_quartersec_period;
+    case DC_AUTOSHOOT_PERIODIC: {
+      float now = get_sys_time_float();
+      if (now - last_shot_time > dc_autoshoot_period) {
+        last_shot_time = now;
         dc_send_command(DC_SHOOT);
       }
-      break;
+    }
+    break;
 
     case DC_AUTOSHOOT_DISTANCE: {
       struct FloatVect2 cur_pos;

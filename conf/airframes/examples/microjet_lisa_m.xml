@@ -11,7 +11,7 @@
   <firmware name="fixedwing">
     <target name="sim" 	board="pc"/>
     <target name="nps"   board="pc">
-      <subsystem name="fdm" type="jsbsim"/>
+      <module name="fdm" type="jsbsim"/>
     </target>
     <target name="ap"   board="lisa_m_2.0">
       <!-- baro board options for Lisa/M 2.0: BARO_BOARD_BMP085, BARO_MS5611_I2C, BARO_MS5611_SPI (default) -->
@@ -27,46 +27,33 @@
     <define name="LOITER_TRIM"/>
     <define name="STRONG_WIND"/>
 
-    <subsystem name="radio_control" type="ppm"/>
+    <module name="radio_control" type="ppm"/>
 
     <!-- Communication -->
-    <subsystem name="telemetry" 	type="transparent"/>
+    <module name="telemetry" 	type="transparent"/>
 
     <!-- Sensors -->
-    <subsystem name="imu"           type="aspirin_v2.2"/>
-    <subsystem name="gps"           type="ublox"/>
+    <module name="imu"           type="aspirin_v2.2"/>
+    <module name="gps"           type="ublox"/>
 
-    <subsystem name="ahrs"          type="int_cmpl_quat"/>
-    <subsystem name="control"/>
-    <subsystem name="navigation"/>
-    <subsystem name="ins" type="alt_float">
+    <module name="ahrs"          type="int_cmpl_quat"/>
+    <module name="control"/>
+    <module name="navigation"/>
+    <module name="ins" type="alt_float">
       <define name="USE_BAROMETER" value="TRUE"/>
-    </subsystem>
+    </module>
   </firmware>
 
   <modules>
-    <load name="sys_mon.xml"/>
-    <load name="baro_sim.xml"/>
-    <load name="air_data.xml">
+    <module name="sys_mon"/>
+    <module name="baro_sim"/>
+    <module name="air_data">
       <define name="AIR_DATA_CALC_AMSL_BARO" value="TRUE"/>
-    </load>
+    </module>
 
-    <!-- extra navigation routines -->
-    <load name="nav_bungee_takeoff.xml"/>
-    <load name="nav_line.xml"/>
-    <load name="nav_line_border.xml"/>
-    <load name="nav_line_osam.xml"/>
-    <load name="nav_flower.xml"/>
-    <load name="nav_smooth.xml"/>
-    <load name="nav_survey_polygon.xml"/>
-    <load name="nav_survey_poly_osam.xml"/>
-    <load name="nav_survey_zamboni.xml"/>
-    <load name="nav_vertical_raster.xml"/>
-    <load name="nav_spiral.xml"/>
-
-    <load name="digital_cam_servo.xml">
+    <module name="digital_cam_servo">
       <define name="DC_SHUTTER_SERVO" value="COMMAND_SHUTTER" />
-    </load>
+    </module>
   </modules>
 
   <servos>
@@ -202,14 +189,10 @@
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
-    <define name="JSBSIM_MODEL" value="&quot;Malolo1&quot;"/>
+    <define name="JSBSIM_MODEL" value="easystar" type="string"/>
     <define name="JSBSIM_LAUNCHSPEED" value="20"/>
-    <define name="COMMANDS_NB" value="3"/>
-    <define name="ACTUATOR_NAMES" value="{&quot;throttle-cmd-norm&quot;, &quot;aileron-cmd-norm&quot;, &quot;elevator-cmd-norm&quot;}"/>
-    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
+    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
     <define name="JS_AXIS_MODE" value="4"/>
-    <define name="BYPASS_AHRS" value="TRUE"/>
-    <define name="BYPASS_INS" value="TRUE"/>
   </section>
 
 </airframe>

@@ -34,6 +34,10 @@
  *
  * rows are from -180 to +170 starting north +90 to south-90
  *
+ * @addtogroup math_geodetic
+ * @{
+ * @addtogroup math_geodetic_wgs84 WGS-84 Geoid
+ * @{
  */
 
 #ifndef PPRZ_GEODETIC_WGS84_H
@@ -43,7 +47,9 @@
 extern "C" {
 #endif
 
-const int8_t pprz_geodetic_wgs84_int[19][36] = {
+#include "std.h"
+
+static const int8_t pprz_geodetic_wgs84_int[19][36] = {
   {13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13},
   {3, 1, -2, -3, -3, -3, -1, 3, 1, 5, 9, 11, 19, 27, 31, 34, 33, 34, 33, 34, 28, 23, 17, 13, 9, 4, 4, 1, -2, -2, 0, 2, 3, 2, 1, 1},
   {2, 2, 1, -1, -3, -7, -14, -24, -27, -25, -19, 3, 24, 37, 47, 60, 61, 58, 51, 43, 29, 20, 12, 5, -2, -10, -14, -12, -10, -14, -12, -6, -2, 3, 6, 4},
@@ -66,6 +72,31 @@ const int8_t pprz_geodetic_wgs84_int[19][36] = {
 };
 
 #define WGS84_H(x,y) ((float) pprz_geodetic_wgs84_int[(y)][(x)])
+
+/** Get WGS84 ellipsoid/geoid separation.
+ * @param[in] lat Latitude in 1e7deg
+ * @param[in] lon Longitude in 1e7deg
+ * @return geoid separation in m
+ */
+static inline float wgs84_ellipsoid_to_geoid_i(int32_t lat, int32_t lon)
+{
+  float x = (180.0f + (float)lon / 1e7) / 10.0f;
+  Bound(x, 0.0f, 35.99999f);
+  float y = (90.0f - (float)lat / 1e7) / 10.0f;
+  Bound(y, 0.0f, 17.99999f);
+  uint8_t ex1 = (uint8_t) x;
+  uint8_t ex2 = ex1 + 1;
+  if (ex2 >= 36) { ex2 = 0; }
+  uint8_t ey1 = (uint8_t) y;
+  uint8_t ey2 = ey1 + 1;
+  float lin_x = x - ((float) ex1);
+  float lin_y = y - ((float) ey1);
+  float h11 = (1.0f - lin_x) * (1.0f - lin_y) * WGS84_H(ex1, ey1);
+  float h12 = lin_x * (1.0f - lin_y) * WGS84_H(ex2, ey1);
+  float h21 = (1.0f - lin_x) * lin_y * WGS84_H(ex1, ey2);
+  float h22 = lin_x * lin_y * WGS84_H(ex2, ey2);
+  return h11 + h12 + h21 + h22;
+}
 
 static inline float wgs84_ellipsoid_to_geoid(float lat, float lon)
 {
@@ -92,3 +123,5 @@ static inline float wgs84_ellipsoid_to_geoid(float lat, float lon)
 #endif
 
 #endif /* PPRZ_GEODETIC_WGS84_H */
+/** @}*/
+/** @}*/

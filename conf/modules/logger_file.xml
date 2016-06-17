@@ -1,0 +1,19 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="logger_file" dir="loggers">
+  <doc>
+	<description>
+      Logs to a csv file.
+      (only for linux)
+    </description>
+    <define name="FILE_LOGGER_PATH" value="/data/video/usb" description="path where csv file is saved."/>
+  </doc>
+  <header>
+	<file name="file_logger.h" />
+  </header>
+  <periodic fun="file_logger_periodic()" start="file_logger_start()"
+		    stop="file_logger_stop()" autorun="FALSE" />
+  <makefile>
+	<file name="file_logger.c"/>
+  </makefile>
+</module>

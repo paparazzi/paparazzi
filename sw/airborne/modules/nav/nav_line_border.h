@@ -29,7 +29,7 @@
 
 #include "std.h"
 
-extern bool_t nav_line_border_setup(void);
-extern bool_t nav_line_border_run(uint8_t wp1, uint8_t wp2, float radius);
+extern bool nav_line_border_setup(void);
+extern bool nav_line_border_run(uint8_t wp1, uint8_t wp2, float radius);
 
 #endif /* NAV_LINE_BORDER_H */

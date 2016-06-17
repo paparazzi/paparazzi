@@ -59,7 +59,7 @@ void actuators_asctec_v2_set(void)
       i2c1_init();
 #endif
       return;
-    } else { actuators_delay_done = TRUE; }
+    } else { actuators_delay_done = true; }
   }
 #endif
 

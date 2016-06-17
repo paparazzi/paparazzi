@@ -26,13 +26,13 @@
 #include "mcu_periph/spi.h"
 
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 
 //struct qr_code_spi_link_data qr_code_spi_link_data;
 struct spi_transaction qr_code_spi_link_transaction;
 
-static volatile bool_t qr_code_spi_data_available = FALSE;
+static volatile bool qr_code_spi_data_available = false;
 
 uint8_t testDataOut[3] = {1, 2, 3};
 uint8_t testDataIn[3] = {9, 9, 9};
@@ -58,7 +58,7 @@ void qr_code_spi_link_init(void)
 void qr_code_spi_link_periodic(void)
 {
   if (qr_code_spi_data_available) {
-    qr_code_spi_data_available = FALSE;
+    qr_code_spi_data_available = false;
     uint16_t x, y;
     memcpy(&x, qr_code_spi_link_transaction.input_buf, 2);
     memcpy(&y, qr_code_spi_link_transaction.input_buf + 2, 2);
@@ -69,7 +69,7 @@ void qr_code_spi_link_periodic(void)
 
 static void qr_code_spi_link_trans_cb(struct spi_transaction *trans __attribute__((unused)))
 {
-  qr_code_spi_data_available = TRUE;
+  qr_code_spi_data_available = true;
 }
 
 

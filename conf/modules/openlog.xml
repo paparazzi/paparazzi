@@ -1,13 +1,19 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="openlog">
+<module name="openlog" dir="loggers">
   <doc>
-    <description>Openlog on-board data logger</description>
+    <description>OpenLog telemetry timestamp.
+    For use with the OpenLog on-onboard data logger to log telemetry stream.
+
+    Adds the TIMESTAMP message to the telemetry stream to allow
+    sw/logalizer/openlog2tlm to convert a recorded dumpfile,
+    created by openlog into the pprz-tlm format, to be converted into
+    .data and .log files by sw/logalizer/sd2log
+    </description>
   </doc>
   <header>
     <file name="openlog.h"/>
   </header>
-  <init fun="init_openlog()"/>
   <periodic fun="periodic_2Hz_openlog()" freq="2." autorun="TRUE"/>
   <makefile>
     <file name="openlog.c"/>

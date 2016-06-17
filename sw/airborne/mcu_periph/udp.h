@@ -30,7 +30,7 @@
 
 #include "std.h"
 #include "mcu_periph/udp_arch.h"
-#include "mcu_periph/link_device.h"
+#include "pprzlink/pprzlink_device.h"
 
 #define UDP_RX_BUFFER_SIZE 256
 #define UDP_TX_BUFFER_SIZE 256
@@ -49,22 +49,22 @@ struct udp_periph {
   struct link_device device;
 };
 
-extern void     udp_periph_init(struct udp_periph *p, char *host, int port_out, int port_in, bool_t broadcast);
-extern bool_t   udp_check_free_space(struct udp_periph *p, uint8_t len);
-extern void     udp_transmit(struct udp_periph *p, uint8_t data);
+extern void     udp_periph_init(struct udp_periph *p, char *host, int port_out, int port_in, bool broadcast);
+extern bool     udp_check_free_space(struct udp_periph *p, long *fd, uint16_t len);
+extern void     udp_put_byte(struct udp_periph *p, long fd, uint8_t data);
 extern uint16_t udp_char_available(struct udp_periph *p);
 extern uint8_t  udp_getch(struct udp_periph *p);
-extern void     udp_event(void);
-extern void     udp_arch_periph_init(struct udp_periph *p, char *host, int port_out, int port_in, bool_t broadcast);
-extern void     udp_send_message(struct udp_periph *p);
-extern void     udp_send_raw(struct udp_periph *p, uint8_t *buffer, uint16_t size);
+extern void     udp_arch_periph_init(struct udp_periph *p, char *host, int port_out, int port_in, bool broadcast);
+extern void     udp_send_message(struct udp_periph *p, long fd);
+extern void     udp_send_raw(struct udp_periph *p, long fd, uint8_t *buffer, uint16_t size);
 extern void     udp_receive(struct udp_periph *p);
+extern void     udp_put_buffer(struct udp_periph *p, long fd, const uint8_t *data, uint16_t len);
 
 #if USE_UDP0
 extern struct udp_periph udp0;
 
 #ifndef UDP0_HOST
-#define UDP0_HOST "127.0.0.1"
+#define UDP0_HOST 127.0.0.1
 #endif
 
 #ifndef UDP0_PORT_OUT
@@ -79,19 +79,14 @@ extern struct udp_periph udp0;
 #define UDP0_BROADCAST FALSE
 #endif
 
-#define UDP0Init() udp_periph_init(&udp0, UDP0_HOST, UDP0_PORT_OUT, UDP0_PORT_IN, UDP0_BROADCAST)
-#define UDP0CheckFreeSpace(_x) udp_check_free_space(&udp0, _x)
-#define UDP0Transmit(_x) udp_transmit(&udp0, _x)
-#define UDP0SendMessage() udp_send_message(&udp0)
-#define UDP0ChAvailable() udp_char_available(&udp0)
-#define UDP0Getch() udp_getch(&udp0)
+#define UDP0Init() udp_periph_init(&udp0, STRINGIFY(UDP0_HOST), UDP0_PORT_OUT, UDP0_PORT_IN, UDP0_BROADCAST)
 #endif // USE_UDP0
 
 #if USE_UDP1
 extern struct udp_periph udp1;
 
 #ifndef UDP1_HOST
-#define UDP1_HOST "127.0.0.1"
+#define UDP1_HOST 127.0.0.1
 #endif
 
 #ifndef UDP1_PORT_OUT
@@ -106,19 +101,14 @@ extern struct udp_periph udp1;
 #define UDP1_BROADCAST FALSE
 #endif
 
-#define UDP1Init() udp_periph_init(&udp1, UDP1_HOST, UDP1_PORT_OUT, UDP1_PORT_IN, UDP1_BROADCAST)
-#define UDP1CheckFreeSpace(_x) udp_check_free_space(&udp1, _x)
-#define UDP1Transmit(_x) udp_transmit(&udp1, _x)
-#define UDP1SendMessage() udp_send_message(&udp1)
-#define UDP1ChAvailable() udp_char_available(&udp1)
-#define UDP1Getch() udp_getch(&udp1)
+#define UDP1Init() udp_periph_init(&udp1, STRINGIFY(UDP1_HOST), UDP1_PORT_OUT, UDP1_PORT_IN, UDP1_BROADCAST)
 #endif // USE_UDP1
 
 #if USE_UDP2
 extern struct udp_periph udp2;
 
 #ifndef UDP2_HOST
-#define UDP2_HOST "127.0.0.1"
+#define UDP2_HOST 127.0.0.1
 #endif
 
 #ifndef UDP2_PORT_OUT
@@ -133,12 +123,7 @@ extern struct udp_periph udp2;
 #define UDP2_BROADCAST FALSE
 #endif
 
-#define UDP2Init() udp_periph_init(&udp2, UDP2_HOST, UDP2_PORT_OUT, UDP2_PORT_IN, UDP2_BROADCAST)
-#define UDP2CheckFreeSpace(_x) udp_check_free_space(&udp2, _x)
-#define UDP2Transmit(_x) udp_transmit(&udp2, _x)
-#define UDP2SendMessage() udp_send_message(&udp2)
-#define UDP2ChAvailable() udp_char_available(&udp2)
-#define UDP2Getch() udp_getch(&udp2)
+#define UDP2Init() udp_periph_init(&udp2, STRINGIFY(UDP2_HOST), UDP2_PORT_OUT, UDP2_PORT_IN, UDP2_BROADCAST)
 #endif // USE_UDP2
 
 #endif /* MCU_PERIPH_UDP_H */

@@ -42,7 +42,7 @@ enum LisaBaroStatus {
 
 struct BaroBoard {
   enum LisaBaroStatus status;
-  bool_t running;
+  bool running;
 };
 
 
@@ -77,7 +77,7 @@ void baro_init(void)
   LED_OFF(BARO_LED);
 #endif
   baro_board.status = LBS_UNINITIALIZED;
-  baro_board.running = FALSE;
+  baro_board.running = false;
 }
 
 
@@ -109,7 +109,7 @@ void baro_periodic(void)
       //    baro_board.status = LBS_UNINITIALIZED;
       break;
     case LBS_INITIALIZING_DIFF_1:
-      baro_board.running = TRUE;
+      baro_board.running = true;
     case LBS_READ_DIFF:
       baro_board_read_from_current_register(BARO_ABS_ADDR);
       baro_board.status = LBS_READING_ABS;

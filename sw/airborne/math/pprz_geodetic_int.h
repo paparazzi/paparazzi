@@ -22,7 +22,10 @@
  * @file pprz_geodetic_int.h
  * @brief Paparazzi fixed point math for geodetic calculations.
  *
- *
+ * @addtogroup math_geodetic
+ * @{
+ * @addtogroup math_geodetic_int Fixed Point Geodetic functions
+ * @{
  */
 
 #ifndef PPRZ_GEODETIC_INT_H
@@ -82,9 +85,9 @@ struct EnuCoor_i {
  */
 struct UtmCoor_i {
   int32_t north; ///< in centimeters
-  int32_t east; ///< in centimeters
-  int32_t alt; ///< in millimeters above WGS84 reference ellipsoid
-  uint8_t zone; ///< UTM zone number
+  int32_t east;  ///< in centimeters
+  int32_t alt;   ///< in millimeters (above WGS84 reference ellipsoid or above MSL)
+  uint8_t zone;  ///< UTM zone number
 };
 
 /**
@@ -99,6 +102,8 @@ struct LtpDef_i {
   int32_t hmsl;                  ///< Height above mean sea level in mm
 };
 
+extern void lla_of_utm_i(struct LlaCoor_i *lla, struct UtmCoor_i *utm);
+extern void utm_of_lla_i(struct UtmCoor_i *utm, struct LlaCoor_i *lla);
 extern void ltp_of_ecef_rmat_from_lla_i(struct Int32RMat *ltp_of_ecef, struct LlaCoor_i *lla);
 extern void ltp_def_from_ecef_i(struct LtpDef_i *def, struct EcefCoor_i *ecef);
 extern void ltp_def_from_lla_i(struct LtpDef_i *def, struct LlaCoor_i *lla);
@@ -127,6 +132,8 @@ extern void ecef_of_ned_vect_i(struct EcefCoor_i *ecef, struct LtpDef_i *def, st
 #define M_OF_MM(_mm) ((_mm)/1e3)
 #define EM7RAD_OF_RAD(_r) ((_r)*1e7)
 #define RAD_OF_EM7RAD(_r) ((_r)/1e7)
+#define EM7DEG_OF_DEG(_r) ((_r)*1e7)
+#define DEG_OF_EM7DEG(_r) ((_r)/1e7)
 #define EM7DEG_OF_RAD(_r) (DegOfRad(_r)*1e7)
 #define RAD_OF_EM7DEG(_r) (RadOfDeg(_r)/1e7)
 
@@ -149,15 +156,15 @@ extern void ecef_of_ned_vect_i(struct EcefCoor_i *ecef, struct LtpDef_i *def, st
   }
 
 #define ECEF_FLOAT_OF_BFP(_o, _i) {           \
-    (_o).x = (float)M_OF_CM((_i).x);          \
-    (_o).y = (float)M_OF_CM((_i).y);          \
-    (_o).z = (float)M_OF_CM((_i).z);          \
+    (_o).x = M_OF_CM((float)(_i).x);          \
+    (_o).y = M_OF_CM((float)(_i).y);          \
+    (_o).z = M_OF_CM((float)(_i).z);          \
   }
 
-#define ECEF_DOUBLE_OF_BFP(_o, _i) {           \
-    (_o).x = (double)M_OF_CM((_i).x);          \
-    (_o).y = (double)M_OF_CM((_i).y);          \
-    (_o).z = (double)M_OF_CM((_i).z);          \
+#define ECEF_DOUBLE_OF_BFP(_o, _i) {          \
+    (_o).x = M_OF_CM((double)(_i).x);         \
+    (_o).y = M_OF_CM((double)(_i).y);         \
+    (_o).z = M_OF_CM((double)(_i).z);         \
   }
 #define LLA_BFP_OF_REAL(_o, _i) {                \
     (_o).lat = (int32_t)EM7DEG_OF_RAD((_i).lat); \
@@ -165,21 +172,21 @@ extern void ecef_of_ned_vect_i(struct EcefCoor_i *ecef, struct LtpDef_i *def, st
     (_o).alt = (int32_t)MM_OF_M((_i).alt);       \
   }
 
-#define LLA_FLOAT_OF_BFP(_o, _i) {                \
-    (_o).lat = RAD_OF_EM7DEG((float)(_i).lat);   \
-    (_o).lon = RAD_OF_EM7DEG((float)(_i).lon);   \
-    (_o).alt = M_OF_MM((float)(_i).alt);   \
+#define LLA_FLOAT_OF_BFP(_o, _i) {              \
+    (_o).lat = RAD_OF_EM7DEG((float)(_i).lat);  \
+    (_o).lon = RAD_OF_EM7DEG((float)(_i).lon);  \
+    (_o).alt = M_OF_MM((float)(_i).alt);        \
   }
 
-#define LLA_DOUBLE_OF_BFP(_o, _i) {                \
+#define LLA_DOUBLE_OF_BFP(_o, _i) {             \
     (_o).lat = RAD_OF_EM7DEG((double)(_i).lat); \
     (_o).lon = RAD_OF_EM7DEG((double)(_i).lon); \
     (_o).alt = M_OF_MM((double)(_i).alt);       \
   }
 #define NED_BFP_OF_REAL(_o, _i) {       \
-    (_o).x = POS_BFP_OF_REAL((_i).x);   \
-    (_o).y = POS_BFP_OF_REAL((_i).y);   \
-    (_o).z = POS_BFP_OF_REAL((_i).z);   \
+    (_o).x = (int32_t)POS_BFP_OF_REAL((_i).x);   \
+    (_o).y = (int32_t)POS_BFP_OF_REAL((_i).y);   \
+    (_o).z = (int32_t)POS_BFP_OF_REAL((_i).z);   \
   }
 
 #define ENU_BFP_OF_REAL(_o, _i) NED_BFP_OF_REAL(_o, _i)
@@ -235,8 +242,31 @@ extern void ecef_of_ned_vect_i(struct EcefCoor_i *ecef, struct LtpDef_i *def, st
     (_ef).m[8] = DOUBLE_OF_BFP((_ei).m[8], HIGH_RES_TRIG_FRAC); \
   }
 
+#define UTM_FLOAT_OF_BFP(_o, _i) {            \
+    (_o).east  = M_OF_CM((float)(_i).east);   \
+    (_o).north = M_OF_CM((float)(_i).north);  \
+    (_o).alt   = M_OF_MM((float)(_i).alt);    \
+    (_o).zone  = (_i).zone;                   \
+  }
+
+#define UTM_DOUBLE_OF_BFP(_o, _i) {           \
+    (_o).east  = M_OF_CM((double)(_i).east);  \
+    (_o).north = M_OF_CM((double)(_i).north); \
+    (_o).alt   = M_OF_MM((double)(_i).alt);   \
+    (_o).zone  = (_i).zone;                   \
+  }
+
+#define UTM_BFP_OF_REAL(_o, _i) {              \
+    (_o).east  = (int32_t)CM_OF_M((_i).east);  \
+    (_o).north = (int32_t)CM_OF_M((_i).north); \
+    (_o).alt   = (int32_t)MM_OF_M((_i).alt);   \
+    (_o).zone  = (_i).zone;                    \
+  }
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
 
 #endif /* PPRZ_GEODETIC_INT_H */
+/** @}*/
+/** @}*/

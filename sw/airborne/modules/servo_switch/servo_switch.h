@@ -26,7 +26,7 @@
 #include "paparazzi.h"
 #include "generated/airframe.h"
 
-extern bool_t servo_switch_on;
+extern bool servo_switch_on;
 extern int16_t servo_switch_value;
 
 #ifndef SERVO_SWITCH_ON_VALUE
@@ -43,8 +43,8 @@ extern int16_t servo_switch_value;
 extern void servo_switch_init(void);
 extern void servo_switch_periodic(void);
 
-#define ServoSwitchOn()  ({ servo_switch_on = TRUE; FALSE; })
-#define ServoSwitchOff() ({ servo_switch_on = FALSE; FALSE; })
+#define ServoSwitchOn()  ({ servo_switch_on = true; false; })
+#define ServoSwitchOff() ({ servo_switch_on = false; false; })
 
 #endif //SERVO_SWITCH_H
 

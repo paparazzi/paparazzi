@@ -127,7 +127,8 @@ SDL_Event sdl_event;
  *
  *  @returns  0 on success
  */
-int nps_radio_control_joystick_init(const char* device) {
+int nps_radio_control_joystick_init(const char *device)
+{
 
   nps_joystick.throttle = 0.5;
   nps_joystick.roll = 0.;
@@ -139,8 +140,7 @@ int nps_radio_control_joystick_init(const char* device) {
   int device_index = atoi(device);
 
   //Initialize SDL with joystick support and event support (through video)
-  if (SDL_Init(SDL_INIT_JOYSTICK|SDL_INIT_VIDEO) < 0)
-  {
+  if (SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_VIDEO) < 0) {
     printf("Could not initialize SDL: %s.\n", SDL_GetError());
     exit(-1);
   }
@@ -149,55 +149,47 @@ int nps_radio_control_joystick_init(const char* device) {
   atexit(SDL_Quit);
 
   //Start the event handler, disable all but joystick button events and quit handler
-  SDL_EventState(SDL_ACTIVEEVENT,SDL_IGNORE);
-  SDL_EventState(SDL_KEYDOWN,SDL_IGNORE);
-  SDL_EventState(SDL_KEYUP,SDL_IGNORE);
-  SDL_EventState(SDL_MOUSEMOTION,SDL_IGNORE);
-  SDL_EventState(SDL_MOUSEBUTTONDOWN,SDL_IGNORE);
-  SDL_EventState(SDL_MOUSEBUTTONUP,SDL_IGNORE);
-  SDL_EventState(SDL_JOYAXISMOTION,SDL_IGNORE);
-  SDL_EventState(SDL_JOYBALLMOTION,SDL_IGNORE);
-  SDL_EventState(SDL_JOYHATMOTION,SDL_IGNORE);
+  SDL_EventState(SDL_ACTIVEEVENT, SDL_IGNORE);
+  SDL_EventState(SDL_KEYDOWN, SDL_IGNORE);
+  SDL_EventState(SDL_KEYUP, SDL_IGNORE);
+  SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
+  SDL_EventState(SDL_MOUSEBUTTONDOWN, SDL_IGNORE);
+  SDL_EventState(SDL_MOUSEBUTTONUP, SDL_IGNORE);
+  SDL_EventState(SDL_JOYAXISMOTION, SDL_IGNORE);
+  SDL_EventState(SDL_JOYBALLMOTION, SDL_IGNORE);
+  SDL_EventState(SDL_JOYHATMOTION, SDL_IGNORE);
   //SDL_EventState(SDL_JOYBUTTONDOWN,SDL_IGNORE);
-  SDL_EventState(SDL_JOYBUTTONUP,SDL_IGNORE);
-  SDL_EventState(SDL_VIDEORESIZE,SDL_IGNORE);
-  SDL_EventState(SDL_VIDEOEXPOSE,SDL_IGNORE);
+  SDL_EventState(SDL_JOYBUTTONUP, SDL_IGNORE);
+  SDL_EventState(SDL_VIDEORESIZE, SDL_IGNORE);
+  SDL_EventState(SDL_VIDEOEXPOSE, SDL_IGNORE);
   //SDL_EventState(SDL_QUIT,SDL_IGNORE);
-  SDL_EventState(SDL_USEREVENT,SDL_IGNORE);
-  SDL_EventState(SDL_SYSWMEVENT,SDL_IGNORE);
+  SDL_EventState(SDL_USEREVENT, SDL_IGNORE);
+  SDL_EventState(SDL_SYSWMEVENT, SDL_IGNORE);
 
   //Check there are actually joysticks attached
-  if (!SDL_NumJoysticks())
-  {
+  if (!SDL_NumJoysticks()) {
     printf("No joysticks attached! Quitting.\n");
     exit(-1);
   }
 
   //Open the desired joystick and make sure it will work
   sdl_joystick = SDL_JoystickOpen(device_index);
-  if (!sdl_joystick)
-  {
+  if (!sdl_joystick) {
     printf("Joystick corresponding to SDL Index %d failed to open! Exiting.\n", device_index);
     exit(-1);
-  }
-  else if (SDL_JoystickNumAxes(sdl_joystick) < JS_NB_AXIS)
-  {
+  } else if (SDL_JoystickNumAxes(sdl_joystick) < JS_NB_AXIS) {
     printf("Selected joystick does not support enough axes!\n");
     printf("Number of axes required: %i\n", JS_NB_AXIS);
-    printf("Number of axes available: %i\n",SDL_JoystickNumAxes(sdl_joystick));
+    printf("Number of axes available: %i\n", SDL_JoystickNumAxes(sdl_joystick));
     SDL_JoystickClose(sdl_joystick);
     exit(-1);
-  }
-  else if (SDL_JoystickNumButtons(sdl_joystick) < JS_NB_BUTTONS)
-  {
+  } else if (SDL_JoystickNumButtons(sdl_joystick) < JS_NB_BUTTONS) {
     printf("Selected joystick does not support enough buttons!\n");
     printf("Buttons supported: %d  needed: %d\n", SDL_JoystickNumButtons(sdl_joystick), JS_NB_BUTTONS);
     SDL_JoystickClose(sdl_joystick);
     exit(-1);
-  }
-  else
-  {
-    printf("Using joystick named: %s\n",SDL_JoystickName(device_index));
+  } else {
+    printf("Using joystick named: %s\n", SDL_JoystickName(device_index));
   }
 
   return 0;
@@ -206,64 +198,61 @@ int nps_radio_control_joystick_init(const char* device) {
 /**
  *  Updates joystick buttons from events, directly reads current axis positions..
  */
-void nps_radio_control_joystick_update(void) {
+void nps_radio_control_joystick_update(void)
+{
 
 #if NPS_JS_AXIS_THROTTLE_REVERSED
-  nps_joystick.throttle = ((float)(-1 * SDL_JoystickGetAxis(sdl_joystick,NPS_JS_AXIS_THROTTLE)) - 32767.)/-65534.;
+  nps_joystick.throttle = ((float)(-1 * SDL_JoystickGetAxis(sdl_joystick, NPS_JS_AXIS_THROTTLE)) - 32767.) / -65534.;
 #else
-  nps_joystick.throttle = ((float)(SDL_JoystickGetAxis(sdl_joystick,NPS_JS_AXIS_THROTTLE)) - 32767.)/-65534.;
+  nps_joystick.throttle = ((float)(SDL_JoystickGetAxis(sdl_joystick, NPS_JS_AXIS_THROTTLE)) - 32767.) / -65534.;
 #endif
 #if NPS_JS_AXIS_ROLL_REVERSED
-  nps_joystick.roll = (float)(-1 * SDL_JoystickGetAxis(sdl_joystick,NPS_JS_AXIS_ROLL))/32767.;
+  nps_joystick.roll = (float)(-1 * SDL_JoystickGetAxis(sdl_joystick, NPS_JS_AXIS_ROLL)) / 32767.;
 #else
-  nps_joystick.roll = (float)(SDL_JoystickGetAxis(sdl_joystick,NPS_JS_AXIS_ROLL))/32767.;
+  nps_joystick.roll = (float)(SDL_JoystickGetAxis(sdl_joystick, NPS_JS_AXIS_ROLL)) / 32767.;
 #endif
 #if NPS_JS_AXIS_PITCH_REVERSED
-  nps_joystick.pitch = (float)(-1 * SDL_JoystickGetAxis(sdl_joystick,NPS_JS_AXIS_PITCH))/32767.;
+  nps_joystick.pitch = (float)(-1 * SDL_JoystickGetAxis(sdl_joystick, NPS_JS_AXIS_PITCH)) / 32767.;
 #else
-  nps_joystick.pitch = (float)(SDL_JoystickGetAxis(sdl_joystick,NPS_JS_AXIS_PITCH))/32767.;
+  nps_joystick.pitch = (float)(SDL_JoystickGetAxis(sdl_joystick, NPS_JS_AXIS_PITCH)) / 32767.;
 #endif
 #if NPS_JS_AXIS_YAW_REVERSED
-  nps_joystick.yaw = (float)(-1 * SDL_JoystickGetAxis(sdl_joystick,NPS_JS_AXIS_YAW))/32767.;
+  nps_joystick.yaw = (float)(-1 * SDL_JoystickGetAxis(sdl_joystick, NPS_JS_AXIS_YAW)) / 32767.;
 #else
-  nps_joystick.yaw = (float)(SDL_JoystickGetAxis(sdl_joystick,NPS_JS_AXIS_YAW))/32767.;
+  nps_joystick.yaw = (float)(SDL_JoystickGetAxis(sdl_joystick, NPS_JS_AXIS_YAW)) / 32767.;
 #endif
   // if an axis is asigned to the mode, use it instead of the buttons
 #ifdef NPS_JS_AXIS_MODE
 #if NPS_JS_AXIS_MODE_REVERSED
-  nps_joystick.mode = (float)(-1 * SDL_JoystickGetAxis(sdl_joystick,NPS_JS_AXIS_MODE))/32767.;
+  nps_joystick.mode = (float)(-1 * SDL_JoystickGetAxis(sdl_joystick, NPS_JS_AXIS_MODE)) / 32767.;
 #else
-  nps_joystick.mode = (float)(SDL_JoystickGetAxis(sdl_joystick,NPS_JS_AXIS_MODE))/32767.;
+  nps_joystick.mode = (float)(SDL_JoystickGetAxis(sdl_joystick, NPS_JS_AXIS_MODE)) / 32767.;
 #endif
 #endif
 
-  while(SDL_PollEvent(&sdl_event))
-  {
-    switch(sdl_event.type)
-    {
-      case SDL_JOYBUTTONDOWN:
-        {
-          switch(sdl_event.jbutton.button)
-          {
+  while (SDL_PollEvent(&sdl_event)) {
+    switch (sdl_event.type) {
+      case SDL_JOYBUTTONDOWN: {
+        switch (sdl_event.jbutton.button) {
 #ifndef NPS_JS_AXIS_MODE
-            case NPS_JS_BUTTON_MODE_MANUAL:
-              nps_joystick.mode = MODE_SWITCH_MANUAL;
-              break;
+          case NPS_JS_BUTTON_MODE_MANUAL:
+            nps_joystick.mode = MODE_SWITCH_MANUAL;
+            break;
 
-            case NPS_JS_BUTTON_MODE_AUTO1:
-              nps_joystick.mode = MODE_SWITCH_AUTO1;
-              break;
+          case NPS_JS_BUTTON_MODE_AUTO1:
+            nps_joystick.mode = MODE_SWITCH_AUTO1;
+            break;
 
-            case NPS_JS_BUTTON_MODE_AUTO2:
-              nps_joystick.mode = MODE_SWITCH_AUTO2;
-              break;
+          case NPS_JS_BUTTON_MODE_AUTO2:
+            nps_joystick.mode = MODE_SWITCH_AUTO2;
+            break;
 #endif
-            default:
-              //ignore
-              break;
-          }
+          default:
+            //ignore
+            break;
         }
-        break;
+      }
+      break;
 
       case SDL_QUIT:
         printf("Quitting...\n");

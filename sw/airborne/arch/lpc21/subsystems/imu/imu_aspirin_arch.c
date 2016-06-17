@@ -37,7 +37,7 @@ void exti15_10_irq_handler(void)
 //  if(EXTI_GetITStatus(EXTI_Line14) != RESET)
 //    EXTI_ClearITPendingBit(EXTI_Line14);
 
-  //imu_aspirin.gyro_eoc = TRUE;
+  //imu_aspirin.gyro_eoc = true;
   //imu_aspirin.status = AspirinStatusReadingGyro;
 }
 
@@ -59,5 +59,5 @@ void exti2_irq_handler(void)
 void dma1_c4_irq_handler(void)
 {
 
-  //imu_aspirin.accel_available = TRUE;
+  //imu_aspirin.accel_available = true;
 }

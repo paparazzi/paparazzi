@@ -1,16 +1,11 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<!--
-     Hygrosens TEMOD-I2C-Rx temperature sensor
-     @define SCP_I2C_DEV i2c device (default i2c0)
-     @define TEMOD_TYPE device type (default TEMOD_I2C_R1)
-     -->
-
 <module name="temp_temod" dir="meteo">
   <doc>
     <description>Hygrosens TEMOD-I2C-Rx temperature sensor</description>
-    <define name="SCP_I2C_DEV" value="i2cX" description="select i2c peripheral to use (default i2c0)"/>
+    <configure name="TEMOD_I2C_DEV" value="i2cX" description="select i2c peripheral to use (default i2c0)"/>
     <define name="TEMOD_TYPE" value="type" description="device type (default TEMOD_I2C_R1)"/>
+    <define name="TEMOD_SDLOG" value="TRUE|FALSE" description="start logging to SD card"/>
   </doc>
   <header>
     <file name="temp_temod.h"/>
@@ -19,6 +14,9 @@
   <periodic fun="temod_periodic()" freq="8"/>
   <event fun="temod_event()"/>
   <makefile target="ap">
+    <configure name="TEMOD_I2C_DEV" default="i2c0" case="upper|lower"/>
+    <define name="USE_$(TEMOD_I2C_DEV_UPPER)"/>
+    <define name="TEMOD_I2C_DEV" value="$(TEMOD_I2C_DEV_LOWER)"/>
     <file name="temp_temod.c"/>
   </makefile>
 </module>

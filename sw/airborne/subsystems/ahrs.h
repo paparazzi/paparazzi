@@ -21,69 +21,57 @@
 
 /**
  * @file subsystems/ahrs.h
- * Attitude and Heading Reference System interface.
+ * Dispatcher to register actual AHRS implementations.
  */
 
 #ifndef AHRS_H
 #define AHRS_H
 
 #include "std.h"
-#include "math/pprz_algebra_int.h"
-#include "math/pprz_algebra_float.h"
-#include "state.h"
 
-#define AHRS_UNINIT  0
-#define AHRS_RUNNING 1
+#define AHRS_COMP_ID_NONE    0
+#define AHRS_COMP_ID_GENERIC 1
+#define AHRS_COMP_ID_IR      2
+#define AHRS_COMP_ID_ICQ     3
+#define AHRS_COMP_ID_ICE     4
+#define AHRS_COMP_ID_FC      4
+#define AHRS_COMP_ID_DCM     6
+#define AHRS_COMP_ID_FINV    7
+#define AHRS_COMP_ID_MLKF    8
+#define AHRS_COMP_ID_GX3     9
+#define AHRS_COMP_ID_CHIMU   10
 
-/* underlying includes (needed for parameters) */
+/* include actual (primary) implementation header */
 #ifdef AHRS_TYPE_H
 #include AHRS_TYPE_H
 #endif
 
-/** Attitude and Heading Reference System state */
-struct Ahrs {
-  uint8_t status; ///< status of the AHRS, AHRS_UNINIT or AHRS_RUNNING
-};
+/* include secondary implementation header */
+#ifdef AHRS_SECONDARY_TYPE_H
+#include AHRS_SECONDARY_TYPE_H
+#endif
 
-/** global AHRS state */
-extern struct Ahrs ahrs;
+typedef bool (*AhrsEnableOutput)(bool);
+
+/* for settings when using secondary AHRS */
+extern uint8_t ahrs_output_idx;
+
+/**
+ * Register an AHRS implementation.
+ * Adds it to an internal list.
+ * @param enable pointer to function to enable/disable the output of registering AHRS
+ */
+extern void ahrs_register_impl(AhrsEnableOutput enable);
 
 /** AHRS initialization. Called at startup.
- *  Needs to be implemented by each AHRS algorithm.
+ * Registers/initializes the default AHRS.
  */
 extern void ahrs_init(void);
 
-/** Aligns the AHRS. Called after ahrs_aligner has run to set initial attitude and biases.
- *  Must set the ahrs status to AHRS_RUNNING.
- *  Needs to be implemented by each AHRS algorithm.
+/**
+ * Switch to the output of another AHRS impl.
+ * @param idx index of the AHRS impl (0 = PRIMARY_AHRS, 1 = SECONDARY_AHRS).
  */
-extern void ahrs_align(void);
-
-/** Propagation. Usually integrates the gyro rates to angles.
- *  Reads the global #imu data struct.
- *  Does nothing if not implemented by specific AHRS algorithm.
- *  @param dt time difference since last propagation in seconds
- */
-extern void ahrs_propagate(float dt);
-
-/** Update AHRS state with accerleration measurements.
- *  Reads the global #imu data struct.
- *  Does nothing if not implemented by specific AHRS algorithm.
- *  @param dt time difference since last update in seconds
- */
-extern void ahrs_update_accel(float dt);
-
-/** Update AHRS state with magnetometer measurements.
- *  Reads the global #imu data struct.
- *  Does nothing if not implemented by specific AHRS algorithm.
- *  @param dt time difference since last update in seconds
- */
-extern void ahrs_update_mag(float dt);
-
-/** Update AHRS state with GPS measurements.
- *  Reads the global #gps data struct.
- *  Does nothing if not implemented by specific AHRS algorithm.
- */
-extern void ahrs_update_gps(void);
+extern int ahrs_switch(uint8_t idx);
 
 #endif /* AHRS_H */

@@ -32,21 +32,22 @@ struct NpsRadioControl nps_radio_control;
 
 
 
-void nps_radio_control_init(enum NpsRadioControlType type, int num_script, char* js_dev) {
+void nps_radio_control_init(enum NpsRadioControlType type, int num_script, char *js_dev)
+{
 
   nps_radio_control.next_update = 0.;
   nps_radio_control.type = type;
   nps_radio_control.num_script = num_script;
 
   switch (type) {
-  case JOYSTICK:
-    nps_radio_control_joystick_init(js_dev);
-    break;
-  case SPEKTRUM:
-    nps_radio_control_spektrum_init(js_dev);
-    break;
-  case SCRIPT:
-    break;
+    case JOYSTICK:
+      nps_radio_control_joystick_init(js_dev);
+      break;
+    case SPEKTRUM:
+      nps_radio_control_spektrum_init(js_dev);
+      break;
+    case SCRIPT:
+      break;
   }
 
 }
@@ -73,7 +74,8 @@ static rc_script scripts[] = {
 #define RADIO_CONTROL_TAKEOFF_TIME 8
 
 
-bool_t nps_radio_control_available(double time) {
+bool nps_radio_control_available(double time)
+{
   if (time >=  nps_radio_control.next_update) {
     nps_radio_control.next_update += RADIO_CONTROL_DT;
 
@@ -85,13 +87,13 @@ bool_t nps_radio_control_available(double time) {
       nps_radio_control.yaw = nps_joystick.yaw;
       nps_radio_control.mode = nps_joystick.mode;
       //printf("throttle: %f, roll: %f, pitch: %f, yaw: %f\n", nps_joystick.throttle, nps_joystick.roll, nps_joystick.pitch, nps_joystick.yaw);
-    } else
-      if (nps_radio_control.type == SCRIPT) {
-        if (time < RADIO_CONTROL_TAKEOFF_TIME)
-          radio_control_script_takeoff(time);
-        else
-          scripts[nps_radio_control.num_script](time);
+    } else if (nps_radio_control.type == SCRIPT) {
+      if (time < RADIO_CONTROL_TAKEOFF_TIME) {
+        radio_control_script_takeoff(time);
+      } else {
+        scripts[nps_radio_control.num_script](time);
       }
+    }
     return TRUE;
   }
   return FALSE;
@@ -106,21 +108,24 @@ bool_t nps_radio_control_available(double time) {
  *
  */
 
-void radio_control_script_takeoff(double time) {
+void radio_control_script_takeoff(double time)
+{
   nps_radio_control.roll = 0.;
   nps_radio_control.pitch = 0.;
   nps_radio_control.yaw = 0.;
   nps_radio_control.throttle = 0.;
   nps_radio_control.mode = MODE_SWITCH_MANUAL;
   /* starts motors */
-  if (time < 1.)
+  if (time < 1.) {
     nps_radio_control.yaw = 1.;
-  else
+  } else {
     nps_radio_control.yaw = 0.;
+  }
 
 }
 
-void radio_control_script_hover(double time __attribute__ ((unused))) {
+void radio_control_script_hover(double time __attribute__((unused)))
+{
   nps_radio_control.throttle = 0.99;
   nps_radio_control.mode = MODE_SWITCH_AUTO2;
   nps_radio_control.roll = 0.;
@@ -128,57 +133,57 @@ void radio_control_script_hover(double time __attribute__ ((unused))) {
 }
 
 
-void radio_control_script_step_roll(double time) {
+void radio_control_script_step_roll(double time)
+{
   nps_radio_control.throttle = 0.99;
   nps_radio_control.mode = MODE_SWITCH_AUTO2;
 
-  if (((int32_t)rint((time*0.5)))%2) {
+  if (((int32_t)rint((time * 0.5))) % 2) {
     nps_radio_control.roll = 0.2;
     nps_radio_control.yaw = 0.5;
-  }
-  else {
+  } else {
     nps_radio_control.roll = -0.2;
     nps_radio_control.yaw = 0.;
   }
 }
 
-void radio_control_script_step_pitch(double time) {
+void radio_control_script_step_pitch(double time)
+{
   nps_radio_control.roll = 0.;
   nps_radio_control.yaw = 0.;
   nps_radio_control.throttle = 0.99;
   nps_radio_control.mode = MODE_SWITCH_AUTO2;
-  if (((int32_t)rint((time*0.5)))%2) {
+  if (((int32_t)rint((time * 0.5))) % 2) {
     nps_radio_control.pitch = 0.2;
-  }
-  else {
+  } else {
     nps_radio_control.pitch = -0.2;
   }
 }
 
-void radio_control_script_step_yaw(double time) {
+void radio_control_script_step_yaw(double time)
+{
   nps_radio_control.roll = 0.;
   nps_radio_control.pitch = 0.;
   nps_radio_control.throttle = 0.99;
   nps_radio_control.mode = MODE_SWITCH_AUTO2;
 
-  if (((int32_t)rint((time*0.5)))%2) {
+  if (((int32_t)rint((time * 0.5))) % 2) {
     nps_radio_control.yaw = 0.5;
-  }
-  else {
+  } else {
     nps_radio_control.yaw = -0.5;
   }
 }
 
-void radio_control_script_ff(double time __attribute__ ((unused))) {
+void radio_control_script_ff(double time __attribute__((unused)))
+{
   nps_radio_control.throttle = 0.99;
   nps_radio_control.mode = MODE_SWITCH_AUTO2;
-  if (time < RADIO_CONTROL_TAKEOFF_TIME+3)
+  if (time < RADIO_CONTROL_TAKEOFF_TIME + 3) {
     nps_radio_control.pitch = -1.;
-  else if (time < RADIO_CONTROL_TAKEOFF_TIME+6) {
+  } else if (time < RADIO_CONTROL_TAKEOFF_TIME + 6) {
     //    nps_radio_control.roll = 0.5;
     nps_radio_control.pitch = -1.;
-  }
-  else {
+  } else {
     nps_radio_control.pitch = 0.;
     nps_radio_control.roll = 0.;
   }

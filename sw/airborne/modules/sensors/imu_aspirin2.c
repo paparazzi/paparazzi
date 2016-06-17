@@ -22,10 +22,11 @@
 #include "imu_aspirin2.h"
 #include "mcu_periph/i2c.h"
 #include "led.h"
+#include "subsystems/abi.h"
 
 // Downlink
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 
 
@@ -33,11 +34,6 @@
 // Peripherials
 #include "../../peripherals/mpu60x0.h"
 // #include "../../peripherals/hmc5843.h"
-
-// Results
-volatile bool_t mag_valid;
-volatile bool_t gyr_valid;
-volatile bool_t acc_valid;
 
 // Communication
 struct i2c_transaction aspirin2_mpu60x0;
@@ -189,6 +185,7 @@ void aspirin2_subsystem_downlink_raw(void)
 void aspirin2_subsystem_event(void)
 {
   int32_t x, y, z;
+  uint32_t now_ts = get_sys_time_usec();
 
   // If the itg3200 I2C transaction has succeeded: convert the data
   if (aspirin2_mpu60x0.status == I2CTransSuccess) {
@@ -208,9 +205,10 @@ void aspirin2_subsystem_event(void)
 
     // Is this is new data
     if (aspirin2_mpu60x0.buf[0] & 0x01) {
-      gyr_valid = TRUE;
-      acc_valid = TRUE;
-    } else {
+      imu_scale_gyro(&imu);
+      imu_scale_accel(&imu);
+      AbiSendMsgIMU_GYRO_INT32(IMU_PPZUAV_ID, now_ts, &imu.gyro);
+      AbiSendMsgIMU_ACCEL_INT32(IMU_PPZUAV_ID, now_ts, &imu.accel);
     }
 
     aspirin2_mpu60x0.status =
@@ -230,7 +228,7 @@ void aspirin2_subsystem_event(void)
       VECT3_ASSIGN(imu.accel_unscaled, -x, y, -z);
   #endif
 
-      acc_valid = TRUE;
+      acc_valid = true;
       ppzuavimu_adxl345.status = I2CTransDone;
     }
 
@@ -247,7 +245,7 @@ void aspirin2_subsystem_event(void)
       VECT3_ASSIGN(imu.mag_unscaled, -y, -x, -z);
   #endif
 
-      mag_valid = TRUE;
+      mag_valid = true;
       ppzuavimu_hmc5843.status = I2CTransDone;
     }
   */

@@ -80,7 +80,7 @@ void umarim_baro_event(void)
       float pressure = UMARIM_BARO_SENS * Ads1114GetValue(BARO_ABS_ADS);
       AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, pressure);
     }
-    BARO_ABS_ADS.data_available = FALSE;
+    BARO_ABS_ADS.data_available = false;
   }
 }
 

@@ -55,8 +55,8 @@ void mpu60x0_spi_init(struct Mpu60x0_Spi *mpu, struct spi_periph *spi_p, uint8_t
   /* set default MPU60X0 config options */
   mpu60x0_set_default_config(&(mpu->config));
 
-  mpu->data_available = FALSE;
-  mpu->config.initialized = FALSE;
+  mpu->data_available = false;
+  mpu->config.initialized = false;
   mpu->config.init_status = MPU60X0_CONF_UNINIT;
 
   mpu->slave_init_status = MPU60X0_SPI_CONF_UNINIT;
@@ -77,9 +77,19 @@ static void mpu60x0_spi_write_to_reg(void *mpu, uint8_t _reg, uint8_t _val)
 void mpu60x0_spi_start_configure(struct Mpu60x0_Spi *mpu)
 {
   if (mpu->config.init_status == MPU60X0_CONF_UNINIT) {
-    mpu->config.init_status++;
-    if (mpu->spi_trans.status == SPITransSuccess || mpu->spi_trans.status == SPITransDone) {
+
+    // First check if we found the chip (succesfull WHO_AM_I response)
+    if(mpu->spi_trans.status == SPITransSuccess && mpu->rx_buf[1] == MPU60X0_WHOAMI_REPLY) {
+      mpu->config.init_status++;
+      mpu->spi_trans.status = SPITransDone;
       mpu60x0_send_config(mpu60x0_spi_write_to_reg, (void *)mpu, &(mpu->config));
+    }
+    // Send WHO_AM_I to check if chip is there
+    else if(mpu->spi_trans.status != SPITransRunning && mpu->spi_trans.status != SPITransPending) {
+      mpu->spi_trans.output_length = 1;
+      mpu->spi_trans.input_length = 2;
+      mpu->tx_buf[0] = MPU60X0_REG_WHO_AM_I | MPU60X0_SPI_READ;
+      spi_submit(mpu->spi_p, &(mpu->spi_trans));
     }
   }
 }
@@ -113,6 +123,9 @@ void mpu60x0_spi_event(struct Mpu60x0_Spi *mpu)
         mpu->data_rates.rates.q = Int16FromBuf(mpu->rx_buf, 12);
         mpu->data_rates.rates.r = Int16FromBuf(mpu->rx_buf, 14);
 
+        int16_t temp_raw = Int16FromBuf(mpu->rx_buf, 8);
+        mpu->temp = (float)temp_raw / 340.0f + 36.53f;
+
         // if we are reading slaves, copy the ext_sens_data
         if (mpu->config.nb_slaves > 0) {
           /* the buffer is volatile, since filled from ISR
@@ -124,7 +137,7 @@ void mpu60x0_spi_event(struct Mpu60x0_Spi *mpu)
 #pragma GCC diagnostic pop
         }
 
-        mpu->data_available = TRUE;
+        mpu->data_available = true;
       }
       mpu->spi_trans.status = SPITransDone;
     }
@@ -145,8 +158,8 @@ void mpu60x0_spi_event(struct Mpu60x0_Spi *mpu)
   }
 }
 
-/** @todo: only one slave so far. */
-bool_t mpu60x0_configure_i2c_slaves(Mpu60x0ConfigSet mpu_set, void *mpu)
+/** configure the registered I2C slaves */
+bool mpu60x0_configure_i2c_slaves(Mpu60x0ConfigSet mpu_set, void *mpu)
 {
   struct Mpu60x0_Spi *mpu_spi = (struct Mpu60x0_Spi *)(mpu);
 
@@ -172,15 +185,22 @@ bool_t mpu60x0_configure_i2c_slaves(Mpu60x0ConfigSet mpu_set, void *mpu)
       mpu_spi->slave_init_status++;
       break;
     case MPU60X0_SPI_CONF_SLAVES_CONFIGURE:
-      /* configure first slave, only one slave supported so far */
-      if (mpu_spi->config.slaves[0].configure(mpu_set, mpu)) {
+      /* configure each slave until all nb_slaves are done */
+      if (mpu_spi->config.nb_slave_init < mpu_spi->config.nb_slaves && mpu_spi->config.nb_slave_init < MPU60X0_I2C_NB_SLAVES) {
+         // proceed to next slave if configure for current one returns true
+        if (mpu_spi->config.slaves[mpu_spi->config.nb_slave_init].configure(mpu_set, mpu)) {
+          mpu_spi->config.nb_slave_init++;
+        }
+      }
+      else {
+        /* all slave devies configured, continue MPU side configuration of I2C slave stuff */
         mpu_spi->slave_init_status++;
       }
       break;
     case MPU60X0_SPI_CONF_DONE:
-      return TRUE;
+      return true;
     default:
       break;
   }
-  return FALSE;
+  return false;
 }

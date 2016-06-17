@@ -1,0 +1,23 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="cv_georeference" dir="computer_vision">
+  <doc>
+    <description>Geo-reference computer vision detections</description>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings name="georeference">
+        <dl_setting var="focus_length" min="1" step="10" max="4000" shortname="Focus"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="cv_georeference.h"/>
+  </header>
+  <init fun="georeference_init()"/>
+  <periodic fun="georeference_run()" freq="4" start="georeference_init()" autorun="TRUE" />
+  <makefile>
+    <file name="cv_georeference.c"/>
+  </makefile>
+</module>
+

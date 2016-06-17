@@ -34,16 +34,16 @@
 void ltp_of_ecef_rmat_from_lla_i(struct Int32RMat *ltp_of_ecef, struct LlaCoor_i *lla)
 {
 
-#if USE_DOUBLE_PRECISION_TRIG
-  int32_t sin_lat = rint(BFP_OF_REAL(sin(RAD_OF_EM7DEG((double)lla->lat)), HIGH_RES_TRIG_FRAC));
-  int32_t cos_lat = rint(BFP_OF_REAL(cos(RAD_OF_EM7DEG((double)lla->lat)), HIGH_RES_TRIG_FRAC));
-  int32_t sin_lon = rint(BFP_OF_REAL(sin(RAD_OF_EM7DEG((double)lla->lon)), HIGH_RES_TRIG_FRAC));
-  int32_t cos_lon = rint(BFP_OF_REAL(cos(RAD_OF_EM7DEG((double)lla->lon)), HIGH_RES_TRIG_FRAC));
-#else
+#if USE_SINGLE_PRECISION_TRIG
   int32_t sin_lat = rint(BFP_OF_REAL(sinf(RAD_OF_EM7DEG((float)lla->lat)), HIGH_RES_TRIG_FRAC));
   int32_t cos_lat = rint(BFP_OF_REAL(cosf(RAD_OF_EM7DEG((float)lla->lat)), HIGH_RES_TRIG_FRAC));
   int32_t sin_lon = rint(BFP_OF_REAL(sinf(RAD_OF_EM7DEG((float)lla->lon)), HIGH_RES_TRIG_FRAC));
   int32_t cos_lon = rint(BFP_OF_REAL(cosf(RAD_OF_EM7DEG((float)lla->lon)), HIGH_RES_TRIG_FRAC));
+#else // use double precision by default
+  int32_t sin_lat = rint(BFP_OF_REAL(sin(RAD_OF_EM7DEG((double)lla->lat)), HIGH_RES_TRIG_FRAC));
+  int32_t cos_lat = rint(BFP_OF_REAL(cos(RAD_OF_EM7DEG((double)lla->lat)), HIGH_RES_TRIG_FRAC));
+  int32_t sin_lon = rint(BFP_OF_REAL(sin(RAD_OF_EM7DEG((double)lla->lon)), HIGH_RES_TRIG_FRAC));
+  int32_t cos_lon = rint(BFP_OF_REAL(cos(RAD_OF_EM7DEG((double)lla->lon)), HIGH_RES_TRIG_FRAC));
 #endif
 
   ltp_of_ecef->m[0] = -sin_lon;
@@ -60,7 +60,7 @@ void ltp_of_ecef_rmat_from_lla_i(struct Int32RMat *ltp_of_ecef, struct LlaCoor_i
 void ltp_def_from_ecef_i(struct LtpDef_i *def, struct EcefCoor_i *ecef)
 {
 
-  /* store the origin of the tangeant plane */
+  /* store the origin of the tangent plane */
   VECT3_COPY(def->ecef, *ecef);
   /* compute the lla representation of the origin */
   lla_of_ecef_i(&def->lla, &def->ecef);
@@ -72,7 +72,7 @@ void ltp_def_from_ecef_i(struct LtpDef_i *def, struct EcefCoor_i *ecef)
 void ltp_def_from_lla_i(struct LtpDef_i *def, struct LlaCoor_i *lla)
 {
 
-  /* store the origin of the tangeant plane */
+  /* store the origin of the tangent plane */
   LLA_COPY(def->lla, *lla);
   /* compute the ecef representation of the origin */
   ecef_of_lla_i(&def->ecef, &def->lla);
@@ -287,7 +287,11 @@ void ecef_of_ned_pos_i(struct EcefCoor_i *ecef, struct LtpDef_i *def, struct Ned
   ecef_of_enu_pos_i(ecef, def, &enu);
 }
 
-
+/** Convert a point from LLA to local ENU.
+ * @param[out] enu  ENU point in cm
+ * @param[in]  def  local coordinate system definition
+ * @param[in]  lla  LLA point in 1e7deg and mm
+ */
 void enu_of_lla_point_i(struct EnuCoor_i *enu, struct LtpDef_i *def, struct LlaCoor_i *lla)
 {
   struct EcefCoor_i ecef;
@@ -295,6 +299,11 @@ void enu_of_lla_point_i(struct EnuCoor_i *enu, struct LtpDef_i *def, struct LlaC
   enu_of_ecef_point_i(enu, def, &ecef);
 }
 
+/** Convert a point from LLA to local NED.
+ * @param[out] ned  NED point in cm
+ * @param[in]  def  local coordinate system definition
+ * @param[in]  lla  LLA point in 1e7deg and mm
+ */
 void ned_of_lla_point_i(struct NedCoor_i *ned, struct LtpDef_i *def, struct LlaCoor_i *lla)
 {
   struct EcefCoor_i ecef;
@@ -323,38 +332,120 @@ void ned_of_lla_vect_i(struct NedCoor_i *ned, struct LtpDef_i *def, struct LlaCo
 #include "pprz_geodetic_float.h"
 #include "pprz_geodetic_double.h"
 
+/** Convert a ECEF to LLA.
+ * @param[out] out  LLA in degrees*1e7 and mm above ellipsoid
+ * @param[in]  in   ECEF in cm
+ */
 void lla_of_ecef_i(struct LlaCoor_i *out, struct EcefCoor_i *in)
 {
 
+#if USE_SINGLE_PRECISION_LLA_ECEF
+  /* convert our input to floating point */
+  struct EcefCoor_f in_f;
+  ECEF_FLOAT_OF_BFP(in_f, *in);
+  /* calls the floating point transformation */
+  struct LlaCoor_f out_f;
+  lla_of_ecef_f(&out_f, &in_f);
+  /* convert the output to fixed point       */
+  LLA_BFP_OF_REAL(*out, out_f);
+#else // use double precision by default
   /* convert our input to floating point */
   struct EcefCoor_d in_d;
-  in_d.x = M_OF_CM((double)in->x);
-  in_d.y = M_OF_CM((double)in->y);
-  in_d.z = M_OF_CM((double)in->z);
+  ECEF_DOUBLE_OF_BFP(in_d, *in);
   /* calls the floating point transformation */
   struct LlaCoor_d out_d;
   lla_of_ecef_d(&out_d, &in_d);
   /* convert the output to fixed point       */
-  out->lon = (int32_t)rint(EM7DEG_OF_RAD(out_d.lon));
-  out->lat = (int32_t)rint(EM7DEG_OF_RAD(out_d.lat));
-  out->alt = (int32_t)MM_OF_M(out_d.alt);
+  LLA_BFP_OF_REAL(*out, out_d);
+#endif
 
 }
 
+/** Convert a LLA to ECEF.
+ * @param[out] out  ECEF in cm
+ * @param[in]  in   LLA in degrees*1e7 and mm above ellipsoid
+ */
 void ecef_of_lla_i(struct EcefCoor_i *out, struct LlaCoor_i *in)
 {
 
+#if USE_SINGLE_PRECISION_LLA_ECEF
+  /* convert our input to floating point */
+  struct LlaCoor_f in_f;
+  LLA_FLOAT_OF_BFP(in_f, *in);
+  /* calls the floating point transformation */
+  struct EcefCoor_f out_f;
+  ecef_of_lla_f(&out_f, &in_f);
+  /* convert the output to fixed point       */
+  ECEF_BFP_OF_REAL(*out, out_f);
+#else // use double precision by default
   /* convert our input to floating point */
   struct LlaCoor_d in_d;
-  in_d.lon = RAD_OF_EM7DEG((double)in->lon);
-  in_d.lat = RAD_OF_EM7DEG((double)in->lat);
-  in_d.alt = M_OF_MM((double)in->alt);
+  LLA_DOUBLE_OF_BFP(in_d, *in);
   /* calls the floating point transformation */
   struct EcefCoor_d out_d;
   ecef_of_lla_d(&out_d, &in_d);
   /* convert the output to fixed point       */
-  out->x = (int32_t)CM_OF_M(out_d.x);
-  out->y = (int32_t)CM_OF_M(out_d.y);
-  out->z = (int32_t)CM_OF_M(out_d.z);
+  ECEF_BFP_OF_REAL(*out, out_d);
+#endif
+
+}
+
+#include "math/pprz_geodetic_utm.h"
+
+/** Convert a LLA to UTM.
+ * @param[out] out  UTM in cm and mm hmsl alt
+ * @param[in]  in   LLA in degrees*1e7 and mm above ellipsoid
+ */
+void utm_of_lla_i(struct UtmCoor_i *utm, struct LlaCoor_i *lla)
+{
+#if USE_SINGLE_PRECISION_LLA_UTM
+  /* convert our input to floating point */
+  struct LlaCoor_f lla_f;
+  LLA_FLOAT_OF_BFP(lla_f, *lla);
+  /* calls the floating point transformation */
+  struct UtmCoor_f utm_f;
+  utm_f.zone = utm->zone;
+  utm_of_lla_f(&utm_f, &lla_f);
+  /* convert the output to fixed point       */
+  UTM_BFP_OF_REAL(*utm, utm_f);
+#else // use double precision by default
+  /* convert our input to floating point */
+  struct LlaCoor_d lla_d;
+  LLA_DOUBLE_OF_BFP(lla_d, *lla);
+  /* calls the floating point transformation */
+  struct UtmCoor_d utm_d;
+  utm_d.zone = utm->zone;
+  utm_of_lla_d(&utm_d, &lla_d);
+  /* convert the output to fixed point       */
+  UTM_BFP_OF_REAL(*utm, utm_d);
+#endif
+}
+
+/** Convert a local NED position to ECEF.
+ * @param[out] ecef ECEF position in cm
+ * @param[in]  def  local coordinate system definition
+ * @param[in]  ned  NED position in meter << #INT32_POS_FRAC
+ */
+void lla_of_utm_i(struct LlaCoor_i *lla, struct UtmCoor_i *utm)
+{
+#if USE_SINGLE_PRECISION_LLA_UTM
+  /* convert our input to floating point */
+  struct UtmCoor_f utm_f;
+  UTM_FLOAT_OF_BFP(utm_f, *utm);
+  /* calls the floating point transformation */
+  struct LlaCoor_f lla_f;
+  lla_of_utm_f(&lla_f, &utm_f);
+  /* convert the output to fixed point       */
+  LLA_BFP_OF_REAL(*lla, lla_f);
+#else // use double precision by default
+  /* convert our input to floating point */
+  struct UtmCoor_d utm_d;
+  UTM_DOUBLE_OF_BFP(utm_d, *utm);
+  /* calls the floating point transformation */
+  struct LlaCoor_d lla_d;
+  lla_of_utm_d(&lla_d, &utm_d);
+  /* convert the output to fixed point       */
+  LLA_BFP_OF_REAL(*lla, lla_d);
+#endif
 
 }

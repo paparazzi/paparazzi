@@ -57,15 +57,15 @@ void baro_periodic(void) {}
  */
 static inline int32_t baro_apply_calibration(int32_t raw)
 {
-  int32_t b6 = ((int32_t)baro_calibration.b5) - 4000L;
-  int32_t x1 = (((int32_t)baro_calibration.b2) * (b6 * b6 >> 12)) >> 11;
-  int32_t x2 = ((int32_t)baro_calibration.ac2) * b6 >> 11;
+  int32_t b6 = ((int32_t)navdata.bmp180_calib.b5) - 4000L;
+  int32_t x1 = (((int32_t)navdata.bmp180_calib.b2) * (b6 * b6 >> 12)) >> 11;
+  int32_t x2 = ((int32_t)navdata.bmp180_calib.ac2) * b6 >> 11;
   int32_t x3 = x1 + x2;
-  int32_t b3 = (((((int32_t)baro_calibration.ac1) * 4 + x3) << BMP180_OSS) + 2) / 4;
-  x1 = ((int32_t)baro_calibration.ac3) * b6 >> 13;
-  x2 = (((int32_t)baro_calibration.b1) * (b6 * b6 >> 12)) >> 16;
+  int32_t b3 = (((((int32_t)navdata.bmp180_calib.ac1) * 4 + x3) << BMP180_OSS) + 2) / 4;
+  x1 = ((int32_t)navdata.bmp180_calib.ac3) * b6 >> 13;
+  x2 = (((int32_t)navdata.bmp180_calib.b1) * (b6 * b6 >> 12)) >> 16;
   x3 = ((x1 + x2) + 2) >> 2;
-  uint32_t b4 = (((int32_t)baro_calibration.ac4) * (uint32_t)(x3 + 32768L)) >> 15;
+  uint32_t b4 = (((int32_t)navdata.bmp180_calib.ac4) * (uint32_t)(x3 + 32768L)) >> 15;
   uint32_t b7 = (raw - b3) * (50000L >> BMP180_OSS);
   int32_t p = b7 < 0x80000000L ? (b7 * 2) / b4 : (b7 / b4) * 2;
   x1 = (p >> 8) * (p >> 8);
@@ -83,26 +83,26 @@ static inline int32_t baro_apply_calibration(int32_t raw)
  */
 static inline int32_t baro_apply_calibration_temp(int32_t tmp_raw)
 {
-  int32_t x1 = ((tmp_raw - ((int32_t)baro_calibration.ac6)) * ((int32_t)baro_calibration.ac5)) >> 15;
-  int32_t x2 = (((int32_t)baro_calibration.mc) << 11) / (x1 + ((int32_t)baro_calibration.md));
-  baro_calibration.b5 = x1 + x2;
-  return (baro_calibration.b5 + 8) >> 4;
+  int32_t x1 = ((tmp_raw - ((int32_t)navdata.bmp180_calib.ac6)) * ((int32_t)navdata.bmp180_calib.ac5)) >> 15;
+  int32_t x2 = (((int32_t)navdata.bmp180_calib.mc) << 11) / (x1 + ((int32_t)navdata.bmp180_calib.md));
+  navdata.bmp180_calib.b5 = x1 + x2;
+  return (navdata.bmp180_calib.b5 + 8) >> 4;
 }
 
 void ardrone_baro_event(void)
 {
-  if (navdata_baro_available) {
-    if (baro_calibrated) {
+  if (navdata.baro_available) {
+    if (navdata.baro_calibrated) {
       // first read temperature because pressure calibration depends on temperature
-      float temp_deg = 0.1 * baro_apply_calibration_temp(navdata.temperature_pressure);
+      float temp_deg = 0.1 * baro_apply_calibration_temp(navdata.measure.temperature_pressure);
       AbiSendMsgTEMPERATURE(BARO_BOARD_SENDER_ID, temp_deg);
-      int32_t press_pascal = baro_apply_calibration(navdata.pressure);
+      int32_t press_pascal = baro_apply_calibration(navdata.measure.pressure);
 #if USE_BARO_MEDIAN_FILTER
       press_pascal = update_median_filter(&baro_median, press_pascal);
 #endif
       float pressure = (float)press_pascal;
       AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, pressure);
     }
-    navdata_baro_available = FALSE;
+    navdata.baro_available = false;
   }
 }

@@ -31,6 +31,7 @@ type ac_cam = {
 type rc_status = string (** OK, LOST, REALLY_LOST *)
 type rc_mode = string (** MANUAL, AUTO, FAILSAFE *)
 type fbw = {
+  mutable fbw_bat : float;
   mutable rc_status : rc_status;
   mutable rc_mode : rc_mode;
   mutable rc_rate : int;
@@ -141,7 +142,7 @@ type aircraft = {
   airframe : Xml.xml;
   mutable pos : Latlong.geographic;
   mutable unix_time : float;
-  mutable itow : int32; (* ms *)
+  mutable itow : int64; (* ms *)
   mutable roll    : float;
   mutable pitch   : float;
   mutable heading  : float; (* rad, CW 0=N *)
@@ -201,7 +202,7 @@ let new_aircraft = fun id name fp airframe ->
   let svsinfo_init = Array.init gps_nb_channels (fun _ -> svinfo_init ()) in
   { vehicle_type = UnknownVehicleType; id = id; name = name; flight_plan = fp; airframe = airframe;
     pos = { Latlong.posn_lat = 0.; posn_long = 0. };
-    unix_time = 0.; itow = Int32.of_int 0;
+    unix_time = 0.; itow = Int64.of_int 0;
     roll = 0.; pitch = 0.;
     gspeed=0.; airspeed= -1.; course = 0.; heading = 0.; alt=0.; climb=0.; agl = 0.;
     nav_ref = None; d_hmsl = 0.; ground_alt = 0.;
@@ -209,15 +210,15 @@ let new_aircraft = fun id name fp airframe ->
     desired_course = 0.; desired_altitude = 0.; desired_climb = 0.;
     cur_block=0; cur_stage=0;
     flight_time = 0; stage_time = 0; block_time = 0;
-    throttle = 0.; throttle_accu = 0.; rpm = 0.; temp = 0.; bat = 42.; amp = 0.; energy = 0; ap_mode= -1;
+    throttle = 0.; throttle_accu = 0.; rpm = 0.; temp = 0.; bat = 0.; amp = 0.; energy = 0; ap_mode= -1;
     kill_mode = false;
     gaz_mode= -1; lateral_mode= -1;
     gps_mode = 0; gps_Pacc = 0; periodic_callbacks = [];
     state_filter_mode = 0;
     cam = { phi = 0.; theta = 0. ; target=(0.,0.)};
-    fbw = { rc_status = "???"; rc_mode = "???"; rc_rate=0; pprz_mode_msgs_since_last_fbw_status_msg=0 };
+    fbw = { rc_status = "???"; rc_mode = "???"; rc_rate=0; fbw_bat=0.; pprz_mode_msgs_since_last_fbw_status_msg=0 };
     svinfo = svsinfo_init;
-    dl_setting_values = Array.create max_nb_dl_setting_values None;
+    dl_setting_values = Array.make max_nb_dl_setting_values None;
     nb_dl_setting_values = 0;
     horiz_mode = UnknownHorizMode;
     horizontal_mode = 0;

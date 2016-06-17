@@ -36,7 +36,7 @@ void mpu60x0_set_default_config(struct Mpu60x0Config *c)
   c->dlpf_cfg = MPU60X0_DEFAULT_DLPF_CFG;
   c->gyro_range = MPU60X0_DEFAULT_FS_SEL;
   c->accel_range = MPU60X0_DEFAULT_AFS_SEL;
-  c->drdy_int_enable = FALSE;
+  c->drdy_int_enable = false;
 
   /* Number of bytes to read starting with MPU60X0_REG_INT_STATUS
    * By default read only gyro and accel data -> 15 bytes.
@@ -44,8 +44,9 @@ void mpu60x0_set_default_config(struct Mpu60x0Config *c)
    */
   c->nb_bytes = 15;
   c->nb_slaves = 0;
+  c->nb_slave_init = 0;
 
-  c->i2c_bypass = FALSE;
+  c->i2c_bypass = false;
 }
 
 void mpu60x0_send_config(Mpu60x0ConfigSet mpu_set, void *mpu, struct Mpu60x0Config *config)
@@ -105,7 +106,7 @@ void mpu60x0_send_config(Mpu60x0ConfigSet mpu_set, void *mpu, struct Mpu60x0Conf
       config->init_status++;
       break;
     case MPU60X0_CONF_DONE:
-      config->initialized = TRUE;
+      config->initialized = true;
       break;
     default:
       break;

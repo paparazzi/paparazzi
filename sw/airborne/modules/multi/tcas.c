@@ -32,7 +32,7 @@
 #include "subsystems/gps.h"
 #include "generated/flight_plan.h"
 
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 
 float tcas_alt_setpoint;
@@ -111,8 +111,8 @@ void tcas_periodic_task_1Hz(void)
   float tau_min = tcas_tau_ta;
   uint8_t ac_id_close = AC_ID;
   uint8_t i;
-  float vx = (*stateGetHorizontalSpeedNorm_f()) * sinf((*stateGetHorizontalSpeedDir_f()));
-  float vy = (*stateGetHorizontalSpeedNorm_f()) * cosf((*stateGetHorizontalSpeedDir_f()));
+  float vx = stateGetHorizontalSpeedNorm_f() * sinf(stateGetHorizontalSpeedDir_f());
+  float vy = stateGetHorizontalSpeedNorm_f() * cosf(stateGetHorizontalSpeedDir_f());
   for (i = 2; i < NB_ACS; i++) {
     if (the_acs[i].ac_id == 0) { continue; } // no AC data
     uint32_t dt = gps.tow - the_acs[i].itow;
@@ -206,7 +206,8 @@ void tcas_periodic_task_1Hz(void)
       }
     }
     // Downlink alert
-    DOWNLINK_SEND_TCAS_RA(DefaultChannel, DefaultDevice, &tcas_ac_RA, &tcas_resolve);
+    uint8_t resolve = tcas_resolve;
+    DOWNLINK_SEND_TCAS_RA(DefaultChannel, DefaultDevice, &tcas_ac_RA, &resolve);
   } else { tcas_ac_RA = AC_ID; } // no conflict
 #ifdef TCAS_DEBUG
   if (tcas_status == TCAS_RA) { DOWNLINK_SEND_TCAS_DEBUG(DefaultChannel, DefaultDevice, &ac_id_close, &tau_min); }

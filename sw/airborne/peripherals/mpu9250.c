@@ -37,7 +37,7 @@ void mpu9250_set_default_config(struct Mpu9250Config *c)
   c->dlpf_accel_cfg = MPU9250_DEFAULT_DLPF_ACCEL_CFG;
   c->gyro_range = MPU9250_DEFAULT_FS_SEL;
   c->accel_range = MPU9250_DEFAULT_AFS_SEL;
-  c->drdy_int_enable = FALSE;
+  c->drdy_int_enable = false;
 
   /* Number of bytes to read starting with MPU9250_REG_INT_STATUS
    * By default read only gyro and accel data -> 15 bytes.
@@ -45,8 +45,9 @@ void mpu9250_set_default_config(struct Mpu9250Config *c)
    */
   c->nb_bytes = 15;
   c->nb_slaves = 0;
+  c->nb_slave_init = 0;
 
-  c->i2c_bypass = FALSE;
+  c->i2c_bypass = false;
 }
 
 void mpu9250_send_config(Mpu9250ConfigSet mpu_set, void *mpu, struct Mpu9250Config *config)
@@ -111,7 +112,7 @@ void mpu9250_send_config(Mpu9250ConfigSet mpu_set, void *mpu, struct Mpu9250Conf
       config->init_status++;
       break;
     case MPU9250_CONF_DONE:
-      config->initialized = TRUE;
+      config->initialized = true;
       break;
     default:
       break;

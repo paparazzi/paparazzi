@@ -63,13 +63,21 @@ DFU_ADDR ?= 0x08000000
 DFU_UTIL_VERSION = $(shell (dfu-util --version 2>/dev/null || echo NotFound 0) | head -n 1 | awk '{print $$2}')
 VERIFY = $(shell echo '$(DFU_UTIL_VERSION)>=0.7' | bc)
 DFU_SIZE ?= $(shell ls -nl $^ | awk '{print $$5}')
+
+DFU_LEAVE ?= 1
+ifeq ($(DFU_LEAVE),1)
+DFUSE_VERIFY_ADDRESS = $(DFU_ADDR):$(DFU_SIZE):leave
+else
+DFUSE_VERIFY_ADDRESS = $(DFU_ADDR):$(DFU_SIZE)
+endif
+
 upload: $(OBJDIR)/$(TARGET).bin
 	@echo "Using dfu-util at $(DFU_ADDR)"
 	$(Q)dfu-util -d 0483:df11 -c 1 -i 0 -a 0 -s $(DFU_ADDR) -D $^
 ifeq ($(VERIFY),1)
 	@echo "Reading flashed bin file of size $(DFU_SIZE) for verification"
 	$(Q)rm -f $(OBJDIR)/verify.bla
-	$(Q)dfu-util -d 0483:df11 -c 1 -i 0 -a 0 -s $(DFU_ADDR):$(DFU_SIZE) -U $(OBJDIR)/verify.bla
+	$(Q)dfu-util -d 0483:df11 -c 1 -i 0 -a 0 -s $(DFUSE_VERIFY_ADDRESS) -U $(OBJDIR)/verify.bla
 	$(Q)diff $^ $(OBJDIR)/verify.bla
 	$(Q)rm -f $(OBJDIR)/verify.bla
 endif
@@ -118,7 +126,7 @@ upload: $(OBJDIR)/$(TARGET).hex
 #
 # JTAG flash mode (with Black Magic Probe)
 else ifeq ($(FLASH_MODE),JTAG_BMP)
-BMP_PORT ?= /dev/ttyACM0
+BMP_PORT ?= $(shell ls /dev/bmp-gdb 2>/dev/null || echo /dev/ttyACM0)
 BMP_UPLOAD_SCRIPT ?= $(PAPARAZZI_SRC)/sw/tools/flash_scripts/bmp_jtag_flash.scr
 upload: $(OBJDIR)/$(TARGET).elf
 	@echo "Assuming luftboot bootloader: $(ASSUMING_LUFTBOOT)"
@@ -134,7 +142,7 @@ upload: $(OBJDIR)/$(TARGET).elf
 # SWD flash mode (with Black Magic Probe)
 else ifeq ($(FLASH_MODE),SWD)
 # only works if BMP_PORT is defined
-BMP_PORT ?= /dev/ttyACM0
+BMP_PORT ?= $(shell ls /dev/bmp-gdb 2>/dev/null || echo /dev/ttyACM0)
 BMP_UPLOAD_SCRIPT ?= $(PAPARAZZI_SRC)/sw/tools/flash_scripts/bmp_swd_flash.scr
 upload: $(OBJDIR)/$(TARGET).elf
 	@echo "Assuming luftboot bootloader: $(ASSUMING_LUFTBOOT)"
@@ -154,6 +162,12 @@ upload: $(OBJDIR)/$(TARGET).bin
 	@echo "Using ST-LINK with SWD at $(STLINK_ADDR)"
 	$(Q)st-flash write $^ $(STLINK_ADDR)
 
+else ifeq ($(FLASH_MODE),PX4_BOOTLOADER)
+	# Program the device and start it.
+upload: $(OBJDIR)/$(TARGET).bin
+	$(PAPARAZZI_SRC)/sw/tools/px4/px_mkfw.py --prototype $(PX4_PROTOTYPE) --image $(OBJDIR)/$(TARGET).bin > $(OBJDIR)/$(TARGET).px4
+	$(PAPARAZZI_SRC)/sw/tools/px4/set_target.py $(PX4_TARGET) $(OBJDIR)/$(TARGET).px4
+	$(PAPARAZZI_SRC)/sw/tools/px4/px_uploader.py --port $(PX4_BL_PORT) $(OBJDIR)/$(TARGET).px4
 #
 # no known flash mode
 else

@@ -44,7 +44,7 @@
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/uart.h"
 #include "mcu_periph/sys_time.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 #include <math.h>
 
@@ -83,11 +83,19 @@ PRINT_CONFIG_VAR(AIRSPEED_ETS_I2C_DEV)
 #endif
 PRINT_CONFIG_VAR(AIRSPEED_ETS_START_DELAY)
 
+#ifndef SITL
+#if AIRSPEED_ETS_SDLOG
+#include "modules/loggers/sdlog_chibios.h"
+#include "subsystems/gps.h"
+bool log_airspeed_ets_started;
+#endif
+#endif
+
 
 // Global variables
 uint16_t airspeed_ets_raw;
 uint16_t airspeed_ets_offset;
-bool_t airspeed_ets_valid;
+bool airspeed_ets_valid;
 float airspeed_ets;
 int airspeed_ets_buffer_idx;
 float airspeed_ets_buffer[AIRSPEED_ETS_NBSAMPLES_AVRG];
@@ -95,12 +103,12 @@ float airspeed_ets_buffer[AIRSPEED_ETS_NBSAMPLES_AVRG];
 struct i2c_transaction airspeed_ets_i2c_trans;
 
 // Local variables
-volatile bool_t airspeed_ets_i2c_done;
-bool_t airspeed_ets_offset_init;
+volatile bool airspeed_ets_i2c_done;
+bool airspeed_ets_offset_init;
 uint32_t airspeed_ets_offset_tmp;
 uint16_t airspeed_ets_cnt;
 uint32_t airspeed_ets_delay_time;
-bool_t   airspeed_ets_delay_done;
+bool   airspeed_ets_delay_done;
 
 void airspeed_ets_init(void)
 {
@@ -109,9 +117,9 @@ void airspeed_ets_init(void)
   airspeed_ets = 0.0;
   airspeed_ets_offset = 0;
   airspeed_ets_offset_tmp = 0;
-  airspeed_ets_i2c_done = TRUE;
-  airspeed_ets_valid = FALSE;
-  airspeed_ets_offset_init = FALSE;
+  airspeed_ets_i2c_done = true;
+  airspeed_ets_valid = false;
+  airspeed_ets_offset_init = false;
   airspeed_ets_cnt = AIRSPEED_ETS_OFFSET_NBSAMPLES_INIT + AIRSPEED_ETS_OFFSET_NBSAMPLES_AVRG;
 
   airspeed_ets_buffer_idx = 0;
@@ -121,8 +129,14 @@ void airspeed_ets_init(void)
 
   airspeed_ets_i2c_trans.status = I2CTransDone;
 
-  airspeed_ets_delay_done = FALSE;
+  airspeed_ets_delay_done = false;
   SysTimeTimerStart(airspeed_ets_delay_time);
+
+#ifndef SITL
+#if AIRSPEED_ETS_SDLOG
+  log_airspeed_ets_started = false;
+#endif
+#endif
 }
 
 void airspeed_ets_read_periodic(void)
@@ -130,14 +144,14 @@ void airspeed_ets_read_periodic(void)
 #ifndef SITL
   if (!airspeed_ets_delay_done) {
     if (SysTimeTimer(airspeed_ets_delay_time) < USEC_OF_SEC(AIRSPEED_ETS_START_DELAY)) { return; }
-    else { airspeed_ets_delay_done = TRUE; }
+    else { airspeed_ets_delay_done = true; }
   }
   if (airspeed_ets_i2c_trans.status == I2CTransDone) {
     i2c_receive(&AIRSPEED_ETS_I2C_DEV, &airspeed_ets_i2c_trans, AIRSPEED_ETS_ADDR, 2);
   }
 #elif !defined USE_NPS
   extern float sim_air_speed;
-  stateSetAirspeed_f(&sim_air_speed);
+  stateSetAirspeed_f(sim_air_speed);
 #endif //SITL
 }
 
@@ -150,9 +164,9 @@ void airspeed_ets_read_event(void)
   airspeed_ets_raw = ((uint16_t)(airspeed_ets_i2c_trans.buf[1]) << 8) | (uint16_t)(airspeed_ets_i2c_trans.buf[0]);
   // Check if this is valid airspeed
   if (airspeed_ets_raw == 0) {
-    airspeed_ets_valid = FALSE;
+    airspeed_ets_valid = false;
   } else {
-    airspeed_ets_valid = TRUE;
+    airspeed_ets_valid = true;
   }
 
   // Continue only if a new airspeed value was received
@@ -172,7 +186,7 @@ void airspeed_ets_read_event(void)
         if (airspeed_ets_offset > AIRSPEED_ETS_OFFSET_MAX) {
           airspeed_ets_offset = AIRSPEED_ETS_OFFSET_MAX;
         }
-        airspeed_ets_offset_init = TRUE;
+        airspeed_ets_offset_init = true;
       }
       // Check if averaging needs to continue
       else if (airspeed_ets_cnt <= AIRSPEED_ETS_OFFSET_NBSAMPLES_AVRG) {
@@ -212,7 +226,7 @@ void airspeed_ets_read_event(void)
     }
     airspeed_ets = airspeed_ets / (float)AIRSPEED_ETS_NBSAMPLES_AVRG;
 #if USE_AIRSPEED_ETS
-    stateSetAirspeed_f(&airspeed_ets);
+    stateSetAirspeed_f(airspeed_ets);
 #endif
 #if AIRSPEED_ETS_SYNC_SEND
     DOWNLINK_SEND_AIRSPEED_ETS(DefaultChannel, DefaultDevice, &airspeed_ets_raw, &airspeed_ets_offset, &airspeed_ets);
@@ -220,6 +234,25 @@ void airspeed_ets_read_event(void)
   } else {
     airspeed_ets = 0.0;
   }
+
+
+#if AIRSPEED_ETS_SDLOG
+#ifndef SITL
+  if (pprzLogFile != -1) {
+    if (!log_airspeed_ets_started) {
+      sdLogWriteLog(pprzLogFile, "AIRSPEED_ETS: raw offset airspeed(m/s) GPS_fix TOW(ms) Week Lat(1e7deg) Lon(1e7deg) HMSL(mm) gpseed(cm/s) course(1e7rad) climb(cm/s)\n");
+      log_airspeed_ets_started = true;
+    }
+    sdLogWriteLog(pprzLogFile, "airspeed_ets: %d %d %8.4f   %d %d %d   %d %d %d   %d %d %d\n",
+		  airspeed_ets_raw, airspeed_ets_offset, airspeed_ets,
+		  gps.fix, gps.tow, gps.week,
+		  gps.lla_pos.lat, gps.lla_pos.lon, gps.hmsl,
+		  gps.gspeed, gps.course, -gps.ned_vel.z);
+  }
+#endif
+#endif
+
+
 
   // Transaction has been read
   airspeed_ets_i2c_trans.status = I2CTransDone;

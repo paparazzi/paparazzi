@@ -74,13 +74,14 @@ static inline void tunnel_event(void)
     inc = uart_getch(&USB_TUNNEL_UART);
     VCOM_putchar(inc);
   }
-  if (VCOM_check_available() && uart_check_free_space(&USB_TUNNEL_UART, 1)) {
+  long fd = 0;
+  if (VCOM_check_available() && uart_check_free_space(&USB_TUNNEL_UART, &fd, 1)) {
 #if LED_AVAILABLE(TUNNEL_TX_LED)
     LED_ON(TUNNEL_TX_LED);
     tx_time = get_sys_time_msec();
 #endif
     inc = VCOM_getchar();
-    uart_transmit(&USB_TUNNEL_UART, inc);
+    uart_put_byte(&USB_TUNNEL_UART, fd, inc);
   }
 }
 

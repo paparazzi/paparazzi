@@ -26,9 +26,12 @@
  *
  */
 
-#include <inttypes.h>
 #include "subsystems/navigation/traffic_info.h"
-#include "generated/airframe.h"
+
+//#include "subsystems/navigation/common_nav.h"
+#include "generated/airframe.h"     // AC_ID
+#include "math/pprz_geodetic_int.h"
+#include "math/pprz_geodetic_float.h"
 
 uint8_t acs_idx;
 uint8_t the_acs_id[NB_ACS_ID];
@@ -42,7 +45,51 @@ void traffic_info_init(void)
   acs_idx = 2;
 }
 
-struct ac_info_ *get_ac_info(uint8_t id)
+struct ac_info_ *get_ac_info(uint8_t _id)
 {
-  return &the_acs[the_acs_id[id]];
+  return &the_acs[the_acs_id[_id]];
+}
+
+void set_ac_info(uint8_t id, float utm_east, float utm_north, float course, float alt,
+                 float gspeed, float climb, uint32_t itow)
+{
+  if (acs_idx < NB_ACS) {
+    if (id > 0 && the_acs_id[id] == 0) {
+      the_acs_id[id] = acs_idx++;
+      the_acs[the_acs_id[id]].ac_id = id;
+    }
+    the_acs[the_acs_id[id]].east = utm_east;// -  nav_utm_east0;
+    the_acs[the_acs_id[id]].north = utm_north;// - nav_utm_north0;
+    the_acs[the_acs_id[id]].course = course;
+    the_acs[the_acs_id[id]].alt = alt;// +- NAV_MSL0;
+    the_acs[the_acs_id[id]].gspeed = gspeed;
+    the_acs[the_acs_id[id]].climb = climb;
+    the_acs[the_acs_id[id]].itow = itow;
+  }
+}
+
+void set_ac_info_lla(uint8_t id, int32_t lat, int32_t lon, int32_t alt,
+                     int16_t course, uint16_t gspeed, int16_t climb, uint32_t itow)
+{
+  if (acs_idx < NB_ACS) {
+    if (id > 0 && the_acs_id[id] == 0) {
+      the_acs_id[id] = acs_idx++;
+      the_acs[the_acs_id[id]].ac_id = id;
+    }
+
+    struct LlaCoor_i lla_i = {.lat = lat, .lon = lon, .alt = alt};
+    struct LlaCoor_f lla_f;
+    LLA_FLOAT_OF_BFP(lla_f, lla_i);
+
+    struct UtmCoor_f utm_f;
+    utm_of_lla_f(&utm_f, &lla_f);
+
+    the_acs[the_acs_id[id]].east = utm_f.east;
+    the_acs[the_acs_id[id]].north = utm_f.north;
+    the_acs[the_acs_id[id]].alt = utm_f.alt;
+    the_acs[the_acs_id[id]].course = RadOfDeg((float)course / 10.);
+    the_acs[the_acs_id[id]].gspeed = (float)gspeed * 100;
+    the_acs[the_acs_id[id]].climb = (float)climb * 100;
+    the_acs[the_acs_id[id]].itow = itow;
+  }
 }

@@ -6,24 +6,42 @@
 
 BOARD=apogee
 BOARD_VERSION=1.0
-BOARD_CFG=\"boards/$(BOARD)_$(BOARD_VERSION).h\"
+BOARD_DIR=$(BOARD)/v$(BOARD_VERSION)
+BOARD_CFG=\"boards/$(BOARD_DIR)/board.h\"
 
-ARCH=stm32
-ARCH_L=f4
-ARCH_DIR=stm32
-RTOS=chibios-libopencm3
-SRC_ARCH=arch/$(ARCH_DIR)
+ARCH=chibios
 $(TARGET).ARCHDIR = $(ARCH)
-$(TARGET).LDSCRIPT=$(SRC_ARCH)/stm32f4_chibios.ld
 
+RTOS=chibios
+
+## FPU on F4
+USE_FPU=yes
 HARD_FLOAT=yes
 
-# include Makefile.chibios-libopencm3 instead of Makefile.stm32
-$(TARGET).MAKEFILE = chibios-libopencm3
+$(TARGET).CFLAGS += -DSTM32F4 -DPPRZLINK_ENABLE_FD
+
+##############################################################################
+# Architecture or project specific options
+#
+# Define project name here (target)
+PROJECT = $(TARGET)
+
+# Project specific files and paths (see Makefile.chibios for details)
+CHIBIOS_BOARD_PLATFORM = STM32F4xx/platform.mk
+CHIBIOS_BOARD_PORT = ARMCMx/STM32F4xx/port.mk
+CHIBIOS_BOARD_LINKER = STM32F407xG_ccm.ld
+CHIBIOS_BOARD_STARTUP = startup_stm32f4xx.mk
+
+##############################################################################
+# Compiler settings
+#
+MCU  = cortex-m4
 
 # default flash mode is via usb dfu bootloader
 # possibilities: DFU-UTIL, SWD, STLINK
 FLASH_MODE ?= DFU-UTIL
+
+HAS_LUFTBOOT = FALSE
 
 #
 # default LED configuration
@@ -57,3 +75,4 @@ SBUS_PORT ?= UART2
 # e.g. <servo driver="Ppm">
 #
 ACTUATORS ?= actuators_pwm
+

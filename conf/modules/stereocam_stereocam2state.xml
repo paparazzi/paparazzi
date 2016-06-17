@@ -1,0 +1,20 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="stereocam2state" dir="stereocam/stereocam2state">
+  <doc>
+    <description>
+      StereoCamera 2 VELOCITY_ESTIMATE.
+      This module sends the data retreived from an external stereocamera modules, to the state filter of the drone. This is done so that the guidance modules can use that information for couadcopter
+    </description>
+  </doc>
+   <depends>stereocam</depends>
+  <header>
+    <file name="stereocam2state.h"/>
+  </header>
+  <init fun="stereo_to_state_init()"/>
+  <periodic fun="stereo_to_state_periodic()" autorun="TRUE"/>
+  <makefile>
+    <file name="stereocam2state.c"/>
+  </makefile>
+</module>
+

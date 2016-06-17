@@ -13,7 +13,7 @@
 
 
 #include "mcu_periph/uart.h"
-#include "messages.h"
+#include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 
 #include "generated/settings.h"
@@ -101,16 +101,16 @@ static inline  void main_event_task(void)
     ReadPprzBuffer();
     if (pprz_msg_received) {
       pprz_parse_payload();
-      pprz_msg_received = FALSE;
+      pprz_msg_received = false;
     }
   }
   if (dl_msg_available) {
     main_dl_parse_msg();
-    dl_msg_available = FALSE;
+    dl_msg_available = false;
   }
 }
 
-bool_t dl_msg_available;
+bool dl_msg_available;
 
 #define MSG_SIZE 128
 uint8_t dl_buffer[MSG_SIZE]  __attribute__((aligned));
