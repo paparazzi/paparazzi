@@ -431,4 +431,31 @@
 #define SUPERBITRF_DRDY_PIN GPIO6
 #define SUPERBITRF_FORCE_DSM2 FALSE
 
+/*
+ * RPM sensor on Superbit IRQ pin using TIM8 Channel 1
+ */
+#ifdef USE_PWM_INPUT1
+#define PWM_INPUT1_GPIO_PORT      GPIOC
+#define PWM_INPUT1_GPIO_PIN       GPIO6
+#define PWM_INPUT1_GPIO_AF        0
+
+#define PWM_INPUT1_TIMER          TIM8
+#define PWM_INPUT1_CHANNEL_PERIOD TIM_IC1
+#define PWM_INPUT1_CHANNEL_DUTY   TIM_IC2
+#define PWM_INPUT1_TIMER_INPUT    TIM_IC_IN_TI1
+#define PWM_INPUT1_SLAVE_TRIG     TIM_SMCR_TS_IT1FP1
+#define PWM_INPUT1_IRQ            NVIC_TIM8_CC_IRQ
+#define PWM_INPUT1_CC_IE          (TIM_DIER_CC1IE | TIM_DIER_CC2IE)
+#define USE_PWM_INPUT_TIM8        TRUE
+
+#ifdef PWM_INPUT1_TICKS_PER_USEC
+#define TIM8_TICKS_PER_USEC PWM_INPUT1_TICKS_PER_USEC
+#endif
+#define TIM8_PWM_INPUT_IDX        0
+#define TIM8_CC_IF_PERIOD         TIM_SR_CC1IF
+#define TIM8_CC_IF_DUTY           TIM_SR_CC2IF
+#define TIM8_CCR_PERIOD           TIM8_CCR1
+#define TIM8_CCR_DUTY             TIM8_CCR2
+#endif
+
 #endif /* CONFIG_LISA_S_1_0_H */
