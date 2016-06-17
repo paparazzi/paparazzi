@@ -30,6 +30,7 @@
 #include "subsystems/ins.h"
 
 #include "generated/airframe.h"
+#include "generated/flight_plan.h"
 
 #include "mcu_periph/sys_time.h"
 #include "subsystems/datalink/downlink.h"
@@ -43,7 +44,6 @@
 #include "subsystems/abi.h"
 #include "math/pprz_geodetic_wgs84.h"
 #include "math/pprz_geodetic_float.h"
-#include "subsystems/navigation/common_nav.h" /* needed for nav_utm_zone0 */
 #endif
 
 /** ABI binding for gps data.
@@ -71,7 +71,7 @@ void ins_xsens700_init(void)
   ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
   ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
 
-  struct UtmCoor_f utm0 = { nav_utm_north0, nav_utm_east0, 0., nav_utm_zone0 };
+  struct UtmCoor_f utm0 = { NAV_UTM_NORTH0, NAV_UTM_EAST0, GROUND_ALT, NAV_UTM_ZONE0 };
   stateSetLocalUtmOrigin_f(&utm0);
   stateSetPositionUtm_f(&utm0);
 
@@ -92,7 +92,7 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
                    uint32_t stamp __attribute__((unused)),
                    struct GpsState *gps_s)
 {
-  struct UtmCoor_f utm = utm_float_from_gps(gps_s, nav_utm_zone0);
+  struct UtmCoor_f utm = utm_float_from_gps(gps_s, state.utm_origin_f.zone);
 
   // set position
   stateSetPositionUtm_f(&utm);

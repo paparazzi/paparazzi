@@ -51,7 +51,7 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
                    uint32_t stamp __attribute__((unused)),
                    struct GpsState *gps_s)
 {
-  struct UtmCoor_f utm = utm_float_from_gps(gps_s, nav_utm_zone0);
+  struct UtmCoor_f utm = utm_float_from_gps(gps_s, state.utm_origin_f.zone);
 
   // set position
   stateSetPositionUtm_f(&utm);
@@ -65,27 +65,8 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   stateSetSpeedNed_f(&ned_vel);
 }
 
-
-void ins_gps_passthrough_init(void)
+void ins_gps_utm_register(void)
 {
-  struct UtmCoor_f utm0 = { nav_utm_north0, nav_utm_east0, 0., nav_utm_zone0 };
-  stateSetLocalUtmOrigin_f(&utm0);
-  stateSetPositionUtm_f(&utm0);
-
-  AbiBindMsgGPS(INS_PT_GPS_ID, &gps_ev, gps_cb);
-}
-
-void ins_reset_local_origin(void)
-{
-  struct UtmCoor_f utm = utm_float_from_gps(&gps, 0);
-
-  // reset state UTM ref
-  stateSetLocalUtmOrigin_f(&utm);
-}
-
-void ins_reset_altitude_ref(void)
-{
-  struct UtmCoor_f utm = state.utm_origin_f;
-  utm.alt = gps.hmsl / 1000.0f;
-  stateSetLocalUtmOrigin_f(&utm);
+  ins_register_impl(ins_gps_utm_init);
+  AbiBindMsgGPS(INS_PTU_GPS_ID, &gps_ev, gps_cb);
 }

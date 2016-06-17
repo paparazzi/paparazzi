@@ -39,9 +39,6 @@ struct point waypoints[NB_WAYPOINT] = WAYPOINTS_UTM;
 
 float ground_alt;
 
-int32_t nav_utm_east0 = NAV_UTM_EAST0;
-int32_t nav_utm_north0 = NAV_UTM_NORTH0;
-uint8_t nav_utm_zone0 = NAV_UTM_ZONE0;
 float max_dist_from_home = MAX_DIST_FROM_HOME;
 
 /** Computes squared distance to the HOME waypoint.
@@ -62,39 +59,15 @@ void compute_dist2_to_home(void)
 
 static float previous_ground_alt;
 
-/** Reset the UTM zone to current GPS fix */
-unit_t nav_reset_utm_zone(void)
-{
-
-  struct UtmCoor_f utm0;
-  utm0.zone = nav_utm_zone0;
-  utm0.north = nav_utm_north0;
-  utm0.east = nav_utm_east0;
-  utm0.alt = ground_alt;
-  ins_reset_utm_zone(&utm0);
-
-  /* Set the real UTM ref */
-  nav_utm_zone0 = utm0.zone;
-  nav_utm_east0 = utm0.east;
-  nav_utm_north0 = utm0.north;
-
-  return 0;
-}
-
 /** Reset the geographic reference to the current GPS fix */
 unit_t nav_reset_reference(void)
 {
   /* realign INS */
   ins_reset_local_origin();
 
-  /* Set nav UTM ref */
-  nav_utm_east0 = state.utm_origin_f.east;
-  nav_utm_north0 = state.utm_origin_f.north;
-  nav_utm_zone0 = state.utm_origin_f.zone;
-
   /* Ground alt */
   previous_ground_alt = ground_alt;
-  ground_alt = state.utm_origin_f.alt;
+  ground_alt = state.utm_origin_f.alt;  // this isn't correct when reset in flight
 
   return 0;
 }
@@ -106,7 +79,7 @@ unit_t nav_reset_alt(void)
 
   /* Ground alt */
   previous_ground_alt = ground_alt;
-  ground_alt = state.utm_origin_f.alt;
+  ground_alt = state.utm_origin_f.alt;  // this isn't correct when reset in flight
 
   return 0;
 }
@@ -136,8 +109,8 @@ void nav_move_waypoint(uint8_t wp_id, float ux, float uy, float alt)
 {
   if (wp_id < nb_waypoint) {
     float dx, dy;
-    dx = ux - nav_utm_east0 - waypoints[WP_HOME].x;
-    dy = uy - nav_utm_north0 - waypoints[WP_HOME].y;
+    dx = ux - state.utm_origin_f.east - waypoints[WP_HOME].x;
+    dy = uy - state.utm_origin_f.north - waypoints[WP_HOME].y;
     BoundAbs(dx, max_dist_from_home);
     BoundAbs(dy, max_dist_from_home);
     waypoints[wp_id].x = waypoints[WP_HOME].x + dx;

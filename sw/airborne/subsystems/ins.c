@@ -47,6 +47,9 @@ void ins_init_origin_i_from_flightplan(struct LtpDef_i *ltp_def)
   ltp_def_from_lla_i(ltp_def, &llh_nav0);
   ltp_def->hmsl = NAV_ALT0;
   stateSetLocalOrigin_i(ltp_def);
+
+  struct UtmCoor_f utm_def = { NAV_UTM_NORTH0, NAV_UTM_EAST0, GROUND_ALT, NAV_UTM_ZONE0 };
+  stateSetLocalUtmOrigin_f(&utm_def);
 }
 
 
@@ -64,6 +67,7 @@ void WEAK ins_reset_local_origin(void)
 
 void WEAK ins_reset_altitude_ref(void) {}
 
+/*
 #if USE_GPS
 void WEAK ins_reset_utm_zone(struct UtmCoor_f *utm)
 {
@@ -73,7 +77,7 @@ void WEAK ins_reset_utm_zone(struct UtmCoor_f *utm)
     utm->zone = gps.utm_pos.zone;
   }
   else {
-    utm->zone = 0;  // recompute zone from lla
+    utm->zone = (gps.lla_pos.lon / 1e7 + 180) / 6 + 1;
   }
   utm_of_lla_f(utm, &lla0);
 
@@ -82,3 +86,4 @@ void WEAK ins_reset_utm_zone(struct UtmCoor_f *utm)
 #else
 void WEAK ins_reset_utm_zone(struct UtmCoor_f *utm __attribute__((unused))) {}
 #endif
+*/

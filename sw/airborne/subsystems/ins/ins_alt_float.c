@@ -38,6 +38,7 @@
 #include "firmwares/fixedwing/nav.h"
 
 #include "generated/airframe.h"
+#include "generated/flight_plan.h"
 #include "generated/modules.h"
 
 #ifdef DEBUG_ALT_KALMAN
@@ -101,7 +102,7 @@ void ins_alt_float_update_gps(struct GpsState *gps_s);
 void ins_alt_float_init(void)
 {
 #if USE_INS_NAV_INIT
-  struct UtmCoor_f utm0 = { nav_utm_north0, nav_utm_east0, ground_alt, nav_utm_zone0 };
+  struct UtmCoor_f utm0 = { NAV_UTM_NORTH0, NAV_UTM_EAST0, GROUND_ALT, NAV_UTM_ZONE0 };
   stateSetLocalUtmOrigin_f(&utm0);
   ins_altf.origin_initialized = true;
 
@@ -218,7 +219,7 @@ void ins_alt_float_update_gps(struct GpsState *gps_s __attribute__((unused)))
     ins_reset_local_origin();
   }
 
-  struct UtmCoor_f utm = utm_float_from_gps(gps_s, nav_utm_zone0);
+  struct UtmCoor_f utm = utm_float_from_gps(gps_s, state.utm_origin_f.zone);
 
 #if !USE_BAROMETER
 #ifdef GPS_DT

@@ -31,7 +31,6 @@
 #include "modules/mission/mission_common.h"
 #include "firmwares/fixedwing/autopilot.h"
 #include "firmwares/fixedwing/nav.h"
-#include "subsystems/navigation/common_nav.h"
 #include "generated/flight_plan.h"
 
 /// Utility function: converts lla (int) to local point (float)
@@ -43,15 +42,15 @@ bool mission_point_of_lla(struct EnuCoor_f *point, struct LlaCoor_i *lla)
 
   /* Computes from (lat, long) in the referenced UTM zone */
   struct UtmCoor_f utm;
-  utm.zone = nav_utm_zone0;
+  utm.zone = state.utm_origin_f.zone;
   utm_of_lla_f(&utm, &lla_f);
 
   /* Computes relative position to HOME waypoint
    * and bound the distance to max_dist_from_home
    */
   float dx, dy;
-  dx = utm.east - nav_utm_east0 - waypoints[WP_HOME].x;
-  dy = utm.north - nav_utm_north0 - waypoints[WP_HOME].y;
+  dx = utm.east - state.utm_origin_f.east - waypoints[WP_HOME].x;
+  dy = utm.north - state.utm_origin_f.north - waypoints[WP_HOME].y;
   BoundAbs(dx, max_dist_from_home);
   BoundAbs(dy, max_dist_from_home);
 

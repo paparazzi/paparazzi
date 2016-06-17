@@ -217,11 +217,7 @@ void ins_float_invariant_init(void)
 
   // init position
 #if INS_FINV_USE_UTM
-  struct UtmCoor_f utm0;
-  utm0.north = (float)nav_utm_north0;
-  utm0.east = (float)nav_utm_east0;
-  utm0.alt = GROUND_ALT;
-  utm0.zone = nav_utm_zone0;
+  struct UtmCoor_f utm0 = { NAV_UTM_NORTH0, NAV_UTM_EAST0, GROUND_ALT, NAV_UTM_ZONE0 };
   stateSetLocalUtmOrigin_f(&utm0);
   stateSetPositionUtm_f(&utm0);
 #else
@@ -425,7 +421,7 @@ void ins_float_invariant_update_gps(struct GpsState *gps_s)
 
 #if INS_FINV_USE_UTM
     if (state.utm_initialized_f) {
-      struct UtmCoor_f utm = utm_float_from_gps(gps_s, nav_utm_zone0);
+      struct UtmCoor_f utm = utm_float_from_gps(gps_s, state.utm_origin_f.zone);
       // position (local ned)
       ins_float_inv.meas.pos_gps.x = utm.north - state.utm_origin_f.north;
       ins_float_inv.meas.pos_gps.y = utm.east - state.utm_origin_f.east;
