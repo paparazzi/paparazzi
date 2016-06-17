@@ -28,7 +28,7 @@
 #include "multi/tcas.h"
 #include "state.h"
 #include "firmwares/fixedwing/nav.h"
-#include "generated/flight_plan.h"  // SECURITY_ALT
+#include "generated/flight_plan.h"  // SECURITY_HEIGHT
 
 #include "subsystems/datalink/downlink.h"
 
@@ -69,7 +69,7 @@ void callTCAS(void) { if (tcas_status == TCAS_RA) { v_ctl_altitude_setpoint = tc
 
 void tcas_init(void)
 {
-  tcas_alt_setpoint = SECURITY_ALT;
+  tcas_alt_setpoint = ground_alt + SECURITY_HEIGHT;
   tcas_tau_ta = TCAS_TAU_TA;
   tcas_tau_ra = TCAS_TAU_RA;
   tcas_dmod = TCAS_DMOD;
@@ -117,7 +117,7 @@ static inline enum tcas_resolve tcas_test_direction(uint8_t id)
 void tcas_periodic_task_1Hz(void)
 {
   // no TCAS under security_height
-  if (stateGetPositionUtm_f()->alt < SECURITY_ALT) {
+  if (stateGetPositionUtm_f()->alt < ground_alt + SECURITY_HEIGHT) {
     uint8_t i;
     for (i = 0; i < NB_ACS; i++) { tcas_acs_status[i].status = TCAS_NO_ALARM; }
     return;
@@ -236,7 +236,7 @@ void tcas_periodic_task_1Hz(void)
 void tcas_periodic_task_4Hz(void)
 {
   // set alt setpoint
-  if (stateGetPositionUtm_f()->alt > SECURITY_ALT && tcas_status == TCAS_RA) {
+  if (stateGetPositionUtm_f()->alt > ground_alt + SECURITY_HEIGHT && tcas_status == TCAS_RA) {
     struct EnuCoor_f *ac = acInfoGetPositionEnu_f(tcas_ac_RA);
     switch (tcas_resolve) {
       case RA_CLIMB :
@@ -253,7 +253,7 @@ void tcas_periodic_task_4Hz(void)
         break;
     }
     // Bound alt
-    tcas_alt_setpoint = Max(SECURITY_ALT, tcas_alt_setpoint);
+    tcas_alt_setpoint = Max(ground_alt + SECURITY_HEIGHT, tcas_alt_setpoint);
   } else {
     tcas_alt_setpoint = nav_altitude;
     tcas_resolve = RA_NONE;

@@ -14,7 +14,7 @@
 #include "firmwares/fixedwing/nav.h"
 #include "firmwares/fixedwing/guidance/guidance_v.h"
 
-#include "generated/flight_plan.h"    // SECURITY_ALT
+#include "generated/flight_plan.h"    // SECURITY_HEIGHT
 
 float form_n, form_e, form_a;
 float form_speed, form_speed_n, form_speed_e;
@@ -73,7 +73,7 @@ int formation_init(void)
   form_prox = FORM_PROX;
   form_mode = FORM_MODE;
   old_cruise = V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE;
-  old_alt = SECURITY_ALT;
+  old_alt = ground_alt + SECURITY_HEIGHT;
   return false;
 }
 
@@ -116,7 +116,7 @@ int stop_formation(void)
   v_ctl_auto_throttle_cruise_throttle = old_cruise;
   old_cruise = V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE;
   nav_altitude = old_alt;
-  old_alt = SECURITY_ALT;
+  old_alt = ground_alt + SECURITY_HEIGHT;
   return false;
 }
 
@@ -220,7 +220,7 @@ int formation_flight(void)
     alt = leader_pos->z - form[ti_acs_id[leader_id]].alt;
   }
   alt += formation[ti_acs_id[AC_ID]].alt + coef_form_alt * form_a;
-  flight_altitude = Max(alt, SECURITY_ALT);
+  flight_altitude = Max(alt, ground_alt + SECURITY_HEIGHT);
 
   // carrot
   if (AC_ID != leader_id) {
