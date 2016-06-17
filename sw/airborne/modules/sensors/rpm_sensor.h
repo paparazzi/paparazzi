@@ -34,6 +34,7 @@
 #endif
 
 extern void rpm_sensor_init(void);
+extern uint16_t rpm_sensor_get_rpm(void);
 
 #endif
 
