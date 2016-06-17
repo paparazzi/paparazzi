@@ -1,6 +1,6 @@
 <!-- Paparazzi Modules DTD -->
 
-<!ELEMENT module (doc,settings_file*,settings*,depends?,conflicts?,autoload*,header,init*,periodic*,event*,datalink*,makefile*)>
+<!ELEMENT module (doc,settings_file*,settings*,depends?,conflicts?,autoload*,header?,init*,periodic*,event*,datalink*,makefile*)>
 <!ELEMENT doc (description,(define|configure|section)*)>
 <!ELEMENT settings_file (file*)>
 <!ELEMENT settings (dl_settings?)>
