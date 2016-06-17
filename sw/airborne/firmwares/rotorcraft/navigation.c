@@ -116,7 +116,8 @@ static inline void nav_set_altitude(void);
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-void set_exception_flag(uint8_t flag_num) {
+void set_exception_flag(uint8_t flag_num)
+{
   exception_flag[flag_num] = 1;
 }
 
@@ -446,9 +447,9 @@ void navigation_update_wp_from_speed(uint8_t wp, struct Int16Vect3 speed_sp, int
 
   INT32_COURSE_NORMALIZE(nav_heading);
   RunOnceEvery(10, DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp,
-                                              &(waypoints[wp].enu_i.x),
-                                              &(waypoints[wp].enu_i.y),
-                                              &(waypoints[wp].enu_i.z)));
+               &(waypoints[wp].enu_i.x),
+               &(waypoints[wp].enu_i.y),
+               &(waypoints[wp].enu_i.z)));
 }
 
 bool nav_detect_ground(void)
@@ -675,3 +676,24 @@ void nav_oval(uint8_t p1, uint8_t p2, float radius)
       return;
   }
 }
+
+#ifdef TRAFFIC_INFO
+#include "modules/multi/traffic_info.h"
+
+void nav_follow(uint8_t ac_id, uint32_t distance, uint32_t height)
+{
+  /*  struct EnuCoor_i* target = acInfoGetPositionEnu_i(ac_id);
+
+
+    float alpha = M_PI / 2 - acInfoGetCourse(ac_id);
+    float ca = cosf(alpha), sa = sinf(alpha);
+    target->x += - distance * ca;
+    target->y += - distance * sa;
+    target->z = (Max(target->z + height, SECURITY_HEIGHT)); // todo add ground height to check
+
+    ENU_OF_TO_NED(navigation_target, *target);*/
+}
+#else
+void nav_follow(uint8_t  __attribute__((unused)) _ac_id, uint32_t  __attribute__((unused)) distance,
+                uint32_t  __attribute__((unused)) height) {}
+#endif

@@ -29,7 +29,10 @@
 #define TCAS_H
 
 #include "std.h"
-#include "subsystems/navigation/traffic_info.h"
+#include "subsystems/datalink/datalink.h" // dl_buffer
+#include "pprzlink/messages.h"      // TCAS_RA
+#include "generated/airframe.h"     // AC_INFO
+#include "modules/multi/traffic_info.h"
 
 extern float tcas_alt_setpoint;
 extern float tcas_tau_ta, tcas_tau_ra, tcas_dmod, tcas_alim;
@@ -54,13 +57,9 @@ extern void tcas_init(void);
 extern void tcas_periodic_task_1Hz(void);
 extern void tcas_periodic_task_4Hz(void);
 
-#define CallTCAS() { if (tcas_status == TCAS_RA) v_ctl_altitude_setpoint = tcas_alt_setpoint; }
+extern void callTCAS(void);
 
-#define ParseTcasResolve() { \
-    if (DL_TCAS_RESOLVE_ac_id(dl_buffer) == AC_ID) { \
-      uint8_t ac_id_conflict = DL_TCAS_RESOLVE_ac_id_conflict(dl_buffer); \
-      tcas_acs_status[the_acs_id[ac_id_conflict]].resolve = DL_TCAS_RESOLVE_resolve(dl_buffer); \
-    } \
-  }
+extern void parseTcasResolve(void);
+extern void parseTcasRA(void);
 
-#endif // TCAS
+#endif /* TCAS_H */

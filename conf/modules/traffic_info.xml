@@ -1,0 +1,22 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="traffic_info" dir="multi">
+  <doc>
+    <description>Keeps track of other aircraft in airspace</description>
+  </doc>
+  <header>
+    <file name="traffic_info.h"/>
+  </header>
+  <init fun="traffic_info_init()"/>
+  
+  <datalink message="ACINFO" 	fun="parse_acinfo_dl()"/>
+  <datalink message="ACINFO_LLA" 	fun="parse_acinfo_dl()"/>
+  <datalink message="GPS_SMALL" fun="parse_acinfo_dl()"/>
+  <datalink message="GPS" 		fun="parse_acinfo_dl()"/>
+  <datalink message="GPS_LLA" 	fun="parse_acinfo_dl()"/>
+
+  <makefile>
+    <file name="traffic_info.c"/>
+    <define name="TRAFFIC_INFO"/>
+  </makefile>
+</module>

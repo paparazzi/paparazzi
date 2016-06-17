@@ -16,12 +16,13 @@
       </dl_settings>
     </dl_settings>
   </settings>
+  <depends>traffic_info</depends>
   <header>
     <file name="formation.h"/>
   </header>
   <init fun="formation_init()"/>
-  <datalink message="FORMATION_STATUS" fun="ParseFormationStatus()"/>
-  <datalink message="FORMATION_SLOT" fun="ParseFormationSlot()"/>
+  <datalink message="FORMATION_STATUS" fun="parseFormationStatus()"/>
+  <datalink message="FORMATION_SLOT" fun="parseFormationSlot()"/>
   <makefile>
     <file name="formation.c"/>
   </makefile>
