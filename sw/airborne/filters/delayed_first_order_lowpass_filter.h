@@ -113,6 +113,7 @@ static inline void delayed_first_order_lowpass_set_delay(struct delayed_first_or
  * @param f Reference to the filter.
  * @param omega Filter bandwidth in [rad/s], only positive integer values.
  * @param delay Number of timesteps delay in the signal. Maximum defined by buffer size.
+ * @param sample_frequency Frequency at which the filter is going to be updated.
  *
  * Initializes the filter, should be done before using it.
  */
