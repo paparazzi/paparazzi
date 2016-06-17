@@ -51,23 +51,26 @@ struct delayed_first_order_lowpass_filter_t {
  * The actual low-pass filter with delay. Delay is accomplished by internal
  * buffer.
  */
-static inline int32_t delayed_first_order_lowpass_propagate(struct delayed_first_order_lowpass_filter_t *f, int32_t input)
+static inline int32_t delayed_first_order_lowpass_propagate(struct delayed_first_order_lowpass_filter_t *f,
+    int32_t input)
 {
   int32_t prev = f->buffer[f->idx];
   uint8_t next_idx = ++f->idx % DELAYED_FIRST_ORDER_LOWPASS_FILTER_BUFFER_SIZE;
   f->idx = next_idx;
-  f->buffer[next_idx] = (f->alpha*prev + ((1<<DELAYED_FIRST_ORDER_LOWPASS_FILTER_FILTER_ALPHA_SHIFT) - f->alpha)*input) >> DELAYED_FIRST_ORDER_LOWPASS_FILTER_FILTER_ALPHA_SHIFT;
+  f->buffer[next_idx] = (f->alpha * prev + ((1 << DELAYED_FIRST_ORDER_LOWPASS_FILTER_FILTER_ALPHA_SHIFT) - f->alpha) *
+                         input) >> DELAYED_FIRST_ORDER_LOWPASS_FILTER_FILTER_ALPHA_SHIFT;
 
   /* Check if new value exceeds maximum increase */
   if ((f->buffer[next_idx] - prev) > f->max_inc) {
-      f->buffer[next_idx] = prev + f->max_inc;
+    f->buffer[next_idx] = prev + f->max_inc;
   }
   /* Also negative case */
   if ((f->buffer[next_idx] - prev) < -f->max_inc) {
-      f->buffer[next_idx] = prev - f->max_inc;
+    f->buffer[next_idx] = prev - f->max_inc;
   }
 
-  uint8_t req_idx = (f->idx - f->delay + DELAYED_FIRST_ORDER_LOWPASS_FILTER_BUFFER_SIZE) % DELAYED_FIRST_ORDER_LOWPASS_FILTER_BUFFER_SIZE;
+  uint8_t req_idx = (f->idx - f->delay + DELAYED_FIRST_ORDER_LOWPASS_FILTER_BUFFER_SIZE) %
+                    DELAYED_FIRST_ORDER_LOWPASS_FILTER_BUFFER_SIZE;
   return f->buffer[req_idx];
 }
 
@@ -82,7 +85,8 @@ static inline void delayed_first_order_lowpass_set_omega(struct delayed_first_or
 {
   /* alpha = 1 / ( 1 + omega_c * Ts) */
   f->omega = omega;
-  f->alpha = (f->sample_frequency << DELAYED_FIRST_ORDER_LOWPASS_FILTER_FILTER_ALPHA_SHIFT)/(f->sample_frequency + f->omega);
+  f->alpha = (f->sample_frequency << DELAYED_FIRST_ORDER_LOWPASS_FILTER_FILTER_ALPHA_SHIFT) /
+             (f->sample_frequency + f->omega);
 }
 
 /**
@@ -112,7 +116,8 @@ static inline void delayed_first_order_lowpass_set_delay(struct delayed_first_or
  *
  * Initializes the filter, should be done before using it.
  */
-static inline void delayed_first_order_lowpass_initialize(struct delayed_first_order_lowpass_filter_t *f, uint32_t omega, uint8_t delay, uint16_t max_inc, uint16_t sample_frequency)
+static inline void delayed_first_order_lowpass_initialize(struct delayed_first_order_lowpass_filter_t *f,
+    uint32_t omega, uint8_t delay, uint16_t max_inc, uint16_t sample_frequency)
 {
   /* Set sample frequency */
   f->sample_frequency = sample_frequency;
