@@ -27,6 +27,10 @@
 #include "mcu_periph/pwm_input.h"
 #include "subsystems/electrical.h"
 
+#ifndef USE_PWM_INPUT
+#error rpm sensor requires module pwm_meas.xml
+#endif
+
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
