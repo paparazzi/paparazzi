@@ -30,6 +30,7 @@
     <module name="air_data"/>
     <module name="send_imu_mag_current"/>
     <module name="sonar_bebop"/> <!-- Needed for relative height est for velocity calc from opt flow-->
+    <module name="pose_history"/>
     <module name="video_thread"/>
 
     <module name="cv_opticflow">

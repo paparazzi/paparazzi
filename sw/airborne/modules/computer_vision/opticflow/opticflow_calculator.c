@@ -216,7 +216,7 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
 
   // Update FPS for information
   result->fps = 1 / (timeval_diff(&opticflow->prev_timestamp, &img->ts) / 1000.);
-  memcpy(&opticflow->prev_timestamp, &img->ts, sizeof(struct timeval));
+  opticflow->prev_timestamp = img->ts;
   printf("FPS = %f\n", result->fps);
 
   // Convert image to grayscale
@@ -253,7 +253,7 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
   image_show_points(img, corners, result->corner_cnt);
 #endif
 
-  // Check if we found some corners to track 
+  // Check if we found some corners to track
   if (result->corner_cnt < 1) {
     free(corners);
     image_copy(&opticflow->img_gray, &opticflow->prev_img_gray);
@@ -433,7 +433,7 @@ void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *
 
 
   // Copy frame time and angles of image to calculated edge histogram
-  memcpy(&edge_hist[current_frame_nr].frame_time, &img->ts, sizeof(struct timeval));
+  edge_hist[current_frame_nr].frame_time = img->ts;
   edge_hist[current_frame_nr].pitch = state->theta;
   edge_hist[current_frame_nr].roll = state->phi;
 
