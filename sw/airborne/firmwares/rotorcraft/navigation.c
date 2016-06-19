@@ -110,7 +110,7 @@ static inline void nav_set_altitude(void);
 
 /** minimum horizontal distance to waypoint to mark as arrived */
 #ifndef ARRIVED_AT_WAYPOINT
-#define ARRIVED_AT_WAYPOINT 3.0
+#define ARRIVED_AT_WAYPOINT 1.0
 #endif
 
 #if PERIODIC_TELEMETRY
