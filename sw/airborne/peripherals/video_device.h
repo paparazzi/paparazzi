@@ -30,7 +30,9 @@
 #include <inttypes.h>
 #include "modules/computer_vision/lib/vision/image.h"
 
-#define VIDEO_FILTER_DEBAYER 0x01
+/* Different video filters */
+#define VIDEO_FILTER_DEBAYER  (0x1 << 0)  ///<Enable software debayer
+#define VIDEO_FILTER_ISP      (0x1 << 1)  ///<Enable ISP
 
 // Main video_thread structure
 struct video_thread_t {

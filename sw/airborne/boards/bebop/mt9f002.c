@@ -34,8 +34,25 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <linux/i2c-dev.h>
+#include <linux/videodev2.h>
+#include <linux/v4l2-mediabus.h>
 
 #define MAX(x,y) (((x) > (y)) ? (x) : (y))
+
+//FIXMEE!
+#include "boards/bebop.h"
+struct video_config_t front_camera = {
+  .w = 2048,
+  .h = 3320,
+  .sensor_w = 2048,
+  .sensor_h = 3320,
+  .dev_name = "/dev/video1",
+  .subdev_name = "/dev/v4l-subdev1",
+  .format = V4L2_PIX_FMT_UYVY,
+  .subdev_format = V4L2_MBUS_FMT_SGRBG10_1X10,
+  .buf_cnt = 3,
+  .filters = VIDEO_FILTER_ISP
+};
 
 /**
  * Write multiple bytes to a single register
@@ -545,7 +562,6 @@ static void mt9f002_set_blanking(struct mt9f002_t *mt)
   float subsampling_factor = (float)(1 + x_odd_inc) / 2.0f; // See page 52
   uint16_t min_line_length = MAX(min_line_length_pck, mt->scaled_width/subsampling_factor + min_line_blanking_pck); // EQ 9
   min_line_length = MAX(min_line_length, (mt->scaled_width-1 + x_odd_inc) / subsampling_factor/2 + min_line_blanking_pck);
-
   if (mt->interface == MT9F002_MIPI ||
       mt->interface == MT9F002_HiSPi) {
     min_line_length = MAX(min_line_length, ((uint16_t)((float)mt->scaled_width * mt->vt_pix_clk / mt->op_pix_clk)/2) + 0x005E); // 2 lanes, pll clocks
@@ -565,7 +581,7 @@ static void mt9f002_set_blanking(struct mt9f002_t *mt)
 
   /* Calculate minimum horizontal blanking, since fpga line_length must be divideable by 2 */
   uint32_t min_horizontal_blanking = clkRatio_num;
-  if((min_horizontal_blanking % 2) != 0) {
+  if((clkRatio_den % 2) != 0) {
     min_horizontal_blanking = 2 * clkRatio_num;
   }
 
@@ -594,7 +610,7 @@ static void mt9f002_set_blanking(struct mt9f002_t *mt)
         new_fps = mt->vt_pix_clk * 1000000 / (float)(ll * fl);
 
         // Calculate FPS error and save if it is better
-        float fps_err = fabs(mt->target_fps - mt->real_fps);
+        float fps_err = fabs(mt->target_fps - new_fps);
         if(fps_err < min_fps_err) {
           min_fps_err = fps_err;
           mt->line_length = ll;
@@ -683,7 +699,7 @@ static void mt9f002_set_exposure(struct mt9f002_t *mt)
   /* Set the registers */
   mt->real_exposure = (float)(coarse_integration * mt->line_length + fine_integration) / (mt->vt_pix_clk * 1000);
   write_reg(mt, MT9F002_COARSE_INTEGRATION_TIME, coarse_integration, 2);
-  write_reg(mt, MT9F002_FINE_INTEGRATION_TIME, fine_integration, 2);
+  write_reg(mt, MT9F002_FINE_INTEGRATION_TIME_, fine_integration, 2);
 }
 
 /**
@@ -739,7 +755,7 @@ static uint16_t mt9f002_calc_gain(float gain) {
   uint16_t analog_gain2 = gain / (float)digital_gain / (float)(1<<colamp_gain) / (float)(1<<analog_gain3) * 64.0;
   Bound(analog_gain2, 1, 127);
 
-  return (analog_gain2 & 0x3F) | ((analog_gain3 & 0x7) << 7) | ((colamp_gain & 0x3) << 10) | ((digital_gain & 0xF) << 12);
+  return (analog_gain2 & 0x7F) | ((analog_gain3 & 0x7) << 7) | ((colamp_gain & 0x3) << 10) | ((digital_gain & 0xF) << 12);
 }
 
 /**
@@ -822,4 +838,7 @@ void mt9f002_init(struct mt9f002_t *mt)
   if(mt->interface == MT9F002_MIPI || mt->interface == MT9F002_HiSPi) {
     mt9f002_mipi_stage3(mt);
   }
+
+  /* Turn the stream on */
+  write_reg(mt, MT9F002_MODE_SELECT, 0x01, 1);
 }

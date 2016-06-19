@@ -80,9 +80,9 @@ static void *v4l2_capture_thread(void *data)
       return (void *) - 1;
     } else if (sr == 0) {
       printf("[v4l2-capture] Select timeout on %s\n", dev->name);
-      //continue;
-      dev->thread = (pthread_t) NULL;
-      return (void *) - 2;
+      continue;
+      //dev->thread = (pthread_t) NULL;
+      //return (void *) - 2;
     }
 
     // Dequeue a buffer
@@ -151,6 +151,8 @@ bool v4l2_init_subdev(char *subdev_name, uint8_t pad, uint8_t which, uint16_t co
     return false;
   }
 
+  printf("Got format pad: %d width: %d height: %d which: %d code: %d\n", sfmt.pad, sfmt.format.width, sfmt.format.height, sfmt.which, sfmt.format.code);
+
   // Set the new settings
   sfmt.pad = pad;
   sfmt.which = which;
@@ -160,11 +162,15 @@ bool v4l2_init_subdev(char *subdev_name, uint8_t pad, uint8_t which, uint16_t co
   sfmt.format.field = V4L2_FIELD_NONE;
   sfmt.format.colorspace = 1;
 
+  printf("set format pad: %d width: %d height: %d which: %d code: %d\n", sfmt.pad, sfmt.format.width, sfmt.format.height, sfmt.which, sfmt.format.code);
+
   if (ioctl(fd, VIDIOC_SUBDEV_S_FMT, &sfmt) < 0) {
     printf("[v4l2] Could not set subdevice data format settings of %s\n", subdev_name);
     close(fd);
     return false;
   }
+
+  printf("new format pad: %d width: %d height: %d which: %d code: %d\n", sfmt.pad, sfmt.format.width, sfmt.format.height, sfmt.which, sfmt.format.code);
 
   // Close the device
   close(fd);

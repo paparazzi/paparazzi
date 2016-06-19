@@ -114,16 +114,16 @@ void board_init2(void)
     .row_speed_10_8 = 1,
 
     // Initial values
-    .target_fps = 30,
+    .target_fps = 5,
     .target_exposure = 30,
     .gain_green1 = 2.0,
     .gain_blue = 2.0,
     .gain_red = 2.0,
     .gain_green2 = 2.0,
-    .output_width = 640,
-    .output_height = 480,
+    .output_width = 2048,
+    .output_height = 3320,
     .output_scaler = 1.0,
-    .offset_x = 0,
+    .offset_x = 1000,
     .offset_y = 0,
 
     // I2C connection port

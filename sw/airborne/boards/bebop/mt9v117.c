@@ -33,6 +33,8 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <linux/i2c-dev.h>
+#include <linux/videodev2.h>
+#include <linux/v4l2-mediabus.h>
 
 //FIXMEE!
 #include "boards/bebop.h"
