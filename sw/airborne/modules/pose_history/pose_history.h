@@ -30,7 +30,7 @@
 
 typedef struct _timeAndRotation {
   uint32_t timestamp;
-  struct FloatEulers rotation;
+  struct FloatEulers eulers;
   struct FloatRates rates;
 } timeAndRotation;
 

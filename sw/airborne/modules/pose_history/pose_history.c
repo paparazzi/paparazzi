@@ -47,24 +47,6 @@ rotationHistoryRingBuffer location_history;
 pthread_mutex_t pose_mutex;
 #endif
 
-
-
-void float_eulers_copy(struct FloatEulers *to, struct FloatEulers *from);
-void float_eulers_copy(struct FloatEulers *to, struct FloatEulers *from)
-{
-  to->phi = from->phi;
-  to->theta = from->theta;
-  to->psi = from->psi;
-}
-
-void float_rates_copy(struct FloatRates *to, struct FloatRates *from);
-void float_rates_copy(struct FloatRates *to, struct FloatRates *from)
-{
-  to->p = from->p;
-  to->q = from->q;
-  to->r = from->r;
-}
-
 /**
  * Given a pprz timestamp in used (obtained with get_sys_time_usec) we return the pose in FloatEulers closest to that time.
  */
@@ -88,8 +70,8 @@ timeAndRotation get_rotation_at_timestamp(uint32_t timestamp)
 
   // Save the pose closest to the given timestamp and return this
   timeAndRotation closest_pose;
-  float_eulers_copy(&closest_pose.rotation, &location_history.ring_data[closestIndex].rotation);
-  float_rates_copy(&closest_pose.rates, &location_history.ring_data[closestIndex].rates);
+  EULERS_COPY(closest_pose.eulers, location_history.ring_data[closestIndex].eulers);
+  RATES_COPY(closest_pose.rates, location_history.ring_data[closestIndex].rates);
 
 #if LINUX
   pthread_mutex_unlock(&pose_mutex);
@@ -117,8 +99,8 @@ void pose_periodic()
   pthread_mutex_lock(&pose_mutex);
 #endif
   timeAndRotation *current_time_and_rotation = &location_history.ring_data[location_history.ring_index];
-  float_eulers_copy(&current_time_and_rotation->rotation, stateGetNedToBodyEulers_f());
-  float_rates_copy(&current_time_and_rotation->rates, stateGetBodyRates_f());
+  EULERS_COPY(current_time_and_rotation->eulers, *stateGetNedToBodyEulers_f());
+  RATES_COPY(current_time_and_rotation->rates, *stateGetBodyRates_f());
 
   current_time_and_rotation->timestamp = now_ts;
 
