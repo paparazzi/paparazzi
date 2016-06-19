@@ -27,8 +27,13 @@
 #include <sys/time.h>
 #include "mcu_periph/sys_time.h"
 #include "state.h"
+#if LINUX
+#include <pthread.h>
+#endif
 
-#define POSE_HISTORY_SIZE 1024 // 1024 is two seconds
+#ifndef POSE_HISTORY_SIZE
+#define POSE_HISTORY_SIZE 1024
+#endif
 
 typedef struct {
   uint32_t timestamp;
@@ -43,11 +48,20 @@ typedef struct {
 
 rotationHistoryRingBuffer location_history;
 
+#if LINUX
+pthread_mutex_t pose_mutex;
+#endif
+
+
+
 /**
  * Given a pprz timestamp in used (obtained with get_sys_time_usec) we return the pose in FloatEulers closest to that time.
  */
 struct FloatEulers get_eulers_at_timestamp(uint32_t timestamp)
 {
+#if LINUX
+  pthread_mutex_lock(&pose_mutex);
+#endif
   uint32_t index_history = 0;
   uint32_t closestTimeDiff = abs(timestamp - location_history.ring_data[0].timestamp);
   uint32_t closestIndex = 0;
@@ -66,6 +80,9 @@ struct FloatEulers get_eulers_at_timestamp(uint32_t timestamp)
   closest_angels.phi = location_history.ring_data[closestIndex].rotation.phi;
   closest_angels.theta = location_history.ring_data[closestIndex].rotation.theta;
   closest_angels.psi = location_history.ring_data[closestIndex].rotation.psi;
+#if LINUX
+  pthread_mutex_unlock(&pose_mutex);
+#endif
   return closest_angels;
 }
 
@@ -90,6 +107,9 @@ void pose_init()
 void pose_periodic()
 {
   uint32_t now_ts = get_sys_time_usec();
+#if LINUX
+  pthread_mutex_lock(&pose_mutex);
+#endif
   timeAndRotation *current_time_and_rotation = &location_history.ring_data[location_history.ring_index];
   current_time_and_rotation->rotation.phi = stateGetNedToBodyEulers_f()->phi;
   current_time_and_rotation->rotation.theta = stateGetNedToBodyEulers_f()->theta;
@@ -97,6 +117,9 @@ void pose_periodic()
   current_time_and_rotation->timestamp = now_ts;
 
   increase_index_location_history();
+#if LINUX
+  pthread_mutex_unlock(&pose_mutex);
+#endif
 }
 
 
