@@ -161,7 +161,7 @@ bool initialize_camera(struct video_config_t *camera)
   // Initialize the V4L2 subdevice if needed
   if (camera->subdev_name != NULL) {
     // FIXME! add subdev format to config, only needed on bebop front camera so far
-    if (!v4l2_init_subdev(camera->subdev_name, 0, 0, V4L2_MBUS_FMT_SGBRG10_1X10, camera->w, camera->h)) {
+    if (!v4l2_init_subdev(camera->subdev_name, 0, 0, camera->subdev_format, camera->w, camera->h)) {
       printf("[video_thread] Could not initialize the %s subdevice.\n", camera->subdev_name);
       return false;
     }

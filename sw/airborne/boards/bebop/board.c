@@ -29,11 +29,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-#include "video.h"
+#include "mt9v117.h"
 #include "mcu.h"
-int KillGracefully(char *process_name);
 
-int KillGracefully(char *process_name)
+static int kill_gracefull(char *process_name)
   {
     /* "pidof" always in /bin on Bebop firmware tested 1.98, 2.0.57, no need for "which" */
     char pidof_commandline[200] = "/bin/pidof ";
@@ -83,10 +82,9 @@ void board_init(void)
   */
   int ret __attribute__((unused)) = system("killall -q -15 DragonStarter.sh");
   usleep(50000); /* Give DragonStarter 50ms time to end on a busy system */
-  KillGracefully("dragon-prog");
-  (void) ret;
+  kill_gracefull("dragon-prog");
 
   // We also try to initialize the video CMOS chips here (Bottom and front)
   mt9v117_init();
-  mt9f002_init();
+  //mt9f002_init();
 }

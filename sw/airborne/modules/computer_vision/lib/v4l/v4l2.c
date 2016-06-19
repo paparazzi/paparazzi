@@ -186,9 +186,11 @@ struct v4l2_device *v4l2_init(char *device_name, uint16_t width, uint16_t height
   struct v4l2_capability cap;
   struct v4l2_format fmt;
   struct v4l2_requestbuffers req;
+  struct v4l2_fmtdesc fmtdesc;
   CLEAR(cap);
   CLEAR(fmt);
   CLEAR(req);
+  CLEAR(fmtdesc);
 
   // Try to open the device
   int fd = open(device_name, O_RDWR | O_NONBLOCK, 0);
@@ -214,6 +216,12 @@ struct v4l2_device *v4l2_init(char *device_name, uint16_t width, uint16_t height
     printf("[v4l2] %s isn't capable of streaming (TODO: support reading)\n", device_name);
     close(fd);
     return NULL;
+  }
+
+  fmtdesc.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+  while (ioctl(fd, VIDIOC_ENUM_FMT, &fmtdesc) == 0) {
+    fmtdesc.index++;
+    printf("[v4l2] Pixelformat: %d (wanted: %d)\r\n", fmtdesc.pixelformat, _pixelformat);
   }
 
   // TODO: Read video cropping and scaling information VIDIOC_CROPCAP
