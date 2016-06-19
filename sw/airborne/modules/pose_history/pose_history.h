@@ -27,6 +27,13 @@
 #define POSE_HISTORY_H
 
 #include "math/pprz_algebra_float.h"
+
+typedef struct {
+  uint32_t timestamp;
+  struct FloatEulers rotation;
+  struct FloatRates rates;
+} timeAndRotation;
+
 extern void pose_init(void);
 extern void pose_periodic(void);
 extern struct FloatEulers get_eulers_at_timestamp(uint32_t timestamp);

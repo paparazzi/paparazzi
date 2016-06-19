@@ -36,11 +36,6 @@
 #endif
 
 typedef struct {
-  uint32_t timestamp;
-  struct FloatEulers rotation;
-} timeAndRotation;
-
-typedef struct {
   uint32_t ring_index;
   uint32_t ring_size;
   timeAndRotation ring_data[POSE_HISTORY_SIZE];
@@ -57,7 +52,7 @@ pthread_mutex_t pose_mutex;
 /**
  * Given a pprz timestamp in used (obtained with get_sys_time_usec) we return the pose in FloatEulers closest to that time.
  */
-struct FloatEulers get_eulers_at_timestamp(uint32_t timestamp)
+struct timeAndRotation get_rotation_at_timestamp(uint32_t timestamp)
 {
 #if LINUX
   pthread_mutex_lock(&pose_mutex);
@@ -76,14 +71,18 @@ struct FloatEulers get_eulers_at_timestamp(uint32_t timestamp)
   }
 
   // Save the pose closest to the given timestamp and return this
-  struct FloatEulers closest_angels;
-  closest_angels.phi = location_history.ring_data[closestIndex].rotation.phi;
-  closest_angels.theta = location_history.ring_data[closestIndex].rotation.theta;
-  closest_angels.psi = location_history.ring_data[closestIndex].rotation.psi;
+  struct timeAndRotation closest_pose;
+  closest_pose.rotation.phi = location_history.ring_data[closestIndex].rotation.phi;
+  closest_pose.rotation.theta = location_history.ring_data[closestIndex].rotation.theta;
+  closest_pose.rotation.psi = location_history.ring_data[closestIndex].rotation.psi;
+
+  closest_pose.rates.p = location_history.ring_data[closestIndex].rates.p;
+  closest_pose.rates.q = location_history.ring_data[closestIndex].rates.q;
+  closest_pose.rates.r = location_history.ring_data[closestIndex].rates.r;
 #if LINUX
   pthread_mutex_unlock(&pose_mutex);
 #endif
-  return closest_angels;
+  return closest_pose;
 }
 
 void increase_index_location_history(void);
@@ -114,6 +113,12 @@ void pose_periodic()
   current_time_and_rotation->rotation.phi = stateGetNedToBodyEulers_f()->phi;
   current_time_and_rotation->rotation.theta = stateGetNedToBodyEulers_f()->theta;
   current_time_and_rotation->rotation.psi = stateGetNedToBodyEulers_f()->psi;
+
+  struct FloatRates *current_rates = stateGetBodyRates_f();
+  current_time_and_rotation->rates.p = current_rates->p;
+  current_time_and_rotation->rates.q = current_rates->q;
+  current_time_and_rotation->rates.r = current_rates->r;
+
   current_time_and_rotation->timestamp = now_ts;
 
   increase_index_location_history();
