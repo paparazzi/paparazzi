@@ -38,7 +38,7 @@
 #include "lib/v4l/v4l2.h"
 #include "lib/vision/image.h"
 #include "lib/vision/bayer.h"
-
+#include "state.h"
 #include "mcu_periph/sys_time.h"
 
 // include board for bottom_camera and front_camera on ARDrone2 and Bebop
@@ -122,6 +122,10 @@ static void *video_thread_function(void *data)
                 vid->w, vid->h, vid->fps, 1000000.f / dt_us);
       }
     }
+    FloatEulers imageStartEulers;
+    imageStartEulers.phi=stateGetNedToBodyEulers_f()->phi;
+    iamgeStartEulers.theta=stateGetNedToBodyEulers_f()->theta;
+    iamgeStartEulers.psi=stateGetNedToBodyEulers_f()->psi;
 
     // Wait for a new frame (blocking)
     struct image_t img;
@@ -138,9 +142,13 @@ static void *video_thread_function(void *data)
       // use color image for further processing
       img_final = &img_color;
     }
+    FloatEulers imageEndEulers;
+    imageEndEulers.phi=stateGetNedToBodyEulers_f()->phi;
+    imageEndEulers.theta=stateGetNedToBodyEulers_f()->theta;
+    imageEndEulers.psi=stateGetNedToBodyEulers_f()->psi;
 
     // Run processing if required
-    cv_run_device(vid, img_final);
+    cv_run_device(vid, img_final,imageStartEulers,imageEndEulers);
 
     // Free the image
     v4l2_image_free(vid->thread.dev, &img);
