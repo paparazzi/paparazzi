@@ -28,7 +28,7 @@
 
 #include "math/pprz_algebra_float.h"
 
-typedef struct {
+typedef struct _timeAndRotation {
   uint32_t timestamp;
   struct FloatEulers rotation;
   struct FloatRates rates;
@@ -36,6 +36,6 @@ typedef struct {
 
 extern void pose_init(void);
 extern void pose_periodic(void);
-extern struct FloatEulers get_eulers_at_timestamp(uint32_t timestamp);
+extern timeAndRotation get_rotation_at_timestamp(uint32_t timestamp);
 #endif
 
