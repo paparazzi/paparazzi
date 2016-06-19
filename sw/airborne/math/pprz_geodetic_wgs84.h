@@ -76,9 +76,9 @@ static const int8_t pprz_geodetic_wgs84_int[19][36] = {
 /** Get WGS84 ellipsoid/geoid separation.
  * @param[in] lat Latitude in 1e7deg
  * @param[in] lon Longitude in 1e7deg
- * @return geoid separation in m
+ * @return geoid separation in mm
  */
-static inline float wgs84_ellipsoid_to_geoid_i(int32_t lat, int32_t lon)
+static inline int32_t wgs84_ellipsoid_to_geoid_i(int32_t lat, int32_t lon)
 {
   float x = (180.0f + (float)lon / 1e7) / 10.0f;
   Bound(x, 0.0f, 35.99999f);
@@ -95,10 +95,15 @@ static inline float wgs84_ellipsoid_to_geoid_i(int32_t lat, int32_t lon)
   float h12 = lin_x * (1.0f - lin_y) * WGS84_H(ex2, ey1);
   float h21 = (1.0f - lin_x) * lin_y * WGS84_H(ex1, ey2);
   float h22 = lin_x * lin_y * WGS84_H(ex2, ey2);
-  return h11 + h12 + h21 + h22;
+  return (uint32_t)((h11 + h12 + h21 + h22) * 1000.);
 }
 
-static inline float wgs84_ellipsoid_to_geoid(float lat, float lon)
+/** Get WGS84 ellipsoid/geoid separation.
+ * @param[in] lat Latitude in rad
+ * @param[in] lon Longitude in rad
+ * @return geoid separation in m
+ */
+static inline float wgs84_ellipsoid_to_geoid_f(float lat, float lon)
 {
   float x = (180.0f + DegOfRad(lon)) / 10.0f;
   Bound(x, 0.0f, 35.99999f);

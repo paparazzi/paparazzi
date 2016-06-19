@@ -300,6 +300,11 @@ static inline float inverse_isometric_latitude_f(float lat, float e, float epsil
   return phi0;
 }
 
+/* Convert lla to utm (float).
+ * Note this conversion is not very accurate. If high accuracy needed use lla_of_utm_d.
+ * @param[out] utm position in m, alt is copied directly from lla
+ * @param[in]  lla position in rad, alt in m
+ */
 void utm_of_lla_f(struct UtmCoor_f *utm, struct LlaCoor_f *lla)
 {
   // compute zone if not initialised
@@ -331,6 +336,11 @@ void utm_of_lla_f(struct UtmCoor_f *utm, struct LlaCoor_f *lla)
   utm->alt = lla->alt;
 }
 
+/* Convert utm to lla (float).
+ * Note this conversion is not very accurate. If high accuracy needed use lla_of_utm_d.
+ * @param[out] lla position in rad, alt is copied directly from utm
+ * @param[in]  utm position in m, alt in m
+ */
 void lla_of_utm_f(struct LlaCoor_f *lla, struct UtmCoor_f *utm)
 {
   float scale = 1 / N / serie_coeff_proj_mercator[0];

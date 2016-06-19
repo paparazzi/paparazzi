@@ -42,6 +42,8 @@
 #include "led.h"
 #include "subsystems/settings.h"
 #include "generated/settings.h"
+#include "math/pprz_geodetic_wgs84.h"
+#include "math/pprz_geodetic.h"
 
 #ifndef PRIMARY_GPS
 #error "PRIMARY_GPS not set!"
@@ -301,24 +303,30 @@ void WEAK gps_inject_data(uint8_t packet_id __attribute__((unused)), uint8_t len
 }
 
 /**
- * Convenience function to get utm position from GPS state
+ * Convenience functions to get utm position from GPS state
  */
+#include "state.h"
 struct UtmCoor_f utm_float_from_gps(struct GpsState *gps_s, uint8_t zone)
 {
-  struct UtmCoor_f utm;
+  struct UtmCoor_f utm = {.east = 0., .north=0., .alt=0., .zone=zone};
 
   if (bit_is_set(gps_s->valid_fields, GPS_VALID_POS_UTM_BIT)) {
-    // A real UTM position is available, use the correct zone
-    utm.zone = gps_s->utm_pos.zone;
-    utm.east = gps_s->utm_pos.east / 100.0f;
-    utm.north = gps_s->utm_pos.north / 100.0f;
-    utm.alt = gps_s->utm_pos.alt / 1000.f;
-  }
-  else {
+    /* A real UTM position is available, use the correct zone */
+    UTM_FLOAT_OF_BFP(utm, gps_s->utm_pos);
+  } else if (bit_is_set(gps_s->valid_fields, GPS_VALID_POS_LLA_BIT))
+  {
+    /* Recompute UTM coordinates in this zone */
     struct UtmCoor_i utm_i;
     utm_i.zone = zone;
     utm_of_lla_i(&utm_i, &gps_s->lla_pos);
     UTM_FLOAT_OF_BFP(utm, utm_i);
+
+    /* set utm.alt in hsml */
+    if (bit_is_set(gps_s->valid_fields, GPS_VALID_HMSL_BIT)) {
+      utm.alt = gps_s->hmsl/1000.;
+    } else {
+      utm.alt = wgs84_ellipsoid_to_geoid_i(gps_s->lla_pos.lat, gps_s->lla_pos.lon)/1000.;
+    }
   }
 
   return utm;
@@ -326,19 +334,22 @@ struct UtmCoor_f utm_float_from_gps(struct GpsState *gps_s, uint8_t zone)
 
 struct UtmCoor_i utm_int_from_gps(struct GpsState *gps_s, uint8_t zone)
 {
-  struct UtmCoor_i utm;
-  utm.zone = zone;
+  struct UtmCoor_i utm = {.east = 0, .north=0, .alt=0, .zone=zone};
 
   if (bit_is_set(gps_s->valid_fields, GPS_VALID_POS_UTM_BIT)) {
     // A real UTM position is available, use the correct zone
-    utm.zone = gps_s->utm_pos.zone;
-    utm.east = gps_s->utm_pos.east;
-    utm.north = gps_s->utm_pos.north;
-    utm.alt = gps_s->utm_pos.alt;
+    UTM_COPY(utm, gps_s->utm_pos);
   }
-  else {
-    /* Recompute UTM coordinates in this zone */
+  else if (bit_is_set(gps_s->valid_fields, GPS_VALID_POS_LLA_BIT)){
+    /* Recompute UTM coordinates in zone */
     utm_of_lla_i(&utm, &gps_s->lla_pos);
+
+    /* set utm.alt in hsml */
+    if (bit_is_set(gps_s->valid_fields, GPS_VALID_HMSL_BIT)) {
+      utm.alt = gps_s->hmsl;
+    } else {
+      utm.alt = wgs84_ellipsoid_to_geoid_i(gps_s->lla_pos.lat, gps_s->lla_pos.lon);
+    }
   }
 
   return utm;

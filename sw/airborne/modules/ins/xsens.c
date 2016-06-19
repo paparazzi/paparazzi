@@ -244,8 +244,8 @@ void parse_xsens_msg(void)
       SetBit(xsens.gps.valid_fields, GPS_VALID_POS_LLA_BIT);
 
       // Compute geoid (MSL) height
-      float hmsl = wgs84_ellipsoid_to_geoid_i(xsens.gps.lla_pos.lat, xsens.gps.lla_pos.lon);
-      xsens.gps.hmsl =  XSENS_DATA_RAWGPS_alt(xsens_msg_buf, offset) - (hmsl * 1000.0f);
+      uint32_t hmsl = wgs84_ellipsoid_to_geoid_i(xsens.gps.lla_pos.lat, xsens.gps.lla_pos.lon);
+      xsens.gps.hmsl =  XSENS_DATA_RAWGPS_alt(xsens_msg_buf, offset) - hmsl;
       SetBit(gps.valid_fields, GPS_VALID_HMSL_BIT);
 
       xsens.gps.ned_vel.x = XSENS_DATA_RAWGPS_vel_n(xsens_msg_buf, offset);
