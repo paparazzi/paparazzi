@@ -4,13 +4,15 @@
   <doc>
     <description>TCAS collision avoidance</description>
   </doc>
+  <depends>traffic_info</depends>
   <header>
     <file name="tcas.h"/>
   </header>
   <init fun="tcas_init()"/>
   <periodic fun="tcas_periodic_task_1Hz()" freq="1"/>
   <periodic fun="tcas_periodic_task_4Hz()" freq="4"/>
-  <datalink message="TCAS_RESOLVE" fun="ParseTcasResolve()"/>
+  <datalink message="TCAS_RESOLVE" fun="parseTcasResolve()"/>
+  <datalink message="TCAS_RA" 	   fun="parseTcasRA()"/>
   <makefile>
     <file name="tcas.c"/>
     <define name="TCAS"/>

@@ -8,7 +8,7 @@
 #define POTENTIAL_H
 
 #include "firmwares/fixedwing/nav.h"
-#include "subsystems/navigation/traffic_info.h"
+#include "modules/multi/traffic_info.h"
 
 struct force_ {
   float east;
