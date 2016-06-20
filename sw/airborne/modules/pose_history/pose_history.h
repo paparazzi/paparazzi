@@ -28,14 +28,14 @@
 
 #include "math/pprz_algebra_float.h"
 
-typedef struct _timeAndRotation {
+struct pose_t {
   uint32_t timestamp;
   struct FloatEulers eulers;
   struct FloatRates rates;
-} timeAndRotation;
+};
 
 extern void pose_init(void);
 extern void pose_periodic(void);
-extern timeAndRotation get_rotation_at_timestamp(uint32_t timestamp);
+extern struct pose_t get_rotation_at_timestamp(uint32_t timestamp);
 #endif
 
