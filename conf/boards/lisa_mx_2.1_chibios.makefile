@@ -6,7 +6,7 @@
 
 BOARD=lisa_mx
 BOARD_VERSION=2.1
-BOARD_DIR=$(BOARD)/v$(BOARD_VERSION)
+BOARD_DIR=$(BOARD)/chibios/v$(BOARD_VERSION)
 BOARD_CFG=\"boards/$(BOARD_DIR)/board.h\"
 
 ARCH=chibios

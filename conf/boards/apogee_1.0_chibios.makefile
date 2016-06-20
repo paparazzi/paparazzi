@@ -6,7 +6,7 @@
 
 BOARD=apogee
 BOARD_VERSION=1.0
-BOARD_DIR=$(BOARD)/v$(BOARD_VERSION)
+BOARD_DIR=$(BOARD)/chibios/v$(BOARD_VERSION)
 BOARD_CFG=\"boards/$(BOARD_DIR)/board.h\"
 
 ARCH=chibios
