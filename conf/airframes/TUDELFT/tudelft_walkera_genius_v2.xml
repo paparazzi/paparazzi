@@ -43,7 +43,7 @@
       <define name="LISA_S_UPSIDE_DOWN"/> <!-- wtf hij zit gewoon rechtop maargoed -->
     </subsystem>
     <module name="gps" type="optitrack"/>
-    <subsystem name="stabilization" type="int_quat"/> <!-- int_quat / heli_indi -->
+    <subsystem name="stabilization" type="heli_indi"/> <!-- int_quat / heli_indi -->
     <subsystem name="ahrs" type="int_cmpl_quat"/>
     <subsystem name="ins"/>
   </firmware>
@@ -168,7 +168,7 @@
     <set servo="CIC_FRONT" value="-swashplate_mixing.commands[SW_FRONT]"/>
     <set servo="CIC_LEFT" value="-swashplate_mixing.commands[SW_LEFTBACK]"/>
     <set servo="CIC_RIGHT" value="swashplate_mixing.commands[SW_RIGHTBACK]"/>
-    <set servo="TAIL" value="@YAW+0.4*@THRUST"/> <!-- +0.4*@THRUST met pid -->    
+    <set servo="TAIL" value="@YAW"/> <!-- +0.4*@THRUST met pid -->    
     <set servo="GAS" value="$halfway * MAX_PPRZ"/>
 
 
