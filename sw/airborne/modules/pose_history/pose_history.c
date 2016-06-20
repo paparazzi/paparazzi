@@ -70,8 +70,8 @@ timeAndRotation get_rotation_at_timestamp(uint32_t timestamp)
 
   // Save the pose closest to the given timestamp and return this
   timeAndRotation closest_pose;
-  EULERS_COPY(closest_pose.eulers, location_history.ring_data[closestIndex].eulers);
-  RATES_COPY(closest_pose.rates, location_history.ring_data[closestIndex].rates);
+  closest_pose.eulers = location_history.ring_data[closestIndex].eulers;
+  closest_pose.rates = location_history.ring_data[closestIndex].rates;
 
 #if LINUX
   pthread_mutex_unlock(&pose_mutex);
