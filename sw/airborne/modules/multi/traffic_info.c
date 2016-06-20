@@ -180,7 +180,7 @@ void set_ac_info_utm(uint8_t id, uint32_t utm_east, uint32_t utm_north, uint32_t
 
     ti_acs[ti_acs_id[id]].status = 0;
 
-    uint16_t my_zone = UtmZoneOfLlaLonDeg(gps.lla_pos.lon);
+    uint16_t my_zone = state.utm_origin_f.zone;
     if (utm_zone == my_zone) {
       ti_acs[ti_acs_id[id]].utm_pos_i.east = utm_east;
       ti_acs[ti_acs_id[id]].utm_pos_i.north = utm_north;
@@ -252,7 +252,7 @@ void acInfoCalcPositionUtm_i(uint8_t ac_id)
   if (bit_is_set(ti_acs[ac_nr].status, AC_INFO_POS_LLA_I))
   {
     // use my zone as reference, i.e zone extend
-    ti_acs[ac_nr].utm_pos_i.zone = UtmZoneOfLlaLonDeg(ti_acs[ac_nr].lla_pos_i.lon);
+    ti_acs[ac_nr].utm_pos_i.zone = state.utm_origin_f.zone;
     utm_of_lla_i(&ti_acs[ac_nr].utm_pos_i, &ti_acs[ac_nr].lla_pos_i);
     update_geoid_height();
     ti_acs[ac_nr].utm_pos_i.alt -= geoid_height;
@@ -261,7 +261,8 @@ void acInfoCalcPositionUtm_i(uint8_t ac_id)
     UTM_BFP_OF_REAL(ti_acs[ac_nr].utm_pos_i, ti_acs[ac_nr].utm_pos_f);
   } else if (bit_is_set(ti_acs[ac_nr].status, AC_INFO_POS_LLA_F))
   {
-    ti_acs[ac_nr].utm_pos_i.zone = 0;
+    // use my zone as reference, i.e zone extend
+    ti_acs[ac_nr].utm_pos_i.zone = state.utm_origin_f.zone;
     utm_of_lla_f(&ti_acs[ac_nr].utm_pos_f, &ti_acs[ac_nr].lla_pos_f);
     update_geoid_height();
     ti_acs[ac_nr].utm_pos_f.alt -= geoid_height/1000.;
@@ -348,7 +349,7 @@ void acInfoCalcPositionUtm_f(uint8_t ac_id)
   } else if (bit_is_set(ti_acs[ac_nr].status, AC_INFO_POS_LLA_I))
   {
     // use my zone as reference, i.e zone extend
-    ti_acs[ac_nr].utm_pos_i.zone = 0;
+    ti_acs[ac_nr].utm_pos_i.zone = state.utm_origin_f.zone;
     utm_of_lla_i(&ti_acs[ac_nr].utm_pos_i, &ti_acs[ac_nr].lla_pos_i);
     update_geoid_height();
     ti_acs[ac_nr].utm_pos_i.alt -= geoid_height;
@@ -357,6 +358,7 @@ void acInfoCalcPositionUtm_f(uint8_t ac_id)
   } else if (bit_is_set(ti_acs[ac_nr].status, AC_INFO_POS_LLA_F))
   {
     /* not very accurate with float ~5cm */
+    ti_acs[ac_nr].utm_pos_f.zone = state.utm_origin_f.zone;
     utm_of_lla_f(&ti_acs[ac_nr].utm_pos_f, &ti_acs[ac_nr].lla_pos_f);
     update_geoid_height();
     ti_acs[ac_nr].utm_pos_f.alt -= geoid_height/1000.;
