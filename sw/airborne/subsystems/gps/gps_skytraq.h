@@ -27,7 +27,7 @@
 #define SKYTRAQ_ID_NAVIGATION_DATA 0XA8
 
 #ifndef PRIMARY_GPS
-#define PRIMARY_GPS gps_skytraq
+#define PRIMARY_GPS GPS_SKYTRAQ
 #endif
 
 /* last error type */
@@ -62,6 +62,7 @@ extern struct GpsSkytraq gps_skytraq;
 
 extern void gps_skytraq_init(void);
 extern void gps_skytraq_event(void);
-extern void gps_skytraq_register(void);
+
+#define gps_skytraq_periodic_check() gps_periodic_check(&gps_skytraq.state)
 
 #endif /* GPS_SKYTRAQ_H */

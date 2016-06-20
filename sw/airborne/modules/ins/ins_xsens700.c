@@ -97,7 +97,6 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
                    struct GpsState *gps_s)
 {
   struct UtmCoor_f utm = utm_float_from_gps(gps_s, nav_utm_zone0);
-  utm.alt = gps_s->hmsl / 1000.;
 
   // set position
   stateSetPositionUtm_f(&utm);
@@ -193,14 +192,3 @@ void handle_ins_msg(void)
   }
 #endif // USE_GPS_XSENS
 }
-
-
-#ifdef USE_GPS_XSENS
-/*
- * register callbacks & structs
- */
-void gps_xsens700_register(void)
-{
-  gps_register_impl(gps_xsens700_init, NULL, GPS_XSENS_ID);
-}
-#endif

@@ -1,0 +1,50 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="gps_furuno">
+  <doc>
+    <description>
+      Furuno GPS (UART)
+      Driver for Furuno GPS modules parsing the NMEA protocol with Furuno extensions.
+    </description>
+    <configure name="FURUNO_GPS_PORT" value="UARTx" description="UART where the GPS is connected to (UART1, UART2, etc"/>
+    <configure name="FURUNO_GPS_BAUD" value="B38400" description="UART baud rate"/>
+  </doc>
+  <autoload name="gps"/>
+  <autoload name="gps_nps"/>
+  <autoload name="gps_sim"/>
+  <header>
+    <file name="gps.h" dir="subsystems"/>
+  </header>
+  <init fun="gps_nmea_init()"/>
+  <periodic fun="gps_nmea_periodic_check()" freq="1." autorun="TRUE"/>
+  <event fun="gps_nmea_event()"/>
+  <makefile target="ap">
+    <configure name="FURUNO_GPS_PORT" default="$(GPS_PORT)" case="upper|lower"/>
+    <configure name="FURUNO_GPS_BAUD" default="$(GPS_BAUD)"/>
+
+    <file name="gps_nmea.c" dir="subsystems/gps"/>
+
+    <define name="USE_$(FURUNO_GPS_PORT_UPPER)"/>
+    <define name="NMEA_GPS_LINK" value="$(FURUNO_GPS_PORT_LOWER)"/>
+    <define name="$(FURUNO_GPS_PORT_UPPER)_BAUD" value="$(FURUNO_GPS_BAUD)"/>
+
+    <!-- furuno extension -->
+    <define name="NMEA_PARSE_PROP"/>
+    <file name="gps_furuno.c" dir="subsystems/gps"/>
+    <raw>
+      ifdef SECONDARY_GPS
+      ifneq (,$(findstring $(SECONDARY_GPS), nmea furuno))
+      # this is the secondary GPS
+      ap.CFLAGS += -DGPS_SECONDARY_TYPE_H=\"subsystems/gps/gps_nmea.h\"
+      ap.CFLAGS += -DSECONDARY_GPS=GPS_NMEA
+      else
+      ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_nmea.h\"
+      ap.CFLAGS += -DPRIMARY_GPS=GPS_NMEA
+      endif
+      else
+      # plain old single GPS usage
+      ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_nmea.h\"
+      endif
+    </raw>
+  </makefile>
+</module>

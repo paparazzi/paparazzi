@@ -49,10 +49,9 @@ extern void ins_xsens700_event(void);
 
 #if USE_GPS_XSENS
 #ifndef PRIMARY_GPS
-#define PRIMARY_GPS gps_xsens700
+#define PRIMARY_GPS GPS_XSENS
 #endif
 extern void gps_xsens700_init(void);
-extern void gps_xsens700_register(void);
 #endif
 
 #else // SITL

@@ -35,19 +35,16 @@
 #include "subsystems/gps.h"
 
 #ifndef PRIMARY_GPS
-#define PRIMARY_GPS gps_datalink
+#define PRIMARY_GPS GPS_DATALINK
 #endif
 
 extern struct GpsState gps_datalink;
 
 extern void gps_datalink_init(void);
-extern void gps_datalink_register(void);
 
-extern void parse_gps_datalink_small(int16_t heading, uint32_t pos_xyz, uint32_t speed_xyz, uint32_t tow);
+#define gps_datalink_periodic_check() gps_periodic_check(&gps_datalink)
 
-extern void parse_gps_datalink(uint8_t numsv, int32_t ecef_x, int32_t ecef_y, int32_t ecef_z,
-                               int32_t lat, int32_t lon, int32_t alt, int32_t hmsl,
-                               int32_t ecef_xd, int32_t ecef_yd, int32_t ecef_zd,
-                               uint32_t tow, int32_t course);
+extern void gps_datalink_parse_REMOTE_GPS(void);
+extern void gps_datalink_parse_REMOTE_GPS_SMALL(void);
 
 #endif /* GPS_DATALINK_H */

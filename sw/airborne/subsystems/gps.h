@@ -57,9 +57,9 @@
 #define GPS_NB_CHANNELS 16
 #endif
 
-#define GPS_MODE_PRIMARY 0
-#define GPS_MODE_SECONDARY 1
-#define GPS_MODE_AUTO 2
+#define GPS_MODE_AUTO 0
+#define GPS_MODE_PRIMARY 1
+#define GPS_MODE_SECONDARY 2
 
 #ifndef MULTI_GPS_MODE
 #define MULTI_GPS_MODE GPS_MODE_AUTO
@@ -84,8 +84,8 @@ struct GpsState {
 
   struct EcefCoor_i ecef_pos;    ///< position in ECEF in cm
   struct LlaCoor_i lla_pos;      ///< position in LLA (lat,lon: deg*1e7; alt: mm over ellipsoid)
-  struct UtmCoor_i utm_pos;      ///< position in UTM (north,east: cm; alt: mm over ellipsoid)
-  int32_t hmsl;                  ///< height above mean sea level in mm
+  struct UtmCoor_i utm_pos;      ///< position in UTM (north,east: cm; alt: mm over MSL)
+  int32_t hmsl;                  ///< height above mean sea level (MSL) in mm
   struct EcefCoor_i ecef_vel;    ///< speed ECEF in cm/s
   struct NedCoor_i ned_vel;      ///< speed NED in cm/s
   uint16_t gspeed;               ///< norm of 2d ground speed in cm/s
@@ -120,17 +120,6 @@ struct GpsTimeSync {
 /** global GPS state */
 extern struct GpsState gps;
 
-typedef void (*ImplGpsInit)(void);
-typedef void (*ImplGpsEvent)(void);
-
-
-extern void GpsEvent(void);
-
-/**
- * register callbacks and state pointers
- */
-extern void gps_register_impl(ImplGpsInit init, ImplGpsEvent event, uint8_t id);
-
 #ifdef GPS_TYPE_H
 #include GPS_TYPE_H
 #endif
@@ -162,14 +151,7 @@ static inline bool gps_has_been_good(void)
 /** Periodic GPS check.
  * Marks GPS as lost when no GPS message was received for GPS_TIMEOUT seconds
  */
-extern void gps_periodic_check(void);
-
-/**
- * GPS Reset
- * @todo this still needs to call gps specific stuff
- */
-#define gps_Reset(_val) {                               \
-  }
+extern void gps_periodic_check(struct GpsState *gps_s);
 
 
 /*
@@ -189,7 +171,7 @@ extern uint32_t gps_tow_from_sys_ticks(uint32_t sys_ticks);
  * Beware that altitude is initialized to zero but not set to the correct value
  * @param[in] gps_s pointer to the gps structure
  * @param[in] zone set the utm zone in which the position should be computed, 0 to try to get it automatically from lla position
- * @return utm position in float
+ * @return utm position in float, altitude hmsl.
  */
 extern struct UtmCoor_f utm_float_from_gps(struct GpsState *gps_s, uint8_t zone);
 
@@ -198,7 +180,7 @@ extern struct UtmCoor_f utm_float_from_gps(struct GpsState *gps_s, uint8_t zone)
  * Beware that altitude is initialized to zero but not set to the correct value
  * @param[in] gps_s pointer to the gps structure
  * @param[in] zone set the utm zone in which the position should be computed, 0 to try to get it automatically from lla position
- * @return utm position in fixed point (cm)
+ * @return utm position in fixed point (cm), altitude hmsl (mm).
  */
 extern struct UtmCoor_i utm_int_from_gps(struct GpsState *gps_s, uint8_t zone);
 

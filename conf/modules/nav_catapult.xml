@@ -27,7 +27,7 @@ Block example:
       <define name="ACCELERATION_DETECTION" value="5" description="number acceleration measurments above threshold for launch detection"/>
       <define name="MOTOR_DELAY" value="0.75" description="delay until motor is turned on in seconds" unit="s"/>
       <define name="HEADING_DELAY" value="3.0" description="delay until heading is unlocked in seconds" unit="s"/>
-      <define name="INITAL_PITCH" value="0.175" description="inital pitch in radians (default 10deg)" unit="rad"/>
+      <define name="INITIAL_PITCH" value="0.175" description="inital pitch in radians (default 10deg)" unit="rad"/>
       <define name="INITIAL_THROTTLE" value="1.0" description="initial throttle (0.0 to 1.0)" unit="%"/>
       <define name="CLIMB_DISTANCE" value="300" description="distance of the climb waypoint in front of the catapult" unit="m"/>
       <define name="TIMEOUT" value="30." description="timeout to disarm the high freq module" unit="s"/>

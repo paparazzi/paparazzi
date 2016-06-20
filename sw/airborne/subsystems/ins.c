@@ -76,10 +76,7 @@ void ins_init_origin_i_from_flightplan(struct LtpDef_i *ltp_def)
   /* NAV_ALT0 = ground alt above msl, NAV_MSL0 = geoid-height (msl) over ellipsoid */
   llh_nav0.alt = NAV_ALT0 + NAV_MSL0;
 
-  struct EcefCoor_i ecef_nav0;
-  ecef_of_lla_i(&ecef_nav0, &llh_nav0);
-
-  ltp_def_from_ecef_i(ltp_def, &ecef_nav0);
+  ltp_def_from_lla_i(ltp_def, &llh_nav0);
   ltp_def->hmsl = NAV_ALT0;
   stateSetLocalOrigin_i(ltp_def);
 }
@@ -91,9 +88,6 @@ void WEAK ins_reset_local_origin(void)
 {
 #if USE_GPS
   struct UtmCoor_f utm = utm_float_from_gps(&gps, 0);
-
-  // ground_alt
-  utm.alt = gps.hmsl  / 1000.0f;
 
   // reset state UTM ref
   stateSetLocalUtmOrigin_f(&utm);
@@ -111,7 +105,7 @@ void WEAK ins_reset_utm_zone(struct UtmCoor_f *utm)
     utm->zone = gps.utm_pos.zone;
   }
   else {
-    utm->zone = (gps.lla_pos.lon / 1e7 + 180) / 6 + 1;
+    utm->zone = 0;  // recompute zone from lla
   }
   utm_of_lla_f(utm, &lla0);
 

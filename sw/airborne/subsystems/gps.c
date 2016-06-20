@@ -19,9 +19,22 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file gps.c
- *  @brief Device independent GPS code
+/**
+ * @file gps.c
+ * @brief Device independent GPS code.
+ * This provides some general GPS functions and handles the selection of the
+ * currently active GPS (if multiple ones are used).
  *
+ * Each GPS implementation sends a GPS message via ABI for each new measurement,
+ * which can be received by any other part (either from all or only one specific GPS).
+ *
+ * To make it easy to switch to the currently best (or simply the preferred) GPS at runtime,
+ * the #multi_gps_mode can be set to #GPS_MODE_PRIMARY, #GPS_MODE_SECONDARY or #GPS_MODE_AUTO.
+ * This re-sends the GPS message of the "selected" GPS with #GPS_MULTI_ID as sender id.
+ * In the (default) GPS_MODE_AUTO mode, the GPS with the best fix is selected.
+ *
+ * The global #gps struct is also updated from the "selected" GPS
+ * and used to send the normal GPS telemetry messages.
  */
 
 #include "subsystems/abi.h"
@@ -29,6 +42,8 @@
 #include "led.h"
 #include "subsystems/settings.h"
 #include "generated/settings.h"
+#include "math/pprz_geodetic_wgs84.h"
+#include "math/pprz_geodetic.h"
 
 #ifndef PRIMARY_GPS
 #error "PRIMARY_GPS not set!"
@@ -40,19 +55,11 @@ PRINT_CONFIG_VAR(PRIMARY_GPS)
 PRINT_CONFIG_VAR(SECONDARY_GPS)
 #endif
 
-#define __RegisterGps(_x) _x ## _register()
-#define _RegisterGps(_x) __RegisterGps(_x)
-#define RegisterGps(_x) _RegisterGps(_x)
+/* expand GpsId(PRIMARY_GPS) to e.g. GPS_UBX_ID */
+#define __GpsId(_x) _x ## _ID
+#define _GpsId(_x) __GpsId(_x)
+#define GpsId(_x) _GpsId(_x)
 
-/** maximum number of GPS implementations that can register */
-#ifdef SECONDARY_GPS
-#define GPS_NB_IMPL 2
-#else
-#define GPS_NB_IMPL 1
-#endif
-
-#define PRIMARY_GPS_INSTANCE 0
-#define SECONDARY_GPS_INSTANCE 1
 
 #ifdef GPS_POWER_GPIO
 #include "mcu_periph/gpio.h"
@@ -75,14 +82,6 @@ static uint8_t current_gps_id = 0;
 
 uint8_t multi_gps_mode;
 
-/* gps structs */
-struct GpsInstance {
-  ImplGpsInit init;
-  ImplGpsEvent event;
-  uint8_t id;
-};
-
-struct GpsInstance GpsInstances[GPS_NB_IMPL];
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
@@ -176,10 +175,10 @@ static void send_gps_sol(struct transport_tx *trans, struct link_device *dev)
 }
 #endif
 
-void gps_periodic_check(void)
+void gps_periodic_check(struct GpsState *gps_s)
 {
-  if (sys_time.nb_sec - gps.last_msg_time > GPS_TIMEOUT) {
-    gps.fix = GPS_FIX_NONE;
+  if (sys_time.nb_sec - gps_s->last_msg_time > GPS_TIMEOUT) {
+    gps_s->fix = GPS_FIX_NONE;
   }
 }
 
@@ -188,9 +187,9 @@ static uint8_t gps_multi_switch(struct GpsState *gps_s) {
   static uint32_t time_since_last_gps_switch = 0;
 
   if (multi_gps_mode == GPS_MODE_PRIMARY){
-    return GpsInstances[PRIMARY_GPS_INSTANCE].id;
+    return GpsId(PRIMARY_GPS);
   } else if (multi_gps_mode == GPS_MODE_SECONDARY){
-    return GpsInstances[SECONDARY_GPS_INSTANCE].id;
+    return GpsId(SECONDARY_GPS);
   } else{
     if (gps_s->fix > gps.fix){
       return gps_s->comp_id;
@@ -217,6 +216,7 @@ static void gps_cb(uint8_t sender_id,
                    uint32_t stamp __attribute__((unused)),
                    struct GpsState *gps_s)
 {
+  /* ignore callback from own AbiSendMsgGPS */
   if (sender_id == GPS_MULTI_ID) {
     return;
   }
@@ -238,34 +238,6 @@ static void gps_cb(uint8_t sender_id,
   }
 }
 
-/*
- * handle gps switching and updating gps instances
- */
-void GpsEvent(void) {
-  // run each gps event
-  for (int i = 0 ; i < GPS_NB_IMPL ; i++) {
-    if (GpsInstances[i].event != NULL) {
-      GpsInstances[i].event();
-    }
-  }
-}
-
-/*
- * register gps structs for callback
- */
-void gps_register_impl(ImplGpsInit init, ImplGpsEvent event, uint8_t id)
-{
-  int i;
-  for (i=0; i < GPS_NB_IMPL; i++) {
-    if (GpsInstances[i].init == NULL) {
-      GpsInstances[i].init = init;
-      GpsInstances[i].event = event;
-      GpsInstances[i].id = id;
-      break;
-    }
-  }
-
-}
 
 void gps_init(void)
 {
@@ -289,17 +261,6 @@ void gps_init(void)
 #ifdef GPS_LED
   LED_OFF(GPS_LED);
 #endif
-
-  RegisterGps(PRIMARY_GPS);
-#ifdef SECONDARY_GPS
-  RegisterGps(SECONDARY_GPS);
-#endif
-
-  for (int i=0; i < GPS_NB_IMPL; i++) {
-    if (GpsInstances[i].init != NULL) {
-      GpsInstances[i].init();
-    }
-  }
 
   AbiBindMsgGPS(ABI_BROADCAST, &gps_ev, gps_cb);
 
@@ -342,24 +303,30 @@ void WEAK gps_inject_data(uint8_t packet_id __attribute__((unused)), uint8_t len
 }
 
 /**
- * Convenience function to get utm position from GPS state
+ * Convenience functions to get utm position from GPS state
  */
+#include "state.h"
 struct UtmCoor_f utm_float_from_gps(struct GpsState *gps_s, uint8_t zone)
 {
-  struct UtmCoor_f utm;
+  struct UtmCoor_f utm = {.east = 0., .north=0., .alt=0., .zone=zone};
 
   if (bit_is_set(gps_s->valid_fields, GPS_VALID_POS_UTM_BIT)) {
-    // A real UTM position is available, use the correct zone
-    utm.zone = gps_s->utm_pos.zone;
-    utm.east = gps_s->utm_pos.east / 100.0f;
-    utm.north = gps_s->utm_pos.north / 100.0f;
-    utm.alt = gps_s->utm_pos.alt / 1000.f;
-  }
-  else {
+    /* A real UTM position is available, use the correct zone */
+    UTM_FLOAT_OF_BFP(utm, gps_s->utm_pos);
+  } else if (bit_is_set(gps_s->valid_fields, GPS_VALID_POS_LLA_BIT))
+  {
+    /* Recompute UTM coordinates in this zone */
     struct UtmCoor_i utm_i;
     utm_i.zone = zone;
     utm_of_lla_i(&utm_i, &gps_s->lla_pos);
     UTM_FLOAT_OF_BFP(utm, utm_i);
+
+    /* set utm.alt in hsml */
+    if (bit_is_set(gps_s->valid_fields, GPS_VALID_HMSL_BIT)) {
+      utm.alt = gps_s->hmsl/1000.;
+    } else {
+      utm.alt = wgs84_ellipsoid_to_geoid_i(gps_s->lla_pos.lat, gps_s->lla_pos.lon)/1000.;
+    }
   }
 
   return utm;
@@ -367,19 +334,22 @@ struct UtmCoor_f utm_float_from_gps(struct GpsState *gps_s, uint8_t zone)
 
 struct UtmCoor_i utm_int_from_gps(struct GpsState *gps_s, uint8_t zone)
 {
-  struct UtmCoor_i utm;
-  utm.zone = zone;
+  struct UtmCoor_i utm = {.east = 0, .north=0, .alt=0, .zone=zone};
 
   if (bit_is_set(gps_s->valid_fields, GPS_VALID_POS_UTM_BIT)) {
     // A real UTM position is available, use the correct zone
-    utm.zone = gps_s->utm_pos.zone;
-    utm.east = gps_s->utm_pos.east;
-    utm.north = gps_s->utm_pos.north;
-    utm.alt = gps_s->utm_pos.alt;
+    UTM_COPY(utm, gps_s->utm_pos);
   }
-  else {
-    /* Recompute UTM coordinates in this zone */
+  else if (bit_is_set(gps_s->valid_fields, GPS_VALID_POS_LLA_BIT)){
+    /* Recompute UTM coordinates in zone */
     utm_of_lla_i(&utm, &gps_s->lla_pos);
+
+    /* set utm.alt in hsml */
+    if (bit_is_set(gps_s->valid_fields, GPS_VALID_HMSL_BIT)) {
+      utm.alt = gps_s->hmsl;
+    } else {
+      utm.alt = wgs84_ellipsoid_to_geoid_i(gps_s->lla_pos.lat, gps_s->lla_pos.lon);
+    }
   }
 
   return utm;

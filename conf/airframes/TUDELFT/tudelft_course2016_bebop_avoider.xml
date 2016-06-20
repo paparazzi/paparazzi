@@ -6,11 +6,6 @@
   <firmware name="rotorcraft">
     <target name="ap" board="bebop"/> <!-- The type of Autopilot board hardware one uses -->
 
-    <target name="nps" board="pc">
-      <module name="fdm" type="jsbsim"/>
-      <module name="udp"/>
-    </target>
-
     <!--define name="USE_SONAR" value="TRUE"/-->
 
 	<!-- Subsystem section -->
@@ -51,6 +46,7 @@
     </module>
     -->
     <module name="cv_colorfilter">
+        <define name="COLORFILTER_CAMERA" value="front_camera"/>
     </module>
     <module name="orange_avoider"/>
   </modules>

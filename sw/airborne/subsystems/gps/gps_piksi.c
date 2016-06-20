@@ -409,11 +409,3 @@ void gps_inject_data(uint8_t packet_id, uint8_t length, uint8_t *data)
 {
   sbp_send_message(&sbp_state, packet_id, SBP_SENDER_ID, length, data, gps_piksi_write);
 }
-
-/*
- * register callbacks & structs
- */
-void gps_piksi_register(void)
-{
-  gps_register_impl(gps_piksi_init, gps_piksi_event, GPS_PIKSI_ID);
-}

@@ -38,9 +38,3 @@ void gps_vectornav_init(void)
 {
   gps.nb_channels = 0;
 }
-
-void gps_vectornav_register(void)
-{
-  gps_register_impl(gps_vectornav_init, NULL, GPS_VECTORNAV_ID);
-}
-

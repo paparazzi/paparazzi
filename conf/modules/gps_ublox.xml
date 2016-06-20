@@ -6,56 +6,42 @@
       U-blox GPS (UART)
       Driver for u-blox GPS modules parsing the binary UBX protocol.
     </description>
-    <configure name="GPS_PORT" value="UARTx" description="UART where the GPS is connected to (UART1, UART2, etc"/>
-    <configure name="GPS_BAUD" value="B38400" description="UART baud rate"/>
-    <configure name="GPS_LED" value="2" description="LED number to indicate fix or none"/>
+    <configure name="UBX_GPS_PORT" value="UARTx" description="UART where the GPS is connected to (UART1, UART2, etc"/>
+    <configure name="UBX_GPS_BAUD" value="B38400" description="UART baud rate"/>
   </doc>
+  <autoload name="gps"/>
+  <autoload name="gps_nps"/>
+  <autoload name="gps_sim"/>
   <header>
     <file name="gps.h" dir="subsystems"/>
   </header>
-  <!-- uncomment these when not called explicitly from main anymore -->
-  <!--init fun="gps_init()"/-->
-  <!--periodic fun="gps_periodic_check()" freq="1." autorun="TRUE"/-->
-  <!--event fun="GpsEvent(on_gps_solution)"/-->
+  <init fun="gps_ubx_init()"/>
+  <periodic fun="gps_ubx_periodic_check()" freq="1." autorun="TRUE"/>
+  <event fun="gps_ubx_event()"/>
   <makefile target="ap">
     <configure name="UBX_GPS_PORT" default="$(GPS_PORT)" case="upper|lower"/>
     <configure name="UBX_GPS_BAUD" default="$(GPS_BAUD)"/>
-    <file name="gps.c" dir="subsystems"/>
+
     <file name="gps_ubx.c" dir="subsystems/gps"/>
-    <define name="USE_GPS"/>
-    <configure name="GPS_PORT" case="upper|lower"/>
+
     <define name="USE_$(UBX_GPS_PORT_UPPER)"/>
     <define name="UBX_GPS_LINK" value="$(UBX_GPS_PORT_LOWER)"/>
     <define name="$(UBX_GPS_PORT_UPPER)_BAUD" value="$(UBX_GPS_BAUD)"/>
-    <configure name="GPS_LED" default="none"/>
-    <define name="GPS_LED" value="$(GPS_LED)" cond="ifneq ($(GPS_LED),none)"/>
     <raw>
       ifdef SECONDARY_GPS
       ifneq (,$(findstring $(SECONDARY_GPS), ublox))
       # this is the secondary GPS
       ap.CFLAGS += -DGPS_SECONDARY_TYPE_H=\"subsystems/gps/gps_ubx.h\"
-      ap.CFLAGS += -DSECONDARY_GPS=gps_ubx
+      ap.CFLAGS += -DSECONDARY_GPS=GPS_UBX
       else
       ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_ubx.h\"
-      ap.CFLAGS += -DPRIMARY_GPS=gps_ubx
+      ap.CFLAGS += -DPRIMARY_GPS=GPS_UBX
       endif
       else
       # plain old single GPS usage
       ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_ubx.h\"
       endif
     </raw>
-  </makefile>
-  <makefile target="nps">
-    <file name="gps.c" dir="subsystems"/>
-    <file name="gps_sim_nps.c" dir="subsystems/gps"/>
-    <define name="USE_GPS"/>
-    <define name="GPS_TYPE_H" value="subsystems/gps/gps_sim_nps.h" type="string"/>
-  </makefile>
-  <makefile target="sim">
-    <file name="gps.c" dir="subsystems"/>
-    <file name="gps_sim.c" dir="subsystems/gps"/>
-    <define name="USE_GPS"/>
-    <define name="GPS_TYPE_H" value="subsystems/gps/gps_sim.h" type="string"/>
   </makefile>
 </module>
 

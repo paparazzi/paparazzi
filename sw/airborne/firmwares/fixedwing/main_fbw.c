@@ -228,10 +228,8 @@ void post_inter_mcu_received_ap(void) {};
 void pre_inter_mcu_received_ap(void) {};
 void post_inter_mcu_received_ap(void)
 {
-  int crash = 0;
   if (commands[COMMAND_FORCECRASH] >= 8000) {
     set_failsafe_mode();
-    crash = 1;
   }
 }
 #endif /* OUTBACK_CHALLENGE_VERY_DANGEROUS_RULE_AP_CAN_FORCE_FAILSAFE */

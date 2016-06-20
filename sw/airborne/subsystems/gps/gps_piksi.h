@@ -33,12 +33,15 @@
 #define GPS_PIKSI_H
 
 #ifndef PRIMARY_GPS
-#define PRIMARY_GPS gps_piksi
+#define PRIMARY_GPS GPS_PIKSI
 #endif
+
+extern struct GpsState gps_piksi;
 
 extern void gps_piksi_event(void);
 extern void gps_piksi_init(void);
-extern void gps_piksi_register(void);
+
+#define gps_piksi_periodic_check() gps_periodic_check(&gps_piksi)
 
 /*
  * Reset base station position

@@ -269,6 +269,10 @@ static inline double inverse_isometric_latitude_d(double lat, double e, double e
     CI(v);              \
   }
 
+/* Convert lla to utm (double).
+ * @param[out] utm position in m, alt is copied directly from lla
+ * @param[in]  lla position in rad, alt in m
+ */
 void utm_of_lla_d(struct UtmCoor_d *utm, struct LlaCoor_d *lla)
 {
   // compute zone if not initialised
@@ -300,6 +304,10 @@ void utm_of_lla_d(struct UtmCoor_d *utm, struct LlaCoor_d *lla)
   utm->alt = lla->alt;
 }
 
+/* Convert utm to lla (double).
+ * @param[out] lla position in rad, alt is copied directly from utm
+ * @param[in]  utm position in m, alt in m
+ */
 void lla_of_utm_d(struct LlaCoor_d *lla, struct UtmCoor_d *utm)
 {
   struct DoubleVect2 z = {utm->north - DELTA_NORTH, utm->east - DELTA_EAST};

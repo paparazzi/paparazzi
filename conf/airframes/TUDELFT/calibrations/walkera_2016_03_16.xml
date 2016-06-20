@@ -1,0 +1,37 @@
+<airframe>
+  <section name="IMU" prefix="IMU_">
+
+    <!-- From Delft MAVlab, quick calibration -->
+    <define name="ACCEL_X_NEUTRAL" value="0"/>
+    <define name="ACCEL_Y_NEUTRAL" value="0"/>
+    <define name="ACCEL_Z_NEUTRAL" value="0"/>
+    <!--define name="ACCEL_X_NEUTRAL" value="62"/>
+    <define name="ACCEL_Y_NEUTRAL" value="16"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-191"/>
+    <define name="ACCEL_X_SENS" value="4.86205019187" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="4.88606377201" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="4.84406734807" integer="16"/-->
+
+
+    <!-- From delft MAVLab 16/3 in t lab-->
+    <define name="MAG_X_NEUTRAL" value="81"/>
+    <define name="MAG_Y_NEUTRAL" value="-214"/>
+    <define name="MAG_Z_NEUTRAL" value="-75"/>
+    <define name="MAG_X_SENS" value="3.4123397367" integer="16"/>
+    <define name="MAG_Y_SENS" value="3.5176940188" integer="16"/>
+    <define name="MAG_Z_SENS" value="3.93401804914" integer="16"/>
+
+    <!-- Current correction -->
+	<!--define name= "MAG_X_CURRENT_COEF" value="-0.00826591496471"/>
+	<define name= "MAG_Y_CURRENT_COEF" value="0.0504179871004"/>
+	<define name= "MAG_Z_CURRENT_COEF" value="0.000356565353913"/-->
+  </section>
+
+  <section name="AHRS" prefix="AHRS_">
+  <!-- (0.390835, 0.00556658, 0.920444) 16mrt2016 delft -->
+    <define name="H_X" value=" 0.390835"/>
+    <define name="H_Y" value=" 0.00556658"/>
+    <define name="H_Z" value=" 0.920444"/>
+  </section>
+
+</airframe>

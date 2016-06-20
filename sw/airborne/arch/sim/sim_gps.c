@@ -7,7 +7,7 @@
 /** From airborne/autopilot/ */
 #include "generated/airframe.h"
 #include "generated/flight_plan.h"
-#include "subsystems/gps.h"
+#include "subsystems/gps/gps_sim.h"
 #include "math/pprz_geodetic_float.h"
 #include "math/pprz_geodetic_int.h"
 
@@ -43,6 +43,7 @@ value sim_use_gps_pos(value x, value y, value z, value c, value a, value s, valu
 
   gps.utm_pos.east = Int_val(x);
   gps.utm_pos.north = Int_val(y);
+  gps.utm_pos.alt = gps.hmsl;
   gps.utm_pos.zone = Int_val(z);
   SetBit(gps.valid_fields, GPS_VALID_POS_UTM_BIT);
 

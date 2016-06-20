@@ -32,10 +32,7 @@
 
 static void rpm_sensor_send_motor(struct transport_tx *trans, struct link_device *dev)
 {
-  uint16_t rpm = 0;
-  uint32_t period_us = get_pwm_input_period_in_usec(RPM_PWM_CHANNEL) * RPM_PULSE_PER_RND;
-  if(period_us > 0)
-    rpm = ((uint32_t)1000000 * 60) / period_us;
+  uint16_t rpm = rpm_sensor_get_rpm();
 
   pprz_msg_send_MOTOR(trans, dev, AC_ID, &rpm, &electrical.current);
 }
@@ -47,4 +44,15 @@ void rpm_sensor_init(void)
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_MOTOR, rpm_sensor_send_motor);
 #endif
+}
+
+uint16_t rpm_sensor_get_rpm(void)
+{
+  uint16_t rpm = 0;
+  uint32_t period_us = get_pwm_input_period_in_usec(RPM_PWM_CHANNEL) * RPM_PULSE_PER_RND;
+  if (period_us > 0) {
+    rpm = ((uint32_t)1000000 * 60) / period_us;
+  }
+
+  return rpm;
 }

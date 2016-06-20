@@ -1,0 +1,46 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="gps_nmea">
+  <doc>
+    <description>
+      NMEA GPS (UART)
+      Driver for GPS modules using the NMEA protocol.
+    </description>
+    <configure name="NMEA_GPS_PORT" value="UARTx" description="UART where the GPS is connected to (UART1, UART2, etc"/>
+    <configure name="NMEA_GPS_BAUD" value="B38400" description="UART baud rate"/>
+  </doc>
+  <autoload name="gps"/>
+  <autoload name="gps_nps"/>
+  <autoload name="gps_sim"/>
+  <header>
+    <file name="gps.h" dir="subsystems"/>
+  </header>
+  <init fun="gps_nmea_init()"/>
+  <periodic fun="gps_nmea_periodic_check()" freq="1." autorun="TRUE"/>
+  <event fun="gps_nmea_event()"/>
+  <makefile target="ap">
+    <configure name="NMEA_GPS_PORT" default="$(GPS_PORT)" case="upper|lower"/>
+    <configure name="NMEA_GPS_BAUD" default="$(GPS_BAUD)"/>
+
+    <file name="gps_nmea.c" dir="subsystems/gps"/>
+
+    <define name="USE_$(NMEA_GPS_PORT_UPPER)"/>
+    <define name="NMEA_GPS_LINK" value="$(NMEA_GPS_PORT_LOWER)"/>
+    <define name="$(NMEA_GPS_PORT_UPPER)_BAUD" value="$(NMEA_GPS_BAUD)"/>
+    <raw>
+      ifdef SECONDARY_GPS
+      ifneq (,$(findstring $(SECONDARY_GPS), nmea))
+      # this is the secondary GPS
+      ap.CFLAGS += -DGPS_SECONDARY_TYPE_H=\"subsystems/gps/gps_nmea.h\"
+      ap.CFLAGS += -DSECONDARY_GPS=GPS_NMEA
+      else
+      ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_nmea.h\"
+      ap.CFLAGS += -DPRIMARY_GPS=GPS_NMEA
+      endif
+      else
+      # plain old single GPS usage
+      ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_nmea.h\"
+      endif
+    </raw>
+  </makefile>
+</module>

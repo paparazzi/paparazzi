@@ -1,0 +1,21 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="gps_nps">
+  <doc>
+    <description>
+      Simulated GPS for NPS.
+      For NPS simulator. Can model GPS noise, bias and latency.
+      The GPS sensor configuration is done in the header file referenced by NPS_SENSORS_PARAMS.
+    </description>
+  </doc>
+  <autoload name="gps"/>
+  <header>
+    <file name="gps.h" dir="subsystems"/>
+  </header>
+  <init fun="gps_nps_init()"/>
+  <periodic fun="gps_nps_periodic_check()" freq="1." autorun="TRUE"/>
+  <makefile target="nps">
+    <file name="gps_sim_nps.c" dir="subsystems/gps"/>
+    <define name="GPS_TYPE_H" value="subsystems/gps/gps_sim_nps.h" type="string"/>
+  </makefile>
+</module>

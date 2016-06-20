@@ -287,11 +287,3 @@ static int distance_too_great(struct EcefCoor_i *ecef_ref, struct EcefCoor_i *ec
 
   return false;
 }
-
-/*
- * register callbacks & structs
- */
-void gps_skytraq_register(void)
-{
-  gps_register_impl(gps_skytraq_init, gps_skytraq_event, GPS_SKYTRAQ_ID);
-}
