@@ -40,7 +40,6 @@
 
 /** INS local origin reset.
  *  Reset horizontal and vertical reference to the current position.
- *  Does nothing if not implemented by specific INS algorithm.
  */
 extern void ins_reset_local_origin(void);
 
@@ -49,6 +48,13 @@ extern void ins_reset_local_origin(void);
  *  Does nothing if not implemented by specific INS algorithm.
  */
 extern void ins_reset_altitude_ref(void);
+
+/** INS utm zone reset.
+ *  Reset UTM zone according the the actual position.
+ *  Only used with fixedwing firmware.
+ *  Can be overwrite by specific INS implementation.
+ */
+extern void ins_reset_utm_zone(uint8_t zone);
 
 /** initialize the local origin (ltp_def in fixed point) from flight plan position */
 extern void ins_init_origin_i_from_flightplan(struct LtpDef_i *ltp_def);

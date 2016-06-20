@@ -131,7 +131,7 @@ static void send_gps(struct transport_tx *trans, struct link_device *dev)
   uint8_t zero = 0;
   int16_t climb = -gps.ned_vel.z;
   int16_t course = (DegOfRad(gps.course) / ((int32_t)1e6));
-  struct UtmCoor_i utm = utm_int_from_gps(&gps, 0);
+  struct UtmCoor_i utm = utm_int_from_gps(&gps, state.utm_origin_f.zone);
   pprz_msg_send_GPS(trans, dev, AC_ID, &gps.fix,
                     &utm.east, &utm.north,
                     &course, &gps.hmsl, &gps.gspeed, &climb,

@@ -470,7 +470,7 @@ static inline void stateSetLocalOrigin_i(struct LtpDef_i *ltp_def)
 /// Set the local (flat earth) coordinate frame origin from UTM (float).
 static inline void stateSetLocalUtmOrigin_f(struct UtmCoor_f *utm_def)
 {
-  state.utm_origin_f = *utm_def;
+  UTM_COPY(state.utm_origin_f, *utm_def);
   state.utm_initialized_f = true;
 
   /* clear bits for all local frame representations */

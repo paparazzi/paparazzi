@@ -65,8 +65,12 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   stateSetSpeedNed_f(&ned_vel);
 }
 
-void ins_gps_utm_register(void)
+
+void ins_gps_passthrough_init(void)
 {
-  ins_register_impl(ins_gps_utm_init);
-  AbiBindMsgGPS(INS_PTU_GPS_ID, &gps_ev, gps_cb);
+  struct UtmCoor_f utm0 = { NAV_UTM_NORTH0, NAV_UTM_EAST0, NAV_MSL0, NAV_UTM_ZONE0 };
+  stateSetLocalUtmOrigin_f(&utm0);
+  stateSetPositionUtm_f(&utm0);
+
+  AbiBindMsgGPS(INS_PT_GPS_ID, &gps_ev, gps_cb);
 }

@@ -38,6 +38,7 @@ const uint8_t nb_waypoint = NB_WAYPOINT;
 struct point waypoints[NB_WAYPOINT] = WAYPOINTS_UTM;
 
 float ground_alt = NAV_MSL0;
+static float previous_ground_alt = NAV_MSL0;
 
 float max_dist_from_home = MAX_DIST_FROM_HOME;
 
@@ -56,8 +57,23 @@ void compute_dist2_to_home(void)
 #endif
 }
 
+/** Reset the UTM zone to current GPS fix
+ */
+bool nav_reset_utm_zone(uint8_t zone)
+{
+  struct UtmCoor_f previous_origin;
+  UTM_COPY(previous_origin, state.utm_origin_f);
 
-static float previous_ground_alt;
+  ins_reset_utm_zone(zone);
+
+  /* zone extend waypoints if nessesary */
+  if (state.utm_origin_f.zone != previous_origin.zone)
+  {
+    nav_zone_extend_waypoints(&previous_origin, state.utm_origin_f.zone);
+  }
+
+  return 0;
+}
 
 /** Reset the geographic reference to the current GPS fix */
 bool nav_reset_reference(void)
@@ -68,15 +84,17 @@ bool nav_reset_reference(void)
   /* realign INS */
   ins_reset_local_origin();
 
-  /* update waypoints if nessesary */
-  if (previous_origin.zone != state.utm_origin_f.zone)
+  /* zone extend waypoints if nessesary */
+  if (state.utm_origin_f.zone != previous_origin.zone)
   {
     nav_zone_extend_waypoints(&previous_origin, state.utm_origin_f.zone);
   }
 
   /* Ground alt */
   previous_ground_alt = ground_alt;
-  ground_alt = state.utm_origin_f.alt;  // this isn't correct when reset in flight
+  struct LlaCoor_f lla;
+  lla_of_utm(&lla, state.utm_origin_f);
+  ground_alt = wgs84_ellipsoid_to_geoid_f(lla.lat, lla.lon);
 
   return TRUE;
 }
@@ -88,12 +106,16 @@ bool nav_reset_alt(void)
 
   /* Ground alt */
   previous_ground_alt = ground_alt;
-  ground_alt = state.utm_origin_f.alt;  // this isn't correct when reset in flight
+  struct LlaCoor_f lla;
+  lla_of_utm(&lla, state.utm_origin_f);
+  ground_alt = wgs84_ellipsoid_to_geoid_f(lla.lat, lla.lon);
 
   return TRUE;
 }
 
-/** Shift altitude of the waypoint according to a new zone */
+/** Shift relative position of the waypoint according to a new zone
+ * global positions are not updated
+ */
 bool nav_zone_extend_waypoints(struct UtmCoor_f *prev_origin_utm, uint8_t zone)
 {
   /* recompute locaiton of home waypoint in new zone */

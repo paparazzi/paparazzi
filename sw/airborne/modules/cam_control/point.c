@@ -37,18 +37,18 @@
  * hardware:
  *
  * The camera control is made of normal servos. Usually servos have a
- * turn angle of about 90�. This is changed electrically so that they
- * can do a 180�. It is achieved by adding two serial resistors at both
+ * turn angle of about 90°. This is changed electrically so that they
+ * can do a 180°. It is achieved by adding two serial resistors at both
  * sides of the potentiometer (P1), one for increasing the usable angle
  * (R1) and the other for moving the middle position to a useful angle
- * (R2). Therefore a servo with a 270� potentiometer is needed. Very
- * small and light servos have 180� potentiometers, these do not allow
- * a 180� degrees sweep. Cut the outer two connections between the
+ * (R2). Therefore a servo with a 270° potentiometer is needed. Very
+ * small and light servos have 180° potentiometers, these do not allow
+ * a 180° degrees sweep. Cut the outer two connections between the
  * potentiometer and the board to insert the resistors. The values for
  * R1 and R2 should be found out by testing as there might be serial
  * resistors on the servo board that affect the values. Start with
  * about 1/2 the value of P1 for R1 and change R1 until you get a
- * little more than 180� sweep. Then insert and modify R2 to set
+ * little more than 180° sweep. Then insert and modify R2 to set
  * neutral back to the middle position of the potentiometer.
  *
  *
@@ -498,7 +498,7 @@ void vPoint(float fPlaneEast, float fPlaneNorth, float fPlaneAltitude,
 
   /*
    * This is for one axis pitch camera mechanisms. The pitch servo neutral
-   * makes the camera look down, 90� is to the front and -90� is to the
+   * makes the camera look down, 90° is to the front and -90° is to the
    * back. The pitch value is given through the tilt parameter.
    * The camera picture is upright when looking in flight direction.
    *
@@ -507,8 +507,8 @@ void vPoint(float fPlaneEast, float fPlaneNorth, float fPlaneAltitude,
    *     plane front <-------------- plane back
    *                      / I \
    *                     /  I  \
-   *                   45�  I  -45�
-   *                        0�
+   *                   45°  I  -45°
+   *                        0°
    *
    * (should be hyperbolic, we use lines to make it better, the plane rolls
    *  away from the object while flying towards it!)
@@ -536,7 +536,7 @@ void vPoint(float fPlaneEast, float fPlaneNorth, float fPlaneAltitude,
 
   /*
    * This is for single axis roll camera mechanisms. The tilt servo neutral
-   * makes the camera look down, -90� is to the right and 90� is to the
+   * makes the camera look down, -90° is to the right and 90° is to the
    * left.
    * The camera picture is upright when looking to the right.
    *
@@ -546,8 +546,8 @@ void vPoint(float fPlaneEast, float fPlaneNorth, float fPlaneAltitude,
    *     plane left --------------- plane right
    *                     / I \
    *                    /  I  \
-   *                  45�  I  -45�
-   *                       0�
+   *                  45°  I  -45°
+   *                       0°
    *
    */
 #if 1  // have to check if it helps
@@ -639,9 +639,9 @@ void vPoint(float fPlaneEast, float fPlaneNorth, float fPlaneAltitude,
   /*
    * This is for two axes pan/tilt camera mechanisms. The default is to
    * circle clockwise so view is right. The pan servo neutral makes
-   * the camera look to the right with 0� given, 90� is to the back and
-   * -90� is to the front. The tilt servo neutral makes the camera look
-   * down with 0� given, 90� is to the right and -90� is to the left (all
+   * the camera look to the right with 0° given, 90° is to the back and
+   * -90° is to the front. The tilt servo neutral makes the camera look
+   * down with 0° given, 90° is to the right and -90° is to the left (all
    * values are used in radian in the software). If the camera looks to
    * the right side of the plane, the picture is upright. It is upside
    * down when looking to the left. That is corrected with the MPEG
@@ -650,31 +650,31 @@ void vPoint(float fPlaneEast, float fPlaneNorth, float fPlaneAltitude,
    * the camera.
    *
    *
-   * pan servo, tilt set to 90�, looking from top:
+   * pan servo, tilt set to 90°, looking from top:
    *
    *   plane front
    *
    *       ^
    *       I
-   *       I  45�
+   *       I  45°
    *       I /
    *       I/
-   *       I------- 0�
+   *       I------- 0°
    *       I\
    *       I \
-   *       I  -45�
+   *       I  -45°
    *       I
    *
    *   plane back
    *
    *
-   * tilt servo, pan set to 0�, looking from back:
+   * tilt servo, pan set to 0°, looking from back:
    *
    *     plane left --------------- plane right
    *                     / I \
    *                    /  I  \
-   *                 -45�  I   45�
-   *                       0�
+   *                 -45°  I   45°
+   *                       0°
    *
    */
 
@@ -715,8 +715,8 @@ void vPoint(float fPlaneEast, float fPlaneNorth, float fPlaneAltitude,
    *    plane front <--------------- plane back
    *                      / I \
    *                     /  I  \
-   *                   45�  I  -45�
-   *                        0�
+   *                   45°  I  -45°
+   *                        0°
    *
    *
    * pan servo, looking from back:
@@ -724,8 +724,8 @@ void vPoint(float fPlaneEast, float fPlaneNorth, float fPlaneAltitude,
    *     plane left --------------- plane right
    *                     / I \
    *                    /  I  \
-   *                  45�  I  -45�
-   *                       0�
+   *                  45°  I  -45°
+   *                       0°
    *
    */
 

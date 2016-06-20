@@ -65,28 +65,32 @@ void WEAK ins_reset_local_origin(void)
 #endif
 }
 
-void WEAK ins_reset_altitude_ref(void) {}
-<<<<<<< HEAD
-
-/*
+void WEAK ins_reset_altitude_ref(void)
+{
 #if USE_GPS
-void WEAK ins_reset_utm_zone(struct UtmCoor_f *utm)
+  struct UtmCoor_f utm;
+  UTM_COPY(utm, state.utm_origin_f);
+  utm.alt = gps.hmsl / 1000.0f;
+  stateSetLocalUtmOrigin_f(&utm);
+#endif
+}
+
+#if USE_GPS
+void WEAK ins_reset_utm_zone(uint8_t zone)
 {
   struct LlaCoor_f lla0;
-  lla_of_utm_f(&lla0, utm);
-  if (bit_is_set(gps.valid_fields, GPS_VALID_POS_UTM_BIT)) {
-    utm->zone = gps.utm_pos.zone;
+  struct UtmCoor_f utm0;
+  UTM_COPY(utm0, state.utm_origin_f);
+  lla_of_utm_f(&lla0, &utm0);
+  if (zone > 0) {
+    utm0.zone = zone;  // recompute utm zone from gps
+  } else {
+    utm0.zone = utm_float_from_gps(&gps, 0).zone;  // recompute utm zone from gps
   }
-  else {
-    utm->zone = (gps.lla_pos.lon / 1e7 + 180) / 6 + 1;
-  }
-  utm_of_lla_f(utm, &lla0);
+  utm_of_lla_f(&utm0, &lla0);
 
-  stateSetLocalUtmOrigin_f(utm);
+  stateSetLocalUtmOrigin_f(utm0);
 }
 #else
-void WEAK ins_reset_utm_zone(struct UtmCoor_f *utm __attribute__((unused))) {}
+void WEAK ins_reset_utm_zone(uint8_t zone __attribute__((unused))) {}
 #endif
-*/
-=======
->>>>>>> added zone extension

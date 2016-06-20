@@ -48,8 +48,8 @@ struct point {
 #define WaypointAlt(_wp) (waypoints[_wp].a)
 #define Height(_h) (_h + ground_alt)
 
-
 extern void nav_move_waypoint(uint8_t wp_id, float utm_east, float utm_north, float alt);
+
 extern const uint8_t nb_waypoint;
 extern struct point waypoints[];
 /** size == nb_waypoint, waypoint 0 is a dummy waypoint */
@@ -58,6 +58,7 @@ extern struct point waypoints[];
 extern float ground_alt;
 
 extern void compute_dist2_to_home(void);
+extern bool nav_reset_utm_zone(uint8_t zone);
 extern bool nav_reset_reference(void);
 extern bool nav_reset_alt(void);
 extern bool nav_update_waypoints_alt(void);
