@@ -23,16 +23,6 @@
  * @file modules/nav/nav_survey_poly_rotorcraft.c
  *
  */
-
-/*
-#include <stdio.h>
-#include "mcu_periph/uart.h"
-#include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
-*/
-
-
-
 #include "modules/nav/nav_survey_poly_rotorcraft.h"
 
 #include "firmwares/rotorcraft/navigation.h"
@@ -60,6 +50,11 @@
 /// maximum number of polygon corners
 #ifndef POLYSURVEY_MAX_POLYGONSIZE
 #define POLYSURVEY_MAX_POLYGONSIZE 20
+#endif
+
+// use half sweep at the end of polygon
+#ifndef POLY_OSAM_HALF_SWEEP_ENABLED
+#define POLY_OSAM_HALF_SWEEP_ENABLED TRUE
 #endif
 
 uint8_t Poly_Size = POLYSURVEY_DEFAULT_SIZE;
@@ -103,7 +98,6 @@ static float EvaluateLineForX(float y, struct Line L);
 
 /** This routine will cover the enitre area of any Polygon defined in the flightplan which is a convex polygon.
  */
-
 enum SurveyStatus { Init, Entry, Sweep, Turn };
 static enum SurveyStatus CSurveyStatus;
 static struct Point2D SmallestCorner;
@@ -116,16 +110,15 @@ static struct EnuCoor_f SurveyToWP;
 static struct EnuCoor_f SurveyFromWP;
 static struct EnuCoor_f SurveyEntry;
 
-//static struct EnuCoor_f survey_from, survey_to;
 static struct EnuCoor_i survey_from_i, survey_to_i;
 
 static uint8_t SurveyEntryWP;
 static uint8_t SurveySize;
-//static float SurveyCircleQdr;
 static float MaxY;
 uint16_t PolySurveySweepNum;
 uint16_t PolySurveySweepBackNum;
 float EntryRadius;
+bool Half_Sweep_Enabled = POLY_OSAM_HALF_SWEEP_ENABLED;
 
 //=========================================================================================================================
 bool nav_survey_poly_setup(uint8_t EntryWP, uint8_t Size, float sw, float Orientation)
@@ -378,17 +371,11 @@ bool nav_survey_poly_run(void)
         }
 #endif
 
-        //fprintf(stderr,"Lastpoint:%f <= %f\n",( LastPoint.y + dSweep  ), 0. );
-
-
         if (LastPoint.y + dSweep >= MaxY || LastPoint.y + dSweep <= 0) {   //Your out of the Polygon so Sweep Back or Half Sweep
-          //fprintf(stderr,"nao cabe interiro\n");
 
-          if ((LastPoint.y + (dSweep / 2)) <= MaxY || LastPoint.y + (dSweep / 2) >= 0) {    //Sweep back
-            //fprintf(stderr,"nao cabe meio\n");
+          if ((LastPoint.y + (dSweep / 2)) <= MaxY || LastPoint.y + (dSweep / 2) >= 0 || !Half_Sweep_Enabled) {    //Sweep back
             dSweep = -dSweep;
           } else {
-            //fprintf(stderr,"cabe meio\n");
           }
 
           if (LastHalfSweep) {
@@ -398,10 +385,8 @@ bool nav_survey_poly_run(void)
             HalfSweep = true;
             ys = LastPoint.y + (dSweep / 2);
           }
-
+          PolySurveySweepBackNum++;
         } else { // Normal sweep
-          //fprintf(stderr,"cabe interiro\n");
-
           //Find y value of the first sweep
           HalfSweep = false;
           ys = LastPoint.y + dSweep;
