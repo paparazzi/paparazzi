@@ -66,6 +66,7 @@ void WEAK ins_reset_local_origin(void)
 }
 
 void WEAK ins_reset_altitude_ref(void) {}
+<<<<<<< HEAD
 
 /*
 #if USE_GPS
@@ -87,3 +88,5 @@ void WEAK ins_reset_utm_zone(struct UtmCoor_f *utm)
 void WEAK ins_reset_utm_zone(struct UtmCoor_f *utm __attribute__((unused))) {}
 #endif
 */
+=======
+>>>>>>> added zone extension

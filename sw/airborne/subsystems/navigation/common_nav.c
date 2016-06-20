@@ -37,7 +37,7 @@ bool too_far_from_home;
 const uint8_t nb_waypoint = NB_WAYPOINT;
 struct point waypoints[NB_WAYPOINT] = WAYPOINTS_UTM;
 
-float ground_alt;
+float ground_alt = NAV_MSL0;
 
 float max_dist_from_home = MAX_DIST_FROM_HOME;
 
@@ -60,20 +60,29 @@ void compute_dist2_to_home(void)
 static float previous_ground_alt;
 
 /** Reset the geographic reference to the current GPS fix */
-unit_t nav_reset_reference(void)
+bool nav_reset_reference(void)
 {
+  struct UtmCoor_f previous_origin;
+  UTM_COPY(previous_origin, state.utm_origin_f);
+
   /* realign INS */
   ins_reset_local_origin();
+
+  /* update waypoints if nessesary */
+  if (previous_origin.zone != state.utm_origin_f.zone)
+  {
+    nav_zone_extend_waypoints(&previous_origin, state.utm_origin_f.zone);
+  }
 
   /* Ground alt */
   previous_ground_alt = ground_alt;
   ground_alt = state.utm_origin_f.alt;  // this isn't correct when reset in flight
 
-  return 0;
+  return TRUE;
 }
 
 /** Reset the altitude reference to the current GPS alt */
-unit_t nav_reset_alt(void)
+bool nav_reset_alt(void)
 {
   ins_reset_altitude_ref();
 
@@ -81,17 +90,39 @@ unit_t nav_reset_alt(void)
   previous_ground_alt = ground_alt;
   ground_alt = state.utm_origin_f.alt;  // this isn't correct when reset in flight
 
-  return 0;
+  return TRUE;
+}
+
+/** Shift altitude of the waypoint according to a new zone */
+bool nav_zone_extend_waypoints(struct UtmCoor_f *prev_origin_utm, uint8_t zone)
+{
+  /* recompute locaiton of home waypoint in new zone */
+  struct LlaCoor_f prev_origin_lla;
+  lla_of_utm_f(&prev_origin_lla, prev_origin_utm);
+
+  struct UtmCoor_f new_origin_utm;
+  new_origin_utm.zone = zone;
+  utm_of_lla_f(&new_origin_utm, &prev_origin_lla);
+
+  struct EnuCoor_f origin_diff;
+  ENU_OF_UTM_DIFF(origin_diff, new_origin_utm, *prev_origin_utm);
+
+  uint8_t i;
+  for (i = 0; i < NB_WAYPOINT; i++) {
+    waypoints[i].x += origin_diff.x;
+    waypoints[i].y += origin_diff.y;
+  }
+  return TRUE;
 }
 
 /** Shift altitude of the waypoint according to a new ground altitude */
-unit_t nav_update_waypoints_alt(void)
+bool nav_update_waypoints_alt(void)
 {
   uint8_t i;
   for (i = 0; i < NB_WAYPOINT; i++) {
     waypoints[i].a += ground_alt - previous_ground_alt;
   }
-  return 0;
+  return TRUE;
 }
 
 void common_nav_periodic_task_4Hz()

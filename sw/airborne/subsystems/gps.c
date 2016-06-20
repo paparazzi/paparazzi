@@ -310,8 +310,8 @@ struct UtmCoor_f utm_float_from_gps(struct GpsState *gps_s, uint8_t zone)
 {
   struct UtmCoor_f utm = {.east = 0., .north=0., .alt=0., .zone=zone};
 
-  if (bit_is_set(gps_s->valid_fields, GPS_VALID_POS_UTM_BIT)) {
-    /* A real UTM position is available, use the correct zone */
+  if (bit_is_set(gps_s->valid_fields, GPS_VALID_POS_UTM_BIT) && zone == gps_s->utm_pos.zone) {
+    /* A real UTM position is available and in requested zone */
     UTM_FLOAT_OF_BFP(utm, gps_s->utm_pos);
   } else if (bit_is_set(gps_s->valid_fields, GPS_VALID_POS_LLA_BIT))
   {
@@ -327,6 +327,17 @@ struct UtmCoor_f utm_float_from_gps(struct GpsState *gps_s, uint8_t zone)
     } else {
       utm.alt = wgs84_ellipsoid_to_geoid_i(gps_s->lla_pos.lat, gps_s->lla_pos.lon)/1000.;
     }
+  } else if (bit_is_set(gps_s->valid_fields, GPS_VALID_POS_UTM_BIT))
+  {
+    /* Recompute UTM coordinates in requested zone (aka zone extend) */
+    struct LlaCoor_i lla_pos;
+    lla_of_utm_i(&lla_pos, &gps_s->utm_pos);
+
+    struct UtmCoor_i utm_i;
+    utm_i.zone = zone;
+    utm_of_lla_i(&utm_i, &lla_pos);
+
+    UTM_FLOAT_OF_BFP(utm, utm_i);
   }
 
   return utm;
@@ -336,8 +347,8 @@ struct UtmCoor_i utm_int_from_gps(struct GpsState *gps_s, uint8_t zone)
 {
   struct UtmCoor_i utm = {.east = 0, .north=0, .alt=0, .zone=zone};
 
-  if (bit_is_set(gps_s->valid_fields, GPS_VALID_POS_UTM_BIT)) {
-    // A real UTM position is available, use the correct zone
+  if (bit_is_set(gps_s->valid_fields, GPS_VALID_POS_UTM_BIT) && zone == gps_s->utm_pos.zone) {
+    /* A real UTM position is available and in requested zone */
     UTM_COPY(utm, gps_s->utm_pos);
   }
   else if (bit_is_set(gps_s->valid_fields, GPS_VALID_POS_LLA_BIT)){
@@ -350,6 +361,12 @@ struct UtmCoor_i utm_int_from_gps(struct GpsState *gps_s, uint8_t zone)
     } else {
       utm.alt = wgs84_ellipsoid_to_geoid_i(gps_s->lla_pos.lat, gps_s->lla_pos.lon);
     }
+  } else if (bit_is_set(gps_s->valid_fields, GPS_VALID_POS_UTM_BIT))
+  {
+    /* Recompute UTM coordinates in requested zone (aka zone extend) */
+    struct LlaCoor_i lla_pos;
+    lla_of_utm_i(&lla_pos, &gps_s->utm_pos);
+    utm_of_lla_i(&utm, &lla_pos);
   }
 
   return utm;
