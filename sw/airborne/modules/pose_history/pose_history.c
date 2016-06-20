@@ -27,7 +27,7 @@
 #include <sys/time.h>
 #include "mcu_periph/sys_time.h"
 #include "state.h"
-#if LINUX
+#ifdef __linux__
 #include <pthread.h>
 #endif
 
@@ -43,7 +43,7 @@ struct rotation_history_ring_buffer_t {
 
 struct rotation_history_ring_buffer_t location_history;
 
-#if LINUX
+#ifdef __linux__
 pthread_mutex_t pose_mutex;
 #endif
 
@@ -52,7 +52,7 @@ pthread_mutex_t pose_mutex;
  */
 struct pose_t get_rotation_at_timestamp(uint32_t timestamp)
 {
-#if LINUX
+#ifdef __linux__
   pthread_mutex_lock(&pose_mutex);
 #endif
   uint32_t index_history = 0;
@@ -73,7 +73,7 @@ struct pose_t get_rotation_at_timestamp(uint32_t timestamp)
   closest_pose.eulers = location_history.ring_data[closestIndex].eulers;
   closest_pose.rates = location_history.ring_data[closestIndex].rates;
 
-#if LINUX
+#ifdef __linux__
   pthread_mutex_unlock(&pose_mutex);
 #endif
   return closest_pose;
@@ -95,7 +95,7 @@ void pose_init()
 void pose_periodic()
 {
   uint32_t now_ts = get_sys_time_usec();
-#if LINUX
+#ifdef __linux__
   pthread_mutex_lock(&pose_mutex);
 #endif
   struct pose_t *current_time_and_rotation = &location_history.ring_data[location_history.ring_index];
@@ -107,7 +107,7 @@ void pose_periodic()
   // increase index location history
   location_history.ring_index = (location_history.ring_index + 1) % location_history.ring_size;
 
-#if LINUX
+#ifdef __linux__
   pthread_mutex_unlock(&pose_mutex);
 #endif
 }
