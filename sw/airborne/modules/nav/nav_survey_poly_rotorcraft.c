@@ -404,7 +404,7 @@ bool nav_survey_poly_run(void)
         DInt1 = XIntercept1 - LastPoint.x;
         DInt2 = XIntercept2 - LastPoint.x;
 
-        if (DInt1 * DInt2 >= 0) {
+        if (DInt1 *DInt2 >= 0) {
           if (fabs(DInt2) <= fabs(DInt1)) {
             SurveyToWP.x = XIntercept1;
             SurveyToWP.y = ys;
