@@ -676,13 +676,13 @@ void nav_oval(uint8_t p1, uint8_t p2, float radius)
       return;
   }
 }
-
+/*
 #ifdef TRAFFIC_INFO
 #include "modules/multi/traffic_info.h"
 
 void nav_follow(uint8_t ac_id, uint32_t distance, uint32_t height)
 {
-  /*  struct EnuCoor_i* target = acInfoGetPositionEnu_i(ac_id);
+    struct EnuCoor_i* target = acInfoGetPositionEnu_i(ac_id);
 
 
     float alpha = M_PI / 2 - acInfoGetCourse(ac_id);
@@ -691,9 +691,9 @@ void nav_follow(uint8_t ac_id, uint32_t distance, uint32_t height)
     target->y += - distance * sa;
     target->z = (Max(target->z + height, SECURITY_HEIGHT)); // todo add ground height to check
 
-    ENU_OF_TO_NED(navigation_target, *target);*/
+    ENU_OF_TO_NED(navigation_target, *target);
 }
-#else
+#else*/
 void nav_follow(uint8_t  __attribute__((unused)) _ac_id, uint32_t  __attribute__((unused)) distance,
                 uint32_t  __attribute__((unused)) height) {}
-#endif
+//#endif
