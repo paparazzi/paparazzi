@@ -45,8 +45,7 @@ Fixes issue #123
 ## Submitting Changes
 
 * Push your changes to a topic branch in your fork of the repository.
-* Submit a [pull request](https://github.com/paparazzi/paparazzi/compare/) to the repository in the paparazzi organization.
-
+* Submit a [pull request](https://github.com/paparazzi/paparazzi/compare/) to the repository in the paparazzi organization. If this change improves the current code we will merge it immediately, but will create several issues with problems that were in your code. These issues will be assigned to you, and you will be asked to create a new pull request to fix these new issues. 
 # Additional Resources
 
 * [More information on contributing](http://wiki.paparazziuav.org/wiki/Contributing)
