@@ -593,6 +593,69 @@ extern void int32_eulers_dot_321_of_rates(struct Int32Eulers *ed, struct Int32Eu
 #define INT32_EULERS_DOT_321_OF_RATES(_ed, _e, _r) int32_eulers_dot_321_of_rates(&(_ed), &(_e), &(_r))
 #define INT32_EULERS_DOT_OF_RATES(_ed, _e, _r)     int32_eulers_dot_321_of_rates(&(_ed), &(_e), &(_r))
 
+
+//
+//
+// Generic int32_t vector algebra
+//
+//
+
+/** a = 0 */
+static inline void int32_vect_zero(int32_t *a, const int n)
+{
+  int i;
+  for (i = 0; i < n; i++) { a[i] = 0.; }
+}
+
+/** a = b */
+static inline void int32_vect_copy(int32_t *a, const int32_t *b, const int n)
+{
+  int i;
+  for (i = 0; i < n; i++) { a[i] = b[i]; }
+}
+
+/** o = a + b */
+static inline void int32_vect_sum(int32_t *o, const int32_t *a, const int32_t *b, const int n)
+{
+  int i;
+  for (i = 0; i < n; i++) { o[i] = a[i] + b[i]; }
+}
+
+/** o = a - b */
+static inline void int32_vect_diff(int32_t *o, const int32_t *a, const int32_t *b, const int n)
+{
+  int i;
+  for (i = 0; i < n; i++) { o[i] = a[i] - b[i]; }
+}
+
+/** o = a * b (element wise) */
+static inline void int32_vect_mul(int32_t *o, const int32_t *a, const int32_t *b, const int n)
+{
+  int i;
+  for (i = 0; i < n; i++) { o[i] = a[i] * b[i]; }
+}
+
+/** a += b */
+static inline void int32_vect_add(int32_t *a, const int32_t *b, const int n)
+{
+  int i;
+  for (i = 0; i < n; i++) { a[i] += b[i]; }
+}
+
+/** a -= b */
+static inline void int32_vect_sub(int32_t *a, const int32_t *b, const int n)
+{
+  int i;
+  for (i = 0; i < n; i++) { a[i] -= b[i]; }
+}
+
+/** o = a * s */
+static inline void int32_vect_smul(int32_t *o, const int32_t *a, const int32_t s, const int n)
+{
+  int i;
+  for (i = 0; i < n; i++) { o[i] = a[i] * s; }
+}
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

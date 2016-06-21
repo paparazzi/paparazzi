@@ -51,6 +51,9 @@ void stateInit(void)
   state.ned_initialized_i = false;
   state.ned_initialized_f = false;
   state.utm_initialized_f = false;
+
+  /* setting to zero forces recomputation of zone using lla when utm uninitialised*/
+  state.utm_origin_f.zone = 0;
 }
 
 

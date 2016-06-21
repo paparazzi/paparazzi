@@ -86,6 +86,10 @@ typedef uint8_t unit_t;
 #define DegOfRad(x) ((x) * (180. / M_PI))
 #define DeciDegOfRad(x) ((x) * (1800./ M_PI))
 #define RadOfDeg(x) ((x) * (M_PI/180.))
+#define RadOfDeciDeg(x) ((x) * (M_PI/1800.))
+
+#define MOfCm(_x) (((float)(_x))/100.)
+#define MOfMm(_x) (((float)(_x))/1000.)
 
 #define Min(x,y) (x < y ? x : y)
 #define Max(x,y) (x > y ? x : y)
@@ -109,114 +113,115 @@ typedef uint8_t unit_t;
 #define BoundWrapped(_x, _min, _max) {            \
     if ((_max) > (_min))                          \
       Bound(_x, _min, _max)                       \
-    else                                          \
-      BoundInverted(_x, _min, _max)               \
-  }
+      else                                        \
+        BoundInverted(_x, _min, _max)             \
+      }
 #define BoundAbs(_x, _max) Bound(_x, -(_max), (_max))
 #define Chop(_x, _min, _max) ( (_x) < (_min) ? (_min) : (_x) > (_max) ? (_max) : (_x) )
 #define ChopAbs(x, max) Chop(x, -(max), (max))
 
-#define DeadBand(_x, _v) {						\
-    if (_x > (_v))                              \
-      _x = _x -(_v);                            \
-    else if  (_x < -(_v))                       \
-      _x = _x +(_v);                            \
-    else                                        \
-      _x = 0;                                   \
+#define DeadBand(_x, _v) {            \
+    if (_x > (_v))                    \
+      _x = _x -(_v);                  \
+    else if  (_x < -(_v))             \
+      _x = _x +(_v);                  \
+    else                              \
+      _x = 0;                         \
   }
 
 #define Blend(a, b, rho) (((rho)*(a))+(1-(rho))*(b))
 
-#define RunOnceEvery(_prescaler, _code) {		\
-    static uint16_t prescaler = 0;			\
-    prescaler++;					\
-    if (prescaler >= _prescaler) {			\
-      prescaler = 0;					\
-      _code;						\
-    }							\
+#define RunOnceEvery(_prescaler, _code) {   \
+    static uint16_t prescaler = 0;          \
+    prescaler++;                            \
+    if (prescaler >= _prescaler) {          \
+      prescaler = 0;                        \
+      _code;                                \
+    }                                       \
   }
 
-#define RunXTimesEvery(_jumpstart, _prescaler, _interval, _xtimes, _code) {		\
-  static uint16_t prescaler = _jumpstart;			\
-  static uint16_t xtimes = 0;                   \
-  prescaler++;					\
-  if (prescaler >= _prescaler + _interval*xtimes && xtimes < _xtimes) {			\
-    _code;						\
-    xtimes++;						\
-    }							\
-  if (xtimes >= _xtimes) {				\
-    xtimes = 0;					\
-    prescaler = 0;					\
-    }							\
-}
+#define RunXTimesEvery(_jumpstart, _prescaler, _interval, _xtimes, _code) {   \
+    static uint16_t prescaler = _jumpstart;     \
+    static uint16_t xtimes = 0;                 \
+    prescaler++;                                \
+    if (prescaler >= _prescaler + _interval*xtimes && xtimes < _xtimes) {     \
+      _code;                                    \
+      xtimes++;                                 \
+    }                                           \
+    if (xtimes >= _xtimes) {                    \
+      xtimes = 0;                               \
+      prescaler = 0;                            \
+    }                                           \
+  }
 
 
 #define PeriodicPrescaleBy5( _code_0, _code_1, _code_2, _code_3, _code_4) { \
-    static uint8_t _50hz = 0;						\
-    _50hz++;								\
-    if (_50hz >= 5) _50hz = 0;						\
-    switch (_50hz) {							\
-    case 0:								\
-      _code_0;								\
-      break;								\
-    case 1:								\
-      _code_1;								\
-      break;								\
-    case 2:								\
-      _code_2;								\
-      break;								\
-    case 3:								\
-      _code_3;								\
-      break;								\
-    case 4:								\
-      _code_4;								\
-      break;								\
-    }									\
+    static uint8_t _50hz = 0;           \
+    _50hz++;                            \
+    if (_50hz >= 5) _50hz = 0;          \
+    switch (_50hz) {                    \
+      case 0:                           \
+        _code_0;                        \
+        break;                          \
+      case 1:                           \
+        _code_1;                        \
+        break;                          \
+      case 2:                           \
+        _code_2;                        \
+        break;                          \
+      case 3:                           \
+        _code_3;                        \
+        break;                          \
+      case 4:                           \
+        _code_4;                        \
+        break;                          \
+    }                                   \
   }
 
 #define PeriodicPrescaleBy10( _code_0, _code_1, _code_2, _code_3, _code_4, _code_5, _code_6, _code_7, _code_8, _code_9) { \
-    static uint8_t _cnt = 0;						\
-    _cnt++;								\
-    if (_cnt >= 10) _cnt = 0;						\
-    switch (_cnt) {							\
-    case 0:								\
-      _code_0;								\
-      break;								\
-    case 1:								\
-      _code_1;								\
-      break;								\
-    case 2:								\
-      _code_2;								\
-      break;								\
-    case 3:								\
-      _code_3;								\
-      break;								\
-    case 4:								\
-      _code_4;								\
-      break;								\
-    case 5:								\
-      _code_5;								\
-      break;								\
-    case 6:								\
-      _code_6;								\
-      break;								\
-    case 7:								\
-      _code_7;								\
-      break;								\
-    case 8:								\
-      _code_8;								\
-      break;								\
-    case 9:								\
-    default:								\
-      _code_9;								\
-      break;								\
-    }									\
+    static uint8_t _cnt = 0;            \
+    _cnt++;                             \
+    if (_cnt >= 10) _cnt = 0;           \
+    switch (_cnt) {                     \
+      case 0:                           \
+        _code_0;                        \
+        break;                          \
+      case 1:                           \
+        _code_1;                        \
+        break;                          \
+      case 2:                           \
+        _code_2;                        \
+        break;                          \
+      case 3:                           \
+        _code_3;                        \
+        break;                          \
+      case 4:                           \
+        _code_4;                        \
+        break;                          \
+      case 5:                           \
+        _code_5;                        \
+        break;                          \
+      case 6:                           \
+        _code_6;                        \
+        break;                          \
+      case 7:                           \
+        _code_7;                        \
+        break;                          \
+      case 8:                           \
+        _code_8;                        \
+        break;                          \
+      case 9:                           \
+      default:                          \
+        _code_9;                        \
+        break;                          \
+    }                                   \
   }
 
-static inline bool str_equal(const char * a, const char * b) {
+static inline bool str_equal(const char *a, const char *b)
+{
   int i = 0;
   while (!(a[i] == 0 && b[i] == 0)) {
-    if (a[i] != b[i]) return FALSE;
+    if (a[i] != b[i]) { return FALSE; }
     i++;
   }
   return TRUE;

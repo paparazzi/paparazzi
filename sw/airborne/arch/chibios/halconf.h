@@ -78,7 +78,11 @@
  * @brief   Enables the DAC subsystem.
  */
 #if !defined(HAL_USE_DAC) || defined(__DOXYGEN__)
+#if USE_DAC1 || USE_DAC2
+#define HAL_USE_DAC                 TRUE
+#else
 #define HAL_USE_DAC                 FALSE
+#endif
 #endif
 
 /**

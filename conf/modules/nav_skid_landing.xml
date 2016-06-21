@@ -9,39 +9,27 @@
     1) circle down passing AF waypoint (from left or right)
     2) once low enough follow line to TD waypoint
     3) once low enough flare
-
-   Use this in your airfame config file:
-<!--
-Block example:
-@verbatim
-     <section name="LANDING" prefix="SKID_LANDING_">
+    </description>
+    
+    <section name="LANDING" prefix="SKID_LANDING_">
        <define name="AF_HEIGHT" value="50" unit="m"/>
        <define name="FINAL_HEIGHT" value="50" unit="m"/>
        <define name="FINAL_STAGE_TIME" value="10" unit="s"/>
-     </section>
-@endverbatim
--->
+    </section>
 
-Also define 
-<!--
-Block example:
-@verbatim:
-  <section name="VERTICAL CONTROL" prefix="V_CTL_">
-    <define name="LANDING_THROTTLE_PGAIN"           value="600.0"/>
-    <define name="LANDING_THROTTLE_IGAIN"           value="10.0"/>
-    <define name="LANDING_THROTTLE_MAX"           value="0.65"/>
-    <define name="LANDING_DESIRED_SPEED"           value="18" unit="m/s"/>
-    <define name="LANDING_PITCH_PGAIN"           value="0.1"/>
-    <define name="LANDING_PITCH_IGAIN"           value="0.1"/>
-    <define name="LANDING_PITCH_LIMITS"           value="0.2" unit="rad"/>
-    <define name="LANDING_PITCH_FLARE"           value="0.06"/>
-    <define name="LANDING_ALT_THROTTLE_KILL"     value="15" unit="m"/>
-    <define name="LANDING_ALT_FLARE"           value="5" unit="m"/>
-  </section>
-@endverbatim
--->
-to properly use landing control loop
-    </description>
+    <section name="VERTICAL CONTROL" prefix="V_CTL_">
+      <define name="LANDING_THROTTLE_PGAIN"           value="600.0"/>
+      <define name="LANDING_THROTTLE_IGAIN"           value="10.0"/>
+      <define name="LANDING_THROTTLE_MAX"           value="0.65"/>
+      <define name="LANDING_DESIRED_SPEED"           value="18" unit="m/s"/>
+      <define name="LANDING_PITCH_PGAIN"           value="0.1"/>
+      <define name="LANDING_PITCH_IGAIN"           value="0.1"/>
+      <define name="LANDING_PITCH_LIMITS"           value="0.2" unit="rad"/>
+      <define name="LANDING_PITCH_FLARE"           value="0.06"/>
+      <define name="LANDING_ALT_THROTTLE_KILL"     value="15" unit="m"/>
+      <define name="LANDING_ALT_FLARE"           value="5" unit="m"/>
+    </section>
+    
   </doc>
 
   <settings>

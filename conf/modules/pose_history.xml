@@ -1,0 +1,17 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="pose_history">
+  <doc>
+    <description>Ask this module for the pose the drone had closest to a given timestamp</description>
+    <define name="POSE_HISTORY_SIZE" value="1024" description="Length of the pose buffer"/> 
+  </doc>
+  <header>
+    <file name="pose_history.h"/>
+  </header>
+  <init fun="pose_init()"/>
+  <periodic fun="pose_periodic()" autorun="TRUE"/>
+  <makefile>
+    <file name="pose_history.c"/>
+  </makefile>
+</module>
+

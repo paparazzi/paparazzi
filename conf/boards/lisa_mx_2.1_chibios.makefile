@@ -1,11 +1,11 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# apogee_1.0_chibios.makefile
+# Lisa_MX_2.1_chibios.makefile
 #
 #
 
-BOARD=apogee
-BOARD_VERSION=1.0
+BOARD=lisa_mx
+BOARD_VERSION=2.1
 BOARD_DIR=$(BOARD)/chibios/v$(BOARD_VERSION)
 BOARD_CFG=\"boards/$(BOARD_DIR)/board.h\"
 
@@ -39,7 +39,7 @@ MCU  = cortex-m4
 
 # default flash mode is via usb dfu bootloader
 # possibilities: DFU-UTIL, SWD, STLINK
-FLASH_MODE ?= DFU-UTIL
+FLASH_MODE ?= SWD
 
 HAS_LUFTBOOT = FALSE
 
@@ -56,15 +56,14 @@ SYS_TIME_LED       ?= 1
 # default UART configuration (modem, gps, spektrum)
 #
 
-MODEM_PORT ?= UART1
+RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT   ?= UART1
+RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT ?= UART5
+
+MODEM_PORT ?= UART2
 MODEM_BAUD ?= B57600
 
-GPS_PORT ?= UART4
+GPS_PORT ?= UART3
 GPS_BAUD ?= B38400
-
-RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT ?= UART2
-
-SBUS_PORT ?= UART2
 
 #
 # default actuator configuration

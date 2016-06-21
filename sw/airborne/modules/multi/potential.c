@@ -46,6 +46,8 @@ void potential_init(void)
   potential_force.east = 0.;
   potential_force.north = 0.;
   potential_force.alt = 0.;
+  potential_force.speed = 0.;
+  potential_force.climb = 0.;
 
   force_pos_gain = FORCE_POS_GAIN;
   force_speed_gain = FORCE_SPEED_GAIN;
@@ -67,25 +69,24 @@ int potential_task(void)
   // compute control forces
   int8_t nb = 0;
   for (i = 0; i < NB_ACS; ++i) {
-    if (the_acs[i].ac_id == AC_ID) { continue; }
-    struct ac_info_ * ac = get_ac_info(the_acs[i].ac_id);
-    float delta_t = Max((int)(gps.tow - ac->itow) / 1000., 0.);
+    if (ti_acs[i].ac_id == AC_ID) { continue; }
+    struct EnuCoor_f *ac = acInfoGetPositionEnu_f(ti_acs[i].ac_id);
+    struct EnuCoor_f *ac_speed = acInfoGetVelocityEnu_f(ti_acs[i].ac_id);
+    float delta_t = Max((int)(gps.tow - acInfoGetItow(ti_acs[i].ac_id)) / 1000., 0.);
     // if AC not responding for too long, continue, else compute force
     if (delta_t > CARROT) { continue; }
     else {
-      float sha = sinf(ac->course);
-      float cha = cosf(ac->course);
-      float de = ac->east  + sha * delta_t - stateGetPositionEnu_f()->x;
+      float de = ac->x  + ac_speed->x * delta_t - stateGetPositionEnu_f()->x;
       if (de > FORCE_MAX_DIST || de < -FORCE_MAX_DIST) { continue; }
-      float dn = ac->north + cha * delta_t - stateGetPositionEnu_f()->y;
+      float dn = ac->y + ac_speed->y * delta_t - stateGetPositionEnu_f()->y;
       if (dn > FORCE_MAX_DIST || dn < -FORCE_MAX_DIST) { continue; }
-      float da = ac->alt + ac->climb * delta_t - stateGetPositionUtm_f()->alt;
+      float da = ac->z + ac_speed->z * delta_t - stateGetPositionEnu_f()->z;
       if (da > FORCE_MAX_DIST || da < -FORCE_MAX_DIST) { continue; }
       float dist = sqrtf(de * de + dn * dn + da * da);
       if (dist == 0.) { continue; }
-      float dve = stateGetHorizontalSpeedNorm_f() * sh - ac->gspeed * sha;
-      float dvn = stateGetHorizontalSpeedNorm_f() * ch - ac->gspeed * cha;
-      float dva = stateGetSpeedEnu_f()->z - the_acs[i].climb;
+      float dve = stateGetHorizontalSpeedNorm_f() * sh - ac_speed->x;
+      float dvn = stateGetHorizontalSpeedNorm_f() * ch - ac_speed->y;
+      float dva = stateGetSpeedEnu_f()->z - ac_speed->z;
       float scal = dve * de + dvn * dn + dva * da;
       if (scal < 0.) { continue; } // No risk of collision
       float d3 = dist * dist * dist;
@@ -96,9 +97,9 @@ int potential_task(void)
     }
   }
   if (nb == 0) { return true; }
-  //potential_force.east /= nb;
-  //potential_force.north /= nb;
-  //potential_force.alt /= nb;
+  potential_force.east /= nb;
+  potential_force.north /= nb;
+  potential_force.alt /= nb;
 
   // set commands
   NavVerticalAutoThrottleMode(0.);
@@ -128,4 +129,3 @@ int potential_task(void)
 
   return true;
 }
-
