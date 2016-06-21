@@ -1,3 +1,15 @@
+Paparazzi v5.8.2_stable
+=======================
+
+Maintenance release.
+
+- ground_segment: fix ant_track compilation
+- docker: use Ubuntu 16.04 and various fixes
+- energy ctrl: fix accel conversion for correct vdot
+- system: update udev rules to detect Lisa/M v2.1 correctly
+- cockpit: workaround lablgtk 2.18 Debian/Ubuntu bug
+- modules: fix gps_ublox for fixedwings
+
 Paparazzi v5.8.1_stable
 =======================
 
