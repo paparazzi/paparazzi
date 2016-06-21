@@ -156,20 +156,6 @@ struct delayed_first_order_lowpass_filter_t fast_dynamics_model[2]; // only pitc
 
 #endif // PERIODIC_TELEMETRY
 
-static inline void indi_subtract_vect(int32_t _out[], int32_t _in1[], int32_t _in2[])
-{
-  for (uint8_t i = 0; i < INDI_DOF; i++) {
-    _out[i] = _in1[i] - _in2[i];
-  }
-}
-
-static inline void indi_add_vect(int32_t _out[], int32_t _in1[], int32_t _in2[])
-{
-  for (uint8_t i = 0; i < INDI_DOF; i++) {
-    _out[i] = _in1[i] + _in2[i];
-  }
-}
-
 static inline void indi_matrix_multiply_vector(int32_t _out[], int32_t _matrix[][INDI_DOF], int32_t _vector[])
 {
   for (uint8_t i = 0; i < INDI_DOF; i++) {
@@ -177,13 +163,6 @@ static inline void indi_matrix_multiply_vector(int32_t _out[], int32_t _matrix[]
     for (uint8_t j = 0; j < INDI_DOF; j++) {
       _out[i] += _matrix[i][j] * _vector[j];
     }
-  }
-}
-
-static inline void indi_copy_vect(int32_t _out[], int32_t _in[])
-{
-  for (uint8_t i = 0; i < INDI_DOF; i++) {
-    _out[i] = _in[i];
   }
 }
 
@@ -539,7 +518,7 @@ void stabilization_attitude_run(bool in_flight)
 
   /* Transform yaw into a delta yaw while keeping filtered yawrate (kinda hacky) */
   int32_t filtered_measurement_vector[INDI_DOF];
-  indi_copy_vect(filtered_measurement_vector, c->filtered_measurement[INDI_NR_FILTERS - 1]);
+  int32_vect_copy(filtered_measurement_vector, c->filtered_measurement[INDI_NR_FILTERS - 1], INDI_DOF);
   static int32_t previous_filt_yawrate = 0;
   filtered_measurement_vector[INDI_YAW] = 512 * (c->filtered_measurement[INDI_NR_FILTERS - 1][INDI_YAW] -
                                           previous_filt_yawrate);  // = approximately yaw acceleration error
@@ -560,7 +539,7 @@ void stabilization_attitude_run(bool in_flight)
   //c->reference[INDI_THRUST] = accel_z_sp;
 
   /* Subtract (filtered) measurement from reference to get the error */
-  indi_subtract_vect(c->error, c->reference, filtered_measurement_vector);
+  int32_vect_diff(c->error, c->reference, filtered_measurement_vector, INDI_DOF);
 
   /* Multiply error with inverse of actuator effectiveness, to get delta u (required increment in input) */
   indi_matrix_multiply_vector(c->du, c->invG, c->error);
@@ -572,7 +551,7 @@ void stabilization_attitude_run(bool in_flight)
   c->du[INDI_THRUST] >>= 16;
 
   /* Take the current (filtered) actuator position and add the incremental value. */
-  indi_add_vect(c->u_setpoint, c->filtered_actuator[INDI_NR_FILTERS - 1], c->du);
+  int32_vect_sum(c->u_setpoint, c->filtered_actuator[INDI_NR_FILTERS - 1], c->du, INDI_DOF);
   //c->u_setpoint[INDI_THRUST] = stabilization_cmd[COMMAND_THRUST];
 
   /* bound the result */
@@ -585,7 +564,7 @@ void stabilization_attitude_run(bool in_flight)
   c->apply_compensator_filters(c->command_out[__k], c->u_setpoint);
 
   /* At the end, set 'previous' output to current output */
-  indi_copy_vect(c->command_out[__k - 1], c->command_out[__k]);
+  int32_vect_copy(c->command_out[__k - 1], c->command_out[__k], INDI_DOF);
 
   /* Two correction angles, don't rotate but just add.
    * sin/cos = tan
