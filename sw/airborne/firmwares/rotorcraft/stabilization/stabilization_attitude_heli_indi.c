@@ -122,6 +122,7 @@
 #define INVG_11 STABILIZATION_ATTITUDE_HELI_INDI_GINV_PITCH_TO_PITCH
 #define INVG_22 STABILIZATION_ATTITUDE_HELI_INDI_GINV_YAW_TO_YAW
 #define INVG_33 -50000 // Not used at the moment
+#define INT32_INVG_FRAC 16
 
 struct Int32Quat   stab_att_sp_quat;
 struct Int32Eulers stab_att_sp_euler;
@@ -527,10 +528,10 @@ void stabilization_attitude_run(bool in_flight)
   int32_mat_mul((int32_t **) c->du, (int32_t **) c->invG, (int32_t **) c->error, INDI_DOF, INDI_DOF, 1);
 
   /* Bitshift back */
-  c->du[INDI_ROLL]  >>= 16;
-  c->du[INDI_PITCH] >>= 16;
-  c->du[INDI_YAW]   >>= 16;
-  c->du[INDI_THRUST] >>= 16;
+  c->du[INDI_ROLL]  >>= INT32_INVG_FRAC;
+  c->du[INDI_PITCH] >>= INT32_INVG_FRAC;
+  c->du[INDI_YAW]   >>= INT32_INVG_FRAC;
+  c->du[INDI_THRUST] >>= INT32_INVG_FRAC;
 
   /* Take the current (filtered) actuator position and add the incremental value. */
   int32_vect_sum(c->u_setpoint, c->filtered_actuator[INDI_NR_FILTERS - 1], c->du, INDI_DOF);
