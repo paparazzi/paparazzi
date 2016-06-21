@@ -3,10 +3,10 @@
 <module name="nav_survey_poly" dir="nav">
   <doc>
     <description>
-Polygon survey from OSAM.
+Polygon survey for rotorcraft.
 You can use:
-* nav_survey_poly_osam_setup function for static definitions or
-* nav_survey_poly_osam_setup_towards for a more flexible setup
+* nav_survey_poly_rotorcraft_setup function for static definitions or
+* nav_survey_poly_rotorcraft_setup_towards for a more flexible setup
     </description>
     <define name="POLYSURVEY_MAX_POLYGONSIZE" value="10" description="max waypoints usable in polygon survey"/>
     <define name="POLYSURVEY_DEFAULT_SIZE" value="5" description="default number of waypoints/corners used in polygon survey. Can be changed by telemetry"/>
