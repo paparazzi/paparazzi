@@ -168,7 +168,7 @@ let rec get_autoloaded_modules = fun m ->
   List.fold_left (fun l t ->
     if ExtXml.tag_is t "autoload" then
       let am = get_module t (Var "") in
-      (am :: (try get_autoloaded_modules am.xml with _ -> [] @ l))
+      (am :: ((try get_autoloaded_modules am.xml with _ -> []) @ l))
     else l
   ) [] (Xml.children m.xml)
 
