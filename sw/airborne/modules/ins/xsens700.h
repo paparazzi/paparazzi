@@ -20,7 +20,7 @@
  *
  */
 
-/** @file modules/ins/xsens_700.h
+/** @file modules/ins/xsens700.h
  * Parser for the Xsens protocol.
  */
 

@@ -128,15 +128,15 @@ extern bool guidance_h_set_guided_pos(float x, float y);
 extern bool guidance_h_set_guided_heading(float heading);
 
 /** Set body relative horizontal velocity setpoint in GUIDED mode.
- * @param x forward velocity (body frame) in meters/sec.
- * @param y right velocity (body frame) in meters/sec.
+ * @param vx forward velocity (body frame) in meters/sec.
+ * @param vy right velocity (body frame) in meters/sec.
  * @return TRUE if setpoints were set (currently in GUIDANCE_H_MODE_GUIDED)
  */
 extern bool guidance_h_set_guided_body_vel(float vx, float vy);
 
 /** Set horizontal velocity setpoint in GUIDED mode.
- * @param x North velocity (local NED frame) in meters/sec.
- * @param y East velocity (local NED frame) in meters/sec.
+ * @param vx North velocity (local NED frame) in meters/sec.
+ * @param vy East velocity (local NED frame) in meters/sec.
  * @return TRUE if setpoints were set (currently in GUIDANCE_H_MODE_GUIDED)
  */
 extern bool guidance_h_set_guided_vel(float vx, float vy);
