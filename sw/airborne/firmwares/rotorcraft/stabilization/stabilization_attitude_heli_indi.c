@@ -27,6 +27,7 @@
 #include "paparazzi.h"
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_algebra_int.h"
+#include "math/pprz_simple_matrix.h"
 #include "state.h"
 #include "generated/airframe.h"
 #include "autopilot.h"
@@ -155,25 +156,6 @@ struct delayed_first_order_lowpass_filter_t fast_dynamics_model[2]; // only pitc
 /* Telemetry messages here, at the moment there are none */
 
 #endif // PERIODIC_TELEMETRY
-
-static inline void indi_matrix_multiply_vector(int32_t _out[], int32_t _matrix[][INDI_DOF], int32_t _vector[])
-{
-  for (uint8_t i = 0; i < INDI_DOF; i++) {
-    _out[i] = 0;
-    for (uint8_t j = 0; j < INDI_DOF; j++) {
-      _out[i] += _matrix[i][j] * _vector[j];
-    }
-  }
-}
-
-static inline void indi_set_identity(int32_t _matrix[][INDI_DOF])
-{
-  for (uint8_t i = 0; i < INDI_DOF; i++) {
-    for (uint8_t j = 0; j < INDI_DOF; j++) {
-      _matrix[i][j] = (i == j) ? 1 : 0;
-    }
-  }
-}
 
 static inline void indi_apply_actuator_models(int32_t _out[], int32_t _in[])
 {
@@ -542,7 +524,7 @@ void stabilization_attitude_run(bool in_flight)
   int32_vect_diff(c->error, c->reference, filtered_measurement_vector, INDI_DOF);
 
   /* Multiply error with inverse of actuator effectiveness, to get delta u (required increment in input) */
-  indi_matrix_multiply_vector(c->du, c->invG, c->error);
+  int32_mat_mul_vect(c->du, (int32_t **) c->invG, c->error, INDI_DOF);
 
   /* Bitshift back */
   c->du[INDI_ROLL]  >>= 16;
