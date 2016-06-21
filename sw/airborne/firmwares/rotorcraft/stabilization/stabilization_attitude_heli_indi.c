@@ -524,7 +524,7 @@ void stabilization_attitude_run(bool in_flight)
   int32_vect_diff(c->error, c->reference, filtered_measurement_vector, INDI_DOF);
 
   /* Multiply error with inverse of actuator effectiveness, to get delta u (required increment in input) */
-  int32_mat_mul_vect(c->du, (int32_t **) c->invG, c->error, INDI_DOF);
+  int32_mat_mul((int32_t **) c->du, (int32_t **) c->invG, (int32_t **) c->error, INDI_DOF, INDI_DOF, 1);
 
   /* Bitshift back */
   c->du[INDI_ROLL]  >>= 16;

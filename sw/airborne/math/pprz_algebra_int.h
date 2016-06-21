@@ -664,17 +664,19 @@ static inline void int32_vect_smul(int32_t *o, const int32_t *a, const int32_t s
 
 /** o = a * b
  *
- * a: [n x n]
- * b: [n x 1]
- * o: [n x 1]
+ * a: [m x n]
+ * b: [n x l]
+ * o: [m x l]
  */
-static inline void int32_mat_mul_vect(int32_t *o, int32_t **a, int32_t *b, int n)
+static inline void int32_mat_mul(int32_t **o, int32_t **a, int32_t **b, int m, int n, int l)
 {
-  int i, j;
-  for (i = 0; i < n; i++) {
-    o[i] = 0;
-    for (j = 0; j < n; j++) {
-      o[i] += a[i][j] * b[j];
+  int i, j, k;
+  for (i = 0; i < m; i++) {
+    for (j = 0; j < l; j++) {
+      o[i][j] = 0;
+      for (k = 0; k < n; k++) {
+        o[i][j] += a[i][k] * b[k][j];
+      }
     }
   }
 }
