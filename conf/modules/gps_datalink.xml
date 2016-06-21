@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="gps_datalink">
+<module name="gps_datalink" dir="gps">
   <doc>
     <description>
       Remote GPS via datalink.

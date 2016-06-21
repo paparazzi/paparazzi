@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="gps_skytraq">
+<module name="gps_skytraq" dir="gps">
   <doc>
     <description>
       Skytraq GPS (UART)

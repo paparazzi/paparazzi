@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="gps_sim">
+<module name="gps_sim" dir="gps">
   <doc>
     <description>
       Simulated GPS

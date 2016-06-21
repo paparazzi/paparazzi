@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="gps_nmea">
+<module name="gps_nmea" dir="gps">
   <doc>
     <description>
       NMEA GPS (UART)

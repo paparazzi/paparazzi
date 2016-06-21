@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="gps">
+<module name="gps" dir="gps">
   <doc>
     <description>
       Generic GPS functions.

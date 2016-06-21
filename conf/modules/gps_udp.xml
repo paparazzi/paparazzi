@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="gps_udp">
+<module name="gps_udp" dir="gps">
   <doc>
     <description>
       GPS via UDP.

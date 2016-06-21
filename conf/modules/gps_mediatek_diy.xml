@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="gps_mediatek">
+<module name="gps_mediatek" dir="gps">
   <doc>
     <description>
       Mediatek MT3329 GPS (UART)
