@@ -81,7 +81,7 @@ static void *video_thread_function(void *data)
   struct video_config_t *vid = (struct video_config_t *)data;
 
   char print_tag[80];
-  sprintf(print_tag, "video_thread-%s", vid->dev_name);
+  snprintf(print_tag, 80, "video_thread-%s", vid->dev_name);
 
   struct image_t img_color;
 
