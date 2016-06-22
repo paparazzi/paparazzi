@@ -3,7 +3,7 @@
 <module name="follow" dir="multi">
   <doc>
     <description>
-      Follow a certain AC_ID trough remote GPS.
+      Follow a certain AC_ID using traffic_info.
       Only for rotorcraft firmware.
     </description>
     <define name="FOLLOW_AC_ID"               description="the aircraft ID which it has to follow"/>
@@ -12,14 +12,12 @@
     <define name="FOLLOW_OFFSET_Y" value="0"  description="the y offset in ENU (meters) from the plane"/>
     <define name="FOLLOW_OFFSET_Z" value="0"  description="the z offset in ENU (meters) from the plane"/>
   </doc>
-
+  <depends>traffic_info</depends>
   <header>
     <file name="follow.h"/>
   </header>
-
   <init fun="follow_init()"/>
-  <datalink message="REMOTE_GPS" fun="ParseRemoteGps()"/>
-
+  <periodic fun="follow_wp()" freq="5" autorun="FALSE"/>
   <makefile>
     <file name="follow.c"/>
   </makefile>

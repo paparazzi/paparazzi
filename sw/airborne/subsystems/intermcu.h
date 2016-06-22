@@ -20,7 +20,7 @@
  *
  */
 
-/** @file subsystems/intermcu/intermcu.h
+/** @file subsystems/intermcu.h
  *  @brief Rotorcraft Inter-MCU interface
  */
 

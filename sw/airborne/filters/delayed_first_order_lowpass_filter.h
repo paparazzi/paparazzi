@@ -19,7 +19,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file filters/delayed_first_order_lowpass.h
+/** @file filters/delayed_first_order_lowpass_filter.h
  *  @brief First order low-pass filter with delay
  *
  */

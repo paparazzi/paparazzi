@@ -19,7 +19,7 @@
  */
 
 /**
- * @file modules/computer_vision/lib/vision/edge_flow.ch
+ * @file modules/computer_vision/lib/vision/edge_flow.h
  * @brief calculate optical flow with EdgeFlow
  *
  * Edge-histogram matching, implementation by K. N. McGuire

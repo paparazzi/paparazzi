@@ -5,7 +5,7 @@
  *
  */
 /**
- * @file modules/stereocam/stereocam_follow_me/stereocam_follow_me.h
+ * @file modules/stereocam/stereocam_follow_me/follow_me.h
  * @author Roland
  * Follows a person using the reference given by the stereocam.
  * This module does so by changing the yaw angle and roll angle alternatively.

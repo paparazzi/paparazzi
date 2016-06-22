@@ -5,6 +5,7 @@
     <description>
       HMC58xx magnetometer.
       Module for standalone operation/logging of a HMC58xx magnetometer.
+      An arbitrary rotation between the sensor frame and the IMU frame can be compensated with a MAG_TO_IMU rotation (defined by three euler angles). The three angles must be defined to enable this correction. Otherwise it is assumed that the axis are aligned.
     </description>
     <configure name="MAG_HMC58XX_I2C_DEV" value="i2c1" description="I2C device to use (e.g. i2c1)"/>
     <define name="MODULE_HMC58XX_SYNC_SEND" value="TRUE|FALSE" description="Send IMU_RAW message with each new measurement (default: FALSE)"/>
@@ -15,6 +16,11 @@
     <define name="HMC58XX_CHAN_X" value="0|1|2" description="Channel id of x axis (default: 0)"/>
     <define name="HMC58XX_CHAN_Y" value="0|1|2" description="Channel id of y axis (default: 1)"/>
     <define name="HMC58XX_CHAN_Z" value="0|1|2" description="Channel id of z axis (default: 2)"/>
+    <section name="MAG_HMC" prefix="HMC58XX_">
+      <define name="MAG_TO_IMU_PHI" value="0.0" description="Rotation between sensor frame and IMU frame (phi angle)"/>
+      <define name="MAG_TO_IMU_THETA" value="0.0" description="Rotation between sensor frame and IMU frame (theta angle)"/>
+      <define name="MAG_TO_IMU_PSI" value="0.0" description="Rotation between sensor frame and IMU frame (psi angle)"/>
+    </section>
   </doc>
   <header>
     <file name="mag_hmc58xx.h"/>

@@ -21,7 +21,7 @@
  */
 
 /**
- * @file protocol.h
+ * @file modules/digital_cam/catia/protocol.h
  *
  * |STX|length|... payload=(length-4) bytes ...|Checksum A|Checksum B|
  *

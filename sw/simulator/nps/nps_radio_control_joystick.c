@@ -123,7 +123,7 @@ SDL_Event sdl_event;
  *
  *  Function exits with -1 if fails
  *
- *  @param device_index  string integer of desired joystick device
+ *  @param device  string integer of desired joystick device
  *
  *  @returns  0 on success
  */
@@ -196,7 +196,7 @@ int nps_radio_control_joystick_init(const char *device)
 }
 
 /**
- *  Updates joystick buttons from events, directly reads current axis positions..
+ *  Updates joystick buttons from events, directly reads current axis positions.
  */
 void nps_radio_control_joystick_update(void)
 {

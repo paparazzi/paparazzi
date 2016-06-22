@@ -335,8 +335,9 @@ let check_dependencies = fun modules names ->
         let satisfied = List.fold_left find_common [] deps in
         if List.length satisfied == 0 then
           begin
-            fprintf stderr "\nDEPENDENCY WARNING: Module %s requires %s\n" module_name (String.concat " or " deps);
-            fprintf stderr "Available dependencies are:\n    %s\n\n" (String.concat "\n    " names)
+            fprintf stderr "\nDEPENDENCY Error: Module %s requires %s\n" module_name (String.concat " or " deps);
+            fprintf stderr "Available loaded modules are:\n    %s\n\n" (String.concat "\n    " names);
+            exit 1
           end)
         require;
       let conflict_string = get_pcdata m "conflicts" in

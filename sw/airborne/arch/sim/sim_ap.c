@@ -13,7 +13,6 @@
 #include "inter_mcu.h"
 #include "autopilot.h"
 #include "subsystems/gps.h"
-#include "subsystems/navigation/traffic_info.h"
 #include "generated/settings.h"
 #include "firmwares/fixedwing/nav.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"

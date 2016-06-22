@@ -18,7 +18,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "arch/chibios/modules/core/rtos_mon_arh.h"
+ * @file "arch/chibios/modules/core/rtos_mon_arch.h"
  * @author Gautier Hattenberger
  * RTOS monitoring tool
  * ChibiOS implementation

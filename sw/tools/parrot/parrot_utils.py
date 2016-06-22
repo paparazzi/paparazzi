@@ -96,6 +96,8 @@ def connect(host):
         return tn, ftp
     except:
         print('Could not connect to Parrot UAV (host: ' + host + ')')
+        if host == '192.168.42.1':
+            print("Check whether your WiFi is connected and don't forget pressing the power button 4 times after the Bebop has booted!")
         exit(2)
 
 # Close the telnet and ftp

@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="gps_nps">
+<module name="gps_nps" dir="gps">
   <doc>
     <description>
       Simulated GPS for NPS.
