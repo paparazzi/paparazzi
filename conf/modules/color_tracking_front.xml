@@ -1,0 +1,37 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ColorTrackingFront" dir="computer_vision">
+  <doc>
+    <description>ColorTrackingFront</description>
+  </doc>
+
+  <settings>
+    <dl_settings>
+      <dl_settings name="ColorTrackingFront">
+        <dl_setting var="modify_image_front" min="0" step="1" max="1" />
+        <dl_setting var="color_lum_min_front" min="0" step="1" max="255" shortname="y_min" />
+        <dl_setting var="color_lum_max_front" min="0" step="1" max="255" shortname="y_max" />
+        <dl_setting var="color_cb_min_front"  min="0" step="1" max="255" shortname="u_min" />
+        <dl_setting var="color_cb_max_front"  min="0" step="1" max="255" shortname="u_max" />
+        <dl_setting var="color_cr_min_front"  min="0" step="1" max="255" shortname="v_min" />
+        <dl_setting var="color_cr_max_front"  min="0" step="1" max="255" shortname="v_max" />
+        <dl_setting var="blob_threshold_front"  min="50" step="1" max="10000" shortname="counter" />
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <depends>video_thread</depends>
+
+  <header>
+    <file name="color_tracking_front.h"/>
+  </header>
+
+  <init fun="color_tracking_front_init()"/>
+
+  <makefile>
+    <file name="color_tracking_front.c"/>
+    <file name="imav2016markers.c"/>
+    <file name="blob_finder.c" dir="modules/computer_vision/blob/"/>
+  </makefile>
+
+</module>
