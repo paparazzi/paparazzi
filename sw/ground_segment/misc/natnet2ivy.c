@@ -572,12 +572,12 @@ gboolean timeout_transmit_callback(gpointer data)
 
 
     /* Construct time of time of week (tow) */
-    time_t now;
-    time(&now);
-    struct tm *ts = localtime(&now);
+    struct timeval now;
+    gettimeofday(&now, NULL);
+    struct tm *ts = localtime(&now.tv_sec);
 
-    uint32_t tow = (ts->tm_wday - 1) * (24 * 60 * 60 * 1000) + ts->tm_hour * (60 * 60 * 1000) + ts->tm_min *
-                   (60 * 1000) + ts->tm_sec * 1000;
+    uint32_t tow = ts->tm_wday * (24 * 60 * 60 * 1000) + ts->tm_hour * (60 * 60 * 1000) + ts->tm_min *
+                   (60 * 1000) + ts->tm_sec * 1000 + now.tv_usec / 1000 ;
 
     // Transmit the REMOTE_GPS packet on the ivy bus (either small or big)
     if (small_packets) {
