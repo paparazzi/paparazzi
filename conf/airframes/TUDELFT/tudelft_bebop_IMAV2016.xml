@@ -36,23 +36,23 @@
       <define name="OPTICFLOW_METHOD" value="1"/> <!-- EdgeFlow = 1-->
     </module>
 
-    <module name="cv_helipad">
-    <define name="HELIPAD_CAMERA" value="bottom_camera"/>
-    </module>
+    <!--<module name="cv_helipad">-->
+    <!--<define name="HELIPAD_CAMERA" value="bottom_camera"/>-->
+    <!--</module>-->
 
     <!--<module name="color_tracking_front">-->
     <!--<define name="COLOR_CAMERA_FRONT" value="front_camera"/>-->
     <!--</module>-->
 
-    <module name="autonomous_landing">
-      <define name="MARKER_CAMERA" value="bottom_camera"/>
-    </module>
-
-    <!--<module name="video_rtp_stream">-->
-      <!--<define name="VIEWVIDEO_CAMERA" value="bottom_camera"/>-->
-      <!--<define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>-->
-      <!--<define name="VIEWVIDEO_QUALITY_FACTOR" value="20"/>-->
+    <!--<module name="autonomous_landing">-->
+      <!--<define name="MARKER_CAMERA" value="bottom_camera"/>-->
     <!--</module>-->
+
+    <module name="video_rtp_stream">
+      <define name="VIEWVIDEO_CAMERA" value="bottom_camera"/>
+      <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
+      <define name="VIEWVIDEO_QUALITY_FACTOR" value="20"/>
+    </module>
 
   </modules>
 
@@ -64,10 +64,10 @@
   </commands>
 
   <servos driver="Default">
-    <servo name="TOP_RIGHT" no="0" min="3000" neutral="3000" max="12000"/>
-    <servo name="TOP_LEFT" no="1" min="3000" neutral="3000" max="12000"/>
-    <servo name="BOTTOM_LEFT" no="2" min="3000" neutral="3000" max="12000"/>
-    <servo name="BOTTOM_RIGHT" no="3" min="3000" neutral="3000" max="12000"/>
+    <servo name="TOP_LEFT" no="0" min="3000" neutral="3000" max="12000"/>
+    <servo name="TOP_RIGHT" no="1" min="3000" neutral="3000" max="12000"/>
+    <servo name="BOTTOM_RIGHT" no="2" min="3000" neutral="3000" max="12000"/>
+    <servo name="BOTTOM_LEFT" no="3" min="3000" neutral="3000" max="12000"/>
   </servos>
 
   <section name="MIXING" prefix="MOTOR_MIXING_">
