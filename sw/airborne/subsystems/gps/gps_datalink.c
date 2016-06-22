@@ -46,6 +46,8 @@ void gps_datalink_init(void)
   gps_datalink.pacc = 0;
   gps_datalink.cacc = 0;
 
+  gps_datalink.comp_id = GPS_DATALINK_ID;
+
   struct LlaCoor_i llh_nav0; /* Height above the ellipsoid */
   llh_nav0.lat = NAV_LAT0;
   llh_nav0.lon = NAV_LON0;
@@ -110,14 +112,15 @@ static void parse_gps_datalink_small(int16_t heading, uint32_t pos_xyz, uint32_t
   gps_datalink.tow = tow;
   gps_datalink.fix = GPS_FIX_3D; // set 3D fix to true
 
-  // publish new GPS data
-  uint32_t now_ts = get_sys_time_usec();
+  // set gps msg time
   gps_datalink.last_msg_ticks = sys_time.nb_sec_rem;
   gps_datalink.last_msg_time = sys_time.nb_sec;
 
   gps_datalink.last_3dfix_ticks = sys_time.nb_sec_rem;
   gps_datalink.last_3dfix_time = sys_time.nb_sec;
 
+  // publish new GPS data
+  uint32_t now_ts = get_sys_time_usec();
   AbiSendMsgGPS(GPS_DATALINK_ID, now_ts, &gps_datalink);
 }
 
@@ -158,21 +161,22 @@ static void parse_gps_datalink(uint8_t numsv, int32_t ecef_x, int32_t ecef_y, in
   gps_datalink.tow = tow;
   gps_datalink.fix = GPS_FIX_3D;
 
-  // publish new GPS data
-  uint32_t now_ts = get_sys_time_usec();
+  // set gps msg time
   gps_datalink.last_msg_ticks = sys_time.nb_sec_rem;
   gps_datalink.last_msg_time = sys_time.nb_sec;
 
   gps_datalink.last_3dfix_ticks = sys_time.nb_sec_rem;
   gps_datalink.last_3dfix_time = sys_time.nb_sec;
 
+  // publish new GPS data
+  uint32_t now_ts = get_sys_time_usec();
   AbiSendMsgGPS(GPS_DATALINK_ID, now_ts, &gps_datalink);
 }
 
 
 void gps_datalink_parse_REMOTE_GPS(void)
 {
-  if (DL_REMOTE_GPS_SMALL_ac_id(dl_buffer) != AC_ID) { return; } // not for this aircraft
+  if (DL_REMOTE_GPS_ac_id(dl_buffer) != AC_ID) { return; } // not for this aircraft
 
   parse_gps_datalink(DL_REMOTE_GPS_numsv(dl_buffer),
                      DL_REMOTE_GPS_ecef_x(dl_buffer),
