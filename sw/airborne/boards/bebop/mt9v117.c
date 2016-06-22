@@ -27,6 +27,7 @@
 #include "std.h"
 #include "mt9v117.h"
 #include "mt9v117_regs.h"
+#include "boards/bebop.h"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -36,19 +37,30 @@
 #include <linux/videodev2.h>
 #include <linux/v4l2-mediabus.h>
 
-//FIXMEE!
-#include "boards/bebop.h"
+/* Camera structure */
 struct video_config_t bottom_camera = {
-  .w = 128,
-  .h = 128,
-  .sensor_w = 320,
-  .sensor_h = 240,
+  .output_size = {
+    .w = 240,
+    .h = 240
+  },
+  .sensor_size = {
+    .w = 320,
+    .h = 240,
+  },
+  .crop = {
+    .x = 40,
+    .y = 0,
+    .w = 240,
+    .h = 240
+  },
   .dev_name = "/dev/video0",
   .subdev_name = "/dev/v4l-subdev0",
   .format = V4L2_PIX_FMT_UYVY,
   .subdev_format = V4L2_MBUS_FMT_UYVY8_2X8,
-  .buf_cnt = 120,
-  .filters = 0
+  .buf_cnt = 5,
+  .filters = 0,
+  .pointer_to_first_listener = NULL,
+  .fps = 0
 };
 
 

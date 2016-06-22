@@ -36,16 +36,15 @@
 
 // Main video_thread structure
 struct video_thread_t {
-  volatile bool is_running;   ///< When the device is running
+  volatile bool is_running;       ///< When the device is running
   struct v4l2_device *dev;        ///< The V4L2 device that is used for the video stream
 };
 
 /** V4L2 device settings */
 struct video_config_t {
-  int w;                    ///< Width
-  int h;                    ///< Height
-  int sensor_w;             ///< Sensor Width
-  int sensor_h;             ///< Sensor Height
+  struct size_t output_size;    ///< Output image size
+  struct size_t sensor_size;    ///< Original sensor size
+  struct crop_t crop;           ///< Cropped area definition
   char *dev_name;           ///< path to device
   char *subdev_name;        ///< path to sub device
   uint32_t format;          ///< Video format

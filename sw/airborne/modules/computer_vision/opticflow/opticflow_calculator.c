@@ -130,7 +130,7 @@ PRINT_CONFIG_VAR(OPTICFLOW_FAST9_MIN_DISTANCE)
 #ifndef OPTICFLOW_FAST9_PADDING
 #define OPTICFLOW_FAST9_PADDING 20
 #endif
-PRINT_CONFIG_VAR(OPTICFLOW_FAST9_MIN_DISTANCE)
+PRINT_CONFIG_VAR(OPTICFLOW_FAST9_PADDING)
 
 // thresholds FAST9 that are currently not set from the GCS:
 #define FAST9_LOW_THRESHOLD 5
@@ -173,8 +173,7 @@ void opticflow_calc_init(struct opticflow_t *opticflow, uint16_t w, uint16_t h)
 
   /* Set the previous values */
   opticflow->got_first_img = false;
-  opticflow->prev_phi = 0.0;
-  opticflow->prev_theta = 0.0;
+  FLOAT_RATES_ZERO(opticflow->prev_rates);
 
   /* Set the default values */
   opticflow->method = OPTICFLOW_METHOD; //0 = LK_fast9, 1 = Edgeflow
@@ -217,7 +216,7 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
   // Update FPS for information
   result->fps = 1 / (timeval_diff(&opticflow->prev_timestamp, &img->ts) / 1000.);
   opticflow->prev_timestamp = img->ts;
-  printf("FPS = %f\n", result->fps);
+  printf("FPS = %f, %d\n", result->fps, img->ts);
 
   // Convert image to grayscale
   image_to_grayscale(img, &opticflow->img_gray);
@@ -334,15 +333,14 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
   float diff_flow_x = (state->phi - opticflow->prev_phi) * img->w / OPTICFLOW_FOV_W;
   float diff_flow_y = (state->theta - opticflow->prev_theta) * img->h / OPTICFLOW_FOV_H;*/
 
-  if (opticflow->derotation) {
-    diff_flow_x = (state->phi - opticflow->prev_phi) * img->w / OPTICFLOW_FOV_W;
-    diff_flow_y = (state->theta - opticflow->prev_theta) * img->h / OPTICFLOW_FOV_H;
+  if (opticflow->derotation && result->tracked_cnt > 5) {
+    diff_flow_x = (state->rates.p + opticflow->prev_rates.p) / 2.0f / result->fps * img->w / OPTICFLOW_FOV_W;// * img->w / OPTICFLOW_FOV_W;
+    diff_flow_y = (state->rates.q + opticflow->prev_rates.q) / 2.0f / result->fps * img->h / OPTICFLOW_FOV_H;// * img->h / OPTICFLOW_FOV_H;
   }
 
   result->flow_der_x = result->flow_x - diff_flow_x * opticflow->subpixel_factor;
   result->flow_der_y = result->flow_y - diff_flow_y * opticflow->subpixel_factor;
-  opticflow->prev_phi = state->phi;
-  opticflow->prev_theta = state->theta;
+  opticflow->prev_rates = state->rates;
 
   // Velocity calculation
   // Right now this formula is under assumption that the flow only exist in the center axis of the camera.
@@ -359,11 +357,7 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
 
   // Determine quality of noise measurement for state filter
   //TODO Experiment with multiple noise measurement models
-  if (result->tracked_cnt < 10) {
-    result->noise_measurement = (float)result->tracked_cnt / (float)opticflow->max_track_corners;
-  } else {
-    result->noise_measurement = 1.0;
-  }
+  result->noise_measurement = (float)result->tracked_cnt / (float)opticflow->max_track_corners;
 
   // *************************************************************************************
   // Next Loop Preparation
@@ -401,8 +395,7 @@ void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *
     for (i = 0; i < MAX_HORIZON; i++) {
       edge_hist[i].x = malloc(sizeof(int32_t) * img->w);
       edge_hist[i].y = malloc(sizeof(int32_t) * img->h);
-      edge_hist[i].roll = 0.0f;
-      edge_hist[i].pitch = 0.0f;
+      FLOAT_RATES_ZERO(edge_hist[i].rates);
     }
   }
 
@@ -434,8 +427,7 @@ void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *
 
   // Copy frame time and angles of image to calculated edge histogram
   edge_hist[current_frame_nr].frame_time = img->ts;
-  edge_hist[current_frame_nr].pitch = state->theta;
-  edge_hist[current_frame_nr].roll = state->phi;
+  edge_hist[current_frame_nr].rates = state->rates;
 
   // Calculate which previous edge_hist to compare with the current
   uint8_t previous_frame_nr[2];
@@ -450,9 +442,9 @@ void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *
   int16_t der_shift_y = 0;
 
   if (opticflow->derotation) {
-    der_shift_x = -(int16_t)((edge_hist[previous_frame_nr[0]].roll - edge_hist[current_frame_nr].roll) *
+    der_shift_x = -(int16_t)((edge_hist[previous_frame_nr[0]].rates.p + edge_hist[current_frame_nr].rates.p) / 2.0f *
                              (float)img->w / (OPTICFLOW_FOV_W));
-    der_shift_y = -(int16_t)((edge_hist[previous_frame_nr[1]].pitch - edge_hist[current_frame_nr].pitch) *
+    der_shift_y = -(int16_t)((edge_hist[previous_frame_nr[1]].rates.q + edge_hist[current_frame_nr].rates.q) / 2.0f *
                              (float)img->h / (OPTICFLOW_FOV_H));
   }
 
@@ -549,10 +541,8 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
   // Switch between methods (0 = fast9/lukas-kanade, 1 = EdgeFlow)
   if (opticflow->method == 0) {
     calc_fast9_lukas_kanade(opticflow, state, img, result);
-  } else {
-    if (opticflow->method == 1) {
-      calc_edgeflow_tot(opticflow, state, img, result);
-    } else {}
+  } else if (opticflow->method == 1) {
+    calc_edgeflow_tot(opticflow, state, img, result);
   }
 
 }

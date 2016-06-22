@@ -28,6 +28,7 @@
 #include "mt9f002.h"
 #include "mt9f002_regs.h"
 #include "math/pprz_algebra_int.h"
+#include "boards/bebop.h"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -39,19 +40,30 @@
 
 #define MAX(x,y) (((x) > (y)) ? (x) : (y))
 
-//FIXMEE!
-#include "boards/bebop.h"
+/* Camera structure */
 struct video_config_t front_camera = {
-  .w = 2048,
-  .h = 3320,
-  .sensor_w = 2048,
-  .sensor_h = 3320,
+  .output_size = {
+    .w = 2048,
+    .h = 3320
+  },
+  .sensor_size = {
+    .w = 2048,
+    .h = 3320,
+  },
+  .crop = {
+    .x = 0,
+    .y = 0,
+    .w = 2048,
+    .h = 3320
+  },
   .dev_name = "/dev/video1",
   .subdev_name = "/dev/v4l-subdev1",
   .format = V4L2_PIX_FMT_UYVY,
   .subdev_format = V4L2_MBUS_FMT_SGRBG10_1X10,
   .buf_cnt = 3,
-  .filters = VIDEO_FILTER_ISP
+  .filters = VIDEO_FILTER_ISP,
+  .pointer_to_first_listener = NULL,
+  .fps = 30
 };
 
 /**
