@@ -114,3 +114,11 @@ void pwm_input_init(void)
 
 }
 
+uint32_t get_pwm_input_duty_in_usec(uint32_t channel) {
+  return pwm_input_duty_tics[channel] / PWM_INPUT_TICKS_PER_USEC;
+}
+
+uint32_t get_pwm_input_period_in_usec(uint32_t channel) {
+  return pwm_input_period_tics[channel] / PWM_INPUT_TICKS_PER_USEC;
+}
+
