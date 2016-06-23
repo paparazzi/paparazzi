@@ -79,8 +79,8 @@ static void send_hybrid_guidance(struct transport_tx *trans, struct link_device 
   &(pos->x), &(pos->y),
   &(speed->x), &(speed->y),
   &wind_estimate.x, &wind_estimate.y,
-  &guidance_h_pos_err.x,
-  &guidance_h_pos_err.y,
+  &guidance_h_pos.x,
+  &guidance_h_pos.y,
   &guidance_hybrid_airspeed_sp.x,
   &guidance_hybrid_airspeed_sp.y,
   &guidance_hybrid_norm_ref_airspeed,
@@ -247,7 +247,7 @@ void guidance_hybrid_airspeed_to_attitude(struct Int32Eulers *ypr_sp) {
 
 void guidance_hybrid_position_to_airspeed(void) {
   /* compute position error    */
-  VECT2_DIFF(guidance_h_pos_err, guidance_h_pos_sp, *stateGetPositionNed_i());
+  VECT2_DIFF(guidance_h_pos_err, guidance_h.sp, *stateGetPositionNed_i());
 
   // Compute ground speed setpoint
   struct Int32Vect2 guidance_hybrid_groundspeed_sp;
