@@ -340,8 +340,8 @@
       <define name="AOA_SENS" value="2.0*M_PI/1024/4"/>
     </load>-->
 
-  <!-- Load this module to use multiple gain sets, which have to be specified in the gain sets section -->
-    <module name="gain_scheduling"/>
+  <!-- Load this module to use multiple gain sets, which have to be specified in the gain sets section. Does not work with INDI -->
+    <!-- <module name="gain_scheduling"/> -->
   </modules>
 
   <firmware name="rotorcraft">
