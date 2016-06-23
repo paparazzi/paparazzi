@@ -27,6 +27,7 @@
  * Functions which should be supported by each architecture implementation:
  * - gpio_setup_output(port, gpios)
  * - gpio_setup_input(port, gpios)
+ * - gpio_get(port, gpios)
  * - gpio_set(port, gpios)
  * - gpio_clear(port, gpios)
  * - gpio_toggle(port, gpios)

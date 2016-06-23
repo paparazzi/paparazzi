@@ -45,7 +45,7 @@ extern void gpio_setup_output(ioportid_t port, uint16_t gpios);
  * @param[in] port
  * @param[in] gpios
  */
-extern void gpio_setup_intput(ioportid_t port, uint16_t gpios);
+extern void gpio_setup_input(ioportid_t port, uint16_t gpios);
 
 /**
  * Setup one or more pins of the given GPIO port as inputs with pull up resistor enabled.
@@ -76,24 +76,43 @@ extern void gpio_setup_pin_analog(ioportid_t port, uint16_t pin);
 
 
 /**
- * Macro: Set a gpio output to high level.
+ * Get level of a gpio.
  * @param[in] port
  * @param[in] pin
  */
-#define gpio_set(_port, _pin) palSetPad(_port, _pin)
+static inline uint8_t gpio_get(ioportid_t port, uint16_t pin)
+{
+  return palReadPad(port, pin);
+}
 
 /**
- * Macro: Clear a gpio output to low level.
+ * Set a gpio output to high level.
  * @param[in] port
  * @param[in] pin
  */
-#define gpio_clear(_port, _pin) palClearPad(_port, _pin)
+static inline void gpio_set(ioportid_t port, uint16_t pin)
+{
+  palSetPad(port, pin);
+}
 
 /**
- * Macro: Toggle a gpio output to low level.
+ * Clear a gpio output to low level.
  * @param[in] port
  * @param[in] pin
  */
-#define gpio_toggle(_port,_pin) palTogglePad(_port, _pin)
+static inline void gpio_clear(ioportid_t port, uint16_t pin)
+{
+  palClearPad(port, pin);
+}
+
+/**
+ * Toggle a gpio output to low level.
+ * @param[in] port
+ * @param[in] pin
+ */
+static inline void gpio_toggle(ioportid_t port, uint16_t pin)
+{
+  palTogglePad(port, pin);
+}
 
 #endif /* GPIO_ARCH_H */
