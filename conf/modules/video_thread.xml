@@ -3,6 +3,7 @@
 <module name="video_thread" dir="computer_vision">
   <doc>
     <description>
+      Read video devices in a thread.
       Manager module which creates a video processing thread for each video device to be used. Only for Linux devices.
       To be used in other modules for further processing (e.g. opticflow, QR code, streaming). Using 'cv_add_to_device'
       from cv.h will register a processing function and initialize the video device if necessary. Thread priority can
