@@ -64,8 +64,8 @@ int32_t max_airspeed = MAX_AIRSPEED;
 float max_turn_bank;
 float turn_bank_gain;
 int32_t wind_gain;
-bool_t guidance_hovering;
-bool_t force_forward_flight;
+bool guidance_hovering;
+bool force_forward_flight;
 int32_t v_control_pitch;
 float alt_pitch_gain = 0.3;
 
