@@ -3,12 +3,13 @@
 <module name="video_thread" dir="computer_vision">
   <doc>
     <description>
-      Read video in a thread.
-      Only for Linux devices.
-      To be used in other modules for further processing (e.g. opticflow, QR code, streaming).
-
-      - Possibility to save an image(shot) on the internal memory (JPEG, full size, best quality)
+      Manager module which creates a video processing thread for each video device to be used. Only for Linux devices.
+      To be used in other modules for further processing (e.g. opticflow, QR code, streaming). Using 'cv_add_to_device'
+      from cv.h will register a processing function and initialize the video device if necessary. Thread priority can
+      be changed with VIDEO_THREAD_NICE_LEVEL.
     </description>
+
+    <define name="VIDEO_THREAD_NICE_LEVEL" value="5" description="Nice level for each separate video thread"/>
   </doc>
 
   <header>
