@@ -326,7 +326,7 @@
       <define name="AIRSPEED_ETS_SYNC_SEND"/>
     </load>-->
 
-    <load name="high_speed_logger_spi_link.xml"/>
+    <module name="high_speed_logger_spi_link.xml"/>
 
 <!--    <load name="AOA_adc.xml">
       <configure name="ADC_AOA" value="ADC_2"/>
@@ -342,12 +342,12 @@
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_m_2.0">
-    <subsystem name="radio_control" type="spektrum">
+    <module name="radio_control" type="spektrum">
       <define name="RADIO_KILL_SWITCH" value="5"/>
       <!-- Put the mode on channel AUX1-->
       <define name="RADIO_MODE" value="6"/>
 <!--       <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/> -->
-    </subsystem>
+    </module>
 
     <!-- ONLY if flashing via JTAG cable -->
     <configure name="FLASH_MODE"   value="SWD"/>
@@ -362,24 +362,24 @@
       <configure name="LISA_M_BARO" value="BARO_BOARD_BMP085"/>
     </target>
 
-    <subsystem name="motor_mixing"/>
-    <subsystem name="actuators"     type="pwm">
+    <module name="motor_mixing"/>
+    <module name="actuators"     type="pwm">
       <define name="SERVO_HZ" value="400"/>
       <define name="USE_SERVOS_7AND8"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="telemetry"     type="xbee_api"/>
-<!--    <subsystem name="telemetry"     type="transparent"/> -->
-    <subsystem name="imu"           type="aspirin_v2.1"/>
-    <subsystem name="gps"           type="ublox"/>
-<!--     <subsystem name="stabilization" type="int_quat"/> -->
-    <subsystem name="stabilization" type="indi"/>
+    <module name="telemetry"     type="xbee_api"/>
+<!--    <module name="telemetry"     type="transparent"/> -->
+    <module name="imu"           type="aspirin_v2.1"/>
+    <module name="gps"           type="ublox"/>
+<!--     <module name="stabilization" type="int_quat"/> -->
+    <module name="stabilization" type="indi"/>
 
-    <subsystem name="ahrs"          type="int_cmpl_quat">
+    <module name="ahrs"          type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="1"/>
       <define name="AHRS_USE_GPS_HEADING" value="0"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="ins"/>
+    <module name="ins"/>
   </firmware>
 </airframe>
