@@ -341,7 +341,7 @@
     </load>-->
 
   <!-- Load this module to use multiple gain sets, which have to be specified in the gain sets section -->
-    <load name="gain_scheduling.xml"/>
+    <module name="gain_scheduling"/>
   </modules>
 
   <firmware name="rotorcraft">
