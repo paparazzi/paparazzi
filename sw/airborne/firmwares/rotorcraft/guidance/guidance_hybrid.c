@@ -46,30 +46,34 @@
 // high res frac for integration of angles
 #define INT32_ANGLE_HIGH_RES_FRAC 18
 
-struct Int32Eulers guidance_hybrid_ypr_sp;
-struct Int32Vect2 guidance_hybrid_airspeed_sp;
-struct Int32Vect2 guidance_h_pos_err;
-struct Int32Vect2 guidance_hybrid_airspeed_ref;
-struct Int32Vect2 wind_estimate;
-struct Int32Vect2 wind_estimate_high_res;
-struct Int32Vect2 guidance_hybrid_ref_airspeed;
-
-int32_t norm_sp_airspeed_disp;
-int32_t heading_diff_disp;
-int32_t omega_disp;
-int32_t high_res_psi;
-int32_t airspeed_sp_heading_disp;
-int32_t horizontal_speed_gain;
+// Variables used for settings
 int32_t guidance_hybrid_norm_ref_airspeed;
+float alt_pitch_gain = 0.3;
 int32_t max_airspeed = MAX_AIRSPEED;
+int32_t wind_gain;
+int32_t horizontal_speed_gain;
 float max_turn_bank;
 float turn_bank_gain;
-int32_t wind_gain;
-bool guidance_hovering;
-bool force_forward_flight;
-int32_t v_control_pitch;
-float alt_pitch_gain = 0.3;
 
+// Private variables
+static struct Int32Eulers guidance_hybrid_ypr_sp;
+static struct Int32Vect2 guidance_hybrid_airspeed_sp;
+static struct Int32Vect2 guidance_h_pos_err;
+static struct Int32Vect2 guidance_hybrid_airspeed_ref;
+static struct Int32Vect2 wind_estimate;
+static struct Int32Vect2 wind_estimate_high_res;
+static struct Int32Vect2 guidance_hybrid_ref_airspeed;
+
+static int32_t norm_sp_airspeed_disp;
+static int32_t heading_diff_disp;
+static int32_t omega_disp;
+static int32_t high_res_psi;
+static int32_t airspeed_sp_heading_disp;
+static bool guidance_hovering;
+static bool force_forward_flight;
+static int32_t v_control_pitch;
+
+/*
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
@@ -92,6 +96,7 @@ static void send_hybrid_guidance(struct transport_tx *trans, struct link_device 
 }
 
 #endif
+*/
 
 void guidance_hybrid_init(void) {
 
@@ -111,9 +116,11 @@ void guidance_hybrid_init(void) {
   INT_VECT2_ZERO(guidance_hybrid_ref_airspeed);
   INT_VECT2_ZERO(wind_estimate_high_res);
 
+/*
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "HYBRID_GUIDANCE", send_hybrid_guidance);
 #endif
+*/
 }
 
 #define INT32_ANGLE_HIGH_RES_NORMALIZE(_a) {             \
@@ -126,7 +133,7 @@ void guidance_hybrid_run(void) {
   guidance_hybrid_position_to_airspeed();
   guidance_hybrid_airspeed_to_attitude(&guidance_hybrid_ypr_sp);
   guidance_hybrid_set_cmd_i(&guidance_hybrid_ypr_sp);
-  memcpy( &guidance_h_pos_err , guidance_h_get_pos_err , sizeof(guidance_h_pos_err) );
+  memcpy( &guidance_h_pos_err , guidance_h_get_pos_err() , sizeof(guidance_h_pos_err) );
 }
 
 void guidance_hybrid_reset_heading(struct Int32Eulers *sp_cmd) {

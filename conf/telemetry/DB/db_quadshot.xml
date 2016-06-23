@@ -27,7 +27,7 @@
       <message name="RC"                       period="0.5"/>
       <message name="ROTORCRAFT_RADIO_CONTROL" period="0.5"/>
       <message name="ROTORCRAFT_STATUS"        period="1"/>
-      <message name="ACTUATORS_BEBOP"          period="0.2"/>
+      <message name="BEBOP_ACTUATORS"          period="0.2"/>
     </mode>
 
     <mode name="raw_sensors">
@@ -81,8 +81,8 @@
       <message name="ROTORCRAFT_STATUS" period="1.2"/>
       <message name="DL_VALUE"          period="0.5"/>
       <message name="ALIVE"             period="0.9"/>
-      <message name="STAB_ATTITUDE"     period=".03"/>
-      <message name="STAB_ATTITUDE_REF" period=".03"/>
+      <message name="STAB_ATTITUDE_FLOAT"     period=".03"/>
+      <message name="STAB_ATTITUDE_REF_INT" period=".03"/>
     </mode>
 
     <mode name="vert_loop" key_press="v">
@@ -97,8 +97,8 @@
 
     <mode name="vel_guidance" key_press="q">
       <message name="ALIVE" period="0.9"/>
-      <message name="HYBRID_GUIDANCE" period="0.062"/>
-      <!--<message name="STAB_ATTITUDE_REF" period="0.4"/>-->
+      <!-- <message name="HYBRID_GUIDANCE" period="0.062"/> -->
+      <!--<message name="STAB_ATTITUDE_REF_INT" period="0.4"/>-->
       <message name="ROTORCRAFT_FP" period="0.8"/>
       <message name="ROTORCRAFT_STATUS" period="1.2"/>
       <message name="ROTORCRAFT_NAV_STATUS" period="1.6"/>
@@ -123,9 +123,9 @@
     <mode name="h_loop" key_press="h">
       <message name="ALIVE"                 period="0.9"/>
       <message name="HOVER_LOOP"            period="0.062"/>
-      <message name="GUIDANCE_H_REF"        period="0.062"/>
-      <message name="STAB_ATTITUDE"         period="0.4"/>
-      <!--<message name="STAB_ATTITUDE_REF" period="0.4"/>-->
+      <message name="GUIDANCE_H_REF_INT"        period="0.062"/>
+      <message name="STAB_ATTITUDE_FLOAT"   period="0.4"/>
+      <!--<message name="STAB_ATTITUDE_REF_INT" period="0.4"/>-->
       <message name="ROTORCRAFT_FP"         period="0.8"/>
       <message name="ROTORCRAFT_STATUS"     period="1.2"/>
       <message name="ROTORCRAFT_NAV_STATUS" period="1.6"/>

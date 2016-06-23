@@ -218,9 +218,10 @@
     <define name="DEADBAND_A" value="250"/>
     <define name="SP_PSI_DELTA_LIMIT" value="90" unit="deg"/>
     <!-- control effectiveness -->
-    <define name="CONTROL_EFFECTIVENESS_P" value="40.0"/>
-    <define name="CONTROL_EFFECTIVENESS_Q" value="12.0"/>
-    <define name="CONTROL_EFFECTIVENESS_R" value="170.0"/>
+    <define name="G1_P" value="40.0"/>
+    <define name="G1_Q" value="12.0"/>
+    <define name="G1_R" value="170.0"/>
+    <define name="G2_R" value="0.0"/>
     <!-- reference acceleration for attitude control -->
     <define name="REF_ERR_P" value="70.0"/>
     <define name="REF_ERR_Q" value="45.0"/>
@@ -237,6 +238,9 @@
     <define name="ACT_DYN_P" value="0.03"/>
     <define name="ACT_DYN_Q" value="0.03"/>
     <define name="ACT_DYN_R" value="0.03"/>
+        <!-- Adaptive Learning Rate -->
+    <define name="USE_ADAPTIVE" value="FALSE"/>
+    <define name="ADAPTIVE_MU" value="0.0001"/>
   </section>
 
 
