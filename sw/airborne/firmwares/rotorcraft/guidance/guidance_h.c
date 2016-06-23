@@ -705,3 +705,8 @@ bool guidance_h_set_guided_heading_rate(float rate)
   }
   return false;
 }
+
+const struct Int32Vect2* guidance_h_get_pos_err(void)
+{
+	return &guidance_h_pos_err;
+}

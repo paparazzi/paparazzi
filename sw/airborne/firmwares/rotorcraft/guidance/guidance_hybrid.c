@@ -48,6 +48,7 @@
 
 struct Int32Eulers guidance_hybrid_ypr_sp;
 struct Int32Vect2 guidance_hybrid_airspeed_sp;
+struct Int32Vect2 guidance_h_pos_err;
 struct Int32Vect2 guidance_hybrid_airspeed_ref;
 struct Int32Vect2 wind_estimate;
 struct Int32Vect2 wind_estimate_high_res;
@@ -79,8 +80,8 @@ static void send_hybrid_guidance(struct transport_tx *trans, struct link_device 
   &(pos->x), &(pos->y),
   &(speed->x), &(speed->y),
   &wind_estimate.x, &wind_estimate.y,
-  &guidance_h_pos.x,
-  &guidance_h_pos.y,
+  &guidance_h_pos_err.x,
+  &guidance_h_pos_err.y,
   &guidance_hybrid_airspeed_sp.x,
   &guidance_hybrid_airspeed_sp.y,
   &guidance_hybrid_norm_ref_airspeed,
@@ -125,6 +126,7 @@ void guidance_hybrid_run(void) {
   guidance_hybrid_position_to_airspeed();
   guidance_hybrid_airspeed_to_attitude(&guidance_hybrid_ypr_sp);
   guidance_hybrid_set_cmd_i(&guidance_hybrid_ypr_sp);
+  memcpy( &guidance_h_pos_err , guidance_h_get_pos_err , sizeof(guidance_h_pos_err) );
 }
 
 void guidance_hybrid_reset_heading(struct Int32Eulers *sp_cmd) {
@@ -247,7 +249,7 @@ void guidance_hybrid_airspeed_to_attitude(struct Int32Eulers *ypr_sp) {
 
 void guidance_hybrid_position_to_airspeed(void) {
   /* compute position error    */
-  VECT2_DIFF(guidance_h_pos_err, guidance_h.sp, *stateGetPositionNed_i());
+  VECT2_DIFF(guidance_h_pos_err, guidance_h.sp.pos, *stateGetPositionNed_i());
 
   // Compute ground speed setpoint
   struct Int32Vect2 guidance_hybrid_groundspeed_sp;
