@@ -159,23 +159,27 @@ static void thd_startlog(void *arg)
   // Check for init errors
   sdOk = true;
 
-  if (sdLogInit (NULL) != SDLOG_OK)
+  if (sdLogInit (NULL) != SDLOG_OK) {
     sdOk = false;
-
-  removeEmptyLogs (PPRZ_LOG_DIR, PPRZ_LOG_NAME, 50);
-  if (sdLogOpenLog (&pprzLogFile, PPRZ_LOG_DIR, PPRZ_LOG_NAME, true) != SDLOG_OK)
-    sdOk = false;
+  }
+  else {
+    removeEmptyLogs (PPRZ_LOG_DIR, PPRZ_LOG_NAME, 50);
+    if (sdLogOpenLog (&pprzLogFile, PPRZ_LOG_DIR, PPRZ_LOG_NAME, true) != SDLOG_OK)
+      sdOk = false;
 
 #if FLIGHTRECORDER_SDLOG
-  removeEmptyLogs (FR_LOG_DIR, FLIGHTRECORDER_LOG_NAME, 50);
-  if (sdLogOpenLog (&flightRecorderLogFile, FR_LOG_DIR, FLIGHTRECORDER_LOG_NAME, false) != SDLOG_OK)
-    sdOk = false;
+    removeEmptyLogs (FR_LOG_DIR, FLIGHTRECORDER_LOG_NAME, 50);
+    if (sdLogOpenLog (&flightRecorderLogFile, FR_LOG_DIR, FLIGHTRECORDER_LOG_NAME, false) != SDLOG_OK)
+      sdOk = false;
 #endif
+  }
 
-  // Create Battery Survey Thread with event
-  chEvtObjectInit (&powerOutageSource);
-  chThdCreateStatic (wa_thd_bat_survey, sizeof(wa_thd_bat_survey),
-      NORMALPRIO+2, thd_bat_survey, NULL);
+  if (sdOk) {
+    // Create Battery Survey Thread with event
+    chEvtObjectInit (&powerOutageSource);
+    chThdCreateStatic (wa_thd_bat_survey, sizeof(wa_thd_bat_survey),
+        NORMALPRIO+2, thd_bat_survey, NULL);
+  }
 
   while (true) {
 #ifdef LED_SDLOG
@@ -184,12 +188,6 @@ static void thd_startlog(void *arg)
     // Blink faster if init has errors
     chThdSleepMilliseconds (sdOk == true ? 1000 : 200);
     static uint32_t timestamp = 0;
-
-    // FIXME what is this doing ? -> ask Alex
-    thread_t *tp = chRegFirstThread();
-    do {
-      tp = chRegNextThread(tp);
-    } while (tp != NULL);
 
 #if HAL_USE_RTC
     // FIXME this could be done somewhere else, like in sys_time
