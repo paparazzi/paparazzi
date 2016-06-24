@@ -119,22 +119,26 @@ struct image_t img_copy;
  */
 struct image_t *viewvideo_function(struct image_t *img);
 struct image_t *viewvideo_function(struct image_t *img) {
-  if (!viewvideo.new_image) {
-    // Free previous image
-    image_free(&img_copy);
 
+  // If image is not yet processed by thread, return
+  if (viewvideo.new_image) {
+    return NULL;
+  }
+
+  // If the image buffer has not yet been initialized
+  if (img_copy.buf_size == 0) {
     // Create a new image based on downsize factor
     image_create(&img_copy,
                  img->w / viewvideo.downsize_factor,
                  img->h / viewvideo.downsize_factor,
                  IMAGE_YUV422);
-
-    // Copy image with downsize factor (1 does a direct copy)
-    image_yuv422_downsample(img, &img_copy, viewvideo.downsize_factor);
-
-    // Inform thread of new image
-    viewvideo.new_image = true;
   }
+
+  // Copy image with downsize factor (1 does a direct copy)
+  image_yuv422_downsample(img, &img_copy, viewvideo.downsize_factor);
+
+  // Inform thread of new image
+  viewvideo.new_image = true;
 
   return NULL;
 }
@@ -241,6 +245,7 @@ void viewvideo_init(void)
 {
   char save_name[512];
 
+  img_copy.buf_size = 0;
   cv_add_to_device(&VIEWVIDEO_CAMERA, viewvideo_function);
 
   viewvideo.is_streaming = true;
