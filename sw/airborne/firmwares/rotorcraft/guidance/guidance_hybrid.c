@@ -73,7 +73,6 @@ static bool guidance_hovering;
 static bool force_forward_flight;
 static int32_t v_control_pitch;
 
-/*
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
@@ -96,7 +95,6 @@ static void send_hybrid_guidance(struct transport_tx *trans, struct link_device 
 }
 
 #endif
-*/
 
 void guidance_hybrid_init(void) {
 
@@ -116,11 +114,10 @@ void guidance_hybrid_init(void) {
   INT_VECT2_ZERO(guidance_hybrid_ref_airspeed);
   INT_VECT2_ZERO(wind_estimate_high_res);
 
-/*
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, "HYBRID_GUIDANCE", send_hybrid_guidance);
 #endif
-*/
+
 }
 
 #define INT32_ANGLE_HIGH_RES_NORMALIZE(_a) {             \
