@@ -41,6 +41,7 @@
 #include <math.h>
 
 #include <pthread.h>
+#include "mcu_periph/sys_time.h"
 
 // Video
 #include "lib/vision/image.h"
@@ -69,15 +70,11 @@ PRINT_CONFIG_VAR(VIEWVIDEO_QUALITY_FACTOR)
 #endif
 PRINT_CONFIG_VAR(VIEWVIDEO_RTP_TIME_INC)
 
-// Default image folder
-#ifndef VIEWVIDEO_SHOT_PATH
-#ifdef VIDEO_THREAD_SHOT_PATH
-#define VIEWVIDEO_SHOT_PATH VIDEO_THREAD_SHOT_PATH
-#else
-#define VIEWVIDEO_SHOT_PATH /data/video/images
+// Define stream framerate
+#ifndef VIEWVIDEO_FPS
+#define VIEWVIDEO_FPS 10
 #endif
-#endif
-PRINT_CONFIG_VAR(VIEWVIDEO_SHOT_PATH)
+PRINT_CONFIG_VAR(VIEWVIDEO_FPS)
 
 // Check if we are using netcat instead of RTP/UDP
 #ifndef VIEWVIDEO_USE_NETCAT
@@ -214,21 +211,42 @@ void viewvideo_send_frame(void) {
 
 void *viewvideo_thread(void *args);
 void *viewvideo_thread(void *args) {
+  // Time-keeping variables
+  struct timespec time_now, time_prev;
+  clock_gettime(CLOCK_MONOTONIC, &time_prev);
+  int32_t delta = 0;
+  uint32_t fps_period = 1000000 / VIEWVIDEO_FPS;
 
+  // Request new image from video thread
   viewvideo.new_image = false;
 
   while (viewvideo.is_streaming) {
-    // If there is no image available, sleep for a bit and retry
+    // If there is no image available, sleep for a bit and try again
     if (!viewvideo.new_image) {
-      usleep(5 * 1000); // 5 milliseconds
+      usleep(fps_period / 100);
       continue;
     }
 
     // Send a new frame from this thread
     viewvideo_send_frame();
 
-    // Sleep to achieve 10 fps
-    usleep(100 * 1000); // 100 milliseconds
+    // Obtain current time
+    clock_gettime(CLOCK_MONOTONIC, &time_now);
+
+    // Increase delta with desired frame rate minus elapsed time
+    delta += fps_period - sys_time_elapsed_us(&time_prev, &time_now);
+
+    // If delta is positive, this thread is faster than required
+    if (delta > 0) {
+      // Sleep for delta time to maintain desired frame rate
+      usleep(delta);
+    } else {
+      // Diminish delta penalty to smooth out frame rate
+      delta /= 2;
+    }
+
+    // Store timestamp as previous
+    time_prev = time_now;
 
     // Request new image
     viewvideo.new_image = false;
