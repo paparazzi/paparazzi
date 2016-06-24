@@ -130,7 +130,11 @@ void guidance_hybrid_run(void) {
   guidance_hybrid_position_to_airspeed();
   guidance_hybrid_airspeed_to_attitude(&guidance_hybrid_ypr_sp);
   guidance_hybrid_set_cmd_i(&guidance_hybrid_ypr_sp);
-  memcpy( &guidance_h_pos_err , guidance_h_get_pos_err() , sizeof(guidance_h_pos_err) );
+
+  if ( guidance_h_get_pos_err() != NULL )
+  {
+	  memcpy( &guidance_h_pos_err , guidance_h_get_pos_err() , sizeof(guidance_h_pos_err) );
+  }
 }
 
 void guidance_hybrid_reset_heading(struct Int32Eulers *sp_cmd) {
