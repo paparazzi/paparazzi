@@ -113,7 +113,6 @@ struct viewvideo_t viewvideo = {
 
 struct image_t img_copy;
 
-
 /**
  * Handles all the video streaming and saving of the image shots
  * This is a sepereate thread, so it needs to be thread safe!
@@ -121,16 +120,19 @@ struct image_t img_copy;
 struct image_t *viewvideo_function(struct image_t *img);
 struct image_t *viewvideo_function(struct image_t *img) {
   if (!viewvideo.new_image) {
+    // Free previous image
     image_free(&img_copy);
+
+    // Create a new image based on downsize factor
     image_create(&img_copy,
                  img->w / viewvideo.downsize_factor,
                  img->h / viewvideo.downsize_factor,
                  IMAGE_YUV422);
 
-    if (viewvideo.downsize_factor != 1) {
-      image_yuv422_downsample(img, &img_copy, viewvideo.downsize_factor);
-    }
+    // Copy image with downsize factor (1 does a direct copy)
+    image_yuv422_downsample(img, &img_copy, viewvideo.downsize_factor);
 
+    // Inform thread of new image
     viewvideo.new_image = true;
   }
 
@@ -212,17 +214,19 @@ void *viewvideo_thread(void *args) {
   viewvideo.new_image = false;
 
   while (viewvideo.is_streaming) {
-
+    // If there is no image available, sleep for a bit and retry
     if (!viewvideo.new_image) {
-      usleep(10 * 1000); // 10 milliseconds
+      usleep(5 * 1000); // 5 milliseconds
       continue;
     }
 
-    fprintf(stdout, "[viewvideo_thread] Frame.\n");
+    // Send a new frame from this thread
     viewvideo_send_frame();
 
-    usleep(2 * 1000 * 1000); // 2 seconds
+    // Sleep to achieve 10 fps
+    usleep(100 * 1000); // 100 milliseconds
 
+    // Request new image
     viewvideo.new_image = false;
   }
 
@@ -274,6 +278,7 @@ void viewvideo_init(void)
   }
 #endif
 
+  // Create new viewvideo thread
   pthread_t thread_id;
   pthread_create(&thread_id, NULL, viewvideo_thread, NULL);
 }
