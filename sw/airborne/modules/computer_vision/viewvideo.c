@@ -40,6 +40,8 @@
 #include <sys/time.h>
 #include <math.h>
 
+#include <pthread.h>
+
 // Video
 #include "lib/vision/image.h"
 #include "lib/encoding/jpeg.h"
@@ -109,23 +111,39 @@ struct viewvideo_t viewvideo = {
 #endif
 };
 
+struct image_t img_copy;
+
+
 /**
  * Handles all the video streaming and saving of the image shots
  * This is a sepereate thread, so it needs to be thread safe!
  */
 struct image_t *viewvideo_function(struct image_t *img);
-struct image_t *viewvideo_function(struct image_t *img)
-{
-  // Resize image if needed
-  struct image_t img_small;
-  image_create(&img_small,
-               img->w / viewvideo.downsize_factor,
-               img->h / viewvideo.downsize_factor,
-               IMAGE_YUV422);
+struct image_t *viewvideo_function(struct image_t *img) {
+  if (!viewvideo.new_image) {
+    image_free(&img_copy);
+    image_create(&img_copy,
+                 img->w / viewvideo.downsize_factor,
+                 img->h / viewvideo.downsize_factor,
+                 IMAGE_YUV422);
+
+    if (viewvideo.downsize_factor != 1) {
+      image_yuv422_downsample(img, &img_copy, viewvideo.downsize_factor);
+    }
+
+    viewvideo.new_image = true;
+  }
+
+  return NULL;
+}
+
+
+void viewvideo_send_frame(void);
+void viewvideo_send_frame(void) {
 
   // Create the JPEG encoded image
   struct image_t img_jpeg;
-  image_create(&img_jpeg, img_small.w, img_small.h, IMAGE_JPEG);
+  image_create(&img_jpeg, img_copy.w, img_copy.h, IMAGE_JPEG);
 
 #if VIEWVIDEO_USE_NETCAT
   char nc_cmd[64];
@@ -134,13 +152,7 @@ struct image_t *viewvideo_function(struct image_t *img)
 
   if (viewvideo.is_streaming) {
 
-    // Only resize when needed
-    if (viewvideo.downsize_factor != 1) {
-      image_yuv422_downsample(img, &img_small, viewvideo.downsize_factor);
-      jpeg_encode_image(&img_small, &img_jpeg, VIEWVIDEO_QUALITY_FACTOR, VIEWVIDEO_USE_NETCAT);
-    } else {
-      jpeg_encode_image(img, &img_jpeg, VIEWVIDEO_QUALITY_FACTOR, VIEWVIDEO_USE_NETCAT);
-    }
+    jpeg_encode_image(&img_copy, &img_jpeg, VIEWVIDEO_QUALITY_FACTOR, VIEWVIDEO_USE_NETCAT);
 
 #if VIEWVIDEO_USE_NETCAT
     // Open process to send using netcat (in a fork because sometimes kills itself???)
@@ -165,6 +177,7 @@ struct image_t *viewvideo_function(struct image_t *img)
       wait(NULL);
     }
 #else
+
     if (viewvideo.use_rtp) {
 
       // Send image with RTP
@@ -186,14 +199,36 @@ struct image_t *viewvideo_function(struct image_t *img)
       // (1 = 1/90000 s) which is probably stupid but is actually working.
     }
 #endif
-
   }
 
   // Free all buffers
   image_free(&img_jpeg);
-  image_free(&img_small);
-  return NULL; // No new images were created
 }
+
+
+void *viewvideo_thread(void *args);
+void *viewvideo_thread(void *args) {
+
+  viewvideo.new_image = false;
+
+  while (viewvideo.is_streaming) {
+
+    if (!viewvideo.new_image) {
+      usleep(10 * 1000); // 10 milliseconds
+      continue;
+    }
+
+    fprintf(stdout, "[viewvideo_thread] Frame.\n");
+    viewvideo_send_frame();
+
+    usleep(2 * 1000 * 1000); // 2 seconds
+
+    viewvideo.new_image = false;
+  }
+
+  return NULL;
+}
+
 
 /**
  * Initialize the view video
@@ -238,5 +273,7 @@ void viewvideo_init(void)
     printf("[viewvideo] Failed to create SDP file.\n");
   }
 #endif
-}
 
+  pthread_t thread_id;
+  pthread_create(&thread_id, NULL, viewvideo_thread, NULL);
+}
