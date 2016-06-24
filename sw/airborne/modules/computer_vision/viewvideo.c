@@ -245,7 +245,7 @@ void viewvideo_init(void)
 {
   char save_name[512];
 
-  img_copy.buf_size = 0;
+  img_copy.buf_size = 0;  // Explicitly mark img_copy as uninitialized
   cv_add_to_device(&VIEWVIDEO_CAMERA, viewvideo_function);
 
   viewvideo.is_streaming = true;
