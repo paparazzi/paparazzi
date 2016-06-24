@@ -202,8 +202,8 @@ static void thd_startlog(void *arg)
         gmtime_r(&univTime, &time_tm);
         // Chibios date struct
         RTCDateTime date;
-        rtcConvertDateTimeToStructTm(&date, &time_tm, NULL);
-        rtcSetTime (&RTCD1, &date);
+        rtcConvertStructTmToDateTime(&time_tm, 0, &date);
+        rtcSetTime(&RTCD1, &date);
       }
     }
 #endif
