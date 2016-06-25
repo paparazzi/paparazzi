@@ -31,14 +31,6 @@
 
 #include "subsystems/ins/ins_vectornav.h"
 
-#ifndef DefaultInsImpl
-#define DefaultInsImpl ins_vectornav
-#endif
-
-#define InsEvent ins_vectornav_event
-
-extern void ins_vectornav_register(void);
-
 #ifndef PRIMARY_GPS
 #define PRIMARY_GPS GPS_VECTORNAV
 #endif

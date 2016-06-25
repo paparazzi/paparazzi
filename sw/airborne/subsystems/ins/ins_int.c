@@ -61,8 +61,8 @@
 #endif
 
 /** default sonar to use in INS */
-#ifndef INS_SONAR_ID
-#define INS_SONAR_ID ABI_BROADCAST
+#ifndef INS_INT_SONAR_ID
+#define INS_INT_SONAR_ID ABI_BROADCAST
 #endif
 abi_event sonar_ev;
 static void sonar_cb(uint8_t sender_id, float distance);
@@ -112,19 +112,15 @@ PRINT_CONFIG_MSG("INS_SONAR_UPDATE_ON_AGL defaulting to FALSE")
 PRINT_CONFIG_MSG("USE_INS_NAV_INIT defaulting to TRUE")
 #endif
 
-#ifdef INS_BARO_SENS
-#warning INS_BARO_SENS is obsolete, please remove it from your airframe file.
-#endif
-
 /** default barometer to use in INS */
-#ifndef INS_BARO_ID
+#ifndef INS_INT_BARO_ID
 #if USE_BARO_BOARD
-#define INS_BARO_ID BARO_BOARD_SENDER_ID
+#define INS_INT_BARO_ID BARO_BOARD_SENDER_ID
 #else
-#define INS_BARO_ID ABI_BROADCAST
+#define INS_INT_BARO_ID ABI_BROADCAST
 #endif
 #endif
-PRINT_CONFIG_VAR(INS_BARO_ID)
+PRINT_CONFIG_VAR(INS_INT_BARO_ID)
 abi_event baro_ev;
 static void baro_cb(uint8_t sender_id, float pressure);
 
@@ -134,12 +130,14 @@ static void baro_cb(uint8_t sender_id, float pressure);
 #ifndef INS_INT_IMU_ID
 #define INS_INT_IMU_ID ABI_BROADCAST
 #endif
+static abi_event accel_ev;
+static void accel_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *accel);
+
 #ifndef INS_INT_GPS_ID
 #define INS_INT_GPS_ID GPS_MULTI_ID
 #endif
-static abi_event accel_ev;
 static abi_event gps_ev;
-
+static void gps_cb(uint8_t sender_id, uint32_t stamp, struct GpsState *gps_s);
 
 /** ABI binding for VELOCITY_ESTIMATE.
  * Usually this is coming from opticflow.
@@ -201,13 +199,13 @@ void ins_int_init(void)
   ins_int.propagation_cnt = INS_MAX_PROPAGATION_STEPS;
 
   // Bind to BARO_ABS message
-  AbiBindMsgBARO_ABS(INS_BARO_ID, &baro_ev, baro_cb);
+  AbiBindMsgBARO_ABS(INS_INT_BARO_ID, &baro_ev, baro_cb);
   ins_int.baro_initialized = false;
 
 #if USE_SONAR
   ins_int.update_on_agl = INS_SONAR_UPDATE_ON_AGL;
   // Bind to AGL message
-  AbiBindMsgAGL(INS_SONAR_ID, &sonar_ev, sonar_cb);
+  AbiBindMsgAGL(INS_INT_SONAR_ID, &sonar_ev, sonar_cb);
 #endif
 
   ins_int.vf_reset = false;
@@ -228,6 +226,13 @@ void ins_int_init(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS_Z, send_ins_z);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS_REF, send_ins_ref);
 #endif
+
+  /*
+   * Subscribe to scaled IMU measurements and attach callbacks
+   */
+  AbiBindMsgIMU_ACCEL_INT32(INS_INT_IMU_ID, &accel_ev, accel_cb);
+  AbiBindMsgGPS(INS_INT_GPS_ID, &gps_ev, gps_cb);
+  AbiBindMsgVELOCITY_ESTIMATE(INS_INT_VEL_ID, &vel_est_ev, vel_est_cb);
 }
 
 void ins_reset_local_origin(void)
@@ -548,16 +553,4 @@ static void vel_est_cb(uint8_t sender_id __attribute__((unused)),
 
   /* reset the counter to indicate we just had a measurement update */
   ins_int.propagation_cnt = 0;
-}
-
-void ins_int_register(void)
-{
-  ins_register_impl(ins_int_init);
-
-  /*
-   * Subscribe to scaled IMU measurements and attach callbacks
-   */
-  AbiBindMsgIMU_ACCEL_INT32(INS_INT_IMU_ID, &accel_ev, accel_cb);
-  AbiBindMsgGPS(INS_INT_GPS_ID, &gps_ev, gps_cb);
-  AbiBindMsgVELOCITY_ESTIMATE(INS_INT_VEL_ID, &vel_est_ev, vel_est_cb);
 }

@@ -57,7 +57,6 @@
 #include "subsystems/sensors/baro.h"
 PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BOARD)
 #endif
-#include "subsystems/ins.h"
 
 
 // autopilot & control
@@ -204,8 +203,6 @@ void init_ap(void)
 #if USE_AHRS
   ahrs_init();
 #endif
-
-  ins_init();
 
 #if USE_BARO_BOARD
   baro_init();
@@ -625,13 +622,7 @@ void sensors_task(void)
 #if USE_AHRS && defined SITL && !USE_NPS
   update_ahrs_from_sim();
 #endif
-
-  //FIXME: temporary hack, remove me
-#ifdef InsPeriodic
-  InsPeriodic();
-#endif
 }
-
 
 #ifdef LOW_BATTERY_KILL_DELAY
 #warning LOW_BATTERY_KILL_DELAY has been renamed to CATASTROPHIC_BAT_KILL_DELAY, please update your airframe file!
@@ -696,11 +687,6 @@ void event_task_ap(void)
 
 #if USE_IMU
   ImuEvent();
-#endif
-
-#ifdef InsEvent
-  TODO("calling InsEvent, remove me..")
-  InsEvent();
 #endif
 
 #if USE_BARO_BOARD

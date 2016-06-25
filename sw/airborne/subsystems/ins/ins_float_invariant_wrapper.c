@@ -201,9 +201,9 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
 }
 
 
-void ins_float_invariant_register(void)
+void ins_float_invariant_wrapper_init(void)
 {
-  ins_register_impl(ins_float_invariant_init);
+  ins_float_invariant_init();
 
  // Bind to ABI messages
   AbiBindMsgBARO_ABS(INS_FINV_BARO_ID, &baro_ev, baro_cb);

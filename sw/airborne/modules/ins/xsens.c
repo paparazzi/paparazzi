@@ -27,6 +27,7 @@
 #include "xsens_common.h"
 
 #include "generated/airframe.h"
+#include "led.h"
 
 #if USE_GPS_XSENS
 #include "math/pprz_geodetic_wgs84.h"
