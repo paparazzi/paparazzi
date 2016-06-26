@@ -29,7 +29,6 @@
 #define SDLOG_CHIBIOS_H
 
 #include "std.h"
-//#include "ff.h"
 #include "modules/loggers/sdlog_chibios/sdLog.h"
 #include "pprzlink/pprzlink_device.h"
 

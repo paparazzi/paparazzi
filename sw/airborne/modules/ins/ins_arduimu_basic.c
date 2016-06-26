@@ -112,14 +112,15 @@ void ArduIMU_periodicGPS(void)
   //  - low speed
   //  - high thrust
   float speed = stateGetHorizontalSpeedNorm_f();
-  if (speed < HIGH_ACCEL_LOW_SPEED && ap_state->commands[COMMAND_THROTTLE] > HIGH_ACCEL_HIGH_THRUST && !high_accel_done) {
+  pprz_t cmd = imcu_get_command(COMMAND_THROTTLE);
+  if (speed < HIGH_ACCEL_LOW_SPEED && cmd > HIGH_ACCEL_HIGH_THRUST && !high_accel_done) {
     high_accel_flag = true;
   } else {
     high_accel_flag = false;
     if (speed > HIGH_ACCEL_LOW_SPEED && !high_accel_done) {
       high_accel_done = true; // After takeoff, don't use high accel before landing (GS small, Throttle small)
     }
-    if (speed < HIGH_ACCEL_HIGH_THRUST_RESUME && ap_state->commands[COMMAND_THROTTLE] < HIGH_ACCEL_HIGH_THRUST_RESUME) {
+    if (speed < HIGH_ACCEL_HIGH_THRUST_RESUME && cmd < HIGH_ACCEL_HIGH_THRUST_RESUME) {
       high_accel_done = false; // Activate high accel after landing
     }
   }

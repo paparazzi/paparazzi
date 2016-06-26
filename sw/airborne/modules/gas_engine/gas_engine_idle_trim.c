@@ -30,7 +30,7 @@ int gas_engine_idle_trim_right = 0;
 
 void periodic_gas_engine_idle_trim(void)
 {
-  ap_state->commands[COMMAND_IDLE1] = fbw_state->channels[RADIO_GAIN1];
-  ap_state->commands[COMMAND_IDLE2] = fbw_state->channels[RADIO_GAIN2];
+  imcu_set_command(COMMAND_IDLE1, imcu_get_radio(RADIO_GAIN1));
+  imcu_set_command(COMMAND_IDLE2, imcu_get_radio(RADIO_GAIN2));
 }
 

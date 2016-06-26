@@ -252,9 +252,11 @@ void init_ap(void)
   /* set initial trim values.
    * these are passed to fbw via inter_mcu.
    */
+  PPRZ_RTOS_MTX_LOCK(ap_state_mtx);
   ap_state->command_roll_trim = COMMAND_ROLL_TRIM;
   ap_state->command_pitch_trim = COMMAND_PITCH_TRIM;
   ap_state->command_yaw_trim = COMMAND_YAW_TRIM;
+  PPRZ_RTOS_MTX_UNLOCK(ap_state_mtx);
 
 #if USE_IMU
   // send body_to_imu from here for now
@@ -316,7 +318,7 @@ static inline uint8_t pprz_mode_update(void)
 #endif
      ) {
 #ifndef RADIO_AUTO_MODE
-    return ModeUpdate(pprz_mode, PPRZ_MODE_OF_PULSE(fbw_state->channels[RADIO_MODE]));
+    return ModeUpdate(pprz_mode, PPRZ_MODE_OF_PULSE(imcu_get_radio(RADIO_MODE)));
 #else
     INFO("Using RADIO_AUTO_MODE to switch between AUTO1 and AUTO2.")
     /* If RADIO_AUTO_MODE is enabled mode swithing will be seperated between two switches/channels
@@ -324,14 +326,14 @@ static inline uint8_t pprz_mode_update(void)
      *
      * This is mainly a cludge for entry level radios with no three-way switch but two available two-way switches which can be used.
      */
-    if (PPRZ_MODE_OF_PULSE(fbw_state->channels[RADIO_MODE]) == PPRZ_MODE_MANUAL) {
+    if (PPRZ_MODE_OF_PULSE(imcu_get_radio(RADIO_MODE)) == PPRZ_MODE_MANUAL) {
       /* RADIO_MODE in MANUAL position */
       return ModeUpdate(pprz_mode, PPRZ_MODE_MANUAL);
     } else {
       /* RADIO_MODE not in MANUAL position.
        * Select AUTO mode bassed on RADIO_AUTO_MODE channel
        */
-      return ModeUpdate(pprz_mode, (fbw_state->channels[RADIO_AUTO_MODE] > THRESHOLD2) ? PPRZ_MODE_AUTO2 : PPRZ_MODE_AUTO1);
+      return ModeUpdate(pprz_mode, (imcu_get_radio(RADIO_AUTO_MODE) > THRESHOLD2) ? PPRZ_MODE_AUTO2 : PPRZ_MODE_AUTO1);
     }
 #endif // RADIO_AUTO_MODE
   } else {
@@ -347,7 +349,7 @@ static inline uint8_t pprz_mode_update(void)
 
 static inline uint8_t mcu1_status_update(void)
 {
-  uint8_t new_status = fbw_state->status;
+  uint8_t new_status = imcu_get_status();
   if (mcu1_status != new_status) {
     bool changed = ((mcu1_status & MASK_FBW_CHANGED) != (new_status & MASK_FBW_CHANGED));
     mcu1_status = new_status;
@@ -361,11 +363,15 @@ static inline uint8_t mcu1_status_update(void)
  */
 static inline void copy_from_to_fbw(void)
 {
+  PPRZ_RTOS_MTX_LOCK(fbw_state_mtx);
+  PPRZ_RTOS_MTX_LOCK(ap_state_mtx);
 #ifdef SetAutoCommandsFromRC
   SetAutoCommandsFromRC(ap_state->commands, fbw_state->channels);
 #elif defined RADIO_YAW && defined COMMAND_YAW
   ap_state->commands[COMMAND_YAW] = fbw_state->channels[RADIO_YAW];
 #endif
+  PPRZ_RTOS_MTX_UNLOCK(ap_state_mtx);
+  PPRZ_RTOS_MTX_UNLOCK(fbw_state_mtx);
 }
 
 /** mode to enter when RC is lost in PPRZ_MODE_MANUAL or PPRZ_MODE_AUTO1 */
@@ -382,7 +388,7 @@ static inline void telecommand_task(void)
   copy_from_to_fbw();
 
   /* really_lost is true if we lost RC in MANUAL or AUTO1 */
-  uint8_t really_lost = bit_is_set(fbw_state->status, STATUS_RADIO_REALLY_LOST) &&
+  uint8_t really_lost = bit_is_set(imcu_get_status(), STATUS_RADIO_REALLY_LOST) &&
                         (pprz_mode == PPRZ_MODE_AUTO1 || pprz_mode == PPRZ_MODE_MANUAL);
 
   if (pprz_mode != PPRZ_MODE_HOME && pprz_mode != PPRZ_MODE_GPS_OUT_OF_ORDER && launch) {
@@ -395,11 +401,13 @@ static inline void telecommand_task(void)
       mode_changed = true;
     }
   }
-  if (bit_is_set(fbw_state->status, AVERAGED_CHANNELS_SENT)) {
+  if (bit_is_set(imcu_get_status(), AVERAGED_CHANNELS_SENT)) {
     bool pprz_mode_changed = pprz_mode_update();
     mode_changed |= pprz_mode_changed;
 #if defined RADIO_CALIB && defined RADIO_CONTROL_SETTINGS
+    PPRZ_RTOS_MTX_LOCK(fbw_state_mtx);
     bool calib_mode_changed = RcSettingsModeUpdate(fbw_state->channels);
+    PPRZ_RTOS_MTX_UNLOCK(fbw_state_mtx);
     rc_settings(calib_mode_changed || pprz_mode_changed);
     mode_changed |= calib_mode_changed;
 #endif
@@ -413,36 +421,34 @@ static inline void telecommand_task(void)
    */
   if (pprz_mode == PPRZ_MODE_AUTO1) {
     /** Roll is bounded between [-AUTO1_MAX_ROLL;AUTO1_MAX_ROLL] */
-    h_ctl_roll_setpoint = FLOAT_OF_PPRZ(fbw_state->channels[RADIO_ROLL], 0., AUTO1_MAX_ROLL);
+    h_ctl_roll_setpoint = FLOAT_OF_PPRZ(imcu_get_radio(RADIO_ROLL), 0., AUTO1_MAX_ROLL);
 
     /** Pitch is bounded between [-AUTO1_MAX_PITCH;AUTO1_MAX_PITCH] */
-    h_ctl_pitch_setpoint = FLOAT_OF_PPRZ(fbw_state->channels[RADIO_PITCH], 0., AUTO1_MAX_PITCH);
+    h_ctl_pitch_setpoint = FLOAT_OF_PPRZ(imcu_get_radio(RADIO_PITCH), 0., AUTO1_MAX_PITCH);
 #if H_CTL_YAW_LOOP && defined RADIO_YAW
     /** Yaw is bounded between [-AUTO1_MAX_YAW_RATE;AUTO1_MAX_YAW_RATE] */
-    h_ctl_yaw_rate_setpoint = FLOAT_OF_PPRZ(fbw_state->channels[RADIO_YAW], 0., AUTO1_MAX_YAW_RATE);
+    h_ctl_yaw_rate_setpoint = FLOAT_OF_PPRZ(imcu_get_radio(RADIO_YAW), 0., AUTO1_MAX_YAW_RATE);
 #endif
   } /** Else asynchronously set by \a h_ctl_course_loop() */
 
   /** In AUTO1, throttle comes from RADIO_THROTTLE
       In MANUAL, the value is copied to get it in the telemetry */
   if (pprz_mode == PPRZ_MODE_MANUAL || pprz_mode == PPRZ_MODE_AUTO1) {
-    v_ctl_throttle_setpoint = fbw_state->channels[RADIO_THROTTLE];
+    v_ctl_throttle_setpoint = imcu_get_radio(RADIO_THROTTLE);
   }
   /** else asynchronously set by v_ctl_climb_loop(); */
 
-  mcu1_ppm_cpt = fbw_state->ppm_cpt;
+  mcu1_ppm_cpt = imcu_get_ppm_cpt();
 #endif // RADIO_CONTROL
 
-
-  vsupply = fbw_state->vsupply;
-  current = fbw_state->current;
-  energy = fbw_state->energy;
+  // update electrical from FBW
+  imcu_get_electrical(&vsupply, &current, &energy);
 
 #ifdef RADIO_CONTROL
   /* the SITL check is a hack to prevent "automatic" launch in NPS */
 #ifndef SITL
   if (!autopilot_flight_time) {
-    if (pprz_mode == PPRZ_MODE_AUTO2 && fbw_state->channels[RADIO_THROTTLE] > THROTTLE_THRESHOLD_TAKEOFF) {
+    if (pprz_mode == PPRZ_MODE_AUTO2 && imcu_get_radio(RADIO_THROTTLE) > THROTTLE_THRESHOLD_TAKEOFF) {
       launch = true;
     }
   }
@@ -591,6 +597,7 @@ void attitude_loop(void)
 
   h_ctl_attitude_loop(); /* Set  h_ctl_aileron_setpoint & h_ctl_elevator_setpoint */
   v_ctl_throttle_slew();
+  PPRZ_RTOS_MTX_LOCK(ap_state_mtx);
   ap_state->commands[COMMAND_THROTTLE] = v_ctl_throttle_slewed;
   ap_state->commands[COMMAND_ROLL] = -h_ctl_aileron_setpoint;
   ap_state->commands[COMMAND_PITCH] = h_ctl_elevator_setpoint;
@@ -600,6 +607,7 @@ void attitude_loop(void)
 #if H_CTL_CL_LOOP && defined COMMAND_CL
   ap_state->commands[COMMAND_CL] = h_ctl_flaps_setpoint;
 #endif
+  PPRZ_RTOS_MTX_UNLOCK(ap_state_mtx);
 
 #if defined MCU_SPI_LINK || defined MCU_UART_LINK || defined MCU_CAN_LINK
   link_mcu_send();

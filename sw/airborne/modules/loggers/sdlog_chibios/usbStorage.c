@@ -29,9 +29,9 @@
 #include "usb_msd.h"
 #include "usbStorage.h"
 #include "modules/loggers/sdlog_chibios.h"
-//#include "chibios_init.h"
 #include <stdio.h>
 #include <string.h>
+#include "main_chibios.h"
 #include "mcu_periph/sdio.h"
 
 static uint8_t  nibbleToHex(uint8_t nibble);
@@ -239,11 +239,11 @@ static USBMassStorageConfig msdConfig = {
 
 
 static THD_WORKING_AREA(waThdUsbStorage, 1024);
-void usbStorageStartPolling(thread_t **ap_thd)
+void usbStorageStartPolling(void)
 {
   populateSerialNumberDescriptorData();
   usbStorageThreadPtr = chThdCreateStatic(waThdUsbStorage, sizeof(waThdUsbStorage),
-                                          NORMALPRIO + 2, thdUsbStorage, (void *)ap_thd);
+                                          NORMALPRIO + 2, thdUsbStorage, NULL);
 
 }
 
@@ -268,8 +268,7 @@ void usbStorageStop(void)
 
 static void thdUsbStorage(void *arg)
 {
-  // Autopilot threat from arg
-  thread_t **ap_thd = (thread_t **)arg;
+  (void) arg;
 
   chRegSetThreadName("UsbStorage:polling");
   uint antiBounce = 5;
@@ -319,11 +318,7 @@ static void thdUsbStorage(void *arg)
   chEvtWaitOne(EVENT_MASK(1));
 
   /* stop autopilot */
-  if (*ap_thd != NULL) {
-    chThdTerminate(*ap_thd);
-    chThdWait(*ap_thd);
-    *ap_thd = NULL;
-  }
+  pprz_terminate_autopilot_threads();
 
   /* wait until usb-storage is unmount and usb cable is unplugged*/
   while (!chThdShouldTerminateX() && palReadPad(GPIOA, GPIOA_OTG_FS_VBUS)) {
