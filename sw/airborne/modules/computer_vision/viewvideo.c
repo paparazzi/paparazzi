@@ -109,6 +109,8 @@ struct viewvideo_t viewvideo = {
 };
 
 struct image_t img_copy;
+pthread_mutex_t img_mutex;
+pthread_cond_t img_available_cv;
 
 /**
  * Handles all the video streaming and saving of the image shots
@@ -118,7 +120,7 @@ struct image_t *viewvideo_function(struct image_t *img);
 struct image_t *viewvideo_function(struct image_t *img) {
 
   // If image is not yet processed by thread, return
-  if (viewvideo.new_image) {
+  if (pthread_mutex_trylock(&img_mutex) != 0 || viewvideo.new_image) {
     return NULL;
   }
 
@@ -136,6 +138,8 @@ struct image_t *viewvideo_function(struct image_t *img) {
 
   // Inform thread of new image
   viewvideo.new_image = true;
+  pthread_cond_signal(&img_available_cv);
+  pthread_mutex_unlock(&img_mutex);
 
   return NULL;
 }
@@ -218,12 +222,15 @@ void *viewvideo_thread(void *args) {
   uint32_t fps_period = 1000000 / VIEWVIDEO_FPS;
 
   // Request new image from video thread
+  pthread_mutex_lock(&img_mutex);
   viewvideo.new_image = false;
 
   while (viewvideo.is_streaming) {
-    // If there is no image available, sleep for a bit and try again
+    // Wait for img available signal
+    pthread_cond_wait(&img_available_cv, &img_mutex);
+
+    // If there is no image available, try again
     if (!viewvideo.new_image) {
-      usleep(fps_period / 100);
       continue;
     }
 
@@ -251,6 +258,8 @@ void *viewvideo_thread(void *args) {
     // Request new image
     viewvideo.new_image = false;
   }
+
+  pthread_mutex_unlock(&img_mutex);
 
   return NULL;
 }
@@ -300,6 +309,10 @@ void viewvideo_init(void)
     printf("[viewvideo] Failed to create SDP file.\n");
   }
 #endif
+
+  // Initialize mutex and condition variable
+  pthread_mutex_init(&img_mutex, NULL);
+  pthread_cond_init(&img_available_cv, NULL);
 
   // Create new viewvideo thread
   pthread_t thread_id;
