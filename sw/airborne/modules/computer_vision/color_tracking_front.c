@@ -40,7 +40,7 @@
 #define PI 3.14159265359
 
 // Reliable color detection
-int blob_threshold_front = 200;
+int blob_threshold_front = 50;
 
 // Image-modification triggers
 uint8_t modify_image_front = FALSE; // Image-modification trigger
@@ -49,8 +49,8 @@ uint8_t modify_image_front = FALSE; // Image-modification trigger
 struct results_color destination;
 
 // Navigation: forward velocity
-float vx_front_ref = 0.0;
-float yaw_rate_front_ref = 0.15;
+float vel_ref = 0.75;
+float yaw_rate_front_ref = 1.5;
 
 // Marker-detection timer
 long previous_time;
@@ -114,8 +114,8 @@ struct image_t *color_tracking_front_func(struct image_t* img)
     dt_flight_front = 0;
   }
 
-//  if ((destination.MARKER) && (!BOTTOM_MARKER) & (dt_flight_front > 3)) {
-  if ((destination.MARKER) && (dt_flight_front > 3)) {
+  if ((destination.MARKER) && (!BOTTOM_MARKER) & (dt_flight_front > 2)) {
+
     // Change the flight mode from NAV to GUIDED
     if (AP_MODE_NAV == autopilot_mode) {
       autopilot_mode_auto2 = AP_MODE_GUIDED;
@@ -128,23 +128,18 @@ struct image_t *color_tracking_front_func(struct image_t* img)
     // Compute the location of the centroid wrt the center of the frame
     int centroid_x_centered = centroid_x - (img->w)/2;
 
-    // Change the flight mode from NAV to GUIDED
-    if (AP_MODE_NAV == autopilot_mode) {
-      autopilot_mode_auto2 = AP_MODE_GUIDED;
-      autopilot_set_mode(AP_MODE_GUIDED);
-    }
-
     // Set yaw rate based on the location of the color
     float yaw_rate = centroid_x_centered * yaw_rate_front_ref / (img->w)/2;
     guidance_h_set_guided_heading_rate(yaw_rate);
 
     // Detect if the marker is in the middle of the frame
-    if ((centroid_x_centered > -30) && (centroid_x_centered < 30)) {
+    if ((centroid_x_centered > -10) && (centroid_x_centered < 10)) {
 
       // Set velocities as offsets in NED frame
       float psi = stateGetNedToBodyEulers_f()->psi;
-      float vx_ref_ned = cosf(-psi) * vx_front_ref - sinf(-psi) * vx_front_ref;
-      guidance_h_set_guided_vel(vx_ref_ned, 0);
+      float vx_ref_ned = cosf(psi) * vel_ref;
+      float vy_ref_ned = sinf(psi) * vel_ref;
+      guidance_h_set_guided_vel(vx_ref_ned, vy_ref_ned);
 
     } else {
 

@@ -6,7 +6,7 @@
         ground_alt="0"
         security_height="0.4"
         max_dist_from_home="8"
-        alt="1.5">
+        alt="2.5">
 
   <header>
     #include "autopilot.h"

@@ -38,7 +38,7 @@ extern int blob_threshold_front;
 extern uint8_t modify_image_front;
 
 // Navigation
-extern float vx_front_ref;
+extern float vel_ref;
 extern float yaw_rate_front_ref;
 
 #endif

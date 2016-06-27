@@ -103,7 +103,6 @@ float marker_lost = 2; // seconds
 struct image_t *color_tracking_bottom_func(struct image_t* img);
 struct image_t *color_tracking_bottom_func(struct image_t* img)
 {
-
   // Compute new dt
   struct timespec spec;
   clock_gettime(CLOCK_REALTIME, &spec);
@@ -152,73 +151,78 @@ struct image_t *color_tracking_bottom_func(struct image_t* img)
   ///////////////////////////////////////////////////////////////////////////////////////////////////////
   // NAVIGATION
 
-//  // Initialize the timer if the aircraft is not flying
-//  if (!autopilot_in_flight) {
-//    dt_flight = 0;
-//  }
-//
-//  // Update the location of the centroid only if the marker is detected in the previous iteration
-//  if (destination.MARKER && (dt_flight > 3)) {
-//    temp = destination.maxx;
-//    temp = temp << 16;
-//    temp += destination.maxy;
-//    dt_sum = 0;
-//  }
-//
-//  if (dt_sum <marker_lost) {
-//    BOTTOM_MARKER = TRUE;
-//
-//    // Change the flight mode from NAV to GUIDED
-//    if (AP_MODE_NAV == autopilot_mode) {
-//      autopilot_mode_auto2 = AP_MODE_GUIDED;
-//      autopilot_set_mode(AP_MODE_GUIDED);
-//    }
-//
-//    // Process
-//    uint16_t y = temp & 0x0000ffff;
-//    temp = temp >> 16;
-//    uint16_t x = temp & 0x0000ffff;
-//
-//    struct camera_frame_t cam;
-//    cam.px = x/2;
-//    cam.py = y/2;
-//    cam.f = 400; // Focal length [px]
-//    cam.h = 240; // Frame height [px]
-//    cam.w = 320; // Frame width [px]
-//
-//    // Update waypoint location and save its current (x,y) position
-//    struct centroid_t marker_location = georeference_project(&cam);
-//
-//    // Update memory
-//    centroid_x[MEMORY-1] = marker_location.x;
-//    centroid_y[MEMORY-1] = marker_location.y;
-//
-//    // Adaptive gain adjustment
-//    float term1, term2;
-//    if (marker_location.x <0) { term1 = -marker_location.x; } else { term1 = marker_location.x; }
-//    if (marker_location.y <0) { term2 = -marker_location.y; } else { term2 = marker_location.y; }
-//    velGain_bottom = (term1 + term2) / 4; /* TODO: Change the denominator */
-//
-//    // Set velocities as offsets in NED frame
-//    float psi = stateGetNedToBodyEulers_f()->psi;
-//    vx_bottom_ref = cosf(-psi) * (marker_location.x * velGain_bottom) - sinf(-psi) * (marker_location.y * velGain_bottom);
-//    vy_bottom_ref = sinf(-psi) * (marker_location.x * velGain_bottom) + cosf(-psi) * (marker_location.y * velGain_bottom);
-//
-//    // Follow the marker with velocity references
-//    guidance_h_set_guided_vel(vx_bottom_ref, vy_bottom_ref);
-//
-//    // Absolute value
-//    if (centroid_x[MEMORY-1] <0) { centroid_x[MEMORY-1] = -centroid_x[MEMORY-1]; }
-//    if (centroid_y[MEMORY-1] <0) { centroid_y[MEMORY-1] = -centroid_y[MEMORY-1]; }
-//
+  // Initialize the timer if the aircraft is not flying
+  if (!autopilot_in_flight) {
+    dt_flight = 0;
+  }
+
+  // Update the location of the centroid only if the marker is detected in the previous iteration
+  if (destination.MARKER && (dt_flight > 2)) {
+    temp = destination.maxx;
+    temp = temp << 16;
+    temp += destination.maxy;
+    dt_sum = 0;
+  }
+
+  if ((dt_sum < marker_lost) && (dt_flight > 2)) {
+
+    // Change the flight mode from NAV to GUIDED
+    if (AP_MODE_NAV == autopilot_mode) {
+      autopilot_mode_auto2 = AP_MODE_GUIDED;
+      autopilot_set_mode(AP_MODE_GUIDED);
+    }
+
+    // Bottom camera has a higher priority
+    BOTTOM_MARKER = TRUE;
+
+    // Do not change yaw
+    guidance_h_set_guided_heading_rate(0);
+
+    // Centroid
+    uint16_t y = temp & 0x0000ffff;
+    temp = temp >> 16;
+    uint16_t x = temp & 0x0000ffff;
+
+    struct camera_frame_t cam;
+    cam.px = x/2;
+    cam.py = y/2;
+    cam.f = 400; // Focal length [px]
+    cam.h = 240; // Frame height [px]
+    cam.w = 320; // Frame width [px]
+
+    // Update waypoint location and save its current (x,y) position
+    struct centroid_t marker_location = georeference_project(&cam);
+
+    // Update memory
+    centroid_x[MEMORY-1] = marker_location.x;
+    centroid_y[MEMORY-1] = marker_location.y;
+
+    // Adaptive gain adjustment
+    float term1, term2;
+    if (marker_location.x <0) { term1 = -marker_location.x; } else { term1 = marker_location.x; }
+    if (marker_location.y <0) { term2 = -marker_location.y; } else { term2 = marker_location.y; }
+    velGain_bottom = (term1 + term2) / 4; /* TODO: Change the denominator */
+
+    // Set velocities as offsets in NED frame
+    float psi = stateGetNedToBodyEulers_f()->psi;
+    vx_bottom_ref = cosf(-psi) * (marker_location.x * velGain_bottom) - sinf(-psi) * (marker_location.y * velGain_bottom);
+    vy_bottom_ref = sinf(-psi) * (marker_location.x * velGain_bottom) + cosf(-psi) * (marker_location.y * velGain_bottom);
+
+    // Follow the marker with velocity references
+    guidance_h_set_guided_vel(vx_bottom_ref, vy_bottom_ref);
+
+    // Absolute value
+    if (centroid_x[MEMORY-1] <0) { centroid_x[MEMORY-1] = -centroid_x[MEMORY-1]; }
+    if (centroid_y[MEMORY-1] <0) { centroid_y[MEMORY-1] = -centroid_y[MEMORY-1]; }
+
 //    // Check if the marker has been reached
 //    for (int i = 0; i <MEMORY; ++i) {
 //      if ((centroid_x[i] < target_reached) && (centroid_y[i] < target_reached)) {
 //        centroid_counter++;
 //      }
 //    }
-//
-//    // Landing
+
+//    // Decrease altitude and hover above the marker
 //    if (centroid_counter > (MEMORY - 1)) {
 //
 //      // If the marker has been reached, start decreasing altitude
@@ -232,23 +236,23 @@ struct image_t *color_tracking_bottom_func(struct image_t* img)
 //      // If the marker has not been reached, maintain altitude
 //      guidance_v_set_guided_vz(0);
 //    }
-//
+
 //    // Prepare variables for the next iteration
 //    centroid_counter = 0;
-//
-//    for (int i = 0; i <(MEMORY-1) ; ++i) {
-//      centroid_x[i] = centroid_x[i+1];
-//      centroid_y[i] = centroid_y[i+1];
-//    }
-//
-//
-//  } else { // Marker lost
-//
-//    BOTTOM_MARKER = FALSE;
-//
-//    // Reinitialize the variables
-//    init_variables();
-//  }
+
+    for (int i = 0; i <(MEMORY-1) ; ++i) {
+      centroid_x[i] = centroid_x[i+1];
+      centroid_y[i] = centroid_y[i+1];
+    }
+
+  } else {
+
+    // Marker lost
+    BOTTOM_MARKER = FALSE;
+
+    // Reinitialize the variables
+    init_variables();
+  }
 
   // Update variables
   previous_time = new_time;

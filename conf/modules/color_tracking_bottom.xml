@@ -13,7 +13,7 @@
         <dl_setting var="target_reached"  min="0.05" step="0.05" max="1" shortname="proximity" />
         <dl_setting var="height_above_target"  min="0.75" step="0.05" max="2" shortname="height_above_target" />
 
-        <dl_setting var="color" min="0" step="1" max="1" />
+        <dl_setting var="color" min="0" step="1" max="1" shortname="RED/BLUE"/>
         <dl_setting var="modify_image_bottom" min="0" step="1" max="1" />
         <dl_setting var="blob_threshold_bottom"  min="50" step="1" max="10000" shortname="counter" />
 
