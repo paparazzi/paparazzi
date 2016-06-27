@@ -340,6 +340,7 @@
    settings_modules="modules/gps.xml modules/geo_mag.xml modules/air_data.xml modules/gps_ubx_ucenter.xml"
    gui_color="#baa3d698b729"
   />
+<!-- missing calib file
   <aircraft
    name="bebop2_23"
    ac_id="23"
@@ -351,6 +352,7 @@
    settings_modules="modules/gps.xml modules/geo_mag.xml modules/air_data.xml modules/gps_ubx_ucenter.xml"
    gui_color="#f6d5baaaffff"
   />
+-->
   <aircraft
    name="bebop_flip"
    ac_id="3"
