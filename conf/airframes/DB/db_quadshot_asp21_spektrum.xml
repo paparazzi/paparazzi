@@ -218,9 +218,9 @@
     <define name="DEADBAND_A" value="250"/>
     <define name="SP_PSI_DELTA_LIMIT" value="90" unit="deg"/>
     <!-- control effectiveness -->
-    <define name="G1_P" value="40.0"/>
-    <define name="G1_Q" value="12.0"/>
-    <define name="G1_R" value="170.0"/>
+    <define name="G1_P" value="0.025"/>
+    <define name="G1_Q" value="0.0833"/>
+    <define name="G1_R" value="0.00588"/>
     <define name="G2_R" value="0.0"/>
     <!-- reference acceleration for attitude control -->
     <define name="REF_ERR_P" value="70.0"/>
