@@ -276,7 +276,7 @@ void inter_mcu_event_handle(void)
     inter_mcu_received_ap = false;
     inter_mcu_event_task();
 
-    PPRZ_RTOS_MTX_LOCK(ap_state_mtx);
+    PPRZ_MUTEX_LOCK(ap_state_mtx);
     command_roll_trim = ap_state->command_roll_trim;
     command_pitch_trim = ap_state->command_pitch_trim;
     command_yaw_trim = ap_state->command_yaw_trim;
@@ -291,7 +291,7 @@ void inter_mcu_event_handle(void)
 #endif /* SET_AP_ONLY_COMMANDS */
     }
     fbw_new_actuators = 1;
-    PPRZ_RTOS_MTX_UNLOCK(ap_state_mtx);
+    PPRZ_MUTEX_UNLOCK(ap_state_mtx);
 
 #ifdef SINGLE_MCU
     inter_mcu_fill_fbw_state();

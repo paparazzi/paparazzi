@@ -186,7 +186,7 @@ void vPoint(float fPlaneEast, float fPlaneNorth, float fPlaneAltitude,
     if (cam_mode == CAM_MODE_STABILIZED || cam_mode == CAM_MODE_RC) {
 
       // protect acces to fbw state
-      PPRZ_RTOS_MTX_LOCK(fbw_state_mtx);
+      PPRZ_MUTEX_LOCK(fbw_state_mtx);
       /*########################################  TILT CONTROL INPUT  #############################################*/
 #ifdef CAM_TILT_NEUTRAL
 
@@ -266,7 +266,7 @@ void vPoint(float fPlaneEast, float fPlaneNorth, float fPlaneAltitude,
 
 #endif  //#ifdef CAM_PAN_NEUTRAL
       /*########################################  END OF PAN CONTROL INPUT  #############################################*/
-      PPRZ_RTOS_MTX_UNLOCK(fbw_state_mtx);
+      PPRZ_MUTEX_UNLOCK(fbw_state_mtx);
 
       // Bound Pan and Tilt angles.
       if (cam_theta > RadOfDeg(CAM_TILT_MAX)) {

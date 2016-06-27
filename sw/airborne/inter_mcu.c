@@ -40,8 +40,8 @@ struct ap_state  *ap_state = &link_mcu_from_ap_msg.payload.from_ap;
 volatile bool inter_mcu_received_fbw = false;
 volatile bool inter_mcu_received_ap  = false;
 
-PPRZ_RTOS_MTX(ap_state_mtx);
-PPRZ_RTOS_MTX(fbw_state_mtx);
+PPRZ_MUTEX(ap_state_mtx);
+PPRZ_MUTEX(fbw_state_mtx);
 
 #ifdef FBW
 /** Variables for monitoring AP communication status */

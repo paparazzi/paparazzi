@@ -252,11 +252,11 @@ void init_ap(void)
   /* set initial trim values.
    * these are passed to fbw via inter_mcu.
    */
-  PPRZ_RTOS_MTX_LOCK(ap_state_mtx);
+  PPRZ_MUTEX_LOCK(ap_state_mtx);
   ap_state->command_roll_trim = COMMAND_ROLL_TRIM;
   ap_state->command_pitch_trim = COMMAND_PITCH_TRIM;
   ap_state->command_yaw_trim = COMMAND_YAW_TRIM;
-  PPRZ_RTOS_MTX_UNLOCK(ap_state_mtx);
+  PPRZ_MUTEX_UNLOCK(ap_state_mtx);
 
 #if USE_IMU
   // send body_to_imu from here for now
@@ -363,15 +363,15 @@ static inline uint8_t mcu1_status_update(void)
  */
 static inline void copy_from_to_fbw(void)
 {
-  PPRZ_RTOS_MTX_LOCK(fbw_state_mtx);
-  PPRZ_RTOS_MTX_LOCK(ap_state_mtx);
+  PPRZ_MUTEX_LOCK(fbw_state_mtx);
+  PPRZ_MUTEX_LOCK(ap_state_mtx);
 #ifdef SetAutoCommandsFromRC
   SetAutoCommandsFromRC(ap_state->commands, fbw_state->channels);
 #elif defined RADIO_YAW && defined COMMAND_YAW
   ap_state->commands[COMMAND_YAW] = fbw_state->channels[RADIO_YAW];
 #endif
-  PPRZ_RTOS_MTX_UNLOCK(ap_state_mtx);
-  PPRZ_RTOS_MTX_UNLOCK(fbw_state_mtx);
+  PPRZ_MUTEX_UNLOCK(ap_state_mtx);
+  PPRZ_MUTEX_UNLOCK(fbw_state_mtx);
 }
 
 /** mode to enter when RC is lost in PPRZ_MODE_MANUAL or PPRZ_MODE_AUTO1 */
@@ -405,9 +405,9 @@ static inline void telecommand_task(void)
     bool pprz_mode_changed = pprz_mode_update();
     mode_changed |= pprz_mode_changed;
 #if defined RADIO_CALIB && defined RADIO_CONTROL_SETTINGS
-    PPRZ_RTOS_MTX_LOCK(fbw_state_mtx);
+    PPRZ_MUTEX_LOCK(fbw_state_mtx);
     bool calib_mode_changed = RcSettingsModeUpdate(fbw_state->channels);
-    PPRZ_RTOS_MTX_UNLOCK(fbw_state_mtx);
+    PPRZ_MUTEX_UNLOCK(fbw_state_mtx);
     rc_settings(calib_mode_changed || pprz_mode_changed);
     mode_changed |= calib_mode_changed;
 #endif
@@ -597,7 +597,7 @@ void attitude_loop(void)
 
   h_ctl_attitude_loop(); /* Set  h_ctl_aileron_setpoint & h_ctl_elevator_setpoint */
   v_ctl_throttle_slew();
-  PPRZ_RTOS_MTX_LOCK(ap_state_mtx);
+  PPRZ_MUTEX_LOCK(ap_state_mtx);
   ap_state->commands[COMMAND_THROTTLE] = v_ctl_throttle_slewed;
   ap_state->commands[COMMAND_ROLL] = -h_ctl_aileron_setpoint;
   ap_state->commands[COMMAND_PITCH] = h_ctl_elevator_setpoint;
@@ -607,7 +607,7 @@ void attitude_loop(void)
 #if H_CTL_CL_LOOP && defined COMMAND_CL
   ap_state->commands[COMMAND_CL] = h_ctl_flaps_setpoint;
 #endif
-  PPRZ_RTOS_MTX_UNLOCK(ap_state_mtx);
+  PPRZ_MUTEX_UNLOCK(ap_state_mtx);
 
 #if defined MCU_SPI_LINK || defined MCU_UART_LINK || defined MCU_CAN_LINK
   link_mcu_send();
