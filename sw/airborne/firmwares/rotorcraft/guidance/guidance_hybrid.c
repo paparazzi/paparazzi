@@ -115,7 +115,7 @@ void guidance_hybrid_init(void) {
   INT_VECT2_ZERO(wind_estimate_high_res);
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, "HYBRID_GUIDANCE", send_hybrid_guidance);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_HYBRID_GUIDANCE, send_hybrid_guidance);
 #endif
 
 }

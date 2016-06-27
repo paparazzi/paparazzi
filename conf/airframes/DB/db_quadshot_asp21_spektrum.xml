@@ -378,6 +378,7 @@
     <module name="gps"           type="ublox"/>
 <!--     <module name="stabilization" type="int_quat"/> -->
     <module name="stabilization" type="indi"/>
+    <module name="guidance"      type="hybrid"/>
 
     <module name="ahrs"          type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="1"/>

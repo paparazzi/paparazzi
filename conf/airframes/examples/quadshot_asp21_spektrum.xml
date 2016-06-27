@@ -49,8 +49,8 @@
     <let var="forward_right" value="aileron_gain*$aileron_feedback_right+elevator_gain*$elevator_feedback_right"/>-->
 
 <!--     if using PID with gain scheduling -->
-    <let var="forward_left"  value="15*$aileron_feedback_left + 15*$elevator_feedback_left"/>
-    <let var="forward_right" value="15*$aileron_feedback_right + 15*$elevator_feedback_right"/>
+    <let var="forward_left"  value="5*$aileron_feedback_left + 4*$elevator_feedback_left"/>
+    <let var="forward_right" value="5*$aileron_feedback_right + 4*$elevator_feedback_right"/>
 
     <!-- This statement tells the autopilot to use the hover feedback if in mode attitude direct and to use the forward feedback in all other cases-->
     <set servo="ELEVON_LEFT"    value="AP_MODE == AP_MODE_ATTITUDE_DIRECT ? $hover_left  : $forward_left" />
@@ -90,12 +90,19 @@
     <define name="ACCEL_Y_SENS" value="4.89957269597" integer="16"/>
     <define name="ACCEL_Z_SENS" value="4.82616398266" integer="16"/>
 
-    <define name="MAG_X_NEUTRAL" value="104"/>
-    <define name="MAG_Y_NEUTRAL" value="9"/>
-    <define name="MAG_Z_NEUTRAL" value="15"/>
-    <define name="MAG_X_SENS" value="3.57880347067" integer="16"/>
-    <define name="MAG_Y_SENS" value="3.54049742843" integer="16"/>
-    <define name="MAG_Z_SENS" value="4.0620533034" integer="16"/>
+<!--     <define name="MAG_X_NEUTRAL" value="104"/> -->
+<!--     <define name="MAG_Y_NEUTRAL" value="9"/> -->
+<!--     <define name="MAG_Z_NEUTRAL" value="15"/> -->
+<!--     <define name="MAG_X_SENS" value="3.57880347067" integer="16"/> -->
+<!--     <define name="MAG_Y_SENS" value="3.54049742843" integer="16"/> -->
+<!--     <define name="MAG_Z_SENS" value="4.0620533034" integer="16"/> -->
+
+	<define name="MAG_X_NEUTRAL" value="-86"/>
+	<define name="MAG_Y_NEUTRAL" value="-36"/>
+	<define name="MAG_Z_NEUTRAL" value="35"/>
+	<define name="MAG_X_SENS" value="3.98639595061" integer="16"/>
+	<define name="MAG_Y_SENS" value="4.00632407649" integer="16"/>
+	<define name="MAG_Z_SENS" value="4.17946082997" integer="16"/>
   </section>
 
   <section name="IMU" prefix="IMU_">
@@ -107,7 +114,7 @@
   <section name="AUTOPILOT">
     <define name="MODE_MANUAL"  value="AP_MODE_ATTITUDE_DIRECT"/>
     <define name="MODE_AUTO1" value="AP_MODE_FORWARD"/>
-    <define name="MODE_AUTO2"  value="AP_MODE_ATTITUDE_DIRECT"/>
+    <define name="MODE_AUTO2"  value="AP_MODE_NAV"/>
 
 <!--     <define name="USE_YAW_FOR_MOTOR_ARMING" value="TRUE"/> -->
   </section>
@@ -211,9 +218,10 @@
     <define name="DEADBAND_A" value="250"/>
     <define name="SP_PSI_DELTA_LIMIT" value="90" unit="deg"/>
     <!-- control effectiveness -->
-    <define name="CONTROL_EFFECTIVENESS_P" value="40.0"/>
-    <define name="CONTROL_EFFECTIVENESS_Q" value="12.0"/>
-    <define name="CONTROL_EFFECTIVENESS_R" value="170.0"/>
+    <define name="G1_P" value="0.025"/>
+    <define name="G1_Q" value="0.0833"/>
+    <define name="G1_R" value="0.00588"/>
+    <define name="G2_R" value="0.0"/>
     <!-- reference acceleration for attitude control -->
     <define name="REF_ERR_P" value="70.0"/>
     <define name="REF_ERR_Q" value="45.0"/>
@@ -230,6 +238,9 @@
     <define name="ACT_DYN_P" value="0.03"/>
     <define name="ACT_DYN_Q" value="0.03"/>
     <define name="ACT_DYN_R" value="0.03"/>
+        <!-- Adaptive Learning Rate -->
+    <define name="USE_ADAPTIVE" value="FALSE"/>
+    <define name="ADAPTIVE_MU" value="0.0001"/>
   </section>
 
 
@@ -319,7 +330,7 @@
       <define name="AIRSPEED_ETS_SYNC_SEND"/>
     </load>-->
 
-    <load name="high_speed_logger_spi_link.xml"/>
+    <module name="high_speed_logger_spi_link.xml"/>
 
 <!--    <load name="AOA_adc.xml">
       <configure name="ADC_AOA" value="ADC_2"/>
@@ -329,18 +340,18 @@
       <define name="AOA_SENS" value="2.0*M_PI/1024/4"/>
     </load>-->
 
-  <!-- Load this module to use multiple gain sets, which have to be specified in the gain sets section -->
-    <load name="gain_scheduling.xml"/>
+  <!-- Load this module to use multiple gain sets, which have to be specified in the gain sets section. Does not work with INDI -->
+    <!-- <module name="gain_scheduling"/> -->
   </modules>
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_m_2.0">
-    <subsystem name="radio_control" type="spektrum">
-      <define name="RADIO_KILL_SWITCH" value="6"/>
+    <module name="radio_control" type="spektrum">
+      <define name="RADIO_KILL_SWITCH" value="5"/>
       <!-- Put the mode on channel AUX1-->
-<!--      <define name="RADIO_MODE" value="RADIO_AUX1"/>-->
+      <define name="RADIO_MODE" value="6"/>
 <!--       <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/> -->
-    </subsystem>
+    </module>
 
     <!-- ONLY if flashing via JTAG cable -->
     <configure name="FLASH_MODE"   value="SWD"/>
@@ -352,26 +363,29 @@
 
       <!-- If using aspirin 2.2, make sure to uncomment the following barometer configuration: -->
       <!--       <configure name="LISA_M_BARO" value="BARO_MS5611_SPI"/> -->
+      <configure name="LISA_M_BARO" value="BARO_BOARD_BMP085"/>
     </target>
 
-    <subsystem name="motor_mixing"/>
-    <subsystem name="actuators"     type="pwm">
+    <module name="motor_mixing"/>
+    <module name="actuators"     type="pwm">
       <define name="SERVO_HZ" value="400"/>
       <define name="USE_SERVOS_7AND8"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="telemetry"     type="xbee_api"/>
-<!--    <subsystem name="telemetry"     type="transparent"/> -->
-    <subsystem name="imu"           type="aspirin_v2.1"/>
-    <subsystem name="gps"           type="ublox"/>
-<!--     <subsystem name="stabilization" type="int_quat"/> -->
-    <subsystem name="stabilization" type="indi"/>
+    <module name="telemetry"     type="xbee_api"/>
+<!--    <module name="telemetry"     type="transparent"/> -->
+    <module name="imu"           type="aspirin_v2.1"/>
+    <module name="gps"           type="ublox"/>
+<!--     <module name="stabilization" type="int_quat"/> -->
+    <module name="stabilization" type="indi"/>
+    <module name="guidance"      type="hybrid"/>
 
-    <subsystem name="ahrs"          type="int_cmpl_quat">
+    <module name="ahrs"          type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="1"/>
       <define name="AHRS_USE_GPS_HEADING" value="0"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="ins"/>
+    <module name="ins"/>
   </firmware>
 </airframe>
+
