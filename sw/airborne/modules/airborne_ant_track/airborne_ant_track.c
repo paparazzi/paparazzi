@@ -170,7 +170,7 @@ void airborne_ant_point_periodic(void)
   airborne_ant_pan_servo = TRIM_PPRZ(airborne_ant_pan_servo);
 
 #ifdef COMMAND_ANT_PAN
-  ap_state->commands[COMMAND_ANT_PAN] = airborne_ant_pan_servo;
+  imcu_set_command(COMMAND_ANT_PAN, airborne_ant_pan_servo);
 #endif
 
 

@@ -27,7 +27,6 @@
 
 #include <ch.h>
 #include <hal.h>
-#include "main_chibios.h"
 #include "modules/loggers/sdlog_chibios/sdLog.h"
 #include "modules/loggers/sdlog_chibios/usbStorage.h"
 #include "modules/loggers/sdlog_chibios.h"
@@ -122,10 +121,10 @@ void chibios_sdlog_init(struct chibios_sdlog *sdlog, FileDes *file)
 void sdlog_chibios_init(void)
 {
   // Start polling on USB
-  usbStorageStartPolling (&pprzThdPtr);
+  usbStorageStartPolling();
 
   // Start log thread
-  chThdCreateStatic (wa_thd_startlog, sizeof(wa_thd_startlog),
+  chThdCreateStatic(wa_thd_startlog, sizeof(wa_thd_startlog),
       NORMALPRIO+2, thd_startlog, NULL);
 }
 
