@@ -26,6 +26,7 @@
 
 #include "generated/airframe.h"
 
+#include "firmwares/rotorcraft/guidance/guidance_hybrid.h"
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
 #include "firmwares/rotorcraft/guidance/guidance_flip.h"
 #include "firmwares/rotorcraft/guidance/guidance_indi.h"
@@ -430,6 +431,11 @@ void guidance_h_run(bool  in_flight)
         guidance_hybrid_reset_heading(&sp_cmd_i);
 #endif
       } else {
+
+#if HYBRID_NAVIGATION
+        INT32_VECT2_NED_OF_ENU(guidance_h.sp.pos, navigation_target);
+        guidance_hybrid_run();
+#else
         INT32_VECT2_NED_OF_ENU(guidance_h.sp.pos, navigation_carrot);
 
         guidance_h_update_reference();
@@ -437,14 +443,17 @@ void guidance_h_run(bool  in_flight)
         /* set psi command */
         guidance_h.sp.heading = nav_heading;
         INT32_ANGLE_NORMALIZE(guidance_h.sp.heading);
-#if GUIDANCE_INDI
-        guidance_indi_run(in_flight, guidance_h.sp.heading);
-#else
-        /* compute x,y earth commands */
-        guidance_h_traj_run(in_flight);
-        /* set final attitude setpoint */
-        stabilization_attitude_set_earth_cmd_i(&guidance_h_cmd_earth,
-                                               guidance_h.sp.heading);
+
+	#if GUIDANCE_INDI
+			guidance_indi_run(in_flight, guidance_h.sp.heading);
+	#else
+			/* compute x,y earth commands */
+			guidance_h_traj_run(in_flight);
+			/* set final attitude setpoint */
+			stabilization_attitude_set_earth_cmd_i(&guidance_h_cmd_earth,
+												   guidance_h.sp.heading);
+	#endif
+
 #endif
         stabilization_attitude_run(in_flight);
       }
