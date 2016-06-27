@@ -201,6 +201,10 @@ void guidance_h_init(void)
 #if GUIDANCE_INDI
   guidance_indi_enter();
 #endif
+
+#if HYBRID_NAVIGATION
+  guidance_hybrid_init();
+#endif
 }
 
 
@@ -224,6 +228,10 @@ void guidance_h_mode_changed(uint8_t new_mode)
     transition_percentage = 0;
     transition_theta_offset = 0;
   }
+
+#if HYBRID_NAVIGATION
+   guidance_hybrid_norm_ref_airspeed = 0;
+#endif
 
   switch (new_mode) {
     case GUIDANCE_H_MODE_RC_DIRECT:
@@ -416,6 +424,11 @@ void guidance_h_run(bool  in_flight)
         sp_cmd_i.psi = nav_heading;
         stabilization_attitude_set_rpy_setpoint_i(&sp_cmd_i);
         stabilization_attitude_run(in_flight);
+
+#if HYBRID_NAVIGATION
+        //make sure the heading is right before leaving horizontal_mode attitude
+        guidance_hybrid_reset_heading(&sp_cmd_i);
+#endif
       } else {
         INT32_VECT2_NED_OF_ENU(guidance_h.sp.pos, navigation_carrot);
 
