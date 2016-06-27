@@ -65,6 +65,7 @@
    settings_modules="modules/gps.xml modules/gps_ubx_ucenter.xml modules/time_countdown.xml"
    gui_color="red"
   />
+<!-- missing calib file
   <aircraft
    name="Bebop2Mavlink"
    ac_id="24"
@@ -76,6 +77,7 @@
    settings_modules="modules/gps.xml modules/geo_mag.xml modules/air_data.xml modules/gps_ubx_ucenter.xml"
    gui_color="#ffff0689b7a1"
   />
+-->
   <aircraft
    name="Bebop2_Smeur"
    ac_id="21"
@@ -340,7 +342,6 @@
    settings_modules="modules/gps.xml modules/geo_mag.xml modules/air_data.xml modules/gps_ubx_ucenter.xml"
    gui_color="#baa3d698b729"
   />
-<!-- missing calib file
   <aircraft
    name="bebop2_23"
    ac_id="23"
@@ -352,7 +353,6 @@
    settings_modules="modules/gps.xml modules/geo_mag.xml modules/air_data.xml modules/gps_ubx_ucenter.xml"
    gui_color="#f6d5baaaffff"
   />
--->
   <aircraft
    name="bebop_flip"
    ac_id="3"
