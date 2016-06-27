@@ -33,13 +33,15 @@
 #include <ch.h>
 
 #define PPRZ_RTOS_MTX(_mtx) mutex_t _mtx
+#define PPRZ_RTOS_MTX_DECL(_mtx) extern mutex_t _mtx
 #define PPRZ_RTOS_MTX_INIT(_mtx) chMtxObjectInit(&(_mtx))
 #define PPRZ_RTOS_MTX_LOCK(_mtx) chMtxLock(&(_mtx))
 #define PPRZ_RTOS_MTX_UNLOCK(_mtx) chMtxUnlock(&(_mtx))
 
 #else // no RTOS
 
-#define PPRZ_RTOS_MTX(_mtx) {}
+#define PPRZ_RTOS_MTX(_mtx)
+#define PPRZ_RTOS_MTX_DECL(_mtx)
 #define PPRZ_RTOS_MTX_INIT(_mtx) {}
 #define PPRZ_RTOS_MTX_LOCK(_mtx) {}
 #define PPRZ_RTOS_MTX_UNLOCK(_mtx) {}

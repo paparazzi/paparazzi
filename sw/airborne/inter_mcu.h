@@ -86,8 +86,8 @@ extern volatile bool inter_mcu_received_ap;
  * Getter and setter functions for ap_state and fbw_state elements
  * protected by mutexes
  */
-extern PPRZ_RTOS_MTX(ap_state_mtx);
-extern PPRZ_RTOS_MTX(fbw_state_mtx);
+PPRZ_RTOS_MTX_DECL(ap_state_mtx);
+PPRZ_RTOS_MTX_DECL(fbw_state_mtx);
 
 /** get AP command
  * @param cmd_idx command index
@@ -247,12 +247,12 @@ static inline void imcu_set_status(uint8_t status)
  * @param current pointer to return current
  * @param energy pointer to return cumulated energy
  */
-static inline void imcu_get_electrical(uint16_t *vsupply, int32_t *current, float *energy)
+static inline void imcu_get_electrical(uint16_t *_vsupply, int32_t *_current, float *_energy)
 {
   PPRZ_RTOS_MTX_LOCK(fbw_state_mtx);
-  *vsupply = fbw_state->vsupply;
-  *current = fbw_state->current;
-  *energy = fbw_state->energy;
+  *_vsupply = fbw_state->vsupply;
+  *_current = fbw_state->current;
+  *_energy = fbw_state->energy;
   PPRZ_RTOS_MTX_UNLOCK(fbw_state_mtx);
 }
 
@@ -261,12 +261,12 @@ static inline void imcu_get_electrical(uint16_t *vsupply, int32_t *current, floa
  * @param current new current (mA)
  * @param energy new cumulated energy (mAh)
  */
-static inline void imcu_set_electrical(uint16_t vsupply, int32_t current, float energy)
+static inline void imcu_set_electrical(uint16_t _vsupply, int32_t _current, float _energy)
 {
   PPRZ_RTOS_MTX_LOCK(fbw_state_mtx);
-  fbw_state->vsupply = vsupply;
-  fbw_state->current = current;
-  fbw_state->energy = energy;
+  fbw_state->vsupply = _vsupply;
+  fbw_state->current = _current;
+  fbw_state->energy = _energy;
   PPRZ_RTOS_MTX_UNLOCK(fbw_state_mtx);
 }
 
