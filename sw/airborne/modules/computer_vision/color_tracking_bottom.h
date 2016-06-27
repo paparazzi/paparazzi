@@ -23,29 +23,45 @@
  * @author IMAV 2016
  */
 
-#ifndef MARKER_TRACKING_CV_PLUGIN_H
-#define MARKER_TRACKING_CV_PLUGIN_H
+#ifndef COLOR_BOTTOM_CV_PLUGIN_H
+#define COLOR_BOTTOM_CV_PLUGIN_H
 
 #include <stdint.h>
 
 // Module functions
-void color_tracking_init(void);
+void color_tracking_bottom_init(void);
+uint8_t init_variables(void);
 
-extern uint8_t color_lum_min;
-extern uint8_t color_lum_max;
+// Color
+extern int color;
 
-extern uint8_t color_cb_min;
-extern uint8_t color_cb_max;
+// Colorfilter
+extern uint8_t color_lum_min_red;
+extern uint8_t color_lum_max_red;
+extern uint8_t color_cb_min_red;
+extern uint8_t color_cb_max_red;
+extern uint8_t color_cr_min_red;
+extern uint8_t color_cr_max_red;
 
-extern uint8_t color_cr_min;
-extern uint8_t color_cr_max;
+extern uint8_t color_lum_min_blue;
+extern uint8_t color_lum_max_blue;
+extern uint8_t color_cb_min_blue;
+extern uint8_t color_cb_max_blue;
+extern uint8_t color_cr_min_blue;
+extern uint8_t color_cr_max_blue;
 
-extern uint8_t modify_image;
+// Reliable color detection
+extern int blob_threshold_bottom;
 
-extern int color_detection;
-extern int maxx;
-extern int maxy;
+// Image-modification triggers
+extern uint8_t modify_image_bottom;
 
-extern uint8_t MARKER;
+// Marker detected in the bottom camera
+extern uint8_t BOTTOM_MARKER;
+
+// Navigation
+extern float vz_bottom_ref;
+extern float height_above_target;
+extern float target_reached;
 
 #endif

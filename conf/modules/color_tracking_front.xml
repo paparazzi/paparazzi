@@ -1,21 +1,17 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="ColorTrackingFront" dir="computer_vision">
+<module name="CT_Front" dir="computer_vision">
   <doc>
-    <description>ColorTrackingFront</description>
+    <description>CT_Front</description>
   </doc>
 
   <settings>
     <dl_settings>
-      <dl_settings name="ColorTrackingFront">
+      <dl_settings name="CT_Front">
         <dl_setting var="modify_image_front" min="0" step="1" max="1" />
-        <dl_setting var="color_lum_min_front" min="0" step="1" max="255" shortname="y_min" />
-        <dl_setting var="color_lum_max_front" min="0" step="1" max="255" shortname="y_max" />
-        <dl_setting var="color_cb_min_front"  min="0" step="1" max="255" shortname="u_min" />
-        <dl_setting var="color_cb_max_front"  min="0" step="1" max="255" shortname="u_max" />
-        <dl_setting var="color_cr_min_front"  min="0" step="1" max="255" shortname="v_min" />
-        <dl_setting var="color_cr_max_front"  min="0" step="1" max="255" shortname="v_max" />
         <dl_setting var="blob_threshold_front"  min="50" step="1" max="10000" shortname="counter" />
+        <dl_setting var="vx_front_ref"  min="0.1" step="0.05" max="1" shortname="vx_ref" />
+        <dl_setting var="yaw_rate_front_ref"  min="0.01" step="0.01" max="0.5" shortname="yaw_rate_ref" />
       </dl_settings>
     </dl_settings>
   </settings>

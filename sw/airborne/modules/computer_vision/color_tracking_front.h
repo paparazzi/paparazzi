@@ -31,16 +31,14 @@
 // Module functions
 void color_tracking_front_init(void);
 
-// Colorfilter
-extern uint8_t color_lum_min_front;
-extern uint8_t color_lum_max_front;
-extern uint8_t color_cb_min_front;
-extern uint8_t color_cb_max_front;
-extern uint8_t color_cr_min_front;
-extern uint8_t color_cr_max_front;
+// Reliable color detection
 extern int blob_threshold_front;
 
 // Image-modification triggers
 extern uint8_t modify_image_front;
+
+// Navigation
+extern float vx_front_ref;
+extern float yaw_rate_front_ref;
 
 #endif

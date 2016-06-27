@@ -24,6 +24,7 @@
  */
 
 #include "modules/computer_vision/color_tracking_front.h"
+#include "modules/computer_vision/color_tracking_bottom.h"
 #include "modules/computer_vision/cv.h"
 #include "modules/computer_vision/lib/vision/image.h"
 #include "modules/computer_vision/imav2016markers.h"
@@ -38,35 +39,58 @@
 
 #define PI 3.14159265359
 
-// Red color settings
-uint8_t color_lum_min_front = 70;
-uint8_t color_lum_max_front = 205;
-uint8_t color_cb_min_front  = 52;
-uint8_t color_cb_max_front  = 140;
-uint8_t color_cr_min_front  = 140;
-uint8_t color_cr_max_front  = 255;
-int blob_threshold_front = 1000; // Reliable red detection
+// Reliable color detection
+int blob_threshold_front = 200;
 
 // Image-modification triggers
-uint8_t modify_image_front  = FALSE; // Image-modification trigger
+uint8_t modify_image_front = FALSE; // Image-modification trigger
 
-// Helipad detection
+// Target detection
 struct results_color destination;
+
+// Navigation: forward velocity
+float vx_front_ref = 0.0;
+float yaw_rate_front_ref = 0.15;
+
+// Marker-detection timer
+long previous_time;
+float dt_front = 0;
+float dt_flight_front = 0;
 
 
 struct image_t *color_tracking_front_func(struct image_t* img);
 struct image_t *color_tracking_front_func(struct image_t* img)
 {
 
+  // Compute new dt
+  struct timespec spec;
+  clock_gettime(CLOCK_REALTIME, &spec);
+  long new_time = spec.tv_nsec / 1.0E6;
+  long delta_t = new_time - previous_time;
+  dt_front = ((float)delta_t) / 1000.0f;
+
+  if (dt_front >0) {
+    dt_flight_front += dt_front;
+  }
+
   ///////////////////////////////////////////////////////////////////////////////////////////////////////
   // COLORFILTER
 
   // Blob locator
-  destination = locate_blob(img,
-                             color_lum_min_front, color_lum_max_front,
-                             color_cb_min_front, color_cb_max_front,
-                             color_cr_min_front, color_cr_max_front,
-                             blob_threshold_front);
+  if (color == 0) {
+    destination = locate_blob(img,
+                              color_lum_min_red, color_lum_max_red,
+                              color_cb_min_red, color_cb_max_red,
+                              color_cr_min_red, color_cr_max_red,
+                              blob_threshold_front);
+  } else if (color == 1) {
+    destination = locate_blob(img,
+                              color_lum_min_blue, color_lum_max_blue,
+                              color_cb_min_blue, color_cb_max_blue,
+                              color_cr_min_blue, color_cr_max_blue,
+                              blob_threshold_front);
+  }
+
 
   // Display the marker location and center-lines.
   if ((modify_image_front) && (destination.MARKER)) {
@@ -83,8 +107,21 @@ struct image_t *color_tracking_front_func(struct image_t* img)
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////
+  // NAVIGATION
 
-  if (destination.MARKER) {
+  // Initialize the timer if the aircraft is not flying
+  if (!autopilot_in_flight) {
+    dt_flight_front = 0;
+  }
+
+//  if ((destination.MARKER) && (!BOTTOM_MARKER) & (dt_flight_front > 3)) {
+  if ((destination.MARKER) && (dt_flight_front > 3)) {
+    // Change the flight mode from NAV to GUIDED
+    if (AP_MODE_NAV == autopilot_mode) {
+      autopilot_mode_auto2 = AP_MODE_GUIDED;
+      autopilot_set_mode(AP_MODE_GUIDED);
+    }
+
     // Compute the location of the centroid
     int centroid_x = destination.maxx;
 
@@ -97,13 +134,23 @@ struct image_t *color_tracking_front_func(struct image_t* img)
       autopilot_set_mode(AP_MODE_GUIDED);
     }
 
-    // Hold position
-    guidance_h_set_guided_vel(0, 0);
-
     // Set yaw rate based on the location of the color
-    float yaw_rate = 0;
-    if (centroid_x_centered > 0) {yaw_rate = 0.15;} else if (centroid_x_centered < 0) {yaw_rate = -0.15;}
+    float yaw_rate = centroid_x_centered * yaw_rate_front_ref / (img->w)/2;
     guidance_h_set_guided_heading_rate(yaw_rate);
+
+    // Detect if the marker is in the middle of the frame
+    if ((centroid_x_centered > -30) && (centroid_x_centered < 30)) {
+
+      // Set velocities as offsets in NED frame
+      float psi = stateGetNedToBodyEulers_f()->psi;
+      float vx_ref_ned = cosf(-psi) * vx_front_ref - sinf(-psi) * vx_front_ref;
+      guidance_h_set_guided_vel(vx_ref_ned, 0);
+
+    } else {
+
+      // Hold position
+      guidance_h_set_guided_vel(0, 0);
+    }
 
   } else {
 
@@ -112,8 +159,10 @@ struct image_t *color_tracking_front_func(struct image_t* img)
       autopilot_mode_auto2 = AP_MODE_NAV;
       autopilot_set_mode(AP_MODE_NAV);
     }
-
   }
+
+  // Update variables
+  previous_time = new_time;
 
   return NULL;
 }

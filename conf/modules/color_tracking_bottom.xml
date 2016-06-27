@@ -1,21 +1,36 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="ColorTracking" dir="computer_vision">
+<module name="CT_Bottom" dir="computer_vision">
   <doc>
-    <description>ColorTracking</description>
+    <description>CT_Bottom</description>
   </doc>
 
   <settings>
     <dl_settings>
-      <dl_settings name="ColorTracking">
-        <dl_setting var="modify_image" min="0" step="1" max="1" />
-        <dl_setting var="color_lum_min" min="0" step="1" max="255" shortname="y_min" />
-        <dl_setting var="color_lum_max" min="0" step="1" max="255" shortname="y_max" />
-        <dl_setting var="color_cb_min"  min="0" step="1" max="255" shortname="u_min" />
-        <dl_setting var="color_cb_max"  min="0" step="1" max="255" shortname="u_max" />
-        <dl_setting var="color_cr_min"  min="0" step="1" max="255" shortname="v_min" />
-        <dl_setting var="color_cr_max"  min="0" step="1" max="255" shortname="v_max" />
-        <dl_setting var="color_detection"  min="50" step="1" max="10000" shortname="counter" />
+      <dl_settings name="CT_Bottom">
+
+        <dl_setting var="vz_bottom_ref"  min="0.01" step="0.1" max="1" shortname="vz_ref" />
+        <dl_setting var="target_reached"  min="0.05" step="0.05" max="1" shortname="proximity" />
+        <dl_setting var="height_above_target"  min="0.75" step="0.05" max="2" shortname="height_above_target" />
+
+        <dl_setting var="color" min="0" step="1" max="1" />
+        <dl_setting var="modify_image_bottom" min="0" step="1" max="1" />
+        <dl_setting var="blob_threshold_bottom"  min="50" step="1" max="10000" shortname="counter" />
+
+        <dl_setting var="color_lum_min_red" min="0" step="1" max="255" shortname="y_min_red" />
+        <dl_setting var="color_lum_max_red" min="0" step="1" max="255" shortname="y_max_red" />
+        <dl_setting var="color_cb_min_red"  min="0" step="1" max="255" shortname="u_min_red" />
+        <dl_setting var="color_cb_max_red"  min="0" step="1" max="255" shortname="u_max_red" />
+        <dl_setting var="color_cr_min_red"  min="0" step="1" max="255" shortname="v_min_red" />
+        <dl_setting var="color_cr_max_red"  min="0" step="1" max="255" shortname="v_max_red" />
+
+        <dl_setting var="color_lum_min_blue" min="0" step="1" max="255" shortname="y_min_blue" />
+        <dl_setting var="color_lum_max_blue" min="0" step="1" max="255" shortname="y_max_blue" />
+        <dl_setting var="color_cb_min_blue"  min="0" step="1" max="255" shortname="u_min_blue" />
+        <dl_setting var="color_cb_max_blue"  min="0" step="1" max="255" shortname="u_max_blue" />
+        <dl_setting var="color_cr_min_blue"  min="0" step="1" max="255" shortname="v_min_blue" />
+        <dl_setting var="color_cr_max_blue"  min="0" step="1" max="255" shortname="v_max_blue" />
+
       </dl_settings>
     </dl_settings>
   </settings>
@@ -23,14 +38,15 @@
   <depends>video_thread</depends>
 
   <header>
-    <file name="color_tracking.h"/>
+    <file name="color_tracking_bottom.h"/>
   </header>
 
-  <init fun="color_tracking_init()"/>
+  <init fun="color_tracking_bottom_init()"/>
 
   <makefile>
-    <file name="color_tracking.c"/>
+    <file name="color_tracking_bottom.c"/>
     <file name="imav2016markers.c"/>
+    <file name="blob_finder.c" dir="modules/computer_vision/blob/"/>
   </makefile>
 
 </module>

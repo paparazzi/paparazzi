@@ -6,7 +6,7 @@
         ground_alt="0"
         security_height="0.4"
         max_dist_from_home="8"
-        alt="3">
+        alt="1.5">
 
   <header>
     #include "autopilot.h"
@@ -81,17 +81,17 @@
     <block key="h" name="Hover" strip_button="Hover" strip_icon="flat_theme/pano_hov.png">
       <call fun="NavSetWaypointHere(WP_STDBY)"/>
       <stay wp="STDBY"/>
-      <exception cond="MoreThan(NavBlockTime(), 4)" deroute="line_p2_p3"/>
+      <!--<exception cond="MoreThan(NavBlockTime(), 4)" deroute="line_p2_p3"/>-->
     </block>
 
-    <block name="line_p2_p3">
-      <go from="p2" hmode="route" wp="p3"/>
-      <stay until="stage_time>10" wp="p3"/>
-      <go from="p3" hmode="route" wp="p2"/>
-      <while cond="MARKER">
-      </while>
-      <deroute block="Hover"/>
-    </block>
+    <!--<block name="line_p2_p3">-->
+      <!--<go from="p2" hmode="route" wp="p3"/>-->
+      <!--<stay until="stage_time>10" wp="p3"/>-->
+      <!--<go from="p3" hmode="route" wp="p2"/>-->
+      <!--<while cond="MARKER">-->
+      <!--</while>-->
+      <!--<deroute block="Hover"/>-->
+    <!--</block>-->
 
     <!-- ################################### -->
 
