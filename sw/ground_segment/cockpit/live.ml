@@ -1478,6 +1478,25 @@ let get_intruders = fun (geomap:G.widget) _sender vs ->
 let listen_intruders = fun (geomap:G.widget) ->
   safe_bind "INTRUDER" (get_intruders geomap)
 
+let get_shapes = fun  a (geomap:G.widget)_sender vs ->
+  let f = fun s -> PprzLink.float_assoc s vs in
+  let i = fun s -> float (PprzLink.int_assoc s vs) in
+  let id = PprzLink.string_assoc "id" vs
+  and color = PprzLink.string_assoc "color" vs
+  and status = i "status"
+  and lat = (i "lat") /. 1e7
+  and lon = (i "lon") /. 1e7
+  and time = Unix.gettimeofday () in
+  let pos = { posn_lat=(Deg>>Rad)lat; posn_long=(Deg>>Rad)lon } in
+  if not (Shapes.shape_exist id) then
+    Shapes.new_shape id pos color (f "radius") time geomap;
+  if (status = 1.) then
+  Shapes.update_shape id pos color (f "radius") time geomap;
+  if (status = 2.) then
+  Shapes.remove_shape id
+
+let listen_shapes = fun (geomap:G.widget) a ->
+  safe_bind "SHAPE" (get_shapes a geomap)
 
 let listen_acs_and_msgs = fun geomap ac_notebook strips confirm_kill my_alert auto_center_new_ac alt_graph timestamp ->
   (** Probe live A/Cs *)
