@@ -28,7 +28,7 @@
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/DB/db_quadshot.xml"
    flight_plan="flight_plans/DB/db_quadshot_delft.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/stabilization_att_indi.xml settings/control/hybrid_guidance.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/stabilization_indi.xml settings/control/hybrid_guidance.xml"
    settings_modules="modules/gps_ubx_ucenter.xml modules/gps.xml"
    gui_color="blue"
   />
