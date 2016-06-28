@@ -240,17 +240,17 @@ static inline void indi_apply_compensator_filters(int32_t _out[], int32_t _in[])
   //_out[INDI_THRUST] = _in[INDI_THRUST];
 }
 
-static inline void indi_apply_actuator_notch_filters(int32_t _out[], int32_t _in[])
+static inline void indi_apply_notch_filters(struct SecondOrderNotchFilter *filter, int32_t _out[], int32_t _in[])
 {
   if (heli_indi_ctl.motor_rpm > INDI_NOTCH_MIN_RPM && heli_indi_ctl.enable_notch) {
-    notch_filter_set_filter_frequency(&actuator_notchfilter[INDI_ROLL], heli_indi_ctl.motor_rpm / 60.0f);
-    notch_filter_set_filter_frequency(&actuator_notchfilter[INDI_PITCH], heli_indi_ctl.motor_rpm / 60.0f);
-    notch_filter_set_filter_frequency(&actuator_notchfilter[INDI_YAW], heli_indi_ctl.motor_rpm / 60.0f);
-    notch_filter_set_filter_frequency(&actuator_notchfilter[INDI_THRUST], heli_indi_ctl.motor_rpm / 60.0f);
-    notch_filter_update(&actuator_notchfilter[INDI_ROLL], &_in[INDI_ROLL], &_out[INDI_ROLL]);
-    notch_filter_update(&actuator_notchfilter[INDI_PITCH], &_in[INDI_PITCH], &_out[INDI_PITCH]);
-    notch_filter_update(&actuator_notchfilter[INDI_YAW], &_in[INDI_YAW], &_out[INDI_YAW]);
-    notch_filter_update(&actuator_notchfilter[INDI_THRUST], &_in[INDI_THRUST], &_out[INDI_THRUST]);
+    notch_filter_set_filter_frequency(&filter[INDI_ROLL], heli_indi_ctl.motor_rpm / 60.0f);
+    notch_filter_set_filter_frequency(&filter[INDI_PITCH], heli_indi_ctl.motor_rpm / 60.0f);
+    notch_filter_set_filter_frequency(&filter[INDI_YAW], heli_indi_ctl.motor_rpm / 60.0f);
+    notch_filter_set_filter_frequency(&filter[INDI_THRUST], heli_indi_ctl.motor_rpm / 60.0f);
+    notch_filter_update(&filter[INDI_ROLL], &_in[INDI_ROLL], &_out[INDI_ROLL]);
+    notch_filter_update(&filter[INDI_PITCH], &_in[INDI_PITCH], &_out[INDI_PITCH]);
+    notch_filter_update(&filter[INDI_YAW], &_in[INDI_YAW], &_out[INDI_YAW]);
+    notch_filter_update(&filter[INDI_THRUST], &_in[INDI_THRUST], &_out[INDI_THRUST]);
   } else {
     _out[INDI_ROLL]   = _in[INDI_ROLL];
     _out[INDI_PITCH]  = _in[INDI_PITCH];
@@ -259,23 +259,14 @@ static inline void indi_apply_actuator_notch_filters(int32_t _out[], int32_t _in
   }
 }
 
+static inline void indi_apply_actuator_notch_filters(int32_t _out[], int32_t _in[])
+{
+  indi_apply_notch_filters(actuator_notchfilter, _out, _in);
+}
+
 static inline void indi_apply_measurement_notch_filters(int32_t _out[], int32_t _in[])
 {
-  if (heli_indi_ctl.motor_rpm > INDI_NOTCH_MIN_RPM && heli_indi_ctl.enable_notch) {
-    notch_filter_set_filter_frequency(&measurement_notchfilter[INDI_ROLL], heli_indi_ctl.motor_rpm / 60.0f);
-    notch_filter_set_filter_frequency(&measurement_notchfilter[INDI_PITCH], heli_indi_ctl.motor_rpm / 60.0f);
-    notch_filter_set_filter_frequency(&measurement_notchfilter[INDI_YAW], heli_indi_ctl.motor_rpm / 60.0f);
-    notch_filter_set_filter_frequency(&measurement_notchfilter[INDI_THRUST], heli_indi_ctl.motor_rpm / 60.0f);
-    notch_filter_update(&measurement_notchfilter[INDI_ROLL], &_in[INDI_ROLL], &_out[INDI_ROLL]);
-    notch_filter_update(&measurement_notchfilter[INDI_PITCH], &_in[INDI_PITCH], &_out[INDI_PITCH]);
-    notch_filter_update(&measurement_notchfilter[INDI_YAW], &_in[INDI_YAW], &_out[INDI_YAW]);
-    notch_filter_update(&measurement_notchfilter[INDI_THRUST], &_in[INDI_THRUST], &_out[INDI_THRUST]);
-  } else {
-    _out[INDI_ROLL]   = _in[INDI_ROLL];
-    _out[INDI_PITCH]  = _in[INDI_PITCH];
-    _out[INDI_YAW]    = _in[INDI_YAW];
-    _out[INDI_THRUST] = _in[INDI_THRUST];
-  }
+  indi_apply_notch_filters(measurement_notchfilter, _out, _in);
 }
 
 static inline void indi_apply_actuator_butterworth_filters(int32_t _out[], int32_t _in[])
