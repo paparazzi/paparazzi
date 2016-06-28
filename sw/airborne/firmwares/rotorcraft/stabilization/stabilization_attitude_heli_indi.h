@@ -19,8 +19,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef STABILIZATION_ATTITUDE_QUAT_INT_H
-#define STABILIZATION_ATTITUDE_QUAT_INT_H
+#ifndef STABILIZATION_ATTITUDE_HELI_INDI_H
+#define STABILIZATION_ATTITUDE_HELI_INDI_H
 
 #include "math/pprz_algebra_int.h"
 
@@ -78,4 +78,4 @@ extern void stabilization_attitude_heli_indi_set_steadystate_pitch(float pitch);
 extern void stabilization_attitude_heli_indi_set_steadystate_roll(float roll);
 extern void stabilization_attitude_heli_indi_set_steadystate_pitchroll(void);
 
-#endif /* STABILIZATION_ATTITUDE_QUAT_INT_H */
+#endif /* STABILIZATION_ATTITUDE_HELI_INDI_H */
