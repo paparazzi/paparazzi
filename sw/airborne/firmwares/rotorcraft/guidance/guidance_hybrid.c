@@ -25,6 +25,11 @@
 /** @file firmwares/rotorcraft/guidance/guidance_hybrid.c
  *  Guidance controllers (horizontal and vertical) for Hybrid UAV configurations.
  *
+ * Functionality:
+ * 1) hover with (helicopter) thrust vectoring and align the heading with the wind vector.
+ * 2) Forward flight with using pitch and a bit of thrust to control altitude and
+ *    heading to control the velocity vector
+ * 3) Transition between the two, with the possibility to fly at any airspeed
  */
 
 #include "firmwares/rotorcraft/guidance/guidance_hybrid.h"
