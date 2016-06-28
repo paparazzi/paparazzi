@@ -320,7 +320,7 @@ struct centroid_t georeference_project(struct camera_frame_t *tar)
 
   // Multiply with height above ground
   struct NedCoor_i *pos = stateGetPositionNed_i();
-  int32_t zb = pos->z;
+  int32_t zb = pos->z; /* TODO: Remember that this is altitude wrt the ground. */
   geo.target_l.x *= zb;
   geo.target_l.y *= zb;
 
@@ -331,8 +331,8 @@ struct centroid_t georeference_project(struct camera_frame_t *tar)
 
   // Marker location w.r.t. the body
   struct centroid_t marker;
-  marker.x = - geo.target_l.x * 0.0039063;
-  marker.y = - geo.target_l.y * 0.0039063;
+  marker.x = - POS_FLOAT_OF_BFP(geo.target_l.x);
+  marker.y = - POS_FLOAT_OF_BFP(geo.target_l.y);
 
   return marker;
 }

@@ -80,6 +80,7 @@ float vz_bottom_ref;
 float height_above_target = 1;
 
 // Horizontal control
+float vel_gain = 0.5; /* TODO: This requires more tuning  */
 float velGain_bottom;
 float vx_bottom_ref;
 float vy_bottom_ref;
@@ -198,16 +199,13 @@ struct image_t *color_tracking_bottom_func(struct image_t* img)
     centroid_x[MEMORY-1] = marker_location.x;
     centroid_y[MEMORY-1] = marker_location.y;
 
-    // Adaptive gain adjustment
-    float term1, term2;
-    if (marker_location.x <0) { term1 = -marker_location.x; } else { term1 = marker_location.x; }
-    if (marker_location.y <0) { term2 = -marker_location.y; } else { term2 = marker_location.y; }
-    velGain_bottom = (term1 + term2) / 3.5; /* TODO: Decrease the denominator for higher horizontal gains.*/
-
     // Set velocities as offsets in NED frame
-    float psi = stateGetNedToBodyEulers_f()->psi;
-    vx_bottom_ref = cosf(-psi) * (marker_location.x * velGain_bottom) - sinf(-psi) * (marker_location.y * velGain_bottom);
-    vy_bottom_ref = sinf(-psi) * (marker_location.x * velGain_bottom) + cosf(-psi) * (marker_location.y * velGain_bottom);
+    vx_bottom_ref = vel_gain * marker_location.x;
+    vy_bottom_ref = vel_gain * marker_location.y;
+
+    // Saturation
+    BoundAbs(vx_bottom_ref, 1);
+    BoundAbs(vy_bottom_ref, 1);
 
     // Follow the marker with velocity references
     guidance_h_set_guided_vel(vx_bottom_ref, vy_bottom_ref);

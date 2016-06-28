@@ -685,10 +685,11 @@ bool guidance_h_set_guided_heading(float heading)
 
 bool guidance_h_set_guided_body_vel(float vx, float vy)
 {
+  struct FloatVect2 output;
   float psi = stateGetNedToBodyEulers_f()->psi;
-  vx =  cosf(-psi) * vx + sinf(-psi) * vy;
-  vy = -sinf(-psi) * vx + cosf(-psi) * vy;
-  return guidance_h_set_guided_vel(vx, vy);
+  output.x =  cosf(-psi) * vx + sinf(-psi) * vy;
+  output.y = -sinf(-psi) * vx + cosf(-psi) * vy;
+  return guidance_h_set_guided_vel(output.x, output.y);
 }
 
 bool guidance_h_set_guided_vel(float vx, float vy)
@@ -704,6 +705,7 @@ bool guidance_h_set_guided_vel(float vx, float vy)
 
 bool guidance_h_set_guided_heading_rate(float rate)
 {
+  printf("rate: %f\n",rate);
   if (guidance_h.mode == GUIDANCE_H_MODE_GUIDED) {
     SetBit(guidance_h.sp.mask, 7);
     guidance_h.sp.heading_rate = RATE_BFP_OF_REAL(rate);
