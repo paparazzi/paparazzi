@@ -352,7 +352,7 @@ void guidance_hybrid_set_cmd_i(struct Int32Eulers *sp_cmd)
   ov.z = 0.0;
   /* quaternion from that orientation vector */
   struct FloatQuat q_rp;
-  FLOAT_QUAT_OF_ORIENTATION_VECT(q_rp, ov);
+  float_quat_of_orientation_vect(&q_rp, &ov);
   struct Int32Quat q_rp_i;
   QUAT_BFP_OF_REAL(q_rp_i, q_rp);
 
@@ -361,12 +361,12 @@ void guidance_hybrid_set_cmd_i(struct Int32Eulers *sp_cmd)
 
   /* get current heading setpoint */
   struct Int32Quat q_yaw_sp;
-  INT32_QUAT_OF_AXIS_ANGLE(q_yaw_sp, zaxis, sp_cmd->psi);
+  int32_quat_of_axis_angle(&q_yaw_sp, &zaxis, sp_cmd->psi);
 
   //   first apply the roll/pitch setpoint and then the yaw
-  INT32_QUAT_COMP(stab_att_sp_quat, q_yaw_sp, q_rp_i);
+  int32_quat_comp(&stab_att_sp_quat, &q_yaw_sp, &q_rp_i);
 
-  INT32_EULERS_OF_QUAT(stab_att_sp_euler, stab_att_sp_quat);
+  int32_eulers_of_quat(&stab_att_sp_euler, &stab_att_sp_quat);
 }
 
 void guidance_hybrid_vertical(void)
