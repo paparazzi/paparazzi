@@ -29,22 +29,11 @@
 
 #include "firmwares/rotorcraft/guidance/guidance_hybrid.h"
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
-
-#include "generated/airframe.h"
-
-#include "firmwares/rotorcraft/stabilization.h"
-#include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
-#include "firmwares/rotorcraft/navigation.h"
 #include "subsystems/radio_control.h"
-
-#include "firmwares/rotorcraft/stabilization/stabilization_none.h"
-#include "firmwares/rotorcraft/stabilization/stabilization_rate.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
 
 /* for guidance_v_thrust_coeff */
 #include "firmwares/rotorcraft/guidance/guidance_v.h"
-
-#include "state.h"
 
 // max airspeed for quadshot guidance
 #define MAX_AIRSPEED 15
