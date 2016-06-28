@@ -22,6 +22,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/** @file firmwares/rotorcraft/guidance/guidance_hybrid.c
+ *  Guidance controllers (horizontal and vertical) for Hybrid UAV configurations.
+ *
+ */
+
 #include "firmwares/rotorcraft/guidance/guidance_hybrid.h"
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
 
@@ -76,27 +81,29 @@ static int32_t v_control_pitch;
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_hybrid_guidance(struct transport_tx *trans, struct link_device *dev) {
-  struct NedCoor_i* pos = stateGetPositionNed_i();
-  struct NedCoor_i* speed = stateGetSpeedNed_i();
+static void send_hybrid_guidance(struct transport_tx *trans, struct link_device *dev)
+{
+  struct NedCoor_i *pos = stateGetPositionNed_i();
+  struct NedCoor_i *speed = stateGetSpeedNed_i();
   pprz_msg_send_HYBRID_GUIDANCE(trans, dev, AC_ID,
-  &(pos->x), &(pos->y),
-  &(speed->x), &(speed->y),
-  &wind_estimate.x, &wind_estimate.y,
-  &guidance_h_pos_err.x,
-  &guidance_h_pos_err.y,
-  &guidance_hybrid_airspeed_sp.x,
-  &guidance_hybrid_airspeed_sp.y,
-  &guidance_hybrid_norm_ref_airspeed,
-  &heading_diff_disp,
-  &guidance_hybrid_ypr_sp.phi,
-  &guidance_hybrid_ypr_sp.theta,
-  &guidance_hybrid_ypr_sp.psi);
+                                &(pos->x), &(pos->y),
+                                &(speed->x), &(speed->y),
+                                &wind_estimate.x, &wind_estimate.y,
+                                &guidance_h_pos_err.x,
+                                &guidance_h_pos_err.y,
+                                &guidance_hybrid_airspeed_sp.x,
+                                &guidance_hybrid_airspeed_sp.y,
+                                &guidance_hybrid_norm_ref_airspeed,
+                                &heading_diff_disp,
+                                &guidance_hybrid_ypr_sp.phi,
+                                &guidance_hybrid_ypr_sp.theta,
+                                &guidance_hybrid_ypr_sp.psi);
 }
 
 #endif
 
-void guidance_hybrid_init(void) {
+void guidance_hybrid_init(void)
+{
 
   INT_EULERS_ZERO(guidance_hybrid_ypr_sp);
   INT_VECT2_ZERO(guidance_hybrid_airspeed_sp);
@@ -121,30 +128,32 @@ void guidance_hybrid_init(void) {
 }
 
 #define INT32_ANGLE_HIGH_RES_NORMALIZE(_a) {             \
-  while ((_a) > (INT32_ANGLE_PI << (INT32_ANGLE_HIGH_RES_FRAC - INT32_ANGLE_FRAC)))  (_a) -= (INT32_ANGLE_2_PI << (INT32_ANGLE_HIGH_RES_FRAC - INT32_ANGLE_FRAC));    \
-  while ((_a) < (-INT32_ANGLE_PI << (INT32_ANGLE_HIGH_RES_FRAC - INT32_ANGLE_FRAC))) (_a) += (INT32_ANGLE_2_PI << (INT32_ANGLE_HIGH_RES_FRAC - INT32_ANGLE_FRAC));    \
-}
+    while ((_a) > (INT32_ANGLE_PI << (INT32_ANGLE_HIGH_RES_FRAC - INT32_ANGLE_FRAC)))  (_a) -= (INT32_ANGLE_2_PI << (INT32_ANGLE_HIGH_RES_FRAC - INT32_ANGLE_FRAC));    \
+    while ((_a) < (-INT32_ANGLE_PI << (INT32_ANGLE_HIGH_RES_FRAC - INT32_ANGLE_FRAC))) (_a) += (INT32_ANGLE_2_PI << (INT32_ANGLE_HIGH_RES_FRAC - INT32_ANGLE_FRAC));    \
+  }
 
-void guidance_hybrid_run(void) {
+void guidance_hybrid_run(void)
+{
   guidance_hybrid_determine_wind_estimate();
   guidance_hybrid_position_to_airspeed();
   guidance_hybrid_airspeed_to_attitude(&guidance_hybrid_ypr_sp);
   guidance_hybrid_set_cmd_i(&guidance_hybrid_ypr_sp);
 
-  if ( guidance_h_get_pos_err() != NULL )
-  {
-	  memcpy( &guidance_h_pos_err , guidance_h_get_pos_err() , sizeof(guidance_h_pos_err) );
+  if (guidance_h_get_pos_err() != NULL) {
+    memcpy(&guidance_h_pos_err , guidance_h_get_pos_err() , sizeof(guidance_h_pos_err));
   }
 }
 
-void guidance_hybrid_reset_heading(struct Int32Eulers *sp_cmd) {
+void guidance_hybrid_reset_heading(struct Int32Eulers *sp_cmd)
+{
   guidance_hybrid_ypr_sp.psi = sp_cmd->psi;
   high_res_psi = sp_cmd->psi << (INT32_ANGLE_HIGH_RES_FRAC - INT32_ANGLE_FRAC);
   stabilization_attitude_set_rpy_setpoint_i(sp_cmd);
 }
 
 /// Convert a required airspeed to a certain attitude for the Quadshot
-void guidance_hybrid_airspeed_to_attitude(struct Int32Eulers *ypr_sp) {
+void guidance_hybrid_airspeed_to_attitude(struct Int32Eulers *ypr_sp)
+{
 
   //notes:
   //in forward flight, it is preferred to first get to min(airspeed_sp, airspeed_ref) and then change heading and then get to airspeed_sp
@@ -153,16 +162,17 @@ void guidance_hybrid_airspeed_to_attitude(struct Int32Eulers *ypr_sp) {
 
   //determine the heading of the airspeed_sp vector
   int32_t omega = 0;
-  float airspeed_sp_heading = atan2f( (float) POS_FLOAT_OF_BFP(guidance_hybrid_airspeed_sp.y), (float) POS_FLOAT_OF_BFP(guidance_hybrid_airspeed_sp.x));
+  float airspeed_sp_heading = atan2f((float) POS_FLOAT_OF_BFP(guidance_hybrid_airspeed_sp.y),
+                                     (float) POS_FLOAT_OF_BFP(guidance_hybrid_airspeed_sp.x));
   //only for debugging
-  airspeed_sp_heading_disp = (int32_t) (DegOfRad(airspeed_sp_heading));
+  airspeed_sp_heading_disp = (int32_t)(DegOfRad(airspeed_sp_heading));
 
   //The difference of the current heading with the required heading.
   float heading_diff = airspeed_sp_heading - ANGLE_FLOAT_OF_BFP(ypr_sp->psi);
   FLOAT_ANGLE_NORMALIZE(heading_diff);
 
   //only for debugging
-  heading_diff_disp = (int32_t) (heading_diff/3.14*180.0);
+  heading_diff_disp = (int32_t)(heading_diff / 3.14 * 180.0);
 
   //calculate the norm of the airspeed setpoint
   int32_t norm_sp_airspeed;
@@ -170,8 +180,11 @@ void guidance_hybrid_airspeed_to_attitude(struct Int32Eulers *ypr_sp) {
 
   //reference goes with a steady pace towards the setpoint airspeed
   //hold ref norm below 4 m/s until heading is aligned
-  if( !((norm_sp_airspeed > (4<<8)) && (guidance_hybrid_norm_ref_airspeed < (4<<8)) && (guidance_hybrid_norm_ref_airspeed > ((4<<8)-10)) && (fabs(heading_diff) > (5.0/180.0*3.14))) )
-    guidance_hybrid_norm_ref_airspeed = guidance_hybrid_norm_ref_airspeed +  ( (int32_t) (norm_sp_airspeed > guidance_hybrid_norm_ref_airspeed) * 2 - 1)*3/2;
+  if (!((norm_sp_airspeed > (4 << 8)) && (guidance_hybrid_norm_ref_airspeed < (4 << 8))
+        && (guidance_hybrid_norm_ref_airspeed > ((4 << 8) - 10)) && (fabs(heading_diff) > (5.0 / 180.0 * 3.14)))) {
+    guidance_hybrid_norm_ref_airspeed = guidance_hybrid_norm_ref_airspeed + ((int32_t)(norm_sp_airspeed >
+                                        guidance_hybrid_norm_ref_airspeed) * 2 - 1) * 3 / 2;
+  }
 
   norm_sp_airspeed_disp = norm_sp_airspeed;
 
@@ -183,62 +196,65 @@ void guidance_hybrid_airspeed_to_attitude(struct Int32Eulers *ypr_sp) {
   guidance_hybrid_ref_airspeed.x = (guidance_hybrid_norm_ref_airspeed * c_psi) >> INT32_TRIG_FRAC;
   guidance_hybrid_ref_airspeed.y = (guidance_hybrid_norm_ref_airspeed * s_psi) >> INT32_TRIG_FRAC;
 
-  if(guidance_hybrid_norm_ref_airspeed < (4<<8)) {
+  if (guidance_hybrid_norm_ref_airspeed < (4 << 8)) {
     /// if required speed is lower than 4 m/s act like a rotorcraft
     // translate speed_sp into bank angle and heading
 
     // change heading to direction of airspeed, faster if the airspeed is higher
-    if(heading_diff > 0.0)
-      omega = (norm_sp_airspeed << (INT32_ANGLE_FRAC - INT32_POS_FRAC))/6;
-    else if(heading_diff < 0.0)
-      omega = (norm_sp_airspeed << (INT32_ANGLE_FRAC - INT32_POS_FRAC))/-6;
+    if (heading_diff > 0.0) {
+      omega = (norm_sp_airspeed << (INT32_ANGLE_FRAC - INT32_POS_FRAC)) / 6;
+    } else if (heading_diff < 0.0) {
+      omega = (norm_sp_airspeed << (INT32_ANGLE_FRAC - INT32_POS_FRAC)) / -6;
+    }
 
-    if(omega > ANGLE_BFP_OF_REAL(0.8)) omega = ANGLE_BFP_OF_REAL(0.8);
-    if(omega < ANGLE_BFP_OF_REAL(-0.8)) omega = ANGLE_BFP_OF_REAL(-0.8);
+    if (omega > ANGLE_BFP_OF_REAL(0.8)) { omega = ANGLE_BFP_OF_REAL(0.8); }
+    if (omega < ANGLE_BFP_OF_REAL(-0.8)) { omega = ANGLE_BFP_OF_REAL(-0.8); }
 
     // 2) calculate roll/pitch commands
     struct Int32Vect2 hover_sp;
-    if(norm_sp_airspeed > (4<<8)) { //if the setpoint is beyond 4m/s but the ref is not, the norm of the hover sp will stay at 4m/s
-      hover_sp.x = (guidance_hybrid_airspeed_sp.x << 8)/norm_sp_airspeed * 4;
-      hover_sp.y = (guidance_hybrid_airspeed_sp.y << 8)/norm_sp_airspeed * 4;
-    }
-    else {
+    if (norm_sp_airspeed > (4 <<
+                            8)) { //if the setpoint is beyond 4m/s but the ref is not, the norm of the hover sp will stay at 4m/s
+      hover_sp.x = (guidance_hybrid_airspeed_sp.x << 8) / norm_sp_airspeed * 4;
+      hover_sp.y = (guidance_hybrid_airspeed_sp.y << 8) / norm_sp_airspeed * 4;
+    } else {
       hover_sp.x = guidance_hybrid_airspeed_sp.x;
       hover_sp.y = guidance_hybrid_airspeed_sp.y;
     }
 
     // gain of 10 means that for 4 m/s an angle of 40 degrees is needed
-    ypr_sp->theta = (((- ( c_psi * hover_sp.x + s_psi * hover_sp.y)) >> INT32_TRIG_FRAC) * 10*INT32_ANGLE_PI/180) >> 8;
-    ypr_sp->phi = (((( - s_psi * hover_sp.x + c_psi * hover_sp.y)) >> INT32_TRIG_FRAC) * 10*INT32_ANGLE_PI/180) >>  8;
-  }
-  else {
+    ypr_sp->theta = (((- (c_psi * hover_sp.x + s_psi * hover_sp.y)) >> INT32_TRIG_FRAC) * 10 * INT32_ANGLE_PI / 180) >> 8;
+    ypr_sp->phi = ((((- s_psi * hover_sp.x + c_psi * hover_sp.y)) >> INT32_TRIG_FRAC) * 10 * INT32_ANGLE_PI / 180) >>  8;
+  } else {
     /// if required speed is higher than 4 m/s act like a fixedwing
     // translate speed_sp into theta + thrust
     // coordinated turns to change heading
 
     // calculate required pitch angle from airspeed_sp magnitude
-    if(guidance_hybrid_norm_ref_airspeed > (15<<8))
+    if (guidance_hybrid_norm_ref_airspeed > (15 << 8)) {
       ypr_sp->theta = -ANGLE_BFP_OF_REAL(RadOfDeg(78.0));
-    else if(guidance_hybrid_norm_ref_airspeed > (8<<8))
-      ypr_sp->theta = -(( (guidance_hybrid_norm_ref_airspeed - (8<<8)) * 2*INT32_ANGLE_PI/180) >> 8) - ANGLE_BFP_OF_REAL(RadOfDeg(68.0));
-    else
-      ypr_sp->theta = -(( (guidance_hybrid_norm_ref_airspeed - (4<<8)) * 7*INT32_ANGLE_PI/180) >> 8) - ANGLE_BFP_OF_REAL(RadOfDeg(40.0));
+    } else if (guidance_hybrid_norm_ref_airspeed > (8 << 8)) {
+      ypr_sp->theta = -(((guidance_hybrid_norm_ref_airspeed - (8 << 8)) * 2 * INT32_ANGLE_PI / 180) >> 8) - ANGLE_BFP_OF_REAL(
+                        RadOfDeg(68.0));
+    } else {
+      ypr_sp->theta = -(((guidance_hybrid_norm_ref_airspeed - (4 << 8)) * 7 * INT32_ANGLE_PI / 180) >> 8) - ANGLE_BFP_OF_REAL(
+                        RadOfDeg(40.0));
+    }
 
     // if the sp_airspeed is within hovering range, don't start a coordinated turn
-    if(norm_sp_airspeed < (4<<8)) {
+    if (norm_sp_airspeed < (4 << 8)) {
       omega = 0;
       ypr_sp->phi = 0;
-    }
-    else { // coordinated turn
-      ypr_sp->phi = ANGLE_BFP_OF_REAL(heading_diff*turn_bank_gain);
-      if(ypr_sp->phi > ANGLE_BFP_OF_REAL(max_turn_bank/180.0*M_PI)) ypr_sp->phi = ANGLE_BFP_OF_REAL(max_turn_bank/180.0*M_PI);
-      if(ypr_sp->phi < ANGLE_BFP_OF_REAL(-max_turn_bank/180.0*M_PI)) ypr_sp->phi = ANGLE_BFP_OF_REAL(-max_turn_bank/180.0*M_PI);
+    } else { // coordinated turn
+      ypr_sp->phi = ANGLE_BFP_OF_REAL(heading_diff * turn_bank_gain);
+      if (ypr_sp->phi > ANGLE_BFP_OF_REAL(max_turn_bank / 180.0 * M_PI)) { ypr_sp->phi = ANGLE_BFP_OF_REAL(max_turn_bank / 180.0 * M_PI); }
+      if (ypr_sp->phi < ANGLE_BFP_OF_REAL(-max_turn_bank / 180.0 * M_PI)) { ypr_sp->phi = ANGLE_BFP_OF_REAL(-max_turn_bank / 180.0 * M_PI); }
 
       //feedforward estimate angular rotation omega = g*tan(phi)/v
-      omega = ANGLE_BFP_OF_REAL(9.81/POS_FLOAT_OF_BFP(guidance_hybrid_norm_ref_airspeed)*tanf(ANGLE_FLOAT_OF_BFP(ypr_sp->phi)));
+      omega = ANGLE_BFP_OF_REAL(9.81 / POS_FLOAT_OF_BFP(guidance_hybrid_norm_ref_airspeed) * tanf(ANGLE_FLOAT_OF_BFP(
+                                  ypr_sp->phi)));
 
-      if(omega > ANGLE_BFP_OF_REAL(0.7)) omega = ANGLE_BFP_OF_REAL(0.7);
-      if(omega < ANGLE_BFP_OF_REAL(-0.7)) omega = ANGLE_BFP_OF_REAL(-0.7);
+      if (omega > ANGLE_BFP_OF_REAL(0.7)) { omega = ANGLE_BFP_OF_REAL(0.7); }
+      if (omega < ANGLE_BFP_OF_REAL(-0.7)) { omega = ANGLE_BFP_OF_REAL(-0.7); }
     }
   }
 
@@ -246,7 +262,7 @@ void guidance_hybrid_airspeed_to_attitude(struct Int32Eulers *ypr_sp) {
   omega_disp = omega;
 
   //go to higher resolution because else the increment is too small to be added
-  high_res_psi += (omega << (INT32_ANGLE_HIGH_RES_FRAC - INT32_ANGLE_FRAC))/512;
+  high_res_psi += (omega << (INT32_ANGLE_HIGH_RES_FRAC - INT32_ANGLE_FRAC)) / 512;
 
   INT32_ANGLE_HIGH_RES_NORMALIZE(high_res_psi);
 
@@ -255,7 +271,8 @@ void guidance_hybrid_airspeed_to_attitude(struct Int32Eulers *ypr_sp) {
   ypr_sp->theta = ypr_sp->theta + v_control_pitch;
 }
 
-void guidance_hybrid_position_to_airspeed(void) {
+void guidance_hybrid_position_to_airspeed(void)
+{
   /* compute position error    */
   VECT2_DIFF(guidance_h_pos_err, guidance_h.sp.pos, *stateGetPositionNed_i());
 
@@ -267,19 +284,18 @@ void guidance_hybrid_position_to_airspeed(void) {
   norm_groundspeed_sp = int32_vect2_norm(&guidance_hybrid_groundspeed_sp);
 
   //create setpoint groundspeed with a norm of 15 m/s
-  if(force_forward_flight) {
+  if (force_forward_flight) {
     //scale the groundspeed_sp to 15 m/s if large enough to begin with
-    if(norm_groundspeed_sp > 1<<8) {
-      guidance_hybrid_groundspeed_sp.x = guidance_hybrid_groundspeed_sp.x*(max_airspeed<<8)/norm_groundspeed_sp;
-      guidance_hybrid_groundspeed_sp.y = guidance_hybrid_groundspeed_sp.y*(max_airspeed<<8)/norm_groundspeed_sp;
-    }
-    else { //groundspeed_sp is very small, so continue with the current heading
+    if (norm_groundspeed_sp > 1 << 8) {
+      guidance_hybrid_groundspeed_sp.x = guidance_hybrid_groundspeed_sp.x * (max_airspeed << 8) / norm_groundspeed_sp;
+      guidance_hybrid_groundspeed_sp.y = guidance_hybrid_groundspeed_sp.y * (max_airspeed << 8) / norm_groundspeed_sp;
+    } else { //groundspeed_sp is very small, so continue with the current heading
       int32_t psi = guidance_hybrid_ypr_sp.psi;
       int32_t s_psi, c_psi;
       PPRZ_ITRIG_SIN(s_psi, psi);
       PPRZ_ITRIG_COS(c_psi, psi);
-      guidance_hybrid_groundspeed_sp.x = (15*c_psi)>>(INT32_TRIG_FRAC - 8);
-      guidance_hybrid_groundspeed_sp.y = (15*s_psi)>>(INT32_TRIG_FRAC - 8);
+      guidance_hybrid_groundspeed_sp.x = (15 * c_psi) >> (INT32_TRIG_FRAC - 8);
+      guidance_hybrid_groundspeed_sp.y = (15 * s_psi) >> (INT32_TRIG_FRAC - 8);
     }
   }
 
@@ -292,21 +308,23 @@ void guidance_hybrid_position_to_airspeed(void) {
   norm_airspeed_sp = int32_vect2_norm(&airspeed_sp);
 
   //Check if the airspeed_sp is larger than the max airspeed. If so, give the wind cancellatioin priority.
-  if( norm_airspeed_sp > (max_airspeed<<8) && norm_groundspeed_sp > 0) {
-    int32_t av = INT_MULT_RSHIFT(guidance_hybrid_groundspeed_sp.x, guidance_hybrid_groundspeed_sp.x,8) + INT_MULT_RSHIFT(guidance_hybrid_groundspeed_sp.y, guidance_hybrid_groundspeed_sp.y, 8);
-    int32_t bv = 2*( INT_MULT_RSHIFT(wind_estimate.x, guidance_hybrid_groundspeed_sp.x, 8) + INT_MULT_RSHIFT(wind_estimate.y, guidance_hybrid_groundspeed_sp.y, 8));
-    int32_t cv = INT_MULT_RSHIFT(wind_estimate.x, wind_estimate.x, 8) + INT_MULT_RSHIFT(wind_estimate.y, wind_estimate.y, 8) - (max_airspeed<<8)*max_airspeed;
+  if (norm_airspeed_sp > (max_airspeed << 8) && norm_groundspeed_sp > 0) {
+    int32_t av = INT_MULT_RSHIFT(guidance_hybrid_groundspeed_sp.x, guidance_hybrid_groundspeed_sp.x,
+                                 8) + INT_MULT_RSHIFT(guidance_hybrid_groundspeed_sp.y, guidance_hybrid_groundspeed_sp.y, 8);
+    int32_t bv = 2 * (INT_MULT_RSHIFT(wind_estimate.x, guidance_hybrid_groundspeed_sp.x,
+                                      8) + INT_MULT_RSHIFT(wind_estimate.y, guidance_hybrid_groundspeed_sp.y, 8));
+    int32_t cv = INT_MULT_RSHIFT(wind_estimate.x, wind_estimate.x, 8) + INT_MULT_RSHIFT(wind_estimate.y, wind_estimate.y,
+                 8) - (max_airspeed << 8) * max_airspeed;
 
-    float dv = POS_FLOAT_OF_BFP(bv) * POS_FLOAT_OF_BFP(bv) - 4.0* POS_FLOAT_OF_BFP(av) * POS_FLOAT_OF_BFP(cv);
+    float dv = POS_FLOAT_OF_BFP(bv) * POS_FLOAT_OF_BFP(bv) - 4.0 * POS_FLOAT_OF_BFP(av) * POS_FLOAT_OF_BFP(cv);
     float d_sqrt_f = sqrtf(dv);
     int32_t d_sqrt = POS_BFP_OF_REAL(d_sqrt_f);
 
-    int32_t result = ((-bv + d_sqrt)<<8)/(2*av);
+    int32_t result = ((-bv + d_sqrt) << 8) / (2 * av);
 
     guidance_hybrid_airspeed_sp.x = wind_estimate.x + INT_MULT_RSHIFT(guidance_hybrid_groundspeed_sp.x, result, 8);
     guidance_hybrid_airspeed_sp.y = wind_estimate.y + INT_MULT_RSHIFT(guidance_hybrid_groundspeed_sp.y, result, 8);
-  }
-  else {
+  } else {
     // Add the wind to get the airspeed setpoint
     guidance_hybrid_airspeed_sp = guidance_hybrid_groundspeed_sp;
     VECT2_ADD(guidance_hybrid_airspeed_sp, wind_estimate);
@@ -314,30 +332,32 @@ void guidance_hybrid_position_to_airspeed(void) {
 
 //   limit the airspeed setpoint to 15 m/s, because else saturation+windup will occur
   norm_airspeed_sp = int32_vect2_norm(&guidance_hybrid_airspeed_sp);
-  if(norm_airspeed_sp > (max_airspeed<<8)) {
-    guidance_hybrid_airspeed_sp.x = guidance_hybrid_airspeed_sp.x*(max_airspeed<<8)/norm_airspeed_sp;
-    guidance_hybrid_airspeed_sp.y = guidance_hybrid_airspeed_sp.y*(max_airspeed<<8)/norm_airspeed_sp;
+  if (norm_airspeed_sp > (max_airspeed << 8)) {
+    guidance_hybrid_airspeed_sp.x = guidance_hybrid_airspeed_sp.x * (max_airspeed << 8) / norm_airspeed_sp;
+    guidance_hybrid_airspeed_sp.y = guidance_hybrid_airspeed_sp.y * (max_airspeed << 8) / norm_airspeed_sp;
   }
 }
 
-void guidance_hybrid_determine_wind_estimate(void) {
+void guidance_hybrid_determine_wind_estimate(void)
+{
 
   /* compute speed error    */
   struct Int32Vect2 wind_estimate_measured;
   struct Int32Vect2 measured_ground_speed;
   INT32_VECT2_RSHIFT(measured_ground_speed, *stateGetSpeedNed_i(), 11);
-  VECT2_DIFF(wind_estimate_measured, guidance_hybrid_ref_airspeed, measured_ground_speed );
+  VECT2_DIFF(wind_estimate_measured, guidance_hybrid_ref_airspeed, measured_ground_speed);
 
   //Low pass wind_estimate, because we know the wind usually only changes slowly
   //But not too slow, because the wind_estimate is also an adaptive element for the airspeed model inaccuracies
-  wind_estimate_high_res.x += (( (wind_estimate_measured.x - wind_estimate.x) > 0)*2-1) * wind_gain;
-  wind_estimate_high_res.y += (( (wind_estimate_measured.y - wind_estimate.y) > 0)*2-1) * wind_gain;
+  wind_estimate_high_res.x += (((wind_estimate_measured.x - wind_estimate.x) > 0) * 2 - 1) * wind_gain;
+  wind_estimate_high_res.y += (((wind_estimate_measured.y - wind_estimate.y) > 0) * 2 - 1) * wind_gain;
 
   wind_estimate.x = ((wind_estimate_high_res.x) >> 8);
   wind_estimate.y = ((wind_estimate_high_res.y) >> 8);
 }
 
-void guidance_hybrid_set_cmd_i(struct Int32Eulers *sp_cmd) {
+void guidance_hybrid_set_cmd_i(struct Int32Eulers *sp_cmd)
+{
   /// @todo calc sp_quat in fixed-point
 
   /* orientation vector describing simultaneous rotation of roll/pitch */
@@ -364,32 +384,34 @@ void guidance_hybrid_set_cmd_i(struct Int32Eulers *sp_cmd) {
   INT32_EULERS_OF_QUAT(stab_att_sp_euler, stab_att_sp_quat);
 }
 
-void guidance_hybrid_vertical(void) {
-  if(guidance_hybrid_norm_ref_airspeed < (4<<8)) {
+void guidance_hybrid_vertical(void)
+{
+  if (guidance_hybrid_norm_ref_airspeed < (4 << 8)) {
     //if airspeed ref < 4 only thrust
     stabilization_cmd[COMMAND_THRUST] = guidance_v_delta_t;
     v_control_pitch = 0;
     guidance_v_kp = GUIDANCE_V_HOVER_KP;
     guidance_v_kd = GUIDANCE_V_HOVER_KD;
     guidance_v_ki = GUIDANCE_V_HOVER_KI;
-  }
-  else if(guidance_hybrid_norm_ref_airspeed > (8<<8)) { //if airspeed ref > 8 only pitch,
+  } else if (guidance_hybrid_norm_ref_airspeed > (8 << 8)) { //if airspeed ref > 8 only pitch,
     //at 15 m/s the thrust has to be 33%
-    stabilization_cmd[COMMAND_THRUST] = MAX_PPRZ/5 + (((guidance_hybrid_norm_ref_airspeed - (8<<8)) / 7 * (MAX_PPRZ/3 - MAX_PPRZ/5))>>8) + (guidance_v_delta_t - MAX_PPRZ/2)/10;
+    stabilization_cmd[COMMAND_THRUST] = MAX_PPRZ / 5 + (((guidance_hybrid_norm_ref_airspeed - (8 << 8)) / 7 *
+                                        (MAX_PPRZ / 3 - MAX_PPRZ / 5)) >> 8) + (guidance_v_delta_t - MAX_PPRZ / 2) / 10;
     //stabilization_cmd[COMMAND_THRUST] = MAX_PPRZ/5;
     // stabilization_cmd[COMMAND_THRUST] = ((guidance_hybrid_norm_ref_airspeed - (8<<8)) / 7 * (MAX_PPRZ/3 - MAX_PPRZ/5))>>8 + 9600/5;
     //Control altitude with pitch, now only proportional control
-    float alt_control_pitch = (guidance_v_delta_t - MAX_PPRZ*guidance_v_nominal_throttle)*alt_pitch_gain;
-    v_control_pitch = ANGLE_BFP_OF_REAL(alt_control_pitch/(MAX_PPRZ*guidance_v_nominal_throttle));
-    guidance_v_kp = GUIDANCE_V_HOVER_KP/2;
-    guidance_v_kd = GUIDANCE_V_HOVER_KD/2;
-    guidance_v_ki = GUIDANCE_V_HOVER_KI/2;
-  }
-  else {//if airspeed ref > 4 && < 8 both
-    int32_t airspeed_transition = (guidance_hybrid_norm_ref_airspeed - (4<<8))/4; //divide by 4 to scale it to 0-1 (<<8)
-    stabilization_cmd[COMMAND_THRUST] = ( (MAX_PPRZ/5 + (guidance_v_delta_t - MAX_PPRZ/2)/10) * airspeed_transition + guidance_v_delta_t * ( (1<<8) - airspeed_transition))>>8;
-    float alt_control_pitch = (guidance_v_delta_t - MAX_PPRZ*guidance_v_nominal_throttle)*alt_pitch_gain;
-    v_control_pitch = INT_MULT_RSHIFT((int32_t) ANGLE_BFP_OF_REAL(alt_control_pitch/(MAX_PPRZ*guidance_v_nominal_throttle)), airspeed_transition, 8);
+    float alt_control_pitch = (guidance_v_delta_t - MAX_PPRZ * guidance_v_nominal_throttle) * alt_pitch_gain;
+    v_control_pitch = ANGLE_BFP_OF_REAL(alt_control_pitch / (MAX_PPRZ * guidance_v_nominal_throttle));
+    guidance_v_kp = GUIDANCE_V_HOVER_KP / 2;
+    guidance_v_kd = GUIDANCE_V_HOVER_KD / 2;
+    guidance_v_ki = GUIDANCE_V_HOVER_KI / 2;
+  } else { //if airspeed ref > 4 && < 8 both
+    int32_t airspeed_transition = (guidance_hybrid_norm_ref_airspeed - (4 << 8)) / 4; //divide by 4 to scale it to 0-1 (<<8)
+    stabilization_cmd[COMMAND_THRUST] = ((MAX_PPRZ / 5 + (guidance_v_delta_t - MAX_PPRZ / 2) / 10) * airspeed_transition +
+                                         guidance_v_delta_t * ((1 << 8) - airspeed_transition)) >> 8;
+    float alt_control_pitch = (guidance_v_delta_t - MAX_PPRZ * guidance_v_nominal_throttle) * alt_pitch_gain;
+    v_control_pitch = INT_MULT_RSHIFT((int32_t) ANGLE_BFP_OF_REAL(alt_control_pitch / (MAX_PPRZ *
+                                      guidance_v_nominal_throttle)), airspeed_transition, 8);
     guidance_v_kp = GUIDANCE_V_HOVER_KP;
     guidance_v_kd = GUIDANCE_V_HOVER_KD;
     guidance_v_ki = GUIDANCE_V_HOVER_KI;

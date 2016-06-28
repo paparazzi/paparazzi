@@ -231,7 +231,7 @@ void guidance_h_mode_changed(uint8_t new_mode)
   }
 
 #if HYBRID_NAVIGATION
-   guidance_hybrid_norm_ref_airspeed = 0;
+  guidance_hybrid_norm_ref_airspeed = 0;
 #endif
 
   switch (new_mode) {
@@ -444,15 +444,15 @@ void guidance_h_run(bool  in_flight)
         guidance_h.sp.heading = nav_heading;
         INT32_ANGLE_NORMALIZE(guidance_h.sp.heading);
 
-	#if GUIDANCE_INDI
-			guidance_indi_run(in_flight, guidance_h.sp.heading);
-	#else
-			/* compute x,y earth commands */
-			guidance_h_traj_run(in_flight);
-			/* set final attitude setpoint */
-			stabilization_attitude_set_earth_cmd_i(&guidance_h_cmd_earth,
-												   guidance_h.sp.heading);
-	#endif
+#if GUIDANCE_INDI
+        guidance_indi_run(in_flight, guidance_h.sp.heading);
+#else
+        /* compute x,y earth commands */
+        guidance_h_traj_run(in_flight);
+        /* set final attitude setpoint */
+        stabilization_attitude_set_earth_cmd_i(&guidance_h_cmd_earth,
+                                               guidance_h.sp.heading);
+#endif
 
 #endif
         stabilization_attitude_run(in_flight);
@@ -728,7 +728,7 @@ bool guidance_h_set_guided_heading_rate(float rate)
   return false;
 }
 
-const struct Int32Vect2* guidance_h_get_pos_err(void)
+const struct Int32Vect2 *guidance_h_get_pos_err(void)
 {
-	return &guidance_h_pos_err;
+  return &guidance_h_pos_err;
 }

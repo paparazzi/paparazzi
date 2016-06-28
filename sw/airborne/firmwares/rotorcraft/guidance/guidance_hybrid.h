@@ -22,6 +22,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
+/** @file firmwares/rotorcraft/guidance/guidance_hybrid.h
+ *  Guidance controllers (horizontal and vertical) for Hybrid UAV configurations.
+ *
+ */
+
 #ifndef GUIDANCE_HYBRID_H
 #define GUIDANCE_HYBRID_H
 
@@ -35,14 +40,40 @@ extern int32_t horizontal_speed_gain;
 extern float max_turn_bank;
 extern float turn_bank_gain;
 
+/** Runs the Hybrid Guidance main functions.
+ */
 extern void guidance_hybrid_run(void);
+
+/** Hybrid Guidance Initialization function.
+ * @param
+ */
 extern void guidance_hybrid_init(void);
+
+/** Creates the attitude set-points from an orientation vector.
+ * @param sp_cmd The orientation vector
+ */
 extern void guidance_hybrid_set_cmd_i(struct Int32Eulers *sp_cmd);
-extern void guidance_h_airspeed_to_attitude(struct Int32Eulers *ypr_sp);
+
+/** Convert a required airspeed to a certain attitude for the Hybrid.
+ * @param ypr_sp Attitude set-point
+ */
 extern void guidance_hybrid_airspeed_to_attitude(struct Int32Eulers *ypr_sp);
+
+/** Description.
+ */
 extern void guidance_hybrid_position_to_airspeed(void);
+
+/** Description.
+ */
 extern void guidance_hybrid_determine_wind_estimate(void);
+
+/** Description.
+ * @param sp_cmd Add Description
+ */
 extern void guidance_hybrid_reset_heading(struct Int32Eulers *sp_cmd);
+
+/** Description.
+ */
 extern void guidance_hybrid_vertical(void);
 
 

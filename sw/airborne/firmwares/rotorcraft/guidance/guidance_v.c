@@ -232,7 +232,7 @@ void guidance_v_mode_changed(uint8_t new_mode)
   switch (new_mode) {
     case GUIDANCE_V_MODE_GUIDED:
     case GUIDANCE_V_MODE_HOVER:
-       /* disable vertical velocity setpoints */
+      /* disable vertical velocity setpoints */
       guidance_v_guided_vel_enabled = false;
 
       /* set current altitude as setpoint */
@@ -328,8 +328,7 @@ void guidance_v_run(bool in_flight)
         run_hover_loop(in_flight);
         /* update z sp for telemetry/debuging */
         guidance_v_z_sp = guidance_v_z_ref;
-      }
-      else {
+      } else {
         guidance_v_zd_sp = 0;
         gv_update_ref_from_z_sp(guidance_v_z_sp);
         run_hover_loop(in_flight);
@@ -368,7 +367,7 @@ void guidance_v_run(bool in_flight)
         guidance_v_delta_t = nav_throttle;
       }
 #if HYBRID_NAVIGATION
-  guidance_hybrid_vertical();
+      guidance_hybrid_vertical();
 #else
 #if !NO_RC_THRUST_LIMIT
       /* use rc limitation if available */
@@ -459,7 +458,7 @@ static void run_hover_loop(bool in_flight)
 
 #if HYBRID_NAVIGATION
   //FIXME: NOT USING FEEDFORWARD COMMAND BECAUSE OF QUADSHOT NAVIGATION
-  guidance_v_ff_cmd = guidance_v_nominal_throttle*MAX_PPRZ;
+  guidance_v_ff_cmd = guidance_v_nominal_throttle * MAX_PPRZ;
 #endif
 
   /* bound the nominal command to 0.9*MAX_PPRZ */
