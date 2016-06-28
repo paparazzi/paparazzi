@@ -163,6 +163,12 @@ void ins_module_wrapper_init(void)
   INT32_VECT3_ZERO(ins_module.ltp_accel);
 
   ins_module_init();
+
+   // Bind to ABI messages
+  AbiBindMsgBARO_ABS(INS_MODULE_BARO_ID, &baro_ev, baro_cb);
+  AbiBindMsgIMU_ACCEL_INT32(INS_MODULE_IMU_ID, &accel_ev, accel_cb);
+  AbiBindMsgGPS(INS_MODULE_GPS_ID, &gps_ev, gps_cb);
+  AbiBindMsgBODY_TO_IMU_QUAT(INS_MODULE_IMU_ID, &body_to_imu_ev, body_to_imu_cb);
 }
 
 /** copy position and speed to state interface */
@@ -234,18 +240,4 @@ static void body_to_imu_cb(uint8_t sender_id __attribute__((unused)),
                            struct FloatQuat *q_b2i_f)
 {
   orientationSetQuat_f(&ins_module.body_to_imu, q_b2i_f);
-}
-
-void ins_module_register(void)
-{
-  ins_register_impl(ins_module_wrapper_init);
-
- // Bind to ABI messages
-  AbiBindMsgBARO_ABS(INS_MODULE_BARO_ID, &baro_ev, baro_cb);
-  AbiBindMsgIMU_ACCEL_INT32(INS_MODULE_IMU_ID, &accel_ev, accel_cb);
-  AbiBindMsgGPS(INS_MODULE_GPS_ID, &gps_ev, gps_cb);
-  AbiBindMsgBODY_TO_IMU_QUAT(INS_MODULE_IMU_ID, &body_to_imu_ev, body_to_imu_cb);
-
-#if PERIODIC_TELEMETRY
-#endif
 }

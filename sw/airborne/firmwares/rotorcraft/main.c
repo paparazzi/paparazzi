@@ -71,7 +71,6 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 #if USE_AHRS_ALIGNER
 #include "subsystems/ahrs/ahrs_aligner.h"
 #endif
-#include "subsystems/ins.h"
 
 #include "state.h"
 
@@ -196,8 +195,6 @@ STATIC_INLINE void main_init(void)
   ahrs_init();
 #endif
 
-  ins_init();
-
   autopilot_init();
 
   modules_init();
@@ -266,11 +263,6 @@ STATIC_INLINE void main_periodic(void)
 
 #if USE_IMU
   imu_periodic();
-#endif
-
-  //FIXME: temporary hack, remove me
-#ifdef InsPeriodic
-  InsPeriodic();
 #endif
 
   /* run control loops */
@@ -367,11 +359,6 @@ STATIC_INLINE void main_event(void)
 
 #if USE_IMU
   ImuEvent();
-#endif
-
-#ifdef InsEvent
-  TODO("calling InsEvent, remove me..")
-  InsEvent();
 #endif
 
 #if USE_BARO_BOARD

@@ -186,7 +186,7 @@ unit_t nav_drop_compute_approach(uint8_t wp_target, uint8_t wp_start, uint8_t wp
 
 unit_t nav_drop_shoot(void)
 {
-  ap_state->commands[COMMAND_HATCH] = MAX_PPRZ;
+  imcu_set_command(COMMAND_HATCH, MAX_PPRZ);
   return 0;
 }
 

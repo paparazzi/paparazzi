@@ -25,7 +25,7 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * @file arch/chibios/subsystems/mcu_periph/i2c_arch.c
+ * @file arch/chibios/mcu_periph/i2c_arch.c
  * Interface from Paparazzi I2C to ChibiOS I2C driver
  *
  * I2C configuration files are defined in the board file,

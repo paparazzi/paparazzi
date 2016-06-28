@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="gps_furuno">
+<module name="gps_furuno" dir="gps">
   <doc>
     <description>
       Furuno GPS (UART)

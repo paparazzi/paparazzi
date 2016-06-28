@@ -197,6 +197,7 @@ CSRC = $(STARTUPSRC) \
        $(HALSRC) \
        $(PLATFORMSRC) \
        $(BOARDSRC) \
+       $(CHIBIOS)/os/various/syscalls.c \
        $(FATFSSRC) \
        $(CHIBIOS_BOARD_MAIN)
 

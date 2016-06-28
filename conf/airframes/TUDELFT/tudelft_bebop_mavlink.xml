@@ -67,6 +67,7 @@
       <define name="UDP1_PORT_IN" value="5000"/>
       <define name="UDP1_HOST" value="192.168.42.2"/>
       <configure name="MAVLINK_PORT" value="UDP1"/>
+      <define name="MAVLINK_SYSID" value="1"/>
     </module>
   </modules>
 

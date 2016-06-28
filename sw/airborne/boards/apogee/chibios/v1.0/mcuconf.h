@@ -385,7 +385,7 @@
 #define STM32_SDC_READ_TIMEOUT_MS           15
 #define SDLOG_ALL_BUFFERS_SIZE              8192
 #define SDLOG_MAX_MESSAGE_LEN               252
-#define SDLOG_QUEUE_BUCKETS                 512
+#define SDLOG_QUEUE_BUCKETS                 1024
 
 /*
  * workaround hardware bug in REV.A revision of old STM32F4 (sold in 2012, early 2013)

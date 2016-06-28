@@ -185,6 +185,8 @@ void vPoint(float fPlaneEast, float fPlaneNorth, float fPlaneAltitude,
 
     if (cam_mode == CAM_MODE_STABILIZED || cam_mode == CAM_MODE_RC) {
 
+      // protect acces to fbw state
+      PPRZ_MUTEX_LOCK(fbw_state_mtx);
       /*########################################  TILT CONTROL INPUT  #############################################*/
 #ifdef CAM_TILT_NEUTRAL
 
@@ -264,6 +266,7 @@ void vPoint(float fPlaneEast, float fPlaneNorth, float fPlaneAltitude,
 
 #endif  //#ifdef CAM_PAN_NEUTRAL
       /*########################################  END OF PAN CONTROL INPUT  #############################################*/
+      PPRZ_MUTEX_UNLOCK(fbw_state_mtx);
 
       // Bound Pan and Tilt angles.
       if (cam_theta > RadOfDeg(CAM_TILT_MAX)) {
@@ -341,8 +344,9 @@ void vPoint(float fPlaneEast, float fPlaneNorth, float fPlaneAltitude,
       vMultiplyMatrixByVector(&sv_cam_projection, smRotation, sv_cam_projection_buf);
 
 #if defined(RADIO_CAM_LOCK)
-      if ((float)(*fbw_state).channels[RADIO_CAM_LOCK] > MAX_PPRZ / 2)) && pprz_mode == PPRZ_MODE_AUTO2) { cam_lock = true; }
-      if ((float)(*fbw_state).channels[RADIO_CAM_LOCK] < MIN_PPRZ / 2 && pprz_mode == PPRZ_MODE_AUTO2) { cam_lock = false; }
+      float radio_cam_lock = imcu_get_radio(RADIO_CAM_LOCK);
+      if ((radio_cam_lock > MAX_PPRZ / 2) && pprz_mode == PPRZ_MODE_AUTO2) { cam_lock = true; }
+      if ((radio_cam_lock < MIN_PPRZ / 2) && pprz_mode == PPRZ_MODE_AUTO2) { cam_lock = false; }
 #endif
     // When the variable "cam_lock" is set then the last calculated position is set as the target waypoint.
     if (cam_lock == FALSE) {

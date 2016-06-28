@@ -56,11 +56,7 @@ struct InsModuleInt {
 /** global INS state */
 extern struct InsModuleInt ins_module;
 
-#ifndef DefaultInsImpl
-#define DefaultInsImpl ins_module
-#endif
-
-extern void ins_module_register(void);
+extern void ins_module_wrapper_init(void);
 
 /* these functions can/should be implemented in your module */
 extern void ins_module_init(void);

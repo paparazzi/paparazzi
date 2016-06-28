@@ -18,7 +18,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/traffic_info/traffic_info.c"
+ * @file "modules/multi/traffic_info.c"
  * @author Kirk Scheper
  * Information relative to the other aircrafts.
  * Keeps track of other aircraft in airspace

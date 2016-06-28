@@ -1,0 +1,39 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ins_float_invariant" dir="ins">
+  <doc>
+    <description>
+      Invariant INS (in float).
+      Estimates attitude, velocity, position and (gyro, accel, baro) biases.
+    </description>
+    <configure name="USE_MAGNETOMETER" value="TRUE|FALSE" description="use magnetometer"/>
+    <configure name="AHRS_ALIGNER_LED" value="2" description="LED number to indicate if AHRS/INS is aligned"/>
+  </doc>
+  <header>
+    <file name="ins_float_invariant_wrapper.h" dir="subsystems/ins"/>
+  </header>
+  <init fun="ins_float_invariant_wrapper_init()"/>
+  <makefile target="ap|nps">
+    <configure name="AHRS_ALIGNER_LED" default="none"/>
+    <define name="AHRS_ALIGNER_LED" value="$(AHRS_ALIGNER_LED)" cond="ifneq ($(AHRS_ALIGNER_LED),none)"/>
+    <configure name="USE_MAGNETOMETER" default="TRUE"/>
+    <define name="USE_MAGNETOMETER" cond="ifeq (,$(findstring $(USE_MAGNETOMETER),0 FALSE))"/>
+
+    <file name="ahrs_aligner.c" dir="subsystems/ahrs"/>
+    <file name="ins.c" dir="subsystems"/>
+    <file name="ins_float_invariant.c" dir="subsystems/ins"/>
+    <file name="ins_float_invariant_wrapper.c" dir="subsystems/ins"/>
+
+    <define name="USE_AHRS_ALIGNER"/>
+    <define name="INS_TYPE_H" value="subsystems/ins/ins_float_invariant_wrapper.h" type="string"/>
+  </makefile>
+  <makefile target="ap|nps" firmware="fixedwing">
+    <define name="INS_FINV_USE_UTM"/>
+  </makefile>
+  <makefile target="sim">
+    <define name="AHRS_TYPE_H" value="subsystems/ahrs/ahrs_sim.h" type="string"/>
+    <define name="USE_AHRS"/>
+    <file name="ahrs.c" dir="subsystems"/>
+    <file name="ahrs_sim.c" dir="subsystems/ahrs"/>
+  </makefile>
+</module>

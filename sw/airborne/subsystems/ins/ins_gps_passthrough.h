@@ -21,16 +21,12 @@
 /**
  * @file subsystems/ins/ins_gps_passthrough.h
  *
- * Simply converts GPS ECEF position and velocity to NED
- * and passes it through to the state interface.
+ * Simply passes GPS through to the state interface.
  */
 
 #ifndef INS_GPS_PASSTHROUGH_H
 #define INS_GPS_PASSTHROUGH_H
 
-#define DefaultInsImpl ins_gps_passthrough
-
 extern void ins_gps_passthrough_init(void);
-extern void ins_gps_passthrough_register(void);
 
 #endif /* INS_GPS_PASSTHROUGH_H */

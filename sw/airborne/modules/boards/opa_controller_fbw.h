@@ -18,7 +18,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/boards/opa_controller.h"
+ * @file "modules/boards/opa_controller_fbw.h"
  * @author Freek van Tienen <freek.v.tienen@gmail.com>
  * Controller for OPA board functionalities
  */

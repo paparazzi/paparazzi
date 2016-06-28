@@ -20,7 +20,7 @@
  */
 
 /**
- * @file "modules/mutli/traffic_info.h"
+ * @file "modules/multi/traffic_info.h"
  * @author Kirk Scheper
  * Keeps track of other aircraft in airspace
  */
@@ -41,7 +41,7 @@
 #endif
 
 /**
- * @defgroup ac_info Data availability representations
+ * @defgroup ac_info Aircraft data availability representations
  * @{
  */
 #define AC_INFO_POS_UTM_I 0
@@ -165,8 +165,8 @@ extern void set_ac_info_lla(uint8_t id, int32_t lat, int32_t lon, int32_t alt,
                             int16_t course, uint16_t gspeed, int16_t climb, uint32_t itow);
 
 /** Set position from UTM coordinates (int).
-* @param[in] aircraft id of aircraft info to set
-* @param[in] enu_vel velocity in ENU (float)
+* @param[in] ac_id aircraft id of aircraft info to set
+* @param[in] utm_pos UTM position (int)
 */
 static inline void acInfoSetPositionUtm_i(uint8_t ac_id, struct UtmCoor_i *utm_pos)
 {
@@ -183,8 +183,8 @@ static inline void acInfoSetPositionUtm_i(uint8_t ac_id, struct UtmCoor_i *utm_p
 }
 
 /** Set position from LLA coordinates (int).
-* @param[in] aircraft id of aircraft info to set
-* @param[in] enu_vel velocity in ENU (float)
+* @param[in] ac_id aircraft id of aircraft info to set
+* @param[in] lla_pos LLA position (int)
 */
 static inline void acInfoSetPositionLla_i(uint8_t ac_id, struct LlaCoor_i *lla_pos)
 {
@@ -200,8 +200,8 @@ static inline void acInfoSetPositionLla_i(uint8_t ac_id, struct LlaCoor_i *lla_p
   }
 }
 
-/** Set velocity from ENU coordinates (int).
-* @param[in] aircraft id of aircraft info to set
+/** Set position from ENU coordinates (int).
+* @param[in] ac_id aircraft id of aircraft info to set
 * @param[in] enu_pos position in ENU (int)
 */
 static inline void acInfoSetPositionEnu_i(uint8_t ac_id, struct EnuCoor_i *enu_pos)
@@ -219,8 +219,8 @@ static inline void acInfoSetPositionEnu_i(uint8_t ac_id, struct EnuCoor_i *enu_p
 }
 
 /** Set position from UTM coordinates (float).
-* @param[in] aircraft id of aircraft info to set
-* @param[in] enu_vel velocity in ENU (float)
+* @param[in] ac_id aircraft id of aircraft info to set
+* @param[in] utm_pos UTM position (float)
 */
 static inline void acInfoSetPositionUtm_f(uint8_t ac_id, struct UtmCoor_f *utm_pos)
 {
@@ -237,8 +237,8 @@ static inline void acInfoSetPositionUtm_f(uint8_t ac_id, struct UtmCoor_f *utm_p
 }
 
 /** Set position from LLA coordinates (float).
-* @param[in] aircraft id of aircraft info to set
-* @param[in] enu_vel velocity in ENU (float)
+* @param[in] ac_id aircraft id of aircraft info to set
+* @param[in] lla_pos LLA position (float)
 */
 static inline void acInfoSetPositionLla_f(uint8_t ac_id, struct LlaCoor_f *lla_pos)
 {
@@ -254,8 +254,8 @@ static inline void acInfoSetPositionLla_f(uint8_t ac_id, struct LlaCoor_f *lla_p
   }
 }
 
-/** Set velocity from ENU coordinates (float).
-* @param[in] aircraft id of aircraft info to set
+/** Set position from ENU coordinates (float).
+* @param[in] ac_id aircraft id of aircraft info to set
 * @param[in] enu_pos position in ENU (float)
 */
 static inline void acInfoSetPositionEnu_f(uint8_t ac_id, struct EnuCoor_f *enu_pos)
@@ -273,7 +273,7 @@ static inline void acInfoSetPositionEnu_f(uint8_t ac_id, struct EnuCoor_f *enu_p
 }
 
 /** Set velocity from ENU coordinates (int).
-* @param[in] aircraft id of aircraft info to set
+* @param[in] ac_id aircraft id of aircraft info to set
 * @param[in] enu_vel velocity in ENU (int)
 */
 static inline void acInfoSetVelocityEnu_i(uint8_t ac_id, struct EnuCoor_i *enu_vel)
@@ -291,7 +291,7 @@ static inline void acInfoSetVelocityEnu_i(uint8_t ac_id, struct EnuCoor_i *enu_v
 }
 
 /** Set velocity from ENU coordinates (float).
- * @param[in] aircraft id of aircraft info to set
+ * @param[in] ac_id aircraft id of aircraft info to set
  * @param[in] enu_vel velocity in ENU (float)
  */
 static inline void acInfoSetVelocityEnu_f(uint8_t ac_id, struct EnuCoor_f *enu_vel)
@@ -323,7 +323,7 @@ extern void acInfoCalcVelocityEnu_f(uint8_t ac_id);
 /************************ Get functions ****************************/
 
 /** Get position from UTM coordinates (int).
- * @param[in] aircraft id of aircraft info to get
+ * @param[in] ac_id aircraft id of aircraft info to get
  */
 static inline struct UtmCoor_i *acInfoGetPositionUtm_i(uint8_t ac_id)
 {
@@ -334,7 +334,7 @@ static inline struct UtmCoor_i *acInfoGetPositionUtm_i(uint8_t ac_id)
 }
 
 /** Get position from LLA coordinates (int).
- * @param[in] aircraft id of aircraft info to get
+ * @param[in] ac_id aircraft id of aircraft info to get
  */
 static inline struct LlaCoor_i *acInfoGetPositionLla_i(uint8_t ac_id)
 {
@@ -345,7 +345,7 @@ static inline struct LlaCoor_i *acInfoGetPositionLla_i(uint8_t ac_id)
 }
 
 /** Get position in local ENU coordinates (int).
- * @param[in] aircraft id of aircraft info to get
+ * @param[in] ac_id aircraft id of aircraft info to get
  */
 static inline struct EnuCoor_i *acInfoGetPositionEnu_i(uint8_t ac_id)
 {
@@ -356,7 +356,7 @@ static inline struct EnuCoor_i *acInfoGetPositionEnu_i(uint8_t ac_id)
 }
 
 /** Get position from UTM coordinates (float).
- * @param[in] aircraft id of aircraft info to get
+ * @param[in] ac_id aircraft id of aircraft info to get
  */
 static inline struct UtmCoor_f *acInfoGetPositionUtm_f(uint8_t ac_id)
 {
@@ -367,7 +367,7 @@ static inline struct UtmCoor_f *acInfoGetPositionUtm_f(uint8_t ac_id)
 }
 
 /** Get position from LLA coordinates (float).
- * @param[in] aircraft id of aircraft info to get
+ * @param[in] ac_id aircraft id of aircraft info to get
  */
 static inline struct LlaCoor_f *acInfoGetPositionLla_f(uint8_t ac_id)
 {
@@ -378,7 +378,7 @@ static inline struct LlaCoor_f *acInfoGetPositionLla_f(uint8_t ac_id)
 }
 
 /** Get position in local ENU coordinates (float).
- * @param[in] aircraft id of aircraft info to get
+ * @param[in] ac_id aircraft id of aircraft info to get
  */
 static inline struct EnuCoor_f *acInfoGetPositionEnu_f(uint8_t ac_id)
 {
@@ -389,7 +389,7 @@ static inline struct EnuCoor_f *acInfoGetPositionEnu_f(uint8_t ac_id)
 }
 
 /** Get position from ENU coordinates (int).
- * @param[in] aircraft id of aircraft info to get
+ * @param[in] ac_id aircraft id of aircraft info to get
  */
 static inline struct EnuCoor_i *acInfoGetVelocityEnu_i(uint8_t ac_id)
 {
@@ -400,7 +400,7 @@ static inline struct EnuCoor_i *acInfoGetVelocityEnu_i(uint8_t ac_id)
 }
 
 /** Get position from ENU coordinates (float).
- * @param[in] aircraft id of aircraft info to get
+ * @param[in] ac_id aircraft id of aircraft info to get
  */
 static inline struct EnuCoor_f *acInfoGetVelocityEnu_f(uint8_t ac_id)
 {
@@ -411,7 +411,7 @@ static inline struct EnuCoor_f *acInfoGetVelocityEnu_f(uint8_t ac_id)
 }
 
 /** Get vehicle course (float).
- * @param[in] aircraft id of aircraft info to get
+ * @param[in] ac_id aircraft id of aircraft info to get
  */
 static inline float acInfoGetCourse(uint8_t ac_id)
 {
@@ -419,7 +419,7 @@ static inline float acInfoGetCourse(uint8_t ac_id)
 }
 
 /** Get vehicle ground speed (float).
- * @param[in] aircraft id of aircraft info to get
+ * @param[in] ac_id aircraft id of aircraft info to get
  */
 static inline float acInfoGetGspeed(uint8_t ac_id)
 {
@@ -427,7 +427,7 @@ static inline float acInfoGetGspeed(uint8_t ac_id)
 }
 
 /** Get vehicle climb speed (float).
- * @param[in] aircraft id of aircraft info to get
+ * @param[in] ac_id aircraft id of aircraft info to get
  */
 static inline float acInfoGetClimb(uint8_t ac_id)
 {
@@ -435,11 +435,13 @@ static inline float acInfoGetClimb(uint8_t ac_id)
 }
 
 /** Get time of week from latest message (ms).
- * @param[in] aircraft id of aircraft info to get
+ * @param[in] ac_id aircraft id of aircraft info to get
  */
 static inline uint32_t acInfoGetItow(uint8_t ac_id)
 {
   return ti_acs[ti_acs_id[ac_id]].itow;
 }
+
+/** @}*/
 
 #endif

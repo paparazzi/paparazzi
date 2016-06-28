@@ -18,7 +18,7 @@
       <define name="AHRS_USE_GPS_HEADING" value="1"/>
       <define name="AHRS_GRAVITY_HEURISTIC_FACTOR" value="0"/>
 
-      <subsystem name="radio_control" type="ppm">
+      <module name="radio_control" type="ppm">
         <configure name="RADIO_CONTROL_PPM_PIN" value="SUPERBIT_RST"/>
       </subsystem>
 

@@ -26,7 +26,7 @@
  */
 
 #ifndef GAIN_SCHEDULING_H
-#define GAINS_SCHEDULING_H
+#define GAIN_SCHEDULING_H
 
 #include "generated/airframe.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_common_int.h"

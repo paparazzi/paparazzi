@@ -1,0 +1,24 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ins_gps_passthrough" dir="ins">
+  <doc>
+    <description>
+      INS which just passes GPS through.
+    </description>
+    <define name="INS_PT_GPS_ID" value="GPS_MULTI_ID" description="ABI sender ID of the GPS to use"/>
+  </doc>
+  <header>
+    <file name="ins_gps_passthrough.h" dir="subsystems/ins"/>
+  </header>
+  <init fun="ins_gps_passthrough_init()"/>
+  <makefile target="ap|nps" firmware="rotorcraft">
+    <define name="INS_TYPE_H" value="subsystems/ins/ins_gps_passthrough.h" type="string"/>
+    <file name="ins.c" dir="subsystems"/>
+    <file name="ins_gps_passthrough.c" dir="subsystems/ins"/>
+  </makefile>
+  <makefile target="ap|sim|nps" firmware="fixedwing">
+    <define name="INS_TYPE_H" value="subsystems/ins/ins_gps_passthrough.h" type="string"/>
+    <file name="ins.c" dir="subsystems"/>
+    <file name="ins_gps_passthrough_utm.c" dir="subsystems/ins"/>
+  </makefile>
+</module>

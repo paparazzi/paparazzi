@@ -64,12 +64,6 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
                    uint32_t stamp __attribute__((unused)),
                    struct GpsState *gps_s);
 
-void ins_xsens700_register(void)
-{
-  ins_register_impl(ins_xsens700_init);
-  AbiBindMsgGPS(INS_XSENS700_GPS_ID, &gps_ev, gps_cb);
-}
-
 void ins_xsens700_init(void)
 {
   xsens700_init();
@@ -80,6 +74,8 @@ void ins_xsens700_init(void)
   struct UtmCoor_f utm0 = { nav_utm_north0, nav_utm_east0, 0., nav_utm_zone0 };
   stateSetLocalUtmOrigin_f(&utm0);
   stateSetPositionUtm_f(&utm0);
+
+  AbiBindMsgGPS(INS_XSENS700_GPS_ID, &gps_ev, gps_cb);
 }
 
 void ins_xsens700_event(void)

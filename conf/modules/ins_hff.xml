@@ -1,0 +1,26 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ins_hff" dir="ins">
+  <doc>
+    <description>
+      INS with float vertical and horizontal filters.
+    </description>
+    <define name="USE_INS_NAV_INIT" value="TRUE|FALSE" description="Initialize the origin of the local coordinate system from flight plan. (Default: TRUE)"/>
+    <define name="INS_INT_BARO_ID" value="BARO_BOARD_SENDER_ID" description="The ABI sender id of the baro to use"/>
+    <define name="INS_INT_GPS_ID" value="GPS_MULTI_ID" description="The ABI sender id of the GPS to use"/>
+    <define name="INS_INT_IMU_ID" value="ABI_BROADCAST" description="The ABI sender id of the IMU to use"/>
+    <define name="INS_INT_VEL_ID" value="ABI_BROADCAST" description="The ABI sender id of the VELOCITY_ESTIMATE (e.g. from opticflow"/>
+  </doc>
+  <header>
+    <file name="ins_int.h" dir="subsystems/ins"/>
+  </header>
+  <init fun="ins_int_init()"/>
+  <makefile target="ap|nps">
+    <define name="INS_TYPE_H" value="subsystems/ins/ins_int.h" type="string"/>
+    <file name="ins.c" dir="subsystems"/>
+    <file name="ins_int.c" dir="subsystems/ins"/>
+    <file name="vf_float.c" dir="subsystems/ins"/>
+    <file name="hf_float.c" dir="subsystems/ins"/>
+    <define name="USE_HFF"/>
+  </makefile>
+</module>
