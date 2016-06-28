@@ -20,7 +20,7 @@
 
       <module name="radio_control" type="ppm">
         <configure name="RADIO_CONTROL_PPM_PIN" value="SUPERBIT_RST"/>
-      </subsystem>
+      </module>
 
       <!--configure name="USE_BARO_BOARD" value="0"/-->
       <define name="RADIO_KILL_SWITCH" value="RADIO_FLAP"/>
@@ -29,23 +29,23 @@
       <define name="USE_PERSISTENT_SETTINGS" value="TRUE"/>
     </target>
 
-    <subsystem name="actuators" type="pwm">
+    <module name="actuators" type="pwm">
       <define name="TIM5_SERVO_HZ" value="300"/>
       <define name="SERVO_HZ" value="300"/>
       <define name="USE_SERVOS_1AND2"/>
-    </subsystem>
+    </module>
 
-	  <subsystem name="telemetry" type="transparent">
+	  <module name="telemetry" type="transparent">
 	    <configure name="MODEM_BAUD" value="B115200"/>
 	    <configure name="MODEM_PORT" value="UART1"/>
-	  </subsystem>
-    <subsystem name="imu" type="lisa_s_v1.0">
+	  </module>
+    <module name="imu" type="lisa_s_v1.0">
       <define name="LISA_S_UPSIDE_DOWN"/> <!-- wtf hij zit gewoon rechtop maargoed -->
-    </subsystem>
+    </module>
     <module name="gps" type="optitrack"/>
-    <subsystem name="stabilization" type="heli_indi"/> <!-- int_quat / heli_indi -->
-    <subsystem name="ahrs" type="int_cmpl_quat"/>
-    <subsystem name="ins"/>
+    <module name="stabilization" type="heli_indi"/> <!-- int_quat / heli_indi -->
+    <module name="ahrs" type="int_cmpl_quat"/>
+    <module name="ins"/>
   </firmware>
 
   <section name="IMU" prefix="IMU_">
@@ -128,7 +128,7 @@
   </section>
 
   <!-- magneto calibration -->
-  <include href="conf/airframes/TUDELFT/calibrations/walkera_2016_03_16.xml"/>
+  <!--include href="conf/airframes/TUDELFT/calibrations/walkera_2016_03_16.xml"/-->
 
   <heli_curves>
     <curve throttle="0,4800,7200,8400,9600" collective="-1500,-1500,0,3000,3000"/>
