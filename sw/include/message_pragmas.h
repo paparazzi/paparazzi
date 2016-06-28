@@ -7,6 +7,7 @@
 #define VALUE(x) VALUE_TO_STRING(x)
 
 /* some convenience macros to print debug/config messages at compile time */
+#define WARNING(x) DO_PRAGMA(GCC warning #x)
 #define MESSAGE(x) DO_PRAGMA(message (x))
 #define TODO(x) DO_PRAGMA(message ("TODO - " x))
 #define INFO(x) DO_PRAGMA(message ("Info: " x))
