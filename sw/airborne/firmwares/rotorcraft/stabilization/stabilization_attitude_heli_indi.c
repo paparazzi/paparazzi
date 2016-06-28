@@ -151,6 +151,12 @@ struct SecondOrderNotchFilter measurement_notchfilter[INDI_DOF];
 struct delayed_first_order_lowpass_filter_t fast_dynamics_model[2]; // only pitch and roll
 #endif
 
+/* Private functions declarations */
+void indi_apply_actuator_notch_filters(int32_t _out[], int32_t _in[]);
+void indi_apply_measurement_notch_filters(int32_t _out[], int32_t _in[]);
+void indi_apply_actuator_butterworth_filters(int32_t _out[], int32_t _in[]);
+void indi_apply_measurement_butterworth_filters(int32_t _out[], int32_t _in[]);
+
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
@@ -259,24 +265,24 @@ static inline void indi_apply_notch_filters(struct SecondOrderNotchFilter *filte
   }
 }
 
-static inline void indi_apply_actuator_notch_filters(int32_t _out[], int32_t _in[])
+void indi_apply_actuator_notch_filters(int32_t _out[], int32_t _in[])
 {
   indi_apply_notch_filters(actuator_notchfilter, _out, _in);
 }
 
-static inline void indi_apply_measurement_notch_filters(int32_t _out[], int32_t _in[])
+void indi_apply_measurement_notch_filters(int32_t _out[], int32_t _in[])
 {
   indi_apply_notch_filters(measurement_notchfilter, _out, _in);
 }
 
-static inline void indi_apply_actuator_butterworth_filters(int32_t _out[], int32_t _in[])
+void indi_apply_actuator_butterworth_filters(int32_t _out[], int32_t _in[])
 {
   for (uint8_t i = 0; i < INDI_DOF; i++) {
     _out[i] = update_butterworth_2_low_pass_int(&actuator_lowpass_filters[i], _in[i]);
   }
 }
 
-static inline void indi_apply_measurement_butterworth_filters(int32_t _out[], int32_t _in[])
+void indi_apply_measurement_butterworth_filters(int32_t _out[], int32_t _in[])
 {
   for (uint8_t i = 0; i < INDI_DOF; i++) {
     _out[i] = update_butterworth_2_low_pass_int(&measurement_lowpass_filters[i], _in[i]);
