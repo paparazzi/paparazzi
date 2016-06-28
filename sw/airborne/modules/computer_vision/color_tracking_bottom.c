@@ -19,7 +19,7 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * @file modules/computer_vision/color_tracking_front.c
+ * @file modules/computer_vision/color_tracking_bottom.c
  * @author IMAV 2016
  */
 
@@ -34,18 +34,20 @@
 #include "subsystems/datalink/telemetry.h"
 #include "generated/flight_plan.h"
 #include "autopilot.h"
+#include "modules/sonar/sonar_bebop.h"
 #include <stdio.h>
 #include <time.h>
 
 #define MEMORY 25
-#define PI 3.14159265359
 
 // Choose color
 int color = 0; // 0 = RED; 1 = BLUE
 
 // Red color settings
-uint8_t color_lum_min_red = 70;
-uint8_t color_lum_max_red = 205;
+//uint8_t color_lum_min_red = 70;
+//uint8_t color_lum_max_red = 205;
+uint8_t color_lum_min_red = 0;
+uint8_t color_lum_max_red = 110;
 uint8_t color_cb_min_red  = 52;
 uint8_t color_cb_max_red  = 140;
 uint8_t color_cr_min_red  = 140;
@@ -61,19 +63,20 @@ uint8_t color_cr_min_blue  = 140;
 uint8_t color_cr_max_blue  = 255;
 
 // Reliable color detection
-int blob_threshold_bottom = 1000;
+int blob_threshold_bottom = 50;
 
 // Image-modification triggers
 uint8_t modify_image_bottom = FALSE; // Image-modification trigger
 
 // Target detection
-struct results_color destination;
+struct results_color target_bottom;
 
 // Marker detected in the bottom camera
-uint8_t BOTTOM_MARKER = FALSE;
+uint8_t BOTTOM_MARKER;
 
 // Altitude control
-float vz_bottom_ref = 0.25;
+float vz_desired = 0.25;
+float vz_bottom_ref;
 float height_above_target = 1;
 
 // Horizontal control
@@ -82,7 +85,7 @@ float vx_bottom_ref;
 float vy_bottom_ref;
 
 // Geofilter Settings
-float target_reached = 0.5;
+float target_reached = 0.2;
 
 // Counters
 int centroid_counter = 0;
@@ -120,29 +123,28 @@ struct image_t *color_tracking_bottom_func(struct image_t* img)
 
   // Blob locator
   if (color == 0) {
-    destination = locate_blob(img,
+    target_bottom = locate_blob(img,
                               color_lum_min_red, color_lum_max_red,
                               color_cb_min_red, color_cb_max_red,
                               color_cr_min_red, color_cr_max_red,
                               blob_threshold_bottom);
   } else if (color == 1) {
-    destination = locate_blob(img,
+    target_bottom = locate_blob(img,
                               color_lum_min_blue, color_lum_max_blue,
                               color_cb_min_blue, color_cb_max_blue,
                               color_cr_min_blue, color_cr_max_blue,
                               blob_threshold_bottom);
   }
 
-
   // Display the marker location and center-lines.
-  if ((modify_image_bottom) && (destination.MARKER)) {
-    int ti = destination.maxy - 50;
-    int bi = destination.maxy + 50;
-    struct point_t t = {destination.maxx, ti}, b = {destination.maxx, bi};
+  if ((modify_image_bottom) && (target_bottom.MARKER)) {
+    int ti = target_bottom.maxy - 50;
+    int bi = target_bottom.maxy + 50;
+    struct point_t t = {target_bottom.maxx, ti}, b = {target_bottom.maxx, bi};
 
-    int li = destination.maxx - 50;
-    int ri = destination.maxx + 50;
-    struct point_t l = {li, destination.maxy}, r = {ri, destination.maxy};
+    int li = target_bottom.maxx - 50;
+    int ri = target_bottom.maxx + 50;
+    struct point_t l = {li, target_bottom.maxy}, r = {ri, target_bottom.maxy};
 
     image_draw_line(img, &t, &b);
     image_draw_line(img, &l, &r);
@@ -157,15 +159,14 @@ struct image_t *color_tracking_bottom_func(struct image_t* img)
   }
 
   // Update the location of the centroid only if the marker is detected in the previous iteration
-  if (destination.MARKER && (dt_flight > 2)) {
-    temp = destination.maxx;
+  if (target_bottom.MARKER && (dt_flight > 2)) {
+    temp = target_bottom.maxx;
     temp = temp << 16;
-    temp += destination.maxy;
+    temp += target_bottom.maxy;
     dt_sum = 0;
   }
 
   if ((dt_sum < marker_lost) && (dt_flight > 2)) {
-
     // Change the flight mode from NAV to GUIDED
     if (AP_MODE_NAV == autopilot_mode) {
       autopilot_mode_auto2 = AP_MODE_GUIDED;
@@ -201,7 +202,7 @@ struct image_t *color_tracking_bottom_func(struct image_t* img)
     float term1, term2;
     if (marker_location.x <0) { term1 = -marker_location.x; } else { term1 = marker_location.x; }
     if (marker_location.y <0) { term2 = -marker_location.y; } else { term2 = marker_location.y; }
-    velGain_bottom = (term1 + term2) / 4; /* TODO: Change the denominator */
+    velGain_bottom = (term1 + term2) / 3.5; /* TODO: Decrease the denominator for higher horizontal gains.*/
 
     // Set velocities as offsets in NED frame
     float psi = stateGetNedToBodyEulers_f()->psi;
@@ -211,34 +212,44 @@ struct image_t *color_tracking_bottom_func(struct image_t* img)
     // Follow the marker with velocity references
     guidance_h_set_guided_vel(vx_bottom_ref, vy_bottom_ref);
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    // HOVERING
+
     // Absolute value
     if (centroid_x[MEMORY-1] <0) { centroid_x[MEMORY-1] = -centroid_x[MEMORY-1]; }
     if (centroid_y[MEMORY-1] <0) { centroid_y[MEMORY-1] = -centroid_y[MEMORY-1]; }
 
-//    // Check if the marker has been reached
-//    for (int i = 0; i <MEMORY; ++i) {
-//      if ((centroid_x[i] < target_reached) && (centroid_y[i] < target_reached)) {
-//        centroid_counter++;
-//      }
-//    }
+    // Check if the marker has been reached
+    for (int i = 0; i <MEMORY; ++i) {
+      if ((centroid_x[i] < target_reached) && (centroid_y[i] < target_reached)) {
+        centroid_counter++;
+      }
+    }
 
-//    // Decrease altitude and hover above the marker
-//    if (centroid_counter > (MEMORY - 1)) {
-//
-//      // If the marker has been reached, start decreasing altitude
-//      if (sonar_bebop.distance > height_above_target) {
-//
-//        // Set vertical velocity
-//        guidance_v_set_guided_vz(vz_bottom_ref);
-//      }
-//    } else {
-//
-//      // If the marker has not been reached, maintain altitude
-//      guidance_v_set_guided_vz(0);
-//    }
+    // Decrease altitude and hover above the marker
+    if (centroid_counter > (MEMORY - 1)) {
 
-//    // Prepare variables for the next iteration
-//    centroid_counter = 0;
+      // If the marker has been reached, start decreasing altitude
+      if (sonar_bebop.distance > height_above_target) {
+
+        // Set vertical velocity
+        vz_bottom_ref = vz_desired;
+
+      } else {
+        // Set vertical velocity
+        vz_bottom_ref = 0;
+      }
+    } else {
+
+      // If the marker has not been reached, maintain altitude
+      vz_bottom_ref = 0;
+    }
+
+    // Follow the marker with velocity references
+    guidance_v_set_guided_vz(vz_bottom_ref);
+
+    // Prepare variables for the next iteration
+    centroid_counter = 0;
 
     for (int i = 0; i <(MEMORY-1) ; ++i) {
       centroid_x[i] = centroid_x[i+1];
@@ -263,6 +274,9 @@ struct image_t *color_tracking_bottom_func(struct image_t* img)
 
 void color_tracking_bottom_init(void)
 {
+  // Marker not detected in the bottom camera
+  BOTTOM_MARKER = FALSE;
+
   // Initialize georeference module
   georeference_init();
 
@@ -281,9 +295,9 @@ void color_tracking_bottom_init(void)
   cv_add_to_device(&COLOR_CAMERA_BOTTOM, color_tracking_bottom_func);
 }
 
+
 uint8_t init_variables(void)
 {
-
   // Waypoint counter reset to zero
   centroid_counter = 0;
 

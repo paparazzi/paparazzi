@@ -60,7 +60,7 @@ extern uint8_t modify_image_bottom;
 extern uint8_t BOTTOM_MARKER;
 
 // Navigation
-extern float vz_bottom_ref;
+extern float vz_desired;
 extern float height_above_target;
 extern float target_reached;
 

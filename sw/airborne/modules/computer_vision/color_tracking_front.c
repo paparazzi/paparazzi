@@ -37,16 +37,15 @@
 #include <stdio.h>
 #include <time.h>
 
-#define PI 3.14159265359
-
 // Reliable color detection
-int blob_threshold_front = 50;
+//int blob_threshold_front = 50;
+int blob_threshold_front = 0;
 
 // Image-modification triggers
 uint8_t modify_image_front = FALSE; // Image-modification trigger
 
 // Target detection
-struct results_color destination;
+struct results_color target_front;
 
 // Navigation: forward velocity
 float vel_ref = 0.75;
@@ -78,13 +77,13 @@ struct image_t *color_tracking_front_func(struct image_t* img)
 
   // Blob locator
   if (color == 0) {
-    destination = locate_blob(img,
+    target_front = locate_blob(img,
                               color_lum_min_red, color_lum_max_red,
                               color_cb_min_red, color_cb_max_red,
                               color_cr_min_red, color_cr_max_red,
                               blob_threshold_front);
   } else if (color == 1) {
-    destination = locate_blob(img,
+    target_front = locate_blob(img,
                               color_lum_min_blue, color_lum_max_blue,
                               color_cb_min_blue, color_cb_max_blue,
                               color_cr_min_blue, color_cr_max_blue,
@@ -93,14 +92,14 @@ struct image_t *color_tracking_front_func(struct image_t* img)
 
 
   // Display the marker location and center-lines.
-  if ((modify_image_front) && (destination.MARKER)) {
-    int ti = destination.maxy - 50;
-    int bi = destination.maxy + 50;
-    struct point_t t = {destination.maxx, ti}, b = {destination.maxx, bi};
+  if ((modify_image_front) && (target_front.MARKER)) {
+    int ti = target_front.maxy - 50;
+    int bi = target_front.maxy + 50;
+    struct point_t t = {target_front.maxx, ti}, b = {target_front.maxx, bi};
 
-    int li = destination.maxx - 50;
-    int ri = destination.maxx + 50;
-    struct point_t l = {li, destination.maxy}, r = {ri, destination.maxy};
+    int li = target_front.maxx - 50;
+    int ri = target_front.maxx + 50;
+    struct point_t l = {li, target_front.maxy}, r = {ri, target_front.maxy};
 
     image_draw_line(img, &t, &b);
     image_draw_line(img, &l, &r);
@@ -114,7 +113,7 @@ struct image_t *color_tracking_front_func(struct image_t* img)
     dt_flight_front = 0;
   }
 
-  if ((destination.MARKER) && (!BOTTOM_MARKER) & (dt_flight_front > 2)) {
+  if ((target_front.MARKER) && (!BOTTOM_MARKER) & (dt_flight_front > 2)) {
 
     // Change the flight mode from NAV to GUIDED
     if (AP_MODE_NAV == autopilot_mode) {
@@ -123,7 +122,7 @@ struct image_t *color_tracking_front_func(struct image_t* img)
     }
 
     // Compute the location of the centroid
-    int centroid_x = destination.maxx;
+    int centroid_x = target_front.maxx;
 
     // Compute the location of the centroid wrt the center of the frame
     int centroid_x_centered = centroid_x - (img->w)/2;
@@ -133,7 +132,7 @@ struct image_t *color_tracking_front_func(struct image_t* img)
     guidance_h_set_guided_heading_rate(yaw_rate);
 
     // Detect if the marker is in the middle of the frame
-    if ((centroid_x_centered > -10) && (centroid_x_centered < 10)) {
+    if ((centroid_x_centered > -5) && (centroid_x_centered < 5)) {
 
       // Set velocities as offsets in NED frame
       float psi = stateGetNedToBodyEulers_f()->psi;
@@ -147,7 +146,7 @@ struct image_t *color_tracking_front_func(struct image_t* img)
       guidance_h_set_guided_vel(0, 0);
     }
 
-  } else {
+  } else if ((target_front.MARKER) && (!BOTTOM_MARKER)) {
 
     // Change the flight mode from GUIDED to NAV
     if (AP_MODE_GUIDED == autopilot_mode) {

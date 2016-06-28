@@ -241,6 +241,8 @@ struct results_color locate_blob(struct image_t *input,
     marker.maxy   = labels[largest_id].y_sum / labels[largest_id].pixel_cnt;
   } else {
     marker.MARKER = FALSE;
+    marker.maxx   = 0;
+    marker.maxy   = 0;
   }
 
   image_free(&dst);
