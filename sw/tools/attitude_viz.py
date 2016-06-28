@@ -350,7 +350,7 @@ def run():
         print(msg)
         print("""usage:
 -t, --title                   set window title
--r, --rotate_theta           rotate the quaternion by n degrees over the pitch axis (default: -90)
+-r, --rotate_theta           rotate the quaternion by n degrees over the pitch axis (default: 0)
 """)
     pygame.init()
     screen = pygame.display.set_mode(SCREEN_SIZE, pygame.OPENGL | pygame.DOUBLEBUF)
