@@ -35,15 +35,15 @@
       <define name="USE_SERVOS_1AND2"/>
     </module>
 
-      <module name="telemetry" type="transparent">
-        <configure name="MODEM_BAUD" value="B115200"/>
-        <configure name="MODEM_PORT" value="UART1"/>
-      </module>
+	  <module name="telemetry" type="transparent">
+	    <configure name="MODEM_BAUD" value="B115200"/>
+	    <configure name="MODEM_PORT" value="UART1"/>
+	  </module>
     <module name="imu" type="lisa_s_v1.0">
       <define name="LISA_S_UPSIDE_DOWN"/> <!-- wtf hij zit gewoon rechtop maargoed -->
     </module>
     <module name="gps" type="optitrack"/>
-    <module name="stabilization" type="int_quat"/> <!-- int_quat / heli_indi -->
+    <module name="stabilization" type="heli_indi"/> <!-- int_quat / heli_indi -->
     <module name="ahrs" type="int_cmpl_quat"/>
     <module name="ins"/>
   </firmware>
@@ -51,7 +51,7 @@
   <section name="IMU" prefix="IMU_">
     <define name="BODY_TO_IMU_PHI" value="1." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="4.0" unit="deg"/>
-    <define name="BODY_TO_IMU_PSI" value="0.0" unit="deg"/>
+    <define name="BODY_TO_IMU_PSI" value="0.0" unit="deg"/> 
   </section>
 
   <section name="BAT">
@@ -128,7 +128,7 @@
   </section>
 
   <!-- magneto calibration -->
-  <include href="conf/airframes/TUDELFT/calibrations/walkera_2016_03_16.xml"/>
+  <!--include href="conf/airframes/TUDELFT/calibrations/walkera_2016_03_16.xml"/-->
 
   <heli_curves>
     <curve throttle="0,4800,7200,8400,9600" collective="-1500,-1500,0,3000,3000"/>
@@ -168,7 +168,7 @@
     <set servo="CIC_FRONT" value="-swashplate_mixing.commands[SW_FRONT]"/>
     <set servo="CIC_LEFT" value="-swashplate_mixing.commands[SW_LEFTBACK]"/>
     <set servo="CIC_RIGHT" value="swashplate_mixing.commands[SW_RIGHTBACK]"/>
-    <set servo="TAIL" value="@YAW+0.4*@THRUST"/> <!-- +0.4*@THRUST met pid -->
+    <set servo="TAIL" value="@YAW"/> <!-- +0.4*@THRUST met pid -->    
     <set servo="GAS" value="$halfway * MAX_PPRZ"/>
 
 
@@ -177,7 +177,7 @@
     <set servo="CIC_FRONT" value="0"/>
     <set servo="GAS" value="@THRUST"/>
     <set servo="TAIL" value="0"/-->
-
+    
   </command_laws>
 
  <section name="AUTOPILOT">
@@ -250,3 +250,4 @@
   </modules>
 
 </airframe>
+

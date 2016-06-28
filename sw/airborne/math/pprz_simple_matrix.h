@@ -77,8 +77,21 @@ extern "C" {
         C[l][c] = A[l][c] - B[l][c];            \
   }
 
-
-
+/** o = a * b
+ *
+ * a: [n x n]
+ * b: [n x 1]
+ * o: [n x 1]
+ */
+#define MAT_MUL_VECT(_n, o, a, b) {             \
+    int l,m;                                    \
+    for (l = 0; l < _n; l++) {                  \
+        o[l] = 0;                               \
+        for (m = 0; m < _n; m++) {              \
+          o[l] += a[l][m] * b[m];               \
+        }                                       \
+      }                                         \
+    }
 
 //
 // invS = 1/det(S) com(S)'
