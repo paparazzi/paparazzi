@@ -453,9 +453,9 @@ void stabilization_attitude_run(bool in_flight)
    * non-zero roll angle by default
    */
   struct Int32Quat corr_att_sp_quat; // Corrected attitude setpoint
-  INT32_QUAT_COMP_INV(corr_att_sp_quat, stab_att_sp_quat, sp_offset);
+  int32_quat_comp_inv(&corr_att_sp_quat, &stab_att_sp_quat, &sp_offset);
 
-  INT32_QUAT_INV_COMP(att_err, *att_quat, corr_att_sp_quat);
+  int32_quat_inv_comp(&att_err, att_quat, &corr_att_sp_quat);
   /* wrap it in the shortest direction */
   int32_quat_wrap_shortest(&att_err);
   int32_quat_normalize(&att_err);
