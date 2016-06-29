@@ -122,13 +122,13 @@ void cv_async_function(struct cv_async *async, struct image_t *img) {
 void *cv_async_thread(void *args) {
   struct video_listener *listener = args;
   struct cv_async *async = listener->async;
+  async->thread_running = true;
 
   // Request new image from video thread
   pthread_mutex_lock(&async->img_mutex);
   async->img_processed = true;
 
-  // TODO: add while condition
-  while (true) {
+  while (async->thread_running) {
     // Wait for img available signal
     pthread_cond_wait(&async->img_available, &async->img_mutex);
 

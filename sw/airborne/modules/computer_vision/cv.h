@@ -40,6 +40,7 @@ typedef struct image_t *(*cv_function)(struct image_t *img);
 
 struct cv_async {
     pthread_t thread_id;
+    volatile bool thread_running;
     pthread_mutex_t img_mutex;
     pthread_cond_t img_available;
     volatile bool img_processed;
