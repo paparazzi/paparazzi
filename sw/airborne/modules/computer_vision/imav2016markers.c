@@ -320,8 +320,7 @@ struct centroid_t georeference_project(struct camera_frame_t *tar)
   }
 
   // Multiply with height above ground
-  struct NedCoor_i *pos = stateGetPositionNed_i();
-  int32_t zb = pos->z; /* TODO: Remember that this is altitude wrt the ground. */
+  int32_t zb = POS_BFP_OF_REAL(-sonar_bebop.distance);
   geo.target_l.x *= zb;
   geo.target_l.y *= zb;
 

@@ -113,7 +113,7 @@ struct image_t *color_tracking_front_func(struct image_t* img)
     dt_flight_front = 0;
   }
 
-  if ((target_front.MARKER) && (!BOTTOM_MARKER) & (dt_flight_front > 2)) {
+  if ((target_front.MARKER) && (!BOTTOM_MARKER) & (dt_flight_front > 3)) {
 
     // Change the flight mode from NAV to GUIDED
     if (AP_MODE_NAV == autopilot_mode) {
@@ -145,12 +145,13 @@ struct image_t *color_tracking_front_func(struct image_t* img)
 
   } else if ((!target_front.MARKER) && (!BOTTOM_MARKER)) {
 
-    // Look for new color
-    guidance_h_set_guided_heading_rate(yaw_rate_front_ref / 3);
 
-    // Hold position
-    guidance_h_set_guided_body_vel(0,0);
-
+    /* TODO: When !autopilot_in_flight it should go back to NAV but it doesn't. */
+    // Change the flight mode from GUIDED to NAV
+    if (AP_MODE_GUIDED == autopilot_mode) {
+      autopilot_mode_auto2 = AP_MODE_NAV;
+      autopilot_set_mode(AP_MODE_NAV);
+    }
   }
 
   // Update variables

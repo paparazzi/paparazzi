@@ -1,5 +1,5 @@
 /*
- * Copyright (C) C. De Wagter
+ * Copyright (C) IMAV 2016
  *
  * This file is part of paparazzi
  *
@@ -19,7 +19,7 @@
  */
 /**
  * @file "modules/computer_vision/opencv_IMAV_landingpad.cpp"
- * @author J. Lee
+ * @author IMAV 2016
  * Module for detecting outdoor landing pad in IMAV 2016
  */
 

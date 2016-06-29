@@ -44,8 +44,6 @@
 int color = 0; // 0 = RED; 1 = BLUE
 
 // Red color settings
-//uint8_t color_lum_min_red = 70;
-//uint8_t color_lum_max_red = 205;
 uint8_t color_lum_min_red = 0;
 uint8_t color_lum_max_red = 110;
 uint8_t color_cb_min_red  = 52;
@@ -77,10 +75,10 @@ uint8_t BOTTOM_MARKER;
 // Altitude control
 float vz_desired = 0.25;
 float vz_bottom_ref;
-float height_above_target = 1;
+float height_above_target = 0.6;
 
 // Horizontal control
-float vel_gain_color = 0.5; /* TODO: This requires more tuning  */
+float vel_gain_color = 0.5; /* TODO: This requires more tuning and may cause instability with values higher than 0.7 */
 float vx_bottom_ref;
 float vy_bottom_ref;
 
@@ -159,14 +157,14 @@ struct image_t *color_tracking_bottom_func(struct image_t* img)
   // NAVIGATION
 
   // Update the location of the centroid only if the marker is detected in the previous iteration
-  if (target_bottom.MARKER && (dt_flight > 2)) {
+  if (target_bottom.MARKER && (dt_flight > 3)) {
     temp = target_bottom.maxx;
     temp = temp << 16;
     temp += target_bottom.maxy;
     dt_sum = 0;
   }
 
-  if ((dt_sum < marker_lost) && (dt_flight > 2)) {
+  if ((dt_sum < marker_lost) && (dt_flight > 3)) {
     // Change the flight mode from NAV to GUIDED
     if (AP_MODE_NAV == autopilot_mode) {
       autopilot_mode_auto2 = AP_MODE_GUIDED;
@@ -223,6 +221,7 @@ struct image_t *color_tracking_bottom_func(struct image_t* img)
       }
     }
 
+    /* TODO: Try hovering with the SONAR in the state of the drone.  */
     // Decrease altitude and hover above the marker
     if (centroid_counter > (MEMORY - 1)) {
 
@@ -231,8 +230,8 @@ struct image_t *color_tracking_bottom_func(struct image_t* img)
 
         // Set vertical velocity
         vz_bottom_ref = vz_desired;
-
       } else {
+
         // Set vertical velocity
         vz_bottom_ref = 0;
       }
