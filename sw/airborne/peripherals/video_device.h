@@ -32,13 +32,6 @@
 
 #define VIDEO_FILTER_DEBAYER 0x01
 
-typedef struct image_t *(*cvFunction)(struct image_t *img);
-
-struct video_listener {
-  struct video_listener *next;
-  cvFunction func;
-};
-
 // Main video_thread structure
 struct video_thread_t {
   volatile bool is_running;   ///< When the device is running
@@ -55,7 +48,7 @@ struct video_config_t {
   uint8_t buf_cnt;    ///< Amount of V4L2 video device buffers
   uint8_t filters;    ///< filters to use (bitfield with VIDEO_FILTER_x)
   struct video_thread_t thread; ///< Information about the thread this camera is running on
-  struct video_listener *pointer_to_first_listener; ///< The first listener in the linked list for this video device
+  void *pointer_to_first_listener; ///< The first listener in the linked list for this video device
   int fps;
 };
 extern struct video_config_t dummy_camera;

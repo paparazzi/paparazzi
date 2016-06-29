@@ -29,14 +29,37 @@
 #ifndef CV_H_
 #define CV_H_
 
+#include <pthread.h>
+
 #include "std.h"
 #include "peripherals/video_device.h"
 
 #include BOARD_CONFIG
 
+typedef struct image_t *(*cv_function)(struct image_t *img);
+
+struct cv_async {
+    pthread_t thread_id;
+    pthread_mutex_t img_mutex;
+    pthread_cond_t img_available;
+    volatile bool img_processed;
+
+    // Can be set by user
+    int maximum_fps;
+    cv_function function;
+};
+
+struct video_listener {
+    struct video_listener *next;
+    struct cv_async *async;
+    cv_function func;
+};
+
 extern bool add_video_device(struct video_config_t *device);
 
-extern void cv_add_to_device(struct video_config_t *device, cvFunction func);
+extern void cv_add_to_device(struct video_config_t *device, cv_function func);
+extern void cv_add_to_device_async(struct video_config_t *device, struct cv_async *async);
+
 extern void cv_run_device(struct video_config_t *device, struct image_t *img);
 
 #endif /* CV_H_ */

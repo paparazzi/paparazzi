@@ -28,17 +28,15 @@
 #include "cv.h"
 #include <stdlib.h> // for malloc
 
-void cv_add_to_device(struct video_config_t *device, cvFunction func)
+void cv_attach_listener(struct video_config_t *device, struct video_listener *new_listener);
+struct image_t *cv_async_function(struct cv_async *async);
+void *cv_async_thread(void *args);
+
+
+void cv_attach_listener(struct video_config_t *device, struct video_listener *new_listener)
 {
   // Initialise the device that we want our function to use
   add_video_device(device);
-
-  // Create a new video listener
-  struct video_listener *new_listener = malloc(sizeof(struct video_listener));
-
-  // Assign function to listener
-  new_listener->next = NULL;
-  new_listener->func = func;
 
   // Check if device already has a listener
   if (device->pointer_to_first_listener == NULL) {
@@ -56,6 +54,33 @@ void cv_add_to_device(struct video_config_t *device, cvFunction func)
     listener->next = new_listener;
   }
 }
+
+
+void cv_add_to_device(struct video_config_t *device, cv_function func) {
+  // Create a new video listener
+  struct video_listener *new_listener = malloc(sizeof(struct video_listener));
+
+  // Assign function to listener
+  new_listener->next = NULL;
+  new_listener->func = func;
+
+  // Attach listener to device
+  cv_attach_listener(device, new_listener);
+}
+
+
+void cv_add_to_device_async(struct video_config_t *device, struct cv_async *async) {
+//  pthread_mutex_init(&async->img_mutex, NULL);
+//  pthread_cond_init(&async->img_available, NULL);
+}
+
+
+struct image_t *cv_async_function(struct cv_async *async) {
+
+  // Did not modify the image in this pipeline
+  return NULL;
+}
+
 
 void cv_run_device(struct video_config_t *device, struct image_t *img)
 {
