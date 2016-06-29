@@ -52,7 +52,7 @@ struct results_color color_marker;
 
 // Image-modification triggers
 int modify_image_color   = FALSE;
-int modify_image_helipad = FALSE;
+int modify_image_helipad = TRUE;
 
 // Marker detection
 int squares = 4;

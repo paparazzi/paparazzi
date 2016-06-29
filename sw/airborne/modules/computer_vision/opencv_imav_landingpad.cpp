@@ -74,7 +74,7 @@ struct results opencv_imav_landing(char *img, int width, int height, int v_squar
     vector<float> centroidsy;
 
 
-    for( int i = 0; i < contours.size(); i++ )
+    for( int i = 0; (unsigned)i < contours.size(); i++ )
     {
         double Area = contourArea(contours[i]);
         if (Area > 1500)
@@ -101,7 +101,7 @@ struct results opencv_imav_landing(char *img, int width, int height, int v_squar
     float avgx = 0;
     float avgy = 0;
 
-    for(int i = 0; i < centroidsx.size(); i++)
+    for(int i = 0; (unsigned)i < centroidsx.size(); i++)
     {
         sumx += centroidsx[i];
         sumy += centroidsy[i];
@@ -115,7 +115,7 @@ struct results opencv_imav_landing(char *img, int width, int height, int v_squar
     float stdx = 0;
     float stdy = 0;
 
-    for(int i = 0; i < centroidsx.size(); i++)
+    for(int i = 0; (unsigned)i < centroidsx.size(); i++)
     {
         innerx = pow((centroidsx[i] - avgx),2);
         innery = pow((centroidsy[i] - avgy),2);
@@ -124,8 +124,6 @@ struct results opencv_imav_landing(char *img, int width, int height, int v_squar
     stdx = sqrt(innerx/detected_squares);
     stdy = sqrt(innery/detected_squares);
 
-    printf("std x centroid is %f std y centroid is %f \n", stdx, stdy);
-
     vector<float> filt_centroidx;
     vector<float> filt_centroidy;
     vector<float> ffilt_centroidx;
@@ -133,7 +131,7 @@ struct results opencv_imav_landing(char *img, int width, int height, int v_squar
 
     int z = 4;
 
-    for(int i = 0; i < centroidsx.size(); i++)
+    for(int i = 0; (unsigned)i < centroidsx.size(); i++)
     {
         if (abs((centroidsx[i]-avgx)/stdx) <= z)
         {
@@ -144,7 +142,7 @@ struct results opencv_imav_landing(char *img, int width, int height, int v_squar
 
 
     int n_filtcentroids = 0;
-    for(int i = 0; i < filt_centroidy.size(); i++)
+    for(int i = 0; (unsigned)i < filt_centroidy.size(); i++)
     {
         if (abs((filt_centroidy[i]-avgy)/stdy) <= z)
         {
@@ -161,7 +159,7 @@ struct results opencv_imav_landing(char *img, int width, int height, int v_squar
     int ybar = 0;
 
 
-    for(int i = 0; i < ffilt_centroidx.size(); i++)
+    for(int i = 0; (unsigned)i < ffilt_centroidx.size(); i++)
     {
         xsum += ffilt_centroidx[i];
         ysum += ffilt_centroidy[i];

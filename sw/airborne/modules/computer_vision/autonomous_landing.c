@@ -46,7 +46,7 @@ float vz_ref = 0.25;
 float vz_bottom_ref;
 
 // Horizontal control
-float vel_gain_landing = 0.5; /* TODO: This requires more tuning  */
+float vel_gain_landing = 0.5; /* TODO: This requires more tuning based on the amount of fps. */
 float vx_bottom_ref;
 float vy_bottom_ref;
 
