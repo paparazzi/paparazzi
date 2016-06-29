@@ -62,19 +62,19 @@ void cv_attach_listener(struct video_config_t *device, struct video_listener *ne
 }
 
 
-struct cv_async *cv_add_to_device(struct video_config_t *device, cv_function func, bool asynchronous) {
+struct video_listener *cv_add_to_device(struct video_config_t *device, cv_function func, bool asynchronous) {
   // Create a new video listener
   struct video_listener *listener = malloc(sizeof(struct video_listener));
   listener->next = NULL;
-  listener->func = func;
   listener->async = NULL;
+  listener->func = func;
+  listener->maximum_fps = 0;
 
   if (asynchronous) {
     listener->async = malloc(sizeof(struct cv_async));
 
-    // Explicitly mark img_copy and fps as uninitialized
+    // Explicitly mark img_copy as uninitialized
     listener->async->img_copy.buf_size = 0;
-    listener->async->maximum_fps = 0;
 
     // Initialize mutex and condition variable
     pthread_mutex_init(&listener->async->img_mutex, NULL);
@@ -88,17 +88,11 @@ struct cv_async *cv_add_to_device(struct video_config_t *device, cv_function fun
   cv_attach_listener(device, listener);
 
   // Return async struct
-  return listener->async;
+  return listener;
 }
 
 
 void cv_async_function(struct cv_async *async, struct image_t *img) {
-  // If desired frame time hasn't passed, return
-  if (async->maximum_fps != 0 &&
-          timeval_diff(&async->img_copy.ts, &img->ts) < (1000000 / async->maximum_fps)) {
-    return;
-  }
-
   // If the previous image is not yet processed, return
   if (pthread_mutex_trylock(&async->img_mutex) != 0 || !async->img_processed) {
     return;
@@ -157,6 +151,16 @@ void cv_run_device(struct video_config_t *device, struct image_t *img)
 
   // Loop through computer vision pipeline
   while (pointing_to != NULL) {
+    // If the desired frame time for this listener is not reached, skip it
+    if (pointing_to->maximum_fps > 0 &&
+            timeval_diff(&pointing_to->ts, &img->ts) < (1000000 / pointing_to->maximum_fps)) {
+      // Move forward in the pipeline
+      pointing_to = pointing_to->next;
+      continue;
+    }
+
+    // Store timestamp
+    pointing_to->ts = img->ts;
 
     if (pointing_to->async != NULL) {
       // Send image to asynchronous thread
