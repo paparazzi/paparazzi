@@ -149,7 +149,7 @@ void *cv_async_thread(void *args) {
 
   pthread_mutex_unlock(&async->img_mutex);
 
-  return NULL;
+  pthread_exit(NULL);
 }
 
 
