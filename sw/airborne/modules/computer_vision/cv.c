@@ -29,7 +29,7 @@
 #include <stdlib.h> // for malloc
 
 void cv_attach_listener(struct video_config_t *device, struct video_listener *new_listener);
-struct image_t *cv_async_function(struct cv_async *async);
+void cv_async_function(struct cv_async *async, struct image_t *img);
 void *cv_async_thread(void *args);
 
 
@@ -61,6 +61,7 @@ void cv_add_to_device(struct video_config_t *device, cv_function func) {
   struct video_listener *new_listener = malloc(sizeof(struct video_listener));
 
   // Assign function to listener
+  new_listener->async = NULL;
   new_listener->next = NULL;
   new_listener->func = func;
 
@@ -75,10 +76,8 @@ void cv_add_to_device_async(struct video_config_t *device, struct cv_async *asyn
 }
 
 
-struct image_t *cv_async_function(struct cv_async *async) {
+void cv_async_function(struct cv_async *async, struct image_t *img) {
 
-  // Did not modify the image in this pipeline
-  return NULL;
 }
 
 
@@ -86,15 +85,22 @@ void cv_run_device(struct video_config_t *device, struct image_t *img)
 {
   // For each function added to a device, run this function with the image that was taken
   struct video_listener *pointing_to = device->pointer_to_first_listener;
+  struct image_t *result;
 
   // Loop through computer vision pipeline
   while (pointing_to != NULL) {
-    // Execute the cvFunction and catch result
-    struct image_t *result = pointing_to->func(img);
 
-    // If result gives an image pointer, use it in the next stage
-    if (result != NULL)
-      img = result;
+    if (pointing_to->async != NULL) {
+      // Send image to asynchronous thread
+      cv_async_function(pointing_to->async, img);
+    } else {
+      // Execute the cvFunction and catch result
+      result = pointing_to->func(img);
+
+      // If result gives an image pointer, use it in the next stage
+      if (result != NULL)
+        img = result;
+    }
 
     // Move forward in the pipeline
     pointing_to = pointing_to->next;
