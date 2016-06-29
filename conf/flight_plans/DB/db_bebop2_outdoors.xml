@@ -1,6 +1,6 @@
 <!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
 
-<flight_plan alt="5" ground_alt="0" lat0="51.990634" lon0="4.376789" max_dist_from_home="100" name="Outdoor basic flight plan" security_height="0.4">
+<flight_plan alt="5" ground_alt="-1.5" lat0="52.1599753" lon0="4.4049557" max_dist_from_home="100" name="Outdoor basic flight plan" security_height="0.4">
   <header>
 #include "autopilot.h"
 #include "subsystems/ahrs.h"
@@ -10,8 +10,8 @@
 
   <waypoints>
     <waypoint height="0" name="HOME" x="0.0" y="0.0"/>
-    <waypoint height="2.2" name="CLIMB" x="1.2" y="-0.6"/>
-    <waypoint height="1.0" name="STDBY" x="-0.7" y="-0.8"/>
+    <waypoint height="3.0" name="CLIMB" x="2.0" y="2.0"/>
+    <waypoint height="2.0" name="STDBY" x="0.0" y="2.0"/>
     <waypoint name="TD" x="0.8" y="-1.7"/>
   </waypoints>
 
