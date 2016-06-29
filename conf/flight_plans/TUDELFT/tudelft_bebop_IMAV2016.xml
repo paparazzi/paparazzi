@@ -82,6 +82,7 @@
       <call fun="NavSetWaypointHere(WP_STDBY)"/>
       <stay wp="STDBY"/>
       <exception cond="MoreThan(NavBlockTime(), 2)" deroute="wait"/>
+      <!--<exception cond="MoreThan(NavBlockTime(), 2)" deroute="line_p2_p3"/>-->
     </block>
 
     <block name="wait">
@@ -89,6 +90,15 @@
       </while>
       <deroute block="wait"/>
     </block>
+
+    <!--<block name="line_p2_p3">-->
+      <!--<go from="p2" hmode="route" wp="p3"/>-->
+      <!--<stay until="stage_time>10" wp="p3"/>-->
+      <!--<go from="p3" hmode="route" wp="p2"/>-->
+      <!--<while cond="MARKER">-->
+      <!--</while>-->
+      <!--<deroute block="Hover"/>-->
+    <!--</block>-->
 
     <!-- ################################### -->
 

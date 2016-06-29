@@ -259,6 +259,7 @@ struct results_color locate_blob(struct image_t *input,
 #include "state.h"
 #include "generated/flight_plan.h"
 #include "subsystems/datalink/downlink.h"
+#include "modules/sonar/sonar_bebop.h"
 
 /**
  * Geo-reference computer vision detection

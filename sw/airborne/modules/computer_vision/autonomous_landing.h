@@ -32,11 +32,10 @@
 void autonomous_landing_init(void);
 uint8_t autonomous_landing_init_variables(void);
 
+// Navigation
 extern float marker_reached;
 extern float vz_ref;
-extern float velGain;
+extern float vel_gain_landing;
 
-// Optical flow tracking
-extern int of_tracking;
 
 #endif

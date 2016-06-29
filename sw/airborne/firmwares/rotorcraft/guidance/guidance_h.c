@@ -705,7 +705,6 @@ bool guidance_h_set_guided_vel(float vx, float vy)
 
 bool guidance_h_set_guided_heading_rate(float rate)
 {
-  printf("rate: %f\n",rate);
   if (guidance_h.mode == GUIDANCE_H_MODE_GUIDED) {
     SetBit(guidance_h.sp.mask, 7);
     guidance_h.sp.heading_rate = RATE_BFP_OF_REAL(rate);
