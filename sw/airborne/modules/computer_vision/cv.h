@@ -57,7 +57,7 @@ struct video_listener {
 
 extern bool add_video_device(struct video_config_t *device);
 
-// Adds a computer vision function to the video pipeline, setting synchronous to false will spawn a thread
+// Adds a computer vision function to the video pipeline, setting asynchronous to true will spawn a thread
 extern struct cv_async *cv_add_to_device(struct video_config_t *device, cv_function func, bool asynchronous);
 
 extern void cv_run_device(struct video_config_t *device, struct image_t *img);
