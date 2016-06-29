@@ -36,21 +36,29 @@
       <!--<define name="OPTICFLOW_METHOD" value="1"/> &lt;!&ndash; EdgeFlow = 1&ndash;&gt;-->
     <!--</module>-->
 
-    <!--<module name="color_tracking_bottom">-->
-      <!--<define name="COLOR_CAMERA_BOTTOM" value="bottom_camera"/>-->
-    <!--</module>-->
+    <!-- /////////////////////////////////////////////////////////////////////////////////////////// -->
+    <!-- COLOR TRACKING -->
 
-    <!--<module name="color_tracking_front">-->
-    <!--<define name="COLOR_CAMERA_FRONT" value="front_camera"/>-->
-    <!--</module>-->
-
-    <module name="cv_helipad">
-    <define name="HELIPAD_CAMERA" value="bottom_camera"/>
+    <module name="color_tracking_bottom">
+      <define name="COLOR_CAMERA_BOTTOM" value="bottom_camera"/>
     </module>
 
-    <module name="autonomous_landing">
-      <define name="MARKER_CAMERA" value="bottom_camera"/>
+    <module name="color_tracking_front">
+    <define name="COLOR_CAMERA_FRONT" value="front_camera"/>
     </module>
+
+    <!-- /////////////////////////////////////////////////////////////////////////////////////////// -->
+    <!-- LANDING -->
+
+    <!--<module name="cv_helipad">-->
+    <!--<define name="HELIPAD_CAMERA" value="bottom_camera"/>-->
+    <!--</module>-->
+
+    <!--<module name="autonomous_landing">-->
+      <!--<define name="MARKER_CAMERA" value="bottom_camera"/>-->
+    <!--</module>-->
+
+    <!-- /////////////////////////////////////////////////////////////////////////////////////////// -->
 
     <!--<module name="video_rtp_stream">-->
       <!--<define name="VIEWVIDEO_CAMERA" value="bottom_camera"/>-->

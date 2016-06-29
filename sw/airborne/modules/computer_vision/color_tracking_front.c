@@ -146,7 +146,7 @@ struct image_t *color_tracking_front_func(struct image_t* img)
   } else if ((!target_front.MARKER) && (!BOTTOM_MARKER)) {
 
     // Look for new color
-    guidance_h_set_guided_heading_rate(yaw_rate / 3);
+    guidance_h_set_guided_heading_rate(yaw_rate_front_ref / 3);
 
     // Hold position
     guidance_h_set_guided_body_vel(0,0);
