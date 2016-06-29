@@ -66,17 +66,6 @@
    gui_color="red"
   />
   <aircraft
-   name="Bebop2Mavlink"
-   ac_id="24"
-   airframe="airframes/TUDELFT/tudelft_bebop2_indi_MAVlink.xml"
-   radio="radios/dummy.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/estimation/ahrs_secondary.xml settings/estimation/ahrs_int_cmpl_quat.xml settings/control/stabilization_indi.xml settings/control/rotorcraft_speed.xml"
-   settings_modules="modules/gps.xml modules/geo_mag.xml modules/air_data.xml modules/gps_ubx_ucenter.xml"
-   gui_color="#ffff0689b7a1"
-  />
-  <aircraft
    name="Bebop2_Smeur"
    ac_id="21"
    airframe="airframes/TUDELFT/tudelft_bebop_indi.xml"
@@ -160,7 +149,7 @@
    radio="radios/FlyElectricRx31_DX6.xml"
    telemetry="telemetry/rotorcraft_with_logger.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml [settings/superbitrf.xml]"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml [settings/control/stabilization_att_int.xml] [settings/superbitrf.xml]"
    settings_modules="modules/gps.xml modules/logger_sd_spi_direct.xml"
    gui_color="#9b69e5ce9e7a"
   />

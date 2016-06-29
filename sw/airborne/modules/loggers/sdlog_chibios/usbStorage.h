@@ -27,7 +27,7 @@
 
 #include <ch.h>
 
-void usbStorageStartPolling(thread_t **ap_thd);
+void usbStorageStartPolling(void);
 void usbStorageStop(void);
 void usbStorageWaitForDeconnexion(void);
 bool usbStorageIsItRunning(void);

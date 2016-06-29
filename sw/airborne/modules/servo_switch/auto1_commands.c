@@ -33,19 +33,19 @@ void periodic_auto1_commands(void)
 #ifndef RADIO_HATCH
 #error auto1_commands COMMAND_HATCH needs RADIO_HATCH channel
 #endif
-    ap_state->commands[COMMAND_HATCH] = fbw_state->channels[RADIO_HATCH];
+    imcu_set_command(COMMAND_HATCH, imcu_get_radio(RADIO_HATCH));
 #endif
 #ifdef COMMAND_BRAKE
 #ifndef RADIO_BRAKE
 #error auto1_commands COMMAND_BRAKE needs RADIO_BRAKE channel
 #endif
-    ap_state->commands[COMMAND_BRAKE] = fbw_state->channels[RADIO_BRAKE];
+    imcu_set_command(COMMAND_BRAKE, imcu_get_radio(RADIO_BRAKE));
 #endif
 #ifdef COMMAND_FLAPS
 #ifndef RADIO_FLAPS
 #error auto1_commands COMMAND_FLAPS needs RADIO_FLAPS channel
 #endif
-    ap_state->commands[COMMAND_FLAPS] = fbw_state->channels[RADIO_FLAPS];
+    imcu_set_command(COMMAND_FLAPS, imcu_get_radio(RADIO_FLAPS));
 #endif
   }
 }

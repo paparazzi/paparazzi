@@ -71,7 +71,7 @@ void cam_periodic(void)
     default:
       phi_c = 0;
   }
-  ap_state->commands[COMMAND_CAM_ROLL] = TRIM_PPRZ(phi_c * MAX_PPRZ / CAM_PHI_MAX);
+  imcu_set_command(COMMAND_CAM_ROLL, TRIM_PPRZ(phi_c * MAX_PPRZ / CAM_PHI_MAX));
 }
 
 #endif // MOBILE_CAM

@@ -28,6 +28,9 @@
 
 #include <ch.h>
 
-extern thread_t *pprzThdPtr;
+/** Terminate all autopilot threads
+ *  Wait until proper stop
+ */
+extern void pprz_terminate_autopilot_threads(void);
 
 #endif /* MAIN_CHIBIOS_H */
