@@ -24,7 +24,6 @@
  */
 
 #include "modules/computer_vision/cv_helipad.h"
-//#include "modules/computer_vision/opencv_helipad.h"
 #include "modules/computer_vision/opencv_imav_landingpad.h"
 #include "modules/computer_vision/cv.h"
 #include "modules/computer_vision/lib/vision/image.h"
@@ -91,7 +90,7 @@ struct image_t *helipad_tracking_func(struct image_t* img)
         // Call OpenCV (C++ from paparazzi C function)
         /* TODO: The image cannot be in grayscale and solve warnings */
         /* TODO: This opencv function reduces the fps from 12.5 to 4.1 */
-        helipad_marker = opencv_landing((char*) img->buf, img->w, img->h, modify_image_helipad);
+        helipad_marker = opencv_imav_landing((char*) img->buf, img->w, img->h, modify_image_helipad);
     } else {
         helipad_marker.MARKER = 0;
     }
@@ -101,9 +100,9 @@ struct image_t *helipad_tracking_func(struct image_t* img)
         maxx   = helipad_marker.maxx;
         maxy   = helipad_marker.maxy;
     } else if ((color_marker.MARKER) && (sonar_bebop.distance > 1)) {
-        MARKER = color_marker.MARKER;
-        maxx   = color_marker.maxx;
-        maxy   = color_marker.maxy;
+//        MARKER = color_marker.MARKER;
+//        maxx   = color_marker.maxx;
+//        maxy   = color_marker.maxy;
     } else {
         MARKER = FALSE;
     }

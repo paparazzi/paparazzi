@@ -49,7 +49,7 @@ struct results_color target_front;
 
 // Navigation: forward velocity
 float vel_ref = 0.75;
-float yaw_rate_front_ref = 1.5;
+float yaw_rate_front_ref = 1.5; /* TODO: This requires more tuning. */
 
 // Marker-detection timer
 long previous_time;
@@ -128,31 +128,29 @@ struct image_t *color_tracking_front_func(struct image_t* img)
     int centroid_x_centered = centroid_x - (img->w)/2;
 
     // Set yaw rate based on the location of the color
-    float yaw_rate = centroid_x_centered * yaw_rate_front_ref / (img->w)/2;
+    float yaw_rate = yaw_rate_front_ref * centroid_x_centered * 2. / (float)img->w;
     guidance_h_set_guided_heading_rate(yaw_rate);
 
     // Detect if the marker is in the middle of the frame
     if ((centroid_x_centered > -5) && (centroid_x_centered < 5)) {
 
       // Set velocities as offsets in NED frame
-      float psi = stateGetNedToBodyEulers_f()->psi;
-      float vx_ref_ned = cosf(psi) * vel_ref;
-      float vy_ref_ned = sinf(psi) * vel_ref;
-      guidance_h_set_guided_vel(vx_ref_ned, vy_ref_ned);
+      guidance_h_set_guided_body_vel(vel_ref, 0.);
 
     } else {
 
       // Hold position
-      guidance_h_set_guided_vel(0, 0);
+      guidance_h_set_guided_body_vel(0, 0);
     }
 
-  } else if ((target_front.MARKER) && (!BOTTOM_MARKER)) {
+  } else if ((!target_front.MARKER) && (!BOTTOM_MARKER)) {
 
-    // Change the flight mode from GUIDED to NAV
-    if (AP_MODE_GUIDED == autopilot_mode) {
-      autopilot_mode_auto2 = AP_MODE_NAV;
-      autopilot_set_mode(AP_MODE_NAV);
-    }
+    // Look for new color
+    guidance_h_set_guided_heading_rate(yaw_rate_front_ref / 3);
+
+    // Hold position
+    guidance_h_set_guided_body_vel(0,0);
+
   }
 
   // Update variables

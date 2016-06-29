@@ -31,7 +31,7 @@
         <file name="cv_helipad.c"/>
         <file name="imav2016markers.c"/>
         <file name="blob_finder.c" dir="modules/computer_vision/blob/"/>
-        <file name="opencv_helipad.cpp"/>
+        <file name="opencv_imav_landingpad.cpp"/>
         <file name="opencv_image_functions.cpp"/>
         <flag name="CXXFLAGS" value="I$(PAPARAZZI_SRC)/sw/ext/opencv_bebop/install/include"/>
 

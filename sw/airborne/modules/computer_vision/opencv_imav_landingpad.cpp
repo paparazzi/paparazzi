@@ -77,7 +77,7 @@ struct results opencv_imav_landing(char *img, int width, int height, int mod)
     for( int i = 0; i < contours.size(); i++ )
     {
         double Area = contourArea(contours[i]);
-        if (Area > 500)
+        if (Area > 1000)
         {
             convexHull(Mat(contours[i]), hull[i], false );
             approxPolyDP(Mat(hull[i]), approx[i], arcLength(Mat(hull[i]), true)*0.1, true);
@@ -176,12 +176,12 @@ struct results opencv_imav_landing(char *img, int width, int height, int mod)
         ybar = (ysum / n_filtcentroids);
         landing.maxx = xbar;
         landing.maxy = ybar;
-        if (mod) {
-            circle(imcopy, Point(xbar,ybar), 20, 200, 10);
-        }
+        if (mod) { circle(imcopy, Point(xbar,ybar), 20, 200, 10); }
     } else
     {
         landing.MARKER = 0;
+        landing.maxx   = 0;
+        landing.maxy   = 0;
     }
 
     grayscale_opencv_to_yuv422(imcopy, img, width, height);
