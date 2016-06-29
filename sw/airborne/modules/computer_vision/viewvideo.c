@@ -208,7 +208,7 @@ void viewvideo_init(void)
 {
   char save_name[512];
 
-  cv_add_to_device(&VIEWVIDEO_CAMERA, viewvideo_function, false);
+  cv_add_to_device(&VIEWVIDEO_CAMERA, viewvideo_function, true);
 
   viewvideo.is_streaming = true;
 

@@ -238,9 +238,9 @@ void cv_blob_locator_init(void) {
 
   georeference_init();
 
-  cv_add_to_device(&BLOB_LOCATOR_CAMERA, cv_blob_locator_func, true);
-  cv_add_to_device(&BLOB_LOCATOR_CAMERA, cv_marker_func, true);
-  cv_add_to_device(&BLOB_LOCATOR_CAMERA, cv_window_func, true);
+  cv_add_to_device(&BLOB_LOCATOR_CAMERA, cv_blob_locator_func, false);
+  cv_add_to_device(&BLOB_LOCATOR_CAMERA, cv_marker_func, false);
+  cv_add_to_device(&BLOB_LOCATOR_CAMERA, cv_window_func, false);
 }
 
 void cv_blob_locator_periodic(void) {

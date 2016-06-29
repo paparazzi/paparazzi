@@ -57,7 +57,7 @@ void cv_attach_listener(struct video_config_t *device, struct video_listener *ne
 }
 
 
-struct cv_async *cv_add_to_device(struct video_config_t *device, cv_function func, bool synchronous) {
+struct cv_async *cv_add_to_device(struct video_config_t *device, cv_function func, bool asynchronous) {
   // Create a new video listener
   struct video_listener *listener = malloc(sizeof(struct video_listener));
 
@@ -65,7 +65,7 @@ struct cv_async *cv_add_to_device(struct video_config_t *device, cv_function fun
   listener->func = func;
   listener->async = NULL;
 
-  if (!synchronous) {
+  if (asynchronous) {
     listener->async = malloc(sizeof(struct cv_async));
 
     // Explicitly mark img_copy as uninitialized
