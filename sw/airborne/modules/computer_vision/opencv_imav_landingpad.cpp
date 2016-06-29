@@ -35,7 +35,7 @@ using namespace cv;
 struct results landing;
 
 
-struct results opencv_imav_landing(char *img, int width, int height, int mod)
+struct results opencv_imav_landing(char *img, int width, int height, int v_squares, int mod)
 {
     Mat M(height, width, CV_8UC2, img);
     Mat image;
@@ -77,7 +77,7 @@ struct results opencv_imav_landing(char *img, int width, int height, int mod)
     for( int i = 0; i < contours.size(); i++ )
     {
         double Area = contourArea(contours[i]);
-        if (Area > 1000)
+        if (Area > 1500)
         {
             convexHull(Mat(contours[i]), hull[i], false );
             approxPolyDP(Mat(hull[i]), approx[i], arcLength(Mat(hull[i]), true)*0.1, true);
@@ -169,7 +169,7 @@ struct results opencv_imav_landing(char *img, int width, int height, int mod)
 
 
 
-    if (n_filtcentroids >= 2)
+    if (n_filtcentroids >= v_squares)
     {
         landing.MARKER = 1;
         xbar = (xsum / n_filtcentroids);
