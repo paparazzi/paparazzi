@@ -34,6 +34,11 @@ void cv_async_function(struct cv_async *async, struct image_t *img);
 void *cv_async_thread(void *args);
 
 
+inline uint32_t timeval_diff(struct timeval *A, struct timeval *B) {
+  return (B->tv_sec - A->tv_sec) * 1000000 + (B->tv_usec - A->tv_usec);
+}
+
+
 void cv_attach_listener(struct video_config_t *device, struct video_listener *new_listener)
 {
   // Initialise the device that we want our function to use
@@ -67,8 +72,9 @@ struct cv_async *cv_add_to_device(struct video_config_t *device, cv_function fun
   if (asynchronous) {
     listener->async = malloc(sizeof(struct cv_async));
 
-    // Explicitly mark img_copy as uninitialized
+    // Explicitly mark img_copy and fps as uninitialized
     listener->async->img_copy.buf_size = 0;
+    listener->async->maximum_fps = 0;
 
     // Initialize mutex and condition variable
     pthread_mutex_init(&listener->async->img_mutex, NULL);
@@ -87,14 +93,20 @@ struct cv_async *cv_add_to_device(struct video_config_t *device, cv_function fun
 
 
 void cv_async_function(struct cv_async *async, struct image_t *img) {
-  // If image is not yet processed, return
+  // If desired frame time hasn't passed, return
+  if (async->maximum_fps != 0 &&
+          timeval_diff(&async->img_copy.ts, &img->ts) < (1000000 / async->maximum_fps)) {
+    return;
+  }
+
+  // If the previous image is not yet processed, return
   if (pthread_mutex_trylock(&async->img_mutex) != 0 || !async->img_processed) {
     return;
   }
 
   // If the image has not been initialized, do it
   if (async->img_copy.buf_size == 0) {
-    image_create(&(async->img_copy), img->w, img->h, img->type);
+    image_create(&async->img_copy, img->w, img->h, img->type);
   }
 
   // Copy image

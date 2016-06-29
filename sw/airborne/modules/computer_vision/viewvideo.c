@@ -208,7 +208,8 @@ void viewvideo_init(void)
 {
   char save_name[512];
 
-  cv_add_to_device(&VIEWVIDEO_CAMERA, viewvideo_function, true);
+  struct cv_async *async = cv_add_to_device(&VIEWVIDEO_CAMERA, viewvideo_function, true);
+  async->maximum_fps = VIEWVIDEO_FPS;
 
   viewvideo.is_streaming = true;
 
