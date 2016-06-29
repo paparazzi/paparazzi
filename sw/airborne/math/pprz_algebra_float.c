@@ -248,7 +248,7 @@ void float_rmat_integrate_fi(struct FloatRMat *rm, struct FloatRates *omega, flo
     }
   };
   struct FloatRMat R_tdt;
-  float_rmat_comp(R_tdt, *rm, exp_omega_dt);
+  float_rmat_comp(&R_tdt, rm, &exp_omega_dt);
   memcpy(rm, &R_tdt, sizeof(R_tdt));
 }
 
