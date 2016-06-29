@@ -42,7 +42,7 @@
 
 /** V4L2 devices with their settings */
 struct video_config_t bottom_camera = {
-  .w = 640,
+  .w = 480,
   .h = 480,
   .dev_name = "/dev/video0",
   .subdev_name = NULL,
