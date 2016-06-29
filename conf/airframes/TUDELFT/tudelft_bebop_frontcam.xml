@@ -1,6 +1,6 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<airframe name="bebop_opticflow">
+<airframe name="bebop">
 
   <firmware name="rotorcraft">
     <target name="ap" board="bebop"/>
@@ -10,18 +10,17 @@
       <module name="udp"/>
     </target>
 
+    <!--define name="USE_SONAR" value="TRUE"/-->
+
 	<!-- Subsystem section -->
     <module name="telemetry" type="transparent_udp"/>
     <module name="radio_control" type="datalink"/>
     <module name="motor_mixing"/>
     <module name="actuators" type="bebop"/>
     <module name="imu" type="bebop"/>
-    <module name="gps" type="datalink"/> <!-- Optitrack -->
-    <module name="stabilization" type="indi"/>
-    <module name="ahrs" type="int_cmpl_quat">
-      <configure name="USE_MAGNETOMETER" value="TRUE"/>
-      <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
-    </module>
+    <module name="gps" type="furuno"/>
+    <module name="stabilization" type="int_quat"/>
+    <module name="ahrs"          type="float_mlkf"/>
     <module name="ins" type="extended"/>
   </firmware>
 
@@ -29,32 +28,23 @@
     <module name="geo_mag"/>
     <module name="air_data"/>
     <module name="send_imu_mag_current"/>
-    <module name="sonar_bebop"/> <!-- Needed for relative height est for velocity calc from opt flow-->
-    <module name="pose_history"/>
-    <module name="video_thread"/>
+    <!--module name="logger_file">
+      <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
+    </module-->
 
-    <module name="cv_opticflow">
-      <define name="OPTICFLOW_CAMERA" value="bottom_camera"/>
-      <define name="MAX_HORIZON" value="2"/>
-      <define name="CAMERA_ROTATED_180" value="1"/>
-      <!--define name="OPTICFLOW_DEROTATION" value="0"/-->
-      <define name="OPTICFLOW_FX" value="347.22222222"/> <!-- 2.5 / (3.6 * 2.0) * 1000 -->
-      <define name="OPTICFLOW_FY" value="347.22222222"/> <!-- 2.5 / (3.6 * 2.0) * 1000 -->
-      <define name="OPTICFLOW_FOV_W" value="0.665499265"/> <!-- 2 * arctan(240 / (2*347.22222222)) -->
-      <define name="OPTICFLOW_FOV_H" value="0.665499265"/> <!-- 2 * arctan(240 / (2*347.22222222)) -->
+    <module name="video_thread">
     </module>
 
     <module name="video_capture">
-      <define name="VIDEO_CAPTURE_CAMERA" value="bottom_camera"/>
+      <define name="VIDEO_CAPTURE_CAMERA" value="front_camera"/>
       <define name="VIDEO_CAPTURE_PATH" value="/data/ftp/internal_000/images"/>
     </module>
-
-    <!--module name="video_rtp_stream">
-      <define name="VIEWVIDEO_CAMERA" value="bottom_camera"/>
-      <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
+    
+    <module name="video_rtp_stream">
+      <define name="VIEWVIDEO_CAMERA" value="front_camera"/>
+      <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="8"/>
       <define name="VIEWVIDEO_QUALITY_FACTOR" value="60"/>
-    </module-->
-
+    </module>
 
   </modules>
 
@@ -66,10 +56,10 @@
   </commands>
 
   <servos driver="Default">
-    <servo name="TOP_LEFT" no="0" min="3000" neutral="3000" max="12000"/>
-    <servo name="TOP_RIGHT" no="1" min="3000" neutral="3000" max="12000"/>
-    <servo name="BOTTOM_RIGHT" no="2" min="3000" neutral="3000" max="12000"/>
-    <servo name="BOTTOM_LEFT" no="3" min="3000" neutral="3000" max="12000"/>
+    <servo name="TOP_RIGHT" no="0" min="3000" neutral="3000" max="12000"/>
+    <servo name="TOP_LEFT" no="1" min="3000" neutral="3000" max="12000"/>
+    <servo name="BOTTOM_LEFT" no="2" min="3000" neutral="3000" max="12000"/>
+    <servo name="BOTTOM_RIGHT" no="3" min="3000" neutral="3000" max="12000"/>
   </servos>
 
   <section name="MIXING" prefix="MOTOR_MIXING_">
@@ -114,7 +104,7 @@
   <!-- http://wiki.paparazziuav.org/wiki/Subsystem/ahrs#Local_Magnetic_Field -->
   <section name="AHRS" prefix="AHRS_">
     <!-- values used if no GPS fix, on 3D fix is update by geo_mag module -->
-    <!-- Delft, The Netherlands 2014 -->
+    <!-- Delft -->
     <define name="H_X" value="0.3892503"/>
     <define name="H_Y" value="0.0017972"/>
     <define name="H_Z" value="0.9211303"/>
@@ -125,18 +115,17 @@
     <define name="SONAR_UPDATE_ON_AGL" value="TRUE"/>
   </section>
 
-  <section name="RC_SETPOINT" prefix="STABILIZATION_ATTITUDE_">
-    <!-- setpoint limits for attitude stabilization rc flight -->
+
+  <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
+    <!-- setpoints -->
     <define name="SP_MAX_PHI" value="45" unit="deg"/>
     <define name="SP_MAX_THETA" value="45" unit="deg"/>
-    <define name="SP_MAX_R" value="100" unit="deg/s"/>
+    <define name="SP_MAX_R" value="300" unit="deg/s"/>
     <define name="DEADBAND_A" value="0"/>
     <define name="DEADBAND_E" value="0"/>
     <define name="DEADBAND_R" value="50"/>
-  </section>
 
-  <section name="ATTITUDE_REFERENCE" prefix="STABILIZATION_ATTITUDE_">
-    <!-- attitude reference generation model -->
+    <!-- reference -->
     <define name="REF_OMEGA_P" value="450" unit="deg/s"/>
     <define name="REF_ZETA_P" value="0.9"/>
     <define name="REF_MAX_P" value="600." unit="deg/s"/>
@@ -151,64 +140,47 @@
     <define name="REF_ZETA_R" value="0.9"/>
     <define name="REF_MAX_R" value="600." unit="deg/s"/>
     <define name="REF_MAX_RDOT" value="RadOfDeg(8000.)"/>
-  </section>
 
-  <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
-    <!-- control effectiveness -->
-    <define name="G1_P" value="0.0639"/>
-    <define name="G1_Q" value="0.0361"/>
-    <define name="G1_R" value="0.0022"/>
-    <define name="G2_R" value="0.1450"/>
+    <!-- feedback -->
+    <define name="PHI_PGAIN" value="920"/>
+    <define name="PHI_DGAIN" value="425"/>
+    <define name="PHI_IGAIN" value="0"/>
 
-    <!-- reference acceleration for attitude control -->
-    <define name="REF_ERR_P" value="600.0"/>
-    <define name="REF_ERR_Q" value="600.0"/>
-    <define name="REF_ERR_R" value="600.0"/>
-    <define name="REF_RATE_P" value="28.0"/>
-    <define name="REF_RATE_Q" value="28.0"/>
-    <define name="REF_RATE_R" value="28.0"/>
+    <define name="THETA_PGAIN" value="920"/>
+    <define name="THETA_DGAIN" value="425"/>
+    <define name="THETA_IGAIN" value="0"/>
 
-    <!-- second order filter parameters -->
-    <define name="FILT_OMEGA" value="50.0"/>
-    <define name="FILT_ZETA" value="0.55"/>
-    <define name="FILT_OMEGA_R" value="50.0"/>
-    <define name="FILT_ZETA_R" value="0.55"/>
+    <define name="PSI_PGAIN" value="8000"/>
+    <define name="PSI_DGAIN" value="700"/>
+    <define name="PSI_IGAIN" value="0"/>
 
-    <!-- first order actuator dynamics -->
-    <define name="ACT_DYN_P" value="0.1"/>
-    <define name="ACT_DYN_Q" value="0.1"/>
-    <define name="ACT_DYN_R" value="0.1"/>
-
-    <!-- Adaptive Learning Rate -->
-    <define name="USE_ADAPTIVE" value="FALSE"/>
-    <define name="ADAPTIVE_MU" value="0.0001"/>
+    <!-- feedforward -->
+    <define name="PHI_DDGAIN" value="0"/>
+    <define name="THETA_DDGAIN" value="0"/>
+    <define name="PSI_DDGAIN" value="0"/>
   </section>
 
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
     <define name="HOVER_KP" value="283"/>
     <define name="HOVER_KD" value="82"/>
-    <define name="HOVER_KI" value="70"/>
-    <define name="NOMINAL_HOVER_THROTTLE" value="0.55"/>
-    <define name="ADAPT_THROTTLE_ENABLED" value="FALSE"/>
+    <define name="HOVER_KI" value="13"/>
+    <define name="NOMINAL_HOVER_THROTTLE" value="0.655"/>
+    <define name="ADAPT_THROTTLE_ENABLED" value="TRUE"/>
   </section>
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-    <define name="USE_SPEED_REF" value="TRUE"/>
-    <define name="REF_MAX_SPEED" value="0.5" unit="m/s"/>
-
     <!-- Good weather -->
     <define name="MAX_BANK" value="20" unit="deg"/>
     <!-- Bad weather -->
     <!-- define name="MAX_BANK" value="32" unit="deg"/ -->
-
-    <define name="PGAIN" value="0"/>
-    <define name="DGAIN" value="25"/>
-    <define name="IGAIN" value="5"/>
+    <define name="PGAIN" value="79"/>
+    <define name="DGAIN" value="100"/>
+    <define name="IGAIN" value="30"/>
   </section>
 
   <section name="NAVIGATION" prefix="NAV_">
-    <define name="CLIMB_VSPEED" value="1.0" />
-    <define name="DESCEND_VSPEED" value="-1.0" />
+    <define  name="CLIMB_VSPEED" value="2.5" />
+    <define  name="DESCEND_VSPEED" value="-1.0" />
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
@@ -220,16 +192,15 @@
   <section name="AUTOPILOT">
     <define name="MODE_STARTUP" value="AP_MODE_NAV"/>
     <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
-    <define name="MODE_AUTO1" value="AP_MODE_MODULE"/>
-    <define name="MODE_AUTO2" value="AP_MODE_HOVER_Z_HOLD"/>
-    <define name="NO_RC_THRUST_LIMIT"  value="TRUE"/>
+    <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_Z_HOLD"/>
+    <define name="MODE_AUTO2" value="AP_MODE_NAV"/>
   </section>
 
   <section name="BAT">
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="8700"/>
-    <define name="CATASTROPHIC_BAT_LEVEL" value="10.5" unit="V"/>
-    <define name="CRITIC_BAT_LEVEL" value="10.8" unit="V"/>
-    <define name="LOW_BAT_LEVEL" value="11.0" unit="V"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="9.6" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="10.6" unit="V"/>
     <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
   </section>
 </airframe>

@@ -63,7 +63,7 @@ struct video_config_t front_camera = {
   .buf_cnt = 3,
   .filters = VIDEO_FILTER_ISP,
   .pointer_to_first_listener = NULL,
-  .fps = 30
+  .fps = 5
 };
 
 /**
