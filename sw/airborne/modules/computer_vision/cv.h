@@ -43,10 +43,10 @@ struct cv_async {
     pthread_mutex_t img_mutex;
     pthread_cond_t img_available;
     volatile bool img_processed;
+    struct image_t img_copy;
 
     // Can be set by user
     int maximum_fps;
-    cv_function function;
 };
 
 struct video_listener {
@@ -57,8 +57,8 @@ struct video_listener {
 
 extern bool add_video_device(struct video_config_t *device);
 
-extern void cv_add_to_device(struct video_config_t *device, cv_function func);
-extern void cv_add_to_device_async(struct video_config_t *device, struct cv_async *async);
+// Adds a computer vision function to the video pipeline, setting synchronous to false will spawn a thread
+extern struct cv_async *cv_add_to_device(struct video_config_t *device, cv_function func, bool synchronous);
 
 extern void cv_run_device(struct video_config_t *device, struct image_t *img);
 

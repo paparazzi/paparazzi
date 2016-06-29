@@ -40,9 +40,6 @@
 #include <sys/time.h>
 #include <math.h>
 
-#include <pthread.h>
-#include "mcu_periph/sys_time.h"
-
 // Video
 #include "lib/vision/image.h"
 #include "lib/encoding/jpeg.h"
@@ -118,49 +115,23 @@ struct viewvideo_t viewvideo = {
 #endif
 };
 
-struct image_t img_copy;
-pthread_mutex_t img_mutex;
-pthread_cond_t img_available_cv;
-
 /**
  * Handles all the video streaming and saving of the image shots
  * This is a sepereate thread, so it needs to be thread safe!
  */
 struct image_t *viewvideo_function(struct image_t *img);
-struct image_t *viewvideo_function(struct image_t *img) {
-
-  // If image is not yet processed by thread, return
-  if (pthread_mutex_trylock(&img_mutex) != 0 || viewvideo.new_image) {
-    return NULL;
-  }
-
-  // If the image buffer has not yet been initialized
-  if (img_copy.buf_size == 0) {
-    // Create a new image based on downsize factor
-    image_create(&img_copy,
-                 img->w / viewvideo.downsize_factor,
-                 img->h / viewvideo.downsize_factor,
-                 IMAGE_YUV422);
-  }
-
-  // Copy image with downsize factor (1 does a direct copy)
-  image_yuv422_downsample(img, &img_copy, viewvideo.downsize_factor);
-
-  // Inform thread of new image
-  viewvideo.new_image = true;
-  pthread_cond_signal(&img_available_cv);
-  pthread_mutex_unlock(&img_mutex);
-
-  return NULL;
-}
-
-
-void viewvideo_send_frame(void);
-void viewvideo_send_frame(void) {
+struct image_t *viewvideo_function(struct image_t *img)
+{
+  // Resize image if needed
+  struct image_t img_small;
+  image_create(&img_small,
+               img->w / viewvideo.downsize_factor,
+               img->h / viewvideo.downsize_factor,
+               IMAGE_YUV422);
 
   // Create the JPEG encoded image
   struct image_t img_jpeg;
-  image_create(&img_jpeg, img_copy.w, img_copy.h, IMAGE_JPEG);
+  image_create(&img_jpeg, img_small.w, img_small.h, IMAGE_JPEG);
 
 #if VIEWVIDEO_USE_NETCAT
   char nc_cmd[64];
@@ -169,7 +140,13 @@ void viewvideo_send_frame(void) {
 
   if (viewvideo.is_streaming) {
 
-    jpeg_encode_image(&img_copy, &img_jpeg, VIEWVIDEO_QUALITY_FACTOR, VIEWVIDEO_USE_NETCAT);
+    // Only resize when needed
+    if (viewvideo.downsize_factor != 1) {
+      image_yuv422_downsample(img, &img_small, viewvideo.downsize_factor);
+      jpeg_encode_image(&img_small, &img_jpeg, VIEWVIDEO_QUALITY_FACTOR, VIEWVIDEO_USE_NETCAT);
+    } else {
+      jpeg_encode_image(img, &img_jpeg, VIEWVIDEO_QUALITY_FACTOR, VIEWVIDEO_USE_NETCAT);
+    }
 
 #if VIEWVIDEO_USE_NETCAT
     // Open process to send using netcat (in a fork because sometimes kills itself???)
@@ -194,7 +171,6 @@ void viewvideo_send_frame(void) {
       wait(NULL);
     }
 #else
-
     if (viewvideo.use_rtp) {
 
       // Send image with RTP
@@ -216,64 +192,14 @@ void viewvideo_send_frame(void) {
       // (1 = 1/90000 s) which is probably stupid but is actually working.
     }
 #endif
+
   }
 
   // Free all buffers
   image_free(&img_jpeg);
+  image_free(&img_small);
+  return NULL; // No new images were created
 }
-
-
-void *viewvideo_thread(void *args);
-void *viewvideo_thread(void *args) {
-  // Time-keeping variables
-  struct timespec time_now, time_prev;
-  clock_gettime(CLOCK_MONOTONIC, &time_prev);
-  int32_t delta = 0;
-  uint32_t fps_period = 1000000 / VIEWVIDEO_FPS;
-
-  // Request new image from video thread
-  pthread_mutex_lock(&img_mutex);
-  viewvideo.new_image = false;
-
-  while (viewvideo.is_streaming) {
-    // Wait for img available signal
-    pthread_cond_wait(&img_available_cv, &img_mutex);
-
-    // If there is no image available, try again
-    if (!viewvideo.new_image) {
-      continue;
-    }
-
-    // Send a new frame from this thread
-    viewvideo_send_frame();
-
-    // Obtain current time
-    clock_gettime(CLOCK_MONOTONIC, &time_now);
-
-    // Increase delta with desired frame rate minus elapsed time
-    delta += fps_period - sys_time_elapsed_us(&time_prev, &time_now);
-
-    // If delta is positive, this thread is faster than required
-    if (delta > 0) {
-      // Sleep for delta time to maintain desired frame rate
-      usleep(delta);
-    } else {
-      // Diminish delta penalty to smooth out frame rate
-      delta /= 2;
-    }
-
-    // Store timestamp as previous
-    time_prev = time_now;
-
-    // Request new image
-    viewvideo.new_image = false;
-  }
-
-  pthread_mutex_unlock(&img_mutex);
-
-  return NULL;
-}
-
 
 /**
  * Initialize the view video
@@ -282,8 +208,7 @@ void viewvideo_init(void)
 {
   char save_name[512];
 
-  img_copy.buf_size = 0;  // Explicitly mark img_copy as uninitialized
-  cv_add_to_device(&VIEWVIDEO_CAMERA, viewvideo_function);
+  cv_add_to_device(&VIEWVIDEO_CAMERA, viewvideo_function, false);
 
   viewvideo.is_streaming = true;
 
@@ -319,12 +244,5 @@ void viewvideo_init(void)
     printf("[viewvideo] Failed to create SDP file.\n");
   }
 #endif
-
-  // Initialize mutex and condition variable
-  pthread_mutex_init(&img_mutex, NULL);
-  pthread_cond_init(&img_available_cv, NULL);
-
-  // Create new viewvideo thread
-  pthread_t thread_id;
-  pthread_create(&thread_id, NULL, viewvideo_thread, NULL);
 }
+

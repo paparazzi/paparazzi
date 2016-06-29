@@ -27,6 +27,7 @@
 
 #include "cv.h"
 #include <stdlib.h> // for malloc
+#include <stdio.h>
 
 void cv_attach_listener(struct video_config_t *device, struct video_listener *new_listener);
 void cv_async_function(struct cv_async *async, struct image_t *img);
@@ -56,28 +57,99 @@ void cv_attach_listener(struct video_config_t *device, struct video_listener *ne
 }
 
 
-void cv_add_to_device(struct video_config_t *device, cv_function func) {
+struct cv_async *cv_add_to_device(struct video_config_t *device, cv_function func, bool synchronous) {
   // Create a new video listener
-  struct video_listener *new_listener = malloc(sizeof(struct video_listener));
+  struct video_listener *listener = malloc(sizeof(struct video_listener));
 
-  // Assign function to listener
-  new_listener->async = NULL;
-  new_listener->next = NULL;
-  new_listener->func = func;
+  listener->next = NULL;
+  listener->func = func;
+  listener->async = NULL;
+
+  if (!synchronous) {
+    listener->async = malloc(sizeof(struct cv_async));
+
+    // Explicitly mark img_copy as uninitialized
+    listener->async->img_copy.buf_size = 0;
+
+    // Initialize mutex and condition variable
+    pthread_mutex_init(&listener->async->img_mutex, NULL);
+    pthread_cond_init(&listener->async->img_available, NULL);
+
+    // Create new processing thread
+    pthread_create(&listener->async->thread_id, NULL, cv_async_thread, listener);
+  }
 
   // Attach listener to device
-  cv_attach_listener(device, new_listener);
-}
+  cv_attach_listener(device, listener);
 
-
-void cv_add_to_device_async(struct video_config_t *device, struct cv_async *async) {
-//  pthread_mutex_init(&async->img_mutex, NULL);
-//  pthread_cond_init(&async->img_available, NULL);
+  // Return async struct
+  return listener->async;
 }
 
 
 void cv_async_function(struct cv_async *async, struct image_t *img) {
 
+  fprintf(stderr, "[CV-ASYNC] Running async func.\n");
+
+  // If image is not yet processed by thread, return
+  if (pthread_mutex_trylock(&async->img_mutex) != 0 || !async->img_processed) {
+    return;
+  }
+
+  // If the image has not been initialized, do it
+  if (async->img_copy.buf_size == 0) {
+    image_create(&(async->img_copy), img->w, img->h, img->type);
+
+    fprintf(stderr, "[CV-ASYNC] created image.\n");
+  }
+
+  fprintf(stderr, "[CV-ASYNC] copying image.\n");
+
+
+  // Copy image
+  image_copy(img, &async->img_copy);
+
+  fprintf(stderr, "[CV-ASYNC] copied image.\n");
+
+  // Inform thread of new image
+  async->img_processed = false;
+  pthread_cond_signal(&async->img_available);
+  pthread_mutex_unlock(&async->img_mutex);
+}
+
+
+void *cv_async_thread(void *args) {
+  struct video_listener *listener = args;
+  struct cv_async *async = listener->async;
+
+  // Request new image from video thread
+  pthread_mutex_lock(&async->img_mutex);
+  async->img_processed = true;
+
+  fprintf(stderr, "[CV-ASYNC] Running thread.\n");
+
+  // TODO: add while condition
+  while (true) {
+    // Wait for img available signal
+    pthread_cond_wait(&async->img_available, &async->img_mutex);
+
+    fprintf(stderr, "[CV-ASYNC] Got condition signal.\n");
+
+    // If image is processed already (spurious wake-up)
+    if (async->img_processed) {
+      continue;
+    }
+
+    // Execute vision function from this thread
+    listener->func(&async->img_copy);
+
+    // Request new image
+    async->img_processed = true;
+  }
+
+  pthread_mutex_unlock(&async->img_mutex);
+
+  return NULL;
 }
 
 

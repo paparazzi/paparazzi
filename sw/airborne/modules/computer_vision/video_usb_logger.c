@@ -140,7 +140,7 @@ void video_usb_logger_start(void)
   }
 
   // Subscribe to a camera
-  cv_add_to_device(&VIDEO_USB_LOGGER_CAMERA, log_image);
+  cv_add_to_device(&VIDEO_USB_LOGGER_CAMERA, log_image, true);
 }
 
 /** Stop the logger an nicely close the file */
