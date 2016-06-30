@@ -303,12 +303,6 @@
     <define name="ADAPTIVE_INDI" value="FALSE"/>
   </section>
 
-  <section name="SIMULATOR" prefix="NPS_">
-    <define name="ACTUATOR_NAMES"  value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}"/>
-    <define name="JSBSIM_INIT" value="&quot;reset00&quot;"/>
-    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_booz2_a1.h&quot;"/>
-  </section>
-
   <modules main_freq="512">
     <load name="gps_ubx_ucenter.xml"/>
 
@@ -330,7 +324,7 @@
       <define name="AIRSPEED_ETS_SYNC_SEND"/>
     </load>-->
 
-    <module name="high_speed_logger_spi_link.xml"/>
+    <module name="logger_spi_link"/>
 
 <!--    <load name="AOA_adc.xml">
       <configure name="ADC_AOA" value="ADC_2"/>
@@ -388,4 +382,3 @@
     <module name="ins"/>
   </firmware>
 </airframe>
-
