@@ -54,6 +54,11 @@ class widget :
       ?width:int ->
       ?fill_color:string ->
       ?color:string -> Latlong.geographic -> Latlong.fmeter -> GnoCanvas.ellipse
+    method polygon :
+      ?group:GnoCanvas.group ->
+      ?width:int ->
+      ?fill_color:string ->
+      ?color:string -> Latlong.geographic -> Latlong.geographic -> Latlong.geographic -> Latlong.geographic -> GnoCanvas.polygon
     method connect_view : (unit -> unit) -> unit
     method current_zoom : float
     method display_alt : Latlong.geographic -> unit
