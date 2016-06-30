@@ -278,12 +278,13 @@
     <module name="actuators"     type="asctec_v2_new"/>
 
     <module name="telemetry"     type="transparent"/>
-<!--     <module name="telemetry"     type="transparent"/> -->
     <module name="imu"           type="aspirin_v2.2"/>
     <module name="gps"           type="ublox"/>
     <module name="stabilization" type="indi"/>
     <module name="stabilization" type="rate_indi"/>
+    <module name="guidance"      type="hybrid"/>
     <module name="logger_spi_link"/>
+    
     <module name="ahrs"          type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="TRUE"/>
       <!--define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN" value="TRUE"/-->
