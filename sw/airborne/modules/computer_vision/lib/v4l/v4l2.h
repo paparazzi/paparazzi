@@ -40,7 +40,8 @@
 /* V4L2 memory mapped image buffer */
 struct v4l2_img_buf {
   size_t length;              ///< The size of the buffer
-  struct timeval timestamp;   ///< The time value of the image
+  uint32_t timestamp;         ///< The time value in us of the image of the device driver itself
+  uint32_t pprz_timestamp;    ///< The time value in us of the image in pprz time
   void *buf;                  ///< Pointer to the memory mapped buffer
 };
 

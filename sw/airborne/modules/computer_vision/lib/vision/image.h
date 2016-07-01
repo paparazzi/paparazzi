@@ -43,7 +43,8 @@ struct image_t {
   enum image_type type;   ///< The image type
   uint16_t w;             ///< Image width
   uint16_t h;             ///< Image height
-  struct timeval ts;      ///< The timestamp of creation
+  uint32_t ts;            ///< The timestamp of creation
+  uint32_t pprz_ts;       ///< The timestamp of Paparazzi creation
 
   uint8_t buf_idx;        ///< Buffer index for V4L2 freeing
   uint32_t buf_size;      ///< The buffer size
