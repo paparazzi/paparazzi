@@ -56,6 +56,10 @@ int modify_image_helipad = FALSE;
 
 // Marker detection
 int squares = 4;
+int med = 0;
+
+// binary threshold
+int bin_thresh = 230;
 
 // Function
 struct image_t *helipad_tracking_func(struct image_t* img);
@@ -90,17 +94,24 @@ struct image_t *helipad_tracking_func(struct image_t* img)
     // OPENCV HELIPAD DETECTION
 
     // Change the threshold of valid squares depending on sonar altitude.
-    if (sonar_bebop.distance < 1.5) {
-        squares = 2;
+    if (sonar_bebop.distance < 1.2) {
+        squares = 1;
     } else {
-        squares = 4;
+        squares = 2;
     }
+
+    if (sonar_bebop.distance < 1.6) {
+        bin_thresh = 230;
+    } else {
+        bin_thresh = 220;
+    }
+
 
     if (img->type == IMAGE_YUV422) {
         // Call OpenCV (C++ from paparazzi C function)
         /* TODO: The image cannot be in grayscale and solve warnings */
         /* TODO: This opencv function reduces the fps from 12.5 to 4.1 */
-        helipad_marker = opencv_imav_landing((char*) img->buf, img->w, img->h, squares, modify_image_helipad);
+        helipad_marker = opencv_imav_landing((char*) img->buf, img->w, img->h, squares, bin_thresh, modify_image_helipad);
     } else {
         helipad_marker.MARKER = 0;
     }
