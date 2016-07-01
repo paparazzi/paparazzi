@@ -43,6 +43,10 @@
   </header>
 
   <init fun="color_tracking_bottom_init()"/>
+  <periodic fun="color_tracking_bottom_periodic()" freq="1"
+            start="start_color_tracking_bottom()"
+            stop="stop_color_tracking_bottom()"
+            autorun="FALSE"/>
 
   <makefile>
     <file name="color_tracking_bottom.c"/>

@@ -23,6 +23,10 @@
   </header>
 
   <init fun="color_tracking_front_init()"/>
+  <periodic fun="color_tracking_front_periodic()" freq="1"
+            start="start_color_tracking_front()"
+            stop="stop_color_tracking_front()"
+            autorun="FALSE"/>
 
   <makefile>
     <file name="color_tracking_front.c"/>

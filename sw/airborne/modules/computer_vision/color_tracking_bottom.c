@@ -40,6 +40,9 @@
 
 #define MEMORY 25
 
+// Run the module
+bool RUN_MODULE_COLOR_BOTTOM;
+
 // Choose color
 int color = 0; // 0 = RED; 1 = BLUE
 
@@ -86,7 +89,7 @@ float vy_bottom_ref;
 float target_reached = 0.2;
 
 // Counters
-int centroid_counter = 0;
+int centroid_counter;
 float centroid_x[MEMORY];
 float centroid_y[MEMORY];
 
@@ -95,15 +98,17 @@ uint32_t temp;
 
 // Marker-detection timer
 long previous_time;
-float dt_sum = 0;
-float dt = 0;
-float dt_flight = 0;
-float marker_lost = 2; // seconds
+float dt_sum;
+float dt;
+float marker_lost; // seconds
 
 
 struct image_t *color_tracking_bottom_func(struct image_t* img);
 struct image_t *color_tracking_bottom_func(struct image_t* img)
 {
+
+  if (!RUN_MODULE_COLOR_BOTTOM) { return NULL; }
+
   // Compute new dt
   struct timespec spec;
   clock_gettime(CLOCK_REALTIME, &spec);
@@ -113,7 +118,6 @@ struct image_t *color_tracking_bottom_func(struct image_t* img)
 
   if (dt >0) {
     dt_sum += dt;
-    dt_flight += dt;
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -122,16 +126,16 @@ struct image_t *color_tracking_bottom_func(struct image_t* img)
   // Blob locator
   if (color == 0) {
     target_bottom = locate_blob(img,
-                              color_lum_min_red, color_lum_max_red,
-                              color_cb_min_red, color_cb_max_red,
-                              color_cr_min_red, color_cr_max_red,
-                              blob_threshold_bottom);
+                                color_lum_min_red, color_lum_max_red,
+                                color_cb_min_red, color_cb_max_red,
+                                color_cr_min_red, color_cr_max_red,
+                                blob_threshold_bottom);
   } else if (color == 1) {
     target_bottom = locate_blob(img,
-                              color_lum_min_blue, color_lum_max_blue,
-                              color_cb_min_blue, color_cb_max_blue,
-                              color_cr_min_blue, color_cr_max_blue,
-                              blob_threshold_bottom);
+                                color_lum_min_blue, color_lum_max_blue,
+                                color_cb_min_blue, color_cb_max_blue,
+                                color_cr_min_blue, color_cr_max_blue,
+                                blob_threshold_bottom);
   }
 
   // Display the marker location and center-lines.
@@ -148,28 +152,18 @@ struct image_t *color_tracking_bottom_func(struct image_t* img)
     image_draw_line(img, &l, &r);
   }
 
-  // Initialize the timer if the aircraft is not flying
-  if (!autopilot_in_flight) {
-    dt_flight = 0;
-  }
-
   ///////////////////////////////////////////////////////////////////////////////////////////////////////
   // NAVIGATION
 
   // Update the location of the centroid only if the marker is detected in the previous iteration
-  if (target_bottom.MARKER && (dt_flight > 3)) {
+  if (target_bottom.MARKER) {
     temp = target_bottom.maxx;
     temp = temp << 16;
     temp += target_bottom.maxy;
     dt_sum = 0;
   }
 
-  if ((dt_sum < marker_lost) && (dt_flight > 3)) {
-    // Change the flight mode from NAV to GUIDED
-    if (AP_MODE_NAV == autopilot_mode) {
-      autopilot_mode_auto2 = AP_MODE_GUIDED;
-      autopilot_set_mode(AP_MODE_GUIDED);
-    }
+  if ((dt_sum < marker_lost)) {
 
     // Bottom camera has a higher priority
     BOTTOM_MARKER = TRUE;
@@ -270,6 +264,9 @@ struct image_t *color_tracking_bottom_func(struct image_t* img)
 
 void color_tracking_bottom_init(void)
 {
+  // Do not run the module automatically
+  RUN_MODULE_COLOR_BOTTOM = FALSE;
+
   // Marker not detected in the bottom camera
   BOTTOM_MARKER = FALSE;
 
@@ -281,6 +278,12 @@ void color_tracking_bottom_init(void)
     centroid_x[i] = 10;
     centroid_y[i] = 10;
   }
+
+  // Initialize variables
+  dt_sum = 0;
+  dt = 0;
+  marker_lost = 2;
+  centroid_counter = 0;
 
   // Desired velocities are set to zero
   vx_bottom_ref = 0;
@@ -310,3 +313,12 @@ uint8_t init_variables(void)
 
   return FALSE;
 }
+
+
+uint8_t color_tracking_bottom_periodic(void) { return false; } /* currently no direct periodic functionality */
+
+
+uint8_t start_color_tracking_bottom(void) { RUN_MODULE_COLOR_BOTTOM = TRUE; return false; }
+
+
+uint8_t stop_color_tracking_bottom(void) { RUN_MODULE_COLOR_BOTTOM = FALSE; return false; }

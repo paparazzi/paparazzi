@@ -32,6 +32,9 @@
 #include "modules/sonar/sonar_bebop.h"
 #include <stdio.h>
 
+// Run the module
+bool RUN_MODULE_HELIPAD;
+
 // General outputs
 int MARKER;
 int maxx;
@@ -62,6 +65,9 @@ struct image_t *helipad_tracking_func(struct image_t* img);
 struct image_t *helipad_tracking_func(struct image_t* img)
 {
 
+    if (!RUN_MODULE_HELIPAD) { return NULL; }
+
+    /* TODO: Check if we really need blob locator. This may cause false positives.  */
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     // COLORFILTER
 
@@ -110,17 +116,32 @@ struct image_t *helipad_tracking_func(struct image_t* img)
         maxx   = helipad_marker.maxx;
         maxy   = helipad_marker.maxy;
     } else if ((color_marker.MARKER) && (sonar_bebop.distance > 1)) {
-//        MARKER = color_marker.MARKER;
-//        maxx   = color_marker.maxx;
-//        maxy   = color_marker.maxy;
+    //        MARKER = color_marker.MARKER;
+    //        maxx   = color_marker.maxx;
+    //        maxy   = color_marker.maxy;
     } else {
         MARKER = FALSE;
     }
+
+    printf("%i\n", MARKER);
 
     return FALSE;
 }
 
 void helipad_init(void)
 {
+    // Do not run the module automatically
+    RUN_MODULE_HELIPAD = FALSE;
+
+    // Add detection function to CV
     cv_add_to_device(&HELIPAD_CAMERA, helipad_tracking_func);
 }
+
+
+int helipad_periodic(void) { return false; } /* currently no direct periodic functionality */
+
+
+int start_helipad(void) { RUN_MODULE_HELIPAD = TRUE; return false; }
+
+
+int stop_helipad(void) { RUN_MODULE_HELIPAD = FALSE; return false; }

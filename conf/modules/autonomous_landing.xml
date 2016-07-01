@@ -24,6 +24,10 @@
   </header>
 
   <init fun="autonomous_landing_init()"/>
+  <periodic fun="autonomous_landing_periodic()" freq="1"
+            start="start_autonomous_landing()"
+            stop="stop_autonomous_landing()"
+            autorun="FALSE"/>
 
   <makefile>
     <file name="autonomous_landing.c"/>

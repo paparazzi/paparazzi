@@ -26,6 +26,10 @@
     </header>
 
     <init fun="helipad_init()"/>
+    <periodic fun="helipad_periodic()" freq="1"
+              start="start_helipad()"
+              stop="stop_helipad()"
+              autorun="FALSE"/>
 
     <makefile>
         <file name="cv_helipad.c"/>

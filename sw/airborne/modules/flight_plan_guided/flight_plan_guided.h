@@ -23,28 +23,19 @@
  * @author IMAV 2016
  */
 
-#ifndef COLOR_FRONT_CV_PLUGIN_H
-#define COLOR_FRONT_CV_PLUGIN_H
+#ifndef FLIGHT_PLAN_GUIDED_PLUGIN_H
+#define FLIGHT_PLAN_GUIDED_PLUGIN_H
 
 #include <stdint.h>
 
 // Module functions
-void color_tracking_front_init(void);
+void flight_plan_guided_init(void);
 
-// Reliable color detection
-extern int blob_threshold_front;
-
-// Image-modification triggers
-extern uint8_t modify_image_front;
-
-// Navigation
-extern float vel_ref;
-extern float yaw_rate_front_ref;
-
-// Additional functions
-extern uint8_t color_tracking_front_periodic(void); ///< A dummy for now
-extern uint8_t start_color_tracking_front(void);
-extern uint8_t stop_color_tracking_front(void);
-
+// Flight Plan functions
+extern uint8_t KillEngines(void);
+extern uint8_t StartEngines(void);
+extern uint8_t reset_alt(void);
+extern uint8_t hover(float height_above_target, float vz_bottom_ref);
+extern uint8_t MoveForward(float vx);
 
 #endif

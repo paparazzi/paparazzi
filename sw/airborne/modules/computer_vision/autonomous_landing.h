@@ -1,4 +1,4 @@
-/*
+/*stop_color_tracking_front
  * Copyright (C) 2016 - IMAV 2016
  *
  * This file is part of Paparazzi.
@@ -36,6 +36,11 @@ uint8_t autonomous_landing_init_variables(void);
 extern float marker_reached;
 extern float vz_ref;
 extern float vel_gain_landing;
+
+// Additional functions
+extern uint8_t autonomous_landing_periodic(void); ///< A dummy for now
+extern uint8_t start_autonomous_landing(void);
+extern uint8_t stop_autonomous_landing(void);
 
 
 #endif

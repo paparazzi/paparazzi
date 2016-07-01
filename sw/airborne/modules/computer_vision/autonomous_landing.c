@@ -41,6 +41,9 @@
 
 #define MEMORY 25
 
+// Run the module
+bool RUN_MODULE_LANDING;
+
 // Altitude control
 float vz_ref = 0.25;
 float vz_bottom_ref;
@@ -54,7 +57,7 @@ float vy_bottom_ref;
 float marker_reached = 0.2;
 
 // Counters
-int centroid_counter = 0;
+int centroid_counter;
 float centroid_x[MEMORY];
 float centroid_y[MEMORY];
 
@@ -63,10 +66,9 @@ uint32_t temp;
 
 // Marker-detection timer
 long previous_time;
-float dt_sum = 0;
-float dt = 0;
-float dt_flight = 0;
-float marker_lost = 2; // seconds
+float dt_sum;
+float dt;
+float marker_lost; // seconds
 
 // Landing timer
 float dt_sum_ld = 0;
@@ -76,6 +78,8 @@ float detect_ground = 0.5; // seconds
 struct image_t *autonomous_landing_func(struct image_t* img);
 struct image_t *autonomous_landing_func(struct image_t* img)
 {
+  if (!RUN_MODULE_LANDING) { return NULL; }
+
   // Compute new dt
   struct timespec spec;
   clock_gettime(CLOCK_REALTIME, &spec);
@@ -83,33 +87,20 @@ struct image_t *autonomous_landing_func(struct image_t* img)
   long delta_t = new_time - previous_time;
   dt = ((float)delta_t) / 1000.0f;
 
-  if (dt >0) {
-    dt_sum += dt;
-    dt_flight += dt;
-  }
-
-  // Initialize the timer if the aircraft is not flying
-  if (!autopilot_in_flight) {
-    dt_flight = 0;
-  }
+  if (dt >0) { dt_sum += dt; }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////
   // NAVIGATION
 
   // Update the location of the centroid only if the marker is detected in the previous iteration
-  if (MARKER && (dt_flight > 2)) {
+  if (MARKER) {
     temp = maxx;
     temp = temp << 16;
     temp += maxy;
     dt_sum = 0;
   }
 
-  if ((dt_sum <marker_lost) && (dt_flight > 2)) {
-    // Change the flight mode from NAV to GUIDED
-    if (AP_MODE_NAV == autopilot_mode) {
-      autopilot_mode_auto2 = AP_MODE_GUIDED;
-      autopilot_set_mode(AP_MODE_GUIDED);
-    }
+  if (dt_sum <marker_lost) {
 
     // Centroid
     uint16_t y = temp & 0x0000ffff;
@@ -200,11 +191,9 @@ struct image_t *autonomous_landing_func(struct image_t* img)
 
   } else {
 
-    // Change the flight mode from GUIDED to NAV
-    if (AP_MODE_GUIDED == autopilot_mode) {
-      autopilot_mode_auto2 = AP_MODE_NAV;
-      autopilot_set_mode(AP_MODE_NAV);
-    }
+    /* TODO: What should we do when the landing marker is lost?  */
+    // Hold position
+    guidance_h_set_guided_body_vel(0, 0);
 
     // Reinitialize the variables
     autonomous_landing_init_variables();
@@ -233,6 +222,12 @@ void autonomous_landing_init(void)
   vy_bottom_ref = 0;
   vz_bottom_ref = 0;
 
+  // Initialize variables
+  dt_sum = 0;
+  dt = 0;
+  marker_lost = 2;
+  centroid_counter = 0;
+
   // Add detection function to CV
   cv_add_to_device(&MARKER_CAMERA, autonomous_landing_func);
 }
@@ -240,6 +235,9 @@ void autonomous_landing_init(void)
 
 uint8_t autonomous_landing_init_variables(void)
 {
+  // Do not run the module automatically
+  RUN_MODULE_LANDING = FALSE;
+
   // Reset landing timer to zero
   dt_sum_ld = 0;
 
@@ -259,3 +257,11 @@ uint8_t autonomous_landing_init_variables(void)
 
   return FALSE;
 }
+
+uint8_t autonomous_landing_periodic(void) { return false; } /* currently no direct periodic functionality */
+
+
+uint8_t start_autonomous_landing(void) { RUN_MODULE_LANDING = TRUE; return false; }
+
+
+uint8_t stop_autonomous_landing(void) { RUN_MODULE_LANDING = FALSE; return false; }

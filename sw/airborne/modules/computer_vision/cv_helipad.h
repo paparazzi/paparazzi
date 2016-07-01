@@ -41,4 +41,9 @@ extern int MARKER;
 extern int maxx;
 extern int maxy;
 
+// Additional functions
+extern int helipad_periodic(void); ///< A dummy for now
+extern int start_helipad(void);
+extern int stop_helipad(void);
+
 #endif

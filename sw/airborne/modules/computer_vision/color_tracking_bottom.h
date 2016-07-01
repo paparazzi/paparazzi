@@ -65,4 +65,9 @@ extern float vz_desired;
 extern float height_above_target;
 extern float target_reached;
 
+// Additional functions
+extern uint8_t color_tracking_bottom_periodic(void); ///< A dummy for now
+extern uint8_t start_color_tracking_bottom(void);
+extern uint8_t stop_color_tracking_bottom(void);
+
 #endif

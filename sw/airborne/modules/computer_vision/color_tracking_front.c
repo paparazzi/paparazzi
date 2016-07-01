@@ -31,14 +31,17 @@
 #include "firmwares/rotorcraft/navigation.h"
 #include "firmwares/rotorcraft/autopilot.h"
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
+#include "firmwares/rotorcraft/guidance/guidance_v.h"
 #include "subsystems/datalink/telemetry.h"
 #include "generated/flight_plan.h"
 #include "autopilot.h"
 #include <stdio.h>
 #include <time.h>
 
+// Run the module
+bool RUN_MODULE_COLOR_FRONT;
+
 // Reliable color detection
-//int blob_threshold_front = 50;
 int blob_threshold_front = 0;
 
 // Image-modification triggers
@@ -51,26 +54,12 @@ struct results_color target_front;
 float vel_ref = 0.75;
 float yaw_rate_front_ref = 1.5; /* TODO: This requires more tuning. */
 
-// Marker-detection timer
-long previous_time;
-float dt_front = 0;
-float dt_flight_front = 0;
-
 
 struct image_t *color_tracking_front_func(struct image_t* img);
 struct image_t *color_tracking_front_func(struct image_t* img)
 {
 
-  // Compute new dt
-  struct timespec spec;
-  clock_gettime(CLOCK_REALTIME, &spec);
-  long new_time = spec.tv_nsec / 1.0E6;
-  long delta_t = new_time - previous_time;
-  dt_front = ((float)delta_t) / 1000.0f;
-
-  if (dt_front >0) {
-    dt_flight_front += dt_front;
-  }
+  if (!RUN_MODULE_COLOR_FRONT) { return NULL; }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////
   // COLORFILTER
@@ -78,16 +67,16 @@ struct image_t *color_tracking_front_func(struct image_t* img)
   // Blob locator
   if (color == 0) {
     target_front = locate_blob(img,
-                              color_lum_min_red, color_lum_max_red,
-                              color_cb_min_red, color_cb_max_red,
-                              color_cr_min_red, color_cr_max_red,
-                              blob_threshold_front);
+                               color_lum_min_red, color_lum_max_red,
+                               color_cb_min_red, color_cb_max_red,
+                               color_cr_min_red, color_cr_max_red,
+                               blob_threshold_front);
   } else if (color == 1) {
     target_front = locate_blob(img,
-                              color_lum_min_blue, color_lum_max_blue,
-                              color_cb_min_blue, color_cb_max_blue,
-                              color_cr_min_blue, color_cr_max_blue,
-                              blob_threshold_front);
+                               color_lum_min_blue, color_lum_max_blue,
+                               color_cb_min_blue, color_cb_max_blue,
+                               color_cr_min_blue, color_cr_max_blue,
+                               blob_threshold_front);
   }
 
 
@@ -108,18 +97,10 @@ struct image_t *color_tracking_front_func(struct image_t* img)
   ///////////////////////////////////////////////////////////////////////////////////////////////////////
   // NAVIGATION
 
-  // Initialize the timer if the aircraft is not flying
-  if (!autopilot_in_flight) {
-    dt_flight_front = 0;
-  }
+  if ((target_front.MARKER) && (!BOTTOM_MARKER)) {
 
-  if ((target_front.MARKER) && (!BOTTOM_MARKER) & (dt_flight_front > 3)) {
-
-    // Change the flight mode from NAV to GUIDED
-    if (AP_MODE_NAV == autopilot_mode) {
-      autopilot_mode_auto2 = AP_MODE_GUIDED;
-      autopilot_set_mode(AP_MODE_GUIDED);
-    }
+    // Maintain altitude
+    guidance_v_set_guided_vz(0);
 
     // Compute the location of the centroid
     int centroid_x = target_front.maxx;
@@ -145,24 +126,31 @@ struct image_t *color_tracking_front_func(struct image_t* img)
 
   } else if ((!target_front.MARKER) && (!BOTTOM_MARKER)) {
 
+    // Change yaw until red is detected
+    guidance_h_set_guided_heading_rate(yaw_rate_front_ref / 3.);
 
-    /* TODO: When !autopilot_in_flight it should go back to NAV but it doesn't. */
-    // Change the flight mode from GUIDED to NAV
-    if (AP_MODE_GUIDED == autopilot_mode) {
-      autopilot_mode_auto2 = AP_MODE_NAV;
-      autopilot_set_mode(AP_MODE_NAV);
-    }
+    // Maintain altitude
+    guidance_v_set_guided_vz(0);
+
   }
-
-  // Update variables
-  previous_time = new_time;
-
   return NULL;
 }
 
 
 void color_tracking_front_init(void)
 {
+  // Do not run the module automatically
+  RUN_MODULE_COLOR_FRONT = FALSE;
+
   // Add detection function to CV
   cv_add_to_device(&COLOR_CAMERA_FRONT, color_tracking_front_func);
 }
+
+
+uint8_t color_tracking_front_periodic(void) { return false; } /* currently no direct periodic functionality */
+
+
+uint8_t start_color_tracking_front(void) { RUN_MODULE_COLOR_FRONT = TRUE; return false; }
+
+
+uint8_t stop_color_tracking_front(void) { RUN_MODULE_COLOR_FRONT = FALSE; return false; }
