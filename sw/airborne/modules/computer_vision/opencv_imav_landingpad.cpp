@@ -44,8 +44,8 @@ struct results opencv_imav_landing(char *img, int width, int height, int v_squar
 //    int thresh = 230; //For outdoor landingpad
 //    int thresh = 210; //For indoor helipad
 
-//    int z = 4; // z-score for outdoor
-    int z = 2; // z-score for indoor
+    int z = 4; // z-score for outdoor
+//    int z = 2; // z-score for indoor
 
 
     // Grayscale image
@@ -83,7 +83,7 @@ struct results opencv_imav_landing(char *img, int width, int height, int v_squar
     for( int i = 0; (unsigned)i < contours.size(); i++ )
     {
         double Area = contourArea(contours[i]);
-        if (Area > 1200)
+        if (Area > 1500)
         {
             convexHull(Mat(contours[i]), hull[i], false );
             approxPolyDP(Mat(hull[i]), approx[i], arcLength(Mat(hull[i]), true)*0.1, true);

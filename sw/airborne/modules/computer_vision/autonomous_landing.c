@@ -39,19 +39,19 @@
 #include <stdio.h>
 #include <time.h>
 
-#define MEMORY 25
+#define MEMORY 4
 
 // Altitude control
-float vz_ref = 0.25;
+float vz_ref = 0.4; // descent original 0.25
 float vz_bottom_ref;
 
 // Horizontal control
-float vel_gain_landing = 0.5; /* TODO: This requires more tuning  */
+float vel_gain_landing = 0.6; /* TODO: This requires more tuning, original 0.5  */
 float vx_bottom_ref;
 float vy_bottom_ref;
 
 // Geofilter Settings
-float marker_reached = 0.2;
+float marker_reached = 0.4; // original 0.3 meters
 
 // Counters
 int centroid_counter = 0;
