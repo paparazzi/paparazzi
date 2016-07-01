@@ -851,7 +851,7 @@ float test_INT32_QUAT_OF_RMAT(struct FloatEulers *eul_f, bool display)
   if (display) { DISPLAY_INT32_EULERS("eul312_i", eul312_i); }
 
   struct FloatRMat rmat_f;
-  FLOAT_RMAT_OF_EULERS_321(rmat_f, (*eul_f));
+  float_rmat_of_eulers_321(&rmat_f, eul_f);
   if (display) { DISPLAY_FLOAT_RMAT_AS_EULERS_DEG("rmat float", rmat_f); }
   if (display) { DISPLAY_FLOAT_RMAT("rmat float", rmat_f); }
 

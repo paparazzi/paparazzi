@@ -203,7 +203,7 @@ void ahrs_float_invariant_propagate(struct FloatRates* gyro, float dt)
 #if SEND_INVARIANT_FILTER
   struct FloatEulers eulers;
   float foo = 0.f;
-  FLOAT_EULERS_OF_QUAT(eulers, ahrs_float_inv.state.quat);
+  float_eulers_of_quat(&eulers, &ahrs_float_inv.state.quat);
   RunOnceEvery(3,
       pprz_msg_send_INV_FILTER(&(DefaultChannel).trans_tx, &(DefaultDevice).device,
         AC_ID,

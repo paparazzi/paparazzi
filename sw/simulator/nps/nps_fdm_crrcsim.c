@@ -443,7 +443,7 @@ static void decode_ahrspacket(struct NpsFdm *fdm, byte *buffer)
   fdm->ltp_to_body_eulers.phi = (double)ShortOfBuf(buffer, 1) * 0.000106526 - NPS_CRRCSIM_ROLL_NEUTRAL;
   fdm->ltp_to_body_eulers.theta = (double)ShortOfBuf(buffer, 3) * 0.000106526 - NPS_CRRCSIM_PITCH_NEUTRAL;
   fdm->ltp_to_body_eulers.psi = (double)ShortOfBuf(buffer, 5) * 0.000106526;
-  DOUBLE_QUAT_OF_EULERS(fdm->ltp_to_body_quat, fdm->ltp_to_body_eulers);
+  double_quat_of_eulers(&fdm->ltp_to_body_quat, &fdm->ltp_to_body_eulers);
 
 #if NPS_CRRCSIM_DEBUG
   printf("decode ahrs %f %f %f\n",
