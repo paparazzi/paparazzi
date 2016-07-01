@@ -101,7 +101,7 @@ void aos_init(int traj_nb)
 
   /* default state */
   EULERS_ASSIGN(aos.ltp_to_imu_euler, RadOfDeg(0.), RadOfDeg(0.), RadOfDeg(0.));
-  FLOAT_QUAT_OF_EULERS(aos.ltp_to_imu_quat, aos.ltp_to_imu_euler);
+  float_quat_of_eulers(&aos.ltp_to_imu_quat, &aos.ltp_to_imu_euler);
   RATES_ASSIGN(aos.imu_rates, RadOfDeg(0.), RadOfDeg(0.), RadOfDeg(0.));
   FLOAT_VECT3_ZERO(aos.ltp_pos);
   FLOAT_VECT3_ZERO(aos.ltp_vel);
@@ -198,7 +198,7 @@ void aos_compute_sensors(void)
   struct FloatVect3 accelero_ltp;
   VECT3_DIFF(accelero_ltp, aos.ltp_accel, g_ltp);
   struct FloatVect3 accelero_imu;
-  FLOAT_QUAT_VMULT(accelero_imu, aos.ltp_to_imu_quat, accelero_ltp);
+  float_quat_vmult(&accelero_imu, &aos.ltp_to_imu_quat, &accelero_ltp);
 
   float_vect3_add_gaussian_noise(&accelero_imu, &aos.accel_noise);
   ACCELS_BFP_OF_REAL(imu.accel, accelero_imu);
@@ -206,7 +206,7 @@ void aos_compute_sensors(void)
 #ifndef DISABLE_MAG_UPDATE
   struct FloatVect3 h_earth = {AHRS_H_X, AHRS_H_Y, AHRS_H_Z};
   struct FloatVect3 h_imu;
-  FLOAT_QUAT_VMULT(h_imu, aos.ltp_to_imu_quat, h_earth);
+  float_quat_vmult(&h_imu, &aos.ltp_to_imu_quat, &h_earth);
   MAGS_BFP_OF_REAL(imu.mag, h_imu);
 #endif
 
@@ -214,21 +214,21 @@ void aos_compute_sensors(void)
 
 #ifdef AHRS_GRAVITY_UPDATE_COORDINATED_TURN
 #if AHRS_TYPE == AHRS_TYPE_FCQ || AHRS_TYPE == AHRS_TYPE_FLQ
-  ahrs_impl.ltp_vel_norm = FLOAT_VECT3_NORM(aos.ltp_vel);
+  ahrs_impl.ltp_vel_norm = float_vect3_norm(&aos.ltp_vel);
   ahrs_impl.ltp_vel_norm_valid = true;
 #endif
 #if AHRS_TYPE == AHRS_TYPE_FCR2
-  ahrs_impl.ltp_vel_norm = FLOAT_VECT3_NORM(aos.ltp_vel);
+  ahrs_impl.ltp_vel_norm = float_vect3_norm(&aos.ltp_vel);
   ahrs_impl.ltp_vel_norm_valid = true;
 #endif
 #if AHRS_TYPE == AHRS_TYPE_FCR
-  ahrs_impl.gps_speed = FLOAT_VECT3_NORM(aos.ltp_vel);
+  ahrs_impl.gps_speed = float_vect3_norm(&aos.ltp_vel);
   ahrs_impl.gps_age = 0;
   ahrs_update_gps();
   //RunOnceEvery(100,printf("# gps accel: %f\n", ahrs_impl.gps_acceleration));
 #endif
 #if AHRS_TYPE == AHRS_TYPE_ICQ
-  ahrs_impl.ltp_vel_norm = SPEED_BFP_OF_REAL(FLOAT_VECT3_NORM(aos.ltp_vel));
+  ahrs_impl.ltp_vel_norm = SPEED_BFP_OF_REAL(float_vect3_norm(&aos.ltp_vel));
   ahrs_impl.ltp_vel_norm_valid = true;
 #endif
 #endif
@@ -310,7 +310,7 @@ static void traj_static_static_update(void)
 
   //  if (aos.time > 3) {
   //    EULERS_ASSIGN(aos.ltp_to_imu_euler,   RadOfDeg(5), 0, 0);
-  //    FLOAT_QUAT_OF_EULERS(aos.ltp_to_imu_quat, aos.ltp_to_imu_euler);
+  //    float_quat_of_eulers(&aos.ltp_to_imu_quat, &aos.ltp_to_imu_euler);
   //  }
   //  aos.imu_rates.p = 0.;
   //  aos.imu_rates.q = 0.;
@@ -336,8 +336,8 @@ static void traj_static_sine_update(void)
   aos.imu_rates.p = RadOfDeg(200) * cos(aos.time);
   aos.imu_rates.q = RadOfDeg(200) * cos(0.7 * aos.time + 2);
   aos.imu_rates.r = RadOfDeg(200) * cos(0.8 * aos.time + 1);
-  FLOAT_QUAT_INTEGRATE(aos.ltp_to_imu_quat, aos.imu_rates, aos.dt);
-  FLOAT_EULERS_OF_QUAT(aos.ltp_to_imu_euler, aos.ltp_to_imu_quat);
+  float_quat_integrate(&aos.ltp_to_imu_quat, &aos.imu_rates, aos.dt);
+  float_eulers_of_quat(&aos.ltp_to_imu_euler, &aos.ltp_to_imu_quat);
 
 }
 
@@ -364,7 +364,7 @@ static void traj_sineX_quad_update(void)
 
     // this is based on differential flatness of the quad
     EULERS_ASSIGN(aos.ltp_to_imu_euler,    0., atan2(aos.ltp_accel.x, 9.81), 0.);
-    FLOAT_QUAT_OF_EULERS(aos.ltp_to_imu_quat, aos.ltp_to_imu_euler);
+    float_quat_of_eulers(&aos.ltp_to_imu_quat, &aos.ltp_to_imu_euler);
     const struct FloatEulers e_dot = {
       0.,
       9.81 * jerk.x / ((9.81 * 9.81) + (aos.ltp_accel.x * aos.ltp_accel.x)),
@@ -383,7 +383,7 @@ static void traj_step_phi_update(void)
 {
   if (aos.time > 5) {
     EULERS_ASSIGN(aos.ltp_to_imu_euler,   RadOfDeg(5), 0, 0);
-    FLOAT_QUAT_OF_EULERS(aos.ltp_to_imu_quat, aos.ltp_to_imu_euler);
+    float_quat_of_eulers(&aos.ltp_to_imu_quat, &aos.ltp_to_imu_euler);
   }
 }
 
@@ -405,9 +405,9 @@ static void traj_step_phi_2nd_order_update(void)
     struct FloatRates raccel;
     RATES_ASSIGN(raccel, -2.*xi * omega * aos.imu_rates.p - omega * omega * (aos.ltp_to_imu_euler.phi - RadOfDeg(5)), 0.,
                  0.);
-    FLOAT_RATES_INTEGRATE_FI(aos.imu_rates, raccel, aos.dt);
-    FLOAT_QUAT_INTEGRATE(aos.ltp_to_imu_quat, aos.imu_rates, aos.dt);
-    FLOAT_EULERS_OF_QUAT(aos.ltp_to_imu_euler, aos.ltp_to_imu_quat);
+    float_rates_integrate_fi(&aos.imu_rates, &raccel, aos.dt);
+    float_quat_integrate(&aos.ltp_to_imu_quat, &aos.imu_rates, aos.dt);
+    float_eulers_of_quat(&aos.ltp_to_imu_euler, &aos.ltp_to_imu_quat);
   }
 
 }
@@ -427,7 +427,7 @@ static void traj_coordinated_circle_init(void)
   // tan phi = v^2/Rg
   float phi = atan2(speed * speed, R * 9.81);
   EULERS_ASSIGN(aos.ltp_to_imu_euler,   phi, 0, M_PI_2);
-  FLOAT_QUAT_OF_EULERS(aos.ltp_to_imu_quat, aos.ltp_to_imu_euler);
+  float_quat_of_eulers(&aos.ltp_to_imu_quat, &aos.ltp_to_imu_euler);
 }
 
 static void traj_coordinated_circle_update(void)
@@ -447,11 +447,11 @@ static void traj_coordinated_circle_update(void)
     float psi = M_PI_2 + omega * aos.time;
     while (psi > M_PI) { psi -= 2.*M_PI; }
     EULERS_ASSIGN(aos.ltp_to_imu_euler,   phi, 0, psi);
-    FLOAT_QUAT_OF_EULERS(aos.ltp_to_imu_quat, aos.ltp_to_imu_euler);
+    float_quat_of_eulers(&aos.ltp_to_imu_quat, &aos.ltp_to_imu_euler);
 
     struct FloatEulers e_dot;
     EULERS_ASSIGN(e_dot, 0., 0., omega);
-    FLOAT_RATES_OF_EULER_DOT(aos.imu_rates, aos.ltp_to_imu_euler, e_dot);
+    float_rates_of_euler_dot(&aos.imu_rates, &aos.ltp_to_imu_euler, &e_dot);
   }
 
 }
@@ -473,9 +473,9 @@ static void  traj_stop_stop_x_update(void)
   const float dt_nojerk = 10.;
   const float val_jerk = 5.;
 
-  FLOAT_VECT3_INTEGRATE_FI(aos.ltp_pos, aos.ltp_vel, aos.dt);
-  FLOAT_VECT3_INTEGRATE_FI(aos.ltp_vel, aos.ltp_accel, aos.dt);
-  FLOAT_VECT3_INTEGRATE_FI(aos.ltp_accel, aos.ltp_jerk, aos.dt);
+  float_vect3_integrate_fi(&aos.ltp_pos,   &aos.ltp_vel,   aos.dt);
+  float_vect3_integrate_fi(&aos.ltp_vel,   &aos.ltp_accel, aos.dt);
+  float_vect3_integrate_fi(&aos.ltp_accel, &aos.ltp_jerk,  aos.dt);
 
   if (aos.time < t0) { return; }
   else if (aos.time < t0 + dt_jerk) {
@@ -495,13 +495,13 @@ static void  traj_stop_stop_x_update(void)
 
   // this is based on differential flatness of the quad
   EULERS_ASSIGN(aos.ltp_to_imu_euler,    0., atan2(aos.ltp_accel.x, 9.81), 0.);
-  FLOAT_QUAT_OF_EULERS(aos.ltp_to_imu_quat, aos.ltp_to_imu_euler);
+  float_quat_of_eulers(&aos.ltp_to_imu_quat, &aos.ltp_to_imu_euler);
   const struct FloatEulers e_dot = {
     0.,
     9.81 * aos.ltp_jerk.x / ((9.81 * 9.81) + (aos.ltp_accel.x * aos.ltp_accel.x)),
     0.
   };
-  FLOAT_RATES_OF_EULER_DOT(aos.imu_rates, aos.ltp_to_imu_euler, e_dot);
+  float_rates_of_euler_dot(&aos.imu_rates, &aos.ltp_to_imu_euler, &e_dot);
 
 }
 
@@ -510,7 +510,7 @@ static void traj_bungee_takeoff_init(void)
 
   aos.traj->te = 40.;
   EULERS_ASSIGN(aos.ltp_to_imu_euler, 0, RadOfDeg(10), 0);
-  FLOAT_QUAT_OF_EULERS(aos.ltp_to_imu_quat, aos.ltp_to_imu_euler);
+  float_quat_of_eulers(&aos.ltp_to_imu_quat, &aos.ltp_to_imu_euler);
 
 }
 
@@ -530,9 +530,9 @@ static void traj_bungee_takeoff_update(void)
 
   struct FloatQuat imu2ltp;
   QUAT_INVERT(imu2ltp, aos.ltp_to_imu_quat);
-  FLOAT_QUAT_VMULT(aos.ltp_accel, imu2ltp, accel);
+  float_quat_vmult(&aos.ltp_accel, &imu2ltp, accel);
 
-  FLOAT_VECT3_INTEGRATE_FI(aos.ltp_vel, aos.ltp_accel, aos.dt);
-  FLOAT_VECT3_INTEGRATE_FI(aos.ltp_pos, aos.ltp_vel, aos.dt);
+  float_vect3_integrate_fi(&aos.ltp_vel, &aos.ltp_accel, aos.dt);
+  float_vect3_integrate_fi(&aos.ltp_pos, &aos.ltp_vel, aos.dt);
 
 }

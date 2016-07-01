@@ -424,7 +424,7 @@ static void fetch_state(void)
   const FGQuaternion jsb_quat = propagate->GetQuaternion();
   jsbsimquat_to_quat(&fdm.ltp_to_body_quat, &jsb_quat);
   /* convert to eulers */
-  DOUBLE_EULERS_OF_QUAT(fdm.ltp_to_body_eulers, fdm.ltp_to_body_quat);
+  double_eulers_of_quat(&fdm.ltp_to_body_eulers, &fdm.ltp_to_body_quat);
   /* the "false" pprz lpt */
   /* FIXME: use jsbsim ltp for now */
   EULERS_COPY(fdm.ltpprz_to_body_eulers, fdm.ltp_to_body_eulers);

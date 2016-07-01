@@ -1,7 +1,7 @@
 <!-- this is a quadshot vehicle equiped with Lisa/m2.0 and an aspirin 2.1
      More information on the Quadshot can be found at transition-robotics.com -->
 
-<airframe name="quadshot aspirin 2.1 spektrum">
+<airframe name="quadshot 178 pylons">
 
   <servos driver="Pwm">
     <servo name="A1" no="0" min="1000" neutral="1100" max="2000"/>
@@ -49,8 +49,8 @@
     <let var="forward_right" value="aileron_gain*$aileron_feedback_right+elevator_gain*$elevator_feedback_right"/>-->
 
 <!--     if using PID with gain scheduling -->
-    <let var="forward_left"  value="5*$aileron_feedback_left + 4*$elevator_feedback_left"/>
-    <let var="forward_right" value="5*$aileron_feedback_right + 4*$elevator_feedback_right"/>
+    <let var="forward_left"  value="15*$aileron_feedback_left + 0*$elevator_feedback_left"/>
+    <let var="forward_right" value="15*$aileron_feedback_right + 0*$elevator_feedback_right"/>
 
     <!-- This statement tells the autopilot to use the hover feedback if in mode attitude direct and to use the forward feedback in all other cases-->
     <set servo="ELEVON_LEFT"    value="AP_MODE == AP_MODE_ATTITUDE_DIRECT ? $hover_left  : $forward_left" />
@@ -64,10 +64,10 @@
     <define name="TRIM_YAW" value="0"/>
     <define name="NB_MOTOR" value="4"/>
     <define name="SCALE" value="256"/>
-    <define name="PITCH_COEF"  value="{ -256, -256,  256,  256 }"/>
-    <define name="ROLL_COEF"   value="{  256, -256,  256, -256 }"/>
-    <define name="YAW_COEF"    value="{ -256,  256,  128, -128 }"/>
-    <define name="THRUST_COEF" value="{  256,  256,  256,  256 }"/>
+    <define name="PITCH_COEF"  value="{-256, -256,  256,  256 }"/>
+    <define name="ROLL_COEF"   value="{ 256, -256,  109, -109 }"/>
+    <define name="YAW_COEF"    value="{ 256, -256, -109,  109 }"/>
+    <define name="THRUST_COEF" value="{ 256,  256,  256,  256 }"/>
 <!--    <define name="PITCH_COEF"  value="{ 0, 0, 0, 0 }"/>
     <define name="ROLL_COEF"   value="{ 0, 0, 0, 0 }"/>
     <define name="YAW_COEF"    value="{ 0, 0, 0, 0 }"/>
@@ -90,19 +90,12 @@
     <define name="ACCEL_Y_SENS" value="4.89957269597" integer="16"/>
     <define name="ACCEL_Z_SENS" value="4.82616398266" integer="16"/>
 
-<!--     <define name="MAG_X_NEUTRAL" value="104"/> -->
-<!--     <define name="MAG_Y_NEUTRAL" value="9"/> -->
-<!--     <define name="MAG_Z_NEUTRAL" value="15"/> -->
-<!--     <define name="MAG_X_SENS" value="3.57880347067" integer="16"/> -->
-<!--     <define name="MAG_Y_SENS" value="3.54049742843" integer="16"/> -->
-<!--     <define name="MAG_Z_SENS" value="4.0620533034" integer="16"/> -->
-
-	<define name="MAG_X_NEUTRAL" value="-86"/>
-	<define name="MAG_Y_NEUTRAL" value="-36"/>
-	<define name="MAG_Z_NEUTRAL" value="35"/>
-	<define name="MAG_X_SENS" value="3.98639595061" integer="16"/>
-	<define name="MAG_Y_SENS" value="4.00632407649" integer="16"/>
-	<define name="MAG_Z_SENS" value="4.17946082997" integer="16"/>
+    <define name="MAG_X_NEUTRAL" value="104"/>
+    <define name="MAG_Y_NEUTRAL" value="9"/>
+    <define name="MAG_Z_NEUTRAL" value="15"/>
+    <define name="MAG_X_SENS" value="3.57880347067" integer="16"/>
+    <define name="MAG_Y_SENS" value="3.54049742843" integer="16"/>
+    <define name="MAG_Z_SENS" value="4.0620533034" integer="16"/>
   </section>
 
   <section name="IMU" prefix="IMU_">
@@ -120,10 +113,8 @@
   </section>
 
   <section name="BAT">
-<!--     <define name="MIN_BAT_LEVEL" value="10.8" units="V"/> -->
-    <define name="CRITIC_BAT_LEVEL" value="10.8" unit="V"/>
-    <define name="LOW_BAT_LEVEL" value="10.8" unit="V"/>
-    <define name="CATASTROPHIC_BAT_LEVEL" value="10.1" unit="V"/>
+    <define name="MIN_BAT_LEVEL" value="10.4" units="V"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
   </section>
 
   <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
@@ -153,8 +144,8 @@
     <define name="PHI_I" value="{30, 30}"/>
     <define name="PHI_DD" value="{0, 0}"/>
 
-    <define name="THETA_P" value="{100, 80}"/>
-    <define name="THETA_D" value="{100, 110}"/>
+    <define name="THETA_P" value="{100, 100}"/>
+    <define name="THETA_D" value="{100, 100}"/>
     <define name="THETA_I" value="{40, 40}"/>
     <define name="THETA_DD" value="{0, 0}"/>
 
@@ -169,7 +160,7 @@
     <!-- setpoints -->
     <define name="SP_MAX_PHI"     value="60." unit="deg"/>
     <define name="SP_MAX_THETA"   value="60." unit="deg"/>
-    <define name="SP_MAX_R"       value="100." unit="deg/s"/>
+    <define name="SP_MAX_R"       value="180." unit="deg/s"/>
     <define name="DEADBAND_R"     value="250"/>
     <define name="DEADBAND_A"     value="250"/>
     <define name="SP_PSI_DELTA_LIMIT" value="90" unit="deg"/>
@@ -218,29 +209,25 @@
     <define name="DEADBAND_A" value="250"/>
     <define name="SP_PSI_DELTA_LIMIT" value="90" unit="deg"/>
     <!-- control effectiveness -->
-    <define name="G1_P" value="0.025"/>
-    <define name="G1_Q" value="0.0833"/>
-    <define name="G1_R" value="0.00588"/>
-    <define name="G2_R" value="0.0"/>
+    <define name="CONTROL_EFFECTIVENESS_P" value="40.0"/>
+    <define name="CONTROL_EFFECTIVENESS_Q" value="9.0"/>
+    <define name="CONTROL_EFFECTIVENESS_R" value="170.0"/>
     <!-- reference acceleration for attitude control -->
     <define name="REF_ERR_P" value="70.0"/>
-    <define name="REF_ERR_Q" value="45.0"/>
+    <define name="REF_ERR_Q" value="90.0"/>
     <define name="REF_ERR_R" value="70.0"/>
-    <define name="REF_RATE_P" value="9.0"/>
-    <define name="REF_RATE_Q" value="16.0"/>
+    <define name="REF_RATE_P" value="12.0"/>
+    <define name="REF_RATE_Q" value="12.0"/>
     <define name="REF_RATE_R" value="12.0"/>
     <!-- second order filter parameters -->
     <define name="FILT_OMEGA" value="50.0"/>
-    <define name="FILT_ZETA" value="0.7"/>
-    <define name="FILT_OMEGA_R" value="20.0"/>
-    <define name="FILT_ZETA_R" value="0.55"/>
+    <define name="FILT_ZETA" value="0.37"/>
+    <define name="FILT_OMEGA_R" value="40.0"/>
+    <define name="FILT_ZETA_R" value="0.5"/>
     <!-- first order actuator dynamics -->
     <define name="ACT_DYN_P" value="0.03"/>
     <define name="ACT_DYN_Q" value="0.03"/>
     <define name="ACT_DYN_R" value="0.03"/>
-        <!-- Adaptive Learning Rate -->
-    <define name="USE_ADAPTIVE" value="FALSE"/>
-    <define name="ADAPTIVE_MU" value="0.0001"/>
   </section>
 
 
@@ -281,11 +268,10 @@
   </section>
 
   <section name="MISC">
-    <define name="RADIO_CONTROL_SPEKTRUM_SIGNS" value="{1,1,1,1,1,1,1,1,1,1,1,1}"/>
     <!--The Quadshot uses a slightly different axis system for the setpoint, to make both hovering and flying forward intuitive-->
     <define name="USE_EARTH_BOUND_RC_SETPOINT" value="TRUE"/>
     <!-- This is the pitch angle that the Quadshot will have in forward flight, where 0 degrees is hover-->
-    <define name="TRANSITION_MAX_OFFSET" value="-75.0" unit="deg"/>
+    <define name="TRANSITION_MAX_OFFSET" value="-85.0" unit="deg"/>
 
     <define name="RC_LOST_MODE" value="MODE_AUTO2"/>
 
@@ -300,7 +286,13 @@
     <define name="FAILSAFE_GROUND_DETECT" value="TRUE"/>
     <define name="HYBRID_NAVIGATION" value="TRUE"/>
     <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
-    <define name="ADAPTIVE_INDI" value="FALSE"/>
+    <define name="ADAPTIVE_INDI" value="TRUE"/>
+  </section>
+
+  <section name="SIMULATOR" prefix="NPS_">
+    <define name="ACTUATOR_NAMES"  value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}"/>
+    <define name="JSBSIM_INIT" value="&quot;reset00&quot;"/>
+    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_booz2_a1.h&quot;"/>
   </section>
 
   <modules main_freq="512">
@@ -312,19 +304,12 @@
           <define name="SAFETY_WARNING_LED" value="BODY"/>
     </load>
 
-    <load name="sonar_adc.xml">
-      <configure name="ADC_SONAR" value="ADC_2"/>
-<!--       <define name="USE_SONAR"/> -->
-      <define name="SENSOR_SYNC_SEND_SONAR"/>
-      <define name="SONAR_SCALE" value="0.0032"/>
-    </load>
-
   <!--Use an airspeed sensor and get the measured airspeed in the messages-->
 <!--    <load name="airspeed_ets.xml">
       <define name="AIRSPEED_ETS_SYNC_SEND"/>
     </load>-->
 
-    <module name="logger_spi_link"/>
+<!--     <load name="high_speed_logger_spi_link.xml"/> -->
 
 <!--    <load name="AOA_adc.xml">
       <configure name="ADC_AOA" value="ADC_2"/>
@@ -334,21 +319,21 @@
       <define name="AOA_SENS" value="2.0*M_PI/1024/4"/>
     </load>-->
 
-  <!-- Load this module to use multiple gain sets, which have to be specified in the gain sets section. Does not work with INDI -->
-    <!-- <module name="gain_scheduling"/> -->
+  <!-- Load this module to use multiple gain sets, which have to be specified in the gain sets section -->
+<!--     <load name="gain_scheduling.xml"/> -->
   </modules>
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_m_2.0">
-    <module name="radio_control" type="spektrum">
-      <define name="RADIO_KILL_SWITCH" value="5"/>
+    <subsystem name="radio_control" type="spektrum">
+      <define name="RADIO_KILL_SWITCH" value="6"/>
       <!-- Put the mode on channel AUX1-->
-      <define name="RADIO_MODE" value="6"/>
+<!--      <define name="RADIO_MODE" value="RADIO_AUX1"/>-->
 <!--       <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/> -->
-    </module>
+    </subsystem>
 
     <!-- ONLY if flashing via JTAG cable -->
-    <configure name="FLASH_MODE"   value="SWD"/>
+    <configure name="FLASH_MODE"   value="JTAG"/>
     <configure name="BMP_PORT" value="/dev/ttyACM0" />
 
  <!-- To use an airspeed sensor on I2C, enable I2C2-->
@@ -357,28 +342,26 @@
 
       <!-- If using aspirin 2.2, make sure to uncomment the following barometer configuration: -->
       <!--       <configure name="LISA_M_BARO" value="BARO_MS5611_SPI"/> -->
-      <configure name="LISA_M_BARO" value="BARO_BOARD_BMP085"/>
     </target>
 
-    <module name="motor_mixing"/>
-    <module name="actuators"     type="pwm">
+    <subsystem name="motor_mixing"/>
+    <subsystem name="actuators"     type="pwm">
       <define name="SERVO_HZ" value="400"/>
       <define name="USE_SERVOS_7AND8"/>
-    </module>
+    </subsystem>
 
-    <module name="telemetry"     type="xbee_api"/>
-<!--    <module name="telemetry"     type="transparent"/> -->
-    <module name="imu"           type="aspirin_v2.1"/>
-    <module name="gps"           type="ublox"/>
-<!--     <module name="stabilization" type="int_quat"/> -->
-    <module name="stabilization" type="indi"/>
-    <module name="guidance"      type="hybrid"/>
+    <subsystem name="telemetry"     type="xbee_api"/>
+<!--    <subsystem name="telemetry"     type="transparent"/> -->
+    <subsystem name="imu"           type="aspirin_v2.1"/>
+    <subsystem name="gps"           type="ublox"/>
+<!--     <subsystem name="stabilization" type="int_quat"/> -->
+    <subsystem name="stabilization" type="indi"/>
 
-    <module name="ahrs"          type="int_cmpl_quat">
+    <subsystem name="ahrs"          type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="1"/>
       <define name="AHRS_USE_GPS_HEADING" value="0"/>
-    </module>
+    </subsystem>
 
-    <module name="ins"/>
+    <subsystem name="ins"/>
   </firmware>
 </airframe>

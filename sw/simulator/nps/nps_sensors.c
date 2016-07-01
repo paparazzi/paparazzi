@@ -10,7 +10,7 @@ void nps_sensors_init(double time)
 
   struct DoubleEulers body_to_imu_eulers =
   { NPS_BODY_TO_IMU_PHI, NPS_BODY_TO_IMU_THETA, NPS_BODY_TO_IMU_PSI };
-  DOUBLE_RMAT_OF_EULERS(sensors.body_to_imu_rmat, body_to_imu_eulers);
+  double_rmat_of_eulers(&sensors.body_to_imu_rmat, &body_to_imu_eulers);
 
   nps_sensor_gyro_init(&sensors.gyro, time);
   nps_sensor_accel_init(&sensors.accel, time);

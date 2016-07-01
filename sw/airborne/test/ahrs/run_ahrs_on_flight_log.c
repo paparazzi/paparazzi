@@ -190,7 +190,7 @@ static void store_filter_output(int i)
 #else
   struct FloatEulers eul_f;
   EULERS_FLOAT_OF_BFP(eul_f, ahrs_impl.ltp_to_imu_euler);
-  FLOAT_QUAT_OF_EULERS(output[i].quat_est, eul_f);
+  float_quat_of_eulers(&output[i].quat_est, &eul_f);
   RATES_FLOAT_OF_BFP(output[i].rate_est, ahrs_impl.imu_rate);
 #endif /* OUTPUT_IN_BODY_FRAME */
   RATES_ASSIGN(output[i].bias_est, 0., 0., 0.);

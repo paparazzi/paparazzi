@@ -189,7 +189,7 @@ static inline void init_invariant_state(void)
 static void send_inv_filter(struct transport_tx *trans, struct link_device *dev)
 {
   struct FloatEulers eulers;
-  FLOAT_EULERS_OF_QUAT(eulers, ins_float_inv.state.quat);
+  float_eulers_of_quat(&eulers, &ins_float_inv.state.quat);
   pprz_msg_send_INV_FILTER(trans, dev,
       AC_ID,
       &ins_float_inv.state.quat.qi,
@@ -348,7 +348,7 @@ void ins_float_invariant_propagate(struct FloatRates* gyro, struct FloatVect3* a
   ins_float_inv.state = new_state;
 
   // normalize quaternion
-  FLOAT_QUAT_NORMALIZE(ins_float_inv.state.quat);
+  float_quat_normalize(&ins_float_inv.state.quat);
 
   // set global state
   stateSetNedToBodyQuat_f(&ins_float_inv.state.quat);
