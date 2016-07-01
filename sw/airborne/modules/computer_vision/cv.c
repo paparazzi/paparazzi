@@ -25,9 +25,14 @@
  * Computer vision framework for onboard processing
  */
 
-#include "cv.h"
 #include <stdlib.h> // for malloc
 #include <stdio.h>
+
+#include "cv.h"
+#include "rt_priority.h"
+
+#define ASYNC_THREAD_NICE_LEVEL 5
+
 
 void cv_attach_listener(struct video_config_t *device, struct video_listener *new_listener);
 void cv_async_function(struct cv_async *async, struct image_t *img);
@@ -117,6 +122,8 @@ void *cv_async_thread(void *args) {
   struct video_listener *listener = args;
   struct cv_async *async = listener->async;
   async->thread_running = true;
+
+  set_nice_level(ASYNC_THREAD_NICE_LEVEL);
 
   // Request new image from video thread
   pthread_mutex_lock(&async->img_mutex);
