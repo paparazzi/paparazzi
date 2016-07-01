@@ -40,7 +40,6 @@ struct viewvideo_t {
   uint8_t downsize_factor;        ///< Downsize factor during the stream
   uint8_t quality_factor;         ///< Quality factor during the stream
   bool use_rtp;                 ///< Stream over RTP
-  volatile bool new_image;      // Used for thread control (true = new image available)
 };
 extern struct viewvideo_t viewvideo;
 
