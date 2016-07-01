@@ -37,7 +37,7 @@ bool drawRectangleAroundQRCode = QRCODE_DRAW_RECTANGLE;
 void qrcode_init(void)
 {
   // Add qrscan to the list of image processing tasks in video_thread
-  cv_add_to_device(&QRCODE_CAMERA, qrscan, false);
+  cv_add_to_device(&QRCODE_CAMERA, qrscan);
 }
 
 // Telemetry

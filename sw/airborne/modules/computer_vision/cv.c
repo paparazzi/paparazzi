@@ -31,8 +31,6 @@
 #include "cv.h"
 #include "rt_priority.h"
 
-#define ASYNC_THREAD_NICE_LEVEL 5
-
 
 void cv_attach_listener(struct video_config_t *device, struct video_listener *new_listener);
 void cv_async_function(struct cv_async *async, struct image_t *img);
@@ -44,8 +42,17 @@ inline uint32_t timeval_diff(struct timeval *A, struct timeval *B) {
 }
 
 
-void cv_attach_listener(struct video_config_t *device, struct video_listener *new_listener)
+struct video_listener *cv_add_to_device(struct video_config_t *device, cv_function func)
 {
+  // Create a new video listener
+  struct video_listener *new_listener = malloc(sizeof(struct video_listener));
+
+  // Assign function to listener
+  new_listener->func = func;
+  new_listener->next = NULL;
+  new_listener->async = NULL;
+  new_listener->maximum_fps = 0;
+
   // Initialise the device that we want our function to use
   add_video_device(device);
 
@@ -64,35 +71,29 @@ void cv_attach_listener(struct video_config_t *device, struct video_listener *ne
     // Add listener to end
     listener->next = new_listener;
   }
+
+  return new_listener;
 }
 
 
-struct video_listener *cv_add_to_device(struct video_config_t *device, cv_function func, bool asynchronous) {
-  // Create a new video listener
-  struct video_listener *listener = malloc(sizeof(struct video_listener));
-  listener->next = NULL;
-  listener->async = NULL;
-  listener->func = func;
-  listener->maximum_fps = 0;
+struct video_listener *cv_add_to_device_async(struct video_config_t *device, cv_function func, int nice_level) {
+  // Create a normal listener
+  struct video_listener *listener = cv_add_to_device(device, func);
 
-  if (asynchronous) {
-    listener->async = malloc(sizeof(struct cv_async));
+  // Add asynchronous structure to override default synchronous behavior
+  listener->async = malloc(sizeof(struct cv_async));
+  listener->async->thread_priority = nice_level;
 
-    // Explicitly mark img_copy as uninitialized
-    listener->async->img_copy.buf_size = 0;
+  // Explicitly mark img_copy as uninitialized
+  listener->async->img_copy.buf_size = 0;
 
-    // Initialize mutex and condition variable
-    pthread_mutex_init(&listener->async->img_mutex, NULL);
-    pthread_cond_init(&listener->async->img_available, NULL);
+  // Initialize mutex and condition variable
+  pthread_mutex_init(&listener->async->img_mutex, NULL);
+  pthread_cond_init(&listener->async->img_available, NULL);
 
-    // Create new processing thread
-    pthread_create(&listener->async->thread_id, NULL, cv_async_thread, listener);
-  }
+  // Create new processing thread
+  pthread_create(&listener->async->thread_id, NULL, cv_async_thread, listener);
 
-  // Attach listener to device
-  cv_attach_listener(device, listener);
-
-  // Return async struct
   return listener;
 }
 
@@ -123,7 +124,7 @@ void *cv_async_thread(void *args) {
   struct cv_async *async = listener->async;
   async->thread_running = true;
 
-  set_nice_level(ASYNC_THREAD_NICE_LEVEL);
+  set_nice_level(async->thread_priority);
 
   // Request new image from video thread
   pthread_mutex_lock(&async->img_mutex);
