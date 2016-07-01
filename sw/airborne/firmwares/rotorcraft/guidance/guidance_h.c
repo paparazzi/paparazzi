@@ -702,9 +702,9 @@ bool guidance_h_set_guided_heading(float heading)
 bool guidance_h_set_guided_body_vel(float vx, float vy)
 {
   float psi = stateGetNedToBodyEulers_f()->psi;
-  vx =  cosf(-psi) * vx + sinf(-psi) * vy;
-  vy = -sinf(-psi) * vx + cosf(-psi) * vy;
-  return guidance_h_set_guided_vel(vx, vy);
+  float newvx =  cosf(-psi) * vx + sinf(-psi) * vy;
+  float newvy = -sinf(-psi) * vx + cosf(-psi) * vy;
+  return guidance_h_set_guided_vel(newvx, newvy);
 }
 
 bool guidance_h_set_guided_vel(float vx, float vy)
