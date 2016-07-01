@@ -48,6 +48,7 @@ struct video_listener *cv_add_to_device(struct video_config_t *device, cv_functi
   struct video_listener *new_listener = malloc(sizeof(struct video_listener));
 
   // Assign function to listener
+  new_listener->active = true;
   new_listener->func = func;
   new_listener->next = NULL;
   new_listener->async = NULL;
@@ -57,12 +58,12 @@ struct video_listener *cv_add_to_device(struct video_config_t *device, cv_functi
   add_video_device(device);
 
   // Check if device already has a listener
-  if (device->pointer_to_first_listener == NULL) {
+  if (device->cv_listener == NULL) {
     // Add as first listener
-    device->pointer_to_first_listener = new_listener;
+    device->cv_listener = new_listener;
   } else {
     // Create pointer to first listener
-    struct video_listener *listener = device->pointer_to_first_listener;
+    struct video_listener *listener = device->cv_listener;
 
     // Loop through linked list to last listener
     while (listener->next != NULL)
@@ -153,36 +154,33 @@ void *cv_async_thread(void *args) {
 
 void cv_run_device(struct video_config_t *device, struct image_t *img)
 {
-  // For each function added to a device, run this function with the image that was taken
-  struct video_listener *pointing_to = device->pointer_to_first_listener;
   struct image_t *result;
 
   // Loop through computer vision pipeline
-  while (pointing_to != NULL) {
+  for (struct video_listener *listener = device->cv_listener; listener != NULL; listener = listener->next) {
+    // If the listener is not active, skip it
+    if (!listener->active) {
+      continue;
+    }
+
     // If the desired frame time for this listener is not reached, skip it
-    if (pointing_to->maximum_fps > 0 &&
-            timeval_diff(&pointing_to->ts, &img->ts) < (1000000 / pointing_to->maximum_fps)) {
-      // Move forward in the pipeline
-      pointing_to = pointing_to->next;
+    if (listener->maximum_fps > 0 && timeval_diff(&listener->ts, &img->ts) < (1000000 / listener->maximum_fps)) {
       continue;
     }
 
     // Store timestamp
-    pointing_to->ts = img->ts;
+    listener->ts = img->ts;
 
-    if (pointing_to->async != NULL) {
+    if (listener->async != NULL) {
       // Send image to asynchronous thread
-      cv_async_function(pointing_to->async, img);
+      cv_async_function(listener->async, img);
     } else {
       // Execute the cvFunction and catch result
-      result = pointing_to->func(img);
+      result = listener->func(img);
 
       // If result gives an image pointer, use it in the next stage
       if (result != NULL)
         img = result;
     }
-
-    // Move forward in the pipeline
-    pointing_to = pointing_to->next;
   }
 }

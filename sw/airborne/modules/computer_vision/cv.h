@@ -56,6 +56,7 @@ struct video_listener {
 
     // Can be set by user
     int maximum_fps;
+    volatile bool active;
 };
 
 extern bool add_video_device(struct video_config_t *device);

@@ -48,7 +48,7 @@ struct video_config_t {
   uint8_t buf_cnt;    ///< Amount of V4L2 video device buffers
   uint8_t filters;    ///< filters to use (bitfield with VIDEO_FILTER_x)
   struct video_thread_t thread; ///< Information about the thread this camera is running on
-  void *pointer_to_first_listener; ///< The first listener in the linked list for this video device
+  void *cv_listener; ///< The first computer vision listener in the linked list for this video device
   int fps;
 };
 extern struct video_config_t dummy_camera;
