@@ -1,5 +1,5 @@
 /*
- * Copyright (C) IMAV 2016
+ * Copyright (C) C. De Wagter
  *
  * This file is part of paparazzi
  *
@@ -19,7 +19,7 @@
  */
 /**
  * @file "modules/computer_vision/opencv_IMAV_landingpad.cpp"
- * @author IMAV 2016
+ * @author J. Lee
  * Module for detecting outdoor landing pad in IMAV 2016
  */
 
@@ -35,12 +35,17 @@ using namespace cv;
 struct results landing;
 
 
-struct results opencv_imav_landing(char *img, int width, int height, int v_squares, int mod)
+struct results opencv_imav_landing(char *img, int width, int height, int v_squares, int binary_threshold, int mod)
 {
     Mat M(height, width, CV_8UC2, img);
     Mat image;
+    Mat binim;
     Mat imcopy;
+//    int thresh = 230; //For outdoor landingpad
+//    int thresh = 210; //For indoor helipad
 
+    int z = 4; // z-score for outdoor
+//    int z = 2; // z-score for indoor
 
 
     // Grayscale image
@@ -53,10 +58,11 @@ struct results opencv_imav_landing(char *img, int width, int height, int v_squar
     blur(image, image, Size(5,5));
 
     // convert to binary image
-    threshold(image, image, 0, 255, THRESH_OTSU);
+    threshold(image, binim, binary_threshold, 255, THRESH_BINARY);
+//    adaptiveThreshold(image, binim, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 5, 2);
 
     // Canny edges
-    Canny(image, image, 66, 133);
+    Canny(binim, image, 66, 133);
 
 
     vector<vector<Point> > contours;
@@ -89,8 +95,7 @@ struct results opencv_imav_landing(char *img, int width, int height, int v_squar
                 mc[i] = Point2f( mu[i].m10/mu[i].m00 , mu[i].m01/mu[i].m00 );
                 centroidsx.push_back (mc.at(i).x);
                 centroidsy.push_back (mc.at(i).y);
-//                Scalar color = Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
-//                drawContours(imcopy, approx, i, 255, 1, 8, vector<Vec4i>(), 0, Point() );
+                if (mod) {drawContours( binim, approx, i, 200 , 5, 8, vector<cv::Vec4i>(), 0, cv::Point() ); }
             }
         }
     }
@@ -124,12 +129,13 @@ struct results opencv_imav_landing(char *img, int width, int height, int v_squar
     stdx = sqrt(innerx/detected_squares);
     stdy = sqrt(innery/detected_squares);
 
+
     vector<float> filt_centroidx;
     vector<float> filt_centroidy;
     vector<float> ffilt_centroidx;
     vector<float> ffilt_centroidy;
 
-    int z = 4;
+
 
     for(int i = 0; (unsigned)i < centroidsx.size(); i++)
     {
@@ -153,11 +159,12 @@ struct results opencv_imav_landing(char *img, int width, int height, int v_squar
     }
 
 
-    float xsum = 0;
-    float ysum = 0;
+    int xsum = 0;
+    int ysum = 0;
     int xbar = 0;
     int ybar = 0;
 
+    // mean method
 
     for(int i = 0; (unsigned)i < ffilt_centroidx.size(); i++)
     {
@@ -174,7 +181,7 @@ struct results opencv_imav_landing(char *img, int width, int height, int v_squar
         ybar = (ysum / n_filtcentroids);
         landing.maxx = xbar;
         landing.maxy = ybar;
-        if (mod) { circle(imcopy, Point(xbar,ybar), 20, 200, 10); }
+        if (mod) { circle(binim, Point(xbar,ybar), 20, 200, 10); }
     } else
     {
         landing.MARKER = 0;
@@ -182,7 +189,7 @@ struct results opencv_imav_landing(char *img, int width, int height, int v_squar
         landing.maxy   = 0;
     }
 
-    grayscale_opencv_to_yuv422(imcopy, img, width, height);
+    grayscale_opencv_to_yuv422(binim, img, width, height);
 
     return landing;
 }
