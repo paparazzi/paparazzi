@@ -27,6 +27,7 @@
 #define COLORFILTER_CV_PLUGIN_H
 
 #include <stdint.h>
+#include "modules/computer_vision/cv.h"
 
 // Module functions
 extern void colorfilter_init(void);
@@ -41,5 +42,7 @@ extern uint8_t color_cr_min;
 extern uint8_t color_cr_max;
 
 extern int color_count;
+
+extern struct video_listener *listener;
 
 #endif /* COLORFILTER_CV_PLUGIN_H */

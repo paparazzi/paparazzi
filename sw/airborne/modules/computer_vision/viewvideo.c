@@ -77,6 +77,18 @@ PRINT_CONFIG_VAR(VIEWVIDEO_RTP_TIME_INC)
 #endif
 PRINT_CONFIG_VAR(VIEWVIDEO_SHOT_PATH)
 
+// Define stream framerate
+#ifndef VIEWVIDEO_FPS
+#define VIEWVIDEO_FPS 10
+#endif
+PRINT_CONFIG_VAR(VIEWVIDEO_FPS)
+
+// Define stream priority
+#ifndef VIEWVIDEO_NICE_LEVEL
+#define VIEWVIDEO_NICE_LEVEL 5
+#endif
+PRINT_CONFIG_VAR(VIEWVIDEO_FPS)
+
 // Check if we are using netcat instead of RTP/UDP
 #ifndef VIEWVIDEO_USE_NETCAT
 #define VIEWVIDEO_USE_NETCAT FALSE
@@ -202,7 +214,8 @@ void viewvideo_init(void)
 {
   char save_name[512];
 
-  cv_add_to_device(&VIEWVIDEO_CAMERA, viewvideo_function);
+  struct video_listener *listener = cv_add_to_device_async(&VIEWVIDEO_CAMERA, viewvideo_function, VIEWVIDEO_NICE_LEVEL);
+  listener->maximum_fps = VIEWVIDEO_FPS;
 
   viewvideo.is_streaming = true;
 
