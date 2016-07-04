@@ -38,6 +38,7 @@
 #include <stdio.h>
 #include <time.h>
 
+// This parameter determines the number of iterations requires to start descending
 #define MEMORY 25
 
 // Run the module
