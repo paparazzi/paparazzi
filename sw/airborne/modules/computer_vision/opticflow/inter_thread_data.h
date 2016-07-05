@@ -29,6 +29,8 @@
 #ifndef _INTER_THREAD_DATA_H
 #define _INTER_THREAD_DATA_H
 
+#include "math/pprz_algebra_float.h"
+
 /* The result calculated from the opticflow */
 struct opticflow_result_t {
   float fps;              ///< Frames per second of the optical flow calculation
@@ -56,9 +58,8 @@ struct opticflow_result_t {
 
 /* The state of the drone when it took an image */
 struct opticflow_state_t {
-  float phi;      ///< roll [rad]
-  float theta;    ///< pitch [rad]
-  float agl;      ///< height above ground [m]
+  struct FloatRates rates;   ///< Body rates
+  float agl;                 ///< height above ground [m]
 };
 
 #endif

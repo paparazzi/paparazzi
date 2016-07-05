@@ -41,8 +41,20 @@
 #endif
 
 struct video_config_t front_camera = {
-  .w = 1280,
-  .h = 720,
+  .output_size = {
+    .w = 1280,
+    .h = 720
+  },
+  .sensor_size = {
+    .w = 1280,
+    .h = 720
+  },
+  .crop = {
+    .x = 0,
+    .y = 0,
+    .w = 1280,
+    .h = 720
+  },
   .dev_name = "/dev/video1",
   .subdev_name = NULL,
   .format = V4L2_PIX_FMT_UYVY,
@@ -54,8 +66,20 @@ struct video_config_t front_camera = {
 
 
 struct video_config_t bottom_camera = {
-  .w = 320,
-  .h = 240,
+  .output_size = {
+    .w = 320,
+    .h = 240
+  },
+  .sensor_size = {
+    .w = 320,
+    .h = 240
+  },
+  .crop = {
+    .x = 0,
+    .y = 0,
+    .w = 320,
+    .h = 240
+  },
   .dev_name = "/dev/video2",
   .subdev_name = NULL,
   .format = V4L2_PIX_FMT_UYVY,

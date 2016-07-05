@@ -25,13 +25,20 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #include "modules/computer_vision/video_capture.h"
 #include "modules/computer_vision/cv.h"
 
 #include "lib/encoding/jpeg.h"
 
+#ifndef VIDEO_CAPTURE_PATH
+#define VIDEO_CAPTURE_PATH /data/video/images
+#endif
+
+#ifndef VIDEO_CAPTURE_JPEG_QUALITY
 #define VIDEO_CAPTURE_JPEG_QUALITY 99
+#endif
 
 // Module settings
 bool video_capture_take_shot = false;
@@ -44,6 +51,14 @@ void video_capture_save(struct image_t *img);
 
 void video_capture_init(void)
 {
+  // Create the images directory
+  char save_name[128];
+  sprintf(save_name, "mkdir -p %s", STRINGIFY(VIDEO_CAPTURE_PATH));
+  if (system(save_name) != 0) {
+    printf("[video_capture] Could not create images directory %s.\n", STRINGIFY(VIDEO_CAPTURE_PATH));
+    return;
+  }
+
   // Add function to computer vision pipeline
   cv_add_to_device(&VIDEO_CAPTURE_CAMERA, video_capture_func);
 }

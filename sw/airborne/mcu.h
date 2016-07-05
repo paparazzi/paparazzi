@@ -50,9 +50,14 @@ extern void mcu_init(void);
 extern void mcu_event(void);
 
 /**
- * Optional board init function called at the end of mcu_init().
+ * Optional board init function called at the start of mcu_init().
  */
 extern void board_init(void);
+
+/**
+ * Optional board init function called at the end of mcu_init().
+ */
+extern void board_init2(void);
 
 /** @}*/
 

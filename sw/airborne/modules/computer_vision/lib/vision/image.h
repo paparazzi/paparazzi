@@ -64,6 +64,20 @@ struct flow_t {
   int16_t flow_y;             ///< The y direction flow in subpixels
 };
 
+/* Image size structure */
+struct img_size_t {
+  uint16_t w;     ///< The width
+  uint16_t h;     ///< The height
+};
+
+/* Image crop structure */
+struct crop_t {
+  uint16_t x;    ///< Start position x (horizontal)
+  uint16_t y;    ///< Start position y (vertical)
+  uint16_t w;    ///< Width of the cropped area
+  uint16_t h;    ///< height of the cropped area
+};
+
 /* Usefull image functions */
 void image_add_border(struct image_t *input, struct image_t *output, uint8_t border_size);
 void image_create(struct image_t *img, uint16_t width, uint16_t height, enum image_type type);

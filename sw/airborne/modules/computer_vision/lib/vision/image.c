@@ -83,7 +83,7 @@ void image_copy(struct image_t *input, struct image_t *output)
   output->w = input->w;
   output->h = input->h;
   output->buf_size = input->buf_size;
-  memcpy(&output->ts, &input->ts, sizeof(struct timeval));
+  output->ts = input->ts;
   memcpy(output->buf, input->buf, input->buf_size);
 }
 
@@ -120,7 +120,7 @@ void image_to_grayscale(struct image_t *input, struct image_t *output)
   source++;
 
   // Copy the creation timestamp (stays the same)
-  memcpy(&output->ts, &input->ts, sizeof(struct timeval));
+  output->ts = input->ts;
 
   // Copy the pixels
   for (int y = 0; y < output->h; y++) {
@@ -154,7 +154,7 @@ uint16_t image_yuv422_colorfilt(struct image_t *input, struct image_t *output, u
   uint8_t *dest = output->buf;
 
   // Copy the creation timestamp (stays the same)
-  memcpy(&output->ts, &input->ts, sizeof(struct timeval));
+  output->ts = input->ts;
 
   // Go trough all the pixels
   for (uint16_t y = 0; y < output->h; y++) {
@@ -217,7 +217,7 @@ void image_yuv422_downsample(struct image_t *input, struct image_t *output, uint
   uint16_t pixelskip = (downsample - 1) * 2;
 
   // Copy the creation timestamp (stays the same)
-  memcpy(&output->ts, &input->ts, sizeof(struct timeval));
+  output->ts = input->ts;
 
   // Go trough all the pixels
   for (uint16_t y = 0; y < output->h; y++) {

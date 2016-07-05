@@ -226,6 +226,7 @@ struct Int64Vect3 {
 
 
 extern uint32_t int32_sqrt(uint32_t in);
+extern uint32_t int32_gcd(uint32_t a, uint32_t b);
 #define INT32_SQRT(_out,_in) WARNING("INT32_SQRT macro is deprecated, use the lower case function instead") { _out = int32_sqrt(_in); }
 
 

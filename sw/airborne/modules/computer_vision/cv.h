@@ -55,7 +55,7 @@ struct video_listener {
     cv_function func;
 
     // Can be set by user
-    int maximum_fps;
+    uint16_t maximum_fps;
     volatile bool active;
 };
 

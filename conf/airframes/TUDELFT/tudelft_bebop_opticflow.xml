@@ -29,22 +29,32 @@
     <module name="geo_mag"/>
     <module name="air_data"/>
     <module name="send_imu_mag_current"/>
-
     <module name="sonar_bebop"/> <!-- Needed for relative height est for velocity calc from opt flow-->
-
+    <module name="pose_history"/>
     <module name="video_thread"/>
 
     <module name="cv_opticflow">
       <define name="OPTICFLOW_CAMERA" value="bottom_camera"/>
-	  <define name="MAX_HORIZON" value="2"/>
+      <define name="MAX_HORIZON" value="2"/>
       <define name="CAMERA_ROTATED_180" value="1"/>
-      <define name="OPTICFLOW_DEROTATION" value="0"/>
+      <!--define name="OPTICFLOW_DEROTATION" value="0"/-->
+      <define name="OPTICFLOW_FX" value="347.22222222"/> <!-- 2.5 / (3.6 * 2.0) * 1000 -->
+      <define name="OPTICFLOW_FY" value="347.22222222"/> <!-- 2.5 / (3.6 * 2.0) * 1000 -->
+      <define name="OPTICFLOW_FOV_W" value="0.665499265"/> <!-- 2 * arctan(240 / (2*347.22222222)) -->
+      <define name="OPTICFLOW_FOV_H" value="0.665499265"/> <!-- 2 * arctan(240 / (2*347.22222222)) -->
     </module>
 
     <module name="video_capture">
       <define name="VIDEO_CAPTURE_CAMERA" value="bottom_camera"/>
       <define name="VIDEO_CAPTURE_PATH" value="/data/ftp/internal_000/images"/>
     </module>
+
+    <!--module name="video_rtp_stream">
+      <define name="VIEWVIDEO_CAMERA" value="bottom_camera"/>
+      <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
+      <define name="VIEWVIDEO_QUALITY_FACTOR" value="60"/>
+    </module-->
+
 
   </modules>
 
