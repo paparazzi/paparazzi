@@ -59,7 +59,7 @@ struct video_config_t bottom_camera = {
   .subdev_format = V4L2_MBUS_FMT_UYVY8_2X8,
   .buf_cnt = 5,
   .filters = 0,
-  .pointer_to_first_listener = NULL,
+  .cv_listener = NULL,
   .fps = 0
 };
 

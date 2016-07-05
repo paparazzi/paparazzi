@@ -62,7 +62,7 @@ struct video_config_t front_camera = {
   .subdev_format = V4L2_MBUS_FMT_SGRBG10_1X10,
   .buf_cnt = 3,
   .filters = VIDEO_FILTER_ISP,
-  .pointer_to_first_listener = NULL,
+  .cv_listener = NULL,
   .fps = 5
 };
 

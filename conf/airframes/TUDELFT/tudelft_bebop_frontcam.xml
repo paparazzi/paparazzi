@@ -32,14 +32,13 @@
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
     </module-->
 
-    <module name="video_thread">
-    </module>
+    <module name="video_thread"/>
 
     <module name="video_capture">
       <define name="VIDEO_CAPTURE_CAMERA" value="front_camera"/>
       <define name="VIDEO_CAPTURE_PATH" value="/data/ftp/internal_000/images"/>
     </module>
-    
+
     <module name="video_rtp_stream">
       <define name="VIEWVIDEO_CAMERA" value="front_camera"/>
       <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="8"/>

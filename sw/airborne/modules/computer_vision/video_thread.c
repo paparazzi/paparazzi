@@ -260,14 +260,6 @@ void video_thread_init(void)
   for (int indexCameras = 0; indexCameras < VIDEO_THREAD_MAX_CAMERAS; indexCameras++) {
     cameras[indexCameras] = NULL;
   }
-  // Create the shot directory
-  char save_name[128];
-  sprintf(save_name, "mkdir -p %s", STRINGIFY(VIDEO_THREAD_SHOT_PATH));
-  if (system(save_name) != 0) {
-    printf("[video_thread] Could not create shot directory %s.\n", STRINGIFY(VIDEO_THREAD_SHOT_PATH));
-    return;
-  }
-
 }
 
 /**
