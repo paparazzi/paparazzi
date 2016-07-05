@@ -65,7 +65,7 @@ struct flow_t {
 };
 
 /* Image size structure */
-struct size_t {
+struct img_size_t {
   uint16_t w;     ///< The width
   uint16_t h;     ///< The height
 };

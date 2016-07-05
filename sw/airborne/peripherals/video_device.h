@@ -42,8 +42,8 @@ struct video_thread_t {
 
 /** V4L2 device settings */
 struct video_config_t {
-  struct size_t output_size;    ///< Output image size
-  struct size_t sensor_size;    ///< Original sensor size
+  struct img_size_t output_size;    ///< Output image size
+  struct img_size_t sensor_size;    ///< Original sensor size
   struct crop_t crop;           ///< Cropped area definition
   char *dev_name;           ///< path to device
   char *subdev_name;        ///< path to sub device

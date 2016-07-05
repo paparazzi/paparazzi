@@ -133,7 +133,7 @@ static void *v4l2_capture_thread(void *data)
  * @param[in] width,height The width and height of the images
  * @return Whether the subdevice was successfully initialized
  */
-bool v4l2_init_subdev(char *subdev_name, uint8_t pad, uint16_t code, struct size_t size)
+bool v4l2_init_subdev(char *subdev_name, uint8_t pad, uint16_t code, struct img_size_t size)
 {
   struct v4l2_subdev_format sfmt;
   CLEAR(sfmt);
@@ -180,7 +180,7 @@ bool v4l2_init_subdev(char *subdev_name, uint8_t pad, uint16_t code, struct size
  * @param[in] buffers_cnt The amount of buffers used for mapping
  * @return The newly create V4L2 device
  */
-struct v4l2_device *v4l2_init(char *device_name, struct size_t size, struct crop_t crop, uint8_t buffers_cnt,
+struct v4l2_device *v4l2_init(char *device_name, struct img_size_t size, struct crop_t crop, uint8_t buffers_cnt,
                               uint32_t _pixelformat)
 {
   uint8_t i;
