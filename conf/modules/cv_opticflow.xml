@@ -69,7 +69,7 @@
     </dl_settings>
   </settings>
 
-  <depends>video_thread</depends>
+  <depends>video_thread,pose_history</depends>
 
   <header>
     <file name="opticflow_module.h"/>
