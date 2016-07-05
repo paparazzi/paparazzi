@@ -37,7 +37,7 @@ void cv_async_function(struct cv_async *async, struct image_t *img);
 void *cv_async_thread(void *args);
 
 
-inline uint32_t timeval_diff(struct timeval *A, struct timeval *B) {
+static inline uint32_t timeval_diff(struct timeval *A, struct timeval *B) {
   return (B->tv_sec - A->tv_sec) * 1000000 + (B->tv_usec - A->tv_usec);
 }
 

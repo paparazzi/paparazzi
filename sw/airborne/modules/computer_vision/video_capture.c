@@ -25,6 +25,7 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #include "modules/computer_vision/video_capture.h"
 #include "modules/computer_vision/cv.h"
