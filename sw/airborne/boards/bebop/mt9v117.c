@@ -351,15 +351,19 @@ static inline void mt9v117_config(struct mt9v117_t *mt) {
 void mt9v117_init(struct mt9v117_t *mt)
 {
   /* Reset the device */
-  //PWM PIN 129 /sys/class/gpio/gpio129/value
+  int gpio129 = open("/sys/class/gpio/gpio129/value", O_WRONLY | O_CREAT | O_TRUNC, 0666);
+  write(gpio129, "0", 1);
+  write(gpio129, "1", 1);
+  close(gpio129);
 
   /* Start PWM 9 (Which probably is the clock of the MT9V117) */
-  //#define BEBOP_CAMV_PWM  9
   //#define BEBOP_CAMV_PWM_FREQ 43333333
   int pwm9 = open("/sys/class/pwm/pwm_9/run", O_WRONLY | O_CREAT | O_TRUNC, 0666);
   write(pwm9, "0", 1);
   write(pwm9, "1", 1);
   close(pwm9);
+
+  //TODO: Make PWM and GPIO generic
 
   /* Wait 50ms */
   usleep(50000);
