@@ -1168,7 +1168,7 @@ void stateCalcHorizontalWindspeed_f(void)
 
   if (bit_is_set(state.wind_air_status, WINDSPEED_I)) {
     state.windspeed_f.vect2.x = SPEED_FLOAT_OF_BFP(state.windspeed_i.vect2.x);
-    state.windspeed_f.vect2.x = SPEED_FLOAT_OF_BFP(state.windspeed_i.vect2.y);
+    state.windspeed_f.vect2.y = SPEED_FLOAT_OF_BFP(state.windspeed_i.vect2.y);
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.wind_air_status, WINDSPEED_F);
