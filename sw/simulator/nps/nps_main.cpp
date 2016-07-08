@@ -24,10 +24,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
-#include <glib.h>
+//#include <glib.h>
 #include <sys/time.h>
 #include <getopt.h>
 
+extern "C" {
 #include "nps_main.h"
 #include "nps_fdm.h"
 #include "nps_sensors.h"
@@ -36,10 +37,14 @@
 #include "nps_ivy.h"
 #include "nps_flightgear.h"
 #include "mcu_periph/sys_time.h"
+}
 #define SIM_DT     (1./SYS_TIME_FREQUENCY)
 #define DISPLAY_DT (1./30.)
 #define HOST_TIMEOUT_MS 40
 
+#include <chrono>
+#include <thread>
+#include <iostream>
 
 static struct {
   double real_initial_time;
@@ -62,31 +67,37 @@ static bool nps_main_parse_options(int argc, char **argv);
 static void nps_main_init(void);
 static void nps_main_display(void);
 static void nps_main_run_sim_step(void);
-static gboolean nps_main_periodic(gpointer data __attribute__((unused)));
+static bool nps_main_periodic(void);
 
 int pauseSignal = 0;
 
-void tstp_hdl(int n __attribute__((unused)))
-{
-  if (pauseSignal) {
-    pauseSignal = 0;
-    signal(SIGTSTP, SIG_DFL);
-    raise(SIGTSTP);
-  } else {
-    pauseSignal = 1;
-  }
-}
+std::chrono::milliseconds ms(HOST_TIMEOUT_MS);
 
-void cont_hdl(int n __attribute__((unused)))
-{
-  signal(SIGCONT, cont_hdl);
-  signal(SIGTSTP, tstp_hdl);
-  printf("Press <enter> to continue.\n");
-}
 
 double time_to_double(struct timeval *t)
 {
   return ((double)t->tv_sec + (double)(t->tv_usec * 1e-6));
+}
+
+void run_behavior(void) {
+  std::chrono::high_resolution_clock::time_point start;
+  std::chrono::high_resolution_clock::time_point stop;
+  std::chrono::duration<int32_t, std::nano> sleep_time;
+  while(true)
+  {
+    start = std::chrono::high_resolution_clock::now();
+    nps_main_periodic();
+    stop = std::chrono::high_resolution_clock::now();
+    sleep_time = ms - (stop - start);
+    if(sleep_time > std::chrono::duration<int32_t,std::nano>(0))
+    {
+      std::this_thread::sleep_for(sleep_time);
+    }
+    else
+    {
+      std::cout << "We took too long\n";
+    }
+  }
 }
 
 int main(int argc, char **argv)
@@ -103,13 +114,9 @@ int main(int argc, char **argv)
 
   nps_main_init();
 
-  signal(SIGCONT, cont_hdl);
-  signal(SIGTSTP, tstp_hdl);
-  printf("Time factor is %f. (Press Ctrl-Z to change)\n", nps_main.host_time_factor);
+  std::thread t_nps(run_behavior);
+  t_nps.join();
 
-  GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
-  g_timeout_add(HOST_TIMEOUT_MS, nps_main_periodic, NULL);
-  g_main_loop_run(ml);
 
   return 0;
 }
@@ -217,7 +224,7 @@ void nps_set_time_factor(float time_factor)
 }
 
 
-static gboolean nps_main_periodic(gpointer data __attribute__((unused)))
+static bool nps_main_periodic(void)
 {
   struct timeval tv_now;
   double  host_time_now;

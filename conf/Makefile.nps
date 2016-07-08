@@ -46,7 +46,7 @@ CXXFLAGS  = -W -Wall
 CXXFLAGS += $(INCLUDES)
 CXXFLAGS += $($(TARGET).CFLAGS)
 CXXFLAGS += $(USER_CFLAGS) $(BOARD_CFLAGS)
-CXXFLAGS += -O$(OPT)
+CXXFLAGS += -O$(OPT) --std=c++11
 CXXFLAGS += $(DEBUG_FLAGS)
 CXXFLAGS += $(shell pkg-config --cflags-only-I ivy-glib)
 

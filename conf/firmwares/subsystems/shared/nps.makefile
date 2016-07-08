@@ -25,7 +25,7 @@ nps.LDFLAGS += $(shell sdl-config --libs)
 VPATH += $(PAPARAZZI_SRC)/sw/simulator
 
 NPSDIR = nps
-nps.srcs += $(NPSDIR)/nps_main.c                 \
+nps.srcs += $(NPSDIR)/nps_main.cpp                 \
        $(NPSDIR)/nps_random.c                    \
        $(NPSDIR)/nps_sensors.c                   \
        $(NPSDIR)/nps_sensors_utils.c             \
