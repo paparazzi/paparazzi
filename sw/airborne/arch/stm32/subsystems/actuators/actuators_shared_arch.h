@@ -77,5 +77,7 @@
 
 extern void actuators_pwm_arch_channel_init(uint32_t timer_peripheral, enum tim_oc_id oc_id);
 extern void set_servo_timer(uint32_t timer, uint32_t period, uint8_t channels_mask);
+extern void kill_servos(uint32_t timer, uint32_t oc);
+extern void set_servo(uint32_t timer, uint32_t oc, uint32_t servo_value);
 
 #endif /* ACTUATORS_PWM_SHARED_ARCH_H */

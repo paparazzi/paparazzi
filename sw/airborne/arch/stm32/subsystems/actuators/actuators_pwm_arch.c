@@ -28,6 +28,7 @@
 #include "subsystems/actuators/actuators_shared_arch.h"
 #include "subsystems/actuators/actuators_pwm_arch.h"
 #include "subsystems/actuators/actuators_pwm.h"
+#include "autopilot.h"
 
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/rcc.h>
@@ -149,41 +150,82 @@ void actuators_pwm_arch_init(void)
  */
 void actuators_pwm_commit(void)
 {
+#ifdef AP_MODE_KILL
+  if(autopilot_mode == AP_MODE_KILL) {
 #ifdef PWM_SERVO_0
-  timer_set_oc_value(PWM_SERVO_0_TIMER, PWM_SERVO_0_OC, actuators_pwm_values[PWM_SERVO_0]);
+  kill_servos(PWM_SERVO_0_TIMER, PWM_SERVO_0_OC);
 #endif
 #ifdef PWM_SERVO_1
-  timer_set_oc_value(PWM_SERVO_1_TIMER, PWM_SERVO_1_OC, actuators_pwm_values[PWM_SERVO_1]);
+  kill_servos(PWM_SERVO_1_TIMER, PWM_SERVO_1_OC);
 #endif
 #ifdef PWM_SERVO_2
-  timer_set_oc_value(PWM_SERVO_2_TIMER, PWM_SERVO_2_OC, actuators_pwm_values[PWM_SERVO_2]);
+  kill_servos(PWM_SERVO_2_TIMER, PWM_SERVO_2_OC);
 #endif
 #ifdef PWM_SERVO_3
-  timer_set_oc_value(PWM_SERVO_3_TIMER, PWM_SERVO_3_OC, actuators_pwm_values[PWM_SERVO_3]);
+  kill_servos(PWM_SERVO_3_TIMER, PWM_SERVO_3_OC);
 #endif
 #ifdef PWM_SERVO_4
-  timer_set_oc_value(PWM_SERVO_4_TIMER, PWM_SERVO_4_OC, actuators_pwm_values[PWM_SERVO_4]);
+  kill_servos(PWM_SERVO_4_TIMER, PWM_SERVO_4_OC);
 #endif
 #ifdef PWM_SERVO_5
-  timer_set_oc_value(PWM_SERVO_5_TIMER, PWM_SERVO_5_OC, actuators_pwm_values[PWM_SERVO_5]);
+  kill_servos(PWM_SERVO_5_TIMER, PWM_SERVO_5_OC);
 #endif
 #ifdef PWM_SERVO_6
-  timer_set_oc_value(PWM_SERVO_6_TIMER, PWM_SERVO_6_OC, actuators_pwm_values[PWM_SERVO_6]);
+  kill_servos(PWM_SERVO_6_TIMER, PWM_SERVO_6_OC);
 #endif
 #ifdef PWM_SERVO_7
-  timer_set_oc_value(PWM_SERVO_7_TIMER, PWM_SERVO_7_OC, actuators_pwm_values[PWM_SERVO_7]);
+  kill_servos(PWM_SERVO_7_TIMER, PWM_SERVO_7_OC);
 #endif
 #ifdef PWM_SERVO_8
-  timer_set_oc_value(PWM_SERVO_8_TIMER, PWM_SERVO_8_OC, actuators_pwm_values[PWM_SERVO_8]);
+  kill_servos(PWM_SERVO_8_TIMER, PWM_SERVO_8_OC);
 #endif
 #ifdef PWM_SERVO_9
-  timer_set_oc_value(PWM_SERVO_9_TIMER, PWM_SERVO_9_OC, actuators_pwm_values[PWM_SERVO_9]);
+  kill_servos(PWM_SERVO_9_TIMER, PWM_SERVO_9_OC);
 #endif
 #ifdef PWM_SERVO_10
-  timer_set_oc_value(PWM_SERVO_10_TIMER, PWM_SERVO_10_OC, actuators_pwm_values[PWM_SERVO_10]);
+  kill_servos(PWM_SERVO_10_TIMER, PWM_SERVO_10_OC);
 #endif
 #ifdef PWM_SERVO_11
-  timer_set_oc_value(PWM_SERVO_11_TIMER, PWM_SERVO_11_OC, actuators_pwm_values[PWM_SERVO_11]);
+  kill_servos(PWM_SERVO_11_TIMER, PWM_SERVO_11_OC);
 #endif
-
+  } else
+#endif
+  {
+#ifdef PWM_SERVO_0
+  set_servo(PWM_SERVO_0_TIMER, PWM_SERVO_0_OC, actuators_pwm_values[PWM_SERVO_0]);
+#endif
+#ifdef PWM_SERVO_1
+  set_servo(PWM_SERVO_1_TIMER, PWM_SERVO_1_OC, actuators_pwm_values[PWM_SERVO_1]);
+#endif
+#ifdef PWM_SERVO_2
+  set_servo(PWM_SERVO_2_TIMER, PWM_SERVO_2_OC, actuators_pwm_values[PWM_SERVO_2]);
+#endif
+#ifdef PWM_SERVO_3
+  set_servo(PWM_SERVO_3_TIMER, PWM_SERVO_3_OC, actuators_pwm_values[PWM_SERVO_3]);
+#endif
+#ifdef PWM_SERVO_4
+  set_servo(PWM_SERVO_4_TIMER, PWM_SERVO_4_OC, actuators_pwm_values[PWM_SERVO_4]);
+#endif
+#ifdef PWM_SERVO_5
+  set_servo(PWM_SERVO_5_TIMER, PWM_SERVO_5_OC, actuators_pwm_values[PWM_SERVO_5]);
+#endif
+#ifdef PWM_SERVO_6
+  set_servo(PWM_SERVO_6_TIMER, PWM_SERVO_6_OC, actuators_pwm_values[PWM_SERVO_6]);
+#endif
+#ifdef PWM_SERVO_7
+  set_servo(PWM_SERVO_7_TIMER, PWM_SERVO_7_OC, actuators_pwm_values[PWM_SERVO_7]);
+#endif
+#ifdef PWM_SERVO_8
+  set_servo(PWM_SERVO_8_TIMER, PWM_SERVO_8_OC, actuators_pwm_values[PWM_SERVO_8]);
+#endif
+#ifdef PWM_SERVO_9
+  set_servo(PWM_SERVO_9_TIMER, PWM_SERVO_9_OC, actuators_pwm_values[PWM_SERVO_9]);
+#endif
+#ifdef PWM_SERVO_10
+  set_servo(PWM_SERVO_10_TIMER, PWM_SERVO_10_OC, actuators_pwm_values[PWM_SERVO_10]);
+#endif
+#ifdef PWM_SERVO_11
+  set_servo(PWM_SERVO_11_TIMER, PWM_SERVO_11_OC, actuators_pwm_values[PWM_SERVO_11]);
+#endif
+  }
 }
