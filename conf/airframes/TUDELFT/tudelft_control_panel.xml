@@ -58,7 +58,32 @@
   </section>
 
   <section name="sessions">
+    <session name="helidd">
+      <program name="BluegigaUsbDongle">
+        <arg flag="/dev/ttyACM0" constant="00:07:80:2d:d6:d9"/>
+        <arg flag="4242" constant="4252"/>
+      </program>
+      <program name="Data Link">
+        <arg flag="-udp"/>
+        <arg flag="-udp_port" constant="4242"/>
+        <arg flag="-udp_uplink_port" constant="4252"/>
+      </program>
+      <program name="Server"/>
+      <program name="Messages"/>
+      <program name="GCS">
+        <arg flag="-speech"/>
+      </program>
+      <program name="Joystick">
+        <arg flag="-d" constant="2"/>
+        <arg flag="-ac" constant="GeniusDD"/>
+        <arg flag="hobbyking.xml"/>
+      </program>
+    </session>
     <session name="Bluegiga">
+      <program name="BluegigaUsbDongle">
+        <arg flag="/dev/ttyACM2" constant="all"/>
+        <arg flag="4242" constant="4252"/>
+      </program>
       <program name="Data Link">
         <arg flag="-udp"/>
         <arg flag="-udp_port" constant="4242"/>

@@ -132,6 +132,17 @@
    gui_color="#c99fb4caebdd"
   />
   <aircraft
+   name="GeniusDDBart"
+   ac_id="130"
+   airframe="airframes/TUDELFT/Bart_heliDD_pid.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/stabilization_att_int.xml settings/control/rotorcraft_guidance.xml"
+   settings_modules="modules/gps.xml modules/air_data.xml modules/gps_ubx_ucenter.xml"
+   gui_color="#c99fb4caebdd"
+  />
+  <aircraft
    name="Heli450"
    ac_id="99"
    airframe="airframes/TUDELFT/tudelft_heli450.xml"
