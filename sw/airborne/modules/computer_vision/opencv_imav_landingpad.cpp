@@ -41,11 +41,11 @@ struct results opencv_imav_landing(char *img, int width, int height, int v_squar
     Mat image;
     Mat binim;
     Mat imcopy;
-//    int thresh = 230; //For outdoor landingpad
+//    int thresh = 230; //For outdoor landing pad
 //    int thresh = 210; //For indoor helipad
 
-    int z = 4; // z-score for outdoor
-//    int z = 2; // z-score for indoor
+    int z = 4; // z-score for outdoor, this needs to be tuned!
+//    int z = 2; // z-score for indoor, this needs to be tuned!
 
 
     // Grayscale image
@@ -59,7 +59,6 @@ struct results opencv_imav_landing(char *img, int width, int height, int v_squar
 
     // convert to binary image
     threshold(image, binim, binary_threshold, 255, THRESH_BINARY);
-//    adaptiveThreshold(image, binim, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 5, 2);
 
     // Canny edges
     Canny(binim, image, 66, 133);
@@ -79,7 +78,7 @@ struct results opencv_imav_landing(char *img, int width, int height, int v_squar
     vector<float> centroidsx;
     vector<float> centroidsy;
 
-
+    // For contours that are above a certain size, check if it has four sides(square), then obtain centroids
     for( int i = 0; (unsigned)i < contours.size(); i++ )
     {
         double Area = contourArea(contours[i]);
@@ -100,12 +99,12 @@ struct results opencv_imav_landing(char *img, int width, int height, int v_squar
         }
     }
 
-
     float sumx = 0;
     float sumy = 0;
     float avgx = 0;
     float avgy = 0;
 
+    // Find average position of detected centroids
     for(int i = 0; (unsigned)i < centroidsx.size(); i++)
     {
         sumx += centroidsx[i];
@@ -120,10 +119,11 @@ struct results opencv_imav_landing(char *img, int width, int height, int v_squar
     float stdx = 0;
     float stdy = 0;
 
+    // Find standard deviation of detected centroids
     for(int i = 0; (unsigned)i < centroidsx.size(); i++)
     {
-        innerx = pow((centroidsx[i] - avgx),2);
-        innery = pow((centroidsy[i] - avgy),2);
+        innerx += pow((centroidsx[i] - avgx),2);
+        innery += pow((centroidsy[i] - avgy),2);
     }
 
     stdx = sqrt(innerx/detected_squares);
@@ -135,8 +135,7 @@ struct results opencv_imav_landing(char *img, int width, int height, int v_squar
     vector<float> ffilt_centroidx;
     vector<float> ffilt_centroidy;
 
-
-
+    // Filter out outlier centroids using z-score
     for(int i = 0; (unsigned)i < centroidsx.size(); i++)
     {
         if (abs((centroidsx[i]-avgx)/stdx) <= z)
@@ -164,8 +163,7 @@ struct results opencv_imav_landing(char *img, int width, int height, int v_squar
     int xbar = 0;
     int ybar = 0;
 
-    // mean method
-
+    // Find the mean of filtered centroids and assume it to be the center of the marker
     for(int i = 0; (unsigned)i < ffilt_centroidx.size(); i++)
     {
         xsum += ffilt_centroidx[i];
@@ -173,7 +171,7 @@ struct results opencv_imav_landing(char *img, int width, int height, int v_squar
     }
 
 
-
+    // If the number of filtered centroids are larger than the predetermined counter, landing pad detected
     if (n_filtcentroids >= v_squares)
     {
         landing.MARKER = 1;
