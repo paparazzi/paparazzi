@@ -175,7 +175,7 @@ static void compute_ground_speed(float airspeed,
   }
 }
 
-/*�Adjusting a circle around CA, tangent in A, to end at snav_desired_tow */
+/* Adjusting a circle around CA, tangent in A, to end at snav_desired_tow */
 bool snav_on_time(float nominal_radius)
 {
   nominal_radius = fabs(nominal_radius);
