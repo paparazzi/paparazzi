@@ -229,6 +229,7 @@ bool nav_compute_baseleg(uint8_t wp_af, uint8_t wp_td, uint8_t wp_baseleg, float
 
   waypoints[wp_baseleg].x = waypoints[wp_af].x + y_1 * nav_radius;
   waypoints[wp_baseleg].y = waypoints[wp_af].y - x_1 * nav_radius;
+  waypoints[wp_baseleg].a = waypoints[wp_af].a;
   baseleg_out_qdr = M_PI - atan2f(-y_1, -x_1);
   if (nav_radius < 0) {
     baseleg_out_qdr += M_PI;
@@ -251,7 +252,6 @@ bool nav_compute_final_from_glide(uint8_t wp_af, uint8_t wp_td, float glide)
 
   waypoints[wp_af].x = waypoints[wp_td].x + x_1 * h_0 * glide;
   waypoints[wp_af].y = waypoints[wp_td].y + y_1 * h_0 * glide;
-  waypoints[wp_af].a = waypoints[wp_af].a;
 
   return false;
 }
