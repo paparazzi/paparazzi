@@ -10,4 +10,5 @@ VIEWVIDEO_PORT_OUT.
 
 rtp_stream.py opens the stream and displays the frames in a window. OpenCV can be further be used to
 post-process the stream. One can select a region of interest in the viewer to send a VIDEO_ROI message to the
-datalink. While dragging a region, the right mouse button will cancel the selection.
+datalink. While dragging a region, the right mouse button will cancel the selection. Pressing the 'r' key rotates
+the view with increments of 90 degrees, 'q' closes the window and ends the script.

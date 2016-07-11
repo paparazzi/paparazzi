@@ -1,0 +1,34 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ins_nps" dir="ins">
+  <doc>
+    <description>
+     Simulated AHRS and INS.
+    </description>
+  </doc>
+  <autoload name="gps_nps"/>
+  <header>
+    <file name="ins_gps_passthrough.h" dir="subsystems/ins"/>
+  </header>
+  <init fun="ins_gps_passthrough_init()"/>
+  <makefile target="nps">
+    <file name="imu.c" dir="subsystems"/>
+    <file name="imu_nps.c" dir="subsystems/imu"/>
+    <define name="USE_IMU"/>
+    <define name="IMU_TYPE_H" value="subsystems/imu/imu_nps.h" type="string"/>
+
+    <!-- use attitude from nps sim -->
+    <define name="NPS_BYPASS_AHRS" value="TRUE"/>
+  </makefile>
+
+  <makefile target="nps" firmware="rotorcraft">
+    <define name="INS_TYPE_H" value="subsystems/ins/ins_gps_passthrough.h" type="string"/>
+    <file name="ins.c" dir="subsystems"/>
+    <file name="ins_gps_passthrough.c" dir="subsystems/ins"/>
+  </makefile>
+  <makefile target="nps" firmware="fixedwing">
+    <define name="INS_TYPE_H" value="subsystems/ins/ins_gps_passthrough.h" type="string"/>
+    <file name="ins.c" dir="subsystems"/>
+    <file name="ins_gps_passthrough_utm.c" dir="subsystems/ins"/>
+  </makefile>
+</module>

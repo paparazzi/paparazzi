@@ -372,7 +372,16 @@
  * Spektrum
  */
 /* The line that is pulled low at power up to initiate the bind process */
-#define SPEKTRUM_BIND_PIN GPIO9
-#define SPEKTRUM_BIND_PIN_PORT GPIOA
+/* CSW pin on CAM connector */
+#define SPEKTRUM_BIND_PIN GPIO0
+#define SPEKTRUM_BIND_PIN_PORT GPIOB
+
+#define SPEKTRUM_UART1_RCC RCC_USART1
+#define SPEKTRUM_UART1_BANK GPIOA
+#define SPEKTRUM_UART1_PIN GPIO10
+#define SPEKTRUM_UART1_AF GPIO_AF7
+#define SPEKTRUM_UART1_IRQ NVIC_USART1_IRQ
+#define SPEKTRUM_UART1_ISR usart1_isr
+#define SPEKTRUM_UART1_DEV USART1
 
 #endif /* CONFIG_KROOZ_SD_H */

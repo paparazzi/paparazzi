@@ -37,14 +37,6 @@
 #include INS_TYPE_H
 #endif
 
-typedef void (*InsInit)(void);
-
-extern void ins_register_impl(InsInit init);
-
-/** INS initialization. Called at startup.
- *  Initializes the global ins struct.
- */
-extern void ins_init(void);
 
 /** INS local origin reset.
  *  Reset horizontal and vertical reference to the current position.

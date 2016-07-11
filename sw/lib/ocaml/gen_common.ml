@@ -161,11 +161,15 @@ let get_module = fun m global_targets ->
   | _ -> Xml2h.xml_error "module, autoload or load"
 
 (** [get_autoloaded_modules module]
- * Return a list of modules to be automaticaly added *)
-let get_autoloaded_modules = fun m ->
+ * Return a list of modules to be automaticaly added
+ * Only works with actual modules (no subsystems) *)
+let rec get_autoloaded_modules = fun m ->
   let m = get_module m (Var "") in
   List.fold_left (fun l t ->
-    if ExtXml.tag_is t "autoload" then (get_module t (Var "") :: l) else l
+    if ExtXml.tag_is t "autoload" then
+      let am = get_module t (Var "") in
+      (am :: ((try get_autoloaded_modules am.xml with _ -> []) @ l))
+    else l
   ) [] (Xml.children m.xml)
 
 (** [test_targets target targets]

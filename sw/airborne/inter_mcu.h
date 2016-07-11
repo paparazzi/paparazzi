@@ -40,6 +40,7 @@
 #include "std.h"
 
 #include "paparazzi.h"
+#include "pprz_mutex.h"
 #include "generated/airframe.h"
 #include "subsystems/radio_control.h"
 #include "subsystems/electrical.h"
@@ -81,6 +82,193 @@ extern struct ap_state  *ap_state;
 extern volatile bool inter_mcu_received_fbw;
 extern volatile bool inter_mcu_received_ap;
 
+/**
+ * Getter and setter functions for ap_state and fbw_state elements
+ * protected by mutexes
+ */
+PPRZ_MUTEX_DECL(ap_state_mtx);
+PPRZ_MUTEX_DECL(fbw_state_mtx);
+
+/** get AP command
+ * @param cmd_idx command index
+ * @return command value
+ */
+static inline pprz_t imcu_get_command(uint8_t cmd_idx)
+{
+  PPRZ_MUTEX_LOCK(ap_state_mtx);
+  pprz_t val = ap_state->commands[cmd_idx];
+  PPRZ_MUTEX_UNLOCK(ap_state_mtx);
+  return val;
+}
+
+/** set AP command
+ * @param cmd_idx command index
+ * @param cmd new command value
+ */
+static inline void imcu_set_command(uint8_t cmd_idx, pprz_t cmd)
+{
+  PPRZ_MUTEX_LOCK(ap_state_mtx);
+  ap_state->commands[cmd_idx] = cmd;
+  PPRZ_MUTEX_UNLOCK(ap_state_mtx);
+}
+
+/** get roll trim
+ * @return roll trim value
+ */
+static inline pprz_t imcu_get_roll_trim(void)
+{
+  PPRZ_MUTEX_LOCK(ap_state_mtx);
+  pprz_t val = ap_state->command_roll_trim;
+  PPRZ_MUTEX_UNLOCK(ap_state_mtx);
+  return val;
+}
+
+/** set roll trim
+ * @param roll_trim new roll trim value
+ */
+static inline void imcu_set_roll_trim(pprz_t roll_trim)
+{
+  PPRZ_MUTEX_LOCK(ap_state_mtx);
+  ap_state->command_roll_trim = roll_trim;
+  PPRZ_MUTEX_UNLOCK(ap_state_mtx);
+}
+
+/** get pitch trim
+ * @return pitch trim value
+ */
+static inline pprz_t imcu_get_pitch_trim(void)
+{
+  PPRZ_MUTEX_LOCK(ap_state_mtx);
+  pprz_t val = ap_state->command_pitch_trim;
+  PPRZ_MUTEX_UNLOCK(ap_state_mtx);
+  return val;
+}
+
+/** set pitch trim
+ * @param pitch_trim new pitch trim value
+ */
+static inline void imcu_set_pitch_trim(pprz_t pitch_trim)
+{
+  PPRZ_MUTEX_LOCK(ap_state_mtx);
+  ap_state->command_pitch_trim = pitch_trim;
+  PPRZ_MUTEX_UNLOCK(ap_state_mtx);
+}
+
+/** get yaw trim
+ * @return yaw trim value
+ */
+static inline pprz_t imcu_get_yaw_trim(void)
+{
+  PPRZ_MUTEX_LOCK(ap_state_mtx);
+  pprz_t val = ap_state->command_yaw_trim;
+  PPRZ_MUTEX_UNLOCK(ap_state_mtx);
+  return val;
+}
+
+/** set yaw trim
+ * @param yaw_trim new yaw trim value
+ */
+static inline void imcu_set_yaw_trim(pprz_t yaw_trim)
+{
+  PPRZ_MUTEX_LOCK(ap_state_mtx);
+  ap_state->command_yaw_trim = yaw_trim;
+  PPRZ_MUTEX_UNLOCK(ap_state_mtx);
+}
+
+#if defined RADIO_CONTROL || RADIO_CONTROL_AUTO1
+/** get radio channel value
+ * @param radio_idx radio channel index
+ * @return radio channel value
+ */
+static inline pprz_t imcu_get_radio(uint8_t radio_idx)
+{
+  PPRZ_MUTEX_LOCK(fbw_state_mtx);
+  pprz_t val = fbw_state->channels[radio_idx];
+  PPRZ_MUTEX_UNLOCK(fbw_state_mtx);
+  return val;
+}
+
+/** set radio channel
+ * @param radio_idx radio index
+ * @param radio new radio channel value
+ */
+static inline void imcu_set_radio(uint8_t radio_idx, pprz_t radio)
+{
+  PPRZ_MUTEX_LOCK(fbw_state_mtx);
+  fbw_state->channels[radio_idx] = radio;
+  PPRZ_MUTEX_UNLOCK(fbw_state_mtx);
+}
+
+/** get ppm count value
+ * @return ppm count
+ */
+static inline uint8_t imcu_get_ppm_cpt(void)
+{
+  PPRZ_MUTEX_LOCK(fbw_state_mtx);
+  uint8_t val = fbw_state->ppm_cpt;
+  PPRZ_MUTEX_UNLOCK(fbw_state_mtx);
+  return val;
+}
+
+/** set ppm count
+ * @param ppm_cpt ppm counter
+ */
+static inline void imcu_set_ppm_cpt(uint8_t ppm_cpt)
+{
+  PPRZ_MUTEX_LOCK(fbw_state_mtx);
+  fbw_state->ppm_cpt = ppm_cpt;
+  PPRZ_MUTEX_UNLOCK(fbw_state_mtx);
+}
+#endif
+
+/** get FBW status
+ * @return status
+ */
+static inline uint8_t imcu_get_status(void)
+{
+  PPRZ_MUTEX_LOCK(fbw_state_mtx);
+  uint8_t val = fbw_state->status;
+  PPRZ_MUTEX_UNLOCK(fbw_state_mtx);
+  return val;
+}
+
+/** set FBW status
+ * @param status FBW status
+ */
+static inline void imcu_set_status(uint8_t status)
+{
+  PPRZ_MUTEX_LOCK(fbw_state_mtx);
+  fbw_state->status = status;
+  PPRZ_MUTEX_UNLOCK(fbw_state_mtx);
+}
+
+/** get electrical parameters
+ * @param vsupply pointer to return voltage
+ * @param current pointer to return current
+ * @param energy pointer to return cumulated energy
+ */
+static inline void imcu_get_electrical(uint16_t *_vsupply, int32_t *_current, float *_energy)
+{
+  PPRZ_MUTEX_LOCK(fbw_state_mtx);
+  *_vsupply = fbw_state->vsupply;
+  *_current = fbw_state->current;
+  *_energy = fbw_state->energy;
+  PPRZ_MUTEX_UNLOCK(fbw_state_mtx);
+}
+
+/** set electrical parameters
+ * @param vsupply new voltage (1e-1 V)
+ * @param current new current (mA)
+ * @param energy new cumulated energy (mAh)
+ */
+static inline void imcu_set_electrical(uint16_t _vsupply, int32_t _current, float _energy)
+{
+  PPRZ_MUTEX_LOCK(fbw_state_mtx);
+  fbw_state->vsupply = _vsupply;
+  fbw_state->current = _current;
+  fbw_state->energy = _energy;
+  PPRZ_MUTEX_UNLOCK(fbw_state_mtx);
+}
 
 #ifdef FBW
 
@@ -95,6 +283,9 @@ static inline void inter_mcu_init(void)
   fbw_state->status = 0;
   fbw_state->nb_err = 0;
 
+  PPRZ_MUTEX_INIT(ap_state_mtx);
+  PPRZ_MUTEX_INIT(fbw_state_mtx);
+
   ap_ok = false;
 }
 
@@ -102,6 +293,7 @@ static inline void inter_mcu_init(void)
 /* Prepare data to be sent to mcu0 */
 static inline void inter_mcu_fill_fbw_state(void)
 {
+  PPRZ_MUTEX_LOCK(fbw_state_mtx);
   uint8_t status = 0;
 
 #ifdef RADIO_CONTROL
@@ -129,6 +321,7 @@ static inline void inter_mcu_fill_fbw_state(void)
   /**Directly set the flag indicating to AP that shared buffer is available*/
   inter_mcu_received_fbw = true;
 #endif
+  PPRZ_MUTEX_UNLOCK(fbw_state_mtx);
 }
 
 /** Prepares date for next comm with AP. Set ::ap_ok to TRUE */

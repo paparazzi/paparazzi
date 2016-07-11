@@ -7,7 +7,7 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/nps.xml settings/control/stabilization_att_float_euler.xml"
-   settings_modules=""
+   settings_modules="modules/gps.xml"
    gui_color="#ffff954c0000"
   />
   <aircraft
@@ -18,7 +18,7 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/dummy.xml"
    settings="settings/rotorcraft_basic.xml"
-   settings_modules=""
+   settings_modules="modules/gps.xml"
    gui_color="white"
   />
   <aircraft
@@ -29,7 +29,7 @@
    telemetry="telemetry/default_fixedwing_imu.xml"
    flight_plan="flight_plans/versatile.xml"
    settings="settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/nps.xml"
-   settings_modules=""
+   settings_modules="modules/gps.xml"
    gui_color="blue"
   />
   <aircraft
@@ -40,7 +40,7 @@
    telemetry="telemetry/default_fixedwing_imu.xml"
    flight_plan="flight_plans/versatile.xml"
    settings="settings/fixedwing_basic.xml settings/control/ctl_basic.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml modules/light.xml modules/digital_cam.xml modules/nav_catapult.xml modules/air_data.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml modules/light.xml modules/digital_cam.xml modules/nav_catapult.xml modules/air_data.xml modules/gps.xml"
    gui_color="blue"
   />
   <aircraft
@@ -51,7 +51,7 @@
    telemetry="telemetry/default_fixedwing.xml"
    flight_plan="flight_plans/basic.xml"
    settings="settings/fixedwing_basic.xml"
-   settings_modules="modules/air_data.xml modules/geo_mag.xml modules/gps_ubx_ucenter.xml"
+   settings_modules="modules/gps.xml modules/air_data.xml modules/geo_mag.xml modules/gps_ubx_ucenter.xml"
    gui_color="red"
   />
   <aircraft
@@ -62,7 +62,7 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/dummy.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
-   settings_modules=""
+   settings_modules="modules/gps.xml"
    gui_color="white"
   />
   <aircraft
@@ -73,7 +73,7 @@
    telemetry="telemetry/default_fixedwing_imu.xml"
    flight_plan="flight_plans/basic.xml"
    settings="settings/fixedwing_basic.xml settings/control/ctl_new.xml"
-   settings_modules="modules/airspeed_adc.xml modules/gps_ubx_ucenter.xml"
+   settings_modules="modules/airspeed_adc.xml modules/gps.xml modules/gps_ubx_ucenter.xml"
    gui_color="#ffff7d7d0000"
   />
   <aircraft
@@ -84,7 +84,7 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/superbitrf.xml settings/nps.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml modules/gps.xml"
    gui_color="white"
   />
   <aircraft
@@ -95,7 +95,7 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml modules/gps.xml"
    gui_color="white"
   />
   <aircraft
@@ -106,7 +106,7 @@
    telemetry="telemetry/default_fixedwing.xml"
    flight_plan="flight_plans/dummy.xml"
    settings="settings/fixedwing_basic.xml"
-   settings_modules=""
+   settings_modules="modules/gps.xml"
    gui_color="blue"
   />
   <aircraft
@@ -117,7 +117,7 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/dummy.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
-   settings_modules=""
+   settings_modules="modules/gps.xml"
    gui_color="white"
   />
   <aircraft
@@ -128,7 +128,7 @@
    telemetry="telemetry/default_fixedwing.xml"
    flight_plan="flight_plans/dummy.xml"
    settings="settings/fixedwing_basic.xml"
-   settings_modules=""
+   settings_modules="modules/gps.xml"
    gui_color="blue"
   />
   <aircraft
@@ -139,7 +139,7 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/dummy.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
-   settings_modules=""
+   settings_modules="modules/gps.xml"
    gui_color="white"
   />
   <aircraft
@@ -150,7 +150,7 @@
    telemetry="telemetry/default_fixedwing_imu_9k6.xml"
    flight_plan="flight_plans/versatile_airspeed.xml"
    settings="settings/fixedwing_basic.xml settings/control/ctl_energy.xml settings/estimation/ac_char.xml"
-   settings_modules="modules/air_data.xml modules/geo_mag.xml modules/gps_ubx_ucenter.xml modules/light.xml modules/digital_cam.xml"
+   settings_modules="modules/gps.xml modules/air_data.xml modules/geo_mag.xml modules/gps_ubx_ucenter.xml modules/light.xml modules/digital_cam.xml"
    gui_color="#ffffffffffff"
   />
   <aircraft
@@ -161,7 +161,7 @@
    telemetry="telemetry/default_fixedwing.xml"
    flight_plan="flight_plans/basic.xml"
    settings="settings/fixedwing_basic.xml settings/control/ctl_basic.xml"
-   settings_modules="modules/tune_airspeed.xml modules/infrared_adc.xml modules/nav_smooth.xml modules/nav_survey_poly_osam.xml"
+   settings_modules="modules/tune_airspeed.xml modules/gps.xml modules/infrared_adc.xml modules/nav_smooth.xml modules/nav_survey_poly_osam.xml"
    gui_color="#6293ba"
   />
   <aircraft
@@ -172,7 +172,7 @@
    telemetry="telemetry/default_fixedwing_imu.xml"
    flight_plan="flight_plans/nav_modules.xml"
    settings="settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/control/ctl_dash_loiter_trim.xml settings/nps.xml"
-   settings_modules="modules/air_data.xml modules/nav_smooth.xml modules/nav_survey_poly_osam.xml"
+   settings_modules="modules/gps.xml modules/air_data.xml modules/nav_smooth.xml modules/nav_survey_poly_osam.xml"
    gui_color="blue"
   />
   <aircraft
@@ -183,7 +183,7 @@
    telemetry="telemetry/default_fixedwing_imu.xml"
    flight_plan="flight_plans/basic.xml"
    settings="settings/fixedwing_basic.xml settings/control/ctl_basic.xml"
-   settings_modules=""
+   settings_modules="modules/gps.xml"
    gui_color="blue"
   />
   <aircraft
@@ -194,7 +194,7 @@
    telemetry="telemetry/default_fixedwing_imu.xml"
    flight_plan="flight_plans/basic.xml"
    settings="settings/fixedwing_basic.xml settings/control/ctl_basic.xml"
-   settings_modules=""
+   settings_modules="modules/gps.xml"
    gui_color="blue"
   />
   <aircraft
@@ -205,7 +205,7 @@
    telemetry="telemetry/default_fixedwing_imu.xml"
    flight_plan="flight_plans/versatile.xml"
    settings="settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/estimation/ins_neutrals.xml settings/control/ctl_dash_loiter_trim.xml"
-   settings_modules=""
+   settings_modules="modules/gps.xml"
    gui_color="blue"
   />
   <aircraft
@@ -216,7 +216,7 @@
    telemetry="telemetry/default_fixedwing.xml"
    flight_plan="flight_plans/AGGIEAIR/BasicTuning_Launcher.xml"
    settings="settings/fixedwing_basic.xml settings/nps.xml settings/control/ctl_basic.xml"
-   settings_modules="modules/nav_survey_poly_osam.xml modules/nav_skid_landing.xml"
+   settings_modules="modules/gps.xml modules/nav_survey_poly_osam.xml modules/nav_skid_landing.xml"
    gui_color="#00009e93ffff"
   />
   <aircraft
@@ -227,7 +227,7 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/estimation/ahrs_float_mlkf.xml settings/nps.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml"
+   settings_modules="modules/gps.xml modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml"
    gui_color="white"
   />
   <aircraft
@@ -238,7 +238,7 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml"
+   settings_modules="modules/gps.xml modules/gps_ubx_ucenter.xml"
    gui_color="white"
   />
   <aircraft
@@ -249,7 +249,7 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/estimation/ahrs_float_mlkf.xml settings/nps.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml"
+   settings_modules="modules/gps.xml modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml"
    gui_color="blue"
   />
   <aircraft
@@ -260,7 +260,7 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/estimation/ahrs_int_cmpl_quat.xml settings/nps.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml"
+   settings_modules="modules/gps.xml modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml"
    gui_color="white"
   />
   <aircraft
@@ -271,7 +271,7 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/nps.xml"
-   settings_modules="modules/servo_switch.xml modules/rotorcraft_cam.xml modules/digital_cam.xml modules/nav_survey_rectangle_rotorcraft.xml"
+   settings_modules="modules/servo_switch.xml modules/rotorcraft_cam.xml modules/digital_cam.xml modules/nav_survey_rectangle_rotorcraft.xml modules/gps.xml"
    gui_color="white"
   />
   <aircraft
@@ -282,7 +282,7 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/estimation/ahrs_int_cmpl_quat.xml settings/nps.xml settings/control/stabilization_indi.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml"
+   settings_modules="modules/gps.xml modules/gps_ubx_ucenter.xml"
    gui_color="#710080"
   />
   <aircraft
@@ -293,7 +293,7 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/control/stabilization_att_int_quat.xml settings/nps.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml"
+   settings_modules="modules/gps.xml modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml"
    gui_color="blue"
   />
   <aircraft
@@ -304,7 +304,7 @@
    telemetry="telemetry/default_fixedwing.xml"
    flight_plan="flight_plans/versatile.xml"
    settings="settings/fixedwing_basic.xml settings/control/ctl_basic.xml"
-   settings_modules="modules/infrared_adc.xml"
+   settings_modules="modules/gps.xml modules/infrared_adc.xml"
    gui_color="#ba6293"
   />
   <aircraft
@@ -315,7 +315,7 @@
    telemetry="telemetry/default_fixedwing_imu.xml"
    flight_plan="flight_plans/basic.xml"
    settings="settings/fixedwing_basic.xml settings/control/ctl_energyadaptive.xml"
-   settings_modules="modules/air_data.xml modules/digital_cam.xml"
+   settings_modules="modules/gps.xml modules/air_data.xml modules/digital_cam.xml"
    gui_color="blue"
   />
   <aircraft
@@ -326,7 +326,7 @@
    telemetry="telemetry/default_fixedwing_imu.xml"
    flight_plan="flight_plans/versatile.xml"
    settings="settings/fixedwing_basic.xml settings/control/ctl_basic.xml"
-   settings_modules=""
+   settings_modules="modules/gps.xml"
    gui_color="blue"
   />
   <aircraft
@@ -337,7 +337,7 @@
    telemetry="telemetry/default_fixedwing_imu.xml"
    flight_plan="flight_plans/basic.xml"
    settings="settings/fixedwing_basic.xml settings/control/ctl_basic.xml"
-   settings_modules=""
+   settings_modules="modules/gps.xml"
    gui_color="blue"
   />
   <aircraft
@@ -348,7 +348,7 @@
    telemetry="telemetry/default_fixedwing_imu_9k6.xml"
    flight_plan="flight_plans/versatile.xml"
    settings="settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/estimation/ins_neutrals.xml settings/control/tune_agr_climb.xml"
-   settings_modules="modules/light.xml modules/digital_cam.xml"
+   settings_modules="modules/gps.xml modules/light.xml modules/digital_cam.xml"
    gui_color="blue"
   />
   <aircraft
@@ -359,7 +359,7 @@
    telemetry="telemetry/fixedwing_flight_recorder.xml"
    flight_plan="flight_plans/basic.xml"
    settings="settings/fixedwing_basic.xml"
-   settings_modules=""
+   settings_modules="modules/gps.xml"
    gui_color="blue"
   />
   <aircraft
@@ -370,7 +370,7 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int_quat.xml settings/estimation/ahrs_int_cmpl_quat.xml settings/estimation/body_to_imu.xml settings/nps.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml modules/air_data.xml modules/geo_mag.xml"
+   settings_modules="modules/gps.xml modules/gps_ubx_ucenter.xml modules/air_data.xml modules/geo_mag.xml"
    gui_color="red"
   />
   <aircraft
@@ -381,7 +381,7 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml modules/cv_opticflow.xml modules/opticflow_hover.xml"
+   settings_modules="modules/gps.xml modules/gps_ubx_ucenter.xml modules/cv_opticflow.xml modules/opticflow_hover.xml"
    gui_color="blue"
   />
   <aircraft
@@ -392,7 +392,7 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/estimation/ahrs_float_mlkf.xml settings/control/stabilization_att_int_quat.xml settings/nps.xml"
-   settings_modules="modules/geo_mag.xml modules/air_data.xml"
+   settings_modules="modules/gps.xml modules/geo_mag.xml modules/air_data.xml"
    gui_color="red"
   />
   <aircraft
@@ -403,7 +403,7 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/estimation/ahrs_int_cmpl_quat.xml settings/control/stabilization_att_int.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml"
+   settings_modules="modules/gps.xml modules/gps_ubx_ucenter.xml modules/geo_mag.xml"
    gui_color="blue"
   />
   <aircraft
@@ -414,7 +414,7 @@
    telemetry="telemetry/default_fixedwing_imu.xml"
    flight_plan="flight_plans/basic.xml"
    settings="settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/control/ctl_dash_loiter_trim.xml"
-   settings_modules=""
+   settings_modules="modules/gps.xml"
    gui_color="blue"
   />
   <aircraft
@@ -425,7 +425,7 @@
    telemetry="telemetry/default_rotorcraft_mavlink.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/estimation/ahrs_float_mlkf.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int_quat.xml settings/estimation/ahrs_secondary.xml settings/estimation/ahrs_int_cmpl_quat.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml"
+   settings_modules="modules/gps.xml modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml"
    gui_color="blue"
   />
   <aircraft
@@ -435,8 +435,8 @@
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml settings/estimation/ahrs_int_cmpl_quat.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int_quat.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml"
+   settings="settings/rotorcraft_basic.xml settings/estimation/ahrs_int_cmpl_quat.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_indi.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml modules/gps.xml"
    gui_color="blue"
   />
   <aircraft
@@ -469,7 +469,7 @@
    telemetry="telemetry/default_fixedwing_imu.xml"
    flight_plan="flight_plans/versatile.xml"
    settings="settings/fixedwing_basic.xml settings/control/ctl_dash_loiter_trim.xml"
-   settings_modules=""
+   settings_modules="modules/gps.xml"
    gui_color="blue"
   />
 </conf>

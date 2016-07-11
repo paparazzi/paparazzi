@@ -1,0 +1,24 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ins_alt_float" dir="ins">
+  <doc>
+    <description>
+      INS with Kalman Filter on altitude.
+      For fixedwings.
+    </description>
+    <define name="USE_INS_NAV_INIT" value="TRUE|FALSE" description="Initialize the origin of the local coordinate system from flight plan. (Default: TRUE)"/>
+    <define name="INS_ALT_BARO_ID" value="BARO_BOARD_SENDER_ID" description="The ABI sender id of the baro to use"/>
+    <define name="INS_ALT_GPS_ID" value="GPS_MULTI_ID" description="The ABI sender id of the GPS to use"/>
+    <define name="INS_ALT_IMU_ID" value="ABI_BROADCAST" description="The ABI sender id of the IMU to use"/>
+    <define name="DEBUG_ALT_KALMAN" description="if defined, send the debug ALT_KALMAN telemetry message"/>
+  </doc>
+  <header>
+    <file name="ins_alt_float.h" dir="subsystems/ins"/>
+  </header>
+  <init fun="ins_alt_float_init()"/>
+  <makefile target="ap|nps|sim" firmware="fixedwing">
+    <define name="INS_TYPE_H" value="subsystems/ins/ins_alt_float.h" type="string"/>
+    <file name="ins.c" dir="subsystems"/>
+    <file name="ins_alt_float.c" dir="subsystems/ins"/>
+  </makefile>
+</module>

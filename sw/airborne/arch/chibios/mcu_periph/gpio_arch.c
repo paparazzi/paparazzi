@@ -37,7 +37,7 @@ void gpio_setup_output(ioportid_t port, uint16_t gpios)
   chSysUnlock();
 }
 
-void gpio_setup_intput(ioportid_t port, uint16_t gpios)
+void gpio_setup_input(ioportid_t port, uint16_t gpios)
 {
   chSysLock();
   palSetPadMode(port, gpios, PAL_MODE_INPUT);

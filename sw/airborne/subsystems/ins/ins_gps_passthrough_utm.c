@@ -26,6 +26,7 @@
  * For fixedwing firmware since it sets UTM pos only.
  */
 
+#include "subsystems/ins/ins_gps_passthrough.h"
 #include "subsystems/ins.h"
 
 #include <inttypes.h>
@@ -35,39 +36,15 @@
 #include "subsystems/gps.h"
 #include "firmwares/fixedwing/nav.h"
 
-#include "subsystems/ins/ins_gps_passthrough_utm.h"
-
-void ins_gps_utm_init(void)
-{
-  struct UtmCoor_f utm0 = { nav_utm_north0, nav_utm_east0, 0., nav_utm_zone0 };
-  stateSetLocalUtmOrigin_f(&utm0);
-  stateSetPositionUtm_f(&utm0);
-}
-
-void ins_reset_local_origin(void)
-{
-  struct UtmCoor_f utm = utm_float_from_gps(&gps, 0);
-
-  // reset state UTM ref
-  stateSetLocalUtmOrigin_f(&utm);
-}
-
-void ins_reset_altitude_ref(void)
-{
-  struct UtmCoor_f utm = state.utm_origin_f;
-  utm.alt = gps.hmsl / 1000.0f;
-  stateSetLocalUtmOrigin_f(&utm);
-}
-
 
 #include "subsystems/abi.h"
 /** ABI binding for gps data.
  * Used for GPS ABI messages.
  */
-#ifndef INS_PTU_GPS_ID
-#define INS_PTU_GPS_ID GPS_MULTI_ID
+#ifndef INS_PT_GPS_ID
+#define INS_PT_GPS_ID GPS_MULTI_ID
 #endif
-PRINT_CONFIG_VAR(INS_PTU_GPS_ID)
+PRINT_CONFIG_VAR(INS_PT_GPS_ID)
 static abi_event gps_ev;
 
 static void gps_cb(uint8_t sender_id __attribute__((unused)),
@@ -88,8 +65,27 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   stateSetSpeedNed_f(&ned_vel);
 }
 
-void ins_gps_utm_register(void)
+
+void ins_gps_passthrough_init(void)
 {
-  ins_register_impl(ins_gps_utm_init);
-  AbiBindMsgGPS(INS_PTU_GPS_ID, &gps_ev, gps_cb);
+  struct UtmCoor_f utm0 = { nav_utm_north0, nav_utm_east0, 0., nav_utm_zone0 };
+  stateSetLocalUtmOrigin_f(&utm0);
+  stateSetPositionUtm_f(&utm0);
+
+  AbiBindMsgGPS(INS_PT_GPS_ID, &gps_ev, gps_cb);
+}
+
+void ins_reset_local_origin(void)
+{
+  struct UtmCoor_f utm = utm_float_from_gps(&gps, 0);
+
+  // reset state UTM ref
+  stateSetLocalUtmOrigin_f(&utm);
+}
+
+void ins_reset_altitude_ref(void)
+{
+  struct UtmCoor_f utm = state.utm_origin_f;
+  utm.alt = gps.hmsl / 1000.0f;
+  stateSetLocalUtmOrigin_f(&utm);
 }

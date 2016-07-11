@@ -338,7 +338,7 @@ def run():
     VEHICLE_QUATS = [["AHRS_REF_QUAT", 6, "Estimate", True], ["AHRS_REF_QUAT", 2, "Reference", True]]
     BAR_VALUES = [["ROTORCRAFT_RADIO_CONTROL", 5, "Throttle (%%) %i", 0, 100, 100]]
     window_title = "Attitude_Viz"
-    rotate_theta = -90
+    rotate_theta = 0
     try:
         opts, args = getopt.getopt(sys.argv[1:], "t:r:", ["title", "rotate_theta"])
         for o, a in opts:
@@ -350,7 +350,7 @@ def run():
         print(msg)
         print("""usage:
 -t, --title                   set window title
--r, --rotate_theta           rotate the quaternion by n degrees over the pitch axis (default: -90)
+-r, --rotate_theta           rotate the quaternion by n degrees over the pitch axis (default: 0)
 """)
     pygame.init()
     screen = pygame.display.set_mode(SCREEN_SIZE, pygame.OPENGL | pygame.DOUBLEBUF)

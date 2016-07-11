@@ -330,8 +330,11 @@ SdioError sdLogWriteLog(const FileDes fd, const char *fmt, ...)
     return SDLOG_FATFS_ERROR;
   }
 
-  flushWriteByteBuffer(fd);
-
+  const SdioError status = flushWriteByteBuffer (fd);
+  if (status != SDLOG_OK) {
+    return status;
+  }
+  
   va_list ap;
   va_start(ap, fmt);
 
@@ -366,7 +369,11 @@ SdioError sdLogFlushLog(const FileDes fd)
     return SDLOG_FATFS_ERROR;
   }
 
-  flushWriteByteBuffer(fd);
+ const SdioError status = flushWriteByteBuffer (fd);
+  if (status != SDLOG_OK) {
+    return status;
+  }
+
   LogMessage *lm =  tlsf_malloc_r(&HEAP_DEFAULT, sizeof(LogMessage));
   if (lm == NULL) {
     return SDLOG_QUEUEFULL;
@@ -430,7 +437,11 @@ SdioError sdLogWriteRaw(const FileDes fd, const uint8_t *buffer, const size_t le
     return SDLOG_FATFS_ERROR;
   }
 
-  flushWriteByteBuffer(fd);
+  const SdioError status = flushWriteByteBuffer (fd);
+  if (status != SDLOG_OK) {
+    return status;
+  }
+
   LogMessage *lm = tlsf_malloc_r(&HEAP_DEFAULT, logRawLen(len));
   if (lm == NULL) {
     return SDLOG_QUEUEFULL;
@@ -474,8 +485,15 @@ SdioError sdLogWriteByte(const FileDes fd, const uint8_t value)
   lm->mess[fileDes[fd].writeByteSeek++] = value;
 
   if (fileDes[fd].writeByteSeek == WRITE_BYTE_CACHE_SIZE) {
-    return flushWriteByteBuffer(fd);
-  }
+    const SdioError status = flushWriteByteBuffer (fd);
+    // message is not sent so allocated buffer will not be released by receiver side
+    // instead of freeing buffer, we just reset cache seek.
+    if (status == SDLOG_QUEUEFULL) {
+      fileDes[fd].writeByteSeek = 0;
+      return status;
+    }
+  } 
+
   return SDLOG_OK;
 }
 

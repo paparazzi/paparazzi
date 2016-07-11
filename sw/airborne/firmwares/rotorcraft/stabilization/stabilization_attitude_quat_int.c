@@ -245,7 +245,7 @@ void stabilization_attitude_run(bool enable_integrator)
   /* attitude error                          */
   struct Int32Quat att_err;
   struct Int32Quat *att_quat = stateGetNedToBodyQuat_i();
-  INT32_QUAT_INV_COMP(att_err, *att_quat, att_ref_quat_i.quat);
+  int32_quat_inv_comp(&att_err, att_quat, &att_ref_quat_i.quat);
   /* wrap it in the shortest direction       */
   int32_quat_wrap_shortest(&att_err);
   int32_quat_normalize(&att_err);

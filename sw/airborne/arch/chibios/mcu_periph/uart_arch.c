@@ -418,6 +418,14 @@ void uart4_init(void)
 #define UART5_BAUD SERIAL_DEFAULT_BITRATE
 #endif
 
+/* by default enable UART Tx and Rx */
+#ifndef USE_UART5_TX
+#define USE_UART5_TX TRUE
+#endif
+#ifndef USE_UART5_RX
+#define USE_UART5_RX TRUE
+#endif
+
 static const SerialConfig usart5_config = {
   UART5_BAUD,                                             /*     BITRATE    */
   0,                                                      /*    USART CR1   */
@@ -489,6 +497,14 @@ void uart5_init(void)
 
 #ifndef UART6_BAUD
 #define UART6_BAUD SERIAL_DEFAULT_BITRATE
+#endif
+
+/* by default enable UART Tx and Rx */
+#ifndef USE_UART6_TX
+#define USE_UART6_TX TRUE
+#endif
+#ifndef USE_UART6_RX
+#define USE_UART6_RX TRUE
 #endif
 
 static const SerialConfig usart6_config = {
