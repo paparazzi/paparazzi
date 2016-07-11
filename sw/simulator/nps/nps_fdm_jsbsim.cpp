@@ -510,14 +510,17 @@ static void init_jsbsim(double dt)
 
   char* pprz_home = getenv("PAPARAZZI_HOME");
 
+  int cnt = -1;
   if (strlen(pprz_home) < sizeof(buf)) {
-    sprintf(buf, "%s/conf/simulator/jsbsim/", pprz_home);
+    cnt = sprintf(buf,"%s/conf/simulator/jsbsim/", pprz_home);
     rootdir = string(buf);
   }
-  else {
-    // pprz_home path too long for the buffer
-    // exit to prevent buffer overflow
-    cout << "PPRZ_HOME path too long for the buffer, exiting..." << endl;
+
+  // check the results
+  if (cnt < 0){
+    // Either pprz_home path too long for the buffer
+    // or writing the string was not successful.
+    cout << "PPRZ_HOME not set correctly, exiting..." << endl;
     exit(-1);
   }
 
