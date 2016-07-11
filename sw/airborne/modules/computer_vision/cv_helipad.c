@@ -32,9 +32,6 @@
 #include "modules/sonar/sonar_bebop.h"
 #include <stdio.h>
 
-// Run the module
-bool RUN_MODULE_HELIPAD;
-
 // General outputs
 int MARKER;
 int maxx;
@@ -50,6 +47,7 @@ int color_cr_max  = 255;
 int blob_threshold = 2500; // Reliable white detection
 
 // Helipad detection
+static struct video_listener* helipad_listener;
 struct results helipad_marker;
 struct results_color color_marker;
 
@@ -68,9 +66,6 @@ int bin_thresh = 230;
 struct image_t *helipad_tracking_func(struct image_t* img);
 struct image_t *helipad_tracking_func(struct image_t* img)
 {
-
-    if (!RUN_MODULE_HELIPAD) { return NULL; }
-
     /* TODO: Check if we really need blob locator. This may cause false positives.  */
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     // COLORFILTER
@@ -134,25 +129,31 @@ struct image_t *helipad_tracking_func(struct image_t* img)
         MARKER = FALSE;
     }
 
-    printf("%i\n", MARKER);
+//    fprintf(stderr, "MARKER: %i\n", MARKER);
 
-    return FALSE;
+    return NULL;
 }
 
 void helipad_init(void)
 {
-    // Do not run the module automatically
-    RUN_MODULE_HELIPAD = FALSE;
-
     // Add detection function to CV
-    cv_add_to_device(&HELIPAD_CAMERA, helipad_tracking_func);
+    helipad_listener = cv_add_to_device(&HELIPAD_CAMERA, helipad_tracking_func);
 }
 
 
-int helipad_periodic(void) { return false; } /* currently no direct periodic functionality */
+int helipad_periodic(void) {
+    /* currently no direct periodic functionality */
+    return false;
+}
 
 
-int start_helipad(void) { RUN_MODULE_HELIPAD = TRUE; return false; }
+int start_helipad(void) {
+    helipad_listener->active=true;
+    return false;
+}
 
 
-int stop_helipad(void) { RUN_MODULE_HELIPAD = FALSE; return false; }
+int stop_helipad(void) {
+    helipad_listener->active=false;
+    return false;
+}
