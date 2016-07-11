@@ -289,7 +289,6 @@ bool nav_survey_poly_osam_setup(uint8_t EntryWP, uint8_t Size, float sw, float O
       EntryRadius = -EntryRadius;
       dSweep = -sw;
     } else {
-      EntryRadius = EntryRadius;
       dSweep = sw;
     }
 

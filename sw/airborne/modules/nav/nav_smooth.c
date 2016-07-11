@@ -175,7 +175,7 @@ static void compute_ground_speed(float airspeed,
   }
 }
 
-/* Adjusting a circle around CA, tangent in A, to end at snav_desired_tow */
+/*ï¿½Adjusting a circle around CA, tangent in A, to end at snav_desired_tow */
 bool snav_on_time(float nominal_radius)
 {
   nominal_radius = fabs(nominal_radius);
@@ -194,8 +194,8 @@ bool snav_on_time(float nominal_radius)
   /* Recompute ground speeds every 10 s */
   if (ground_speed_timer == 0) {
     ground_speed_timer = 40; /* every 10s, called at 40Hz */
-    compute_ground_speed(airspeed, stateGetHorizontalWindspeed_f()->y,
-                         stateGetHorizontalWindspeed_f()->x); // Wind in NED frame
+    compute_ground_speed(airspeed, stateGetHorizontalWindspeed_f()->x,
+                         stateGetHorizontalWindspeed_f()->y); // Wind in NED frame
   }
   ground_speed_timer--;
 

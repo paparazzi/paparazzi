@@ -229,7 +229,6 @@ bool nav_compute_baseleg(uint8_t wp_af, uint8_t wp_td, uint8_t wp_baseleg, float
 
   waypoints[wp_baseleg].x = waypoints[wp_af].x + y_1 * nav_radius;
   waypoints[wp_baseleg].y = waypoints[wp_af].y - x_1 * nav_radius;
-  waypoints[wp_baseleg].a = waypoints[wp_af].a;
   baseleg_out_qdr = M_PI - atan2f(-y_1, -x_1);
   if (nav_radius < 0) {
     baseleg_out_qdr += M_PI;
