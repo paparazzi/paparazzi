@@ -1,0 +1,20 @@
+<!DOCTYPE airframe SYSTEM "../../airframe.dtd">
+
+<airframe>
+  <section name="IMU" prefix="IMU_">
+    <!-- TUBB11, calibrated indoor for IMAV 2016 -->
+
+    <!-- Magneto calibration -->
+    <define name="MAG_X_NEUTRAL" value="-79"/>
+    <define name="MAG_Y_NEUTRAL" value="27"/>
+    <define name="MAG_Z_NEUTRAL" value="50"/>
+    <define name="MAG_X_SENS" value="5.78980242559" integer="16"/>
+    <define name="MAG_Y_SENS" value="6.29027596702" integer="16"/>
+    <define name="MAG_Z_SENS" value="5.65865022438" integer="16"/>
+
+    <!-- Magneto current calibration -->
+    <define name= "MAG_X_CURRENT_COEF" value="-0.00540348745714"/>
+    <define name= "MAG_Y_CURRENT_COEF" value="0.0284318061235"/>
+    <define name= "MAG_Z_CURRENT_COEF" value="0.00203773950934"/>
+  </section>
+</airframe>
