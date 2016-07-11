@@ -32,7 +32,7 @@
     <module name="gps" type="ublox"/>
     <subsystem name="stabilization" type="heli_indi"/> <!-- int_quat / heli_indi -->
     <subsystem name="ahrs" type="int_cmpl_quat"/>
-    <subsystem name="ins"/>
+    <module name="ins"/>
 <!--    <subsystem name="rpm_sensor" type="eagletree"/>
     <subsystem name="stabilization" type="heli_indi"/>
     <subsystem name="rpm_sensor" type="eagletree"/>
@@ -153,6 +153,8 @@
     <define name="USE_FAST_DYN_FILTERS" value="1" />
     <define name="FAST_DYN_ROLL_BW" value="68" />
     <define name="FAST_DYN_PITCH_BW" value="17" />
+    <define name="GINV_ROLL_TO_ROLL" value="12000" />
+    <define name="GINV_PITCH_TO_PITCH" value="13000" />
   </section>
 
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
