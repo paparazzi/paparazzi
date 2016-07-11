@@ -160,6 +160,7 @@ void nps_flightgear_send()
   struct FGNetGUI gui;
 
   gui.version = FG_NET_GUI_VERSION;
+  gui.padding1 = 0; // initialize the padding variable to zero
 
   gui.latitude  = fdm.lla_pos.lat;
   gui.longitude = fdm.lla_pos.lon;

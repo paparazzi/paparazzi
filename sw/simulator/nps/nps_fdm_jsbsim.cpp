@@ -506,10 +506,24 @@ static void init_jsbsim(double dt)
 
   char buf[1024];
   string rootdir;
+  string jsbsim_home = "/conf/simulator/jsbsim/";
   string jsbsim_ic_name;
 
-  sprintf(buf, "%s/conf/simulator/jsbsim/", getenv("PAPARAZZI_HOME"));
-  rootdir = string(buf);
+  char* pprz_home = getenv("PAPARAZZI_HOME");
+
+  int cnt = -1;
+  if (strlen(pprz_home) < sizeof(buf)) {
+    cnt = snprintf(buf, strlen(pprz_home) + 1, "%s", pprz_home);
+    rootdir = string(buf) + jsbsim_home;
+  }
+
+  // check the results
+  if (cnt < 0){
+    // Either pprz_home path too long for the buffer
+    // or writing the string was not successful.
+    cout << "PPRZ_HOME not set correctly, exiting..." << endl;
+    exit(-1);
+  }
 
   /* if jsbsim initial conditions are defined, use them
    * otherwise use flightplan location

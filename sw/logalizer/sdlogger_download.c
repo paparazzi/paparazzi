@@ -588,8 +588,22 @@ int main ( int argc, char** argv)
   /* Obtain sd2log directory */
   char *pprz_home;
   pprz_home = getenv( "PAPARAZZI_HOME" );
-  strcat(sd2log, pprz_home);
-  strcat(sd2log, "/sw/logalizer/sd2log temp.tlm");
+
+  char *sd2log_home = "/sw/logalizer/sd2log temp.tlm";
+
+  // check if the pprz_home path fits into the sd2log buffer
+  if (strlen(pprz_home) < (sizeof(sd2log) - strlen(sd2log_home))) {
+    strcat(sd2log, pprz_home);
+    strcat(sd2log, sd2log_home);
+  }
+  else {
+    // pprz_home path too long for the buffer
+    // exit to prevent buffer overflow
+    printf("PPRZ_HOME path too long for the buffer, exiting...\n");
+    exit(-1);
+  }
+
+
 
   /* Get the setting ID with a python script */
   /* TODO: would be nicer to have a C xml parser */

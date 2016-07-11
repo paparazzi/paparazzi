@@ -252,7 +252,6 @@ bool nav_compute_final_from_glide(uint8_t wp_af, uint8_t wp_td, float glide)
 
   waypoints[wp_af].x = waypoints[wp_td].x + x_1 * h_0 * glide;
   waypoints[wp_af].y = waypoints[wp_td].y + y_1 * h_0 * glide;
-  waypoints[wp_af].a = waypoints[wp_af].a;
 
   return false;
 }

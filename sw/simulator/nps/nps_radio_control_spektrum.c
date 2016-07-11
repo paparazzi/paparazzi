@@ -33,6 +33,7 @@ int nps_radio_control_spektrum_init(const char *device)
     return -1;
   }
   struct termios termios;
+  termios.c_iflag = 0; // properly initialize variable
   /* input modes  */
   termios.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | INPCK | ISTRIP | INLCR | IGNCR
                        | ICRNL | IUCLC | IXON | IXANY | IXOFF | IMAXBEL);
