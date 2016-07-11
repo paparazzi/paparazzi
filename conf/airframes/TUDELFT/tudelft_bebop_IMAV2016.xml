@@ -37,7 +37,7 @@
       <define name="OPTICFLOW_CAMERA" value="bottom_camera"/>
       <define name="MAX_HORIZON" value="2"/>
       <!--define name="CAMERA_ROTATED_180" value="1"/-->
-      <define name="OPTICFLOW_DEROTATION" value="0"/>
+      <define name="OPTICFLOW_DEROTATION" value="1"/>
       <define name="OPTICFLOW_FX" value="347.22222222"/> <!-- 2.5 / (3.6 * 2.0) * 1000 -->
       <define name="OPTICFLOW_FY" value="347.22222222"/> <!-- 2.5 / (3.6 * 2.0) * 1000 -->
       <define name="OPTICFLOW_FOV_W" value="0.665499265"/> <!-- 2 * arctan(240 / (2*347.22222222)) -->
@@ -58,13 +58,13 @@
     <!-- /////////////////////////////////////////////////////////////////////////////////////////// -->
     <!-- LANDING -->
 
-    <!--<module name="cv_helipad">-->
-      <!--<define name="HELIPAD_CAMERA" value="bottom_camera"/>-->
-    <!--</module>-->
+    <module name="cv_helipad">
+      <define name="HELIPAD_CAMERA" value="bottom_camera"/>
+    </module>
 
-    <!--<module name="autonomous_landing">-->
-      <!--<define name="MARKER_CAMERA" value="bottom_camera"/>-->
-    <!--</module>-->
+    <module name="autonomous_landing">
+      <define name="MARKER_CAMERA" value="bottom_camera"/>
+    </module>
 
     <!-- /////////////////////////////////////////////////////////////////////////////////////////// -->
 
@@ -205,8 +205,8 @@
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
     <define name="MAX_BANK" value="20" unit="deg"/>
-    <define name="PGAIN" value="79"/>
-    <define name="DGAIN" value="100"/>
+    <define name="PGAIN" value="0"/>
+    <define name="DGAIN" value="80"/>
     <define name="IGAIN" value="30"/>
   </section>
 

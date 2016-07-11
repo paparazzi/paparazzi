@@ -33,6 +33,7 @@
 #include <stdio.h>
 
 // General outputs
+pthread_mutex_t marker_mutex;
 int MARKER;
 int maxx;
 int maxy;
@@ -111,12 +112,12 @@ struct image_t *helipad_tracking_func(struct image_t* img)
     if (img->type == IMAGE_YUV422) {
         // Call OpenCV (C++ from paparazzi C function)
         /* TODO: The image cannot be in grayscale and solve warnings */
-        /* TODO: This opencv function reduces the fps from 12.5 to 4.1 */
         helipad_marker = opencv_imav_landing((char*) img->buf, img->w, img->h, squares, bin_thresh, modify_image_helipad);
     } else {
         helipad_marker.MARKER = 0;
     }
 
+    pthread_mutex_lock(&marker_mutex);
     if (helipad_marker.MARKER) {
         MARKER = helipad_marker.MARKER;
         maxx   = helipad_marker.maxx;
@@ -128,8 +129,7 @@ struct image_t *helipad_tracking_func(struct image_t* img)
     } else {
         MARKER = FALSE;
     }
-
-//    fprintf(stderr, "MARKER: %i\n", MARKER);
+    pthread_mutex_unlock(&marker_mutex);
 
     return NULL;
 }
@@ -137,7 +137,8 @@ struct image_t *helipad_tracking_func(struct image_t* img)
 void helipad_init(void)
 {
     // Add detection function to CV
-    helipad_listener = cv_add_to_device(&HELIPAD_CAMERA, helipad_tracking_func);
+    helipad_listener = cv_add_to_device_async(&HELIPAD_CAMERA, helipad_tracking_func, 5);
+    helipad_listener->maximum_fps = 10;
 }
 
 

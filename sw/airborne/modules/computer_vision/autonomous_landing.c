@@ -94,12 +94,14 @@ struct image_t *autonomous_landing_func(struct image_t* img)
   // NAVIGATION
 
   // Update the location of the centroid only if the marker is detected in the previous iteration
+  pthread_mutex_lock(&marker_mutex);
   if (MARKER) {
     temp = maxx;
     temp = temp << 16;
     temp += maxy;
     dt_sum = 0;
   }
+  pthread_mutex_unlock(&marker_mutex);
 
   if (dt_sum <marker_lost) {
 
@@ -229,7 +231,7 @@ void autonomous_landing_init(void)
   marker_lost = 2;
   centroid_counter = 0;
 
-  // Add detection function to CV
+  // TODO: NOT NEEDED ANYMORE! call function directly
   cv_add_to_device(&MARKER_CAMERA, autonomous_landing_func);
 }
 

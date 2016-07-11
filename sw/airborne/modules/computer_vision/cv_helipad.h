@@ -25,6 +25,8 @@
 #ifndef CV_HELIPAD_H
 #define CV_HELIPAD_H
 
+#include <pthread.h>
+
 extern void helipad_init(void);
 
 // Colorfilter
@@ -37,6 +39,7 @@ extern int modify_image_color;
 extern int modify_image_helipad;
 
 // General outputs
+extern pthread_mutex_t marker_mutex;
 extern int MARKER;
 extern int maxx;
 extern int maxy;

@@ -76,17 +76,17 @@
     <!--</block>-->
 
     <!--&lt;!&ndash; Start the landing on a moving platform &ndash;&gt;-->
-    <!--<block name="Start LandingMovingPlatform">-->
-      <!--<call fun="start_helipad()"/>-->
-      <!--<call fun="MoveForward(0.5)"/>-->
-      <!--<while cond="1"/>-->
-      <!--<exception cond="MARKER" deroute="Land"/>-->
-    <!--</block>-->
+    <block name="Start LandingMovingPlatform">
+      <call fun="start_helipad()"/>
+      <call fun="MoveForward(0.1)"/>
+      <while cond="1"/>
+      <exception cond="MARKER" deroute="Land"/>
+    </block>
 
-    <!--<block name="Land">-->
-      <!--<call fun="start_autonomous_landing()"/>-->
-      <!--<while cond="1"/>-->
-    <!--</block>-->
+    <block name="Land">
+      <call fun="start_autonomous_landing()"/>
+      <while cond="1"/>
+    </block>
 
   </blocks>
 </flight_plan>
