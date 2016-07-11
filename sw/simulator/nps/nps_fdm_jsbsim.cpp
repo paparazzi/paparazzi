@@ -506,14 +506,15 @@ static void init_jsbsim(double dt)
 
   char buf[1024];
   string rootdir;
+  string jsbsim_home = "/conf/simulator/jsbsim/";
   string jsbsim_ic_name;
 
   char* pprz_home = getenv("PAPARAZZI_HOME");
 
   int cnt = -1;
   if (strlen(pprz_home) < sizeof(buf)) {
-    cnt = sprintf(buf,"%s/conf/simulator/jsbsim/", pprz_home);
-    rootdir = string(buf);
+    cnt = snprintf(buf, strlen(pprz_home) + 1, "%s",pprz_home);
+    rootdir = string(buf) + jsbsim_home;
   }
 
   // check the results
