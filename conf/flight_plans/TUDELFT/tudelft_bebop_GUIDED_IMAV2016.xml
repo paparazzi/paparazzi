@@ -62,31 +62,31 @@
     </block>
 
     <!-- Start the bucket mission -->
-    <block name="Start Bucket">
-      <call fun="start_color_tracking_front()"/>
-      <call fun="start_color_tracking_bottom()"/>
-      <while cond="1"/>
-    </block>
+    <!--<block name="Start Bucket">-->
+      <!--<call fun="start_color_tracking_front()"/>-->
+      <!--<call fun="start_color_tracking_bottom()"/>-->
+      <!--<while cond="1"/>-->
+    <!--</block>-->
 
-    <!-- Stop the bucket mission -->
-    <block name="Stop Bucket">
-      <call fun="stop_color_tracking_front()"/>
-      <call fun="stop_color_tracking_bottom()"/>
-      <deroute block="Hover"/>
-    </block>
+    <!--&lt;!&ndash; Stop the bucket mission &ndash;&gt;-->
+    <!--<block name="Stop Bucket">-->
+      <!--<call fun="stop_color_tracking_front()"/>-->
+      <!--<call fun="stop_color_tracking_bottom()"/>-->
+      <!--<deroute block="Hover"/>-->
+    <!--</block>-->
 
-    <!-- Start the landing on a moving platform -->
-    <block name="Start LandingMovingPlatform">
-      <call fun="start_helipad()"/>
-      <call fun="MoveForward(0.5)"/>
-      <while cond="1"/>
-      <exception cond="MARKER" deroute="Land"/>
-    </block>
+    <!--&lt;!&ndash; Start the landing on a moving platform &ndash;&gt;-->
+    <!--<block name="Start LandingMovingPlatform">-->
+      <!--<call fun="start_helipad()"/>-->
+      <!--<call fun="MoveForward(0.5)"/>-->
+      <!--<while cond="1"/>-->
+      <!--<exception cond="MARKER" deroute="Land"/>-->
+    <!--</block>-->
 
-    <block name="Land">
-      <call fun="start_autonomous_landing()"/>
-      <while cond="1"/>
-    </block>
+    <!--<block name="Land">-->
+      <!--<call fun="start_autonomous_landing()"/>-->
+      <!--<while cond="1"/>-->
+    <!--</block>-->
 
   </blocks>
 </flight_plan>
