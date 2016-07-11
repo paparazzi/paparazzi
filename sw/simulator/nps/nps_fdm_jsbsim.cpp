@@ -513,7 +513,7 @@ static void init_jsbsim(double dt)
 
   int cnt = -1;
   if (strlen(pprz_home) < sizeof(buf)) {
-    cnt = snprintf(buf, strlen(pprz_home) + 1, "%s",pprz_home);
+    cnt = snprintf(buf, strlen(pprz_home) + 1, "%s", pprz_home);
     rootdir = string(buf) + jsbsim_home;
   }
 
