@@ -61,8 +61,15 @@ void nps_flightgear_init(const char *host,  unsigned int port, unsigned int port
   if (port_in > 0) {
     struct sockaddr_in addr_in;
     flightgear.socket_in = socket(PF_INET, SOCK_DGRAM, pte->p_proto);
-    setsockopt(flightgear.socket_in, SOL_SOCKET, SO_REUSEADDR,
-        &so_reuseaddr, sizeof(so_reuseaddr));
+    if (flightgear.socket_in < 0) {
+      perror("nps_flightgear_init socket()");
+      exit(errno);
+    }
+    if ( setsockopt(flightgear.socket_in, SOL_SOCKET, SO_REUSEADDR,
+        &so_reuseaddr, sizeof(so_reuseaddr)) == -1) {
+      perror("nps_flightgear_init setsockopt()");
+      exit(errno);
+    }
     addr_in.sin_family = PF_INET;
     addr_in.sin_port = htons(port_in);
     addr_in.sin_addr.s_addr = htonl(INADDR_ANY);
