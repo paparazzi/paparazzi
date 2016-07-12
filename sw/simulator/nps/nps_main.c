@@ -356,7 +356,8 @@ static bool nps_main_parse_options(int argc, char **argv)
           case 2:
             nps_main.fg_time_offset = atoi(optarg); break;
           case 3:
-            nps_main.js_dev = strdup(optarg);
+            if (optarg == NULL) {nps_main.js_dev = strdup("0");}
+            else {nps_main.js_dev = strdup(optarg);}
             break;
           case 4:
             nps_main.spektrum_dev = strdup(optarg); break;
@@ -373,19 +374,19 @@ static bool nps_main_parse_options(int argc, char **argv)
         }
         break;
 
-          case 'j':
-            if (optarg == NULL) {nps_main.js_dev = strdup("0");}
-            else {nps_main.js_dev = strdup(optarg);}
-            break;
+      case 'j':
+        if (optarg == NULL) {nps_main.js_dev = strdup("0");}
+        else {nps_main.js_dev = strdup(optarg);}
+        break;
 
-          case 'h':
-            fprintf(stderr, usage, argv[0]);
-            exit(0);
+      case 'h':
+        fprintf(stderr, usage, argv[0]);
+        exit(0);
 
-          default:
-            printf("?? getopt returned character code 0%o ??\n", c);
-            fprintf(stderr, usage, argv[0]);
-            exit(EXIT_FAILURE);
+      default:
+        printf("?? getopt returned character code 0%o ??\n", c);
+        fprintf(stderr, usage, argv[0]);
+        exit(EXIT_FAILURE);
     }
   }
   return TRUE;
