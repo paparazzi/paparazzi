@@ -50,8 +50,16 @@ void nps_flightgear_init(const char *host,  unsigned int port, unsigned int port
   int so_reuseaddr = 1;
   struct protoent *pte = getprotobyname("UDP");
   flightgear.socket = socket(PF_INET, SOCK_DGRAM, pte->p_proto);
-  setsockopt(flightgear.socket, SOL_SOCKET, SO_REUSEADDR,
-      &so_reuseaddr, sizeof(so_reuseaddr));
+  if (flightgear.socket < 0){
+    perror("nps_flightgear_init flightgear.socket socket()");
+    exit(errno);
+  }
+  if ( setsockopt(flightgear.socket, SOL_SOCKET, SO_REUSEADDR,
+      &so_reuseaddr, sizeof(so_reuseaddr)) == -1) {
+    perror("nps_flightgear_init flightgear.socket setsockopt()");
+    exit(errno);
+  }
+
   flightgear.addr.sin_family = PF_INET;
   flightgear.addr.sin_port = htons(port);
   flightgear.addr.sin_addr.s_addr = inet_addr(host);
@@ -62,12 +70,12 @@ void nps_flightgear_init(const char *host,  unsigned int port, unsigned int port
     struct sockaddr_in addr_in;
     flightgear.socket_in = socket(PF_INET, SOCK_DGRAM, pte->p_proto);
     if (flightgear.socket_in < 0) {
-      perror("nps_flightgear_init socket()");
+      perror("nps_flightgear_init flightgear.socket_in socket()");
       exit(errno);
     }
     if ( setsockopt(flightgear.socket_in, SOL_SOCKET, SO_REUSEADDR,
         &so_reuseaddr, sizeof(so_reuseaddr)) == -1) {
-      perror("nps_flightgear_init setsockopt()");
+      perror("nps_flightgear_init flightgear.socket_in setsockopt()");
       exit(errno);
     }
     addr_in.sin_family = PF_INET;
