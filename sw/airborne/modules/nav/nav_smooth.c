@@ -168,7 +168,7 @@ static void compute_ground_speed(float airspeed,
   float c = wind_north * wind_north + wind_east * wind_east - airspeed * airspeed;
   for (i = 0; i < NB_ANGLES; i++, alpha += ANGLE_STEP) {
     /* g^2 -2 scal g + c = 0 */
-    float scal = wind_north * cos(alpha) + wind_east * sin(alpha);
+    float scal = wind_east * cos(alpha) + wind_north * sin(alpha);
     float delta = 4 * (scal * scal - c);
     ground_speeds[i] = scal + sqrt(delta) / 2.;
     Bound(ground_speeds[i], NOMINAL_AIRSPEED / 4, 2 * NOMINAL_AIRSPEED);
