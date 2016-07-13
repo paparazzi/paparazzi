@@ -87,7 +87,8 @@ void find_contour(char *img, int width, int height)
   cvtColor(M, M, CV_RGB2YUV);
 
   // Threshold all values within the indicted YUV values.
-  inRange(M, Scalar(cont_thres.lower_y, cont_thres.lower_u, cont_thres.lower_v), Scalar(cont_thres.upper_y, cont_thres.upper_u, cont_thres.upper_v), thresh_image);
+  inRange(M, Scalar(cont_thres.lower_y, cont_thres.lower_u, cont_thres.lower_v), Scalar(cont_thres.upper_y,
+          cont_thres.upper_u, cont_thres.upper_v), thresh_image);
 
   /// Find contours
   vector<vector<Point> > contours;

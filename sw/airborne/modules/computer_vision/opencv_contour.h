@@ -31,17 +31,17 @@
 extern "C" {
 #endif
 
-struct contour_estimation{
+struct contour_estimation {
+  float contour_d_x;
+  float contour_d_y;
+  float contour_d_z;
+};
 
-	float contour_d_x, contour_d_y, contour_d_z;
+struct contour_threshold {
+  int lower_y, upper_y, lower_u, upper_u, lower_v, upper_v;
 };
 
 extern struct contour_estimation cont_est;
-
-// values for thresholding the contour
-struct contour_threshold{
-	int lower_y, upper_y, lower_u, upper_u, lower_v, upper_v;
-};
 extern struct contour_threshold cont_thres;
 
 void find_contour(char *img, int width, int height);
