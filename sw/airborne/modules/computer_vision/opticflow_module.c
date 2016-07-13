@@ -150,7 +150,6 @@ void opticflow_module_run(void)
  */
 struct image_t *opticflow_module_calc(struct image_t *img)
 {
-
   // Copy the state
   struct pose_t pose = get_rotation_at_timestamp(img->pprz_ts);
   struct opticflow_state_t temp_state;
@@ -165,9 +164,6 @@ struct image_t *opticflow_module_calc(struct image_t *img)
   pthread_mutex_lock(&opticflow_mutex);
   memcpy(&opticflow_result, &temp_result, sizeof(struct opticflow_result_t));
   opticflow_got_result = true;
-  pthread_mutex_unlock(&opticflow_mutex);
-
-  // TODO: why is there a mutex above and not below when changing opticflow_result?
 
   /* Rotate velocities from camera frame coordinates to body coordinates for control
   * IMPORTANT!!! This frame to body orientation should be the case for the Parrot
@@ -182,6 +178,8 @@ struct image_t *opticflow_module_calc(struct image_t *img)
   opticflow_result.vel_body_y = opticflow_result.vel_x;
 #endif
 
+  // release the mutex as we are done with editing the opticflow result
+  pthread_mutex_unlock(&opticflow_mutex);
   return img;
 }
 

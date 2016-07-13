@@ -265,14 +265,16 @@ void mavlink_common_message_handler(const mavlink_message_t *msg)
         cmd.param_index = settings_idx_from_param_id(cmd.param_id);
       }
 
-      mavlink_msg_param_value_send(MAVLINK_COMM_0,
-                                   mavlink_param_names[cmd.param_index],
-                                   settings_get_value(cmd.param_index),
-                                   MAV_PARAM_TYPE_REAL32,
-                                   NB_SETTING,
-                                   cmd.param_index);
-      MAVLinkSendMessage();
-
+      // Send message only if the param_index was found (Coverity Scan)
+      if (cmd.param_index > -1) {
+        mavlink_msg_param_value_send(MAVLINK_COMM_0,
+                                     mavlink_param_names[cmd.param_index],
+                                     settings_get_value(cmd.param_index),
+                                     MAV_PARAM_TYPE_REAL32,
+                                     NB_SETTING,
+                                     cmd.param_index);
+        MAVLinkSendMessage();
+      }
       break;
     }
 
