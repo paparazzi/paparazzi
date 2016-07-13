@@ -6,41 +6,23 @@
         ground_alt="0"
         security_height="0.4"
         max_dist_from_home="8"
-        alt="2.5">
+        alt="1.5">
 
-  <header>
-    #include "autopilot.h"
-    #include "guidance/guidance_h.h"
-    #include "guidance/guidance_v.h"
-    #include "subsystems/ahrs.h"
-    #include "subsystems/electrical.h"
-    #include "subsystems/datalink/datalink.h"
-  </header>
-
+  <!--<header>-->
+    <!--#include "autopilot.h"-->
+    <!--#include "subsystems/ahrs.h"-->
+    <!--#include "subsystems/electrical.h"-->
+    <!--#include "subsystems/datalink/datalink.h"-->
+  <!--</header>-->
 
   <waypoints>
     <!-- Mission waypoints -->
     <waypoint name="HOME" x="0.0" y="0.0"/>
-
-    <!-- Corners of the obstacle zone -->
-    <waypoint lat="51.9905922" lon="4.3767779" name="_OZ1"/>
-    <waypoint lat="51.9906428" lon="4.3767195" name="_OZ2"/>
-    <waypoint lat="51.9906780" lon="4.3768044" name="_OZ3"/>
-    <waypoint lat="51.9906271" lon="4.3768621" name="_OZ4"/>
   </waypoints>
 
-  <sectors>
-    <sector color="blue" name="ObstacleZone">
-      <corner name="_OZ1"/>
-      <corner name="_OZ2"/>
-      <corner name="_OZ3"/>
-      <corner name="_OZ4"/>
-    </sector>
-  </sectors>
-
-  <exceptions>
-    <exception cond="datalink_time > 2 && nav_is_in_flight()" deroute="Hover"/>
-  </exceptions>
+  <!--<exceptions>-->
+    <!--<exception cond="datalink_time > 2 && nav_is_in_flight()" deroute="Hover"/>-->
+  <!--</exceptions>-->
 
   <blocks>
     <!-- Kill the throttle and wait for GPS fix -->
