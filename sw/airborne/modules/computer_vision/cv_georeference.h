@@ -29,7 +29,8 @@
 #include "std.h"
 #include <stdint.h>
 
-extern int32_t focus_length;
+extern int32_t focal_length;
+extern struct georeference_t geo;
 
 extern void georeference_init(void);
 extern void georeference_run(void);
