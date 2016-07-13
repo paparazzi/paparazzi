@@ -55,11 +55,11 @@ static struct image_t *detect_helipad_marker(struct image_t* img)
         marker_pixel_x = helipad_marker.maxx;
         marker_pixel_y = helipad_marker.maxy;
 
-        fprintf(stderr, "[MARKER] found! %i, %i\n", marker_pixel_x, marker_pixel_y);
+//        fprintf(stderr, "[MARKER] found! %i, %i\n", marker_pixel_x, marker_pixel_y);
     } else {
         marker_detected = false;
 
-        fprintf(stderr, "[MARKER] not found!\n");
+//        fprintf(stderr, "[MARKER] not found!\n");
     }
 
     return NULL;

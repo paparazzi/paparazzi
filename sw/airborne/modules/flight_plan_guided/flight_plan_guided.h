@@ -41,4 +41,7 @@ extern uint8_t MoveForward(float vx);
 extern bool TakeOff(float climb_rate);
 extern bool WaitUntilAltitude(float altitude);
 
+
+void marker_detection_periodic(void);
+
 #endif

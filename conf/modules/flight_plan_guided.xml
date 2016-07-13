@@ -13,6 +13,8 @@
 
   <init fun="flight_plan_guided_init()"/>
 
+  <periodic fun="marker_detection_periodic()" freq="10" autorun="TRUE"/>
+
   <makefile>
     <file name="flight_plan_guided.c"/>
   </makefile>

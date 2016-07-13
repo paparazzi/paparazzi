@@ -10,6 +10,8 @@
 
   <!--<header>-->
     <!--#include "autopilot.h"-->
+    <!--#include "guidance/guidance_h.h"-->
+    <!--#include "guidance/guidance_v.h"-->
     <!--#include "subsystems/ahrs.h"-->
     <!--#include "subsystems/electrical.h"-->
     <!--#include "subsystems/datalink/datalink.h"-->
@@ -48,6 +50,10 @@
       <call fun="Hover(1.5)"/>
       <while cond="1"/>
     </block>
+
+    <!--<block name="MOVE">-->
+      <!--<call fun="guidance_h_set_guided_body_vel(0, 1)"/>-->
+    <!--</block>-->
 
     <!-- Start the bucket mission -->
     <!--<block name="Start Bucket">-->
