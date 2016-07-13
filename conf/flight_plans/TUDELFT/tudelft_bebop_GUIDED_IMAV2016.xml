@@ -51,20 +51,19 @@
 
     <!-- Wait 5 seconds and then set altitude reference -->
     <block name="Geo init">
-      <while cond="LessThan(NavBlockTime(), 5)"/>
-      <call fun="reset_alt()"/>
+      <call fun="ResetAlt()"/>
       <while cond="1"/>
     </block>
 
-    <block name="takeoff" strip_button="Take-off">
+    <block name="TakeOff">
       <call fun="StartEngines()"/>
-      <call fun="guidance_v_set_guided_vz(-1.)"/>
-      <while cond="1. > stateGetPositionEnu_f()->z"/>
+      <call fun="TakeOff(1.0)"/>
+      <call fun="WaitBelowAltitude(1.5)"/>
     </block>
 
      <!--Hover at the current location-->
-    <block name="Hover" strip_button="Hover" strip_icon="flat_theme/pano_hov.png">
-      <call fun="guidance_v_set_guided_z(-1.5)"/>
+    <block name="Hover">
+      <call fun="Hover(1.5)"/>
       <while cond="1"/>
     </block>
 

@@ -48,19 +48,35 @@ uint8_t StartEngines(void) {if (autopilot_mode == AP_MODE_GUIDED) { autopilot_se
 
 
 /* Reset the altitude reference to the current GPS alt if GPS is used */
-uint8_t reset_alt(void) {if (autopilot_mode == AP_MODE_GUIDED) { ins_reset_altitude_ref(); } return false;}
+uint8_t ResetAlt(void) {if (autopilot_mode == AP_MODE_GUIDED) { ins_reset_altitude_ref(); } return false;}
 
+
+bool TakeOff(float climb_rate) {
+    if (autopilot_mode != AP_MODE_GUIDED) { return true; }
+
+    guidance_v_set_guided_vz(-climb_rate);
+
+    return false;
+}
+
+bool WaitBelowAltitude(float altitude) {
+    if (autopilot_mode != AP_MODE_GUIDED) { return true; }
+
+    if (stateGetPositionEnu_f()->z < altitude) { return true; }
+
+    return false;
+}
 
 /* Take off */
-uint8_t hover(float hovering_height) {
-    if (autopilot_mode == AP_MODE_GUIDED) {
+uint8_t Hover(float altitude) {
+    if (autopilot_mode != AP_MODE_GUIDED) { return true; }
 
-        // Horizontal velocities are set to zero
-        guidance_h_set_guided_body_vel(0, 0);
+    // Horizontal velocities are set to zero
+    guidance_h_set_guided_body_vel(0, 0);
 
-        // Vertical velocity increases until certain altitude is reached
-        guidance_v_set_guided_z(hovering_height);
-    }
+    // Vertical velocity increases until certain altitude is reached
+    guidance_v_set_guided_z(-altitude);
+
     return false;
 }
 
