@@ -73,6 +73,27 @@ int pauseSignal = 0;
 
 std::chrono::milliseconds ms(HOST_TIMEOUT_MS);
 
+using namespace std;
+
+void tstp_hdl(int n __attribute__((unused)))
+{
+  std::cout << "Signal called.\n";
+  if (pauseSignal) {
+    pauseSignal = 0;
+    signal(SIGTSTP, SIG_DFL);
+    raise(SIGTSTP);
+  } else {
+    pauseSignal = 1;
+  }
+}
+
+void cont_hdl(int n __attribute__((unused)))
+{
+  signal(SIGCONT, cont_hdl);
+  signal(SIGTSTP, tstp_hdl);
+  std::cout << "Press <enter> to continue.\n";
+}
+
 
 double time_to_double(struct timeval *t)
 {
@@ -83,9 +104,12 @@ void run_behavior(void) {
   std::chrono::high_resolution_clock::time_point start;
   std::chrono::high_resolution_clock::time_point stop;
   std::chrono::duration<int32_t, std::nano> sleep_time;
+
+
   while(true)
   {
     start = std::chrono::high_resolution_clock::now();
+    //printf("MAIN: display at %f\n", nps_main.display_time);
     nps_main_periodic();
     stop = std::chrono::high_resolution_clock::now();
     sleep_time = ms - (stop - start);
@@ -95,10 +119,75 @@ void run_behavior(void) {
     }
     else
     {
-      std::cout << "We took too long\n";
+      std::cout << "MAIN: We took too long\n";
     }
   }
 }
+
+void run_fg_thread(void){
+  std::chrono::high_resolution_clock::time_point start;
+  std::chrono::high_resolution_clock::time_point stop;
+  std::chrono::duration<int32_t, std::nano> sleep_time;
+
+  if (nps_main.fg_host) {
+    nps_flightgear_init(nps_main.fg_host, nps_main.fg_port, nps_main.fg_port_in, nps_main.fg_time_offset);
+  }
+
+  while(true)
+  {
+    start = std::chrono::high_resolution_clock::now();
+    //printf("FG: display at %f\n", nps_main.display_time);
+    nps_main_display();
+    stop = std::chrono::high_resolution_clock::now();
+    sleep_time = ms - (stop - start);
+    if(sleep_time > std::chrono::duration<int32_t,std::nano>(0))
+    {
+      std::this_thread::sleep_for(sleep_time);
+    }
+    else
+    {
+      std::cout << "FG: We took too long\n";
+    }
+  }
+}
+
+void run_ivy_thread(void) {
+  std::chrono::high_resolution_clock::time_point start;
+  std::chrono::high_resolution_clock::time_point stop;
+  std::chrono::duration<int32_t, std::nano> sleep_time;
+
+  cout << "IVY Thread init" << endl;
+  nps_ivy_init(nps_main.ivy_bus);
+
+  while(true)
+  {
+    start = std::chrono::high_resolution_clock::now();
+    //printf("IVY: display at %f\n", nps_main.display_time);
+    nps_ivy_display();
+    stop = std::chrono::high_resolution_clock::now();
+    sleep_time = ms - (stop - start);
+    if(sleep_time > std::chrono::duration<int32_t,std::nano>(0))
+    {
+      std::this_thread::sleep_for(sleep_time);
+    }
+    else
+    {
+      std::cout << "IVY: We took too long\n";
+    }
+  }
+}
+
+
+void signalHandler( int signum )
+{
+    cout << "Interrupt signal (" << signum << ") received.\n";
+    // cleanup and close up stuff here
+    // terminate program
+   exit(signum);
+
+}
+
+
 
 int main(int argc, char **argv)
 {
@@ -114,9 +203,18 @@ int main(int argc, char **argv)
 
   nps_main_init();
 
+  signal(SIGCONT, cont_hdl);
+  signal(SIGTSTP, tstp_hdl);
+  printf("Time factor is %f. (Press Ctrl-Z to change)\n", nps_main.host_time_factor);
+
+  std::thread t_fg(run_fg_thread);
+  t_fg.detach();
+
+  std::thread t_ivy(run_ivy_thread);
+  t_ivy.detach();
+
   std::thread t_nps(run_behavior);
   t_nps.join();
-
 
   return 0;
 }
@@ -132,7 +230,7 @@ static void nps_main_init(void)
   nps_main.real_initial_time = time_to_double(&t);
   nps_main.scaled_initial_time = time_to_double(&t);
 
-  nps_ivy_init(nps_main.ivy_bus);
+  //nps_ivy_init(nps_main.ivy_bus);
   nps_fdm_init(SIM_DT);
   nps_atmosphere_init();
   nps_sensors_init(nps_main.sim_time);
@@ -151,8 +249,8 @@ static void nps_main_init(void)
   }
   nps_autopilot_init(rc_type, nps_main.rc_script, rc_dev);
 
-  if (nps_main.fg_host)
-    nps_flightgear_init(nps_main.fg_host, nps_main.fg_port, nps_main.fg_port_in, nps_main.fg_time_offset);
+  //if (nps_main.fg_host)
+  //  nps_flightgear_init(nps_main.fg_host, nps_main.fg_port, nps_main.fg_port_in, nps_main.fg_time_offset);
 
 
 #if DEBUG_NPS_TIME
@@ -183,7 +281,7 @@ static void nps_main_run_sim_step(void)
 static void nps_main_display(void)
 {
   //  printf("display at %f\n", nps_main.display_time);
-  nps_ivy_display();
+  //nps_ivy_display();
 
   if (nps_main.fg_host) {
     if (nps_main.fg_fdm) {
