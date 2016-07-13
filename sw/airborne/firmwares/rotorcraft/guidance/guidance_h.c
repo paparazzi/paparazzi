@@ -682,9 +682,9 @@ bool guidance_h_set_guided_pos(float x, float y)
     ClearBit(guidance_h.sp.mask, 5);
     guidance_h.sp.pos.x = POS_BFP_OF_REAL(x);
     guidance_h.sp.pos.y = POS_BFP_OF_REAL(y);
-    return false;
+    return true;
   }
-  return true;
+  return false;
 }
 
 bool guidance_h_set_guided_heading(float heading)
@@ -693,9 +693,9 @@ bool guidance_h_set_guided_heading(float heading)
     ClearBit(guidance_h.sp.mask, 7);
     guidance_h.sp.heading = ANGLE_BFP_OF_REAL(heading);
     INT32_ANGLE_NORMALIZE(guidance_h.sp.heading);
-    return false;
+    return true;
   }
-  return true;
+  return false;
 }
 
 bool guidance_h_set_guided_body_vel(float vx, float vy)
@@ -712,9 +712,9 @@ bool guidance_h_set_guided_vel(float vx, float vy)
     SetBit(guidance_h.sp.mask, 5);
     guidance_h.sp.speed.x = SPEED_BFP_OF_REAL(vx);
     guidance_h.sp.speed.y = SPEED_BFP_OF_REAL(vy);
-    return false;
+    return true;
   }
-  return true;
+  return false;
 }
 
 bool guidance_h_set_guided_heading_rate(float rate)
@@ -722,9 +722,9 @@ bool guidance_h_set_guided_heading_rate(float rate)
   if (guidance_h.mode == GUIDANCE_H_MODE_GUIDED) {
     SetBit(guidance_h.sp.mask, 7);
     guidance_h.sp.heading_rate = RATE_BFP_OF_REAL(rate);
-    return false;
+    return true;
   }
-  return true;
+  return false;
 }
 
 const struct Int32Vect2 *guidance_h_get_pos_err(void)
