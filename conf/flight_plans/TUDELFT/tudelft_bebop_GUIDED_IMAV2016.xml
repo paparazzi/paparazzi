@@ -58,7 +58,7 @@
     <block name="TakeOff">
       <call fun="StartEngines()"/>
       <call fun="TakeOff(1.0)"/>
-      <call fun="WaitBelowAltitude(1.5)"/>
+      <call fun="WaitUntilAltitude(1.5)"/>
     </block>
 
      <!--Hover at the current location-->

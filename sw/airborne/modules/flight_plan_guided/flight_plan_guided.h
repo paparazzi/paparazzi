@@ -39,6 +39,6 @@ extern uint8_t Hover(float altitude);
 extern uint8_t MoveForward(float vx);
 
 extern bool TakeOff(float climb_rate);
-extern bool WaitBelowAltitude(float altitude);
+extern bool WaitUntilAltitude(float altitude);
 
 #endif

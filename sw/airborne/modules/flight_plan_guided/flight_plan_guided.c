@@ -59,7 +59,7 @@ bool TakeOff(float climb_rate) {
     return false;
 }
 
-bool WaitBelowAltitude(float altitude) {
+bool WaitUntilAltitude(float altitude) {
     if (autopilot_mode != AP_MODE_GUIDED) { return true; }
 
     if (stateGetPositionEnu_f()->z < altitude) { return true; }
