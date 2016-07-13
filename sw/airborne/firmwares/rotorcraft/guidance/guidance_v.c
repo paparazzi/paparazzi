@@ -481,8 +481,18 @@ static void run_hover_loop(bool in_flight)
 bool guidance_v_set_guided_z(float z)
 {
   if (guidance_v_mode == GUIDANCE_V_MODE_GUIDED) {
+    /* disable vertical velocity setpoints */
     guidance_v_guided_vel_enabled = false;
+
+    /* set altitude setpoint */
     guidance_v_z_sp = POS_BFP_OF_REAL(z);
+
+    /* reset speed setting */
+    guidance_v_zd_sp = 0;
+
+    /* reset guidance reference */
+    guidance_v_z_sum_err = 0;
+    GuidanceVSetRef(guidance_v_z_sp, guidance_v_zd_sp, 0);
     return true;
   }
   return false;
@@ -491,8 +501,14 @@ bool guidance_v_set_guided_z(float z)
 bool guidance_v_set_guided_vz(float vz)
 {
   if (guidance_v_mode == GUIDANCE_V_MODE_GUIDED) {
+    /* enable vertical velocity setpoints */
     guidance_v_guided_vel_enabled = true;
+
+    /* set speed setting */
     guidance_v_zd_sp = SPEED_BFP_OF_REAL(vz);
+
+    /* reset guidance reference */
+    GuidanceVSetRef(stateGetPositionNed_i()->z, guidance_v_zd_sp, 0);
     return true;
   }
   return false;

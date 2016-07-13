@@ -595,6 +595,8 @@ static void guidance_h_traj_run(bool in_flight)
 
 static void guidance_h_hover_enter(void)
 {
+  /* reset speed setting */
+  guidance_h_set_guided_vel(0., 0.);
   /* disable horizontal velocity setpoints,
    * might still be activated in guidance_h_read_rc if GUIDANCE_H_USE_SPEED_REF
    */
@@ -610,9 +612,6 @@ static void guidance_h_hover_enter(void)
   /* set guidance to current heading and position */
   guidance_h.rc_sp.psi = stateGetNedToBodyEulers_i()->psi;
   guidance_h.sp.heading = guidance_h.rc_sp.psi;
-
-  /* reset speed setting */
-  guidance_h_set_guided_vel(0., 0.);
 }
 
 static void guidance_h_nav_enter(void)
