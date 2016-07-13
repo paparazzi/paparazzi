@@ -31,8 +31,7 @@
 using namespace cv;
 using namespace std;
 
-float contour_distance_est;
-float contour_d_x, contour_d_y, contour_d_z;
+struct contour_estimation cont_est;
 struct contour_threshold cont_thres;
 
 RNG rng(12345);
@@ -76,9 +75,6 @@ void uyvy_opencv_to_yuv_opencv(Mat image, Mat image_in, int width, int height)
     }
   }
 }
-
-
-
 
 void find_contour(char *img, int width, int height)
 {
@@ -151,7 +147,7 @@ void find_contour(char *img, int width, int height)
 
   // Convert back to YUV422, and put it in place of the original image
   grayscale_opencv_to_yuv422(M, img, width, height);
-
+  float contour_distance_est;
   //estimate the distance in X, Y and Z direction
   float area = bounding_rect.width * bounding_rect.height;
   if (area > 28000.) {
@@ -169,12 +165,12 @@ void find_contour(char *img, int width, int height)
   if (area < 3000.) {
     contour_distance_est = 2.0;
   }
-  contour_d_x = contour_distance_est;
+  cont_est.contour_d_x = contour_distance_est;
   float Im_center_w = width / 2.;
   float Im_center_h = height / 2.;
   float real_size = 1.; // real size of the object
-  contour_d_y = -(rect_center.x - Im_center_w) * real_size / float(bounding_rect.width); // right hand
-  contour_d_z = -(rect_center.y - Im_center_h) * real_size / float(bounding_rect.height); // point downwards
+  cont_est.contour_d_y = -(rect_center.x - Im_center_w) * real_size / float(bounding_rect.width); // right hand
+  cont_est.contour_d_z = -(rect_center.y - Im_center_h) * real_size / float(bounding_rect.height); // point downwards
 }
 
 

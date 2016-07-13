@@ -31,8 +31,12 @@
 extern "C" {
 #endif
 
-extern float contour_distance_est;
-extern float contour_d_x, contour_d_y, contour_d_z;
+struct contour_estimation{
+
+	float contour_d_x, contour_d_y, contour_d_z;
+};
+
+extern struct contour_estimation cont_est;
 
 // values for thresholding the contour
 struct contour_threshold{
