@@ -37,6 +37,10 @@
 
     <module name="sonar_bebop"/>
     <module name="pose_history"/>
+
+    <module name="cv_detect_contour">
+	<define name="DETECT_CONTOUR_CAMERA" value="front_camera"/>
+	</module>
     <module name="cv_opticflow">
        <define name="OPTICFLOW_METHOD" value="1"/>
        <define name="OPTICFLOW_CAMERA" value="bottom_camera"/>

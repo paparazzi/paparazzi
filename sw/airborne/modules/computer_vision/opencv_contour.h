@@ -35,7 +35,10 @@ extern float contour_distance_est;
 extern float contour_d_x, contour_d_y, contour_d_z;
 
 // values for thresholding the contour
-extern int lower_y, upper_y, lower_u, upper_u, lower_v, upper_v;
+struct contour_threshold{
+	int lower_y, upper_y, lower_u, upper_u, lower_v, upper_v;
+};
+extern struct contour_threshold cont_thres;
 
 void find_contour(char *img, int width, int height);
 
