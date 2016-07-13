@@ -42,7 +42,7 @@ struct georeference_filter_t {
 struct georeference_t {
   struct Int32Vect3 target_p;   ///< Target in pixels, with z being the focal length in pixels, in camera frame x=up,y=right,out
   struct Int32Vect3 target_rel;    ///< Relative position to target
-  struct NedCoor_i target_abs;    ///< Absolute position to traget NED frame
+  struct NedCoor_i target_abs;    ///< Absolute position to target NED frame
 
   struct georeference_filter_t filter;  ///< Filter waypoint location
 };
@@ -144,7 +144,8 @@ void georeference_filter(bool kalman, int length)
 {
   struct Int32Vect3 err;
 
-  if (kalman)
+  // TODO implement kalman filter
+  if (0) // (kalman)
   {
     // Predict
     VECT3_ADD(geo.filter.x, geo.filter.v);
@@ -155,10 +156,10 @@ void georeference_filter(bool kalman, int length)
   }
   else // Average
   {
-    VECT3_SMUL(geo.filter.x,geo.filter.x,geo.filter.P);
+    VECT3_SMUL(geo.filter.x, geo.filter.x, geo.filter.P);
     VECT3_ADD(geo.filter.x, geo.target_abs);
     geo.filter.P++;
-    VECT3_SDIV(geo.filter.x,geo.filter.x,geo.filter.P);
+    VECT3_SDIV(geo.filter.x, geo.filter.x, geo.filter.P);
     if (geo.filter.P > length) {
       geo.filter.P = length;
     }

@@ -43,7 +43,30 @@ struct camera_frame_t {
   int32_t py;    ///< Target pixel coordinate (top = 0)
 };
 
+/** Get geolocation of target relative to the vehicle and in absolute position
+ * and update waypoint with that absolute position
+ * @param tar target location in image frame with (0,0) in top left of image
+ * @param wp waypoint to update
+ */
 void georeference_project(struct camera_frame_t *tar, int wp);
+
+/** Get geolocation of target relative to the vehicle and in absolute position
+ * @param tar target location in image frame with (0,0) in top left of image
+ */
+void georeference_project(struct camera_frame_t *tar);
+
+/** Update filter of georeference and move waypoint accordingly
+ * @param kalman 0 moving average filter, 1 kalman filter. NOTE Kalman filter not yet functional
+ * @param wp waypoint to be updated
+ * @param length Number of points for moving average filter
+ */
+void georeference_filter(bool kalman, int wp, int length);
+
+/** update filter of georeference
+ * @param kalman 0 moving average filter, 1 kalman filter
+ * @param wp waypoint to be updated
+ * @param length Number of points for moving average filter
+ */
 void georeference_filter(bool kalman, int wp, int length);
 
 
