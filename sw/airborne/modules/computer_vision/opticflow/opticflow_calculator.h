@@ -61,6 +61,8 @@ struct opticflow_t {
   uint16_t fast9_min_distance;      ///< Minimum distance in pixels between corners
   uint16_t fast9_padding;           ///< Padding used in FAST9 detector
 
+  uint16_t fast9_rsize;		///< Amount of corners allocated
+  struct point_t *fast9_ret_corners; ///< Corners
 };
 
 
