@@ -35,7 +35,7 @@ void flight_plan_guided_init(void);
 extern uint8_t KillEngines(void);
 extern uint8_t StartEngines(void);
 extern uint8_t reset_alt(void);
-extern uint8_t hover(float height_above_target, float vz_bottom_ref);
+extern uint8_t hover(float height_above_target);
 extern uint8_t MoveForward(float vx);
 
 #endif

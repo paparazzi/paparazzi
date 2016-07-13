@@ -52,18 +52,14 @@ uint8_t reset_alt(void) {if (autopilot_mode == AP_MODE_GUIDED) { ins_reset_altit
 
 
 /* Take off */
-uint8_t hover(float hovering_height, float vz) {
+uint8_t hover(float hovering_height) {
     if (autopilot_mode == AP_MODE_GUIDED) {
 
         // Horizontal velocities are set to zero
         guidance_h_set_guided_body_vel(0, 0);
 
         // Vertical velocity increases until certain altitude is reached
-        if (sonar_bebop.distance < hovering_height) {
-            guidance_v_set_guided_vz(vz);
-        } else {
-            guidance_v_set_guided_vz(0);
-        }
+        guidance_v_set_guided_z(hovering_height);
     }
     return false;
 }

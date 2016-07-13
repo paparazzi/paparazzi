@@ -131,7 +131,7 @@
 
   <section name="INS" prefix="INS_">
     <define name="SONAR_MAX_RANGE" value="2.2"/>
-    <define name="SONAR_UPDATE_ON_AGL" value="TRUE"/>  <!-- FALSE = Baro; TRUE = Sonar; -->
+    <define name="SONAR_UPDATE_ON_AGL" value="FALSE"/>  <!-- FALSE = Baro; TRUE = Sonar; -->
     <define name="USE_GPS_ALT" value="FALSE"/>          <!-- FALSE = Baro; TRUE = GPS; -->
     <define name="VFF_R_GPS" value="0.01"/>
   </section>
@@ -196,7 +196,7 @@
   </section>
 
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
-    <define name="HOVER_KP" value="283"/>
+    <define name="HOVER_KP" value="350"/>
     <define name="HOVER_KD" value="82"/>
     <define name="HOVER_KI" value="70"/>
     <define name="NOMINAL_HOVER_THROTTLE" value="0.5"/>

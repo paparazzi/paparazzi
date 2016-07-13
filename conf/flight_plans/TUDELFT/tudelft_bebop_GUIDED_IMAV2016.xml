@@ -10,6 +10,8 @@
 
   <header>
     #include "autopilot.h"
+    #include "guidance/guidance_h.h"
+    #include "guidance/guidance_v.h"
     #include "subsystems/ahrs.h"
     #include "subsystems/electrical.h"
     #include "subsystems/datalink/datalink.h"
@@ -54,11 +56,16 @@
       <while cond="1"/>
     </block>
 
+    <block name="takeoff" strip_button="Take-off">
+      <call fun="StartEngines()"/>
+      <call fun="guidance_v_set_guided_vz(-1.)"/>
+      <while cond="1. > stateGetPositionEnu_f()->z"/>
+    </block>
+
      <!--Hover at the current location-->
     <block name="Hover" strip_button="Hover" strip_icon="flat_theme/pano_hov.png">
-      <call fun="StartEngines()"/>
-      <call fun="hover(1.5, -0.25)"/>
-      <deroute block="Hover"/>
+      <call fun="guidance_v_set_guided_z(-1.5)"/>
+      <while cond="1"/>
     </block>
 
     <!-- Start the bucket mission -->
