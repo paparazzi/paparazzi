@@ -29,6 +29,6 @@ extern volatile bool marker_detected;
 extern int marker_pixel_x;
 extern int marker_pixel_y;
 
-extern void detector_init(void);
+void detector_init(void);
 
 #endif
