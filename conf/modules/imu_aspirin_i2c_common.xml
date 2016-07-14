@@ -21,7 +21,7 @@
   </doc>
   <autoload name="imu_nps"/>
   <header>
-    <file name="imu_aspirin.h" dir="subsystems/imu"/>
+    <file name="imu_aspirin_i2c.h" dir="subsystems/imu"/>
   </header>
   <!-- imu init/periodic/event still called explicitly in main -->
   <makefile target="!sim|nps|fbw">
