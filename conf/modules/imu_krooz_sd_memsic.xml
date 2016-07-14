@@ -40,7 +40,7 @@
     <file name="mpu60x0.c" dir="peripherals"/>
     <file name="mpu60x0_i2c.c" dir="peripherals"/>
     <file name="hmc58xx.c" dir="peripherals"/>
-    <file name="imu_krooz_memsic.c" dir="subsystems/imu"/>
+    <file name="imu_krooz_memsic.c" dir="boards/krooz"/>
     <file_arch name="imu_krooz_sd_arch.c" dir="boards/krooz"/>
     <file name="imu.c" dir="subsystems"/>
     <raw>

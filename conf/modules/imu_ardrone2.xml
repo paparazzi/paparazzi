@@ -26,6 +26,6 @@
 
     <file name="imu_ardrone2.c" dir="subsystems/imu"/>
     <file name="imu.c" dir="subsystems"/>
-    <file name="navdata.c" dir="boards/ardrone2"/>
+    <file name="navdata.c" dir="boards/ardrone"/>
   </makefile>
 </module>
