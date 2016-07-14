@@ -50,6 +50,8 @@ struct ImuAspirin {
 
 extern struct ImuAspirin imu_aspirin;
 
+extern void imu_aspirin_init(void);
+extern void imu_aspirin_periodic(void);
 extern void imu_aspirin_event(void);
 
 #if !ASPIRIN_ARCH_INDEP
@@ -58,7 +60,5 @@ extern void imu_aspirin_event(void);
 /* must be implemented by underlying architecture */
 extern void imu_aspirin_arch_init(void);
 #endif
-
-#define ImuEvent imu_aspirin_event
 
 #endif /* IMU_ASPIRIN_H */

@@ -67,10 +67,9 @@ struct ImuNavgo {
 
 extern struct ImuNavgo imu_navgo;
 
-/* Own Extra Functions */
+extern void imu_navgo_init(void);
+extern void imu_navgo_periodic(void);
 extern void imu_navgo_event(void);
 extern void imu_navgo_downlink_raw(void);
-
-#define ImuEvent imu_navgo_event
 
 #endif // IMU_NAVGO_H

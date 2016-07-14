@@ -1,0 +1,40 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="imu_aspirin2_i2c" dir="imu">
+  <doc>
+    <description>
+      Aspirin v2 IMU via I2C.
+      - Accelerometer/Gyroscope: MPU60x0 via I2C
+    </description>
+    <configure name="ASPIRIN2_I2C_DEV" value="i2c2" description="I2C device to use"/>
+    <section name="IMU" prefix="IMU_">
+      <define name="MAG_X_NEUTRAL" value="2358"/>
+      <define name="MAG_Y_NEUTRAL" value="2362"/>
+      <define name="MAG_Z_NEUTRAL" value="2119"/>
+
+      <define name="MAG_X_SENS" value="3.4936416" integer="16"/>
+      <define name="MAG_Y_SENS" value="3.607713" integer="16"/>
+      <define name="MAG_Z_SENS" value="4.90788848" integer="16"/>
+    </section>
+  </doc>
+  <autoload name="imu_nps"/>
+  <header>
+    <file name="imu_aspirin_2.h" dir="subsystems/imu"/>
+  </header>
+  <makefile target="!sim|nps|fbw">
+    <!-- default for stm32, do we want to provide i2c0,spi1,SPI_SLAVE0 defaults for lpc again?-->
+    <configure name="ASPIRIN2_I2C_DEV" default="i2c2" case="lower|upper"/>
+
+    <define name="ASPIRIN2_I2C_DEV" value="$(ASPIRIN2_I2C_DEV_LOWER)"/>
+    <define name="USE_$(ASPIRIN2_I2C_DEV_UPPER)"/>
+
+    <define name="USE_IMU"/>
+    <define name="IMU_TYPE_H" value="imu/imu_aspirin_2.h" type="string"/>
+
+    <!--file name="mpu60x0.c" dir="peripherals"/>
+    <file name="mpu60x0_i2c.c" dir="peripherals"/>
+    <file name="hmc58xx.c" dir="peripherals"/-->
+    <file name="imu_aspirin_2.c" dir="subsystems/imu"/>
+    <file name="imu.c" dir="subsystems"/>
+  </makefile>
+</module>

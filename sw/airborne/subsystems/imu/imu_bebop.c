@@ -76,7 +76,7 @@ struct ImuBebop imu_bebop;
 /**
  * Navstik IMU initializtion of the MPU-60x0 and HMC58xx
  */
-void imu_impl_init(void)
+void imu_bebop_init(void)
 {
   /* MPU-60X0 */
   mpu60x0_i2c_init(&imu_bebop.mpu, &(BEBOP_MPU_I2C_DEV), MPU60X0_ADDR);
@@ -93,7 +93,7 @@ void imu_impl_init(void)
  * Handle all the periodic tasks of the Navstik IMU components.
  * Read the MPU60x0 every periodic call and the HMC58XX every 10th call.
  */
-void imu_periodic(void)
+void imu_bebop_periodic(void)
 {
   // Start reading the latest gyroscope data
   mpu60x0_i2c_periodic(&imu_bebop.mpu);

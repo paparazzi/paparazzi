@@ -1,0 +1,31 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="imu_lisa_m_v2.1" dir="imu">
+  <doc>
+    <description>
+      IMU on Lisa/M and MX v2.1 boards.
+      MPU60x0 via SPI2. HMC5883 as I2C slave of MPU.
+    </description>
+    <section name="IMU" prefix="IMU_">
+      <define name="MAG_X_NEUTRAL" value="2358"/>
+      <define name="MAG_Y_NEUTRAL" value="2362"/>
+      <define name="MAG_Z_NEUTRAL" value="2119"/>
+
+      <define name="MAG_X_SENS" value="3.4936416" integer="16"/>
+      <define name="MAG_Y_SENS" value="3.607713" integer="16"/>
+      <define name="MAG_Z_SENS" value="4.90788848" integer="16"/>
+    </section>
+  </doc>
+  <autoload name="imu_aspirin_v2_common"/>
+  <makefile target="!sim|nps|fbw">
+    <define name="ASPIRIN_2_SPI_DEV" value="spi2"/>
+    <define name="ASPIRIN_2_SPI_SLAVE_IDX" value="SPI_SLAVE2"/>
+    <!-- SLAVE2 is on PB12 (NSS) (MPU600 CS) -->
+    <define name="USE_SPI_SLAVE2"/>
+    <!-- SLAVE3 is on PC13, which is the baro CS -->
+    <define name="USE_SPI_SLAVE3"/>
+    <define name="USE_SPI1"/>
+    <define name="LISA_M_OR_MX_21"/>
+    <define name="USE_IMU"/>
+  </makefile>
+</module>

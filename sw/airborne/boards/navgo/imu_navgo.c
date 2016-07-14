@@ -63,7 +63,7 @@ struct MedianFilter3Int median_gyro, median_accel, median_mag;
 
 struct ImuNavgo imu_navgo;
 
-void imu_impl_init(void)
+void imu_navgo_init(void)
 {
   /////////////////////////////////////////////////////////////////////
   // ITG3200
@@ -90,7 +90,7 @@ void imu_impl_init(void)
 #endif
 }
 
-void imu_periodic(void)
+void imu_navgo_periodic(void)
 {
   // Start reading the latest gyroscope data
   itg3200_periodic(&imu_navgo.itg);

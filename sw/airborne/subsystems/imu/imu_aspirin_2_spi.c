@@ -103,7 +103,7 @@ void mpu_wait_slave4_ready(void);
 void mpu_wait_slave4_ready_cb(struct spi_transaction *t);
 bool imu_aspirin2_configure_mag_slave(Mpu60x0ConfigSet mpu_set, void *mpu);
 
-void imu_impl_init(void)
+void imu_aspirin2_init(void)
 {
   mpu60x0_spi_init(&imu_aspirin2.mpu, &(ASPIRIN_2_SPI_DEV), ASPIRIN_2_SPI_SLAVE_IDX);
   // change the default configuration
@@ -151,7 +151,7 @@ void imu_impl_init(void)
 }
 
 
-void imu_periodic(void)
+void imu_aspirin2_periodic(void)
 {
   mpu60x0_spi_periodic(&imu_aspirin2.mpu);
 }

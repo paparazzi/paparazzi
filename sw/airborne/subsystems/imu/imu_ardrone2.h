@@ -84,7 +84,6 @@
  */
 #include "subsystems/imu.h"
 
-
-#define ImuEvent navdata_update
+extern void imu_ardrone2_init(void);
 
 #endif /* IMU_ARDRONE2_H_ */

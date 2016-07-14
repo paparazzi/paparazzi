@@ -126,7 +126,7 @@ PRINT_CONFIG_VAR(IMU_HMC_Z_SIGN)
 
 struct ImuMpu6000Hmc5883 imu_mpu_hmc;
 
-void imu_impl_init(void)
+void imu_mpu_hmc_init(void)
 {
   mpu60x0_spi_init(&imu_mpu_hmc.mpu, &IMU_MPU_SPI_DEV, IMU_MPU_SPI_SLAVE_IDX);
   // change the default configuration
@@ -140,7 +140,7 @@ void imu_impl_init(void)
 }
 
 
-void imu_periodic(void)
+void imu_mpu_hmc_periodic(void)
 {
   mpu60x0_spi_periodic(&imu_mpu_hmc.mpu);
 

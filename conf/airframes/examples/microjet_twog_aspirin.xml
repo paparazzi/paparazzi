@@ -26,7 +26,11 @@
 
     <define name="AHRS_TRIGGERED_ATTITUDE_LOOP"/>
 
-    <module name="imu"    type="aspirin_v1.5"/>
+    <module name="imu"    type="aspirin_v1.5">
+      <configure name="ASPIRIN_I2C_DEV" value="i2c0"/>
+      <configure name="ASPIRIN_SPI_DEV" value="spi1"/>
+      <configure name="ASPIRIN_SPI_SLAVE_IDX" value="SPI_SLAVE0"/>
+    </module>
     <module name="ahrs"   type="float_dcm"/>
     <module name="ins"    type="alt_float"/>
     <module name="gps"    type="ublox"/>

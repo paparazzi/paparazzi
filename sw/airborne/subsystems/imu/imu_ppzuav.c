@@ -78,7 +78,7 @@ PRINT_CONFIG_VAR(IMU_PPZUAV_GYRO_SMPLRT_DIV)
 
 struct ImuPpzuav imu_ppzuav;
 
-void imu_impl_init(void)
+void imu_ppzuav_init(void)
 {
   /* Set accel configuration */
   adxl345_i2c_init(&imu_ppzuav.acc_adxl, &(IMU_PPZUAV_I2C_DEV), ADXL345_ADDR);
@@ -98,7 +98,7 @@ void imu_impl_init(void)
 }
 
 
-void imu_periodic(void)
+void imu_ppzuav_periodic(void)
 {
   adxl345_i2c_periodic(&imu_ppzuav.acc_adxl);
 

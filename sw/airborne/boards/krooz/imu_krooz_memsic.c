@@ -66,7 +66,7 @@ static uint32_t ad7689_event_timer;
 static uint8_t axis_cnt;
 static uint8_t axis_nb;
 
-void imu_impl_init(void)
+void imu_krooz_init(void)
 {
   /////////////////////////////////////////////////////////////////////
   // MPU-60X0
@@ -112,7 +112,7 @@ void imu_impl_init(void)
   imu_krooz_sd_arch_init();
 }
 
-void imu_periodic(void)
+void imu_krooz_periodic(void)
 {
   // Start reading the latest gyroscope data
   if (!imu_krooz.mpu.config.initialized) {

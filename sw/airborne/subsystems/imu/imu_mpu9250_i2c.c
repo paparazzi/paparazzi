@@ -93,7 +93,7 @@ PRINT_CONFIG_VAR(IMU_MPU9250_CHAN_Z)
 
 struct ImuMpu9250 imu_mpu9250;
 
-void imu_impl_init(void)
+void imu_mpu9250_init(void)
 {
   /* MPU9250 */
   mpu9250_i2c_init(&imu_mpu9250.mpu, &(IMU_MPU9250_I2C_DEV), IMU_MPU9250_I2C_ADDR);
@@ -105,7 +105,7 @@ void imu_impl_init(void)
   imu_mpu9250.mpu.config.accel_range = IMU_MPU9250_ACCEL_RANGE;
 }
 
-void imu_periodic(void)
+void imu_mpu9250_periodic(void)
 {
   mpu9250_i2c_periodic(&imu_mpu9250.mpu);
 }

@@ -34,8 +34,8 @@ extern volatile bool ADS8344_available;
 /* must be defined by underlying architecture */
 extern void imu_crista_arch_init(void);
 
+extern void imu_christa_init(void);
+extern void imu_christa_periodic(void);
 extern void imu_christa_event(void);
-
-#define ImuEvent imu_christa_event
 
 #endif /* IMU_CRISTA_H */
