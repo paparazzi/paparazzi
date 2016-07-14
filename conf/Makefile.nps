@@ -27,6 +27,7 @@
 SRC_ARCH = arch/sim
 
 OPT ?= 2
+CXX = g++
 # Slightly bigger .elf files but gains the ability to decode macros
 DEBUG_FLAGS ?= -ggdb3
 

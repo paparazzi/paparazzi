@@ -5,7 +5,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <Ivy/ivy.h>
-//#include <Ivy/ivyglibloop.h>
 #include <Ivy/ivyloop.h>
 
 /*
@@ -27,29 +26,7 @@
 
 //#include NPS_SENSORS_PARAMS
 
-/* Gaia Ivy functions */
-static void on_WORLD_ENV(IvyClientPtr app __attribute__((unused)),
-                         void *user_data __attribute__((unused)),
-                         int argc __attribute__((unused)), char *argv[]);
 
-/* Datalink Ivy functions */
-static void on_DL_SETTING(IvyClientPtr app __attribute__((unused)),
-                          void *user_data __attribute__((unused)),
-                          int argc __attribute__((unused)), char *argv[]);
-
-/* callback associated to "Hello" messages */
-void HelloCallback (IvyClientPtr app, void *data, int argc, char **argv)
-{
-  const char* arg = (argc < 1) ? "" : argv[0];
-  IvySendMsg ("Bonjour%s", arg);
-}
-
-/* callback associated to "Bye" messages */
-void ByeCallback (IvyClientPtr app, void *data, int argc, char **argv)
-{
-  IvySendMsg ("Byebye");
-  IvyStop ();
-}
 
 void nps_ivy_init(char *ivy_bus)
 {
