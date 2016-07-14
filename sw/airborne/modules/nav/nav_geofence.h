@@ -52,7 +52,8 @@ static inline bool datalink_lost(void)
 #ifdef GEOFENCE_MAX_ALTITUDE// user defined geofence_max_altitude in the flight plan
 static inline bool higher_than_max_altitude(void)
 {
-  return (GetPosAlt() > GEOFENCE_MAX_ALTITUDE);
+  bool above_max_alt = (GetPosAlt() > GEOFENCE_MAX_ALTITUDE) || (GetPosAlt() > ( GetAltRef() + GEOFENCE_MAX_AGL));
+  return above_max_alt;
 }
 #else // we dont have max altitude specified, so the condition is never true
 static inline bool higher_than_max_altitude(void)
