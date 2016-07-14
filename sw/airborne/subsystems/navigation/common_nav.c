@@ -28,6 +28,7 @@
 #include "generated/flight_plan.h"
 #include "subsystems/ins.h"
 #include "math/pprz_geodetic_float.h"
+#include "math/pprz_geodetic_wgs84.h"
 
 float dist2_to_home;
 float dist2_to_wp;
@@ -58,8 +59,9 @@ void compute_dist2_to_home(void)
 }
 
 /** Reset the UTM zone to current GPS fix
+ * @param zone requested zone to set, set 0 for current gps zone
  */
-bool nav_reset_utm_zone(uint8_t zone)
+unit_t nav_reset_utm_zone(uint8_t zone)
 {
   struct UtmCoor_f previous_origin;
   UTM_COPY(previous_origin, state.utm_origin_f);
@@ -76,7 +78,7 @@ bool nav_reset_utm_zone(uint8_t zone)
 }
 
 /** Reset the geographic reference to the current GPS fix */
-bool nav_reset_reference(void)
+unit_t nav_reset_reference(void)
 {
   struct UtmCoor_f previous_origin;
   UTM_COPY(previous_origin, state.utm_origin_f);
@@ -93,21 +95,21 @@ bool nav_reset_reference(void)
   /* Ground alt */
   previous_ground_alt = ground_alt;
   struct LlaCoor_f lla;
-  lla_of_utm(&lla, state.utm_origin_f);
+  lla_of_utm_f(&lla, &state.utm_origin_f);
   ground_alt = wgs84_ellipsoid_to_geoid_f(lla.lat, lla.lon);
 
-  return TRUE;
+  return 0;
 }
 
 /** Reset the altitude reference to the current GPS alt */
-bool nav_reset_alt(void)
+unit_t nav_reset_alt(void)
 {
   ins_reset_altitude_ref();
 
   /* Ground alt */
   previous_ground_alt = ground_alt;
   struct LlaCoor_f lla;
-  lla_of_utm(&lla, state.utm_origin_f);
+  lla_of_utm_f(&lla, &state.utm_origin_f);
   ground_alt = wgs84_ellipsoid_to_geoid_f(lla.lat, lla.lon);
 
   return TRUE;
@@ -116,7 +118,7 @@ bool nav_reset_alt(void)
 /** Shift relative position of the waypoint according to a new zone
  * global positions are not updated
  */
-bool nav_zone_extend_waypoints(struct UtmCoor_f *prev_origin_utm, uint8_t zone)
+unit_t nav_zone_extend_waypoints(struct UtmCoor_f *prev_origin_utm, uint8_t zone)
 {
   /* recompute locaiton of home waypoint in new zone */
   struct LlaCoor_f prev_origin_lla;
@@ -134,17 +136,17 @@ bool nav_zone_extend_waypoints(struct UtmCoor_f *prev_origin_utm, uint8_t zone)
     waypoints[i].x += origin_diff.x;
     waypoints[i].y += origin_diff.y;
   }
-  return TRUE;
+  return 0;
 }
 
 /** Shift altitude of the waypoint according to a new ground altitude */
-bool nav_update_waypoints_alt(void)
+unit_t nav_update_waypoints_alt(void)
 {
   uint8_t i;
   for (i = 0; i < NB_WAYPOINT; i++) {
     waypoints[i].a += ground_alt - previous_ground_alt;
   }
-  return TRUE;
+  return 0;
 }
 
 void common_nav_periodic_task_4Hz()

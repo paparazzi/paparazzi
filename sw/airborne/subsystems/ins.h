@@ -53,6 +53,7 @@ extern void ins_reset_altitude_ref(void);
  *  Reset UTM zone according the the actual position.
  *  Only used with fixedwing firmware.
  *  Can be overwrite by specific INS implementation.
+ *  @param zone requested zone to set
  */
 extern void ins_reset_utm_zone(uint8_t zone);
 

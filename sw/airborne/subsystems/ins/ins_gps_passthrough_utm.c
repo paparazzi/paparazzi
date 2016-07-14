@@ -35,6 +35,7 @@
 #include "state.h"
 #include "subsystems/gps.h"
 #include "firmwares/fixedwing/nav.h"
+#include "generated/flight_plan.h"
 
 
 #include "subsystems/abi.h"

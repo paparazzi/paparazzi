@@ -58,12 +58,12 @@ extern struct point waypoints[];
 extern float ground_alt;
 
 extern void compute_dist2_to_home(void);
-extern bool nav_reset_utm_zone(uint8_t zone);
-extern bool nav_reset_reference(void);
-extern bool nav_reset_alt(void);
-extern bool nav_update_waypoints_alt(void);
+extern unit_t nav_reset_utm_zone(uint8_t zone);
+extern unit_t nav_reset_reference(void);
+extern unit_t nav_reset_alt(void);
+extern unit_t nav_update_waypoints_alt(void);
+extern unit_t nav_zone_extend_waypoints(struct UtmCoor_f *prev_origin_utm, uint8_t zone);
 extern void common_nav_periodic_task_4Hz(void);
-extern bool nav_zone_extend_waypoints(struct UtmCoor_f *prev_origin_utm, uint8_t zone);
 
 
 #define NavSetGroundReferenceHere() ({ nav_reset_reference(); nav_update_waypoints_alt(); false; })

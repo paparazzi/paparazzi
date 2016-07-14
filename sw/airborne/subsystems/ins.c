@@ -89,7 +89,7 @@ void WEAK ins_reset_utm_zone(uint8_t zone)
   }
   utm_of_lla_f(&utm0, &lla0);
 
-  stateSetLocalUtmOrigin_f(utm0);
+  stateSetLocalUtmOrigin_f(&utm0);
 }
 #else
 void WEAK ins_reset_utm_zone(uint8_t zone __attribute__((unused))) {}

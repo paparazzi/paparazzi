@@ -949,8 +949,8 @@ let () =
       check_altitude (float_of_string alt) xml;
       check_altitude_srtm (float_of_string alt) xml !fp_wgs84;
 
-      Xml2h.define "NAV_UTM_EAST0" (sprintf "%.0f" utm0.utm_x);
-      Xml2h.define "NAV_UTM_NORTH0" (sprintf "%.0f" utm0.utm_y);
+      Xml2h.define "NAV_UTM_EAST0" (sprintf "%.0f /* m */" utm0.utm_x);
+      Xml2h.define "NAV_UTM_NORTH0" (sprintf "%.0f /* m */" utm0.utm_y);
       Xml2h.define "NAV_UTM_ZONE0" (sprintf "%d" utm0.utm_zone);
       Xml2h.define "NAV_LAT0" (sprintf "%Ld /* 1e7deg */" (convert_angle !fp_wgs84.posn_lat));
       Xml2h.define "NAV_LON0" (sprintf "%Ld /* 1e7deg */" (convert_angle !fp_wgs84.posn_long));
