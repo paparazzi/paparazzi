@@ -5,8 +5,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <Ivy/ivy.h>
-#include <Ivy/ivyglibloop.h>
+//#include <Ivy/ivyglibloop.h>
+#include <Ivy/ivyloop.h>
 
+/*
 #include "generated/airframe.h"
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_algebra_double.h"
@@ -15,6 +17,7 @@
 #include "nps_fdm.h"
 #include "nps_sensors.h"
 #include "nps_atmosphere.h"
+*/
 
 //#include "subsystems/navigation/common_flight_plan.h"
 
@@ -22,7 +25,7 @@
 #include "subsystems/gps.h"
 #endif
 
-#include NPS_SENSORS_PARAMS
+//#include NPS_SENSORS_PARAMS
 
 /* Gaia Ivy functions */
 static void on_WORLD_ENV(IvyClientPtr app __attribute__((unused)),
@@ -34,10 +37,26 @@ static void on_DL_SETTING(IvyClientPtr app __attribute__((unused)),
                           void *user_data __attribute__((unused)),
                           int argc __attribute__((unused)), char *argv[]);
 
+/* callback associated to "Hello" messages */
+void HelloCallback (IvyClientPtr app, void *data, int argc, char **argv)
+{
+  const char* arg = (argc < 1) ? "" : argv[0];
+  IvySendMsg ("Bonjour%s", arg);
+}
+
+/* callback associated to "Bye" messages */
+void ByeCallback (IvyClientPtr app, void *data, int argc, char **argv)
+{
+  IvySendMsg ("Byebye");
+  IvyStop ();
+}
+
 void nps_ivy_init(char *ivy_bus)
 {
-  const char *agent_name = AIRFRAME_NAME"_NPS";
-  const char *ready_msg = AIRFRAME_NAME"_NPS Ready";
+  //const char *agent_name = AIRFRAME_NAME"_NPS";
+  const char *agent_name = "M_NPS";
+  //const char *ready_msg = AIRFRAME_NAME"_NPS Ready";
+  const char *ready_msg = "M_NPS Ready";
   IvyInit(agent_name, ready_msg, NULL, NULL, NULL, NULL);
 
   // bind on a general WORLD_ENV (not a reply to request)
@@ -45,6 +64,12 @@ void nps_ivy_init(char *ivy_bus)
 
   // to be able to change datalink_enabled setting back on
   IvyBindMsg(on_DL_SETTING, NULL, "^(\\S*) DL_SETTING (\\S*) (\\S*) (\\S*)");
+
+  /* binding of HelloCallback to messages starting with 'Hello' */
+  IvyBindMsg (HelloCallback, 0, "^Hello(.*)");
+
+  /* binding of ByeCallback to 'Bye' */
+  IvyBindMsg (ByeCallback, 0, "^Bye$");
 
 #ifdef __APPLE__
   const char *default_ivy_bus = "224.255.255.255";
@@ -67,24 +92,25 @@ static void on_WORLD_ENV(IvyClientPtr app __attribute__((unused)),
                          int argc __attribute__((unused)), char *argv[])
 {
   // wind speed in m/s
-  struct FloatVect3 wind;
-  wind.x = atof(argv[1]); //east
-  wind.y = atof(argv[2]); //north
-  wind.z = atof(argv[3]); //up
+  //struct FloatVect3 wind;
+  //wind.x = atof(argv[1]); //east
+  //wind.y = atof(argv[2]); //north
+  //wind.z = atof(argv[3]); //up
 
   /* set wind speed in NED */
-  nps_atmosphere_set_wind_ned(wind.y, wind.x, -wind.z);
+  //nps_atmosphere_set_wind_ned(wind.y, wind.x, -wind.z);
 
   /* not used so far */
   //float ir_contrast = atof(argv[4]);
 
   /* set new time factor */
-  nps_set_time_factor(atof(argv[5]));
+  //nps_set_time_factor(atof(argv[5]));
 
 #if USE_GPS
   // directly set gps fix in subsystems/gps/gps_sim_nps.h
-  gps_has_fix = atoi(argv[6]); // gps_availability
+  ///gps_has_fix = atoi(argv[6]); // gps_availability
 #endif
+  printf("WORLD_ENV received!\n");
 }
 
 /*
@@ -105,6 +131,7 @@ void nps_ivy_send_WORLD_ENV_REQ(void)
   // Bind to the reply
   ivyPtr = IvyBindMsg(on_WORLD_ENV, NULL, "^%d_%d (\\S*) WORLD_ENV (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)", pid, seq);
   // Send actual request
+  /*
   IvySendMsg("nps %d_%d WORLD_ENV_REQ %f %f %f %f %f %f",
       pid, seq,
       DegOfRad(fdm.lla_pos_pprz.lat),
@@ -113,20 +140,30 @@ void nps_ivy_send_WORLD_ENV_REQ(void)
       (fdm.ltpprz_pos.x),
       (fdm.ltpprz_pos.y),
       (fdm.ltpprz_pos.z));
+  */
+
+  IvySendMsg("nps %d_%d WORLD_ENV_REQ %f %f %f %f %f %f",
+      1, 2,
+      1.3,
+      1.4,
+      1.5,
+      1.6,
+      1.7,
+      1.8);
   seq++;
 }
 
 
-#include "generated/settings.h"
-#include "pprzlink/dl_protocol.h"
-#include "subsystems/datalink/downlink.h"
+//#include "generated/settings.h"
+//#include "pprzlink/dl_protocol.h"
+//#include "subsystems/datalink/downlink.h"
 static void on_DL_SETTING(IvyClientPtr app __attribute__((unused)),
                           void *user_data __attribute__((unused)),
                           int argc __attribute__((unused)), char *argv[])
 {
-  if (atoi(argv[1]) != AC_ID) {
-    return;
-  }
+  //if (atoi(argv[1]) != AC_ID) {
+  //  return;
+ // }
 
   /* HACK:
    * we actually don't want to allow changing settings if datalink is disabled,
@@ -134,13 +171,15 @@ static void on_DL_SETTING(IvyClientPtr app __attribute__((unused)),
    * TODO: only allow changing the datalink_enabled setting
    */
 
-  uint8_t index = atoi(argv[2]);
-  float value = atof(argv[3]);
-  DlSetting(index, value);
-  DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &index, &value);
-  printf("setting %d %f\n", index, value);
+  //uint8_t index = atoi(argv[2]);
+  //float value = atof(argv[3]);
+  //DlSetting(index, value);
+  //DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &index, &value);
+  //printf("setting %d %f\n", index, value);
+  printf("DL_SETTINGS received!\n");
 }
 
+/*
 void nps_ivy_display(void)
 {
   IvySendMsg("%d NPS_RATE_ATTITUDE %f %f %f %f %f %f",
@@ -178,8 +217,9 @@ void nps_ivy_display(void)
              DegOfRad(RATE_FLOAT_OF_BFP(sensors.gyro.bias_random_walk_value.x) + sensors.gyro.bias_initial.x),
              DegOfRad(RATE_FLOAT_OF_BFP(sensors.gyro.bias_random_walk_value.y) + sensors.gyro.bias_initial.y),
              DegOfRad(RATE_FLOAT_OF_BFP(sensors.gyro.bias_random_walk_value.z) + sensors.gyro.bias_initial.z));
-
+*/
   /* transform magnetic field to body frame */
+/*
   struct DoubleVect3 h_body;
   double_quat_vmult(&h_body, &fdm.ltp_to_body_quat, &fdm.ltp_h);
 
@@ -197,4 +237,9 @@ void nps_ivy_display(void)
              fdm.wind.x,
              fdm.wind.y,
              fdm.wind.z);
+}
+*/
+
+void nps_ivy_main_loop(void){
+  IvyMainLoop();
 }
