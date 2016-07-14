@@ -94,9 +94,11 @@ clean:
 	$(Q)if [ -f luftboot/src/Makefile ]; then \
 		$(MAKE) -C luftboot/src clean; \
 	fi
+
+clean_opencv_bebop:
 	$(Q)if [ -f opencv_bebop/Makefile ]; then \
 		$(MAKE) -C opencv_bebop clean; \
 	fi
 
 .NOTPARALLEL: libopencm3 luftboot
-.PHONY: all clean update_submodules libopencm3 luftboot chibios fatfs luftboot_flash libopencm3.build luftboot.build mavlink.build libsbp pprzlink pprzlink.build opencv_bebop opencv_bebop.build
+.PHONY: all clean update_submodules libopencm3 luftboot chibios fatfs luftboot_flash libopencm3.build luftboot.build mavlink.build libsbp pprzlink pprzlink.build opencv_bebop opencv_bebop.build clean_opencv_bebop
