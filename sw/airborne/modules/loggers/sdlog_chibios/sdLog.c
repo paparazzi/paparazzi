@@ -127,6 +127,12 @@ typedef enum {
   FCNTL_EXIT =  0b11
 } FileFcntl;
 
+struct _SdLogBuffer {
+  LogMessage *lm;
+  size_t     len;
+  uint32_t   offset;
+};
+
 
 
 #define LOG_MESSAGE_PREBUF_LEN (SDLOG_MAX_MESSAGE_LEN+sizeof(LogMessage))
@@ -162,6 +168,12 @@ SdioError sdLogInit(uint32_t *freeSpaceInKo)
   DWORD clusters = 0;
   FATFS *fsp = NULL;
 
+  // if init is already done, return ERROR
+  if (sdLogThd != NULL) {
+    *freeSpaceInKo = 0;
+    return SDLOG_WAS_LAUNCHED;
+  }
+
 #ifdef SDLOG_NEED_QUEUE
   msgqueue_init(&messagesQueue, &HEAP_DEFAULT, queMbBuffer, SDLOG_QUEUE_BUCKETS);
 #endif
@@ -182,7 +194,7 @@ SdioError sdLogInit(uint32_t *freeSpaceInKo)
 #if _FATFS < 8000
   FRESULT rc = f_mount(0, &fatfs);
 #else
-  FRESULT rc = f_mount(&fatfs, "", 0);
+  FRESULT rc = f_mount(&fatfs, "/", 1);
 #endif
 
   if (rc != FR_OK) {
@@ -330,16 +342,17 @@ SdioError sdLogWriteLog(const FileDes fd, const char *fmt, ...)
     return SDLOG_FATFS_ERROR;
   }
 
-  const SdioError status = flushWriteByteBuffer (fd);
+  const SdioError status = flushWriteByteBuffer(fd);
   if (status != SDLOG_OK) {
     return status;
   }
-  
+
   va_list ap;
   va_start(ap, fmt);
 
   LogMessage *lm = tlsf_malloc_r(&HEAP_DEFAULT, LOG_MESSAGE_PREBUF_LEN);
   if (lm == NULL) {
+    va_end(ap);
     return SDLOG_QUEUEFULL;
   }
 
@@ -369,7 +382,7 @@ SdioError sdLogFlushLog(const FileDes fd)
     return SDLOG_FATFS_ERROR;
   }
 
- const SdioError status = flushWriteByteBuffer (fd);
+  const SdioError status = flushWriteByteBuffer(fd);
   if (status != SDLOG_OK) {
     return status;
   }
@@ -403,7 +416,7 @@ SdioError sdLogCloseLog(const FileDes fd)
   lm->op.fcntl = FCNTL_CLOSE;
   lm->op.fd = fd & 0x1f;
 
-  if (msgqueue_send(&messagesQueue, lm, sizeof(lm), MsgQueue_REGULAR) < 0) {
+  if (msgqueue_send(&messagesQueue, lm, sizeof(LogMessage), MsgQueue_REGULAR) < 0) {
     return SDLOG_QUEUEFULL;
   }
 
@@ -437,7 +450,7 @@ SdioError sdLogWriteRaw(const FileDes fd, const uint8_t *buffer, const size_t le
     return SDLOG_FATFS_ERROR;
   }
 
-  const SdioError status = flushWriteByteBuffer (fd);
+  const SdioError status = flushWriteByteBuffer(fd);
   if (status != SDLOG_OK) {
     return status;
   }
@@ -456,6 +469,78 @@ SdioError sdLogWriteRaw(const FileDes fd, const uint8_t *buffer, const size_t le
   }
 
   return SDLOG_OK;
+}
+
+SdioError sdLogAllocSDB(SdLogBuffer **sdb, const size_t len)
+{
+  *sdb = tlsf_malloc_r(&HEAP_DEFAULT, logRawLen(len));
+  if (*sdb == NULL) {
+    return SDLOG_QUEUEFULL;
+  }
+
+  LogMessage *lm = tlsf_malloc_r(&HEAP_DEFAULT, logRawLen(len));
+  if (lm == NULL) {
+    tlsf_free_r(&HEAP_DEFAULT, *sdb);
+    return SDLOG_QUEUEFULL;
+  }
+
+  (*sdb)->lm = lm;
+  (*sdb)->len = len;
+  (*sdb)->offset = 0;
+  return SDLOG_OK;
+}
+
+char *sdLogGetBufferFromSDB(SdLogBuffer *sdb)
+{
+  return sdb->lm->mess + sdb->offset;
+}
+
+bool sdLogSeekBufferFromSDB(SdLogBuffer *sdb, uint32_t offset)
+{
+  if ((sdb->offset + offset) < sdb->len) {
+    sdb->offset += offset;
+    return true;
+  } else {
+    return false;
+  }
+}
+
+size_t sdLogGetBufferLenFromSDB(SdLogBuffer *sdb)
+{
+  return sdb->len - sdb->offset;
+}
+
+SdioError sdLogWriteSDB(const FileDes fd, SdLogBuffer *sdb)
+{
+  SdioError status = SDLOG_OK;
+
+  if ((fd >= SDLOG_NUM_BUFFER) || (fileDes[fd].inUse == false)) {
+    status = SDLOG_FATFS_ERROR;
+    goto fail;
+  }
+
+  status = flushWriteByteBuffer(fd);
+  if (status != SDLOG_OK) {
+    goto fail;
+  }
+
+  sdb->lm->op.fcntl = FCNTL_WRITE;
+  sdb->lm->op.fd = fd & 0x1f;
+
+  if (msgqueue_send(&messagesQueue, sdb->lm, logRawLen(sdb->len), MsgQueue_REGULAR) < 0) {
+    // msgqueue_send take care of freeing lm memory even in case of failure
+    // just need to free sdb memory
+    status = SDLOG_QUEUEFULL;
+  }
+
+  goto exit;
+
+fail:
+  tlsf_free_r(&HEAP_DEFAULT, sdb->lm);
+
+exit:
+  tlsf_free_r(&HEAP_DEFAULT, sdb);
+  return status;
 }
 
 
@@ -485,14 +570,14 @@ SdioError sdLogWriteByte(const FileDes fd, const uint8_t value)
   lm->mess[fileDes[fd].writeByteSeek++] = value;
 
   if (fileDes[fd].writeByteSeek == WRITE_BYTE_CACHE_SIZE) {
-    const SdioError status = flushWriteByteBuffer (fd);
+    const SdioError status = flushWriteByteBuffer(fd);
     // message is not sent so allocated buffer will not be released by receiver side
     // instead of freeing buffer, we just reset cache seek.
     if (status == SDLOG_QUEUEFULL) {
       fileDes[fd].writeByteSeek = 0;
       return status;
     }
-  } 
+  }
 
   return SDLOG_OK;
 }
