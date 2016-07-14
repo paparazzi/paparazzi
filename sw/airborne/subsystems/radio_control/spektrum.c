@@ -23,6 +23,13 @@
 
 #include "spektrum.h"
 
+/**
+ * @file subsystems/radio_control/spektrum.c
+ *
+ * Spektrum sattelite receiver implementation. For the protocol specification see:
+ * http://www.spektrumrc.com/ProdInfo/Files/Remote%20Receiver%20Interfacing%20Rev%20A.pdf
+ */
+
 #include "std.h"
 #include "subsystems/radio_control.h"
 #include "mcu_periph/uart.h"
@@ -42,7 +49,7 @@ PRINT_CONFIG_VAR(SPEKTRUM_MAX_FRAME_TIME)
 
 /* Number of low pulses sent during binding to the satellite receivers */
 #ifndef SPEKTRUM_BIND_PULSES
-#define SPEKTRUM_BIND_PULSES 10
+#define SPEKTRUM_BIND_PULSES 9
 #endif
 
 /* Set polarity using RC_POLARITY_GPIO. */
@@ -179,7 +186,7 @@ static inline void spektrum_guess_type(struct spektrum_sat_t *sat, uint16_t chan
   }
 
   // We received the second frame
-  if((sat->values[0] % SPEKTRUM_CHANNELS_PER_FRAME) == 0 && chan & 0x8000) {
+  if((sat->values[0] % SPEKTRUM_CHANNELS_PER_FRAME) == 0) {
     sat->values[2] |= 1 << ((chan >> 10) & 0xF);
     sat->values[4] |= 1 << ((chan >> 11) & 0xF);
   }
@@ -199,12 +206,6 @@ static inline void spektrum_parse_channel(struct spektrum_sat_t *sat, uint16_t c
   if(chan == 0xFFFF)
     return;
 
-  // If we expect one frame or when this is the second frame
-  //if(((sat->tx_type & 0x3) == 1) || (i == 0 && chan & 0x8000)) {
-    sat->valid = true;
-    spektrum.valid = true;
-  //}
-
   // We got a 11bit precision packet
   if(sat->tx_type & 0x10) {
     uint8_t chan_num = (chan >> 11) & 0xF;
@@ -219,6 +220,12 @@ static inline void spektrum_parse_channel(struct spektrum_sat_t *sat, uint16_t c
     sat->values[chan_num] -= 0x200;
     sat->values[chan_num] *= MAX_PPRZ / 0x156;
   }
+
+  // If we expect one frame or when this is the second frame
+  //if(((sat->tx_type & 0x3) == 1) || (i == 0 && chan & 0x8000)) {
+    sat->valid = true;
+    spektrum.valid = true;
+  //}
 }
 
 /* Spektrum parser for a satellite */
