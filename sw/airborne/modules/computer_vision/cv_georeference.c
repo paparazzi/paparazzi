@@ -64,6 +64,7 @@ void georeference_project_target(struct camera_frame_t *tar)
                (tar->px - (tar->w / 2)),
                (tar->f)
               );
+
   //scale position to later comptations
   INT32_VECT3_LSHIFT(geo.target_p, geo.target_p, 4);
 
@@ -98,7 +99,7 @@ void georeference_project_target(struct camera_frame_t *tar)
 
   // Multiply with height above ground
   struct NedCoor_i *pos = stateGetPositionNed_i();
-  int32_t zb = pos->z;
+  int32_t zb = -pos->z; // Distance to target is equal to altitude
   geo.target_rel.x *= zb;
   geo.target_rel.y *= zb;
 
@@ -108,8 +109,8 @@ void georeference_project_target(struct camera_frame_t *tar)
   geo.target_rel.z = zb;
 
   // NED
-  geo.target_abs.x = pos->x - geo.target_rel.x;
-  geo.target_abs.y = pos->y - geo.target_rel.y;
+  geo.target_abs.x = pos->x + geo.target_rel.x;
+  geo.target_abs.y = pos->y + geo.target_rel.y;
   geo.target_abs.z = 0;
 }
 

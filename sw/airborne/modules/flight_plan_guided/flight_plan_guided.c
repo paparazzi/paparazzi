@@ -92,8 +92,11 @@ uint8_t MoveForward(float vx) {
     return false;
 }
 
-
 void marker_detection_periodic(void) {
+//
+//    struct NedCoor_f *pos = stateGetPositionNed_f();
+//
+//    guidance_h_set_guided_vel(pos->x + 1, pos->y);
 
     if (marker_detected) {
 
@@ -105,15 +108,27 @@ void marker_detection_periodic(void) {
         cam.w = 240; // Frame width [px]
 
         georeference_project_target(&cam);
+        georeference_filter_target(0, 4);
 
 //        int delta_x = marker_pixel_x - 120; // +x = marker is right, bebop should go 'right'
 //        int delta_y = marker_pixel_y - 120; // +y = marker is behind, bebop should go 'back'
 //
-        fprintf(stderr, "[DETECTOR] found! %i, %i\n", geo.target_rel.x, geo.target_rel.y);
+        fprintf(stderr, "[DETECTOR] found! %.3f, %.3f, %.3f \n",
+                POS_FLOAT_OF_BFP(geo.target_rel.x),
+                POS_FLOAT_OF_BFP(geo.target_rel.y),
+                POS_FLOAT_OF_BFP(geo.target_rel.z));
 //
 //        float gain = 0.001;
 //
 //        // body velocity                 +x = +forward,   +y = +right
 //        guidance_h_set_guided_body_vel(-delta_y * gain, delta_x * gain);
+
+        guidance_h_set_guided_pos(
+                POS_FLOAT_OF_BFP(geo.filter.x.x),//target_abs.x),
+                POS_FLOAT_OF_BFP(geo.filter.x.y)//target_abs.y)
+        );
+    } else {
+
+        //guidance_h_set_guided_vel(0, 0);
     }
 }
