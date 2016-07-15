@@ -14,7 +14,7 @@ nps.MAKEFILE = nps
 
 nps.CFLAGS  += -DSITL -DUSE_NPS
 nps.CFLAGS  += $(shell pkg-config glib-2.0 --cflags)
-nps.LDFLAGS += $(shell pkg-config glib-2.0 --libs) -lm -lglibivy $(shell pcre-config --libs) -lgsl -lgslcblas
+nps.LDFLAGS += $(shell pkg-config glib-2.0 --libs) -lm $(shell pcre-config --libs) -lgsl -lgslcblas -pthread -livy
 nps.CFLAGS  += -I$(SRC_FIRMWARE) -I$(SRC_BOARD) -I$(PAPARAZZI_SRC)/sw/simulator -I$(PAPARAZZI_SRC)/sw/simulator/nps -I$(PAPARAZZI_HOME)/conf/simulator/nps
 nps.LDFLAGS += $(shell sdl-config --libs)
 
@@ -25,7 +25,8 @@ nps.LDFLAGS += $(shell sdl-config --libs)
 VPATH += $(PAPARAZZI_SRC)/sw/simulator
 
 NPSDIR = nps
-nps.srcs += $(NPSDIR)/nps_main.cpp                 \
+nps.srcs += $(NPSDIR)/nps_main.cpp               \
+       $(NPSDIR)/NpsIvy.cpp                       \
        $(NPSDIR)/nps_random.c                    \
        $(NPSDIR)/nps_sensors.c                   \
        $(NPSDIR)/nps_sensors_utils.c             \

@@ -36,17 +36,19 @@
 #include <Ivy/ivy.h>
 #include <Ivy/ivyloop.h>
 
+extern "C" {
+  #include "nps_fdm.h"
+  #include "nps_sensors.h"
+}
 
-
-
-#define IVY_DISPLAY_PERIOD_MS 1000
+#define IVY_DISPLAY_PERIOD_MS 33 // ~30Hz
 
 class NpsIvy
 {
   //extern void nps_ivy_init(char *ivy_bus);
   public:
-    NpsIvy();
-    NpsIvy(std::string bus);
+    NpsIvy(struct NpsFdm* fdm_ref, struct NpsSensors* sensors_ref);
+    NpsIvy(struct NpsFdm* fdm_ref, struct NpsSensors* sensors_ref, char *ivy_bus);
     ~NpsIvy();
 
   private:
@@ -56,38 +58,8 @@ class NpsIvy
     void run_sender(void);
     void run_main_loop(void);
 
-    /*
-     * Parse WORLD_ENV message from gaia.
-     *
-     */
-    static void on_WORLD_ENV(IvyClientPtr app __attribute__((unused)),
-                             void *user_data __attribute__((unused)),
-                             int argc __attribute__((unused)), char *argv[])
-    {
-      printf("WORLD_ENV received!\n");
-    }
-
-
-    static void on_DL_SETTING(IvyClientPtr app __attribute__((unused)),
-                              void *user_data __attribute__((unused)),
-                              int argc __attribute__((unused)), char *argv[])
-    {
-      printf("DL_SETTINGS received!\n");
-    }
-
-    /* callback associated to "Hello" messages */
-    static void HelloCallback (IvyClientPtr app, void *data, int argc, char **argv)
-    {
-      const char* arg = (argc < 1) ? "" : argv[0];
-      IvySendMsg ("Bonjour%s", arg);
-    }
-
-    /* callback associated to "Bye" messages */
-    static void ByeCallback (IvyClientPtr app, void *data, int argc, char **argv)
-    {
-      IvySendMsg ("Byebye");
-      IvyStop ();
-    }
+    struct NpsFdm* fdm;
+    struct NpsSensors* sensors;
 };
 
 #endif /* NPS_IVY */

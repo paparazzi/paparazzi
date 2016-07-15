@@ -41,7 +41,6 @@ CFLAGS += $(USER_CFLAGS) $(BOARD_CFLAGS)
 CFLAGS += -O$(OPT)
 CFLAGS += $(DEBUG_FLAGS)
 CFLAGS += -std=gnu99
-#CFLAGS += $(shell pkg-config --cflags-only-I ivy-glib)
 
 CXXFLAGS  = -W -Wall
 CXXFLAGS += $(INCLUDES)
@@ -50,9 +49,8 @@ CXXFLAGS += $(USER_CFLAGS) $(BOARD_CFLAGS)
 CXXFLAGS += -O$(OPT)
 CXXFLAGS += $(DEBUG_FLAGS)
 CXXFLAGS += --std=c++11
-#CXXFLAGS += $(shell pkg-config --cflags-only-I ivy-glib)
 
-LDFLAGS	+= $($(TARGET).LDFLAGS) -pthread -livy
+LDFLAGS	+= $($(TARGET).LDFLAGS)
 LDFLAGS += $(BOARD_LDFLAGS)
 
 # x86/64 and armv7 allow unaligned access
