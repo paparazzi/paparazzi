@@ -28,6 +28,14 @@
 #include "std.h"
 #include "peripherals/video_device.h"
 
+#ifndef MT9V117_OUTPUT_HEIGHT
+#define MT9V117_OUTPUT_HEIGHT 3320
+#endif
+
+#ifndef MT9V117_OUTPUT_WIDTH
+#define MT9V117_OUTPUT_WIDTH 2048
+#endif
+
 /** uart connected to GPS internally */
 #define UART1_DEV /dev/ttyPA1
 
