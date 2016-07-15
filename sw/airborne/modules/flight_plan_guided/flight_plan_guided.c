@@ -36,6 +36,7 @@
 #include <time.h>
 
 #include "modules/computer_vision/marker/detector.h"
+#include "modules/computer_vision/cv_georeference.h"
 
 
 void flight_plan_guided_init(void) {} // Dummy
@@ -96,14 +97,23 @@ void marker_detection_periodic(void) {
 
     if (marker_detected) {
 
-        int delta_x = marker_pixel_x - 120; // +x = marker is right, bebop should go 'right'
-        int delta_y = marker_pixel_y - 120; // +y = marker is behind, bebop should go 'back'
+        struct camera_frame_t cam;
+        cam.px = marker_pixel_x;
+        cam.py = marker_pixel_y;
+        cam.f = 400; // Focal length [px]
+        cam.h = 240; // Frame height [px]
+        cam.w = 240; // Frame width [px]
 
-        fprintf(stderr, "[DETECTOR] found! %i, %i\n", delta_x, delta_y);
+        georeference_project_target(&cam);
 
-        float gain = 0.001;
-
-        // body velocity                 +x = +forward,   +y = +right
-        guidance_h_set_guided_body_vel(-delta_y * gain, delta_x * gain);
+//        int delta_x = marker_pixel_x - 120; // +x = marker is right, bebop should go 'right'
+//        int delta_y = marker_pixel_y - 120; // +y = marker is behind, bebop should go 'back'
+//
+        fprintf(stderr, "[DETECTOR] found! %i, %i\n", geo.target_rel.x, geo.target_rel.y);
+//
+//        float gain = 0.001;
+//
+//        // body velocity                 +x = +forward,   +y = +right
+//        guidance_h_set_guided_body_vel(-delta_y * gain, delta_x * gain);
     }
 }

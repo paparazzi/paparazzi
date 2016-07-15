@@ -31,6 +31,7 @@
     </module>
     <module name="pose_history"/>
     <module name="video_thread"/>
+    <module name="cv_georeference"/>
     <module name="flight_plan_guided"/>
 
     <module name="cv_opticflow">

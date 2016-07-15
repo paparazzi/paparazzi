@@ -32,20 +32,7 @@
 #include "state.h"
 #include "generated/flight_plan.h"
 #include "subsystems/datalink/downlink.h"
-
-struct georeference_filter_t {
-  struct NedCoor_i x;          ///< Target
-  struct NedCoor_i v;          ///< Target Velocity
-  int32_t P;                    ///< Covariance/Average-count
-};
-
-struct georeference_t {
-  struct Int32Vect3 target_p;   ///< Target in pixels, with z being the focal length in pixels, in camera frame x=up,y=right,out
-  struct Int32Vect3 target_rel;    ///< Relative position to target
-  struct NedCoor_i target_abs;    ///< Absolute position to target NED frame
-
-  struct georeference_filter_t filter;  ///< Filter waypoint location
-};
+#include "subsystems/navigation/waypoints.h"
 
 int32_t focal_length;
 struct georeference_t geo;
@@ -53,7 +40,7 @@ struct georeference_t geo;
 void georeference_project(struct camera_frame_t *tar, int wp)
 {
 
-  georeference_project(tar);
+  georeference_project_target(tar);
 
   // ENU
   if (wp > 0) {
@@ -67,7 +54,7 @@ void georeference_project(struct camera_frame_t *tar, int wp)
   }
 }
 
-void georeference_project(struct camera_frame_t *tar)
+void georeference_project_target(struct camera_frame_t *tar)
 {
   // Target direction in camera frame: Zero is looking down in body frames
   // Pixel with x (width) value 0 projects to the left (body-Y-axis)
@@ -78,7 +65,7 @@ void georeference_project(struct camera_frame_t *tar)
                (tar->f)
               );
   //scale position to later comptations
-  INT32_VECT3_LSHIFT(geo.target_p, geo.target_p, 4)
+  INT32_VECT3_LSHIFT(geo.target_p, geo.target_p, 4);
 
   // Rotate Camera <-> Body
 /*
@@ -93,8 +80,8 @@ void georeference_project(struct camera_frame_t *tar)
   */
 \
   // TODO replace folowing with true derotation as exampled above
-  struct NedCoor_i target_b;
-  int32_vect_copy(target_b, geo.target_p);
+  struct Int32Vect3 target_b;
+  VECT3_COPY(target_b, geo.target_p);
 
   // Body <-> LTP
   struct Int32RMat *ltp_to_body_rmat = stateGetNedToBodyRMat_i();
@@ -128,7 +115,7 @@ void georeference_project(struct camera_frame_t *tar)
 
 void georeference_filter(bool kalman, int wp, int length)
 {
-  georeference_filter(kalman, length);
+  georeference_filter_target(kalman, length);
 
   // ENU
   waypoint_set_xy_i(wp, geo.filter.x.y, geo.filter.x.x);
@@ -140,7 +127,7 @@ void georeference_filter(bool kalman, int wp, int length)
                                  &(geo.filter.x.x), &(h));
 }
 
-void georeference_filter(bool kalman, int length)
+void georeference_filter_target(bool kalman, int length)
 {
   struct Int32Vect3 err;
 
@@ -168,27 +155,27 @@ void georeference_filter(bool kalman, int length)
 
 void georeference_run(void)
 {
-  struct camera_frame_t target;
-  target.w = 320;
-  target.h = 240;
-  target.f = focal_length;
-  target.px = 0;
-  target.py = 0;
-  georeference_project(&target,WP_p1);
-  target.px = 320;
-  target.py = 0;
-  georeference_project(&target,WP_p2);
-  target.px = 320;
-  target.py = 240;
-  georeference_project(&target,WP_p3);
-  target.px = 0;
-  target.py = 240;
-  georeference_project(&target,WP_p4);
-
-  target.px = 0;
-  target.py = 120;
-  georeference_project(&target,0);
-  georeference_filter(FALSE, WP_CAM,50);
+//  struct camera_frame_t target;
+//  target.w = 320;
+//  target.h = 240;
+//  target.f = focal_length;
+//  target.px = 0;
+//  target.py = 0;
+//  georeference_project(&target,WP_p1);
+//  target.px = 320;
+//  target.py = 0;
+//  georeference_project(&target,WP_p2);
+//  target.px = 320;
+//  target.py = 240;
+//  georeference_project(&target,WP_p3);
+//  target.px = 0;
+//  target.py = 240;
+//  georeference_project(&target,WP_p4);
+//
+//  target.px = 0;
+//  target.py = 120;
+//  georeference_project(&target,0);
+//  georeference_filter(FALSE, WP_CAM,50);
 }
 
 void georeference_init(void)

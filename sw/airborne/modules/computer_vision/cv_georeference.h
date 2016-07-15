@@ -28,6 +28,21 @@
 
 #include "std.h"
 #include <stdint.h>
+#include "math/pprz_geodetic_int.h"
+
+struct georeference_filter_t {
+    struct NedCoor_i x;          ///< Target
+    struct NedCoor_i v;          ///< Target Velocity
+    int32_t P;                    ///< Covariance/Average-count
+};
+
+struct georeference_t {
+    struct Int32Vect3 target_p;   ///< Target in pixels, with z being the focal length in pixels, in camera frame x=up,y=right,out
+    struct Int32Vect3 target_rel;    ///< Relative position to target
+    struct NedCoor_i target_abs;    ///< Absolute position to target NED frame
+
+    struct georeference_filter_t filter;  ///< Filter waypoint location
+};
 
 extern int32_t focal_length;
 extern struct georeference_t geo;
@@ -53,7 +68,7 @@ void georeference_project(struct camera_frame_t *tar, int wp);
 /** Get geolocation of target relative to the vehicle and in absolute position
  * @param tar target location in image frame with (0,0) in top left of image
  */
-void georeference_project(struct camera_frame_t *tar);
+void georeference_project_target(struct camera_frame_t *tar);
 
 /** Update filter of georeference and move waypoint accordingly
  * @param kalman 0 moving average filter, 1 kalman filter. NOTE Kalman filter not yet functional
@@ -64,10 +79,9 @@ void georeference_filter(bool kalman, int wp, int length);
 
 /** update filter of georeference
  * @param kalman 0 moving average filter, 1 kalman filter
- * @param wp waypoint to be updated
  * @param length Number of points for moving average filter
  */
-void georeference_filter(bool kalman, int wp, int length);
+void georeference_filter_target(bool kalman, int length);
 
 
 #endif
