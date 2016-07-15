@@ -195,8 +195,6 @@ struct v4l2_device *v4l2_init(char *device_name, struct img_size_t size, struct 
   CLEAR(fmtdesc);
   CLEAR(crp);
 
-  printf("Size %d %d, Crop %d %d %d %d\r\n", size.w, size.h, crop.x, crop.y, crop.w, crop.h);
-
   // Try to open the device
   int fd = open(device_name, O_RDWR | O_NONBLOCK, 0);
   if (fd < 0) {
@@ -230,8 +228,9 @@ struct v4l2_device *v4l2_init(char *device_name, struct img_size_t size, struct 
       break;
   }
 
-  if(fmtdesc.pixelformat != _pixelformat) {
-    printf("[v4l2] Pixelformat not available on device %s (wanted: %d)\r\n", device_name, _pixelformat);
+  // Accept if no format can be get
+  if(fmtdesc.index != 0 && fmtdesc.pixelformat != _pixelformat) {
+    printf("[v4l2] Pixelformat not available on device %s (wanted: %4X)\r\n", device_name, _pixelformat);
     return NULL;
   }
 
@@ -242,10 +241,13 @@ struct v4l2_device *v4l2_init(char *device_name, struct img_size_t size, struct 
   crp.c.width = crop.w;
   crp.c.height = crop.h;
 
-  if (ioctl(fd, VIDIOC_S_CROP, &crp) < 0) {
-    printf("[v4l2] Could not set crop window of %s\n", device_name);
-    close(fd);
-    return NULL;
+  // Only crop when needed
+  if(crop.x != 0 || crop.y != 0 || crop.w != size.w || crop.h != size.h) {
+    if (ioctl(fd, VIDIOC_S_CROP, &crp) < 0) {
+      printf("[v4l2] Could not set crop window of %s\n", device_name);
+      close(fd);
+      return NULL;
+    }
   }
 
   // Set the format settings
