@@ -77,7 +77,7 @@ mavlink.build:
 
 libsbp: libsbp.update
 
-pprzlink: pprzlink.build
+pprzlink: pprzlink.update pprzlink.build
 
 pprzlink.build:
 	$(Q)$(MAKE) -C pprzlink
