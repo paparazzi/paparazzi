@@ -58,7 +58,7 @@ class widget :
       ?group:GnoCanvas.group ->
       ?width:int ->
       ?fill_color:string ->
-      ?color:string -> Latlong.geographic -> Latlong.geographic -> Latlong.geographic -> Latlong.geographic -> GnoCanvas.polygon
+      ?color:string -> Latlong.geographic array -> GnoCanvas.polygon
     method connect_view : (unit -> unit) -> unit
     method current_zoom : float
     method display_alt : Latlong.geographic -> unit

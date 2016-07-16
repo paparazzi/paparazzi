@@ -604,13 +604,17 @@ object (self)
     l#show ();
     l
 
-  method polygon = fun ?(group = canvas#root) ?(width=1) ?fill_color ?(color="black") geo1 geo2 geo3 geo4 ->
-    let (x1, y1) = self#world_of geo1
-    and (x2, y2) = self#world_of geo2
-    and (x3, y3) = self#world_of geo3
-    and (x4, y4) = self#world_of geo4 in
-    let points = [|x1;y1; x2;y2; x3;y3; x4;y4|] in
+  method polygon = fun ?(group = canvas#root) ?(width=1) ?fill_color ?(color="black") geo_arr ->
+    let (x1, y1) = self#world_of geo_arr.(0) in
+    let getxy = fun i -> (self#world_of geo_arr.(i)) in
+    let arrlen = (Array.length geo_arr) in
+    let points = Array.make arrlen x1  in
     let l = GnoCanvas.polygon ?fill_color ~props:[`WIDTH_PIXELS width; `OUTLINE_COLOR color] ~points group in
+    for i = 0 to arrlen - 1 do
+    let (x, y) = getxy i in
+    points.(i*2) <- x;
+    points.(i*2+1) <-  y;
+    done;
     l#show ();
     l
 

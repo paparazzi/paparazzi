@@ -1483,19 +1483,16 @@ open Shapes
 let get_shapes = fun (geomap:G.widget)_sender vs ->
   let f = fun s -> PprzLink.float_assoc s vs in
   let i = fun s -> float (PprzLink.int_assoc s vs) in
+  let st = fun s -> PprzLink.string_assoc s vs in
+  let string_to_scaled_float = fun v -> (float (int_of_string v))/. 1e7 in
+  let floatarr = fun s -> Array.map string_to_scaled_float (Array.of_list (Str.split list_separator (st s))) in
   let data =  {
     shid = PprzLink.string_assoc "id" vs;
     shcolor = PprzLink.string_assoc "color" vs;
     shtype = i "shape";
     shstatus = i "status";
-    shlat1 = (i "lat1") /. 1e7;
-    shlon1 = (i "lon1") /. 1e7;
-    shlat2 = (i "lat2") /. 1e7;
-    shlon2 = (i "lon2") /. 1e7;
-    shlat3 = (i "lat3") /. 1e7;
-    shlon3 = (i "lon3") /. 1e7;
-    shlat4 = (i "lat4") /. 1e7;
-    shlon4 = (i "lon4") /. 1e7;
+    shlatarr = floatarr "latarr";
+    shlonarr = floatarr "lonarr";
     shradius = (f "radius")} in
   new_shmsg data geomap
 

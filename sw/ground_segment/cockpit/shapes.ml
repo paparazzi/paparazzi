@@ -28,14 +28,8 @@ type shdata = {
   shcolor : string;
   shtype : float;
   shstatus : float;
-  shlat1 : float;
-  shlon1 : float;
-  shlat2 : float;
-  shlon2 : float;
-  shlat3 : float;
-  shlon3 : float;
-  shlat4 : float;
-  shlon4 : float;
+  shlatarr : float array;
+  shlonarr : float array;
   shradius : float}
 
 type circleshape = { mutable circsh : GnoCanvas.ellipse}
@@ -62,9 +56,9 @@ let update_circle = fun id wgs84 fillcolor radius (geomap:MapCanvas.widget) ->
     shape.circsh <- gencircle
   with _ -> ()
 
-let update_polygon = fun id wgs84_1 wgs84_2 wgs84_3 wgs84_4 fillcolor (geomap:MapCanvas.widget) ->
+let update_polygon = fun id positionarr fillcolor (geomap:MapCanvas.widget) ->
   try
-    let genpolygon = geomap#polygon ~width:2 ~color:fillcolor wgs84_1 wgs84_2 wgs84_3 wgs84_4 in
+    let genpolygon = geomap#polygon ~width:2 ~color:fillcolor positionarr in
     if not (polygon_exist id) then
     let polygonshape = {polysh = genpolygon } in
     Hashtbl.add polygonshapes id polygonshape;
@@ -75,15 +69,15 @@ let update_polygon = fun id wgs84_1 wgs84_2 wgs84_3 wgs84_4 fillcolor (geomap:Ma
   with _ -> ()
 
 let update_shape = fun raw geomap->
+  let position = fun lat lon -> { posn_lat=(Deg>>Rad)lat; posn_long=(Deg>>Rad)lon } in
+  let arrlen = Array.length raw.shlatarr in
+  let positionarr = Array.make arrlen (position raw.shlatarr.(1) raw.shlonarr.(1))  in
+  for i = 0 to arrlen - 1 do positionarr.(i) <- position raw.shlatarr.(i) raw.shlonarr.(i) done;
   try
-    let pos1 = { posn_lat=(Deg>>Rad)raw.shlat1; posn_long=(Deg>>Rad)raw.shlon1 } in
     if raw.shtype = 0. then
-    update_circle raw.shid pos1 raw.shcolor raw.shradius geomap;
+    update_circle raw.shid positionarr.(0) raw.shcolor raw.shradius geomap;
     if raw.shtype = 1. then
-    let pos2 = { posn_lat=(Deg>>Rad)raw.shlat2; posn_long=(Deg>>Rad)raw.shlon2 } in
-    let pos3 = { posn_lat=(Deg>>Rad)raw.shlat3; posn_long=(Deg>>Rad)raw.shlon3 } in
-    let pos4 = { posn_lat=(Deg>>Rad)raw.shlat4; posn_long=(Deg>>Rad)raw.shlon4 } in
-    update_polygon raw.shid pos1 pos2 pos3 pos4 raw.shcolor geomap
+    update_polygon raw.shid positionarr raw.shcolor geomap
   with _ -> ()
 
 let del_shape = fun raw ->
