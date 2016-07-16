@@ -54,6 +54,7 @@ class widget :
       ?width:int ->
       ?fill_color:string ->
       ?color:string -> Latlong.geographic -> Latlong.fmeter -> GnoCanvas.ellipse
+    method convert_positions_to_points : Latlong.geographic array -> float array
     method polygon :
       ?group:GnoCanvas.group ->
       ?width:int ->

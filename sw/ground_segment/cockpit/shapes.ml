@@ -33,11 +33,9 @@ type shdata = {
   shlonarr : float array;
   shradius : float}
 
-type circleshape = { mutable circsh : GnoCanvas.ellipse}
-type polygonshape = { mutable polysh : GnoCanvas.polygon}
-
 let circleshapes = Hashtbl.create 1
 let polygonshapes = Hashtbl.create 1
+let lineshapes = Hashtbl.create 1
 
 let circle_exist = fun id ->
   Hashtbl.mem circleshapes id
@@ -45,28 +43,40 @@ let circle_exist = fun id ->
 let polygon_exist = fun id ->
   Hashtbl.mem polygonshapes id
 
+let line_exist = fun id ->
+  Hashtbl.mem lineshapes id
+
 let update_circle = fun id wgs84 color ?fill_color radius (geomap:MapCanvas.widget) ->
   try
     let gencircle = geomap#circle ~width:2 ?fill_color ~color:color wgs84.(0) radius in
-    if not (circle_exist id) then
-    let circleshape = {circsh = gencircle } in
-    Hashtbl.add circleshapes id circleshape;
-    else
+    if (circle_exist id) then
     let shape = Hashtbl.find circleshapes id in
-    shape.circsh#destroy ();
-    shape.circsh <- gencircle;
+    shape#destroy ();
+    Hashtbl.add circleshapes id gencircle;
+    else
+    Hashtbl.add circleshapes id gencircle
   with _ -> ()
 
 let update_polygon = fun id positionarr color ?fill_color (geomap:MapCanvas.widget) ->
   try
     let genpolygon = geomap#polygon ~width:2 ?fill_color ~color:color  positionarr in
-    if not (polygon_exist id) then
-    let polygonshape = {polysh = genpolygon } in
-    Hashtbl.add polygonshapes id polygonshape;
-    else
+    if (polygon_exist id) then
     let shape = Hashtbl.find polygonshapes id in
-    shape.polysh#destroy ();
-    shape.polysh <- genpolygon
+    shape#destroy ();
+    Hashtbl.add polygonshapes id genpolygon;
+    else
+    Hashtbl.add polygonshapes id genpolygon
+  with _ -> ()
+
+let update_line = fun id positionarr color (geomap:MapCanvas.widget) ->
+  try
+    let genline = geomap#segment ~width:2 ~fill_color:color  positionarr.(0) positionarr.(1) in
+    if (line_exist id) then
+    let shape = Hashtbl.find lineshapes id in
+    shape#destroy ();
+    Hashtbl.add lineshapes id genline;
+    else
+    Hashtbl.add lineshapes id genline
   with _ -> ()
 
 let convert_to_positions = fun raw ->
@@ -76,21 +86,14 @@ let convert_to_positions = fun raw ->
   for i = 0 to arrlen - 1 do positionarr.(i) <- position raw.shlatarr.(i) raw.shlonarr.(i) done;
   positionarr
 
-
-let update_shape = fun raw positions geomap->
+let update_shape = fun raw positions ?fill_color geomap ->
   try
     if raw.shtype = 0. then
-    update_circle raw.shid positions  raw.shlinecolor raw.shradius geomap;
+    update_circle raw.shid positions ?fill_color raw.shlinecolor raw.shradius geomap;
     if raw.shtype = 1. then
-    update_polygon raw.shid positions raw.shlinecolor geomap
-  with _ -> ()
-
-let update_shape_with_fill = fun raw positions geomap ->
-  try
-    if raw.shtype = 0. then
-    update_circle raw.shid positions ~fill_color:raw.shfillcolor raw.shlinecolor raw.shradius geomap;
-    if raw.shtype = 1. then
-    update_polygon raw.shid positions ~fill_color:raw.shfillcolor raw.shlinecolor geomap
+    update_polygon raw.shid positions ?fill_color raw.shlinecolor geomap;
+    if raw.shtype = 2. then
+    update_line raw.shid positions raw.shlinecolor geomap
   with _ -> ()
 
 let del_shape = fun raw ->
@@ -98,15 +101,19 @@ let del_shape = fun raw ->
     if raw.shtype = 0. then
     let shape = Hashtbl.find circleshapes raw.shid in
     Hashtbl.remove circleshapes raw.shid;
-    shape.circsh#destroy ();
+    shape#destroy ();
     else if raw.shtype = 1. then
     let shape = Hashtbl.find polygonshapes raw.shid in
     Hashtbl.remove polygonshapes raw.shid;
-    shape.polysh#destroy ()
+    shape#destroy ();
+    else if raw.shtype = 2. then
+    let shape = Hashtbl.find lineshapes raw.shid in
+    Hashtbl.remove lineshapes raw.shid;
+    shape#destroy ()
   with _ -> ()
 
 let new_shmsg = fun raw (geomap:MapCanvas.widget) ->
   let without_fill = (Compat.bytes_compare "None" raw.shfillcolor) = 0 in
   if raw.shstatus = 0. && without_fill then update_shape raw (convert_to_positions raw) geomap;
-  if raw.shstatus = 0. && (not without_fill) then update_shape_with_fill raw (convert_to_positions raw) geomap;
-  if raw.shstatus = 1. && without_fill then del_shape raw
+  if raw.shstatus = 0. && (not without_fill) then update_shape raw (convert_to_positions raw) ~fill_color:raw.shfillcolor geomap;
+  if raw.shstatus = 1. then del_shape raw

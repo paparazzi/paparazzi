@@ -361,6 +361,18 @@ object (self)
         end
       | None -> failwith "#of_world : no georef"
 
+
+  method convert_positions_to_points = fun geo_arr ->
+    let getx = fun (x1, y1) -> x1 in
+    let gety = fun (x1, y1) -> y1 in
+    let arrlen = (Array.length geo_arr) in
+    let points = Array.make (arrlen*2) (getx (self#world_of geo_arr.(0)))  in
+    for i = 0 to arrlen - 1 do
+      points.(i*2) <- getx (self#world_of geo_arr.(i));
+      points.((i*2)+1) <- gety (self#world_of geo_arr.(i));
+    done;
+    points
+
   method move_item = fun ?(z = 1.) (item:GnomeCanvas.re_p GnoCanvas.item) wgs84 ->
     let (xw,yw) = self#world_of wgs84 in
     item#affine_absolute (affine_pos_and_angle ~z xw yw 0.);
@@ -605,19 +617,10 @@ object (self)
     l
 
   method polygon = fun ?(group = canvas#root) ?(width=1) ?fill_color ?(color="black") geo_arr ->
-    let getx = fun (x1, y1) -> x1 in
-    let gety = fun (x1, y1) -> y1 in
-    let arrlen = (Array.length geo_arr) in
-    let points = Array.make (arrlen*2) (getx (self#world_of geo_arr.(0)))  in
-    for i = 0 to arrlen - 1 do
-    points.(i*2) <- getx (self#world_of geo_arr.(i));
-    points.((i*2)+1) <- gety (self#world_of geo_arr.(i));
-    done;
+    let points = self#convert_positions_to_points geo_arr in
     let l = GnoCanvas.polygon ?fill_color ~props:[`WIDTH_PIXELS width; `OUTLINE_COLOR color] ~points group in
     l#show ();
     l
-
-
 
   method photoprojection = fun ?(group = canvas#root) ?(width=1) ?fill_color ?(color="black") ?(number="1") geo radius ->
     let (x, y) = self#world_of geo in
