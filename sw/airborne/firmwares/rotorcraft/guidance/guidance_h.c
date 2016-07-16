@@ -26,6 +26,7 @@
 
 #include "generated/airframe.h"
 
+#include "firmwares/rotorcraft/guidance/guidance_hybrid.h"
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
 #include "firmwares/rotorcraft/guidance/guidance_flip.h"
 #include "firmwares/rotorcraft/guidance/guidance_indi.h"
@@ -201,6 +202,10 @@ void guidance_h_init(void)
 #if GUIDANCE_INDI
   guidance_indi_enter();
 #endif
+
+#if HYBRID_NAVIGATION
+  guidance_hybrid_init();
+#endif
 }
 
 
@@ -224,6 +229,10 @@ void guidance_h_mode_changed(uint8_t new_mode)
     transition_percentage = 0;
     transition_theta_offset = 0;
   }
+
+#if HYBRID_NAVIGATION
+  guidance_hybrid_norm_ref_airspeed = 0;
+#endif
 
   switch (new_mode) {
     case GUIDANCE_H_MODE_RC_DIRECT:
@@ -416,7 +425,17 @@ void guidance_h_run(bool  in_flight)
         sp_cmd_i.psi = nav_heading;
         stabilization_attitude_set_rpy_setpoint_i(&sp_cmd_i);
         stabilization_attitude_run(in_flight);
+
+#if HYBRID_NAVIGATION
+        //make sure the heading is right before leaving horizontal_mode attitude
+        guidance_hybrid_reset_heading(&sp_cmd_i);
+#endif
       } else {
+
+#if HYBRID_NAVIGATION
+        INT32_VECT2_NED_OF_ENU(guidance_h.sp.pos, navigation_target);
+        guidance_hybrid_run();
+#else
         INT32_VECT2_NED_OF_ENU(guidance_h.sp.pos, navigation_carrot);
 
         guidance_h_update_reference();
@@ -424,6 +443,7 @@ void guidance_h_run(bool  in_flight)
         /* set psi command */
         guidance_h.sp.heading = nav_heading;
         INT32_ANGLE_NORMALIZE(guidance_h.sp.heading);
+
 #if GUIDANCE_INDI
         guidance_indi_run(in_flight, guidance_h.sp.heading);
 #else
@@ -432,6 +452,8 @@ void guidance_h_run(bool  in_flight)
         /* set final attitude setpoint */
         stabilization_attitude_set_earth_cmd_i(&guidance_h_cmd_earth,
                                                guidance_h.sp.heading);
+#endif
+
 #endif
         stabilization_attitude_run(in_flight);
       }
@@ -573,6 +595,10 @@ static void guidance_h_traj_run(bool in_flight)
 
 static void guidance_h_hover_enter(void)
 {
+  /* reset speed setting */
+  guidance_h.sp.speed.x = 0;
+  guidance_h.sp.speed.y = 0;
+
   /* disable horizontal velocity setpoints,
    * might still be activated in guidance_h_read_rc if GUIDANCE_H_USE_SPEED_REF
    */
@@ -588,9 +614,6 @@ static void guidance_h_hover_enter(void)
   /* set guidance to current heading and position */
   guidance_h.rc_sp.psi = stateGetNedToBodyEulers_i()->psi;
   guidance_h.sp.heading = guidance_h.rc_sp.psi;
-
-  /* reset speed setting */
-  guidance_h_set_guided_vel(0., 0.);
 }
 
 static void guidance_h_nav_enter(void)
@@ -680,9 +703,9 @@ bool guidance_h_set_guided_heading(float heading)
 bool guidance_h_set_guided_body_vel(float vx, float vy)
 {
   float psi = stateGetNedToBodyEulers_f()->psi;
-  vx =  cosf(-psi) * vx + sinf(-psi) * vy;
-  vy = -sinf(-psi) * vx + cosf(-psi) * vy;
-  return guidance_h_set_guided_vel(vx, vy);
+  float newvx =  cosf(-psi) * vx + sinf(-psi) * vy;
+  float newvy = -sinf(-psi) * vx + cosf(-psi) * vy;
+  return guidance_h_set_guided_vel(newvx, newvy);
 }
 
 bool guidance_h_set_guided_vel(float vx, float vy)
@@ -704,4 +727,9 @@ bool guidance_h_set_guided_heading_rate(float rate)
     return true;
   }
   return false;
+}
+
+const struct Int32Vect2 *guidance_h_get_pos_err(void)
+{
+  return &guidance_h_pos_err;
 }

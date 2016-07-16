@@ -17,8 +17,8 @@ void nps_sensor_mag_init(struct NpsSensorMag *mag, double time)
   VECT3_ASSIGN(mag->noise_std_dev,
                NPS_MAG_NOISE_STD_DEV_X, NPS_MAG_NOISE_STD_DEV_Y, NPS_MAG_NOISE_STD_DEV_Z);
   struct DoubleEulers imu_to_sensor_eulers =
-  { NPS_MAG_IMU_TO_SENSOR_PHI, NPS_MAG_IMU_TO_SENSOR_THETA, NPS_MAG_IMU_TO_SENSOR_PSI };
-  DOUBLE_RMAT_OF_EULERS(mag->imu_to_sensor_rmat, imu_to_sensor_eulers);
+    { NPS_MAG_IMU_TO_SENSOR_PHI, NPS_MAG_IMU_TO_SENSOR_THETA, NPS_MAG_IMU_TO_SENSOR_PSI };
+  double_rmat_of_eulers(&(mag->imu_to_sensor_rmat), &imu_to_sensor_eulers);
   mag->next_update = time;
   mag->data_available = FALSE;
 }

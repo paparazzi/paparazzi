@@ -5,8 +5,9 @@
     <description>
         Hovers the drone based on optical flow made for Linux video Devices.
 
-        Computes Pitch- and roll attide from downward looking camera looking at a textured floor.
+        Computes Pitch- and roll attitude from downward looking camera looking at a textured floor.
         - Sonar is required.
+        - Another module sending the VELOCITY_ESTIMATE ABI message (usually computed from optic flow) is required.
         - Controller can hold position
     </description>
 
@@ -35,7 +36,7 @@
     </dl_settings>
   </settings>
 
-  <!--depends>cv_opticflow</depends-->
+  <depends>cv_opticflow|px4flow</depends>
 
   <header>
     <file name="guidance_opticflow_hover.h"/>

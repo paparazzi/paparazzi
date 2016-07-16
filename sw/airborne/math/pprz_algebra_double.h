@@ -186,11 +186,11 @@ static inline void double_rmat_of_eulers(struct DoubleRMat *rm, struct DoubleEul
 }
 
 /* defines for backwards compatibility */
-#define DOUBLE_RMAT_OF_EULERS(_rm, _e) double_rmat_of_eulers(&(_rm), &(_e))
-#define DOUBLE_RMAT_OF_EULERS_321(_rm, _e) double_rmat_of_eulers(&(_rm), &(_e))
-#define DOUBLE_QUAT_OF_EULERS(_q, _e) double_quat_of_eulers(&(_q), &(_e))
-#define DOUBLE_EULERS_OF_QUAT(_e, _q) double_eulers_of_quat(&(_e), &(_q))
-#define DOUBLE_QUAT_VMULT(v_out, q, v_in) double_quat_vmult(&(v_out), &(q), &(v_in))
+#define DOUBLE_RMAT_OF_EULERS(_rm, _e) WARNING("DOUBLE_RMAT_OF_EULERS macro is deprecated, use the lower case function instead") double_rmat_of_eulers(&(_rm), &(_e))
+#define DOUBLE_RMAT_OF_EULERS_321(_rm, _e) WARNING("DOUBLE_RMAT_OF_EULERS_321 macro is deprecated, use the lower case function instead") double_rmat_of_eulers(&(_rm), &(_e))
+#define DOUBLE_QUAT_OF_EULERS(_q, _e) WARNING("DOUBLE_QUAT_OF_EULERS macro is deprecated, use the lower case function instead") double_quat_of_eulers(&(_q), &(_e))
+#define DOUBLE_EULERS_OF_QUAT(_e, _q) WARNING("DOUBLE_EULERS_OF_QUAT macro is deprecated, use the lower case function instead") double_eulers_of_quat(&(_e), &(_q))
+#define DOUBLE_QUAT_VMULT(v_out, q, v_in) WARNING("DOUBLE_QUAT_VMULT macro is deprecated, use the lower case function instead") double_quat_vmult(&(v_out), &(q), &(v_in))
 
 #ifdef __cplusplus
 } /* extern "C" */

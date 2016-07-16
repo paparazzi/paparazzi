@@ -171,20 +171,20 @@ void nav_glide(uint8_t start_wp, uint8_t wp)
 
 #define Goto3D(radius) {                                                \
     if (pprz_mode == PPRZ_MODE_AUTO2) {                                 \
-      int16_t yaw = fbw_state->channels[RADIO_YAW];                     \
+      int16_t yaw = imcu_get_radio(RADIO_YAW);                          \
       if (yaw > MIN_DX || yaw < -MIN_DX) {                              \
         carrot_x += FLOAT_OF_PPRZ(yaw, 0, -20.);                        \
         carrot_x = Min(carrot_x, MAX_DIST_CARROT);                      \
         carrot_x = Max(carrot_x, -MAX_DIST_CARROT);                     \
       }                                                                 \
-      int16_t pitch = fbw_state->channels[RADIO_PITCH];                 \
+      int16_t pitch = imcu_get_radio(RADIO_PITCH);                      \
       if (pitch > MIN_DX || pitch < -MIN_DX) {                          \
         carrot_y += FLOAT_OF_PPRZ(pitch, 0, -20.);                      \
         carrot_y = Min(carrot_y, MAX_DIST_CARROT);                      \
         carrot_y = Max(carrot_y, -MAX_DIST_CARROT);                     \
       }                                                                 \
       v_ctl_mode = V_CTL_MODE_AUTO_ALT;                                 \
-      int16_t roll =  fbw_state->channels[RADIO_ROLL];                  \
+      int16_t roll =  imcu_get_radio(RADIO_ROLL);                       \
       if (roll > MIN_DX || roll < -MIN_DX) {                            \
         nav_altitude += FLOAT_OF_PPRZ(roll, 0, -1.0);                   \
         nav_altitude = Max(nav_altitude, MIN_HEIGHT_CARROT+ground_alt); \
@@ -252,7 +252,6 @@ bool nav_compute_final_from_glide(uint8_t wp_af, uint8_t wp_td, float glide)
 
   waypoints[wp_af].x = waypoints[wp_td].x + x_1 * h_0 * glide;
   waypoints[wp_af].y = waypoints[wp_td].y + y_1 * h_0 * glide;
-  waypoints[wp_af].a = waypoints[wp_af].a;
 
   return false;
 }

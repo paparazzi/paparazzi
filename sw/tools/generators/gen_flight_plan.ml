@@ -931,6 +931,16 @@ let () =
       and mdfh = get_float "max_dist_from_home"
       and alt = ExtXml.attrib xml "alt" in
       security_height := get_float "security_height";
+      begin
+        try
+          if security_height < ref 0. then
+            begin
+              fprintf stderr "\nError: Security height cannot be negative (%.0f)\n" !security_height;
+              exit 1;
+            end
+        with
+          _ -> ()
+      end;
       ground_alt := get_float "ground_alt";
       let home_mode_height = try
                                max (get_float "home_mode_height") !security_height
@@ -1003,7 +1013,29 @@ let () =
             end
           else if geofence_max_alt < (float_of_string alt) then
             fprintf stderr "\nWarning: Geofence max altitude below default waypoint alt (%.0f < %.0f)\n" geofence_max_alt (float_of_string alt);
-          Xml2h.define "GEOFENCE_MAX_ALTITUDE" (sof geofence_max_alt)
+          Xml2h.define "GEOFENCE_MAX_ALTITUDE" (sof geofence_max_alt);
+          fprintf stderr "\nWarning: Geofence max altitude set to %.0f\n" geofence_max_alt;
+        with
+          _ -> ()
+      end;
+
+      begin 
+        try
+          let geofence_max_agl = get_float "geofence_max_agl" in
+          if geofence_max_agl < !security_height then
+            begin
+              fprintf stderr "\nError: Geofence max AGL below security height (%.0f < %.0f)\n" geofence_max_agl !security_height;
+              exit 1;
+            end
+          else if geofence_max_agl < home_mode_height then
+            begin
+              fprintf stderr "\nError: Geofence max AGL below home mode height (%.0f < %.0f)\n" geofence_max_agl home_mode_height;
+              exit 1;
+            end
+          else if (geofence_max_agl +. !ground_alt) < (float_of_string alt) then
+            fprintf stderr "\nWarning: Geofence max AGL below default waypoint AGL (%.0f < %.0f)\n" (geofence_max_agl +. !ground_alt) (float_of_string alt);
+          Xml2h.define "GEOFENCE_MAX_AGL" (sof geofence_max_agl);
+          fprintf stderr "\nWarning: Geofence max AGL set to %.0f\n" geofence_max_agl;
         with
           _ -> ()
       end;

@@ -41,6 +41,7 @@
 struct v4l2_img_buf {
   size_t length;              ///< The size of the buffer
   struct timeval timestamp;   ///< The time value of the image
+  uint32_t pprz_timestamp;    ///< The time of the image in us since system startup
   void *buf;                  ///< Pointer to the memory mapped buffer
 };
 
@@ -58,8 +59,8 @@ struct v4l2_device {
 };
 
 /* External functions */
-bool v4l2_init_subdev(char *subdev_name, uint8_t pad, uint8_t which, uint16_t code, uint16_t width, uint16_t height);
-struct v4l2_device *v4l2_init(char *device_name, uint16_t width, uint16_t height, uint8_t buffers_cnt,
+bool v4l2_init_subdev(char *subdev_name, uint8_t pad, uint16_t code, struct img_size_t size);
+struct v4l2_device *v4l2_init(char *device_name, struct img_size_t size, struct crop_t crop, uint8_t buffers_cnt,
                               uint32_t _pixelformat);
 void v4l2_image_get(struct v4l2_device *dev, struct image_t *img);
 bool v4l2_image_get_nonblock(struct v4l2_device *dev, struct image_t *img);

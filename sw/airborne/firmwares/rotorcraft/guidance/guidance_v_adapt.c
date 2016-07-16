@@ -171,7 +171,7 @@ void gv_adapt_run(int32_t zdd_meas, int32_t thrust_applied, int32_t zd_ref)
   }
 
   /* Update State */
-  gv_adapt_X = gv_adapt_X + (((int64_t)(K * residual)) >> K_FRAC);
+  gv_adapt_X = gv_adapt_X + ((((int64_t)K * residual)) >> K_FRAC);
 
   /* Output bounds.
    * Don't let it climb over a value that would

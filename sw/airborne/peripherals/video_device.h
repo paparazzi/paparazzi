@@ -30,33 +30,30 @@
 #include <inttypes.h>
 #include "modules/computer_vision/lib/vision/image.h"
 
-#define VIDEO_FILTER_DEBAYER 0x01
-
-typedef struct image_t *(*cvFunction)(struct image_t *img);
-
-struct video_listener {
-  struct video_listener *next;
-  cvFunction func;
-};
+/* Different video filters */
+#define VIDEO_FILTER_DEBAYER  (0x1 << 0)  ///<Enable software debayer
+#define VIDEO_FILTER_ISP      (0x1 << 1)  ///<Enable ISP
 
 // Main video_thread structure
 struct video_thread_t {
-  volatile bool is_running;   ///< When the device is running
+  volatile bool is_running;       ///< When the device is running
   struct v4l2_device *dev;        ///< The V4L2 device that is used for the video stream
 };
 
 /** V4L2 device settings */
 struct video_config_t {
-  int w;              ///< Width
-  int h;              ///< Height
-  char *dev_name;     ///< path to device
-  char *subdev_name;  ///< path to sub device
-  uint32_t format;    ///< Video format
-  uint8_t buf_cnt;    ///< Amount of V4L2 video device buffers
-  uint8_t filters;    ///< filters to use (bitfield with VIDEO_FILTER_x)
+  struct img_size_t output_size;    ///< Output image size
+  struct img_size_t sensor_size;    ///< Original sensor size
+  struct crop_t crop;           ///< Cropped area definition
+  char *dev_name;           ///< path to device
+  char *subdev_name;        ///< path to sub device
+  uint32_t format;          ///< Video format
+  uint32_t subdev_format;   ///< Subdevice video format
+  uint8_t buf_cnt;          ///< Amount of V4L2 video device buffers
+  uint8_t filters;          ///< filters to use (bitfield with VIDEO_FILTER_x)
   struct video_thread_t thread; ///< Information about the thread this camera is running on
-  struct video_listener *pointer_to_first_listener; ///< The first listener in the linked list for this video device
-  int fps;
+  struct video_listener *cv_listener; ///< The first computer vision listener in the linked list for this video device
+  int fps;                  ///< Target FPS
 };
 extern struct video_config_t dummy_camera;
 

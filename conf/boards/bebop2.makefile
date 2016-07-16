@@ -38,7 +38,8 @@ $(TARGET).CFLAGS += -DUSE_LINUX_SIGNAL -D_GNU_SOURCE
 $(TARGET).srcs +=  $(SRC_BOARD)/board.c
 
 # Compile the video specific parts
-$(TARGET).srcs +=  $(SRC_BOARD)/video.c
+$(TARGET).CFLAGS += -DI2C_BUF_LEN=56 -DUSE_I2C0
+$(TARGET).srcs +=  $(SRC_BOARD)/mt9v117.c $(SRC_BOARD)/mt9f002.c
 
 # Link static (Done for GLIBC)
 $(TARGET).CFLAGS += -DLINUX_LINK_STATIC

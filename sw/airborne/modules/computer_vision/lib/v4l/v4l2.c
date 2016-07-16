@@ -39,6 +39,9 @@
 
 #include "v4l2.h"
 
+#include <sys/time.h>
+#include "mcu_periph/sys_time.h"
+
 #define CLEAR(x) memset(&(x), 0, sizeof (x))
 static void *v4l2_capture_thread(void *data);
 
@@ -67,6 +70,8 @@ static void *v4l2_capture_thread(void *data)
 
     // Wait until an image was taken, with a timeout of tv
     int sr = select(dev->fd + 1, &fds, NULL, NULL, &tv);
+    uint32_t now_ts = get_sys_time_usec();
+
     if (sr < 0) {
       // Was interrupted by a signal
       if (EINTR == errno) { continue; }
@@ -75,9 +80,9 @@ static void *v4l2_capture_thread(void *data)
       return (void *) - 1;
     } else if (sr == 0) {
       printf("[v4l2-capture] Select timeout on %s\n", dev->name);
-      //continue;
-      dev->thread = (pthread_t) NULL;
-      return (void *) - 2;
+      continue;
+      //dev->thread = (pthread_t) NULL;
+      //return (void *) - 2;
     }
 
     // Dequeue a buffer
@@ -92,7 +97,8 @@ static void *v4l2_capture_thread(void *data)
     assert(buf.index < dev->buffers_cnt);
 
     // Copy the timestamp
-    memcpy(&dev->buffers[buf.index].timestamp, &buf.timestamp, sizeof(struct timeval));
+    dev->buffers[buf.index].timestamp = buf.timestamp;
+    dev->buffers[buf.index].pprz_timestamp = now_ts;
 
     // Update the dequeued id
     // We need lock because between setting prev_idx and updating the deq_idx the deq_idx could change
@@ -127,7 +133,7 @@ static void *v4l2_capture_thread(void *data)
  * @param[in] width,height The width and height of the images
  * @return Whether the subdevice was successfully initialized
  */
-bool v4l2_init_subdev(char *subdev_name, uint8_t pad, uint8_t which, uint16_t code, uint16_t width, uint16_t height)
+bool v4l2_init_subdev(char *subdev_name, uint8_t pad, uint16_t code, struct img_size_t size)
 {
   struct v4l2_subdev_format sfmt;
   CLEAR(sfmt);
@@ -148,9 +154,9 @@ bool v4l2_init_subdev(char *subdev_name, uint8_t pad, uint8_t which, uint16_t co
 
   // Set the new settings
   sfmt.pad = pad;
-  sfmt.which = which;
-  sfmt.format.width = width;
-  sfmt.format.height = height;
+  sfmt.which = V4L2_SUBDEV_FORMAT_ACTIVE;
+  sfmt.format.width = size.w;
+  sfmt.format.height = size.h;
   sfmt.format.code = code;
   sfmt.format.field = V4L2_FIELD_NONE;
   sfmt.format.colorspace = 1;
@@ -174,16 +180,20 @@ bool v4l2_init_subdev(char *subdev_name, uint8_t pad, uint8_t which, uint16_t co
  * @param[in] buffers_cnt The amount of buffers used for mapping
  * @return The newly create V4L2 device
  */
-struct v4l2_device *v4l2_init(char *device_name, uint16_t width, uint16_t height, uint8_t buffers_cnt,
+struct v4l2_device *v4l2_init(char *device_name, struct img_size_t size, struct crop_t crop, uint8_t buffers_cnt,
                               uint32_t _pixelformat)
 {
   uint8_t i;
   struct v4l2_capability cap;
   struct v4l2_format fmt;
   struct v4l2_requestbuffers req;
+  struct v4l2_fmtdesc fmtdesc;
+  struct v4l2_crop crp;
   CLEAR(cap);
   CLEAR(fmt);
   CLEAR(req);
+  CLEAR(fmtdesc);
+  CLEAR(crp);
 
   // Try to open the device
   int fd = open(device_name, O_RDWR | O_NONBLOCK, 0);
@@ -211,13 +221,41 @@ struct v4l2_device *v4l2_init(char *device_name, uint16_t width, uint16_t height
     return NULL;
   }
 
-  // TODO: Read video cropping and scaling information VIDIOC_CROPCAP
+  fmtdesc.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+  while (ioctl(fd, VIDIOC_ENUM_FMT, &fmtdesc) == 0) {
+    fmtdesc.index++;
+    if(fmtdesc.pixelformat == _pixelformat)
+      break;
+  }
+
+  // Accept if no format can be get
+  if(fmtdesc.index != 0 && fmtdesc.pixelformat != _pixelformat) {
+    printf("[v4l2] Pixelformat not available on device %s (wanted: %4X)\r\n", device_name, _pixelformat);
+    return NULL;
+  }
+
+  // Set the cropping window
+  crp.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+  crp.c.top = crop.y;
+  crp.c.left = crop.x;
+  crp.c.width = crop.w;
+  crp.c.height = crop.h;
+
+  // Only crop when needed
+  if(crop.x != 0 || crop.y != 0 || crop.w != size.w || crop.h != size.h) {
+    if (ioctl(fd, VIDIOC_S_CROP, &crp) < 0) {
+      printf("[v4l2] Could not set crop window of %s\n", device_name);
+      close(fd);
+      return NULL;
+    }
+  }
 
   // Set the format settings
   fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-  fmt.fmt.pix.width = width;
-  fmt.fmt.pix.height = height;
+  fmt.fmt.pix.width = size.w;
+  fmt.fmt.pix.height = size.h;
   fmt.fmt.pix.pixelformat = _pixelformat;
+  fmt.fmt.pix.colorspace = V4L2_COLORSPACE_REC709;
   fmt.fmt.pix.field = V4L2_FIELD_NONE;
 
   if (ioctl(fd, VIDIOC_S_FMT, &fmt) < 0) {
@@ -276,8 +314,8 @@ struct v4l2_device *v4l2_init(char *device_name, uint16_t width, uint16_t height
   CLEAR(*dev);
   dev->name = strdup(device_name); // NOTE: needs to be freed
   dev->fd = fd;
-  dev->w = width;
-  dev->h = height;
+  dev->w = size.w;
+  dev->h = size.h;
   dev->buffers_cnt = req.count;
   dev->buffers = buffers;
   return dev;
@@ -318,7 +356,8 @@ void v4l2_image_get(struct v4l2_device *dev, struct image_t *img)
   img->buf_idx = img_idx;
   img->buf_size = dev->buffers[img_idx].length;
   img->buf = dev->buffers[img_idx].buf;
-  memcpy(&img->ts, &dev->buffers[img_idx].timestamp, sizeof(struct timeval));
+  img->ts = dev->buffers[img_idx].timestamp;
+  img->pprz_ts =  dev->buffers[img_idx].pprz_timestamp;
 }
 
 /**
@@ -352,7 +391,8 @@ bool v4l2_image_get_nonblock(struct v4l2_device *dev, struct image_t *img)
     img->buf_idx = img_idx;
     img->buf_size = dev->buffers[img_idx].length;
     img->buf = dev->buffers[img_idx].buf;
-    memcpy(&img->ts, &dev->buffers[img_idx].timestamp, sizeof(struct timeval));
+    img->ts = dev->buffers[img_idx].timestamp;
+    img->pprz_ts = dev->buffers[img_idx].pprz_timestamp;
     return true;
   }
 }

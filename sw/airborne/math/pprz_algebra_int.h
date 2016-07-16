@@ -226,7 +226,8 @@ struct Int64Vect3 {
 
 
 extern uint32_t int32_sqrt(uint32_t in);
-#define INT32_SQRT(_out,_in) { _out = int32_sqrt(_in); }
+extern uint32_t int32_gcd(uint32_t a, uint32_t b);
+#define INT32_SQRT(_out,_in) WARNING("INT32_SQRT macro is deprecated, use the lower case function instead") { _out = int32_sqrt(_in); }
 
 
 /*
@@ -261,7 +262,7 @@ static inline void int32_vect2_normalize(struct Int32Vect2 *v, uint8_t frac)
   }
 }
 
-#define INT32_VECT2_NORMALIZE(_v,_frac) int32_vect2_normalize(&(_v), _frac)
+#define INT32_VECT2_NORMALIZE(_v,_frac) WARNING("INT32_VECT2_NORMALIZE macro is deprecated, use the lower case function instead") int32_vect2_normalize(&(_v), _frac)
 
 
 #define INT32_VECT2_RSHIFT(_o, _i, _r) { \
@@ -407,17 +408,17 @@ extern void int32_rmat_of_eulers_312(struct Int32RMat *rm, struct Int32Eulers *e
 #define int32_rmat_of_eulers int32_rmat_of_eulers_321
 
 /* defines for backwards compatibility */
-#define INT32_RMAT_COMP(_m_a2c, _m_a2b, _m_b2c) int32_rmat_comp(&(_m_a2c), &(_m_a2b), &(_m_b2c))
-#define INT32_RMAT_COMP_INV(_m_a2b, _m_a2c, _m_b2c) int32_rmat_comp_inv(&(_m_a2b), &(_m_a2c), &(_m_b2c))
-#define INT32_RMAT_VMULT(_vb, _m_a2b, _va) int32_rmat_vmult(&(_vb), &(_m_a2b), &(_va))
-#define INT32_RMAT_TRANSP_VMULT(_vb, _m_b2a, _va) int32_rmat_transp_vmult(&(_vb), &(_m_b2a), &(_va))
-#define INT32_RMAT_RATEMULT(_rb, _m_a2b, _ra) int32_rmat_ratemult(&(_rb), &(_m_a2b), &(_ra))
-#define INT32_RMAT_TRANSP_RATEMULT(_rb, _m_b2a, _ra) int32_rmat_ratemult(&(_rb), &(_m_b2a), &(_ra))
+#define INT32_RMAT_COMP(_m_a2c, _m_a2b, _m_b2c) WARNING("INT32_RMAT_COMP macro is deprecated, use the lower case function instead") int32_rmat_comp(&(_m_a2c), &(_m_a2b), &(_m_b2c))
+#define INT32_RMAT_COMP_INV(_m_a2b, _m_a2c, _m_b2c) WARNING("INT32_RMAT_COMP_INV macro is deprecated, use the lower case function instead") int32_rmat_comp_inv(&(_m_a2b), &(_m_a2c), &(_m_b2c))
+#define INT32_RMAT_VMULT(_vb, _m_a2b, _va) WARNING("INT32_RMAT_VMULT macro is deprecated, use the lower case function instead") int32_rmat_vmult(&(_vb), &(_m_a2b), &(_va))
+#define INT32_RMAT_TRANSP_VMULT(_vb, _m_b2a, _va) WARNING("INT32_RMAT_TRANSP_VMULT macro is deprecated, use the lower case function instead") int32_rmat_transp_vmult(&(_vb), &(_m_b2a), &(_va))
+#define INT32_RMAT_RATEMULT(_rb, _m_a2b, _ra) WARNING("INT32_RMAT_RATEMULT macro is deprecated, use the lower case function instead") int32_rmat_ratemult(&(_rb), &(_m_a2b), &(_ra))
+#define INT32_RMAT_TRANSP_RATEMULT(_rb, _m_b2a, _ra) WARNING("INT32_RMAT_TRANSP_RATEMULT macro is deprecated, use the lower case function instead") int32_rmat_ratemult(&(_rb), &(_m_b2a), &(_ra))
 
-#define INT32_RMAT_OF_QUAT(_rm, _q) int32_rmat_of_quat(&(_rm), &(_q))
-#define INT32_RMAT_OF_EULERS(_rm, _e) int32_rmat_of_eulers_321(&(_rm), &(_e))
-#define INT32_RMAT_OF_EULERS_321(_rm, _e) int32_rmat_of_eulers_321(&(_rm), &(_e))
-#define INT32_RMAT_OF_EULERS_312(_rm, _e) int32_rmat_of_eulers_312(&(_rm), &(_e))
+#define INT32_RMAT_OF_QUAT(_rm, _q) WARNING("INT32_RMAT_OF_QUAT macro is deprecated, use the lower case function instead") int32_rmat_of_quat(&(_rm), &(_q))
+#define INT32_RMAT_OF_EULERS(_rm, _e) WARNING("INT32_RMAT_OF_EULERS macro is deprecated, use the lower case function instead") int32_rmat_of_eulers_321(&(_rm), &(_e))
+#define INT32_RMAT_OF_EULERS_321(_rm, _e) WARNING("INT32_RMAT_OF_EULERS_321 macro is deprecated, use the lower case function instead") int32_rmat_of_eulers_321(&(_rm), &(_e))
+#define INT32_RMAT_OF_EULERS_312(_rm, _e) WARNING("INT32_RMAT_OF_EULERS_312 macro is deprecated, use the lower case function instead") int32_rmat_of_eulers_312(&(_rm), &(_e))
 
 
 /*
@@ -518,21 +519,21 @@ extern void int32_quat_of_axis_angle(struct Int32Quat *q, struct Int32Vect3 *uv,
 extern void int32_quat_of_rmat(struct Int32Quat *q, struct Int32RMat *r);
 
 /* defines for backwards compatibility */
-#define INT32_QUAT_ZERO(_q) int32_quat_identity(&(_q))
-#define INT32_QUAT_NORM(n, q) { n = int32_quat_norm(&(q)); }
-#define INT32_QUAT_WRAP_SHORTEST(q) int32_quat_wrap_shortest(&(q))
-#define INT32_QUAT_NORMALIZE(q) int32_quat_normalize(&(q))
-#define INT32_QUAT_COMP(_a2c, _a2b, _b2c) int32_quat_comp(&(_a2c), &(_a2b), &(_b2c))
-#define INT32_QUAT_COMP_INV(_a2b, _a2c, _b2c) int32_quat_comp_inv(&(_a2b), &(_a2c), &(_b2c))
-#define INT32_QUAT_INV_COMP(_b2c, _a2b, _a2c) int32_quat_inv_comp(&(_b2c), &(_a2b), &(_a2c))
-#define INT32_QUAT_COMP_NORM_SHORTEST(_a2c, _a2b, _b2c) int32_quat_comp_norm_shortest(&(_a2c), &(_a2b), &(_b2c))
-#define INT32_QUAT_INV_COMP_NORM_SHORTEST(_b2c, _a2b, _a2c) int32_quat_inv_comp_norm_shortest(&(_b2c), &(_a2b), &(_a2c))
-#define INT32_QUAT_DERIVATIVE(_qd, _r, _q) int32_quat_derivative(&(_qd), &(_r), &(_q))
-#define INT32_QUAT_INTEGRATE_FI(_q, _hr, _omega, _f) int32_quat_integrate_fi(&(_q), &(_hr), &(_omega), _f)
-#define INT32_QUAT_VMULT(v_out, q, v_in) int32_quat_vmult(&(v_out), &(q), &(v_in))
-#define INT32_QUAT_OF_EULERS(_q, _e) int32_quat_of_eulers(&(_q), &(_e))
-#define INT32_QUAT_OF_AXIS_ANGLE(_q, _uv, _an) int32_quat_of_axis_angle(&(_q), &(_uv), _an)
-#define INT32_QUAT_OF_RMAT(_q, _r) int32_quat_of_rmat(&(_q), &(_r))
+#define INT32_QUAT_ZERO(_q) WARNING("INT32_QUAT_ZERO macro is deprecated, use the lower case function instead") int32_quat_identity(&(_q))
+#define INT32_QUAT_NORM(n, q) WARNING("INT32_QUAT_NORM macro is deprecated, use the lower case function instead") { n = int32_quat_norm(&(q)); }
+#define INT32_QUAT_WRAP_SHORTEST(q) WARNING("INT32_QUAT_WRAP_SHORTEST macro is deprecated, use the lower case function instead") int32_quat_wrap_shortest(&(q))
+#define INT32_QUAT_NORMALIZE(q) WARNING("INT32_QUAT_NORMALIZE macro is deprecated, use the lower case function instead") int32_quat_normalize(&(q))
+#define INT32_QUAT_COMP(_a2c, _a2b, _b2c) WARNING("INT32_QUAT_COMP macro is deprecated, use the lower case function instead") int32_quat_comp(&(_a2c), &(_a2b), &(_b2c))
+#define INT32_QUAT_COMP_INV(_a2b, _a2c, _b2c) WARNING("INT32_QUAT_COMP_INV macro is deprecated, use the lower case function instead") int32_quat_comp_inv(&(_a2b), &(_a2c), &(_b2c))
+#define INT32_QUAT_INV_COMP(_b2c, _a2b, _a2c) WARNING("INT32_QUAT_INV_COMP macro is deprecated, use the lower case function instead") int32_quat_inv_comp(&(_b2c), &(_a2b), &(_a2c))
+#define INT32_QUAT_COMP_NORM_SHORTEST(_a2c, _a2b, _b2c) WARNING("INT32_QUAT_COMP_NORM_SHORTEST macro is deprecated, use the lower case function instead") int32_quat_comp_norm_shortest(&(_a2c), &(_a2b), &(_b2c))
+#define INT32_QUAT_INV_COMP_NORM_SHORTEST(_b2c, _a2b, _a2c) WARNING("INT32_QUAT_INV_COMP_NORM_SHORTEST macro is deprecated, use the lower case function instead") int32_quat_inv_comp_norm_shortest(&(_b2c), &(_a2b), &(_a2c))
+#define INT32_QUAT_DERIVATIVE(_qd, _r, _q) WARNING("INT32_QUAT_DERIVATIVE macro is deprecated, use the lower case function instead") int32_quat_derivative(&(_qd), &(_r), &(_q))
+#define INT32_QUAT_INTEGRATE_FI(_q, _hr, _omega, _f) WARNING("INT32_QUAT_INTEGRATE_FI macro is deprecated, use the lower case function instead") int32_quat_integrate_fi(&(_q), &(_hr), &(_omega), _f)
+#define INT32_QUAT_VMULT(v_out, q, v_in) WARNING("INT32_QUAT_VMULT macro is deprecated, use the lower case function instead") int32_quat_vmult(&(v_out), &(q), &(v_in))
+#define INT32_QUAT_OF_EULERS(_q, _e) WARNING("INT32_QUAT_OF_EULERS macro is deprecated, use the lower case function instead") int32_quat_of_eulers(&(_q), &(_e))
+#define INT32_QUAT_OF_AXIS_ANGLE(_q, _uv, _an) WARNING("INT32_QUAT_OF_AXIS_ANGLE macro is deprecated, use the lower case function instead") int32_quat_of_axis_angle(&(_q), &(_uv), _an)
+#define INT32_QUAT_OF_RMAT(_q, _r) WARNING("INT32_QUAT_OF_RMAT macro is deprecated, use the lower case function instead") int32_quat_of_rmat(&(_q), &(_r))
 
 
 /*
@@ -547,8 +548,8 @@ extern void int32_eulers_of_rmat(struct Int32Eulers *e, struct Int32RMat *rm);
 extern void int32_eulers_of_quat(struct Int32Eulers *e, struct Int32Quat *q);
 
 /* defines for backwards compatibility */
-#define INT32_EULERS_OF_RMAT(_e, _rm) int32_eulers_of_rmat(&(_e), &(_rm))
-#define INT32_EULERS_OF_QUAT(_e, _q) int32_eulers_of_quat(&(_e), &(_q))
+#define INT32_EULERS_OF_RMAT(_e, _rm) WARNING("INT32_EULERS_OF_RMAT macro is deprecated, use the lower case function instead") int32_eulers_of_rmat(&(_e), &(_rm))
+#define INT32_EULERS_OF_QUAT(_e, _q) WARNING("INT32_EULERS_OF_QUAT macro is deprecated, use the lower case function instead") int32_eulers_of_quat(&(_e), &(_q))
 
 #define INT32_EULERS_LSHIFT(_o, _i, _r) {  \
     (_o).phi   = ((_i).phi   << (_r));     \
@@ -588,10 +589,10 @@ extern void int32_eulers_dot_321_of_rates(struct Int32Eulers *ed, struct Int32Eu
 #define int32_eulers_dot_of_rates int32_eulers_dot_321_of_rates
 
 /* defines for backwards compatibility */
-#define INT32_RATES_OF_EULERS_DOT_321(_r, _e, _ed) int32_rates_of_eulers_dot_321(&(_r), &(_e), &(_ed))
-#define INT32_RATES_OF_EULERS_DOT(_r, _e, _ed)     int32_rates_of_eulers_dot_321(&(_r), &(_e), &(_ed))
-#define INT32_EULERS_DOT_321_OF_RATES(_ed, _e, _r) int32_eulers_dot_321_of_rates(&(_ed), &(_e), &(_r))
-#define INT32_EULERS_DOT_OF_RATES(_ed, _e, _r)     int32_eulers_dot_321_of_rates(&(_ed), &(_e), &(_r))
+#define INT32_RATES_OF_EULERS_DOT_321(_r, _e, _ed) WARNING("INT32_RATES_OF_EULERS_DOT_321 macro is deprecated, use the lower case function instead") int32_rates_of_eulers_dot_321(&(_r), &(_e), &(_ed))
+#define INT32_RATES_OF_EULERS_DOT(_r, _e, _ed)     WARNING("INT32_RATES_OF_EULERS_DOT macro is deprecated, use the lower case function instead") int32_rates_of_eulers_dot_321(&(_r), &(_e), &(_ed))
+#define INT32_EULERS_DOT_321_OF_RATES(_ed, _e, _r) WARNING("INT32_EULERS_DOT_321_OF_RATES macro is deprecated, use the lower case function instead") int32_eulers_dot_321_of_rates(&(_ed), &(_e), &(_r))
+#define INT32_EULERS_DOT_OF_RATES(_ed, _e, _r)     WARNING("INT32_EULERS_DOT_OF_RATES macro is deprecated, use the lower case function instead") int32_eulers_dot_321_of_rates(&(_ed), &(_e), &(_r))
 
 
 //
@@ -654,6 +655,31 @@ static inline void int32_vect_smul(int32_t *o, const int32_t *a, const int32_t s
 {
   int i;
   for (i = 0; i < n; i++) { o[i] = a[i] * s; }
+}
+
+//
+//
+// Generic matrix algebra
+//
+//
+
+/** o = a * b
+ *
+ * a: [m x n]
+ * b: [n x l]
+ * o: [m x l]
+ */
+static inline void int32_mat_mul(int32_t **o, int32_t **a, int32_t **b, int m, int n, int l)
+{
+  int i, j, k;
+  for (i = 0; i < m; i++) {
+    for (j = 0; j < l; j++) {
+      o[i][j] = 0;
+      for (k = 0; k < n; k++) {
+        o[i][j] += a[i][k] * b[k][j];
+      }
+    }
+  }
 }
 
 #ifdef __cplusplus

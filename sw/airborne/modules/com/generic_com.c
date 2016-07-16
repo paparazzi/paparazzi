@@ -81,7 +81,7 @@ void generic_com_periodic(void)
   FillBufWith16bit(com_trans.buf, 15, (uint16_t)(stateGetAirspeed_f() * 100)); // TAS (cm/s)
   com_trans.buf[17] = electrical.vsupply; // decivolts
   com_trans.buf[18] = (uint8_t)(energy / 100); // deciAh
-  com_trans.buf[19] = (uint8_t)(ap_state->commands[COMMAND_THROTTLE] * 100 / MAX_PPRZ);
+  com_trans.buf[19] = (uint8_t)(imcu_get_command(COMMAND_THROTTLE) * 100 / MAX_PPRZ);
   com_trans.buf[20] = pprz_mode;
   com_trans.buf[21] = nav_block;
   FillBufWith16bit(com_trans.buf, 22, autopilot_flight_time);

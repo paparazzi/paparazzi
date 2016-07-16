@@ -7,7 +7,7 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/superbitrf.xml settings/nps.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml modules/gps.xml"
    gui_color="#fffffe72b9fd"
   />
   <aircraft
@@ -18,7 +18,7 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_survey.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/estimation/ahrs_secondary.xml settings/estimation/ahrs_int_cmpl_quat.xml settings/control/stabilization_indi.xml"
-   settings_modules="modules/geo_mag.xml modules/air_data.xml modules/video_thread.xml modules/cv_blob_locator.xml modules/video_rtp_stream.xml modules/nav_survey_rectangle_rotorcraft.xml modules/nav_survey_poly_rotorcraft.xml modules/digital_cam_video.xml"
+   settings_modules="modules/gps.xml modules/geo_mag.xml modules/air_data.xml modules/cv_blob_locator.xml modules/video_rtp_stream.xml modules/nav_survey_rectangle_rotorcraft.xml modules/nav_survey_poly_rotorcraft.xml modules/video_capture.xml modules/digital_cam_video.xml"
    gui_color="#ffffe8b36503"
   />
   <aircraft
@@ -29,7 +29,7 @@
    telemetry="telemetry/default_fixedwing_imu_9k6.xml"
    flight_plan="flight_plans/versatile_airspeed.xml"
    settings="settings/fixedwing_basic.xml settings/control/ctl_energy.xml settings/estimation/ac_char.xml"
-   settings_modules="modules/geo_mag.xml modules/gps_ubx_ucenter.xml modules/light.xml modules/digital_cam.xml"
+   settings_modules="modules/gps.xml modules/geo_mag.xml modules/gps_ubx_ucenter.xml modules/light.xml modules/digital_cam.xml"
    gui_color="#ffffffffffff"
   />
   <aircraft
@@ -40,7 +40,7 @@
    telemetry="telemetry/default_fixedwing_imu_9k6.xml"
    flight_plan="flight_plans/versatile_airspeed.xml"
    settings="settings/fixedwing_basic.xml"
-   settings_modules=""
+   settings_modules="modules/gps.xml"
    gui_color="#ffffeb519c78"
   />
   <aircraft
@@ -51,7 +51,7 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/estimation/ahrs_int_cmpl_quat.xml settings/estimation/body_to_imu.xml settings/control/stabilization_indi.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml modules/air_data.xml"
+   settings_modules="modules/gps.xml modules/gps_ubx_ucenter.xml modules/air_data.xml"
    gui_color="#fffffe72b9fd"
   />
   <aircraft
@@ -61,8 +61,8 @@
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml settings/estimation/ahrs_int_cmpl_quat.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int_quat.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml"
+   settings="settings/rotorcraft_basic.xml settings/estimation/ahrs_int_cmpl_quat.xml settings/control/rotorcraft_guidance.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml modules/gps.xml"
    gui_color="#ffffffffffff"
   />
   <aircraft
@@ -73,7 +73,7 @@
    telemetry="telemetry/default_fixedwing_imu_9k6.xml"
    flight_plan="flight_plans/basic.xml"
    settings="settings/fixedwing_basic.xml settings/control/ctl_basic.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml modules/infrared_adc.xml"
+   settings_modules="modules/gps.xml modules/gps_ubx_ucenter.xml modules/infrared_adc.xml"
    gui_color="#ffffeb519c78"
   />
   <aircraft
@@ -84,7 +84,7 @@
    telemetry="telemetry/default_fixedwing_imu_9k6.xml"
    flight_plan="flight_plans/OPENUAS/openuas_obc2014_kingaroy.xml"
    settings="settings/control/ctl_energy.xml settings/estimation/ac_char.xml settings/fixedwing_basic.xml"
-   settings_modules="modules/air_data.xml modules/gps_ubx_ucenter.xml modules/airspeed_adc.xml modules/tune_airspeed.xml modules/photogrammetry_calculator.xml modules/digital_cam_uart.xml modules/nav_survey_poly_osam.xml modules/nav_smooth.xml"
+   settings_modules="modules/gps.xml modules/air_data.xml modules/gps_ubx_ucenter.xml modules/airspeed_adc.xml modules/tune_airspeed.xml modules/photogrammetry_calculator.xml modules/digital_cam_uart.xml modules/nav_survey_poly_osam.xml modules/nav_smooth.xml"
    gui_color="#fffffac7c07a"
   />
 </conf>

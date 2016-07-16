@@ -369,7 +369,7 @@ static bool nps_main_parse_options(int argc, char **argv)
             nps_main.host_time_factor = atof(optarg); break;
           case 8:
             nps_main.fg_fdm = 1; break;
-	  case 9:
+          case 9:
             nps_main.fg_port_in = atoi(optarg); break;
         }
         break;
@@ -383,7 +383,7 @@ static bool nps_main_parse_options(int argc, char **argv)
         fprintf(stderr, usage, argv[0]);
         exit(0);
 
-      default: /* ’?’ */
+      default:
         printf("?? getopt returned character code 0%o ??\n", c);
         fprintf(stderr, usage, argv[0]);
         exit(EXIT_FAILURE);

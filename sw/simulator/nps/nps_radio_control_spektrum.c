@@ -33,13 +33,18 @@ int nps_radio_control_spektrum_init(const char *device)
     return -1;
   }
   struct termios termios;
+  termios.c_iflag = 0; // properly initialize variable
   /* input modes  */
   termios.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | INPCK | ISTRIP | INLCR | IGNCR
                        | ICRNL | IUCLC | IXON | IXANY | IXOFF | IMAXBEL);
   termios.c_iflag |= IGNPAR;
+
+  termios.c_cflag = 0; // properly initialize variable
   /* control modes*/
   termios.c_cflag &= ~(CSIZE | PARENB | CRTSCTS | PARODD | HUPCL);
   termios.c_cflag |= CREAD | CS8 | CSTOPB | CLOCAL;
+
+  termios.c_lflag = 0; // properly initialize variable
   /* local modes  */
   termios.c_lflag &= ~(ISIG | ICANON | IEXTEN | ECHO | FLUSHO | PENDIN);
   termios.c_lflag |= NOFLSH;

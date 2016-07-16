@@ -66,7 +66,10 @@ void video_thread_periodic(void)
   video_thread.is_running = ! video_thread.is_running;
 #endif
 
-  cv_run_device(NULL,&img);
+  // Calling this function will not work because video_config_t is NULL (?) and img
+  // has no timestamp
+  // Commenting out for now
+  // cv_run_device(NULL,&img);
 
   image_free(&img);
 }

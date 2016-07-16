@@ -44,6 +44,7 @@ struct image_t {
   uint16_t w;             ///< Image width
   uint16_t h;             ///< Image height
   struct timeval ts;      ///< The timestamp of creation
+  uint32_t pprz_ts;       ///< The timestamp in us since system startup
 
   uint8_t buf_idx;        ///< Buffer index for V4L2 freeing
   uint32_t buf_size;      ///< The buffer size
@@ -61,6 +62,20 @@ struct flow_t {
   struct point_t pos;         ///< The original position the flow comes from
   int16_t flow_x;             ///< The x direction flow in subpixels
   int16_t flow_y;             ///< The y direction flow in subpixels
+};
+
+/* Image size structure */
+struct img_size_t {
+  uint16_t w;     ///< The width
+  uint16_t h;     ///< The height
+};
+
+/* Image crop structure */
+struct crop_t {
+  uint16_t x;    ///< Start position x (horizontal)
+  uint16_t y;    ///< Start position y (vertical)
+  uint16_t w;    ///< Width of the cropped area
+  uint16_t h;    ///< height of the cropped area
 };
 
 /* Usefull image functions */

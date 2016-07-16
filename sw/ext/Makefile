@@ -38,13 +38,13 @@ all: libopencm3 luftboot chibios fatfs libsbp mavlink
 # update (and init if needed) all submodules
 update_submodules:
 	$(Q)if [ -d $(PAPARAZZI_SRC)/.git ]; then \
-		cd $(PAPARAZZI_SRC) && git submodule update --init; \
+		cd $(PAPARAZZI_SRC) && git submodule update --init --recursive; \
 	fi
 
 # update (and init if needed) a specific submodule
 %.update:
 	$(Q)if [ -d $(PAPARAZZI_SRC)/.git ]; then \
-		cd $(PAPARAZZI_SRC) && git submodule update --init sw/ext/$*; \
+		cd $(PAPARAZZI_SRC) && git submodule update --init --recursive sw/ext/$*; \
 	fi
 
 # only build currentl checkout of libopencm3
@@ -82,6 +82,11 @@ pprzlink: pprzlink.build
 pprzlink.build:
 	$(Q)$(MAKE) -C pprzlink
 
+opencv_bebop: opencv_bebop.update opencv_bebop.build
+
+opencv_bebop.build:
+	$(Q)$(MAKE) -C opencv_bebop
+
 clean:
 	$(Q)if [ -f libopencm3/Makefile ]; then \
 		$(MAKE) -C $(EXT_DIR)/libopencm3 clean; \
@@ -90,5 +95,10 @@ clean:
 		$(MAKE) -C luftboot/src clean; \
 	fi
 
+clean_opencv_bebop:
+	$(Q)if [ -f opencv_bebop/Makefile ]; then \
+		$(MAKE) -C opencv_bebop clean; \
+	fi
+
 .NOTPARALLEL: libopencm3 luftboot
-.PHONY: all clean update_submodules libopencm3 luftboot chibios fatfs luftboot_flash libopencm3.build luftboot.build mavlink.build
+.PHONY: all clean update_submodules libopencm3 luftboot chibios fatfs luftboot_flash libopencm3.build luftboot.build mavlink.build libsbp pprzlink pprzlink.build opencv_bebop opencv_bebop.build clean_opencv_bebop

@@ -12,6 +12,8 @@ from pprzlink.message import PprzMessage
 
 
 class RtpViewer:
+    running = False
+    rotate = 0
     frame = None
     mouse = dict()
 
@@ -28,19 +30,31 @@ class RtpViewer:
         cv2.setMouseCallback('rtp', self.on_mouse)
 
     def run(self):
+        self.running = True
+
         # Start an 'infinite' loop
-        while True:
+        while self.running:
             # Read a frame from the video capture
             ret, self.frame = self.cap.read()
 
-            # Quit if frame could not be retrieved or 'q' is pressed
-            if not ret or cv2.waitKey(1) & 0xFF == ord('q'):
+            # Quit if frame could not be retrieved
+            if not ret:
                 break
 
             # Run the computer vision function
             self.cv()
 
+            # Process key input
+            self.on_key(cv2.waitKey(1) & 0xFF)
+
     def cv(self):
+        # Rotate the image by increments of 90
+        if self.rotate % 2:
+            self.frame = cv2.transpose(self.frame)
+
+        if self.rotate > 0:
+            self.frame = cv2.flip(self.frame, [1, -1, 0][self.rotate - 1])
+
         # If a selection is happening
         if self.mouse.get('start'):
             # Draw a rectangle indicating the region of interest
@@ -49,8 +63,16 @@ class RtpViewer:
         # Show the image in a window
         cv2.imshow('rtp', self.frame)
 
+    def on_key(self, key):
+        if key == ord('q'):
+            self.running = False
+
+        if key == ord('r'):
+            self.rotate = (self.rotate + 1) % 4
+            self.mouse['start'] = None
+
     def on_mouse(self, event, x, y, flags, param):
-        if event == cv2.EVENT_LBUTTONDOWN:
+        if event == cv2.EVENT_LBUTTONDOWN and self.rotate == 0:
             self.mouse['start'] = (x, y)
 
         if event == cv2.EVENT_RBUTTONDOWN:

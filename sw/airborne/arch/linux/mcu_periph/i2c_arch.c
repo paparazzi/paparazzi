@@ -115,7 +115,7 @@ struct i2c_errors i2c0_errors;
 
 void i2c0_hw_init(void)
 {
-  i2c1.reg_addr = (void *)open("/dev/i2c-0", O_RDWR);
+  i2c0.reg_addr = (void *)open("/dev/i2c-0", O_RDWR);
   i2c0.errors = &i2c0_errors;
 
   /* zeros error counter */

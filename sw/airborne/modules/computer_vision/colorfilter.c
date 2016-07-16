@@ -24,12 +24,12 @@
  */
 
 // Own header
-#include "modules/computer_vision/cv.h"
 #include "modules/computer_vision/colorfilter.h"
 #include <stdio.h>
 
 #include "modules/computer_vision/lib/vision/image.h"
 
+struct video_listener *listener = NULL;
 
 // Filter Settings
 uint8_t color_lum_min = 105;
@@ -58,5 +58,5 @@ struct image_t *colorfilter_func(struct image_t *img)
 
 void colorfilter_init(void)
 {
-  cv_add_to_device(&COLORFILTER_CAMERA, colorfilter_func);
+  listener = cv_add_to_device(&COLORFILTER_CAMERA, colorfilter_func);
 }

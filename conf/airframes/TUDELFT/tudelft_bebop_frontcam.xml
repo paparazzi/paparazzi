@@ -1,53 +1,50 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<airframe name="bebop"> <!-- The name of your airframe, not that important -->
+<airframe name="bebop">
 
   <firmware name="rotorcraft">
     <target name="ap" board="bebop"/>
-    <!--define name="USE_SONAR" value="TRUE"/-->  <!-- As we have a height from Optitrack we dont need to use the sonar -->
+
+    <target name="nps" board="pc">
+      <module name="fdm" type="jsbsim"/>
+      <module name="udp"/>
+    </target>
+
+    <!--define name="USE_SONAR" value="TRUE"/-->
 
 	<!-- Subsystem section -->
     <module name="telemetry" type="transparent_udp"/>
-    <module name="radio_control" type="datalink"/> <!-- We control the bebop through wifi -->
+    <module name="radio_control" type="datalink"/>
     <module name="motor_mixing"/>
     <module name="actuators" type="bebop"/>
     <module name="imu" type="bebop"/>
-    <module name="gps" type="datalink"/> <!-- The GPS information also comes over this wifi, as we are sitting in the cyberzoo all the time -->
-    <module name="stabilization" type="indi"/>
-    <module name="ahrs" type="int_cmpl_quat">
-      <configure name="USE_MAGNETOMETER" value="FALSE"/>
-      <define name="AHRS_USE_GPS_HEADING" value="TRUE"/>
-    </module>
+    <module name="gps" type="furuno"/>
+    <module name="stabilization" type="int_quat"/>
+    <module name="ahrs"          type="float_mlkf"/>
     <module name="ins" type="extended"/>
   </firmware>
 
-<!-- This is the place where you add all your modules -->
-<!-- If there is a variable you can define in your module you can add it within the load node-->
-<!-- Note that for vision the order in which modules are loaded is important -->
-<!-- If you place cv_colorfilter before your own module your own module will only get the filtered image-->
   <modules main_freq="512">
     <module name="geo_mag"/>
     <module name="air_data"/>
     <module name="send_imu_mag_current"/>
+    <!--module name="logger_file">
+      <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
+    </module-->
 
     <module name="video_thread"/>
-
-    <module name="cv_colorfilter">
-      <define name="COLORFILTER_CAMERA" value="bottom_camera"/>
-    </module>
-
-    <module name="video_rtp_stream">
-      <define name="VIEWVIDEO_CAMERA" value="bottom_camera"/>
-      <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
-      <define name="VIEWVIDEO_QUALITY_FACTOR" value="20"/>
-    </module>
 
     <module name="video_capture">
       <define name="VIDEO_CAPTURE_CAMERA" value="front_camera"/>
       <define name="VIDEO_CAPTURE_PATH" value="/data/ftp/internal_000/images"/>
     </module>
 
-    <module name="digital_cam_video"/>
+    <module name="video_rtp_stream">
+      <define name="VIEWVIDEO_CAMERA" value="front_camera"/>
+      <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="8"/>
+      <define name="VIEWVIDEO_QUALITY_FACTOR" value="60"/>
+    </module>
+
   </modules>
 
   <commands>
@@ -83,11 +80,6 @@
     <define name="CALC_AMSL_BARO" value="TRUE"/>
   </section>
 
-<!-- The IMU calibration can be quite important -->
-<!-- Follow the MAVLab video to see how you can calibrate it -->
-<!-- If your drone tends to always go forward check your primary flight display -->
-<!-- Put the drone on a table, if the horizon is not perfectly straight you might want -->
-<!-- to adjust your body to imu variables until it is -->
   <section name="IMU" prefix="IMU_">
     <!-- Magneto calibration -->
     <define name="MAG_X_NEUTRAL" value="18"/>
@@ -122,18 +114,17 @@
     <define name="SONAR_UPDATE_ON_AGL" value="TRUE"/>
   </section>
 
-  <section name="RC_SETPOINT" prefix="STABILIZATION_ATTITUDE_">
-    <!-- setpoint limits for attitude stabilization rc flight -->
+
+  <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
+    <!-- setpoints -->
     <define name="SP_MAX_PHI" value="45" unit="deg"/>
     <define name="SP_MAX_THETA" value="45" unit="deg"/>
-    <define name="SP_MAX_R" value="100" unit="deg/s"/>
+    <define name="SP_MAX_R" value="300" unit="deg/s"/>
     <define name="DEADBAND_A" value="0"/>
     <define name="DEADBAND_E" value="0"/>
     <define name="DEADBAND_R" value="50"/>
-  </section>
 
-  <section name="ATTITUDE_REFERENCE" prefix="STABILIZATION_ATTITUDE_">
-    <!-- attitude reference generation model -->
+    <!-- reference -->
     <define name="REF_OMEGA_P" value="450" unit="deg/s"/>
     <define name="REF_ZETA_P" value="0.9"/>
     <define name="REF_MAX_P" value="600." unit="deg/s"/>
@@ -148,40 +139,24 @@
     <define name="REF_ZETA_R" value="0.9"/>
     <define name="REF_MAX_R" value="600." unit="deg/s"/>
     <define name="REF_MAX_RDOT" value="RadOfDeg(8000.)"/>
-  </section>
 
-  <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
-    <!-- control effectiveness -->
-    <define name="G1_P" value="0.0639"/>
-    <define name="G1_Q" value="0.0361"/>
-    <define name="G1_R" value="0.0022"/>
-    <define name="G2_R" value="0.1450"/>
+    <!-- feedback -->
+    <define name="PHI_PGAIN" value="920"/>
+    <define name="PHI_DGAIN" value="425"/>
+    <define name="PHI_IGAIN" value="0"/>
 
-    <!-- reference acceleration for attitude control -->
-    <define name="REF_ERR_P" value="600.0"/>
-    <define name="REF_ERR_Q" value="600.0"/>
-    <define name="REF_ERR_R" value="600.0"/>
-    <define name="REF_RATE_P" value="28.0"/>
-    <define name="REF_RATE_Q" value="28.0"/>
-    <define name="REF_RATE_R" value="28.0"/>
+    <define name="THETA_PGAIN" value="920"/>
+    <define name="THETA_DGAIN" value="425"/>
+    <define name="THETA_IGAIN" value="0"/>
 
-    <!--Maxium yaw rate, to avoid instability-->
-    <define name="MAX_R" value="120.0"/> <!--deg/s-->
+    <define name="PSI_PGAIN" value="8000"/>
+    <define name="PSI_DGAIN" value="700"/>
+    <define name="PSI_IGAIN" value="0"/>
 
-    <!-- second order filter parameters -->
-    <define name="FILT_OMEGA" value="50.0"/>
-    <define name="FILT_ZETA" value="0.55"/>
-    <define name="FILT_OMEGA_R" value="50.0"/>
-    <define name="FILT_ZETA_R" value="0.55"/>
-
-    <!-- first order actuator dynamics -->
-    <define name="ACT_DYN_P" value="0.1"/>
-    <define name="ACT_DYN_Q" value="0.1"/>
-    <define name="ACT_DYN_R" value="0.1"/>
-
-    <!-- Adaptive Learning Rate -->
-    <define name="USE_ADAPTIVE" value="FALSE"/>
-    <define name="ADAPTIVE_MU" value="0.0001"/>
+    <!-- feedforward -->
+    <define name="PHI_DDGAIN" value="0"/>
+    <define name="THETA_DDGAIN" value="0"/>
+    <define name="PSI_DDGAIN" value="0"/>
   </section>
 
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
@@ -207,9 +182,12 @@
     <define  name="DESCEND_VSPEED" value="-1.0" />
   </section>
 
-<!-- Here you put the modes that your drone can fly in -->
-<!-- If you are using a hobbyking joystick mode_manual and mode_auto2 have to be set-->
-<!-- These settings are probably ok for your project! -->
+  <section name="SIMULATOR" prefix="NPS_">
+    <define name="ACTUATOR_NAMES" value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
+    <define name="JSBSIM_MODEL" value="simple_x_quad_ccw" type="string"/>
+    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
+  </section>
+
   <section name="AUTOPILOT">
     <define name="MODE_STARTUP" value="AP_MODE_NAV"/>
     <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
@@ -219,9 +197,9 @@
 
   <section name="BAT">
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="8700"/>
-    <define name="CATASTROPHIC_BAT_LEVEL" value="10.8" unit="V"/>
-    <define name="CRITIC_BAT_LEVEL" value="11.0" unit="V"/>
-    <define name="LOW_BAT_LEVEL" value="11.2" unit="V"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="9.6" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="10.6" unit="V"/>
     <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
   </section>
 </airframe>

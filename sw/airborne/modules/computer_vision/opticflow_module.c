@@ -72,6 +72,7 @@ static void opticflow_agl_cb(uint8_t sender_id, float distance);    ///< Callbac
 static void opticflow_telem_send(struct transport_tx *trans, struct link_device *dev)
 {
   pthread_mutex_lock(&opticflow_mutex);
+  if (opticflow_result.noise_measurement > 0.8) {
   pprz_msg_send_OPTIC_FLOW_EST(trans, dev, AC_ID,
                                &opticflow_result.fps, &opticflow_result.corner_cnt,
                                &opticflow_result.tracked_cnt, &opticflow_result.flow_x,
@@ -79,6 +80,7 @@ static void opticflow_telem_send(struct transport_tx *trans, struct link_device 
                                &opticflow_result.flow_der_y, &opticflow_result.vel_x,
                                &opticflow_result.vel_y, &opticflow_result.div_size,
                                &opticflow_result.surface_roughness, &opticflow_result.divergence); // TODO: no noise measurement here...
+  }
   pthread_mutex_unlock(&opticflow_mutex);
 }
 #endif
@@ -92,8 +94,7 @@ void opticflow_module_init(void)
   AbiBindMsgAGL(OPTICFLOW_AGL_ID, &opticflow_agl_ev, opticflow_agl_cb);
 
   // Set the opticflow state to 0
-  opticflow_state.phi = 0;
-  opticflow_state.theta = 0;
+  FLOAT_RATES_ZERO(opticflow_state.rates);
   opticflow_state.agl = 0;
 
   // Initialize the opticflow calculation
@@ -113,15 +114,11 @@ void opticflow_module_init(void)
  */
 void opticflow_module_run(void)
 {
-  // Send Updated data to thread
   pthread_mutex_lock(&opticflow_mutex);
-  opticflow_state.phi = stateGetNedToBodyEulers_f()->phi;
-  opticflow_state.theta = stateGetNedToBodyEulers_f()->theta;
-
   // Update the stabilization loops on the current calculation
   if (opticflow_got_result) {
     uint32_t now_ts = get_sys_time_usec();
-    uint8_t quality = opticflow_result.divergence; // FIXME, scale to some quality measure 0-255
+    uint8_t quality = opticflow_result.noise_measurement; // FIXME, scale to some quality measure 0-255
     AbiSendMsgOPTICAL_FLOW(OPTICFLOW_SENDER_ID, now_ts,
                            opticflow_result.flow_x,
                            opticflow_result.flow_y,
@@ -131,7 +128,7 @@ void opticflow_module_run(void)
                            opticflow_result.div_size,
                            opticflow_state.agl);
     //TODO Find an appropiate quality measure for the noise model in the state filter, for now it is tracked_cnt
-    if (opticflow_result.tracked_cnt > 0) {
+    if (quality > 0.8) {
       AbiSendMsgVELOCITY_ESTIMATE(OPTICFLOW_SENDER_ID, now_ts,
                                   opticflow_result.vel_body_x,
                                   opticflow_result.vel_body_y,
@@ -153,13 +150,11 @@ void opticflow_module_run(void)
  */
 struct image_t *opticflow_module_calc(struct image_t *img)
 {
-
   // Copy the state
-
-  pthread_mutex_lock(&opticflow_mutex);
+  struct pose_t pose = get_rotation_at_timestamp(img->pprz_ts);
   struct opticflow_state_t temp_state;
-  memcpy(&temp_state, &opticflow_state, sizeof(struct opticflow_state_t));
-  pthread_mutex_unlock(&opticflow_mutex);
+  temp_state.agl = opticflow_state.agl;
+  temp_state.rates = pose.rates;
 
   // Do the optical flow calculation
   struct opticflow_result_t temp_result = {}; // new initialization
@@ -169,9 +164,6 @@ struct image_t *opticflow_module_calc(struct image_t *img)
   pthread_mutex_lock(&opticflow_mutex);
   memcpy(&opticflow_result, &temp_result, sizeof(struct opticflow_result_t));
   opticflow_got_result = true;
-  pthread_mutex_unlock(&opticflow_mutex);
-
-  // TODO: why is there a mutex above and not below when changing opticflow_result?
 
   /* Rotate velocities from camera frame coordinates to body coordinates for control
   * IMPORTANT!!! This frame to body orientation should be the case for the Parrot
@@ -186,6 +178,8 @@ struct image_t *opticflow_module_calc(struct image_t *img)
   opticflow_result.vel_body_y = opticflow_result.vel_x;
 #endif
 
+  // release the mutex as we are done with editing the opticflow result
+  pthread_mutex_unlock(&opticflow_mutex);
   return img;
 }
 

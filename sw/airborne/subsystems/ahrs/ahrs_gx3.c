@@ -266,7 +266,7 @@ void gx3_packet_read_message(void)
 
   // Attitude
   struct FloatRMat ltp_to_body_rmat;
-  FLOAT_RMAT_COMP(ltp_to_body_rmat, ahrs_gx3.rmat, *body_to_imu_rmat);
+  float_rmat_comp(ltp_to_body_rmat, ahrs_gx3.rmat, *body_to_imu_rmat);
 
 #if AHRS_USE_GPS_HEADING && USE_GPS
   struct FloatEulers ltp_to_body_eulers;

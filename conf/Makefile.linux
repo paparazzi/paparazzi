@@ -62,11 +62,13 @@ CFLAGS += $(CSTANDARD)
 CFLAGS += $($(TARGET).CFLAGS)
 CFLAGS += $(USER_CFLAGS) $(BOARD_CFLAGS)
 
+CXXFLAGS += $(CINCS)
 CXXFLAGS += -O$(OPT) -fPIC
 CXXFLAGS += $(DEBUG_FLAGS)
 CXXFLAGS += -pipe -fshow-column -ffast-math
 CXXFLAGS += -g -ffunction-sections -fdata-sections
 CXXFLAGS += -Wall -Wextra
+#CXXFLAGS += $($(TARGET).CFLAGS)
 CXXFLAGS += $($(TARGET).CXXFLAGS)
 CXXFLAGS += $(USER_CFLAGS) $(BOARD_CFLAGS)
 

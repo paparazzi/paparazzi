@@ -1,14 +1,14 @@
 /*
- * Copyright (C) 2015 Freek van Tienen <freek.v.tienen@gmail.com>
+ * Copyright (C) Roland Meertens and Peng Lu
  *
- * This file is part of Paparazzi.
+ * This file is part of paparazzi
  *
- * Paparazzi is free software; you can redistribute it and/or modify
+ * paparazzi is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2, or (at your option)
  * any later version.
  *
- * Paparazzi is distributed in the hope that it will be useful,
+ * paparazzi is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
@@ -16,18 +16,19 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
- *
  */
-
 /**
- * @file boards/bebop/video.h
- * Initialization of the video specific parts of the Bebop
+ * @file "modules/computer_vision/detect_contour.h"
+ * @author Roland Meertens and Peng Lu
+ * A module that detects contours of obstacles as used in autonomous drone races.
  */
 
-#ifndef BOARDS_BEBOP_VIDEO_H
-#define BOARDS_BEBOP_VIDEO_H
+#ifndef DETECT_CONTOUR_H
+#define DETECT_CONTOUR_H
 
-void mt9v117_init(void);
-void mt9f002_init(void);
+extern void detect_contour_init(void);
 
-#endif /* BOARDS_BEBOP_VIDEO_H */
+#endif
+
+
+

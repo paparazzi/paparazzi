@@ -1,0 +1,16 @@
+<!DOCTYPE settings SYSTEM "../settings.dtd">
+<settings>
+  <dl_settings>
+    <dl_settings NAME="gain_set_2">
+      <dl_setting var="gainlibrary[1].p.x" min="0" step="1" max="1000" module="modules/gain_scheduling/gain_scheduling" shortname="phi_p"/>
+      <dl_setting var="gainlibrary[1].i.x" min="0" step="1" max="1000" module="modules/gain_scheduling/gain_scheduling" shortname="phi_i"/>
+      <dl_setting var="gainlibrary[1].d.x" min="0" step="1" max="1000" module="modules/gain_scheduling/gain_scheduling" shortname="phi_d"/>
+      <dl_setting var="gainlibrary[1].p.y" min="0" step="1" max="1000" module="modules/gain_scheduling/gain_scheduling" shortname="theta_p"/>
+      <dl_setting var="gainlibrary[1].i.y" min="0" step="1" max="1000" module="modules/gain_scheduling/gain_scheduling" shortname="theta_i"/>
+      <dl_setting var="gainlibrary[1].d.y" min="0" step="1" max="1000" module="modules/gain_scheduling/gain_scheduling" shortname="theta_d"/>
+      <dl_setting var="gainlibrary[1].p.z" min="0" step="1" max="1000" module="modules/gain_scheduling/gain_scheduling" shortname="psi_p"/>
+      <dl_setting var="gainlibrary[1].i.z" min="0" step="1" max="1000" module="modules/gain_scheduling/gain_scheduling" shortname="psi_i"/>
+      <dl_setting var="gainlibrary[1].d.z" min="0" step="1" max="1000" module="modules/gain_scheduling/gain_scheduling" shortname="psi_d"/>
+    </dl_settings>
+  </dl_settings>
+</settings>
