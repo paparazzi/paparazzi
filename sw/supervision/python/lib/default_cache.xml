@@ -6,9 +6,9 @@
 -        <filters value="all 2 2 2 2" />
 -    </system>
 -    <data>
--        <set value="airframes/ENAC/conf_enac.xml" />
--        <config value="JP" />
--        <target value="ap" />
+-        <set value="conf_example.xml" />
+-        <config value="Microjet" />
+-        <target value="sim" />
 -        <device value=" __Default__ " />
 -        <session value="Simulation" />
 -    </data>
