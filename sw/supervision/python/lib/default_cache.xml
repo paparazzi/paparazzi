@@ -1,0 +1,15 @@
+<cache>
+-    <system>
+-        <window>
+-            <geometry value="100 100 1026 448" />
+-        </window>
+-        <filters value="all 2 2 2 2" />
+-    </system>
+-    <data>
+-        <set value="airframes/ENAC/conf_enac.xml" />
+-        <config value="JP" />
+-        <target value="ap" />
+-        <device value=" __Default__ " />
+-        <session value="Simulation" />
+-    </data>
+-</cache>
