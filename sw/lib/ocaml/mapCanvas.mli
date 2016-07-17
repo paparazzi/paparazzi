@@ -53,12 +53,15 @@ class widget :
       ?group:GnoCanvas.group ->
       ?width:int ->
       ?fill_color:string ->
+      ?opacity:int ->
       ?color:string -> Latlong.geographic -> Latlong.fmeter -> GnoCanvas.ellipse
     method convert_positions_to_points : Latlong.geographic array -> float array
+    method stipple_opacity: int -> int*string
     method polygon :
       ?group:GnoCanvas.group ->
       ?width:int ->
       ?fill_color:string ->
+      ?opacity:int ->
       ?color:string -> Latlong.geographic array -> GnoCanvas.polygon
     method connect_view : (unit -> unit) -> unit
     method current_zoom : float

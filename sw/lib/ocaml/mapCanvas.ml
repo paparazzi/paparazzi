@@ -604,21 +604,32 @@ object (self)
     l
 
 
-  method circle = fun ?(group = canvas#root) ?(width=1) ?fill_color ?(color="black") geo radius ->
+  method circle = fun ?(group = canvas#root) ?(width=1) ?fill_color ?(opacity=0) ?(color="black") geo radius ->
     let (x, y) = self#world_of geo in
-
+    let (stpwidth, stpstr) = self#stipple_opacity opacity in
     (** Compute the actual radius in a UTM projection *)
     let utm = LL.utm_of LL.WGS84 geo in
     let geo_east = LL.of_utm LL.WGS84 (LL.utm_add utm (radius, 0.)) in
     let (xe, _) = self#world_of geo_east in
     let rad = xe -. x in
-    let l = GnoCanvas.ellipse ?fill_color ~props:[`WIDTH_PIXELS width; `OUTLINE_COLOR color] ~x1:(x-.rad) ~y1:(y -.rad) ~x2:(x +.rad) ~y2:(y+.rad) group in
+    let l = GnoCanvas.ellipse ?fill_color ~props:[`WIDTH_PIXELS width; `OUTLINE_COLOR color; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:stpwidth ~height:stpwidth stpstr)] ~x1:(x-.rad) ~y1:(y -.rad) ~x2:(x +.rad) ~y2:(y+.rad) group in
     l#show ();
     l
 
-  method polygon = fun ?(group = canvas#root) ?(width=1) ?fill_color ?(color="black") geo_arr ->
+  method stipple_opacity = fun opacity ->
+      match opacity with
+        | 0-> (1, "\002\001")
+        | 1-> (3,"\002\001")
+        | 2 -> (2,"\002\001")
+        | 3 -> (1,"\003\001")
+        | _ -> (1,"\002\001")
+
+
+  method polygon = fun ?(group = canvas#root) ?(width=1) ?fill_color ?(opacity=0) ?(color="black") geo_arr ->
+    (*setting opacity from 0-4 *)
+    let (stpwidth, stpstr) = self#stipple_opacity opacity in
     let points = self#convert_positions_to_points geo_arr in
-    let l = GnoCanvas.polygon ?fill_color ~props:[`WIDTH_PIXELS width; `OUTLINE_COLOR color] ~points group in
+    let l = GnoCanvas.polygon ?fill_color ~props:[`WIDTH_PIXELS width; `OUTLINE_COLOR color; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:stpwidth ~height:stpwidth stpstr)] ~points group in
     l#show ();
     l
 

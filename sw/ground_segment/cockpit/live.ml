@@ -1487,14 +1487,16 @@ let get_shapes = fun (geomap:G.widget)_sender vs ->
   let string_to_scaled_float = fun v -> (float (int_of_string v))/. 1e7 in
   let floatarr = fun s -> Array.map string_to_scaled_float (Array.of_list (Str.split list_separator (st s))) in
   let data =  {
-    shid = PprzLink.string_assoc "id" vs;
-    shlinecolor = PprzLink.string_assoc "linecolor" vs;
-    shfillcolor = PprzLink.string_assoc "fillcolor" vs;
+    shid = st "id";
+    shlinecolor = st "linecolor";
+    shfillcolor = st "fillcolor";
+    shopacity = PprzLink.int_assoc "opacity" vs;
     shtype = i "shape";
     shstatus = i "status";
     shlatarr = floatarr "latarr";
     shlonarr = floatarr "lonarr";
-    shradius = (f "radius")} in
+    shradius = f "radius";
+    shtext = st "text"} in
   new_shmsg data geomap
 
 let listen_shapes = fun (geomap:G.widget) ->
