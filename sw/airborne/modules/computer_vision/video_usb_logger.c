@@ -35,6 +35,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include "computer_vision/lib/encoding/jpeg.h"
 
 
 /** Set the default File logger path to the USB drive */
@@ -42,27 +43,22 @@
 #define VIDEO_USB_LOGGER_PATH /data/video/usb
 #endif
 
-#ifndef VIDEO_USB_LOGGER_WIDTH
-#define VIDEO_USB_LOGGER_WIDTH 272
-#endif
-
-#ifndef VIDEO_USB_LOGGER_HEIGHT
-#define VIDEO_USB_LOGGER_HEIGHT 272
-#endif
-
 /** The file pointer */
 static FILE *video_usb_logger = NULL;
-struct image_t img_jpeg;
+struct image_t img_jpeg_global;
+bool created_jpeg = FALSE;
 char foldername[512];
 int shotNumber = 0;
 
-void save_shot(struct image_t *img, struct image_t *img_jpeg)
+void save_shot_on_disk(struct image_t *img, struct image_t *img_jpeg);
+void save_shot_on_disk(struct image_t *img, struct image_t *img_jpeg)
 {
 
   // Search for a file where we can write to
   char save_name[128];
 
   sprintf(save_name, "%s/img_%05d.jpg", foldername, shotNumber);
+  //sprintf(save_name, "img_%05d.jpg", shotNumber);
 
   shotNumber++;
   // Check if file exists or not
@@ -81,6 +77,7 @@ void save_shot(struct image_t *img, struct image_t *img_jpeg)
       // Save it to the file and close it
       fwrite(img_jpeg->buf, sizeof(uint8_t), img_jpeg->buf_size, fp);
       fclose(fp);
+      printf("Wrote image\n");
     }
 #endif
 
@@ -94,12 +91,18 @@ void save_shot(struct image_t *img, struct image_t *img_jpeg)
     static uint32_t counter = 0;
     struct NedCoor_i *ned = stateGetPositionNed_i();
     struct Int32Eulers *euler = stateGetNedToBodyEulers_i();
+    struct NedCoor_i *accel = stateGetAccelNed_i();
+    struct Int32Rates *rates = stateGetBodyRates_i();
     static uint32_t sonar = 0;
 
     // Save current information to a file
-    fprintf(video_usb_logger, "%d,%d,%d,%d,%d,%d,%d,%d,%d\n", counter,
-            shotNumber, euler->phi, euler->theta, euler->psi, ned->x,
-            ned->y, ned->z, sonar);
+    fprintf(video_usb_logger, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", counter,
+            shotNumber,
+            euler->phi, euler->theta, euler->psi,
+            ned->x, ned->y, ned->z,
+            accel->x, accel->y, accel->z,
+            rates->p, rates->q, rates->r,
+            sonar);
     counter++;
   }
 
@@ -108,15 +111,19 @@ void save_shot(struct image_t *img, struct image_t *img_jpeg)
 struct image_t *log_image(struct image_t *img);
 struct image_t *log_image(struct image_t *img)
 {
-  save_shot(img, &img_jpeg);
+  if (!created_jpeg) {
+
+    // Create the jpeg image used later
+    image_create(&img_jpeg_global, img->w, img->h, IMAGE_JPEG);
+    created_jpeg = TRUE;
+  }
+  save_shot_on_disk(img, &img_jpeg_global);
   return img;
 }
 
 /** Start the file logger and open a new file */
 void video_usb_logger_start(void)
 {
-  // Create the jpeg image used later
-  image_create(&img_jpeg, VIDEO_USB_LOGGER_WIDTH, VIDEO_USB_LOGGER_HEIGHT, IMAGE_JPEG);
 
   uint32_t counter = 0;
   char filename[512];
@@ -136,7 +143,7 @@ void video_usb_logger_start(void)
   video_usb_logger = fopen(filename, "w");
 
   if (video_usb_logger != NULL) {
-    fprintf(video_usb_logger, "counter,image,roll,pitch,yaw,x,y,z,sonar\n");
+    fprintf(video_usb_logger, "counter,image,roll,pitch,yaw,x,y,z,accelx,accely,accelz,ratep,rateq,rater,sonar\n");
   }
 
   // Subscribe to a camera
