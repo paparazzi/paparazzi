@@ -36,7 +36,6 @@
 #include <time.h>
 
 #include "modules/computer_vision/marker/detector.h"
-#include "modules/computer_vision/cv_georeference.h"
 
 
 void flight_plan_guided_init(void) {} // Dummy
@@ -93,42 +92,9 @@ uint8_t MoveForward(float vx) {
 }
 
 void marker_detection_periodic(void) {
-//
-//    struct NedCoor_f *pos = stateGetPositionNed_f();
-//
-//    guidance_h_set_guided_vel(pos->x + 1, pos->y);
 
-    if (marker_detected) {
-
-        struct camera_frame_t cam;
-        cam.px = marker_pixel_x;
-        cam.py = marker_pixel_y;
-        cam.f = 400; // Focal length [px]
-        cam.h = 240; // Frame height [px]
-        cam.w = 240; // Frame width [px]
-
-        georeference_project_target(&cam);
-        georeference_filter_target(0, 4);
-
-//        int delta_x = marker_pixel_x - 120; // +x = marker is right, bebop should go 'right'
-//        int delta_y = marker_pixel_y - 120; // +y = marker is behind, bebop should go 'back'
-//
-        fprintf(stderr, "[DETECTOR] found! %.3f, %.3f, %.3f \n",
-                POS_FLOAT_OF_BFP(geo.target_rel.x),
-                POS_FLOAT_OF_BFP(geo.target_rel.y),
-                POS_FLOAT_OF_BFP(geo.target_rel.z));
-//
-//        float gain = 0.001;
-//
-//        // body velocity                 +x = +forward,   +y = +right
-//        guidance_h_set_guided_body_vel(-delta_y * gain, delta_x * gain);
-
-        guidance_h_set_guided_pos(
-                POS_FLOAT_OF_BFP(geo.filter.x.x),//target_abs.x),
-                POS_FLOAT_OF_BFP(geo.filter.x.y)//target_abs.y)
-        );
-    } else {
-
-        //guidance_h_set_guided_vel(0, 0);
+    if (MARKER.detected) {
+        guidance_h_set_guided_pos(MARKER.geo_location.x, MARKER.geo_location.y);
     }
+
 }

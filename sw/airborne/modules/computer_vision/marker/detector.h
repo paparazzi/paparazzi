@@ -25,9 +25,16 @@
 #ifndef MARKER_DETECTOR_H
 #define MARKER_DETECTOR_H
 
-extern volatile bool marker_detected;
-extern int marker_pixel_x;
-extern int marker_pixel_y;
+#include "math/pprz_geodetic_float.h"
+#include "lib/vision/image.h"
+
+struct marker {
+    volatile bool detected;
+    struct point_t pixel;
+    struct NedCoor_f geo_location;
+};
+
+extern struct marker MARKER;
 
 void detector_init(void);
 

@@ -27,14 +27,14 @@
 #include "modules/computer_vision/cv.h"
 #include "modules/computer_vision/marker/detector.h"
 
+#include "modules/computer_vision/cv_georeference.h"
+
 #include "modules/computer_vision/opencv_imav_landingpad.h"
 
 static bool SHOW_MARKER = true;
 
 // General outputs
-volatile bool marker_detected;
-int marker_pixel_x;
-int marker_pixel_y;
+struct marker MARKER;
 
 // Helipad detection
 static struct video_listener* helipad_listener;
@@ -51,13 +51,26 @@ static struct image_t *detect_helipad_marker(struct image_t* img)
             0); //modify image
 
     if (helipad_marker.MARKER) {
-        marker_detected = true;
-        marker_pixel_x = helipad_marker.maxx;
-        marker_pixel_y = helipad_marker.maxy;
+        MARKER.detected = true;
+        MARKER.pixel.x = helipad_marker.maxx;
+        MARKER.pixel.y = helipad_marker.maxy;
 
-//        fprintf(stderr, "[MARKER] found! %i, %i\n", marker_pixel_x, marker_pixel_y);
+        struct camera_frame_t cam;
+        cam.px = MARKER.pixel.x;
+        cam.py = MARKER.pixel.y;
+        cam.f = 400; // Focal length [px]
+        cam.h = img->w; // Frame height [px]
+        cam.w = img->h; // Frame width [px]
+
+        georeference_project_target(&cam);
+        MARKER.geo_location.x = POS_FLOAT_OF_BFP(geo.target_abs.x);
+        MARKER.geo_location.y = POS_FLOAT_OF_BFP(geo.target_abs.y);
+        MARKER.geo_location.z = POS_FLOAT_OF_BFP(geo.target_abs.z);
+
+//        fprintf(stderr, "[MARKER] found! %i, %i\n", MARKER.pixel.x, MARKER.pixel.y);
+//        fprintf(stderr, "[MARKER] found! %.3f, %.3f\n", MARKER.geo_location.x, MARKER.geo_location.y);
     } else {
-        marker_detected = false;
+        MARKER.detected = false;
 
 //        fprintf(stderr, "[MARKER] not found!\n");
     }
@@ -67,11 +80,11 @@ static struct image_t *detect_helipad_marker(struct image_t* img)
 
 static struct image_t *draw_target_marker(struct image_t* img)
 {
-    if (marker_detected && SHOW_MARKER) {
-        struct point_t t = {marker_pixel_x, marker_pixel_y - 50},
-                b = {marker_pixel_x, marker_pixel_y + 50},
-                l = {marker_pixel_x - 50, marker_pixel_y},
-                r = {marker_pixel_x + 50, marker_pixel_y};
+    if (MARKER.detected && SHOW_MARKER) {
+        struct point_t t = {MARKER.pixel.x, MARKER.pixel.y - 50},
+                b = {MARKER.pixel.x, MARKER.pixel.y + 50},
+                l = {MARKER.pixel.x - 50, MARKER.pixel.y},
+                r = {MARKER.pixel.x + 50, MARKER.pixel.y};
 
         image_draw_line(img, &t, &b);
         image_draw_line(img, &l, &r);
