@@ -32,7 +32,7 @@ extern "C" {
 struct results {
     int maxx;
     int maxy;
-    int MARKER;
+    int marker;
 };
 
 struct results opencv_imav_landing(char *img, int width, int height, int v_squares, int binary_threshold, int mod);

@@ -28,13 +28,13 @@
 #include "math/pprz_geodetic_float.h"
 #include "lib/vision/image.h"
 
-struct marker {
+struct Marker {
     volatile bool detected;
     struct point_t pixel;
     struct NedCoor_f geo_location;
 };
 
-extern struct marker MARKER;
+extern struct Marker marker;
 
 void detector_init(void);
 

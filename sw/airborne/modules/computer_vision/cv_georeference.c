@@ -65,7 +65,7 @@ void georeference_project_target(struct camera_frame_t *tar)
                (tar->f)
               );
 
-  //scale position to later comptations
+  //scale position to later computations
   INT32_VECT3_LSHIFT(geo.target_p, geo.target_p, 4);
 
   // Rotate Camera <-> Body
@@ -80,7 +80,7 @@ void georeference_project_target(struct camera_frame_t *tar)
   int32_rmat_transp_vmult(&target_b, &body_to_cam_rmat, &geo.target_p);
   */
 \
-  // TODO replace folowing with true derotation as exampled above
+  // TODO replace following with true derotation as exampled above
   struct Int32Vect3 target_b;
   VECT3_COPY(target_b, geo.target_p);
 

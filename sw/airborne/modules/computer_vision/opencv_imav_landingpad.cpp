@@ -174,7 +174,7 @@ struct results opencv_imav_landing(char *img, int width, int height, int v_squar
     // If the number of filtered centroids are larger than the predetermined counter, landing pad detected
     if (n_filtcentroids >= v_squares)
     {
-        landing.MARKER = 1;
+        landing.marker = 1;
         xbar = (xsum / n_filtcentroids);
         ybar = (ysum / n_filtcentroids);
         landing.maxx = xbar;
@@ -182,7 +182,7 @@ struct results opencv_imav_landing(char *img, int width, int height, int v_squar
         if (mod) { circle(binim, Point(xbar,ybar), 20, 200, 10); }
     } else
     {
-        landing.MARKER = 0;
+        landing.marker = 0;
         landing.maxx   = 0;
         landing.maxy   = 0;
     }

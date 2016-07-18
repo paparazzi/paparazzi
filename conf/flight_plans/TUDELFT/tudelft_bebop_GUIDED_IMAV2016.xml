@@ -74,7 +74,7 @@
       <!--<call fun="start_helipad()"/>-->
       <!--<call fun="MoveForward(0.1)"/>-->
       <!--<while cond="1"/>-->
-      <!--<exception cond="MARKER" deroute="Land"/>-->
+      <!--<exception cond="marker" deroute="Land"/>-->
     <!--</block>-->
 
     <!--<block name="Land">-->

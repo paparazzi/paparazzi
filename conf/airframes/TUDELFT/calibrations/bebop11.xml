@@ -5,12 +5,12 @@
     <!-- TUBB11, calibrated indoor for IMAV 2016 -->
 
     <!-- Magneto calibration -->
-    <define name="MAG_X_NEUTRAL" value="-79"/>
-    <define name="MAG_Y_NEUTRAL" value="27"/>
-    <define name="MAG_Z_NEUTRAL" value="50"/>
-    <define name="MAG_X_SENS" value="5.78980242559" integer="16"/>
-    <define name="MAG_Y_SENS" value="6.29027596702" integer="16"/>
-    <define name="MAG_Z_SENS" value="5.65865022438" integer="16"/>
+    <define name="MAG_X_NEUTRAL" value="-96"/>
+    <define name="MAG_Y_NEUTRAL" value="23"/>
+    <define name="MAG_Z_NEUTRAL" value="86"/>
+    <define name="MAG_X_SENS" value="7.02781201225" integer="16"/>
+    <define name="MAG_Y_SENS" value="7.37801698484" integer="16"/>
+    <define name="MAG_Z_SENS" value="7.77941798035" integer="16"/>
 
     <!-- Magneto current calibration -->
     <define name= "MAG_X_CURRENT_COEF" value="-0.00540348745714"/>
