@@ -201,12 +201,12 @@ void calculate_edge_displacement(int32_t *edge_histogram, int32_t *edge_histogra
     for (x = border[0]; x < border[1]; x++) {
       displacement[x] = 0;
       if (!SHIFT_TOO_FAR) {
-      for (c = -D; c <= D; c++) {
-        SAD_temp[c + D] = 0;
-        for (r = -W; r <= W; r++) {
-          SAD_temp[c + D] += abs(edge_histogram[x + r] - edge_histogram_prev[x + r + c + der_shift]);
+        for (c = -D; c <= D; c++) {
+          SAD_temp[c + D] = 0;
+          for (r = -W; r <= W; r++) {
+            SAD_temp[c + D] += abs(edge_histogram[x + r] - edge_histogram_prev[x + r + c + der_shift]);
+          }
         }
-      }
         displacement[x] = (int32_t)getMinimum(SAD_temp, 2 * D + 1) - D;
       } else {
       }

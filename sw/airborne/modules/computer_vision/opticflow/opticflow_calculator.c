@@ -240,7 +240,8 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
   // Adaptive threshold
   if (opticflow->fast9_adaptive) {
     // Decrease and increase the threshold based on previous values
-    if (result->corner_cnt < 40 && opticflow->fast9_threshold > FAST9_LOW_THRESHOLD) { // TODO: Replace 40 with OPTICFLOW_MAX_TRACK_CORNERS / 2
+    if (result->corner_cnt < 40
+        && opticflow->fast9_threshold > FAST9_LOW_THRESHOLD) { // TODO: Replace 40 with OPTICFLOW_MAX_TRACK_CORNERS / 2
       opticflow->fast9_threshold--;
     } else if (result->corner_cnt > OPTICFLOW_MAX_TRACK_CORNERS * 2 && opticflow->fast9_threshold < FAST9_HIGH_THRESHOLD) {
       opticflow->fast9_threshold++;
@@ -333,8 +334,10 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
   float diff_flow_y = (state->theta - opticflow->prev_theta) * img->h / OPTICFLOW_FOV_H;*/
 
   if (opticflow->derotation && result->tracked_cnt > 5) {
-    diff_flow_x = (state->rates.p + opticflow->prev_rates.p) / 2.0f / result->fps * img->w / OPTICFLOW_FOV_W;// * img->w / OPTICFLOW_FOV_W;
-    diff_flow_y = (state->rates.q + opticflow->prev_rates.q) / 2.0f / result->fps * img->h / OPTICFLOW_FOV_H;// * img->h / OPTICFLOW_FOV_H;
+    diff_flow_x = (state->rates.p + opticflow->prev_rates.p) / 2.0f / result->fps * img->w /
+                  OPTICFLOW_FOV_W;// * img->w / OPTICFLOW_FOV_W;
+    diff_flow_y = (state->rates.q + opticflow->prev_rates.q) / 2.0f / result->fps * img->h /
+                  OPTICFLOW_FOV_H;// * img->h / OPTICFLOW_FOV_H;
   }
 
   result->flow_der_x = result->flow_x - diff_flow_x * opticflow->subpixel_factor;
@@ -441,9 +444,11 @@ void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *
   int16_t der_shift_y = 0;
 
   if (opticflow->derotation) {
-    der_shift_x = -(int16_t)((edge_hist[previous_frame_nr[0]].rates.p + edge_hist[current_frame_nr].rates.p) / 2.0f / result->fps *
+    der_shift_x = -(int16_t)((edge_hist[previous_frame_nr[0]].rates.p + edge_hist[current_frame_nr].rates.p) / 2.0f /
+                             result->fps *
                              (float)img->w / (OPTICFLOW_FOV_W));
-    der_shift_y = -(int16_t)((edge_hist[previous_frame_nr[1]].rates.q + edge_hist[current_frame_nr].rates.q) / 2.0f / result->fps *
+    der_shift_y = -(int16_t)((edge_hist[previous_frame_nr[1]].rates.q + edge_hist[current_frame_nr].rates.q) / 2.0f /
+                             result->fps *
                              (float)img->h / (OPTICFLOW_FOV_H));
   }
 
