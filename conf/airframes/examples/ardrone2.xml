@@ -32,14 +32,14 @@
     <module name="air_data"/>
     <module name="geo_mag"/>
     <!--module name="logger_file"/-->
-    <!--
     <module name="video_thread">
     </module>
-    -->
-    <!--module name="video_rtp_stream">
-        <define name="VIEWVIDEO_CAMERA" value="front_camera"/>
+
+    <module name="video_rtp_stream">
+      <define name="VIEWVIDEO_CAMERA" value="front_camera"/>
+      <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="4"/>
+      <define name="VIEWVIDEO_QUALITY_FACTOR" value="60"/>
     </module>
-    -->
   </modules>
 
   <commands>
