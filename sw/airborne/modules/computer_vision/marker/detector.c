@@ -24,10 +24,14 @@
 
 #include <stdio.h>
 
+#include "state.h"
+#include "math/pprz_orientation_conversion.h"
+
 #include "modules/computer_vision/cv.h"
 #include "modules/computer_vision/marker/detector.h"
 
 #include "modules/computer_vision/cv_georeference.h"
+#include "modules/pose_history/pose_history.h"
 
 #include "modules/computer_vision/opencv_imav_landingpad.h"
 
@@ -38,6 +42,66 @@ struct marker MARKER;
 
 // Helipad detection
 static struct video_listener* helipad_listener;
+
+
+static void geo_locate_marker(struct image_t* img) {
+    // Obtain the relative pixel location (measured from center in body frame)
+    struct FloatVect3 pixel_relative;
+    pixel_relative.x = (img->h / 2) - MARKER.pixel.y;
+    pixel_relative.y = MARKER.pixel.x - (img->w / 2);
+    pixel_relative.z = 400; // estimated focal length
+
+    // Get the rotation measured at image capture
+    struct pose_t pose = get_rotation_at_timestamp(img->pprz_ts);
+
+    // Create a orientation representation
+    struct OrientationReps ned_to_body;
+    orientationSetEulers_f(&ned_to_body, &pose.eulers);
+
+    // Rotate the pixel vector from body frame to the north-east-down frame
+    struct FloatVect3 geo_relative;
+    float_rmat_transp_vmult(&geo_relative, orientationGetRMat_f(&ned_to_body), &pixel_relative);
+
+    // target_l is now a scale-less [pix<<POS_FRAC] vector in LTP from the drone to the target
+    // Divide by z-component to normalize the projection vector
+    float zi = geo_relative.z;
+
+    // Pointing up or horizontal -> no ground projection
+    if (zi <= 0) { return; }
+
+    // Multiply with height above ground
+    struct NedCoor_f *pos = stateGetPositionNed_f();
+    float zb = -pos->z; // Distance to target is equal to altitude
+    geo_relative.x *= zb;
+    geo_relative.y *= zb;
+
+    // Divide by z-component
+    geo_relative.x /= zi;
+    geo_relative.y /= zi;
+    geo_relative.z = zb;
+
+    // NED
+    MARKER.geo_location.x = pos->x + geo_relative.x;
+    MARKER.geo_location.y = pos->y + geo_relative.y;
+    MARKER.geo_location.z = 0;
+
+
+    //  OLD METHOD
+//    struct camera_frame_t cam;
+//    cam.px = MARKER.pixel.x;
+//    cam.py = MARKER.pixel.y;
+//    cam.f = 400; // Focal length [px]
+//    cam.h = img->w; // Frame height [px]
+//    cam.w = img->h; // Frame width [px]
+//
+//    georeference_project_target(&cam);
+//    MARKER.geo_location.x = POS_FLOAT_OF_BFP(geo.target_abs.x);
+//    MARKER.geo_location.y = POS_FLOAT_OF_BFP(geo.target_abs.y);
+//    MARKER.geo_location.z = POS_FLOAT_OF_BFP(geo.target_abs.z);
+
+    fprintf(stderr, "[MARKER] found! %.3f, %.3f\n", MARKER.geo_location.x, MARKER.geo_location.y);
+}
+
 
 // Function
 static struct image_t *detect_helipad_marker(struct image_t* img)
@@ -55,28 +119,20 @@ static struct image_t *detect_helipad_marker(struct image_t* img)
         MARKER.pixel.x = helipad_marker.maxx;
         MARKER.pixel.y = helipad_marker.maxy;
 
-        struct camera_frame_t cam;
-        cam.px = MARKER.pixel.x;
-        cam.py = MARKER.pixel.y;
-        cam.f = 400; // Focal length [px]
-        cam.h = img->w; // Frame height [px]
-        cam.w = img->h; // Frame width [px]
-
-        georeference_project_target(&cam);
-        MARKER.geo_location.x = POS_FLOAT_OF_BFP(geo.target_abs.x);
-        MARKER.geo_location.y = POS_FLOAT_OF_BFP(geo.target_abs.y);
-        MARKER.geo_location.z = POS_FLOAT_OF_BFP(geo.target_abs.z);
-
 //        fprintf(stderr, "[MARKER] found! %i, %i\n", MARKER.pixel.x, MARKER.pixel.y);
-//        fprintf(stderr, "[MARKER] found! %.3f, %.3f\n", MARKER.geo_location.x, MARKER.geo_location.y);
     } else {
         MARKER.detected = false;
 
-//        fprintf(stderr, "[MARKER] not found!\n");
+        fprintf(stderr, "[MARKER] not found!\n");
+    }
+
+    if (MARKER.detected) {
+        geo_locate_marker(img);
     }
 
     return NULL;
 }
+
 
 static struct image_t *draw_target_marker(struct image_t* img)
 {
