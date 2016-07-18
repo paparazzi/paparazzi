@@ -29,6 +29,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <errno.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/time.h>
@@ -227,7 +228,7 @@ static void start_video_thread(struct video_config_t *camera)
     // Start the streaming thread for a camera
     pthread_t tid;
     if (pthread_create(&tid, NULL, video_thread_function, (void *)(camera)) != 0) {
-      printf("[viewvideo] Could not create streaming thread for camera %s.\n", camera->dev_name);
+      printf("[viewvideo] Could not create streaming thread for camera %s: Reason: %d.\n", camera->dev_name, errno);
       return;
     }
   }

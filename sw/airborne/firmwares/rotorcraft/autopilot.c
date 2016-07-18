@@ -600,8 +600,9 @@ void autopilot_guided_update(uint8_t flags, float x, float y, float z, float yaw
   if (bit_is_set(flags, 5)) { // velocity setpoint
     if (bit_is_set(flags, 1)) { // set velocity in body frame
       guidance_h_set_guided_body_vel(setpoint.x, setpoint.y);
+    } else {
+      guidance_h_set_guided_vel(setpoint.x, setpoint.y);
     }
-    guidance_h_set_guided_vel(setpoint.x, setpoint.y);
   } else {  // position setpoint
     if (!bit_is_set(flags, 0) && !bit_is_set(flags, 1)) {   // set absolute position setpoint
       guidance_h_set_guided_pos(setpoint.x, setpoint.y);
@@ -637,7 +638,7 @@ void autopilot_guided_update(uint8_t flags, float x, float y, float z, float yaw
 
   //handle yaw
   if (bit_is_set(flags, 7)) { // speed set-point
-    guidance_h_set_guided_heading_rate(z);
+    guidance_h_set_guided_heading_rate(yaw);
   } else {    // position set-point
     if (bit_is_set(flags, 3)) { // set yaw as offset
       yaw += stateGetNedToBodyEulers_f()->psi;  // will be wrapped to [-pi,pi] later

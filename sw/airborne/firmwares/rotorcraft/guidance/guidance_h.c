@@ -602,7 +602,9 @@ static void guidance_h_traj_run(bool in_flight)
 static void guidance_h_hover_enter(void)
 {
   /* reset speed setting */
-  guidance_h_set_guided_vel(0., 0.);
+  guidance_h.sp.speed.x = 0;
+  guidance_h.sp.speed.y = 0;
+
   /* disable horizontal velocity setpoints,
    * might still be activated in guidance_h_read_rc if GUIDANCE_H_USE_SPEED_REF
    */

@@ -123,7 +123,7 @@ let get_targets_of_module = fun xml ->
 
 let module_name = fun xml ->
   let name = ExtXml.attrib xml "name" in
-  try Filename.chop_extension name with _ -> name
+  try if Filename.check_suffix name ".xml" then Filename.chop_extension name else name with _ -> name
 
 exception Subsystem of string
 let get_module = fun m global_targets ->
