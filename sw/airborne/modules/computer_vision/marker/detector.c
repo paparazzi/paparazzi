@@ -77,6 +77,9 @@ static void geo_locate_marker(struct image_t* img) {
     geo_relative.y *= agl/zi;
     geo_relative.z = agl;
 
+    // TODO filter this location over time to reduce the jitter in output
+    // TODO use difference in position as a velocity estimate along side opticflow in hff...
+
     // NED
     marker.geo_location.x = pos->x + geo_relative.x;
     marker.geo_location.y = pos->y + geo_relative.y;
