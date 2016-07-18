@@ -59,6 +59,13 @@ static abi_event pressure_diff_ev;
 #endif
 static abi_event temperature_ev;
 
+/** ABI binding for airspeed
+ */
+#ifndef AIR_DATA_AIRSPEED_ID
+#define AIR_DATA_AIRSPEED_ID ABI_BROADCAST
+#endif
+static abi_event airspeed_ev;
+
 /** Default factor to convert estimated airspeed (EAS) to true airspeed (TAS) */
 #ifndef AIR_DATA_TAS_FACTOR
 #define AIR_DATA_TAS_FACTOR 1.0
@@ -144,6 +151,17 @@ static void temperature_cb(uint8_t __attribute__((unused)) sender_id, float temp
   }
 }
 
+static void airspeed_cb(uint8_t __attribute__((unused)) sender_id, float eas)
+{
+  air_data.airspeed = eas;
+  if (air_data.calc_airspeed) {
+    air_data.tas = tas_from_eas(air_data.airspeed);
+#if USE_AIRSPEED_AIR_DATA
+    stateSetAirspeed_f(air_data.airspeed);
+#endif
+  }
+}
+
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
@@ -205,6 +223,7 @@ void air_data_init(void)
   AbiBindMsgBARO_ABS(AIR_DATA_BARO_ABS_ID, &pressure_abs_ev, pressure_abs_cb);
   AbiBindMsgBARO_DIFF(AIR_DATA_BARO_DIFF_ID, &pressure_diff_ev, pressure_diff_cb);
   AbiBindMsgTEMPERATURE(AIR_DATA_TEMPERATURE_ID, &temperature_ev, temperature_cb);
+  AbiBindMsgAIRSPEED(AIR_DATA_AIRSPEED_ID, &airspeed_ev, airspeed_cb);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_BARO_RAW, send_baro_raw);
