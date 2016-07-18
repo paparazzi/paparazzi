@@ -13,6 +13,7 @@
     <define name="AIR_DATA_BARO_ABS_ID" value="ABI_SENDER_ID" description="ABI sender id for absolute baro measurement (default: ABI_BROADCAST)"/>
     <define name="AIR_DATA_BARO_DIFF_ID" value="ABI_SENDER_ID" description="ABI sender id for differential baro measurement (default: ABI_BROADCAST)"/>
     <define name="AIR_DATA_TEMPERATURE_ID" value="ABI_SENDER_ID" description="ABI sender id for temperature measurement (default: ABI_BROADCAST)"/>
+    <define name="AIR_DATA_AIRSPEED_ID" value="ABI_SENDER_ID" description="ABI sender id for airspeed measurement (default: ABI_BROADCAST)"/>
     <define name="AIR_DATA_CALC_AIRSPEED" value="FALSE|TRUE" description="Calculate Airspeed from differential pressure (default: TRUE)"/>
     <define name="AIR_DATA_CALC_TAS_FACTOR" value="FALSE|TRUE" description="Calculate TAS factor from temp and pressure (default: TRUE)"/>
     <define name="AIR_DATA_CALC_AMSL_BARO" value="FALSE|TRUE" description="Calculate AMS from baro and QNH (default: FALSE)"/>
