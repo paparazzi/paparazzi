@@ -781,6 +781,13 @@ static void mt9f002_set_gains(struct mt9f002_t *mt)
   write_reg(mt, MT9F002_GREEN2_GAIN, mt9f002_calc_gain(mt->gain_green2), 2);
 }
 
+void set_offset(struct mt9f002_t *mt){
+	 write_reg(mt, MT9F002_X_ADDR_START, mt->offset_x , 2);
+	  write_reg(mt, MT9F002_X_ADDR_END  , mt->offset_x + mt->scaled_width - 1, 2);
+	  write_reg(mt, MT9F002_Y_ADDR_START, mt->offset_y, 2);
+	  write_reg(mt, MT9F002_Y_ADDR_END  , mt->offset_y + mt->scaled_height - 1, 2);
+
+}
 /**
  * Initialisation of the Aptina MT9F002 CMOS sensor
  * (front camera)
@@ -832,10 +839,7 @@ void mt9f002_init(struct mt9f002_t *mt)
   }
 
   /* Set position (based on offset) */
-  write_reg(mt, MT9F002_X_ADDR_START, mt->offset_x , 2);
-  write_reg(mt, MT9F002_X_ADDR_END  , mt->offset_x + mt->scaled_width - 1, 2);
-  write_reg(mt, MT9F002_Y_ADDR_START, mt->offset_y, 2);
-  write_reg(mt, MT9F002_Y_ADDR_END  , mt->offset_y + mt->scaled_height - 1, 2);
+  set_offset(mt);
 
   /* Update blanking (based on FPS) */
   mt9f002_set_blanking(mt);
