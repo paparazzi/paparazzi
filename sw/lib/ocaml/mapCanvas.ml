@@ -128,6 +128,14 @@ let convex = fun l ->
             else l in
       (x3,y3)::List.rev (loop (List.rev ps))
 
+(** Setting Opacity for bitmap *)
+let stipple_opacity = fun opacity ->
+  match opacity with
+    | 0 -> (1,"\002\001")
+    | 1 -> (3,"\002\001")
+    | 2 -> (2,"\002\001")
+    | 3 -> (1,"\003\001")
+    | _ -> (1,"\002\001")
 
 class type geographic = object
   method pos : Latlong.geographic
@@ -606,7 +614,7 @@ object (self)
 
   method circle = fun ?(group = canvas#root) ?(width=1) ?fill_color ?(opacity=0) ?(color="black") geo radius ->
     let (x, y) = self#world_of geo in
-    let (stpwidth, stpstr) = self#stipple_opacity opacity in
+    let (stpwidth, stpstr) = stipple_opacity opacity in
     (** Compute the actual radius in a UTM projection *)
     let utm = LL.utm_of LL.WGS84 geo in
     let geo_east = LL.of_utm LL.WGS84 (LL.utm_add utm (radius, 0.)) in
@@ -616,18 +624,9 @@ object (self)
     l#show ();
     l
 
-  method stipple_opacity = fun opacity ->
-      match opacity with
-        | 0-> (1, "\002\001")
-        | 1-> (3,"\002\001")
-        | 2 -> (2,"\002\001")
-        | 3 -> (1,"\003\001")
-        | _ -> (1,"\002\001")
-
-
   method polygon = fun ?(group = canvas#root) ?(width=1) ?fill_color ?(opacity=0) ?(color="black") geo_arr ->
     (*setting opacity from 0-4 *)
-    let (stpwidth, stpstr) = self#stipple_opacity opacity in
+    let (stpwidth, stpstr) = stipple_opacity opacity in
     let points = self#convert_positions_to_points geo_arr in
     let l = GnoCanvas.polygon ?fill_color ~props:[`WIDTH_PIXELS width; `OUTLINE_COLOR color; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:stpwidth ~height:stpwidth stpstr)] ~points group in
     l#show ();

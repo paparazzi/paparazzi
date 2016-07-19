@@ -56,13 +56,6 @@ class widget :
       ?opacity:int ->
       ?color:string -> Latlong.geographic -> Latlong.fmeter -> GnoCanvas.ellipse
     method convert_positions_to_points : Latlong.geographic array -> float array
-    method stipple_opacity: int -> int*string
-    method polygon :
-      ?group:GnoCanvas.group ->
-      ?width:int ->
-      ?fill_color:string ->
-      ?opacity:int ->
-      ?color:string -> Latlong.geographic array -> GnoCanvas.polygon
     method connect_view : (unit -> unit) -> unit
     method current_zoom : float
     method display_alt : Latlong.geographic -> unit
@@ -100,6 +93,12 @@ class widget :
       ?fill_color:string ->
       ?color:string ->
       ?number:string -> Latlong.geographic -> Latlong.fmeter -> GnoCanvas.text
+    method polygon :
+      ?group:GnoCanvas.group ->
+      ?width:int ->
+      ?fill_color:string ->
+      ?opacity:int ->
+      ?color:string -> Latlong.geographic array -> GnoCanvas.polygon
     method pt2D_of : Latlong.geographic -> Geometry_2d.pt_2D
     method region : ((float * float) * (Latlong.fmeter * Latlong.fmeter)) option
     method register_to_fit : geographic -> unit

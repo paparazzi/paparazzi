@@ -1482,17 +1482,17 @@ open Shapes
 
 let get_shapes = fun (geomap:G.widget)_sender vs ->
   let f = fun s -> PprzLink.float_assoc s vs in
-  let i = fun s -> float (PprzLink.int_assoc s vs) in
+  let i = fun s -> PprzLink.int_assoc s vs in
   let st = fun s -> PprzLink.string_assoc s vs in
   let string_to_scaled_float = fun v -> (float (int_of_string v))/. 1e7 in
   let floatarr = fun s -> Array.map string_to_scaled_float (Array.of_list (Str.split list_separator (st s))) in
   let data =  {
-    shid = st "id";
+    shid = i "id";
     shlinecolor = st "linecolor";
     shfillcolor = st "fillcolor";
-    shopacity = PprzLink.int_assoc "opacity" vs;
-    shtype = i "shape";
-    shstatus = i "status";
+    shopacity = i "opacity";
+    shtype = int2shtype (i "shape");
+    shstatus = int2shstatus (i "status");
     shlatarr = floatarr "latarr";
     shlonarr = floatarr "lonarr";
     shradius = f "radius";
