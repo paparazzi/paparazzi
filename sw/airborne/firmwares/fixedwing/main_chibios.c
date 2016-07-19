@@ -24,6 +24,7 @@
  */
 
 #include "mcu_periph/sys_time.h"
+#include "mcu.h"
 #include <ch.h>
 
 #ifndef  SYS_TIME_FREQUENCY
@@ -48,6 +49,9 @@
 #define Ap(f)
 #endif
 
+#if USE_HARD_FAULT_RECOVERY
+#include "subsystems/datalink/downlink.h"
+#endif
 
 /*
  * PPRZ/AP thread
@@ -70,13 +74,30 @@ int main(void)
 {
   // Init
   Fbw(init);
-  Ap(init);
+#if USE_HARD_FAULT_RECOVERY
+  // if recovering from hard fault, don't call AP init, only FBW
+  if (!recovering_from_hard_fault) {
+#endif
+    Ap(init);
+#if USE_HARD_FAULT_RECOVERY
+  } else {
+    // but we still need downlink to be initialized
+    downlink_init();
+  }
+#endif
 
   chThdSleepMilliseconds(100);
 
   // Create threads
-  apThdPtr = chThdCreateStatic(wa_thd_ap, sizeof(wa_thd_ap), NORMALPRIO, thd_ap, NULL);
   fbwThdPtr = chThdCreateStatic(wa_thd_fbw, sizeof(wa_thd_fbw), NORMALPRIO, thd_fbw, NULL);
+#if USE_HARD_FAULT_RECOVERY
+  // if recovering from hard fault, don't start AP thread, only FBW
+  if (!recovering_from_hard_fault) {
+#endif
+    apThdPtr = chThdCreateStatic(wa_thd_ap, sizeof(wa_thd_ap), NORMALPRIO, thd_ap, NULL);
+#if USE_HARD_FAULT_RECOVERY
+  }
+#endif
 
   // Main loop, do nothing
   while (TRUE) {

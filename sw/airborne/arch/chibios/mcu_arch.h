@@ -33,9 +33,15 @@
 #ifndef CHIBIOS_MCU_ARCH_H
 #define CHIBIOS_MCU_ARCH_H
 
+#include "std.h"
+
 #define mcu_int_enable()  {}
 #define mcu_int_disable() {}
 
 extern void mcu_arch_init(void);
+
+#if USE_HARD_FAULT_RECOVERY
+extern bool recovering_from_hard_fault;
+#endif
 
 #endif /* CHIBIOS_MCU_ARCH_H */
