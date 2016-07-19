@@ -45,30 +45,33 @@
 
 /* Camera structure */
 /*
-struct video_config_t front_camera = {
-  output_size : {
-    w : 2048,
-    h : 3320
-  },
-  sensor_size : {
-    w : 2048,
-    h : 3320,
-  },
-  crop : {
-   x : 0,
-    y : 0,
-    w : 2048,
-    h : 3320
-  },
-  dev_name : "/dev/video1",
-  subdev_name : "/dev/v4l-subdev1",
-  format : V4L2_PIX_FMT_UYVY,
-  subdev_format : V4L2_MBUS_FMT_SGRBG10_1X10,
-  buf_cnt : 3,
-  filters : VIDEO_FILTER_ISP,
-  cv_listener : NULL,
-  fps : 5
+struct video_config_t {
+  struct img_size_t output_size;    ///< Output image size
+  struct img_size_t sensor_size;    ///< Original sensor size
+  struct crop_t crop;           ///< Cropped area definition
+  char *dev_name;           ///< path to device
+  char *subdev_name;        ///< path to sub device
+  uint32_t format;          ///< Video format
+  uint32_t subdev_format;   ///< Subdevice video format
+  uint8_t buf_cnt;          ///< Amount of V4L2 video device buffers
+  uint8_t filters;          ///< filters to use (bitfield with VIDEO_FILTER_x)
+  struct video_thread_t thread; ///< Information about the thread this camera is running on
+  struct video_listener *cv_listener; ///< The first computer vision listener in the linked list for this video device
+  int fps;                  ///< Target FPS
 };*/
+struct video_config_t front_camera = {
+		{2048,3320},
+		{2048,3320},
+ {0,0,2048,3320},
+  "/dev/video1",
+  "/dev/v4l-subdev1",
+  V4L2_PIX_FMT_UYVY,
+   V4L2_MBUS_FMT_SGRBG10_1X10,
+  3,
+  VIDEO_FILTER_ISP
+//  NULL,
+//   5
+};
 
 /**
  * Write multiple bytes to a single register
@@ -785,82 +788,113 @@ static void mt9f002_set_gains(struct mt9f002_t *mt)
   write_reg(mt, MT9F002_GREEN2_GAIN, mt9f002_calc_gain(mt->gain_green2), 2);
 }
 
+
+void mt9f002_setColorGain(int green1, int green2, int red, int blue){
+	cam.setColorGain(green1,green2,red,blue);
+}
+void mt9f002_setCropLocation(int cropx, int cropy){
+	cam.setCropLocation(cropx,cropy);
+}
 /**
  * Initialisation of the Aptina MT9F002 CMOS sensor
  * (front camera)
  */
 void mt9f002_init(struct mt9f002_t *mt)
 {
-  /* Reset the device */
-  //TODO???
-
-  /* Setup i2c transaction */
-  mt->i2c_trans.status = I2CTransDone;
-
-  /* Software reset */
-  write_reg(mt, MT9F002_SOFTWARE_RESET, 0x1, 1);
-  usleep(1000000); // Wait for one second
-
-  /* Based on the interface configure stage 1 */
-  if(mt->interface == MT9F002_MIPI || mt->interface == MT9F002_HiSPi) {
-    mt9f002_mipi_stage1(mt);
-  }
-  else {
-    mt9f002_parallel_stage1(mt);
-  }
-
-  /* Set the PLL based on Input clock and wanted clock frequency */
-  mt9f002_set_pll(mt);
-
-  /* Based on the interface configure stage 2 */
-  if(mt->interface == MT9F002_MIPI || mt->interface == MT9F002_HiSPi) {
-    mt9f002_mipi_stage2(mt);
-  }
-  else {
-    mt9f002_parallel_stage2(mt);
-  }
-
-  /* Set output resolution */
-  write_reg(mt, MT9F002_X_OUTPUT_SIZE, mt->output_width, 2);
-  write_reg(mt, MT9F002_Y_OUTPUT_SIZE, mt->output_height, 2);
-
-  /* Set scaling */
-  uint16_t scaleFactor = ceil((float)MT9F002_SCALER_N / mt->output_scaler);
-  mt->output_scaler = (float)MT9F002_SCALER_N / scaleFactor;
-  mt->scaled_width = ceil((float)mt->output_width / mt->output_scaler);
-  mt->scaled_height = ceil((float)mt->output_height / mt->output_scaler);
-  if (mt->output_scaler != 1.0)
-  {
-    write_reg(mt, MT9F002_SCALING_MODE, 2, 2); // Vertical and horizontal scaling
-    write_reg(mt, MT9F002_SCALE_M, scaleFactor, 2);
-  }
-
-  /* Set position (based on offset) */
-  write_reg(mt, MT9F002_X_ADDR_START, mt->offset_x , 2);
-  write_reg(mt, MT9F002_X_ADDR_END  , mt->offset_x + mt->scaled_width - 1, 2);
-  write_reg(mt, MT9F002_Y_ADDR_START, mt->offset_y, 2);
-  write_reg(mt, MT9F002_Y_ADDR_END  , mt->offset_y + mt->scaled_height - 1, 2);
-
-  /* Update blanking (based on FPS) */
-  mt9f002_set_blanking(mt);
-
-  /* Update exposure (based on target_exposure) */
-  mt9f002_set_exposure(mt);
-
-  /* Update gains for the different pixel colors */
-  mt9f002_set_gains(mt);
-
-  /* Based on the interface configure stage 3 */
-  if(mt->interface == MT9F002_MIPI || mt->interface == MT9F002_HiSPi) {
-    mt9f002_mipi_stage3(mt);
-  }
-
-  /* Turn the stream on */
-  write_reg(mt, MT9F002_MODE_SELECT, 0x01, 1);
+	front_camera.cv_listener=NULL;
+	front_camera.fps=5;
+	cam.initialise(mt);
 }
 
+MT9F002Camera::MT9F002Camera(){
 
+}
+MT9F002Camera::~MT9F002Camera(){
+
+}
+void MT9F002Camera::initialise(struct mt9f002_t *mt){
+	mt_struct=mt;
+	  /* Reset the device */
+	  //TODO???
+
+	  /* Setup i2c transaction */
+	  mt->i2c_trans.status = I2CTransDone;
+
+	  /* Software reset */
+	  write_reg(mt, MT9F002_SOFTWARE_RESET, 0x1, 1);
+	  usleep(1000000); // Wait for one second
+
+	  /* Based on the interface configure stage 1 */
+	  if(mt->interface == MT9F002_MIPI || mt->interface == MT9F002_HiSPi) {
+	    mt9f002_mipi_stage1(mt);
+	  }
+	  else {
+	    mt9f002_parallel_stage1(mt);
+	  }
+
+	  /* Set the PLL based on Input clock and wanted clock frequency */
+	  mt9f002_set_pll(mt);
+
+	  /* Based on the interface configure stage 2 */
+	  if(mt->interface == MT9F002_MIPI || mt->interface == MT9F002_HiSPi) {
+	    mt9f002_mipi_stage2(mt);
+	  }
+	  else {
+	    mt9f002_parallel_stage2(mt);
+	  }
+
+	  /* Set output resolution */
+	  write_reg(mt, MT9F002_X_OUTPUT_SIZE, mt->output_width, 2);
+	  write_reg(mt, MT9F002_Y_OUTPUT_SIZE, mt->output_height, 2);
+
+	  /* Set scaling */
+	  uint16_t scaleFactor = ceil((float)MT9F002_SCALER_N / mt->output_scaler);
+	  mt->output_scaler = (float)MT9F002_SCALER_N / scaleFactor;
+	  mt->scaled_width = ceil((float)mt->output_width / mt->output_scaler);
+	  mt->scaled_height = ceil((float)mt->output_height / mt->output_scaler);
+	  if (mt->output_scaler != 1.0)
+	  {
+	    write_reg(mt, MT9F002_SCALING_MODE, 2, 2); // Vertical and horizontal scaling
+	    write_reg(mt, MT9F002_SCALE_M, scaleFactor, 2);
+	  }
+
+	  /* Set position (based on offset) */
+	  write_reg(mt, MT9F002_X_ADDR_START, mt->offset_x , 2);
+	  write_reg(mt, MT9F002_X_ADDR_END  , mt->offset_x + mt->scaled_width - 1, 2);
+	  write_reg(mt, MT9F002_Y_ADDR_START, mt->offset_y, 2);
+	  write_reg(mt, MT9F002_Y_ADDR_END  , mt->offset_y + mt->scaled_height - 1, 2);
+
+	  /* Update blanking (based on FPS) */
+	  mt9f002_set_blanking(mt);
+
+	  /* Update exposure (based on target_exposure) */
+	  mt9f002_set_exposure(mt);
+
+	  /* Update gains for the different pixel colors */
+	  mt9f002_set_gains(mt);
+
+	  /* Based on the interface configure stage 3 */
+	  if(mt->interface == MT9F002_MIPI || mt->interface == MT9F002_HiSPi) {
+	    mt9f002_mipi_stage3(mt);
+	  }
+
+	  /* Turn the stream on */
+	  write_reg(mt, MT9F002_MODE_SELECT, 0x01, 1);
+
+}
 void MT9F002Camera::setSize(int width,int height){
-	something=0;
 }
 
+
+
+
+
+void MT9F002Camera::setColorGain(int green1, int green2, int red, int blue){
+	 write_reg(mt_struct, MT9F002_GREEN1_GAIN, mt9f002_calc_gain(green1), 2);
+	  write_reg(mt_struct, MT9F002_BLUE_GAIN,   mt9f002_calc_gain(blue), 2);
+	  write_reg(mt_struct, MT9F002_RED_GAIN,    mt9f002_calc_gain(red), 2);
+	  write_reg(mt_struct, MT9F002_GREEN2_GAIN, mt9f002_calc_gain(green2), 2);
+}
+void MT9F002Camera::setCropLocation(int cropx, int cropy){
+
+}

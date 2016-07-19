@@ -4,10 +4,9 @@ class CameraInterface
 {
 
 public:
-	CameraInterface();
-	virtual ~CameraInterface();
+	CameraInterface(){}
+	~CameraInterface(){}
 	virtual void setSize(int width,int height)=0;
-
-protected:
-	int something;
+	virtual void setColorGain(int green1, int green2, int red, int blue)=0;
+	virtual void setCropLocation(int cropx, int cropy)=0;
 };
