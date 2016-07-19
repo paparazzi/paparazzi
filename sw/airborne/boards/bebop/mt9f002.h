@@ -76,7 +76,35 @@ struct mt9f002_t {
   struct i2c_periph *i2c_periph;      ///< I2C peripheral used to communicate over
   struct i2c_transaction i2c_trans;   ///< I2C transaction for comminication with CMOS chip
 };
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 void mt9f002_init(struct mt9f002_t *mt);
+void mt9f002_setColorGain(int green1, int green2, int red, int blue);
+void mt9f002_setCropLocation(int cropx, int cropy);
+#ifdef __cplusplus
+}
+#endif
+
+#ifdef __cplusplus
+#include "modules/computer_vision/lib/camera_class/CameraInterface.h"
+class MT9F002Camera : CameraInterface
+{
+public:
+	MT9F002Camera();
+
+	~MT9F002Camera();
+	void initialise(struct mt9f002_t *mt);
+	void setSize(int width,int height);
+	void setColorGain(int green1, int green2, int red, int blue);
+	void setCropLocation(int cropx, int cropy);
+private:
+	struct mt9f002_t *mt_struct;
+};
+
+
+MT9F002Camera cam;
+#endif
 
 #endif /* MT9F002_H */
