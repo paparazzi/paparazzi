@@ -86,7 +86,6 @@ int main(void)
   }
 #endif
 
-  bla = recovering_from_hard_fault;
   chThdSleepMilliseconds(100);
 
   // Create threads
