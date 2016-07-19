@@ -8,11 +8,11 @@
       - Gyroscope: ITG3200 via I2C
     </description>
   </doc>
+  <autoload name="imu_common"/>
   <autoload name="imu_nps"/>
   <header>
     <file name="imu_umarim.h" dir="boards/umarim"/>
   </header>
-  <init fun="imu_init()"/>
   <init fun="imu_umarim_init()"/>
   <periodic fun="imu_umarim_periodic()"/>
   <event fun="imu_umarim_event()"/>
@@ -21,12 +21,11 @@
     <define name="USE_I2C1"/>
     <define name="I2C1_SCLL" value="25"/>
     <define name="I2C1_SCLH" value="25"/>
-    <define name="USE_IMU"/>
+
     <define name="IMU_TYPE_H" value="boards/umarim/imu_umarim.h" type="string"/>
 
     <file name="adxl345_i2c.c" dir="peripherals"/>
     <file name="itg3200.c" dir="peripherals"/>
     <file name="imu_umarim.c" dir="boards/umarim"/>
-    <file name="imu.c" dir="subsystems"/>
   </makefile>
 </module>

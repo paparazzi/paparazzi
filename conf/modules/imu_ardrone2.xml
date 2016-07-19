@@ -6,12 +6,12 @@
       IMU on Parrot ARDrone2.
     </description>
   </doc>
+  <autoload name="imu_common"/>
   <autoload name="imu_nps"/>
   <header>
     <file name="imu_ardrone2.h" dir="subsystems/imu"/>
   </header>
 
-  <init fun="imu_init()"/>
   <init fun="imu_ardrone2_init()"/>
 
   <makefile target="!sim|nps|fbw">
@@ -21,11 +21,9 @@
     <configure name="AHRS_CORRECT_FREQUENCY" default="200"/>
     <define name="AHRS_CORRECT_FREQUENCY" value="$(AHRS_CORRECT_FREQUENCY)"/>
 
-    <define name="USE_IMU"/>
     <define name="IMU_TYPE_H" value="subsystems/imu/imu_ardrone2.h" type="string"/>
 
     <file name="imu_ardrone2.c" dir="subsystems/imu"/>
-    <file name="imu.c" dir="subsystems"/>
     <file name="navdata.c" dir="boards/ardrone"/>
   </makefile>
 </module>

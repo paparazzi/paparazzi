@@ -19,11 +19,11 @@
       <define name="MAG_Z_SENS" value="4.90788848" integer="16"/>
     </section>
   </doc>
+  <autoload name="imu_common"/>
   <autoload name="imu_nps"/>
   <header>
     <file name="imu_gl1.h" dir="subsystems/imu"/>
   </header>
-  <init fun="imu_init()"/>
   <init fun="imu_gl1_init()"/>
   <periodic fun="imu_gl1_periodic()"/>
   <event fun="imu_gl1_event()"/>
@@ -31,13 +31,12 @@
     <configure name="GL1_I2C_DEV" default="i2c2" case="lower|upper"/>
     <define name="GL1_I2C_DEV" value="$(GL1_I2C_DEV_LOWER)"/>
     <define name="USE_$(GL1_I2C_DEV_UPPER)"/>
-    <define name="USE_IMU"/>
+
     <define name="IMU_TYPE_H" value="subsystems/imu/imu_gl1.h" type="string"/>
 
     <file name="adxl345_i2c.c" dir="peripherals"/>
     <file name="l3g4200.c" dir="peripherals"/>
     <file name="hmc58xx.c" dir="peripherals"/>
     <file name="imu_gl1.c" dir="subsystems/imu"/>
-    <file name="imu.c" dir="subsystems"/>
   </makefile>
 </module>

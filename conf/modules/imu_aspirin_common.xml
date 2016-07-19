@@ -21,13 +21,15 @@
       <define name="MAG_Z_SENS" value="4.90788848" integer="16"/>
     </section>
   </doc>
+  <autoload name="imu_common"/>
   <autoload name="imu_nps"/>
   <header>
     <file name="imu_aspirin.h" dir="subsystems/imu"/>
   </header>
-  <!-- imu init/periodic/event still called explicitly in main -->
+  <init fun="imu_aspirin_init()"/>
+  <periodic fun="imu_aspirin_periodic()"/>
+  <event fun="imu_aspirin_event()"/>
   <makefile target="!sim|nps|fbw">
-    <!-- default for stm32, do we want to provide i2c0,spi1,SPI_SLAVE0 defaults for lpc again?-->
     <configure name="ASPIRIN_I2C_DEV" default="i2c2" case="lower|upper"/>
     <configure name="ASPIRIN_SPI_DEV" default="spi2" case="lower|upper"/>
     <configure name="ASPIRIN_SPI_SLAVE_IDX" default="SPI_SLAVE2"/>
@@ -39,7 +41,6 @@
     <define name="ASPIRIN_SPI_SLAVE_IDX" value="$(ASPIRIN_SPI_SLAVE_IDX)"/>
     <define name="USE_$(ASPIRIN_SPI_SLAVE_IDX)"/>
 
-    <define name="USE_IMU"/>
     <define name="IMU_TYPE_H" value="imu/imu_aspirin.h" type="string"/>
     <define name="ASPIRIN_ARCH_INDEP"/>
 
@@ -47,7 +48,6 @@
     <file name="itg3200.c" dir="peripherals"/>
     <file name="hmc58xx.c" dir="peripherals"/>
     <file name="imu_aspirin.c" dir="subsystems/imu"/>
-    <file name="imu.c" dir="subsystems"/>
     <raw>
       include $(CFG_SHARED)/spi_master.makefile
     </raw>

@@ -8,11 +8,11 @@
     <configure name="UM6_PORT" value="uart3" description="UART to use"/>
     <configure name="UM6_BAUD" value="B115200" description="Baud rate"/>
   </doc>
+  <define name="USE_IMU"/>
   <autoload name="imu_nps"/>
   <header>
     <file name="imu_um6.h" dir="subsystems/imu"/>
   </header>
-  <init fun="imu_init()"/>
   <init fun="imu_um6_init()"/>
   <periodic fun="imu_um6_periodic()"/>
   <event fun="imu_um6_event()"/>
@@ -23,10 +23,8 @@
     <define name="$(UM6_PORT_UPPER)_BAUD" value="$(UM6_BAUD)"/>
     <define name="UM6_LINK" value="$(UM6_PORT_LOWER)"/>
 
-    <define name="USE_IMU"/>
     <define name="IMU_TYPE_H" value="imu/imu_um6.h" type="string"/>
 
     <file name="imu_um6.c" dir="subsystems/imu"/>
-    <file name="imu.c" dir="subsystems"/>
   </makefile>
 </module>

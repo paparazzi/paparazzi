@@ -6,17 +6,15 @@
       Simulated IMU for NPS.
     </description>
   </doc>
+  <autoload name="imu_common"/>
   <header>
     <file name="imu_nps.h" dir="subsystems/imu"/>
   </header>
-  <init fun="imu_init()"/>
   <init fun="imu_nps_init()"/>
   <event fun="imu_nps_event()"/>
 
   <makefile target="nps">
-    <define name="USE_IMU"/>
     <define name="IMU_TYPE_H" value="subsystems/imu/imu_nps.h" type="string"/>
     <file name="imu_nps.c" dir="subsystems/imu"/>
-    <file name="imu.c" dir="subsystems"/>
   </makefile>
 </module>

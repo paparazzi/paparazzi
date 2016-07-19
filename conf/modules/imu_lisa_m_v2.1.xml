@@ -26,6 +26,5 @@
     <define name="USE_SPI_SLAVE3"/>
     <define name="USE_SPI1"/>
     <define name="LISA_M_OR_MX_21"/>
-    <define name="USE_IMU"/>
   </makefile>
 </module>

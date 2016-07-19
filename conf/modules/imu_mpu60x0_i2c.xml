@@ -12,12 +12,12 @@
     <define name="IMU_MPU60X0_ACCEL_RANGE" value="MPU60X0_ACCEL_RANGE_16G" description="accelerometer range setting of the MPU"/>
     <define name="IMU_MPU60X0_I2C_ADDR" value="MPU60X0_ADDR" description="I2C address of the MPU"/>
   </doc>
+  <autoload name="imu_common"/>
   <autoload name="imu_nps"/>
   <header>
     <file name="imu_mpu60x0_i2c.h" dir="subsystems/imu"/>
   </header>
 
-  <init fun="imu_init()"/>
   <init fun="imu_mpu_i2c_init()"/>
   <periodic fun="imu_mpu_i2c_periodic()"/>
   <event fun="imu_mpu_i2c_event()"/>
@@ -28,12 +28,10 @@
     <define name="IMU_MPU60X0_I2C_DEV" value="$(IMU_MPU60X0_I2C_DEV_LOWER)"/>
     <define name="USE_$(IMU_MPU60X0_I2C_DEV_UPPER)"/>
 
-    <define name="USE_IMU"/>
     <define name="IMU_TYPE_H" value="subsystems/imu/imu_mpu60x0_i2c.h" type="string"/>
 
     <file name="mpu60x0.c" dir="peripherals"/>
     <file name="mpu60x0_i2c.c" dir="peripherals"/>
     <file name="imu_mpu6000.c" dir="subsystems/imu"/>
-    <file name="imu.c" dir="subsystems"/>
   </makefile>
 </module>

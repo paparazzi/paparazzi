@@ -7,12 +7,12 @@
       - Accelerometer/Gyroscope: MPU60x0 via I2C1
     </description>
   </doc>
+  <autoload name="imu_common"/>
   <autoload name="imu_nps"/>
   <header>
     <file name="imu_apogee.h" dir="boards/apogee"/>
   </header>
 
-  <init fun="imu_init()"/>
   <init fun="imu_apogee_init()"/>
   <periodic fun="imu_apogee_periodic()"/>
   <event fun="imu_apogee_event()"/>
@@ -22,12 +22,10 @@
     <define name="IMU_APOGEE_I2C_DEV" value="i2c1"/>
     <define name="USE_I2C1"/>
 
-    <define name="USE_IMU"/>
     <define name="IMU_TYPE_H" value="boards/apogee/imu_apogee.h" type="string"/>
 
     <file name="mpu60x0.c" dir="peripherals"/>
     <file name="mpu60x0_i2c.c" dir="peripherals"/>
     <file name="imu_apogee.c" dir="boards/apogee"/>
-    <file name="imu.c" dir="subsystems"/>
   </makefile>
 </module>

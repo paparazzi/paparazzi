@@ -29,12 +29,12 @@
     <define name="IMU_HMC_Y_SIGN" value="-1" description="axis sign"/>
     <define name="IMU_HMC_Z_SIGN" value="1" description="axis sign"/>
   </doc>
+  <autoload name="imu_common"/>
   <autoload name="imu_nps"/>
   <header>
     <file name="imu_mpu6000_hmc5883.h" dir="subsystems/imu"/>
   </header>
 
-  <init fun="imu_init()"/>
   <init fun="imu_mpu_hmc_init()"/>
   <periodic fun="imu_mpu_hmc_periodic()"/>
   <event fun="imu_mpu_hmc_event()"/>
@@ -52,14 +52,12 @@
     <define name="IMU_HMC_I2C_DEV" value="$(IMU_HMC_I2C_DEV_LOWER)"/>
     <define name="USE_$(IMU_HMC_I2C_DEV_UPPER)"/>
 
-    <define name="USE_IMU"/>
     <define name="IMU_TYPE_H" value="subsystems/imu/imu_mpu6000_hmc5883.h" type="string"/>
 
     <file name="mpu60x0.c" dir="peripherals"/>
     <file name="mpu60x0_spi.c" dir="peripherals"/>
     <file name="hmc58xx.c" dir="peripherals"/>
     <file name="imu_mpu6000_hmc5883.c" dir="subsystems/imu"/>
-    <file name="imu.c" dir="subsystems"/>
     <raw>
       include $(CFG_SHARED)/spi_master.makefile
     </raw>

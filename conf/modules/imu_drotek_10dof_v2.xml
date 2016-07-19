@@ -18,11 +18,11 @@
       <define name="MAG_Z_SENS" value="4.90788848" integer="16"/>
     </section>
   </doc>
+  <autoload name="imu_common"/>
   <autoload name="imu_nps"/>
   <header>
     <file name="imu_drotek_10dof_v2.h" dir="subsystems/imu"/>
   </header>
-  <init fun="imu_init()"/>
   <init fun="imu_drotek2_init()"/>
   <periodic fun="imu_drotek2_periodic()"/>
   <event fun="imu_drotek2_event()"/>
@@ -30,13 +30,12 @@
     <configure name="DROTEK_2_I2C_DEV" default="i2c2" case="lower|upper"/>
     <define name="DROTEK_10DOF_V2_MAG_I2C_DEV" value="$(DROTEK_2_I2C_DEV_LOWER)"/>
     <define name="USE_$(DROTEK_2_I2C_DEV_UPPER)"/>
-    <define name="USE_IMU"/>
+
     <define name="IMU_TYPE_H" value="imu/imu_drotek_10dof_v2.h" type="string"/>
 
     <file name="mpu60x0.c" dir="peripherals"/>
     <file name="mpu60x0_i2c.c" dir="peripherals"/>
     <file name="hmc58xx.c" dir="peripherals"/>
     <file name="imu_drotek_10dof_v2.c" dir="subsystems/imu"/>
-    <file name="imu.c" dir="subsystems"/>
   </makefile>
 </module>

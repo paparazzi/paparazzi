@@ -40,21 +40,19 @@
       <define name="MAG_45_HACK" value="1"/>
     </section>
   </doc>
+  <autoload name="imu_common"/>
   <autoload name="imu_nps"/>
   <header>
     <file name="imu_b2.h" dir="subsystems/imu"/>
   </header>
 
-  <init fun="imu_init()"/>
   <init fun="imu_b2_init()"/>
   <periodic fun="imu_b2_periodic()"/>
   <event fun="imu_b2_event()"/>
 
   <makefile target="!sim|nps|fbw">
     <define name="IMU_TYPE_H" value="subsystems/imu/imu_b2.h" type="string"/>
-    <define name="USE_IMU"/>
     <file name="imu_b2.c" dir="subsystems/imu"/>
-    <file name="imu.c" dir="subsystems"/>
     <file name="max1168.c" dir="peripherals"/>
     <file name="max1168_arch.c" dir="$(SRC_ARCH)/peripherals"/>
     <raw>

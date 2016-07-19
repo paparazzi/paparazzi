@@ -6,11 +6,11 @@
       HBmini IMU.
     </description>
   </doc>
+  <autoload name="imu_common"/>
   <autoload name="imu_nps"/>
   <header>
     <file name="imu_hbmini.h" dir="boards/hbmini"/>
   </header>
-  <init fun="imu_init()"/>
   <init fun="imu_hbmini_init()"/>
   <periodic fun="imu_hbmini_periodic()"/>
   <event fun="imu_hbmini_event()"/>
@@ -24,14 +24,12 @@
     <define name="USE_SPI1"/>
     <define name="MAX1168_EOC_VIC_SLOT" value="11"/>
 
-    <define name="USE_IMU"/>
     <define name="IMU_TYPE_H" value="boards/hbmini/imu_hbmini.h" type="string"/>
 
     <file name="max1168.c" dir="peripherals"/>
     <file_arch name="max1168_arch.c" dir="peripherals"/>
     <file name="hmc58xx.c" dir="peripherals"/>
     <file name="imu_hbmini.c" dir="boards/hbmini"/>
-    <file name="imu.c" dir="subsystems"/>
     <raw>
 include $(CFG_SHARED)/spi_master.makefile
     </raw>

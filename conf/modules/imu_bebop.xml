@@ -17,11 +17,11 @@
       <define name="MAG_Z_SENS" value="4.90788848" integer="16"/>
     </section>
   </doc>
+  <autoload name="imu_common"/>
   <autoload name="imu_nps"/>
   <header>
     <file name="imu_bebop.h" dir="subsystems/imu"/>
   </header>
-  <init fun="imu_init()"/>
   <init fun="imu_bebop_init()"/>
   <periodic fun="imu_bebop_periodic()"/>
   <event fun="imu_bebop_event()"/>
@@ -30,13 +30,12 @@
     <define name="USE_I2C1"/>
     <define name="BEBOP_MPU_I2C_DEV" value="i2c2"/>
     <define name="USE_I2C2"/>
-    <define name="USE_IMU"/>
+
     <define name="IMU_TYPE_H" value="subsystems/imu/imu_bebop.h" type="string"/>
 
     <file name="mpu60x0.c" dir="peripherals"/>
     <file name="mpu60x0_i2c.c" dir="peripherals"/>
     <file name="ak8963.c" dir="peripherals"/>
     <file name="imu_bebop.c" dir="subsystems/imu"/>
-    <file name="imu.c" dir="subsystems"/>
   </makefile>
 </module>

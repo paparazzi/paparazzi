@@ -9,11 +9,11 @@
       - Magnetometer: HMC58xx via I2C
     </description>
   </doc>
+  <autoload name="imu_common"/>
   <autoload name="imu_nps"/>
   <header>
     <file name="imu_navgo.h" dir="boards/navgo"/>
   </header>
-  <init fun="imu_init()"/>
   <init fun="imu_navgo_init()"/>
   <periodic fun="imu_navgo_periodic()"/>
   <event fun="imu_navgo_event()"/>
@@ -22,13 +22,12 @@
     <define name="USE_I2C1"/>
     <define name="I2C1_SCLL" value="25"/>
     <define name="I2C1_SCLH" value="25"/>
-    <define name="USE_IMU"/>
+
     <define name="IMU_TYPE_H" value="boards/navgo/imu_navgo.h" type="string"/>
 
     <file name="adxl345_i2c.c" dir="peripherals"/>
     <file name="itg3200.c" dir="peripherals"/>
     <file name="hmc58xx.c" dir="peripherals"/>
     <file name="imu_navgo.c" dir="boards/navgo"/>
-    <file name="imu.c" dir="subsystems"/>
   </makefile>
 </module>

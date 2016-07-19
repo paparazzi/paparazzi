@@ -41,12 +41,12 @@
       <define name="ACCEL_Z_SIGN" value="1"/>
     </section>
   </doc>
+  <autoload name="imu_common"/>
   <autoload name="imu_nps"/>
   <header>
     <file name="imu_analog.h" dir="subsystems/imu"/>
   </header>
 
-  <init fun="imu_init()"/>
   <init fun="imu_analog_init()"/>
   <periodic fun="imu_analog_periodic()"/>
 
@@ -56,11 +56,9 @@
     <define name="ADC_CHANNEL_GYRO_NB_SAMPLES" value="$(ADC_GYRO_NB_SAMPLES)"/>
     <define name="ADC_CHANNEL_ACCEL_NB_SAMPLES" value="$(ADC_ACCEL_NB_SAMPLES)"/>
 
-    <define name="USE_IMU"/>
     <define name="IMU_TYPE_H" value="subsystems/imu/imu_analog.h" type="string"/>
 
     <file name="imu_analog.c" dir="subsystems/imu"/>
-    <file name="imu.c" dir="subsystems"/>
     <raw>
 ifeq ($(ARCH), lpc21)
 ifneq ($(GYRO_P),)

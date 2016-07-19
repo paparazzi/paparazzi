@@ -17,11 +17,11 @@
       <define name="MAG_Z_SENS" value="4.90788848" integer="16"/>
     </section>
   </doc>
+  <autoload name="imu_common"/>
   <autoload name="imu_nps"/>
   <header>
     <file name="imu_krooz.h" dir="boards/krooz"/>
   </header>
-  <init fun="imu_init()"/>
   <init fun="imu_krooz_init()"/>
   <periodic fun="imu_krooz_periodic()"/>
   <event fun="imu_krooz_event()"/>
@@ -34,7 +34,7 @@
     <define name="USE_SPI_SLAVE1"/>
     <define name="USE_SPI_SLAVE2"/>
     <define name="IMU_KROOZ_SPI_SLAVE_IDX" value="1"/>
-    <define name="USE_IMU"/>
+
     <define name="IMU_TYPE_H" value="boards/krooz/imu_krooz.h" type="string"/>
 
     <file name="mpu60x0.c" dir="peripherals"/>
@@ -42,7 +42,6 @@
     <file name="hmc58xx.c" dir="peripherals"/>
     <file name="imu_krooz_memsic.c" dir="boards/krooz"/>
     <file_arch name="imu_krooz_sd_arch.c" dir="subsystems/imu"/>
-    <file name="imu.c" dir="subsystems"/>
     <raw>
 include $(CFG_SHARED)/spi_master.makefile
     </raw>

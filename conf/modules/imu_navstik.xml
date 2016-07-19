@@ -17,11 +17,11 @@
       <define name="MAG_Z_SENS" value="4.90788848" integer="16"/>
     </section>
   </doc>
+  <autoload name="imu_common"/>
   <autoload name="imu_nps"/>
   <header>
     <file name="imu_navstik.h" dir="subsystems/imu"/>
   </header>
-  <init fun="imu_init()"/>
   <init fun="imu_navstik_init()"/>
   <periodic fun="imu_navstik_periodic()"/>
   <event fun="imu_navstik_event()"/>
@@ -33,13 +33,11 @@
     <define name="NAVSTIK_MPU_I2C_DEV" value="$(NAVSTIK_MPU_I2C_DEV_LOWER)"/>
     <define name="USE_$(NAVSTIK_MPU_I2C_DEV_UPPER)"/>
 
-    <define name="USE_IMU"/>
     <define name="IMU_TYPE_H" value="subsystems/imu/imu_navstik.h" type="string"/>
 
     <file name="mpu60x0.c" dir="peripherals"/>
     <file name="mpu60x0_i2c.c" dir="peripherals"/>
     <file name="hmc58xx.c" dir="peripherals"/>
     <file name="imu_navstik.c" dir="subsystems/imu"/>
-    <file name="imu.c" dir="subsystems"/>
   </makefile>
 </module>
