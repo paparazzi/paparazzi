@@ -36,6 +36,7 @@ import PyQt5.QtWidgets as Widgets
 import functools
 import logging
 import os
+import sys
 import re
 import shutil
 
@@ -276,40 +277,48 @@ class Hmi(Widgets.QMainWindow):
         init_conf_xml_path()
 
         # Data object creation implies XML parsing in the parser module :
-        self.data = parser.Data(CONF_PATH)
+        try:
+            self.data = parser.Data(CONF_PATH)
 
-        # Cache parameters extracted from the cache dictionary :
-        last_geometry = self.data.cache[parser.LAST_GEOMETRY].split(" ")
-        last_x, last_y, last_width, last_height = map(int, last_geometry)
-        self.setGeometry(last_x, last_y, last_width, last_height)
+            # Cache parameters extracted from the cache dictionary :
+            last_geometry = self.data.cache[parser.LAST_GEOMETRY].split(" ")
+            last_x, last_y, last_width, last_height = map(int, last_geometry)
+            self.setGeometry(last_x, last_y, last_width, last_height)
 
-        last_set_name = self.data.cache[parser.LAST_SET]
-        self.current_set = self.data.sets[last_set_name]
+            last_set_name = self.data.cache[parser.LAST_SET]
+            self.current_set = self.data.sets[last_set_name]
 
-        point_symbol_link_to(self.current_set.name)
+            point_symbol_link_to(self.current_set.name)
 
-        last_config_name = self.data.cache[parser.LAST_CONFIG]
-        self.current_config = self.data.configurations[last_config_name]
+            last_config_name = self.data.cache[parser.LAST_CONFIG]
+            self.current_config = self.data.configurations[last_config_name]
 
-        last_target_name = self.data.cache[parser.LAST_TARGET]
-        self.current_target = self.current_config.targets[last_target_name]
+            last_target_name = self.data.cache[parser.LAST_TARGET]
+            self.current_target = self.current_config.targets[last_target_name]
 
-        self.ui.upload.setEnabled(self.current_target.name
-                                  not in self.simulation_targets_names)
+            self.ui.upload.setEnabled(self.current_target.name
+                                      not in self.simulation_targets_names)
 
-        last_device_name = self.data.cache[parser.LAST_DEVICE]
-        self.current_device = self.data.devices[last_device_name]
+            last_device_name = self.data.cache[parser.LAST_DEVICE]
+            self.current_device = self.data.devices[last_device_name]
 
-        last_session_name = self.data.cache[parser.LAST_SESSION]
-        self.current_session = self.data.sessions[last_session_name]
+            last_session_name = self.data.cache[parser.LAST_SESSION]
+            self.current_session = self.data.sessions[last_session_name]
 
-        last_log_filters = self.data.cache[parser.LAST_LOG_FILTERS].split(" ")
-        last_level = last_log_filters[0]
-        last_default, last_info, last_warning, last_error =\
-            map(int, last_log_filters[1:])
-        self.current_log_filter = cs.LogFilter(last_level,
-                                               last_default, last_info,
-                                               last_warning, last_error)
+            last_log_filters = self.data.cache[parser.LAST_LOG_FILTERS].split(" ")
+            last_level = last_log_filters[0]
+            last_default, last_info, last_warning, last_error =\
+                map(int, last_log_filters[1:])
+            self.current_log_filter = cs.LogFilter(last_level,
+                                                   last_default, last_info,
+                                                   last_warning, last_error)
+        except:
+            " if something goes wrong, delete cache and load again (to be improved)"
+            LOGGER.error("ERROR while load HMI cache"
+                         "Original message : '%s'.", sys.exc_info()[0])
+            print("HMI error in cache, load default instead")
+            parser.delete_cache()
+            self.init_hmi_data()
 
         # Run and build Paparazzi versions found by existing program
         # './paparazzi_version' and file './var/build_version.txt' :

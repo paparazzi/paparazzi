@@ -352,6 +352,24 @@ def load_cache():
         LOGGER.debug("Cache dictionary :\n%s", cache)
     return cache, cache_file
 
+def delete_cache():
+    """
+    -> Scan the 'python' current directory to find the '.cache.xml' file.
+    -> Remove if found
+    """
+    cache_file = None
+    for root, dirs, files in os.walk("./"):
+        for file in files:
+            ext = os.path.splitext(file)[1]
+            if ext == XML_EXT and file == CACHE_FILE:
+                cache_file = os.path.join(root, file)
+                break
+    if cache_file is not None:
+        cache = os.remove(cache_file)
+        LOGGER.debug("Deleting cache file '%s'\n", cache_file)
+    else:
+        LOGGER.debug("No cache to delete\n")
+
 
 ###############################################################################
 # [Functions] Load files to init HMI
@@ -440,6 +458,9 @@ def parse_targets(airframe_file):
 
     except Et.ParseError as msg:
             LOGGER.error("ERROR in syntax of XML file : '%s'. "
+                         "Original message : '%s'.", airframe_file, msg)
+    except (FileNotFoundError, IOError) as msg:
+            LOGGER.error("ERROR file '%s' not found or IO error"
                          "Original message : '%s'.", airframe_file, msg)
     return available_targets
 
