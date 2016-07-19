@@ -29,6 +29,9 @@
 
 #ifndef MCU_PERIPH_I2C_H
 #define MCU_PERIPH_I2C_H
+#if defined (__cplusplus)
+extern "C" {
+#endif
 
 #include "std.h"
 
@@ -283,6 +286,9 @@ extern bool i2c_receive(struct i2c_periph *p, struct i2c_transaction *t,
 extern bool i2c_transceive(struct i2c_periph *p, struct i2c_transaction *t,
                              uint8_t s_addr, uint8_t len_w, uint16_t len_r);
 
+#if defined (__cplusplus)
+}
+#endif
 /** @}*/
 /** @}*/
 

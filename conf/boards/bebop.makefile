@@ -36,7 +36,7 @@ $(TARGET).srcs +=  $(SRC_BOARD)/board.c
 
 # Compile the video specific parts
 $(TARGET).CFLAGS += -DI2C_BUF_LEN=56 -DUSE_I2C0
-$(TARGET).srcs +=  $(SRC_BOARD)/mt9v117.c $(SRC_BOARD)/mt9f002.c
+$(TARGET).srcs +=  $(SRC_BOARD)/mt9v117.c $(SRC_BOARD)/mt9f002.cpp
 
 # Link static (Done for GLIBC)
 $(TARGET).CFLAGS += -DLINUX_LINK_STATIC

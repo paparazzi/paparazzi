@@ -40,31 +40,35 @@
 
 #define MAX(x,y) (((x) > (y)) ? (x) : (y))
 
+
+/* Standard C prototypes */
+
 /* Camera structure */
+/*
 struct video_config_t front_camera = {
-  .output_size = {
-    .w = 2048,
-    .h = 3320
+  output_size : {
+    w : 2048,
+    h : 3320
   },
-  .sensor_size = {
-    .w = 2048,
-    .h = 3320,
+  sensor_size : {
+    w : 2048,
+    h : 3320,
   },
-  .crop = {
-    .x = 0,
-    .y = 0,
-    .w = 2048,
-    .h = 3320
+  crop : {
+   x : 0,
+    y : 0,
+    w : 2048,
+    h : 3320
   },
-  .dev_name = "/dev/video1",
-  .subdev_name = "/dev/v4l-subdev1",
-  .format = V4L2_PIX_FMT_UYVY,
-  .subdev_format = V4L2_MBUS_FMT_SGRBG10_1X10,
-  .buf_cnt = 3,
-  .filters = VIDEO_FILTER_ISP,
-  .cv_listener = NULL,
-  .fps = 5
-};
+  dev_name : "/dev/video1",
+  subdev_name : "/dev/v4l-subdev1",
+  format : V4L2_PIX_FMT_UYVY,
+  subdev_format : V4L2_MBUS_FMT_SGRBG10_1X10,
+  buf_cnt : 3,
+  filters : VIDEO_FILTER_ISP,
+  cv_listener : NULL,
+  fps : 5
+};*/
 
 /**
  * Write multiple bytes to a single register
@@ -854,3 +858,9 @@ void mt9f002_init(struct mt9f002_t *mt)
   /* Turn the stream on */
   write_reg(mt, MT9F002_MODE_SELECT, 0x01, 1);
 }
+
+
+void MT9F002Camera::setSize(int width,int height){
+	something=0;
+}
+
