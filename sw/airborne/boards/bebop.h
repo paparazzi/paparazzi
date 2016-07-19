@@ -27,6 +27,14 @@
 
 #include "std.h"
 #include "peripherals/video_device.h"
+#include "bebop/mt9f002.h"
+#ifndef MT9V117_OUTPUT_HEIGHT
+#define MT9V117_OUTPUT_HEIGHT 3320
+#endif
+
+#ifndef MT9V117_OUTPUT_WIDTH
+#define MT9V117_OUTPUT_WIDTH 2048
+#endif
 
 /** uart connected to GPS internally */
 #define UART1_DEV /dev/ttyPA1
@@ -40,7 +48,7 @@
 /* Cameras */
 extern struct video_config_t bottom_camera;
 extern struct video_config_t front_camera;
-
+struct mt9f002_t mt9f002;
 /* by default activate onboard baro */
 #ifndef USE_BARO_BOARD
 #define USE_BARO_BOARD 1
