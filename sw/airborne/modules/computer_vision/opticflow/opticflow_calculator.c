@@ -191,8 +191,8 @@ void opticflow_calc_init(struct opticflow_t *opticflow, uint16_t w, uint16_t h)
   opticflow->fast9_threshold = OPTICFLOW_FAST9_THRESHOLD;
   opticflow->fast9_min_distance = OPTICFLOW_FAST9_MIN_DISTANCE;
   opticflow->fast9_padding = OPTICFLOW_FAST9_PADDING;
-  opticflow->fast9_rsize=512;
-  opticflow->fast9_ret_corners= malloc(sizeof(struct point_t) * opticflow->fast9_rsize);
+  opticflow->fast9_rsize = 512;
+  opticflow->fast9_ret_corners = malloc(sizeof(struct point_t) * opticflow->fast9_rsize);
 
 }
 /**
@@ -238,14 +238,15 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
   // TODO: There is something wrong with fast9_detect destabilizing FPS. This problem is reduced with putting min_distance
   // to 0 (see defines), however a more permanent solution should be considered
   fast9_detect(img, opticflow->fast9_threshold, opticflow->fast9_min_distance,
-                                         opticflow->fast9_padding, opticflow->fast9_padding, &result->corner_cnt,
-										  &opticflow->fast9_rsize,
-										  opticflow->fast9_ret_corners);
+               opticflow->fast9_padding, opticflow->fast9_padding, &result->corner_cnt,
+               &opticflow->fast9_rsize,
+               opticflow->fast9_ret_corners);
 
   // Adaptive threshold
   if (opticflow->fast9_adaptive) {
     // Decrease and increase the threshold based on previous values
-    if (result->corner_cnt < 40 && opticflow->fast9_threshold > FAST9_LOW_THRESHOLD) { // TODO: Replace 40 with OPTICFLOW_MAX_TRACK_CORNERS / 2
+    if (result->corner_cnt < 40
+        && opticflow->fast9_threshold > FAST9_LOW_THRESHOLD) { // TODO: Replace 40 with OPTICFLOW_MAX_TRACK_CORNERS / 2
       opticflow->fast9_threshold--;
     } else if (result->corner_cnt > OPTICFLOW_MAX_TRACK_CORNERS * 2 && opticflow->fast9_threshold < FAST9_HIGH_THRESHOLD) {
       opticflow->fast9_threshold++;
@@ -268,7 +269,8 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
 
   // Execute a Lucas Kanade optical flow
   result->tracked_cnt = result->corner_cnt;
-  struct flow_t *vectors = opticFlowLK(&opticflow->img_gray, &opticflow->prev_img_gray, opticflow->fast9_ret_corners, &result->tracked_cnt,
+  struct flow_t *vectors = opticFlowLK(&opticflow->img_gray, &opticflow->prev_img_gray, opticflow->fast9_ret_corners,
+                                       &result->tracked_cnt,
                                        opticflow->window_size / 2, opticflow->subpixel_factor, opticflow->max_iterations,
                                        opticflow->threshold_vec, opticflow->max_track_corners, opticflow->pyramid_level);
 
@@ -337,8 +339,10 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
   float diff_flow_y = (state->theta - opticflow->prev_theta) * img->h / OPTICFLOW_FOV_H;*/
 
   if (opticflow->derotation && result->tracked_cnt > 5) {
-    diff_flow_x = (state->rates.p + opticflow->prev_rates.p) / 2.0f / result->fps * img->w / OPTICFLOW_FOV_W;// * img->w / OPTICFLOW_FOV_W;
-    diff_flow_y = (state->rates.q + opticflow->prev_rates.q) / 2.0f / result->fps * img->h / OPTICFLOW_FOV_H;// * img->h / OPTICFLOW_FOV_H;
+    diff_flow_x = (state->rates.p + opticflow->prev_rates.p) / 2.0f / result->fps * img->w /
+                  OPTICFLOW_FOV_W;// * img->w / OPTICFLOW_FOV_W;
+    diff_flow_y = (state->rates.q + opticflow->prev_rates.q) / 2.0f / result->fps * img->h /
+                  OPTICFLOW_FOV_H;// * img->h / OPTICFLOW_FOV_H;
   }
 
   result->flow_der_x = result->flow_x - diff_flow_x * opticflow->subpixel_factor;
