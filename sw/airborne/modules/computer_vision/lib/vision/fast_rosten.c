@@ -3635,9 +3635,9 @@ void fast9_detect(struct image_t *img, uint8_t threshold, uint16_t min_dist, uin
       }
 
       // When we have more corner than allocted space reallocate
-      if (corner_cnt == *corners_size) {
-        *corners_size *= 2;
-        ret_corners = realloc(ret_corners, sizeof(struct point_t) * (*corners_size));
+      if (corner_cnt >= *ret_corners_length) {
+        *ret_corners_length *= 2;
+        ret_corners = realloc(ret_corners, sizeof(struct point_t) * (*ret_corners_length));
       }
 
       ret_corners[corner_cnt].x = x;
@@ -3649,7 +3649,6 @@ void fast9_detect(struct image_t *img, uint8_t threshold, uint16_t min_dist, uin
     }
   }
   *num_corners = corner_cnt;
-  return ret_corners;
 }
 
 /**
