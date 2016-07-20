@@ -37,13 +37,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static void fast_make_offsets(int32_t *pixel, uint16_t row_stride, uint8_t pixel_size);
 
 /**
- * Do a FAST9 corner detection
+ * Do a FAST9 corner detection. The array *ret_corners can be reallocated in this function every time
+ * it becomes too full, *ret_corners_length is updated appropriately.
  * @param[in] *img The image to do the corner detection on
  * @param[in] threshold The threshold which we use for FAST9
  * @param[in] min_dist The minimum distance in pixels between detections
  * @param[in] x_padding The padding in the x direction to not scan for corners
  * @param[in] y_padding The padding in the y direction to not scan for corners
- * @param[out] *num_corners The amount of corners found
+ * @param[in] *num_corners reference to the amount of corners found, set by this function
+ * @param[in] *ret_corners_length the length of the array *ret_corners.
+ * @param[in] *ret_corners array which contains the corners that were detected.
 */
 void fast9_detect(struct image_t *img, uint8_t threshold, uint16_t min_dist, uint16_t x_padding, uint16_t y_padding, uint16_t *num_corners, uint16_t *ret_corners_length,struct point_t *ret_corners) {
   uint32_t corner_cnt = 0;
