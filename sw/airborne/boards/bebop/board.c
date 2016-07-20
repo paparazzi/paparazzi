@@ -33,6 +33,7 @@
 #include "mt9v117.h"
 #include "mt9f002.h"
 #include "mcu.h"
+#include "boards/bebop.h"
 
 static int kill_gracefull(char *process_name)
   {
@@ -120,8 +121,8 @@ void board_init2(void)
     .gain_blue = 2.0,
     .gain_red = 2.0,
     .gain_green2 = 2.0,
-    .output_width = 2048,
-    .output_height = 3320,
+    .output_width = MT9F002_OUTPUT_WIDTH,
+    .output_height = MT9F002_OUTPUT_HEIGHT,
     .output_scaler = 1.0,
     .offset_x = 1000,
     .offset_y = 0,
