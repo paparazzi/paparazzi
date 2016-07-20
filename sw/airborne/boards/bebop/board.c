@@ -33,7 +33,7 @@
 #include "mt9v117.h"
 #include "mt9f002.h"
 #include "mcu.h"
-#include BOARD_CONFIG
+#include "boards/bebop.h"
 
 static int kill_gracefull(char *process_name)
   {
