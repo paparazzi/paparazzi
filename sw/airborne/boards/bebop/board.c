@@ -123,9 +123,9 @@ void board_init2(void)
     .gain_green2 = 2.0,
     .output_width = MT9F002_OUTPUT_WIDTH,
     .output_height = MT9F002_OUTPUT_HEIGHT,
-    .output_scaler = 1.0,
-    .offset_x = 1000,
-    .offset_y = 0,
+    .output_scaler = MT9F002_OUTPUT_SCALER,
+    .offset_x = MT9F002_INITIAL_OFFSET_X,
+    .offset_y = MT9F002_INITIAL_OFFSET_Y,
 
     // I2C connection port
     .i2c_periph = &i2c0
