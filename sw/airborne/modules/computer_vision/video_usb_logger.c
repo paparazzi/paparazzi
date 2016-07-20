@@ -56,7 +56,7 @@ static void save_shot_on_disk(struct image_t *img, struct image_t *img_jpeg)
   // Search for a file where we can write to
   char save_name[128];
 
-  snprintf(save_name,sizeof(save_name), "%s/img_%05d.jpg", foldername, shotNumber);
+  snprintf(save_name, sizeof(save_name), "%s/img_%05d.jpg", foldername, shotNumber);
 
   shotNumber++;
   // Check if file exists or not
@@ -127,11 +127,10 @@ void video_usb_logger_start(void)
   struct stat st = {0};
 
   // Search and create a new folder
-  do{
-	  snprintf(foldername, sizeof(foldername),"%s/pprzvideo%05d", STRINGIFY(VIDEO_USB_LOGGER_PATH), counter);
-	  counter++;
-  }
-  while (stat(foldername, &st) >= 0);
+  do {
+    snprintf(foldername, sizeof(foldername), "%s/pprzvideo%05d", STRINGIFY(VIDEO_USB_LOGGER_PATH), counter);
+    counter++;
+  } while (stat(foldername, &st) >= 0);
 
   mkdir(foldername, 0700);
 
