@@ -15,8 +15,8 @@
     <module name="gps" type="optitrack"/>
     <module name="stabilization" type="indi"/>
     <module name="ahrs" type="int_cmpl_quat">
-      <configure name="USE_MAGNETOMETER" value="FALSE"/>
-      <define name="AHRS_USE_GPS_HEADING" value="TRUE"/>
+      <configure name="USE_MAGNETOMETER" value="TRUE"/>
+      <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
     </module>
     <module name="ins" type="extended"/>
   </firmware>
@@ -211,9 +211,9 @@
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
     <define name="MAX_BANK" value="20" unit="deg"/>
-    <define name="PGAIN" value="0"/>
-    <define name="DGAIN" value="80"/>
-    <define name="IGAIN" value="30"/>
+    <define name="PGAIN" value="100"/>
+    <define name="DGAIN" value="40"/>
+    <define name="IGAIN" value="0"/>
   </section>
 
   <section name="NAVIGATION" prefix="NAV_">
