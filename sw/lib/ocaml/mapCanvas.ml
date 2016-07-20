@@ -128,6 +128,14 @@ let convex = fun l ->
             else l in
       (x3,y3)::List.rev (loop (List.rev ps))
 
+(** Setting Opacity for bitmap *)
+let stipple_opacity = fun opacity ->
+  match opacity with
+    | 0 -> (1,"\002\001")
+    | 1 -> (3,"\002\001")
+    | 2 -> (2,"\002\001")
+    | 3 -> (1,"\003\001")
+    | _ -> (1,"\002\001")
 
 class type geographic = object
   method pos : Latlong.geographic
@@ -361,6 +369,18 @@ object (self)
         end
       | None -> failwith "#of_world : no georef"
 
+
+  method convert_positions_to_points = fun geo_arr ->
+    let getx = fun (x1, y1) -> x1 in
+    let gety = fun (x1, y1) -> y1 in
+    let arrlen = (Array.length geo_arr) in
+    let points = Array.make (arrlen*2) (getx (self#world_of geo_arr.(0)))  in
+    for i = 0 to arrlen - 1 do
+      points.(i*2) <- getx (self#world_of geo_arr.(i));
+      points.((i*2)+1) <- gety (self#world_of geo_arr.(i));
+    done;
+    points
+
   method move_item = fun ?(z = 1.) (item:GnomeCanvas.re_p GnoCanvas.item) wgs84 ->
     let (xw,yw) = self#world_of wgs84 in
     item#affine_absolute (affine_pos_and_angle ~z xw yw 0.);
@@ -411,7 +431,7 @@ object (self)
     pix#affine_relative [| cos_a; sin_a; -. sin_a; cos_a; 0.;0.|];
     pix
 
-  method fix_bg_coords (xw, yw) = (** FIXME: how to do it properly ? *)    
+  method fix_bg_coords (xw, yw) = (** FIXME: how to do it properly ? *)
     ((xw +. 25000000.) *. zoom_level, (yw +. 25000000.) *. zoom_level)
 
   method zoom = fun value ->
@@ -419,7 +439,7 @@ object (self)
     zoom_level <- value;  (* must set this before changing adj so that another zoom is not triggered *)
     adj#set_value value;
     canvas#set_pixels_per_unit value
-        
+
   (**  events *******************************************)
   method background_event = fun ev ->
     match ev with
@@ -523,7 +543,7 @@ object (self)
     Hashtbl.add view_cbs cb ()
 
   (* zoom keeping the center *)
-  method zoom_in_center = fun z -> 
+  method zoom_in_center = fun z ->
     let c = self#get_center () in
     self#zoom z;
     self#center c
@@ -592,15 +612,23 @@ object (self)
     l
 
 
-  method circle = fun ?(group = canvas#root) ?(width=1) ?fill_color ?(color="black") geo radius ->
+  method circle = fun ?(group = canvas#root) ?(width=1) ?fill_color ?(opacity=0) ?(color="black") geo radius ->
     let (x, y) = self#world_of geo in
-
+    let (stpwidth, stpstr) = stipple_opacity opacity in
     (** Compute the actual radius in a UTM projection *)
     let utm = LL.utm_of LL.WGS84 geo in
     let geo_east = LL.of_utm LL.WGS84 (LL.utm_add utm (radius, 0.)) in
     let (xe, _) = self#world_of geo_east in
     let rad = xe -. x in
-    let l = GnoCanvas.ellipse ?fill_color ~props:[`WIDTH_PIXELS width; `OUTLINE_COLOR color] ~x1:(x-.rad) ~y1:(y -.rad) ~x2:(x +.rad) ~y2:(y+.rad) group in
+    let l = GnoCanvas.ellipse ?fill_color ~props:[`WIDTH_PIXELS width; `OUTLINE_COLOR color; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:stpwidth ~height:stpwidth stpstr)] ~x1:(x-.rad) ~y1:(y -.rad) ~x2:(x +.rad) ~y2:(y+.rad) group in
+    l#show ();
+    l
+
+  method polygon = fun ?(group = canvas#root) ?(width=1) ?fill_color ?(opacity=0) ?(color="black") geo_arr ->
+    (*setting opacity from 0-4 *)
+    let (stpwidth, stpstr) = stipple_opacity opacity in
+    let points = self#convert_positions_to_points geo_arr in
+    let l = GnoCanvas.polygon ?fill_color ~props:[`WIDTH_PIXELS width; `OUTLINE_COLOR color; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:stpwidth ~height:stpwidth stpstr)] ~points group in
     l#show ();
     l
 
@@ -839,7 +867,7 @@ class widget =  fun ?(height=800) ?(srtm=false) ?width ?projection ?georef () ->
         if i >= extraitems then georef_menu#remove v;
         i + 1
       ) 0 georef_menu#children);
-      (List.nth georef_menu#children 0)#activate ();    
+      (List.nth georef_menu#children 0)#activate ();
       optmenu#set_history 0;
       georefs <- [];
       (* finally delete all fitted objects *)

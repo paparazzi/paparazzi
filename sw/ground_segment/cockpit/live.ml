@@ -1478,6 +1478,29 @@ let get_intruders = fun (geomap:G.widget) _sender vs ->
 let listen_intruders = fun (geomap:G.widget) ->
   safe_bind "INTRUDER" (get_intruders geomap)
 
+open Shapes
+
+let get_shapes = fun (geomap:G.widget)_sender vs ->
+  let f = fun s -> PprzLink.float_assoc s vs in
+  let i = fun s -> PprzLink.int_assoc s vs in
+  let st = fun s -> PprzLink.string_assoc s vs in
+  let string_to_scaled_float = fun v -> (float (int_of_string v))/. 1e7 in
+  let floatarr = fun s -> Array.map string_to_scaled_float (Array.of_list (Str.split list_separator (st s))) in
+  let data =  {
+    shid = i "id";
+    shlinecolor = st "linecolor";
+    shfillcolor = st "fillcolor";
+    shopacity = i "opacity";
+    shtype = int2shtype (i "shape");
+    shstatus = int2shstatus (i "status");
+    shlatarr = floatarr "latarr";
+    shlonarr = floatarr "lonarr";
+    shradius = f "radius";
+    shtext = st "text"} in
+  new_shmsg data geomap
+
+let listen_shapes = fun (geomap:G.widget) ->
+  safe_bind "SHAPE" (get_shapes geomap)
 
 let listen_acs_and_msgs = fun geomap ac_notebook strips confirm_kill my_alert auto_center_new_ac alt_graph timestamp ->
   (** Probe live A/Cs *)
@@ -1504,6 +1527,7 @@ let listen_acs_and_msgs = fun geomap ac_notebook strips confirm_kill my_alert au
   listen_tcas my_alert timestamp;
   listen_dcshot geomap timestamp;
   listen_intruders geomap;
+  listen_shapes geomap;
 
   (** Select the active aircraft on notebook page selection *)
   let callback = fun i ->
