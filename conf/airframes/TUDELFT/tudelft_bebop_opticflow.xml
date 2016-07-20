@@ -36,7 +36,7 @@
     <module name="cv_opticflow">
       <define name="OPTICFLOW_CAMERA" value="bottom_camera"/>
       <define name="MAX_HORIZON" value="2"/>
-      <define name="CAMERA_ROTATED_180" value="1"/>
+      <!--define name="CAMERA_ROTATED_180" value="1"/-->
       <!--define name="OPTICFLOW_DEROTATION" value="0"/-->
       <define name="OPTICFLOW_FX" value="347.22222222"/> <!-- 2.5 / (3.6 * 2.0) * 1000 -->
       <define name="OPTICFLOW_FY" value="347.22222222"/> <!-- 2.5 / (3.6 * 2.0) * 1000 -->
@@ -91,20 +91,9 @@
     <define name="CALC_AMSL_BARO" value="TRUE"/>
   </section>
 
+  <include href="conf/airframes/TUDELFT/calibrations/bebopTUBB17.xml"/>
+
   <section name="IMU" prefix="IMU_">
-    <!-- Magneto calibration -->
-    <define name="MAG_X_NEUTRAL" value="18"/>
-    <define name="MAG_Y_NEUTRAL" value="157"/>
-    <define name="MAG_Z_NEUTRAL" value="49"/>
-    <define name="MAG_X_SENS" value="10.5007722373" integer="16"/>
-    <define name="MAG_Y_SENS" value="11.1147400462" integer="16"/>
-    <define name="MAG_Z_SENS" value="11.6479371722" integer="16"/>
-
-    <!-- Magneto current calibration -->
-    <define name="MAG_X_CURRENT_COEF" value="0.0"/>
-    <define name="MAG_Y_CURRENT_COEF" value="0.0"/>
-    <define name="MAG_Z_CURRENT_COEF" value="0.0"/>
-
     <define name="BODY_TO_IMU_PHI" value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
     <define name="BODY_TO_IMU_PSI" value="0." unit="deg"/>
@@ -154,11 +143,15 @@
   </section>
 
   <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
-    <!-- control effectiveness -->
+    <!-- control effectiveness >
     <define name="G1_P" value="0.0639"/>
     <define name="G1_Q" value="0.0361"/>
     <define name="G1_R" value="0.0022"/>
-    <define name="G2_R" value="0.1450"/>
+    <define name="G2_R" value="0.1450"/-->
+    <define name="G1_P" value="0.038703"/>
+    <define name="G1_Q" value="0.033092"/>
+    <define name="G1_R" value="0.000892"/>
+    <define name="G2_R" value="0.110938"/>
 
     <!-- reference acceleration for attitude control -->
     <define name="REF_ERR_P" value="600.0"/>
@@ -202,8 +195,8 @@
     <!-- define name="MAX_BANK" value="32" unit="deg"/ -->
 
     <define name="PGAIN" value="0"/>
-    <define name="DGAIN" value="25"/>
-    <define name="IGAIN" value="5"/>
+    <define name="DGAIN" value="80"/>
+    <define name="IGAIN" value="20"/>
   </section>
 
   <section name="NAVIGATION" prefix="NAV_">
@@ -227,9 +220,9 @@
 
   <section name="BAT">
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="8700"/>
-    <define name="CATASTROPHIC_BAT_LEVEL" value="10.5" unit="V"/>
-    <define name="CRITIC_BAT_LEVEL" value="10.8" unit="V"/>
-    <define name="LOW_BAT_LEVEL" value="11.0" unit="V"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="9.9" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="11.0" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="11.1" unit="V"/>
     <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
   </section>
 </airframe>

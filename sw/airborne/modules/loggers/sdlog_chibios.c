@@ -30,6 +30,7 @@
 #include "modules/loggers/sdlog_chibios/sdLog.h"
 #include "modules/loggers/sdlog_chibios/usbStorage.h"
 #include "modules/loggers/sdlog_chibios.h"
+#include "modules/tlsf/tlsf_malloc.h"
 #include "mcu_periph/adc.h"
 #include "led.h"
 
@@ -84,22 +85,38 @@ FileDes flightRecorderLogFile = -1;
 
 
 // Functions for the generic device API
-static int sdlog_check_free_space(struct chibios_sdlog* p __attribute__((unused)), long *fd __attribute__((unused)), uint16_t len __attribute__((unused)))
+static int sdlog_check_free_space(struct chibios_sdlog* p __attribute__((unused)), long *fd, uint16_t len)
 {
-  return 1;
+  SdLogBuffer *sdb;
+  SdioError status = sdLogAllocSDB(&sdb, len);
+  if (status != SDLOG_OK) {
+    return 0;
+  } else {
+    *fd = (long) sdb;
+    return 1;
+  }
 }
 
-static void sdlog_transmit(struct chibios_sdlog* p, long fd __attribute__((unused)), uint8_t byte)
+static void sdlog_transmit(struct chibios_sdlog* p __attribute__((unused)), long fd, uint8_t byte)
 {
-  sdLogWriteByte(*p->file, byte);
+  SdLogBuffer *sdb = (SdLogBuffer *) fd;
+  uint8_t *data = (uint8_t *) sdLogGetBufferFromSDB(sdb);
+  *data = byte;
+  sdLogSeekBufferFromSDB(sdb, 1);
 }
 
-static void sdlog_transmit_buffer(struct chibios_sdlog* p, long fd __attribute__((unused)), uint8_t *data, uint16_t len)
+static void sdlog_transmit_buffer(struct chibios_sdlog* p __attribute__((unused)), long fd, uint8_t *data, uint16_t len)
 {
-  sdLogWriteRaw(*p->file, data, len);
+  SdLogBuffer *sdb = (SdLogBuffer *) fd;
+  memcpy(sdLogGetBufferFromSDB(sdb), data, len);
+  sdLogSeekBufferFromSDB(sdb, len);
 }
 
-static void sdlog_send(struct chibios_sdlog* p __attribute__((unused)), long fd __attribute__((unused))) { }
+static void sdlog_send(struct chibios_sdlog* p, long fd)
+{
+  SdLogBuffer *sdb = (SdLogBuffer *) fd;
+  sdLogWriteSDB(*(p->file), sdb);
+}
 
 static int null_function(struct chibios_sdlog *p __attribute__((unused))) { return 0; }
 

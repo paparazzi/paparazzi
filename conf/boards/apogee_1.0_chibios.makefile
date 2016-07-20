@@ -18,7 +18,7 @@ RTOS=chibios
 USE_FPU=yes
 HARD_FLOAT=yes
 
-$(TARGET).CFLAGS += -DSTM32F4 -DPPRZLINK_ENABLE_FD
+$(TARGET).CFLAGS += -DSTM32F4 -DPPRZLINK_ENABLE_FD -DUSE_HARD_FAULT_RECOVERY
 
 ##############################################################################
 # Architecture or project specific options

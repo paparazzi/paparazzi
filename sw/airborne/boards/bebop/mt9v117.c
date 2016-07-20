@@ -174,7 +174,7 @@ struct mt9v117_patch_t {
   uint16_t len;
 };
 
-const static struct mt9v117_patch_t mt9v117_patch_lines[MT9V117_PATCH_LINE_NUM] = {
+static const struct mt9v117_patch_t mt9v117_patch_lines[MT9V117_PATCH_LINE_NUM] = {
     {patch_line1, sizeof(patch_line1)},
     {patch_line2, sizeof(patch_line2)},
     {patch_line3, sizeof(patch_line3)},

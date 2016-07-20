@@ -33,6 +33,10 @@
 #include "subsystems/datalink/datalink.h"
 #endif
 
+#if USE_HARD_FAULT_RECOVERY
+#include "mcu.h"
+#endif
+
 #if defined SITL && !USE_NPS
 struct ivy_transport ivy_tp;
 #endif
@@ -100,7 +104,13 @@ void downlink_init(void)
 #ifndef XBEE_INIT
 #define XBEE_INIT ""
 #endif
-  xbee_transport_init(&xbee_tp, &((DefaultDevice).device), AC_ID, XBEE_TYPE, XBEE_BAUD, sys_time_usleep, XBEE_INIT);
+#if USE_HARD_FAULT_RECOVERY
+  if (recovering_from_hard_fault)
+    // in case of hardfault recovery, we want to skip xbee init which as an active wait
+    xbee_transport_init(&xbee_tp, &((DefaultDevice).device), AC_ID, XBEE_TYPE, XBEE_BAUD, NULL, XBEE_INIT);
+  else
+#endif
+    xbee_transport_init(&xbee_tp, &((DefaultDevice).device), AC_ID, XBEE_TYPE, XBEE_BAUD, sys_time_usleep, XBEE_INIT);
 #endif
 #if DATALINK == W5100
   w5100_init();

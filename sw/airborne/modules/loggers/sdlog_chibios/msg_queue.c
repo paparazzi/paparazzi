@@ -43,7 +43,7 @@ void    msgqueue_init(MsgQueue *que, tlsf_memory_heap_t *heap,
                       msg_t *mb_buf, const cnt_t mb_size)
 {
   chMBObjectInit(&que->mb, mb_buf, mb_size);
-  memset(mb_buf, 0, mb_size * sizeof(msg_t *));
+  memset(mb_buf, 0, mb_size * sizeof(msg_t));
   que->heap = heap;
 }
 
