@@ -125,7 +125,13 @@ class ConfChooser(object):
 
     def launch(self, widget):
         self.accept(widget)
-        self.pp = subprocess.Popen("./paparazzi")
+
+        args = ["./paparazzi"]
+
+        if self.btnPythonGUI.get_active():
+            args += ["-python"]
+
+        self.pp = subprocess.Popen(args)
         self.window.destroy()
 
     def backupconf(self, use_personal=False):
@@ -368,6 +374,10 @@ class ConfChooser(object):
         self.btnBackups = gtk.CheckButton("show backups")
         self.btnBackups.connect("toggled", self.set_backups)
         self.my_vbox.pack_start(self.btnBackups, False)
+
+        # show gui button
+        self.btnPythonGUI = gtk.CheckButton("new python center (beta)")
+        self.my_vbox.pack_start(self.btnPythonGUI, False)
 
         # Buttons
         self.btnAccept = gtk.Button("Set Active")
