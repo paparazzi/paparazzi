@@ -48,8 +48,8 @@ struct opticflow_t {
   uint8_t method;               ///< Method to use to calculate the optical flow
   uint16_t window_size;             ///< Window size for the blockmatching algorithm (general value for all methods)
   uint16_t search_distance;         ///< Search distance for blockmatching alg.
-  uint8_t derotation;             ///< Derotation switched on or off (depended on the quality of the gyroscope measurement)
-  uint8_t median_filter;          ///< Decides to use a median filter on the velocity
+  bool derotation;             ///< Derotation switched on or off (depended on the quality of the gyroscope measurement)
+  bool median_filter;          ///< Decides to use a median filter on the velocity
 
   uint16_t subpixel_factor;          ///< The amount of subpixels per pixel
   uint8_t max_iterations;           ///< The maximum amount of iterations the Lucas Kanade algorithm should do

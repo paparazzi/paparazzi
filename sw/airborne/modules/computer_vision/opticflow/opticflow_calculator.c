@@ -146,12 +146,12 @@ PRINT_CONFIG_VAR(OPTICFLOW_METHOD)
 #endif
 
 #ifndef OPTICFLOW_DEROTATION
-#define OPTICFLOW_DEROTATION 1
+#define OPTICFLOW_DEROTATION TRUE
 #endif
 PRINT_CONFIG_VAR(OPTICFLOW_DEROTATION)
 
 #ifndef OPTICFLOW_MEDIAN_FILTER
-#define OPTICFLOW_MEDIAN_FILTER 1
+#define OPTICFLOW_MEDIAN_FILTER TRUE
 #endif
 PRINT_CONFIG_VAR(OPTICFLOW_MEDIAN_FILTER)
 
@@ -369,7 +369,7 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
   float vel_y = result->flow_der_y * result->fps * state->agl / opticflow->subpixel_factor  / OPTICFLOW_FY;
 
   //Apply a  median filter to the velocity if wanted
-  if (opticflow->median_filter == 1) {
+  if (opticflow->median_filter == true) {
     result->vel_x = (float)update_median_filter(&vel_x_filt, (int32_t)(vel_x * 1000)) / 1000;
     result->vel_y = (float)update_median_filter(&vel_y_filt, (int32_t)(vel_y * 1000)) / 1000;
   } else {
@@ -537,7 +537,7 @@ void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *
   float vel_y = edgeflow.flow_y * fps_y * state->agl * OPTICFLOW_FOV_H / (img->h * RES);
 
   //Apply a  median filter to the velocity if wanted
-  if (opticflow->median_filter == 1) {
+  if (opticflow->median_filter == true) {
     result->vel_x = (float)update_median_filter(&vel_x_filt, (int32_t)(vel_x * 1000)) / 1000;
     result->vel_y = (float)update_median_filter(&vel_y_filt, (int32_t)(vel_y * 1000)) / 1000;
   } else {
