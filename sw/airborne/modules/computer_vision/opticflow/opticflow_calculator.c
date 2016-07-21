@@ -364,7 +364,7 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
 
   // Determine quality of noise measurement for state filter
   //TODO Experiment with multiple noise measurement models
-  result->noise_measurement = (float)result->tracked_cnt / (float)opticflow->max_track_corners;
+  result->noise_measurement = 1-((float)result->tracked_cnt / (float)opticflow->max_track_corners);
 
   // *************************************************************************************
   // Next Loop Preparation
@@ -448,10 +448,10 @@ void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *
   int16_t der_shift_y = 0;
 
   if (opticflow->derotation) {
-    der_shift_x = -(int16_t)((edge_hist[previous_frame_nr[0]].rates.p + edge_hist[current_frame_nr].rates.p) / 2.0f /
+    der_shift_x = (int16_t)((edge_hist[previous_frame_nr[0]].rates.p + edge_hist[current_frame_nr].rates.p) / 2.0f /
                              result->fps *
                              (float)img->w / (OPTICFLOW_FOV_W));
-    der_shift_y = -(int16_t)((edge_hist[previous_frame_nr[1]].rates.q + edge_hist[current_frame_nr].rates.q) / 2.0f /
+    der_shift_y = (int16_t)((edge_hist[previous_frame_nr[1]].rates.q + edge_hist[current_frame_nr].rates.q) / 2.0f /
                              result->fps *
                              (float)img->h / (OPTICFLOW_FOV_H));
   }
@@ -495,6 +495,7 @@ void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *
   result->noise_measurement = 0.0f;
   result->surface_roughness = 0.0f;
 
+  result->noise_measurement = 1.0f;
   //......................Calculating VELOCITY ..................... //
 
   /*Estimate fps per direction
@@ -516,6 +517,12 @@ void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *
   float vel_y = edgeflow.flow_y * fps_y * state->agl * OPTICFLOW_FOV_H / (img->h * RES);
   result->vel_x = vel_x;
   result->vel_y = vel_y;
+
+
+
+  result->noise_measurement = 1-((float)result->tracked_cnt / (float)img->w);
+
+
 
 #if OPTICFLOW_SHOW_FLOW
   draw_edgeflow_img(img, edgeflow, prev_edge_histogram_x, edge_hist_x);
