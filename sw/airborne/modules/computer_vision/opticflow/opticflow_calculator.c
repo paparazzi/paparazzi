@@ -150,14 +150,21 @@ PRINT_CONFIG_VAR(OPTICFLOW_METHOD)
 #endif
 PRINT_CONFIG_VAR(OPTICFLOW_DEROTATION)
 
-#ifndef CAMERA_ROTATED_180
-#define CAMERA_ROTATED 0
+#ifndef OPTICFLOW_MEDIAN_FILTER
+#define OPTICFLOW_MEDIAN_FILTER 1
 #endif
-PRINT_CONFIG_VAR(CAMERA_ROTATED_180)
+PRINT_CONFIG_VAR(OPTICFLOW_MEDIAN_FILTER)
+
+//Include median filter
+#include "filters/median_filter.h"
+struct MedianFilterInt vel_x_filt, vel_y_filt;
+
 
 /* Functions only used here */
 static uint32_t timeval_diff(struct timeval *starttime, struct timeval *finishtime);
 static int cmp_flow(const void *a, const void *b);
+
+
 
 /**
  * Initialize the opticflow calculator
@@ -167,6 +174,10 @@ static int cmp_flow(const void *a, const void *b);
  */
 void opticflow_calc_init(struct opticflow_t *opticflow, uint16_t w, uint16_t h)
 {
+
+  init_median_filter(&vel_x_filt);
+  init_median_filter(&vel_y_filt);
+
   /* Create the image buffers */
   image_create(&opticflow->img_gray, w, h, IMAGE_GRAYSCALE);
   image_create(&opticflow->prev_img_gray, w, h, IMAGE_GRAYSCALE);
@@ -186,6 +197,8 @@ void opticflow_calc_init(struct opticflow_t *opticflow, uint16_t w, uint16_t h)
   opticflow->max_iterations = OPTICFLOW_MAX_ITERATIONS;
   opticflow->threshold_vec = OPTICFLOW_THRESHOLD_VEC;
   opticflow->pyramid_level = OPTICFLOW_PYRAMID_LEVEL;
+  opticflow->median_filter = OPTICFLOW_MEDIAN_FILTER;
+
 
   opticflow->fast9_adaptive = OPTICFLOW_FAST9_ADAPTIVE;
   opticflow->fast9_threshold = OPTICFLOW_FAST9_THRESHOLD;
@@ -354,17 +367,25 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
   // TODO Calculate the velocity more sophisticated, taking into account the drone's angle and the slope of the ground plane.
   float vel_x = result->flow_der_x * result->fps * state->agl / opticflow->subpixel_factor  / OPTICFLOW_FX;
   float vel_y = result->flow_der_y * result->fps * state->agl / opticflow->subpixel_factor  / OPTICFLOW_FY;
-  result->vel_x = vel_x;
-  result->vel_y = vel_y;
 
+  //Apply a  median filter to the velocity if wanted
+  if (opticflow->median_filter == 1) {
+    result->vel_x = (float)update_median_filter(&vel_x_filt, (int32_t)(vel_x * 1000)) / 1000;
+    result->vel_y = (float)update_median_filter(&vel_y_filt, (int32_t)(vel_y * 1000)) / 1000;
+  } else {
+    result->vel_x = vel_x;
+    result->vel_y = vel_y;
+  }
   // Velocity calculation: uncomment if focal length of the camera is not known or incorrect.
   //  result->vel_x =  - result->flow_der_x * result->fps * state->agl / opticflow->subpixel_factor * OPTICFLOW_FOV_W / img->w
   //  result->vel_y =  result->flow_der_y * result->fps * state->agl / opticflow->subpixel_factor * OPTICFLOW_FOV_H / img->h
 
 
   // Determine quality of noise measurement for state filter
-  //TODO Experiment with multiple noise measurement models
-  result->noise_measurement = 1-((float)result->tracked_cnt / (float)opticflow->max_track_corners);
+  //TODO develop a noise model based on groundtruth
+
+  float noise_measurement_temp = (1 - ((float)result->tracked_cnt / ((float)opticflow->max_track_corners * 1.25)));
+  result->noise_measurement = noise_measurement_temp;
 
   // *************************************************************************************
   // Next Loop Preparation
@@ -449,11 +470,11 @@ void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *
 
   if (opticflow->derotation) {
     der_shift_x = (int16_t)((edge_hist[previous_frame_nr[0]].rates.p + edge_hist[current_frame_nr].rates.p) / 2.0f /
-                             result->fps *
-                             (float)img->w / (OPTICFLOW_FOV_W));
+                            result->fps *
+                            (float)img->w / (OPTICFLOW_FOV_W));
     der_shift_y = (int16_t)((edge_hist[previous_frame_nr[1]].rates.q + edge_hist[current_frame_nr].rates.q) / 2.0f /
-                             result->fps *
-                             (float)img->h / (OPTICFLOW_FOV_H));
+                            result->fps *
+                            (float)img->h / (OPTICFLOW_FOV_H));
   }
 
   // Estimate pixel wise displacement of the edge histograms for x and y direction
@@ -495,7 +516,6 @@ void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *
   result->noise_measurement = 0.0f;
   result->surface_roughness = 0.0f;
 
-  result->noise_measurement = 1.0f;
   //......................Calculating VELOCITY ..................... //
 
   /*Estimate fps per direction
@@ -515,12 +535,17 @@ void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *
   // Calculate velocity
   float vel_x = edgeflow.flow_x * fps_x * state->agl * OPTICFLOW_FOV_W / (img->w * RES);
   float vel_y = edgeflow.flow_y * fps_y * state->agl * OPTICFLOW_FOV_H / (img->h * RES);
-  result->vel_x = vel_x;
-  result->vel_y = vel_y;
 
+  //Apply a  median filter to the velocity if wanted
+  if (opticflow->median_filter == 1) {
+    result->vel_x = (float)update_median_filter(&vel_x_filt, (int32_t)(vel_x * 1000)) / 1000;
+    result->vel_y = (float)update_median_filter(&vel_y_filt, (int32_t)(vel_y * 1000)) / 1000;
+  } else {
+    result->vel_x = vel_x;
+    result->vel_y = vel_y;
+  }
 
-
-  result->noise_measurement = 1-((float)result->tracked_cnt / (float)img->w);
+  result->noise_measurement = 0.2;
 
 
 
