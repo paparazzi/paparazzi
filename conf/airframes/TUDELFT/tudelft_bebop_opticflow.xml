@@ -112,6 +112,7 @@
   <section name="INS" prefix="INS_">
     <define name="SONAR_MAX_RANGE" value="2.2"/>
     <define name="SONAR_UPDATE_ON_AGL" value="TRUE"/>
+    <define name="USE_HFF"/>
   </section>
 
   <section name="RC_SETPOINT" prefix="STABILIZATION_ATTITUDE_">
@@ -147,11 +148,15 @@
     <define name="G1_P" value="0.0639"/>
     <define name="G1_Q" value="0.0361"/>
     <define name="G1_R" value="0.0022"/>
-    <define name="G2_R" value="0.1450"/-->
+    <define name="G2_R" value="0.1450"/>
     <define name="G1_P" value="0.038703"/>
     <define name="G1_Q" value="0.033092"/>
     <define name="G1_R" value="0.000892"/>
-    <define name="G2_R" value="0.110938"/>
+    <define name="G2_R" value="0.110938"/-->
+    <define name="G1_P" value="0.047332"/>
+    <define name="G1_Q" value="0.032168"/>
+    <define name="G1_R" value="0.002326"/>
+    <define name="G2_R" value="0.122961"/>
 
     <!-- reference acceleration for attitude control -->
     <define name="REF_ERR_P" value="600.0"/>
@@ -222,7 +227,7 @@
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="8700"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.9" unit="V"/>
     <define name="CRITIC_BAT_LEVEL" value="11.0" unit="V"/>
-    <define name="LOW_BAT_LEVEL" value="11.1" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="11.3" unit="V"/>
     <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
   </section>
 </airframe>
