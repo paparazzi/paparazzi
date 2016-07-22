@@ -29,6 +29,7 @@ type gps_acc_level = GPS_ACC_HIGH | GPS_ACC_LOW | GPS_ACC_VERY_LOW | GPS_NO_ACC
 type aircraft = private {
     ac_name : string;
     ac_speech_name : string;
+    camaov: float * float;
     config : PprzLink.values;
     track : MapTrack.track;
     color: color;
@@ -54,6 +55,12 @@ type aircraft = private {
     mutable in_kill_mode : bool;
     mutable speed : float;
     mutable alt : float;
+    mutable agl : float;
+    mutable roll : float;
+    mutable pitch : float;
+    mutable heading : float;
+    mutable lat : float;
+    mutable long : float;
     mutable target_alt : float;
     mutable flight_time : int;
     mutable wind_speed : float;
