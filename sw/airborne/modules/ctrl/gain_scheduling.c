@@ -110,7 +110,7 @@ void gain_scheduling_periodic(void)
     int64_t g1, g2, gbl;
 
     //Loop through the gains and interpolate
-    for (int i = 0; i < (sizeof(struct Int32AttitudeGains) / sizeof(int32_t)); i++) {
+    for (uint32_t i = 0; i < (sizeof(struct Int32AttitudeGains) / sizeof(int32_t)); i++) {
       g1 = *(((int32_t *) ga) + i);
       g1 *= (1 << INT32_RATIO_FRAC) - ratio;
       g2 = *(((int32_t *) gb) + i);
