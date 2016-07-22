@@ -73,13 +73,13 @@ static void opticflow_telem_send(struct transport_tx *trans, struct link_device 
 {
   pthread_mutex_lock(&opticflow_mutex);
   if (opticflow_result.noise_measurement < 0.8) {
-  pprz_msg_send_OPTIC_FLOW_EST(trans, dev, AC_ID,
-                               &opticflow_result.fps, &opticflow_result.corner_cnt,
-                               &opticflow_result.tracked_cnt, &opticflow_result.flow_x,
-                               &opticflow_result.flow_y, &opticflow_result.flow_der_x,
-                               &opticflow_result.flow_der_y, &opticflow_result.vel_x,
-                               &opticflow_result.vel_y, &opticflow_result.div_size,
-                               &opticflow_result.surface_roughness, &opticflow_result.divergence); // TODO: no noise measurement here...
+    pprz_msg_send_OPTIC_FLOW_EST(trans, dev, AC_ID,
+                                 &opticflow_result.fps, &opticflow_result.corner_cnt,
+                                 &opticflow_result.tracked_cnt, &opticflow_result.flow_x,
+                                 &opticflow_result.flow_y, &opticflow_result.flow_der_x,
+                                 &opticflow_result.flow_der_y, &opticflow_result.vel_x,
+                                 &opticflow_result.vel_y, &opticflow_result.div_size,
+                                 &opticflow_result.surface_roughness, &opticflow_result.divergence); // TODO: no noise measurement here...
   }
   pthread_mutex_unlock(&opticflow_mutex);
 }
@@ -118,17 +118,16 @@ void opticflow_module_run(void)
   // Update the stabilization loops on the current calculation
   if (opticflow_got_result) {
     uint32_t now_ts = get_sys_time_usec();
-    uint8_t noise_measurement = opticflow_result.noise_measurement; // FIXME, scale to some quality measure 0-255
     AbiSendMsgOPTICAL_FLOW(OPTICFLOW_SENDER_ID, now_ts,
                            opticflow_result.flow_x,
                            opticflow_result.flow_y,
                            opticflow_result.flow_der_x,
                            opticflow_result.flow_der_y,
-                           quality,
+                           opticflow_result.noise_measurement,// FIXME, scale to some quality measure 0-255
                            opticflow_result.div_size,
                            opticflow_state.agl);
     //TODO Find an appropiate quality measure for the noise model in the state filter, for now it is tracked_cnt
-    if (noise_measurement < 0.8) {
+    if (opticflow_result.noise_measurement < 0.8) {
       AbiSendMsgVELOCITY_ESTIMATE(OPTICFLOW_SENDER_ID, now_ts,
                                   opticflow_result.vel_body_x,
                                   opticflow_result.vel_body_y,
