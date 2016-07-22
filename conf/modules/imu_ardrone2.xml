@@ -13,6 +13,7 @@
   </header>
 
   <init fun="imu_ardrone2_init()"/>
+  <event fun="navdata_update()"/>
 
   <makefile target="!sim|nps|fbw">
     <!-- set fixed AHRS propegation frequencies -->
