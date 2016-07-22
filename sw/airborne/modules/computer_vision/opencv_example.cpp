@@ -53,7 +53,7 @@ int opencv_example(char *img, int width, int height)
 
   // Convert back to YUV422, and put it in place of the original image
 //  grayscale_opencv_to_yuv422(image, img, width, height);
-  color_opencv_to_yuv422(image, img, width, height);
+  colorrgb_opencv_to_yuv422(image, img, width, height);
 
   return 0;
 }
