@@ -524,8 +524,8 @@ static inline void mt9f002_parallel_stage2(struct mt9f002_t *mt)
   //write_reg(mt, MT9F002_DATAPATH_SELECT        , 0xd881, 2); // permanent line valid
   write_reg(mt, MT9F002_DATAPATH_SELECT        , 0xd880, 2);
   write_reg(mt, MT9F002_READ_MODE              , 0x0041, 2);
-  write_reg(mt, MT9F002_X_ODD_INC              , 0x0001, 2);
-  write_reg(mt, MT9F002_Y_ODD_INC              , 0x0001, 2);
+  write_reg(mt, MT9F002_X_ODD_INC              , mt->x_odd_inc, 2);
+  write_reg(mt, MT9F002_Y_ODD_INC              , mt->y_odd_inc, 2);
   write_reg(mt, MT9F002_MASK_CORRUPTED_FRAMES  , 0x0001, 1); // 0 output corrupted frame, 1 mask them
 }
 
