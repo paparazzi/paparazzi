@@ -45,6 +45,9 @@
 #endif
 
 /** Our output is only OUTPUT_SCALER of the pixels we take of the sensor
+ * It is programmable in 1/16 steps determined by ScaleFactor = 16/scale_m.
+ * Legal values for scale_m are 16 through 128, giving you the ability to scale from
+ * 1:1 to 1:8 (with m=128).
  *  Example:
  *  output_width = 512
  *  output_height = 830
