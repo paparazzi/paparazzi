@@ -37,11 +37,11 @@
 #endif
 
 #ifndef MT9F002_INITIAL_OFFSET_X
-#define MT9F002_INITIAL_OFFSET_X 1000 // pixels in the raw sensor!!
+#define MT9F002_INITIAL_OFFSET_X 1000 // pixels in the raw sensor(please make steps of 2 for ISP)!!
 #endif
 
 #ifndef MT9F002_INITIAL_OFFSET_Y
-#define MT9F002_INITIAL_OFFSET_Y 0 // pixels in the raw sensor!!
+#define MT9F002_INITIAL_OFFSET_Y 0 // pixels in the raw sensor(please make steps of 2 for ISP)!!
 #endif
 
 /** Our output is only OUTPUT_SCALER of the pixels we take of the sensor
@@ -72,7 +72,7 @@
  * Inside poorly lit: 60
  */
 #ifndef MT9F002_TARGET_EXPOSURE
-#define MT9F002_TARGET_EXPOSURE 30
+#define MT9F002_TARGET_EXPOSURE 60
 #endif
 
 #ifndef MT9F002_TARGET_FPS
@@ -104,6 +104,7 @@
 #ifndef MT9F002_Y_ODD_INC_VAL
 #define MT9F002_Y_ODD_INC_VAL 1
 #endif
+
 
 /** uart connected to GPS internally */
 #define UART1_DEV /dev/ttyPA1

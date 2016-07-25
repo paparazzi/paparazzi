@@ -9,6 +9,7 @@
 #include <sys/ioctl.h>
 
 #include "libisp.h"
+#include "libisp_config.h"
 
 #define AVI_BASE 0x400000
 #define AVI_SIZE 0x100000
@@ -154,107 +155,39 @@ static int close_isp(struct libisp_context *ctx)
 int configure_isp(struct v4l2_device *dev)
 {
 	struct libisp_context isp_ctx;
-
-	struct avi_isp_chain_bayer_inter_regs bayer_inter = {{
-		.pedestal_bypass     = 1,
-		.grim_bypass         = 1,
-		.rip_bypass          = 1,
-		.denoise_bypass      = 0,
-		.lsc_bypass          = 1,
-		.chroma_aber_bypass  = 1,
-		.bayer_bypass        = 0,
-		.color_matrix_bypass = 0,
-	}};
-
-	struct avi_isp_vlformat_32to40_regs vlf_32to40 = {{
-		.format = 0x0,
-	}};
-
-	struct avi_isp_bayer_regs bay = {
-		.cfa         = { ._register = 0x03 },
-		.threshold_1 = { ._register = 0x19 },
-		.threshold_2 = { ._register = 0xc8 },
-	};
-
-	struct avi_isp_color_correction_regs cc = {
-		.coeff_01_00 = { ._register = 0xF3811477 },
-		.coeff_10_02 = { ._register = 0xFDF0021d },
-		.coeff_12_11 = { ._register = 0xFF9E0A33 },
-		.coeff_21_20 = { ._register = 0xF4DFFE25 },
-		.coeff_22    = { ._register = 0x00001B83 },
-		.offset_ry   = { ._register = 0x00000000 },
-		.clip_ry     = { ._register = 0x03FF0000 },
-		.offset_gu   = { ._register = 0x00000000 },
-		.clip_gu     = { ._register = 0x03FF0000 },
-		.offset_bv   = { ._register = 0x00000000 },
-		.clip_bv     = { ._register = 0x03FF0000 },
-	};
-
-	struct avi_isp_vlformat_40to32_regs vlf_40to32 = {{
-		.format = 0x4,
-	}};
-
-#define COMPLEMENT_2(i, r) (((i) >= 0) ? (r) : (~(r) + 1) & 0x3fff)
-#define Q311(i) (COMPLEMENT_2(i, (unsigned)(((ABS(i)) * (1 << 11)) + 0.5)))
-
-/*
- * Chroma converter parameters to convert input stream from a given
- * color space to another.
- * See http://www.fourcc.org/fccyvrgb.php
- */
-
-#define AVI_CONV_MATRIX(_c00, _c01, _c02,                                    \
-                        _c10, _c11, _c12,                                    \
-                        _c20, _c21, _c22)                                    \
-        .coeff_01_00 = {{ .coeff_00 = Q311(_c00), .coeff_01 = Q311(_c01) }}, \
-        .coeff_10_02 = {{ .coeff_02 = Q311(_c02), .coeff_10 = Q311(_c10) }}, \
-        .coeff_12_11 = {{ .coeff_11 = Q311(_c11), .coeff_12 = Q311(_c12) }}, \
-        .coeff_21_20 = {{ .coeff_20 = Q311(_c20), .coeff_21 = Q311(_c21) }}, \
-        .coeff_22    = {{ .coeff_22 = Q311(_c22) }}
-
-#define AVI_CONV_OFFSETS(_ryin, _ryout,                                 \
-                         _guin, _guout,                                 \
-                         _bvin, _bvout)                                 \
-        .offset_ry = {{ .offset_in = _ryin, .offset_out = _ryout }},    \
-        .offset_gu = {{ .offset_in = _guin, .offset_out = _guout }},    \
-        .offset_bv = {{ .offset_in = _bvin, .offset_out = _bvout }}
-
-#define AVI_CONV_CLIPS(_rymin, _rymax,                                  \
-                       _gumin, _gumax,                                  \
-                       _bvmin, _bvmax)                                  \
-        .clip_ry = {{ .clip_min = _rymin, .clip_max = _rymax }},        \
-        .clip_gu = {{ .clip_min = _gumin, .clip_max = _gumax }},        \
-        .clip_bv = {{ .clip_min = _bvmin, .clip_max = _bvmax }}
-
-
-	struct avi_isp_chroma_regs chr = {
-		AVI_CONV_MATRIX(  0.213,  0.715,  0.072,
-		                 -0.100, -0.336,  0.436,
-		                  0.615, -0.515, -0.100),
-
-		AVI_CONV_OFFSETS(0, 16,
-		                 0, 128,
-		                 0, 128),
-
-		AVI_CONV_CLIPS(16, 235,
-		               16, 240,
-		               16, 240),
-	};
-
 	if(open_isp_fd(&isp_ctx, dev->fd) < 0)
 		return -1;
 
-	avi_isp_chain_bayer_inter_set_registers(&isp_ctx, &bayer_inter);
-	avi_isp_vlformat_32to40_set_registers(&isp_ctx, &vlf_32to40);
-	avi_isp_bayer_set_registers(&isp_ctx, &bay);
-	avi_isp_color_correction_set_registers(&isp_ctx, &cc);
-	avi_isp_vlformat_40to32_set_registers(&isp_ctx, &vlf_40to32);
-	avi_isp_chroma_set_registers(&isp_ctx, &chr);
-
+	avi_isp_vlformat_32to40_set_registers(&isp_ctx, &isp_config.vlformat_32to40);
+	avi_isp_chain_bayer_inter_set_registers(&isp_ctx, &isp_config.bayer_inter);
+	avi_isp_pedestal_set_registers(&isp_ctx, &isp_config.pedestal);
+	avi_isp_green_imbalance_set_registers(&isp_ctx, &isp_config.green_imbalance);
+	avi_isp_green_imbalance_green_red_coeff_mem_set_registers(&isp_ctx, &isp_config.grim_gr);
+	avi_isp_green_imbalance_green_blue_coeff_mem_set_registers(&isp_ctx, &isp_config.grim_gb);
+	avi_isp_dead_pixel_correction_set_registers(&isp_ctx, &isp_config.dead_pixel_correction);
+	avi_isp_denoising_set_registers(&isp_ctx, &isp_config.denoising);
+	avi_isp_statistics_bayer_set_registers(&isp_ctx, &isp_config.statistics_bayer);
+	avi_isp_lens_shading_correction_set_registers(&isp_ctx, &isp_config.lens_shading_correction);
+	avi_isp_lens_shading_correction_red_coeff_mem_set_registers(&isp_ctx, &isp_config.lsc_red_coeffs);
+	avi_isp_lens_shading_correction_green_coeff_mem_set_registers(&isp_ctx, &isp_config.lsc_green_coeffs);
+	avi_isp_lens_shading_correction_blue_coeff_mem_set_registers(&isp_ctx, &isp_config.lsc_blue_coeffs);
+	avi_isp_bayer_set_registers(&isp_ctx, &isp_config.bayer);
+	avi_isp_color_correction_set_registers(&isp_ctx, &isp_config.color_correction);
+	avi_isp_vlformat_40to32_set_registers(&isp_ctx, &isp_config.vlformat_40to32);
+	avi_isp_gamma_corrector_set_registers(&isp_ctx, &isp_config.gamma_corrector);
+	avi_isp_gamma_corrector_ry_lut_set_registers(&isp_ctx, &isp_config.gc_ry_lut);
+	avi_isp_gamma_corrector_gu_lut_set_registers(&isp_ctx, &isp_config.gc_gu_lut);
+	avi_isp_gamma_corrector_bv_lut_set_registers(&isp_ctx, &isp_config.gc_bv_lut);
+	avi_isp_chroma_set_registers(&isp_ctx, &isp_config.chroma);
+	avi_isp_statistics_yuv_set_registers(&isp_ctx, &isp_config.statistics_yuv);
+	avi_isp_edge_enhancement_color_reduction_filter_set_registers(&isp_ctx, &isp_config.eecrf);
+	avi_isp_edge_enhancement_color_reduction_filter_ee_lut_set_registers(&isp_ctx, &isp_config.eecrf_lut);
+	avi_isp_chain_yuv_inter_get_registers(&isp_ctx, &isp_config.chain_yuv_inter);
 	close_isp(&isp_ctx);
 
 	return 0;
 }
+
 
 
 static inline void memcpy_to_registers(unsigned long addr,
