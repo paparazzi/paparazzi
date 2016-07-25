@@ -60,9 +60,18 @@ static struct {
 
 static bool nps_main_parse_options(int argc, char **argv);
 static void nps_main_init(void);
-static void nps_main_display(void);
 static void nps_main_run_sim_step(void);
+static gpointer nps_main_display(gpointer data __attribute__((unused)));
 static gboolean nps_main_periodic(gpointer data __attribute__((unused)));
+static gpointer nps_send_flight_gear(gpointer data __attribute__((unused)));
+
+
+GThread *th_flight_gear;
+GThread *th_display_ivy;
+GThread *th_main_loop;
+
+GMutex fdm_mutex;
+GCond fdm_cond;
 
 int pauseSignal = 0;
 
@@ -107,6 +116,11 @@ int main(int argc, char **argv)
   signal(SIGTSTP, tstp_hdl);
   printf("Time factor is %f. (Press Ctrl-Z to change)\n", nps_main.host_time_factor);
 
+  //th_main_loop = g_thread_new ("fdm_loop",nps_main_periodic, NULL);
+  th_flight_gear = g_thread_new ("fg_sender",nps_send_flight_gear, NULL);
+  th_display_ivy = g_thread_new ("ivy_sender",nps_main_display, NULL);
+
+
   GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
   g_timeout_add(HOST_TIMEOUT_MS, nps_main_periodic, NULL);
   g_main_loop_run(ml);
@@ -117,7 +131,6 @@ int main(int argc, char **argv)
 
 static void nps_main_init(void)
 {
-
   nps_main.sim_time = 0.;
   nps_main.display_time = 0.;
   struct timeval t;
@@ -125,7 +138,6 @@ static void nps_main_init(void)
   nps_main.real_initial_time = time_to_double(&t);
   nps_main.scaled_initial_time = time_to_double(&t);
 
-  nps_ivy_init(nps_main.ivy_bus);
   nps_fdm_init(SIM_DT);
   nps_atmosphere_init();
   nps_sensors_init(nps_main.sim_time);
@@ -144,16 +156,44 @@ static void nps_main_init(void)
   }
   nps_autopilot_init(rc_type, nps_main.rc_script, rc_dev);
 
-  if (nps_main.fg_host)
-    nps_flightgear_init(nps_main.fg_host, nps_main.fg_port, nps_main.fg_port_in, nps_main.fg_time_offset);
-
-
 #if DEBUG_NPS_TIME
   printf("host_time_factor,host_time_elapsed,host_time_now,scaled_initial_time,sim_time_before,display_time_before,sim_time_after,display_time_after\n");
 #endif
 
 }
 
+
+static gpointer nps_send_flight_gear(gpointer data __attribute__((unused)))
+{
+  gint64 end_time;
+
+  if (nps_main.fg_host)
+    nps_flightgear_init(nps_main.fg_host, nps_main.fg_port, nps_main.fg_port_in, nps_main.fg_time_offset);
+
+  while(TRUE)
+  {
+    g_mutex_lock (&fdm_mutex);
+    end_time = g_get_monotonic_time () + DISPLAY_DT * G_TIME_SPAN_SECOND;
+    g_cond_wait_until (&fdm_cond, &fdm_mutex, end_time);
+    //printf("Counting %d\n",cnt);
+    //cnt++;
+
+
+    if (nps_main.fg_host) {
+      if (nps_main.fg_fdm) {
+        nps_flightgear_send_fdm();
+      } else {
+        nps_flightgear_send();
+      }
+    }
+    nps_flightgear_receive();
+
+    g_mutex_unlock (&fdm_mutex);
+
+  }
+
+  return(NULL);
+}
 
 
 static void nps_main_run_sim_step(void)
@@ -173,19 +213,29 @@ static void nps_main_run_sim_step(void)
 }
 
 
-static void nps_main_display(void)
+static gpointer nps_main_display(gpointer data __attribute__((unused)))
 {
-  //  printf("display at %f\n", nps_main.display_time);
-  nps_ivy_display();
+  gint64 end_time;
 
-  if (nps_main.fg_host) {
-    if (nps_main.fg_fdm) {
-      nps_flightgear_send_fdm();
-    } else {
-      nps_flightgear_send();
-    }
+  nps_ivy_init(nps_main.ivy_bus);
+
+  //  printf("display at %f\n", nps_main.display_time);
+
+
+  while(TRUE)
+  {
+    g_mutex_lock (&fdm_mutex);
+    end_time = g_get_monotonic_time () + DISPLAY_DT * G_TIME_SPAN_SECOND;
+    g_cond_wait_until (&fdm_cond, &fdm_mutex, end_time);
+    //printf("Counting %d\n",cnt);
+    //cnt++;
+    nps_ivy_display();
+
+    g_mutex_unlock (&fdm_mutex);
+
   }
-  nps_flightgear_receive();
+
+  return(NULL);
 }
 
 
@@ -268,10 +318,10 @@ static gboolean nps_main_periodic(gpointer data __attribute__((unused)))
   while (nps_main.sim_time <= host_time_elapsed) {
     nps_main_run_sim_step();
     nps_main.sim_time += SIM_DT;
-    if (nps_main.display_time < (host_time_now - nps_main.real_initial_time)) {
-      nps_main_display();
-      nps_main.display_time += DISPLAY_DT;
-    }
+    //if (nps_main.display_time < (host_time_now - nps_main.real_initial_time)) {
+    //  nps_main_display();
+    //  nps_main.display_time += DISPLAY_DT;
+    //}
     cnt++;
   }
 
@@ -290,7 +340,6 @@ static gboolean nps_main_periodic(gpointer data __attribute__((unused)))
 #endif
 
   return TRUE;
-
 }
 
 
