@@ -38,7 +38,7 @@
 #include "mcu_periph/sys_time.h"
 #define SIM_DT     (1./SYS_TIME_FREQUENCY)
 #define DISPLAY_DT (1./30.)
-#define HOST_TIMEOUT_MS 40
+//#define HOST_TIMEOUT_MS 40
 
 
 static struct {
@@ -64,11 +64,17 @@ static void nps_main_run_sim_step(void);
 static gpointer nps_main_display(gpointer data __attribute__((unused)));
 static gboolean nps_main_periodic(gpointer data __attribute__((unused)));
 static gpointer nps_send_flight_gear(gpointer data __attribute__((unused)));
+static gpointer nps_main_loop(gpointer data __attribute__((unused)));
 
 
 GThread *th_flight_gear;
 GThread *th_display_ivy;
 GThread *th_main_loop;
+
+#if USE_HITL
+GThread *th_ins;
+GThread *th_control_inputs;
+#endif
 
 GMutex fdm_mutex;
 GCond fdm_cond;
@@ -116,16 +122,37 @@ int main(int argc, char **argv)
   signal(SIGTSTP, tstp_hdl);
   printf("Time factor is %f. (Press Ctrl-Z to change)\n", nps_main.host_time_factor);
 
-  //th_main_loop = g_thread_new ("fdm_loop",nps_main_periodic, NULL);
+
   th_flight_gear = g_thread_new ("fg_sender",nps_send_flight_gear, NULL);
   th_display_ivy = g_thread_new ("ivy_sender",nps_main_display, NULL);
-
+  th_main_loop = g_thread_new ("fdm_loop",nps_main_loop, NULL);
 
   GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
-  g_timeout_add(HOST_TIMEOUT_MS, nps_main_periodic, NULL);
+  //g_timeout_add(HOST_TIMEOUT_MS, nps_main_periodic, NULL);
   g_main_loop_run(ml);
 
   return 0;
+}
+
+static gpointer nps_main_loop(gpointer data __attribute__((unused)))
+{
+  gint64 end_time;
+  gpointer dummy = NULL;
+
+  while(TRUE)
+  {
+    g_mutex_lock (&fdm_mutex);
+    //end_time = g_get_monotonic_time () + HOST_TIMEOUT_MS * G_TIME_SPAN_MILLISECOND;
+    end_time = g_get_monotonic_time () + SIM_DT * G_TIME_SPAN_MILLISECOND;
+
+    g_cond_wait_until (&fdm_cond, &fdm_mutex, end_time);
+
+    nps_main_periodic(dummy);
+
+    g_mutex_unlock (&fdm_mutex);
+  }
+
+  return(NULL);
 }
 
 
@@ -175,9 +202,6 @@ static gpointer nps_send_flight_gear(gpointer data __attribute__((unused)))
     g_mutex_lock (&fdm_mutex);
     end_time = g_get_monotonic_time () + DISPLAY_DT * G_TIME_SPAN_SECOND;
     g_cond_wait_until (&fdm_cond, &fdm_mutex, end_time);
-    //printf("Counting %d\n",cnt);
-    //cnt++;
-
 
     if (nps_main.fg_host) {
       if (nps_main.fg_fdm) {
@@ -187,9 +211,7 @@ static gpointer nps_send_flight_gear(gpointer data __attribute__((unused)))
       }
     }
     nps_flightgear_receive();
-
     g_mutex_unlock (&fdm_mutex);
-
   }
 
   return(NULL);
@@ -215,26 +237,19 @@ static void nps_main_run_sim_step(void)
 
 static gpointer nps_main_display(gpointer data __attribute__((unused)))
 {
-  gint64 end_time;
-
   nps_ivy_init(nps_main.ivy_bus);
-
   //  printf("display at %f\n", nps_main.display_time);
 
-
+  gint64 end_time;
   while(TRUE)
   {
     g_mutex_lock (&fdm_mutex);
     end_time = g_get_monotonic_time () + DISPLAY_DT * G_TIME_SPAN_SECOND;
     g_cond_wait_until (&fdm_cond, &fdm_mutex, end_time);
-    //printf("Counting %d\n",cnt);
-    //cnt++;
     nps_ivy_display();
-
+    nps_main.display_time += DISPLAY_DT;
     g_mutex_unlock (&fdm_mutex);
-
   }
-
   return(NULL);
 }
 
