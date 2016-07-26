@@ -27,7 +27,7 @@ addons:
       description: "Build submitted via Travis CI"
     notification_email: paparazzi-builds@nongnu.org
     build_command_prepend: make ext; cov-configure --comptype gcc --compiler arm-none-eabi-gcc --template
-    build_command: make test
+    build_command: make test_coverity
     branch_pattern: coverity_scan
 
 notifications:
