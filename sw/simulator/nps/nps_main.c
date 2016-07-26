@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2009 Antoine Drouin <poinix@gmail.com>
  * Copyright (C) 2012 The Paparazzi Team
+ * Copyright (C) 2016 Michal Podhradsky <http://github.com/podhrmic>
  *
  * This file is part of paparazzi.
  *
@@ -38,8 +39,7 @@
 #include "mcu_periph/sys_time.h"
 #define SIM_DT     (1./SYS_TIME_FREQUENCY)
 #define DISPLAY_DT (1./30.)
-//#define HOST_TIMEOUT_MS 40
-
+#define HOST_TIMEOUT_MS 40
 
 static struct {
   double real_initial_time;
@@ -70,11 +70,6 @@ static gpointer nps_main_loop(gpointer data __attribute__((unused)));
 GThread *th_flight_gear;
 GThread *th_display_ivy;
 GThread *th_main_loop;
-
-#if USE_HITL
-GThread *th_ins;
-GThread *th_control_inputs;
-#endif
 
 GMutex fdm_mutex;
 GCond fdm_cond;
@@ -127,8 +122,8 @@ int main(int argc, char **argv)
   th_display_ivy = g_thread_new ("ivy_sender",nps_main_display, NULL);
   th_main_loop = g_thread_new ("fdm_loop",nps_main_loop, NULL);
 
+  // GMainLoop runs only Ivy main loop
   GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
-  //g_timeout_add(HOST_TIMEOUT_MS, nps_main_periodic, NULL);
   g_main_loop_run(ml);
 
   return 0;
@@ -142,8 +137,7 @@ static gpointer nps_main_loop(gpointer data __attribute__((unused)))
   while(TRUE)
   {
     g_mutex_lock (&fdm_mutex);
-    //end_time = g_get_monotonic_time () + HOST_TIMEOUT_MS * G_TIME_SPAN_MILLISECOND;
-    end_time = g_get_monotonic_time () + SIM_DT * G_TIME_SPAN_MILLISECOND;
+    end_time = g_get_monotonic_time () + HOST_TIMEOUT_MS * G_TIME_SPAN_MILLISECOND;
 
     g_cond_wait_until (&fdm_cond, &fdm_mutex, end_time);
 
@@ -220,8 +214,6 @@ static gpointer nps_send_flight_gear(gpointer data __attribute__((unused)))
 
 static void nps_main_run_sim_step(void)
 {
-  //  printf("sim at %f\n", nps_main.sim_time);
-
   nps_atmosphere_update(SIM_DT);
 
   nps_autopilot_run_systime_step();
@@ -238,7 +230,6 @@ static void nps_main_run_sim_step(void)
 static gpointer nps_main_display(gpointer data __attribute__((unused)))
 {
   nps_ivy_init(nps_main.ivy_bus);
-  //  printf("display at %f\n", nps_main.display_time);
 
   gint64 end_time;
   while(TRUE)
@@ -333,10 +324,6 @@ static gboolean nps_main_periodic(gpointer data __attribute__((unused)))
   while (nps_main.sim_time <= host_time_elapsed) {
     nps_main_run_sim_step();
     nps_main.sim_time += SIM_DT;
-    //if (nps_main.display_time < (host_time_now - nps_main.real_initial_time)) {
-    //  nps_main_display();
-    //  nps_main.display_time += DISPLAY_DT;
-    //}
     cnt++;
   }
 
