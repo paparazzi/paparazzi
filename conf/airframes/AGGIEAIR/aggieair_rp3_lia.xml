@@ -9,7 +9,7 @@ RP3 Lisa MX
   <firmware name="fixedwing">
     <define name="CONTROL_FREQUENCY" value="100"/>
     <configure name="PERIODIC_FREQUENCY" value="100"/>
-    <target name="ap" board="lisa_mx_2.0">
+    <target name="ap" board="lisa_mx_2.1_chibios">
       <module name="radio_control" type="sbus">
         <configure name="SBUS_PORT" value="UART5"/>
       </module>
