@@ -25,7 +25,7 @@ nps.LDFLAGS += $(shell sdl-config --libs)
 VPATH += $(PAPARAZZI_SRC)/sw/simulator
 
 NPSDIR = nps
-nps.srcs += $(NPSDIR)/nps_main.c                 \
+nps.srcs +=                                      \
        $(NPSDIR)/nps_random.c                    \
        $(NPSDIR)/nps_sensors.c                   \
        $(NPSDIR)/nps_sensors_utils.c             \
@@ -44,6 +44,40 @@ nps.srcs += $(NPSDIR)/nps_main.c                 \
        $(NPSDIR)/nps_radio_control_spektrum.c    \
        $(NPSDIR)/nps_ivy.c                       \
        $(NPSDIR)/nps_flightgear.c
+
+ifdef USE_HITL
+nps.CFLAGS  += -DUSE_HITL=1
+$(info USE_HITL defined)
+nps.srcs += $(NPSDIR)/nps_hitl_main.c
+
+ifdef AP_DEV
+nps.CFLAGS += -DAP_DEV=\"$(AP_DEV)\"
+else
+nps.CFLAGS += -DAP_DEV=\"/dev/ttyUSB2\"
+endif
+
+ifdef AP_BAUD
+nps.CFLAGS += -DAP_BAUD=$(AP_BAUD)
+else
+nps.CFLAGS += -DAP_BAUD=B3000000
+endif
+
+ifdef INS_DEV
+nps.CFLAGS += -DINS_DEV=\"$(INS_DEV)\"
+else
+nps.CFLAGS += -DINS_DEV=\"/dev/ttyUSB1\"
+endif
+
+ifdef AP_BAUD
+nps.CFLAGS += -DINS_BAUD=$(INS_BAUD)
+else
+nps.CFLAGS += -DINS_BAUD=B921600
+endif
+
+else
+$(info USE_HITL undefined)
+nps.srcs += $(NPSDIR)/nps_main.c
+endif
 
 # for geo mag calculation
 nps.srcs += math/pprz_geodetic_wmm2015.c
