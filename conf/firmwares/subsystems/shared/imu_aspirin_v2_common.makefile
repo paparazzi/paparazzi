@@ -57,7 +57,8 @@ include $(CFG_SHARED)/spi_master.makefile
 ifeq ($(ARCH), lpc21)
 ASPIRIN_2_SPI_DEV ?= spi1
 ASPIRIN_2_SPI_SLAVE_IDX ?= SPI_SLAVE0
-else ifeq ($(ARCH), stm32)
+#else ifeq ($(ARCH), stm32)
+else ifeq ($(ARCH),$(filter $(ARCH),stm32 chibios))
 # Slave select configuration
 # SLAVE2 is on PB12 (NSS) (MPU600 CS)
 ASPIRIN_2_SPI_DEV ?= spi2
