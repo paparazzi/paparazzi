@@ -18,7 +18,7 @@
   </header>
   <init fun="rtos_mon_init()"/>
   <periodic fun="rtos_mon_periodic()" freq="1" autorun="TRUE"/>
-  <makefile>
+  <makefile target="!nps">
     <file name="rtos_mon.c"/>
     <file_arch name="rtos_mon_arch.c"/>
   </makefile>
