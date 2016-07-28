@@ -6,6 +6,7 @@
       This module transmits Telemetry of the process "InterMCU" from AP to FBW. The FBW then transmits this telemetry further through PPRZ over an UART.
     </description>
     <configure name="TELEMETRY_INTERMCU_DEV" value="UART3" description="Device used to communicate the telemetry over on the FBW side"/>
+    <configure name="TELEMETRY_INTERMCU_BAUD" value="B19200" description="UART baud rate"/>
   </doc>
   <!-- <depends>intermcu</depends> -->
   <header>
