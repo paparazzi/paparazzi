@@ -13,6 +13,7 @@
     <file name="rpm_sensor.h"/>
   </header>
   <init fun="rpm_sensor_init()"/>
+  <periodic fun="rpm_sensor_periodic()" autorun="TRUE"/>
   <makefile>
     <file name="rpm_sensor.c"/>
 
