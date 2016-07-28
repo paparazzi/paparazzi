@@ -1,0 +1,26 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="flight_logger" dir="loggers">
+  <doc>
+    <description>
+      Send flight data over a dedicated serial link to either another flight computer (such as Gumstrix Overo or Intel Edison) which
+      saves the data on an SD card, or to a GCS (used for HITL simulation).
+    </description>
+    <configure name="FLIGHTLOGGER_PORT" value="uart1" description="UART to use"/>
+    <configure name="FLIGHTLOGGER_BAUD" value="B921600" description="UART baudrate"/>
+  </doc>
+  <header>
+    <file name="flight_logger.h"/>
+  </header>
+  <init fun="flight_logger_init()"/>
+  <periodic fun="flight_logger_periodic()" freq="PERIODIC_FREQUENCY" autorun="TRUE"/>
+  <makefile target="ap">
+     <configure name="FLIGHTLOGGER_PORT" default="uart1" case="upper|lower"/>
+     <configure name="FLIGHTLOGGER_BAUD" default="B921600"/>
+    <define name="USE_$(FLIGHTLOGGER_PORT_UPPER)"/>
+    <define name="FLIGHTLOGGER_PORT" value="$(FLIGHTLOGGER_PORT_LOWER)"/>
+    <define name="$(FLIGHTLOGGER_PORT_UPPER)_BAUD" value="$(FLIGHTLOGGER_BAUD)"/>
+    <file name="flight_logger.c"/>
+  </makefile>
+</module>
+
