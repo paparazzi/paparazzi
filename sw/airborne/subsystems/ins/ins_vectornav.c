@@ -27,6 +27,7 @@
  * @author Michal Podhradsky <michal.podhradsky@aggiemail.usu.edu>
  */
 #include "subsystems/ins/ins_vectornav.h"
+#include "math/pprz_geodetic_wgs84.h"
 
 struct InsVectornav ins_vn;
 
@@ -59,16 +60,33 @@ static void send_ins_ref(struct transport_tx *trans, struct link_device *dev)
 
 static void send_vn_info(struct transport_tx *trans, struct link_device *dev)
 {
+  // we want at least 75% of periodic frequency to be able to control the airfcraft
+  if (ins_vn.vn_freq < (PERIODIC_FREQUENCY*0.75)) {
+    gps.fix = GPS_FIX_NONE;
+  }
+
+  static uint16_t last_cnt = 0;
+  static uint16_t sec_cnt = 0;
+
+  sec_cnt = ins_vn.vn_packet.counter -  last_cnt;
+  ins_vn.vn_freq = sec_cnt; // update frequency counter
+
   pprz_msg_send_VECTORNAV_INFO(trans, dev, AC_ID,
                                &ins_vn.timestamp,
                                &ins_vn.vn_packet.chksm_error,
                                &ins_vn.vn_packet.hdr_error,
-                               &ins_vn.vn_packet.counter,
+                               &sec_cnt,
                                &ins_vn.mode,
                                &ins_vn.err,
                                &ins_vn.ypr_u.phi,
                                &ins_vn.ypr_u.theta,
                                &ins_vn.ypr_u.psi);
+
+  // update counter
+  last_cnt = ins_vn.vn_packet.counter;
+
+  // reset mode
+  ins_vn.mode = 0;
 }
 
 static void send_accel(struct transport_tx *trans, struct link_device *dev)
@@ -125,6 +143,7 @@ void ins_vectornav_init(void)
   // Initialize variables
   ins_vn.vn_status = VNNotTracking;
   ins_vn.vn_time = get_sys_time_float();
+  ins_vn.vn_freq = 0;
 
   // Initialize packet
   ins_vn.vn_packet.status = VNMsgSync;
@@ -390,7 +409,9 @@ void ins_vectornav_propagate()
 
   // Because we have not HMSL data from Vectornav, we are using LLA-Altitude
   // as a workaround
-  gps.hmsl = (uint32_t)(gps.lla_pos.alt);
+  float geoid_h = wgs84_ellipsoid_to_geoid_f(ins_vn.lla_pos.lat, ins_vn.lla_pos.lon);
+  gps.hmsl =  (int32_t)((ins_vn.lla_pos.alt - geoid_h)* 1000.0f);
+  SetBit(gps.valid_fields, GPS_VALID_HMSL_BIT);
 
   // set position uncertainty
   ins_vectornav_set_pacc();
