@@ -151,6 +151,7 @@ static void intermcu_parse_msg(void (*commands_frame_handler)(void))
       commands_frame_handler();
       break;
     }
+#if defined(TELEMETRY_INTERMCU_DEV)
     case DL_IMCU_TELEMETRY: {
       uint8_t id = DL_IMCU_TELEMETRY_msg_id(imcu_msg_buf);
       uint8_t size = DL_IMCU_TELEMETRY_msg_length(imcu_msg_buf);
@@ -158,7 +159,7 @@ static void intermcu_parse_msg(void (*commands_frame_handler)(void))
       telemetry_intermcu_on_msg(id, msg, size);
       break;
     }
-
+#endif
 #if defined(SPEKTRUM_HAS_SOFT_BIND_PIN) //TODO: make subscribable module parser
     case DL_IMCU_SPEKTRUM_SOFT_BIND:
       received_spektrum_soft_bind();
