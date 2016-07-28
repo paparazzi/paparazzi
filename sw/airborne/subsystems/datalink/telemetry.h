@@ -30,7 +30,7 @@
  * In order to use it a subsystem/module:
  * - include this header:
  *    @code
- *    #include "susystems/datalink/telemetry.h"
+ *    #include "subsystems/datalink/telemetry.h"
  *    @endcode
  * - write a callback function:
  *    @code
