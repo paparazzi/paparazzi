@@ -44,6 +44,9 @@ type speed =
   | B57600
   | B115200
   | B230400
+  | B921600
+  | B1500000
+  | B3000000
 
 val speed_of_baudrate : string -> speed
 

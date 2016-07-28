@@ -45,6 +45,9 @@ type speed =
   | B57600
   | B115200
   | B230400
+  | B921600
+  | B1500000
+  | B3000000
 
 let speed_of_baudrate = fun baudrate ->
   match baudrate with
@@ -67,6 +70,9 @@ let speed_of_baudrate = fun baudrate ->
     | "57600" -> B57600
     | "115200" -> B115200
     | "230400" -> B230400
+    | "921600" -> B921600
+    | "1500000" -> B1500000
+    | "3000000" -> B3000000
     | _ -> invalid_arg "Serial.speed_of_baudrate"
 
 
