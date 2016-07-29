@@ -139,6 +139,10 @@ static void on_DL_SETTING(IvyClientPtr app __attribute__((unused)),
   DlSetting(index, value);
   DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &index, &value);
   printf("setting %d %f\n", index, value);
+
+  if (index==8){ // TODO: match with the proper name (launch)
+    autopilot.launch = value; // TODO: use only if using HITL
+  }
 }
 
 void nps_ivy_display(void)
