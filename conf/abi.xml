@@ -84,6 +84,10 @@
       <field name="eas" type="float" unit="m/s"/>
     </message>
 
+    <message name="RPM" id="15">
+      <field name="rpm" type="uint16_t" unit="rpm"/>
+    </message>
+
   </msg_class>
 
 </protocol>
