@@ -35,6 +35,14 @@
 #include <unistd.h>
 #include <sys/time.h>
 
+#include "paparazzi.h"
+#include "pprzlink/messages.h"
+#include "pprzlink/dl_protocol.h"
+#include "pprzlink/pprz_transport.h"
+/* Message id helpers */
+#define SenderIdOfPprzMsg(x) (x[0])
+#define IdOfPprzMsg(x) (x[1])
+
 #include "nps_main.h"
 #include "nps_fdm.h"
 #include "nps_sensors.h"
@@ -82,10 +90,11 @@ GThread *th_ins_data;
 GThread *th_ap_data;
 
 GMutex fdm_mutex;
+GMutex ins_mutex;
 GCond fdm_cond;
+GCond ins_cond;
 
 int pauseSignal = 0;
-
 
 /*
  * Vectornav info
@@ -248,8 +257,7 @@ static gpointer nps_ins_data_loop(gpointer data __attribute__((unused)))
   while (TRUE)
   {
     g_mutex_lock(&fdm_mutex);
-    end_time = g_get_monotonic_time () + (1./CONTROL_FREQUENCY) * G_TIME_SPAN_MILLISECOND;
-    g_cond_wait_until (&fdm_cond, &fdm_mutex, end_time);
+    end_time = g_get_monotonic_time () + (1./100.) * G_TIME_SPAN_MILLISECOND;
 
     // fetch data
     // Timestamp
@@ -317,6 +325,8 @@ static gpointer nps_ins_data_loop(gpointer data __attribute__((unused)))
     // unlock mutex
     g_mutex_unlock(&fdm_mutex);
 
+    // lock ins mutex
+    g_mutex_lock(&ins_mutex);
     // send ins data here
     static uint16_t idx;
 
@@ -411,6 +421,11 @@ static gpointer nps_ins_data_loop(gpointer data __attribute__((unused)))
     }
 
     tcdrain(fd); // delay for output
+
+    // TODO: this doesn't seem to be waiting long enough, I have a constant rate of about 240 packets/second
+    // no matter what...
+    g_cond_wait_until (&ins_cond, &ins_mutex, end_time);
+    g_mutex_unlock (&ins_mutex);
   }
 
   return(NULL);
@@ -427,6 +442,7 @@ static gpointer nps_ap_data_loop(gpointer data __attribute__((unused)))
     return(NULL);
   }
 
+  // TODO replace with normal serial port?
   struct termios new_settings;
   tcgetattr(fd, &new_settings);
   memset(&new_settings, 0, sizeof(new_settings));
@@ -439,8 +455,12 @@ static gpointer nps_ap_data_loop(gpointer data __attribute__((unused)))
   cfsetospeed(&new_settings, (speed_t)AP_BAUD);
   tcsetattr(fd, TCSANOW, &new_settings);
 
-  static int rdlen;
+  int rdlen;
   uint8_t buf[90];
+
+  //bool dl_msg_available = FALSE;
+  struct pprz_transport pprz_tp_logger;
+
 
 
 
@@ -449,8 +469,73 @@ static gpointer nps_ap_data_loop(gpointer data __attribute__((unused)))
     // receive and update the ap commands
     rdlen = read(fd, buf, sizeof(buf) - 1);
 
-    // process readings
+    for(int i=0;i<rdlen;i++){
+      // parse
+      parse_pprz(&pprz_tp_logger, buf[i]);
 
+      // if msg_available read
+      if (pprz_tp_logger.trans_rx.msg_received) {
+        for (i = 0; i < pprz_tp_logger.trans_rx.payload_len; i++) {
+          buf[i] = pprz_tp_logger.trans_rx.payload[i];
+        }
+        //Parse message;
+        //uint8_t sender_id = SenderIdOfPprzMsg(buf); // TODO: check sender ID
+        uint8_t msg_id = IdOfPprzMsg(buf);
+        //printf("Received message, sender_id=%u, msg_id=%u\n",sender_id,msg_id);
+
+        uint8_t cmd_len;
+        int16_t cmd_buf[5]; // TODO: replace with varible number of commands
+        /*
+        int16_t cmd_throttle;
+        int16_t cmd_roll;
+        int16_t cmd_pitch;
+        int16_t cmd_yaw;
+        int16_t cmd_flap;
+        */
+
+
+        // process readings
+        switch(msg_id){
+          case DL_COMMANDS:
+            // parse commands message
+            cmd_len = DL_COMMANDS_values_length(buf);
+            //printf("Commands legth: %u\n",cmd_len);
+
+            memcpy(&cmd_buf, DL_COMMANDS_values(buf), cmd_len*sizeof(int16_t));
+
+            // display commands
+            /*
+            cmd_throttle = cmd_buf[0];
+            cmd_roll = cmd_buf[1];
+            cmd_pitch = cmd_buf[2];
+            cmd_yaw = cmd_buf[3];
+            cmd_flap = cmd_buf[4];
+            */
+
+            /*
+            printf("cmd_throttle = %d\n",cmd_throttle);
+            printf("cmd_roll = %d\n",cmd_roll);
+            printf("cmd_pitch = %d\n",cmd_pitch);
+            printf("cmd_yaw = %d\n",cmd_yaw);
+            printf("cmd_flap = %d\n",cmd_flap);
+            */
+
+            g_mutex_lock(&fdm_mutex);
+            // update commands
+            for (uint8_t i = 0; i < NPS_COMMANDS_NB; i++) {
+              autopilot.commands[i] = (double)cmd_buf[i] / MAX_PPRZ;
+            }
+            // hack: invert pitch to fit most JSBSim models
+            autopilot.commands[COMMAND_PITCH] = -(double)cmd_buf[COMMAND_PITCH] / MAX_PPRZ;
+
+            g_mutex_unlock(&fdm_mutex);
+            break;
+          default:
+            break;
+        }
+        pprz_tp_logger.trans_rx.msg_received = false;
+      }
+    }
   }
 
   return(NULL);
