@@ -77,7 +77,6 @@ void throttle_curve_init(void)
   throttle_curve.rpm_fb_i = THROTTLE_CURVE_RPM_FB_I;
   throttle_curve.rpm_err_sum = 0;
   throttle_curve.rpm_measured = false;
-  throttle_curve.throttle_trim = 0;
 
   AbiBindMsgRPM(THROTTLE_CURVE_RPM_ID, &rpm_ev, rpm_cb);
 
@@ -131,13 +130,6 @@ void throttle_curve_run(pprz_t cmds[], uint8_t ap_mode)
                             + ((curve.rpm[curve_p + 1] - curve.rpm[curve_p]) * x / curve_range);
     else
       throttle_curve.rpm = 0xFFFF;
-  }
-
-  // Trim in curve 3 hack
-  if(throttle_curve.mode == 2) {
-    int32_t trimmed_throttle = throttle_curve.throttle + throttle_curve.throttle_trim;
-    Bound(trimmed_throttle, 0, MAX_PPRZ);
-    throttle_curve.throttle = trimmed_throttle;
   }
 
   // Update RPM feedback
