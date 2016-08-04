@@ -221,5 +221,4 @@ fbw.srcs 		+= $(ns_srcs)
 ##
 include $(CFG_SHARED)/nps.makefile
 nps.srcs += nps/nps_autopilot_rotorcraft.c
-nps.srcs += $(SRC_FIRMWARE)/rotorcraft_telemetry.c
-nps.srcs += subsystems/datalink/datalink.c $(SRC_FIRMWARE)/rotorcraft_datalink.c
+
