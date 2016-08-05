@@ -35,8 +35,6 @@
 #include <caml/alloc.h>
 #include <caml/memory.h>
 
-#include <stropts.h>
-
 static int baudrates[] = {
     B0,
     B50,
