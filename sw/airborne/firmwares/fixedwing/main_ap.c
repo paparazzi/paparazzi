@@ -701,8 +701,7 @@ void event_task_ap(void)
   BaroEvent();
 #endif
 
-  DatalinkEvent();
-
+  modules_event_task();
 
 #if defined MCU_SPI_LINK || defined MCU_UART_LINK
   link_mcu_event_task();
@@ -713,8 +712,6 @@ void event_task_ap(void)
     inter_mcu_received_fbw = false;
     telecommand_task();
   }
-
-  modules_event_task();
 
 #ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
   if (new_ins_attitude > 0) {

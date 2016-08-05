@@ -16,7 +16,12 @@
     <define name="W5100_DRDY_GPIO" value="GPIOX" description="GPIO port used for data ready pin"/>
     <define name="W5100_DRDY_GPIO_PIN" value="GPIOY" description="GPIO pin number used for data ready pin"/>
   </doc>
-  <header/>
+  <autoload name="telemetry" type="sim"/>
+  <header>
+    <file name="w5100.h" dir="subsystems/datalink"/>
+  </header>
+  <init fun="w5100_init()"/>
+  <event fun="w5100_event()"/>
   <makefile target="!fbw|sim">
     <configure name="W5100_SPI_DEV" default="SPI1" case="upper|lower"/>
     <configure name="W5100_SLAVE_IDX" default="1"/>

@@ -26,6 +26,7 @@
 
 
 #define DATALINK_C
+#define MODULES_C
 
 /* PERIODIC_C_MAIN is defined before generated/periodic_telemetry.h
  * in order to implement telemetry_mode_Main_*
@@ -39,6 +40,7 @@
 
 #include "generated/airframe.h"
 #include "generated/settings.h"
+#include "generated/modules.h"
 
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/datalink/downlink.h"
@@ -72,12 +74,14 @@ static inline void main_init(void)
   mcu_init();
   sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
   downlink_init();
+  modules_init();
   ActuatorsPwmInit();
 }
 
 static inline void main_periodic(void)
 {
   ActuatorsPwmCommit();
+  modules_periodic_task();
 
   LED_PERIODIC();
   RunOnceEvery(100, {DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice,  16, MD5SUM);});
@@ -85,7 +89,7 @@ static inline void main_periodic(void)
 
 static inline void main_event(void)
 {
-  DatalinkEvent();
+  modules_event_task();
 }
 
 

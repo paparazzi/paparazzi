@@ -69,6 +69,9 @@ PRINT_CONFIG_VAR(SUPERBITRF_FORCE_DSM2)
 /* The superbitRF structure */
 struct SuperbitRF superbitrf;
 
+/* The pprz transport structure */
+struct pprz_transport pprz_srf_tp;
+
 /* The internal functions */
 static inline void superbitrf_radio_to_channels(uint8_t *data, uint8_t nb_channels, bool is_11bit, int16_t *channels);
 static inline void superbitrf_receive_packet_cb(bool error, uint8_t status, uint8_t packet[]);
@@ -269,6 +272,24 @@ void superbitrf_init(void)
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_SUPERBITRF, send_superbit);
 #endif
+}
+
+/**
+ * Initialize datalink part
+ */
+void superbitrf_dl_init(void)
+{
+  // Init pprz transport
+  pprz_transport_init(&pprz_srf_tp);
+}
+
+/**
+ * The superbitrf datalink event call
+ */
+void superbitrf_dl_event(void)
+{
+  SuperbitRFCheckAndParse();
+  DlCheckAndParse();
 }
 
 void superbitrf_set_mfg_id(uint32_t id)

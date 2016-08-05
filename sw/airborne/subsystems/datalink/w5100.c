@@ -86,6 +86,7 @@
 #define W5100_DRDY_GPIO_PIN GPIO1
 #endif
 
+struct pprz_w5100_tp;
 struct w5100_periph chip0;
 uint8_t ck_a, ck_b;
 uint8_t w5100_rx_buf[W5100_RX_BUFFER_SIZE];
@@ -257,6 +258,9 @@ void w5100_init(void)
   chip0.device.send_message = (send_message_t) dev_send;
   chip0.device.char_available = (char_available_t) dev_char_available;
   chip0.device.get_byte = (get_byte_t) dev_getch;
+
+  // Init PPRZ transport
+  pprz_transport_init(&pprz_w5100_tp);
 }
 
 void w5100_transmit(uint8_t data)

@@ -26,6 +26,7 @@
  */
 
 #define DATALINK_C
+#define MODULES_C
 
 #include BOARD_CONFIG
 
@@ -36,6 +37,7 @@
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/settings.h"
 #include "generated/settings.h"
+#include "generated/modules.h"
 
 #if USE_UDP
 #include "mcu_periph/udp.h"
@@ -69,6 +71,7 @@ static inline void main_init(void)
   mcu_init();
   sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
   settings_init();
+  modules_init();
 
   mcu_int_enable();
 
@@ -79,6 +82,7 @@ static inline void main_init(void)
 
 static inline void main_periodic(void)
 {
+  modules_periodic_task();
   RunOnceEvery(100, {
     DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
     PeriodicSendDlValue(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
@@ -89,7 +93,7 @@ static inline void main_periodic(void)
 static inline void main_event(void)
 {
   mcu_event();
-  DatalinkEvent();
+  modules_event_task();
 }
 
 void dl_parse_msg(void)

@@ -9,7 +9,6 @@
       <define name="USE_SONAR"/>
       <define name="USE_BARO_MEDIAN_FILTER"/>
       <define name="AUTOPILOT_DISABLE_AHRS_KILL"/>
-      <module name="telemetry" type="transparent_udp"/>
       <module name="radio_control" type="datalink"/>
     </target>
 
@@ -18,6 +17,7 @@
       <module name="radio_control" type="ppm"/>
     </target>
 
+    <module name="telemetry" type="transparent_udp"/>
 	<!-- Subsystem section -->
     <module name="motor_mixing"/>
     <module name="actuators" type="ardrone2"/>

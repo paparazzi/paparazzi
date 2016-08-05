@@ -1,16 +1,18 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="telemetry_ivy" dir="datalink">
+<module name="telemetry_sim" dir="datalink">
   <doc>
     <description>
-      Telemetry using IVY
+      Telemetry using IVY for basic FW simulator
+
+      only a copy of telemetry ivy limited to sim target for now
     </description>
   </doc>
   <header>
     <file name="ivy_dl.h"/>
   </header>
   <init fun="ivy_dl_init()"/>
-  <makefile>
+  <makefile target="sim">
     <define name="DOWNLINK"/>
     <define name="PERIODIC_TELEMETRY"/>
     <define name="DOWNLINK_DEVICE" value="ivy_tp"/>

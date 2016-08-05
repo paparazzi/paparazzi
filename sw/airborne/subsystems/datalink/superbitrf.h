@@ -30,8 +30,8 @@
 #include "mcu_periph/gpio.h"
 #include "peripherals/cyrf6936.h"
 #include "pprzlink/pprzlink_device.h"
-#include "subsystems/datalink/datalink.h"
 #include "pprzlink/pprz_transport.h"
+#include "subsystems/datalink/datalink.h"
 
 /* The timings in microseconds */
 #define SUPERBITRF_BIND_RECV_TIME       10000       /**< The time to wait for a bind packet on a channel in microseconds */
@@ -122,8 +122,13 @@ struct SuperbitRF {
 extern struct SuperbitRF superbitrf;
 extern void superbitrf_init(void);
 extern void superbitrf_event(void);
+extern void superbitrf_dl_init(void);
+extern void superbitrf_dl_event(void);
 extern void superbitrf_set_mfg_id(uint32_t id);
 extern void superbitrf_set_protocol(uint8_t protocol);
+
+/* The pprz transport structure */
+extern struct pprz_transport pprz_srf_tp;
 
 #define SuperbitRFCheckAndParse() { }
 

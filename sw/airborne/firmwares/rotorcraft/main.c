@@ -351,8 +351,6 @@ STATIC_INLINE void main_event(void)
   /* event functions for mcu peripherals: i2c, usb_serial.. */
   mcu_event();
 
-  DatalinkEvent();
-
   if (autopilot_rc) {
     RadioControlEvent(autopilot_on_rc_frame);
   }

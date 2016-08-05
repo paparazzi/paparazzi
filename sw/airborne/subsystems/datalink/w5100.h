@@ -29,6 +29,7 @@
 #define W5100_H
 
 #include "pprzlink/pprzlink_device.h"
+#include "pprzlink/pprz_transport.h"
 #include "subsystems/datalink/datalink.h"
 #include "generated/airframe.h"
 
@@ -64,6 +65,11 @@ extern uint8_t w5100_rx_buf[W5100_RX_BUFFER_SIZE];
 
 extern struct w5100_periph chip0;
 
+// W5100 is using pprz_transport
+// FIXME it should not appear here, this will be fixed with the rx improvements some day...
+// W5100 needs a specific read_buffer function
+extern struct pprz_w5100_tp;
+
 void w5100_init(void);
 void w5100_transmit(uint8_t data);
 void w5100_transmit_buffer(uint8_t *data, uint16_t len);
@@ -72,11 +78,6 @@ void w5100_send(void);
 uint16_t w5100_rx_size(uint8_t _s);
 bool w5100_ch_available(void);
 
-
-// W5100 is using pprz_transport
-// FIXME it should not appear here, this will be fixed with the rx improvements some day...
-// W5100 needs a specific read_buffer function
-#include "pprzlink/pprz_transport.h"
 
 static inline void w5100_read_buffer(struct pprz_transport *t)
 {
@@ -89,8 +90,6 @@ static inline void w5100_read_buffer(struct pprz_transport *t)
   }
 }
 
-#define W5100CheckAndParse(_dev, _trans) w5100_check_and_parse(&(_dev).device, &(_trans))
-
 static inline void w5100_check_and_parse(struct link_device *dev, struct pprz_transport *trans)
 {
   if (dev->char_available(dev->periph)) {
@@ -100,6 +99,12 @@ static inline void w5100_check_and_parse(struct link_device *dev, struct pprz_tr
       trans->trans_rx.msg_received = false;
     }
   }
+}
+
+static inline w5100_event(void)
+{
+  w5100_check_and_parse(&(W5100).device, &pprz_w5100_tp);
+  DlCheckAndParse();
 }
 
 #endif /* W5100_H */
