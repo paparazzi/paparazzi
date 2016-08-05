@@ -68,16 +68,12 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 #include "generated/flight_plan.h"
 
 // datalink & telemetry
-#if DATALINK || SITL
-#include "subsystems/datalink/datalink.h"
-#include "subsystems/datalink/downlink.h"
-#endif
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 #endif
-#include "subsystems/settings.h"
 
 // modules & settings
+#include "subsystems/settings.h"
 #include "generated/modules.h"
 #include "generated/settings.h"
 #if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
@@ -212,9 +208,6 @@ void init_ap(void)
 #if defined MCU_SPI_LINK || defined MCU_UART_LINK || defined MCU_CAN_LINK
   link_mcu_init();
 #endif
-#if USE_AUDIO_TELEMETRY
-  audio_telemetry_init();
-#endif
 
   /************ Internal status ***************/
   autopilot_init();
@@ -242,11 +235,6 @@ void init_ap(void)
 
 #if DOWNLINK
   downlink_init();
-#endif
-
-#if defined AEROCOMM_DATA_PIN
-  IO0DIR |= _BV(AEROCOMM_DATA_PIN);
-  IO0SET = _BV(AEROCOMM_DATA_PIN);
 #endif
 
   /* set initial trim values.

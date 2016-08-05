@@ -96,7 +96,4 @@ static inline void DlCheckAndParse(void)
   }
 }
 
-// Unknown DATALINK
-#define DatalinkEvent() {}
-
 #endif /* DATALINK_H */

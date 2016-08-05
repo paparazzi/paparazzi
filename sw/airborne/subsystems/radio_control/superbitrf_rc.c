@@ -31,14 +31,10 @@ INFO("Radio-Control now follows PPRZ sign convention: this means you might need 
 /**
  * Initialization
  */
-//#if DATALINK == SUPERBITRF
-//void radio_control_impl_init(void) {}
-//#else
 void radio_control_impl_init(void)
 {
   superbitrf_init();
 }
-//#endif
 
 /** normalize superbitrf rc_values to radio values */
 static void superbitrf_rc_normalize(int16_t *in, int16_t *out, uint8_t count)
