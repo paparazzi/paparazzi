@@ -26,8 +26,9 @@
 #include <string.h>
 #include <signal.h>
 
-#include <glib.h>
+//#include <glib.h>
 #include<pthread.h>
+#include <Ivy/ivyloop.h>
 
 #include <sys/time.h>
 #include <getopt.h>
@@ -77,28 +78,56 @@ static struct {
 static bool nps_main_parse_options(int argc, char **argv);
 static void nps_main_init(void);
 static void nps_main_run_sim_step(void);
-static gpointer nps_main_display(gpointer data __attribute__((unused)));
-static gboolean nps_main_periodic(gpointer data __attribute__((unused)));
-static gpointer nps_send_flight_gear(gpointer data __attribute__((unused)));
-static gpointer nps_main_loop(gpointer data __attribute__((unused)));
-static gpointer nps_ins_data_loop(gpointer data __attribute__((unused)));
-static gpointer nps_ap_data_loop(gpointer data __attribute__((unused)));
+
+//static gpointer nps_main_display(gpointer data __attribute__((unused)));
+void* nps_main_display(void* data __attribute__((unused)));
+
+//static gboolean nps_main_periodic(gpointer data __attribute__((unused)));
+void* nps_main_periodic(void* data __attribute__((unused)));
+
+//static gpointer nps_send_flight_gear(gpointer data __attribute__((unused)));
+void* nps_send_flight_gear(void* data __attribute__((unused)));
+
+//static gpointer nps_main_loop(gpointer data __attribute__((unused)));
+void* nps_main_loop(void* __attribute__((unused)));
+
+//static gpointer nps_ins_data_loop(gpointer data __attribute__((unused)));
+void* nps_ins_data_loop(void* data __attribute__((unused)));
 
 
-pthread_t t1,t2;
+//static gpointer nps_ap_data_loop(gpointer data __attribute__((unused)));
+void* nps_ap_data_loop(void* data __attribute__((unused)));
 
-GThread *th_flight_gear;
-GThread *th_display_ivy;
-GThread *th_main_loop;
 
-GThread *th_ins_data;
-GThread *th_ap_data;
 
+
+//GThread *th_flight_gear;
+pthread_t th_flight_gear;
+
+//GThread *th_display_ivy;
+pthread_t th_display_ivy;
+
+void* ivy_main_loop(void* data __attribute__((unused)));
+pthread_t th_ivy_main;
+
+//GThread *th_main_loop;
+pthread_t th_main_loop;
+
+//GThread *th_ins_data;
+pthread_t th_ins_data;
+
+//GThread *th_ap_data;
+pthread_t th_ap_data;
+
+/*
 GMutex main_thd_mutex;
 GMutex fdm_mutex;
 GMutex ins_mutex;
 GCond fdm_cond;
 GCond ins_cond;
+*/
+
+pthread_mutex_t lock;
 
 int pauseSignal = 0;
 
@@ -202,16 +231,32 @@ int main(int argc, char **argv)
   printf("Time factor is %f. (Press Ctrl-Z to change)\n", nps_main.host_time_factor);
 
 
-  th_flight_gear = g_thread_new ("fg_sender",nps_send_flight_gear, NULL);
-  th_display_ivy = g_thread_new ("ivy_sender",nps_main_display, NULL);
-  th_main_loop = g_thread_new ("fdm_loop",nps_main_loop, NULL);
-  th_ins_data = g_thread_new ("ins_loop",nps_ins_data_loop, NULL);
-  th_ap_data = g_thread_new ("ap_loop",nps_ap_data_loop, NULL);
+  //th_flight_gear = g_thread_new ("fg_sender",nps_send_flight_gear, NULL);
+  pthread_create(&th_flight_gear,NULL,nps_send_flight_gear,NULL);
+  //th_display_ivy = g_thread_new ("ivy_sender",nps_main_display, NULL);
+  pthread_create(&th_display_ivy,NULL,nps_main_display,NULL);
+  //th_main_loop = g_thread_new ("fdm_loop",nps_main_loop, NULL);
+  pthread_create(&th_main_loop,NULL,nps_main_loop,NULL);
+  //th_ins_data = g_thread_new ("ins_loop",nps_ins_data_loop, NULL);
+  pthread_create(&th_ins_data,NULL,nps_ins_data_loop,NULL);
+  //th_ap_data = g_thread_new ("ap_loop",nps_ap_data_loop, NULL);
+  pthread_create(&th_ap_data,NULL,nps_ap_data_loop,NULL);
 
-  GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
-  g_main_loop_run(ml);
+  //GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
+  //g_main_loop_run(ml);
+  pthread_create(&th_ivy_main, NULL, ivy_main_loop, NULL);
+  pthread_join(th_ivy_main, NULL);
+
+  //IvyMainLoop();
 
   return 0;
+}
+
+void* ivy_main_loop(void* data __attribute__((unused)))
+{
+  IvyMainLoop();
+
+  return NULL;
 }
 
 
@@ -236,7 +281,8 @@ static uint64_t vn_get_time_of_week(void){
 }
 
 
-static gpointer nps_ins_data_loop(gpointer data __attribute__((unused)))
+//static gpointer nps_ins_data_loop(gpointer data __attribute__((unused)))
+void* nps_ins_data_loop(void* data __attribute__((unused)))
 {
   // configure port
   int fd = open(INS_DEV, O_RDWR | O_NOCTTY);
@@ -258,12 +304,15 @@ static gpointer nps_ins_data_loop(gpointer data __attribute__((unused)))
   cfsetospeed(&new_settings, (speed_t)INS_BAUD);
   tcsetattr(fd, TCSANOW, &new_settings);
 
-  gint64 end_time;
+  //gint64 end_time;
+  struct timespec requestStart, requestEnd, waitFor;
 
   while (TRUE)
   {
-    g_mutex_lock(&fdm_mutex);
-    end_time = g_get_monotonic_time () + (1./100.) * G_TIME_SPAN_MILLISECOND;
+    //g_mutex_lock(&fdm_mutex);
+    pthread_mutex_lock(&lock);
+    //end_time = g_get_monotonic_time () + (1./100.) * G_TIME_SPAN_MILLISECOND;
+    clock_gettime(CLOCK_REALTIME, &requestStart);
 
     // fetch data
     // Timestamp
@@ -329,10 +378,11 @@ static gpointer nps_ins_data_loop(gpointer data __attribute__((unused)))
     vn_data.VelBody[2] = (float)fdm.body_accel.z;
 
     // unlock mutex
-    g_mutex_unlock(&fdm_mutex);
+    //g_mutex_unlock(&fdm_mutex);
+    pthread_mutex_unlock(&lock);
 
     // lock ins mutex
-    g_mutex_lock(&ins_mutex);
+    //g_mutex_lock(&ins_mutex);
     // send ins data here
     static uint16_t idx;
 
@@ -430,15 +480,34 @@ static gpointer nps_ins_data_loop(gpointer data __attribute__((unused)))
 
     // TODO: this doesn't seem to be waiting long enough, I have a constant rate of about 240 packets/second
     // no matter what...
-    g_cond_wait_until (&ins_cond, &ins_mutex, end_time);
-    g_mutex_unlock (&ins_mutex);
+    //g_cond_wait_until (&ins_cond, &ins_mutex, end_time);
+    //g_mutex_unlock (&ins_mutex);
+
+    clock_gettime(CLOCK_REALTIME, &requestEnd);
+
+    // Calculate time it took
+    //double accum = (requestEnd.tv_sec - requestStart.tv_sec) + (requestEnd.tv_nsec - requestStart.tv_nsec)/ 1E9;
+    long int accum_ns = (requestEnd.tv_sec - requestStart.tv_sec)*1000000000L + (requestEnd.tv_nsec - requestStart.tv_nsec);
+
+    if (accum_ns > 0) {
+      waitFor.tv_sec = 0;
+      waitFor.tv_nsec = (1./100.)*1000000000L - accum_ns;
+
+      //printf("INS THREAD: Worked for %f ms, waiting for another %f ms\n", (double)accum_ns/1E6, waitFor.tv_nsec/1E6);
+
+      nanosleep(&waitFor,NULL);
+    }
+    else {
+      printf("FG THREAD: took too long, exactly %f ms\n", (double)accum_ns/1E6);
+    }
   }
 
   return(NULL);
 }
 
 
-static gpointer nps_ap_data_loop(gpointer data __attribute__((unused)))
+//static gpointer nps_ap_data_loop(gpointer data __attribute__((unused)))
+void* nps_ap_data_loop(void* data __attribute__((unused)))
 {
   // configure port
   int fd = open(AP_DEV, O_RDWR | O_NOCTTY);
@@ -466,8 +535,6 @@ static gpointer nps_ap_data_loop(gpointer data __attribute__((unused)))
 
   //bool dl_msg_available = FALSE;
   struct pprz_transport pprz_tp_logger;
-
-
 
 
   while (TRUE)
@@ -526,14 +593,17 @@ static gpointer nps_ap_data_loop(gpointer data __attribute__((unused)))
             printf("cmd_flap = %d\n",cmd_flap);
             */
 
-            g_mutex_lock(&fdm_mutex);
+            //g_mutex_lock(&fdm_mutex);
+            pthread_mutex_lock(&lock);
             // update commands
             for (uint8_t i = 0; i < NPS_COMMANDS_NB; i++) {
               autopilot.commands[i] = (double)cmd_buf[i] / MAX_PPRZ;
             }
             // hack: invert pitch to fit most JSBSim models
             autopilot.commands[COMMAND_PITCH] = -(double)cmd_buf[COMMAND_PITCH] / MAX_PPRZ;
-            g_mutex_unlock(&fdm_mutex);
+            //g_mutex_unlock(&fdm_mutex);
+            pthread_mutex_unlock(&lock);
+
             break;
           default:
             break;
@@ -548,8 +618,10 @@ static gpointer nps_ap_data_loop(gpointer data __attribute__((unused)))
 
 
 
-static gpointer nps_main_loop(gpointer data __attribute__((unused)))
+//static gpointer nps_main_loop(gpointer data __attribute__((unused)))
+void* nps_main_loop(void* data __attribute__((unused)))
 {
+  /*
   gint64 end_time;
   gpointer dummy = NULL;
 
@@ -563,6 +635,40 @@ static gpointer nps_main_loop(gpointer data __attribute__((unused)))
     nps_main_periodic(dummy);
 
     g_mutex_unlock(&main_thd_mutex);
+  }
+  */
+
+  struct timespec requestStart, requestEnd, waitFor;
+
+  while (TRUE)
+  {
+    //g_mutex_lock(&fdm_mutex);
+
+    //end_time = g_get_monotonic_time () + (1./100.) * G_TIME_SPAN_MILLISECOND;
+    clock_gettime(CLOCK_REALTIME, &requestStart);
+
+    pthread_mutex_lock(&lock);
+    nps_main_run_sim_step();
+    pthread_mutex_unlock(&lock);
+
+    clock_gettime(CLOCK_REALTIME, &requestEnd);
+
+    // Calculate time it took
+    //double accum = (requestEnd.tv_sec - requestStart.tv_sec) + (requestEnd.tv_nsec - requestStart.tv_nsec)/ 1E9;
+    long int accum_ns = (requestEnd.tv_sec - requestStart.tv_sec)*1000000000L + (requestEnd.tv_nsec - requestStart.tv_nsec);
+
+    if (accum_ns > 0) {
+      waitFor.tv_sec = 0;
+      waitFor.tv_nsec = SIM_DT*1000000000L - accum_ns;
+
+      //printf("MAIN THREAD: Worked for %f ms, waiting for another %f ms\n", (double)accum_ns/1E6, waitFor.tv_nsec/1E6);
+
+      nanosleep(&waitFor,NULL);
+    }
+    else {
+      printf("MAIN THREAD: took too long, exactly %f ms\n", (double)accum_ns/1E6);
+    }
+
   }
 
   return(NULL);
@@ -603,20 +709,28 @@ static void nps_main_init(void)
 }
 
 
-static gpointer nps_send_flight_gear(gpointer data __attribute__((unused)))
+//static gpointer nps_send_flight_gear(gpointer data __attribute__((unused)))
+void* nps_send_flight_gear(void* data __attribute__((unused)))
 {
-  gint64 end_time;
+  //gint64 end_time;
+  struct timespec requestStart, requestEnd, waitFor;
 
   if (nps_main.fg_host)
     nps_flightgear_init(nps_main.fg_host, nps_main.fg_port, nps_main.fg_port_in, nps_main.fg_time_offset);
 
   while(TRUE)
   {
-    g_mutex_lock (&fdm_mutex);
-    end_time = g_get_monotonic_time () + DISPLAY_DT * G_TIME_SPAN_SECOND;
-    g_cond_wait_until (&fdm_cond, &fdm_mutex, end_time);
-    g_mutex_unlock (&fdm_mutex);
+    //gettimeofday(&curTime, NULL);
+    clock_gettime(CLOCK_REALTIME, &requestStart);
 
+    // TODO: increment clock value by PERIOD
+
+    //g_mutex_lock (&fdm_mutex);
+    //end_time = g_get_monotonic_time () + DISPLAY_DT * G_TIME_SPAN_SECOND;
+    //g_cond_wait_until (&fdm_cond, &fdm_mutex, end_time);
+    //g_mutex_unlock (&fdm_mutex);
+
+    pthread_mutex_lock(&lock);
     if (nps_main.fg_host) {
       if (nps_main.fg_fdm) {
         nps_flightgear_send_fdm();
@@ -625,6 +739,26 @@ static gpointer nps_send_flight_gear(gpointer data __attribute__((unused)))
       }
     }
     nps_flightgear_receive();
+    pthread_mutex_unlock(&lock);
+
+    clock_gettime(CLOCK_REALTIME, &requestEnd);
+
+    // Calculate time it took
+    //double accum = (requestEnd.tv_sec - requestStart.tv_sec) + (requestEnd.tv_nsec - requestStart.tv_nsec)/ 1E9;
+    long int accum_ns = (requestEnd.tv_sec - requestStart.tv_sec)*1000000000L + (requestEnd.tv_nsec - requestStart.tv_nsec);
+
+    if (accum_ns > 0) {
+      waitFor.tv_sec = 0;
+      waitFor.tv_nsec = DISPLAY_DT*1000000000L - accum_ns;
+
+      //printf("FG THREAD: Worked for %f ms, waiting for another %f ms\n", (double)accum_ns/1E6, waitFor.tv_nsec/1E6);
+
+      nanosleep(&waitFor,NULL);
+    }
+    else {
+      printf("FG THREAD: took too long, exactly %f ms\n", (double)accum_ns/1E6);
+    }
+
 
   }
 
@@ -639,19 +773,42 @@ static void nps_main_run_sim_step(void)
 }
 
 
-static gpointer nps_main_display(gpointer data __attribute__((unused)))
+//static gpointer nps_main_display(gpointer data __attribute__((unused)))
+void* nps_main_display(void* data __attribute__((unused)))
 {
+  struct timespec requestStart, requestEnd, waitFor;
+
   nps_ivy_init(nps_main.ivy_bus);
 
-  gint64 end_time;
+  //gint64 end_time;
   while(TRUE)
   {
-    g_mutex_lock (&fdm_mutex);
-    end_time = g_get_monotonic_time () + DISPLAY_DT * G_TIME_SPAN_SECOND;
-    g_cond_wait_until (&fdm_cond, &fdm_mutex, end_time);
-    g_mutex_unlock (&fdm_mutex);
+    //g_mutex_lock (&fdm_mutex);
+    //end_time = g_get_monotonic_time () + DISPLAY_DT * G_TIME_SPAN_SECOND;
+    //g_cond_wait_until (&fdm_cond, &fdm_mutex, end_time);
+    //g_mutex_unlock (&fdm_mutex);
+
+    clock_gettime(CLOCK_REALTIME, &requestStart);
+
     nps_ivy_display();
     nps_main.display_time += DISPLAY_DT;
+
+    clock_gettime(CLOCK_REALTIME, &requestEnd);
+
+    long int accum_ns = (requestEnd.tv_sec - requestStart.tv_sec)*1000000000L + (requestEnd.tv_nsec - requestStart.tv_nsec);
+
+    if (accum_ns > 0) {
+      waitFor.tv_sec = 0;
+      waitFor.tv_nsec = DISPLAY_DT*1000000000L - accum_ns;
+
+      //printf("FG THREAD: Worked for %f ms, waiting for another %f ms\n", (double)accum_ns/1E6, waitFor.tv_nsec/1E6);
+
+      nanosleep(&waitFor,NULL);
+    }
+    else {
+      printf("IVY THREAD: took too long, exactly %f ms\n", (double)accum_ns/1E6);
+    }
+
   }
   return(NULL);
 }
@@ -685,7 +842,8 @@ void nps_set_time_factor(float time_factor)
 }
 
 
-static gboolean nps_main_periodic(gpointer data __attribute__((unused)))
+//static gboolean nps_main_periodic(gpointer data __attribute__((unused)))
+void* nps_main_periodic(void* data __attribute__((unused)))
 {
   struct timeval tv_now;
   double  host_time_now;
@@ -734,10 +892,12 @@ static gboolean nps_main_periodic(gpointer data __attribute__((unused)))
   static int prev_cnt = 0;
   static int grow_cnt = 0;
   while (nps_main.sim_time <= host_time_elapsed) {
-    g_mutex_lock (&fdm_mutex);
+    //g_mutex_lock (&fdm_mutex);
+    pthread_mutex_lock(&lock);
     nps_main_run_sim_step();
     nps_main.sim_time += SIM_DT;
-    g_mutex_unlock(&fdm_mutex);
+    //g_mutex_unlock(&fdm_mutex);
+    pthread_mutex_unlock(&lock);
     cnt++;
   }
 
@@ -755,7 +915,7 @@ static gboolean nps_main_periodic(gpointer data __attribute__((unused)))
   printf("%f,%f\n", nps_main.sim_time, nps_main.display_time);
 #endif
 
-  return TRUE;
+  return NULL;
 }
 
 
