@@ -25,7 +25,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
+
 #include <glib.h>
+#include<pthread.h>
+
 #include <sys/time.h>
 #include <getopt.h>
 
@@ -82,6 +85,8 @@ static gpointer nps_ins_data_loop(gpointer data __attribute__((unused)));
 static gpointer nps_ap_data_loop(gpointer data __attribute__((unused)));
 
 
+pthread_t t1,t2;
+
 GThread *th_flight_gear;
 GThread *th_display_ivy;
 GThread *th_main_loop;
@@ -89,6 +94,7 @@ GThread *th_main_loop;
 GThread *th_ins_data;
 GThread *th_ap_data;
 
+GMutex main_thd_mutex;
 GMutex fdm_mutex;
 GMutex ins_mutex;
 GCond fdm_cond;
@@ -527,7 +533,6 @@ static gpointer nps_ap_data_loop(gpointer data __attribute__((unused)))
             }
             // hack: invert pitch to fit most JSBSim models
             autopilot.commands[COMMAND_PITCH] = -(double)cmd_buf[COMMAND_PITCH] / MAX_PPRZ;
-
             g_mutex_unlock(&fdm_mutex);
             break;
           default:
@@ -550,14 +555,14 @@ static gpointer nps_main_loop(gpointer data __attribute__((unused)))
 
   while(TRUE)
   {
-    g_mutex_lock(&fdm_mutex);
+    g_mutex_lock(&main_thd_mutex);
     end_time = g_get_monotonic_time () + SIM_DT * G_TIME_SPAN_MILLISECOND;
 
-    g_cond_wait_until (&fdm_cond, &fdm_mutex, end_time);
+    g_cond_wait_until (&fdm_cond, &main_thd_mutex, end_time);
 
     nps_main_periodic(dummy);
 
-    g_mutex_unlock(&fdm_mutex);
+    g_mutex_unlock(&main_thd_mutex);
   }
 
   return(NULL);
@@ -610,6 +615,7 @@ static gpointer nps_send_flight_gear(gpointer data __attribute__((unused)))
     g_mutex_lock (&fdm_mutex);
     end_time = g_get_monotonic_time () + DISPLAY_DT * G_TIME_SPAN_SECOND;
     g_cond_wait_until (&fdm_cond, &fdm_mutex, end_time);
+    g_mutex_unlock (&fdm_mutex);
 
     if (nps_main.fg_host) {
       if (nps_main.fg_fdm) {
@@ -619,7 +625,7 @@ static gpointer nps_send_flight_gear(gpointer data __attribute__((unused)))
       }
     }
     nps_flightgear_receive();
-    g_mutex_unlock (&fdm_mutex);
+
   }
 
   return(NULL);
@@ -643,9 +649,9 @@ static gpointer nps_main_display(gpointer data __attribute__((unused)))
     g_mutex_lock (&fdm_mutex);
     end_time = g_get_monotonic_time () + DISPLAY_DT * G_TIME_SPAN_SECOND;
     g_cond_wait_until (&fdm_cond, &fdm_mutex, end_time);
+    g_mutex_unlock (&fdm_mutex);
     nps_ivy_display();
     nps_main.display_time += DISPLAY_DT;
-    g_mutex_unlock (&fdm_mutex);
   }
   return(NULL);
 }
@@ -728,8 +734,10 @@ static gboolean nps_main_periodic(gpointer data __attribute__((unused)))
   static int prev_cnt = 0;
   static int grow_cnt = 0;
   while (nps_main.sim_time <= host_time_elapsed) {
+    g_mutex_lock (&fdm_mutex);
     nps_main_run_sim_step();
     nps_main.sim_time += SIM_DT;
+    g_mutex_unlock(&fdm_mutex);
     cnt++;
   }
 
