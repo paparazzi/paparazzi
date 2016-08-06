@@ -27,9 +27,6 @@
     <program name="Simulator" command="sw/simulator/pprzsim-launch">
       <arg flag="-a" constant="@AIRCRAFT"/>
     </program>
-    <program name="SimulatorHitl" command="sw/simulator/pprzhitl-launch">
-      <arg flag="-a" constant="@AIRCRAFT"/>
-    </program>
     <program name="Video Synchronizer" command="sw/ground_segment/misc/video_synchronizer"/>
     <program name="Joystick" command="sw/ground_segment/joystick/input2ivy">
       <arg flag="-ac" constant="@AIRCRAFT"/>
@@ -101,6 +98,9 @@
      <program name="Messages"/>
      <program name="Simulator">
       <arg flag="-a" constant="@AIRCRAFT"/>
+      <arg flag="-f" constant="127.0.0.1"/>
+      <arg flag="-b" constant="127.255.255.255"/>
+      <arg flag="--fg_fdm" constant=""/>
      </program>
    </session>
 
@@ -114,8 +114,11 @@
      </program>
      <program name="GCS"/>
      <program name="Messages"/>
-     <program name="SimulatorHitl">
+     <program name="Simulator">
       <arg flag="-a" constant="@AIRCRAFT"/>
+      <arg flag="-f" constant="127.0.0.1"/>
+      <arg flag="-b" constant="127.255.255.255"/>
+      <arg flag="--fg_fdm" constant=""/>
      </program>
      <program name="Sbus Fakerator">
        <arg flag="-p" constant="/dev/ttyUSB3"/>

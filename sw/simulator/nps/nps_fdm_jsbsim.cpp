@@ -124,6 +124,7 @@
  * Around 1/10000 seems to be good for ground impacts
  */
 #define MIN_DT (1.0/10240.0)
+//#define MIN_DT (1.0/1000.0)
 
 using namespace JSBSim;
 using namespace std;

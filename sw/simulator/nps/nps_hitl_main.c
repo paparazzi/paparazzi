@@ -211,6 +211,11 @@ double time_to_double(struct timeval *t)
   return ((double)t->tv_sec + (double)(t->tv_usec * 1e-6));
 }
 
+double ntime_to_double(struct timespec *t)
+{
+  return ((double)t->tv_sec + (double)(t->tv_nsec * 1e-9));
+}
+
 
 int main(int argc, char **argv)
 {
@@ -509,6 +514,8 @@ void* nps_ins_data_loop(void* data __attribute__((unused)))
 //static gpointer nps_ap_data_loop(gpointer data __attribute__((unused)))
 void* nps_ap_data_loop(void* data __attribute__((unused)))
 {
+	int cnt = 0;
+
   // configure port
   int fd = open(AP_DEV, O_RDWR | O_NOCTTY);
   if (fd < 0)
@@ -548,8 +555,8 @@ void* nps_ap_data_loop(void* data __attribute__((unused)))
 
       // if msg_available read
       if (pprz_tp_logger.trans_rx.msg_received) {
-        for (i = 0; i < pprz_tp_logger.trans_rx.payload_len; i++) {
-          buf[i] = pprz_tp_logger.trans_rx.payload[i];
+        for (int k = 0; k < pprz_tp_logger.trans_rx.payload_len; k++) {
+          buf[k] = pprz_tp_logger.trans_rx.payload[k];
         }
         //Parse message;
         //uint8_t sender_id = SenderIdOfPprzMsg(buf); // TODO: check sender ID
@@ -565,6 +572,7 @@ void* nps_ap_data_loop(void* data __attribute__((unused)))
         int16_t cmd_yaw;
         int16_t cmd_flap;
         */
+
 
 
         // process readings
@@ -595,6 +603,7 @@ void* nps_ap_data_loop(void* data __attribute__((unused)))
 
             //g_mutex_lock(&fdm_mutex);
             pthread_mutex_lock(&lock);
+            cnt++;
             // update commands
             for (uint8_t i = 0; i < NPS_COMMANDS_NB; i++) {
               autopilot.commands[i] = (double)cmd_buf[i] / MAX_PPRZ;
@@ -602,7 +611,15 @@ void* nps_ap_data_loop(void* data __attribute__((unused)))
             // hack: invert pitch to fit most JSBSim models
             autopilot.commands[COMMAND_PITCH] = -(double)cmd_buf[COMMAND_PITCH] / MAX_PPRZ;
             //g_mutex_unlock(&fdm_mutex);
+
+            if( ( cnt % 100 ) == 0){
+            	printf("AP: Got another 100 commands, total of %i\n",cnt);
+            }
+
+
             pthread_mutex_unlock(&lock);
+
+
 
             break;
           default:
@@ -639,6 +656,19 @@ void* nps_main_loop(void* data __attribute__((unused)))
   */
 
   struct timespec requestStart, requestEnd, waitFor;
+  int cnt = 0;
+
+  // check the sim time difference from the realtime
+  // fdm.time - simulation time
+  //
+  struct timespec startTime;
+  struct timespec realTime;
+  clock_gettime(CLOCK_REALTIME, &startTime);
+  double start_secs = ntime_to_double(&startTime);
+  double real_secs = 0;
+  //double time_diff = 0;
+  double real_time = 0;
+
 
   while (TRUE)
   {
@@ -648,7 +678,31 @@ void* nps_main_loop(void* data __attribute__((unused)))
     clock_gettime(CLOCK_REALTIME, &requestStart);
 
     pthread_mutex_lock(&lock);
-    nps_main_run_sim_step();
+
+    // check the current simulation time
+    clock_gettime(CLOCK_REALTIME, &realTime);
+    real_secs = ntime_to_double(&realTime);
+    real_time = real_secs - start_secs; // real time elapsed
+    //time_diff = real_time - fdm.time;
+
+    static int guard;
+
+    guard = 0;
+    while ((real_time - fdm.time) > SIM_DT) {
+      //printf("MAIN SIML Ouch! (real_time - fdm.time) = %f[s], sim_dt=%f\n",(real_time - fdm.time), SIM_DT);
+      nps_main_run_sim_step();
+      cnt++;
+      guard++;
+      if (guard>2){
+        //printf("MAIN SIML Ouch! Too much behind!\n");
+        break;
+      }
+    }
+    //printf("MAIN SIML Now it is OK! (real_time - fdm.time) = %f[s]\n",(real_time - fdm.time));
+
+    if( ( cnt % 100 ) == 0){
+    	printf("MAIN SIML Got another 100 sim steps, total of %i\n",cnt);
+    }
     pthread_mutex_unlock(&lock);
 
     clock_gettime(CLOCK_REALTIME, &requestEnd);
@@ -714,6 +768,7 @@ void* nps_send_flight_gear(void* data __attribute__((unused)))
 {
   //gint64 end_time;
   struct timespec requestStart, requestEnd, waitFor;
+  int cnt = 0;
 
   if (nps_main.fg_host)
     nps_flightgear_init(nps_main.fg_host, nps_main.fg_port, nps_main.fg_port_in, nps_main.fg_time_offset);
@@ -738,7 +793,14 @@ void* nps_send_flight_gear(void* data __attribute__((unused)))
         nps_flightgear_send();
       }
     }
-    nps_flightgear_receive();
+    //nps_flightgear_receive();
+
+    cnt++;
+    if( ( cnt % 100 ) == 0){
+    	printf("FG: Got another 100 sends, total of %i\n",cnt);
+    }
+
+
     pthread_mutex_unlock(&lock);
 
     clock_gettime(CLOCK_REALTIME, &requestEnd);
@@ -768,7 +830,8 @@ void* nps_send_flight_gear(void* data __attribute__((unused)))
 
 static void nps_main_run_sim_step(void)
 {
-  nps_atmosphere_update(SIM_DT);
+	// TODO: fix mutexes, then enable again
+  //nps_atmosphere_update(SIM_DT);
   nps_fdm_run_step(autopilot.launch, autopilot.commands, NPS_COMMANDS_NB);
 }
 
@@ -777,6 +840,10 @@ static void nps_main_run_sim_step(void)
 void* nps_main_display(void* data __attribute__((unused)))
 {
   struct timespec requestStart, requestEnd, waitFor;
+  int cnt = 0;
+
+  struct NpsFdm fdm_ivy;
+  struct NpsSensors sensors_ivy;
 
   nps_ivy_init(nps_main.ivy_bus);
 
@@ -790,8 +857,22 @@ void* nps_main_display(void* data __attribute__((unused)))
 
     clock_gettime(CLOCK_REALTIME, &requestStart);
 
-    nps_ivy_display();
-    nps_main.display_time += DISPLAY_DT;
+    pthread_mutex_lock(&lock);
+
+    //fdm_ivy = fdm;
+    memcpy (&fdm_ivy, &fdm, sizeof(fdm));
+    //sensors_ivy = sensors;
+    memcpy (&sensors_ivy, &sensors, sizeof(sensors));
+
+    //nps_ivy_display();
+    nps_main.display_time += DISPLAY_DT*10;
+    cnt++;
+    if( ( cnt % 10 ) == 0){
+    	printf("IVY: Sent another 100 messages, total of %i\n",cnt);
+    }
+    pthread_mutex_unlock(&lock);
+
+    nps_ivy_display(&fdm_ivy, &sensors_ivy);
 
     clock_gettime(CLOCK_REALTIME, &requestEnd);
 
@@ -799,7 +880,7 @@ void* nps_main_display(void* data __attribute__((unused)))
 
     if (accum_ns > 0) {
       waitFor.tv_sec = 0;
-      waitFor.tv_nsec = DISPLAY_DT*1000000000L - accum_ns;
+      waitFor.tv_nsec = DISPLAY_DT*3*1000000000L - accum_ns;
 
       //printf("FG THREAD: Worked for %f ms, waiting for another %f ms\n", (double)accum_ns/1E6, waitFor.tv_nsec/1E6);
 

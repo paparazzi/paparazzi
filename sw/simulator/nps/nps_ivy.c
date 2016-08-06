@@ -81,6 +81,7 @@ static void on_WORLD_ENV(IvyClientPtr app __attribute__((unused)),
   //float ir_contrast = atof(argv[4]);
 
   /* set new time factor */
+  // TODO: fix mutexes
   nps_set_time_factor(atof(argv[5]));
 
 #if USE_GPS
@@ -107,6 +108,7 @@ void nps_ivy_send_WORLD_ENV_REQ(void)
   // Bind to the reply
   ivyPtr = IvyBindMsg(on_WORLD_ENV, NULL, "^%d_%d (\\S*) WORLD_ENV (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)", pid, seq);
   // Send actual request
+  // TODO: fix mutexes
   IvySendMsg("nps %d_%d WORLD_ENV_REQ %f %f %f %f %f %f",
       pid, seq,
       DegOfRad(fdm.lla_pos_pprz.lat),
@@ -147,60 +149,68 @@ static void on_DL_SETTING(IvyClientPtr app __attribute__((unused)),
   }
 }
 
-void nps_ivy_display(void)
+//void nps_ivy_display(void)
+void nps_ivy_display(struct NpsFdm* fdm_data, struct NpsSensors* sensors_data)
 {
+  struct NpsFdm fdm_ivy;
+  //fdm_ivy = *fdm_data;
+  memcpy (&fdm_ivy, fdm_data, sizeof(struct NpsFdm));
+
+  struct NpsSensors sensors_ivy;
+  memcpy (&sensors_ivy, sensors_data, sizeof(struct NpsSensors));
+
   IvySendMsg("%d NPS_RATE_ATTITUDE %f %f %f %f %f %f",
              AC_ID,
-             DegOfRad(fdm.body_ecef_rotvel.p),
-             DegOfRad(fdm.body_ecef_rotvel.q),
-             DegOfRad(fdm.body_ecef_rotvel.r),
-             DegOfRad(fdm.ltp_to_body_eulers.phi),
-             DegOfRad(fdm.ltp_to_body_eulers.theta),
-             DegOfRad(fdm.ltp_to_body_eulers.psi));
+             DegOfRad(fdm_ivy.body_ecef_rotvel.p),
+             DegOfRad(fdm_ivy.body_ecef_rotvel.q),
+             DegOfRad(fdm_ivy.body_ecef_rotvel.r),
+             DegOfRad(fdm_ivy.ltp_to_body_eulers.phi),
+             DegOfRad(fdm_ivy.ltp_to_body_eulers.theta),
+             DegOfRad(fdm_ivy.ltp_to_body_eulers.psi));
   IvySendMsg("%d NPS_POS_LLH %f %f %f %f %f %f %f %f %f",
              AC_ID,
-             (fdm.lla_pos_pprz.lat),
-             (fdm.lla_pos_geod.lat),
-             (fdm.lla_pos_geoc.lat),
-             (fdm.lla_pos_pprz.lon),
-             (fdm.lla_pos_geod.lon),
-             (fdm.lla_pos_pprz.alt),
-             (fdm.lla_pos_geod.alt),
-             (fdm.agl),
-             (fdm.hmsl));
+             (fdm_ivy.lla_pos_pprz.lat),
+             (fdm_ivy.lla_pos_geod.lat),
+             (fdm_ivy.lla_pos_geoc.lat),
+             (fdm_ivy.lla_pos_pprz.lon),
+             (fdm_ivy.lla_pos_geod.lon),
+             (fdm_ivy.lla_pos_pprz.alt),
+             (fdm_ivy.lla_pos_geod.alt),
+             (fdm_ivy.agl),
+             (fdm_ivy.hmsl));
   IvySendMsg("%d NPS_SPEED_POS %f %f %f %f %f %f %f %f %f",
              AC_ID,
-             (fdm.ltpprz_ecef_accel.x),
-             (fdm.ltpprz_ecef_accel.y),
-             (fdm.ltpprz_ecef_accel.z),
-             (fdm.ltpprz_ecef_vel.x),
-             (fdm.ltpprz_ecef_vel.y),
-             (fdm.ltpprz_ecef_vel.z),
-             (fdm.ltpprz_pos.x),
-             (fdm.ltpprz_pos.y),
-             (fdm.ltpprz_pos.z));
+             (fdm_ivy.ltpprz_ecef_accel.x),
+             (fdm_ivy.ltpprz_ecef_accel.y),
+             (fdm_ivy.ltpprz_ecef_accel.z),
+             (fdm_ivy.ltpprz_ecef_vel.x),
+             (fdm_ivy.ltpprz_ecef_vel.y),
+             (fdm_ivy.ltpprz_ecef_vel.z),
+             (fdm_ivy.ltpprz_pos.x),
+             (fdm_ivy.ltpprz_pos.y),
+             (fdm_ivy.ltpprz_pos.z));
   IvySendMsg("%d NPS_GYRO_BIAS %f %f %f",
              AC_ID,
-             DegOfRad(RATE_FLOAT_OF_BFP(sensors.gyro.bias_random_walk_value.x) + sensors.gyro.bias_initial.x),
-             DegOfRad(RATE_FLOAT_OF_BFP(sensors.gyro.bias_random_walk_value.y) + sensors.gyro.bias_initial.y),
-             DegOfRad(RATE_FLOAT_OF_BFP(sensors.gyro.bias_random_walk_value.z) + sensors.gyro.bias_initial.z));
+             DegOfRad(RATE_FLOAT_OF_BFP(sensors_ivy.gyro.bias_random_walk_value.x) + sensors_ivy.gyro.bias_initial.x),
+             DegOfRad(RATE_FLOAT_OF_BFP(sensors_ivy.gyro.bias_random_walk_value.y) + sensors_ivy.gyro.bias_initial.y),
+             DegOfRad(RATE_FLOAT_OF_BFP(sensors_ivy.gyro.bias_random_walk_value.z) + sensors_ivy.gyro.bias_initial.z));
 
   /* transform magnetic field to body frame */
   struct DoubleVect3 h_body;
-  double_quat_vmult(&h_body, &fdm.ltp_to_body_quat, &fdm.ltp_h);
+  double_quat_vmult(&h_body, &fdm_ivy.ltp_to_body_quat, &fdm_ivy.ltp_h);
 
   IvySendMsg("%d NPS_SENSORS_SCALED %f %f %f %f %f %f",
              AC_ID,
-             ((sensors.accel.value.x - sensors.accel.neutral.x) / NPS_ACCEL_SENSITIVITY_XX),
-             ((sensors.accel.value.y - sensors.accel.neutral.y) / NPS_ACCEL_SENSITIVITY_YY),
-             ((sensors.accel.value.z - sensors.accel.neutral.z) / NPS_ACCEL_SENSITIVITY_ZZ),
+             ((sensors_ivy.accel.value.x - sensors_ivy.accel.neutral.x) / NPS_ACCEL_SENSITIVITY_XX),
+             ((sensors_ivy.accel.value.y - sensors_ivy.accel.neutral.y) / NPS_ACCEL_SENSITIVITY_YY),
+             ((sensors_ivy.accel.value.z - sensors_ivy.accel.neutral.z) / NPS_ACCEL_SENSITIVITY_ZZ),
              h_body.x,
              h_body.y,
              h_body.z);
 
   IvySendMsg("%d NPS_WIND %f %f %f",
              AC_ID,
-             fdm.wind.x,
-             fdm.wind.y,
-             fdm.wind.z);
+             fdm_ivy.wind.x,
+             fdm_ivy.wind.y,
+             fdm_ivy.wind.z);
 }
