@@ -5,7 +5,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <Ivy/ivy.h>
-#include <Ivy/ivyglibloop.h>
+//#include <Ivy/ivyglibloop.h>
+//#include <Ivy/ivyloop.h>
+
 
 #include "generated/airframe.h"
 #include "math/pprz_algebra_float.h"

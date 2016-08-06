@@ -9,7 +9,7 @@ RP3 Lisa MX
   <firmware name="fixedwing">
     <define name="CONTROL_FREQUENCY" value="100"/>
     <configure name="PERIODIC_FREQUENCY" value="100"/>
-    <target name="ap" board="lisa_mx_2.1_chibios">
+    <target name="ap" board="lisa_mx_2.0">
       <module name="radio_control" type="sbus">
         <configure name="SBUS_PORT" value="UART5"/>
       </module>
@@ -22,7 +22,7 @@ RP3 Lisa MX
       <configure name="INS_DEV" value="/dev/ttyUSB1"/>
       <configure name="INS_BAUD" value="B921600"/>
       <configure name="AP_DEV" value="/dev/ttyUSB2"/>
-      <configure name="AP_BAUD" value="B3000000"/>
+      <configure name="AP_BAUD" value="B921600"/>
     </target>
 
     <module name="control"/>
@@ -47,12 +47,13 @@ RP3 Lisa MX
     <module name="nav" type="survey_poly_osam"/>
     <module name="nav" type="launcher"/>
     <module name="nav" type="skid_landing"/>
-    <module name="rtos_mon"/>
+    <!--module name="rtos_mon"/-->
+    <module name="sys_mon"/>
     <module name="flight_logger">
       <!-- in order to use uart1 without chibios we need to remap the peripheral-->
       <define name="REMAP_UART1" value="TRUE"/>
       <configure name="FLIGHTLOGGER_PORT" value="UART1"/>
-      <configure name="FLIGHTLOGGER_BAUD" value="B3000000"/>
+      <configure name="FLIGHTLOGGER_BAUD" value="B921600"/>
     </module>
   </firmware>
 
@@ -241,7 +242,7 @@ RP3 Lisa MX
 
   <section name="SIMULATOR" prefix="NPS_">
     <define name="JSBSIM_LAUNCHSPEED" value="25"/>
-    <define name="JSBSIM_MODEL" value="easystar" type="string"/>
+    <define name="JSBSIM_MODEL" value="minion" type="string"/>
     <define name="SENSORS_PARAMS" value="nps_sensors_params_invariant.h" type="string"/>
     <define name="JS_AXIS_THROTTLE" value="0"/>
     <define name="JS_AXIS_THROTTLE_REVERSED" value="1"/>
@@ -256,6 +257,10 @@ RP3 Lisa MX
 
     <define name="JS_AXIS_FLAPS" value="5"/>
     <define name="JS_AXIS_MODE" value="7"/>
+
+    <define name="JSBSIM_ROLL_TRIM" value="0.008"/>
+    <define name="JSBSIM_PITCH_TRIM" value="0.0375"/>
+    <define name="JSBSIM_YAW_TRIM" value="0.001"/>
   </section>
 
 </airframe>
