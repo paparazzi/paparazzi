@@ -22,7 +22,6 @@
 #include <inttypes.h>
 
 #define DATALINK_C
-#define MODULES_C
 
 /* PERIODIC_C_MAIN is defined before generated/periodic_telemetry.h
  * in order to implement telemetry_mode_Main_*
@@ -42,10 +41,10 @@
 #include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 #include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/pprz_dl.h"
 
 #include "subsystems/datalink/datalink.h"
 #include "generated/settings.h"
-#include "generated/modules.h"
 
 #include "subsystems/imu.h"
 #include "subsystems/ahrs.h"
@@ -77,7 +76,7 @@ static inline void main_init(void)
   ahrs_aligner_init();
 #endif
   ahrs_init();
-  modules_init();
+  pprz_dl_init();
   downlink_init();
 
   mcu_int_enable();
@@ -91,13 +90,12 @@ static inline void main_periodic_task(void)
   RunOnceEvery(10, { LED_PERIODIC();});
   RunOnceEvery(PERIODIC_FREQUENCY, { datalink_time++; });
   main_report();
-  modules_periodic_task();
 }
 
 static inline void main_event_task(void)
 {
   mcu_event();
-  modules_event_task();
+  pprz_dl_event();
   ImuEvent();
 }
 

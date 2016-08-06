@@ -35,14 +35,14 @@
     </raw>
     <configure name="BLUEGIGA_SPI_DEV" default="SPI2" case="upper|lower"/>
     <configure name="MODEM_LED" default="none"/>
-    <define name="USE_$(MODEM_PORT_UPPER)_SLAVE"/>
+    <define name="USE_$(BLUEGIGA_SPI_DEV_UPPER)_SLAVE"/>
     <define name="SPI_SLAVE"/>
     <define name="BLUEGIGA_SPI_DEV" value="$(BLUEGIGA_SPI_DEV_LOWER)"/>
-    <define name="MODEM_LED" value="$(MODEM_LED)" cond="ifneq($(MODEM_LED),none)"/>
+    <define name="MODEM_LED" value="$(MODEM_LED)" cond="ifneq ($(MODEM_LED),none)"/>
     <define name="DOWNLINK"/>
     <define name="PERIODIC_TELEMETRY"/>
     <define name="DOWNLINK_DEVICE" value="bluegiga_p"/>
-    <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+    <define name="DOWNLINK_TRANSPORT" value="pprz_bg_tp"/>
     <define name="DATALINK" value="BLUEGIGA"/>
     <file name="bluegiga_dl.c"/>
     <file name="downlink.c" dir="subsystems/datalink"/>

@@ -41,7 +41,7 @@
 
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/datalink/downlink.h"
-
+#include "modules/datalink/pprz_dl.h"
 
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
@@ -73,6 +73,7 @@ static inline void main_init(void)
   mcu_init();
 
   downlink_init();
+  pprz_dl_init();
 
   actuators_init();
   uint8_t i;
@@ -103,6 +104,7 @@ static inline void main_periodic(void)
 static inline void main_event(void)
 {
   mcu_event();
+  pprz_dl_event();
   modules_event_task();
 }
 

@@ -38,7 +38,7 @@
     <define name="DOWNLINK"/>
     <define name="PERIODIC_TELEMETRY"/>
     <define name="DOWNLINK_DEVICE" value="chip0"/>
-    <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
+    <define name="DOWNLINK_TRANSPORT" value="pprz_w5100_tp"/>
     <define name="DATALINK" value="W5100"/>
     <file name="downlink.c" dir="subsystems/datalink"/>
     <file name="datalink.c" dir="subsystems/datalink"/>

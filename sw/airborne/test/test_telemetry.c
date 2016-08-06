@@ -31,6 +31,7 @@
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
 #include "subsystems/datalink/downlink.h"
+#include "modules/datalink/pprz_dl.h"
 #include "led.h"
 
 static inline void main_init(void);
@@ -57,6 +58,7 @@ static inline void main_init(void)
   mcu_int_enable();
 
   downlink_init();
+  pprz_dl_init();
 }
 
 static inline void main_periodic(void)

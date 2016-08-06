@@ -33,6 +33,7 @@
 
 #define DATALINK_C
 #include "subsystems/datalink/downlink.h"
+#include "modules/datalink/pprz_dl.h"
 
 #include "subsystems/sensors/baro.h"
 
@@ -112,6 +113,7 @@ static inline void main_init(void)
   mcu_init();
   sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
   downlink_init();
+  pprz_dl_init();
   test_baro_board_imu_init();
   baro_init();
 

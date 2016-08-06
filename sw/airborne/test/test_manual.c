@@ -26,14 +26,13 @@
 
 
 #define DATALINK_C
-#define MODULES_C
 
 #include "generated/airframe.h"
 #include "generated/settings.h"
-#include "generated/modules.h"
 
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/datalink/downlink.h"
+#include "modules/datalink/pprz_dl.h"
 
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
@@ -78,6 +77,7 @@ static inline void main_init(void)
 {
   mcu_init();
   downlink_init();
+  pprz_dl_init();
 
   actuators_init();
 #if USE_MOTOR_MIXING
@@ -85,8 +85,6 @@ static inline void main_init(void)
 #endif
 
   radio_control_init();
-
-  modules_init();
 
   mcu_int_enable();
   main_periodic_tid = sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
@@ -109,13 +107,12 @@ static inline void main_periodic(void)
   RunOnceEvery(101, {DOWNLINK_SEND_COMMANDS(DefaultChannel, DefaultDevice, COMMANDS_NB, commands);});
   RunOnceEvery(102, {DOWNLINK_SEND_ACTUATORS(DefaultChannel, DefaultDevice, ACTUATORS_NB, actuators);});
 
-  modules_periodic_task();
 }
 
 static inline void main_event(void)
 {
   mcu_event();
-  modules_event_task();
+  pprz_dl_event();
   RadioControlEvent(on_rc_frame);
 }
 
