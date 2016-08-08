@@ -87,7 +87,18 @@ struct libisp_config {
   struct avi_isp_chain_yuv_inter_regs chain_yuv_inter;    ///< YUV chain bypass configuration (enable/disable features)
 };
 
+/* Output YUV statistics */
+struct isp_yuv_stats_t {
+    uint32_t awb_sum_Y;
+    uint32_t awb_sum_U;
+    uint32_t awb_sum_V;
+    uint32_t awb_nb_grey_pixels;
+    uint32_t nb_valid_Y;
+    uint32_t ae_histogram_Y[256];
+};
+
 int configure_isp(struct v4l2_device *dev);
+int isp_get_statistics_yuv(struct isp_yuv_stats_t *yuv_stats);
 
 /* Registers access */
 #define EXPAND_AS_PROTOTYPE(_node)                                        \

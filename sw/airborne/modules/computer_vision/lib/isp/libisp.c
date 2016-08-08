@@ -31,6 +31,11 @@ struct avi_isp_offsets
 #define readl(_addr)            (*((volatile uint32_t *)(_addr)))
 #define writel(_val, _addr)     (*((volatile uint32_t *)(_addr)) = _val)
 
+/* ISP context */
+static struct libisp_context isp_ctx = {
+	.devmem = -1
+};
+
 static const unsigned isp_bases[] = {
 	AVI_ISP_CHAIN_BAYER_INTER,
 	AVI_ISP_VLFORMAT_32TO40,
@@ -133,12 +138,13 @@ get_offsets_failed:
 
 mmap_failed:
 	close(ctx->devmem);
+	ctx->devmem = -1;
 
 open_failed:
 	return -1;
 }
 
-static int close_isp(struct libisp_context *ctx)
+/*static int close_isp(struct libisp_context *ctx)
 {
 	int ret = 0;
 
@@ -148,13 +154,13 @@ static int close_isp(struct libisp_context *ctx)
 	}
 
 	close(ctx->devmem);
+	ctx->devmem = -1;
 
 	return ret;
-}
+}*/
 
 int configure_isp(struct v4l2_device *dev)
 {
-	struct libisp_context isp_ctx;
 	if(open_isp_fd(&isp_ctx, dev->fd) < 0)
 		return -1;
 
@@ -173,6 +179,12 @@ int configure_isp(struct v4l2_device *dev)
 	avi_isp_lens_shading_correction_blue_coeff_mem_set_registers(&isp_ctx, &isp_config.lsc_blue_coeffs);
 	avi_isp_bayer_set_registers(&isp_ctx, &isp_config.bayer);
 	avi_isp_color_correction_set_registers(&isp_ctx, &isp_config.color_correction);
+	// printf("cc coeff_01_00: %d %d\r\n", isp_config.color_correction.coeff_01_00.coeff_00, isp_config.color_correction.coeff_01_00.coeff_01);
+	// printf("cc coeff_10_02: %d %d\r\n", isp_config.color_correction.coeff_10_02.coeff_02, isp_config.color_correction.coeff_10_02.coeff_10);
+	// printf("cc coeff_12_11: %d %d\r\n", isp_config.color_correction.coeff_12_11.coeff_11, isp_config.color_correction.coeff_12_11.coeff_12);
+	// printf("cc coeff_21_20: %d %d\r\n", isp_config.color_correction.coeff_21_20.coeff_20, isp_config.color_correction.coeff_21_20.coeff_21);
+	// printf("cc coeff_22: %d\r\n", isp_config.color_correction.coeff_22.coeff_22);
+	// printf("cc clip_ry: %8X\r\n", isp_config.color_correction.clip_ry._register);
 	avi_isp_vlformat_40to32_set_registers(&isp_ctx, &isp_config.vlformat_40to32);
 	avi_isp_gamma_corrector_set_registers(&isp_ctx, &isp_config.gamma_corrector);
 	avi_isp_gamma_corrector_ry_lut_set_registers(&isp_ctx, &isp_config.gc_ry_lut);
@@ -183,12 +195,40 @@ int configure_isp(struct v4l2_device *dev)
 	avi_isp_edge_enhancement_color_reduction_filter_set_registers(&isp_ctx, &isp_config.eecrf);
 	avi_isp_edge_enhancement_color_reduction_filter_ee_lut_set_registers(&isp_ctx, &isp_config.eecrf_lut);
 	avi_isp_chain_yuv_inter_get_registers(&isp_ctx, &isp_config.chain_yuv_inter);
-	close_isp(&isp_ctx);
+
+	//close_isp(&isp_ctx);
 
 	return 0;
 }
 
+/* Get YUV statistics */
+int isp_get_statistics_yuv(struct isp_yuv_stats_t *yuv_stats) {
+	uint16_t i;
 
+	if(isp_ctx.devmem < 0)
+		return -1;
+
+	struct avi_isp_statistics_yuv_regs stats_yuv;
+  avi_isp_statistics_yuv_get_registers(&isp_ctx, &stats_yuv);
+
+  yuv_stats->awb_sum_Y = stats_yuv.awb_sum_y.awb_sum_y;
+  yuv_stats->awb_sum_U = stats_yuv.awb_sum_u.awb_sum_u;
+  yuv_stats->awb_sum_V = stats_yuv.awb_sum_v.awb_sum_v;
+  yuv_stats->awb_nb_grey_pixels = stats_yuv.awb_nb_grey_pixels.nb_grey_pixels;
+  yuv_stats->nb_valid_Y = stats_yuv.ae_nb_valid_y.nb_valid_y;
+
+  // Histogram
+  struct avi_isp_statistics_yuv_ae_histogram_y_regs histogram;
+  avi_isp_statistics_yuv_ae_histogram_y_get_registers(&isp_ctx, &histogram);
+
+  for(i=0; i<256; ++i)
+  {
+      yuv_stats->ae_histogram_Y[i] = histogram.ae_histogram_y[i].histogram_y;
+  }
+
+  avi_isp_statistics_yuv_set_registers(&isp_ctx, &isp_config.statistics_yuv);
+	return 0;
+}
 
 static inline void memcpy_to_registers(unsigned long addr,
                                        const void *reg_base,

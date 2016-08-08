@@ -11,11 +11,11 @@ struct libisp_config isp_config = {
 
   /* Don't bypass a bayer function */
   .bayer_inter = {{
-      .pedestal_bypass     = 0,
-      .grim_bypass         = 0,
-      .rip_bypass          = 0,
+      .pedestal_bypass     = 1,
+      .grim_bypass         = 1,
+      .rip_bypass          = 1,
       .denoise_bypass      = 0,
-      .lsc_bypass          = 0,
+      .lsc_bypass          = 1,
       .chroma_aber_bypass  = 1,
       .bayer_bypass        = 0,
       .color_matrix_bypass = 0,
@@ -205,23 +205,23 @@ struct libisp_config isp_config = {
   /* Demosaicking */
   .bayer = {
     .cfa         = {{    3 }}, /* GRGB (top left to bottom right order) */
-    .threshold_1 = {{   20 }}, /* Lower threshold */
-    .threshold_2 = {{  500 }}, /* Upper threshold */
+    .threshold_1 = {{   25 }}, /* Lower threshold */
+    .threshold_2 = {{  200 }}, /* Upper threshold */
   },
 
   /* Color correction */
   .color_correction = {
-    .coeff_01_00 = {{    4403, -1558   }},
-    .coeff_10_02 = {{    -797, -1571   }},
-    .coeff_12_11 = {{    4174, -554    }},
-    .coeff_21_20 = {{    -834, -1102   }},
-    .coeff_22    = {{    3985          }},
-    .offset_ry   = {{ 0, 0  }},
-    .clip_ry     = {{ 0, 1023 }},
-    .offset_gu   = {{ 0, 0  }},
-    .clip_gu     = {{ 0, 1023 }},
-    .offset_bv   = {{ 0, 0  }},
-    .clip_bv     = {{ 0, 1023 }},
+    .coeff_01_00 = { ._register = 0xF3811477 },
+    .coeff_10_02 = { ._register = 0xFDF0021d },
+    .coeff_12_11 = { ._register = 0xFF9E0A33 },
+    .coeff_21_20 = { ._register = 0xF4DFFE25 },
+    .coeff_22    = { ._register = 0x00001B83 },
+    .offset_ry   = { ._register = 0x00000000 },
+    .clip_ry     = { ._register = 0x03FF0000 },
+    .offset_gu   = { ._register = 0x00000000 },
+    .clip_gu     = { ._register = 0x03FF0000 },
+    .offset_bv   = { ._register = 0x00000000 },
+    .clip_bv     = { ._register = 0x03FF0000 },
   },
 
   /* RAW 10bit to 10bit */
@@ -426,7 +426,7 @@ struct libisp_config isp_config = {
 
   /* YUV statistics */
   .statistics_yuv = {
-    .measure_req           = {{0,0}},
+    .measure_req           = {{1,1}},
     .measure_status        = {{0,0}},
     .window_pos_x          = {{ .window_x_start = 0, .window_x_end = MT9F002_OUTPUT_WIDTH }},
     .window_pos_y          = {{ .window_y_start = 0, .window_y_end = MT9F002_OUTPUT_HEIGHT }},

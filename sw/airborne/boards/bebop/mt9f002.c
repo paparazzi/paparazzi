@@ -655,7 +655,7 @@ static void mt9f002_set_blanking(struct mt9f002_t *mt)
  * Set the exposure configuration
  * Depends on the blanking (and therefore the FPS)
  */
-static void mt9f002_set_exposure(struct mt9f002_t *mt)
+void mt9f002_set_exposure(struct mt9f002_t *mt)
 {
   /* Fetch minimum and maximum integration times */
   uint16_t coarse_integration_min = read_reg(mt, MT9F002_COARSE_INTEGRATION_TIME_MIN, 2);
@@ -773,7 +773,7 @@ static uint16_t mt9f002_calc_gain(float gain) {
 /**
  * Sets the GreenR, Blue, Red and GreenB gains
  */
-static void mt9f002_set_gains(struct mt9f002_t *mt)
+void mt9f002_set_gains(struct mt9f002_t *mt)
 {
   write_reg(mt, MT9F002_GREEN1_GAIN, mt9f002_calc_gain(mt->gain_green1), 2);
   write_reg(mt, MT9F002_BLUE_GAIN,   mt9f002_calc_gain(mt->gain_blue), 2);
