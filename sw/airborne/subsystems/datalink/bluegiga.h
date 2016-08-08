@@ -46,6 +46,8 @@ enum BlueGigaStatus {
 #error "BLUEGIGA_BUFFER_SIZE not made for sizes larger than 256, check subsystems/datalink/bluegiga.c for more information"
 #endif
 
+#define BLUEGIGA_BUFFER_SIZE 20
+
 struct bluegiga_periph {
   /* Receive buffer */
   uint8_t rx_buf[BLUEGIGA_BUFFER_SIZE];
@@ -56,8 +58,8 @@ struct bluegiga_periph {
   uint8_t tx_insert_idx;
   uint8_t tx_extract_idx;
   /* transmit and receive buffers */
-  uint8_t work_tx[20];
-  uint8_t work_rx[20];
+  uint8_t work_tx[BLUEGIGA_BUFFER_SIZE];
+  uint8_t work_rx[BLUEGIGA_BUFFER_SIZE];
   /** Generic device interface */
   struct link_device device;
 
