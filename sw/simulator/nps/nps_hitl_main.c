@@ -612,9 +612,9 @@ void* nps_ap_data_loop(void* data __attribute__((unused)))
             autopilot.commands[COMMAND_PITCH] = -(double)cmd_buf[COMMAND_PITCH] / MAX_PPRZ;
             //g_mutex_unlock(&fdm_mutex);
 
-            if( ( cnt % 100 ) == 0){
-            	printf("AP: Got another 100 commands, total of %i\n",cnt);
-            }
+//            if( ( cnt % 100 ) == 0){
+//            	printf("AP: Got another 100 commands, total of %i\n",cnt);
+//            }
 
 
             pthread_mutex_unlock(&lock);
@@ -700,9 +700,9 @@ void* nps_main_loop(void* data __attribute__((unused)))
     }
     //printf("MAIN SIML Now it is OK! (real_time - fdm.time) = %f[s]\n",(real_time - fdm.time));
 
-    if( ( cnt % 100 ) == 0){
-    	printf("MAIN SIML Got another 100 sim steps, total of %i\n",cnt);
-    }
+//    if( ( cnt % 100 ) == 0){
+//    	printf("MAIN SIML Got another 100 sim steps, total of %i\n",cnt);
+//    }
     pthread_mutex_unlock(&lock);
 
     clock_gettime(CLOCK_REALTIME, &requestEnd);
@@ -768,7 +768,7 @@ void* nps_send_flight_gear(void* data __attribute__((unused)))
 {
   //gint64 end_time;
   struct timespec requestStart, requestEnd, waitFor;
-  int cnt = 0;
+//  int cnt = 0;
 
   if (nps_main.fg_host)
     nps_flightgear_init(nps_main.fg_host, nps_main.fg_port, nps_main.fg_port_in, nps_main.fg_time_offset);
@@ -794,11 +794,11 @@ void* nps_send_flight_gear(void* data __attribute__((unused)))
       }
     }
     //nps_flightgear_receive();
-
-    cnt++;
-    if( ( cnt % 100 ) == 0){
-    	printf("FG: Got another 100 sends, total of %i\n",cnt);
-    }
+//
+//    cnt++;
+//    if( ( cnt % 100 ) == 0){
+//    	printf("FG: Got another 100 sends, total of %i\n",cnt);
+//    }
 
 
     pthread_mutex_unlock(&lock);
@@ -867,9 +867,9 @@ void* nps_main_display(void* data __attribute__((unused)))
     //nps_ivy_display();
     nps_main.display_time += DISPLAY_DT*10;
     cnt++;
-    if( ( cnt % 10 ) == 0){
-    	printf("IVY: Sent another 100 messages, total of %i\n",cnt);
-    }
+//    if( ( cnt % 10 ) == 0){
+//    	printf("IVY: Sent another 100 messages, total of %i\n",cnt);
+//    }
     pthread_mutex_unlock(&lock);
 
     nps_ivy_display(&fdm_ivy, &sensors_ivy);
