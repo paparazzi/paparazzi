@@ -63,7 +63,7 @@ struct video_config_t front_camera = {
   .buf_cnt = 3,
   .filters = VIDEO_FILTER_ISP,
   .cv_listener = NULL,
-  .fps = 5
+  .fps = MT9F002_TARGET_FPS
 };
 
 /**
