@@ -5,9 +5,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <Ivy/ivy.h>
-//#include <Ivy/ivyglibloop.h>
-//#include <Ivy/ivyloop.h>
 
+#include <Ivy/ivyloop.h>
+#include <pthread.h>
 
 #include "generated/airframe.h"
 #include "math/pprz_algebra_float.h"
@@ -17,8 +17,6 @@
 #include "nps_fdm.h"
 #include "nps_sensors.h"
 #include "nps_atmosphere.h"
-
-//#include "subsystems/navigation/common_flight_plan.h"
 
 #if USE_GPS
 #include "subsystems/gps.h"
@@ -35,6 +33,15 @@ static void on_WORLD_ENV(IvyClientPtr app __attribute__((unused)),
 static void on_DL_SETTING(IvyClientPtr app __attribute__((unused)),
                           void *user_data __attribute__((unused)),
                           int argc __attribute__((unused)), char *argv[]);
+
+pthread_t th_ivy_main; // runs main Ivy loop
+
+void* ivy_main_loop(void* data __attribute__((unused)))
+{
+  IvyMainLoop();
+
+  return NULL;
+}
 
 void nps_ivy_init(char *ivy_bus)
 {
@@ -58,6 +65,10 @@ void nps_ivy_init(char *ivy_bus)
   } else {
     IvyStart(ivy_bus);
   }
+
+  // Launch separate thread with IvyMainLoop()
+  pthread_create(&th_ivy_main, NULL, ivy_main_loop, NULL);
+
 }
 
 /*

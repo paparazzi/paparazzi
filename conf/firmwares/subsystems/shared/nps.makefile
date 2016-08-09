@@ -43,12 +43,13 @@ nps.srcs +=                                      \
        $(NPSDIR)/nps_radio_control_joystick.c    \
        $(NPSDIR)/nps_radio_control_spektrum.c    \
        $(NPSDIR)/nps_ivy.c                       \
-       $(NPSDIR)/nps_flightgear.c
+       $(NPSDIR)/nps_flightgear.c                \
+       $(NPSDIR)/nps_main_common.c
 
 ifdef USE_HITL
 nps.CFLAGS  += -DUSE_HITL=1
 $(info USE_HITL defined)
-nps.srcs += $(NPSDIR)/nps_hitl_main.c
+nps.srcs += $(NPSDIR)/nps_main_hitl.c
 
 ifdef AP_DEV
 nps.CFLAGS += -DAP_DEV=\"$(AP_DEV)\"
@@ -76,7 +77,7 @@ endif
 
 else
 $(info USE_HITL undefined)
-nps.srcs += $(NPSDIR)/nps_main.c
+nps.srcs += $(NPSDIR)/nps_main_sitl.c
 endif
 
 # for geo mag calculation
