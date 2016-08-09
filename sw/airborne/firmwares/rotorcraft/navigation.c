@@ -82,6 +82,7 @@ bool nav_survey_active;
 
 int32_t nav_roll, nav_pitch;
 int32_t nav_heading;
+int32_t nav_cmd_roll, nav_cmd_pitch, nav_cmd_yaw;
 float nav_radius;
 float nav_climb_vspeed, nav_descend_vspeed;
 
@@ -175,6 +176,9 @@ void nav_init(void)
   nav_roll = 0;
   nav_pitch = 0;
   nav_heading = 0;
+  nav_cmd_roll = 0;
+  nav_cmd_pitch = 0;
+  nav_cmd_yaw = 0;
   nav_radius = DEFAULT_CIRCLE_RADIUS;
   nav_climb_vspeed = NAV_CLIMB_VSPEED;
   nav_descend_vspeed = NAV_DESCEND_VSPEED;
@@ -489,9 +493,9 @@ void nav_home(void)
 void nav_set_manual(float roll, float pitch, float yaw)
 {
   horizontal_mode = HORIZONTAL_MODE_MANUAL;
-  nav_roll = ANGLE_BFP_OF_REAL(roll);
-  nav_pitch = ANGLE_BFP_OF_REAL(pitch);
-  nav_heading = ANGLE_BFP_OF_REAL(yaw);
+  nav_cmd_roll = roll;
+  nav_cmd_pitch = pitch;
+  nav_cmd_yaw = yaw;
 }
 
 /** Returns squared horizontal distance to given point */

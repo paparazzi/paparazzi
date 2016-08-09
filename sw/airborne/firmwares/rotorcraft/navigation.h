@@ -55,6 +55,7 @@ extern int32_t nav_circle_radius, nav_circle_qdr, nav_circle_radians;
 #define HORIZONTAL_MODE_MANUAL    4
 extern int32_t nav_roll, nav_pitch;     ///< with #INT32_ANGLE_FRAC
 extern int32_t nav_heading; ///< with #INT32_ANGLE_FRAC
+extern int32_t nav_cmd_roll, nav_cmd_pitch, nav_cmd_yaw;
 extern float nav_radius;
 extern float nav_climb_vspeed, nav_descend_vspeed;
 
