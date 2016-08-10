@@ -15,10 +15,6 @@
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
     </target>
     <define name="AHRS_GRAVITY_HEURISTIC_FACTOR" value="0"/>
-    <target name="nps" board="pc">
-      <subsystem name="fdm" type="jsbsim"/>
-      <subsystem name="radio_control" type="ppm"/>
-    </target>
 
     <subsystem name="actuators" type="pwm">
       <define name="TIM5_SERVO_HZ" value="300"/>
