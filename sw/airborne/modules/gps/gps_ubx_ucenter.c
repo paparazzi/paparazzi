@@ -167,10 +167,10 @@ void gps_ubx_ucenter_event(void)
   // Read Configuration Reply's
   switch (gps_ubx.msg_class) {
     case UBX_ACK_ID:
-      if (gps_ubx.msg_id & UBX_ACK_ACK_ID) {
+      if (gps_ubx.msg_id == UBX_ACK_ACK_ID) {
         gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_ACK;
         DEBUG_PRINT("ACK\n");
-      } else if (gps_ubx.msg_id & UBX_ACK_NAK_ID) {
+      } else if (gps_ubx.msg_id == UBX_ACK_NAK_ID) {
         gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NACK;
         DEBUG_PRINT("NACK\n");
       }

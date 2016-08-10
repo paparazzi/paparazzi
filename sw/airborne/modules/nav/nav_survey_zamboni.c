@@ -67,7 +67,7 @@ bool nav_survey_zamboni_setup(uint8_t center_wp, uint8_t dir_wp, float sweep_len
 
   // if turning right leave circle before angle is reached, if turning left - leave after
   if (sweep_spacing > 0) {
-    zs.pre_leave_angle -= zs.pre_leave_angle;
+    zs.pre_leave_angle = 0;
   }
 
   struct FloatVect2 flight_vec;
