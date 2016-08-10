@@ -93,7 +93,11 @@ value c_init_serial(value device, value speed, value hw_flow_control)
   CAMLparam3 (device, speed, hw_flow_control);
   struct termios orig_termios, cur_termios;
 
-  int br = baudrates[Int_val(speed)];
+  int br_idx = Int_val(speed);
+  if (br_idx >= sizeof(baudrates)){
+    failwith("Baud rate not supported - are you using MacOS? (br_idx out of bounds)");
+  }
+  int br = baudrates[br_idx];
 
   int fd = open(String_val(device), O_RDWR|O_NOCTTY|O_NONBLOCK);
 
