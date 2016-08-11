@@ -85,6 +85,8 @@ static void on_WORLD_ENV(IvyClientPtr app __attribute__((unused)),
   wind.y = atof(argv[2]); //north
   wind.z = atof(argv[3]); //up
 
+  pthread_mutex_lock(&fdm_mutex);
+
   /* set wind speed in NED */
   nps_atmosphere_set_wind_ned(wind.y, wind.x, -wind.z);
 
@@ -92,13 +94,13 @@ static void on_WORLD_ENV(IvyClientPtr app __attribute__((unused)),
   //float ir_contrast = atof(argv[4]);
 
   /* set new time factor */
-  // TODO: fix mutexes
   nps_set_time_factor(atof(argv[5]));
 
 #if USE_GPS
   // directly set gps fix in subsystems/gps/gps_sim_nps.h
   gps_has_fix = atoi(argv[6]); // gps_availability
 #endif
+  pthread_mutex_unlock(&fdm_mutex);
 }
 
 /*
@@ -116,18 +118,25 @@ void nps_ivy_send_WORLD_ENV_REQ(void)
   }
 
   int pid = (int)getpid();
+
   // Bind to the reply
   ivyPtr = IvyBindMsg(on_WORLD_ENV, NULL, "^%d_%d (\\S*) WORLD_ENV (\\S*) (\\S*) (\\S*) (\\S*) (\\S*) (\\S*)", pid, seq);
+
   // Send actual request
-  // TODO: fix mutexes
+  struct NpsFdm fdm_ivy;
+
+  pthread_mutex_lock(&fdm_mutex);
+  memcpy (&fdm_ivy, fdm, sizeof(struct NpsFdm));
+  pthread_mutex_unlock(&fdm_mutex);
+
   IvySendMsg("nps %d_%d WORLD_ENV_REQ %f %f %f %f %f %f",
       pid, seq,
-      DegOfRad(fdm.lla_pos_pprz.lat),
-      DegOfRad(fdm.lla_pos_pprz.lon),
-      (fdm.hmsl),
-      (fdm.ltpprz_pos.x),
-      (fdm.ltpprz_pos.y),
-      (fdm.ltpprz_pos.z));
+      DegOfRad(fdm_ivy.lla_pos_pprz.lat),
+      DegOfRad(fdm_ivy.lla_pos_pprz.lon),
+      (fdm_ivy.hmsl),
+      (fdm_ivy.ltpprz_pos.x),
+      (fdm_ivy.ltpprz_pos.y),
+      (fdm_ivy.ltpprz_pos.z));
   seq++;
 }
 
@@ -148,23 +157,22 @@ static void on_DL_SETTING(IvyClientPtr app __attribute__((unused)),
    * but since we currently change this variable via settings we have to allow it
    * TODO: only allow changing the datalink_enabled setting
    */
-
   uint8_t index = atoi(argv[2]);
   float value = atof(argv[3]);
   DlSetting(index, value);
   DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &index, &value);
   printf("setting %d %f\n", index, value);
 
+  // TOD?
   if (index==8){ // TODO: match with the proper name (launch)
     autopilot.launch = value; // TODO: use only if using HITL
   }
 }
 
-//void nps_ivy_display(void)
+
 void nps_ivy_display(struct NpsFdm* fdm_data, struct NpsSensors* sensors_data)
 {
   struct NpsFdm fdm_ivy;
-  //fdm_ivy = *fdm_data;
   memcpy (&fdm_ivy, fdm_data, sizeof(struct NpsFdm));
 
   struct NpsSensors sensors_ivy;

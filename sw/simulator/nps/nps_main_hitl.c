@@ -367,7 +367,7 @@ void* nps_ins_data_loop(void* data __attribute__((unused)))
       nanosleep(&waitFor,NULL);
     }
     else {
-      printf("FG THREAD: took too long, exactly %f ms\n", (double)accum_ns/1E6);
+      printf("INS THREAD: took too long, exactly %f ms\n", (double)accum_ns/1E6);
     }
   }
 
