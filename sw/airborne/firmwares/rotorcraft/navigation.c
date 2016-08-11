@@ -486,11 +486,15 @@ void nav_home(void)
 
 /** Set manual roll, pitch and yaw without stabilization
  *
- * @param[in] roll The angle in radians (float)
- * @param[in] pitch The angle in radians (float)
- * @param[in] yaw The angle in radians (float)
+ * @param[in] roll command in pprz scale (int32_t)
+ * @param[in] pitch command in pprz scale (int32_t)
+ * @param[in] yaw command in pprz scale (int32_t)
+ *
+ * This function allows to directly set commands from the flight plan,
+ * if in nav_manual mode.
+ * This is for instance useful for helicopters during the spinup
  */
-void nav_set_manual(float roll, float pitch, float yaw)
+void nav_set_manual(int32_t roll, int32_t pitch, int32_t yaw)
 {
   horizontal_mode = HORIZONTAL_MODE_MANUAL;
   nav_cmd_roll = roll;

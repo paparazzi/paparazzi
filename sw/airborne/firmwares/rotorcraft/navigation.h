@@ -82,7 +82,7 @@ extern float get_dist2_to_waypoint(uint8_t wp_id);
 extern float get_dist2_to_point(struct EnuCoor_i *p);
 extern void compute_dist2_to_home(void);
 extern void nav_home(void);
-extern void nav_set_manual(float roll, float pitch, float yaw);
+extern void nav_set_manual(int32_t roll, int32_t pitch, int32_t yaw);
 
 unit_t nav_reset_reference(void) __attribute__((unused));
 unit_t nav_reset_alt(void) __attribute__((unused));
