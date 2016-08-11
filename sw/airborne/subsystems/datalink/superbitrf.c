@@ -563,11 +563,6 @@ void superbitrf_event(void)
         case 5:
           superbitrf.state = 7;
           break;
-          // Start receiving
-          cyrf6936_multi_write(&superbitrf.cyrf6936, cyrf_start_receive, 2);
-          superbitrf.timer = (get_sys_time_usec() + SUPERBITRF_DATARECVB_TIME) % 0xFFFFFFFF;
-          superbitrf.state++;
-          break;
         case 6:
           // Wait for telemetry data
           if (superbitrf.timer < get_sys_time_usec()) {
