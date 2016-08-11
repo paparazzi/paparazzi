@@ -82,6 +82,7 @@ bool nav_survey_active;
 
 int32_t nav_roll, nav_pitch;
 int32_t nav_heading;
+int32_t nav_cmd_roll, nav_cmd_pitch, nav_cmd_yaw;
 float nav_radius;
 float nav_climb_vspeed, nav_descend_vspeed;
 
@@ -175,6 +176,9 @@ void nav_init(void)
   nav_roll = 0;
   nav_pitch = 0;
   nav_heading = 0;
+  nav_cmd_roll = 0;
+  nav_cmd_pitch = 0;
+  nav_cmd_yaw = 0;
   nav_radius = DEFAULT_CIRCLE_RADIUS;
   nav_climb_vspeed = NAV_CLIMB_VSPEED;
   nav_descend_vspeed = NAV_DESCEND_VSPEED;
@@ -482,16 +486,20 @@ void nav_home(void)
 
 /** Set manual roll, pitch and yaw without stabilization
  *
- * @param[in] roll The angle in radians (float)
- * @param[in] pitch The angle in radians (float)
- * @param[in] yaw The angle in radians (float)
+ * @param[in] roll command in pprz scale (int32_t)
+ * @param[in] pitch command in pprz scale (int32_t)
+ * @param[in] yaw command in pprz scale (int32_t)
+ *
+ * This function allows to directly set commands from the flight plan,
+ * if in nav_manual mode.
+ * This is for instance useful for helicopters during the spinup
  */
-void nav_set_manual(float roll, float pitch, float yaw)
+void nav_set_manual(int32_t roll, int32_t pitch, int32_t yaw)
 {
   horizontal_mode = HORIZONTAL_MODE_MANUAL;
-  nav_roll = ANGLE_BFP_OF_REAL(roll);
-  nav_pitch = ANGLE_BFP_OF_REAL(pitch);
-  nav_heading = ANGLE_BFP_OF_REAL(yaw);
+  nav_cmd_roll = roll;
+  nav_cmd_pitch = pitch;
+  nav_cmd_yaw = yaw;
 }
 
 /** Returns squared horizontal distance to given point */

@@ -415,9 +415,9 @@ void guidance_h_run(bool  in_flight)
       }
 
       if (horizontal_mode == HORIZONTAL_MODE_MANUAL) {
-        stabilization_cmd[COMMAND_ROLL]  = nav_roll;
-        stabilization_cmd[COMMAND_PITCH] = nav_pitch;
-        stabilization_cmd[COMMAND_YAW]   = nav_heading;
+        stabilization_cmd[COMMAND_ROLL]  = nav_cmd_roll;
+        stabilization_cmd[COMMAND_PITCH] = nav_cmd_pitch;
+        stabilization_cmd[COMMAND_YAW]   = nav_cmd_yaw;
       } else if (horizontal_mode == HORIZONTAL_MODE_ATTITUDE) {
         struct Int32Eulers sp_cmd_i;
         sp_cmd_i.phi = nav_roll;
