@@ -9,8 +9,6 @@
 #include "nps_sensors.h"
 #include "nps_autopilot.h"
 
-
-
 #define SIM_DT     (1./SYS_TIME_FREQUENCY)
 #define DISPLAY_DT (1./30.)
 #define HOST_TIMEOUT_MS 40
