@@ -126,7 +126,7 @@ void nps_ivy_send_WORLD_ENV_REQ(void)
   struct NpsFdm fdm_ivy;
 
   pthread_mutex_lock(&fdm_mutex);
-  memcpy (&fdm_ivy, fdm, sizeof(struct NpsFdm));
+  memcpy(&fdm_ivy, &fdm, sizeof(struct NpsFdm));
   pthread_mutex_unlock(&fdm_mutex);
 
   IvySendMsg("nps %d_%d WORLD_ENV_REQ %f %f %f %f %f %f",
