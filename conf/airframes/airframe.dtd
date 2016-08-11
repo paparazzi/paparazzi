@@ -75,6 +75,7 @@ max CDATA #REQUIRED>
 
 <!ATTLIST curve
 throttle CDATA #REQUIRED
+rpm CDATA #IMPLIED
 collective CDATA #REQUIRED>
 
 <!ATTLIST axis

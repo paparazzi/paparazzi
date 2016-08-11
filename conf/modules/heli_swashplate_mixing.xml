@@ -4,7 +4,6 @@
   <doc>
     <description>Helicopter Swashplate Mixing</description>
   </doc>
-  <depends>heli_throttle_curve.xml</depends>
   <header>
     <file name="swashplate_mixing.h"/>
   </header>

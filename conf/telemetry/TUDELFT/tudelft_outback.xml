@@ -30,6 +30,7 @@
       <message name="TEMP_ADC"               period="3.0"/>
       <message name="FBW_STATUS"             period="2.0"/>
       <message name="MOTOR"                  period="0.5"/>
+      <message name="THROTTLE_CURVE"         period="0.5"/>
     </mode>
 
     <mode name="ppm">
@@ -151,11 +152,15 @@
 
   <process name="Logger">
     <mode name="default">
-      <message name="ROTORCRAFT_STATUS"      period="1.2"/>
-      <message name="DL_VALUE"               period="0.5"/>
-      <message name="IMU_GYRO_SCALED"        period=".002"/>
-      <message name="IMU_MAG_SCALED"         period=".1"/>
-      <message name="ROTORCRAFT_CMD"         period=".002"/>
+       <message name="ROTORCRAFT_STATUS"      period="1.2"/>
+       <message name="IMU_GYRO_SCALED"        period=".2"/>
+       <message name="IMU_MAG_SCALED"         period=".2"/>
+       <message name="ROTORCRAFT_CMD"         period=".2"/>
+       <message name="RATE_LOOP"              period=".2"/>
+       <message name="MOTOR"                  period=".01"/>
+       <message name="AIR_DATA"               period=".01"/>
+       <message name="THROTTLE_CURVE"         period=".01"/>
+       <message name="AUTOPILOT_VERSION"      period="10.0"/>
     </mode>
   </process>
 
