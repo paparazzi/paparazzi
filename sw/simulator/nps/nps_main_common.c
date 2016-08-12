@@ -86,18 +86,7 @@ int nps_main_init(int argc, char **argv)
   nps_sensors_init(nps_main.sim_time);
   printf("Simulating with dt of %f\n", SIM_DT);
 
-  enum NpsRadioControlType rc_type;
-  char *rc_dev = NULL;
-  if (nps_main.js_dev) {
-    rc_type = JOYSTICK;
-    rc_dev = nps_main.js_dev;
-  } else if (nps_main.spektrum_dev) {
-    rc_type = SPEKTRUM;
-    rc_dev = nps_main.spektrum_dev;
-  } else {
-    rc_type = SCRIPT;
-  }
-  nps_autopilot_init(rc_type, nps_main.rc_script, rc_dev);
+  nps_radio_and_autopilot_init();
 
 #if DEBUG_NPS_TIME
   printf("host_time_factor,host_time_elapsed,host_time_now,scaled_initial_time,sim_time_before,display_time_before,sim_time_after,display_time_after\n");

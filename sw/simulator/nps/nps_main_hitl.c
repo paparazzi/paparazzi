@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "termios.h"
 #include <fcntl.h>
@@ -70,6 +71,10 @@ int main(int argc, char **argv)
   pthread_join(th_main_loop, NULL);
 
   return 0;
+}
+
+void nps_radio_and_autopilot_init(void){
+  autopilot.launch = FALSE;
 }
 
 void nps_update_launch_from_dl(uint8_t value){

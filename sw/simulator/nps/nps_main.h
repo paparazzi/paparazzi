@@ -24,6 +24,7 @@ int pauseSignal; // for catching SIGTSTP
 bool nps_main_parse_options(int argc, char **argv);
 
 int nps_main_init(int argc, char **argv);
+void nps_radio_and_autopilot_init(void);
 void nps_main_run_sim_step(void);
 void nps_set_time_factor(float time_factor);
 

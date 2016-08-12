@@ -30,7 +30,7 @@
 #include "nps_fdm.h"
 
 
-void nps_update_launch_from_dl(uint8_t value __attribute__((unused))){}
+
 
 int main(int argc, char **argv)
 {
@@ -44,6 +44,25 @@ int main(int argc, char **argv)
   pthread_join(th_main_loop, NULL);
 
   return 0;
+}
+
+
+void nps_update_launch_from_dl(uint8_t value __attribute__((unused))){}
+
+
+void nps_radio_and_autopilot_init(void){
+  enum NpsRadioControlType rc_type;
+  char *rc_dev = NULL;
+  if (nps_main.js_dev) {
+    rc_type = JOYSTICK;
+    rc_dev = nps_main.js_dev;
+  } else if (nps_main.spektrum_dev) {
+    rc_type = SPEKTRUM;
+    rc_dev = nps_main.spektrum_dev;
+  } else {
+    rc_type = SCRIPT;
+  }
+  nps_autopilot_init(rc_type, nps_main.rc_script, rc_dev);
 }
 
 
