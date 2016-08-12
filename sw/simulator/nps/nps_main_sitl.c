@@ -30,6 +30,8 @@
 #include "nps_fdm.h"
 
 
+void nps_update_launch_from_dl(uint8_t value __attribute__((unused))){}
+
 int main(int argc, char **argv)
 {
   if (nps_main_init(argc, argv)) {
