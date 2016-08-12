@@ -50,6 +50,7 @@ ifdef USE_HITL
 nps.CFLAGS  += -DUSE_HITL=1
 $(info USE_HITL defined)
 nps.srcs += $(NPSDIR)/nps_main_hitl.c
+nps.srcs += $(NPSDIR)/nps_ins_vectornav.c
 
 ifdef AP_DEV
 nps.CFLAGS += -DAP_DEV=\"$(AP_DEV)\"

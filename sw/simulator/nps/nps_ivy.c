@@ -24,6 +24,11 @@
 
 #include NPS_SENSORS_PARAMS
 
+pthread_t th_ivy_main; // runs main Ivy loop
+static MsgRcvPtr ivyPtr = NULL;
+static int seq = 1;
+
+
 /* Gaia Ivy functions */
 static void on_WORLD_ENV(IvyClientPtr app __attribute__((unused)),
                          void *user_data __attribute__((unused)),
@@ -34,7 +39,8 @@ static void on_DL_SETTING(IvyClientPtr app __attribute__((unused)),
                           void *user_data __attribute__((unused)),
                           int argc __attribute__((unused)), char *argv[]);
 
-pthread_t th_ivy_main; // runs main Ivy loop
+void* ivy_main_loop(void* data __attribute__((unused)));
+
 
 void* ivy_main_loop(void* data __attribute__((unused)))
 {
@@ -66,6 +72,8 @@ void nps_ivy_init(char *ivy_bus)
     IvyStart(ivy_bus);
   }
 
+  nps_ivy_send_world_env = false;
+
   // Launch separate thread with IvyMainLoop()
   pthread_create(&th_ivy_main, NULL, ivy_main_loop, NULL);
 
@@ -85,8 +93,6 @@ static void on_WORLD_ENV(IvyClientPtr app __attribute__((unused)),
   wind.y = atof(argv[2]); //north
   wind.z = atof(argv[3]); //up
 
-  pthread_mutex_lock(&fdm_mutex);
-
   /* set wind speed in NED */
   nps_atmosphere_set_wind_ned(wind.y, wind.x, -wind.z);
 
@@ -100,14 +106,12 @@ static void on_WORLD_ENV(IvyClientPtr app __attribute__((unused)),
   // directly set gps fix in subsystems/gps/gps_sim_nps.h
   gps_has_fix = atoi(argv[6]); // gps_availability
 #endif
-  pthread_mutex_unlock(&fdm_mutex);
 }
 
 /*
  * Send a WORLD_ENV_REQ message
  */
-static MsgRcvPtr ivyPtr = NULL;
-static int seq = 1;
+
 
 void nps_ivy_send_WORLD_ENV_REQ(void)
 {
@@ -124,10 +128,7 @@ void nps_ivy_send_WORLD_ENV_REQ(void)
 
   // Send actual request
   struct NpsFdm fdm_ivy;
-
-  pthread_mutex_lock(&fdm_mutex);
   memcpy(&fdm_ivy, &fdm, sizeof(struct NpsFdm));
-  pthread_mutex_unlock(&fdm_mutex);
 
   IvySendMsg("nps %d_%d WORLD_ENV_REQ %f %f %f %f %f %f",
       pid, seq,
@@ -138,6 +139,8 @@ void nps_ivy_send_WORLD_ENV_REQ(void)
       (fdm_ivy.ltpprz_pos.y),
       (fdm_ivy.ltpprz_pos.z));
   seq++;
+
+  nps_ivy_send_world_env = false;
 }
 
 
@@ -163,7 +166,7 @@ static void on_DL_SETTING(IvyClientPtr app __attribute__((unused)),
   DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &index, &value);
   printf("setting %d %f\n", index, value);
 
-  // TOD?
+  // TOD0: ?
   if (index==8){ // TODO: match with the proper name (launch)
     autopilot.launch = value; // TODO: use only if using HITL
   }
@@ -232,4 +235,8 @@ void nps_ivy_display(struct NpsFdm* fdm_data, struct NpsSensors* sensors_data)
              fdm_ivy.wind.x,
              fdm_ivy.wind.y,
              fdm_ivy.wind.z);
+
+  if(nps_ivy_send_world_env){
+    nps_ivy_send_WORLD_ENV_REQ();
+  }
 }
