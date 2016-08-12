@@ -1,11 +1,15 @@
 # Hey Emacs, this is a -*- makefile -*-
 
 #
-# NPS SITL Simulator
+# NPS Simulator
+#
+# Common makefile for both SITL/HITL simulation
 #
 # still needs a FDM backend to be specified, e.g.
 # <subsystem name="fdm" type="jsbsim"/>
 #
+
+USE_HITL ?= 1
 
 nps.ARCHDIR = sim
 
@@ -13,9 +17,10 @@ nps.ARCHDIR = sim
 nps.MAKEFILE = nps
 
 nps.CFLAGS  += -DSITL -DUSE_NPS
-nps.CFLAGS  += $(shell pkg-config glib-2.0 --cflags)
-nps.LDFLAGS += $(shell pkg-config glib-2.0 --libs) -lm -livy $(shell pcre-config --libs) -lgsl -lgslcblas
+nps.LDFLAGS += -lm -livy $(shell pcre-config --libs) -lgsl -lgslcblas -lrt
 nps.CFLAGS  += -I$(SRC_FIRMWARE) -I$(SRC_BOARD) -I$(PAPARAZZI_SRC)/sw/simulator -I$(PAPARAZZI_SRC)/sw/simulator/nps -I$(PAPARAZZI_HOME)/conf/simulator/nps
+
+# sdl needed for joystick input
 nps.LDFLAGS += $(shell sdl-config --libs)
 
 
@@ -39,46 +44,19 @@ nps.srcs +=                                      \
        $(NPSDIR)/nps_sensor_temperature.c        \
        $(NPSDIR)/nps_electrical.c                \
        $(NPSDIR)/nps_atmosphere.c                \
+       $(NPSDIR)/nps_ivy.c                       \
+       $(NPSDIR)/nps_flightgear.c                \
        $(NPSDIR)/nps_radio_control.c             \
        $(NPSDIR)/nps_radio_control_joystick.c    \
        $(NPSDIR)/nps_radio_control_spektrum.c    \
-       $(NPSDIR)/nps_ivy.c                       \
-       $(NPSDIR)/nps_flightgear.c                \
        $(NPSDIR)/nps_main_common.c
 
-ifdef USE_HITL
-nps.CFLAGS  += -DUSE_HITL=1
+ifeq ($(USE_HITL),1)
 $(info USE_HITL defined)
-nps.srcs += $(NPSDIR)/nps_main_hitl.c
-nps.srcs += $(NPSDIR)/nps_ins_vectornav.c
-
-ifdef AP_DEV
-nps.CFLAGS += -DAP_DEV=\"$(AP_DEV)\"
-else
-nps.CFLAGS += -DAP_DEV=\"/dev/ttyUSB2\"
-endif
-
-ifdef AP_BAUD
-nps.CFLAGS += -DAP_BAUD=$(AP_BAUD)
-else
-nps.CFLAGS += -DAP_BAUD=B3000000
-endif
-
-ifdef INS_DEV
-nps.CFLAGS += -DINS_DEV=\"$(INS_DEV)\"
-else
-nps.CFLAGS += -DINS_DEV=\"/dev/ttyUSB1\"
-endif
-
-ifdef AP_BAUD
-nps.CFLAGS += -DINS_BAUD=$(INS_BAUD)
-else
-nps.CFLAGS += -DINS_BAUD=B921600
-endif
-
+include $(CFG_SHARED)/nps_hitl.makefile
 else
 $(info USE_HITL undefined)
-nps.srcs += $(NPSDIR)/nps_main_sitl.c
+include $(CFG_SHARED)/nps_sitl.makefile
 endif
 
 # for geo mag calculation
