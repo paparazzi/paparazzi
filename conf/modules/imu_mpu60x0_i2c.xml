@@ -1,0 +1,37 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="imu_mpu60x0_i2c" dir="imu">
+  <doc>
+    <description>
+      IMU with MPU60x0 via I2C.
+    </description>
+    <configure name="IMU_MPU60X0_I2C_DEV" value="i2c1" description="I2C device to use for MPU60x0"/>
+    <define name="IMU_MPU60X0_LOWPASS_FILTER" value="MPU60X0_DLPF_256HZ" description="DigitalLowPassFilter setting of the MPU"/>
+    <define name="IMU_MPU60X0_SMPLRT_DIV" value="3" description="sample rate divider setting of the MPU"/>
+    <define name="IMU_MPU60X0_GYRO_RANGE" value="MPU60X0_GYRO_RANGE_2000" description="gyroscope range setting of the MPU"/>
+    <define name="IMU_MPU60X0_ACCEL_RANGE" value="MPU60X0_ACCEL_RANGE_16G" description="accelerometer range setting of the MPU"/>
+    <define name="IMU_MPU60X0_I2C_ADDR" value="MPU60X0_ADDR" description="I2C address of the MPU"/>
+  </doc>
+  <autoload name="imu_common"/>
+  <autoload name="imu_nps"/>
+  <header>
+    <file name="imu_mpu60x0_i2c.h" dir="subsystems/imu"/>
+  </header>
+
+  <init fun="imu_mpu_i2c_init()"/>
+  <periodic fun="imu_mpu_i2c_periodic()"/>
+  <event fun="imu_mpu_i2c_event()"/>
+
+  <makefile target="!sim|nps|fbw">
+    <configure name="IMU_MPU60X0_I2C_DEV" default="i2c1" case="lower|upper"/>
+
+    <define name="IMU_MPU60X0_I2C_DEV" value="$(IMU_MPU60X0_I2C_DEV_LOWER)"/>
+    <define name="USE_$(IMU_MPU60X0_I2C_DEV_UPPER)"/>
+
+    <define name="IMU_TYPE_H" value="subsystems/imu/imu_mpu60x0_i2c.h" type="string"/>
+
+    <file name="mpu60x0.c" dir="peripherals"/>
+    <file name="mpu60x0_i2c.c" dir="peripherals"/>
+    <file name="imu_mpu6000.c" dir="subsystems/imu"/>
+  </makefile>
+</module>

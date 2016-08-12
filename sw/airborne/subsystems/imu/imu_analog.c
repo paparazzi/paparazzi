@@ -27,7 +27,7 @@ int imu_overrun;
 
 static struct adc_buf analog_imu_adc_buf[NB_ANALOG_IMU_ADC];
 
-void imu_impl_init(void)
+void imu_analog_init(void)
 {
 
   imu_overrun = 0;
@@ -53,7 +53,7 @@ void imu_impl_init(void)
 
 }
 
-void imu_periodic(void)
+void imu_analog_periodic(void)
 {
   // Actual Nr of ADC measurements per channel per periodic loop
   static int last_head = 0;

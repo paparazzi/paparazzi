@@ -80,7 +80,7 @@ PRINT_CONFIG_VAR(ASPIRIN_GYRO_SMPLRT_DIV)
 
 struct ImuAspirinI2c imu_aspirin;
 
-void imu_impl_init(void)
+void imu_aspirin_i2c_init(void)
 {
   /* Set accel configuration */
   adxl345_i2c_init(&imu_aspirin.acc_adxl, &(ASPIRIN_I2C_DEV), ADXL345_ADDR);
@@ -115,7 +115,7 @@ void imu_impl_init(void)
 }
 
 
-void imu_periodic(void)
+void imu_aspirin_i2c_periodic(void)
 {
   adxl345_i2c_periodic(&imu_aspirin.acc_adxl);
 

@@ -79,7 +79,7 @@ PRINT_CONFIG_VAR(DROTEK_2_HMC_I2C_ADDR)
 
 struct ImuDrotek2 imu_drotek2;
 
-void imu_impl_init(void)
+void imu_drotek2_init(void)
 {
   /* MPU-60X0 */
   mpu60x0_i2c_init(&imu_drotek2.mpu, &(DROTEK_2_I2C_DEV), DROTEK_2_MPU_I2C_ADDR);
@@ -103,7 +103,7 @@ void imu_impl_init(void)
   imu_drotek2.mpu.config.i2c_bypass = true;
 }
 
-void imu_periodic(void)
+void imu_drotek2_periodic(void)
 {
   // Start reading the latest gyroscope data
   mpu60x0_i2c_periodic(&imu_drotek2.mpu);

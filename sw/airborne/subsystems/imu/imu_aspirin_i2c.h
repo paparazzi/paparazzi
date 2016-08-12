@@ -48,8 +48,8 @@ struct ImuAspirinI2c {
 
 extern struct ImuAspirinI2c imu_aspirin;
 
+extern void imu_aspirin_i2c_init(void);
+extern void imu_aspirin_i2c_periodic(void);
 extern void imu_aspirin_i2c_event(void);
-
-#define ImuEvent imu_aspirin_i2c_event
 
 #endif /* IMU_ASPIRIN_I2C_H */

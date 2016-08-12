@@ -48,8 +48,8 @@ struct ImuGL1I2c {
 
 extern struct ImuGL1I2c imu_gl1;
 
-extern void imu_gl1_i2c_event(void);
-
-#define ImuEvent imu_gl1_i2c_event
+extern void imu_gl1_init(void);
+extern void imu_gl1_periodic(void);
+extern void imu_gl1_event(void);
 
 #endif /* IMU_GL1_H */

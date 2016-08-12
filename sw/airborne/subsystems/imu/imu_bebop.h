@@ -76,8 +76,9 @@ struct ImuBebop {
 };
 
 extern struct ImuBebop imu_bebop;
-extern void imu_bebop_event(void);
 
-#define ImuEvent imu_bebop_event
+extern void imu_bebop_init(void);
+extern void imu_bebop_periodic(void);
+extern void imu_bebop_event(void);
 
 #endif /* IMU_BEBOP_H */

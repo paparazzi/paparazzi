@@ -1,0 +1,65 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="imu_mpu6000_hmc5883" dir="imu">
+  <doc>
+    <description>
+      IMU with MPU6000 and HMC5883.
+      MPU6000 via SPI and HMC5883 via I2C.
+      Mag by default rotated by 90deg around z axis relative to MPU.
+      E.g. for Aspirin 2.1
+    </description>
+    <configure name="IMU_MPU_SPI_DEV" value="spi2" description="SPI device to use for MPU6000"/>
+    <configure name="IMU_MPU_SPI_SLAVE_IDX" value="SPI_SLAVE0" description="slave index of the MPU CS pin"/>
+    <configure name="IMU_HMC_I2C_DEV" value="i2c2" description="I2C device to use for HMC5883"/>
+    <define name="IMU_MPU_LOWPASS_FILTER" value="MPU60X0_DLPF_256HZ" description="DigitalLowPassFilter setting of the MPU"/>
+    <define name="IMU_MPU_SMPLRT_DIV" value="3" description="sample rate divider setting of the MPU"/>
+    <define name="IMU_MPU_GYRO_RANGE" value="MPU60X0_GYRO_RANGE_2000" description="gyroscope range setting of the MPU"/>
+    <define name="IMU_MPU_ACCEL_RANGE" value="MPU60X0_ACCEL_RANGE_16G" description="accelerometer range setting of the MPU"/>
+    <define name="IMU_MPU_CHAN_X" value="0" description="channel index"/>
+    <define name="IMU_MPU_CHAN_Y" value="1" description="channel index"/>
+    <define name="IMU_MPU_CHAN_Z" value="2" description="channel index"/>
+    <define name="IMU_MPU_X_SIGN" value="1" description="axis sign"/>
+    <define name="IMU_MPU_Y_SIGN" value="1" description="axis sign"/>
+    <define name="IMU_MPU_Z_SIGN" value="1" description="axis sign"/>
+
+    <define name="IMU_HMC_CHAN_X" value="1" description="channel index"/>
+    <define name="IMU_HMC_CHAN_Y" value="0" description="channel index"/>
+    <define name="IMU_HMC_CHAN_Z" value="2" description="channel index"/>
+    <define name="IMU_HMC_X_SIGN" value="1" description="axis sign"/>
+    <define name="IMU_HMC_Y_SIGN" value="-1" description="axis sign"/>
+    <define name="IMU_HMC_Z_SIGN" value="1" description="axis sign"/>
+  </doc>
+  <autoload name="imu_common"/>
+  <autoload name="imu_nps"/>
+  <header>
+    <file name="imu_mpu6000_hmc5883.h" dir="subsystems/imu"/>
+  </header>
+
+  <init fun="imu_mpu_hmc_init()"/>
+  <periodic fun="imu_mpu_hmc_periodic()"/>
+  <event fun="imu_mpu_hmc_event()"/>
+
+  <makefile target="!sim|nps|fbw">
+    <configure name="IMU_MPU_SPI_DEV" default="spi2" case="lower|upper"/>
+    <configure name="IMU_MPU_SPI_SLAVE_IDX" default="SPI_SLAVE0"/>
+
+    <define name="IMU_MPU_SPI_DEV" value="$(IMU_MPU_SPI_DEV_LOWER)"/>
+    <define name="USE_$(IMU_MPU_SPI_DEV_UPPER)"/>
+    <define name="IMU_MPU_SPI_SLAVE_IDX" value="$(IMU_MPU_SPI_SLAVE_IDX)"/>
+    <define name="USE_$(IMU_MPU_SPI_SLAVE_IDX)"/>
+
+    <configure name="IMU_HMC_I2C_DEV" default="i2c2" case="lower|upper"/>
+    <define name="IMU_HMC_I2C_DEV" value="$(IMU_HMC_I2C_DEV_LOWER)"/>
+    <define name="USE_$(IMU_HMC_I2C_DEV_UPPER)"/>
+
+    <define name="IMU_TYPE_H" value="subsystems/imu/imu_mpu6000_hmc5883.h" type="string"/>
+
+    <file name="mpu60x0.c" dir="peripherals"/>
+    <file name="mpu60x0_spi.c" dir="peripherals"/>
+    <file name="hmc58xx.c" dir="peripherals"/>
+    <file name="imu_mpu6000_hmc5883.c" dir="subsystems/imu"/>
+    <raw>
+      include $(CFG_SHARED)/spi_master.makefile
+    </raw>
+  </makefile>
+</module>

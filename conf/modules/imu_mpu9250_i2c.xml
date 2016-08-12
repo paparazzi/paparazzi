@@ -1,0 +1,43 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="imu_mpu9250_i2c" dir="imu">
+  <doc>
+    <description>
+      IMU with MPU9250 via I2C.
+      Also reads the internal AK8963 magnetometer.
+    </description>
+    <configure name="IMU_MPU9250_I2C_DEV" value="i2c2" description="I2C device to use for MPU9250"/>
+    <define name="IMU_MPU9250_GYRO_LOWPASS_FILTER" value="MPU9250_DLPF_GYRO_250HZ" description="gyro DigitalLowPassFilter setting of the MPU"/>
+    <define name="IMU_MPU9250_ACCEL_LOWPASS_FILTER" value="MPU9250_DLPF_ACCEL_184HZ" description="accelerometer DigitalLowPassFilter setting of the MPU"/>
+    <define name="IMU_MPU9250_SMPLRT_DIV" value="3" description="sample rate divider setting of the MPU"/>
+    <define name="IMU_MPU9250_GYRO_RANGE" value="MPU9250_GYRO_RANGE_1000" description="gyroscope range setting of the MPU"/>
+    <define name="IMU_MPU9250_ACCEL_RANGE" value="MPU9250_ACCEL_RANGE_8G" description="accelerometer range setting of the MPU"/>
+    <define name="IMU_MPU9250_I2C_ADDR" value="MPU9250_ADDR_ALT" description="I2C address of the MPU"/>
+    <define name="IMU_MPU9250_CHAN_X" value="0" description="channel index"/>
+    <define name="IMU_MPU9250_CHAN_Y" value="1" description="channel index"/>
+    <define name="IMU_MPU9250_CHAN_Z" value="2" description="channel index"/>
+  </doc>
+  <autoload name="imu_common"/>
+  <autoload name="imu_nps"/>
+  <header>
+    <file name="imu_mpu9250_i2c.h" dir="subsystems/imu"/>
+  </header>
+
+  <init fun="imu_mpu9250_init()"/>
+  <periodic fun="imu_mpu9250_periodic()"/>
+  <event fun="imu_mpu9250_event()"/>
+
+  <makefile target="!sim|nps|fbw">
+    <configure name="IMU_MPU9250_I2C_DEV" default="i2c2" case="lower|upper"/>
+
+    <define name="IMU_MPU9250_I2C_DEV" value="$(IMU_MPU9250_I2C_DEV_LOWER)"/>
+    <define name="USE_$(IMU_MPU9250_I2C_DEV_UPPER)"/>
+
+    <define name="IMU_TYPE_H" value="subsystems/imu/imu_mpu9250_i2c.h" type="string"/>
+
+    <file name="mpu9250.c" dir="peripherals"/>
+    <file name="mpu9250_i2c.c" dir="peripherals"/>
+    <file name="ak8963.c" dir="peripherals"/>
+    <file name="imu_mpu6000.c" dir="subsystems/imu"/>
+  </makefile>
+</module>

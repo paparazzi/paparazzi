@@ -27,17 +27,13 @@
 
 struct ImuNps imu_nps;
 
-void imu_impl_init(void)
+void imu_nps_init(void)
 {
 
   imu_nps.gyro_available = false;
   imu_nps.mag_available = false;
   imu_nps.accel_available = false;
 
-}
-
-void imu_periodic(void)
-{
 }
 
 

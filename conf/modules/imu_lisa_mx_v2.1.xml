@@ -1,0 +1,11 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="imu_lisa_mx_v2.1" dir="imu">
+  <doc>
+    <description>
+      IMU on Lisa/MX v2.1 boards.
+      This is just a convenience "alias" for imu_lisa_m_v2.1
+    </description>
+  </doc>
+  <autoload name="imu_lisa_m_v2.1"/>
+</module>

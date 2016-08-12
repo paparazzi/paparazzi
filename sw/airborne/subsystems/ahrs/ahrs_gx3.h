@@ -93,23 +93,8 @@ extern void ahrs_gx3_align(void);
 extern void ahrs_gx3_register(void);
 extern void ahrs_gx3_publish_imu(void);
 
-static inline void ReadGX3Buffer(void)
-{
-  while (uart_char_available(&GX3_PORT) && !ahrs_gx3.packet.msg_available) {
-    gx3_packet_parse(uart_getch(&GX3_PORT));
-  }
-}
-
-static inline void ImuEvent(void)
-{
-  if (uart_char_available(&GX3_PORT)) {
-    ReadGX3Buffer();
-  }
-  if (ahrs_gx3.packet.msg_available) {
-    gx3_packet_read_message();
-    ahrs_gx3_publish_imu();
-    ahrs_gx3.packet.msg_available = false;
-  }
-}
+extern void imu_gx3_init(void);
+extern void imu_gx3_periodic(void);
+extern void imu_gx3_event(void);
 
 #endif /* AHRS_GX3_H*/
