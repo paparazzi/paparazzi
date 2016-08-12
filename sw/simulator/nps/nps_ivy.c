@@ -18,6 +18,10 @@
 #include "nps_sensors.h"
 #include "nps_atmosphere.h"
 
+#include "generated/settings.h"
+#include "pprzlink/dl_protocol.h"
+#include "subsystems/datalink/downlink.h"
+
 #if USE_GPS
 #include "subsystems/gps.h"
 #endif
@@ -27,6 +31,7 @@
 pthread_t th_ivy_main; // runs main Ivy loop
 static MsgRcvPtr ivyPtr = NULL;
 static int seq = 1;
+static int ap_launch_index;
 
 
 /* Gaia Ivy functions */
@@ -40,6 +45,8 @@ static void on_DL_SETTING(IvyClientPtr app __attribute__((unused)),
                           int argc __attribute__((unused)), char *argv[]);
 
 void* ivy_main_loop(void* data __attribute__((unused)));
+
+int find_launch_index(void);
 
 
 void* ivy_main_loop(void* data __attribute__((unused)))
@@ -73,6 +80,8 @@ void nps_ivy_init(char *ivy_bus)
   }
 
   nps_ivy_send_world_env = false;
+
+  ap_launch_index = find_launch_index();
 
   // Launch separate thread with IvyMainLoop()
   pthread_create(&th_ivy_main, NULL, ivy_main_loop, NULL);
@@ -143,10 +152,20 @@ void nps_ivy_send_WORLD_ENV_REQ(void)
   nps_ivy_send_world_env = false;
 }
 
+int find_launch_index(void)
+{
+  static const char ap_launch[] = "lau"; // short name has only 3 first letters
+  char *ap_settings[NB_SETTING] = SETTINGS_NAMES_SHORT;
 
-#include "generated/settings.h"
-#include "pprzlink/dl_protocol.h"
-#include "subsystems/datalink/downlink.h"
+  // list through the settinsg
+  for (uint8_t idx=0;idx<NB_SETTING;idx++) {
+   if (strcmp(ap_settings[idx],ap_launch) == 0) {
+     return (int)idx;
+    }
+  }
+  return -1;
+}
+
 static void on_DL_SETTING(IvyClientPtr app __attribute__((unused)),
                           void *user_data __attribute__((unused)),
                           int argc __attribute__((unused)), char *argv[])
@@ -166,9 +185,16 @@ static void on_DL_SETTING(IvyClientPtr app __attribute__((unused)),
   DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &index, &value);
   printf("setting %d %f\n", index, value);
 
-  // TOD0: ?
-  if (index==8){ // TODO: match with the proper name (launch)
-    autopilot.launch = value; // TODO: use only if using HITL
+  /*
+   * In case of HITL, update autopilot.launch from DL_SETTINGS
+   * so the plane can be properly launched.
+   *
+   * In case of STIL nps_update_launch_from_dl() is an empty function
+   */
+  if ((ap_launch_index >= 0) || (ap_launch_index < NB_SETTING)) {
+    if (index==ap_launch_index){
+      nps_update_launch_from_dl(value);
+    }
   }
 }
 

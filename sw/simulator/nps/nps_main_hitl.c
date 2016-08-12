@@ -72,6 +72,10 @@ int main(int argc, char **argv)
   return 0;
 }
 
+void nps_update_launch_from_dl(uint8_t value){
+  autopilot.launch = value;
+}
+
 void nps_main_run_sim_step(void)
 {
   nps_atmosphere_update(SIM_DT);

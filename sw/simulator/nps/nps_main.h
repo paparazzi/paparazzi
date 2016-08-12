@@ -37,6 +37,8 @@ void cont_hdl(int n __attribute__((unused)));
 double time_to_double(struct timeval *t);
 double ntime_to_double(struct timespec *t);
 
+void nps_update_launch_from_dl(uint8_t value);
+
 struct NpsMain {
   double real_initial_time;
   double scaled_initial_time;
