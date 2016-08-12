@@ -16,7 +16,9 @@
     <module name="radio_control" type="ppm"/>
     <module name="telemetry"     type="xbee_api"/>
     <module name="control"       type="adaptive"/>
-    <module name="imu"           type="mpu9250_i2c"/>
+    <module name="imu"           type="mpu9250_i2c">
+      <configure name="IMU_MPU9250_I2C_DEV" value="i2c0"/>
+    </module>
     <module name="ahrs"          type="float_dcm"/>
     <module name="ins"           type="alt_float"/>
     <module name="gps"           type="ublox"/>
