@@ -9,7 +9,7 @@
 # <subsystem name="fdm" type="jsbsim"/>
 #
 
-USE_HITL ?= 1
+USE_HITL ?= 0
 
 nps.ARCHDIR = sim
 

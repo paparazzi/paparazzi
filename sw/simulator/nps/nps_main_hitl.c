@@ -51,6 +51,7 @@
 
 #include "nps_ins.h"
 
+
 void* nps_ins_data_loop(void* data __attribute__((unused)));
 void* nps_ap_data_loop(void* data __attribute__((unused)));
 
@@ -74,7 +75,21 @@ int main(int argc, char **argv)
 }
 
 void nps_radio_and_autopilot_init(void){
-  autopilot.launch = FALSE;
+  // TODO: get rid of all this, not needed for HITL
+  // but now the simulation fails if Fw(init) and Ap(init)
+  // is not called:-/
+  enum NpsRadioControlType rc_type;
+  char *rc_dev = NULL;
+  if (nps_main.js_dev) {
+    rc_type = JOYSTICK;
+    rc_dev = nps_main.js_dev;
+  } else if (nps_main.spektrum_dev) {
+    rc_type = SPEKTRUM;
+    rc_dev = nps_main.spektrum_dev;
+  } else {
+    rc_type = SCRIPT;
+  }
+  nps_autopilot_init(rc_type, nps_main.rc_script, rc_dev);
 }
 
 void nps_update_launch_from_dl(uint8_t value){
