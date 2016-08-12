@@ -40,6 +40,7 @@ struct SysMon {
   uint16_t periodic_cycle_min; ///< in usec
   uint16_t periodic_cycle_max; ///< in usec
   uint16_t event_number;
+  float cpu_time; // in secs since startup
 };
 
 extern struct SysMon sys_mon;

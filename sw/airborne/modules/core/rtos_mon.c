@@ -46,12 +46,16 @@ void rtos_mon_periodic(void)
   // update struct
   rtos_mon_periodic_arch();
 
+  // update cpu time
+  rtos_mon.cpu_time = get_sys_time_float();
+
   // send report
   DOWNLINK_SEND_RTOS_MON(DefaultChannel, DefaultDevice,
       &rtos_mon.thread_counter,
       &rtos_mon.cpu_load,
       &rtos_mon.core_free_memory,
-      &rtos_mon.heap_free_memory);
+      &rtos_mon.heap_free_memory,
+      &rtos_mon.cpu_time);
 
 }
 

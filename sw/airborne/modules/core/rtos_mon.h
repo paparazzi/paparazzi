@@ -49,6 +49,7 @@ struct rtos_monitoring {
   uint16_t thread_free_stack[RTOS_MON_MAX_THREADS]; ///< individual thread free stack in bytes
   char thread_names[RTOS_MON_THREAD_NAMES+1];       ///< string of thread names / identifiers
   uint8_t thread_name_idx;                          ///< length of the string in thread_names buffer
+  float cpu_time; // in secs since startup
 };
 
 extern struct rtos_monitoring rtos_mon;
