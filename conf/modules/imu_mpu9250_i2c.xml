@@ -38,6 +38,6 @@
     <file name="mpu9250.c" dir="peripherals"/>
     <file name="mpu9250_i2c.c" dir="peripherals"/>
     <file name="ak8963.c" dir="peripherals"/>
-    <file name="imu_mpu6000.c" dir="subsystems/imu"/>
+    <file name="imu_mpu9250_i2c.c" dir="subsystems/imu"/>
   </makefile>
 </module>
