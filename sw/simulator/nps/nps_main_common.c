@@ -240,24 +240,18 @@ bool nps_main_parse_options(int argc, char **argv)
 
 void* nps_flight_gear_loop(void* data __attribute__((unused)))
 {
-  //gint64 end_time;
-  struct timespec requestStart, requestEnd, waitFor;
-//  int cnt = 0;
+  struct timespec requestStart;
+  struct timespec requestEnd;
+  struct timespec waitFor;
+  long int period_ns = DISPLAY_DT*1000000000L; // thread period in nanoseconds
+  long int task_ns = 0; // time it took to finish the task in nanoseconds
 
   if (nps_main.fg_host)
     nps_flightgear_init(nps_main.fg_host, nps_main.fg_port, nps_main.fg_port_in, nps_main.fg_time_offset);
 
   while(TRUE)
   {
-    //gettimeofday(&curTime, NULL);
     clock_gettime(CLOCK_REALTIME, &requestStart);
-
-    // TODO: increment clock value by PERIOD
-
-    //g_mutex_lock (&fdm_mutex);
-    //end_time = g_get_monotonic_time () + DISPLAY_DT * G_TIME_SPAN_SECOND;
-    //g_cond_wait_until (&fdm_cond, &fdm_mutex, end_time);
-    //g_mutex_unlock (&fdm_mutex);
 
     pthread_mutex_lock(&fdm_mutex);
     if (nps_main.fg_host) {
@@ -267,30 +261,23 @@ void* nps_flight_gear_loop(void* data __attribute__((unused)))
         nps_flightgear_send();
       }
     }
-    //nps_flightgear_receive();
-//
-//    cnt++;
-//    if( ( cnt % 100 ) == 0){
-//      printf("FG: Got another 100 sends, total of %i\n",cnt);
-//    }
     pthread_mutex_unlock(&fdm_mutex);
 
     clock_gettime(CLOCK_REALTIME, &requestEnd);
 
     // Calculate time it took
-    //double accum = (requestEnd.tv_sec - requestStart.tv_sec) + (requestEnd.tv_nsec - requestStart.tv_nsec)/ 1E9;
-    long int accum_ns = (requestEnd.tv_sec - requestStart.tv_sec)*1000000000L + (requestEnd.tv_nsec - requestStart.tv_nsec);
+    task_ns = (requestEnd.tv_sec - requestStart.tv_sec)*1000000000L + (requestEnd.tv_nsec - requestStart.tv_nsec);
 
-    if (accum_ns > 0) {
+    // task took less than one period, sleep for the rest of time
+    if (task_ns < period_ns) {
       waitFor.tv_sec = 0;
-      waitFor.tv_nsec = DISPLAY_DT*1000000000L - accum_ns;
-
-      //printf("FG THREAD: Worked for %f ms, waiting for another %f ms\n", (double)accum_ns/1E6, waitFor.tv_nsec/1E6);
-
+      waitFor.tv_nsec = period_ns - task_ns;
       nanosleep(&waitFor,NULL);
     }
     else {
-      printf("FG THREAD: took too long, exactly %f ms\n", (double)accum_ns/1E6);
+      // task took longer than the period
+      printf("FG THREAD: task took longer than one period, exactly %f [ms], but the period is %f [ms]\n",
+          (double)task_ns/1E6, (double)period_ns/1E6);
     }
   }
 
@@ -301,55 +288,43 @@ void* nps_flight_gear_loop(void* data __attribute__((unused)))
 
 void* nps_main_display(void* data __attribute__((unused)))
 {
-  struct timespec requestStart, requestEnd, waitFor;
-  int cnt = 0;
+  struct timespec requestStart;
+  struct timespec requestEnd;
+  struct timespec waitFor;
+  long int period_ns = 3*DISPLAY_DT*1000000000L; // thread period in nanoseconds
+  long int task_ns = 0; // time it took to finish the task in nanoseconds
 
   struct NpsFdm fdm_ivy;
   struct NpsSensors sensors_ivy;
 
   nps_ivy_init(nps_main.ivy_bus);
 
-  //gint64 end_time;
   while(TRUE)
   {
-    //g_mutex_lock (&fdm_mutex);
-    //end_time = g_get_monotonic_time () + DISPLAY_DT * G_TIME_SPAN_SECOND;
-    //g_cond_wait_until (&fdm_cond, &fdm_mutex, end_time);
-    //g_mutex_unlock (&fdm_mutex);
-
     clock_gettime(CLOCK_REALTIME, &requestStart);
 
     pthread_mutex_lock(&fdm_mutex);
-
-    //fdm_ivy = fdm;
     memcpy (&fdm_ivy, &fdm, sizeof(fdm));
-    //sensors_ivy = sensors;
     memcpy (&sensors_ivy, &sensors, sizeof(sensors));
-
-    //nps_ivy_display();
-    nps_main.display_time += DISPLAY_DT*10;
-    cnt++;
-//    if( ( cnt % 10 ) == 0){
-//      printf("IVY: Sent another 100 messages, total of %i\n",cnt);
-//    }
     pthread_mutex_unlock(&fdm_mutex);
 
     nps_ivy_display(&fdm_ivy, &sensors_ivy);
 
     clock_gettime(CLOCK_REALTIME, &requestEnd);
 
-    long int accum_ns = (requestEnd.tv_sec - requestStart.tv_sec)*1000000000L + (requestEnd.tv_nsec - requestStart.tv_nsec);
+    // Calculate time it took
+    task_ns = (requestEnd.tv_sec - requestStart.tv_sec)*1000000000L + (requestEnd.tv_nsec - requestStart.tv_nsec);
 
-    if (accum_ns > 0) {
+    // task took less than one period, sleep for the rest of time
+    if (task_ns < period_ns) {
       waitFor.tv_sec = 0;
-      waitFor.tv_nsec = DISPLAY_DT*3*1000000000L - accum_ns;
-
-      //printf("FG THREAD: Worked for %f ms, waiting for another %f ms\n", (double)accum_ns/1E6, waitFor.tv_nsec/1E6);
-
+      waitFor.tv_nsec = period_ns - task_ns;
       nanosleep(&waitFor,NULL);
     }
     else {
-      printf("IVY THREAD: took too long, exactly %f ms\n", (double)accum_ns/1E6);
+      // task took longer than the period
+      printf("IVY DISPLAY THREAD: task took longer than one period, exactly %f [ms], but the period is %f [ms]\n",
+          (double)task_ns/1E6, (double)period_ns/1E6);
     }
 
   }
