@@ -48,4 +48,10 @@
       endif
     </raw>
   </makefile>
+  
+  <!-- For some reason this doesn't work ?
+  <makefile target="nps">
+    <file name="nps_ins_vectornav.c" dir="nps"/>
+  </makefile>
+  -->
 </module>

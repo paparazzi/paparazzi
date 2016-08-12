@@ -9,6 +9,8 @@
 nps.CFLAGS  += -DUSE_HITL=1
 
 nps.srcs += $(NPSDIR)/nps_main_hitl.c
+
+# TODO: have this in ins_vectornav.xml 
 nps.srcs += $(NPSDIR)/nps_ins_vectornav.c
 
 # glib is still needed for some components (such as radio input)
