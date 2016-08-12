@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="telemetry_sim" dir="datalink">
+<module name="telemetry_sim" dir="datalink" task="datalink">
   <doc>
     <description>
       Telemetry using IVY for basic FW simulator

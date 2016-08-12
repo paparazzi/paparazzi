@@ -30,7 +30,8 @@
 
 <!ATTLIST module
 name CDATA #REQUIRED
-dir CDATA #IMPLIED>
+dir CDATA #IMPLIED
+task CDATA #IMPLIED>
 
 <!ATTLIST autoload
 name CDATA #REQUIRED

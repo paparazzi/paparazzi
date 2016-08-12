@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="telemetry_w5100" dir="datalink">
+<module name="telemetry_w5100" dir="datalink" task="datalink">
   <doc>
     <description>
       Telemetry using PPRZ protocol over W5100 Wifi module

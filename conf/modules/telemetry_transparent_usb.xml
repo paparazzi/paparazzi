@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="telemetry_transparent_usb" dir="datalink">
+<module name="telemetry_transparent_usb" dir="datalink" task="datalink">
   <doc>
     <description>
       Telemetry using PPRZ protocol over serial USB (e.g. /dev/ttyACM0)

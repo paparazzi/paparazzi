@@ -83,6 +83,7 @@ int main(void)
   } else {
     // but we still need downlink to be initialized
     downlink_init();
+    modules_datalink_init();
   }
 #endif
 

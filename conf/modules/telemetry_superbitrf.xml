@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="telemetry_superbitrf" dir="datalink">
+<module name="telemetry_superbitrf" dir="datalink" task="datalink">
   <doc>
     <description>
       Telemetry using PPRZ protocol over SuperbitRF module
