@@ -324,12 +324,9 @@ let parse_modules modules =
   print_function_freq modules;
   print_status modules;
   nl ();
-  fprintf out_h "#ifdef MODULES_C\n";
   print_init_functions modules;
   print_periodic_functions modules;
   print_event_functions modules;
-  nl ();
-  fprintf out_h "#endif // MODULES_C\n";
   nl ();
   fprintf out_h "#ifdef MODULES_DATALINK_C\n";
   print_datalink_functions modules;
