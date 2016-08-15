@@ -118,16 +118,9 @@ struct ImuKrooz {
 
 extern struct ImuKrooz imu_krooz;
 
-
-/* must be defined in order to be IMU code: declared in imu.h
-extern void imu_impl_init(void);
-extern void imu_periodic(void);
-*/
-
-/* Own Extra Functions */
+extern void imu_krooz_init(void);
+extern void imu_krooz_periodic(void);
 extern void imu_krooz_event(void);
 extern void imu_krooz_downlink_raw(void);
-
-#define ImuEvent imu_krooz_event
 
 #endif // IMU_KROOZ_H

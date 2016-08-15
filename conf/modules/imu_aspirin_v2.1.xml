@@ -1,0 +1,15 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="imu_aspirin_v2.1" dir="imu">
+  <doc>
+    <description>
+      Aspirin v2.1 IMU.
+      - Accelerometer/Gyrocope: MPU6000 via SPI
+      - Magnetometer: HMC58xx via I2C
+      For configuration see the imu_aspirin_v2_common module
+    </description>
+  </doc>
+  <autoload name="imu_aspirin_v2_common"/>
+  <makefile target="!sim|nps|fbw">
+  </makefile>
+</module>

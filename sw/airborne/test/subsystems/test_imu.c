@@ -23,6 +23,7 @@
 
 #define DATALINK_C
 #define ABI_C
+#define MODULES_C
 
 #ifdef BOARD_CONFIG
 #include BOARD_CONFIG
@@ -38,6 +39,8 @@
 
 #include "subsystems/imu.h"
 #include "subsystems/abi.h"
+
+#include "generated/modules.h"
 
 static abi_event gyro_ev;
 static abi_event accel_ev;
@@ -75,7 +78,7 @@ static inline void main_init(void)
 
   sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
 
-  imu_init();
+  modules_init();
 
   mcu_int_enable();
 
@@ -161,14 +164,14 @@ static inline void main_periodic_task(void)
     });
 #endif
 
-  if (sys_time.nb_sec > 1) { imu_periodic(); }
+  if (sys_time.nb_sec > 1) { modules_periodic_task(); }
   RunOnceEvery(10, { LED_PERIODIC();});
 }
 
 static inline void main_event_task(void)
 {
   mcu_event();
-  ImuEvent();
+  modules_event_task();
 }
 
 static void accel_cb(uint8_t sender_id __attribute__((unused)),

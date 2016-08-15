@@ -35,7 +35,7 @@ struct ImuBooz2 imu_b2;
 
 PRINT_CONFIG_VAR(IMU_B2_MAG_TYPE)
 
-void imu_impl_init(void)
+void imu_b2_init(void)
 {
 
   max1168_init();
@@ -54,7 +54,7 @@ void imu_impl_init(void)
 }
 
 #include "led.h"
-void imu_periodic(void)
+void imu_b2_periodic(void)
 {
 
   // read adc

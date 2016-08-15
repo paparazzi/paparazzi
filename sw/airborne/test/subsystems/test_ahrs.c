@@ -27,6 +27,7 @@
  * in order to implement telemetry_mode_Main_*
  */
 #define PERIODIC_C_MAIN
+#define MODULES_C
 
 #include "generated/periodic_telemetry.h"
 
@@ -45,6 +46,7 @@
 
 #include "subsystems/datalink/datalink.h"
 #include "generated/settings.h"
+#include "generated/modules.h"
 
 #include "subsystems/imu.h"
 #include "subsystems/ahrs.h"
@@ -71,7 +73,8 @@ static inline void main_init(void)
 {
   mcu_init();
   sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
-  imu_init();
+
+  modules_init();
 #if USE_AHRS_ALIGNER
   ahrs_aligner_init();
 #endif
@@ -85,7 +88,7 @@ static inline void main_init(void)
 static inline void main_periodic_task(void)
 {
   if (sys_time.nb_sec > 1) {
-    imu_periodic();
+    modules_periodic_task();
   }
   RunOnceEvery(10, { LED_PERIODIC();});
   RunOnceEvery(PERIODIC_FREQUENCY, { datalink_time++; });
@@ -96,7 +99,7 @@ static inline void main_event_task(void)
 {
   mcu_event();
   pprz_dl_event();
-  ImuEvent();
+  modules_event_task();
 }
 
 static inline void main_report(void)

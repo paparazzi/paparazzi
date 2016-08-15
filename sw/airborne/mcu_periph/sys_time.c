@@ -30,15 +30,20 @@
 #include "mcu_periph/sys_time.h"
 #include "mcu.h"
 
+// check the number of timers against max tid_t value
+#include "limits.h"
+#if (SYS_TIME_NB_TIMER >= SCHAR_MAX)
+  WARNING("Too many sys timers (SYS_TIME_NB_TIMER >= SCHAR_MAX). Consider increasing the size of tid_d type (currently int8_t")
+#endif
+
 PRINT_CONFIG_VAR(SYS_TIME_FREQUENCY)
 
 struct sys_time sys_time;
 
-int sys_time_register_timer(float duration, sys_time_cb cb)
+tid_t sys_time_register_timer(float duration, sys_time_cb cb)
 {
-
   uint32_t start_time = sys_time.nb_tick;
-  for (int i = 0; i < SYS_TIME_NB_TIMER; i++) {
+  for (tid_t i = 0; i < SYS_TIME_NB_TIMER; i++) {
     if (!sys_time.timer[i].in_use) {
       sys_time.timer[i].cb         = cb;
       sys_time.timer[i].elapsed    = false;

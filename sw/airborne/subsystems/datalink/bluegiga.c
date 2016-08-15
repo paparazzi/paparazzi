@@ -154,8 +154,8 @@ void bluegiga_init(struct bluegiga_periph *p)
   // configure the SPI bus
   bluegiga_spi.input_buf      = p->work_rx;
   bluegiga_spi.output_buf     = p->work_tx;
-  bluegiga_spi.input_length   = 20;
-  bluegiga_spi.output_length  = 20;
+  bluegiga_spi.input_length   = BLUEGIGA_SPI_BUF_SIZE;
+  bluegiga_spi.output_length  = BLUEGIGA_SPI_BUF_SIZE;
   bluegiga_spi.slave_idx      = 0; // Not used for SPI-Slave: always NSS pin
   bluegiga_spi.select         = SPISelectUnselect;
   bluegiga_spi.cpol           = SPICpolIdleHigh;
@@ -235,7 +235,7 @@ void bluegiga_load_tx(struct bluegiga_periph *p, struct spi_transaction *trans)
     bluegiga_increment_buf(&p->tx_extract_idx, packet_len);
 
     // clear unused bytes
-    for (i = packet_len + 1; i < trans->output_length; i++) {
+    for (i = packet_len + 1; i < BLUEGIGA_SPI_BUF_SIZE; i++) {
       p->work_tx[i] = 0;
     }
 

@@ -118,7 +118,7 @@ void mpu_wait_slave4_ready(void);
 void mpu_wait_slave4_ready_cb(struct spi_transaction *t);
 bool imu_mpu9250_configure_mag_slave(Mpu9250ConfigSet mpu_set, void *mpu);
 
-void imu_impl_init(void)
+void imu_mpu9250_init(void)
 {
   /* MPU9250 */
   mpu9250_spi_init(&imu_mpu9250.mpu, &(IMU_MPU9250_SPI_DEV), IMU_MPU9250_SPI_SLAVE_IDX);
@@ -165,7 +165,7 @@ void imu_impl_init(void)
   imu_mpu9250.slave4_ready = false;
 }
 
-void imu_periodic(void)
+void imu_mpu9250_periodic(void)
 {
   mpu9250_spi_periodic(&imu_mpu9250.mpu);
 }

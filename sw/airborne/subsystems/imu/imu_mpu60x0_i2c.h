@@ -41,9 +41,8 @@ struct ImuMpu60x0 {
 
 extern struct ImuMpu60x0 imu_mpu_i2c;
 
+extern void imu_mpu_i2c_init(void);
+extern void imu_mpu_i2c_periodic(void);
 extern void imu_mpu_i2c_event(void);
-
-
-#define ImuEvent imu_mpu_i2c_event
 
 #endif /* IMU_MPU60X0_I2C_H */

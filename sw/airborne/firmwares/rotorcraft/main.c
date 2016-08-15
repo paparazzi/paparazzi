@@ -184,9 +184,7 @@ STATIC_INLINE void main_init(void)
 #if USE_BARO_BOARD
   baro_init();
 #endif
-#if USE_IMU
-  imu_init();
-#endif
+
 #if USE_AHRS_ALIGNER
   ahrs_aligner_init();
 #endif
@@ -260,10 +258,6 @@ STATIC_INLINE void handle_periodic_tasks(void)
 
 STATIC_INLINE void main_periodic(void)
 {
-
-#if USE_IMU
-  imu_periodic();
-#endif
 
   /* run control loops */
   autopilot_periodic();
@@ -354,10 +348,6 @@ STATIC_INLINE void main_event(void)
   if (autopilot_rc) {
     RadioControlEvent(autopilot_on_rc_frame);
   }
-
-#if USE_IMU
-  ImuEvent();
-#endif
 
 #if USE_BARO_BOARD
   BaroEvent();

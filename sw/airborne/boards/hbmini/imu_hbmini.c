@@ -60,7 +60,7 @@
 
 struct ImuHbmini imu_hbmini;
 
-void imu_impl_init(void)
+void imu_hbmini_init(void)
 {
   max1168_init();
 
@@ -69,7 +69,7 @@ void imu_impl_init(void)
   hmc58xx_init(&imu_hbmini.hmc, &(IMU_HBMINI_I2C_DEV), HMC58XX_ADDR);
 }
 
-void imu_periodic(void)
+void imu_hbmini_periodic(void)
 {
 
   Max1168Periodic();

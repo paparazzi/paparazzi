@@ -9,34 +9,30 @@
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_s_1.0">
       <define name="AHRS_GRAVITY_HEURISTIC_FACTOR" value="0"/>
-      <subsystem name="radio_control" type="datalink">
+      <module name="radio_control" type="datalink">
         <define name="USE_PERSISTENT_SETTINGS" value="TRUE"/>
-      </subsystem>
+      </module>
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
     </target>
     <define name="AHRS_GRAVITY_HEURISTIC_FACTOR" value="0"/>
-    <target name="nps" board="pc">
-      <subsystem name="fdm" type="jsbsim"/>
-      <subsystem name="radio_control" type="ppm"/>
-    </target>
 
-    <subsystem name="actuators" type="pwm">
+    <module name="actuators" type="pwm">
       <define name="TIM5_SERVO_HZ" value="300"/>
       <define name="SERVO_HZ" value="300"/>
       <define name="USE_SERVOS_1AND2"/>
-    </subsystem>
+    </module>
 
     <configure name="USE_MAGNETOMETER" value="1"/>
-    <subsystem name="telemetry" type="bluegiga"/>
-    <subsystem name="imu" type="lisa_s_v1.0"/>
+    <module name="telemetry" type="bluegiga"/>
+    <module name="imu" type="lisa_s_v1.0"/>
     <module name="gps" type="ublox"/>
-    <subsystem name="stabilization" type="heli_indi"/> <!-- int_quat / heli_indi -->
-    <subsystem name="ahrs" type="int_cmpl_quat"/>
-    <subsystem name="ins"/>
-<!--    <subsystem name="rpm_sensor" type="eagletree"/>
-    <subsystem name="stabilization" type="heli_indi"/>
-    <subsystem name="rpm_sensor" type="eagletree"/>
-    <subsystem name="ahrs" type="int_cmpl_quat_notch"/>-->
+    <module name="stabilization" type="heli_indi"/> <!-- int_quat / heli_indi -->
+    <module name="ahrs" type="int_cmpl_quat"/>
+    <module name="ins"/>
+<!--    <module name="rpm_sensor" type="eagletree"/>
+    <module name="stabilization" type="heli_indi"/>
+    <module name="rpm_sensor" type="eagletree"/>
+    <module name="ahrs" type="int_cmpl_quat_notch"/>-->
   </firmware>
 
  <modules main_freq="512">
@@ -153,6 +149,8 @@
     <define name="USE_FAST_DYN_FILTERS" value="1" />
     <define name="FAST_DYN_ROLL_BW" value="68" />
     <define name="FAST_DYN_PITCH_BW" value="17" />
+    <define name="GINV_ROLL_TO_ROLL" value="12000" />
+    <define name="GINV_PITCH_TO_PITCH" value="13000" />
   </section>
 
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">

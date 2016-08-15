@@ -6,7 +6,7 @@
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int_quat.xml settings/estimation/ahrs_int_cmpl_quat.xml settings/estimation/body_to_imu.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int_quat.xml settings/estimation/ahrs_int_cmpl_quat.xml"
    settings_modules="modules/gps.xml modules/gps_ubx_ucenter.xml modules/air_data.xml modules/geo_mag.xml modules/video_rtp_stream.xml"
    gui_color="#ffffd633d633"
   />
@@ -17,7 +17,7 @@
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/estimation/ahrs_int_cmpl_quat.xml settings/estimation/body_to_imu.xml settings/control/stabilization_indi.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/estimation/ahrs_int_cmpl_quat.xml settings/control/stabilization_indi.xml"
    settings_modules="modules/gps.xml modules/air_data.xml"
    gui_color="#ffffcd49cd49"
   />
@@ -28,7 +28,7 @@
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/estimation/ahrs_int_cmpl_quat.xml settings/estimation/body_to_imu.xml settings/control/stabilization_indi.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/estimation/ahrs_int_cmpl_quat.xml settings/control/stabilization_indi.xml"
    settings_modules="modules/gps.xml modules/gps_ubx_ucenter.xml modules/air_data.xml"
    gui_color="#ffffc457c457"
   />
@@ -39,7 +39,7 @@
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int_quat.xml settings/estimation/ahrs_int_cmpl_quat.xml settings/estimation/body_to_imu.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int_quat.xml settings/estimation/ahrs_int_cmpl_quat.xml"
    settings_modules="modules/gps.xml modules/gps_ubx_ucenter.xml modules/cv_opticflow.xml modules/video_capture.xml"
    gui_color="#ffffccc2ccc2"
   />
@@ -50,7 +50,7 @@
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_optitrack.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/estimation/ahrs_int_cmpl_quat.xml settings/estimation/body_to_imu.xml settings/control/stabilization_indi.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/estimation/ahrs_int_cmpl_quat.xml settings/control/stabilization_indi.xml"
    settings_modules="modules/gps.xml"
    gui_color="#fffff996b847"
   />
@@ -134,12 +134,12 @@
   <aircraft
    name="GeniusDDBart"
    ac_id="130"
-   airframe="airframes/TUDELFT/Bart_heliDD_pid.xml"
+   airframe="airframes/TUDELFT/Bart_heliDD_INDI.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/stabilization_att_int.xml settings/control/rotorcraft_guidance.xml"
-   settings_modules="modules/gps.xml modules/air_data.xml modules/gps_ubx_ucenter.xml"
+   settings="settings/rotorcraft_basic.xml [settings/control/stabilization_att_int.xml] settings/control/rotorcraft_guidance.xml"
+   settings_modules="modules/imu_common.xml modules/gps.xml modules/air_data.xml modules/gps_ubx_ucenter.xml"
    gui_color="#c99fb4caebdd"
   />
   <aircraft
@@ -171,7 +171,7 @@
    radio="radios/FrSky3dr.xml"
    telemetry="telemetry/default_rotorcraft_slow.xml"
    flight_plan="flight_plans/TUDELFT/tudelft_delft_basic.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml [settings/control/stabilization_att_int_quat.xml] settings/control/stabilization_indi.xml settings/estimation/body_to_imu.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml [settings/control/stabilization_att_int_quat.xml] settings/control/stabilization_indi.xml"
    settings_modules="modules/gps.xml modules/geo_mag.xml [modules/air_data.xml] modules/gps_ubx_ucenter.xml"
    gui_color="#ffffcccaccca"
   />

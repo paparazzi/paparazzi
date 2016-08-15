@@ -38,8 +38,4 @@
 extern void imu_xsens_init(void);
 extern void imu_xsens_event(void);
 
-#define ImuEvent imu_xsens_event
-#define imu_impl_init imu_xsens_init
-#define imu_periodic xsens_periodic
-
 #endif

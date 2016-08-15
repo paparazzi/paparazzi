@@ -79,6 +79,7 @@ description CDATA #IMPLIED>
 <!ATTLIST define
 name CDATA #REQUIRED
 value CDATA #IMPLIED
+integer CDATA #IMPLIED
 unit CDATA #IMPLIED
 type CDATA #IMPLIED
 description CDATA #IMPLIED

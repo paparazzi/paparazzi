@@ -132,7 +132,7 @@ void UM6_imu_align(void)
   UM6_status = UM6Running;
 }
 
-void imu_impl_init(void)
+void imu_um6_init(void)
 {
   // Initialize variables
   UM6_status = UM6Uninit;
@@ -192,7 +192,7 @@ void imu_impl_init(void)
 
 
 
-void imu_periodic(void)
+void imu_um6_periodic(void)
 {
   /* We would request for data here - optional
   //GET_DATA command 0xAE

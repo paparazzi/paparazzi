@@ -63,7 +63,7 @@ PRINT_CONFIG_VAR(UMARIM_GYRO_SMPLRT_DIV)
 
 struct ImuUmarim imu_umarim;
 
-void imu_impl_init(void)
+void imu_umarim_init(void)
 {
   /////////////////////////////////////////////////////////////////////
   // ITG3200
@@ -80,7 +80,7 @@ void imu_impl_init(void)
   imu_umarim.adxl.config.range = UMARIM_ACCEL_RANGE;
 }
 
-void imu_periodic(void)
+void imu_umarim_periodic(void)
 {
   // Start reading the latest gyroscope data
   itg3200_periodic(&imu_umarim.itg);

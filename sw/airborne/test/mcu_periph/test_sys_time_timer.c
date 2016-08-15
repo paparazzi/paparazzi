@@ -33,8 +33,8 @@ int main(void)
 {
 
   mcu_init();
-  unsigned int tmr_02 = sys_time_register_timer(0.2, NULL);
-  unsigned int tmr_03 = sys_time_register_timer(0.3, NULL);
+  tid_t tmr_02 = sys_time_register_timer(0.2, NULL);
+  tid_t tmr_03 = sys_time_register_timer(0.3, NULL);
   sys_time_register_timer(0.5, main_periodic_05);
 
   mcu_int_enable();

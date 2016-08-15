@@ -48,6 +48,7 @@ void init_sysmon(void)
   sys_mon.periodic_cycle_min = 0xFFFF;
   sys_mon.periodic_cycle_max = 0;
   sys_mon.event_number = 0;
+  sys_mon.cpu_time = 0;
 
   n_periodic = 0;
   n_event = 0;
@@ -71,12 +72,13 @@ void periodic_report_sysmon(void)
     sys_mon.periodic_cycle = sum_cycle_periodic / n_periodic;
     sys_mon.cpu_load = 100 * sys_mon.periodic_cycle / sys_mon.periodic_time;
     sys_mon.event_number = sum_n_event / n_periodic;
+    sys_mon.cpu_time = get_sys_time_float();
 
     DOWNLINK_SEND_SYS_MON(DefaultChannel, DefaultDevice, &sys_mon.periodic_time,
                           &sys_mon.periodic_time_min, &sys_mon.periodic_time_max,
                           &sys_mon.periodic_cycle, &sys_mon.periodic_cycle_min,
                           &sys_mon.periodic_cycle_max, &sys_mon.event_number,
-                          &sys_mon.cpu_load);
+                          &sys_mon.cpu_load, &sys_mon.cpu_time);
   }
 
   n_periodic = 0;

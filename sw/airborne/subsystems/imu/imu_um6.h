@@ -99,6 +99,9 @@ enum UM6Status {
   UM6Running
 };
 
+extern void imu_um6_init(void);
+extern void imu_um6_periodic(void);
+
 static inline void imu_um6_event(void)
 {
   if (uart_char_available(&(UM6_LINK))) {
@@ -112,7 +115,5 @@ static inline void imu_um6_event(void)
     }
   }
 }
-
-#define ImuEvent imu_um6_event
 
 #endif /* IMU_UM6_H*/

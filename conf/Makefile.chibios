@@ -80,7 +80,6 @@ ifeq (,$(findstring $(RTOS_DEBUG),0 FALSE))
 else
   CH_OPT ?= 2 -ggdb
 endif
-
   USE_OPT = -std=gnu99 -O$(CH_OPT) \
 	-falign-functions=16 -fomit-frame-pointer \
 	-W -Wall \

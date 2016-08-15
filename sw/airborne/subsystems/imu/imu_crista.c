@@ -25,7 +25,7 @@
 volatile bool ADS8344_available;
 uint16_t ADS8344_values[ADS8344_NB_CHANNELS];
 
-void imu_impl_init(void)
+void imu_crista_init(void)
 {
 
   ADS8344_available = false;
@@ -41,7 +41,7 @@ void imu_impl_init(void)
 
 }
 
-void imu_periodic(void)
+void imu_crista_periodic(void)
 {
 
   ImuCristaArchPeriodic();
