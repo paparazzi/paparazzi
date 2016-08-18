@@ -43,7 +43,21 @@ Again, the sys_mon module has to run at the full main frequency (so the reports 
   <event fun="event_sysmon()"/>
 
   <makefile target="ap">
-    <file name="sys_mon.c"/>
+    <raw>
+    # for ChibiOS arch include rtos_mon.c and rtos_mon_arch.c
+    ifeq ($(ARCH), chibios)
+      $(TARGET).srcs += $(SRC_MODULES)/core/rtos_mon.c
+      $(TARGET).srcs += $(SRC_ARCH)/modules/core/rtos_mon_arch.c
+    else
+    # for all other architecture use existing sys_mon.c
+      $(TARGET).srcs += $(SRC_MODULES)/core/sys_mon.c
+    endif
+    </raw>
+  </makefile>
+
+  <makefile target="nps">
+    <file name="rtos_mon.c"/>
+    <file_arch name="rtos_mon_arch.c"/>
   </makefile>
 </module>
 

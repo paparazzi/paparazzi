@@ -23,14 +23,38 @@
  * RTOS monitoring tool
  */
 
-#include "modules/core/rtos_mon.h"
+#include "modules/core/sys_mon.h"
 #include "modules/core/rtos_mon_arch.h"
 #include "subsystems/datalink/downlink.h"
 #include <string.h>
 
+// Maximum number of threads
+// The limit is related to the max size of the report message
+#define RTOS_MON_MAX_THREADS 20
+
+// Maximun len of a thread name (including trailing semi-colon)
+// Currently only the first 4 char + ';' at most
+#define RTOS_MON_NAME_LEN 5
+
+// Names buffer size
+#define RTOS_MON_THREAD_NAMES (RTOS_MON_MAX_THREADS * RTOS_MON_NAME_LEN)
+
+// RTOS structure
+struct rtos_monitoring {
+  uint32_t core_free_memory;                        ///< core free memory in bytes
+  uint32_t heap_free_memory;                        ///< heap free memory in bytes
+  uint8_t cpu_load;                                 ///< global CPU/MCU load in %
+  uint8_t thread_counter;                           ///< number of threads
+  uint16_t thread_load[RTOS_MON_MAX_THREADS];       ///< individual thread load in centi-percent (10*%)
+  uint16_t thread_free_stack[RTOS_MON_MAX_THREADS]; ///< individual thread free stack in bytes
+  char thread_names[RTOS_MON_THREAD_NAMES+1];       ///< string of thread names / identifiers
+  uint8_t thread_name_idx;                          ///< length of the string in thread_names buffer
+  float cpu_time; // in secs since startup
+};
+
 struct rtos_monitoring rtos_mon;
 
-void rtos_mon_init(void)
+void init_sysmon(void)
 {
   // zero structure
   memset(&rtos_mon, 0, sizeof(struct rtos_monitoring));
@@ -41,7 +65,7 @@ void rtos_mon_init(void)
 
 // Periodic report of RTOS parameters
 // This function is actually arch dependent
-void rtos_mon_periodic(void)
+void periodic_report_sysmon(void)
 {
   // update struct
   rtos_mon_periodic_arch();
@@ -59,4 +83,6 @@ void rtos_mon_periodic(void)
 
 }
 
+void periodic_sysmon(void) {}
 
+void event_sysmon(void) {}
