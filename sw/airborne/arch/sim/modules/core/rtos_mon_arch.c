@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2016 Gautier Hattenberger <gautier.hattenberger@enac.fr>
+ * Copyright (C) 2016  Michal Podhradsky <michal.podhradsky@aggiemail.usu.edu>
  *
  * This file is part of paparazzi
  *
@@ -18,17 +19,17 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "arch/chibios/modules/core/rtos_mon_arch.c"
- * @author Gautier Hattenberger
- * RTOS monitoring tool
- * ChibiOS implementation
+ * @file "arch/sim/modules/core/rtos_mon_arch.c"
+ * @author Michal Podhradsky
+ * System monitoring tool
+ * SIM implementation
  */
 
-#include "modules/core/rtos_mon.h"
+#include "modules/core/sys_mon_rtos.h"
 #include "modules/core/rtos_mon_arch.h"
-#include "subsystems/datalink/downlink.h"
+#include <stdlib.h>     /* atof */
+#include <stdio.h>      /* printf, fgets */
 #include <string.h>
-#include <stdio.h>
 
 void rtos_mon_init_arch(void) {}
 
@@ -43,7 +44,7 @@ void rtos_mon_periodic_arch(void)
   ret = fgets(line, sizeof(line), cmd);
   if (ret != NULL) {
     double cpu = atof(ret);
-    printf("CPU usage is %f\n",cpu);
+    rtos_mon.cpu_load = (uint8_t)cpu;
   }
   pclose(cmd);
 }

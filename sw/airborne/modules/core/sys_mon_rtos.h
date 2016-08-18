@@ -20,34 +20,41 @@
  *
  */
 
-/** \file sys_mon.h
+/** \file sys_mon_rtos.h
  *
- * System monitoring
+ * System monitoring for RTOS targets
  * return cpu load, average exec time, ...
  */
 
-#ifndef SYS_MON_H
-#define SYS_MON_H
+#ifndef SYS_MON_RTOS_H
+#define SYS_MON_RTOS_H
 
-#include "std.h"
+#include "core/sys_mon.h"
 
-extern struct SysMon sys_mon;
+// Maximum number of threads
+// The limit is related to the max size of the report message
+#define RTOS_MON_MAX_THREADS 20
 
-/** Init system monitoring
- */
-void init_sysmon(void);
+// Maximun len of a thread name (including trailing semi-colon)
+// Currently only the first 4 char + ';' at most
+#define RTOS_MON_NAME_LEN 5
 
-/** Report system status
- */
-void periodic_report_sysmon(void);
+// Names buffer size
+#define RTOS_MON_THREAD_NAMES (RTOS_MON_MAX_THREADS * RTOS_MON_NAME_LEN)
 
-/** Analyse periodic calls
- *  Should be run at the highest frequency
- */
-void periodic_sysmon(void);
+// RTOS structure
+struct rtos_monitoring {
+  uint32_t core_free_memory;                        ///< core free memory in bytes
+  uint32_t heap_free_memory;                        ///< heap free memory in bytes
+  uint8_t cpu_load;                                 ///< global CPU/MCU load in %
+  uint8_t thread_counter;                           ///< number of threads
+  uint16_t thread_load[RTOS_MON_MAX_THREADS];       ///< individual thread load in centi-percent (10*%)
+  uint16_t thread_free_stack[RTOS_MON_MAX_THREADS]; ///< individual thread free stack in bytes
+  char thread_names[RTOS_MON_THREAD_NAMES+1];       ///< string of thread names / identifiers
+  uint8_t thread_name_idx;                          ///< length of the string in thread_names buffer
+  float cpu_time; // in secs since startup
+};
 
-/** Analyse event calls
- */
-void event_sysmon(void);
+extern struct rtos_monitoring rtos_mon;
 
-#endif
+#endif /* SYS_MON_RTOS_H */

@@ -39,7 +39,7 @@
     <!-- Sensors -->
     <module name="gps" type="ublox"/>
 
-    <!--module name="rtos_mon"/-->
+    <!--module name="sys_mon"/-->
 
     <!--module name="spi_master"/-->
     <!-- <module name="mcp355x"> -->

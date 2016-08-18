@@ -22,7 +22,7 @@
 
 /** \file sys_mon.h
  *
- * System monitoring
+ * System monitoring common header
  * return cpu load, average exec time, ...
  */
 
@@ -30,8 +30,6 @@
 #define SYS_MON_H
 
 #include "std.h"
-
-extern struct SysMon sys_mon;
 
 /** Init system monitoring
  */
