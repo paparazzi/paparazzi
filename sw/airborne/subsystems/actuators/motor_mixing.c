@@ -93,6 +93,19 @@ static const int32_t thrust_coef[MOTOR_MIXING_NB_MOTOR] = MOTOR_MIXING_THRUST_CO
 
 struct MotorMixing motor_mixing;
 
+#if PERIODIC_TELEMETRY
+#include "subsystems/datalink/telemetry.h"
+static void send_motor_mixing(struct transport_tx *trans, struct link_device *dev)
+{
+  int16_t motors[MOTOR_MIXING_NB_MOTOR];
+  for (uint8_t i = 0; i < MOTOR_MIXING_NB_MOTOR; i++)
+  {
+    motors[i] = (int16_t)motor_mixing.commands[i];
+  }
+  pprz_msg_send_MOTOR_MIXING(trans, dev, AC_ID , MOTOR_MIXING_NB_MOTOR, motors);
+}
+#endif
+
 void motor_mixing_init(void)
 {
   uint8_t i;
@@ -107,6 +120,9 @@ void motor_mixing_init(void)
   }
   motor_mixing.nb_failure = 0;
   motor_mixing.nb_saturation = 0;
+#if PERIODIC_TELEMETRY
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_MOTOR_MIXING, send_motor_mixing);
+#endif
 }
 
 static void offset_commands(int32_t offset)

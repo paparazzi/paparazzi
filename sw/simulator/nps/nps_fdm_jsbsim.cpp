@@ -132,6 +132,7 @@ using namespace std;
 
 static void feed_jsbsim(double *commands, int commands_nb);
 static void feed_jsbsim(double throttle, double aileron, double elevator, double rudder);
+static void feed_jsbsim(double throttle, double aileron, double elevator, double rudder, double flap);
 static void fetch_state(void);
 static int check_for_nan(void);
 
@@ -305,12 +306,21 @@ static void feed_jsbsim(double *commands, int commands_nb)
     FDMExec->GetPropertyManager()->GetNode(property)->SetDouble("", commands[i]);
   }
 #else
-  if (commands_nb != 4) {
-    cerr << "commands_nb must be 4!" << endl;
+  if (commands_nb < 4) {
+    cerr << "commands_nb must be at least 4!" << endl;
     exit(-1);
   }
-  /* call version that directly feeds throttle, aileron, elevator, rudder */
-  feed_jsbsim(commands[COMMAND_THROTTLE], commands[COMMAND_ROLL], commands[COMMAND_PITCH], commands[3]);
+
+  if (commands_nb == 5) {
+    // call version that directly feeds throttle, aileron, elevator, rudder and flaps
+    feed_jsbsim(commands[COMMAND_THROTTLE], commands[COMMAND_ROLL], commands[COMMAND_PITCH],
+                         commands[COMMAND_YAW], commands[COMMAND_FLAP]);
+  }
+  else {
+    // call version that directly feeds throttle, aileron, elevator, rudder
+    // since we don't know what are the other commands
+    feed_jsbsim(commands[COMMAND_THROTTLE], commands[COMMAND_ROLL], commands[COMMAND_PITCH], commands[COMMAND_YAW]);
+  }
 #endif
 }
 
@@ -328,6 +338,34 @@ static void feed_jsbsim(double throttle, double aileron, double elevator, double
   FCS->SetDaCmd(aileron);
   FCS->SetDeCmd(elevator);
   FCS->SetDrCmd(rudder);
+
+  for (unsigned int i = 0; i < FDMExec->GetPropulsion()->GetNumEngines(); i++) {
+    FCS->SetThrottleCmd(i, throttle);
+
+    if (throttle > 0.01) {
+      FProp->SetStarter(1);
+    } else {
+      FProp->SetStarter(0);
+    }
+  }
+}
+
+static void feed_jsbsim(double throttle, double aileron, double elevator, double rudder, double flap)
+{
+  FGFCS *FCS = FDMExec->GetFCS();
+  FGPropulsion *FProp = FDMExec->GetPropulsion();
+
+  // Set trims
+  FCS->SetPitchTrimCmd(NPS_JSBSIM_PITCH_TRIM);
+  FCS->SetRollTrimCmd(NPS_JSBSIM_ROLL_TRIM);
+  FCS->SetYawTrimCmd(NPS_JSBSIM_YAW_TRIM);
+
+  // Set commands
+  FCS->SetDaCmd(aileron);
+  FCS->SetDeCmd(elevator);
+  FCS->SetDrCmd(rudder);
+  FCS->SetDfCmd(flap);
+
 
   for (unsigned int i = 0; i < FDMExec->GetPropulsion()->GetNumEngines(); i++) {
     FCS->SetThrottleCmd(i, throttle);

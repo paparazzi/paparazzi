@@ -51,7 +51,6 @@
 
 #include "nps_ins.h"
 
-
 void* nps_ins_data_loop(void* data __attribute__((unused)));
 void* nps_ap_data_loop(void* data __attribute__((unused)));
 
@@ -112,7 +111,7 @@ void* nps_ins_data_loop(void* data __attribute__((unused)))
   nps_ins_init(); // initialize ins variables and pointers
 
   // configure port
-  int fd = open(INS_DEV, O_RDWR | O_NOCTTY);
+  int fd = open(INS_DEV, O_WRONLY | O_NOCTTY | O_SYNC);//open(INS_DEV, O_RDWR | O_NOCTTY);
   if (fd < 0)
   {
     printf("INS THREAD: data loop error opening port %i\n", fd);
@@ -125,8 +124,8 @@ void* nps_ins_data_loop(void* data __attribute__((unused)))
   new_settings.c_iflag = 0;
   new_settings.c_cflag = 0;
   new_settings.c_lflag = 0;
-  new_settings.c_cc[VMIN] = 1;
-  new_settings.c_cc[VTIME] = 5;
+  new_settings.c_cc[VMIN] = 0;
+  new_settings.c_cc[VTIME] = 0;
   cfsetispeed(&new_settings, (speed_t)INS_BAUD);
   cfsetospeed(&new_settings, (speed_t)INS_BAUD);
   tcsetattr(fd, TCSANOW, &new_settings);
@@ -159,7 +158,6 @@ void* nps_ins_data_loop(void* data __attribute__((unused)))
     if (wlen != idx){
       printf("INS THREAD: Warning - sent only %u bytes to the autopilot, instead of expected %u\n",wlen,idx);
     }
-    tcdrain(fd); // delay for output
 
     clock_gettime(CLOCK_REALTIME, &requestEnd);
 
@@ -186,7 +184,7 @@ void* nps_ins_data_loop(void* data __attribute__((unused)))
 void* nps_ap_data_loop(void* data __attribute__((unused)))
 {
   // configure port
-  int fd = open(AP_DEV, O_RDWR | O_NOCTTY);
+  int fd = open(AP_DEV, O_RDONLY | O_NOCTTY);
   if (fd < 0)
   {
     printf("AP data loop error opening port %i\n", fd);
@@ -208,7 +206,7 @@ void* nps_ap_data_loop(void* data __attribute__((unused)))
   int rdlen;
   uint8_t buf[NPS_MAX_MSG_SIZE];
   uint8_t cmd_len;
-  pprz_t  cmd_buf[COMMANDS_NB];
+  pprz_t  cmd_buf[NPS_COMMANDS_NB];
 
   struct pprz_transport pprz_tp_logger;
 
@@ -229,8 +227,6 @@ void* nps_ap_data_loop(void* data __attribute__((unused)))
         //Parse message
         uint8_t sender_id = SenderIdOfPprzMsg(buf);
         uint8_t msg_id = IdOfPprzMsg(buf);
-
-
 
         // parse telemetry messages coming from other AC
         if (sender_id != AC_ID) {
@@ -255,10 +251,11 @@ void* nps_ap_data_loop(void* data __attribute__((unused)))
               autopilot.commands[COMMAND_PITCH] = -(double)cmd_buf[COMMAND_PITCH] / MAX_PPRZ;
               pthread_mutex_unlock(&fdm_mutex);
               break;
-            case DL_ACTUATORS:
+            case DL_MOTOR_MIXING:
               // parse actuarors message
-              cmd_len = DL_ACTUATORS_values_length(buf);
-              memcpy(&cmd_buf, DL_ACTUATORS_values(buf), cmd_len*sizeof(int16_t));
+              cmd_len = DL_MOTOR_MIXING_values_length(buf);
+              memcpy(&cmd_buf, DL_MOTOR_MIXING_values(buf), cmd_len*sizeof(int16_t));
+              pthread_mutex_lock(&fdm_mutex);
               // update commands
               for (uint8_t i = 0; i < NPS_COMMANDS_NB; i++) {
                 autopilot.commands[i] = (double)cmd_buf[i] / MAX_PPRZ;

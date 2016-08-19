@@ -17,24 +17,24 @@
       </module>
     </target>
     
-    <configure name="PERIODIC_FREQUENCY" value="100"/>
-    <!--configure name="TELEMETRY_FREQUENCY" value="60"/-->
+    <configure name="PERIODIC_FREQUENCY" value="160"/>
+
 
     <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
       <module name="radio_control" type="spektrum"/>
-      <!--configure name="USE_HITL" value="1"/-->
+      <configure name="USE_HITL" value="1"/>
       <configure name="INS_DEV" value="/dev/ttyUSB1"/>
       <configure name="INS_BAUD" value="B921600"/>
       <configure name="AP_DEV" value="/dev/ttyUSB2"/>
       <configure name="AP_BAUD" value="B921600"/>
     </target>
     
-    <module name="stabilization" type="float_euler"/>
+    <module name="stabilization" type="int_quat"/>
 
     <module name="motor_mixing"/>
     <module name="actuators"     type="pwm">
-      <define name="SERVO_HZ" value="400"/>
+      <define name="SERVO_HZ" value="PERIODIC_FREQUENCY"/>
     </module>
 
     <module name="telemetry"   type="transparent">
@@ -198,7 +198,18 @@
     <define name="JSBSIM_MODEL" value="simple_x_quad_ccw" type="string"/>
     <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
     <!-- mode switch on joystick channel 5 (axis numbering starting at zero) -->
-    <define name="JS_AXIS_MODE" value="4"/>
+    <define name="JS_AXIS_THROTTLE" value="0"/>
+    <define name="JS_AXIS_THROTTLE_REVERSED" value="1"/>
+
+    <define name="JS_AXIS_ROLL" value="1"/>
+
+    <define name="JS_AXIS_PITCH" value="2"/>
+    <define name="JS_AXIS_PITCH_REVERSED" value="1"/>
+
+    <define name="JS_AXIS_YAW" value="3"/>
+    <define name="JS_AXIS_YAW_REVERSED" value="1"/>
+
+    <define name="JS_AXIS_MODE" value="7"/>
   </section>
 
   <section name="AUTOPILOT">

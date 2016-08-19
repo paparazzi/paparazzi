@@ -25,6 +25,7 @@
 #include <sys/time.h>
 #include "nps_fdm.h"
 #include <time.h>
+#include <stdio.h>
 
 /*
  * Vectornav info
