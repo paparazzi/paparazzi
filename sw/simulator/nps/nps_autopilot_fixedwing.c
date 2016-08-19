@@ -77,7 +77,9 @@ void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, cha
 
   autopilot.launch = FALSE;
 
-  nps_radio_control_init(type_rc, num_rc_script, rc_dev);
+  if ((rc_dev != NULL) || type_rc == NONE)  {
+    nps_radio_control_init(type_rc, num_rc_script, rc_dev);
+  }
   nps_electrical_init();
 
   nps_bypass_ahrs = NPS_BYPASS_AHRS;

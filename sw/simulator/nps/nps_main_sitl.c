@@ -38,7 +38,9 @@ int main(int argc, char **argv)
     return 1;
   }
 
-  pthread_create(&th_flight_gear,NULL,nps_flight_gear_loop,NULL);
+  if (nps_main.fg_host) {
+    pthread_create(&th_flight_gear,NULL,nps_flight_gear_loop,NULL);
+  }
   pthread_create(&th_display_ivy,NULL,nps_main_display,NULL);
   pthread_create(&th_main_loop,NULL,nps_main_loop,NULL);
   pthread_join(th_main_loop, NULL);

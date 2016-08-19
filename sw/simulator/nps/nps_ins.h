@@ -27,7 +27,11 @@
 
 // if undefined, match with control frequency because that is how it should be used
 #ifndef INS_FREQUENCY
+#ifdef CONTROL_FREQUENCY
 #define INS_FREQUENCY CONTROL_FREQUENCY
+#else
+#define INS_FREQUENCY PERIODIC_FREQUENCY
+#endif
 #endif
 
 uint8_t *ins_buffer;

@@ -235,8 +235,8 @@ void* nps_flight_gear_loop(void* data __attribute__((unused)))
   long int period_ns = DISPLAY_DT*1000000000L; // thread period in nanoseconds
   long int task_ns = 0; // time it took to finish the task in nanoseconds
 
-  if (nps_main.fg_host)
-    nps_flightgear_init(nps_main.fg_host, nps_main.fg_port, nps_main.fg_port_in, nps_main.fg_time_offset);
+
+  nps_flightgear_init(nps_main.fg_host, nps_main.fg_port, nps_main.fg_port_in, nps_main.fg_time_offset);
 
   while(TRUE)
   {

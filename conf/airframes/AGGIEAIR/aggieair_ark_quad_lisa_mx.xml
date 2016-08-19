@@ -16,28 +16,53 @@
         <configure name="SBUS_PORT" value="UART5"/>
       </module>
     </target>
+    
+    <configure name="PERIODIC_FREQUENCY" value="100"/>
+    <!--configure name="TELEMETRY_FREQUENCY" value="60"/-->
 
     <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
-      <module name="radio_control" type="spektrum"/>
+      <module name="radio_control" type="ppm"/>
+      <configure name="USE_HITL" value="1"/>
+      <configure name="INS_DEV" value="/dev/ttyUSB1"/>
+      <configure name="INS_BAUD" value="B921600"/>
+      <configure name="AP_DEV" value="/dev/ttyUSB2"/>
+      <configure name="AP_BAUD" value="B921600"/>
     </target>
+    
+    <module name="stabilization" type="float_euler"/>
 
     <module name="motor_mixing"/>
     <module name="actuators"     type="pwm">
       <define name="SERVO_HZ" value="400"/>
     </module>
 
-    <module name="telemetry"     type="transparent"/>
-    <module name="stabilization" type="float_euler"/>
-    <module name="ins" type="vectornav"/>
+    <module name="telemetry"   type="transparent">
+      <configure name="MODEM_PORT"        value="UART3"/>
+      <configure name="MODEM_BAUD"        value="B57600"/>
+    </module>
+
+    <module name="ins"       type="vectornav">
+      <configure name="VN_PORT" value="UART2"/>
+      <configure name="VN_BAUD" value="B921600"/>
+    </module>
+
+
     <define name="GEOFENCE_DATALINK_LOST_TIME" value="45"/>
   </firmware>
 
 
   <modules>
+    <module name="sys_mon"/>
+    <module name="flight_logger">
+      <!-- in order to use uart1 without chibios we need to remap the peripheral-->
+      <define name="REMAP_UART1" value="TRUE"/>
+      <configure name="FLIGHTLOGGER_PORT" value="UART1"/>
+      <configure name="FLIGHTLOGGER_BAUD" value="B921600"/>
+    </module>
   </modules>
 
-  <servos driver="Pwm">
+    <servos driver="Pwm">
     <servo name="FL" no="0" min="1000" neutral="1100" max="1900"/>
     <servo name="FR" no="1" min="1000" neutral="1100" max="1900"/>
     <servo name="BR" no="2" min="1000" neutral="1100" max="1900"/>
@@ -89,7 +114,24 @@
     <define name="H_Z" value="0.9259921"/>
   </section>
 
+  <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
+    <!-- setpoints -->
+    <define name="SP_MAX_P" value="140" unit="deg/s"/>
+    <define name="SP_MAX_Q" value="140" unit="deg/s"/>
+    <define name="SP_MAX_R" value="140" unit="deg/s"/>
+    <define name="DEADBAND_P" value="20"/>
+    <define name="DEADBAND_Q" value="20"/>
+    <define name="DEADBAND_R" value="200"/>
 
+    <!-- feedback -->
+    <define name="GAIN_P" value="800"/>
+    <define name="GAIN_Q" value="800"/>
+    <define name="GAIN_R" value="700"/>
+
+    <define name="IGAIN_P" value="240"/>
+    <define name="IGAIN_Q" value="240"/>
+    <define name="IGAIN_R" value="160"/>
+  </section>
 
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
     <!-- setpoints -->
@@ -153,7 +195,7 @@
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
-    <define name="ACTUATOR_NAMES"  value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
+    <define name="ACTUATOR_NAMES" value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
     <define name="JSBSIM_MODEL" value="simple_x_quad_ccw" type="string"/>
     <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
     <!-- mode switch on joystick channel 5 (axis numbering starting at zero) -->
@@ -167,10 +209,19 @@
   </section>
 
   <section name="BAT">
+    <!-- Flight values -->
+    <!--
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
     <define name="CRITIC_BAT_LEVEL" value="9.6" unit="V"/>
     <define name="LOW_BAT_LEVEL" value="10.1" unit="V"/>
     <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
+    -->
+    
+    <!-- Simulator values -->
+    <define name="MAX_BAT_LEVEL" value="5.0" unit="V" />
+    <define name="LOW_BAT_LEVEL" value="4.0" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="3.5" unit="V"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="3.0" unit="V"/>
   </section>
 
 </airframe>
