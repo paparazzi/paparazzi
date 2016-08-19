@@ -24,6 +24,7 @@
 #define NPS_INS_H
 
 #include "std.h"
+#include "nps_fdm.h"
 
 // if undefined, match with control frequency because that is how it should be used
 #ifndef INS_FREQUENCY
@@ -37,7 +38,7 @@
 uint8_t *ins_buffer;
 
 void nps_ins_init(void);
-void nps_ins_fetch_data(void);
+void nps_ins_fetch_data(struct NpsFdm* fdm_ins);
 uint16_t nps_ins_fill_buffer(void);
 
 #endif /* NPS_INS_H */

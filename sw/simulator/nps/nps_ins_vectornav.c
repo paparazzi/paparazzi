@@ -106,37 +106,40 @@ static uint64_t vn_get_time_of_week(void){
   return tow;
 }
 
-void nps_ins_fetch_data(void)
+void nps_ins_fetch_data(struct NpsFdm* fdm_ins)
 {
+  struct NpsFdm fdm_data;
+  memcpy (&fdm_data, fdm_ins, sizeof(struct NpsFdm));
+
   // Timestamp
-  vn_data.TimeStartup = (uint64_t)(fdm.time * 1000000000.0);
+  vn_data.TimeStartup = (uint64_t)(fdm_data.time * 1000000000.0);
 
   //Attitude, float, [degrees], yaw, pitch, roll, NED frame
-  vn_data.YawPitchRoll[0] = DegOfRad((float)fdm.ltp_to_body_eulers.psi); // yaw
-  vn_data.YawPitchRoll[1] = DegOfRad((float)fdm.ltp_to_body_eulers.theta); // pitch
-  vn_data.YawPitchRoll[2] = DegOfRad((float)fdm.ltp_to_body_eulers.phi); // roll
+  vn_data.YawPitchRoll[0] = DegOfRad((float)fdm_data.ltp_to_body_eulers.psi); // yaw
+  vn_data.YawPitchRoll[1] = DegOfRad((float)fdm_data.ltp_to_body_eulers.theta); // pitch
+  vn_data.YawPitchRoll[2] = DegOfRad((float)fdm_data.ltp_to_body_eulers.phi); // roll
 
   // Rates (imu frame), float, [rad/s]
-  vn_data.AngularRate[0] = (float)fdm.body_ecef_rotvel.p;
-  vn_data.AngularRate[1] = (float)fdm.body_ecef_rotvel.q;
-  vn_data.AngularRate[2] = (float)fdm.body_ecef_rotvel.r;
+  vn_data.AngularRate[0] = (float)fdm_data.body_ecef_rotvel.p;
+  vn_data.AngularRate[1] = (float)fdm_data.body_ecef_rotvel.q;
+  vn_data.AngularRate[2] = (float)fdm_data.body_ecef_rotvel.r;
 
   //Pos LLA, double,[beg, deg, m]
   //The estimated position given as latitude, longitude, and altitude given in [deg, deg, m] respectfully.
-  vn_data.Position[0] = DegOfRad(fdm.lla_pos.lat);
-  vn_data.Position[1] = DegOfRad(fdm.lla_pos.lon);
-  vn_data.Position[2] = fdm.lla_pos.alt; // TODO: make sure it shows the correct starting point
+  vn_data.Position[0] = DegOfRad(fdm_data.lla_pos.lat);
+  vn_data.Position[1] = DegOfRad(fdm_data.lla_pos.lon);
+  vn_data.Position[2] = fdm_data.lla_pos.alt; // TODO: make sure it shows the correct starting point
 
   //VelNed, float [m/s]
   //The estimated velocity in the North East Down (NED) frame, given in m/s.
-  vn_data.Velocity[0] = (float)fdm.ltp_ecef_vel.x;
-  vn_data.Velocity[1] = (float)fdm.ltp_ecef_vel.y;
-  vn_data.Velocity[2] = (float)fdm.ltp_ecef_vel.z;
+  vn_data.Velocity[0] = (float)fdm_data.ltp_ecef_vel.x;
+  vn_data.Velocity[1] = (float)fdm_data.ltp_ecef_vel.y;
+  vn_data.Velocity[2] = (float)fdm_data.ltp_ecef_vel.z;
 
   // Accel (imu-frame), float, [m/s^-2]
-  vn_data.Accel[0] = (float)fdm.body_ecef_accel.x;
-  vn_data.Accel[1] = (float)fdm.body_ecef_accel.y;
-  vn_data.Accel[2] = (float)fdm.body_ecef_accel.z;
+  vn_data.Accel[0] = (float)fdm_data.body_ecef_accel.x;
+  vn_data.Accel[1] = (float)fdm_data.body_ecef_accel.y;
+  vn_data.Accel[2] = (float)fdm_data.body_ecef_accel.z;
 
   // tow (in nanoseconds), uint64
   vn_data.Tow = vn_get_time_of_week();
@@ -154,9 +157,9 @@ void nps_ins_fetch_data(void)
   // TODO
 
   //linear acceleration imu-body frame, float [m/s^2]
-  vn_data.LinearAccelBody[0] = (float)fdm.ltp_ecef_vel.x;
-  vn_data.LinearAccelBody[1] = (float)fdm.ltp_ecef_vel.y;
-  vn_data.LinearAccelBody[2] = (float)fdm.ltp_ecef_vel.z;
+  vn_data.LinearAccelBody[0] = (float)fdm_data.ltp_ecef_vel.x;
+  vn_data.LinearAccelBody[1] = (float)fdm_data.ltp_ecef_vel.y;
+  vn_data.LinearAccelBody[2] = (float)fdm_data.ltp_ecef_vel.z;
 
   //YprU, float[3]
   // TODO
@@ -166,9 +169,9 @@ void nps_ins_fetch_data(void)
 
   //Vel body, float [m/s]
   // The estimated velocity in the body (i.e. imu) frame, given in m/s.
-  vn_data.VelBody[0] = (float)fdm.body_accel.x;
-  vn_data.VelBody[1] = (float)fdm.body_accel.y;
-  vn_data.VelBody[2] = (float)fdm.body_accel.z;
+  vn_data.VelBody[0] = (float)fdm_data.body_accel.x;
+  vn_data.VelBody[1] = (float)fdm_data.body_accel.y;
+  vn_data.VelBody[2] = (float)fdm_data.body_accel.z;
 }
 
 

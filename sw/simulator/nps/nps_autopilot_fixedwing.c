@@ -77,7 +77,7 @@ void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, cha
 
   autopilot.launch = FALSE;
 
-  if ((rc_dev != NULL) || type_rc == NONE)  {
+  if (rc_dev != NULL)  {
     nps_radio_control_init(type_rc, num_rc_script, rc_dev);
   }
   nps_electrical_init();

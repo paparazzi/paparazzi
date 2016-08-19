@@ -29,7 +29,6 @@
 #define MODE_SWITCH_AUTO2   1.0
 
 enum NpsRadioControlType {
-  NONE,
   SCRIPT,
   JOYSTICK,
   SPEKTRUM
