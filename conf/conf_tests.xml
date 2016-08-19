@@ -2,11 +2,11 @@
   <aircraft
    name="Ark_Quad"
    ac_id="41"
-   airframe="airframes/AGGIEAIR/aggieair_ark_quad_lisa_mx_test.xml"
-   radio="radios/AGGIEAIR/aggieair_sbus_fakerator.xml"
+   airframe="airframes/AGGIEAIR/ark_hexa_1-8.xml"
+   radio="radios/AGGIEAIR/aggieair_taranis.xml"
    telemetry="telemetry/AGGIEAIR/aggieair_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/nps.xml [settings/control/stabilization_att_float_euler.xml]"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/nps.xml settings/control/stabilization_att_float_euler.xml"
    settings_modules="modules/gps.xml"
    gui_color="#ffff954c0000"
   />
@@ -212,12 +212,12 @@
    name="Minion_Lia"
    ac_id="42"
    airframe="airframes/AGGIEAIR/aggieair_rp3_lia.xml"
-   radio="radios/AGGIEAIR/aggieair_sbus_fakerator.xml"
+   radio="radios/AGGIEAIR/aggieair_taranis.xml"
    telemetry="telemetry/AGGIEAIR/aggieair_fixedwing.xml"
    flight_plan="flight_plans/AGGIEAIR/BasicTuning_Launcher.xml"
    settings="settings/fixedwing_basic.xml settings/nps.xml settings/control/ctl_basic.xml"
-   settings_modules="modules/gps.xml modules/nav_survey_poly_osam.xml modules/nav_skid_landing.xml"
    gui_color="#00009e93ffff"
+   settings_modules="modules/gps.xml modules/nav_survey_poly_osam.xml modules/nav_skid_landing.xml"
   />
   <aircraft
    name="Quad_Elle0"

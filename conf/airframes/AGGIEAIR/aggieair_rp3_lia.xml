@@ -53,6 +53,7 @@ RP3 Lisa MX
     <module name="nav" type="launcher"/>
     <module name="nav" type="skid_landing"/>
     <module name="sys_mon"/>
+    <module name="rtos_mon"/>
     <module name="flight_logger">
       <!-- in order to use uart1 without chibios we need to remap the peripheral-->
       <define name="REMAP_UART1" value="TRUE"/>
@@ -64,12 +65,12 @@ RP3 Lisa MX
   <!-- commands section -->
   <!-- Servo Configuration -->
   <servos>
-    <servo name="THROTTLE"		no="0" min="1100" neutral="1100" max="1900"/>
-    <servo name="AILERON_RIGHT"     no="1" min="900" neutral="1500" max="2100"/>
+    <servo name="THROTTLE"		  no="0" min="1100" neutral="1100" max="1900"/>
+    <servo name="AILERON_RIGHT" no="1" min="900" neutral="1500" max="2100"/>
     <servo name="AILERON_LEFT"	no="2" min="2100" neutral="1500" max="900"/>
     <servo name="ELEVATOR"      no="3" min="2100" neutral="1500" max="900"/>
     <servo name="RUDDER"        no="4" min="900" neutral="1500" max="2100"/>
-    <servo name="FLAP"		no="5" min="900" neutral="900" max="2100"/>
+    <servo name="FLAP"		      no="5" min="900" neutral="900" max="2100"/>
   </servos>
 
   <!-- Servo Command Structure -->
