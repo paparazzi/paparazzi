@@ -82,9 +82,14 @@ void nps_main_run_sim_step(void)
 
 }
 
+
 void* nps_main_loop(void* data __attribute__((unused)))
 {
-  struct timespec requestStart, requestEnd, waitFor;
+  struct timespec requestStart;
+  struct timespec requestEnd;
+  struct timespec waitFor;
+  long int period_ns = HOST_TIMEOUT_MS*1000000LL; // thread period in nanoseconds
+  long int task_ns = 0; // time it took to finish the task in nanoseconds
 
   struct timeval tv_now;
   double  host_time_now;
@@ -97,7 +102,7 @@ void* nps_main_loop(void* data __attribute__((unused)))
 
       gettimeofday(&tv_now, NULL);
       t1 = time_to_double(&tv_now);
-      /* unscale to initial real time*/
+      // unscale to initial real time
       irt = t1 - (t1 - nps_main.scaled_initial_time) * nps_main.host_time_factor;
 
       printf("Press <enter> to continue (or CTRL-Z to suspend).\nEnter a new time factor if needed (current: %f): ",
@@ -113,10 +118,10 @@ void* nps_main_loop(void* data __attribute__((unused)))
       }
       gettimeofday(&tv_now, NULL);
       t2 = time_to_double(&tv_now);
-      /* add the pause to initial real time */
+      // add the pause to initial real time
       irt += t2 - t1;
       nps_main.real_initial_time += t2 - t1;
-      /* convert to scaled initial real time */
+      // convert to scaled initial real time
       nps_main.scaled_initial_time = t2 - (t2 - irt) / nps_main.host_time_factor;
       pauseSignal = 0;
     }
@@ -143,7 +148,7 @@ void* nps_main_loop(void* data __attribute__((unused)))
       cnt++;
     }
 
-    /* Check to make sure the simulation doesn't get too far behind real time looping */
+    // Check to make sure the simulation doesn't get too far behind real time looping
     if (cnt > (prev_cnt)) {grow_cnt++;}
     else { grow_cnt--;}
     if (grow_cnt < 0) {grow_cnt = 0;}
@@ -160,17 +165,18 @@ void* nps_main_loop(void* data __attribute__((unused)))
     clock_gettime(CLOCK_REALTIME, &requestEnd); // end measurement
 
     // Calculate time it took
-    long int accum_ns = (requestEnd.tv_sec - requestStart.tv_sec)*1000000000L + (requestEnd.tv_nsec - requestStart.tv_nsec);
+    task_ns = (requestEnd.tv_sec - requestStart.tv_sec)*1000000000L + (requestEnd.tv_nsec - requestStart.tv_nsec);
 
-    if (accum_ns > 0) {
+    if (task_ns > 0) {
       waitFor.tv_sec = 0;
-      waitFor.tv_nsec = HOST_TIMEOUT_MS*1000000L - accum_ns;
+      waitFor.tv_nsec = period_ns - task_ns;
       nanosleep(&waitFor,NULL);
     }
     else {
-      printf("MAIN THREAD: took too long, exactly %f ms\n", (double)accum_ns/1E6);
+      // task took longer than the period
+      printf("MAIN THREAD: task took longer than one period, exactly %f [ms], but the period is %f [ms]\n",
+          (double)task_ns/1E6, (double)period_ns/1E6);
     }
   }
-
   return(NULL);
 }

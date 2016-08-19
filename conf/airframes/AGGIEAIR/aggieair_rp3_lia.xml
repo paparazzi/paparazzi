@@ -12,12 +12,15 @@ RP3 Lisa MX
         <configure name="SBUS_PORT" value="UART5"/>
       </module>
     </target>
-    
-    <define name="CONTROL_FREQUENCY" value="100"/>
+
+    <define name="CONTROL_FREQUENCY" value="160"/>
+    <!-- -A workaround for simulation to make sure the simulation is stepped
+    with 2x CONTORL_FREQUENCY-fidelity -->
+    <configure name="PERIODIC_FREQUENCY" value="160"/>
 
     <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
-      <module name="radio_control" type="ppm"/>
+      <module name="radio_control" type="spektrum"/>
       <configure name="USE_HITL" value="1"/>
       <configure name="INS_DEV" value="/dev/ttyUSB1"/>
       <configure name="INS_BAUD" value="B921600"/>

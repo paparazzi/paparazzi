@@ -77,8 +77,18 @@ int main(int argc, char **argv)
 }
 
 void nps_radio_and_autopilot_init(void){
-  enum NpsRadioControlType rc_type = NONE;
-  nps_autopilot_init(rc_type, nps_main.rc_script, NULL);
+  enum NpsRadioControlType rc_type;
+  char *rc_dev = NULL;
+  if (nps_main.js_dev) {
+    rc_type = JOYSTICK;
+    rc_dev = nps_main.js_dev;
+  } else if (nps_main.spektrum_dev) {
+    rc_type = SPEKTRUM;
+    rc_dev = nps_main.spektrum_dev;
+  } else {
+    rc_type = SCRIPT;
+  }
+  nps_autopilot_init(rc_type, nps_main.rc_script, rc_dev);
 }
 
 void nps_update_launch_from_dl(uint8_t value){
@@ -121,6 +131,8 @@ void* nps_ins_data_loop(void* data __attribute__((unused)))
   cfsetospeed(&new_settings, (speed_t)INS_BAUD);
   tcsetattr(fd, TCSANOW, &new_settings);
 
+  struct NpsFdm fdm_ins;
+
   while (TRUE)
   {
     // lock mutex
@@ -129,11 +141,14 @@ void* nps_ins_data_loop(void* data __attribute__((unused)))
     // start timing
     clock_gettime(CLOCK_REALTIME, &requestStart);
 
-    // fetch data
-    nps_ins_fetch_data();
+    // make a copy of fdm struct to speed things up
+    memcpy (&fdm_ins, &fdm, sizeof(fdm));
 
     // unlock mutex
     pthread_mutex_unlock(&fdm_mutex);
+
+    // fetch data
+    nps_ins_fetch_data(&fdm_ins);
 
     // send ins data here
     static uint16_t idx;
@@ -271,7 +286,6 @@ void* nps_main_loop(void* data __attribute__((unused)))
   struct timespec waitFor;
   long int period_ns = SIM_DT*1000000000L; // thread period in nanoseconds
   long int task_ns = 0; // time it took to finish the task in nanoseconds
-  int cnt = 0;
 
   // check the sim time difference from the realtime
   // fdm.time - simulation time
@@ -297,7 +311,6 @@ void* nps_main_loop(void* data __attribute__((unused)))
     guard = 0;
     while ((real_time - fdm.time) > SIM_DT) {
       nps_main_run_sim_step();
-      cnt++;
       guard++;
       if (guard>2){
         //If we are too much behind, catch up incrementaly

@@ -22,8 +22,8 @@
 
     <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
-      <module name="radio_control" type="ppm"/>
-      <configure name="USE_HITL" value="1"/>
+      <module name="radio_control" type="spektrum"/>
+      <!--configure name="USE_HITL" value="1"/-->
       <configure name="INS_DEV" value="/dev/ttyUSB1"/>
       <configure name="INS_BAUD" value="B921600"/>
       <configure name="AP_DEV" value="/dev/ttyUSB2"/>
@@ -46,7 +46,6 @@
       <configure name="VN_PORT" value="UART2"/>
       <configure name="VN_BAUD" value="B921600"/>
     </module>
-
 
     <define name="GEOFENCE_DATALINK_LOST_TIME" value="45"/>
   </firmware>
