@@ -7,13 +7,13 @@ RP3 Lisa MX
 <airframe name="RP3 Lisa MX">
 
   <firmware name="fixedwing">
-    <define name="CONTROL_FREQUENCY" value="100"/>
-    <configure name="PERIODIC_FREQUENCY" value="100"/>
-    <target name="ap" board="lisa_mx_2.0">
+    <target name="ap" board="lisa_mx_2.1_chibios">
       <module name="radio_control" type="sbus">
         <configure name="SBUS_PORT" value="UART5"/>
       </module>
     </target>
+    
+    <define name="CONTROL_FREQUENCY" value="100"/>
 
     <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
@@ -41,13 +41,14 @@ RP3 Lisa MX
     <define name="AGR_CLIMB" />
     <define name="POLY_OSAM_HALF_SWEEP_ENABLED" value="FALSE"/>
     <define name="GEOFENCE_DATALINK_LOST_TIME" value="45"/>
-
+  </firmware>
+  
+  <modules>
     <module name="nav" type="line"/>
     <module name="nav" type="flower"/>
     <module name="nav" type="survey_poly_osam"/>
     <module name="nav" type="launcher"/>
     <module name="nav" type="skid_landing"/>
-    <!--module name="rtos_mon"/-->
     <module name="sys_mon"/>
     <module name="flight_logger">
       <!-- in order to use uart1 without chibios we need to remap the peripheral-->
@@ -55,7 +56,7 @@ RP3 Lisa MX
       <configure name="FLIGHTLOGGER_PORT" value="UART1"/>
       <configure name="FLIGHTLOGGER_BAUD" value="B921600"/>
     </module>
-  </firmware>
+  </modules>
 
   <!-- commands section -->
   <!-- Servo Configuration -->
@@ -117,7 +118,6 @@ RP3 Lisa MX
     <define name="MAX_PITCH" value="0.6"/>
   </section>
 
-
   <section name="IMU" prefix="IMU_">
     <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
@@ -164,7 +164,8 @@ RP3 Lisa MX
   </section>
 
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
-    <define name="POWER_CTL_BAT_NOMINAL" value="23.2" unit="volt"/>
+    <!-- TODO: double check the power controls settings, this value seems to be outdated -->
+    <!--define name="POWER_CTL_BAT_NOMINAL" value="23.2" unit="volt"/-->
     <!-- outer loop proportional gain -->
     <define name="ALTITUDE_PGAIN" value="0.136"/>
     <!-- outer loop saturation -->

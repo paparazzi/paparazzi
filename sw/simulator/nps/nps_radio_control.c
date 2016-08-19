@@ -48,6 +48,8 @@ void nps_radio_control_init(enum NpsRadioControlType type, int num_script, char 
       break;
     case SCRIPT:
       break;
+    case NONE:
+      break;
   }
 
 }

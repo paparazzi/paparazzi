@@ -64,7 +64,9 @@ int main(int argc, char **argv)
 {
   nps_main_init(argc, argv);
 
-  pthread_create(&th_flight_gear,NULL,nps_flight_gear_loop,NULL);
+  if (nps_main.fg_host) {
+    pthread_create(&th_flight_gear,NULL,nps_flight_gear_loop,NULL);
+  }
   pthread_create(&th_display_ivy,NULL,nps_main_display,NULL);
   pthread_create(&th_main_loop,NULL,nps_main_loop,NULL);
   pthread_create(&th_ins_data,NULL,nps_ins_data_loop,NULL);
@@ -75,21 +77,8 @@ int main(int argc, char **argv)
 }
 
 void nps_radio_and_autopilot_init(void){
-  // TODO: get rid of all this, not needed for HITL
-  // but now the simulation fails if Fw(init) and Ap(init)
-  // is not called:-/
-  enum NpsRadioControlType rc_type;
-  char *rc_dev = NULL;
-  if (nps_main.js_dev) {
-    rc_type = JOYSTICK;
-    rc_dev = nps_main.js_dev;
-  } else if (nps_main.spektrum_dev) {
-    rc_type = SPEKTRUM;
-    rc_dev = nps_main.spektrum_dev;
-  } else {
-    rc_type = SCRIPT;
-  }
-  nps_autopilot_init(rc_type, nps_main.rc_script, rc_dev);
+  enum NpsRadioControlType rc_type = NONE;
+  nps_autopilot_init(rc_type, nps_main.rc_script, NULL);
 }
 
 void nps_update_launch_from_dl(uint8_t value){
@@ -181,8 +170,6 @@ void* nps_ins_data_loop(void* data __attribute__((unused)))
 
 void* nps_ap_data_loop(void* data __attribute__((unused)))
 {
-	int cnt = 0;
-
   // configure port
   int fd = open(AP_DEV, O_RDWR | O_NOCTTY);
   if (fd < 0)
@@ -228,6 +215,8 @@ void* nps_ap_data_loop(void* data __attribute__((unused)))
         uint8_t sender_id = SenderIdOfPprzMsg(buf);
         uint8_t msg_id = IdOfPprzMsg(buf);
 
+
+
         // parse telemetry messages coming from other AC
         if (sender_id != AC_ID) {
           switch (msg_id) {
@@ -243,13 +232,22 @@ void* nps_ap_data_loop(void* data __attribute__((unused)))
               cmd_len = DL_COMMANDS_values_length(buf);
               memcpy(&cmd_buf, DL_COMMANDS_values(buf), cmd_len*sizeof(int16_t));
               pthread_mutex_lock(&fdm_mutex);
-              cnt++;
               // update commands
               for (uint8_t i = 0; i < NPS_COMMANDS_NB; i++) {
                 autopilot.commands[i] = (double)cmd_buf[i] / MAX_PPRZ;
               }
               // hack: invert pitch to fit most JSBSim models
               autopilot.commands[COMMAND_PITCH] = -(double)cmd_buf[COMMAND_PITCH] / MAX_PPRZ;
+              pthread_mutex_unlock(&fdm_mutex);
+              break;
+            case DL_ACTUATORS:
+              // parse actuarors message
+              cmd_len = DL_ACTUATORS_values_length(buf);
+              memcpy(&cmd_buf, DL_ACTUATORS_values(buf), cmd_len*sizeof(int16_t));
+              // update commands
+              for (uint8_t i = 0; i < NPS_COMMANDS_NB; i++) {
+                autopilot.commands[i] = (double)cmd_buf[i] / MAX_PPRZ;
+              }
               pthread_mutex_unlock(&fdm_mutex);
               break;
             default:
