@@ -38,7 +38,7 @@
 #define GPS_I2C_SLAVE_ADDR (0x42 << 1)
 
 #ifndef GPS_UBX_I2C_DEV
-#define GPS_UBX_I2C_DEV i2c2
+#error "GPS_UBX_I2C_DEV needs to be defined (e.g. to i2c1)"
 #endif
 PRINT_CONFIG_VAR(GPS_UBX_I2C_DEV)
 

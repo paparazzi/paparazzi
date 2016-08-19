@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="gps_ublox">
+<module name="gps_ublox" dir="gps">
   <doc>
     <description>
       U-blox GPS (UART)
