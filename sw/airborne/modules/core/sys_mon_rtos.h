@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010  Gautier Hattenberger
+ * Copyright (C) 2016 Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *
  * This file is part of paparazzi.
  *
@@ -56,5 +56,10 @@ struct rtos_monitoring {
 };
 
 extern struct rtos_monitoring rtos_mon;
+
+// Init function
+extern void rtos_mon_init_arch(void);
+// Periodic report
+extern void rtos_mon_periodic_arch(void);
 
 #endif /* SYS_MON_RTOS_H */

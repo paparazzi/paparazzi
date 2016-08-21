@@ -25,7 +25,6 @@
  */
 
 #include "modules/core/sys_mon_rtos.h"
-#include "modules/core/rtos_mon_arch.h"
 #include <ch.h>
 
 #if !CH_DBG_THREADS_PROFILING

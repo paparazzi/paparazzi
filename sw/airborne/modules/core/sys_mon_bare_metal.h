@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010  Gautier Hattenberger
+ * Copyright (C) 2016 Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *
  * This file is part of paparazzi.
  *

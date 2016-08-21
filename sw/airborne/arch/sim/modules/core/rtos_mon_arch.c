@@ -26,7 +26,6 @@
  */
 
 #include "modules/core/sys_mon_rtos.h"
-#include "modules/core/rtos_mon_arch.h"
 #include <stdlib.h>     /* atof */
 #include <stdio.h>      /* printf, fgets */
 #include <string.h>
