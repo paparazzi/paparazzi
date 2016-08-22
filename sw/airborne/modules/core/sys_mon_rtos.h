@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2016 Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *
- * This file is part of paparazzi
+ * This file is part of paparazzi.
  *
  * paparazzi is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,19 +14,22 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, see
- * <http://www.gnu.org/licenses/>.
- */
-/**
- * @file "modules/core/rtos_mon.h"
- * @author Gautier Hattenberger
- * RTOS monitoring tool
+ * along with paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ *
  */
 
-#ifndef RTOS_MON_H
-#define RTOS_MON_H
+/** \file sys_mon_rtos.h
+ *
+ * System monitoring for RTOS targets
+ * return cpu load, average exec time, ...
+ */
 
-#include "std.h"
+#ifndef SYS_MON_RTOS_H
+#define SYS_MON_RTOS_H
+
+#include "core/sys_mon.h"
 
 // Maximum number of threads
 // The limit is related to the max size of the report message
@@ -55,9 +58,8 @@ struct rtos_monitoring {
 extern struct rtos_monitoring rtos_mon;
 
 // Init function
-extern void rtos_mon_init(void);
+extern void rtos_mon_init_arch(void);
 // Periodic report
-extern void rtos_mon_periodic(void);
+extern void rtos_mon_periodic_arch(void);
 
-#endif
-
+#endif /* SYS_MON_RTOS_H */

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010  Gautier Hattenberger
+ * Copyright (C) 2016 Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *
  * This file is part of paparazzi.
  *
@@ -22,30 +22,27 @@
 
 /** \file sys_mon.h
  *
- * System monitoring common header
+ * System monitoring
  * return cpu load, average exec time, ...
  */
 
-#ifndef SYS_MON_H
-#define SYS_MON_H
+#ifndef SYS_MON_BARE_METAL_H
+#define SYS_MON_BARE_METAL_H
 
-#include "std.h"
+#include "core/sys_mon.h"
 
-/** Init system monitoring
- */
-void init_sysmon(void);
+struct SysMon {
+  uint8_t  cpu_load;
+  uint16_t periodic_time;      ///< in usec
+  uint16_t periodic_time_min;  ///< in usec
+  uint16_t periodic_time_max;  ///< in usec
+  uint16_t periodic_cycle;     ///< in usec
+  uint16_t periodic_cycle_min; ///< in usec
+  uint16_t periodic_cycle_max; ///< in usec
+  uint16_t event_number;
+  float cpu_time; // in secs since startup
+};
 
-/** Report system status
- */
-void periodic_report_sysmon(void);
+extern struct SysMon sys_mon;
 
-/** Analyse periodic calls
- *  Should be run at the highest frequency
- */
-void periodic_sysmon(void);
-
-/** Analyse event calls
- */
-void event_sysmon(void);
-
-#endif
+#endif /* SYS_MON_BARE_METAL_H */
