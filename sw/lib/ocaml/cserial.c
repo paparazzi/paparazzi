@@ -35,7 +35,54 @@
 #include <caml/alloc.h>
 #include <caml/memory.h>
 
-static int baudrates[] = { B0, B50, B75, B110, B134, B150, B200, B300, B600, B1200, B1800, B2400, B4800, B9600, B19200, B38400, B57600, B115200, B230400 };
+/* MacOS doesn't support higher baudrates (>230400B) */
+#ifdef __APPLE__
+static int baudrates[] = {
+    B0,
+    B50,
+    B75,
+    B110,
+    B134,
+    B150,
+    B200,
+    B300,
+    B600,
+    B1200,
+    B1800,
+    B2400,
+    B4800,
+    B9600,
+    B19200,
+    B38400,
+    B57600,
+    B115200,
+    B230400 };
+#else /* regular Linux with higher baudrates */
+static int baudrates[] = {
+    B0,
+    B50,
+    B75,
+    B110,
+    B134,
+    B150,
+    B200,
+    B300,
+    B600,
+    B1200,
+    B1800,
+    B2400,
+    B4800,
+    B9600,
+    B19200,
+    B38400,
+    B57600,
+    B115200,
+    B230400,
+    B921600,
+    B1500000,
+    B3000000 };
+#endif /* ifdef __APPLE__ */
+
 
 
 /****************************************************************************/
@@ -46,7 +93,11 @@ value c_init_serial(value device, value speed, value hw_flow_control)
   CAMLparam3 (device, speed, hw_flow_control);
   struct termios orig_termios, cur_termios;
 
-  int br = baudrates[Int_val(speed)];
+  int br_idx = Int_val(speed);
+  if (br_idx >= sizeof(baudrates)){
+    failwith("Baud rate not supported - are you using MacOS? (br_idx out of bounds)");
+  }
+  int br = baudrates[br_idx];
 
   int fd = open(String_val(device), O_RDWR|O_NOCTTY|O_NONBLOCK);
 

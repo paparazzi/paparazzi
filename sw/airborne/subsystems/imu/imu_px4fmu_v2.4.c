@@ -40,7 +40,7 @@ PRINT_CONFIG_VAR(IMU_PX4FMU_SPI_DEV)
 
 struct ImuPX4 imu_px4;
 
-void imu_impl_init(void)
+void imu_px4_init(void)
 {
 
   /* L3GD20 gyro init */
@@ -55,7 +55,7 @@ void imu_impl_init(void)
 
 }
 
-void imu_periodic(void)
+void imu_px4_periodic(void)
 {
   l3gd20_spi_periodic(&imu_px4.l3g);
   lsm303dlhc_spi_periodic(&imu_px4.lsm_acc);
@@ -63,7 +63,7 @@ void imu_periodic(void)
 #if !IMU_PX4_DISABLE_MAG
   /* Read magneto's every 10 times of main freq
    * at ~50Hz (main loop for rotorcraft: 512Hz)
-   */  
+   */
   RunOnceEvery(10, lsm303dlhc_spi_periodic(&imu_px4.lsm_mag));
 #endif
 }
@@ -87,7 +87,7 @@ void imu_px4_event(void)
 
   /* LSM303dlhc event task */
   lsm303dlhc_spi_event(&imu_px4.lsm_acc);
-  if (imu_px4.lsm_acc.data_available_acc) {    
+  if (imu_px4.lsm_acc.data_available_acc) {
     VECT3_COPY(imu.accel_unscaled, imu_px4.lsm_acc.data_accel.vect);
     imu_px4.lsm_acc.data_available_acc = FALSE;
     imu_scale_accel(&imu);

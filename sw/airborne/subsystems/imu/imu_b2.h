@@ -172,8 +172,9 @@ struct ImuBooz2 {
 };
 
 extern struct ImuBooz2 imu_b2;
-extern void imu_b2_event(void);
 
-#define ImuEvent imu_b2_event
+extern void imu_b2_init(void);
+extern void imu_b2_periodic(void);
+extern void imu_b2_event(void);
 
 #endif /* IMU_B2_H */

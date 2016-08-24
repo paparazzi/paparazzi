@@ -1,0 +1,18 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="imu_aspirin_i2c_v1.5" dir="sensors">
+  <doc>
+    <description>
+      Aspirin v1.5 IMU.
+      - Accelerometer: ADXL345 via I2C
+      - Gyroscope: ITG3200 via I2C
+      - Magnetometer: HMC58xx via I2C
+      For configuration see the imu_aspirin_common module
+    </description>
+  </doc>
+  <autoload name="imu_aspirin_i2c_common"/>
+  <autoload name="imu_nps"/>
+  <makefile target="!sim|nps|fbw">
+    <define name="IMU_ASPIRIN_VERSION_1_5"/>
+  </makefile>
+</module>

@@ -1021,21 +1021,21 @@ let () =
 
       begin 
         try
-          let geofence_max_agl = get_float "geofence_max_agl" in
-          if geofence_max_agl < !security_height then
+          let geofence_max_height = get_float "geofence_max_height" in
+          if geofence_max_height < !security_height then
             begin
-              fprintf stderr "\nError: Geofence max AGL below security height (%.0f < %.0f)\n" geofence_max_agl !security_height;
+              fprintf stderr "\nError: Geofence max height below security height (%.0f < %.0f)\n" geofence_max_height !security_height;
               exit 1;
             end
-          else if geofence_max_agl < home_mode_height then
+          else if geofence_max_height < home_mode_height then
             begin
-              fprintf stderr "\nError: Geofence max AGL below home mode height (%.0f < %.0f)\n" geofence_max_agl home_mode_height;
+              fprintf stderr "\nError: Geofence max height below home mode height (%.0f < %.0f)\n" geofence_max_height home_mode_height;
               exit 1;
             end
-          else if (geofence_max_agl +. !ground_alt) < (float_of_string alt) then
-            fprintf stderr "\nWarning: Geofence max AGL below default waypoint AGL (%.0f < %.0f)\n" (geofence_max_agl +. !ground_alt) (float_of_string alt);
-          Xml2h.define "GEOFENCE_MAX_AGL" (sof geofence_max_agl);
-          fprintf stderr "\nWarning: Geofence max AGL set to %.0f\n" geofence_max_agl;
+          else if (geofence_max_height +. !ground_alt) < (float_of_string alt) then
+            fprintf stderr "\nWarning: Geofence max AGL below default waypoint AGL (%.0f < %.0f)\n" (geofence_max_height +. !ground_alt) (float_of_string alt);
+          Xml2h.define "GEOFENCE_MAX_HEIGHT" (sof geofence_max_height);
+          fprintf stderr "\nWarning: Geofence max AGL set to %.0f\n" geofence_max_height;
         with
           _ -> ()
       end;

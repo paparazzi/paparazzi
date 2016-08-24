@@ -44,8 +44,8 @@ struct ImuMpu6000Hmc5883 {
 
 extern struct ImuMpu6000Hmc5883 imu_mpu_hmc;
 
+extern void imu_mpu_hmc_init(void);
+extern void imu_mpu_hmc_periodic(void);
 extern void imu_mpu_hmc_event(void);
-
-#define ImuEvent imu_mpu_hmc_event
 
 #endif /* IMU_MPU6000_HMC5883_H */

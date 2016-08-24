@@ -1,0 +1,20 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="imu_nps" dir="imu">
+  <doc>
+    <description>
+      Simulated IMU for NPS.
+    </description>
+  </doc>
+  <autoload name="imu_common"/>
+  <header>
+    <file name="imu_nps.h" dir="subsystems/imu"/>
+  </header>
+  <init fun="imu_nps_init()"/>
+  <event fun="imu_nps_event()"/>
+
+  <makefile target="nps">
+    <define name="IMU_TYPE_H" value="subsystems/imu/imu_nps.h" type="string"/>
+    <file name="imu_nps.c" dir="subsystems/imu"/>
+  </makefile>
+</module>

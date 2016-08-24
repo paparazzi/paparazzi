@@ -547,7 +547,7 @@ let rec select_gps_values = function
 	  let t = fst lats.(i)
 	  and lat = snd lats.(i) /. 1e7
 	  and lon = snd lons.(i) /. 1e7 in
-	  let wgs84 = make_geo lat lon in
+	  let wgs84 = make_geo_deg lat lon in
 	  l := (t, wgs84, a) :: !l
       done;
       List.rev !l

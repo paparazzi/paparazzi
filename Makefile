@@ -304,6 +304,10 @@ ab_clean:
 #
 test: test_math test_examples
 
+# subset of airframes for coverity test to pass the limited build time on travis
+test_coverity: all
+	CONF_XML=conf/conf_tests_coverity.xml prove tests/aircrafts/
+
 # compiles all aircrafts in conf_tests.xml
 test_examples: all
 	CONF_XML=conf/conf_tests.xml prove tests/aircrafts/

@@ -64,10 +64,9 @@ struct ImuHbmini {
 
 extern struct ImuHbmini imu_hbmini;
 
-/* Own Extra Functions */
+extern void imu_hbmini_init(void);
+extern void imu_hbmini_periodic(void);
 extern void imu_hbmini_event(void);
 extern void imu_hbmini_downlink_raw(void);
-
-#define ImuEvent imu_hbmini_event
 
 #endif

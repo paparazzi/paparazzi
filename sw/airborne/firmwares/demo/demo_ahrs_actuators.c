@@ -29,6 +29,7 @@
  */
 #define PERIODIC_C_MAIN
 #define ABI_C
+#define MODULES_C
 
 #include "subsystems/datalink/telemetry.h"
 #include "subsystems/datalink/datalink.h"
@@ -37,6 +38,7 @@
 
 #include "generated/airframe.h"
 #include "generated/settings.h"
+#include "generated/modules.h"
 
 #include "std.h"
 #include "mcu.h"
@@ -91,7 +93,7 @@ static inline void main_init(void)
   stateInit();
   actuators_init();
 
-  imu_init();
+  modules_init();
 #if USE_AHRS_ALIGNER
   ahrs_aligner_init();
 #endif
@@ -124,7 +126,7 @@ static inline void main_periodic_task(void)
   SetActuatorsFromCommands(commands, 0);
 
   if (sys_time.nb_sec > 1) {
-    imu_periodic();
+    modules_periodic_task();
   }
   RunOnceEvery(10, { LED_PERIODIC();});
   RunOnceEvery(PERIODIC_FREQUENCY, { datalink_time++; });
@@ -134,7 +136,7 @@ static inline void main_periodic_task(void)
 static inline void main_event_task(void)
 {
   mcu_event();
-  ImuEvent();
+  modules_event_task();
   DatalinkEvent();
 }
 

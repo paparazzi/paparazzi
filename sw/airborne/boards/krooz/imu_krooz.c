@@ -65,7 +65,7 @@ struct MedianFilter3Int median_accel;
 #endif
 struct MedianFilter3Int median_mag;
 
-void imu_impl_init(void)
+void imu_krooz_init(void)
 {
   /////////////////////////////////////////////////////////////////////
   // MPU-60X0
@@ -95,7 +95,7 @@ void imu_impl_init(void)
   imu_krooz_sd_arch_init();
 }
 
-void imu_periodic(void)
+void imu_krooz_periodic(void)
 {
   // Start reading the latest gyroscope data
   if (!imu_krooz.mpu.config.initialized) {

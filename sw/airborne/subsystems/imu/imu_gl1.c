@@ -77,7 +77,7 @@ PRINT_CONFIG_VAR(L3G4200_SCALE)
 
 struct ImuGL1I2c imu_gl1;
 
-void imu_impl_init(void)
+void imu_gl1_init(void)
 {
   /* Set accel configuration */
   adxl345_i2c_init(&imu_gl1.acc_adxl, &(GL1_I2C_DEV), ADXL345_ADDR);
@@ -104,7 +104,7 @@ void imu_impl_init(void)
 }
 
 
-void imu_periodic(void)
+void imu_gl1_periodic(void)
 {
   adxl345_i2c_periodic(&imu_gl1.acc_adxl);
 
@@ -115,7 +115,7 @@ void imu_periodic(void)
   RunOnceEvery(10, hmc58xx_periodic(&imu_gl1.mag_hmc));
 }
 
-void imu_gl1_i2c_event(void)
+void imu_gl1_event(void)
 {
   uint32_t now_ts = get_sys_time_usec();
 

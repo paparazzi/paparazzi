@@ -98,7 +98,7 @@ bool configure_baro_slave(Mpu60x0ConfigSet mpu_set __attribute__((unused)), void
   return true;
 }
 
-void imu_impl_init(void)
+void imu_apogee_init(void)
 {
   /////////////////////////////////////////////////////////////////////
   // MPU-60X0
@@ -120,7 +120,7 @@ void imu_impl_init(void)
 #endif
 }
 
-void imu_periodic(void)
+void imu_apogee_periodic(void)
 {
   // Start reading the latest gyroscope data
   mpu60x0_i2c_periodic(&imu_apogee.mpu);

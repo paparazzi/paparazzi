@@ -35,6 +35,7 @@
 
 
   <modules>
+    <module name="sys_mon"/>
   </modules>
 
   <servos driver="Pwm">

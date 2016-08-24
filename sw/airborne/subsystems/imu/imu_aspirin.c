@@ -65,7 +65,7 @@ PRINT_CONFIG_VAR(ASPIRIN_GYRO_SMPLRT_DIV)
 
 struct ImuAspirin imu_aspirin;
 
-void imu_impl_init(void)
+void imu_aspirin_init(void)
 {
   imu_aspirin.accel_valid = false;
   imu_aspirin.gyro_valid = false;
@@ -104,7 +104,7 @@ void imu_impl_init(void)
 }
 
 
-void imu_periodic(void)
+void imu_aspirin_periodic(void)
 {
   adxl345_spi_periodic(&imu_aspirin.acc_adxl);
 

@@ -1,0 +1,27 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="imu_aspirin_i2c_common" dir="sensors">
+  <doc>
+    <description>
+      Aspirin v1.0 IMU using I2C only.
+      - Accelerometer: ADXL345 via I2C
+      - Gyroscope: ITG3200 via I2C
+      - Magnetometer: HMC58xx via I2C
+    </description>
+    <configure name="ASPIRIN_I2C_DEV" value="i2c2" description="I2C device to use"/>
+    <section name="IMU" prefix="IMU_">
+      <define name="MAG_X_NEUTRAL" value="2358"/>
+      <define name="MAG_Y_NEUTRAL" value="2362"/>
+      <define name="MAG_Z_NEUTRAL" value="2119"/>
+
+      <define name="MAG_X_SENS" value="3.4936416" integer="16"/>
+      <define name="MAG_Y_SENS" value="3.607713" integer="16"/>
+      <define name="MAG_Z_SENS" value="4.90788848" integer="16"/>
+    </section>
+  </doc>
+  <autoload name="imu_aspirin_i2c_common"/>
+  <autoload name="imu_nps"/>
+  <makefile target="!sim|nps|fbw">
+    <define name="IMU_ASPIRIN_VERSION_1_0"/>
+  </makefile>
+</module>

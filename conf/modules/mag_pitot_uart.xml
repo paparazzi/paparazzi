@@ -17,7 +17,7 @@
   <makefile>
     <!-- Configure default UART port and baudrate -->
     <configure name="MAG_PITOT_PORT" default="UART5" case="upper|lower"/>
-    <configure name="MAG_PITOT_BAUD" default="125000"/>
+    <configure name="MAG_PITOT_BAUD" default="250000"/>
 
     <!-- Enable UART and set baudrate -->
     <define name="USE_$(MAG_PITOT_PORT_UPPER)"/>

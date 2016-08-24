@@ -71,6 +71,7 @@
 
 extern int imu_overrun;
 
-#define ImuEvent() {}
+extern void imu_analog_init(void);
+extern void imu_analog_periodic(void);
 
 #endif /* IMU_ANALOG_H */

@@ -220,7 +220,6 @@ void adc1callback(ADCDriver *adcp, adcsample_t *buffer, size_t n)
         for (unsigned int sample = 0; sample < n; sample++) {
           adc1_sum_tmp[channel] += buffer[channel + sample * ADC_NUM_CHANNELS];
         }
-        adc1_sum_tmp[channel] = adc1_sum_tmp[channel]; // FIXME : lhs is same as rsh
       }
     }
     chSysLockFromISR();

@@ -46,8 +46,8 @@ struct ImuAspirin2Spi {
 
 extern struct ImuAspirin2Spi imu_aspirin2;
 
+extern void imu_aspirin2_init(void);
 extern void imu_aspirin2_event(void);
-
-#define ImuEvent imu_aspirin2_event
+extern void imu_aspirin2_periodic(void);
 
 #endif /* IMU_ASPIRIN_2_H */
