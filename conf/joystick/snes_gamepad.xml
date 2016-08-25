@@ -1,0 +1,129 @@
+<!-- SNES gamepad
+
+Support for NAV/GUIDED mode flight using SNES and SNES-clones that comply to the following axes/button mappings.
+
+
+           L __                      | |                        __ R
+               \  ___________________|_|_____________________  /
+              _,-'                                      ____ '-._
+            ,'             S U P E R  N I T E N D O _,-'    `-._ `.
+          ,'       ___     -ENTERTAINMENT SYSTEM- ,'     __ X   `. `.
+         /        |   |                          /      /  \      \  \
+        /      ___|   |___                      /   __  \__/  __ A \  \
+        |     |           |        ,.       ,.  |  /  \      /  \   | !
+        !     |___     ___|      ,','     ,','  |  \__/  __  \__/   | |
+        \         |   |         ','      '.'    \ Y     /  \       /  /
+         \        |___|         SELECT   START   \      \__/      /  /
+          `.                  ___________________ `._  B       _,' ,'
+            `-._          _.'`                   `-._`'~-.,-~'`_.'`
+                `'~-.,-~'`                           `'~-.,-~'`
+
+
+AXES - 2 axes: (dark grey)
+
+  axis 0: Roll  - Left/Right   range:(-127..126);  center:(-1)
+  axis 1: Pitch - Forward/Back range(-127..126);   center:(-1)
+
+
+BUTTONS - 11 buttons of which only 8 are used:
+
+  b0 - X (light purple)           values:(0 | 1)
+  b1 - A (purple)                 values:(0 | 1)
+  b2 - B (purple)                 values:(0 | 1)
+  b3 - Y (light purple)           values:(0 | 1)
+  b4 - L (grey - left shoulder)   values:(0 | 1)
+  b5 - R (grey - right soulder)   values:(0 | 1)
+  b8 - select (dark grey)         values:(0 | 1)
+  b9 - start (dark grey)          values:(0 | 1)
+
+
+TEST STICK DATA OUTPUT:
+
+  $ ./sw/ground_segment/joystick/test_stick
+
+  Available button: 11 (0xb)
+  Available hats: 0 (0x0)
+  Available axes: 2 (0x2)
+  Axis 0 : parameters = [-32768,32768]
+  Axis 1 : parameters = [-32768,32768]
+  Input device name: "2Axes 11Keys Game  Pad" on SDL device "0"
+  buttons 0 0 0 0 0 0 0 0 0 0 0 | hat 0 | axes -1 -1 
+  buttons 0 0 0 0 0 0 0 0 0 0 0 | hat 0 | axes -1 -1 
+  buttons 0 0 0 0 0 0 0 0 0 0 0 | hat 0 | axes -1 -1
+  ...
+   
+
+-->
+
+<joystick>
+
+  <input>
+
+    <axis   index="0" name="roll"  trim="1.0"/>
+    <axis   index="1" name="pitch" trim="1.0"/>
+
+    <button index="0" name="X"/>
+    <button index="1" name="A"/>
+    <button index="2" name="B"/>
+    <button index="3" name="Y"/>
+    <button index="4" name="L"/>
+    <button index="5" name="R"/>
+    <button index="8" name="select"/>
+    <button index="9" name="start"/>
+
+  </input>
+
+  <variables>
+
+    <!-- TBD: NOT USED AT THIS POINT -->
+    <var name="mode"    default="2"/>
+
+  </variables>
+
+  <messages period="0.05">
+
+    <!-- Move at Body Velocity : forward/right/down/yaw -->
+    <message class="datalink" name="GUIDED_SETPOINT_NED" send_always="true">
+      <field name="flags" value="226"/>       <!-- 0xE2 -->
+      <field name="x"     value="Fit(pitch,-100,100,-127,127)"/>
+      <field name="y"     value="Fit(-roll,-100,100,-127,127)"/>
+      <field name="z"     value="0 - A + B"/>
+      <field name="yaw"   value="0 + R - L"/>
+    </message>
+
+    <!-- Set NAV Mode -->
+    <message class="ground" name="DL_SETTING" on_event="select && A">
+      <field name="index" value="IndexOfSetting('autopilot_mode_auto2')"/>
+      <field name="value" value="13"/>
+    </message>
+
+    <!-- Set GUIDED Mode -->
+    <message class="ground" name="DL_SETTING" on_event="select && B">
+      <field name="index" value="IndexOfSetting('autopilot_mode_auto2')"/>
+      <field name="value" value="19"/>
+    </message>
+
+    <!-- go to "Start Engine" block if in AUTO2/NAV -->
+    <message class="ground" name="JUMP_TO_BLOCK" on_event="start && A">
+      <field name="block_id" value="IndexOfBlock('Start Motors')"/>
+    </message>
+
+    <!-- go to "Takeoff" block if in AUTO2/NAV -->
+    <message class="ground" name="JUMP_TO_BLOCK" on_event="start && B">
+      <field name="block_id" value="IndexOfBlock('Takeoff')"/>
+    </message>
+
+    <!-- go to "land here" block if in AUTO2/NAV -->
+    <message class="ground" name="JUMP_TO_BLOCK" on_event="A && B">
+      <field name="block_id" value="IndexOfBlock('land')"/>
+    </message>
+
+    <!-- Set "kill_throttle" in AUTO2/NAV -->
+    <message class="ground" name="DL_SETTING" on_event="select && start">
+      <field name="index" value="IndexOfSetting(kill_throttle)"/>
+      <field name="value" value="2"/>
+    </message>
+
+  </messages>
+
+</joystick>
