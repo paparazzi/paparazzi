@@ -1,0 +1,244 @@
+<!-- this is a custom frame equipped with Lisa/M and generic china pwm motor controllers -->
+
+<airframe name="cfr34k_copter">
+
+  <servos min="0" neutral="0" max="0xff">
+    <servo name="FRONT"   no="0" min="1000" neutral="1000" max="2000"/>
+    <servo name="BACK"    no="1" min="1000" neutral="1000" max="2000"/>
+    <servo name="LEFT"    no="2" min="1000" neutral="1000" max="2000"/>
+    <servo name="RIGHT"   no="3" min="1000" neutral="1000" max="2000"/>
+  </servos>
+
+  <commands>
+    <axis name="PITCH"  failsafe_value="0"/>
+    <axis name="ROLL"   failsafe_value="0"/>
+    <axis name="YAW"    failsafe_value="0"/>
+    <axis name="THRUST" failsafe_value="0"/>
+  </commands>
+
+  <command_laws>
+    <set servo="FRONT" value="0"/>
+    <set servo="BACK" value="1"/>
+    <set servo="LEFT" value="2"/>
+    <set servo="RIGHT" value="3"/>
+
+  </command_laws>
+
+  <!-- for the sim -->
+  <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
+    <define name="NB" value="4"/>
+    <define name="ADDR" value="{ 0x52, 0x54, 0x56, 0x58 }"/>
+  </section>
+
+
+  <section name="SUPERVISION" prefix="SUPERVISION_">
+    <define name="MIN_MOTOR" value="1170"/>
+    <define name="MAX_MOTOR" value="1920"/>
+    <define name="TRIM_A" value="0"/>
+    <define name="TRIM_E" value="0"/>
+    <define name="TRIM_R" value="0"/>
+    <define name="NB_MOTOR" value="4"/>
+    <define name="SCALE" value="256"/>
+    <define name="ROLL_COEF"   value="{  0  ,    0,  256, -256 }"/>
+    <define name="PITCH_COEF"  value="{  256, -256,    0,    0 }"/>
+    <define name="YAW_COEF"    value="{ -256, -256,  256,  256 }"/>
+    <define name="THRUST_COEF" value="{  256,  256,  256,  256 }"/>
+  </section>
+
+  <section name="IMU" prefix="IMU_">
+
+    <define name="GYRO_P_NEUTRAL" value="-48"/>
+    <define name="GYRO_Q_NEUTRAL" value="-43"/>
+    <define name="GYRO_R_NEUTRAL" value="-17"/>
+    <define name="GYRO_P_SENS" value="4.355" integer="16"/>
+    <define name="GYRO_Q_SENS" value="4.355" integer="16"/>
+    <define name="GYRO_R_SENS" value="4.355" integer="16"/>
+    <define name="GYRO_PQ_SENS" value="0.0" integer="16"/>
+    <define name="GYRO_PR_SENS" value="0.0" integer="16"/>
+    <define name="GYRO_QR_SENS" value="0.0" integer="16"/>
+
+    <define name="ACCEL_X_NEUTRAL" value="12"/>
+    <define name="ACCEL_Y_NEUTRAL" value="-3"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-36"/>
+    <define name="ACCEL_X_SENS" value="38.6101110154" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="38.6774935409" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="40.2253977188" integer="16"/>
+
+    <define name="ACCEL_XY_SENS" value="0.0" integer="16"/>
+    <define name="ACCEL_XZ_SENS" value="0.0" integer="16"/>
+    <define name="ACCEL_YZ_SENS" value="0.0" integer="16"/>
+
+
+    <!-- Kalibriert auf der Terasse -->
+    <define name="MAG_X_NEUTRAL" value="-86"/>
+    <define name="MAG_Y_NEUTRAL" value="-82"/>
+    <define name="MAG_Z_NEUTRAL" value="38"/>
+    <define name="MAG_X_SENS" value="3.98741072553" integer="16"/>
+    <define name="MAG_Y_SENS" value="3.88470057062" integer="16"/>
+    <define name="MAG_Z_SENS" value="4.42579709688" integer="16"/>
+
+    <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(    0. )"/>
+    <define name="BODY_TO_IMU_THETA" value="RadOfDeg(    0. )"/>
+    <define name="BODY_TO_IMU_PSI"   value="RadOfDeg(  -45. )"/>
+  </section>
+
+ <section name="AUTOPILOT">
+   <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
+   <define name="MODE_AUTO1"  value="AP_MODE_ATTITUDE_Z_HOLD"/>
+   <define name="MODE_AUTO2"  value="AP_MODE_HOVER_Z_HOLD"/>
+ </section>
+
+ <section name="BAT">
+   <define name="MILLIAMP_AT_FULL_THROTTLE" value="20000"/>
+   <define name="CATASTROPHIC_BAT_LEVEL" value="9.8" unit="V"/>
+ </section>
+
+
+  <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
+
+    <define name="SP_MAX_P" value="10000"/>
+    <define name="SP_MAX_Q" value="10000"/>
+    <define name="SP_MAX_R" value="10000"/>
+
+    <define name="GAIN_P" value="-400"/>
+    <define name="GAIN_Q" value="-400"/>
+    <define name="GAIN_R" value="-350"/>
+
+  </section>
+
+  <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
+
+    <!-- setpoints -->
+    <define name="SP_MAX_PHI"     value="RadOfDeg(45.)"/>
+    <define name="SP_MAX_THETA"   value="RadOfDeg(45.)"/>
+    <define name="SP_MAX_PSI"   value="RadOfDeg(45.)"/>
+    <define name="SP_MAX_R"       value="RadOfDeg(90.)"/>
+    <define name="SP_MAX_P"       value="RadOfDeg(90.)"/>
+    <define name="DEADBAND_R"     value="250"/>
+    <define name="DEADBAND_A"     value="250"/>
+
+    <!-- reference -->
+    <define name="REF_OMEGA_P"  value="RadOfDeg(800)"/>
+    <define name="REF_ZETA_P"   value="0.85"/>
+    <define name="REF_MAX_P"    value="RadOfDeg(400.)"/>
+    <define name="REF_MAX_PDOT" value="RadOfDeg(8000.)"/>
+
+    <define name="REF_OMEGA_Q"  value="RadOfDeg(800)"/>
+    <define name="REF_ZETA_Q"   value="0.85"/>
+    <define name="REF_MAX_Q"    value="RadOfDeg(400.)"/>
+    <define name="REF_MAX_QDOT" value="RadOfDeg(8000.)"/>
+
+    <define name="REF_OMEGA_R"  value="RadOfDeg(500)"/>
+    <define name="REF_ZETA_R"   value="0.85"/>
+    <define name="REF_MAX_R"    value="RadOfDeg(180.)"/>
+    <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
+
+    <!-- feedback -->
+    <define name="PHI_PGAIN"  value="-900"/>
+    <define name="PHI_DGAIN"  value="-380"/>
+    <define name="PHI_IGAIN"  value="-200"/>
+
+    <define name="THETA_PGAIN"  value="-900"/>
+    <define name="THETA_DGAIN"  value="-380"/>
+    <define name="THETA_IGAIN"  value="-200"/>
+
+    <define name="PSI_PGAIN"  value="-1000"/>
+    <define name="PSI_DGAIN"  value="-400"/>
+    <define name="PSI_IGAIN"  value="-10"/>
+
+    <!-- feedforward -->
+    <define name="PHI_DDGAIN"   value=" 300"/>
+    <define name="THETA_DDGAIN" value=" 300"/>
+    <define name="PSI_DDGAIN"   value=" 300"/>
+
+  </section>
+
+  <section name="INS" prefix="INS_">
+    <define name="BARO_SENS" value="3.3" integer="16"/>
+  </section>
+
+ <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
+   <define name="MIN_ERR_Z"   value="POS_BFP_OF_REAL(-10.)"/>
+   <define name="MAX_ERR_Z"   value="POS_BFP_OF_REAL( 10.)"/>
+   <define name="MIN_ERR_ZD"  value="SPEED_BFP_OF_REAL(-10.)"/>
+   <define name="MAX_ERR_ZD"  value="SPEED_BFP_OF_REAL( 10.)"/>
+   <define name="MAX_SUM_ERR" value="2000000"/>
+   <define name="HOVER_KP"    value="-150"/>
+   <define name="HOVER_KD"    value="-80"/>
+   <define name="HOVER_KI"    value="-20"/>
+   <!-- 1.5m/s for full stick : BOOZ_SPEED_I_OF_F(1.5) / (MAX_PPRZ/2) -->
+   <define name="RC_CLIMB_COEF" value ="163"/>
+   <!-- BOOZ_SPEED_I_OF_F(1.5) * 20% -->
+   <define name="RC_CLIMB_DEAD_BAND" value ="160000"/>
+   <define name="INV_M" value ="0.21"/>
+  </section>
+
+  <section name="AHRS" prefix="AHRS_">
+    <define name="PROPAGATE_FREQUENCY" value="512"/>
+    <define name="AHRS_MAG_UPDATE_YAW_ONLY" value="1"/>
+    <!-- Home -->
+    <define name="H_X" value=" 0.427611"/>
+    <define name="H_Y" value=" 0.016829"/>
+    <define name="H_Z" value=" 0.903806"/>
+    <!-- Camp Berlin -->
+    <!--define name="H_X" value=" 0.373032"/>
+    <define name="H_Y" value=" 0.019489"/>
+    <define name="H_Z" value=" 0.927614"/-->
+  </section>
+
+ <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
+   <define name="PGAIN" value="-100"/>
+   <define name="DGAIN" value="-100"/>
+   <define name="IGAIN" value="-0"/>
+ </section>
+
+ <section name="MISC">
+   <define name="FACE_REINJ_1"  value="1024"/>
+ </section>
+
+ <section name="SIMULATOR" prefix="NPS_">
+   <define name="ACTUATOR_NAMES"  value="{&quot;front_motor&quot;, &quot;back_motor&quot;, &quot;right_motor&quot;, &quot;left_motor&quot;}"/>
+   <define name="INITIAL_CONDITITONS" value="&quot;reset00&quot;"/>
+   <!--define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_booz2_a1.h&quot;"/-->
+ </section>
+
+<!--
+ <modules main_freq="512">
+   <load name="vehicle_interface_overo_link.xml"/>
+ </modules>
+-->
+
+  <firmware name="rotorcraft">
+    <target name="ap" board="lisa_m_1.0">
+<!--      <define name="BOOZ_START_DELAY" value="1"/> -->
+      <subsystem name="radio_control" type="spektrum"/>
+      <subsystem name="actuators"     type="pwm_supervision"/>
+      <subsystem name="telemetry"     type="transparent"/>
+      <define name="SERVO_HZ" value="400"/>
+      <define name="RADIO_MODE" value="RADIO_AUX1"/>
+      <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
+      <!--define name="RADIO_CONTROL_SPEKTRUM_SIGNS" value="\{1,1,-1,1,-1,-1,-1,1,1,1,1,1\}"/-->
+
+    </target>
+    <target name="sim" board="pc">
+      <subsystem name="fdm"           type="nps"/>
+      <subsystem name="radio_control" type="ppm"/>
+      <subsystem name="actuators"     type="mkk"/>
+    </target>
+
+    <subsystem name="imu"           type="aspirin_v1.5"/>
+    <subsystem name="stabilization"   type="quaternion"/>
+    <subsystem name="ahrs"          type="int_cmpl_quat"/>
+  </firmware>
+
+
+  <firmware name="lisa_m_test_progs">
+    <target name="test_led"			board="lisa_m_1.0"/>
+    <target name="test_uart_lisam"		board="lisa_m_1.0"/>
+    <target name="test_servos"			board="lisa_m_1.0"/>
+    <target name="test_telemetry"		board="lisa_m_1.0"/>
+    <target name="test_imu_aspirin"		board="lisa_m_1.0"/>
+    <target name="test_rc_spektrum"		board="lisa_m_1.0"/>
+    <target name="test_baro"			board="lisa_m_1.0"/>
+  </firmware>
+</airframe>
