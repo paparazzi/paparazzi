@@ -90,7 +90,12 @@
 })
 
 
-#define PERIODIC_SEND_DESIRED(_trans, _dev) DOWNLINK_SEND_DESIRED(_trans, _dev, &h_ctl_roll_setpoint, &h_ctl_pitch_loop_setpoint, &h_ctl_course_setpoint, &desired_x, &desired_y, &v_ctl_altitude_setpoint, &v_ctl_climb_setpoint);
+#ifndef USE_AIRSPEED
+#define PERIODIC_SEND_DESIRED(_trans, _dev) { float v_ctl_auto_airspeed_setpoint = NOMINAL_AIRSPEED;  DOWNLINK_SEND_DESIRED(_trans, _dev, &h_ctl_roll_setpoint, &h_ctl_pitch_loop_setpoint, &h_ctl_course_setpoint, &desired_x, &desired_y, &v_ctl_altitude_setpoint, &v_ctl_climb_setpoint, &v_ctl_auto_airspeed_setpoint);}
+#else
+#define PERIODIC_SEND_DESIRED(_trans, _dev) DOWNLINK_SEND_DESIRED(_trans, _dev, &h_ctl_roll_setpoint, &h_ctl_pitch_loop_setpoint, &h_ctl_course_setpoint, &desired_x, &desired_y, &v_ctl_altitude_setpoint, &v_ctl_climb_setpoint, &v_ctl_auto_airspeed_setpoint);
+#endif
+
 
 #if USE_INFRARED
 #define PERIODIC_SEND_STATE_FILTER_STATUS(_trans, _dev) { uint16_t contrast = abs(infrared.roll) + abs(infrared.pitch) + abs(infrared.top); uint8_t mde = 3; if (contrast < 50) mde = 7; DOWNLINK_SEND_STATE_FILTER_STATUS(_trans, _dev, &mde, &contrast); }
@@ -299,9 +304,12 @@
 
 #define PERIODIC_SEND_ENERGY(_trans, _dev) Downlink({ const int16_t e = energy; const float vsup = ((float)vsupply) / 10.0f; const float curs = ((float) current)/1000.0f;  const float power = vsup * curs; DOWNLINK_SEND_ENERGY(_trans, _dev, &vsup, &curs, &e, &power); })
 
-
+#ifdef STABILIZATION_ADAPTIVE
 #include "firmwares/fixedwing/stabilization/stabilization_adaptive.h"
 #define PERIODIC_SEND_H_CTL_A(_trans, _dev) DOWNLINK_SEND_H_CTL_A(_trans, _dev, &h_ctl_roll_sum_err, &h_ctl_ref_roll_angle, &h_ctl_pitch_sum_err, &h_ctl_ref_pitch_angle)
+#else
+#define PERIODIC_SEND_H_CTL_A(_trans, _dev) DOWNLINK_SEND_H_CTL_A(_trans, _dev, &h_ctl_roll_integrator, &h_ctl_roll_setpoint, &h_ctl_pitch_integrator, &h_ctl_pitch_setpoint)
+#endif
 
 
 #endif /* AP_DOWNLINK_H */

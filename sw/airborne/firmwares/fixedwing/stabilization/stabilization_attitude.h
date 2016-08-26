@@ -71,9 +71,14 @@ extern uint8_t h_ctl_pitch_mode;
 /* inner pitch loop parameters */
 extern float  h_ctl_pitch_setpoint;
 extern float  h_ctl_pitch_loop_setpoint;
-extern float  h_ctl_pitch_pgain;
-extern float  h_ctl_pitch_dgain;
+extern float  h_ctl_pitch_pgain; // P
+extern float  h_ctl_pitch_igain; // I
+extern float  h_ctl_pitch_dgain; // D
 extern pprz_t h_ctl_elevator_setpoint;
+extern float  h_ctl_pitch_integrator;
+
+#define stabilization_attitude_SetPitchIGain(v) { h_ctl_pitch_igain = v; h_ctl_pitch_integrator = 0.0f; }
+
 
 /* inner loop pre-command */
 extern float h_ctl_aileron_of_throttle;
@@ -97,7 +102,13 @@ extern void h_ctl_init( void );
 extern void h_ctl_course_loop ( void );
 extern void h_ctl_attitude_loop ( void );
 
-extern float h_ctl_roll_attitude_gain;
-extern float h_ctl_roll_rate_gain;
+extern float h_ctl_roll_attitude_gain;  // P
+extern float h_ctl_roll_attitude_igain; // I
+extern float h_ctl_roll_rate_gain;      // D
+
+extern float  h_ctl_roll_integrator;
+
+#define stabilization_attitude_SetRollIGain(v) { h_ctl_roll_attitude_igain = v; h_ctl_roll_integrator = 0.0f; }
+
 
 #endif /* FW_H_CTL_H */
