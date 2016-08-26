@@ -19,7 +19,7 @@ HARD_FLOAT=yes
 
 # default flash mode is via usb dfu bootloader
 # possibilities: STLINK, DFU-UTIL, SWD, JTAG_BMP
-FLASH_MODE ?= STLINK
+FLASH_MODE ?= DFU-UTIL
 
 #
 # default LED configuration
