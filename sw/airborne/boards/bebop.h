@@ -80,6 +80,14 @@
 #endif
 
 
+#ifndef MT9F002_X_ODD_INC_VAL
+#define MT9F002_X_ODD_INC_VAL 1
+#endif
+
+#ifndef MT9F002_Y_ODD_INC_VAL
+#define MT9F002_Y_ODD_INC_VAL 1
+#endif
+
 /** uart connected to GPS internally */
 #define UART1_DEV /dev/ttyPA1
 /** FTDI cable for stereoboard or external GPS */

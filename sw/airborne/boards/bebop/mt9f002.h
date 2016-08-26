@@ -65,6 +65,9 @@ struct mt9f002_t {
   float gain_red;                     ///< Gain for the Red pixels [1.5 -> 63.50]
   float gain_green2;                  ///< Gain for the GreenB pixels [1.5 -> 63.50]
 
+  uint16_t x_odd_inc;                  ///< Amount of pixels to skip each read in x direction
+  uint16_t y_odd_inc;                  ///< Amount of pixels to skip each read in y direction
+
   uint16_t output_width;              ///< Output width
   uint16_t output_height;             ///< Output height
   float output_scaler;                ///< Output scale

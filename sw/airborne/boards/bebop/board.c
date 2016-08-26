@@ -121,6 +121,8 @@ void board_init2(void)
     .gain_blue = 2.0,
     .gain_red = 2.0,
     .gain_green2 = 2.0,
+	.x_odd_inc=MT9F002_X_ODD_INC_VAL,
+	.y_odd_inc=MT9F002_Y_ODD_INC_VAL,
     .output_width = MT9F002_OUTPUT_WIDTH,
     .output_height = MT9F002_OUTPUT_HEIGHT,
     .output_scaler = MT9F002_OUTPUT_SCALER,
