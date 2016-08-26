@@ -1,0 +1,288 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="310" ground_alt="266" lat0="49.911435" lon0="-98.266389" max_dist_from_home="3200" name="Basic" security_height="0">
+  <header>
+     #include "subsystems/navigation/nav_line.h"
+     #include "datalink.h"
+     #include "subsystems/navigation/OSAMNav.h"
+</header>
+  <waypoints>
+    <waypoint height="0" name="HS1" x="30.5" y="62.5"/>
+    <waypoint height="0" name="HFT1" x="-23.3" y="52.5"/>
+    <waypoint name="HOME" x="0" y="0"/>
+    <waypoint name="STDBY" x="-452.2" y="-182.7"/>
+    <waypoint name="CLIMB1" x="-657.8" y="-18.1"/>
+    <waypoint name="1" x="-952.9" y="-16.1"/>
+    <waypoint name="2" x="-1046.3" y="-107.2"/>
+    <waypoint height="300" name="3" x="-900" y="-110"/>
+    <waypoint height="300" name="4" x="0" y="-110"/>
+    <waypoint height="300" name="5" x="0" y="-220"/>
+    <waypoint height="300" name="6" x="-900" y="-220"/>
+    <waypoint height="300" name="7" x="-900" y="-330"/>
+    <waypoint height="300" name="8" x="0" y="-330"/>
+    <waypoint height="300" name="9" x="0" y="-440"/>
+    <waypoint height="300" name="10" x="-900" y="-440"/>
+    <waypoint height="300" name="11" x="-900" y="-550"/>
+    <waypoint height="300" name="12" x="0" y="-550"/>
+    <waypoint height="300" name="13" x="0" y="-660"/>
+    <waypoint height="300" name="14" x="-900" y="-660"/>
+    <waypoint height="300" name="15" x="-900" y="-770"/>
+    <waypoint height="300" name="16" x="0" y="-770"/>
+    <waypoint height="300" name="17" x="0" y="-880"/>
+    <waypoint height="300" name="18" x="-900" y="-880"/>
+    <waypoint height="300" name="19" x="-840" y="-990"/>
+    <waypoint height="300" name="20" x="200" y="-990"/>
+    <waypoint height="300" name="21" x="300" y="-1100"/>
+    <waypoint height="300" name="22" x="-706" y="-1100"/>
+    <waypoint height="300" name="23" x="-602" y="-1210"/>
+    <waypoint height="300.0" name="24" x="400" y="-1210"/>
+    <waypoint height="300" name="25" x="500" y="-1320"/>
+    <waypoint height="300" name="26" x="-480" y="-1320"/>
+    <waypoint height="300" name="27" x="-370" y="-1430"/>
+    <waypoint height="300" name="28" x="600" y="-1430"/>
+    <waypoint height="300" name="29" x="700" y="-1540"/>
+    <waypoint height="300" name="30" x="-240" y="-1540"/>
+    <waypoint height="300" name="31" x="-130" y="-1650"/>
+    <waypoint height="300" name="32" x="800" y="-1650"/>
+    <waypoint height="300" name="33" x="900" y="-1760"/>
+    <waypoint height="300" name="34" x="-10" y="-1760"/>
+    <waypoint height="300.0" name="35" x="90" y="-1870"/>
+    <waypoint height="300" name="36" x="1000" y="-1870"/>
+    <waypoint height="300" name="37" x="1100" y="-1980"/>
+    <waypoint height="300" name="38" x="200" y="-1980"/>
+    <waypoint height="300" name="39" x="310" y="-2090"/>
+    <waypoint height="300" name="40" x="1100" y="-2090"/>
+    <waypoint height="300.0" name="41" x="1100" y="-2200"/>
+    <waypoint height="300.0" name="42" x="430" y="-2200"/>
+    <waypoint height="300.0" name="43" x="550" y="-2310"/>
+    <waypoint height="300.0" name="44" x="1100" y="-2310"/>
+    <waypoint height="300.0" name="45" x="1100" y="-2420"/>
+    <waypoint height="300.0" name="46" x="680" y="-2420"/>
+    <waypoint height="300.0" name="47" x="815" y="-2530."/>
+    <waypoint height="300.0" name="48" x="1100" y="-2530"/>
+    <waypoint height="300.0" name="49" x="1100" y="-2640"/>
+    <waypoint height="300.0" name="50" x="815" y="-2640"/>
+    <waypoint name="51" x="613.7" y="-2576.9"/>
+    <waypoint name="52" x="1004.2" y="-2559.5"/>
+    <waypoint name="53" x="853.8" y="-2367.6"/>
+    <waypoint name="54" x="943.8" y="-2265.8"/>
+    <waypoint name="55" x="1204.3" y="-2681.7"/>
+    <waypoint name="1N" x="-545.0" y="-120.9"/>
+    <waypoint name="2N" x="-849.9" y="-84.4"/>
+    <waypoint name="3N" x="-830.3" y="-158.3"/>
+    <waypoint name="4N" x="560.6" y="-154.8"/>
+    <waypoint name="5N" x="544.4" y="-297.4"/>
+    <waypoint name="6N" x="-838.8" y="-300.0"/>
+    <waypoint name="7N" x="-833.4" y="-445.8"/>
+    <waypoint name="8N" x="543.3" y="-442.1"/>
+    <waypoint name="9N" x="550.6" y="-588.8"/>
+    <waypoint name="10N" x="-826.5" y="-592.3"/>
+    <waypoint name="11N" x="-824.9" y="-731.1"/>
+    <waypoint name="12N" x="559.2" y="-739.9"/>
+    <waypoint name="13N" x="554.5" y="-885.0"/>
+    <waypoint name="14N" x="-870.4" y="-894.8"/>
+    <waypoint name="15N" x="-762.3" y="-981.7"/>
+    <waypoint name="16N" x="533.8" y="-1031.3"/>
+    <waypoint name="17N" x="549.6" y="-1179.6"/>
+    <waypoint name="18N" x="-609.6" y="-1115.1"/>
+    <waypoint name="19N" x="-471.1" y="-1310.5"/>
+    <waypoint name="20N" x="674.9" y="-1339.3"/>
+    <waypoint name="21N" x="795.4" y="-1484.5"/>
+    <waypoint name="22N" x="-353.6" y="-1448.1"/>
+    <waypoint name="23N" x="-187.1" y="-1594.9"/>
+    <waypoint name="24N" x="925.6" y="-1615.7"/>
+    <waypoint name="25N" x="1081.4" y="-1761.0"/>
+    <waypoint name="26N" x="1186.1" y="-1860.6"/>
+    <waypoint name="27N" x="175.0" y="-1866.8"/>
+    <waypoint name="28N" x="424.6" y="-2090.0"/>
+    <waypoint name="29N" x="1436.3" y="-2068.8"/>
+    <waypoint name="30N" x="1414.9" y="-2337.4"/>
+    <waypoint name="_BASELEG" x="-82.6" y="-148.8"/>
+    <waypoint name="AF1" x="-72.6" y="-3.0"/>
+    <waypoint name="lowby1" x="-130.1" y="-6.8"/>
+    <waypoint name="lowby2" x="-747.2" y="-22.2"/>
+    <waypoint name="final1" x="-175.3" y="-10.4"/>
+    <waypoint name="TD1" x="-614.4" y="-18.2"/>
+    <waypoint name="MOB1" x="-299.1" y="-173.7"/>
+    <waypoint name="S1" x="-882.8" y="-76.4"/>
+    <waypoint name="S2" x="14.1" y="-346.7"/>
+    <waypoint name="S3" x="-741.4" y="-459.6"/>
+    <waypoint name="S4" x="82.6" y="-908.2"/>
+    <waypoint name="S5" x="-51.4" y="-397.3"/>
+    <waypoint name="S6" x="27.5" y="-992.6"/>
+    <waypoint name="S7" x="610.8" y="-1556.2"/>
+    <waypoint name="S8" x="73.0" y="-1710.5"/>
+    <waypoint name="S9" x="-798.3" y="-881.8"/>
+    <waypoint name="S10" x="-737.5" y="-504.1"/>
+    <waypoint lat="49.914118" lon="-98.271740" name="_limit_a"/>
+    <waypoint lat="49.914415" lon="-98.270516" name="_limit_b"/>
+    <waypoint lat="49.913668" lon="-98.270864" name="_limit_c"/>
+    <waypoint lat="49.912442" lon="-98.284556" name="_limit_1"/>
+    <waypoint lat="49.912540" lon="-98.263140" name="_limit_2"/>
+    <waypoint lat="49.908205" lon="-98.265046" name="_limit_2a"/>
+    <waypoint lat="49.9031989" lon="-98.262656" name="_limit_3"/>
+    <waypoint lat="49.893867" lon="-98.250294" name="_limit_4"/>
+    <waypoint lat="49.887275" lon="-98.250209" name="_limit_5"/>
+    <waypoint lat="49.887305" lon="-98.260637" name="_limit_6"/>
+    <waypoint lat="49.889634" lon="-98.260776" name="_limit_7"/>
+    <waypoint lat="49.904120" lon="-98.284292" name="_limit_8"/>
+    <waypoint name="A" x="232.7" y="-2543.8"/>
+    <waypoint name="B" x="2132.9" y="-2304.9"/>
+    <waypoint name="C" x="1967.6" y="-2320.3"/>
+    <waypoint name="D" x="2023.2" y="-2361.0"/>
+    <waypoint name="E" x="234.0" y="-2681.2"/>
+    <waypoint name="F" x="372.6" y="-2748.6"/>
+    <waypoint name="G" x="371.4" y="-2624.9"/>
+    <waypoint name="H" x="2022.1" y="-2251.0"/>
+    <waypoint name="I" x="931.0" y="-662.8"/>
+    <waypoint name="J" x="926.0" y="-772.8"/>
+    <waypoint name="K" x="920.2" y="-815.7"/>
+    <waypoint name="L" x="927.1" y="-888.9"/>
+    <waypoint name="M" x="940.1" y="-962.1"/>
+    <waypoint name="N" x="-1675.2" y="-900.4"/>
+    <waypoint name="O" x="-1703.8" y="-492.5"/>
+    <waypoint name="P" x="-1731.9" y="-817.1"/>
+    <waypoint name="Q" x="-1729.6" y="-621.0"/>
+    <waypoint name="R" x="-1755.2" y="-745.6"/>
+    <waypoint name="S" x="1102.1" y="-1241.5"/>
+    <waypoint name="T" x="1194.7" y="-1313.9"/>
+    <waypoint name="U" x="1244.5" y="-1386.7"/>
+    <waypoint name="V" x="1349.0" y="-1422.3"/>
+    <waypoint name="W" x="1356.1" y="-1520.0"/>
+    <waypoint name="X" x="1417.5" y="-1537.7"/>
+    <waypoint name="Y" x="-725.8" y="-1638.1"/>
+    <waypoint name="Z" x="-676.1" y="-1704.8"/>
+    <waypoint name="AA" x="-595.7" y="-1789.6"/>
+    <waypoint name="BB" x="-472.1" y="-1892.2"/>
+    <waypoint name="CC" x="-410.6" y="-1916.1"/>
+    <waypoint name="DD" x="-341.7" y="-2075.8"/>
+  </waypoints>
+  <sectors>
+    <sector name="Limits">
+      <corner name="_limit_1"/>
+      <corner name="_limit_2"/>
+      <corner name="_limit_2a"/>
+      <corner name="_limit_3"/>
+      <corner name="_limit_4"/>
+      <corner name="_limit_5"/>
+      <corner name="_limit_6"/>
+      <corner name="_limit_7"/>
+      <corner name="_limit_8"/>
+    </sector>
+  </sectors>
+  <exceptions>
+    <exception cond="120 > datalink_time > 8" deroute="Standby"/>
+    <exception cond="! InsideLimits(estimator_x,estimator_y)" deroute="Standby"/>
+    <exception cond="datalink_time > 120" deroute="suicide"/>
+  </exceptions>
+  <blocks>
+    <block name="Wait GPS">
+      <set value="1" var="kill_throttle"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+      <call fun="NavSetGroundReferenceHere()"/>
+    </block>
+    <block name="Holding for taxi">
+      <set value="1" var="kill_throttle"/>
+      <attitude roll="0" throttle="0" vmode="throttle"/>
+    </block>
+    <block name="alignment">
+      <set value="0" var="estimator_flight_time"/>
+      <set value="0" var="kill_throttle"/>
+      <go from="HOME" throttle="0.3" vmode="throttle" wp="HS1"/>
+      <go from="HS1" throttle="0.3" vmode="throttle" wp="HFT1"/>
+    </block>
+    <block name="Holding for takeoff">
+      <set value="1" var="kill_throttle"/>
+      <attitude roll="0" throttle="0" vmode="throttle"/>
+    </block>
+    <block group="home" key="t" name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
+      <exception cond="estimator_z > ground_alt+30" deroute="Path 1-10 at 300m"/>
+      <set value="0" var="kill_throttle"/>
+      <set value="0" var="estimator_flight_time"/>
+      <go from="HFT1" pitch="15" throttle="1.0" vmode="throttle" wp="CLIMB1"/>
+    </block>
+    <block group="home" key="<Control>a" name="Standby" strip_button="Standby" strip_icon="home.png">
+      <circle radius="nav_radius" wp="STDBY"/>
+    </block>
+    <block group="base_pattern" key="F8" name="Figure 8 around Standby" strip_button="Figure 8" strip_icon="eight.png">
+      <eight center="STDBY" radius="nav_radius" turn_around="MOB1"/>
+    </block>
+    <block group="extra_pattern" name="Survey S1-S2" strip_button="Survey (wp S1-S2)" strip_icon="survey.png">
+      <exception cond="datalink_time > 120" deroute="suicide"/>
+      <go wp="S1"/>
+      <survey_rectangle grid="100" wp1="S1" wp2="S2"/>
+    </block>
+    <block group="extra_pattern" name="Survey S5-S10" strip_button="Survey (wp S5-S10)" strip_icon="survey.png">
+      <exception cond="datalink_time > 120" deroute="suicide"/>
+      <call fun="InitializePolygonSurvey(WP_S5, 6, 100, 0)"/>
+      <call fun="PolygonSurvey()"/>
+    </block>
+    <block group="extra_pattern" name="Survey S3-S4" strip_button="Survey (wp S3-S4)" strip_icon="survey.png">
+      <exception cond="datalink_time > 120" deroute="suicide"/>
+      <survey_rectangle grid="100" wp1="S3" wp2="S4"/>
+    </block>
+    <block group="Flight_route" name="Path 1-10 at 300m" strip_button="Path (300m)1" strip_icon="path.png">
+      <exception cond="datalink_time > 120" deroute="suicide"/>
+      <path wpts="1,2,3,4,5,6,7,8,9 10"/>
+    </block>
+    <block group="Flight_route" name="Path 10-20 at 300m" strip_button="Path (300m)2" strip_icon="path.png">
+      <exception cond="datalink_time > 120" deroute="suicide"/>
+      <path wpts="10,11,12,13,14,15,16,17,18,19 20"/>
+    </block>
+    <block group="Flight_route" name="Path 20-30 at 300m" strip_button="Path (300m)3" strip_icon="path.png">
+      <exception cond="datalink_time > 120" deroute="suicide"/>
+      <path wpts="20,21,22,23,24,25,26,27,28,29 30"/>
+    </block>
+    <block group="Flight_route" name="Path 30-40 at 300m" strip_button="Path (300m)4" strip_icon="path.png">
+      <exception cond="datalink_time > 120" deroute="suicide"/>
+      <path wpts="30,31,32,33,34,35,36,37,38,39 40"/>
+    </block>
+    <block group="Flight_route" name="Path 40-50 at 300m" strip_button="Path (300m)5" strip_icon="path.png">
+      <exception cond="datalink_time > 120" deroute="suicide"/>
+      <path wpts="40,41,42,43,44,45,46,47,48,49 50"/>
+    </block>
+    <block group="Flight_route" name="Path 50-decent-55 at 300m" strip_button="Path (300m-50m)" strip_icon="path.png">
+      <exception cond="datalink_time > 120" deroute="suicide"/>
+      <path wpts="51,52,53,54 55"/>
+    </block>
+    <block group="Flight_route1" name="Path 30-20 at 50m" strip_button="Path (50m)1" strip_icon="path.png">
+      <exception cond="datalink_time > 120" deroute="suicide"/>
+      <path approaching_time="1" pitch="auto" throttle="0.4" wpts="30N,29N,28N,27N,26N,25N,24N,23N,22N,21N 20N"/>
+    </block>
+    <block group="Flight_route1" name="Path 10-20 at 50m" strip_button="Path (50m)2" strip_icon="path.png">
+      <exception cond="datalink_time > 120" deroute="suicide"/>
+      <path approaching_time="1" pitch="auto" throttle="0.4" wpts="20N,19N,18N,17N,16N,15N,14N,13N,12N,11N 10N"/>
+    </block>
+    <block group="Flight_route1" name="Path 10-1 at 50m" strip_button="Path (50m)3" strip_icon="path.png">
+      <exception cond="datalink_time > 120" deroute="suicide"/>
+      <path approaching_time="1" pitch="auto" throttle="0.4" wpts="10N,9N,8N,7N,6N,5N,4N,3N,2N 1N"/>
+    </block>
+    <block name="lowby 15m">
+      <path wpts="lowby1 lowby2"/>
+    </block>
+    <block name="land">
+      <call fun="nav_compute_baseleg(WP_AF1, WP_TD1, WP__BASELEG, nav_radius)"/>
+      <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="_BASELEG"/>
+      <circle radius="nav_radius" until="And(NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10), 10 > fabs(estimator_z - WaypointAlt(WP__BASELEG)))" wp="_BASELEG"/>
+    </block>
+    <block name="final">
+      <go from="AF1" hmode="route" vmode="glide" wp="final1"/>
+    </block>
+    <block name="final_to_flare">
+      <exception cond="ground_alt + 2 > estimator_z" deroute="flare"/>
+      <go from="final1" hmode="route" vmode="glide" wp="TD1"/>
+    </block>
+    <block name="flare">
+      <go approaching_time="0" from="final1" hmode="route" throttle="0.0" vmode="throttle" wp="TD1"/>
+      <attitude roll="0.0" throttle="0.0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="suicide">
+      <set value="1" var="kill_throttle"/>
+      <attitude climb="-3" height="0" roll="2000" throttle="0" vmode="throttle"/>
+      <exception cond="2 > datalink_time" deroute="Standby"/>
+    </block>
+  </blocks>
+</flight_plan>
