@@ -1,0 +1,28 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="imu_drotec" dir="sensors">
+  <doc>
+    <description></description>
+  </doc>
+  <!-- <depend conflict="ins" -->
+  <header>
+    <file name="imu_drotec.h"/>
+  </header>
+
+  <!-- default imu stuff -->
+  <init fun="imu_impl_init()"/>
+  <periodic fun="imu_periodic()" freq="60"/>
+  <!-- ImuEvent called directly from main_ap -->
+
+  <!-- extras to become a usefull module -->
+  <periodic fun="drotecimu_module_downlink_raw()" freq="5"/>
+  <event fun="drotecimu_module_event()"/>
+
+  <makefile target="ap">
+    <file name="imu_drotec.c"/>
+    <define name="DROTECIMU_I2C_DEVICE" value="i2c0" />
+    <define name="USE_I2C" />
+    <define name="USE_I2C0" />
+<!--<define name="READ_MAG" /> -->
+  </makefile>
+</module>

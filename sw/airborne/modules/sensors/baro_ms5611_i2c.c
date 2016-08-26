@@ -37,6 +37,10 @@
 #include "subsystems/datalink/downlink.h"
 #include "subsystems/nav.h"
 
+#ifdef SITL
+#include "subsystems/gps.h"
+#endif
+
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
@@ -93,6 +97,7 @@ void baro_ms5611_init(void) {
 }
 
 void baro_ms5611_periodic( void ) {
+#ifndef SITL
   if (cpu_time_sec > 1) {
     if (ms5611_status >= MS5611_IDLE) {
       /* start D1 conversion */
@@ -116,6 +121,11 @@ void baro_ms5611_periodic( void ) {
       I2CTransceive(MS5611_I2C_DEV, ms5611_trans, MS5611_SLAVE_ADDR, 1, 2);
     }
   }
+#else // SITL
+  baro_altitude = gps.hmsl / 1000.0;
+  baro_offset_init = TRUE;
+  EstimatorSetAlt(baro_altitude);
+#endif
 }
 
 void baro_ms5611_d1( void ) {
