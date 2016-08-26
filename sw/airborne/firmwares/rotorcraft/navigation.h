@@ -128,6 +128,14 @@ extern bool nav_set_heading_current(void);
     dist2_to_wp = get_dist2_to_waypoint(_wp); \
   }
 
+/*********** Copy a  waypoint *************************************/
+#define NavCopyWaypoint(_wp_dst, _wp_src) { \
+    waypoints[_wp_dst].flags = waypoints[_wp_src].flags; \
+    VECT3_COPY(waypoints[_wp_dst].enu_i, waypoints[_wp_src].enu_i); \
+    FALSE; \
+  }
+
+
 /*********** Navigation on a circle **************************************/
 extern void nav_circle(struct EnuCoor_i *wp_center, int32_t radius);
 #define NavCircleWaypoint(_center, _radius) { \
