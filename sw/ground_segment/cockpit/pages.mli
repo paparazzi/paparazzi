@@ -62,7 +62,7 @@ class rc_settings :
   end
 
 type link_change = Linkup | Nochange | Linkdown
-class link : ?visible:(GBin.frame -> bool) -> GBin.frame ->
+class link : ?visible:('a -> bool) -> GBin.frame ->
   object
     method link_exists : string -> bool
     method add_link : string -> unit
