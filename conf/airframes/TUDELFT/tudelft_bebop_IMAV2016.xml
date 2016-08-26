@@ -1,7 +1,7 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <!-- Airframe to be use in IMAV2016 -->
-<airframe name="AvoiderBob">
+<airframe name="BebopIMAV">
 
   <firmware name="rotorcraft">
     <target name="ap" board="bebop"/>
