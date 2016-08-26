@@ -70,7 +70,11 @@
 #endif
 
 /* Boolean values */
+#ifndef USE_CHIBIOS_RTOS //Hack for compiling two boolean typedefs (see chtypes.h)
 typedef uint8_t bool_t;
+#else
+#include "chtypes.h"
+#endif
 
 /* Unit (void) values */
 typedef uint8_t unit_t;

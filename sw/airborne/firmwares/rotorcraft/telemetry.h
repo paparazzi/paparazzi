@@ -49,7 +49,9 @@
 #include "subsystems/ins.h"
 #include "subsystems/ahrs.h"
 // I2C Error counters
+#ifndef USE_CHIBIOS_RTOS
 #include "mcu_periph/i2c.h"
+#endif
 
 #define PERIODIC_SEND_ALIVE(_trans, _dev) DOWNLINK_SEND_ALIVE(_trans, _dev, 16, MD5SUM)
 
@@ -1074,6 +1076,21 @@
   }
 #else
 #define PERIODIC_SEND_UART_ERRORS(_trans, _dev) {}
+#endif
+
+#ifdef USE_CHIBIOS_RTOS
+#include "mcu_periph/sys_time_arch.h"
+#define PERIODIC_SEND_CHIBIOS_INFO(_trans, _dev) DOWNLINK_SEND_CHIBIOS_INFO(_trans, _dev, \
+	&heap_fragments, \
+	&heap_free_total, \
+	&core_free_memory,\
+	&(chTimeNow()), \
+	&thread_counter, \
+	&cpu_counter,   \
+	&idle_counter, 	\
+	&cpu_frequency )
+#else
+#define PERIODIC_SEND_CHIBIOS_INFO(_trans, _dev) {}
 #endif
 
 #endif /* TELEMETRY_H */

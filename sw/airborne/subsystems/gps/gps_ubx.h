@@ -79,6 +79,7 @@ extern struct GpsUbx gps_ubx;
  * All position/speed messages are sent in one shot and VELNED is the last one on fixedwing
  * For rotorcraft, only SOL message is needed for pos/speed data
  */
+#ifndef USE_CHIBIOS_RTOS
 #define GpsEvent(_sol_available_callback) {        \
     if (GpsBuffer()) {                             \
       ReadGpsBuffer();                             \
@@ -104,7 +105,47 @@ extern struct GpsUbx gps_ubx;
     while (GpsLink(ChAvailable())&&!gps_ubx.msg_available)	\
       gps_ubx_parse(GpsLink(Getch()));			\
   }
-
+#else
+#define GpsThread() { \
+   EventListener elGPSdata; \
+   flagsmask_t flags; \
+   chEvtRegisterMask((EventSource *)chnGetEventSource(&SD5), &elGPSdata, EVENT_MASK(1)); \
+   while (TRUE) \
+   { \
+      chEvtWaitOneTimeout(EVENT_MASK(1), MS2ST(100));\
+      chSysLock();\
+      flags = chEvtGetAndClearFlags(&elGPSdata);\
+      chSysUnlock();\
+      if (flags & CHN_INPUT_AVAILABLE)\
+      {\
+         msg_t charbuf;\
+         do \
+         {\
+            charbuf = chnGetTimeout(&SD5, TIME_IMMEDIATE);\
+            if ( charbuf != Q_TIMEOUT )\
+            {\
+            	gps_ubx_parse(charbuf);\
+            }\
+         }\
+         while (charbuf != Q_TIMEOUT);\
+      }\
+    if (gps_ubx.msg_available) {                  \
+      gps_ubx_read_message();                     \
+      gps_ubx_ucenter_event();                     \
+      if (gps_ubx.msg_class == UBX_NAV_ID &&       \
+          (gps_ubx.msg_id == UBX_NAV_VELNED_ID ||  \
+           (gps_ubx.msg_id == UBX_NAV_SOL_ID &&    \
+            gps_ubx.have_velned == 0))) {          \
+        if (gps.fix == GPS_FIX_3D) {               \
+          gps.last_fix_ticks = sys_time.nb_sec_rem; \
+          gps.last_fix_time = sys_time.nb_sec;      \
+        }                                          \
+      }\
+      gps_ubx.msg_available = FALSE;\
+    }\
+   }\
+}
+#endif
 
 extern void gps_ubx_read_message(void);
 extern void gps_ubx_parse(uint8_t c);
