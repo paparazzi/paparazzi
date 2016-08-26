@@ -33,7 +33,7 @@
 #include "estimator.h"
 #include "subsystems/nav.h"
 #include "generated/airframe.h"
-#include "firmwares/fixedwing/guidance/guidance_v.h"
+#include CTRL_TYPE_H
 #include "firmwares/fixedwing/autopilot.h"
 
 

@@ -235,6 +235,7 @@ void v_ctl_climb_loop ( void ) {
     v_ctl_climb_auto_throttle_loop();
     break;
 #ifdef V_CTL_AUTO_PITCH_PGAIN
+#pragma message "AUTO PITCH Enabled!"
   case V_CTL_CLIMB_MODE_AUTO_PITCH:
     v_ctl_climb_auto_pitch_loop();
     break;
@@ -302,7 +303,7 @@ inline static void v_ctl_climb_auto_throttle_loop(void) {
     f_throttle = controlled_throttle;
     v_ctl_auto_throttle_sum_err += err;
     BoundAbs(v_ctl_auto_throttle_sum_err, V_CTL_AUTO_THROTTLE_MAX_SUM_ERR);
-    nav_pitch += v_ctl_pitch_of_vz;
+    nav_pitch = v_ctl_pitch_of_vz;
 #if defined AGR_CLIMB
     break;
   } /* switch submode */

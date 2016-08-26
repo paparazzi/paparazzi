@@ -4,3 +4,6 @@
 
 $(TARGET).srcs += $(SRC_FIRMWARE)/stabilization/stabilization_adaptive.c $(SRC_FIRMWARE)/guidance/guidance_v_n.c
 
+$(TARGET).CFLAGS += -DCTRL_TYPE_H=\"firmwares/fixedwing/guidance/guidance_v.h\"
+
+

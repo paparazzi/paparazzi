@@ -110,6 +110,7 @@
      <field name="y" type="float" format="%.0f" unit="m"/>
      <field name="altitude" type="float" format="%.0f"  unit="m"/>
      <field name="climb" type="float" format="%.1f"  unit="m/s"></field>
+     <field name="airspeed" type="float" format="%.1f"  unit="m/s"></field>
    </message>
 
    <message name="GPS_SOL" id="17">
