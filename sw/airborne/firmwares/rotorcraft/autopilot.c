@@ -401,6 +401,25 @@ void autopilot_periodic(void)
 
 }
 
+/** AP mode setting handler
+ *
+ * Checks RC status before calling autopilot_set_mode function
+ */
+void autopilot_SetMode(float mode)
+{
+  if (mode == AP_MODE_KILL || mode == AP_MODE_FAILSAFE || mode == AP_MODE_HOME) {
+    // safety modes are always accessible via settings
+    autopilot_set_mode(mode);
+  } else {
+    if (radio_control.status != RC_OK &&
+        (mode == AP_MODE_NAV || mode == AP_MODE_GUIDED || mode == AP_MODE_FLIP || mode == AP_MODE_MODULE)) {
+      // without RC, only nav-like modes are accessible
+      autopilot_set_mode(mode);
+    }
+  }
+  // with RC, other modes can only be changed from the RC
+}
+
 
 void autopilot_set_mode(uint8_t new_autopilot_mode)
 {
