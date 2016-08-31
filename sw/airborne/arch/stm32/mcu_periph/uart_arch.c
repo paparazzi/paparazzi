@@ -160,6 +160,11 @@ static inline void usart_isr(struct uart_periph *p)
     if (temp != p->rx_extract_idx) {
       p->rx_insert_idx = temp;  // update insert index
     }
+    // Call the receive callback
+    if (p->recv_cb != NULL) {
+      p->recv_cb(p);
+    }
+
   } else {
     /* ORE, NE or FE error - read USART_DR reg and log the error */
     if (((USART_CR1((uint32_t)p->reg_addr) & USART_CR1_RXNEIE) != 0) &&

@@ -33,6 +33,7 @@
 
 #include "subsystems/commands.h"
 #include "subsystems/actuators.h"
+#include "subsystems/settings.h"
 #if USE_MOTOR_MIXING
 #include "subsystems/actuators/motor_mixing.h"
 #endif
@@ -103,6 +104,8 @@ STATIC_INLINE void main_init(void)
   radio_control_init();
 
   modules_init();
+
+  settings_init();
 
   mcu_int_enable();
 

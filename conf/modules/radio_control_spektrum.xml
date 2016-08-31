@@ -1,0 +1,35 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="telemetry_transparent" dir="datalink">
+  <doc>
+    <description>
+      Spektrum Sattelite radio control
+    </description>
+
+    <configure name="MODEM_PORT" value="UARTx" description="UART where the modem is connected to (UART1, UART2, etc"/>
+    <configure name="MODEM_BAUD" value="B57600" description="UART baud rate"/>
+  </doc>
+  <header/>
+  <makefile target="ap|fbw">
+
+    <!-- Radio control LED -->
+    <configure name="RADIO_CONTROL_LED" default="none"/>
+    <define name="RADIO_CONTROL_LED" value="$(RADIO_CONTROL_LED)" cond="ifneq ($(RADIO_CONTROL_LED),none)"/>
+
+    <define name="RADIO_CONTROL_TYPE_H" value="subsystems/radio_control/spektrum.h" type="string"/>
+    <define name="RADIO_CONTROL" value="true"/>
+
+    <!-- Sattelite ports -->
+    <configure name="SPEKTRUM_UART_SAT1" case="upper|lower"/>
+    <define name="SPEKTRUM_UART_SAT1" value="$(SPEKTRUM_UART_SAT1_LOWER)" cond="ifdef SPEKTRUM_UART_SAT1"/>
+    <define name="SPEKTRUM_UART_SAT1_UPPER" value="$(SPEKTRUM_UART_SAT1_UPPER)" cond="ifdef SPEKTRUM_UART_SAT1"/>
+    <define name="USE_$(SPEKTRUM_UART_SAT1_UPPER)" value="true" cond="ifdef SPEKTRUM_UART_SAT1"/>
+    <define name="$(SPEKTRUM_UART_SAT1_UPPER)_BAUD" value="B115200" cond="ifdef SPEKTRUM_UART_SAT1"/>
+    <define name="USE_$(SPEKTRUM_UART_SAT1_UPPER)_TX" value="false" cond="ifdef SPEKTRUM_UART_SAT1"/>
+
+    <!-- Code -->
+    <file name="radio_control.c" dir="subsystems"/>
+    <file name="spektrum.c" dir="subsystems/radio_control"/>
+  </makefile>
+</module>
+

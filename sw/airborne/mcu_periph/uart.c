@@ -238,6 +238,7 @@ void uart_periph_init(struct uart_periph *p)
   p->ore = 0;
   p->ne_err = 0;
   p->fe_err = 0;
+  p->recv_cb = NULL;
   p->device.periph = (void *)p;
   p->device.check_free_space = (check_free_space_t) uart_check_free_space;
   p->device.put_byte = (put_byte_t) uart_put_byte;
