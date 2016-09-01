@@ -405,7 +405,7 @@ void autopilot_periodic(void)
  *
  * Checks RC status before calling autopilot_set_mode function
  */
-void autopilot_SetMode(float mode)
+void autopilot_SetModeHandler(float mode)
 {
   if (mode == AP_MODE_KILL || mode == AP_MODE_FAILSAFE || mode == AP_MODE_HOME) {
     // safety modes are always accessible via settings
