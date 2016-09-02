@@ -82,7 +82,7 @@ struct results opencv_imav_landing(char *img, int width, int height, int v_squar
     for( int i = 0; (unsigned)i < contours.size(); i++ )
     {
         double Area = contourArea(contours[i]);
-        if (Area > 1500)
+        if (Area > 250)
         {
             convexHull(Mat(contours[i]), hull[i], false );
             approxPolyDP(Mat(hull[i]), approx[i], arcLength(Mat(hull[i]), true)*0.1, true);
