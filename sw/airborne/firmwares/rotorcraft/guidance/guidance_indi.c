@@ -48,7 +48,17 @@ float guidance_indi_speed_gain = 1.8;
 struct FloatVect3 sp_accel = {0.0,0.0,0.0};
 #ifdef GUIDANCE_INDI_SPECIFIC_FORCE_GAIN
 float thrust_in_specific_force_gain = GUIDANCE_INDI_SPECIFIC_FORCE_GAIN;
+
+#ifndef GUIDANCE_INDI_THRUST_DYNAMICS
+#ifndef STABILIZATION_INDI_ACT_DYN_P
+#error "You need to define GUIDANCE_INDI_THRUST_DYNAMICS to be able to use indi vertical control"
+#else // assume that the same actuators are used for thrust as for roll (e.g. quadrotor)
+#define GUIDANCE_INDI_THRUST_DYNAMICS STABILIZATION_INDI_ACT_DYN_P
 #endif
+#endif //GUIDANCE_INDI_THRUST_DYNAMICS
+
+#endif //GUIDANCE_INDI_SPECIFIC_FORCE_GAIN
+
 
 struct FloatVect3 filt_accel_ned;
 struct FloatVect3 filt_accel_ned_d;
@@ -190,18 +200,20 @@ void guidance_indi_run(bool in_flight, int32_t heading) {
   stabilization_attitude_set_setpoint_rp_quat_f(&guidance_euler_cmd, in_flight, heading);
 }
 
+#ifdef GUIDANCE_INDI_SPECIFIC_FORCE_GAIN
 /**
  *
  * Filter the thrust, such that it corresponds to the filtered measured acceleration
  */
 void guidance_indi_filter_thrust(void)
 {
-  thrust_act = thrust_act + STABILIZATION_INDI_ACT_DYN_P * (thrust_in - thrust_act);
+  thrust_act = thrust_act + GUIDANCE_INDI_THRUST_DYNAMICS * (thrust_in - thrust_act);
 
   thrust_filt = thrust_filt + thrust_filtd / PERIODIC_FREQUENCY;
   thrust_filtd = thrust_filtd + thrust_filtdd / PERIODIC_FREQUENCY;
   thrust_filtdd = -thrust_filtd * 2 * filter_zeta * filter_omega + (thrust_act - thrust_filt) * filter_omega*filter_omega;
 }
+#endif
 
 /**
  *
