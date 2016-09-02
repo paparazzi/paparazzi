@@ -67,6 +67,7 @@ extern void autopilot_init(void);
 extern void autopilot_periodic(void);
 extern void autopilot_on_rc_frame(void);
 extern void autopilot_set_mode(uint8_t new_autopilot_mode);
+extern void autopilot_SetModeHandler(float new_autopilot_mode); // handler for dl_setting
 extern void autopilot_set_motors_on(bool motors_on);
 extern void autopilot_check_in_flight(bool motors_on);
 
