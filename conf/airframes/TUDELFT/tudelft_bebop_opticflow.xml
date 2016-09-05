@@ -153,10 +153,10 @@
     <define name="G1_Q" value="0.033092"/>
     <define name="G1_R" value="0.000892"/>
     <define name="G2_R" value="0.110938"/-->
-    <define name="G1_P" value="0.047332"/>
-    <define name="G1_Q" value="0.032168"/>
-    <define name="G1_R" value="0.002326"/>
-    <define name="G2_R" value="0.122961"/>
+    <define name="G1_P" value="0.052669"/>
+    <define name="G1_Q" value="0.03326"/>
+    <define name="G1_R" value="0.002377"/>
+    <define name="G2_R" value="0.136936"/>
 
     <!-- reference acceleration for attitude control -->
     <define name="REF_ERR_P" value="600.0"/>

@@ -901,7 +901,4 @@ void kalman_filter(float *measurements, float *covariance, float *state
     printf("Kalman %f,%f,%f,%f\n", K[0][0],K[0][1],K[1][0],K[1][1]);
 
     printf("Xnext %f, %f\n",Xnext[0][0],Xnext[1][0]);*/
-  float next_state[2] = {Xnext[0][0], Xnext[0][1]};
-
-  return next_state;
 }
