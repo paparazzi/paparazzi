@@ -31,6 +31,9 @@
         <flag name="LDFLAGS" value="L$(PAPARAZZI_SRC)/sw/ext/opencv_bebop/install/lib" />
         <flag name="LDFLAGS" value="lopencv_imgcodecs" />
         <flag name="LDFLAGS" value="lopencv_imgproc" />
+        <flag name="LDFLAGS" value="lopencv_features2d" />
+        <flag name="LDFLAGS" value="lopencv_ml" />
+        <flag name="LDFLAGS" value="lopencv_flann" />
         <flag name="LDFLAGS" value="lopencv_core" />
         <flag name="LDFLAGS" value="L$(PAPARAZZI_HOME)/sw/ext/opencv_bebop/install/share/OpenCV/3rdparty/lib" />
         <flag name="LDFLAGS" value="lzlib" />
