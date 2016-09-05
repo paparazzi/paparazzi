@@ -36,6 +36,8 @@
 
 #include "modules/computer_vision/opencv_imav_landingpad.h"
 
+#include "modules/computer_vision/marker/marker_checkers.h"
+
 static bool SHOW_MARKER = true;
 
 // General outputs
@@ -100,6 +102,13 @@ static void geo_locate_marker(struct image_t* img) {
     //fprintf(stderr, "[marker] found! %.3f, %.3f, %.3f, %.3f\n", geo_relative.x, geo_relative.y, marker.geo_location.x, marker.geo_location.y);
 }
 
+static struct image_t *detect_marker_checkers(struct image_t* img) {
+
+    struct resultsc marker_checkers = opencv_detect_checkers((char*) img->buf, img->w, img->h);
+
+    return NULL;
+}
+
 
 // Function
 static struct image_t *detect_helipad_marker(struct image_t* img)
@@ -147,8 +156,12 @@ static struct image_t *draw_target_marker(struct image_t* img)
 void detector_init(void)
 {
     // Add detection function to CV
-    helipad_listener = cv_add_to_device_async(&DETECTOR_CAMERA1, detect_helipad_marker, 5);
-    helipad_listener->maximum_fps = 10;
+//    helipad_listener = cv_add_to_device_async(&DETECTOR_CAMERA1, detect_helipad_marker, 5);
+//    helipad_listener->maximum_fps = 10;
+
+    init_detect_checkers();
+
+    cv_add_to_device(&DETECTOR_CAMERA1, detect_marker_checkers);
 
     cv_add_to_device(&DETECTOR_CAMERA1, draw_target_marker);
 }
