@@ -44,6 +44,7 @@
 #include "size_divergence.h"
 #include "linear_flow_fit.h"
 
+#include "subsystems/imu.h"
 // whether to show the flow and corners:
 #define OPTICFLOW_SHOW_FLOW 0
 #define OPTICFLOW_SHOW_CORNERS 0
@@ -151,7 +152,7 @@ PRINT_CONFIG_VAR(OPTICFLOW_METHOD)
 PRINT_CONFIG_VAR(OPTICFLOW_DEROTATION)
 
 #ifndef OPTICFLOW_MEDIAN_FILTER
-#define OPTICFLOW_MEDIAN_FILTER TRUE
+#define OPTICFLOW_MEDIAN_FILTER FALSE
 #endif
 PRINT_CONFIG_VAR(OPTICFLOW_MEDIAN_FILTER)
 
@@ -347,16 +348,32 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
   float diff_flow_x = 0;
   float diff_flow_y = 0;
 
-  /*// Flow Derotation TODO:
+  // Flow Derotation TODO:
+/*
   float diff_flow_x = (state->phi - opticflow->prev_phi) * img->w / OPTICFLOW_FOV_W;
-  float diff_flow_y = (state->theta - opticflow->prev_theta) * img->h / OPTICFLOW_FOV_H;*/
+  float diff_flow_y = (state->theta - opticflow->prev_theta) * img->h / OPTICFLOW_FOV_H;
+*/
 
   if (opticflow->derotation && result->tracked_cnt > 5) {
-    diff_flow_x = (state->rates.p + opticflow->prev_rates.p) / 2.0f / result->fps * img->w /
-                  OPTICFLOW_FOV_W;// * img->w / OPTICFLOW_FOV_W;
-    diff_flow_y = (state->rates.q + opticflow->prev_rates.q) / 2.0f / result->fps * img->h /
-                  OPTICFLOW_FOV_H;// * img->h / OPTICFLOW_FOV_H;
+    /*
+        diff_flow_x = (RATE_FLOAT_OF_BFP(imu.gyro.p)) / result->fps * img->w /
+                      OPTICFLOW_FOV_W;// * img->w / OPTICFLOW_FOV_W;
+        diff_flow_y = (RATE_FLOAT_OF_BFP(imu.gyro.q))  / result->fps * img->h /
+                      OPTICFLOW_FOV_H;// * img->h / OPTICFLOW_FOV_H;
+    */
+//	  float diff_flow_x = (state->phi - opticflow->prev_phi) * img->w / OPTICFLOW_FOV_W;
+//	  float diff_flow_y = (state->theta - opticflow->prev_theta) * img->h / OPTICFLOW_FOV_H;
+//    diff_flow_x = (state->rates.p + opticflow->prev_rates.p) / 2.0f / result->fps * img->w /
+//                  OPTICFLOW_FOV_W;// * img->w / OPTICFLOW_FOV_W;
+//    diff_flow_y = (state->rates.q + opticflow->prev_rates.q) / 2.0f / result->fps * img->h /
+//                  OPTICFLOW_FOV_H;// * img->h / OPTICFLOW_FOV_H;
+
+    diff_flow_x = (state->rates.p )  / result->fps * img->w /
+                   OPTICFLOW_FOV_W;// * img->w / OPTICFLOW_FOV_W;
+     diff_flow_y = (state->rates.q )/ result->fps * img->h /
+                   OPTICFLOW_FOV_H;// * img->h / OPTICFLOW_FOV_H;
   }
+
 
   result->flow_der_x = result->flow_x - diff_flow_x * opticflow->subpixel_factor;
   result->flow_der_y = result->flow_y - diff_flow_y * opticflow->subpixel_factor;
@@ -367,6 +384,8 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
   // TODO Calculate the velocity more sophisticated, taking into account the drone's angle and the slope of the ground plane.
   float vel_x = result->flow_der_x * result->fps * state->agl / opticflow->subpixel_factor  / OPTICFLOW_FX;
   float vel_y = result->flow_der_y * result->fps * state->agl / opticflow->subpixel_factor  / OPTICFLOW_FY;
+  //float vel_x = result->flow_der_x * 90.0f * 1.0f / opticflow->subpixel_factor  / OPTICFLOW_FX;
+  //float vel_y = result->flow_der_y * 90.0f * 1.0f / opticflow->subpixel_factor  / OPTICFLOW_FY;
 
   //Apply a  median filter to the velocity if wanted
   if (opticflow->median_filter == true) {
@@ -585,6 +604,74 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
     calc_edgeflow_tot(opticflow, state, img, result);
   }
 
+
+  result->vel_body_x = result->vel_y;
+  result->vel_body_y = - result->vel_x;
+
+
+  // KALMAN filter
+  struct Int32Vect3 acc_meas_body;
+  struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&imu.body_to_imu);
+  int32_rmat_transp_vmult(&acc_meas_body, body_to_imu_rmat, &imu.accel);
+
+  static uint8_t wait_counter = 0;
+  static float previous_state_x[2] = {0.0f, 0.0f};
+  static float covariance_x[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+  float measurements_x[2];
+  static float previous_state_y[2] = {0.0f, 0.0f};
+  static float pitch[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+  static float covariance_y[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+  float measurements_y[2];
+  float process_noise[2] = {0.01f, 0.01f};
+  float measurement_noise[2] = {0.2f, 1.0f};
+
+
+  if (opticflow->just_switched_method == 1) {
+
+    wait_counter = 0;
+    previous_state_x[0] = 0.0f;
+    previous_state_x[1] = 0.0f;
+    covariance_x[0] = 1.0f;
+    covariance_x[1] = 1.0f;
+    covariance_x[2] = 1.0f;
+    covariance_x[3] = 1.0f;
+
+    previous_state_y[0] = 0.0f;
+    previous_state_y[1] = 0.0f;
+    covariance_y[0] = 1.0f;
+    covariance_y[1] = 1.0f;
+    covariance_y[2] = 1.0f;
+    covariance_y[3] = 1.0f;
+
+  }
+
+  if (wait_counter > 100) {
+
+
+    measurements_x[0] = result->vel_body_x;
+    measurements_x[1] = ACCEL_FLOAT_OF_BFP(acc_meas_body.x) - 0.24;
+
+    measurements_y[0] = result->vel_body_y;
+    measurements_y[1] = ACCEL_FLOAT_OF_BFP(acc_meas_body.y);
+
+    printf("measurements %f\n",ACCEL_FLOAT_OF_BFP(acc_meas_body.y));
+
+
+    kalman_filter(measurements_x, covariance_x,
+                  previous_state_x, process_noise, measurement_noise, result->fps);
+    kalman_filter(measurements_y, covariance_y,
+                  previous_state_y, process_noise, measurement_noise, result->fps);
+
+
+    result->vel_body_x = previous_state_x[0];
+    result->vel_body_y =  previous_state_y[0];
+
+
+  } else {
+    wait_counter++;
+  }
+
+
 }
 
 /**
@@ -617,3 +704,204 @@ static int cmp_flow(const void *a, const void *b)
 }
 
 
+void kalman_filter(float *measurements, float *covariance, float *state
+                   , float *process_noise, float *measurement_noise, float fps)
+{
+  // _______ Preparation kalman filter _______ \\
+
+
+  // process model (linear)
+  float _G[2][2];
+  MAKE_MATRIX_PTR(G, _G, 2);
+  G[0][0] = 1.0f;
+  G[0][1] = 1.0f / fps;
+  G[1][0] = 0.0f;
+  G[1][1] = 1.0f;
+
+
+  // transpose of G
+  float _Gtrans[2][2];
+  MAKE_MATRIX_PTR(Gtrans, _Gtrans, 2);
+  float_mat_copy(Gtrans, G, 2, 2);
+  float_mat_transpose(Gtrans, 2);
+
+  // measurement model (linear)
+  float _H[2][2];
+  MAKE_MATRIX_PTR(H, _H, 2);
+  H[0][0] = 1.0f;
+  H[0][1] = 0.0f;
+  H[1][0] = 0.0f;
+  H[1][1] = 1.0f;
+
+  //transpose of H
+  float _Htrans[2][2];
+  MAKE_MATRIX_PTR(Htrans, _Htrans, 2);
+  float_mat_copy(Htrans, H, 2, 2);
+  float_mat_transpose(Htrans, 2);
+
+  //Previous state
+  float _Xprev[1][2];
+  MAKE_MATRIX_PTR(Xprev, _Xprev, 2);
+  Xprev[0][0] = state[0];
+  Xprev[1][0] = state[1]; //state[1];
+
+  //Previous covariance
+  float _Pprevious[2][2];
+  MAKE_MATRIX_PTR(Pprevious, _Pprevious, 2);
+  Pprevious[0][0] = covariance[0];
+  Pprevious[0][1] = covariance[1];
+  Pprevious[1][0] = covariance[2];
+  Pprevious[1][1] = covariance[3];
+
+  //measurements;
+  float _Z[1][2];
+  MAKE_MATRIX_PTR(Z, _Z, 2);
+  Z[0][0] = measurements[0];
+  Z[1][0] = measurements[1];
+
+  //Process noise model
+  float _Q[2][2];
+  MAKE_MATRIX_PTR(Q, _Q, 2);
+  Q[0][0] = process_noise[0];
+  Q[0][1] = 0.0f;
+  Q[1][0] = 0.0f;
+  Q[1][1] =  process_noise[1];
+
+  //measurement nosie model
+  float _R[2][2];
+  MAKE_MATRIX_PTR(R, _R, 2);
+  R[0][0] = measurement_noise[0];
+  R[0][1] = 0.0f;
+  R[1][0] = 0.0f;
+  R[1][1] = measurement_noise[1];
+
+  //Variables during kalman computation:
+  float _Xpredict[1][2];
+  MAKE_MATRIX_PTR(Xpredict, _Xpredict, 2);
+  float _Xnext[1][2];
+  MAKE_MATRIX_PTR(Xnext, _Xnext, 2);
+
+  float _Ppredict[2][2];
+  MAKE_MATRIX_PTR(Ppredict, _Ppredict, 2);
+  float _Pnext[2][2];
+  MAKE_MATRIX_PTR(Pnext, _Pnext, 2);
+
+  float _K[2][2];
+  MAKE_MATRIX_PTR(K, _K, 2);
+
+  float _eye[2][2];
+  MAKE_MATRIX_PTR(eye, _eye, 2);
+  eye[0][0] = 1.0f;
+  eye[0][1] = 0.0f;
+  eye[1][0] = 0.0f;
+  eye[1][1] = 1.0f;
+
+  float _temp_mat[2][2];
+  MAKE_MATRIX_PTR(temp_mat, _temp_mat, 2);
+  float _temp_mat2[2][2];
+  MAKE_MATRIX_PTR(temp_mat2, _temp_mat2, 2)
+  float _temp_mat3[2][2];
+  MAKE_MATRIX_PTR(temp_mat3, _temp_mat3, 2)
+
+  float _temp_vec[1][2];
+  MAKE_MATRIX_PTR(temp_vec, _temp_vec, 2);
+  float _temp_vec2[1][2];
+  MAKE_MATRIX_PTR(temp_vec2, _temp_vec2, 2)
+
+
+  //_______  KALMAN FILTER_______ \\
+
+  //_______  calculate state predict  _______ \\
+
+
+  //Xpredict = G* Xprev;
+  float_mat_mul(Xpredict, G, Xprev, 2, 2, 1);
+
+  // _______  calculate covariance predict _______ \\
+
+  // Ppredict = G*Pprevious*Gtrans + Q
+  //...Pprevious*Gtrans...
+  float_mat_mul(temp_mat, Pprevious, Gtrans, 2, 2, 2);
+  //G*Pprevious*Gtrans...
+  float_mat_mul(temp_mat2, G, temp_mat, 2, 2, 2);
+  //G*Pprevious*Gtrans+Q
+  float_mat_sum(Ppredict, temp_mat2, Q, 2, 2);
+
+  //_______ Calculate Kalman gain _______ \\
+
+  // K = Ppredict * Htrans /( H * Ppredict * Htrans + R)
+  // ... Ppredict * Htrans ...
+  float_mat_mul(temp_mat, Ppredict, Htrans, 2, 2, 2);
+  //... H * Predict * Htrans
+  float_mat_mul(temp_mat2, H, temp_mat, 2, 2, 2);
+  //..( H * Ppredict * Htrans + R)
+  float_mat_sum(temp_mat3, temp_mat2, R, 2, 2);
+  //...inv( H * Ppredict * Htrans + R)
+  float det_temp2 = 1 / (temp_mat3[0][0] * temp_mat3[1][1] - temp_mat3[0][1] * temp_mat3[1][0]);
+  temp_mat2[0][0] =  det_temp2 * (temp_mat3[1][1]);
+  temp_mat2[0][1] =  det_temp2 * (-1 * temp_mat3[1][0]);
+  temp_mat2[1][0] =  det_temp2 * (-1 * temp_mat3[0][1]);
+  temp_mat2[1][1] =  det_temp2 * (temp_mat3[0][0]);
+  // K = Ppredict * Htrans / *inv( H * Ppredict * Htrans + R)
+  float_mat_mul(K, temp_mat, temp_mat2, 2, 2, 2);
+
+
+
+  // _______  Calculate next state  _______ \\
+
+  //Xnext = Xpredict + K *(Z - Htrans * Xpredict)
+  // ... Htrans * Xpredict)
+  float_mat_mul(temp_vec, Htrans, Xpredict, 2, 2, 1);
+
+  //... (Z - Htrans * Xpredict)
+  float_mat_diff(temp_vec2, Z, temp_vec, 2, 1);
+
+  // ... K *(Z - Htrans * Xpredict)
+  float_mat_mul(temp_vec, K, temp_vec2, 2, 2, 1);
+
+
+  //Xnext = Xpredict + K *(Z - Htrans * Xpredict)
+  float_mat_sum(Xnext, Xpredict, temp_vec, 2, 1);
+
+  // _______ calculate next covariance matrix _______ \\
+
+  // Pnext = (eye(2) - K*H)*P_predict
+  // ...K*H...
+  float_mat_mul(temp_mat, K, H, 2, 2, 2);
+  //(eye(2) - K*H)
+  float_mat_diff(temp_mat2, eye, temp_mat, 2, 2);
+  // Pnext = (eye(2) - K*H)*P_predict
+  float_mat_mul(Pnext, temp_mat2, Ppredict, 2, 2, 2);
+
+
+  //save values for next state
+  covariance[0] = Pnext[0][0];
+  covariance[1] = Pnext[0][1];;
+  covariance[2] = Pnext[1][0];;
+  covariance[3] = Pnext[1][1];;
+
+
+  state[0] = Xnext[0][0];
+  state[1] = Xnext[1][0];
+//
+  /*
+    printf("Xprev %f, %f\n",Xprev[0][0],Xprev[1][0]);
+
+    printf("Xpredict %f, %f\n",Xpredict[0][0],Xpredict[1][0]);
+
+    printf("Pprevious %f,%f,%f,%f\n", Pprevious[0][0],Pprevious[0][1],Pprevious[1][0],Pprevious[1][1]);
+
+    printf("Ppredict %f,%f,%f,%f\n", Ppredict[0][0],Ppredict[0][1],Ppredict[1][0],Ppredict[1][1]);
+
+    printf("Pnext %f,%f,%f,%f\n", Pnext[0][0],Pnext[0][1],Pnext[1][0],Pnext[1][1]);
+
+
+    printf("Z %f, %f \n", Z[0][0],Z[1][0]);
+
+    printf("Kalman %f,%f,%f,%f\n", K[0][0],K[0][1],K[1][0],K[1][1]);
+
+    printf("Xnext %f, %f\n",Xnext[0][0],Xnext[1][0]);*/
+  float next_state[2] = {Xnext[0][0], Xnext[0][1]};
+
+  return next_state;
+}

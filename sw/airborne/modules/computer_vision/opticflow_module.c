@@ -78,7 +78,7 @@ static void opticflow_telem_send(struct transport_tx *trans, struct link_device 
                                  &opticflow_result.tracked_cnt, &opticflow_result.flow_x,
                                  &opticflow_result.flow_y, &opticflow_result.flow_der_x,
                                  &opticflow_result.flow_der_y, &opticflow_result.vel_x,
-                                 &opticflow_result.vel_y, &opticflow_result.div_size,
+                                 &opticflow_result.vel_y, &opticflow_result.vel_body_x, & opticflow_result.vel_body_y, &opticflow_result.div_size,
                                  &opticflow_result.surface_roughness, &opticflow_result.divergence); // TODO: no noise measurement here...
   }
   pthread_mutex_unlock(&opticflow_mutex);
@@ -169,8 +169,7 @@ struct image_t *opticflow_module_calc(struct image_t *img)
   * ARdrone and Bebop, however this can be different for other quadcopters
   * ALWAYS double check!
   */
-  opticflow_result.vel_body_x = opticflow_result.vel_y;
-  opticflow_result.vel_body_y = - opticflow_result.vel_x;
+
 
   // release the mutex as we are done with editing the opticflow result
   pthread_mutex_unlock(&opticflow_mutex);
