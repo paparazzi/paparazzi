@@ -21,21 +21,24 @@ void init_detect_checkers(void) {
     // Read template image from memory
     Mat marker_template = imread("/data/ftp/internal_000/imav/marker_checkers.png", IMREAD_GRAYSCALE);
 
-    // Create ORB detector with max 20 features
+    // Create ORB detector (see cv::ORB docs for algorithm settings)
     detector = ORB::create();
-    detector->setMaxFeatures(20);
+    detector->setNLevels(4);
+    detector->setScaleFactor(1.3f);
+    detector->setEdgeThreshold(7);
+    detector->setPatchSize(7);
+    detector->setMaxFeatures(50);
+
+    // Create FLANN matcher (see cv::flann::IndexParams docs for algorithm settings)
+    matcher = new FlannBasedMatcher(new cv::flann::LshIndexParams(6, 12, 1));
 
     // Find keypoints and descriptors in template image
     std::vector<KeyPoint> keypoints;
     detector->detectAndCompute(marker_template, mask, keypoints, marker_descriptors);
-
-    // Set ORB to max 50 features (for detection)
-    detector->setMaxFeatures(50);
 }
 
 
 struct resultsc opencv_detect_checkers(char *img, int width, int height, int dt) {
-
     struct resultsc marker;
 
     // Create new opencv image and convert it to grayscale
@@ -53,9 +56,8 @@ struct resultsc opencv_detect_checkers(char *img, int width, int height, int dt)
     // If there are at least 5 features found
     if (keypoints.size() > 5) {
         // Match features based on descriptors
-        FlannBasedMatcher matcher(new cv::flann::LshIndexParams(6, 12, 1));
         std::vector<std::vector<DMatch> > matches;
-        matcher.knnMatch(descriptors, marker_descriptors, matches, 2);
+        matcher->knnMatch(descriptors, marker_descriptors, matches, 2);
 
         // Loop through all the matches
         for (unsigned int i = 0; i < matches.size(); i++) {
@@ -65,8 +67,8 @@ struct resultsc opencv_detect_checkers(char *img, int width, int height, int dt)
         }
     }
 
-    // There are at least 2 good matches
-    if (good.size() > 2) {
+    // There are at least 5 good matches
+    if (good.size() > 5) {
         // Set marker detected to true
         marker.detected = true;
 
