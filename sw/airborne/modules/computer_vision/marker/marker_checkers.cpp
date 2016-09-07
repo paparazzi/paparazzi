@@ -10,10 +10,13 @@ using namespace cv;
 #include "marker_checkers.h"
 
 Mat img_marker;
+Mat mask;
+Mat marker_descriptors;
 Ptr<ORB> detector;
+Ptr<FlannBasedMatcher> matcher;
 
 float detector_fps = 30; // initial estimate of fps
-float detector_fps_epsilon = 0.05; // used to smoothen fps
+float detector_fps_epsilon = 0.2; // used to smoothen fps
 
 void init_detect_checkers(void) {
 
@@ -24,7 +27,7 @@ void init_detect_checkers(void) {
 
     std::vector<KeyPoint> keypoints;
 
-    detector->detect(img_marker, keypoints);
+    detector->detectAndCompute(img_marker, mask, keypoints, marker_descriptors);
 }
 
 
@@ -32,26 +35,35 @@ struct resultsc opencv_detect_checkers(char *img, int width, int height, int dt)
 
     struct resultsc marker;
 
-    detector_fps = (1 - detector_fps_epsilon) * detector_fps + detector_fps_epsilon * (1000000.f / dt);
+    // Create new opencv image and convert it to grayscale
+    Mat image(height, width, CV_8UC2, img);
+    cvtColor(image, image, CV_YUV2GRAY_Y422);
 
-    Mat M(height, width, CV_8UC2, img);
-    Mat image;
-
-    cvtColor(M, image, CV_YUV2GRAY_Y422);
-
-//    std::vector<KeyPoint> keypoints;
-
-//    detector->detect(image, keypoints);
-
+    std::vector<KeyPoint> keypoints;
+    Mat descriptors;
+    detector->detectAndCompute(image, mask, keypoints, descriptors);
 //    drawKeypoints(image, keypoints, image, Scalar::all(-1), DrawMatchesFlags::DEFAULT);
 
-    char text[15];
-    sprintf(text,"FPS: %0.2f", detector_fps);
+    int match_count = 0;
 
+    if (keypoints.size() > 5) {
+        FlannBasedMatcher matcher(new cv::flann::LshIndexParams(5, 24, 2));
+        std::vector<std::vector<DMatch> > matches;
+        matcher.knnMatch(marker_descriptors, descriptors, matches, 2);
+
+        for(int i = 0; i < matches.size(); i++) {
+            match_count += 1;
+        }
+    }
+
+    // Update FPS estimate
+    detector_fps = (1 - detector_fps_epsilon) * detector_fps + detector_fps_epsilon * (1000000.f / dt);
+
+    // Draw FPS on image
+    char text[30]; sprintf(text,"FPS: %0.2f, M: %i", detector_fps, match_count);
     putText(image, text, Point(10, image.rows-10), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(255), 2);
 
-//    cvtColor(image, image, CV_BGR2GRAY);
-
+    // Convert image back to YUV
     grayscale_opencv_to_yuv422(image, img, width, height);
 
     return marker;
