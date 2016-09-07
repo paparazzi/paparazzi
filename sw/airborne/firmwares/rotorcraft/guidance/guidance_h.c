@@ -45,6 +45,8 @@
 
 #include "state.h"
 
+#include <stdio.h>
+
 #ifndef GUIDANCE_H_AGAIN
 #define GUIDANCE_H_AGAIN 0
 #endif
@@ -474,6 +476,10 @@ void guidance_h_run(bool  in_flight)
   }
 }
 
+static void propagate_rate(uint16_t update_frequency){
+  guidance_h.sp.heading += (guidance_h.sp.heading_rate >> (INT32_ANGLE_FRAC - INT32_RATE_FRAC)) / update_frequency;
+}
+
 
 static void guidance_h_update_reference(void)
 {
@@ -506,7 +512,7 @@ static void guidance_h_update_reference(void)
 
   /* update heading setpoint from rate */
   if (bit_is_set(guidance_h.sp.mask, 7)) {
-    guidance_h.sp.heading += (guidance_h.sp.heading_rate >> (INT32_ANGLE_FRAC - INT32_RATE_FRAC)) / PERIODIC_FREQUENCY;
+    RunOnceEvery(16, propagate_rate(32)); //512/16 = 32
     INT32_ANGLE_NORMALIZE(guidance_h.sp.heading);
   }
 }

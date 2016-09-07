@@ -49,6 +49,7 @@ struct image_t {
   uint8_t buf_idx;        ///< Buffer index for V4L2 freeing
   uint32_t buf_size;      ///< The buffer size
   void *buf;              ///< Image buffer (depending on the image_type)
+  uint32_t dt;
 };
 
 /* Image point structure */

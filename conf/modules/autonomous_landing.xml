@@ -1,0 +1,40 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="AutonomousLanding" dir="computer_vision">
+  <doc>
+    <description>MarkerTracking</description>
+  </doc>
+
+  <settings>
+    <dl_settings>
+      <dl_settings name="AutonomousLanding">
+
+        <dl_setting var="vel_gain_landing"  min="0." step="0.05" max="1" shortname="VxVy_gain" />
+        <dl_setting var="vz_ref"  min="0.01" step="0.1" max="1" shortname="Vz_ref" />
+        <dl_setting var="marker_reached"  min="0.05" step="0.05" max="1" shortname="proximity" />
+
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <depends>video_thread</depends>
+
+  <header>
+    <file name="autonomous_landing.h"/>
+  </header>
+
+  <init fun="autonomous_landing_init()"/>
+  <periodic fun="autonomous_landing_periodic()" freq="1"
+            start="start_autonomous_landing()"
+            stop="stop_autonomous_landing()"
+            autorun="FALSE"/>
+
+  <makefile>
+    <file name="autonomous_landing.c"/>
+    <file name="imav2016markers.c"/>
+  </makefile>
+</module>
+
+
+
+

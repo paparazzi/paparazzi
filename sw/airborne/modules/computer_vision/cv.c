@@ -163,8 +163,10 @@ void cv_run_device(struct video_config_t *device, struct image_t *img)
       continue;
     }
 
+    img->dt = timeval_diff(&listener->ts, &img->ts);
+
     // If the desired frame time for this listener is not reached, skip it
-    if (listener->maximum_fps > 0 && timeval_diff(&listener->ts, &img->ts) < (1000000 / listener->maximum_fps)) {
+    if (listener->maximum_fps > 0 && img->dt < (1000000 / listener->maximum_fps)) {
       continue;
     }
 

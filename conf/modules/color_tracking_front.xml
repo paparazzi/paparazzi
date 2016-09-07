@@ -1,0 +1,37 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="CT_Front" dir="computer_vision">
+  <doc>
+    <description>CT_Front</description>
+  </doc>
+
+  <settings>
+    <dl_settings>
+      <dl_settings name="CT_Front">
+        <dl_setting var="modify_image_front" min="0" step="1" max="1" />
+        <dl_setting var="blob_threshold_front"  min="50" step="1" max="10000" shortname="counter" />
+        <dl_setting var="vel_ref"  min="0.1" step="0.05" max="1" shortname="vel_ref" />
+        <dl_setting var="yaw_rate_front_ref"  min="0.01" step="0.01" max="0.5" shortname="yaw_rate_ref" />
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <depends>video_thread</depends>
+
+  <header>
+    <file name="color_tracking_front.h"/>
+  </header>
+
+  <init fun="color_tracking_front_init()"/>
+  <periodic fun="color_tracking_front_periodic()" freq="1"
+            start="start_color_tracking_front()"
+            stop="stop_color_tracking_front()"
+            autorun="FALSE"/>
+
+  <makefile>
+    <file name="color_tracking_front.c"/>
+    <file name="imav2016markers.c"/>
+    <file name="blob_finder.c" dir="modules/computer_vision/blob/"/>
+  </makefile>
+
+</module>

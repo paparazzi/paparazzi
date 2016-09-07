@@ -1,0 +1,57 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="cv_helipad" dir="computer_vision">
+    <doc>
+        <description>This is for helipad detection IMAV 2016
+        </description>
+    </doc>
+
+    <settings>
+        <dl_settings>
+            <dl_settings name="Helipad">
+                <dl_setting var="modify_image_color" min="0" step="1" max="1" shortname="mod_color"/>
+                <dl_setting var="modify_image_helipad" min="0" step="1" max="1" shortname="mod_helipad"/>
+                <dl_setting var="modify_image_color" min="0" step="1" max="1" />
+                <dl_setting var="color_lum_min" min="0" step="1" max="255" shortname="y_min" />
+                <dl_setting var="color_lum_max" min="0" step="1" max="255" shortname="y_max" />
+                <dl_setting var="blob_threshold"  min="1000" step="100" max="50000" shortname="blob_threshold" />
+            </dl_settings>
+        </dl_settings>
+    </settings>
+
+    <depends>video_thread</depends>
+
+    <header>
+        <file name="cv_helipad.h"/>
+    </header>
+
+    <init fun="helipad_init()"/>
+    <periodic fun="helipad_periodic()" freq="1"
+              start="start_helipad()"
+              stop="stop_helipad()"
+              autorun="FALSE"/>
+
+    <makefile>
+        <file name="cv_helipad.c"/>
+        <file name="imav2016markers.c"/>
+        <file name="blob_finder.c" dir="modules/computer_vision/blob/"/>
+        <file name="opencv_imav_landingpad.cpp"/>
+        <file name="opencv_image_functions.cpp"/>
+        <flag name="CXXFLAGS" value="I$(PAPARAZZI_SRC)/sw/ext/opencv_bebop/install/include"/>
+
+        <flag name="LDFLAGS" value="L$(PAPARAZZI_SRC)/sw/ext/opencv_bebop/install/lib" />
+        <flag name="LDFLAGS" value="lopencv_imgcodecs" />
+        <flag name="LDFLAGS" value="lopencv_imgproc" />
+        <flag name="LDFLAGS" value="lopencv_core" />
+        <flag name="LDFLAGS" value="L$(PAPARAZZI_HOME)/sw/ext/opencv_bebop/install/share/OpenCV/3rdparty/lib" />
+        <flag name="LDFLAGS" value="lzlib" />
+        <flag name="LDFLAGS" value="llibpng" />
+        <flag name="LDFLAGS" value="lstdc++" />
+        <flag name="LDFLAGS" value="ldl" />
+        <flag name="LDFLAGS" value="lm" />
+        <flag name="LDFLAGS" value="lpthread" />
+        <flag name="LDFLAGS" value="lrt" />
+    </makefile>
+</module>
+
+
