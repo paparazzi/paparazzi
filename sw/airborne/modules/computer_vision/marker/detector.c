@@ -104,7 +104,7 @@ static void geo_locate_marker(struct image_t* img) {
 
 static struct image_t *detect_marker_checkers(struct image_t* img) {
 
-    struct resultsc marker_checkers = opencv_detect_checkers((char*) img->buf, img->w, img->h);
+    struct resultsc marker_checkers = opencv_detect_checkers((char*) img->buf, img->w, img->h, img->dt);
 
     return NULL;
 }

@@ -15,7 +15,7 @@ struct resultsc {
 
 void init_detect_checkers(void);
 
-struct resultsc opencv_detect_checkers(char *img, int width, int height);
+struct resultsc opencv_detect_checkers(char *img, int width, int height, int dt);
 
 #ifdef __cplusplus
 }
