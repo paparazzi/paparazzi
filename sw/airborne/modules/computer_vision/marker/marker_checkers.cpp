@@ -9,7 +9,6 @@ using namespace cv;
 
 #include "marker_checkers.h"
 
-Mat img_marker;
 Mat mask;
 Mat marker_descriptors;
 Ptr<ORB> detector;
@@ -19,15 +18,19 @@ float detector_fps = 30; // initial estimate of fps
 float detector_fps_epsilon = 0.2; // used to smoothen fps
 
 void init_detect_checkers(void) {
+    // Read template image from memory
+    Mat marker_template = imread("/data/ftp/internal_000/imav/marker_checkers.png", IMREAD_GRAYSCALE);
 
-    img_marker = imread("/data/ftp/internal_000/imav/marker_checkers.png", IMREAD_GRAYSCALE);
-
+    // Create ORB detector with max 20 features
     detector = ORB::create();
     detector->setMaxFeatures(20);
 
+    // Find keypoints and descriptors in template image
     std::vector<KeyPoint> keypoints;
+    detector->detectAndCompute(marker_template, mask, keypoints, marker_descriptors);
 
-    detector->detectAndCompute(img_marker, mask, keypoints, marker_descriptors);
+    // Set ORB to max 50 features (for detection)
+    detector->setMaxFeatures(50);
 }
 
 
@@ -39,26 +42,35 @@ struct resultsc opencv_detect_checkers(char *img, int width, int height, int dt)
     Mat image(height, width, CV_8UC2, img);
     cvtColor(image, image, CV_YUV2GRAY_Y422);
 
+    // Find keypoints and descriptors in video frame
     std::vector<KeyPoint> keypoints;
     Mat descriptors;
     detector->detectAndCompute(image, mask, keypoints, descriptors);
-//    drawKeypoints(image, keypoints, image, Scalar::all(-1), DrawMatchesFlags::DEFAULT);
 
+    // Container for descriptor matching filter
     std::vector<DMatch> good;
 
+    // If there are at least 5 features found
     if (keypoints.size() > 5) {
-        FlannBasedMatcher matcher(new cv::flann::LshIndexParams(5, 24, 2));
+        // Match features based on descriptors
+        FlannBasedMatcher matcher(new cv::flann::LshIndexParams(6, 12, 1));
         std::vector<std::vector<DMatch> > matches;
         matcher.knnMatch(descriptors, marker_descriptors, matches, 2);
 
+        // Loop through all the matches
         for (unsigned int i = 0; i < matches.size(); i++) {
+            // Only accept matches that pass the ratio test proposed by D.Lowe in SIFT paper
             if (matches[i].size() > 1 and matches[i][0].distance < matches[i][1].distance * 0.75)
                 good.push_back(matches[i][0]);
         }
     }
 
-    if (good.size() > 1) {
+    // There are at least 2 good matches
+    if (good.size() > 2) {
+        // Set marker detected to true
         marker.detected = true;
+
+        // Calculate center of all keypoints (simple average)
         marker.x = 0; marker.y = 0;
 
         for (unsigned int i = 0; i < good.size(); i++) {
@@ -69,6 +81,7 @@ struct resultsc opencv_detect_checkers(char *img, int width, int height, int dt)
 
         marker.x /= good.size();
         marker.y /= good.size();
+
     } else {
         marker.detected = false;
     }
@@ -79,11 +92,6 @@ struct resultsc opencv_detect_checkers(char *img, int width, int height, int dt)
     // Draw FPS on image
     char text[50]; sprintf(text,"FPS: %0.2f, M: %i", detector_fps, good.size());
     putText(image, text, Point(10, image.rows-10), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(255), 2);
-
-    if (marker.detected) {
-        sprintf(text,"x: %i, y: %i", marker.x, marker.y);
-        putText(image, text, Point(10, image.rows-20), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(150), 2);
-    }
 
     // Convert image back to YUV
     grayscale_opencv_to_yuv422(image, img, width, height);
