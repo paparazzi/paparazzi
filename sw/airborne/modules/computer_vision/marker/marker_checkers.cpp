@@ -44,24 +44,46 @@ struct resultsc opencv_detect_checkers(char *img, int width, int height, int dt)
     detector->detectAndCompute(image, mask, keypoints, descriptors);
 //    drawKeypoints(image, keypoints, image, Scalar::all(-1), DrawMatchesFlags::DEFAULT);
 
-    int match_count = 0;
+    std::vector<DMatch> good;
 
     if (keypoints.size() > 5) {
         FlannBasedMatcher matcher(new cv::flann::LshIndexParams(5, 24, 2));
         std::vector<std::vector<DMatch> > matches;
-        matcher.knnMatch(marker_descriptors, descriptors, matches, 2);
+        matcher.knnMatch(descriptors, marker_descriptors, matches, 2);
 
-        for(int i = 0; i < matches.size(); i++) {
-            match_count += 1;
+        for (unsigned int i = 0; i < matches.size(); i++) {
+            if (matches[i].size() > 1 and matches[i][0].distance < matches[i][1].distance * 0.75)
+                good.push_back(matches[i][0]);
         }
+    }
+
+    if (good.size() > 1) {
+        marker.detected = true;
+        marker.x = 0; marker.y = 0;
+
+        for (unsigned int i = 0; i < good.size(); i++) {
+            Point2f point = keypoints[good[i].queryIdx].pt;
+            marker.x += point.x;
+            marker.y += point.y;
+        }
+
+        marker.x /= good.size();
+        marker.y /= good.size();
+    } else {
+        marker.detected = false;
     }
 
     // Update FPS estimate
     detector_fps = (1 - detector_fps_epsilon) * detector_fps + detector_fps_epsilon * (1000000.f / dt);
 
     // Draw FPS on image
-    char text[30]; sprintf(text,"FPS: %0.2f, M: %i", detector_fps, match_count);
+    char text[50]; sprintf(text,"FPS: %0.2f, M: %i", detector_fps, good.size());
     putText(image, text, Point(10, image.rows-10), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(255), 2);
+
+    if (marker.detected) {
+        sprintf(text,"x: %i, y: %i", marker.x, marker.y);
+        putText(image, text, Point(10, image.rows-20), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(150), 2);
+    }
 
     // Convert image back to YUV
     grayscale_opencv_to_yuv422(image, img, width, height);

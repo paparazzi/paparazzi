@@ -106,6 +106,14 @@ static struct image_t *detect_marker_checkers(struct image_t* img) {
 
     struct resultsc marker_checkers = opencv_detect_checkers((char*) img->buf, img->w, img->h, img->dt);
 
+    if (marker_checkers.detected) {
+        marker.detected = true;
+        marker.pixel.x = marker_checkers.x;
+        marker.pixel.y = marker_checkers.y;
+    } else {
+        marker.detected = false;
+    }
+
     return NULL;
 }
 
