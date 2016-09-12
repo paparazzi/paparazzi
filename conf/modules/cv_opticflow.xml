@@ -100,6 +100,7 @@
     <file name="fast_rosten.c" dir="modules/computer_vision/lib/vision"/>
     <file name="lucas_kanade.c" dir="modules/computer_vision/lib/vision"/>
     <file name="edge_flow.c" dir="modules/computer_vision/lib/vision"/>
+    <file name="kalman_filter_vision.c" dir="modules/computer_vision/lib/filters"/>
   </makefile>
 
 
