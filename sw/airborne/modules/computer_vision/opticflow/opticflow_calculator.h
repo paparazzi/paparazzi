@@ -83,6 +83,8 @@ void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *
 void kalman_filter_opticflow_velocity(float *velocity_x ,  float *velocity_y, float *acceleration_measurement,
                                       float fps,
                                       float *measurement_noise, bool reinitialize_kalman);
+void kalman_filter(float *measurements, float *covariance, float *state
+                   , float *process_noise, float *measurement_noise, float fps);
 
 #endif /* OPTICFLOW_CALCULATOR_H */
 

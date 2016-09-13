@@ -219,17 +219,15 @@ void opticflow_calc_init(struct opticflow_t *opticflow, uint16_t w, uint16_t h)
   opticflow->derotation_correction_factor_x = OPTICFLOW_DEROTATION_CORRECTION_FACTOR_X;
   opticflow->derotation_correction_factor_y = OPTICFLOW_DEROTATION_CORRECTION_FACTOR_Y;
 
-
   opticflow->max_track_corners = OPTICFLOW_MAX_TRACK_CORNERS;
   opticflow->subpixel_factor = OPTICFLOW_SUBPIXEL_FACTOR;
   opticflow->max_iterations = OPTICFLOW_MAX_ITERATIONS;
   opticflow->threshold_vec = OPTICFLOW_THRESHOLD_VEC;
   opticflow->pyramid_level = OPTICFLOW_PYRAMID_LEVEL;
   opticflow->median_filter = OPTICFLOW_MEDIAN_FILTER;
-  opticflow->kalman_filter = OPTICFLOW_KALMAN_FILTER
+  opticflow->kalman_filter = OPTICFLOW_KALMAN_FILTER;
 
-
-                             opticflow->fast9_adaptive = OPTICFLOW_FAST9_ADAPTIVE;
+  opticflow->fast9_adaptive = OPTICFLOW_FAST9_ADAPTIVE;
   opticflow->fast9_threshold = OPTICFLOW_FAST9_THRESHOLD;
   opticflow->fast9_min_distance = OPTICFLOW_FAST9_MIN_DISTANCE;
   opticflow->fast9_padding = OPTICFLOW_FAST9_PADDING;
@@ -626,11 +624,12 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
 
 
   // KALMAN filter on velocity
-  float measurement_noise[2] = {0.2f, 1.0f};
-  bool reinitialize_kalman = true;
+  float measurement_noise[2] = {result->noise_measurement, 1.0f};
+  static bool reinitialize_kalman = true;
 
   static uint8_t wait_filter_counter =
     0; // When starting up the opticalflow module, or switching between methods, wait for a bit to prevent bias
+
 
   if (opticflow->kalman_filter == true) {
     if (opticflow->just_switched_method == true) {
@@ -662,8 +661,6 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
   } else {
     reinitialize_kalman = true;
   }
-
-
 
 }
 
@@ -706,7 +703,7 @@ void kalman_filter_opticflow_velocity(float *velocity_x, float *velocity_y, floa
    * model = Jacobian([vel_prediction; accel_prediction],state)
    *       = [1 dt ; 0 1];
    * */
-  float model[4] =  {0.01f, 0.01f / fps , 0.0f , 0.01f};
+  float model[4] =  {1.0f, 1.0f / fps , 0.0f , 1.0f};
   float process_noise[2] = {0.01f, 0.01f};
 
   // Measurements from velocity_x of optical flow and acceleration directly from scaled accelerometers
