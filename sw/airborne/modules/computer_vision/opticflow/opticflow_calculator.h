@@ -38,32 +38,36 @@
 #include "lib/v4l/v4l2.h"
 
 struct opticflow_t {
-  bool got_first_img;             ///< If we got a image to work with
-  bool just_switched_method;
-  struct FloatRates prev_rates;     ///< Gyro Rates from the previous image frame
-  struct image_t img_gray;          ///< Current gray image frame
-  struct image_t prev_img_gray;     ///< Previous gray image frame
-  struct timeval prev_timestamp;    ///< Timestamp of the previous frame, used for FPS calculation
+  bool got_first_img;                 ///< If we got a image to work with
+  bool just_switched_method;        ///< Boolean to check if methods has been switched (for reinitialization)
+  struct FloatRates prev_rates;         ///< Gyro Rates from the previous image frame
+  struct image_t img_gray;              ///< Current gray image frame
+  struct image_t prev_img_gray;         ///< Previous gray image frame
+  struct timeval prev_timestamp;        ///< Timestamp of the previous frame, used for FPS calculation
 
-  uint8_t method;               ///< Method to use to calculate the optical flow
-  uint16_t window_size;             ///< Window size for the blockmatching algorithm (general value for all methods)
-  uint16_t search_distance;         ///< Search distance for blockmatching alg.
-  bool derotation;             ///< Derotation switched on or off (depended on the quality of the gyroscope measurement)
-  bool median_filter;          ///< Decides to use a median filter on the velocity
+  uint8_t method;                   ///< Method to use to calculate the optical flow
+  uint16_t window_size;               ///< Window size for the blockmatching algorithm (general value for all methods)
+  uint16_t search_distance;           ///< Search distance for blockmatching alg.
+  bool derotation;                    ///< Derotation switched on or off (depended on the quality of the gyroscope measurement)
+  bool median_filter;                 ///< Decides to use a median filter on the velocity
+  bool kalman_filter;                       ///< Decide to use Kalman filter to filter velocity with accelerometers
 
-  uint16_t subpixel_factor;          ///< The amount of subpixels per pixel
-  uint8_t max_iterations;           ///< The maximum amount of iterations the Lucas Kanade algorithm should do
-  uint8_t threshold_vec;            ///< The threshold in x, y subpixels which the algorithm should stop
-  uint8_t pyramid_level;        ///< Number of pyramid levels used in Lucas Kanade algorithm (0 == no pyramids used)
+  float derotation_correction_factor_x;     ///< Correction factor for derotation in x axis, determined from a fit from the gyros and flow rotation. (wrong FOV, camera not in center)
+  float derotation_correction_factor_y;     ///< Correction factor for derotation in Y axis, determined from a fit from the gyros and flow rotation. (wrong FOV, camera not in center)
 
-  uint8_t max_track_corners;        ///< Maximum amount of corners Lucas Kanade should track
-  bool fast9_adaptive;            ///< Whether the FAST9 threshold should be adaptive
-  uint8_t fast9_threshold;          ///< FAST9 corner detection threshold
-  uint16_t fast9_min_distance;      ///< Minimum distance in pixels between corners
-  uint16_t fast9_padding;           ///< Padding used in FAST9 detector
+  uint16_t subpixel_factor;                 ///< The amount of subpixels per pixel
+  uint8_t max_iterations;               ///< The maximum amount of iterations the Lucas Kanade algorithm should do
+  uint8_t threshold_vec;                ///< The threshold in x, y subpixels which the algorithm should stop
+  uint8_t pyramid_level;              ///< Number of pyramid levels used in Lucas Kanade algorithm (0 == no pyramids used)
 
-  uint16_t fast9_rsize;   ///< Amount of corners allocated
-  struct point_t *fast9_ret_corners; ///< Corners
+  uint8_t max_track_corners;            ///< Maximum amount of corners Lucas Kanade should track
+  bool fast9_adaptive;                  ///< Whether the FAST9 threshold should be adaptive
+  uint8_t fast9_threshold;              ///< FAST9 corner detection threshold
+  uint16_t fast9_min_distance;          ///< Minimum distance in pixels between corners
+  uint16_t fast9_padding;               ///< Padding used in FAST9 detector
+
+  uint16_t fast9_rsize;             ///< Amount of corners allocated
+  struct point_t *fast9_ret_corners;    ///< Corners
 };
 
 
@@ -76,8 +80,9 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
 void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *state, struct image_t *img,
                        struct opticflow_result_t *result);
 
-void kalman_filter_opticflow_velocity(float *velocity_x ,  float *velocity_y, float *acceleration_measurement, float fps,
-                                 float *measurement_noise, bool reinitialize_kalman);
+void kalman_filter_opticflow_velocity(float *velocity_x ,  float *velocity_y, float *acceleration_measurement,
+                                      float fps,
+                                      float *measurement_noise, bool reinitialize_kalman);
 
 #endif /* OPTICFLOW_CALCULATOR_H */
 

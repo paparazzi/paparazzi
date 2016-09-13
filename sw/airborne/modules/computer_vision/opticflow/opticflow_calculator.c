@@ -155,8 +155,28 @@ PRINT_CONFIG_VAR(OPTICFLOW_METHOD)
 #endif
 PRINT_CONFIG_VAR(OPTICFLOW_DEROTATION)
 
+#ifndef OPTICFLOW_DEROTATION
+#define OPTICFLOW_DEROTATION TRUE
+#endif
+PRINT_CONFIG_VAR(OPTICFLOW_DEROTATION)
+
+#ifndef OPTICFLOW_DEROTATION_CORRECTION_FACTOR_X
+#define OPTICFLOW_DEROTATION 1.0
+#endif
+PRINT_CONFIG_VAR(OPTICFLOW_DEROTATION)
+
+#ifndef OPTICFLOW_DEROTATION_CORRECTION_FACTOR_Y
+#define OPTICFLOW_DEROTATION 1.0
+#endif
+PRINT_CONFIG_VAR(OPTICFLOW_DEROTATION)
+
 #ifndef OPTICFLOW_MEDIAN_FILTER
 #define OPTICFLOW_MEDIAN_FILTER FALSE
+#endif
+PRINT_CONFIG_VAR(OPTICFLOW_MEDIAN_FILTER)
+
+#ifndef OPTICFLOW_KALMAN_FILTER
+#define OPTICFLOW_KALMAN_FILTER TRUE
 #endif
 PRINT_CONFIG_VAR(OPTICFLOW_MEDIAN_FILTER)
 
@@ -196,6 +216,9 @@ void opticflow_calc_init(struct opticflow_t *opticflow, uint16_t w, uint16_t h)
   opticflow->window_size = OPTICFLOW_WINDOW_SIZE;
   opticflow->search_distance = OPTICFLOW_SEARCH_DISTANCE;
   opticflow->derotation = OPTICFLOW_DEROTATION; //0 = OFF, 1 = ON
+  opticflow->derotation_correction_factor_x = OPTICFLOW_DEROTATION_CORRECTION_FACTOR_X;
+  opticflow->derotation_correction_factor_y = OPTICFLOW_DEROTATION_CORRECTION_FACTOR_Y;
+
 
   opticflow->max_track_corners = OPTICFLOW_MAX_TRACK_CORNERS;
   opticflow->subpixel_factor = OPTICFLOW_SUBPIXEL_FACTOR;
@@ -203,9 +226,10 @@ void opticflow_calc_init(struct opticflow_t *opticflow, uint16_t w, uint16_t h)
   opticflow->threshold_vec = OPTICFLOW_THRESHOLD_VEC;
   opticflow->pyramid_level = OPTICFLOW_PYRAMID_LEVEL;
   opticflow->median_filter = OPTICFLOW_MEDIAN_FILTER;
+  opticflow->kalman_filter = OPTICFLOW_KALMAN_FILTER
 
 
-  opticflow->fast9_adaptive = OPTICFLOW_FAST9_ADAPTIVE;
+                             opticflow->fast9_adaptive = OPTICFLOW_FAST9_ADAPTIVE;
   opticflow->fast9_threshold = OPTICFLOW_FAST9_THRESHOLD;
   opticflow->fast9_min_distance = OPTICFLOW_FAST9_MIN_DISTANCE;
   opticflow->fast9_padding = OPTICFLOW_FAST9_PADDING;
@@ -352,35 +376,21 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
   float diff_flow_x = 0;
   float diff_flow_y = 0;
 
-  // Flow Derotation TODO:
-  /*
-    float diff_flow_x = (state->phi - opticflow->prev_phi) * img->w / OPTICFLOW_FOV_W;
-    float diff_flow_y = (state->theta - opticflow->prev_theta) * img->h / OPTICFLOW_FOV_H;
-  */
+  /*// Flow Derotation TODO:
+  float diff_flow_x = (state->phi - opticflow->prev_phi) * img->w / OPTICFLOW_FOV_W;
+  float diff_flow_y = (state->theta - opticflow->prev_theta) * img->h / OPTICFLOW_FOV_H;*/
 
   if (opticflow->derotation && result->tracked_cnt > 5) {
-    /*
-        diff_flow_x = (RATE_FLOAT_OF_BFP(imu.gyro.p)) / result->fps * img->w /
-                      OPTICFLOW_FOV_W;// * img->w / OPTICFLOW_FOV_W;
-        diff_flow_y = (RATE_FLOAT_OF_BFP(imu.gyro.q))  / result->fps * img->h /
-                      OPTICFLOW_FOV_H;// * img->h / OPTICFLOW_FOV_H;
-    */
-//    float diff_flow_x = (state->phi - opticflow->prev_phi) * img->w / OPTICFLOW_FOV_W;
-//    float diff_flow_y = (state->theta - opticflow->prev_theta) * img->h / OPTICFLOW_FOV_H;
-//    diff_flow_x = (state->rates.p + opticflow->prev_rates.p) / 2.0f / result->fps * img->w /
-//                  OPTICFLOW_FOV_W;// * img->w / OPTICFLOW_FOV_W;
-//    diff_flow_y = (state->rates.q + opticflow->prev_rates.q) / 2.0f / result->fps * img->h /
-//                  OPTICFLOW_FOV_H;// * img->h / OPTICFLOW_FOV_H;
-
     diff_flow_x = (state->rates.p)  / result->fps * img->w /
                   OPTICFLOW_FOV_W;// * img->w / OPTICFLOW_FOV_W;
     diff_flow_y = (state->rates.q) / result->fps * img->h /
                   OPTICFLOW_FOV_H;// * img->h / OPTICFLOW_FOV_H;
   }
 
-
-  result->flow_der_x = result->flow_x - diff_flow_x * opticflow->subpixel_factor;
-  result->flow_der_y = result->flow_y - diff_flow_y * opticflow->subpixel_factor;
+  result->flow_der_x = result->flow_x - diff_flow_x * opticflow->subpixel_factor *
+                       opticflow->derotation_correction_factor_x;
+  result->flow_der_y = result->flow_y - diff_flow_y * opticflow->subpixel_factor *
+                       opticflow->derotation_correction_factor_y;
   opticflow->prev_rates = state->rates;
 
   // Velocity calculation
@@ -388,8 +398,6 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
   // TODO Calculate the velocity more sophisticated, taking into account the drone's angle and the slope of the ground plane.
   float vel_x = result->flow_der_x * result->fps * state->agl / opticflow->subpixel_factor  / OPTICFLOW_FX;
   float vel_y = result->flow_der_y * result->fps * state->agl / opticflow->subpixel_factor  / OPTICFLOW_FY;
-  //float vel_x = result->flow_der_x * 90.0f * 1.0f / opticflow->subpixel_factor  / OPTICFLOW_FX;
-  //float vel_y = result->flow_der_y * 90.0f * 1.0f / opticflow->subpixel_factor  / OPTICFLOW_FY;
 
   //Apply a  median filter to the velocity if wanted
   if (opticflow->median_filter == true) {
@@ -492,12 +500,12 @@ void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *
   int16_t der_shift_y = 0;
 
   if (opticflow->derotation) {
-    der_shift_x = (int16_t)((edge_hist[previous_frame_nr[0]].rates.p + edge_hist[current_frame_nr].rates.p) / 2.0f /
+    der_shift_x = (int16_t)(edge_hist[current_frame_nr].rates.p  /
                             result->fps *
-                            (float)img->w / (OPTICFLOW_FOV_W));
-    der_shift_y = (int16_t)((edge_hist[previous_frame_nr[1]].rates.q + edge_hist[current_frame_nr].rates.q) / 2.0f /
+                            (float)img->w / (OPTICFLOW_FOV_W) * opticflow->derotation_correction_factor_x);
+    der_shift_y = (int16_t)(edge_hist[current_frame_nr].rates.q /
                             result->fps *
-                            (float)img->h / (OPTICFLOW_FOV_H));
+                            (float)img->h / (OPTICFLOW_FOV_H) * opticflow->derotation_correction_factor_y);
   }
 
   // Estimate pixel wise displacement of the edge histograms for x and y direction
@@ -608,44 +616,53 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
     calc_edgeflow_tot(opticflow, state, img, result);
   }
 
-
+  /* Rotate velocities from camera frame coordinates to body coordinates for control
+  * IMPORTANT!!! This frame to body orientation should be the case for the Parrot
+  * ARdrone and Bebop, however this can be different for other quadcopters
+  * ALWAYS double check!
+  */
   result->vel_body_x = result->vel_y;
   result->vel_body_y = - result->vel_x;
 
 
   // KALMAN filter on velocity
   float measurement_noise[2] = {0.2f, 1.0f};
-  bool reinitialize_kalman;
+  bool reinitialize_kalman = true;
 
   static uint8_t wait_filter_counter =
     0; // When starting up the opticalflow module, or switching between methods, wait for a bit to prevent bias
 
-  if (opticflow->just_switched_method == 1) {
-    wait_filter_counter = 0;
+  if (opticflow->kalman_filter == true) {
+    if (opticflow->just_switched_method == true) {
+      wait_filter_counter = 0;
+      reinitialize_kalman = true;
+    }
+
+    if (wait_filter_counter > 50) {
+
+      // Get accelerometer values rotated to body axis
+      // TODO: counteract accelerometer bias.
+      // TODO: use acceleration from the state ?
+      struct Int32Vect3 acc_meas_body;
+      struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&imu.body_to_imu);
+      int32_rmat_transp_vmult(&acc_meas_body, body_to_imu_rmat, &imu.accel);
+      float acceleration_measurement[2];
+      acceleration_measurement[0] = ACCEL_FLOAT_OF_BFP(acc_meas_body.x);
+      acceleration_measurement[1] = ACCEL_FLOAT_OF_BFP(acc_meas_body.y);
+
+      kalman_filter_opticflow_velocity(&result->vel_body_x, &result->vel_body_y, acceleration_measurement, result->fps,
+                                       measurement_noise, reinitialize_kalman);
+      if (reinitialize_kalman) {
+        reinitialize_kalman = false;
+      }
+
+    } else {
+      wait_filter_counter++;
+    }
+  } else {
     reinitialize_kalman = true;
   }
 
-  if (wait_filter_counter > 50) {
-
-    // Get accelerometer values rotated to body axis
-    // TODO: counteract accelerometer bias.
-    // TODO: use acceleration from the state ?
-    struct Int32Vect3 acc_meas_body;
-    struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&imu.body_to_imu);
-    int32_rmat_transp_vmult(&acc_meas_body, body_to_imu_rmat, &imu.accel);
-    float acceleration_measurement[2];
-    acceleration_measurement[0] = ACCEL_FLOAT_OF_BFP(acc_meas_body.x);
-    acceleration_measurement[1] = ACCEL_FLOAT_OF_BFP(acc_meas_body.y);
-
-    kalman_filter_opticflow_velocity(&result->vel_body_x, &result->vel_body_y, acceleration_measurement, result->fps,
-                                     measurement_noise, reinitialize_kalman);
-    if (reinitialize_kalman) {
-      reinitialize_kalman = false;
-    }
-
-  } else {
-    wait_filter_counter++;
-  }
 
 
 }
@@ -660,7 +677,7 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
  * @param[in] reinitialize_kalman  Boolean to reinitialize the kalman filter
  */
 void kalman_filter_opticflow_velocity(float *velocity_x, float *velocity_y, float *acceleration_measurement, float fps,
-                                 float *measurement_noise, bool reinitialize_kalman)
+                                      float *measurement_noise, bool reinitialize_kalman)
 {
   // Initialize variables
   static float covariance_x[4], covariance_y[4], state_estimate_x[2], state_estimate_y[2];
