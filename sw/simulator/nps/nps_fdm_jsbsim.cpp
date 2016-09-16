@@ -346,35 +346,6 @@ static void feed_jsbsim(double *commands, int commands_nb __attribute__((unused)
 #endif /* NPS_ACTUATOR_NAMES */
 }
 
-static void feed_jsbsim(double throttle, double aileron, double elevator, double rudder, double flap)
-{
-  FGFCS *FCS = FDMExec->GetFCS();
-  FGPropulsion *FProp = FDMExec->GetPropulsion();
-
-  // Set trims
-  FCS->SetPitchTrimCmd(NPS_JSBSIM_PITCH_TRIM);
-  FCS->SetRollTrimCmd(NPS_JSBSIM_ROLL_TRIM);
-  FCS->SetYawTrimCmd(NPS_JSBSIM_YAW_TRIM);
-
-  // Set commands
-  FCS->SetDaCmd(aileron);
-  FCS->SetDeCmd(elevator);
-  FCS->SetDrCmd(rudder);
-  FCS->SetDfCmd(flap);
-
-
-  for (unsigned int i = 0; i < FDMExec->GetPropulsion()->GetNumEngines(); i++) {
-    FCS->SetThrottleCmd(i, throttle);
-
-    if (throttle > 0.01) {
-      FProp->SetStarter(1);
-    } else {
-      FProp->SetStarter(0);
-    }
-  }
-}
-
-
 /**
  * Populates the NPS fdm struct after a simulation step.
  */
