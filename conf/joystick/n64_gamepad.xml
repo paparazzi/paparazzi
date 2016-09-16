@@ -1,0 +1,163 @@
+<!-- N64 gamepad
+
+Support for guided mode flight using N64 and N64-clones that comply to the following axes/button mappings.
+
+                                      | |
+                                  _,.-'-'-.,_
+                           ______|           |______
+                        ,-'      |  NINTENDO |      `-.
+                      ,'   _                          `.
+                     /   _| |_                     (^)   \
+                     |  |_   _|                  (<)C(>) |
+                     \    |_|         (S)     (B)  (v)   /
+                     |`.              ___       (A)    ,'|
+                     |  `-.______   ,' _ `.   ______,-'  |
+                     |      |    `. | (_) | ,'    |      |
+                     |      |      \`.___,'/      |      |
+                     |      !      |       |      |      |
+                     |      /      |       |      \      !
+                     \     /       |       |       \     /
+                      `._,'        \       /        `._,'
+                                    \     /
+                                     `._,'
+
+
+AXES - 5 axes of which only 2 axes are used: (light grey - joystick)
+
+  axis 0: Roll  - Left/Right   range:(-127..126); midpoint:(0)
+  axis 1: Pitch - Forward/Back range:(-127..126); midpoint:(0)
+
+BUTTONS - 12 buttons of which only 10 are used:
+
+  b0 - Cu (yellow)
+  b1 - Cr (yellow)
+  b2 - Cd (yellow)
+  b3 - Cl (yellow)
+  b4 - B  (green)
+  b5 - A  (blue)
+  b6 - L  (dark grey - left shoulder)
+  b7 - R  (dark grey - right shoulder)
+  b8 - select (grey - trigger)
+  b9 - start (red)
+
+HATS: It has 1 hat: (dark grey )
+
+  h0(c) - centered 0x00
+  h0(u) - up       0x01
+  h0(r) - right    0x02
+  h0(d) - down     0x04
+  h0(l) - left     0x08
+
+  Combination presses represented by the logical &'ing of adjacent directions:
+
+    h0(r) & h0(u) - right & up   = 0x03
+    h0(r) & h0(d) - right & down = 0x06
+    h0(l) & h0(u) - left & up    = 0x09
+    h0(l) & h0(d) - left & down  = 0x12
+
+  You can use the Hat<Position>(<hat_name>) functions to trigger events,
+  where <Position> is one of:
+    Centered | Up | Right | Down | Left | RightUp | RightDown | LeftUp | LeftDown
+
+  Examples:
+    HatUp(hat_name)
+    HatDown(hat_name)
+    HatRightDown(hat_name)
+
+
+TEST STICK DATA OUTPUT:
+
+  $ ./sw/ground_segment/joystick/test_stick
+
+  Available button: 12 (0xc)
+  Available hats: 1 (0x1)
+  Available axes: 5 (0x5)
+  Axis 0 : parameters = [-32768,32768]
+  Axis 1 : parameters = [-32768,32768]
+  Axis 2 : parameters = [-32768,32768]
+  Axis 3 : parameters = [-32768,32768]
+  Axis 4 : parameters = [-32768,32768]
+  Input device name: "Generic   USB  Joystick  " on SDL device "0"
+  buttons 0 0 0 0 0 0 0 0 0 0 0 0 | hat 0 | axes 0 0 1 0 0 
+  buttons 0 0 0 0 0 0 0 0 0 0 0 0 | hat 0 | axes 0 0 1 0 0 
+  buttons 0 0 0 0 0 0 0 0 0 0 0 0 | hat 0 | axes 0 0 1 0 0
+  ... 
+
+
+-->
+
+<joystick>
+  <input>
+
+    <axis   index="0" name="roll"/>
+    <axis   index="1" name="pitch"/>
+
+    <button index="0" name="Cu"/>
+    <button index="1" name="Cr"/>
+    <button index="2" name="Cd"/>
+    <button index="3" name="Cl"/>
+    <button index="4" name="B"/>
+    <button index="5" name="A"/>
+    <button index="6" name="L"/>
+    <button index="7" name="R"/>
+    <button index="8" name="select"/>
+    <button index="9" name="start"/>
+
+    <hat    index="0" name="hat"/>
+
+  </input>
+
+  <variables>
+
+    <!-- TBD: NOT USED AT THIS POINT -->
+    <var name="mode"    default="2"/>
+
+  </variables>
+
+  <messages period="0.05">
+
+    <!-- Move at Body Velocity : forward/right/down/yaw -->
+    <message class="datalink" name="GUIDED_SETPOINT_NED" send_always="true">
+      <field name="flags" value="226"/>       <!-- 0xE2 -->
+      <field name="x"     value="Fit(pitch,-100,100,-127,127)"/>
+      <field name="y"     value="Fit(-roll,-100,100,-127,127)"/>
+      <field name="z"     value="0 - A + B"/>
+      <field name="yaw"   value="0 + R - L"/>
+    </message>
+
+    <!-- Set NAV Mode -->
+    <message class="ground" name="DL_SETTING" on_event="select && A">
+      <field name="index" value="IndexOfSetting('autopilot_mode_auto2')"/>
+      <field name="value" value="13"/>
+    </message>
+
+    <!-- Set GUIDED Mode -->
+    <message class="ground" name="DL_SETTING" on_event="select && B">
+      <field name="index" value="IndexOfSetting('autopilot_mode_auto2')"/>
+      <field name="value" value="19"/>
+    </message>
+
+    <!-- go to "Start Engine" block if in AUTO2/NAV -->
+    <message class="ground" name="JUMP_TO_BLOCK" on_event="start && A">
+      <field name="block_id" value="IndexOfBlock('Start Motors')"/>
+    </message>
+
+    <!-- go to "Takeoff" block if in AUTO2/NAV -->
+    <message class="ground" name="JUMP_TO_BLOCK" on_event="start && B">
+      <field name="block_id" value="IndexOfBlock('Takeoff')"/>
+    </message>
+
+    <!-- go to "land here" block if in AUTO2/NAV -->
+    <message class="ground" name="JUMP_TO_BLOCK" on_event="A && B">
+      <field name="block_id" value="IndexOfBlock('land')"/>
+    </message>
+
+    <!-- Set "kill_throttle" in AUTO2/NAV -->
+    <message class="ground" name="DL_SETTING" on_event="select && start">
+      <field name="index" value="IndexOfSetting(kill_throttle)"/>
+      <field name="value" value="2"/>
+    </message>
+
+  </messages>
+
+</joystick>

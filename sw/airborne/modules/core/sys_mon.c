@@ -19,9 +19,19 @@
  * Boston, MA 02111-1307, USA.
  *
  */
+/** \file sys_mon.c
+ *
+ * System monitoring for bare metal targets
+ * return cpu load, average exec time, ...
+ */
 
 #include "core/sys_mon.h"
+#include "core/sys_mon_bare_metal.h"
 #include "mcu_periph/sys_time.h"
+
+#include "mcu_periph/uart.h"
+#include "pprzlink/messages.h"
+#include "subsystems/datalink/downlink.h"
 
 /** Global system monitor data (averaged over 1 sec) */
 struct SysMon sys_mon;
@@ -59,10 +69,6 @@ void init_sysmon(void)
   sum_n_event = 0;
   periodic_timer = 0;
 }
-
-#include "mcu_periph/uart.h"
-#include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
 
 void periodic_report_sysmon(void)
 {

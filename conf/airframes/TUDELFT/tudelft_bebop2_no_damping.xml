@@ -1,43 +1,37 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<airframe name="bebop_indi">
+<airframe name="bebop2_indi">
 
   <firmware name="rotorcraft">
-    <target name="ap" board="bebop"/>
+    <target name="ap" board="bebop2"/>
 
     <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
       <module name="udp"/>
     </target>
 
-    <!--define name="USE_SONAR" value="TRUE"/-->
-
-	<!-- Subsystem section -->
     <module name="telemetry" type="transparent_udp"/>
     <module name="radio_control" type="datalink"/>
     <module name="motor_mixing"/>
     <module name="actuators" type="bebop"/>
     <module name="imu" type="bebop"/>
-    <module name="gps" type="furuno"/>
+    <module name="gps" type="ublox"/>
     <module name="stabilization" type="indi"/>
-    <module name="stabilization" type="rate_indi"/>
     <module name="ahrs" type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="TRUE"/>
       <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
     </module>
     <module name="ins" type="extended"/>
-    <module name="guidance" type="indi">
-      <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-500.0"/>
-    </module>
   </firmware>
 
   <modules main_freq="512">
     <module name="geo_mag"/>
     <module name="air_data"/>
     <module name="send_imu_mag_current"/>
-    <!--module name="logger_file">
+    <module name="gps" type="ubx_ucenter"/>
+    <module name="logger_file">
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
-    </module-->
+    </module>
   </modules>
 
   <commands>
@@ -48,16 +42,17 @@
   </commands>
 
   <servos driver="Default">
-    <servo name="TOP_LEFT" no="0" min="3000" neutral="3000" max="12000"/>
-    <servo name="TOP_RIGHT" no="1" min="3000" neutral="3000" max="12000"/>
-    <servo name="BOTTOM_RIGHT" no="2" min="3000" neutral="3000" max="12000"/>
-    <servo name="BOTTOM_LEFT" no="3" min="3000" neutral="3000" max="12000"/>
+    <servo name="TOP_LEFT" no="0" min="2500" neutral="2500" max="12000"/>
+    <servo name="TOP_RIGHT" no="1" min="2500" neutral="2500" max="12000"/>
+    <servo name="BOTTOM_RIGHT" no="2" min="2500" neutral="2500" max="12000"/>
+    <servo name="BOTTOM_LEFT" no="3" min="2500" neutral="2500" max="12000"/>
   </servos>
 
   <section name="MIXING" prefix="MOTOR_MIXING_">
     <define name="TRIM_ROLL" value="0"/>
     <define name="TRIM_PITCH" value="0"/>
     <define name="TRIM_YAW" value="0"/>
+    <define name="REVERSE" value="TRUE"/>
     <define name="TYPE" value="QUAD_X"/>
   </section>
 
@@ -75,12 +70,14 @@
     <define name="CALC_AMSL_BARO" value="TRUE"/>
   </section>
 
-  <include href="conf/airframes/TUDELFT/calibrations/bebop7.xml" />
-
+  <!-- Magnetometer still needs to be calibrated -->
   <section name="IMU" prefix="IMU_">
-    <define name="BODY_TO_IMU_PHI" value="0." unit="deg"/>
-    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
-    <define name="BODY_TO_IMU_PSI" value="0." unit="deg"/>
+    <define name="MAG_X_NEUTRAL" value="0"/>
+    <define name="MAG_Y_NEUTRAL" value="0"/>
+    <define name="MAG_Z_NEUTRAL" value="0"/>
+    <define name="MAG_X_SENS" value="7.28514789391" integer="16"/>
+    <define name="MAG_Y_SENS" value="7.33022132691" integer="16"/>
+    <define name="MAG_Z_SENS" value="7.57102035692" integer="16"/>
   </section>
 
   <!-- local magnetic field -->
@@ -91,9 +88,6 @@
     <define name="H_X" value="0.3892503"/>
     <define name="H_Y" value="0.0017972"/>
     <define name="H_Z" value="0.9211303"/>
-
-    <!-- For vibrating airfames -->
-    <define name="GRAVITY_HEURISTIC_FACTOR" value="0"/>
   </section>
 
   <section name="INS" prefix="INS_">
@@ -101,11 +95,12 @@
     <define name="SONAR_UPDATE_ON_AGL" value="TRUE"/>
   </section>
 
+
   <section name="RC_SETPOINT" prefix="STABILIZATION_ATTITUDE_">
     <!-- setpoint limits for attitude stabilization rc flight -->
     <define name="SP_MAX_PHI" value="45" unit="deg"/>
     <define name="SP_MAX_THETA" value="45" unit="deg"/>
-    <define name="SP_MAX_R" value="120" unit="deg/s"/>
+    <define name="SP_MAX_R" value="300" unit="deg/s"/>
     <define name="DEADBAND_A" value="0"/>
     <define name="DEADBAND_E" value="0"/>
     <define name="DEADBAND_R" value="50"/>
@@ -131,10 +126,17 @@
 
   <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
     <!-- control effectiveness -->
-    <define name="G1_P" value="0.0639"/>
-    <define name="G1_Q" value="0.0361"/>
+    <define name="G1_P" value="0.05"/>
+    <define name="G1_Q" value="0.04"/>
     <define name="G1_R" value="0.0022"/>
-    <define name="G2_R" value="0.1450"/>
+    <define name="G2_R" value="0.20"/>
+
+    <!-- Here it is assumed that your removed the damping from your bebop2!
+         The dampers do not really damp, but cause oscillation. By removing/
+         fixing them, the bebop2 will fly much better-->
+    <define name="FILTER_ROLL_RATE" value="FALSE"/>
+    <define name="FILTER_PITCH_RATE" value="FALSE"/>
+    <define name="FILTER_YAW_RATE" value="FALSE"/>
 
     <!-- reference acceleration for attitude control -->
     <define name="REF_ERR_P" value="600.0"/>
@@ -144,19 +146,16 @@
     <define name="REF_RATE_Q" value="28.0"/>
     <define name="REF_RATE_R" value="28.0"/>
 
-    <!--Maxium yaw rate, to avoid instability-->
-    <define name="MAX_R" value="120.0" unit="deg/s"/>
-
     <!-- second order filter parameters -->
-    <define name="FILT_OMEGA" value="50.0"/>
-    <define name="FILT_ZETA" value="0.55"/>
-    <define name="FILT_OMEGA_R" value="50.0"/>
-    <define name="FILT_ZETA_R" value="0.55"/>
+    <define name="FILT_OMEGA" value="20.0"/>
+    <define name="FILT_ZETA" value="0.7"/>
+    <define name="FILT_OMEGA_R" value="20.0"/>
+    <define name="FILT_ZETA_R" value="0.7"/>
 
     <!-- first order actuator dynamics -->
-    <define name="ACT_DYN_P" value="0.1"/>
-    <define name="ACT_DYN_Q" value="0.1"/>
-    <define name="ACT_DYN_R" value="0.1"/>
+    <define name="ACT_DYN_P" value="0.06"/>
+    <define name="ACT_DYN_Q" value="0.06"/>
+    <define name="ACT_DYN_R" value="0.06"/>
 
     <!-- Adaptive Learning Rate -->
     <define name="USE_ADAPTIVE" value="FALSE"/>
@@ -164,26 +163,23 @@
   </section>
 
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
-    <define name="HOVER_KP" value="283"/>
-    <define name="HOVER_KD" value="82"/>
+    <define name="HOVER_KP" value="350"/>
+    <define name="HOVER_KD" value="85"/>
     <define name="HOVER_KI" value="20"/>
     <define name="NOMINAL_HOVER_THROTTLE" value="0.655"/>
     <define name="ADAPT_THROTTLE_ENABLED" value="TRUE"/>
   </section>
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-    <!-- Good weather -->
-    <define name="MAX_BANK" value="20" unit="deg"/>
     <define name="REF_MAX_SPEED" value="2" unit="m/s"/>
-    <!-- Bad weather -->
-    <!-- define name="MAX_BANK" value="32" unit="deg"/ -->
-    <define name="PGAIN" value="79"/>
+    <define name="MAX_BANK" value="32" unit="deg"/>
+    <define name="PGAIN" value="120"/>
     <define name="DGAIN" value="100"/>
     <define name="IGAIN" value="30"/>
   </section>
 
   <section name="NAVIGATION" prefix="NAV_">
-    <define name="CLIMB_VSPEED" value="2.5"/>
+    <define name="CLIMB_VSPEED" value="4.5"/>
     <define name="DESCEND_VSPEED" value="-1.0"/>
   </section>
 

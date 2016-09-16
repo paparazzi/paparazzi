@@ -131,8 +131,6 @@ using namespace JSBSim;
 using namespace std;
 
 static void feed_jsbsim(double *commands, int commands_nb);
-static void feed_jsbsim(double throttle, double aileron, double elevator, double rudder);
-static void feed_jsbsim(double throttle, double aileron, double elevator, double rudder, double flap);
 static void fetch_state(void);
 static int check_for_nan(void);
 
@@ -292,7 +290,7 @@ void nps_fdm_set_temperature(double temp, double h)
  * @param commands    Pointer to array of doubles holding actuator commands
  * @param commands_nb Number of commands (length of array)
  */
-static void feed_jsbsim(double *commands, int commands_nb)
+static void feed_jsbsim(double *commands, int commands_nb __attribute__((unused)))
 {
 #ifdef NPS_ACTUATOR_NAMES
   char buf[64];
@@ -305,49 +303,47 @@ static void feed_jsbsim(double *commands, int commands_nb)
     property = string(buf);
     FDMExec->GetPropertyManager()->GetNode(property)->SetDouble("", commands[i]);
   }
-#else
-  if (commands_nb < 4) {
-    cerr << "commands_nb must be at least 4!" << endl;
-    exit(-1);
-  }
+#else /* use COMMAND names */
 
-  if (commands_nb == 5) {
-    // call version that directly feeds throttle, aileron, elevator, rudder and flaps
-    feed_jsbsim(commands[COMMAND_THROTTLE], commands[COMMAND_ROLL], commands[COMMAND_PITCH],
-                         commands[COMMAND_YAW], commands[COMMAND_FLAP]);
-  }
-  else {
-    // call version that directly feeds throttle, aileron, elevator, rudder
-    // since we don't know what are the other commands
-    feed_jsbsim(commands[COMMAND_THROTTLE], commands[COMMAND_ROLL], commands[COMMAND_PITCH], commands[COMMAND_YAW]);
-  }
-#endif
-}
-
-static void feed_jsbsim(double throttle, double aileron, double elevator, double rudder)
-{
+  // get FGFCS instance
   FGFCS *FCS = FDMExec->GetFCS();
-  FGPropulsion *FProp = FDMExec->GetPropulsion();
 
   // Set trims
   FCS->SetPitchTrimCmd(NPS_JSBSIM_PITCH_TRIM);
   FCS->SetRollTrimCmd(NPS_JSBSIM_ROLL_TRIM);
   FCS->SetYawTrimCmd(NPS_JSBSIM_YAW_TRIM);
 
-  // Set commands
-  FCS->SetDaCmd(aileron);
-  FCS->SetDeCmd(elevator);
-  FCS->SetDrCmd(rudder);
-
+#ifdef COMMAND_THROTTLE
+  FGPropulsion *FProp = FDMExec->GetPropulsion();
   for (unsigned int i = 0; i < FDMExec->GetPropulsion()->GetNumEngines(); i++) {
-    FCS->SetThrottleCmd(i, throttle);
+    FCS->SetThrottleCmd(i, commands[COMMAND_THROTTLE]);
 
-    if (throttle > 0.01) {
+    // Hack to show spinning propellers in flight gear models
+    if (commands[COMMAND_THROTTLE] > 0.01) {
       FProp->SetStarter(1);
     } else {
       FProp->SetStarter(0);
     }
   }
+#endif /* COMMAND_THROTTLE */
+
+#ifdef COMMAND_ROLL
+  FCS->SetDaCmd(commands[COMMAND_ROLL]);
+#endif /* COMMAND_ROLL */
+
+#ifdef COMMAND_PITCH
+  FCS->SetDeCmd(commands[COMMAND_PITCH]);
+#endif /* COMMAND_PITCH */
+
+#ifdef COMMAND_YAW
+  FCS->SetDrCmd(commands[COMMAND_YAW]);
+#endif /* COMMAND_YAW */
+
+#ifdef COMMAND_FLAP
+  FCS->SetDfCmd(commands[COMMAND_FLAP]);
+#endif /* COMMAND_FLAP */
+
+#endif /* NPS_ACTUATOR_NAMES */
 }
 
 static void feed_jsbsim(double throttle, double aileron, double elevator, double rudder, double flap)
@@ -637,7 +633,8 @@ static void init_jsbsim(double dt)
   }
 
   // initial commands to zero
-  feed_jsbsim(0.0, 0.0, 0.0, 0.0);
+  double init_commands[5] = {0.0};
+  feed_jsbsim(init_commands, 5);
 
   //loop JSBSim once w/o integrating
   if (!FDMExec->RunIC()) {

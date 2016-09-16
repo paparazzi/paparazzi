@@ -59,7 +59,7 @@ object (self)
       PC.property "color" color ]
   method update = fun (value : string) ->
     let renderer = fun x ->
-      try sprintf (Obj.magic format) (float_of_string x) with _ -> x in
+      try sprintf (Scanf.format_from_string format "%f") (float_of_string x) with _ -> x in
     text#set [`SIZE_POINTS size; `TEXT (renderer value); `FILL_COLOR color; `ANCHOR `NW]
 
 

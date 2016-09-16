@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2016 Gautier Hattenberger <gautier.hattenberger@enac.fr>
+ * Copyright (C) 2016  Michal Podhradsky <michal.podhradsky@aggiemail.usu.edu>
  *
  * This file is part of paparazzi
  *
@@ -18,19 +19,32 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "arch/chibios/modules/core/rtos_mon_arch.h"
- * @author Gautier Hattenberger
- * RTOS monitoring tool
- * ChibiOS implementation
+ * @file "arch/sim/modules/core/rtos_mon_arch.c"
+ * @author Michal Podhradsky
+ * System monitoring tool
+ * SIM implementation
  */
 
-#ifndef RTOS_MON_ARCH_H
-#define RTOS_MON_ARCH_H
+#include "modules/core/sys_mon_rtos.h"
+#include <stdlib.h>     /* atof */
+#include <stdio.h>      /* printf, fgets */
+#include <string.h>
 
-// Init function
-extern void rtos_mon_init_arch(void);
-// Periodic report
-extern void rtos_mon_periodic_arch(void);
+void rtos_mon_init_arch(void) {}
 
-#endif
+// Ask for CPU usage of the process
+void rtos_mon_periodic_arch(void)
+{
+  char line[20];
+  FILE *cmd = popen("ps -C simsitl -o %CPU", "r");
+
+  char *ret;
+  ret = fgets(line, sizeof(line), cmd);
+  ret = fgets(line, sizeof(line), cmd);
+  if (ret != NULL) {
+    double cpu = atof(ret);
+    rtos_mon.cpu_load = (uint8_t)cpu;
+  }
+  pclose(cmd);
+}
 

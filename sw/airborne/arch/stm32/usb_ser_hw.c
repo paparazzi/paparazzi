@@ -36,6 +36,7 @@
 #include <libopencm3/usb/cdc.h>
 #include <libopencm3/cm3/scb.h>
 #include <libopencm3/stm32/desig.h>
+#include <libopencm3/stm32/otg_fs.h>
 
 #include "mcu_periph/usb_serial.h"
 
@@ -563,6 +564,10 @@ void VCOM_init(void)
                           usbd_control_buffer, sizeof(usbd_control_buffer));
 
   usbd_register_set_config_callback(my_usbd_dev, cdcacm_set_config);
+
+  // disable VBUS monitoring
+  OTG_FS_GCCFG = 0;
+  OTG_FS_GCCFG |= OTG_GCCFG_NOVBUSSENS | OTG_GCCFG_PWRDWN;
 
   // disconnected by default
   usb_connected = false;
