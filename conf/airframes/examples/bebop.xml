@@ -10,6 +10,18 @@
       <module name="udp"/>
     </target>
 
+    <define name="MT9F002_OUTPUT_HEIGHT" value="1648" />
+    <define name="MT9F002_OUTPUT_WIDTH" value="1672" />
+    <define name="MT9F002_INITIAL_OFFSET_X" value="672" />
+    <define name="MT9F002_INITIAL_OFFSET_Y" value="0" />
+    <define name="MT9F002_OUTPUT_SCALER" value="1" />
+    <define name="MT9F002_TARGET_FPS" value="30" />
+    <define name="MT9F002_TARGET_EXPOSURE" value="40" />
+    <define name="MT9F002_GAIN_GREEN1" value="1.6" />
+    <define name="MT9F002_GAIN_GREEN2" value="1.6" />
+    <define name="MT9F002_X_ODD_INC_VAL" value="3" />
+    <define name="MT9F002_Y_ODD_INC_VAL" value="3" />
+
     <!--define name="USE_SONAR" value="TRUE"/-->
 
 	<!-- Subsystem section -->

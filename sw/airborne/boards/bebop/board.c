@@ -117,19 +117,32 @@ void board_init2(void)
     // Initial values
     .target_fps = MT9F002_TARGET_FPS,
     .target_exposure = MT9F002_TARGET_EXPOSURE,
-    .gain_green1 = 2.0,
-    .gain_blue = 2.0,
-    .gain_red = 2.0,
-    .gain_green2 = 2.0,
+    .gain_green1 = MT9F002_GAIN_GREEN1,
+    .gain_blue = MT9F002_GAIN_BLUE,
+    .gain_red = MT9F002_GAIN_RED,
+    .gain_green2 = MT9F002_GAIN_GREEN2,
     .output_width = MT9F002_OUTPUT_WIDTH,
     .output_height = MT9F002_OUTPUT_HEIGHT,
     .output_scaler = MT9F002_OUTPUT_SCALER,
     .offset_x = MT9F002_INITIAL_OFFSET_X,
     .offset_y = MT9F002_INITIAL_OFFSET_Y,
+    .x_odd_inc = MT9F002_X_ODD_INC_VAL,
+    .y_odd_inc = MT9F002_Y_ODD_INC_VAL,
 
     // I2C connection port
     .i2c_periph = &i2c0
   };
+
+  if (MT9F002_X_ODD_INC_VAL != 1 && MT9F002_X_ODD_INC_VAL != 3 && MT9F002_X_ODD_INC_VAL != 7 &&
+      MT9F002_X_ODD_INC_VAL != 15 && MT9F002_X_ODD_INC_VAL != 31) {
+    printf("[MT9F002] Warning, illegal option set for x_odd_inc only 1, 3, 7, 15, 31 allowed\n");
+    mt9f002.x_odd_inc = 1;
+  }
+  if (MT9F002_Y_ODD_INC_VAL != 1 && MT9F002_Y_ODD_INC_VAL != 3 && MT9F002_Y_ODD_INC_VAL != 7 &&
+      MT9F002_Y_ODD_INC_VAL != 15 && MT9F002_Y_ODD_INC_VAL != 31) {
+    printf("[MT9F002] Warning, illegal option set for y_odd_inc only 1, 3, 7, 15, 31 allowed\n");
+    mt9f002.y_odd_inc = 1;
+  }
 
   mt9f002_init(&mt9f002);
 }

@@ -76,9 +76,34 @@
 #endif
 
 #ifndef MT9F002_TARGET_FPS
-#define MT9F002_TARGET_FPS 5
+#define MT9F002_TARGET_FPS 15
 #endif
 
+/* Set the colour balance gains */
+#ifndef MT9F002_GAIN_GREEN1
+#define MT9F002_GAIN_GREEN1 2.0
+#endif
+
+#ifndef MT9F002_GAIN_GREEN2
+#define MT9F002_GAIN_GREEN2 2.0
+#endif
+
+#ifndef MT9F002_GAIN_RED
+#define MT9F002_GAIN_RED 2.0
+#endif
+
+#ifndef MT9F002_GAIN_BLUE
+#define MT9F002_GAIN_BLUE 2.0
+#endif
+
+/* Set subsampling */
+#ifndef MT9F002_X_ODD_INC_VAL
+#define MT9F002_X_ODD_INC_VAL 1
+#endif
+
+#ifndef MT9F002_Y_ODD_INC_VAL
+#define MT9F002_Y_ODD_INC_VAL 1
+#endif
 
 /** uart connected to GPS internally */
 #define UART1_DEV /dev/ttyPA1

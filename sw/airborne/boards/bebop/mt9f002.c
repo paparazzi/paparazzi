@@ -524,8 +524,8 @@ static inline void mt9f002_parallel_stage2(struct mt9f002_t *mt)
   //write_reg(mt, MT9F002_DATAPATH_SELECT        , 0xd881, 2); // permanent line valid
   write_reg(mt, MT9F002_DATAPATH_SELECT        , 0xd880, 2);
   write_reg(mt, MT9F002_READ_MODE              , 0x0041, 2);
-  write_reg(mt, MT9F002_X_ODD_INC              , 0x0001, 2);
-  write_reg(mt, MT9F002_Y_ODD_INC              , 0x0001, 2);
+  write_reg(mt, MT9F002_X_ODD_INC              , mt->x_odd_inc, 2);
+  write_reg(mt, MT9F002_Y_ODD_INC              , mt->y_odd_inc, 2);
   write_reg(mt, MT9F002_MASK_CORRUPTED_FRAMES  , 0x0001, 1); // 0 output corrupted frame, 1 mask them
 }
 
@@ -781,6 +781,52 @@ static void mt9f002_set_gains(struct mt9f002_t *mt)
   write_reg(mt, MT9F002_GREEN2_GAIN, mt9f002_calc_gain(mt->gain_green2), 2);
 }
 
+void mt9f002_set_resolution(struct mt9f002_t *mt)
+{
+	/* Set output resolution */
+	  write_reg(mt, MT9F002_X_OUTPUT_SIZE, mt->output_width, 2);
+	  write_reg(mt, MT9F002_Y_OUTPUT_SIZE, mt->output_height, 2);
+	  /* Set scaling */
+	  uint16_t scaleFactor = ceil((float)MT9F002_SCALER_N / mt->output_scaler);
+	  mt->output_scaler = (float)MT9F002_SCALER_N / scaleFactor;
+	  int x_skip_factor = (mt->x_odd_inc + 1) / 2;
+	  int y_skip_factor = (mt->y_odd_inc + 1) / 2;
+	  mt->scaled_width 	= ceil((float)mt->output_width / mt->output_scaler) * x_skip_factor - mt->x_odd_inc;
+	  mt->scaled_height = ceil((float)mt->output_height / mt->output_scaler) * y_skip_factor - mt->y_odd_inc;
+	  if (mt->output_scaler != 1.0)
+	  {
+	    write_reg(mt, MT9F002_SCALING_MODE, 2, 2); // Vertical and horizontal scaling
+	    write_reg(mt, MT9F002_SCALE_M, scaleFactor, 2);
+	  }
+	  printf("OUTPUT_SIZE: (%i, %i)\tSCALED_SIZE: (%i, %i)\n", mt->output_width, mt->output_height, mt->scaled_width, mt->scaled_height);
+	  /* Set position (based on offset and subsample increment) */
+	  if(mt->offset_x % (x_skip_factor * 8) != 0)
+	  {
+		  mt->offset_x = round(mt->offset_x / (x_skip_factor * 8)) * (x_skip_factor * 8);
+		  printf("[MT9F002] Warning, offset_x not a multiple of %i, changing to %i\n", 8 * x_skip_factor, mt->offset_x);
+	  }
+	  if(mt->offset_y % (y_skip_factor * 8) != 0)
+	  {
+		  mt->offset_y = round(mt->offset_y / (y_skip_factor * 8)) * (y_skip_factor * 8);
+		  printf("[MT9F002] Warning, offset_y not a multiple of %i, changing to %i\n", 8 * y_skip_factor, mt->offset_y);
+	  }
+	  write_reg(mt, MT9F002_X_ADDR_START, mt->offset_x , 2);
+	  write_reg(mt, MT9F002_Y_ADDR_START, mt->offset_y , 2);
+	  int end_addr_x = mt->offset_x + mt->scaled_width;
+	  int end_addr_y = mt->offset_y + mt->scaled_height;
+	  if((end_addr_x - mt->offset_x + mt->x_odd_inc) % (x_skip_factor * 8) != 0)
+	  {
+		end_addr_x = ceil((end_addr_x - mt->offset_x + mt->x_odd_inc) / ((double) (x_skip_factor * 8))) * (x_skip_factor * 8) + mt->offset_x - mt->x_odd_inc;
+		printf("[MT9F002] End address warning, %i not a multiple of %i, changing to %i\n", mt->offset_x - 1 + mt->scaled_width, x_skip_factor * 8, end_addr_x);
+	  }
+	  if((end_addr_y - mt->offset_y + mt->y_odd_inc) % (y_skip_factor * 8) != 0)
+	  {
+	    end_addr_y = ceil((end_addr_y - mt->offset_y + mt->y_odd_inc) / ((double) (y_skip_factor * 8))) * (y_skip_factor * 8) + mt->offset_y - mt->y_odd_inc;
+	    printf("[MT9F002] End address warning, %i not a multiple of %i, changing to %i\n", mt->offset_y - 1 + mt->scaled_height, y_skip_factor * 8, end_addr_y);
+	  }
+	  write_reg(mt, MT9F002_X_ADDR_END  , end_addr_x, 2);
+	  write_reg(mt, MT9F002_Y_ADDR_END  , end_addr_y, 2);
+}
 /**
  * Initialisation of the Aptina MT9F002 CMOS sensor
  * (front camera)
@@ -816,26 +862,7 @@ void mt9f002_init(struct mt9f002_t *mt)
     mt9f002_parallel_stage2(mt);
   }
 
-  /* Set output resolution */
-  write_reg(mt, MT9F002_X_OUTPUT_SIZE, mt->output_width, 2);
-  write_reg(mt, MT9F002_Y_OUTPUT_SIZE, mt->output_height, 2);
-
-  /* Set scaling */
-  uint16_t scaleFactor = ceil((float)MT9F002_SCALER_N / mt->output_scaler);
-  mt->output_scaler = (float)MT9F002_SCALER_N / scaleFactor;
-  mt->scaled_width = ceil((float)mt->output_width / mt->output_scaler);
-  mt->scaled_height = ceil((float)mt->output_height / mt->output_scaler);
-  if (mt->output_scaler != 1.0)
-  {
-    write_reg(mt, MT9F002_SCALING_MODE, 2, 2); // Vertical and horizontal scaling
-    write_reg(mt, MT9F002_SCALE_M, scaleFactor, 2);
-  }
-
-  /* Set position (based on offset) */
-  write_reg(mt, MT9F002_X_ADDR_START, mt->offset_x , 2);
-  write_reg(mt, MT9F002_X_ADDR_END  , mt->offset_x + mt->scaled_width - 1, 2);
-  write_reg(mt, MT9F002_Y_ADDR_START, mt->offset_y, 2);
-  write_reg(mt, MT9F002_Y_ADDR_END  , mt->offset_y + mt->scaled_height - 1, 2);
+  mt9f002_set_resolution(mt);
 
   /* Update blanking (based on FPS) */
   mt9f002_set_blanking(mt);
