@@ -29,14 +29,50 @@
  * @{
  */
 
-//#include <stdarg.h>
 
-#include "std.h"
+#include <stdarg.h>
+
 #include <ch.h>
 #include "printf.h"
+#include <stdnoreturn.h>
+
 
 #define MAX_FILLER 11
 #define FLOAT_PRECISION 100000
+
+typedef struct {
+  union  {
+    BaseSequentialStream *chp;
+    size_t size;
+  };
+  char *destBuf;
+  const char *fmt;
+  va_list ap;
+} synchronous_print_arg_t;
+
+static thread_t *printThreadPtr = NULL;
+
+static THD_WORKING_AREA(waSerialPrint, 512);
+
+static noreturn void serialPrint(void *arg)
+{
+
+  (void)arg;
+  chRegSetThreadName("serialPrint");
+
+  while (true) {
+    thread_t *sender = chMsgWait();
+    synchronous_print_arg_t *spat = (synchronous_print_arg_t *) chMsgGet(sender);
+    // do the print
+    if (spat->destBuf == NULL) {
+      directchvprintf(spat->chp, spat->fmt, spat->ap);
+    } else {
+      chvsnprintf(spat->destBuf, spat->size, spat->fmt, spat->ap);
+    }
+    chMsgRelease(sender, MSG_OK);
+  }
+}
+
 
 #if CHPRINTF_USE_FLOAT
 static int intPow(int a, int b)
@@ -48,16 +84,7 @@ static int intPow(int a, int b)
 #endif
 
 
-static bool writeBufferWithinSize(char **buffer, const char c, size_t *size)
-{
-  if (*size) {
-    **buffer = c;
-    (*buffer)++;
-    return (--(*size) == 0);
-  } else {
-    return true;
-  }
-}
+
 
 
 static char *long_to_string_with_divisor(char *p,
@@ -137,205 +164,64 @@ static char *ftoa(char *p, double num, uint32_t precision)
  * @param[in] fmt       formatting string
  */
 
-void chvprintf(BaseSequentialStream *chp, const char *fmt, va_list ap)
+
+
+static void _chvsnprintf(char *buffer, BaseSequentialStream *chp, size_t size, const char *fmt, va_list ap)
 {
   char *p, *s, c, filler;
   int i, precision, width;
-  bool is_long, left_align;
+  bool is_long, left_align, plus_on_float;
   long l;
 #if CHPRINTF_USE_FLOAT
+  int fprec = 0;
   double d;
   char tmpbuf[2 * MAX_FILLER + 1];
-  int fprec = 0;
 #else
   char tmpbuf[MAX_FILLER + 1];
 #endif
 
-  while (true) {
-    c = *fmt++;
-    if (c == 0) {
-      return;
-    }
-    if (c != '%') {
-      chSequentialStreamPut(chp, (uint8_t)c);
-      continue;
-    }
-    p = tmpbuf;
-    s = tmpbuf;
-    left_align = false;
-    if (*fmt == '-') {
-      fmt++;
-      left_align = true;
-    }
-    filler = ' ';
-    if (*fmt == '.') {
-      fmt++;
-      filler = '0';
-#if CHPRINTF_USE_FLOAT
-      fprec = intPow(10, (*fmt) - '0');
-#endif
-    }
-    width = 0;
-    while (true) {
-      c = *fmt++;
-      if (c >= '0' && c <= '9') {
-        c -= '0';
-      } else if (c == '*') {
-        c = va_arg(ap, int);
+  // return true if space exhausted
+  bool _putChar(const char _c)  {
+    if (buffer != NULL) {
+      if (size) {
+        *buffer = _c;
+        buffer++;
+        return (--size == 0);
       } else {
-        break;
+        return true;
       }
-      width = width * 10 + c;
+    } else if (chp != NULL) {
+      chSequentialStreamPut(chp, _c);
+      return false;
     }
-    precision = 0;
-    if (c == '.') {
-      while (true) {
-        c = *fmt++;
-        if (c >= '0' && c <= '9') {
-          c -= '0';
-#if CHPRINTF_USE_FLOAT
-          fprec = intPow(10, c);
-#endif
-        } else if (c == '*') {
-          c = va_arg(ap, int);
-        } else {
-          break;
-        }
-        precision *= 10;
-        precision += c;
-      }
-    }
-    /* Long modifier.*/
-    if (c == 'l' || c == 'L') {
-      is_long = true;
-      if (*fmt) {
-        c = *fmt++;
-      }
-    } else {
-      is_long = (c >= 'A') && (c <= 'Z');
-    }
-
-    /* Command decoding.*/
-    switch (c) {
-      case 'c':
-        filler = ' ';
-        *p++ = va_arg(ap, int);
-        break;
-      case 's':
-        filler = ' ';
-        if ((s = va_arg(ap, char *)) == 0) {
-          s = "(null)";
-        }
-        if (precision == 0) {
-          precision = 32767;
-        }
-        for (p = s; *p && (--precision >= 0); p++)
-          ;
-        break;
-      case 'D':
-      case 'd':
-        if (is_long) {
-          l = va_arg(ap, long);
-        } else {
-          l = va_arg(ap, int);
-        }
-        if (l < 0) {
-          *p++ = '-';
-          l = -l;
-        }
-        p = ltoa(p, l, 10);
-        break;
-#if CHPRINTF_USE_FLOAT
-      case 'f':
-        d = (double) va_arg(ap, double);
-        if (d < 0) {
-          *p++ = '-';
-          d = -d;
-        }
-        p = ftoa(p, d, fprec);
-        break;
-#endif
-      case 'X':
-      case 'x':
-        c = 16;
-        goto unsigned_common;
-      case 'U':
-      case 'u':
-        c = 10;
-        goto unsigned_common;
-      case 'O':
-      case 'o':
-        c = 8;
-unsigned_common:
-        if (is_long) {
-          l = va_arg(ap, long);
-        } else {
-          l = va_arg(ap, int);
-        }
-        p = ltoa(p, l, c);
-        break;
-      default:
-        *p++ = c;
-        break;
-    }
-    i = (int)(p - s);
-    if ((width -= i) < 0) {
-      width = 0;
-    }
-    if (left_align == false) {
-      width = -width;
-    }
-    if (width < 0) {
-      if (*s == '-' && filler == '0') {
-        chSequentialStreamPut(chp, (uint8_t)*s++);
-        i--;
-      }
-      do {
-        chSequentialStreamPut(chp, (uint8_t)filler);
-      } while (++width != 0);
-    }
-    while (--i >= 0) {
-      chSequentialStreamPut(chp, (uint8_t)*s++);
-    }
-
-    while (width) {
-      chSequentialStreamPut(chp, (uint8_t)filler);
-      width--;
-    }
+    return false;
   }
-}
 
 
-void chvsnprintf(char *buffer, size_t size, const char *fmt, va_list ap)
-{
-  char *p, *s, c, filler;
-  int i, precision, width;
-  bool is_long, left_align;
-  long l;
-#if CHPRINTF_USE_FLOAT
-  double d;
-  char tmpbuf[2 * MAX_FILLER + 1];
-  int fprec = 0;
-#else
-  char tmpbuf[MAX_FILLER + 1];
-#endif
+
 
   while (true) {
     c = *fmt++;
     if (c == 0) {
-      writeBufferWithinSize(&buffer, 0, &size);
+      // only add end of string marker when filling buffer, not when outputing on I/O channel
+      if (buffer != NULL) {
+        _putChar(0);
+      }
       return;
     }
     if (c != '%') {
-      if (writeBufferWithinSize(&buffer, c, &size)) { return; }
+      if (_putChar(c)) { return; }
       continue;
     }
     p = tmpbuf;
     s = tmpbuf;
-    left_align = false;
+    left_align = plus_on_float =  false;
     if (*fmt == '-') {
       fmt++;
       left_align = true;
+    } else if (*fmt == '+') {
+      fmt++;
+      plus_on_float = true;
     }
     filler = ' ';
     if (*fmt == '.') {
@@ -421,6 +307,8 @@ void chvsnprintf(char *buffer, size_t size, const char *fmt, va_list ap)
         if (d < 0) {
           *p++ = '-';
           d = -d;
+        } else if (plus_on_float) {
+          *p++ = '+';
         }
         p = ftoa(p, d, fprec);
         break;
@@ -457,22 +345,33 @@ unsigned_common:
     }
     if (width < 0) {
       if (*s == '-' && filler == '0') {
-        if (writeBufferWithinSize(&buffer, (uint8_t)*s++, &size)) { return; }
+        if (_putChar((uint8_t)*s++)) { return; }
         i--;
       }
       do
-        if (writeBufferWithinSize(&buffer, (uint8_t)filler, &size)) { return; }
+        if (_putChar((uint8_t)filler)) { return; }
       while (++width != 0);
     }
     while (--i >= 0)
-      if (writeBufferWithinSize(&buffer, (uint8_t)*s++, &size)) { return; }
+      if (_putChar((uint8_t)*s++)) { return; }
 
     while (width) {
-      if (writeBufferWithinSize(&buffer, (uint8_t)filler, &size)) { return; }
+      if (_putChar((uint8_t)filler)) { return; }
       width--;
     }
   }
-  writeBufferWithinSize(&buffer, 0, &size) ;
+  _putChar(0) ;
+}
+
+
+void directchvprintf(BaseSequentialStream *chp, const char *fmt, va_list ap)
+{
+  _chvsnprintf(NULL, chp, 0, fmt, ap);
+}
+
+void chvsnprintf(char *buffer, size_t size, const char *fmt, va_list ap)
+{
+  _chvsnprintf(buffer, NULL, size, fmt, ap);
 }
 
 void chsnprintf(char *buffer, size_t size, const char *fmt, ...)
@@ -480,16 +379,91 @@ void chsnprintf(char *buffer, size_t size, const char *fmt, ...)
   va_list ap;
 
   va_start(ap, fmt);
-  chvsnprintf(buffer, size, fmt, ap);
+  _chvsnprintf(buffer, NULL, size, fmt, ap);
   va_end(ap);
 }
 
-void chprintf(BaseSequentialStream *chp, const char *fmt, ...)
+void directchprintf(BaseSequentialStream *chp, const char *fmt, ...)
 {
   va_list ap;
 
   va_start(ap, fmt);
-  chvprintf(chp, fmt, ap);
+  _chvsnprintf(NULL, chp, 0, fmt, ap);
   va_end(ap);
 }
+
+void chprintf(BaseSequentialStream *lchp, const char *fmt, ...)
+{
+  va_list ap;
+
+  if (printThreadPtr == NULL) {
+    printThreadPtr = chThdCreateStatic(waSerialPrint, sizeof(waSerialPrint), NORMALPRIO + 1, serialPrint, NULL);
+  }
+
+  va_start(ap, fmt);
+  synchronous_print_arg_t spat = {.chp = lchp,
+                                  .destBuf = NULL,
+                                  .fmt = fmt,
+                                  .ap = ap
+                                 };
+
+  chMsgSend(printThreadPtr, (msg_t) &spat);
+
+  va_end(ap);
+}
+
+void chvprintf(BaseSequentialStream *lchp, const char *fmt, va_list ap)
+{
+  if (printThreadPtr == NULL) {
+    printThreadPtr = chThdCreateStatic(waSerialPrint, sizeof(waSerialPrint), NORMALPRIO + 1, serialPrint, NULL);
+  }
+
+  synchronous_print_arg_t spat = {.chp = lchp,
+                                  .destBuf = NULL,
+                                  .fmt = fmt,
+                                  .ap = ap
+                                 };
+
+  chMsgSend(printThreadPtr, (msg_t) &spat);
+}
+
+
+
+void smchsnprintf(char *buffer, size_t size, const char *fmt, ...)
+{
+  va_list ap;
+
+  if (printThreadPtr == NULL) {
+    printThreadPtr = chThdCreateStatic(waSerialPrint, sizeof(waSerialPrint), NORMALPRIO + 1, serialPrint, NULL);
+  }
+
+  va_start(ap, fmt);
+  synchronous_print_arg_t spat = {.size = size,
+                                  .destBuf = buffer,
+                                  .fmt = fmt,
+                                  .ap = ap
+                                 };
+
+  chMsgSend(printThreadPtr, (msg_t) &spat);
+
+  va_end(ap);
+}
+
+
+void smchvsnprintf(char *buffer, size_t size, const char *fmt, va_list ap)
+{
+  if (printThreadPtr == NULL) {
+    printThreadPtr = chThdCreateStatic(waSerialPrint, sizeof(waSerialPrint), NORMALPRIO + 1, serialPrint, NULL);
+  }
+
+  synchronous_print_arg_t spat = {.size = size,
+                                  .destBuf = buffer,
+                                  .fmt = fmt,
+                                  .ap = ap
+                                 };
+
+  chMsgSend(printThreadPtr, (msg_t) &spat);
+}
+
+
 /** @} */
