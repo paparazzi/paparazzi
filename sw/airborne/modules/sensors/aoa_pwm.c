@@ -124,7 +124,7 @@ void aoa_pwm_update(void) {
   prev_aoa = aoa_pwm.angle;
 
 #if USE_AOA
-  stateSetAngleOfAttack_f(aoa_adc.angle);
+  stateSetAngleOfAttack_f(aoa_pwm.angle);
 #endif
 
 #if SEND_SYNC_AOA
