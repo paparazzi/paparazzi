@@ -6,11 +6,10 @@
 # HITL specific makefile
 #
 
-nps.CFLAGS  += -DUSE_HITL=1
-
 nps.srcs += $(NPSDIR)/nps_main_hitl.c
 
 # TODO: have this in ins_vectornav.xml 
+# will hopefully work better once nps and HITL are separate targets
 nps.srcs += $(NPSDIR)/nps_ins_vectornav.c
 
 # glib is still needed for some components (such as radio input)

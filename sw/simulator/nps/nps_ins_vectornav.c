@@ -43,6 +43,8 @@ static uint16_t VN_GROUP_FIELD_4 = 0x0009;
 
 uint8_t vn_buffer[VN_BUFFER_SIZE];
 
+uint8_t *ins_buffer;
+
 struct VectornavData {
   uint64_t TimeStartup;
   float YawPitchRoll[3];
@@ -62,6 +64,9 @@ struct VectornavData {
 };
 
 struct VectornavData vn_data;
+
+void ins_vectornav_init(void){}
+void ins_vectornav_event(void){}
 
 /**
  * Calculates the 16-bit CRC for the given ASCII or binary message.

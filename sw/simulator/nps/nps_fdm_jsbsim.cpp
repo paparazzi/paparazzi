@@ -52,7 +52,7 @@
 // end ignore unused param warnings in JSBSim
 #pragma GCC diagnostic pop
 
-
+#include "nps_autopilot.h"
 #include "nps_fdm.h"
 #include "math/pprz_geodetic.h"
 #include "math/pprz_geodetic_double.h"
@@ -604,8 +604,8 @@ static void init_jsbsim(double dt)
   }
 
   // initial commands to zero
-  double init_commands[5] = {0.0};
-  feed_jsbsim(init_commands, 5);
+  double init_commands[NPS_COMMANDS_NB] = {0.0};
+  feed_jsbsim(init_commands, NPS_COMMANDS_NB);
 
   //loop JSBSim once w/o integrating
   if (!FDMExec->RunIC()) {

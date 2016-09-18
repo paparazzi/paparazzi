@@ -49,7 +49,8 @@
     </raw>
   </makefile>
   
-  <!-- For some reason this doesn't work ?
+  <!-- TODO: make this dynamically loadable - will hopefully work better
+  once nps and HITL are separate targets
   <makefile target="nps">
     <file name="nps_ins_vectornav.c" dir="nps"/>
   </makefile>
