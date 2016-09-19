@@ -1,7 +1,7 @@
-Paparazzi v5.9_devel
-====================
+Paparazzi v5.9.0_testing
+========================
 
-Currently ongoing development.
+First release candidate for v5.10
 
 General
 -------
@@ -25,6 +25,7 @@ General
   [#1675] (https://github.com/paparazzi/paparazzi/pull/1675)
 - flight plans: simpler geofence safety behaviour definition
   [#1664] (https://github.com/paparazzi/paparazzi/pull/1644)
+  [#1802] (https://github.com/paparazzi/paparazzi/pull/1802)
 - module build system: improvements to efficiently replace subsystems
   [#1534] (https://github.com/paparazzi/paparazzi/pull/1534)
   [#1590] (https://github.com/paparazzi/paparazzi/pull/1590)
@@ -60,6 +61,12 @@ General
   [#1758] (https://github.com/paparazzi/paparazzi/pull/1758)
 - cockpit: workaround lablgtk 2.18 Debian/Ubuntu bug
   [#1647] (https://github.com/paparazzi/paparazzi/pull/1647)
+- GCS: plot shapes on the map
+  [#1809] (https://github.com/paparazzi/paparazzi/pull/1809)
+- paparazzicenter: experimental Python version
+  [#1811] (https://github.com/paparazzi/paparazzi/pull/1811)
+- try to prevent speech spam in GCS
+  [#1842] (https://github.com/paparazzi/paparazzi/pull/1842)
 
 Airborne
 --------
@@ -104,11 +111,14 @@ Airborne
   [#1648] (https://github.com/paparazzi/paparazzi/pull/1648)
   [#1735] (https://github.com/paparazzi/paparazzi/pull/1735)
   [#1764] (https://github.com/paparazzi/paparazzi/pull/1764)
+  [#1806] (https://github.com/paparazzi/paparazzi/pull/1806)
 - computer vision: optical flow landing module
   [#1611] (https://github.com/paparazzi/paparazzi/pull/1611)
 - computer vision: openCV examples
   [#1663] (https://github.com/paparazzi/paparazzi/pull/1663)
   [#1789] (https://github.com/paparazzi/paparazzi/pull/1789)
+  [#1798] (https://github.com/paparazzi/paparazzi/pull/1798)
+  [#1824] (https://github.com/paparazzi/paparazzi/pull/1824)
 - computer vision: image appearance representation using texton distribution
   [#1692] (https://github.com/paparazzi/paparazzi/pull/1692)
 - UTM handling upgrades
@@ -124,6 +134,11 @@ Airborne
   [#1625] (https://github.com/paparazzi/paparazzi/pull/1625)
   [#1638] (https://github.com/paparazzi/paparazzi/pull/1638)
   [#1740] (https://github.com/paparazzi/paparazzi/pull/1740)
+  [#1788] (https://github.com/paparazzi/paparazzi/pull/1788)
+- telemetry over intermcu
+  [#1821] (https://github.com/paparazzi/paparazzi/pull/1821)
+- unified sys_mon and rtos_mon modules
+  [#1846] (https://github.com/paparazzi/paparazzi/pull/1846)
 
 Rotorcraft firmware
 -------------------
@@ -149,6 +164,15 @@ Rotorcraft firmware
 - guidance for hybrid drones
   [#1769] (https://github.com/paparazzi/paparazzi/pull/1769)
 
+Fixed-wing firmware
+-------------------
+
+- split AP and FBW taks when using ChibiOS
+  [#1767] (https://github.com/paparazzi/paparazzi/pull/1767)
+- Hard-fault recovery wen using ChibiOS
+  [#1815] (https://github.com/paparazzi/paparazzi/pull/1815)
+
+
 Drivers/HW support
 ------------------
 
@@ -167,8 +191,14 @@ Drivers/HW support
   [#1562] (https://github.com/paparazzi/paparazzi/pull/1562)
 - Parrot Bebop: fix for firmware 3.2.0
   [#1745] (https://github.com/paparazzi/paparazzi/pull/1745)
+  [#1828] (https://github.com/paparazzi/paparazzi/pull/1828)
 - Parrot Bebop: camera upgrade
   [#1750] (https://github.com/paparazzi/paparazzi/pull/1750)
+  [#1766] (https://github.com/paparazzi/paparazzi/pull/1766)
+  [#1818] (https://github.com/paparazzi/paparazzi/pull/1818)
+  [#1825] (https://github.com/paparazzi/paparazzi/pull/1825)
+  [#1826] (https://github.com/paparazzi/paparazzi/pull/1826)
+  [#1834] (https://github.com/paparazzi/paparazzi/pull/1834)
 - Parrot ARDrone2/Bebop: startup fixes
   [#1571] (https://github.com/paparazzi/paparazzi/pull/1571)
   [#1588] (https://github.com/paparazzi/paparazzi/pull/1588)
