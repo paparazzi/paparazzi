@@ -5,6 +5,7 @@
     <description>CHimu (SPI)</description>
     <define name="CHIMU_BIG_ENDIAN" value="TRUE" description="For older CHIMU v1.0 you should define CHIMU_BIG_ENDIAN"/>
   </doc>
+  <autoload name="ahrs_sim"/>
   <header>
     <file name="ins_module.h"/>
   </header>

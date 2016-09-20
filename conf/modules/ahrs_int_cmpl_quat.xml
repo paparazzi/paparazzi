@@ -1,0 +1,51 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ahrs_int_cmpl_quat" dir="ahrs">
+  <doc>
+    <description>
+      AHRS using complementary filter in fixed point.
+      Propagation is done in quaternion representation.
+    </description>
+    <configure name="USE_MAGNETOMETER" value="TRUE" description="set to FALSE to disable magnetometer"/>
+    <configure name="AHRS_ALIGNER_LED" value="1" description="LED number to indicate AHRS alignment, none to disable (default is board dependent)"/>
+
+  </doc>
+  <autoload name="ahrs_sim"/>
+  <header>
+    <file name="ahrs.h" dir="subsystems"/>
+  </header>
+
+  <makefile target="!sim|fbw" firmware="fixedwing">
+    <configure name="USE_MAGNETOMETER" default="0"/>
+  </makefile>
+  <makefile target="!sim|fbw">
+    <configure name="USE_MAGNETOMETER" default="1"/>
+    <configure name="AHRS_ALIGNER_LED" default="none"/>
+
+    <define name="USE_MAGNETOMETER" cond="ifeq (,$(findstring $(USE_MAGNETOMETER),0 FALSE))"/>
+    <define name="AHRS_ALINGER_LED" value="$(AHRS_ALIGNER_LED)" cond="ifneq ($(AHRS_ALIGNER_LED),none)"/>
+    <define name="USE_AHRS"/>
+    <define name="USE_AHRS_ALIGNER"/>
+
+    <file name="ahrs.c" dir="subsystems"/>
+    <file name="ahrs_aligner.c" dir="subsystems/ahrs"/>
+    <file name="ahrs_int_cmpl_quat.c" dir="subsystems/ahrs"/>
+    <file name="ahrs_int_cmpl_quat_wrapper.c" dir="subsystems/ahrs"/>
+    <raw>
+ifdef SECONDARY_AHRS
+ifneq (,$(findstring $(SECONDARY_AHRS), icq int_cmpl_quat))
+# this is the secondary AHRS
+$(TARGET).CFLAGS += -DAHRS_SECONDARY_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl_quat_wrapper.h\"
+$(TARGET).CFLAGS += -DSECONDARY_AHRS=ahrs_icq
+else
+# this is the primary AHRS
+$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl_quat_wrapper.h\"
+$(TARGET).CFLAGS += -DPRIMARY_AHRS=ahrs_icq
+endif
+else
+# plain old single AHRS usage
+$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl_quat_wrapper.h\"
+endif
+    </raw>
+  </makefile>
+</module>

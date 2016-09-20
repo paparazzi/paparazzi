@@ -1,0 +1,46 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ahrs_float_dcm" dir="ahrs">
+  <doc>
+    <description>
+      AHRS using invariant filter.
+    </description>
+    <configure name="USE_MAGNETOMETER" value="TRUE" description="set to FALSE to disable magnetometer"/>
+    <configure name="AHRS_ALIGNER_LED" value="1" description="LED number to indicate AHRS alignment, none to disable (default is board dependent)"/>
+
+  </doc>
+  <header>
+    <file name="ahrs.h" dir="subsystems"/>
+  </header>
+
+  <makefile target="!sim|fbw">
+    <configure name="USE_MAGNETOMETER" default="1"/>
+    <configure name="AHRS_ALIGNER_LED" default="none"/>
+
+    <define name="USE_MAGNETOMETER" cond="ifeq (,$(findstring $(USE_MAGNETOMETER),0 FALSE))"/>
+    <define name="AHRS_ALINGER_LED" value="$(AHRS_ALIGNER_LED)" cond="ifneq ($(AHRS_ALIGNER_LED),none)"/>
+    <define name="USE_AHRS"/>
+    <define name="USE_AHRS_ALIGNER"/>
+
+    <file name="ahrs.c" dir="subsystems"/>
+    <file name="ahrs_aligner.c" dir="subsystems/ahrs"/>
+    <file name="ahrs_float_invariant.c" dir="subsystems/ahrs"/>
+    <file name="ahrs_float_invariant_wrapper.c" dir="subsystems/ahrs"/>
+    <raw>
+ifdef SECONDARY_AHRS
+ifneq (,$(findstring $(SECONDARY_AHRS), invariant float_invariant))
+# this is the secondary AHRS
+$(TARGET).CFLAGS += -DAHRS_SECONDARY_TYPE_H=\"subsystems/ahrs/ahrs_float_invariant_wrapper.h\"
+$(TARGET).CFLAGS += -DSECONDARY_AHRS=ahrs_float_invariant
+else
+# this is the primary AHRS
+$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_invariant_wrapper.h\"
+$(TARGET).CFLAGS += -DPRIMARY_AHRS=ahrs_float_invariant
+endif
+else
+# plain old single AHRS usage
+$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_invariant_wrapper.h\"
+endif
+    </raw>
+  </makefile>
+</module>
