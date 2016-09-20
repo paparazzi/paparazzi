@@ -18,7 +18,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/loggers/flight_logger.c"
+ * @file "modules/loggers/xgear.c"
  * @author Michal Podhradsky <http://github.com/podhrmic>
  * Send telemetry messages over a serial port to external logger.
  *
@@ -39,24 +39,24 @@
  *    periodic_telemetry_send_FlightRecorder(DefaultPeriodic, &(DefaultChannel).trans_tx, &(DefaultDevice).device);
  */
 
-#define PERIODIC_C_FLIGHTRECORDER
+#define PERIODIC_C_XGEAR
 
-#include "modules/loggers/flight_logger.h"
+#include "modules/loggers/xgear.h"
 #include "subsystems/datalink/telemetry.h"
 
 // transport struct
-struct pprz_transport pprz_tp_logger;
+struct pprz_transport pprz_tp_xgear;
 
-void flight_logger_init(void)
+void xgear_init(void)
 {
-  pprz_transport_init(&pprz_tp_logger);
+  pprz_transport_init(&pprz_tp_xgear);
 }
 
-void flight_logger_periodic(void)
+void xgear_periodic(void)
 {
 #if PERIODIC_TELEMETRY
-  // send periodic messages as defined in the FlightRecorder process, we are using DefaultPeriodic so we can send standard messages
-  periodic_telemetry_send_FlightRecorder(DefaultPeriodic, &pprz_tp_logger.trans_tx, &(FLIGHTLOGGER_PORT).device);
+  // send periodic messages as defined in the Xgear process, we are using DefaultPeriodic so we can send standard messages
+  periodic_telemetry_send_Xgear(DefaultPeriodic, &pprz_tp_xgear.trans_tx, &(XGEAR_PORT).device);
 #endif
 }
 

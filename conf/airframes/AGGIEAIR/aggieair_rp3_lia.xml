@@ -53,11 +53,11 @@ RP3 Lisa MX
     <module name="nav" type="launcher"/>
     <module name="nav" type="skid_landing"/>
     <module name="sys_mon"/>
-    <module name="flight_logger">
+    <module name="xgear">
       <!-- in order to use uart1 without chibios we need to remap the peripheral-->
       <define name="REMAP_UART1" value="TRUE"/>
-      <configure name="FLIGHTLOGGER_PORT" value="UART1"/>
-      <configure name="FLIGHTLOGGER_BAUD" value="B921600"/>
+      <configure name="XGEAR_PORT" value="UART1"/>
+      <configure name="XGEAR_BAUD" value="B921600"/>
     </module>
   </modules>
 

@@ -163,7 +163,7 @@
 
   </process>
 
-  <process name="FlightRecorder">
+  <process name="Xgear">
     <mode name="default">
     <message name="MOTOR_MIXING"            period="0.00625"/>
     </mode>

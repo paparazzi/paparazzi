@@ -18,23 +18,23 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/loggers/flight_logger.h"
+ * @file "modules/loggers/xgear.h"
  * @author Michal Podhradsky <http://github.com/podhrmic>
  * Send telemetry messages over a serial port to external logger.
  */
 
-#ifndef FLIGHT_LOGGER_H
-#define FLIGHT_LOGGER_H
+#ifndef XGEAR_H
+#define XGEAR_H
 
 /** Init function
  */
-extern void flight_logger_init(void);
+extern void xgear_init(void);
 
 /** Periodic function
  *
  * should be called at TELEMETRY_FREQUENCY
  */
-extern void flight_logger_periodic(void);
+extern void xgear_periodic(void);
 
-#endif /* FLIGHT_LOGGER_H */
+#endif /* XGEAR_H */
 

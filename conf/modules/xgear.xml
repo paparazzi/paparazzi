@@ -1,0 +1,26 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="xgear" dir="loggers">
+  <doc>
+    <description>
+      Send flight data over a dedicated serial link to either another flight computer (such as Gumstrix Overo or Intel Edison) which
+      saves the data on an SD card, or to a GCS (used for HITL simulation).
+    </description>
+    <configure name="XGEAR_PORT" value="uart1" description="UART to use"/>
+    <configure name="XGEAR_BAUD" value="B921600" description="UART baudrate"/>
+  </doc>
+  <header>
+    <file name="xgear.h"/>
+  </header>
+  <init fun="xgear_init()"/>
+  <periodic fun="xgear_periodic()" freq="PERIODIC_FREQUENCY" autorun="TRUE"/>
+  <makefile target="ap">
+     <configure name="XGEAR_PORT" default="uart1" case="upper|lower"/>
+     <configure name="XGEAR_BAUD" default="B921600"/>
+    <define name="USE_$(XGEAR_PORT_UPPER)"/>
+    <define name="XGEAR_PORT" value="$(XGEAR_PORT_LOWER)"/>
+    <define name="$(XGEAR_PORT_UPPER)_BAUD" value="$(XGEAR_BAUD)"/>
+    <file name="xgear.c"/>
+  </makefile>
+</module>
+
