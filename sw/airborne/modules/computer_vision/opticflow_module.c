@@ -166,7 +166,7 @@ struct image_t *opticflow_module_calc(struct image_t *img)
   // TODO : put accelerometer values at pose of img timestamp
   struct opticflow_state_t temp_state;
   struct pose_t pose = get_rotation_at_timestamp(img->pprz_ts);
-  memcpy(&temp_state, &opticflow_state, sizeof(struct opticflow_state_t));
+  temp_state = opticflow_state;
   temp_state.rates = pose.rates;
 
   // Do the optical flow calculation
@@ -175,7 +175,7 @@ struct image_t *opticflow_module_calc(struct image_t *img)
 
   // Copy the result if finished
   pthread_mutex_lock(&opticflow_mutex);
-  memcpy(&opticflow_result, &temp_result, sizeof(struct opticflow_result_t));
+  opticflow_result = temp_result;
   opticflow_got_result = true;
 
 
@@ -206,7 +206,6 @@ static void opticflow_agl_cb(uint8_t sender_id __attribute__((unused)), float di
 static void opticflow_imu_accel_cb(uint8_t sender_id __attribute__((unused)), uint32_t stamp, struct Int32Vect3 *accel)
 {
   opticflow_state.accel_imu_meas = *accel;
-
 }
 
 /**
