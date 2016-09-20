@@ -94,9 +94,9 @@ void kalman_filter_linear_2D_float(float *model, float *measurements, float *cov
   R[1][1] = measurement_noise[1];
 
   //Variables during kalman computation:
-  float _Xpredict[1][2];
+  float _Xpredict[2][1];
   MAKE_MATRIX_PTR(Xpredict, _Xpredict, 2);
-  float _Xnext[1][2];
+  float _Xnext[2][1];
   MAKE_MATRIX_PTR(Xnext, _Xnext, 2);
 
   float _Ppredict[2][2];
