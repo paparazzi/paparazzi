@@ -56,7 +56,7 @@ static struct opticflow_result_t opticflow_result; ///< The opticflow result
 static struct opticflow_state_t opticflow_state;   ///< State of the drone to communicate with the opticflow
 static abi_event opticflow_imu_accel_ev;                 ///< The altitude ABI event
 static abi_event opticflow_agl_ev;                 ///< The accelerometers ABI event
-static abi_event opticflow_body_to_imu_ev;      	///< The body-to-imu ABI event
+static abi_event opticflow_body_to_imu_ev;        ///< The body-to-imu ABI event
 
 static bool opticflow_got_result;                ///< When we have an optical flow calculation
 static pthread_mutex_t opticflow_mutex;            ///< Mutex lock fo thread safety
@@ -85,8 +85,8 @@ static void opticflow_telem_send(struct transport_tx *trans, struct link_device 
                                  &opticflow_result.tracked_cnt, &opticflow_result.flow_x,
                                  &opticflow_result.flow_y, &opticflow_result.flow_der_x,
                                  &opticflow_result.flow_der_y, &opticflow_result.vel_x,
-                                 &opticflow_result.vel_y, &opticflow_result.vel_body_x,
-                                 &opticflow_result.vel_body_y, &opticflow_result.divergence); // TODO: no noise measurement here...
+                                 &opticflow_result.vel_y, &opticflow_result.div_size,
+                                 &opticflow_result.surface_roughness, &opticflow_result.divergence); // TODO: no noise measurement here...
   }
   pthread_mutex_unlock(&opticflow_mutex);
 }
