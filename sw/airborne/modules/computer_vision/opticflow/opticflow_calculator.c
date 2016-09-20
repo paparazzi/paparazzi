@@ -155,20 +155,15 @@ PRINT_CONFIG_VAR(OPTICFLOW_METHOD)
 #endif
 PRINT_CONFIG_VAR(OPTICFLOW_DEROTATION)
 
-#ifndef OPTICFLOW_DEROTATION
-#define OPTICFLOW_DEROTATION TRUE
-#endif
-PRINT_CONFIG_VAR(OPTICFLOW_DEROTATION)
-
 #ifndef OPTICFLOW_DEROTATION_CORRECTION_FACTOR_X
 #define OPTICFLOW_DEROTATION_CORRECTION_FACTOR_X 1.0
 #endif
-PRINT_CONFIG_VAR(OPTICFLOW_DEROTATION)
+PRINT_CONFIG_VAR(OPTICFLOW_DEROTATION_CORRECTION_FACTOR_X)
 
 #ifndef OPTICFLOW_DEROTATION_CORRECTION_FACTOR_Y
 #define OPTICFLOW_DEROTATION_CORRECTION_FACTOR_Y 1.0
 #endif
-PRINT_CONFIG_VAR(OPTICFLOW_DEROTATION)
+PRINT_CONFIG_VAR(OPTICFLOW_DEROTATION_CORRECTION_FACTOR_Y)
 
 #ifndef OPTICFLOW_MEDIAN_FILTER
 #define OPTICFLOW_MEDIAN_FILTER FALSE
@@ -178,7 +173,12 @@ PRINT_CONFIG_VAR(OPTICFLOW_MEDIAN_FILTER)
 #ifndef OPTICFLOW_KALMAN_FILTER
 #define OPTICFLOW_KALMAN_FILTER TRUE
 #endif
-PRINT_CONFIG_VAR(OPTICFLOW_MEDIAN_FILTER)
+PRINT_CONFIG_VAR(OPTICFLOW_KALMAN_FILTER)
+
+#ifndef OPTICFLOW_KALMAN_FILTER_PROCESS_NOISE
+#define OPTICFLOW_KALMAN_FILTER_PROCESS_NOISE 0.01
+#endif
+PRINT_CONFIG_VAR(OPTICFLOW_KALMAN_FILTER_PROCESS_NOISE)
 
 //Include median filter
 #include "filters/median_filter.h"
@@ -226,6 +226,7 @@ void opticflow_calc_init(struct opticflow_t *opticflow, uint16_t w, uint16_t h)
   opticflow->pyramid_level = OPTICFLOW_PYRAMID_LEVEL;
   opticflow->median_filter = OPTICFLOW_MEDIAN_FILTER;
   opticflow->kalman_filter = OPTICFLOW_KALMAN_FILTER;
+  opticflow->kalman_filter_process_noise = OPTICFLOW_KALMAN_FILTER_PROCESS_NOISE;
 
   opticflow->fast9_adaptive = OPTICFLOW_FAST9_ADAPTIVE;
   opticflow->fast9_threshold = OPTICFLOW_FAST9_THRESHOLD;
@@ -622,7 +623,6 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
   result->vel_body_x = result->vel_y;
   result->vel_body_y = - result->vel_x;
 
-
   // KALMAN filter on velocity
   float measurement_noise[2] = {result->noise_measurement, 1.0f};
   static bool reinitialize_kalman = true;
@@ -640,17 +640,18 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
     if (wait_filter_counter > 50) {
 
       // Get accelerometer values rotated to body axis
-      // TODO: counteract accelerometer bias.
       // TODO: use acceleration from the state ?
-      struct Int32Vect3 acc_meas_body;
-      struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&imu.body_to_imu);
-      int32_rmat_transp_vmult(&acc_meas_body, body_to_imu_rmat, &imu.accel);
+      struct FloatVect3 accel_imu_f;
+      ACCELS_FLOAT_OF_BFP(accel_imu_f, state->accel_imu_meas);
+      struct FloatVect3 accel_meas_body;
+      float_quat_vmult(&accel_meas_body, &state->imu_to_body_quat, &accel_imu_f);
+
       float acceleration_measurement[2];
-      acceleration_measurement[0] = ACCEL_FLOAT_OF_BFP(acc_meas_body.x);
-      acceleration_measurement[1] = ACCEL_FLOAT_OF_BFP(acc_meas_body.y);
+      acceleration_measurement[0] = accel_meas_body.x;
+      acceleration_measurement[1] = accel_meas_body.y;
 
       kalman_filter_opticflow_velocity(&result->vel_body_x, &result->vel_body_y, acceleration_measurement, result->fps,
-                                       measurement_noise, reinitialize_kalman);
+                                       measurement_noise, opticflow->kalman_filter_process_noise, reinitialize_kalman);
       if (reinitialize_kalman) {
         reinitialize_kalman = false;
       }
@@ -671,10 +672,11 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
  * @param[in] *acceleration_measurement  Measurements of the accelerometers
  * @param[in] fps  Frames per second
  * @param[in] *measurement_noise  Expected variance of the noise of the measurements
+ * @param[in] *measurement_noise  Expected variance of the noise of the model prediction
  * @param[in] reinitialize_kalman  Boolean to reinitialize the kalman filter
  */
 void kalman_filter_opticflow_velocity(float *velocity_x, float *velocity_y, float *acceleration_measurement, float fps,
-                                      float *measurement_noise, bool reinitialize_kalman)
+                                      float *measurement_noise, float kalman_process_noise, bool reinitialize_kalman)
 {
   // Initialize variables
   static float covariance_x[4], covariance_y[4], state_estimate_x[2], state_estimate_y[2];
@@ -704,7 +706,7 @@ void kalman_filter_opticflow_velocity(float *velocity_x, float *velocity_y, floa
    *       = [1 dt ; 0 1];
    * */
   float model[4] =  {1.0f, 1.0f / fps , 0.0f , 1.0f};
-  float process_noise[2] = {0.01f, 0.01f};
+  float process_noise[2] = {kalman_process_noise, kalman_process_noise};
 
   // Measurements from velocity_x of optical flow and acceleration directly from scaled accelerometers
   measurements_x[0] = *velocity_x;

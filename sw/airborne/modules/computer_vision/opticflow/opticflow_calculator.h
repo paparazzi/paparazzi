@@ -51,6 +51,7 @@ struct opticflow_t {
   bool derotation;                    ///< Derotation switched on or off (depended on the quality of the gyroscope measurement)
   bool median_filter;                 ///< Decides to use a median filter on the velocity
   bool kalman_filter;                       ///< Decide to use Kalman filter to filter velocity with accelerometers
+  float kalman_filter_process_noise;        ///< Process noise of the model used in the kalman filter
 
   float derotation_correction_factor_x;     ///< Correction factor for derotation in x axis, determined from a fit from the gyros and flow rotation. (wrong FOV, camera not in center)
   float derotation_correction_factor_y;     ///< Correction factor for derotation in Y axis, determined from a fit from the gyros and flow rotation. (wrong FOV, camera not in center)
@@ -80,9 +81,8 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
 void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *state, struct image_t *img,
                        struct opticflow_result_t *result);
 
-void kalman_filter_opticflow_velocity(float *velocity_x ,  float *velocity_y, float *acceleration_measurement,
-                                      float fps, float *measurement_noise, bool reinitialize_kalman);
-
+void kalman_filter_opticflow_velocity(float *velocity_x, float *velocity_y, float *acceleration_measurement, float fps,
+                                      float *measurement_noise, float process_noise, bool reinitialize_kalman);
 
 #endif /* OPTICFLOW_CALCULATOR_H */
 
