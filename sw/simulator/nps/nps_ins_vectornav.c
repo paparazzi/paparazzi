@@ -65,8 +65,8 @@ struct VectornavData {
 
 struct VectornavData vn_data;
 
-void ins_vectornav_init(void){}
-void ins_vectornav_event(void){}
+void ins_vectornav_init(void) {}
+void ins_vectornav_event(void) {}
 
 /**
  * Calculates the 16-bit CRC for the given ASCII or binary message.
@@ -77,7 +77,7 @@ unsigned short vn_calculate_crc(unsigned char data[], unsigned int length)
 {
   unsigned int i;
   unsigned short crc = 0;
-  for (i=0; i<length; i++){
+  for (i = 0; i < length; i++) {
     crc = (unsigned char)(crc >> 8) | (crc << 8);
     crc ^= data[i];
     crc ^= (unsigned char)(crc & 0xff) >> 4;
@@ -96,15 +96,16 @@ void nps_ins_init(void)
 /**
  * @return GPS TOW
  */
-static uint64_t vn_get_time_of_week(void){
+static uint64_t vn_get_time_of_week(void)
+{
   struct timeval curTime;
   gettimeofday(&curTime, NULL);
   int milli = curTime.tv_usec / 1000;
   struct tm t_res;
   localtime_r(&curTime.tv_sec, &t_res);
-  struct tm * tt = &t_res;
+  struct tm *tt = &t_res;
 
-  uint64_t tow = GPS_SEC_IN_DAY*tt->tm_wday + 3600*tt->tm_hour + 60*tt->tm_min + tt->tm_sec; // sec
+  uint64_t tow = GPS_SEC_IN_DAY * tt->tm_wday + 3600 * tt->tm_hour + 60 * tt->tm_min + tt->tm_sec; // sec
   tow = tow * 1000; // tow to ms
   tow = tow + milli; // tow with added ms
   tow = tow * 1e6; // tow in nanoseconds
@@ -112,10 +113,10 @@ static uint64_t vn_get_time_of_week(void){
   return tow;
 }
 
-void nps_ins_fetch_data(struct NpsFdm* fdm_ins)
+void nps_ins_fetch_data(struct NpsFdm *fdm_ins)
 {
   struct NpsFdm fdm_data;
-  memcpy (&fdm_data, fdm_ins, sizeof(struct NpsFdm));
+  memcpy(&fdm_data, fdm_ins, sizeof(struct NpsFdm));
 
   // Timestamp
   vn_data.TimeStartup = (uint64_t)(fdm_data.time * 1000000000.0);
@@ -187,14 +188,14 @@ uint16_t nps_ins_fill_buffer(void)
 
   vn_buffer[0] = VN_SYNC;
   vn_buffer[1] = VN_OUTPUT_GROUP;
-  vn_buffer[2] = (uint8_t) (VN_GROUP_FIELD_1 >> 8);
-  vn_buffer[3] = (uint8_t) (VN_GROUP_FIELD_1);
-  vn_buffer[4] = (uint8_t) (VN_GROUP_FIELD_2 >> 8);
-  vn_buffer[5] = (uint8_t) (VN_GROUP_FIELD_2);
-  vn_buffer[6] = (uint8_t) (VN_GROUP_FIELD_3 >> 8);
-  vn_buffer[7] = (uint8_t) (VN_GROUP_FIELD_3);
-  vn_buffer[8] = (uint8_t) (VN_GROUP_FIELD_4 >> 8);
-  vn_buffer[9] = (uint8_t) (VN_GROUP_FIELD_4);
+  vn_buffer[2] = (uint8_t)(VN_GROUP_FIELD_1 >> 8);
+  vn_buffer[3] = (uint8_t)(VN_GROUP_FIELD_1);
+  vn_buffer[4] = (uint8_t)(VN_GROUP_FIELD_2 >> 8);
+  vn_buffer[5] = (uint8_t)(VN_GROUP_FIELD_2);
+  vn_buffer[6] = (uint8_t)(VN_GROUP_FIELD_3 >> 8);
+  vn_buffer[7] = (uint8_t)(VN_GROUP_FIELD_3);
+  vn_buffer[8] = (uint8_t)(VN_GROUP_FIELD_4 >> 8);
+  vn_buffer[9] = (uint8_t)(VN_GROUP_FIELD_4);
 
   idx = VN_DATA_START;
 
@@ -203,26 +204,26 @@ uint16_t nps_ins_fill_buffer(void)
   idx += sizeof(uint64_t);
 
   //Attitude, float, [degrees], yaw, pitch, roll, NED frame
-  memcpy(&vn_buffer[idx], &vn_data.YawPitchRoll, 3*sizeof(float));
-  idx += 3*sizeof(float);
+  memcpy(&vn_buffer[idx], &vn_data.YawPitchRoll, 3 * sizeof(float));
+  idx += 3 * sizeof(float);
 
   // Rates (imu frame), float, [rad/s]
-  memcpy(&vn_buffer[idx], &vn_data.AngularRate, 3*sizeof(float));
-  idx += 3*sizeof(float);
+  memcpy(&vn_buffer[idx], &vn_data.AngularRate, 3 * sizeof(float));
+  idx += 3 * sizeof(float);
 
   //Pos LLA, double,[beg, deg, m]
   //The estimated position given as latitude, longitude, and altitude given in [deg, deg, m] respectfully.
-  memcpy(&vn_buffer[idx], &vn_data.Position, 3*sizeof(double));
-  idx += 3*sizeof(double);
+  memcpy(&vn_buffer[idx], &vn_data.Position, 3 * sizeof(double));
+  idx += 3 * sizeof(double);
 
   //VelNed, float [m/s]
   //The estimated velocity in the North East Down (NED) frame, given in m/s.
-  memcpy(&vn_buffer[idx], &vn_data.Velocity, 3*sizeof(float));
-  idx += 3*sizeof(float);
+  memcpy(&vn_buffer[idx], &vn_data.Velocity, 3 * sizeof(float));
+  idx += 3 * sizeof(float);
 
   // Accel (imu-frame), float, [m/s^-2]
-  memcpy(&vn_buffer[idx], &vn_data.Accel, 3*sizeof(float));
-  idx += 3*sizeof(float);
+  memcpy(&vn_buffer[idx], &vn_data.Accel, 3 * sizeof(float));
+  idx += 3 * sizeof(float);
 
   // tow (in nanoseconds), uint64
   memcpy(&vn_buffer[idx], &vn_data.Tow, sizeof(uint64_t));
@@ -237,20 +238,20 @@ uint16_t nps_ins_fill_buffer(void)
   idx++;
 
   //posU, float[3]
-  memcpy(&vn_buffer[idx], &vn_data.PosU, 3*sizeof(float));
-  idx += 3*sizeof(float);
+  memcpy(&vn_buffer[idx], &vn_data.PosU, 3 * sizeof(float));
+  idx += 3 * sizeof(float);
 
   //velU, float
   memcpy(&vn_buffer[idx], &vn_data.VelU, sizeof(float));
   idx += sizeof(float);
 
   //linear acceleration imu-body frame, float [m/s^2]
-  memcpy(&vn_buffer[idx], &vn_data.LinearAccelBody, 3*sizeof(float));
-  idx += 3*sizeof(float);
+  memcpy(&vn_buffer[idx], &vn_data.LinearAccelBody, 3 * sizeof(float));
+  idx += 3 * sizeof(float);
 
   //YprU, float[3]
-  memcpy(&vn_buffer[idx], &vn_data.YprU, 3*sizeof(float));
-  idx += 3*sizeof(float);
+  memcpy(&vn_buffer[idx], &vn_data.YprU, 3 * sizeof(float));
+  idx += 3 * sizeof(float);
 
   //instatus, uint16
   memcpy(&vn_buffer[idx], &vn_data.InsStatus, sizeof(uint16_t));
@@ -258,14 +259,14 @@ uint16_t nps_ins_fill_buffer(void)
 
   //Vel body, float [m/s]
   // The estimated velocity in the body (i.e. imu) frame, given in m/s.
-  memcpy(&vn_buffer[idx], &vn_data.VelBody, 3*sizeof(float));
-  idx += 3*sizeof(float);
+  memcpy(&vn_buffer[idx], &vn_data.VelBody, 3 * sizeof(float));
+  idx += 3 * sizeof(float);
 
   // calculate checksum & send
-  uint16_t chk = vn_calculate_crc(&vn_buffer[1], idx-1);
-  vn_buffer[idx] = (uint8_t) (chk >> 8);
+  uint16_t chk = vn_calculate_crc(&vn_buffer[1], idx - 1);
+  vn_buffer[idx] = (uint8_t)(chk >> 8);
   idx++;
-  vn_buffer[idx] = (uint8_t) (chk & 0xFF);
+  vn_buffer[idx] = (uint8_t)(chk & 0xFF);
   idx++;
 
   return idx;

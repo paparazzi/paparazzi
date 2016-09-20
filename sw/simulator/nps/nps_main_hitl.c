@@ -51,8 +51,8 @@
 
 #include "nps_ins.h"
 
-void* nps_ins_data_loop(void* data __attribute__((unused)));
-void* nps_ap_data_loop(void* data __attribute__((unused)));
+void *nps_ins_data_loop(void *data __attribute__((unused)));
+void *nps_ap_data_loop(void *data __attribute__((unused)));
 
 pthread_t th_ins_data; // sends INS packets to the autopilot
 pthread_t th_ap_data; // receives commands from the autopilot
@@ -64,18 +64,19 @@ int main(int argc, char **argv)
   nps_main_init(argc, argv);
 
   if (nps_main.fg_host) {
-    pthread_create(&th_flight_gear,NULL,nps_flight_gear_loop,NULL);
+    pthread_create(&th_flight_gear, NULL, nps_flight_gear_loop, NULL);
   }
-  pthread_create(&th_display_ivy,NULL,nps_main_display,NULL);
-  pthread_create(&th_main_loop,NULL,nps_main_loop,NULL);
-  pthread_create(&th_ins_data,NULL,nps_ins_data_loop,NULL);
-  pthread_create(&th_ap_data,NULL,nps_ap_data_loop,NULL);
+  pthread_create(&th_display_ivy, NULL, nps_main_display, NULL);
+  pthread_create(&th_main_loop, NULL, nps_main_loop, NULL);
+  pthread_create(&th_ins_data, NULL, nps_ins_data_loop, NULL);
+  pthread_create(&th_ap_data, NULL, nps_ap_data_loop, NULL);
   pthread_join(th_main_loop, NULL);
 
   return 0;
 }
 
-void nps_radio_and_autopilot_init(void){
+void nps_radio_and_autopilot_init(void)
+{
   enum NpsRadioControlType rc_type;
   char *rc_dev = NULL;
   if (nps_main.js_dev) {
@@ -90,7 +91,8 @@ void nps_radio_and_autopilot_init(void){
   nps_autopilot_init(rc_type, nps_main.rc_script, rc_dev);
 }
 
-void nps_update_launch_from_dl(uint8_t value){
+void nps_update_launch_from_dl(uint8_t value)
+{
   autopilot.launch = value;
 }
 
@@ -100,20 +102,19 @@ void nps_main_run_sim_step(void)
   nps_fdm_run_step(autopilot.launch, autopilot.commands, NPS_COMMANDS_NB);
 }
 
-void* nps_ins_data_loop(void* data __attribute__((unused)))
+void *nps_ins_data_loop(void *data __attribute__((unused)))
 {
   struct timespec requestStart;
   struct timespec requestEnd;
   struct timespec waitFor;
-  long int period_ns = (1./INS_FREQUENCY)*1000000000L; // thread period in nanoseconds
+  long int period_ns = (1. / INS_FREQUENCY) * 1000000000L; // thread period in nanoseconds
   long int task_ns = 0; // time it took to finish the task in nanoseconds
 
   nps_ins_init(); // initialize ins variables and pointers
 
   // configure port
   int fd = open(INS_DEV, O_WRONLY | O_NOCTTY | O_SYNC);//open(INS_DEV, O_RDWR | O_NOCTTY);
-  if (fd < 0)
-  {
+  if (fd < 0) {
     printf("INS THREAD: data loop error opening port %i\n", fd);
     return(NULL);
   }
@@ -132,8 +133,7 @@ void* nps_ins_data_loop(void* data __attribute__((unused)))
 
   struct NpsFdm fdm_ins;
 
-  while (TRUE)
-  {
+  while (TRUE) {
     // lock mutex
     pthread_mutex_lock(&fdm_mutex);
 
@@ -141,7 +141,7 @@ void* nps_ins_data_loop(void* data __attribute__((unused)))
     clock_gettime(CLOCK_REALTIME, &requestStart);
 
     // make a copy of fdm struct to speed things up
-    memcpy (&fdm_ins, &fdm, sizeof(fdm));
+    memcpy(&fdm_ins, &fdm, sizeof(fdm));
 
     // unlock mutex
     pthread_mutex_unlock(&fdm_mutex);
@@ -155,25 +155,24 @@ void* nps_ins_data_loop(void* data __attribute__((unused)))
 
     static int wlen;
     wlen = write(fd, ins_buffer, idx);
-    if (wlen != idx){
-      printf("INS THREAD: Warning - sent only %u bytes to the autopilot, instead of expected %u\n",wlen,idx);
+    if (wlen != idx) {
+      printf("INS THREAD: Warning - sent only %u bytes to the autopilot, instead of expected %u\n", wlen, idx);
     }
 
     clock_gettime(CLOCK_REALTIME, &requestEnd);
 
     // Calculate time it took
-    task_ns = (requestEnd.tv_sec - requestStart.tv_sec)*1000000000L + (requestEnd.tv_nsec - requestStart.tv_nsec);
+    task_ns = (requestEnd.tv_sec - requestStart.tv_sec) * 1000000000L + (requestEnd.tv_nsec - requestStart.tv_nsec);
 
     // task took less than one period, sleep for the rest of time
     if (task_ns < period_ns) {
       waitFor.tv_sec = 0;
       waitFor.tv_nsec = period_ns - task_ns;
-      nanosleep(&waitFor,NULL);
-    }
-    else {
+      nanosleep(&waitFor, NULL);
+    } else {
       // task took longer than the period
       printf("INS THREAD: task took longer than one period, exactly %f [ms], but the period is %f [ms]\n",
-          (double)task_ns/1E6, (double)period_ns/1E6);
+             (double)task_ns / 1E6, (double)period_ns / 1E6);
     }
   }
   return(NULL);
@@ -181,12 +180,11 @@ void* nps_ins_data_loop(void* data __attribute__((unused)))
 
 
 
-void* nps_ap_data_loop(void* data __attribute__((unused)))
+void *nps_ap_data_loop(void *data __attribute__((unused)))
 {
   // configure port
   int fd = open(AP_DEV, O_RDONLY | O_NOCTTY);
-  if (fd < 0)
-  {
+  if (fd < 0) {
     printf("AP data loop error opening port %i\n", fd);
     return(NULL);
   }
@@ -210,12 +208,11 @@ void* nps_ap_data_loop(void* data __attribute__((unused)))
 
   struct pprz_transport pprz_tp_logger;
 
-  while (TRUE)
-  {
+  while (TRUE) {
     // receive messages from the autopilot
     rdlen = read(fd, buf, sizeof(buf) - 1);
 
-    for(int i=0;i<rdlen;i++){
+    for (int i = 0; i < rdlen; i++) {
       // parse data
       parse_pprz(&pprz_tp_logger, buf[i]);
 
@@ -237,11 +234,11 @@ void* nps_ap_data_loop(void* data __attribute__((unused)))
           }
         } else {
           /* parse telemetry messages coming from the correct AC_ID */
-          switch(msg_id){
+          switch (msg_id) {
             case DL_COMMANDS:
               // parse commands message
               cmd_len = DL_COMMANDS_values_length(buf);
-              memcpy(&cmd_buf, DL_COMMANDS_values(buf), cmd_len*sizeof(int16_t));
+              memcpy(&cmd_buf, DL_COMMANDS_values(buf), cmd_len * sizeof(int16_t));
               pthread_mutex_lock(&fdm_mutex);
               // update commands
               for (uint8_t i = 0; i < NPS_COMMANDS_NB; i++) {
@@ -254,7 +251,7 @@ void* nps_ap_data_loop(void* data __attribute__((unused)))
             case DL_MOTOR_MIXING:
               // parse actuarors message
               cmd_len = DL_MOTOR_MIXING_values_length(buf);
-              memcpy(&cmd_buf, DL_MOTOR_MIXING_values(buf), cmd_len*sizeof(int16_t));
+              memcpy(&cmd_buf, DL_MOTOR_MIXING_values(buf), cmd_len * sizeof(int16_t));
               pthread_mutex_lock(&fdm_mutex);
               // update commands
               for (uint8_t i = 0; i < NPS_COMMANDS_NB; i++) {
@@ -276,12 +273,12 @@ void* nps_ap_data_loop(void* data __attribute__((unused)))
 
 
 
-void* nps_main_loop(void* data __attribute__((unused)))
+void *nps_main_loop(void *data __attribute__((unused)))
 {
   struct timespec requestStart;
   struct timespec requestEnd;
   struct timespec waitFor;
-  long int period_ns = SIM_DT*1000000000L; // thread period in nanoseconds
+  long int period_ns = SIM_DT * 1000000000L; // thread period in nanoseconds
   long int task_ns = 0; // time it took to finish the task in nanoseconds
 
   // check the sim time difference from the realtime
@@ -294,8 +291,7 @@ void* nps_main_loop(void* data __attribute__((unused)))
   double real_time = 0;
   static int guard;
 
-  while (TRUE)
-  {
+  while (TRUE) {
     clock_gettime(CLOCK_REALTIME, &requestStart);
 
     pthread_mutex_lock(&fdm_mutex);
@@ -309,7 +305,7 @@ void* nps_main_loop(void* data __attribute__((unused)))
     while ((real_time - fdm.time) > SIM_DT) {
       nps_main_run_sim_step();
       guard++;
-      if (guard>2){
+      if (guard > 2) {
         //If we are too much behind, catch up incrementaly
         break;
       }
@@ -319,18 +315,17 @@ void* nps_main_loop(void* data __attribute__((unused)))
     clock_gettime(CLOCK_REALTIME, &requestEnd);
 
     // Calculate time it took
-    task_ns = (requestEnd.tv_sec - requestStart.tv_sec)*1000000000L + (requestEnd.tv_nsec - requestStart.tv_nsec);
+    task_ns = (requestEnd.tv_sec - requestStart.tv_sec) * 1000000000L + (requestEnd.tv_nsec - requestStart.tv_nsec);
 
     // task took less than one period, sleep for the rest of time
     if (task_ns < period_ns) {
       waitFor.tv_sec = 0;
       waitFor.tv_nsec = period_ns - task_ns;
-      nanosleep(&waitFor,NULL);
-    }
-    else {
+      nanosleep(&waitFor, NULL);
+    } else {
       // task took longer than the period
       printf("MAIN THREAD: task took longer than one period, exactly %f [ms], but the period is %f [ms]\n",
-          (double)task_ns/1E6, (double)period_ns/1E6);
+             (double)task_ns / 1E6, (double)period_ns / 1E6);
     }
   }
   return(NULL);

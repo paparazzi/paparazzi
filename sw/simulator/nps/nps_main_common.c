@@ -227,19 +227,18 @@ bool nps_main_parse_options(int argc, char **argv)
 }
 
 
-void* nps_flight_gear_loop(void* data __attribute__((unused)))
+void *nps_flight_gear_loop(void *data __attribute__((unused)))
 {
   struct timespec requestStart;
   struct timespec requestEnd;
   struct timespec waitFor;
-  long int period_ns = DISPLAY_DT*1000000000L; // thread period in nanoseconds
+  long int period_ns = DISPLAY_DT * 1000000000L; // thread period in nanoseconds
   long int task_ns = 0; // time it took to finish the task in nanoseconds
 
 
   nps_flightgear_init(nps_main.fg_host, nps_main.fg_port, nps_main.fg_port_in, nps_main.fg_time_offset);
 
-  while(TRUE)
-  {
+  while (TRUE) {
     clock_gettime(CLOCK_REALTIME, &requestStart);
 
     pthread_mutex_lock(&fdm_mutex);
@@ -255,18 +254,17 @@ void* nps_flight_gear_loop(void* data __attribute__((unused)))
     clock_gettime(CLOCK_REALTIME, &requestEnd);
 
     // Calculate time it took
-    task_ns = (requestEnd.tv_sec - requestStart.tv_sec)*1000000000L + (requestEnd.tv_nsec - requestStart.tv_nsec);
+    task_ns = (requestEnd.tv_sec - requestStart.tv_sec) * 1000000000L + (requestEnd.tv_nsec - requestStart.tv_nsec);
 
     // task took less than one period, sleep for the rest of time
     if (task_ns < period_ns) {
       waitFor.tv_sec = 0;
       waitFor.tv_nsec = period_ns - task_ns;
-      nanosleep(&waitFor,NULL);
-    }
-    else {
+      nanosleep(&waitFor, NULL);
+    } else {
       // task took longer than the period
       printf("FG THREAD: task took longer than one period, exactly %f [ms], but the period is %f [ms]\n",
-          (double)task_ns/1E6, (double)period_ns/1E6);
+             (double)task_ns / 1E6, (double)period_ns / 1E6);
     }
   }
 
@@ -275,12 +273,12 @@ void* nps_flight_gear_loop(void* data __attribute__((unused)))
 
 
 
-void* nps_main_display(void* data __attribute__((unused)))
+void *nps_main_display(void *data __attribute__((unused)))
 {
   struct timespec requestStart;
   struct timespec requestEnd;
   struct timespec waitFor;
-  long int period_ns = 3*DISPLAY_DT*1000000000L; // thread period in nanoseconds
+  long int period_ns = 3 * DISPLAY_DT * 1000000000L; // thread period in nanoseconds
   long int task_ns = 0; // time it took to finish the task in nanoseconds
 
   struct NpsFdm fdm_ivy;
@@ -288,13 +286,12 @@ void* nps_main_display(void* data __attribute__((unused)))
 
   nps_ivy_init(nps_main.ivy_bus);
 
-  while(TRUE)
-  {
+  while (TRUE) {
     clock_gettime(CLOCK_REALTIME, &requestStart);
 
     pthread_mutex_lock(&fdm_mutex);
-    memcpy (&fdm_ivy, &fdm, sizeof(fdm));
-    memcpy (&sensors_ivy, &sensors, sizeof(sensors));
+    memcpy(&fdm_ivy, &fdm, sizeof(fdm));
+    memcpy(&sensors_ivy, &sensors, sizeof(sensors));
     pthread_mutex_unlock(&fdm_mutex);
 
     nps_ivy_display(&fdm_ivy, &sensors_ivy);
@@ -302,18 +299,17 @@ void* nps_main_display(void* data __attribute__((unused)))
     clock_gettime(CLOCK_REALTIME, &requestEnd);
 
     // Calculate time it took
-    task_ns = (requestEnd.tv_sec - requestStart.tv_sec)*1000000000L + (requestEnd.tv_nsec - requestStart.tv_nsec);
+    task_ns = (requestEnd.tv_sec - requestStart.tv_sec) * 1000000000L + (requestEnd.tv_nsec - requestStart.tv_nsec);
 
     // task took less than one period, sleep for the rest of time
     if (task_ns < period_ns) {
       waitFor.tv_sec = 0;
       waitFor.tv_nsec = period_ns - task_ns;
-      nanosleep(&waitFor,NULL);
-    }
-    else {
+      nanosleep(&waitFor, NULL);
+    } else {
       // task took longer than the period
       printf("IVY DISPLAY THREAD: task took longer than one period, exactly %f [ms], but the period is %f [ms]\n",
-          (double)task_ns/1E6, (double)period_ns/1E6);
+             (double)task_ns / 1E6, (double)period_ns / 1E6);
     }
 
   }

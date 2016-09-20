@@ -39,20 +39,21 @@ int main(int argc, char **argv)
   }
 
   if (nps_main.fg_host) {
-    pthread_create(&th_flight_gear,NULL,nps_flight_gear_loop,NULL);
+    pthread_create(&th_flight_gear, NULL, nps_flight_gear_loop, NULL);
   }
-  pthread_create(&th_display_ivy,NULL,nps_main_display,NULL);
-  pthread_create(&th_main_loop,NULL,nps_main_loop,NULL);
+  pthread_create(&th_display_ivy, NULL, nps_main_display, NULL);
+  pthread_create(&th_main_loop, NULL, nps_main_loop, NULL);
   pthread_join(th_main_loop, NULL);
 
   return 0;
 }
 
 
-void nps_update_launch_from_dl(uint8_t value __attribute__((unused))){}
+void nps_update_launch_from_dl(uint8_t value __attribute__((unused))) {}
 
 
-void nps_radio_and_autopilot_init(void){
+void nps_radio_and_autopilot_init(void)
+{
   enum NpsRadioControlType rc_type;
   char *rc_dev = NULL;
   if (nps_main.js_dev) {
@@ -83,18 +84,18 @@ void nps_main_run_sim_step(void)
 }
 
 
-void* nps_main_loop(void* data __attribute__((unused)))
+void *nps_main_loop(void *data __attribute__((unused)))
 {
   struct timespec requestStart;
   struct timespec requestEnd;
   struct timespec waitFor;
-  long int period_ns = HOST_TIMEOUT_MS*1000000LL; // thread period in nanoseconds
+  long int period_ns = HOST_TIMEOUT_MS * 1000000LL; // thread period in nanoseconds
   long int task_ns = 0; // time it took to finish the task in nanoseconds
 
   struct timeval tv_now;
   double  host_time_now;
 
-  while(TRUE){
+  while (TRUE) {
     if (pauseSignal) {
       char line[128];
       double tf = 1.0;
@@ -132,10 +133,10 @@ void* nps_main_loop(void* data __attribute__((unused)))
     host_time_now = time_to_double(&tv_now);
     double host_time_elapsed = nps_main.host_time_factor * (host_time_now  - nps_main.scaled_initial_time);
 
-  #if DEBUG_NPS_TIME
+#if DEBUG_NPS_TIME
     printf("%f,%f,%f,%f,%f,%f,", nps_main.host_time_factor, host_time_elapsed, host_time_now, nps_main.scaled_initial_time,
            nps_main.sim_time, nps_main.display_time);
-  #endif
+#endif
 
     int cnt = 0;
     static int prev_cnt = 0;
@@ -158,24 +159,23 @@ void* nps_main_loop(void* data __attribute__((unused)))
       printf("Warning: The time factor is too large for efficient operation! Please reduce the time factor.\n");
     }
 
-  #if DEBUG_NPS_TIME
+#if DEBUG_NPS_TIME
     printf("%f,%f\n", nps_main.sim_time, nps_main.display_time);
-  #endif
+#endif
 
     clock_gettime(CLOCK_REALTIME, &requestEnd); // end measurement
 
     // Calculate time it took
-    task_ns = (requestEnd.tv_sec - requestStart.tv_sec)*1000000000L + (requestEnd.tv_nsec - requestStart.tv_nsec);
+    task_ns = (requestEnd.tv_sec - requestStart.tv_sec) * 1000000000L + (requestEnd.tv_nsec - requestStart.tv_nsec);
 
     if (task_ns > 0) {
       waitFor.tv_sec = 0;
       waitFor.tv_nsec = period_ns - task_ns;
-      nanosleep(&waitFor,NULL);
-    }
-    else {
+      nanosleep(&waitFor, NULL);
+    } else {
       // task took longer than the period
       printf("MAIN THREAD: task took longer than one period, exactly %f [ms], but the period is %f [ms]\n",
-          (double)task_ns/1E6, (double)period_ns/1E6);
+             (double)task_ns / 1E6, (double)period_ns / 1E6);
     }
   }
   return(NULL);

@@ -38,7 +38,7 @@
 extern uint8_t *ins_buffer;
 
 extern void nps_ins_init(void);
-void nps_ins_fetch_data(struct NpsFdm* fdm_ins);
+void nps_ins_fetch_data(struct NpsFdm *fdm_ins);
 uint16_t nps_ins_fill_buffer(void);
 
 #endif /* NPS_INS_H */
