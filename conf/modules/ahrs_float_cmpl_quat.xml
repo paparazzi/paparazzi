@@ -5,10 +5,20 @@
     <description>
       AHRS using complementary filter in floating point.
       Propagation is done in quaternion representation.
+      Estimates the gyro bias.
+      By default uses magnetometer for heading for rotorcrafts.
+      For fixedwing firmware AHRS_GRAVITY_UPDATE_COORDINATED_TURN is enabled by default.
     </description>
     <configure name="USE_MAGNETOMETER" value="TRUE" description="set to FALSE to disable magnetometer"/>
     <configure name="AHRS_ALIGNER_LED" value="1" description="LED number to indicate AHRS alignment, none to disable (default is board dependent)"/>
-
+    <define name="AHRS_MAG_UPDATE_ALL_AXES" value="FALSE|TRUE" description="Use magnetometer to update all axes and not only yaw"/>
+    <define name="AHRS_USE_GPS_HEADING" value="FALSE|TRUE" description="Use GPS course to update heading"/>
+    <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN" value="FALSE|TRUE" description="Compensation of centrifugal force via GPS speed (to fly in circles with a fixedwing)"/>
+    <define name="AHRS_PROPAGATE_LOW_PASS_RATES" description="apply a low pass filter on rotational velocity"/>
+    <define name="AHRS_GRAVITY_HEURISTIC_FACTOR" value="30" description="Default is 30. Reduce accelerometer cut-off frequency when the vehicle is accelerating: norm(ax,ay,az) ~ 9,81 m/s2. WARNING: when the IMU is not well damped, the norm of accelerometers never equals to 9,81 m/s2. As a result, the GRAVITY_HEURISTIC_FACTOR will reduce the accelerometer bandwith even if the vehicle is not accelerating. Set to 0 in case of vibrations"/>
+    <define name="AHRS_FC_IMU_ID" value="ABI_BROADCAST" description="ABI sender id of IMU to use"/>
+    <define name="AHRS_FC_MAG_ID" value="ABI_BROADCAST" description="ABI sender id of magnetometer to use"/>
+    <define name="AHRS_FC_GPS_ID" value="GPS_MULTI_ID" description="ABI sender id of GPS to use"/>
   </doc>
 
   <settings>

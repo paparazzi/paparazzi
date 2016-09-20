@@ -43,10 +43,6 @@
 PRINT_CONFIG_MSG("LOW PASS FILTER ON GYRO RATES")
 #endif
 
-#ifdef AHRS_MAG_UPDATE_YAW_ONLY
-#error "The define AHRS_MAG_UPDATE_YAW_ONLY doesn't exist anymore, please remove it. This is the default behaviour. Define AHRS_MAG_UPDATE_ALL_AXES to use mag for all axes and not only yaw."
-#endif
-
 #if USE_MAGNETOMETER && AHRS_USE_GPS_HEADING
 #warning "Using both magnetometer and GPS course to update heading. Probably better to configure USE_MAGNETOMETER=0 if you want to use GPS course."
 #endif

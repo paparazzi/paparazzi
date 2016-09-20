@@ -4,11 +4,15 @@
   <doc>
     <description>
       AHRS using MLKF filter.
-      Multiplicative Linearized Kalman Filter.
+      Multiplicative Linearized Kalman Filter in quaternion formulation.
+      Estimates the gyro bias and needs magnetometer to update all 3 axes.
+      Not suitable for fixedwings!
+      Suitable for rotorcraft. The magnetometer is used and needs to be well calibrated. Estimates attitude and heading. Does not use GPS.
     </description>
-    <configure name="USE_MAGNETOMETER" value="TRUE" description="set to FALSE to disable magnetometer"/>
     <configure name="AHRS_ALIGNER_LED" value="1" description="LED number to indicate AHRS alignment, none to disable (default is board dependent)"/>
-
+    <define name="AHRS_MAG_UPDATE_ALL_AXES" value="FALSE|TRUE" description="Use magnetometer to update all axes and not only yaw"/>
+    <define name="AHRS_MLKF_IMU_ID" value="ABI_BROADCAST" description="ABI sender id of IMU to use"/>
+    <define name="AHRS_MLKF_MAG_ID" value="ABI_BROADCAST" description="ABI sender id of magnetometer to use"/>
   </doc>
 
   <settings>

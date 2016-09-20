@@ -5,10 +5,18 @@
     <description>
       AHRS using complementary filter in fixed point.
       Propagation is done in euler angles representation.
+      Not recommended for fixedwings, as this filter doesn't compensate for centrifugal force when flying turns.
+      Magnetometer is always only used for heading (yaw).
+      Does not handle the accel and mag updates correctly if BODY_TO_IMU is used for more than just adjustment by a few degrees.
+      In general, rather use int_cmpl_quat
     </description>
     <configure name="USE_MAGNETOMETER" value="TRUE" description="set to FALSE to disable magnetometer"/>
     <configure name="AHRS_ALIGNER_LED" value="1" description="LED number to indicate AHRS alignment, none to disable (default is board dependent)"/>
-
+    <define name="AHRS_MAG_OFFSET" value="0.0" description="offset in radians to subtract from the heading calculated by the magnetometer"/>
+     <define name="USE_NOISE_FILTER" description="apply a simple filter on the rate and accel inputs"/>
+     <define name="USE_NOISE_CUT" description="cut rate input at 1 rad/s and accel input at 20m/s2"/>
+     <define name="AHRS_ICE_IMU_ID" value="ABI_BROADCAST" description="ABI sender id of IMU to use"/>
+     <define name="AHRS_ICE_MAG_ID" value="ABI_BROADCAST" description="ABI sender id of magnetometer to use"/>
   </doc>
 
   <settings>
