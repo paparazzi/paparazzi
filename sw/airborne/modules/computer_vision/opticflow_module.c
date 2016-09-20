@@ -41,13 +41,13 @@
 #include "cv.h"
 
 /* Default sonar/agl to use in opticflow visual_estimator */
-#ifndef OPTICFLOW_AGL_ID
-#define OPTICFLOW_AGL_ID ABI_BROADCAST    ///< Default sonar/agl to use in opticflow visual_estimator
+#ifndef OPTICFLOW_RECEIVE_ABI_ID
+#define OPTICFLOW_RECEIVE_ABI_ID ABI_BROADCAST    ///< Default sonar/agl to use in opticflow visual_estimator
 #endif
 PRINT_CONFIG_VAR(OPTICFLOW_AGL_ID)
 
-#ifndef OPTICFLOW_SENDER_ID
-#define OPTICFLOW_SENDER_ID 1
+#ifndef OPTICFLOW_SEND_ABI_ID
+#define OPTICFLOW_SEND_ABI_ID 1
 #endif
 
 /* The main opticflow variables */
@@ -98,10 +98,10 @@ static void opticflow_telem_send(struct transport_tx *trans, struct link_device 
 void opticflow_module_init(void)
 {
   // Subscribe ABI messages
-  AbiBindMsgAGL(OPTICFLOW_AGL_ID, &opticflow_agl_ev, opticflow_agl_cb); // ABI to the altitude above ground level
-  AbiBindMsgIMU_ACCEL_INT32(OPTICFLOW_AGL_ID, &opticflow_imu_accel_ev,
+  AbiBindMsgAGL(OPTICFLOW_RECEIVE_ABI_ID, &opticflow_agl_ev, opticflow_agl_cb); // ABI to the altitude above ground level
+  AbiBindMsgIMU_ACCEL_INT32(OPTICFLOW_RECEIVE_ABI_ID, &opticflow_imu_accel_ev,
                             &opticflow_imu_accel_cb); // ABI to the IMU accelerometer measurements
-  AbiBindMsgBODY_TO_IMU_QUAT(OPTICFLOW_AGL_ID, &opticflow_body_to_imu_ev,
+  AbiBindMsgBODY_TO_IMU_QUAT(OPTICFLOW_RECEIVE_ABI_ID, &opticflow_body_to_imu_ev,
                              &opticflow_body_to_imu_cb); // ABI to the quaternion of body to imu
 
   // Set the opticflow state to 0
@@ -131,7 +131,7 @@ void opticflow_module_run(void)
   // Update the stabilization loops on the current calculation
   if (opticflow_got_result) {
     uint32_t now_ts = get_sys_time_usec();
-    AbiSendMsgOPTICAL_FLOW(OPTICFLOW_SENDER_ID, now_ts,
+    AbiSendMsgOPTICAL_FLOW(OPTICFLOW_SEND_ABI_ID, now_ts,
                            opticflow_result.flow_x,
                            opticflow_result.flow_y,
                            opticflow_result.flow_der_x,
@@ -141,7 +141,7 @@ void opticflow_module_run(void)
                            opticflow_state.agl);
     //TODO Find an appropiate quality measure for the noise model in the state filter, for now it is tracked_cnt
     if (opticflow_result.noise_measurement < 0.8) {
-      AbiSendMsgVELOCITY_ESTIMATE(OPTICFLOW_SENDER_ID, now_ts,
+      AbiSendMsgVELOCITY_ESTIMATE(OPTICFLOW_SEND_ABI_ID, now_ts,
                                   opticflow_result.vel_body_x,
                                   opticflow_result.vel_body_y,
                                   0.0f,
@@ -205,7 +205,7 @@ static void opticflow_agl_cb(uint8_t sender_id __attribute__((unused)), float di
  */
 static void opticflow_imu_accel_cb(uint8_t sender_id __attribute__((unused)), uint32_t stamp, struct Int32Vect3 *accel)
 {
-  memcpy(&opticflow_state.accel_imu_meas, accel, sizeof(struct Int32Vect3));
+  opticflow_state.accel_imu_meas = *accel;
 
 }
 
@@ -219,5 +219,5 @@ static void opticflow_body_to_imu_cb(uint8_t sender_id __attribute__((unused)),
 {
   struct FloatQuat imu_to_body_quat_temp;
   float_quat_invert(&imu_to_body_quat_temp, q_b2i_f); // invert quaternion for body-to-imu to imu-to-body
-  memcpy(&opticflow_state.imu_to_body_quat, &imu_to_body_quat_temp, sizeof(struct FloatQuat));
+  opticflow_state.imu_to_body_quat = imu_to_body_quat_temp;
 }
