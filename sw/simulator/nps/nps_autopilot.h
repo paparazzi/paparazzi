@@ -15,16 +15,9 @@
 #if defined MOTOR_MIXING_NB_MOTOR
 #define NPS_COMMANDS_NB MOTOR_MIXING_NB_MOTOR
 #else
-#ifdef NPS_ACTUATOR_NAMES
 #define NPS_COMMANDS_NB COMMANDS_NB
-#else
-// not using explicitly set NPS_ACTUATOR_NAMES -> throttle,roll,pitch,yaw commands
-// this case covers having more than 4 basic commands (throttle, roll, pitch,yaw) - for example flaps
-// although it doesn't feed the flaps values to the simulation yet
-#define NPS_COMMANDS_NB COMMANDS_NB
-#endif
-#endif
-#endif
+#endif /* #if defined MOTOR_MIXING_NB_MOTOR */
+#endif /* #ifndef NPS_COMMANDS_NB */
 
 struct NpsAutopilot {
   double commands[NPS_COMMANDS_NB];
