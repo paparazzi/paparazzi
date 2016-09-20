@@ -9,6 +9,18 @@
     <configure name="AHRS_ALIGNER_LED" value="1" description="LED number to indicate AHRS alignment, none to disable (default is board dependent)"/>
 
   </doc>
+
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="AHRS">
+        <dl_setting MAX="100" MIN="0" STEP="1" VAR="imu_health" shortname="health" module="subsystems/ahrs" />
+        <dl_setting MAX="100" MIN="0" STEP="1" VAR="renorm_sqrt_count" shortname="err_norm" module="subsystems/ahrs" />
+        <dl_setting MAX="15" MIN="-15" STEP="0.5" VAR="ins_roll_neutral" shortname="roll_neutral" module="subsystems/ahrs" param="INS_ROLL_NEUTRAL_DEFAULT" unit="rad" alt_unit="deg"/>
+        <dl_setting MAX="15" MIN="-15" STEP="0.5" VAR="ins_pitch_neutral" shortname="pitch_neutral" param="INS_PITCH_NEUTRAL_DEFAULT" unit="rad" alt_unit="deg"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
   <autoload name="ahrs_sim"/>
   <header>
     <file name="ahrs.h" dir="subsystems"/>

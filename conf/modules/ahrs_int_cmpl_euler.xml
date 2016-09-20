@@ -11,6 +11,14 @@
 
   </doc>
 
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="Filter">
+        <dl_setting var="ahrs_ice.reinj_1" min="512" step="512" max="262144" module="subsystems/ahrs/ahrs_int_cmpl_euler" shortname="reinj_1" type="int32" persistent="true"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
   <autoload name="ahrs_sim"/>
   <header>
     <file name="ahrs.h" dir="subsystems"/>
