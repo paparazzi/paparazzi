@@ -58,7 +58,7 @@ void kalman_filter_linear_2D_float(float *model, float *measurements, float *cov
   float_mat_transpose(Htrans, 2);
 
   //Previous state
-  float _Xprev[1][2];
+  float _Xprev[2][1];
   MAKE_MATRIX_PTR(Xprev, _Xprev, 2);
   Xprev[0][0] = state[0];
   Xprev[1][0] = state[1]; //state[1];
@@ -72,7 +72,7 @@ void kalman_filter_linear_2D_float(float *model, float *measurements, float *cov
   Pprevious[1][1] = covariance[3];
 
   //measurements;
-  float _Z[1][2];
+  float _Z[2][1];
   MAKE_MATRIX_PTR(Z, _Z, 2);
   Z[0][0] = measurements[0];
   Z[1][0] = measurements[1];
@@ -121,9 +121,9 @@ void kalman_filter_linear_2D_float(float *model, float *measurements, float *cov
   float _temp_mat3[2][2];
   MAKE_MATRIX_PTR(temp_mat3, _temp_mat3, 2)
 
-  float _temp_vec[1][2];
+  float _temp_vec[2][1];
   MAKE_MATRIX_PTR(temp_vec, _temp_vec, 2);
-  float _temp_vec2[1][2];
+  float _temp_vec2[2][1];
   MAKE_MATRIX_PTR(temp_vec2, _temp_vec2, 2);
 
 
