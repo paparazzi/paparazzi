@@ -64,6 +64,7 @@
     <program name="ADS-B Intruders receiver" command="sw/ground_segment/misc/sbs2ivy">
       <arg flag="--ac" constant="@AC_ID"/>
     </program>
+    <program name="SVInfo" command="sw/ground_segment/python/svinfo/svinfo.py"/>
  </section>
 
   <section name="sessions">
