@@ -245,9 +245,9 @@ bool nav_approaching_xy(float x, float y, float from_x, float from_y, float appr
 extern bool DownlinkSendWpNr(uint8_t _wp);
 
 #define DownlinkSendWp(_trans, _dev, i) {    \
-    float x = nav_utm_east0 +  waypoints[i].x; \
-    float y = nav_utm_north0 + waypoints[i].y; \
-    pprz_msg_send_WP_MOVED(_trans, _dev, AC_ID, &i, &x, &y, &(waypoints[i].a),&nav_utm_zone0); \
+    float x = state.utm_origin_f.east +  waypoints[i].x; \
+    float y = state.utm_origin_f.north + waypoints[i].y; \
+    pprz_msg_send_WP_MOVED(_trans, _dev, AC_ID, &i, &x, &y, &(waypoints[i].a),&state.utm_origin_f.zone); \
   }
 #endif /* DOWNLINK */
 

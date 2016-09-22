@@ -468,8 +468,11 @@ void nav_periodic_task(void)
 
 static void send_nav_ref(struct transport_tx *trans, struct link_device *dev)
 {
+  // TODO change message to float, both 32 bits
+  int32_t east = state.utm_origin_f.east;
+  int32_t north = state.utm_origin_f.north;
   pprz_msg_send_NAVIGATION_REF(trans, dev, AC_ID,
-                               &nav_utm_east0, &nav_utm_north0, &nav_utm_zone0, &ground_alt);
+                               &east, &north, &state.utm_origin_f.zone, &ground_alt);
 }
 
 static void send_nav(struct transport_tx *trans, struct link_device *dev)

@@ -85,15 +85,15 @@ void firmware_parse_msg(void)
       lla.lon = RadOfDeg((float)(DL_MOVE_WP_lon(dl_buffer) / 1e7));
       lla.alt = MOfMM(DL_MOVE_WP_alt(dl_buffer));
       struct UtmCoor_f utm;
-      utm.zone = nav_utm_zone0;
+      utm.zone = state.utm_origin_f.zone;
       utm_of_lla_f(&utm, &lla);
       nav_move_waypoint(wp_id, utm.east, utm.north, utm.alt);
 
       /* Waypoint range is limited. Computes the UTM pos back from the relative
          coordinates */
-      utm.east = waypoints[wp_id].x + nav_utm_east0;
-      utm.north = waypoints[wp_id].y + nav_utm_north0;
-      DOWNLINK_SEND_WP_MOVED(DefaultChannel, DefaultDevice, &wp_id, &utm.east, &utm.north, &utm.alt, &nav_utm_zone0);
+      utm.east = waypoints[wp_id].x + state.utm_origin_f.east;
+      utm.north = waypoints[wp_id].y + state.utm_origin_f.north;
+      DOWNLINK_SEND_WP_MOVED(DefaultChannel, DefaultDevice, &wp_id, &utm.east, &utm.north, &utm.alt, &state.utm_origin_f.zone);
     }
     break;
 #endif /** NAV */

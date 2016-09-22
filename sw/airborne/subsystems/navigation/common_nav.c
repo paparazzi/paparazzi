@@ -28,6 +28,7 @@
 #include "generated/flight_plan.h"
 #include "subsystems/ins.h"
 #include "math/pprz_geodetic_float.h"
+#include "math/pprz_geodetic_wgs84.h"
 
 float dist2_to_home;
 float dist2_to_wp;
@@ -37,11 +38,9 @@ bool too_far_from_home;
 const uint8_t nb_waypoint = NB_WAYPOINT;
 struct point waypoints[NB_WAYPOINT] = WAYPOINTS_UTM;
 
-float ground_alt;
+float ground_alt = NAV_MSL0;
+static float previous_ground_alt = NAV_MSL0;
 
-int32_t nav_utm_east0 = NAV_UTM_EAST0;
-int32_t nav_utm_north0 = NAV_UTM_NORTH0;
-uint8_t nav_utm_zone0 = NAV_UTM_ZONE0;
 float max_dist_from_home = MAX_DIST_FROM_HOME;
 
 /** Computes squared distance to the HOME waypoint.
@@ -59,24 +58,21 @@ void compute_dist2_to_home(void)
 #endif
 }
 
-
-static float previous_ground_alt;
-
-/** Reset the UTM zone to current GPS fix */
-unit_t nav_reset_utm_zone(void)
+/** Reset the UTM zone to current GPS fix
+ * @param zone requested zone to set, set 0 for current gps zone
+ */
+unit_t nav_reset_utm_zone(uint8_t zone)
 {
+  struct UtmCoor_f previous_origin;
+  UTM_COPY(previous_origin, state.utm_origin_f);
 
-  struct UtmCoor_f utm0;
-  utm0.zone = nav_utm_zone0;
-  utm0.north = nav_utm_north0;
-  utm0.east = nav_utm_east0;
-  utm0.alt = ground_alt;
-  ins_reset_utm_zone(&utm0);
+  ins_reset_utm_zone(zone);
 
-  /* Set the real UTM ref */
-  nav_utm_zone0 = utm0.zone;
-  nav_utm_east0 = utm0.east;
-  nav_utm_north0 = utm0.north;
+  /* zone extend waypoints if nessesary */
+  if (state.utm_origin_f.zone != previous_origin.zone)
+  {
+    nav_zone_extend_waypoints(&previous_origin, state.utm_origin_f.zone);
+  }
 
   return 0;
 }
@@ -84,17 +80,23 @@ unit_t nav_reset_utm_zone(void)
 /** Reset the geographic reference to the current GPS fix */
 unit_t nav_reset_reference(void)
 {
+  struct UtmCoor_f previous_origin;
+  UTM_COPY(previous_origin, state.utm_origin_f);
+
   /* realign INS */
   ins_reset_local_origin();
 
-  /* Set nav UTM ref */
-  nav_utm_east0 = state.utm_origin_f.east;
-  nav_utm_north0 = state.utm_origin_f.north;
-  nav_utm_zone0 = state.utm_origin_f.zone;
+  /* zone extend waypoints if nessesary */
+  if (state.utm_origin_f.zone != previous_origin.zone)
+  {
+    nav_zone_extend_waypoints(&previous_origin, state.utm_origin_f.zone);
+  }
 
   /* Ground alt */
   previous_ground_alt = ground_alt;
-  ground_alt = state.utm_origin_f.alt;
+  struct LlaCoor_f lla;
+  lla_of_utm_f(&lla, &state.utm_origin_f);
+  ground_alt = wgs84_ellipsoid_to_geoid_f(lla.lat, lla.lon);
 
   return 0;
 }
@@ -106,8 +108,34 @@ unit_t nav_reset_alt(void)
 
   /* Ground alt */
   previous_ground_alt = ground_alt;
-  ground_alt = state.utm_origin_f.alt;
+  struct LlaCoor_f lla;
+  lla_of_utm_f(&lla, &state.utm_origin_f);
+  ground_alt = wgs84_ellipsoid_to_geoid_f(lla.lat, lla.lon);
 
+  return TRUE;
+}
+
+/** Shift relative position of the waypoint according to a new zone
+ * global positions are not updated
+ */
+unit_t nav_zone_extend_waypoints(struct UtmCoor_f *prev_origin_utm, uint8_t zone)
+{
+  /* recompute locaiton of home waypoint in new zone */
+  struct LlaCoor_f prev_origin_lla;
+  lla_of_utm_f(&prev_origin_lla, prev_origin_utm);
+
+  struct UtmCoor_f new_origin_utm;
+  new_origin_utm.zone = zone;
+  utm_of_lla_f(&new_origin_utm, &prev_origin_lla);
+
+  struct EnuCoor_f origin_diff;
+  ENU_OF_UTM_DIFF(origin_diff, new_origin_utm, *prev_origin_utm);
+
+  uint8_t i;
+  for (i = 0; i < NB_WAYPOINT; i++) {
+    waypoints[i].x += origin_diff.x;
+    waypoints[i].y += origin_diff.y;
+  }
   return 0;
 }
 
@@ -136,8 +164,8 @@ void nav_move_waypoint(uint8_t wp_id, float ux, float uy, float alt)
 {
   if (wp_id < nb_waypoint) {
     float dx, dy;
-    dx = ux - nav_utm_east0 - waypoints[WP_HOME].x;
-    dy = uy - nav_utm_north0 - waypoints[WP_HOME].y;
+    dx = ux - state.utm_origin_f.east - waypoints[WP_HOME].x;
+    dy = uy - state.utm_origin_f.north - waypoints[WP_HOME].y;
     BoundAbs(dx, max_dist_from_home);
     BoundAbs(dy, max_dist_from_home);
     waypoints[wp_id].x = waypoints[WP_HOME].x + dx;

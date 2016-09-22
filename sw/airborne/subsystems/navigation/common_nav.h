@@ -57,17 +57,13 @@ extern struct point waypoints[];
 /** altitude of the ground in m above MSL */
 extern float ground_alt;
 
-extern int32_t nav_utm_east0;  /* m */
-extern int32_t nav_utm_north0; /* m */
-extern uint8_t nav_utm_zone0;
-
-
-void compute_dist2_to_home(void);
-unit_t nav_reset_utm_zone(void);
-unit_t nav_reset_reference(void) __attribute__((unused));
-unit_t nav_reset_alt(void) __attribute__((unused));
-unit_t nav_update_waypoints_alt(void) __attribute__((unused));
-void common_nav_periodic_task_4Hz(void);
+extern void compute_dist2_to_home(void);
+extern unit_t nav_reset_utm_zone(uint8_t zone);
+extern unit_t nav_reset_reference(void);
+extern unit_t nav_reset_alt(void);
+extern unit_t nav_update_waypoints_alt(void);
+extern unit_t nav_zone_extend_waypoints(struct UtmCoor_f *prev_origin_utm, uint8_t zone);
+extern void common_nav_periodic_task_4Hz(void);
 
 
 #define NavSetGroundReferenceHere() ({ nav_reset_reference(); nav_update_waypoints_alt(); false; })

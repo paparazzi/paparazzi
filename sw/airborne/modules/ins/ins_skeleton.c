@@ -136,12 +136,23 @@ void WEAK ins_module_reset_local_origin(void)
 void ins_reset_local_origin(void)
 {
   if (ins_module.gps.fix >= GPS_FIX_3D) {
-    ltp_def_from_ecef_i(&ins_module.ltp_def, &ins_module.gps.ecef_pos);
-    ins_module.ltp_def.lla.alt = ins_module.gps.lla_pos.alt;
-    ins_module.ltp_def.hmsl = ins_module.gps.hmsl;
-    ins_module.ltp_initialized = true;
+    if(bit_is_set(ins_module.gps.valid_fields, GPS_VALID_POS_ECEF_BIT))
+    {
+      ltp_def_from_ecef_i(&ins_module.ltp_def, &ins_module.gps.ecef_pos);
+    } else if (bit_is_set(ins_module.gps.valid_fields, GPS_VALID_POS_LLA_BIT))
+    {
+      ltp_def_from_lla_i(&ins_module.ltp_def, &ins_module.gps.lla_pos);
+    }
+
+    if (bit_is_set(ins_module.gps.valid_fields, GPS_VALID_HMSL_BIT))
+    {
+      ins_module.ltp_def.hmsl = ins_module.gps.hmsl;
+    }
+
     stateSetLocalOrigin_i(&ins_module.ltp_def);
+    ins_module.ltp_initialized = true;
   } else {
+    // TODO should we reset from flight plan is no GPS fix?
     ins_module.ltp_initialized = false;
   }
 

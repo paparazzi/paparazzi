@@ -95,8 +95,7 @@ let variables = [
   "FALSE";
   "QFU";
   "gps_mode"; "gps_utm_east"; "gps_utm_north"; "gps_utm_zone";
-  "nav_utm_east0"; "nav_utm_north0"; "nav_utm_zone0"; "cruise_throttle"; "gps_lost"
-
+  "cruise_throttle"; "gps_lost"
 ]
 
 exception Unknown_ident of string
