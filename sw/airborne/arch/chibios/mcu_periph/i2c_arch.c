@@ -105,8 +105,6 @@ static void handle_i2c_thd(struct i2c_periph *p)
       //if a timeout occurred before operation end
       // mark as failed and restart
       t->status = I2CTransFailed;
-      i2cStop((I2CDriver*)p->reg_addr);
-      i2cStart((I2CDriver*)p->reg_addr, i->cfg);
       break;
     case MSG_RESET:
       //if one or more I2C errors occurred, the errors can
