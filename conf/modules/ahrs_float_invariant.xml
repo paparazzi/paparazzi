@@ -1,0 +1,65 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ahrs_float_dcm" dir="ahrs">
+  <doc>
+    <description>
+      AHRS using invariant filter.
+    </description>
+    <configure name="USE_MAGNETOMETER" value="TRUE" description="set to FALSE to disable magnetometer"/>
+    <configure name="AHRS_ALIGNER_LED" value="1" description="LED number to indicate AHRS alignment, none to disable (default is board dependent)"/>
+    <define name="SEND_INVARIANT_FILTER" descrription="send INV_FILTER message for debugging"/>
+    <define name="AHRS_FINV_IMU_ID" value="ABI_BROADCAST" description="ABI sender id of IMU to use"/>
+    <define name="AHRS_FINV_MAG_ID" value="ABI_BROADCAST" description="ABI sender id of magnetometer to use"/>
+  </doc>
+
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="invariant">
+        <dl_setting MAX="1" MIN="1" STEP="1" VAR="ahrs_float_inv.reset" shortname="reset"/>
+        <dl_setting MAX="1." MIN="0." STEP="0.01" VAR="ahrs_float_inv.gains.lx" shortname="lx" module="subsystems/ahrs/ahrs_float_invariant" param="AHRS_INV_LX"/>
+        <dl_setting MAX="1." MIN="0." STEP="0.01" VAR="ahrs_float_inv.gains.ly" shortname="ly" param="AHRS_INV_LY"/>
+        <dl_setting MAX="1." MIN="0." STEP="0.01" VAR="ahrs_float_inv.gains.lz" shortname="lz" param="AHRS_INV_LZ"/>
+        <dl_setting MAX=".1" MIN="0." STEP="0.001" VAR="ahrs_float_inv.gains.mx" shortname="mx" param="AHRS_INV_MX"/>
+        <dl_setting MAX=".1" MIN="0." STEP="0.001" VAR="ahrs_float_inv.gains.my" shortname="my" param="AHRS_INV_MY"/>
+        <dl_setting MAX=".1" MIN="0." STEP="0.001" VAR="ahrs_float_inv.gains.mz" shortname="mz" param="AHRS_INV_MZ"/>
+        <dl_setting MAX="1." MIN="0." STEP="0.01" VAR="ahrs_float_inv.gains.n" shortname="n" param="AHRS_INV_N"/>
+        <dl_setting MAX="1." MIN="0." STEP="0.01" VAR="ahrs_float_inv.gains.o" shortname="o" param="AHRS_INV_O"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <header>
+    <file name="ahrs.h" dir="subsystems"/>
+  </header>
+
+  <makefile target="!sim|fbw">
+    <configure name="USE_MAGNETOMETER" default="1"/>
+    <configure name="AHRS_ALIGNER_LED" default="none"/>
+
+    <define name="USE_MAGNETOMETER" cond="ifeq (,$(findstring $(USE_MAGNETOMETER),0 FALSE))"/>
+    <define name="AHRS_ALINGER_LED" value="$(AHRS_ALIGNER_LED)" cond="ifneq ($(AHRS_ALIGNER_LED),none)"/>
+    <define name="USE_AHRS"/>
+    <define name="USE_AHRS_ALIGNER"/>
+
+    <file name="ahrs.c" dir="subsystems"/>
+    <file name="ahrs_aligner.c" dir="subsystems/ahrs"/>
+    <file name="ahrs_float_invariant.c" dir="subsystems/ahrs"/>
+    <file name="ahrs_float_invariant_wrapper.c" dir="subsystems/ahrs"/>
+    <raw>
+ifdef SECONDARY_AHRS
+ifneq (,$(findstring $(SECONDARY_AHRS), invariant float_invariant))
+# this is the secondary AHRS
+$(TARGET).CFLAGS += -DAHRS_SECONDARY_TYPE_H=\"subsystems/ahrs/ahrs_float_invariant_wrapper.h\"
+$(TARGET).CFLAGS += -DSECONDARY_AHRS=ahrs_float_invariant
+else
+# this is the primary AHRS
+$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_invariant_wrapper.h\"
+$(TARGET).CFLAGS += -DPRIMARY_AHRS=ahrs_float_invariant
+endif
+else
+# plain old single AHRS usage
+$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_invariant_wrapper.h\"
+endif
+    </raw>
+  </makefile>
+</module>
