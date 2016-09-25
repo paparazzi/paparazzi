@@ -117,6 +117,8 @@ extern void enu_of_ecef_vect_i(struct EnuCoor_i *enu, struct LtpDef_i *def, stru
 extern void ned_of_ecef_vect_i(struct NedCoor_i *ned, struct LtpDef_i *def, struct EcefCoor_i *ecef);
 extern void enu_of_lla_point_i(struct EnuCoor_i *enu, struct LtpDef_i *def, struct LlaCoor_i *lla);
 extern void ned_of_lla_point_i(struct NedCoor_i *ned, struct LtpDef_i *def, struct LlaCoor_i *lla);
+extern void enu_of_lla_pos_i(struct EnuCoor_i *enu, struct LtpDef_i *def, struct LlaCoor_i *lla);
+extern void ned_of_lla_pos_i(struct NedCoor_i *ned, struct LtpDef_i *def, struct LlaCoor_i *lla);
 extern void enu_of_lla_vect_i(struct EnuCoor_i *enu, struct LtpDef_i *def, struct LlaCoor_i *lla);
 extern void ned_of_lla_vect_i(struct NedCoor_i *ned, struct LtpDef_i *def, struct LlaCoor_i *lla);
 extern void ecef_of_enu_point_i(struct EcefCoor_i *ecef, struct LtpDef_i *def, struct EnuCoor_i *enu);
