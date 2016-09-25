@@ -212,7 +212,7 @@ $(MODULES_H) : $(CONF)/$(AIRFRAME_XML) $(FLIGHT_PLAN_XML) $(GENERATORS)/gen_modu
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
 	@echo GENERATE $@
 	$(eval $@_TMP := $(shell $(MKTEMP)))
-	$(Q)$(GENERATORS)/gen_modules.out $(SETTINGS_MODULES) $(DEFAULT_MODULES_FREQUENCY) $(FLIGHT_PLAN_XML) $< > $($@_TMP)
+	$(Q)$(GENERATORS)/gen_modules.out $(AC_ID) $(SETTINGS_MODULES) $(DEFAULT_MODULES_FREQUENCY) $(FLIGHT_PLAN_XML) $< > $($@_TMP)
 	$(Q)mv $($@_TMP) $@
 	$(Q)chmod a+r $@
 

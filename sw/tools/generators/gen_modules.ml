@@ -417,12 +417,13 @@ let write_settings = fun xml_file out_set modules ->
 let h_name = "MODULES_H"
 
 let () =
-  if Array.length Sys.argv <> 5 then
-    failwith (Printf.sprintf "Usage: %s out_settings_file default_freq fp_file xml_file" Sys.argv.(0));
-  let xml_file = Sys.argv.(4)
-  and fp_file = Sys.argv.(3)
-  and default_freq = int_of_string(Sys.argv.(2))
-  and out_set = open_out Sys.argv.(1) in
+  if Array.length Sys.argv <> 6 then
+    failwith (Printf.sprintf "Usage: %s ac_id out_settings_file default_freq fp_file xml_file" Sys.argv.(0));
+  let xml_file = Sys.argv.(5)
+  and fp_file = Sys.argv.(4)
+  and default_freq = int_of_string(Sys.argv.(3))
+  and out_set = open_out Sys.argv.(2)
+  and ac_id = Sys.argv.(1) in
   try
     let xml = start_and_begin xml_file h_name in
     fprintf out_h "#define MODULES_IDLE  0\n";
@@ -446,7 +447,7 @@ let () =
     let modules =
       try
         let target = Sys.getenv "TARGET" in
-        GC.get_modules_of_config ~target xml (ExtXml.parse_file fp_file)
+        GC.get_modules_of_config ~target ac_id xml (ExtXml.parse_file fp_file)
       with
       | Not_found -> failwith "TARTGET env needs to be specified to generate modules files"
     in
