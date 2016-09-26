@@ -40,15 +40,27 @@
 
 #include "cv.h"
 
-/* Default sonar/agl to use in opticflow visual_estimator */
-#ifndef OPTICFLOW_RECEIVE_ABI_ID
-#define OPTICFLOW_RECEIVE_ABI_ID ABI_BROADCAST    ///< Default sonar/agl to use in opticflow visual_estimator
+/* ABI messages sender ID */
+#ifndef OPTICFLOW_AGL_ID
+#define OPTICFLOW_AGL_ID ABI_BROADCAST    ///< Default sonar/agl to use in opticflow visual_estimator
 #endif
 PRINT_CONFIG_VAR(OPTICFLOW_AGL_ID)
 
-#ifndef OPTICFLOW_SEND_ABI_ID
-#define OPTICFLOW_SEND_ABI_ID 1
+#ifndef OPTICFLOW_IMU_ID
+#define OPTICFLOW_IMU_ID ABI_BROADCAST    ///< Default IMU (accelerometers) to use in opticflow visual_estimator
 #endif
+PRINT_CONFIG_VAR(OPTICFLOW_IMU_ID)
+
+#ifndef OPTICFLOW_BODY_TO_IMU_ID
+#define OPTICFLOW_BODY_TO_IMU_ID ABI_BROADCAST    ///< Default body to IMU to use in opticflow visual_estimator
+#endif
+PRINT_CONFIG_VAR(OPTICFLOW_BODY_TO_IMU_ID)
+
+#ifndef OPTICFLOW_SEND_ABI_ID
+#define OPTICFLOW_SEND_ABI_ID 1       ///< Default ID to send abi messages
+#endif
+PRINT_CONFIG_VAR(OPTICFLOW_SEND_ABI_ID)
+
 
 /* The main opticflow variables */
 struct opticflow_t opticflow;                      ///< Opticflow calculations
@@ -98,10 +110,10 @@ static void opticflow_telem_send(struct transport_tx *trans, struct link_device 
 void opticflow_module_init(void)
 {
   // Subscribe ABI messages
-  AbiBindMsgAGL(OPTICFLOW_RECEIVE_ABI_ID, &opticflow_agl_ev, opticflow_agl_cb); // ABI to the altitude above ground level
-  AbiBindMsgIMU_ACCEL_INT32(OPTICFLOW_RECEIVE_ABI_ID, &opticflow_imu_accel_ev,
+  AbiBindMsgAGL(OPTICFLOW_AGL_ID, &opticflow_agl_ev, opticflow_agl_cb); // ABI to the altitude above ground level
+  AbiBindMsgIMU_ACCEL_INT32(OPTICFLOW_IMU_ID, &opticflow_imu_accel_ev,
                             &opticflow_imu_accel_cb); // ABI to the IMU accelerometer measurements
-  AbiBindMsgBODY_TO_IMU_QUAT(OPTICFLOW_RECEIVE_ABI_ID, &opticflow_body_to_imu_ev,
+  AbiBindMsgBODY_TO_IMU_QUAT(OPTICFLOW_BODY_TO_IMU_ID, &opticflow_body_to_imu_ev,
                              &opticflow_body_to_imu_cb); // ABI to the quaternion of body to imu
 
   // Set the opticflow state to 0
