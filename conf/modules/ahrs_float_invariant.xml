@@ -7,7 +7,7 @@
     </description>
     <configure name="USE_MAGNETOMETER" value="TRUE" description="set to FALSE to disable magnetometer"/>
     <configure name="AHRS_ALIGNER_LED" value="1" description="LED number to indicate AHRS alignment, none to disable (default is board dependent)"/>
-    <define name="SEND_INVARIANT_FILTER" descrription="send INV_FILTER message for debugging"/>
+    <define name="SEND_INVARIANT_FILTER" description="send INV_FILTER message for debugging"/>
     <define name="AHRS_FINV_IMU_ID" value="ABI_BROADCAST" description="ABI sender id of IMU to use"/>
     <define name="AHRS_FINV_MAG_ID" value="ABI_BROADCAST" description="ABI sender id of magnetometer to use"/>
   </doc>
