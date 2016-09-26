@@ -81,19 +81,19 @@
 
 /* Set the colour balance gains */
 #ifndef MT9F002_GAIN_GREEN1
-#define MT9F002_GAIN_GREEN1 2.0
+#define MT9F002_GAIN_GREEN1 3.0
 #endif
 
 #ifndef MT9F002_GAIN_GREEN2
-#define MT9F002_GAIN_GREEN2 2.0
+#define MT9F002_GAIN_GREEN2 3.0
 #endif
 
 #ifndef MT9F002_GAIN_RED
-#define MT9F002_GAIN_RED 2.0
+#define MT9F002_GAIN_RED 3.0
 #endif
 
 #ifndef MT9F002_GAIN_BLUE
-#define MT9F002_GAIN_BLUE 2.0
+#define MT9F002_GAIN_BLUE 4.0
 #endif
 
 /* Set subsampling */

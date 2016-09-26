@@ -63,6 +63,9 @@ struct mt9f002_t mt9f002 = {
   .offset_x = MT9F002_INITIAL_OFFSET_X,
   .offset_y = MT9F002_INITIAL_OFFSET_Y,
 
+  .x_odd_inc = MT9F002_X_ODD_INC_VAL,
+  .y_odd_inc = MT9F002_Y_ODD_INC_VAL,
+
   // I2C connection port
   .i2c_periph = &i2c0
 };

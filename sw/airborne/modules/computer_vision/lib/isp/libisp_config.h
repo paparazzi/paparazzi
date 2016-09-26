@@ -411,11 +411,11 @@ struct libisp_config isp_config = {
 
   /* Color space conversion */
   .chroma = {
-    .coeff_01_00 = {{    526, 1032   }},
-    .coeff_10_02 = {{    201, 900    }},
-    .coeff_12_11 = {{   -753, -146   }},
-    .coeff_21_20 = {{   -304, -596   }},
-    .coeff_22    = {{    900         }},
+    .coeff_01_00 = {{    436, 1464   }},
+    .coeff_10_02 = {{    147, 16179  }},
+    .coeff_12_11 = {{  15696, 893    }},
+    .coeff_21_20 = {{   1260, 15392  }},
+    .coeff_22    = {{  16179         }},
     .offset_ry   = {{  0, 16  }},
     .clip_ry     = {{ 16, 235 }},
     .offset_gu   = {{  0, 128 }},
