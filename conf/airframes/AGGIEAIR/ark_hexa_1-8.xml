@@ -46,11 +46,11 @@ ARK RT
 
   <modules>
     <module name="sys_mon"/>
-    <module name="xgear">
+    <module name="extra_dl">
       <!-- in order to use uart1 without chibios we need to remap the peripheral-->
       <define name="REMAP_UART1" value="TRUE"/>
-      <configure name="XGEAR_PORT" value="UART1"/>
-      <configure name="XGEAR_BAUD" value="B921600"/>
+      <configure name="EXTRA_DL_PORT" value="UART1"/>
+      <configure name="EXTRA_DL_BAUD" value="B921600"/>
     </module>
   </modules>
 

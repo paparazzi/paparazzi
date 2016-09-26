@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2010  ENAC
+ * Copyright (C) 2016  2016 Michal Podhradsky <http://github.com/podhrmic>
  *
  * This file is part of paparazzi.
  *
@@ -19,12 +20,10 @@
  * Boston, MA 02111-1307, USA.
  *
  */
-
-/** \file extra_pprz_dl.h
- *  \brief Extra datalink using PPRZ protocol
- *
+/**
+ * @file "modules/datalink/extra_pprz_dl.h"
+ * Extra datalink and telemetry using PPRZ protocol
  */
-
 #ifndef EXTRA_PPRZ_DL_H
 #define EXTRA_PPRZ_DL_H
 
@@ -47,6 +46,12 @@ extern struct pprz_transport extra_pprz_tp;
 
 /** Init function */
 extern void extra_pprz_dl_init(void);
+
+/** Periodic function
+ *
+ * should be called at TELEMETRY_FREQUENCY
+ */
+extern void extra_pprz_dl_periodic(void);
 
 #endif /* EXTRA_PPRZ_DL_H */
 

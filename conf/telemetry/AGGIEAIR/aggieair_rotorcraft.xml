@@ -163,7 +163,7 @@
 
   </process>
 
-  <process name="Xgear">
+  <process name="Extra">
     <mode name="default">
     <message name="MOTOR_MIXING"            period="0.00625"/>
     </mode>

@@ -117,7 +117,7 @@
       <message name="ACTUATORS"           period="5"/> <!-- For trimming -->
     </mode>
   </process>
-  <process name="Xgear">
+  <process name="Extra">
     <mode name="default">
     <message name="COMMANDS"            period="0.01"/>
     </mode>
