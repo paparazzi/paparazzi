@@ -46,6 +46,7 @@
 #include "modules/datalink/extra_pprz_dl.h"
 #include "subsystems/datalink/telemetry.h"
 
+
 struct pprz_transport extra_pprz_tp;
 
 void extra_pprz_dl_init(void)
