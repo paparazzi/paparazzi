@@ -165,7 +165,7 @@
 
   <process name="Extra">
     <mode name="default">
-    <message name="MOTOR_MIXING"            period="0.00625"/>
+      <message name="MOTOR_MIXING"            period="0.00625"/>
     </mode>
   </process>
 
