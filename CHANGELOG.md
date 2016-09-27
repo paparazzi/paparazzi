@@ -1,3 +1,19 @@
+Paparazzi v5.10_stable
+======================
+
+Stable version release
+
+- convert ahrs to modules
+  [#1859] (http://github.com/paparazzi/paparazzi/pull/1859)
+- svinfo vizu
+  [#1860] (http://github.com/paparazzi/paparazzi/pull/1860)
+- fix i2c, uart and systime drivers for chibios
+- several small fix on configuration files
+- fix in state and geodetic interface
+- fix for secondary GPS timeout
+- fix airframe generation to have all configuration variables first
+
+
 Paparazzi v5.9.0_testing
 ========================
 
