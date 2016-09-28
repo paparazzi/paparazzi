@@ -10,7 +10,9 @@
 
     <!-- Optical flow calculation parameters -->
     <section name="OPTICFLOW" prefix="OPTICFLOW_">
-      <define name="RECEIVE_ABI_ID" value="ABI_SENDER_ID" description="ABI receive id for ABI message (sonar measurement/ accelerometers / body-to-imu quat) (default: ABI_BROADCAST)"/>
+      <define name="AGL_ID" value="ABI_BROADCAST" description="ABI receive id for ABI message (sonar measurement) (default: ABI_BROADCAST)"/>
+<define name="IMU_ID" value="ABI_BROADCAST" description="ABI receive id for ABI message (accelerometers) (default: ABI_BROADCAST)"/>
+<define name="BODY_TO_IMU_ID" value="ABI_BROADCAST" description="ABI receive id for ABI message (body to imu quat) (default: ABI_BROADCAST)"/>
       <define name="SEND_ABI_ID" value="1" description="ABI sender id for opticflow messages (default: 1)"/>
 
       <!-- Video device parameters -->
