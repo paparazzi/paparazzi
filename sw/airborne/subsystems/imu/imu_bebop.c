@@ -70,6 +70,8 @@ PRINT_CONFIG_VAR(BEBOP_GYRO_RANGE)
 #endif
 PRINT_CONFIG_VAR(BEBOP_ACCEL_RANGE)
 
+struct OrientationReps imu_to_mag_bebop;    ///< IMU to magneto rotation
+
 /** Basic Navstik IMU data */
 struct ImuBebop imu_bebop;
 
@@ -87,6 +89,15 @@ void imu_bebop_init(void)
 
   /* AKM8963 */
   ak8963_init(&imu_bebop.ak, &(BEBOP_MAG_I2C_DEV), AK8963_ADDR);
+
+#if BEBOP_VERSION2
+  //the magnetometer of the bebop2 is located on the gps board,
+  //which is under a slight angle
+  struct FloatEulers imu_to_mag_eulers =
+          {0.0, RadOfDeg(8.5), 0.0};
+  orientationSetEulers_f(&imu_to_mag_bebop, &imu_to_mag_eulers);
+#endif
+
 }
 
 /**
@@ -132,8 +143,13 @@ void imu_bebop_event(void)
 
   if (imu_bebop.ak.data_available) {
 #if BEBOP_VERSION2
+    struct Int32Vect3 mag_temp;
     // In the second bebop version the magneto is turned 90 degrees
-    VECT3_ASSIGN(imu.mag_unscaled, -imu_bebop.ak.data.vect.x, -imu_bebop.ak.data.vect.y, imu_bebop.ak.data.vect.z);
+    VECT3_ASSIGN(mag_temp, -imu_bebop.ak.data.vect.x, -imu_bebop.ak.data.vect.y, imu_bebop.ak.data.vect.z);
+
+    // Rotate the magneto
+    struct Int32RMat *imu_to_mag_rmat = orientationGetRMat_i(&imu_to_mag_bebop);
+    int32_rmat_vmult(&imu.mag_unscaled, imu_to_mag_rmat, &mag_temp);
 #else //BEBOP regular first verion
     VECT3_ASSIGN(imu.mag_unscaled, -imu_bebop.ak.data.vect.y, imu_bebop.ak.data.vect.x, imu_bebop.ak.data.vect.z);
 #endif
