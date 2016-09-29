@@ -36,18 +36,16 @@
 
 #include BOARD_CONFIG
 
-#include "ch.h"
-#include "hal.h"
+#include <ch.h>
+#include <hal.h>
 
-#include "led.h"
+#if USE_I2C1 || USE_I2C2 || USE_I2C3
 
 // private I2C init structure
 struct i2c_init {
   semaphore_t *sem;
   I2CConfig *cfg;
 };
-
-#if USE_I2C1 || USE_I2C2 || USE_I2C3
 
 
 static void handle_i2c_thd(struct i2c_periph *p);
