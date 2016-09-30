@@ -48,9 +48,7 @@
     <module name="video_rtp_stream">
       <define name="VIEWVIDEO_CAMERA" value="front_camera"/>
       <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
-      <define name="VIEWVIDEO_QUALITY_FACTOR" value="40"/>
-
-
+      <define name="VIEWVIDEO_QUALITY_FACTOR" value="60"/>
     </module>
 
     <module name="cv_ae_awb"/>
