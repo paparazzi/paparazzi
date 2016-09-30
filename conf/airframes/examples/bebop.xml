@@ -11,9 +11,9 @@
     </target>
 
     <define name="MT9F002_OUTPUT_HEIGHT" value="640" />  <!-- full height 4608 -->
-    <define name="MT9F002_OUTPUT_WIDTH" value="480" />  <!-- full width 2592 (3288) -->
+    <define name="MT9F002_OUTPUT_WIDTH" value="640" />  <!-- full width 2592 (3288) -->
     <define name="MT9F002_INITIAL_OFFSET_Y" value="384" />
-    <define name="MT9F002_INITIAL_OFFSET_X" value="1280" />
+    <define name="MT9F002_INITIAL_OFFSET_X" value="1024" />
     <define name="MT9F002_X_ODD_INC_VAL" value="7" /> <!-- downsize x4 -->
     <define name="MT9F002_Y_ODD_INC_VAL" value="7" />
     <define name="MT9F002_OUTPUT_SCALER" value="1" />

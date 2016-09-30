@@ -798,7 +798,7 @@ void mt9f002_set_resolution(struct mt9f002_t *mt)
 	    write_reg(mt, MT9F002_SCALING_MODE, 2, 2); // Vertical and horizontal scaling
 	    write_reg(mt, MT9F002_SCALE_M, scaleFactor, 2);
 	  }
-	  printf("OUTPUT_SIZE: (%i, %i)\tSCALED_SIZE: (%i, %i)\n", mt->output_width, mt->output_height, mt->scaled_width, mt->scaled_height);
+	  printf("[MT9F002] Output size: (%i, %i), scaled size: (%i, %i)\n", mt->output_width, mt->output_height, mt->scaled_width, mt->scaled_height);
 	  /* Set position (based on offset and subsample increment) */
 	  if(mt->offset_x % (x_skip_factor * 8) != 0)
 	  {

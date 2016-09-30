@@ -87,10 +87,10 @@ void cv_ae_awb_periodic(void) {
     float fTolerance = 2.0f;
     float targetAWB = 0.0f;
 
-    printf("U-V: %f\r\n", avgU - avgV);
+//    printf("U-V: %f\r\n", avgU - avgV);
     if (avgU - avgV + targetAWB < -fTolerance) {
       // Want more red
-      printf("Too red...\r\n");
+//      printf("Too red...\r\n");
       mt9f002.gain_blue += 0.1;
       mt9f002.gain_red  -= 0.1;
       Bound(mt9f002.gain_blue, 2, 50);
@@ -99,7 +99,7 @@ void cv_ae_awb_periodic(void) {
     }
     else if(avgU - avgV + targetAWB > fTolerance) {
       // Want more blue
-      printf("Too blue...\r\n");
+//      printf("Too blue...\r\n");
       mt9f002.gain_blue -= 0.1;
       mt9f002.gain_red  += 0.1;
       Bound(mt9f002.gain_blue, 2, 50);
