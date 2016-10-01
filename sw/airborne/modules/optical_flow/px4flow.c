@@ -51,12 +51,17 @@ static void decode_optical_flow_msg(struct mavlink_message *msg __attribute__((u
 {
   optical_flow_available = true;
 
-  // Y negated to get to the body of the drone
-  AbiSendMsgVELOCITY_ESTIMATE(PX4FLOW_VELOCITY_ID, 0,
-                              (optical_flow.flow_x / optical_flow.ground_distance),
-                              -1.0 * (optical_flow.flow_y / optical_flow.ground_distance),
-                              0.0f,
-                              PX4FLOW_NOISE);
+  // positive distance means it's known/valid
+  if (optical_flow.ground_distance > 0) {
+    // Y negated to get to the body of the drone
+    AbiSendMsgVELOCITY_ESTIMATE(PX4FLOW_VELOCITY_ID, 0,
+                                (optical_flow.flow_x / optical_flow.ground_distance),
+                                -1.0 * (optical_flow.flow_y / optical_flow.ground_distance),
+                                0.0f,
+                                PX4FLOW_NOISE);
+
+    AbiSendMsgAGL(AGL_SONAR_PX4FLOW_ID, optical_flow.ground_distance);
+  }
 }
 
 /** Initialization function
