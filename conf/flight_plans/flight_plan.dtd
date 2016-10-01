@@ -198,6 +198,7 @@ approaching_time CDATA #IMPLIED
 exceeding_time CDATA #IMPLIED
 throttle CDATA #IMPLIED
 climb CDATA #IMPLIED
+forward CDATA #IMPLIED
 until CDATA #IMPLIED>
 
 <!ATTLIST path

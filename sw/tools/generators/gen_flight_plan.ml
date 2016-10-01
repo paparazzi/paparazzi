@@ -427,6 +427,7 @@ let rec print_stage = fun index_of_waypoints x ->
         in
         let at = try Some (ExtXml.attrib x "approaching_time") with _ -> None in
         let et = try Some (ExtXml.attrib x "exceeding_time") with _ -> None in
+        let fwd = try Some (ExtXml.attrib x "forward") with _ -> None in
         let at = match at, et with
           | Some a, None -> a
           | None, Some e -> "-"^e
@@ -446,6 +447,10 @@ let rec print_stage = fun index_of_waypoints x ->
         let vmode = output_vmode x wp last_wp in
         if vmode = "glide" && hmode <> "route" then
           failwith "glide vmode requires route hmode";
+        if fwd = Some("true") then begin
+          lprintf "FlightModeFixedwing();\n"
+        end else
+          lprintf "FlightModeRotorcraft();\n";
         left (); lprintf "}\n";
         begin
           try
@@ -462,10 +467,12 @@ let rec print_stage = fun index_of_waypoints x ->
             let wp = get_index_waypoint (ExtXml.attrib x "wp") index_of_waypoints in
             ignore (output_hmode x wp "");
             ignore (output_vmode x wp "");
+            lprintf "FlightModeRotorcraft();\n";
           with
               Xml2h.Error _ ->
                 lprintf "NavGotoXY(last_x, last_y);\n";
-                ignore(output_vmode x "" "")
+                ignore(output_vmode x "" "");
+                lprintf "FlightModeRotorcraft();\n";
         end;
         begin
           try
