@@ -7,7 +7,10 @@ import threading
 import math
 import pynotify
 
-sys.path.append(os.getenv("PAPARAZZI_HOME") + "/sw/ext/pprzlink/lib/v1.0/python")
+PPRZ_SRC = os.getenv("PAPARAZZI_SRC", os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                                      '../../../..')))
+
+sys.path.append(PPRZ_SRC + "/sw/ext/pprzlink/lib/v1.0/python")
 
 from pprzlink.ivy import IvyMessagesInterface
 
@@ -121,6 +124,9 @@ class SVInfoFrame(wx.Frame):
         self.Bind(wx.EVT_PAINT, self.OnPaint) 
         self.Bind(wx.EVT_SIZE, self.OnSize)
         self.Bind(wx.EVT_CLOSE, self.OnClose)
+
+        ico = wx.Icon(PPRZ_SRC + "/sw/ground_segment/python/svinfo/svinfo.ico", wx.BITMAP_TYPE_ICO)
+        self.SetIcon(ico)
 
         self.sv = {}
 
