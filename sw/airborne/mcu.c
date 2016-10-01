@@ -89,11 +89,19 @@ void mcu_init(void)
 #if defined MCU_PWR
   gpio_setup_output(MCU_PWR, MCU_PWR_PIN);
 #if defined BTN_ON
-  if(!gpio_get(BTN_ON, BTN_ON_PIN))
+  gpio_setup_input(BTN_ON, BTN_ON_PIN);
+  if(gpio_get(BTN_ON, BTN_ON_PIN))
 #endif
   {
-  MCU_PWR_ON(MCU_PWR, MCU_PWR_PIN);
+    MCU_PWR_ON(MCU_PWR, MCU_PWR_PIN);
   }
+#if defined BTN_ON
+  else {
+    while(true) {
+      MCU_PWR_OFF(MCU_PWR, MCU_PWR_PIN);
+    }
+  }
+#endif
 #endif
 
 #ifdef PERIPHERALS_AUTO_INIT
