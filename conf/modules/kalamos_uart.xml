@@ -1,0 +1,44 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="kalamos_uart" dir="sensors">
+  <doc>
+    <description>Parrot Kalamos Nvidia tk1 stereo vision uart (RS232) communication</description>
+    <configure name="KALAMOS_PORT" value="UART4" description="select which uart it is connected to"/>
+    <configure name="KALAMOS_BAUD" value="B115200" description="set the baudrate of the uart"/>
+  </doc>
+    <settings>
+    <dl_settings NAME="kalamos">
+      <dl_settings NAME="Kalamos">
+        <dl_setting module="sensors/kalamos_uart" var="kalamos_enable_landing" min="0" max="1" step="1" values="off|on" shortname="landing"/>
+        <dl_setting module="sensors/kalamos_uart" var="kalamos_enable_spotsearch" min="0" max="1" step="1" values="off|on" shortname="spotsearch"/>
+        <dl_setting module="sensors/kalamos_uart" var="kalamos_enable_findjoe" min="0" max="1" step="1" values="off|on" shortname="findjoe"/>
+        <dl_setting module="sensors/kalamos_uart" var="kalamos_enable_opticflow" min="0" max="1" step="1" values="off|on" shortname="opticflow"/>
+        <dl_setting module="sensors/kalamos_uart" var="kalamos_enable_videorecord" min="0" max="1" step="1" values="off|on" shortname="record"/>
+        <dl_setting module="sensors/kalamos_uart" var="kalamos_search_height" min="1" max="100" step="1" shortname="search_height"/>
+        <dl_setting module="sensors/kalamos_uart" var="kalamos_land_xy_gain" min="0" max="50" step="0.1" shortname="land_xy_gain"/>
+        <dl_setting module="sensors/kalamos_uart" var="kalamos_land_z_gain" min="0" max="50" step="0.1" shortname="land_z_gain"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="kalamos_uart.h"/>
+  </header>
+  <init fun="kalamos_init()"/>
+  <periodic fun="kalamos_periodic()" freq="60." autorun="TRUE"/>
+  <event fun="kalamos_event()"/>
+  <makefile>
+    <!-- Configure default UART port and baudrate -->
+    <configure name="KALAMOS_PORT" default="UART4" case="upper|lower"/>
+    <configure name="KALAMOS_BAUD" default="B115200"/>
+
+    <!-- Enable UART and set baudrate -->
+    <define name="USE_$(KALAMOS_PORT_UPPER)"/>
+    <define name="$(KALAMOS_PORT_UPPER)_BAUD" value="$(KALAMOS_BAUD)"/>
+    <define name="KALAMOS_PORT" value="$(KALAMOS_PORT_LOWER)"/>
+
+    <!-- Sources and PPRZLink for transport -->
+    <file name="kalamos_uart.c"/>
+    <file name="pprz_transport.c" dir="pprzlink/src"/>
+  </makefile>
+</module>
+
