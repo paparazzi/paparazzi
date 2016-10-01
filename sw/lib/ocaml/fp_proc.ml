@@ -121,6 +121,9 @@ let transform_stage = fun prefix reroutes env xml ->
             | "attitude" ->
               let attribs = transform_values ["vmode"] env attribs in
               Xml.Element (tag, attribs, children)
+            | "manual" ->
+              let attribs = transform_values [] env attribs in
+              Xml.Element (tag, attribs, children)
             | "go" ->
               assert (children=[]);
               let attribs = transform_values ["wp";"from";"hmode";"vmode"] env attribs in
@@ -226,6 +229,7 @@ let parse_include = fun dir flight_plan include_xml ->
 
     let waypoints = get_children "waypoints" proc
     and exceptions = get_children "exceptions" proc
+    and modules = get_children "modules" proc
     and blocks = get_children "blocks" proc
     and sectors = get_children "sectors" proc
     and header = get_pc_data "header" proc in
@@ -237,6 +241,7 @@ let parse_include = fun dir flight_plan include_xml ->
       append_children
       ["waypoints", waypoints;
        "blocks", blocks;
+       "modules", modules;
        "exceptions", exceptions;
        "sectors", sectors]
       (append_pc_data "header" header flight_plan)
