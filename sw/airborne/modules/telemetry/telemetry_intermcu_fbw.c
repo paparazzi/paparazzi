@@ -29,11 +29,19 @@
 #include "pprzlink/pprz_transport.h"
 #include "pprzlink/intermcu_msg.h"
 #include "subsystems/datalink/telemetry.h"
+#include "firmwares/rotorcraft/main_fbw.h"
+
+#define MSG_SIZE 128
+
+extern fbw_mode_enum fbw_mode;
 
 /* Structure for handling telemetry over InterMCU */
 struct telemetry_intermcu_t {
   struct link_device *dev;      ///< Device structure for communication
   struct pprz_transport trans;  ///< Transport without any extra encoding
+
+  uint8_t rx_buffer[MSG_SIZE];  ///< Received bytes from datalink
+  bool msg_received;            ///< Whenever a datalink message is received
 };
 
 /* Telemetry InterMCU throughput */
@@ -56,6 +64,32 @@ void telemetry_intermcu_init(void)
 void telemetry_intermcu_periodic(void)
 {
 
+}
+
+/* InterMCU event handling of telemetry */
+void telemetry_intermcu_event(void)
+{
+  pprz_check_and_parse(&(TELEMETRY_INTERMCU_DEV).device, &telemetry_intermcu.trans, telemetry_intermcu.rx_buffer, &telemetry_intermcu.msg_received);
+  if(telemetry_intermcu.msg_received) {
+    /* Switch on MSG ID */
+    switch(telemetry_intermcu.rx_buffer[1]) {
+      case DL_EMERGENCY_CMD:
+        if(DL_EMERGENCY_CMD_ac_id(telemetry_intermcu.rx_buffer) == AC_ID
+            && DL_EMERGENCY_CMD_cmd(telemetry_intermcu.rx_buffer) == 0) {
+          fbw_mode = FBW_MODE_FAILSAFE;
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    /* Forward to AP */
+    pprz_msg_send_IMCU_DATALINK(&(intermcu.transport.trans_tx), intermcu.device,
+                            INTERMCU_FBW, telemetry_intermcu.trans.trans_rx.payload_len, telemetry_intermcu.rx_buffer);
+
+    telemetry_intermcu.msg_received = false;
+  }
 }
 
 void telemetry_intermcu_on_msg(uint8_t msg_id, uint8_t* msg, uint8_t size)
