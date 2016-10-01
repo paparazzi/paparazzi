@@ -71,9 +71,6 @@ static void sonar_cb(uint8_t sender_id, float distance);
 #include "firmwares/rotorcraft/stabilization.h"
 #endif
 
-#ifndef INS_SONAR_OFFSET
-#define INS_SONAR_OFFSET 0.
-#endif
 #ifndef INS_SONAR_MIN_RANGE
 #define INS_SONAR_MIN_RANGE 0.001
 #endif
