@@ -36,32 +36,32 @@
 
 #include "firmwares/rotorcraft/autopilot.h"
 
-void firmware_parse_msg(void)
+void firmware_parse_msg(struct link_device *dev __attribute__((unused)), struct transport_tx *trans __attribute__((unused)), uint8_t *buf __attribute__((unused)))
 {
-  uint8_t msg_id = IdOfPprzMsg(dl_buffer);
+  uint8_t msg_id = IdOfPprzMsg(buf);
 
   /* parse telemetry messages coming from ground station */
   switch (msg_id) {
 
 #ifdef USE_NAVIGATION
     case DL_BLOCK : {
-      if (DL_BLOCK_ac_id(dl_buffer) != AC_ID) { break; }
-      nav_goto_block(DL_BLOCK_block_id(dl_buffer));
+      if (DL_BLOCK_ac_id(buf) != AC_ID) { break; }
+      nav_goto_block(DL_BLOCK_block_id(buf));
     }
     break;
 
     case DL_MOVE_WP : {
-      uint8_t ac_id = DL_MOVE_WP_ac_id(dl_buffer);
+      uint8_t ac_id = DL_MOVE_WP_ac_id(buf);
       if (ac_id != AC_ID) { break; }
       if (stateIsLocalCoordinateValid()) {
-        uint8_t wp_id = DL_MOVE_WP_wp_id(dl_buffer);
+        uint8_t wp_id = DL_MOVE_WP_wp_id(buf);
         struct LlaCoor_i lla;
-        lla.lat = DL_MOVE_WP_lat(dl_buffer);
-        lla.lon = DL_MOVE_WP_lon(dl_buffer);
+        lla.lat = DL_MOVE_WP_lat(buf);
+        lla.lon = DL_MOVE_WP_lon(buf);
         /* WP_alt from message is alt above MSL in mm
          * lla.alt is above ellipsoid in mm
          */
-        lla.alt = DL_MOVE_WP_alt(dl_buffer) - state.ned_origin_i.hmsl +
+        lla.alt = DL_MOVE_WP_alt(buf) - state.ned_origin_i.hmsl +
                   state.ned_origin_i.lla.alt;
         waypoint_move_lla(wp_id, &lla);
       }
@@ -70,13 +70,13 @@ void firmware_parse_msg(void)
 #endif /* USE_NAVIGATION */
 
     case DL_GUIDED_SETPOINT_NED:
-      if (DL_GUIDED_SETPOINT_NED_ac_id(dl_buffer) != AC_ID) { break; }
+      if (DL_GUIDED_SETPOINT_NED_ac_id(buf) != AC_ID) { break; }
 
-      autopilot_guided_update(DL_GUIDED_SETPOINT_NED_flags(dl_buffer),
-                              DL_GUIDED_SETPOINT_NED_x(dl_buffer),
-                              DL_GUIDED_SETPOINT_NED_y(dl_buffer),
-                              DL_GUIDED_SETPOINT_NED_z(dl_buffer),
-                              DL_GUIDED_SETPOINT_NED_yaw(dl_buffer));
+      autopilot_guided_update(DL_GUIDED_SETPOINT_NED_flags(buf),
+                              DL_GUIDED_SETPOINT_NED_x(buf),
+                              DL_GUIDED_SETPOINT_NED_y(buf),
+                              DL_GUIDED_SETPOINT_NED_z(buf),
+                              DL_GUIDED_SETPOINT_NED_yaw(buf));
       break;
 
     default:
