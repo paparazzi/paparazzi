@@ -253,6 +253,10 @@ let dl_setting = fun ac_id idx value ->
   let vs = ["ac_id", PprzLink.String ac_id; "index", PprzLink.Int idx;"value", PprzLink.Float value] in
   Ground_Pprz.message_send "dl" "DL_SETTING" vs
 
+let dl_emergency_cmd = fun ac_id cmd ->
+  let vs = ["ac_id", PprzLink.String ac_id; "cmd", PprzLink.Int cmd] in
+  Ground_Pprz.message_send "dl" "DL_EMERGENCY_CMD" vs
+
 let get_dl_setting = fun ac_id idx ->
   let vs = ["ac_id", PprzLink.String ac_id; "index", PprzLink.Int idx] in
   Ground_Pprz.message_send "dl" "GET_DL_SETTING" vs
@@ -755,11 +759,15 @@ let create_ac = fun ?(confirm_kill=true) alert (geomap:G.widget) (acs_notebook:G
           let connect = fun ?(warning=true) setting_name strip_connect ->
             try
               let id = settings_tab#assoc setting_name in
-              strip_connect (fun x -> dl_setting_callback id x)
+              if setting_name = "kill_throttle" then
+                strip_connect (fun x -> (dl_setting_callback id x; dl_emergency_cmd ac_id 0))
+              else
+                strip_connect (fun x -> dl_setting_callback id x)
             with Not_found ->
+              if setting_name = "kill_throttle" then
+                strip_connect (fun x -> (if x = 1. then dl_emergency_cmd ac_id 0));
               if warning then
                 fprintf stderr "Warning: %s not setable from GCS strip (i.e. not listed in the xml settings file)\n" setting_name in
-
           connect "flight_altitude" (fun f -> ac.strip#connect_shift_alt (fun x -> f (ac.target_alt+.x)));
           connect "launch" ~warning:false ac.strip#connect_launch;
           connect "kill_throttle" (ac.strip#connect_kill confirm_kill);
