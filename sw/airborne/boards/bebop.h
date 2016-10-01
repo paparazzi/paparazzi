@@ -82,6 +82,7 @@
 
 /** uart connected to GPS internally */
 #define UART1_DEV /dev/ttyPA1
+#define GPS_UBX_ENABLE_NMEA_DATA_MASK 0xff
 /** FTDI cable for stereoboard or external GPS */
 #define UART2_DEV /dev/ttyUSB0
 
