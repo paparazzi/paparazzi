@@ -114,14 +114,14 @@ static inline void DlCheckAndParse(struct link_device *dev, struct transport_tx 
 
 #define DatalinkEvent() {                       \
     W5100CheckAndParse(W5100, pprz_tp);         \
-    DlCheckAndParse();                          \
+    DlCheckAndParse(&(DOWNLINK_DEVICE).device, &pprz_tp.trans_tx, dl_buffer); \
   }
 
 #elif defined DATALINK && DATALINK == SUPERBITRF
 
 #define DatalinkEvent() {                       \
     SuperbitRFCheckAndParse();                  \
-    DlCheckAndParse();                          \
+    DlCheckAndParse(&(DOWNLINK_DEVICE).device, &pprz_tp.trans_tx, dl_buffer); \
   }
 
 #elif defined DATALINK && DATALINK == BLUEGIGA

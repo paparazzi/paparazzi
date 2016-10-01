@@ -36,7 +36,7 @@
 
 #include "firmwares/rotorcraft/autopilot.h"
 
-void firmware_parse_msg(struct link_device *dev __attribute__((unused)), struct transport_tx *trans __attribute__((unused)), uint8_t *buf __attribute__((unused)))
+void firmware_parse_msg(struct link_device *dev __attribute__((unused)), struct transport_tx *trans __attribute__((unused)), uint8_t *buf)
 {
   uint8_t msg_id = IdOfPprzMsg(buf);
 
