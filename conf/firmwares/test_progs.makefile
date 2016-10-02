@@ -86,6 +86,24 @@ COMMON_TELEMETRY_CFLAGS += -D$(MODEM_DEV)_BROADCAST=$(MODEM_BROADCAST) -D$(MODEM
 COMMON_TELEMETRY_CFLAGS += -DPPRZ_UART=$(UDP_MODEM_PORT_LOWER)
 COMMON_TELEMETRY_CFLAGS += -DDOWNLINK_DEVICE=$(UDP_MODEM_PORT_LOWER)
 else
+ifneq (,$(findstring usb, $(MODEM_DEV)))
+# via USB
+COMMON_TELEMETRY_CFLAGS += -DUSE_USB_SERIAL
+COMMON_TELEMETRY_CFLAGS += -DPPRZ_UART=usb_serial
+COMMON_TELEMETRY_CFLAGS += -DDOWNLINK_DEVICE=usb_serial
+ifeq ($(ARCH), lpc21)
+COMMON_TELEMETRY_SRCS += $(SRC_ARCH)/usb_ser_hw.c $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbcontrol.c
+COMMON_TELEMETRY_SRCS += $(SRC_ARCH)/lpcusb/usbstdreq.c $(SRC_ARCH)/lpcusb/usbinit.c
+else
+ifeq ($(ARCH), stm32)
+COMMON_TELEMETRY_SRCS += $(SRC_ARCH)/usb_ser_hw.c
+else
+ifneq ($(ARCH), sim)
+$(error telemetry_transparent_usb currently only implemented for the lpc21 and stm32)
+endif
+endif
+endif
+else
 # via UART
 #ifeq ($(MODEM_PORT),)
 #$(error MODEM_PORT not defined)
@@ -98,6 +116,7 @@ COMMON_TELEMETRY_SRCS  += mcu_periph/uart.c
 COMMON_TELEMETRY_SRCS  += $(SRC_ARCH)/mcu_periph/uart_arch.c
 ifeq ($(ARCH), linux)
 COMMON_TELEMETRY_SRCS  += $(SRC_ARCH)/serial_port.c
+endif
 endif
 endif #UART
 

@@ -1964,7 +1964,9 @@ PREDEFINED             = USE_GPS \
                          RADIO_CONTROL \
                          GUIDANCE_V_C \
                          DATALINK \
+                         DOWNLINK \
                          USE_PERIODIC_TELEMETRY_REPORT \
+                         PERIODIC_TELEMETRY \
                          __attribute__(x)=
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then this

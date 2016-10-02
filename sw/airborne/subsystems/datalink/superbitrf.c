@@ -288,8 +288,7 @@ void superbitrf_dl_init(void)
  */
 void superbitrf_dl_event(void)
 {
-  SuperbitRFCheckAndParse();
-  DlCheckAndParse();
+  DlCheckAndParse(&DOWNLINK_DEVICE.device, &pprz_srf_tp.trans_tx, dl_buffer);
 }
 
 void superbitrf_set_mfg_id(uint32_t id)

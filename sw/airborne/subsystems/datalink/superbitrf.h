@@ -130,6 +130,4 @@ extern void superbitrf_set_protocol(uint8_t protocol);
 /* The pprz transport structure */
 extern struct pprz_transport pprz_srf_tp;
 
-#define SuperbitRFCheckAndParse() { }
-
 #endif /* DATALINK_SUPERBITRF_H */

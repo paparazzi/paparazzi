@@ -94,9 +94,9 @@ static inline void main_event(void)
   pprz_dl_event();
 }
 
-void dl_parse_msg(void)
+void dl_parse_msg(struct link_device *dev __attribute__((unused)), struct transport_tx *trans __attribute__((unused)), uint8_t *buf)
 {
-  uint8_t msg_id = dl_buffer[1];
+  uint8_t msg_id = buf[1];
   switch (msg_id) {
 
     case  DL_PING: {
@@ -104,16 +104,16 @@ void dl_parse_msg(void)
     }
     break;
     case DL_SETTING:
-      if (DL_SETTING_ac_id(dl_buffer) == AC_ID) {
-        uint8_t i = DL_SETTING_index(dl_buffer);
-        float val = DL_SETTING_value(dl_buffer);
+      if (DL_SETTING_ac_id(buf) == AC_ID) {
+        uint8_t i = DL_SETTING_index(buf);
+        float val = DL_SETTING_value(buf);
         DlSetting(i, val);
         DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &val);
       }
       break;
     case DL_GET_SETTING : {
-      if (DL_GET_SETTING_ac_id(dl_buffer) != AC_ID) { break; }
-      uint8_t i = DL_GET_SETTING_index(dl_buffer);
+      if (DL_GET_SETTING_ac_id(buf) != AC_ID) { break; }
+      uint8_t i = DL_GET_SETTING_index(buf);
       float val = settings_get_value(i);
       DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &val);
     }

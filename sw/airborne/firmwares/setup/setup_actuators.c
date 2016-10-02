@@ -111,12 +111,12 @@ static inline void main_event(void)
 
 #define IdOfMsg(x) (x[1])
 
-void dl_parse_msg(void)
+void dl_parse_msg(struct link_device *dev __attribute__((unused)), struct transport_tx *trans __attribute__((unused)), uint8_t *buf)
 {
-  uint8_t msg_id = IdOfMsg(dl_buffer);
+  uint8_t msg_id = IdOfMsg(buf);
   if (msg_id == DL_SET_ACTUATOR) {
-    uint8_t actuator_no = DL_SET_ACTUATOR_no(dl_buffer);
-    uint16_t actuator_value __attribute__((unused)) = DL_SET_ACTUATOR_value(dl_buffer);
+    uint8_t actuator_no = DL_SET_ACTUATOR_no(buf);
+    uint16_t actuator_value __attribute__((unused)) = DL_SET_ACTUATOR_value(buf);
     LED_TOGGLE(2);
 
     /* bad hack:
@@ -159,9 +159,9 @@ void dl_parse_msg(void)
     //}
   }
 #ifdef DlSetting
-  else if (msg_id == DL_SETTING && DL_SETTING_ac_id(dl_buffer) == AC_ID) {
-    uint8_t i = DL_SETTING_index(dl_buffer);
-    float val = DL_SETTING_value(dl_buffer);
+  else if (msg_id == DL_SETTING && DL_SETTING_ac_id(buf) == AC_ID) {
+    uint8_t i = DL_SETTING_index(buf);
+    float val = DL_SETTING_value(buf);
     DlSetting(i, val);
     LED_TOGGLE(2);
 
@@ -194,8 +194,8 @@ void dl_parse_msg(void)
 #endif
 
     DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &val);
-  } else if (msg_id == DL_GET_SETTING && DL_GET_SETTING_ac_id(dl_buffer) == AC_ID) {
-    uint8_t i = DL_GET_SETTING_index(dl_buffer);
+  } else if (msg_id == DL_GET_SETTING && DL_GET_SETTING_ac_id(buf) == AC_ID) {
+    uint8_t i = DL_GET_SETTING_index(buf);
     float val = settings_get_value(i);
     DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &val);
   }

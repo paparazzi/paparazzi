@@ -10,6 +10,9 @@
     <waypoint name="_BASELEG" x="168.8" y="-13.8"/>
     <waypoint name="CLIMB" x="-114.5" y="162.3"/>
   </waypoints>
+  <modules>
+    <module name="mission" type="fw"/>
+  </modules>
   <exceptions/>
   <blocks>
     <block name="Wait GPS">

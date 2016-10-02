@@ -26,7 +26,9 @@
       <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
     </module>
     <module name="ins" type="extended"/>
-    <module name="guidance" type="indi"/>
+    <module name="guidance" type="indi">
+      <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-500.0"/>
+    </module>
   </firmware>
 
   <modules main_freq="512">

@@ -38,7 +38,7 @@
 #define GPS_I2C_SLAVE_ADDR (0x42 << 1)
 
 #ifndef GPS_UBX_I2C_DEV
-#define GPS_UBX_I2C_DEV i2c2
+#error "GPS_UBX_I2C_DEV needs to be defined (e.g. to i2c1)"
 #endif
 PRINT_CONFIG_VAR(GPS_UBX_I2C_DEV)
 
@@ -95,7 +95,12 @@ uint8_t gps_i2c_getch(struct GpsUbxI2C *p);
 
 void gps_ubx_i2c_init(void)
 {
+#if GPS_UBX_UCENTER
   gps_ubx_i2c_ucenter_done = FALSE;
+#else
+  gps_ubx_i2c_ucenter_done = TRUE;
+#endif
+
   gps_i2c.read_state = gps_i2c_read_standby;
   gps_i2c.write_state = gps_i2c_write_standby;
 
@@ -187,7 +192,7 @@ void gps_ubx_i2c_periodic(void)
       break;
 
       case gps_i2c_write_cfg:
-        memcpy(&gps_i2c.trans.buf, gps_i2c.tx_buf, gps_i2c.tx_buf_idx);
+        memcpy((uint8_t *) & (gps_i2c.trans.buf), gps_i2c.tx_buf, gps_i2c.tx_buf_idx);
         i2c_transmit(&GPS_UBX_I2C_DEV, &gps_i2c.trans, GPS_I2C_SLAVE_ADDR, gps_i2c.tx_buf_idx);
         gps_i2c.tx_buf_idx = 0;
         gps_i2c.read_state = gps_i2c_read_standby;
@@ -232,12 +237,12 @@ void gps_ubx_i2c_read_event(void)
     case gps_i2c_read_data:
       if (gps_ubx_i2c_bytes_to_read > GPS_I2C_BUF_SIZE)
       {
-        memcpy(&gps_i2c.rx_buf, &gps_i2c.trans.buf, GPS_I2C_BUF_SIZE);
+        memcpy(&gps_i2c.rx_buf, (uint8_t *) & (gps_i2c.trans.buf), GPS_I2C_BUF_SIZE);
         gps_i2c.rx_buf_idx = 0;
         gps_i2c.rx_buf_avail = GPS_I2C_BUF_SIZE;
       } else
       {
-        memcpy(&gps_i2c.rx_buf, &gps_i2c.trans.buf, gps_ubx_i2c_bytes_to_read);
+        memcpy(&gps_i2c.rx_buf, (uint8_t *) & (gps_i2c.trans.buf), gps_ubx_i2c_bytes_to_read);
         gps_i2c.rx_buf_idx = 0;
         gps_i2c.rx_buf_avail = gps_ubx_i2c_bytes_to_read;
       }

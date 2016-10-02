@@ -113,16 +113,14 @@ let file_xml2mk = fun f ?(arch = false) dir_name target xml ->
     else format_of_string "%s.srcs += %s/%s\n" in
   fprintf f fmt target dir_name name
 
-let module_xml2mk = fun f target firmware m ->
-  let name = ExtXml.attrib m.xml "name" in
-  let dir = try Xml.attrib m.xml "dir" with Xml.No_attribute _ -> name in
-  let dir_name = Compat.bytes_uppercase dir ^ "_DIR" in
-  (* print global flags as compilation defines and flags *)
-  fprintf f "\n# makefile for module %s in modules/%s\n" name dir;
+(* only print the configuration flags for a module
+ * 'raw' section are not handled here
+ *)
+let module_configure_xml2mk = fun f target firmware m ->
+  (* print global config flags *)
   List.iter (fun flag ->
     match Compat.bytes_lowercase (Xml.tag flag) with
     | "configure" -> configure_xml2mk f flag
-    | "define" -> define_xml2mk f ~target flag
     | _ -> ()) m.param;
   (* Look for makefile section *)
   ExtXml.iter_tag "makefile"
@@ -143,6 +141,39 @@ let module_xml2mk = fun f target firmware m ->
       (fun field ->
           match Compat.bytes_lowercase (Xml.tag field) with
           | "configure" -> configure_xml2mk f field
+          | _ -> ()
+        ) section
+    ) m.xml
+
+(* module files and flags except configuration flags *)
+let module_xml2mk = fun f target firmware m ->
+  let name = ExtXml.attrib m.xml "name" in
+  let dir = try Xml.attrib m.xml "dir" with Xml.No_attribute _ -> name in
+  let dir_name = Compat.bytes_uppercase dir ^ "_DIR" in
+  (* print global flags as compilation defines and flags *)
+  fprintf f "\n# makefile for module %s in modules/%s\n" name dir;
+  List.iter (fun flag ->
+    match Compat.bytes_lowercase (Xml.tag flag) with
+    | "define" -> define_xml2mk f ~target flag
+    | _ -> ()) m.param;
+  (* Look for makefile section *)
+  ExtXml.iter_tag "makefile"
+    (fun section ->
+      (* Look for defines, flags, files, ... if target is matching *)
+      let section =
+        let targets = Gen_common.targets_of_field section Env.default_module_targets in
+        if Gen_common.test_targets target targets then section else Xml.Element ("makefile", [], [])
+      in
+      (* keep section if firmware is also matching or not speficied *)
+      let section = begin
+        try
+          if Xml.attrib section "firmware" = firmware then section
+          else Xml.Element ("makefile", [], [])
+        with _ -> section end
+      in
+      Xml.iter
+      (fun field ->
+          match Compat.bytes_lowercase (Xml.tag field) with
           | "define" -> define_xml2mk f ~target field
           | "include" -> include_xml2mk f ~target ~vpath:m.vpath field
           | "flag" ->
@@ -249,6 +280,7 @@ let parse_firmware = fun makefile_ac ac_xml firmware fp ->
     List.iter (subsystem_configure_xml2mk makefile_ac) t_subsystems;
     List.iter (subsystem_configure_xml2mk makefile_ac) mods;
     List.iter (subsystem_configure_xml2mk makefile_ac) t_mods;
+    List.iter (module_configure_xml2mk makefile_ac target_name firmware_name) modules;
     fprintf makefile_ac "\ninclude $(PAPARAZZI_SRC)/conf/boards/%s.makefile\n" (Xml.attrib target "board");
     fprintf makefile_ac "include $(PAPARAZZI_SRC)/conf/firmwares/%s.makefile\n" (Xml.attrib firmware "name");
     List.iter (fun def -> define_xml2mk makefile_ac def) defines;

@@ -38,6 +38,6 @@ void bluegiga_dl_init(void)
 void bluegiga_dl_event(void)
 {
   pprz_check_and_parse(&DOWNLINK_DEVICE.device, &pprz_bg_tp, dl_buffer, &dl_msg_available);
-  DlCheckAndParse();
+  DlCheckAndParse(&DOWNLINK_DEVICE.device, &pprz_bg_tp.trans_tx, dl_buffer);
 }
 

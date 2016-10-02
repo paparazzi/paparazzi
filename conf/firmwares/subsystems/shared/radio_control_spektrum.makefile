@@ -1,6 +1,7 @@
 #
 # Makefile for shared radio_control spektrum susbsytem
 #
+# Define USE_DSMX on STM32 microcontrollers to bind in DSMX instead of DSM2
 
 RADIO_CONTROL_LED ?= none
 

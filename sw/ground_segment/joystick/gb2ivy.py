@@ -35,17 +35,17 @@ class Guidance(object):
         self.ac_id = ac_id
         self.verbose = verbose
         self._interface = None
-        self.auto2_index = None
+        self.ap_mode = None
         try:
             settings = PaparazziACSettings(self.ac_id)
         except Exception as e:
             print(e)
             return
         try:
-            self.auto2_index = settings.name_lookup['auto2'].index
+            self.ap_mode = settings.name_lookup['mode'].index
         except Exception as e:
             print(e)
-            print("auto2 setting not found, mode change not possible.")
+            print("ap_mode setting not found, mode change not possible.")
         self._interface = IvyMessagesInterface("gb2ivy")
 
     def shutdown(self):
@@ -66,24 +66,24 @@ class Guidance(object):
 
     def set_guided_mode(self):
         """
-        change auto2 mode to GUIDED.
+        change mode to GUIDED.
         """
-        if self.auto2_index is not None:
+        if self.ap_mode is not None:
             msg = PprzMessage("ground", "DL_SETTING")
             msg['ac_id'] = self.ac_id
-            msg['index'] = self.auto2_index
+            msg['index'] = self.ap_mode
             msg['value'] = 19  # AP_MODE_GUIDED
             print("Setting mode to GUIDED: %s" % msg)
             self._interface.send(msg)
 
     def set_nav_mode(self):
         """
-        change auto2 mode to NAV.
+        change mode to NAV.
         """
-        if self.auto2_index is not None:
+        if self.ap_mode is not None:
             msg = PprzMessage("ground", "DL_SETTING")
             msg['ac_id'] = self.ac_id
-            msg['index'] = self.auto2_index
+            msg['index'] = self.ap_mode
             msg['value'] = 13  # AP_MODE_NAV
             print("Setting mode to NAV: %s" % msg)
             self._interface.send(msg)

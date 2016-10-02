@@ -49,8 +49,13 @@ INFO("Radio-Control now follows PPRZ sign convention: this means you might need 
 #define ONE_MHZ 1000000
 
 /* Number of low pulses sent to satellite receivers */
+#if USE_DSMX
+#define MASTER_RECEIVER_PULSES 9
+#define SLAVE_RECEIVER_PULSES 10
+#else
 #define MASTER_RECEIVER_PULSES 5
 #define SLAVE_RECEIVER_PULSES 6
+#endif
 
 #define TIM_TICS_FOR_100us 100
 #define MIN_FRAME_SPACE  70  // 7ms

@@ -60,10 +60,10 @@ EXTERN uint16_t datalink_nb_msgs;
 EXTERN uint8_t dl_buffer[MSG_SIZE]  __attribute__((aligned));
 
 /** Should be called when chars are available in dl_buffer */
-EXTERN void dl_parse_msg(void);
+EXTERN void dl_parse_msg(struct link_device *dev, struct transport_tx *trans, uint8_t *buf);
 
 /** Firmware specfic msg handler */
-EXTERN void firmware_parse_msg(void);
+EXTERN void firmware_parse_msg(struct link_device *dev, struct transport_tx *trans, uint8_t *buf);
 
 #if USE_NPS
 EXTERN bool datalink_enabled;
@@ -79,7 +79,7 @@ EXTERN bool datalink_enabled;
 }
 
 /** Check for new message and parse */
-static inline void DlCheckAndParse(void)
+static inline void DlCheckAndParse(struct link_device *dev, struct transport_tx *trans, uint8_t *buf)
 {
   // make it possible to disable datalink in NPS sim
 #if USE_NPS
@@ -91,7 +91,7 @@ static inline void DlCheckAndParse(void)
   if (dl_msg_available) {
     datalink_time = 0;
     datalink_nb_msgs++;
-    dl_parse_msg();
+    dl_parse_msg(dev, trans, buf);
     dl_msg_available = false;
   }
 }

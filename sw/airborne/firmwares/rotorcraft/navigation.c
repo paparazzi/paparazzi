@@ -307,7 +307,7 @@ void nav_route(struct EnuCoor_i *wp_start, struct EnuCoor_i *wp_end)
 
 bool nav_approaching_from(struct EnuCoor_i *wp, struct EnuCoor_i *from, int16_t approaching_time)
 {
-  int32_t dist_to_point;
+  float dist_to_point;
   struct Int32Vect2 diff;
   struct EnuCoor_i *pos = stateGetPositionEnu_i();
 
@@ -326,13 +326,14 @@ bool nav_approaching_from(struct EnuCoor_i *wp, struct EnuCoor_i *from, int16_t 
     VECT2_DIFF(diff, *wp, *pos);
   }
   /* compute distance of estimated/current pos to target wp
-   * distance with half metric precision (6.25 cm)
+   * POS_FRAC resolution
+   * convert to float to compute the norm without overflow in 32bit
    */
-  INT32_VECT2_RSHIFT(diff, diff, INT32_POS_FRAC / 2);
-  dist_to_point = int32_vect2_norm(&diff);
+  struct FloatVect2 diff_f = {POS_FLOAT_OF_BFP(diff.x), POS_FLOAT_OF_BFP(diff.y)};
+  dist_to_point = float_vect2_norm(&diff_f);
 
   /* return TRUE if we have arrived */
-  if (dist_to_point < BFP_OF_REAL(ARRIVED_AT_WAYPOINT, INT32_POS_FRAC / 2)) {
+  if (dist_to_point < ARRIVED_AT_WAYPOINT) {
     return true;
   }
 
@@ -341,8 +342,8 @@ bool nav_approaching_from(struct EnuCoor_i *wp, struct EnuCoor_i *from, int16_t 
     /* return TRUE if normal line at the end of the segment is crossed */
     struct Int32Vect2 from_diff;
     VECT2_DIFF(from_diff, *wp, *from);
-    INT32_VECT2_RSHIFT(from_diff, from_diff, INT32_POS_FRAC / 2);
-    return (diff.x * from_diff.x + diff.y * from_diff.y < 0);
+    struct FloatVect2 from_diff_f = {POS_FLOAT_OF_BFP(from_diff.x), POS_FLOAT_OF_BFP(from_diff.y)};
+    return (diff_f.x * from_diff_f.x + diff_f.y * from_diff_f.y < 0);
   }
 
   return false;
@@ -351,7 +352,7 @@ bool nav_approaching_from(struct EnuCoor_i *wp, struct EnuCoor_i *from, int16_t 
 bool nav_check_wp_time(struct EnuCoor_i *wp, uint16_t stay_time)
 {
   uint16_t time_at_wp;
-  uint32_t dist_to_point;
+  float dist_to_point;
   static uint16_t wp_entry_time = 0;
   static bool wp_reached = false;
   static struct EnuCoor_i wp_last = { 0, 0, 0 };
@@ -361,10 +362,11 @@ bool nav_check_wp_time(struct EnuCoor_i *wp, uint16_t stay_time)
     wp_reached = false;
     wp_last = *wp;
   }
+
   VECT2_DIFF(diff, *wp, *stateGetPositionEnu_i());
-  INT32_VECT2_RSHIFT(diff, diff, INT32_POS_FRAC / 2);
-  dist_to_point = int32_vect2_norm(&diff);
-  if (dist_to_point < BFP_OF_REAL(ARRIVED_AT_WAYPOINT, INT32_POS_FRAC / 2)) {
+  struct FloatVect2 diff_f = {POS_FLOAT_OF_BFP(diff.x), POS_FLOAT_OF_BFP(diff.y)};
+  dist_to_point = float_vect2_norm(&diff_f);
+  if (dist_to_point < ARRIVED_AT_WAYPOINT) {
     if (!wp_reached) {
       wp_reached = true;
       wp_entry_time = autopilot_flight_time;

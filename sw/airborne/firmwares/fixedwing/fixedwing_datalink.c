@@ -60,30 +60,30 @@ uint8_t joystick_block;
   }
 #endif
 
-void firmware_parse_msg(void)
+void firmware_parse_msg(struct link_device *dev __attribute__((unused)), struct transport_tx *trans __attribute__((unused)), uint8_t *buf)
 {
-  uint8_t msg_id = IdOfPprzMsg(dl_buffer);
+  uint8_t msg_id = IdOfPprzMsg(buf);
 
   /* parse telemetry messages coming from ground station */
   switch (msg_id) {
 
 #ifdef NAV
     case DL_BLOCK: {
-      if (DL_BLOCK_ac_id(dl_buffer) != AC_ID) { break; }
-      nav_goto_block(DL_BLOCK_block_id(dl_buffer));
-      SEND_NAVIGATION(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
+      if (DL_BLOCK_ac_id(buf) != AC_ID) { break; }
+      nav_goto_block(DL_BLOCK_block_id(buf));
+      SEND_NAVIGATION(trans, dev);
     }
     break;
 
     case DL_MOVE_WP: {
-      if (DL_MOVE_WP_ac_id(dl_buffer) != AC_ID) { break; }
-      uint8_t wp_id = DL_MOVE_WP_wp_id(dl_buffer);
+      if (DL_MOVE_WP_ac_id(buf) != AC_ID) { break; }
+      uint8_t wp_id = DL_MOVE_WP_wp_id(buf);
 
       /* Computes from (lat, long) in the referenced UTM zone */
       struct LlaCoor_f lla;
-      lla.lat = RadOfDeg((float)(DL_MOVE_WP_lat(dl_buffer) / 1e7));
-      lla.lon = RadOfDeg((float)(DL_MOVE_WP_lon(dl_buffer) / 1e7));
-      lla.alt = MOfMM(DL_MOVE_WP_alt(dl_buffer));
+      lla.lat = RadOfDeg((float)(DL_MOVE_WP_lat(buf) / 1e7));
+      lla.lon = RadOfDeg((float)(DL_MOVE_WP_lon(buf) / 1e7));
+      lla.alt = MOfMM(DL_MOVE_WP_alt(buf));
       struct UtmCoor_f utm;
       utm.zone = nav_utm_zone0;
       utm_of_lla_f(&utm, &lla);
@@ -93,34 +93,34 @@ void firmware_parse_msg(void)
          coordinates */
       utm.east = waypoints[wp_id].x + nav_utm_east0;
       utm.north = waypoints[wp_id].y + nav_utm_north0;
-      DOWNLINK_SEND_WP_MOVED(DefaultChannel, DefaultDevice, &wp_id, &utm.east, &utm.north, &utm.alt, &nav_utm_zone0);
+      pprz_msg_send_WP_MOVED(trans, dev, AC_ID, &wp_id, &utm.east, &utm.north, &utm.alt, &nav_utm_zone0);
     }
     break;
 #endif /** NAV */
 
 #ifdef WIND_INFO
     case DL_WIND_INFO: {
-      if (DL_WIND_INFO_ac_id(dl_buffer) != AC_ID) { break; }
-      uint8_t flags = DL_WIND_INFO_flags(dl_buffer);
+      if (DL_WIND_INFO_ac_id(buf) != AC_ID) { break; }
+      uint8_t flags = DL_WIND_INFO_flags(buf);
       struct FloatVect2 wind = { 0.f, 0.f };
       float upwind = 0.f;
       if (bit_is_set(flags, 0)) {
-        wind.x = DL_WIND_INFO_north(dl_buffer);
-        wind.y = DL_WIND_INFO_east(dl_buffer);
+        wind.x = DL_WIND_INFO_north(buf);
+        wind.y = DL_WIND_INFO_east(buf);
         stateSetHorizontalWindspeed_f(&wind);
       }
       if (bit_is_set(flags, 1)) {
-        upwind = DL_WIND_INFO_up(dl_buffer);
+        upwind = DL_WIND_INFO_up(buf);
         stateSetVerticalWindspeed_f(upwind);
       }
 #if !USE_AIRSPEED
       if (bit_is_set(flags, 2)) {
-        stateSetAirspeed_f(DL_WIND_INFO_airspeed(dl_buffer));
+        stateSetAirspeed_f(DL_WIND_INFO_airspeed(buf));
       }
 #endif
 #ifdef WIND_INFO_RET
       float airspeed = stateGetAirspeed_f();
-      DOWNLINK_SEND_WIND_INFO_RET(DefaultChannel, DefaultDevice, &flags, &wind.y, &wind.x, &upwind, &airspeed);
+      pprz_msg_send_WIND_INFO_RET(trans, dev, AC_ID, &flags, &wind.y, &wind.x, &upwind, &airspeed);
 #endif
     }
     break;
@@ -130,9 +130,9 @@ void firmware_parse_msg(void)
     /** Infrared and GPS sensors are replaced by messages on the datalink */
     case DL_HITL_INFRARED: {
       /** This code simulates infrared.c:ir_update() */
-      infrared.roll = DL_HITL_INFRARED_roll(dl_buffer);
-      infrared.pitch = DL_HITL_INFRARED_pitch(dl_buffer);
-      infrared.top = DL_HITL_INFRARED_top(dl_buffer);
+      infrared.roll = DL_HITL_INFRARED_roll(buf);
+      infrared.pitch = DL_HITL_INFRARED_pitch(buf);
+      infrared.top = DL_HITL_INFRARED_top(buf);
     }
     break;
 
@@ -141,10 +141,10 @@ void firmware_parse_msg(void)
       if (gps_msg_received) {
         gps_nb_ovrn++;
       } else {
-        ubx_class = DL_HITL_UBX_class(dl_buffer);
-        ubx_id = DL_HITL_UBX_id(dl_buffer);
-        uint8_t l = DL_HITL_UBX_ubx_payload_length(dl_buffer);
-        uint8_t *ubx_payload = DL_HITL_UBX_ubx_payload(dl_buffer);
+        ubx_class = DL_HITL_UBX_class(buf);
+        ubx_id = DL_HITL_UBX_id(buf);
+        uint8_t l = DL_HITL_UBX_ubx_payload_length(buf);
+        uint8_t *ubx_payload = DL_HITL_UBX_ubx_payload(buf);
         memcpy(ubx_msg_buf, ubx_payload, l);
         gps_msg_received = true;
       }
@@ -154,10 +154,10 @@ void firmware_parse_msg(void)
 
 #if USE_JOYSTICK
     case DL_JOYSTICK_RAW: {
-      if (DL_JOYSTICK_RAW_ac_id(dl_buffer) == AC_ID) {
-        JoystickHandeDatalink(DL_JOYSTICK_RAW_roll(dl_buffer),
-                              DL_JOYSTICK_RAW_pitch(dl_buffer),
-                              DL_JOYSTICK_RAW_throttle(dl_buffer));
+      if (DL_JOYSTICK_RAW_ac_id(buf) == AC_ID) {
+        JoystickHandeDatalink(DL_JOYSTICK_RAW_roll(buf),
+                              DL_JOYSTICK_RAW_pitch(buf),
+                              DL_JOYSTICK_RAW_throttle(buf));
       }
     }
     break;

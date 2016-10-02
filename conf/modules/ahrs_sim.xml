@@ -1,0 +1,20 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ahrs_sim" dir="ahrs">
+  <doc>
+    <description>
+      Simple simulation of the AHRS result.
+      Only for the simple fixedwing sim.
+    </description>
+  </doc>
+  <header>
+    <file name="ahrs.h" dir="subsystems"/>
+  </header>
+
+  <makefile target="sim">
+    <define name="USE_AHRS"/>
+    <define name="AHRS_TYPE_H" value="subsystems/ahrs/ahrs_sim.h" type="string"/>
+    <file name="ahrs.c" dir="subsystems"/>
+    <file name="ahrs_sim.c" dir="subsystems/ahrs"/>
+  </makefile>
+</module>

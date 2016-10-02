@@ -37,8 +37,10 @@
 #include "mcu_periph/uart_arch.h"
 #include <ch.h>
 #include <hal.h>
+#include "mcu_periph/gpio.h"
 
 struct SerialInit {
+  SerialConfig *conf;
   semaphore_t *rx_sem;
   semaphore_t *tx_sem;
   mutex_t *rx_mtx;
@@ -101,14 +103,14 @@ static void handle_uart_tx(struct uart_periph *p)
 #define USE_UART1_RX TRUE
 #endif
 
-static const SerialConfig usart1_config = {
+static SerialConfig usart1_config = {
   UART1_BAUD,                                             /*     BITRATE    */
   0,                                                      /*    USART CR1   */
   USART_CR2_STOP1_BITS,                                   /*    USART CR2   */
   0                                                       /*    USART CR3   */
 };
 
-static struct SerialInit uart1_init_struct = { NULL, NULL, NULL, NULL };
+static struct SerialInit uart1_init_struct = { NULL, NULL, NULL, NULL, NULL };
 
 // Threads RX and TX
 #if USE_UART1_RX
@@ -147,9 +149,19 @@ static THD_WORKING_AREA(wa_thd_uart1_tx, 1024);
 void uart1_init(void)
 {
   uart_periph_init(&uart1);
+
+  // Only set pin if enabled and not statically defined in board file
+#if USE_UART1_TX && defined UART1_GPIO_PORT_TX
+  gpio_setup_pin_af(UART1_GPIO_PORT_TX, UART1_GPIO_TX, UART1_GPIO_AF, TRUE);
+#endif
+#if USE_UART1_RX && defined UART1_GPIO_PORT_RX
+  gpio_setup_pin_af(UART1_GPIO_PORT_RX, UART1_GPIO_RX, UART1_GPIO_AF, FALSE);
+#endif
+
   sdStart(&SD1, &usart1_config);
   uart1.reg_addr = &SD1;
   uart1.init_struct = &uart1_init_struct;
+  uart1_init_struct.conf = &usart1_config;
 
   // Create threads
 #if USE_UART1_RX
@@ -183,14 +195,14 @@ void uart1_init(void)
 #define USE_UART2_RX TRUE
 #endif
 
-static const SerialConfig usart2_config = {
+static SerialConfig usart2_config = {
   UART2_BAUD,                                               /*     BITRATE    */
   0,                                                        /*    USART CR1   */
   USART_CR2_STOP1_BITS,                                     /*    USART CR2   */
   0                                                         /*    USART CR3   */
 };
 
-static struct SerialInit uart2_init_struct = { NULL, NULL, NULL, NULL };
+static struct SerialInit uart2_init_struct = { NULL, NULL, NULL, NULL, NULL };
 
 // Threads RX and TX
 #if USE_UART2_RX
@@ -229,9 +241,19 @@ static THD_WORKING_AREA(wa_thd_uart2_tx, 1024);
 void uart2_init(void)
 {
   uart_periph_init(&uart2);
+
+  // Only set pin if enabled and not statically defined in board file
+#if USE_UART2_TX && defined UART2_GPIO_PORT_TX
+  gpio_setup_pin_af(UART2_GPIO_PORT_TX, UART2_GPIO_TX, UART2_GPIO_AF, TRUE);
+#endif
+#if USE_UART2_RX && defined UART2_GPIO_PORT_RX
+  gpio_setup_pin_af(UART2_GPIO_PORT_RX, UART2_GPIO_RX, UART2_GPIO_AF, FALSE);
+#endif
+
   sdStart(&SD2, &usart2_config);
   uart2.reg_addr = &SD2;
   uart2.init_struct = &uart2_init_struct;
+  uart2_init_struct.conf = &usart2_config;
 
   // Create threads
 #if USE_UART2_RX
@@ -264,14 +286,14 @@ void uart2_init(void)
 #define USE_UART3_RX TRUE
 #endif
 
-static const SerialConfig usart3_config = {
+static SerialConfig usart3_config = {
   UART3_BAUD,                                             /*     BITRATE    */
   0,                                                      /*    USART CR1   */
   USART_CR2_STOP1_BITS,                                   /*    USART CR2   */
   0                                                       /*    USART CR3   */
 };
 
-static struct SerialInit uart3_init_struct = { NULL, NULL, NULL, NULL };
+static struct SerialInit uart3_init_struct = { NULL, NULL, NULL, NULL, NULL };
 
 // Threads RX and TX
 #if USE_UART3_RX
@@ -310,9 +332,19 @@ static THD_WORKING_AREA(wa_thd_uart3_tx, 1024);
 void uart3_init(void)
 {
   uart_periph_init(&uart3);
+
+  // Only set pin if enabled and not statically defined in board file
+#if USE_UART3_TX && defined UART3_GPIO_PORT_TX
+  gpio_setup_pin_af(UART3_GPIO_PORT_TX, UART3_GPIO_TX, UART3_GPIO_AF, TRUE);
+#endif
+#if USE_UART3_RX && defined UART3_GPIO_PORT_RX
+  gpio_setup_pin_af(UART3_GPIO_PORT_RX, UART3_GPIO_RX, UART3_GPIO_AF, FALSE);
+#endif
+
   sdStart(&SD3, &usart3_config);
   uart3.reg_addr = &SD3;
   uart3.init_struct = &uart3_init_struct;
+  uart3_init_struct.conf = &usart3_config;
 
   // Create threads
 #if USE_UART3_RX
@@ -345,14 +377,14 @@ void uart3_init(void)
 #define USE_UART4_RX TRUE
 #endif
 
-static const SerialConfig usart4_config = {
+static SerialConfig usart4_config = {
   UART4_BAUD,                                             /*     BITRATE    */
   0,                                                      /*    USART CR1   */
   USART_CR2_STOP1_BITS,                                   /*    USART CR2   */
   0                                                       /*    USART CR3   */
 };
 
-static struct SerialInit uart4_init_struct = { NULL, NULL, NULL, NULL };
+static struct SerialInit uart4_init_struct = { NULL, NULL, NULL, NULL, NULL };
 
 // Threads RX and TX
 #if USE_UART4_RX
@@ -391,9 +423,19 @@ static THD_WORKING_AREA(wa_thd_uart4_tx, 1024);
 void uart4_init(void)
 {
   uart_periph_init(&uart4);
+
+  // Only set pin if enabled and not statically defined in board file
+#if USE_UART4_TX && defined UART4_GPIO_PORT_TX
+  gpio_setup_pin_af(UART4_GPIO_PORT_TX, UART4_GPIO_TX, UART4_GPIO_AF, TRUE);
+#endif
+#if USE_UART4_RX && defined UART4_GPIO_PORT_RX
+  gpio_setup_pin_af(UART4_GPIO_PORT_RX, UART4_GPIO_RX, UART4_GPIO_AF, FALSE);
+#endif
+
   sdStart(&SD4, &usart4_config);
   uart4.reg_addr = &SD4;
   uart4.init_struct = &uart4_init_struct;
+  uart4_init_struct.conf = &usart4_config;
 
   // Create threads
 #if USE_UART4_RX
@@ -426,14 +468,14 @@ void uart4_init(void)
 #define USE_UART5_RX TRUE
 #endif
 
-static const SerialConfig usart5_config = {
+static SerialConfig usart5_config = {
   UART5_BAUD,                                             /*     BITRATE    */
   0,                                                      /*    USART CR1   */
   USART_CR2_STOP1_BITS,                                   /*    USART CR2   */
   0                                                       /*    USART CR3   */
 };
 
-static struct SerialInit uart5_init_struct = { NULL, NULL, NULL, NULL };
+static struct SerialInit uart5_init_struct = { NULL, NULL, NULL, NULL, NULL };
 
 // Threads RX and TX
 #if USE_UART5_RX
@@ -472,9 +514,19 @@ static THD_WORKING_AREA(wa_thd_uart5_tx, 1024);
 void uart5_init(void)
 {
   uart_periph_init(&uart5);
+
+  // Only set pin if enabled and not statically defined in board file
+#if USE_UART5_TX && defined UART5_GPIO_PORT_TX
+  gpio_setup_pin_af(UART5_GPIO_PORT_TX, UART5_GPIO_TX, UART5_GPIO_AF, TRUE);
+#endif
+#if USE_UART5_RX && defined UART5_GPIO_PORT_RX
+  gpio_setup_pin_af(UART5_GPIO_PORT_RX, UART5_GPIO_RX, UART5_GPIO_AF, FALSE);
+#endif
+
   sdStart(&SD5, &usart5_config);
   uart5.reg_addr = &SD5;
   uart5.init_struct = &uart5_init_struct;
+  uart5_init_struct.conf = &usart5_config;
 
   // Create threads
 #if USE_UART5_RX
@@ -507,14 +559,14 @@ void uart5_init(void)
 #define USE_UART6_RX TRUE
 #endif
 
-static const SerialConfig usart6_config = {
+static SerialConfig usart6_config = {
   UART6_BAUD,                                             /*     BITRATE    */
   0,                                                      /*    USART CR1   */
   USART_CR2_STOP1_BITS,                                   /*    USART CR2   */
   0                                                       /*    USART CR3   */
 };
 
-static struct SerialInit uart6_init_struct = { NULL, NULL, NULL, NULL };
+static struct SerialInit uart6_init_struct = { NULL, NULL, NULL, NULL, NULL };
 
 // Threads RX and TX
 #if USE_UART6_RX
@@ -553,9 +605,19 @@ static THD_WORKING_AREA(wa_thd_uart6_tx, 1024);
 void uart6_init(void)
 {
   uart_periph_init(&uart6);
+
+  // Only set pin if enabled and not statically defined in board file
+#if USE_UART6_TX && defined UART6_GPIO_PORT_TX
+  gpio_setup_pin_af(UART6_GPIO_PORT_TX, UART6_GPIO_TX, UART6_GPIO_AF, TRUE);
+#endif
+#if USE_UART6_RX && defined UART6_GPIO_PORT_RX
+  gpio_setup_pin_af(UART6_GPIO_PORT_RX, UART6_GPIO_RX, UART6_GPIO_AF, FALSE);
+#endif
+
   sdStart(&SD6, &usart6_config);
   uart6.reg_addr = &SD6;
   uart6.init_struct = &uart6_init_struct;
+  uart6_init_struct.conf = &usart6_config;
 
   // Create threads
 #if USE_UART6_RX
@@ -569,6 +631,188 @@ void uart6_init(void)
   uart6_init_struct.tx_sem = &uart6_tx_sem;
   chThdCreateStatic(wa_thd_uart6_tx, sizeof(wa_thd_uart6_tx),
       NORMALPRIO, thd_uart6_tx, NULL);
+#endif
+}
+
+#endif
+
+#if USE_UART7
+
+#ifndef UART7_BAUD
+#define UART7_BAUD SERIAL_DEFAULT_BITRATE
+#endif
+
+/* by default enable UART Tx and Rx */
+#ifndef USE_UART7_TX
+#define USE_UART7_TX TRUE
+#endif
+#ifndef USE_UART7_RX
+#define USE_UART7_RX TRUE
+#endif
+
+static SerialConfig usart7_config = {
+  UART7_BAUD,                                             /*     BITRATE    */
+  0,                                                      /*    USART CR1   */
+  USART_CR2_STOP1_BITS,                                   /*    USART CR2   */
+  0                                                       /*    USART CR3   */
+};
+
+static struct SerialInit uart7_init_struct = { NULL, NULL, NULL, NULL, NULL };
+
+// Threads RX and TX
+#if USE_UART7_RX
+static MUTEX_DECL(uart7_rx_mtx);
+static SEMAPHORE_DECL(uart7_rx_sem, 0);
+
+static __attribute__((noreturn)) void thd_uart7_rx(void *arg)
+{
+  (void) arg;
+  chRegSetThreadName("uart7_rx");
+
+  while (TRUE) {
+    handle_uart_rx(&uart7);
+  }
+}
+
+static THD_WORKING_AREA(wa_thd_uart7_rx, 1024);
+#endif
+
+#if USE_UART7_TX
+static MUTEX_DECL(uart7_tx_mtx);
+static SEMAPHORE_DECL(uart7_tx_sem, 0);
+
+static __attribute__((noreturn)) void thd_uart7_tx(void *arg)
+{
+  (void) arg;
+  chRegSetThreadName("uart7_tx");
+
+  while (TRUE) {
+    handle_uart_tx(&uart7);
+  }
+}
+static THD_WORKING_AREA(wa_thd_uart7_tx, 1024);
+#endif
+
+void uart7_init(void)
+{
+  uart_periph_init(&uart7);
+
+  // Only set pin if enabled and not statically defined in board file
+#if USE_UART7_TX && defined UART7_GPIO_PORT_TX
+  gpio_setup_pin_af(UART7_GPIO_PORT_TX, UART7_GPIO_TX, UART7_GPIO_AF, TRUE);
+#endif
+#if USE_UART7_RX && defined UART7_GPIO_PORT_RX
+  gpio_setup_pin_af(UART7_GPIO_PORT_RX, UART7_GPIO_RX, UART7_GPIO_AF, FALSE);
+#endif
+
+  sdStart(&SD7, &usart7_config);
+  uart7.reg_addr = &SD7;
+  uart7.init_struct = &uart7_init_struct;
+  uart7_init_struct.conf = &usart7_config;
+
+  // Create threads
+#if USE_UART7_RX
+  uart7_init_struct.rx_mtx = &uart7_rx_mtx;
+  uart7_init_struct.rx_sem = &uart7_rx_sem;
+  chThdCreateStatic(wa_thd_uart7_rx, sizeof(wa_thd_uart7_rx),
+      NORMALPRIO, thd_uart7_rx, NULL);
+#endif
+#if USE_UART7_TX
+  uart7_init_struct.tx_mtx = &uart7_tx_mtx;
+  uart7_init_struct.tx_sem = &uart7_tx_sem;
+  chThdCreateStatic(wa_thd_uart7_tx, sizeof(wa_thd_uart7_tx),
+      NORMALPRIO, thd_uart7_tx, NULL);
+#endif
+}
+
+#endif
+
+#if USE_UART8
+
+#ifndef UART8_BAUD
+#define UART8_BAUD SERIAL_DEFAULT_BITRATE
+#endif
+
+/* by default enable UART Tx and Rx */
+#ifndef USE_UART8_TX
+#define USE_UART8_TX TRUE
+#endif
+#ifndef USE_UART8_RX
+#define USE_UART8_RX TRUE
+#endif
+
+static SerialConfig usart8_config = {
+  UART8_BAUD,                                             /*     BITRATE    */
+  0,                                                      /*    USART CR1   */
+  USART_CR2_STOP1_BITS,                                   /*    USART CR2   */
+  0                                                       /*    USART CR3   */
+};
+
+static struct SerialInit uart8_init_struct = { NULL, NULL, NULL, NULL, NULL };
+
+// Threads RX and TX
+#if USE_UART8_RX
+static MUTEX_DECL(uart8_rx_mtx);
+static SEMAPHORE_DECL(uart8_rx_sem, 0);
+
+static __attribute__((noreturn)) void thd_uart8_rx(void *arg)
+{
+  (void) arg;
+  chRegSetThreadName("uart8_rx");
+
+  while (TRUE) {
+    handle_uart_rx(&uart8);
+  }
+}
+
+static THD_WORKING_AREA(wa_thd_uart8_rx, 1024);
+#endif
+
+#if USE_UART8_TX
+static MUTEX_DECL(uart8_tx_mtx);
+static SEMAPHORE_DECL(uart8_tx_sem, 0);
+
+static __attribute__((noreturn)) void thd_uart8_tx(void *arg)
+{
+  (void) arg;
+  chRegSetThreadName("uart8_tx");
+
+  while (TRUE) {
+    handle_uart_tx(&uart8);
+  }
+}
+static THD_WORKING_AREA(wa_thd_uart8_tx, 1024);
+#endif
+
+void uart8_init(void)
+{
+  uart_periph_init(&uart8);
+
+  // Only set pin if enabled and not statically defined in board file
+#if USE_UART8_TX && defined UART8_GPIO_PORT_TX
+  gpio_setup_pin_af(UART8_GPIO_PORT_TX, UART8_GPIO_TX, UART8_GPIO_AF, TRUE);
+#endif
+#if USE_UART8_RX && defined UART8_GPIO_PORT_RX
+  gpio_setup_pin_af(UART8_GPIO_PORT_RX, UART8_GPIO_RX, UART8_GPIO_AF, FALSE);
+#endif
+
+  sdStart(&SD8, &usart8_config);
+  uart8.reg_addr = &SD8;
+  uart8.init_struct = &uart8_init_struct;
+  uart8_init_struct.conf = &usart8_config;
+
+  // Create threads
+#if USE_UART8_RX
+  uart8_init_struct.rx_mtx = &uart8_rx_mtx;
+  uart8_init_struct.rx_sem = &uart8_rx_sem;
+  chThdCreateStatic(wa_thd_uart8_rx, sizeof(wa_thd_uart8_rx),
+      NORMALPRIO, thd_uart8_rx, NULL);
+#endif
+#if USE_UART8_TX
+  uart8_init_struct.tx_mtx = &uart8_tx_mtx;
+  uart8_init_struct.tx_sem = &uart8_tx_sem;
+  chThdCreateStatic(wa_thd_uart8_tx, sizeof(wa_thd_uart8_tx),
+      NORMALPRIO, thd_uart8_tx, NULL);
 #endif
 }
 
@@ -589,10 +833,18 @@ uint8_t uart_getch(struct uart_periph *p)
 }
 
 /**
- * Set baudrate (from the serialConfig)
- * @note Baudrate is set in sdStart, no need for implementation
+ * Set baudrate
  */
-void uart_periph_set_baudrate(struct uart_periph *p __attribute__((unused)), uint32_t baud __attribute__((unused))) {}
+void uart_periph_set_baudrate(struct uart_periph *p, uint32_t baud )
+{
+  struct SerialInit *init_struct = (struct SerialInit*)(p->init_struct);
+  SerialConfig *conf = init_struct->conf;
+  // set new baudrate
+  conf->speed = baud;
+  // restart periph
+  sdStop((SerialDriver*)(p->reg_addr));
+  sdStart((SerialDriver*)(p->reg_addr), conf);
+}
 
 /**
  * Set mode (not necessary, or can be set by SerialConfig)
@@ -600,10 +852,46 @@ void uart_periph_set_baudrate(struct uart_periph *p __attribute__((unused)), uin
 void uart_periph_set_mode(struct uart_periph *p __attribute__((unused)), bool tx_enabled __attribute__((unused)),
                           bool rx_enabled __attribute__((unused)), bool hw_flow_control __attribute__((unused))) {}
 
-void uart_periph_set_bits_stop_parity(struct uart_periph *p __attribute__((unused)),
-                                      uint8_t bits __attribute__((unused)), uint8_t stop __attribute__((unused)), uint8_t __attribute__((unused)) parity)
+/**
+ * Set parity and stop bits
+ */
+void uart_periph_set_bits_stop_parity(struct uart_periph *p,
+                                      uint8_t bits, uint8_t stop, uint8_t parity)
 {
-  // TBD
+  struct SerialInit *init_struct = (struct SerialInit*)(p->init_struct);
+  SerialConfig *conf = init_struct->conf;
+
+  /* Configure USART parity and data bits */
+  if (parity == UPARITY_EVEN) {
+    conf->cr1 |= USART_CR1_PCE; // set parity control bit
+    conf->cr1 &= ~USART_CR1_PS; // clear parity selection bit
+    if (bits == UBITS_7) {
+      conf->cr1 &= ~USART_CR1_M; // clear word length bit
+    } else { // 8 data bits by default
+      conf->cr1 |= USART_CR1_M; // set word length bit
+    }
+  } else if (parity == UPARITY_ODD) {
+    conf->cr1 |= USART_CR1_PCE; // set parity control bit
+    conf->cr1 |= USART_CR1_PS; // set parity selection bit
+    if (bits == UBITS_7) {
+      conf->cr1 &= ~USART_CR1_M; // clear word length bit
+    } else { // 8 data bits by default
+      conf->cr1 |= USART_CR1_M; // set word length bit
+    }
+  } else { // 8 data bist, NO_PARITY by default
+    conf->cr1 &= ~USART_CR1_PCE; // clear parity control bit
+    conf->cr1 &= ~USART_CR1_M; // clear word length bit
+  }
+  /* Configure USART stop bits */
+  conf->cr2 &= ~USART_CR2_STOP; // clear stop bits
+  if (stop == USTOP_2) {
+    conf-> cr2 |= USART_CR2_STOP2_BITS; // set bits for 2 stops
+  } else { // 1 stop bit by default
+    conf-> cr2 |= USART_CR2_STOP1_BITS; // set bits for 1 stop
+  }
+
+  sdStop((SerialDriver*)(p->reg_addr));
+  sdStart((SerialDriver*)(p->reg_addr), conf);
 }
 
 // Check free space and set a positive value for fd if valid
