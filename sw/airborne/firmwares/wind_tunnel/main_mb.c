@@ -79,12 +79,12 @@ static inline void main_event_task(void)
 
 #define IdOfMsg(x) (x[1])
 
-void dl_parse_msg(void)
+void dl_parse_msg(struct link_device *dev __attribute__((unused)), struct transport_tx *trans __attribute__((unused)), uint8_t *buf)
 {
 
   LED_TOGGLE(1);
 
-  uint8_t msg_id = IdOfMsg(dl_buffer);
+  uint8_t msg_id = IdOfMsg(buf);
   switch (msg_id) {
 
     case  DL_PING: {
@@ -93,8 +93,8 @@ void dl_parse_msg(void)
     }
 
     case DL_SETTING : {
-      uint8_t i = DL_SETTING_index(dl_buffer);
-      float var = DL_SETTING_value(dl_buffer);
+      uint8_t i = DL_SETTING_index(buf);
+      float var = DL_SETTING_value(buf);
       DlSetting(i, var);
       DOWNLINK_SEND_DL_VALUE(&i, &var);
       break;

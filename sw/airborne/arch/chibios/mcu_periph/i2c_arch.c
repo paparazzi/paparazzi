@@ -69,13 +69,22 @@ static void handle_i2c_thd(struct i2c_periph *p)
   struct i2c_transaction *t = p->trans[p->trans_extract_idx];
 
   p->status = I2CStartRequested;
-  // submit i2c transaction
-  msg_t status = i2cMasterTransmitTimeout(
-      (I2CDriver*)p->reg_addr,
-      (i2caddr_t)((t->slave_addr)>>1),
-      (uint8_t*)t->buf, (size_t)(t->len_w),
-      (uint8_t*)t->buf, (size_t)(t->len_r),
-      tmo);
+  msg_t status;
+  // submit i2c transaction (R/W or R only depending of len_w)
+  if (t->len_w > 0) {
+    status = i2cMasterTransmitTimeout(
+        (I2CDriver*)p->reg_addr,
+        (i2caddr_t)((t->slave_addr)>>1),
+        (uint8_t*)t->buf, (size_t)(t->len_w),
+        (uint8_t*)t->buf, (size_t)(t->len_r),
+        tmo);
+  } else {
+    status = i2cMasterReceiveTimeout(
+        (I2CDriver*)p->reg_addr,
+        (i2caddr_t)((t->slave_addr)>>1),
+        (uint8_t*)t->buf, (size_t)(t->len_r),
+        tmo);
+  }
 
   chSysLock();
   // end of transaction, handle fifo
@@ -94,7 +103,7 @@ static void handle_i2c_thd(struct i2c_periph *p)
       break;
     case MSG_TIMEOUT:
       //if a timeout occurred before operation end
-      // mark as failed
+      // mark as failed and restart
       t->status = I2CTransFailed;
       break;
     case MSG_RESET:

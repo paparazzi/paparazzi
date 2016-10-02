@@ -46,10 +46,6 @@
 #error "You have to define either AHRS_PROPAGATE_RMAT or AHRS_PROPAGATE_QUAT"
 #endif
 
-#ifdef AHRS_MAG_UPDATE_YAW_ONLY
-#warning "AHRS_MAG_UPDATE_YAW_ONLY is deprecated, please remove it. This is the default behaviour. Define AHRS_MAG_UPDATE_ALL_AXES to use mag for all axes and not only yaw."
-#endif
-
 #if USE_MAGNETOMETER && AHRS_USE_GPS_HEADING
 #warning "Using magnetometer _and_ GPS course to update heading. Probably better to <configure name="USE_MAGNETOMETER" value="0"/> if you want to use GPS course."
 #endif

@@ -95,7 +95,12 @@ uint8_t gps_i2c_getch(struct GpsUbxI2C *p);
 
 void gps_ubx_i2c_init(void)
 {
+#if GPS_UBX_UCENTER
   gps_ubx_i2c_ucenter_done = FALSE;
+#else
+  gps_ubx_i2c_ucenter_done = TRUE;
+#endif
+
   gps_i2c.read_state = gps_i2c_read_standby;
   gps_i2c.write_state = gps_i2c_write_standby;
 

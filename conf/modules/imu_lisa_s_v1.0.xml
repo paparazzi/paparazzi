@@ -18,8 +18,7 @@
   </doc>
   <autoload name="imu_aspirin_v2_common"/>
   <makefile target="!sim|nps|fbw">
-    <configure name="ASPIRIN_2_I2C_DEV" value="i2c2"/>
-    <configure name="ASPIRIN_2_SPI_DEV" value="spi1"/>
+    <configure name="ASPIRIN_2_SPI_DEV" value="spi1" case="lower|upper"/>
     <configure name="ASPIRIN_2_SPI_SLAVE_IDX" value="SPI_SLAVE0"/>
     <!-- SLAVE0 is on PA4 (NSS) (MPU600 CS) -->
     <define name="USE_SPI_SLAVE0"/>
