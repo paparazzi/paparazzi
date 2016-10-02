@@ -88,21 +88,23 @@ void mcu_init(void)
   /* First enable the power of the MCU if needed */
 #if defined MCU_PWR
   gpio_setup_output(MCU_PWR, MCU_PWR_PIN);
+  MCU_PWR_ON(MCU_PWR, MCU_PWR_PIN);
+
 #if defined BTN_ON
   gpio_setup_input(BTN_ON, BTN_ON_PIN);
   if(gpio_get(BTN_ON, BTN_ON_PIN))
-#endif
   {
     MCU_PWR_ON(MCU_PWR, MCU_PWR_PIN);
   }
-#if defined BTN_ON
   else {
+    // Turn off and stop: wait until all power is off
     while(true) {
       MCU_PWR_OFF(MCU_PWR, MCU_PWR_PIN);
     }
   }
-#endif
-#endif
+#endif //BTN_ON
+
+#endif //MCU_PWR
 
 #ifdef PERIPHERALS_AUTO_INIT
   sys_time_init();
