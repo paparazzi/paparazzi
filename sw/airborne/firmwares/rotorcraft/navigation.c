@@ -326,7 +326,8 @@ bool nav_approaching_from(struct EnuCoor_i *wp, struct EnuCoor_i *from, int16_t 
     VECT2_DIFF(diff, *wp, *pos);
   }
   /* compute distance of estimated/current pos to target wp
-   * distance with half metric precision (6.25 cm)
+   * POS_FRAC resolution
+   * convert to float to compute the norm without overflow in 32bit
    */
   struct FloatVect2 diff_f = {POS_FLOAT_OF_BFP(diff.x), POS_FLOAT_OF_BFP(diff.y)};
   dist_to_point = float_vect2_norm(&diff_f);
