@@ -13,8 +13,11 @@ ARK RT
         <configure name="SBUS_PORT" value="UART5"/>
       </subsystem>
     </target>
-    
+
+    <!-- NOTE: if you want to use extra_dl module for HITL
+    you have to set TELEMETRY_FREQUENCY to PERIODIC_FREQUENCY -->
     <configure name="PERIODIC_FREQUENCY" value="160"/>
+    <configure name="TELEMETRY_FREQUENCY" value="160"/>
 
     <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>

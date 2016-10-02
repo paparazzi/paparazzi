@@ -13,10 +13,11 @@ RP3 Lisa MX
       </module>
     </target>
 
-    <define name="CONTROL_FREQUENCY" value="160"/>
-    <!-- -A workaround for simulation to make sure the simulation is stepped
-    with 2x CONTORL_FREQUENCY-fidelity -->
+    <!-- NOTE: if you want to use extra_dl module for HITL
+    you have to set TELEMETRY_FREQUENCY to CONTROL_FREQUENCY -->
     <configure name="PERIODIC_FREQUENCY" value="160"/>
+    <define name="CONTROL_FREQUENCY" value="160"/>
+    <configure name="TELEMETRY_FREQUENCY" value="160"/>
 
     <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>

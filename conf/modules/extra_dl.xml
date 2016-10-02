@@ -10,7 +10,7 @@
     <file name="extra_pprz_dl.h"/>
   </header>
   <init fun="extra_pprz_dl_init()"/>
-  <periodic fun="extra_pprz_dl_periodic()" freq="PERIODIC_FREQUENCY" autorun="TRUE"/>
+  <periodic fun="extra_pprz_dl_periodic()" freq="TELEMETRY_FREQUENCY" autorun="TRUE"/>
   <event fun="ExtraDatalinkEvent()"/>
   <makefile target="ap">
     <configure name="EXTRA_DL_PORT" default="uart1" case="upper|lower"/>
