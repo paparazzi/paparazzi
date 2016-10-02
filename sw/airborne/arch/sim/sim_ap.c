@@ -138,7 +138,7 @@ value set_datalink_message(value s)
   }
 
   dl_msg_available = true;
-  DlCheckAndParse();
+  DlCheckAndParse(&(DOWNLINK_DEVICE).device, &ivy_tp.trans_tx, dl_buffer);
 
   return Val_unit;
 }
