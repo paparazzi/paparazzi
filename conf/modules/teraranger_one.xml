@@ -3,10 +3,10 @@
 <module name="teraranger_one" dir="range_finder">
   <doc>
     <description>Driver for the TeraRanger One range finder (I2C)</description>
-    <configure name="TERARANGER_ONE_I2C_DEV" value="i2cX" description="Select I2C bus"/>
-    <define name="TERARANGER_ONE_I2C_ADDR" value="0x30" description="Select an alternate I2C address"/>
-    <define name="TERARANGER_ONE_OFFSET" value="0.0" description="Add an offset to the measurments" unit="m"/>
-    <define name="USE_TERARANGER_ONE_AGL" value="TRUE|FALSE" description="Send data as AGL measurments to the system"/>
+    <configure name="TERARANGER_ONE_I2C_DEV" value="i2cX" description="Select I2C bus (i2c2 by default)"/>
+    <define name="TERARANGER_ONE_I2C_ADDR" value="0x60" description="Select an alternate I2C address (0x60 by default)"/>
+    <define name="TERARANGER_ONE_OFFSET" value="0.0" description="Add an offset to the measurments (0. by default)" unit="m"/>
+    <define name="USE_TERARANGER_ONE_AGL" value="TRUE|FALSE" description="Send data as AGL measurments to the system (TRUE by default)"/>
   </doc>
   <header>
     <file name="teraranger_one.h"/>
