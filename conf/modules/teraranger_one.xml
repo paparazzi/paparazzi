@@ -1,0 +1,25 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="teraranger_one" dir="range_finder">
+  <doc>
+    <description>Driver for the TeraRanger One range finder (I2C)</description>
+    <configure name="TERARANGER_ONE_I2C_DEV" value="i2cX" description="Select I2C bus (i2c2 by default)"/>
+    <define name="TERARANGER_ONE_I2C_ADDR" value="0x60" description="Select an alternate I2C address (0x60 by default)"/>
+    <define name="TERARANGER_ONE_OFFSET" value="0.0" description="Add an offset to the measurments (0. by default)" unit="m"/>
+    <define name="USE_TERARANGER_ONE_AGL" value="TRUE|FALSE" description="Send data as AGL measurments to the system (TRUE by default)"/>
+  </doc>
+  <header>
+    <file name="teraranger_one.h"/>
+  </header>
+  <init fun="teraranger_init()"/>
+  <periodic fun="teraranger_periodic()" freq="50"/>
+  <periodic fun="teraranger_downlink()" freq="10" autorun="FALSE"/>
+  <event fun="teraranger_event()"/>
+  <makefile>
+    <configure name="TERARANGER_ONE_I2C_DEV" default="i2c2" case="upper|lower"/>
+    <file name="teraranger_one.c"/>
+    <define name="TERARANGER_ONE_I2C_DEV" value="$(TERARANGER_ONE_I2C_DEV_LOWER)"/>
+    <define name="USE_$(TERARANGER_ONE_I2C_DEV_UPPER)"/>
+  </makefile>
+</module>
+
