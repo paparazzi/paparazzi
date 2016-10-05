@@ -37,7 +37,7 @@
  *
  * Two extra notes for the periodic function:
  * 1) this sends registered messages from ExtraTelemetry process (as mentioned above) over dedicated port do:
- *    periodic_telemetry_send_ExtraTelemetryr(&extra_telemetry, &pprz_tp_extra.trans_tx, &(EXTRA_TELEMETRY_PORT).device);
+ *    periodic_telemetry_send_ExtraTelemetry(&extra_telemetry, &pprz_tp_extra.trans_tx, &(EXTRA_TELEMETRY_PORT).device);
  * 2) to send ExtraTelemetry messages over default channel just change to:
  *    periodic_telemetry_send_ExtraTelemetry(DefaultPeriodic, &(DefaultChannel).trans_tx, &(DefaultDevice).device);
  */
@@ -56,7 +56,7 @@ void extra_pprz_dl_init(void)
 
 void extra_pprz_dl_periodic(void)
 {
-#if PERIODIC_TELEMETRY
+#if PERIODIC_TELEMETRY && defined(TELEMETRY_PROCESS_Extra)
   // send periodic messages as defined in the Extra process, we are using DefaultPeriodic so we can send standard messages
   periodic_telemetry_send_Extra(DefaultPeriodic, &extra_pprz_tp.trans_tx, &(EXTRA_DOWNLINK_DEVICE).device);
 #endif
