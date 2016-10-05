@@ -328,7 +328,20 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, float pressure)
       vff_realign(0.);
       ins_update_from_vff();
     } else {
-      ins_int.baro_z = -pprz_isa_height_of_pressure(pressure, ins_int.qfe);
+      float baro_up = pprz_isa_height_of_pressure(pressure, ins_int.qfe);
+
+      // Create LLA coordinate with current position and baro altitude
+      struct LlaCoor_i lla;
+      LLA_COPY(lla,*stateGetPositionLla_i());
+      lla.alt = 1000*baro_up + state.ned_origin_i.lla.alt;
+
+      // Convert LLA coordinate to NED frame
+      struct NedCoor_i ned;
+      ned_of_lla_pos_i(&ned, &state.ned_origin_i, &lla);
+
+      // The VFF will update in the NED frame
+      ins_int.baro_z = POS_FLOAT_OF_BFP(ned.z);
+
 #if USE_VFF_EXTENDED
       vff_update_baro(ins_int.baro_z);
 #else
