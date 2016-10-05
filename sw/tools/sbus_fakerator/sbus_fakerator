@@ -1,0 +1,3 @@
+#!/bin/bash
+python sw/tools/sbus_fakerator/main.py $1 $2
+
