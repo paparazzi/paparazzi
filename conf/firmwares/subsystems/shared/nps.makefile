@@ -17,7 +17,14 @@ nps.ARCHDIR = sim
 nps.MAKEFILE = nps
 
 nps.CFLAGS  += -DSITL -DUSE_NPS
-nps.LDFLAGS += -lm -livy $(shell pcre-config --libs) -lgsl -lgslcblas -lrt
+nps.LDFLAGS += -lm -livy $(shell pcre-config --libs) -lgsl -lgslcblas
+
+# detect system arch and include rt library only on linux
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Linux)
+  nps.LDFLAGS += -lrt
+endif
+
 nps.CFLAGS  += -I$(SRC_FIRMWARE) -I$(SRC_BOARD) -I$(PAPARAZZI_SRC)/sw/simulator -I$(PAPARAZZI_SRC)/sw/simulator/nps -I$(PAPARAZZI_HOME)/conf/simulator/nps
 
 # sdl needed for joystick input
@@ -52,10 +59,8 @@ nps.srcs +=                                      \
        $(NPSDIR)/nps_main_common.c
 
 ifeq ($(USE_HITL),1)
-$(info USE_HITL defined)
 include $(CFG_SHARED)/nps_hitl.makefile
 else
-$(info USE_HITL undefined)
 include $(CFG_SHARED)/nps_sitl.makefile
 endif
 
