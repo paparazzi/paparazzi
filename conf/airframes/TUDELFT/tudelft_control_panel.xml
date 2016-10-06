@@ -55,6 +55,7 @@
       <arg flag="4242" />
       <arg flag="4252" />
     </program>
+    <program name="SVInfo" command="sw/ground_segment/python/svinfo/svinfo.py"/>
   </section>
 
   <section name="sessions">
