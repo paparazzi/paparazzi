@@ -32,6 +32,7 @@
 
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/datalink/downlink.h"
+#include "modules/datalink/pprz_dl.h"
 
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
@@ -76,6 +77,7 @@ static inline void main_init(void)
 {
   mcu_init();
   downlink_init();
+  pprz_dl_init();
 
   actuators_init();
 #if USE_MOTOR_MIXING
@@ -104,12 +106,13 @@ static inline void main_periodic(void)
   RunOnceEvery(100, {DOWNLINK_SEND_RC(DefaultChannel, DefaultDevice, RADIO_CONTROL_NB_CHANNEL, radio_control.values);});
   RunOnceEvery(101, {DOWNLINK_SEND_COMMANDS(DefaultChannel, DefaultDevice, COMMANDS_NB, commands);});
   RunOnceEvery(102, {DOWNLINK_SEND_ACTUATORS(DefaultChannel, DefaultDevice, ACTUATORS_NB, actuators);});
+
 }
 
 static inline void main_event(void)
 {
   mcu_event();
-  DatalinkEvent();
+  pprz_dl_event();
   RadioControlEvent(on_rc_frame);
 }
 

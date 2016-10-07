@@ -35,50 +35,8 @@
 #include "pprzlink/messages.h"
 #include "subsystems/datalink/datalink.h"
 
-
-#if defined SITL && !USE_NPS
-/** Software In The Loop simulation uses IVY bus directly as the transport layer */
-#include "pprzlink/ivy_transport.h"
-extern struct ivy_transport ivy_tp;
-
-#else /** SITL */
-
-#if DATALINK == PPRZ || DATALINK == SUPERBITRF || DATALINK == W5100 || DATALINK == BLUEGIGA
-#include "pprzlink/pprz_transport.h"
-extern struct pprz_transport pprz_tp;
-#endif
-
-#if USE_PPRZLOG
-#include "pprzlink/pprzlog_transport.h"
-extern struct pprzlog_transport pprzlog_tp;
-#endif
-
-#if DATALINK == XBEE
-#include "pprzlink/xbee_transport.h"
-extern struct xbee_transport xbee_tp;
-#endif
-
-#if DATALINK == W5100
-#include "subsystems/datalink/w5100.h"
-#endif
-
-#if DATALINK == BLUEGIGA
-#include "subsystems/datalink/bluegiga.h"
-#endif
-
-#if USE_SUPERBITRF
-#include "subsystems/datalink/superbitrf.h"
-#endif
-#if USE_USB_SERIAL
-#include "mcu_periph/usb_serial.h"
-#endif
-#ifdef USE_UDP
-#include "mcu_periph/udp.h"
-#endif
-#include "mcu_periph/uart.h"
-
-#endif /** !SITL */
-
+// FIXME test prog still need some includes here
+#include "modules/datalink/pprz_dl.h"
 
 #ifndef DefaultChannel
 #define DefaultChannel DOWNLINK_TRANSPORT

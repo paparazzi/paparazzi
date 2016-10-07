@@ -37,7 +37,7 @@
 
 #if FLIGHTRECORDER_SDLOG
 #include "subsystems/datalink/telemetry.h"
-#include "pprzlink/pprzlog_transport.h"
+#include "modules/loggers/sdlog_tp.h"
 #include "modules/loggers/sdlog_chibios.h"
 #endif
 

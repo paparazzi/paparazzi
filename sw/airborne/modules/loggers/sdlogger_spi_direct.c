@@ -31,6 +31,7 @@
 
 #include "modules/loggers/sdlogger_spi_direct.h"
 #include "subsystems/datalink/downlink.h"
+#include "modules/loggers/sdlog_tp.h"
 #include "subsystems/datalink/telemetry.h"
 #include "led.h"
 

@@ -105,6 +105,8 @@ static inline void main_init(void)
 
   downlink_init();
 
+  modules_init();
+
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AUTOPILOT_VERSION, send_autopilot_version);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ALIVE, send_alive);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_COMMANDS, send_commands);
@@ -131,13 +133,14 @@ static inline void main_periodic_task(void)
   RunOnceEvery(10, { LED_PERIODIC();});
   RunOnceEvery(PERIODIC_FREQUENCY, { datalink_time++; });
   periodic_telemetry_send_Main(DefaultPeriodic, &(DefaultChannel).trans_tx, &(DefaultDevice).device);
+
+  modules_periodic_task();
 }
 
 static inline void main_event_task(void)
 {
   mcu_event();
   modules_event_task();
-  DatalinkEvent();
 }
 
 static void send_alive(struct transport_tx *trans, struct link_device *dev)

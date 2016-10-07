@@ -35,6 +35,7 @@
 #include "mcu_periph/i2c.h"
 #include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
+#include "modules/datalink/pprz_dl.h"
 
 #include "subsystems/imu.h"
 #include "subsystems/abi.h"
@@ -82,6 +83,7 @@ static inline void main_init(void)
   mcu_int_enable();
 
   downlink_init();
+  pprz_dl_init();
 
   AbiBindMsgIMU_GYRO_INT32(ABI_BROADCAST, &gyro_ev, gyro_cb);
   AbiBindMsgIMU_ACCEL_INT32(ABI_BROADCAST, &accel_ev, accel_cb);

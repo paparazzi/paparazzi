@@ -34,6 +34,7 @@
 #include "mcu_periph/sys_time.h"
 #include "subsystems/datalink/downlink.h"
 #include "subsystems/datalink/datalink.h"
+#include "modules/datalink/pprz_dl.h"
 #include "subsystems/settings.h"
 #include "generated/settings.h"
 
@@ -69,6 +70,7 @@ static inline void main_init(void)
   mcu_init();
   sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
   settings_init();
+  pprz_dl_init();
 
   mcu_int_enable();
 
@@ -89,7 +91,7 @@ static inline void main_periodic(void)
 static inline void main_event(void)
 {
   mcu_event();
-  DatalinkEvent();
+  pprz_dl_event();
 }
 
 void dl_parse_msg(struct link_device *dev __attribute__((unused)), struct transport_tx *trans __attribute__((unused)), uint8_t *buf)

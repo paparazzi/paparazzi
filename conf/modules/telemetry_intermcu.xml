@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="telemetry_intermcu" dir="telemetry">
+<module name="telemetry_intermcu" dir="telemetry" task="datalink">
   <doc>
     <description>Telemetry over InterMCU
       This module transmits Telemetry of the process "InterMCU" from AP to FBW. The FBW then transmits this telemetry further through PPRZ over an UART.

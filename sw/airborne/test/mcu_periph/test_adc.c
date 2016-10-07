@@ -45,6 +45,7 @@ static inline void main_init(void)
   sys_time_register_timer((1. / 100), NULL);
   downlink_init();
   adc_init();
+  pprz_dl_init();
 
 #ifdef ADC_0
   adc_buf_channel(ADC_0, &buf_adc[0], ADC_NB_SAMPLES);

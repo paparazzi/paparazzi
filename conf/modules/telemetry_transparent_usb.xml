@@ -1,14 +1,10 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="telemetry_transparent" dir="datalink" task="datalink">
+<module name="telemetry_transparent_usb" dir="datalink" task="datalink">
   <doc>
     <description>
-      Telemetry using PPRZ protocol over UART
-
-      Currently used as a makefile wrapper over the telemetry_transparent subsystem
+      Telemetry using PPRZ protocol over serial USB (e.g. /dev/ttyACM0)
     </description>
-    <configure name="MODEM_PORT" value="UARTx" description="UART where the modem is connected to (UART1, UART2, etc)"/>
-    <configure name="MODEM_BAUD" value="B57600" description="UART baud rate"/>
   </doc>
   <autoload name="telemetry" type="nps"/>
   <autoload name="telemetry" type="sim"/>
@@ -18,13 +14,11 @@
   <init fun="pprz_dl_init()"/>
   <event fun="pprz_dl_event()"/>
   <makefile target="!fbw|sim|nps">
-    <configure name="MODEM_PORT" case="upper|lower"/>
-    <define name="USE_$(MODEM_PORT_UPPER)"/>
-    <define name="$(MODEM_PORT_UPPER)_BAUD" value="$(MODEM_BAUD)"/>
     <define name="DOWNLINK"/>
     <define name="PERIODIC_TELEMETRY"/>
-    <define name="DOWNLINK_DEVICE" value="$(MODEM_PORT_LOWER)"/>
-    <define name="PPRZ_UART" value="$(MODEM_PORT_LOWER)"/>
+    <define name="USE_USB_SERIAL"/>
+    <define name="DOWNLINK_DEVICE" value="usb_serial"/>
+    <define name="PPRZ_UART" value="usb_serial"/>
     <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
     <define name="DATALINK" value="PPRZ"/>
     <file name="pprz_dl.c"/>
@@ -32,6 +26,13 @@
     <file name="datalink.c" dir="subsystems/datalink"/>
     <file name="telemetry.c" dir="subsystems/datalink"/>
     <file name="pprz_transport.c" dir="pprzlink/src"/>
+    <file_arch name="usb_ser_hw.c" dir="."/>
+    <raw>
+      ifeq ($(ARCH), lpc21)
+      $(TARGET).srcs += $(SRC_ARCH)/lpcusb/usbhw_lpc.c $(SRC_ARCH)/lpcusb/usbcontrol.c
+      $(TARGET).srcs += $(SRC_ARCH)/lpcusb/usbstdreq.c $(SRC_ARCH)/lpcusb/usbinit.c
+      endif
+    </raw>
   </makefile>
   <makefile target="ap" firmware="fixedwing">
     <file name="fixedwing_datalink.c" dir="$(SRC_FIRMWARE)"/>

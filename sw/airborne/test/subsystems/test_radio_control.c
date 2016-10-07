@@ -25,6 +25,7 @@
 #include "mcu_periph/sys_time.h"
 #define DATALINK_C
 #include "subsystems/datalink/downlink.h"
+#include "modules/datalink/pprz_dl.h"
 #include "subsystems/radio_control.h"
 
 static inline void main_init(void);
@@ -50,6 +51,7 @@ static inline void main_init(void)
   sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
   radio_control_init();
   downlink_init();
+  pprz_dl_init();
   mcu_int_enable();
 }
 

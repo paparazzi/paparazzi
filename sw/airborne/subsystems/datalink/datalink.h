@@ -96,46 +96,4 @@ static inline void DlCheckAndParse(struct link_device *dev, struct transport_tx 
   }
 }
 
-#if defined DATALINK && DATALINK == PPRZ
-
-#define DatalinkEvent() {                       \
-    pprz_check_and_parse(&(PPRZ_UART).device, &pprz_tp, dl_buffer, &dl_msg_available);      \
-    DlCheckAndParse(&(DOWNLINK_DEVICE).device, &pprz_tp.trans_tx, dl_buffer);               \
-  }
-
-#elif defined DATALINK && DATALINK == XBEE
-
-#define DatalinkEvent() {                       \
-    xbee_check_and_parse(&(XBEE_UART).device, &xbee_tp, dl_buffer, &dl_msg_available);      \
-    DlCheckAndParse(&(DOWNLINK_DEVICE).device, &xbee_tp.trans_tx, dl_buffer);               \
-  }
-
-#elif defined DATALINK && DATALINK == W5100
-
-#define DatalinkEvent() {                       \
-    W5100CheckAndParse(W5100, pprz_tp);         \
-    DlCheckAndParse(&(DOWNLINK_DEVICE).device, &pprz_tp.trans_tx, dl_buffer); \
-  }
-
-#elif defined DATALINK && DATALINK == SUPERBITRF
-
-#define DatalinkEvent() {                       \
-    SuperbitRFCheckAndParse();                  \
-    DlCheckAndParse(&(DOWNLINK_DEVICE).device, &pprz_tp.trans_tx, dl_buffer); \
-  }
-
-#elif defined DATALINK && DATALINK == BLUEGIGA
-
-#define DatalinkEvent() {                       \
-    pprz_check_and_parse(&(DOWNLINK_DEVICE).device, &pprz_tp, dl_buffer, &dl_msg_available);      \
-    DlCheckAndParse(&(DOWNLINK_DEVICE).device, &pprz_tp.trans_tx, dl_buffer);                     \
-  }
-
-#else
-
-// Unknown DATALINK
-#define DatalinkEvent() {}
-
-#endif /* DATALINK == */
-
 #endif /* DATALINK_H */

@@ -42,6 +42,7 @@
 #include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 #include "subsystems/datalink/telemetry.h"
+#include "modules/datalink/pprz_dl.h"
 
 #include "subsystems/datalink/datalink.h"
 #include "generated/settings.h"
@@ -78,6 +79,7 @@ static inline void main_init(void)
   ahrs_aligner_init();
 #endif
   ahrs_init();
+  pprz_dl_init();
   downlink_init();
 
   mcu_int_enable();
@@ -96,8 +98,8 @@ static inline void main_periodic_task(void)
 static inline void main_event_task(void)
 {
   mcu_event();
+  pprz_dl_event();
   modules_event_task();
-  DatalinkEvent();
 }
 
 static inline void main_report(void)
