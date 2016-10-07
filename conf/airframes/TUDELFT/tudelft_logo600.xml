@@ -47,6 +47,7 @@
     </module>
     <module name="heli" type="throttle_curve"/>
     <define name="RC_LOST_FBW_MODE" value="FBW_MODE_FAILSAFE"/><!-- Switch to Failsafe or to Autopilot on RC loss? -->
+    <!--define name="RC_LOST_IN_AUTO_FBW_MODE" value="FBW_MODE_AP"/--><!-- Switch to AUTO2 with a working autopilot on RC loss? -->
     <define name="RC_LOST_IN_AUTO_FBW_MODE" value="FBW_MODE_FAILSAFE"/><!-- Switch to Failsafe with a working autopilot on RC loss? -->
     <define name="AP_LOST_FBW_MODE" value="FBW_MODE_MANUAL"/><!-- Switch to Failsafe or to Manual on AP loss? -->
 
@@ -117,7 +118,7 @@
   <section name="MISC">
     <define name="ROTORCRAFT_COMMANDS_YAW_ALWAYS_ENABLED" value="TRUE" />
     <define name="NAV_CLIMB_VSPEED" value="2.5"/>
-    <define name="NAV_DESCEND_VSPEED" value="-0.7"/>
+    <define name="NAV_DESCEND_VSPEED" value="-1.5"/>
     <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
     <!--define name="USE_THROTTLE_FOR_MOTOR_ARMING" value="TRUE"/-->
     <define name="USE_KILL_SWITCH_FOR_MOTOR_ARMING" value="TRUE"/>
@@ -203,7 +204,7 @@
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
     <define name="MAX_BANK" value="25" unit="deg"/>
-    <define name="REF_MAX_SPEED" value="2" unit="m/s"/>
+    <define name="REF_MAX_SPEED" value="5" unit="m/s"/>
     <define name="USE_SPEED_REF" value="TRUE"/>
     <define name="PGAIN" value="20"/>
     <define name="DGAIN" value="50"/>
