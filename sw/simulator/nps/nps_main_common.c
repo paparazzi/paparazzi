@@ -30,6 +30,22 @@
 
 #include "nps_ivy.h"
 
+#ifdef __MACH__
+pthread_mutex_t clock_mutex; // mutex for clock
+void clock_get_current_time(struct timespec *ts)
+{
+  pthread_mutex_lock(&clock_mutex);
+  clock_serv_t cclock;
+  mach_timespec_t mts;
+  host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
+  clock_get_time(cclock, &mts);
+  mach_port_deallocate(mach_task_self(), cclock);
+  ts->tv_sec = mts.tv_sec;
+  ts->tv_nsec = mts.tv_nsec;
+  pthread_mutex_unlock(&clock_mutex);
+}
+#endif
+
 void tstp_hdl(int n __attribute__((unused)))
 {
   if (pauseSignal) {

@@ -12,21 +12,7 @@
 #ifdef __MACH__ // OS X does not have clock_gettime, use clock_get_time
 #include <mach/clock.h>
 #include <mach/mach.h>
-pthread_mutex_t clock_mutex; // mutex for clock
 void clock_get_current_time(struct timespec *ts);
-
-void clock_get_current_time(struct timespec *ts)
-{
-  pthread_mutex_lock(&clock_mutex);
-  clock_serv_t cclock;
-  mach_timespec_t mts;
-  host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
-  clock_get_time(cclock, &mts);
-  mach_port_deallocate(mach_task_self(), cclock);
-  ts->tv_sec = mts.tv_sec;
-  ts->tv_nsec = mts.tv_nsec;
-  pthread_mutex_unlock(&clock_mutex);
-}
 #else // Linux
 #define clock_get_current_time(_x) clock_gettime(CLOCK_REALTIME, _x)
 #endif // #ifdef __MACH__

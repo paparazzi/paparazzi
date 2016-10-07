@@ -19,10 +19,10 @@ nps.MAKEFILE = nps
 nps.CFLAGS  += -DSITL -DUSE_NPS
 nps.LDFLAGS += -lm -livy $(shell pcre-config --libs) -lgsl -lgslcblas
 
-# detect system arch and include rt library only on linux
+# detect system arch and include rt and pthread library only on linux
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
-  nps.LDFLAGS += -lrt
+  nps.LDFLAGS += -lrt -pthread
 endif
 
 nps.CFLAGS  += -I$(SRC_FIRMWARE) -I$(SRC_BOARD) -I$(PAPARAZZI_SRC)/sw/simulator -I$(PAPARAZZI_SRC)/sw/simulator/nps -I$(PAPARAZZI_HOME)/conf/simulator/nps
