@@ -138,7 +138,7 @@ void *nps_ins_data_loop(void *data __attribute__((unused)))
     pthread_mutex_lock(&fdm_mutex);
 
     // start timing
-    clock_gettime(CLOCK_REALTIME, &requestStart);
+    clock_get_current_time(&requestStart);
 
     // make a copy of fdm struct to speed things up
     memcpy(&fdm_ins, &fdm, sizeof(fdm));
@@ -159,7 +159,7 @@ void *nps_ins_data_loop(void *data __attribute__((unused)))
       printf("INS THREAD: Warning - sent only %u bytes to the autopilot, instead of expected %u\n", wlen, idx);
     }
 
-    clock_gettime(CLOCK_REALTIME, &requestEnd);
+    clock_get_current_time(&requestEnd);
 
     // Calculate time it took
     task_ns = (requestEnd.tv_sec - requestStart.tv_sec) * 1000000000L + (requestEnd.tv_nsec - requestStart.tv_nsec);
@@ -285,19 +285,19 @@ void *nps_main_loop(void *data __attribute__((unused)))
   // fdm.time - simulation time
   struct timespec startTime;
   struct timespec realTime;
-  clock_gettime(CLOCK_REALTIME, &startTime);
+  clock_get_current_time(&startTime);
   double start_secs = ntime_to_double(&startTime);
   double real_secs = 0;
   double real_time = 0;
   static int guard;
 
   while (TRUE) {
-    clock_gettime(CLOCK_REALTIME, &requestStart);
+    clock_get_current_time(&requestStart);
 
     pthread_mutex_lock(&fdm_mutex);
 
     // check the current simulation time
-    clock_gettime(CLOCK_REALTIME, &realTime);
+    clock_get_current_time(&realTime);
     real_secs = ntime_to_double(&realTime);
     real_time = real_secs - start_secs; // real time elapsed
 
@@ -312,7 +312,7 @@ void *nps_main_loop(void *data __attribute__((unused)))
     }
     pthread_mutex_unlock(&fdm_mutex);
 
-    clock_gettime(CLOCK_REALTIME, &requestEnd);
+    clock_get_current_time(&requestEnd);
 
     // Calculate time it took
     task_ns = (requestEnd.tv_sec - requestStart.tv_sec) * 1000000000L + (requestEnd.tv_nsec - requestStart.tv_nsec);

@@ -9,6 +9,14 @@
 #include "nps_sensors.h"
 #include "nps_autopilot.h"
 
+#ifdef __MACH__ // OS X does not have clock_gettime, use clock_get_time
+#include <mach/clock.h>
+#include <mach/mach.h>
+void clock_get_current_time(struct timespec *ts);
+#else // Linux
+#define clock_get_current_time(_x) clock_gettime(CLOCK_REALTIME, _x)
+#endif // #ifdef __MACH__
+
 #define SIM_DT     (1./SYS_TIME_FREQUENCY)
 #define DISPLAY_DT (1./30.)
 #define HOST_TIMEOUT_MS 40

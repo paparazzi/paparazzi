@@ -127,7 +127,7 @@ void *nps_main_loop(void *data __attribute__((unused)))
       pauseSignal = 0;
     }
 
-    clock_gettime(CLOCK_REALTIME, &requestStart); // init measurement (after the pause signal)
+    clock_get_current_time(&requestStart); // init measurement (after the pause signal)
 
     gettimeofday(&tv_now, NULL);
     host_time_now = time_to_double(&tv_now);
@@ -163,7 +163,7 @@ void *nps_main_loop(void *data __attribute__((unused)))
     printf("%f,%f\n", nps_main.sim_time, nps_main.display_time);
 #endif
 
-    clock_gettime(CLOCK_REALTIME, &requestEnd); // end measurement
+    clock_get_current_time(&requestEnd); // end measurement
 
     // Calculate time it took
     task_ns = (requestEnd.tv_sec - requestStart.tv_sec) * 1000000000L + (requestEnd.tv_nsec - requestStart.tv_nsec);

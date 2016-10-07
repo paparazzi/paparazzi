@@ -30,6 +30,22 @@
 
 #include "nps_ivy.h"
 
+#ifdef __MACH__
+pthread_mutex_t clock_mutex; // mutex for clock
+void clock_get_current_time(struct timespec *ts)
+{
+  pthread_mutex_lock(&clock_mutex);
+  clock_serv_t cclock;
+  mach_timespec_t mts;
+  host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
+  clock_get_time(cclock, &mts);
+  mach_port_deallocate(mach_task_self(), cclock);
+  ts->tv_sec = mts.tv_sec;
+  ts->tv_nsec = mts.tv_nsec;
+  pthread_mutex_unlock(&clock_mutex);
+}
+#endif
+
 void tstp_hdl(int n __attribute__((unused)))
 {
   if (pauseSignal) {
@@ -239,7 +255,7 @@ void *nps_flight_gear_loop(void *data __attribute__((unused)))
   nps_flightgear_init(nps_main.fg_host, nps_main.fg_port, nps_main.fg_port_in, nps_main.fg_time_offset);
 
   while (TRUE) {
-    clock_gettime(CLOCK_REALTIME, &requestStart);
+    clock_get_current_time(&requestStart);
 
     pthread_mutex_lock(&fdm_mutex);
     if (nps_main.fg_host) {
@@ -251,7 +267,7 @@ void *nps_flight_gear_loop(void *data __attribute__((unused)))
     }
     pthread_mutex_unlock(&fdm_mutex);
 
-    clock_gettime(CLOCK_REALTIME, &requestEnd);
+    clock_get_current_time(&requestEnd);
 
     // Calculate time it took
     task_ns = (requestEnd.tv_sec - requestStart.tv_sec) * 1000000000L + (requestEnd.tv_nsec - requestStart.tv_nsec);
@@ -287,7 +303,7 @@ void *nps_main_display(void *data __attribute__((unused)))
   nps_ivy_init(nps_main.ivy_bus);
 
   while (TRUE) {
-    clock_gettime(CLOCK_REALTIME, &requestStart);
+    clock_get_current_time(&requestStart);
 
     pthread_mutex_lock(&fdm_mutex);
     memcpy(&fdm_ivy, &fdm, sizeof(fdm));
@@ -296,7 +312,7 @@ void *nps_main_display(void *data __attribute__((unused)))
 
     nps_ivy_display(&fdm_ivy, &sensors_ivy);
 
-    clock_gettime(CLOCK_REALTIME, &requestEnd);
+    clock_get_current_time(&requestEnd);
 
     // Calculate time it took
     task_ns = (requestEnd.tv_sec - requestStart.tv_sec) * 1000000000L + (requestEnd.tv_nsec - requestStart.tv_nsec);
