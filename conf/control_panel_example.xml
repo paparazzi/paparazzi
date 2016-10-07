@@ -66,6 +66,7 @@
     </program>
     <program name="SVInfo" command="sw/ground_segment/python/svinfo/svinfo.py"/>
     <program name="IridiumDialer" command="sw/tools/iridium/iridium_link.py"/>
+    <program name="PayloadForward" command="sw/ground_segment/python/payload_forward/payload.py"/>
  </section>
 
   <section name="sessions">
