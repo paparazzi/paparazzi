@@ -77,7 +77,9 @@ void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, cha
 
   autopilot.launch = FALSE;
 
-  nps_radio_control_init(type_rc, num_rc_script, rc_dev);
+  if (rc_dev != NULL)  {
+    nps_radio_control_init(type_rc, num_rc_script, rc_dev);
+  }
   nps_electrical_init();
 
   nps_bypass_ahrs = NPS_BYPASS_AHRS;
@@ -180,10 +182,8 @@ void nps_autopilot_run_step(double time)
 #ifdef COMMAND_YAW
   PRINT_CONFIG_VAR(COMMAND_YAW)
   autopilot.commands[COMMAND_YAW] = (double)commands[COMMAND_YAW] / MAX_PPRZ;
-#else
-  autopilot.commands[3] = 0.;
-#endif
-#endif
+#endif /* COMMAND_YAW */
+#endif /* NPS_ACTUATOR_NAMES */
 
   // do the launch when clicking launch in GCS
   autopilot.launch = launch && !kill_throttle;

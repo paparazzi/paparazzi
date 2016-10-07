@@ -1,3 +1,22 @@
+#
+# Copyright (C) 2016 TUDelft
+#
+# This file is part of paparazzi.
+#
+# paparazzi is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# paparazzi is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with paparazzi.  If not, see <http://www.gnu.org/licenses/>.
+#
+
 import wx
 
 import sys
@@ -69,23 +88,23 @@ class SVInfoFrame(wx.Frame):
         bar = self.h-w-th-th
 
 
-        dc = wx.PaintDC(self) 
-        brush = wx.Brush("white")  
-        dc.SetBackground(brush)  
-        dc.Clear() 
-        
+        dc = wx.PaintDC(self)
+        brush = wx.Brush("white")
+        dc.SetBackground(brush)
+        dc.Clear()
+
         # Background
-        dc.SetBrush(wx.Brush(wx.Colour(0,0,0), wx.TRANSPARENT)) 
-        dc.DrawCircle(w/2,w/2,w/2-1) 
-        dc.DrawCircle(w/2,w/2,w/4-1) 
-        dc.DrawCircle(w/2,w/2,1) 
-        font = wx.Font(11, wx.ROMAN, wx.BOLD, wx.NORMAL) 
+        dc.SetBrush(wx.Brush(wx.Colour(0,0,0), wx.TRANSPARENT))
+        dc.DrawCircle(w/2,w/2,w/2-1)
+        dc.DrawCircle(w/2,w/2,w/4-1)
+        dc.DrawCircle(w/2,w/2,1)
+        font = wx.Font(11, wx.ROMAN, wx.BOLD, wx.NORMAL)
         dc.SetFont(font)
 
-        dc.DrawText("N",w/2+tdx,2) 
-        dc.DrawText("S",w/2+tdx,w-17) 
-        dc.DrawText("E",w-15,w/2+tdy) 
-        dc.DrawText("W",2,w/2+tdy) 
+        dc.DrawText("N",w/2+tdx,2)
+        dc.DrawText("S",w/2+tdx,w-17)
+        dc.DrawText("E",w-15,w/2+tdy)
+        dc.DrawText("W",2,w/2+tdy)
 
         # SV
         for chn in self.sv:
@@ -101,18 +120,18 @@ class SVInfoFrame(wx.Frame):
             y = float(w)/2.0 - math.cos(az) * el
             x = float(w)/2.0 + math.sin(az) * el
 
-            dc.SetBrush(wx.Brush(c, wx.SOLID)) 
-            dc.DrawCircle(int(x),int(y),s) 
-		
-            font = wx.Font(8, wx.ROMAN, wx.NORMAL, wx.NORMAL) 
-            dc.SetFont(font) 
+            dc.SetBrush(wx.Brush(c, wx.SOLID))
+            dc.DrawCircle(int(x),int(y),s)
+
+            font = wx.Font(8, wx.ROMAN, wx.NORMAL, wx.NORMAL)
+            dc.SetFont(font)
             dc.DrawText(str(sv.SVID),x+tdx,y+tdy)
 
             bh = float(bar-th-th) * float(sv.CNO) / 55.0
             dc.DrawRectangle(w/CHANNEL*chn+5 * (1-used),self.h-th-bh,w/CHANNEL-2 - 10 * (1-used),bh)
             dc.DrawText(str(chn),w/CHANNEL*chn,self.h-th)
             dc.DrawText(str(sv.CNO),w/CHANNEL*chn,self.h-bar)
-		
+
 
     def __init__(self):
 
@@ -121,7 +140,7 @@ class SVInfoFrame(wx.Frame):
 
         wx.Frame.__init__(self, id=-1, parent=None, name=u'SVInfoFrame',
                           size=wx.Size(self.w, self.h), title=u'SV Info')
-        self.Bind(wx.EVT_PAINT, self.OnPaint) 
+        self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_SIZE, self.OnSize)
         self.Bind(wx.EVT_CLOSE, self.OnClose)
 

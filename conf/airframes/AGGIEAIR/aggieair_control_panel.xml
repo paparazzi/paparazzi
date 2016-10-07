@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
-
-<control_panel name="paparazzi control panel">
+<control_panel name="aggieair control panel">
 
   <section name="programs">
     <program name="Server" command="sw/ground_segment/tmtc/server"/>
@@ -8,9 +7,7 @@
       <arg flag="-d" constant="/dev/ttyUSB0"/>
     </program>
     <program name="Link Combiner" command="sw/ground_segment/python/redundant_link/link_combiner.py"/>
-    <program name="GCS" command="sw/ground_segment/cockpit/gcs">
-      <arg flag="-layout" constant="large_left_col.xml"/>
-    </program>
+    <program name="GCS" command="sw/ground_segment/cockpit/gcs"/>
     <program name="Flight Plan Editor" command="sw/ground_segment/cockpit/gcs">
       <arg flag="-edit"/>
     </program>
@@ -34,6 +31,9 @@
     <program name="Joystick" command="sw/ground_segment/joystick/input2ivy">
       <arg flag="-ac" constant="@AIRCRAFT"/>
       <arg flag="xbox_gamepad.xml"/>
+    </program>
+    <program name="Sbus Fakerator" command="sw/tools/sbus_fakerator/sbus_fakerator">
+      <arg flag="-p" constant="/dev/ttyUSB0"/>
     </program>
     <program name="Environment Simulator" command="sw/simulator/gaia"/>
     <program name="Http Server" command="$python">
@@ -64,19 +64,9 @@
     <program name="ADS-B Intruders receiver" command="sw/ground_segment/misc/sbs2ivy">
       <arg flag="--ac" constant="@AC_ID"/>
     </program>
-    <program name="SVInfo" command="sw/ground_segment/python/svinfo/svinfo.py"/>
-    <program name="IridiumDialer" command="sw/tools/iridium/iridium_link.py"/>
  </section>
 
   <section name="sessions">
-
-   <session name="Flight UDP/WiFi">
-      <program name="Server"/>
-      <program name="GCS"/>
-      <program name="Data Link">
-        <arg flag="-udp"/>
-      </program>
-    </session>
 
    <session name="Flight USB-serial@9600">
       <program name="Data Link">
@@ -93,6 +83,46 @@
      </program>
      <program name="Server"/>
      <program name="GCS"/>
+     <program name="Messages"/>
+   </session>
+
+   <session name="HITL USB-serial@57600">
+     <program name="Data Link">
+       <arg flag="-d" constant="/dev/ttyUSB0"/>
+       <arg flag="-s" constant="57600"/>
+     </program>
+     <program name="Server">
+      <arg flag="" constant="-no_md5_check"/>
+     </program>
+     <program name="GCS"/>
+     <program name="Messages"/>
+     <program name="Simulator">
+      <arg flag="-a" constant="@AIRCRAFT"/>
+      <arg flag="-f" constant="127.0.0.1"/>
+      <arg flag="-b" constant="127.255.255.255"/>
+      <arg flag="--fg_fdm" constant=""/>
+     </program>
+   </session>
+
+   <session name="HITL+SBUS USB-serial@57600">
+     <program name="Data Link">
+       <arg flag="-d" constant="/dev/ttyUSB0"/>
+       <arg flag="-s" constant="57600"/>
+     </program>
+     <program name="Server">
+      <arg flag="" constant="-no_md5_check"/>
+     </program>
+     <program name="GCS"/>
+     <program name="Messages"/>
+     <program name="Simulator">
+      <arg flag="-a" constant="@AIRCRAFT"/>
+      <arg flag="-f" constant="127.0.0.1"/>
+      <arg flag="-b" constant="127.255.255.255"/>
+      <arg flag="--fg_fdm" constant=""/>
+     </program>
+     <program name="Sbus Fakerator">
+       <arg flag="-p" constant="/dev/ttyUSB3"/>
+     </program>
    </session>
 
    <session name="Flight USB-XBee-API@57600">
@@ -103,42 +133,6 @@
       </program>
       <program name="Server"/>
       <program name="GCS"/>
-    </session>
-
-    <session name="Flight USB-serial Redundant">
-      <program name="Server"/>
-      <program name="GCS"/>
-      <program name="Data Link">
-        <arg flag="-d" constant="/dev/ttyUSB0"/>
-        <arg flag="-id" constant="1"/>
-        <arg flag="-redlink"/>
-      </program>
-      <program name="Data Link">
-        <arg flag="-d" constant="/dev/ttyUSB1"/>
-        <arg flag="-id" constant="2"/>
-        <arg flag="-redlink"/>
-      </program>
-      <program name="Link Combiner"/>
-    </session>
-
-    <session name="SupperBitRF">
-      <program name="Data Link">
-        <arg flag="-d" constant="/dev/ttyACM0"/>
-      </program>
-      <program name="Server"/>
-      <program name="GCS"/>
-      <program name="Messages"/>
-    </session>
-
-    <session name="SupperBitRF cable telemetry">
-      <program name="Data Link">
-        <arg flag="-d" constant="/dev/ttyACM1"/>
-        <arg flag="-s" constant="57600"/>
-      </program>
-      <program name="Server"/>
-      <program name="GCS"/>
-      <program name="Messages"/>
-      <program name="Messages"/>
     </session>
 
     <session name="Messages and Settings">
@@ -203,48 +197,18 @@
       </program>
     </session>
 
-    <session name="Scaled Sensors">
-      <program name="Data Link">
-        <arg flag="-d" constant="/dev/ttyUSB0"/>
-        <arg flag="-s" constant="57600"/>
-      </program>
+
+    <session name="Log Replay">
+      <program name="Log File Player"/>
       <program name="Server">
         <arg flag="-n"/>
       </program>
+      <program name="GCS"/>
       <program name="Messages">
         <arg flag="-g" constant="300x400+0-220"/>
       </program>
-      <program name="Settings">
-        <arg flag="-ac" constant="@AIRCRAFT"/>
-        <arg flag="-g" constant="800x200+0-0"/>
-      </program>
-      <program name="Real-time Plotter">
-        <arg flag="-g" constant="1000x250-0+0"/>
-        <arg flag="-t" constant="ACC"/>
-        <arg flag="-u" constant="0.05"/>
-        <arg flag="-c" constant="9.81"/>
-        <arg flag="-c" constant="0.00"/>
-        <arg flag="-c" constant="-9.81"/>
-        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_SCALED:ax:0.0009766"/>
-        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_SCALED:ay:0.0009766"/>
-        <arg flag="-c" constant="*:telemetry:IMU_ACCEL_SCALED:az:0.0009766"/>
-        <arg flag="-n"/>
-        <arg flag="-g" constant="1000x250-0+250"/>
-        <arg flag="-t" constant="GYRO"/>
-        <arg flag="-u" constant="0.05"/>
-        <arg flag="-c" constant="0.00"/>
-        <arg flag="-c" constant="*:telemetry:IMU_GYRO_SCALED:gp:0.0139882"/>
-        <arg flag="-c" constant="*:telemetry:IMU_GYRO_SCALED:gq:0.0139882"/>
-        <arg flag="-c" constant="*:telemetry:IMU_GYRO_SCALED:gr:0.0139882"/>
-        <arg flag="-n"/>
-        <arg flag="-g" constant="1000x250-0+500"/>
-        <arg flag="-t" constant="MAG"/>
-        <arg flag="-u" constant="0.05"/>
-        <arg flag="-c" constant="0.00"/>
-        <arg flag="-c" constant="*:telemetry:IMU_MAG_SCALED:mx:0.0004883"/>
-        <arg flag="-c" constant="*:telemetry:IMU_MAG_SCALED:my:0.0004883"/>
-        <arg flag="-c" constant="*:telemetry:IMU_MAG_SCALED:mz:0.0004883"/>
-      </program>
+      <program name="Real-time Plotter"/>
+      <program name="Environment Simulator"/>
     </session>
 
   </section>

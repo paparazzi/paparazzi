@@ -5,7 +5,7 @@ First release candidate for v5.10
 
 General
 -------
-
+- using Coverity scan tool for static code analysis https://scan.coverity.com/projects/paparazzi-paparazzi
 - optitrack fixes and gps_datalink protocol updates
   [#1506] (https://github.com/paparazzi/paparazzi/pull/1506)
   [#1563] (https://github.com/paparazzi/paparazzi/pull/1563)

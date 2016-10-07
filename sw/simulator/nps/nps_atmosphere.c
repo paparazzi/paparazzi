@@ -101,7 +101,7 @@ void nps_atmosphere_update(double dt)
   req_time += dt;
   if (req_time - nps_atmosphere.last_world_env_req >= NPS_WORLD_ENV_UPDATE) {
     nps_atmosphere.last_world_env_req = req_time;
-    nps_ivy_send_WORLD_ENV_REQ();
+    nps_ivy_send_world_env = true;
   }
 
   nps_fdm_set_wind_ned(nps_atmosphere.wind.x, nps_atmosphere.wind.y, nps_atmosphere.wind.z);

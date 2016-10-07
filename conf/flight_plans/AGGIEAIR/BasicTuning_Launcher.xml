@@ -56,6 +56,11 @@
       <set value="1" var="kill_throttle"/>
       <while cond="TRUE"/>
     </block>
+    <block name="Launch" strip_button="TakeOff (wp CLIMB)" strip_icon="takeoff.png">
+      <call fun="nav_launcher_setup()"/>
+      <call fun="nav_launcher_run()"/>
+      <deroute block="Standby"/>
+    </block>
     <block name="CircleUpTo1000">
       <circle alt="2350" radius="500" wp="STDBY"/>
     </block>

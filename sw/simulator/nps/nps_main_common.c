@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2009 Antoine Drouin <poinix@gmail.com>
  * Copyright (C) 2012 The Paparazzi Team
+ * Copyright (C) 2016 Michal Podhradsky <http://github.com/podhrmic>
  *
  * This file is part of paparazzi.
  *
@@ -20,51 +21,14 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "nps_main.h"
 #include <signal.h>
-#include <glib.h>
-#include <sys/time.h>
+#include <stdio.h>
 #include <getopt.h>
 
-#include "nps_main.h"
-#include "nps_fdm.h"
-#include "nps_sensors.h"
-#include "nps_atmosphere.h"
-#include "nps_autopilot.h"
-#include "nps_ivy.h"
 #include "nps_flightgear.h"
-#include "mcu_periph/sys_time.h"
-#define SIM_DT     (1./SYS_TIME_FREQUENCY)
-#define DISPLAY_DT (1./30.)
-#define HOST_TIMEOUT_MS 40
 
-
-static struct {
-  double real_initial_time;
-  double scaled_initial_time;
-  double host_time_factor;
-  double sim_time;
-  double display_time;
-  char *fg_host;
-  unsigned int fg_port;
-  unsigned int fg_port_in;
-  unsigned int fg_time_offset;
-  int fg_fdm;
-  char *js_dev;
-  char *spektrum_dev;
-  int rc_script;
-  char *ivy_bus;
-} nps_main;
-
-static bool nps_main_parse_options(int argc, char **argv);
-static void nps_main_init(void);
-static void nps_main_display(void);
-static void nps_main_run_sim_step(void);
-static gboolean nps_main_periodic(gpointer data __attribute__((unused)));
-
-int pauseSignal = 0;
+#include "nps_ivy.h"
 
 void tstp_hdl(int n __attribute__((unused)))
 {
@@ -77,6 +41,7 @@ void tstp_hdl(int n __attribute__((unused)))
   }
 }
 
+
 void cont_hdl(int n __attribute__((unused)))
 {
   signal(SIGCONT, cont_hdl);
@@ -84,13 +49,20 @@ void cont_hdl(int n __attribute__((unused)))
   printf("Press <enter> to continue.\n");
 }
 
+
 double time_to_double(struct timeval *t)
 {
   return ((double)t->tv_sec + (double)(t->tv_usec * 1e-6));
 }
 
-int main(int argc, char **argv)
+double ntime_to_double(struct timespec *t)
 {
+  return ((double)t->tv_sec + (double)(t->tv_nsec * 1e-9));
+}
+
+int nps_main_init(int argc, char **argv)
+{
+  pauseSignal = 0;
 
   if (!nps_main_parse_options(argc, argv)) { return 1; }
 
@@ -101,22 +73,6 @@ int main(int argc, char **argv)
    */
   setbuf(stdout, NULL);
 
-  nps_main_init();
-
-  signal(SIGCONT, cont_hdl);
-  signal(SIGTSTP, tstp_hdl);
-  printf("Time factor is %f. (Press Ctrl-Z to change)\n", nps_main.host_time_factor);
-
-  GMainLoop *ml =  g_main_loop_new(NULL, FALSE);
-  g_timeout_add(HOST_TIMEOUT_MS, nps_main_periodic, NULL);
-  g_main_loop_run(ml);
-
-  return 0;
-}
-
-
-static void nps_main_init(void)
-{
 
   nps_main.sim_time = 0.;
   nps_main.display_time = 0.;
@@ -125,67 +81,22 @@ static void nps_main_init(void)
   nps_main.real_initial_time = time_to_double(&t);
   nps_main.scaled_initial_time = time_to_double(&t);
 
-  nps_ivy_init(nps_main.ivy_bus);
   nps_fdm_init(SIM_DT);
   nps_atmosphere_init();
   nps_sensors_init(nps_main.sim_time);
   printf("Simulating with dt of %f\n", SIM_DT);
 
-  enum NpsRadioControlType rc_type;
-  char *rc_dev = NULL;
-  if (nps_main.js_dev) {
-    rc_type = JOYSTICK;
-    rc_dev = nps_main.js_dev;
-  } else if (nps_main.spektrum_dev) {
-    rc_type = SPEKTRUM;
-    rc_dev = nps_main.spektrum_dev;
-  } else {
-    rc_type = SCRIPT;
-  }
-  nps_autopilot_init(rc_type, nps_main.rc_script, rc_dev);
-
-  if (nps_main.fg_host)
-    nps_flightgear_init(nps_main.fg_host, nps_main.fg_port, nps_main.fg_port_in, nps_main.fg_time_offset);
-
+  nps_radio_and_autopilot_init();
 
 #if DEBUG_NPS_TIME
   printf("host_time_factor,host_time_elapsed,host_time_now,scaled_initial_time,sim_time_before,display_time_before,sim_time_after,display_time_after\n");
 #endif
 
-}
+  signal(SIGCONT, cont_hdl);
+  signal(SIGTSTP, tstp_hdl);
+  printf("Time factor is %f. (Press Ctrl-Z to change)\n", nps_main.host_time_factor);
 
-
-
-static void nps_main_run_sim_step(void)
-{
-  //  printf("sim at %f\n", nps_main.sim_time);
-
-  nps_atmosphere_update(SIM_DT);
-
-  nps_autopilot_run_systime_step();
-
-  nps_fdm_run_step(autopilot.launch, autopilot.commands, NPS_COMMANDS_NB);
-
-  nps_sensors_run_step(nps_main.sim_time);
-
-  nps_autopilot_run_step(nps_main.sim_time);
-
-}
-
-
-static void nps_main_display(void)
-{
-  //  printf("display at %f\n", nps_main.display_time);
-  nps_ivy_display();
-
-  if (nps_main.fg_host) {
-    if (nps_main.fg_fdm) {
-      nps_flightgear_send_fdm();
-    } else {
-      nps_flightgear_send();
-    }
-  }
-  nps_flightgear_receive();
+  return 0;
 }
 
 
@@ -217,84 +128,7 @@ void nps_set_time_factor(float time_factor)
 }
 
 
-static gboolean nps_main_periodic(gpointer data __attribute__((unused)))
-{
-  struct timeval tv_now;
-  double  host_time_now;
-
-  if (pauseSignal) {
-    char line[128];
-    double tf = 1.0;
-    double t1, t2, irt;
-
-    gettimeofday(&tv_now, NULL);
-    t1 = time_to_double(&tv_now);
-    /* unscale to initial real time*/
-    irt = t1 - (t1 - nps_main.scaled_initial_time) * nps_main.host_time_factor;
-
-    printf("Press <enter> to continue (or CTRL-Z to suspend).\nEnter a new time factor if needed (current: %f): ",
-           nps_main.host_time_factor);
-    fflush(stdout);
-    if (fgets(line, 127, stdin)) {
-      if ((sscanf(line, " %le ", &tf) == 1)) {
-        if (tf > 0 && tf < 1000) {
-          nps_main.host_time_factor = tf;
-        }
-      }
-      printf("Time factor is %f\n", nps_main.host_time_factor);
-    }
-    gettimeofday(&tv_now, NULL);
-    t2 = time_to_double(&tv_now);
-    /* add the pause to initial real time */
-    irt += t2 - t1;
-    nps_main.real_initial_time += t2 - t1;
-    /* convert to scaled initial real time */
-    nps_main.scaled_initial_time = t2 - (t2 - irt) / nps_main.host_time_factor;
-    pauseSignal = 0;
-  }
-
-  gettimeofday(&tv_now, NULL);
-  host_time_now = time_to_double(&tv_now);
-  double host_time_elapsed = nps_main.host_time_factor * (host_time_now  - nps_main.scaled_initial_time);
-
-#if DEBUG_NPS_TIME
-  printf("%f,%f,%f,%f,%f,%f,", nps_main.host_time_factor, host_time_elapsed, host_time_now, nps_main.scaled_initial_time,
-         nps_main.sim_time, nps_main.display_time);
-#endif
-
-  int cnt = 0;
-  static int prev_cnt = 0;
-  static int grow_cnt = 0;
-  while (nps_main.sim_time <= host_time_elapsed) {
-    nps_main_run_sim_step();
-    nps_main.sim_time += SIM_DT;
-    if (nps_main.display_time < (host_time_now - nps_main.real_initial_time)) {
-      nps_main_display();
-      nps_main.display_time += DISPLAY_DT;
-    }
-    cnt++;
-  }
-
-  /* Check to make sure the simulation doesn't get too far behind real time looping */
-  if (cnt > (prev_cnt)) {grow_cnt++;}
-  else { grow_cnt--;}
-  if (grow_cnt < 0) {grow_cnt = 0;}
-  prev_cnt = cnt;
-
-  if (grow_cnt > 10) {
-    printf("Warning: The time factor is too large for efficient operation! Please reduce the time factor.\n");
-  }
-
-#if DEBUG_NPS_TIME
-  printf("%f,%f\n", nps_main.sim_time, nps_main.display_time);
-#endif
-
-  return TRUE;
-
-}
-
-
-static bool nps_main_parse_options(int argc, char **argv)
+bool nps_main_parse_options(int argc, char **argv)
 {
 
   nps_main.fg_host = NULL;
@@ -390,4 +224,94 @@ static bool nps_main_parse_options(int argc, char **argv)
     }
   }
   return TRUE;
+}
+
+
+void *nps_flight_gear_loop(void *data __attribute__((unused)))
+{
+  struct timespec requestStart;
+  struct timespec requestEnd;
+  struct timespec waitFor;
+  long int period_ns = DISPLAY_DT * 1000000000L; // thread period in nanoseconds
+  long int task_ns = 0; // time it took to finish the task in nanoseconds
+
+
+  nps_flightgear_init(nps_main.fg_host, nps_main.fg_port, nps_main.fg_port_in, nps_main.fg_time_offset);
+
+  while (TRUE) {
+    clock_gettime(CLOCK_REALTIME, &requestStart);
+
+    pthread_mutex_lock(&fdm_mutex);
+    if (nps_main.fg_host) {
+      if (nps_main.fg_fdm) {
+        nps_flightgear_send_fdm();
+      } else {
+        nps_flightgear_send();
+      }
+    }
+    pthread_mutex_unlock(&fdm_mutex);
+
+    clock_gettime(CLOCK_REALTIME, &requestEnd);
+
+    // Calculate time it took
+    task_ns = (requestEnd.tv_sec - requestStart.tv_sec) * 1000000000L + (requestEnd.tv_nsec - requestStart.tv_nsec);
+
+    // task took less than one period, sleep for the rest of time
+    if (task_ns < period_ns) {
+      waitFor.tv_sec = 0;
+      waitFor.tv_nsec = period_ns - task_ns;
+      nanosleep(&waitFor, NULL);
+    } else {
+      // task took longer than the period
+      printf("FG THREAD: task took longer than one period, exactly %f [ms], but the period is %f [ms]\n",
+             (double)task_ns / 1E6, (double)period_ns / 1E6);
+    }
+  }
+
+  return(NULL);
+}
+
+
+
+void *nps_main_display(void *data __attribute__((unused)))
+{
+  struct timespec requestStart;
+  struct timespec requestEnd;
+  struct timespec waitFor;
+  long int period_ns = 3 * DISPLAY_DT * 1000000000L; // thread period in nanoseconds
+  long int task_ns = 0; // time it took to finish the task in nanoseconds
+
+  struct NpsFdm fdm_ivy;
+  struct NpsSensors sensors_ivy;
+
+  nps_ivy_init(nps_main.ivy_bus);
+
+  while (TRUE) {
+    clock_gettime(CLOCK_REALTIME, &requestStart);
+
+    pthread_mutex_lock(&fdm_mutex);
+    memcpy(&fdm_ivy, &fdm, sizeof(fdm));
+    memcpy(&sensors_ivy, &sensors, sizeof(sensors));
+    pthread_mutex_unlock(&fdm_mutex);
+
+    nps_ivy_display(&fdm_ivy, &sensors_ivy);
+
+    clock_gettime(CLOCK_REALTIME, &requestEnd);
+
+    // Calculate time it took
+    task_ns = (requestEnd.tv_sec - requestStart.tv_sec) * 1000000000L + (requestEnd.tv_nsec - requestStart.tv_nsec);
+
+    // task took less than one period, sleep for the rest of time
+    if (task_ns < period_ns) {
+      waitFor.tv_sec = 0;
+      waitFor.tv_nsec = period_ns - task_ns;
+      nanosleep(&waitFor, NULL);
+    } else {
+      // task took longer than the period
+      printf("IVY DISPLAY THREAD: task took longer than one period, exactly %f [ms], but the period is %f [ms]\n",
+             (double)task_ns / 1E6, (double)period_ns / 1E6);
+    }
+
+  }
+  return(NULL);
 }

@@ -63,7 +63,7 @@ struct spi_transaction bluegiga_spi;
 
 uint8_t broadcast_msg[20];
 
-void bluegiga_load_tx(struct bluegiga_periph *p, struct spi_transaction *trans);
+void bluegiga_load_tx(struct bluegiga_periph *p);
 void bluegiga_transmit(struct bluegiga_periph *p, uint8_t data);
 void bluegiga_receive(struct spi_transaction *trans);
 
@@ -214,7 +214,7 @@ void bluegiga_transmit(struct bluegiga_periph *p, uint8_t data)
 }
 
 /* Load waiting data into tx peripheral buffer */
-void bluegiga_load_tx(struct bluegiga_periph *p, struct spi_transaction *trans)
+void bluegiga_load_tx(struct bluegiga_periph *p)
 {
   uint8_t packet_len;
   // check data available in buffer to send
@@ -330,7 +330,7 @@ void bluegiga_receive(struct spi_transaction *trans)
     }
 
     // load next message to be sent into work buffer, needs to be loaded before calling spi_slave_register
-    bluegiga_load_tx(&bluegiga_p, trans);
+    bluegiga_load_tx(&bluegiga_p);
 
     // register spi slave read for next transaction
     spi_slave_register(&(BLUEGIGA_SPI_DEV), trans);
