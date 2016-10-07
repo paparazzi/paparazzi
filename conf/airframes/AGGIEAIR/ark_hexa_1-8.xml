@@ -9,9 +9,9 @@ ARK RT
   <firmware name="rotorcraft">
 
     <target name="ap" board="lisa_mx_2.1">
-      <subsystem name="radio_control" type="sbus">
+      <module name="radio_control" type="sbus">
         <configure name="SBUS_PORT" value="UART5"/>
-      </subsystem>
+      </module>
     </target>
 
     <!-- NOTE: if you want to use extra_dl module for HITL
@@ -29,17 +29,17 @@ ARK RT
       <configure name="AP_BAUD" value="B921600"/>
     </target>
 
-    <subsystem name="motor_mixing"/>
-    <subsystem name="actuators"     type="pwm">
+    <module name="motor_mixing"/>
+    <module name="actuators"     type="pwm">
       <define name="SERVO_HZ" value="160"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="telemetry"     type="transparent">
+    <module name="telemetry"     type="transparent">
       <configure name="MODEM_PORT" value="UART3"/>
       <configure name="MODEM_BAUD" value="B57600"/>
-    </subsystem>
+    </module>
 
-    <subsystem name="stabilization" type="float_euler"/>
+    <module name="stabilization" type="float_euler"/>
 
     <module name="ins"       type="vectornav">
       <configure name="VN_PORT" value="UART2"/>
