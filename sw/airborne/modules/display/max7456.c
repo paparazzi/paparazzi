@@ -342,6 +342,10 @@ static void osd_put_s(char *string, uint8_t attributes, uint8_t char_nb, uint8_t
     }
   }
 
+  // Prevent overflow condition
+  if (char_nb > OSD_STRING_SIZE) {
+    char_nb = OSD_STRING_SIZE;
+  }
   //Adjust for the reserved character number.
   for (; x < char_nb; x++) {
     osd_string[x] = 0;
@@ -396,7 +400,7 @@ static bool _osd_sprintf(char *buffer, char *string, float value)
   if (frac_nb > 3) {
     frac_nb = 3;       // Bound value.
   }
-  y = (sizeof(to_asc) - 1); // Point y to the end of the array.
+  y = (sizeof(to_asc) - 2); // Point y to the end of the array.
   i_dec = abs((int16_t)value);
   // Fist we will deal with the fractional part if specified.
   if (frac_nb > 0 && frac_nb <= 3) {

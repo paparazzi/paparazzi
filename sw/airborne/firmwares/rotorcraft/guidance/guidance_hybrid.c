@@ -320,9 +320,10 @@ void guidance_hybrid_position_to_airspeed(void)
     VECT2_ADD(guidance_hybrid_airspeed_sp, wind_estimate);
   }
 
-//   limit the airspeed setpoint to 15 m/s, because else saturation+windup will occur
+  // limit the airspeed setpoint to 15 m/s, because else saturation+windup will occur
   norm_airspeed_sp = int32_vect2_norm(&guidance_hybrid_airspeed_sp);
-  if (norm_airspeed_sp > (max_airspeed << 8)) {
+  // add check for non-zero airspeed (in case the max_airspeed is ever set to zero
+  if ((norm_airspeed_sp > (max_airspeed << 8)) && (norm_airspeed_sp != 0)) {
     guidance_hybrid_airspeed_sp.x = guidance_hybrid_airspeed_sp.x * (max_airspeed << 8) / norm_airspeed_sp;
     guidance_hybrid_airspeed_sp.y = guidance_hybrid_airspeed_sp.y * (max_airspeed << 8) / norm_airspeed_sp;
   }

@@ -264,6 +264,8 @@ static void adcerrorcallback(ADCDriver *adcp, adcerror_t err)
  */
 void adc_buf_channel(uint8_t adc_channel, struct adc_buf *s, uint8_t av_nb_sample)
 {
+  // check for out-of-bounds access
+  if (adc_channel > ADC_NUM_CHANNELS) return;
   adc1_buffers[adc_channel] = s;
   if (av_nb_sample <= MAX_AV_NB_SAMPLE) {
     s->av_nb_sample = av_nb_sample;
