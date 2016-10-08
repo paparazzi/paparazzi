@@ -477,10 +477,10 @@ inline static void h_ctl_pitch_loop(void)
 #endif
 
 #if USE_GYRO_PITCH_RATE
-  float d_err = h_ctl_ref.pitch_rate - stateGetBodyRates_f()->q;
+  float d_err = stateGetBodyRates_f()->q;
 #else // soft derivation
   static float last_err = 0.0;
-  float d_err = h_ctl_ref.pitch_rate - (err - last_err) / H_CTL_REF_DT;
+  float d_err = (err - last_err) / H_CTL_REF_DT;
   last_err = err;
 #endif
 
