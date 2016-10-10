@@ -76,3 +76,9 @@ static inline void main_event(void)
 {
   mcu_event();
 }
+
+void dl_parse_msg(struct link_device *dev __attribute__((unused)),
+                  struct transport_tx *trans __attribute__((unused)),
+                  uint8_t *buf __attribute__((unused)))
+{
+}
