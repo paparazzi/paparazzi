@@ -26,7 +26,7 @@
     <!-- Communication -->
     <module name="telemetry" type="xbee_api"/>
     <module name="tlsf"/>
-    <module name="sdlog"/>
+    <module name="pprzlog"/>
     <module name="logger" type="sd_chibios"/>
     <module name="flight_recorder"/>
 

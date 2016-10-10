@@ -19,11 +19,11 @@
  *
  */
 
-/** \file modules/loggers/sdlog_tp.h
+/** \file modules/loggers/pprzlog_tp.c
  *  \brief Initialize pprzlog transport
  */
 
-#include "modules/loggers/sdlog_tp.h"
+#include "modules/loggers/pprzlog_tp.h"
 #include "mcu_periph/sys_time.h"
 
 struct pprzlog_transport pprzlog_tp;

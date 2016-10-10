@@ -38,7 +38,7 @@
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/datalink/downlink.h"
 #include "modules/loggers/sdlog_chibios.h"
-#include "modules/loggers/sdlog_tp.h"
+#include "modules/loggers/pprzlog_tp.h"
 
 #include "subsystems/gps.h"
 #include "modules/datalink/extra_pprz_dl.h"
