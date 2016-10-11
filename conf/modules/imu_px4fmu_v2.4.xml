@@ -17,9 +17,9 @@
   <header>
     <file name="imu_px4fmu_v2.4.h" dir="subsystems/imu"/>
   </header>
-  <init fun="imu_px4fmu_init()"/>
-  <periodic fun="imu_px4fmu_periodic()"/>
-  <event fun="imu_px4fmu_event()"/>
+  <init fun="imu_px4_init()"/>
+  <periodic fun="imu_px4_periodic()"/>
+  <event fun="imu_px4_event()"/>
   <makefile target="!sim|nps|fbw">
     <configure name="IMU_PX4FMU_SPI_DEV" default="spi1" case="lower|upper"/>
     <define name="IMU_PX4FMU_SPI_DEV" value="$(IMU_PX4FMU_SPI_DEV_LOWER)"/>
@@ -27,9 +27,11 @@
     <!-- L3GD20 -->
     <configure name="IMU_L3G_SPI_SLAVE_IDX" default="SPI_SLAVE0"/>
     <define name="USE_$(IMU_L3G_SPI_SLAVE_IDX)"/>
+    <define name="IMU_L3G_SPI_SLAVE_IDX" value="$(IMU_L3G_SPI_SLAVE_IDX)"/>
     <!-- LSM303dlhc -->
     <configure name="IMU_LSM_SPI_SLAVE_IDX" default="SPI_SLAVE1"/>
     <define name="USE_$(IMU_LSM_SPI_SLAVE_IDX)"/>
+    <define name="IMU_LSM_SPI_SLAVE_IDX" value="$(IMU_LSM_SPI_SLAVE_IDX)"/>
 
     <define name="IMU_TYPE_H" value="imu/imu_px4fmu_v2.4.h" type="string"/>
 
