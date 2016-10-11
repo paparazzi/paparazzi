@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="sdlog" dir="loggers">
+<module name="pprzlog" dir="loggers">
   <doc>
     <description>
       Enable pprzlog binary prototol with downlink message system
@@ -9,7 +9,7 @@
   <header/>
   <makefile>
     <define name="DOWNLINK"/>
-    <file name="sdlog_tp.c"/>
+    <file name="pprzlog_tp.c"/>
     <file name="pprzlog_transport.c" dir="pprzlink/src"/>
   </makefile>
 </module>

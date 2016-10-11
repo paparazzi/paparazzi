@@ -63,7 +63,7 @@
     <module name="gps" type="ubx_ucenter"/>
     <!-- logging -->
     <!--module name="tlsf"/>
-    <module name="sdlog"/>
+    <module name="pprzlog"/>
     <module name="logger" type="sd_chibios"/-->
 
     <module name="current_sensor">
