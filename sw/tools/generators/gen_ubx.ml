@@ -59,9 +59,9 @@ let get_at = fun offset format block_size ->
           s := !s ^ sprintf "|((uint64_t)*((uint8_t*)_ubx_payload+%d+%d%s))<<%d" i offset block_offset (8*i)
         done;
         sprintf "({ union { uint64_t u; double f; } _f; _f.u = (uint64_t)(%s); /*Swap32IfBigEndian(_f.u)*/; _f.f; })" !s
-    | "R4" -> sprintf "({ union { uint32_t u; float f; } _f; _f.u = (uint32_t)(*((uint8_t*)_ubx_payload+%d%s)|*((uint8_t*)_ubx_payload+1+%d%s)<<8|((uint32_t)*((uint8_t*)_ubx_payload+2+%d%s))<<16|((uint32_t)*((uint8_t*)_ubx_payload+3+%d%s))<<24); _f.f; })" offset block_offset offset block_offset offset block_offset offset block_offset
-    | "U4" | "I4" -> sprintf "(%s)(*((uint8_t*)_ubx_payload+%d%s)|*((uint8_t*)_ubx_payload+1+%d%s)<<8|((%s)*((uint8_t*)_ubx_payload+2+%d%s))<<16|((%s)*((uint8_t*)_ubx_payload+3+%d%s))<<24)" t offset block_offset offset block_offset t offset block_offset t offset block_offset
-    | "U2" | "I2" -> sprintf "(%s)(*((uint8_t*)_ubx_payload+%d%s)|*((uint8_t*)_ubx_payload+1+%d%s)<<8)" t offset block_offset offset block_offset
+    | "R4" -> sprintf "({ union { uint32_t u; float f; } _f; _f.u = (uint32_t)(*((uint8_t*)_ubx_payload+%d%s)|(uint32_t)(*((uint8_t*)_ubx_payload+1+%d%s))<<8|((uint32_t)*((uint8_t*)_ubx_payload+2+%d%s))<<16|((uint32_t)*((uint8_t*)_ubx_payload+3+%d%s))<<24); _f.f; })" offset block_offset offset block_offset offset block_offset offset block_offset
+    | "U4" | "I4" -> sprintf "(%s)(*((uint8_t*)_ubx_payload+%d%s)|(%s)(*((uint8_t*)_ubx_payload+1+%d%s))<<8|((%s)*((uint8_t*)_ubx_payload+2+%d%s))<<16|((%s)*((uint8_t*)_ubx_payload+3+%d%s))<<24)" t offset block_offset t offset block_offset t offset block_offset t offset block_offset
+    | "U2" | "I2" -> sprintf "(%s)(*((uint8_t*)_ubx_payload+%d%s)|(%s)(*((uint8_t*)_ubx_payload+1+%d%s))<<8)" t offset block_offset t offset block_offset
     | "U1" | "I1" -> sprintf "(%s)(*((uint8_t*)_ubx_payload+%d%s))" t offset block_offset
     | _ -> failwith (sprintf "Gen_ubx.c_type: unknown format '%s'" format)
 
