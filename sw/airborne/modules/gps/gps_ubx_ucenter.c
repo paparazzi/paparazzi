@@ -59,8 +59,19 @@ static bool gps_ubx_ucenter_configure(uint8_t nr);
 #define GPS_UBX_UCENTER_REPLY_VERSION     3
 #define GPS_UBX_UCENTER_REPLY_CFG_PRT     4
 
+#define GPS_PORT_DDC        0x00
+#define GPS_PORT_UART1      0x01
+#define GPS_PORT_UART2      0x02
+#define GPS_PORT_USB        0x03
+#define GPS_PORT_SPI        0x04
+#define GPS_PORT_RESERVED   0x05
+#define GPS_PORT_UNK        0x06
+
 // Target baudrate for the module
 #define UBX_GPS_BAUD (UBX_GPS_LINK).baudrate
+
+// Minimum amount of valid packets that need to be received
+#define GPS_UBX_UCENTER_MIN_VALID 1
 
 // All U-Center data
 struct gps_ubx_ucenter_struct gps_ubx_ucenter;
@@ -75,10 +86,12 @@ void gps_ubx_ucenter_init(void)
   gps_ubx_ucenter.status = GPS_UBX_UCENTER_STATUS_AUTOBAUD;
   gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
   gps_ubx_ucenter.cnt = 0;
+  gps_ubx_ucenter.cnt_valid = 0;
 
   gps_ubx_ucenter.baud_init = 0;
   gps_ubx_ucenter.baud_run = 0;
   gps_ubx_ucenter.baud_target = UBX_GPS_BAUD;
+  gps_ubx_ucenter.port_id = GPS_PORT_UNK;
 
   gps_ubx_ucenter.sw_ver_h = 0;
   gps_ubx_ucenter.sw_ver_l = 0;
@@ -163,6 +176,7 @@ void gps_ubx_ucenter_event(void)
   if (gps_ubx_ucenter.status == GPS_UBX_UCENTER_STATUS_STOPPED) {
     return;
   }
+  gps_ubx_ucenter.cnt_valid++;
 
   // Read Configuration Reply's
   switch (gps_ubx.msg_class) {
@@ -258,56 +272,62 @@ static bool gps_ubx_ucenter_autobaud(uint8_t nr)
     case 2:
       gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
       uart_periph_set_baudrate(&(UBX_GPS_LINK), B38400); // Try the most common first?
+      gps_ubx_ucenter.cnt_valid = 0;
       gps_ubx_ucenter_config_port_poll();
       break;
     case 3:
-      if (gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK) {
-        gps_ubx_ucenter.baud_init = gps_ubx_ucenter.baud_run;
+      if (gps_ubx_ucenter.cnt_valid > GPS_UBX_UCENTER_MIN_VALID || gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK) {
+        gps_ubx_ucenter.baud_init = 38400;
         return false;
       }
       gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
       uart_periph_set_baudrate(&(UBX_GPS_LINK), B9600); // Maybe the factory default?
+      gps_ubx_ucenter.cnt_valid = 0;
       gps_ubx_ucenter_config_port_poll();
       break;
     case 4:
-      if (gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK) {
-        gps_ubx_ucenter.baud_init = gps_ubx_ucenter.baud_run;
+      if (gps_ubx_ucenter.cnt_valid > GPS_UBX_UCENTER_MIN_VALID || gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK) {
+        gps_ubx_ucenter.baud_init = 9600;
         return false;
       }
       gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
       uart_periph_set_baudrate(&(UBX_GPS_LINK), B57600); // The high-rate default?
+      gps_ubx_ucenter.cnt_valid = 0;
       gps_ubx_ucenter_config_port_poll();
       break;
     case 5:
-      if (gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK) {
-        gps_ubx_ucenter.baud_init = gps_ubx_ucenter.baud_run;
+      if (gps_ubx_ucenter.cnt_valid > GPS_UBX_UCENTER_MIN_VALID || gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK) {
+        gps_ubx_ucenter.baud_init = 57600;
         return false;
       }
       gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
       uart_periph_set_baudrate(&(UBX_GPS_LINK), B4800); // Default NMEA baudrate?
+      gps_ubx_ucenter.cnt_valid = 0;
       gps_ubx_ucenter_config_port_poll();
       break;
     case 6:
-      if (gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK) {
-        gps_ubx_ucenter.baud_init = gps_ubx_ucenter.baud_run;
+      if (gps_ubx_ucenter.cnt_valid > GPS_UBX_UCENTER_MIN_VALID || gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK) {
+        gps_ubx_ucenter.baud_init = 4800;
         return false;
       }
       gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
       uart_periph_set_baudrate(&(UBX_GPS_LINK), B115200); // Last possible option for ublox
+      gps_ubx_ucenter.cnt_valid = 0;
       gps_ubx_ucenter_config_port_poll();
       break;
      case 7:
-      if (gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK) {
-        gps_ubx_ucenter.baud_init = gps_ubx_ucenter.baud_run;
+      if (gps_ubx_ucenter.cnt_valid > GPS_UBX_UCENTER_MIN_VALID || gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK) {
+        gps_ubx_ucenter.baud_init = 115200;
         return false;
       }
       gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
       uart_periph_set_baudrate(&(UBX_GPS_LINK), B230400); // Last possible option for ublox
+      gps_ubx_ucenter.cnt_valid = 0;
       gps_ubx_ucenter_config_port_poll();
       break;
     case 8:
-      if (gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK) {
-        gps_ubx_ucenter.baud_init = gps_ubx_ucenter.baud_run;
+      if (gps_ubx_ucenter.cnt_valid > GPS_UBX_UCENTER_MIN_VALID || gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK) {
+        gps_ubx_ucenter.baud_init = 230400;
         return false;
       }
 
@@ -397,13 +417,6 @@ static inline void gps_ubx_ucenter_config_nav(void)
 #define NMEA_PROTO_MASK 0x0002
 #define RTCM_PROTO_MASK 0x0004
 
-#define GPS_PORT_DDC      0x00
-#define GPS_PORT_UART1    0x01
-#define GPS_PORT_UART2    0x02
-#define GPS_PORT_USB      0x03
-#define GPS_PORT_SPI      0x04
-#define GPS_PORT_RESERVED   0x05
-
 #ifndef GPS_UBX_UCENTER_RATE
 #define GPS_UBX_UCENTER_RATE 0x00FA // In milliseconds. 0x00FA = 250ms = 4Hz
 #endif
@@ -424,20 +437,35 @@ static inline void gps_ubx_ucenter_config_port(void)
     case GPS_PORT_UART2:
       UbxSend_CFG_PRT(gps_ubx_ucenter.dev,
           gps_ubx_ucenter.port_id, 0x0, 0x0,
-          UBX_UART_MODE_MASK, UART_SPEED(gps_ubx_ucenter.baud_target), UBX_PROTO_MASK | NMEA_PROTO_MASK,
-          UBX_PROTO_MASK| NMEA_PROTO_MASK, 0x0, 0x0);
+          UBX_UART_MODE_MASK, UART_SPEED(gps_ubx_ucenter.baud_target), UBX_PROTO_MASK,
+          UBX_PROTO_MASK, 0x0, 0x0);
       break;
       // USB Interface
     case GPS_PORT_USB:
       UbxSend_CFG_PRT(gps_ubx_ucenter.dev,
           gps_ubx_ucenter.port_id, 0x0, 0x0, 0x0, 0x0,
-          UBX_PROTO_MASK | NMEA_PROTO_MASK, UBX_PROTO_MASK| NMEA_PROTO_MASK, 0x0, 0x0);
+          UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);
       break;
     case GPS_PORT_SPI:
       DEBUG_PRINT("WARNING: ublox SPI port is currently not supported.\n");
       break;
+    case GPS_PORT_UNK:
     default:
       DEBUG_PRINT("WARNING: Unknown ublox port id: %u\n", gps_ubx_ucenter.port_id);
+#ifdef GPS_I2C
+      UbxSend_CFG_PRT(gps_ubx_ucenter.dev, GPS_PORT_DDC, 0x0, 0x0, (0x42<<1), 0x0, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);
+#endif
+      UbxSend_CFG_PRT(gps_ubx_ucenter.dev,
+          GPS_PORT_UART1, 0x0, 0x0,
+          UBX_UART_MODE_MASK, UART_SPEED(gps_ubx_ucenter.baud_target), UBX_PROTO_MASK,
+          UBX_PROTO_MASK, 0x0, 0x0);
+      UbxSend_CFG_PRT(gps_ubx_ucenter.dev,
+          GPS_PORT_UART2, 0x0, 0x0,
+          UBX_UART_MODE_MASK, UART_SPEED(gps_ubx_ucenter.baud_target), UBX_PROTO_MASK,
+          UBX_PROTO_MASK, 0x0, 0x0);
+      UbxSend_CFG_PRT(gps_ubx_ucenter.dev,
+          GPS_PORT_USB, 0x0, 0x0, 0x0, 0x0,
+          UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);
       break;
   }
 }

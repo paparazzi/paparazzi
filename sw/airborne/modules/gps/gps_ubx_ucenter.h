@@ -38,6 +38,7 @@ struct gps_ubx_ucenter_struct {
   uint8_t status;
   uint8_t reply;
   uint8_t cnt;
+  uint8_t cnt_valid;    //< Amount of valid packets received
 
   uint32_t baud_init;   // Initial baudrate of the ublox module
   uint32_t baud_run;    // Current baudrate of the ublox module
