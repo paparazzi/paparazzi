@@ -47,6 +47,14 @@ void nav_goto_block(uint8_t block_id);
 #define NextBlock() nav_goto_block(nav_block + 1)
 #define GotoBlock(b) nav_goto_block(b)
 
+#ifndef FlightModeRotorcraft
+#define FlightModeRotorcraft() {}
+#endif
+
+#ifndef FlightModeFixedwing
+#define FlightModeFixedwing() {}
+#endif
+
 #define Stage(s) case s: nav_stage=s;
 #define NextStage() { nav_stage++; InitStage(); }
 #define NextStageAndBreak() { nav_stage++; InitStage(); break; }
