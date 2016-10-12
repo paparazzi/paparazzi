@@ -7,6 +7,7 @@
     </description>
   </doc>
   <header/>
+  <init fun="pprzlog_tp_init()"/>
   <makefile>
     <define name="DOWNLINK"/>
     <file name="pprzlog_tp.c"/>
