@@ -310,4 +310,5 @@ default_value CDATA #IMPLIED>
 
 <!ATTLIST header>
 
-<!ATTLIST return>
+<!ATTLIST return
+reset_stage CDATA #IMPLIED>

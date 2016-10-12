@@ -54,5 +54,6 @@ void nav_goto_block(uint8_t b)
     last_block = nav_block;
     last_stage = nav_stage;
   }
-  GotoBlock(b);
+  nav_block = b;
+  nav_init_block();
 }
