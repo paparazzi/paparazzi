@@ -213,9 +213,15 @@ else ifeq ($(BOARD), opa_ap)
 
 # OpenPilot Revo
 else ifeq ($(BOARD), openpilot_revo)
+  ifeq ($(BOARD_VERSION), nano)
+    BARO_BOARD_CFLAGS += -DUSE_I2C3
+    BARO_BOARD_CFLAGS += -DBB_MS5611_I2C_DEV=i2c3
+    #BARO_BOARD_CFLAGS += -DBB_MS5611_SLAVE_ADDR=0xEC
+  else
+    BARO_BOARD_CFLAGS += -DUSE_I2C1
+    BARO_BOARD_CFLAGS += -DBB_MS5611_I2C_DEV=i2c1
+  endif
   BARO_BOARD_CFLAGS += -DBARO_BOARD=BARO_MS5611_I2C
-  BARO_BOARD_CFLAGS += -DUSE_I2C1
-  BARO_BOARD_CFLAGS += -DBB_MS5611_I2C_DEV=i2c1
   BARO_BOARD_SRCS += peripherals/ms5611.c
   BARO_BOARD_SRCS += peripherals/ms5611_i2c.c
   BARO_BOARD_SRCS += boards/baro_board_ms5611_i2c.c
