@@ -193,17 +193,21 @@ static uint8_t nb_adc1_channels = 0;
 static uint8_t nb_adc2_channels = 0;
 static uint8_t nb_adc3_channels = 0;
 
+#if USE_AD1 || USE_AD2 || USE_AD3
+#define ADC_NUM_CHANNELS 4
+#endif
+
 #if USE_AD1
 /// List of buffers, one for each active channel.
-static struct adc_buf *adc1_buffers[4];
+static struct adc_buf *adc1_buffers[ADC_NUM_CHANNELS];
 #endif
 #if USE_AD2
 /// List of buffers, one for each active channel.
-static struct adc_buf *adc2_buffers[4];
+static struct adc_buf *adc2_buffers[ADC_NUM_CHANNELS];
 #endif
 #if USE_AD3
 /// List of buffers, one for each active channel.
-static struct adc_buf *adc3_buffers[4];
+static struct adc_buf *adc3_buffers[ADC_NUM_CHANNELS];
 #endif
 
 #if USE_ADC_WATCHDOG
@@ -370,7 +374,6 @@ void adc_init(void)
 
 void adc_buf_channel(uint8_t adc_channel, struct adc_buf *s, uint8_t av_nb_sample)
 {
-
   if (adc_channel < nb_adc1_channels) {
 #if USE_AD1
     adc1_buffers[adc_channel] = s;

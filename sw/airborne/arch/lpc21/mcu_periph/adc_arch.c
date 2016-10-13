@@ -58,6 +58,8 @@ void adcISR1(void) __attribute__((naked));
 
 void adc_buf_channel(uint8_t adc_channel, struct adc_buf *s, uint8_t av_nb_sample)
 {
+  // check for out-of-bounds access
+  if (adc_channel > (NB_ADC * 2)) return;
   buffers[adc_channel] = s;
   s->av_nb_sample = av_nb_sample;
 }
