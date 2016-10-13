@@ -400,7 +400,9 @@ static bool _osd_sprintf(char *buffer, char *string, float value)
   if (frac_nb > 3) {
     frac_nb = 3;       // Bound value.
   }
-  y = (sizeof(to_asc) - 2); // Point y to the end of the array.
+  // Point y to one before the end of the array
+  // Because we will increment it with frac_nb-1, so pointing it to the end would result in overflow
+  y = (sizeof(to_asc) - 2);
   i_dec = abs((int16_t)value);
   // Fist we will deal with the fractional part if specified.
   if (frac_nb > 0 && frac_nb <= 3) {

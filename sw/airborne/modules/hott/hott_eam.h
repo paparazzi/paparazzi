@@ -100,7 +100,7 @@ struct HOTT_EAM_MSG {
 
   uint16_t batt2_voltage;      //#23 #24 battery 2 voltage 0.02V steps
 
-  int8_t temp1;                //#25 Temperature sensor 1. 0�=20, 26�=46
+  int8_t temp1;                //#25 Temperature sensor 1. 0°=20, 26°=46
   int8_t temp2;                //#26 temperature sensor 2
 
   uint16_t altitude;          //#27 #28 Attitude lower value. unit: meters. Value of 500 = 0m
