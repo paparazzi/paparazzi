@@ -6,7 +6,9 @@
       Enable pprzlog binary prototol with downlink message system
     </description>
   </doc>
-  <header/>
+  <header>
+    <file name="pprzlog_tp.h"/>
+  </header>
   <init fun="pprzlog_tp_init()"/>
   <makefile>
     <define name="DOWNLINK"/>
