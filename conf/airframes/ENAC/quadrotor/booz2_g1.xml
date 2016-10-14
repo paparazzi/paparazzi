@@ -222,8 +222,8 @@
   </section>
 
   <section name="SWITCH_SERVO">
-    <define name="SWITCH_SERVO_ON_VALUE" value="SWITCH_SERVO_MIN"/>
-    <define name="SWITCH_SERVO_OFF_VALUE" value="SWITCH_SERVO_MAX"/>
+    <define name="SWITCH_SERVO_ON_VALUE" value="SERVO_SWITCH_MIN"/>
+    <define name="SWITCH_SERVO_OFF_VALUE" value="SERVO_SWITCH_MAX"/>
     <define name="DropOpen()" value="SwitchServoOn()"/>
     <define name="DropClose()" value="SwitchServoOff()"/>
   </section>
