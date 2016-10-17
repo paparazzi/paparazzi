@@ -118,9 +118,8 @@
         <arg flag="-s" constant="57600"/>
       </program>
       <program name="Server"/>
-      <program name="GCS">
-        <arg flag="-speech" />
-      </program>
+      <program name="GCS"/>
+      <program name="Messages"/>
     </session>
     <session name="Flight Paparazzi @57600">
       <program name="Data Link">

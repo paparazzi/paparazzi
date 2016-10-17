@@ -83,7 +83,12 @@
   </firmware>
   <modules main_freq="512">
     <module name="px4_flash" />
-    <module name="px4_gimbal" />
+  	<module name="opticflow_hover"/>
+  	<module name="mavlink_decoder">
+	  	<configure name="MAVLINK_PORT" value="UART3"/>
+	  	<configure name="MAVLINK_BAUD" value="B115200"/>
+  	</module>
+  	<module name="px4flow"/>
     <module name="geo_mag" />
     <module name="air_data" />
     <module name="send_imu_mag_current" />
@@ -254,10 +259,10 @@
     <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string" />
   </section>
   <section name="AUTOPILOT">
-    <define name="MODE_STARTUP" value="AP_MODE_RC_DIRECT" />
-    <define name="MODE_MANUAL" value="AP_MODE_RC_DIRECT" /> <!-- changing this mode may not work, since fbw will be in mode manual directly from rc!-->
-    <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_DIRECT" />
-    <define name="MODE_AUTO2" value="AP_MODE_ATTITUDE_DIRECT" />
+    <define name="MODE_STARTUP" value="AP_MODE_ATTITUDE_DIRECT" />
+    <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
+    <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_Z_HOLD"/>
+    <define name="MODE_AUTO2" value="AP_MODE_MODULE"/>
     <define name="NO_RC_THRUST_LIMIT" value="TRUE" />
   </section>
   <section name="BAT">
