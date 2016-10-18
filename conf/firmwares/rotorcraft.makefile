@@ -122,6 +122,7 @@ else
 ifneq ($(TARGET), fbw)
 $(TARGET).srcs += $(SRC_FIRMWARE)/main.c
 $(TARGET).srcs += $(SRC_FIRMWARE)/autopilot.c
+$(TARGET).srcs += $(SRC_FIRMWARE)/autopilot_guided.c
 else
 $(TARGET).srcs += $(SRC_FIRMWARE)/main_fbw.c
 endif # TARGET == fbw
