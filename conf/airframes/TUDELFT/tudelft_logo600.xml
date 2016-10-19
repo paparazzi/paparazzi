@@ -1,20 +1,30 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<!-- this is a quadrotor frame in X-configuration equiped with
-     * Autopilot:   Lisa/MX 2.1 with STM32F4  http://wiki.paparazziuav.org/wiki/Lisa/M_v21
-     * IMU:         Integrated Aspirin 2.2    http://wiki.paparazziuav.org/wiki/AspirinIMU
-     * Actuators:   Asctec motor controllers  http://wiki.paparazziuav.org/wiki/Subsystem/actuators#Asctec_v2
-     * GPS:         UBlox                     http://wiki.paparazziuav.org/wiki/Subsystem/gps
-     * RC:          one Spektrum sats         http://wiki.paparazziuav.org/wiki/Subsystem/radio_control#Spektrum
+<!--
+  Logo600 using a VBAR + 2x Lisa-MX:
+
+  1) VBAR makes it possible to have manual mode as backup.
+  2) Some competitions require a separately powered board must drive the actuators (FBW).
+  3) FBW saves time and adds safety not having to check every safety critical aspect after every AP update (safety critical code is in FBW).
+  4) VBAR (gyro's) can be mounted on the frame (=fast response) while the attitude filter (AP) can be on very soft dampers.
+
+This logo600 basically flies with a VBAR. All rotor head parameters and tuning (except throttle curves) are in the VBAR using the VBAR setup program. Then, instead of connecting 2 satellite receivers, 2 uarts from a lisa-mx are connected to the VBAR instead. The lisa-mx then has both satellite receivers. This lisa-mx runs rotorcraft FBW code with spektrum as "actuator" which is actually sent to the VBAR RC inputs over uart. 
+
+ - Note about FBW code: you must choose if you want the UAV to behave as a model aircraft which goes to failsafe on RC loss or make it a UAV with AUTO2 flight on RC-loss. The latter has the risk of fly-away, and adds safety critical aspects to the AP as well: so make sure your geofence and geofence rules are well tested.
+
+ - Note that FBW uses 5 uarts: 2x output to vbar 2x spektrum, 1x AP. The I2C port of the lisa-mx is reconfigured as uart to achieve this.
+
+The second lisa-mx serves as AP. It has the logger, the GPS, the telemetry, the baro and everything else. It is connected to the FBW lisa via another serial port with a 100 ohm resistor in each tx/rx wire since FBW and AP are separately powered and can switch on / off at different times (otherwise too large leakage currents can go over IO pins).
+
+The nice/safe thing about this VBAR-FBW-AP setup during developments is that the heli can fly in PAPARAZZI-MANUAL mode, since the VBAR does the lowest-level stabilization. Furthermore the FBW increases safety by not having to go through very extensive testing after every AP update: you DO NOT want an electric 600-size heli to do unpredictable things with its ESC/motors. In this airframe file the RC KILL switch is applied by the FBW and overrules everything, and when the RC is off or lost there is no way the motors will turn. Only after every FBW update, blades-off, the safety critical code is tested again. Afterwards one can safely live/hot JTAG-update the AP while in MANUAL FBW-KILL, and test AP knowing that you can always flip a switch to go back to manual mode even in-flight in case of an AP problem. Note that for flashing the FBW, bad pulses could end up going to the ESC with potential danger. Only flash FBW with the motor disconnected.
+
+The xml in master currently configures the LOGO600 as a pure model aircraft: meaning just as with non-autopilot-equipped model helicopters, when you loose RC it will failsafe and with the TX mode switch to manual, it flies an unmodified commercial tested flight controller. (which can make things easier to get it accepted at your local model airfield). Note that any change (especially to KILL of FBW_MODE) will also change the behaviour described above.
 -->
 
 <airframe name="Logo600">
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_mx_2.1"/>
-    <!--target name="nps" board="pc">
-      <module name="fdm" type="jsbsim"/>
-    </target-->
 
     <module name="telemetry"     type="xbee_api"/>
     <module name="imu"           type="lisa_mx_v2.1"/>
@@ -47,8 +57,8 @@
     </module>
     <module name="heli" type="throttle_curve"/>
     <define name="RC_LOST_FBW_MODE" value="FBW_MODE_FAILSAFE"/><!-- Switch to Failsafe or to Autopilot on RC loss? -->
-    <!--define name="RC_LOST_IN_AUTO_FBW_MODE" value="FBW_MODE_AP"/--><!-- Switch to AUTO2 with a working autopilot on RC loss? -->
-    <define name="RC_LOST_IN_AUTO_FBW_MODE" value="FBW_MODE_FAILSAFE"/><!-- Switch to Failsafe with a working autopilot on RC loss? -->
+    <!--define name="RC_LOST_IN_AUTO_FBW_MODE" value="FBW_MODE_AUTO"/--><!-- Switch to AUTO2 with a working autopilot on RC loss? Warning: beware of fly-away: program a GeoFence. beware: AP can ARM the FBW: airframe is dangerous at all times.-->
+    <define name="RC_LOST_IN_AUTO_FBW_MODE" value="FBW_MODE_FAILSAFE"/><!-- Behave as a model aircraft: failsafe on RC lost. -->
     <define name="AP_LOST_FBW_MODE" value="FBW_MODE_MANUAL"/><!-- Switch to Failsafe or to Manual on AP loss? -->
 
     <module name="intermcu"     type="uart">
@@ -122,7 +132,7 @@
     <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
     <!--define name="USE_THROTTLE_FOR_MOTOR_ARMING" value="TRUE"/-->
     <define name="USE_KILL_SWITCH_FOR_MOTOR_ARMING" value="TRUE"/>
-    <define name="VoltageOfAdc(adc)" value="(0.014355*adc)"/>
+    <define name="VoltageOfAdc(adc)" value="(0.014355*adc)"/><!-- using a 27kOhm series resistor before VBat (do not connect VIN to VBAT!!!). Default resistor divider is 10k/2.2k becomes (27+10)/2.2. Max voltage becomes (27+10+2.2)2.2*3.3V = 58.8volt-->
     <define name="MilliAmpereOfAdc(adc)" value="(((float)adc)-1990.0f)*40.29f*2.0f"/>  <!-- 100Amp = 2Volt -> 2482,42 tick/100Amp"(0.0402832*adc)" -->
   </section>
 
