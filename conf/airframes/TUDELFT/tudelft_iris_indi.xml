@@ -26,24 +26,27 @@
       <configure name="GPS_PORT" value="UART3"/>
     </module>
     <module name="stabilization" type="indi" />
-<!--
+
     <module name="guidance" type="indi">
       <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-500.0"/>
     </module>
--->
+
+
     <module name="ahrs" type="int_cmpl_quat">
-      <define name="AHRS_ICQ_IMU_ID" value="IMU_PX4_ID" />         <!-- Meaning the lsm303 and l3g -->
-      <define name="AHRS_ICQ_MAG_ID" value="MAG_HMC58XX_SENDER_ID" />         <!-- Meaning the external hmc-->
+      <define name="AHRS_ICQ_IMU_ID" value="IMU_PX4_ID" />
+      <define name="AHRS_ICQ_MAG_ID" value="MAG_HMC58XX_SENDER_ID" />
       <configure name="USE_MAGNETOMETER" value="TRUE"/>
       <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
     </module>
-
-    
     <module name="ahrs" type="float_mlkf">
       <configure name="SECONDARY_AHRS" value="float_mlkf"/>
     </module>
 
-    <module name="ins" type="extended" />
+
+    <module name="ins" type="float_invariant">
+      <define name="INS_FINV_IMU_ID" value="IMU_PX4_ID" />         <!-- Meaning the lsm303 and l3g -->
+      <define name="INS_FINV_MAG_ID" value="MAG_HMC58XX_SENDER_ID" />         <!-- Meaning the external hmc-->
+    </module>
     <module name="current_sensor">
       <configure name="ADC_CURRENT_SENSOR" value="ADC_3" />
     </module>
@@ -100,10 +103,10 @@
 	  	<configure name="MAVLINK_BAUD" value="B115200"/>
   	</module>
   	<module name="px4flow"/>
-    <module name="geo_mag" />
+    <!--module name="geo_mag" /-->
     <module name="air_data" />
     <module name="send_imu_mag_current" />
-    <module name="gps" type="ubx_ucenter" />
+    <!--module name="gps" type="ubx_ucenter" /-->
     <module name="mag" type="hmc58xx">
       <configure name="MAG_HMC58XX_I2C_DEV" value="i2c1"/>
       <define name="MODULE_HMC58XX_UPDATE_AHRS" value="TRUE"/>
@@ -129,13 +132,30 @@
     <define name="ACCEL_Y_SENS" value="0.616609304777" integer="16"/>
     <define name="ACCEL_Z_SENS" value="0.624348656549" integer="16"/>
 
-
     <define name="MAG_X_NEUTRAL" value="75"/>
     <define name="MAG_Y_NEUTRAL" value="-10"/>
     <define name="MAG_Z_NEUTRAL" value="7"/>
     <define name="MAG_X_SENS" value="4.12309023427" integer="16"/>
     <define name="MAG_Y_SENS" value="4.23759023915" integer="16"/>
     <define name="MAG_Z_SENS" value="4.61141601045" integer="16"/>
+
+
+    <!-- replace this with your own calibration -->
+<!--
+    <define name="ACCEL_X_NEUTRAL" value="248"/>
+    <define name="ACCEL_Y_NEUTRAL" value="-21"/>
+    <define name="ACCEL_Z_NEUTRAL" value="1123"/>
+    <define name="ACCEL_X_SENS" value="0.62584356013" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="0.609921478775" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="0.619923942578" integer="16"/>
+
+    <define name="MAG_X_NEUTRAL" value="92"/>
+    <define name="MAG_Y_NEUTRAL" value="35"/>
+    <define name="MAG_Z_NEUTRAL" value="-15"/>
+    <define name="MAG_X_SENS" value="5.52543569751" integer="16"/>
+    <define name="MAG_Y_SENS" value="4.91233764159" integer="16"/>
+    <define name="MAG_Z_SENS" value="4.99453775296" integer="16"/>
+-->
 
   </section>
   <commands>
@@ -180,15 +200,33 @@
   <section name="AHRS" prefix="AHRS_">
     <!-- values used if no GPS fix, on 3D fix is update by geo_mag module -->
     <!-- Delft -->
+<!--
     <define name="H_X" value="0.3892503" />
     <define name="H_Y" value="0.0017972" />
     <define name="H_Z" value="0.9211303" />
+-->
     <!-- For vibrating airfames -->
     <define name="GRAVITY_HEURISTIC_FACTOR" value="0"/>
   </section>
   <section name="INS" prefix="INS_">
-    <define name="SONAR_MAX_RANGE" value="2.2" />
-    <define name="SONAR_UPDATE_ON_AGL" value="TRUE" />
+    <!--define name="SONAR_MAX_RANGE" value="2.2" />
+    <define name="SONAR_UPDATE_ON_AGL" value="TRUE" /-->
+
+
+    <!-- Toulouse -->
+    <define name="H_X" value="0.513081"/>
+    <define name="H_Y" value="-0.00242783"/>
+    <define name="H_Z" value="0.858336"/>
+    <!-- Delft -->
+    <!--define name="H_X" value="0.387766"/>
+    <define name="H_Y" value="0.00648212"/>
+    <define name="H_Z" value="0.921725"/ -->
+    <!-- trust more the baro over the gps alt -->
+    <define name="INV_NXZ" value="0.3"/>
+    <define name="INV_NH" value="2.0"/>
+
+
+
   </section>
   <section name="RC_SETPOINT" prefix="STABILIZATION_ATTITUDE_">
     <!-- setpoint limits for attitude stabilization rc flight -->
