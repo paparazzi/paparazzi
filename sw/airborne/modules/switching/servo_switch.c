@@ -19,7 +19,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "servo_switch/servo_switch.h"
+#include "switching/servo_switch.h"
 #include "generated/airframe.h"
 #include "subsystems/actuators.h"
 

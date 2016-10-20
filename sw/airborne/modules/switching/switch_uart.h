@@ -18,30 +18,21 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/com/uart_drop.c"
+ * @file "modules/switching/switch_uart.h"
  * @author Freek van Tienen
  * Module for dropping balls using UART
  */
 
-#include "modules/com/uart_drop.h"
-#include "mcu_periph/uart.h"
+#ifndef SWITCH_UART_H
+#define SWITCH_UART_H
 
-static uint8_t drop_string[] = "<Drop_Paintball_Now";
-#define DROP_STRINGLEN 19
+#include "std.h"
 
-void drop_ball(uint8_t number) {
-  for(uint8_t i = 0; i < DROP_STRINGLEN; i++)
-    uart_put_byte(&UART_DROP_PORT, 0, drop_string[i]);
+#define switch_uart_SwitchUartChannel(X) ({switch_uart_channel=X;drop_ball(switch_uart_channel); false;})
 
-  uint8_t last = '>';
-  if(number == 1) {
-    last = '1';
-  } else if(number == 2) {
-    last = '2';
-  } else if(number == 3) {
-    last = '3';
-  } else if(number == 4) {
-    last = '4';
-  }
-  uart_put_byte(&UART_DROP_PORT, 0, last);
-}
+extern uint8_t switch_uart_channel;
+
+extern void drop_ball(uint8_t number);
+
+#endif
+
