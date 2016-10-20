@@ -22,16 +22,27 @@
     </target>
     <module name="telemetry" type="transparent" />
     <module name="imu" type="px4fmu_v2.4"/>
-    <module name="gps" type="ublox" />
+    <module name="gps" type="ublox">
+      <configure name="GPS_PORT" value="UART3"/>
+    </module>
     <module name="stabilization" type="indi" />
-    <module name="ahrs" type="int_cmpl_quat" >
+<!--
+    <module name="guidance" type="indi">
+      <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-500.0"/>
+    </module>
+-->
+    <module name="ahrs" type="int_cmpl_quat">
       <define name="AHRS_ICQ_IMU_ID" value="IMU_PX4_ID" />         <!-- Meaning the lsm303 and l3g -->
       <define name="AHRS_ICQ_MAG_ID" value="MAG_HMC58XX_SENDER_ID" />         <!-- Meaning the external hmc-->
-
       <configure name="USE_MAGNETOMETER" value="TRUE"/>
       <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
-
     </module>
+
+    
+    <module name="ahrs" type="float_mlkf">
+      <configure name="SECONDARY_AHRS" value="float_mlkf"/>
+    </module>
+
     <module name="ins" type="extended" />
     <module name="current_sensor">
       <configure name="ADC_CURRENT_SENSOR" value="ADC_3" />
@@ -85,7 +96,7 @@
     <module name="px4_flash" />
   	<module name="opticflow_hover"/>
   	<module name="mavlink_decoder">
-	  	<configure name="MAVLINK_PORT" value="UART3"/>
+	  	<configure name="MAVLINK_PORT" value="UART4"/>
 	  	<configure name="MAVLINK_BAUD" value="B115200"/>
   	</module>
   	<module name="px4flow"/>
@@ -111,20 +122,21 @@
     <!-- 100Amp = 2Volt -> 2482,42 tick/100Amp"(0.0402832*adc)" -->
   </section>
   <section name="IMU" prefix="IMU_">
-    <!-- replace this with your own calibration -->
-    <define name="ACCEL_X_NEUTRAL" value="248"/>
-    <define name="ACCEL_Y_NEUTRAL" value="-21"/>
-    <define name="ACCEL_Z_NEUTRAL" value="1123"/>
-    <define name="ACCEL_X_SENS" value="0.62584356013" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="0.609921478775" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="0.619923942578" integer="16"/>
+    <define name="ACCEL_X_NEUTRAL" value="-50"/>
+    <define name="ACCEL_Y_NEUTRAL" value="189"/>
+    <define name="ACCEL_Z_NEUTRAL" value="270"/>
+    <define name="ACCEL_X_SENS" value="0.59633793275" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="0.616609304777" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="0.624348656549" integer="16"/>
 
-    <define name="MAG_X_NEUTRAL" value="92"/>
-    <define name="MAG_Y_NEUTRAL" value="35"/>
-    <define name="MAG_Z_NEUTRAL" value="-15"/>
-    <define name="MAG_X_SENS" value="5.52543569751" integer="16"/>
-    <define name="MAG_Y_SENS" value="4.91233764159" integer="16"/>
-    <define name="MAG_Z_SENS" value="4.99453775296" integer="16"/>
+
+    <define name="MAG_X_NEUTRAL" value="75"/>
+    <define name="MAG_Y_NEUTRAL" value="-10"/>
+    <define name="MAG_Z_NEUTRAL" value="7"/>
+    <define name="MAG_X_SENS" value="4.12309023427" integer="16"/>
+    <define name="MAG_Y_SENS" value="4.23759023915" integer="16"/>
+    <define name="MAG_Z_SENS" value="4.61141601045" integer="16"/>
+
   </section>
   <commands>
     <axis name="PITCH" failsafe_value="0" />
@@ -237,7 +249,7 @@
     <define name="HOVER_KD" value="85" />
     <define name="HOVER_KI" value="20" />
     <define name="NOMINAL_HOVER_THROTTLE" value="0.4" />
-    <define name="ADAPT_THROTTLE_ENABLED" value="FALSE" />
+    <define name="ADAPT_THROTTLE_ENABLED" value="TRUE" />
   </section>
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
     <!-- Good weather -->
@@ -261,9 +273,10 @@
   <section name="AUTOPILOT">
     <define name="MODE_STARTUP" value="AP_MODE_ATTITUDE_DIRECT" />
     <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
-    <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_Z_HOLD"/>
-    <define name="MODE_AUTO2" value="AP_MODE_MODULE"/>
-    <define name="NO_RC_THRUST_LIMIT" value="TRUE" />
+    <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_DIRECT"/>
+    <define name="MODE_AUTO2" value="AP_MODE_ATTITUDE_Z_HOLD"/>
+    <!--define name="MODE_AUTO2" value="AP_MODE_MODULE"/-->
+    <define name="NO_RC_THRUST_LIMIT" value="FALSE" />
   </section>
   <section name="BAT">
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="8700" />

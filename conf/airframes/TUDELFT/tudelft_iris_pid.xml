@@ -89,12 +89,28 @@
   </section>
   <section name="IMU" prefix="IMU_">
     <!-- replace this with your own calibration -->
+<!--
     <define name="MAG_X_NEUTRAL" value="14" />
     <define name="MAG_Y_NEUTRAL" value="116" />
     <define name="MAG_Z_NEUTRAL" value="119" />
     <define name="MAG_X_SENS" value="5.09245681612" integer="16" />
     <define name="MAG_Y_SENS" value="5.29702744632" integer="16" />
     <define name="MAG_Z_SENS" value="5.65287938992" integer="16" />
+-->
+    <define name="ACCEL_X_NEUTRAL" value="-50"/>
+    <define name="ACCEL_Y_NEUTRAL" value="189"/>
+    <define name="ACCEL_Z_NEUTRAL" value="270"/>
+    <define name="ACCEL_X_SENS" value="0.59633793275" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="0.616609304777" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="0.624348656549" integer="16"/>
+
+
+    <define name="MAG_X_NEUTRAL" value="75"/>
+    <define name="MAG_Y_NEUTRAL" value="-10"/>
+    <define name="MAG_Z_NEUTRAL" value="7"/>
+    <define name="MAG_X_SENS" value="4.12309023427" integer="16"/>
+    <define name="MAG_Y_SENS" value="4.23759023915" integer="16"/>
+    <define name="MAG_Z_SENS" value="4.61141601045" integer="16"/>
     <define name="BODY_TO_IMU_PHI" value="180." unit="deg" />
     <define name="BODY_TO_IMU_THETA" value="180." unit="deg" />
     <define name="BODY_TO_IMU_PSI" value="90." unit="deg" />
@@ -215,8 +231,8 @@
     <define name="MODE_STARTUP" value="AP_MODE_RC_DIRECT" />
     <define name="MODE_MANUAL" value="AP_MODE_RC_DIRECT" />
     <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_DIRECT" />
-    <define name="MODE_AUTO2" value="AP_MODE_ATTITUDE_DIRECT" />
-    <define name="NO_RC_THRUST_LIMIT" value="TRUE" />
+    <define name="MODE_AUTO2" value="AP_MODE_ATTITUDE_Z_HOLD" />
+    <define name="NO_RC_THRUST_LIMIT" value="FALSE" />
   </section>
   <section name="BAT">
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="8700" />

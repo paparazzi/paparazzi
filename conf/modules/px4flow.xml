@@ -9,7 +9,7 @@
     <file name="px4flow.h"/>
   </header>
   <init fun="px4flow_init()"/>
-  <periodic fun="px4flow_downlink()" freq="10"/> <!-- for debug -->
+  <periodic fun="px4flow_downlink()" freq="2"/> <!-- for debug -->
   <makefile>
     <file name="px4flow.c"/>
   </makefile>
