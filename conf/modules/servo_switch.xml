@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="servo_switch">
+<module name="servo_switch" dir="switching">
   <doc>
     <description>Servo switch</description>
     <define name="SERVO_SWITCH_ON_VALUE"  value="pwm" description="servo value in usec"/>
@@ -10,7 +10,7 @@
   <settings>
     <dl_settings NAME="Servo switch control">
       <dl_settings NAME="SWITCH">
-        <dl_setting var="servo_switch_on" min="0" step="1" max="1" module="servo_switch/servo_switch" values="Off|On">
+        <dl_setting var="servo_switch_on" min="0" step="1" max="1" module="switching/servo_switch" values="Off|On">
           <strip_button name="ON"  value="1" group="servo_switch"/>
           <strip_button name="OFF" value="0" group="servo_switch"/>
         </dl_setting>
