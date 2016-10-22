@@ -43,10 +43,14 @@
     </module>
 
 
+<!--
     <module name="ins" type="float_invariant">
-      <define name="INS_FINV_IMU_ID" value="IMU_PX4_ID" />         <!-- Meaning the lsm303 and l3g -->
-      <define name="INS_FINV_MAG_ID" value="MAG_HMC58XX_SENDER_ID" />         <!-- Meaning the external hmc-->
+      <define name="INS_FINV_IMU_ID" value="IMU_PX4_ID" />         
+      <define name="INS_FINV_MAG_ID" value="MAG_HMC58XX_SENDER_ID" />
     </module>
+-->
+   <module name="ins" type="extended" />
+
     <module name="current_sensor">
       <configure name="ADC_CURRENT_SENSOR" value="ADC_3" />
     </module>
@@ -209,8 +213,8 @@
     <define name="GRAVITY_HEURISTIC_FACTOR" value="0"/>
   </section>
   <section name="INS" prefix="INS_">
-    <!--define name="SONAR_MAX_RANGE" value="2.2" />
-    <define name="SONAR_UPDATE_ON_AGL" value="TRUE" /-->
+    <define name="SONAR_MAX_RANGE" value="2.2" />
+    <define name="SONAR_UPDATE_ON_AGL" value="TRUE" />
 
 
     <!-- Toulouse -->
