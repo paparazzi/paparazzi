@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013 Gautier Hattenberger
+ * 2016 Michal Podhradsky <michal.podhradsky@aggiemail.usu.edu>
  *
  * This file is part of paparazzi.
  *
@@ -44,8 +45,15 @@ struct mavlink_optical_flow_rad optical_flow_rad;
 #define MAVLINK_OPTICAL_FLOW_MSG_ID 100
 #define MAVLINK_OPTICAL_FLOW_RAD_MSG_ID 106
 
-#ifndef PX4FLOW_NOISE
-#define PX4FLOW_NOISE 0.5
+/*
+ * acceptable quality of optical flow (0-min,1-max)
+ * higher threshold means fewer measurements will be available
+ * but they will be more precise. Generally it is probably a better
+ * idea to have lower threshold, and propagate the noise (1-quality)
+ * to the INS
+ */
+#ifndef PX4FLOW_QUALITY_THRESHOLD
+#define PX4FLOW_QUALITY_THRESHOLD 0.1
 #endif
 
 // request structs for mavlink decoder
@@ -57,35 +65,20 @@ struct mavlink_msg_req req_heartbeat;
 // callback function on message reception
 static void decode_optical_flow_msg(struct mavlink_message *msg __attribute__((unused)))
 {
+  static float quality = 0;
+  static float noise = 0;
+  quality = ((float)optical_flow.quality)/255.0;
+  noise = 1-quality;
 
-  // arbitrary quality treshold
-  if (optical_flow.quality > 100) {
-    static uint32_t stamp = 0;
-    static uint32_t last_stamp = 0;
-    stamp = optical_flow.time_usec;
-    float dt = (float)(stamp - last_stamp) * 1e-6;
-    last_stamp = stamp;
-
-
-    optical_flow_rad.integrated_x += dt*optical_flow.flow_comp_m_x;
-    optical_flow_rad.integrated_y += dt*optical_flow.flow_comp_m_y;
-
-    //stamp = stamp - last_stamp;
-    //last_stamp = optical_flow.time_usec/1000;
-
-    // Y negated to get to the body of the drone
-    /*
-    AbiSendMsgVELOCITY_ESTIMATE(PX4FLOW_VELOCITY_ID, stamp,
-                                (optical_flow.flow_x / optical_flow.ground_distance),
-                                -1.0 * (optical_flow.flow_y / optical_flow.ground_distance),
+  if (quality > PX4FLOW_QUALITY_THRESHOLD) {
+    // flip the axis (if the PX4FLOW is mounted as shown in
+    // https://pixhawk.org/modules/px4flow
+    AbiSendMsgVELOCITY_ESTIMATE(PX4FLOW_VELOCITY_ID,
+                                optical_flow.time_usec,
+                                optical_flow.flow_comp_m_x,
+                                optical_flow.flow_comp_m_y,
                                 0.0f,
-                                PX4FLOW_NOISE);
-    */
-    AbiSendMsgVELOCITY_ESTIMATE(PX4FLOW_VELOCITY_ID, stamp,
-                                    optical_flow.flow_comp_m_x,
-                                    optical_flow.flow_comp_m_y,
-                                    0.0f,
-                                    PX4FLOW_NOISE);
+                                noise);
   }
 
   // positive distance means it's known/valid
@@ -94,13 +87,35 @@ static void decode_optical_flow_msg(struct mavlink_message *msg __attribute__((u
   }
 }
 
+/**
+ * According to https://pixhawk.org/modules/px4flow the PX4flow module outputs
+ * OPTICAL_FLOW_RAD message as well as OPTICAL_FLOW message.
+ * However, on my camera only OPTICAL_FLOW is received. Maybe different firmwares send
+ * different messages?
+ */
 static void decode_optical_flow_rad_msg(struct mavlink_message *msg __attribute__((unused)))
 {
-  //TODO: do something later
+  // TODO: do something useful with the data here
+  static float timestamp = 0;
+  timestamp = ((float)optical_flow_rad.time_usec) * 0.000001;
+  DOWNLINK_SEND_PX4FLOW_RAD(DefaultChannel, DefaultDevice,
+                        &timestamp,
+                        &optical_flow_rad.sensor_id,
+                        &optical_flow_rad.integration_time_us,
+                        &optical_flow_rad.integrated_x,
+                        &optical_flow_rad.integrated_y,
+                        &optical_flow_rad.integrated_xgyro,
+                        &optical_flow_rad.integrated_ygyro,
+                        &optical_flow_rad.integrated_zgyro,
+                        &optical_flow_rad.temperature,
+                        &optical_flow_rad.quality,
+                        &optical_flow_rad.time_delta_distance_us,
+                        &optical_flow_rad.distance);
 }
 
 static void decode_heartbeat_msg(struct mavlink_message *msg __attribute__((unused)))
 {
+  //TODO: Check whether we have a right version of firmware etc? i.e. heartbeat.autopilot=MAV_AUTOPILOT_PX4
   DOWNLINK_SEND_HEARTBEAT(DefaultChannel, DefaultDevice,
                         &heartbeat.type,
                         &heartbeat.autopilot,
@@ -110,7 +125,8 @@ static void decode_heartbeat_msg(struct mavlink_message *msg __attribute__((unus
                         &heartbeat.mavlink_version);
 }
 
-/** Initialization function
+/**
+ * Initialization function
  */
 void px4flow_init(void)
 {
@@ -134,7 +150,8 @@ void px4flow_init(void)
 
 
 
-/** Downlink message for debug
+/**
+ * Downlink message for debug
  */
 void px4flow_downlink(void)
 {
@@ -149,21 +166,5 @@ void px4flow_downlink(void)
                         &optical_flow.flow_comp_m_y,
                         &optical_flow.quality,
                         &optical_flow.ground_distance);
-
-
-  timestamp = ((float)optical_flow_rad.time_usec) * 0.000001;
-  DOWNLINK_SEND_PX4FLOW_RAD(DefaultChannel, DefaultDevice,
-                        &timestamp,
-                        &optical_flow_rad.sensor_id,
-                        &optical_flow_rad.integration_time_us,
-                        &optical_flow_rad.integrated_x,
-                        &optical_flow_rad.integrated_y,
-                        &optical_flow_rad.integrated_xgyro,
-                        &optical_flow_rad.integrated_ygyro,
-                        &optical_flow_rad.integrated_zgyro,
-                        &optical_flow_rad.temperature,
-                        &optical_flow_rad.quality,
-                        &optical_flow_rad.time_delta_distance_us,
-                        &optical_flow_rad.distance);
 }
 

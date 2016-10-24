@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013 Gautier Hattenberger
+ * 2016 Michal Podhradsky <michal.podhradsky@aggiemail.usu.edu>
  *
  * This file is part of paparazzi.
  *
@@ -33,8 +34,8 @@
 
 /** Mavlink optical flow structure.
  *  Using MAVLINK v1.0 generated code:
- *   Message ID 100
- *   Fields are ordered to guarentee alignment
+ *  Message ID 100
+ *  Fields are ordered to guarantee alignment
  */
 struct mavlink_optical_flow {
   uint64_t time_usec;     ///< Timestamp (UNIX)
@@ -49,8 +50,8 @@ struct mavlink_optical_flow {
 
 /** Mavlink optical flow rad structure.
  *  Using MAVLINK v1.0 generated code:
- *   Message ID 106
- *   Fields are ordered to guarentee alignment
+ *  Message ID 106
+ *  Fields are ordered to guarantee alignment
  */
 struct mavlink_optical_flow_rad {
   // Timestamp (microseconds, synced to UNIX time or since system boot)
