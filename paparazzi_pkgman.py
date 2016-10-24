@@ -29,6 +29,9 @@ import git  #sudo pip install gitpython
 
 PACKAGES_FILE = "./.packages"
 
+CONSOLE_NORMAL = "\033[0m"
+CONSOLE_BOLD = "\033[1m"
+CONSOLE_SHA = "\033[0;33m"
 
 class Package(object):
     def __init__(self, nr, name):
@@ -43,11 +46,11 @@ class Package(object):
         self.rcommit = ""
 
     def print(self,verbose):
-        print(self.nr, ": ", self.name)
-        print("     - ", self.url)
+        print(CONSOLE_BOLD + str(self.nr), ": ", self.name, CONSOLE_NORMAL)
+        print("     -", self.url)
         print("     -", self.rpath, "->", self.lpath)
         if verbose:
-            print("     -", self.rcommit, "->", self.lcommit)
+            print("     -" + CONSOLE_SHA, self.rcommit, CONSOLE_NORMAL + "->" + CONSOLE_SHA, self.lcommit,CONSOLE_NORMAL)
             print("     -", self.git_temp())
 
     # local git working directory
@@ -71,6 +74,7 @@ def read():
             if "[package" in line:
                 p = Package(p_id, line.replace("[package","").replace("]","").replace("\"","").strip())
                 packages.append(p)
+                p_id = p_id + 1
             elif p is not None:
                 if "lpath" in line:
                     p.lpath = line.replace("lpath","").replace("=","").strip()
@@ -100,7 +104,7 @@ def pkgman_clean(args):
     print(out)
 
 def verify(p,args):
-    print("Package:", p.name)
+    print(CONSOLE_BOLD + "Package:", p.name,CONSOLE_NORMAL)
     if not os.path.exists(p.git_temp()):
         print(" - creating", p.git_temp())
         os.makedirs(p.git_temp())
@@ -125,7 +129,7 @@ def pkgman_status(args):
 
         if args.verbose:
             print(' - git log:')
-            print(g1.log(p.rcommit+"..HEAD", '--pretty=format:   * %h %s, %cr, %aN',  '--abbrev-commit'))
+            print(g1.log(p.rcommit+"..HEAD", '--pretty=format:   * '+CONSOLE_SHA+'%h'+CONSOLE_NORMAL+' %s, %cr, %aN',  '--abbrev-commit'))
 
         g2 = git.Repo("./").git
         txt = g2.rev_list(p.lcommit+"..HEAD",  "--count")
@@ -133,7 +137,7 @@ def pkgman_status(args):
 
         if args.verbose:
             print(' - git log:')
-            print(g2.log(p.lcommit+"..HEAD", '--pretty=format:   * %h %s, %cr, %aN',  '--abbrev-commit'))
+            print(g2.log(p.lcommit+"..HEAD", '--pretty=format:   * '+CONSOLE_SHA+'%h'+CONSOLE_NORMAL+' %s, %cr, %aN',  '--abbrev-commit'))
 
 def pkgman_update(args):
     print("Update:\n------\n")
@@ -152,7 +156,7 @@ def pkgman_update(args):
 
         # store new sha
         sha = g.rev_parse("HEAD")
-        print(" - git status",sha)
+        print(" - git status"+CONSOLE_SHA,sha,CONSOLE_NORMAL)
         store_commit(p.rcommit,sha)
         p.rcommit = sha
 
