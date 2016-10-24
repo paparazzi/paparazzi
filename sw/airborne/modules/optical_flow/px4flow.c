@@ -75,8 +75,8 @@ static void decode_optical_flow_msg(struct mavlink_message *msg __attribute__((u
     // https://pixhawk.org/modules/px4flow
     AbiSendMsgVELOCITY_ESTIMATE(PX4FLOW_VELOCITY_ID,
                                 optical_flow.time_usec,
-                                optical_flow.flow_comp_m_x,
                                 optical_flow.flow_comp_m_y,
+                                optical_flow.flow_comp_m_x,
                                 0.0f,
                                 noise);
   }
