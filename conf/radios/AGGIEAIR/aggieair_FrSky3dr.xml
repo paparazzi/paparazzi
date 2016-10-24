@@ -43,7 +43,7 @@
 -- Note: a command may be reversed by exchanging min and max values
 -->
 
-<!DOCTYPE radio SYSTEM "radio.dtd">
+<!DOCTYPE radio SYSTEM "../radio.dtd">
 
 <!-- Values set by experiment using X8R receiver SBus connection -->
 
@@ -53,8 +53,8 @@
  <channel ctl="A" function="THROTTLE" min="990" neutral="990" max="2015" average="0"/>
  <channel ctl="B" function="YAW"      min="990" neutral="1490" max="2015" average="0"/>
 
- <channel ctl="RSwtiches_Mix" function="MODE"    min="1145" neutral="1500" max="1862" average="1"/>
- <channel ctl="TILT" function="AUX2"     min="990" neutral="990" max="2015" average="0"/>
+ <channel ctl="RSwtiches_Mix" function="MODE"    min="990" neutral="1500" max="1862" average="1"/>
  <channel ctl="CH7" function="KILL"    min="990" neutral="1490" max="2015" average="1"/>
+ <channel ctl="TILT" function="AUX2"     min="990" neutral="990" max="2015" average="0"/>
  <channel ctl="E" function="UNUSED2"    min="990" neutral="1900" max="2015" average="1"/>
 </radio>
