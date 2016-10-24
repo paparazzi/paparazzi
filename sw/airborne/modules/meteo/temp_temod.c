@@ -65,7 +65,9 @@ void temod_init(void)
 
 void temod_periodic(void)
 {
-  i2c_receive(&TEMOD_I2C_DEV, &tmd_trans, TEMOD_SLAVE_ADDR, 2);
+  if (tmd_trans.status == I2CTransDone) {
+    i2c_receive(&TEMOD_I2C_DEV, &tmd_trans, TEMOD_SLAVE_ADDR, 2);
+  }
 
 }
 
@@ -73,6 +75,12 @@ void temod_event(void)
 {
 
   if (tmd_trans.status == I2CTransSuccess) {
+
+    // if MSB is 1, sensor reports an error, skip value
+    if (bit_is_set(tmd_trans.buf[0], 7)) {
+      tmd_trans.status = I2CTransDone;
+      return;
+    }
 
     uint16_t tmd_temperature;
 
@@ -87,21 +95,24 @@ void temod_event(void)
 
 
 #if TEMP_TEMOD_SDLOG
-  if (pprzLogFile != -1) {
-    if (!log_temod_started) {
-      sdLogWriteLog(pprzLogFile, "TEMOD: Temp(degC) GPS_fix TOW(ms) Week Lat(1e7deg) Lon(1e7deg) HMSL(mm) gspeed(cm/s) course(1e7deg) climb(cm/s)\n");
-      log_temod_started = true;
+    if (pprzLogFile != -1) {
+      if (!log_temod_started) {
+        sdLogWriteLog(pprzLogFile, "TEMOD: Temp(degC) GPS_fix TOW(ms) Week Lat(1e7deg) Lon(1e7deg) HMSL(mm) gspeed(cm/s) course(1e7deg) climb(cm/s)\n");
+        log_temod_started = true;
+      }
+      else {
+        sdLogWriteLog(pprzLogFile, "temod: %9.4f    %d %d %d   %d %d %d   %d %d %d\n",
+            ftmd_temperature,
+            gps.fix, gps.tow, gps.week,
+            gps.lla_pos.lat, gps.lla_pos.lon, gps.hmsl,
+            gps.gspeed, gps.course, -gps.ned_vel.z);
+      }
     }
-    else {
-      sdLogWriteLog(pprzLogFile, "temod: %9.4f    %d %d %d   %d %d %d   %d %d %d\n",
-          ftmd_temperature,
-          gps.fix, gps.tow, gps.week,
-          gps.lla_pos.lat, gps.lla_pos.lon, gps.hmsl,
-          gps.gspeed, gps.course, -gps.ned_vel.z);
-    }
-  }
 #endif
 
+  }
+  else if (tmd_trans.status == I2CTransFailed) {
+    tmd_trans.status = I2CTransDone;
   }
 }
 
