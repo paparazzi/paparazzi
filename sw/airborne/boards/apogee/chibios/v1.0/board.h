@@ -383,10 +383,10 @@
                                      PIN_MODE_INPUT(GPIOC_OSC32_IN)       | \
                                      PIN_MODE_INPUT(GPIOC_OSC32_OUT))
 
-#define VAL_GPIOC_OTYPER            (PIN_OTYPE_OPENDRAIN(GPIOC_LED1)      | \
-                                     PIN_OTYPE_OPENDRAIN(GPIOC_LED3)      | \
+#define VAL_GPIOC_OTYPER            (PIN_OTYPE_PUSHPULL(GPIOC_LED1)       | \
+                                     PIN_OTYPE_PUSHPULL(GPIOC_LED3)       | \
                                      PIN_OTYPE_OPENDRAIN(GPIOC_PIN2)      | \
-                                     PIN_OTYPE_OPENDRAIN(GPIOC_LED4)      | \
+                                     PIN_OTYPE_PUSHPULL(GPIOC_LED4)       | \
                                      PIN_OTYPE_PUSHPULL(GPIOC_AUX3)       | \
                                      PIN_OTYPE_PUSHPULL(GPIOC_AUX2)       | \
                                      PIN_OTYPE_PUSHPULL(GPIOC_USART6_TX)  | \
@@ -396,7 +396,7 @@
                                      PIN_OTYPE_PUSHPULL(GPIOC_SDIO_D2)    | \
                                      PIN_OTYPE_PUSHPULL(GPIOC_SDIO_D3)    | \
                                      PIN_OTYPE_PUSHPULL(GPIOC_SDIO_CK)    | \
-                                     PIN_OTYPE_OPENDRAIN(GPIOC_LED2)      | \
+                                     PIN_OTYPE_PUSHPULL(GPIOC_LED2)       | \
                                      PIN_OTYPE_PUSHPULL(GPIOC_OSC32_IN)   | \
                                      PIN_OTYPE_PUSHPULL(GPIOC_OSC32_OUT))
 
@@ -941,18 +941,36 @@
 /**
  * I2C defines
  */
+#ifndef I2C1_CLOCK_SPEED
 #define I2C1_CLOCK_SPEED 400000
-#define I2C1_CFG_DEF {       \
+#endif
+#if I2C1_CLOCK_SPEED == 400000
+#define I2C1_DUTY_CYCLE FAST_DUTY_CYCLE_2
+#elif I2C1_CLOCK_SPEED == 100000
+#define I2C1_DUTY_CYCLE STD_DUTY_CYCLE
+#else
+#error Invalid I2C1 clock speed
+#endif
+#define I2C1_CFG_DEF {        \
            OPMODE_I2C,        \
            I2C1_CLOCK_SPEED,  \
-           FAST_DUTY_CYCLE_2, \
+           I2C1_DUTY_CYCLE,   \
            }
 
+#ifndef I2C2_CLOCK_SPEED
 #define I2C2_CLOCK_SPEED 400000
-#define I2C2_CFG_DEF {       \
+#endif
+#if I2C2_CLOCK_SPEED == 400000
+#define I2C2_DUTY_CYCLE FAST_DUTY_CYCLE_2
+#elif I2C2_CLOCK_SPEED == 100000
+#define I2C2_DUTY_CYCLE STD_DUTY_CYCLE
+#else
+#error Invalid I2C2 clock speed
+#endif
+#define I2C2_CFG_DEF {        \
            OPMODE_I2C,        \
            I2C2_CLOCK_SPEED,  \
-           FAST_DUTY_CYCLE_2, \
+           I2C2_DUTY_CYCLE,   \
            }
 
 /**
