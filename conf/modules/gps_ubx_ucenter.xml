@@ -17,6 +17,7 @@ Warning: you still need to tell the driver, which paparazzi port you use.
             value="NAV5_DYN_PORTABLE|NAV5_DYN_FIXED|NAV5_DYN_STATIONARY|NAV5_DYN_PEDESTRIAN|NAV5_DYN_AUTOMOTIVE|NAV5_DYN_SEA|NAV5_DYN_AIRBORNE_1G|NAV5_DYN_AIRBORNE_2G|NAV5_DYN_AIRBORNE_4G"
             description="Dynamic model used by ublox GPS filter. Default:NAV5_DYN_AIRBORNE_2G"/>
     <define name="USE_GPS_UBX_RXM_RAW" description="Activate raw measurments (only available on U-Blox T versions)"/>
+    <define name="GPS_UBX_ENABLE_NMEA_DATA_MASK" value="0x00|0xff" description="NMEA is disabled by default (0x00). To enable NMEA and UBX, set MASK to 0xff."/>
   </doc>
 
   <settings>
