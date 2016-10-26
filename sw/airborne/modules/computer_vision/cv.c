@@ -33,11 +33,12 @@
 
 
 void cv_attach_listener(struct video_config_t *device, struct video_listener *new_listener);
-void cv_async_function(struct cv_async *async, struct image_t *img);
+int8_t cv_async_function(struct cv_async *async, struct image_t *img);
 void *cv_async_thread(void *args);
 
 
-static inline uint32_t timeval_diff(struct timeval *A, struct timeval *B) {
+static inline uint32_t timeval_diff(struct timeval *A, struct timeval *B)
+{
   return (B->tv_sec - A->tv_sec) * 1000000 + (B->tv_usec - A->tv_usec);
 }
 
@@ -66,8 +67,9 @@ struct video_listener *cv_add_to_device(struct video_config_t *device, cv_functi
     struct video_listener *listener = device->cv_listener;
 
     // Loop through linked list to last listener
-    while (listener->next != NULL)
+    while (listener->next != NULL) {
       listener = listener->next;
+    }
 
     // Add listener to end
     listener->next = new_listener;
@@ -77,7 +79,8 @@ struct video_listener *cv_add_to_device(struct video_config_t *device, cv_functi
 }
 
 
-struct video_listener *cv_add_to_device_async(struct video_config_t *device, cv_function func, int nice_level) {
+struct video_listener *cv_add_to_device_async(struct video_config_t *device, cv_function func, int nice_level)
+{
   // Create a normal listener
   struct video_listener *listener = cv_add_to_device(device, func);
 
@@ -99,10 +102,11 @@ struct video_listener *cv_add_to_device_async(struct video_config_t *device, cv_
 }
 
 
-void cv_async_function(struct cv_async *async, struct image_t *img) {
+int8_t cv_async_function(struct cv_async *async, struct image_t *img)
+{
   // If the previous image is not yet processed, return
   if (pthread_mutex_trylock(&async->img_mutex) != 0 || !async->img_processed) {
-    return;
+    return -1;
   }
 
   // If the image has not been initialized, do it
@@ -117,10 +121,12 @@ void cv_async_function(struct cv_async *async, struct image_t *img) {
   async->img_processed = false;
   pthread_cond_signal(&async->img_available);
   pthread_mutex_unlock(&async->img_mutex);
+  return 0;
 }
 
 
-void *cv_async_thread(void *args) {
+void *cv_async_thread(void *args)
+{
   struct video_listener *listener = args;
   struct cv_async *async = listener->async;
   async->thread_running = true;
@@ -168,19 +174,22 @@ void cv_run_device(struct video_config_t *device, struct image_t *img)
       continue;
     }
 
-    // Store timestamp
-    listener->ts = img->ts;
-
     if (listener->async != NULL) {
-      // Send image to asynchronous thread
-      cv_async_function(listener->async, img);
+      // Send image to asynchronous thread, only update listener if succesful
+      if (!cv_async_function(listener->async, img)) {
+        // Store timestamp
+        listener->ts = img->ts;
+      }
     } else {
       // Execute the cvFunction and catch result
       result = listener->func(img);
 
       // If result gives an image pointer, use it in the next stage
-      if (result != NULL)
+      if (result != NULL) {
         img = result;
+      }
+      // Store timestamp
+      listener->ts = img->ts;
     }
   }
 }

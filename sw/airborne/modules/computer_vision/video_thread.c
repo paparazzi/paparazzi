@@ -62,7 +62,7 @@ PRINT_CONFIG_VAR(VIDEO_THREAD_NICE_LEVEL)
 #endif
 PRINT_CONFIG_VAR(VIDEO_THREAD_MAX_CAMERAS)
 
-struct video_config_t *cameras[VIDEO_THREAD_MAX_CAMERAS];
+static struct video_config_t *cameras[VIDEO_THREAD_MAX_CAMERAS] = {NULL};
 
 // Main thread
 static void *video_thread_function(void *data);
@@ -78,7 +78,7 @@ void video_thread_periodic(void)
 
 /**
  * Handles all the video streaming and saving of the image shots
- * This is a sepereate thread, so it needs to be thread safe!
+ * This is a separate thread, so it needs to be thread safe!
  */
 static void *video_thread_function(void *data)
 {
@@ -257,10 +257,6 @@ static void stop_video_thread(struct video_config_t *device)
  */
 void video_thread_init(void)
 {
-  // Initialise all camera pointers to be NULL
-  for (int indexCameras = 0; indexCameras < VIDEO_THREAD_MAX_CAMERAS; indexCameras++) {
-    cameras[indexCameras] = NULL;
-  }
 }
 
 /**
@@ -283,13 +279,11 @@ void video_thread_start()
  */
 void video_thread_stop()
 {
-
   for (int indexCameras = 0; indexCameras < VIDEO_THREAD_MAX_CAMERAS; indexCameras++) {
     if (cameras[indexCameras] != NULL) {
       stop_video_thread(cameras[indexCameras]);
     }
   }
-
 
   // TODO: wait for the thread to finish to be able to start the thread again!
 }
