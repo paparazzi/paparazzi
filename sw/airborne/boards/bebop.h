@@ -27,21 +27,23 @@
 
 #include "std.h"
 #include "peripherals/video_device.h"
+#include "boards/bebop/mt9f002.h"
 
+/* define required ouput image size */
 #ifndef MT9F002_OUTPUT_HEIGHT
-#define MT9F002_OUTPUT_HEIGHT 3320
+#define MT9F002_OUTPUT_HEIGHT 822  // full resolution 3288, should be divisible by 8 if transported over stream
 #endif
 
 #ifndef MT9F002_OUTPUT_WIDTH
-#define MT9F002_OUTPUT_WIDTH 2048
+#define MT9F002_OUTPUT_WIDTH 1152 // full resolution 4608, should be divisible by 8 if transported over stream
 #endif
 
 #ifndef MT9F002_INITIAL_OFFSET_X
-#define MT9F002_INITIAL_OFFSET_X 1000 // pixels in the raw sensor!!
+#define MT9F002_INITIAL_OFFSET_X 0. // signed fractional offset from centre of image of original sensor [-0.5,0.5]
 #endif
 
 #ifndef MT9F002_INITIAL_OFFSET_Y
-#define MT9F002_INITIAL_OFFSET_Y 0 // pixels in the raw sensor!!
+#define MT9F002_INITIAL_OFFSET_Y 0. // signed fractional offset from centre of image of original sensor [-0.5,0.5]
 #endif
 
 /** Our output is only OUTPUT_SCALER of the pixels we take of the sensor
@@ -53,17 +55,10 @@
  *  output_height = 830
  *  output_scaler = 0.25
  *  We now get an image of 512 by 830 which contains a "compressed version"
- *  of what would normally be an image of 2048 by 3320.
- *  Be warned: set your offset x appropriately.
- *  Example of what could go wrong:
- *  output_width = 512
- *  output_height = 830
- *  output_scaler = 0.25
- *  offset_x = 1500
- *  We now ask for pixels outside the 4608H x 2592V sensor or the 3320H x 2048W of the ISP.
+ *  of what would normally be an image of 2048 by 3320 ISP (4608H x 2592V sensor)
  */
 #ifndef MT9F002_OUTPUT_SCALER
-#define MT9F002_OUTPUT_SCALER 1.0
+#define MT9F002_OUTPUT_SCALER 1.
 #endif
 
 /** Exposure of the front camera of the bebop. Experimental values:
@@ -76,9 +71,36 @@
 #endif
 
 #ifndef MT9F002_TARGET_FPS
-#define MT9F002_TARGET_FPS 5
+#define MT9F002_TARGET_FPS 10
 #endif
 
+/* Set the colour balance gains */
+#ifndef MT9F002_GAIN_GREEN1
+#define MT9F002_GAIN_GREEN1 3.0
+#endif
+
+#ifndef MT9F002_GAIN_GREEN2
+#define MT9F002_GAIN_GREEN2 3.0
+#endif
+
+#ifndef MT9F002_GAIN_RED
+#define MT9F002_GAIN_RED 3.0
+#endif
+
+#ifndef MT9F002_GAIN_BLUE
+#define MT9F002_GAIN_BLUE 4.0
+#endif
+
+/* Set pixel increment value to implement subsampling */
+/* Supported values for MT9F002_X_ODD_INC_VAL are 3, 7, 15 and 31 */
+#ifndef MT9F002_X_ODD_INC_VAL
+#define MT9F002_X_ODD_INC_VAL 1
+#endif
+
+/* Supported values for MT9F002_Y_ODD_INC_VAL are 1, 3 and 7 */
+#ifndef MT9F002_Y_ODD_INC_VAL
+#define MT9F002_Y_ODD_INC_VAL 1
+#endif
 
 /** uart connected to GPS internally */
 #define UART1_DEV /dev/ttyPA1
@@ -95,6 +117,9 @@
 /* Cameras */
 extern struct video_config_t bottom_camera;
 extern struct video_config_t front_camera;
+
+/* ISP */
+struct mt9f002_t mt9f002;
 
 /* by default activate onboard baro */
 #ifndef USE_BARO_BOARD
