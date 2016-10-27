@@ -17,7 +17,9 @@
     <define name="MT9F002_GAIN_GREEN2" value="4"/>
     <define name="MT9F002_GAIN_RED" value="5"/>
     <define name="MT9F002_GAIN_BLUE" value="5"/>
-    <define name="MT9F002_OUTPUT_SCALER" value="0.5"/>
+    <define name="MT9F002_OUTPUT_SCALER" value="1."/>
+    <define name="MT9F002_X_ODD_INC_VAL" value="7"/>
+    <define name="MT9F002_Y_ODD_INC_VAL" value="7"/>
 
     <!--define name="USE_SONAR" value="TRUE"/-->
 
@@ -44,9 +46,13 @@
     <module name="video_thread"/>
 
     <module name="video_rtp_stream">
-      <define name="VIEWVIDEO_CAMERA" value="front_camera"/>
+      <define name="VIEWVIDEO_CAMERA" value="bottom_camera"/>
+      <define name="VIEWVIDEO_CAMERA2" value="front_camera"/>
       <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="2"/>
       <define name="VIEWVIDEO_QUALITY_FACTOR" value="40"/>
+      
+      <configure name="VIEWVIDEO_BROADCAST" value="FALSE"/>
+      <configure name="VIEWVIDEO_HOST" value="192.168.42.98"/>
     </module>
 
     <module name="cv_ae_awb"/>

@@ -175,7 +175,7 @@ void cv_run_device(struct video_config_t *device, struct image_t *img)
     }
 
     if (listener->async != NULL) {
-      // Send image to asynchronous thread, only update listener if succesful
+      // Send image to asynchronous thread, only update listener if successful
       if (!cv_async_function(listener->async, img)) {
         // Store timestamp
         listener->ts = img->ts;
