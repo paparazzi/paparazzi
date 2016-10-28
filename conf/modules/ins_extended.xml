@@ -6,7 +6,7 @@
       extended INS with vertical filter using sonar.
     </description>
     <define name="USE_INS_NAV_INIT" value="TRUE|FALSE" description="Initialize the origin of the local coordinate system from flight plan. (Default: TRUE)"/>
-    <define name="INS_INT_SONAR_ID" value="ABI_BROADCAST" description="The ABI sender id of the sonar to use"/>
+    <define name="INS_INT_AGL_ID" value="ABI_BROADCAST" description="The ABI sender id of the sonar to use"/>
     <define name="INS_INT_BARO_ID" value="BARO_BOARD_SENDER_ID" description="The ABI sender id of the baro to use"/>
     <define name="INS_INT_GPS_ID" value="GPS_MULTI_ID" description="The ABI sender id of the GPS to use"/>
     <define name="INS_INT_IMU_ID" value="ABI_BROADCAST" description="The ABI sender id of the IMU to use"/>
@@ -22,7 +22,7 @@
         <dl_setting MAX="10" MIN="0" STEP="0.1" VAR="vff.accel_noise" shortname="accel_noise" module="subsystems/ins/vf_extended_float"/>
         <dl_setting MAX="10" MIN="0" STEP="0.1" VAR="vff.r_baro" shortname="r_baro"/>
         <dl_setting MAX="10" MIN="0" STEP="0.1" VAR="vff.r_alt" shortname="r_alt"/>
-        <dl_setting MAX="10" MIN="0" STEP="0.1" VAR="vff.r_offset" shortname="r_offset"/>
+        <dl_setting MAX="10" MIN="0" STEP="0.1" VAR="vff.r_obs_height" shortname="r_obs_height"/>
       </dl_settings>
     </dl_settings>
   </settings>
