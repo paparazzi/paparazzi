@@ -19,7 +19,7 @@
     <module name="actuators" type="bebop"/>
     <module name="imu" type="bebop"/>
     <module name="gps" type="furuno"/>
-    <module name="stabilization" type="indi"/>
+    <module name="stabilization" type="indi_simple"/>
     <module name="stabilization" type="rate_indi"/>
     <module name="ahrs" type="float_mlkf"/>
     <module name="ahrs" type="int_cmpl_quat">

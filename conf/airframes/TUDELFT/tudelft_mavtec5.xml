@@ -29,7 +29,7 @@
     <module name="gps"           type="ublox">
       <define name="USE_PIKSI_EXT_ANTENNA" value="TRUE"/>
     </module>
-    <module name="stabilization" type="indi"/>
+    <module name="stabilization" type="indi_simple"/>
     <module name="ahrs"          type="int_cmpl_quat"/>
     <module name="ins" type="hff"/>
   </firmware>

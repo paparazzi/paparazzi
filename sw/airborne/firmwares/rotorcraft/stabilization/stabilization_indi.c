@@ -24,7 +24,7 @@
  * @brief MAVLab Delft University of Technology
  * This control algorithm is Incremental Nonlinear Dynamic Inversion (INDI)
  *
- * This is a simplified implementation of the publication in the
+ * This is an implementation of the publication in the
  * journal of Control Guidance and Dynamics: Adaptive Incremental Nonlinear
  * Dynamic Inversion for Attitude Control of Micro Aerial Vehicles
  * http://arc.aiaa.org/doi/pdf/10.2514/1.G001490
@@ -35,141 +35,165 @@
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_quat_transformations.h"
 
+#include "math/pprz_algebra_float.h"
 #include "state.h"
 #include "generated/airframe.h"
-#include "paparazzi.h"
+#include "firmwares/rotorcraft/guidance/guidance_indi.h"
 #include "subsystems/radio_control.h"
+#include "subsystems/actuators.h"
+#include "subsystems/abi.h"
+#include "filters/low_pass_filter.h"
 
-#if !defined(STABILIZATION_INDI_ACT_DYN_P) && !defined(STABILIZATION_INDI_ACT_DYN_Q) && !defined(STABILIZATION_INDI_ACT_DYN_R)
-#error You have to define the first order time constant of the actuator dynamics!
-#endif
+static void lms_estimation(void);
+static void get_actuator_state(void);
+static void calc_g1_element(float dx_error, int8_t i, int8_t j, float mu_extra);
+static void calc_g2_element(float dx_error, int8_t j, float mu_extra);
+static void calc_g1g2_pseudo_inv(void);
 
-// these parameters are used in the filtering of the angular acceleration
-// define them in the airframe file if different values are required
-#ifndef STABILIZATION_INDI_FILT_OMEGA
-#define STABILIZATION_INDI_FILT_OMEGA 50.0
-#endif
+int32_t stabilization_att_indi_cmd[COMMANDS_NB];
+struct ReferenceSystem reference_acceleration = {
+  STABILIZATION_INDI_REF_ERR_P,
+  STABILIZATION_INDI_REF_ERR_Q,
+  STABILIZATION_INDI_REF_ERR_R,
+  STABILIZATION_INDI_REF_RATE_P,
+  STABILIZATION_INDI_REF_RATE_Q,
+  STABILIZATION_INDI_REF_RATE_R,
+};
 
-#ifndef STABILIZATION_INDI_FILT_ZETA
-#define STABILIZATION_INDI_FILT_ZETA 0.55
-#endif
-
-// the yaw sometimes requires more filtering
-#ifndef STABILIZATION_INDI_FILT_OMEGA_R
-#define STABILIZATION_INDI_FILT_OMEGA_R STABILIZATION_INDI_FILT_OMEGA
-#endif
-
-#ifndef STABILIZATION_INDI_FILT_ZETA_R
-#define STABILIZATION_INDI_FILT_ZETA_R STABILIZATION_INDI_FILT_ZETA
-#endif
-
-#ifndef STABILIZATION_INDI_MAX_RATE
-#define STABILIZATION_INDI_MAX_RATE 6.0
-#endif
+//only 4 actuators supported for now
+#define INDI_NUM_ACT 4
 
 #if STABILIZATION_INDI_USE_ADAPTIVE
-#warning "Use caution with adaptive indi. See the wiki for more info"
+bool indi_use_adaptive = true;
+#else
+bool indi_use_adaptive = false;
 #endif
 
-#ifndef STABILIZATION_INDI_MAX_R
-#define STABILIZATION_INDI_MAX_R STABILIZATION_ATTITUDE_SP_MAX_R
-#endif
+// variables needed for control
+float actuator_state_filt_vect[4] = {0.0, 0.0, 0.0, 0.0};
+struct FloatRates angular_accel_ref = {0., 0., 0.};
+float angular_acceleration[3] = {0., 0., 0.};
+float actuator_state[4] = {0.0, 0.0, 0.0, 0.0};
+float indi_u[4] = {0.0, 0.0, 0.0, 0.0};
+float indi_du[4] = {0.0, 0.0, 0.0, 0.0};
+float G2_times_du;
+
+// variables needed for estimation
+struct FloatMat33 G1G2_trans_mult;
+struct FloatMat33 G1G2inv;
+float actuator_state_filt_vectd[INDI_NUM_ACT];
+float actuator_state_filt_vectdd[INDI_NUM_ACT];
+float estimation_rate_d[INDI_NUM_ACT];
+float estimation_rate_dd[INDI_NUM_ACT];
+float du_estimation[4] = {0.0, 0.0, 0.0, 0.0};
+float ddu_estimation[4] = {0.0, 0.0, 0.0, 0.0};
+float mu1 = 0.00001;
+float mu2 = 0.00001*200.0;
+
+// other variables
+float act_obs[INDI_NUM_ACT];
 
 struct Int32Eulers stab_att_sp_euler;
 struct Int32Quat   stab_att_sp_quat;
 
-static int32_t stabilization_att_indi_cmd[COMMANDS_NB];
-static inline void stabilization_indi_calc_cmd(int32_t indi_commands[], struct Int32Quat *att_err, bool rate_control);
-static void stabilization_indi_second_order_filter_init(struct IndiFilter *filter, float omega, float zeta, float omega_r);
-static void stabilization_indi_second_order_filter(struct IndiFilter *filter, struct FloatRates *input);
-static inline void lms_estimation(void);
+abi_event rpm_ev;
+static void rpm_cb(uint8_t sender_id, uint16_t *rpm, uint8_t num_act);
 
-#define INDI_EST_SCALE 0.001 //The G values are scaled to avoid numerical problems during the estimation
-struct IndiVariables indi = {
-  .max_rate = STABILIZATION_INDI_MAX_RATE,
-  .attitude_max_yaw_rate = STABILIZATION_INDI_MAX_R,
-
-  .g1 = {STABILIZATION_INDI_G1_P, STABILIZATION_INDI_G1_Q, STABILIZATION_INDI_G1_R},
-  .g2 = STABILIZATION_INDI_G2_R,
-  .reference_acceleration = {
-    STABILIZATION_INDI_REF_ERR_P,
-    STABILIZATION_INDI_REF_ERR_Q,
-    STABILIZATION_INDI_REF_ERR_R,
-    STABILIZATION_INDI_REF_RATE_P,
-    STABILIZATION_INDI_REF_RATE_Q,
-    STABILIZATION_INDI_REF_RATE_R},
-
-  /* Estimation parameters for adaptive INDI */
-  .est = {
-    .g1 = {
-      STABILIZATION_INDI_G1_P / INDI_EST_SCALE,
-      STABILIZATION_INDI_G1_Q / INDI_EST_SCALE,
-      STABILIZATION_INDI_G1_R / INDI_EST_SCALE},
-    .g2 = STABILIZATION_INDI_G2_R / INDI_EST_SCALE,
-    .mu = STABILIZATION_INDI_ADAPTIVE_MU,
-  },
-
-#if STABILIZATION_INDI_USE_ADAPTIVE
-  .adaptive = TRUE,
+#if OUTER_LOOP_INDI
+float G1G2_pseudo_inv[4][4] = {{   11.6494,   15.7972,   -3.6861, -306.8446},
+                               {  -12.7131,   14.5322,    3.8301, -302.7462},
+                               {  -12.4162,  -17.8758,   -4.0093, -317.1131},
+                               {   11.0249,  -17.7113,    3.7178, -303.1488}};
+//G2 is scaled by 1000 to make it readable
+float G2[4] = STABILIZATION_INDI_G2; //scaled by 1000
 #else
-  .adaptive = FALSE,
+float G1G2_pseudo_inv[4][3];
+float G2[4] = STABILIZATION_INDI_G2; //scaled by 1000
 #endif
-};
+float G1[3][4] = {STABILIZATION_INDI_G1_ROLL,
+  STABILIZATION_INDI_G1_PITCH, STABILIZATION_INDI_G1_YAW};
+float G1G2[3][4];
+float G1_new[3][4];
+float G2_new[4];
+
+Butterworth2LowPass actuator_lowpass_filters[INDI_NUM_ACT];
+Butterworth2LowPass estimation_input_lowpass_filters[INDI_NUM_ACT];
+Butterworth2LowPass measurement_lowpass_filters[3];
+Butterworth2LowPass estimation_output_lowpass_filters[3];
+
+void init_filters(void);
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_att_indi(struct transport_tx *trans, struct link_device *dev)
+static void send_indi_g(struct transport_tx *trans, struct link_device *dev)
 {
-  //The estimated G values are scaled, so scale them back before sending
-  struct FloatRates g1_disp;
-  RATES_SMUL(g1_disp, indi.est.g1, INDI_EST_SCALE);
-  float g2_disp = indi.est.g2 * INDI_EST_SCALE;
-
-  pprz_msg_send_STAB_ATTITUDE_INDI(trans, dev, AC_ID,
-                                   &indi.rate.dx.p,
-                                   &indi.rate.dx.q,
-                                   &indi.rate.dx.r,
-                                   &indi.angular_accel_ref.p,
-                                   &indi.angular_accel_ref.q,
-                                   &indi.angular_accel_ref.r,
-                                   &g1_disp.p,
-                                   &g1_disp.q,
-                                   &g1_disp.r,
-                                   &g2_disp);
+  pprz_msg_send_INDI_G(trans, dev, AC_ID, INDI_NUM_ACT, G1[0],
+                                          INDI_NUM_ACT, G1[1],
+                                          INDI_NUM_ACT, G1[2],
+                                          INDI_NUM_ACT, G2);
 }
 #endif
 
+/**
+ * Function that initializes important values upon engaging INDI
+ */
 void stabilization_indi_init(void)
 {
   // Initialize filters
-  stabilization_indi_second_order_filter_init(&indi.rate, STABILIZATION_INDI_FILT_OMEGA, STABILIZATION_INDI_FILT_ZETA, STABILIZATION_INDI_FILT_OMEGA_R);
-  stabilization_indi_second_order_filter_init(&indi.u, STABILIZATION_INDI_FILT_OMEGA, STABILIZATION_INDI_FILT_ZETA, STABILIZATION_INDI_FILT_OMEGA_R);
-  stabilization_indi_second_order_filter_init(&indi.est.rate, 10.0, 0.8, 10.0); //FIXME: no magic number
-  stabilization_indi_second_order_filter_init(&indi.est.u, 10.0, 0.8, 10.0); //FIXME: no magic number
+  init_filters();
+
+  AbiBindMsgRPM(RPM_SENSOR_ID, &rpm_ev, rpm_cb);
+
+  float_vect_zero(actuator_state_filt_vectd, INDI_NUM_ACT);
+  float_vect_zero(actuator_state_filt_vectdd, INDI_NUM_ACT);
+  float_vect_zero(estimation_rate_d, INDI_NUM_ACT);
+  float_vect_zero(estimation_rate_dd, INDI_NUM_ACT);
+
+  //Calculate G1G2_PSEUDO_INVERSE
+  calc_g1g2_pseudo_inv();
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STAB_ATTITUDE_INDI, send_att_indi);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INDI_G, send_indi_g);
 #endif
 }
 
+/**
+ * Function that resets important values upon engaging INDI
+ */
 void stabilization_indi_enter(void)
 {
   /* reset psi setpoint to current psi angle */
   stab_att_sp_euler.psi = stabilization_attitude_get_heading_i();
 
-  FLOAT_RATES_ZERO(indi.rate.x);
-  FLOAT_RATES_ZERO(indi.rate.dx);
-  FLOAT_RATES_ZERO(indi.rate.ddx);
-  FLOAT_RATES_ZERO(indi.angular_accel_ref);
-  FLOAT_RATES_ZERO(indi.du);
-  FLOAT_RATES_ZERO(indi.u_act_dyn);
-  FLOAT_RATES_ZERO(indi.u_in);
-  FLOAT_RATES_ZERO(indi.u.x);
-  FLOAT_RATES_ZERO(indi.u.dx);
-  FLOAT_RATES_ZERO(indi.u.ddx);
+  // reset filters
+  init_filters();
 }
 
+/**
+ * Function that resets the filters to zeros
+ */
+void init_filters(void) {
+  // tau = 1/(2*pi*Fc)
+  float tau = 1.0/(2.0*M_PI*STABILIZATION_INDI_FILT_CUTOFF);
+  float tau_est = 1.0/(2.0*M_PI*STABILIZATION_INDI_ESTIMATION_FILT_CUTOFF);
+  float sample_time = 1.0/PERIODIC_FREQUENCY;
+  // Filtering of the gyroscope
+  for(int8_t i=0; i<3; i++) {
+    init_butterworth_2_low_pass(&measurement_lowpass_filters[i], tau, sample_time, 0.0);
+    init_butterworth_2_low_pass(&estimation_output_lowpass_filters[i], tau_est, sample_time, 0.0);
+  }
+
+  // Filtering of the actuators
+  for(int8_t i=0; i<INDI_NUM_ACT; i++) {
+    init_butterworth_2_low_pass(&actuator_lowpass_filters[i], tau, sample_time, 0.0);
+    init_butterworth_2_low_pass(&estimation_input_lowpass_filters[i], tau_est, sample_time, 0.0);
+  }
+}
+
+/**
+ * Function that calculates the failsafe setpoint
+ */
 void stabilization_indi_set_failsafe_setpoint(void)
 {
   /* set failsafe to zero roll/pitch and current heading */
@@ -180,14 +204,25 @@ void stabilization_indi_set_failsafe_setpoint(void)
   PPRZ_ITRIG_SIN(stab_att_sp_quat.qz, heading2);
 }
 
+/**
+ * @param rpy rpy from which to calculate quaternion setpoint
+ *
+ * Function that calculates the setpoint quaternion from rpy
+ */
 void stabilization_indi_set_rpy_setpoint_i(struct Int32Eulers *rpy)
 {
   // stab_att_sp_euler.psi still used in ref..
-  stab_att_sp_euler = *rpy;
+  memcpy(&stab_att_sp_euler, rpy, sizeof(struct Int32Eulers));
 
   quat_from_rpy_cmd_i(&stab_att_sp_quat, &stab_att_sp_euler);
 }
 
+/**
+ * @param cmd 2D command in North East axes
+ * @param heading Heading of the setpoint
+ *
+ * Function that calculates the setpoint quaternion from a command in earth axes
+ */
 void stabilization_indi_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading)
 {
   // stab_att_sp_euler.psi still used in ref..
@@ -205,96 +240,127 @@ void stabilization_indi_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading)
   quat_from_earth_cmd_i(&stab_att_sp_quat, cmd, heading);
 }
 
-static inline void stabilization_indi_calc_cmd(int32_t indi_commands[], struct Int32Quat *att_err, bool rate_control)
+#include <stdio.h>
+/**
+ * @param att_err attitude error
+ * @param rate_control boolean that states if we are in rate control or attitude control
+ *
+ * Function that calculates the INDI commands
+ */
+static void stabilization_indi_calc_cmd(struct Int32Quat *att_err, bool rate_control, bool in_flight)
 {
-  /* Propagate the second order filter on the gyroscopes */
-  struct FloatRates *body_rates = stateGetBodyRates_f();
-  stabilization_indi_second_order_filter(&indi.rate, body_rates);
+  printf("printing");
+  //calculate the virtual control (reference acceleration) based on a PD controller
+  angular_accel_ref.p = reference_acceleration.err_p * QUAT1_FLOAT_OF_BFP(att_err->qx)
+                        - reference_acceleration.rate_p * stateGetBodyRates_f()->p;
+  angular_accel_ref.q = reference_acceleration.err_q * QUAT1_FLOAT_OF_BFP(att_err->qy)
+                        - reference_acceleration.rate_q * stateGetBodyRates_f()->q;
+  angular_accel_ref.r = reference_acceleration.err_r * QUAT1_FLOAT_OF_BFP(att_err->qz)
+                        - reference_acceleration.rate_r * stateGetBodyRates_f()->r;
 
-  //The rates used for feedback are by default the measured rates. If needed they can be filtered (see below)
-  struct FloatRates rates_for_feedback;
-  RATES_COPY(rates_for_feedback, (*body_rates));
+  G2_times_du = 0.0;
+  for(uint8_t i=0; i<INDI_NUM_ACT; i++) {
+    G2_times_du += G2[i]*indi_du[i];
+  }
+  //G2 is scaled by 1000 to make it readable
+  G2_times_du = G2_times_du/1000.0;
 
-  //If there is a lot of noise on the gyroscope, it might be good to use the filtered value for feedback.
-  //Note that due to the delay, the PD controller can not be as aggressive.
-#if STABILIZATION_INDI_FILTER_ROLL_RATE
-  rates_for_feedback.p = indi.rate.x.p;
-#endif
-#if STABILIZATION_INDI_FILTER_PITCH_RATE
-  rates_for_feedback.q = indi.rate.x.q;
-#endif
-#if STABILIZATION_INDI_FILTER_YAW_RATE
-  rates_for_feedback.r = indi.rate.x.r;
-#endif
-
-  indi.angular_accel_ref.p = indi.reference_acceleration.err_p * QUAT1_FLOAT_OF_BFP(att_err->qx)
-                             - indi.reference_acceleration.rate_p * rates_for_feedback.p;
-
-  indi.angular_accel_ref.q = indi.reference_acceleration.err_q * QUAT1_FLOAT_OF_BFP(att_err->qy)
-                             - indi.reference_acceleration.rate_q * rates_for_feedback.q;
-
-  //This separates the P and D controller and lets you impose a maximum yaw rate.
-  float rate_ref_r = indi.reference_acceleration.err_r * QUAT1_FLOAT_OF_BFP(att_err->qz)/indi.reference_acceleration.rate_r;
-  BoundAbs(rate_ref_r, indi.attitude_max_yaw_rate);
-  indi.angular_accel_ref.r = indi.reference_acceleration.rate_r * (rate_ref_r - rates_for_feedback.r);
-
-  /* Check if we are running the rate controller and overwrite */
-  if(rate_control) {
-    indi.angular_accel_ref.p =  indi.reference_acceleration.rate_p * ((float)radio_control.values[RADIO_ROLL]  / MAX_PPRZ * indi.max_rate - body_rates->p);
-    indi.angular_accel_ref.q =  indi.reference_acceleration.rate_q * ((float)radio_control.values[RADIO_PITCH] / MAX_PPRZ * indi.max_rate - body_rates->q);
-    indi.angular_accel_ref.r =  indi.reference_acceleration.rate_r * ((float)radio_control.values[RADIO_YAW]   / MAX_PPRZ * indi.max_rate - body_rates->r);
+  // Calculate the increment for each actuator
+  for(int i=0; i<INDI_NUM_ACT; i++) {
+    indi_du[i] = (G1G2_pseudo_inv[i][0] * (angular_accel_ref.p - angular_acceleration[0]))
+               + (G1G2_pseudo_inv[i][1] * (angular_accel_ref.q - angular_acceleration[1]))
+               + (G1G2_pseudo_inv[i][2] * (angular_accel_ref.r - angular_acceleration[2] + G2_times_du));
   }
 
-  //Increment in angular acceleration requires increment in control input
-  //G1 is the control effectiveness. In the yaw axis, we need something additional: G2.
-  //It takes care of the angular acceleration caused by the change in rotation rate of the propellers
-  //(they have significant inertia, see the paper mentioned in the header for more explanation)
-  indi.du.p = 1.0 / indi.g1.p * (indi.angular_accel_ref.p - indi.rate.dx.p);
-  indi.du.q = 1.0 / indi.g1.q * (indi.angular_accel_ref.q - indi.rate.dx.q);
-  indi.du.r = 1.0 / (indi.g1.r + indi.g2) * (indi.angular_accel_ref.r - indi.rate.dx.r + indi.g2 * indi.du.r);
+#if OUTER_LOOP_INDI
+  // The required body-z acceleration is calculated by the outer loop INDI controller
+  indi_du[0] = indi_du[0] + G1G2_pseudo_inv[0][3]*(euler_cmd.z);
+  indi_du[1] = indi_du[1] + G1G2_pseudo_inv[1][3]*(euler_cmd.z);
+  indi_du[2] = indi_du[2] + G1G2_pseudo_inv[2][3]*(euler_cmd.z);
+  indi_du[3] = indi_du[3] + G1G2_pseudo_inv[3][3]*(euler_cmd.z);
 
-  //add the increment to the total control input
-  indi.u_in.p = indi.u.x.p + indi.du.p;
-  indi.u_in.q = indi.u.x.q + indi.du.q;
-  indi.u_in.r = indi.u.x.r + indi.du.r;
+  // Add the increments to the actuators
+  float_vect_sum(indi_u, actuator_state_filt_vect, indi_du, INDI_NUM_ACT);
+#else
+  // Add the increments to the actuators without the thrust
+  float_vect_sum(indi_u, actuator_state_filt_vect, indi_du, INDI_NUM_ACT);
 
-  //bound the total control input
-  Bound(indi.u_in.p, -4500, 4500);
-  Bound(indi.u_in.q, -4500, 4500);
-  Bound(indi.u_in.r, -4500, 4500);
+  // Calculate the average of the actuators as a measure for the thrust
+  float avg_u_in = (indi_u[0] + indi_u[1] + indi_u[2] + indi_u[3])/4.0;
 
-  //Propagate input filters
-  //first order actuator dynamics
-  indi.u_act_dyn.p = indi.u_act_dyn.p + STABILIZATION_INDI_ACT_DYN_P * (indi.u_in.p - indi.u_act_dyn.p);
-  indi.u_act_dyn.q = indi.u_act_dyn.q + STABILIZATION_INDI_ACT_DYN_Q * (indi.u_in.q - indi.u_act_dyn.q);
-  indi.u_act_dyn.r = indi.u_act_dyn.r + STABILIZATION_INDI_ACT_DYN_R * (indi.u_in.r - indi.u_act_dyn.r);
+  // Make sure the thrust is bounded
+  Bound(stabilization_cmd[COMMAND_THRUST],0, MAX_PPRZ);
 
-  //sensor filter
-  stabilization_indi_second_order_filter(&indi.u, &indi.u_act_dyn);
+  //avoid dividing by zero
+  if(avg_u_in < 1.0) {
+    avg_u_in = 1.0;
+  }
+
+  // Rescale the command to the actuators to get the desired thrust
+  float indi_cmd_scaling = stabilization_cmd[COMMAND_THRUST] / avg_u_in;
+  float_vect_smul(indi_u, indi_u, indi_cmd_scaling, INDI_NUM_ACT);
+#endif
+
+  // Bound the inputs to the actuators
+  for(int8_t i=0; i<INDI_NUM_ACT; i++) {
+    Bound(indi_u[i], 0, MAX_PPRZ);
+  }
+
+  // Propagate actuator filters
+  get_actuator_state();
+  for(int8_t i=0; i<INDI_NUM_ACT; i++) {
+    update_butterworth_2_low_pass(&actuator_lowpass_filters[i], actuator_state[i]);
+    update_butterworth_2_low_pass(&estimation_input_lowpass_filters[i], actuator_state[i]);
+    actuator_state_filt_vect[i] = actuator_lowpass_filters[i].o[0];
+
+    // calculate derivatives for estimation
+    float actuator_state_filt_vectd_prev = actuator_state_filt_vectd[i];
+    actuator_state_filt_vectd[i] = (estimation_input_lowpass_filters[i].o[0] - estimation_input_lowpass_filters[i].o[1])*PERIODIC_FREQUENCY;
+    actuator_state_filt_vectdd[i] = (actuator_state_filt_vectd[i] - actuator_state_filt_vectd_prev)*PERIODIC_FREQUENCY;
+  }
 
   //Don't increment if thrust is off
-  //TODO: this should be something more elegant, but without this the inputs will increment to the maximum before
-  //even getting in the air.
-  if (stabilization_cmd[COMMAND_THRUST] < 300) {
-    FLOAT_RATES_ZERO(indi.du);
-    FLOAT_RATES_ZERO(indi.u_act_dyn);
-    FLOAT_RATES_ZERO(indi.u_in);
-    FLOAT_RATES_ZERO(indi.u.x);
-    FLOAT_RATES_ZERO(indi.u.dx);
-    FLOAT_RATES_ZERO(indi.u.ddx);
-  } else {
-    // only run the estimation if the commands are not zero.
-    lms_estimation();
+  if(!in_flight) {
+    float_vect_zero(indi_u, INDI_NUM_ACT);
+  }
+  else if(stabilization_cmd[COMMAND_THRUST] < 800) {
+    if(indi_use_adaptive) {
+      lms_estimation();
+    }
   }
 
-  /*  INDI feedback */
-  indi_commands[COMMAND_ROLL] = indi.u_in.p;
-  indi_commands[COMMAND_PITCH] = indi.u_in.q;
-  indi_commands[COMMAND_YAW] = indi.u_in.r;
+  /*Commit the actuator command*/
+  for(int8_t i=0; i<INDI_NUM_ACT; i++) {
+    actuators[i] = (int16_t) indi_u[i];
+  }
 }
 
-void stabilization_indi_run(bool enable_integrator __attribute__((unused)), bool rate_control)
+/**
+ * @param enable_integrator
+ * @param rate_control boolean that determines if we are in rate control or attitude control
+ *
+ * Function that should be called to run the INDI controller
+ */
+void stabilization_indi_run(bool in_flight, bool rate_control)
 {
+
+  /* Propagate the filter on the gyroscopes */
+  struct FloatRates *body_rates = stateGetBodyRates_f();
+  float rate_vect[3] = {body_rates->p, body_rates->q, body_rates->r};
+  for(int8_t i=0; i<3; i++) {
+    update_butterworth_2_low_pass(&measurement_lowpass_filters[i], rate_vect[i]);
+    update_butterworth_2_low_pass(&estimation_output_lowpass_filters[i], rate_vect[i]);
+
+    //Calculate the angular acceleration via finite difference
+    angular_acceleration[i] = (measurement_lowpass_filters[i].o[0]
+      - measurement_lowpass_filters[i].o[1])*PERIODIC_FREQUENCY;
+
+    // Calculate derivatives for estimation
+    float estimation_rate_d_prev = estimation_rate_d[i];
+    estimation_rate_d[i] = (estimation_output_lowpass_filters[i].o[0] - estimation_output_lowpass_filters[i].o[1]) *PERIODIC_FREQUENCY;
+    estimation_rate_dd[i] = (estimation_rate_d[i] - estimation_rate_d_prev) * PERIODIC_FREQUENCY;
+  }
+
   /* attitude error                          */
   struct Int32Quat att_err;
   struct Int32Quat *att_quat = stateGetNedToBodyQuat_i();
@@ -304,17 +370,12 @@ void stabilization_indi_run(bool enable_integrator __attribute__((unused)), bool
   int32_quat_normalize(&att_err);
 
   /* compute the INDI command */
-  stabilization_indi_calc_cmd(stabilization_att_indi_cmd, &att_err, rate_control);
+  stabilization_indi_calc_cmd(&att_err, rate_control, in_flight);
 
-  /* copy the INDI command */
-  stabilization_cmd[COMMAND_ROLL] = stabilization_att_indi_cmd[COMMAND_ROLL];
-  stabilization_cmd[COMMAND_PITCH] = stabilization_att_indi_cmd[COMMAND_PITCH];
-  stabilization_cmd[COMMAND_YAW] = stabilization_att_indi_cmd[COMMAND_YAW];
-
-  /* bound the result */
-  BoundAbs(stabilization_cmd[COMMAND_ROLL], MAX_PPRZ);
-  BoundAbs(stabilization_cmd[COMMAND_PITCH], MAX_PPRZ);
-  BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ);
+  // Set the stab_cmd to 42 to indicate that it is not used
+  stabilization_cmd[COMMAND_ROLL] = 42;
+  stabilization_cmd[COMMAND_PITCH] = 42;
+  stabilization_cmd[COMMAND_YAW] = 42;
 }
 
 // This function reads rc commands
@@ -326,62 +387,152 @@ void stabilization_indi_read_rc(bool in_flight, bool in_carefree, bool coordinat
 #else
   stabilization_attitude_read_rc_setpoint_quat_f(&q_sp, in_flight, in_carefree, coordinated_turn);
 #endif
+
   QUAT_BFP_OF_REAL(stab_att_sp_quat, q_sp);
 }
 
-// Initialize a second order low pass filter
-static void stabilization_indi_second_order_filter_init(struct IndiFilter *filter, float omega, float zeta, float omega_r)
-{
-  filter->omega = omega;
-  filter->omega2 = omega * omega;
-  filter->zeta = zeta;
-  filter->omega_r = omega_r;
-  filter->omega2_r = omega_r * omega_r;
+/**
+ * Function that tries to get actuator feedback.
+ * If this is not available it will use a first order filter to approximate the actuator state.
+ */
+void get_actuator_state(void) {
+#if INDI_RPM_FEEDBACK
+  float_vect_copy(actuator_state, act_obs, INDI_NUM_ACT);
+#else
+  //actuator dynamics
+  for(int8_t i=0; i<INDI_NUM_ACT; i++) {
+    actuator_state[i] = actuator_state[i]
+      + STABILIZATION_INDI_ACT_DYN*( indi_u[i] - actuator_state[i]);
+  }
+#endif
 }
 
-// This is a simple second order low pass filter
-static void stabilization_indi_second_order_filter(struct IndiFilter *filter, struct FloatRates *input)
-{
-  float_rates_integrate_fi(&filter->x, &filter->dx, 1.0 / PERIODIC_FREQUENCY);
-  float_rates_integrate_fi(&filter->dx, &filter->ddx, 1.0 / PERIODIC_FREQUENCY);
-
-  filter->ddx.p = -filter->dx.p * 2 * filter->zeta * filter->omega   + (input->p - filter->x.p) * filter->omega2;
-  filter->ddx.q = -filter->dx.q * 2 * filter->zeta * filter->omega   + (input->q - filter->x.q) * filter->omega2;
-  filter->ddx.r = -filter->dx.r * 2 * filter->zeta * filter->omega_r + (input->r - filter->x.r) * filter->omega2_r;
+/**
+ * @param ddx_error error in output change
+ * @param i row of the matrix element
+ * @param j column of the matrix element
+ * @param mu learning rate
+ *
+ * Function that calculates an element of the G1 matrix.
+ * The elements are stored in a different matrix,
+ * because the old matrix is necessary to caclulate more elements.
+ */
+void calc_g1_element(float ddx_error, int8_t i, int8_t j, float mu) {
+  G1_new[i][j] = G1[i][j] - du_estimation[j]*mu*ddx_error;
 }
 
-// This is a Least Mean Squares adaptive filter
-// It estiamtes the actuator effectiveness online by comparing the expected angular acceleration based on the inputs with the measured angular acceleration
-static inline void lms_estimation(void)
+/**
+ * @param ddx_error error in output change
+ * @param j column of the matrix element
+ * @param mu learning rate
+ *
+ * Function that calculates an element of the G2 matrix.
+ * The elements are stored in a different matrix,
+ * because the old matrix is necessary to caclulate more elements.
+ */
+void calc_g2_element(float ddx_error, int8_t j, float mu) {
+  G2_new[j] = G2[j] - ddu_estimation[j]*mu*ddx_error;
+}
+
+/**
+ * Function that estimates the control effectiveness of each actuator online.
+ * It is assumed that disturbances do not play a large role.
+ * All elements of the G1 and G2 matrices are be estimated.
+ */
+void lms_estimation(void) {
+  // scale the inputs to avoid numerical errors
+  float_vect_smul(du_estimation, actuator_state_filt_vectd, 0.001, INDI_NUM_ACT);
+  float_vect_smul(ddu_estimation, actuator_state_filt_vectdd, 0.001/PERIODIC_FREQUENCY, INDI_NUM_ACT);
+
+  //Estimation of G
+  // TODO: only estimate when there du_norm2 is large enough (enough input)
+  /*float du_norm2 = du_estimation[0]*du_estimation[0] + du_estimation[1]*du_estimation[1] +du_estimation[2]*du_estimation[2] + du_estimation[3]*du_estimation[3];*/
+    for(int8_t i=0; i<3; i++) {
+      float mu_scaling = 1.0;
+      float ddx_error = G1[i][0]*du_estimation[0] + G1[i][1]*du_estimation[1] + G1[i][2]*du_estimation[2] + G1[i][3]*du_estimation[3] - estimation_rate_dd[i];
+
+      //if the yaw axis, also use G2
+      if(i==2) {
+        // The yaw axis typically needs slower learning, perhaps due to large inputs
+        mu_scaling = 0.3;
+        ddx_error = ddx_error + G2[0]*ddu_estimation[0] + G2[1]*ddu_estimation[1] + G2[2]*ddu_estimation[2] + G2[3]*ddu_estimation[3];
+        for(int8_t j=0; j<4; j++) {
+          calc_g2_element(ddx_error,j,mu2);
+        }
+      }
+
+      // Calculate the row of the G1 matrix corresponding to this axis
+      for(int8_t j=0; j<4; j++) {
+        calc_g1_element(ddx_error, i, j, (mu1*mu_scaling));
+      }
+    }
+
+    // Save the calculated matrix to G1 and G2
+    for(int8_t j=0; j<4; j++) {
+      G2[j] = G2_new[j];
+      for(int8_t i=0; i<3; i++) {
+        G1[i][j] = G1_new[i][j];
+      }
+    }
+
+    // Calculate the inverse of (G1+G2)
+    calc_g1g2_pseudo_inv();
+}
+
+/**
+ * Function that calculates the inverse of (G1+G2).
+ */
+void calc_g1g2_pseudo_inv(void) {
+
+  //sum of G1 and G2
+  for(int8_t i=0; i<3; i++) {
+    for(int8_t j=0; j<4; j++) {
+      if(i<2)
+        G1G2[i][j] = G1[i][j]/1000.0;
+      else
+        G1G2[i][j] = G1[i][j]/1000.0 + G2[j]/1000.0;
+    }
+  }
+
+  //G1G2*transpose(G1G2)
+  //calculate matrix multiplication of its transpose 3x4 x 4x3
+  float element = 0;
+  for(int8_t row=0; row<3; row++) {
+    for(int8_t col=0; col<3; col++) {
+      element = 0;
+      for(int8_t i=0; i<4; i++) {
+        element = element + G1G2[row][i]*G1G2[col][i];
+      }
+      MAT33_ELMT(G1G2_trans_mult,row,col) = element;
+    }
+  }
+
+  //there are numerical errors if the scaling is not right.
+  MAT33_MULT_SCALAR(G1G2_trans_mult,100.0);
+
+  //inverse of 3x3 matrix
+  MAT33_INV(G1G2inv,G1G2_trans_mult);
+
+  //scale back
+  MAT33_MULT_SCALAR(G1G2inv,100.0);
+
+  //G1G2'*G1G2inv
+  //calculate matrix multiplication 4x3 x 3x3
+  for(int8_t row=0; row<4; row++) {
+    for(int8_t col=0; col<3; col++) {
+      element = 0;
+      for(int8_t i=0; i<3; i++) {
+        element = element + G1G2[i][row]*MAT33_ELMT(G1G2inv,col,i);
+      }
+      G1G2_pseudo_inv[row][col] = element;
+    }
+  }
+}
+
+static void rpm_cb(uint8_t __attribute__((unused)) sender_id, uint16_t *rpm, uint8_t num_act)
 {
-  static struct IndiEstimation *est = &indi.est;
-  // Only pass really low frequencies so you don't adapt to noise
-  stabilization_indi_second_order_filter(&est->u, &indi.u_act_dyn);
-  struct FloatRates *body_rates = stateGetBodyRates_f();
-  stabilization_indi_second_order_filter(&est->rate, body_rates);
-
-  // The inputs are scaled in order to avoid overflows
-  float du = est->u.dx.p * INDI_EST_SCALE;
-  est->g1.p = est->g1.p - (est->g1.p * du - est->rate.ddx.p) * du * est->mu;
-  du = est->u.dx.q * INDI_EST_SCALE;
-  est->g1.q = est->g1.q - (est->g1.q * du - est->rate.ddx.q) * du * est->mu;
-  du = est->u.dx.r * INDI_EST_SCALE;
-  float ddu = est->u.ddx.r * INDI_EST_SCALE / PERIODIC_FREQUENCY;
-  float error = (est->g1.r * du + est->g2 * ddu - est->rate.ddx.r);
-  est->g1.r = est->g1.r - error * du * est->mu / 3;
-  est->g2 = est->g2 - error * 1000 * ddu * est->mu / 3;
-
-  //the g values should be larger than zero, otherwise there is positive feedback, the command will go to max and there is nothing to learn anymore...
-  if (est->g1.p < 0.01) { est->g1.p = 0.01; }
-  if (est->g1.q < 0.01) { est->g1.q = 0.01; }
-  if (est->g1.r < 0.01) { est->g1.r = 0.01; }
-  if (est->g2   < 0.01) { est->g2 = 0.01; }
-
-  if (indi.adaptive) {
-    //Commit the estimated G values and apply the scaling
-    indi.g1.p = est->g1.p * INDI_EST_SCALE;
-    indi.g1.q = est->g1.q * INDI_EST_SCALE;
-    indi.g1.r = est->g1.r * INDI_EST_SCALE;
-    indi.g2   = est->g2 * INDI_EST_SCALE;
+  for(int8_t i=0; i<num_act; i++) {
+    act_obs[i] = (rpm[i] - get_servo_min(i));
+    act_obs[i] *= (MAX_PPRZ / (float)(get_servo_max(i)-get_servo_min(i)));
   }
 }

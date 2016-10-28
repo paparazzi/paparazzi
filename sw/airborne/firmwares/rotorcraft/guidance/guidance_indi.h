@@ -43,5 +43,6 @@ extern void stabilization_attitude_set_setpoint_rp_quat_f(struct FloatEulers* in
 extern void guidance_indi_filter_thrust(void);
 
 extern float guidance_indi_thrust_specific_force_gain;
+extern struct FloatVect3 euler_cmd;
 
 #endif /* GUIDANCE_INDI_H */

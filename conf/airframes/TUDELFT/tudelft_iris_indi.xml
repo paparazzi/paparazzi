@@ -24,7 +24,7 @@
     <module name="imu" type="px4fmu_v2.4"/>
     <module name="gps" type="ublox" />
     <module name="gps" type="ubx_ucenter" />
-    <module name="stabilization" type="indi" />
+    <module name="stabilization" type="indi_simple" />
     <module name="ahrs" type="int_cmpl_quat" >
       <define name="AHRS_ICQ_IMU_ID" value="IMU_PX4_ID" />         <!-- Meaning the lsm303 and l3g -->
       <define name="AHRS_ICQ_MAG_ID" value="MAG_HMC58XX_SENDER_ID" />         <!-- Meaning the external hmc-->

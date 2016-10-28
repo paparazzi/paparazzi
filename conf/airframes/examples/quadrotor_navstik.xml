@@ -29,7 +29,7 @@
     <module name="telemetry"     type="xbee_api"/>
     <module name="imu"           type="navstik"/>
     <module name="gps"           type="ublox"/>
-    <module name="stabilization" type="indi"/>
+    <module name="stabilization" type="indi_simple"/>
     <module name="ahrs"          type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="FALSE"/>
     </module>

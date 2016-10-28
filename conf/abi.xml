@@ -85,7 +85,8 @@
     </message>
 
     <message name="RPM" id="15">
-      <field name="rpm" type="uint16_t" unit="rpm"/>
+      <field name="rpm" type="uint16_t *" unit="rpm"/>
+      <field name="num_act" type="uint8_t"/>
     </message>
 
   </msg_class>

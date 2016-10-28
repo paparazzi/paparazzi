@@ -27,7 +27,7 @@
     <module name="telemetry"     type="xbee_api"/>
     <module name="imu"           type="aspirin_v2.2"/>
     <module name="gps"           type="ublox"/>
-    <module name="stabilization" type="indi"/>
+    <module name="stabilization" type="indi_simple"/>
     <module name="ahrs"          type="int_cmpl_quat">
       <define name="AHRS_GRAVITY_HEURISTIC_FACTOR" value="30"/>
     </module>

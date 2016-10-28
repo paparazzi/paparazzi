@@ -280,7 +280,7 @@
     <module name="telemetry"     type="transparent"/>
     <module name="imu"           type="aspirin_v2.2"/>
     <module name="gps"           type="ublox"/>
-    <module name="stabilization" type="indi"/>
+    <module name="stabilization" type="indi_simple"/>
     <module name="stabilization" type="rate_indi"/>
     <module name="guidance"      type="hybrid"/>
     <module name="logger_spi_link"/>
