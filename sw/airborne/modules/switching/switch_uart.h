@@ -31,8 +31,11 @@
 #define switch_uart_SwitchUartChannel(X) ({switch_uart_channel=X;drop_ball(switch_uart_channel); false;})
 
 extern uint8_t switch_uart_channel;
+extern uint8_t switch_uart_status;
 
 extern void drop_ball(uint8_t number);
+
+extern void periodic_switch_uart(void);
 
 #endif
 
