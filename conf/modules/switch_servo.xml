@@ -1,0 +1,41 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="switch_servo" dir="switching">
+  <doc>
+    <description>Swicht using a Servo</description>
+    <define name="SWITCH_SERVO_ON_VALUE"  value="pwm" description="servo value in usec"/>
+    <define name="SWITCH_SERVO_OFF_VALUE" value="pwm" description="servo value in usec"/>
+    <define name="SWITCH_SERVO_SERVO"     value="nb" description="Id of the servo (default: SWITCH)"/>
+  </doc>
+  <settings>
+    <dl_settings NAME="Switch Servo">
+      <dl_settings NAME="SWITCH">
+        <dl_setting var="switch_servo_on" min="0" step="1" max="1" module="switching/switch_servo" values="Off|On">
+          <strip_button name="ON"  value="1" group="switching"/>
+          <strip_button name="OFF" value="0" group="switching"/>
+        </dl_setting>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="switch_servo.h"/>
+  </header>
+  <init fun="switch_servo_init()"/>
+  <periodic fun="switch_servo_periodic()" freq="10."/>
+  <makefile target="ap|sim|nps">
+
+<!-- these parameters should be set for that module in the airframe file unless you want the defaults
+     Servo value in usec
+  <load name="switch_servo.xml">
+    <define name="SWITCH_SERVO_ON_VALUE"  value="2000"/>
+    <define name="SWITCH_SERVO_OFF_VALUE" value="1000"/>
+    <define name="SWITCH_SERVO_SERVO"     value="SWITCH"/>
+  </load>
+
+  The servo will not exceed the min and max positions defined in the servo section
+-->
+
+    <file name="switch_servo.c"/>
+  </makefile>
+</module>
+

@@ -42,7 +42,7 @@
   <modules main_freq="512">
     <!--   <module name="logger_spi_link"/>
     <module name="imu_quality_assessment"/> -->
-    <module name="servo_switch"/>
+    <module name="switch" type="servo"/>
     <module name="send_imu_mag_current"/>
     <module name="gps" type="ubx_ucenter" />
     <module name="nav" type="survey_rectangle_rotorcraft"/>
@@ -65,12 +65,12 @@
      <servo name="DROP" no="4" min="1100" neutral="1500" max="2100"/>
   </servos>
 
-  <section name="SERVO_SWITCH">
-    <define name="SERVO_SWITCH_SERVO" value="DROP"/>
-    <define name="SERVO_SWITCH_ON_VALUE" value="SERVO_DROP_MIN"/>
-    <define name="SERVO_SWITCH_OFF_VALUE" value="SERVO_DROP_MAX"/>
-    <define name="DropOpen()" value="ServoSwitchOn()"/>
-    <define name="DropClose()" value="ServoSwitchOff()"/>
+  <section name="SWITCH_SERVO">
+    <define name="SWITCH_SERVO_SERVO" value="DROP"/>
+    <define name="SWITCH_SERVO_ON_VALUE" value="SERVO_DROP_MIN"/>
+    <define name="SWITCH_SERVO_OFF_VALUE" value="SERVO_DROP_MAX"/>
+    <define name="DropOpen()" value="SwitchServoOn()"/>
+    <define name="DropClose()" value="SwitchServoOff()"/>
   </section>
 
   <commands>

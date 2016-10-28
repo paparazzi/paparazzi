@@ -28,7 +28,7 @@
     <module name="ahrs"          type="int_cmpl_quat"/>
     <module name="ins"           type="hff"/>
 
-    <module name="servo_switch"/>
+    <module name="switch" type="servo"/>
     <module name="rotorcraft_cam"/>
     <!--module name="sonar" type="adc"/-->
     <!--module name="adc_generic">
@@ -225,12 +225,12 @@
     <define name="DEFAULT_MODE" value="ROTORCRAFT_CAM_MODE_MANUAL"/>
  </section>
 
-  <section name="SERVO_SWITCH">
-    <define name="SERVO_SWITCH_SERVO" value="DROP"/>
-    <define name="SERVO_SWITCH_ON_VALUE" value="SERVO_DROP_MIN"/>
-    <define name="SERVO_SWITCH_OFF_VALUE" value="SERVO_DROP_MAX"/>
-    <define name="DropOpen()" value="ServoSwitchOn()"/>
-    <define name="DropClose()" value="ServoSwitchOff()"/>
+  <section name="SWITCH_SERVO">
+    <define name="SWITCH_SERVO_SERVO" value="DROP"/>
+    <define name="SWITCH_SERVO_ON_VALUE" value="SERVO_DROP_MIN"/>
+    <define name="SWITCH_SERVO_OFF_VALUE" value="SERVO_DROP_MAX"/>
+    <define name="DropOpen()" value="SwitchServoOn()"/>
+    <define name="DropClose()" value="SwitchServoOff()"/>
   </section>
 
  <section name="MISC">

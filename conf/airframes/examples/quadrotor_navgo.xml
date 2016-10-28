@@ -3,7 +3,7 @@
 <airframe name="Blender">
 
   <modules main_freq="512">
-    <module name="servo_switch"/>
+    <module name="switch" type="servo"/>
     <module name="rotorcraft_cam"/>
     <module name="digital_cam">
       <!-- AUX1 -->
@@ -231,12 +231,12 @@
     <define name="AUTOSHOOT_DISTANCE_INTERVAL" value="5" unit="meter"/>
   </section>
 
-  <section name="SERVO_SWITCH">
-    <define name="SERVO_SWITCH_SERVO" value="DROP"/>
-    <define name="SERVO_SWITCH_ON_VALUE" value="SERVO_DROP_MIN"/>
-    <define name="SERVO_SWITCH_OFF_VALUE" value="SERVO_DROP_MAX"/>
-    <define name="DropOpen()" value="ServoSwitchOn()"/>
-    <define name="DropClose()" value="ServoSwitchOff()"/>
+  <section name="SWITCH_SERVO">
+    <define name="SWITCH_SERVO_SERVO" value="DROP"/>
+    <define name="SWITCH_SERVO_ON_VALUE" value="SERVO_DROP_MIN"/>
+    <define name="SWITCH_SERVO_OFF_VALUE" value="SERVO_DROP_MAX"/>
+    <define name="DropOpen()" value="SwitchServoOn()"/>
+    <define name="DropClose()" value="SwitchServoOff()"/>
   </section>
 
   <section name="MISC">
