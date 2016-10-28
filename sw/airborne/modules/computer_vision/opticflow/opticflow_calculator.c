@@ -266,8 +266,8 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
     FLOAT_RATES_ZERO(opticflow->prev_rates);
 
     // Init median filters with zeros
-    init_median_filter(&vel_x_filt);
-    init_median_filter(&vel_y_filt);
+    init_median_filter_i(&vel_x_filt, MEDIAN_DEFAULT_SIZE);
+    init_median_filter_i(&vel_y_filt, MEDIAN_DEFAULT_SIZE);
   }
 
   // variables for size_divergence:
@@ -473,8 +473,8 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
 
   //Apply a  median filter to the velocity if wanted
   if (opticflow->median_filter == true) {
-    result->vel_x = (float)update_median_filter(&vel_x_filt, (int32_t)(vel_x * 1000)) / 1000;
-    result->vel_y = (float)update_median_filter(&vel_y_filt, (int32_t)(vel_y * 1000)) / 1000;
+    result->vel_x = (float)update_median_filter_i(&vel_x_filt, (int32_t)(vel_x * 1000)) / 1000;
+    result->vel_y = (float)update_median_filter_i(&vel_y_filt, (int32_t)(vel_y * 1000)) / 1000;
   } else {
     result->vel_x = vel_x;
     result->vel_y = vel_y;
@@ -656,8 +656,8 @@ void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *
 
   //Apply a  median filter to the velocity if wanted
   if (opticflow->median_filter == true) {
-    result->vel_x = (float)update_median_filter(&vel_x_filt, (int32_t)(vel_x * 1000)) / 1000;
-    result->vel_y = (float)update_median_filter(&vel_y_filt, (int32_t)(vel_y * 1000)) / 1000;
+    result->vel_x = (float)update_median_filter_i(&vel_x_filt, (int32_t)(vel_x * 1000)) / 1000;
+    result->vel_y = (float)update_median_filter_i(&vel_y_filt, (int32_t)(vel_y * 1000)) / 1000;
   } else {
     result->vel_x = vel_x;
     result->vel_y = vel_y;
