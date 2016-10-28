@@ -262,7 +262,7 @@ void ahrs_icq_update_accel(struct Int32Vect3 *accel, float dt)
      * a_c_body = omega x (omega x r)
      * (omega x r) = tangential velocity in body frame
      * a_c_body = omega x vel_tangential_body
-     * assumption: tangential velocity only along body x-axis
+     * assumption: tangential velocity only along body x-axis (or negative z-axis)
      */
 
     // FIXME: check overflows !
@@ -270,7 +270,15 @@ void ahrs_icq_update_accel(struct Int32Vect3 *accel, float dt)
 #define ACC_FROM_CROSS_FRAC INT32_RATE_FRAC + INT32_SPEED_FRAC - INT32_ACCEL_FRAC - COMPUTATION_FRAC
 
     const struct Int32Vect3 vel_tangential_body =
+#if AHRS_GPS_SPEED_IN_NEGATIVE_Z_DIRECTION
+    /* AHRS_GRAVITY_UPDATE_COORDINATED_TURN assumes the GPS speed is in the X axis direction.
+     * Quadshot, DelftaCopter and other hybrids can have the GPS speed in the negative Z direction
+     */
+      {0, 0, -(ahrs_icq.ltp_vel_norm >> COMPUTATION_FRAC)};
+#else
+    /* assume tangential velocity along body x-axis */
       {ahrs_icq.ltp_vel_norm >> COMPUTATION_FRAC, 0, 0};
+#endif
     struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&ahrs_icq.body_to_imu);
     struct Int32Rates body_rate;
     int32_rmat_transp_ratemult(&body_rate, body_to_imu_rmat, &ahrs_icq.imu_rate);
