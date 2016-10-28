@@ -53,7 +53,7 @@
 
   <modules>
     <module name="baro_sim"/>
-    <module name="servo_switch"/>
+    <module name="switch" type="servo"/>
     <module name="gps" type="ubx_ucenter"/>
   </modules>
 

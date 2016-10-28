@@ -19,32 +19,27 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef SERVO_SWITCH_H
-#define SERVO_SWITCH_H
-
-#include "std.h"
-#include "paparazzi.h"
+#include "switching/switch_servo.h"
 #include "generated/airframe.h"
+#include "subsystems/actuators.h"
 
-extern bool servo_switch_on;
-extern int16_t servo_switch_value;
+bool switch_servo_on;
 
-#ifndef SERVO_SWITCH_ON_VALUE
-#define SERVO_SWITCH_ON_VALUE 2000
-#endif
-#ifndef SERVO_SWITCH_OFF_VALUE
-#define SERVO_SWITCH_OFF_VALUE 1000
-#endif
-#ifndef SERVO_SWITCH_SERVO
-#define SERVO_SWITCH_SERVO SWITCH
-#endif
+// One level of macro stack to allow redefinition of the default servo
+#define _SwitchServo(_n, _v) ActuatorSet(_n, _v)
+#define SwitchServo(_n, _v) _SwitchServo(_n, _v)
 
+void switch_servo_init(void)
+{
+  switch_servo_on = false;
+  switch_servo_periodic();
+}
 
-extern void servo_switch_init(void);
-extern void servo_switch_periodic(void);
-
-#define ServoSwitchOn()  ({ servo_switch_on = true; false; })
-#define ServoSwitchOff() ({ servo_switch_on = false; false; })
-
-#endif //SERVO_SWITCH_H
-
+void switch_servo_periodic(void)
+{
+  if (switch_servo_on == TRUE) {
+    SwitchServo(SWITCH_SERVO_SERVO, SWITCH_SERVO_ON_VALUE);
+  } else {
+    SwitchServo(SWITCH_SERVO_SERVO, SWITCH_SERVO_OFF_VALUE);
+  }
+}

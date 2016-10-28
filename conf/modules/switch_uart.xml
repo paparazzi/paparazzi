@@ -10,10 +10,10 @@
     <dl_settings NAME="Switch control">
       <dl_settings NAME="SWITCH">
         <dl_setting var="switch_uart_channel" min="0" step="1" max="4" module="switching/switch_uart" handler="SwitchUartChannel">
-          <strip_button name="1" value="1" group="servo_switch"/>
-          <strip_button name="2" value="2" group="servo_switch"/>
-          <strip_button name="3" value="3" group="servo_switch"/>
-          <strip_button name="4" value="4" group="servo_switch"/>
+          <strip_button name="1" value="1" group="switching"/>
+          <strip_button name="2" value="2" group="switching"/>
+          <strip_button name="3" value="3" group="switching"/>
+          <strip_button name="4" value="4" group="switching"/>
         </dl_setting>
       </dl_settings>
     </dl_settings>

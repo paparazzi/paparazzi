@@ -271,7 +271,7 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml settings/nps.xml"
-   settings_modules="modules/servo_switch.xml modules/rotorcraft_cam.xml modules/digital_cam.xml modules/nav_survey_rectangle_rotorcraft.xml modules/imu_common.xml modules/gps.xml modules/ahrs_int_cmpl_quat.xml"
+   settings_modules="modules/switch_servo.xml modules/rotorcraft_cam.xml modules/digital_cam.xml modules/nav_survey_rectangle_rotorcraft.xml modules/imu_common.xml modules/gps.xml modules/ahrs_int_cmpl_quat.xml"
    gui_color="white"
   />
   <aircraft
