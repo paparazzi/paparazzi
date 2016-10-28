@@ -197,18 +197,18 @@ uint16_t image_yuv422_colorfilt(struct image_t *input, struct image_t *output, u
 /**
 * Simplified high-speed low CPU downsample function without averaging
 *  downsample factor must be 1, 2, 4, 8 ... 2^X
-*  image of typ UYVY expected. Only one color UV per 2 pixels
+*  image of type UYVY expected. Only one color UV per 2 pixels
 *
 *  we keep the UV color of the first pixel pair
 *  and sample the intensity evenly 1-3-5-7-... or 1-5-9-...
 *
 *  input:         u1y1 v1y2 u3y3 v3y4 u5y5 v5y6 u7y7 v7y8 ...
 *  downsample=1   u1y1 v1y2 u3y3 v3y4 u5y5 v5y6 u7y7 v7y8 ...
-*  downsample=2   u1y1v1 (skip2) y3 (skip2) u5y5v5 (skip2 y7 (skip2) ...
+*  downsample=2   u1y1v1 (skip2) y3 (skip2) u5y5v5 (skip2) y7 (skip2) ...
 *  downsample=4   u1y1v1 (skip6) y5 (skip6) ...
 * @param[in] *input The input YUV422 image
 * @param[out] *output The downscaled YUV422 image
-* @param[in] downsample The downsampel facter (must be downsample=2^X)
+* @param[in] downsample The downsample factor (must be downsample=2^X)
 */
 void image_yuv422_downsample(struct image_t *input, struct image_t *output, uint16_t downsample)
 {
@@ -596,7 +596,12 @@ void image_show_flow(struct image_t *img, struct flow_t *vectors, uint16_t point
  * @param[in] *from The point to draw from
  * @param[in] *to The point to draw to
  */
-void image_draw_line(struct image_t *img, struct point_t *from, struct point_t *to)
+void image_draw_line(struct image_t *img, struct point_t *from, struct point_t *to) {
+  static uint8_t color[4] = {255, 255, 255, 255};
+  image_draw_line_color(img, from, to, color);
+}
+
+void image_draw_line_color(struct image_t *img, struct point_t *from, struct point_t *to, uint8_t *color)
 {
   int xerr = 0, yerr = 0;
   uint8_t *img_buf = (uint8_t *)img->buf;
@@ -631,14 +636,15 @@ void image_draw_line(struct image_t *img, struct point_t *from, struct point_t *
   /* draw the line */
   for (uint16_t t = 0; /* starty >= 0 && */ starty < img->h && /* startx >= 0 && */ startx < img->w
        && t <= distance + 1; t++) {
-    img_buf[img->w * pixel_width * starty + startx * pixel_width] = (t <= 3) ? 0 : 255;
+    uint32_t buf_loc = img->w * pixel_width * starty + startx * pixel_width;
+    img_buf[buf_loc] = (t <= 3) ? 0 : color[0]; // u (or grayscale)
 
     if (img->type == IMAGE_YUV422) {
-      img_buf[img->w * pixel_width * starty + startx * pixel_width + 1] = 255;
+      img_buf[buf_loc + 1] = color[1]; // y1
 
       if (startx + 1 < img->w) {
-        img_buf[img->w * pixel_width * starty + startx * pixel_width + 2] = (t <= 3) ? 0 : 255;
-        img_buf[img->w * pixel_width * starty + startx * pixel_width + 3] = 255;
+        img_buf[buf_loc + 2] = (t <= 3) ? 0 : color[2]; // v
+        img_buf[buf_loc + 3] = color[3]; // y2
       }
     }
 
