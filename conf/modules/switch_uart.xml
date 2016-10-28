@@ -15,12 +15,15 @@
           <strip_button name="3" value="3" group="switching"/>
           <strip_button name="4" value="4" group="switching"/>
         </dl_setting>
+        <dl_setting var="switch_uart_status" min="0" step="1" max="255" module="switching/switch_uart">
+        </dl_setting>
       </dl_settings>
     </dl_settings>
   </settings>
   <header>
     <file name="switch_uart.h"/>
   </header>
+  <periodic fun="periodic_switch_uart()" period="0.05" autorun="TRUE"/>
   <makefile>
     <file name="switch_uart.c"/>
     <configure name="SWITCH_UART_PORT" default="uart1" case="upper|lower"/>

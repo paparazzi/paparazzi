@@ -27,26 +27,39 @@
 #include "mcu_periph/uart.h"
 
 uint8_t switch_uart_channel = 0;
+uint8_t switch_uart_status = 0;
 
 static uint8_t drop_string[] = "<Drop_Paintball_Now";
 #define DROP_STRINGLEN 19
 
-void drop_ball(uint8_t number) {
-  for(uint8_t i = 0; i < DROP_STRINGLEN; i++)
+
+void periodic_switch_uart(void)
+{
+  while (uart_char_available(&SWITCH_UART_PORT)) {
+    uint8_t r = uart_getch(&SWITCH_UART_PORT);
+    switch_uart_status = r;
+  }
+}
+
+void drop_ball(uint8_t number)
+{
+  for (uint8_t i = 0; i < DROP_STRINGLEN; i++) {
     uart_put_byte(&SWITCH_UART_PORT, 0, drop_string[i]);
+  }
 
   // Drop next ball
   uint8_t last = '>';
 
   // Or Drop a specific ball
-  if(number == 1) {
+  if (number == 1) {
     last = '1';
-  } else if(number == 2) {
+  } else if (number == 2) {
     last = '2';
-  } else if(number == 3) {
+  } else if (number == 3) {
     last = '3';
-  } else if(number == 4) {
+  } else if (number == 4) {
     last = '4';
   }
   uart_put_byte(&SWITCH_UART_PORT, 0, last);
+
 }
