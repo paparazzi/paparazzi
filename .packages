@@ -1,0 +1,7 @@
+[package "sw/tools/iridium"]
+	url = https://github.com/tudelft/iridium.git
+	lcommit = 9956f97dc51fad3e7110682c967e99b146c29622
+	lpath = sw/tools/iridium
+	rcommit = f53f1f326a730caf6fe5ec9bf8e84f04c7c8e986
+        rpath = tools
+
