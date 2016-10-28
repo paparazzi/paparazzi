@@ -64,6 +64,9 @@
 #define RADIO_FBW_MODE RADIO_MODE
 #endif
 
+typedef enum {FBW_MODE_MANUAL = 0, FBW_MODE_AUTO = 1, FBW_MODE_FAILSAFE = 2} fbw_mode_enum;
+
+
 STATIC_INLINE void main_init(void);
 STATIC_INLINE void main_event(void);
 STATIC_INLINE void handle_periodic_tasks(void);
