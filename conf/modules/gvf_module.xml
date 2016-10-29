@@ -1,0 +1,24 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="gvf" dir="guidance/gvf">
+  <doc>
+    <description>Guidance Vector Field Module</description>
+  </doc>
+
+  <header>
+    <file name="gvf.h"/>
+	<file name="trajectories/gvf_line.h"/>
+	<file name="trajectories/gvf_sin.h"/>
+	<file name="trajectories/gvf_ellipse.h"/>
+  </header>
+
+  <init fun="gvf_init()"/>
+  
+  <makefile>
+    <file name="gvf.c"/>
+	<file name="trajectories/gvf_line.c"/>
+	<file name="trajectories/gvf_sin.c"/>
+	<file name="trajectories/gvf_ellipse.c"/>
+  </makefile>
+</module>
+
