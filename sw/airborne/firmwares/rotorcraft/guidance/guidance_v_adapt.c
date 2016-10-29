@@ -36,11 +36,16 @@
 /** Initial hover throttle as factor of MAX_PPRZ.
  *  Should be a value between #GUIDANCE_V_ADAPT_MIN_HOVER_THROTTLE and
  *  #GUIDANCE_V_ADAPT_MAX_HOVER_THROTTLE.
- *  It is better to start with low thrust and let it rise as the adaptive filter
- *  finds the vehicle needs more thrust.
+ *  If the nominal hover throttle is defined use it otherwise it is better
+ *  to start with low thrust and let it rise as the adaptive filter finds
+ *  the vehicle needs more thrust.
  */
 #ifndef GUIDANCE_V_ADAPT_INITIAL_HOVER_THROTTLE
+#ifdef GUIDANCE_V_NOMINAL_HOVER_THROTTLE
+#define GUIDANCE_V_ADAPT_INITIAL_HOVER_THROTTLE GUIDANCE_V_NOMINAL_HOVER_THROTTLE
+#else
 #define GUIDANCE_V_ADAPT_INITIAL_HOVER_THROTTLE 0.3
+#endif
 #endif
 PRINT_CONFIG_VAR(GUIDANCE_V_ADAPT_INITIAL_HOVER_THROTTLE)
 
