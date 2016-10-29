@@ -15,7 +15,7 @@
   </header>
   <init fun="cv_ae_awb_init()"/>
   <periodic fun="cv_ae_awb_periodic()" freq="5" autorun="TRUE"/>
-  <makefile>
+  <makefile target="ap">
     <file name="cv_ae_awb.c"/>
   </makefile>
 </module>

@@ -24,6 +24,8 @@
  */
 
 #include "modules/computer_vision/cv_ae_awb.h"
+#include "boards/bebop.h"
+#include "boards/bebop/mt9f002.h"
 #include "lib/isp/libisp.h"
 
 #define MAX_HIST_Y (256-10)
@@ -40,9 +42,6 @@
 
 #define CV_AWB_MIN_GAIN 2
 #define CV_AWB_MAX_GAIN 75
-
-#include "boards/bebop/mt9f002.h"
-extern struct mt9f002_t mt9f002;
 
 void cv_ae_awb_init(void) {}
 

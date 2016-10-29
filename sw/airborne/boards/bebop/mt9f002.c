@@ -837,9 +837,6 @@ void mt9f002_set_resolution(struct mt9f002_t *mt)
   uint16_t end_addr_y = start_addr_y + mt->scaled_height - 1;
   write_reg(mt, MT9F002_X_ADDR_END, end_addr_x, 2);
   write_reg(mt, MT9F002_Y_ADDR_END, end_addr_y, 2);
-
-  printf("start: %d, end: %d\n", start_addr_x, end_addr_x);
-  printf("start: %d, end: %d\n", start_addr_y, end_addr_y);
 }
 
 /**
