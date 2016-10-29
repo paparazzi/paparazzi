@@ -105,7 +105,7 @@ struct video_listener *cv_add_to_device_async(struct video_config_t *device, cv_
 int8_t cv_async_function(struct cv_async *async, struct image_t *img)
 {
   // If the previous image is not yet processed, return
-  if (pthread_mutex_trylock(&async->img_mutex) != 0 || !async->img_processed) {
+  if (!async->img_processed || pthread_mutex_trylock(&async->img_mutex) != 0) {
     return -1;
   }
 
