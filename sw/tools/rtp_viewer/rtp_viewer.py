@@ -2,7 +2,7 @@
 
 import cv2
 import sys
-import getopt
+import argparse
 import re
 from os import path, getenv
 
@@ -12,38 +12,6 @@ sys.path.append(PPRZ_SRC + "/sw/ext/pprzlink/lib/v1.0/python")
 from pprzlink.ivy import IvyMessagesInterface
 from pprzlink.message import PprzMessage
 
-def Usage(scmd):
-    lpathitem = scmd.split('/')
-    fmt = '''Usage: %s [-h | --help] [-p PORT | --port=PORT] [-s SCALE | --scale=SCALE] [-r ROTATE | --rotate=ROTATE] []
-where
-\t-h | --help print this message
-\t-p PORT | --port=PORT where PORT is the port number to open for the RTP stream (5000 or 6000)
-\t-s SCALE | --scale=SCALE where SCALE is the scaling factor to apply to the incoming video stream (default: 1)
-\t-r ROTATE | --rotate=ROTATE where ROTATE is the number of clockwise 90deg rotations to apply to the stream [0-3] (default: 0)
-'''
-    print(fmt % lpathitem[-1])
-    
-def GetOptions():
-    options = {'port':[], 'scale':[], 'rotate':[]}
-    try:
-        optlist, left_args = getopt.getopt(sys.argv[1:],'h:p:s:r:', ['help', 'port=', 'scale=', 'rotate='])
-    except getopt.GetoptError:
-        # print help information and exit:
-        Usage(sys.argv[0])
-        sys.exit(2)
-    for o, a in optlist:
-        if o in ("-h", "--help"):
-            Usage(sys.argv[0])
-            sys.exit()
-        elif o in ("-p", "--port"):
-            options['port'].append(int(a))
-        elif o in ("-s", "--scale"):
-            options['scale'].append(float(a))
-        elif o in ("-r", "--rotate"):
-            options['rotate'].append(int(a))
-
-    return options
-    
 class RtpViewer:
     running = False
     scale = 1
@@ -150,25 +118,19 @@ class RtpViewer:
 if __name__ == '__main__':
     import sys
     import os
-
-    options = GetOptions()
-    if not options['port']:
-          Usage(sys.argv[0])
-    filename = os.path.dirname(os.path.abspath(__file__)) + "/rtp_" + str(options['port'][0]) + ".sdp"
-    print(filename)
     
-    #set defaults
-    if not options['scale']:
-        options['scale'][0] = 1.
-    if not options['rotate']:
-        options['rotate'][0] = 0
-        
-    print(options['scale'][0])
-    print(options['rotate'][0])
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-p", "--port", type=int, default=5000, help="The port number to open for the RTP stream (5000 or 6000)")
+    parser.add_argument("-s", "--scale", type=float, default=1., help="The scaling factor to apply to the incoming video stream (default: 1)")
+    parser.add_argument("-r", "--rotate", type=int, default=0, help="The number of clockwise 90deg rotations to apply to the stream [0-3] (default: 0)")
+    
+    args = parser.parse_args()
+
+    filename = os.path.dirname(os.path.abspath(__file__)) + "/rtp_" + str(args.port) + ".sdp"
 
     viewer = RtpViewer(filename)
-    viewer.scale = options['scale'][0]
-    viewer.rotate = options['rotate'][0]
+    viewer.scale = args.scale
+    viewer.rotate = args.rotate
 
     if not viewer.cap.isOpened():
         viewer.cleanup()
