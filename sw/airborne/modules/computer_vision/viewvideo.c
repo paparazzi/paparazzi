@@ -48,7 +48,6 @@
 
 #include BOARD_CONFIG
 
-
 // Downsize factor for video stream
 #ifndef VIEWVIDEO_DOWNSIZE_FACTOR
 #define VIEWVIDEO_DOWNSIZE_FACTOR 4
@@ -66,16 +65,6 @@ PRINT_CONFIG_VAR(VIEWVIDEO_QUALITY_FACTOR)
 #define VIEWVIDEO_RTP_TIME_INC 0
 #endif
 PRINT_CONFIG_VAR(VIEWVIDEO_RTP_TIME_INC)
-
-// Default image folder
-#ifndef VIEWVIDEO_SHOT_PATH
-#ifdef VIDEO_THREAD_SHOT_PATH
-#define VIEWVIDEO_SHOT_PATH VIDEO_THREAD_SHOT_PATH
-#else
-#define VIEWVIDEO_SHOT_PATH /data/ftp/internal_000/images
-#endif
-#endif
-PRINT_CONFIG_VAR(VIEWVIDEO_SHOT_PATH)
 
 // Define stream framerate
 #ifndef VIEWVIDEO_FPS
@@ -231,8 +220,6 @@ static struct image_t *viewvideo_function2(struct image_t *img)
  */
 void viewvideo_init(void)
 {
-  char save_name[512];
-
   viewvideo.is_streaming = true;
 
 #if VIEWVIDEO_USE_NETCAT
@@ -253,7 +240,7 @@ void viewvideo_init(void)
   }
 #else
   // Open udp socket
-#ifdef VIEWVIDEO_CAMERA1
+#ifdef VIEWVIDEO_CAMERA
   if (udp_socket_create(&video_sock1, STRINGIFY(VIEWVIDEO_HOST), VIEWVIDEO_PORT_OUT, -1, VIEWVIDEO_BROADCAST)) {
     printf("[viewvideo]: failed to open view video socket, HOST=%s, port=%d\n", STRINGIFY(VIEWVIDEO_HOST),
            VIEWVIDEO_PORT_OUT);
@@ -266,19 +253,6 @@ void viewvideo_init(void)
            VIEWVIDEO_PORT2_OUT);
   }
 #endif
-
-  // todo: check what this is for!
-  // Create an SDP file for the streaming
-  sprintf(save_name, "%s/stream.sdp", STRINGIFY(VIEWVIDEO_SHOT_PATH));
-  FILE *fp = fopen(save_name, "w");
-  if (fp != NULL) {
-    fprintf(fp, "v=0\n");
-    fprintf(fp, "m=video %d RTP/AVP 26\n", (int)(VIEWVIDEO_PORT_OUT));
-    fprintf(fp, "c=IN IP4 0.0.0.0\n");
-    fclose(fp);
-  } else {
-    printf("[viewvideo] Failed to create SDP file.\n");
-  }
 #endif
 
 #ifdef VIEWVIDEO_CAMERA

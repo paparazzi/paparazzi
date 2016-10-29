@@ -31,11 +31,11 @@
 
 /* define required ouput image size */
 #ifndef MT9F002_OUTPUT_HEIGHT
-#define MT9F002_OUTPUT_HEIGHT 822  // full resolution 3288, should be divisible by 8 if transported over stream
+#define MT9F002_OUTPUT_HEIGHT 822  // full resolution 3288
 #endif
 
 #ifndef MT9F002_OUTPUT_WIDTH
-#define MT9F002_OUTPUT_WIDTH 1152 // full resolution 4608, should be divisible by 8 if transported over stream
+#define MT9F002_OUTPUT_WIDTH 1152 // full resolution 4608
 #endif
 
 #ifndef MT9F002_INITIAL_OFFSET_X

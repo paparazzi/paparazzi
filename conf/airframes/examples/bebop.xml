@@ -51,7 +51,7 @@
       <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="2"/>
       <define name="VIEWVIDEO_QUALITY_FACTOR" value="40"/>
       
-      <configure name="VIEWVIDEO_BROADCAST" value="FALSE"/>
+      <configure name="VIEWVIDEO_BROADCAST" value="TRUE"/>
       <configure name="VIEWVIDEO_HOST" value="192.168.42.98"/>
     </module>
 
