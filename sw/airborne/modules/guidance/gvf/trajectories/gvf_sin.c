@@ -58,8 +58,8 @@ void gvf_sin_info(float *phi, struct gvf_grad *grad,
     grad->ny =  -sinf(alpha) + A*w*cosf(alpha)*cosf(ang);
 
     // Hessian Phi
-    hess->H11 =  -A*w*w*sinf(alpha)*sinf(alpha)*sinf(ang);
-    hess->H12 =  -A*w*w*sinf(alpha)*cosf(alpha)*sinf(ang);
-    hess->H21 =  -A*w*w*cosf(alpha)*sinf(alpha)*sinf(ang);
-    hess->H22 =  -A*w*w*cosf(alpha)*cosf(alpha)*sinf(ang);
+    hess->H11 =  A*w*w*sinf(alpha)*sinf(alpha)*sinf(ang);
+    hess->H12 = -A*w*w*sinf(alpha)*cosf(alpha)*sinf(ang);
+    hess->H21 = -A*w*w*cosf(alpha)*sinf(alpha)*sinf(ang);
+    hess->H22 =  A*w*w*cosf(alpha)*cosf(alpha)*sinf(ang);
 }
