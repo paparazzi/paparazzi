@@ -34,21 +34,8 @@
 #include "subsystems/datalink/telemetry.h"
 #include "subsystems/datalink/datalink.h"
 
-/* Default maximum telemetry message size */
-#ifndef TELEMERTY_INTERMCU_MSG_SIZE
-#define TELEMERTY_INTERMCU_MSG_SIZE 128
-#endif
-
-/* Structure for handling telemetry over InterMCU */
-struct telemetry_intermcu_t {
-  struct link_device dev;                     ///< Device structure for communication
-  struct short_transport trans;               ///< Transport without any extra encoding
-  uint8_t buf[TELEMERTY_INTERMCU_MSG_SIZE];   ///< Buffer for the messages
-  uint8_t buf_idx;                            ///< Index of the buffer
-};
-
 /* Telemetry InterMCU throughput */
-static struct telemetry_intermcu_t telemetry_intermcu;
+struct telemetry_intermcu_t telemetry_intermcu;
 
 /* Static functions */
 static bool telemetry_intermcu_check_free_space(struct telemetry_intermcu_t *p, long *fd __attribute__((unused)), uint16_t len);
