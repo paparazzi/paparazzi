@@ -32,41 +32,50 @@
 
 #include "std.h"
 
-// Control
-extern float gvf_error;
-extern float gvf_ke;
-extern float gvf_kn;
-extern int8_t gvf_s;
+typedef struct {
+  float error;
+  float ke;
+  float kn;
+  int8_t s;
+} gvf_con;
 
-// Trajectories
-// 0 - Straight line
-// 1 - Ellipse
-// 2 - Sin
+extern gvf_con gvf_control;
 
-extern uint8_t gvf_traj_type;
-extern float gvf_param[16];
-
-struct gvf_grad{
-    float nx;
-    float ny;
-    float nz;
+enum trajectories {
+  LINE = 0,
+  ELLIPSE,
+  SIN,
+  NONE = 255,
 };
 
-struct gvf_Hess{
-    float H11;
-    float H12;
-    float H13;
-    float H21;
-    float H22;
-    float H23;
-    float H31;
-    float H32;
-    float H33;
+typedef struct {
+  enum trajectories type;
+  float p[16];
+} gvf_tra;
+
+extern gvf_tra gvf_trajectory;
+
+struct gvf_grad {
+  float nx;
+  float ny;
+  float nz;
+};
+
+struct gvf_Hess {
+  float H11;
+  float H12;
+  float H13;
+  float H21;
+  float H22;
+  float H23;
+  float H31;
+  float H32;
+  float H33;
 };
 
 extern void gvf_init(void);
 void gvf_control_2D(float ke, float kn, float e,
-        struct gvf_grad *, struct gvf_Hess *);
+                    struct gvf_grad *, struct gvf_Hess *);
 extern void gvf_set_gains(float ke, float kd);
 extern void gvf_set_direction(int8_t s);
 
@@ -77,14 +86,13 @@ extern bool gvf_line_wp_heading(uint8_t wp, float alpha);
 
 // Ellipse
 extern bool gvf_ellipse(uint8_t wp, float a, float b, float alpha);
-extern bool gvf_ellipse_set(uint8_t wp);
 
 // Sinusoidal
 void gvf_sin(float x, float y, float alpha, float w, float off, float A);
 extern bool gvf_sin_wp1_wp2(uint8_t wp1, uint8_t wp2, float w, float off,
-        float A);
+                            float A);
 extern bool gvf_sin_wp_heading(uint8_t wp, float alpha, float w, float off,
-        float A);
+                               float A);
 
 
 #endif // GVF_H

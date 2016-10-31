@@ -42,36 +42,35 @@
 #define GVF_ELLIPSE_ALPHA 0
 #endif
 
-float gvf_ellipse_a = GVF_ELLIPSE_A;
-float gvf_ellipse_b = GVF_ELLIPSE_B;
-float gvf_ellipse_alpha = GVF_ELLIPSE_ALPHA;
+gvf_ell_par gvf_ellipse_par = {GVF_ELLIPSE_A, GVF_ELLIPSE_B, GVF_ELLIPSE_ALPHA};
 
-void gvf_ellipse_info(float *phi, struct gvf_grad *grad, 
-        struct gvf_Hess *hess){
+void gvf_ellipse_info(float *phi, struct gvf_grad *grad,
+                      struct gvf_Hess *hess)
+{
 
-    struct EnuCoor_f *p = stateGetPositionEnu_f();
-    float px = p->x;
-    float py = p->y;
-    float wx = gvf_param[0];
-    float wy = gvf_param[1];
-    float a = gvf_param[2];
-    float b = gvf_param[3];
-    float alpha = gvf_param[4];
+  struct EnuCoor_f *p = stateGetPositionEnu_f();
+  float px = p->x;
+  float py = p->y;
+  float wx = gvf_trajectory.p[0];
+  float wy = gvf_trajectory.p[1];
+  float a = gvf_trajectory.p[2];
+  float b = gvf_trajectory.p[3];
+  float alpha = gvf_trajectory.p[4];
 
-    // Phi(x,y)
-    float xel = (px-wx)*cosf(alpha) - (py-wy)*sinf(alpha);
-    float yel = (px-wx)*sinf(alpha) + (py-wy)*cosf(alpha);
-    *phi = (xel/a)*(xel/a) + (yel/b)*(yel/b) - 1;
+  // Phi(x,y)
+  float xel = (px - wx) * cosf(alpha) - (py - wy) * sinf(alpha);
+  float yel = (px - wx) * sinf(alpha) + (py - wy) * cosf(alpha);
+  *phi = (xel / a) * (xel / a) + (yel / b) * (yel / b) - 1;
 
-    // grad Phi
-    grad->nx = (2*xel/(a*a))*cosf(alpha) + (2*yel/(b*b))*sinf(alpha);
-    grad->ny = (2*yel/(b*b))*cosf(alpha) - (2*xel/(a*a))*sinf(alpha);
+  // grad Phi
+  grad->nx = (2 * xel / (a * a)) * cosf(alpha) + (2 * yel / (b * b)) * sinf(alpha);
+  grad->ny = (2 * yel / (b * b)) * cosf(alpha) - (2 * xel / (a * a)) * sinf(alpha);
 
-    // Hessian Phi
-    hess->H11 = 2*(cosf(alpha)*cosf(alpha)/(a*a)
-            + sinf(alpha)*sinf(alpha)/(b*b));
-    hess->H12 = 2*sinf(alpha)*cosf(alpha)*(1/(b*b) - 1/(a*a));
-    hess->H21 = hess->H12;
-    hess->H22 = 2*(sinf(alpha)*sinf(alpha)/(a*a)
-            + cosf(alpha)*cosf(alpha)/(b*b));
+  // Hessian Phi
+  hess->H11 = 2 * (cosf(alpha) * cosf(alpha) / (a * a)
+                   + sinf(alpha) * sinf(alpha) / (b * b));
+  hess->H12 = 2 * sinf(alpha) * cosf(alpha) * (1 / (b * b) - 1 / (a * a));
+  hess->H21 = hess->H12;
+  hess->H22 = 2 * (sinf(alpha) * sinf(alpha) / (a * a)
+                   + cosf(alpha) * cosf(alpha) / (b * b));
 }

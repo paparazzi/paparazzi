@@ -27,9 +27,15 @@
  */
 
 #ifndef GVF_LINE_H
-#define GVF_LINE
+#define GVF_LINE_H
 
-#include "../gvf.h"
+#include "modules/guidance/gvf/gvf.h"
+
+typedef struct {
+  float alpha;
+} gvf_li_par;
+
+extern gvf_li_par gvf_line_par;
 
 extern void gvf_line_info(float *phi, struct gvf_grad *, struct gvf_Hess *);
 

@@ -30,26 +30,33 @@
 #include "subsystems/navigation/common_nav.h"
 #include "gvf_line.h"
 
+#ifndef GVF_LINE_ALPHA
+#define GVF_LINE_ALPHA 0
+#endif
+
+gvf_li_par gvf_line_par = {GVF_LINE_ALPHA};
+
 void gvf_line_info(float *phi, struct gvf_grad *grad,
-        struct gvf_Hess *hess){
+                   struct gvf_Hess *hess)
+{
 
-    struct EnuCoor_f *p = stateGetPositionEnu_f();
-    float px = p->x;
-    float py = p->y;
-    float a = gvf_param[0];
-    float b = gvf_param[1];
-    float alpha = gvf_param[2];
+  struct EnuCoor_f *p = stateGetPositionEnu_f();
+  float px = p->x;
+  float py = p->y;
+  float a = gvf_trajectory.p[0];
+  float b = gvf_trajectory.p[1];
+  float alpha = gvf_trajectory.p[2];
 
-    // Phi(x,y)
-    *phi = -(px-a)*cosf(alpha) + (py-b)*sinf(alpha);
+  // Phi(x,y)
+  *phi = -(px - a) * cosf(alpha) + (py - b) * sinf(alpha);
 
-    // grad Phi
-    grad->nx =  -cosf(alpha);
-    grad->ny =   sinf(alpha);
+  // grad Phi
+  grad->nx =  -cosf(alpha);
+  grad->ny =   sinf(alpha);
 
-    // Hessian Phi
-    hess->H11 = 0;
-    hess->H12 = 0;
-    hess->H21 = 0;
-    hess->H22 = 0;
+  // Hessian Phi
+  hess->H11 = 0;
+  hess->H12 = 0;
+  hess->H21 = 0;
+  hess->H22 = 0;
 }

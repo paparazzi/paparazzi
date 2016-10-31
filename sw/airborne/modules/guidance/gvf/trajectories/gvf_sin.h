@@ -27,9 +27,18 @@
  */
 
 #ifndef GVF_SIN_H
-#define GVF_SIN
+#define GVF_SIN_H
 
-#include "../gvf.h"
+#include "modules/guidance/gvf/gvf.h"
+
+typedef struct {
+  float alpha;
+  float w;
+  float off;
+  float A;
+} gvf_s_par;
+
+extern gvf_s_par gvf_sin_par;
 
 extern void gvf_sin_info(float *phi, struct gvf_grad *, struct gvf_Hess *);
 

@@ -27,13 +27,17 @@
  */
 
 #ifndef GVF_ELLIPSE_H
-#define GVF_ELLIPSE
+#define GVF_ELLIPSE_H
 
-#include "../gvf.h"
+#include "modules/guidance/gvf/gvf.h"
 
-extern float gvf_ellipse_a;
-extern float gvf_ellipse_b;
-extern float gvf_ellipse_alpha;
+typedef struct {
+  float a;
+  float b;
+  float alpha;
+} gvf_ell_par;
+
+extern gvf_ell_par gvf_ellipse_par;
 
 extern void gvf_ellipse_info(float *phi, struct gvf_grad *, struct gvf_Hess *);
 
