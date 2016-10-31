@@ -4,14 +4,14 @@
   <dl_settings>
     <dl_settings NAME="GVF">
 	  <dl_settings NAME="Control">
-		  <dl_setting MAX = "5" MIN="0.0" STEP="0.01" VAR="gvf_ke" shortname="gvf_ke" param="GVF_KE"/>
-		  <dl_setting MAX = "5" MIN="0.0" STEP="0.01" VAR="gvf_kn" shortname="gvf_kn" param="GVF_KN"/>
-		  <dl_setting MAX="1" MIN="-1" STEP="2" VAR="gvf_s" shortname="direction"/>
+		  <dl_setting MAX = "5" MIN="0.0" STEP="0.01" VAR="gvf_control.ke" shortname="gvf_ke" param="GVF_KE"/>
+		  <dl_setting MAX = "5" MIN="0.0" STEP="0.01" VAR="gvf_control.kn" shortname="gvf_kn" param="GVF_KN"/>
+		  <dl_setting MAX="1" MIN="-1" STEP="2" VAR="gvf_control.s" shortname="direction"/>
 	  </dl_settings>
 	  <dl_settings NAME="Ellipse">
-		<dl_setting MAX="150" MIN="0.0" STEP="10" VAR="gvf_ellipse_a" shortname="a" param="GVF_ELLIPSE_A"/>
-		<dl_setting MAX="150" MIN="0.0" STEP="10" VAR="gvf_ellipse_b" shortname="b" param="GVF_ELLIPSE_B"/>
-		<dl_setting MAX="90" MIN="-90" STEP="1" VAR="gvf_ellipse_alpha" shortname="alpha" param="GVF_ELLIPSE_ALPHA"/>
+		<dl_setting MAX="150" MIN="0.0" STEP="10" VAR="gvf_ellipse_par.a" shortname="a" param="GVF_ELLIPSE_A"/>
+		<dl_setting MAX="150" MIN="0.0" STEP="10" VAR="gvf_ellipse_par.b" shortname="b" param="GVF_ELLIPSE_B"/>
+		<dl_setting MAX="90" MIN="-90" STEP="1" VAR="gvf_ellipse_par.alpha" shortname="alpha" param="GVF_ELLIPSE_ALPHA"/>
 	  </dl_settings>
 	 </dl_settings>
   </dl_settings>

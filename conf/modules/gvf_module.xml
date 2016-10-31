@@ -1,24 +1,62 @@
-<!DOCTYPE module SYSTEM "module.dtd">
+< !DOCTYPE module SYSTEM "module.dtd" >
 
-<module name="gvf" dir="guidance/gvf">
-  <doc>
-    <description>Guidance Vector Field Module</description>
-  </doc>
+<module name = "gvf" dir = "guidance/gvf">
+                           <doc>
+                           <description>Guidance Vector Field Module < / description >
+                           < / doc >
 
-  <header>
-    <file name="gvf.h"/>
-	<file name="trajectories/gvf_line.h"/>
-	<file name="trajectories/gvf_sin.h"/>
-	<file name="trajectories/gvf_ellipse.h"/>
-  </header>
+                           <settings name = "complete">
+                               <dl_settings>
+                               <dl_settings NAME = "GVF">
+                                   <dl_settings NAME = "Control">
+                                       < dl_setting MAX = "5" MIN = "0.0" STEP = "0.01" VAR = "gvf_control.ke" shortname = "gvf_ke" param = "GVF_KE" / >
+                                           < dl_setting MAX = "5" MIN = "0.0" STEP = "0.01" VAR = "gvf_control.kn" shortname = "gvf_kn" param = "GVF_KN" / >
+                                               < dl_setting MAX = "1" MIN = "-1" STEP = "2" VAR = "gvf_control.s" shortname = "direction" / >
+                                                   < / dl_settings >
+                                                   <dl_settings NAME = "Ellipse">
+                                                       < dl_setting MAX = "150" MIN = "0.0" STEP = "10" VAR = "gvf_ellipse_par.a" shortname = "a" param = "GVF_ELLIPSE_A" / >
+                                                           < dl_setting MAX = "150" MIN = "0.0" STEP = "10" VAR = "gvf_ellipse_par.b" shortname = "b" param = "GVF_ELLIPSE_B" / >
+                                                               < dl_setting MAX = "90" MIN = "-90" STEP = "1" VAR = "gvf_ellipse_par.alpha" shortname = "alpha" param = "GVF_ELLIPSE_ALPHA" / >
+                                                                   < / dl_settings >
+                                                                   <dl_settings NAME = "Line">
+                                                                       < dl_setting MAX = "180" MIN = "-180" STEP = "1" VAR = "gvf_line_par.alpha" shortname = "alpha" param = "GVF_LINE_ALPHA" / >
+                                                                           < / dl_settings >
+                                                                           <dl_settings NAME = "Sine">
+                                                                               < dl_setting MAX = "180" MIN = "-180" STEP = "1" VAR = "gvf_sin_par.alpha" shortname = "alpha" param = "GVF_SIN_ALPHA" / >
+                                                                                   < dl_setting MAX = "0.01" MIN = "0" STEP = "0.0001" VAR = "gvf_sin_par.w" shortname = "w" param = "GVF_SIN_W" / >
+                                                                                       < dl_setting MAX = "6.2" MIN = "0" STEP = "0.002" VAR = "gvf_sin_par.off" shortname = "off" param = "GVF_SIN_OFF" / >
+                                                                                           < dl_setting MAX = "100" MIN = "0" STEP = "1" VAR = "gvf_sin_par.A" shortname = "amplitude" param = "GVF_SIN_A" / >
+                                                                                               < / dl_settings >
+                                                                                               < / dl_settings >
+                                                                                               < / dl_settings >
+                                                                                               < / settings >
 
-  <init fun="gvf_init()"/>
-  
-  <makefile>
-    <file name="gvf.c"/>
-	<file name="trajectories/gvf_line.c"/>
-	<file name="trajectories/gvf_sin.c"/>
-	<file name="trajectories/gvf_ellipse.c"/>
-  </makefile>
-</module>
+                                                                                               <settings name = "control">
+                                                                                                   <dl_settings>
+                                                                                                   <dl_settings NAME = "GVF">
+                                                                                                       <dl_settings NAME = "Control">
+                                                                                                           < dl_setting MAX = "5" MIN = "0.0" STEP = "0.01" VAR = "gvf_control.ke" shortname = "gvf_ke" param = "GVF_KE" / >
+                                                                                                               < dl_setting MAX = "5" MIN = "0.0" STEP = "0.01" VAR = "gvf_control.kn" shortname = "gvf_kn" param = "GVF_KN" / >
+                                                                                                                   < dl_setting MAX = "1" MIN = "-1" STEP = "2" VAR = "gvf_control.s" shortname = "direction" / >
+                                                                                                                       < / dl_settings >
+                                                                                                                       < / dl_settings >
+                                                                                                                       < / dl_settings >
+                                                                                                                       < / settings >
+
+                                                                                                                       <header>
+                                                                                                                       < file name = "gvf.h" / >
+                                                                                                                           < file name = "trajectories/gvf_line.h" / >
+                                                                                                                               < file name = "trajectories/gvf_sin.h" / >
+                                                                                                                                   < file name = "trajectories/gvf_ellipse.h" / >
+                                                                                                                                       < / header >
+
+                                                                                                                                       < init fun = "gvf_init()" / >
+
+                                                                                                                                           <makefile>
+                                                                                                                                           < file name = "gvf.c" / >
+                                                                                                                                               < file name = "trajectories/gvf_line.c" / >
+                                                                                                                                                   < file name = "trajectories/gvf_sin.c" / >
+                                                                                                                                                       < file name = "trajectories/gvf_ellipse.c" / >
+                                                                                                                                                           < / makefile >
+                                                                                                                                                           < / module >
 
