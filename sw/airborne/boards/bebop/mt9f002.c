@@ -29,6 +29,7 @@
 #include "mt9f002_regs.h"
 #include "math/pprz_algebra_int.h"
 #include "boards/bebop.h"
+#include "modules/computer_vision/lib/isp/libisp.h"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -38,10 +39,10 @@
 #include <linux/videodev2.h>
 #include <linux/v4l2-mediabus.h>
 
-#define MAX(x,y) (((x) > (y)) ? (x) : (y))
+#define MT9F002_MAX_WIDTH 4608
+#define MT9F002_MAX_HEIGHT 3288
 
-#define MAX_WIDTH 4608
-#define MAX_HEIGHT 3288
+extern struct libisp_config isp_config;
 
 /* Camera structure */
 struct video_config_t front_camera = {
@@ -571,16 +572,16 @@ static void mt9f002_set_blanking(struct mt9f002_t *mt)
 
   /* Calculate minimum line length */
   float subsampling_factor = (float)(1 + x_odd_inc) / 2.0f; // See page 52
-  uint16_t min_line_length = MAX(min_line_length_pck,
+  uint16_t min_line_length = Max(min_line_length_pck,
                                  mt->scaled_width / subsampling_factor + min_line_blanking_pck); // EQ 9
-  min_line_length = MAX(min_line_length,
+  min_line_length = Max(min_line_length,
                         (mt->scaled_width - 1 + x_odd_inc) / subsampling_factor / 2 + min_line_blanking_pck);
   if (mt->interface == MT9F002_MIPI ||
       mt->interface == MT9F002_HiSPi) {
-    min_line_length = MAX(min_line_length,
+    min_line_length = Max(min_line_length,
                           ((uint16_t)((float)mt->scaled_width * mt->vt_pix_clk / mt->op_pix_clk) / 2) + 0x005E); // 2 lanes, pll clocks
   } else {
-    min_line_length = MAX(min_line_length,
+    min_line_length = Max(min_line_length,
                           ((uint16_t)((float)mt->scaled_width * mt->vt_pix_clk / mt->op_pix_clk)) + 0x005E); // pll clocks
   }
 
@@ -648,7 +649,6 @@ static void mt9f002_set_blanking(struct mt9f002_t *mt)
     }
   }
 
-  printf("line: %d, frame %d\n", mt->line_length, mt->frame_length);
   /* Actually set the calculated values */
   write_reg(mt, MT9F002_LINE_LENGTH_PCK, mt->line_length, 2);
   write_reg(mt, MT9F002_FRAME_LENGTH_LINES, mt->frame_length, 2);
@@ -790,33 +790,34 @@ void mt9f002_set_resolution(struct mt9f002_t *mt)
   mt->output_scaler = (float)MT9F002_SCALER_N / scaleFactor;
   int x_skip_factor = (mt->x_odd_inc + 1) / 2;
   int y_skip_factor = (mt->y_odd_inc + 1) / 2;
-  mt->scaled_width  = mt->output_width * x_skip_factor / mt->output_scaler - mt->x_odd_inc + 1;
-  mt->scaled_height = mt->output_height * y_skip_factor / mt->output_scaler - mt->y_odd_inc + 1;
+  mt->scaled_width  = mt->output_width * x_skip_factor / mt->output_scaler + mt->x_odd_inc - 1;
+  mt->scaled_height = mt->output_height * y_skip_factor / mt->output_scaler + mt->y_odd_inc - 1;
 
   if (mt->scaled_width % (x_skip_factor * 8) != 0) {
-    mt->scaled_width = round(mt->scaled_width / (x_skip_factor * 8)) * (x_skip_factor * 8);
+    mt->scaled_width = floor(mt->scaled_width / (x_skip_factor * 8)) * (x_skip_factor * 8);
     printf("[MT9F002] Warning, scaled_width not a multiple of %i, changing to %i\n", 8 * x_skip_factor, mt->scaled_width);
   }
   if (mt->scaled_height % (y_skip_factor * 8) != 0) {
-    mt->scaled_height = round(mt->scaled_height / (y_skip_factor * 8)) * (y_skip_factor * 8);
+    mt->scaled_height = floor(mt->scaled_height / (y_skip_factor * 8)) * (y_skip_factor * 8);
     printf("[MT9F002] Warning, scaled_height not a multiple of %i, changing to %i\n", 8 * y_skip_factor, mt->scaled_height);
   }
   if (mt->output_scaler < 1.0) {
     write_reg(mt, MT9F002_SCALING_MODE, 2, 2); // Vertical and horizontal scaling
     write_reg(mt, MT9F002_SCALE_M, scaleFactor, 2);
   }
-  printf("OUTPUT_SIZE: (%i, %i)\tSCALED_SIZE: (%i, %i)\n", mt->output_width, mt->output_height, mt->scaled_width,
+  printf("[MT9F002] OUTPUT_SIZE: (%i, %i)\tSCALED_SIZE: (%i, %i)\n", mt->output_width, mt->output_height,
+         mt->scaled_width,
          mt->scaled_height);
   /* bound offsets */
-  if (mt->offset_x * MAX_WIDTH + mt->scaled_width / 2 > MAX_WIDTH){mt->offset_x = 1 - (float)mt->scaled_width / 2 / MAX_WIDTH;}
-  if (-mt->offset_x * MAX_WIDTH > mt->scaled_width){mt->offset_x = -(float)mt->scaled_width/ 2 / MAX_WIDTH;}
+  if (mt->offset_x * MT9F002_MAX_WIDTH + mt->scaled_width / 2 > MT9F002_MAX_WIDTH) {mt->offset_x = 1 - (float)mt->scaled_width / 2 / MT9F002_MAX_WIDTH;}
+  if (-mt->offset_x * MT9F002_MAX_WIDTH > mt->scaled_width) {mt->offset_x = -(float)mt->scaled_width / 2 / MT9F002_MAX_WIDTH;}
 
-  if (mt->offset_y * MAX_HEIGHT + mt->scaled_height / 2 > MAX_HEIGHT){mt->offset_y = 1 - (float)mt->scaled_height/ 2 / MAX_HEIGHT;}
-  if (-mt->offset_y * MAX_HEIGHT > mt->scaled_height / 2){mt->offset_y = -(float)mt->scaled_height/ 2 / MAX_HEIGHT;}
+  if (mt->offset_y * MT9F002_MAX_HEIGHT + mt->scaled_height / 2 > MT9F002_MAX_HEIGHT) {mt->offset_y = 1 - (float)mt->scaled_height / 2 / MT9F002_MAX_HEIGHT;}
+  if (-mt->offset_y * MT9F002_MAX_HEIGHT > mt->scaled_height / 2) {mt->offset_y = -(float)mt->scaled_height / 2 / MT9F002_MAX_HEIGHT;}
 
   /* Set position (based on offset and subsample increment) */
-  uint16_t start_addr_x = (uint16_t)((MAX_WIDTH - mt->scaled_width) / 2 + mt->offset_x * MAX_WIDTH);
-  uint16_t start_addr_y = (uint16_t)((MAX_HEIGHT - mt->scaled_height) / 2 + mt->offset_y * MAX_HEIGHT);
+  uint16_t start_addr_x = (uint16_t)((MT9F002_MAX_WIDTH - mt->scaled_width) / 2 + mt->offset_x * MT9F002_MAX_WIDTH);
+  uint16_t start_addr_y = (uint16_t)((MT9F002_MAX_HEIGHT - mt->scaled_height) / 2 + mt->offset_y * MT9F002_MAX_HEIGHT);
 
   if (start_addr_x < 24) {
     start_addr_x = 24;
@@ -837,6 +838,17 @@ void mt9f002_set_resolution(struct mt9f002_t *mt)
   uint16_t end_addr_y = start_addr_y + mt->scaled_height - 1;
   write_reg(mt, MT9F002_X_ADDR_END, end_addr_x, 2);
   write_reg(mt, MT9F002_Y_ADDR_END, end_addr_y, 2);
+
+  // set statistics to correct values
+  isp_config.statistics_bayer.window_x.x_offset = mt->scaled_width - (mt->scaled_width / BAYERSTATS_STATX) / 2;
+  isp_config.statistics_bayer.window_y.y_offset =  mt->scaled_height - (mt->scaled_height / BAYERSTATS_STATY) / 2;
+  isp_config.statistics_bayer.window_x.x_width =  mt->scaled_width / BAYERSTATS_STATX;
+  isp_config.statistics_bayer.window_y.y_width =  mt->scaled_height / BAYERSTATS_STATY;
+
+  isp_config.statistics_yuv.window_pos_x.window_x_end = mt->scaled_width - 1;
+  isp_config.statistics_yuv.window_pos_y.window_y_end = mt->scaled_height - 1;
+  isp_config.statistics_yuv.increments_log2.x_log2_inc = log2(x_skip_factor);
+  isp_config.statistics_yuv.increments_log2.x_log2_inc = log2(y_skip_factor);
 }
 
 /**

@@ -8,7 +8,7 @@
 #include <sys/mman.h>
 #include <sys/ioctl.h>
 
-#include "libisp.h"
+//#include "libisp.h"
 #include "libisp_config.h"
 
 #define AVI_BASE 0x400000
@@ -194,10 +194,6 @@ int configure_isp(struct v4l2_device *dev)
   avi_isp_gamma_corrector_gu_lut_set_registers(&isp_ctx, &isp_config.gc_gu_lut);
   avi_isp_gamma_corrector_bv_lut_set_registers(&isp_ctx, &isp_config.gc_bv_lut);
   avi_isp_chroma_set_registers(&isp_ctx, &isp_config.chroma);
-
-  isp_config.statistics_yuv.increments_log2.x_log2_inc = log2(MT9F002_X_ODD_INC_VAL);
-  isp_config.statistics_yuv.increments_log2.x_log2_inc = log2(MT9F002_Y_ODD_INC_VAL);
-
   avi_isp_statistics_yuv_set_registers(&isp_ctx, &isp_config.statistics_yuv);
   avi_isp_edge_enhancement_color_reduction_filter_set_registers(&isp_ctx, &isp_config.eecrf);
   avi_isp_edge_enhancement_color_reduction_filter_ee_lut_set_registers(&isp_ctx, &isp_config.eecrf_lut);

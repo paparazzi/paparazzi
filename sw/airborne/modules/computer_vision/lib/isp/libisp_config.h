@@ -1,7 +1,7 @@
 #ifndef _LIBISP_CONFIG_H
 #define _LIBISP_CONFIG_H
 
-#include "boards/bebop.h"
+#include "boards/bebop/mt9f002.h"
 #include "libisp.h"
 
 struct libisp_config isp_config = {
@@ -433,8 +433,8 @@ struct libisp_config isp_config = {
   .statistics_yuv = {
     .measure_req           = {{1, 1}},
     .measure_status        = {{0, 0}},
-    .window_pos_x          = {{ .window_x_start = 0, .window_x_end = MT9F002_OUTPUT_WIDTH }},
-    .window_pos_y          = {{ .window_y_start = 0, .window_y_end = MT9F002_OUTPUT_HEIGHT }},
+    .window_pos_x          = {{ .window_x_start = 0, .window_x_end = MT9F002_OUTPUT_WIDTH - 1 }},
+    .window_pos_y          = {{ .window_y_start = 0, .window_y_end = MT9F002_OUTPUT_HEIGHT - 1 }},
     .circle_pos_x_center   = {{ 1088 }},
     .circle_pos_x_squared  = {{ 1183744 }},
     .circle_pos_y_center   = {{ 1078 }},

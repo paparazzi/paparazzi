@@ -65,10 +65,13 @@ void cv_ae_awb_periodic(void)
     uint32_t max_saturated_pixels = yuv_stats.nb_valid_Y / 400; // 0.25%
     float adjustment = 1.0f;
 
+    printf("%d %d\n", bright_pixels, target_bright_pixels);
+
     // Fix saturated pixels
     if (saturated_pixels > max_saturated_pixels) {
       adjustment = 1.0f - ((float)(saturated_pixels - max_saturated_pixels)) / yuv_stats.nb_valid_Y;
-    } else if (bright_pixels + target_bright_pixels / 10 < target_bright_pixels) {  // Fix bright pixels if outside of 10% of target
+    } else if (bright_pixels + target_bright_pixels / 10 <
+               target_bright_pixels) {  // Fix bright pixels if outside of 10% of target
       // increase brightness to try and hit the desired number of well exposed pixels
       int l = MAX_HIST_Y - 11;
       while (bright_pixels < target_bright_pixels && l > 0) {
@@ -78,7 +81,8 @@ void cv_ae_awb_periodic(void)
       }
 
       adjustment = (float)(MAX_HIST_Y - 11 + 1) / (l + 1);
-    } else if (bright_pixels - target_bright_pixels / 10 > target_bright_pixels) {  // Fix bright pixels if outside of 10% of target
+    } else if (bright_pixels - target_bright_pixels / 10 >
+               target_bright_pixels) {  // Fix bright pixels if outside of 10% of target
       // decrease brightness to try and hit the desired number of well exposed pixels
       int l = MAX_HIST_Y - 20;
       while (bright_pixels > target_bright_pixels && l < MAX_HIST_Y) {
@@ -105,16 +109,16 @@ void cv_ae_awb_periodic(void)
     float gain = 1.;
     bool changed = false;
 
-    if (fabs(avgU) > threshold){
+    if (fabs(avgU) > threshold) {
       mt9f002.gain_blue -= gain * avgU;
       changed = true;
     }
-    if (fabs(avgV) > threshold){
+    if (fabs(avgV) > threshold) {
       mt9f002.gain_red -= gain * avgV;
       changed = true;
     }
 
-    if (changed){
+    if (changed) {
       Bound(mt9f002.gain_blue, 2, 75);
       Bound(mt9f002.gain_red, 2, 75);
       mt9f002_set_gains(&mt9f002);

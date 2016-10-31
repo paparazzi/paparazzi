@@ -68,7 +68,7 @@ PRINT_CONFIG_VAR(VIEWVIDEO_RTP_TIME_INC)
 
 // Define stream framerate
 #ifndef VIEWVIDEO_FPS
-#define VIEWVIDEO_FPS 10
+#define VIEWVIDEO_FPS 5
 #endif
 PRINT_CONFIG_VAR(VIEWVIDEO_FPS)
 
@@ -112,16 +112,11 @@ struct viewvideo_t viewvideo = {
 #endif
 };
 
-#if defined(VIEWVIDEO_CAMERA) && defined(VIEWVIDEO_CAMERA2) && VIEWVIDEO_BROADCAST == true
-#warning Broadcasting dual video stream causes too much udp overhead resulting in unstable streaming
-#warning We recomment using a static VIEWVIDEO_HOST address and VIEWVIDEO_BROADCAST to false
-#endif
-
 /**
  * Handles all the video streaming and saving of the image shots
  * This is a separate thread, so it needs to be thread safe!
  */
-static struct image_t *viewvideo_function(struct UdpSocket *socket, struct image_t *img)
+static struct image_t *viewvideo_function(struct UdpSocket *socket, struct image_t *img, uint32_t *rtp_frame_nr)
 {
   // Resize image if needed
   struct image_t img_small;
@@ -180,19 +175,11 @@ static struct image_t *viewvideo_function(struct UdpSocket *socket, struct image
         0,                        // Format 422
         VIEWVIDEO_QUALITY_FACTOR, // Jpeg-Quality
         0,                        // DRI Header
-        VIEWVIDEO_RTP_TIME_INC    // 90kHz time increment
+        (img->ts.tv_sec * 1000000 + img->ts.tv_usec),
+        rtp_frame_nr
       );
-      // Extra note: when the time increment is set to 0,
-      // it is automaticaly calculated by the send_rtp_frame function
-      // based on gettimeofday value. This seems to introduce some lag or jitter.
-      // An other way is to compute the time increment and set the correct value.
-      // It seems that a lower value is also working (when the frame is received
-      // the timestamp is always "late" so the frame is displayed immediately).
-      // Here, we set the time increment to the lowest possible value
-      // (1 = 1/90000 s) which is probably stupid but is actually working.
     }
 #endif
-
   }
 
   // Free all buffers
@@ -204,14 +191,16 @@ static struct image_t *viewvideo_function(struct UdpSocket *socket, struct image
 #ifdef VIEWVIDEO_CAMERA
 static struct image_t *viewvideo_function1(struct image_t *img)
 {
-  return viewvideo_function(&video_sock1, img);
+  static uint32_t rtp_frame_nr = 0;
+  return viewvideo_function(&video_sock1, img, &rtp_frame_nr);
 }
 #endif
 
 #ifdef VIEWVIDEO_CAMERA2
 static struct image_t *viewvideo_function2(struct image_t *img)
 {
-  return viewvideo_function(&video_sock2, img);
+  static uint32_t rtp_frame_nr = 0;
+  return viewvideo_function(&video_sock2, img, &rtp_frame_nr);
 }
 #endif
 
