@@ -48,8 +48,6 @@
 #include "firmwares/rotorcraft/stabilization/stabilization_rate.h"
 #endif
 
-#include "firmwares/rotorcraft/autopilot_guided.h"
-
 #include "generated/settings.h"
 
 #if USE_GPS

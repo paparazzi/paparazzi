@@ -32,6 +32,7 @@
 #include "std.h"
 #include "generated/airframe.h"
 #include "state.h"
+#include "autopilot_guided.h"
 
 #define AP_MODE_KILL              0
 #define AP_MODE_FAILSAFE          1
