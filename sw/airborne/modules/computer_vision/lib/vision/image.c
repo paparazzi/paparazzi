@@ -591,7 +591,7 @@ void image_show_flow(struct image_t *img, struct flow_t *vectors, uint16_t point
 }
 
 /**
- * Draw a line on the image
+ * Draw a pink line on the image
  * @param[in,out] *img The image to show the line on
  * @param[in] *from The point to draw from
  * @param[in] *to The point to draw to
@@ -601,6 +601,14 @@ void image_draw_line(struct image_t *img, struct point_t *from, struct point_t *
   image_draw_line_color(img, from, to, color);
 }
 
+/**
+ * Draw a line on the image
+ * @param[in,out] *img The image to show the line on
+ * @param[in] *from The point to draw from
+ * @param[in] *to The point to draw to
+ * @param[in] *color The line color as a [U, Y1, V, Y2] uint8_t array, or a uint8_t value pointer for grayscale images.
+ *                   Example colors: white = {127, 255, 127, 255}, green = {0, 127, 0, 127};
+ */
 void image_draw_line_color(struct image_t *img, struct point_t *from, struct point_t *to, uint8_t *color)
 {
   int xerr = 0, yerr = 0;
