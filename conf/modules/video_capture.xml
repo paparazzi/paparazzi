@@ -8,6 +8,7 @@
 
     <define name="VIDEO_CAPTURE_CAMERA" value="front_camera|bottom_camera" description="Video device to use"/>
     <define name="VIDEO_CAPTURE_PATH" value="/data/video/images" description="Location to save images"/>
+    <define name="JPEG_WITH_EXIF_HEADER" description="Add exif headers (requires video_exif module)"/>
   </doc>
 
   <settings>
