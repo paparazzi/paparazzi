@@ -21,7 +21,6 @@
   <makefile target="ap">
     <define name="USE_SPI0" value="1"/>
     <define name="USE_ADC0" value="1"/>
-    <define name="USE_SONAR" value="1"/>
 
     <raw>
       include $(CFG_SHARED)/spi_master.makefile
