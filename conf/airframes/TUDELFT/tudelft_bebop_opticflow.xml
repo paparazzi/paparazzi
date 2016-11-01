@@ -10,6 +10,8 @@
       <module name="udp"/>
     </target>
 
+    <define name="USE_SONAR"/>
+
 	<!-- Subsystem section -->
     <module name="telemetry" type="transparent_udp"/>
     <module name="radio_control" type="datalink"/>
@@ -29,7 +31,6 @@
     <module name="geo_mag"/>
     <module name="air_data"/>
     <module name="send_imu_mag_current"/>
-    <module name="sonar_bebop"/> <!-- Needed for relative height est for velocity calc from opt flow-->
     <module name="pose_history"/>
     <module name="video_thread"/>
 

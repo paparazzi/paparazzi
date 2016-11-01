@@ -10,7 +10,7 @@
       <module name="udp"/>
     </target>
 
-    <!--define name="USE_SONAR" value="TRUE"/-->
+    <define name="USE_SONAR"/>
 
 	<!-- Subsystem section -->
     <module name="telemetry" type="transparent_udp"/>
@@ -35,7 +35,6 @@
     <module name="video_thread">
     </module>
 
-    <module name="sonar_bebop"/>
     <module name="pose_history"/>
 
     <module name="cv_detect_contour">
