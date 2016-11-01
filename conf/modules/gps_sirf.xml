@@ -18,7 +18,7 @@
   <init fun="gps_sirf_init()"/>
   <periodic fun="gps_sirf_periodic_check()" freq="1." autorun="TRUE"/>
   <event fun="gps_sirf_event()"/>
-  <makefile target="ap">
+  <makefile target=target="ap|fbw">
     <configure name="SIRF_GPS_PORT" default="$(GPS_PORT)" case="upper|lower"/>
     <configure name="SIRF_GPS_BAUD" default="$(GPS_BAUD)"/>
 
@@ -31,16 +31,19 @@
       ifdef SECONDARY_GPS
       ifneq (,$(findstring $(SECONDARY_GPS), sirf))
       # this is the secondary GPS
-      ap.CFLAGS += -DGPS_SECONDARY_TYPE_H=\"subsystems/gps/gps_sirf.h\"
-      ap.CFLAGS += -DSECONDARY_GPS=GPS_SIRF
+      $(TARGET).CFLAGS += -DGPS_SECONDARY_TYPE_H=\"subsystems/gps/gps_sirf.h\"
+      $(TARGET).CFLAGS += -DSECONDARY_GPS=GPS_SIRF
       else
-      ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sirf.h\"
-      ap.CFLAGS += -DPRIMARY_GPS=GPS_SIRF
+      $(TARGET).CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sirf.h\"
+      $(TARGET).CFLAGS += -DPRIMARY_GPS=GPS_SIRF
       endif
       else
       # plain old single GPS usage
-      ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sirf.h\"
+      $(TARGET).CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_sirf.h\"
       endif
     </raw>
+  </makefile>
+  <makefile target="fbw">
+    <define name="USE_GPS"/>
   </makefile>
 </module>
