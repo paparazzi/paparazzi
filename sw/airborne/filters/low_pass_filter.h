@@ -117,7 +117,10 @@ static inline float get_first_order_low_pass(struct FirstOrderLowPass *filter)
  *  Fc: cutting frequency
  *  Fs: sampling frequency
  *  Ts: sampling period
- *  tau: time constant
+ *  tau: time constant (tau = 1/(2*pi*Fc))
+ *  Q: gain at cutoff frequency
+ *
+ * Note that b[0]=b[2], so we don't need to save b[2]
  */
 struct SecondOrderLowPass {
   float a[2]; ///< denominator gains
@@ -138,7 +141,7 @@ struct SecondOrderLowPass {
 static inline void init_second_order_low_pass(struct SecondOrderLowPass *filter, float tau, float Q, float sample_time,
     float value)
 {
-  float K = sample_time / (2.0f * tau);
+  float K = tanf(sample_time / (2.0f * tau));
   float poly = K * K + K / Q + 1.0f;
   filter->a[0] = 2.0f * (K * K - 1.0f) / poly;
   filter->a[1] = (K * K - K / Q + 1.0f) / poly;
