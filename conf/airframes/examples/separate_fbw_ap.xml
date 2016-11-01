@@ -202,7 +202,6 @@
 
 
   <modules>
-    <module name="gps" type="ubx_ucenter"/>
 <!--
     <module name="adc_generic">
       <configure name="ADC_CHANNEL_GENERIC1" value="ADC_1" />
@@ -248,6 +247,12 @@
         <configure name="INTERMCU_PORT" value="UART5"/>
       </module>
 
+      <module name="gps" type="ublox">
+        <configure name="GPS_PORT" value="UART1"/>
+      </module>
+      <module name="gps" type="ubx_ucenter"/>
+
+
       <module name="control"/>
       <module name="navigation"/>
     </target>
@@ -272,6 +277,11 @@
     <target name="sim" board="pc">
       <module name="control"/>
       <module name="navigation"/>
+
+      <module name="gps" type="ublox">
+        <configure name="GPS_PORT" value="UART1"/>
+      </module>
+
     </target>
 
     <configure name="FLASH_MODE" value="JTAG"/>
@@ -296,10 +306,6 @@
 
     <!-- Sensors -->
     <module name="imu" type="aspirin_v2.1"/>
-    <module name="gps" type="ublox">
-      <configure name="GPS_PORT" value="UART1"/>
-    </module>
-
     <module name="ahrs" type="float_dcm"/>
     <module name="ins" type="alt_float"/>
 

@@ -40,7 +40,7 @@ Warning: you still need to tell the driver, which paparazzi port you use.
   </header>
   <init fun="gps_ubx_ucenter_init()"/>
   <periodic fun="gps_ubx_ucenter_periodic()" start="gps_ubx_ucenter_init()" freq="4." autorun="TRUE"/>
-  <makefile target="ap">
+  <makefile target="ap|fbw">
     <file name="gps_ubx_ucenter.c"/>
     <define name="GPS_UBX_UCENTER"/>
   </makefile>
