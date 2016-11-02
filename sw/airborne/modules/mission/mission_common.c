@@ -100,16 +100,14 @@ struct _mission_element *mission_get(void)
 // Report function
 void mission_status_report(void)
 {
-  // build task list
-  uint8_t task_list[MISSION_ELEMENT_NB];
+  // build index list
   uint8_t index_list[MISSION_ELEMENT_NB];
   uint8_t i = mission.current_idx, j = 0;
   while (i != mission.insert_idx) {
-    task_list[j] = (uint8_t)mission.elements[i].type;
     index_list[j++] = mission.elements[i].index;
     i = (i + 1) % MISSION_ELEMENT_NB;
   }
-  if (j == 0) { task_list[j] = 0; index_list[j++] = 0; } // Dummy value if task/index list is empty
+  if (j == 0) { index_list[j++] = 0; } // Dummy value if index list is empty
   //compute remaining time (or -1. if no time limit)
   float remaining_time = -1.;
   if (mission.elements[mission.current_idx].duration > 0.) {
@@ -117,7 +115,7 @@ void mission_status_report(void)
   }
 
   // send status
-  DOWNLINK_SEND_MISSION_STATUS(DefaultChannel, DefaultDevice, &remaining_time, j, task_list, j, index_list);
+  DOWNLINK_SEND_MISSION_STATUS(DefaultChannel, DefaultDevice, &remaining_time, j, index_list);
 }
 
 
@@ -350,4 +348,3 @@ int mission_parse_END_MISSION(void)
   mission.current_idx = mission.insert_idx;
   return true;
 }
-
