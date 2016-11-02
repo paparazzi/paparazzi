@@ -47,6 +47,13 @@ uint8_t imcu_msg_buf[128] __attribute__((aligned));  ///< The InterMCU message b
 static struct fbw_status_t fbw_status;
 static inline void intermcu_parse_msg(void (*rc_frame_handler)(void));
 
+#if IMCU_GPS
+#include "std.h"
+#include "subsystems/abi.h"
+#include "subsystems/gps.h"
+static struct GpsState gps_imcu;
+#endif
+
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
@@ -65,6 +72,15 @@ void intermcu_init(void)
 {
   pprz_transport_init(&intermcu.transport);
 
+#if IMCU_GPS
+  gps_imcu.fix = GPS_FIX_NONE;
+  gps_imcu.pdop = 0;
+  gps_imcu.sacc = 0;
+  gps_imcu.pacc = 0;
+  gps_imcu.cacc = 0;
+  gps_imcu.comp_id = GPS_IMCU_ID;
+#endif
+
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_FBW_STATUS, send_status);
 #endif
@@ -79,6 +95,10 @@ void intermcu_periodic(void)
   } else {
     intermcu.time_since_last_frame++;
   }
+
+#if IMCU_GPS
+  RunOnceEvery(PERIODIC_FREQUENCY, gps_periodic_check(&gps_imcu));
+#endif
 }
 
 /* Enable or disable the communication of the InterMCU */
@@ -149,6 +169,44 @@ static inline void intermcu_parse_msg(void (*rc_frame_handler)(void))
       uint8_t size = DL_IMCU_DATALINK_msg_length(imcu_msg_buf);
       uint8_t *msg = DL_IMCU_DATALINK_msg(imcu_msg_buf);
       telemetry_intermcu_on_msg(0, msg, size);
+      break;
+    }
+#if IMCU_GPS
+    case DL_IMCU_REMOTE_GPS: {
+      uint32_t now_ts = get_sys_time_usec();
+      gps_imcu.ecef_pos.x = DL_IMCU_REMOTE_GPS_ecef_x(imcu_msg_buf);
+      gps_imcu.ecef_pos.y = DL_IMCU_REMOTE_GPS_ecef_y(imcu_msg_buf);
+      gps_imcu.ecef_pos.z = DL_IMCU_REMOTE_GPS_ecef_z(imcu_msg_buf);
+      SetBit(gps_imcu.valid_fields, GPS_VALID_POS_ECEF_BIT);
+
+      gps_imcu.lla_pos.alt = DL_IMCU_REMOTE_GPS_alt(imcu_msg_buf);
+      gps_imcu.hmsl = DL_IMCU_REMOTE_GPS_hmsl(imcu_msg_buf);
+      SetBit(gps_imcu.valid_fields, GPS_VALID_HMSL_BIT);
+
+      gps_imcu.ecef_vel.x = DL_IMCU_REMOTE_GPS_ecef_xd(imcu_msg_buf);
+      gps_imcu.ecef_vel.y = DL_IMCU_REMOTE_GPS_ecef_yd(imcu_msg_buf);
+      gps_imcu.ecef_vel.z = DL_IMCU_REMOTE_GPS_ecef_zd(imcu_msg_buf);
+      SetBit(gps_imcu.valid_fields, GPS_VALID_VEL_ECEF_BIT);
+
+      gps_imcu.course = DL_IMCU_REMOTE_GPS_course(imcu_msg_buf);
+      gps_imcu.gspeed = DL_IMCU_REMOTE_GPS_gspeed(imcu_msg_buf);
+      SetBit(gps_imcu.valid_fields, GPS_VALID_COURSE_BIT);
+
+      gps_imcu.pacc = DL_IMCU_REMOTE_GPS_pacc(imcu_msg_buf);
+      gps_imcu.sacc = DL_IMCU_REMOTE_GPS_sacc(imcu_msg_buf);
+      gps_imcu.num_sv = DL_IMCU_REMOTE_GPS_numsv(imcu_msg_buf);
+      gps_imcu.fix = DL_IMCU_REMOTE_GPS_fix(imcu_msg_buf);
+
+      // set gps msg time
+      gps_imcu.last_msg_ticks = sys_time.nb_sec_rem;
+      gps_imcu.last_msg_time = sys_time.nb_sec;
+
+      if (gps_imcu.fix >= GPS_FIX_3D) {
+        gps_imcu.last_3dfix_ticks = sys_time.nb_sec_rem;
+        gps_imcu.last_3dfix_time = sys_time.nb_sec;
+      }
+
+      AbiSendMsgGPS(GPS_IMCU_ID, now_ts, &gps_imcu);
       break;
     }
 

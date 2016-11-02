@@ -18,7 +18,7 @@
   <init fun="gps_skytraq_init()"/>
   <periodic fun="gps_skytraq_periodic_check()" freq="1." autorun="TRUE"/>
   <event fun="gps_skytraq_event()"/>
-  <makefile target="ap">
+  <makefile target="ap|fbw">
     <configure name="SKYTRAQ_GPS_PORT" default="$(GPS_PORT)" case="upper|lower"/>
     <configure name="SKYTRAQ_GPS_BAUD" default="$(GPS_BAUD)"/>
 
@@ -31,16 +31,19 @@
       ifdef SECONDARY_GPS
       ifneq (,$(findstring $(SECONDARY_GPS), skytraq))
       # this is the secondary GPS
-      ap.CFLAGS += -DGPS_SECONDARY_TYPE_H=\"subsystems/gps/gps_skytraq.h\"
-      ap.CFLAGS += -DSECONDARY_GPS=GPS_SKYTRAQ
+      $(TARGET).CFLAGS += -DGPS_SECONDARY_TYPE_H=\"subsystems/gps/gps_skytraq.h\"
+      $(TARGET).CFLAGS += -DSECONDARY_GPS=GPS_SKYTRAQ
       else
-      ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_skytraq.h\"
-      ap.CFLAGS += -DPRIMARY_GPS=GPS_SKYTRAQ
+      $(TARGET).CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_skytraq.h\"
+      $(TARGET).CFLAGS += -DPRIMARY_GPS=GPS_SKYTRAQ
       endif
       else
       # plain old single GPS usage
-      ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_skytraq.h\"
+      $(TARGET).CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_skytraq.h\"
       endif
     </raw>
+  </makefile>
+  <makefile target="fbw">
+    <define name="USE_GPS"/>
   </makefile>
 </module>
