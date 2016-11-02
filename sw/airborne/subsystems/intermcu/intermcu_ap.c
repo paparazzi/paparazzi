@@ -171,6 +171,8 @@ static inline void intermcu_parse_msg(void (*rc_frame_handler)(void))
       telemetry_intermcu_on_msg(0, msg, size);
       break;
     }
+#endif
+
 #if IMCU_GPS
     case DL_IMCU_REMOTE_GPS: {
       uint32_t now_ts = get_sys_time_usec();
