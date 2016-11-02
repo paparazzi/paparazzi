@@ -182,12 +182,6 @@ int configure_isp(struct v4l2_device *dev)
   avi_isp_lens_shading_correction_blue_coeff_mem_set_registers(&isp_ctx, &isp_config.lsc_blue_coeffs);
   avi_isp_bayer_set_registers(&isp_ctx, &isp_config.bayer);
   avi_isp_color_correction_set_registers(&isp_ctx, &isp_config.color_correction);
-  // printf("cc coeff_01_00: %d %d\r\n", isp_config.color_correction.coeff_01_00.coeff_00, isp_config.color_correction.coeff_01_00.coeff_01);
-  // printf("cc coeff_10_02: %d %d\r\n", isp_config.color_correction.coeff_10_02.coeff_02, isp_config.color_correction.coeff_10_02.coeff_10);
-  // printf("cc coeff_12_11: %d %d\r\n", isp_config.color_correction.coeff_12_11.coeff_11, isp_config.color_correction.coeff_12_11.coeff_12);
-  // printf("cc coeff_21_20: %d %d\r\n", isp_config.color_correction.coeff_21_20.coeff_20, isp_config.color_correction.coeff_21_20.coeff_21);
-  // printf("cc coeff_22: %d\r\n", isp_config.color_correction.coeff_22.coeff_22);
-  // printf("cc clip_ry: %8X\r\n", isp_config.color_correction.clip_ry._register);
   avi_isp_vlformat_40to32_set_registers(&isp_ctx, &isp_config.vlformat_40to32);
   avi_isp_gamma_corrector_set_registers(&isp_ctx, &isp_config.gamma_corrector);
   avi_isp_gamma_corrector_ry_lut_set_registers(&isp_ctx, &isp_config.gc_ry_lut);

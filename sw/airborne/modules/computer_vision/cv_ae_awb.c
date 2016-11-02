@@ -28,7 +28,7 @@
 #include "boards/bebop/mt9f002.h"
 #include "lib/isp/libisp.h"
 
-#define MAX_HIST_Y (256-10)
+#define MAX_HIST_Y 255
 
 #define sgn(x) (float)((x < 0) ? -1 : (x > 0))
 
@@ -59,30 +59,27 @@ void cv_ae_awb_periodic(void)
     }
 
     // Calculate bright and saturated pixels
-    uint32_t bright_pixels = cdf[MAX_HIST_Y - 1] - cdf[MAX_HIST_Y - 21]; // Top 20 bins
+    uint32_t bright_pixels = cdf[MAX_HIST_Y - 1] - cdf[MAX_HIST_Y - 26]; // Top 25 bins
     uint32_t saturated_pixels = cdf[MAX_HIST_Y - 1] - cdf[MAX_HIST_Y - 6]; // top 5 bins
-    uint32_t target_bright_pixels = yuv_stats.nb_valid_Y / 10; // 10%
-    uint32_t max_saturated_pixels = yuv_stats.nb_valid_Y / 400; // 0.25%
+    uint32_t target_bright_pixels = yuv_stats.nb_valid_Y / 20; // 5%
+    uint32_t max_saturated_pixels = yuv_stats.nb_valid_Y / 100; // 1%
     float adjustment = 1.0f;
 
-    printf("%d %d\n", bright_pixels, target_bright_pixels);
-
-    // Fix saturated pixels
-    if (saturated_pixels > max_saturated_pixels) {
-      adjustment = 1.0f - ((float)(saturated_pixels - max_saturated_pixels)) / yuv_stats.nb_valid_Y;
-    } else if (bright_pixels + target_bright_pixels / 10 <
-               target_bright_pixels) {  // Fix bright pixels if outside of 10% of target
+    if (saturated_pixels + max_saturated_pixels / 10 > max_saturated_pixels) {
+      // Fix saturated pixels
+      adjustment = 1.0f - (float)saturated_pixels / yuv_stats.nb_valid_Y;
+      adjustment *= adjustment * adjustment;  // speed up
+    } else if (bright_pixels + target_bright_pixels / 10 < target_bright_pixels) {
       // increase brightness to try and hit the desired number of well exposed pixels
-      int l = MAX_HIST_Y - 11;
+      int l = MAX_HIST_Y - 1;
       while (bright_pixels < target_bright_pixels && l > 0) {
         bright_pixels += cdf[l];
         bright_pixels -= cdf[l - 1];
         l--;
       }
 
-      adjustment = (float)(MAX_HIST_Y - 11 + 1) / (l + 1);
-    } else if (bright_pixels - target_bright_pixels / 10 >
-               target_bright_pixels) {  // Fix bright pixels if outside of 10% of target
+      adjustment = (float)MAX_HIST_Y / (l + 1);
+    } else if (bright_pixels - target_bright_pixels / 10 > target_bright_pixels) {
       // decrease brightness to try and hit the desired number of well exposed pixels
       int l = MAX_HIST_Y - 20;
       while (bright_pixels > target_bright_pixels && l < MAX_HIST_Y) {
@@ -102,11 +99,12 @@ void cv_ae_awb_periodic(void)
 #endif
 
 #if CV_AUTO_WHITE_BALANCE
+    // It is very important that the auto exposure converges faster than the color correction
     // Calculate AWB and project from original scale [0,255] onto more typical scale[-0.5,0.5]
     float avgU = ((float) yuv_stats.awb_sum_U / (float) yuv_stats.awb_nb_grey_pixels) / 256. - 0.5;
     float avgV = ((float) yuv_stats.awb_sum_V / (float) yuv_stats.awb_nb_grey_pixels) / 256. - 0.5;
     float threshold = 0.002f;
-    float gain = 1.;
+    float gain = 0.5;
     bool changed = false;
 
     if (fabs(avgU) > threshold) {

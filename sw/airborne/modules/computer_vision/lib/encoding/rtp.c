@@ -92,7 +92,8 @@ void rtp_frame_test(struct UdpSocket *udp)
  * @param[in] format_code 0 for YUV422 and 1 for YUV421
  * @param[in] quality_code The JPEG encoding quality
  * @param[in] has_dri_header Whether we have an DRI header or not
- * @param[in] delta_t Time between images in usec (if set to 0 or less it is calculated)
+ * @param[in] frame_time Time image was taken in usec (if set to 0 or less it is calculated)
+ * @param[in] packet_number The frame number of the rtp stream
  */
 void rtp_frame_send(struct UdpSocket *udp, struct image_t *img, uint8_t format_code,
                     uint8_t quality_code, uint8_t has_dri_header, uint32_t frame_time, uint32_t *packet_number)

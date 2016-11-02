@@ -3,7 +3,6 @@
 import cv2
 import sys
 import argparse
-import re
 from os import path, getenv
 
 PPRZ_SRC = getenv("PAPARAZZI_SRC", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../')))
@@ -78,7 +77,7 @@ class RtpViewer:
             self.mouse['start'] = None
 
     def on_mouse(self, event, x, y, flags, param):
-        if event == cv2.EVENT_LBUTTONDOWN and self.rotate == 0 and False:
+        if event == cv2.EVENT_LBUTTONDOWN and self.rotate == 0:
             self.mouse['start'] = (x, y)
 
         if event == cv2.EVENT_RBUTTONDOWN:

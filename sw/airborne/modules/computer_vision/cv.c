@@ -115,6 +115,7 @@ int8_t cv_async_function(struct cv_async *async, struct image_t *img)
   }
 
   // Copy image
+// TODO:this takes time causing some thread lag, should be replaced with gpu operation
   image_copy(img, &async->img_copy);
 
   // Inform thread of new image
