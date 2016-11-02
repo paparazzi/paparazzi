@@ -47,6 +47,7 @@ struct lidar_lite
   uint32_t distance_raw; // [cm]
   float distance; // [m]
   enum LidarLiteStatus status;
+  bool update_agl;
 };
 
 extern void lidar_lite_init(void);

@@ -55,6 +55,7 @@ void lidar_lite_init(void)
   lidar.trans.status = I2CTransDone;
   lidar.addr = LIDAR_LITE_I2C_ADDR;
   lidar.status = LIDAR_INIT_RANGING;
+  lidar.update_agl = USE_LIDAR_LITE_AGL;
 
   init_median_filter(&lidar_filter);
 }
@@ -93,8 +94,10 @@ void lidar_lite_periodic(void)
       lidar.distance_raw = update_median_filter(&lidar_filter, (uint32_t)((lidar.trans.buf[0] << 8) | lidar.trans.buf[1]));
       lidar.distance = ((float)lidar.distance_raw)/100.0;
 
-      // send message
-      AbiSendMsgAGL(AGL_LIDAR_LITE_ID, lidar.distance);
+      // send message (if requested)
+      if (lidar.update_agl) {
+        AbiSendMsgAGL(AGL_LIDAR_LITE_ID, lidar.distance);
+      }
 
       // increment status
       lidar.status = LIDAR_INIT_RANGING;

@@ -112,7 +112,7 @@
 #endif
 
 #ifndef AGL_LIDAR_LITE_ID
-#define AGL_LIDAR_LITE_ID 5
+#define AGL_LIDAR_LITE_ID 6
 #endif
 
 /*
