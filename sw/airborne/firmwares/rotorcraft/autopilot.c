@@ -241,6 +241,15 @@ static void send_fp(struct transport_tx *trans, struct link_device *dev)
                               &autopilot_flight_time);
 }
 
+static void send_fp_min(struct transport_tx *trans, struct link_device *dev)
+{;
+  pprz_msg_send_ROTORCRAFT_FP_MIN(trans, dev, AC_ID,
+                              &(stateGetPositionEnu_i()->x),
+                              &(stateGetPositionEnu_i()->y),
+                              &(stateGetPositionEnu_i()->z),
+                              &gps.gspeed);
+}
+
 #ifdef RADIO_CONTROL
 static void send_rc(struct transport_tx *trans, struct link_device *dev)
 {
@@ -328,6 +337,7 @@ void autopilot_init(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ATTITUDE, send_attitude);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ENERGY, send_energy);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ROTORCRAFT_FP, send_fp);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ROTORCRAFT_FP_MIN, send_fp_min);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ROTORCRAFT_CMD, send_rotorcraft_cmd);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DL_VALUE, send_dl_value);
 #ifdef ACTUATORS
