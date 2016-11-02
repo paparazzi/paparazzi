@@ -113,18 +113,18 @@
 
   <section name="IMU" prefix="IMU_">
     <!-- Calibration Neutral -->
-    <define name="GYRO_P_NEUTRAL" value="-16"/>
-    <define name="GYRO_Q_NEUTRAL" value="34"/>
-    <define name="GYRO_R_NEUTRAL" value="-15"/>
+    <define name="GYRO_P_NEUTRAL" value="-35"/>
+    <define name="GYRO_Q_NEUTRAL" value="47"/>
+    <define name="GYRO_R_NEUTRAL" value="0"/>
 
     <!-- SENS ITG3200  1/14.375 (deg/s)/LSB, rate frac 12bit => 1/14.375 * pi / 180 * 2^12 -->
     <define name="GYRO_P_SENS" value="4.97312" integer="16"/>
     <define name="GYRO_Q_SENS" value="4.97312" integer="16"/>
     <define name="GYRO_R_SENS" value="4.97312" integer="16"/>
 
-    <define name="ACCEL_X_NEUTRAL" value="1"/>
-    <define name="ACCEL_Y_NEUTRAL" value="-3"/>
-    <define name="ACCEL_Z_NEUTRAL" value="-14"/>
+    <define name="ACCEL_X_NEUTRAL" value="-12"/>
+    <define name="ACCEL_Y_NEUTRAL" value="0"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-27"/>
 
     <!-- SENS ADXL345 16G 31.2 mg/LSB, accel frac 10bit => 31.2 * 2^10 / 1000 -->
     <define name="ACCEL_X_SENS" value="37.91" integer="10"/>
