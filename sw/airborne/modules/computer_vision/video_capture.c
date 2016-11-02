@@ -32,6 +32,8 @@
 
 #include "lib/encoding/jpeg.h"
 
+// Note: this define is set automatically when the video_exif module is included,
+// and exposes functions to write data in the image exif headers.
 #if JPEG_WITH_EXIF_HEADER
 #include "lib/exif/exif_module.h"
 #endif
