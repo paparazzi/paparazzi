@@ -57,20 +57,23 @@ void gvf_ellipse_info(float *phi, struct gvf_grad *grad,
   float b = gvf_trajectory.p[3];
   float alpha = gvf_trajectory.p[4];
 
+  float cosa = cosf(alpha);
+  float sina = sinf(alpha);
+
   // Phi(x,y)
-  float xel = (px - wx) * cosf(alpha) - (py - wy) * sinf(alpha);
-  float yel = (px - wx) * sinf(alpha) + (py - wy) * cosf(alpha);
+  float xel = (px - wx) * cosa - (py - wy) * sina;
+  float yel = (px - wx) * sina + (py - wy) * cosa;
   *phi = (xel / a) * (xel / a) + (yel / b) * (yel / b) - 1;
 
   // grad Phi
-  grad->nx = (2 * xel / (a * a)) * cosf(alpha) + (2 * yel / (b * b)) * sinf(alpha);
-  grad->ny = (2 * yel / (b * b)) * cosf(alpha) - (2 * xel / (a * a)) * sinf(alpha);
+  grad->nx = (2 * xel / (a * a)) * cosa + (2 * yel / (b * b)) * sina;
+  grad->ny = (2 * yel / (b * b)) * cosa - (2 * xel / (a * a)) * sina;
 
   // Hessian Phi
-  hess->H11 = 2 * (cosf(alpha) * cosf(alpha) / (a * a)
-                   + sinf(alpha) * sinf(alpha) / (b * b));
-  hess->H12 = 2 * sinf(alpha) * cosf(alpha) * (1 / (b * b) - 1 / (a * a));
+  hess->H11 = 2 * (cosa * cosa / (a * a)
+                   + sina * sina / (b * b));
+  hess->H12 = 2 * sina * cosa * (1 / (b * b) - 1 / (a * a));
   hess->H21 = hess->H12;
-  hess->H22 = 2 * (sinf(alpha) * sinf(alpha) / (a * a)
-                   + cosf(alpha) * cosf(alpha) / (b * b));
+  hess->H22 = 2 * (sina * sina / (a * a)
+                   + cosa * cosa / (b * b));
 }

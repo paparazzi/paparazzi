@@ -63,22 +63,27 @@ void gvf_sin_info(float *phi, struct gvf_grad *grad,
   float off = gvf_trajectory.p[4];
   float A = gvf_trajectory.p[5];
 
+  float cosa = cosf(alpha);
+  float sina = sinf(alpha);
+
   // Phi(x,y)
-  float xs = (px - a) * sinf(alpha) - (py - b) * cosf(alpha);
-  float ys =  -(px - a) * cosf(alpha) - (py - b) * sinf(alpha);
+  float xs = (px - a) * sina - (py - b) * cosa;
+  float ys =  -(px - a) * cosa - (py - b) * sina;
 
   // TODO Make it always in (-pi, pi] in an efficient way
   float ang = (w * xs + off);
+  float cosang = cosf(ang);
+  float sinang = sinf(ang);
 
-  *phi = ys - A * sinf(ang);
+  *phi = ys - A * sinang;
 
   // grad Phi
-  grad->nx =  -cosf(alpha) - A * w * sinf(alpha) * cosf(ang);
-  grad->ny =  -sinf(alpha) + A * w * cosf(alpha) * cosf(ang);
+  grad->nx =  -cosa - A * w * sina * cosang;
+  grad->ny =  -sina + A * w * cosa * cosang;
 
   // Hessian Phi
-  hess->H11 =  A * w * w * sinf(alpha) * sinf(alpha) * sinf(ang);
-  hess->H12 = -A * w * w * sinf(alpha) * cosf(alpha) * sinf(ang);
-  hess->H21 = -A * w * w * cosf(alpha) * sinf(alpha) * sinf(ang);
-  hess->H22 =  A * w * w * cosf(alpha) * cosf(alpha) * sinf(ang);
+  hess->H11 =  A * w * w * sina * sina * sinang;
+  hess->H12 = -A * w * w * sina * cosa * sinang;
+  hess->H21 = -A * w * w * cosa * sina * sinang;
+  hess->H22 =  A * w * w * cosa * cosa * sinang;
 }
