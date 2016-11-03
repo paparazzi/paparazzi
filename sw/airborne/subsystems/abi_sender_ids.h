@@ -111,6 +111,10 @@
 #define AGL_TERARANGER_ONE_ID 5
 #endif
 
+#ifndef AGL_LIDAR_LITE_ID
+#define AGL_LIDAR_LITE_ID 6
+#endif
+
 /*
  * IDs of magnetometer sensors (including IMUs with mag)
  */

@@ -1,0 +1,28 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="lidar_lite" dir="lidar">
+  <doc>
+    <description>Lidar-Lite v1 (silver label) from PulsedLight3D sensor connected over i2c bus</description>
+    <configure name="LIDAR_LITE_I2C_DEV" value="i2c2" description="I2C device to use for Lidar-lite"/>
+    <configure name="LIDAR_LITE_I2C_ADDR" value="0x62" description="slave address of Lidar-lite"/>
+    <configure name="USE_LIDAR_LITE_AGL" value="1" description="use Lidar-lite for AGL measurements. On by deafult"/>
+  </doc>
+  <header>
+    <file name="lidar_lite.h"/>
+  </header>
+  <init fun="lidar_lite_init()"/>
+  <periodic fun="lidar_lite_downlink()" freq="10" autorun="FALSE"/> <!-- for debug -->
+  <periodic fun="lidar_lite_periodic()" freq="50"/> <!-- poll data, theoretical max is 50Hz (every 20ms) -->
+  <makefile>
+    <configure name="LIDAR_LITE_I2C_DEV" default="i2c1" case="lower|upper"/>
+    <configure name="LIDAR_LITE_I2C_ADDR" default="0xC4"/>
+    <configure name="USE_LIDAR_LITE_AGL" default="1"/>
+    <define name="LIDAR_LITE_I2C_DEV" value="$(LIDAR_LITE_I2C_DEV_LOWER)"/>
+    <define name="USE_$(LIDAR_LITE_I2C_DEV_UPPER)"/>
+    <define name="LIDAR_LITE_I2C_ADDR" value="$(LIDAR_LITE_I2C_ADDR)"/>
+    <define name="USE_LIDAR_LITE_AGL" value="$(USE_LIDAR_LITE_AGL)"/>
+    <file name="lidar_lite.c"/>
+  </makefile>
+</module>
+
+
