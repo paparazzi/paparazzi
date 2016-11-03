@@ -53,7 +53,7 @@ For more details we refer to https://wiki.paparazziuav.org/wiki/Module/guidance_
 
    <init fun = "gvf_init()"/>
 
-   <makefile>
+   <makefile firmware="fixedwing">
      <define name="GVF_ELLIPSE_A" value="80"/>
      <define name="GVF_ELLIPSE_B" value="80"/>
      <define name="GVF_ELLIPSE_ALPHA" value="0"/>
