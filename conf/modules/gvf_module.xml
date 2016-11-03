@@ -2,7 +2,9 @@
 
 <module name="gvf" dir="guidance/gvf">
   <doc>
-  <description>Guidance Vector Field Module </description>
+    <description>Guidance algorithm for tracking smooth trajectories. The algorithm is based on the idea of stearing the vehicle to a vector field that smoothly converges to the desired trajectory.
+For more details we refer to https://wiki.paparazziuav.org/wiki/Module/guidance_vector_field .
+    </description>
   </doc>
 
   <settings name="complete">
@@ -52,6 +54,14 @@
    <init fun = "gvf_init()"/>
 
    <makefile>
+     <define name="GVF_ELLIPSE_A" value="80"/>
+     <define name="GVF_ELLIPSE_B" value="80"/>
+     <define name="GVF_ELLIPSE_ALPHA" value="0"/>
+     <define name="GVF_SIN_ALPHA" value="0"/>
+     <define name="GVF_SIN_W" value="0"/>
+     <define name="GVF_SIN_OFF" value="0"/>
+     <define name="GVF_SIN_A" value="0"/>
+     <define name="GVF_LINE_ALPHA" value="0"/>
      <file name="gvf.c"/>
      <file name="trajectories/gvf_line.c"/>
      <file name="trajectories/gvf_sin.c"/>
