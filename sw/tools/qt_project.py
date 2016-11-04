@@ -85,11 +85,20 @@ srcs = re.findall(r'([^ \t\n\r]+)', srcs_all)
 for src in srcs:
     files_file.write(path.join("sw", "airborne", src) + "\n")
 # Parse the header files
-headers_all = ap_srcs_list.readline().split(":  ")[1]
+headers_all =  ""
+line = "1"
+while line:
+    line=ap_srcs_list.readline()
+    line = line.strip()
+    if ":" in line:
+        line = line.split(":")[-1]
+    if not line.endswith('h'): #remove escape \ at end of line
+        line = line[:-2]
+    headers_all = headers_all + line + " "
+
 headers = re.findall(r'([^ \t\n\r]+)', headers_all)
 for header in headers:
     files_file.write(path.join("sw", "airborne", header) + "\n")
-
 files_file.close()
 
 # Generate the project file

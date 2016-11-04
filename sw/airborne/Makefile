@@ -38,7 +38,7 @@ VPATH = .
 ifneq ($(MAKECMDGOALS),clean)
   include $(AIRCRAFT_BUILD_DIR)/Makefile.ac
   $(TARGET).srcs += $($(TARGET).EXTRA_SRCS)
-  include $(PAPARAZZI_HOME)/conf/Makefile.local
+  include $(PAPARAZZI_SRC)/conf/Makefile.local
 
 # check if ARCHDIR is set
   ifeq ($($(TARGET).ARCHDIR), )

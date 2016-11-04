@@ -85,12 +85,12 @@ NPROCS := 1
 J ?= AUTO
 ifeq ($J,AUTO)
 ifeq ($(UNAME),Linux)
-  NPROCS := $(shell grep -c ^processor /proc/cpuinfo)
+	NPROCS := $(shell grep -c ^processor /proc/cpuinfo)
 else ifeq ($(UNAME),Darwin)
-  NPROCS := $(shell sysctl hw.ncpu | awk '{print $$2}')
+	NPROCS := $(shell sysctl hw.ncpu | awk '{print $$2}')
 endif # $(UNAME)
 else # not auto, explicitly specified
-  NPROCS := $J
+	NPROCS := $J
 endif
 
 #
@@ -160,9 +160,9 @@ $(SRCS_LIST) : $(CONF_XML) $(AIRFRAME_H) $(MODULES_H) $(SETTINGS_H) $(MAKEFILE_A
 	@echo "srcs: " $($(TARGET).srcs) >> $(SRCS_LIST)
 	@echo -n "headers:  " >> $(SRCS_LIST)
 ifeq (,$(findstring cpp,$($(TARGET).srcs)))
-	$(Q)cd $(AIRBORNE); $(CC) -MM  $(CFLAGS) $($(TARGET).srcs) | tr '\n' ' ' | sed -e 's/[^ ]+\.o: //g' -e 's/\\//g' -e 's/\s\s*/ /g' -e 's/[^ ]\.c //g' | sort -u >> $(SRCS_LIST)
+	$(Q)cd $(AIRBORNE) ; ../../sw/tools/find_vpaths.py $(CC) $(VPATH) + $($(TARGET).srcs) + $(CFLAGS) >> $(SRCS_LIST)
 else
-	$(Q)cd $(AIRBORNE); $(CXX) -MM  $(CXXFLAGS) $($(TARGET).srcs) | tr '\n' ' ' | sed -e 's/[^ ]+\.o: //g' -e 's/\\//g' -e 's/\s\s*/ /g' -e 's/[^ ]\.c //g' | sort -u >> $(SRCS_LIST)
+	$(Q)cd $(AIRBORNE) ; ../../sw/tools/find_vpaths.py $(CXX) $(VPATH) + $($(TARGET).srcs) + $(CXXFLAGS) >> $(SRCS_LIST)
 endif
 
 qt_project : $(SRCS_LIST)
