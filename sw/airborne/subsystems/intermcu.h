@@ -57,6 +57,8 @@ enum intermcu_PX4_baud_status {
 enum intermcu_cmd_status {
   INTERMCU_CMD_MOTORS_ON,           ///< The status of autopilot_motors_on
   INTERMCU_CMD_DISARM,              ///< Whether or not to dis-arm the FBW
+  INTERMCU_CMD_TIPPROPS,            ///< Enable tip props
+  INTERMCU_CMD_FAILSAFE,            ///< Set FBW in failsafe mode
 };
 
 /* Easy accessible defines for cmd_status bits */
