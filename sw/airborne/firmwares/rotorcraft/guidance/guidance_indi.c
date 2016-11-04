@@ -43,8 +43,22 @@
 #include "firmwares/rotorcraft/stabilization.h"
 #include "stdio.h"
 
+// The acceleration reference is calculated with these gains. If you use GPS,
+// they are probably limited by the update rate of your GPS. The default
+// values are tuned for 4 Hz GPS updates. If you have high speed position updates, the
+// gains can be higher, depending on the speed of the inner loop.
+#ifdef GUIDANCE_INDI_POS_GAIN
+float guidance_indi_pos_gain = GUIDANCE_INDI_POS_GAIN;
+#else
 float guidance_indi_pos_gain = 0.5;
+#endif
+
+#ifdef GUIDANCE_INDI_SPEED_GAIN
+float guidance_indi_speed_gain = GUIDANCE_INDI_SPEED_GAIN;
+#else
 float guidance_indi_speed_gain = 1.8;
+#endif
+
 struct FloatVect3 sp_accel = {0.0,0.0,0.0};
 #ifdef GUIDANCE_INDI_SPECIFIC_FORCE_GAIN
 float thrust_in_specific_force_gain = GUIDANCE_INDI_SPECIFIC_FORCE_GAIN;
