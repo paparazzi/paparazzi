@@ -128,6 +128,7 @@
     <define name="G1_ROLL" value="{20 , -20, -20 , 20 }"/>
     <define name="G1_PITCH" value="{14 , 14, -14 , -14 }"/>
     <define name="G1_YAW" value="{-1, 1, -1, 1}"/>
+    <define name="G1_THRUST" value="{-.83, -.83, -.83, -.83}"/>
     <!--Counter torque effect of spinning up a rotor-->
     <define name="G2" value="{-61.2093,   65.3670,  -65.7419,   65.4516}"/>
 
@@ -149,7 +150,7 @@
     <define name="ACT_DYN" value="0.1"/>
 
     <!-- Adaptive Learning Rate -->
-    <define name="USE_ADAPTIVE" value="FALSE"/>
+    <define name="USE_ADAPTIVE" value="TRUE"/>
     <define name="ADAPTIVE_MU" value="0.0001"/>
   </section>
 

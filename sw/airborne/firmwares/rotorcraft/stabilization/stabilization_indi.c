@@ -62,6 +62,8 @@ struct ReferenceSystem reference_acceleration = {
 
 //only 4 actuators supported for now
 #define INDI_NUM_ACT 4
+// outputs: roll, pitch, yaw, thrust
+#define INDI_OUTPUTS 4
 
 #if STABILIZATION_INDI_USE_ADAPTIVE
 bool indi_use_adaptive = true;
@@ -70,23 +72,25 @@ bool indi_use_adaptive = false;
 #endif
 
 // variables needed for control
-float actuator_state_filt_vect[4] = {0.0, 0.0, 0.0, 0.0};
+float actuator_state_filt_vect[INDI_NUM_ACT];
 struct FloatRates angular_accel_ref = {0., 0., 0.};
 float angular_acceleration[3] = {0., 0., 0.};
-float actuator_state[4] = {0.0, 0.0, 0.0, 0.0};
-float indi_u[4] = {0.0, 0.0, 0.0, 0.0};
-float indi_du[4] = {0.0, 0.0, 0.0, 0.0};
+float actuator_state[INDI_NUM_ACT];
+float indi_u[INDI_NUM_ACT];
+float indi_du[INDI_NUM_ACT];
 float G2_times_du;
 
 // variables needed for estimation
-struct FloatMat33 G1G2_trans_mult;
-struct FloatMat33 G1G2inv;
+/*struct FloatMat33 G1G2_trans_mult;*/
+float G1G2_trans_mult[INDI_OUTPUTS][INDI_OUTPUTS];
+/*struct FloatMat33 G1G2inv;*/
+float G1G2inv[INDI_OUTPUTS][INDI_OUTPUTS];
 float actuator_state_filt_vectd[INDI_NUM_ACT];
 float actuator_state_filt_vectdd[INDI_NUM_ACT];
 float estimation_rate_d[INDI_NUM_ACT];
 float estimation_rate_dd[INDI_NUM_ACT];
-float du_estimation[4] = {0.0, 0.0, 0.0, 0.0};
-float ddu_estimation[4] = {0.0, 0.0, 0.0, 0.0};
+float du_estimation[INDI_NUM_ACT];
+float ddu_estimation[INDI_NUM_ACT];
 float mu1 = 0.00001;
 float mu2 = 0.00001*200.0;
 
@@ -99,22 +103,13 @@ struct Int32Quat   stab_att_sp_quat;
 abi_event rpm_ev;
 static void rpm_cb(uint8_t sender_id, uint16_t *rpm, uint8_t num_act);
 
-#if OUTER_LOOP_INDI
-float G1G2_pseudo_inv[4][4] = {{   11.6494,   15.7972,   -3.6861, -306.8446},
-                               {  -12.7131,   14.5322,    3.8301, -302.7462},
-                               {  -12.4162,  -17.8758,   -4.0093, -317.1131},
-                               {   11.0249,  -17.7113,    3.7178, -303.1488}};
-//G2 is scaled by 1000 to make it readable
-float G2[4] = STABILIZATION_INDI_G2; //scaled by 1000
-#else
-float G1G2_pseudo_inv[4][3];
-float G2[4] = STABILIZATION_INDI_G2; //scaled by 1000
-#endif
-float G1[3][4] = {STABILIZATION_INDI_G1_ROLL,
-  STABILIZATION_INDI_G1_PITCH, STABILIZATION_INDI_G1_YAW};
-float G1G2[3][4];
-float G1_new[3][4];
-float G2_new[4];
+float G1G2_pseudo_inv[INDI_NUM_ACT][INDI_OUTPUTS];
+float G2[INDI_NUM_ACT] = STABILIZATION_INDI_G2; //scaled by 1000
+float G1[INDI_OUTPUTS][INDI_NUM_ACT] = {STABILIZATION_INDI_G1_ROLL,
+  STABILIZATION_INDI_G1_PITCH, STABILIZATION_INDI_G1_YAW, STABILIZATION_INDI_G1_THRUST};
+float G1G2[INDI_OUTPUTS][INDI_NUM_ACT];
+float G1_new[INDI_OUTPUTS][INDI_NUM_ACT];
+float G2_new[INDI_NUM_ACT];
 
 Butterworth2LowPass actuator_lowpass_filters[INDI_NUM_ACT];
 Butterworth2LowPass estimation_input_lowpass_filters[INDI_NUM_ACT];
@@ -149,6 +144,7 @@ void stabilization_indi_init(void)
   float_vect_zero(actuator_state_filt_vectdd, INDI_NUM_ACT);
   float_vect_zero(estimation_rate_d, INDI_NUM_ACT);
   float_vect_zero(estimation_rate_dd, INDI_NUM_ACT);
+  float_vect_zero(actuator_state_filt_vect, INDI_NUM_ACT);
 
   //Calculate G1G2_PSEUDO_INVERSE
   calc_g1g2_pseudo_inv();
@@ -168,6 +164,13 @@ void stabilization_indi_enter(void)
 
   // reset filters
   init_filters();
+
+
+  float_vect_zero(actuator_state, INDI_NUM_ACT);
+  float_vect_zero(indi_u, INDI_NUM_ACT);
+  float_vect_zero(indi_du, INDI_NUM_ACT);
+  float_vect_zero(du_estimation, INDI_NUM_ACT);
+  float_vect_zero(ddu_estimation, INDI_NUM_ACT);
 }
 
 /**
@@ -240,7 +243,6 @@ void stabilization_indi_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading)
   quat_from_earth_cmd_i(&stab_att_sp_quat, cmd, heading);
 }
 
-#include <stdio.h>
 /**
  * @param att_err attitude error
  * @param rate_control boolean that states if we are in rate control or attitude control
@@ -249,7 +251,6 @@ void stabilization_indi_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading)
  */
 static void stabilization_indi_calc_cmd(struct Int32Quat *att_err, bool rate_control, bool in_flight)
 {
-  printf("printing");
   //calculate the virtual control (reference acceleration) based on a PD controller
   angular_accel_ref.p = reference_acceleration.err_p * QUAT1_FLOAT_OF_BFP(att_err->qx)
                         - reference_acceleration.rate_p * stateGetBodyRates_f()->p;
@@ -323,10 +324,8 @@ static void stabilization_indi_calc_cmd(struct Int32Quat *att_err, bool rate_con
   if(!in_flight) {
     float_vect_zero(indi_u, INDI_NUM_ACT);
   }
-  else if(stabilization_cmd[COMMAND_THRUST] < 800) {
-    if(indi_use_adaptive) {
-      lms_estimation();
-    }
+  else if( (stabilization_cmd[COMMAND_THRUST] > 800) && indi_use_adaptive) {
+    lms_estimation();
   }
 
   /*Commit the actuator command*/
@@ -447,47 +446,44 @@ void lms_estimation(void) {
   //Estimation of G
   // TODO: only estimate when there du_norm2 is large enough (enough input)
   /*float du_norm2 = du_estimation[0]*du_estimation[0] + du_estimation[1]*du_estimation[1] +du_estimation[2]*du_estimation[2] + du_estimation[3]*du_estimation[3];*/
-    for(int8_t i=0; i<3; i++) {
-      float mu_scaling = 1.0;
-      float ddx_error = G1[i][0]*du_estimation[0] + G1[i][1]*du_estimation[1] + G1[i][2]*du_estimation[2] + G1[i][3]*du_estimation[3] - estimation_rate_dd[i];
+  for(int8_t i=0; i<3; i++) {
+    float mu_scaling = 1.0;
+    float ddx_error = G1[i][0]*du_estimation[0] + G1[i][1]*du_estimation[1] + G1[i][2]*du_estimation[2] + G1[i][3]*du_estimation[3] - estimation_rate_dd[i];
 
-      //if the yaw axis, also use G2
-      if(i==2) {
-        // The yaw axis typically needs slower learning, perhaps due to large inputs
-        mu_scaling = 0.3;
-        ddx_error = ddx_error + G2[0]*ddu_estimation[0] + G2[1]*ddu_estimation[1] + G2[2]*ddu_estimation[2] + G2[3]*ddu_estimation[3];
-        for(int8_t j=0; j<4; j++) {
-          calc_g2_element(ddx_error,j,mu2);
-        }
-      }
-
-      // Calculate the row of the G1 matrix corresponding to this axis
+    // when doing the yaw axis, also use G2
+    if(i==2) {
+      // The yaw axis typically needs slower learning, perhaps due to large inputs
+      mu_scaling = 0.3;
+      ddx_error = ddx_error + G2[0]*ddu_estimation[0] + G2[1]*ddu_estimation[1] + G2[2]*ddu_estimation[2] + G2[3]*ddu_estimation[3];
       for(int8_t j=0; j<4; j++) {
-        calc_g1_element(ddx_error, i, j, (mu1*mu_scaling));
+        calc_g2_element(ddx_error,j,mu2);
       }
     }
 
-    // Save the calculated matrix to G1 and G2
+    // Calculate the row of the G1 matrix corresponding to this axis
     for(int8_t j=0; j<4; j++) {
-      G2[j] = G2_new[j];
-      for(int8_t i=0; i<3; i++) {
-        G1[i][j] = G1_new[i][j];
-      }
+      calc_g1_element(ddx_error, i, j, (mu1*mu_scaling));
     }
+  }
 
-    // Calculate the inverse of (G1+G2)
-    calc_g1g2_pseudo_inv();
+  // Save the calculated matrix to G1 and G2
+  // until thrust is included, first part of the array
+  float_vect_copy(G1[0], G1_new[0], 3*INDI_NUM_ACT);
+  float_vect_copy(G2, G2_new, INDI_NUM_ACT);
+
+  // Calculate the inverse of (G1+G2)
+  calc_g1g2_pseudo_inv();
 }
 
 /**
- * Function that calculates the inverse of (G1+G2).
+ * Function that calculates the pseudo-inverse of (G1+G2).
  */
 void calc_g1g2_pseudo_inv(void) {
 
   //sum of G1 and G2
-  for(int8_t i=0; i<3; i++) {
-    for(int8_t j=0; j<4; j++) {
-      if(i<2)
+  for(int8_t i=0; i<INDI_OUTPUTS; i++) {
+    for(int8_t j=0; j<INDI_NUM_ACT; j++) {
+      if(i!=2)
         G1G2[i][j] = G1[i][j]/1000.0;
       else
         G1G2[i][j] = G1[i][j]/1000.0 + G2[j]/1000.0;
@@ -495,34 +491,35 @@ void calc_g1g2_pseudo_inv(void) {
   }
 
   //G1G2*transpose(G1G2)
-  //calculate matrix multiplication of its transpose 3x4 x 4x3
+  //calculate matrix multiplication of its transpose INDI_OUTPUTSxnum_act x num_actxINDI_OUTPUTS
   float element = 0;
-  for(int8_t row=0; row<3; row++) {
-    for(int8_t col=0; col<3; col++) {
+  for(int8_t row=0; row<INDI_OUTPUTS; row++) {
+    for(int8_t col=0; col<INDI_OUTPUTS; col++) {
       element = 0;
-      for(int8_t i=0; i<4; i++) {
+      for(int8_t i=0; i<INDI_NUM_ACT; i++) {
         element = element + G1G2[row][i]*G1G2[col][i];
       }
-      MAT33_ELMT(G1G2_trans_mult,row,col) = element;
+      G1G2_trans_mult[row][col] = element;
     }
   }
 
   //there are numerical errors if the scaling is not right.
-  MAT33_MULT_SCALAR(G1G2_trans_mult,100.0);
+  float_vect_scale(G1G2_trans_mult[0], 100.0, INDI_OUTPUTS*INDI_NUM_ACT);
 
-  //inverse of 3x3 matrix
-  MAT33_INV(G1G2inv,G1G2_trans_mult);
+  //inverse of 4x4 matrix
+  /*MAT33_INV(G1G2inv,G1G2_trans_mult);*/
+  float_mat_inv_4d(G1G2inv[0], G1G2_trans_mult[0]);
 
   //scale back
-  MAT33_MULT_SCALAR(G1G2inv,100.0);
+  float_vect_scale(G1G2inv[0], 100.0, INDI_OUTPUTS*INDI_NUM_ACT);
 
   //G1G2'*G1G2inv
-  //calculate matrix multiplication 4x3 x 3x3
-  for(int8_t row=0; row<4; row++) {
-    for(int8_t col=0; col<3; col++) {
+  //calculate matrix multiplication INDI_NUM_ACTxINDI_OUTPUTS x INDI_OUTPUTSxINDI_OUTPUTS
+  for(int8_t row=0; row<INDI_NUM_ACT; row++) {
+    for(int8_t col=0; col<INDI_OUTPUTS; col++) {
       element = 0;
-      for(int8_t i=0; i<3; i++) {
-        element = element + G1G2[i][row]*MAT33_ELMT(G1G2inv,col,i);
+      for(int8_t i=0; i<INDI_OUTPUTS; i++) {
+        element = element + G1G2[i][row]*G1G2inv[col][i];
       }
       G1G2_pseudo_inv[row][col] = element;
     }

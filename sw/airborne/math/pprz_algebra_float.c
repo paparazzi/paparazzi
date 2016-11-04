@@ -578,3 +578,62 @@ void float_eulers_of_quat(struct FloatEulers *e, struct FloatQuat *q)
   e->theta = -asinf(dcm02);
   e->psi = atan2f(dcm01, dcm00);
 }
+
+/*
+ * 4x4 Matrix inverse.
+ * obtained from: http://rodolphe-vaillant.fr/?e=7
+ */
+float float_mat_minor_4d(float m[16], int r0, int r1, int r2, int c0, int c1, int c2);
+void float_mat_adjoint_4d(float m[16], float adjOut[16]);
+float float_mat_det_4d(float m[16]);
+
+float float_mat_minor_4d(float m[16], int r0, int r1, int r2, int c0, int c1, int c2)
+{
+    return m[4*r0+c0] * (m[4*r1+c1] * m[4*r2+c2] - m[4*r2+c1] * m[4*r1+c2]) -
+           m[4*r0+c1] * (m[4*r1+c0] * m[4*r2+c2] - m[4*r2+c0] * m[4*r1+c2]) +
+           m[4*r0+c2] * (m[4*r1+c0] * m[4*r2+c1] - m[4*r2+c0] * m[4*r1+c1]);
+}
+
+
+void float_mat_adjoint_4d(float m[16], float adjOut[16])
+{
+  adjOut[ 0] =  float_mat_minor_4d(m,1,2,3,1,2,3);
+  adjOut[ 1] = -float_mat_minor_4d(m,0,2,3,1,2,3);
+  adjOut[ 2] =  float_mat_minor_4d(m,0,1,3,1,2,3);
+  adjOut[ 3] = -float_mat_minor_4d(m,0,1,2,1,2,3);
+  adjOut[ 4] = -float_mat_minor_4d(m,1,2,3,0,2,3);
+  adjOut[ 5] =  float_mat_minor_4d(m,0,2,3,0,2,3);
+  adjOut[ 6] = -float_mat_minor_4d(m,0,1,3,0,2,3);
+  adjOut[ 7] =  float_mat_minor_4d(m,0,1,2,0,2,3);
+  adjOut[ 8] =  float_mat_minor_4d(m,1,2,3,0,1,3);
+  adjOut[ 9] = -float_mat_minor_4d(m,0,2,3,0,1,3);
+  adjOut[10] =  float_mat_minor_4d(m,0,1,3,0,1,3);
+  adjOut[11] = -float_mat_minor_4d(m,0,1,2,0,1,3);
+  adjOut[12] = -float_mat_minor_4d(m,1,2,3,0,1,2);
+  adjOut[13] =  float_mat_minor_4d(m,0,2,3,0,1,2);
+  adjOut[14] = -float_mat_minor_4d(m,0,1,3,0,1,2);
+  adjOut[15] =  float_mat_minor_4d(m,0,1,2,0,1,2);
+}
+
+float float_mat_det_4d(float m[16])
+{
+    return m[0] * float_mat_minor_4d(m, 1, 2, 3, 1, 2, 3) -
+           m[1] * float_mat_minor_4d(m, 1, 2, 3, 0, 2, 3) +
+           m[2] * float_mat_minor_4d(m, 1, 2, 3, 0, 1, 3) -
+           m[3] * float_mat_minor_4d(m, 1, 2, 3, 0, 1, 2);
+}
+
+/**
+ * 4x4 Matrix inverse
+ *
+ * @param invOut output array, inverse of mat_in
+ * @param mat_in input array
+ */
+void float_mat_inv_4d(float invOut[16], float mat_in[16])
+{
+    float_mat_adjoint_4d(mat_in, invOut);
+
+    float inv_det = 1.0f / float_mat_det_4d(mat_in);
+    for(int i = 0; i < 16; ++i)
+        invOut[i] = invOut[i] * inv_det;
+}
