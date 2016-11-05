@@ -21,7 +21,7 @@ WIDTH = 800
 HEIGHT = 800
 
 class GVFFrame(wx.Frame):
-    def __init__(self, ac_id=3):
+    def __init__(self, ac_id):
 
         wx.Frame.__init__(self, id=-1, parent=None, \
                 name=u'GVF', size=wx.Size(WIDTH, HEIGHT), \
