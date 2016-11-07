@@ -242,12 +242,18 @@ static void send_fp(struct transport_tx *trans, struct link_device *dev)
 }
 
 static void send_fp_min(struct transport_tx *trans, struct link_device *dev)
-{;
+{
+#if USE_GPS
+  uint16_t gspeed = gps.gspeed;
+#else
+  // ground speed in cm/s
+  uint16_t gspeed = stateGetHorizontalSpeedNorm_f() / 100;
+#endif
   pprz_msg_send_ROTORCRAFT_FP_MIN(trans, dev, AC_ID,
                               &(stateGetPositionEnu_i()->x),
                               &(stateGetPositionEnu_i()->y),
                               &(stateGetPositionEnu_i()->z),
-                              &gps.gspeed);
+                              &gspeed);
 }
 
 #ifdef RADIO_CONTROL
