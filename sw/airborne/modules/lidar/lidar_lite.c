@@ -86,11 +86,6 @@ void lidar_lite_periodic(void)
       break;
     case LIDAR_READ_DISTANCE:
       // filter data
-      /*
-      lidar.distance_raw = (uint16_t)((lidar.trans.buf[0] << 8) + lidar.trans.buf[1]);
-      lidar.distance = update_median_filter(&lidar_filter, (int32_t)lidar.distance_raw);
-      */
-      //lidar.distance_raw = (uint32_t)((lidar.trans.buf[0] << 8) | lidar.trans.buf[1]);
       lidar.distance_raw = update_median_filter(&lidar_filter, (uint32_t)((lidar.trans.buf[0] << 8) | lidar.trans.buf[1]));
       lidar.distance = ((float)lidar.distance_raw)/100.0;
 
