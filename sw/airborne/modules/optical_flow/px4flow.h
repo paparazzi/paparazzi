@@ -96,6 +96,7 @@ struct mavlink_heartbeat {
   uint8_t mavlink_version; //_mavlink_version MAVLink version, not writable by user, gets added by protocol because of magic data type: uint8_t_mavlink_version
 };
 
+
 extern struct mavlink_heartbeat heartbeat;
 extern struct mavlink_optical_flow optical_flow;
 extern struct mavlink_optical_flow_rad optical_flow_rad;

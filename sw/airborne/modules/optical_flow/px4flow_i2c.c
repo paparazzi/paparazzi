@@ -105,7 +105,10 @@ static inline void px4flow_i2c_frame_cb(void)
   // update filter
   ground_distance = update_median_filter(&sonar_filter, (int32_t)px4flow.i2c_frame.ground_distance);
   ground_distance_float = ((float)ground_distance) / 1000.0;
-  AbiSendMsgAGL(AGL_SONAR_PX4FLOW_ID, ground_distance_float);
+
+  if (px4flow.update_agl) {
+    AbiSendMsgAGL(AGL_SONAR_PX4FLOW_ID, ground_distance_float);
+  }
 }
 
 
@@ -117,6 +120,7 @@ void px4flow_i2c_init(void)
   px4flow.trans.status = I2CTransDone;
   px4flow.addr = PX4FLOW_I2C_ADDR;
   px4flow.status = PX4FLOW_FRAME_REQ;
+  px4flow.update_agl = USE_PX4FLOW_AGL;
 
   init_median_filter(&sonar_filter);
 }

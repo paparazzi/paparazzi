@@ -78,6 +78,7 @@ struct px4flow_data
   struct i2c_transaction trans;
   uint8_t addr;
   enum Px4FlowStatus status;
+  bool update_agl;
 };
 
 extern void px4flow_i2c_init(void);

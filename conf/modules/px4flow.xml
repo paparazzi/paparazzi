@@ -4,6 +4,7 @@
   <doc>
     <description>PX4FLOW optical flow sensor</description>
     <configure name="PX4FLOW_NOISE_STDDEV" value="1.0" description="standard deviation of the flow measurement (if known)"/>
+    <configure name="USE_PX4FLOW_AGL" value="1" description="update AGL measurements from onboard sonar"/>
   </doc>
   <depends>mavlink_decoder</depends>
   <header>
@@ -13,7 +14,9 @@
   <periodic fun="px4flow_downlink()" freq="10" autorun="FALSE"/> <!-- for debug -->
   <makefile>
     <configure name="PX4FLOW_NOISE_STDDEV" default="1.0"/>
+    <configure name="USE_PX4FLOW_AGL" default="1"/>
     <define name="PX4FLOW_NOISE_STDDEV" value="$(PX4FLOW_NOISE_STDDEV)"/>
+    <define name="USE_PX4FLOW_AGL" value="$(USE_PX4FLOW_AGL)"/>
     <file name="px4flow.c"/>
   </makefile>
 </module>

@@ -69,6 +69,9 @@ struct mavlink_msg_req req_flow;
 struct mavlink_msg_req req_flow_rad;
 struct mavlink_msg_req req_heartbeat;
 
+// enable/disable AGL updates
+bool px4flow_update_agl;
+
 
 // callback function on message reception
 static void decode_optical_flow_msg(struct mavlink_message *msg __attribute__((unused)))
@@ -90,9 +93,11 @@ static void decode_optical_flow_msg(struct mavlink_message *msg __attribute__((u
                                 noise);
   }
 
-  // positive distance means it's known/valid
-  if (optical_flow.ground_distance > 0) {
-    AbiSendMsgAGL(AGL_SONAR_PX4FLOW_ID, optical_flow.ground_distance);
+  if (px4flow_update_agl) {
+    // positive distance means it's known/valid
+    if (optical_flow.ground_distance > 0) {
+      AbiSendMsgAGL(AGL_SONAR_PX4FLOW_ID, optical_flow.ground_distance);
+    }
   }
 }
 
@@ -133,6 +138,7 @@ void px4flow_init(void)
   req_heartbeat.msg.payload = (uint8_t *)(&heartbeat);
   mavlink_register_msg(&mavlink_tp, &req_heartbeat);
 
+  px4flow_update_agl = USE_PX4FLOW_AGL;
 }
 
 
