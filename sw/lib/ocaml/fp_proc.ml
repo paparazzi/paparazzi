@@ -124,6 +124,9 @@ let transform_stage = fun prefix reroutes env xml ->
             | "manual" ->
               let attribs = transform_values [] env attribs in
               Xml.Element (tag, attribs, children)
+            | "return" ->
+              let attribs = transform_values ["reset_stage"] env attribs in
+              Xml.Element (tag, attribs, children)
             | "go" ->
               assert (children=[]);
               let attribs = transform_values ["wp";"from";"hmode";"vmode"] env attribs in
