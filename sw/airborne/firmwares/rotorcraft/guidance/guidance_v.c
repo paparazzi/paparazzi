@@ -27,6 +27,7 @@
 #include "generated/airframe.h"
 #include "firmwares/rotorcraft/guidance/guidance_v.h"
 #include "firmwares/rotorcraft/guidance/guidance_module.h"
+#include "firmwares/rotorcraft/guidance/guidance_h.h"
 
 #include "firmwares/rotorcraft/guidance/guidance_hybrid.h"
 #include "subsystems/radio_control.h"
@@ -370,11 +371,18 @@ void guidance_v_run(bool in_flight)
         guidance_v_zd_sp = 0;
         gv_update_ref_from_z_sp(guidance_v_z_sp);
         run_hover_loop(in_flight);
+        Bound(guidance_v_delta_t, OUTBACK_MIN_HOVER_THROTTLE, OUTBACK_MAX_HOVER_THROTTLE);
+#if HYBRID_NAVIGATION
+        if(transition_percentage > 0) {
+          guidance_hybrid_vertical();
+        }
+#endif
       } else if (vertical_mode == VERTICAL_MODE_CLIMB) {
         guidance_v_z_sp = stateGetPositionNed_i()->z;
         guidance_v_zd_sp = -nav_climb;
         gv_update_ref_from_zd_sp(guidance_v_zd_sp, stateGetPositionNed_i()->z);
         run_hover_loop(in_flight);
+        Bound(guidance_v_delta_t, OUTBACK_MIN_HOVER_THROTTLE, OUTBACK_MAX_HOVER_THROTTLE);
       } else if (vertical_mode == VERTICAL_MODE_MANUAL) {
         guidance_v_z_sp = stateGetPositionNed_i()->z;
         guidance_v_zd_sp = stateGetSpeedNed_i()->z;
@@ -385,13 +393,15 @@ void guidance_v_run(bool in_flight)
 #if HYBRID_NAVIGATION
       guidance_hybrid_vertical();
 #else
+      if(transition_percentage <= 0) {
 #if !NO_RC_THRUST_LIMIT
-      /* use rc limitation if available */
-      if (radio_control.status == RC_OK) {
-        stabilization_cmd[COMMAND_THRUST] = Min(guidance_v_rc_delta_t, guidance_v_delta_t);
-      } else
+        /* use rc limitation if available */
+        if (radio_control.status == RC_OK) {
+          stabilization_cmd[COMMAND_THRUST] = Min(guidance_v_rc_delta_t, guidance_v_delta_t);
+        } else
 #endif
-        stabilization_cmd[COMMAND_THRUST] = guidance_v_delta_t;
+          stabilization_cmd[COMMAND_THRUST] = guidance_v_delta_t;
+      }
 #endif
       break;
     }

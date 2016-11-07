@@ -71,6 +71,8 @@ void swashplate_mixing_init()
   }
 }
 
+#include "subsystems/radio_control.h"
+
 /*
  * Run the swashplate mixing
  * This depends on the ROLL and PITCH command
@@ -80,12 +82,23 @@ void swashplate_mixing_run(pprz_t in_cmd[])
 {
   uint8_t i;
 
+  int16_t cmd_roll;
+  int16_t cmd_pitch;
+
+  float compensation_angle_p = 0.9042;//(radio_control.values[8]+9600.0)/(2*9600.0)*1.2472;
+  float compensation_angle_q = 0;//(radio_control.values[9]+9600.0)/(2*9600.0)*1.0472;
+  //float compensation_angle = 0.733;
+
+  // Add advance compensation with G matrix
+  cmd_roll  = cosf(compensation_angle_p)*in_cmd[COMMAND_ROLL] - sinf(compensation_angle_q)*in_cmd[COMMAND_PITCH] + SW_MIXING_TRIM_ROLL;
+  cmd_pitch = sinf(compensation_angle_p)*in_cmd[COMMAND_ROLL] + cosf(compensation_angle_q)*in_cmd[COMMAND_PITCH] + SW_MIXING_TRIM_PITCH;
+
   // Go trough all the motors and calculate the command
   for (i = 0; i < SW_NB; i++) {
-    swashplate_mixing.commands[i] = swashplate_mixing.trim[i] +
-        roll_coef[i] * in_cmd[COMMAND_ROLL] +
-        pitch_coef[i] * in_cmd[COMMAND_PITCH] +
-        coll_coef[i] * throttle_curve.collective;
+    swashplate_mixing.commands[i] = //swashplate_mixing.trim[i] +
+        roll_coef[i] * cmd_roll +
+        pitch_coef[i] * cmd_pitch +
+        coll_coef[i] * in_cmd[COMMAND_COLLECTIVE];
     BoundAbs(swashplate_mixing.commands[i], MAX_PPRZ);
   }
 }

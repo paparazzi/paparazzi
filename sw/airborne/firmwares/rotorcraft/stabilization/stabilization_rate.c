@@ -66,10 +66,14 @@
 
 struct FloatRates stabilization_rate_sp;
 struct FloatRates stabilization_rate_gain;
+struct FloatRates stabilization_rate_gain_forward;
 struct FloatRates stabilization_rate_igain;
 struct FloatRates stabilization_rate_sum_err;
 
 struct FloatRates stabilization_rate_fb_cmd;
+
+float p_on_q_coupling = OUTBACK_P_ON_Q_COUPLING;
+float q_on_p_coupling = OUTBACK_Q_ON_P_COUPLING;
 
 #ifndef STABILIZATION_RATE_DEADBAND_P
 #define STABILIZATION_RATE_DEADBAND_P 0
@@ -125,6 +129,11 @@ void stabilization_rate_init(void)
                STABILIZATION_RATE_IGAIN_P,
                STABILIZATION_RATE_IGAIN_Q,
                STABILIZATION_RATE_IGAIN_R);;
+
+  RATES_ASSIGN(stabilization_rate_gain_forward,
+               STABILIZATION_RATE_GAIN_FORWARD_P,
+               STABILIZATION_RATE_GAIN_FORWARD_Q,
+               STABILIZATION_RATE_GAIN_FORWARD_R);
 
   FLOAT_RATES_ZERO(stabilization_rate_sum_err);
 
@@ -201,19 +210,37 @@ void stabilization_rate_run(bool in_flight)
     FLOAT_RATES_ZERO(stabilization_rate_sum_err);
   }
 
-  /* PI */
-  stabilization_rate_fb_cmd.p = stabilization_rate_gain.p * _error.p +
-                                stabilization_rate_igain.p  * stabilization_rate_sum_err.p;
+  //gain scheduling for forward flight
+  if(radio_control.values[RADIO_FMODE] > 4500) {
+        /* PI */
+    stabilization_rate_fb_cmd.p = stabilization_rate_gain_forward.p * _error.p +
+                                  stabilization_rate_igain.p  * stabilization_rate_sum_err.p;
 
-  stabilization_rate_fb_cmd.q = stabilization_rate_gain.q * _error.q +
-                                stabilization_rate_igain.q  * stabilization_rate_sum_err.q;
+    stabilization_rate_fb_cmd.q = stabilization_rate_gain_forward.q * _error.q +
+                                  stabilization_rate_igain.q  * stabilization_rate_sum_err.q;
 
-  stabilization_rate_fb_cmd.r = stabilization_rate_gain.r * _error.r +
-                                stabilization_rate_igain.r  * stabilization_rate_sum_err.r;
+    stabilization_rate_fb_cmd.r = stabilization_rate_gain_forward.r * _error.r +
+                                  stabilization_rate_igain.r  * stabilization_rate_sum_err.r;
+  }
+  else {
+    /* PI */
+    stabilization_rate_fb_cmd.p = stabilization_rate_gain.p * _error.p +
+                                  stabilization_rate_igain.p  * stabilization_rate_sum_err.p;
+
+    stabilization_rate_fb_cmd.q = stabilization_rate_gain.q * _error.q +
+                                  stabilization_rate_igain.q  * stabilization_rate_sum_err.q;
+
+    stabilization_rate_fb_cmd.r = stabilization_rate_gain.r * _error.r +
+                                  stabilization_rate_igain.r  * stabilization_rate_sum_err.r;
+  }
 
   stabilization_cmd[COMMAND_ROLL]  = stabilization_rate_fb_cmd.p;
   stabilization_cmd[COMMAND_PITCH] = stabilization_rate_fb_cmd.q;
   stabilization_cmd[COMMAND_YAW]   = stabilization_rate_fb_cmd.r;
+
+  // Add euler dynamics compensation
+  stabilization_cmd[COMMAND_ROLL] =  stabilization_cmd[COMMAND_ROLL]  + 299*q_on_p_coupling*body_rate->q;
+  stabilization_cmd[COMMAND_PITCH] = stabilization_cmd[COMMAND_PITCH] + 337.0*-p_on_q_coupling*body_rate->p;
 
   /* bound the result */
   BoundAbs(stabilization_cmd[COMMAND_ROLL], MAX_PPRZ);

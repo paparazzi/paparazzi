@@ -78,6 +78,8 @@ extern float failsafe_mode_dist2; ///< maximum squared distance to home wp befor
 
 extern float dist2_to_wp;       ///< squared distance to next waypoint
 
+extern float line_following_dist;
+
 extern float get_dist2_to_waypoint(uint8_t wp_id);
 extern float get_dist2_to_point(struct EnuCoor_i *p);
 extern void compute_dist2_to_home(void);
@@ -89,6 +91,7 @@ unit_t nav_reset_alt(void) __attribute__((unused));
 void nav_periodic_task(void);
 bool nav_detect_ground(void);
 bool nav_is_in_flight(void);
+extern uint32_t last_wp_reached_in_route;
 
 extern bool exception_flag[10];
 extern void set_exception_flag(uint8_t flag_num);
@@ -106,6 +109,10 @@ extern bool nav_set_heading_current(void);
 
 #define NavKillThrottle() ({ if (autopilot_mode == AP_MODE_NAV) { autopilot_set_motors_on(FALSE); } false; })
 #define NavResurrect() ({ if (autopilot_mode == AP_MODE_NAV) { autopilot_set_motors_on(TRUE); } false; })
+#define NavOpaDisarm(_true_or_false) ({ opa_controller_ap_disarm(_true_or_false); false; })
+
+#define PrecallModeForward() ({nav_set_heading_towards_target();})
+#define PrecallModeHover() ({outback_hybrid_mode = HB_HOVER;})
 
 
 #define NavSetGroundReferenceHere() ({ nav_reset_reference(); false; })

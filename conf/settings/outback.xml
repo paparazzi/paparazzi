@@ -1,0 +1,16 @@
+<!DOCTYPE settings SYSTEM "settings.dtd">
+
+<settings>
+  <dl_settings>
+
+    <dl_settings NAME="Outback">
+      <dl_setting var="airspeed_for_coordinated_turn" MIN="0.0" MAX="50.0" STEP="0.1"  module="stabilization/stabilization_attitude_rc_setpoint" shortname="speed_coor_turn"/>
+      <dl_setting var="nominal_forward_thrust" MIN="0.0" MAX="9600.0" STEP="1.0"  module="guidance/guidance_hybrid" shortname="nominal_thrust_fwd"/>
+      <dl_setting var="vertical_gain" MIN="0.0" MAX="0.5" STEP="0.001"  module="guidance/guidance_hybrid" shortname="vertical_gain"/>
+      <dl_setting var="vertical_dgain" MIN="0.0" MAX="0.5" STEP="0.001"  module="guidance/guidance_hybrid" shortname="vertical_dgain"/>
+      <dl_setting var="low_airspeed_pitch_gain" MIN="0.0" MAX="5.0" STEP="0.1"  module="guidance/guidance_hybrid" shortname="airsp_pitch_gain"/>
+      <dl_setting var="ground_pitch_control_gain" MIN="0.0" MAX="90000.0" STEP="0.1"  module="guidance/guidance_h" shortname="ground_ctrl"/>
+      <dl_setting var="line_following_dist" MIN="0.0" MAX="300.0" STEP="1.0" module="navigation" shortname="line_fol_dist"/>
+    </dl_settings>
+  </dl_settings>
+</settings>

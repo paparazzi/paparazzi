@@ -106,11 +106,16 @@ extern struct HorizontalGuidance guidance_h;
 
 extern int32_t transition_percentage;
 extern int32_t transition_theta_offset;
+extern float ground_pitch_control_gain;
+extern float wind_heading_deg;
+extern bool reset_wind_heading;
+extern bool has_transitioned;
 
 extern void guidance_h_init(void);
 extern void guidance_h_mode_changed(uint8_t new_mode);
 extern void guidance_h_read_rc(bool in_flight);
 extern void guidance_h_run(bool in_flight);
+extern void set_wind_heading_to_current90(void);
 
 extern void guidance_h_set_igain(uint32_t igain);
 

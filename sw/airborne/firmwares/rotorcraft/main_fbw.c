@@ -46,6 +46,9 @@
 #define MODULES_C
 #include "generated/modules.h"
 
+#define ABI_C
+#include "subsystems/abi.h"
+
 /* So one can use these in command_laws section */
 #define And(x, y) ((x) && (y))
 #define Or(x, y) ((x) || (y))
@@ -181,6 +184,11 @@ STATIC_INLINE void fbw_safety_check(void)
       fbw_mode = RC_LOST_IN_AUTO_FBW_MODE;
     }
   }
+  if(INTERMCU_GET_CMD_STATUS(INTERMCU_CMD_FAILSAFE)) {
+    fbw_mode = FBW_MODE_FAILSAFE;
+    INTERMCU_SET_CMD_STATUS(INTERMCU_CMD_DISARM);
+  }
+
 }
 
 /* Sets the actual actuator commands */
@@ -220,6 +228,7 @@ STATIC_INLINE void main_periodic(void)
   /* Set failsafe commands */
   if (fbw_mode == FBW_MODE_FAILSAFE) {
     fbw_motors_on = false;
+    INTERMCU_CLR_CMD_STATUS(INTERMCU_CMD_TIPPROPS);
     SetCommands(commands_failsafe);
   }
 
@@ -245,7 +254,7 @@ static void fbw_on_rc_frame(void)
   /* get autopilot fbw mode as set by RADIO_MODE 3-way switch */
   if (radio_control.values[RADIO_FBW_MODE] < (MIN_PPRZ / 2)) {
     fbw_mode = FBW_MODE_MANUAL;
-  } else {
+  } else if(fbw_mode != FBW_MODE_FAILSAFE) {
     fbw_mode = FBW_MODE_AUTO;
   }
 

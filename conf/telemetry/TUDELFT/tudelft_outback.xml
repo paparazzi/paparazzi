@@ -15,6 +15,7 @@
       <message name="ROTORCRAFT_NAV_STATUS"  period="1.6"/>
       <message name="WP_MOVED"               period="1.3"/>
       <message name="ROTORCRAFT_CAM"         period="1."/>
+      <message name="HYBRID_GUIDANCE"        period=".2"/>
       <message name="GPS_INT"                period=".25"/>
       <message name="INS"                    period=".25"/>
       <message name="I2C_ERRORS"             period="4.1"/>
@@ -30,6 +31,9 @@
       <message name="TEMP_ADC"               period="3.0"/>
       <message name="FBW_STATUS"             period="2.0"/>
       <message name="MOTOR"                  period="0.5"/>
+      <message name="AHRS_REF_QUAT"          period="0.5"/>
+      <message name="STAB_ATTITUDE_INT"      period="0.5"/>
+      <message name="GUIDANCE_H_INT"         period="2.0"/>
     </mode>
 
     <mode name="ppm">

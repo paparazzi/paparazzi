@@ -26,12 +26,17 @@
       <dl_setting var="guidance_h.gains.a" min="0" step="1" max="400" module="guidance/guidance_h" shortname="ka" param="GUIDANCE_H_AGAIN" type="int32" persistent="true"/>
       <dl_setting var="guidance_h.sp.pos.x" MIN="-10" MAX="10" STEP="1"  module="guidance/guidance_h" shortname="sp_x_ned" unit="1/2^8m" alt_unit="m" alt_unit_coef="0.00390625"/>
       <dl_setting var="guidance_h.sp.pos.y" MIN="-10" MAX="10" STEP="1"  module="guidance/guidance_h" shortname="sp_y_ned" unit="1/2^8m" alt_unit="m" alt_unit_coef="0.00390625"/>
+      <dl_setting var="airspeed_for_coordinated_turn" MIN="0.0" MAX="50.0" STEP="0.1"  module="stabilization/stabilization_attitude_rc_setpoint" shortname="speed_coor_turn"/>
+      <dl_setting var="nominal_forward_thrust" MIN="0.0" MAX="9600.0" STEP="1.0"  module="guidance/guidance_hybrid" shortname="nominal_thrust_fwd"/>
+      <dl_setting var="vertical_gain" MIN="0.0" MAX="0.5" STEP="0.001"  module="guidance/guidance_hybrid" shortname="vertical_gain"/>
+      <dl_setting var="vertical_dgain" MIN="0.0" MAX="0.5" STEP="0.001"  module="guidance/guidance_hybrid" shortname="vertical_dgain"/>
+      <dl_setting var="low_airspeed_pitch_gain" MIN="0.0" MAX="5.0" STEP="0.1"  module="guidance/guidance_hybrid" shortname="airsp_pitch_gain"/>
     </dl_settings>
 
     <dl_settings NAME="NAV">
       <dl_setting var="flight_altitude" MIN="0" STEP="0.1" MAX="400" module="navigation" unit="m" handler="SetFlightAltitude"/>
       <dl_setting var="nav_heading" MIN="0" STEP="1" MAX="360" module="navigation" unit="1/2^12r" alt_unit="deg" alt_unit_coef="0.0139882"/>
-      <dl_setting var="nav_radius" MIN="-50" STEP="0.1" MAX="50" module="navigation" unit="m"/>
+      <dl_setting var="nav_radius" MIN="0" STEP="0.1" MAX="500" module="navigation" unit="m"/>
       <dl_setting var="nav_climb_vspeed" MIN="0" STEP="0.1" MAX="10.0" module="navigation" unit="m/s" param="NAV_CLIMB_VSPEED"/>
       <dl_setting var="nav_descend_vspeed" MIN="-10.0" STEP="0.1" MAX="0.0" module="navigation" unit="m/s" param="NAV_DESCEND_VSPEED"/>
     </dl_settings>
