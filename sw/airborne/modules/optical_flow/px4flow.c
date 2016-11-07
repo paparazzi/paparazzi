@@ -56,6 +56,14 @@ struct mavlink_optical_flow_rad optical_flow_rad;
 #define PX4FLOW_QUALITY_THRESHOLD 0.1
 #endif
 
+/*
+ * Noise scale scales normalized noise to different scale
+ * to fit with different applications (default is 1)
+ */
+#ifndef PX4FLOW_NOISE_SCALE
+#define PX4FLOW_NOISE_SCALE 1.0
+#endif
+
 // request structs for mavlink decoder
 struct mavlink_msg_req req_flow;
 struct mavlink_msg_req req_flow_rad;
@@ -67,8 +75,8 @@ static void decode_optical_flow_msg(struct mavlink_message *msg __attribute__((u
 {
   static float quality = 0;
   static float noise = 0;
-  quality = ((float)optical_flow.quality)/255.0;
-  noise = 1-quality;
+  quality = ((float)optical_flow.quality) / 255.0;
+  noise = (1 - quality) * PX4FLOW_NOISE_SCALE;
 
   if (quality > PX4FLOW_QUALITY_THRESHOLD) {
     // flip the axis (if the PX4FLOW is mounted as shown in
@@ -96,33 +104,11 @@ static void decode_optical_flow_msg(struct mavlink_message *msg __attribute__((u
 static void decode_optical_flow_rad_msg(struct mavlink_message *msg __attribute__((unused)))
 {
   // TODO: do something useful with the data here
-  static float timestamp = 0;
-  timestamp = ((float)optical_flow_rad.time_usec) * 0.000001;
-  DOWNLINK_SEND_PX4FLOW_RAD(DefaultChannel, DefaultDevice,
-                        &timestamp,
-                        &optical_flow_rad.sensor_id,
-                        &optical_flow_rad.integration_time_us,
-                        &optical_flow_rad.integrated_x,
-                        &optical_flow_rad.integrated_y,
-                        &optical_flow_rad.integrated_xgyro,
-                        &optical_flow_rad.integrated_ygyro,
-                        &optical_flow_rad.integrated_zgyro,
-                        &optical_flow_rad.temperature,
-                        &optical_flow_rad.quality,
-                        &optical_flow_rad.time_delta_distance_us,
-                        &optical_flow_rad.distance);
 }
 
 static void decode_heartbeat_msg(struct mavlink_message *msg __attribute__((unused)))
 {
   //TODO: Check whether we have a right version of firmware etc? i.e. heartbeat.autopilot=MAV_AUTOPILOT_PX4
-  DOWNLINK_SEND_HEARTBEAT(DefaultChannel, DefaultDevice,
-                        &heartbeat.type,
-                        &heartbeat.autopilot,
-                        &heartbeat.base_mode,
-                        &heartbeat.custom_mode,
-                        &heartbeat.system_status,
-                        &heartbeat.mavlink_version);
 }
 
 /**
@@ -147,7 +133,6 @@ void px4flow_init(void)
   mavlink_register_msg(&mavlink_tp, &req_heartbeat);
 
 }
-
 
 
 /**
