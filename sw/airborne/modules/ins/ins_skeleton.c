@@ -118,6 +118,7 @@ void WEAK ins_module_propagate(struct Int32Vect3 *accel, float dt __attribute__(
   struct Int32Vect3 accel_meas_body;
   struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&ins_module.body_to_imu);
   int32_rmat_transp_vmult(&accel_meas_body, body_to_imu_rmat, accel);
+  stateSetAccelBody_i(&accel_meas_body);
   struct Int32Vect3 accel_meas_ltp;
   int32_rmat_transp_vmult(&accel_meas_ltp, stateGetNedToBodyRMat_i(), &accel_meas_body);
 
