@@ -39,6 +39,7 @@
       <module name="mag_pitot_uart" />
       <module name="pwm_meas"/>
       <module name="rpm_sensor"/>
+     <module name="kalamos_uart"/>
 
       <module name="geo_mag"/>
       <module name="air_data">
