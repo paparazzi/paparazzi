@@ -3,7 +3,7 @@
 <module name="px4flow" dir="optical_flow">
   <doc>
     <description>PX4FLOW optical flow sensor</description>
-    <configure name="PX4FLOW_NOISE_SCALE" value="1.0" description="noise factor scale"/>
+    <configure name="PX4FLOW_NOISE_STDDEV" value="1.0" description="standard deviation of the flow measurement (if known)"/>
   </doc>
   <depends>mavlink_decoder</depends>
   <header>
@@ -12,8 +12,8 @@
   <init fun="px4flow_init()"/>
   <periodic fun="px4flow_downlink()" freq="10" autorun="FALSE"/> <!-- for debug -->
   <makefile>
-    <configure name="PX4FLOW_NOISE_SCALE" default="1.0"/>
-    <define name="PX4FLOW_NOISE_SCALE" value="$(PX4FLOW_NOISE_SCALE)"/>
+    <configure name="PX4FLOW_NOISE_STDDEV" default="1.0"/>
+    <define name="PX4FLOW_NOISE_STDDEV" value="$(PX4FLOW_NOISE_STDDEV)"/>
     <file name="px4flow.c"/>
   </makefile>
 </module>

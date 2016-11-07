@@ -57,11 +57,11 @@ struct mavlink_optical_flow_rad optical_flow_rad;
 #endif
 
 /*
- * Noise scale scales normalized noise to different scale
- * to fit with different applications (default is 1)
+ * standard deviation of the flow measurement (if known)
+ * Default is one.
  */
-#ifndef PX4FLOW_NOISE_SCALE
-#define PX4FLOW_NOISE_SCALE 1.0
+#ifndef PX4FLOW_NOISE_STDDEV
+#define PX4FLOW_NOISE_STDDEV 1.0
 #endif
 
 // request structs for mavlink decoder
@@ -76,7 +76,8 @@ static void decode_optical_flow_msg(struct mavlink_message *msg __attribute__((u
   static float quality = 0;
   static float noise = 0;
   quality = ((float)optical_flow.quality) / 255.0;
-  noise = (1 - quality) * PX4FLOW_NOISE_SCALE;
+  noise = (1 - quality) * PX4FLOW_NOISE_STDDEV;
+  noise = noise * noise; // square the noise to get variance of the measurement
 
   if (quality > PX4FLOW_QUALITY_THRESHOLD) {
     // flip the axis (if the PX4FLOW is mounted as shown in

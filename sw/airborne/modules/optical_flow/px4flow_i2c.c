@@ -48,11 +48,11 @@
 #endif
 
 /*
- * Noise scale scales normalized noise to different scale
- * to fit with different applications (default is 1)
+ * standard deviation of the flow measurement (if known)
+ * Default is one.
  */
-#ifndef PX4FLOW_NOISE_SCALE
-#define PX4FLOW_NOISE_SCALE 1.0
+#ifndef PX4FLOW_NOISE_STDDEV
+#define PX4FLOW_NOISE_STDDEV 1.0
 #endif
 
 struct px4flow_data px4flow;
@@ -72,7 +72,8 @@ static inline void px4flow_i2c_frame_cb(void)
   static float quality = 0;
   static float noise = 0;
   quality = ((float)px4flow.i2c_frame.qual) / 255.0;
-  noise = (1 - quality) * PX4FLOW_NOISE_SCALE;
+  noise = (1 - quality) * PX4FLOW_NOISE_STDDEV;
+  noise = noise * noise; // square the noise to get variance of the measurement
 
   static float timestamp = 0;
   static uint32_t time_usec = 0;
