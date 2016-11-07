@@ -26,27 +26,16 @@
 
 #define PERIODIC_C_INTERMCU
 #include "telemetry_intermcu.h"
+#include "telemetry_intermcu_ap.h"
 #include "subsystems/intermcu.h"
 #include "pprzlink/intermcu_msg.h"
 #include "pprzlink/short_transport.h"
 #include "generated/periodic_telemetry.h"
 #include "subsystems/datalink/telemetry.h"
-
-/* Default maximum telemetry message size */
-#ifndef TELEMERTY_INTERMCU_MSG_SIZE
-#define TELEMERTY_INTERMCU_MSG_SIZE 128
-#endif
-
-/* Structure for handling telemetry over InterMCU */
-struct telemetry_intermcu_t {
-  struct link_device dev;                     ///< Device structure for communication
-  struct short_transport trans;               ///< Transport without any extra encoding
-  uint8_t buf[TELEMERTY_INTERMCU_MSG_SIZE];   ///< Buffer for the messages
-  uint8_t buf_idx;                            ///< Index of the buffer
-};
+#include "subsystems/datalink/datalink.h"
 
 /* Telemetry InterMCU throughput */
-static struct telemetry_intermcu_t telemetry_intermcu;
+struct telemetry_intermcu_t telemetry_intermcu;
 
 /* Static functions */
 static bool telemetry_intermcu_check_free_space(struct telemetry_intermcu_t *p, long *fd __attribute__((unused)), uint16_t len);
@@ -74,9 +63,17 @@ void telemetry_intermcu_periodic(void)
   periodic_telemetry_send_InterMCU(DefaultPeriodic, &telemetry_intermcu.trans.trans_tx, &telemetry_intermcu.dev);
 }
 
-void telemetry_intermcu_on_msg(uint8_t msg_id __attribute__((unused)), uint8_t* msg __attribute__((unused)), uint8_t size __attribute__((unused)))
+/* InterMCU event handling of telemetry */
+void telemetry_intermcu_event(void)
 {
 
+}
+
+void telemetry_intermcu_on_msg(uint8_t msg_id __attribute__((unused)), uint8_t* msg, uint8_t size __attribute__((unused)))
+{
+  datalink_time = 0;
+  datalink_nb_msgs++;
+  dl_parse_msg(&telemetry_intermcu.dev, &telemetry_intermcu.trans.trans_tx, msg);
 }
 
 static bool telemetry_intermcu_check_free_space(struct telemetry_intermcu_t *p, long *fd __attribute__((unused)), uint16_t len)

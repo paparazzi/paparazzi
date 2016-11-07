@@ -201,9 +201,18 @@ void ahrs_fc_update_accel(struct FloatVect3 *accel, float dt)
      * a_c_body = omega x (omega x r)
      * (omega x r) = tangential velocity in body frame
      * a_c_body = omega x vel_tangential_body
-     * assumption: tangential velocity only along body x-axis
+     * assumption: tangential velocity only along body x-axis (or negative z-axis)
      */
-    const struct FloatVect3 vel_tangential_body = {ahrs_fc.ltp_vel_norm, 0.0, 0.0};
+    const struct FloatVect3 vel_tangential_body =
+#if AHRS_GPS_SPEED_IN_NEGATIVE_Z_DIRECTION
+    /* AHRS_GRAVITY_UPDATE_COORDINATED_TURN assumes the GPS speed is in the X axis direction.
+     * Quadshot, DelftaCopter and other hybrids can have the GPS speed in the negative Z direction
+     */
+      {0.0, 0.0, -ahrs_fc.ltp_vel_norm);
+#else
+    /* assume tangential velocity along body x-axis */
+      {ahrs_fc.ltp_vel_norm, 0.0, 0.0};
+#endif
     struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&ahrs_fc.body_to_imu);
     struct FloatRates body_rate;
     float_rmat_transp_ratemult(&body_rate, body_to_imu_rmat, &ahrs_fc.imu_rate);

@@ -120,6 +120,8 @@ extern bool guidance_v_set_guided_z(float z);
  */
 extern bool guidance_v_set_guided_vz(float vz);
 
+extern bool guidance_v_set_guided_th(float th);
+
 #define guidance_v_SetKi(_val) {      \
     guidance_v_ki = _val;       \
     guidance_v_z_sum_err = 0;     \

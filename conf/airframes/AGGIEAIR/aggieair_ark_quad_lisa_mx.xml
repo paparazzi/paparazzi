@@ -59,6 +59,9 @@
       <configure name="EXTRA_DL_PORT" value="UART1"/>
       <configure name="EXTRA_DL_BAUD" value="B921600"/>
     </module>
+    <module name="lidar_lite">
+      <configure name="LIDAR_LITE_I2C_DEV" value="i2c2"/>
+    </module>
   </modules>
 
     <servos driver="Pwm">

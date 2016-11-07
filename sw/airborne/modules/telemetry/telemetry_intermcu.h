@@ -30,8 +30,9 @@
 #include "std.h"
 
 /* External functions */
-void telemetry_intermcu_init(void);
-void telemetry_intermcu_periodic(void);
-void telemetry_intermcu_on_msg(uint8_t msg_id, uint8_t* msg, uint8_t size);
+extern void telemetry_intermcu_init(void);
+extern void telemetry_intermcu_periodic(void);
+extern void telemetry_intermcu_event(void);
+extern void telemetry_intermcu_on_msg(uint8_t msg_id, uint8_t* msg, uint8_t size);
 
 #endif /* TELEMETRY_INTERMCU_H */

@@ -49,6 +49,7 @@
 #include "subsystems/electrical.h"
 #include "state.h"
 #include "pprz_version.h"
+#include "autopilot.h"
 
 #if defined RADIO_CONTROL
 #include "subsystems/radio_control.h"

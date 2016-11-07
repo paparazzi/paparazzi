@@ -23,6 +23,7 @@
     <module name="telemetry" type="transparent" />
     <module name="imu" type="px4fmu_v2.4"/>
     <module name="gps" type="ublox" />
+    <module name="gps" type="ubx_ucenter" />
     <module name="stabilization" type="indi" />
     <module name="ahrs" type="int_cmpl_quat" >
       <define name="AHRS_ICQ_IMU_ID" value="IMU_PX4_ID" />         <!-- Meaning the lsm303 and l3g -->
@@ -87,7 +88,6 @@
     <module name="geo_mag" />
     <module name="air_data" />
     <module name="send_imu_mag_current" />
-    <module name="gps" type="ubx_ucenter" />
     <module name="mag" type="hmc58xx">
       <configure name="MAG_HMC58XX_I2C_DEV" value="i2c1"/>
       <define name="MODULE_HMC58XX_UPDATE_AHRS" value="TRUE"/>

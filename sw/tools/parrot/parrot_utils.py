@@ -25,6 +25,50 @@ import sys
 from ftplib import FTP
 import ftplib
 
+class ParrotVersion(object):
+    def __init__(self):
+        self.h = 0
+        self.m = 0
+        self.l = 0
+        self.rc = 0
+        self.raw = ''
+
+    def __init__(self, s):
+        try:
+            self.raw = s
+            ss = s.split(".")
+            self.h = int(ss[0])
+            self.m = int(ss[1])
+            sss=ss[2].split("-RC")
+            self.l = int(sss[0])
+            if len(sss) > 1:
+                self.rc = int(sss[1])
+            else:
+                self.rc = 0
+        except:
+            self.__init__()
+
+    def version(self):
+        return ( ( (self.h * 100 + self.m) * 100) + self.l) * 100 + self.rc
+
+    def __str__(self):
+        return str(self.h) + "." + str(self.m) + "." + str(self.l) + "." + str(self.rc)
+
+    def __eq__(self, other):
+        return self.version() == other.version()
+
+    def __lt__(self, other):
+        return self.version() < other.version()
+
+    def __le__(self, other):
+        return self.version() <= other.version()
+
+    def __gt__(self, other):
+        return self.version() > other.version()
+
+    def __ge__(self, other):
+        return self.version() >= other.version()
+
 
 # Check if IP is valid
 def is_ip(address):
@@ -48,7 +92,7 @@ def execute_command(tn, command):
 
 # Check the version
 def check_version(tn, directory):
-    return execute_command(tn, 'cat ' + directory + '/version.txt')
+    return ParrotVersion(execute_command(tn, 'cat ' + directory + '/version.txt').strip())
 
 # Check what currently is running on the drone
 def check_running(tn):

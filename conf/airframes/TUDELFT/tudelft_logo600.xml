@@ -32,6 +32,7 @@ The xml in master currently configures the LOGO600 as a pure model aircraft: mea
       <configure name="GPS_PORT" value="UART4"/>
       <configure name="GPS_BAUD" value="B115200"/>
     </module>
+    <module name="gps" type="ubx_ucenter"/>
     <module name="stabilization" type="int_quat"/>
     <module name="ahrs"          type="int_cmpl_quat"/>
     <module name="ins"           type="hff"/>
@@ -70,7 +71,6 @@ The xml in master currently configures the LOGO600 as a pure model aircraft: mea
     <module name="geo_mag"/>
     <module name="air_data"/>
     <module name="logger_spi_link"/>
-    <module name="gps" type="ubx_ucenter"/>
   </modules>
 
   <servos driver="Spektrum">

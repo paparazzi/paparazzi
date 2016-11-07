@@ -764,6 +764,14 @@ let move_wp = fun logging _sender vs ->
   Dl_Pprz.message_send dl_id "MOVE_WP" vs;
   log logging ac_id "MOVE_WP" vs
 
+(** Got a DL_EMERGENCY_CMD, and send an EMERGENCY_CMD *)
+let emergency_cmd = fun logging _sender vs ->
+  let ac_id = PprzLink.string_assoc "ac_id" vs in
+  let vs = [ "ac_id", PprzLink.String ac_id;
+             "cmd", List.assoc "cmd" vs] in
+  Dl_Pprz.message_send dl_id "EMERGENCY_CMD" vs;
+  log logging ac_id "EMERGENCY_CMD" vs
+
 (** Got a DL_SETTING, and send an SETTING *)
 let setting = fun logging _sender vs ->
   let ac_id = PprzLink.string_assoc "ac_id" vs in
@@ -834,6 +842,7 @@ let ground_to_uplink = fun logging ->
   let bind_log_and_send = fun name handler ->
     ignore (Ground_Pprz.message_bind name (handler logging)) in
   bind_log_and_send "MOVE_WAYPOINT" move_wp;
+  bind_log_and_send "DL_EMERGENCY_CMD" emergency_cmd;
   bind_log_and_send "DL_SETTING" setting;
   bind_log_and_send "GET_DL_SETTING" get_setting;
   bind_log_and_send "JUMP_TO_BLOCK" jump_block;

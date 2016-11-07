@@ -50,7 +50,7 @@ def bebop_status():
     #config_ini = parrot_utils.execute_command(tn, 'cat /data/config.ini')
 
     print('======================== Bebop Status ========================')
-    print('Version:\t\t' + parrot_utils.check_version(tn, ''))
+    print('Version:\t\t' + str(parrot_utils.check_version(tn, '')))
     # Request the filesystem status
     print('\n=================== Filesystem Status =======================')
     print(parrot_utils.check_filesystem(tn))
@@ -123,9 +123,9 @@ elif args.command == 'upload_file_and_run':
     f = parrot_utils.split_into_path_and_file(args.file)
 
     #check firmware version
-    v = parrot_utils.check_version(tn, '').strip()
-    print("Checking Bebop firmware version... " + v )
-    if ((v < '3.2.0') or (v > '3.9.0')):
+    v = parrot_utils.check_version(tn, '')
+    print("Checking Bebop firmware version... " + str(v) )
+    if ((v < parrot_utils.ParrotVersion('3.2.0')) or (v > parrot_utils.ParrotVersion('3.9.0'))):
         print("Error: please upgrade your Bebop firmware to version between 3.2.0 and 3.9.0!")
     else:
         print("Kill running " + f[1] + " and make folder " + args.folder)

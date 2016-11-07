@@ -56,7 +56,6 @@
 
 
 /** Fly by wire modes */
-typedef enum {FBW_MODE_MANUAL = 0, FBW_MODE_AUTO = 1, FBW_MODE_FAILSAFE = 2} fbw_mode_enum;
 fbw_mode_enum fbw_mode;
 bool fbw_motors_on = false;
 

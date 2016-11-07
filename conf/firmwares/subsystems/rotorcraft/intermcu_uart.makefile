@@ -27,6 +27,12 @@ ifneq ($(RADIO_CONTROL_LED),none)
     $(TARGET).CFLAGS += -DRADIO_CONTROL_LED=$(RADIO_CONTROL_LED)
 endif
 
+ifneq (,$(findstring $(SECONDARY_GPS), imcu))
+	# this is the secondary GPS
+	$(TARGET).CFLAGS += -DGPS_SECONDARY_TYPE_H=\"subsystems/intermcu/intermcu_ap.h\"
+	$(TARGET).CFLAGS += -DSECONDARY_GPS=GPS_IMCU -DIMCU_GPS
+endif
+
   ap.srcs += subsystems/intermcu/intermcu_ap.c
   ap.srcs += pprzlink/src/pprz_transport.c
   $(TARGET).srcs += subsystems/radio_control.c

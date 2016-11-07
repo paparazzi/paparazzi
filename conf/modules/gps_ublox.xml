@@ -18,7 +18,7 @@
   <init fun="gps_ubx_init()"/>
   <periodic fun="gps_ubx_periodic_check()" freq="1." autorun="TRUE"/>
   <event fun="gps_ubx_event()"/>
-  <makefile target="ap">
+  <makefile target="ap|fbw">
     <configure name="UBX_GPS_PORT" default="$(GPS_PORT)" case="upper|lower"/>
     <configure name="UBX_GPS_BAUD" default="$(GPS_BAUD)"/>
 
@@ -31,17 +31,20 @@
       ifdef SECONDARY_GPS
       ifneq (,$(findstring $(SECONDARY_GPS), ublox))
       # this is the secondary GPS
-      ap.CFLAGS += -DGPS_SECONDARY_TYPE_H=\"subsystems/gps/gps_ubx.h\"
-      ap.CFLAGS += -DSECONDARY_GPS=GPS_UBX
+      $(TARGET).CFLAGS += -DGPS_SECONDARY_TYPE_H=\"subsystems/gps/gps_ubx.h\"
+      $(TARGET).CFLAGS += -DSECONDARY_GPS=GPS_UBX
       else
-      ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_ubx.h\"
-      ap.CFLAGS += -DPRIMARY_GPS=GPS_UBX
+      $(TARGET).CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_ubx.h\"
+      $(TARGET).CFLAGS += -DPRIMARY_GPS=GPS_UBX
       endif
       else
       # plain old single GPS usage
-      ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_ubx.h\"
+      $(TARGET).CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_ubx.h\"
       endif
     </raw>
+  </makefile>
+  <makefile target="fbw">
+    <define name="USE_GPS"/>
   </makefile>
 </module>
 

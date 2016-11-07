@@ -31,9 +31,9 @@
 #include "subsystems/gps/gps_ubx.h"
 #include "ubx_protocol.h"
 #include "subsystems/datalink/downlink.h"
-#include <stdio.h>
 
 #if PRINT_DEBUG_GPS_UBX_UCENTER
+#include <stdio.h>
 #define DEBUG_PRINT(...) printf(__VA_ARGS__)
 #else
 #define DEBUG_PRINT(...) {}
@@ -347,6 +347,10 @@ static bool gps_ubx_ucenter_autobaud(uint8_t nr)
 #define GPS_UBX_NAV5_DYNAMICS NAV5_DYN_AIRBORNE_2G
 #endif
 
+#ifndef GPS_UBX_ENABLE_NMEA_DATA_MASK
+#define GPS_UBX_ENABLE_NMEA_DATA_MASK 0x00
+#endif
+
 #define NAV5_MASK 0x05 // Apply dynamic model and position fix mode settings
 
 #define NAV5_2D_ONLY 1
@@ -425,13 +429,13 @@ static inline void gps_ubx_ucenter_config_port(void)
       UbxSend_CFG_PRT(gps_ubx_ucenter.dev,
           gps_ubx_ucenter.port_id, 0x0, 0x0,
           UBX_UART_MODE_MASK, UART_SPEED(gps_ubx_ucenter.baud_target), UBX_PROTO_MASK | NMEA_PROTO_MASK,
-          UBX_PROTO_MASK| NMEA_PROTO_MASK, 0x0, 0x0);
+          UBX_PROTO_MASK | (NMEA_PROTO_MASK & GPS_UBX_ENABLE_NMEA_DATA_MASK), 0x0, 0x0);
       break;
       // USB Interface
     case GPS_PORT_USB:
       UbxSend_CFG_PRT(gps_ubx_ucenter.dev,
           gps_ubx_ucenter.port_id, 0x0, 0x0, 0x0, 0x0,
-          UBX_PROTO_MASK | NMEA_PROTO_MASK, UBX_PROTO_MASK| NMEA_PROTO_MASK, 0x0, 0x0);
+          UBX_PROTO_MASK | NMEA_PROTO_MASK, UBX_PROTO_MASK| (NMEA_PROTO_MASK & GPS_UBX_ENABLE_NMEA_DATA_MASK), 0x0, 0x0);
       break;
     case GPS_PORT_SPI:
       DEBUG_PRINT("WARNING: ublox SPI port is currently not supported.\n");

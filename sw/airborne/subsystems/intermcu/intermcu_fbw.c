@@ -66,9 +66,25 @@ static void intermcu_parse_msg(void (*commands_frame_handler)(void));
 static void checkPx4RebootCommand(unsigned char b);
 #endif
 
+#ifdef USE_GPS
+
+#ifndef IMCU_GPS_ID
+#define IMCU_GPS_ID GPS_MULTI_ID
+#endif
+
+#include "subsystems/abi.h"
+#include "subsystems/gps.h"
+static abi_event gps_ev;
+static void gps_cb(uint8_t sender_id, uint32_t stamp, struct GpsState *gps_s);
+#endif
+
 void intermcu_init(void)
 {
   pprz_transport_init(&intermcu.transport);
+
+#if USE_GPS
+  AbiBindMsgGPS(IMCU_GPS_ID, &gps_ev, gps_cb);
+#endif
 
 #ifdef BOARD_PX4IO
   px4bl_tid = sys_time_register_timer(10.0, NULL);
@@ -205,6 +221,33 @@ void InterMcuEvent(void (*frame_handler)(void))
   }
 }
 
+#if USE_GPS
+static void gps_cb(uint8_t sender_id __attribute__((unused)),
+                   uint32_t stamp __attribute__((unused)),
+                   struct GpsState *gps_s) {
+  pprz_msg_send_IMCU_REMOTE_GPS(&(intermcu.transport.trans_tx), intermcu.device, INTERMCU_FBW,
+    &gps_s->ecef_pos.x,
+    &gps_s->ecef_pos.y,
+    &gps_s->ecef_pos.z,
+    &gps_s->lla_pos.alt,
+    &gps_s->hmsl,
+    &gps_s->ecef_vel.x,
+    &gps_s->ecef_vel.y,
+    &gps_s->ecef_vel.z,
+    &gps_s->course,
+    &gps_s->gspeed,
+    &gps_s->pacc,
+    &gps_s->sacc,
+    &gps_s->num_sv,
+    &gps_s->fix);
+}
+
+void gps_periodic_check(struct GpsState *gps_s) {
+  if (sys_time.nb_sec - gps_s->last_msg_time > GPS_TIMEOUT) {
+    gps_s->fix = GPS_FIX_NONE;
+  }
+}
+#endif
 
 /* SOME STUFF FOR PX4IO BOOTLOADER (TODO: move this code) */
 #ifdef BOARD_PX4IO

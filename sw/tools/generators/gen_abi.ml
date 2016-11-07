@@ -118,6 +118,7 @@ module Gen_onboard = struct
   let print_msg_bind = fun h msg ->
     let name = String.capitalize msg.name in
     Printf.fprintf h "\nstatic inline void AbiBindMsg%s(uint8_t sender_id, abi_event * ev, abi_callback%s cb) {\n" name name;
+    Printf.fprintf h "  if (abi_queues[ABI_%s_ID] == ev) return;\n" name;
     Printf.fprintf h "  ev->id = sender_id;\n";
     Printf.fprintf h "  ev->cb = (abi_callback)cb;\n";
     Printf.fprintf h "  ABI_PREPEND(abi_queues[ABI_%s_ID],ev);\n" name;

@@ -77,7 +77,7 @@ struct GpsState gps;
 struct GpsTimeSync gps_time_sync;
 
 #ifdef SECONDARY_GPS
-static uint8_t current_gps_id = 0;
+static uint8_t current_gps_id = GpsId(PRIMARY_GPS);
 #endif
 
 uint8_t multi_gps_mode;
