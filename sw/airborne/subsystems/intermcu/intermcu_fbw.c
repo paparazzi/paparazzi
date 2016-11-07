@@ -24,6 +24,8 @@
  *  @brief Rotorcraft Inter-MCU on FlyByWire
  */
 
+#define ABI_C
+
 #include "intermcu_fbw.h"
 #include "pprzlink/intermcu_msg.h"
 #include "subsystems/radio_control.h"
