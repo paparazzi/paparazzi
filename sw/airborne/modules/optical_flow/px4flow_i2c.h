@@ -77,9 +77,13 @@ struct px4flow_data
   struct px4flow_i2c_integral_frame i2c_int_frame;
   struct i2c_transaction trans;
   uint8_t addr;
+  float stddev;
   enum Px4FlowStatus status;
   bool update_agl;
+  bool compensate_rotation;
 };
+
+extern struct px4flow_data px4flow;
 
 extern void px4flow_i2c_init(void);
 extern void px4flow_i2c_periodic(void);

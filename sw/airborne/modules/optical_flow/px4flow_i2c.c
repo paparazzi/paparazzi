@@ -31,10 +31,12 @@
 #include "subsystems/abi.h"
 #include "filters/median_filter.h"
 
+// State interface for rotation compensation
+#include "state.h"
+
 // Messages
 #include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
-
 
 /*
  * acceptable quality of optical flow (0-min,1-max)
@@ -45,14 +47,6 @@
  */
 #ifndef PX4FLOW_QUALITY_THRESHOLD
 #define PX4FLOW_QUALITY_THRESHOLD 0.1
-#endif
-
-/*
- * standard deviation of the flow measurement (if known)
- * Default is one.
- */
-#ifndef PX4FLOW_NOISE_STDDEV
-#define PX4FLOW_NOISE_STDDEV 1.0
 #endif
 
 struct px4flow_data px4flow;
@@ -72,7 +66,7 @@ static inline void px4flow_i2c_frame_cb(void)
   static float quality = 0;
   static float noise = 0;
   quality = ((float)px4flow.i2c_frame.qual) / 255.0;
-  noise = (1 - quality) * PX4FLOW_NOISE_STDDEV;
+  noise = px4flow.stddev + (1 - quality) * px4flow.stddev * 10;
   noise = noise * noise; // square the noise to get variance of the measurement
 
   static float timestamp = 0;
@@ -106,6 +100,14 @@ static inline void px4flow_i2c_frame_cb(void)
   ground_distance = update_median_filter(&sonar_filter, (int32_t)px4flow.i2c_frame.ground_distance);
   ground_distance_float = ((float)ground_distance) / 1000.0;
 
+  // compensate AGL measurement for body rotation
+  if (px4flow.compensate_rotation) {
+      float phi = stateGetNedToBodyEulers_f()->phi;
+      float theta = stateGetNedToBodyEulers_f()->theta;
+      float gain = (float)fabs( (double) (cosf(phi) * cosf(theta)));
+      ground_distance_float = ground_distance_float / gain;
+  }
+
   if (px4flow.update_agl) {
     AbiSendMsgAGL(AGL_SONAR_PX4FLOW_ID, ground_distance_float);
   }
@@ -121,6 +123,8 @@ void px4flow_i2c_init(void)
   px4flow.addr = PX4FLOW_I2C_ADDR;
   px4flow.status = PX4FLOW_FRAME_REQ;
   px4flow.update_agl = USE_PX4FLOW_AGL;
+  px4flow.compensate_rotation = PX4FLOW_COMPENSATE_ROTATION;
+  px4flow.stddev = PX4FLOW_NOISE_STDDEV;
 
   init_median_filter(&sonar_filter);
 }
@@ -258,6 +262,4 @@ void px4flow_i2c_downlink(void)
                         &flow_comp_m_y,
                         &quality,
                         &ground_distance);
-
 }
-

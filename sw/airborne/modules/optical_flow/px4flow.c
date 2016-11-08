@@ -31,6 +31,9 @@
 #include "modules/datalink/mavlink_decoder.h"
 #include "subsystems/abi.h"
 
+// State interface for rotation compensation
+#include "state.h"
+
 // Messages
 #include "mcu_periph/uart.h"
 #include "pprzlink/messages.h"
@@ -56,14 +59,6 @@ struct mavlink_optical_flow_rad optical_flow_rad;
 #define PX4FLOW_QUALITY_THRESHOLD 0.1
 #endif
 
-/*
- * standard deviation of the flow measurement (if known)
- * Default is one.
- */
-#ifndef PX4FLOW_NOISE_STDDEV
-#define PX4FLOW_NOISE_STDDEV 1.0
-#endif
-
 // request structs for mavlink decoder
 struct mavlink_msg_req req_flow;
 struct mavlink_msg_req req_flow_rad;
@@ -72,6 +67,12 @@ struct mavlink_msg_req req_heartbeat;
 // enable/disable AGL updates
 bool px4flow_update_agl;
 
+// compensate AGL for body rotation
+bool px4flow_compensate_rotation;
+
+// standard deviation of the measurement
+float px4flow_stddev;
+
 
 // callback function on message reception
 static void decode_optical_flow_msg(struct mavlink_message *msg __attribute__((unused)))
@@ -79,7 +80,7 @@ static void decode_optical_flow_msg(struct mavlink_message *msg __attribute__((u
   static float quality = 0;
   static float noise = 0;
   quality = ((float)optical_flow.quality) / 255.0;
-  noise = (1 - quality) * PX4FLOW_NOISE_STDDEV;
+  noise = px4flow_stddev + (1 - quality) * px4flow_stddev * 10;
   noise = noise * noise; // square the noise to get variance of the measurement
 
   if (quality > PX4FLOW_QUALITY_THRESHOLD) {
@@ -91,6 +92,14 @@ static void decode_optical_flow_msg(struct mavlink_message *msg __attribute__((u
                                 optical_flow.flow_comp_m_x,
                                 0.0f,
                                 noise);
+  }
+
+  // compensate AGL measurement for body rotation
+  if (px4flow_compensate_rotation) {
+      float phi = stateGetNedToBodyEulers_f()->phi;
+      float theta = stateGetNedToBodyEulers_f()->theta;
+      float gain = (float)fabs( (double) (cosf(phi) * cosf(theta)));
+      optical_flow.ground_distance = optical_flow.ground_distance / gain;
   }
 
   if (px4flow_update_agl) {
@@ -139,6 +148,8 @@ void px4flow_init(void)
   mavlink_register_msg(&mavlink_tp, &req_heartbeat);
 
   px4flow_update_agl = USE_PX4FLOW_AGL;
+  px4flow_compensate_rotation = PX4FLOW_COMPENSATE_ROTATION;
+  px4flow_stddev = PX4FLOW_NOISE_STDDEV;
 }
 
 

@@ -32,6 +32,11 @@
 
 #include "std.h"
 
+// control variables
+extern bool px4flow_update_agl;
+extern bool px4flow_compensate_rotation;
+extern float px4flow_stddev;
+
 /** Mavlink optical flow structure.
  *  Using MAVLINK v1.0 generated code:
  *  Message ID 100
