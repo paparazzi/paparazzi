@@ -33,13 +33,14 @@
 #include "subsystems/abi.h"
 #include "filters/median_filter.h"
 
+// State interface for rotation compensation
+#include "state.h"
+
 // Messages
 #include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 
-
 struct lidar_lite lidar;
-
 struct MedianFilterInt lidar_filter;
 
 #define LIDAR_LITE_REG_ADDR 0x00
@@ -56,6 +57,10 @@ void lidar_lite_init(void)
   lidar.addr = LIDAR_LITE_I2C_ADDR;
   lidar.status = LIDAR_INIT_RANGING;
   lidar.update_agl = USE_LIDAR_LITE_AGL;
+  lidar.compensate_rotation = LIDAR_LITE_COMPENSATE_ROTATION;
+
+  lidar.distance = 0;
+  lidar.distance_raw = 0;
 
   init_median_filter(&lidar_filter);
 }
@@ -88,6 +93,14 @@ void lidar_lite_periodic(void)
       // filter data
       lidar.distance_raw = update_median_filter(&lidar_filter, (uint32_t)((lidar.trans.buf[0] << 8) | lidar.trans.buf[1]));
       lidar.distance = ((float)lidar.distance_raw)/100.0;
+
+      // compensate AGL measurement for body rotation
+      if (lidar.compensate_rotation) {
+          float phi = stateGetNedToBodyEulers_f()->phi;
+          float theta = stateGetNedToBodyEulers_f()->theta;
+          float gain = (float)fabs( (double) (cosf(phi) * cosf(theta)));
+          lidar.distance = lidar.distance / gain;
+      }
 
       // send message (if requested)
       if (lidar.update_agl) {
