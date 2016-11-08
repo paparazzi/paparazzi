@@ -35,6 +35,7 @@
 #define STABILIZATION_INDI_SIMPLE_H
 
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_ref_quat_int.h"
+#include "filters/low_pass_filter.h"
 
 extern struct Int32Quat   stab_att_sp_quat;  ///< with #INT32_QUAT_FRAC
 extern struct Int32Eulers stab_att_sp_euler; ///< with #INT32_ANGLE_FRAC
@@ -48,21 +49,13 @@ struct ReferenceSystem {
   float rate_r;
 };
 
-struct IndiFilter {
-  struct FloatRates ddx;
-  struct FloatRates dx;
-  struct FloatRates x;
-
-  float zeta;
-  float omega;
-  float omega_r;
-  float omega2;
-  float omega2_r;
-};
-
 struct IndiEstimation {
-  struct IndiFilter u;
-  struct IndiFilter rate;
+  Butterworth2LowPass u[3];
+  Butterworth2LowPass rate[3];
+  float rate_d[3];
+  float rate_dd[3];
+  float u_d[3];
+  float u_dd[3];
   struct FloatRates g1;
   float g2;
   float mu;
@@ -73,9 +66,10 @@ struct IndiVariables {
   struct FloatRates du;
   struct FloatRates u_in;
   struct FloatRates u_act_dyn;
+  float rate_d[3];
 
-  struct IndiFilter u;
-  struct IndiFilter rate;
+  Butterworth2LowPass u[3];
+  Butterworth2LowPass rate[3];
   struct FloatRates g1;
   float g2;
 

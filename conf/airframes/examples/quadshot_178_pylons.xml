@@ -220,10 +220,8 @@
     <define name="REF_RATE_Q" value="12.0"/>
     <define name="REF_RATE_R" value="12.0"/>
     <!-- second order filter parameters -->
-    <define name="FILT_OMEGA" value="50.0"/>
-    <define name="FILT_ZETA" value="0.37"/>
-    <define name="FILT_OMEGA_R" value="40.0"/>
-    <define name="FILT_ZETA_R" value="0.5"/>
+    <define name="FILT_CUTOFF" value="8.0"/>
+    <define name="FILT_CUTOFF_R" value="6.4"/>
     <!-- first order actuator dynamics -->
     <define name="ACT_DYN_P" value="0.03"/>
     <define name="ACT_DYN_Q" value="0.03"/>
