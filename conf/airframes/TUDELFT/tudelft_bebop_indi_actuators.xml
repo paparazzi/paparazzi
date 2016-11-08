@@ -30,6 +30,7 @@
     <module name="guidance" type="indi">
       <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-500.0"/>
       <define name="GUIDANCE_INDI_THRUST_DYNAMICS" value="0.1"/>
+      <define name="GUIDANCE_INDI_RC_DEBUG" value="TRUE"/>
     </module>
   </firmware>
 
@@ -128,7 +129,7 @@
     <define name="G1_ROLL" value="{20 , -20, -20 , 20 }"/>
     <define name="G1_PITCH" value="{14 , 14, -14 , -14 }"/>
     <define name="G1_YAW" value="{-1, 1, -1, 1}"/>
-    <define name="G1_THRUST" value="{-.83, -.83, -.83, -.83}"/>
+    <define name="G1_THRUST" value="{-.4, -.4, -.4, -.4}"/>
     <!--Counter torque effect of spinning up a rotor-->
     <define name="G2" value="{-61.2093,   65.3670,  -65.7419,   65.4516}"/>
 
@@ -144,7 +145,7 @@
     <define name="MAX_R" value="120.0" unit="deg/s"/>
 
     <define name="ESTIMATION_FILT_CUTOFF" value="4.0"/>
-    <define name="FILT_CUTOFF" value="8.0"/>
+    <define name="FILT_CUTOFF" value="5.0"/>
 
     <!-- first order actuator dynamics -->
     <define name="ACT_DYN" value="0.1"/>

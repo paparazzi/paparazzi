@@ -43,6 +43,7 @@
 #include "firmwares/rotorcraft/stabilization.h"
 #include "stdio.h"
 #include "filters/low_pass_filter.h"
+#include "subsystems/abi.h"
 
 // The acceleration reference is calculated with these gains. If you use GPS,
 // they are probably limited by the update rate of your GPS. The default
@@ -74,6 +75,12 @@ float thrust_in_specific_force_gain = GUIDANCE_INDI_SPECIFIC_FORCE_GAIN;
 
 #endif //GUIDANCE_INDI_SPECIFIC_FORCE_GAIN
 
+#ifndef GUIDANCE_INDI_FILTER_CUTOFF
+#ifdef STABILIZATION_INDI_FILT_CUTOFF
+#define GUIDANCE_INDI_FILTER_CUTOFF STABILIZATION_INDI_FILT_CUTOFF
+#endif
+#endif
+
 float thrust_act = 0;
 Butterworth2LowPass filt_accel_ned[3];
 Butterworth2LowPass roll_filt;
@@ -84,7 +91,7 @@ struct FloatMat33 Ga;
 struct FloatMat33 Ga_inv;
 struct FloatVect3 euler_cmd;
 
-float filter_cutoff = 8.0;
+float filter_cutoff = GUIDANCE_INDI_FILTER_CUTOFF;
 
 struct FloatEulers guidance_euler_cmd;
 float thrust_in;
@@ -144,7 +151,7 @@ void guidance_indi_run(bool in_flight, int32_t heading) {
   sp_accel.y = sinf(psi) * rc_x + cosf(psi) * rc_y;
 
   //for rc vertical control
-  sp_accel.z = -(radio_control.values[RADIO_THROTTLE]-4500)*5.0/9600.0;
+  sp_accel.z = -(radio_control.values[RADIO_THROTTLE]-4500)*8.0/9600.0;
 #endif
 
   //Calculate matrix of partial derivatives
@@ -167,6 +174,8 @@ void guidance_indi_run(bool in_flight, int32_t heading) {
 
   //Calculate roll,pitch and thrust command
   MAT33_VECT3_MUL(euler_cmd, Ga_inv, a_diff);
+
+  AbiSendMsgTHRUST(THRUST_INCREMENT_ID, euler_cmd.z);
 
   guidance_euler_cmd.phi = roll_filt.o[0] + euler_cmd.x;
   guidance_euler_cmd.theta = pitch_filt.o[0] + euler_cmd.y;

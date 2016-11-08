@@ -38,7 +38,6 @@
 #include "math/pprz_algebra_float.h"
 #include "state.h"
 #include "generated/airframe.h"
-#include "firmwares/rotorcraft/guidance/guidance_indi.h"
 #include "subsystems/radio_control.h"
 #include "subsystems/actuators.h"
 #include "subsystems/abi.h"
@@ -49,6 +48,7 @@ static void get_actuator_state(void);
 static void calc_g1_element(float dx_error, int8_t i, int8_t j, float mu_extra);
 static void calc_g2_element(float dx_error, int8_t j, float mu_extra);
 static void calc_g1g2_pseudo_inv(void);
+static void bound_g_mat(void);
 
 int32_t stabilization_att_indi_cmd[COMMANDS_NB];
 struct ReferenceSystem reference_acceleration = {
@@ -64,6 +64,8 @@ struct ReferenceSystem reference_acceleration = {
 #define INDI_NUM_ACT 4
 // outputs: roll, pitch, yaw, thrust
 #define INDI_OUTPUTS 4
+// Factor that the estimated G matrix is allowed to deviate from initial one
+#define INDI_ALLOWED_G_FACTOR 2.0
 
 #if STABILIZATION_INDI_USE_ADAPTIVE
 bool indi_use_adaptive = true;
@@ -81,9 +83,7 @@ float indi_du[INDI_NUM_ACT];
 float G2_times_du;
 
 // variables needed for estimation
-/*struct FloatMat33 G1G2_trans_mult;*/
 float G1G2_trans_mult[INDI_OUTPUTS][INDI_OUTPUTS];
-/*struct FloatMat33 G1G2inv;*/
 float G1G2inv[INDI_OUTPUTS][INDI_OUTPUTS];
 float actuator_state_filt_vectd[INDI_NUM_ACT];
 float actuator_state_filt_vectdd[INDI_NUM_ACT];
@@ -91,8 +91,8 @@ float estimation_rate_d[INDI_NUM_ACT];
 float estimation_rate_dd[INDI_NUM_ACT];
 float du_estimation[INDI_NUM_ACT];
 float ddu_estimation[INDI_NUM_ACT];
-float mu1 = 0.00001;
-float mu2 = 0.00001*200.0;
+float mu1[4] = {0.00001, 0.00001, 0.000003, 0.000002};
+float mu2 = 0.002;
 
 // other variables
 float act_obs[INDI_NUM_ACT];
@@ -103,30 +103,40 @@ struct Int32Quat   stab_att_sp_quat;
 abi_event rpm_ev;
 static void rpm_cb(uint8_t sender_id, uint16_t *rpm, uint8_t num_act);
 
+abi_event thrust_ev;
+static void thrust_cb(uint8_t sender_id, float thrust_increment);
+float indi_thrust_increment;
+bool indi_thrust_increment_set = false;
+
 float G1G2_pseudo_inv[INDI_NUM_ACT][INDI_OUTPUTS];
 float G2[INDI_NUM_ACT] = STABILIZATION_INDI_G2; //scaled by 1000
 float G1[INDI_OUTPUTS][INDI_NUM_ACT] = {STABILIZATION_INDI_G1_ROLL,
   STABILIZATION_INDI_G1_PITCH, STABILIZATION_INDI_G1_YAW, STABILIZATION_INDI_G1_THRUST};
 float G1G2[INDI_OUTPUTS][INDI_NUM_ACT];
-float G1_new[INDI_OUTPUTS][INDI_NUM_ACT];
-float G2_new[INDI_NUM_ACT];
+float G1_est[INDI_OUTPUTS][INDI_NUM_ACT];
+float G2_est[INDI_NUM_ACT];
+float G1_init[INDI_OUTPUTS][INDI_NUM_ACT];
+float G2_init[INDI_NUM_ACT];
 
 Butterworth2LowPass actuator_lowpass_filters[INDI_NUM_ACT];
 Butterworth2LowPass estimation_input_lowpass_filters[INDI_NUM_ACT];
 Butterworth2LowPass measurement_lowpass_filters[3];
 Butterworth2LowPass estimation_output_lowpass_filters[3];
+Butterworth2LowPass acceleration_lowpass_filter;
+
+struct FloatVect3 body_accel_f;
 
 void init_filters(void);
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
-
 static void send_indi_g(struct transport_tx *trans, struct link_device *dev)
 {
-  pprz_msg_send_INDI_G(trans, dev, AC_ID, INDI_NUM_ACT, G1[0],
-                                          INDI_NUM_ACT, G1[1],
-                                          INDI_NUM_ACT, G1[2],
-                                          INDI_NUM_ACT, G2);
+  pprz_msg_send_INDI_G(trans, dev, AC_ID, INDI_NUM_ACT, G1_est[0],
+                                          INDI_NUM_ACT, G1_est[1],
+                                          INDI_NUM_ACT, G1_est[2],
+                                          INDI_NUM_ACT, G1_est[3],
+                                          INDI_NUM_ACT, G2_est);
 }
 #endif
 
@@ -139,6 +149,7 @@ void stabilization_indi_init(void)
   init_filters();
 
   AbiBindMsgRPM(RPM_SENSOR_ID, &rpm_ev, rpm_cb);
+  AbiBindMsgTHRUST(THRUST_INCREMENT_ID, &thrust_ev, thrust_cb);
 
   float_vect_zero(actuator_state_filt_vectd, INDI_NUM_ACT);
   float_vect_zero(actuator_state_filt_vectdd, INDI_NUM_ACT);
@@ -148,6 +159,13 @@ void stabilization_indi_init(void)
 
   //Calculate G1G2_PSEUDO_INVERSE
   calc_g1g2_pseudo_inv();
+
+  // Initialize the estimator matrices
+  float_vect_copy(G1_est[0], G1[0], INDI_OUTPUTS*INDI_NUM_ACT);
+  float_vect_copy(G2_est, G2, INDI_NUM_ACT);
+  // Remember the initial matrices
+  float_vect_copy(G1_init[0], G1[0], INDI_OUTPUTS*INDI_NUM_ACT);
+  float_vect_copy(G2_init, G2, INDI_NUM_ACT);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INDI_G, send_indi_g);
@@ -192,6 +210,9 @@ void init_filters(void) {
     init_butterworth_2_low_pass(&actuator_lowpass_filters[i], tau, sample_time, 0.0);
     init_butterworth_2_low_pass(&estimation_input_lowpass_filters[i], tau_est, sample_time, 0.0);
   }
+
+  // Filtering of the accel body z
+  init_butterworth_2_low_pass(&acceleration_lowpass_filter, tau_est, sample_time, 0.0);
 }
 
 /**
@@ -273,34 +294,38 @@ static void stabilization_indi_calc_cmd(struct Int32Quat *att_err, bool rate_con
                + (G1G2_pseudo_inv[i][2] * (angular_accel_ref.r - angular_acceleration[2] + G2_times_du));
   }
 
-#if OUTER_LOOP_INDI
-  // The required body-z acceleration is calculated by the outer loop INDI controller
-  indi_du[0] = indi_du[0] + G1G2_pseudo_inv[0][3]*(euler_cmd.z);
-  indi_du[1] = indi_du[1] + G1G2_pseudo_inv[1][3]*(euler_cmd.z);
-  indi_du[2] = indi_du[2] + G1G2_pseudo_inv[2][3]*(euler_cmd.z);
-  indi_du[3] = indi_du[3] + G1G2_pseudo_inv[3][3]*(euler_cmd.z);
+  if(indi_thrust_increment_set){
+    // The required body-z acceleration is calculated by the outer loop INDI controller
+    for(int i=0; i<INDI_NUM_ACT; i++) {
+      indi_du[i] = indi_du[i] + G1G2_pseudo_inv[i][3]*indi_thrust_increment;
+    }
 
-  // Add the increments to the actuators
-  float_vect_sum(indi_u, actuator_state_filt_vect, indi_du, INDI_NUM_ACT);
-#else
-  // Add the increments to the actuators without the thrust
-  float_vect_sum(indi_u, actuator_state_filt_vect, indi_du, INDI_NUM_ACT);
+    // Add the increments to the actuators
+    float_vect_sum(indi_u, actuator_state_filt_vect, indi_du, INDI_NUM_ACT);
+  } else
+  {
+    // Add the increments to the actuators without the thrust
+    float_vect_sum(indi_u, actuator_state_filt_vect, indi_du, INDI_NUM_ACT);
 
-  // Calculate the average of the actuators as a measure for the thrust
-  float avg_u_in = (indi_u[0] + indi_u[1] + indi_u[2] + indi_u[3])/4.0;
+    // Calculate the average of the actuators as a measure for the thrust
+    float avg_u_in = 0;
+    for(int i=0; i<INDI_NUM_ACT; i++) {
+      avg_u_in += indi_u[i];
+    }
+    avg_u_in /= INDI_NUM_ACT;
 
-  // Make sure the thrust is bounded
-  Bound(stabilization_cmd[COMMAND_THRUST],0, MAX_PPRZ);
+    // Make sure the thrust is bounded
+    Bound(stabilization_cmd[COMMAND_THRUST],0, MAX_PPRZ);
 
-  //avoid dividing by zero
-  if(avg_u_in < 1.0) {
-    avg_u_in = 1.0;
+    //avoid dividing by zero
+    if(avg_u_in < 1.0) {
+      avg_u_in = 1.0;
+    }
+
+    // Rescale the command to the actuators to get the desired thrust
+    float indi_cmd_scaling = stabilization_cmd[COMMAND_THRUST] / avg_u_in;
+    float_vect_smul(indi_u, indi_u, indi_cmd_scaling, INDI_NUM_ACT);
   }
-
-  // Rescale the command to the actuators to get the desired thrust
-  float indi_cmd_scaling = stabilization_cmd[COMMAND_THRUST] / avg_u_in;
-  float_vect_smul(indi_u, indi_u, indi_cmd_scaling, INDI_NUM_ACT);
-#endif
 
   // Bound the inputs to the actuators
   for(int8_t i=0; i<INDI_NUM_ACT; i++) {
@@ -324,7 +349,7 @@ static void stabilization_indi_calc_cmd(struct Int32Quat *att_err, bool rate_con
   if(!in_flight) {
     float_vect_zero(indi_u, INDI_NUM_ACT);
   }
-  else if( (stabilization_cmd[COMMAND_THRUST] > 800) && indi_use_adaptive) {
+  else if(indi_use_adaptive) {
     lms_estimation();
   }
 
@@ -375,6 +400,9 @@ void stabilization_indi_run(bool in_flight, bool rate_control)
   stabilization_cmd[COMMAND_ROLL] = 42;
   stabilization_cmd[COMMAND_PITCH] = 42;
   stabilization_cmd[COMMAND_YAW] = 42;
+
+  // Reset thrust increment boolean
+  indi_thrust_increment_set = false;
 }
 
 // This function reads rc commands
@@ -417,7 +445,7 @@ void get_actuator_state(void) {
  * because the old matrix is necessary to caclulate more elements.
  */
 void calc_g1_element(float ddx_error, int8_t i, int8_t j, float mu) {
-  G1_new[i][j] = G1[i][j] - du_estimation[j]*mu*ddx_error;
+  G1_est[i][j] = G1_est[i][j] - du_estimation[j]*mu*ddx_error;
 }
 
 /**
@@ -430,7 +458,7 @@ void calc_g1_element(float ddx_error, int8_t i, int8_t j, float mu) {
  * because the old matrix is necessary to caclulate more elements.
  */
 void calc_g2_element(float ddx_error, int8_t j, float mu) {
-  G2_new[j] = G2[j] - ddu_estimation[j]*mu*ddx_error;
+  G2_est[j] = G2_est[j] - ddu_estimation[j]*mu*ddx_error;
 }
 
 /**
@@ -439,37 +467,63 @@ void calc_g2_element(float ddx_error, int8_t j, float mu) {
  * All elements of the G1 and G2 matrices are be estimated.
  */
 void lms_estimation(void) {
+
+  // Get the acceleration in body axes
+  struct Int32Vect3 *body_accel_i;
+  body_accel_i = stateGetAccelBody_i();
+  ACCELS_FLOAT_OF_BFP(body_accel_f, *body_accel_i);
+
+  // Filter the acceleration in z axis
+  update_butterworth_2_low_pass(&acceleration_lowpass_filter, body_accel_f.z);
+
+  // Calculate the derivative of the acceleration via finite difference
+  float indi_accel_d = (acceleration_lowpass_filter.o[0]
+      - acceleration_lowpass_filter.o[1])*PERIODIC_FREQUENCY;
+
   // scale the inputs to avoid numerical errors
   float_vect_smul(du_estimation, actuator_state_filt_vectd, 0.001, INDI_NUM_ACT);
   float_vect_smul(ddu_estimation, actuator_state_filt_vectdd, 0.001/PERIODIC_FREQUENCY, INDI_NUM_ACT);
 
+  float ddx_estimation[INDI_OUTPUTS] = {estimation_rate_dd[0], estimation_rate_dd[1], estimation_rate_dd[2], indi_accel_d};
+
   //Estimation of G
-  // TODO: only estimate when there du_norm2 is large enough (enough input)
+  // TODO: only estimate when du_norm2 is large enough (enough input)
   /*float du_norm2 = du_estimation[0]*du_estimation[0] + du_estimation[1]*du_estimation[1] +du_estimation[2]*du_estimation[2] + du_estimation[3]*du_estimation[3];*/
-  for(int8_t i=0; i<3; i++) {
-    float mu_scaling = 1.0;
-    float ddx_error = G1[i][0]*du_estimation[0] + G1[i][1]*du_estimation[1] + G1[i][2]*du_estimation[2] + G1[i][3]*du_estimation[3] - estimation_rate_dd[i];
+  for(int8_t i=0; i<INDI_OUTPUTS; i++) {
+    // Calculate the error between prediction and measurement
+    float ddx_error = - ddx_estimation[i];
+    for(int8_t j=0; j<INDI_NUM_ACT; j++) {
+      ddx_error += G1_est[i][j]*du_estimation[j];
+      if(i==2) {
+        // Changing the momentum of the rotors gives a counter torque
+        ddx_error += G2_est[j]*ddu_estimation[j];
+      }
+    }
 
     // when doing the yaw axis, also use G2
     if(i==2) {
-      // The yaw axis typically needs slower learning, perhaps due to large inputs
-      mu_scaling = 0.3;
-      ddx_error = ddx_error + G2[0]*ddu_estimation[0] + G2[1]*ddu_estimation[1] + G2[2]*ddu_estimation[2] + G2[3]*ddu_estimation[3];
-      for(int8_t j=0; j<4; j++) {
+      for(int8_t j=0; j<INDI_NUM_ACT; j++) {
         calc_g2_element(ddx_error,j,mu2);
+      }
+    } else if(i==3) {
+      // If the acceleration change is very large (rough landing), don't adapt
+      if(fabs(indi_accel_d) > 60.0) {
+        ddx_error = 0.0;
       }
     }
 
     // Calculate the row of the G1 matrix corresponding to this axis
-    for(int8_t j=0; j<4; j++) {
-      calc_g1_element(ddx_error, i, j, (mu1*mu_scaling));
+    for(int8_t j=0; j<INDI_NUM_ACT; j++) {
+      calc_g1_element(ddx_error, i, j, mu1[i]);
     }
   }
 
+  bound_g_mat();
+
   // Save the calculated matrix to G1 and G2
   // until thrust is included, first part of the array
-  float_vect_copy(G1[0], G1_new[0], 3*INDI_NUM_ACT);
-  float_vect_copy(G2, G2_new, INDI_NUM_ACT);
+  float_vect_copy(G1[0], G1_est[0], INDI_OUTPUTS*INDI_NUM_ACT);
+  float_vect_copy(G2, G2_est, INDI_NUM_ACT);
 
   // Calculate the inverse of (G1+G2)
   calc_g1g2_pseudo_inv();
@@ -531,5 +585,55 @@ static void rpm_cb(uint8_t __attribute__((unused)) sender_id, uint16_t *rpm, uin
   for(int8_t i=0; i<num_act; i++) {
     act_obs[i] = (rpm[i] - get_servo_min(i));
     act_obs[i] *= (MAX_PPRZ / (float)(get_servo_max(i)-get_servo_min(i)));
+  }
+}
+
+/**
+ * ABI callback that obtains the thrust increment from guidance INDI
+ */
+static void thrust_cb(uint8_t sender_id, float thrust_increment)
+{
+  indi_thrust_increment = thrust_increment;
+  indi_thrust_increment_set = true;
+}
+
+static void bound_g_mat(void) {
+  for(int8_t j=0; j<INDI_NUM_ACT; j++) {
+    float max_limit;
+    float min_limit;
+
+    // Limit the values of the estimated G1 matrix
+    for(int8_t i=0; i<INDI_OUTPUTS; i++) {
+      if(G1_init[i][j] > 0.0) {
+        max_limit = G1_init[i][j]*INDI_ALLOWED_G_FACTOR;
+        min_limit = G1_init[i][j]/INDI_ALLOWED_G_FACTOR;
+      } else {
+        max_limit = G1_init[i][j]/INDI_ALLOWED_G_FACTOR;
+        min_limit = G1_init[i][j]*INDI_ALLOWED_G_FACTOR;
+      }
+
+      if(G1_est[i][j] > max_limit) {
+        G1_est[i][j] = max_limit;
+      }
+      if(G1_est[i][j] < min_limit) {
+        G1_est[i][j] = min_limit;
+      }
+    }
+
+    // Do the same for the G2 matrix
+    if(G2_init[j] > 0.0) {
+      max_limit = G2_init[j]*INDI_ALLOWED_G_FACTOR;
+      min_limit = G2_init[j]/INDI_ALLOWED_G_FACTOR;
+    } else {
+      max_limit = G2_init[j]/INDI_ALLOWED_G_FACTOR;
+      min_limit = G2_init[j]*INDI_ALLOWED_G_FACTOR;
+    }
+
+    if(G2_est[j] > max_limit) {
+      G2_est[j] = max_limit;
+    }
+    if(G2_est[j] < min_limit) {
+      G2_est[j] = min_limit;
+    }
   }
 }
