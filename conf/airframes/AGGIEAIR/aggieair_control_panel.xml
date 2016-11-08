@@ -84,6 +84,7 @@
      <program name="Server"/>
      <program name="GCS"/>
      <program name="Messages"/>
+     <program name="Real-time Plotter"/>
    </session>
 
    <session name="HITL USB-serial@57600">
