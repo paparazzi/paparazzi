@@ -282,11 +282,11 @@ class plot = fun ~size ~update_time ~width ~height ~packing () ->
                 dr#set_foreground (`NAME a.color);
                 dr#lines !curve;
               end;
-              let fn = float !n in
+              (*let fn = float !n in
               let avg = !sum /. fn in
               let stdev = sqrt ((!sum_squares -. fn *. avg *. avg) /. fn) in
               set_float_value a.average avg;
-              set_float_value a.stdev stdev;
+              set_float_value a.stdev stdev;*)
 
               (* Title *)
               Pango.Layout.set_text layout title;
