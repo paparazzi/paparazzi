@@ -365,12 +365,12 @@ let process_relative_waypoints = fun xml ->
 let regexp_path = Str.regexp "[ \t,]+"
 
 
-let stage_process_path = fun stage rest ->
+let rec stage_process_path = fun stage rest ->
   if Xml.tag stage = "path" then
     let waypoints = Str.split regexp_path (ExtXml.attrib stage "wpts") in
     let attribs = Xml.attribs stage in
     let rec loop = function
-    [] -> failwith "Waypoint expected in path stage"
+      | [] -> failwith "Waypoint expected in path stage"
       | [wp] -> (* Just go to this single point *)
         Xml.Element("go", ("wp", wp)::attribs, [])::rest
       | wp1::wp2::ps ->
@@ -379,6 +379,9 @@ let stage_process_path = fun stage rest ->
                            "wp", wp2]@attribs, [])::
           if ps = [] then rest else loop (wp2::ps) in
     loop waypoints
+  else if Xml.tag stage = "for" || Xml.tag stage = "while" then
+    let attribs = Xml.attribs stage in
+    Xml.Element(Xml.tag stage, attribs, List.fold_right stage_process_path (Xml.children stage) [])::rest
   else
     stage::rest
 
