@@ -80,11 +80,11 @@ float angular_acceleration[3] = {0., 0., 0.};
 float actuator_state[INDI_NUM_ACT];
 float indi_u[INDI_NUM_ACT];
 float indi_du[INDI_NUM_ACT];
-float G2_times_du;
+float g2_times_du;
 
 // variables needed for estimation
-float G1G2_trans_mult[INDI_OUTPUTS][INDI_OUTPUTS];
-float G1G2inv[INDI_OUTPUTS][INDI_OUTPUTS];
+float g1g2_trans_mult[INDI_OUTPUTS][INDI_OUTPUTS];
+float g1g2inv[INDI_OUTPUTS][INDI_OUTPUTS];
 float actuator_state_filt_vectd[INDI_NUM_ACT];
 float actuator_state_filt_vectdd[INDI_NUM_ACT];
 float estimation_rate_d[INDI_NUM_ACT];
@@ -108,15 +108,15 @@ static void thrust_cb(uint8_t sender_id, float thrust_increment);
 float indi_thrust_increment;
 bool indi_thrust_increment_set = false;
 
-float G1G2_pseudo_inv[INDI_NUM_ACT][INDI_OUTPUTS];
-float G2[INDI_NUM_ACT] = STABILIZATION_INDI_G2; //scaled by 1000
-float G1[INDI_OUTPUTS][INDI_NUM_ACT] = {STABILIZATION_INDI_G1_ROLL,
+float g1g2_pseudo_inv[INDI_NUM_ACT][INDI_OUTPUTS];
+float g2[INDI_NUM_ACT] = STABILIZATION_INDI_G2; //scaled by 1000
+float g1[INDI_OUTPUTS][INDI_NUM_ACT] = {STABILIZATION_INDI_G1_ROLL,
   STABILIZATION_INDI_G1_PITCH, STABILIZATION_INDI_G1_YAW, STABILIZATION_INDI_G1_THRUST};
-float G1G2[INDI_OUTPUTS][INDI_NUM_ACT];
-float G1_est[INDI_OUTPUTS][INDI_NUM_ACT];
-float G2_est[INDI_NUM_ACT];
-float G1_init[INDI_OUTPUTS][INDI_NUM_ACT];
-float G2_init[INDI_NUM_ACT];
+float g1g2[INDI_OUTPUTS][INDI_NUM_ACT];
+float g1_est[INDI_OUTPUTS][INDI_NUM_ACT];
+float g2_est[INDI_NUM_ACT];
+float g1_init[INDI_OUTPUTS][INDI_NUM_ACT];
+float g2_init[INDI_NUM_ACT];
 
 Butterworth2LowPass actuator_lowpass_filters[INDI_NUM_ACT];
 Butterworth2LowPass estimation_input_lowpass_filters[INDI_NUM_ACT];
@@ -132,11 +132,11 @@ void init_filters(void);
 #include "subsystems/datalink/telemetry.h"
 static void send_indi_g(struct transport_tx *trans, struct link_device *dev)
 {
-  pprz_msg_send_INDI_G(trans, dev, AC_ID, INDI_NUM_ACT, G1_est[0],
-                                          INDI_NUM_ACT, G1_est[1],
-                                          INDI_NUM_ACT, G1_est[2],
-                                          INDI_NUM_ACT, G1_est[3],
-                                          INDI_NUM_ACT, G2_est);
+  pprz_msg_send_INDI_G(trans, dev, AC_ID, INDI_NUM_ACT, g1_est[0],
+                                          INDI_NUM_ACT, g1_est[1],
+                                          INDI_NUM_ACT, g1_est[2],
+                                          INDI_NUM_ACT, g1_est[3],
+                                          INDI_NUM_ACT, g2_est);
 }
 #endif
 
@@ -161,11 +161,11 @@ void stabilization_indi_init(void)
   calc_g1g2_pseudo_inv();
 
   // Initialize the estimator matrices
-  float_vect_copy(G1_est[0], G1[0], INDI_OUTPUTS*INDI_NUM_ACT);
-  float_vect_copy(G2_est, G2, INDI_NUM_ACT);
+  float_vect_copy(g1_est[0], g1[0], INDI_OUTPUTS*INDI_NUM_ACT);
+  float_vect_copy(g2_est, g2, INDI_NUM_ACT);
   // Remember the initial matrices
-  float_vect_copy(G1_init[0], G1[0], INDI_OUTPUTS*INDI_NUM_ACT);
-  float_vect_copy(G2_init, G2, INDI_NUM_ACT);
+  float_vect_copy(g1_init[0], g1[0], INDI_OUTPUTS*INDI_NUM_ACT);
+  float_vect_copy(g2_init, g2, INDI_NUM_ACT);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INDI_G, send_indi_g);
@@ -280,24 +280,24 @@ static void stabilization_indi_calc_cmd(struct Int32Quat *att_err, bool rate_con
   angular_accel_ref.r = reference_acceleration.err_r * QUAT1_FLOAT_OF_BFP(att_err->qz)
                         - reference_acceleration.rate_r * stateGetBodyRates_f()->r;
 
-  G2_times_du = 0.0;
+  g2_times_du = 0.0;
   for(uint8_t i=0; i<INDI_NUM_ACT; i++) {
-    G2_times_du += G2[i]*indi_du[i];
+    g2_times_du += g2[i]*indi_du[i];
   }
   //G2 is scaled by 1000 to make it readable
-  G2_times_du = G2_times_du/1000.0;
+  g2_times_du = g2_times_du/1000.0;
 
   // Calculate the increment for each actuator
   for(int i=0; i<INDI_NUM_ACT; i++) {
-    indi_du[i] = (G1G2_pseudo_inv[i][0] * (angular_accel_ref.p - angular_acceleration[0]))
-               + (G1G2_pseudo_inv[i][1] * (angular_accel_ref.q - angular_acceleration[1]))
-               + (G1G2_pseudo_inv[i][2] * (angular_accel_ref.r - angular_acceleration[2] + G2_times_du));
+    indi_du[i] = (g1g2_pseudo_inv[i][0] * (angular_accel_ref.p - angular_acceleration[0]))
+               + (g1g2_pseudo_inv[i][1] * (angular_accel_ref.q - angular_acceleration[1]))
+               + (g1g2_pseudo_inv[i][2] * (angular_accel_ref.r - angular_acceleration[2] + g2_times_du));
   }
 
   if(indi_thrust_increment_set){
     // The required body-z acceleration is calculated by the outer loop INDI controller
     for(int i=0; i<INDI_NUM_ACT; i++) {
-      indi_du[i] = indi_du[i] + G1G2_pseudo_inv[i][3]*indi_thrust_increment;
+      indi_du[i] = indi_du[i] + g1g2_pseudo_inv[i][3]*indi_thrust_increment;
     }
 
     // Add the increments to the actuators
@@ -445,7 +445,7 @@ void get_actuator_state(void) {
  * because the old matrix is necessary to caclulate more elements.
  */
 void calc_g1_element(float ddx_error, int8_t i, int8_t j, float mu) {
-  G1_est[i][j] = G1_est[i][j] - du_estimation[j]*mu*ddx_error;
+  g1_est[i][j] = g1_est[i][j] - du_estimation[j]*mu*ddx_error;
 }
 
 /**
@@ -458,7 +458,7 @@ void calc_g1_element(float ddx_error, int8_t i, int8_t j, float mu) {
  * because the old matrix is necessary to caclulate more elements.
  */
 void calc_g2_element(float ddx_error, int8_t j, float mu) {
-  G2_est[j] = G2_est[j] - ddu_estimation[j]*mu*ddx_error;
+  g2_est[j] = g2_est[j] - ddu_estimation[j]*mu*ddx_error;
 }
 
 /**
@@ -493,10 +493,10 @@ void lms_estimation(void) {
     // Calculate the error between prediction and measurement
     float ddx_error = - ddx_estimation[i];
     for(int8_t j=0; j<INDI_NUM_ACT; j++) {
-      ddx_error += G1_est[i][j]*du_estimation[j];
+      ddx_error += g1_est[i][j]*du_estimation[j];
       if(i==2) {
         // Changing the momentum of the rotors gives a counter torque
-        ddx_error += G2_est[j]*ddu_estimation[j];
+        ddx_error += g2_est[j]*ddu_estimation[j];
       }
     }
 
@@ -522,8 +522,8 @@ void lms_estimation(void) {
 
   // Save the calculated matrix to G1 and G2
   // until thrust is included, first part of the array
-  float_vect_copy(G1[0], G1_est[0], INDI_OUTPUTS*INDI_NUM_ACT);
-  float_vect_copy(G2, G2_est, INDI_NUM_ACT);
+  float_vect_copy(g1[0], g1_est[0], INDI_OUTPUTS*INDI_NUM_ACT);
+  float_vect_copy(g2, g2_est, INDI_NUM_ACT);
 
   // Calculate the inverse of (G1+G2)
   calc_g1g2_pseudo_inv();
@@ -538,9 +538,9 @@ void calc_g1g2_pseudo_inv(void) {
   for(int8_t i=0; i<INDI_OUTPUTS; i++) {
     for(int8_t j=0; j<INDI_NUM_ACT; j++) {
       if(i!=2)
-        G1G2[i][j] = G1[i][j]/1000.0;
+        g1g2[i][j] = g1[i][j]/1000.0;
       else
-        G1G2[i][j] = G1[i][j]/1000.0 + G2[j]/1000.0;
+        g1g2[i][j] = g1[i][j]/1000.0 + g2[j]/1000.0;
     }
   }
 
@@ -551,21 +551,20 @@ void calc_g1g2_pseudo_inv(void) {
     for(int8_t col=0; col<INDI_OUTPUTS; col++) {
       element = 0;
       for(int8_t i=0; i<INDI_NUM_ACT; i++) {
-        element = element + G1G2[row][i]*G1G2[col][i];
+        element = element + g1g2[row][i]*g1g2[col][i];
       }
-      G1G2_trans_mult[row][col] = element;
+      g1g2_trans_mult[row][col] = element;
     }
   }
 
   //there are numerical errors if the scaling is not right.
-  float_vect_scale(G1G2_trans_mult[0], 100.0, INDI_OUTPUTS*INDI_NUM_ACT);
+  float_vect_scale(g1g2_trans_mult[0], 100.0, INDI_OUTPUTS*INDI_NUM_ACT);
 
   //inverse of 4x4 matrix
-  /*MAT33_INV(G1G2inv,G1G2_trans_mult);*/
-  float_mat_inv_4d(G1G2inv[0], G1G2_trans_mult[0]);
+  float_mat_inv_4d(g1g2inv[0], g1g2_trans_mult[0]);
 
   //scale back
-  float_vect_scale(G1G2inv[0], 100.0, INDI_OUTPUTS*INDI_NUM_ACT);
+  float_vect_scale(g1g2inv[0], 100.0, INDI_OUTPUTS*INDI_NUM_ACT);
 
   //G1G2'*G1G2inv
   //calculate matrix multiplication INDI_NUM_ACTxINDI_OUTPUTS x INDI_OUTPUTSxINDI_OUTPUTS
@@ -573,9 +572,9 @@ void calc_g1g2_pseudo_inv(void) {
     for(int8_t col=0; col<INDI_OUTPUTS; col++) {
       element = 0;
       for(int8_t i=0; i<INDI_OUTPUTS; i++) {
-        element = element + G1G2[i][row]*G1G2inv[col][i];
+        element = element + g1g2[i][row]*g1g2inv[col][i];
       }
-      G1G2_pseudo_inv[row][col] = element;
+      g1g2_pseudo_inv[row][col] = element;
     }
   }
 }
@@ -604,36 +603,36 @@ static void bound_g_mat(void) {
 
     // Limit the values of the estimated G1 matrix
     for(int8_t i=0; i<INDI_OUTPUTS; i++) {
-      if(G1_init[i][j] > 0.0) {
-        max_limit = G1_init[i][j]*INDI_ALLOWED_G_FACTOR;
-        min_limit = G1_init[i][j]/INDI_ALLOWED_G_FACTOR;
+      if(g1_init[i][j] > 0.0) {
+        max_limit = g1_init[i][j]*INDI_ALLOWED_G_FACTOR;
+        min_limit = g1_init[i][j]/INDI_ALLOWED_G_FACTOR;
       } else {
-        max_limit = G1_init[i][j]/INDI_ALLOWED_G_FACTOR;
-        min_limit = G1_init[i][j]*INDI_ALLOWED_G_FACTOR;
+        max_limit = g1_init[i][j]/INDI_ALLOWED_G_FACTOR;
+        min_limit = g1_init[i][j]*INDI_ALLOWED_G_FACTOR;
       }
 
-      if(G1_est[i][j] > max_limit) {
-        G1_est[i][j] = max_limit;
+      if(g1_est[i][j] > max_limit) {
+        g1_est[i][j] = max_limit;
       }
-      if(G1_est[i][j] < min_limit) {
-        G1_est[i][j] = min_limit;
+      if(g1_est[i][j] < min_limit) {
+        g1_est[i][j] = min_limit;
       }
     }
 
     // Do the same for the G2 matrix
-    if(G2_init[j] > 0.0) {
-      max_limit = G2_init[j]*INDI_ALLOWED_G_FACTOR;
-      min_limit = G2_init[j]/INDI_ALLOWED_G_FACTOR;
+    if(g2_init[j] > 0.0) {
+      max_limit = g2_init[j]*INDI_ALLOWED_G_FACTOR;
+      min_limit = g2_init[j]/INDI_ALLOWED_G_FACTOR;
     } else {
-      max_limit = G2_init[j]/INDI_ALLOWED_G_FACTOR;
-      min_limit = G2_init[j]*INDI_ALLOWED_G_FACTOR;
+      max_limit = g2_init[j]/INDI_ALLOWED_G_FACTOR;
+      min_limit = g2_init[j]*INDI_ALLOWED_G_FACTOR;
     }
 
-    if(G2_est[j] > max_limit) {
-      G2_est[j] = max_limit;
+    if(g2_est[j] > max_limit) {
+      g2_est[j] = max_limit;
     }
-    if(G2_est[j] < min_limit) {
-      G2_est[j] = min_limit;
+    if(g2_est[j] < min_limit) {
+      g2_est[j] = min_limit;
     }
   }
 }
