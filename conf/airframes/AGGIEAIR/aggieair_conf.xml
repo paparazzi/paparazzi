@@ -18,7 +18,7 @@
    telemetry="telemetry/AGGIEAIR/aggieair_iris.xml"
    flight_plan="flight_plans/AGGIEAIR/rotorcraft_opticlow_test.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml [settings/control/stabilization_att_int_quat.xml] settings/control/stabilization_indi.xml [settings/test_actuators_pwm.xml]"
-   settings_modules="[modules/imu_common.xml] modules/ahrs_int_cmpl_quat.xml modules/ahrs_float_mlkf.xml modules/px4flow_i2c.xml modules/lidar_lite.xml"
+   settings_modules="modules/imu_common.xml modules/ahrs_int_cmpl_quat.xml modules/ahrs_float_mlkf.xml modules/px4flow_i2c.xml modules/lidar_lite.xml"
    gui_color="#337e387bffff"
   />
   <aircraft

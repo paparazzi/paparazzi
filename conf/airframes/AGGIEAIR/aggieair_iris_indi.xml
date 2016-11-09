@@ -26,7 +26,7 @@
 
     <module name="telemetry" type="transparent">
       <configure name="MODEM_PORT" value="UART2"/>
-      <configure name="MODEM_BAUD" value="B57600"/>
+      <configure name="MODEM_BAUD" value="B115200"/>
     </module>
 
     <module name="imu" type="px4fmu_v2.4"/>
@@ -36,6 +36,7 @@
     <module name="guidance" type="indi">
       <!--define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-500.0"/-->
     </module>
+
 
     <module name="ahrs" type="int_cmpl_quat">
       <define name="AHRS_ICQ_IMU_ID" value="IMU_PX4_ID" />
@@ -48,18 +49,22 @@
       <configure name="SECONDARY_AHRS" value="float_mlkf"/>
     </module>
 
-    <!--module name="ahrs" type="vectornav">
+
+<!--
+    <module name="ahrs" type="vectornav">
       <configure name="VN_PORT" value="UART3"/>
       <configure name="VN_BAUD" value="B921600"/>
       <configure name="TERTIARY_AHRS" value="vectornav"/>
-    </module-->
+    </module>
+-->
 
-    <!--module name="ins" type="float_invariant"-->
-      <!--define name="INS_FINV_IMU_ID" value="IMU_PX4_ID" /-->
-      <!--define name="INS_FINV_MAG_ID" value="MAG_HMC58XX_SENDER_ID" /-->
-      <!--define name="INS_FINV_GPS_ID" value="GPS_UBX_ID" /-->
-      <!--define name="SEND_INVARIANT_FILTER"/-->
-    <!--/module-->
+
+    <!--module name="ins" type="float_invariant">
+      <define name="INS_FINV_IMU_ID" value="IMU_PX4_ID" />
+      <define name="INS_FINV_MAG_ID" value="MAG_HMC58XX_SENDER_ID" />
+      <define name="INS_FINV_GPS_ID" value="GPS_UBX_ID" />
+      <define name="SEND_INVARIANT_FILTER"/>
+    </module-->
 
     <!-- extended INS uses sonar for vertical estimates -->
     <module name="ins" type="extended"/>
@@ -81,6 +86,13 @@
     </module>
 
     <define name="MEDIAN_DATASIZE" value="7"/>
+
+<!--
+    <module name="tlsf"/>
+    <module name="pprzlog"/>
+    <module name="logger" type="sd_chibios"/>
+    <module name="flight_recorder"/>
+-->
   </firmware>
 
 
@@ -115,14 +127,14 @@
 
     <!-- optical flow camera over i2c-->
     <module name="px4flow_i2c">
-      <configure name="USE_PX4FLOW_AGL" value="1"/> <!-- send AGL measurements -->
+      <configure name="USE_PX4FLOW_AGL" value="0"/> <!-- send AGL measurements -->
       <configure name="PX4FLOW_COMPENSATE_ROTATION" value="1" /> <!-- compensate AGL for body rotation -->
-      <configure name="PX4FLOW_NOISE_STDDEV" value="1.0"/> <!-- standard deviation of the optical flow measurements--> 
+      <configure name="PX4FLOW_NOISE_STDDEV" value="10.0"/> <!-- standard deviation of the optical flow measurements--> 
     </module>
 
     <!-- laser range finder for precise AGL measurement -->
     <module name="lidar_lite">
-      <configure name="USE_LIDAR_LITE_AGL" value="0"/> <!-- dont send AGL measurements -->
+      <configure name="USE_LIDAR_LITE_AGL" value="1"/> <!-- dont send AGL measurements -->
       <configure name="LIDAR_LITE_COMPENSATE_ROTATION" value="1" /> <!-- compensate AGL for body rotation -->
     </module>
 
@@ -255,21 +267,21 @@
     <define name="G2_R" value="0.089" />
 -->
 <!-- adapted values -->
-    <define name="G1_P" value="0.010777" />
-    <define name="G1_Q" value="0.0111102" />
-    <define name="G1_R" value="0.000732" />
-    <define name="G2_R" value="0.048089" />
+    <define name="G1_P" value="0.0111687" />
+    <define name="G1_Q" value="0.013964" />
+    <define name="G1_R" value="0.000955" />
+    <define name="G2_R" value="0.019337" />
     <!-- For the bebop2 we need to filter the roll rate due to the dampers -->
     <define name="FILTER_ROLL_RATE" value="FALSE" />
     <define name="FILTER_PITCH_RATE" value="FALSE" />
     <define name="FILTER_YAW_RATE" value="FALSE" />
     <!-- reference acceleration for attitude control -->
-    <define name="REF_ERR_P" value="100.0" />
-    <define name="REF_ERR_Q" value="100.0" />
-    <define name="REF_ERR_R" value="100.0" />
-    <define name="REF_RATE_P" value="14.0" />
-    <define name="REF_RATE_Q" value="14.0" />
-    <define name="REF_RATE_R" value="14.0" />
+    <define name="REF_ERR_P" value="70.0" />
+    <define name="REF_ERR_Q" value="70.0" />
+    <define name="REF_ERR_R" value="70.0" />
+    <define name="REF_RATE_P" value="10.0" />
+    <define name="REF_RATE_Q" value="10.0" />
+    <define name="REF_RATE_R" value="10.0" />
     <!-- second order filter parameters -->
     <define name="FILT_OMEGA" value="20.0" />
     <define name="FILT_ZETA" value="0.55" />
