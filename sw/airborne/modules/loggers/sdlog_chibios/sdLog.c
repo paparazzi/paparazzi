@@ -335,13 +335,13 @@ SdioError sdLogCloseAllLogs(bool flush)
 }
 
 
+#define FD_CHECK(fd)  if ((fd < 0) || (fd >= SDLOG_NUM_BUFFER) \
+                          || (fileDes[fd].inUse == false)) \
+                      return SDLOG_FATFS_ERROR
 
 SdioError sdLogWriteLog(const FileDes fd, const char *fmt, ...)
 {
-  if ((fd >= SDLOG_NUM_BUFFER) || (fileDes[fd].inUse == false)) {
-    return SDLOG_FATFS_ERROR;
-  }
-
+  FD_CHECK(fd);
   const SdioError status = flushWriteByteBuffer(fd);
   if (status != SDLOG_OK) {
     return status;
@@ -378,9 +378,7 @@ SdioError sdLogWriteLog(const FileDes fd, const char *fmt, ...)
 
 SdioError sdLogFlushLog(const FileDes fd)
 {
-  if ((fd >= SDLOG_NUM_BUFFER) || (fileDes[fd].inUse == false)) {
-    return SDLOG_FATFS_ERROR;
-  }
+  FD_CHECK(fd);
 
   const SdioError status = flushWriteByteBuffer(fd);
   if (status != SDLOG_OK) {
@@ -404,9 +402,7 @@ SdioError sdLogFlushLog(const FileDes fd)
 
 SdioError sdLogCloseLog(const FileDes fd)
 {
-  if ((fd >= SDLOG_NUM_BUFFER) || (fileDes[fd].inUse == false)) {
-    return SDLOG_FATFS_ERROR;
-  }
+  FD_CHECK(fd);
 
   LogMessage *lm =  tlsf_malloc_r(&HEAP_DEFAULT, sizeof(LogMessage));
   if (lm == NULL) {
@@ -429,9 +425,7 @@ SdioError sdLogCloseLog(const FileDes fd)
 
 static inline SdioError flushWriteByteBuffer(const FileDes fd)
 {
-  if ((fd >= SDLOG_NUM_BUFFER) || (fileDes[fd].inUse == false)) {
-    return SDLOG_FATFS_ERROR;
-  }
+  FD_CHECK(fd);
 
   if (unlikely(fileDes[fd].writeByteCache != NULL)) {
     if (msgqueue_send(&messagesQueue, fileDes[fd].writeByteCache,
@@ -446,9 +440,8 @@ static inline SdioError flushWriteByteBuffer(const FileDes fd)
 
 SdioError sdLogWriteRaw(const FileDes fd, const uint8_t *buffer, const size_t len)
 {
-  if ((fd >= SDLOG_NUM_BUFFER) || (fileDes[fd].inUse == false)) {
-    return SDLOG_FATFS_ERROR;
-  }
+  FD_CHECK(fd);
+
 
   const SdioError status = flushWriteByteBuffer(fd);
   if (status != SDLOG_OK) {
@@ -514,7 +507,7 @@ SdioError sdLogWriteSDB(const FileDes fd, SdLogBuffer *sdb)
 {
   SdioError status = SDLOG_OK;
 
-  if ((fd >= SDLOG_NUM_BUFFER) || (fileDes[fd].inUse == false)) {
+  if ((fd < 0) || (fd >= SDLOG_NUM_BUFFER) || (fileDes[fd].inUse == false)) {
     status = SDLOG_FATFS_ERROR;
     goto fail;
   }
@@ -547,9 +540,7 @@ exit:
 
 SdioError sdLogWriteByte(const FileDes fd, const uint8_t value)
 {
-  if ((fd >= SDLOG_NUM_BUFFER) || (fileDes[fd].inUse == false)) {
-    return SDLOG_FATFS_ERROR;
-  }
+  FD_CHECK(fd);
   LogMessage *lm;
 
   if (fileDes[fd].writeByteCache == NULL) {
