@@ -25,6 +25,9 @@
  * Parse UYVY images and make a list of blobs of connected pixels
  */
 
+#ifndef BLOB_FINDER_H
+#define BLOB_FINDER_H
+
 
 #include "modules/computer_vision/lib/vision/image.h"
 
@@ -58,3 +61,5 @@ struct image_label_t {
 
 void image_labeling(struct image_t *input, struct image_t *output, struct image_filter_t *filters, uint8_t filters_cnt,
                     struct image_label_t *labels, uint16_t *labels_count);
+
+#endif /* BLOB_FINDER_H */
