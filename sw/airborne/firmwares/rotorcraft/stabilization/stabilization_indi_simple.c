@@ -67,6 +67,10 @@
 #define STABILIZATION_INDI_MAX_R STABILIZATION_ATTITUDE_SP_MAX_R
 #endif
 
+#ifndef STABILIZATION_INDI_ESTIMATION_FILT_CUTOFF
+#define STABILIZATION_INDI_ESTIMATION_FILT_CUTOFF 4.0
+#endif
+
 struct Int32Eulers stab_att_sp_euler;
 struct Int32Quat   stab_att_sp_quat;
 
@@ -75,7 +79,9 @@ static inline void stabilization_indi_calc_cmd(int32_t indi_commands[], struct I
 static inline void lms_estimation(void);
 static void indi_init_filters(void);
 
-#define INDI_EST_SCALE 0.001 //The G values are scaled to avoid numerical problems during the estimation
+//The G values are scaled to avoid numerical problems during the estimation
+#define INDI_EST_SCALE 0.001
+
 struct IndiVariables indi = {
   .max_rate = STABILIZATION_INDI_MAX_RATE,
   .attitude_max_yaw_rate = STABILIZATION_INDI_MAX_R,
@@ -180,6 +186,11 @@ void stabilization_indi_set_failsafe_setpoint(void)
   PPRZ_ITRIG_SIN(stab_att_sp_quat.qz, heading2);
 }
 
+/**
+ * @brief Set attitude quaternion setpoint from rpy
+ *
+ * @param rpy roll pitch yaw input
+ */
 void stabilization_indi_set_rpy_setpoint_i(struct Int32Eulers *rpy)
 {
   // stab_att_sp_euler.psi still used in ref..
@@ -188,6 +199,12 @@ void stabilization_indi_set_rpy_setpoint_i(struct Int32Eulers *rpy)
   quat_from_rpy_cmd_i(&stab_att_sp_quat, &stab_att_sp_euler);
 }
 
+/**
+ * @brief Set attitude setpoint from command in earth axes
+ *
+ * @param cmd The command in earth axes (North East)
+ * @param heading The desired heading
+ */
 void stabilization_indi_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading)
 {
   // stab_att_sp_euler.psi still used in ref..
@@ -205,24 +222,51 @@ void stabilization_indi_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading)
   quat_from_earth_cmd_i(&stab_att_sp_quat, cmd, heading);
 }
 
+/**
+ * @brief Update butterworth filter for p, q and r of a FloatRates struct
+ *
+ * @param filter The filter array to use
+ * @param new_values The new values
+ */
 static inline void filter_pqr(Butterworth2LowPass *filter, struct FloatRates *new_values) {
   update_butterworth_2_low_pass(&filter[0], new_values->p);
   update_butterworth_2_low_pass(&filter[1], new_values->q);
   update_butterworth_2_low_pass(&filter[2], new_values->r);
 }
 
+/**
+ * @brief Caclulate finite difference form a filter array
+ * The filter already contains the previous values
+ *
+ * @param output The output array
+ * @param filter The filter array input
+ */
 static inline void finite_difference_from_filter(float *output, Butterworth2LowPass *filter) {
   for(int8_t i=0; i<3; i++) {
     output[i] = (filter[i].o[0] - filter[i].o[1])*PERIODIC_FREQUENCY;
   }
 }
 
+/**
+ * @brief Calculate derivative of an array via finite difference
+ *
+ * @param output[3] The output array
+ * @param new[3] The newest values
+ * @param old[3] The values of the previous timestep
+ */
 static inline void finite_difference(float output[3], float new[3], float old[3]) {
   for(int8_t i=0; i<3; i++) {
     output[i] = (new[i] - old[i])*PERIODIC_FREQUENCY;
   }
 }
 
+/**
+ * @brief Does the INDI calculations
+ *
+ * @param indi_commands[] Array of commands that the function will write to
+ * @param att_err quaternion attitude error
+ * @param rate_control rate control enabled, otherwise attitude control
+ */
 static inline void stabilization_indi_calc_cmd(int32_t indi_commands[], struct Int32Quat *att_err, bool rate_control)
 {
   // Propagate the filter on the gyroscopes and actuators
@@ -277,8 +321,8 @@ static inline void stabilization_indi_calc_cmd(int32_t indi_commands[], struct I
 
   //add the increment to the total control input
   indi.u_in.p = indi.u[0].o[0] + indi.du.p;
-  indi.u_in.q = indi.u[1].o[1] + indi.du.q;
-  indi.u_in.r = indi.u[2].o[2] + indi.du.r;
+  indi.u_in.q = indi.u[1].o[0] + indi.du.q;
+  indi.u_in.r = indi.u[2].o[0] + indi.du.r;
 
   //bound the total control input
   Bound(indi.u_in.p, -4500, 4500);
@@ -292,8 +336,8 @@ static inline void stabilization_indi_calc_cmd(int32_t indi_commands[], struct I
   indi.u_act_dyn.r = indi.u_act_dyn.r + STABILIZATION_INDI_ACT_DYN_R * (indi.u_in.r - indi.u_act_dyn.r);
 
   //Don't increment if thrust is off
-  //TODO: this should be something more elegant, but without this the inputs will increment to the maximum before
-  //even getting in the air.
+  //TODO: this should be something more elegant, but without this the inputs
+  //will increment to the maximum before even getting in the air.
   if (stabilization_cmd[COMMAND_THRUST] < 300) {
     FLOAT_RATES_ZERO(indi.du);
     FLOAT_RATES_ZERO(indi.u_act_dyn);
@@ -309,7 +353,13 @@ static inline void stabilization_indi_calc_cmd(int32_t indi_commands[], struct I
   indi_commands[COMMAND_YAW] = indi.u_in.r;
 }
 
-void stabilization_indi_run(bool enable_integrator __attribute__((unused)), bool rate_control)
+/**
+ * @brief runs stabilization indi
+ *
+ * @param in_flight not used
+ * @param rate_control rate control enabled, otherwise attitude control
+ */
+void stabilization_indi_run(bool in_flight __attribute__((unused)), bool rate_control)
 {
   /* attitude error                          */
   struct Int32Quat att_err;
@@ -333,7 +383,11 @@ void stabilization_indi_run(bool enable_integrator __attribute__((unused)), bool
   BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ);
 }
 
-// This function reads rc commands
+/**
+ * This function reads rc commands
+ *
+ * @param in_flight boolean that states if the UAV is in flight or not
+ */
 void stabilization_indi_read_rc(bool in_flight, bool in_carefree, bool coordinated_turn)
 {
   struct FloatQuat q_sp;
@@ -345,8 +399,12 @@ void stabilization_indi_read_rc(bool in_flight, bool in_carefree, bool coordinat
   QUAT_BFP_OF_REAL(stab_att_sp_quat, q_sp);
 }
 
-// This is a Least Mean Squares adaptive filter
-// It estimates the actuator effectiveness online by comparing the expected angular acceleration based on the inputs with the measured angular acceleration
+/**
+ * This is a Least Mean Squares adaptive filter
+ * It estimates the actuator effectiveness online, by comparing the expected
+ * angular acceleration based on the inputs with the measured angular
+ * acceleration
+ */
 static inline void lms_estimation(void)
 {
   static struct IndiEstimation *est = &indi.est;

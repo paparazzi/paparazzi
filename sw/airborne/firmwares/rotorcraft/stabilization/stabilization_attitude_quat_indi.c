@@ -60,9 +60,9 @@ void stabilization_attitude_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t head
   stabilization_indi_set_earth_cmd_i(cmd, heading);
 }
 
-void stabilization_attitude_run(bool enable_integrator)
+void stabilization_attitude_run(bool in_flight)
 {
-  stabilization_indi_run(enable_integrator, FALSE);
+  stabilization_indi_run(in_flight, FALSE);
 }
 
 void stabilization_attitude_read_rc(bool in_flight, bool in_carefree, bool coordinated_turn)

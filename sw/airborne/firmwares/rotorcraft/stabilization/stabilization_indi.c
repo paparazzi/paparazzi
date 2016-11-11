@@ -200,13 +200,14 @@ void init_filters(void) {
   float tau_est = 1.0/(2.0*M_PI*STABILIZATION_INDI_ESTIMATION_FILT_CUTOFF);
   float sample_time = 1.0/PERIODIC_FREQUENCY;
   // Filtering of the gyroscope
-  for(int8_t i=0; i<3; i++) {
+  int8_t i;
+  for(i=0; i<3; i++) {
     init_butterworth_2_low_pass(&measurement_lowpass_filters[i], tau, sample_time, 0.0);
     init_butterworth_2_low_pass(&estimation_output_lowpass_filters[i], tau_est, sample_time, 0.0);
   }
 
   // Filtering of the actuators
-  for(int8_t i=0; i<INDI_NUM_ACT; i++) {
+  for(i=0; i<INDI_NUM_ACT; i++) {
     init_butterworth_2_low_pass(&actuator_lowpass_filters[i], tau, sample_time, 0.0);
     init_butterworth_2_low_pass(&estimation_input_lowpass_filters[i], tau_est, sample_time, 0.0);
   }
@@ -267,6 +268,7 @@ void stabilization_indi_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading)
 /**
  * @param att_err attitude error
  * @param rate_control boolean that states if we are in rate control or attitude control
+ * @param in_flight boolean that states if the UAV is in flight or not
  *
  * Function that calculates the INDI commands
  */
@@ -281,14 +283,15 @@ static void stabilization_indi_calc_cmd(struct Int32Quat *att_err, bool rate_con
                         - reference_acceleration.rate_r * stateGetBodyRates_f()->r;
 
   g2_times_du = 0.0;
-  for(uint8_t i=0; i<INDI_NUM_ACT; i++) {
+  int8_t i;
+  for(i=0; i<INDI_NUM_ACT; i++) {
     g2_times_du += g2[i]*indi_du[i];
   }
   //G2 is scaled by 1000 to make it readable
   g2_times_du = g2_times_du/1000.0;
 
   // Calculate the increment for each actuator
-  for(int i=0; i<INDI_NUM_ACT; i++) {
+  for(i=0; i<INDI_NUM_ACT; i++) {
     indi_du[i] = (g1g2_pseudo_inv[i][0] * (angular_accel_ref.p - angular_acceleration[0]))
                + (g1g2_pseudo_inv[i][1] * (angular_accel_ref.q - angular_acceleration[1]))
                + (g1g2_pseudo_inv[i][2] * (angular_accel_ref.r - angular_acceleration[2] + g2_times_du));
@@ -296,7 +299,7 @@ static void stabilization_indi_calc_cmd(struct Int32Quat *att_err, bool rate_con
 
   if(indi_thrust_increment_set){
     // The required body-z acceleration is calculated by the outer loop INDI controller
-    for(int i=0; i<INDI_NUM_ACT; i++) {
+    for(i=0; i<INDI_NUM_ACT; i++) {
       indi_du[i] = indi_du[i] + g1g2_pseudo_inv[i][3]*indi_thrust_increment;
     }
 
@@ -309,7 +312,7 @@ static void stabilization_indi_calc_cmd(struct Int32Quat *att_err, bool rate_con
 
     // Calculate the average of the actuators as a measure for the thrust
     float avg_u_in = 0;
-    for(int i=0; i<INDI_NUM_ACT; i++) {
+    for(i=0; i<INDI_NUM_ACT; i++) {
       avg_u_in += indi_u[i];
     }
     avg_u_in /= INDI_NUM_ACT;
@@ -328,13 +331,13 @@ static void stabilization_indi_calc_cmd(struct Int32Quat *att_err, bool rate_con
   }
 
   // Bound the inputs to the actuators
-  for(int8_t i=0; i<INDI_NUM_ACT; i++) {
+  for(i=0; i<INDI_NUM_ACT; i++) {
     Bound(indi_u[i], 0, MAX_PPRZ);
   }
 
   // Propagate actuator filters
   get_actuator_state();
-  for(int8_t i=0; i<INDI_NUM_ACT; i++) {
+  for(i=0; i<INDI_NUM_ACT; i++) {
     update_butterworth_2_low_pass(&actuator_lowpass_filters[i], actuator_state[i]);
     update_butterworth_2_low_pass(&estimation_input_lowpass_filters[i], actuator_state[i]);
     actuator_state_filt_vect[i] = actuator_lowpass_filters[i].o[0];
@@ -354,7 +357,7 @@ static void stabilization_indi_calc_cmd(struct Int32Quat *att_err, bool rate_con
   }
 
   /*Commit the actuator command*/
-  for(int8_t i=0; i<INDI_NUM_ACT; i++) {
+  for(i=0; i<INDI_NUM_ACT; i++) {
     actuators[i] = (int16_t) indi_u[i];
   }
 }
@@ -371,7 +374,8 @@ void stabilization_indi_run(bool in_flight, bool rate_control)
   /* Propagate the filter on the gyroscopes */
   struct FloatRates *body_rates = stateGetBodyRates_f();
   float rate_vect[3] = {body_rates->p, body_rates->q, body_rates->r};
-  for(int8_t i=0; i<3; i++) {
+  int8_t i;
+  for(i=0; i<3; i++) {
     update_butterworth_2_low_pass(&measurement_lowpass_filters[i], rate_vect[i]);
     update_butterworth_2_low_pass(&estimation_output_lowpass_filters[i], rate_vect[i]);
 
@@ -427,7 +431,8 @@ void get_actuator_state(void) {
   float_vect_copy(actuator_state, act_obs, INDI_NUM_ACT);
 #else
   //actuator dynamics
-  for(int8_t i=0; i<INDI_NUM_ACT; i++) {
+  int8_t i;
+  for(i=0; i<INDI_NUM_ACT; i++) {
     actuator_state[i] = actuator_state[i]
       + STABILIZATION_INDI_ACT_DYN*( indi_u[i] - actuator_state[i]);
   }
@@ -489,10 +494,12 @@ void lms_estimation(void) {
   //Estimation of G
   // TODO: only estimate when du_norm2 is large enough (enough input)
   /*float du_norm2 = du_estimation[0]*du_estimation[0] + du_estimation[1]*du_estimation[1] +du_estimation[2]*du_estimation[2] + du_estimation[3]*du_estimation[3];*/
-  for(int8_t i=0; i<INDI_OUTPUTS; i++) {
+  int8_t i;
+  for(i=0; i<INDI_OUTPUTS; i++) {
     // Calculate the error between prediction and measurement
     float ddx_error = - ddx_estimation[i];
-    for(int8_t j=0; j<INDI_NUM_ACT; j++) {
+    int8_t j;
+    for(j=0; j<INDI_NUM_ACT; j++) {
       ddx_error += g1_est[i][j]*du_estimation[j];
       if(i==2) {
         // Changing the momentum of the rotors gives a counter torque
@@ -502,7 +509,7 @@ void lms_estimation(void) {
 
     // when doing the yaw axis, also use G2
     if(i==2) {
-      for(int8_t j=0; j<INDI_NUM_ACT; j++) {
+      for(j=0; j<INDI_NUM_ACT; j++) {
         calc_g2_element(ddx_error,j,mu2);
       }
     } else if(i==3) {
@@ -513,7 +520,7 @@ void lms_estimation(void) {
     }
 
     // Calculate the row of the G1 matrix corresponding to this axis
-    for(int8_t j=0; j<INDI_NUM_ACT; j++) {
+    for(j=0; j<INDI_NUM_ACT; j++) {
       calc_g1_element(ddx_error, i, j, mu1[i]);
     }
   }
@@ -535,8 +542,10 @@ void lms_estimation(void) {
 void calc_g1g2_pseudo_inv(void) {
 
   //sum of G1 and G2
-  for(int8_t i=0; i<INDI_OUTPUTS; i++) {
-    for(int8_t j=0; j<INDI_NUM_ACT; j++) {
+  int8_t i;
+  int8_t j;
+  for(i=0; i<INDI_OUTPUTS; i++) {
+    for(j=0; j<INDI_NUM_ACT; j++) {
       if(i!=2)
         g1g2[i][j] = g1[i][j]/1000.0;
       else
@@ -547,10 +556,12 @@ void calc_g1g2_pseudo_inv(void) {
   //G1G2*transpose(G1G2)
   //calculate matrix multiplication of its transpose INDI_OUTPUTSxnum_act x num_actxINDI_OUTPUTS
   float element = 0;
-  for(int8_t row=0; row<INDI_OUTPUTS; row++) {
-    for(int8_t col=0; col<INDI_OUTPUTS; col++) {
+  int8_t row;
+  int8_t col;
+  for(row=0; row<INDI_OUTPUTS; row++) {
+    for(col=0; col<INDI_OUTPUTS; col++) {
       element = 0;
-      for(int8_t i=0; i<INDI_NUM_ACT; i++) {
+      for(i=0; i<INDI_NUM_ACT; i++) {
         element = element + g1g2[row][i]*g1g2[col][i];
       }
       g1g2_trans_mult[row][col] = element;
@@ -568,10 +579,10 @@ void calc_g1g2_pseudo_inv(void) {
 
   //G1G2'*G1G2inv
   //calculate matrix multiplication INDI_NUM_ACTxINDI_OUTPUTS x INDI_OUTPUTSxINDI_OUTPUTS
-  for(int8_t row=0; row<INDI_NUM_ACT; row++) {
-    for(int8_t col=0; col<INDI_OUTPUTS; col++) {
+  for(row=0; row<INDI_NUM_ACT; row++) {
+    for(col=0; col<INDI_OUTPUTS; col++) {
       element = 0;
-      for(int8_t i=0; i<INDI_OUTPUTS; i++) {
+      for(i=0; i<INDI_OUTPUTS; i++) {
         element = element + g1g2[i][row]*g1g2inv[col][i];
       }
       g1g2_pseudo_inv[row][col] = element;
@@ -581,7 +592,8 @@ void calc_g1g2_pseudo_inv(void) {
 
 static void rpm_cb(uint8_t __attribute__((unused)) sender_id, uint16_t *rpm, uint8_t num_act)
 {
-  for(int8_t i=0; i<num_act; i++) {
+  int8_t i;
+  for(i=0; i<num_act; i++) {
     act_obs[i] = (rpm[i] - get_servo_min(i));
     act_obs[i] *= (MAX_PPRZ / (float)(get_servo_max(i)-get_servo_min(i)));
   }
@@ -597,12 +609,14 @@ static void thrust_cb(uint8_t sender_id, float thrust_increment)
 }
 
 static void bound_g_mat(void) {
-  for(int8_t j=0; j<INDI_NUM_ACT; j++) {
+  int8_t i;
+  int8_t j;
+  for(j=0; j<INDI_NUM_ACT; j++) {
     float max_limit;
     float min_limit;
 
     // Limit the values of the estimated G1 matrix
-    for(int8_t i=0; i<INDI_OUTPUTS; i++) {
+    for(i=0; i<INDI_OUTPUTS; i++) {
       if(g1_init[i][j] > 0.0) {
         max_limit = g1_init[i][j]*INDI_ALLOWED_G_FACTOR;
         min_limit = g1_init[i][j]/INDI_ALLOWED_G_FACTOR;

@@ -634,6 +634,7 @@ void float_mat_inv_4d(float invOut[16], float mat_in[16])
     float_mat_adjoint_4d(mat_in, invOut);
 
     float inv_det = 1.0f / float_mat_det_4d(mat_in);
-    for(int i = 0; i < 16; ++i)
+    int i;
+    for(i = 0; i < 16; ++i)
         invOut[i] = invOut[i] * inv_det;
 }
