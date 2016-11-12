@@ -76,14 +76,11 @@ class GVFFrame(wx.Frame):
         if int(ac_id) == self.ac_id:
             if msg.name == 'GPS':
                 self.course = int(msg.get_field(3))*np.pi/1800
-
             if msg.name == 'NAVIGATION':
                 self.XY[0] = float(msg.get_field(2))
                 self.XY[1] = float(msg.get_field(3))
-
             if msg.name == 'ATTITUDE':
                 self.yaw = float(msg.get_field(1))
-
             if msg.name == 'DL_VALUE' and \
                     self.indexes_are_good == len(self.list_of_indexes):
                 if int(msg.get_field(0)) == int(self.ke_index):
