@@ -31,6 +31,7 @@ Do not use start/stop functionality of the module, the module is not intended to
       </dl_settings>
     </dl_settings>
   </settings>
+  <autoload name="pprzlog"/>
   <header>
     <file name="sdlogger_spi_direct.h"/>
   </header>
@@ -44,7 +45,6 @@ Do not use start/stop functionality of the module, the module is not intended to
     <configure name="LOGGER_LED" default="none"/>
     <define name="LOGGER_LED" value="$(LOGGER_LED)" cond="ifneq ($(LOGGER_LED),none)"/>
     <raw>
-        include $(CFG_SHARED)/sdlog.makefile
         include $(CFG_SHARED)/spi_master.makefile
     </raw>
 
