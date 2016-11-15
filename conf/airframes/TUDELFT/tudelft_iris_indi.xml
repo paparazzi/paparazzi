@@ -135,10 +135,10 @@
     <set command="YAW" value="@YAW" />
   </rc_commands>
   <servos driver="Default">
-    <servo name="TOP_LEFT" no="2" min="1140" neutral="1280" max="1850" />
-    <servo name="TOP_RIGHT" no="0" min="1140" neutral="1280" max="1850" />
-    <servo name="BOTTOM_RIGHT" no="3" min="1140" neutral="1280" max="1850" />
-    <servo name="BOTTOM_LEFT" no="1" min="1140" neutral="1280" max="1850" />
+    <servo name="TOP_LEFT" no="2" min="1000" neutral="1100" max="2000" />
+    <servo name="TOP_RIGHT" no="0" min="1000" neutral="1100" max="2000" />
+    <servo name="BOTTOM_RIGHT" no="3" min="1000" neutral="1100" max="2000" />
+    <servo name="BOTTOM_LEFT" no="1" min="1000" neutral="1100" max="2000" />
   </servos>
   <section name="MIXING" prefix="MOTOR_MIXING_">
     <define name="TRIM_ROLL" value="0" />
@@ -200,10 +200,10 @@
   </section>
   <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
     <!-- control effectiveness -->
-    <define name="G1_P" value="0.017" />
-    <define name="G1_Q" value="0.019" />
-    <define name="G1_R" value="0.0011" />
-    <define name="G2_R" value="0.089" />
+    <define name="G1_P" value="0.017837" />
+    <define name="G1_Q" value="0.018315" />
+    <define name="G1_R" value="0.001049" />
+    <define name="G2_R" value="0.076486" />
     <!-- For the bebop2 we need to filter the roll rate due to the dampers -->
     <define name="FILTER_ROLL_RATE" value="FALSE" />
     <define name="FILTER_PITCH_RATE" value="FALSE" />
@@ -227,6 +227,9 @@
     <!-- Adaptive Learning Rate -->
     <define name="USE_ADAPTIVE" value="FALSE" />
     <define name="ADAPTIVE_MU" value="0.0001" />
+    <!-- max rates (conservative) -->
+    <define name="STABILIZATION_INDI_MAX_RATE" value="343.77" unit="rad/s"/>
+    <define name="STABILIZATION_INDI_MAX_R" value="120" unit="rad/s"/>
   </section>
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
     <define name="HOVER_KP" value="350" />
