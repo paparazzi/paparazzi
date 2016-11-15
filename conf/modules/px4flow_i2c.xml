@@ -25,7 +25,7 @@
     <file name="px4flow_i2c.h"/>
   </header>
   <init fun="px4flow_i2c_init()"/>
-  <periodic fun="px4flow_i2c_downlink()" freq="10" autorun="FALSE"/> <!-- for debug -->
+  <periodic fun="px4flow_i2c_downlink()" freq="4" autorun="FALSE"/> <!-- for debug -->
   <periodic fun="px4flow_i2c_periodic()" freq="50"/> <!-- poll px4flow for data, max 150Hz -->
   <makefile>
     <configure name="PX4FLOW_I2C_DEV" default="i2c1" case="lower|upper"/>

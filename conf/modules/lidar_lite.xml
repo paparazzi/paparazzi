@@ -22,7 +22,7 @@
     <file name="lidar_lite.h"/>
   </header>
   <init fun="lidar_lite_init()"/>
-  <periodic fun="lidar_lite_downlink()" freq="10" autorun="TRUE"/> <!-- for debug -->
+  <periodic fun="lidar_lite_downlink()" freq="4" autorun="TRUE"/> <!-- for debug -->
   <periodic fun="lidar_lite_periodic()" freq="40"/> <!-- poll data, theoretical max is 50Hz (every 20ms) -->
   <makefile>
     <configure name="LIDAR_LITE_I2C_DEV" default="i2c1" case="lower|upper"/>
