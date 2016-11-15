@@ -59,8 +59,7 @@ void lsm303d_spi_init(struct Lsm303d_Spi *lsm, struct spi_periph *spi_p, uint8_t
   lsm->spi_trans.status = SPITransDone;
 
   /* set default LSM303D config options */
-  lsm303d_acc_set_default_config(&(lsm->config.acc));
-  lsm303d_mag_set_default_config(&(lsm->config.mag));
+  lsm303d_set_default_config(&(lsm->conf));
   lsm->init_status = LSM303D_CONF_UNINIT;
 
   lsm->initialized = FALSE;
@@ -80,8 +79,6 @@ static void lsm303d_spi_tx_reg(struct Lsm303d_Spi *lsm, uint8_t reg, uint8_t val
 /// Configuration function called once before normal use
 static void lsm303d_spi_send_config(struct Lsm303d_Spi *lsm)
 {
-  if (lsm->target ==
-      LSM303D_TARGET_ACC) { // the complete config done below currently is one shot for both acc and mag. So, only do it for one of the devices.
     switch (lsm->init_status) {
       case LSM303D_CONF_WHO_AM_I:
         /* query device id */
@@ -97,12 +94,12 @@ static void lsm303d_spi_send_config(struct Lsm303d_Spi *lsm)
         break;
       case LSM303D_CONF_CTRL_REG1:
         lsm303d_spi_tx_reg(lsm, LSM303D_REG_CTRL1,
-                              (lsm->config.acc.rate & LSM303D_AODR_MASK) |
+                              (lsm->conf.acc_rate & LSM303D_AODR_MASK) |
                               LSM303D_AXEN | LSM303D_AYEN | LSM303D_AZEN);
         lsm->init_status++;
         break;
       case LSM303D_CONF_CTRL_REG2:
-        lsm303d_spi_tx_reg(lsm, LSM303D_REG_CTRL2, (lsm->config.acc.scale & LSM303D_AFS_MASK));
+        lsm303d_spi_tx_reg(lsm, LSM303D_REG_CTRL2, (lsm->conf.acc_scale & LSM303D_AFS_MASK));
         lsm->init_status++;
         break;
       case LSM303D_CONF_CTRL_REG3:
@@ -116,17 +113,17 @@ static void lsm303d_spi_send_config(struct Lsm303d_Spi *lsm)
         break;
       case LSM303D_CONF_CTRL_REG5:
         lsm303d_spi_tx_reg(lsm, LSM303D_REG_CTRL5,
-                              (lsm->config.mag.rate & LSM303D_M_ODR_MASK));
+                              (lsm->conf.mag_rate & LSM303D_M_ODR_MASK));
         lsm->init_status++;
         return;
         break;
       case LSM303D_CONF_CTRL_REG6:
         lsm303d_spi_tx_reg(lsm, LSM303D_REG_CTRL6,
-                              (lsm->config.mag.scale & LSM303D_MFS_MASK));
+                              (lsm->conf.mag_scale & LSM303D_MFS_MASK));
         lsm->init_status++;
         break;
       case LSM303D_CONF_CTRL_REG7:
-        lsm303d_spi_tx_reg(lsm, LSM303D_REG_CTRL7, (lsm->config.mag.mode & LSM303D_AHPM_MASK));
+        lsm303d_spi_tx_reg(lsm, LSM303D_REG_CTRL7, (lsm->conf.mag_mode & LSM303D_AHPM_MASK));
         lsm->init_status++;
         break;
       case LSM303D_CONF_DONE:
@@ -137,10 +134,6 @@ static void lsm303d_spi_send_config(struct Lsm303d_Spi *lsm)
       default:
         break;
     }
-  } else {
-    lsm->initialized = TRUE;
-    lsm->spi_trans.status = SPITransDone;
-  }
 }
 
 // Configure

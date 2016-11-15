@@ -119,7 +119,7 @@ enum Lsm303dAccelRates {
 /* Bit definitions for LSM303D_REG_CTRL2 */
 #define LSM303D_ASIM (0x01 << 0)
 #define LSM303D_AAST (0x01 << 1)
-#define LSM303D_AFS_MASK (0x07 << 2)
+#define LSM303D_AFS_MASK (0x07 << 3)
 #define LSM303D_ABW_MASK (0x03 << 6)
 
 /** LSM303D accelerometer anti-alias filter bandwidth (BW bits 6-7 in LSM303D_REG_CTRL2) */
@@ -200,7 +200,7 @@ enum Lsm303dMagRange {
 enum Lsm303dMagMode {
   LSM303D_MAG_MODE_CONTINOUS_CONVERSION  = 0x00,
   LSM303D_MAG_MODE_SINGLE_CONVERSION     = 0x01,
-  LSM303D_MAG_MODE_POWER_DOWN            = 0x02,
+  //LSM303D_MAG_MODE_POWER_DOWN            = 0x02,
   LSM303D_MAG_MODE_POWER_DOWN            = 0x03
 };
 

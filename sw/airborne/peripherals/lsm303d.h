@@ -34,7 +34,7 @@
 
 /* LSM303D default conf */
 #ifndef LSM303D_DEFAULT_AODR
-#define LSM303D_DEFAULT_AODR (LSM303D_ACC_RATE_3_125HZ << 4) //acc 3125 Hz
+#define LSM303D_DEFAULT_AODR (LSM303D_ACC_RATE_1600HZ << 4) //acc 1600 Hz
 #endif
 
 #ifndef LSM303D_DEFAULT_AFS
@@ -53,16 +53,15 @@
 #define LSM303D_DEFAULT_MD (LSM303D_MAG_MODE_CONTINOUS_CONVERSION << 0) // Magneto continious conversion mode
 #endif
 
-struct Lsm303dAccConfig {
-  uint8_t rate;    ///< Data Output Rate (Hz)
-  uint8_t scale;   ///< full scale selection (m/s²)
+struct Lsm303dConfig {
+  uint8_t acc_rate;    ///< Data Output Rate (Hz)
+  uint8_t acc_scale;   ///< full scale selection (m/s²)
+
+  uint8_t mag_rate;  ///< Data Output Rate Bits (Hz)
+  uint8_t mag_scale;  ///< Full scale gain configuration (Gauss)
+  uint8_t mag_mode;  ///< Measurement mode
 };
 
-struct Lsm303dMagConfig {
-  uint8_t rate;  ///< Data Output Rate Bits (Hz)
-  uint8_t scale;  ///< Full scale gain configuration (Gauss)
-  uint8_t mode;  ///< Measurement mode
-};
 
 /** config status states */
 enum Lsm303dConfStatus {
@@ -83,16 +82,13 @@ enum Lsm303dTarget {
   LSM303D_TARGET_MAG
 };
 
-static inline void lsm303d_acc_set_default_config(struct Lsm303dAccConfig *c)
+static inline void lsm303d_set_default_config(struct Lsm303dConfig *c)
 {
-  c->rate = LSM303D_DEFAULT_AODR;
-  c->scale = LSM303D_DEFAULT_AFS;
+  c->acc_rate = LSM303D_DEFAULT_AODR;
+  c->acc_scale = LSM303D_DEFAULT_AFS;
+  c->mag_rate = LSM303D_DEFAULT_MODR;
+  c->mag_scale = LSM303D_DEFAULT_MFS;
+  c->mag_mode = LSM303D_DEFAULT_MD;
 }
 
-static inline void lsm303d_mag_set_default_config(struct Lsm303dMagConfig *c)
-{
-  c->rate = LSM303D_DEFAULT_MODR;
-  c->scale = LSM303D_DEFAULT_MFS;
-  c->mode = LSM303D_DEFAULT_MD;
-}
 #endif // LSM303D_H

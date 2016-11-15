@@ -25,7 +25,6 @@
  * Driver for pixhawk IMU's.
  * L3GD20H + LSM303D (both on spi)
  */
-
 #include "subsystems/imu.h"
 #include "subsystems/abi.h"
 #include "mcu_periph/spi.h"
@@ -40,9 +39,7 @@ PRINT_CONFIG_VAR(IMU_PX4FMU_SPI_DEV)
 
 struct ImuPX4 imu_px4;
 
-void imu_px4_init(void)
-{
-
+void imu_px4_init(void) {
   /* L3GD20 gyro init */
   /* initialize gyro and set default options */
   l3gd20_spi_init(&imu_px4.l3g, &IMU_PX4FMU_SPI_DEV, IMU_L3G_SPI_SLAVE_IDX);
@@ -55,8 +52,7 @@ void imu_px4_init(void)
 
 }
 
-void imu_px4_periodic(void)
-{
+void imu_px4_periodic(void) {
   l3gd20_spi_periodic(&imu_px4.l3g);
   lsm303d_spi_periodic(&imu_px4.lsm_acc);
 
@@ -68,8 +64,7 @@ void imu_px4_periodic(void)
 #endif
 }
 
-void imu_px4_event(void)
-{
+void imu_px4_event(void) {
 
   uint32_t now_ts = get_sys_time_usec();
 
