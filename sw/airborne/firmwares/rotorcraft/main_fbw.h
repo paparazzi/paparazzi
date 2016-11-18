@@ -57,7 +57,9 @@
 #define AP_LOST_FBW_MODE FBW_MODE_FAILSAFE
 #endif
 
-
+#ifndef FBW_ENABLE_MANUAL
+#define FBW_ENABLE_MANUAL true
+#endif
 
 /** Switching between FBW and autopilot is done with RADIO_FBW_MODE: default is to re-use RADIO_MODE */
 #ifndef RADIO_FBW_MODE
