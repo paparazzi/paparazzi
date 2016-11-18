@@ -228,8 +228,8 @@
     <define name="USE_ADAPTIVE" value="FALSE" />
     <define name="ADAPTIVE_MU" value="0.0001" />
     <!-- max rates (conservative) -->
-    <define name="STABILIZATION_INDI_MAX_RATE" value="343.77" unit="rad/s"/>
-    <define name="STABILIZATION_INDI_MAX_R" value="120" unit="rad/s"/>
+    <define name="STABILIZATION_INDI_MAX_RATE" value="343.77" unit="deg/s"/>
+    <define name="STABILIZATION_INDI_MAX_R" value="120" unit="deg/s"/>
   </section>
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
     <define name="HOVER_KP" value="350" />
