@@ -21,27 +21,27 @@
  */
 
 /**
- * @file peripherals/lsm303dlhc.h
+ * @file peripherals/lsm303d_spi.h
  *
- * Driver for ST LSM303DLHC 3D accelerometer and magnetometer.
+ * Driver for ST LSM303D 3D accelerometer and magnetometer.
  */
 
-#ifndef LSM303DLHC_H
-#define LSM303DLHC_H
+#ifndef LSM303DSPI_H
+#define LSM303DSPI_H
 
 #include "std.h"
 #include "mcu_periph/spi.h"
 #include "math/pprz_algebra_int.h"
-#include "peripherals/lsm303dlhc.h"
+#include "peripherals/lsm303d.h"
 
-struct Lsm303dlhc_Spi {
+struct Lsm303d_Spi {
   struct spi_periph *spi_p;
   struct spi_transaction spi_trans;
   bool initialized;                 ///< config done flag
-  enum Lsm303dlhcTarget target;
+  enum Lsm303dTarget target;
   volatile uint8_t tx_buf[2];
   volatile uint8_t rx_buf[8];
-  enum Lsm303dlhcConfStatus init_status;
+  enum Lsm303dConfStatus init_status;
   volatile bool data_available_acc;     ///< data ready flag accelero
   volatile bool data_available_mag;     ///< data ready flag magneto
   union {
@@ -51,30 +51,27 @@ struct Lsm303dlhc_Spi {
   union {
     struct Int16Vect3 vect;           ///< data vector in mag coordinate system
     int16_t value[3];                 ///< data values accessible by channel index
-  } data_mag;
-  union {
-    struct Lsm303dlhcAccConfig acc;
-    struct Lsm303dlhcMagConfig mag;
-  } config;
+  } data_mag;  
+    struct Lsm303dConfig conf;
 };
 
 // TODO IRQ handling
 
 // Functions
-extern void lsm303dlhc_spi_init(struct Lsm303dlhc_Spi *lsm, struct spi_periph *spi_p, uint8_t slave_idx,
-                                enum Lsm303dlhcTarget target);
-extern void lsm303dlhc_spi_start_configure(struct Lsm303dlhc_Spi *lsm);
-extern void lsm303dlhc_spi_read(struct Lsm303dlhc_Spi *lsm);
-extern void lsm303dlhc_spi_event(struct Lsm303dlhc_Spi *lsm);
+extern void lsm303d_spi_init(struct Lsm303d_Spi *lsm, struct spi_periph *spi_p, uint8_t slave_idx,
+                                enum Lsm303dTarget target);
+extern void lsm303d_spi_start_configure(struct Lsm303d_Spi *lsm);
+extern void lsm303d_spi_read(struct Lsm303d_Spi *lsm);
+extern void lsm303d_spi_event(struct Lsm303d_Spi *lsm);
 
 /// convenience function: read or start configuration if not already initialized
-static inline void lsm303dlhc_spi_periodic(struct Lsm303dlhc_Spi *lsm)
+static inline void lsm303d_spi_periodic(struct Lsm303d_Spi *lsm)
 {
   if (lsm->initialized) {
-    lsm303dlhc_spi_read(lsm);
+    lsm303d_spi_read(lsm);
   } else {
-    lsm303dlhc_spi_start_configure(lsm);
+    lsm303d_spi_start_configure(lsm);
   }
 }
 
-#endif /* LSM303DLHC_H */
+#endif /* LSM303DSPI_H */

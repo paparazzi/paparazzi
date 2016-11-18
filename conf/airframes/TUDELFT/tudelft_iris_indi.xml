@@ -107,12 +107,13 @@
   </section>
   <section name="IMU" prefix="IMU_">
     <!-- replace this with your own calibration -->
-    <define name="ACCEL_X_NEUTRAL" value="248"/>
-    <define name="ACCEL_Y_NEUTRAL" value="-21"/>
-    <define name="ACCEL_Z_NEUTRAL" value="1123"/>
-    <define name="ACCEL_X_SENS" value="0.62584356013" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="0.609921478775" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="0.619923942578" integer="16"/>
+    <define name="ACCEL_X_NEUTRAL" value="49"/>
+    <define name="ACCEL_Y_NEUTRAL" value="6"/>
+    <define name="ACCEL_Z_NEUTRAL" value="104"/>
+    <define name="ACCEL_X_SENS" value="7.53390969897" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="7.35267287758" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="7.45488455799" integer="16"/>
+
 
     <define name="MAG_X_NEUTRAL" value="92"/>
     <define name="MAG_Y_NEUTRAL" value="35"/>
@@ -134,10 +135,10 @@
     <set command="YAW" value="@YAW" />
   </rc_commands>
   <servos driver="Default">
-    <servo name="TOP_LEFT" no="2" min="1140" neutral="1280" max="1850" />
-    <servo name="TOP_RIGHT" no="0" min="1140" neutral="1280" max="1850" />
-    <servo name="BOTTOM_RIGHT" no="3" min="1140" neutral="1280" max="1850" />
-    <servo name="BOTTOM_LEFT" no="1" min="1140" neutral="1280" max="1850" />
+    <servo name="TOP_LEFT" no="2" min="1000" neutral="1100" max="2000" />
+    <servo name="TOP_RIGHT" no="0" min="1000" neutral="1100" max="2000" />
+    <servo name="BOTTOM_RIGHT" no="3" min="1000" neutral="1100" max="2000" />
+    <servo name="BOTTOM_LEFT" no="1" min="1000" neutral="1100" max="2000" />
   </servos>
   <section name="MIXING" prefix="MOTOR_MIXING_">
     <define name="TRIM_ROLL" value="0" />
@@ -199,10 +200,10 @@
   </section>
   <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
     <!-- control effectiveness -->
-    <define name="G1_P" value="0.017" />
-    <define name="G1_Q" value="0.019" />
-    <define name="G1_R" value="0.0011" />
-    <define name="G2_R" value="0.089" />
+    <define name="G1_P" value="0.017837" />
+    <define name="G1_Q" value="0.018315" />
+    <define name="G1_R" value="0.001049" />
+    <define name="G2_R" value="0.076486" />
     <!-- For the bebop2 we need to filter the roll rate due to the dampers -->
     <define name="FILTER_ROLL_RATE" value="FALSE" />
     <define name="FILTER_PITCH_RATE" value="FALSE" />
@@ -226,6 +227,9 @@
     <!-- Adaptive Learning Rate -->
     <define name="USE_ADAPTIVE" value="FALSE" />
     <define name="ADAPTIVE_MU" value="0.0001" />
+    <!-- max rates (conservative) -->
+    <define name="STABILIZATION_INDI_MAX_RATE" value="343.77" unit="deg/s"/>
+    <define name="STABILIZATION_INDI_MAX_R" value="120" unit="deg/s"/>
   </section>
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
     <define name="HOVER_KP" value="350" />
