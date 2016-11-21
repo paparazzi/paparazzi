@@ -12,6 +12,7 @@
   <firmware name="rotorcraft">
     <target name="ap" board="px4fmu_2.4" />
     <define name="BAT_CHECKER_DELAY" value="80" />
+    <define name="RADIO_MODE_2x3" value="true"/>
     <!-- amount of time it take for the bat to check -->
     <!-- to avoid bat low spike detection when strong pullup withch draws short sudden power-->
     <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="80" />
