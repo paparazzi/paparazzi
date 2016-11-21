@@ -84,6 +84,18 @@
      <program name="Server"/>
      <program name="GCS"/>
      <program name="Messages"/>
+     <program name="Real-time Plotter"/>
+   </session>
+
+   <session name="Flight USB-serial@115200">
+     <program name="Data Link">
+       <arg flag="-d" constant="/dev/ttyUSB0"/>
+       <arg flag="-s" constant="115200"/>
+     </program>
+     <program name="Server"/>
+     <program name="GCS"/>
+     <program name="Messages"/>
+     <program name="Real-time Plotter"/>
    </session>
 
    <session name="HITL USB-serial@57600">

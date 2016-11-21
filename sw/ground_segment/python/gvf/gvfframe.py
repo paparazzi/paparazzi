@@ -73,77 +73,78 @@ class GVFFrame(wx.Frame):
                         have you forgotten gvf.xml in your settings?")
 
     def message_recv(self, ac_id, msg):
-        if msg.name == 'GPS':
-            self.course = int(msg.get_field(3))*np.pi/1800
+        if int(ac_id) == self.ac_id:
+            if msg.name == 'GPS':
+                self.course = int(msg.get_field(3))*np.pi/1800
         
-        if msg.name == 'NAVIGATION':
-            self.XY[0] = float(msg.get_field(2))
-            self.XY[1] = float(msg.get_field(3))
+            if msg.name == 'NAVIGATION':
+                self.XY[0] = float(msg.get_field(2))
+                self.XY[1] = float(msg.get_field(3))
         
-        if msg.name == 'ATTITUDE':
-            self.yaw = float(msg.get_field(1))
+            if msg.name == 'ATTITUDE':
+                self.yaw = float(msg.get_field(1))
         
-        if msg.name == 'DL_VALUE' and \
-                self.indexes_are_good == len(self.list_of_indexes):
-            if int(msg.get_field(0)) == int(self.ke_index):
-                self.ke = float(msg.get_field(1))
-                if self.traj is not None:
+            if msg.name == 'DL_VALUE' and \
+                    self.indexes_are_good == len(self.list_of_indexes):
+                if int(msg.get_field(0)) == int(self.ke_index):
+                    self.ke = float(msg.get_field(1))
+                    if self.traj is not None:
+                        self.traj.vector_field(self.traj.XYoff, \
+                                self.map_gvf.area, self.s, self.kn, self.ke)
+                if int(msg.get_field(0)) == int(self.kn_index):
+                    self.kn = float(msg.get_field(1))
+                    if self.traj is not None:
+                        self.traj.vector_field(self.traj.XYoff, \
+                                self.map_gvf.area, self.s, self.kn, self.ke)
+
+            if msg.name == 'GVF':
+                self.gvf_error = float(msg.get_field(0))
+                # Straight line
+                if int(msg.get_field(1)) == 0 \
+                        and self.timer_traj == self.timer_traj_lim:
+                    self.s = int(msg.get_field(2))
+                    param = [float(x) for x in msg.get_field(3).split(',')]
+                    a = param[0]
+                    b = param[1]
+                    c = param[2]
+
+                    self.traj = traj_line(np.array([-100,100]), a, b, c)
+                    self.traj.vector_field(self.traj.XYoff, self.map_gvf.area, \
+                            self.s, self.kn, self.ke)
+
+                # Ellipse
+                if int(msg.get_field(1)) == 1 \
+                        and self.timer_traj == self.timer_traj_lim:
+                    self.s = int(msg.get_field(2))
+                    param = [float(x) for x in msg.get_field(3).split(',')]
+                    ex = param[0]
+                    ey = param[1]
+                    ea = param[2]
+                    eb = param[3]
+                    ealpha = param[4]
+                    self.traj = traj_ellipse(np.array([ex, ey]), ealpha, ea, eb)
                     self.traj.vector_field(self.traj.XYoff, \
                             self.map_gvf.area, self.s, self.kn, self.ke)
-            if int(msg.get_field(0)) == int(self.kn_index):
-                self.kn = float(msg.get_field(1))
-                if self.traj is not None:
+
+                # Sin
+                if int(msg.get_field(1)) == 2 \
+                        and self.timer_traj == self.timer_traj_lim:
+                    self.s = int(msg.get_field(2))
+                    param = [float(x) for x in msg.get_field(3).split(',')]
+                    a = param[0]
+                    b = param[1]
+                    alpha = param[2]
+                    w = param[3]
+                    off = param[4]
+                    A = param[5]
+                    self.traj = traj_sin(np.array([-100, 100]), a, b, alpha, \
+                            w, off, A)
                     self.traj.vector_field(self.traj.XYoff, \
                             self.map_gvf.area, self.s, self.kn, self.ke)
 
-        if msg.name == 'GVF':
-            self.gvf_error = float(msg.get_field(0))
-            # Straight line
-            if int(msg.get_field(1)) == 0 \
-                    and self.timer_traj == self.timer_traj_lim:
-                self.s = int(msg.get_field(2))
-                param = [float(x) for x in msg.get_field(3).split(',')]
-                a = param[0]
-                b = param[1]
-                c = param[2]
-
-                self.traj = traj_line(np.array([-100,100]), a, b, c)
-                self.traj.vector_field(self.traj.XYoff, self.map_gvf.area, \
-                        self.s, self.kn, self.ke)
-
-            # Ellipse
-            if int(msg.get_field(1)) == 1 \
-                    and self.timer_traj == self.timer_traj_lim:
-                self.s = int(msg.get_field(2))
-                param = [float(x) for x in msg.get_field(3).split(',')]
-                ex = param[0]
-                ey = param[1]
-                ea = param[2]
-                eb = param[3]
-                ealpha = param[4]
-                self.traj = traj_ellipse(np.array([ex, ey]), ealpha, ea, eb)
-                self.traj.vector_field(self.traj.XYoff, \
-                        self.map_gvf.area, self.s, self.kn, self.ke)
-
-            # Sin
-            if int(msg.get_field(1)) == 2 \
-                    and self.timer_traj == self.timer_traj_lim:
-                self.s = int(msg.get_field(2))
-                param = [float(x) for x in msg.get_field(3).split(',')]
-                a = param[0]
-                b = param[1]
-                alpha = param[2]
-                w = param[3]
-                off = param[4]
-                A = param[5]
-                self.traj = traj_sin(np.array([-100, 100]), a, b, alpha, \
-                        w, off, A)
-                self.traj.vector_field(self.traj.XYoff, \
-                        self.map_gvf.area, self.s, self.kn, self.ke)
-
-            self.timer_traj = self.timer_traj + 1
-            if self.timer_traj > self.timer_traj_lim:
-                self.timer_traj = 0
+                self.timer_traj = self.timer_traj + 1
+                if self.timer_traj > self.timer_traj_lim:
+                    self.timer_traj = 0
 
     def draw_gvf(self, XY, yaw, course):
         if self.traj is not None:

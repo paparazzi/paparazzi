@@ -261,6 +261,10 @@
 #define IMU_PX4_ID 18
 #endif
 
+#ifndef IMU_VECTORNAV
+#define IMU_VECTORNAV_ID 19
+#endif
+
 /*
  * IDs of RSSI measurements (message 13)
  */

@@ -37,7 +37,7 @@
     <configure name="AHRS_ALIGNER_LED" default="none"/>
 
     <define name="USE_MAGNETOMETER" cond="ifeq (,$(findstring $(USE_MAGNETOMETER),0 FALSE))"/>
-    <define name="AHRS_ALINGER_LED" value="$(AHRS_ALIGNER_LED)" cond="ifneq ($(AHRS_ALIGNER_LED),none)"/>
+    <define name="AHRS_ALIGNER_LED" value="$(AHRS_ALIGNER_LED)" cond="ifneq ($(AHRS_ALIGNER_LED),none)"/>
     <define name="USE_AHRS"/>
     <define name="USE_AHRS_ALIGNER"/>
 

@@ -194,8 +194,19 @@
    telemetry="telemetry/default_rotorcraft_slow.xml"
    flight_plan="flight_plans/TUDELFT/tudelft_delft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml [settings/control/stabilization_att_int_quat.xml] settings/control/stabilization_indi.xml"
-   settings_modules="modules/imu_common.xml modules/gps.xml modules/ahrs_int_cmpl_quat.xml modules/geo_mag.xml [modules/air_data.xml] modules/gps_ubx_ucenter.xml"
+   settings_modules="modules/imu_common.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/ahrs_int_cmpl_quat.xml modules/geo_mag.xml [modules/air_data.xml]"
    gui_color="#ffffcccaccca"
+  />
+  <aircraft
+   name="LadybirdMXS"
+   ac_id="15"
+   airframe="airframes/TUDELFT/tudelft_ladybird_lisa_mxs.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/stabilization_att_int_quat.xml settings/control/rotorcraft_guidance.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml modules/imu_common.xml modules/gps.xml modules/ahrs_int_cmpl_quat.xml modules/air_data.xml"
+   gui_color="blue"
   />
   <aircraft
    name="Logo600"

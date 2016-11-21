@@ -48,7 +48,10 @@ struct lidar_lite
   float distance; // [m]
   enum LidarLiteStatus status;
   bool update_agl;
+  bool compensate_rotation;
 };
+
+extern struct lidar_lite lidar;
 
 extern void lidar_lite_init(void);
 extern void lidar_lite_periodic(void);
