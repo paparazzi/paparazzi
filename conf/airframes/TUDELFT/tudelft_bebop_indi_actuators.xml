@@ -58,10 +58,10 @@
   </servos>
 
   <command_laws>
-    <set servo="TOP_LEFT" value="actuators[0]"/>
-    <set servo="TOP_RIGHT" value="actuators[1]"/>
-    <set servo="BOTTOM_RIGHT" value="actuators[2]"/>
-    <set servo="BOTTOM_LEFT" value="actuators[3]"/>
+    <set servo="TOP_LEFT"     value="autopilot_motors_on ? actuators_pprz[0] : -MAX_PPRZ"/>
+    <set servo="TOP_RIGHT"    value="autopilot_motors_on ? actuators_pprz[1] : -MAX_PPRZ"/>
+    <set servo="BOTTOM_RIGHT" value="autopilot_motors_on ? actuators_pprz[2] : -MAX_PPRZ"/>
+    <set servo="BOTTOM_LEFT"  value="autopilot_motors_on ? actuators_pprz[3] : -MAX_PPRZ"/>
   </command_laws>
 
   <section name="AIR_DATA" prefix="AIR_DATA_">
