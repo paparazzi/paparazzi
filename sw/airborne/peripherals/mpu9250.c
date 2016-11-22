@@ -28,9 +28,6 @@
  */
 
 #include "peripherals/mpu9250.h"
-#include "mcu_periph/sys_time.h"
-
-#define MPU9250_REG_STARTUP_TIME 100 // max registery read/write startup time in ms (from datasheet)
 
 void mpu9250_set_default_config(struct Mpu9250Config *c)
 {
@@ -55,12 +52,6 @@ void mpu9250_set_default_config(struct Mpu9250Config *c)
 
 void mpu9250_send_config(Mpu9250ConfigSet mpu_set, void *mpu, struct Mpu9250Config *config)
 {
-  // if MPU is not ready, restart config
-  if (get_sys_time_msec() < MPU9250_REG_STARTUP_TIME) {
-    config->init_status = MPU9250_CONF_UNINIT;
-    return;
-  }
-
   switch (config->init_status) {
     case MPU9250_CONF_RESET:
       /* device reset, set register values to defaults */
