@@ -175,11 +175,6 @@
     <define name="VoltageOfAdc(adc)" value="(adc)*0.00162f" />
   </section>
 
- <section name="SIMULATOR" prefix="NPS_">
-   <define name="ACTUATOR_NAMES" value="ne_motor, se_motor, sw_motor, nw_motor" type="string[]"/>
-   <define name="JSBSIM_MODEL" value="simple_x_quad_ccw" type="string"/>
-   <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
- </section>
 
  <modules main_freq="512">
    <module name="gps" type="ubx_ucenter"/>
@@ -200,10 +195,6 @@
       <define name="USE_PERSISTENT_SETTINGS" value="TRUE"/>
     </target>
 
-    <target name="nps" board="pc">
-      <module name="fdm" type="jsbsim"/>
-      <module name="radio_control" type="ppm"/>
-    </target>
 
     <module name="motor_mixing"/>
     <module name="actuators" type="pwm">
