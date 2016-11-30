@@ -1,0 +1,12 @@
+{
+    "board_id": 11,
+    "magic": "PX4FWv1", 
+    "description": "PPRZ Firmware for the PX4 Pixracer v1 board", 
+    "image": "", 
+    "build_time": 0, 
+    "summary": "Pixracer", 
+    "version": "1.0", 
+    "image_size": 0, 
+    "git_identity": "", 
+    "board_revision": 14
+}

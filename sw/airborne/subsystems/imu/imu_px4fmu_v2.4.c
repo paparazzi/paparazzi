@@ -30,7 +30,7 @@
 #include "mcu_periph/spi.h"
 #include "peripherals/l3gd20_regs.h"
 #include "peripherals/lsm303d_regs.h"
-#include "peripherals/lsm303d_spi.h"
+//#include "peripherals/lsm303d_spi.h"
 
 /* SPI defaults set in subsystem makefile, can be configured from airframe file */
 PRINT_CONFIG_VAR(IMU_LSM_SPI_SLAVE_IDX)
