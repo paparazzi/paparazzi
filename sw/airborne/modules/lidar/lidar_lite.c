@@ -117,22 +117,22 @@ void lidar_lite_periodic(void)
       break;
     case LIDAR_REQ_READ:
       if (lidar.trans.status == I2CTransDone) {
-      lidar.trans.buf[0] = LIDAR_LITE_READ_ADDR; // sets register pointer to results register
-      //lidar.trans.buf[1] = 0;
-      if (i2c_transmit(&LIDAR_LITE_I2C_DEV, &lidar.trans, lidar.addr, 1)){
-        // transaction OK, increment status
-        lidar.status = LIDAR_READ_DISTANCE;
-      }
+        lidar.trans.buf[0] = LIDAR_LITE_READ_ADDR; // sets register pointer to results register
+        if (i2c_transmit(&LIDAR_LITE_I2C_DEV, &lidar.trans, lidar.addr, 1)){
+          // transaction OK, increment status
+          lidar.status = LIDAR_READ_DISTANCE;
+        }
       }
       break;
     case LIDAR_READ_DISTANCE:
       if (lidar.trans.status == I2CTransDone) {
-      lidar.trans.buf[0] = 0;
-      lidar.trans.buf[1] = 0;
-      if (i2c_receive(&LIDAR_LITE_I2C_DEV, &lidar.trans, lidar.addr, 2)){
-        // transaction OK, increment status
-        lidar.status = LIDAR_PARSE;
-      }
+        // clear buffer
+        lidar.trans.buf[0] = 0;
+        lidar.trans.buf[1] = 0;
+        if (i2c_receive(&LIDAR_LITE_I2C_DEV, &lidar.trans, lidar.addr, 2)){
+          // transaction OK, increment status
+          lidar.status = LIDAR_PARSE;
+        }
       }
       break;
     case LIDAR_PARSE:
