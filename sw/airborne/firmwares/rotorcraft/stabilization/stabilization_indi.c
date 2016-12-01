@@ -66,6 +66,8 @@ struct ReferenceSystem reference_acceleration = {
 #define INDI_OUTPUTS 4
 // Factor that the estimated G matrix is allowed to deviate from initial one
 #define INDI_ALLOWED_G_FACTOR 2.0
+// Scaling for the control effectiveness to make it readible
+#define INDI_G_SCALING 1000.0
 
 #if STABILIZATION_INDI_USE_ADAPTIVE
 bool indi_use_adaptive = true;
@@ -109,7 +111,7 @@ float indi_thrust_increment;
 bool indi_thrust_increment_set = false;
 
 float g1g2_pseudo_inv[INDI_NUM_ACT][INDI_OUTPUTS];
-float g2[INDI_NUM_ACT] = STABILIZATION_INDI_G2; //scaled by 1000
+float g2[INDI_NUM_ACT] = STABILIZATION_INDI_G2; //scaled by INDI_G_SCALING
 float g1[INDI_OUTPUTS][INDI_NUM_ACT] = {STABILIZATION_INDI_G1_ROLL,
   STABILIZATION_INDI_G1_PITCH, STABILIZATION_INDI_G1_YAW, STABILIZATION_INDI_G1_THRUST};
 float g1g2[INDI_OUTPUTS][INDI_NUM_ACT];
@@ -287,8 +289,8 @@ static void stabilization_indi_calc_cmd(struct Int32Quat *att_err, bool rate_con
   for(i=0; i<INDI_NUM_ACT; i++) {
     g2_times_du += g2[i]*indi_du[i];
   }
-  //G2 is scaled by 1000 to make it readable
-  g2_times_du = g2_times_du/1000.0;
+  //G2 is scaled by INDI_G_SCALING to make it readable
+  g2_times_du = g2_times_du/INDI_G_SCALING;
 
   // Calculate the increment for each actuator
   for(i=0; i<INDI_NUM_ACT; i++) {
@@ -547,9 +549,9 @@ void calc_g1g2_pseudo_inv(void) {
   for(i=0; i<INDI_OUTPUTS; i++) {
     for(j=0; j<INDI_NUM_ACT; j++) {
       if(i!=2)
-        g1g2[i][j] = g1[i][j]/1000.0;
+        g1g2[i][j] = g1[i][j]/INDI_G_SCALING;
       else
-        g1g2[i][j] = g1[i][j]/1000.0 + g2[j]/1000.0;
+        g1g2[i][j] = (g1[i][j] + g2[j])/INDI_G_SCALING;
     }
   }
 
