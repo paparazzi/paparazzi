@@ -279,4 +279,11 @@
 #define RPM_SENSOR_ID 1
 #endif
 
+/*
+ * IDs of THRUST increment calculation (message 16)
+ */
+#ifndef THRUST_INCREMENT_ID
+#define THRUST_INCREMENT_ID 1
+#endif
+
 #endif /* ABI_SENDER_IDS_H */

@@ -32,6 +32,9 @@
 
 int16_t actuators[ACTUATORS_NB];
 
+// Can be used to directly control each actuator from the control algorithm
+int16_t actuators_pprz[ACTUATORS_NB];
+
 uint32_t actuators_delay_time;
 bool   actuators_delay_done;
 

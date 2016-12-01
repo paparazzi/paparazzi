@@ -25,7 +25,7 @@
     <module name="imu" type="px4fmu_v2.4"/>
     <module name="gps" type="ublox" />
     <module name="gps" type="ubx_ucenter" />
-    <module name="stabilization" type="indi" />
+    <module name="stabilization" type="indi_simple" />
     <module name="ahrs" type="int_cmpl_quat" >
       <define name="AHRS_ICQ_IMU_ID" value="IMU_PX4_ID" />         <!-- Meaning the lsm303 and l3g -->
       <define name="AHRS_ICQ_MAG_ID" value="MAG_HMC58XX_SENDER_ID" />         <!-- Meaning the external hmc-->
@@ -218,10 +218,8 @@
     <define name="REF_RATE_Q" value="14.0" />
     <define name="REF_RATE_R" value="14.0" />
     <!-- second order filter parameters -->
-    <define name="FILT_OMEGA" value="20.0" />
-    <define name="FILT_ZETA" value="0.55" />
-    <define name="FILT_OMEGA_R" value="20.0" />
-    <define name="FILT_ZETA_R" value="0.55" />
+    <define name="FILT_CUTOFF" value="3.2"/>
+    <define name="FILT_CUTOFF_R" value="3.2"/>
     <!-- first order actuator dynamics -->
     <define name="ACT_DYN_P" value="0.04" />
     <define name="ACT_DYN_Q" value="0.04" />

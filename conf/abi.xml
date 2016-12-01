@@ -85,7 +85,12 @@
     </message>
 
     <message name="RPM" id="15">
-      <field name="rpm" type="uint16_t" unit="rpm"/>
+      <field name="rpm" type="uint16_t *" unit="rpm"/>
+      <field name="num_act" type="uint8_t"/>
+    </message>
+
+    <message name="THRUST" id="16">
+      <field name="thrust_increment" type="float" unit="m/s^2"/>
     </message>
 
   </msg_class>

@@ -24,17 +24,20 @@
  * MAVLab Delft University of Technology
  * This control algorithm is Incremental Nonlinear Dynamic Inversion (INDI)
  *
- * This is a simplified implementation of the (soon to be) publication in the
+ * This is an implementation of the publication in the
  * journal of Control Guidance and Dynamics: Adaptive Incremental Nonlinear
  * Dynamic Inversion for Attitude Control of Micro Aerial Vehicles
  */
 
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
-#include "firmwares/rotorcraft/stabilization/stabilization_indi.h"
+
 
 void stabilization_attitude_init(void)
 {
+  // Check if the indi init is already done for rate control
+#ifndef STABILIZATION_RATE_INDI
   stabilization_indi_init();
+#endif
 }
 
 void stabilization_attitude_enter(void)
@@ -57,9 +60,9 @@ void stabilization_attitude_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t head
   stabilization_indi_set_earth_cmd_i(cmd, heading);
 }
 
-void stabilization_attitude_run(bool enable_integrator)
+void stabilization_attitude_run(bool in_flight)
 {
-  stabilization_indi_run(enable_integrator, FALSE);
+  stabilization_indi_run(in_flight, FALSE);
 }
 
 void stabilization_attitude_read_rc(bool in_flight, bool in_carefree, bool coordinated_turn)
