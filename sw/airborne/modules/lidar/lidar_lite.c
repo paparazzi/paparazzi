@@ -66,30 +66,76 @@ void lidar_lite_init(void)
 }
 
 /**
+ * Lidar event function
+ * Basically just check the progress of the transation
+ * to prevent overruns during high speed operation
+ * (ie. polling the radar at >100Hz)
+ */
+void lidar_lite_event(void)
+{
+  switch (lidar.trans.status) {
+    case I2CTransPending:
+      //wait and do nothing
+      break;
+    case I2CTransRunning:
+      // wait and do nothing
+      break;
+    case I2CTransSuccess:
+      // set to done
+      lidar.trans.status = I2CTransDone;
+      break;
+    case I2CTransFailed:
+      // set to done
+      lidar.trans.status = I2CTransDone;
+      break;
+    case I2CTransDone:
+      // do nothing
+      break;
+    default:
+      break;
+  }
+}
+
+/**
  * Poll lidar for data
- * run at max 50Hz
+ * for altitude hold 50Hz-100Hz should be enough,
+ * in theory can go faster (see the datasheet for Lidar Lite v3
  */
 void lidar_lite_periodic(void)
 {
   switch (lidar.status) {
     case LIDAR_INIT_RANGING:
-      // ask for i2c frame
-      lidar.trans.buf[0] = LIDAR_LITE_REG_ADDR; // sets register pointer to  (0x00)
-      lidar.trans.buf[1] = LIDAR_LITE_REG_VAL; // take acquisition & correlation processing with DC correction
-      if (i2c_transmit(&LIDAR_LITE_I2C_DEV, &lidar.trans, lidar.addr, 2)){
-        // transaction OK, increment status
-        lidar.status = LIDAR_REQ_READ;
+      if (lidar.trans.status == I2CTransDone) {
+        // ask for i2c frame
+        lidar.trans.buf[0] = LIDAR_LITE_REG_ADDR; // sets register pointer to  (0x00)
+        lidar.trans.buf[1] = LIDAR_LITE_REG_VAL; // take acquisition & correlation processing with DC correction
+        if (i2c_transmit(&LIDAR_LITE_I2C_DEV, &lidar.trans, lidar.addr, 2)){
+          // transaction OK, increment status
+          lidar.status = LIDAR_REQ_READ;
+        }
       }
       break;
     case LIDAR_REQ_READ:
+      if (lidar.trans.status == I2CTransDone) {
       lidar.trans.buf[0] = LIDAR_LITE_READ_ADDR; // sets register pointer to results register
-      lidar.trans.buf[1] = 0;
-      if (i2c_transceive(&LIDAR_LITE_I2C_DEV, &lidar.trans, lidar.addr, 1,2)){
+      //lidar.trans.buf[1] = 0;
+      if (i2c_transmit(&LIDAR_LITE_I2C_DEV, &lidar.trans, lidar.addr, 1)){
         // transaction OK, increment status
         lidar.status = LIDAR_READ_DISTANCE;
       }
+      }
       break;
     case LIDAR_READ_DISTANCE:
+      if (lidar.trans.status == I2CTransDone) {
+      lidar.trans.buf[0] = 0;
+      lidar.trans.buf[1] = 0;
+      if (i2c_receive(&LIDAR_LITE_I2C_DEV, &lidar.trans, lidar.addr, 2)){
+        // transaction OK, increment status
+        lidar.status = LIDAR_PARSE;
+      }
+      }
+      break;
+    case LIDAR_PARSE:
       // filter data
       lidar.distance_raw = update_median_filter(&lidar_filter, (uint32_t)((lidar.trans.buf[0] << 8) | lidar.trans.buf[1]));
       lidar.distance = ((float)lidar.distance_raw)/100.0;

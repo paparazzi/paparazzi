@@ -37,7 +37,8 @@
 enum LidarLiteStatus {
 	LIDAR_INIT_RANGING,
 	LIDAR_REQ_READ,
-	LIDAR_READ_DISTANCE
+	LIDAR_READ_DISTANCE,
+	LIDAR_PARSE
 };
 
 struct lidar_lite
@@ -54,6 +55,7 @@ struct lidar_lite
 extern struct lidar_lite lidar;
 
 extern void lidar_lite_init(void);
+extern void lidar_lite_event(void);
 extern void lidar_lite_periodic(void);
 extern void lidar_lite_downlink(void);
 

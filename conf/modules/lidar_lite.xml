@@ -2,9 +2,9 @@
 
 <module name="lidar_lite" dir="lidar">
   <doc>
-    <description>Lidar-Lite v1 (silver label) from PulsedLight3D sensor connected over i2c bus</description>
+    <description>Lidar-Lite v1-3 (all labels) from PulsedLight3D (now Garmin) connected over i2c bus</description>
     <configure name="LIDAR_LITE_I2C_DEV" value="i2c2" description="I2C device to use for Lidar-lite"/>
-    <configure name="LIDAR_LITE_I2C_ADDR" value="0x62" description="slave address of Lidar-lite"/>
+    <configure name="LIDAR_LITE_I2C_ADDR" value="0x62" description="default slave address of Lidar-lite"/>
     <configure name="USE_LIDAR_LITE_AGL" value="1" description="use Lidar-lite for AGL measurements. On by deafult"/>
     <configure name="LIDAR_LITE_COMPENSATE_ROTATION" value="1" description="compensate AGL measurements for body rotation"/>
   </doc>
@@ -23,7 +23,9 @@
   </header>
   <init fun="lidar_lite_init()"/>
   <periodic fun="lidar_lite_downlink()" freq="4" autorun="FALSE"/> <!-- for debug -->
-  <periodic fun="lidar_lite_periodic()" freq="40"/> <!-- poll data, theoretical max is 50Hz (every 20ms) -->
+  <periodic fun="lidar_lite_periodic()" freq="100"/> <!-- poll data, since we have 4 states in the state machine, divide the frequency  
+   by 4 to get the actual number of readings per second. For example 100Hz = 25 range readings -->
+  <event fun="lidar_lite_event()"/>
   <makefile>
     <configure name="LIDAR_LITE_I2C_DEV" default="i2c1" case="lower|upper"/>
     <configure name="LIDAR_LITE_I2C_ADDR" default="0xC4"/>
