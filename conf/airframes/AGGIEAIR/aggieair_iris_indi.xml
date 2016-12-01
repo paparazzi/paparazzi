@@ -31,11 +31,11 @@
 
     <module name="imu" type="px4fmu_v2.4"/>
 
-    <module name="stabilization" type="indi" />
+    <module name="stabilization" type="indi_simple"/>
 
-    <module name="guidance" type="indi">
-      <!--define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-500.0"/-->
-    </module>
+    <!--module name="guidance" type="indi">
+      <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-500.0"/>
+    </module-->
 
 
     <module name="ahrs" type="int_cmpl_quat">
@@ -128,7 +128,7 @@
     <!-- optical flow camera over i2c-->
     <module name="px4flow_i2c">
       <configure name="USE_PX4FLOW_AGL" value="0"/> <!-- send AGL measurements -->
-      <configure name="PX4FLOW_COMPENSATE_ROTATION" value="1" /> <!-- compensate AGL for body rotation -->
+      <configure name="PX4FLOW_COMPENSATE_ROTATION" value="1"/> <!-- compensate AGL for body rotation -->
       <configure name="PX4FLOW_NOISE_STDDEV" value="10.0"/> <!-- standard deviation of the optical flow measurements--> 
     </module>
 
