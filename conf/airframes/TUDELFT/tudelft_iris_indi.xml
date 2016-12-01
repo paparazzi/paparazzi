@@ -12,6 +12,7 @@
   <firmware name="rotorcraft">
     <target name="ap" board="px4fmu_2.4" />
     <define name="BAT_CHECKER_DELAY" value="80" />
+    <define name="RADIO_MODE_2x3" value="true"/>
     <!-- amount of time it take for the bat to check -->
     <!-- to avoid bat low spike detection when strong pullup withch draws short sudden power-->
     <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="80" />
@@ -52,6 +53,7 @@
       <define name="USE_KILL_SWITCH_FOR_MOTOR_ARMING" value="1" />
       <define name="RADIO_KILL_SWITCH" value="RADIO_KILL" />
     </module>
+    <define name="FBW_MODE_AUTO_ONLY" value="true"/>
     <!--  <module name="radio_control" type="spektrum">-->
     <!--    <define name="RADIO_CONTROL_SPEKTRUM_NO_SIGN" value="1"/>-->
     <!--    <define name="USE_KILL_SWITCH_FOR_MOTOR_ARMING" value="1"/>-->
@@ -256,10 +258,10 @@
     <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string" />
   </section>
   <section name="AUTOPILOT">
-    <define name="MODE_STARTUP" value="AP_MODE_RC_DIRECT" />
-    <define name="MODE_MANUAL" value="AP_MODE_RC_DIRECT" /> <!-- changing this mode may not work, since fbw will be in mode manual directly from rc!-->
-    <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_DIRECT" />
-    <define name="MODE_AUTO2" value="AP_MODE_ATTITUDE_DIRECT" />
+    <define name="MODE_STARTUP" value="AP_MODE_ATTITUDE_DIRECT" />
+    <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT" />
+    <define name="MODE_AUTO1" value="AP_MODE_HOVER_Z_HOLD" />
+    <define name="MODE_AUTO2" value="AP_MODE_NAV" />
     <define name="NO_RC_THRUST_LIMIT" value="TRUE" />
   </section>
   <section name="BAT">

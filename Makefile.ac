@@ -160,9 +160,9 @@ $(SRCS_LIST) : $(CONF_XML) $(AIRFRAME_H) $(MODULES_H) $(SETTINGS_H) $(MAKEFILE_A
 	@echo "srcs: " $($(TARGET).srcs) >> $(SRCS_LIST)
 	@echo -n "headers:  " >> $(SRCS_LIST)
 ifeq (,$(findstring cpp,$($(TARGET).srcs)))
-	$(Q)cd $(AIRBORNE) ; ../../sw/tools/find_vpaths.py $(CC) $(VPATH) + $($(TARGET).srcs) + $(CFLAGS) >> $(SRCS_LIST)
+	$(Q)cd $(AIRBORNE) ; ../../sw/tools/find_vpaths.py $(CC) $(VPATH) + $($(TARGET).srcs) + $(CFLAGS) $(IINCDIR) $(TOPT) >> $(SRCS_LIST)
 else
-	$(Q)cd $(AIRBORNE) ; ../../sw/tools/find_vpaths.py $(CXX) $(VPATH) + $($(TARGET).srcs) + $(CXXFLAGS) >> $(SRCS_LIST)
+	$(Q)cd $(AIRBORNE) ; ../../sw/tools/find_vpaths.py $(CXX) $(VPATH) + $($(TARGET).srcs) + $(CXXFLAGS) $(IINCDIR) $(TOPT) >> $(SRCS_LIST)
 endif
 
 qt_project : $(SRCS_LIST)

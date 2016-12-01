@@ -332,8 +332,8 @@ let singletonize_modules = fun ?(verbose=false) ?target xml ->
 let get_modules_of_config = fun ?target ?verbose ac_id af_xml fp_xml ->
   let af_modules = get_modules_of_airframe ?target (expand_includes ac_id af_xml)
   and fp_modules = get_modules_of_flight_plan fp_xml in
-  (* singletonize modules list *)
-  singletonize_modules ?verbose ?target (af_modules @ fp_modules)
+  (* singletonize modules list and reverse list to have it in the correct order *)
+  List.rev (singletonize_modules ?verbose ?target (af_modules @ fp_modules))
 
 (** [get_modules_name xml]
  * Returns a list of loaded modules' name *)

@@ -610,10 +610,41 @@ void autopilot_set_motors_on(bool motors_on)
   autopilot_arming_set(autopilot_motors_on);
 }
 
+#if defined RADIO_MODE_2x3
+
+#define THRESHOLD_1d3_PPRZ (MAX_PPRZ / 3)
+#define THRESHOLD_2d3_PPRZ ((MAX_PPRZ / 3) * 2)
+/** Get autopilot mode as set by a RADIO_MODE 3-way switch and a 2-way switch, which are mixed together
+ *  The 2 way switch negates the value, the 3 way switch changes in three steps from 0 - MAX_PPRZ.
+ *  E.g. SW_1 has two positions (On/Off), SW_Mode has three positions (M1/M2/M3)
+ *   1	Mode value
+ *   Off	M1	-9500
+ *   Off	M2	-4800
+ *   Off	M3	-1850
+ *   On	M1	2100
+ *   On	M2	4900
+ *   On	M3	9600
+ *  This function filters out the effect of SW_1, such that a normal 3-way switch comes out.
+**/
+static uint8_t ap_mode_of_3x2way_switch(void)
+{
+    int val = radio_control.values[RADIO_MODE];
+    if (radio_control.values[RADIO_MODE] < 0) {
+        val = MAX_PPRZ + val;
+    }
+    if (val < THRESHOLD_1d3_PPRZ) {
+        return MODE_MANUAL;
+    } else if (val < THRESHOLD_2d3_PPRZ) {
+        return MODE_AUTO1;
+    } else {
+        return autopilot_mode_auto2;
+    }
+}
+
+#else
 
 #define THRESHOLD_1_PPRZ (MIN_PPRZ / 2)
 #define THRESHOLD_2_PPRZ (MAX_PPRZ / 2)
-
 /** get autopilot mode as set by RADIO_MODE 3-way switch */
 static uint8_t ap_mode_of_3way_switch(void)
 {
@@ -625,6 +656,7 @@ static uint8_t ap_mode_of_3way_switch(void)
     return MODE_MANUAL;
   }
 }
+#endif
 
 /**
  * Get autopilot mode from two 2way switches.
@@ -663,7 +695,11 @@ void autopilot_on_rc_frame(void)
     INFO("Using RADIO_AUTO_MODE to switch between AUTO1 and AUTO2.")
     uint8_t new_autopilot_mode = ap_mode_of_two_switches();
 #else
+#ifdef RADIO_MODE_2x3
+    uint8_t new_autopilot_mode = ap_mode_of_3x2way_switch();
+#else
     uint8_t new_autopilot_mode = ap_mode_of_3way_switch();
+#endif
 #endif
 
     /* don't enter NAV mode if GPS is lost (this also prevents mode oscillations) */
