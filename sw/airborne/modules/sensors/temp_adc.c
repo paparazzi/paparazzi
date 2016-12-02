@@ -34,6 +34,20 @@
 bool temp_adc_sync_send = false;
 static float temp_c1, temp_c2, temp_c3;
 
+float get_temp(uint8_t nr) {
+  switch(nr) {
+  case 1:
+    return temp_c1;
+  case 2:
+    return temp_c2;
+  case 3:
+    return temp_c3;
+  default:
+    return 0.0f;
+  }
+}
+
+
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 #endif
