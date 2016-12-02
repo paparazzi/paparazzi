@@ -17,10 +17,6 @@
     <!-- to avoid bat low spike detection when strong pullup withch draws short sudden power-->
     <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="80" />
     <!-- in seconds-->
-    <target name="nps" board="pc">
-      <module name="fdm" type="jsbsim" />
-      <module name="udp" />
-    </target>
     <module name="telemetry" type="transparent" />
     <module name="imu" type="px4fmu_v2.4"/>
     <module name="gps" type="ublox" />
@@ -74,15 +70,6 @@
       <configure name="INTERMCU_PORT" value="UART2" />
       <configure name="INTERMCU_BAUD" value="B1500000" />
     </module>
-  </firmware>
-  <firmware name="test_progs">
-    <target name="test_telemetry" board="px4fmu_2.4" />
-  </firmware>
-  <firmware name="test_progs">
-    <target name="test_baro_board" board="px4fmu_2.4" />
-  </firmware>
-  <firmware name="test_progs">
-    <target name="test_datalink" board="px4fmu_2.4" />
   </firmware>
   <modules main_freq="512">
     <module name="px4_flash" />
@@ -251,11 +238,6 @@
   <section name="NAVIGATION" prefix="NAV_">
     <define name="CLIMB_VSPEED" value="4.5" />
     <define name="DESCEND_VSPEED" value="-1.0" />
-  </section>
-  <section name="SIMULATOR" prefix="NPS_">
-    <define name="ACTUATOR_NAMES" value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]" />
-    <define name="JSBSIM_MODEL" value="simple_x_quad_ccw" type="string" />
-    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string" />
   </section>
   <section name="AUTOPILOT">
     <define name="MODE_STARTUP" value="AP_MODE_ATTITUDE_DIRECT" />
