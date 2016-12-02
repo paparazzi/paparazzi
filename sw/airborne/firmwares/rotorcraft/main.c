@@ -258,6 +258,10 @@ STATIC_INLINE void handle_periodic_tasks(void)
 
 STATIC_INLINE void main_periodic(void)
 {
+#if INTER_MCU_AP
+  /* Inter-MCU watchdog */
+  intermcu_periodic();
+#endif
 
   /* run control loops */
   autopilot_periodic();
