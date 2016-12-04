@@ -569,10 +569,21 @@ bool nav_set_heading_towards_waypoint(uint8_t wp)
   return nav_set_heading_towards(WaypointX(wp), WaypointY(wp));
 }
 
+/** Set heading in the direction of the target*/
+bool nav_set_heading_towards_target(void)
+{
+  return nav_set_heading_towards(POS_FLOAT_OF_BFP(navigation_target.x),POS_FLOAT_OF_BFP(navigation_target.y));
+}
+
 /** Set heading to the current yaw angle */
 bool nav_set_heading_current(void)
 {
   nav_heading = stateGetNedToBodyEulers_i()->psi;
+  return false;
+}
+
+bool nav_set_failsafe(void) {
+  autopilot_set_mode(AP_MODE_FAILSAFE);
   return false;
 }
 
