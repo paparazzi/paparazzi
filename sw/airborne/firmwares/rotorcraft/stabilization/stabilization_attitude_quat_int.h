@@ -31,6 +31,7 @@ extern struct Int32Quat   stab_att_sp_quat;  ///< with #INT32_QUAT_FRAC
 extern struct Int32Eulers stab_att_sp_euler; ///< with #INT32_ANGLE_FRAC
 
 extern struct AttRefQuatInt att_ref_quat_i;
+extern struct Int32Quat stabilization_att_sum_err_quat;
 
 /* settings handlers for ref model params */
 #define stabilization_attitude_quat_int_SetOmegaP(_val) {   \

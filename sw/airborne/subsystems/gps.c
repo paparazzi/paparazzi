@@ -191,6 +191,13 @@ static uint8_t gps_multi_switch(struct GpsState *gps_s) {
       return gps.comp_id;
     } else{
       if (get_sys_time_msec() - time_since_last_gps_switch > TIME_TO_SWITCH) {
+        if(outback_hybrid_mode == HB_FORWARD) {
+          return GpsId(SECONDARY_GPS);
+        }
+        else {
+          return GpsId(PRIMARY_GPS);
+        }
+        /*
         if (gps_s->num_sv > gps.num_sv) {
           current_gps_id = gps_s->comp_id;
           time_since_last_gps_switch = get_sys_time_msec();
@@ -198,6 +205,7 @@ static uint8_t gps_multi_switch(struct GpsState *gps_s) {
           current_gps_id = gps.comp_id;
           time_since_last_gps_switch = get_sys_time_msec();
         }
+        */
       }
     }
   }

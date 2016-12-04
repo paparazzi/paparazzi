@@ -121,6 +121,17 @@
    gui_color="blue"
   />
   <aircraft
+   name="DelftaCopter2"
+   ac_id="15"
+   airframe="airframes/TUDELFT/tudelft_outback_v2.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/TUDELFT/tudelft_outback900.xml"
+   flight_plan="flight_plans/TUDELFT/obc2016/obc2016.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/stabilization_att_int.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_rate.xml settings/control/hybrid_guidance.xml settings/outback.xml settings/control/gain_scheduling.xml"
+   gui_color="#ffffdffac31f"
+   settings_modules="modules/imu_common.xml modules/gps.xml modules/ahrs_int_cmpl_quat.xml modules/opa_controller.xml modules/kalamos_uart.xml modules/geo_mag.xml modules/air_data.xml modules/temp_adc.xml modules/logger_sd_spi_direct.xml modules/gps_ubx_ucenter.xml modules/heli_throttle_curve.xml"
+  />
+  <aircraft
    name="GeniusDD"
    ac_id="129"
    airframe="airframes/TUDELFT/tudelft_heliGeniusDD.xml"
@@ -253,14 +264,14 @@
    gui_color="white"
   />
   <aircraft
-   name="Outback"
+   name="DelftaCopter"
    ac_id="6"
    airframe="airframes/TUDELFT/tudelft_outback.xml"
    radio="radios/dummy.xml"
-   telemetry="telemetry/TUDELFT/tudelft_outback.xml"
+   telemetry="telemetry/TUDELFT/tudelft_outback900.xml"
    flight_plan="flight_plans/TUDELFT/obc2016/obc2016.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/stabilization_att_int.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_rate.xml"
-   settings_modules="modules/imu_common.xml modules/gps.xml modules/ahrs_int_cmpl_quat.xml modules/opa_controller.xml modules/air_data.xml modules/temp_adc.xml modules/logger_sd_spi_direct.xml modules/gps_ubx_ucenter.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/stabilization_att_int.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_rate.xml settings/control/hybrid_guidance.xml settings/outback.xml settings/control/gain_scheduling.xml"
+   settings_modules="modules/imu_common.xml modules/gps.xml modules/ahrs_int_cmpl_quat.xml modules/opa_controller.xml modules/kalamos_uart.xml modules/geo_mag.xml modules/air_data.xml modules/temp_adc.xml modules/logger_sd_spi_direct.xml modules/gps_ubx_ucenter.xml modules/heli_throttle_curve.xml"
    gui_color="#ffffdffac31f"
   />
   <aircraft

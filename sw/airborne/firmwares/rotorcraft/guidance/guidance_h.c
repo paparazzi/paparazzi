@@ -81,6 +81,7 @@ struct HorizontalGuidance guidance_h;
 
 int32_t transition_percentage;
 int32_t transition_theta_offset;
+float ground_pitch_control_gain = OUTBACK_GROUND_PITCH_CONTROL_GAIN;
 
 /*
  * internal variables
@@ -88,12 +89,20 @@ int32_t transition_theta_offset;
 struct Int32Vect2 guidance_h_pos_err;
 struct Int32Vect2 guidance_h_speed_err;
 struct Int32Vect2 guidance_h_trim_att_integrator;
+float wind_heading = 0.0;
+float wind_heading_deg = 0.0;
+bool reset_wind_heading = false;
+int32_t transition_time = 0;
+bool has_transitioned = false;
 
 /** horizontal guidance command.
  * In north/east with #INT32_ANGLE_FRAC
  * @todo convert to real force command
  */
 struct Int32Vect2  guidance_h_cmd_earth;
+enum hybrid_mode outback_hybrid_mode = HB_HOVER;
+int32_t last_hover_heading;
+int32_t last_forward_heading;
 
 static void guidance_h_update_reference(void);
 #if !GUIDANCE_INDI
@@ -101,8 +110,11 @@ static void guidance_h_traj_run(bool in_flight);
 #endif
 static void guidance_h_hover_enter(void);
 static void guidance_h_nav_enter(void);
-static inline void transition_run(void);
+static inline void transition_run(bool to_forward);
 static void read_rc_setpoint_speed_i(struct Int32Vect2 *speed_sp, bool in_flight);
+void guidance_h_set_nav_throttle_curve(void);
+void change_heading_in_wind(void);
+static void UNUSED find_wind_heading(struct FloatQuat *attitude);
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
@@ -110,8 +122,9 @@ static void read_rc_setpoint_speed_i(struct Int32Vect2 *speed_sp, bool in_flight
 static void send_gh(struct transport_tx *trans, struct link_device *dev)
 {
   struct NedCoor_i *pos = stateGetPositionNed_i();
+  int32_t wind_heading_i = DegOfRad(wind_heading);
   pprz_msg_send_GUIDANCE_H_INT(trans, dev, AC_ID,
-                               &guidance_h.sp.pos.x, &guidance_h.sp.pos.y,
+                               &wind_heading_i, &guidance_h.sp.pos.y,
                                &guidance_h.ref.pos.x, &guidance_h.ref.pos.y,
                                &(pos->x), &(pos->y));
 }
@@ -288,6 +301,10 @@ void guidance_h_mode_changed(uint8_t new_mode)
           guidance_h.mode == GUIDANCE_H_MODE_RC_DIRECT)
 #endif
         stabilization_attitude_enter();
+
+        struct Int32Eulers sp_cmd_i;
+        sp_cmd_i.psi = stabilization_attitude_get_heading_i();
+        guidance_hybrid_reset_heading(&sp_cmd_i);
       break;
 
     case GUIDANCE_H_MODE_FLIP:
@@ -314,10 +331,19 @@ void guidance_h_read_rc(bool  in_flight)
 
 #if USE_STABILIZATION_RATE
     case GUIDANCE_H_MODE_RATE:
+#ifdef THROTTLE_CURVE_H
+      if(throttle_curve.mode == 2) {
+        stabilization_rate_read_rc_switched_sticks();
+      }
+      else {
+        stabilization_rate_read_rc();
+      }
+#else
 #if SWITCH_STICKS_FOR_RATE_CONTROL
       stabilization_rate_read_rc_switched_sticks();
 #else
       stabilization_rate_read_rc();
+#endif
 #endif
       break;
 #endif
@@ -378,10 +404,13 @@ void guidance_h_run(bool  in_flight)
 
     case GUIDANCE_H_MODE_FORWARD:
       if (transition_percentage < (100 << INT32_PERCENTAGE_FRAC)) {
-        transition_run();
+        transition_run(true);
       }
     case GUIDANCE_H_MODE_CARE_FREE:
     case GUIDANCE_H_MODE_ATTITUDE:
+      if ( (!(guidance_h.mode == GUIDANCE_H_MODE_FORWARD)) && transition_percentage > 0) {
+        transition_run(false);
+      }
       stabilization_attitude_run(in_flight);
       break;
 
@@ -418,6 +447,12 @@ void guidance_h_run(bool  in_flight)
         stabilization_cmd[COMMAND_ROLL]  = nav_cmd_roll;
         stabilization_cmd[COMMAND_PITCH] = nav_cmd_pitch;
         stabilization_cmd[COMMAND_YAW]   = nav_cmd_yaw;
+
+        //ground balance controller
+        float pitch_angle_err = -stateGetNedToBodyEulers_f()->theta;
+        stabilization_cmd[COMMAND_ROLL]  += pitch_angle_err * -0.8332 * ground_pitch_control_gain;
+        stabilization_cmd[COMMAND_PITCH] += pitch_angle_err * 0.5529 * ground_pitch_control_gain;
+
       } else if (horizontal_mode == HORIZONTAL_MODE_ATTITUDE) {
         struct Int32Eulers sp_cmd_i;
         sp_cmd_i.phi = nav_roll;
@@ -431,7 +466,78 @@ void guidance_h_run(bool  in_flight)
         guidance_hybrid_reset_heading(&sp_cmd_i);
 #endif
       } else {
+#if OUTBACK_GUIDANCE
+        guidance_h_set_nav_throttle_curve();
 
+        //Check if there is a transition to be made
+        //if so, keep the roll and (extra) pitch zero
+        if((outback_hybrid_mode == HB_FORWARD) && (transition_percentage < (100 << INT32_PERCENTAGE_FRAC))) {
+          //Transition to forward
+          transition_run(true);
+          //Set the corresponding attitude
+          struct Int32Eulers transition_att_sp;
+          transition_att_sp.phi = 0;
+          transition_att_sp.theta = transition_theta_offset;
+          transition_att_sp.psi = last_hover_heading;
+          stabilization_attitude_set_rpy_setpoint_i(&transition_att_sp);
+
+          //reset just transitioned timer
+          transition_time = 0;
+          has_transitioned = false;
+
+        } else if((outback_hybrid_mode == HB_HOVER) && (transition_percentage > 0)) {
+          //transition to hover
+          transition_run(false);
+          //Set the corresponding attitude
+          struct Int32Eulers transition_att_sp;
+          transition_att_sp.phi = 0;
+          transition_att_sp.theta = transition_theta_offset;
+          transition_att_sp.psi = last_forward_heading;
+          stabilization_attitude_set_rpy_setpoint_i(&transition_att_sp);
+          //reset the reference, as it is used in hover mode
+          reset_guidance_reference_from_current_position();
+          /* set nav_heading to current heading*/
+          nav_heading = stabilization_attitude_get_heading_i();
+          INT32_ANGLE_NORMALIZE(nav_heading);
+          //reset roll (fwd yaw) integrator
+          stabilization_att_sum_err_quat.qx = 0;
+        } else if(outback_hybrid_mode == HB_FORWARD) {
+          INT32_VECT2_NED_OF_ENU(guidance_h.sp.pos, navigation_target);
+          guidance_hybrid_run();
+          last_forward_heading = guidance_hybrid_ypr_sp.psi;
+
+          // need 3 seconds in forward flight to get speed
+          if(transition_time < 3*PERIODIC_FREQUENCY) {
+            transition_time += 1;
+          } else {
+            has_transitioned = true;
+          }
+        }
+        else {
+          //reset just transitioned timer
+          transition_time = 0;
+          has_transitioned = false;
+
+          INT32_VECT2_NED_OF_ENU(guidance_h.sp.pos, navigation_carrot);
+
+          guidance_h_update_reference();
+
+          change_heading_in_wind();
+
+          /* set psi command */
+          guidance_h.sp.heading = nav_heading;
+          INT32_ANGLE_NORMALIZE(guidance_h.sp.heading);
+
+          //make sure the heading is right before leaving horizontal_mode attitude
+          struct Int32Eulers sp_cmd_i;
+          sp_cmd_i.psi = stabilization_attitude_get_heading_i();
+          guidance_hybrid_reset_heading(&sp_cmd_i);
+          last_hover_heading = sp_cmd_i.psi;
+
+          //Run INDI guidance for hover
+          guidance_indi_run(in_flight, guidance_h.sp.heading);
+        }
+#else //OUTBACK_GUIDANCE
 #if HYBRID_NAVIGATION
         INT32_VECT2_NED_OF_ENU(guidance_h.sp.pos, navigation_target);
         guidance_hybrid_run();
@@ -452,9 +558,10 @@ void guidance_h_run(bool  in_flight)
         /* set final attitude setpoint */
         stabilization_attitude_set_earth_cmd_i(&guidance_h_cmd_earth,
                                                guidance_h.sp.heading);
-#endif
+#endif //GUIDANCE_INDI
 
-#endif
+#endif //HYBRID_NAVIGATION
+#endif //OUTBACK_GUIDANCE
         stabilization_attitude_run(in_flight);
       }
       break;
@@ -528,7 +635,7 @@ static void guidance_h_traj_run(bool in_flight)
   /* maximum bank angle: default 20 deg, max 40 deg*/
   static const int32_t traj_max_bank = Min(BFP_OF_REAL(GUIDANCE_H_MAX_BANK, INT32_ANGLE_FRAC),
                                        BFP_OF_REAL(RadOfDeg(40), INT32_ANGLE_FRAC));
-  static const int32_t total_max_bank = BFP_OF_REAL(RadOfDeg(45), INT32_ANGLE_FRAC);
+  static const int32_t total_max_bank = BFP_OF_REAL(GUIDANCE_H_TOTAL_MAX_BANK, INT32_ANGLE_FRAC);
 
   /* compute position error    */
   VECT2_DIFF(guidance_h_pos_err, guidance_h.ref.pos, *stateGetPositionNed_i());
@@ -629,10 +736,16 @@ static void guidance_h_nav_enter(void)
   nav_heading = stateGetNedToBodyEulers_i()->psi;
 }
 
-static inline void transition_run(void)
+static inline void transition_run(bool to_forward)
 {
-  //Add 0.00625%
-  transition_percentage += 1 << (INT32_PERCENTAGE_FRAC - 4);
+  if(to_forward) {
+    //Add 0.00625%
+    transition_percentage += 1 << (INT32_PERCENTAGE_FRAC - 4);
+  }
+  else {
+    //Subtract 0.00625%
+    transition_percentage -= 1 << (INT32_PERCENTAGE_FRAC - 4);
+  }
 
 #ifdef TRANSITION_MAX_OFFSET
   const int32_t max_offset = ANGLE_BFP_OF_REAL(TRANSITION_MAX_OFFSET);
@@ -733,3 +846,86 @@ const struct Int32Vect2 *guidance_h_get_pos_err(void)
 {
   return &guidance_h_pos_err;
 }
+
+void guidance_h_set_nav_throttle_curve(void) {
+
+  if(outback_hybrid_mode == HB_HOVER) {
+    if(transition_percentage < (50 << INT32_PERCENTAGE_FRAC)) {
+      nav_throttle_curve_set(1);
+    } else {
+      nav_throttle_curve_set(2);
+    }
+  } else {
+    if(transition_percentage < (90 << INT32_PERCENTAGE_FRAC)) {
+      nav_throttle_curve_set(1);
+    } else {
+      nav_throttle_curve_set(2);
+    }
+  }
+}
+
+void change_heading_in_wind(void) {
+  /*
+  //find the angle of the integrator
+  struct FloatVect2 pos_integrator = {guidance_h_trim_att_integrator.x, guidance_h_trim_att_integrator.y};
+  wind_heading = atan2f(pos_integrator.y, pos_integrator.x);
+  FLOAT_ANGLE_NORMALIZE(wind_heading);
+  */
+
+  // The wind heading can be set manually
+  // TODO: use the function find_wind_heading instead
+  if(reset_wind_heading) {
+    set_wind_heading_to_current90();
+    reset_wind_heading = false;
+  }
+  wind_heading = RadOfDeg(wind_heading_deg);
+  //struct FloatQuat *current_quat = stateGetNedToBodyQuat_f();
+  //find_wind_heading(current_quat);
+  FLOAT_ANGLE_NORMALIZE(wind_heading);
+
+  // There are two possible ways to fly sideways into the wind
+  int32_t desired_heading1 = ANGLE_BFP_OF_REAL(wind_heading) + ANGLE_BFP_OF_REAL(M_PI_2);
+  int32_t desired_heading2 = ANGLE_BFP_OF_REAL(wind_heading) - ANGLE_BFP_OF_REAL(M_PI_2);
+  INT32_ANGLE_NORMALIZE(desired_heading1);
+  INT32_ANGLE_NORMALIZE(desired_heading2);
+
+  // Find the one closest to the current heading
+  int32_t heading_error = desired_heading1 - nav_heading;
+  INT32_ANGLE_NORMALIZE(heading_error);
+  if(ANGLE_FLOAT_OF_BFP(abs(heading_error)) > M_PI_2) {
+    heading_error = desired_heading2 - nav_heading;
+    INT32_ANGLE_NORMALIZE(heading_error);
+  }
+
+  // slowly change the heading in that direction
+  if(heading_error>0){
+    nav_heading += 1;
+  } else if(heading_error<0){
+    nav_heading -= 1;
+  }
+}
+
+/** Find the wind heading based on the attitude */
+static void UNUSED find_wind_heading(struct FloatQuat *attitude) {
+  // Take a vertical vector
+  struct FloatVect3 v_axis = {0.0, 0.0, 1.0};
+  struct FloatVect3 att_vect;
+
+  // Rotate it with the current attitude
+  float_quat_vmult(&att_vect, attitude, &v_axis);
+
+  // find the heading from the xy components
+  float thrust_heading = atan2f(att_vect.y, att_vect.x);
+  FLOAT_ANGLE_NORMALIZE(thrust_heading);
+  wind_heading = thrust_heading + stabilization_attitude_get_heading_f();
+
+  float UNUSED(magnitude) = 1.0 - att_vect.z;
+}
+
+/** Set wind heading to current heading */
+void set_wind_heading_to_current90(void) {
+  wind_heading = stateGetNedToBodyEulers_f()->psi + M_PI_2;
+  FLOAT_ANGLE_NORMALIZE(wind_heading);
+  wind_heading_deg = DegOfRad(wind_heading);
+}
+

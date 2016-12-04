@@ -34,6 +34,12 @@
 #include "math/pprz_algebra_int.h"
 #include "math/pprz_algebra_float.h"
 
+extern float guidance_indi_pos_gain;
+extern float guidance_indi_speed_gain;
+extern float filter_omega;
+
+extern float guidance_indi_max_bank;
+
 extern void guidance_indi_enter(void);
 extern void guidance_indi_run(bool in_flight, int32_t heading);
 extern void guidance_indi_filter_attitude(void);

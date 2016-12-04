@@ -32,6 +32,7 @@
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
 #include "firmwares/rotorcraft/autopilot_rc_helpers.h"
 #include "mcu_periph/sys_time.h"
+#include "guidance/guidance_hybrid.h"
 
 #ifndef STABILIZATION_ATTITUDE_DEADBAND_A
 #define STABILIZATION_ATTITUDE_DEADBAND_A 0
@@ -44,6 +45,12 @@
 #define YAW_DEADBAND_EXCEEDED()                                         \
   (radio_control.values[RADIO_YAW] >  STABILIZATION_ATTITUDE_DEADBAND_R || \
    radio_control.values[RADIO_YAW] < -STABILIZATION_ATTITUDE_DEADBAND_R)
+
+#ifndef MAX_FWD_SPEED
+#define MAX_FWD_SPEED 10.0
+#endif
+
+float airspeed_for_coordinated_turn = MAX_FWD_SPEED;
 
 float care_free_heading = 0;
 
@@ -185,12 +192,10 @@ void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eulers *sp, bool
       //Coordinated turn
       //feedforward estimate angular rotation omega = g*tan(phi)/v
       //Take v = 9.81/1.3 m/s
-      int32_t omega;
+      int32_t omega = 0;
       const int32_t max_phi = ANGLE_BFP_OF_REAL(RadOfDeg(85.0));
       if (abs(sp->phi) < max_phi) {
-        omega = ANGLE_BFP_OF_REAL(1.3 * tanf(ANGLE_FLOAT_OF_BFP(sp->phi)));
-      } else { //max 60 degrees roll, then take constant omega
-        omega = ANGLE_BFP_OF_REAL(1.3 * 1.72305 * ((sp->phi > 0) - (sp->phi < 0)));
+        omega = ANGLE_BFP_OF_REAL(9.81 * tanf(ANGLE_FLOAT_OF_BFP(sp->phi))/airspeed_for_coordinated_turn);
       }
 
       sp->psi += omega * dt;
@@ -265,12 +270,10 @@ void stabilization_attitude_read_rc_setpoint_eulers_f(struct FloatEulers *sp, bo
       //Coordinated turn
       //feedforward estimate angular rotation omega = g*tan(phi)/v
       //Take v = 9.81/1.3 m/s
-      float omega;
+      float omega = 0.0;
       const float max_phi = RadOfDeg(85.0);
       if (fabsf(sp->phi) < max_phi) {
-        omega = 1.3 * tanf(sp->phi);
-      } else { //max 60 degrees roll, then take constant omega
-        omega = 1.3 * 1.72305 * ((sp->phi > 0) - (sp->phi < 0));
+        omega = 9.81 * tanf(sp->phi)/airspeed_for_coordinated_turn;
       }
 
       sp->psi += omega * dt;

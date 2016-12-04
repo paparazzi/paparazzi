@@ -39,6 +39,18 @@ extern int32_t wind_gain;
 extern int32_t horizontal_speed_gain;
 extern float max_turn_bank;
 extern float turn_bank_gain;
+extern int32_t v_control_pitch;
+extern float vertical_setpont_outback;
+extern int32_t nominal_forward_thrust;
+extern float vertical_gain;
+extern float vertical_dgain;
+extern float vertical_pitch_of_roll;
+extern float low_airspeed_pitch_gain;
+enum hybrid_mode {HB_HOVER, HB_FORWARD};
+extern enum hybrid_mode outback_hybrid_mode;
+extern struct Int32Eulers guidance_hybrid_ypr_sp;
+extern float perpen_dgain;
+extern float throttle_from_pitch_up;
 
 /** Runs the Hybrid Guidance main functions.
  */
@@ -75,6 +87,10 @@ extern void guidance_hybrid_reset_heading(struct Int32Eulers *sp_cmd);
 /** Description.
  */
 extern void guidance_hybrid_vertical(void);
+
+extern void guidance_hybrid_vertical_simple(void);
+extern void guidance_hybrid_vertical_quadshot(void);
+extern void guidance_hybrid_attitude_outback(struct Int32Eulers *ypr_sp);
 
 
 #endif /* GUIDANCE_HYBRID_H */
