@@ -35,23 +35,35 @@
 struct curve_t {
   uint8_t nb_points;                          ///< The number of points in the curve
   uint16_t throttle[THROTTLE_POINTS_NB];      ///< Throttle points in the curve
+  uint16_t rpm[THROTTLE_POINTS_NB];           ///< RPM points in the curve
   int16_t collective[THROTTLE_POINTS_NB];     ///< The collective points in the curve
 };
 
 /* Main throttle curve structure */
 struct throttle_curve_t {
   uint8_t mode;                               ///< Flight mode
+  uint8_t nav_mode;                               ///< Nav Flight mode
   uint8_t nb_curves;                          ///< The number of throttle/pitch curves
   struct curve_t curves[THROTTLE_CURVES_NB];  ///< Throttle/pitch curves
 
   uint16_t throttle;                          ///< Output thrust(throttle) of the throttle curve
   int16_t collective;                         ///< Output collective of the throttle curve
+  uint16_t rpm;                               ///< Output RPM of the throttle curve
+
+  uint16_t rpm_meas;                          ///< RPM measured
+  bool rpm_measured;                          ///< Whenever the RPM is measured
+  float rpm_err_sum;                          ///< Summed RPM error
+  float rpm_fb_p;                             ///< RPM feedback p gain
+  float rpm_fb_i;
+
+  int32_t throttle_trim;                             ///< RPM feedback i gain
+  int32_t coll_trim;                          ///< Collective trim
 };
 extern struct throttle_curve_t throttle_curve;
 
 /* External functions */
 extern void throttle_curve_init(void);
-void throttle_curve_run(bool motors_on, pprz_t in_cmd[]);
+void throttle_curve_run(pprz_t in_cmd[], uint8_t autopilot_mode);
 void nav_throttle_curve_set(uint8_t mode);
 
 #endif

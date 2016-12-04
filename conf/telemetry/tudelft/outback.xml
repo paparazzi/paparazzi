@@ -30,6 +30,7 @@
       <message name="TEMP_ADC"               period="3.0"/>
       <message name="FBW_STATUS"             period="2.0"/>
       <message name="MOTOR"                  period="0.5"/>
+      <message name="THROTTLE_CURVE"         period="0.5"/>
     </mode>
 
     <mode name="ppm">

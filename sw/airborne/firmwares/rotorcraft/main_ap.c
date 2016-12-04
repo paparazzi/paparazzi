@@ -247,6 +247,11 @@ void main_periodic(void)
   autopilot_periodic();
   /* set actuators     */
   //actuators_set(autopilot_get_motors_on());
+
+#if USE_THROTTLE_CURVES
+  throttle_curve_run(commands, autopilot_get_mode());
+#endif
+
 #ifndef INTER_MCU_AP
   SetActuatorsFromCommands(commands, autopilot_get_mode());
 #else
