@@ -1,0 +1,23 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ins_lpe" dir="ins">
+  <doc>
+    <description>
+      Local position estimator.
+    </description>
+    <define name="USE_INS_NAV_INIT" value="TRUE|FALSE" description="Initialize the origin of the local coordinate system from flight plan. (Default: TRUE)"/>
+    <define name="INS_LPE_BARO_ID" value="BARO_BOARD_SENDER_ID" description="The ABI sender id of the baro to use"/>
+    <define name="INS_LPE_IMU_ID" value="ABI_BROADCAST" description="The ABI sender id of the IMU to use"/>
+    <define name="INS_LPE_SONAR_ID" value="ABI_BROADCAST" description="The ABI sender id of the AGL measuring device"/>
+    <define name="INS_LPE_VEL_ID" value="ABI_BROADCAST" description="The ABI sender id of the VELOCITY_ESTIMATE (e.g. from opticflow"/>
+  </doc>
+  <header>
+    <file name="ins_lpe.h" dir="modules/ins"/>
+  </header>
+  <init fun="ins_lpe_init()"/>
+  <periodic fun="ins_lpe_periodic()" freq="PERIODIC_FREQUENCY" autorun="TRUE"/>
+  <makefile target="ap">
+    <file name="ins_lpe.c" dir="modules/ins"/>
+  </makefile>
+</module>
+
