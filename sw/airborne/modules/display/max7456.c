@@ -330,7 +330,7 @@ static void osd_put_s(char *string, uint8_t attributes, uint8_t char_nb, uint8_t
 
   // translate the string and put it to the "osd_string" '\0' = 0xff
   x = 0;
-  while (*(string + x) != '\0') {
+  while ( (*(string + x) != '\0') && ( x < (sizeof(osd_string)-1) )) {
     osd_string[x] = ascii_to_osd_c(*(string + x));
     x++;
   }
@@ -402,7 +402,7 @@ static bool _osd_sprintf(char *buffer, char *string, float value)
   }
   // Point y to one before the end of the array
   // Because we will increment it with frac_nb-1, so pointing it to the end would result in overflow
-  y = (sizeof(to_asc) - 2);
+  y = (sizeof(to_asc) - 3);
   i_dec = abs((int16_t)value);
   // Fist we will deal with the fractional part if specified.
   if (frac_nb > 0 && frac_nb <= 3) {

@@ -161,7 +161,7 @@ void ins_vectornav_init(void)
   INT32_VECT3_ZERO(ins_vn.accel_i);
 
   // initialize data struct
-  memset(&(ins_vn.vn_data), sizeof(struct VNData), 0);
+  memset(&(ins_vn.vn_data), 0, sizeof(struct VNData));
 
 #if USE_INS_NAV_INIT
   ins_init_origin_i_from_flightplan(&ins_vn.ltp_def);
