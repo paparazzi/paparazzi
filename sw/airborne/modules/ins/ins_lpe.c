@@ -26,8 +26,7 @@
 #include "subsystems/abi.h"
 #include "mcu_periph/sys_time.h"
 #include "message_pragmas.h"
-
-#include "state.h"
+#include "subsystems/imu.h"
 
 #ifndef USE_INS_NAV_INIT
 #define USE_INS_NAV_INIT TRUE

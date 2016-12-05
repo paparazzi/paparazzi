@@ -25,6 +25,7 @@
 #ifndef INS_LPE_H
 #define INS_LPE_H
 
+#include "subsystems/ins.h"
 #include "std.h"
 #include "math/pprz_geodetic_int.h"
 #include "math/pprz_algebra_int.h"

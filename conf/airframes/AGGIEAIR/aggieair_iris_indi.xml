@@ -67,10 +67,12 @@
     </module-->
 
     <!-- extended INS uses sonar for vertical estimates -->
-    <module name="ins" type="extended"/>
+    <!--module name="ins" type="extended"/-->
     <!-- Horizontal Filter Float  (HFF) INS uses simple Kalman filters to horizontal estimate,
          No sonar/lidar updates though -->
     <!--module name="ins" type="hff"/-->
+
+    <module name="ins" type="lpe"/>
 
     <module name="current_sensor">
       <configure name="ADC_CURRENT_SENSOR" value="ADC_3" />
@@ -151,8 +153,6 @@
     </module>
 
     <module name="air_data"/>
-
-    <module name="ins_lpe"/>
   </modules>
 
   <section name="MISC">
