@@ -42,7 +42,6 @@ uint16_t rpm;
 
 static void rpm_sensor_send_motor(struct transport_tx *trans, struct link_device *dev)
 {
-  uint16_t rpm = get_first_order_low_pass(&rpm_lp);
   pprz_msg_send_MOTOR(trans, dev, AC_ID, &rpm, &electrical.current);
 }
 #endif
@@ -68,11 +67,11 @@ void rpm_sensor_periodic(void)
 /* Get the RPM sensor */
 uint16_t rpm_sensor_get_rpm(void)
 {
-  uint16_t rpm = 0;
+  uint16_t rpm_meas = 0;
   uint32_t period_us = get_pwm_input_period_in_usec(RPM_PWM_CHANNEL) * RPM_PULSE_PER_RND;
   if (period_us > 0) {
-    rpm = ((uint32_t)1000000 * 60) / period_us;
+    rpm_meas = ((uint32_t)1000000 * 60) / period_us;
   }
 
-  return rpm;
+  return rpm_meas;
 }

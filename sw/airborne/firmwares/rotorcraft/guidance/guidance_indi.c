@@ -64,6 +64,7 @@ float guidance_indi_speed_gain = 1.8;
 struct FloatVect3 sp_accel = {0.0,0.0,0.0};
 #ifdef GUIDANCE_INDI_SPECIFIC_FORCE_GAIN
 float thrust_in_specific_force_gain = GUIDANCE_INDI_SPECIFIC_FORCE_GAIN;
+static void guidance_indi_filter_thrust(void);
 
 #ifndef GUIDANCE_INDI_THRUST_DYNAMICS
 #ifndef STABILIZATION_INDI_ACT_DYN_P
@@ -78,6 +79,8 @@ float thrust_in_specific_force_gain = GUIDANCE_INDI_SPECIFIC_FORCE_GAIN;
 #ifndef GUIDANCE_INDI_FILTER_CUTOFF
 #ifdef STABILIZATION_INDI_FILT_CUTOFF
 #define GUIDANCE_INDI_FILTER_CUTOFF STABILIZATION_INDI_FILT_CUTOFF
+#else
+#define GUIDANCE_INDI_FILTER_CUTOFF 3.0
 #endif
 #endif
 
@@ -97,7 +100,6 @@ struct FloatEulers guidance_euler_cmd;
 float thrust_in;
 
 static void guidance_indi_propagate_filters(void);
-static void guidance_indi_filter_thrust(void);
 static void guidance_indi_calcG(struct FloatMat33 *Gmat);
 
 /**
@@ -169,7 +171,9 @@ void guidance_indi_run(bool in_flight, int32_t heading) {
   //If the thrust to specific force ratio has been defined, include vertical control
   //else ignore the vertical acceleration error
 #ifndef GUIDANCE_INDI_SPECIFIC_FORCE_GAIN
+#ifndef STABILIZATION_ATTITUDE_INDI_FULL
   a_diff.z = 0.0;
+#endif
 #endif
 
   //Calculate roll,pitch and thrust command
