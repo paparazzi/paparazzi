@@ -103,13 +103,13 @@
     <define name="ACCEL_Y_SENS" value="7.35267287758" integer="16"/>
     <define name="ACCEL_Z_SENS" value="7.45488455799" integer="16"/>
 
-
-    <define name="MAG_X_NEUTRAL" value="92"/>
-    <define name="MAG_Y_NEUTRAL" value="35"/>
-    <define name="MAG_Z_NEUTRAL" value="-15"/>
-    <define name="MAG_X_SENS" value="5.52543569751" integer="16"/>
-    <define name="MAG_Y_SENS" value="4.91233764159" integer="16"/>
-    <define name="MAG_Z_SENS" value="4.99453775296" integer="16"/>
+    <!--Calibrated outside, based on sw/tools/calibration/calibrate.py -s MAG var/logs/16_12_05__16_32_21.data -vp -->
+    <define name="MAG_X_NEUTRAL" value="105"/>
+    <define name="MAG_Y_NEUTRAL" value="10"/>
+    <define name="MAG_Z_NEUTRAL" value="-23"/>
+    <define name="MAG_X_SENS" value="4.01453293111" integer="16"/>
+    <define name="MAG_Y_SENS" value="3.96379405627" integer="16"/>
+    <define name="MAG_Z_SENS" value="3.92499630895" integer="16"/>
   </section>
   <commands>
     <axis name="PITCH" failsafe_value="0" />
@@ -222,8 +222,8 @@
     <define name="HOVER_KP" value="350" />
     <define name="HOVER_KD" value="85" />
     <define name="HOVER_KI" value="20" />
-    <define name="NOMINAL_HOVER_THROTTLE" value="0.4" />
-    <define name="ADAPT_THROTTLE_ENABLED" value="FALSE" />
+    <define name="NOMINAL_HOVER_THROTTLE" value="0.6" />
+    <define name="ADAPT_THROTTLE_ENABLED" value="TRUE" />
   </section>
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
     <!-- Good weather -->
