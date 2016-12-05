@@ -343,8 +343,8 @@ static void osd_put_s(char *string, uint8_t attributes, uint8_t char_nb, uint8_t
   }
 
   // Prevent overflow condition
-  if (char_nb > OSD_STRING_SIZE) {
-    char_nb = OSD_STRING_SIZE;
+  if (char_nb >= OSD_STRING_SIZE) {
+    char_nb = OSD_STRING_SIZE-1;
   }
   //Adjust for the reserved character number.
   for (; x < char_nb; x++) {
