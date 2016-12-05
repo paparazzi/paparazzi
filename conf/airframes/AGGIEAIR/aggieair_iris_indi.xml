@@ -151,6 +151,8 @@
     </module>
 
     <module name="air_data"/>
+
+    <module name="ins_lpe"/>
   </modules>
 
   <section name="MISC">
