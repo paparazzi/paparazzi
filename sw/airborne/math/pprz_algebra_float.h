@@ -589,6 +589,18 @@ static inline void float_vect_scale(float *a, const float s, const int n)
 //
 //
 
+/** Generic matrix defines for easier manipulation */
+#define MATRIX_N_COLS(_x) sizeof(_x[0])/sizeof(_x[0][0])
+#define MATRIX_N_ROWS(_x) sizeof(_x)/(sizeof(_x[0][0])*MATRIX_N_COLS(_x))
+#define MATRIX_N_FIELDS(_x) sizeof(_x)/sizeof(typeof(_x[0][0]))
+
+struct FloatMatrixMN {
+  float ** matrix; // pointer to the matrix pointer
+  int rows; // number of rows (for bookkeeping purposes)
+  int cols; // number of rows (for bookkeeping purposes)
+  bool initialized; // don't use the matrix until it was properly initialized
+};
+
 /** Make a pointer to a matrix of _rows lines */
 #define MAKE_MATRIX_PTR(_ptr, _mat, _rows) \
   float * _ptr[_rows]; \
@@ -596,6 +608,14 @@ static inline void float_vect_scale(float *a, const float s, const int n)
     int __i; \
     for (__i = 0; __i < _rows; __i++) { _ptr[__i] = &_mat[__i][0]; } \
   }
+
+/** Populate existing matrix pointer */
+static inline void populate_matrix_ptr(float* ptr[], int rows, int cols, float matrix[][cols]) {
+  int i =0;
+  for (i=0; i<rows; i++) {
+    ptr[i] = &matrix[i][0];
+  }
+}
 
 /** a = 0 */
 static inline void float_mat_zero(float **a, int m, int n)

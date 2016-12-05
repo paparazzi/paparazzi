@@ -35,6 +35,8 @@ enum {X_x = 0, X_y, X_z, X_vx, X_vy, X_vz, X_bx, X_by, X_bz, n_x};
 enum {U_ax = 0, U_ay, U_az, n_u};
 
 
+
+
 struct InsLidar {
   bool data_available;
   uint32_t timestamp;
@@ -82,6 +84,8 @@ struct InsOpticflow {
 
 
 struct InsLpe {
+  bool initialized;
+
   struct InsLidar lidar;
   struct InsSonar sonar;
   struct InsBaro baro;
@@ -89,11 +93,31 @@ struct InsLpe {
   struct InsGps gps;
   struct InsOpticflow opticflow;
 
-  float A[n_x][n_x]; // process matrix
-  float B[n_x][n_u]; // input matrix
-  float R[n_u][n_u]; // measurement noise covariance
-  float Q[n_x][n_x]; // process noise covariance
-  float P[n_x][n_x]; // estimate error covariance
+  // process matrix
+  struct FloatMatrixMN A; // matrix struct
+  float A_data[n_x][n_x]; // matrix data
+  float *A_data_ptr[n_x]; // matrix pointer
+
+  // input matrix
+  struct FloatMatrixMN B; // matrix struct
+  float B_data[n_x][n_u]; // matrix data
+  float *B_data_ptr[n_x]; // matrix pointer
+
+  // measurement noise covariance matrix
+  struct FloatMatrixMN R; // matrix struct
+  float R_data[n_u][n_u]; // matrix data
+  float *R_data_ptr[n_u]; // matrix pointer
+
+  // process noise covariance
+  struct FloatMatrixMN Q; // matrix struct
+  float Q_data[n_x][n_x]; // matrix data
+  float *Q_data_ptr[n_x]; // matrix pointer
+
+  // estimate error covariance
+  struct FloatMatrixMN P; // matrix struct
+  float P_data[n_x][n_x]; // matrix data
+  float *P_data_ptr[n_x]; // matrix pointer
+
   float x[n_x]; // state vector
   float u[n_u]; // input vector
 };
@@ -102,5 +126,7 @@ extern struct InsLpe ins_lpe;
 
 extern void ins_lpe_init(void);
 extern void ins_lpe_periodic(void);
+
+void ins_lpe_reset_states(void);
 
 #endif /* INS_LPE_H */

@@ -107,6 +107,64 @@ struct InsLpe ins_lpe;
 
 
 /**
+ * Reset states (matrices and vectors) back to
+ * their intial value
+ */
+void ins_lpe_reset_states(void)
+{
+  // initialize process matrix A 9x9
+    ins_lpe.A.initialized = FALSE; // not initialized yet
+    ins_lpe.A.rows = n_x; // set n_rows
+    ins_lpe.A.cols = n_x; // set n_cols
+    populate_matrix_ptr(ins_lpe.A_data_ptr, ins_lpe.A.rows, ins_lpe.A.cols, ins_lpe.A_data); // populate the matrix row pointer
+    ins_lpe.A.matrix = &ins_lpe.A_data_ptr[0]; // set the matrix pointer
+    float_mat_zero(ins_lpe.A.matrix, ins_lpe.A.rows, ins_lpe.A.cols); // initialize matrix to zero
+    ins_lpe.A.initialized = TRUE; // matrix is ready to be used
+
+    // initialize input matrix B 9x3
+    ins_lpe.B.initialized = FALSE; // not initialized yet
+    ins_lpe.B.rows = n_x; // set n_rows
+    ins_lpe.B.cols = n_u; // set n_cols
+    populate_matrix_ptr(ins_lpe.B_data_ptr, ins_lpe.B.rows, ins_lpe.B.cols, ins_lpe.B_data); // populate the matrix row pointer
+    ins_lpe.B.matrix = &ins_lpe.B_data_ptr[0]; // set the matrix pointer
+    float_mat_zero(ins_lpe.B.matrix, ins_lpe.B.rows, ins_lpe.B.cols); // initialize matrix to zero
+    ins_lpe.B.initialized = TRUE; // matrix is ready to be used
+
+    // initialize measurement noise covariance matrix R 3x3
+    ins_lpe.R.initialized = FALSE; // not initialized yet
+    ins_lpe.R.rows = n_u; // set n_rows
+    ins_lpe.R.cols = n_u; // set n_cols
+    populate_matrix_ptr(ins_lpe.R_data_ptr, ins_lpe.R.rows, ins_lpe.R.cols, ins_lpe.R_data); // populate the matrix row pointer
+    ins_lpe.R.matrix = &ins_lpe.R_data_ptr[0]; // set the matrix pointer
+    float_mat_zero(ins_lpe.R.matrix, ins_lpe.R.rows, ins_lpe.R.cols); // initialize matrix to zero
+    ins_lpe.R.initialized = TRUE; // matrix is ready to be used
+
+    // initialize process noise covariance Q 9x9
+    ins_lpe.Q.initialized = FALSE; // not initialized yet
+    ins_lpe.Q.rows = n_x; // set n_rows
+    ins_lpe.Q.cols = n_x; // set n_cols
+    populate_matrix_ptr(ins_lpe.Q_data_ptr, ins_lpe.Q.rows, ins_lpe.Q.cols, ins_lpe.Q_data); // populate the matrix row pointer
+    ins_lpe.Q.matrix = &ins_lpe.Q_data_ptr[0]; // set the matrix pointer
+    float_mat_zero(ins_lpe.Q.matrix, ins_lpe.Q.rows, ins_lpe.Q.cols); // initialize matrix to zero
+    ins_lpe.Q.initialized = TRUE; // matrix is ready to be used
+
+    // initialize estimate error covariance P 9x9
+    ins_lpe.P.initialized = FALSE; // not initialized yet
+    ins_lpe.P.rows = n_x; // set n_rows
+    ins_lpe.P.cols = n_x; // set n_cols
+    populate_matrix_ptr(ins_lpe.P_data_ptr, ins_lpe.P.rows, ins_lpe.P.cols, ins_lpe.P_data); // populate the matrix row pointer
+    ins_lpe.P.matrix = &ins_lpe.P_data_ptr[0]; // set the matrix pointer
+    float_mat_zero(ins_lpe.P.matrix, ins_lpe.P.rows, ins_lpe.P.cols); // initialize matrix to zero
+    ins_lpe.P.initialized = TRUE; // matrix is ready to be used
+
+    // initialize state vector 9x1
+    memset(ins_lpe.x, 0, sizeof(ins_lpe.x));
+
+    // initialize input vector 3x1
+    memset(ins_lpe.u, 0, sizeof(ins_lpe.u));
+}
+
+/**
  * Init function
  * - Initialize variables, populate Kalman filter
  * - Bind ABI messages
@@ -115,7 +173,13 @@ struct InsLpe ins_lpe;
  */
 void ins_lpe_init(void)
 {
+  ins_lpe.initialized = FALSE;
 
+  if (!ins_lpe.initialized)
+  {
+    ins_lpe_reset_states(); // reset states
+    ins_lpe.initialized = TRUE;
+  }
 
   /*
    * Subscribe to scaled IMU measurements and attach callbacks
