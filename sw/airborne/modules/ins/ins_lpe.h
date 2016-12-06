@@ -86,6 +86,7 @@ struct InsOpticflow {
 
 struct InsLpe {
   bool initialized;
+  bool integrate;
 
   struct InsLidar lidar;
   struct InsSonar sonar;
@@ -128,6 +129,9 @@ struct InsLpe {
   float pn_p_noise_density;
   float pn_v_noise_density;
   float pn_b_noise_density;
+  float est_stddev_xy_valid;
+  float est_stddev_z_valid;
+  float vxy_pub_thresh;
 };
 
 extern struct InsLpe ins_lpe;
@@ -135,9 +139,10 @@ extern struct InsLpe ins_lpe;
 extern void ins_lpe_init(void);
 extern void ins_lpe_periodic(void);
 
-void ins_lpe_reset_states(void);
-void ins_lpe_init_states(void);
-void ins_lpe_update_states(void);
-void ins_lpe_update_params(void);
+void ins_lpe_zero_matrices(void);
+void ins_lpe_init_ss(void);
+void ins_lpe_update_ssstates(void);
+void ins_lpe_update_ssparams(void);
+void ins_lpe_init_P(void);
 
 #endif /* INS_LPE_H */

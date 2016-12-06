@@ -33,6 +33,10 @@
 PRINT_CONFIG_MSG("USE_INS_NAV_INIT defaulting to TRUE")
 #endif
 
+#ifndef P_MAX // max allowed value in state covariance
+#define P_MAX 1.0e6
+#endif
+
 /*
  * ABI bindings
  */
@@ -108,7 +112,7 @@ struct InsLpe ins_lpe;
 /**
  * Set initial values for A and B
  */
-void ins_lpe_init_states(void)
+void ins_lpe_init_ss(void)
 {
   ins_lpe.A.matrix[X_x][X_vx] = 1; // derivative of position is velocity
   ins_lpe.A.matrix[X_y][X_vy] = 1; // derivative of position is velocity
@@ -117,13 +121,15 @@ void ins_lpe_init_states(void)
   ins_lpe.B.matrix[X_vx][U_ax] = 1;
   ins_lpe.B.matrix[X_vy][U_ay] = 1;
   ins_lpe.B.matrix[X_vz][U_az] = 1;
+
+  float a= P_MAX;
 }
 
 
 /**
  *  Update A with new values from rotational matrix
  */
-void ins_lpe_update_states(void)
+void ins_lpe_update_ssstates(void)
 {
   // R -> NED to Body
   // R^T -> body to NED
@@ -152,7 +158,7 @@ void ins_lpe_update_states(void)
 /**
  * Fill in R and Q matrices
  */
-void ins_lpe_update_params(void)
+void ins_lpe_update_ssparams(void)
 {
   // input noise covariance matrix
   ins_lpe.R.matrix[U_ax][U_ax] = ins_lpe.accel_xy_stddev * ins_lpe.accel_xy_stddev;
@@ -180,10 +186,31 @@ void ins_lpe_update_params(void)
 
 
 /**
+ * Initialize error covariance matrix P
+ */
+void ins_lpe_init_P(void)
+{
+  // initialize to twice valid condition
+  ins_lpe.P.matrix[X_x][X_x] = 2 * ins_lpe.est_stddev_xy_valid * ins_lpe.est_stddev_xy_valid;
+  ins_lpe.P.matrix[X_y][X_y] = 2 * ins_lpe.est_stddev_xy_valid * ins_lpe.est_stddev_xy_valid;
+  ins_lpe.P.matrix[X_z][X_z] = 2 * ins_lpe.est_stddev_z_valid * ins_lpe.est_stddev_z_valid;
+
+  ins_lpe.P.matrix[X_vx][X_vx] = 2 * ins_lpe.vxy_pub_thresh * ins_lpe.vxy_pub_thresh;
+  ins_lpe.P.matrix[X_vy][X_vy] = 2 * ins_lpe.vxy_pub_thresh * ins_lpe.vxy_pub_thresh;
+  // use vxy thresh for vz init as well
+  ins_lpe.P.matrix[X_vz][X_vz] = 2 * ins_lpe.vxy_pub_thresh * ins_lpe.vxy_pub_thresh;
+  // initialize bias uncertainty to small values to keep them stable
+  ins_lpe.P.matrix[X_bx][X_bx] = 1e-6;
+  ins_lpe.P.matrix[X_by][X_by] = 1e-6;
+  ins_lpe.P.matrix[X_bz][X_bz] = 1e-6;
+}
+
+
+/**
  * Reset states (matrices and vectors) back to
  * their intial value
  */
-void ins_lpe_reset_states(void)
+void ins_lpe_zero_matrices(void)
 {
     // initialize process matrix A 9x9
     ins_lpe.A.initialized = FALSE; // not initialized yet
@@ -250,10 +277,11 @@ void ins_lpe_init(void)
 
   if (!ins_lpe.initialized)
   {
-    ins_lpe_reset_states(); // reset all matrices to zero
-    ins_lpe_init_states(); // initialize A and B with constants
-    ins_lpe_update_states(); // set A with Rmat values
-    ins_lpe_update_params(); // set R and Q with noise values
+    ins_lpe_zero_matrices(); // reset all matrices to zero
+    ins_lpe_init_P(); // set inital error covariance P
+    ins_lpe_init_ss(); // initialize A and B with constants
+    ins_lpe_update_ssstates(); // set A with Rmat values
+    ins_lpe_update_ssparams(); // set R and Q with noise values
     ins_lpe.initialized = TRUE;
   }
 
