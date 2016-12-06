@@ -1171,6 +1171,7 @@
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">False</property>
                                 <property name="use_action_appearance">False</property>
+                                <accelerator key="c" signal="activate" modifiers="GDK_MOD1_MASK"/>
                                 <child>
                                   <widget class="GtkAlignment" id="alignment61">
                                     <property name="visible">True</property>
@@ -1226,6 +1227,7 @@
                                 <property name="receives_default">False</property>
                                 <property name="tooltip" translatable="yes">Build the selected target of the selected A/C. Warning: Save is required before this action</property>
                                 <property name="use_action_appearance">False</property>
+                                <accelerator key="b" signal="activate" modifiers="GDK_MOD1_MASK"/>
                                 <child>
                                   <widget class="GtkAlignment" id="alignment62">
                                     <property name="visible">True</property>
@@ -1281,6 +1283,7 @@
                                 <property name="receives_default">False</property>
                                 <property name="tooltip" translatable="yes">Upload into the airborne device (which must be plugged !).</property>
                                 <property name="use_action_appearance">False</property>
+                                <accelerator key="u" signal="activate" modifiers="GDK_MOD1_MASK"/>
                                 <child>
                                   <widget class="GtkAlignment" id="alignment63">
                                     <property name="visible">True</property>
