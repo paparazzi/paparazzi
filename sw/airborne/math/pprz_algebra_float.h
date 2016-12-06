@@ -610,12 +610,10 @@ struct FloatMatrixMN {
   }
 
 /** Populate existing matrix pointer */
-static inline void populate_matrix_ptr(float* ptr[], int rows, int cols, float matrix[][cols]) {
-  int i =0;
-  for (i=0; i<rows; i++) {
-    ptr[i] = &matrix[i][0];
+#define POPULATE_MATRIX_PTR(_ptr, _mat, _rows) \
+  { \
+    for (int __i = 0; __i < _rows; __i++) { _ptr[__i] = &_mat[__i][0]; } \
   }
-}
 
 /** a = 0 */
 static inline void float_mat_zero(float **a, int m, int n)
