@@ -29,6 +29,7 @@
 #include "std.h"
 #include "math/pprz_geodetic_int.h"
 #include "math/pprz_algebra_int.h"
+#include "math/pprz_algebra_float.h"
 #include "math/pprz_orientation_conversion.h"
 
 enum {X_x = 0, X_y, X_z, X_vx, X_vy, X_vz, X_bx, X_by, X_bz, n_x};
@@ -120,6 +121,13 @@ struct InsLpe {
 
   float x[n_x]; // state vector
   float u[n_u]; // input vector
+
+  // Params
+  float accel_xy_stddev;
+  float accel_z_stddev;
+  float pn_p_noise_density;
+  float pn_v_noise_density;
+  float pn_b_noise_density;
 };
 
 extern struct InsLpe ins_lpe;
@@ -128,5 +136,8 @@ extern void ins_lpe_init(void);
 extern void ins_lpe_periodic(void);
 
 void ins_lpe_reset_states(void);
+void ins_lpe_init_states(void);
+void ins_lpe_update_states(void);
+void ins_lpe_update_params(void);
 
 #endif /* INS_LPE_H */

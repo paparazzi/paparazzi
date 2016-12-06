@@ -105,6 +105,79 @@ static void sonar_cb(uint8_t sender_id, float distance);
 // Ins struct
 struct InsLpe ins_lpe;
 
+/**
+ * Set initial values for A and B
+ */
+void ins_lpe_init_states(void)
+{
+  ins_lpe.A.matrix[X_x][X_vx] = 1; // derivative of position is velocity
+  ins_lpe.A.matrix[X_y][X_vy] = 1; // derivative of position is velocity
+  ins_lpe.A.matrix[X_z][X_vz] = 1; // derivative of position is velocity
+
+  ins_lpe.B.matrix[X_vx][U_ax] = 1;
+  ins_lpe.B.matrix[X_vy][U_ay] = 1;
+  ins_lpe.B.matrix[X_vz][U_az] = 1;
+}
+
+
+/**
+ *  Update A with new values from rotational matrix
+ */
+void ins_lpe_update_states(void)
+{
+  // R -> NED to Body
+  // R^T -> body to NED
+  // we need R^T
+  struct FloatRMat* R = stateGetNedToBodyRMat_f();
+  struct FloatRMat RT;
+  // transpose
+  float_rmat_inv(&RT, R);
+
+  // derivative of velocity is accelerometer acceleration
+  // (in input matrix) - bias (in body frame)
+  ins_lpe.A.matrix[X_vx][X_bx] = -RMAT_ELMT(RT, 0, 0);
+  ins_lpe.A.matrix[X_vx][X_by] = -RMAT_ELMT(RT, 0, 1);
+  ins_lpe.A.matrix[X_vx][X_bz] = -RMAT_ELMT(RT, 0, 2);
+
+  ins_lpe.A.matrix[X_vy][X_bx] = -RMAT_ELMT(RT, 1, 0);
+  ins_lpe.A.matrix[X_vy][X_by] = -RMAT_ELMT(RT, 1, 1);
+  ins_lpe.A.matrix[X_vy][X_bz] = -RMAT_ELMT(RT, 1, 2);
+
+  ins_lpe.A.matrix[X_vz][X_bx] = -RMAT_ELMT(RT, 2, 0);
+  ins_lpe.A.matrix[X_vz][X_by] = -RMAT_ELMT(RT, 2, 1);
+  ins_lpe.A.matrix[X_vz][X_bz] = -RMAT_ELMT(RT, 2, 2);
+}
+
+
+/**
+ * Fill in R and Q matrices
+ */
+void ins_lpe_update_params(void)
+{
+  // input noise covariance matrix
+  ins_lpe.R.matrix[U_ax][U_ax] = ins_lpe.accel_xy_stddev * ins_lpe.accel_xy_stddev;
+  ins_lpe.R.matrix[U_ay][U_ay] = ins_lpe.accel_xy_stddev * ins_lpe.accel_xy_stddev;
+  ins_lpe.R.matrix[U_az][U_az] = ins_lpe.accel_z_stddev * ins_lpe.accel_z_stddev;
+
+  // process noise power matrix
+  float pn_p_sq = ins_lpe.pn_p_noise_density * ins_lpe.pn_p_noise_density;
+  float pn_v_sq = ins_lpe.pn_v_noise_density * ins_lpe.pn_v_noise_density;
+  ins_lpe.Q.matrix[X_x][X_x] = pn_p_sq;
+  ins_lpe.Q.matrix[X_y][X_y] = pn_p_sq;
+  ins_lpe.Q.matrix[X_z][X_z] = pn_p_sq;
+  ins_lpe.Q.matrix[X_vx][X_vx] = pn_v_sq;
+  ins_lpe.Q.matrix[X_vy][X_vy] = pn_v_sq;
+  ins_lpe.Q.matrix[X_vz][X_vz] = pn_v_sq;
+
+  // technically, the noise is in the body frame,
+  // but the components are all the same, so
+  // ignoring for now
+  float pn_b_sq = ins_lpe.pn_b_noise_density * ins_lpe.pn_b_noise_density;
+  ins_lpe.Q.matrix[X_bx][X_bx] = pn_b_sq;
+  ins_lpe.Q.matrix[X_by][X_by] = pn_b_sq;
+  ins_lpe.Q.matrix[X_bz][X_bz] = pn_b_sq;
+}
+
 
 /**
  * Reset states (matrices and vectors) back to
@@ -112,7 +185,7 @@ struct InsLpe ins_lpe;
  */
 void ins_lpe_reset_states(void)
 {
-  // initialize process matrix A 9x9
+    // initialize process matrix A 9x9
     ins_lpe.A.initialized = FALSE; // not initialized yet
     ins_lpe.A.rows = n_x; // set n_rows
     ins_lpe.A.cols = n_x; // set n_cols
@@ -177,7 +250,10 @@ void ins_lpe_init(void)
 
   if (!ins_lpe.initialized)
   {
-    ins_lpe_reset_states(); // reset states
+    ins_lpe_reset_states(); // reset all matrices to zero
+    ins_lpe_init_states(); // initialize A and B with constants
+    ins_lpe_update_states(); // set A with Rmat values
+    ins_lpe_update_params(); // set R and Q with noise values
     ins_lpe.initialized = TRUE;
   }
 
