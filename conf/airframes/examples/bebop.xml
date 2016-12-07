@@ -10,6 +10,16 @@
       <module name="udp"/>
     </target>
 
+    <define name="MT9F002_OUTPUT_HEIGHT" value="640" />  <!-- full height 4608 -->
+    <define name="MT9F002_OUTPUT_WIDTH" value="640" />  <!-- full width 2592 (3288) -->
+    <define name="MT9F002_INITIAL_OFFSET_Y" value="384" />
+    <define name="MT9F002_INITIAL_OFFSET_X" value="1024" />
+    <define name="MT9F002_X_ODD_INC_VAL" value="7" /> <!-- downsize x4 -->
+    <define name="MT9F002_Y_ODD_INC_VAL" value="7" />
+    <define name="MT9F002_OUTPUT_SCALER" value="1" />
+    <define name="MT9F002_TARGET_FPS" value="30" />
+    <define name="MT9F002_TARGET_EXPOSURE" value="60" />
+
     <!--define name="USE_SONAR" value="TRUE"/-->
 
 	<!-- Subsystem section -->
@@ -38,8 +48,10 @@
     <module name="video_rtp_stream">
       <define name="VIEWVIDEO_CAMERA" value="front_camera"/>
       <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
-      <define name="VIEWVIDEO_QUALITY_FACTOR" value="20"/>
+      <define name="VIEWVIDEO_QUALITY_FACTOR" value="60"/>
     </module>
+
+    <module name="cv_ae_awb"/>
 
   </modules>
 

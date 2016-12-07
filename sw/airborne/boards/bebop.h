@@ -29,19 +29,19 @@
 #include "peripherals/video_device.h"
 
 #ifndef MT9F002_OUTPUT_HEIGHT
-#define MT9F002_OUTPUT_HEIGHT 3320
+#define MT9F002_OUTPUT_HEIGHT 1408
 #endif
 
 #ifndef MT9F002_OUTPUT_WIDTH
-#define MT9F002_OUTPUT_WIDTH 2048
+#define MT9F002_OUTPUT_WIDTH 1024
 #endif
 
 #ifndef MT9F002_INITIAL_OFFSET_X
-#define MT9F002_INITIAL_OFFSET_X 1000 // pixels in the raw sensor!!
+#define MT9F002_INITIAL_OFFSET_X 1812 // pixels in the raw sensor(please make steps of 2 for ISP)!!
 #endif
 
 #ifndef MT9F002_INITIAL_OFFSET_Y
-#define MT9F002_INITIAL_OFFSET_Y 0 // pixels in the raw sensor!!
+#define MT9F002_INITIAL_OFFSET_Y 649 // pixels in the raw sensor(please make steps of 2 for ISP)!!
 #endif
 
 /** Our output is only OUTPUT_SCALER of the pixels we take of the sensor
@@ -76,7 +76,33 @@
 #endif
 
 #ifndef MT9F002_TARGET_FPS
-#define MT9F002_TARGET_FPS 5
+#define MT9F002_TARGET_FPS 15
+#endif
+
+/* Set the colour balance gains */
+#ifndef MT9F002_GAIN_GREEN1
+#define MT9F002_GAIN_GREEN1 3.0
+#endif
+
+#ifndef MT9F002_GAIN_GREEN2
+#define MT9F002_GAIN_GREEN2 3.0
+#endif
+
+#ifndef MT9F002_GAIN_RED
+#define MT9F002_GAIN_RED 3.0
+#endif
+
+#ifndef MT9F002_GAIN_BLUE
+#define MT9F002_GAIN_BLUE 4.0
+#endif
+
+/* Set subsampling */
+#ifndef MT9F002_X_ODD_INC_VAL
+#define MT9F002_X_ODD_INC_VAL 1
+#endif
+
+#ifndef MT9F002_Y_ODD_INC_VAL
+#define MT9F002_Y_ODD_INC_VAL 1
 #endif
 
 

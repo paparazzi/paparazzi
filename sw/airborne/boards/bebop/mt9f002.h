@@ -73,10 +73,16 @@ struct mt9f002_t {
   uint16_t offset_x;                  ///< Offset from left in pixels
   uint16_t offset_y;                  ///< Offset from top in pixels
 
+  uint8_t x_odd_inc;                  ///< X increment for subsampling (1,3,7,15,31 accepted)
+  uint8_t y_odd_inc;                  ///< Y increment for subsampling (1,3,7,15,31 accepted)
+
   struct i2c_periph *i2c_periph;      ///< I2C peripheral used to communicate over
   struct i2c_transaction i2c_trans;   ///< I2C transaction for comminication with CMOS chip
 };
 
 void mt9f002_init(struct mt9f002_t *mt);
+void mt9f002_set_resolution(struct mt9f002_t *mt);
+void mt9f002_set_exposure(struct mt9f002_t *mt);
+void mt9f002_set_gains(struct mt9f002_t *mt);
 
 #endif /* MT9F002_H */
