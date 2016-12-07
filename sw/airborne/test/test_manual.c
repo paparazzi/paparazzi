@@ -32,6 +32,7 @@
 
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/datalink/downlink.h"
+#include "modules/datalink/pprz_dl.h"
 
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
@@ -76,6 +77,7 @@ static inline void main_init(void)
 {
   mcu_init();
   downlink_init();
+  pprz_dl_init();
 
   actuators_init();
 #if USE_MOTOR_MIXING
@@ -104,20 +106,21 @@ static inline void main_periodic(void)
   RunOnceEvery(100, {DOWNLINK_SEND_RC(DefaultChannel, DefaultDevice, RADIO_CONTROL_NB_CHANNEL, radio_control.values);});
   RunOnceEvery(101, {DOWNLINK_SEND_COMMANDS(DefaultChannel, DefaultDevice, COMMANDS_NB, commands);});
   RunOnceEvery(102, {DOWNLINK_SEND_ACTUATORS(DefaultChannel, DefaultDevice, ACTUATORS_NB, actuators);});
+
 }
 
 static inline void main_event(void)
 {
   mcu_event();
-  DatalinkEvent();
+  pprz_dl_event();
   RadioControlEvent(on_rc_frame);
 }
 
 #define IdOfMsg(x) (x[1])
 
-void dl_parse_msg(void)
+void dl_parse_msg(struct link_device *dev __attribute__((unused)), struct transport_tx *trans __attribute__((unused)), uint8_t *buf)
 {
-  uint8_t msg_id = IdOfMsg(dl_buffer);
+  uint8_t msg_id = IdOfMsg(buf);
   switch (msg_id) {
     case  DL_PING: {
       DOWNLINK_SEND_PONG(DefaultChannel, DefaultDevice);
@@ -125,17 +128,17 @@ void dl_parse_msg(void)
     break;
 
     case DL_SETTING: {
-      if (DL_SETTING_ac_id(dl_buffer) != AC_ID) { break; }
-      uint8_t i = DL_SETTING_index(dl_buffer);
-      float var = DL_SETTING_value(dl_buffer);
+      if (DL_SETTING_ac_id(buf) != AC_ID) { break; }
+      uint8_t i = DL_SETTING_index(buf);
+      float var = DL_SETTING_value(buf);
       DlSetting(i, var);
       DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &var);
     }
     break;
 
     case DL_GET_SETTING : {
-      if (DL_GET_SETTING_ac_id(dl_buffer) != AC_ID) { break; }
-      uint8_t i = DL_GET_SETTING_index(dl_buffer);
+      if (DL_GET_SETTING_ac_id(buf) != AC_ID) { break; }
+      uint8_t i = DL_GET_SETTING_index(buf);
       float val = settings_get_value(i);
       DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &i, &val);
     }
@@ -146,20 +149,20 @@ void dl_parse_msg(void)
       LED_TOGGLE(RADIO_CONTROL_DATALINK_LED);
 #endif
       parse_rc_3ch_datalink(
-        DL_RC_3CH_throttle_mode(dl_buffer),
-        DL_RC_3CH_roll(dl_buffer),
-        DL_RC_3CH_pitch(dl_buffer));
+        DL_RC_3CH_throttle_mode(buf),
+        DL_RC_3CH_roll(buf),
+        DL_RC_3CH_pitch(buf));
       break;
     case DL_RC_4CH :
 #ifdef RADIO_CONTROL_DATALINK_LED
       LED_TOGGLE(RADIO_CONTROL_DATALINK_LED);
 #endif
       parse_rc_4ch_datalink(
-        DL_RC_4CH_mode(dl_buffer),
-        DL_RC_4CH_throttle(dl_buffer),
-        DL_RC_4CH_roll(dl_buffer),
-        DL_RC_4CH_pitch(dl_buffer),
-        DL_RC_4CH_yaw(dl_buffer));
+        DL_RC_4CH_mode(buf),
+        DL_RC_4CH_throttle(buf),
+        DL_RC_4CH_roll(buf),
+        DL_RC_4CH_pitch(buf),
+        DL_RC_4CH_yaw(buf));
       break;
 #endif // RADIO_CONTROL_TYPE_DATALINK
 

@@ -68,6 +68,7 @@ alt CDATA #REQUIRED
 qfu CDATA #IMPLIED
 home_mode_height CDATA #IMPLIED
 geofence_max_alt CDATA #IMPLIED
+geofence_max_height CDATA #IMPLIED
 geofence_sector CDATA #IMPLIED>
 
 <!ATTLIST waypoints
@@ -158,6 +159,8 @@ height CDATA #IMPLIED
 throttle CDATA #IMPLIED
 climb CDATA #IMPLIED
 pitch CDATA #IMPLIED
+pre_call CDATA #IMPLIED
+post_call CDATA #IMPLIED
 until CDATA #REQUIRED>
 
 <!ATTLIST attitude
@@ -168,6 +171,8 @@ height CDATA #IMPLIED
 throttle CDATA #IMPLIED
 climb CDATA #IMPLIED
 pitch CDATA #IMPLIED
+pre_call CDATA #IMPLIED
+post_call CDATA #IMPLIED
 until CDATA #IMPLIED>
 
 <!ATTLIST manual
@@ -179,6 +184,8 @@ alt CDATA #IMPLIED
 height CDATA #IMPLIED
 throttle CDATA #IMPLIED
 climb CDATA #IMPLIED
+pre_call CDATA #IMPLIED
+post_call CDATA #IMPLIED
 until CDATA #IMPLIED>
 
 <!ATTLIST go
@@ -197,6 +204,8 @@ approaching_time CDATA #IMPLIED
 exceeding_time CDATA #IMPLIED
 throttle CDATA #IMPLIED
 climb CDATA #IMPLIED
+pre_call CDATA #IMPLIED
+post_call CDATA #IMPLIED
 until CDATA #IMPLIED>
 
 <!ATTLIST path
@@ -226,7 +235,9 @@ break CDATA #IMPLIED>
 <!ATTLIST follow
 ac_id CDATA #REQUIRED
 distance CDATA #REQUIRED
-height CDATA #REQUIRED>
+height CDATA #REQUIRED
+pre_call CDATA #IMPLIED
+post_call CDATA #IMPLIED>
 
 <!ATTLIST xyz
 radius CDATA #IMPLIED>
@@ -244,6 +255,8 @@ vmode CDATA #IMPLIED
 climb CDATA #IMPLIED
 pitch CDATA #IMPLIED
 throttle CDATA #IMPLIED
+pre_call CDATA #IMPLIED
+post_call CDATA #IMPLIED
 until CDATA #IMPLIED>
 
 <!ATTLIST eight
@@ -254,6 +267,8 @@ vmode CDATA #IMPLIED
 climb CDATA #IMPLIED
 pitch CDATA #IMPLIED
 throttle CDATA #IMPLIED
+pre_call CDATA #IMPLIED
+post_call CDATA #IMPLIED
 until CDATA #IMPLIED
 radius CDATA #REQUIRED>
 
@@ -267,6 +282,8 @@ vmode CDATA #IMPLIED
 climb CDATA #IMPLIED
 pitch CDATA #IMPLIED
 throttle CDATA #IMPLIED
+pre_call CDATA #IMPLIED
+post_call CDATA #IMPLIED
 until CDATA #IMPLIED>
 
 <!ATTLIST survey_rectangle
@@ -274,6 +291,8 @@ grid CDATA #REQUIRED
 orientation CDATA #IMPLIED
 wp1 CDATA #REQUIRED
 wp2 CDATA #REQUIRED
+pre_call CDATA #IMPLIED
+post_call CDATA #IMPLIED
 until CDATA #IMPLIED>
 
 <!ATTLIST stay
@@ -283,6 +302,8 @@ throttle CDATA #IMPLIED
 climb CDATA #IMPLIED
 alt CDATA #IMPLIED
 until CDATA #IMPLIED
+pre_call CDATA #IMPLIED
+post_call CDATA #IMPLIED
 height CDATA #IMPLIED>
 
 <!ATTLIST deroute
@@ -309,4 +330,5 @@ default_value CDATA #IMPLIED>
 
 <!ATTLIST header>
 
-<!ATTLIST return>
+<!ATTLIST return
+reset_stage CDATA #IMPLIED>

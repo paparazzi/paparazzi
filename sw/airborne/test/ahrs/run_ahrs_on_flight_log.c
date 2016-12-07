@@ -218,7 +218,3 @@ static void dump_output(const char *filename)
   fclose(fd);
   printf("wrote %d points in file %s\n", nb_samples, filename);
 }
-
-
-/* imu.h wants that */
-void imu_impl_init(void) {}

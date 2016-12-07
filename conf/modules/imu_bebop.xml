@@ -1,0 +1,42 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="imu_bebop" dir="imu">
+  <doc>
+    <description>
+      Driver for IMU on the Parrot Bebop drone.
+      - Accelerometer/Gyroscope: MPU6000 via I2C2
+      - Magnetometer: AK8963 via I2C1
+    </description>
+    <section name="IMU" prefix="IMU_">
+      <define name="MAG_X_NEUTRAL" value="2358"/>
+      <define name="MAG_Y_NEUTRAL" value="2362"/>
+      <define name="MAG_Z_NEUTRAL" value="2119"/>
+
+      <define name="MAG_X_SENS" value="3.4936416" integer="16"/>
+      <define name="MAG_Y_SENS" value="3.607713" integer="16"/>
+      <define name="MAG_Z_SENS" value="4.90788848" integer="16"/>
+    </section>
+  </doc>
+  <autoload name="imu_common"/>
+  <autoload name="imu_nps"/>
+  <autoload name="sonar_bebop"/>
+  <header>
+    <file name="imu_bebop.h" dir="subsystems/imu"/>
+  </header>
+  <init fun="imu_bebop_init()"/>
+  <periodic fun="imu_bebop_periodic()"/>
+  <event fun="imu_bebop_event()"/>
+  <makefile target="!sim|nps|fbw">
+    <define name="BEBOP_MAG_I2C_DEV" value="i2c1"/>
+    <define name="USE_I2C1"/>
+    <define name="BEBOP_MPU_I2C_DEV" value="i2c2"/>
+    <define name="USE_I2C2"/>
+
+    <define name="IMU_TYPE_H" value="subsystems/imu/imu_bebop.h" type="string"/>
+
+    <file name="mpu60x0.c" dir="peripherals"/>
+    <file name="mpu60x0_i2c.c" dir="peripherals"/>
+    <file name="ak8963.c" dir="peripherals"/>
+    <file name="imu_bebop.c" dir="subsystems/imu"/>
+  </makefile>
+</module>

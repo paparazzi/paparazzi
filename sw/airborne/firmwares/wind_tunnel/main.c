@@ -1,3 +1,6 @@
+
+#define MODULES_C
+
 #include "std.h"
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
@@ -9,6 +12,7 @@
 
 #include "subsystems/datalink/datalink.h"
 #include "generated/settings.h"
+#include "generated/modules.h"
 #include "pprzlink/dl_protocol.h"
 
 #include "wt_servo.h"
@@ -51,6 +55,7 @@ static inline void main_init(void)
 
   spi_init();
   wt_baro_init();
+  modules_init();
 
   mcu_int_enable();
 }
@@ -60,12 +65,13 @@ static inline void main_periodic_task(void)
   LED_TOGGLE(1);
   DOWNLINK_SEND_TAKEOFF(&motor_power);
   wt_baro_periodic();
+  modules_periodic_task();
   DOWNLINK_SEND_DEBUG(3, buf_input);
 }
 
 static inline void main_event_task(void)
 {
-  DatalinkEvent();
+  modules_event_task();
 
   // spi baro
   if (spi_message_received) {
@@ -82,12 +88,12 @@ static inline void main_event_task(void)
 
 #define IdOfMsg(x) (x[1])
 
-void dl_parse_msg(void)
+void dl_parse_msg(struct link_device *dev __attribute__((unused)), struct transport_tx *trans __attribute__((unused)), uint8_t *buf)
 {
 
   LED_TOGGLE(1);
 
-  uint8_t msg_id = IdOfMsg(dl_buffer);
+  uint8_t msg_id = IdOfMsg(buf);
   switch (msg_id) {
 
     case  DL_PING: {
@@ -96,8 +102,8 @@ void dl_parse_msg(void)
     }
 
     case DL_SETTING : {
-      uint8_t i = DL_SETTING_index(dl_buffer);
-      float var = DL_SETTING_value(dl_buffer);
+      uint8_t i = DL_SETTING_index(buf);
+      float var = DL_SETTING_value(buf);
       DlSetting(i, var);
       DOWNLINK_SEND_DL_VALUE(&i, &var);
       break;

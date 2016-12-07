@@ -3,14 +3,34 @@
 <module name="px4flow" dir="optical_flow">
   <doc>
     <description>PX4FLOW optical flow sensor</description>
+    <configure name="PX4FLOW_NOISE_STDDEV" value="1.0" description="standard deviation of the flow measurement (if known)"/>
+    <configure name="USE_PX4FLOW_AGL" value="1" description="update AGL measurements from onboard sonar"/>
+    <configure name="PX4FLOW_COMPENSATE_ROTATION" value="1" description="compensate AGL measurements for body rotation"/>
   </doc>
+
+  <settings>
+    <dl_settings NAME="optical flow">
+      <dl_settings NAME="px4flow">
+        <dl_setting MAX="1" MIN="0" STEP="1" VAR="px4flow_compensate_rotation" shortname="derotate_agl"/>
+        <dl_setting MAX="1" MIN="0" STEP="1" VAR="px4flow_update_agl" shortname="update_agl"/>
+        <dl_setting MAX="10" MIN="0" STEP="0.1" VAR="px4flow_stddev" shortname="stddev"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
   <depends>mavlink_decoder</depends>
   <header>
     <file name="px4flow.h"/>
   </header>
   <init fun="px4flow_init()"/>
-  <periodic fun="px4flow_downlink()" freq="10"/> <!-- for debug -->
+  <periodic fun="px4flow_downlink()" freq="4" autorun="FALSE"/> <!-- for debug -->
   <makefile>
+    <configure name="PX4FLOW_NOISE_STDDEV" default="1.0"/>
+    <configure name="USE_PX4FLOW_AGL" default="1"/>
+    <configure name="PX4FLOW_COMPENSATE_ROTATION" default="1"/>
+    <define name="PX4FLOW_NOISE_STDDEV" value="$(PX4FLOW_NOISE_STDDEV)"/>
+    <define name="USE_PX4FLOW_AGL" value="$(USE_PX4FLOW_AGL)"/>
+    <define name="PX4FLOW_COMPENSATE_ROTATION" value="$(PX4FLOW_COMPENSATE_ROTATION)"/>
     <file name="px4flow.c"/>
   </makefile>
 </module>

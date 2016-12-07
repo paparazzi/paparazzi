@@ -68,16 +68,12 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 #include "generated/flight_plan.h"
 
 // datalink & telemetry
-#if DATALINK || SITL
-#include "subsystems/datalink/datalink.h"
-#include "subsystems/datalink/downlink.h"
-#endif
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 #endif
-#include "subsystems/settings.h"
 
 // modules & settings
+#include "subsystems/settings.h"
 #include "generated/modules.h"
 #include "generated/settings.h"
 #if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
@@ -187,10 +183,6 @@ void init_ap(void)
 
   /************* Sensors initialization ***************/
 
-#if USE_IMU
-  imu_init();
-#endif
-
 #if USE_AHRS_ALIGNER
   ahrs_aligner_init();
 #endif
@@ -211,9 +203,6 @@ void init_ap(void)
   /************* Links initialization ***************/
 #if defined MCU_SPI_LINK || defined MCU_UART_LINK || defined MCU_CAN_LINK
   link_mcu_init();
-#endif
-#if USE_AUDIO_TELEMETRY
-  audio_telemetry_init();
 #endif
 
   /************ Internal status ***************/
@@ -242,11 +231,6 @@ void init_ap(void)
 
 #if DOWNLINK
   downlink_init();
-#endif
-
-#if defined AEROCOMM_DATA_PIN
-  IO0DIR |= _BV(AEROCOMM_DATA_PIN);
-  IO0SET = _BV(AEROCOMM_DATA_PIN);
 #endif
 
   /* set initial trim values.
@@ -622,10 +606,6 @@ void attitude_loop(void)
 /** Run at PERIODIC_FREQUENCY (60Hz if not defined) */
 void sensors_task(void)
 {
-#if USE_IMU
-  imu_periodic();
-#endif // USE_IMU
-
   //FIXME: this is just a kludge
 #if USE_AHRS && defined SITL && !USE_NPS
   update_ahrs_from_sim();
@@ -693,16 +673,11 @@ void event_task_ap(void)
   mcu_event();
 #endif /* SINGLE_MCU */
 
-#if USE_IMU
-  ImuEvent();
-#endif
-
 #if USE_BARO_BOARD
   BaroEvent();
 #endif
 
-  DatalinkEvent();
-
+  modules_event_task();
 
 #if defined MCU_SPI_LINK || defined MCU_UART_LINK
   link_mcu_event_task();
@@ -713,8 +688,6 @@ void event_task_ap(void)
     inter_mcu_received_fbw = false;
     telecommand_task();
   }
-
-  modules_event_task();
 
 #ifdef AHRS_TRIGGERED_ATTITUDE_LOOP
   if (new_ins_attitude > 0) {

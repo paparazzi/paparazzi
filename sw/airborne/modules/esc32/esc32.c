@@ -222,9 +222,7 @@ static void parse_esc32(struct esc32_private *esc, uint8_t c) {
 }
 
 static void esc32_msg_send(struct transport_tx *trans, struct link_device *dev) {
-
-  if (esc32.data_available == true){
-    pprz_msg_send_ESC(trans, dev, AC_ID,
+  pprz_msg_send_ESC(trans, dev, AC_ID,
       &esc32.params.amps,
       &esc32.params.volts_bat,
       &esc32.power,
@@ -232,9 +230,6 @@ static void esc32_msg_send(struct transport_tx *trans, struct link_device *dev) 
       &esc32.params.volts_motor,
       &esc32.energy,
       0); // only one motor handled for now
-
-    esc32.data_available = false;
-  };
 }
 
 void esc32_init(void) {

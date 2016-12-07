@@ -196,7 +196,7 @@ void ahrs_float_invariant_propagate(struct FloatRates* gyro, float dt)
   ahrs_float_inv.state = new_state;
 
   // normalize quaternion
-  FLOAT_QUAT_NORMALIZE(ahrs_float_inv.state.quat);
+  float_quat_normalize(&ahrs_float_inv.state.quat);
 
   //------------------------------------------------------------//
 

@@ -38,6 +38,9 @@ let (//) = Filename.concat
 let gcs_id = "GCS"
 
 let approaching_alert_time = 3.
+let approaching_alert_dmin = 0.5
+let approaching_alert_slmin = 20.
+
 let track_size = ref 500
 
 let _auto_hide_fp = ref false
@@ -249,6 +252,10 @@ let jump_to_block = fun ac_id id ->
 let dl_setting = fun ac_id idx value ->
   let vs = ["ac_id", PprzLink.String ac_id; "index", PprzLink.Int idx;"value", PprzLink.Float value] in
   Ground_Pprz.message_send "dl" "DL_SETTING" vs
+
+let dl_emergency_cmd = fun ac_id cmd ->
+  let vs = ["ac_id", PprzLink.String ac_id; "cmd", PprzLink.Int cmd] in
+  Ground_Pprz.message_send "dl" "DL_EMERGENCY_CMD" vs
 
 let get_dl_setting = fun ac_id idx ->
   let vs = ["ac_id", PprzLink.String ac_id; "index", PprzLink.Int idx] in
@@ -752,11 +759,15 @@ let create_ac = fun ?(confirm_kill=true) alert (geomap:G.widget) (acs_notebook:G
           let connect = fun ?(warning=true) setting_name strip_connect ->
             try
               let id = settings_tab#assoc setting_name in
-              strip_connect (fun x -> dl_setting_callback id x)
+              if setting_name = "kill_throttle" then
+                strip_connect (fun x -> (dl_setting_callback id x; dl_emergency_cmd ac_id 0))
+              else
+                strip_connect (fun x -> dl_setting_callback id x)
             with Not_found ->
+              if setting_name = "kill_throttle" then
+                strip_connect (fun x -> (if x = 1. then dl_emergency_cmd ac_id 0));
               if warning then
                 fprintf stderr "Warning: %s not setable from GCS strip (i.e. not listed in the xml settings file)\n" setting_name in
-
           connect "flight_altitude" (fun f -> ac.strip#connect_shift_alt (fun x -> f (ac.target_alt+.x)));
           connect "launch" ~warning:false ac.strip#connect_launch;
           connect "kill_throttle" (ac.strip#connect_kill confirm_kill);
@@ -961,12 +972,14 @@ let highlight_fp = fun ac b s ->
   end
 
 
-let check_approaching = fun ac geo alert ->
+let check_approaching = fun ac geo1 geo2 alert ->
   match ac.track#last with
       None -> ()
     | Some ac_pos ->
-      let d = LL.wgs84_distance ac_pos geo in
-      if d < ac.speed *. approaching_alert_time then
+      let s_len = LL.wgs84_distance geo1 geo2 in (* length of the segment *)
+      let d = LL.wgs84_distance ac_pos geo2 in (* distance to end of the segment *)
+      (* only log_and_say "approaching" if close enough but not too much and when flying long segments *)
+      if d < ac.speed *. approaching_alert_time && d > approaching_alert_dmin && s_len > approaching_alert_slmin then
         log_and_say alert ac.ac_name (sprintf "%s, approaching" ac.ac_speech_name)
 
 
@@ -1266,7 +1279,7 @@ let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
     ac.track#draw_segment geo1 geo2;
 
     (* Check if approaching the end of the segment *)
-    check_approaching ac geo2 alert
+    check_approaching ac geo1 geo2 alert
   in
   safe_bind "SEGMENT_STATUS" get_segment_status;
 
@@ -1478,6 +1491,29 @@ let get_intruders = fun (geomap:G.widget) _sender vs ->
 let listen_intruders = fun (geomap:G.widget) ->
   safe_bind "INTRUDER" (get_intruders geomap)
 
+open Shapes
+
+let get_shapes = fun (geomap:G.widget)_sender vs ->
+  let f = fun s -> PprzLink.float_assoc s vs in
+  let i = fun s -> PprzLink.int_assoc s vs in
+  let st = fun s -> PprzLink.string_assoc s vs in
+  let string_to_scaled_float = fun v -> (float (int_of_string v))/. 1e7 in
+  let floatarr = fun s -> Array.map string_to_scaled_float (Array.of_list (Str.split list_separator (st s))) in
+  let data =  {
+    shid = i "id";
+    shlinecolor = st "linecolor";
+    shfillcolor = st "fillcolor";
+    shopacity = i "opacity";
+    shtype = int2shtype (i "shape");
+    shstatus = int2shstatus (i "status");
+    shlatarr = floatarr "latarr";
+    shlonarr = floatarr "lonarr";
+    shradius = f "radius";
+    shtext = st "text"} in
+  new_shmsg data geomap
+
+let listen_shapes = fun (geomap:G.widget) ->
+  safe_bind "SHAPE" (get_shapes geomap)
 
 let listen_acs_and_msgs = fun geomap ac_notebook strips confirm_kill my_alert auto_center_new_ac alt_graph timestamp ->
   (** Probe live A/Cs *)
@@ -1504,6 +1540,7 @@ let listen_acs_and_msgs = fun geomap ac_notebook strips confirm_kill my_alert au
   listen_tcas my_alert timestamp;
   listen_dcshot geomap timestamp;
   listen_intruders geomap;
+  listen_shapes geomap;
 
   (** Select the active aircraft on notebook page selection *)
   let callback = fun i ->

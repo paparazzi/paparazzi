@@ -10,7 +10,10 @@
 
     <!-- Optical flow calculation parameters -->
     <section name="OPTICFLOW" prefix="OPTICFLOW_">
-      <define name="AGL_ID" value="ABI_SENDER_ID" description="ABI sender id for AGL message (sonar measurement) (default: ABI_BROADCAST)"/>
+      <define name="AGL_ID" value="ABI_BROADCAST" description="ABI receive id for ABI message (sonar measurement) (default: ABI_BROADCAST)"/>
+<define name="IMU_ID" value="ABI_BROADCAST" description="ABI receive id for ABI message (accelerometers) (default: ABI_BROADCAST)"/>
+<define name="BODY_TO_IMU_ID" value="ABI_BROADCAST" description="ABI receive id for ABI message (body to imu quat) (default: ABI_BROADCAST)"/>
+      <define name="SEND_ABI_ID" value="1" description="ABI sender id for opticflow messages (default: 1)"/>
 
       <!-- Video device parameters -->
       <define name="CAMERA" value="bottom_camera|front_camera" description="The V4L2 camera device that is used for the calculations"/>
@@ -20,6 +23,8 @@
       <define name="FOV_H" value="0.67020643276" description="The field of view height of the bottom camera (Defaults are from an ARDrone 2)"/>
       <define name="FX" value="343.1211" description="Field in the x direction of the camera (Defaults are from an ARDrone 2)"/>
       <define name="FY" value="348.5053" description="Field in the y direction of the camera (Defaults are from an ARDrone 2)"/>
+      <define name="DEROTATION_CORRECTION_FACTOR_X" value="1.0" description="Correction factor for derotation (in x direction), estimated from a fit between the gyro's rates and the resulting flow (caused by the camera not being exactly in the middle (Defaults are from an ARDrone 2)"/>
+      <define name="DEROTATION_CORRECTION_FACTOR_Y" value="1.0" description="Correction factor for derotation (in y direction), estimated from a fit between the gyro's rates and the resulting flow (caused by the camera not being exactly in the middle (Defaults are from an ARDrone 2)"/>
 
       <!-- General optical flow calculation parameters -->
       <define name="METHOD" value="0" description="Method used to calculate optical flow"/>
@@ -27,6 +32,9 @@
       <define name="SEARCH_DISTANCE" value="10" description="Maximum search distance for blockmatching (pixels)"/>
       <define name="SUBPIXEL_FACTOR" value="10" description="Amount of subpixels per pixel, used for more precise (subpixel) calculations of the flow"/>
       <define name="DEROTATION" value="1" description="Derotation either turned on or off (depended on gyroscope measurements)"/>
+      <define name="MEDIAN_FILTER" value="0" description="A median filter on the resulting velocities to be turned on or off (last 5 measurements)"/>
+      <define name="KALMAN_FILTER" value="1" description="A kalman filter on the resulting velocities to be turned on or off (fused with accelerometers)"/>
+      <define name="KALMAN_FILTER_PROCESS_NOISE" value="0.01" description="The expected variance of the error of the model's prediction in the kalman filter"/>
 
       <!-- Lucas Kanade optical flow calculation parameters -->
       <define name="MAX_TRACK_CORNERS" value="25" description="The maximum amount of corners the Lucas Kanade algorithm is tracking between two frames"/>
@@ -51,6 +59,9 @@
         <dl_setting var="opticflow.search_distance" module="computer_vision/opticflow_module" min="0" step="1" max="50" shortname="search_distance" param="SEARCH_DISTANCE"/>
         <dl_setting var="opticflow.subpixel_factor" module="computer_vision/opticflow_module" min="0" step="10" max="1000" shortname="subpixel_factor" param="OPTICFLOW_SUBPIXEL_FACTOR"/>
         <dl_setting var="opticflow.derotation" min="0" step="1" max="1" module="computer_vision/opticflow_module" values="OFF|ON" shortname="derotation" param="OPTICFLOW_DEROTATION"/>
+        <dl_setting var="opticflow.median_filter" module="computer_vision/opticflow_module" min="0" step="1" max="1" values="OFF|ON" shortname="median_filter" param="OPTICFLOW_MEDIAN_FILTER"/>
+        <dl_setting var="opticflow.kalman_filter" module="computer_vision/opticflow_module" min="0" step="1" max="1" values="OFF|ON" shortname="kalman_filter" param="OPTICFLOW_KALMAN_FILTER"/>
+        <dl_setting var="opticflow.kalman_filter_process_noise" module="computer_vision/opticflow_module" min="0.0001" step="0.0001" max="0.1"  shortname="KF_process_noise" param="OPTICFLOW_KALMAN_FILTER_PROCESS_NOISE"/>
 
 	<!-- Specifically for Lucas Kanade and FAST9 -->
         <dl_setting var="opticflow.max_track_corners" module="computer_vision/opticflow_module" min="0" step="1" max="500" shortname="max_trck_corners" param="OPTICFLOW_MAX_TRACK_CORNERS"/>
@@ -61,6 +72,7 @@
         <dl_setting var="opticflow.fast9_threshold" module="computer_vision/opticflow_module" min="0" step="1" max="255" shortname="fast9_threshold" param="OPTICFLOW_FAST9_THRESHOLD"/>
         <dl_setting var="opticflow.fast9_min_distance" module="computer_vision/opticflow_module" min="0" step="1" max="500" shortname="fast9_min_distance" param="OPTICFLOW_FAST9_MIN_DISTANCE"/>
         <dl_setting var="opticflow.fast9_padding" module="computer_vision/opticflow_module" min="0" step="1" max="50" shortname="fast9_padding" param="OPTICFLOW_FAST9_PADDING"/>
+
 
 	<!-- Changes pyramid level of lucas kanade optical flow. -->
         <dl_setting var="opticflow.pyramid_level" module="computer_vision/opticflow_module" min="0" step="1" max="10" shortname="pyramid_level" param="OPTICFLOW_PYRAMID_LEVEL"/>
@@ -98,6 +110,7 @@
     <file name="fast_rosten.c" dir="modules/computer_vision/lib/vision"/>
     <file name="lucas_kanade.c" dir="modules/computer_vision/lib/vision"/>
     <file name="edge_flow.c" dir="modules/computer_vision/lib/vision"/>
+    <file name="kalman_filter_vision.c" dir="modules/computer_vision/lib/filters"/>
   </makefile>
 
 

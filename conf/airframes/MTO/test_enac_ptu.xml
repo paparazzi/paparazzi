@@ -39,7 +39,7 @@
 
     <!-- Communication -->
     <module name="telemetry" type="xbee_api"/>
-    <module name="sdlog"/>
+    <module name="pprzlog"/>
 
     <!-- Actuators are automatically chosen according to board-->
     <module name="imu" type="apogee"/>

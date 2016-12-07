@@ -29,7 +29,7 @@
 
 #include "subsystems/datalink/telemetry.h"
 #include "subsystems/datalink/downlink.h"
-#include "pprzlink/pprzlog_transport.h"
+#include "modules/loggers/pprzlog_tp.h"
 
 #if FLIGHTRECORDER_SDLOG
 #include "modules/loggers/sdlog_chibios.h"

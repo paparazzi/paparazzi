@@ -47,10 +47,11 @@ LABLGTK2_MM := $(shell echo $(LABLGTK2_VER) | cut -f1,2 -d.)
 ifeq ($(shell echo '$(LABLGTK2_MM)>=2.18' | bc),1)
 CAMLP4_DEFS = -DGDK_NATIVE_WINDOW
 endif
-# workaround wrong reported version of lablgtk
+# workaround wrong reported version of lablgtk in Debian/Ubuntu
 # see https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=822949 and https://bugs.launchpad.net/ubuntu/+source/lablgtk2/+bug/1577236
+# Ubuntu 16.04: 2.18.3+dfsg-1   Ubuntu 16.10: 2.18.3+dfsg-2
 LABLGTK2_DEB := $(shell LC_ALL=C apt-cache policy liblablgtk2-ocaml | grep Installed | awk '{print $$2}' 2>/dev/null)
-ifneq (,$(findstring 2.18.3+dfsg-1, $(LABLGTK2_DEB)))
+ifneq (,$(findstring 2.18.3+dfsg, $(LABLGTK2_DEB)))
 CAMLP4_DEFS = -DGDK_NATIVE_WINDOW
 endif
 CAMLP4_DEFS ?=
@@ -61,7 +62,7 @@ PP_SRC = gcs.ml
 PP_CMO = $(PP_SRC:.ml=.cmo)
 PP_CMX = $(PP_SRC:.ml=.cmx)
 
-ML= gtk_setting_time.ml gtk_strip.ml horizon.ml strip.ml gtk_save_settings.ml saveSettings.ml page_settings.ml pages.ml speech.ml plugin.ml sectors.ml map2d.ml editFP.ml intruders.ml live.ml particules.ml papgets.ml gcs.ml
+ML= gtk_setting_time.ml gtk_strip.ml horizon.ml strip.ml gtk_save_settings.ml saveSettings.ml page_settings.ml pages.ml speech.ml plugin.ml sectors.ml map2d.ml editFP.ml intruders.ml shapes.ml live.ml particules.ml papgets.ml gcs.ml
 MAIN=gcs
 CMO=$(ML:.ml=.cmo)
 CMX=$(ML:.ml=.cmx)

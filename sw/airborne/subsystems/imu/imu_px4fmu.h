@@ -42,8 +42,8 @@ struct ImuPx4fmu {
 
 extern struct ImuPx4fmu imu_px4fmu;
 
+extern void imu_px4fmu_init(void);
+extern void imu_px4fmu_periodic(void);
 extern void imu_px4fmu_event(void);
-
-#define ImuEvent imu_px4fmu_event
 
 #endif /* IMU_PX4FMU_H */

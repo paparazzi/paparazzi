@@ -77,7 +77,7 @@ struct GpsState gps;
 struct GpsTimeSync gps_time_sync;
 
 #ifdef SECONDARY_GPS
-static uint8_t current_gps_id = 0;
+static uint8_t current_gps_id = GpsId(PRIMARY_GPS);
 #endif
 
 uint8_t multi_gps_mode;
@@ -175,12 +175,6 @@ static void send_gps_sol(struct transport_tx *trans, struct link_device *dev)
 }
 #endif
 
-void gps_periodic_check(struct GpsState *gps_s)
-{
-  if (sys_time.nb_sec - gps_s->last_msg_time > GPS_TIMEOUT) {
-    gps_s->fix = GPS_FIX_NONE;
-  }
-}
 
 #ifdef SECONDARY_GPS
 static uint8_t gps_multi_switch(struct GpsState *gps_s) {
@@ -210,6 +204,24 @@ static uint8_t gps_multi_switch(struct GpsState *gps_s) {
   return current_gps_id;
 }
 #endif /*SECONDARY_GPS*/
+
+
+void gps_periodic_check(struct GpsState *gps_s)
+{
+  if (sys_time.nb_sec - gps_s->last_msg_time > GPS_TIMEOUT) {
+    gps_s->fix = GPS_FIX_NONE;
+  }
+
+#ifdef SECONDARY_GPS
+  current_gps_id = gps_multi_switch(gps_s);
+  if (gps_s->comp_id == current_gps_id) {
+    gps = *gps_s;
+  }
+#else
+  gps = *gps_s;
+#endif
+}
+
 
 static abi_event gps_ev;
 static void gps_cb(uint8_t sender_id,

@@ -63,13 +63,13 @@
     <module name="gps" type="ubx_ucenter"/>
     <!-- logging -->
     <!--module name="tlsf"/>
-    <module name="sdlog"/>
+    <module name="pprzlog"/>
     <module name="logger" type="sd_chibios"/-->
 
     <module name="current_sensor">
       <configure name="ADC_CURRENT_SENSOR" value="ADC_2"/>
     </module>
-    <!--module name="rtos_mon"/-->
+    <!--module name="sys_mon"/-->
   </firmware>
 
   <!-- commands section -->

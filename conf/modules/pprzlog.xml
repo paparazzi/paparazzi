@@ -1,0 +1,19 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="pprzlog" dir="loggers">
+  <doc>
+    <description>
+      Enable pprzlog binary prototol with downlink message system
+    </description>
+  </doc>
+  <header>
+    <file name="pprzlog_tp.h"/>
+  </header>
+  <init fun="pprzlog_tp_init()"/>
+  <makefile>
+    <define name="DOWNLINK"/>
+    <file name="pprzlog_tp.c"/>
+    <file name="pprzlog_transport.c" dir="pprzlink/src"/>
+  </makefile>
+</module>
+

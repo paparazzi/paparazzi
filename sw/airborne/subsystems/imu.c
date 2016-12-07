@@ -145,7 +145,6 @@ void imu_init(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_IMU_MAG, send_mag);
 #endif // DOWNLINK
 
-  imu_impl_init();
 }
 
 
@@ -205,10 +204,6 @@ void imu_SetBodyToImuCurrent(float set)
 
 
 // weak functions, used if not explicitly provided by implementation
-
-void WEAK imu_periodic(void)
-{
-}
 
 void WEAK imu_scale_gyro(struct Imu *_imu)
 {

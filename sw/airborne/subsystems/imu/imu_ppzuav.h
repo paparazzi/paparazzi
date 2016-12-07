@@ -87,8 +87,8 @@ struct ImuPpzuav {
 
 extern struct ImuPpzuav imu_ppzuav;
 
+extern void imu_ppzuav_init(void);
+extern void imu_ppzuav_periodic(void);
 extern void imu_ppzuav_event(void);
-
-#define ImuEvent imu_ppzuav_event
 
 #endif /* IMU_PPZUAV_H */

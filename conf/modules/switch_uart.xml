@@ -1,0 +1,36 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="switch_uart" dir="switching">
+  <doc>
+    <description>Active swithes via UART commands.
+      Module typically used in competitions to drop items like paint-balls. An arduino is a typical target.
+    </description>
+  </doc>
+  <settings>
+    <dl_settings NAME="Switch control">
+      <dl_settings NAME="SWITCH">
+        <dl_setting var="switch_uart_channel" min="0" step="1" max="4" module="switching/switch_uart" handler="SwitchUartChannel">
+          <strip_button name="1" value="1" group="switching"/>
+          <strip_button name="2" value="2" group="switching"/>
+          <strip_button name="3" value="3" group="switching"/>
+          <strip_button name="4" value="4" group="switching"/>
+        </dl_setting>
+        <dl_setting var="switch_uart_status" min="0" step="1" max="255" module="switching/switch_uart">
+        </dl_setting>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="switch_uart.h"/>
+  </header>
+  <periodic fun="periodic_switch_uart()" period="0.05" autorun="TRUE"/>
+  <makefile>
+    <file name="switch_uart.c"/>
+    <configure name="SWITCH_UART_PORT" default="uart1" case="upper|lower"/>
+    <configure name="SWITCH_UART_BAUD" default="B115200"/>
+    <define name="SWITCH_UART_PORT" value="$(SWITCH_UART_PORT_LOWER)"/>
+    <define name="USE_$(SWITCH_UART_PORT_UPPER)"/>
+    <define name="$(SWITCH_UART_PORT_UPPER)_BAUD" value="$(SWITCH_UART_BAUD)"/>
+  </makefile>
+</module>
+

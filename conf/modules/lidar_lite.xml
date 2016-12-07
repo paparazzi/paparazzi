@@ -1,0 +1,43 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="lidar_lite" dir="lidar">
+  <doc>
+    <description>Lidar-Lite v1-3 (all labels) from PulsedLight3D (now Garmin) connected over i2c bus</description>
+    <configure name="LIDAR_LITE_I2C_DEV" value="i2c2" description="I2C device to use for Lidar-lite"/>
+    <configure name="LIDAR_LITE_I2C_ADDR" value="0x62" description="default slave address of Lidar-lite"/>
+    <configure name="USE_LIDAR_LITE_AGL" value="1" description="use Lidar-lite for AGL measurements. On by deafult"/>
+    <configure name="LIDAR_LITE_COMPENSATE_ROTATION" value="1" description="compensate AGL measurements for body rotation"/>
+  </doc>
+
+  <settings>
+    <dl_settings NAME="Lidar lite">
+      <dl_settings NAME="Lidar">
+        <dl_setting MAX="1" MIN="0" STEP="1" VAR="lidar.compensate_rotation" shortname="derotate_agl"/>
+        <dl_setting MAX="1" MIN="0" STEP="1" VAR="lidar.update_agl" shortname="update_agl"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <header>
+    <file name="lidar_lite.h"/>
+  </header>
+  <init fun="lidar_lite_init()"/>
+  <periodic fun="lidar_lite_downlink()" freq="4" autorun="FALSE"/> <!-- for debug -->
+  <periodic fun="lidar_lite_periodic()" freq="100"/> <!-- poll data, since we have 4 states in the state machine, divide the frequency  
+   by 4 to get the actual number of readings per second. For example 100Hz = 25 range readings -->
+  <event fun="lidar_lite_event()"/>
+  <makefile>
+    <configure name="LIDAR_LITE_I2C_DEV" default="i2c1" case="lower|upper"/>
+    <configure name="LIDAR_LITE_I2C_ADDR" default="0xC4"/>
+    <configure name="USE_LIDAR_LITE_AGL" default="1"/>
+    <configure name="LIDAR_LITE_COMPENSATE_ROTATION" default="1"/>
+    <define name="LIDAR_LITE_I2C_DEV" value="$(LIDAR_LITE_I2C_DEV_LOWER)"/>
+    <define name="USE_$(LIDAR_LITE_I2C_DEV_UPPER)"/>
+    <define name="LIDAR_LITE_I2C_ADDR" value="$(LIDAR_LITE_I2C_ADDR)"/>
+    <define name="USE_LIDAR_LITE_AGL" value="$(USE_LIDAR_LITE_AGL)"/>
+    <define name="LIDAR_LITE_COMPENSATE_ROTATION" value="$(LIDAR_LITE_COMPENSATE_ROTATION)"/>
+    <file name="lidar_lite.c"/>
+  </makefile>
+</module>
+
+

@@ -1,0 +1,90 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ahrs_int_cmpl_quat" dir="ahrs">
+  <doc>
+    <description>
+      AHRS using complementary filter in fixed point.
+      Propagation is done in quaternion representation.
+
+      By default uses magnetometer for heading for rotorcrafts.
+      For fixedwing firmware AHRS_GRAVITY_UPDATE_COORDINATED_TURN is enabled by default and magnetometer disabled (needs GPS).
+
+      To measure attitude angles, gyrometers measurements are integrated.
+      The result of integration is accurate for short term, but gyro bias is accumulated, which results in long term errors (drift).
+      On the other hand, accelerometers can be used to infer pitch/roll angles utilizing gravity vector measurement, but they suffer from noise due to vibrations.
+      The measurement is then only accurate when averaged over a long term.
+      Also, accelerometers alone are unable to give accurate angles when the vehicle is accelerating.
+      Complementary filter takes advantage of both sensors, using a low-pass filter on accelerometer readings and high pass filter on gyrometers readings, to estimate attitude angles.
+
+      - No danger of gimbal lock, since quaternions are used.
+      - The arithmetic is fixed point and is thus suitable if the processor (on your board) has no FPU.
+      - Estimates the gyro bias.
+    </description>
+    <configure name="USE_MAGNETOMETER" value="TRUE" description="set to FALSE to disable magnetometer"/>
+    <configure name="AHRS_ALIGNER_LED" value="1" description="LED number to indicate AHRS alignment, none to disable (default is board dependent)"/>
+    <define name="AHRS_MAG_UPDATE_ALL_AXES" value="FALSE|TRUE" description="Use magnetometer to update all axes and not only yaw"/>
+    <define name="AHRS_USE_GPS_HEADING" value="FALSE|TRUE" description="Use GPS course to update heading"/>
+    <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN" value="FALSE|TRUE" description="Compensation of centrifugal force via GPS speed (to fly in circles with a fixedwing)"/>
+    <define name="AHRS_GPS_SPEED_IN_NEGATIVE_Z_DIRECTION" value="FALSE|TRUE" description="AHRS_GRAVITY_UPDATE_COORDINATED_TURN assumes the GPS speed is in the X axis direction. Quadshot, DelftaCopter and other hybrids can have the GPS speed in the negative Z direction"/>
+    <define name="AHRS_PROPAGATE_LOW_PASS_RATES" description="apply a low pass filter on rotational velocity"/>
+    <define name="AHRS_BIAS_UPDATE_HEADING_THRESHOLD" value="5.0" description="don't update gyro bias if heading deviation is above this threshold in degrees"/>
+    <define name="AHRS_HEADING_UPDATE_GPS_MIN_SPEED" value="5.0" description="Don't update heading from GPS course if GPS ground speed is below is this threshold in m/s"/>
+    <define name="AHRS_GRAVITY_HEURISTIC_FACTOR" value="30" description="Default is 30. Reduce accelerometer cut-off frequency when the vehicle is accelerating: norm(ax,ay,az) ~ 9,81 m/s2. WARNING: when the IMU is not well damped, the norm of accelerometers never equals to 9,81 m/s2. As a result, the GRAVITY_HEURISTIC_FACTOR will reduce the accelerometer bandwith even if the vehicle is not accelerating. Set to 0 in case of vibrations"/>
+    <define name="AHRS_ICQ_IMU_ID" value="ABI_BROADCAST" description="ABI sender id of IMU to use"/>
+    <define name="AHRS_ICQ_MAG_ID" value="ABI_BROADCAST" description="ABI sender id of magnetometer to use"/>
+    <define name="AHRS_ICQ_GPS_ID" value="GPS_MULTI_ID" description="ABI sender id of GPS to use"/>
+  </doc>
+
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="AHRS">
+        <dl_setting var="ahrs_icq.gravity_heuristic_factor" min="0" step="1" max="50" module="subsystems/ahrs/ahrs_int_cmpl_quat" shortname="g_heuristic" param="AHRS_GRAVITY_HEURISTIC_FACTOR" type="uint8" persistent="true"/>
+        <dl_setting var="ahrs_icq.accel_omega" min="0.02" step="0.02" max="0.2" module="subsystems/ahrs/ahrs_int_cmpl_quat" shortname="acc_omega" param="AHRS_ACCEL_OMEGA" unit="rad/s" handler="SetAccelOmega" type="float" persistent="true"/>
+        <dl_setting var="ahrs_icq.accel_zeta" min="0.7" step="0.05" max="1.5" module="subsystems/ahrs/ahrs_int_cmpl_quat" shortname="acc_zeta" param="AHRS_ACCEL_ZETA" handler="SetAccelZeta" type="float" persistent="true"/>
+        <dl_setting var="ahrs_icq.mag_omega" min="0.02" step="0.01" max="0.1" module="subsystems/ahrs/ahrs_int_cmpl_quat" shortname="mag_omega" param="AHRS_MAG_OMEGA" unit="rad/s" handler="SetMagOmega" type="float" persistent="true"/>
+        <dl_setting var="ahrs_icq.mag_zeta" min="0.7" step="0.05" max="1.5" module="subsystems/ahrs/ahrs_int_cmpl_quat" shortname="mag_zeta" param="AHRS_MAG_ZETA" handler="SetMagZeta" type="float" persistent="true"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <autoload name="ahrs_sim"/>
+  <header>
+    <file name="ahrs.h" dir="subsystems"/>
+  </header>
+
+  <makefile target="!sim|fbw" firmware="fixedwing">
+    <configure name="USE_MAGNETOMETER" default="0"/>
+    <define name="AHRS_USE_GPS_HEADING" cond="ifneq (,$(findstring $(USE_MAGNETOMETER),0 FALSE))"/>
+    <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN"/>
+  </makefile>
+  <makefile target="!sim|fbw">
+    <configure name="USE_MAGNETOMETER" default="1"/>
+    <configure name="AHRS_ALIGNER_LED" default="none"/>
+
+    <define name="USE_MAGNETOMETER" cond="ifeq (,$(findstring $(USE_MAGNETOMETER),0 FALSE))"/>
+    <define name="AHRS_ALIGNER_LED" value="$(AHRS_ALIGNER_LED)" cond="ifneq ($(AHRS_ALIGNER_LED),none)"/>
+    <define name="USE_AHRS"/>
+    <define name="USE_AHRS_ALIGNER"/>
+
+    <file name="ahrs.c" dir="subsystems"/>
+    <file name="ahrs_aligner.c" dir="subsystems/ahrs"/>
+    <file name="ahrs_int_cmpl_quat.c" dir="subsystems/ahrs"/>
+    <file name="ahrs_int_cmpl_quat_wrapper.c" dir="subsystems/ahrs"/>
+    <raw>
+ifdef SECONDARY_AHRS
+ifneq (,$(findstring $(SECONDARY_AHRS), icq int_cmpl_quat))
+# this is the secondary AHRS
+$(TARGET).CFLAGS += -DAHRS_SECONDARY_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl_quat_wrapper.h\"
+$(TARGET).CFLAGS += -DSECONDARY_AHRS=ahrs_icq
+else
+# this is the primary AHRS
+$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl_quat_wrapper.h\"
+$(TARGET).CFLAGS += -DPRIMARY_AHRS=ahrs_icq
+endif
+else
+# plain old single AHRS usage
+$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_int_cmpl_quat_wrapper.h\"
+endif
+    </raw>
+  </makefile>
+</module>

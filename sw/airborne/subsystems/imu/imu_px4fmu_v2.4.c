@@ -25,13 +25,12 @@
  * Driver for pixhawk IMU's.
  * L3GD20H + LSM303D (both on spi)
  */
-
 #include "subsystems/imu.h"
 #include "subsystems/abi.h"
 #include "mcu_periph/spi.h"
 #include "peripherals/l3gd20_regs.h"
-#include "peripherals/lsm303dlhc_regs.h"
-#include "peripherals/lsm303dlhc_spi.h"
+#include "peripherals/lsm303d_regs.h"
+#include "peripherals/lsm303d_spi.h"
 
 /* SPI defaults set in subsystem makefile, can be configured from airframe file */
 PRINT_CONFIG_VAR(IMU_LSM_SPI_SLAVE_IDX)
@@ -40,36 +39,32 @@ PRINT_CONFIG_VAR(IMU_PX4FMU_SPI_DEV)
 
 struct ImuPX4 imu_px4;
 
-void imu_impl_init(void)
-{
-
+void imu_px4_init(void) {
   /* L3GD20 gyro init */
   /* initialize gyro and set default options */
   l3gd20_spi_init(&imu_px4.l3g, &IMU_PX4FMU_SPI_DEV, IMU_L3G_SPI_SLAVE_IDX);
 
-  /* LSM303dlhc acc + magneto init */
-  lsm303dlhc_spi_init(&imu_px4.lsm_acc, &IMU_PX4FMU_SPI_DEV, IMU_LSM_SPI_SLAVE_IDX, LSM_TARGET_ACC);
+  /* LSM303d acc + magneto init */
+  lsm303d_spi_init(&imu_px4.lsm_acc, &IMU_PX4FMU_SPI_DEV, IMU_LSM_SPI_SLAVE_IDX, LSM303D_TARGET_ACC);
 #if !IMU_PX4_DISABLE_MAG
-  lsm303dlhc_spi_init(&imu_px4.lsm_mag, &IMU_PX4FMU_SPI_DEV, IMU_LSM_SPI_SLAVE_IDX, LSM_TARGET_MAG);
+  lsm303d_spi_init(&imu_px4.lsm_mag, &IMU_PX4FMU_SPI_DEV, IMU_LSM_SPI_SLAVE_IDX, LSM303D_TARGET_MAG);
 #endif
 
 }
 
-void imu_periodic(void)
-{
+void imu_px4_periodic(void) {
   l3gd20_spi_periodic(&imu_px4.l3g);
-  lsm303dlhc_spi_periodic(&imu_px4.lsm_acc);
+  lsm303d_spi_periodic(&imu_px4.lsm_acc);
 
 #if !IMU_PX4_DISABLE_MAG
   /* Read magneto's every 10 times of main freq
    * at ~50Hz (main loop for rotorcraft: 512Hz)
-   */  
-  RunOnceEvery(10, lsm303dlhc_spi_periodic(&imu_px4.lsm_mag));
+   */
+  RunOnceEvery(10, lsm303d_spi_periodic(&imu_px4.lsm_mag));
 #endif
 }
 
-void imu_px4_event(void)
-{
+void imu_px4_event(void) {
 
   uint32_t now_ts = get_sys_time_usec();
 
@@ -85,16 +80,16 @@ void imu_px4_event(void)
     AbiSendMsgIMU_GYRO_INT32(IMU_PX4_ID, now_ts, &imu.gyro);
   }
 
-  /* LSM303dlhc event task */
-  lsm303dlhc_spi_event(&imu_px4.lsm_acc);
-  if (imu_px4.lsm_acc.data_available_acc) {    
+  /* LSM303d event task */
+  lsm303d_spi_event(&imu_px4.lsm_acc);
+  if (imu_px4.lsm_acc.data_available_acc) {
     VECT3_COPY(imu.accel_unscaled, imu_px4.lsm_acc.data_accel.vect);
     imu_px4.lsm_acc.data_available_acc = FALSE;
     imu_scale_accel(&imu);
     AbiSendMsgIMU_ACCEL_INT32(IMU_PX4_ID, now_ts, &imu.accel);
   }
 #if !IMU_PX4_DISABLE_MAG
-  lsm303dlhc_spi_event(&imu_px4.lsm_mag);
+  lsm303d_spi_event(&imu_px4.lsm_mag);
   if (imu_px4.lsm_mag.data_available_mag) {
     VECT3_COPY(imu.mag_unscaled, imu_px4.lsm_mag.data_mag.vect);
     imu_px4.lsm_mag.data_available_mag = FALSE;

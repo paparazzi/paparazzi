@@ -160,7 +160,7 @@ def ardrone2_status():
     config_ini = parrot_utils.execute_command(tn,'cat /data/config.ini')
 
     print('======================== ARDrone 2 Status ========================')
-    print('Version:\t\t' + parrot_utils.check_version(tn, '/firmware'))
+    print('Version:\t\t' + str(parrot_utils.check_version(tn, '/firmware')))
     print('Host:\t\t\t' + args.host + ' (' + read_from_config('static_ip_address_base', config_ini) +
           read_from_config('static_ip_address_probe', config_ini) + ' after boot)')
 

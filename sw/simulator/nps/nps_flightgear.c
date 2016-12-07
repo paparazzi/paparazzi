@@ -10,10 +10,11 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
-
+#include <pthread.h>
 
 #include "std.h"
 #include "../flight_gear.h"
+#include "nps_main.h"
 #include "nps_fdm.h"
 #include "nps_atmosphere.h"
 
@@ -25,6 +26,9 @@ static struct  {
   unsigned int time_offset;
 } flightgear;
 
+pthread_t th_fg_rx; // fligh gear receive thread
+
+void* nps_flightgear_receive(void* data __attribute__((unused)));
 
 double htond(double x)
 {
@@ -50,8 +54,16 @@ void nps_flightgear_init(const char *host,  unsigned int port, unsigned int port
   int so_reuseaddr = 1;
   struct protoent *pte = getprotobyname("UDP");
   flightgear.socket = socket(PF_INET, SOCK_DGRAM, pte->p_proto);
-  setsockopt(flightgear.socket, SOL_SOCKET, SO_REUSEADDR,
-      &so_reuseaddr, sizeof(so_reuseaddr));
+  if (flightgear.socket < 0){
+    perror("nps_flightgear_init flightgear.socket socket()");
+    exit(errno);
+  }
+  if ( setsockopt(flightgear.socket, SOL_SOCKET, SO_REUSEADDR,
+      &so_reuseaddr, sizeof(so_reuseaddr)) == -1) {
+    perror("nps_flightgear_init flightgear.socket setsockopt()");
+    exit(errno);
+  }
+
   flightgear.addr.sin_family = PF_INET;
   flightgear.addr.sin_port = htons(port);
   flightgear.addr.sin_addr.s_addr = inet_addr(host);
@@ -61,8 +73,15 @@ void nps_flightgear_init(const char *host,  unsigned int port, unsigned int port
   if (port_in > 0) {
     struct sockaddr_in addr_in;
     flightgear.socket_in = socket(PF_INET, SOCK_DGRAM, pte->p_proto);
-    setsockopt(flightgear.socket_in, SOL_SOCKET, SO_REUSEADDR,
-        &so_reuseaddr, sizeof(so_reuseaddr));
+    if (flightgear.socket_in < 0) {
+      perror("nps_flightgear_init flightgear.socket_in socket()");
+      exit(errno);
+    }
+    if ( setsockopt(flightgear.socket_in, SOL_SOCKET, SO_REUSEADDR,
+        &so_reuseaddr, sizeof(so_reuseaddr)) == -1) {
+      perror("nps_flightgear_init flightgear.socket_in setsockopt()");
+      exit(errno);
+    }
     addr_in.sin_family = PF_INET;
     addr_in.sin_port = htons(port_in);
     addr_in.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -83,6 +102,9 @@ void nps_flightgear_init(const char *host,  unsigned int port, unsigned int port
   time_t t = time(NULL);
   flightgear.initial_time = t;
   flightgear.time_offset = time_offset;
+
+  // launch rx thread
+  pthread_create(&th_fg_rx, NULL, nps_flightgear_receive, NULL);
 }
 
 /**
@@ -160,6 +182,7 @@ void nps_flightgear_send()
   struct FGNetGUI gui;
 
   gui.version = FG_NET_GUI_VERSION;
+  gui.padding1 = 0; // initialize the padding variable to zero
 
   gui.latitude  = fdm.lla_pos.lat;
   gui.longitude = fdm.lla_pos.lon;
@@ -205,7 +228,8 @@ void nps_flightgear_send()
 /**
  * Receive Flight Gear environment messages
  */
-void nps_flightgear_receive() {
+void* nps_flightgear_receive(void* data __attribute__((unused)))
+{
 
   if (flightgear.socket_in != -1) {
     // socket is correctly opened
@@ -214,32 +238,37 @@ void nps_flightgear_receive() {
     size_t s_env = sizeof(env);
     int bytes_read;
 
-    //read first message
-    memset(&env, 0, s_env);
-    bytes_read = recvfrom(flightgear.socket_in, (char*)(&env), s_env, MSG_DONTWAIT, NULL, NULL);
-    while (bytes_read != -1) { // while we read a message (empty buffer)
-      if (bytes_read == (int)s_env){
-        // Update wind info
-        nps_atmosphere_set_wind_ned(
-            (double)env.wind_from_north,
-            (double)env.wind_from_east,
-            (double)env.wind_from_down);
-      }
-      else {
-        //error
-        printf("WARNING : ignoring packet with size %d (%d expected)", bytes_read, (int)s_env);
-      }
-
-      //read next message
+    while(TRUE)
+    {
+      //read first message
       memset(&env, 0, s_env);
-      bytes_read = recvfrom(flightgear.socket_in, (char*)(&env), s_env, MSG_DONTWAIT, NULL, NULL);
-    }
+      bytes_read = recvfrom(flightgear.socket_in, (char*)(&env), s_env, MSG_WAITALL, NULL, NULL);
+      while (bytes_read != -1) { // while we read a message (empty buffer)
+        if (bytes_read == (int)s_env){
+          // Update wind info
+          pthread_mutex_lock(&fdm_mutex);
+          nps_atmosphere_set_wind_ned(
+              (double)env.wind_from_north,
+              (double)env.wind_from_east,
+              (double)env.wind_from_down);
+          pthread_mutex_unlock(&fdm_mutex);
+        }
+        else {
+          //error
+          printf("WARNING : ignoring packet with size %d (%d expected)", bytes_read, (int)s_env);
+        }
 
-    if ((errno & (EAGAIN | EWOULDBLOCK)) == 0) {
-      perror("nps_flightgear_receive recvfrom()");
+        //read next message
+        memset(&env, 0, s_env);
+        bytes_read = recvfrom(flightgear.socket_in, (char*)(&env), s_env, MSG_WAITALL, NULL, NULL);
+      }
+
+      if ((errno & (EAGAIN | EWOULDBLOCK)) == 0) {
+        perror("nps_flightgear_receive recvfrom()");
+      }
     }
   }
-
+  return NULL;
 }
 
 

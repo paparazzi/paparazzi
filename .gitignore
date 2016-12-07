@@ -23,6 +23,8 @@
 
 *.gdb_history
 
+.cache.xml
+
 # Eclipse IDE project files
 *.cproject
 *.project

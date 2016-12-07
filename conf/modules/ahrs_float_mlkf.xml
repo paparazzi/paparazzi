@@ -1,0 +1,63 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ahrs_float_mlkf" dir="ahrs">
+  <doc>
+    <description>
+      AHRS using MLKF filter.
+      Multiplicative Linearized Kalman Filter in quaternion formulation.
+      Estimates the gyro bias and needs magnetometer to update all 3 axes.
+      Not suitable for fixedwings!
+      Suitable for rotorcraft. The magnetometer is used and needs to be well calibrated. Estimates attitude and heading. Does not use GPS.
+    </description>
+    <configure name="AHRS_ALIGNER_LED" value="1" description="LED number to indicate AHRS alignment, none to disable (default is board dependent)"/>
+    <define name="AHRS_MAG_UPDATE_ALL_AXES" value="FALSE|TRUE" description="Use magnetometer to update all axes and not only yaw"/>
+    <define name="AHRS_MLKF_IMU_ID" value="ABI_BROADCAST" description="ABI sender id of IMU to use"/>
+    <define name="AHRS_MLKF_MAG_ID" value="ABI_BROADCAST" description="ABI sender id of magnetometer to use"/>
+  </doc>
+
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="AHRS">
+        <dl_setting var="ahrs_mlkf.mag_noise.x" min="0.0" step="0.02" max="1.0" module="subsystems/ahrs/ahrs_float_mlkf" shortname="mag_noise_x" param="AHRS_MAG_NOISE_X" type="float" persistent="true"/>
+        <dl_setting var="ahrs_mlkf.mag_noise.y" min="0.0" step="0.02" max="1.0" module="subsystems/ahrs/ahrs_float_mlkf" shortname="mag_noise_y" param="AHRS_MAG_NOISE_Y" type="float" persistent="true"/>
+        <dl_setting var="ahrs_mlkf.mag_noise.z" min="0.0" step="0.02" max="1.0" module="subsystems/ahrs/ahrs_float_mlkf" shortname="mag_noise_z" param="AHRS_MAG_NOISE_Z" type="float" persistent="true"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <autoload name="ahrs_sim"/>
+  <header>
+    <file name="ahrs.h" dir="subsystems"/>
+  </header>
+
+  <makefile target="!sim|fbw">
+    <configure name="USE_MAGNETOMETER" default="1"/>
+    <configure name="AHRS_ALIGNER_LED" default="none"/>
+
+    <define name="USE_MAGNETOMETER" cond="ifeq (,$(findstring $(USE_MAGNETOMETER),0 FALSE))"/>
+    <define name="AHRS_ALIGNER_LED" value="$(AHRS_ALIGNER_LED)" cond="ifneq ($(AHRS_ALIGNER_LED),none)"/>
+    <define name="USE_AHRS"/>
+    <define name="USE_AHRS_ALIGNER"/>
+
+    <file name="ahrs.c" dir="subsystems"/>
+    <file name="ahrs_aligner.c" dir="subsystems/ahrs"/>
+    <file name="ahrs_float_mlkf.c" dir="subsystems/ahrs"/>
+    <file name="ahrs_float_mlkf_wrapper.c" dir="subsystems/ahrs"/>
+    <raw>
+ifdef SECONDARY_AHRS
+ifneq (,$(findstring $(SECONDARY_AHRS), mlkf float_mlkf))
+# this is the secondary AHRS
+$(TARGET).CFLAGS += -DAHRS_SECONDARY_TYPE_H=\"subsystems/ahrs/ahrs_float_mlkf_wrapper.h\"
+$(TARGET).CFLAGS += -DSECONDARY_AHRS=ahrs_mlkf
+else
+# this is the primary AHRS
+$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_mlkf_wrapper.h\"
+$(TARGET).CFLAGS += -DPRIMARY_AHRS=ahrs_mlkf
+endif
+else
+# plain old single AHRS usage
+$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_mlkf_wrapper.h\"
+endif
+    </raw>
+  </makefile>
+</module>

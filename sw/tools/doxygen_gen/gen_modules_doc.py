@@ -30,12 +30,17 @@ def dox_list_file(f):
 def get_module_dir(module):
     return module.get("dir", module.get("name")).strip()
 
+def get_module_dox_name(module_name):
+    return module_name.lower().replace('.', '_')
+
+def get_module_page_name(module_name):
+    return "module__" + get_module_dox_name(module_name)
 
 def modules_category_list(category, modules):
     s = "@subsection modules_category_" + category.lower() + " " + category.title() + " modules\n\n"
     for (fname, m) in sorted(modules.items()):
         mname = fname[:-4].lower()
-        page_name = "module__" + mname
+        page_name = get_module_page_name(mname)
         (brief, _) = get_module_description(m)
         s += "- @subpage {} : {}\n".format(page_name, brief)
     return s + "\n\n"
@@ -78,7 +83,7 @@ def modules_overview_page(modules_dict):
 def module_page(filename, module):
     (brief, details) = get_module_description(module)
     mname = filename[:-4].lower()
-    page_name = "module__" + mname
+    page_name = get_module_page_name(mname)
     title = mname + " module"
     s = dox_new_page(page_name, title)
     s += "<b>" + brief + "</b>\n\n"
@@ -100,7 +105,7 @@ def module_page(filename, module):
 def get_xml_example(filename, module):
     module_name = filename[:-4]
     opts = module.findall(".doc/define") + module.findall(".doc/configure")
-    s = "\n@section module_load_example__{0} Example for airframe file\n".format(module_name.lower())
+    s = "\n@section module_load_example__{0} Example for airframe file\n".format(get_module_dox_name(module_name))
     s += "Add to your firmware section:\n"
     if opts:
         s += "This example contains all possible configuration options, not all of them are mandatory!\n"
@@ -172,7 +177,7 @@ def module_configuration(module, mname):
     doc += get_doc_config_option(module, 'define')
     doc += get_doc_sections(module)
     if doc:
-        return "@section configuration__{0} Module configuration options\n\n".format(mname) + doc
+        return "@section configuration__{0} Module configuration options\n\n".format(get_module_dox_name(mname)) + doc
     else:
         return ""
 
@@ -181,14 +186,14 @@ def module_depends_conflicts(module, mname):
     s = ""
     deps = get_module_dependencies(module)
     if deps:
-        s += "@section dependencies__{} Dependencies\n".format(mname)
+        s += "@section dependencies__{} Dependencies\n".format(get_module_dox_name(mname))
         for d in deps:
-            s += "- @ref module__{}\n".format(d.lower())
+            s += "- @ref {}\n".format(get_module_page_name(d))
     conflicts = get_module_conflicts(module)
     if conflicts:
-        s += "@section conflicts__{} Conflicts\n".format(mname)
+        s += "@section conflicts__{} Conflicts\n".format(get_module_dox_name(mname))
         for c in conflicts:
-            s += "- @ref module__{}\n".format(c.lower())
+            s += "- @ref {}\n".format(get_module_page_name(c))
     return s
 
 
@@ -208,10 +213,10 @@ def module_autoloads(module, mname):
     s = ""
     autos = get_module_autoloads(module)
     if autos:
-        s += "@section autoloads__{} Auto-loaded modules\n".format(mname)
+        s += "@section autoloads__{} Auto-loaded modules\n".format(get_module_dox_name(mname))
         s += "The following modules are automatically loaded (just as if you had added them in the airframe file)\n"
         for a in autos:
-            s += "- @ref module__{}\n".format(a.lower())
+            s += "- @ref {}\n".format(get_module_page_name(a))
     return s
 
 
@@ -233,7 +238,7 @@ def get_module_description(module):
         brief = module.get('name').replace('_', ' ').title()
     else:
         # treat first line until dot as brief
-        d = re.split(r'\.|\n', desc.text.strip(), 1)
+        d = re.split(r'\. |\n', desc.text.strip(), 1)
         brief = d[0].strip()
         if len(d) > 1:
             details = inspect.cleandoc(d[1]) + "\n"
@@ -339,7 +344,7 @@ def module_functions(module, mname):
     fdoc += get_event_functions(module)
     fdoc += get_periodic_functions(module)
     if fdoc:
-        return "@section functions__{0} Module functions\n\n".format(mname) + fdoc + "\n"
+        return "@section functions__{0} Module functions\n\n".format(get_module_dox_name(mname)) + fdoc + "\n"
     else:
         return ""
 
@@ -347,7 +352,7 @@ def module_datalink(module, mname):
     s = ""
     datalinks = module.findall("./datalink")
     if datalinks:
-        s += "@section datalink_functions__{0} Datalink Functions\n\n".format(mname)
+        s += "@section datalink_functions__{0} Datalink Functions\n\n".format(get_module_dox_name(mname))
         s += "Whenever the specified datalink message is received, the corresponing handler function is called.\n\n"
         for d in datalinks:
             s += "- on message @b {0} call {1}\n".format(d.get('message'), d.get('fun'))

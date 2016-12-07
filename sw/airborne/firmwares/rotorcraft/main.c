@@ -184,9 +184,7 @@ STATIC_INLINE void main_init(void)
 #if USE_BARO_BOARD
   baro_init();
 #endif
-#if USE_IMU
-  imu_init();
-#endif
+
 #if USE_AHRS_ALIGNER
   ahrs_aligner_init();
 #endif
@@ -260,9 +258,9 @@ STATIC_INLINE void handle_periodic_tasks(void)
 
 STATIC_INLINE void main_periodic(void)
 {
-
-#if USE_IMU
-  imu_periodic();
+#if INTER_MCU_AP
+  /* Inter-MCU watchdog */
+  intermcu_periodic();
 #endif
 
   /* run control loops */
@@ -316,7 +314,10 @@ STATIC_INLINE void failsafe_check(void)
       autopilot_mode != AP_MODE_KILL &&
       autopilot_mode != AP_MODE_HOME &&
       autopilot_mode != AP_MODE_FAILSAFE &&
-      autopilot_mode != AP_MODE_NAV) {
+      autopilot_mode != AP_MODE_NAV &&
+      autopilot_mode != AP_MODE_MODULE &&
+      autopilot_mode != AP_MODE_FLIP &&
+      autopilot_mode != AP_MODE_GUIDED) {
     autopilot_set_mode(RC_LOST_MODE);
   }
 
@@ -351,15 +352,9 @@ STATIC_INLINE void main_event(void)
   /* event functions for mcu peripherals: i2c, usb_serial.. */
   mcu_event();
 
-  DatalinkEvent();
-
   if (autopilot_rc) {
     RadioControlEvent(autopilot_on_rc_frame);
   }
-
-#if USE_IMU
-  ImuEvent();
-#endif
 
 #if USE_BARO_BOARD
   BaroEvent();

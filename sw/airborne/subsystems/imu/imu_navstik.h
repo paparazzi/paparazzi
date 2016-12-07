@@ -76,8 +76,9 @@ struct ImuNavstik {
 };
 
 extern struct ImuNavstik imu_navstik;
-extern void imu_navstik_event(void);
 
-#define ImuEvent imu_navstik_event
+extern void imu_navstik_init(void);
+extern void imu_navstik_periodic(void);
+extern void imu_navstik_event(void);
 
 #endif /* IMU_NAVSTIK_H */

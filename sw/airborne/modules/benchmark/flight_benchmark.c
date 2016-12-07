@@ -113,7 +113,7 @@ void flight_benchmark_periodic(void)
   }
 
   DOWNLINK_SEND_FLIGHT_BENCHMARK(DefaultChannel, DefaultDevice, &SquareSumErr_airspeed, &SquareSumErr_altitude,
-                                 &SquareSumErr_position, &Err_airspeed, &Err_altitude, &Err_position)
+                                 &SquareSumErr_position, &Err_airspeed, &Err_altitude, &Err_position);
 
 }
 

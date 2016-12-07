@@ -103,6 +103,18 @@
 #define AGL_SONAR_NPS_ID 3
 #endif
 
+#ifndef AGL_SONAR_PX4FLOW_ID
+#define AGL_SONAR_PX4FLOW_ID 4
+#endif
+
+#ifndef AGL_TERARANGER_ONE_ID
+#define AGL_TERARANGER_ONE_ID 5
+#endif
+
+#ifndef AGL_LIDAR_LITE_ID
+#define AGL_LIDAR_LITE_ID 6
+#endif
+
 /*
  * IDs of magnetometer sensors (including IMUs with mag)
  */
@@ -168,6 +180,10 @@
 
 #ifndef GPS_VECTORNAV_ID
 #define GPS_VECTORNAV_ID 13
+#endif
+
+#ifndef GPS_IMCU_ID
+#define GPS_IMCU_ID 14
 #endif
 
 /*
@@ -245,6 +261,10 @@
 #define IMU_PX4_ID 18
 #endif
 
+#ifndef IMU_VECTORNAV
+#define IMU_VECTORNAV_ID 19
+#endif
+
 /*
  * IDs of RSSI measurements (message 13)
  */
@@ -252,5 +272,18 @@
 #define RSSI_BLUEGIGA_ID 1
 #endif
 
+/*
+ * IDs of RPM sensors (message 15)
+ */
+#ifndef RPM_SENSOR_ID
+#define RPM_SENSOR_ID 1
+#endif
+
+/*
+ * IDs of THRUST increment calculation (message 16)
+ */
+#ifndef THRUST_INCREMENT_ID
+#define THRUST_INCREMENT_ID 1
+#endif
 
 #endif /* ABI_SENDER_IDS_H */

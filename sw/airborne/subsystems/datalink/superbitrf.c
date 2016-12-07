@@ -69,6 +69,9 @@ PRINT_CONFIG_VAR(SUPERBITRF_FORCE_DSM2)
 /* The superbitRF structure */
 struct SuperbitRF superbitrf;
 
+/* The pprz transport structure */
+struct pprz_transport pprz_srf_tp;
+
 /* The internal functions */
 static inline void superbitrf_radio_to_channels(uint8_t *data, uint8_t nb_channels, bool is_11bit, int16_t *channels);
 static inline void superbitrf_receive_packet_cb(bool error, uint8_t status, uint8_t packet[]);
@@ -269,6 +272,23 @@ void superbitrf_init(void)
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_SUPERBITRF, send_superbit);
 #endif
+}
+
+/**
+ * Initialize datalink part
+ */
+void superbitrf_dl_init(void)
+{
+  // Init pprz transport
+  pprz_transport_init(&pprz_srf_tp);
+}
+
+/**
+ * The superbitrf datalink event call
+ */
+void superbitrf_dl_event(void)
+{
+  DlCheckAndParse(&DOWNLINK_DEVICE.device, &pprz_srf_tp.trans_tx, dl_buffer);
 }
 
 void superbitrf_set_mfg_id(uint32_t id)
@@ -562,11 +582,6 @@ void superbitrf_event(void)
           break;
         case 5:
           superbitrf.state = 7;
-          break;
-          // Start receiving
-          cyrf6936_multi_write(&superbitrf.cyrf6936, cyrf_start_receive, 2);
-          superbitrf.timer = (get_sys_time_usec() + SUPERBITRF_DATARECVB_TIME) % 0xFFFFFFFF;
-          superbitrf.state++;
           break;
         case 6:
           // Wait for telemetry data

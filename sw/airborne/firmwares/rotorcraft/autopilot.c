@@ -241,6 +241,21 @@ static void send_fp(struct transport_tx *trans, struct link_device *dev)
                               &autopilot_flight_time);
 }
 
+static void send_fp_min(struct transport_tx *trans, struct link_device *dev)
+{
+#if USE_GPS
+  uint16_t gspeed = gps.gspeed;
+#else
+  // ground speed in cm/s
+  uint16_t gspeed = stateGetHorizontalSpeedNorm_f() / 100;
+#endif
+  pprz_msg_send_ROTORCRAFT_FP_MIN(trans, dev, AC_ID,
+                              &(stateGetPositionEnu_i()->x),
+                              &(stateGetPositionEnu_i()->y),
+                              &(stateGetPositionEnu_i()->z),
+                              &gspeed);
+}
+
 #ifdef RADIO_CONTROL
 static void send_rc(struct transport_tx *trans, struct link_device *dev)
 {
@@ -328,6 +343,7 @@ void autopilot_init(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ATTITUDE, send_attitude);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ENERGY, send_energy);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ROTORCRAFT_FP, send_fp);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ROTORCRAFT_FP_MIN, send_fp_min);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ROTORCRAFT_CMD, send_rotorcraft_cmd);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DL_VALUE, send_dl_value);
 #ifdef ACTUATORS
@@ -399,6 +415,25 @@ void autopilot_periodic(void)
     SetRotorcraftCommands(stabilization_cmd, autopilot_in_flight, autopilot_motors_on);
   }
 
+}
+
+/** AP mode setting handler
+ *
+ * Checks RC status before calling autopilot_set_mode function
+ */
+void autopilot_SetModeHandler(float mode)
+{
+  if (mode == AP_MODE_KILL || mode == AP_MODE_FAILSAFE || mode == AP_MODE_HOME) {
+    // safety modes are always accessible via settings
+    autopilot_set_mode(mode);
+  } else {
+    if (radio_control.status != RC_OK &&
+        (mode == AP_MODE_NAV || mode == AP_MODE_GUIDED || mode == AP_MODE_FLIP || mode == AP_MODE_MODULE)) {
+      // without RC, only nav-like modes are accessible
+      autopilot_set_mode(mode);
+    }
+  }
+  // with RC, other modes can only be changed from the RC
 }
 
 
@@ -528,123 +563,6 @@ void autopilot_set_mode(uint8_t new_autopilot_mode)
   }
 }
 
-bool autopilot_guided_goto_ned(float x, float y, float z, float heading)
-{
-  if (autopilot_mode == AP_MODE_GUIDED) {
-    guidance_h_set_guided_pos(x, y);
-    guidance_h_set_guided_heading(heading);
-    guidance_v_set_guided_z(z);
-    return true;
-  }
-  return false;
-}
-
-bool autopilot_guided_goto_ned_relative(float dx, float dy, float dz, float dyaw)
-{
-  if (autopilot_mode == AP_MODE_GUIDED && stateIsLocalCoordinateValid()) {
-    float x = stateGetPositionNed_f()->x + dx;
-    float y = stateGetPositionNed_f()->y + dy;
-    float z = stateGetPositionNed_f()->z + dz;
-    float heading = stateGetNedToBodyEulers_f()->psi + dyaw;
-    return autopilot_guided_goto_ned(x, y, z, heading);
-  }
-  return false;
-}
-
-bool autopilot_guided_goto_body_relative(float dx, float dy, float dz, float dyaw)
-{
-  if (autopilot_mode == AP_MODE_GUIDED && stateIsLocalCoordinateValid()) {
-    float psi = stateGetNedToBodyEulers_f()->psi;
-    float x = stateGetPositionNed_f()->x + cosf(-psi) * dx + sinf(-psi) * dy;
-    float y = stateGetPositionNed_f()->y - sinf(-psi) * dx + cosf(-psi) * dy;
-    float z = stateGetPositionNed_f()->z + dz;
-    float heading = psi + dyaw;
-    return autopilot_guided_goto_ned(x, y, z, heading);
-  }
-  return false;
-}
-
-bool autopilot_guided_move_ned(float vx, float vy, float vz, float heading)
-{
-  if (autopilot_mode == AP_MODE_GUIDED) {
-    guidance_h_set_guided_vel(vx, vy);
-    guidance_h_set_guided_heading(heading);
-    guidance_v_set_guided_vz(vz);
-    return true;
-  }
-  return false;
-}
-
-/* Set guided mode setpoint
- * Note: Offset position command in NED frame or body frame will only be implemented if
- * local reference frame has been initialised.
- * Flag definition:
-   bit 0: x,y as offset coordinates
-   bit 1: x,y in body coordinates
-   bit 2: z as offset coordinates
-   bit 3: yaw as offset coordinates
-   bit 4: free
-   bit 5: x,y as vel
-   bit 6: z as vel
-   bit 7: yaw as rate
- */
-void autopilot_guided_update(uint8_t flags, float x, float y, float z, float yaw)
-{
-  /* only update setpoints when in guided mode */
-  if (autopilot_mode != AP_MODE_GUIDED) {
-    return;
-  }
-
-  // handle x,y
-  struct FloatVect2 setpoint = {.x = x, .y = y};
-  if (bit_is_set(flags, 5)) { // velocity setpoint
-    if (bit_is_set(flags, 1)) { // set velocity in body frame
-      guidance_h_set_guided_body_vel(setpoint.x, setpoint.y);
-    }
-    guidance_h_set_guided_vel(setpoint.x, setpoint.y);
-  } else {  // position setpoint
-    if (!bit_is_set(flags, 0) && !bit_is_set(flags, 1)) {   // set absolute position setpoint
-      guidance_h_set_guided_pos(setpoint.x, setpoint.y);
-    } else {
-      if (stateIsLocalCoordinateValid()) {
-        if (bit_is_set(flags, 1)) {  // set position as offset in body frame
-          float psi = stateGetNedToBodyEulers_f()->psi;
-
-          setpoint.x = stateGetPositionNed_f()->x + cosf(-psi) * x + sinf(-psi) * y;
-          setpoint.y = stateGetPositionNed_f()->y - sinf(-psi) * x + cosf(-psi) * y;
-        } else {                     // set position as offset in NED frame
-          setpoint.x += stateGetPositionNed_f()->x;
-          setpoint.y += stateGetPositionNed_f()->y;
-        }
-        guidance_h_set_guided_pos(setpoint.x, setpoint.y);
-      }
-    }
-  }
-
-  //handle z
-  if (bit_is_set(flags, 6)) { // speed set-point
-    guidance_v_set_guided_vz(z);
-  } else {    // position set-point
-    if (bit_is_set(flags, 2)) { // set position as offset in NED frame
-      if (stateIsLocalCoordinateValid()) {
-        z += stateGetPositionNed_f()->z;
-        guidance_v_set_guided_z(z);
-      }
-    } else {
-      guidance_v_set_guided_z(z);
-    }
-  }
-
-  //handle yaw
-  if (bit_is_set(flags, 7)) { // speed set-point
-    guidance_h_set_guided_heading_rate(z);
-  } else {    // position set-point
-    if (bit_is_set(flags, 3)) { // set yaw as offset
-      yaw += stateGetNedToBodyEulers_f()->psi;  // will be wrapped to [-pi,pi] later
-    }
-    guidance_h_set_guided_heading(yaw);
-  }
-}
 
 void autopilot_check_in_flight(bool motors_on)
 {
@@ -692,10 +610,41 @@ void autopilot_set_motors_on(bool motors_on)
   autopilot_arming_set(autopilot_motors_on);
 }
 
+#if defined RADIO_MODE_2x3
+
+#define THRESHOLD_1d3_PPRZ (MAX_PPRZ / 3)
+#define THRESHOLD_2d3_PPRZ ((MAX_PPRZ / 3) * 2)
+/** Get autopilot mode as set by a RADIO_MODE 3-way switch and a 2-way switch, which are mixed together
+ *  The 2 way switch negates the value, the 3 way switch changes in three steps from 0 - MAX_PPRZ.
+ *  E.g. SW_1 has two positions (On/Off), SW_Mode has three positions (M1/M2/M3)
+ *   1	Mode value
+ *   Off	M1	-9500
+ *   Off	M2	-4800
+ *   Off	M3	-1850
+ *   On	M1	2100
+ *   On	M2	4900
+ *   On	M3	9600
+ *  This function filters out the effect of SW_1, such that a normal 3-way switch comes out.
+**/
+static uint8_t ap_mode_of_3x2way_switch(void)
+{
+    int val = radio_control.values[RADIO_MODE];
+    if (radio_control.values[RADIO_MODE] < 0) {
+        val = MAX_PPRZ + val;
+    }
+    if (val < THRESHOLD_1d3_PPRZ) {
+        return MODE_MANUAL;
+    } else if (val < THRESHOLD_2d3_PPRZ) {
+        return MODE_AUTO1;
+    } else {
+        return autopilot_mode_auto2;
+    }
+}
+
+#else
 
 #define THRESHOLD_1_PPRZ (MIN_PPRZ / 2)
 #define THRESHOLD_2_PPRZ (MAX_PPRZ / 2)
-
 /** get autopilot mode as set by RADIO_MODE 3-way switch */
 static uint8_t ap_mode_of_3way_switch(void)
 {
@@ -707,6 +656,7 @@ static uint8_t ap_mode_of_3way_switch(void)
     return MODE_MANUAL;
   }
 }
+#endif
 
 /**
  * Get autopilot mode from two 2way switches.
@@ -745,7 +695,11 @@ void autopilot_on_rc_frame(void)
     INFO("Using RADIO_AUTO_MODE to switch between AUTO1 and AUTO2.")
     uint8_t new_autopilot_mode = ap_mode_of_two_switches();
 #else
+#ifdef RADIO_MODE_2x3
+    uint8_t new_autopilot_mode = ap_mode_of_3x2way_switch();
+#else
     uint8_t new_autopilot_mode = ap_mode_of_3way_switch();
+#endif
 #endif
 
     /* don't enter NAV mode if GPS is lost (this also prevents mode oscillations) */

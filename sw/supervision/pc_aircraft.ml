@@ -165,9 +165,9 @@ let save_callback = fun ?user_save gui ac_combo tree tree_modules () ->
 type selected_t = Selected | Unselected | Unknown
 
 (* Get the settings (string list) with current modules *)
-let get_settings_modules = fun ac_xml fp_xml settings_modules ->
+let get_settings_modules = fun ac_id ac_xml fp_xml settings_modules ->
   (* get modules *)
-  let modules = Gen_common.get_modules_of_config ac_xml fp_xml in
+  let modules = Gen_common.get_modules_of_config ac_id ac_xml fp_xml in
   let modules = List.map (fun m -> m.Gen_common.xml, m.Gen_common.file ) modules in
   (* get list of settings files *)
   let settings = List.fold_left (fun l (m, f) ->
@@ -318,8 +318,9 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo flash_com
       in
       let fp_file = (Env.paparazzi_home // "conf" // (Xml.attrib aircraft "flight_plan")) in
       let fp_xml = ExtXml.parse_file fp_file in
+      let ac_id = ExtXml.attrib aircraft "ac_id" in
       let settings_modules = try
-        get_settings_modules af_xml fp_xml (ExtXml.attrib_or_default aircraft "settings_modules" "")
+        get_settings_modules ac_id af_xml fp_xml (ExtXml.attrib_or_default aircraft "settings_modules" "")
       with
       | Failure x -> prerr_endline x; []
       | _ -> []
@@ -338,8 +339,7 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo flash_com
           let names = Str.split regexp_space (value a) in
           List.iter (Gtk_tools.add_to_tree t) names;
       ) ac_files;
-      let ac_id = ExtXml.attrib aircraft "ac_id"
-      and gui_color = ExtXml.attrib_or_default aircraft "gui_color" "white" in
+      let gui_color = ExtXml.attrib_or_default aircraft "gui_color" "white" in
       gui#button_clean#misc#set_sensitive true;
       gui#button_build#misc#set_sensitive true;
       gui#button_upload#misc#set_sensitive true;

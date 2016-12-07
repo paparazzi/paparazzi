@@ -29,6 +29,7 @@
 #include "led.h"
 #define DATALINK_C
 #include "subsystems/datalink/downlink.h"
+#include "modules/datalink/pprz_dl.h"
 #include "mcu_periph/can.h"
 
 static inline void main_init(void);
@@ -70,7 +71,8 @@ static inline void main_init(void)
   mcu_init();
   sys_time_register_timer((0.5 / PERIODIC_FREQUENCY), NULL);
   downlink_init();
-  ppz_can_init(main_on_can_msg);
+  pprz_dl_init();
+  ppz_can_init((can_rx_callback_t)main_on_can_msg);
 }
 
 static inline void main_periodic_task(void)

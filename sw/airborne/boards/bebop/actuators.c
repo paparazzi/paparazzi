@@ -26,11 +26,11 @@
  */
 
 #include "subsystems/actuators.h"
-#include "subsystems/actuators/motor_mixing.h"
 #include "subsystems/electrical.h"
 #include "actuators.h"
 #include "led_hw.h"
 #include "autopilot.h"
+#include "subsystems/abi.h"
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
@@ -137,6 +137,8 @@ void actuators_bebop_commit(void)
 
     actuators_bebop.led = led_hw_values & 0x3;
   }
+  // Send ABI message
+  AbiSendMsgRPM(RPM_SENSOR_ID, actuators_bebop.rpm_obs, 4);
 }
 
 static uint8_t actuators_bebop_checksum(uint8_t *bytes, uint8_t size)

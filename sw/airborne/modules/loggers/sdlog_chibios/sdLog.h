@@ -48,7 +48,7 @@ extern "C" {
     ° _FS_LOCK : number of simultaneously open file
     ° _FS_REENTRANT : If you need to open / close file during log, this should be set to 1 at
                        the expense of more used cam and cpu.
-                    If you open all files prior to log data on them, it should be left to 0
+                      If you open all files prior to log data on them, it should be left to 0
 
  MCUCONF.H (or any other header included before sdLog.h
  ° SDLOG_ALL_BUFFERS_SIZE : (in bytes) cache buffer size shared between all opened log file
@@ -59,7 +59,7 @@ extern "C" {
  sdLogInit (initialize peripheral,  verify sdCard availibility)
  sdLogOpenLog : open file
  sdLogWriteXXX
-r sdLogFlushLog : flush buffer (optional)
+ sdLogFlushLog : flush buffer (optional)
  sdLogCloseLog
  sdLogFinish
 
@@ -92,34 +92,39 @@ typedef enum {
   SDLOG_QUEUEFULL,
   SDLOG_NOTHREAD,
   SDLOG_INTERNAL_ERROR,
-  SDLOG_LOGNUM_ERROR
+  SDLOG_LOGNUM_ERROR,
+  SDLOG_WAS_LAUNCHED
 } SdioError;
 
-
+typedef struct _SdLogBuffer SdLogBuffer;
 typedef int8_t FileDes;
+
+
 
 /**
  * @brief initialise sdLog
  * @details init sdio peripheral, verify sdCard is inserted, check and mount filesystem,
- *    launch worker thread
- *              This function is available even without thread login facility : even
- *    if SDLOG_XXX macro are zeroed
+ *          launch worker thread
+ *          This function is available even without thread login facility : even
+ *          if SDLOG_XXX macro are zeroed
  * @param[out]  freeSpaceInKo : if pointer in nonnull, return free space on filesystem
+ * @return status (always check status)
  */
 SdioError sdLogInit(uint32_t *freeSpaceInKo);
 
 /**
  * @brief get last used name for a pattern, then add offset and return valid filename
  * @details for log file, you often have a pattern and a version. To retreive last
- *    file for reading, call function with indexOffset=0. To get next
- *              available file for writing, call function with indexOffset=1
- *              This function is available even without thread login facility : even
- *    if SDLOG_XXX macro are zeroed
+ *          file for reading, call function with indexOffset=0. To get next
+ *          available file for writing, call function with indexOffset=1
+ *          This function is available even without thread login facility : even
+ *          if SDLOG_XXX macro are zeroed
  * @param[in] prefix : the pattern for the file : example LOG_
  * @param[in] directoryName : root directory where to find file
  * @param[out]  nextFileName : file with path ready to be used for f_open system call
  * @param[in] nameLength : length of previous buffer
  * @param[in] indexOffset : use 0 to retrieve last existent filename, 1 for next filename
+ * @return status (always check status)
  */
 SdioError getFileName(const char *prefix, const char *directoryName,
                       char *nextFileName, const size_t nameLength, const int indexOffset);
@@ -130,20 +135,22 @@ SdioError getFileName(const char *prefix, const char *directoryName,
 /**
  * @brief remove spurious log file left on sd
  * @details when tuning firmware, log files are created at each tries, and we consider
- *    that empty or nearly empty log are of no value
- *              this function remove log file whose size is less than a given value
+ *          that empty or nearly empty log are of no value
+ *          this function remove log file whose size is less than a given value
  *
  * @param[in] prefix : the pattern for the file : example LOG_
  * @param[in] directoryName : root directory where to find file
  * @param[in] sizeConsideredEmpty : file whose size is less or equal to that value will be removed
+ * @return status (always check status)
  */
 SdioError removeEmptyLogs(const char *directoryName, const char *prefix,
                           const size_t sizeConsideredEmpty);
 /**
  * @brief unmount filesystem
  * @details unmount filesystem, free sdio peripheral
- *              This function is available even without thread login facility : even
- *    if SDLOG_XXX macro are zeroed
+ *          This function is available even without thread login facility : even
+ *          if SDLOG_XXX macro are zeroed
+ * @return status (always check status)
  */
 SdioError sdLogFinish(void);
 
@@ -156,8 +163,9 @@ SdioError sdLogFinish(void);
  * @param[in] directoryName : name of directory just under ROOT, created if nonexistant
  * @param[in] fileName : the name will be appended with 3 digits number
  * @param[in] appendTagAtClose : at close, a marker will be added to prove that the file is complete
- *    and not corrupt. useful for text logging purpose, but probably not wanted fort binary
- *    files.
+ *            and not corrupt. useful for text logging purpose, but probably not wanted fort binary
+ *            files.
+ * @return status (always check status)
  */
 SdioError sdLogOpenLog(FileDes *fileObject, const char *directoryName, const char *fileName,
                        bool appendTagAtClose);
@@ -166,6 +174,7 @@ SdioError sdLogOpenLog(FileDes *fileObject, const char *directoryName, const cha
 /**
  * @brief flush ram buffer associated with file to sdCard
  * @param[in] fileObject : file descriptor returned by sdLogOpenLog
+ * @return status (always check status)
  */
 SdioError sdLogFlushLog(const FileDes fileObject);
 
@@ -173,6 +182,7 @@ SdioError sdLogFlushLog(const FileDes fileObject);
 /**
  * @brief flush ram buffer then close file.
  * @param[in] fileObject : file descriptor returned by sdLogOpenLog
+ * @return status (always check status)
  */
 SdioError sdLogCloseLog(const FileDes fileObject);
 
@@ -181,18 +191,17 @@ SdioError sdLogCloseLog(const FileDes fileObject);
  * @param[in] flush : if true : flush all ram buffers before closing (take more time)
  *      if false : close imediatly files without flushing buffers,
  *                 more chance to keep filesystem integrity in case of
- *           emergency close after power outage is detected
+ *                 emergency close after power outage is detected
+ * @return status (always check status)
  */
 SdioError sdLogCloseAllLogs(bool flush);
-
-
-
 
 
 /**
  * @brief log text
  * @param[in] fileObject : file descriptor returned by sdLogOpenLog
  * @param[in] fmt : format and args in printf convention
+ * @return status (always check status)
  */
 SdioError sdLogWriteLog(const FileDes fileObject, const char *fmt, ...);
 
@@ -202,14 +211,72 @@ SdioError sdLogWriteLog(const FileDes fileObject, const char *fmt, ...);
  * @param[in] fileObject : file descriptor returned by sdLogOpenLog
  * @param[in] buffer : memory pointer on buffer
  * @param[in] len : number of bytes to write
+ * @return status (always check status)
  */
 SdioError sdLogWriteRaw(const FileDes fileObject, const uint8_t *buffer, const size_t len);
+
+/**
+ * @brief log binary data limiting buffer copy by preallocating space
+ * @param[in] len : number of bytes to write
+ * @param[out] sdb : pointer to opaque object pointer containing buffer
+ *                   there is two accessor functions (below) to access
+ *                   buffer ptr and buffer len.
+ * @details usage of the set of 4 functions :
+ *          SdLogBuffer *sdb;
+ *          sdLogAllocSDB (&sdb, 100);
+ *          memcpy (getBufferFromSDB(sdb), SOURCE, offset);
+ *          sdLogSeekBufferFromSDB (sdb, offset);
+ *          sdLogWriteSDB (file, sdb);
+ * @return status (always check status)
+ */
+SdioError sdLogAllocSDB(SdLogBuffer **sdb, const size_t len);
+
+/**
+ * @brief return a pointer of the writable area of a preallocated
+ *        message + offset managed by sdLogSeekBufferFromSDB
+ * @param[in] sdb : pointer to opaque object containing buffer
+ *                  and previously filled by sdLogAllocSDB
+ * @return pointer to writable area
+ */
+char *sdLogGetBufferFromSDB(SdLogBuffer *sdb);
+
+
+/**
+ * @brief manage internal offset in user buffer
+ * @param[in] sdb : pointer to opaque object containing buffer
+ *            and previously filled by sdLogAllocSDB
+ *            offset : increment internal offset with this value
+ * @return true if offset is withing internal buffer boundary
+ *         false if offset is NOT withing internal buffer boundary, in this case,
+ *         no keek is done
+ */
+bool sdLogSeekBufferFromSDB(SdLogBuffer *sdb, uint32_t offset);
+
+
+/**
+ * @brief return len of the writable area of a preallocated message (this take into account
+ *        the offset)
+ * @param[in] sdb : pointer to opaque object containing buffer
+ *            and previously filled by sdLogAllocSDB
+ * @return len of writable area
+ */
+size_t sdLogGetBufferLenFromSDB(SdLogBuffer *sdb);
+
+/**
+ * @brief send a preallocted message after it has been filled
+ * @param[in] fileObject : file descriptor returned by sdLogOpenLog
+ * @param[in] sdb : pointer to opaque object containing buffer
+ *                  and previously filled by sdLogAllocSDB
+ * @return status (always check status)
+*/
+SdioError sdLogWriteSDB(const FileDes fd, SdLogBuffer *sdb);
 
 
 /**
  * @brief log one byte of binary data
  * @param[in] fileObject : file descriptor returned by sdLogOpenLog
  * @param[in] value : byte to log
+ * @return status (always check status)
  */
 SdioError sdLogWriteByte(const FileDes fileObject, const uint8_t value);
 #endif

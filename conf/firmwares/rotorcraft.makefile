@@ -122,6 +122,7 @@ else
 ifneq ($(TARGET), fbw)
 $(TARGET).srcs += $(SRC_FIRMWARE)/main.c
 $(TARGET).srcs += $(SRC_FIRMWARE)/autopilot.c
+$(TARGET).srcs += $(SRC_FIRMWARE)/autopilot_guided.c
 else
 $(TARGET).srcs += $(SRC_FIRMWARE)/main_fbw.c
 endif # TARGET == fbw
@@ -221,5 +222,4 @@ fbw.srcs 		+= $(ns_srcs)
 ##
 include $(CFG_SHARED)/nps.makefile
 nps.srcs += nps/nps_autopilot_rotorcraft.c
-nps.srcs += $(SRC_FIRMWARE)/rotorcraft_telemetry.c
-nps.srcs += subsystems/datalink/datalink.c $(SRC_FIRMWARE)/rotorcraft_datalink.c
+

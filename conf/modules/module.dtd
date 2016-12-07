@@ -30,7 +30,8 @@
 
 <!ATTLIST module
 name CDATA #REQUIRED
-dir CDATA #IMPLIED>
+dir CDATA #IMPLIED
+task CDATA #IMPLIED>
 
 <!ATTLIST autoload
 name CDATA #REQUIRED
@@ -78,6 +79,7 @@ description CDATA #IMPLIED>
 <!ATTLIST define
 name CDATA #REQUIRED
 value CDATA #IMPLIED
+integer CDATA #IMPLIED
 unit CDATA #IMPLIED
 type CDATA #IMPLIED
 description CDATA #IMPLIED

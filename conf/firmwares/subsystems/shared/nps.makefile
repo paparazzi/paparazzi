@@ -1,11 +1,15 @@
 # Hey Emacs, this is a -*- makefile -*-
 
 #
-# NPS SITL Simulator
+# NPS Simulator
+#
+# Common makefile for both SITL/HITL simulation
 #
 # still needs a FDM backend to be specified, e.g.
 # <subsystem name="fdm" type="jsbsim"/>
 #
+
+USE_HITL ?= 0
 
 nps.ARCHDIR = sim
 
@@ -13,9 +17,17 @@ nps.ARCHDIR = sim
 nps.MAKEFILE = nps
 
 nps.CFLAGS  += -DSITL -DUSE_NPS
-nps.CFLAGS  += $(shell pkg-config glib-2.0 --cflags)
-nps.LDFLAGS += $(shell pkg-config glib-2.0 --libs) -lm -lglibivy $(shell pcre-config --libs) -lgsl -lgslcblas
+nps.LDFLAGS += -lm -livy $(shell pcre-config --libs) -lgsl -lgslcblas
+
+# detect system arch and include rt and pthread library only on linux
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Linux)
+  nps.LDFLAGS += -lrt -pthread
+endif
+
 nps.CFLAGS  += -I$(SRC_FIRMWARE) -I$(SRC_BOARD) -I$(PAPARAZZI_SRC)/sw/simulator -I$(PAPARAZZI_SRC)/sw/simulator/nps -I$(PAPARAZZI_HOME)/conf/simulator/nps
+
+# sdl needed for joystick input
 nps.LDFLAGS += $(shell sdl-config --libs)
 
 
@@ -25,7 +37,7 @@ nps.LDFLAGS += $(shell sdl-config --libs)
 VPATH += $(PAPARAZZI_SRC)/sw/simulator
 
 NPSDIR = nps
-nps.srcs += $(NPSDIR)/nps_main.c                 \
+nps.srcs +=                                      \
        $(NPSDIR)/nps_random.c                    \
        $(NPSDIR)/nps_sensors.c                   \
        $(NPSDIR)/nps_sensors_utils.c             \
@@ -39,15 +51,19 @@ nps.srcs += $(NPSDIR)/nps_main.c                 \
        $(NPSDIR)/nps_sensor_temperature.c        \
        $(NPSDIR)/nps_electrical.c                \
        $(NPSDIR)/nps_atmosphere.c                \
+       $(NPSDIR)/nps_ivy.c                       \
+       $(NPSDIR)/nps_flightgear.c                \
        $(NPSDIR)/nps_radio_control.c             \
        $(NPSDIR)/nps_radio_control_joystick.c    \
        $(NPSDIR)/nps_radio_control_spektrum.c    \
-       $(NPSDIR)/nps_ivy.c                       \
-       $(NPSDIR)/nps_flightgear.c
+       $(NPSDIR)/nps_main_common.c
+
+ifeq ($(USE_HITL),1)
+include $(CFG_SHARED)/nps_hitl.makefile
+else
+include $(CFG_SHARED)/nps_sitl.makefile
+endif
 
 # for geo mag calculation
 nps.srcs += math/pprz_geodetic_wmm2015.c
 
-ifeq ($(TARGET), nps)
-include $(CFG_SHARED)/telemetry_transparent_udp.makefile
-endif

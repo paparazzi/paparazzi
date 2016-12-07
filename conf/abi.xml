@@ -73,11 +73,24 @@
       <field name="z" type="float" unit="m/s"/>
       <field name="noise" type="float"/>
     </message>
-    
+
     <message name="RSSI" id="13">
       <field name="ac_id" type="uint8_t"/>
       <field name="source_strength" type="int8_t" unit="dB"/>
       <field name="rssi" type="int8_t" unit="dB"/>
+    </message>
+
+    <message name="AIRSPEED" id="14">
+      <field name="eas" type="float" unit="m/s"/>
+    </message>
+
+    <message name="RPM" id="15">
+      <field name="rpm" type="uint16_t *" unit="rpm"/>
+      <field name="num_act" type="uint8_t"/>
+    </message>
+
+    <message name="THRUST" id="16">
+      <field name="thrust_increment" type="float" unit="m/s^2"/>
     </message>
 
   </msg_class>

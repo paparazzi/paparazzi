@@ -28,6 +28,7 @@
 #define BLUEGIGA_DATA_LINK_H
 
 #include "pprzlink/pprzlink_device.h"
+#include "pprzlink/pprz_transport.h"
 #include "subsystems/datalink/datalink.h"
 
 /* The different statuses the communication can be in */
@@ -46,6 +47,8 @@ enum BlueGigaStatus {
 #error "BLUEGIGA_BUFFER_SIZE not made for sizes larger than 256, check subsystems/datalink/bluegiga.c for more information"
 #endif
 
+#define BLUEGIGA_SPI_BUF_SIZE 20
+
 struct bluegiga_periph {
   /* Receive buffer */
   uint8_t rx_buf[BLUEGIGA_BUFFER_SIZE];
@@ -56,8 +59,8 @@ struct bluegiga_periph {
   uint8_t tx_insert_idx;
   uint8_t tx_extract_idx;
   /* transmit and receive buffers */
-  uint8_t work_tx[20];
-  uint8_t work_rx[20];
+  uint8_t work_tx[BLUEGIGA_SPI_BUF_SIZE];
+  uint8_t work_rx[BLUEGIGA_SPI_BUF_SIZE];
   /** Generic device interface */
   struct link_device device;
 

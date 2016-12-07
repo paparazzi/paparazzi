@@ -118,7 +118,7 @@
 
 
 #define MPU9250_REG_WHO_AM_I        0x75
-#define MPU9250_WHOAMI_REPLY        0x68
+#define MPU9250_WHOAMI_REPLY        0x71
 
 // Bit positions
 #define MPU9250_I2C_BYPASS_EN       1

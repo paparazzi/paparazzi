@@ -167,6 +167,9 @@ ext:
 	$(MAKE) -C $(EXT)
 	$(MAKE) -C $(TOOLS)/bluegiga_usb_dongle
 
+opencv_bebop:
+	$(MAKE) -C $(EXT) opencv_bebop
+
 #
 # make misc subdirs
 #
@@ -301,11 +304,15 @@ ab_clean:
 #
 test: test_math test_examples
 
+# subset of airframes for coverity test to pass the limited build time on travis
+test_coverity: all
+	CONF_XML=conf/conf_tests_coverity.xml prove tests/aircrafts/
+
 # compiles all aircrafts in conf_tests.xml
 test_examples: all
 	CONF_XML=conf/conf_tests.xml prove tests/aircrafts/
 
-test_all_confs: all
+test_all_confs: all opencv_bebop
 	$(Q)$(eval $CONFS:=$(shell ./find_confs.py))
 	@echo "************\nFound $(words $($CONFS)) config files: $($CONFS)"
 	$(Q)$(foreach conf,$($CONFS),echo "\n************\nTesting all aircrafts in conf: $(conf)\n************" && (CONF_XML=$(conf) prove tests/aircrafts/ || echo "failed $(conf)" >> TEST_ALL_CONFS_FAILED);) test -f TEST_ALL_CONFS_FAILED && cat TEST_ALL_CONFS_FAILED && rm -f TEST_ALL_CONFS_FAILED && exit 1; exit 0
@@ -322,6 +329,6 @@ test_sim: all
 
 .PHONY: all print_build_version _print_building _save_build_version update_google_version init dox ground_segment ground_segment.opt \
 subdirs $(SUBDIRS) conf ext libpprz libpprzlink cockpit cockpit.opt tmtc tmtc.opt generators\
-static sim_static lpctools commands \
+static sim_static lpctools commands opencv_bebop\
 clean cleanspaces ab_clean dist_clean distclean dist_clean_irreversible \
 test test_examples test_math test_sim test_all_confs

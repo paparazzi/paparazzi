@@ -5,7 +5,6 @@
   <firmware name="rotorcraft">
 
     <target name="ap" board="bebop">
-      <module name="telemetry" type="transparent_udp"/>
       <module name="radio_control" type="datalink"/>
     </target>
 
@@ -16,6 +15,7 @@
 
     <!--define name="USE_SONAR" value="TRUE"/-->
 
+    <module name="telemetry" type="transparent_udp"/>
     <!-- Subsystem section -->
     <module name="motor_mixing"/>
     <module name="actuators" type="bebop"/>

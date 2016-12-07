@@ -38,7 +38,7 @@
   <modules>
     <module name="geo_mag"/>
     <module name="air_data"/>
-    <module name="servo_switch"/>
+    <module name="switch" type="servo"/>
     <!--module name="gps" type="ubx_ucenter"/-->
   </modules>
 
@@ -66,12 +66,12 @@
     <define name="REVERSE" value="TRUE"/>
   </section>
 
-  <section name="SERVO_SWITCH">
-    <define name="SERVO_SWITCH_SERVO" value="DROP"/>
-    <define name="SERVO_SWITCH_ON_VALUE" value="SERVO_DROP_MIN"/>
-    <define name="SERVO_SWITCH_OFF_VALUE" value="SERVO_DROP_MAX"/>
-    <define name="DropOpen()" value="ServoSwitchOn()"/>
-    <define name="DropClose()" value="ServoSwitchOff()"/>
+  <section name="SWITCH_SERVO">
+    <define name="SWITCH_SERVO_SERVO" value="DROP"/>
+    <define name="SWITCH_SERVO_ON_VALUE" value="SERVO_DROP_MIN"/>
+    <define name="SWITCH_SERVO_OFF_VALUE" value="SERVO_DROP_MAX"/>
+    <define name="DropOpen()" value="SwitchServoOn()"/>
+    <define name="DropClose()" value="SwitchServoOff()"/>
   </section>
 
   <command_laws>

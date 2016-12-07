@@ -80,8 +80,7 @@ extern struct ImuNps imu_nps;
 extern void imu_feed_gyro_accel(void);
 extern void imu_feed_mag(void);
 
+extern void imu_nps_init(void);
 extern void imu_nps_event(void);
-
-#define ImuEvent imu_nps_event
 
 #endif /* IMU_NPS_H */

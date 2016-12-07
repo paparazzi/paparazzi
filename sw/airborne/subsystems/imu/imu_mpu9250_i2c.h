@@ -77,8 +77,8 @@ struct ImuMpu9250 {
 
 extern struct ImuMpu9250 imu_mpu9250;
 
+extern void imu_mpu9250_init(void);
+extern void imu_mpu9250_periodic(void);
 extern void imu_mpu9250_event(void);
-
-#define ImuEvent imu_mpu9250_event
 
 #endif /* IMU_MPU9250_I2C_H */

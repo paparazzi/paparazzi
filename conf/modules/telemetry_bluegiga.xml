@@ -1,0 +1,66 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="telemetry_bluegiga" dir="datalink" task="datalink">
+  <doc>
+    <description>
+      Telemetry using PPRZ protocol over Bluegiga modules
+
+      Bluegiga is a SPI-slave device without Chip select but with a compulsory DRDY
+
+      Required:
+      BLUEGIGA_SPI_DEV: the SPI device which MUST have a SLAVE mode without chipselect
+
+      Optional: (defaults to SUPERBITRF DRDY)
+      BLUEGIGA_DRDY_GPIO
+      BLUEGIGA_DRDY_GPIO_PIN
+
+      On Lisa-s, the Superbit-RF module can be replaced with a bluegiga-bluetooth 4 low power board.
+      This module puts the telemetry over this bluetooth 4 link.
+    </description>
+    <configure name="BLUEGIGA_SPI_DEV" value="SPIx" description="SPI where the modem is connected to (SPI1, SPI2, etc)"/>
+    <configure name="MODEM_LED" value="none" description="LED number for modem status, 'none' to disable"/>
+    <define name="BLUEGIGA_DRDY_GPIO" value="GPIOX" description="GPIO port used for data ready pin"/>
+    <define name="BLUEGIGA_DRDY_GPIO_PIN" value="GPIOY" description="GPIO pin number used for data ready pin"/>
+  </doc>
+  <autoload name="telemetry" type="nps"/>
+  <autoload name="telemetry" type="sim"/>
+  <header>
+    <file name="bluegiga_dl.h"/>
+  </header>
+  <init fun="bluegiga_dl_init()"/>
+  <event fun="bluegiga_dl_event()"/>
+  <makefile target="!fbw|sim|nps">
+    <raw>
+      include $(CFG_SHARED)/spi_master.makefile
+    </raw>
+    <configure name="BLUEGIGA_SPI_DEV" default="SPI2" case="upper|lower"/>
+    <configure name="MODEM_LED" default="none"/>
+    <define name="USE_$(BLUEGIGA_SPI_DEV_UPPER)_SLAVE"/>
+    <define name="SPI_SLAVE"/>
+    <define name="BLUEGIGA_SPI_DEV" value="$(BLUEGIGA_SPI_DEV_LOWER)"/>
+    <define name="MODEM_LED" value="$(MODEM_LED)" cond="ifneq ($(MODEM_LED),none)"/>
+    <define name="DOWNLINK"/>
+    <define name="PERIODIC_TELEMETRY"/>
+    <define name="DOWNLINK_DEVICE" value="bluegiga_p"/>
+    <define name="DOWNLINK_TRANSPORT" value="pprz_bg_tp"/>
+    <define name="DATALINK" value="BLUEGIGA"/>
+    <file name="bluegiga_dl.c"/>
+    <file name="downlink.c" dir="subsystems/datalink"/>
+    <file name="datalink.c" dir="subsystems/datalink"/>
+    <file name="telemetry.c" dir="subsystems/datalink"/>
+    <file name="pprz_transport.c" dir="pprzlink/src"/>
+    <file name="bluegiga.c" dir="subsystems/datalink"/>
+  </makefile>
+  <makefile target="ap" firmware="fixedwing">
+    <file name="fixedwing_datalink.c" dir="$(SRC_FIRMWARE)"/>
+    <file name="ap_downlink.c" dir="$(SRC_FIRMWARE)"/>
+  </makefile>
+  <makefile target="ap|fbw" firmware="fixedwing">
+    <file name="fbw_downlink.c" dir="$(SRC_FIRMWARE)"/>
+  </makefile>
+  <makefile target="ap" firmware="rotorcraft">
+    <file name="rotorcraft_datalink.c" dir="$(SRC_FIRMWARE)"/>
+    <file name="rotorcraft_telemetry.c" dir="$(SRC_FIRMWARE)"/>
+  </makefile>
+</module>
+

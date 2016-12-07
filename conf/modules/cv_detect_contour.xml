@@ -1,0 +1,34 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="cv_detect_contour" dir="computer_vision">
+  <doc>
+    <description>A module that detects the contour of a dronerace obstacle. 
+    </description>
+
+    <define name="DETECT_CONTOUR_CAMERA" value="front_camera|bottom_camera" description="Video device to use"/>
+  </doc>
+  <header>
+    <file name="detect_contour.h"/>
+  </header>
+  <init fun="detect_contour_init()"/>
+  <makefile target="ap">
+    <file name="detect_contour.c"/>
+    <file name="opencv_contour.cpp"/>
+    <file name="opencv_image_functions.cpp"/>
+    <flag name="CXXFLAGS" value="I$(PAPARAZZI_SRC)/sw/ext/opencv_bebop/install/include"/>
+
+    <flag name="LDFLAGS" value="L$(PAPARAZZI_SRC)/sw/ext/opencv_bebop/install/lib" />
+    <flag name="LDFLAGS" value="lopencv_imgcodecs" />
+    <flag name="LDFLAGS" value="lopencv_imgproc" />
+    <flag name="LDFLAGS" value="lopencv_core" />
+    <flag name="LDFLAGS" value="L$(PAPARAZZI_HOME)/sw/ext/opencv_bebop/install/share/OpenCV/3rdparty/lib" />
+    <flag name="LDFLAGS" value="lzlib" />
+    <flag name="LDFLAGS" value="llibpng" />
+    <flag name="LDFLAGS" value="lstdc++" />
+    <flag name="LDFLAGS" value="ldl" />
+    <flag name="LDFLAGS" value="lm" />
+    <flag name="LDFLAGS" value="lpthread" />
+    <flag name="LDFLAGS" value="lrt" />
+
+  </makefile>
+</module>

@@ -121,6 +121,12 @@ let transform_stage = fun prefix reroutes env xml ->
             | "attitude" ->
               let attribs = transform_values ["vmode"] env attribs in
               Xml.Element (tag, attribs, children)
+            | "manual" ->
+              let attribs = transform_values [] env attribs in
+              Xml.Element (tag, attribs, children)
+            | "return" ->
+              let attribs = transform_values ["reset_stage"] env attribs in
+              Xml.Element (tag, attribs, children)
             | "go" ->
               assert (children=[]);
               let attribs = transform_values ["wp";"from";"hmode";"vmode"] env attribs in
@@ -226,6 +232,7 @@ let parse_include = fun dir flight_plan include_xml ->
 
     let waypoints = get_children "waypoints" proc
     and exceptions = get_children "exceptions" proc
+    and modules = get_children "modules" proc
     and blocks = get_children "blocks" proc
     and sectors = get_children "sectors" proc
     and header = get_pc_data "header" proc in
@@ -237,6 +244,7 @@ let parse_include = fun dir flight_plan include_xml ->
       append_children
       ["waypoints", waypoints;
        "blocks", blocks;
+       "modules", modules;
        "exceptions", exceptions;
        "sectors", sectors]
       (append_pc_data "header" header flight_plan)
@@ -357,12 +365,12 @@ let process_relative_waypoints = fun xml ->
 let regexp_path = Str.regexp "[ \t,]+"
 
 
-let stage_process_path = fun stage rest ->
+let rec stage_process_path = fun stage rest ->
   if Xml.tag stage = "path" then
     let waypoints = Str.split regexp_path (ExtXml.attrib stage "wpts") in
     let attribs = Xml.attribs stage in
     let rec loop = function
-    [] -> failwith "Waypoint expected in path stage"
+      | [] -> failwith "Waypoint expected in path stage"
       | [wp] -> (* Just go to this single point *)
         Xml.Element("go", ("wp", wp)::attribs, [])::rest
       | wp1::wp2::ps ->
@@ -371,6 +379,9 @@ let stage_process_path = fun stage rest ->
                            "wp", wp2]@attribs, [])::
           if ps = [] then rest else loop (wp2::ps) in
     loop waypoints
+  else if Xml.tag stage = "for" || Xml.tag stage = "while" then
+    let attribs = Xml.attribs stage in
+    Xml.Element(Xml.tag stage, attribs, List.fold_right stage_process_path (Xml.children stage) [])::rest
   else
     stage::rest
 

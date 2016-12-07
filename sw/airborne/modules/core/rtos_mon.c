@@ -23,14 +23,13 @@
  * RTOS monitoring tool
  */
 
-#include "modules/core/rtos_mon.h"
-#include "modules/core/rtos_mon_arch.h"
+#include "modules/core/sys_mon.h"
+#include "modules/core/sys_mon_rtos.h"
 #include "subsystems/datalink/downlink.h"
-#include <string.h>
 
 struct rtos_monitoring rtos_mon;
 
-void rtos_mon_init(void)
+void init_sysmon(void)
 {
   // zero structure
   memset(&rtos_mon, 0, sizeof(struct rtos_monitoring));
@@ -41,18 +40,24 @@ void rtos_mon_init(void)
 
 // Periodic report of RTOS parameters
 // This function is actually arch dependent
-void rtos_mon_periodic(void)
+void periodic_report_sysmon(void)
 {
   // update struct
   rtos_mon_periodic_arch();
+
+  // update cpu time
+  rtos_mon.cpu_time = get_sys_time_float();
 
   // send report
   DOWNLINK_SEND_RTOS_MON(DefaultChannel, DefaultDevice,
       &rtos_mon.thread_counter,
       &rtos_mon.cpu_load,
       &rtos_mon.core_free_memory,
-      &rtos_mon.heap_free_memory);
+      &rtos_mon.heap_free_memory,
+      &rtos_mon.cpu_time);
 
 }
 
+void periodic_sysmon(void) {}
 
+void event_sysmon(void) {}

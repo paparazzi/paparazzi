@@ -25,6 +25,7 @@
  * Optional exceptions triggeringg HOME_MODE
  * 1) GEOFENCE_DATALINK_LOST_TIME: go to HOME mode if datalink lost for GEOFENCE_DATALINK_LOST_TIME
  * 2) GEOFENCE_MAX_ALTITUDE: go HOME if airplane higher than the max altitude
+ * 3) GEOFENCE_MAX_HEIGHT: go HOME if airplane higher than the max height
  *
  * home_mode_max_alt is (optionally) defined in the flight plan
  * GEOFENCE_DATALINK_LOST_TIME is defined in the airframe config file
@@ -49,10 +50,18 @@ static inline bool datalink_lost(void)
 #endif /* GEOFENCE_DATALINK_LOST_TIME */
 
 
-#ifdef GEOFENCE_MAX_ALTITUDE// user defined geofence_max_altitude in the flight plan
+#if defined GEOFENCE_MAX_ALTITUDE || defined GEOFENCE_MAX_HEIGHT// user defined geofence_max_altitude (or AGL) in the flight plan
 static inline bool higher_than_max_altitude(void)
 {
-  return (GetPosAlt() > GEOFENCE_MAX_ALTITUDE);
+  bool above_max_alt = false;
+#ifdef GEOFENCE_MAX_ALTITUDE
+  above_max_alt = above_max_alt || (GetPosAlt() > GEOFENCE_MAX_ALTITUDE);
+#endif /* GEOFENCE_MAX_ALTITUDE */
+
+#ifdef GEOFENCE_MAX_HEIGHT
+  above_max_alt = above_max_alt || (GetPosAlt() > ( GetAltRef() + GEOFENCE_MAX_HEIGHT));
+#endif /* GEOFENCE_MAX_HEIGHT */
+  return above_max_alt;
 }
 #else // we dont have max altitude specified, so the condition is never true
 static inline bool higher_than_max_altitude(void)

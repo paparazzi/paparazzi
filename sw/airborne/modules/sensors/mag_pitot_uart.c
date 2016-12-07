@@ -108,7 +108,7 @@ static inline void mag_pitot_parse_msg(void)
   case DL_IMCU_REMOTE_AIRSPEED: {
     // Should be updated to differential pressure
     float pitot_ias = DL_IMCU_REMOTE_AIRSPEED_pitot_IAS(mp_msg_buf);
-    stateSetAirspeed_f(pitot_ias);
+    AbiSendMsgAIRSPEED(IMU_MAG_PITOT_ID, pitot_ias);
     break;
   }
 

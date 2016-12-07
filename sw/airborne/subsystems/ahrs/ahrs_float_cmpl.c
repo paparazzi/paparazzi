@@ -46,10 +46,6 @@
 #error "You have to define either AHRS_PROPAGATE_RMAT or AHRS_PROPAGATE_QUAT"
 #endif
 
-#ifdef AHRS_MAG_UPDATE_YAW_ONLY
-#warning "AHRS_MAG_UPDATE_YAW_ONLY is deprecated, please remove it. This is the default behaviour. Define AHRS_MAG_UPDATE_ALL_AXES to use mag for all axes and not only yaw."
-#endif
-
 #if USE_MAGNETOMETER && AHRS_USE_GPS_HEADING
 #warning "Using magnetometer _and_ GPS course to update heading. Probably better to <configure name="USE_MAGNETOMETER" value="0"/> if you want to use GPS course."
 #endif
@@ -205,9 +201,18 @@ void ahrs_fc_update_accel(struct FloatVect3 *accel, float dt)
      * a_c_body = omega x (omega x r)
      * (omega x r) = tangential velocity in body frame
      * a_c_body = omega x vel_tangential_body
-     * assumption: tangential velocity only along body x-axis
+     * assumption: tangential velocity only along body x-axis (or negative z-axis)
      */
-    const struct FloatVect3 vel_tangential_body = {ahrs_fc.ltp_vel_norm, 0.0, 0.0};
+    const struct FloatVect3 vel_tangential_body =
+#if AHRS_GPS_SPEED_IN_NEGATIVE_Z_DIRECTION
+    /* AHRS_GRAVITY_UPDATE_COORDINATED_TURN assumes the GPS speed is in the X axis direction.
+     * Quadshot, DelftaCopter and other hybrids can have the GPS speed in the negative Z direction
+     */
+      {0.0, 0.0, -ahrs_fc.ltp_vel_norm);
+#else
+    /* assume tangential velocity along body x-axis */
+      {ahrs_fc.ltp_vel_norm, 0.0, 0.0};
+#endif
     struct FloatRMat *body_to_imu_rmat = orientationGetRMat_f(&ahrs_fc.body_to_imu);
     struct FloatRates body_rate;
     float_rmat_transp_ratemult(&body_rate, body_to_imu_rmat, &ahrs_fc.imu_rate);

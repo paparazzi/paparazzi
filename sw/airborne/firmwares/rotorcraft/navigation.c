@@ -82,6 +82,7 @@ bool nav_survey_active;
 
 int32_t nav_roll, nav_pitch;
 int32_t nav_heading;
+int32_t nav_cmd_roll, nav_cmd_pitch, nav_cmd_yaw;
 float nav_radius;
 float nav_climb_vspeed, nav_descend_vspeed;
 
@@ -175,6 +176,9 @@ void nav_init(void)
   nav_roll = 0;
   nav_pitch = 0;
   nav_heading = 0;
+  nav_cmd_roll = 0;
+  nav_cmd_pitch = 0;
+  nav_cmd_yaw = 0;
   nav_radius = DEFAULT_CIRCLE_RADIUS;
   nav_climb_vspeed = NAV_CLIMB_VSPEED;
   nav_descend_vspeed = NAV_DESCEND_VSPEED;
@@ -303,7 +307,7 @@ void nav_route(struct EnuCoor_i *wp_start, struct EnuCoor_i *wp_end)
 
 bool nav_approaching_from(struct EnuCoor_i *wp, struct EnuCoor_i *from, int16_t approaching_time)
 {
-  int32_t dist_to_point;
+  float dist_to_point;
   struct Int32Vect2 diff;
   struct EnuCoor_i *pos = stateGetPositionEnu_i();
 
@@ -322,13 +326,14 @@ bool nav_approaching_from(struct EnuCoor_i *wp, struct EnuCoor_i *from, int16_t 
     VECT2_DIFF(diff, *wp, *pos);
   }
   /* compute distance of estimated/current pos to target wp
-   * distance with half metric precision (6.25 cm)
+   * POS_FRAC resolution
+   * convert to float to compute the norm without overflow in 32bit
    */
-  INT32_VECT2_RSHIFT(diff, diff, INT32_POS_FRAC / 2);
-  dist_to_point = int32_vect2_norm(&diff);
+  struct FloatVect2 diff_f = {POS_FLOAT_OF_BFP(diff.x), POS_FLOAT_OF_BFP(diff.y)};
+  dist_to_point = float_vect2_norm(&diff_f);
 
   /* return TRUE if we have arrived */
-  if (dist_to_point < BFP_OF_REAL(ARRIVED_AT_WAYPOINT, INT32_POS_FRAC / 2)) {
+  if (dist_to_point < ARRIVED_AT_WAYPOINT) {
     return true;
   }
 
@@ -337,8 +342,8 @@ bool nav_approaching_from(struct EnuCoor_i *wp, struct EnuCoor_i *from, int16_t 
     /* return TRUE if normal line at the end of the segment is crossed */
     struct Int32Vect2 from_diff;
     VECT2_DIFF(from_diff, *wp, *from);
-    INT32_VECT2_RSHIFT(from_diff, from_diff, INT32_POS_FRAC / 2);
-    return (diff.x * from_diff.x + diff.y * from_diff.y < 0);
+    struct FloatVect2 from_diff_f = {POS_FLOAT_OF_BFP(from_diff.x), POS_FLOAT_OF_BFP(from_diff.y)};
+    return (diff_f.x * from_diff_f.x + diff_f.y * from_diff_f.y < 0);
   }
 
   return false;
@@ -347,7 +352,7 @@ bool nav_approaching_from(struct EnuCoor_i *wp, struct EnuCoor_i *from, int16_t 
 bool nav_check_wp_time(struct EnuCoor_i *wp, uint16_t stay_time)
 {
   uint16_t time_at_wp;
-  uint32_t dist_to_point;
+  float dist_to_point;
   static uint16_t wp_entry_time = 0;
   static bool wp_reached = false;
   static struct EnuCoor_i wp_last = { 0, 0, 0 };
@@ -357,10 +362,11 @@ bool nav_check_wp_time(struct EnuCoor_i *wp, uint16_t stay_time)
     wp_reached = false;
     wp_last = *wp;
   }
+
   VECT2_DIFF(diff, *wp, *stateGetPositionEnu_i());
-  INT32_VECT2_RSHIFT(diff, diff, INT32_POS_FRAC / 2);
-  dist_to_point = int32_vect2_norm(&diff);
-  if (dist_to_point < BFP_OF_REAL(ARRIVED_AT_WAYPOINT, INT32_POS_FRAC / 2)) {
+  struct FloatVect2 diff_f = {POS_FLOAT_OF_BFP(diff.x), POS_FLOAT_OF_BFP(diff.y)};
+  dist_to_point = float_vect2_norm(&diff_f);
+  if (dist_to_point < ARRIVED_AT_WAYPOINT) {
     if (!wp_reached) {
       wp_reached = true;
       wp_entry_time = autopilot_flight_time;
@@ -482,16 +488,20 @@ void nav_home(void)
 
 /** Set manual roll, pitch and yaw without stabilization
  *
- * @param[in] roll The angle in radians (float)
- * @param[in] pitch The angle in radians (float)
- * @param[in] yaw The angle in radians (float)
+ * @param[in] roll command in pprz scale (int32_t)
+ * @param[in] pitch command in pprz scale (int32_t)
+ * @param[in] yaw command in pprz scale (int32_t)
+ *
+ * This function allows to directly set commands from the flight plan,
+ * if in nav_manual mode.
+ * This is for instance useful for helicopters during the spinup
  */
-void nav_set_manual(float roll, float pitch, float yaw)
+void nav_set_manual(int32_t roll, int32_t pitch, int32_t yaw)
 {
   horizontal_mode = HORIZONTAL_MODE_MANUAL;
-  nav_roll = ANGLE_BFP_OF_REAL(roll);
-  nav_pitch = ANGLE_BFP_OF_REAL(pitch);
-  nav_heading = ANGLE_BFP_OF_REAL(yaw);
+  nav_cmd_roll = roll;
+  nav_cmd_pitch = pitch;
+  nav_cmd_yaw = yaw;
 }
 
 /** Returns squared horizontal distance to given point */

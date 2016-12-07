@@ -31,7 +31,6 @@
 #include "subsystems/electrical.h"
 #include "subsystems/radio_control.h"
 #include "autopilot.h"
-#include "subsystems/ahrs/ahrs_aligner.h"
 #include "autopilot_rc_helpers.h"
 
 #include "modules/light/led_safety_status.h"
@@ -67,10 +66,10 @@ void led_safety_status_periodic(void)
     RunXTimesEvery(20, 240, 40, 5, {LED_ON(SAFETY_WARNING_LED);});
     RunXTimesEvery(0, 240, 40, 5, {LED_OFF(SAFETY_WARNING_LED);});
   }
-#ifdef MIN_BAT_LEVEL
-  else if (electrical.vsupply < (MIN_BAT_LEVEL * 10)) {
+#ifdef LOW_BAT_LEVEL
+  else if (electrical.vsupply < (LOW_BAT_LEVEL * 10)) {
     RunOnceEvery(20, {LED_TOGGLE(SAFETY_WARNING_LED);});
-  } else if (electrical.vsupply < ((MIN_BAT_LEVEL + 0.5) * 10)) {
+  } else if (electrical.vsupply < ((LOW_BAT_LEVEL + 0.5) * 10)) {
     RunXTimesEvery(0, 300, 10, 10, {LED_TOGGLE(SAFETY_WARNING_LED);});
   }
 #endif

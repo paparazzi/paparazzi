@@ -23,7 +23,8 @@
  * Find a IMAV pattern
  */
 
-
+#ifndef IMAVMARKER_H
+#define IMAVMARKER_H
 
 #include "modules/computer_vision/lib/vision/image.h"
 
@@ -36,3 +37,5 @@ struct marker_deviation_t {
 
 
 struct marker_deviation_t marker(struct image_t *input, uint8_t M);
+
+#endif /* IMAVMARKER_H */

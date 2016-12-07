@@ -96,6 +96,11 @@ void vff_init(float init_z, float init_zdot, float init_accel_bias, float init_b
     vff.P[i][i] = VFF_EXTENDED_INIT_PXX;
   }
 
+  vff.accel_noise = VFF_EXTENDED_ACCEL_NOISE;
+  vff.r_baro = R_BARO;
+  vff.r_alt = R_ALT;
+  vff.r_offset = R_OFFSET;
+
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_VFF_EXTENDED, send_vffe);
 #endif
@@ -142,11 +147,11 @@ void vff_propagate(float accel, float dt)
   const float FPF22 = vff.P[2][2];
   const float FPF33 = vff.P[3][3];
 
-  vff.P[0][0] = FPF00 + VFF_EXTENDED_ACCEL_NOISE * dt * dt / 2.;
+  vff.P[0][0] = FPF00 + vff.accel_noise * dt * dt / 2.;
   vff.P[0][1] = FPF01;
   vff.P[0][2] = FPF02;
   vff.P[1][0] = FPF10;
-  vff.P[1][1] = FPF11 + VFF_EXTENDED_ACCEL_NOISE * dt;
+  vff.P[1][1] = FPF11 + vff.accel_noise * dt;
   vff.P[1][2] = FPF12;
   vff.P[2][0] = FPF20;
   vff.P[2][1] = FPF21;
@@ -215,7 +220,7 @@ static void update_baro_conf(float z_meas, float conf)
 
 void vff_update_baro(float z_meas)
 {
-  update_baro_conf(z_meas, R_BARO);
+  update_baro_conf(z_meas, vff.r_baro);
 }
 
 void vff_update_baro_conf(float z_meas, float conf)
@@ -278,7 +283,7 @@ static void update_alt_conf(float z_meas, float conf)
 
 void vff_update_z(float z_meas)
 {
-  update_alt_conf(z_meas, R_ALT);
+  update_alt_conf(z_meas, vff.r_alt);
 }
 
 void vff_update_z_conf(float z_meas, float conf)
@@ -340,7 +345,7 @@ static void update_offset_conf(float offset, float conf)
 
 void vff_update_offset(float offset)
 {
-  update_offset_conf(offset, R_OFFSET);
+  update_offset_conf(offset, vff.r_offset);
 }
 
 

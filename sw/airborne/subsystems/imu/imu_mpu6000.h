@@ -41,9 +41,8 @@ struct ImuMpu6000 {
 
 extern struct ImuMpu6000 imu_mpu_spi;
 
+extern void imu_mpu_spi_init(void);
+extern void imu_mpu_spi_periodic(void);
 extern void imu_mpu_spi_event(void);
-
-
-#define ImuEvent imu_mpu_spi_event
 
 #endif /* IMU_MPU6000_H */

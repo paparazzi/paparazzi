@@ -26,7 +26,7 @@
     <!-- Communication -->
     <module name="telemetry" type="xbee_api"/>
     <module name="tlsf"/>
-    <module name="sdlog"/>
+    <module name="pprzlog"/>
     <module name="logger" type="sd_chibios"/>
     <module name="flight_recorder"/>
 
@@ -39,7 +39,7 @@
     <!-- Sensors -->
     <module name="gps" type="ublox"/>
 
-    <!--module name="rtos_mon"/-->
+    <!--module name="sys_mon"/-->
 
     <!--module name="spi_master"/-->
     <!-- <module name="mcp355x"> -->

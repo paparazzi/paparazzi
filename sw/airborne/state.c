@@ -127,7 +127,7 @@ void stateCalcPositionNed_i(void)
       SetBit(state.pos_status, POS_NED_F);
       NED_BFP_OF_REAL(state.ned_pos_i, state.ned_pos_f);
     } else if (bit_is_set(state.pos_status, POS_LLA_I)) {
-      ned_of_lla_point_i(&state.ned_pos_i, &state.ned_origin_i, &state.lla_pos_i);
+      ned_of_lla_pos_i(&state.ned_pos_i, &state.ned_origin_i, &state.lla_pos_i);
     } else { /* could not get this representation,  set errno */
       errno = 1;
     }
@@ -206,7 +206,7 @@ void stateCalcPositionEnu_i(void)
       SetBit(state.pos_status, POS_ENU_F);
       ENU_BFP_OF_REAL(state.enu_pos_i, state.enu_pos_f);
     } else if (bit_is_set(state.pos_status, POS_LLA_I)) {
-      enu_of_lla_point_i(&state.enu_pos_i, &state.ned_origin_i, &state.lla_pos_i);
+      enu_of_lla_pos_i(&state.enu_pos_i, &state.ned_origin_i, &state.lla_pos_i);
     } else { /* could not get this representation,  set errno */
       errno = 1;
     }
@@ -1168,7 +1168,7 @@ void stateCalcHorizontalWindspeed_f(void)
 
   if (bit_is_set(state.wind_air_status, WINDSPEED_I)) {
     state.windspeed_f.vect2.x = SPEED_FLOAT_OF_BFP(state.windspeed_i.vect2.x);
-    state.windspeed_f.vect2.x = SPEED_FLOAT_OF_BFP(state.windspeed_i.vect2.y);
+    state.windspeed_f.vect2.y = SPEED_FLOAT_OF_BFP(state.windspeed_i.vect2.y);
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.wind_air_status, WINDSPEED_F);

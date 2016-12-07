@@ -57,12 +57,18 @@
 #define AP_LOST_FBW_MODE FBW_MODE_FAILSAFE
 #endif
 
-
+/** holds whether the aircraft can only be flown with the AP and not RC-Direct/FBW-mode */
+#ifndef FBW_MODE_AUTO_ONLY
+#define FBW_MODE_AUTO_ONLY false
+#endif
 
 /** Switching between FBW and autopilot is done with RADIO_FBW_MODE: default is to re-use RADIO_MODE */
 #ifndef RADIO_FBW_MODE
 #define RADIO_FBW_MODE RADIO_MODE
 #endif
+
+typedef enum {FBW_MODE_MANUAL = 0, FBW_MODE_AUTO = 1, FBW_MODE_FAILSAFE = 2} fbw_mode_enum;
+
 
 STATIC_INLINE void main_init(void);
 STATIC_INLINE void main_event(void);

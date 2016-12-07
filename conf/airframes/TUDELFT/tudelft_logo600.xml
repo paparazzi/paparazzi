@@ -1,26 +1,38 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<!-- this is a quadrotor frame in X-configuration equiped with
-     * Autopilot:   Lisa/MX 2.1 with STM32F4  http://wiki.paparazziuav.org/wiki/Lisa/M_v21
-     * IMU:         Integrated Aspirin 2.2    http://wiki.paparazziuav.org/wiki/AspirinIMU
-     * Actuators:   Asctec motor controllers  http://wiki.paparazziuav.org/wiki/Subsystem/actuators#Asctec_v2
-     * GPS:         UBlox                     http://wiki.paparazziuav.org/wiki/Subsystem/gps
-     * RC:          one Spektrum sats         http://wiki.paparazziuav.org/wiki/Subsystem/radio_control#Spektrum
+<!--
+  Logo600 using a VBAR + 2x Lisa-MX:
+
+  1) VBAR makes it possible to have manual mode as backup.
+  2) Some competitions require a separately powered board must drive the actuators (FBW).
+  3) FBW saves time and adds safety not having to check every safety critical aspect after every AP update (safety critical code is in FBW).
+  4) VBAR (gyro's) can be mounted on the frame (=fast response) while the attitude filter (AP) can be on very soft dampers.
+
+This logo600 basically flies with a VBAR. All rotor head parameters and tuning (except throttle curves) are in the VBAR using the VBAR setup program. Then, instead of connecting 2 satellite receivers, 2 uarts from a lisa-mx are connected to the VBAR instead. The lisa-mx then has both satellite receivers. This lisa-mx runs rotorcraft FBW code with spektrum as "actuator" which is actually sent to the VBAR RC inputs over uart. 
+
+ - Note about FBW code: you must choose if you want the UAV to behave as a model aircraft which goes to failsafe on RC loss or make it a UAV with AUTO2 flight on RC-loss. The latter has the risk of fly-away, and adds safety critical aspects to the AP as well: so make sure your geofence and geofence rules are well tested.
+
+ - Note that FBW uses 5 uarts: 2x output to vbar 2x spektrum, 1x AP. The I2C port of the lisa-mx is reconfigured as uart to achieve this.
+
+The second lisa-mx serves as AP. It has the logger, the GPS, the telemetry, the baro and everything else. It is connected to the FBW lisa via another serial port with a 100 ohm resistor in each tx/rx wire since FBW and AP are separately powered and can switch on / off at different times (otherwise too large leakage currents can go over IO pins).
+
+The nice/safe thing about this VBAR-FBW-AP setup during developments is that the heli can fly in PAPARAZZI-MANUAL mode, since the VBAR does the lowest-level stabilization. Furthermore the FBW increases safety by not having to go through very extensive testing after every AP update: you DO NOT want an electric 600-size heli to do unpredictable things with its ESC/motors. In this airframe file the RC KILL switch is applied by the FBW and overrules everything, and when the RC is off or lost there is no way the motors will turn. Only after every FBW update, blades-off, the safety critical code is tested again. Afterwards one can safely live/hot JTAG-update the AP while in MANUAL FBW-KILL, and test AP knowing that you can always flip a switch to go back to manual mode even in-flight in case of an AP problem. Note that for flashing the FBW, bad pulses could end up going to the ESC with potential danger. Only flash FBW with the motor disconnected.
+
+The xml in master currently configures the LOGO600 as a pure model aircraft: meaning just as with non-autopilot-equipped model helicopters, when you loose RC it will failsafe and with the TX mode switch to manual, it flies an unmodified commercial tested flight controller. (which can make things easier to get it accepted at your local model airfield). Note that any change (especially to KILL of FBW_MODE) will also change the behaviour described above.
 -->
 
 <airframe name="Logo600">
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_mx_2.1"/>
-    <!--target name="nps" board="pc">
-      <module name="fdm" type="jsbsim"/>
-    </target-->
 
     <module name="telemetry"     type="xbee_api"/>
     <module name="imu"           type="lisa_mx_v2.1"/>
     <module name="gps"           type="ublox">
       <configure name="GPS_PORT" value="UART4"/>
+      <configure name="GPS_BAUD" value="B115200"/>
     </module>
+    <module name="gps" type="ubx_ucenter"/>
     <module name="stabilization" type="int_quat"/>
     <module name="ahrs"          type="int_cmpl_quat"/>
     <module name="ins"           type="hff"/>
@@ -44,8 +56,10 @@
     <module name="actuators"     type="spektrum">
       <configure name="ACTUATORS_SPEKTRUM_DEV2" value="UART6"/>
     </module>
+    <module name="heli" type="throttle_curve"/>
     <define name="RC_LOST_FBW_MODE" value="FBW_MODE_FAILSAFE"/><!-- Switch to Failsafe or to Autopilot on RC loss? -->
-    <define name="RC_LOST_IN_AUTO_FBW_MODE" value="FBW_MODE_FAILSAFE"/><!-- Switch to Failsafe with a working autopilot on RC loss? -->
+    <!--define name="RC_LOST_IN_AUTO_FBW_MODE" value="FBW_MODE_AUTO"/--><!-- Switch to AUTO2 with a working autopilot on RC loss? Warning: beware of fly-away: program a GeoFence. beware: AP can ARM the FBW: airframe is dangerous at all times.-->
+    <define name="RC_LOST_IN_AUTO_FBW_MODE" value="FBW_MODE_FAILSAFE"/><!-- Behave as a model aircraft: failsafe on RC lost. -->
     <define name="AP_LOST_FBW_MODE" value="FBW_MODE_MANUAL"/><!-- Switch to Failsafe or to Manual on AP loss? -->
 
     <module name="intermcu"     type="uart">
@@ -57,7 +71,6 @@
     <module name="geo_mag"/>
     <module name="air_data"/>
     <module name="logger_spi_link"/>
-    <module name="gps" type="ubx_ucenter"/>
   </modules>
 
   <servos driver="Spektrum">
@@ -71,68 +84,70 @@
   </servos>
 
   <section name="RADIO">
-    <define name="RADIO_COLLECTIVE" value="RADIO_AUX1"/>
-    <define name="RADIO_TAIL_GAIN" value="RADIO_AUX2"/>
+    <define name="RADIO_TH_HOLD" value="RADIO_AUX1"/>
+    <define name="RADIO_FMODE"   value="RADIO_AUX2"/>
   </section>
 
   <commands>
-    <axis name="THRUST"     failsafe_value="0"/><!-- Ignored -->
-
-    <axis name="THROTTLE"   failsafe_value="0"/>
+    <axis name="THRUST"     failsafe_value="0"/>
     <axis name="ROLL"       failsafe_value="0"/>
     <axis name="PITCH"      failsafe_value="0"/>
     <axis name="YAW"        failsafe_value="0"/>
-    <axis name="COLLECTIVE" failsafe_value="0"/>
-    <axis name="TAIL_GAIN"  failsafe_value="0"/>
+    <axis name="FMODE"      failsafe_value="-9600"/>
+    <axis name="TH_HOLD"    failsafe_value="-9600"/>
+    <axis name="MODE"       failsafe_value="-9600"/>
   </commands>
 
   <rc_commands>
-    <set command="THROTTLE"   value="@THROTTLE"/>
-    <set command="ROLL"       value="@ROLL"/>
-    <set command="PITCH"      value="@PITCH"/>
-    <set command="YAW"        value="@YAW"/>
-    <set command="COLLECTIVE" value="@COLLECTIVE"/>
-    <set command="TAIL_GAIN"  value="@TAIL_GAIN"/>
+    <set command="THRUST"   value="@THROTTLE"/>
+    <set command="ROLL"     value="@ROLL"/>
+    <set command="PITCH"    value="@PITCH"/>
+    <set command="YAW"      value="@YAW"/>
+    <set command="FMODE"    value="@FMODE"/>
   </rc_commands>
 
-  <auto_rc_commands>
-   <set command="TAIL_GAIN"   value="@TAIL_GAIN"/>
-  </auto_rc_commands>
+  <heli_curves>
+    <curve throttle="0,3940,5860,7300,8640" collective="-3840,-960,1920,5088,8256"/>
+    <curve throttle="8920,7960,8920" collective="-9600,0,9600"/>
+    <curve throttle="9600,8640,9600" collective="-9600,0,9600"/>
+  </heli_curves>
 
   <command_laws>
-    <set servo="THROTTLE"    value="@THROTTLE"/>
+    <call fun="throttle_curve_run(TRUE, values)"/>
+    <let var="th_hold"          value="LessThan(RadioControlValues(RADIO_TH_HOLD), -4800)"/>
+
+    <set servo="THROTTLE"    value="($th_hold? -9600 : throttle_curve.throttle)"/>
     <set servo="ROLL"        value="@ROLL"/>
     <set servo="PITCH"       value="@PITCH"/>
     <set servo="YAW"         value="@YAW"/>
-    <set servo="COLLECTIVE"  value="@COLLECTIVE"/>
-    <set servo="TAIL_GAIN"   value="@TAIL_GAIN"/>
+    <set servo="COLLECTIVE"  value="throttle_curve.collective"/>
+    <set servo="TAIL_GAIN"   value="0"/>
     <set servo="AUX2"        value="0"/>
   </command_laws>
 
   <section name="MISC">
     <define name="ROTORCRAFT_COMMANDS_YAW_ALWAYS_ENABLED" value="TRUE" />
     <define name="NAV_CLIMB_VSPEED" value="2.5"/>
-    <define name="NAV_DESCEND_VSPEED" value="-1.0"/>
+    <define name="NAV_DESCEND_VSPEED" value="-1.5"/>
     <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
-    <define name="USE_THROTTLE_FOR_MOTOR_ARMING" value="TRUE"/>
-    <!--define name="USE_KILL_SWITCH_FOR_MOTOR_ARMING" value="TRUE"/-->
-    <define name="VoltageOfAdc(adc)" value="(0.014355*adc)"/>
+    <!--define name="USE_THROTTLE_FOR_MOTOR_ARMING" value="TRUE"/-->
+    <define name="USE_KILL_SWITCH_FOR_MOTOR_ARMING" value="TRUE"/>
+    <define name="VoltageOfAdc(adc)" value="(0.014355*adc)"/><!-- using a 27kOhm series resistor before VBat (do not connect VIN to VBAT!!!). Default resistor divider is 10k/2.2k becomes (27+10)/2.2. Max voltage becomes (27+10+2.2)2.2*3.3V = 58.8volt-->
     <define name="MilliAmpereOfAdc(adc)" value="(((float)adc)-1990.0f)*40.29f*2.0f"/>  <!-- 100Amp = 2Volt -> 2482,42 tick/100Amp"(0.0402832*adc)" -->
   </section>
 
   <section name="IMU" prefix="IMU_">
-    <define name="ACCEL_X_NEUTRAL" value="11"/>
-    <define name="ACCEL_Y_NEUTRAL" value="11"/>
-    <define name="ACCEL_Z_NEUTRAL" value="-25"/>
+    <define name="ACCEL_X_NEUTRAL" value="0"/>
+    <define name="ACCEL_Y_NEUTRAL" value="0"/>
+    <define name="ACCEL_Z_NEUTRAL" value="0"/>
 
     <!-- replace this with your own calibration -->
-    <define name="MAG_X_NEUTRAL" value="-2"/>
-    <define name="MAG_Y_NEUTRAL" value="484"/>
-    <define name="MAG_Z_NEUTRAL" value="53"/>
-    <define name="MAG_X_SENS" value="4.02836351262" integer="16"/>
-    <define name="MAG_Y_SENS" value="3.97184580645" integer="16"/>
-    <define name="MAG_Z_SENS" value="4.08689235615" integer="16"/>
-
+    <define name="MAG_X_NEUTRAL" value="316"/>
+    <define name="MAG_Y_NEUTRAL" value="202"/>
+    <define name="MAG_Z_NEUTRAL" value="238"/>
+    <define name="MAG_X_SENS" value="3.78223395875" integer="16"/>
+    <define name="MAG_Y_SENS" value="3.6668323335" integer="16"/>
+    <define name="MAG_Z_SENS" value="4.23011157623" integer="16"/>
 
     <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
@@ -152,31 +167,31 @@
     <!-- setpoints -->
     <define name="SP_MAX_PHI" value="45." unit="deg"/>
     <define name="SP_MAX_THETA" value="45." unit="deg"/>
-    <define name="SP_MAX_R" value="150." unit="deg/s"/>
+    <define name="SP_MAX_R" value="90." unit="deg/s"/>
     <define name="DEADBAND_R" value="200"/>
 
     <!-- reference -->
     <define name="REF_OMEGA_P" value="800" unit="deg/s"/>
     <define name="REF_ZETA_P" value="0.85"/>
-    <define name="REF_MAX_P" value="300." unit="deg/s"/>
+    <define name="REF_MAX_P" value="150." unit="deg/s"/>
     <define name="REF_MAX_PDOT" value="RadOfDeg(7000.)"/>
     <define name="REF_OMEGA_Q" value="800" unit="deg/s"/>
     <define name="REF_ZETA_Q" value="0.85"/>
-    <define name="REF_MAX_Q" value="300." unit="deg/s"/>
+    <define name="REF_MAX_Q" value="150." unit="deg/s"/>
     <define name="REF_MAX_QDOT" value="RadOfDeg(7000.)"/>
     <define name="REF_OMEGA_R" value="500" unit="deg/s"/>
     <define name="REF_ZETA_R" value="0.85"/>
-    <define name="REF_MAX_R" value="180." unit="deg/s"/>
-    <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
+    <define name="REF_MAX_R" value="90." unit="deg/s"/>
+    <define name="REF_MAX_RDOT" value="RadOfDeg(1000.)"/>
 
     <!-- feedback -->
-    <define name="PHI_PGAIN" value="500"/>
-    <define name="PHI_DGAIN" value="100"/>
+    <define name="PHI_PGAIN" value="1200"/>
+    <define name="PHI_DGAIN" value="50"/>
     <define name="PHI_IGAIN" value="0"/>
-    <define name="THETA_PGAIN" value="500"/>
-    <define name="THETA_DGAIN" value="100"/>
+    <define name="THETA_PGAIN" value="1200"/>
+    <define name="THETA_DGAIN" value="50"/>
     <define name="THETA_IGAIN" value="0"/>
-    <define name="PSI_PGAIN" value="200"/>
+    <define name="PSI_PGAIN" value="300"/>
     <define name="PSI_DGAIN" value="0"/>
     <define name="PSI_IGAIN" value="0"/>
 
@@ -187,33 +202,45 @@
   </section>
 
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
-    <define name="HOVER_KP"    value="150"/>
-    <define name="HOVER_KD"    value="80"/>
-    <define name="HOVER_KI"    value="20"/>
-    <define name="NOMINAL_HOVER_THROTTLE" value="0.5"/>
+    <define name="HOVER_KP"    value="100"/>
+    <define name="HOVER_KD"    value="60"/>
+    <define name="HOVER_KI"    value="15"/>
+    <define name="NOMINAL_HOVER_THROTTLE" value="0.62"/>
     <define name="ADAPT_THROTTLE_ENABLED" value="TRUE"/>
+    <!--define name="REF_MAX_ZDD" value="(9.81*0.2)"/-->
+    <!--define name="REF_MIN_ZDD" value="-(9.81*0.2)"/-->
+    <define name="REF_OMEGA" value="RadOfDeg(20.0)"/>
   </section>
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-    <define name="MAX_BANK" value="35" unit="deg"/>
+    <define name="MAX_BANK" value="25" unit="deg"/>
+    <define name="REF_MAX_SPEED" value="5" unit="m/s"/>
     <define name="USE_SPEED_REF" value="TRUE"/>
-    <define name="PGAIN" value="50"/>
-    <define name="DGAIN" value="100"/>
-    <define name="AGAIN" value="70"/>
-    <define name="IGAIN" value="20"/>
+    <define name="PGAIN" value="20"/>
+    <define name="DGAIN" value="50"/>
+    <define name="AGAIN" value="25"/>
+    <define name="IGAIN" value="8"/>
+  </section>
+
+  <section name="SIMULATOR" prefix="NPS_">
+    <define name="ACTUATOR_NAMES"  value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
+    <define name="JSBSIM_MODEL" value="simple_x_quad" type="string"/>
+    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
+    <!-- mode switch on joystick channel 5 (axis numbering starting at zero) -->
+    <define name="JS_AXIS_MODE" value="4"/>
   </section>
 
   <section name="AUTOPILOT">
     <define name="MODE_MANUAL" value="AP_MODE_RC_DIRECT"/>
     <define name="MODE_AUTO1"  value="AP_MODE_ATTITUDE_DIRECT"/>
-    <define name="MODE_AUTO2"  value="AP_MODE_ATTITUDE_DIRECT"/>
+    <define name="MODE_AUTO2"  value="AP_MODE_NAV"/>
   </section>
 
   <section name="BAT">
-    <define name="CATASTROPHIC_BAT_LEVEL" value="43.0" unit="V"/>
-    <define name="CRITIC_BAT_LEVEL" value="44.0" unit="V"/>
-    <define name="LOW_BAT_LEVEL" value="46.0" unit="V"/>
-    <define name="MAX_BAT_LEVEL" value="50.5" unit="V"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="40.0" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="43.2" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="44.4" unit="V"/>
+    <define name="MAX_BAT_LEVEL" value="50.4" unit="V"/>
   </section>
 
 </airframe>

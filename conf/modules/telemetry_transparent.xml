@@ -1,16 +1,22 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="telemetry_transparent" dir="datalink">
+<module name="telemetry_transparent" dir="datalink" task="datalink">
   <doc>
     <description>
       Telemetry using PPRZ protocol over UART
 
       Currently used as a makefile wrapper over the telemetry_transparent subsystem
     </description>
-    <configure name="MODEM_PORT" value="UARTx" description="UART where the modem is connected to (UART1, UART2, etc"/>
+    <configure name="MODEM_PORT" value="UARTx" description="UART where the modem is connected to (UART1, UART2, etc)"/>
     <configure name="MODEM_BAUD" value="B57600" description="UART baud rate"/>
   </doc>
-  <header/>
+  <autoload name="telemetry" type="nps"/>
+  <autoload name="telemetry" type="sim"/>
+  <header>
+    <file name="pprz_dl.h"/>
+  </header>
+  <init fun="pprz_dl_init()"/>
+  <event fun="pprz_dl_event()"/>
   <makefile target="!fbw|sim|nps">
     <configure name="MODEM_PORT" case="upper|lower"/>
     <define name="USE_$(MODEM_PORT_UPPER)"/>
@@ -21,6 +27,7 @@
     <define name="PPRZ_UART" value="$(MODEM_PORT_LOWER)"/>
     <define name="DOWNLINK_TRANSPORT" value="pprz_tp"/>
     <define name="DATALINK" value="PPRZ"/>
+    <file name="pprz_dl.c"/>
     <file name="downlink.c" dir="subsystems/datalink"/>
     <file name="datalink.c" dir="subsystems/datalink"/>
     <file name="telemetry.c" dir="subsystems/datalink"/>

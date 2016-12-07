@@ -25,6 +25,9 @@
  * Parse UYVY images and make a list of blobs of connected pixels
  */
 
+#ifndef BLOB_FINDER_H
+#define BLOB_FINDER_H
+
 
 #include "modules/computer_vision/lib/vision/image.h"
 
@@ -44,7 +47,7 @@ struct image_label_t {
   uint16_t id;              ///< Blob number
   uint8_t filter;           ///< Which filter triggered this blob
 
-  uint16_t pixel_cnt;       ///< Number of pixels in the blob
+  uint32_t pixel_cnt;       ///< Number of pixels in the blob
   uint16_t x_min;           ///< Top left corner
   uint16_t y_min;
   uint32_t x_sum;           ///< Sum of all x coordinates (used to find center of gravity)
@@ -58,3 +61,5 @@ struct image_label_t {
 
 void image_labeling(struct image_t *input, struct image_t *output, struct image_filter_t *filters, uint8_t filters_cnt,
                     struct image_label_t *labels, uint16_t *labels_count);
+
+#endif /* BLOB_FINDER_H */

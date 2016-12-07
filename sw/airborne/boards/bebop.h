@@ -28,8 +28,63 @@
 #include "std.h"
 #include "peripherals/video_device.h"
 
+#ifndef MT9F002_OUTPUT_HEIGHT
+#define MT9F002_OUTPUT_HEIGHT 3320
+#endif
+
+#ifndef MT9F002_OUTPUT_WIDTH
+#define MT9F002_OUTPUT_WIDTH 2048
+#endif
+
+#ifndef MT9F002_INITIAL_OFFSET_X
+#define MT9F002_INITIAL_OFFSET_X 1000 // pixels in the raw sensor!!
+#endif
+
+#ifndef MT9F002_INITIAL_OFFSET_Y
+#define MT9F002_INITIAL_OFFSET_Y 0 // pixels in the raw sensor!!
+#endif
+
+/** Our output is only OUTPUT_SCALER of the pixels we take of the sensor
+ * It is programmable in 1/16 steps determined by ScaleFactor = 16/scale_m.
+ * Legal values for scale_m are 16 through 128, giving you the ability to scale from
+ * 1:1 to 1:8 (with m=128).
+ *  Example:
+ *  output_width = 512
+ *  output_height = 830
+ *  output_scaler = 0.25
+ *  We now get an image of 512 by 830 which contains a "compressed version"
+ *  of what would normally be an image of 2048 by 3320.
+ *  Be warned: set your offset x appropriately.
+ *  Example of what could go wrong:
+ *  output_width = 512
+ *  output_height = 830
+ *  output_scaler = 0.25
+ *  offset_x = 1500
+ *  We now ask for pixels outside the 4608H x 2592V sensor or the 3320H x 2048W of the ISP.
+ */
+#ifndef MT9F002_OUTPUT_SCALER
+#define MT9F002_OUTPUT_SCALER 1.0
+#endif
+
+/** Exposure of the front camera of the bebop. Experimental values:
+ * Outside: 15
+ * Inside well lit: 30
+ * Inside poorly lit: 60
+ */
+#ifndef MT9F002_TARGET_EXPOSURE
+#define MT9F002_TARGET_EXPOSURE 30
+#endif
+
+#ifndef MT9F002_TARGET_FPS
+#define MT9F002_TARGET_FPS 5
+#endif
+
+
 /** uart connected to GPS internally */
 #define UART1_DEV /dev/ttyPA1
+#define GPS_UBX_ENABLE_NMEA_DATA_MASK 0xff
+/** FTDI cable for stereoboard or external GPS */
+#define UART2_DEV /dev/ttyUSB0
 
 /* Default actuators driver */
 #define DEFAULT_ACTUATORS "boards/bebop/actuators.h"

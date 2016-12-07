@@ -31,7 +31,7 @@
     <module name="ahrs"          type="int_cmpl_euler"/>
     <module name="ins"           type="extended"/>
 
-    <module name="servo_switch"/>
+    <module name="switch" type="servo"/>
     <module name="rotorcraft_cam"/>
     <module name="sonar_adc">
       <configure name="ADC_SONAR" value="ADC_0"/>
@@ -221,11 +221,11 @@
     <define name="TILT_ANGLE_MIN" value=" 10." unit="deg"/>
   </section>
 
-  <section name="SERVO_SWITCH">
-    <define name="SERVO_SWITCH_ON_VALUE" value="SERVO_SWITCH_MIN"/>
-    <define name="SERVO_SWITCH_OFF_VALUE" value="SERVO_SWITCH_MAX"/>
-    <define name="DropOpen()" value="ServoSwitchOn()"/>
-    <define name="DropClose()" value="ServoSwitchOff()"/>
+  <section name="SWITCH_SERVO">
+    <define name="SWITCH_SERVO_ON_VALUE" value="SERVO_SWITCH_MIN"/>
+    <define name="SWITCH_SERVO_OFF_VALUE" value="SERVO_SWITCH_MAX"/>
+    <define name="DropOpen()" value="SwitchServoOn()"/>
+    <define name="DropClose()" value="SwitchServoOff()"/>
   </section>
 
   <section name="MISC">

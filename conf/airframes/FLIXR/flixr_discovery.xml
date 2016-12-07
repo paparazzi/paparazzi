@@ -50,7 +50,7 @@
     <module name="current_sensor">
       <configure name="ADC_CURRENT_SENSOR" value="ADC_3"/>
     </module>
-    <module name="servo_switch"/>
+    <module name="switch" type="servo"/>
     <module name="sys_mon"/>
     <module name="adc_generic">
       <configure name="ADC_CHANNEL_GENERIC1" value="ADC_4"/> <!-- voltage sensor -->
@@ -83,7 +83,7 @@
     <servo name="HATCH"         no="7" min="1100" neutral="1100" max="1900"/>
   </servos>
 
-  <section name="SERVO_SWITCH" PREFIX="SERVO_SWITCH_">
+  <section name="SWITCH_SERVO" PREFIX="SWITCH_SERVO_">
     <define name="SERVO" value="HATCH"/>
     <define name="ON_VALUE" value="SERVO_HATCH_MIN"/>
     <define name="OFF_VALUE" value="SERVO_HATCH_MAX"/>

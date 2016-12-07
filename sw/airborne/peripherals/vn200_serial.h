@@ -32,6 +32,13 @@
 #include "std.h"
 #include "mcu_periph/uart.h"
 
+// Geodetic / Math
+#include "math/pprz_algebra.h"
+#include "math/pprz_geodetic_int.h"
+#include "math/pprz_algebra_float.h"
+#include "math/pprz_geodetic_float.h"
+#include "math/pprz_isa.h"
+
 /*
  * Defines for the serial communication
  */
@@ -74,8 +81,30 @@ enum VNStatus {
   VNOK
 };
 
+struct VNData {
+  uint64_t nanostamp; // Timestamp [nanoseconds] since startup
+  float timestamp; ///< Time since VN startup [s]
+  float ypr[3]; ///< yaw, pitch, roll [deg]
+  struct FloatEulers attitude; ///< Attitude, float, [rad], yaw, pitch, roll
+  struct FloatVect3 accel; ///< Acceleration in the imu frame, m/s
+  struct FloatRates gyro; ///< Rates in the imu frame m/s
+  float pos_u[3]; ///< The current GPS position uncertainty in the North East Down (NED) coordinate frame, given in meters.
+  float vel_u; ///< NED velocity uncertainty [m/s]
+  struct FloatVect3 lin_accel; ///< Linear acceleration in imu frame [m/s^2]
+  struct FloatEulers ypr_u; ///< Attitude uncertainty, 1sigma, float, [degrees], yaw, pitch, roll
+  uint16_t ins_status; ///< see page 122 of VN-200 datasheet
+  uint8_t mode; ///< 0-not tracking, 1 - poor performance, 2- OK
+  uint8_t err; ///< see page 122 of VN-200 datasheet
+  struct FloatVect3 vel_body; ///< The estimated velocity in the imu frame, given in m/s.
+  uint64_t tow; ///< tow (in nanoseconds), uint64
+  uint8_t num_sv; ///< number of visible satellites
+  uint8_t gps_fix; ///< None|2D|3D
+  double pos_lla[3]; // Lla [deg, deg, m above elipsoid]
+  struct NedCoor_f vel_ned; ///< The estimated velocity in the North East Down (NED) frame, given in m/s.
+};
+
 void vn200_event(struct VNPacket *vnp);
-void vn200_read_message(void);
+void vn200_read_message(struct VNPacket *vnp, struct VNData *vndata);
 void vn200_parse(struct VNPacket *vnp, uint8_t c);
 
 

@@ -43,18 +43,18 @@
 /* Camera structure */
 struct video_config_t front_camera = {
   .output_size = {
-    .w = 2048,
-    .h = 3320
+    .w = MT9F002_OUTPUT_WIDTH,
+    .h = MT9F002_OUTPUT_HEIGHT
   },
   .sensor_size = {
-    .w = 2048,
-    .h = 3320,
+    .w = MT9F002_OUTPUT_WIDTH,
+    .h = MT9F002_OUTPUT_HEIGHT,
   },
   .crop = {
     .x = 0,
     .y = 0,
-    .w = 2048,
-    .h = 3320
+    .w = MT9F002_OUTPUT_WIDTH,
+    .h = MT9F002_OUTPUT_HEIGHT
   },
   .dev_name = "/dev/video1",
   .subdev_name = "/dev/v4l-subdev1",
@@ -63,7 +63,7 @@ struct video_config_t front_camera = {
   .buf_cnt = 3,
   .filters = VIDEO_FILTER_ISP,
   .cv_listener = NULL,
-  .fps = 5
+  .fps = MT9F002_TARGET_FPS
 };
 
 /**

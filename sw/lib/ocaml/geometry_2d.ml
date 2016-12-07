@@ -22,40 +22,40 @@
  *
  *)
 
-(* Distance d'un point a une droite, a un segment, a un ensemble de segment *)
-(* Projection d'un point sur une droite, segment, ensemble de segment *)
+(* Distance from a point to a line, a segment, a set of segments *)
+(* Projection of a point on a line, a segment, a set of segments *)
 
-(* Modules locaux *)
+(* Local Modules *)
 
 let epsilon = 0.0001
 
-(* Type contenant un point 2D *)
+(* Type containing a 2D point *)
 type pt_2D = {x2D : float; y2D : float}
 
-(* Vecteurs nuls en 2D *)
+(* Zero vector 2D *)
 let null_vector = {x2D=0.; y2D=0.}
 
-(* Polygone 2D, non ferme par defaut *)
+(* Polygon 2D, not-closed by default *)
 type poly_2D = pt_2D list
 
-(* Types d'intersection :                                                      *)
-(* T_IN_SEGx     : point d'intersection dans le segment x (extremites exclues) *)
-(* T_ON_PTx      : intersection sur le point x                                 *)
-(* T_OUT_SEG_PTx : intersection hors d'un segment. Le point d'intersection se  *)
-(*                 situe du cote du point x                                    *)
+(* Types of intersections :                                                     *)
+(* T_IN_SEGx     : intersection point x in the segment (exluding ends)          *)
+(* T_ON_PTx      : intersection at point x                                      *)
+(* T_OUT_SEG_PTx : intersection out of a segment. The point of intersection is  *)
+(*                 located on the side of the point x                           *)
 type t_crossing = T_IN_SEG1 | T_IN_SEG2 | T_ON_PT1 | T_ON_PT2 | T_ON_PT3
                   | T_ON_PT4 | T_OUT_SEG_PT1 | T_OUT_SEG_PT2 | T_OUT_SEG_PT3 | T_OUT_SEG_PT4
 
-(* Type de polygone : convexe, concave ou indefini *)
+(* Polygon type : convex, concave or undefined *)
 type t_conv = CONVEX | CONCAVE | CONV_UNDEFINED
 
-(* Sens d'un polygone : sens horaire, anti-horaire et indefini *)
+(* Direction of a polygon: clockwise, counterclockwise and undefined *)
 type t_ccw  = CW | CCW | CCW_UNDEFINED
 
-(* Carre *)
+(* Square function *)
 let cc x = x*.x
 
-(* Type des points utilises pour la triangulation *)
+(* Type of points used for triangulation *)
 type vertex = {pos : pt_2D;
                num : int ;
                mutable prev : int ;
@@ -63,72 +63,72 @@ type vertex = {pos : pt_2D;
                mutable ear  : bool}
 
 (* ============================================================================= *)
-(* = Manipulations d'angles                                                    = *)
+(* = Manipulations with angles                                                 = *)
 (* ============================================================================= *)
 let m_pi = 3.1415926535897932384626433832795
 let deg2rad d = (d*.m_pi)/.180.
 let rad2deg d = (d*.180.)/.m_pi
 
 (* ============================================================================= *)
-(* = Comparaison de points/vecteurs                                            = *)
+(* = Comparison of points / vectors                                            = *)
 (* ============================================================================= *)
 let point_same pt1 pt2 = (pt1.x2D = pt2.x2D) && (pt1.y2D = pt2.y2D)
 
 (* ============================================================================= *)
-(* = Creation d'un vecteur                                                     = *)
+(* = Creation of a vector                                                      = *)
 (* ============================================================================= *)
 let vect_make pt1 pt2 = {x2D=pt2.x2D -. pt1.x2D; y2D=pt2.y2D -. pt1.y2D}
 
 (* ============================================================================= *)
-(* = Norme d'un vecteur                                                        = *)
+(* = Vector norm                                                               = *)
 (* ============================================================================= *)
 let vect_norm v = sqrt((cc v.x2D) +. (cc v.y2D))
 
 (* ============================================================================= *)
-(* = Normalisation d'un vecteur                                                = *)
+(* = Vector normalization                                                      = *)
 (* ============================================================================= *)
 let vect_normalize v = let n = vect_norm v in {x2D=v.x2D/.n; y2D=v.y2D/.n}
 
 (* ============================================================================= *)
-(* = Force la norme d'un vecteur                                               = *)
+(* = Force norm of a vector                                                    = *)
 (* ============================================================================= *)
 let vect_set_norm v norme =
   let n = norme /. (vect_norm v) in {x2D=v.x2D*.n; y2D=v.y2D*.n}
 
 (* ============================================================================= *)
-(* = Distance entre deux points                                                = *)
+(* = Distance between two points                                               = *)
 (* ============================================================================= *)
 let distance pt1 pt2 = vect_norm (vect_make pt1 pt2)
 
 (* ============================================================================= *)
-(* = Rotation d'un vecteur d'un angle alpha en radians                         = *)
+(* = Rotation of a vector by an angle alpha in radians                         = *)
 (* ============================================================================= *)
 let vect_rotate_rad v alpha =
   let c = cos alpha and s = sin alpha in
   {x2D= v.x2D *. c -. v.y2D *. s; y2D= v.x2D *. s +. v.y2D *. c}
 
 (* ============================================================================= *)
-(* = Rotation d'un vecteur d'un angle alpha en degres                          = *)
+(* = Rotation of a vector by an angle alpha in degrees                         = *)
 (* ============================================================================= *)
 let vect_rotate v alpha = vect_rotate_rad v (deg2rad alpha)
 
 (* ============================================================================= *)
-(* = Creation d'un vecteur normal au vecteur v (rotation de 90 degres positive)= *)
+(* = Creation of a normal vector to vector v (rotated 90 degrees positive)     = *)
 (* ============================================================================= *)
 let vect_rotate_90 v = {x2D= -.v.y2D; y2D=v.x2D}
 
 (* ============================================================================= *)
-(* = Ajoute deux vecteurs (ou d'un point et d'un vecteur)                      = *)
+(* = Adds two vectors (or a point and a vector)				                   = *)
 (* ============================================================================= *)
 let vect_add u v = {x2D=u.x2D+.v.x2D; y2D=u.y2D+.v.y2D}
 
 (* ============================================================================= *)
-(* = Soustraction de deux vecteurs (ou d'un point et d'un vecteur)             = *)
+(* = Subtract two vectors (or a point and a vector)                            = *)
 (* ============================================================================= *)
 let vect_sub u v = {x2D=u.x2D-.v.x2D; y2D=u.y2D-.v.y2D}
 
 (* ============================================================================= *)
-(* = Multiplication d'un vecteur par un flottant                               = *)
+(* = Multiplication of a vector by a scalar (float)                            = *)
 (* ============================================================================= *)
 let vect_mul_scal v m = {x2D=m*.v.x2D; y2D=m*.v.y2D}
 
@@ -138,17 +138,17 @@ let vect_mul_scal v m = {x2D=m*.v.x2D; y2D=m*.v.y2D}
 let vect_add_mul_scal lambda a v = vect_add a (vect_mul_scal v lambda)
 
 (* ============================================================================= *)
-(* = Vecteur oppose                                                            = *)
+(* = Vector inversion                                                          = *)
 (* ============================================================================= *)
 let vect_inverse v = vect_mul_scal v (-1.)
 
 (* ============================================================================= *)
-(* = Milieu d'un segment                                                       = *)
+(* = Middle of a segment                                                       = *)
 (* ============================================================================= *)
 let point_middle p1 p2 = {x2D=(p1.x2D+.p2.x2D)/.2.; y2D= (p1.y2D+.p2.y2D)/.2.}
 
 (* ============================================================================= *)
-(* = Barycentre d'une liste de points avec ou sans coefficients                = *)
+(* = Centroid of a list of points with or without coefficients                 = *)
 (* ============================================================================= *)
 let barycenter lst_pts =
   let v = List.fold_left (fun p pt -> vect_add p pt) null_vector lst_pts in
@@ -161,12 +161,12 @@ let weighted_barycenter lst_pts lst_coeffs =
   vect_mul_scal v (1.0/.somme_coeffs)
 
 (* ============================================================================= *)
-(* = Produit scalaire                                                          = *)
+(* = Scalar product                                                            = *)
 (* ============================================================================= *)
 let dot_product u v = u.x2D*.v.x2D +. u.y2D*.v.y2D
 
 (* ============================================================================= *)
-(* = Produit vectoriel                                                         = *)
+(* = Cross product (vector product)                                            = *)
 (* ============================================================================= *)
 let cross_product u v = u.x2D*.v.y2D -. u.y2D*.v.x2D
 
@@ -178,7 +178,7 @@ let cross_product u v = u.x2D*.v.y2D -. u.y2D*.v.x2D
 (* ============================================================================= *)
 
 (* ============================================================================= *)
-(* = Projection d'un point pt sur une droite (a, u)                            = *)
+(* = Projecting a point pt on a line (a, u)                                    = *)
 (* ============================================================================= *)
 let point_project_on_line pt a u =
   let v = vect_make a pt in
@@ -187,7 +187,7 @@ let point_project_on_line pt a u =
   vect_add_mul_scal lambda a u
 
 (* ============================================================================= *)
-(* = Projection d'un point sur un segment, si possible                         = *)
+(* = Projection of a point on a segment, if possible                           = *)
 (* ============================================================================= *)
 let point_project_on_segment pt a b =
   let v = vect_make a pt and u = vect_make a b in
@@ -197,7 +197,7 @@ let point_project_on_segment pt a b =
   else None
 
 (* ============================================================================= *)
-(* = Projection d'un point sur un ensemble de segments, si possible            = *)
+(* = Projection of a point on a set of segments, if possible                   = *)
 (* ============================================================================= *)
 let point_project_on_segments_list pt lst_points =
   let proj = ref None and dist = ref 0. in
@@ -207,9 +207,9 @@ let point_project_on_segments_list pt lst_points =
           (match point_project_on_segment pt a b with
               None   -> ()
             | Some p ->
-            (* Le point se projete sur le segment ab, on teste si la distance *)
-            (* de pt au segment ab est inferieure a la distance courante, si  *)
-            (* oui alors le point p est le point recherche                    *)
+              (* The point projects on the segment ab, we test if the distance  *)
+              (* of pt to the segment ab is less than the current distance, if  *)
+              (* yes then p is the point we are searching.                      *)
               let d = distance p pt in
               (match !proj with
                   None   -> dist:= d; proj:=Some p
@@ -229,13 +229,13 @@ let point_project_on_segments_list pt lst_points =
 
 
 (* ============================================================================= *)
-(* = Distance d'un point a une droite                                          = *)
+(* = Distance of a point from a line                                           = *)
 (* ============================================================================= *)
 let distance_point_line pt a u =
   let v = vect_make pt a in abs_float ((cross_product u v)/.(vect_norm u))
 
 (* ============================================================================= *)
-(* = Distance d'un point a un ensemble de segments                             = *)
+(* = Distance from a point to a set of segments                                = *)
 (* ============================================================================= *)
 let distance_point_segments_list pt lst_points =
   match point_project_on_segments_list pt lst_points with
@@ -251,9 +251,9 @@ let distance_point_segments_list pt lst_points =
 
 
 (* ============================================================================= *)
-(* = Routine globale d'intersection                                            = *)
-(* = a = point + u = vecteur directeur de la premiere droite                   = *)
-(* = b = point + v = vecteur directeur de la seconde droite                    = *)
+(* = Intersection routine                                                      = *)
+(* = a = point + u = vector definting the first line                           = *)
+(* = b = point + v = vector defining the second line                           = *)
 (* ============================================================================= *)
 let crossing_point a u c v =
   let x = vect_make c a in
@@ -261,7 +261,7 @@ let crossing_point a u c v =
   and denom = -.(cross_product u v) in
 
   if denom = 0. then
-    (* Les deux vecteurs sont paralleles *)
+    (* The two vectors are parallel *)
     None
   else begin
     let r = num1 /. denom and s = num2 /. denom in
@@ -285,7 +285,7 @@ let crossing_point a u c v =
   end
 
 (* ============================================================================= *)
-(* = Test du type d'intersection                                               = *)
+(* = Test the type of interscetion                                             = *)
 (* ============================================================================= *)
 let test_in_segment t =
   (t=T_IN_SEG1)||(t=T_ON_PT1)||(t=T_ON_PT2)||
@@ -293,7 +293,7 @@ let test_in_segment t =
 let test_on_hl t = (test_in_segment t)||(t=T_OUT_SEG_PT4)||(t=T_OUT_SEG_PT2)
 
 (* ============================================================================= *)
-(* = Teste l'intersection de deux segments (a,b) et (c,d)                      = *)
+(* = Tests the intersection of two segments (a,b) and (c,d)                    = *)
 (* ============================================================================= *)
 let crossing_seg_seg a b c d =
   match crossing_point a (vect_make a b) c (vect_make c d) with
@@ -301,7 +301,7 @@ let crossing_seg_seg a b c d =
     | Some (type1, type2, _pt) -> (test_in_segment type1) && (test_in_segment type2)
 
 (* ============================================================================= *)
-(* = Teste l'intersection d'un segment (a,b) et d'une demi-droite (c,v)        = *)
+(* = Tests the intersection of a segment (a,b) and a half-line (c,v)           = *)
 (* ============================================================================= *)
 let crossing_seg_hl a b c v =
   match crossing_point a (vect_make a b) c v with
@@ -311,7 +311,7 @@ let crossing_seg_hl a b c v =
       (test_in_segment type1) && (test_on_hl type2)
 
 (* ============================================================================= *)
-(* = Teste l'intersection de deux demi-droites                                 = *)
+(* = Tests the intersection of two half-lines                                  = *)
 (* ============================================================================= *)
 let crossing_hl_hl a u c v =
   let inter = crossing_point a u c v in
@@ -320,7 +320,7 @@ let crossing_hl_hl a u c v =
     | Some (type1, type2, _pt) -> (test_on_hl type1) && (test_on_hl type2)
 
 (* ============================================================================= *)
-(* = Teste l'intersection de deux droites et renvoie le point s'il existe      = *)
+(* = Tests the intersection of two lines and returns the point if it exists    = *)
 (* ============================================================================= *)
 let crossing_lines a u c v =
   match crossing_point a u c v with
@@ -330,26 +330,26 @@ let crossing_lines a u c v =
 
 (* ============================================================================= *)
 (* =                                                                           = *)
-(* =                              Polygones                                    = *)
-(* =                par defaut ils sont consideres comme ouverts               = *)
+(* =                              Polygons                                     = *)
+(* =                by default they are considered open                        = *)
 (* =                                                                           = *)
 (* ============================================================================= *)
 
 
 (* ============================================================================= *)
-(* = Teste si un polygone est ferme                                            = *)
+(* = Test if a polygon is closed                                               = *)
 (* ============================================================================= *)
 let poly_is_closed poly =
   if poly=[] then false else point_same (List.hd poly) (List.hd (List.rev poly))
 
 (* ============================================================================= *)
-(* = Ferme un polygone [A; B; C; D] -> [A; B; C; D; A]                         = *)
+(* = Close a polygon [A; B; C; D] -> [A; B; C; D; A]                           = *)
 (* ============================================================================= *)
 let poly_close poly =
   if poly = [] || poly_is_closed poly then poly else poly@[List.hd poly]
 
 (* ============================================================================= *)
-(* = Ferme un polygone [A; B; C; D] -> [|A; B; C; D; A; B|]                    = *)
+(* = Close a polygon [A; B; C; D] -> [|A; B; C; D; A; B|]                      = *)
 (* ============================================================================= *)
 let poly_close2 poly =
   if List.length poly < 2 then Array.of_list poly else begin
@@ -358,7 +358,7 @@ let poly_close2 poly =
   end
 
 (* ============================================================================= *)
-(* = Indique si un point est dans un polygone                                  = *)
+(* = Indicates whether a point is in a polygon                                 = *)
 (* ============================================================================= *)
 let point_in_poly pt poly =
   let p = Array.of_list poly in
@@ -371,16 +371,16 @@ let point_in_poly pt poly =
   let is_in = ref false and j = ref (List.length poly -1) in
   Array.iteri (fun i p0 -> do_func p0 p.(!j) pt is_in ; j := i) p ;
 
-  (* Resultat *)
+  (* Result *)
   !is_in
 
 (* ============================================================================= *)
-(* = Indique si un point est dans un cercle                                    = *)
+(* = Indicates whether a point is in a circle                                  = *)
 (* ============================================================================= *)
 let point_in_circle pt (center, r) = distance pt center <= r
 
 (* ============================================================================= *)
-(* = Calcul de l'enveloppe convexe d'un polygone                               = *)
+(* = Calculation of the convex hull of a polygon                               = *)
 (* ============================================================================= *)
 let convex_hull poly =
   let det a b =
@@ -423,10 +423,10 @@ let convex_hull poly =
   itere {x2D=debut.x2D+.1.0;y2D=debut.y2D} debut l2 [debut]
 
 (* ============================================================================= *)
-(* = Intersection d'un segment et d'un polygone (non ferme)                    = *)
+(* = Intersection of a segment and a polygon (not closed)                      = *)
 (* ============================================================================= *)
 let crossing_seg_poly a b poly =
-  (* Supprime les doublons dans une liste triee *)
+  (* Remove duplicates in a sorted list *)
   let supprime_doublons_points l =
     let (_p, new_l) = List.fold_left (fun (old, lst) pt ->
       match old with
@@ -441,23 +441,23 @@ let crossing_seg_poly a b poly =
 
   for i = 0 to (Array.length pol-1) do
     let c = pol.(i) and
-        (* Rappel : le polygone n'est pas ferme... *)
+        (* Reminder: the polygon is not closed... *)
         d = if i < (Array.length pol) -1 then pol.(i+1) else pol.(0) in
     let inter = crossing_point a u c (vect_make c d) in
     match inter with
-        None -> () (* Pas d'intersection entre le segment et l'arrete *)
+        None -> () (* No intersection between the segment and the vertice *)
       | Some (type1, type2, pt) ->
         if (test_in_segment type1) && (test_in_segment type2) then
-          (* L'intersection est bien sur les 2 segments *)
+          (* The intersection is on the 2 segments *)
           lst_pts_inter := pt :: !lst_pts_inter
   done ;
 
-  (* Suppression des doublons dans la liste des points d'intersection *)
-  (* Il y a des doublons si intersection sur un sommet du polygone    *)
+  (* Remove duplicates in the list of intersections.                      *)
+  (* There is a duplicate if the intersection is on a edge of the polygon *)
   supprime_doublons_points !lst_pts_inter
 
 (* ============================================================================= *)
-(* = Intersection sans prendre en compte les sommets                           = *)
+(* = Intersection without considering the vertices                             = *)
 (* ============================================================================= *)
 let crossing_seg_poly_exclusive a b poly =
   let u = vect_make a b and
@@ -466,24 +466,24 @@ let crossing_seg_poly_exclusive a b poly =
 
   for i = 0 to (Array.length pol-1) do
     let c = pol.(i) and
-        (* Rappel : le polygone n'est pas ferme... *)
+        (* Reminder: the polygon is not closed... *)
         d = if i < (Array.length pol) -1 then pol.(i+1) else pol.(0) in
     let inter = crossing_point a u c (vect_make c d) in
     match inter with
-        None -> () (* Pas d'intersection entre le segment et l'arrete *)
+        None -> () (* No intersection between the segment and the vertice *)
       | Some (type1, type2, pt) ->
         if (type1=T_IN_SEG1) && (type2=T_IN_SEG2) then
-          (* L'intersection est bien sur les 2 segments *)
+          (* The intersection is on the 2 segments *)
           lst_pts_inter := pt :: !lst_pts_inter ;
   done ;
 
   !lst_pts_inter
 
 (* ============================================================================= *)
-(* = Cercle circonscrit a un triangle                                          = *)
+(* = Circumscribed circle in a triangle                                        = *)
 (* ============================================================================= *)
 let circumcircle {x2D=x1; y2D=y1} {x2D=x2; y2D=y2} {x2D=x3; y2D=y3} =
-  (* Determinants de matrices 3x3 *)
+  (* 3x3 matrix determinant *)
   let eval_det a1 a2 a3 b1 b2 b3 c1 c2 c3 =
     a1*.b2*.c3-.a1*.b3*.c2-.a2*.b1*.c3+.a2*.b3*.c1+.a3*.b1*.c2-.a3*.b2*.c1 in
   let eval_det1 a1 a2 b1 b2 c1 c2 = eval_det a1 a2 1. b1 b2 1. c1 c2 1. in
@@ -497,19 +497,19 @@ let circumcircle {x2D=x1; y2D=y1} {x2D=x2; y2D=y2} {x2D=x3; y2D=y3} =
   let xc = bx/.a and yc = by/.a in
   let r = abs_float ((sqrt(bx*.bx+.by*.by-.2.*.a*.c))/.a) in
 
-  (* Position du centre et rayon *)
+  (* Position of the centre and the radius *)
   ({x2D=xc; y2D=yc}, r)
 
 (* ============================================================================= *)
-(* = Test sens horaire ou inverse                                              = *)
+(* = Test direction of an angle                                                = *)
 (* ============================================================================= *)
 let ccw_angle p0 p1 p2 =
   let p = cross_product (vect_make p0 p1) (vect_make p1 p2) in
   if p > 0. then CCW else if p < 0. then CW else CCW_UNDEFINED
 
 (* ============================================================================= *)
-(* = Teste si un polygone est concave ou convexe                               = *)
-(* = Il est convexe si toutes les arretes consecutives sont dans la meme sens  = *)
+(* = Test if a polygon is concave or convex                                    = *)
+(* = Is convex if all consecutive angles are in the same direction             = *)
 (* ============================================================================= *)
 let poly_test_convex l =
   if List.length l > 2 then begin
@@ -522,7 +522,7 @@ let poly_test_convex l =
   end else CONV_UNDEFINED
 
 (* ============================================================================= *)
-(* = Teste si un polygone est ordonne dans le sens horaire ou pas              = *)
+(* = Test if a polygon is ordered in a clockwise direction or not              = *)
 (* ============================================================================= *)
 let poly_test_ccw l =
   if List.length l > 2 then begin
@@ -538,11 +538,11 @@ let poly_test_ccw l =
   end else CCW_UNDEFINED
 
 (* ============================================================================= *)
-(* = Surface d'un polygone (signee)                                            = *)
+(* = Area of a polygon (signed)                                                = *)
 (* ============================================================================= *)
 let poly_signed_area poly =
-  (* On peut le faire avec des produits vectoriels mais la facon suivante est *)
-  (* plus efficace et plus precise *)
+  (* This can be done with vector products but the following way is *)
+  (* more efficient and precise *)
 
   if List.length poly < 2 then 0. else begin
     let poly = poly_close2 poly in
@@ -554,24 +554,24 @@ let poly_signed_area poly =
   end
 
 (* ============================================================================= *)
-(* = Surface d'un polygone (non signee)                                        = *)
+(* = Area of a polygon (not signed)                                            = *)
 (* ============================================================================= *)
 let poly_area poly = abs_float (poly_signed_area poly)
 
 (* ============================================================================= *)
-(* = Centroide d'un polygone                                                   = *)
+(* = Centroid of a polygon                                                     = *)
 (* ============================================================================= *)
 let poly_centroid poly =
-  (* On peut trianguler et ponderer le centre de chaque triangle par sa  *)
-  (* surface mais on peut faire plus efficace. Ici, on prend un point du *)
-  (* polygone (le premier par ex.) et on pondere l'aire (signee) des     *)
-  (* triangles construits a partir de ce point.                          *)
+  (* We could triangulate and weight the center of each triangle by its  *)
+  (* surface, but it can be more efficient. Here, we take a point of the *)
+  (* polygon (the first for instance) and we weight the (signed) area of *)
+  (* the triangles built from this point.                                *)
 
-  (* Centroide d'un triangle *)
+  (* Centroid of a triangle *)
   let centroid_triangle p1 p2 p3 =
     {x2D=(p1.x2D+.p2.x2D+.p3.x2D)/.3.; y2D=(p1.y2D+.p2.y2D+.p3.y2D)/.3.} in
 
-  (* Aire signee d'un triangle, pas besoin de poly_area... *)
+  (* Signed area of a triangle, no need for poly_area... *)
   let area_triangle p1 p2 p3 =
     (cross_product (vect_make p1 p2) (vect_make p1 p3))/.2.
   in
@@ -595,24 +595,24 @@ let poly_centroid poly =
 
 (* ============================================================================= *)
 (* =                                                                           = *)
-(* =                        Triangulation de polygones                         = *)
-(* =                par defaut ils sont consideres comme ouverts               = *)
+(* =                        Triangulation of polygons                          = *)
+(* =                Default they are considered open                           = *)
 (* =                                                                           = *)
 (* ============================================================================= *)
 
 
 (* ============================================================================= *)
-(* = Triangulation d'un polygone                                               = *)
+(* = Triangulation of a polygon                                                = *)
 (* ============================================================================= *)
 let in_tesselation poly =
-  (* On teste si le polygone est bien CCW, s'il ne l'est pas on l'inverse *)
+  (* It tests whether the polygon is CCW, if tt is not then it is reverse *)
   let (switched, l)=
     match poly_test_ccw poly with
         CW -> (true, List.rev poly)
       | _  -> (false, poly)
   in
 
-  (* Creation du tableau des points sous la forme necessaire a la triangulation *)
+  (* Creation of the points table in the necessary form for a triangulation *)
   let vertices =
     let t = Array.of_list l and n = List.length l and vertices = ref [] in
     Array.iteri (fun i pt ->
@@ -622,8 +622,8 @@ let in_tesselation poly =
     Array.of_list (List.rev !vertices)
   in
 
-  (* Fonction testant si les points d'indices n1 et n2 forment une diagonale *)
-  (* completement contenue dans le polygone *)
+  (* Function testing whether points of indices n1 and n2 form a diagonal *)
+  (* completely contained within the polygon *)
   let is_diagonal n1 n2 =
     let lefton a b c = cross_product (vect_make a b) (vect_make a c) >= 0. in
     let left a b c   = cross_product (vect_make a b) (vect_make a c) > 0. in
@@ -631,7 +631,7 @@ let in_tesselation poly =
     let is_in_cone a b =
       let a1=vertices.(a.next) and a0=vertices.(a.prev) in
 
-      (* Point A convexe ? *)
+      (* Is A a convex point?  *)
       if lefton a.pos a1.pos a0.pos then
         (left a.pos b.pos a0.pos) && (left b.pos a.pos a1.pos)
       else not ((lefton a.pos b.pos a1.pos) && (lefton b.pos a.pos a0.pos))
@@ -654,7 +654,7 @@ let in_tesselation poly =
     end else false
   in
 
-  (* Initialisation des oreilles *)
+  (* Initialize ears *)
   Array.iter (fun v1 -> v1.ear <- is_diagonal v1.prev v1.next) vertices ;
 
   (* Triangulation *)
@@ -665,41 +665,41 @@ let in_tesselation poly =
     let v2 = ref !current_idx and finished = ref false in
     while not !finished && not !earfound do
       if vertices.(!v2).ear then begin
-        (* Le point courant correspond a une oreille, on va le supprimer *)
+        (* The current point has an ear, we will delete it *)
         earfound:=true ;
 
-        (* 5 points consecutifs, v2 est au 'milieu' des 5 *)
+        (* 5 consecutive points, v2 is the 'middle' of 5 *)
         let v1=vertices.(!v2).prev and v3=vertices.(!v2).next in
         let v0=vertices.(v1).prev  and v4=vertices.(v3).next in
 
-        (* Sauvegarde du triangle. Pas sous la forme v1, v2, v3 sinon      *)
-        (* il n'est pas CCW et donc pb de normale exterieure a l'affichage *)
+        (* Saving the triangle. Not in the form v1, v2, v3 otherwise *)
+        (* it is not CCW and therefore outside normal is not correct *)
         lst_triangles := (v3, !v2, v1)::!lst_triangles ;
 
-        (* Mise a jour des oreilles *)
+        (* Update ears *)
         vertices.(v1).ear <- is_diagonal v0 v3 ;
         vertices.(v3).ear <- is_diagonal v1 v4 ;
 
-        (* Suppression du point v2 *)
+        (* Remove the point v2 *)
         vertices.(v1).next <- v3 ;
         vertices.(v3).prev <- v1 ;
         current_idx:=v3 ;
 
-        (* Un triangle de moins a chercher *)
+        (* One riangle less to search *)
         decr n
       end else v2:=vertices.(!v2).next ;
 
-      (* C'est fini quand on revient sur le point initial *)
+      (* It's over when it returns to the initial point *)
       finished:= !v2 = !current_idx
     done ;
   done ;
 
   if not !earfound then begin Printf.printf "No ear !\n"; flush stdout end ;
 
-  (* Si le polygone etait CW au depart, il a ete retourne et les numeros   *)
-  (* des points ne sont alors pas dans le meme sens que le polygone passe  *)
-  (* par l'utilisateur. On remet alors les numeros comme ils etaients lors *)
-  (* de l'appel a la fonction de triangulation                             *)
+  (* If the polygon was departing CW, it has be reversed and the points'   *)
+  (* number are then not in the same sense that the polygon passed         *)
+  (* by the user. Numbers are put back in the original order as when the   *)
+  (* triangulation function was called.                                    *)
   if switched then begin
     let n = List.length poly in
     lst_triangles:=List.map (fun (p1, p2, p3) -> (n-1-p1, n-1-p2, n-1-p3)
@@ -709,14 +709,14 @@ let in_tesselation poly =
   !lst_triangles
 
 (* ============================================================================= *)
-(* = Triangulation d'un polygone                                               = *)
+(* = Triangulation of a polygon                                                = *)
 (* ============================================================================= *)
 let tesselation l =
   let t = Array.of_list l in
   List.map (fun (p1, p2, p3) -> [t.(p1); t.(p2); t.(p3)]) (in_tesselation l)
 
 (* ============================================================================= *)
-(* = Recherche des triangles fan dans une liste de triangles                   = *)
+(* = Search fan triangles in a list of triangles                               = *)
 (* ============================================================================= *)
 let in_tesselation_fans l =
   let t = Array.of_list l in
@@ -745,10 +745,10 @@ let in_tesselation_fans l =
             [] -> (a, b, [a; b])::!l0
           | (c, d, lst)::reste ->
             if b=c then begin
-            (* Insertion avant *)
+            (* Insert before *)
               (List.rev ((a, d, a::lst)::deb))@reste
             end else if a=d then begin
-            (* Insertion apres *)
+            (* Insert after *)
               (List.rev ((c, b, lst@[b])::deb))@reste
             end else f ((c, d, lst)::deb) reste
       in
@@ -785,12 +785,12 @@ let in_tesselation_fans l =
   (t, !lst_fans)
 
 (* ============================================================================= *)
-(* = Triangulation en triangles_fan                                            = *)
+(* = Triangulation in triangles_fan                                            = *)
 (* ============================================================================= *)
-(* effectue la triangulation du polygone en
-   triangle_fan OpenGL. En sortie est renvoyee une liste contenant des listes
-   de points. Chacune de ces listes de points contient soit 3 points (triangle)
-   soit plus de 3 points (pour un triangle_fan)
+(* Performs triangulation of the polygon
+   triangle_fan OpenGL. Output is a list containing lists of
+   points. Each point lists contains either 3 points (triangle)
+   or more than 3 points (for a triangle_fan)
 *)
 
 let tesselation_fans l =
@@ -809,7 +809,7 @@ let cart2polar p = {r2D = vect_norm p; theta2D = atan2 p.y2D p.x2D}
 let polar2cart p = {x2D = p.r2D *. cos p.theta2D; y2D = p.r2D *. sin p.theta2D}
 
 
-(* grosses conneries d'avions *)
+(* Aviation related crap (e.g. angle/heading normalization) *)
 
 let two_m_pi = 2. *. m_pi
 let m_pi_two = m_pi /. 2.
@@ -931,4 +931,5 @@ let slice_polygon = fun poly ->
 
 
 
-(* =============================== FIN ========================================= *)
+(* =============================== END ========================================= *)
+

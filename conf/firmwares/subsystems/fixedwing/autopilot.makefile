@@ -236,8 +236,6 @@ ap.srcs 		+= $(ap_srcs) $(ns_srcs)
 ##
 include $(CFG_SHARED)/nps.makefile
 nps.srcs += nps/nps_autopilot_fixedwing.c
-nps.srcs += subsystems/datalink/datalink.c $(SRC_FIRMWARE)/fixedwing_datalink.c
-nps.srcs += $(SRC_FIRMWARE)/ap_downlink.c $(SRC_FIRMWARE)/fbw_downlink.c
 
 # add normal ap and fbw sources
 nps.CFLAGS  += $(fbw_CFLAGS) $(ap_CFLAGS)

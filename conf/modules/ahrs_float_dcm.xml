@@ -1,0 +1,67 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ahrs_float_dcm" dir="ahrs">
+  <doc>
+    <description>
+      AHRS using DCM filter.
+      No direct gyro bias estimation, but also compensates for attitude drift.
+      Uses GPS speed for heading.
+      Compensation of centrifugal force via GPS speed (to fly in circles with a fixedwing).
+      Careful, it doesn't handle all BODY_TO_IMU rotations (mounting positions) correctly!
+
+      The algorithm was developed by William Premerlani and Paul Bizard.
+      The algorithm is also used in the AHRS systems of the AdruIMU.
+      The name DCM for the algorithm is really a misnomer, as that just means that the orientation is represented as a DirectionCosineMatrix (rotation matrix).
+      But since people already know it under that name, we kept it.
+    </description>
+    <configure name="USE_MAGNETOMETER" value="FALSE" description="set to FALSE to disable magnetometer"/>
+    <configure name="AHRS_ALIGNER_LED" value="1" description="LED number to indicate AHRS alignment, none to disable (default is board dependent)"/>
+    <define name="USE_MAGNETOMETER_ONGROUND" description="use magnetic compensation before takeoff only while GPS course not good"/>
+    <define name="USE_AHRS_GPS_ACCELERATIONS" description="enable forward acceleration compensation from GPS speed"/>
+  </doc>
+
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="AHRS">
+        <dl_setting MAX="100" MIN="0" STEP="1" VAR="imu_health" shortname="health" module="subsystems/ahrs" />
+        <dl_setting MAX="100" MIN="0" STEP="1" VAR="renorm_sqrt_count" shortname="err_norm" module="subsystems/ahrs" />
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <autoload name="ahrs_sim"/>
+  <header>
+    <file name="ahrs.h" dir="subsystems"/>
+  </header>
+
+  <makefile target="!sim|fbw">
+    <configure name="USE_MAGNETOMETER" default="0"/>
+    <configure name="AHRS_ALIGNER_LED" default="none"/>
+
+    <define name="USE_MAGNETOMETER" cond="ifeq (,$(findstring $(USE_MAGNETOMETER),0 FALSE))"/>
+    <define name="AHRS_ALIGNER_LED" value="$(AHRS_ALIGNER_LED)" cond="ifneq ($(AHRS_ALIGNER_LED),none)"/>
+    <define name="USE_AHRS"/>
+    <define name="USE_AHRS_ALIGNER"/>
+
+    <file name="ahrs.c" dir="subsystems"/>
+    <file name="ahrs_aligner.c" dir="subsystems/ahrs"/>
+    <file name="ahrs_float_dcm.c" dir="subsystems/ahrs"/>
+    <file name="ahrs_float_dcm_wrapper.c" dir="subsystems/ahrs"/>
+    <raw>
+ifdef SECONDARY_AHRS
+ifneq (,$(findstring $(SECONDARY_AHRS), dcm float_dcm))
+# this is the secondary AHRS
+$(TARGET).CFLAGS += -DAHRS_SECONDARY_TYPE_H=\"subsystems/ahrs/ahrs_float_dcm_wrapper.h\"
+$(TARGET).CFLAGS += -DSECONDARY_AHRS=ahrs_dcm
+else
+# this is the primary AHRS
+$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_dcm_wrapper.h\"
+$(TARGET).CFLAGS += -DPRIMARY_AHRS=ahrs_dcm
+endif
+else
+# plain old single AHRS usage
+$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_float_dcm_wrapper.h\"
+endif
+    </raw>
+  </makefile>
+</module>

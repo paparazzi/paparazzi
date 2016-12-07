@@ -1,3 +1,5 @@
+#define MODULES_C
+
 #include "std.h"
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
@@ -9,6 +11,7 @@
 
 #include "subsystems/datalink/datalink.h"
 #include "generated/settings.h"
+#include "generated/modules.h"
 #include "pprzlink/dl_protocol.h"
 
 #include "i2c.h"
@@ -48,6 +51,7 @@ static inline void main_init(void)
   mb_twi_controller_init();
 
   mb_tacho_init();
+  modules_init();
 
   //motor_power = 0;
 
@@ -66,25 +70,23 @@ static inline void main_periodic_task(void)
   float throttle = (float)wt_servo_motor_power / 1000.;
   mb_twi_controller_set(throttle);
 
-
+  modules_periodic_task();
 }
 
 static inline void main_event_task(void)
 {
-  DatalinkEvent();
-
-
+  modules_event_task();
 }
 
 
 #define IdOfMsg(x) (x[1])
 
-void dl_parse_msg(void)
+void dl_parse_msg(struct link_device *dev __attribute__((unused)), struct transport_tx *trans __attribute__((unused)), uint8_t *buf)
 {
 
   LED_TOGGLE(1);
 
-  uint8_t msg_id = IdOfMsg(dl_buffer);
+  uint8_t msg_id = IdOfMsg(buf);
   switch (msg_id) {
 
     case  DL_PING: {
@@ -93,8 +95,8 @@ void dl_parse_msg(void)
     }
 
     case DL_SETTING : {
-      uint8_t i = DL_SETTING_index(dl_buffer);
-      float var = DL_SETTING_value(dl_buffer);
+      uint8_t i = DL_SETTING_index(buf);
+      float var = DL_SETTING_value(buf);
       DlSetting(i, var);
       DOWNLINK_SEND_DL_VALUE(&i, &var);
       break;

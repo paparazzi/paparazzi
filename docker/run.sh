@@ -82,8 +82,15 @@ fi
 # try to detect which USB devices to pass to the container automatically
 # set DISABLE_USB=1 to turn it off
 if [ -z "$DISABLE_USB" ]; then
-    # find on OSX doesn't have the -printf option... so use exec echo instead
-    USB_OPTS=$(find /dev -maxdepth 1 \( -name "ttyACM?" -or -name "ttyUSB?" \) -exec echo -n "--device={} " \;)
+    # get major/minor docker version without the dot
+    DOCKER_VERSION=$(docker version | grep -m 1 Version: | awk '{print $2}' | cut -f1,2 -d. | tr -d .)
+    # docker should support relative symlinks for --device options since 1.12
+    if [ "$DOCKER_VERSION" -ge 112 ]; then
+       # find on OSX doesn't have the -printf option... so use exec echo instead
+        USB_OPTS=$(find /dev -maxdepth 2 \( -name "ttyACM?" -or -name "ttyUSB?" -or -name "bmp-*" -or -path /dev/paparazzi/* \) -exec echo -n "--device={} " \; 2> /dev/null)
+    else
+        USB_OPTS=$(find /dev -maxdepth 1 \( -name "ttyACM?" -or -name "ttyUSB?" \) -exec echo -n "--device={} " \; 2> /dev/null)
+    fi
     if [ -n "$USB_OPTS" ]; then
         echo Passing auto-detected USB devices: $USB_OPTS
     fi

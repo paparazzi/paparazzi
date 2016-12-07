@@ -19,9 +19,19 @@
  * Boston, MA 02111-1307, USA.
  *
  */
+/** \file sys_mon.c
+ *
+ * System monitoring for bare metal targets
+ * return cpu load, average exec time, ...
+ */
 
 #include "core/sys_mon.h"
+#include "core/sys_mon_bare_metal.h"
 #include "mcu_periph/sys_time.h"
+
+#include "mcu_periph/uart.h"
+#include "pprzlink/messages.h"
+#include "subsystems/datalink/downlink.h"
 
 /** Global system monitor data (averaged over 1 sec) */
 struct SysMon sys_mon;
@@ -48,6 +58,7 @@ void init_sysmon(void)
   sys_mon.periodic_cycle_min = 0xFFFF;
   sys_mon.periodic_cycle_max = 0;
   sys_mon.event_number = 0;
+  sys_mon.cpu_time = 0;
 
   n_periodic = 0;
   n_event = 0;
@@ -59,10 +70,6 @@ void init_sysmon(void)
   periodic_timer = 0;
 }
 
-#include "mcu_periph/uart.h"
-#include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
-
 void periodic_report_sysmon(void)
 {
   /** Report system status at low frequency */
@@ -71,12 +78,13 @@ void periodic_report_sysmon(void)
     sys_mon.periodic_cycle = sum_cycle_periodic / n_periodic;
     sys_mon.cpu_load = 100 * sys_mon.periodic_cycle / sys_mon.periodic_time;
     sys_mon.event_number = sum_n_event / n_periodic;
+    sys_mon.cpu_time = get_sys_time_float();
 
     DOWNLINK_SEND_SYS_MON(DefaultChannel, DefaultDevice, &sys_mon.periodic_time,
                           &sys_mon.periodic_time_min, &sys_mon.periodic_time_max,
                           &sys_mon.periodic_cycle, &sys_mon.periodic_cycle_min,
                           &sys_mon.periodic_cycle_max, &sys_mon.event_number,
-                          &sys_mon.cpu_load);
+                          &sys_mon.cpu_load, &sys_mon.cpu_time);
   }
 
   n_periodic = 0;

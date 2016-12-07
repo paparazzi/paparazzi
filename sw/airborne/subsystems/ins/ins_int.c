@@ -71,9 +71,6 @@ static void sonar_cb(uint8_t sender_id, float distance);
 #include "firmwares/rotorcraft/stabilization.h"
 #endif
 
-#ifndef INS_SONAR_OFFSET
-#define INS_SONAR_OFFSET 0.
-#endif
 #ifndef INS_SONAR_MIN_RANGE
 #define INS_SONAR_MIN_RANGE 0.001
 #endif
@@ -278,6 +275,7 @@ void ins_int_propagate(struct Int32Vect3 *accel, float dt)
   struct Int32Vect3 accel_meas_body;
   struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&imu.body_to_imu);
   int32_rmat_transp_vmult(&accel_meas_body, body_to_imu_rmat, accel);
+  stateSetAccelBody_i(&accel_meas_body);
   struct Int32Vect3 accel_meas_ltp;
   int32_rmat_transp_vmult(&accel_meas_ltp, stateGetNedToBodyRMat_i(), &accel_meas_body);
 
@@ -331,7 +329,19 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, float pressure)
       vff_realign(0.);
       ins_update_from_vff();
     } else {
-      ins_int.baro_z = -pprz_isa_height_of_pressure(pressure, ins_int.qfe);
+      float baro_up = pprz_isa_height_of_pressure(pressure, ins_int.qfe);
+
+      // Calculate the distance to the origin
+      struct EnuCoor_f *enu = stateGetPositionEnu_f();
+      double dist2_to_origin = enu->x*enu->x + enu->y*enu->y;
+
+      // correction for the earth's curvature
+      const double earth_radius = 6378137.0;
+      float height_correction = (float) (sqrt(earth_radius*earth_radius + dist2_to_origin) - earth_radius);
+
+      // The VFF will update in the NED frame
+      ins_int.baro_z = -(baro_up - height_correction);
+
 #if USE_VFF_EXTENDED
       vff_update_baro(ins_int.baro_z);
 #else

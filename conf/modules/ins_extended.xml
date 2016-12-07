@@ -11,11 +11,22 @@
     <define name="INS_INT_GPS_ID" value="GPS_MULTI_ID" description="The ABI sender id of the GPS to use"/>
     <define name="INS_INT_IMU_ID" value="ABI_BROADCAST" description="The ABI sender id of the IMU to use"/>
     <define name="INS_INT_VEL_ID" value="ABI_BROADCAST" description="The ABI sender id of the VELOCITY_ESTIMATE (e.g. from opticflow"/>
-    <define name="INS_SONAR_OFFSET" value="0.0" description="sonar offset in meters"/>
     <define name="INS_SONAR_MIN_RANGE" value="0.001" description="min sonar range in meters"/>
     <define name="INS_SONAR_MAX_RANGE" value="4.0" description="max sonar range in meters"/>
     <define name="INS_SONAR_UPDATE_ON_AGL" value="FALSE" description="assume flat ground and use sonar for height"/>
   </doc>
+
+  <settings>
+    <dl_settings NAME="Ins Extended">
+      <dl_settings NAME="INS">
+        <dl_setting MAX="10" MIN="0" STEP="0.1" VAR="vff.accel_noise" shortname="accel_noise" module="subsystems/ins/vf_extended_float"/>
+        <dl_setting MAX="10" MIN="0" STEP="0.1" VAR="vff.r_baro" shortname="r_baro"/>
+        <dl_setting MAX="10" MIN="0" STEP="0.1" VAR="vff.r_alt" shortname="r_alt"/>
+        <dl_setting MAX="10" MIN="0" STEP="0.1" VAR="vff.r_offset" shortname="r_offset"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
   <header>
     <file name="ins_int.h" dir="subsystems/ins"/>
   </header>

@@ -34,6 +34,7 @@
 #define NAVDATA_H_
 
 #include "std.h"
+#include <unistd.h>
 
 /**
  * Main navdata structure from the navdata board

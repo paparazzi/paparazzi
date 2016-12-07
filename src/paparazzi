@@ -9,7 +9,16 @@ let env =
    let value = if value = "." then Sys.getcwd () else value in
    Printf.sprintf "%s=%s" var value)
    [|"PAPARAZZI_SRC"; "PAPARAZZI_HOME"|]
-let com = dirname // "sw/supervision/paparazzicenter";;
+let com =
+  if Array.length (Sys.argv) > 1 then begin
+    Printf.printf "%d\n" (Array.length (Sys.argv));
+    if Sys.argv.(1) = "-python" then
+      dirname // "paparazzi-python.sh"
+    else
+      dirname // "sw/supervision/paparazzicenter"
+    end
+  else
+    dirname // "sw/supervision/paparazzicenter";;
 Sys.argv.(0) <- com;;
 let env = Array.append env (Unix.environment ());;
 Unix.execve com Sys.argv env

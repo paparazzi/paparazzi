@@ -106,16 +106,9 @@ struct ImuApogee {
 
 extern struct ImuApogee imu_apogee;
 
-
-/* must be defined in order to be IMU code: declared in imu.h
-extern void imu_impl_init(void);
-extern void imu_periodic(void);
-*/
-
-/* Own Extra Functions */
+extern void imu_apogee_init(void);
+extern void imu_apogee_periodic(void);
 extern void imu_apogee_event(void);
 extern void imu_apogee_downlink_raw(void);
-
-#define ImuEvent imu_apogee_event
 
 #endif // IMU_APOGEE_H

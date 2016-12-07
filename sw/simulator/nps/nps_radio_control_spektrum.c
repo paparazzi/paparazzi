@@ -16,6 +16,8 @@
 #define IUCLC 0
 #endif
 
+#define CHANNEL_OF_FRAME(i) ((((frame_buf[2*i]<<8) + frame_buf[2*i+1])&0x03FF)-512)
+
 static int sp_fd;
 
 static gboolean on_serial_data_received(GIOChannel *source,
@@ -33,13 +35,18 @@ int nps_radio_control_spektrum_init(const char *device)
     return -1;
   }
   struct termios termios;
+  termios.c_iflag = 0; // properly initialize variable
   /* input modes  */
   termios.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | INPCK | ISTRIP | INLCR | IGNCR
                        | ICRNL | IUCLC | IXON | IXANY | IXOFF | IMAXBEL);
   termios.c_iflag |= IGNPAR;
+
+  termios.c_cflag = 0; // properly initialize variable
   /* control modes*/
   termios.c_cflag &= ~(CSIZE | PARENB | CRTSCTS | PARODD | HUPCL);
   termios.c_cflag |= CREAD | CS8 | CSTOPB | CLOCAL;
+
+  termios.c_lflag = 0; // properly initialize variable
   /* local modes  */
   termios.c_lflag &= ~(ISIG | ICANON | IEXTEN | ECHO | FLUSHO | PENDIN);
   termios.c_lflag |= NOFLSH;
@@ -127,19 +134,12 @@ static void parse_data(char *buf, int len)
   }
 }
 
-
-#define CHANNEL_OF_FRAME(i) ((((frame_buf[2*i]<<8) + frame_buf[2*i+1])&0x03FF)-512)
 static void handle_frame(void)
 {
-
-
   nps_radio_control.roll = (float)CHANNEL_OF_FRAME(0) / -340.;
   nps_radio_control.throttle = (float)(CHANNEL_OF_FRAME(1) + 340) / 680.;
   nps_radio_control.pitch = (float)CHANNEL_OF_FRAME(2) / -340.;
   nps_radio_control.yaw = (float)CHANNEL_OF_FRAME(3) / -340.;
   nps_radio_control.mode = (float)CHANNEL_OF_FRAME(5) / 340.;
-
-
   //  printf("%f %f %f %f %f \n", nps_radio_control.roll, nps_radio_control.throttle, nps_radio_control.pitch, nps_radio_control.yaw, nps_radio_control.mode);
-
 }

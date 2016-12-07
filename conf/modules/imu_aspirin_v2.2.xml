@@ -1,0 +1,18 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="imu_aspirin_v2.2" dir="imu">
+  <doc>
+    <description>
+      Aspirin v2.2 IMU.
+      - Accelerometer/Gyrocope: MPU6000 via SPI
+      - Magnetometer: HMC58xx via I2C
+      Nearly identical with v2.1, only has the MS5611 baro on SPI.
+      For configuration see the imu_aspirin_v2_common module
+    </description>
+  </doc>
+  <autoload name="imu_aspirin_v2_common"/>
+  <makefile target="!sim|nps|fbw">
+    <!-- SLAVE3 is on PC13, which is the baro CS -->
+    <define name="DUSE_SPI_SLAVE3"/>
+  </makefile>
+</module>

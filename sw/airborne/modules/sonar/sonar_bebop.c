@@ -40,8 +40,8 @@
 struct SonarBebop sonar_bebop;
 static uint8_t sonar_bebop_spi_d[16] = { 0xF0,0xF0,0xF0,0xF0,0xF0,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00 };
 static struct spi_transaction sonar_bebop_spi_t;
-static pthread_t sonar_bebop_thread;
-static void *sonar_bebop_read(void *data);
+static UNUSED pthread_t sonar_bebop_thread;
+static UNUSED void *sonar_bebop_read(void *data);
 
 void sonar_bebop_init(void)
 {
@@ -56,10 +56,9 @@ void sonar_bebop_init(void)
   sonar_bebop_spi_t.input_buf     = NULL;
   sonar_bebop_spi_t.input_length  = 0;
 
-  int rc = pthread_create(&sonar_bebop_thread, NULL, sonar_bebop_read, NULL);
-  if (rc < 0) {
-    return;
-  }
+#if USE_SONAR
+  pthread_create(&sonar_bebop_thread, NULL, sonar_bebop_read, NULL);
+#endif
 }
 
 /**

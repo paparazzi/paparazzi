@@ -335,6 +335,12 @@ struct State {
    * Acceleration in North East Down coordinates.
    * Units: m/s^2 in BFP with #INT32_ACCEL_FRAC
    */
+  struct Int32Vect3 body_accel_i;
+
+  /**
+   * Acceleration in North East Down coordinates.
+   * Units: m/s^2 in BFP with #INT32_ACCEL_FRAC
+   */
   struct NedCoor_i ned_accel_i;
 
   /**
@@ -845,6 +851,12 @@ static inline void stateSetSpeed_f(
   }
 }
 
+/// Set acceleration in Body coordinates (int).
+static inline void stateSetAccelBody_i(struct Int32Vect3 *body_accel)
+{
+  VECT3_COPY(state.body_accel_i, *body_accel);
+}
+
 /************************ Get functions ****************************/
 
 /// Get ground speed in local NED coordinates (int).
@@ -935,6 +947,12 @@ static inline float stateGetHorizontalSpeedDir_f(void)
     stateCalcHorizontalSpeedDir_f();
   }
   return state.h_speed_dir_f;
+}
+
+/// Get acceleration in Body coordinates (int).
+static inline struct Int32Vect3 *stateGetAccelBody_i(void)
+{
+  return &state.body_accel_i;
 }
 /** @}*/
 

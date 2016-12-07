@@ -18,7 +18,7 @@
   <init fun="gps_nmea_init()"/>
   <periodic fun="gps_nmea_periodic_check()" freq="1." autorun="TRUE"/>
   <event fun="gps_nmea_event()"/>
-  <makefile target="ap">
+  <makefile target="ap|fbw">
     <configure name="FURUNO_GPS_PORT" default="$(GPS_PORT)" case="upper|lower"/>
     <configure name="FURUNO_GPS_BAUD" default="$(GPS_BAUD)"/>
 
@@ -35,16 +35,19 @@
       ifdef SECONDARY_GPS
       ifneq (,$(findstring $(SECONDARY_GPS), nmea furuno))
       # this is the secondary GPS
-      ap.CFLAGS += -DGPS_SECONDARY_TYPE_H=\"subsystems/gps/gps_nmea.h\"
-      ap.CFLAGS += -DSECONDARY_GPS=GPS_NMEA
+      $(TARGET).CFLAGS += -DGPS_SECONDARY_TYPE_H=\"subsystems/gps/gps_nmea.h\"
+      $(TARGET).CFLAGS += -DSECONDARY_GPS=GPS_NMEA
       else
-      ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_nmea.h\"
-      ap.CFLAGS += -DPRIMARY_GPS=GPS_NMEA
+      $(TARGET).CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_nmea.h\"
+      $(TARGET).CFLAGS += -DPRIMARY_GPS=GPS_NMEA
       endif
       else
       # plain old single GPS usage
-      ap.CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_nmea.h\"
+      $(TARGET).CFLAGS += -DGPS_TYPE_H=\"subsystems/gps/gps_nmea.h\"
       endif
     </raw>
+  </makefile>
+  <makefile target="fbw">
+    <define name="USE_GPS"/>
   </makefile>
 </module>
