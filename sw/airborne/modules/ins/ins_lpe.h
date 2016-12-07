@@ -69,6 +69,7 @@ struct InsAccel {
   uint32_t timestamp;
   struct Int32Vect3 accel_meas_body;
   struct Int32Vect3 accel_meas_ltp;
+  struct FloatVect3 accel_measured; // m/s^2
 };
 
 struct InsGps {
@@ -144,5 +145,7 @@ void ins_lpe_init_ss(void);
 void ins_lpe_update_ssstates(void);
 void ins_lpe_update_ssparams(void);
 void ins_lpe_init_P(void);
+void ins_lpe_predict(void);
+void ins_lpe_cov_propagation_logic(float **dP);
 
 #endif /* INS_LPE_H */

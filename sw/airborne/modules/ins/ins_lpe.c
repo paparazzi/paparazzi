@@ -121,8 +121,6 @@ void ins_lpe_init_ss(void)
   ins_lpe.B.matrix[X_vx][U_ax] = 1;
   ins_lpe.B.matrix[X_vy][U_ay] = 1;
   ins_lpe.B.matrix[X_vz][U_az] = 1;
-
-  float a= P_MAX;
 }
 
 
@@ -264,6 +262,106 @@ void ins_lpe_zero_matrices(void)
     memset(ins_lpe.u, 0, sizeof(ins_lpe.u));
 }
 
+
+void ins_lpe_cov_propagation_logic(float **dP)
+{
+  for (int i = 0; i < n_x; i++) {
+    if (ins_lpe.P.matrix[i][i] > P_MAX) {
+      // if diagonal element greater than max, stop propagating
+      dP[i][i] = 0;
+
+      for (int j = 0; j < n_x; j++) {
+        dP[i][j] = 0;
+        dP[j][i] = 0;
+      }
+    }
+  }
+}
+
+
+
+/**
+ * Prediction step in the Kalman filter
+ */
+void ins_lpe_predict(void)
+{
+  if (ins_lpe.integrate) {
+    // accel in NED
+    ins_lpe.u[U_ax] = ins_lpe.accel.accel_measured.x;
+    ins_lpe.u[U_ay] = ins_lpe.accel.accel_measured.y;
+    ins_lpe.u[U_az] = ins_lpe.accel.accel_measured.z + 9.81f; // add g
+  }
+  else {
+    // zero input
+    ins_lpe.u[U_ax] = 0;
+    ins_lpe.u[U_ay] = 0;
+    ins_lpe.u[U_az] = 0;
+  }
+
+  // update A with new body-to-NED roration matrix
+  ins_lpe_update_ssstates();
+
+
+  // continuous time kalman filter prediction
+  // integrate runge kutta 4th order
+  // TODO move rk4 algorithm to matrixlib
+  // https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods
+  //float h = getDt(); -> diff since last run
+  float dt;
+
+  //we get dx
+  float dx[n_x];
+  memset(dx, 0, n_x); // set to zero
+
+  // TODO
+
+  // propagate
+  //correctionLogic(dx);
+  // x += dx
+  float_vect_add(ins_lpe.x, dx, n_x);
+
+  float _dP[n_x][n_x];
+  MAKE_MATRIX_PTR(dP, _dP, n_x);
+  float_mat_zero(dP, n_x, n_x);
+
+  float _AT[n_x][n_x];
+  MAKE_MATRIX_PTR(AT, _AT, n_x);
+  float_mat_copy(AT, ins_lpe.A.matrix, n_x, n_x);
+  float_mat_transpose(AT, n_x);
+
+  float _BT[n_x][n_x];
+  MAKE_MATRIX_PTR(BT, _BT, n_x);
+  float_mat_copy(BT, ins_lpe.A.matrix, n_x, n_u);
+  float_mat_transpose(BT, n_x); // ?
+
+  //Matrix<float, n_x, n_x> dP = (_A * _P + _P * _A.transpose() + _B * _R * _B.transpose() + _Q) * getDt();
+  float _AxP[n_x][n_x];
+  MAKE_MATRIX_PTR(AxP, _AxP, n_x);
+  float_mat_zero(AxP, n_x, n_x);
+  float_mat_mul(AxP, ins_lpe.A.matrix, ins_lpe.P.matrix, n_x, n_x, n_x);
+
+  float _PxAT[n_x][n_x];
+  MAKE_MATRIX_PTR(PxAT, _PxAT, n_x);
+  float_mat_zero(PxAT, n_x, n_x);
+
+  float _BxRxBT[n_x][n_x];
+  MAKE_MATRIX_PTR(BxRxBT, _BxRxBT, n_x);
+  float_mat_zero(BxRxBT, n_x, n_x);
+
+
+
+
+
+  ins_lpe_cov_propagation_logic(dP);
+  //_P += dP;
+
+  //_xLowPass.update(_x);
+  //_aglLowPass.update(agl());
+
+
+}
+
+
 /**
  * Init function
  * - Initialize variables, populate Kalman filter
@@ -320,7 +418,7 @@ void ins_lpe_periodic(void)
  *  Copy the pressure and timestamp
  *  Set the baro new data flag
  */
-static void baro_cb(uint8_t __attribute__((unused)) sender_id, float pressure)
+static void baro_cb(uint8_t __attribute__((unused)) sender_id, float pressure __attribute__((unused)))
 {
 
 }
@@ -331,7 +429,7 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, float pressure)
  * Copy the distance and the timestamp
  * Set the sonar new data flag
  */
-static void sonar_cb(uint8_t __attribute__((unused)) sender_id, float distance)
+static void sonar_cb(uint8_t __attribute__((unused)) sender_id, float distance __attribute__((unused)))
 {
   // AGL message doesn't provide timestamp, so use current time
   ins_lpe.sonar.timestamp = get_sys_time_usec();
@@ -357,7 +455,7 @@ static void sonar_cb(uint8_t __attribute__((unused)) sender_id, float distance)
  * Copy the distance and the timestamp
  * Set the lidar new data flag
  */
-static void lidar_cb(uint8_t __attribute__((unused)) sender_id, float distance)
+static void lidar_cb(uint8_t __attribute__((unused)) sender_id, float distance __attribute__((unused)))
 {
   // AGL message doesn't provide timestamp, so use current time
   ins_lpe.lidar.timestamp = get_sys_time_usec();
@@ -393,8 +491,11 @@ static void accel_cb(uint8_t sender_id __attribute__((unused)),
   // derotate
   struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&imu.body_to_imu);
   int32_rmat_transp_vmult(&ins_lpe.accel.accel_meas_body, body_to_imu_rmat, accel);
-  // stateSetAccelBody_i(&ins_lpe.accel.accel_meas_body); // if we use only one INS
-  int32_rmat_transp_vmult(&ins_lpe.accel.accel_meas_ltp, stateGetNedToBodyRMat_i(), &ins_lpe.accel.accel_meas_body);
+  stateSetAccelBody_i(&ins_lpe.accel.accel_meas_body); // if we use only one INS
+  int32_rmat_transp_vmult(&ins_lpe.accel.accel_meas_ltp, stateGetNedToBodyRMat_i(), &ins_lpe.accel.accel_meas_body); // get accel in NED
+  ACCELS_FLOAT_OF_BFP(ins_lpe.accel.accel_measured, ins_lpe.accel.accel_meas_ltp); // convert to float [m/s^2]
+
+  // TOD: check whhich ACCEL we are using? Shouldn't we use body-accel instead of NED accel? There is already RT in the A matrix...
 
   // update flag
   ins_lpe.accel.data_available = TRUE;
@@ -409,7 +510,7 @@ static void accel_cb(uint8_t sender_id __attribute__((unused)),
  */
 static void gps_cb(uint8_t sender_id __attribute__((unused)),
                    uint32_t stamp __attribute__((unused)),
-                   struct GpsState *gps_s)
+                   struct GpsState *gps_s __attribute__((unused)))
 {
 
 }
@@ -421,8 +522,10 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
  * Set the new optical flow data flag
  */
 static void vel_est_cb(uint8_t sender_id __attribute__((unused)),
-                       uint32_t stamp,
-                       float x, float y, float z,
+                       uint32_t stamp __attribute__((unused)),
+                       float x __attribute__((unused)),
+                       float y __attribute__((unused)),
+                       float z __attribute__((unused)),
                        float noise __attribute__((unused)))
 {
 

@@ -664,6 +664,14 @@ static inline void float_mat_transpose(float **a, int n)
   }
 }
 
+static inline void transpose(float **o, float **a, int m, int n)
+{
+  int i, j;
+  for (i = 0; i < m; i++)
+    for (j = 0; j < n; j++)
+      o[j][i] = a[i][j];
+}
+
 /** o = a * b
  *
  * a: [m x n]
