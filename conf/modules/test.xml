@@ -1,0 +1,15 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="test" dir="test">
+  <doc>
+    <description></description>
+  </doc>
+  <header>
+    <file name="test.h"/>
+  </header>
+  <init fun="test_init()"/>
+  <makefile>
+    <file name="test.cpp"/>
+  </makefile>
+</module>
+
