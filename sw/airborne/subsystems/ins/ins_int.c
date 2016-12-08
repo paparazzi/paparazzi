@@ -53,6 +53,7 @@
 
 #include "math/pprz_geodetic_int.h"
 #include "math/pprz_isa.h"
+#include "subsystems/navigation/waypoints.h"
 
 
 #if USE_SONAR
@@ -188,6 +189,7 @@ void ins_int_init(void)
 #if USE_INS_NAV_INIT
   ins_init_origin_i_from_flightplan(&ins_int.ltp_def);
   ins_int.ltp_initialized = true;
+  waypoints_localize_all();
 #else
   ins_int.ltp_initialized  = false;
 #endif
