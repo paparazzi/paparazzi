@@ -19,7 +19,9 @@
     <!-- in seconds-->
     <module name="telemetry" type="transparent" />
     <module name="imu" type="px4fmu_v2.4"/>
-    <module name="gps" type="ublox" />
+    <module name="gps" type="ublox" >
+      <configure name="GPS_BAUD" value="B57600"/>
+    </module>
     <module name="gps" type="ubx_ucenter" />
     <module name="stabilization" type="indi_simple" />
     <module name="ahrs" type="int_cmpl_quat" >
@@ -231,7 +233,7 @@
     <define name="REF_MAX_SPEED" value="2" unit="m/s" />
     <!-- Bad weather -->
     <!-- define name="MAX_BANK" value="32" unit="deg"/ -->
-    <define name="PGAIN" value="120" />
+    <define name="PGAIN" value="50" />
     <define name="DGAIN" value="100" />
     <define name="IGAIN" value="30" />
   </section>
