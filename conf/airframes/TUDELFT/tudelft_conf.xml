@@ -66,7 +66,7 @@
    settings_modules="modules/imu_common.xml modules/gps.xml modules/ahrs_int_cmpl_quat.xml modules/gps_ubx_ucenter.xml modules/time_countdown.xml"
   />
   <aircraft
-   name="Bebop2_Smeur"
+   name="Bebop_Smeur"
    ac_id="21"
    airframe="airframes/TUDELFT/tudelft_bebop_indi.xml"
    radio="radios/dummy.xml"
@@ -77,7 +77,7 @@
    gui_color="#ffffcccaccca"
   />
   <aircraft
-   name="Bebop5_Chris"
+   name="Bebop_Chris"
    ac_id="151"
    airframe="airframes/CDW/cdw_bebop.xml"
    radio="radios/dummy.xml"
