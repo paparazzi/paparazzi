@@ -57,6 +57,7 @@ struct MedianFilterInt sonar_filter;
 #define PX4FLOW_I2C_INTEGRAL_FRAME 0x16
 #define PX4FLOW_I2C_FRAME_LENGTH 22
 #define PX4FLOW_I2C_INTEGRAL_FRAME_LENGTH 25
+#define PX4FLOW_I2C_ID 0x4D
 
 /**
  * Propagate optical flow information
@@ -114,6 +115,16 @@ static inline void px4flow_i2c_frame_cb(void)
 }
 
 
+
+/**
+ * Propagate itegral frame
+ */
+static inline void px4flow_i2c_int_frame_cb(void)
+{
+
+}
+
+
 /**
  * Initialization function
  */
@@ -121,7 +132,11 @@ void px4flow_i2c_init(void)
 {
   px4flow.trans.status = I2CTransDone;
   px4flow.addr = PX4FLOW_I2C_ADDR;
+#if REQUEST_INT_FRAME
+  px4flow.status = PX4FLOW_INT_FRAME_REQ;
+#else
   px4flow.status = PX4FLOW_FRAME_REQ;
+#endif
   px4flow.update_agl = USE_PX4FLOW_AGL;
   px4flow.compensate_rotation = PX4FLOW_COMPENSATE_ROTATION;
   px4flow.stddev = PX4FLOW_NOISE_STDDEV;
@@ -174,27 +189,30 @@ void px4flow_i2c_periodic(void)
         idx += sizeof(uint8_t);
         px4flow.i2c_frame.ground_distance = (px4flow.trans.buf[idx + 1] << 8 | px4flow.trans.buf[idx]);
 
-        // send ABI messages
+        // propagate measurements
         px4flow_i2c_frame_cb();
       }
       // increment status
-#if REQUEST_INT_FRAME
-      // ask for the integral frame
-      px4flow.status = PX4FLOW_INT_FRAME_REQ;
-#else
       // ask for regular frame again
       px4flow.status = PX4FLOW_FRAME_REQ;
-#endif
       break;
     case PX4FLOW_INT_FRAME_REQ:
-      // ask for integral frame
+      // Send the command to begin a measurement.
       px4flow.trans.buf[0] = PX4FLOW_I2C_INTEGRAL_FRAME;
-      if (i2c_transceive(&PX4FLOW_I2C_DEV, &px4flow.trans, px4flow.addr, 1, PX4FLOW_I2C_INTEGRAL_FRAME_LENGTH)) {
+      if (i2c_transmit(&PX4FLOW_I2C_DEV, &px4flow.trans, px4flow.addr, 1)) {
         // transaction OK, increment status
         px4flow.status = PX4FLOW_INT_FRAME_REC;
       }
       break;
     case PX4FLOW_INT_FRAME_REC:
+      // ask for integral frame
+      px4flow.trans.buf[0] = PX4FLOW_I2C_INTEGRAL_FRAME;
+      if (i2c_transceive(&PX4FLOW_I2C_DEV, &px4flow.trans, px4flow.addr, 1, PX4FLOW_I2C_INTEGRAL_FRAME_LENGTH)) {
+        // transaction OK, increment status
+        px4flow.status = PX4FLOW_INT_FRAME_REC_OK;
+      }
+      break;
+    case PX4FLOW_INT_FRAME_REC_OK:
       // check if the transaction was successful
       if (px4flow.trans.status == I2CTransSuccess) {
         // retrieve data
@@ -221,10 +239,13 @@ void px4flow_i2c_periodic(void)
         idx += sizeof(int16_t);
         px4flow.i2c_int_frame.gyro_temperature = (px4flow.trans.buf[idx + 1] << 8 | px4flow.trans.buf[idx]);
         idx += sizeof(int16_t);
-        px4flow.i2c_int_frame.quality = px4flow.trans.buf[idx];
+        px4flow.i2c_int_frame.qual = px4flow.trans.buf[idx];
+
+        // propagate measurements
+        px4flow_i2c_int_frame_cb();
       }
       // increment status
-      px4flow.status = PX4FLOW_FRAME_REQ;
+      px4flow.status = PX4FLOW_INT_FRAME_REQ;
       break;
     default:
       break;
@@ -240,10 +261,20 @@ void px4flow_i2c_periodic(void)
 void px4flow_i2c_downlink(void)
 {
   // Convert i2c_frame into PX4FLOW message
-  uint8_t id = 0;
+  uint8_t id = PX4FLOW_I2C_ID;
 
   float timestamp = get_sys_time_float();
 
+#if REQUEST_INT_FRAME
+  int16_t flow_x = px4flow.i2c_int_frame.pixel_flow_x_integral;
+  int16_t flow_y = px4flow.i2c_int_frame.pixel_flow_y_integral;
+
+  float flow_comp_m_x = 0.0;
+  float flow_comp_m_y = 0.0;
+
+  uint8_t quality = px4flow.i2c_int_frame.qual;
+  float ground_distance = ((float)px4flow.i2c_int_frame.ground_distance) / 1000.0;
+#else
   int16_t flow_x = px4flow.i2c_frame.pixel_flow_x_sum;
   int16_t flow_y = px4flow.i2c_frame.pixel_flow_y_sum;
 
@@ -252,6 +283,7 @@ void px4flow_i2c_downlink(void)
 
   uint8_t quality = px4flow.i2c_frame.qual;
   float ground_distance = ((float)px4flow.i2c_frame.ground_distance) / 1000.0;
+#endif
 
   DOWNLINK_SEND_PX4FLOW(DefaultChannel, DefaultDevice,
                         &timestamp,

@@ -5,7 +5,7 @@
     <description>PX4FLOW optical flow sensor connected over i2c bus</description>
     <configure name="PX4FLOW_I2C_DEV" value="i2c2" description="I2C device to use for px4flow"/>
     <configure name="PX4FLOW_I2C_ADDR" value="0x84" description="slave address of px4flow"/>
-    <configure name="REQUEST_INT_FRAME" value="0" description="request i2c_integral_frame"/>
+    <configure name="REQUEST_INT_FRAME" value="1" description="request i2c_integral_frame, default TRUE"/>
     <configure name="PX4FLOW_NOISE_STDDEV" value="1.0" description="standard deviation of the flow measurement (if known)"/>
     <configure name="USE_PX4FLOW_AGL" value="1" description="update AGL measurements from onboard sonar"/>
     <configure name="PX4FLOW_COMPENSATE_ROTATION" value="1" description="compensate AGL measurements for body rotation"/>
@@ -26,11 +26,11 @@
   </header>
   <init fun="px4flow_i2c_init()"/>
   <periodic fun="px4flow_i2c_downlink()" freq="4" autorun="FALSE"/> <!-- for debug -->
-  <periodic fun="px4flow_i2c_periodic()" freq="50"/> <!-- poll px4flow for data, max 150Hz -->
+  <periodic fun="px4flow_i2c_periodic()" freq="50"/> <!-- poll px4flow for data, see https://pixhawk.org/modules/px4flow for details -->
   <makefile>
     <configure name="PX4FLOW_I2C_DEV" default="i2c1" case="lower|upper"/>
     <configure name="PX4FLOW_I2C_ADDR" default="0x84"/> <!-- 0x42 + additional zero at the end to make 8 bit address -->
-    <configure name="REQUEST_INT_FRAME" default="0"/>
+    <configure name="REQUEST_INT_FRAME" default="1"/>
     <configure name="PX4FLOW_NOISE_STDDEV" default="1.0"/>
     <configure name="USE_PX4FLOW_AGL" default="1"/>
     <configure name="PX4FLOW_COMPENSATE_ROTATION" default="1"/>

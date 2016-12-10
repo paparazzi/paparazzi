@@ -115,6 +115,10 @@
 #define AGL_LIDAR_LITE_ID 6
 #endif
 
+#ifndef AGL_PX4FLOW_ID
+#define AGL_PX4FLOW_ID 7
+#endif
+
 /*
  * IDs of magnetometer sensors (including IMUs with mag)
  */
@@ -257,11 +261,11 @@
 #define PX4FLOW_VELOCITY_ID 17
 #endif
 
-#ifndef IMU_PX4
+#ifndef IMU_PX4_ID
 #define IMU_PX4_ID 18
 #endif
 
-#ifndef IMU_VECTORNAV
+#ifndef IMU_VECTORNAV_ID
 #define IMU_VECTORNAV_ID 19
 #endif
 
