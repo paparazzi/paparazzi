@@ -17,13 +17,11 @@
     <!-- to avoid bat low spike detection when strong pullup withch draws short sudden power-->
     <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="80" />
     <!-- in seconds-->
-    <target name="nps" board="pc">
-      <module name="fdm" type="jsbsim" />
-      <module name="udp" />
-    </target>
     <module name="telemetry" type="transparent" />
     <module name="imu" type="px4fmu_v2.4"/>
-    <module name="gps" type="ublox" />
+    <module name="gps" type="ublox" >
+      <configure name="GPS_BAUD" value="B57600"/>
+    </module>
     <module name="gps" type="ubx_ucenter" />
     <module name="stabilization" type="indi_simple" />
     <module name="ahrs" type="int_cmpl_quat" >
@@ -75,15 +73,6 @@
       <configure name="INTERMCU_BAUD" value="B1500000" />
     </module>
   </firmware>
-  <firmware name="test_progs">
-    <target name="test_telemetry" board="px4fmu_2.4" />
-  </firmware>
-  <firmware name="test_progs">
-    <target name="test_baro_board" board="px4fmu_2.4" />
-  </firmware>
-  <firmware name="test_progs">
-    <target name="test_datalink" board="px4fmu_2.4" />
-  </firmware>
   <modules main_freq="512">
     <module name="px4_flash" />
     <module name="px4_gimbal" />
@@ -116,13 +105,13 @@
     <define name="ACCEL_Y_SENS" value="7.35267287758" integer="16"/>
     <define name="ACCEL_Z_SENS" value="7.45488455799" integer="16"/>
 
-
-    <define name="MAG_X_NEUTRAL" value="92"/>
-    <define name="MAG_Y_NEUTRAL" value="35"/>
-    <define name="MAG_Z_NEUTRAL" value="-15"/>
-    <define name="MAG_X_SENS" value="5.52543569751" integer="16"/>
-    <define name="MAG_Y_SENS" value="4.91233764159" integer="16"/>
-    <define name="MAG_Z_SENS" value="4.99453775296" integer="16"/>
+    <!--Calibrated outside, based on sw/tools/calibration/calibrate.py -s MAG var/logs/16_12_05__16_32_21.data -vp -->
+    <define name="MAG_X_NEUTRAL" value="105"/>
+    <define name="MAG_Y_NEUTRAL" value="10"/>
+    <define name="MAG_Z_NEUTRAL" value="-23"/>
+    <define name="MAG_X_SENS" value="4.01453293111" integer="16"/>
+    <define name="MAG_Y_SENS" value="3.96379405627" integer="16"/>
+    <define name="MAG_Z_SENS" value="3.92499630895" integer="16"/>
   </section>
   <commands>
     <axis name="PITCH" failsafe_value="0" />
@@ -235,8 +224,8 @@
     <define name="HOVER_KP" value="350" />
     <define name="HOVER_KD" value="85" />
     <define name="HOVER_KI" value="20" />
-    <define name="NOMINAL_HOVER_THROTTLE" value="0.4" />
-    <define name="ADAPT_THROTTLE_ENABLED" value="FALSE" />
+    <define name="NOMINAL_HOVER_THROTTLE" value="0.6" />
+    <define name="ADAPT_THROTTLE_ENABLED" value="TRUE" />
   </section>
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
     <!-- Good weather -->
@@ -244,18 +233,13 @@
     <define name="REF_MAX_SPEED" value="2" unit="m/s" />
     <!-- Bad weather -->
     <!-- define name="MAX_BANK" value="32" unit="deg"/ -->
-    <define name="PGAIN" value="120" />
+    <define name="PGAIN" value="50" />
     <define name="DGAIN" value="100" />
     <define name="IGAIN" value="30" />
   </section>
   <section name="NAVIGATION" prefix="NAV_">
     <define name="CLIMB_VSPEED" value="4.5" />
     <define name="DESCEND_VSPEED" value="-1.0" />
-  </section>
-  <section name="SIMULATOR" prefix="NPS_">
-    <define name="ACTUATOR_NAMES" value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]" />
-    <define name="JSBSIM_MODEL" value="simple_x_quad_ccw" type="string" />
-    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string" />
   </section>
   <section name="AUTOPILOT">
     <define name="MODE_STARTUP" value="AP_MODE_ATTITUDE_DIRECT" />
