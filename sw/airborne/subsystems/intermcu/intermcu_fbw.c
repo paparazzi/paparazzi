@@ -115,15 +115,15 @@ void intermcu_on_rc_frame(uint8_t fbw_mode)
   values[INTERMCU_RADIO_MODE] = radio_control.values[RADIO_MODE];
 #endif
 #ifdef RADIO_KILL_SWITCH
-  values[INTERMCU_RADIO_KILL_SWITCH] = radio_control.values[RADIO_KILL];
-#endif
-
-#if defined (RADIO_AUX1) && defined (RADIO_KILL_SWITCH)
-#warning "RC AUX1 and KILL_SWITCH are on the same channel."
+  values[INTERMCU_RADIO_KILL_SWITCH] = radio_control.values[RADIO_KILL_SWITCH];
 #endif
 
 #ifdef RADIO_AUX1
+#ifdef RADIO_KILL_SWITCH
+#warning "RC AUX1 and KILL_SWITCH are on the same channel. AUX1 is discarded."
+#else
   values[INTERMCU_RADIO_AUX1] = radio_control.values[RADIO_AUX1];
+#endif
 #endif
 #ifdef RADIO_AUX2
   values[INTERMCU_RADIO_AUX2] = radio_control.values[RADIO_AUX2];

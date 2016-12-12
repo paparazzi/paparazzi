@@ -246,7 +246,7 @@ static void fbw_on_rc_frame(void)
   if (radio_control.values[RADIO_FBW_MODE] < (MIN_PPRZ / 2) && !FBW_MODE_AUTO_ONLY) {
 
 #ifdef RADIO_KILL_SWITCH
-    if (radio_control.values[RADIO_KILL] < (MIN_PPRZ / 2)) {
+    if (radio_control.values[RADIO_KILL_SWITCH] < (MIN_PPRZ / 2)) {
       fbw_mode = FBW_MODE_FAILSAFE;
     } else {
       fbw_mode = FBW_MODE_MANUAL;
