@@ -37,10 +37,9 @@
 enum line_border_status { LR12, LQC21, LTC2, LQC22, LR21, LQC12, LTC1, LQC11 };
 static enum line_border_status line_border_status;
 
-bool nav_line_border_setup(void)
+void nav_line_border_setup(void)
 {
   line_border_status = LR12;
-  return false;
 }
 
 bool nav_line_border_run(uint8_t l1, uint8_t l2, float radius)

@@ -61,7 +61,7 @@ uint8_t Poly_Size = POLYSURVEY_DEFAULT_SIZE;
 float Poly_Distance = POLYSURVEY_DEFAULT_DISTANCE;
 
 
-bool nav_survey_poly_setup_towards(uint8_t FirstWP, uint8_t Size, float Sweep, int SecondWP)
+void nav_survey_poly_setup_towards(uint8_t FirstWP, uint8_t Size, float Sweep, int SecondWP)
 {
   float dx = waypoints[SecondWP].enu_f.x - waypoints[FirstWP].enu_f.x;
   float dy = waypoints[SecondWP].enu_f.y - waypoints[FirstWP].enu_f.y;
@@ -72,7 +72,7 @@ bool nav_survey_poly_setup_towards(uint8_t FirstWP, uint8_t Size, float Sweep, i
   //if values passed, use it.
   if (Size == 0) {Size = Poly_Size;}
   if (Sweep == 0) {Sweep = Poly_Distance;}
-  return nav_survey_poly_setup(FirstWP, Size, Sweep, ang);
+  nav_survey_poly_setup(FirstWP, Size, Sweep, ang);
 }
 
 struct Point2D {float x; float y;};
@@ -121,7 +121,7 @@ float EntryRadius;
 bool Half_Sweep_Enabled = POLY_OSAM_HALF_SWEEP_ENABLED;
 
 //=========================================================================================================================
-bool nav_survey_poly_setup(uint8_t EntryWP, uint8_t Size, float sw, float Orientation)
+void nav_survey_poly_setup(uint8_t EntryWP, uint8_t Size, float sw, float Orientation)
 {
   SmallestCorner.x = 0;
   SmallestCorner.y = 0;
@@ -155,7 +155,7 @@ bool nav_survey_poly_setup(uint8_t EntryWP, uint8_t Size, float sw, float Orient
   CSurveyStatus = Init;
 
   if (Size == 0) {
-    return true;
+    return;
   }
 
   //Don't initialize if Polygon is too big or if the orientation is not between 0 and 90
@@ -301,8 +301,6 @@ bool nav_survey_poly_setup(uint8_t EntryWP, uint8_t Size, float sw, float Orient
     nav_set_heading_deg(-Orientation + 90.);
 
   }
-
-  return false;
 }
 
 //=========================================================================================================================
