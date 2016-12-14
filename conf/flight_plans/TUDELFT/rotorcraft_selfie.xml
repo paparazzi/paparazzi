@@ -17,13 +17,12 @@
   </waypoints>
   <blocks>
     <block name="Wait GPS">
-      <call fun="NavKillThrottle()"/>
+      <call_once fun="NavKillThrottle()"/>
       <while cond="!GpsFixValid()"/>
     </block>
     <block name="Geo init">
       <while cond="LessThan(NavBlockTime(), 10)"/>
-      <call fun="NavSetGroundReferenceHere()"/>
- 
+      <call_once fun="NavSetGroundReferenceHere()"/>
     </block>
     <block name="avoid">
       <attitude pitch="(ref_pitch)" roll="(ref_roll)" alt="2.5" vmode="alt" until="FALSE"/>

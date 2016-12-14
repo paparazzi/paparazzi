@@ -7,15 +7,15 @@
   <blocks>
     <block name="Geo init">
       <while cond="LessThan(NavBlockTime(), 3)"/>
-      <call fun="NavSetGroundReferenceHere()"/>
+      <call_once fun="NavSetGroundReferenceHere()"/>
     </block>
     <block name="Holding point">
       <!--exception cond="booz_ins_enu_pos.z > POS_BFP_OF_REAL(1.)" deroute="Standby"/-->
-      <call fun="NavKillThrottle()"/>
+      <call_once fun="NavKillThrottle()"/>
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
     </block>
     <block name="Start Engine">
-      <call fun="NavResurrect()"/>
+      <call_once fun="NavResurrect()"/>
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
     </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
@@ -26,7 +26,7 @@
     </block>
     <block name="flare">
       <exception cond="NavDetectGround()" deroute="Holding point"/>
-      <call fun="NavStartDetectGround()"/>
+      <call_once fun="NavStartDetectGround()"/>
       <stay climb="nav_descend_vspeed" vmode="climb" wp="HOME"/>
     </block>
   </blocks>

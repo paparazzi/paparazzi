@@ -28,7 +28,7 @@
 
     <block name="init">
       <while cond="LessThan(NavBlockTime(), 10)"/>
-      <call fun="NavSetGroundReferenceHere()"/>
+      <call_once fun="NavSetGroundReferenceHere()"/>
       <deroute block="wait"/>
     </block>
 
@@ -46,7 +46,7 @@
     </block>
 
     <block name="Line">
-         <call fun="nav_line_setup()"/>
+         <call_once fun="nav_line_setup()"/>
          <call fun="nav_line_run(WP_1, WP_2, nav_radius)"/>
     </block>
 
@@ -56,19 +56,19 @@
     </block>
 
     <block name="MOB" strip_button="MOB">
-      <call fun="NavSetWaypointHere(WP_MOB)"/>
+      <call_once fun="NavSetWaypointHere(WP_MOB)"/>
       <circle wp="MOB" radius="nav_radius"/>
     </block>
 
     <block name="Anemotaxis" strip_button="Anem">
       <call fun="nav_anemotaxis_downwind(WP_C, 300)"/>
       <go from="HOME" wp="C" hmode="route" approaching_time="0"/>
-      <call fun="nav_anemotaxis_init(WP_C)"/>
+      <call_once fun="nav_anemotaxis_init(WP_C)"/>
       <call fun="nav_anemotaxis(WP_C, WP_C1, WP_C2, WP_PLUME)"/>
     </block>
 
     <block name="Chemotaxis">
-      <call fun="nav_chemotaxis_init(WP_C, WP_PLUME)"/>
+      <call_once fun="nav_chemotaxis_init(WP_C, WP_PLUME)"/>
       <call fun="nav_chemotaxis(WP_C, WP_PLUME)"/>
     </block>
 
@@ -80,7 +80,7 @@
 
     <block name="Disc survey" strip_button="DS">
       <exception cond="chemo_sensor > 0" deroute="ChemotaxisHere"/>
-      <call fun="nav_survey_disc_setup(150)"/>
+      <call_once fun="nav_survey_disc_setup(150)"/>
       <call fun="nav_survey_disc_run(WP_HOME, 350)"/>
     </block>
 
@@ -138,7 +138,7 @@
     </block>
 
    <block name="land">
-      <call fun="nav_compute_baseleg(WP_AF, WP_TD, WP_BASELEG)"/>
+      <call_once fun="nav_compute_baseleg(WP_AF, WP_TD, WP_BASELEG)"/>
       <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="BASELEG"/>
       <set value="V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE" var="v_ctl_auto_throttle_cruise_throttle"/>
       <circle radius="nav_radius"

@@ -20,24 +20,24 @@
   </waypoints>
   <blocks>
     <block name="Wait GPS">
-      <call fun="NavKillThrottle()"/>
+      <call_once fun="NavKillThrottle()"/>
       <while cond="!GpsFixValid()"/>
     </block>
     <block name="Geo init">
       <while cond="LessThan(NavBlockTime(), 10)"/>
-      <call fun="NavSetGroundReferenceHere()"/>
+      <call_once fun="NavSetGroundReferenceHere()"/>
     </block>
     <block name="Holding point">
-      <call fun="NavKillThrottle()"/>
+      <call_once fun="NavKillThrottle()"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
     <block group="init_control" name="Start Motors" strip_button="Start Motors" strip_icon="start_motors.png">
-      <call fun="NavResurrect()"/>
+      <call_once fun="NavResurrect()"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
     <block group="init_control" name="Takeoff" strip_button="Takeoff" strip_icon="launch.png">
       <exception cond="stateGetPositionEnu_f()->z > 2.0" deroute="Standby"/>
-      <call fun="NavSetWaypointHere(WP_CLIMB)"/>
+      <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
       <stay vmode="climb" climb="nav_climb_vspeed" wp="CLIMB"/>
     </block>
     <block group="waypoint_control_col1" name="Standby" strip_button="Standby" strip_icon="standby.png">
@@ -56,12 +56,12 @@
       <stay wp="p4"/>
     </block>
     <block name="p1_nav">
-      <call fun="nav_set_heading_towards_waypoint(WP_p1)"/>
+      <call_once fun="nav_set_heading_towards_waypoint(WP_p1)"/>
       <go wp="p1"/>
       <deroute block="stay_p1"/>
     </block>
     <block name="p2_nav">
-      <call fun="nav_set_heading_towards_waypoint(WP_p2)"/>
+      <call_once fun="nav_set_heading_towards_waypoint(WP_p2)"/>
       <go wp="p2"/>
       <deroute block="stay_p2"/>
     </block>
@@ -99,13 +99,13 @@
       <deroute block="stay_p1"/>
     </block>
     <block name="route_x_nav">
-      <call fun="nav_set_heading_towards_waypoint(WP_p2)"/>
+      <call_once fun="nav_set_heading_towards_waypoint(WP_p2)"/>
       <go approaching_time="0" from="p1" hmode="route" wp="p2"/>
-      <call fun="nav_set_heading_towards_waypoint(WP_p3)"/>
+      <call_once fun="nav_set_heading_towards_waypoint(WP_p3)"/>
       <go approaching_time="0" from="p2" hmode="route" wp="p3"/>
-      <call fun="nav_set_heading_towards_waypoint(WP_p4)"/>
+      <call_once fun="nav_set_heading_towards_waypoint(WP_p4)"/>
       <go approaching_time="0" from="p3" hmode="route" wp="p4"/>
-      <call fun="nav_set_heading_towards_waypoint(WP_p1)"/>
+      <call_once fun="nav_set_heading_towards_waypoint(WP_p1)"/>
       <go approaching_time="0" from="p4" hmode="route" wp="p1"/>
       <deroute block="stay_p1"/>
     </block>
@@ -113,7 +113,7 @@
       <circle radius="nav_radius" wp="CAM"/>
     </block>
     <block group="land_pattern" name="land here" strip_button="Land Here" strip_icon="land_here.png">
-      <call fun="NavSetWaypointHere(WP_TD)"/>
+      <call_once fun="NavSetWaypointHere(WP_TD)"/>
     </block>
     <block group="land_pattern" name="land" strip_button="Land" strip_icon="land.png">
       <go wp="TD"/>
@@ -121,7 +121,7 @@
     <block name="flare">
       <exception cond="NavDetectGround()" deroute="Holding point"/>
       <exception cond="!nav_is_in_flight()" deroute="landed"/>
-      <call fun="NavStartDetectGround()"/>
+      <call_once fun="NavStartDetectGround()"/>
       <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
     </block>
     <block name="landed">

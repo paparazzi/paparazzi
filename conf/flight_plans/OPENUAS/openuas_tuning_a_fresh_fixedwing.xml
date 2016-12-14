@@ -164,7 +164,7 @@ perhaps a few global alt exceptions? But where do they deroute to assuming the a
     </block>
     <block name="Geo init">
       <while cond="LessThan(NavBlockTime(), 10)"/>
-      <call fun="NavSetGroundReferenceHere()"/>
+      <call_once fun="NavSetGroundReferenceHere()"/>
     </block>
     <block name="Holding point">
       <!--set var="nav_mode" value="NAV_MODE_ROLL"/-->
@@ -333,7 +333,7 @@ perhaps a few global alt exceptions? But where do they deroute to assuming the a
       <oval p1="1" p2="2" radius="nav_radius"/>
     </block>
     <block name="Line 1-2" strip_button="Line (wp 1-2)" strip_icon="line.png" group="base_pattern">
-      <call fun="nav_line_init()"/>
+      <call_once fun="nav_line_init()"/>
       <call fun="nav_line(WP_1, WP_2, nav_radius)"/>
     </block>
 

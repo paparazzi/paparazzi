@@ -25,7 +25,7 @@
     </block>
     <block name="Geo init">
       <while cond="LessThan(NavBlockTime(), 1)"/>
-      <call fun="NavSetGroundReferenceHere()"/>
+      <call_once fun="NavSetGroundReferenceHere()"/>
     </block>
     <block name="Holding point">
       <set value="1" var="kill_throttle"/>
@@ -41,7 +41,7 @@
       <circle radius="nav_radius" wp="STDBY"/>
     </block>
     <block name="Poles 1" strip_button="Line (wp 1-2)" strip_icon="line.png">
-      <call fun="nav_poles_init(WP_1, WP_2, WP_C1, WP_C2, nav_radius)"/>
+      <call_once fun="nav_poles_init(WP_1, WP_2, WP_C1, WP_C2, nav_radius)"/>
       <oval p1="C1" p2="C2" radius="nav_radius" until="nav_oval_count>=nav_poles_count"/>
     </block>
     <block name="Goto Target">
@@ -68,7 +68,7 @@
       <deroute block="land"/>
     </block>
     <block name="land">
-      <call fun="nav_compute_baseleg(WP_AF, WP_TD, WP__BASELEG, nav_radius)"/>
+      <call_once fun="nav_compute_baseleg(WP_AF, WP_TD, WP__BASELEG, nav_radius)"/>
       <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="_BASELEG"/>
       <circle radius="nav_radius" until="And(NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10), 10 > fabs(GetPosAlt() - WaypointAlt(WP__BASELEG)))" wp="_BASELEG"/>
     </block>

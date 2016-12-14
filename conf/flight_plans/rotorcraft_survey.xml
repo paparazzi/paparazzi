@@ -23,25 +23,25 @@
   </waypoints>
   <blocks>
     <block name="Wait GPS">
-      <call fun="NavKillThrottle()"/>
+      <call_once fun="NavKillThrottle()"/>
       <while cond="!GpsFixValid()"/>
     </block>
     <block name="Geo init">
       <while cond="LessThan(NavBlockTime(), 10)"/>
-      <call fun="NavSetGroundReferenceHere()"/>
-      <!--<call fun="NavSetAltitudeReferenceHere()"/>-->
+      <call_once fun="NavSetGroundReferenceHere()"/>
+      <!--<call_once fun="NavSetAltitudeReferenceHere()"/>-->
     </block>
     <block name="Holding point">
-      <call fun="NavKillThrottle()"/>
+      <call_once fun="NavKillThrottle()"/>
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
     </block>
     <block name="Start Engine">
-      <call fun="NavResurrect()"/>
+      <call_once fun="NavResurrect()"/>
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
       <exception cond="stateGetPositionEnu_f()->z > 2.0" deroute="Standby"/>
-      <call fun="NavSetWaypointHere(WP_CLIMB)"/>
+      <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
       <stay vmode="climb" climb="nav_climb_vspeed" wp="CLIMB"/>
     </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
@@ -51,7 +51,7 @@
       <stay wp="p1"/>
     </block>
     <block name="go_p2">
-      <call fun="nav_set_heading_deg(90)"/>
+      <call_once fun="nav_set_heading_deg(90)"/>
       <go wp="p2"/>
       <deroute block="stay_p1"/>
     </block>
@@ -72,11 +72,11 @@
       <survey_rectangle grid="30" orientation="NS" wp1="S1" wp2="S2"/>
     </block>
     <block group="extra_pattern" name="Survey S1-S2 NS" strip_button="Svy-NS" strip_icon="survey.png">
-      <call fun="nav_survey_rectangle_rotorcraft_setup(WP_S1, WP_S2, sweep, NS)"/>
+      <call_once fun="nav_survey_rectangle_rotorcraft_setup(WP_S1, WP_S2, sweep, NS)"/>
       <deroute block="Survey RECTANGLE RUN"/>
     </block>
     <block group="extra_pattern" name="Survey S1-S2 LO" strip_button="Svy-LO" strip_icon="survey_we.png">
-      <call fun="nav_survey_rectangle_rotorcraft_setup(WP_S1, WP_S2, sweep, WE)"/>
+      <call_once fun="nav_survey_rectangle_rotorcraft_setup(WP_S1, WP_S2, sweep, WE)"/>
       <deroute block="Survey RECTANGLE RUN"/>
     </block>
     <block group="extra_pattern" name="Survey RECTANGLE RUN" strip_button="Svy CONT">
@@ -88,7 +88,7 @@
       <circle radius="nav_radius" wp="CAM"/>
     </block>
     <block name="land here" strip_button="Land Here" strip_icon="land-right.png">
-      <call fun="NavSetWaypointHere(WP_TD)"/>
+      <call_once fun="NavSetWaypointHere(WP_TD)"/>
     </block>
     <block name="land">
       <go wp="TD"/>
@@ -96,7 +96,7 @@
     <block name="flare">
       <exception cond="NavDetectGround()" deroute="Holding point"/>
       <exception cond="!nav_is_in_flight()" deroute="landed"/>
-      <call fun="NavStartDetectGround()"/>
+      <call_once fun="NavStartDetectGround()"/>
       <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
     </block>
     <block name="landed">
@@ -105,7 +105,7 @@
     <block name="visualflare">
       <exception cond="NavDetectGround()" deroute="Holding point"/>
       <exception cond="!nav_is_in_flight()" deroute="landed"/>
-      <call fun="NavStartDetectGround()"/>
+      <call_once fun="NavStartDetectGround()"/>
       <stay climb="nav_descend_vspeed" vmode="climb" wp="p1"/>
     </block>
   </blocks>
