@@ -39,9 +39,6 @@
 extern struct EnuCoor_i navigation_target;
 extern struct EnuCoor_i navigation_carrot;
 
-extern void nav_init(void);
-extern void nav_run(void);
-
 extern uint8_t last_wp __attribute__((unused));
 
 extern uint8_t horizontal_mode;
@@ -78,28 +75,33 @@ extern float failsafe_mode_dist2; ///< maximum squared distance to home wp befor
 
 extern float dist2_to_wp;       ///< squared distance to next waypoint
 
+extern bool exception_flag[10];
+
+extern void nav_init(void);
+extern void nav_run(void);
+
+extern void set_exception_flag(uint8_t flag_num);
+
 extern float get_dist2_to_waypoint(uint8_t wp_id);
 extern float get_dist2_to_point(struct EnuCoor_i *p);
 extern void compute_dist2_to_home(void);
 extern void nav_home(void);
 extern void nav_set_manual(int32_t roll, int32_t pitch, int32_t yaw);
 
-unit_t nav_reset_reference(void) __attribute__((unused));
-unit_t nav_reset_alt(void) __attribute__((unused));
-void nav_periodic_task(void);
-bool nav_detect_ground(void);
-bool nav_is_in_flight(void);
+extern void nav_reset_reference(void) __attribute__((unused));
+extern void nav_reset_alt(void) __attribute__((unused));
+extern void nav_periodic_task(void);
 
-extern bool exception_flag[10];
-extern void set_exception_flag(uint8_t flag_num);
+extern bool nav_detect_ground(void);
+extern bool nav_is_in_flight(void);
 
-extern bool nav_set_heading_rad(float rad);
-extern bool nav_set_heading_deg(float deg);
-extern bool nav_set_heading_towards(float x, float y);
-extern bool nav_set_heading_towards_waypoint(uint8_t wp);
-extern bool nav_set_heading_towards_target(void);
-extern bool nav_set_heading_current(void);
-extern bool nav_set_failsafe(void);
+extern void nav_set_heading_rad(float rad);
+extern void nav_set_heading_deg(float deg);
+extern void nav_set_heading_towards(float x, float y);
+extern void nav_set_heading_towards_waypoint(uint8_t wp);
+extern void nav_set_heading_towards_target(void);
+extern void nav_set_heading_current(void);
+extern void nav_set_failsafe(void);
 
 /** default approaching_time for a wp */
 #ifndef CARROT

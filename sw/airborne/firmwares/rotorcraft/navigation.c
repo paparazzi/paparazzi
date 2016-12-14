@@ -396,19 +396,17 @@ static inline void nav_set_altitude(void)
 
 
 /** Reset the geographic reference to the current GPS fix */
-unit_t nav_reset_reference(void)
+void nav_reset_reference(void)
 {
   ins_reset_local_origin();
   /* update local ENU coordinates of global waypoints */
   waypoints_localize_all();
-  return 0;
 }
 
-unit_t nav_reset_alt(void)
+void nav_reset_alt(void)
 {
   ins_reset_altitude_ref();
   waypoints_localize_all();
-  return 0;
 }
 
 void nav_init_stage(void)
@@ -534,21 +532,20 @@ void compute_dist2_to_home(void)
 }
 
 /** Set nav_heading in radians. */
-bool nav_set_heading_rad(float rad)
+void nav_set_heading_rad(float rad)
 {
   nav_heading = ANGLE_BFP_OF_REAL(rad);
   INT32_COURSE_NORMALIZE(nav_heading);
-  return false;
 }
 
 /** Set nav_heading in degrees. */
-bool nav_set_heading_deg(float deg)
+void nav_set_heading_deg(float deg)
 {
-  return nav_set_heading_rad(RadOfDeg(deg));
+  nav_set_heading_rad(RadOfDeg(deg));
 }
 
 /** Set heading to point towards x,y position in local coordinates */
-bool nav_set_heading_towards(float x, float y)
+void nav_set_heading_towards(float x, float y)
 {
   struct FloatVect2 target = {x, y};
   struct FloatVect2 pos_diff;
@@ -558,33 +555,30 @@ bool nav_set_heading_towards(float x, float y)
     float heading_f = atan2f(pos_diff.x, pos_diff.y);
     nav_heading = ANGLE_BFP_OF_REAL(heading_f);
   }
-  // return false so it can be called from the flightplan
-  // meaning it will continue to the next stage
-  return false;
 }
 
 /** Set heading in the direction of a waypoint */
-bool nav_set_heading_towards_waypoint(uint8_t wp)
+void nav_set_heading_towards_waypoint(uint8_t wp)
 {
-  return nav_set_heading_towards(WaypointX(wp), WaypointY(wp));
+  nav_set_heading_towards(WaypointX(wp), WaypointY(wp));
 }
 
 /** Set heading in the direction of the target*/
-bool nav_set_heading_towards_target(void)
+void nav_set_heading_towards_target(void)
 {
-  return nav_set_heading_towards(POS_FLOAT_OF_BFP(navigation_target.x),POS_FLOAT_OF_BFP(navigation_target.y));
+  nav_set_heading_towards(POS_FLOAT_OF_BFP(navigation_target.x),
+                          POS_FLOAT_OF_BFP(navigation_target.y));
 }
 
 /** Set heading to the current yaw angle */
-bool nav_set_heading_current(void)
+void nav_set_heading_current(void)
 {
   nav_heading = stateGetNedToBodyEulers_i()->psi;
-  return false;
 }
 
-bool nav_set_failsafe(void) {
+void nav_set_failsafe(void)
+{
   autopilot_set_mode(AP_MODE_FAILSAFE);
-  return false;
 }
 
 /************** Oval Navigation **********************************************/

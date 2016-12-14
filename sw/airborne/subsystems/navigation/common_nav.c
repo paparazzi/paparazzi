@@ -63,7 +63,7 @@ void compute_dist2_to_home(void)
 static float previous_ground_alt;
 
 /** Reset the UTM zone to current GPS fix */
-unit_t nav_reset_utm_zone(void)
+void nav_reset_utm_zone(void)
 {
 
   struct UtmCoor_f utm0;
@@ -77,12 +77,10 @@ unit_t nav_reset_utm_zone(void)
   nav_utm_zone0 = utm0.zone;
   nav_utm_east0 = utm0.east;
   nav_utm_north0 = utm0.north;
-
-  return 0;
 }
 
 /** Reset the geographic reference to the current GPS fix */
-unit_t nav_reset_reference(void)
+void nav_reset_reference(void)
 {
   /* realign INS */
   ins_reset_local_origin();
@@ -95,30 +93,25 @@ unit_t nav_reset_reference(void)
   /* Ground alt */
   previous_ground_alt = ground_alt;
   ground_alt = state.utm_origin_f.alt;
-
-  return 0;
 }
 
 /** Reset the altitude reference to the current GPS alt */
-unit_t nav_reset_alt(void)
+void nav_reset_alt(void)
 {
   ins_reset_altitude_ref();
 
   /* Ground alt */
   previous_ground_alt = ground_alt;
   ground_alt = state.utm_origin_f.alt;
-
-  return 0;
 }
 
 /** Shift altitude of the waypoint according to a new ground altitude */
-unit_t nav_update_waypoints_alt(void)
+void nav_update_waypoints_alt(void)
 {
   uint8_t i;
   for (i = 0; i < NB_WAYPOINT; i++) {
     waypoints[i].a += ground_alt - previous_ground_alt;
   }
-  return 0;
 }
 
 void common_nav_periodic_task_4Hz()
