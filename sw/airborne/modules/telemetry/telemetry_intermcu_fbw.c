@@ -31,7 +31,7 @@
 #include "subsystems/datalink/telemetry.h"
 #include "firmwares/rotorcraft/main_fbw.h"
 
-#define MSG_SIZE 128
+#define MSG_SIZE 256
 
 extern fbw_mode_enum fbw_mode;
 
