@@ -83,6 +83,10 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 #include "generated/modules.h"
 #include "subsystems/abi.h"
 
+// needed for stop-gap measure waypoints_localize_all()
+#include "subsystems/navigation/waypoints.h"
+
+
 /* if PRINT_CONFIG is defined, print some config options */
 PRINT_CONFIG_VAR(PERIODIC_FREQUENCY)
 
@@ -196,6 +200,13 @@ STATIC_INLINE void main_init(void)
   autopilot_init();
 
   modules_init();
+
+  /* temporary hack:
+   * Since INS is now a module, LTP_DEF is not yet initialized when autopilot_init is called
+   * This led to the problem that global waypoints were not "localized",
+   * so as a stop-gap measure we localize them all (again) here..
+   */
+  waypoints_localize_all();
 
   settings_init();
 
