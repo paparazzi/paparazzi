@@ -34,6 +34,11 @@
 #include "subsystems/navigation/waypoints.h"
 #include "subsystems/navigation/common_flight_plan.h"
 
+/** default approaching_time for a wp */
+#ifndef CARROT
+#define CARROT 0
+#endif
+
 #define NAV_FREQ 16
 
 extern struct EnuCoor_i navigation_target;
@@ -42,8 +47,7 @@ extern struct EnuCoor_i navigation_carrot;
 extern uint8_t last_wp __attribute__((unused));
 
 extern uint8_t horizontal_mode;
-extern struct EnuCoor_i nav_segment_start, nav_segment_end;
-extern struct EnuCoor_i nav_circle_center;
+
 extern int32_t nav_circle_radius, nav_circle_qdr, nav_circle_radians;
 #define HORIZONTAL_MODE_WAYPOINT  0
 #define HORIZONTAL_MODE_ROUTE     1
@@ -103,10 +107,7 @@ extern void nav_set_heading_towards_target(void);
 extern void nav_set_heading_current(void);
 extern void nav_set_failsafe(void);
 
-/** default approaching_time for a wp */
-#ifndef CARROT
-#define CARROT 0
-#endif
+
 
 #define NavKillThrottle() ({ if (autopilot_mode == AP_MODE_NAV) { autopilot_set_motors_on(FALSE); } false; })
 #define NavResurrect() ({ if (autopilot_mode == AP_MODE_NAV) { autopilot_set_motors_on(TRUE); } false; })
