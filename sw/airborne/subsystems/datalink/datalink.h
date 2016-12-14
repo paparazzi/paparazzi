@@ -56,7 +56,7 @@ EXTERN uint16_t datalink_time;
 /** number of datalink/uplink messages received */
 EXTERN uint16_t datalink_nb_msgs;
 
-#define MSG_SIZE 128
+#define MSG_SIZE 256
 EXTERN uint8_t dl_buffer[MSG_SIZE]  __attribute__((aligned));
 
 /** Should be called when chars are available in dl_buffer */
