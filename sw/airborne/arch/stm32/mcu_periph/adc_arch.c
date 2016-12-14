@@ -475,7 +475,7 @@ static inline void adc_init_irq(void)
 static inline void adc_init_single(uint32_t adc, uint8_t nb_channels, uint8_t *channel_map)
 {
   // Paranoia, must be down for 2+ ADC clock cycles before calibration
-  adc_off(adc);
+  adc_power_off(adc);
 
   /* Configure ADC */
   /* Explicitly setting most registers, reset/default values are correct for most */
@@ -501,11 +501,7 @@ static inline void adc_init_single(uint32_t adc, uint8_t nb_channels, uint8_t *c
 
   /* Set CR2 register. */
   /* Clear TSVREFE */
-#if defined(STM32F1)
-  adc_disable_temperature_sensor(adc);
-#elif defined(STM32F4)
   adc_disable_temperature_sensor();
-#endif
   /* Clear EXTTRIG */
   adc_disable_external_trigger_regular(adc);
   /* Clear ALIGN */
@@ -549,14 +545,10 @@ static inline void adc_init_single(uint32_t adc, uint8_t nb_channels, uint8_t *c
   /* Enable ADC<X> */
   adc_power_on(adc);
 #if defined(STM32F1)
-  /* Enable ADC<X> reset calibaration register */
+  /* Rest ADC<X> calibaration register and wait until done */
   adc_reset_calibration(adc);
-  /* Check the end of ADC<X> reset calibration */
-  while ((ADC_CR2(adc) & ADC_CR2_RSTCAL) != 0);
-  /* Start ADC<X> calibaration */
-  adc_calibration(adc);
-  /* Check the end of ADC<X> calibration */
-  while ((ADC_CR2(adc) & ADC_CR2_CAL) != 0);
+  /* Start ADC<X> calibaration and wait until done */
+  adc_calibrate(adc);
 #endif
 
   return;
