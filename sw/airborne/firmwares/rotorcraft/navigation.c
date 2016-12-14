@@ -122,6 +122,23 @@ void set_exception_flag(uint8_t flag_num)
   exception_flag[flag_num] = 1;
 }
 
+static void send_segment(struct transport_tx *trans, struct link_device *dev)
+{
+  float sx = POS_FLOAT_OF_BFP(nav_segment_start.x);
+  float sy = POS_FLOAT_OF_BFP(nav_segment_start.y);
+  float ex = POS_FLOAT_OF_BFP(nav_segment_end.x);
+  float ey = POS_FLOAT_OF_BFP(nav_segment_end.y);
+  pprz_msg_send_SEGMENT(trans, dev, AC_ID, &sx, &sy, &ex, &ey);
+}
+
+static void send_circle(struct transport_tx *trans, struct link_device *dev)
+{
+  float cx = POS_FLOAT_OF_BFP(nav_circle_center.x);
+  float cy = POS_FLOAT_OF_BFP(nav_circle_center.y);
+  float r = POS_FLOAT_OF_BFP(nav_circle_radius);
+  pprz_msg_send_CIRCLE(trans, dev, AC_ID, &cx, &cy, &r);
+}
+
 static void send_nav_status(struct transport_tx *trans, struct link_device *dev)
 {
   float dist_home = sqrtf(dist2_to_home);
@@ -132,16 +149,9 @@ static void send_nav_status(struct transport_tx *trans, struct link_device *dev)
                                       &nav_block, &nav_stage,
                                       &horizontal_mode);
   if (horizontal_mode == HORIZONTAL_MODE_ROUTE) {
-    float sx = POS_FLOAT_OF_BFP(nav_segment_start.x);
-    float sy = POS_FLOAT_OF_BFP(nav_segment_start.y);
-    float ex = POS_FLOAT_OF_BFP(nav_segment_end.x);
-    float ey = POS_FLOAT_OF_BFP(nav_segment_end.y);
-    pprz_msg_send_SEGMENT(trans, dev, AC_ID, &sx, &sy, &ex, &ey);
+    send_segment(trans, dev);
   } else if (horizontal_mode == HORIZONTAL_MODE_CIRCLE) {
-    float cx = POS_FLOAT_OF_BFP(nav_circle_center.x);
-    float cy = POS_FLOAT_OF_BFP(nav_circle_center.y);
-    float r = POS_FLOAT_OF_BFP(nav_circle_radius);
-    pprz_msg_send_CIRCLE(trans, dev, AC_ID, &cx, &cy, &r);
+    send_circle(trans, dev);
   }
 }
 
