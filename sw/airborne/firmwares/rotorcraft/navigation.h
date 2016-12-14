@@ -33,6 +33,7 @@
 
 #include "subsystems/navigation/waypoints.h"
 #include "subsystems/navigation/common_flight_plan.h"
+#include "firmwares/rotorcraft/autopilot.h"
 
 /** default approaching_time for a wp */
 #ifndef CARROT
@@ -138,20 +139,26 @@ extern bool nav_detect_ground(void);
 #define NavDetectGround() nav_detect_ground()
 
 /* switching motors on/off */
-#define NavKillThrottle() ({ if (autopilot_mode == AP_MODE_NAV) { autopilot_set_motors_on(FALSE); } false; })
-#define NavResurrect() ({ if (autopilot_mode == AP_MODE_NAV) { autopilot_set_motors_on(TRUE); } false; })
+static inline void NavKillThrottle(void)
+{
+  if (autopilot_mode == AP_MODE_NAV) { autopilot_set_motors_on(FALSE); }
+}
+static inline void NavResurrect(void)
+{
+  if (autopilot_mode == AP_MODE_NAV) { autopilot_set_motors_on(TRUE); }
+}
 
 
 #define NavSetManual nav_set_manual
 #define NavSetFailsafe nav_set_failsafe
 
 
-#define NavSetGroundReferenceHere() ({ nav_reset_reference(); false; })
-#define NavSetAltitudeReferenceHere() ({ nav_reset_alt(); false; })
+#define NavSetGroundReferenceHere nav_reset_reference
+#define NavSetAltitudeReferenceHere nav_reset_alt
 
-#define NavSetWaypointHere(_wp) ({ waypoint_set_here_2d(_wp); false; })
-#define NavCopyWaypoint(_wp1, _wp2) ({ waypoint_copy(_wp1, _wp2); false; })
-#define NavCopyWaypointPositionOnly(_wp1, _wp2) ({ waypoint_position_copy(_wp1, _wp2); false; })
+#define NavSetWaypointHere waypoint_set_here_2d
+#define NavCopyWaypoint waypoint_copy
+#define NavCopyWaypointPositionOnly waypoint_position_copy
 
 
 /** Proximity tests on approaching a wp */
@@ -166,12 +173,60 @@ bool nav_check_wp_time(struct EnuCoor_i *wp, uint16_t stay_time);
 
 extern void navigation_update_wp_from_speed(uint8_t wp, struct Int16Vect3 speed_sp, int16_t heading_rate_sp);
 
-#define NavGotoWaypointHeading(_wp) { \
-    vertical_mode = VERTICAL_MODE_ALT; \
-    horizontal_mode = HORIZONTAL_MODE_WAYPOINT; \
-    VECT3_COPY(navigation_target, waypoints[_wp].enu_i); \
-    dist2_to_wp = get_dist2_to_waypoint(_wp); \
-    nav_set_heading_towards_waypoint(_wp); \
+/* should we really keep this one ??
+ * maybe better to use the `goto` flight plan primitive and
+ * add a `pre_call` or `call_once` to set the heading?
+ */
+static inline void NavGotoWaypointHeading(uint8_t wp)
+{
+  vertical_mode = VERTICAL_MODE_ALT;
+  horizontal_mode = HORIZONTAL_MODE_WAYPOINT;
+  VECT3_COPY(navigation_target, waypoints[wp].enu_i);
+  dist2_to_wp = get_dist2_to_waypoint(wp);
+  nav_set_heading_towards_waypoint(wp);
+}
+
+
+
+/***********************************************************
+ * macros used by flight plan to set different modes
+ **********************************************************/
+
+/** Set the climb control to auto-throttle with the specified pitch
+    pre-command */
+#define NavVerticalAutoThrottleMode(_pitch) {   \
+    nav_pitch = ANGLE_BFP_OF_REAL(_pitch);      \
+  }
+
+/** Set the climb control to auto-pitch with the specified throttle
+    pre-command */
+#define NavVerticalAutoPitchMode(_throttle) {}
+
+/** Set the vertical mode to altitude control with the specified altitude
+    setpoint and climb pre-command. */
+#define NavVerticalAltitudeMode(_alt, _pre_climb) { \
+    vertical_mode = VERTICAL_MODE_ALT;              \
+    nav_altitude = POS_BFP_OF_REAL(_alt);           \
+  }
+
+/** Set the vertical mode to climb control with the specified climb setpoint */
+#define NavVerticalClimbMode(_climb) {          \
+    vertical_mode = VERTICAL_MODE_CLIMB;        \
+    nav_climb = SPEED_BFP_OF_REAL(_climb);      \
+  }
+
+/** Set the vertical mode to fixed throttle with the specified setpoint */
+#define NavVerticalThrottleMode(_throttle) {    \
+    vertical_mode = VERTICAL_MODE_MANUAL;       \
+    nav_throttle = _throttle;                   \
+  }
+
+/** Set the heading of the rotorcraft, nothing else */
+#define NavHeading nav_set_heading_rad
+
+#define NavAttitude(_roll) {                    \
+    horizontal_mode = HORIZONTAL_MODE_ATTITUDE; \
+    nav_roll = ANGLE_BFP_OF_REAL(_roll);        \
   }
 
 
@@ -181,18 +236,20 @@ extern void navigation_update_wp_from_speed(uint8_t wp, struct Int16Vect3 speed_
  **********************************************************/
 
 /*********** Navigation to  waypoint *************************************/
-#define NavGotoWaypoint(_wp) { \
-    horizontal_mode = HORIZONTAL_MODE_WAYPOINT; \
-    VECT3_COPY(navigation_target, waypoints[_wp].enu_i); \
-    dist2_to_wp = get_dist2_to_waypoint(_wp); \
-  }
+static inline void NavGotoWaypoint(uint8_t wp)
+{
+  horizontal_mode = HORIZONTAL_MODE_WAYPOINT;
+  VECT3_COPY(navigation_target, waypoints[wp].enu_i);
+  dist2_to_wp = get_dist2_to_waypoint(wp);
+}
 
 /*********** Navigation on a circle **************************************/
 extern void nav_circle(struct EnuCoor_i *wp_center, int32_t radius);
-#define NavCircleWaypoint(_center, _radius) { \
-    horizontal_mode = HORIZONTAL_MODE_CIRCLE; \
-    nav_circle(&waypoints[_center].enu_i, POS_BFP_OF_REAL(_radius)); \
-  }
+static inline void NavCircleWaypoint(uint8_t wp_center, float radius)
+{
+  horizontal_mode = HORIZONTAL_MODE_CIRCLE;
+  nav_circle(&waypoints[wp_center].enu_i, POS_BFP_OF_REAL(radius));
+}
 
 #define NavCircleCount() ((float)abs(nav_circle_radians) / INT32_ANGLE_2_PI)
 #define NavCircleQdr() ({ int32_t qdr = INT32_DEG_OF_RAD(INT32_ANGLE_PI_2 - nav_circle_qdr) >> INT32_ANGLE_FRAC; NormCourse(qdr); qdr; })
@@ -210,65 +267,24 @@ extern uint8_t nav_oval_count;
 
 /*********** Navigation along a line *************************************/
 extern void nav_route(struct EnuCoor_i *wp_start, struct EnuCoor_i *wp_end);
-#define NavSegment(_start, _end) { \
-    horizontal_mode = HORIZONTAL_MODE_ROUTE; \
-    nav_route(&waypoints[_start].enu_i, &waypoints[_end].enu_i); \
-  }
+static inline void NavSegment(uint8_t wp_start, uint8_t wp_end)
+{
+  horizontal_mode = HORIZONTAL_MODE_ROUTE;
+  nav_route(&waypoints[wp_start].enu_i, &waypoints[wp_end].enu_i);
+}
 
 /** Nav glide routine */
-#define NavGlide(_last_wp, _wp) { \
-    int32_t start_alt = waypoints[_last_wp].enu_i.z; \
-    int32_t diff_alt = waypoints[_wp].enu_i.z - start_alt; \
-    int32_t alt = start_alt + ((diff_alt * nav_leg_progress) / nav_leg_length); \
-    NavVerticalAltitudeMode(POS_FLOAT_OF_BFP(alt),0); \
-  }
+static inline void NavGlide(uint8_t start_wp, uint8_t wp)
+{
+  int32_t start_alt = waypoints[start_wp].enu_i.z;
+  int32_t diff_alt = waypoints[wp].enu_i.z - start_alt;
+  int32_t alt = start_alt + ((diff_alt * nav_leg_progress) / nav_leg_length);
+  NavVerticalAltitudeMode(POS_FLOAT_OF_BFP(alt), 0);
+}
 
 /* follow another aircraft */
 #define NavFollow nav_follow
 extern void nav_follow(uint8_t _ac_id, uint32_t distance, uint32_t height);
-
-
-
-/***********************************************************
- * macros used by flight plan to set different modes
- **********************************************************/
-
-/** Set the climb control to auto-throttle with the specified pitch
-    pre-command */
-#define NavVerticalAutoThrottleMode(_pitch) { \
-    nav_pitch = ANGLE_BFP_OF_REAL(_pitch); \
-  }
-
-/** Set the climb control to auto-pitch with the specified throttle
-    pre-command */
-#define NavVerticalAutoPitchMode(_throttle) {}
-
-/** Set the vertical mode to altitude control with the specified altitude
- setpoint and climb pre-command. */
-#define NavVerticalAltitudeMode(_alt, _pre_climb) { \
-    vertical_mode = VERTICAL_MODE_ALT; \
-    nav_altitude = POS_BFP_OF_REAL(_alt); \
-  }
-
-/** Set the vertical mode to climb control with the specified climb setpoint */
-#define NavVerticalClimbMode(_climb) { \
-    vertical_mode = VERTICAL_MODE_CLIMB; \
-    nav_climb = SPEED_BFP_OF_REAL(_climb); \
-  }
-
-/** Set the vertical mode to fixed throttle with the specified setpoint */
-#define NavVerticalThrottleMode(_throttle) { \
-    vertical_mode = VERTICAL_MODE_MANUAL;      \
-    nav_throttle = _throttle;                  \
-  }
-
-/** Set the heading of the rotorcraft, nothing else */
-#define NavHeading nav_set_heading_rad
-
-#define NavAttitude(_roll) { \
-    horizontal_mode = HORIZONTAL_MODE_ATTITUDE; \
-    nav_roll = ANGLE_BFP_OF_REAL(_roll); \
-  }
 
 
 
