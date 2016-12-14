@@ -615,6 +615,7 @@ void nav_route(struct EnuCoor_i *wp_start, struct EnuCoor_i *wp_end)
 #define LINE_STOP_FUNCTION {}
 #endif
 
+enum oval_status { OR12, OC2, OR21, OC1 };
 enum oval_status oval_status;
 uint8_t nav_oval_count;
 
