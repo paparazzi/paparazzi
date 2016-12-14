@@ -97,7 +97,9 @@ extern bool nav_set_heading_rad(float rad);
 extern bool nav_set_heading_deg(float deg);
 extern bool nav_set_heading_towards(float x, float y);
 extern bool nav_set_heading_towards_waypoint(uint8_t wp);
+extern bool nav_set_heading_towards_target(void);
 extern bool nav_set_heading_current(void);
+extern bool nav_set_failsafe(void);
 
 /** default approaching_time for a wp */
 #ifndef CARROT
@@ -126,6 +128,14 @@ extern bool nav_set_heading_current(void);
     horizontal_mode = HORIZONTAL_MODE_WAYPOINT; \
     VECT3_COPY(navigation_target, waypoints[_wp].enu_i); \
     dist2_to_wp = get_dist2_to_waypoint(_wp); \
+  }
+
+#define NavGotoWaypointHeading(_wp) { \
+    vertical_mode = VERTICAL_MODE_ALT; \
+    horizontal_mode = HORIZONTAL_MODE_WAYPOINT; \
+    VECT3_COPY(navigation_target, waypoints[_wp].enu_i); \
+    dist2_to_wp = get_dist2_to_waypoint(_wp); \
+    nav_set_heading_towards_waypoint(_wp); \
   }
 
 /*********** Navigation on a circle **************************************/
@@ -212,6 +222,9 @@ bool nav_check_wp_time(struct EnuCoor_i *wp, uint16_t stay_time);
   }
 
 #define NavSetManual nav_set_manual
+#define NavSetFailsafe { \
+  nav_set_failsafe(); \
+}
 
 #define NavStartDetectGround() ({ autopilot_detect_ground_once = true; false; })
 #define NavDetectGround() nav_detect_ground()
