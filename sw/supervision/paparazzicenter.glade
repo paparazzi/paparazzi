@@ -1450,6 +1450,8 @@
                             <property name="can_focus">True</property>
                             <property name="receives_default">False</property>
                             <property name="use_action_appearance">False</property>
+                            <property name="tooltip" translatable="yes">[Alt+S] Stop/Remove All Processes.</property>
+                            <accelerator key="s" signal="activate" modifiers="GDK_MOD1_MASK"/>
                             <child>
                               <widget class="GtkAlignment" id="alignment64">
                                 <property name="visible">True</property>
