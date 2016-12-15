@@ -6,8 +6,8 @@
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/HOOPERFLY/hooperfly_gsa_one.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml "
-   settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml modules/nav_survey_rectangle_rotorcraft.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
+   settings_modules="modules/nav_survey_rectangle_rotorcraft.xml modules/air_data.xml modules/geo_mag.xml modules/gps_ubx_ucenter.xml modules/ahrs_int_cmpl_quat.xml modules/gps.xml modules/imu_common.xml"
    gui_color="blue"
   />
   <aircraft
@@ -17,8 +17,8 @@
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/HOOPERFLY/hooperfly_gsa_one.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml "
-   settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml modules/nav_survey_rectangle_rotorcraft.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
+   settings_modules="modules/nav_survey_rectangle_rotorcraft.xml modules/air_data.xml modules/geo_mag.xml modules/gps_ubx_ucenter.xml modules/ahrs_int_cmpl_quat.xml modules/gps.xml modules/imu_common.xml"
    gui_color="purple"
   />
   <aircraft
@@ -28,8 +28,8 @@
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/HOOPERFLY/hooperfly_gsa_one.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml "
-   settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml modules/nav_survey_rectangle_rotorcraft.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
+   settings_modules="modules/nav_survey_rectangle_rotorcraft.xml modules/air_data.xml modules/geo_mag.xml modules/gps_ubx_ucenter.xml modules/ahrs_int_cmpl_quat.xml modules/gps.xml modules/imu_common.xml"
    gui_color="green"
   />
   <aircraft
@@ -39,8 +39,8 @@
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/HOOPERFLY/hooperfly_gsa_one.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml "
-   settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml modules/nav_survey_rectangle_rotorcraft.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
+   settings_modules="modules/nav_survey_rectangle_rotorcraft.xml modules/air_data.xml modules/geo_mag.xml modules/gps_ubx_ucenter.xml modules/ahrs_int_cmpl_quat.xml modules/gps.xml modules/imu_common.xml"
    gui_color="red"
   />
   <aircraft
@@ -50,8 +50,8 @@
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/HOOPERFLY/hooperfly_gsa_one.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml "
-   settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml modules/nav_survey_rectangle_rotorcraft.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
+   settings_modules="modules/nav_survey_rectangle_rotorcraft.xml modules/air_data.xml modules/geo_mag.xml modules/gps_ubx_ucenter.xml modules/ahrs_int_cmpl_quat.xml modules/gps.xml modules/imu_common.xml"
    gui_color="lime"
   />
   <aircraft
@@ -61,31 +61,9 @@
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/HOOPERFLY/hooperfly_gsa_one.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml "
-   settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml modules/nav_survey_rectangle_rotorcraft.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
+   settings_modules="modules/nav_survey_rectangle_rotorcraft.xml modules/air_data.xml modules/geo_mag.xml modules/gps_ubx_ucenter.xml modules/ahrs_int_cmpl_quat.xml modules/gps.xml modules/imu_common.xml"
    gui_color="cyan"
-  />
-  <aircraft
-   name="Teensy_Fly_Quad_Elle0_v1_2_216"
-   ac_id="216"
-   airframe="airframes/HOOPERFLY/hooperfly_teensyfly_quad_elle0_v1_2.xml"
-   radio="radios/cockpitSX.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/HOOPERFLY/hooperfly_gsa_one.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml "
-   settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml modules/nav_survey_rectangle_rotorcraft.xml"
-   gui_color="yellow"
-  />
-  <aircraft
-   name="Teensy_Fly_Quad_Elle0_v1_2_215"
-   ac_id="215"
-   airframe="airframes/HOOPERFLY/hooperfly_teensyfly_quad_elle0_v1_2.xml"
-   radio="radios/cockpitSX.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/HOOPERFLY/hooperfly_gsa_one.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml "
-   settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml modules/nav_survey_rectangle_rotorcraft.xml"
-   gui_color="orange"
   />
   <aircraft
    name="Teensy_Fly_Quad_Elle0_v1_2_214"
@@ -94,9 +72,31 @@
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/HOOPERFLY/hooperfly_gsa_one.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml "
-   settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml modules/nav_survey_rectangle_rotorcraft.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
+   settings_modules="modules/nav_survey_rectangle_rotorcraft.xml modules/air_data.xml modules/geo_mag.xml modules/gps_ubx_ucenter.xml modules/ahrs_int_cmpl_quat.xml modules/gps.xml modules/imu_common.xml"
    gui_color="orangered"
+  />
+  <aircraft
+   name="Teensy_Fly_Quad_Elle0_v1_2_215"
+   ac_id="215"
+   airframe="airframes/HOOPERFLY/hooperfly_teensyfly_quad_elle0_v1_2.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/HOOPERFLY/hooperfly_gsa_one.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
+   settings_modules="modules/nav_survey_rectangle_rotorcraft.xml modules/air_data.xml modules/geo_mag.xml modules/gps_ubx_ucenter.xml modules/ahrs_int_cmpl_quat.xml modules/gps.xml modules/imu_common.xml"
+   gui_color="orange"
+  />
+  <aircraft
+   name="Teensy_Fly_Quad_Elle0_v1_2_216"
+   ac_id="216"
+   airframe="airframes/HOOPERFLY/hooperfly_teensyfly_quad_elle0_v1_2.xml"
+   radio="radios/cockpitSX.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/HOOPERFLY/hooperfly_gsa_one.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
+   settings_modules="modules/nav_survey_rectangle_rotorcraft.xml modules/air_data.xml modules/geo_mag.xml modules/gps_ubx_ucenter.xml modules/ahrs_int_cmpl_quat.xml modules/gps.xml modules/imu_common.xml"
+   gui_color="yellow"
   />
   <aircraft
    name="setup_elle0"
