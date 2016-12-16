@@ -105,7 +105,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
   match msg.PprzLink.name with
       "GPS" ->
         a.gps_mode <- check_index (ivalue "mode") gps_modes "GPS_MODE";
-        if a.gps_mode = _3D then begin
+        if a.gps_mode >= _3D then begin
           let p = { LL.utm_x = fvalue "utm_east" /. 100.;
                     utm_y = fvalue "utm_north" /. 100.;
                     utm_zone = ivalue "utm_zone" } in
