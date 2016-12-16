@@ -123,8 +123,8 @@ extern float nav_circle_trigo_qdr; /** Angle from center to mobile */
 extern void nav_circle_XY(float x, float y, float radius);
 
 extern float baseleg_out_qdr;
-extern bool nav_compute_baseleg(uint8_t wp_af, uint8_t wp_td, uint8_t wp_baseleg, float radius);
-extern bool nav_compute_final_from_glide(uint8_t wp_af, uint8_t wp_td, float glide);
+extern void nav_compute_baseleg(uint8_t wp_af, uint8_t wp_td, uint8_t wp_baseleg, float radius);
+extern void nav_compute_final_from_glide(uint8_t wp_af, uint8_t wp_td, float glide);
 
 #define RCLost() bit_is_set(imcu_get_status(), STATUS_RADIO_REALLY_LOST)
 
@@ -242,7 +242,7 @@ bool nav_approaching_xy(float x, float y, float from_x, float from_y, float appr
     pprz_msg_send_NAVIGATION(_trans, _dev, AC_ID, &nav_block, &nav_stage, &(pos->x), &(pos->y), &dist_wp, &dist_home, &_circle_count, &nav_oval_count); \
   }
 
-extern bool DownlinkSendWpNr(uint8_t _wp);
+extern void DownlinkSendWpNr(uint8_t _wp);
 
 #define DownlinkSendWp(_trans, _dev, i) {    \
     float x = nav_utm_east0 +  waypoints[i].x; \

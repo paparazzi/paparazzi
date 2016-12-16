@@ -215,7 +215,7 @@ static void nav_ground_speed_loop(void)
 #endif
 
 float baseleg_out_qdr;
-bool nav_compute_baseleg(uint8_t wp_af, uint8_t wp_td, uint8_t wp_baseleg, float radius)
+void nav_compute_baseleg(uint8_t wp_af, uint8_t wp_td, uint8_t wp_baseleg, float radius)
 {
   nav_radius = radius;
 
@@ -234,11 +234,9 @@ bool nav_compute_baseleg(uint8_t wp_af, uint8_t wp_td, uint8_t wp_baseleg, float
   if (nav_radius < 0) {
     baseleg_out_qdr += M_PI;
   }
-
-  return false;
 }
 
-bool nav_compute_final_from_glide(uint8_t wp_af, uint8_t wp_td, float glide)
+void nav_compute_final_from_glide(uint8_t wp_af, uint8_t wp_td, float glide)
 {
 
   float x_0 = waypoints[wp_td].x - waypoints[wp_af].x;
@@ -252,15 +250,13 @@ bool nav_compute_final_from_glide(uint8_t wp_af, uint8_t wp_td, float glide)
 
   waypoints[wp_af].x = waypoints[wp_td].x + x_1 * h_0 * glide;
   waypoints[wp_af].y = waypoints[wp_td].y + y_1 * h_0 * glide;
-
-  return false;
 }
 
 
 /* For a landing UPWIND.
    Computes Top Of Descent waypoint from Touch Down and Approach Fix
    waypoints, using glide airspeed, glide vertical speed and wind */
-static inline bool compute_TOD(uint8_t _af, uint8_t _td, uint8_t _tod, float glide_airspeed, float glide_vspeed)
+static inline void compute_TOD(uint8_t _af, uint8_t _td, uint8_t _tod, float glide_airspeed, float glide_vspeed)
 {
   struct FloatVect2 *wind = stateGetHorizontalWindspeed_f();
   float td_af_x = WaypointX(_af) - WaypointX(_td);
@@ -271,7 +267,6 @@ static inline bool compute_TOD(uint8_t _af, uint8_t _td, uint8_t _tod, float gli
   WaypointX(_tod) = WaypointX(_td) + td_af_x / td_af * td_tod;
   WaypointY(_tod) = WaypointY(_td) + td_af_y / td_af * td_tod;
   WaypointAlt(_tod) = WaypointAlt(_af);
-  return false;
 }
 
 
@@ -485,10 +480,9 @@ static void send_wp_moved(struct transport_tx *trans, struct link_device *dev)
   DownlinkSendWp(trans, dev, i);
 }
 
-bool DownlinkSendWpNr(uint8_t _wp)
+void DownlinkSendWpNr(uint8_t _wp)
 {
   DownlinkSendWp(&(DefaultChannel).trans_tx, &(DefaultDevice).device, _wp);
-  return false;
 }
 
 
