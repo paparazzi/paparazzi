@@ -222,7 +222,9 @@ STATIC_INLINE void main_init(void)
 
   // register the timers for the periodic functions
   main_periodic_tid = sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
+#if PERIODIC_FREQUENCY != MODULES_FREQUENCY
   modules_tid = sys_time_register_timer(1. / MODULES_FREQUENCY, NULL);
+#endif
   radio_control_tid = sys_time_register_timer((1. / 60.), NULL);
   failsafe_tid = sys_time_register_timer(0.05, NULL);
   electrical_tid = sys_time_register_timer(0.1, NULL);
@@ -244,9 +246,17 @@ STATIC_INLINE void handle_periodic_tasks(void)
 {
   if (sys_time_check_and_ack_timer(main_periodic_tid)) {
     main_periodic();
+#if PERIODIC_FREQUENCY == MODULES_FREQUENCY
+    /* Use the main periodc freq timer for modules if the freqs are the same
+     * This is mainly useful for logging each step.
+     */
+    modules_periodic_task();
+#else
   }
+  /* separate timer for modules, since it has a different freq than main */
   if (sys_time_check_and_ack_timer(modules_tid)) {
     modules_periodic_task();
+#endif
   }
   if (sys_time_check_and_ack_timer(radio_control_tid)) {
     radio_control_periodic_task();
