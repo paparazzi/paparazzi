@@ -45,7 +45,7 @@ bool nav_anemotaxis(uint8_t c, uint8_t c1, uint8_t c2, uint8_t plume)
     last_plume_was_here();
     waypoints[plume].x = stateGetPositionEnu_f()->x;
     waypoints[plume].y = stateGetPositionEnu_f()->y;
-    //    DownlinkSendWp(plume);
+    //    DownlinkSendWpNr(plume);
   }
 
   struct FloatVect2 *wind = stateGetHorizontalWindspeed_f();
@@ -70,8 +70,8 @@ bool nav_anemotaxis(uint8_t c, uint8_t c1, uint8_t c2, uint8_t plume)
         waypoints[c2].x = waypoints[c1].x - width * crosswind_x * sign;
         waypoints[c2].y = waypoints[c1].y - width * crosswind_y * sign;
 
-        //      DownlinkSendWp(c1);
-        //      DownlinkSendWp(c2);
+        //      DownlinkSendWpNr(c1);
+        //      DownlinkSendWpNr(c2);
 
         status = CROSSWIND;
         nav_init_stage();
@@ -84,7 +84,7 @@ bool nav_anemotaxis(uint8_t c, uint8_t c1, uint8_t c2, uint8_t plume)
         waypoints[c].x = waypoints[c2].x + DEFAULT_CIRCLE_RADIUS * upwind_x;
         waypoints[c].y = waypoints[c2].y + DEFAULT_CIRCLE_RADIUS * upwind_y;
 
-        // DownlinkSendWp(c);
+        // DownlinkSendWpNr(c);
 
         sign = -sign;
         status = UTURN;
@@ -95,7 +95,7 @@ bool nav_anemotaxis(uint8_t c, uint8_t c1, uint8_t c2, uint8_t plume)
         waypoints[c].x = stateGetPositionEnu_f()->x + DEFAULT_CIRCLE_RADIUS * upwind_x;
         waypoints[c].y = stateGetPositionEnu_f()->y + DEFAULT_CIRCLE_RADIUS * upwind_y;
 
-        // DownlinkSendWp(c);
+        // DownlinkSendWpNr(c);
 
         sign = -sign;
         status = UTURN;

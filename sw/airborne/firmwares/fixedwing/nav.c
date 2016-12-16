@@ -472,6 +472,13 @@ static void send_nav(struct transport_tx *trans, struct link_device *dev)
   SEND_NAVIGATION(trans, dev);
 }
 
+static void DownlinkSendWp(struct transport_tx *trans, struct link_device *dev, uint8_t _wp)
+{
+  float x = nav_utm_east0 +  waypoints[_wp].x;
+  float y = nav_utm_north0 + waypoints[_wp].y;
+  pprz_msg_send_WP_MOVED(trans, dev, AC_ID, &_wp, &x, &y, &(waypoints[_wp].a), &nav_utm_zone0);
+}
+
 static void send_wp_moved(struct transport_tx *trans, struct link_device *dev)
 {
   static uint8_t i;
@@ -482,6 +489,7 @@ static void send_wp_moved(struct transport_tx *trans, struct link_device *dev)
 
 void DownlinkSendWpNr(uint8_t _wp)
 {
+  if (_wp >= nb_waypoint) return;
   DownlinkSendWp(&(DefaultChannel).trans_tx, &(DefaultDevice).device, _wp);
 }
 
