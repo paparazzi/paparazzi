@@ -180,8 +180,13 @@ void mcu_arch_init(void)
   PRINT_CONFIG_MSG("Using 8MHz external clock to PLL it to 72MHz.")
   rcc_clock_setup_in_hse_8mhz_out_72mhz();
 #elif defined(STM32F4)
+#if AHB_CLK == 84000000
+  PRINT_CONFIG_MSG("Using 8MHz external clock to PLL it to 84MHz.")
+  rcc_clock_setup_hse_3v3(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_84MHZ]);
+#else
   PRINT_CONFIG_MSG("Using 8MHz external clock to PLL it to 168MHz.")
   rcc_clock_setup_hse_3v3(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
+#endif
 #endif
 #elif EXT_CLK == 12000000
 #if defined(STM32F1)
