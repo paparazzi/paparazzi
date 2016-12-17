@@ -103,7 +103,7 @@ int32_t guidance_v_delta_t;
 
 float guidance_v_nominal_throttle;
 bool guidance_v_adapt_throttle_enabled;
-
+static bool desired_zd_updated;
 
 #define GUIDANCE_V_GUIDED_MODE_ZHOLD      0
 #define GUIDANCE_V_GUIDED_MODE_CLIMB      1
@@ -192,6 +192,7 @@ void guidance_v_init(void)
 
   guidance_v_nominal_throttle = GUIDANCE_V_NOMINAL_HOVER_THROTTLE;
   guidance_v_adapt_throttle_enabled = GUIDANCE_V_ADAPT_THROTTLE_ENABLED;
+  desired_zd_updated = false;
   guidance_v_guided_mode = GUIDANCE_V_GUIDED_MODE_ZHOLD;
 
   gv_adapt_init();
@@ -288,16 +289,25 @@ void guidance_v_notify_in_flight(bool in_flight)
 void guidance_v_run(bool in_flight)
 {
 
-  // FIXME... SATURATIONS NOT TAKEN INTO ACCOUNT
-  // AKA SUPERVISION and co
   guidance_v_thrust_coeff = get_vertical_thrust_coeff();
+
   if (in_flight) {
-    int32_t vertical_thrust = (stabilization_cmd[COMMAND_THRUST] * guidance_v_thrust_coeff) >> INT32_TRIG_FRAC;
-    gv_adapt_run(stateGetAccelNed_i()->z, vertical_thrust, guidance_v_zd_ref);
+    /* Only run adaptive throttle estimation if we are in flight and
+     * the desired vertical velocity (zd) was updated (i.e. we ran hover_loop before).
+     * This means that the estimation is not updated when using direct throttle commands.
+     *
+     * FIXME... SATURATIONS NOT TAKEN INTO ACCOUNT, AKA SUPERVISION and co
+     */
+    if (desired_zd_updated) {
+      int32_t vertical_thrust = (stabilization_cmd[COMMAND_THRUST] * guidance_v_thrust_coeff) >> INT32_TRIG_FRAC;
+      gv_adapt_run(stateGetAccelNed_i()->z, vertical_thrust, guidance_v_zd_ref);
+    }
   } else {
     /* reset estimate while not in_flight */
     gv_adapt_init();
   }
+  /* reset flag indicating if desired zd was updated */
+  desired_zd_updated = false;
 
   switch (guidance_v_mode) {
 
@@ -443,6 +453,8 @@ static void run_hover_loop(bool in_flight)
   guidance_v_z_ref = (int32_t)tmp;
   guidance_v_zd_ref = gv_zd_ref << (INT32_SPEED_FRAC - GV_ZD_REF_FRAC);
   guidance_v_zdd_ref = gv_zdd_ref << (INT32_ACCEL_FRAC - GV_ZDD_REF_FRAC);
+  /* set flag to indicate that desired zd was updated */
+  desired_zd_updated = true;
   /* compute the error to our reference */
   int32_t err_z  = guidance_v_z_ref - stateGetPositionNed_i()->z;
   Bound(err_z, GUIDANCE_V_MIN_ERR_Z, GUIDANCE_V_MAX_ERR_Z);
