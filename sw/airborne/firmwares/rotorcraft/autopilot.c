@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2008-2012 The Paparazzi Team
+ * Copyright (C) 2016 Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *
  * This file is part of paparazzi.
  *
@@ -105,62 +106,6 @@ bool   autopilot_detect_ground_once;
 #define AUTOPILOT_IN_FLIGHT_MIN_THRUST 500
 #endif
 
-#ifndef AUTOPILOT_DISABLE_AHRS_KILL
-static inline int ahrs_is_aligned(void)
-{
-  return stateIsAttitudeValid();
-}
-#else
-PRINT_CONFIG_MSG("Using AUTOPILOT_DISABLE_AHRS_KILL")
-static inline int ahrs_is_aligned(void)
-{
-  return true;
-}
-#endif
-
-/** Set descent speed in failsafe mode */
-#ifndef FAILSAFE_DESCENT_SPEED
-#define FAILSAFE_DESCENT_SPEED 1.5
-PRINT_CONFIG_VAR(FAILSAFE_DESCENT_SPEED)
-#endif
-
-/** Mode that is set when the plane is really too far from home */
-#ifndef FAILSAFE_MODE_TOO_FAR_FROM_HOME
-#define FAILSAFE_MODE_TOO_FAR_FROM_HOME AP_MODE_FAILSAFE
-#endif
-
-
-#if USE_KILL_SWITCH_FOR_MOTOR_ARMING
-#include "autopilot_arming_switch.h"
-PRINT_CONFIG_MSG("Using kill switch for motor arming")
-#elif USE_THROTTLE_FOR_MOTOR_ARMING
-#include "autopilot_arming_throttle.h"
-PRINT_CONFIG_MSG("Using throttle for motor arming")
-#else
-#include "autopilot_arming_yaw.h"
-PRINT_CONFIG_MSG("Using 2 sec yaw for motor arming")
-#endif
-
-#ifndef MODE_STARTUP
-#define MODE_STARTUP AP_MODE_KILL
-PRINT_CONFIG_MSG("Using default AP_MODE_KILL as MODE_STARTUP")
-#endif
-
-#ifndef UNLOCKED_HOME_MODE
-#if MODE_AUTO1 == AP_MODE_HOME
-#define UNLOCKED_HOME_MODE TRUE
-PRINT_CONFIG_MSG("Enabled UNLOCKED_HOME_MODE since MODE_AUTO1 is AP_MODE_HOME")
-#elif MODE_AUTO2 == AP_MODE_HOME
-#define UNLOCKED_HOME_MODE TRUE
-PRINT_CONFIG_MSG("Enabled UNLOCKED_HOME_MODE since MODE_AUTO2 is AP_MODE_HOME")
-#else
-#define UNLOCKED_HOME_MODE FALSE
-#endif
-#endif
-
-#if MODE_MANUAL == AP_MODE_NAV
-#error "MODE_MANUAL mustn't be AP_MODE_NAV"
-#endif
 
 void send_autopilot_version(struct transport_tx *trans, struct link_device *dev)
 {
@@ -304,8 +249,6 @@ static void send_rotorcraft_cmd(struct transport_tx *trans, struct link_device *
 
 void autopilot_init(void)
 {
-  /* mode is finally set at end of init if MODE_STARTUP is not KILL */
-  autopilot_mode = AP_MODE_KILL;
   autopilot_motors_on = false;
   kill_throttle = ! autopilot_motors_on;
   autopilot_in_flight = false;
@@ -321,12 +264,11 @@ void autopilot_init(void)
   gpio_clear(POWER_SWITCH_GPIO); // POWER OFF
 #endif
 
-  autopilot_arming_init();
-
+  // init GNC stack
+  // TODO this should be done in modules init
   nav_init();
   guidance_h_init();
   guidance_v_init();
-
   stabilization_init();
   stabilization_none_init();
 #if USE_STABILIZATION_RATE
@@ -334,9 +276,15 @@ void autopilot_init(void)
 #endif
   stabilization_attitude_init();
 
-  /* set startup mode, propagates through to guidance h/v */
-  autopilot_set_mode(MODE_STARTUP);
+  // call implementation init
+  // it will set startup mode
+#if USE_GENERATED_AUTOPILOT
+  autopilot_generated_init();
+#else
+  autopilot_static_init();
+#endif
 
+  // register messages
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AUTOPILOT_VERSION, send_autopilot_version);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ALIVE, send_alive);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ROTORCRAFT_STATUS, send_status);
@@ -355,215 +303,65 @@ void autopilot_init(void)
 #endif
 }
 
-
-#define NAV_PRESCALER (PERIODIC_FREQUENCY / NAV_FREQ)
+/** AP periodic call
+ */
 void autopilot_periodic(void)
 {
-
-  RunOnceEvery(NAV_PRESCALER, compute_dist2_to_home());
-
-  if (autopilot_in_flight && autopilot_mode == AP_MODE_NAV) {
-    if (too_far_from_home || datalink_lost() || higher_than_max_altitude()) {
-      if (dist2_to_home > failsafe_mode_dist2) {
-        autopilot_set_mode(FAILSAFE_MODE_TOO_FAR_FROM_HOME);
-      } else {
-        autopilot_set_mode(AP_MODE_HOME);
-      }
-    }
-  }
-
-  if (autopilot_mode == AP_MODE_HOME) {
-    RunOnceEvery(NAV_PRESCALER, nav_home());
-  } else {
-    // otherwise always call nav_periodic_task so that carrot is always updated in GCS for other modes
-    RunOnceEvery(NAV_PRESCALER, nav_periodic_task());
-  }
-
-
-  /* If in FAILSAFE mode and either already not in_flight anymore
-   * or just "detected" ground, go to KILL mode.
-   */
-  if (autopilot_mode == AP_MODE_FAILSAFE) {
-    if (!autopilot_in_flight) {
-      autopilot_set_mode(AP_MODE_KILL);
-    }
-
-#if FAILSAFE_GROUND_DETECT
-    INFO("Using FAILSAFE_GROUND_DETECT: KILL")
-    if (autopilot_ground_detected) {
-      autopilot_set_mode(AP_MODE_KILL);
-    }
+#if USE_GENERATED_AUTOPILOT
+  autopilot_generated_periodic();
+#else
+  autopilot_static_periodic();
 #endif
-  }
+}
 
-  /* Reset ground detection _after_ running flight plan
-   */
-  if (!autopilot_in_flight) {
-    autopilot_ground_detected = false;
-    autopilot_detect_ground_once = false;
-  }
-
-  /* Set fixed "failsafe" commands from airframe file if in KILL mode.
-   * If in FAILSAFE mode, run normal loops with failsafe attitude and
-   * downwards velocity setpoints.
-   */
-  if (autopilot_mode == AP_MODE_KILL) {
-    SetCommands(commands_failsafe);
-  } else {
-    guidance_v_run(autopilot_in_flight);
-    guidance_h_run(autopilot_in_flight);
-    SetRotorcraftCommands(stabilization_cmd, autopilot_in_flight, autopilot_motors_on);
-  }
-
+/** set autopilot mode
+ */
+void autopilot_set_mode(uint8_t new_autopilot_mode)
+{
+#if USE_GENERATED_AUTOPILOT
+  autopilot_generated_set_mode(new_autopilot_mode);
+#else
+  autopilot_static_set_mode(new_autopilot_mode);
+#endif
 }
 
 /** AP mode setting handler
- *
- * Checks RC status before calling autopilot_set_mode function
  */
 void autopilot_SetModeHandler(float mode)
 {
-  if (mode == AP_MODE_KILL || mode == AP_MODE_FAILSAFE || mode == AP_MODE_HOME) {
-    // safety modes are always accessible via settings
-    autopilot_set_mode(mode);
-  } else {
-    if (radio_control.status != RC_OK &&
-        (mode == AP_MODE_NAV || mode == AP_MODE_GUIDED || mode == AP_MODE_FLIP || mode == AP_MODE_MODULE)) {
-      // without RC, only nav-like modes are accessible
-      autopilot_set_mode(mode);
-    }
-  }
-  // with RC, other modes can only be changed from the RC
-}
-
-
-void autopilot_set_mode(uint8_t new_autopilot_mode)
-{
-
-  /* force startup mode (default is kill) as long as AHRS is not aligned */
-  if (!ahrs_is_aligned()) {
-    new_autopilot_mode = MODE_STARTUP;
-  }
-
-  if (new_autopilot_mode != autopilot_mode) {
-    /* horizontal mode */
-    switch (new_autopilot_mode) {
-      case AP_MODE_FAILSAFE:
-#ifndef KILL_AS_FAILSAFE
-        stabilization_attitude_set_failsafe_setpoint();
-        guidance_h_mode_changed(GUIDANCE_H_MODE_ATTITUDE);
-        break;
-#endif
-      case AP_MODE_KILL:
-        autopilot_in_flight = false;
-        autopilot_in_flight_counter = 0;
-        guidance_h_mode_changed(GUIDANCE_H_MODE_KILL);
-        break;
-      case AP_MODE_RC_DIRECT:
-        guidance_h_mode_changed(GUIDANCE_H_MODE_RC_DIRECT);
-        break;
-      case AP_MODE_RATE_RC_CLIMB:
-      case AP_MODE_RATE_DIRECT:
-      case AP_MODE_RATE_Z_HOLD:
-#if USE_STABILIZATION_RATE
-        guidance_h_mode_changed(GUIDANCE_H_MODE_RATE);
+#if USE_GENERATED_AUTOPILOT
+  autopilot_generated_SetModeHandler(mode);
 #else
-        return;
+  autopilot_static_SetModeHandler(mode);
 #endif
-        break;
-      case AP_MODE_ATTITUDE_RC_CLIMB:
-      case AP_MODE_ATTITUDE_DIRECT:
-      case AP_MODE_ATTITUDE_CLIMB:
-      case AP_MODE_ATTITUDE_Z_HOLD:
-        guidance_h_mode_changed(GUIDANCE_H_MODE_ATTITUDE);
-        break;
-      case AP_MODE_FORWARD:
-        guidance_h_mode_changed(GUIDANCE_H_MODE_FORWARD);
-        break;
-      case AP_MODE_CARE_FREE_DIRECT:
-        guidance_h_mode_changed(GUIDANCE_H_MODE_CARE_FREE);
-        break;
-      case AP_MODE_HOVER_DIRECT:
-      case AP_MODE_HOVER_CLIMB:
-      case AP_MODE_HOVER_Z_HOLD:
-        guidance_h_mode_changed(GUIDANCE_H_MODE_HOVER);
-        break;
-      case AP_MODE_HOME:
-      case AP_MODE_NAV:
-        guidance_h_mode_changed(GUIDANCE_H_MODE_NAV);
-        break;
-      case AP_MODE_MODULE:
-#ifdef GUIDANCE_H_MODE_MODULE_SETTING
-        guidance_h_mode_changed(GUIDANCE_H_MODE_MODULE_SETTING);
-#endif
-        break;
-      case AP_MODE_FLIP:
-        guidance_h_mode_changed(GUIDANCE_H_MODE_FLIP);
-        break;
-      case AP_MODE_GUIDED:
-        guidance_h_mode_changed(GUIDANCE_H_MODE_GUIDED);
-        break;
-      default:
-        break;
-    }
-    /* vertical mode */
-    switch (new_autopilot_mode) {
-      case AP_MODE_FAILSAFE:
-#ifndef KILL_AS_FAILSAFE
-        guidance_v_mode_changed(GUIDANCE_V_MODE_CLIMB);
-        guidance_v_zd_sp = SPEED_BFP_OF_REAL(FAILSAFE_DESCENT_SPEED);
-        break;
-#endif
-      case AP_MODE_KILL:
-        autopilot_set_motors_on(FALSE);
-        stabilization_cmd[COMMAND_THRUST] = 0;
-        guidance_v_mode_changed(GUIDANCE_V_MODE_KILL);
-        break;
-      case AP_MODE_RC_DIRECT:
-      case AP_MODE_RATE_DIRECT:
-      case AP_MODE_ATTITUDE_DIRECT:
-      case AP_MODE_HOVER_DIRECT:
-      case AP_MODE_CARE_FREE_DIRECT:
-      case AP_MODE_FORWARD:
-        guidance_v_mode_changed(GUIDANCE_V_MODE_RC_DIRECT);
-        break;
-      case AP_MODE_RATE_RC_CLIMB:
-      case AP_MODE_ATTITUDE_RC_CLIMB:
-        guidance_v_mode_changed(GUIDANCE_V_MODE_RC_CLIMB);
-        break;
-      case AP_MODE_ATTITUDE_CLIMB:
-      case AP_MODE_HOVER_CLIMB:
-        guidance_v_mode_changed(GUIDANCE_V_MODE_CLIMB);
-        break;
-      case AP_MODE_RATE_Z_HOLD:
-      case AP_MODE_ATTITUDE_Z_HOLD:
-      case AP_MODE_HOVER_Z_HOLD:
-        guidance_v_mode_changed(GUIDANCE_V_MODE_HOVER);
-        break;
-      case AP_MODE_HOME:
-      case AP_MODE_NAV:
-        guidance_v_mode_changed(GUIDANCE_V_MODE_NAV);
-        break;
-      case AP_MODE_MODULE:
-#ifdef GUIDANCE_V_MODE_MODULE_SETTING
-        guidance_v_mode_changed(GUIDANCE_V_MODE_MODULE_SETTING);
-#endif
-        break;
-      case AP_MODE_FLIP:
-        guidance_v_mode_changed(GUIDANCE_V_MODE_FLIP);
-        break;
-      case AP_MODE_GUIDED:
-        guidance_v_mode_changed(GUIDANCE_V_MODE_GUIDED);
-        break;
-      default:
-        break;
-    }
-    //if switching to rate mode but rate mode is not defined, the function returned
-    autopilot_mode = new_autopilot_mode;
-  }
 }
 
+/** RC frame handler
+ */
+void autopilot_on_rc_frame(void)
+{
+#if USE_GENERATED_AUTOPILOT
+  autopilot_generated_on_rc_frame();
+#else
+  autopilot_static_on_rc_frame();
+#endif
+}
 
+/** turn motors on/off, eventually depending of the current mode
+ *  set kill_throttle accordingly
+ */
+void autopilot_set_motors_on(bool motors_on)
+{
+#if USE_GENERATED_AUTOPILOT
+  autopilot_generated_set_motors_on(motors_on);
+#else
+  autopilot_static_set_motors_on(motors_on);
+#endif
+  kill_throttle = ! autopilot_motors_on;
+}
+
+/** in flight check utility function
+ */
 void autopilot_check_in_flight(bool motors_on)
 {
   if (autopilot_in_flight) {
@@ -598,153 +396,3 @@ void autopilot_check_in_flight(bool motors_on)
   }
 }
 
-
-void autopilot_set_motors_on(bool motors_on)
-{
-  if (autopilot_mode != AP_MODE_KILL && ahrs_is_aligned() && motors_on) {
-    autopilot_motors_on = true;
-  } else {
-    autopilot_motors_on = false;
-  }
-  kill_throttle = ! autopilot_motors_on;
-  autopilot_arming_set(autopilot_motors_on);
-}
-
-#if defined RADIO_MODE_2x3
-
-#define THRESHOLD_1d3_PPRZ (MAX_PPRZ / 3)
-#define THRESHOLD_2d3_PPRZ ((MAX_PPRZ / 3) * 2)
-/** Get autopilot mode as set by a RADIO_MODE 3-way switch and a 2-way switch, which are mixed together
- *  The 2 way switch negates the value, the 3 way switch changes in three steps from 0 - MAX_PPRZ.
- *  E.g. SW_1 has two positions (On/Off), SW_Mode has three positions (M1/M2/M3)
- *   1	Mode value
- *   Off	M1	-9500
- *   Off	M2	-4800
- *   Off	M3	-1850
- *   On	M1	2100
- *   On	M2	4900
- *   On	M3	9600
- *  This function filters out the effect of SW_1, such that a normal 3-way switch comes out.
-**/
-static uint8_t ap_mode_of_3x2way_switch(void)
-{
-    int val = radio_control.values[RADIO_MODE];
-    if (radio_control.values[RADIO_MODE] < 0) {
-        val = MAX_PPRZ + val;
-    }
-    if (val < THRESHOLD_1d3_PPRZ) {
-        return MODE_MANUAL;
-    } else if (val < THRESHOLD_2d3_PPRZ) {
-        return MODE_AUTO1;
-    } else {
-        return autopilot_mode_auto2;
-    }
-}
-
-#else
-
-#define THRESHOLD_1_PPRZ (MIN_PPRZ / 2)
-#define THRESHOLD_2_PPRZ (MAX_PPRZ / 2)
-/** get autopilot mode as set by RADIO_MODE 3-way switch */
-static uint8_t ap_mode_of_3way_switch(void)
-{
-  if (radio_control.values[RADIO_MODE] > THRESHOLD_2_PPRZ) {
-    return autopilot_mode_auto2;
-  } else if (radio_control.values[RADIO_MODE] > THRESHOLD_1_PPRZ) {
-    return MODE_AUTO1;
-  } else {
-    return MODE_MANUAL;
-  }
-}
-#endif
-
-/**
- * Get autopilot mode from two 2way switches.
- * RADIO_MODE switch just selectes between MANUAL and AUTO.
- * If not MANUAL, the RADIO_AUTO_MODE switch selects between AUTO1 and AUTO2.
- *
- * This is mainly a cludge for entry level radios with no three-way switch,
- * but two available two-way switches which can be used.
- */
-#if defined RADIO_AUTO_MODE || defined(__DOXYGEN__)
-static uint8_t ap_mode_of_two_switches(void)
-{
-  if (radio_control.values[RADIO_MODE] < THRESHOLD_1_PPRZ) {
-    /* RADIO_MODE in MANUAL position */
-    return MODE_MANUAL;
-  } else {
-    /* RADIO_MODE not in MANUAL position.
-     * Select AUTO mode bassed on RADIO_AUTO_MODE channel
-     */
-    if (radio_control.values[RADIO_AUTO_MODE] > THRESHOLD_2_PPRZ) {
-      return autopilot_mode_auto2;
-    } else {
-      return MODE_AUTO1;
-    }
-  }
-}
-#endif
-
-void autopilot_on_rc_frame(void)
-{
-
-  if (kill_switch_is_on()) {
-    autopilot_set_mode(AP_MODE_KILL);
-  } else {
-#ifdef RADIO_AUTO_MODE
-    INFO("Using RADIO_AUTO_MODE to switch between AUTO1 and AUTO2.")
-    uint8_t new_autopilot_mode = ap_mode_of_two_switches();
-#else
-#ifdef RADIO_MODE_2x3
-    uint8_t new_autopilot_mode = ap_mode_of_3x2way_switch();
-#else
-    uint8_t new_autopilot_mode = ap_mode_of_3way_switch();
-#endif
-#endif
-
-    /* don't enter NAV mode if GPS is lost (this also prevents mode oscillations) */
-    if (!(new_autopilot_mode == AP_MODE_NAV && GpsIsLost())) {
-      /* always allow to switch to manual */
-      if (new_autopilot_mode == MODE_MANUAL) {
-        autopilot_set_mode(new_autopilot_mode);
-      }
-      /* if in HOME mode, don't allow switching to non-manual modes */
-      else if ((autopilot_mode != AP_MODE_HOME)
-#if UNLOCKED_HOME_MODE
-               /* Allowed to leave home mode when UNLOCKED_HOME_MODE */
-               || !too_far_from_home
-#endif
-              ) {
-        autopilot_set_mode(new_autopilot_mode);
-      }
-    }
-  }
-
-  /* an arming sequence is used to start/stop motors.
-   * only allow arming if ahrs is aligned
-   */
-  if (ahrs_is_aligned()) {
-    autopilot_arming_check_motors_on();
-    kill_throttle = ! autopilot_motors_on;
-  }
-
-  /* if not in FAILSAFE or HOME mode, read RC and set commands accordingly */
-  if (autopilot_mode != AP_MODE_FAILSAFE && autopilot_mode != AP_MODE_HOME) {
-
-    /* if there are some commands that should always be set from RC, do it */
-#ifdef SetAutoCommandsFromRC
-    SetAutoCommandsFromRC(commands, radio_control.values);
-#endif
-
-    /* if not in NAV_MODE set commands from the rc */
-#ifdef SetCommandsFromRC
-    if (autopilot_mode != AP_MODE_NAV) {
-      SetCommandsFromRC(commands, radio_control.values);
-    }
-#endif
-
-    guidance_v_read_rc();
-    guidance_h_read_rc(autopilot_in_flight);
-  }
-
-}

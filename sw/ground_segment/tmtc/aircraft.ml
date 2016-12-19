@@ -193,7 +193,8 @@ type aircraft = {
   mutable last_msg_date : float;
   mutable time_since_last_survey_msg : float;
   mutable dist_to_wp : float;
-  inflight_calib : inflight_calib
+  inflight_calib : inflight_calib;
+  mutable ap_modes : string array option
 }
 
 let max_nb_dl_setting_values = 256 (** indexed iwth an uint8 (messages.xml)  *)
@@ -225,5 +226,14 @@ let new_aircraft = fun id name fp airframe ->
     waypoints = Hashtbl.create 3; survey = None; last_msg_date = 0.; dist_to_wp = 0.;
     datalink_status = datalink_status_init (); link_status = Hashtbl.create 1;
     time_since_last_survey_msg = 1729.;
-    inflight_calib = { if_mode = 1 ; if_val1 = 0.; if_val2 = 0.}
+    inflight_calib = { if_mode = 1 ; if_val1 = 0.; if_val2 = 0.};
+    ap_modes = None
   }
+
+let modes_of_aircraft = fun ac ->
+  match ac.ap_modes, ac.vehicle_type with
+  | Some m, _ -> m
+  | None, FixedWing -> Server_globals.fixedwing_ap_modes
+  | None, Rotorcraft -> Server_globals.rotorcraft_ap_modes
+  | None, _ -> [| "UKN" |]
+
