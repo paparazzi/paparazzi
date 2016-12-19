@@ -31,7 +31,8 @@
 enum NpsRadioControlType {
   SCRIPT,
   JOYSTICK,
-  SPEKTRUM
+  SPEKTRUM,
+  NORC
 };
 
 extern void nps_radio_control_init(enum NpsRadioControlType type, int num_script, char *js_dev);

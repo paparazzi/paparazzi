@@ -48,6 +48,8 @@ void nps_radio_control_init(enum NpsRadioControlType type, int num_script, char 
       break;
     case SCRIPT:
       break;
+    case NORC:
+      break;
     default:
       break;
   }
@@ -78,7 +80,7 @@ static rc_script scripts[] = {
 
 bool nps_radio_control_available(double time)
 {
-  if (time >=  nps_radio_control.next_update) {
+  if (time >=  nps_radio_control.next_update && nps_radio_control.type != NORC) {
     nps_radio_control.next_update += RADIO_CONTROL_DT;
 
     if (nps_radio_control.type == JOYSTICK) {
