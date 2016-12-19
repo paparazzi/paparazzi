@@ -151,9 +151,9 @@ print_version:
 	@echo "Paparazzi version" $(GIT_DESC)$(VERSION_MATCH)
 	@echo "-----------------------------------------------------------------------"
 
-all_ac_h: $(SRCS_LIST) qt_project autopilot_h
+all_ac_h: $(SRCS_LIST) qt_project
 
-$(SRCS_LIST) : $(CONF_XML) $(AIRFRAME_H) $(MODULES_H) $(SETTINGS_H) $(MAKEFILE_AC) $(PERIODIC_H)
+$(SRCS_LIST) : $(CONF_XML) $(AIRFRAME_H) $(MODULES_H) autopilot_h $(SETTINGS_H) $(MAKEFILE_AC) $(PERIODIC_H)
 	@echo "TARGET: " $(TARGET) > $(SRCS_LIST)
 	@echo "CFLAGS: " $(CFLAGS) >> $(SRCS_LIST)
 	@echo "LDFLAGS: " $($(TARGET).LDFLAGS) >> $(SRCS_LIST)
@@ -219,11 +219,12 @@ $(FLIGHT_PLAN_XML) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML) $(GENERATORS)/gen_flight
 	$(Q)mv $($@_TMP) $@
 	$(Q)chmod a+r $@
 
-$(SETTINGS_H) : $(SETTINGS_XMLS_DEP) $(CONF_XML) $(SETTINGS_MODULES) $(SETTINGS_TELEMETRY) $(GENERATORS)/gen_settings.out
+# split system settings (generated) from user settings with a '--'
+$(SETTINGS_H) : $(SETTINGS_XMLS_DEP) $(CONF_XML) $(SETTINGS_MODULES) $(SETTINGS_TELEMETRY) $(GENERATORS)/gen_settings.out autopilot_h
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
 	@echo GENERATE $@
 	$(eval $@_TMP := $(shell $(MKTEMP)))
-	$(Q)$(GENERATORS)/gen_settings.out $(SETTINGS_XML) $(SETTINGS_TELEMETRY) $(SETTINGS_XMLS) $(SETTINGS_FLIGHTPLAN) $(SETTINGS_MODULES) > $($@_TMP)
+	$(Q)$(GENERATORS)/gen_settings.out $(SETTINGS_XML) $(SETTINGS_AUTOPILOT) $(SETTINGS_TELEMETRY) $(SETTINGS_FLIGHTPLAN) $(SETTINGS_MODULES) -- $(SETTINGS_XMLS) > $($@_TMP)
 	$(Q)mv $($@_TMP) $@
 	$(Q)chmod a+r $@
 	$(Q)cp $(SETTINGS_XMLS_DEP) $(AIRCRAFT_CONF_DIR)/settings
