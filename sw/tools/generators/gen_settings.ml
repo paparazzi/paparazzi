@@ -354,8 +354,10 @@ let join_xml_files = fun xml_sys_files xml_user_files ->
     let dl_sys = List.map (fun xml_file ->
       let xml = ExtXml.parse_file xml_file in
       (* take "second stage" dl_settings nodes *)
-      let dl = ExtXml.child xml "dl_settings" in
-      Xml.children dl
+      try
+        let dl = ExtXml.child xml "dl_settings" in
+        Xml.children dl
+      with Not_found -> []
     ) xml_sys_files in
     dl_settings := Xml.Element("dl_settings", [("name", "System")], List.rev (List.flatten dl_sys)) :: !dl_settings;
 
