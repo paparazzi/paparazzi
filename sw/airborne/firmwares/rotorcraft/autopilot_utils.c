@@ -32,6 +32,9 @@
 #include "state.h"
 #include "subsystems/radio_control.h"
 
+/** Display descent speed in failsafe mode if needed */
+PRINT_CONFIG_VAR(FAILSAFE_DESCENT_SPEED)
+
 
 // Utility functions
 #ifndef AUTOPILOT_DISABLE_AHRS_KILL

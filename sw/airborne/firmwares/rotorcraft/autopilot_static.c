@@ -74,12 +74,6 @@ PRINT_CONFIG_MSG("Using 2 sec yaw for motor arming")
 /* Geofence exceptions */
 #include "modules/nav/nav_geofence.h"
 
-/** Set descent speed in failsafe mode */
-#ifndef FAILSAFE_DESCENT_SPEED
-#define FAILSAFE_DESCENT_SPEED 1.5
-PRINT_CONFIG_VAR(FAILSAFE_DESCENT_SPEED)
-#endif
-
 /** Mode that is set when the plane is really too far from home */
 #ifndef FAILSAFE_MODE_TOO_FAR_FROM_HOME
 #define FAILSAFE_MODE_TOO_FAR_FROM_HOME AP_MODE_FAILSAFE

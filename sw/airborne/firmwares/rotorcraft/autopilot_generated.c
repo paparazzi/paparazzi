@@ -49,12 +49,6 @@ PRINT_CONFIG_MSG("Using throttle for motor arming")
 PRINT_CONFIG_MSG("Using 2 sec yaw for motor arming")
 #endif
 
-/** Set descent speed in failsafe mode */
-#ifndef FAILSAFE_DESCENT_SPEED
-#define FAILSAFE_DESCENT_SPEED 1.5
-PRINT_CONFIG_VAR(FAILSAFE_DESCENT_SPEED)
-#endif
-
 
 void autopilot_generated_init(void)
 {
