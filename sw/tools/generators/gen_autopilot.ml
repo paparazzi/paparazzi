@@ -210,7 +210,7 @@ let print_set_mode = fun modes name out_h ->
   let print_case = fun mode f ->
     lprintf out_h "case %s :\n" (print_mode_name name (Xml.attrib mode "name"));
     right ();
-    List.iter (fun x -> lprintf out_h "%s;\n" x) (Str.split (Str.regexp "|") f);
+    List.iter (fun x -> lprintf out_h "%s;\n" (ExtXml.attrib x "fun")) (Xml.children f);
     lprintf out_h "break;\n";
     left ();
   in
@@ -220,7 +220,7 @@ let print_set_mode = fun modes name out_h ->
     right ();
     List.iter (fun m ->
       try
-        print_case m (Xml.attrib m t)
+        print_case m (ExtXml.child m t)
       with _ -> ()
     ) modes;
     lprintf out_h "default:\n";
@@ -235,10 +235,10 @@ let print_set_mode = fun modes name out_h ->
   right ();
   lprintf out_h "if (new_mode == private_autopilot_mode_%s) return;\n\n" name; (* set mode if different from current mode *)
   (* Print stop functions for each modes *)
-  print_switch ("private_autopilot_mode_"^name) modes "stop";
+  print_switch ("private_autopilot_mode_"^name) modes "on_exit";
   fprintf out_h "\n";
   (* Print start functions for each modes *)
-  print_switch "new_mode" modes "start";
+  print_switch "new_mode" modes "on_enter";
   fprintf out_h "\n";
   lprintf out_h "last_autopilot_mode_%s = private_autopilot_mode_%s;\n" name name;
   lprintf out_h "private_autopilot_mode_%s = new_mode;\n" name;

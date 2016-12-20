@@ -55,8 +55,11 @@
       <exception cond="kill_switch_is_on()" deroute="KILL"/>
     </exceptions>
 
-    <mode name="ATTITUDE_DIRECT" start="stabilization_attitude_enter()" shortname="ATT">
+    <mode name="ATTITUDE_DIRECT" shortname="ATT">
       <select cond="RCMode0()"/>
+      <on_enter>
+        <call fun="stabilization_attitude_enter()"/>
+      </on_enter>
       <control freq="NAV_FREQ">
         <call fun="nav_periodic_task()"/>
       </control>
@@ -68,8 +71,12 @@
       <exception cond="RCLost()" deroute="FAILSAFE"/>
     </mode>
 
-    <mode name="ATTITUDE_Z_HOLD" start="stabilization_attitude_enter()|guidance_v_z_enter()" shortname="A_ZH">
+    <mode name="ATTITUDE_Z_HOLD" shortname="A_ZH">
       <select cond="RCMode1()"/>
+      <on_enter>
+        <call fun="stabilization_attitude_enter()"/>
+        <call fun="guidance_v_z_enter()"/>
+      </on_enter>
       <control freq="NAV_FREQ">
         <call fun="nav_periodic_task()"/>
       </control>
@@ -81,8 +88,13 @@
       <exception cond="RCLost()" deroute="FAILSAFE"/>
     </mode>
 
-    <mode name="NAV" start="guidance_h_nav_enter()|stabilization_attitude_enter()|guidance_v_z_enter()">
+    <mode name="NAV">
       <select cond="RCMode2() && DLModeNav()" exception="HOME"/>
+      <on_enter>
+        <call fun="guidance_h_nav_enter()"/>
+        <call fun="stabilization_attitude_enter()"/>
+        <call fun="guidance_v_z_enter()"/>
+      </on_enter>
       <control freq="NAV_FREQ">
         <call fun="nav_periodic_task()"/>
       </control>
@@ -95,8 +107,14 @@
       <exception cond="GpsIsLost() && autopilot_in_flight" deroute="FAILSAFE"/>
     </mode>
 
-    <mode name="GUIDED" start="guidance_h.mode=GUIDANCE_H_MODE_GUIDED|guidance_h_hover_enter()|stabilization_attitude_enter()|guidance_v_mode=GUIDANCE_V_MODE_GUIDED|guidance_v_guided_enter()">
+    <mode name="GUIDED">
       <select cond="RCMode2() && DLModeGuided()" exception="HOME"/>
+      <on_enter>
+        <call fun="guidance_h_hover_enter()"/>
+        <call fun="stabilization_attitude_enter()"/>
+        <call fun="guidance_v_mode = GUIDANCE_V_MODE_GUIDED"/>
+        <call fun="guidance_v_guided_enter()"/>
+      </on_enter>
       <control freq="NAV_FREQ">
         <call fun="nav_periodic_task()"/>
       </control>
@@ -109,7 +127,12 @@
       <exception cond="GpsIsLost() && autopilot_in_flight" deroute="FAILSAFE"/>
     </mode>
 
-    <mode name="HOME" start="guidance_h_nav_enter()|stabilization_attitude_enter()|guidance_v_z_enter()">
+    <mode name="HOME">
+      <on_enter>
+        <call fun="guidance_h_nav_enter()"/>
+        <call fun="stabilization_attitude_enter()"/>
+        <call fun="guidance_v_z_enter()"/>
+      </on_enter>
       <control freq="NAV_FREQ">
         <call fun="nav_home()"/>
       </control>
@@ -123,7 +146,12 @@
     </mode>
 
     <!-- Safe landing -->
-    <mode name="FAILSAFE" start="stabilization_attitude_set_failsafe_setpoint()|guidance_v_mode_changed(GUIDANCE_V_MODE_CLIMB)|guidance_v_zd_sp = SPEED_BFP_OF_REAL(FAILSAFE_DESCENT_SPEED)" shortname="FAIL">
+    <mode name="FAILSAFE" shortname="FAIL">
+      <on_enter>
+        <call fun="stabilization_attitude_set_failsafe_setpoint()"/>
+        <call fun="guidance_v_mode_changed(GUIDANCE_V_MODE_CLIMB)"/>
+        <call fun="guidance_v_zd_sp = SPEED_BFP_OF_REAL(FAILSAFE_DESCENT_SPEED)"/>
+      </on_enter>
       <control>
         <call fun="stabilization_attitude_set_failsafe_setpoint()"/>
         <call fun="stabilization_attitude_run(autopilot_in_flight)"/>
@@ -135,9 +163,15 @@
     </mode>
 
     <!-- Kill throttle mode -->
-    <mode name="KILL" start="autopilot_in_flight = false | autopilot_in_flight_counter = 0 | autopilot_set_motors_on(false) | stabilization_cmd[COMMAND_THRUST] = 0">
+    <mode name="KILL">
       <select cond="$DEFAULT_MODE"/>
       <select cond="kill_switch_is_on()"/>
+      <on_enter>
+        <call fun="autopilot_in_flight = false"/>
+        <call fun="autopilot_in_flight_counter = 0"/>
+        <call fun="autopilot_set_motors_on(false)"/>
+        <call fun="stabilization_cmd[COMMAND_THRUST] = 0"/>
+      </on_enter>
       <control>
         <call fun="SetCommands(commands_failsafe)"/>
       </control>

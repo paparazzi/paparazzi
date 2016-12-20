@@ -5,8 +5,10 @@
 <!ELEMENT control_block (call*)>
 <!ELEMENT exceptions (exception*)>
 <!ELEMENT includes (include*,define*)>
-<!ELEMENT mode (select*,control*,exception*)>
+<!ELEMENT mode (select*,on_enter?,control*,exception*,on_exit?)>
 <!ELEMENT select EMPTY>
+<!ELEMENT on_enter (call)*>
+<!ELEMENT on_exit (call)*>
 <!ELEMENT control (call|call_block)*>
 <!ELEMENT exception EMPTY>
 <!ELEMENT include EMPTY>
@@ -37,8 +39,6 @@ name CDATA #REQUIRED>
 <!ATTLIST mode
 name CDATA #REQUIRED
 shortname CDATA #IMPLIED
-start CDATA #IMPLIED
-stop CDATA #IMPLIED
 gcs_name CDATA #IMPLIED
 settings CDATA #IMPLIED>
 
@@ -50,6 +50,9 @@ settings CDATA #IMPLIED>
 cond CDATA #REQUIRED
 exception CDATA #IMPLIED>
 
+<!ATTLIST on_enter>
+<!ATTLIST on_exit>
+  
 <!ATTLIST control
 freq CDATA #IMPLIED>
 
