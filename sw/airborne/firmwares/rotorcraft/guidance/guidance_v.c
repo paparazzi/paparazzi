@@ -338,6 +338,29 @@ void guidance_v_run(bool in_flight)
   }
 }
 
+
+void guidance_v_z_enter(void)
+{
+  /* set current altitude as setpoint */
+  guidance_v_z_sp = stateGetPositionNed_i()->z;
+
+  /* reset guidance reference */
+  guidance_v_z_sum_err = 0;
+  GuidanceVSetRef(stateGetPositionNed_i()->z, 0, 0);
+
+  /* reset speed setting */
+  guidance_v_zd_sp = 0;
+}
+
+void guidance_v_set_ref(int32_t pos, int32_t speed, int32_t accel)
+{
+  gv_set_ref(pos, speed, accel);
+  guidance_v_z_ref = pos;
+  guidance_v_zd_ref = speed;
+  guidance_v_zdd_ref = accel;
+}
+
+
 /// get the cosine of the angle between thrust vector and gravity vector
 static int32_t get_vertical_thrust_coeff(void)
 {

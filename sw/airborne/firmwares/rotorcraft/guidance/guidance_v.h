@@ -111,6 +111,13 @@ extern void guidance_v_mode_changed(uint8_t new_mode);
 extern void guidance_v_thrust_adapt(bool in_flight);
 extern void guidance_v_notify_in_flight(bool in_flight);
 extern void guidance_v_run(bool in_flight);
+extern void guidance_v_z_enter(void);
+
+/** Set guidance ref parameters
+ */
+extern void guidance_v_set_ref(int32_t pos, int32_t speed, int32_t accel);
+// macro for backward compatibility
+#define GuidanceVSetRef guidance_v_set_ref
 
 extern void run_hover_loop(bool in_flight);
 
@@ -144,26 +151,5 @@ extern bool guidance_v_set_guided_th(float th);
     guidance_v_ki = _val;       \
     guidance_v_z_sum_err = 0;     \
   }
-
-#define GuidanceVSetRef(_pos, _speed, _accel) { \
-    gv_set_ref(_pos, _speed, _accel);        \
-    guidance_v_z_ref = _pos;             \
-    guidance_v_zd_ref = _speed;          \
-    guidance_v_zdd_ref = _accel;             \
-  }
-
-#include "state.h"
-static inline void guidance_v_z_enter(void)
-{
-  /* set current altitude as setpoint */
-  guidance_v_z_sp = stateGetPositionNed_i()->z;
-
-  /* reset guidance reference */
-  guidance_v_z_sum_err = 0;
-  GuidanceVSetRef(stateGetPositionNed_i()->z, 0, 0);
-
-  /* reset speed setting */
-  guidance_v_zd_sp = 0;
-}
 
 #endif /* GUIDANCE_V_H */
