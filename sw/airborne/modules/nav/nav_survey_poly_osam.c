@@ -361,6 +361,10 @@ bool nav_survey_poly_osam_run(void)
   float temp;
   float min_radius = POLY_OSAM_MIN_RADIUS;
 
+  if (SurveySize == 0) {
+    return false;
+  }
+
   NavVerticalAutoThrottleMode(0); /* No pitch */
   NavVerticalAltitudeMode(waypoints[SurveyEntryWP].a, 0.);
 

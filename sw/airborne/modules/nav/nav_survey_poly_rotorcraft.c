@@ -320,6 +320,10 @@ bool nav_survey_poly_run(void)
   float DInt1 = 0;
   float DInt2 = 0;
 
+  if (SurveySize == 0) {
+    return false;
+  }
+
   switch (CSurveyStatus) {
     case Entry:
       C = SurveyEntry;
