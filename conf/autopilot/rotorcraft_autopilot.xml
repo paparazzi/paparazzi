@@ -57,6 +57,9 @@
 
     <mode name="ATTITUDE_DIRECT" start="stabilization_attitude_enter()" shortname="ATT">
       <select cond="RCMode0()"/>
+      <control freq="NAV_FREQ">
+        <call fun="nav_periodic_task()"/>
+      </control>
       <control>
         <call_block name="attitude_loop"/>
         <call_block name="throttle_direct"/>
@@ -67,6 +70,9 @@
 
     <mode name="ATTITUDE_Z_HOLD" start="stabilization_attitude_enter()|guidance_v_z_enter()" shortname="A_ZH">
       <select cond="RCMode1()"/>
+      <control freq="NAV_FREQ">
+        <call fun="nav_periodic_task()"/>
+      </control>
       <control>
         <call_block name="attitude_loop"/>
         <call_block name="altitude_loop"/>
@@ -91,9 +97,9 @@
 
     <mode name="GUIDED" start="guidance_h.mode=GUIDANCE_H_MODE_GUIDED|guidance_h_hover_enter()|stabilization_attitude_enter()|guidance_v_mode=GUIDANCE_V_MODE_GUIDED|guidance_v_guided_enter()">
       <select cond="RCMode2() && DLModeGuided()" exception="HOME"/>
-      <!--control freq="NAV_FREQ">
+      <control freq="NAV_FREQ">
         <call fun="nav_periodic_task()"/>
-      </control-->
+      </control>
       <control>
         <call fun="guidance_v_thrust_adapt(autopilot_in_flight)"/>
         <call fun="guidance_v_guided_run(autopilot_in_flight)"/>
