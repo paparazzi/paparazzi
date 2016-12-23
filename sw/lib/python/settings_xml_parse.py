@@ -141,6 +141,14 @@ class PaparazziSetting:
     def __str__(self):
         return "var: %s, shortname: %s, index: %i" % (self.var, self.shortname, self.index)
 
+    # return the index in 'values' table matching a given name or None if no values defined
+    # may raise ValueError if name is not in values list
+    def ValueFromName(self, name):
+        if self.values is None:
+            return None
+        return self.values.index(name) + self.min_value
+
+
 
 def test():
     ac_id = 164
