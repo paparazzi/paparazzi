@@ -47,24 +47,24 @@
   </exceptions>
   <blocks>
     <block name="Init">
-      <call fun="NavKillThrottle()"/>
+      <call_once fun="NavKillThrottle()"/>
       <while cond="!GpsFixValid() || gps.pacc > 1500 || !(ahrs.status == AHRS_RUNNING)"/>
     </block>
     <block name="Geo init">
       <while cond="LessThan(NavBlockTime(), 10)"/>
-      <call fun="NavSetGroundReferenceHere()"/>
-      <!--<call fun="NavSetAltitudeReferenceHere()"/>-->
+      <call_once fun="NavSetGroundReferenceHere()"/>
+      <!--<call_once fun="NavSetAltitudeReferenceHere()"/>-->
     </block>
     <block name="Holding point">
-      <call fun="NavKillThrottle()"/>
+      <call_once fun="NavKillThrottle()"/>
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
     </block>
     <block name="Start Engine">
-      <call fun="NavResurrect()"/>
+      <call_once fun="NavResurrect()"/>
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
-      <call fun="NavSetWaypointHere(WP_CLIMB)"/>
+      <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
       <exception cond="stateGetPositionEnu_f()->z > 5.0" deroute="Standby"/>
       <attitude pitch="0" roll="0" throttle="0.5" vmode="throttle"/>
     </block>
@@ -95,7 +95,7 @@
       <circle radius="nav_radius" wp="p1"/>
     </block>
     <block name="land here" strip_button="Land Here" strip_icon="land-right.png">
-      <call fun="NavSetWaypointHere(WP_TD)"/>
+      <call_once fun="NavSetWaypointHere(WP_TD)"/>
     </block>
     <block name="land">
       <go wp="TD"/>
@@ -103,7 +103,7 @@
     <block name="flare">
       <exception cond="NavDetectGround()" deroute="Holding point"/>
       <exception cond="!nav_is_in_flight()" deroute="landed"/>
-      <call fun="NavStartDetectGround()"/>
+      <call_once fun="NavStartDetectGround()"/>
       <stay climb="nav_decend_vspeed" vmode="climb" wp="TD"/>
     </block>
     <block name="landed">

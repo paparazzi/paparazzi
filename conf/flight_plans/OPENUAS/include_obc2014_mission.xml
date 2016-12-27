@@ -196,11 +196,11 @@ TST-3 = -26° 35' 23.2" * 151° 50' 45.9"
       <while cond="LessThan(NavBlockTime(), 3)"/>
 <!--
       <while cond="LessThan(nav_block,IndexOfBlock('Mission.ReadyForDeparture'))"/>
-      <call fun="NavSetGroundReferenceHere()"/>
-      <call fun="NavSetWaypointHere(WP_HOME)"/>
+      <call_once fun="NavSetGroundReferenceHere()"/>
+      <call_once fun="NavSetWaypointHere(WP_HOME)"/>
 -->
       <!--  TODO Set QNH here based on GPS height if allowed from commitee -->
-      <call fun="NavSetAltitudeReferenceHere()" />
+      <call_once fun="NavSetAltitudeReferenceHere()" />
       <set var="air_data.calc_qnh_once" value="TRUE"/>
     </block>
 
@@ -220,11 +220,11 @@ TST-3 = -26° 35' 23.2" * 151° 50' 45.9"
     </block>
 
     <block name="Landing Position Stored" pre_call="NavKillThrottle()" strip_button="Store" strip_icon="recenter.png">
-      <call fun="NavSetWaypointPosAndAltHere(WP_TD)"/>
+      <call_once fun="NavSetWaypointPosAndAltHere(WP_TD)"/>
       <set value="DownlinkSendWpNr(WP_TD)" var="unit"/>
       <!-- CDW set value="SetAltitudeForFinalFromTo(WP_TD,WP_AF)" var="unit"/-->
-      <call fun="nav_compute_final_from_glide(WP_AF, WP_TD, V_CTL_GLIDE_RATIO)"/>
-      <!-- CDW call fun="nav_compute_flare_from_aftd(WP_AF, WP_TD, WP_FLARE)"/-->
+      <call_once fun="nav_compute_final_from_glide(WP_AF, WP_TD, V_CTL_GLIDE_RATIO)"/>
+      <!-- CDW call_once fun="nav_compute_flare_from_aftd(WP_AF, WP_TD, WP_FLARE)"/-->
       <set value="DownlinkSendWpNr(WP_AF)" var="unit"/>
       <set value="DownlinkSendWpNr(WP_FLARE)" var="unit"/>
       <deroute block="HoldingPoint"/>
@@ -360,17 +360,17 @@ best to perform many real life tests with the CAM
 *********** -->
 
     <block name="SearchForJoeLateral">
-      <call fun="nav_survey_poly_osam_setup_towards(WP_SA1, 5, 158, WP_SA2)"/> <!-- TODO correct angle of how we want to search -->
+      <call_once fun="nav_survey_poly_osam_setup_towards(WP_SA1, 5, 158, WP_SA2)"/> <!-- TODO correct angle of how we want to search -->
       <deroute block="Searching" />
     </block>
 
     <block name="SearchForJoeDiagonal1">
-      <call fun="nav_survey_poly_osam_setup(WP_SA1, 5, 158, 30)"/> <!-- TODO correct angle of how we want to search -->
+      <call_once fun="nav_survey_poly_osam_setup(WP_SA1, 5, 158, 30)"/> <!-- TODO correct angle of how we want to search -->
       <deroute block="Searching" />
     </block>
 
     <block name="SearchForJoeDiagonal2">
-      <call fun="nav_survey_poly_osam_setup(WP_SA1, 5, 158, 55)"/> <!-- TODO correct angle of how we want to search -->
+      <call_once fun="nav_survey_poly_osam_setup(WP_SA1, 5, 158, 55)"/> <!-- TODO correct angle of how we want to search -->
       <deroute block="Searching" />
     </block>
 
@@ -381,10 +381,10 @@ best to perform many real life tests with the CAM
        any where in between (-90 <-> 90 degrees respectively).
        The side of the polygon the aircraft starts on (ex. north or south) is
        determined by the side of the polygon the entry point is located.
-       call fun="InitializePolygonSurvey(WP_S1, NumOfCorners, SweepWidth, Orientation)"/> -->
+       call_once fun="InitializePolygonSurvey(WP_S1, NumOfCorners, SweepWidth, Orientation)"/> -->
 
        <!-- SweepWidth  max photo with at height - 20 pct overlap 180- etc-->
-      <call fun="nav_survey_poly_osam_setup_towards(WP_SA1, 5, 158, WP_SA5)"/> <!-- TODO correct angle of how we want to search -->
+      <call_once fun="nav_survey_poly_osam_setup_towards(WP_SA1, 5, 158, WP_SA5)"/> <!-- TODO correct angle of how we want to search -->
     </block>
 
     <block name="Searching">
@@ -499,15 +499,15 @@ extern bool_t compute_alignment(uint8_t w1, uint8_t w2, uint8_t start, uint8_t e
     </block>
 
     <block name="ComputeLandingApproach" >
-      <call fun="nav_compute_final_from_glide(WP_AF, WP_TD, V_CTL_GLIDE_RATIO)"/>
-      <!-- CDW call fun="nav_compute_flare_from_aftd(WP_AF, WP_TD, WP_FLARE)"/-->
+      <call_once fun="nav_compute_final_from_glide(WP_AF, WP_TD, V_CTL_GLIDE_RATIO)"/>
+      <!-- CDW call_once fun="nav_compute_flare_from_aftd(WP_AF, WP_TD, WP_FLARE)"/-->
       <set value="DownlinkSendWpNr(WP_AF)" var="unit"/>
       <set value="DownlinkSendWpNr(WP_FLARE)" var="unit"/>
       </block>
 
     <block name="Land">
       <set value="nav_airspeed_nominal_setting" var="v_ctl_auto_airspeed_setpoint"/>
-      <call fun="nav_compute_baseleg(WP_AF, WP_TD, WP__BASELEG, nav_radius)"/>
+      <call_once fun="nav_compute_baseleg(WP_AF, WP_TD, WP__BASELEG, nav_radius)"/>
       <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="_BASELEG"/>
       <set value="nav_airspeed_landing_setting" var="v_ctl_auto_airspeed_setpoint"/>
       <circle radius="nav_radius" until="NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10) && 15 > fabs(GetPosAlt() - WaypointAlt(WP__BASELEG))" wp="_BASELEG"/>
@@ -519,7 +519,7 @@ extern bool_t compute_alignment(uint8_t w1, uint8_t w2, uint8_t start, uint8_t e
     </block>
 
     <block name="Flare">
-      <call fun="NavKillThrottle()" />
+      <call_once fun="NavKillThrottle()" />
       <set value="nav_airspeed_landing_setting*0.8" var="v_ctl_auto_airspeed_setpoint"/>
       <go approaching_time="0" from="TD" hmode="route" wp="FLARE"/>
       <!-- TODO: retract brake after landed is true (with +3seconds margin) better a sensor(witch) that detects IsAircraftOnSolidGround -->

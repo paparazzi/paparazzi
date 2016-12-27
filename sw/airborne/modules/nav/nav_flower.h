@@ -30,6 +30,6 @@
 #include "std.h"
 
 extern bool nav_flower_run(void);
-extern bool nav_flower_setup(uint8_t CenterWP, uint8_t EdgeWP);
+extern void nav_flower_setup(uint8_t CenterWP, uint8_t EdgeWP);
 
 #endif

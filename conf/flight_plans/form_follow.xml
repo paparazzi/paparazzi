@@ -14,27 +14,27 @@
       <!-- formation_init() is already called -->
       <!-- init formation by adding knew slots in the formation -->
       <!-- three UAVs are expected but it can work with 1 or 2 -->
-      <call fun="add_slot(21, 10, 0, 0)"/>
-      <call fun="add_slot(22, -20, 20, 10)"/>
-      <call fun="add_slot(23, -20, -20, -10)"/>
+      <call_once fun="add_slot(21, 10, 0, 0)"/>
+      <call_once fun="add_slot(22, -20, 20, 10)"/>
+      <call_once fun="add_slot(23, -20, -20, -10)"/>
       <set var="form_mode" value="0"/> <!-- form mode global add_slot(id, east, north, up) -->
       <set var="leader_id" value="21"/> <!-- leader id -->
       <set var="nav_mode" value="NAV_MODE_ROLL"/> <!-- alternate navigation mode should be set in formation flight -->
     </block>
     <block name="cirle 1"> <!-- waiting circle out of formation -->
-      <call fun="stop_formation()"/>
+      <call_once fun="stop_formation()"/>
       <circle radius="nav_radius" until="FALSE" wp="WAIT1"/>
     </block>
     <block name="cirle 2"> <!-- waiting circle out of formation -->
-      <call fun="stop_formation()"/>
+      <call_once fun="stop_formation()"/>
       <circle radius="nav_radius" until="FALSE" wp="WAIT2"/>
     </block>
     <block name="formation" strip_button="formation" strip_icon="on.png"> <!-- start formation for a follower, leader has to be ready and in formation -->
-      <call fun="start_formation()"/> <!-- inform other AC that formation is started -->
+      <call_once fun="start_formation()"/> <!-- inform other AC that formation is started -->
       <call fun="formation_flight()"/> <!-- formation control loop -->
     </block>
     <block name="land"> <!-- basic landing function out of formation -->
-      <call fun="stop_formation()"/>
+      <call_once fun="stop_formation()"/>
       <exception cond="(GROUND_ALT+10> GetPosAlt())" deroute="stop"/>
       <circle radius="50" until="225 > GetPosAlt()" wp="IAF"/>
       <go alt="215" wp="AF"/>

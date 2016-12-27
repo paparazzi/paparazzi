@@ -31,55 +31,55 @@
   </sectors>
   <blocks>
     <block name="Wait GPS">
-      <call fun="NavKillThrottle()"/>
+      <call_once fun="NavKillThrottle()"/>
       <while cond="!GpsFixValid()"/>
     </block>
     <block name="Geo init">
       <while cond="LessThan(NavBlockTime(), 2)"/>
-      <call fun="NavSetAltitudeReferenceHere()"/>
+      <call_once fun="NavSetAltitudeReferenceHere()"/>
     </block>
     <block name="Holding point">
-      <call fun="NavKillThrottle()"/>
+      <call_once fun="NavKillThrottle()"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
     <block name="Start Engine" strip_button="Start" strip_icon="takeoff.png">
-      <call fun="NavResurrect()"/>
+      <call_once fun="NavResurrect()"/>
       <set value="stateGetNedToBodyEulers_i()->psi" var="nav_heading"/>
       <attitude pitch="0" roll="0" throttle="0" until="stage_time > 1" vmode="throttle"/>
     </block>
     <block name="Takeoff">
       <exception cond="stateGetPositionEnu_f()->z > 0.5" deroute="Standby"/>
-      <call fun="NavSetWaypointHere(WP_CLIMB)"/>
+      <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
       <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
     </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
       <exception cond="GpsIsLost()" deroute="attitude_land"/>
       <exception cond="electrical.bat_low" deroute="land here"/>
-      <call fun="NavCopyWaypoint(WP_last_wp,WP_W0)"/>
+      <call_once fun="NavCopyWaypoint(WP_last_wp,WP_W0)"/>
       <stay wp="STDBY"/>
     </block>
     <block name="heading_to_GOAL" strip_button="GOAD" strip_icon="line.png">
       <exception cond="GpsIsLost()" deroute="attitude_land"/>
       <exception cond="electrical.bat_low" deroute="land here"/>
-      <call fun="nav_set_heading_towards_waypoint(WP_GOAL)"/>
-      <call fun="NavSetWaypointHere(WP_route_START)"/>
+      <call_once fun="nav_set_heading_towards_waypoint(WP_GOAL)"/>
+      <call_once fun="NavSetWaypointHere(WP_route_START)"/>
       <stay until="stage_time > 3" wp="route_START"/>
     </block>
     <block name="route_to_GOAL">
       <exception cond="GpsIsLost()" deroute="attitude_land"/>
       <exception cond="electrical.bat_low" deroute="land here"/>
       <exception cond="obstacle_detected==1" deroute="stay_W0"/>
-      <call fun="nav_set_heading_towards_waypoint(WP_GOAL)"/>
+      <call_once fun="nav_set_heading_towards_waypoint(WP_GOAL)"/>
       <go from="STDBY" hmode="route" wp="GOAL"/>
-      <call fun="NavCopyWaypoint(WP_last_wp,WP_GOAL)"/>
+      <call_once fun="NavCopyWaypoint(WP_last_wp,WP_GOAL)"/>
       <deroute block="land here"/>
     </block>
     <block name="stay_W0" pre_call="increase_nav_heading(&nav_heading, 30)">
       <exception cond="obstacle_detected==0" deroute="route_to_W1"/>
       <exception cond="GpsIsLost()" deroute="attitude_land"/>
       <exception cond="electrical.bat_low" deroute="land here"/>
-      <call fun="NavSetWaypointHere(WP_W0)"/>
-      <call fun="NavCopyWaypoint(WP_last_wp,WP_W0)"/>
+      <call_once fun="NavSetWaypointHere(WP_W0)"/>
+      <call_once fun="NavCopyWaypoint(WP_last_wp,WP_W0)"/>
       <stay wp="W0"/>
     </block>
     <block name="route_to_W1">
@@ -87,7 +87,7 @@
       <exception cond="electrical.bat_low" deroute="land here"/>
       <exception cond="obstacle_detected==1" deroute="stay_W0"/>
       <go from="W0" hmode="route" wp="W1"/>
-      <call fun="NavCopyWaypoint(WP_last_wp,WP_W1)"/>
+      <call_once fun="NavCopyWaypoint(WP_last_wp,WP_W1)"/>
       <deroute block="heading_to_GOAL"/>
     </block>
     <block name="Mission" strip_button="Mission">
@@ -97,7 +97,7 @@
       <deroute block="Standby"/>
     </block>
     <block name="land here" strip_button="Land Here" strip_icon="land-right.png">
-      <call fun="NavSetWaypointHere(WP_TD)"/>
+      <call_once fun="NavSetWaypointHere(WP_TD)"/>
     </block>
     <block name="land">
       <exception cond="GpsIsLost()" deroute="attitude_land"/>
@@ -106,11 +106,11 @@
     <block name="flare">
       <exception cond="NavDetectGround()" deroute="landed"/>
       <exception cond="!nav_is_in_flight()" deroute="landed"/>
-      <call fun="NavStartDetectGround()"/>
+      <call_once fun="NavStartDetectGround()"/>
       <stay climb="nav_descend_vspeed" until="stage_time > 4" vmode="climb" wp="TD"/>
     </block>
     <block name="landed">
-      <call fun="NavKillThrottle()"/>
+      <call_once fun="NavKillThrottle()"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
     <block name="attitude_land">

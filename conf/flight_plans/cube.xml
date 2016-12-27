@@ -49,7 +49,7 @@
     </block>
 
     <block name="Fly lines in cubical" strip_button="Cube">
-      <call fun="nav_cube_setup(WP_CENTER, WP_B0, WP_E0)"/>
+      <call_once fun="nav_cube_setup(WP_CENTER, WP_B0, WP_E0)"/>
       <for from="0" to="nav_cube.nline_z" var="j">
         <for from="0" to="nav_cube.nline_x" var="i">
           <call fun="nav_cube_run(_var_j, _var_i, WP__B, WP__E, WP_B0, WP_E0)"/>

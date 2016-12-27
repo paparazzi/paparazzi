@@ -91,7 +91,7 @@ static inline float distance_equation(struct FloatVect2 p1,struct FloatVect2 p2)
   return sqrtf((p1.x-p2.x)*(p1.x-p2.x)+(p1.y-p2.y)*(p1.y-p2.y));
 }
 
-bool nav_skid_landing_setup(uint8_t afwp, uint8_t tdwp, float radius)
+void nav_skid_landing_setup(uint8_t afwp, uint8_t tdwp, float radius)
 {
   aw_waypoint = afwp;
   td_waypoint = tdwp;
@@ -122,8 +122,6 @@ bool nav_skid_landing_setup(uint8_t afwp, uint8_t tdwp, float radius)
     approach_quadrant = land_circle_quadrant + RadOfDeg(90);
     land_circle_quadrant = land_circle_quadrant + RadOfDeg(45);
   }
-
-  return FALSE;
 }
 
 bool nav_skid_landing_run(void)

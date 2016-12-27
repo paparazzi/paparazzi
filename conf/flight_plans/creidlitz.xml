@@ -26,7 +26,7 @@
     </block>
     <block name="Geo init">
       <while cond="LessThan(NavBlockTime(), 10)"/>
-      <call fun="NavSetGroundReferenceHere()"/>
+      <call_once fun="NavSetGroundReferenceHere()"/>
     </block>
     <block name="Holding point">
       <set value="1" var="kill_throttle"/>
@@ -49,13 +49,13 @@
       <deroute block="Standby"/>
     </block>
     <block name="MOB" strip_button="Circle around here" strip_icon="mob.png">
-      <call fun="NavSetWaypointHere(WP_MOB)"/>
+      <call_once fun="NavSetWaypointHere(WP_MOB)"/>
       <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
       <circle radius="nav_radius" wp="MOB"/>
     </block>
     <block name="Line 1-2" strip_button="Line (wp 1-2)" strip_icon="line.png">
       <exception cond="datalink_time > 22" deroute="Standby"/>
-      <call fun="nav_line_setup()"/>
+      <call_once fun="nav_line_setup()"/>
       <call fun="nav_line_run(WP_1, WP_2, nav_radius)"/>
     </block>
     <block name="Oval 1-2" strip_button="Oval (wp 1-2)" strip_icon="oval.png">

@@ -60,7 +60,7 @@
 #include "std.h"
 #include "paparazzi.h"
 
-extern bool nav_skid_landing_setup(uint8_t afwp, uint8_t tdwp, float radius);
+extern void nav_skid_landing_setup(uint8_t afwp, uint8_t tdwp, float radius);
 extern bool nav_skid_landing_run(void);
 
 void nav_skid_landing_glide(uint8_t from_wp, uint8_t to_wp);

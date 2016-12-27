@@ -55,26 +55,26 @@ The goal of this flightplan is to have a safe, simple no-brainer flightplan for 
   </exceptions>
   <blocks>
     <block name="Init">
-      <call fun="NavKillThrottle()"/>
+      <call_once fun="NavKillThrottle()"/>
       <while cond="!GpsFixValid() || gps.pacc > 400 || !(stateIsAttitudeValid())"/>
     </block>
     <block name="Geo init">
       <while cond="LessThan(NavBlockTime(), 8)"/>
-      <call fun="NavSetGroundReferenceHere()"/>
-      <call fun="NavSetAltitudeReferenceHere()"/>
-      <call fun="NavSetWaypointHere(WP_HOME)"/>
-      <call fun="NavSetWaypointHere(WP_CLIMB)"/>
-      <call fun="NavSetWaypointHere(WP_STDBY)"/>
-      <call fun="NavSetWaypointHere(WP_TD)"/>
+      <call_once fun="NavSetGroundReferenceHere()"/>
+      <call_once fun="NavSetAltitudeReferenceHere()"/>
+      <call_once fun="NavSetWaypointHere(WP_HOME)"/>
+      <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
+      <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
+      <call_once fun="NavSetWaypointHere(WP_TD)"/>
     </block>
     <block name="Start Engine">
-      <call fun="NavResurrect()"/>
+      <call_once fun="NavResurrect()"/>
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="stage_time > 1"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
-      <call fun="NavSetAltitudeReferenceHere()"/>
-      <call fun="NavSetWaypointHere(WP_STDBY)"/>
-      <call fun="NavSetWaypointHere(WP_CLIMB)"/>
+      <call_once fun="NavSetAltitudeReferenceHere()"/>
+      <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
+      <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
       <exception cond="stateGetPositionEnu_f()->z > 5.0" deroute="Standby"/>
       <set value="0" var="autopilot_flight_time"/>    
       <!-- If take-off to first point takes to long to reach somehow because of some reason, abort flight -->
@@ -112,7 +112,7 @@ The goal of this flightplan is to have a safe, simple no-brainer flightplan for 
       <circle radius="nav_radius" wp="p1"/>
     </block>
     <block name="land here" strip_button="Land Here" strip_icon="land-right.png">
-      <call fun="NavSetWaypointHere(WP_TD)"/>
+      <call_once fun="NavSetWaypointHere(WP_TD)"/>
     </block>
     <block name="land">
       <go wp="TD"/>
@@ -123,14 +123,14 @@ The goal of this flightplan is to have a safe, simple no-brainer flightplan for 
     <block name="flare">
       <exception cond="NavDetectGround()" deroute="landed"/>
       <exception cond="!nav_is_in_flight()" deroute="Holding point"/>
-      <call fun="NavStartDetectGround()"/>
+      <call_once fun="NavStartDetectGround()"/>
       <stay climb="-0.8" vmode="climb" wp="TD"/>
     </block>
     <block name="landed">
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="stage_time > 0.5"/>
     </block>
     <block name="Holding point">
-      <call fun="NavKillThrottle()"/>
+      <call_once fun="NavKillThrottle()"/>
       <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
     </block>
   </blocks>

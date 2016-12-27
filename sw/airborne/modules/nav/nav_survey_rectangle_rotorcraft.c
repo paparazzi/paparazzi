@@ -96,7 +96,7 @@ void nav_survey_rectangle_rotorcraft_init(void)
 #endif
 }
 
-bool nav_survey_rectangle_rotorcraft_setup(uint8_t wp1, uint8_t wp2, float grid, survey_orientation_t so)
+void nav_survey_rectangle_rotorcraft_setup(uint8_t wp1, uint8_t wp2, float grid, survey_orientation_t so)
 {
   rectangle_survey_sweep_num = 0;
   nav_survey_west = Min(WaypointX(wp1), WaypointX(wp2));
@@ -151,7 +151,6 @@ bool nav_survey_rectangle_rotorcraft_setup(uint8_t wp1, uint8_t wp2, float grid,
   } else {
     nav_set_heading_deg(90);
   }
-  return false;
 }
 
 

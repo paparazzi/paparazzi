@@ -42,7 +42,7 @@
     </block>
     <block name="Geo init">
       <while cond="LessThan(NavBlockTime(), 10)"/>
-      <call fun="NavSetGroundReferenceHere()"/>
+      <call_once fun="NavSetGroundReferenceHere()"/>
     </block>
     <block name="Holding point">
       <set value="1" var="kill_throttle"/>
@@ -64,12 +64,12 @@
       <oval p1="1" p2="2" radius="nav_radius"/>
     </block>
     <block group="base_pattern" name="MOB" strip_button="Turn around here" strip_icon="mob.png">
-      <call fun="NavSetWaypointHere(WP_MOB)"/>
+      <call_once fun="NavSetWaypointHere(WP_MOB)"/>
       <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
       <circle radius="nav_radius" wp="MOB"/>
     </block>
     <block group="extra_pattern" name="Line 1-2" strip_button="Line (wp 1-2)" strip_icon="line.png">
-      <call fun="nav_line_setup()"/>
+      <call_once fun="nav_line_setup()"/>
       <call fun="nav_line_run(WP_1, WP_2, nav_radius)"/>
     </block>
     <block group="extra_pattern" name="Survey S1-S3" strip_button="Survey (wp S1-S3)" strip_icon="survey.png">
@@ -77,20 +77,20 @@
     </block>
     <!--===================== Nav modules example blocks =================================-->
     <block name="Bungee take-off">
-      <call fun="nav_bungee_takeoff_setup(WP_HOME)"/>
+      <call_once fun="nav_bungee_takeoff_setup(WP_HOME)"/>
       <call fun="nav_bungee_takeoff_run()"/>
     </block>
     <block group="nav_pattern" name="Poly Survey" strip_button="Poly Survey">
-      <call fun="nav_survey_polygon_setup(WP_S1,5,80,30,10,50,GetAltRef()+60)"/>
+      <call_once fun="nav_survey_polygon_setup(WP_S1,5,80,30,10,50,GetAltRef()+60)"/>
       <call fun="nav_survey_polygon_run()"/>
     </block>
     <block group="nav_pattern" name="Border line 1-2" strip_button="Border Line">
-      <call fun="nav_line_border_setup()"/>
+      <call_once fun="nav_line_border_setup()"/>
       <call fun="nav_line_border_run(WP_1, WP_2, nav_radius)"/>
     </block>
     <block group="nav_pattern" name="Smooth nav (wp 1-2)" strip_button="Smooth nav">
       <set var="snav_desired_tow" value="gps.tow / 1000. + 60."/>
-      <call fun="snav_init(WP_1, M_PI_2-atan2(WaypointY(WP_2)-WaypointY(WP_1),WaypointX(WP_2)-WaypointX(WP_1)), DEFAULT_CIRCLE_RADIUS/2.)"/>
+      <call_once fun="snav_init(WP_1, M_PI_2-atan2(WaypointY(WP_2)-WaypointY(WP_1),WaypointX(WP_2)-WaypointX(WP_1)), DEFAULT_CIRCLE_RADIUS/2.)"/>
       <call fun="snav_circle1()"/>
       <call fun="snav_route()"/>
       <call fun="snav_circle2()"/>
@@ -99,18 +99,18 @@
       <deroute block="Standby"/>
     </block>
     <block group="nav_pattern" name="Flower (wp 1-2)" strip_button="Flower">
-      <call fun="nav_flower_setup(WP_1, WP_2)"/>
+      <call_once fun="nav_flower_setup(WP_1, WP_2)"/>
       <call fun="nav_flower_run()"/>
     </block>
     <block name="Poly survey osam">
-      <call fun="nav_survey_poly_osam_setup(WP_S1, 5, 100, 45)"/>
+      <call_once fun="nav_survey_poly_osam_setup(WP_S1, 5, 100, 45)"/>
       <call fun="nav_survey_poly_osam_run()"/>
     </block>
     <block name="Flight Line block">
       <call fun="nav_line_osam_block_run(WP_S1, WP_S5, nav_radius, 30, 10)"/>
     </block>
     <block name="Vertical Raster">
-      <call fun="nav_vertical_raster_setup()"/>
+      <call_once fun="nav_vertical_raster_setup()"/>
       <call fun="nav_vertical_raster_run(WP_S1, WP_S2, nav_radius, 50)"/>
     </block>
 
@@ -125,7 +125,7 @@
       <deroute block="land"/>
     </block>
     <block name="land">
-      <call fun="nav_compute_baseleg(WP_AF, WP_TD, WP__BASELEG, nav_radius)"/>
+      <call_once fun="nav_compute_baseleg(WP_AF, WP_TD, WP__BASELEG, nav_radius)"/>
       <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="_BASELEG"/>
       <circle radius="nav_radius" until="And(NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10), 10 > fabs(GetPosAlt() - WaypointAlt(WP__BASELEG)))" wp="_BASELEG"/>
     </block>

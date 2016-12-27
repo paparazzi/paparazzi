@@ -87,27 +87,27 @@
     <!-- ******* Activate the irreversible Forced Crash Command to the Flight Termination Device ******** -->
 
     <block name="GeoFence">
-      <call fun="ForceCrash()"/>
+      <call_once fun="ForceCrash()"/>
       <circle radius="nav_radius" wp="STDBY"/> <!-- todo add a dynamic TDFORCEDCRASH point so to notify and have it in the log  -->
     </block>
 
     <block name="AlmostHeightViolation">
-      <call fun="NavKillThrottle()"/>
+      <call_once fun="NavKillThrottle()"/>
       <circle radius="nav_radius" wp="STDBY"/> <!-- todo add a dynamic TDFORCEDCRASH point so to notify and have it in the log  -->
     </block>
 
     <block name="HeightViolation">
-      <call fun="ForceCrash()"/>
+      <call_once fun="ForceCrash()"/>
       <circle radius="nav_radius" wp="STDBY"/> <!-- todo add a dynamic TDFORCEDCRASH point so to notify and have it in the log  -->
     </block>
 
     <block name="DatalinkAndGpsFailure">
-      <call fun="ForceCrash()"/>
+      <call_once fun="ForceCrash()"/>
       <circle radius="nav_radius" wp="STDBY"/> <!-- todo add a dynamic TDFORCEDCRASH point so to notify and have it in the log  -->
     </block>
 
     <block name="ManualTerminateRequest" strip_button="FlightTermination" strip_icon="downdownend.png">
-      <call fun="ForceCrash()"/>
+      <call_once fun="ForceCrash()"/>
       <circle radius="nav_radius" wp="STDBY"/> <!-- todo add a dynamic TDFORCEDCRASH point so to notify and have it in the log  -->
     </block>
 

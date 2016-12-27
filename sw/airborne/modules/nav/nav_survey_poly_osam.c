@@ -78,7 +78,7 @@ bool use_full_circle = POLY_OSAM_USE_FULL_CIRCLE;
 bool Half_Sweep_Enabled = POLY_OSAM_HALF_SWEEP_ENABLED;
 bool Reset_Sweep = FALSE;
 
-bool nav_survey_poly_osam_setup_towards(uint8_t FirstWP, uint8_t Size, float Sweep, int SecondWP)
+void nav_survey_poly_osam_setup_towards(uint8_t FirstWP, uint8_t Size, float Sweep, int SecondWP)
 {
   float dx = waypoints[SecondWP].x - waypoints[FirstWP].x;
   float dy = waypoints[SecondWP].y - waypoints[FirstWP].y;
@@ -87,7 +87,7 @@ bool nav_survey_poly_osam_setup_towards(uint8_t FirstWP, uint8_t Size, float Swe
   //if values passed, use it.
   if (Size == 0) {Size = Poly_Size;}
   if (Sweep == 0) {Sweep = Poly_Sweep;}
-  return nav_survey_poly_osam_setup(FirstWP, Size, Sweep, DegOfRad(ang));
+  nav_survey_poly_osam_setup(FirstWP, Size, Sweep, DegOfRad(ang));
 }
 
 struct Point2D {float x; float y;};
@@ -142,7 +142,7 @@ uint16_t PolySurveySweepNum;
 uint16_t PolySurveySweepBackNum;
 float EntryRadius;
 
-bool nav_survey_poly_osam_setup(uint8_t EntryWP, uint8_t Size, float sw, float Orientation)
+void nav_survey_poly_osam_setup(uint8_t EntryWP, uint8_t Size, float sw, float Orientation)
 {
   SmallestCorner.x = 0;
   SmallestCorner.y = 0;
@@ -183,7 +183,7 @@ bool nav_survey_poly_osam_setup(uint8_t EntryWP, uint8_t Size, float sw, float O
   CSurveyStatus = Init;
 
   if (Size == 0) {
-    return true;
+    return;
   }
 
   //Don't initialize if Polygon is too big or if the orientation is not between 0 and 90
@@ -342,8 +342,6 @@ bool nav_survey_poly_osam_setup(uint8_t EntryWP, uint8_t Size, float sw, float O
     CSurveyStatus = Entry;
     LINE_STOP_FUNCTION;
   }
-
-  return false;
 }
 
 bool nav_survey_poly_osam_run(void)
@@ -362,6 +360,10 @@ bool nav_survey_poly_osam_run(void)
   float DInt2 = 0;
   float temp;
   float min_radius = POLY_OSAM_MIN_RADIUS;
+
+  if (SurveySize == 0) {
+    return false;
+  }
 
   NavVerticalAutoThrottleMode(0); /* No pitch */
   NavVerticalAltitudeMode(waypoints[SurveyEntryWP].a, 0.);

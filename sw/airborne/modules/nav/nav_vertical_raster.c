@@ -40,10 +40,9 @@
 enum line_status { LR12, LQC21, LTC2, LQC22, LR21, LQC12, LTC1, LQC11 };
 static enum line_status line_status;
 
-bool nav_vertical_raster_setup(void)
+void nav_vertical_raster_setup(void)
 {
   line_status = LR12;
-  return false;
 }
 
 bool nav_vertical_raster_run(uint8_t l1, uint8_t l2, float radius, float AltSweep)
