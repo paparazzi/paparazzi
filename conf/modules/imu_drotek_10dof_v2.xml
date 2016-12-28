@@ -28,7 +28,7 @@
   <event fun="imu_drotek2_event()"/>
   <makefile target="!sim|nps|fbw">
     <configure name="DROTEK_2_I2C_DEV" default="i2c2" case="lower|upper"/>
-    <define name="DROTEK_10DOF_V2_MAG_I2C_DEV" value="$(DROTEK_2_I2C_DEV_LOWER)"/>
+    <define name="DROTEK_2_I2C_DEV" value="$(DROTEK_2_I2C_DEV_LOWER)"/>
     <define name="USE_$(DROTEK_2_I2C_DEV_UPPER)"/>
 
     <define name="IMU_TYPE_H" value="imu/imu_drotek_10dof_v2.h" type="string"/>
