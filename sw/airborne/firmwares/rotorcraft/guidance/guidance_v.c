@@ -138,15 +138,7 @@ int32_t guidance_v_z_sum_err;
 int32_t guidance_v_thrust_coeff;
 
 
-#define GuidanceVSetRef(_pos, _speed, _accel) { \
-    gv_set_ref(_pos, _speed, _accel);        \
-    guidance_v_z_ref = _pos;             \
-    guidance_v_zd_ref = _speed;          \
-    guidance_v_zdd_ref = _accel;             \
-  }
-
 static int32_t get_vertical_thrust_coeff(void);
-static void run_hover_loop(bool in_flight);
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
@@ -195,6 +187,8 @@ void guidance_v_init(void)
   desired_zd_updated = false;
   guidance_v_guided_mode = GUIDANCE_V_GUIDED_MODE_ZHOLD;
 
+  guidance_v_thrust_coeff = BFP_OF_REAL(1.f, INT32_TRIG_FRAC);
+
   gv_adapt_init();
 
 #if GUIDANCE_V_MODE_MODULE_SETTING == GUIDANCE_V_MODE_MODULE
@@ -240,16 +234,7 @@ void guidance_v_mode_changed(uint8_t new_mode)
   switch (new_mode) {
     case GUIDANCE_V_MODE_GUIDED:
     case GUIDANCE_V_MODE_HOVER:
-      /* disable vertical velocity setpoints */
-      guidance_v_guided_mode = GUIDANCE_V_GUIDED_MODE_ZHOLD;
-
-      /* set current altitude as setpoint and reset speed setpoint */
-      guidance_v_z_sp = stateGetPositionNed_i()->z;
-      guidance_v_zd_sp = 0;
-
-      /* reset guidance reference */
-      guidance_v_z_sum_err = 0;
-      GuidanceVSetRef(stateGetPositionNed_i()->z, stateGetSpeedNed_i()->z, 0);
+      guidance_v_guided_enter();
       break;
 
     case GUIDANCE_V_MODE_RC_CLIMB:
@@ -285,10 +270,8 @@ void guidance_v_notify_in_flight(bool in_flight)
   }
 }
 
-
-void guidance_v_run(bool in_flight)
+void guidance_v_thrust_adapt(bool in_flight)
 {
-
   guidance_v_thrust_coeff = get_vertical_thrust_coeff();
 
   if (in_flight) {
@@ -306,6 +289,12 @@ void guidance_v_run(bool in_flight)
     /* reset estimate while not in_flight */
     gv_adapt_init();
   }
+}
+
+void guidance_v_run(bool in_flight)
+{
+  guidance_v_thrust_adapt(in_flight);
+
   /* reset flag indicating if desired zd was updated */
   desired_zd_updated = false;
 
@@ -338,34 +327,7 @@ void guidance_v_run(bool in_flight)
     case GUIDANCE_V_MODE_HOVER:
       guidance_v_guided_mode = GUIDANCE_V_GUIDED_MODE_ZHOLD;
     case GUIDANCE_V_MODE_GUIDED:
-      switch(guidance_v_guided_mode)
-      {
-        case GUIDANCE_V_GUIDED_MODE_ZHOLD:
-          // Altitude Hold
-          guidance_v_zd_sp = 0;
-          gv_update_ref_from_z_sp(guidance_v_z_sp);
-          run_hover_loop(in_flight);
-          break;
-        case GUIDANCE_V_GUIDED_MODE_CLIMB:
-          // Climb
-          gv_update_ref_from_zd_sp(guidance_v_zd_sp, stateGetPositionNed_i()->z);
-          run_hover_loop(in_flight);
-          break;
-        case GUIDANCE_V_GUIDED_MODE_THROTTLE:
-          // Throttle
-          guidance_v_z_sp = stateGetPositionNed_i()->z; // for display only
-          stabilization_cmd[COMMAND_THRUST] = guidance_v_th_sp;
-          break;
-        default:
-          break;
-      }
-#if !NO_RC_THRUST_LIMIT
-      /* use rc limitation if available */
-      if (radio_control.status == RC_OK) {
-        stabilization_cmd[COMMAND_THRUST] = Min(guidance_v_rc_delta_t, guidance_v_delta_t);
-      } else
-#endif
-        stabilization_cmd[COMMAND_THRUST] = guidance_v_delta_t;
+      guidance_v_guided_run(in_flight);
       break;
 
 #if GUIDANCE_V_MODE_MODULE_SETTING == GUIDANCE_V_MODE_MODULE
@@ -375,34 +337,7 @@ void guidance_v_run(bool in_flight)
 #endif
 
     case GUIDANCE_V_MODE_NAV: {
-      if (vertical_mode == VERTICAL_MODE_ALT) {
-        guidance_v_z_sp = -nav_flight_altitude;
-        guidance_v_zd_sp = 0;
-        gv_update_ref_from_z_sp(guidance_v_z_sp);
-        run_hover_loop(in_flight);
-      } else if (vertical_mode == VERTICAL_MODE_CLIMB) {
-        guidance_v_z_sp = stateGetPositionNed_i()->z;
-        guidance_v_zd_sp = -nav_climb;
-        gv_update_ref_from_zd_sp(guidance_v_zd_sp, stateGetPositionNed_i()->z);
-        run_hover_loop(in_flight);
-      } else if (vertical_mode == VERTICAL_MODE_MANUAL) {
-        guidance_v_z_sp = stateGetPositionNed_i()->z;
-        guidance_v_zd_sp = stateGetSpeedNed_i()->z;
-        GuidanceVSetRef(guidance_v_z_sp, guidance_v_zd_sp, 0);
-        guidance_v_z_sum_err = 0;
-        guidance_v_delta_t = nav_throttle;
-      }
-#if HYBRID_NAVIGATION
-      guidance_hybrid_vertical();
-#else
-#if !NO_RC_THRUST_LIMIT
-      /* use rc limitation if available */
-      if (radio_control.status == RC_OK) {
-        stabilization_cmd[COMMAND_THRUST] = Min(guidance_v_rc_delta_t, guidance_v_delta_t);
-      } else
-#endif
-        stabilization_cmd[COMMAND_THRUST] = guidance_v_delta_t;
-#endif
+      guidance_v_from_nav(in_flight);
       break;
     }
 
@@ -413,6 +348,29 @@ void guidance_v_run(bool in_flight)
       break;
   }
 }
+
+
+void guidance_v_z_enter(void)
+{
+  /* set current altitude as setpoint */
+  guidance_v_z_sp = stateGetPositionNed_i()->z;
+
+  /* reset guidance reference */
+  guidance_v_z_sum_err = 0;
+  GuidanceVSetRef(stateGetPositionNed_i()->z, 0, 0);
+
+  /* reset speed setting */
+  guidance_v_zd_sp = 0;
+}
+
+void guidance_v_set_ref(int32_t pos, int32_t speed, int32_t accel)
+{
+  gv_set_ref(pos, speed, accel);
+  guidance_v_z_ref = pos;
+  guidance_v_zd_ref = speed;
+  guidance_v_zdd_ref = accel;
+}
+
 
 /// get the cosine of the angle between thrust vector and gravity vector
 static int32_t get_vertical_thrust_coeff(void)
@@ -445,7 +403,7 @@ static int32_t get_vertical_thrust_coeff(void)
 
 #define FF_CMD_FRAC 18
 
-static void run_hover_loop(bool in_flight)
+void run_hover_loop(bool in_flight)
 {
 
   /* convert our reference to generic representation */
@@ -504,6 +462,84 @@ static void run_hover_loop(bool in_flight)
   /* bound the result */
   Bound(guidance_v_delta_t, 0, MAX_PPRZ);
 
+}
+
+void guidance_v_from_nav(bool in_flight)
+{
+  if (vertical_mode == VERTICAL_MODE_ALT) {
+    guidance_v_z_sp = -nav_flight_altitude;
+    guidance_v_zd_sp = 0;
+    gv_update_ref_from_z_sp(guidance_v_z_sp);
+    run_hover_loop(in_flight);
+  } else if (vertical_mode == VERTICAL_MODE_CLIMB) {
+    guidance_v_z_sp = stateGetPositionNed_i()->z;
+    guidance_v_zd_sp = -nav_climb;
+    gv_update_ref_from_zd_sp(guidance_v_zd_sp, stateGetPositionNed_i()->z);
+    run_hover_loop(in_flight);
+  } else if (vertical_mode == VERTICAL_MODE_MANUAL) {
+    guidance_v_z_sp = stateGetPositionNed_i()->z;
+    guidance_v_zd_sp = stateGetSpeedNed_i()->z;
+    GuidanceVSetRef(guidance_v_z_sp, guidance_v_zd_sp, 0);
+    guidance_v_z_sum_err = 0;
+    guidance_v_delta_t = nav_throttle;
+  }
+#if HYBRID_NAVIGATION
+  guidance_hybrid_vertical();
+#else
+#if !NO_RC_THRUST_LIMIT
+  /* use rc limitation if available */
+  if (radio_control.status == RC_OK) {
+    stabilization_cmd[COMMAND_THRUST] = Min(guidance_v_rc_delta_t, guidance_v_delta_t);
+  } else
+#endif
+    stabilization_cmd[COMMAND_THRUST] = guidance_v_delta_t;
+#endif
+}
+
+void guidance_v_guided_enter(void)
+{
+  /* disable vertical velocity setpoints */
+  guidance_v_guided_mode = GUIDANCE_V_GUIDED_MODE_ZHOLD;
+
+  /* set current altitude as setpoint and reset speed setpoint */
+  guidance_v_z_sp = stateGetPositionNed_i()->z;
+  guidance_v_zd_sp = 0;
+
+  /* reset guidance reference */
+  guidance_v_z_sum_err = 0;
+  GuidanceVSetRef(stateGetPositionNed_i()->z, stateGetSpeedNed_i()->z, 0);
+}
+
+void guidance_v_guided_run(bool in_flight)
+{
+  switch(guidance_v_guided_mode)
+  {
+    case GUIDANCE_V_GUIDED_MODE_ZHOLD:
+      // Altitude Hold
+      guidance_v_zd_sp = 0;
+      gv_update_ref_from_z_sp(guidance_v_z_sp);
+      run_hover_loop(in_flight);
+      break;
+    case GUIDANCE_V_GUIDED_MODE_CLIMB:
+      // Climb
+      gv_update_ref_from_zd_sp(guidance_v_zd_sp, stateGetPositionNed_i()->z);
+      run_hover_loop(in_flight);
+      break;
+    case GUIDANCE_V_GUIDED_MODE_THROTTLE:
+      // Throttle
+      guidance_v_z_sp = stateGetPositionNed_i()->z; // for display only
+      stabilization_cmd[COMMAND_THRUST] = guidance_v_th_sp;
+      break;
+    default:
+      break;
+  }
+#if !NO_RC_THRUST_LIMIT
+  /* use rc limitation if available */
+  if (radio_control.status == RC_OK) {
+    stabilization_cmd[COMMAND_THRUST] = Min(guidance_v_rc_delta_t, guidance_v_delta_t);
+  } else
+#endif
+    stabilization_cmd[COMMAND_THRUST] = guidance_v_delta_t;
 }
 
 bool guidance_v_set_guided_z(float z)

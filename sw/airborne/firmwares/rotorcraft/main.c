@@ -331,6 +331,7 @@ STATIC_INLINE void telemetry_periodic(void)
 
 STATIC_INLINE void failsafe_check(void)
 {
+#if !USE_GENERATED_AUTOPILOT
   if (radio_control.status == RC_REALLY_LOST &&
       autopilot_mode != AP_MODE_KILL &&
       autopilot_mode != AP_MODE_HOME &&
@@ -364,6 +365,8 @@ STATIC_INLINE void failsafe_check(void)
     autopilot_set_mode(AP_MODE_FAILSAFE);
   }
 #endif
+
+#endif // !USE_GENERATED_AUTOPILOT
 
   autopilot_check_in_flight(autopilot_motors_on);
 }

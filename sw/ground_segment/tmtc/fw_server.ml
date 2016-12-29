@@ -246,7 +246,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       if a.fbw.rc_mode = "FAILSAFE" then
         a.ap_mode <- 5 (* Override and set FAIL(Safe) Mode *)
       else
-        a.ap_mode <- check_index (ivalue "ap_mode") fixedwing_ap_modes "AP_MODE"
+        a.ap_mode <- check_index (ivalue "ap_mode") (modes_of_aircraft a) "AP_MODE"
     | "CAM" ->
       a.cam.phi <- (Deg>>Rad) (fvalue  "phi");
       a.cam.theta <- (Deg>>Rad) (fvalue  "theta");
@@ -337,7 +337,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
         a.bat <- fvalue "vsupply" /. 10.;
         a.energy <- ivalue "energy" * 100;
         a.throttle <- fvalue "throttle";
-        a.ap_mode <- check_index (ivalue "ap_mode") fixedwing_ap_modes "AP_MODE";
+        a.ap_mode <- check_index (ivalue "ap_mode") (modes_of_aircraft a) "AP_MODE";
         a.cur_block <- ivalue "nav_block";
       end
     | "FORMATION_SLOT_TM" ->

@@ -44,8 +44,6 @@
     <!--define name="KILL_ON_GROUND_DETECT" value="TRUE"/-->
   </firmware>
 
-  <autopilot name="rotorcraft_autopilot.xml" freq="512"/>
-
   <modules>
     <module name="gps" type="ubx_ucenter"/>
     <module name="geo_mag"/>

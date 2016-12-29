@@ -62,6 +62,7 @@ struct NpsMain {
   char *js_dev;
   char *spektrum_dev;
   int rc_script;
+  bool norc;
   char *ivy_bus;
 };
 

@@ -70,6 +70,7 @@ void firmware_parse_msg(struct link_device *dev __attribute__((unused)), struct 
     break;
 #endif /* USE_NAVIGATION */
 
+#ifdef AP_MODE_GUIDED
     case DL_GUIDED_SETPOINT_NED:
       if (DL_GUIDED_SETPOINT_NED_ac_id(buf) != AC_ID) { break; }
 
@@ -79,6 +80,7 @@ void firmware_parse_msg(struct link_device *dev __attribute__((unused)), struct 
                               DL_GUIDED_SETPOINT_NED_z(buf),
                               DL_GUIDED_SETPOINT_NED_yaw(buf));
       break;
+#endif
 
     default:
       break;

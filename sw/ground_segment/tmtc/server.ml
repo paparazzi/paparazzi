@@ -52,12 +52,6 @@ let srtm_path = Env.paparazzi_home // "data" // "srtm"
 let get_indexed_value = fun t i ->
   if i >= 0 then t.(i) else "UNK"
 
-let modes_of_type = fun vt ->
-  match vt with
-      FixedWing -> fixedwing_ap_modes
-    | Rotorcraft -> rotorcraft_ap_modes
-    | UnknownVehicleType -> [| |]
-
 (** The aircrafts store *)
 let aircrafts = Hashtbl.create 3
 
@@ -422,7 +416,7 @@ let send_aircraft_msg = fun ac ->
                   "energy", PprzLink.Int a.energy] in
     Ground_Pprz.message_send my_id "ENGINE_STATUS" values;
 
-    let ap_mode = get_indexed_value (modes_of_type a.vehicle_type) a.ap_mode in
+    let ap_mode = get_indexed_value (modes_of_aircraft a) a.ap_mode in
     let gaz_mode = get_indexed_value gaz_modes a.gaz_mode in
     let lat_mode = get_indexed_value lat_modes a.lateral_mode in
     let horiz_mode = get_indexed_value horiz_modes a.horizontal_mode in
@@ -544,6 +538,11 @@ let new_aircraft = fun get_alive_md5sum real_id ->
     for i = 0 to Array.length ac.svinfo - 1 do
       ac.svinfo.(i).age <-  ac.svinfo.(i).age + 1;
     done in
+
+  ignore (ac.ap_modes <- try
+    let (ap_file, _) = Gen_common.get_autopilot_of_airframe airframe_xml in
+    Some (modes_from_autopilot (ExtXml.parse_file ap_file))
+  with _ -> None);
 
   ignore (Glib.Timeout.add 1000 (fun _ -> update (); true));
 

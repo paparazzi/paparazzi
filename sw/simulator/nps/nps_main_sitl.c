@@ -56,7 +56,9 @@ void nps_radio_and_autopilot_init(void)
 {
   enum NpsRadioControlType rc_type;
   char *rc_dev = NULL;
-  if (nps_main.js_dev) {
+  if (nps_main.norc) {
+    rc_type = NORC;
+  } else if (nps_main.js_dev) {
     rc_type = JOYSTICK;
     rc_dev = nps_main.js_dev;
   } else if (nps_main.spektrum_dev) {

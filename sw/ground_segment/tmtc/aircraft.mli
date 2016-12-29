@@ -144,8 +144,10 @@ type aircraft = {
     mutable last_msg_date : float;
     mutable time_since_last_survey_msg : float;
     mutable dist_to_wp : float;
-    inflight_calib : inflight_calib
+    inflight_calib : inflight_calib;
+    mutable ap_modes : string array option
 }
 
 val new_aircraft : string -> string -> Xml.xml -> Xml.xml -> aircraft
 val max_nb_dl_setting_values : int
+val modes_of_aircraft : aircraft -> string array
