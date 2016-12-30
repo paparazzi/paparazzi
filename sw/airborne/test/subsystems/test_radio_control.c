@@ -70,7 +70,7 @@ static inline void main_periodic_task(void)
 
   int16_t foo = 0;
   RunOnceEvery(10, {
-    DOWNLINK_SEND_ROTORCRAFT_RADIO_CONTROL(DefaultChannel, DefaultDevice,  \
+    DOWNLINK_SEND_RADIO_CONTROL(DefaultChannel, DefaultDevice,  \
     &radio_control.values[RADIO_ROLL], \
     &radio_control.values[RADIO_PITCH], \
     &radio_control.values[RADIO_YAW], \

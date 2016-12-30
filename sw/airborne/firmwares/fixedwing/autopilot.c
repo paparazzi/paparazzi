@@ -91,6 +91,23 @@ static void send_mode(struct transport_tx *trans, struct link_device *dev)
                           &pprz_mode, &v_ctl_mode, &lateral_mode, &horizontal_mode, &rc_settings_mode, &mcu1_status);
 }
 
+static void send_rc(struct transport_tx *trans, struct link_device *dev)
+{
+#ifdef RADIO_KILL_SWITCH
+  int16_t _kill_switch = radio_control.values[RADIO_KILL_SWITCH];
+#else
+  int16_t _kill_switch = 42;
+#endif
+  pprz_msg_send_RADIO_CONTROL(trans, dev, AC_ID,
+                                         &radio_control.values[RADIO_ROLL],
+                                         &radio_control.values[RADIO_PITCH],
+                                         &radio_control.values[RADIO_YAW],
+                                         &radio_control.values[RADIO_THROTTLE],
+                                         &radio_control.values[RADIO_MODE],
+                                         &_kill_switch,
+                                         &radio_control.status);
+}
+
 static void send_attitude(struct transport_tx *trans, struct link_device *dev)
 {
   struct FloatEulers *att = stateGetNedToBodyEulers_f();
@@ -201,6 +218,7 @@ void autopilot_init(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ENERGY, send_energy);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DL_VALUE, send_dl_value);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DESIRED, send_desired);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_RADIO_CONTROL, send_rc);
 #if defined RADIO_CALIB && defined RADIO_CONTROL_SETTINGS
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_RC_SETTINGS, send_rc_settings);
 #endif

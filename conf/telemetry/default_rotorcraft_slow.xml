@@ -37,7 +37,7 @@
       <message name="ROTORCRAFT_CMD"           period=".05"/>
       <message name="PPM"                      period="0.5"/>
       <message name="RC"                       period="0.5"/>
-      <message name="ROTORCRAFT_RADIO_CONTROL" period="0.5"/>
+      <message name="RADIO_CONTROL" period="0.5"/>
       <message name="ROTORCRAFT_STATUS"        period="1"/>
       <message name="BEBOP_ACTUATORS"          period="0.2"/>
     </mode>
@@ -86,7 +86,7 @@
       <message name="ROTORCRAFT_STATUS" period="1.2"/>
       <message name="DL_VALUE"          period="0.5"/>
       <message name="ALIVE"             period="0.9"/>
-      <message name="ROTORCRAFT_RADIO_CONTROL" period="0.1"/>
+      <message name="RADIO_CONTROL" period="0.1"/>
       <message name="AHRS_REF_QUAT" period="0.05"/>
     </mode>
 
