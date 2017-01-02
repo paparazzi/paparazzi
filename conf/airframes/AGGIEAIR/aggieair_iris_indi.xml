@@ -151,6 +151,8 @@
     </module>
 
     <module name="air_data"/>
+
+    <module name="test"/>
   </modules>
 
   <section name="MISC">
