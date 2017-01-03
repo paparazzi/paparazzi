@@ -27,12 +27,36 @@
 #include "subsystems/intermcu/intermcu_ap.h"
 #include "led.h"
 
+#include "mcu.h"
+#include "subsystems/radio_control.h"
+#include "mcu_periph/sys_time_arch.h"
+
+#include "mcu_periph/gpio.h"
+
 void spektrum_soft_bind_init(void) {}
 
 uint8_t bind_soft_value;
 void spektrum_soft_bind_click(uint8_t val __attribute__((unused)))
 {
+#ifndef INTER_MCU_AP
+    send_spektrum_bind();
+#else
   intermcu_send_spektrum_bind();
+#endif
+
 }
 
 
+void send_spektrum_bind(void) {
+
+    //power cycle the spektrum
+    RADIO_CONTROL_POWER_OFF(RADIO_CONTROL_POWER, RADIO_CONTROL_POWER_PIN);
+    sys_time_usleep(100000);
+    RADIO_CONTROL_POWER_ON(RADIO_CONTROL_POWER, RADIO_CONTROL_POWER_PIN);
+
+    //put to bind mode
+    RADIO_CONTROL_BIND_IMPL_FUNC();    //basically  = radio_control_spektrum_try_bind()
+
+    SpektrumUartInit();
+
+}

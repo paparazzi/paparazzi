@@ -108,11 +108,12 @@
 #define UART8_GPIO_PORT_TX GPIOE
 #define UART8_GPIO_TX GPIO1
 
-/* Spektrum Receivers Devices somitmes with TX out */
-/* The line that is pulled low at power up to initiate the bind process */
-/* Soft binding possible if module is used */
-#define SPEKTRUM_BIND_PIN GPIO0
-#define SPEKTRUM_BIND_PIN_PORT GPIOB
+/* Soft binding Spektrum */
+#define RADIO_CONTROL_POWER GPIOB
+#define RADIO_CONTROL_POWER_PIN GPIO0
+#define RADIO_CONTROL_POWER_ON gpio_set
+#define RADIO_CONTROL_POWER_OFF gpio_clear
+
 
 //FIXME Check
 #define SPEKTRUM_UART1_RCC RCC_USART1

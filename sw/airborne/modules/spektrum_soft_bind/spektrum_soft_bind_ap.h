@@ -31,6 +31,8 @@
 extern void spektrum_soft_bind_init(void);
 extern void spektrum_soft_bind_click(uint8_t val);
 
+void send_spektrum_bind(void);
+
 extern uint8_t bind_soft_value;
 
 #endif
