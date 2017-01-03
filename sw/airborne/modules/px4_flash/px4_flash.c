@@ -25,7 +25,6 @@
  */
 
 #include "modules/px4_flash/px4_flash.h"
-//#include "subsystems/datalink/downlink.h"
 #include "modules/px4_flash/protocol.h"
 #include "mcu_periph/sys_time_arch.h"
 #include "subsystems/intermcu/intermcu_ap.h"
@@ -39,11 +38,14 @@
 #include "libopencm3/cm3/scb.h"
 
 #include "mcu_periph/sys_time.h"
+#ifdef INTER_MCU_AP
 tid_t px4iobl_tid; ///< id for time out of the px4 bootloader reset
-
 // define coms link for px4io f1
 #define PX4IO_PORT   (&((PX4IO_UART).device))
+#endif
+
 #define FLASH_PORT   (&((FLASH_UART).device))
+
 
 // weird that these below are not in protocol.h, which is from the firmware px4 repo
 // below is copied from qgroundcontrol:
@@ -68,12 +70,15 @@ bool px4ioRebootTimeout;
 void px4flash_init(void)
 {
   setToBootloaderMode = false;
+#ifdef INTER_MCU_AP
   px4ioRebootTimeout = false;
   px4iobl_tid = sys_time_register_timer(15.0, NULL); //20 (fbw pprz bl timeout)-5 (px4 fmu bl timeout)
+#endif
 }
 
 void px4flash_event(void)
 {
+#ifdef INTER_MCU_AP
   if (sys_time_check_and_ack_timer(px4iobl_tid)) {
     px4ioRebootTimeout = TRUE;
     sys_time_cancel_timer(px4iobl_tid);
@@ -94,16 +99,10 @@ void px4flash_event(void)
       }
     }
   }
+#endif
 
   //TODO: check if bootloader timeout was surpassed
   if (FLASH_PORT->char_available(FLASH_PORT->periph) && !setToBootloaderMode) {
-    // TMP TEST
-    //    while (FLASH_PORT->char_available(FLASH_PORT->periph)) {
-    //      unsigned char bla = FLASH_PORT->get_byte(FLASH_PORT->periph);
-    //      FLASH_PORT->put_byte(FLASH_PORT->periph, 0,bla);
-    //    }
-    //    return;
-
     //check whether this is flash related communication, and for who (ap/fbw)
     int state = 0;
     while (state < 4 && FLASH_PORT->char_available(FLASH_PORT->periph)) {
@@ -134,6 +133,7 @@ void px4flash_event(void)
       scb_reset_system();
 
     } else { // target fbw
+#ifdef INTER_MCU_AP
       //the target is the fbw, so reboot the fbw and switch to relay mode
 
       //first check if the bootloader has not timeout:
@@ -269,13 +269,16 @@ void px4flash_event(void)
         FLASH_PORT->put_byte(FLASH_PORT->periph, 0, ' '); // use 7 chars as answer
 
       }
+#endif
     }
   } else if (FLASH_PORT->char_available(FLASH_PORT->periph)) {
+#ifdef INTER_MCU_AP
     //already in bootloader mode, just directly relay data
     while (FLASH_PORT->char_available(FLASH_PORT->periph)) {
       unsigned char b = FLASH_PORT->get_byte(FLASH_PORT->periph);
       PX4IO_PORT->put_byte(PX4IO_PORT->periph, 0, b);
     }
+#endif
   }
 }
 
