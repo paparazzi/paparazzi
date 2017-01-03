@@ -3,7 +3,7 @@
 
 #define BOARD_PX4FMU_V4
 
-/* PX4FMU_V4 board has a 24MHz external clock and 168MHz internal. */
+/* PX4FMU_V4 a.k.a. Pixracer board has a 24MHz external clock and 168MHz internal. */
 
 /* STM32F4 STM32F427VIT6 */
 #define EXT_CLK 24000000 //OK
@@ -49,7 +49,6 @@
 /* UART SCHTUFFFF*/
 
 /* -WiFi ESP Connector, it is just a serial port*/
-//OK
 #define UART1_GPIO_AF GPIO_AF7
 #define UART1_GPIO_PORT_RX GPIOB
 #define UART1_GPIO_RX GPIO7
@@ -61,7 +60,6 @@
 //#define UART1_GPIO_CTS GPIO8
 
 /* -TELEM1 Connector */
-//OK
 #define UART2_GPIO_AF GPIO_AF7
 #define UART2_GPIO_PORT_RX GPIOD
 #define UART2_GPIO_RX GPIO6
@@ -73,7 +71,6 @@
 //#define UART1_GPIO_CTS GPIO4 FIXME
 
 /* -TELEM2 Connector */
-//OK
 #define UART3_GPIO_AF GPIO_AF7
 #define UART3_GPIO_PORT_RX GPIOD
 #define UART3_GPIO_RX GPIO9
@@ -85,7 +82,6 @@
 //#define UART1_GPIO_CTS GPIO12 FIXME
 
 /* -GPS Connector */
-//OK
 #define UART4_GPIO_AF GPIO_AF8
 #define UART4_GPIO_PORT_RX GPIOA
 #define UART4_GPIO_RX GPIO1
@@ -93,7 +89,6 @@
 #define UART4_GPIO_TX GPIO0
 
 /* Serial Debugging Connector, not used with PPRZ, use JTAG, can be put to other good use */
-//OK
 #define UART7_GPIO_AF GPIO_AF8
 #define UART7_GPIO_PORT_RX GPIOE
 #define UART7_GPIO_RX GPIO7
@@ -101,7 +96,6 @@
 #define UART7_GPIO_TX GPIO8
 
 /* Connector -FRS FrSky */
-//OK
 #define UART8_GPIO_AF GPIO_AF8
 #define UART8_GPIO_PORT_RX GPIOE
 #define UART8_GPIO_RX GPIO0
@@ -137,6 +131,7 @@
 /* SPI */
 
 /* SPI1 for MPU and extra accel/gyro/mag */
+// OK
 #define SPI1_GPIO_AF GPIO_AF5
 #define SPI1_GPIO_PORT_MISO GPIOA
 #define SPI1_GPIO_MISO GPIO6
@@ -146,7 +141,8 @@
 #define SPI1_GPIO_SCK GPIO5
 
 /* SPI2 for FRAM, connects to BARO */
-#define SPI2_GPIO_AF GPIO_AF10
+// OK
+#define SPI2_GPIO_AF GPIO_AF5
 #define SPI2_GPIO_PORT_MISO GPIOB
 #define SPI2_GPIO_MISO GPIO14
 #define SPI2_GPIO_PORT_MOSI GPIOB
@@ -173,7 +169,6 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 
 /* EXTRA_MAG_CS on SPI1 HMC5983*/
 //See https://docs.google.com/spreadsheets/d/1gVlKZBvRNTXldoxTXwipGaaHmtF9DNPaftDrzKA47mM/edit#gid=0
-//OK
 #define SPI_SELECT_SLAVE1_PORT GPIOE
 #define SPI_SELECT_SLAVE1_PIN GPIO15
 
@@ -186,21 +181,19 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 #define SPI_SELECT_SLAVE2_PORT GPIOC
 #define SPI_SELECT_SLAVE2_PIN GPIO2
 
-/* 5611 BARO_CS on SPI1 - FRAM*/
+/* MS5611 BARO_CS on SPI2 - FRAM*/
 //OK
 #define SPI_SELECT_SLAVE3_PORT GPIOD
 #define SPI_SELECT_SLAVE3_PIN GPIO7
 
-/* FRAM*/
-//ok
+/* FRAM on SPI2 */
 #define SPI_SELECT_SLAVE4_PORT GPIOD
 #define SPI_SELECT_SLAVE4_PIN GPIO10
 
 /* SPI3 NSS on microSD connector */
-/*
-#define SPI_SELECT_SLAVE4_PORT GPIOA
-#define SPI_SELECT_SLAVE4_PIN GPIO4
-*/
+//#define SPI_SELECT_SLAVE4_PORT GPIOA
+//#define SPI_SELECT_SLAVE4_PIN GPIO4
+
 
 /* SDIO to microSD card connector */
 #define SDIO_AF GPIO_AF12
@@ -286,14 +279,10 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 
 
 /* I2C mapping */
-/* There is no second I2C connector but boards to split to multiple exit, reliability, who knows...*/
-//OK
 #define I2C1_GPIO_PORT GPIOB
 #define I2C1_GPIO_SCL GPIO8
 #define I2C1_GPIO_SDA GPIO9
 
-/* Maybe Don't Activate onboard baro by default */
-//TODO
 #ifndef USE_BARO_BOARD
 #define USE_BARO_BOARD 1
 #endif
@@ -322,7 +311,6 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 #define USE_PWM6 1
 
 /* -ESC Servo 1 */
-//OK
 #if USE_PWM1
 #define PWM_SERVO_1 0
 #define PWM_SERVO_1_TIMER TIM1
@@ -336,7 +324,6 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 #endif
 
 /* -ESC Servo 2 */
-//OK
 #if USE_PWM2
 #define PWM_SERVO_2 1
 #define PWM_SERVO_2_TIMER TIM1
@@ -350,7 +337,6 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 #endif
 
 /* -ESC Servo 3 */
-//OK
 #if USE_PWM3
 #define PWM_SERVO_3 2  //#define PWM_SERVO_3_IDX 2
 #define PWM_SERVO_3_TIMER TIM1
@@ -364,7 +350,6 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 #endif
 
 /* -ESC Servo 4 */
-//OK
 #if USE_PWM4
 #define PWM_SERVO_4 3
 #define PWM_SERVO_4_TIMER TIM1
@@ -378,7 +363,6 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 #endif
 
 /* -ESC Servo 5 */
-//OK
 #if USE_PWM5
 #define PWM_SERVO_5 4
 #define PWM_SERVO_5_TIMER TIM4
@@ -392,7 +376,6 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 #endif
 
 /* -ESC Servo 6 */
-//OK
 #if USE_PWM6
 #define PWM_SERVO_6 5
 #define PWM_SERVO_6_TIMER TIM4
@@ -429,4 +412,4 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 
 #define PWM_TIM2_CHAN_MASK (PWM_BUZZER_OC_BIT)
 
-#endif /* CONFIG_PX4PR_1_0_H */
+#endif /* CONFIG_PX4FMU_4_0_H */

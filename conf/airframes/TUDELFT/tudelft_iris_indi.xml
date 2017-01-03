@@ -17,14 +17,25 @@
     <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="80" />
     <!-- in seconds-->
     <module name="telemetry" type="transparent_usb" />
-    <module name="imu" type="mpu9250_spi"/>
+
+    <module name="imu" type="mpu9250_spi">
+      <configure name="IMU_MPU9250_SPI_DEV" value="spi1"/>
+      <configure name="IMU_MPU9250_SPI_SLAVE_IDX" value="SPI_SLAVE2"/>
+      <define name="IMU_MPU9250_READ_MAG" value="FALSE"/>
+      <define name="IMU_MPU9250_CHAN_X" value="1"/>
+      <define name="IMU_MPU9250_CHAN_Y" value="0"/>
+      <define name="IMU_MPU9250_CHAN_Z" value="2"/>
+      <define name="IMU_MPU9250_X_SIGN" value="-1"/>
+      <define name="IMU_MPU9250_Y_SIGN" value="-1"/>
+      <define name="IMU_MPU9250_Z_SIGN" value="-1"/>
+    </module>
+
     <module name="gps" type="ublox" >
       <configure name="GPS_BAUD" value="B57600"/>
     </module>
     <module name="gps" type="ubx_ucenter" />
     <module name="stabilization" type="indi_simple" />
-    <module name="ahrs" type="int_cmpl_quat" >
-      <define name="AHRS_ICQ_IMU_ID" value="IMU_PX4_ID" />         <!-- Meaning the lsm303 and l3g -->
+    <module name="ahrs" type="int_cmpl_quat" >      
       <define name="AHRS_ICQ_MAG_ID" value="MAG_HMC58XX_SENDER_ID" />         <!-- Meaning the external hmc-->
 
       <configure name="USE_MAGNETOMETER" value="TRUE"/>
@@ -51,7 +62,6 @@
     <!--module name="px4_flash" >
       <configure name="PX4IO_UART" value="UART3"/> <!-- TMP solution! How to undefine PX4IO to nothing in px4_flash.xml? -->
     <!--/module-->
-    <module name="px4_gimbal" />
     <module name="geo_mag" />
     <module name="air_data" />
     <module name="send_imu_mag_current" />   
