@@ -1,0 +1,15 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="control" dir="control">
+  <doc>
+    <description>
+      Basic control for fixed-wing aircraft.
+      Based on:
+      - stabilization_attitude_fw
+      - guidance_basic_fw
+    </description>
+  </doc>
+  <autoload name="stabilization_attitude_fw"/>
+  <autoload name="guidance_basic_fw"/>
+  <makefile target="ap|sim|nps" firmware="fixedwing"/>
+</module>

@@ -1,0 +1,69 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="guidance_energy" dir="guidance">
+  <doc>
+    <description>
+      Energy based vertical control for fixedwing aircraft.
+      Airspeed sensor is mandatory for this controller.
+    </description>
+    <section name="VERTICAL CONTROL" prefix="V_CTL_">
+      <define name="POWER_CTL_BAT_NOMINAL" value="11.1" description="nominal battery voltage in cruise flight" unit="volt"/>
+      <define name="ALTITUDE_PGAIN" value="0.1" description="altitude loop P gain"/>
+      <define name="ALTITUDE_MAX_CLIMB" value="5." description="max climb rate" unit="m/s"/>
+      <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.3" description="nominal throttle for cruise flight"/>
+      <define name="AUTO_THROTTLE_NOMINAL_CRUISE_PITCH" value="0." description="nominal pitch angle for cruise flight"/>
+      <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.1" description="feedforward throttle gain" unit="%/(m/s)"/>
+      <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.15" description="feedforward pitch gain"/>
+      <define name="AIRSPEED_PGAIN" value="0." description="airspeed P gain"/>
+      <define name="AUTO_THROTTLE_OF_AIRSPEED_PGAIN" value="0.069" description="throttle P gain"/>
+      <define name="AUTO_THROTTLE_OF_AIRSPEED_IGAIN" value="0.01" description="throttle I gain"/>
+      <define name="AUTO_PITCH_OF_AIRSPEED_PGAIN" value="0.01" description="pitch P gain"/>
+      <define name="AUTO_PITCH_OF_AIRSPEED_IGAIN" value="0.003" description="pitch I gain"/>
+      <define name="AUTO_PITCH_OF_AIRSPEED_DGAIN" value="0.03" description="pitch D gain"/>
+      <define name="ENERGY_TOT_PGAIN" value="0." description="total energy P gain"/>
+      <define name="ENERGY_TOT_IGAIN" value="0." description="total energy I gain"/>
+      <define name="ENERGY_DIFF_PGAIN" value="0." description="differential energy P gain"/>
+      <define name="ENERGY_DIFF_IGAIN" value="0." description="differential energy I gain"/>
+      <define name="AUTO_GROUNDSPEED_SETPOINT" value="6.0" description="default ground speed setpoint" unit="m/s"/>
+      <define name="AUTO_GROUNDSPEED_PGAIN" value="0.75" description="ground speed P gain"/>
+      <define name="AUTO_GROUNDSPEED_IGAIN" value="0.25" description="ground speed I gain"/>
+      <define name="THROTTLE_SLEW_LIMITER" value="1" description="throttle slew rate limiter" unit="s"/>
+    </section>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="control vert">
+        <dl_settings NAME="energy loop">
+          <dl_setting MAX="45" MIN="8.0" STEP="0.5" VAR="v_ctl_auto_airspeed_setpoint" shortname="airspeed sp" />
+          <dl_setting MAX="1" MIN="0.0" STEP="0.05" VAR="v_ctl_auto_throttle_nominal_cruise_throttle" shortname="cruise throttle" />
+          <dl_setting MAX="1" MIN="0.0" STEP="0.05" VAR="v_ctl_auto_throttle_nominal_cruise_pitch" shortname="cruise pitch" />
+          <dl_setting MAX="1.0" MIN="0" STEP="0.01" VAR="v_ctl_desired_acceleration" shortname="acc_cmd" />
+          <dl_setting MAX="1" MIN="0" STEP="0.01" VAR="v_ctl_auto_throttle_climb_throttle_increment" shortname="throttle_incr" param="V_CTL_AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT"/>
+          <dl_setting MAX="1" MIN="0" STEP="0.01" VAR="v_ctl_auto_throttle_pitch_of_vz_pgain" shortname="pitch_of_vz" param="V_CTL_AUTO_THROTTLE_PITCH_OF_VZ_PGAIN"/>
+          <dl_setting MAX="1." MIN="0" STEP="0.01" VAR="v_ctl_auto_throttle_of_airspeed_pgain" shortname="P_th_air"/>
+          <dl_setting MAX="0.1" MIN="0" STEP="0.001" VAR="v_ctl_auto_throttle_of_airspeed_igain" shortname="I_th_air" />
+          <dl_setting MAX="1." MIN="0" STEP="0.001" VAR="v_ctl_auto_pitch_of_airspeed_pgain" shortname="P_pitch_air" />
+          <dl_setting MAX="0.1" MIN="0" STEP="0.001" VAR="v_ctl_auto_pitch_of_airspeed_igain" shortname="I_pitch_air" />
+          <dl_setting MAX="5." MIN="0" STEP="0.01" VAR="v_ctl_auto_pitch_of_airspeed_dgain" shortname="D_pitch_air" />
+          <dl_setting MAX="1." MIN="0" STEP="0.01" VAR="v_ctl_energy_total_pgain" shortname="P_en_tot" param="V_CTL_ENERGY_TOT_PGAIN"/>
+          <dl_setting MAX="1." MIN="0" STEP="0.01" VAR="v_ctl_energy_total_igain" shortname="I_en_tot" param="V_CTL_ENERGY_TOT_IGAIN"/>
+          <dl_setting MAX="1." MIN="0" STEP="0.01" VAR="v_ctl_energy_diff_pgain" shortname="P_en_dis" param="V_CTL_ENERGY_DIFF_PGAIN"/>
+          <dl_setting MAX="1." MIN="0" STEP="0.01" VAR="v_ctl_energy_diff_igain" shortname="I_en_dis" param="V_CTL_ENERGY_DIFF_IGAIN"/>
+        </dl_settings>
+        <dl_settings name="groundspeed">
+          <dl_setting max="40" min="5" step="0.1" var="v_ctl_auto_groundspeed_setpoint" shortname="gs_sp"  module="guidance/energy_ctrl" param="V_CTL_AUTO_GROUNDSPEED_SETPOINT"/>
+          <dl_setting max="2" min="0" step="0.01" var="v_ctl_auto_groundspeed_pgain" shortname="gs_pgain" param="V_CTL_AUTO_GROUNDSPEED_PGAIN"/>
+          <dl_setting max="2" min="0" step="0.01" var="v_ctl_auto_groundspeed_igain" shortname="gs_igain" param="V_CTL_AUTO_GROUNDSPEED_IGAIN"/>
+        </dl_settings>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="energy_ctl.h"/>
+  </header>
+  <init fun="v_ctl_init()"/>
+  <makefile target="ap|sim|nps" firmware="fixedwing">
+    <file name="energy_ctl.c" dir="$(SRC_FIRMWARE)/guidance"/>
+    <define name="CTRL_TYPE_H" value="firmwares/fixedwing/guidance/energy_ctl.h" type="string"/>
+  </makefile>
+</module>
