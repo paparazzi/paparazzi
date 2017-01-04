@@ -65,11 +65,11 @@ void write_serial_rot()
   static int16_t lengthArrayInformation = 3 * sizeof(int16_t);
   uint8_t ar[lengthArrayInformation];
   int16_t *pointer = (int16_t *) ar;
-  pointer[0] =   (int16_t)(cam_angles.x * 100); // Roll
-  pointer[1] =   (int16_t)(cam_angles.y * 100); // Tilt
-  pointer[2] =   (int16_t)(cam_angles.z * 100); // Pan
+  pointer[0] = (int16_t)(cam_angles.x * 100);   // Roll
+  pointer[1] = (int16_t)(cam_angles.y * 100);   // Tilt
+  pointer[2] = (int16_t)(cam_angles.z * 100);   // Pan
 
-  stereoprot_sendArray(&((UART_LINK).device), ar,lengthArrayInformation, 1);
+  stereoprot_sendArray(&((UART_LINK).device), ar, lengthArrayInformation, 1);
 
 #endif
 
