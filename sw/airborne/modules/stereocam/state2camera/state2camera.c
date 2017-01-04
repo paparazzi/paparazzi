@@ -53,12 +53,21 @@ void write_serial_rot()
 #endif
 
 #if STATE2CAMERA_SEND_DATA_TYPE == 1
-  static int16_t lengthArrayInformation = 6 * sizeof(int16_t);
+  // rotate body angles to camera reference frame
+  struct FloatVect3 body_state;
+  body_state.x = stateGetNedToBodyEulers_f()->phi;
+  body_state.y = stateGetNedToBodyEulers_f()->theta;
+  body_state.z = stateGetNedToBodyEulers_f()->psi;
+
+  struct FloatVect3 cam_angles;
+  float_rmat_vmult(&cam_angles, &body_to_stereocam, &body_state);
+
+  static int16_t lengthArrayInformation = 3 * sizeof(int16_t);
   uint8_t ar[lengthArrayInformation];
   int16_t *pointer = (int16_t *) ar;
-  pointer[0] =   (int16_t)(stateGetNedToBodyEulers_f()->theta*100);
-  pointer[1] =    (int16_t)(stateGetNedToBodyEulers_f()->phi*100);
-  pointer[2] =    (int16_t)(stateGetNedToBodyEulers_f()->psi*100);
+  pointer[0] =   (int16_t)(cam_angles.x * 100); // Roll
+  pointer[1] =   (int16_t)(cam_angles.y * 100); // Tilt
+  pointer[2] =   (int16_t)(cam_angles.z * 100); // Pan
 
   stereoprot_sendArray(&((UART_LINK).device), ar,lengthArrayInformation, 1);
 

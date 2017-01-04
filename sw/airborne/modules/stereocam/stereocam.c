@@ -35,6 +35,24 @@
 #define SEND_STEREO TRUE
 #endif
 
+#if !defined(STEREO_BODY_TO_STEREO_PHI) || !defined(STEREO_BODY_TO_STEREO_THETA) || !defined(STEREO_BODY_TO_STEREO_PSI)
+#warning "STEREO_BODY_TO_STEREO_XXX not defined. Using default Euler rotation angles (0,0,0)"
+#endif
+
+#ifndef STEREO_BODY_TO_STEREO_PHI
+#define STEREO_BODY_TO_STEREO_PHI 0
+#endif
+
+#ifndef STEREO_BODY_TO_STEREO_THETA
+#define STEREO_BODY_TO_STEREO_THETA 0
+#endif
+
+#ifndef STEREO_BODY_TO_STEREO_PSI
+#define STEREO_BODY_TO_STEREO_PSI 0
+#endif
+
+struct FloatRMat body_to_stereocam;
+
 // define coms link for stereocam
 #define STEREO_PORT   (&((UART_LINK).device))
 struct link_device *linkdev = STEREO_PORT;
@@ -42,7 +60,6 @@ struct link_device *linkdev = STEREO_PORT;
 
 // pervasive local variables
 MsgProperties msgProperties;
-
 
 uint16_t freq_counter = 0;
 uint8_t frequency = 0;
@@ -59,7 +76,7 @@ uint8array stereocam_data = {.len = 0, .data = msg_buf, .fresh = 0, .matrix_widt
 #define BASELINE_STEREO_MM 60.0
 #define BRANDSPUNTSAFSTAND_STEREO 118.0*6
 
-extern void stereocam_disparity_to_meters(uint8_t *disparity, float *distancesMeters, int lengthArray)
+void stereocam_disparity_to_meters(uint8_t *disparity, float *distancesMeters, int lengthArray)
 {
 
   int indexArray = 0;
@@ -74,8 +91,11 @@ extern void stereocam_disparity_to_meters(uint8_t *disparity, float *distancesMe
   }
 }
 
-extern void stereocam_start(void)
+void stereocam_init(void)
 {
+  struct FloatEulers euler = {RadOfDeg(STEREO_BODY_TO_STEREO_PHI), RadOfDeg(STEREO_BODY_TO_STEREO_THETA), RadOfDeg(STEREO_BODY_TO_STEREO_PSI)};
+  float_rmat_of_eulers(&body_to_stereocam, &euler);
+
   // initialize local variables
   msgProperties = (MsgProperties) {0, 0, 0};
 
@@ -91,11 +111,8 @@ extern void stereocam_start(void)
   stereocam_data.fresh = 0;
 }
 
-extern void stereocam_stop(void)
-{
-}
 
-extern void stereocam_periodic(void)
+void stereocam_periodic(void)
 {
   // read all data from the stereo com link, check that don't overtake extract
   while (linkdev->char_available(linkdev->periph) && stereoprot_add(insert_loc, 1, STEREO_BUF_SIZE) != extract_loc) {
@@ -110,11 +127,9 @@ extern void stereocam_periodic(void)
 #if SEND_STEREO
       if (stereocam_data.len > 100) {
         DOWNLINK_SEND_STEREO_IMG(DefaultChannel, DefaultDevice, &frequency, &(stereocam_data.len), 100, stereocam_data.data);
-
       } else {
         DOWNLINK_SEND_STEREO_IMG(DefaultChannel, DefaultDevice, &frequency, &(stereocam_data.len), stereocam_data.len,
                                  stereocam_data.data);
-
       }
 #endif
     }
