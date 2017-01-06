@@ -3,7 +3,7 @@
 <module name="navigation" dir="nav">
   <doc>
     <description>
-      Meta module for loading proper navigation module
+      Meta module for loading proper navigation
     </description>
   </doc>
   <autoload name="nav_basic_fw"/>

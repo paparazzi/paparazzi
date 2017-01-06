@@ -1,0 +1,80 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="stabiliztion_float_quat" dir="stabilization">
+  <doc>
+    <description>
+      Stabilization controller for rotorcraft using float quaternion implementation
+    </description>
+    <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
+      <define name="SP_MAX_PHI"   value="45." description="max setpoint for roll angle" unit="deg"/>
+      <define name="SP_MAX_THETA" value="45." description="max setpoint for pitch angle" unit="deg"/>
+      <define name="SP_MAX_R"     value="90." description="max setpoint for yaw rate" unit="deg/s"/>
+      <define name="DEADBAND_R"   value="250" description="deadband on yaw rate input"/>
+      <define name="REF_OMEGA_P"  value="{400}" description="reference generator omega param on roll rate" unit="deg/s"/>
+      <define name="REF_ZETA_P"   value="{0.9}" description="reference generator zeta param on roll rate"/>
+      <define name="REF_MAX_P"    value="300." description="reference generator max roll rate" unit="deg/s"/>
+      <define name="REF_MAX_PDOT" value="RadOfDeg(7000.)" description="reference generator max roll acceleration"/>
+      <define name="REF_OMEGA_Q"  value="{400}" description="reference generator omega param on pitch rate" unit="deg/s"/>
+      <define name="REF_ZETA_Q"   value="{0.9}" description="reference generator zeta param on pitch rate"/>
+      <define name="REF_MAX_Q"    value="300." description="reference generator max pitch rate" unit="deg/s"/>
+      <define name="REF_MAX_QDOT" value="RadOfDeg(7000.)" description="reference generator max pitch acceleration"/>
+      <define name="REF_OMEGA_R"  value="{250}" description="reference generator omega param on yaw rate" unit="deg/s"/>
+      <define name="REF_ZETA_R"   value="{0.9}" description="reference generator zeta param on yaw rate"/>
+      <define name="REF_MAX_R"    value="180." description="reference generator max yaw rate" unit="deg/s"/>
+      <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)" description="reference generator max yaw acceleration"/>
+      <define name="PHI_PGAIN"    value="{400}" description="feedback roll P gain"/>
+      <define name="PHI_DGAIN"    value="{300}" description="feedback roll D gain"/>
+      <define name="PHI_IGAIN"    value="{100}" description="feedback roll I gain"/>
+      <define name="THETA_PGAIN"  value="{400}" description="feedback pitch P gain"/>
+      <define name="THETA_DGAIN"  value="{300}" description="feedback pitch D gain"/>
+      <define name="THETA_IGAIN"  value="{100}" description="feedback pitch I gain"/>
+      <define name="PSI_PGAIN"    value="{380}" description="feedback yaw P gain"/>
+      <define name="PSI_DGAIN"    value="{320}" description="feedback yaw D gain"/>
+      <define name="PSI_IGAIN"    value="{100}" description="feedback yaw I gain"/>
+      <define name="PHI_DDGAIN"   value="{300}" description="feedforward roll acceleration gain"/>
+      <define name="THETA_DDGAIN" value="{300}" description="feedforward pitch acceleration gain"/>
+      <define name="PSI_DDGAIN"   value="{300}" description="feedforward yaw acceleration gain"/>
+    </section>
+  </doc>
+  <settings target="ap|nps">
+    <dl_settings>
+      <dl_settings NAME="Att Loop">
+        <dl_setting var="stabilization_gains[0].p.x" min="1" step="1" max="8000" shortname="pgain phi" param="STABILIZATION_ATTITUDE_PHI_PGAIN" persistent="true" module="stabilization/stabilization_attitude" />
+        <dl_setting var="stabilization_gains[0].i.x" min="0" step="1" max="800" shortname="igain phi" param="STABILIZATION_ATTITUDE_PHI_IGAIN" persistent="true"/>
+        <dl_setting var="stabilization_gains[0].d.x" min="1" step="1" max="4000" shortname="dgain p" param="STABILIZATION_ATTITUDE_PHI_DGAIN" persistent="true"/>
+        <dl_setting var="stabilization_gains[0].rates_d.x" min="0" step="1" max="500" shortname="dgaind p" param="STABILIZATION_ATTITUDE_PHI_DGAIN_D" persistent="true"/>
+        <dl_setting var="stabilization_gains[0].dd.x" min="0" step="1" max="1000" shortname="ddgain p" param="STABILIZATION_ATTITUDE_PHI_DDGAIN" persistent="true"/>
+        <dl_setting var="stabilization_gains[0].p.y" min="1" step="1" max="8000" shortname="pgain theta" param="STABILIZATION_ATTITUDE_THETA_PGAIN" persistent="true"/>
+        <dl_setting var="stabilization_gains[0].i.y" min="0"  step="1" max="800" shortname="igain theta" param="STABILIZATION_ATTITUDE_THETA_IGAIN" persistent="true"/>
+        <dl_setting var="stabilization_gains[0].d.y" min="1" step="1" max="4000" shortname="dgain q" param="STABILIZATION_ATTITUDE_THETA_DGAIN" persistent="true"/>
+        <dl_setting var="stabilization_gains[0].rates_d.y" min="0" step="1" max="500" shortname="dgaind q" param="STABILIZATION_ATTITUDE_THETA_DGAIN_D" persistent="true"/>
+        <dl_setting var="stabilization_gains[0].dd.y" min="0"    step="1" max="1000" shortname="ddgain q" param="STABILIZATION_ATTITUDE_THETA_DDGAIN" persistent="true"/>
+        <dl_setting var="stabilization_gains[0].p.z" min="1" step="1" max="4000" shortname="pgain psi" param="STABILIZATION_ATTITUDE_PSI_PGAIN" persistent="true"/>
+        <dl_setting var="stabilization_gains[0].i.z" min="0"  step="1" max="400" shortname="igain psi" param="STABILIZATION_ATTITUDE_PSI_IGAIN" persistent="true"/>
+        <dl_setting var="stabilization_gains[0].d.z" min="1" step="1" max="4000" shortname="dgain r" param="STABILIZATION_ATTITUDE_PSI_DGAIN" persistent="true"/>
+        <dl_setting var="stabilization_gains[0].rates_d.z" min="0" step="1" max="500" shortname="dgaind r" param="STABILIZATION_ATTITUDE_PHI_DGAIN_D" persistent="true"/>
+        <dl_setting var="stabilization_gains[0].dd.z" min="0" step="1" max="1000" shortname="ddgain r" param="STABILIZATION_ATTITUDE_PSI_DDGAIN" persistent="true"/>
+        <dl_setting var="att_ref_quat_f.model[0].omega.p" min="1" step="1" max="1000" unit="rad/s" alt_unit="deg/s" shortname="omega p" param="STABILIZATION_ATTITUDE_REF_OMEGA_P" handler="SetOmegaP" module="stabilization/stabilization_attitude_quat_float"/>
+        <dl_setting var="att_ref_quat_f.model[0].zeta.p" min="0.5" step="0.05" max="1.2" shortname="zeta p" param="STABILIZATION_ATTITUDE_REF_ZETA_P"/>
+        <dl_setting var="att_ref_quat_f.model[0].omega.q" min="1" step="1" max="1000" unit="rad/s" alt_unit="deg/s" shortname="omega q" param="STABILIZATION_ATTITUDE_REF_OMEGA_Q" handler="SetOmegaQ"/>
+        <dl_setting var="att_ref_quat_f.model[0].zeta.q" min="0.5" step="0.05" max="1.2" shortname="zeta q" param="STABILIZATION_ATTITUDE_REF_ZETA_Q"/>
+        <dl_setting var="att_ref_quat_f.model[0].omega.r" min="1" step="1" max="1000" unit="rad/s" alt_unit="deg/s" shortname="omega r" param="STABILIZATION_ATTITUDE_REF_OMEGA_R" handler="SetOmegaR"/>
+        <dl_setting var="att_ref_quat_f.model[0].zeta.r" min="0.5" step="0.05" max="1.2" shortname="zeta r" param="STABILIZATION_ATTITUDE_REF_ZETA_R"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <autoload name="stabilization" type="rotorcraft"/>
+  <header>
+    <file name="stabilization_attitude.h"/>
+    <file name="stabilization_attitude_quat_float.h"/>
+  </header>
+  <init fun="stabilization_attitude_init()"/>
+  <makefile target="ap|nps" firmware="rotorcraft">
+    <file name="stabilization_attitude_quat_float.c" dir="$(SRC_FIRMWARE)/stabilization"/>
+    <file name="stabilization_attitude_ref_quat_float.c" dir="$(SRC_FIRMWARE)/stabilization"/>
+    <file name="stabilization_attitude_rc_setpoint.c" dir="$(SRC_FIRMWARE)/stabilization"/>
+    <file name="stabilization_attitude_quat_transformations.c" dir="$(SRC_FIRMWARE)/stabilization"/>
+    <define name="STABILIZATION_ATTITUDE_TYPE_FLOAT"/>
+    <define name="STABILIZATION_ATTITUDE_TYPE_H" value="stabilization_attitude_quat_float.h" type="string"/>
+  </makefile>
+</module>

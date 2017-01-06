@@ -1,0 +1,75 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="stabiliztion_adaptive" dir="stabilization">
+  <doc>
+    <description>
+      Adaptive attitude and lateral (heading) control for fixedwing aircraft.
+      Mostly based on PID and optional reference generators and feedforward gains.
+      Adaptive parameters should not be used for normal operation at the moment.
+    </description>
+    <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
+      <define name="COURSE_PGAIN" value="1.0" description="feedback heading P gain"/>
+      <define name="COURSE_DGAIN" value="0.3" description="feedback heading D gain"/>
+      <define name="ROLL_MAX_SETPOINT" value="45." description="max roll setpoint" unit="deg"/>
+      <define name="PITCH_MAX_SETPOINT" value="30." description="max pitch up setpoint" unit="deg"/>
+      <define name="PITCH_MIN_SETPOINT" value="-30." description="max pitch down setpoint" unit="deg"/>
+      <define name="ROLL_ATTITUDE_GAIN" value="7500" description="feedback roll P gain"/>
+      <define name="ROLL_RATE_GAIN" value="1500" description="feedback roll rate P gain (roll D gain)"/>
+      <define name="ROLL_IGAIN" value="100." description="feedback roll I gain"/>
+      <define name="ROLL_KFFA" value="0" description="feedforward roll acceleration gain"/>
+      <define name="ROLL_KFFD" value="0" description="feedforward roll rate gain"/>
+
+      <define name="PITCH_PGAIN" value="12000." description="feedback pitch P gain"/>
+      <define name="PITCH_DGAIN" value="1.5" description="feedback pitch D gain"/>
+      <define name="PITCH_IGAIN" value="400" description="feedback pitch I gain"/>
+      <define name="PITCH_KFFA" value="0." description="feedforward pitch acceleration gain"/>
+      <define name="PITCH_KFFD" value="0." description="feedforward pitch rate gain"/>
+
+      <define name="PITCH_OF_ROLL" value="1." description="feedforward pitch of roll coupling" unit="deg"/>
+      <define name="AILERON_OF_THROTTLE" value="0.0" description="feedforward roll of throttle coupling"/>
+    </section>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="control horiz">
+        <dl_settings NAME="trim">
+          <dl_setting MAX="960" MIN="-960" STEP="1" VAR="ap_state->command_roll_trim" shortname="roll_trim" module="inter_mcu" param="COMMAND_ROLL_TRIM"/>
+          <dl_setting MAX="960" MIN="-960" STEP="1" VAR="ap_state->command_pitch_trim" shortname="pitch_trim" param="COMMAND_PITCH_TRIM"/>
+          <dl_setting MAX="9000" MIN="-9000" STEP="1" VAR="ap_state->command_yaw_trim" shortname="yaw_trim" param="COMMAND_YAW_TRIM"/>
+        </dl_settings>
+        <dl_settings NAME="attitude">
+          <dl_setting MAX="15000" MIN="0" STEP="250" VAR="h_ctl_roll_attitude_gain" shortname="roll_pgain" param="H_CTL_ROLL_ATTITUDE_GAIN" module="stabilization/stabilization_attitude"/>
+          <dl_setting MAX="15000" MIN="0" STEP="250" VAR="h_ctl_roll_rate_gain" shortname="roll_dgain" param="H_CTL_ROLL_RATE_GAIN" module="stabilization/stabilization_attitude"/>
+          <dl_setting MAX="5000" MIN="0" STEP="10" VAR="h_ctl_roll_igain" shortname="roll_igain" param="H_CTL_ROLL_IGAIN" handler="SetRollIGain" module="stabilization/stabilization_adaptive"/>
+          <dl_setting MAX="25000" MIN="0" STEP="250" VAR="h_ctl_pitch_pgain" shortname="pitch_pgain" param="H_CTL_PITCH_PGAIN" module="stabilization/stabilization_attitude"/>
+          <dl_setting MAX="50000" MIN="0" STEP="250" VAR="h_ctl_pitch_dgain" shortname="pitch_dgain" param="H_CTL_PITCH_DGAIN" module="stabilization/stabilization_attitude"/>
+          <dl_setting MAX="5000" MIN="0" STEP="10" VAR="h_ctl_pitch_igain" shortname="pitch_igain" param="H_CTL_PITCH_IGAIN" handler="SetPitchIGain" module="stabilization/stabilization_adaptive"/>
+          <dl_setting MAX=".3" MIN="0." STEP="0.001" VAR="h_ctl_pitch_of_roll" shortname="pitch_of_roll" param="H_CTL_PITCH_OF_ROLL" module="stabilization/stabilization_attitude"/>
+          <dl_setting MAX="5000" MIN="0" STEP="100" VAR="h_ctl_aileron_of_throttle" shortname="aileron_of_throttle" module="stabilization/stabilization_adaptive"/>
+
+          <dl_setting MAX="60" MIN="0" STEP="1." VAR="h_ctl_roll_max_setpoint" shortname="max_roll" param="H_CTL_ROLL_MAX_SETPOINT" unit="rad" alt_unit="deg"/>
+          <dl_setting MAX="1" MIN="0" STEP="1" var="use_airspeed_ratio" values="FALSE|TRUE"/>
+        </dl_settings>
+        <dl_settings NAME="feedforward">
+          <dl_setting MAX="5000" MIN="0" STEP="10" VAR="h_ctl_roll_Kffa" shortname="roll_Kffa" param="H_CTL_ROLL_KFFA"/>
+          <dl_setting MAX="5000" MIN="0" STEP="10" VAR="h_ctl_roll_Kffd" shortname="roll_Kffd" param="H_CTL_ROLL_KFFD"/>
+          <dl_setting MAX="5000" MIN="0" STEP="10" VAR="h_ctl_pitch_Kffa" shortname="pitch_Kffa" param="H_CTL_PITCH_KFFA"/>
+          <dl_setting MAX="5000" MIN="0" STEP="10" VAR="h_ctl_pitch_Kffd" shortname="pitch_Kffd" param="H_CTL_PITCH_KFFD"/>
+        </dl_settings>
+        <dl_settings name="course">
+          <dl_setting MAX="3" MIN="0.1" STEP="0.05" VAR="h_ctl_course_pgain" shortname="course pgain" param="H_CTL_COURSE_PGAIN"/>
+          <dl_setting MAX="2" MIN="0" STEP="0.1" VAR="h_ctl_course_dgain" shortname="course dgain"/>
+          <dl_setting MAX="2" MIN="0.1" STEP="0.05" VAR="h_ctl_course_pre_bank_correction" shortname="pre bank cor"/>
+          <dl_setting MAX="1" MIN="0.02" STEP="0.01" VAR="h_ctl_roll_slew" shortname="roll slew"/>
+        </dl_settings>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="stabilization_adaptive.h"/>
+  </header>
+  <init fun="h_ctl_init()"/>
+  <makefile target="ap|sim|nps" firmware="fixedwing">
+    <file name="stabilization_adaptive.c" dir="$(SRC_FIRMWARE)/stabilization"/>
+  </makefile>
+</module>

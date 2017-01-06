@@ -1,0 +1,17 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="guidance_indi" dir="guidance">
+  <doc>
+    <description>
+      Guidance controller for rotorcraft using INDI
+    </description>
+  </doc>
+  <header>
+    <file name="guidance_indi.h"/>
+  </header>
+  <init fun="guidance_indi_enter()"/>
+  <makefile target="ap|nps" firmware="rotorcraft">
+    <file name="guidance_indi.c" dir="$(SRC_FIRMWARE)/guidance"/>
+    <define name="GUIDANCE_INDI" value="TRUE"/>
+  </makefile>
+</module>

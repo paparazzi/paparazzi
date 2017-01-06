@@ -30,6 +30,8 @@
 #include <stdint.h>
 #include "firmwares/rotorcraft/autopilot.h"
 
+#include "generated/modules.h"
+
 #include "mcu_periph/uart.h"
 #include "mcu_periph/sys_time.h"
 #include "subsystems/radio_control.h"
@@ -38,16 +40,6 @@
 #include "subsystems/electrical.h"
 #include "subsystems/settings.h"
 #include "subsystems/datalink/telemetry.h"
-#include "firmwares/rotorcraft/navigation.h"
-#include "firmwares/rotorcraft/guidance.h"
-
-#include "firmwares/rotorcraft/stabilization.h"
-#include "firmwares/rotorcraft/stabilization/stabilization_none.h"
-#include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
-
-#if USE_STABILIZATION_RATE
-#include "firmwares/rotorcraft/stabilization/stabilization_rate.h"
-#endif
 
 #include "generated/settings.h"
 
@@ -263,18 +255,6 @@ void autopilot_init(void)
   gpio_setup_output(POWER_SWITCH_GPIO);
   gpio_clear(POWER_SWITCH_GPIO); // POWER OFF
 #endif
-
-  // init GNC stack
-  // TODO this should be done in modules init
-  nav_init();
-  guidance_h_init();
-  guidance_v_init();
-  stabilization_init();
-  stabilization_none_init();
-#if USE_STABILIZATION_RATE
-  stabilization_rate_init();
-#endif
-  stabilization_attitude_init();
 
   // call implementation init
   // it will set startup mode
