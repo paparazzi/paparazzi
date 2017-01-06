@@ -127,15 +127,21 @@
 
     <!-- optical flow camera over i2c-->
     <module name="px4flow_i2c">
-      <configure name="USE_PX4FLOW_AGL" value="0"/> <!-- send AGL measurements -->
+      <configure name="USE_PX4FLOW_AGL" value="0"/> <!-- don't send AGL measurements -->
       <configure name="PX4FLOW_COMPENSATE_ROTATION" value="1"/> <!-- compensate AGL for body rotation -->
       <configure name="PX4FLOW_NOISE_STDDEV" value="10.0"/> <!-- standard deviation of the optical flow measurements--> 
     </module>
 
     <!-- laser range finder for precise AGL measurement -->
     <module name="lidar_lite">
-      <configure name="USE_LIDAR_LITE_AGL" value="1"/> <!-- dont send AGL measurements -->
+      <configure name="USE_LIDAR_LITE_AGL" value="1"/> <!-- send AGL measurements -->
       <configure name="LIDAR_LITE_COMPENSATE_ROTATION" value="1" /> <!-- compensate AGL for body rotation -->
+    </module>
+
+    <!-- laser range finder for precise AGL measurement -->
+    <module name="lidar_sf11">
+      <configure name="USE_LIDAR_SF11_AGL" value="0"/> <!-- dont send AGL measurements -->
+      <configure name="LIDAR_SF11_COMPENSATE_ROTATION" value="1" /> <!-- compensate AGL for body rotation -->
     </module>
 
     <!-- external mag for better heading estimate -->

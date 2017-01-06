@@ -23,10 +23,12 @@
 /** @file modules/lidar/lidar_lite.c
  *  @brief driver for the Lidar-Lite i2c lidar version 1 (silver label)
  *
- *  Note that the lidar seems to generate unexpected events on the i2c bus,
- *  such as misplaced start or stop or word reset (see I2C_ERRORS message).
+ *  Note that the version 1 (silver label) seems to generate unexpected events
+ *  on the i2c bus, such as misplaced start or stop or word reset (see I2C_ERRORS message).
  *  It seems to have no effect on other i2c devices (especially the IMU), but
  *  use with caution.
+ *
+ *  The newer versions function correctly.
  *
  */
 #include "modules/lidar/lidar_lite.h"
@@ -40,8 +42,8 @@
 #include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
 
-struct lidar_lite lidar;
-struct MedianFilterInt lidar_filter;
+struct LidarLite lidar_lite;
+struct MedianFilterInt lidar_lite_filter;
 
 #define LIDAR_LITE_REG_ADDR 0x00
 #define LIDAR_LITE_REG_VAL 0x04
@@ -53,16 +55,16 @@ struct MedianFilterInt lidar_filter;
  */
 void lidar_lite_init(void)
 {
-  lidar.trans.status = I2CTransDone;
-  lidar.addr = LIDAR_LITE_I2C_ADDR;
-  lidar.status = LIDAR_INIT_RANGING;
-  lidar.update_agl = USE_LIDAR_LITE_AGL;
-  lidar.compensate_rotation = LIDAR_LITE_COMPENSATE_ROTATION;
+  lidar_lite.trans.status = I2CTransDone;
+  lidar_lite.addr = LIDAR_LITE_I2C_ADDR;
+  lidar_lite.status = LIDAR_LITE_INIT_RANGING;
+  lidar_lite.update_agl = USE_LIDAR_LITE_AGL;
+  lidar_lite.compensate_rotation = LIDAR_LITE_COMPENSATE_ROTATION;
 
-  lidar.distance = 0;
-  lidar.distance_raw = 0;
+  lidar_lite.distance = 0;
+  lidar_lite.distance_raw = 0;
 
-  init_median_filter(&lidar_filter);
+  init_median_filter(&lidar_lite_filter);
 }
 
 /**
@@ -73,20 +75,20 @@ void lidar_lite_init(void)
  */
 void lidar_lite_event(void)
 {
-  switch (lidar.trans.status) {
+  switch (lidar_lite.trans.status) {
     case I2CTransPending:
-      //wait and do nothing
+      // wait and do nothing
       break;
     case I2CTransRunning:
       // wait and do nothing
       break;
     case I2CTransSuccess:
       // set to done
-      lidar.trans.status = I2CTransDone;
+      lidar_lite.trans.status = I2CTransDone;
       break;
     case I2CTransFailed:
       // set to done
-      lidar.trans.status = I2CTransDone;
+      lidar_lite.trans.status = I2CTransDone;
       break;
     case I2CTransDone:
       // do nothing
@@ -103,58 +105,60 @@ void lidar_lite_event(void)
  */
 void lidar_lite_periodic(void)
 {
-  switch (lidar.status) {
-    case LIDAR_INIT_RANGING:
-      if (lidar.trans.status == I2CTransDone) {
+  switch (lidar_lite.status) {
+    case LIDAR_LITE_INIT_RANGING:
+      if (lidar_lite.trans.status == I2CTransDone) {
         // ask for i2c frame
-        lidar.trans.buf[0] = LIDAR_LITE_REG_ADDR; // sets register pointer to  (0x00)
-        lidar.trans.buf[1] = LIDAR_LITE_REG_VAL; // take acquisition & correlation processing with DC correction
-        if (i2c_transmit(&LIDAR_LITE_I2C_DEV, &lidar.trans, lidar.addr, 2)){
+        lidar_lite.trans.buf[0] = LIDAR_LITE_REG_ADDR; // sets register pointer to  (0x00)
+        lidar_lite.trans.buf[1] = LIDAR_LITE_REG_VAL; // take acquisition & correlation processing with DC correction
+        if (i2c_transmit(&LIDAR_LITE_I2C_DEV, &lidar_lite.trans, lidar_lite.addr, 2)){
           // transaction OK, increment status
-          lidar.status = LIDAR_REQ_READ;
+          lidar_lite.status = LIDAR_LITE_REQ_READ;
         }
       }
       break;
-    case LIDAR_REQ_READ:
-      if (lidar.trans.status == I2CTransDone) {
-        lidar.trans.buf[0] = LIDAR_LITE_READ_ADDR; // sets register pointer to results register
-        if (i2c_transmit(&LIDAR_LITE_I2C_DEV, &lidar.trans, lidar.addr, 1)){
+    case LIDAR_LITE_REQ_READ:
+      if (lidar_lite.trans.status == I2CTransDone) {
+        lidar_lite.trans.buf[0] = LIDAR_LITE_READ_ADDR; // sets register pointer to results register
+        if (i2c_transmit(&LIDAR_LITE_I2C_DEV, &lidar_lite.trans, lidar_lite.addr, 1)){
           // transaction OK, increment status
-          lidar.status = LIDAR_READ_DISTANCE;
+          lidar_lite.status = LIDAR_LITE_READ_DISTANCE;
         }
       }
       break;
-    case LIDAR_READ_DISTANCE:
-      if (lidar.trans.status == I2CTransDone) {
+    case LIDAR_LITE_READ_DISTANCE:
+      if (lidar_lite.trans.status == I2CTransDone) {
         // clear buffer
-        lidar.trans.buf[0] = 0;
-        lidar.trans.buf[1] = 0;
-        if (i2c_receive(&LIDAR_LITE_I2C_DEV, &lidar.trans, lidar.addr, 2)){
+        lidar_lite.trans.buf[0] = 0;
+        lidar_lite.trans.buf[1] = 0;
+        if (i2c_receive(&LIDAR_LITE_I2C_DEV, &lidar_lite.trans, lidar_lite.addr, 2)){
           // transaction OK, increment status
-          lidar.status = LIDAR_PARSE;
+          lidar_lite.status = LIDAR_LITE_PARSE;
         }
       }
       break;
-    case LIDAR_PARSE:
+    case LIDAR_LITE_PARSE:
       // filter data
-      lidar.distance_raw = update_median_filter(&lidar_filter, (uint32_t)((lidar.trans.buf[0] << 8) | lidar.trans.buf[1]));
-      lidar.distance = ((float)lidar.distance_raw)/100.0;
+      lidar_lite.distance_raw = update_median_filter(
+                                  &lidar_lite_filter,
+                                  (uint32_t)((lidar_lite.trans.buf[0] << 8) | lidar_lite.trans.buf[1]));
+      lidar_lite.distance = ((float)lidar_lite.distance_raw)/100.0;
 
       // compensate AGL measurement for body rotation
-      if (lidar.compensate_rotation) {
+      if (lidar_lite.compensate_rotation) {
           float phi = stateGetNedToBodyEulers_f()->phi;
           float theta = stateGetNedToBodyEulers_f()->theta;
           float gain = (float)fabs( (double) (cosf(phi) * cosf(theta)));
-          lidar.distance = lidar.distance / gain;
+          lidar_lite.distance = lidar_lite.distance / gain;
       }
 
       // send message (if requested)
-      if (lidar.update_agl) {
-        AbiSendMsgAGL(AGL_LIDAR_LITE_ID, lidar.distance);
+      if (lidar_lite.update_agl) {
+        AbiSendMsgAGL(AGL_LIDAR_LITE_ID, lidar_lite.distance);
       }
 
       // increment status
-      lidar.status = LIDAR_INIT_RANGING;
+      lidar_lite.status = LIDAR_LITE_INIT_RANGING;
       break;
     default:
       break;
@@ -166,9 +170,9 @@ void lidar_lite_periodic(void)
  */
 void lidar_lite_downlink(void)
 {
-  uint8_t trans = lidar.trans.status;
+  uint8_t trans = lidar_lite.trans.status;
   DOWNLINK_SEND_LIDAR(DefaultChannel, DefaultDevice,
-      &lidar.distance,
-      &lidar.status,
+      &lidar_lite.distance,
+      &lidar_lite.status,
       &trans);
 }

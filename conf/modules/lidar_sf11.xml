@@ -1,0 +1,48 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="lidar_lite" dir="lidar">
+  <doc>
+    <description>
+      Parallax SF11-A/B/C Laser Rangefinder connected over i2c bus.
+      The update rate is 16 readings per second, so don't poll the lidar faster than 32Hz.
+      In practice lidar_sf11_periodic() can run at most at freq=32.
+      The i2c address can be reconfigured.
+    </description>
+    <configure name="LIDAR_SF11_I2C_DEV" value="i2c2" description="I2C device to use for lidar"/>
+    <configure name="LIDAR_SF11_I2C_ADDR" value="0x50" description="default slave address of lidar"/>
+    <configure name="USE_LIDAR_SF11_AGL" value="1" description="use this lidar for AGL measurements. On by deafult"/>
+    <configure name="LIDAR_SF11_COMPENSATE_ROTATION" value="1" description="compensate AGL measurements for body rotation"/>
+  </doc>
+
+  <settings>
+    <dl_settings NAME="Lidar SF11">
+      <dl_settings NAME="Lidar">
+        <dl_setting MAX="1" MIN="0" STEP="1" VAR="lidar_sf11.compensate_rotation" shortname="derotate_agl"/>
+        <dl_setting MAX="1" MIN="0" STEP="1" VAR="lidar_sf11.update_agl" shortname="update_agl"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <header>
+    <file name="lidar_sf11.h"/>
+  </header>
+  <init fun="lidar_sf11_init()"/>
+  <periodic fun="lidar_sf11_downlink()" freq="4" autorun="FALSE"/> <!-- for debug -->
+  <periodic fun="lidar_sf11_periodic()" freq="32"/> <!-- poll data, since we have 2 states in the state machine, divide the frequency  
+   by 2 to get the actual number of readings per second. For example 32Hz = 16 range readings, which is the maximum (per the datasheet) -->
+  <event fun="lidar_sf11_event()"/>
+  <makefile>
+    <configure name="LIDAR_SF11_I2C_DEV" default="i2c1" case="lower|upper"/>
+    <configure name="LIDAR_SF11_I2C_ADDR" default="0x50"/>
+    <configure name="USE_LIDAR_SF11_AGL" default="1"/>
+    <configure name="LIDAR_SF11_COMPENSATE_ROTATION" default="1"/>
+    <define name="LIDAR_SF11_I2C_DEV" value="$(LIDAR_SF11_I2C_DEV_LOWER)"/>
+    <define name="USE_$(LIDAR_SF11_I2C_DEV_UPPER)"/>
+    <define name="LIDAR_SF11_I2C_ADDR" value="$(LIDAR_SF11_I2C_ADDR)"/>
+    <define name="USE_LIDAR_SF11_AGL" value="$(USE_LIDAR_SF11_AGL)"/>
+    <define name="LIDAR_SF11_COMPENSATE_ROTATION" value="$(LIDAR_SF11_COMPENSATE_ROTATION)"/>
+    <file name="lidar_sf11.c"/>
+  </makefile>
+</module>
+
+

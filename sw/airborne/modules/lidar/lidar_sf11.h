@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Michal Podhradsky <michal.podhradsky@aggiemail.usu.edu>
+ * Copyright (C) 2017 Michal Podhradsky <michal.podhradsky@aggiemail.usu.edu>
  *
  * This file is part of paparazzi.
  *
@@ -20,46 +20,36 @@
  *
  */
 
-/** @file modules/lidar/lidar_lite.h
- *  @brief driver for the Lidar-Lite i2c lidar
- *
- *  Note that the version 1 (silver label) seems to generate unexpected events
- *  on the i2c bus, such as misplaced start or stop or word reset (see I2C_ERRORS message).
- *  It seems to have no effect on other i2c devices (especially the IMU), but
- *  use with caution.
- *
- *  The newer versions function correctly.
+/** @file modules/lidar/lidar_sf11.h
+ *  @brief driver for the Parallax SF11-A/B/C Laser Rangefinder connected over i2c bus.
  */
-#ifndef LIDAR_LITE_I2C_H
-#define LIDAR_LITE_I2C_H
+#ifndef LIDAR_SF11_I2C_H
+#define LIDAR_SF11_I2C_H
 
 #include "std.h"
 #include "mcu_periph/i2c.h"
 
-enum LidarLiteStatus {
-	LIDAR_LITE_INIT_RANGING,
-	LIDAR_LITE_REQ_READ,
-	LIDAR_LITE_READ_DISTANCE,
-	LIDAR_LITE_PARSE
+enum LidarSF11Status {
+	LIDAR_SF11_REQ_READ,
+	LIDAR_SF11_READ_OK
 };
 
-struct LidarLite
+struct LidarSF11
 {
   struct i2c_transaction trans;
   uint8_t addr;
   uint32_t distance_raw; // [cm]
   float distance; // [m]
-  enum LidarLiteStatus status;
+  enum LidarSF11Status status;
   bool update_agl;
   bool compensate_rotation;
 };
 
-extern struct LidarLite lidar_lite;
+extern struct LidarSF11 lidar_sf11;
 
-extern void lidar_lite_init(void);
-extern void lidar_lite_event(void);
-extern void lidar_lite_periodic(void);
-extern void lidar_lite_downlink(void);
+extern void lidar_sf11_init(void);
+extern void lidar_sf11_event(void);
+extern void lidar_sf11_periodic(void);
+extern void lidar_sf11_downlink(void);
 
-#endif /* LIDAR_LITE_I2C_H */
-
+#endif /* LIDAR_SF11_I2C_H */
