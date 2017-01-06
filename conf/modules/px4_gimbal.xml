@@ -10,7 +10,7 @@
   </doc>
   <header>
     <file name="px4_gimbal.h"/>
-  </header>  
+  </header>
   <periodic fun="px4_set_gimbal_angle_periodic()" start="px4_gimbal_init()" freq="100" autorun="TRUE"/>
   <makefile>
     <file name="px4_gimbal.c"/>

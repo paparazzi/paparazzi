@@ -1,5 +1,5 @@
 <!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
-<!-- A simple flightplan for automated SITL/HITL verification: it launches and lands itself, giving us an idea whether a given airframe 
+<!-- A simple flightplan for automated SITL/HITL verification: it launches and lands itself, giving us an idea whether a given airframe
      can finish it -->
 <flight_plan alt="260" ground_alt="185" lat0="43.46223" lon0="1.27289" max_dist_from_home="1500" name="Basic" security_height="25">
   <header>

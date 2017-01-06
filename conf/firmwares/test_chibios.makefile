@@ -96,7 +96,7 @@ test_sys_time_usleep.srcs   += test/mcu_periph/chibios_test_sys_time_usleep.c
 # test gpio
 #
 test_sys_gpio.ARCHDIR = $(ARCH)
-test_sys_gpio.CFLAGS += $(COMMON_TEST_CFLAGS) 
+test_sys_gpio.CFLAGS += $(COMMON_TEST_CFLAGS)
 test_sys_gpio.srcs   += $(COMMON_TEST_SRCS)
 test_sys_gpio.srcs   += test/mcu_periph/chibios_test_gpio.c
 
@@ -104,7 +104,7 @@ test_sys_gpio.srcs   += test/mcu_periph/chibios_test_gpio.c
 # test led
 #
 test_led.ARCHDIR = $(ARCH)
-test_led.CFLAGS += $(COMMON_TEST_CFLAGS) 
+test_led.CFLAGS += $(COMMON_TEST_CFLAGS)
 test_led.srcs   += $(COMMON_TEST_SRCS)
 test_led.srcs   += test/chibios_test_led.c
 

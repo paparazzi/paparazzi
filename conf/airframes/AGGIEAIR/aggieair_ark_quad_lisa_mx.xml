@@ -16,7 +16,7 @@
         <configure name="SBUS_PORT" value="UART5"/>
       </module>
     </target>
-    
+
     <configure name="PERIODIC_FREQUENCY" value="160"/>
 
 
@@ -29,7 +29,7 @@
       <configure name="AP_DEV" value="/dev/ttyUSB2"/>
       <configure name="AP_BAUD" value="B921600"/>
     </target>
-    
+
     <module name="stabilization" type="int_quat"/>
 
     <module name="motor_mixing"/>
@@ -229,7 +229,7 @@
     <define name="LOW_BAT_LEVEL" value="10.1" unit="V"/>
     <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
     -->
-    
+
     <!-- Simulator values -->
     <define name="MAX_BAT_LEVEL" value="5.0" unit="V" />
     <define name="LOW_BAT_LEVEL" value="4.0" unit="V"/>

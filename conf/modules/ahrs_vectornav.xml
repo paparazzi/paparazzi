@@ -19,7 +19,7 @@
     <define name="USE_$(VN_PORT_UPPER)"/>
     <define name="VN_PORT" value="$(VN_PORT_LOWER)"/>
     <define name="$(VN_PORT_UPPER)_BAUD" value="$(VN_BAUD)"/>
-    
+
     <file name="vn200_serial.c" dir="peripherals"/>
     <file name="ahrs.c" dir="subsystems"/>
     <file name="ahrs_vectornav.c" dir="subsystems/ahrs"/>

@@ -196,7 +196,7 @@ class SerialInterface(threading.Thread):
                 # Parse incoming data
                 c = self.ser.readline()
                 if len(c) > 0:
-                    # Callback function on new message 
+                    # Callback function on new message
                     self.callback(c)
 
         except StopIteration:

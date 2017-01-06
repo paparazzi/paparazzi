@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <!--
     This is the JSBSim config file for ETERNITY,
-    taken easystar file as a reference, changed all the 
-    coefficients according to wind-tunnel measurements 
+    taken easystar file as a reference, changed all the
+    coefficients according to wind-tunnel measurements
     and AVL results.
 -->
 <?xml-stylesheet href="JSBSim.xsl" type="application/xml"?>

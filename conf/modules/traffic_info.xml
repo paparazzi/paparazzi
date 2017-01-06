@@ -8,7 +8,7 @@
     <file name="traffic_info.h"/>
   </header>
   <init fun="traffic_info_init()"/>
-  
+
   <datalink message="ACINFO" 	fun="parse_acinfo_dl()"/>
   <datalink message="ACINFO_LLA" 	fun="parse_acinfo_dl()"/>
   <datalink message="GPS_SMALL" fun="parse_acinfo_dl()"/>

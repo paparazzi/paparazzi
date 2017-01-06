@@ -74,7 +74,7 @@ c. Observe the aircraft and data from ESTIMATOR:z_dot and DESIRED:climb. The air
 d. Activate the blocks Ascent Auto Pitch Tuning and Descent Auto Pitch Tuning and repeat C realizing the climb rate should be a minimum or maximum as set with V_CTL_ALTITUDE_MAX_CLIMB (optionally, change the nav_climb value with the notebook settings instead).
 e. Try changing between Loiter, Cruise and Dash throttle settings corresponding to V_CTL_AUTO_THROTTLE_(NOMINAL|MIN|MAX)_CRUISE_THROTTLE and ensure climb remains stable. Adjust gains if required as in C.
 f. Ensure the aircraft switched to manual control as it passes and gets further away from the pilot, at the pilot's discretion. Turn and line up for another pass, and switch to auto2. The previous block should still be active.
-g. To help with tuning, a climb rate other than that specified in the current block could be induced by the pilot just prior to switching to auto2 to check various climb rate setpoint step changes. This also helps if one is nervous about allowing the autopilot to command a steep descent. One can descend manually and then switch to auto2 when the Level Auto Throttle Tuning block is active, which will cause the autopilot to stop the aircraft descending. If the aircraft does not seem to stabilize at the desired climb rate while in Loiter or Dash throttle modes (i.e always climbs or descends with a 0.0 climb setpoint), chances are the settings for V_CTL_AUTO_THROTTLE_(LOITER|DASH)_TRIM are set incorrectly. 
+g. To help with tuning, a climb rate other than that specified in the current block could be induced by the pilot just prior to switching to auto2 to check various climb rate setpoint step changes. This also helps if one is nervous about allowing the autopilot to command a steep descent. One can descend manually and then switch to auto2 when the Level Auto Throttle Tuning block is active, which will cause the autopilot to stop the aircraft descending. If the aircraft does not seem to stabilize at the desired climb rate while in Loiter or Dash throttle modes (i.e always climbs or descends with a 0.0 climb setpoint), chances are the settings for V_CTL_AUTO_THROTTLE_(LOITER|DASH)_TRIM are set incorrectly.
 
 The climb loop(s) should now be sufficiently tuned, unless one wishes to use the airspeed loops. If you plan to use airspeed, please tune the airspeed loop, which replaces the traditional Auto Throttle control loop.
 
@@ -202,7 +202,7 @@ perhaps a few global alt exceptions? But where do they deroute to assuming the a
     		nav_pitch = 0.0deg
     		v_ctl_mode = V_CTL_MODE_AUTO_CLIMB
     		v_ctl_climb_setpoint = 0.0
-    --> 
+    -->
     <block name="Level Auto Throttle Tuning">
       <while cond="TRUE">
       	<attitude roll="0.0" vmode="climb" climb="0.0"/>
@@ -231,7 +231,7 @@ perhaps a few global alt exceptions? But where do they deroute to assuming the a
     		nav_throttle_setpoint = 9600*(V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE)
     		v_ctl_mode = V_CTL_MODE_AUTO_CLIMB
     		v_ctl_climb_setpoint = 0.0
-    --> 
+    -->
     <block name="Level Auto Pitch Tuning">
       <while cond="TRUE">
       	<attitude roll="0.0" pitch="auto" throttle="V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" vmode="climb" climb="0.0"/>
@@ -260,7 +260,7 @@ perhaps a few global alt exceptions? But where do they deroute to assuming the a
     		nav_pitch = 0.0deg
     		v_ctl_mode = V_CTL_MODE_AUTO_ALT
     		nav_altitude = flight_altitude -> can be set in the flight params setting page
-    --> 
+    -->
 	<block name="Altitude Tuning">
       <set var="flight_altitude" value="estimator_z"/>
       <while cond="TRUE">
@@ -290,7 +290,7 @@ perhaps a few global alt exceptions? But where do they deroute to assuming the a
     -->
     <!--
     <block name="Airspeed (Airspeed) Tuning">
-      <set var="v_ctl_auto_groundspeed_setpoint" value="0.5*V_CTL_AUTO_AIRSPEED_SETPOINT"/> 
+      <set var="v_ctl_auto_groundspeed_setpoint" value="0.5*V_CTL_AUTO_AIRSPEED_SETPOINT"/>
       <set var="v_ctl_auto_airspeed_setpoint" value="V_CTL_AUTO_AIRSPEED_SETPOINT"/>
       <set var="v_ctl_auto_pitch_pgain" value="0.0"/>
       <while cond="TRUE">

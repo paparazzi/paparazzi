@@ -46,7 +46,7 @@ RP3 Lisa MX
     <define name="POLY_OSAM_HALF_SWEEP_ENABLED" value="FALSE"/>
     <define name="GEOFENCE_DATALINK_LOST_TIME" value="45"/>
   </firmware>
-  
+
   <modules>
     <module name="nav" type="line"/>
     <module name="nav" type="flower"/>
@@ -144,7 +144,7 @@ RP3 Lisa MX
   <section name="BAT">
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="50000"/>
     <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.3"/>
-    
+
     <!-- Flight values -->
     <!--
     <define name="MAX_BAT_LEVEL" value="16.5" unit="V" />
@@ -152,7 +152,7 @@ RP3 Lisa MX
     <define name="CRITIC_BAT_LEVEL" value="13.8" unit="V"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="13.5" unit="V"/>
     -->
-    
+
     <!-- Simulator values -->
     <define name="MAX_BAT_LEVEL" value="5.0" unit="V" />
     <define name="LOW_BAT_LEVEL" value="4.0" unit="V"/>

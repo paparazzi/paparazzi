@@ -1,9 +1,9 @@
-<!-- 
+<!--
 
 Hobbyking 6CH RC Transmitter shaped USB HID joystick Mode 2
 http://www.hobbyking.com/hobbyking/store/__20951__Hobbyking_6CH_RC_Flight_Simulator_System_Mode_2_.html
 
-If you want to use this file for the same product but mode 1 the axis index 
+If you want to use this file for the same product but mode 1 the axis index
 numbers have to be re-arranged, the rest will be exactly the same.
 
 This RC TX joystick has four axes,2 buttons, one dial, which are labeled on the
@@ -31,7 +31,7 @@ The basis of steering is the standard signs of aerospace convention
 <joystick>
   <input>
     <axis index="0" name="roll"/>
-    <axis index="1" name="pitch"/> 
+    <axis index="1" name="pitch"/>
     <axis index="2" name="throttle"/>
     <axis index="3" name="mode"/>
     <axis index="4" name="gearpit"/>

@@ -343,7 +343,7 @@ def load_cache():
         cache = parse_cache_file("r", DEFAULT_CACHE_PATH)
         cache_file = CACHE_FILE
 
-        LOGGER.error("No cache file found ! Default cache '%s' loaded.", 
+        LOGGER.error("No cache file found ! Default cache '%s' loaded.",
                      DEFAULT_CACHE_PATH)
         print("No cache file found ! Default cache '%s' loaded." %
               DEFAULT_CACHE_PATH)

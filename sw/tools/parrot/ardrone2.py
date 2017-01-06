@@ -172,7 +172,7 @@ def ardrone2_status():
     print('Motor hardware:\t\t' +
           read_from_config('motor1_hard', config_ini) + '\t' + read_from_config('motor2_hard', config_ini) + '\t' +
           read_from_config('motor3_hard', config_ini) + '\t' + read_from_config('motor4_hard', config_ini))
-    
+
     sleep(2.0) #Wait running process reporting back lag
     print('Currently running:\t' + parrot_utils.check_running(tn))
     autorun = {'': 'Native', '0': 'Native', '1': 'Paparazzi'}

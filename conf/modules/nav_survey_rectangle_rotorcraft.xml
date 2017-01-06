@@ -29,7 +29,7 @@ or using flightplan primitive
     </description>
     <define name="RECTANGLE_SURVEY_DEFAULT_SWEEP" value="25" description="default sweep distance when using dinamic setup"/>
   </doc>
-  
+
     <settings>
     <dl_settings>
       <dl_settings NAME="Ret_Survey">

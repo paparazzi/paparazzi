@@ -52,8 +52,8 @@
 
   <!-- ************************* ACTUATORS ************************* -->
 
-  <servos driver="Asctec_v2"> 
-    <!-- This is hardcoded in actec_driver: keep this naming 
+  <servos driver="Asctec_v2">
+    <!-- This is hardcoded in actec_driver: keep this naming
          and numbering at all times -->
     <servo name="FRONT" no="0" min="0" neutral="3" max="200"/><!-- FRONTLEFT -->
     <servo name="BACK"  no="1" min="0" neutral="3" max="200"/><!-- FRONTRIGHT -->

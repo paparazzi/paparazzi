@@ -14,7 +14,7 @@ PPRZ_SRC = getenv("PAPARAZZI_SRC", path.normpath(path.join(path.dirname(path.abs
 sys.path.append(PPRZ_SRC + "/sw/lib/python")
 sys.path.append(PPRZ_SRC + "/sw/ext/pprzlink/lib/v1.0/python")
 from pprzlink.ivy import IvyMessagesInterface
-from pprzlink.message import PprzMessage 
+from pprzlink.message import PprzMessage
 from settings_xml_parse import PaparazziACSettings
 
 WIDTH = 800
@@ -45,11 +45,11 @@ class GVFFrame(wx.Frame):
         # Frame
         self.canvas = FigureCanvas(self, -1, self.map_gvf.fig)
         self.Bind(wx.EVT_CLOSE, self.OnClose)
-       
+
         self.redraw_timer = wx.Timer(self)
-        self.Bind(wx.EVT_TIMER, self.OnRedrawTimer, self.redraw_timer)        
+        self.Bind(wx.EVT_TIMER, self.OnRedrawTimer, self.redraw_timer)
         self.redraw_timer.Start(100)
-        
+
         # Ivy
         self.interface = IvyMessagesInterface("GVF")
         self.interface.subscribe(self.message_recv)
@@ -76,14 +76,14 @@ class GVFFrame(wx.Frame):
         if int(ac_id) == self.ac_id:
             if msg.name == 'GPS':
                 self.course = int(msg.get_field(3))*np.pi/1800
-        
+
             if msg.name == 'NAVIGATION':
                 self.XY[0] = float(msg.get_field(2))
                 self.XY[1] = float(msg.get_field(3))
-        
+
             if msg.name == 'ATTITUDE':
                 self.yaw = float(msg.get_field(1))
-        
+
             if msg.name == 'DL_VALUE' and \
                     self.indexes_are_good == len(self.list_of_indexes):
                 if int(msg.get_field(0)) == int(self.ke_index):
@@ -173,7 +173,7 @@ class map2d:
 
     def vehicle_patch(self, XY, yaw):
         Rot = np.array([[np.cos(yaw), np.sin(yaw)],[-np.sin(yaw), np.cos(yaw)]])
-    
+
         apex = 45*np.pi/180 # 30 degrees apex angle
         b = np.sqrt(2*(self.area/2000) / np.sin(apex))
         a = b*np.sin(apex/2)
@@ -191,7 +191,7 @@ class map2d:
                  (XY[0]+z2[0], XY[1]+z2[1]), \
                  (XY[0]+z3[0], XY[1]+z3[1]), \
                  (0, 0)]
-        
+
         codes = [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY]
         path = Path(verts, codes)
 
@@ -257,7 +257,7 @@ class traj_line:
 
         xtr = np.linspace(-200, 200, 400)
 
-        xl =  xtr*np.sin(self.alpha) + a 
+        xl =  xtr*np.sin(self.alpha) + a
         yl =  xtr*np.cos(self.alpha) + b
 
         self.traj_points = np.vstack((xl, yl))
@@ -279,10 +279,10 @@ class traj_line:
         ke = 1e-2*ke
 
         e = (self.mapgrad_X-self.a)*nx + (self.mapgrad_Y-self.b)*ny
-        
+
         self.mapgrad_U = tx -ke*e*nx
         self.mapgrad_V = ty -ke*e*ny
-        
+
         norm = np.sqrt(self.mapgrad_U**2 + self.mapgrad_V**2)
 
         self.mapgrad_U = self.mapgrad_U/norm
@@ -303,7 +303,7 @@ class traj_ellipse:
         self.mapgrad_Y = []
         self.mapgrad_U = []
         self.mapgrad_V = []
-        
+
         i = 0
         for t in self.float_range(0, 1, 0.005):
             self.traj_points[:, i] = self.param_point(t)
@@ -338,10 +338,10 @@ class traj_ellipse:
         ty = -s*nx
 
         e = (Xel/self.a)**2 + (Yel/self.b)**2 - 1
-        
+
         self.mapgrad_U = tx -ke*e*nx
         self.mapgrad_V = ty -ke*e*ny
-        
+
         norm = np.sqrt(self.mapgrad_U**2 + self.mapgrad_V**2)
 
         self.mapgrad_U = self.mapgrad_U/norm
@@ -404,10 +404,10 @@ class traj_sin:
         ke = 1e-2*ke
 
         e = ys - self.A*np.sin(ang)
-        
+
         self.mapgrad_U = tx -ke*e*nx
         self.mapgrad_V = ty -ke*e*ny
-        
+
         norm = np.sqrt(self.mapgrad_U**2 + self.mapgrad_V**2)
 
         self.mapgrad_U = self.mapgrad_U/norm

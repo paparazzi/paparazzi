@@ -34,22 +34,22 @@ def sbus_decode(buff):
     bit_in_raw_buff = 0
     channel = 0
     bit_in_channel = 0
-    
+
     for c in range(SBUS_NB_CHANNEL * SBUS_BIT_PER_CHANNEL):
         if buff[byte_in_raw_buff] & (1 << bit_in_raw_buff):
             decoded[channel] |= (1 << bit_in_channel)
-        
+
         bit_in_raw_buff += 1
         bit_in_channel += 1
-        
+
         if(bit_in_raw_buff == SBUS_BIT_PER_BYTE):
             bit_in_raw_buff = 0
             byte_in_raw_buff += 1
-        
+
         if(bit_in_channel == SBUS_BIT_PER_CHANNEL):
             bit_in_channel = 0
             channel += 1
-    
+
     return decoded
 
 
@@ -64,21 +64,21 @@ def sbus_encode(buff):
     for x in range(SBUS_NB_CHANNEL * SBUS_BIT_PER_CHANNEL):
         if int(buff[channel]) & (1 << bit_in_channel):
             decoded[cur_byte] |= (1 << bit_in_byte)
-        
+
         bit_in_channel += 1
         bit_in_byte += 1
-        
+
         if(bit_in_byte == SBUS_BIT_PER_BYTE):
             bit_in_byte = 0
             cur_byte += 1
-        
+
         if(bit_in_channel == SBUS_BIT_PER_CHANNEL):
             bit_in_channel = 0
             channel += 1
-            
+
     return [SBUS_START_BYTE] + decoded + [0, SBUS_END_BYTE]
 
-    
+
 if __name__ == "__main__":
     control = [169, 84, 149, 170, 84, 197, 10, 86, 168, 138, 21, 172, 80, 21, 43, 88, 193, 10, 86, 168, 74, 85, 0, 0]
     print sbus_decode(control)

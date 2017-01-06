@@ -33,7 +33,7 @@ Your safe aircraft operation is *your* responsibility
     <waypoint name="B" x="40" y="-60"/>
   </waypoints>
   <exceptions>
- <!-- Check if battery voltage is low, then try to go to block Land. This is deemed better than to land at that very spot since that can be above something unknown, 
+ <!-- Check if battery voltage is low, then try to go to block Land. This is deemed better than to land at that very spot since that can be above something unknown,
   is less safe and has less chance of AC recovery. It states battery LOW, not battery critical -->
  <!--   <exception cond="electrical.bat_low && !(nav_block == IndexOfBlock('Setting home location')) && !(nav_block == IndexOfBlock('Holding point')) && !(nav_block == IndexOfBlock('Land')) && !(nav_block == IndexOfBlock('Emergency'))" deroute="Land"/>-->
     <exception cond="electrical.bat_critical && !(nav_block == IndexOfBlock('Setting home location')) && !(nav_block == IndexOfBlock('Holding point')) && !(nav_block == IndexOfBlock('Land')) && !(nav_block == IndexOfBlock('Emergency'))" deroute="Emergency"/>
@@ -59,7 +59,7 @@ Your safe aircraft operation is *your* responsibility
       <call_once fun="NavSetAltitudeReferenceHere()"/>
       <call_once fun="NavSetWaypointHere(WP__TDEMERGENCY)"/>
       <call_once fun="NavSetWaypointHere(WP_Landingspot)"/>
-<!-- ALTERNATIVE To make the naming better visible, move it aside a bit 
+<!-- ALTERNATIVE To make the naming better visible, move it aside a bit
       <set var="waypoints[WP_Landingspot].x" value="WaypointX(WP_Landingspot) + 1"/>
       <set var="waypoints[WP_Landingspot].y" value="WaypointY(WP_Landingspot) + 5"/>
 -->
@@ -90,7 +90,7 @@ Altough Switching the mode to auto2/NAV from any other mode will reset nav_headi
       <call_once fun="NavResurrect()"/><!-- Ressurect again, since sometimes once is not enough and motors will not start spinning -->
       <!-- TODO improve try takeof 5 times than give up an go to Holding point, something stuck in the prop, a finger maybe ;)-->
       <!--   <exception cond="!autopilot_motors_on" deroute="Takeoff"/>-->
-      <set value="0" var="autopilot_flight_time"/>    
+      <set value="0" var="autopilot_flight_time"/>
       <!-- If take-off to first point takes to long to reach somehow because of some reason, abort flight -->
       <!-- todo test  various times -->
      <exception cond="block_time > 560" deroute="Land"/>
@@ -103,7 +103,7 @@ Altough Switching the mode to auto2/NAV from any other mode will reset nav_headi
     <!--<call_once fun="GuidanceVSetRef(0,0,0)"/>-->
      <!--<call_once fun="nav_set_heading_current()"/>-->
      <stay vmode="climb" climb="0.7" until="WaypointAlt(WP_A) > stateGetPositionEnu_f()->z" wp="_CLIMB"/>
-    </block> 
+    </block>
 <!-- The From A to B and back, The only one visible block so no GCS choices to toy around with, a non expert would get confused -->
     <block key="m" name="From A to B and back">
       <call_once fun="nav_set_heading_towards_waypoint(WP_A)"/>

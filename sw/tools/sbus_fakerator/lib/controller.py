@@ -32,7 +32,7 @@ class Controller(tk.Frame):
         tk.Frame.__init__(self, parent, *args, width = 1000, height = 1000)
         self.num_of_channels = 0
         self.channels = []
-        
+
     def add_channel(self, channel_type, *args, **kwargs):
         '''
         @param orientation = tk.VERTICAL : Either tk.VERTICAL or tk.HORIZONTAL
@@ -63,8 +63,8 @@ class Controller(tk.Frame):
             y = kwargs['y']
         if 'length' in kwargs:
             length = kwargs['length']
-            
-            
+
+
         #channel adding
         if channel_type.__name__ == 'bi_switch':
             self.channels.append(channel_type(self.num_of_channels, orientation, name, length, self))
@@ -100,14 +100,14 @@ class Controller(tk.Frame):
             if 'sub_key_binding' in kwargs:
                 self.channels[self.num_of_channels].bind = kwargs['sub_key_binding']
                 _key_bindings_[kwargs['sub_key_binding']] = (self.num_of_channels, -1)
-        
+
         self.channels[self.num_of_channels].pack()
         self.channels[self.num_of_channels].place(x = x, y=y)
         self.num_of_channels += 1
-        
-        
+
+
     def add_value_of_channel(self, channel_no, *amount):
-        
+
         if self.channels[channel_no].__name__ == 'bi_switch':
             self.channels[channel_no].add_value()
         elif self.channels[channel_no].__name__ == 'tri_switch':
@@ -116,25 +116,25 @@ class Controller(tk.Frame):
             self.channels[channel_no].add_value(amount[0])
         elif self.channels[channel_no].__name__ == 'dial':
             self.channels[channel_no].add_value(amount[0])
-            
+
         self.channels[channel_no].pack()
-            
+
     def handle_button_press(self, key):
         if key in _key_bindings_:
             self.channels[_key_bindings_[key][0]].add_value(_key_bindings_[key][1])
         else:
             print key, " not bound"
-    
+
     def handle_button_release(self, key):
         if key in _key_bindings_:
             self.channels[_key_bindings_[key][0]].key_off()
-        
+
     def generate_package(self):
         '''
-        OldRange = (OldMax - OldMin)  
-        NewRange = (NewMax - NewMin)  
+        OldRange = (OldMax - OldMin)
+        NewRange = (NewMax - NewMin)
         NewValue = (((OldValue - OldMin) * NewRange) / OldRange) + NewMin
-        
+
         range of sbus control = 172 - 2047
         '''
         packet = []

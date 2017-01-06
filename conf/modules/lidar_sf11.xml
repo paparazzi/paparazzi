@@ -28,7 +28,7 @@
   </header>
   <init fun="lidar_sf11_init()"/>
   <periodic fun="lidar_sf11_downlink()" freq="4" autorun="FALSE"/> <!-- for debug -->
-  <periodic fun="lidar_sf11_periodic()" freq="32"/> <!-- poll data, since we have 2 states in the state machine, divide the frequency  
+  <periodic fun="lidar_sf11_periodic()" freq="32"/> <!-- poll data, since we have 2 states in the state machine, divide the frequency
    by 2 to get the actual number of readings per second. For example 32Hz = 16 range readings, which is the maximum (per the datasheet) -->
   <event fun="lidar_sf11_event()"/>
   <makefile>

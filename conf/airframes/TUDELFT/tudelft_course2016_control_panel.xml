@@ -87,6 +87,6 @@
 
       <program name="Messages" command="sw/ground_segment/tmtc/messages"/>
     </session>
-   
+
   </section>
 </control_panel>

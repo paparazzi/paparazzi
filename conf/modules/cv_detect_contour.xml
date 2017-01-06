@@ -2,7 +2,7 @@
 
 <module name="cv_detect_contour" dir="computer_vision">
   <doc>
-    <description>A module that detects the contour of a dronerace obstacle. 
+    <description>A module that detects the contour of a dronerace obstacle.
     </description>
 
     <define name="DETECT_CONTOUR_CAMERA" value="front_camera|bottom_camera" description="Video device to use"/>

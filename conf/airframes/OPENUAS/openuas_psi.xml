@@ -2,7 +2,7 @@
 <!--
      * Psi a slightly modified Parrot AR.Drone 2.0 (http://www.openuas.org/)
      + uBlox LEA5H and Sarantel helix GPS antenna
-     
+
      NOTES:
      + Original ballbearings replaced with real ball bearings for all axis
      + Frontcamera movable by servo on debug port - optional
@@ -16,7 +16,7 @@
   <firmware name="rotorcraft">
     <target name="ap" board="ardrone2">
       <define name="AUTOPILOT_DISABLE_AHRS_KILL"/>
-       
+
       <!--<define name="USE_PERSISTENT_SETTINGS" value="TRUE"/>-->
       <define name="BAT_CHECKER_DELAY" value="50"/>
       <!-- amount of time it take for the bat to check -->
@@ -29,7 +29,7 @@
     </target>
 
     <define name="USE_SONAR" value="TRUE"/>
-    
+
         <!--<define name="USE_UART2"/>-->
     <!--<define name="DEBUG_NMEA"/>-->
     <!-- <define name="DEBUG_SIRF"/>-->
@@ -41,7 +41,7 @@
     <module name="actuators" type="ardrone2"/>
     <module name="imu" type="ardrone2"/>
     <module name="gps" type="ublox"/>
- 
+
      <!--<module name="gps" type="nmea"/>-->
      <!--  for testing parrot dongele enablethis-->
      <!-- <module name="gps" type="sirf">-->
@@ -49,8 +49,8 @@
       <!--<configure name="GPS_PORT" value="UART2_DEV"/>-->
     <!--   <configure name="GPS_BAUD" value="B57600"/>-->
     <!-- </module> -->
-    
-    
+
+
     <module name="stabilization" type="indi_simple"/>
     <module name="ahrs" type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="TRUE"/>

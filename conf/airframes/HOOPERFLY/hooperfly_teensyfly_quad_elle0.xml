@@ -42,7 +42,7 @@
     <module name="air_data"/>
     <module name="nav" type="survey_rectangle_rotorcraft">
       <define name="RECTANGLE_SURVEY_DEFAULT_SWEEP" value="10"/>
-    </module>  
+    </module>
 
     <!--define name="KILL_ON_GROUND_DETECT" value="TRUE"/-->
   </firmware>
@@ -184,7 +184,7 @@
   <section name="NAVIGATION" prefix="NAV_">
     <define name="CLIMB_VSPEED"   value="1.5" />
     <define name="DESCEND_VSPEED" value="-1.0" />
-  </section>    
+  </section>
 
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES"  value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>

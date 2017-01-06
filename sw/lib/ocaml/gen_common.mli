@@ -58,7 +58,7 @@ val get_module : Xml.xml -> bool_expr -> module_conf
  * Expand xml airframe file if it contains 'include' nodes
  *)
 val expand_includes : string -> Xml.xml -> Xml.xml
-  
+
 (** [get_modules_of_airframe xml]
  * Returns a list of pair (modules ("load" node), targets) from airframe file *)
 val get_modules_of_airframe : ?target: string -> Xml.xml -> module_conf list

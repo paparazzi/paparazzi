@@ -1327,7 +1327,7 @@
                0,       \
                0        \
                }
-  #endif /* USE_I2C1 */ 
+  #endif /* USE_I2C1 */
 #else /* !USE_SERVOS_7AND8 */
   #define PWM_CONF_TIM3 1
   #define PWM_CONF_TIM5 1

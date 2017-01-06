@@ -67,7 +67,7 @@
       !(nav_block == IndexOfBlock('inert')) &&
       !(nav_block == IndexOfBlock('failsafe')) &&
       (autopilot_in_flight == true) )" deroute="DatalinkLoss"/>
-    
+
     <!-- Stall detect -->
     <exception cond="((outback_hybrid_mode == HB_FORWARD) &&
       (12.0 > stateGetAirspeed_f()) &&

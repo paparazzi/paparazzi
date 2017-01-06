@@ -3,7 +3,7 @@
 <airframe>
   <section name="IMU" prefix="IMU_">
     <!-- Magneto calibration -->
-    <!-- MAGNETO CALIBRATION ANTWERPEN 
+    <!-- MAGNETO CALIBRATION ANTWERPEN
 <define name="MAG_X_NEUTRAL" value="-147"/>
 <define name="MAG_Y_NEUTRAL" value="152"/>
 <define name="MAG_Z_NEUTRAL" value="-5"/>

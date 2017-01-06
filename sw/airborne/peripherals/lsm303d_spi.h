@@ -51,7 +51,7 @@ struct Lsm303d_Spi {
   union {
     struct Int16Vect3 vect;           ///< data vector in mag coordinate system
     int16_t value[3];                 ///< data values accessible by channel index
-  } data_mag;  
+  } data_mag;
     struct Lsm303dConfig conf;
 };
 

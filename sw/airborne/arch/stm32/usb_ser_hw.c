@@ -443,7 +443,7 @@ int VCOM_check_available(void)
  * VCOM_event() should be called from main/module event function
  */
 void VCOM_event(void)
-{  
+{
   if (tx_timeout == 1) { // send any remaining bytes that still hang arround in the tx fifo, after a timeout
     if (fifo_avail(&txfifo)) {
       VCOM_send_message();

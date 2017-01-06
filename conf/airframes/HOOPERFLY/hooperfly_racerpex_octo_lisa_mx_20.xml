@@ -187,7 +187,7 @@
   <section name="NAVIGATION" prefix="NAV_">
     <define name="CLIMB_VSPEED"   value="1.5" />
     <define name="DESCEND_VSPEED" value="-1.0" />
-  </section>    
+  </section>
 
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES"  value="fl1_motor, fr2_motor, fr3_motor, br4_motor, br5_motor, bl6_motor, bl7_motor, fl8_motor" type="string[]"/>

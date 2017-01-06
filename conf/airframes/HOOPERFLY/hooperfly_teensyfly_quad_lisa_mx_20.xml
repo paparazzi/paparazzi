@@ -37,7 +37,7 @@
     <module name="stabilization" type="int_quat"/>
     <module name="ahrs"          type="int_cmpl_quat"/>
     <module name="ins"           type="hff"/>
-    
+
     <module name="send_imu_mag_current"/>
     <module name="adc_generic">
       <configure name="ADC_CHANNEL_GENERIC1" value="ADC_1"/>
@@ -189,7 +189,7 @@
   <section name="NAVIGATION" prefix="NAV_">
     <define name="CLIMB_VSPEED"   value="1.5" />
     <define name="DESCEND_VSPEED" value="-1.0" />
-  </section>    
+  </section>
 
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES"  value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>

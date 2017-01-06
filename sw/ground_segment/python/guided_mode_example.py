@@ -126,7 +126,7 @@ class Guidance(object):
         msg['yaw'] = yaw
         print("move at vel NED: %s" % msg)
         self._interface.send_raw_datalink(msg)
-        
+
     def move_at_body_vel(self, forward=0.0, right=0.0, down=0.0, yaw=0.0):
         """
         move at specified velocity in meters/sec with absolute heading (if already in GUIDED mode)
