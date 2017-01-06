@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="lidar_lite" dir="lidar">
+<module name="lidar_sf11" dir="lidar">
   <doc>
     <description>
       Parallax SF11-A/B/C Laser Rangefinder connected over i2c bus.
@@ -42,6 +42,9 @@
     <define name="USE_LIDAR_SF11_AGL" value="$(USE_LIDAR_SF11_AGL)"/>
     <define name="LIDAR_SF11_COMPENSATE_ROTATION" value="$(LIDAR_SF11_COMPENSATE_ROTATION)"/>
     <file name="lidar_sf11.c"/>
+  </makefile>
+  <makefile target="nps">
+    <define name="USE_SONAR" value="1"/><!-- in NPS use a virtual sonar to simulate lidar measurements -->
   </makefile>
 </module>
 

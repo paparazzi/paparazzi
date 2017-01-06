@@ -19,11 +19,6 @@
     <define name="BAT_CHECKER_DELAY" value="80" /><!-- in seconds-->
     <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="80" /><!-- in seconds-->
 
-    <target name="nps" board="pc">
-      <module name="fdm" type="jsbsim" />
-      <module name="udp" />
-    </target>
-
     <module name="telemetry" type="transparent">
       <configure name="MODEM_PORT" value="UART2"/>
       <configure name="MODEM_BAUD" value="B115200"/>

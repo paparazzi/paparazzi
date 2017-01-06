@@ -45,7 +45,7 @@ void lidar_sf11_init(void)
 {
   lidar_sf11.trans.status = I2CTransDone;
   lidar_sf11.addr = LIDAR_SF11_I2C_ADDR;
-  lidar_sf11.status = LIDAR_LITE_REQ_READ;
+  lidar_sf11.status = LIDAR_SF11_REQ_READ;
   lidar_sf11.update_agl = USE_LIDAR_SF11_AGL;
   lidar_sf11.compensate_rotation = LIDAR_SF11_COMPENSATE_ROTATION;
 

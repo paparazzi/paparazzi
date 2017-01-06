@@ -60,6 +60,7 @@ RP3 Lisa MX
       <configure name="EXTRA_DL_PORT" value="UART1"/>
       <configure name="EXTRA_DL_BAUD" value="B921600"/>
     </module>
+    <module name="lidar_lite"/>
   </modules>
 
   <!-- commands section -->
