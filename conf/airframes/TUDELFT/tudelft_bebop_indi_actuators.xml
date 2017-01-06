@@ -5,10 +5,12 @@
   <firmware name="rotorcraft">
     <target name="ap" board="bebop"/>
 
+<!-- nps currently needs the motor mixing module
     <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
       <module name="udp"/>
     </target>
+-->
 
     <!--define name="USE_SONAR" value="TRUE"/-->
 
