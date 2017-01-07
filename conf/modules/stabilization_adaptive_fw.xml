@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="stabiliztion_adaptive" dir="stabilization">
+<module name="stabilization_adaptive" dir="stabilization">
   <doc>
     <description>
       Adaptive attitude and lateral (heading) control for fixedwing aircraft.
@@ -66,6 +66,7 @@
     </dl_settings>
   </settings>
   <header>
+    <file name="stabilization_attitude.h"/>
     <file name="stabilization_adaptive.h"/>
   </header>
   <init fun="h_ctl_init()"/>
