@@ -100,8 +100,6 @@
     </target>
   </firmware>
 
-  <autopilot name="rotorcraft_autopilot.xml" freq="512"/>
-
   <servos driver="Pwm">
     <servo name="FL" no="0" min="1000" neutral="1100" max="1900"/>
     <servo name="FR" no="1" min="1000" neutral="1100" max="1900"/>
