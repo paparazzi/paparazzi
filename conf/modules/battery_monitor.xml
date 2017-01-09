@@ -1,0 +1,68 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="battery_monitor" dir="adcs">
+  <doc>
+    <description>
+      AggieAir Battery and power monitor using a custom breakout board, for both fixedwings and rotocrafts.
+      Both versions use TMP35 temperature sensor for monitoring board and cell temperatures, AD7998 (12bit) ADC
+      for version 4 and AD7997 (10bit) ADC for version 5, and ACS758 bidirectional current sensor.
+
+      There are two versions:
+      - Rev 4: ADC VIN7 unused
+      - Rev 5: on ADC VIN7 is now ARMED_IN (channel that sensing that the safety plug is plugged in.
+      Define if you are using BATTERY_MONITOR_REV4 in your airfame config file (otherwise rev5 is assumed).
+      Also the versions differ in the gain coefficients.
+    </description>
+    <configure name="BATTERY_MONITOR_I2C_DEV" value="i2c2" description="I2C device to use for the monitor"/>
+    <configure name="BATTERY_MONITOR_BUS_ADC_I2C_ADDR" value="0x42" description="slave address of bus adc"/>
+    <configure name="BATTERY_MONITOR_BALANCE_BAT1_ADC_I2C_ADDR" value="0x40" description="slave address of balance 1 adc"/>
+    <configure name="BATTERY_MONITOR_BALANCE_BAT2_ADC_I2C_ADDR" value="0x44" description="slave address of balance 2 adc"/>
+    <configure name="BATTERY_MONITOR_REV4" value="1" description="set to 1 if using Rev.4"/>
+    <configure name="BATTERY_MONITOR_CURRENT_OFFSET" value="-120" description="offset from the curremt sensor"/>
+    <configure name="BATTERY_MONITOR_CURRENT_SENSITIVITY" value="25.6"/>
+    <configure name="BATTERY_MONITOR_TEMP_OFFSET" value="250" description="offset from the temperature sensor"/>
+    <configure name="BATTERY_MONITOR_TEMP_SENSITIVITY" value="10"/>
+  </doc>
+
+  <settings>
+	  <dl_settings>
+  		<dl_settings NAME="Batery monitor">
+	  		<dl_setting MIN="-2000" MAX="2000" STEP="1" VAR="batmon_current_offset" shortname="cur_off" module="modules/adcs/battery_monitor"/>
+	  		<dl_setting MIN="0" MAX="50" STEP="0.1" VAR="batmon_current_sensitivity" shortname="cur_sens" module="modules/adcs/battery_monitor"/>
+	  		<dl_setting MIN="-2000" MAX="2000" STEP="1" VAR="batmon_temp_offset" shortname="temp_off" module="modules/adcs/battery_monitor"/>
+	  		<dl_setting MIN="0" MAX="50" STEP="0.1" VAR="batmon_temp_sensitivity" shortname="temp_sens" module="modules/adcs/battery_monitor"/>
+	  	</dl_settings>
+	  </dl_settings>
+  </settings>
+
+  <header>
+    <file name="battery_monitor.h"/>
+  </header>
+
+  <init fun="battery_monitor_init()"/>
+  <periodic fun="battery_monitor_read_bus()" freq="10"/>
+  <periodic fun="battery_monitor_read_balance_ports_1()" freq="10"/>
+  <periodic fun="battery_monitor_read_balance_ports_2()" freq="10"/>
+  <event fun="battery_monitor_event()"/>
+  <makefile target="ap|fbw">
+    <file name="battery_monitor.c"/>
+    <define name="USE_I2C2"/>
+    <define name="USE_BATTERY_MONITOR"/>
+
+    <configure name="BATTERY_MONITOR_I2C_DEV" default="i2c2" case="lower|upper"/>
+    <define name="BATTERY_MONITOR_I2C_DEV" value="$(BATTERY_MONITOR_I2C_DEV_LOWER)"/>
+    <define name="USE_$(BATTERY_MONITOR_I2C_DEV_UPPER)"/>
+
+    <configure name="BATTERY_MONITOR_REV4" default="0"/>
+    <define name="BATTERY_MONITOR_REV4" value="$(BATTERY_MONITOR_REV4)"/>
+
+    <configure name="BATTERY_MONITOR_BUS_ADC_I2C_ADDR" default="0x42"/>
+    <define name="BATTERY_MONITOR_BUS_ADC_I2C_ADDR" value="$(BATTERY_MONITOR_BUS_ADC_I2C_ADDR)"/>
+
+    <configure name="BATTERY_MONITOR_BALANCE_BAT1_ADC_I2C_ADDR" default="0x40"/>
+    <define name="BATTERY_MONITOR_BALANCE_BAT1_ADC_I2C_ADDR" value="$(BATTERY_MONITOR_BALANCE_BAT1_ADC_I2C_ADDR)"/>
+
+    <configure name="BATTERY_MONITOR_BALANCE_BAT2_ADC_I2C_ADDR" default="0x44"/>
+    <define name="BATTERY_MONITOR_BALANCE_BAT2_ADC_I2C_ADDR" value="$(BATTERY_MONITOR_BALANCE_BAT2_ADC_I2C_ADDR)"/>
+  </makefile>
+</module>

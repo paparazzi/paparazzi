@@ -171,8 +171,9 @@ void lidar_lite_periodic(void)
 void lidar_lite_downlink(void)
 {
   uint8_t trans = lidar_lite.trans.status;
+  uint8_t status = lidar_lite.status;
   DOWNLINK_SEND_LIDAR(DefaultChannel, DefaultDevice,
       &lidar_lite.distance,
-      &lidar_lite.status,
+      &status,
       &trans);
 }
