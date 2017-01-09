@@ -62,6 +62,12 @@
     <module name="lidar_lite">
       <configure name="LIDAR_LITE_I2C_DEV" value="i2c2"/>
     </module>
+    <module name="battery_monitor.xml">
+      <define name="BATMON_CURRENT_OFFSET" value="-120"/>
+      <define name="BATMON_CURRENT_SENSITIVITY" value="25.6"/>
+      <define name="BATMON_TEMP_OFFSET" value="250"/>
+      <define name="BATMON_TEMP_SENSITIVITY" value="10"/>
+    </module>
   </modules>
 
     <servos driver="Pwm">
