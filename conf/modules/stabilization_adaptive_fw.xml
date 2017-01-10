@@ -5,7 +5,7 @@
     <description>
       Adaptive attitude and lateral (heading) control for fixedwing aircraft.
       Mostly based on PID and optional reference generators and feedforward gains.
-      Adaptive parameters should not be used for normal operation at the moment.
+      An experimental adaptive filter is also included to estimate some parameters, but should not be used for normal operation at the moment.
     </description>
     <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
       <define name="COURSE_PGAIN" value="1.0" description="feedback heading P gain"/>
