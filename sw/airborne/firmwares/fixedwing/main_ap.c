@@ -62,9 +62,6 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 // autopilot & control
 #include "state.h"
 #include "firmwares/fixedwing/autopilot.h"
-#include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
-#include CTRL_TYPE_H
-#include "firmwares/fixedwing/nav.h"
 #include "generated/flight_plan.h"
 
 // datalink & telemetry
@@ -207,9 +204,6 @@ void init_ap(void)
 
   /************ Internal status ***************/
   autopilot_init();
-  h_ctl_init();
-  v_ctl_init();
-  nav_init();
 
   modules_init();
 

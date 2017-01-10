@@ -1,0 +1,20 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="stabiliztion_rate_indi" dir="stabilization">
+  <doc>
+    <description>
+      Rate INDI controller for rotorcraft
+    </description>
+  </doc>
+  <autoload name="stabilization" type="rotorcraft"/>
+  <header>
+    <file name="stabilization_rate_indi.h"/>
+  </header>
+  <init fun="stabilization_rate_init()"/>
+  <makefile target="ap|nps" firmware="rotorcraft">
+    <file name="stabilization_indi.c" dir="$(SRC_FIRMWARE)/stabilization"/>
+    <file name="stabilization_rate_indi.c" dir="$(SRC_FIRMWARE)/stabilization"/>
+    <define name="USE_STABILIZATION_RATE"/>
+    <define name="STABILIZATION_RATE_INDI" value="true"/>
+  </makefile>
+</module>

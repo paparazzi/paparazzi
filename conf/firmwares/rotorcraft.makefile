@@ -98,17 +98,6 @@ $(TARGET).srcs += state.c
 include $(CFG_SHARED)/baro_board.makefile
 
 
-$(TARGET).srcs += $(SRC_FIRMWARE)/stabilization.c
-$(TARGET).srcs += $(SRC_FIRMWARE)/stabilization/stabilization_none.c
-
-$(TARGET).srcs += $(SRC_FIRMWARE)/guidance/guidance_h.c
-$(TARGET).srcs += $(SRC_FIRMWARE)/guidance/guidance_h_ref.c
-$(TARGET).srcs += $(SRC_FIRMWARE)/guidance/guidance_v.c
-$(TARGET).srcs += $(SRC_FIRMWARE)/guidance/guidance_v_ref.c
-$(TARGET).srcs += $(SRC_FIRMWARE)/guidance/guidance_v_adapt.c
-$(TARGET).srcs += $(SRC_FIRMWARE)/guidance/guidance_flip.c
-
-include $(CFG_ROTORCRAFT)/navigation.makefile
 else
 $(TARGET).CFLAGS += -DFBW=1
 endif
