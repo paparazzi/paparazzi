@@ -10,7 +10,7 @@
     2) once low enough follow line to TD waypoint
     3) once low enough flare
     </description>
-    
+
     <section name="LANDING" prefix="SKID_LANDING_">
        <define name="AF_HEIGHT" value="50" unit="m"/>
        <define name="FINAL_HEIGHT" value="50" unit="m"/>
@@ -29,7 +29,7 @@
       <define name="LANDING_ALT_THROTTLE_KILL"     value="15" unit="m"/>
       <define name="LANDING_ALT_FLARE"           value="5" unit="m"/>
     </section>
-    
+
   </doc>
 
   <settings>

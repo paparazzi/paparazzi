@@ -2,7 +2,7 @@
 <!--
      * Psi a slightly modified Parrot AR.Drone 2.0 (http://www.openuas.org/)
      + uBlox LEA5H and Sarantel helix GPS antenna
-     
+
      NOTES:
      + Original ballbearings replaced with real ball bearings for all axis
      + Frontcamera movable by servo on debug port - optional
@@ -36,7 +36,7 @@
     <module name="actuators" type="ardrone2"/>
     <module name="imu" type="ardrone2"/>
     <module name="gps" type="ublox"/>
-    <module name="stabilization" type="indi"/>
+    <module name="stabilization" type="indi_simple"/>
     <module name="ahrs" type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="TRUE"/>
       <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
@@ -59,7 +59,7 @@
     <!--<module name="video_usb_logger"/>
       <define name="LOG_ON_USB" value="TRUE"/>
       <define name="VIDEO_USB_LOGGER_PATH" value="/data/video/usb0/myphotologs"/>
-    </module>--> 
+    </module>-->
     <!--<module name="find_joe"> -->
   </modules>
 
@@ -69,7 +69,7 @@
     <axis name="YAW" failsafe_value="0"/>
     <axis name="THRUST" failsafe_value="3000"/>
   </commands>
-  
+
     <!-- ************************ AUTO RC COMMANDS ***************************** -->
   <auto_rc_commands>
     <!-- To still be able to trigger cam in MODENAV-->
@@ -190,10 +190,8 @@
     <define name="REF_RATE_R" value="21.0"/>
 
     <!-- second order filter parameters -->
-    <define name="FILT_OMEGA" value="20.0"/>
-    <define name="FILT_ZETA" value="0.55"/>
-    <define name="FILT_OMEGA_R" value="20.0"/>
-    <define name="FILT_ZETA_R" value="0.55"/>
+    <define name="FILT_CUTOFF" value="3.2"/>
+    <define name="FILT_CUTOFF_R" value="3.2"/>
 
     <!-- first order actuator dynamics -->
     <define name="ACT_DYN_P" value="0.06"/>
@@ -243,11 +241,11 @@
     <define name="LOW_BAT_LEVEL" value="10.2" unit="V"/>
     <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
   </section>
-  
+
   <!-- ************************ GCS SPECIFICS ******************************** -->
   <section name="GCS">
     <define name="SPEECH_NAME" value="Psi"/>
   </section>
-  
- 
+
+
 </airframe>

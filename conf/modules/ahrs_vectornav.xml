@@ -1,0 +1,47 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ahrs_vectornav" dir="ahrs">
+  <doc>
+    <description>
+      Vectornav VN200 over uart used as AHRS.
+    </description>
+    <configure name="VN_PORT" value="uart3" description="UART to use"/>
+    <configure name="VN_BAUD" value="B921600" description="UART baudrate"/>
+  </doc>
+  <autoload name="ahrs_sim"/>
+  <header>
+    <file name="ahrs.h" dir="subsystems"/>
+  </header>
+  <event fun="ahrs_vectornav_event()"/>
+  <makefile target="ap">
+    <configure name="VN_PORT" default="uart3" case="upper|lower"/>
+    <configure name="VN_BAUD" default="B921600"/>
+    <define name="USE_$(VN_PORT_UPPER)"/>
+    <define name="VN_PORT" value="$(VN_PORT_LOWER)"/>
+    <define name="$(VN_PORT_UPPER)_BAUD" value="$(VN_BAUD)"/>
+
+    <file name="vn200_serial.c" dir="peripherals"/>
+    <file name="ahrs.c" dir="subsystems"/>
+    <file name="ahrs_vectornav.c" dir="subsystems/ahrs"/>
+    <file name="ahrs_vectornav_wrapper.c" dir="subsystems/ahrs"/>
+
+    <define name="USE_AHRS"/>
+
+    <raw>
+ifdef SECONDARY_AHRS
+ifneq (,$(findstring $(SECONDARY_AHRS), vectornav))
+# this is the secondary AHRS
+$(TARGET).CFLAGS += -DAHRS_SECONDARY_TYPE_H=\"subsystems/ahrs/ahrs_vectornav_wrapper.h\"
+$(TARGET).CFLAGS += -DSECONDARY_AHRS=ahrs_vectornav
+else
+# this is the primary AHRS
+$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_vectornav_wrapper.h\"
+$(TARGET).CFLAGS += -DPRIMARY_AHRS=ahrs_vectornav
+endif
+else
+# plain old single AHRS usage
+$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_vectornav_wrapper.h\"
+endif
+    </raw>
+  </makefile>
+</module>

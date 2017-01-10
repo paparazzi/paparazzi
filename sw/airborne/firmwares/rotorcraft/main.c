@@ -83,6 +83,10 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 #include "generated/modules.h"
 #include "subsystems/abi.h"
 
+// needed for stop-gap measure waypoints_localize_all()
+#include "subsystems/navigation/waypoints.h"
+
+
 /* if PRINT_CONFIG is defined, print some config options */
 PRINT_CONFIG_VAR(PERIODIC_FREQUENCY)
 
@@ -197,6 +201,13 @@ STATIC_INLINE void main_init(void)
 
   modules_init();
 
+  /* temporary hack:
+   * Since INS is now a module, LTP_DEF is not yet initialized when autopilot_init is called
+   * This led to the problem that global waypoints were not "localized",
+   * so as a stop-gap measure we localize them all (again) here..
+   */
+  waypoints_localize_all();
+
   settings_init();
 
   mcu_int_enable();
@@ -211,7 +222,9 @@ STATIC_INLINE void main_init(void)
 
   // register the timers for the periodic functions
   main_periodic_tid = sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
+#if PERIODIC_FREQUENCY != MODULES_FREQUENCY
   modules_tid = sys_time_register_timer(1. / MODULES_FREQUENCY, NULL);
+#endif
   radio_control_tid = sys_time_register_timer((1. / 60.), NULL);
   failsafe_tid = sys_time_register_timer(0.05, NULL);
   electrical_tid = sys_time_register_timer(0.1, NULL);
@@ -233,9 +246,17 @@ STATIC_INLINE void handle_periodic_tasks(void)
 {
   if (sys_time_check_and_ack_timer(main_periodic_tid)) {
     main_periodic();
+#if PERIODIC_FREQUENCY == MODULES_FREQUENCY
+    /* Use the main periodc freq timer for modules if the freqs are the same
+     * This is mainly useful for logging each step.
+     */
+    modules_periodic_task();
+#else
   }
+  /* separate timer for modules, since it has a different freq than main */
   if (sys_time_check_and_ack_timer(modules_tid)) {
     modules_periodic_task();
+#endif
   }
   if (sys_time_check_and_ack_timer(radio_control_tid)) {
     radio_control_periodic_task();
@@ -310,6 +331,7 @@ STATIC_INLINE void telemetry_periodic(void)
 
 STATIC_INLINE void failsafe_check(void)
 {
+#if !USE_GENERATED_AUTOPILOT
   if (radio_control.status == RC_REALLY_LOST &&
       autopilot_mode != AP_MODE_KILL &&
       autopilot_mode != AP_MODE_HOME &&
@@ -343,6 +365,8 @@ STATIC_INLINE void failsafe_check(void)
     autopilot_set_mode(AP_MODE_FAILSAFE);
   }
 #endif
+
+#endif // !USE_GENERATED_AUTOPILOT
 
   autopilot_check_in_flight(autopilot_motors_on);
 }

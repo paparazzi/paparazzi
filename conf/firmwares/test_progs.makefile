@@ -141,7 +141,7 @@ endif
 ifeq ($(BOARD), naze32)
 LED_DEFINES = -DLED_RED=1 -DLED_GREEN=2
 endif
-LED_DEFINES ?= -DLED_RED=2 -DLED_GREEN=3
+//LED_DEFINES ?= -DLED_RED=2 -DLED_GREEN=3
 
 test_sys_time_timer.ARCHDIR = $(ARCH)
 test_sys_time_timer.CFLAGS += $(COMMON_TEST_CFLAGS) $(LED_DEFINES)

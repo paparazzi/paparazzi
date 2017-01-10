@@ -92,6 +92,7 @@
         <configure name="GPS_PORT" value="UART3"/>
         <configure name="GPS_BAUD" value="B38400"/>
       </module>
+      <module name="gps" type="ubx_ucenter"/><!-- WARNING: make sure to disable SBAS for Australia -->
 
       <!-- * Add Navigation routines -->
       <module name="navigation"/>
@@ -201,8 +202,6 @@
       <define name="AIR_DATA_CALC_AMSL_BARO" value="TRUE" />
     </module>
     <!-- CDW: module name="obc2014"/-->
-    <!-- GPS -->
-    <module name="gps" type="ubx_ucenter"/><!-- WARNING: make sure to disable SBAS for Australia -->
     <!-- Load -->
     <!-- module name="sys_mon"/> -->
     <!--

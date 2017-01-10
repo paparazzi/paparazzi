@@ -1,0 +1,44 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="stabiliztion_rate" dir="stabilization">
+  <doc>
+    <description>
+      Rate controller for rotorcraft
+    </description>
+    <section name="STABILIZATION_RATE" prefix="STABILIZATION_RATE_">
+      <define name="SP_MAX_P" value="300" description="max roll rate setpoint" unit="deg/s"/>
+      <define name="SP_MAX_Q" value="300" description="max pitch rate setpoint" unit="deg/s"/>
+      <define name="SP_MAX_R" value="240" description="max yaw rate setpoint" unit="deg/s"/>
+      <define name="DEADBAND_P" value="20" description="deadband on roll rate"/>
+      <define name="DEADBAND_Q" value="20" description="deadband on pitch rate"/>
+      <define name="DEADBAND_R" value="200" description="deadband on yaw rate"/>
+      <define name="GAIN_P" value="1000" description="feedback P roll rate gain"/>
+      <define name="GAIN_Q" value="1000" description="feedback P pitch rate gain"/>
+      <define name="GAIN_R" value="800" description="feedback P yaw rate gain"/>
+      <define name="IGAIN_P" value="75" description="feedback I roll rate gain"/>
+      <define name="IGAIN_Q" value="75" description="feedback I pitch rate gain"/>
+      <define name="IGAIN_R" value="50" description="feedback I yaw rate gain"/>
+    </section>
+  </doc>
+  <settings target="ap|nps">
+    <dl_settings>
+      <dl_settings NAME="Rate Loop">
+        <dl_setting var="stabilization_rate_gain.p" min="1" step="1" max="1000" shortname="pgain p" param="STABILIZATION_RATE_GAIN_P" type="int32" persistent="true" module="stabilization/stabilization_rate"/>
+        <dl_setting var="stabilization_rate_gain.q" min="1" step="1" max="1000" shortname="pgain q" param="STABILIZATION_RATE_GAIN_Q" type="int32" persistent="true"/>
+        <dl_setting var="stabilization_rate_gain.r" min="1" step="1" max="1000" shortname="pgain r" param="STABILIZATION_RATE_GAIN_R" type="int32" persistent="true"/>
+        <dl_setting var="stabilization_rate_igain.p" min="0" step="1" max="500" shortname="igain p" param="STABILIZATION_RATE_IGAIN_P" type="int32" persistent="true"/>
+        <dl_setting var="stabilization_rate_igain.q" min="0" step="1" max="500" shortname="igain q" param="STABILIZATION_RATE_IGAIN_Q" type="int32" persistent="true"/>
+        <dl_setting var="stabilization_rate_igain.r" min="0" step="1" max="500" shortname="igain r" param="STABILIZATION_RATE_IGAIN_R" type="int32" persistent="true"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <autoload name="stabilization" type="rotorcraft"/>
+  <header>
+    <file name="stabilization_rate.h"/>
+  </header>
+  <init fun="stabilization_rate_init()"/>
+  <makefile target="ap|nps" firmware="rotorcraft">
+    <file name="stabilization_rate.c" dir="$(SRC_FIRMWARE)/stabilization"/>
+    <define name="USE_STABILIZATION_RATE"/>
+  </makefile>
+</module>

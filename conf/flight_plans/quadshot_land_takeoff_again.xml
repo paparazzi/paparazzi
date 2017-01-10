@@ -16,28 +16,28 @@
   </waypoints>
   <blocks>
     <block name="Wait GPS">
-      <call fun="NavKillThrottle()"/>
+      <call_once fun="NavKillThrottle()"/>
       <while cond="!GpsFixValid()"/>
     </block>
     <block name="Geo init">
       <while cond="LessThan(NavBlockTime(), 10)"/>
-      <call fun="NavSetGroundReferenceHere()"/>
+      <call_once fun="NavSetGroundReferenceHere()"/>
     </block>
     <block name="Holding point">
-      <call fun="NavKillThrottle()"/>
+      <call_once fun="NavKillThrottle()"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
     <block name="Start Engine">
-      <call fun="NavResurrect()"/>
+      <call_once fun="NavResurrect()"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
       <exception cond="stateGetPositionEnu_f()->z > 4.0" deroute="Climb"/>
-      <call fun="NavSetWaypointHere(WP_STDBY)"/>
+      <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
       <attitude pitch="0" roll="0" throttle="0.4" until="FALSE" vmode="throttle"/>
     </block>
     <block name="Climb">
       <exception cond="stateGetPositionEnu_f()->z > 20.0" deroute="Standby"/>
-      <call fun="NavSetWaypointHere(WP_STDBY)"/>
+      <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
       <stay climb="2" vmode="climb" wp="STDBY"/>
     </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
@@ -61,12 +61,12 @@
       <attitude pitch="0" roll="0" throttle="0.13" vmode="throttle"/>
     </block>
     <block name="landed remote">
-      <call fun="NavKillThrottle()"/>
+      <call_once fun="NavKillThrottle()"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
     <block name="Start Engine2">
-      <call fun="NavSetWaypointHere(WP_REMOTE_LANDING)"/>
-      <call fun="NavResurrect()"/>
+      <call_once fun="NavSetWaypointHere(WP_REMOTE_LANDING)"/>
+      <call_once fun="NavResurrect()"/>
     </block>
     <block name="Takeoff2" strip_button="Takeoff" strip_icon="takeoff.png">
       <exception cond="stateGetPositionEnu_f()->z > 4.0" deroute="Climb2"/>
@@ -74,7 +74,7 @@
     </block>
     <block name="Climb2">
       <exception cond="stateGetPositionEnu_f()->z > 20.0" deroute="Remote hover"/>
-      <call fun="NavSetWaypointHere(WP_REMOTE_LANDING)"/>
+      <call_once fun="NavSetWaypointHere(WP_REMOTE_LANDING)"/>
       <stay climb="2" vmode="climb" wp="REMOTE_LANDING"/>
     </block>
     <block name="Remote hover" strip_button="Standby" strip_icon="home.png">
@@ -97,7 +97,7 @@
       <attitude pitch="0" roll="0" throttle="0.13" vmode="throttle"/>
     </block>
     <block name="landed">
-      <call fun="NavKillThrottle()"/>
+      <call_once fun="NavKillThrottle()"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
   </blocks>

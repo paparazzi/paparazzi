@@ -16,7 +16,7 @@
   <header>
     <file name="video_usb_logger.h"/>
   </header>
-  
+
   <periodic fun="video_usb_logger_periodic()" start="video_usb_logger_start()" stop="video_usb_logger_stop()" autorun="TRUE"/>
   <makefile target="ap">
     <file name="video_usb_logger.c"/>

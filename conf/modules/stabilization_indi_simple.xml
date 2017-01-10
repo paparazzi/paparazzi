@@ -1,0 +1,82 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="stabiliztion_indi_simple" dir="stabilization">
+  <doc>
+    <description>
+      Simple INDI stabilization controller for rotorcraft
+    </description>
+    <section name="RC_SETPOINT" prefix="STABILIZATION_ATTITUDE_">
+      <define name="SP_MAX_PHI"   value="45." description="max setpoint for roll angle" unit="deg"/>
+      <define name="SP_MAX_THETA" value="45." description="max setpoint for pitch angle" unit="deg"/>
+      <define name="SP_MAX_R"     value="90." description="max setpoint for yaw rate" unit="deg/s"/>
+      <define name="DEADBAND_R"   value="250" description="deadband on yaw rate input"/>
+    </section>
+    <section name="ATTITUDE_REFERENCE" prefix="STABILIZATION_ATTITUDE_">
+      <define name="REF_OMEGA_P"  value="400" description="reference generator omega param on roll rate" unit="deg/s"/>
+      <define name="REF_ZETA_P"   value="0.9" description="reference generator zeta param on roll rate"/>
+      <define name="REF_MAX_P"    value="300." description="reference generator max roll rate" unit="deg/s"/>
+      <define name="REF_MAX_PDOT" value="RadOfDeg(7000.)" description="reference generator max roll acceleration"/>
+      <define name="REF_OMEGA_Q"  value="400" description="reference generator omega param on pitch rate" unit="deg/s"/>
+      <define name="REF_ZETA_Q"   value="0.9" description="reference generator zeta param on pitch rate"/>
+      <define name="REF_MAX_Q"    value="300." description="reference generator max pitch rate" unit="deg/s"/>
+      <define name="REF_MAX_QDOT" value="RadOfDeg(7000.)" description="reference generator max pitch acceleration"/>
+      <define name="REF_OMEGA_R"  value="250" description="reference generator omega param on yaw rate" unit="deg/s"/>
+      <define name="REF_ZETA_R"   value="0.9" description="reference generator zeta param on yaw rate"/>
+      <define name="REF_MAX_R"    value="180." description="reference generator max yaw rate" unit="deg/s"/>
+      <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)" description="reference generator max yaw acceleration"/>
+    </section>
+    <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
+      <define name="G1_P" value="0.0639" description="control effectiveness G1 gain on roll rate"/>
+      <define name="G1_Q" value="0.0361" description="control effectiveness G1 gain on pitch rate"/>
+      <define name="G1_R" value="0.0022" description="control effectiveness G1 gain on yaw rate"/>
+      <define name="G2_R" value="0.1450" description="control effectiveness G2 gain on yaw rate"/>
+      <define name="REF_ERR_P" value="600.0" description="reference acceleration"/>
+      <define name="REF_ERR_Q" value="600.0" description="reference acceleration"/>
+      <define name="REF_ERR_R" value="600.0" description="reference acceleration"/>
+      <define name="REF_RATE_P" value="28.0" description="reference acceleration"/>
+      <define name="REF_RATE_Q" value="28.0" description="reference acceleration"/>
+      <define name="REF_RATE_R" value="28.0" description="reference acceleration"/>
+      <define name="MAX_R" value="120.0" description="max yaw rate" unit="deg/s"/>
+      <define name="FILT_CUTOFF" value="8.0" description="second order cutoff parameter"/>
+      <define name="ESTIMATION_FILT_CUTOFF" value="8.0" description="second order cutoff parameter"/>
+      <define name="ACT_DYN_P" value="0.1" description="first order actuator dynamics on roll rate"/>
+      <define name="ACT_DYN_Q" value="0.1" description="first order actuator dynamics on pitch rate"/>
+      <define name="ACT_DYN_R" value="0.1" description="first order actuator dynamics on yaw rate"/>
+      <define name="USE_ADAPTIVE" value="FALSE|TRUE" description="enable adaptive gains"/>
+      <define name="ADAPTIVE_MU" value="0.0001" description="adaptation parameter"/>
+    </section>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="indi">
+        <dl_setting var="indi.reference_acceleration.err_p" min="0" step="1" max="2500" shortname="kp_p" param="STABILIZATION_INDI_REF_ERR_P" persistent="true" module="stabilization/stabilization_indi_simple"/>
+        <dl_setting var="indi.reference_acceleration.rate_p" min="0" step="0.1" max="100" shortname="kd_p" param="STABILIZATION_INDI_REF_RATE_P" persistent="true"/>
+        <dl_setting var="indi.g1.p" min="0" step="0.001" max="10" shortname="ctl_eff_p" param="STABILIZATION_INDI_G1_P" persistent="true"/>
+        <dl_setting var="indi.reference_acceleration.err_q" min="0" step="1" max="2500" shortname="kp_q" param="STABILIZATION_INDI_REF_ERR_Q" persistent="true"/>
+        <dl_setting var="indi.reference_acceleration.rate_q" min="0" step="0.1" max="100" shortname="kd_q" param="STABILIZATION_INDI_REF_RATE_P" persistent="true"/>
+        <dl_setting var="indi.g1.q" min="0" step="0.001" max="10" shortname="ctl_eff_q" param="STABILIZATION_INDI_G1_Q" persistent="true"/>
+        <dl_setting var="indi.reference_acceleration.err_r" min="0" step="1" max="2500" shortname="kp_r" param="STABILIZATION_INDI_REF_ERR_R" persistent="true"/>
+        <dl_setting var="indi.reference_acceleration.rate_r" min="0" step="0.1" max="100" shortname="kd_r" param="STABILIZATION_INDI_REF_RATE_P" persistent="true"/>
+        <dl_setting var="indi.g1.r" min="0" step="0.001" max="10" shortname="ctl_eff_r" param="STABILIZATION_INDI_G1_R" persistent="true"/>
+        <dl_setting var="indi.g2" min="0" step="0.01" max="10" shortname="g2" param="STABILIZATION_INDI_G2_R" persistent="true"/>
+        <dl_setting var="indi.adaptive" min="0" step="1" max="1" shortname="use_adaptive" values="FALSE|TRUE" param="STABILIZATION_INDI_USE_ADAPTIVE" type="uint8" persistent="true"/>
+        <dl_setting var="indi.max_rate" min="0" step="0.01" max="400.0" shortname="max_rate" param="STABILIZATION_INDI_MAX_RATE" unit="rad/s" alt_unit="deg/s"/>
+        <dl_setting var="indi.attitude_max_yaw_rate" min="0" step="0.01" max="400.0" shortname="max_yaw_rate_attitude" param="STABILIZATION_INDI_MAX_R" unit="rad/s" alt_unit="deg/s"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <autoload name="stabilization" type="rotorcraft"/>
+  <header>
+    <file name="stabilization_indi_simple.h"/>
+  </header>
+  <init fun="stabilization_indi_init()"/>
+  <makefile target="ap|nps" firmware="rotorcraft">
+    <file name="stabilization_indi_simple.c" dir="$(SRC_FIRMWARE)/stabilization"/>
+    <file name="stabilization_attitude_quat_indi.c" dir="$(SRC_FIRMWARE)/stabilization"/>
+    <file name="stabilization_attitude_quat_transformations.c" dir="$(SRC_FIRMWARE)/stabilization"/>
+    <file name="stabilization_attitude_rc_setpoint.c" dir="$(SRC_FIRMWARE)/stabilization"/>
+    <define name="STABILIZATION_ATTITUDE_TYPE_INT"/>
+    <define name="STABILIZATION_ATTITUDE_TYPE_H" value="stabilization/stabilization_attitude_quat_indi.h" type="string"/>
+    <define name="STABILIZATION_ATTITUDE_INDI_SIMPLE" value="true"/>
+  </makefile>
+</module>

@@ -8,7 +8,7 @@
   3) FBW saves time and adds safety not having to check every safety critical aspect after every AP update (safety critical code is in FBW).
   4) VBAR (gyro's) can be mounted on the frame (=fast response) while the attitude filter (AP) can be on very soft dampers.
 
-This logo600 basically flies with a VBAR. All rotor head parameters and tuning (except throttle curves) are in the VBAR using the VBAR setup program. Then, instead of connecting 2 satellite receivers, 2 uarts from a lisa-mx are connected to the VBAR instead. The lisa-mx then has both satellite receivers. This lisa-mx runs rotorcraft FBW code with spektrum as "actuator" which is actually sent to the VBAR RC inputs over uart. 
+This logo600 basically flies with a VBAR. All rotor head parameters and tuning (except throttle curves) are in the VBAR using the VBAR setup program. Then, instead of connecting 2 satellite receivers, 2 uarts from a lisa-mx are connected to the VBAR instead. The lisa-mx then has both satellite receivers. This lisa-mx runs rotorcraft FBW code with spektrum as "actuator" which is actually sent to the VBAR RC inputs over uart.
 
  - Note about FBW code: you must choose if you want the UAV to behave as a model aircraft which goes to failsafe on RC loss or make it a UAV with AUTO2 flight on RC-loss. The latter has the risk of fly-away, and adds safety critical aspects to the AP as well: so make sure your geofence and geofence rules are well tested.
 

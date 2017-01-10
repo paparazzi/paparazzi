@@ -1,0 +1,22 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="stabilization_rotorcraft" dir="stabilization">
+  <doc>
+    <description>
+      Base stabilization code for rotorcraft
+      Also provide the direct mode 'stabilization_none'
+      As a durty hack, it also provides navigation and guidance: this should be done in the airframe at some point
+    </description>
+  </doc>
+  <autoload name="nav_basic_rotorcraft"/>
+  <header>
+    <file name="stabilization.h" dir="firmwares/rotorcraft"/>
+    <file name="stabilization_none.h"/>
+  </header>
+  <init fun="stabilization_init()"/>
+  <init fun="stabilization_none_init()"/>
+  <makefile target="ap|nps" firmware="rotorcraft">
+    <file name="stabilization.c" dir="$(SRC_FIRMWARE)"/>
+    <file name="stabilization_none.c" dir="$(SRC_FIRMWARE)/stabilization"/>
+  </makefile>
+</module>

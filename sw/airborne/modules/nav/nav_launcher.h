@@ -50,7 +50,7 @@
 #include "std.h"
 #include "paparazzi.h"
 
-extern bool nav_launcher_setup(void);
+extern void nav_launcher_setup(void);
 extern bool nav_launcher_run(void);
 
 #endif /* NAV_LAUNCHER_H */

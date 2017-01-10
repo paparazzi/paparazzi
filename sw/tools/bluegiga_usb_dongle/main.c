@@ -576,7 +576,7 @@ void ble_evt_gap_scan_response(const struct ble_msg_gap_scan_response_evt_t *msg
     	  if (!cmp_addr(msg->sender.addr, connected_addr[i].addr))
     	    return;
     	}
-    
+
       fprintf(stderr, "Trying to connect to "); print_bdaddr(msg->sender); fprintf(stderr, "\n");
       //change_state(state_connecting);
       // connection interval unit 1.25ms
@@ -1088,7 +1088,7 @@ int main(int argc, char *argv[])
   // advertise interval scales 625us, min, max, channels (0x07 = 3, 0x03 = 2, 0x04 = 1)
   if (action == action_broadcast)
     ble_cmd_gap_set_adv_parameters(0x20, 0x28, 0x07);
-    
+
   // Execute action
   if (action == action_scan || action == action_broadcast || action == action_broadcast_connect) {
     ble_cmd_gap_discover(gap_discover_generic);

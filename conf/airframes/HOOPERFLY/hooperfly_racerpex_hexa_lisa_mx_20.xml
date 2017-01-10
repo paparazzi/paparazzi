@@ -80,7 +80,7 @@
     <define name="ROLL_COEF"   value="{  128, -128,  -256,  -128,  128,  256 }"/>
     <define name="PITCH_COEF"  value="{  224,  224,     0,  -224, -224,    0 }"/>
     <define name="YAW_COEF"    value="{ -144,  144,  -144,   144, -144,  144  }"/>
-    <define name="THRUST_COEF" value="{  256,  256,   256,   256,  256,  256 }"/>   
+    <define name="THRUST_COEF" value="{  256,  256,   256,   256,  256,  256 }"/>
   </section>
 
   <command_laws>
@@ -193,7 +193,7 @@
   <section name="NAVIGATION" prefix="NAV_">
     <define name="CLIMB_VSPEED"   value="1.5" />
     <define name="DESCEND_VSPEED" value="-1.0" />
-  </section>    
+  </section>
 
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES"  value="fl_motor, fr_motor, r_motor, br_motor, bl_motor, l_motor" type="string[]"/>

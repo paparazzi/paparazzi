@@ -30,13 +30,13 @@ c_types = ["Bi-switch", "Tri-switch", "Trigger-switch", "Dial-360", "Dial-180", 
 class Channel(Scale):
     '''
     @var value: current value of Channel
-    
+
     '''
 
     def __init__(self, child, number, master=None, cnf={}, **kw):
         '''
         Constructor
-        @param number: Channel number 
+        @param number: Channel number
         '''
         self.bind = ""
         self.number = number
@@ -45,7 +45,7 @@ class Channel(Scale):
         kw['from_'] = 100
         kw['variable'] = self.value
         Scale.__init__(self, cnf, kw)
-    
+
     def add_value(self, val):
         '''
         Add a number to val. To subtract, enter a negative number.
@@ -53,16 +53,16 @@ class Channel(Scale):
         '''
         self.value += val
         self.set(self.value)
-        
+
     def rebind(self, key):
         self.bind = key
-        
+
     def set_type(self, new_type):
         if new_type in c_types:
             self.c_type = new_type
         else:
             print "Type not known for {}".format(self.name)
-            
+
     def repr_xml(self):
         c_root = etree.Element("Channel")
         c_root.attrib['key'] = self.bind
@@ -77,13 +77,13 @@ class Channel(Scale):
 
 
 class bi_switch(Channel):
-    
+
     __name__ = "bi_switch"
-    
+
     def __init__(self, number, orientation, name, scale_length, master=None, cnf={}, **kw):
         '''
         Constructor
-        @param number: Channel number 
+        @param number: Channel number
         '''
         self.value = IntVar(value=-100)
         self.state = 0
@@ -93,27 +93,27 @@ class bi_switch(Channel):
         self.name = name
         Channel.__init__(self, number, master, cnf, label=name, length = scale_length, orient = orientation, variable=self.value)
         self.set(-100)
-        
-        
+
+
     def add_value(self, num):
         self.state = (self.state + 1) % 2
         if self.state == 0:
             self.value.set(-100)
         elif self.state == 1:
             self.value.set(100)
-            
+
     def key_off(self):
         pass
-            
-            
+
+
 class tri_switch(Channel):
-    
+
     __name__ = "tri_switch"
-    
+
     def __init__(self, number, orientation, name, scale_length, master=None, cnf={}, **kw):
         '''
         Constructor
-        @param number: Channel number 
+        @param number: Channel number
         '''
         self.value = IntVar(value=-100)
         self.state = 0
@@ -122,7 +122,7 @@ class tri_switch(Channel):
         self.c_type = ""
         self.name = name
         Channel.__init__(self, number, master, cnf, label = name, length = scale_length, resolution=100, orient = orientation, variable=self.value)
-        
+
     def add_value(self, in_state):
         '''
         @param val: value to add to Channel value
@@ -130,7 +130,7 @@ class tri_switch(Channel):
         # 0=-100
         # 1=0
         # 2=100
-        
+
         if in_state > 0:
             if self.value.get() == -100:
                 self.value.set(0)
@@ -141,18 +141,18 @@ class tri_switch(Channel):
                 self.value.set(0)
             elif self.value.get() == 0:
                 self.value.set(-100)
-                
+
     def key_off(self):
         pass
-            
+
 class trigger_switch(Channel):
-    
+
     __name__ = "trigger_switch"
-    
+
     def __init__(self, number, orientation, name, scale_length, master=None, cnf={}, **kw):
         '''
         Constructor
-        @param number: Channel number 
+        @param number: Channel number
         '''
         self.value = IntVar(value=-100)
         self.state = 0
@@ -161,7 +161,7 @@ class trigger_switch(Channel):
         self.c_type = ""
         self.name = name
         Channel.__init__(self, number, master, cnf, label = name, length = scale_length, orient=orientation, variable=self.value)
-        
+
     def add_value(self, state):
         '''
         @param state: state of the switch (i.e., flipped or not)
@@ -177,12 +177,12 @@ class trigger_switch(Channel):
         self.add_value(-1)
 
 class dial(Channel):
-    
+
     __name__ = "dial"
     def __init__(self, number, total_degrees, orientation, name, scale_length, master=None, cnf={}, **kw):
         '''
         Constructor
-        @param number: Channel number 
+        @param number: Channel number
         '''
         self.value = DoubleVar(0)
         self.t_degrees = total_degrees
@@ -192,36 +192,36 @@ class dial(Channel):
         self.c_type = ""
         self.name = name
         Channel.__init__(self, number, master, cnf, label = name, length = scale_length, orient = orientation, resolution=self.resolution, variable=self.value)
-        
+
     def add_value(self, in_value):
         '''
         @param state: state of the switch (i.e., flipped or not)
         '''
         self.value.get()
         self.value.set((in_value * self.resolution) + self.value.get())
-    
+
     def key_off(self):
         pass
-        
+
 class stick(Channel):
     __name__ = "stick"
     def __init__(self, number, orientation, name, scale_length, master=None, cnf={}, **kw):
         '''
         Constructor
-        @param number: Channel number 
+        @param number: Channel number
         '''
         self.value = IntVar(0)
         self.bind = ""
         self.number = number
         self.c_type = ""
         Channel.__init__(self, number, master, cnf, orient = orientation, label = name, length = scale_length, variable=self.value)
-        
+
     def add_value(self, value):
         '''
         @param state: state of the switch (i.e., flipped or not)
         '''
         self.value.set(self.value.get() + value)
-        
+
     def key_off(self):
         pass
 

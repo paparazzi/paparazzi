@@ -1,0 +1,56 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="guidance_basic" dir="guidance">
+  <doc>
+    <description>
+      Legacy vertical control for fixedwing aircraft based on throttle (default) or pitch
+    </description>
+    <section name="VERTICAL CONTROL" prefix="V_CTL_">
+      <define name="POWER_CTL_BAT_NOMINAL" value="11.1" description="nominal battery level" unit="volt"/>
+      <define name="ALTITUDE_PGAIN" value="0.03" description="altitude loop P gain"/>
+      <define name="ALTITUDE_MAX_CLIMB" value="2." description="max climb rate"/>
+      <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.32" description="nominal throttle for cruise flight"/>
+      <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.25" description="min cruise throttle"/>
+      <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.65" description="max cruise throttle"/>
+      <define name="AUTO_THROTTLE_LOITER_TRIM" value="1500" description="loiter trim" unit="pprz"/>
+      <define name="AUTO_THROTTLE_DASH_TRIM" value="-4000" description="dash trim" unit="pprz"/>
+      <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.15" description="feedforward throttle gain" unit="%/(m/s)"/>
+      <define name="AUTO_THROTTLE_PGAIN" value="0.01" description="feedback throttle P gain"/>
+      <define name="AUTO_THROTTLE_IGAIN" value="0.1" description="feedback throttle I gain"/>
+      <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.05" description="feedforward pitch gain"/>
+      <define name="THROTTLE_SLEW_LIMITER" value="2" description="throttle slew rate limiter" unit="s"/>
+    </section>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="control vert">
+        <dl_settings name="auto_throttle">
+          <dl_setting MAX="1" MIN="0.0" STEP="0.05" VAR="v_ctl_auto_throttle_cruise_throttle" shortname="cruise throttle" module="guidance/guidance_v" handler="SetCruiseThrottle" param="V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE">
+            <strip_button name="Loiter" value="0.1" group="dash_loiter"/>
+            <strip_button name="Cruise" value="0" group="dash_loiter"/>
+            <strip_button name="Dash" value="1" group="dash_loiter"/>
+          </dl_setting>
+          <dl_setting MAX="15" MIN="-15" STEP="0.1" VAR="v_ctl_pitch_trim" shortname="pitch trim" param="V_CTL_PITCH_TRIM" unit="rad" alt_unit="deg"/>
+          <dl_setting MAX="0.05" MIN="0.00" STEP="0.005" VAR="v_ctl_auto_throttle_pgain" shortname="throttle_pgain" param="V_CTL_AUTO_THROTTLE_PGAIN"/>
+          <dl_setting MAX="1" MIN="0.0" STEP="0.05" VAR="v_ctl_auto_throttle_igain" shortname="throttle_igain" param="V_CTL_AUTO_THROTTLE_IGAIN"/>
+          <dl_setting MAX="2" MIN="0.0" STEP="0.1" VAR="v_ctl_auto_throttle_dgain" shortname="throttle_dgain"/>
+          <dl_setting MAX="1" MIN="0" STEP="0.01" VAR="v_ctl_auto_throttle_climb_throttle_increment" shortname="throttle_incr" param="V_CTL_AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT"/>
+          <dl_setting MAX="1" MIN="0" STEP="0.01" VAR="v_ctl_auto_throttle_pitch_of_vz_pgain" shortname="pitch_of_vz" param="V_CTL_AUTO_THROTTLE_PITCH_OF_VZ_PGAIN"/>
+          <dl_setting MAX="10" MIN="-10" STEP="0.1" VAR="v_ctl_auto_throttle_pitch_of_vz_dgain" shortname="pitch_of_vz (d)"/>
+        </dl_settings>
+        <dl_settings name="auto_pitch">
+          <dl_setting MAX="0.1" MIN="0.01" STEP="0.01" VAR="v_ctl_auto_pitch_pgain" shortname="pgain" param="V_CTL_AUTO_PITCH_PGAIN"/>
+          <dl_setting MAX="1" MIN="0" STEP="0.01" VAR="v_ctl_auto_pitch_igain" shortname="igain" param="V_CTL_AUTO_PITCH_IGAIN"/>
+        </dl_settings>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="guidance_v.h"/>
+  </header>
+  <init fun="v_ctl_init()"/>
+  <makefile target="ap|sim|nps" firmware="fixedwing">
+    <file name="guidance_v.c" dir="$(SRC_FIRMWARE)/guidance"/>
+    <define name="CTRL_TYPE_H" value="firmwares/fixedwing/guidance/guidance_v.h" type="string"/>
+  </makefile>
+</module>

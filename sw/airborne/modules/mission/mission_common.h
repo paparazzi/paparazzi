@@ -100,6 +100,7 @@ struct _mission_element {
   } element;
 
   float duration; ///< time to spend in the element (<= 0 to disable)
+  uint8_t index;      ///< index of mission element
 };
 
 /** Max number of elements in the tasks' list

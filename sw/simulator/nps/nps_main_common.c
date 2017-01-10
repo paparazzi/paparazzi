@@ -154,6 +154,7 @@ bool nps_main_parse_options(int argc, char **argv)
   nps_main.js_dev = NULL;
   nps_main.spektrum_dev = NULL;
   nps_main.rc_script = 0;
+  nps_main.norc = false;
   nps_main.ivy_bus = NULL;
   nps_main.host_time_factor = 1.0;
   nps_main.fg_fdm = 0;
@@ -169,6 +170,7 @@ bool nps_main_parse_options(int argc, char **argv)
     "   -j --js_dev <optional joystick index>  e.g. 1 (default 0)\n"
     "   --spektrum_dev <spektrum device>       e.g. /dev/ttyUSB0\n"
     "   --rc_script <number>                   e.g. 0\n"
+    "   --norc                                 e.g. disable RC\n"
     "   --ivy_bus <ivy bus>                    e.g. 127.255.255.255\n"
     "   --time_factor <factor>                 e.g. 2.5\n"
     "   --fg_fdm";
@@ -183,6 +185,7 @@ bool nps_main_parse_options(int argc, char **argv)
       {"js_dev", 2, NULL, 0},
       {"spektrum_dev", 1, NULL, 0},
       {"rc_script", 1, NULL, 0},
+      {"norc", 0, NULL, 0},
       {"ivy_bus", 1, NULL, 0},
       {"time_factor", 1, NULL, 0},
       {"fg_fdm", 0, NULL, 0},
@@ -214,12 +217,14 @@ bool nps_main_parse_options(int argc, char **argv)
           case 5:
             nps_main.rc_script = atoi(optarg); break;
           case 6:
-            nps_main.ivy_bus = strdup(optarg); break;
+            nps_main.norc = true; break;
           case 7:
-            nps_main.host_time_factor = atof(optarg); break;
+            nps_main.ivy_bus = strdup(optarg); break;
           case 8:
-            nps_main.fg_fdm = 1; break;
+            nps_main.host_time_factor = atof(optarg); break;
           case 9:
+            nps_main.fg_fdm = 1; break;
+          case 10:
             nps_main.fg_port_in = atoi(optarg); break;
         }
         break;

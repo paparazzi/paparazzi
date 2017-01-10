@@ -15,9 +15,10 @@ RP3 Lisa MX
 
     <!-- NOTE: if you want to use extra_dl module for HITL
     you have to set TELEMETRY_FREQUENCY to CONTROL_FREQUENCY -->
-    <configure name="PERIODIC_FREQUENCY" value="160"/>
-    <define name="CONTROL_FREQUENCY" value="160"/>
-    <configure name="TELEMETRY_FREQUENCY" value="160"/>
+    <configure name="PERIODIC_FREQUENCY" value="100"/>
+    <define name="CONTROL_FREQUENCY" value="100"/>
+    <configure name="TELEMETRY_FREQUENCY" value="100"/>
+    <define name="SERVO_HZ" value="400"/>
 
     <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
@@ -46,7 +47,7 @@ RP3 Lisa MX
     <define name="POLY_OSAM_HALF_SWEEP_ENABLED" value="FALSE"/>
     <define name="GEOFENCE_DATALINK_LOST_TIME" value="45"/>
   </firmware>
-  
+
   <modules>
     <module name="nav" type="line"/>
     <module name="nav" type="flower"/>
@@ -60,17 +61,25 @@ RP3 Lisa MX
       <configure name="EXTRA_DL_PORT" value="UART1"/>
       <configure name="EXTRA_DL_BAUD" value="B921600"/>
     </module>
+    <module name="lidar_sf11"/>
+    <module name="battery_monitor.xml">
+      <define name="BATMON_REV4" value="1"/>
+      <define name="BATMON_CURRENT_OFFSET" value="-120"/>
+      <define name="BATMON_CURRENT_SENSITIVITY" value="25.6"/>
+      <define name="BATMON_TEMP_OFFSET" value="250"/>
+      <define name="BATMON_TEMP_SENSITIVITY" value="10"/>
+    </module>
   </modules>
 
   <!-- commands section -->
   <!-- Servo Configuration -->
   <servos>
-    <servo name="THROTTLE"		  no="0" min="1100" neutral="1100" max="1900"/>
+    <servo name="THROTTLE"	no="0" min="1100" neutral="1100" max="1900"/>
     <servo name="AILERON_RIGHT" no="1" min="900" neutral="1500" max="2100"/>
     <servo name="AILERON_LEFT"	no="2" min="2100" neutral="1500" max="900"/>
     <servo name="ELEVATOR"      no="3" min="2100" neutral="1500" max="900"/>
-    <servo name="RUDDER"        no="4" min="900" neutral="1500" max="2100"/>
-    <servo name="FLAP"		      no="5" min="900" neutral="900" max="2100"/>
+    <servo name="RUDDER"        no="4" min="2100" neutral="1500" max="900"/>
+    <servo name="FLAP"		no="5" min="900" neutral="1500" max="2100"/>
   </servos>
 
   <!-- Servo Command Structure -->
@@ -144,7 +153,7 @@ RP3 Lisa MX
   <section name="BAT">
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="50000"/>
     <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.3"/>
-    
+
     <!-- Flight values -->
     <!--
     <define name="MAX_BAT_LEVEL" value="16.5" unit="V" />
@@ -152,7 +161,7 @@ RP3 Lisa MX
     <define name="CRITIC_BAT_LEVEL" value="13.8" unit="V"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="13.5" unit="V"/>
     -->
-    
+
     <!-- Simulator values -->
     <define name="MAX_BAT_LEVEL" value="5.0" unit="V" />
     <define name="LOW_BAT_LEVEL" value="4.0" unit="V"/>
@@ -213,7 +222,11 @@ RP3 Lisa MX
     <define name="PITCH_MAX_SETPOINT" value="0.35" unit="rad"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.2" unit="rad"/>
     <define name="PITCH_PGAIN" value="12900."/>
+    <!-- ORIGINAL GAIN
     <define name="PITCH_DGAIN" value="1.5"/>
+    -->
+    <!-- SIMULATOR GAIN -->
+    <define name="PITCH_DGAIN" value="151.5"/>
     <define name="ELEVATOR_OF_ROLL" value="1250"/>
     <define name="ROLL_ATTITUDE_GAIN" value="9000"/>
     <define name="ROLL_RATE_GAIN" value="1600"/>
@@ -257,7 +270,7 @@ RP3 Lisa MX
 
   <section name="SIMULATOR" prefix="NPS_">
     <define name="JSBSIM_LAUNCHSPEED" value="25"/>
-    <define name="JSBSIM_MODEL" value="easystar" type="string"/>
+    <define name="JSBSIM_MODEL" value="minion" type="string"/>
     <define name="SENSORS_PARAMS" value="nps_sensors_params_invariant.h" type="string"/>
     <define name="JS_AXIS_THROTTLE" value="0"/>
     <define name="JS_AXIS_THROTTLE_REVERSED" value="1"/>

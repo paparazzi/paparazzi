@@ -77,9 +77,18 @@ static void mpu9250_spi_write_to_reg(void *mpu, uint8_t _reg, uint8_t _val)
 void mpu9250_spi_start_configure(struct Mpu9250_Spi *mpu)
 {
   if (mpu->config.init_status == MPU9250_CONF_UNINIT) {
-    mpu->config.init_status++;
-    if (mpu->spi_trans.status == SPITransSuccess || mpu->spi_trans.status == SPITransDone) {
+    // First check if we found the chip (succesfull WHO_AM_I response)
+    if (mpu->spi_trans.status == SPITransSuccess && mpu->rx_buf[1] == MPU9250_WHOAMI_REPLY) {
+      mpu->config.init_status++;
+      mpu->spi_trans.status = SPITransDone;
       mpu9250_send_config(mpu9250_spi_write_to_reg, (void *)mpu, &(mpu->config));
+    }
+    // Send WHO_AM_I to check if chip is there
+    else if (mpu->spi_trans.status != SPITransRunning && mpu->spi_trans.status != SPITransPending) {
+      mpu->spi_trans.output_length = 1;
+      mpu->spi_trans.input_length = 2;
+      mpu->tx_buf[0] = MPU9250_REG_WHO_AM_I | MPU9250_SPI_READ;
+      spi_submit(mpu->spi_p, &(mpu->spi_trans));
     }
   }
 }

@@ -112,7 +112,7 @@ float get_size_divergence(struct flow_t *vectors, int count, int n_samples)
       dy = (float)vectors[i].pos.y + (float)vectors[i].flow_y - (float)vectors[j].pos.y - (float)vectors[j].flow_y;
       distance_2 = sqrt(dx * dx + dy * dy);
 
-          
+
       // calculate divergence for this sample:
       divs[sample] = (distance_2 - distance_1) / distance_1;
     }

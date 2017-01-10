@@ -148,7 +148,7 @@ void opticflow_module_run(void)
                            opticflow_result.flow_y,
                            opticflow_result.flow_der_x,
                            opticflow_result.flow_der_y,
-                           opticflow_result.noise_measurement,// FIXME, scale to some quality measure 0-255
+                           opticflow_result.noise_measurement,
                            opticflow_result.div_size,
                            opticflow_state.agl);
     //TODO Find an appropiate quality measure for the noise model in the state filter, for now it is tracked_cnt

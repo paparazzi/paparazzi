@@ -60,7 +60,7 @@ uint16_t foo;
 
 bool dl_msg_available;
 
-#define MSG_SIZE 128
+#define MSG_SIZE 256
 uint8_t dl_buffer[MSG_SIZE]  __attribute__((aligned));
 
 #include "generated/settings.h"

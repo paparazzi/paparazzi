@@ -105,7 +105,7 @@ struct video_listener *cv_add_to_device_async(struct video_config_t *device, cv_
 int8_t cv_async_function(struct cv_async *async, struct image_t *img)
 {
   // If the previous image is not yet processed, return
-  if (pthread_mutex_trylock(&async->img_mutex) != 0 || !async->img_processed) {
+  if (!async->img_processed || pthread_mutex_trylock(&async->img_mutex) != 0) {
     return -1;
   }
 
@@ -115,6 +115,7 @@ int8_t cv_async_function(struct cv_async *async, struct image_t *img)
   }
 
   // Copy image
+// TODO:this takes time causing some thread lag, should be replaced with gpu operation
   image_copy(img, &async->img_copy);
 
   // Inform thread of new image
@@ -175,7 +176,7 @@ void cv_run_device(struct video_config_t *device, struct image_t *img)
     }
 
     if (listener->async != NULL) {
-      // Send image to asynchronous thread, only update listener if succesful
+      // Send image to asynchronous thread, only update listener if successful
       if (!cv_async_function(listener->async, img)) {
         // Store timestamp
         listener->ts = img->ts;

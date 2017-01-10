@@ -483,12 +483,12 @@ let bearing = fun geo1 geo2 ->
 let leap_seconds = 16
 
 (** leap seconds in GPS time.
- * There have been 16 leap seconds so far, with the last one at
- * June 30, 2012 at 23:59:60 UTC which equals 1025136015 in GPS seconds
+ * There have been 18 leap seconds so far, with the last one at
+ * Dec 31, 2016 at 23:59:60 UTC which equals 1167264017 in GPS seconds
  * http://www.leapsecond.com/java/gpsclock.htm
  * http://www.andrews.edu/~tzs/timeconv/timealgorithm.html
  *)
-let leap_seconds_list = [46828800.; 78364801.; 109900802.; 173059203.; 252028804.; 315187205.; 346723206.; 393984007.; 425520008.; 457056009.; 504489610.; 551750411.; 599184012.; 820108813.; 914803214.; 1025136015.]
+let leap_seconds_list = [46828800.; 78364801.; 109900802.; 173059203.; 252028804.; 315187205.; 346723206.; 393984007.; 425520008.; 457056009.; 504489610.; 551750411.; 599184012.; 820108813.; 914803214.; 1025136015.; 1119744016.; 1167264017.]
 
 (** Count number of leap seconds when converting gps to unix time *)
 let gps_count_leaps = fun gps_time ->

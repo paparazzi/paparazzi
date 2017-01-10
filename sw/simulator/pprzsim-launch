@@ -48,14 +48,16 @@ def main():
                      help="Host for FlightGear visualization (e.g. 127.0.0.1)")
     parser.add_option("-v", "--verbose",
                       action="store_true", dest="verbose")
+    parser.add_option("--norc", dest="norc", action="store_true",
+                              help="Hide the simulated RC")
 
     # special options for the fixedwing OCaml sim
     ocamlsim_opts = OptionGroup(parser, "Simple fixedwing OCaml Simulator Options",
                                 "These are only relevant to the simple fixedwing OCaml sim")
     ocamlsim_opts.add_option("--boot", dest="boot", action="store_true",
                              help="Boot the aircraft on start")
-    ocamlsim_opts.add_option("--norc", dest="norc", action="store_true",
-                              help="Hide the simulated RC")
+    #ocamlsim_opts.add_option("--norc", dest="norc", action="store_true",
+    #                          help="Hide the simulated RC")
     ocamlsim_opts.add_option("--noground", dest="noground", action="store_true",
                              help="Disable ground detection")
     ocamlsim_opts.add_option("--launch", dest="launch", action="store_true",
@@ -152,6 +154,8 @@ def main():
         if options.rc_script:
             simargs.append("--rc_script")
             simargs.append(options.rc_script)
+        if options.norc:
+            simargs.append("--norc")
         if options.ivy_bus:
             simargs.append("--ivy_bus")
             simargs.append(options.ivy_bus)

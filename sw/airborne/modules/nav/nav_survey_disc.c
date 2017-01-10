@@ -46,14 +46,13 @@ struct DiscSurvey {
 static struct DiscSurvey disc_survey;
 
 
-bool nav_survey_disc_setup(float grid)
+void nav_survey_disc_setup(float grid)
 {
   nav_survey_shift = grid;
   disc_survey.status = DOWNWIND;
   disc_survey.sign = 1;
   disc_survey.c1.x = stateGetPositionEnu_f()->x;
   disc_survey.c1.y = stateGetPositionEnu_f()->y;
-  return false;
 }
 
 bool nav_survey_disc_run(uint8_t center_wp, float radius)

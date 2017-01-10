@@ -108,7 +108,7 @@ static float launch_circle_alt;
 static float launch_line_x;
 static float launch_line_y;
 
-bool nav_launcher_setup(void)
+void nav_launcher_setup(void)
 {
   launch_x = stateGetPositionEnu_f()->x;
   launch_y = stateGetPositionEnu_f()->y;
@@ -121,8 +121,6 @@ bool nav_launcher_setup(void)
 
   CLaunch_Status = L_Pitch_Nav;
   kill_throttle = 0;
-
-  return FALSE;
 }
 
 bool nav_launcher_run(void)

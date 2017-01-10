@@ -44,32 +44,32 @@
   </exceptions>
   <blocks>
     <block name="Wait GPS">
-      <call fun="NavKillThrottle()"/>
+      <call_once fun="NavKillThrottle()"/>
       <while cond="!GpsFixValid()"/>
     </block>
     <block name="Geo init">
       <while cond="LessThan(NavBlockTime(), 2)"/>
-      <call fun="NavSetAltitudeReferenceHere()"/>
+      <call_once fun="NavSetAltitudeReferenceHere()"/>
     </block>
     <block name="Holding point">
-      <call fun="NavKillThrottle()"/>
+      <call_once fun="NavKillThrottle()"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
     <block key="r" name="Start Engine">
-      <call fun="NavResurrect()"/>
+      <call_once fun="NavResurrect()"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
     <block key="t" name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
       <exception cond="stateGetPositionEnu_f()->z > 1.25" deroute="Standby"/>
-      <call fun="NavSetWaypointHere(WP_CLIMB)"/>
+      <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
       <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
     </block>
     <block key="s" name="Standby" strip_button="Standby" strip_icon="home.png">
-      <call fun="NavSetWaypointHere(WP_STDBY)"/>
+      <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
       <stay wp="STDBY"/>
     </block>
     <block key="g" name="START" strip_button="Go" strip_icon="lookfore.png">
-      <call fun="NavSetWaypointHere(WP_GOAL)"/>
+      <call_once fun="NavSetWaypointHere(WP_GOAL)"/>
     </block>
     <block name="StayGoal">
       <go wp="GOAL"/>
@@ -78,34 +78,34 @@
       <exception cond="!InsideObstacleZone(GetPosX(),GetPosY())" deroute="PrepareObstacleRun"/>
     </block>
     <block name="MoveGoalForward">
-      <call fun="moveWaypointForwards(WP_GOAL,3.0)"/>
+      <call_once fun="moveWaypointForwards(WP_GOAL,3.0)"/>
       <deroute block="StayGoal"/>
       <exception cond="!safeToGoForwards" deroute="ChangeHeading"/>
       <exception cond="!InsideObstacleZone(WaypointX(WP_GOAL),WaypointY(WP_GOAL))" deroute="PrepareObstacleRun"/>
     </block>
     <block name="ChangeHeading">
-      <call fun="NavSetWaypointHere(WP_STDBY)"/>
+      <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
       <while cond="1">
-        <call fun="increase_nav_heading(&nav_heading, incrementForAvoidance)"/>
-        <call fun="moveWaypointForwards(WP_GOAL,3.0)"/>
+        <call_once fun="increase_nav_heading(&nav_heading, incrementForAvoidance)"/>
+        <call_once fun="moveWaypointForwards(WP_GOAL,3.0)"/>
         <go wp="STDBY"/>
       </while>
       <exception cond="safeToGoForwards" deroute="StayGoal"/>
     </block>
     <block name="PrepareObstacleRun">
-      <call fun="NavSetWaypointHere(WP_STDBY)"/>
-      <call fun="nav_set_heading_towards_waypoint(WP_HOME)"/>
+      <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
+      <call_once fun="nav_set_heading_towards_waypoint(WP_HOME)"/>
       <stay wp="STDBY"/>
       <exception cond="block_time > 1" deroute="GetOutOfObstacleZone"/>
     </block>
     <block name="GetOutOfObstacleZone">
-      <call fun="moveWaypointForwards(WP_GOAL,0.5)"/>
-      <call fun="chooseRandomIncrementAvoidance()"/>
+      <call_once fun="moveWaypointForwards(WP_GOAL,0.5)"/>
+      <call_once fun="chooseRandomIncrementAvoidance()"/>
       <stay wp="GOAL"/>
       <exception cond="block_time > 1" deroute="START"/>
     </block>
     <block key="l" name="Land here" strip_button="Land Here" strip_icon="land-right.png">
-      <call fun="NavSetWaypointHere(WP_TD)"/>
+      <call_once fun="NavSetWaypointHere(WP_TD)"/>
     </block>
     <block name="Land">
       <go wp="TD"/>
@@ -113,11 +113,11 @@
     <block name="Flare">
       <exception cond="NavDetectGround()" deroute="Holding point"/>
       <exception cond="!nav_is_in_flight()" deroute="Landed"/>
-      <call fun="NavStartDetectGround()"/>
+      <call_once fun="NavStartDetectGround()"/>
       <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
     </block>
     <block name="Landed">
-      <call fun="NavKillThrottle()"/>
+      <call_once fun="NavKillThrottle()"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
   </blocks>

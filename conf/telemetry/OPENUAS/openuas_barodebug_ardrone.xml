@@ -18,7 +18,7 @@
       <message name="IMU_GYRO_RAW"           period="0.13"/>
       <message name="IMU_MAG_RAW"            period="0.25"/>
       <message name="BARO_RAW"               period="0.07"/>
-      <message name="ARDRONE_NAVDATA"        period="0.05"/>      
+      <message name="ARDRONE_NAVDATA"        period="0.05"/>
       <message name="I2C_ERRORS"             period="2.1"/>
       <message name="UART_ERRORS"            period="2.3"/>
     </mode>

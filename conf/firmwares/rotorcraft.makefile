@@ -98,17 +98,6 @@ $(TARGET).srcs += state.c
 include $(CFG_SHARED)/baro_board.makefile
 
 
-$(TARGET).srcs += $(SRC_FIRMWARE)/stabilization.c
-$(TARGET).srcs += $(SRC_FIRMWARE)/stabilization/stabilization_none.c
-
-$(TARGET).srcs += $(SRC_FIRMWARE)/guidance/guidance_h.c
-$(TARGET).srcs += $(SRC_FIRMWARE)/guidance/guidance_h_ref.c
-$(TARGET).srcs += $(SRC_FIRMWARE)/guidance/guidance_v.c
-$(TARGET).srcs += $(SRC_FIRMWARE)/guidance/guidance_v_ref.c
-$(TARGET).srcs += $(SRC_FIRMWARE)/guidance/guidance_v_adapt.c
-$(TARGET).srcs += $(SRC_FIRMWARE)/guidance/guidance_flip.c
-
-include $(CFG_ROTORCRAFT)/navigation.makefile
 else
 $(TARGET).CFLAGS += -DFBW=1
 endif
@@ -122,7 +111,14 @@ else
 ifneq ($(TARGET), fbw)
 $(TARGET).srcs += $(SRC_FIRMWARE)/main.c
 $(TARGET).srcs += $(SRC_FIRMWARE)/autopilot.c
+$(TARGET).srcs += $(SRC_FIRMWARE)/autopilot_utils.c
 $(TARGET).srcs += $(SRC_FIRMWARE)/autopilot_guided.c
+ifeq ($(USE_GENERATED_AUTOPILOT), TRUE)
+$(TARGET).srcs += $(SRC_FIRMWARE)/autopilot_generated.c
+$(TARGET).CFLAGS += -DUSE_GENERATED_AUTOPILOT=1
+else
+$(TARGET).srcs += $(SRC_FIRMWARE)/autopilot_static.c
+endif
 else
 $(TARGET).srcs += $(SRC_FIRMWARE)/main_fbw.c
 endif # TARGET == fbw

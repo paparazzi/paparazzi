@@ -27,7 +27,7 @@
     </block>
     <block name="Geo init">
       <while cond="LessThan(NavBlockTime(), 10)"/>
-      <call fun="NavSetGroundReferenceHere()"/>
+      <call_once fun="NavSetGroundReferenceHere()"/>
     </block>
     <block name="Holding point">
       <set value="1" var="kill_throttle"/>
@@ -42,12 +42,12 @@
 
     <!-- nav_survey_zamboni_setup (uint8_t center_wp, uint8_t dir_wp, float sweep_length, float sweep_spacing, int sweep_lines, float altitude) -->
     <block name="ZamboniSurvey1" strip_button="Zamboni1" strip_icon="survey.png">
-      <call fun="nav_survey_zamboni_setup(WP_Z_CENTER, WP_Z1_DIR, 200, 40, 7, 290)"/>
+      <call_once fun="nav_survey_zamboni_setup(WP_Z_CENTER, WP_Z1_DIR, 200, 40, 7, 290)"/>
       <call fun="nav_survey_zamboni_run()"/>
     </block>
 
     <block name="ZamboniSurvey2" strip_button="Zamboni2" strip_icon="survey.png">
-      <call fun="nav_survey_zamboni_setup(WP_Z_CENTER, WP_Z2_DIR, 200, -40, 7, 290)"/>
+      <call_once fun="nav_survey_zamboni_setup(WP_Z_CENTER, WP_Z2_DIR, 200, -40, 7, 290)"/>
       <call fun="nav_survey_zamboni_run()"/>
     </block>
 
@@ -60,7 +60,7 @@
       <deroute block="land"/>
     </block>
     <block name="land">
-      <call fun="nav_compute_baseleg(WP_AF, WP_TD, WP__BASELEG, nav_radius)"/>
+      <call_once fun="nav_compute_baseleg(WP_AF, WP_TD, WP__BASELEG, nav_radius)"/>
       <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="_BASELEG"/>
       <circle radius="nav_radius" until="And(NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10), 10 > fabs(GetPosAlt() - WaypointAlt(WP__BASELEG)))" wp="_BASELEG"/>
     </block>

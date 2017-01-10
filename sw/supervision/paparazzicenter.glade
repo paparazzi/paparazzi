@@ -1170,7 +1170,9 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">False</property>
+                                <property name="tooltip" translatable="yes">[Alt+C] Cleans the selected target of the selected A/C.</property>
                                 <property name="use_action_appearance">False</property>
+                                <accelerator key="c" signal="activate" modifiers="GDK_MOD1_MASK"/>
                                 <child>
                                   <widget class="GtkAlignment" id="alignment61">
                                     <property name="visible">True</property>
@@ -1224,8 +1226,9 @@
                                 <property name="can_focus">True</property>
                                 <property name="can_default">True</property>
                                 <property name="receives_default">False</property>
-                                <property name="tooltip" translatable="yes">Build the selected target of the selected A/C. Warning: Save is required before this action</property>
+                                <property name="tooltip" translatable="yes">[Alt+B] Build the selected target of the selected A/C. Warning: Save is required before this action</property>
                                 <property name="use_action_appearance">False</property>
+                                <accelerator key="b" signal="activate" modifiers="GDK_MOD1_MASK"/>
                                 <child>
                                   <widget class="GtkAlignment" id="alignment62">
                                     <property name="visible">True</property>
@@ -1279,8 +1282,9 @@
                                 <property name="sensitive">False</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">False</property>
-                                <property name="tooltip" translatable="yes">Upload into the airborne device (which must be plugged !).</property>
+                                <property name="tooltip" translatable="yes">[Alt+U] Upload into the airborne device (which must be plugged !).</property>
                                 <property name="use_action_appearance">False</property>
+                                <accelerator key="u" signal="activate" modifiers="GDK_MOD1_MASK"/>
                                 <child>
                                   <widget class="GtkAlignment" id="alignment63">
                                     <property name="visible">True</property>
@@ -1446,6 +1450,8 @@
                             <property name="can_focus">True</property>
                             <property name="receives_default">False</property>
                             <property name="use_action_appearance">False</property>
+                            <property name="tooltip" translatable="yes">[Alt+S] Stop/Remove All Processes.</property>
+                            <accelerator key="s" signal="activate" modifiers="GDK_MOD1_MASK"/>
                             <child>
                               <widget class="GtkAlignment" id="alignment64">
                                 <property name="visible">True</property>

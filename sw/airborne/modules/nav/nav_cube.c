@@ -36,7 +36,7 @@
 
 struct NavCube nav_cube;
 
-bool nav_cube_setup(uint8_t center, uint8_t tb, uint8_t te)
+void nav_cube_setup(uint8_t center, uint8_t tb, uint8_t te)
 {
 
   int32_t j, start_bx, start_by, start_bz, start_ex, start_ey, start_ez;
@@ -137,8 +137,6 @@ bool nav_cube_setup(uint8_t center, uint8_t tb, uint8_t te)
   /* bug in <for from="" to=""> ? */
   nav_cube.nline_x--;
   nav_cube.nline_z--;
-
-  return false;
 }
 
 bool nav_cube_run(int8_t j, int8_t i,

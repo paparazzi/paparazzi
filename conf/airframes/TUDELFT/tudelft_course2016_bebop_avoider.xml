@@ -15,7 +15,7 @@
     <module name="actuators" type="bebop"/>
     <module name="imu" type="bebop"/>
     <module name="gps" type="optitrack"/> <!-- The GPS information also comes over this wifi, as we are sitting in the cyberzoo all the time -->
-    <module name="stabilization" type="indi"/>
+    <module name="stabilization" type="indi_simple"/>
     <module name="ahrs" type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="FALSE"/> <!-- Heading is from Optitrack, in reguler outside flight case one would use and Magnetometer-->
       <define name="AHRS_USE_GPS_HEADING" value="TRUE"/>
@@ -62,7 +62,7 @@
     <servo name="TOP_LEFT" no="0" min="3000" neutral="3000" max="12000"/>
     <servo name="TOP_RIGHT" no="1" min="3000" neutral="3000" max="12000"/>
     <servo name="BOTTOM_RIGHT" no="2" min="3000" neutral="3000" max="12000"/>
-    <servo name="BOTTOM_LEFT" no="3" min="3000" neutral="3000" max="12000"/> 
+    <servo name="BOTTOM_LEFT" no="3" min="3000" neutral="3000" max="12000"/>
 </servos>
 
   <section name="MIXING" prefix="MOTOR_MIXING_">
@@ -173,10 +173,8 @@
     <define name="MAX_R" value="120.0"/> <!--deg/s-->
 
     <!-- second order filter parameters -->
-    <define name="FILT_OMEGA" value="50.0"/>
-    <define name="FILT_ZETA" value="0.55"/>
-    <define name="FILT_OMEGA_R" value="50.0"/>
-    <define name="FILT_ZETA_R" value="0.55"/>
+    <define name="FILT_CUTOFF" value="8.0"/>
+    <define name="FILT_CUTOFF_R" value="8.0"/>
 
     <!-- first order actuator dynamics -->
     <define name="ACT_DYN_P" value="0.1"/>

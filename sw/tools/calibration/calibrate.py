@@ -84,7 +84,7 @@ def main():
         sensor_ref = 1.
         sensor_res = 11
         noise_window = 10
-        noise_threshold = 1000
+        noise_threshold = options.noise_threshold
 
     if options.verbose:
         print("reading file "+filename+" for aircraft "+options.ac_id+" and sensor "+options.sensor)
@@ -108,8 +108,12 @@ def main():
         neutral = scipy.mean(measurements)
         # find the median of measurement vector length after subtracting approximate neutral
         meas_median = scipy.median(scipy.array([scipy.linalg.norm(v - neutral) for v in measurements]))
-        # set noise threshold to be below 10% of that
-        noise_threshold = meas_median * 0.1
+        if options.sensor == "ACCEL":
+            # set noise threshold to be below 10% of that for accelerometers
+            noise_threshold = meas_median * 0.1
+        elif options.sensor == "MAG":
+            # set noise threshold to be below 60% of that for magnetometers
+            noise_threshold = meas_median * 0.6
     if options.verbose:
         print("Using noise threshold of", noise_threshold, "for filtering.")
 

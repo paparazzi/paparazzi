@@ -41,11 +41,11 @@ TEST STICK DATA OUTPUT:
   Axis 0 : parameters = [-32768,32768]
   Axis 1 : parameters = [-32768,32768]
   Input device name: "2Axes 11Keys Game  Pad" on SDL device "0"
-  buttons 0 0 0 0 0 0 0 0 0 0 0 | hat 0 | axes -1 -1 
-  buttons 0 0 0 0 0 0 0 0 0 0 0 | hat 0 | axes -1 -1 
+  buttons 0 0 0 0 0 0 0 0 0 0 0 | hat 0 | axes -1 -1
+  buttons 0 0 0 0 0 0 0 0 0 0 0 | hat 0 | axes -1 -1
   buttons 0 0 0 0 0 0 0 0 0 0 0 | hat 0 | axes -1 -1
   ...
-   
+
 
 -->
 

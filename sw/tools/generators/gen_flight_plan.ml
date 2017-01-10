@@ -394,9 +394,9 @@ let rec print_stage = fun index_of_waypoints x ->
       | "heading" ->
         stage ();
         fp_pre_call x;
-        stage_until x;
         lprintf "NavHeading(RadOfDeg(%s));\n" (parsed_attrib x "course");
         ignore (output_vmode x "" "");
+        stage_until x;
         fp_post_call x;
         lprintf "break;\n"
       | "follow" ->
@@ -411,17 +411,17 @@ let rec print_stage = fun index_of_waypoints x ->
       | "attitude" ->
         stage ();
         fp_pre_call x;
-        stage_until x;
         lprintf "NavAttitude(RadOfDeg(%s));\n" (parsed_attrib x "roll");
         ignore (output_vmode x "" "");
+        stage_until x;
         fp_post_call x;
         lprintf "break;\n"
       | "manual" ->
         stage ();
         fp_pre_call x;
-        stage_until x;
         lprintf "NavSetManual(%s, %s, %s);\n" (parsed_attrib x "roll") (parsed_attrib x "pitch") (parsed_attrib x "yaw");
         ignore (output_vmode x "" "");
+        stage_until x;
         fp_post_call x;
         lprintf "break;\n"
       | "go" ->

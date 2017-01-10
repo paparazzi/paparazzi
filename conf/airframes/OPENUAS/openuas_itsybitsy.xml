@@ -34,7 +34,7 @@
 
 <airframe name="itsybitsy">
 
-<!-- The no= value is the phisycal connector on the autopilot board --> 
+<!-- The no= value is the phisycal connector on the autopilot board -->
   <servos driver="Pwm">
     <servo name="NE" no="0" min="0" neutral="50" max="1000"/>
     <servo name="SE" no="1" min="0" neutral="50" max="1000"/>

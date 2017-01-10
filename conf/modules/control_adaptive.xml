@@ -1,0 +1,15 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="control" dir="control">
+  <doc>
+    <description>
+      Adaptive control for fixed-wing aircraft.
+      Based on:
+      - stabilization_adaptive_fw
+      - guidance_basic_fw
+    </description>
+  </doc>
+  <autoload name="stabilization_adaptive_fw"/>
+  <autoload name="guidance_basic_fw"/>
+  <makefile target="ap|sim|nps" firmware="fixedwing"/>
+</module>

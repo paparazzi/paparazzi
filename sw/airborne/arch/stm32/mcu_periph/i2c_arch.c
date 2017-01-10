@@ -108,6 +108,20 @@ static void i2c_setup_gpio(uint32_t i2c)
 }
 
 #elif defined(STM32F4)
+#ifndef I2C1_GPIO_AF
+#define I2C1_GPIO_AF GPIO_AF4
+#endif
+
+#ifndef I2C2_GPIO_AF
+#define I2C2_GPIO_AF GPIO_AF4
+#endif
+
+#ifndef I2C3_GPIO_SCL_AF
+#define I2C3_GPIO_SCL_AF GPIO_AF4
+#endif
+#ifndef I2C3_GPIO_SDA_AF
+#define I2C3_GPIO_SDA_AF GPIO_AF4
+#endif
 
 static void i2c_setup_gpio(uint32_t i2c)
 {
@@ -119,7 +133,7 @@ static void i2c_setup_gpio(uint32_t i2c)
                       I2C1_GPIO_SCL | I2C1_GPIO_SDA);
       gpio_set_output_options(GPIOB, GPIO_OTYPE_OD, GPIO_OSPEED_25MHZ,
                               I2C1_GPIO_SCL | I2C1_GPIO_SDA);
-      gpio_set_af(I2C1_GPIO_PORT, GPIO_AF4, I2C1_GPIO_SCL | I2C1_GPIO_SDA);
+      gpio_set_af(I2C1_GPIO_PORT, I2C1_GPIO_AF, I2C1_GPIO_SCL | I2C1_GPIO_SDA);
       break;
 #endif
 #if USE_I2C2
@@ -129,8 +143,7 @@ static void i2c_setup_gpio(uint32_t i2c)
                       I2C2_GPIO_SCL | I2C2_GPIO_SDA);
       gpio_set_output_options(I2C2_GPIO_PORT, GPIO_OTYPE_OD, GPIO_OSPEED_25MHZ,
                               I2C2_GPIO_SCL | I2C2_GPIO_SDA);
-      gpio_set_af(I2C2_GPIO_PORT, GPIO_AF4,
-                  I2C2_GPIO_SCL | I2C2_GPIO_SDA);
+      gpio_set_af(I2C2_GPIO_PORT, I2C2_GPIO_AF, I2C2_GPIO_SCL | I2C2_GPIO_SDA);
       break;
 #endif
 #if USE_I2C3
@@ -139,13 +152,13 @@ static void i2c_setup_gpio(uint32_t i2c)
       gpio_mode_setup(I2C3_GPIO_PORT_SCL, GPIO_MODE_AF, GPIO_PUPD_NONE, I2C3_GPIO_SCL);
       gpio_set_output_options(I2C3_GPIO_PORT_SCL, GPIO_OTYPE_OD, GPIO_OSPEED_25MHZ,
                               I2C3_GPIO_SCL);
-      gpio_set_af(I2C3_GPIO_PORT_SCL, GPIO_AF4, I2C3_GPIO_SCL);
+      gpio_set_af(I2C3_GPIO_PORT_SCL, I2C3_GPIO_SCL_AF, I2C3_GPIO_SCL);
 
       gpio_enable_clock(I2C3_GPIO_PORT_SDA);
       gpio_mode_setup(I2C3_GPIO_PORT_SDA, GPIO_MODE_AF, GPIO_PUPD_NONE, I2C3_GPIO_SDA);
       gpio_set_output_options(I2C3_GPIO_PORT_SDA, GPIO_OTYPE_OD, GPIO_OSPEED_25MHZ,
                               I2C3_GPIO_SDA);
-      gpio_set_af(I2C3_GPIO_PORT_SDA, GPIO_AF4, I2C3_GPIO_SDA);
+      gpio_set_af(I2C3_GPIO_PORT_SDA, I2C3_GPIO_SDA_AF, I2C3_GPIO_SDA);
       break;
 #endif
     default:

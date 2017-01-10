@@ -48,43 +48,7 @@
 #include "pprzlink/messages.h"
 #include "mcu_periph/uart.h"
 
-struct EnuCoor_i navigation_target;
-struct EnuCoor_i navigation_carrot;
 
-struct EnuCoor_i nav_last_point;
-
-uint8_t last_wp UNUSED;
-
-/** Maximum distance from HOME waypoint before going into failsafe mode */
-#ifndef FAILSAFE_MODE_DISTANCE
-#define FAILSAFE_MODE_DISTANCE (1.5*MAX_DIST_FROM_HOME)
-#endif
-
-const float max_dist_from_home = MAX_DIST_FROM_HOME;
-const float max_dist2_from_home = MAX_DIST_FROM_HOME * MAX_DIST_FROM_HOME;
-float failsafe_mode_dist2 = FAILSAFE_MODE_DISTANCE * FAILSAFE_MODE_DISTANCE;
-float dist2_to_home;
-bool too_far_from_home;
-
-bool exception_flag[10] = {0}; //exception flags that can be used in the flight plan
-
-float dist2_to_wp;
-
-uint8_t horizontal_mode;
-struct EnuCoor_i nav_segment_start, nav_segment_end;
-struct EnuCoor_i nav_circle_center;
-int32_t nav_circle_radius, nav_circle_qdr, nav_circle_radians;
-
-int32_t nav_leg_progress;
-uint32_t nav_leg_length;
-
-bool nav_survey_active;
-
-int32_t nav_roll, nav_pitch;
-int32_t nav_heading;
-int32_t nav_cmd_roll, nav_cmd_pitch, nav_cmd_yaw;
-float nav_radius;
-float nav_climb_vspeed, nav_descend_vspeed;
 
 /** default nav_circle_radius in meters */
 #ifndef DEFAULT_CIRCLE_RADIUS
@@ -99,20 +63,64 @@ float nav_climb_vspeed, nav_descend_vspeed;
 #define NAV_DESCEND_VSPEED -0.8
 #endif
 
+/** minimum horizontal distance to waypoint to mark as arrived */
+#ifndef ARRIVED_AT_WAYPOINT
+#define ARRIVED_AT_WAYPOINT 3.0
+#endif
+
+/** Maximum distance from HOME waypoint before going into failsafe mode */
+#ifndef FAILSAFE_MODE_DISTANCE
+#define FAILSAFE_MODE_DISTANCE (1.5*MAX_DIST_FROM_HOME)
+#endif
+
+#define CLOSE_TO_WAYPOINT (15 << INT32_POS_FRAC)
+#define CARROT_DIST (12 << INT32_POS_FRAC)
+
+const float max_dist_from_home = MAX_DIST_FROM_HOME;
+const float max_dist2_from_home = MAX_DIST_FROM_HOME * MAX_DIST_FROM_HOME;
+float failsafe_mode_dist2 = FAILSAFE_MODE_DISTANCE * FAILSAFE_MODE_DISTANCE;
+float dist2_to_home;
+bool too_far_from_home;
+
+float dist2_to_wp;
+
+struct EnuCoor_i navigation_target;
+struct EnuCoor_i navigation_carrot;
+
+struct EnuCoor_i nav_last_point;
+
+uint8_t last_wp UNUSED;
+
+bool exception_flag[10] = {0}; //exception flags that can be used in the flight plan
+
+uint8_t horizontal_mode;
+
+int32_t nav_leg_progress;
+uint32_t nav_leg_length;
+
+bool nav_survey_active;
+
+int32_t nav_roll, nav_pitch;
+int32_t nav_heading;
+int32_t nav_cmd_roll, nav_cmd_pitch, nav_cmd_yaw;
+float nav_radius;
+float nav_climb_vspeed, nav_descend_vspeed;
+
 uint8_t vertical_mode;
 uint32_t nav_throttle;
 int32_t nav_climb, nav_altitude, nav_flight_altitude;
 float flight_altitude;
 
+/* nav_circle variables */
+struct EnuCoor_i nav_circle_center;
+int32_t nav_circle_radius, nav_circle_qdr, nav_circle_radians;
+
+/* nav_route variables */
+struct EnuCoor_i nav_segment_start, nav_segment_end;
+
+
 static inline void nav_set_altitude(void);
 
-#define CLOSE_TO_WAYPOINT (15 << INT32_POS_FRAC)
-#define CARROT_DIST (12 << INT32_POS_FRAC)
-
-/** minimum horizontal distance to waypoint to mark as arrived */
-#ifndef ARRIVED_AT_WAYPOINT
-#define ARRIVED_AT_WAYPOINT 3.0
-#endif
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
@@ -120,6 +128,23 @@ static inline void nav_set_altitude(void);
 void set_exception_flag(uint8_t flag_num)
 {
   exception_flag[flag_num] = 1;
+}
+
+static void send_segment(struct transport_tx *trans, struct link_device *dev)
+{
+  float sx = POS_FLOAT_OF_BFP(nav_segment_start.x);
+  float sy = POS_FLOAT_OF_BFP(nav_segment_start.y);
+  float ex = POS_FLOAT_OF_BFP(nav_segment_end.x);
+  float ey = POS_FLOAT_OF_BFP(nav_segment_end.y);
+  pprz_msg_send_SEGMENT(trans, dev, AC_ID, &sx, &sy, &ex, &ey);
+}
+
+static void send_circle(struct transport_tx *trans, struct link_device *dev)
+{
+  float cx = POS_FLOAT_OF_BFP(nav_circle_center.x);
+  float cy = POS_FLOAT_OF_BFP(nav_circle_center.y);
+  float r = POS_FLOAT_OF_BFP(nav_circle_radius);
+  pprz_msg_send_CIRCLE(trans, dev, AC_ID, &cx, &cy, &r);
 }
 
 static void send_nav_status(struct transport_tx *trans, struct link_device *dev)
@@ -132,16 +157,9 @@ static void send_nav_status(struct transport_tx *trans, struct link_device *dev)
                                       &nav_block, &nav_stage,
                                       &horizontal_mode);
   if (horizontal_mode == HORIZONTAL_MODE_ROUTE) {
-    float sx = POS_FLOAT_OF_BFP(nav_segment_start.x);
-    float sy = POS_FLOAT_OF_BFP(nav_segment_start.y);
-    float ex = POS_FLOAT_OF_BFP(nav_segment_end.x);
-    float ey = POS_FLOAT_OF_BFP(nav_segment_end.y);
-    pprz_msg_send_SEGMENT(trans, dev, AC_ID, &sx, &sy, &ex, &ey);
+    send_segment(trans, dev);
   } else if (horizontal_mode == HORIZONTAL_MODE_CIRCLE) {
-    float cx = POS_FLOAT_OF_BFP(nav_circle_center.x);
-    float cy = POS_FLOAT_OF_BFP(nav_circle_center.y);
-    float r = POS_FLOAT_OF_BFP(nav_circle_radius);
-    pprz_msg_send_CIRCLE(trans, dev, AC_ID, &cx, &cy, &r);
+    send_circle(trans, dev);
   }
 }
 
@@ -232,78 +250,6 @@ void nav_run(void)
   nav_set_altitude();
 }
 
-void nav_circle(struct EnuCoor_i *wp_center, int32_t radius)
-{
-  if (radius == 0) {
-    VECT2_COPY(navigation_target, *wp_center);
-    dist2_to_wp = get_dist2_to_point(wp_center);
-  } else {
-    struct Int32Vect2 pos_diff;
-    VECT2_DIFF(pos_diff, *stateGetPositionEnu_i(), *wp_center);
-    // go back to half metric precision or values are too large
-    //INT32_VECT2_RSHIFT(pos_diff,pos_diff,INT32_POS_FRAC/2);
-    // store last qdr
-    int32_t last_qdr = nav_circle_qdr;
-    // compute qdr
-    nav_circle_qdr = int32_atan2(pos_diff.y, pos_diff.x);
-    // increment circle radians
-    if (nav_circle_radians != 0) {
-      int32_t angle_diff = nav_circle_qdr - last_qdr;
-      INT32_ANGLE_NORMALIZE(angle_diff);
-      nav_circle_radians += angle_diff;
-    } else {
-      // Smallest angle to increment at next step
-      nav_circle_radians = 1;
-    }
-
-    // direction of rotation
-    int8_t sign_radius = radius > 0 ? 1 : -1;
-    // absolute radius
-    int32_t abs_radius = abs(radius);
-    // carrot_angle
-    int32_t carrot_angle = ((CARROT_DIST << INT32_ANGLE_FRAC) / abs_radius);
-    Bound(carrot_angle, (INT32_ANGLE_PI / 16), INT32_ANGLE_PI_4);
-    carrot_angle = nav_circle_qdr - sign_radius * carrot_angle;
-    int32_t s_carrot, c_carrot;
-    PPRZ_ITRIG_SIN(s_carrot, carrot_angle);
-    PPRZ_ITRIG_COS(c_carrot, carrot_angle);
-    // compute setpoint
-    VECT2_ASSIGN(pos_diff, abs_radius * c_carrot, abs_radius * s_carrot);
-    INT32_VECT2_RSHIFT(pos_diff, pos_diff, INT32_TRIG_FRAC);
-    VECT2_SUM(navigation_target, *wp_center, pos_diff);
-  }
-  nav_circle_center = *wp_center;
-  nav_circle_radius = radius;
-  horizontal_mode = HORIZONTAL_MODE_CIRCLE;
-}
-
-
-void nav_route(struct EnuCoor_i *wp_start, struct EnuCoor_i *wp_end)
-{
-  struct Int32Vect2 wp_diff, pos_diff, wp_diff_prec;
-  VECT2_DIFF(wp_diff, *wp_end, *wp_start);
-  VECT2_DIFF(pos_diff, *stateGetPositionEnu_i(), *wp_start);
-  // go back to metric precision or values are too large
-  VECT2_COPY(wp_diff_prec, wp_diff);
-  INT32_VECT2_RSHIFT(wp_diff, wp_diff, INT32_POS_FRAC);
-  INT32_VECT2_RSHIFT(pos_diff, pos_diff, INT32_POS_FRAC);
-  uint32_t leg_length2 = Max((wp_diff.x * wp_diff.x + wp_diff.y * wp_diff.y), 1);
-  nav_leg_length = int32_sqrt(leg_length2);
-  nav_leg_progress = (pos_diff.x * wp_diff.x + pos_diff.y * wp_diff.y) / nav_leg_length;
-  int32_t progress = Max((CARROT_DIST >> INT32_POS_FRAC), 0);
-  nav_leg_progress += progress;
-  int32_t prog_2 = nav_leg_length;
-  Bound(nav_leg_progress, 0, prog_2);
-  struct Int32Vect2 progress_pos;
-  VECT2_SMUL(progress_pos, wp_diff_prec, ((float)nav_leg_progress) / nav_leg_length);
-  VECT2_SUM(navigation_target, *wp_start, progress_pos);
-
-  nav_segment_start = *wp_start;
-  nav_segment_end = *wp_end;
-  horizontal_mode = HORIZONTAL_MODE_ROUTE;
-
-  dist2_to_wp = get_dist2_to_point(wp_end);
-}
 
 bool nav_approaching_from(struct EnuCoor_i *wp, struct EnuCoor_i *from, int16_t approaching_time)
 {
@@ -396,19 +342,17 @@ static inline void nav_set_altitude(void)
 
 
 /** Reset the geographic reference to the current GPS fix */
-unit_t nav_reset_reference(void)
+void nav_reset_reference(void)
 {
   ins_reset_local_origin();
   /* update local ENU coordinates of global waypoints */
   waypoints_localize_all();
-  return 0;
 }
 
-unit_t nav_reset_alt(void)
+void nav_reset_alt(void)
 {
   ins_reset_altitude_ref();
   waypoints_localize_all();
-  return 0;
 }
 
 void nav_init_stage(void)
@@ -534,21 +478,20 @@ void compute_dist2_to_home(void)
 }
 
 /** Set nav_heading in radians. */
-bool nav_set_heading_rad(float rad)
+void nav_set_heading_rad(float rad)
 {
   nav_heading = ANGLE_BFP_OF_REAL(rad);
   INT32_COURSE_NORMALIZE(nav_heading);
-  return false;
 }
 
 /** Set nav_heading in degrees. */
-bool nav_set_heading_deg(float deg)
+void nav_set_heading_deg(float deg)
 {
-  return nav_set_heading_rad(RadOfDeg(deg));
+  nav_set_heading_rad(RadOfDeg(deg));
 }
 
 /** Set heading to point towards x,y position in local coordinates */
-bool nav_set_heading_towards(float x, float y)
+void nav_set_heading_towards(float x, float y)
 {
   struct FloatVect2 target = {x, y};
   struct FloatVect2 pos_diff;
@@ -558,34 +501,112 @@ bool nav_set_heading_towards(float x, float y)
     float heading_f = atan2f(pos_diff.x, pos_diff.y);
     nav_heading = ANGLE_BFP_OF_REAL(heading_f);
   }
-  // return false so it can be called from the flightplan
-  // meaning it will continue to the next stage
-  return false;
 }
 
 /** Set heading in the direction of a waypoint */
-bool nav_set_heading_towards_waypoint(uint8_t wp)
+void nav_set_heading_towards_waypoint(uint8_t wp)
 {
-  return nav_set_heading_towards(WaypointX(wp), WaypointY(wp));
+  nav_set_heading_towards(WaypointX(wp), WaypointY(wp));
+}
+
+/** Set heading in the direction of the target*/
+void nav_set_heading_towards_target(void)
+{
+  nav_set_heading_towards(POS_FLOAT_OF_BFP(navigation_target.x),
+                          POS_FLOAT_OF_BFP(navigation_target.y));
 }
 
 /** Set heading to the current yaw angle */
-bool nav_set_heading_current(void)
+void nav_set_heading_current(void)
 {
   nav_heading = stateGetNedToBodyEulers_i()->psi;
-  return false;
 }
 
+void nav_set_failsafe(void)
+{
+  autopilot_set_mode(AP_MODE_FAILSAFE);
+}
+
+
+/***********************************************************
+ * built in navigation routines
+ **********************************************************/
+
+void nav_circle(struct EnuCoor_i *wp_center, int32_t radius)
+{
+  if (radius == 0) {
+    VECT2_COPY(navigation_target, *wp_center);
+    dist2_to_wp = get_dist2_to_point(wp_center);
+  } else {
+    struct Int32Vect2 pos_diff;
+    VECT2_DIFF(pos_diff, *stateGetPositionEnu_i(), *wp_center);
+    // go back to half metric precision or values are too large
+    //INT32_VECT2_RSHIFT(pos_diff,pos_diff,INT32_POS_FRAC/2);
+    // store last qdr
+    int32_t last_qdr = nav_circle_qdr;
+    // compute qdr
+    nav_circle_qdr = int32_atan2(pos_diff.y, pos_diff.x);
+    // increment circle radians
+    if (nav_circle_radians != 0) {
+      int32_t angle_diff = nav_circle_qdr - last_qdr;
+      INT32_ANGLE_NORMALIZE(angle_diff);
+      nav_circle_radians += angle_diff;
+    } else {
+      // Smallest angle to increment at next step
+      nav_circle_radians = 1;
+    }
+
+    // direction of rotation
+    int8_t sign_radius = radius > 0 ? 1 : -1;
+    // absolute radius
+    int32_t abs_radius = abs(radius);
+    // carrot_angle
+    int32_t carrot_angle = ((CARROT_DIST << INT32_ANGLE_FRAC) / abs_radius);
+    Bound(carrot_angle, (INT32_ANGLE_PI / 16), INT32_ANGLE_PI_4);
+    carrot_angle = nav_circle_qdr - sign_radius * carrot_angle;
+    int32_t s_carrot, c_carrot;
+    PPRZ_ITRIG_SIN(s_carrot, carrot_angle);
+    PPRZ_ITRIG_COS(c_carrot, carrot_angle);
+    // compute setpoint
+    VECT2_ASSIGN(pos_diff, abs_radius * c_carrot, abs_radius * s_carrot);
+    INT32_VECT2_RSHIFT(pos_diff, pos_diff, INT32_TRIG_FRAC);
+    VECT2_SUM(navigation_target, *wp_center, pos_diff);
+  }
+  nav_circle_center = *wp_center;
+  nav_circle_radius = radius;
+  horizontal_mode = HORIZONTAL_MODE_CIRCLE;
+}
+
+
+void nav_route(struct EnuCoor_i *wp_start, struct EnuCoor_i *wp_end)
+{
+  struct Int32Vect2 wp_diff, pos_diff, wp_diff_prec;
+  VECT2_DIFF(wp_diff, *wp_end, *wp_start);
+  VECT2_DIFF(pos_diff, *stateGetPositionEnu_i(), *wp_start);
+  // go back to metric precision or values are too large
+  VECT2_COPY(wp_diff_prec, wp_diff);
+  INT32_VECT2_RSHIFT(wp_diff, wp_diff, INT32_POS_FRAC);
+  INT32_VECT2_RSHIFT(pos_diff, pos_diff, INT32_POS_FRAC);
+  uint32_t leg_length2 = Max((wp_diff.x * wp_diff.x + wp_diff.y * wp_diff.y), 1);
+  nav_leg_length = int32_sqrt(leg_length2);
+  nav_leg_progress = (pos_diff.x * wp_diff.x + pos_diff.y * wp_diff.y) / nav_leg_length;
+  int32_t progress = Max((CARROT_DIST >> INT32_POS_FRAC), 0);
+  nav_leg_progress += progress;
+  int32_t prog_2 = nav_leg_length;
+  Bound(nav_leg_progress, 0, prog_2);
+  struct Int32Vect2 progress_pos;
+  VECT2_SMUL(progress_pos, wp_diff_prec, ((float)nav_leg_progress) / nav_leg_length);
+  VECT2_SUM(navigation_target, *wp_start, progress_pos);
+
+  nav_segment_start = *wp_start;
+  nav_segment_end = *wp_end;
+  horizontal_mode = HORIZONTAL_MODE_ROUTE;
+
+  dist2_to_wp = get_dist2_to_point(wp_end);
+}
+
+
 /************** Oval Navigation **********************************************/
-
-/** Navigation along a figure O. One side leg is defined by waypoints [p1] and
-    [p2].
-    The navigation goes through 4 states: OC1 (half circle next to [p1]),
-    OR21 (route [p2] to [p1], OC2 (half circle next to [p2]) and OR12
-    (opposite leg).
-
-    Initial state is the route along the desired segment (OC2).
-*/
 
 #ifndef LINE_START_FUNCTION
 #define LINE_START_FUNCTION {}
@@ -594,6 +615,7 @@ bool nav_set_heading_current(void)
 #define LINE_STOP_FUNCTION {}
 #endif
 
+enum oval_status { OR12, OC2, OR21, OC1 };
 enum oval_status oval_status;
 uint8_t nav_oval_count;
 
@@ -603,6 +625,12 @@ void nav_oval_init(void)
   nav_oval_count = 0;
 }
 
+/**
+ * Navigation along a figure O. One side leg is defined by waypoints [p1] and [p2].
+ * The navigation goes through 4 states: OC1 (half circle next to [p1]),
+ * OR21 (route [p2] to [p1], OC2 (half circle next to [p2]) and OR12 (opposite leg).
+ * Initial state is the route along the desired segment (OC2).
+ */
 void nav_oval(uint8_t p1, uint8_t p2, float radius)
 {
   radius = - radius; /* Historical error ? */

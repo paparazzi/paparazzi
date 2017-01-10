@@ -15,7 +15,7 @@
 
   <firmware name="fixedwing">
     <target name="sim" 			        board="pc"/>
-    
+
     <target name="ap" 			        board="tiny_2.11"/>
     <define name="STRONG_WIND"/>
     <define name="WIND_INFO"/>

@@ -1,7 +1,7 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<!-- 
-/home/microuav/paparazzi/sw/tools/bluegiga_usb_dongle/bluegiga_usb_driver  /dev/ttyACM2  00:07:80:2d:d6:d9  4242  4252 
+<!--
+/home/microuav/paparazzi/sw/tools/bluegiga_usb_dongle/bluegiga_usb_driver  /dev/ttyACM2  00:07:80:2d:d6:d9  4242  4252
 -->
 
 <airframe name="GeniusDD">

@@ -2,7 +2,31 @@
 
 <autopilot name="Quadrotor Autopilot (Basic version)">
 
-  <state_machine name="main" freq="PERIODIC_FREQUENCY" gcs_mode="true" settings_mode="true">
+  <state_machine name="ap" freq="PERIODIC_FREQUENCY" gcs_mode="true" settings_mode="true" settings_handler="autopilot_generated|SetModeHandler">
+
+    <includes>
+      <include name="generated/airframe.h"/>
+      <include name="autopilot.h"/>
+      <include name="autopilot_rc_helpers.h"/>
+      <include name="navigation.h"/>
+      <include name="guidance.h"/>
+      <include name="stabilization/stabilization_attitude.h"/>
+      <include name="subsystems/radio_control.h"/>
+      <include name="subsystems/gps.h"/>
+      <include name="subsystems/actuators.h"/>
+      <include name="subsystems/actuators/motor_mixing.h"/>
+      <!--define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT" cond="ifndef MODE_MANUAL"/>
+      <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_Z_HOLD" cond="ifndef MODE_AUTO1"/-->
+      <define name="MODE_AUTO2" value="AP_MODE_NAV" cond="ifndef MODE_AUTO2"/>
+      <define name="RCLost()" value="(radio_control.status == RC_REALLY_LOST)"/>
+      <define name="DLModeNav()" value="(autopilot_mode_auto2 == AP_MODE_NAV)"/>
+      <define name="DLModeGuided()" value="(autopilot_mode_auto2 == AP_MODE_GUIDED)"/>
+    </includes>
+
+    <settings>
+      <dl_setting var="kill_throttle" min="0" step="1" max="1" module="autopilot" values="Resurrect|Kill" handler="KillThrottle"/>
+      <dl_setting var="autopilot_mode_auto2" min="2" step="1" max="3" module="autopilot" values="NAV|GUIDED"/>
+    </settings>
 
     <control_block name="set_actuators">
       <call fun="SetRotorcraftCommands(stabilization_cmd, autopilot_in_flight, autopilot_motors_on)"/>
@@ -10,36 +34,53 @@
     </control_block>
 
     <control_block name="attitude_loop">
-      <call fun="SetAttitudeFromRC(rc_values)"/>
-      <call fun="AddAttitudeFromFMS()" cond="fms.enabled"/>
+      <call fun="stabilization_attitude_read_rc(autopilot_in_flight, FALSE, FALSE)"/>
       <call fun="stabilization_attitude_run(autopilot_in_flight)"/>
     </control_block>
 
+    <control_block name="throttle_direct">
+      <call fun="guidance_v_read_rc()"/>
+      <call fun="guidance_v_z_sp = stateGetPositionNed_i()->z"/>
+      <call fun="stabilization_cmd[COMMAND_THRUST] = guidance_v_rc_delta_t"/>
+    </control_block>
+
     <control_block name="altitude_loop">
-      <call fun="SetAltitudeFromFMS()" cond="fms.enabled"/>
       <call fun="gv_update_ref_from_z_sp(guidance_v_z_sp)"/>
       <call fun="run_hover_loop(autopilot_in_flight)"/>
-      <call fun="SaturateThrottle(rc_values)"/>
+      <!--call fun="SaturateThrottle(rc_values)"/-->
     </control_block>
 
     <exceptions>
       <exception cond="too_far_from_home" deroute="HOME"/>
+      <exception cond="kill_switch_is_on()" deroute="KILL"/>
     </exceptions>
 
-    <mode name="ATTITUDE" start="stabilization_attitude_enter()">
-      <select cond="$DEFAULT_MODE"/>
+    <mode name="ATTITUDE_DIRECT" shortname="ATT">
       <select cond="RCMode0()"/>
-      <control freq="512">
+      <on_enter>
+        <call fun="stabilization_attitude_enter()"/>
+      </on_enter>
+      <control freq="NAV_FREQ">
+        <call fun="nav_periodic_task()"/>
+      </control>
+      <control>
         <call_block name="attitude_loop"/>
-        <call fun="SetThrottleFromRC(rc_values)"/>
+        <call_block name="throttle_direct"/>
         <call_block name="set_actuators"/>
       </control>
       <exception cond="RCLost()" deroute="FAILSAFE"/>
     </mode>
 
-    <mode name="VERTICAL" start="stabilization_attitude_enter()|guidance_v_enter()">
+    <mode name="ATTITUDE_Z_HOLD" shortname="A_ZH">
       <select cond="RCMode1()"/>
-      <control freq="512">
+      <on_enter>
+        <call fun="stabilization_attitude_enter()"/>
+        <call fun="guidance_v_z_enter()"/>
+      </on_enter>
+      <control freq="NAV_FREQ">
+        <call fun="nav_periodic_task()"/>
+      </control>
+      <control>
         <call_block name="attitude_loop"/>
         <call_block name="altitude_loop"/>
         <call_block name="set_actuators"/>
@@ -47,48 +88,93 @@
       <exception cond="RCLost()" deroute="FAILSAFE"/>
     </mode>
 
-    <mode name="NAV" start="guidance_h_nav_enter()|guidance_v_enter()">
-      <select cond="RCMode2()" exception="HOME"/>
-      <select cond="RCMode2() && DLModeNav()"/>
-      <control freq="32">
+    <mode name="NAV">
+      <select cond="RCMode2() && DLModeNav()" exception="HOME"/>
+      <on_enter>
+        <call fun="guidance_h_nav_enter()"/>
+        <call fun="stabilization_attitude_enter()"/>
+        <call fun="guidance_v_z_enter()"/>
+      </on_enter>
+      <control freq="NAV_FREQ">
         <call fun="nav_periodic_task()"/>
       </control>
-      <control freq="512">
-        <call fun="SetCommandFromAP()"/>
-        <call fun="GuidanceNavHorizontal()"/>
-        <call fun="GuidanceNavVertical()"/>
-        <call fun="AddAttitudeFromRC(rc_values)" cond="!RCLost()"/>
-        <call fun="stabilization_attitude_run(autopilot_in_flight)"/>
-        <call fun="SaturateThrottle(rc_values)" cond="!RCLost()"/>
+      <control>
+        <call fun="guidance_v_thrust_adapt(autopilot_in_flight)"/>
+        <call fun="guidance_v_from_nav(autopilot_in_flight)"/>
+        <call fun="guidance_h_from_nav(autopilot_in_flight)"/>
         <call_block name="set_actuators"/>
       </control>
-      <exception cond="GPSLost()" deroute="FAILSAFE"/>
+      <exception cond="GpsIsLost() && autopilot_in_flight" deroute="FAILSAFE"/>
     </mode>
 
-    <mode name="HOME" start="guidance_h_nav_enter()|guidance_v_enter()">
-      <control freq="32">
-        <call fun="nav_home()"/>
+    <mode name="GUIDED">
+      <select cond="RCMode2() && DLModeGuided()" exception="HOME"/>
+      <on_enter>
+        <call fun="guidance_h_hover_enter()"/>
+        <call fun="stabilization_attitude_enter()"/>
+        <call fun="guidance_v_mode = GUIDANCE_V_MODE_GUIDED"/>
+        <call fun="guidance_v_guided_enter()"/>
+      </on_enter>
+      <control freq="NAV_FREQ">
+        <call fun="nav_periodic_task()"/>
       </control>
-      <control freq="512">
-        <call fun="SetCommandFromAP()"/>
-        <call fun="GuidanceNavHorizontal()"/>
-        <call fun="GuidanceNavVertical()"/>
-        <call fun="stabilization_attitude_run(autopilot_in_flight)"/>
+      <control>
+        <call fun="guidance_v_thrust_adapt(autopilot_in_flight)"/>
+        <call fun="guidance_v_guided_run(autopilot_in_flight)"/>
+        <call fun="guidance_h_guided_run(autopilot_in_flight)"/>
         <call_block name="set_actuators"/>
       </control>
-      <exception cond="GPSLost()" deroute="FAILSAFE"/>
+      <exception cond="GpsIsLost() && autopilot_in_flight" deroute="FAILSAFE"/>
+    </mode>
+
+    <mode name="HOME">
+      <on_enter>
+        <call fun="guidance_h_nav_enter()"/>
+        <call fun="stabilization_attitude_enter()"/>
+        <call fun="guidance_v_z_enter()"/>
+      </on_enter>
+      <control freq="NAV_FREQ">
+        <call fun="nav_home()"/>
+      </control>
+      <control>
+        <call fun="guidance_v_thrust_adapt(autopilot_in_flight)"/>
+        <call fun="guidance_v_from_nav(autopilot_in_flight)"/>
+        <call fun="guidance_h_from_nav(autopilot_in_flight)"/>
+        <call_block name="set_actuators"/>
+      </control>
+      <exception cond="GpsIsLost()" deroute="FAILSAFE"/>
     </mode>
 
     <!-- Safe landing -->
-    <mode name="FAILSAFE" start="stabilization_attitude_set_failsafe_setpoint()|guidance_v_mode_changed(GUIDANCE_V_MODE_CLIMB)|guidance_v_zd_sp = SPEED_BFP_OF_REAL(FAILSAFE_DESCENT_SPEED)">
-      <control freq="512">
-        <call fun="SetFailsafeCommand()"/>
+    <mode name="FAILSAFE" shortname="FAIL">
+      <on_enter>
+        <call fun="stabilization_attitude_set_failsafe_setpoint()"/>
+        <call fun="guidance_v_mode_changed(GUIDANCE_V_MODE_CLIMB)"/>
+        <call fun="guidance_v_zd_sp = SPEED_BFP_OF_REAL(FAILSAFE_DESCENT_SPEED)"/>
+      </on_enter>
+      <control>
+        <call fun="stabilization_attitude_set_failsafe_setpoint()"/>
         <call fun="stabilization_attitude_run(autopilot_in_flight)"/>
-        <call fun="gv_update_ref_from_zd_sp(guidance_v_zd_sp)"/>
+        <call fun="gv_update_ref_from_zd_sp(guidance_v_zd_sp, stateGetPositionNed_i()->z)"/>
         <call fun="run_hover_loop(autopilot_in_flight)"/>
-        <call fun="actuators_set(autopilot_motors_on)"/>
+        <call_block name="set_actuators"/>
       </control>
-      <exception cond="!GPSLost()" deroute="$LAST_MODE"/>
+      <exception cond="!GpsIsLost()" deroute="$LAST_MODE"/>
+    </mode>
+
+    <!-- Kill throttle mode -->
+    <mode name="KILL">
+      <select cond="$DEFAULT_MODE"/>
+      <select cond="kill_switch_is_on()"/>
+      <on_enter>
+        <call fun="autopilot_in_flight = false"/>
+        <call fun="autopilot_in_flight_counter = 0"/>
+        <call fun="autopilot_set_motors_on(false)"/>
+        <call fun="stabilization_cmd[COMMAND_THRUST] = 0"/>
+      </on_enter>
+      <control>
+        <call fun="SetCommands(commands_failsafe)"/>
+      </control>
     </mode>
 
   </state_machine>

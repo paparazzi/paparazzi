@@ -47,7 +47,7 @@
 
 struct NavSpiral nav_spiral;
 
-bool nav_spiral_setup(uint8_t center_wp, uint8_t edge_wp, float radius_start, float radius_inc, float segments)
+void nav_spiral_setup(uint8_t center_wp, uint8_t edge_wp, float radius_start, float radius_inc, float segments)
 {
   VECT2_COPY(nav_spiral.center, waypoints[center_wp]);    // center of the helix
   nav_spiral.center.z = waypoints[center_wp].a;
@@ -81,7 +81,6 @@ bool nav_spiral_setup(uint8_t center_wp, uint8_t edge_wp, float radius_start, fl
   if (nav_spiral.dist_from_center > nav_spiral.radius) {
     nav_spiral.status = SpiralOutside;
   }
-  return false;
 }
 
 bool nav_spiral_run(void)

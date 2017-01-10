@@ -1,5 +1,5 @@
 <!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
-<!-- A simple flightplan for automated SITL/HITL verification: it launches and lands itself, giving us an idea whether a given airframe 
+<!-- A simple flightplan for automated SITL/HITL verification: it launches and lands itself, giving us an idea whether a given airframe
      can finish it -->
 <flight_plan alt="260" ground_alt="185" lat0="43.46223" lon0="1.27289" max_dist_from_home="1500" name="Basic" security_height="25">
   <header>
@@ -28,7 +28,7 @@
     </block>
     <block name="Geo init">
       <while cond="LessThan(NavBlockTime(), 10)"/>
-      <call fun="NavSetGroundReferenceHere()"/>
+      <call_once fun="NavSetGroundReferenceHere()"/>
     </block>
     <block name="Holding point">
       <set value="1" var="kill_throttle"/>
@@ -66,7 +66,7 @@
       <deroute block="MOB"/>
     </block>
     <block name="MOB" strip_button="Circle around here" strip_icon="mob.png" group="base_pattern">
-      <call fun="NavSetWaypointHere(WP_MOB)"/>
+      <call_once fun="NavSetWaypointHere(WP_MOB)"/>
       <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
       <circle radius="nav_radius" wp="MOB"/>
       <exception cond="NavBlockTime() > 90" deroute="Land Right AF-TD"/>
@@ -76,7 +76,7 @@
       <deroute block="land"/>
     </block>
     <block name="land">
-      <call fun="nav_compute_baseleg(WP_AF, WP_TD, WP__BASELEG, nav_radius)"/>
+      <call_once fun="nav_compute_baseleg(WP_AF, WP_TD, WP__BASELEG, nav_radius)"/>
       <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="_BASELEG"/>
       <circle radius="nav_radius" until="And(NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10), 10 > fabs(GetPosAlt() - WaypointAlt(WP__BASELEG)))" wp="_BASELEG"/>
     </block>

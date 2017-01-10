@@ -19,7 +19,7 @@
     <module name="actuators" type="bebop"/>
     <module name="imu" type="bebop"/>
     <module name="gps" type="datalink"/> <!-- Optitrack -->
-    <module name="stabilization" type="indi"/>
+    <module name="stabilization" type="indi_simple"/>
     <module name="ahrs" type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="TRUE"/>
       <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
@@ -41,8 +41,8 @@
       <define name="OPTICFLOW_FY" value="347.22222222"/> <!-- 2.5 / (3.6 * 2.0) * 1000 -->
       <define name="OPTICFLOW_FOV_W" value="0.665499265"/> <!-- 2 * arctan(240 / (2*347.22222222)) -->
       <define name="OPTICFLOW_FOV_H" value="0.665499265"/> <!-- 2 * arctan(240 / (2*347.22222222)) -->
-      <define name="OPTICFLOW_DEROTATION_CORRECTION_FACTOR_X" value="0.8"/> <!--Obtained from a linefit--> 
-      <define name="OPTICFLOW_DEROTATION_CORRECTION_FACTOR_Y" value="0.85"/> <!--Obtained from a linefit--> 
+      <define name="OPTICFLOW_DEROTATION_CORRECTION_FACTOR_X" value="0.8"/> <!--Obtained from a linefit-->
+      <define name="OPTICFLOW_DEROTATION_CORRECTION_FACTOR_Y" value="0.85"/> <!--Obtained from a linefit-->
     </module>
 
     <module name="video_capture">
@@ -160,10 +160,8 @@
     <define name="REF_RATE_R" value="28.0"/>
 
     <!-- second order filter parameters -->
-    <define name="FILT_OMEGA" value="50.0"/>
-    <define name="FILT_ZETA" value="0.55"/>
-    <define name="FILT_OMEGA_R" value="50.0"/>
-    <define name="FILT_ZETA_R" value="0.55"/>
+    <define name="FILT_CUTOFF" value="8.0"/>
+    <define name="FILT_CUTOFF_R" value="8.0"/>
 
     <!-- first order actuator dynamics -->
     <define name="ACT_DYN_P" value="0.1"/>

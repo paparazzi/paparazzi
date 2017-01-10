@@ -46,12 +46,16 @@ OPT ?= s
 # Slightly bigger .elf files but gains the ability to decode macros
 DEBUG_FLAGS ?= -ggdb3
 
+CSTANDARD   ?= -std=gnu99
+CXXSTANDARD ?= -std=c++98
+
 # input files
 SRCS = $($(TARGET).srcs)
 #ASRC =
 
 # object files
 COBJ    = $(SRCS:%.c=$(OBJDIR)/%.o)
+OBJS    = $(COBJ:%.cpp=$(OBJDIR)/%.o)
 AOBJ    = $(ASRC:%.S=$(OBJDIR)/%.o)
 
 # linker script :
@@ -68,42 +72,56 @@ $(info Using "$($(TARGET).LDSCRIPT)" as ldscript for target "$(TARGET)".)
 endif
 endif
 
-CFLAGS = -I. -I./$(ARCH) -I../ext/libopencm3/include $(INCLUDES)
-CFLAGS += -D__thumb2__ -O$(OPT)
-CFLAGS += $(DEBUG_FLAGS)
 ifeq ($(ARCH_L), )
-CFLAGS += -msoft-float
+FLOAT_ABI ?= -msoft-float
 else ifeq ($(ARCH_L),f4)
 ifndef HARD_FLOAT
-CFLAGS += -msoft-float
+FLOAT_ABI ?= -msoft-float
 else
-CFLAGS += -mfloat-abi=softfp -mfpu=fpv4-sp-d16
+FLOAT_ABI ?= -mfloat-abi=softfp -mfpu=fpv4-sp-d16
 endif
 endif
 
-CSTANDARD = -std=gnu99
+ARCH_FLAGS ?= -mcpu=$(MCU) -mthumb
 
+# flags for warnings (C and C++)
+WARN_FLAGS += -Wall -Wextra -Wunused
+#WARN_FLAGS += -Wcast-qual
+WARN_FLAGS += -Wcast-align
+WARN_FLAGS += -Wpointer-arith
+WARN_FLAGS += -Wswitch-default
+WARN_FLAGS += -Wredundant-decls -Wmissing-declarations
+WARN_FLAGS += -Wshadow
+
+
+# common flags
+CFLAGS += -O$(OPT)
+CFLAGS += $(DEBUG_FLAGS)
+CFLAGS += $(FLOAT_ABI)
+CFLAGS += $(ARCH_FLAGS)
+CFLAGS += $(USER_CFLAGS)
+CFLAGS += $(WARN_FLAGS)
+CXXFLAGS += -O$(OPT)
+CXXFLAGS += $(DEBUG_FLAGS)
+CXXFLAGS += $(FLOAT_ABI)
+CXXFLAGS += $(ARCH_FLAGS)
+CXXFLAGS += $(USER_CFLAGS)
+CXXFLAGS += $(WARN_FLAGS)
+
+
+CFLAGS += -I. -I./$(ARCH) -I../ext/libopencm3/include $(INCLUDES)
+CFLAGS += -D__thumb2__
 CFLAGS += -Wl,--gc-sections
 CFLAGS += -mfix-cortex-m3-ldrd
-CFLAGS += -mcpu=$(MCU) -mthumb -ansi
 CFLAGS += $(CSTANDARD)
 #CFLAGS += -malignment-traps
 CFLAGS += -fno-common
 CFLAGS += -ffunction-sections -fdata-sections
 CFLAGS += -Wa,-adhlns=$(OBJDIR)/$(notdir $(subst $(suffix $<),.lst,$<))
-
-# flags for warnings
-CFLAGS += -Wall -Wextra -Wunused
-#CFLAGS += -Wcast-qual
-CFLAGS += -Wcast-align
-CFLAGS += -Wpointer-arith
-CFLAGS += -Wswitch-default
-CFLAGS += -Wredundant-decls -Wmissing-declarations
 CFLAGS += -Wstrict-prototypes -Wmissing-prototypes
-CFLAGS += -Wshadow
 CFLAGS += -Wnested-externs
-
-CFLAGS += $(USER_CFLAGS) $(BOARD_CFLAGS)
+CFLAGS += $($(TARGET).CFLAGS)
+CFLAGS += $(BOARD_CFLAGS)
 
 #CFLAGS += -fno-diagnostics-show-caret
 
@@ -118,7 +136,13 @@ endif
 # with cortex-m3 and m4 unaligned data can still be read
 CFLAGS += -DPPRZLINK_UNALIGNED_ACCESS=1
 
-CFLAGS += $($(TARGET).CFLAGS)
+
+# C++ only flags
+CXXFLAGS += $(CXXSTANDARD)
+CXXFLAGS += -pipe -fshow-column -ffast-math
+CXXFLAGS += -ffunction-sections -fdata-sections
+CXXFLAGS += $($(TARGET).CXXFLAGS)
+
 
 AFLAGS  = -ahls -mapcs-32
 AFLAGS += -mcpu=$(MCU) -mthumb
@@ -200,8 +224,8 @@ sym: $(OBJDIR)/$(TARGET).sym
 
 # Link: create ELF output file from object files.
 .SECONDARY : $(OBJDIR)/$(TARGET).elf
-.PRECIOUS : $(COBJ) $(AOBJ)
-%.elf: $(COBJ) $(AOBJ) | $(OBJDIR)
+.PRECIOUS : $(OBJS) $(AOBJ)
+%.elf: $(OBJS) $(AOBJ) | $(OBJDIR)
 	@echo LD $@
 	$(Q)$(LD) $(LDFLAGS) $($(TARGET).LDFLAGS) -o $@ $(COBJ) $(AOBJ) $(LDLIBS)
 
@@ -210,6 +234,12 @@ $(OBJDIR)/%.o : %.c $(OBJDIR)/../Makefile.ac
 	@echo CC $@
 	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
 	$(Q)$(CC) -MMD -c $(CFLAGS) $< -o $@
+
+# Compile: create object files from C++ source files
+$(OBJDIR)/%.o : %.cpp $(OBJDIR)/../Makefile.ac
+	@echo CXX $@
+	$(Q)test -d $(dir $@) || mkdir -p $(dir $@)
+	$(Q)$(CXX) -MMD -c $(CXXFLAGS) $< -o $@
 
 # Assemble: create object files from assembler source files. ARM/Thumb
 $(AOBJ) : $(OBJDIR)/%.o : %.S
@@ -228,5 +258,6 @@ include $(PAPARAZZI_SRC)/conf/Makefile.stm32-upload
 #
 ifneq ($(MAKECMDGOALS),clean)
 DEPS = $(addprefix $(OBJDIR)/,$($(TARGET).srcs:.c=.d))
+DEPS += $(addprefix $(OBJDIR)/,$($(TARGET).srcs:.cpp=.d))
 -include $(DEPS)
 endif

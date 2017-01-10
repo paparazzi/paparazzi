@@ -42,10 +42,13 @@ class Guidance(object):
             print(e)
             return
         try:
-            self.ap_mode = settings.name_lookup['mode'].index
+            self.ap_mode = settings.name_lookup['mode'] # try classic name
         except Exception as e:
-            print(e)
-            print("ap_mode setting not found, mode change not possible.")
+            try:
+                self.ap_mode = settings.name_lookup['ap'] # in case it is a generated autopilot
+            except Exception as e:
+                print(e)
+                print("ap_mode setting not found, mode change not possible.")
         self._interface = IvyMessagesInterface("gb2ivy")
 
     def shutdown(self):
@@ -71,8 +74,14 @@ class Guidance(object):
         if self.ap_mode is not None:
             msg = PprzMessage("ground", "DL_SETTING")
             msg['ac_id'] = self.ac_id
-            msg['index'] = self.ap_mode
-            msg['value'] = 19  # AP_MODE_GUIDED
+            msg['index'] = self.ap_mode.index
+            try:
+                msg['value'] = self.ap_mode.ValueFromName('Guided')  # AP_MODE_GUIDED
+            except ValueError:
+                try:
+                    msg['value'] = self.ap_mode.ValueFromName('GUIDED')  # AP_MODE_GUIDED
+                except ValueError:
+                    msg['value'] = 19 # fallback to fixed index
             print("Setting mode to GUIDED: %s" % msg)
             self._interface.send(msg)
 
@@ -83,8 +92,14 @@ class Guidance(object):
         if self.ap_mode is not None:
             msg = PprzMessage("ground", "DL_SETTING")
             msg['ac_id'] = self.ac_id
-            msg['index'] = self.ap_mode
-            msg['value'] = 13  # AP_MODE_NAV
+            msg['index'] = self.ap_mode.index
+            try:
+                msg['value'] = self.ap_mode.ValueFromName('Nav')  # AP_MODE_NAV
+            except ValueError:
+                try:
+                    msg['value'] = self.ap_mode.ValueFromName('NAV')  # AP_MODE_NAV
+                except ValueError:
+                    msg['value'] = 13 # fallback to fixed index
             print("Setting mode to NAV: %s" % msg)
             self._interface.send(msg)
 
@@ -181,7 +196,7 @@ class SerialInterface(threading.Thread):
                 # Parse incoming data
                 c = self.ser.readline()
                 if len(c) > 0:
-                    # Callback function on new message 
+                    # Callback function on new message
                     self.callback(c)
 
         except StopIteration:

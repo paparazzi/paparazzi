@@ -161,12 +161,16 @@ void px4flash_event(void)
       intermcu_set_enabled(FALSE);
 
       px4iobl_tid = sys_time_register_timer(5.0, NULL); //10 (fbw pprz bl timeout)-5 (px4 fmu bl timeout)
+
       /*
       * The forceprog define is very usefull, if for whatever reason the (normal, not bootloader) firmware on the IO chip became disfunct.
       * In that case:
       * 1. enable this define
       * 2. build and upload  the fmu f4 chip (ap target in pprz center)
       * 3. build the io code, and convert the firmware using the following command:
+      *   $(PAPARAZZI_SRC)/sw/tools/px4/px_mkfw.py --prototype $(PAPARAZZI_SRC)/sw/tools/px4/px4io-v2.prototype --image $(PAPARAZZI_HOME)/var/aircrafts/<AC_NAME>/fbw/fbw.bin > $(PAPARAZZI_HOME)/var/aircrafts/<AC_NAME>/fbw/fbw.px4
+      * 4. Start the following command:
+      *   $(PAPARAZZI_SRC)/sw/tools/px4/px_uploader.py --port "/dev/ttyACM0" $(PAPARAZZI_SRC)/var/aircrafts/<AC_NAME>/fbw/fbw.px4
       * Optional 5&6:
       * 5a. Either, boot the Pixhawk (reconnect usb) holding the IO reset button until the FMU led stops blinking fast (i.e. exits its own bootloader)
       * 5b  Or, press the IO reset button on the pixhawk

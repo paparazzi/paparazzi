@@ -17,7 +17,7 @@
     <define name="MAG_X_SENS" value="15.0972908192" integer="16"/>
     <define name="MAG_Y_SENS" value="14.9806854769" integer="16"/>
     <define name="MAG_Z_SENS" value="16.0049628842" integer="16"/-->
-    
+
     <define name="MAG_X_NEUTRAL" value="48"/>
     <define name="MAG_Y_NEUTRAL" value="-23"/>
     <define name="MAG_Z_NEUTRAL" value="-9"/>

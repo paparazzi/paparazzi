@@ -78,10 +78,10 @@ TEST STICK DATA OUTPUT:
   Axis 3 : parameters = [-32768,32768]
   Axis 4 : parameters = [-32768,32768]
   Input device name: "Generic   USB  Joystick  " on SDL device "0"
-  buttons 0 0 0 0 0 0 0 0 0 0 0 0 | hat 0 | axes 0 0 1 0 0 
-  buttons 0 0 0 0 0 0 0 0 0 0 0 0 | hat 0 | axes 0 0 1 0 0 
   buttons 0 0 0 0 0 0 0 0 0 0 0 0 | hat 0 | axes 0 0 1 0 0
-  ... 
+  buttons 0 0 0 0 0 0 0 0 0 0 0 0 | hat 0 | axes 0 0 1 0 0
+  buttons 0 0 0 0 0 0 0 0 0 0 0 0 | hat 0 | axes 0 0 1 0 0
+  ...
 
 
 -->

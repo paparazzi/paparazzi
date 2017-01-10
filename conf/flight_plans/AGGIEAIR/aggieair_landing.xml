@@ -3,11 +3,11 @@
 <procedure>
 <blocks>
     <block name="Landing CW">
-      <call fun="nav_skid_landing_setup(WP_AF, WP_TD, nav_radius)"/>
+      <call_once fun="nav_skid_landing_setup(WP_AF, WP_TD, nav_radius)"/>
       <call fun="nav_skid_landing_run()"/>
     </block>
     <block name="Landing CCW">
-      <call fun="nav_skid_landing_setup(WP_AF, WP_TD, -nav_radius)"/>
+      <call_once fun="nav_skid_landing_setup(WP_AF, WP_TD, -nav_radius)"/>
       <call fun="nav_skid_landing_run()"/>
     </block>
 </blocks>

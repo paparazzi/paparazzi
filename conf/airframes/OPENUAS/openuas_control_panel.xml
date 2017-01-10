@@ -8,7 +8,7 @@
     <variable name="map" value="muret_UTM.xml"/>
     <variable name="flight_plan" value="flight_plans/muret1.xml"/>
   </section>
-  
+
   <section name="programs">
     <program name="Server" command="sw/ground_segment/tmtc/server"/>
     <program name="Data Link" command="sw/ground_segment/tmtc/link">

@@ -8,7 +8,7 @@
 
 <airframe name="Weasel">
 
-  <autopilot name="fixedwing_autopilot.xml"/>
+  <!--autopilot name="fixedwing_autopilot.xml"/-->
 
   <firmware name="fixedwing">
     <define name="USE_I2C0"/>

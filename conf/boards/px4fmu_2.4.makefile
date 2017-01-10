@@ -40,6 +40,7 @@ SYS_TIME_LED       ?= 1
 # default UART configuration (modem, gps, spektrum)
 #
 
+#The modem serial on px4 is called serial 1, but connected to uart2 on the f4
 MODEM_PORT ?= UART2
 MODEM_BAUD ?= B57600
 

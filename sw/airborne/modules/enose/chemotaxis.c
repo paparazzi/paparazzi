@@ -34,7 +34,7 @@ bool nav_chemotaxis(uint8_t c, uint8_t plume)
     float y = stateGetPositionEnu_f()->y - waypoints[plume].y;
     waypoints[c].x = waypoints[plume].x + ALPHA * x;
     waypoints[c].y = waypoints[plume].y + ALPHA * y;
-    //    DownlinkSendWp(c);
+    //    DownlinkSendWpNr(c);
     /* Turn in the right direction */
     float dir_x = cos(M_PI_2 - stateGetHorizontalSpeedDir_f());
     float dir_y = sin(M_PI_2 - stateGetHorizontalSpeedDir_f());
@@ -48,7 +48,7 @@ bool nav_chemotaxis(uint8_t c, uint8_t plume)
     /* Store this plume */
     waypoints[plume].x = stateGetPositionEnu_f()->x;
     waypoints[plume].y = stateGetPositionEnu_f()->y;
-    // DownlinkSendWp(plume);
+    // DownlinkSendWpNr(plume);
     last_plume_value = chemo_sensor;
   }
 

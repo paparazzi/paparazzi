@@ -21,12 +21,14 @@
  */
 
 /** @file modules/lidar/lidar_lite.h
- *  @brief driver for the Lidar-Lite i2c lidar version 1 (silver label)
+ *  @brief driver for the Lidar-Lite i2c lidar
  *
- *  Note that the lidar seems to generate unexpected events on the i2c bus,
- *  such as misplaced start or stop or word reset (see I2C_ERRORS message).
+ *  Note that the version 1 (silver label) seems to generate unexpected events
+ *  on the i2c bus, such as misplaced start or stop or word reset (see I2C_ERRORS message).
  *  It seems to have no effect on other i2c devices (especially the IMU), but
  *  use with caution.
+ *
+ *  The newer versions function correctly.
  */
 #ifndef LIDAR_LITE_I2C_H
 #define LIDAR_LITE_I2C_H
@@ -35,12 +37,13 @@
 #include "mcu_periph/i2c.h"
 
 enum LidarLiteStatus {
-	LIDAR_INIT_RANGING,
-	LIDAR_REQ_READ,
-	LIDAR_READ_DISTANCE
+	LIDAR_LITE_INIT_RANGING,
+	LIDAR_LITE_REQ_READ,
+	LIDAR_LITE_READ_DISTANCE,
+	LIDAR_LITE_PARSE
 };
 
-struct lidar_lite
+struct LidarLite
 {
   struct i2c_transaction trans;
   uint8_t addr;
@@ -48,9 +51,13 @@ struct lidar_lite
   float distance; // [m]
   enum LidarLiteStatus status;
   bool update_agl;
+  bool compensate_rotation;
 };
 
+extern struct LidarLite lidar_lite;
+
 extern void lidar_lite_init(void);
+extern void lidar_lite_event(void);
 extern void lidar_lite_periodic(void);
 extern void lidar_lite_downlink(void);
 

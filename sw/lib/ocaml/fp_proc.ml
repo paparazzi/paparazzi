@@ -124,6 +124,9 @@ let transform_stage = fun prefix reroutes env xml ->
             | "manual" ->
               let attribs = transform_values [] env attribs in
               Xml.Element (tag, attribs, children)
+            | "return" ->
+              let attribs = transform_values ["reset_stage"] env attribs in
+              Xml.Element (tag, attribs, children)
             | "go" ->
               assert (children=[]);
               let attribs = transform_values ["wp";"from";"hmode";"vmode"] env attribs in
@@ -147,7 +150,7 @@ let transform_stage = fun prefix reroutes env xml ->
               assert (children=[]);
               let attribs = transform_values ["wp"; "vmode"] env attribs in
               Xml.Element (tag, attribs, children)
-            | "call" | "set" ->
+            | "call" | "call_once" | "set" ->
               let attribs = transform_values ["var"] env attribs in
               Xml.Element (tag, attribs, children)
             | _ -> failwith (sprintf "Fp_proc: Unexpected tag: '%s'" tag)
@@ -362,12 +365,12 @@ let process_relative_waypoints = fun xml ->
 let regexp_path = Str.regexp "[ \t,]+"
 
 
-let stage_process_path = fun stage rest ->
+let rec stage_process_path = fun stage rest ->
   if Xml.tag stage = "path" then
     let waypoints = Str.split regexp_path (ExtXml.attrib stage "wpts") in
     let attribs = Xml.attribs stage in
     let rec loop = function
-    [] -> failwith "Waypoint expected in path stage"
+      | [] -> failwith "Waypoint expected in path stage"
       | [wp] -> (* Just go to this single point *)
         Xml.Element("go", ("wp", wp)::attribs, [])::rest
       | wp1::wp2::ps ->
@@ -376,6 +379,9 @@ let stage_process_path = fun stage rest ->
                            "wp", wp2]@attribs, [])::
           if ps = [] then rest else loop (wp2::ps) in
     loop waypoints
+  else if Xml.tag stage = "for" || Xml.tag stage = "while" then
+    let attribs = Xml.attribs stage in
+    Xml.Element(Xml.tag stage, attribs, List.fold_right stage_process_path (Xml.children stage) [])::rest
   else
     stage::rest
 

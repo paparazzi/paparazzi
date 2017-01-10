@@ -112,7 +112,18 @@ extern void guidance_h_mode_changed(uint8_t new_mode);
 extern void guidance_h_read_rc(bool in_flight);
 extern void guidance_h_run(bool in_flight);
 
+extern void guidance_h_hover_enter(void);
+extern void guidance_h_nav_enter(void);
+
+/** Set horizontal guidance from NAV and run control loop
+ */
+extern void guidance_h_from_nav(bool in_flight);
+
 extern void guidance_h_set_igain(uint32_t igain);
+
+/** Run GUIDED mode control
+ */
+extern void guidance_h_guided_run(bool in_flight);
 
 /** Set horizontal position setpoint in GUIDED mode.
  * @param x North position (local NED frame) in meters.

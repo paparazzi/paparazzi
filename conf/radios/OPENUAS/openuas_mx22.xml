@@ -16,7 +16,7 @@
 -- min, max and sync are expressed in micro-seconds
 -->
 
-<!-- 
+<!--
 -- Attributes of channel tag :
 -- ctl: name of the command on the transmitter - only for displaying
 -- no: order in the PPM frame
@@ -27,8 +27,8 @@
 -- neutral: neutral pulse length (micro-seconds)
 -- Note: a command may be reversed by exchanging min and max values
 -->
-<!-- 
-The order of the list below is of importance if you do not define a 
+<!--
+The order of the list below is of importance if you do not define a
 "no=" (order in the PPM frame) parameter.
 If you do not define this then the order of the PPM is the one of
 the order of the functon in the list
@@ -46,4 +46,4 @@ the order of the functon in the list
   <channel ctl="CONTROL6"             function="CALIB"         min="1000" neutral="1500" max="1900" average="0"/>
   <channel ctl="NONE"	                function="NOTUSED"       min="1100" neutral="1500" max="1900" average="0"/>
 </radio>
-  
+

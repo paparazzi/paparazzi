@@ -1,3 +1,75 @@
+Paparazzi v5.11_devel
+=====================
+
+Update changelog
+
+General
+-------
+
+- possibility to use generated autopilot for rotorcraft
+  [#1975] (http://github.com/paparazzi/paparazzi/pull/1975)
+- also compile C++ files
+  [#1561] (http://github.com/paparazzi/paparazzi/pull/1561)
+- mag live calibration tool
+  [#1977] (http://github.com/paparazzi/paparazzi/pull/1977)
+- flight plans
+  [#1970] (http://github.com/paparazzi/paparazzi/pull/1970)
+  [#1967] (http://github.com/paparazzi/paparazzi/pull/1967)
+  [#1943] (http://github.com/paparazzi/paparazzi/pull/1943)
+  [#1942] (http://github.com/paparazzi/paparazzi/pull/1942)
+  [#1900] (http://github.com/paparazzi/paparazzi/pull/1900)
+- mission index
+  [#1918] (http://github.com/paparazzi/paparazzi/pull/1918)
+- sevral conf cleaning
+- NPS update
+  [#1831] (http://github.com/paparazzi/paparazzi/pull/1931)
+- mini package manager
+  [#1904] (http://github.com/paparazzi/paparazzi/pull/1904)
+
+Airborne
+--------
+
+- convert telemetry subsystems to modules
+  [#1835] (http://github.com/paparazzi/paparazzi/pull/1835)
+- change behavior of command laws
+  [#1955] (http://github.com/paparazzi/paparazzi/pull/1955)
+- RC switch
+  [#1954] (http://github.com/paparazzi/paparazzi/pull/1954)
+  [#1953] (http://github.com/paparazzi/paparazzi/pull/1953)
+  [#1951] (http://github.com/paparazzi/paparazzi/pull/1951)
+- PX4 support and fixes
+  [#1950] (http://github.com/paparazzi/paparazzi/pull/1950)
+  [#1962] (http://github.com/paparazzi/paparazzi/pull/1962)
+- update libopencm3
+  [#1965] (http://github.com/paparazzi/paparazzi/pull/1965)
+- sbus actuators support
+  [#1952] (http://github.com/paparazzi/paparazzi/pull/1952)
+- guidance vector field
+  [#1919] (http://github.com/paparazzi/paparazzi/pull/1919)
+- ahrs support and fixes
+  [#1949] (http://github.com/paparazzi/paparazzi/pull/1949)
+  [#1946] (http://github.com/paparazzi/paparazzi/pull/1946)
+- lidar lite and teraranger drivers
+  [#1926] (http://github.com/paparazzi/paparazzi/pull/1926)
+  [#1888] (http://github.com/paparazzi/paparazzi/pull/1888)
+
+
+Paparazzi v5.10_stable
+======================
+
+Stable version release
+
+- convert ahrs to modules
+  [#1859] (http://github.com/paparazzi/paparazzi/pull/1859)
+- svinfo vizu
+  [#1860] (http://github.com/paparazzi/paparazzi/pull/1860)
+- fix i2c, uart and systime drivers for chibios
+- several small fix on configuration files
+- fix in state and geodetic interface
+- fix for secondary GPS timeout
+- fix airframe generation to have all configuration variables first
+
+
 Paparazzi v5.9.0_testing
 ========================
 

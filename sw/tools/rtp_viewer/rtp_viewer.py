@@ -2,6 +2,7 @@
 
 import cv2
 import sys
+import argparse
 from os import path, getenv
 
 PPRZ_SRC = getenv("PAPARAZZI_SRC", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../')))
@@ -10,9 +11,9 @@ sys.path.append(PPRZ_SRC + "/sw/ext/pprzlink/lib/v1.0/python")
 from pprzlink.ivy import IvyMessagesInterface
 from pprzlink.message import PprzMessage
 
-
 class RtpViewer:
     running = False
+    scale = 1
     rotate = 0
     frame = None
     mouse = dict()
@@ -59,6 +60,10 @@ class RtpViewer:
         if self.mouse.get('start'):
             # Draw a rectangle indicating the region of interest
             cv2.rectangle(self.frame, self.mouse['start'], self.mouse['now'], (0, 255, 0), 2)
+
+        if self.scale != 1:
+            h, w = self.frame.shape[:2]
+            self.frame = cv2.resize(self.frame, (int(self.scale * w), int(self.scale * h)))
 
         # Show the image in a window
         cv2.imshow('rtp', self.frame)
@@ -110,11 +115,25 @@ class RtpViewer:
 
 
 if __name__ == '__main__':
-    viewer = RtpViewer("rtp_stream.sdp")
+    import sys
+    import os
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-p", "--port", type=int, default=5000, help="The port number to open for the RTP stream (5000 or 6000)")
+    parser.add_argument("-s", "--scale", type=float, default=1., help="The scaling factor to apply to the incoming video stream (default: 1)")
+    parser.add_argument("-r", "--rotate", type=int, default=0, help="The number of clockwise 90deg rotations to apply to the stream [0-3] (default: 0)")
+    
+    args = parser.parse_args()
+
+    filename = os.path.dirname(os.path.abspath(__file__)) + "/rtp_" + str(args.port) + ".sdp"
+
+    viewer = RtpViewer(filename)
+    viewer.scale = args.scale
+    viewer.rotate = args.rotate
 
     if not viewer.cap.isOpened():
         viewer.cleanup()
-        sys.exit("Can't open video stream")
+        raise IOError("Can't open video stream")
 
     viewer.run()
     viewer.cleanup()

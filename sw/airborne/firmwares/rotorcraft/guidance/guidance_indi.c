@@ -42,6 +42,8 @@
 #include "stabilization/stabilization_attitude_ref_quat_int.h"
 #include "firmwares/rotorcraft/stabilization.h"
 #include "stdio.h"
+#include "filters/low_pass_filter.h"
+#include "subsystems/abi.h"
 
 // The acceleration reference is calculated with these gains. If you use GPS,
 // they are probably limited by the update rate of your GPS. The default
@@ -62,6 +64,7 @@ float guidance_indi_speed_gain = 1.8;
 struct FloatVect3 sp_accel = {0.0,0.0,0.0};
 #ifdef GUIDANCE_INDI_SPECIFIC_FORCE_GAIN
 float thrust_in_specific_force_gain = GUIDANCE_INDI_SPECIFIC_FORCE_GAIN;
+static void guidance_indi_filter_thrust(void);
 
 #ifndef GUIDANCE_INDI_THRUST_DYNAMICS
 #ifndef STABILIZATION_INDI_ACT_DYN_P
@@ -73,56 +76,48 @@ float thrust_in_specific_force_gain = GUIDANCE_INDI_SPECIFIC_FORCE_GAIN;
 
 #endif //GUIDANCE_INDI_SPECIFIC_FORCE_GAIN
 
+#ifndef GUIDANCE_INDI_FILTER_CUTOFF
+#ifdef STABILIZATION_INDI_FILT_CUTOFF
+#define GUIDANCE_INDI_FILTER_CUTOFF STABILIZATION_INDI_FILT_CUTOFF
+#else
+#define GUIDANCE_INDI_FILTER_CUTOFF 3.0
+#endif
+#endif
 
-struct FloatVect3 filt_accel_ned;
-struct FloatVect3 filt_accel_ned_d;
-struct FloatVect3 filt_accel_ned_dd;
-float filt_accelzbody = 0;
-float filt_accelzbodyd = 0;
-float filt_accelzbodydd = 0;
-float roll_filt = 0;
-float roll_filtd = 0;
-float roll_filtdd = 0;
-float pitch_filt = 0;
-float pitch_filtd = 0;
-float pitch_filtdd = 0;
 float thrust_act = 0;
-float thrust_filt = 0;
-float thrust_filtd = 0;
-float thrust_filtdd = 0;
+Butterworth2LowPass filt_accel_ned[3];
+Butterworth2LowPass roll_filt;
+Butterworth2LowPass pitch_filt;
+Butterworth2LowPass thrust_filt;
 
 struct FloatMat33 Ga;
 struct FloatMat33 Ga_inv;
 struct FloatVect3 euler_cmd;
 
-float filter_omega = 20.0;
-float filter_zeta = 0.65;
+float filter_cutoff = GUIDANCE_INDI_FILTER_CUTOFF;
 
 struct FloatEulers guidance_euler_cmd;
 float thrust_in;
+
+static void guidance_indi_propagate_filters(void);
+static void guidance_indi_calcG(struct FloatMat33 *Gmat);
 
 /**
  *
  * Call upon entering indi guidance
  */
 void guidance_indi_enter(void) {
-  filt_accelzbody = 0;
-  filt_accelzbodyd = 0;
-  filt_accelzbodydd = 0;
-  roll_filt = 0;
-  roll_filtd = 0;
-  roll_filtdd = 0;
-  pitch_filt = 0;
-  pitch_filtd = 0;
-  pitch_filtdd = 0;
-  FLOAT_VECT3_ZERO(filt_accel_ned);
-  FLOAT_VECT3_ZERO(filt_accel_ned_d);
-  FLOAT_VECT3_ZERO(filt_accel_ned_dd);
   thrust_in = 0.0;
   thrust_act = 0;
-  thrust_filt = 0;
-  thrust_filtd = 0;
-  thrust_filtdd = 0;
+
+  float tau = 1.0/(2.0*M_PI*filter_cutoff);
+  float sample_time = 1.0/PERIODIC_FREQUENCY;
+  for(int8_t i=0; i<3; i++) {
+    init_butterworth_2_low_pass(&filt_accel_ned[i], tau, sample_time, 0.0);
+  }
+  init_butterworth_2_low_pass(&roll_filt, tau, sample_time, 0.0);
+  init_butterworth_2_low_pass(&pitch_filt, tau, sample_time, 0.0);
+  init_butterworth_2_low_pass(&thrust_filt, tau, sample_time, 0.0);
 }
 
 /**
@@ -133,10 +128,8 @@ void guidance_indi_enter(void) {
  */
 void guidance_indi_run(bool in_flight, int32_t heading) {
 
-  //filter accel to get rid of noise
-  guidance_indi_filter_accel();
-  //filter attitude to synchronize with accel
-  guidance_indi_filter_attitude();
+  //filter accel to get rid of noise and filter attitude to synchronize with accel
+  guidance_indi_propagate_filters();
 
   //Linear controller to find the acceleration setpoint from position and velocity
   float pos_x_err = POS_FLOAT_OF_BFP(guidance_h.ref.pos.x) - stateGetPositionNed_f()->x;
@@ -160,7 +153,7 @@ void guidance_indi_run(bool in_flight, int32_t heading) {
   sp_accel.y = sinf(psi) * rc_x + cosf(psi) * rc_y;
 
   //for rc vertical control
-  sp_accel.z = -(radio_control.values[RADIO_THROTTLE]-4500)*5.0/9600.0;
+  sp_accel.z = -(radio_control.values[RADIO_THROTTLE]-4500)*8.0/9600.0;
 #endif
 
   //Calculate matrix of partial derivatives
@@ -168,7 +161,7 @@ void guidance_indi_run(bool in_flight, int32_t heading) {
   //Invert this matrix
   MAT33_INV(Ga_inv, Ga);
 
-  struct FloatVect3 a_diff = { sp_accel.x - filt_accel_ned.x, sp_accel.y -filt_accel_ned.y, sp_accel.z -filt_accel_ned.z};
+  struct FloatVect3 a_diff = { sp_accel.x - filt_accel_ned[0].o[0], sp_accel.y -filt_accel_ned[1].o[0], sp_accel.z -filt_accel_ned[2].o[0]};
 
   //Bound the acceleration error so that the linearization still holds
   Bound(a_diff.x, -6.0, 6.0);
@@ -178,14 +171,18 @@ void guidance_indi_run(bool in_flight, int32_t heading) {
   //If the thrust to specific force ratio has been defined, include vertical control
   //else ignore the vertical acceleration error
 #ifndef GUIDANCE_INDI_SPECIFIC_FORCE_GAIN
+#ifndef STABILIZATION_ATTITUDE_INDI_FULL
   a_diff.z = 0.0;
+#endif
 #endif
 
   //Calculate roll,pitch and thrust command
   MAT33_VECT3_MUL(euler_cmd, Ga_inv, a_diff);
 
-  guidance_euler_cmd.phi = roll_filt + euler_cmd.x;
-  guidance_euler_cmd.theta = pitch_filt + euler_cmd.y;
+  AbiSendMsgTHRUST(THRUST_INCREMENT_ID, euler_cmd.z);
+
+  guidance_euler_cmd.phi = roll_filt.o[0] + euler_cmd.x;
+  guidance_euler_cmd.theta = pitch_filt.o[0] + euler_cmd.y;
   //zero psi command, because a roll/pitch quat will be constructed later
   guidance_euler_cmd.psi = 0;
 
@@ -193,7 +190,7 @@ void guidance_indi_run(bool in_flight, int32_t heading) {
   guidance_indi_filter_thrust();
 
   //Add the increment in specific force * specific_force_to_thrust_gain to the filtered thrust
-  thrust_in = thrust_filt + euler_cmd.z*thrust_in_specific_force_gain;
+  thrust_in = thrust_filt.o[0] + euler_cmd.z*thrust_in_specific_force_gain;
   Bound(thrust_in, 0, 9600);
 
 #ifdef GUIDANCE_INDI_RC_DEBUG
@@ -216,49 +213,31 @@ void guidance_indi_run(bool in_flight, int32_t heading) {
 
 #ifdef GUIDANCE_INDI_SPECIFIC_FORCE_GAIN
 /**
- *
- * Filter the thrust, such that it corresponds to the filtered measured acceleration
+ * Filter the thrust, such that it corresponds to the filtered acceleration
  */
 void guidance_indi_filter_thrust(void)
 {
+  // Actuator dynamics
   thrust_act = thrust_act + GUIDANCE_INDI_THRUST_DYNAMICS * (thrust_in - thrust_act);
 
-  thrust_filt = thrust_filt + thrust_filtd / PERIODIC_FREQUENCY;
-  thrust_filtd = thrust_filtd + thrust_filtdd / PERIODIC_FREQUENCY;
-  thrust_filtdd = -thrust_filtd * 2 * filter_zeta * filter_omega + (thrust_act - thrust_filt) * filter_omega*filter_omega;
+  // same filter as for the acceleration
+  update_butterworth_2_low_pass(&thrust_filt, thrust_act);
 }
 #endif
 
 /**
- *
- * low pass the accelerometer measurements with a second order filter
- * to remove noise from vibrations
+ * Low pass the accelerometer measurements to remove noise from vibrations.
+ * The roll and pitch also need to be filtered to synchronize them with the
+ * acceleration
  */
-void guidance_indi_filter_accel(void)
-{
-  VECT3_ADD_SCALED(filt_accel_ned, filt_accel_ned_d, 1.0/PERIODIC_FREQUENCY);
+void guidance_indi_propagate_filters(void) {
+  struct NedCoor_f *accel = stateGetAccelNed_f();
+  update_butterworth_2_low_pass(&filt_accel_ned[0], accel->x);
+  update_butterworth_2_low_pass(&filt_accel_ned[1], accel->y);
+  update_butterworth_2_low_pass(&filt_accel_ned[2], accel->z);
 
-  VECT3_ADD_SCALED(filt_accel_ned_d, filt_accel_ned_dd, 1.0/PERIODIC_FREQUENCY);
-
-  filt_accel_ned_dd.x = -filt_accel_ned_d.x * 2 * filter_zeta * filter_omega + (stateGetAccelNed_f()->x - filt_accel_ned.x) * filter_omega*filter_omega;
-  filt_accel_ned_dd.y = -filt_accel_ned_d.y * 2 * filter_zeta * filter_omega + (stateGetAccelNed_f()->y - filt_accel_ned.y) * filter_omega*filter_omega;
-  filt_accel_ned_dd.z = -filt_accel_ned_d.z * 2 * filter_zeta * filter_omega + (stateGetAccelNed_f()->z - filt_accel_ned.z) * filter_omega*filter_omega;
-}
-
-/**
- *
- * Filter the attitude, such that it corresponds to the filtered measured acceleration
- */
-void guidance_indi_filter_attitude(void)
-{
-  roll_filt = roll_filt + roll_filtd / PERIODIC_FREQUENCY;
-  pitch_filt = pitch_filt + pitch_filtd / PERIODIC_FREQUENCY;
-
-  roll_filtd = roll_filtd + roll_filtdd / PERIODIC_FREQUENCY;
-  pitch_filtd = pitch_filtd + pitch_filtdd / PERIODIC_FREQUENCY;
-
-  roll_filtdd = -roll_filtd * 2 * filter_zeta * filter_omega + (stateGetNedToBodyEulers_f()->phi - roll_filt) * filter_omega*filter_omega;
-  pitch_filtdd = -pitch_filtd * 2 * filter_zeta * filter_omega + (stateGetNedToBodyEulers_f()->theta - pitch_filt) * filter_omega*filter_omega;
+  update_butterworth_2_low_pass(&roll_filt, stateGetNedToBodyEulers_f()->phi);
+  update_butterworth_2_low_pass(&pitch_filt, stateGetNedToBodyEulers_f()->theta);
 }
 
 /**

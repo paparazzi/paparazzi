@@ -34,7 +34,7 @@
 
 #include "subsystems/imu/imu_px4_defaults.h"
 #include "peripherals/l3gd20_spi.h"
-#include "peripherals/lsm303dlhc_spi.h"
+#include "peripherals/lsm303d_spi.h"
 
 #ifndef IMU_PX4_DISABLE_MAG
 #if MODULE_HMC58XX_UPDATE_AHRS
@@ -46,8 +46,8 @@
 
 struct ImuPX4 {
   struct L3gd20_Spi l3g;
-  struct Lsm303dlhc_Spi lsm_acc;
-  struct Lsm303dlhc_Spi lsm_mag;
+  struct Lsm303d_Spi lsm_acc;
+  struct Lsm303d_Spi lsm_mag;
 };
 
 extern struct ImuPX4 imu_px4;

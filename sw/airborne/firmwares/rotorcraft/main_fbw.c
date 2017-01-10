@@ -243,8 +243,18 @@ STATIC_INLINE void main_periodic(void)
 static void fbw_on_rc_frame(void)
 {
   /* get autopilot fbw mode as set by RADIO_MODE 3-way switch */
-  if (radio_control.values[RADIO_FBW_MODE] < (MIN_PPRZ / 2)) {
-    fbw_mode = FBW_MODE_MANUAL;
+  if (radio_control.values[RADIO_FBW_MODE] < (MIN_PPRZ / 2) && !FBW_MODE_AUTO_ONLY) {
+
+#ifdef RADIO_KILL_SWITCH
+    if (radio_control.values[RADIO_KILL_SWITCH] < (MIN_PPRZ / 2)) {
+      fbw_mode = FBW_MODE_FAILSAFE;
+    } else {
+      fbw_mode = FBW_MODE_MANUAL;
+    }
+#else
+      fbw_mode = FBW_MODE_MANUAL;
+#endif
+
   } else {
     fbw_mode = FBW_MODE_AUTO;
   }

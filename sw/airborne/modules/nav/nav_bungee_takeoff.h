@@ -67,9 +67,8 @@
  * called in the flight plan before the 'run' function
  *
  * @param[in] bungee_wp Waypoint ID correcponding to the bungee location
- * @return always false, since called only once by the flight plan
  */
-extern bool nav_bungee_takeoff_setup(uint8_t bungee_wp);
+extern void nav_bungee_takeoff_setup(uint8_t bungee_wp);
 
 /** Bungee takeoff run function
  *

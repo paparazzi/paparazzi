@@ -26,7 +26,7 @@
     </block>
     <block name="Geo init">
       <while cond="LessThan(NavBlockTime(), 10)"/>
-      <call fun="NavSetGroundReferenceHere()"/>
+      <call_once fun="NavSetGroundReferenceHere()"/>
     </block>
     <block name="Holding point">
       <set value="1" var="kill_throttle"/>
@@ -48,13 +48,13 @@
       <oval p1="1" p2="2" radius="nav_radius"/>
     </block>
     <block name="MOB" strip_button="Circle around here" strip_icon="mob.png">
-      <call fun="NavSetWaypointHere(WP_MOB)"/>
+      <call_once fun="NavSetWaypointHere(WP_MOB)"/>
       <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
       <circle radius="nav_radius" wp="MOB"/>
     </block>
     <block name="Line 1-2" strip_button="Line (wp 1-2)" strip_icon="line.png">
       <exception cond="datalink_time > 22" deroute="Standby"/>
-      <call fun="nav_line_setup()"/>
+      <call_once fun="nav_line_setup()"/>
       <call fun="nav_line_run(WP_1, WP_2, nav_radius)"/>
     </block>
     <block name="Survey S1-S2" strip_button="Survey (wp S1-S2)" strip_icon="survey.png" pre_call="{}">
@@ -65,7 +65,7 @@
       <set var="lateral_mode" value="LATERAL_MODE_ROLL"/>
       <set var="v_ctl_mode" value="V_CTL_MODE_MANUAL"/>
       <set var="joystick_block" value="nav_block"/>
-      <call fun="TRUE"/>
+      <while cond="TRUE"/>
     </block>
 
     <block name="Land Right AF-TD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png">

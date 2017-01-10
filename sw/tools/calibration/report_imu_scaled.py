@@ -78,7 +78,7 @@ def main():
     #    options.end = 36000
 
     # read scaled sensor measurements from log file
-    # TBD: Eventually populate the sensor attributes/values with data found in the messages.xml file 
+    # TBD: Eventually populate the sensor attributes/values with data found in the messages.xml file
     sensor_names  = [ "ACCEL", "GYRO", "MAG" ]
     sensor_attrs  = [ [0.0009766, "m/s2", "ax", "ay", "az"], [0.0139882, "deg/s", "gp", "gq", "gr"], [0.0004883, "unit", "mx", "my", "mz"] ]
 
@@ -96,7 +96,7 @@ def main():
             #sys.exit(1)
 
     print("")
- 
+
     # coefficient = calibration_utils.estimate_mag_current_relation(measurements)
 
     # print("")

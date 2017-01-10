@@ -165,9 +165,9 @@
         <arg flag="-ac" constant="@AIRCRAFT"/>
         <arg flag="hobbyking.xml"/>
       </program>
- 
+
     </session>
- 
+
     <session name="Flight XBee @57600">
       <program name="Data Link">
         <arg flag="-d" constant="/dev/paparazzi/xbee"/>

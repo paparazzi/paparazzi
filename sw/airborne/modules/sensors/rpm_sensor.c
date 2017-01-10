@@ -30,6 +30,7 @@
 #include "filters/low_pass_filter.h"
 
 static struct FirstOrderLowPass rpm_lp;
+uint16_t rpm;
 
 #ifndef RPM_FILTER_TAU
 #define RPM_FILTER_TAU RPM_SENSOR_PERIODIC_PERIOD
@@ -41,7 +42,6 @@ static struct FirstOrderLowPass rpm_lp;
 
 static void rpm_sensor_send_motor(struct transport_tx *trans, struct link_device *dev)
 {
-  uint16_t rpm = get_first_order_low_pass(&rpm_lp);
   pprz_msg_send_MOTOR(trans, dev, AC_ID, &rpm, &electrical.current);
 }
 #endif
@@ -49,6 +49,7 @@ static void rpm_sensor_send_motor(struct transport_tx *trans, struct link_device
 /* Initialize the RPM measurement by configuring the telemetry */
 void rpm_sensor_init(void)
 {
+  rpm = 0;
   init_first_order_low_pass(&rpm_lp, RPM_FILTER_TAU, RPM_SENSOR_PERIODIC_PERIOD, 0);
 
 #if PERIODIC_TELEMETRY
@@ -59,18 +60,18 @@ void rpm_sensor_init(void)
 /* RPM periodic */
 void rpm_sensor_periodic(void)
 {
-  uint16_t rpm = update_first_order_low_pass(&rpm_lp, rpm_sensor_get_rpm());
-  AbiSendMsgRPM(RPM_SENSOR_ID, rpm);
+  rpm = update_first_order_low_pass(&rpm_lp, rpm_sensor_get_rpm());
+  AbiSendMsgRPM(RPM_SENSOR_ID, &rpm, 1);
 }
 
 /* Get the RPM sensor */
 uint16_t rpm_sensor_get_rpm(void)
 {
-  uint16_t rpm = 0;
+  uint16_t rpm_meas = 0;
   uint32_t period_us = get_pwm_input_period_in_usec(RPM_PWM_CHANNEL) * RPM_PULSE_PER_RND;
   if (period_us > 0) {
-    rpm = ((uint32_t)1000000 * 60) / period_us;
+    rpm_meas = ((uint32_t)1000000 * 60) / period_us;
   }
 
-  return rpm;
+  return rpm_meas;
 }

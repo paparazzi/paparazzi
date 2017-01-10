@@ -199,7 +199,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       a.fbw.rc_status <- get_rc_status (ivalue "rc_status");
       a.fbw.rc_rate   <- ivalue "frame_rate";
       a.gps_mode      <- check_index (ivalue "gps_status") gps_modes "GPS_MODE";
-      a.ap_mode       <- check_index (ivalue "ap_mode") rotorcraft_ap_modes "ROTORCRAFT_AP_MODE";
+      a.ap_mode       <- check_index (ivalue "ap_mode") (modes_of_aircraft a) "ROTORCRAFT_AP_MODE";
       a.kill_mode     <- ivalue "ap_motors_on" == 0;
       a.bat           <- fvalue "vsupply" /. 10.
     | "STATE_FILTER_STATUS" ->
