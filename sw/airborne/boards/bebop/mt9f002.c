@@ -29,6 +29,7 @@
 #include "mt9f002_regs.h"
 #include "math/pprz_algebra_int.h"
 #include "boards/bebop.h"
+#include "modules/computer_vision/lib/isp/libisp.h"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -38,7 +39,10 @@
 #include <linux/videodev2.h>
 #include <linux/v4l2-mediabus.h>
 
-#define MAX(x,y) (((x) > (y)) ? (x) : (y))
+#define MT9F002_MAX_WIDTH 4608
+#define MT9F002_MAX_HEIGHT 3288
+
+extern struct libisp_config isp_config;
 
 /* Camera structure */
 struct video_config_t front_camera = {
@@ -60,7 +64,7 @@ struct video_config_t front_camera = {
   .subdev_name = "/dev/v4l-subdev1",
   .format = V4L2_PIX_FMT_UYVY,
   .subdev_format = V4L2_MBUS_FMT_SGRBG10_1X10,
-  .buf_cnt = 3,
+  .buf_cnt = 5,
   .filters = VIDEO_FILTER_ISP,
   .cv_listener = NULL,
   .fps = MT9F002_TARGET_FPS
@@ -75,20 +79,17 @@ static void write_reg(struct mt9f002_t *mt, uint16_t addr, uint32_t val, uint8_t
   mt->i2c_trans.buf[1] = addr & 0xFF;
 
   // Fix sigdness based on length
-  if(len == 1) {
+  if (len == 1) {
     mt->i2c_trans.buf[2] = val & 0xFF;
-  }
-  else if(len == 2) {
+  } else if (len == 2) {
     mt->i2c_trans.buf[2] = (val >> 8) & 0xFF;
     mt->i2c_trans.buf[3] = val & 0xFF;
-  }
-  else if(len == 4) {
+  } else if (len == 4) {
     mt->i2c_trans.buf[2] = (val >> 24) & 0xFF;
     mt->i2c_trans.buf[3] = (val >> 16) & 0xFF;
     mt->i2c_trans.buf[4] = (val >> 8) & 0xFF;
     mt->i2c_trans.buf[5] = val & 0xFF;
-  }
-  else {
+  } else {
     printf("[MT9F002] write_reg with incorrect length %d\r\n", len);
   }
 
@@ -109,8 +110,8 @@ static uint32_t read_reg(struct mt9f002_t *mt, uint16_t addr, uint8_t len)
   i2c_transceive(mt->i2c_periph, &mt->i2c_trans, MT9F002_ADDRESS, 2, len);
 
   /* Fix sigdness */
-  for(uint8_t i =0; i < len; i++) {
-    ret |= mt->i2c_trans.buf[len-i-1] << (8*i);
+  for (uint8_t i = 0; i < len; i++) {
+    ret |= mt->i2c_trans.buf[len - i - 1] << (8 * i);
   }
   return ret;
 }
@@ -125,10 +126,9 @@ static inline void mt9f002_mipi_stage1(struct mt9f002_t *mt)
 
   uint32_t serialFormat;
   if (mt->interface == MT9F002_HiSPi) {
-    serialFormat = (3<<8) | 2; // 2 Serial lanes
-  }
-  else {
-    serialFormat = (2<<8) | 2; // 2 Serial lanes
+    serialFormat = (3 << 8) | 2; // 2 Serial lanes
+  } else {
+    serialFormat = (2 << 8) | 2; // 2 Serial lanes
   }
   write_reg(mt, MT9F002_SERIAL_FORMAT, serialFormat, 2);
   uint32_t dataFormat = (8 << 8) | 8; // 8 Bits pixel depth
@@ -524,8 +524,8 @@ static inline void mt9f002_parallel_stage2(struct mt9f002_t *mt)
   //write_reg(mt, MT9F002_DATAPATH_SELECT        , 0xd881, 2); // permanent line valid
   write_reg(mt, MT9F002_DATAPATH_SELECT        , 0xd880, 2);
   write_reg(mt, MT9F002_READ_MODE              , 0x0041, 2);
-  write_reg(mt, MT9F002_X_ODD_INC              , 0x0001, 2);
-  write_reg(mt, MT9F002_Y_ODD_INC              , 0x0001, 2);
+  write_reg(mt, MT9F002_X_ODD_INC              , mt->x_odd_inc, 2);
+  write_reg(mt, MT9F002_Y_ODD_INC              , mt->y_odd_inc, 2);
   write_reg(mt, MT9F002_MASK_CORRUPTED_FRAMES  , 0x0001, 1); // 0 output corrupted frame, 1 mask them
 }
 
@@ -543,19 +543,19 @@ static inline void mt9f002_set_pll(struct mt9f002_t *mt)
   write_reg(mt, MT9F002_OP_SYS_CLK_DIV , mt->op_sys_clk_div, 2);
 
   uint16_t smia = read_reg(mt, MT9F002_SMIA_TEST, 2);
-  write_reg(mt, MT9F002_SMIA_TEST, (smia & 0xFFBF) | (mt->shift_vt_pix_clk_div<<6), 2); // shift_vt_pix_clk_div
+  write_reg(mt, MT9F002_SMIA_TEST, (smia & 0xFFBF) | (mt->shift_vt_pix_clk_div << 6), 2); // shift_vt_pix_clk_div
 
   uint16_t row_speed = read_reg(mt, MT9F002_ROW_SPEED, 2);
   row_speed = (row_speed & 0xFFF8) | (mt->rowSpeed_2_0 & 0x07); // rowSpeed_2_0
-  row_speed = (row_speed & 0xF8FF) | ((mt->row_speed_10_8 & 0x07)<<8); // row_speed_10_8
-  row_speed = (row_speed&(~0x70)) | (0x2<<4); // Change opclk_delay
+  row_speed = (row_speed & 0xF8FF) | ((mt->row_speed_10_8 & 0x07) << 8); // row_speed_10_8
+  row_speed = (row_speed & (~0x70)) | (0x2 << 4); // Change opclk_delay
   write_reg(mt, MT9F002_ROW_SPEED, row_speed, 2);
 
   // Compute clocks
-  mt->vt_pix_clk = mt->input_clk_freq * (float)mt->pll_multiplier * (float)(1+mt->shift_vt_pix_clk_div)
-            /((float)mt->pre_pll_clk_div * (float)mt->vt_sys_clk_div * (float)mt->vt_pix_clk_div);
+  mt->vt_pix_clk = mt->input_clk_freq * (float)mt->pll_multiplier * (float)(1 + mt->shift_vt_pix_clk_div)
+                   / ((float)mt->pre_pll_clk_div * (float)mt->vt_sys_clk_div * (float)mt->vt_pix_clk_div);
   mt->op_pix_clk = mt->input_clk_freq * (float)mt->pll_multiplier
-       /((float)mt->pre_pll_clk_div * (float)mt->op_sys_clk_div * (float)mt->op_pix_clk_div);
+                   / ((float)mt->pre_pll_clk_div * (float)mt->op_sys_clk_div * (float)mt->op_pix_clk_div);
 }
 
 /**
@@ -572,14 +572,17 @@ static void mt9f002_set_blanking(struct mt9f002_t *mt)
 
   /* Calculate minimum line length */
   float subsampling_factor = (float)(1 + x_odd_inc) / 2.0f; // See page 52
-  uint16_t min_line_length = MAX(min_line_length_pck, mt->scaled_width/subsampling_factor + min_line_blanking_pck); // EQ 9
-  min_line_length = MAX(min_line_length, (mt->scaled_width-1 + x_odd_inc) / subsampling_factor/2 + min_line_blanking_pck);
+  uint16_t min_line_length = Max(min_line_length_pck,
+                                 mt->scaled_width / subsampling_factor + min_line_blanking_pck); // EQ 9
+  min_line_length = Max(min_line_length,
+                        (mt->scaled_width - 1 + x_odd_inc) / subsampling_factor / 2 + min_line_blanking_pck);
   if (mt->interface == MT9F002_MIPI ||
       mt->interface == MT9F002_HiSPi) {
-    min_line_length = MAX(min_line_length, ((uint16_t)((float)mt->scaled_width * mt->vt_pix_clk / mt->op_pix_clk)/2) + 0x005E); // 2 lanes, pll clocks
-  }
-  else {
-    min_line_length = MAX(min_line_length, ((uint16_t)((float)mt->scaled_width * mt->vt_pix_clk / mt->op_pix_clk)) + 0x005E); // pll clocks
+    min_line_length = Max(min_line_length,
+                          ((uint16_t)((float)mt->scaled_width * mt->vt_pix_clk / mt->op_pix_clk) / 2) + 0x005E); // 2 lanes, pll clocks
+  } else {
+    min_line_length = Max(min_line_length,
+                          ((uint16_t)((float)mt->scaled_width * mt->vt_pix_clk / mt->op_pix_clk)) + 0x005E); // pll clocks
   }
 
   /* Do some magic to get it to work with P7 ISP (with horizontal blanking) */
@@ -591,9 +594,9 @@ static void mt9f002_set_blanking(struct mt9f002_t *mt)
   clkRatio_num = clkRatio_num / clkRatio_gcd;
   clkRatio_den = clkRatio_den / clkRatio_gcd;
 
-  /* Calculate minimum horizontal blanking, since fpga line_length must be divideable by 2 */
+  /* Calculate minimum horizontal blanking, since fpga line_length must be divisible by 2 */
   uint32_t min_horizontal_blanking = clkRatio_num;
-  if((clkRatio_den % 2) != 0) {
+  if ((clkRatio_den % 2) != 0) {
     min_horizontal_blanking = 2 * clkRatio_num;
   }
 
@@ -611,19 +614,19 @@ static void mt9f002_set_blanking(struct mt9f002_t *mt)
   mt->real_fps = mt->vt_pix_clk * 1000000 / (float)(mt->line_length * mt->frame_length);
 
   /* Check if we need to downscale the FPS and bruteforce better solution */
-  if(mt->target_fps < mt->real_fps) {
+  if (mt->target_fps < mt->real_fps) {
     float min_fps_err = fabs(mt->target_fps - mt->real_fps);
     float new_fps = mt->real_fps;
 
     // Go through all possible line lengths
-    for(uint16_t ll = min_line_length; ll <= MT9F002_LINE_LENGTH_MAX; ll += min_horizontal_blanking) {
+    for (uint16_t ll = min_line_length; ll <= MT9F002_LINE_LENGTH_MAX; ll += min_horizontal_blanking) {
       // Go through all possible frame lengths
-      for(uint16_t fl = min_frame_length; fl < MT9F002_FRAME_LENGTH_MAX; ++fl) {
+      for (uint16_t fl = min_frame_length; fl < MT9F002_FRAME_LENGTH_MAX; ++fl) {
         new_fps = mt->vt_pix_clk * 1000000 / (float)(ll * fl);
 
         // Calculate FPS error and save if it is better
         float fps_err = fabs(mt->target_fps - new_fps);
-        if(fps_err < min_fps_err) {
+        if (fps_err < min_fps_err) {
           min_fps_err = fps_err;
           mt->line_length = ll;
           mt->frame_length = fl;
@@ -631,7 +634,7 @@ static void mt9f002_set_blanking(struct mt9f002_t *mt)
         }
 
         // Stop searching if FPS is lower or equal
-        if(mt->target_fps > new_fps) {
+        if (mt->target_fps > new_fps) {
           break;
         }
       }
@@ -640,7 +643,7 @@ static void mt9f002_set_blanking(struct mt9f002_t *mt)
       new_fps = mt->vt_pix_clk * 1000000 / (float)(ll * min_frame_length);
 
       // Stop searching if FPS is lower or equal
-      if(mt->target_fps > new_fps) {
+      if (mt->target_fps > new_fps) {
         break;
       }
     }
@@ -655,7 +658,7 @@ static void mt9f002_set_blanking(struct mt9f002_t *mt)
  * Set the exposure configuration
  * Depends on the blanking (and therefore the FPS)
  */
-static void mt9f002_set_exposure(struct mt9f002_t *mt)
+void mt9f002_set_exposure(struct mt9f002_t *mt)
 {
   /* Fetch minimum and maximum integration times */
   uint16_t coarse_integration_min = read_reg(mt, MT9F002_COARSE_INTEGRATION_TIME_MIN, 2);
@@ -669,8 +672,7 @@ static void mt9f002_set_exposure(struct mt9f002_t *mt)
   uint16_t fine_integration = integration % mt->line_length;
 
   /* Make sure fine integration is inside bounds */
-  if(fine_integration_min > fine_integration || fine_integration > fine_integration_max)
-  {
+  if (fine_integration_min > fine_integration || fine_integration > fine_integration_max) {
     int32_t upper_coarse_integration = coarse_integration + 1;
     int32_t upper_fine_integration = fine_integration_min;
 
@@ -678,12 +680,12 @@ static void mt9f002_set_exposure(struct mt9f002_t *mt)
     int32_t lower_fine_integration = fine_integration_max;
 
     // Check if lower case is invalid (take upper coarse)
-    if(lower_coarse_integration < coarse_integration_min) {
+    if (lower_coarse_integration < coarse_integration_min) {
       coarse_integration = upper_coarse_integration;
       fine_integration = upper_fine_integration;
     }
     // Check if upper case is invalid (take lower coarse)
-    else if(upper_coarse_integration > coarse_integration_max) {
+    else if (upper_coarse_integration > coarse_integration_max) {
       coarse_integration = lower_coarse_integration;
       fine_integration = lower_fine_integration;
     }
@@ -693,11 +695,10 @@ static void mt9f002_set_exposure(struct mt9f002_t *mt)
       int32_t upper_error = abs((mt->line_length * upper_coarse_integration + upper_fine_integration) - integration);
       int32_t lower_error = abs((mt->line_length * lower_coarse_integration + lower_fine_integration) - integration);
 
-      if(upper_error < lower_error) {
+      if (upper_error < lower_error) {
         coarse_integration = upper_coarse_integration;
         fine_integration = upper_fine_integration;
-      }
-      else {
+      } else {
         coarse_integration = lower_coarse_integration;
         fine_integration = lower_fine_integration;
       }
@@ -717,54 +718,44 @@ static void mt9f002_set_exposure(struct mt9f002_t *mt)
 /**
  *  Calculate the gain based on value of 1.0 -> 63.50
  */
-static uint16_t mt9f002_calc_gain(float gain) {
+static uint16_t mt9f002_calc_gain(float gain)
+{
   // Check if gain is valid
-  if(gain < 1.0) {
+  if (gain < 1.0) {
     gain = 1.0;
   }
 
   // Calculation of colamp, analg3 and digital gain based on table 19 p56
   uint8_t colamp_gain, analog_gain3, digital_gain;
-  if (gain < 1.50)
-  {
+  if (gain < 1.50) {
     // This is not recommended
     colamp_gain = 0;
     analog_gain3 = 0;
     digital_gain = 1;
-  }
-  else if (gain < 3.0)
-  {
+  } else if (gain < 3.0) {
     colamp_gain = 1;
     analog_gain3 = 0;
     digital_gain = 1;
-  }
-  else if (gain < 6.0)
-  {
+  } else if (gain < 6.0) {
     colamp_gain = 2;
     analog_gain3 = 0;
     digital_gain = 1;
-  }
-  else if (gain < 16.0)
-  {
+  } else if (gain < 16.0) {
     colamp_gain = 3;
     analog_gain3 = 0;
     digital_gain = 1;
-  }
-  else if (gain < 32.0)
-  {
+  } else if (gain < 32.0) {
     colamp_gain = 3;
     analog_gain3 = 0;
     digital_gain = 2;
-  }
-  else
-  {
+  } else {
     colamp_gain = 3;
     analog_gain3 = 0;
     digital_gain = 4;
   }
 
   // Calculate gain 2 (fine gain)
-  uint16_t analog_gain2 = gain / (float)digital_gain / (float)(1<<colamp_gain) / (float)(1<<analog_gain3) * 64.0;
+  uint16_t analog_gain2 = gain / (float)digital_gain / (float)(1 << colamp_gain) / (float)(1 << analog_gain3) * 64.0;
   Bound(analog_gain2, 1, 127);
 
   return (analog_gain2 & 0x7F) | ((analog_gain3 & 0x7) << 7) | ((colamp_gain & 0x3) << 10) | ((digital_gain & 0xF) << 12);
@@ -773,12 +764,91 @@ static uint16_t mt9f002_calc_gain(float gain) {
 /**
  * Sets the GreenR, Blue, Red and GreenB gains
  */
-static void mt9f002_set_gains(struct mt9f002_t *mt)
+void mt9f002_set_gains(struct mt9f002_t *mt)
 {
   write_reg(mt, MT9F002_GREEN1_GAIN, mt9f002_calc_gain(mt->gain_green1), 2);
   write_reg(mt, MT9F002_BLUE_GAIN,   mt9f002_calc_gain(mt->gain_blue), 2);
   write_reg(mt, MT9F002_RED_GAIN,    mt9f002_calc_gain(mt->gain_red), 2);
   write_reg(mt, MT9F002_GREEN2_GAIN, mt9f002_calc_gain(mt->gain_green2), 2);
+}
+
+void mt9f002_set_resolution(struct mt9f002_t *mt)
+{
+  /* Set output resolution */
+  write_reg(mt, MT9F002_X_OUTPUT_SIZE, mt->output_width, 2);
+  write_reg(mt, MT9F002_Y_OUTPUT_SIZE, mt->output_height, 2);
+
+  /* Set scaling */
+  if (mt->output_scaler < 0.125) {
+    mt->output_scaler = 0.125;
+    printf("[MT9F002] Warning, ouput_scaler too small, changing to %f\n", mt->output_scaler);
+  } else if (mt->output_scaler > 1.) {
+    mt->output_scaler = 1.;
+    printf("[MT9F002] Warning, ouput_scaler too small, changing to %f\n", mt->output_scaler);
+  }
+  uint16_t scaleFactor = ceil((float)MT9F002_SCALER_N / mt->output_scaler);
+  mt->output_scaler = (float)MT9F002_SCALER_N / scaleFactor;
+  int x_skip_factor = (mt->x_odd_inc + 1) / 2;
+  int y_skip_factor = (mt->y_odd_inc + 1) / 2;
+  mt->scaled_width  = mt->output_width * x_skip_factor / mt->output_scaler + mt->x_odd_inc - 1;
+  mt->scaled_height = mt->output_height * y_skip_factor / mt->output_scaler + mt->y_odd_inc - 1;
+
+  if (mt->scaled_width % (x_skip_factor * 8) != 0) {
+    mt->scaled_width = floor(mt->scaled_width / (x_skip_factor * 8)) * (x_skip_factor * 8);
+    printf("[MT9F002] Warning, scaled_width not a multiple of %i, changing to %i\n", 8 * x_skip_factor, mt->scaled_width);
+  }
+  if (mt->scaled_height % (y_skip_factor * 8) != 0) {
+    mt->scaled_height = floor(mt->scaled_height / (y_skip_factor * 8)) * (y_skip_factor * 8);
+    printf("[MT9F002] Warning, scaled_height not a multiple of %i, changing to %i\n", 8 * y_skip_factor, mt->scaled_height);
+  }
+  if (mt->output_scaler < 1.0) {
+    write_reg(mt, MT9F002_SCALING_MODE, 2, 2); // Vertical and horizontal scaling
+    write_reg(mt, MT9F002_SCALE_M, scaleFactor, 2);
+  }
+  printf("[MT9F002] OUTPUT_SIZE: (%i, %i)\tSCALED_SIZE: (%i, %i)\n", mt->output_width, mt->output_height,
+         mt->scaled_width,
+         mt->scaled_height);
+  /* bound offsets */
+  if (mt->offset_x * MT9F002_MAX_WIDTH + mt->scaled_width / 2 > MT9F002_MAX_WIDTH) {mt->offset_x = 1 - (float)mt->scaled_width / 2 / MT9F002_MAX_WIDTH;}
+  if (-mt->offset_x * MT9F002_MAX_WIDTH > mt->scaled_width) {mt->offset_x = -(float)mt->scaled_width / 2 / MT9F002_MAX_WIDTH;}
+
+  if (mt->offset_y * MT9F002_MAX_HEIGHT + mt->scaled_height / 2 > MT9F002_MAX_HEIGHT) {mt->offset_y = 1 - (float)mt->scaled_height / 2 / MT9F002_MAX_HEIGHT;}
+  if (-mt->offset_y * MT9F002_MAX_HEIGHT > mt->scaled_height / 2) {mt->offset_y = -(float)mt->scaled_height / 2 / MT9F002_MAX_HEIGHT;}
+
+  /* Set position (based on offset and subsample increment) */
+  uint16_t start_addr_x = (uint16_t)((MT9F002_MAX_WIDTH - mt->scaled_width) / 2 + mt->offset_x * MT9F002_MAX_WIDTH);
+  uint16_t start_addr_y = (uint16_t)((MT9F002_MAX_HEIGHT - mt->scaled_height) / 2 + mt->offset_y * MT9F002_MAX_HEIGHT);
+
+  if (start_addr_x < 24) {
+    start_addr_x = 24;
+    printf("[MT9F002] Warning, offset_y too small with given output_scaler, changing to %i\n", start_addr_x);
+  }
+
+  if (start_addr_x % (x_skip_factor * 8) != 0) {
+    start_addr_x = round(start_addr_x / (x_skip_factor * 8)) * (x_skip_factor * 8);
+    printf("[MT9F002] Warning, offset_x not a multiple of %i, changing to %i\n", 8 * x_skip_factor, start_addr_x);
+  }
+  if (start_addr_y % (y_skip_factor * 8) != 0) {
+    start_addr_y = round(start_addr_y / (y_skip_factor * 8)) * (y_skip_factor * 8);
+    printf("[MT9F002] Warning, offset_y not a multiple of %i, changing to %i\n", 8 * y_skip_factor, start_addr_y);
+  }
+  write_reg(mt, MT9F002_X_ADDR_START, start_addr_x, 2);
+  write_reg(mt, MT9F002_Y_ADDR_START, start_addr_y , 2);
+  uint16_t end_addr_x = start_addr_x + mt->scaled_width - 1;
+  uint16_t end_addr_y = start_addr_y + mt->scaled_height - 1;
+  write_reg(mt, MT9F002_X_ADDR_END, end_addr_x, 2);
+  write_reg(mt, MT9F002_Y_ADDR_END, end_addr_y, 2);
+
+  // set statistics to correct values
+  isp_config.statistics_bayer.window_x.x_offset = mt->scaled_width - (mt->scaled_width / BAYERSTATS_STATX) / 2;
+  isp_config.statistics_bayer.window_y.y_offset =  mt->scaled_height - (mt->scaled_height / BAYERSTATS_STATY) / 2;
+  isp_config.statistics_bayer.window_x.x_width =  mt->scaled_width / BAYERSTATS_STATX;
+  isp_config.statistics_bayer.window_y.y_width =  mt->scaled_height / BAYERSTATS_STATY;
+
+  isp_config.statistics_yuv.window_pos_x.window_x_end = mt->scaled_width - 1;
+  isp_config.statistics_yuv.window_pos_y.window_y_end = mt->scaled_height - 1;
+  isp_config.statistics_yuv.increments_log2.x_log2_inc = log2(x_skip_factor);
+  isp_config.statistics_yuv.increments_log2.x_log2_inc = log2(y_skip_factor);
 }
 
 /**
@@ -798,10 +868,9 @@ void mt9f002_init(struct mt9f002_t *mt)
   usleep(1000000); // Wait for one second
 
   /* Based on the interface configure stage 1 */
-  if(mt->interface == MT9F002_MIPI || mt->interface == MT9F002_HiSPi) {
+  if (mt->interface == MT9F002_MIPI || mt->interface == MT9F002_HiSPi) {
     mt9f002_mipi_stage1(mt);
-  }
-  else {
+  } else {
     mt9f002_parallel_stage1(mt);
   }
 
@@ -809,33 +878,13 @@ void mt9f002_init(struct mt9f002_t *mt)
   mt9f002_set_pll(mt);
 
   /* Based on the interface configure stage 2 */
-  if(mt->interface == MT9F002_MIPI || mt->interface == MT9F002_HiSPi) {
+  if (mt->interface == MT9F002_MIPI || mt->interface == MT9F002_HiSPi) {
     mt9f002_mipi_stage2(mt);
-  }
-  else {
+  } else {
     mt9f002_parallel_stage2(mt);
   }
 
-  /* Set output resolution */
-  write_reg(mt, MT9F002_X_OUTPUT_SIZE, mt->output_width, 2);
-  write_reg(mt, MT9F002_Y_OUTPUT_SIZE, mt->output_height, 2);
-
-  /* Set scaling */
-  uint16_t scaleFactor = ceil((float)MT9F002_SCALER_N / mt->output_scaler);
-  mt->output_scaler = (float)MT9F002_SCALER_N / scaleFactor;
-  mt->scaled_width = ceil((float)mt->output_width / mt->output_scaler);
-  mt->scaled_height = ceil((float)mt->output_height / mt->output_scaler);
-  if (mt->output_scaler != 1.0)
-  {
-    write_reg(mt, MT9F002_SCALING_MODE, 2, 2); // Vertical and horizontal scaling
-    write_reg(mt, MT9F002_SCALE_M, scaleFactor, 2);
-  }
-
-  /* Set position (based on offset) */
-  write_reg(mt, MT9F002_X_ADDR_START, mt->offset_x , 2);
-  write_reg(mt, MT9F002_X_ADDR_END  , mt->offset_x + mt->scaled_width - 1, 2);
-  write_reg(mt, MT9F002_Y_ADDR_START, mt->offset_y, 2);
-  write_reg(mt, MT9F002_Y_ADDR_END  , mt->offset_y + mt->scaled_height - 1, 2);
+  mt9f002_set_resolution(mt);
 
   /* Update blanking (based on FPS) */
   mt9f002_set_blanking(mt);
@@ -847,7 +896,7 @@ void mt9f002_init(struct mt9f002_t *mt)
   mt9f002_set_gains(mt);
 
   /* Based on the interface configure stage 3 */
-  if(mt->interface == MT9F002_MIPI || mt->interface == MT9F002_HiSPi) {
+  if (mt->interface == MT9F002_MIPI || mt->interface == MT9F002_HiSPi) {
     mt9f002_mipi_stage3(mt);
   }
 

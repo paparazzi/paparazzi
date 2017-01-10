@@ -5,20 +5,20 @@
     <description>
       Video streaming for Linux based devices.
       Works e.g. in conjunction with Parrot Drones where the autopilot is the Paparazzi autopilot.
-      Features:
-       - Sends a RTP/UDP stream of the camera image, a.k.a. live video
-       - Possibility to save an image(shot) on internal or external storage space even in full size, best quality
-      Example to add to ARdrone2 airframe with extra USB stick plugger in:
+      Sends a RTP/UDP stream of the camera image, a.k.a. live video
     </description>
-    <configure name="VIEWVIDEO_USE_NETCAT" value="FALSE|TRUE" description="Use netcat for transfering images instead of RTP stream (default: FALSE)"/>
+    <configure name="VIEWVIDEO_USE_NETCAT" value="FALSE|TRUE" description="Use netcat for transferring images instead of RTP stream (default: FALSE)"/>
     <configure name="VIEWVIDEO_HOST" value="192.168.1.255" description="GCS IP (default: MODEM_HOST)"/>
     <configure name="VIEWVIDEO_PORT_OUT" value="5000" description="Port (default: 5000)"/>
+    <configure name="VIEWVIDEO_PORT2_OUT" value="6000" description="Port (default: 6000)"/>
     <configure name="VIEWVIDEO_BROADCAST" value="FALSE|TRUE" description="Enable broadcast of image stream (default: TRUE)"/>
 
     <define name="VIEWVIDEO_CAMERA" value="front_camera|bottom_camera" description="Video device to use"/>
-    <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="4" description="Reduction factor of the video stream"/>
+    <define name="VIEWVIDEO_CAMERA2" value="front_camera|bottom_camera" description="Video device to use"/>
+    <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="4" description="Reduction factor of the video stream, the image width and height should be divisible by this factor"/>
     <define name="VIEWVIDEO_QUALITY_FACTOR" value="50" description="JPEG encoding compression factor [0-99]"/>
-    <define name="VIEWVIDEO_USE_RTP" value="TRUE|FALSE" description="Enable RTP at startup for transfering images (default: TRUE)"/>
+    <define name="VIEWVIDEO_FPS" value="5" description="Image frequency for the RTP viewer (recommended >=5Hz)"/>
+    <define name="VIEWVIDEO_USE_RTP" value="TRUE|FALSE" description="Enable RTP at startup for transferring images (default: TRUE)"/>
   </doc>
   <settings>
     <dl_settings>
@@ -47,10 +47,11 @@
 
       VIEWVIDEO_HOST        ?= $(MODEM_HOST)
       VIEWVIDEO_PORT_OUT    ?= 5000
+      VIEWVIDEO_PORT2_OUT   ?= 6000
       VIEWVIDEO_BROADCAST   ?= TRUE
       VIEWVIDEO_USE_NETCAT  ?= FALSE
 
-      VIEWVID_CFLAGS  = -DVIEWVIDEO_HOST=$(VIEWVIDEO_HOST) -DVIEWVIDEO_PORT_OUT=$(VIEWVIDEO_PORT_OUT)
+      VIEWVID_CFLAGS  = -DVIEWVIDEO_HOST=$(VIEWVIDEO_HOST) -DVIEWVIDEO_PORT_OUT=$(VIEWVIDEO_PORT_OUT) -DVIEWVIDEO_PORT2_OUT=$(VIEWVIDEO_PORT2_OUT)
       ifneq (,$(findstring $(VIEWVIDEO_USE_NETCAT),0 FALSE))
         ap.CFLAGS += $(VIEWVID_CFLAGS) -DVIEWVIDEO_BROADCAST=$(VIEWVIDEO_BROADCAST)
         nps.CFLAGS += $(VIEWVID_CFLAGS) -DVIEWVIDEO_BROADCAST=FALSE
