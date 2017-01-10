@@ -1,12 +1,12 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# px4_pixracer_1.0.makefile
+# px4fmu_4.0.makefile
 #
 # Take a look at https://pixhawk.org/modules/pixracer for details
 
 # Board is a Pixracer v1.0 but adhering to px4 way of naming it is px4fmu v4
-BOARD=px4_pixracer
-BOARD_VERSION=1.0
+BOARD=px4fmu
+BOARD_VERSION=4.0
 #Pixracer has a PX4 FMU v4 core  thus default
 BOARD_CFG=\"boards/px4fmu_4.0.h\"
 
@@ -15,7 +15,7 @@ ARCH_L=f4
 ARCH_DIR=stm32
 SRC_ARCH=arch/$(ARCH_DIR)
 $(TARGET).ARCHDIR = $(ARCH)
-$(TARGET).LDSCRIPT=$(SRC_ARCH)/px4_pixracer.ld
+$(TARGET).LDSCRIPT=$(SRC_ARCH)/px4fmu_4.0.ld
 
 HARD_FLOAT=yes
 
@@ -23,7 +23,7 @@ HARD_FLOAT=yes
 # possibilities: DFU, SWD, PX4 bootloader
 FLASH_MODE ?= PX4_BOOTLOADER
 PX4_TARGET = "ap"
-PX4_PROTOTYPE ?= "${PAPARAZZI_HOME}/sw/tools/px4/px4_pixracer_v1.prototype"
+PX4_PROTOTYPE ?= "${PAPARAZZI_HOME}/sw/tools/px4/px4fmu_4.0.prototype"
 #FIXME Test with more clone boards and add Wildcard
 PX4_BL_PORT ?= "/dev/serial/by-id/usb-3D_Robotics_PX4_BL_FMU_v4.x_0-if00"
 

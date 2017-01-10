@@ -27,7 +27,7 @@
 MEMORY
 {
     ram (rwx) : ORIGIN = 0x20000000, LENGTH = 192K
-    rom (rx) : ORIGIN = 0x08004000, LENGTH = 2048K
+    rom (rx) : ORIGIN = 0x08004000, LENGTH = 1920K
 }
 
 /* Include the common ld script. */

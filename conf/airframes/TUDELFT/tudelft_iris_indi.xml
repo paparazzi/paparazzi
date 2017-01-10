@@ -10,7 +10,7 @@
 -->
 <airframe name="iris_indi">
   <firmware name="rotorcraft">
-    <target name="ap" board="px4_pixracer_1.0" />
+    <target name="ap" board="px4fmu_4.0" />
     <define name="BAT_CHECKER_DELAY" value="80" />
     <!-- amount of time it take for the bat to check -->
     <!-- to avoid bat low spike detection when strong pullup withch draws short sudden power-->
@@ -22,12 +22,6 @@
       <configure name="IMU_MPU9250_SPI_DEV" value="spi1"/>
       <configure name="IMU_MPU9250_SPI_SLAVE_IDX" value="SPI_SLAVE2"/>
       <define name="IMU_MPU9250_READ_MAG" value="FALSE"/>
-      <define name="IMU_MPU9250_CHAN_X" value="1"/>
-      <define name="IMU_MPU9250_CHAN_Y" value="0"/>
-      <define name="IMU_MPU9250_CHAN_Z" value="2"/>
-      <define name="IMU_MPU9250_X_SIGN" value="-1"/>
-      <define name="IMU_MPU9250_Y_SIGN" value="-1"/>
-      <define name="IMU_MPU9250_Z_SIGN" value="-1"/>
     </module>
 
     <module name="gps" type="ublox" >
@@ -35,7 +29,7 @@
     </module>
     <module name="gps" type="ubx_ucenter" />
     <module name="stabilization" type="indi_simple" />
-    <module name="ahrs" type="int_cmpl_quat" >      
+    <module name="ahrs" type="int_cmpl_quat" >
       <define name="AHRS_ICQ_MAG_ID" value="MAG_HMC58XX_SENDER_ID" />         <!-- Meaning the external hmc-->
 
       <configure name="USE_MAGNETOMETER" value="TRUE"/>
@@ -64,7 +58,7 @@
     <!--/module-->
     <module name="geo_mag" />
     <module name="air_data" />
-    <module name="send_imu_mag_current" />   
+    <module name="send_imu_mag_current" />
     <module name="spektrum_soft_bind"/>
   </modules>
 
