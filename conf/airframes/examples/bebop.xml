@@ -52,7 +52,7 @@
       <define name="VIEWVIDEO_QUALITY_FACTOR" value="40"/>
     </module>
 
-    <module name="cv_ae_awb"/>
+    <module name="bebop_ae_awb"/>
 
   </modules>
 

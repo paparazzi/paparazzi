@@ -18,16 +18,16 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/computer_vision/cv_ae_awb.h"
- * @author Freek van Tienen
+ * @file "modules/computer_vision/bebop_ae_awb.h"
+ * @author Freek van Tienen, Kirk Scheper
  * Auto exposure and Auto white balancing for the Bebop 1 and 2
  */
 
-#ifndef CV_AE_AWB_H
-#define CV_AE_AWB_H
+#ifndef BEBOP_AE_AWB_H
+#define BEBOP_AE_AWB_H
 
-extern void cv_ae_awb_init(void);
-extern void cv_ae_awb_periodic(void);
+extern void bebop_ae_awb_init(void);
+extern void bebop_ae_awb_periodic(void);
 
 #endif
 

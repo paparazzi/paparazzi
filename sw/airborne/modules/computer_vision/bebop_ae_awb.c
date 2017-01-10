@@ -18,12 +18,12 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/computer_vision/cv_ae_awb.c"
- * @author Freek van Tienen
+ * @file "modules/computer_vision/bebop_ae_awb.c"
+ * @author Freek van Tienen, Kirk Scheper
  * Auto exposure and Auto white balancing for the Bebop 1 and 2
  */
 
-#include "modules/computer_vision/cv_ae_awb.h"
+#include "bebop_ae_awb.h"
 #include "boards/bebop.h"
 #include "boards/bebop/mt9f002.h"
 #include "lib/isp/libisp.h"
@@ -32,25 +32,25 @@
 
 #define sgn(x) (float)((x < 0) ? -1 : (x > 0))
 
-#ifndef CV_AUTO_EXPOSURE
-#define CV_AUTO_EXPOSURE true
+#ifndef BEBOP_AUTO_EXPOSURE
+#define BEBOP_AUTO_EXPOSURE true
 #endif
 
-#ifndef CV_AUTO_WHITE_BALANCE
-#define CV_AUTO_WHITE_BALANCE true
+#ifndef BEBOP_AUTO_WHITE_BALANCE
+#define BEBOP_AUTO_WHITE_BALANCE true
 #endif
 
-#define CV_AWB_MIN_GAIN 2
-#define CV_AWB_MAX_GAIN 75
+#define BEBOP_AWB_MIN_GAIN 2
+#define BEBOP_AWB_MAX_GAIN 75
 
-void cv_ae_awb_init(void) {}
+void bebop_ae_awb_init(void) {}
 
-void cv_ae_awb_periodic(void)
+void bebop_ae_awb_periodic(void)
 {
   struct isp_yuv_stats_t yuv_stats;
 
   if (isp_get_statistics_yuv(&yuv_stats) == 0) {
-#if CV_AUTO_EXPOSURE
+#if BEBOP_AUTO_EXPOSURE
     // Calculate the CDF based on the histogram
     uint32_t cdf[MAX_HIST_Y];
     cdf[0] = yuv_stats.ae_histogram_Y[0];
@@ -98,7 +98,7 @@ void cv_ae_awb_periodic(void)
     mt9f002_set_exposure(&mt9f002);
 #endif
 
-#if CV_AUTO_WHITE_BALANCE
+#if BEBOP_AUTO_WHITE_BALANCE
     // It is very important that the auto exposure converges faster than the color correction
     // Calculate AWB and project from original scale [0,255] onto more typical scale[-0.5,0.5]
     float avgU = ((float) yuv_stats.awb_sum_U / (float) yuv_stats.awb_nb_grey_pixels) / 256. - 0.5;
