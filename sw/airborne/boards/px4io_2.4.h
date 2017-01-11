@@ -66,7 +66,7 @@
  * Spektrum
  */
 /* The line that is pulled low at power up to initiate the bind process */
-#define RADIO_CONTROL_POWER GPIOC
+#define RADIO_CONTROL_POWER_PORT GPIOC
 #define RADIO_CONTROL_POWER_PIN GPIO13
 #define RADIO_CONTROL_POWER_ON gpio_set
 #define RADIO_CONTROL_POWER_OFF gpio_clear

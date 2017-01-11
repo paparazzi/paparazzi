@@ -240,6 +240,7 @@ STATIC_INLINE void main_init(void)
 
   // Do a failsafe check first
   failsafe_check();
+
 }
 
 STATIC_INLINE void handle_periodic_tasks(void)
