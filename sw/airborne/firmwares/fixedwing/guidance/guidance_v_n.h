@@ -28,6 +28,8 @@
 #ifndef FW_V_CTL_N_H
 #define FW_V_CTL_N_H
 
+#include "firmwares/fixedwing/guidance/guidance_v.h"
+
 #define V_CTL_SPEED_THROTTLE    0
 #define V_CTL_SPEED_AIRSPEED    1
 #define V_CTL_SPEED_GROUNDSPEED 2
