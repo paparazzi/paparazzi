@@ -187,7 +187,7 @@
 #endif
 
 #if USE_ADC_2
-#define DefaultVoltageOfAdc(adc) (0.00827*adc)
+#define DefaultVoltageOfAdc(adc) (0.00975*adc)
 #else
 #define DefaultVoltageOfAdc(adc) (0.0021*adc) // scale internal vdd to 5V
 #endif
