@@ -1,0 +1,17 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="fdm_crrcsim" dir="fdm">
+  <doc>
+    <description>
+      CRRCSIM FDM backend for NPS simulator
+
+      Only for fixed-wing.
+      CRRCSIM is running as an external program using the MNAV inputdev.
+    </description>
+  </doc>
+  <header/>
+  <makefile target="nps" firmware="fixedwing">
+    <file name="nps_fdm_crrcsim.cpp" dir="nps"/>
+  </makefile>
+</module>
+

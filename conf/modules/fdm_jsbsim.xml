@@ -1,0 +1,32 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="fdm_jsbsim" dir="fdm">
+  <doc>
+    <description>
+      JSBSim FDM backend for NPS simulator
+
+      Use the paparazzi-jsbsim package if it is installed, otherwise look for JSBsim under /opt/jsbsim
+    </description>
+    <configure name="JSBSIM_ROOT" value="/opt/jsbsim" description="set root directory for JSBSim library"/>
+    <configure name="JSBSIM_PKG" value="yes|no" description="enable or disable using pkg-config to get library flags"/>
+  </doc>
+  <header/>
+  <makefile target="nps">
+    <configure name="JSBSIM_ROOT" default="/opt/jsbsim"/>
+    <configure name="JSBSIM_INC" value="$(JSBSIM_ROOT)/include/JSBSim"/>
+    <configure name="JSBSIM_LIB" value="$(JSBSIM_ROOT)/lib"/>
+    <configure name="JSBSIM_PKG" value="$(shell pkg-config JSBSim --exists && echo 'yes')"/>
+    <raw>
+      ifeq ($(JSBSIM_PKG), yes)
+      nps.CFLAGS  += $(shell pkg-config JSBSim --cflags)
+      nps.LDFLAGS += $(shell pkg-config JSBSim --libs)
+      else
+      JSBSIM_PKG = no
+      nps.CFLAGS  += -I$(JSBSIM_INC)
+      nps.LDFLAGS += -L$(JSBSIM_LIB) -lJSBSim
+      endif
+    </raw>
+    <file name="nps_fdm_jsbsim.cpp" dir="nps"/>
+  </makefile>
+</module>
+
