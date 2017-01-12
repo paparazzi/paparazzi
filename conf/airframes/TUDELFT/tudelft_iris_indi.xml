@@ -74,7 +74,9 @@
     </module>
   </firmware>
   <modules main_freq="512">
-    <module name="px4_flash" />
+    <module name="px4_flash">
+      <configure name="PX4IO_UART" value="uart6"/>
+    </module>
     <module name="px4_gimbal" />
     <module name="geo_mag" />
     <module name="air_data" />

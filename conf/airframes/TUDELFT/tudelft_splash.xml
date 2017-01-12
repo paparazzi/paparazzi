@@ -56,9 +56,7 @@
   </firmware>
 
   <modules main_freq="512">
-    <module name="px4_flash" >
-      <configure name="PX4IO_UART" value="UART3"/> <!-- TMP solution! How to undefine PX4IO to nothing in px4_flash.xml? -->
-    </module>
+    <module name="px4_flash"/>
     <module name="geo_mag" />
     <module name="air_data" />
     <module name="send_imu_mag_current" />
