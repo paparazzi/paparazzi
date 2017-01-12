@@ -265,14 +265,6 @@
  */
 
 /* Onboard ADCs */
-/*
-   ADC1 PC3/ADC13
-   ADC2 PC0/ADC10
-   ADC3 PC1/ADC11
-   ADC4 PC5/ADC15
-   ADC6 PC2/ADC12
-   BATT PC4/ADC14
-*/
 
 /* provide defines that can be used to access the ADC_x in the code or airframe file
  * these directly map to the index number of the 4 adc channels defined above

@@ -25,7 +25,7 @@
  * UART
 */
 
-//OK // conector telem1
+// conector telem1
 #define UART2_GPIO_AF GPIO_AF7
 #define UART2_GPIO_PORT_RX GPIOD
 #define UART2_GPIO_RX GPIO6
@@ -34,7 +34,7 @@
 //#define UART2_CTS PD3
 //#define UART2_RTS PD4
 
-//OK-2  //conector telem2
+//conector telem2
 #define UART3_GPIO_AF GPIO_AF7
 #define UART3_GPIO_PORT_RX GPIOD
 #define UART3_GPIO_RX GPIO9
@@ -43,28 +43,28 @@
 //CTS - P11
 //RTS - P12
 
-//OK-2   // GPS
+//GPS
 #define UART4_GPIO_AF GPIO_AF8
 #define UART4_GPIO_PORT_RX GPIOA
 #define UART4_GPIO_RX GPIO1
 #define UART4_GPIO_PORT_TX GPIOA
 #define UART4_GPIO_TX GPIO0
 
-//OK-2 debug ligado no processador IO
+//debug ligado no processador IO
 #define UART6_GPIO_AF GPIO_AF8
 #define UART6_GPIO_PORT_RX GPIOC
 #define UART6_GPIO_RX GPIO7
 #define UART6_GPIO_PORT_TX GPIOC
 #define UART6_GPIO_TX GPIO6
 
-//OK-2 //conector serial5
+//conector serial5
 #define UART7_GPIO_AF GPIO_AF8
 #define UART7_GPIO_PORT_RX GPIOE
 #define UART7_GPIO_RX GPIO7
 #define UART7_GPIO_PORT_TX GPIOE
 #define UART7_GPIO_TX GPIO8
 
-//OK-2 //conector serial4
+//conector serial4
 #define UART8_GPIO_AF GPIO_AF8
 #define UART8_GPIO_PORT_RX GPIOE
 #define UART8_GPIO_RX GPIO0
@@ -76,7 +76,6 @@
  */
 
 /* SPI1 for MPU and accel/gyro if populated */
-//OK-2
 #define SPI1_GPIO_AF GPIO_AF5
 #define SPI1_GPIO_PORT_MISO GPIOA
 #define SPI1_GPIO_MISO GPIO6
@@ -86,7 +85,6 @@
 #define SPI1_GPIO_SCK GPIO5
 
 /* SPI2 for FRAM */
-//OK-2
 #define SPI2_GPIO_AF GPIO_AF5
 #define SPI2_GPIO_PORT_MISO GPIOB
 #define SPI2_GPIO_MISO GPIO14
@@ -96,7 +94,6 @@
 #define SPI2_GPIO_SCK GPIO13
 
 /* SPI4 Ext SPI connector */
-//OK-2
 #define SPI4_GPIO_AF GPIO_AF5
 #define SPI4_GPIO_PORT_MISO GPIOE
 #define SPI4_GPIO_MISO GPIO5
@@ -109,27 +106,22 @@
  * SPI slave pin declaration
  */
 /* GYRO_CS on SPI1 */
-//OK-2
 #define SPI_SELECT_SLAVE0_PORT GPIOC
 #define SPI_SELECT_SLAVE0_PIN GPIO13
 
 /* ACCEL_MAG_CS on SPI1 */
-//OK-2
 #define SPI_SELECT_SLAVE1_PORT GPIOC
 #define SPI_SELECT_SLAVE1_PIN GPIO15
 
 /* MPU_CS on SPI1 */
-//OK-2
 #define SPI_SELECT_SLAVE2_PORT GPIOC
 #define SPI_SELECT_SLAVE2_PIN GPIO2
 
 /* BARO_CS on SPI1 */
-//OK-2
 #define SPI_SELECT_SLAVE3_PORT GPIOD
 #define SPI_SELECT_SLAVE3_PIN GPIO7
 
 /* FRAM_CS on SPI2 */
-//OK-2
 #define SPI_SELECT_SLAVE4_PORT GPIOD
 #define SPI_SELECT_SLAVE4_PIN GPIO10
 
@@ -149,64 +141,64 @@
 // SDIO_CMD pd2
 
 /* Onboard ADCs */
-#define USE_AD_TIM5 1
 
-/* provide defines that can be used to access the ADC_x in the code or airframe file
- * these directly map to the index number of the 4 adc channels defined above
- * 4th (index 3) is used for bat monitoring by default
- */
+#if USE_AD_TIM2
+#undef USE_AD_TIM2 // timer2 is used by the buzzer
+#endif
+#define USE_AD_TIM3 1
 
-//#if USE_ADC_1
-//#define AD1_1_CHANNEL 11
-//#define ADC_1 AD1_1
-//#define ADC_1_GPIO_PORT GPIOC
-//#define ADC_1_GPIO_PIN GPIO1
-//#endif
-/*
+// Interal ADC for battery
+#ifndef USE_ADC_1
+#define USE_ADC_1 1
+#endif
+#if USE_ADC_1
+#define AD1_1_CHANNEL 4 //ADC12_IN4
+#define ADC_1 AD1_1
+#define ADC_1_GPIO_PORT GPIOA
+#define ADC_1_GPIO_PIN GPIO4
+#endif
+
+// External ADC for battery
+#ifndef USE_ADC_2
+#define USE_ADC_2 1
+#endif
 #if USE_ADC_2
-#define AD1_2_CHANNEL 12
-#define ADC_2 AD1_2
-#define ADC_2_GPIO_PORT GPIOC
+#define AD1_2_CHANNEL 2 // ADC123_IN2 (--> IN2 corresponds to channel 2)
+#define ADC_2 AD1_2 // ADC123 means it can be used by ADC 1 and 2 and 3 (the f4 supports 3 adc's), does not matter which. Each ADC can address 4 pins, so in this case we are using ADC 1, on its second pin.
+#define ADC_2_GPIO_PORT GPIOA
 #define ADC_2_GPIO_PIN GPIO2
 #endif
-*/
 
-//OK   current sens
+// external current sens
+#ifndef USE_ADC_3
+#define USE_ADC_3 1
+#endif
 #if USE_ADC_3
-#define AD1_3_CHANNEL 3
+#define AD1_3_CHANNEL 3 // ADC123_IN3
 #define ADC_3 AD1_3
 #define ADC_3_GPIO_PORT GPIOA
 #define ADC_3_GPIO_PIN GPIO3
 #endif
 #define MilliAmpereOfAdc(adc)((float)adc) * (3.3f / 4096.0f) * (90.0f / 5.0f)
 
-// Internal ADC for battery enabled by default
-#ifndef USE_ADC_4
-#define USE_ADC_4 1
-#endif
-#if USE_ADC_4
-#define AD1_4_CHANNEL 2
-#define ADC_4 AD1_4
-#define ADC_4_GPIO_PORT GPIOA
-#define ADC_4_GPIO_PIN GPIO2
-#endif
-
 /* allow to define ADC_CHANNEL_VSUPPLY in the airframe file*/
 #ifndef ADC_CHANNEL_VSUPPLY
-#define ADC_CHANNEL_VSUPPLY ADC_4
+#define ADC_CHANNEL_VSUPPLY ADC_2
 #endif
-#define DefaultVoltageOfAdc(adc) (0.00975f*adc) // value comes from px4 code sensors.cpp _parameters.battery_voltage_scaling = 0.0082f; Manual calib on iris = 0.0096...
 
+#if USE_ADC_2
+#define DefaultVoltageOfAdc(adc) (0.00827*adc)
+#else
+#define DefaultVoltageOfAdc(adc) (0.0021*adc) // scale internal vdd to 5V
+#endif
 
 /*
  * I2C mapping
  */
-//OK
 #define I2C1_GPIO_PORT GPIOB
 #define I2C1_GPIO_SCL GPIO8
 #define I2C1_GPIO_SDA GPIO9
 
-//OK
 #define I2C2_GPIO_PORT GPIOB
 #define I2C2_GPIO_SCL GPIO10
 #define I2C2_GPIO_SDA GPIO11
@@ -332,12 +324,12 @@
 #define PWM_BUZZER_AF GPIO_AF1
 #define PWM_BUZZER_OC TIM_OC1
 #define PWM_BUZZER_OC_BIT (1<<0)
+#define PWM_TIM2_CHAN_MASK (PWM_BUZZER_OC_BIT)
 #else
 #define PWM_BUZZER_OC_BIT 0
 #endif
 
 #define PWM_TIM1_CHAN_MASK (PWM_SERVO_1_OC_BIT|PWM_SERVO_2_OC_BIT|PWM_SERVO_3_OC_BIT|PWM_SERVO_4_OC_BIT)
-#define PWM_TIM2_CHAN_MASK (PWM_BUZZER_OC_BIT)
 #define PWM_TIM4_CHAN_MASK (PWM_SERVO_5_OC_BIT|PWM_SERVO_6_OC_BIT)
 
 #endif /* CONFIG_PX4FMU_2_4_H */
