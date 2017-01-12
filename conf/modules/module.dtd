@@ -63,7 +63,8 @@ fun CDATA #REQUIRED>
 
 <!ATTLIST makefile
 target CDATA #IMPLIED
-firmware CDATA #IMPLIED>
+firmware CDATA #IMPLIED
+cond CDATA #IMPLIED>
 
 <!ATTLIST section
 name CDATA #REQUIRED
@@ -95,11 +96,13 @@ value CDATA #REQUIRED>
 
 <!ATTLIST file
 name CDATA #REQUIRED
-dir CDATA #IMPLIED>
+dir CDATA #IMPLIED
+cond CDATA #IMPLIED>
 
 <!ATTLIST file_arch
 name CDATA #REQUIRED
-dir CDATA #IMPLIED>
+dir CDATA #IMPLIED
+cond CDATA #IMPLIED>
 
 <!ATTLIST settings_file
 name CDATA #REQUIRED

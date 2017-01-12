@@ -108,10 +108,11 @@ let raw_xml2mk = fun f name xml ->
 let file_xml2mk = fun f ?(arch = false) dir_name target xml ->
   let name = Xml.attrib xml "name" in
   let dir_name = ExtXml.attrib_or_default xml "dir" ("$(" ^ dir_name ^ ")") in
+  let cond, cond_end = try "\n"^(Xml.attrib xml "cond"), "\nendif" with Xml.No_attribute _ -> "", "" in
   let fmt =
-    if arch then format_of_string "%s.srcs += arch/$(ARCH)/%s/%s\n"
-    else format_of_string "%s.srcs += %s/%s\n" in
-  fprintf f fmt target dir_name name
+    if arch then format_of_string "%s%s.srcs += arch/$(ARCH)/%s/%s%s\n"
+    else format_of_string "%s%s.srcs += %s/%s%s\n" in
+  fprintf f fmt cond target dir_name name cond_end
 
 (* only print the configuration flags for a module
  * 'raw' section are not handled here
@@ -171,6 +172,9 @@ let module_xml2mk = fun f target firmware m ->
           else Xml.Element ("makefile", [], [])
         with _ -> section end
       in
+      (* add condition if need *)
+      let cond = try Some (Xml.attrib section "cond") with _ -> None in
+      let _ = match cond with Some c -> fprintf f "%s\n" c | None -> () in
       Xml.iter
       (fun field ->
           match Compat.bytes_lowercase (Xml.tag field) with
@@ -184,7 +188,8 @@ let module_xml2mk = fun f target firmware m ->
           | "file_arch" -> file_xml2mk f ~arch:true dir_name target field
           | "raw" -> raw_xml2mk f name field
           | _ -> ()
-        ) section
+      ) section;
+      match cond with Some _ -> fprintf f "endif\n" | None -> ()
     ) m.xml
 
 let modules_xml2mk = fun f target ac_id xml fp ->

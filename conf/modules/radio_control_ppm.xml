@@ -1,0 +1,40 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="radio_control_ppm" dir="radio_control">
+  <doc>
+    <description>
+      Radio control based on PPM input
+
+      Some STM32 boards have the option to configure RADIO_CONTROL_PPM_PIN.
+      See the board makefile for configure options of the pins.
+      If they set the PPM_CONFIG makefile variable, add it to the target.
+      The PPM_CONFIG define is then used in the _board_.h file to set the configuration.
+    </description>
+    <configure name="RADIO_CONTROL_LED" value="none|num" description="LED number or 'none' to disable"/>
+    <configure name="PPM_CONFIG" value="num" description="Select PPM config, as some boards can used different mapping for the ppm input pin"/>
+  </doc>
+  <header>
+    <file name="ppm.h" dir="subsystems/radio_control"/>
+  </header>
+  <makefile target="ap|fbw|sim|nps">
+    <configure name="RADIO_CONTROL_LED" default="none"/>
+    <define name="RADIO_CONTROL_LED" value="$(RADIO_CONTROL_LED)" cond="ifneq ($(RADIO_CONTROL_LED),none)"/>
+    <define name="RADIO_CONTROL_TYPE_H" value="subsystems/radio_control/ppm.h" type="string"/>
+    <define name="PPM_CONFIG" value="$(PPM_CONFIG)" cond="ifdef PPM_CONFIG"/>
+  </makefile>
+  <makefile target="fbw|sim|nps">
+    <define name="RADIO_CONTROL"/>
+    <define name="RADIO_CONTROL_TYPE_PPM"/>
+    <file name="radio_control.c" dir="subsystems"/>
+    <file name="ppm.c" dir="subsystems/radio_control"/>
+    <file name="ppm_arch.c" dir="$(SRC_ARCH)/subsystems/radio_control"/>
+  </makefile>
+  <makefile target="ap" cond="ifeq (,$(findstring $(SEPARATE_FBW),1 TRUE))">
+    <define name="RADIO_CONTROL"/>
+    <define name="RADIO_CONTROL_TYPE_PPM"/>
+    <file name="radio_control.c" dir="subsystems"/>
+    <file name="ppm.c" dir="subsystems/radio_control"/>
+    <file name="ppm_arch.c" dir="$(SRC_ARCH)/subsystems/radio_control"/>
+  </makefile>
+</module>
+
