@@ -29,7 +29,7 @@
     </module>
     <module name="gps" type="ubx_ucenter" />
     <module name="stabilization" type="indi_simple" />
-    <module name="stabilization" type="rate_indi" />
+    <!--<module name="stabilization" type="rate_indi" />-->
     <module name="ahrs" type="int_cmpl_quat" >
       <define name="AHRS_ICQ_MAG_ID" value="MAG_HMC58XX_SENDER_ID" />         <!-- Meaning the external hmc-->
 
@@ -217,7 +217,8 @@
     <define name="MODE_STARTUP" value="AP_MODE_ATTITUDE_DIRECT" />
     <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT" />
     <define name="MODE_AUTO1" value="AP_MODE_HOVER_Z_HOLD" />
-    <define name="MODE_AUTO2" value="AP_MODE_RATE_DIRECT" />
+    <define name="MODE_AUTO2" value="AP_MODE_RC_DIRECT" />
+<!--    <define name="MODE_AUTO2" value="AP_MODE_RATE_DIRECT" />-->
     <define name="NO_RC_THRUST_LIMIT" value="TRUE" />
   </section>
   <section name="BAT">

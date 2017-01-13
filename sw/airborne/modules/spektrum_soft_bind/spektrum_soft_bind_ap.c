@@ -33,41 +33,38 @@
 
 #include "mcu_periph/gpio.h"
 
-void spektrum_soft_bind_init(void) {
-    gpio_setup_output(RADIO_CONTROL_POWER_PORT, RADIO_CONTROL_POWER_PIN);
-    RADIO_CONTROL_POWER_ON(RADIO_CONTROL_POWER_PORT, RADIO_CONTROL_POWER_PIN);
-
-#ifdef PERIPHERAL3V3_ENABLE_PORT // px4fmu 4 (pixracer) has this
-    gpio_setup_output(PERIPHERAL3V3_ENABLE_PORT, PERIPHERAL3V3_ENABLE_PIN);
-    PERIPHERAL3V3_ENABLE_ON(PERIPHERAL3V3_ENABLE_PORT, PERIPHERAL3V3_ENABLE_PIN);    
-#endif
+void spektrum_soft_bind_init(void) {    
 
 }
 
-uint8_t bind_soft_value;
-void spektrum_soft_bind_click(uint8_t val __attribute__((unused)))
-{
+bool bind_soft_value;
+void spektrum_soft_bind_click(bool val ) {
 #ifndef INTER_MCU_AP
-    send_spektrum_bind();    
+  send_spektrum_bind();
 #else
-  intermcu_send_spektrum_bind();  
+  intermcu_send_spektrum_bind();
 #endif
 
+  bind_soft_value = val;
 }
 
 
 void send_spektrum_bind(void) {
+  //power cycle the spektrum
+#if defined(RADIO_CONTROL_LED)
+  LED_OFF(RADIO_CONTROL_LED);
+#endif
 
-    //power cycle the spektrum
-    RADIO_CONTROL_POWER_OFF(RADIO_CONTROL_POWER_PORT, RADIO_CONTROL_POWER_PIN);
-    sys_time_usleep(1000000);
-    RADIO_CONTROL_POWER_ON(RADIO_CONTROL_POWER_PORT, RADIO_CONTROL_POWER_PIN);
+  RADIO_CONTROL_POWER_OFF(RADIO_CONTROL_POWER_PORT, RADIO_CONTROL_POWER_PIN);
+  sys_time_usleep(100000);
+  RADIO_CONTROL_POWER_ON(RADIO_CONTROL_POWER_PORT, RADIO_CONTROL_POWER_PIN);
+#if defined(RADIO_CONTROL_LED)
+  LED_ON(RADIO_CONTROL_LED);
+#endif
 
+  //put to bind mode
+  RADIO_CONTROL_BIND_IMPL_FUNC();    //basically  = radio_control_spektrum_try_bind()
 
-
-    //put to bind mode
-    RADIO_CONTROL_BIND_IMPL_FUNC();    //basically  = radio_control_spektrum_try_bind()
-
-    SpektrumUartInit();
+  SpektrumUartInit();
 
 }
