@@ -27,7 +27,6 @@
 #include "modules/mission/mission_common.h"
 
 #include <string.h>
-#include "subsystems/navigation/common_nav.h"
 #include "generated/flight_plan.h"
 #include "generated/airframe.h"
 #include "subsystems/datalink/datalink.h"
