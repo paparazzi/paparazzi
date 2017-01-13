@@ -7,6 +7,10 @@
 
       Only for fixed-wing.
       CRRCSIM is running as an external program using the MNAV inputdev.
+      Download the patched version for Paparazzi on Github: https://github.com/paparazzi/crrcsim-pprz
+
+      CRRCSIM doc: https://github.com/paparazzi/crrcsim-pprz/tree/master/documentation
+      NPS doc: http://wiki.paparazziuav.org/wiki/NPS
     </description>
   </doc>
   <header/>

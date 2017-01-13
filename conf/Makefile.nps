@@ -69,7 +69,7 @@ all compile: check_jsbsim $(OBJDIR)/simsitl
 
 
 check_jsbsim:
-	@echo Paparazzi jsbsim package found: $(JSBSIM_PKG)
+	@echo Paparazzi jsbsim package found: $(FIND_JSBSIM_VIA_PKG_CONFIG)
 
 
 $(OBJDIR)/simsitl : $($(TARGET).objs)
