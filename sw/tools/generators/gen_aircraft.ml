@@ -56,22 +56,27 @@ let check_unique_id_and_name = fun conf conf_xml ->
     ) conf
 
 
-let configure_xml2mk = fun f xml ->
+let configure_xml2mk = fun ?(default_configure=false) f xml ->
   (* all makefiles variables are forced to uppercase *)
   let name = Compat.bytes_uppercase (ExtXml.attrib xml "name")
   and value = ExtXml.attrib_or_default xml "value" ""
   and default = ExtXml.attrib_or_default xml "default" ""
   and case = ExtXml.attrib_or_default xml "case" "" in
-  (* Only print variable if value is not empty *)
-  if Compat.bytes_length value > 0 then
-    fprintf f "%s = %s\n" name value
-  else if Compat.bytes_length default > 0 then
-    fprintf f "%s ?= %s\n" name default;
-  (* also providing lower and upper case version on request *)
-  if Str.string_match (Str.regexp ".*lower.*") case 0 then
-    fprintf f "%s_LOWER = $(shell echo $(%s) | tr A-Z a-z)\n" name name;
-  if Str.string_match (Str.regexp ".*upper.*") case 0 then
-    fprintf f "%s_UPPER = $(shell echo $(%s) | tr a-z A-Z)\n" name name
+  (* either print the default or the normal configure variable *)
+  if default_configure then begin
+    (* Only print variable if default is set but not value *)
+    if Compat.bytes_length default > 0 && Compat.bytes_length value = 0 then
+      fprintf f "%s ?= %s\n" name default;
+    (* also providing lower and upper case version on request *)
+    if Str.string_match (Str.regexp ".*lower.*") case 0 then
+      fprintf f "%s_LOWER = $(shell echo $(%s) | tr A-Z a-z)\n" name name;
+    if Str.string_match (Str.regexp ".*upper.*") case 0 then
+      fprintf f "%s_UPPER = $(shell echo $(%s) | tr a-z A-Z)\n" name name
+  end
+  else
+    (* Only print variable if value is not empty *)
+    if Compat.bytes_length value > 0 then
+      fprintf f "%s = %s\n" name value
 
 let include_xml2mk = fun f ?(target="$(TARGET)") ?(vpath=None) xml ->
   let name = Xml.attrib xml "name"
@@ -117,11 +122,11 @@ let file_xml2mk = fun f ?(arch = false) dir_name target xml ->
 (* only print the configuration flags for a module
  * 'raw' section are not handled here
  *)
-let module_configure_xml2mk = fun f target firmware m ->
+let module_configure_xml2mk = fun ?(default_configure=false) f target firmware m ->
   (* print global config flags *)
   List.iter (fun flag ->
     match Compat.bytes_lowercase (Xml.tag flag) with
-    | "configure" -> configure_xml2mk f flag
+    | "configure" -> configure_xml2mk ~default_configure f flag
     | _ -> ()) m.param;
   (* Look for makefile section *)
   ExtXml.iter_tag "makefile"
@@ -141,7 +146,7 @@ let module_configure_xml2mk = fun f target firmware m ->
       Xml.iter
       (fun field ->
           match Compat.bytes_lowercase (Xml.tag field) with
-          | "configure" -> configure_xml2mk f field
+          | "configure" -> configure_xml2mk ~default_configure f field
           | _ -> ()
         ) section
     ) m.xml
@@ -285,9 +290,11 @@ let parse_firmware = fun makefile_ac ac_id ac_xml firmware fp ->
     List.iter (subsystem_configure_xml2mk makefile_ac) t_subsystems;
     List.iter (subsystem_configure_xml2mk makefile_ac) mods;
     List.iter (subsystem_configure_xml2mk makefile_ac) t_mods;
-    List.iter (module_configure_xml2mk makefile_ac target_name firmware_name) modules;
+    List.iter (module_configure_xml2mk makefile_ac target_name firmware_name) modules; (* print normal configure from module xml *)
     fprintf makefile_ac "\ninclude $(PAPARAZZI_SRC)/conf/boards/%s.makefile\n" (Xml.attrib target "board");
-    fprintf makefile_ac "include $(PAPARAZZI_SRC)/conf/firmwares/%s.makefile\n" (Xml.attrib firmware "name");
+    fprintf makefile_ac "include $(PAPARAZZI_SRC)/conf/firmwares/%s.makefile\n\n" (Xml.attrib firmware "name");
+    List.iter (module_configure_xml2mk ~default_configure:true makefile_ac target_name firmware_name) modules; (* print default configure from module xml *)
+    fprintf makefile_ac "\n";
     List.iter (fun def -> define_xml2mk makefile_ac def) defines;
     List.iter (fun def -> define_xml2mk makefile_ac def) t_defines;
     List.iter (module_xml2mk makefile_ac target_name firmware_name) modules;
