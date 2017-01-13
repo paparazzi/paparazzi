@@ -4,7 +4,11 @@
   <doc>
     <description>
       Inter-MCU communication over SPI
+
+      To enable this, please set the "SEPARATE_FBW" configure option to TRUE
+      in your airframe file for both AP and FBW targets
     </description>
+    <configure name="SEPARATE_FBW" value="FALSE|TRUE" description="Enable separation between AP and FBW on separated MCU"/>
     <configure name="INTER_MCU_SPI" value="SPI1" description="SPI used for inter mcu communication"/>
     <configure name="INTER_MCU_SLAVE" value="SLAVE0" description="Slave name"/>
   </doc>

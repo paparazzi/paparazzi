@@ -4,7 +4,11 @@
   <doc>
     <description>
       Inter-MCU communication over CAN
+
+      To enable this, please set the "SEPARATE_FBW" configure option to TRUE
+      in your airframe file for both AP and FBW targets
     </description>
+    <configure name="SEPARATE_FBW" value="FALSE|TRUE" description="Enable separation between AP and FBW on separated MCU"/>
   </doc>
 
   <makefile target="ap|fbw" firmware="fixedwing">

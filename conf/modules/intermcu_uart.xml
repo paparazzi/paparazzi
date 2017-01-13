@@ -4,7 +4,11 @@
   <doc>
     <description>
       Inter-MCU communication over UART
+
+      To enable this, please set the "SEPARATE_FBW" configure option to TRUE
+      in your airframe file for both AP and FBW targets
     </description>
+    <configure name="SEPARATE_FBW" value="FALSE|TRUE" description="Enable separation between AP and FBW on separated MCU"/>
     <configure name="INTERMCU_PORT" value="UARTx" description="UART used for inter mcu communication (default: UART2 for FBW, UART5 for AP)"/>
     <configure name="INTERMCU_BAUD" value="B57600" description="UART baud rate"/>
     <configure name="FBW_MODE_LED" value="none|num" description="LED number or 'none'"/>
