@@ -1,0 +1,21 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="fdm_crrcsim" dir="fdm">
+  <doc>
+    <description>
+      CRRCSIM FDM backend for NPS simulator
+
+      Only for fixed-wing.
+      CRRCSIM is running as an external program using the MNAV inputdev.
+      Download the patched version for Paparazzi on Github: https://github.com/paparazzi/crrcsim-pprz
+
+      CRRCSIM doc: https://github.com/paparazzi/crrcsim-pprz/tree/master/documentation
+      NPS doc: http://wiki.paparazziuav.org/wiki/NPS
+    </description>
+  </doc>
+  <header/>
+  <makefile target="nps" firmware="fixedwing">
+    <file name="nps_fdm_crrcsim.cpp" dir="nps"/>
+  </makefile>
+</module>
+
