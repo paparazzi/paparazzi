@@ -30,6 +30,7 @@
 #include "math/pprz_algebra_int.h"
 #include "boards/bebop.h"
 #include "modules/computer_vision/lib/isp/libisp.h"
+#include "modules/computer_vision/lib/isp/libisp_config.h"
 
 #include <stdio.h>
 #include <unistd.h>
