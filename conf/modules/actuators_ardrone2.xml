@@ -7,9 +7,9 @@
     </description>
   </doc>
   <header>
-    <file name="actuators_ardrone2.h" dir="subsystems/actuators"/>
+    <file name="actuators.h" dir="boards/ardrone"/>
   </header>
-  <makefile target="!sim|nps">
+  <makefile target="ap">
     <define name="ACTUATORS"/>
     <file name="actuators.c" dir="$(SRC_BOARD)"/>
   </makefile>

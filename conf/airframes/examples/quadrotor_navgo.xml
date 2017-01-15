@@ -28,7 +28,7 @@
     <module name="radio_control" type="ppm"/>
     <module name="telemetry"     type="transparent"/>
     <module name="actuators"     type="mkk">
-      <define name="MKK_I2C_SCL_TIME" value="25"/>
+      <configure name="ACTUATORS_MKK_I2C_SCL_TIME" value="25"/>
     </module>
     <module name="motor_mixing"/>
     <module name="actuators"     type="pwm">
