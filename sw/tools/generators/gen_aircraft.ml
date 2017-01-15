@@ -113,7 +113,7 @@ let raw_xml2mk = fun f name xml ->
 let file_xml2mk = fun f ?(arch = false) dir_name target xml ->
   let name = Xml.attrib xml "name" in
   let dir_name = ExtXml.attrib_or_default xml "dir" ("$(" ^ dir_name ^ ")") in
-  let cond, cond_end = try "\n"^(Xml.attrib xml "cond"), "\nendif" with Xml.No_attribute _ -> "", "" in
+  let cond, cond_end = try "\n"^(Xml.attrib xml "cond")^"\n", "\nendif" with Xml.No_attribute _ -> "", "" in
   let fmt =
     if arch then format_of_string "%s%s.srcs += arch/$(ARCH)/%s/%s%s\n"
     else format_of_string "%s%s.srcs += %s/%s%s\n" in
