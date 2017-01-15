@@ -13,7 +13,7 @@
   <makefile target="ap">
     <configure name="BEBOP_ACTUATORS_I2C_DEV" default="i2c1" case="upper|lower"/>
     <define name="ACTUATORS"/>
-    <define name="BEBOP_ACTUATORS_I2C_DEV" value="$(BEBOP_ACTUATORS_I2C_DEV_LOWER"/>
+    <define name="BEBOP_ACTUATORS_I2C_DEV" value="$(BEBOP_ACTUATORS_I2C_DEV_LOWER)"/>
     <define name="USE_$(BEBOP_ACTUATORS_I2C_DEV_UPPER)"/>
     <file name="actuators.c" dir="$(SRC_BOARD)"/>
   </makefile>

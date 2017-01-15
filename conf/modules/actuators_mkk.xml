@@ -25,7 +25,7 @@
     <configure name="ACTUATORS_MKK_I2C_DEV" default="i2c1" case="upper|lower"/>
     <configure name="ACTUATORS_MKK_I2C_SCL_TIME" default="150"/>
     <define name="ACTUATORS"/>
-    <define name="ACTUATORS_MKK_I2C_DEV" value="$(ACTUATORS_MKK_I2C_DEV_LOWER"/>
+    <define name="ACTUATORS_MKK_I2C_DEV" value="$(ACTUATORS_MKK_I2C_DEV_LOWER)"/>
     <define name="USE_$(ACTUATORS_MKK_I2C_DEV_UPPER)"/>
     <define name="$(ACTUATORS_MKK_I2C_DEV_UPPER)_SCLL" value="$(ACTUATORS_MKK_I2C_SCL_TIME)" cond="ifeq ($(ARCH), lpc21)"/>
     <define name="$(ACTUATORS_MKK_I2C_DEV_UPPER)_SCLH" value="$(ACTUATORS_MKK_I2C_SCL_TIME)" cond="ifeq ($(ARCH), lpc21)"/>
