@@ -30,7 +30,6 @@
 #include "math/pprz_algebra_int.h"
 #include "boards/bebop.h"
 #include "modules/computer_vision/lib/isp/libisp.h"
-#include "modules/computer_vision/lib/isp/libisp_config.h"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -42,8 +41,6 @@
 
 #define MT9F002_MAX_WIDTH 4608
 #define MT9F002_MAX_HEIGHT 3288
-
-extern struct libisp_config isp_config;
 
 /* Camera structure */
 struct video_config_t front_camera = {

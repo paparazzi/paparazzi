@@ -8,8 +8,7 @@
 #include <sys/mman.h>
 #include <sys/ioctl.h>
 
-//#include "libisp.h"
-#include "libisp_config.h"
+#include "libisp.h"
 
 #define AVI_BASE 0x400000
 #define AVI_SIZE 0x100000

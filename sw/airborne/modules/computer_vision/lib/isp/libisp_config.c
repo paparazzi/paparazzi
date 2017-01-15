@@ -1,6 +1,3 @@
-#ifndef _LIBISP_CONFIG_H
-#define _LIBISP_CONFIG_H
-
 #include "boards/bebop/mt9f002.h"
 #include "libisp.h"
 
@@ -496,5 +493,3 @@ struct libisp_config isp_config = {
   },
 
 };
-
-#endif /* _LIBISP_CONFIG_H */

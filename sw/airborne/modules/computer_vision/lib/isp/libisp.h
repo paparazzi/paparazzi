@@ -100,6 +100,8 @@ struct isp_yuv_stats_t {
   uint32_t ae_histogram_Y[256];
 };
 
+extern struct libisp_config isp_config;
+
 int configure_isp(struct v4l2_device *dev);
 int isp_get_statistics_yuv(struct isp_yuv_stats_t *yuv_stats);
 

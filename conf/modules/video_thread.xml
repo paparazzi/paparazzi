@@ -29,7 +29,6 @@
     <file name="image.c" dir="modules/computer_vision/lib/vision"/>
     <file name="v4l2.c" dir="modules/computer_vision/lib/v4l"/>
     <file name="jpeg.c" dir="modules/computer_vision/lib/encoding"/>
-    <file name="libisp.c" dir="modules/computer_vision/lib/isp"/>
 
     <!-- Random flags -->
     <!-- Does this influence the compilation of fast9? -->

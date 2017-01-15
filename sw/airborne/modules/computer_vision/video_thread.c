@@ -39,12 +39,16 @@
 #include "lib/v4l/v4l2.h"
 #include "lib/vision/image.h"
 #include "lib/vision/bayer.h"
-#include "lib/isp/libisp.h"
 
 #include "mcu_periph/sys_time.h"
 
 // include board for bottom_camera and front_camera on ARDrone2 and Bebop
 #include BOARD_CONFIG
+
+// Bebop uses ISP
+#ifdef BOARD_BEBOP
+#include "lib/isp/libisp.h"
+#endif
 
 // Threaded computer vision
 #include <pthread.h>
@@ -102,10 +106,12 @@ static void *video_thread_function(void *data)
     return 0;
   }
 
+#ifdef BOARD_BEBOP
   // Configure ISP if needed
   if (vid->filters & VIDEO_FILTER_ISP) {
     configure_isp(vid->thread.dev);
   }
+#endif
 
   // be nice to the more important stuff
   set_nice_level(VIDEO_THREAD_NICE_LEVEL);
