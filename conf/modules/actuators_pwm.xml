@@ -7,7 +7,7 @@
     </description>
   </doc>
   <header>
-    <file name="actuators_pwm.h"/>
+    <file name="actuators_pwm.h" dir="subsystems/actuators"/>
   </header>
   <makefile target="!sim|nps">
     <define name="ACTUATORS"/>

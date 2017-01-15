@@ -1,0 +1,19 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="actuators_dualpwm" dir="actuators" task="actuators">
+  <doc>
+    <description>
+      Actuators Driver for dual PWM output
+      Only with stm32
+    </description>
+  </doc>
+  <header>
+    <file name="actuators_dualpwm.h" dir="subsystems/actuators"/>
+  </header>
+  <makefile target="!sim|nps">
+    <define name="ACTUATORS"/>
+    <file_arch name="actuators_dualpwm_arch.c" dir="subsystems/actuators"/>
+    <file_arch name="actuators_shared_arch.c" dir="subsystems/actuators"/>
+  </makefile>
+</module>
+

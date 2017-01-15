@@ -1,0 +1,21 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="actuators_bebop" dir="actuators" task="actuators">
+  <doc>
+    <description>
+      Actuators Driver for Bebop 1 and 2
+    </description>
+    <configure name="BEBOP_ACTUATORS_I2C_DEV" value="i2cX" description="I2C port (default i2c1)"/>
+  </doc>
+  <header>
+    <file name="actuators_bebop.h" dir="subsystems/actuators"/>
+  </header>
+  <makefile target="ap">
+    <configure name="BEBOP_ACTUATORS_I2C_DEV" default="i2c1" case="upper|lower"/>
+    <define name="ACTUATORS"/>
+    <define name="BEBOP_ACTUATORS_I2C_DEV" value="$(BEBOP_ACTUATORS_I2C_DEV_LOWER"/>
+    <define name="USE_$(BEBOP_ACTUATORS_I2C_DEV_UPPER)"/>
+    <file name="actuators.c" dir="$(SRC_BOARD)"/>
+  </makefile>
+</module>
+
