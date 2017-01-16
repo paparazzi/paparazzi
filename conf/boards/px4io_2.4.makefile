@@ -28,7 +28,7 @@ RADIO_CONTROL_LED  ?= none
 BARO_LED           ?= none
 AHRS_ALIGNER_LED   ?= none
 GPS_LED            ?= none
-SYS_TIME_LED       ?= 1
+SYS_TIME_LED       ?= 2
 FBW_MODE_LED	     ?= 3
 
 #
