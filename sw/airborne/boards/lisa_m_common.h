@@ -160,6 +160,7 @@
   ADC4 PC5/ADC15
   ADC6 PC2/ADC12
   BATT PC4/ADC14 (ADC5)
+
 */
 
 /* provide defines that can be used to access the ADC_x in the code or airframe file

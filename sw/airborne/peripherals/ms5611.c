@@ -39,9 +39,22 @@ bool ms5611_prom_crc_ok(uint16_t *prom)
   uint32_t res = 0;
   uint8_t crc = prom[7] & 0xF;
   prom[7] &= 0xFF00;
+
+  bool allzero = true;
+  for (i = 0; i < 8; i++) {
+    if (prom[i] != 0) {
+      allzero = false;
+      break;
+    }
+  }
+  if (allzero) {
+    return false;
+  }
+
   for (i = 0; i < 16; i++) {
     if (i & 1) {
       res ^= ((prom[i >> 1]) & 0x00FF);
+
     } else {
       res ^= (prom[i >> 1] >> 8);
     }
@@ -53,6 +66,7 @@ bool ms5611_prom_crc_ok(uint16_t *prom)
     }
   }
   prom[7] |= crc;
+
   if (crc == ((res >> 12) & 0xF)) {
     return true;
   } else {

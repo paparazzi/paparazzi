@@ -1,6 +1,6 @@
 
 /*
- * board specific fonctions for the PX4FMU board
+ * board specific fonctions for the PX4FMU board (tested for v2.4 and v4.0)
  *
  */
 
