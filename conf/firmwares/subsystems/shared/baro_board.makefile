@@ -168,26 +168,25 @@ else ifeq ($(BOARD), krooz)
 
 # PX4FMU
 else ifeq ($(BOARD),$(filter $(BOARD),px4fmu))
-  ifeq ($(BOARD_VERSION), 2.4)
-    # PX4FMU 2.4 a.k.a. PIXHAWK
-    include $(CFG_SHARED)/spi_master.makefile
+  include $(CFG_SHARED)/spi_master.makefile
+  BARO_BOARD_SRCS += peripherals/ms5611.c
+  BARO_BOARD_SRCS += peripherals/ms5611_spi.c
+  BARO_BOARD_SRCS += boards/baro_board_ms5611_spi.c
+  ifeq ($(BOARD_VERSION), 1.7)
+    # PX4FMU 1.7
     BARO_BOARD_CFLAGS += -DUSE_SPI1 -DUSE_SPI_SLAVE3
     BARO_BOARD_CFLAGS += -DBB_MS5611_SPI_DEV=spi1
     BARO_BOARD_CFLAGS += -DBB_MS5611_SLAVE_IDX=SPI_SLAVE3
-
-    BARO_BOARD_SRCS += peripherals/ms5611.c
-    BARO_BOARD_SRCS += peripherals/ms5611_spi.c
-    BARO_BOARD_SRCS += boards/baro_board_ms5611_spi.c
+  else ifeq ($(BOARD_VERSION), 2.4)
+    # PX4FMU 2.4 a.k.a. PIXHAWK
+    BARO_BOARD_CFLAGS += -DUSE_SPI1 -DUSE_SPI_SLAVE3
+    BARO_BOARD_CFLAGS += -DBB_MS5611_SPI_DEV=spi1
+    BARO_BOARD_CFLAGS += -DBB_MS5611_SLAVE_IDX=SPI_SLAVE3
   else ifeq ($(BOARD_VERSION), 4.0)
     # PX4FMU 4.0 a.k.a. PX4_PIXRACER
-    include $(CFG_SHARED)/spi_master.makefile
     BARO_BOARD_CFLAGS += -DUSE_SPI2 -DUSE_SPI_SLAVE3
     BARO_BOARD_CFLAGS += -DBB_MS5611_SPI_DEV=spi2
     BARO_BOARD_CFLAGS += -DBB_MS5611_SLAVE_IDX=SPI_SLAVE3
-
-    BARO_BOARD_SRCS += peripherals/ms5611.c
-    BARO_BOARD_SRCS += peripherals/ms5611_spi.c
-    BARO_BOARD_SRCS += boards/baro_board_ms5611_spi.c
   endif
 # apogee baro
 else ifeq ($(BOARD), apogee)
