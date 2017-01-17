@@ -74,7 +74,7 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 #include "generated/modules.h"
 #include "generated/settings.h"
 #if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
-#include "rc_settings.h"
+#include "modules/settings/rc_settings.h"
 #endif
 #include "subsystems/abi.h"
 

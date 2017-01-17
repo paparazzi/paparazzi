@@ -24,7 +24,7 @@
 
 #include <inttypes.h>
 #include "generated/radio.h"
-#include "rc_settings.h"
+#include "modules/settings/rc_settings.h"
 #include "autopilot.h"
 #include "firmwares/fixedwing/nav.h"
 #include "subsystems/sensors/infrared.h"

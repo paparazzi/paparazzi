@@ -74,7 +74,7 @@ static void send_alive(struct transport_tx *trans, struct link_device *dev)
 }
 
 #if defined RADIO_CALIB && defined RADIO_CONTROL_SETTINGS
-#include "rc_settings.h"
+#include "modules/settings/rc_settings.h"
 static void send_rc_settings(struct transport_tx *trans, struct link_device *dev)
 {
   if (!RcSettingsOff()) {
