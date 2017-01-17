@@ -50,6 +50,7 @@
 #include "state.h"
 #include "pprz_version.h"
 #include "autopilot.h"
+#include "autopilot_guided.h"
 
 #if defined RADIO_CONTROL
 #include "subsystems/radio_control.h"
