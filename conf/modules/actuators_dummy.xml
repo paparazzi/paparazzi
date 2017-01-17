@@ -1,0 +1,12 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="actuators_dummy" dir="actuators" task="actuators">
+  <doc>
+    <description>
+      Dummy actuators driver
+    </description>
+  </doc>
+  <header/>
+  <makefile/>
+</module>
+

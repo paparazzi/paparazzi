@@ -1,0 +1,33 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="actuators_spektrum" dir="actuators" task="actuators">
+  <doc>
+    <description>
+      Actuators Driver with Spektrum output
+
+      required xml configuration:
+      - servo section with driver="Spektrum"
+      - command_laws section to map motor_mixing commands to servos
+    </description>
+    <configure name="ACTUATORS_SPEKTRUM_DEV" value="UARTX" description="UART port (default uart4)"/>
+    <configure name="ACTUATORS_SPEKTRUM_DEV2" value="UARTX" description="UART port for optional secondary output"/>
+  </doc>
+  <header>
+    <file name="actuators_spektrum.h" dir="subsystems/actuators"/>
+  </header>
+  <makefile>
+    <configure name="ACTUATORS_SPEKTRUM_DEV" default="uart4" case="upper|lower"/>
+    <configure name="ACTUATORS_SPEKTRUM_DEV2" case="upper|lower"/>
+    <define name="ACTUATORS"/>
+    <define name="ACTUATORS_SPEKTRUM_DEV" value="$(ACTUATORS_SPEKTRUM_DEV_LOWER)"/>
+    <define name="USE_$(ACTUATORS_SPEKTRUM_DEV_UPPER)"/>
+    <define name="$(ACTUATORS_SPEKTRUM_DEV_UPPER)_BAUD" value="115200"/>
+    <define name="USE_$(ACTUATORS_SPEKTRUM_DEV_UPPER)_RC" value="FALSE"/>
+    <define name="ACTUATORS_SPEKTRUM_DEV2" value="$(ACTUATORS_SPEKTRUM_DEV2_LOWER)" cond="ifdef ACTUATORS_SPEKTRUM_DEV2"/>
+    <define name="USE_$(ACTUATORS_SPEKTRUM_DEV2_UPPER)"/>
+    <define name="$(ACTUATORS_SPEKTRUM_DEV2_UPPER)_BAUD" value="115200" cond="ifdef ACTUATORS_SPEKTRUM_DEV2"/>
+    <define name="USE_$(ACTUATORS_SPEKTRUM_DEV2_UPPER)_RC" value="FALSE" cond="ifdef ACTUATORS_SPEKTRUM_DEV2"/>
+    <file name="actuators_spektrum.c" dir="subsystems/actuators"/>
+  </makefile>
+</module>
+

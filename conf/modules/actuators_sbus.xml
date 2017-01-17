@@ -1,0 +1,25 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="actuators_sbus" dir="actuators" task="actuators">
+  <doc>
+    <description>
+      Actuators Driver using Futaba SBUS
+
+      Use an inverter after the serial output
+    </description>
+    <configure name="ACTUATORS_SBUS_DEV" value="UARTX" description="UART port (default uart4)"/>
+  </doc>
+  <header>
+    <file name="actuators_sbus.h" dir="subsystems/actuators"/>
+  </header>
+  <makefile>
+    <configure name="ACTUATORS_SBUS_DEV" default="uart4" case="upper|lower"/>
+    <define name="ACTUATORS"/>
+    <define name="ACTUATORS_SBUS_DEV" value="$(ACTUATORS_SBUS_DEV_LOWER)"/>
+    <define name="USE_$(ACTUATORS_SBUS_DEV_UPPER)"/>
+    <define name="$(ACTUATORS_SBUS_DEV_UPPER)_BAUD" value="100000"/>
+    <define name="USE_$(ACTUATORS_SBUS_DEV_UPPER)_RX" value="FALSE"/>
+    <file name="actuators_sbus.c" dir="subsystems/actuators"/>
+  </makefile>
+</module>
+
