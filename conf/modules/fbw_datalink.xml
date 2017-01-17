@@ -1,0 +1,29 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="fbw_datalink" dir="datalink" task="fbw">
+  <doc>
+    <description>
+      Forward datalink over inter-mcu link between FBW and AP
+      Flight termination commands can still be decoded by FBW even when AP is down
+    </description>
+    <configure name="MODEM_PORT" value="UARTx" description="UART where the modem is connected to (UART1, UART2, etc)"/>
+    <configure name="MODEM_BAUD" value="B57600" description="UART baud rate"/>
+    <configure name="AUTOPILOT_PORT" value="UARTx" description="UART where the autopilot is connected to (UART1, UART2, etc)"/>
+  </doc>
+  <header>
+    <file name="fbw_datalink.h" dir="firmwares/fixedwing"/>
+  </header>
+  <makefile target="fbw" firmware="fixedwing">
+    <configure name="MODEM_PORT" case="upper|lower"/>
+    <configure name="AUTOPILOT_PORT" case="upper|lower"/>
+    <define name="USE_$(MODEM_PORT_UPPER)"/>
+    <define name="$(MODEM_PORT_UPPER)_BAUD" value="$(MODEM_BAUD)"/>
+    <define name="MODEM_LINK" value="$(MODEM_PORT_LOWER)"/>
+    <define name="USE_$(AUTOPILOT_PORT_UPPER)"/>
+    <define name="$(AUTOPILOT_PORT_UPPER)_BAUD" value="$(MODEM_BAUD)"/>
+    <define name="AUTOPILOT_LINK" value="$(AUTOPILOT_PORT_LOWER)"/>
+    <define name="FBW_DATALINK"/>
+    <file name="fbw_datalink.c" dir="firmwares/fixedwing"/>
+  </makefile>
+</module>
+
