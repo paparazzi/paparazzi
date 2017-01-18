@@ -144,9 +144,8 @@ static void compute_points_from_bungee(void)
 
 void nav_bungee_takeoff_setup(uint8_t bungee_wp)
 {
-  // Store bungee point (from WP id, altitude should be ground alt)
-  // FIXME use current alt instead ?
-  VECT3_ASSIGN(bungee_point, WaypointX(bungee_wp), WaypointY(bungee_wp), WaypointAlt(bungee_wp));
+  // Store bungee point (from WP id, altitude is current hmsl (e.g. ground alt))
+  VECT3_ASSIGN(bungee_point, WaypointX(bungee_wp), WaypointY(bungee_wp), stateGetPositionUtm_f()->alt);
 
   // Compute other points
   compute_points_from_bungee();
