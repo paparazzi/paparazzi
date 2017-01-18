@@ -1,0 +1,30 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="motor_mixing" dir="actuators" task="actuators">
+  <doc>
+    <description>
+      Motor mixing for multi-rotor systems
+
+      see http://wiki.paparazziuav.org/wiki/Rotorcraft_Configuration#Motor_Mixing
+    </description>
+    <section name="MIXING" prefix="MOTOR_MIXING_">
+      <define name="TRIM_ROLL" value="0" description="roll trim"/>
+      <define name="TRIM_PITCH" value="0" description="pitch trim"/>
+      <define name="TRIM_YAW" value="0" description="yaw trim"/>
+      <define name="NB_MOTOR" value="4" description="number of motors"/>
+      <define name="SCALE" value="256" description="scaling factor"/>
+      <define name="ROLL_COEF" value="{ 0, 0, -256, 256 }" description="array of roll coefficient"/>
+      <define name="PITCH_COEF" value="{ 256, -256, 0, 0 }" description="array of pitch coefficient"/>
+      <define name="YAW_COEF" value="{ -256, -256, 256, 256 }" description="array of yaw coefficient"/>
+      <define name="THRUST_COEF" value="{ 256, 256, 256, 256 }" description="array of thurst coefficient"/>
+    </section>
+  </doc>
+  <header>
+    <file name="motor_mixing.h" dir="subsystems/actuators"/>
+  </header>
+  <makefile>
+    <define name="USE_MOTOR_MIXING"/>
+    <file name="motor_mixing.c" dir="subsystems/actuators"/>
+  </makefile>
+</module>
+
