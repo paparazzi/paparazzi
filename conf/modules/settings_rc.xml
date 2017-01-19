@@ -1,0 +1,17 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="settings_rc" dir="settings">
+  <doc>
+    <description>
+      Change settings via Remote Control, e.g. tune your aircraft
+    </description>
+  </doc>
+  <header>
+    <file name="rc_settings.h"/>
+  </header>
+  <makefile>
+    <define name="RADIO_CONTROL_SETTINGS"/>
+    <file name="rc_settings.c"/>
+  </makefile>
+</module>
+
