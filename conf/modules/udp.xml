@@ -1,0 +1,24 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="udp" dir="mcu_periph" task="mcu">
+  <doc>
+    <description>
+      General UDP driver
+      To activate a specific UDP peripheral, define flag USE_UDPX where X is your UDP peripheral number
+    </description>
+  </doc>
+  <header>
+    <file name="udp.h" dir="mcu_periph"/>
+  </header>
+  <makefile>
+    <define name="USE_UDP"/>
+    <file name="udp.c" dir="mcu_periph"/>
+    <file_arch name="udp_arch.c" dir="mcu_periph"/>
+    <file name="udp_socket.c" dir="arch/linux" cond="ifeq ($(ARCH), linux)"/>
+  </makefile>
+  <makefile target="nps">
+    <include name="arch/linux"/>
+    <file name="udp_socket.c" dir="arch/linux"/>
+  </makefile>
+</module>
+

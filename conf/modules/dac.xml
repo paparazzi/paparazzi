@@ -1,0 +1,18 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="dac" dir="mcu_periph" task="mcu">
+  <doc>
+    <description>
+      General DAC driver
+      To activate a specific DAC input, define flag USE_DACX where X is your DAC input number
+    </description>
+  </doc>
+  <header>
+    <file name="dac.h" dir="mcu_periph"/>
+  </header>
+  <makefile>
+    <define name="USE_DAC"/>
+    <file_arch name="dac_arch.c" dir="mcu_periph"/>
+  </makefile>
+</module>
+
