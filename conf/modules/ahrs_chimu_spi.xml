@@ -6,6 +6,7 @@
     <define name="CHIMU_BIG_ENDIAN" value="TRUE" description="For older CHIMU v1.0 you should define CHIMU_BIG_ENDIAN"/>
   </doc>
   <autoload name="ahrs_sim"/>
+  <autoload name="spi" type="slave_hs"/>
   <header>
     <file name="ins_module.h"/>
   </header>
@@ -21,8 +22,5 @@
     <file name="imu_chimu.c"/>
     <file name="ahrs.c" dir="subsystems"/>
     <define name="AHRS_TYPE_H" value="modules/ins/ahrs_chimu.h" type="string"/>
-    <raw>
-      include $(CFG_FIXEDWING)/spi_slave_hs.makefile
-    </raw>
   </makefile>
 </module>
