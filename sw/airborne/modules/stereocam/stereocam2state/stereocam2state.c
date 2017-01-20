@@ -78,7 +78,7 @@ void stereocam_to_state(void)
   int16_t vel_z_pixelwise_int = (int16_t)stereocam_data.data[18] << 8;
   vel_z_pixelwise_int |= (int16_t)stereocam_data.data[19];
 
-// Select what type of velocity estimate is wanted
+// Select what type of velocity estimate fom edgeflow is wanted
 #if STEREOCAM2STATE_EDGEFLOW_PIXELWISE == TRUE
   struct FloatVect3 camera_frame_vel;
   camera_frame_vel.x = (float)vel_x_pixelwise_int / RES;
@@ -95,30 +95,33 @@ void stereocam_to_state(void)
 
  //Rotate velocity back to quad's frame
   struct FloatVect3 quad_body_vel;
+  struct FloatRMat stereocam_to_body;
+
+  float_rmat_inv(&stereocam_to_body,&body_to_stereocam);
   float_rmat_transp_vmult(&quad_body_vel, &body_to_stereocam, &camera_frame_vel);
 
   //Send velocity estimate to state
   //TODO:: Make variance dependable on line fit error, after new horizontal filter is made
   uint32_t now_ts = get_sys_time_usec();
 
-  if (!(abs(vel_body_x) > 0.5 || abs(vel_body_x) > 0.5)) {
-    AbiSendMsgVELOCITY_ESTIMATE(STEREOCAM2STATE_SENDER_ID, now_ts,
+  AbiSendMsgVELOCITY_ESTIMATE(STEREOCAM2STATE_SENDER_ID, now_ts,
                                 quad_body_vel.x,
                                 quad_body_vel.y,
                                 quad_body_vel.z,
                                 0.3f
                                );
-  }
+
 
   // Reusing the OPTIC_FLOW_EST telemetry messages, with some values replaced by 0
 
   uint16_t dummy_uint16 = 0;
   int16_t dummy_int16 = 0;
   float dummy_float = 0;
+  DOWNLINK_SEND_GPS_ERROR(DefaultChannel, DefaultDevice, &camera_frame_vel.x, &camera_frame_vel.y, &camera_frame_vel.z, &quad_body_vel.x,  &quad_body_vel.y,  &quad_body_vel.z);
 
   DOWNLINK_SEND_OPTIC_FLOW_EST(DefaultChannel, DefaultDevice, &fps, &dummy_uint16, &dummy_uint16, &flow_x, &flow_y,
                                &dummy_int16, &dummy_int16,
-                               &vel_x, &vel_y, &dummy_float, &dummy_float, &dummy_float);
+                               &quad_body_vel.x, &quad_body_vel.y, &dummy_float, &dummy_float, &dummy_float);
 
 #endif
 
