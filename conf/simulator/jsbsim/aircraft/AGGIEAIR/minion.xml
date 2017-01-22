@@ -1,0 +1,332 @@
+<?xml version="1.0"?>
+<!--
+ * Copyright (C) 2017, Utah State University, http://aggieair.usu.edu/
+ * Michal Podhradsky, michal.podhradsky@aggiemail.usu.edu
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+
+For more details about the Minion airplane, see http://aggieair.usu.edu/node/349
+The jsbsim file is based on easystar airplane.
+-->
+<?xml-stylesheet href="JSBSim.xsl" type="application/xml"?>
+<fdm_config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="file:~JSBSim.xsd"
+    name="Minion" version="2.0" release="BETA">
+
+    <fileheader>
+        <author>Michal Podhradsky</author>
+        <filecreationdate>2015-05-05</filecreationdate>
+        <description>Minion RP3 Model</description>
+        <reference title="7ft Minion Fixedwing UAV"/>
+    </fileheader>
+
+    <!-- **********************************************************************
+        METRICS
+        ********************************************************************** -->
+    <metrics>
+      <wingarea unit="FT2">        5.61085  </wingarea>
+      <wingspan unit="FT">         7.25 </wingspan>
+      <chord unit="FT">             .7739  </chord>
+      <htailarea unit="FT2">        .4457  </htailarea>
+      <htailarm unit="FT">          .4280  </htailarm>
+      <vtailarea unit="FT2">        .1606  </vtailarea>
+      <vtailarm unit="FT">          .7127  </vtailarm>
+     <!--
+            the aerodynamic reference point, common point for
+            aerodynamic forces (lift and drag)
+        -->
+      <location name="AERORP" unit="IN">
+         <x>  4.0 </x>
+         <y>  0.0 </y>
+         <z>  0.0 </z>
+      </location>
+     <!-- the eyepoint of the pilot (left or right eye?) -->
+      <location name="EYEPOINT" unit="IN">
+         <x>  0.0 </x>
+         <y>  0.0 </y>
+         <z>  0.0 </z>
+      </location>
+    <!-- the visual reference point of the 3d model -->
+      <location name="VRP" unit="IN">
+         <x>  0.0 </x>
+         <y>  0.0 </y>
+         <z>  0.0 </z>
+      </location>
+   </metrics>
+
+    <!-- **********************************************************************
+        MASS_BALANCE
+        ********************************************************************** -->
+    <mass_balance>
+        <ixx unit="SLUG*FT2"> 7.66</ixx>
+        <iyy unit="SLUG*FT2"> 10.14 </iyy>
+        <izz unit="SLUG*FT2"> 15.68 </izz>
+        <ixz unit="SLUG*FT2"> 0.0 </ixz>
+        <emptywt unit="LBS"> 6.0 </emptywt>
+        <!-- the center of gravity -->
+        <location name="CG" unit="IN">
+            <x> 2.0 </x>
+            <y> 0.0 </y>
+            <z> 0.0 </z>
+        </location>
+        <!--<pointmass name="PAYLOAD">-->
+            <!--<weight unit="LBS"> 0.0 </weight>-->
+            <!--<location name="POINTMASS" unit="IN">-->
+                <!--<x> 39.3 </x>-->
+                <!--<y> 0 </y>-->
+                <!--<z> 35.3 </z>-->
+            <!--</location>-->
+        <!--</pointmass>-->
+    </mass_balance>
+    <!-- **********************************************************************
+        UNDERCARRIAGE
+        ********************************************************************** -->
+    <ground_reactions>
+        <contact type="STRUCTURE" name="TAIL_SKID">
+            <location unit="IN">
+                <x> 27.0 </x>
+                <y> 0 </y>
+                <z>-2.0 </z>
+            </location>
+            <static_friction> 1.0 </static_friction>
+            <dynamic_friction> 0.8 </dynamic_friction>
+            <spring_coeff unit="LBS/FT"> 12 </spring_coeff>
+            <damping_coeff unit="LBS/FT/SEC"> 1 </damping_coeff>
+        </contact>
+        <contact type="STRUCTURE" name="NOSE">
+            <location unit="IN">
+                <x> -5.0 </x>
+                <y> 0.0 </y>
+                <z> 0.0 </z>
+            </location>
+            <static_friction> 1.0 </static_friction>
+            <dynamic_friction> 0.8 </dynamic_friction>
+            <spring_coeff unit="LBS/FT"> 12 </spring_coeff>
+            <damping_coeff unit="LBS/FT/SEC"> 1 </damping_coeff>
+        </contact>
+        <contact type="STRUCTURE" name="BOTTOM_CANOPY">
+            <location unit="IN">
+                <x> 0.0 </x>
+                <y> 0.0 </y>
+                <z> -3.0 </z>
+            </location>
+            <static_friction> 1.0 </static_friction>
+            <dynamic_friction> 0.8 </dynamic_friction>
+            <spring_coeff unit="LBS/FT"> 12 </spring_coeff>
+            <damping_coeff unit="LBS/FT/SEC"> 1 </damping_coeff>
+        </contact>
+
+        <contact type="STRUCTURE" name="LEFT_WING">
+            <location unit="IN">
+                <x> -3.0 </x>
+                <y> -27.5 </y>
+                <z> 1.0 </z>
+            </location>
+            <static_friction> 1.0 </static_friction>
+            <dynamic_friction> 0.8 </dynamic_friction>
+            <spring_coeff unit="LBS/FT"> 12 </spring_coeff>
+            <damping_coeff unit="LBS/FT/SEC"> 1 </damping_coeff>
+        </contact>
+        <contact type="STRUCTURE" name="RIGHT_WING">
+            <location unit="IN">
+                <x> -3.0 </x>
+                <y> 27.5 </y>
+                <z> 1.0 </z>
+            </location>
+            <static_friction> 1.0 </static_friction>
+            <dynamic_friction> 0.8 </dynamic_friction>
+            <spring_coeff unit="LBS/FT"> 12 </spring_coeff>
+            <damping_coeff unit="LBS/FT/SEC"> 1 </damping_coeff>
+        </contact>
+        <contact type="STRUCTURE" name="VERTICAL_TAIL">
+            <location unit="IN">
+                <x> 27.0 </x>
+                <y> 0.0 </y>
+                <z> 6.5 </z>
+            </location>
+            <static_friction> 1.0 </static_friction>
+            <dynamic_friction> 0.8 </dynamic_friction>
+            <spring_coeff unit="LBS/FT"> 12 </spring_coeff>
+            <damping_coeff unit="LBS/FT/SEC"> 1 </damping_coeff>
+        </contact>
+        <contact type="STRUCTURE" name="CABIN_TOP">
+            <location unit="IN">
+                <x> 0.0 </x>
+                <y> 0.0 </y>
+                <z> 2.0 </z>
+            </location>
+            <static_friction> 1.0 </static_friction>
+            <dynamic_friction> 0.8 </dynamic_friction>
+            <spring_coeff unit="LBS/FT"> 12 </spring_coeff>
+            <damping_coeff unit="LBS/FT/SEC"> 1 </damping_coeff>
+        </contact>
+    </ground_reactions>
+    <!-- **********************************************************************
+        PROPULSION
+        ********************************************************************** -->
+    <propulsion>
+        <engine file="MinionMotor">
+            <location unit="IN">
+                <x> 10.0 </x>
+                <y> 0 </y>
+                <z> 3.0 </z>
+            </location>
+            <orient unit="DEG">
+                <roll> 0.0 </roll>
+                <pitch> -5 </pitch>
+                <yaw> 0 </yaw>
+            </orient>
+            <feed>0</feed>
+            <thruster file="apc13x10folding">
+                <location unit="IN">
+                    <x> 10.0 </x>
+                    <y> 0 </y>
+                    <z> 3.0 </z>
+                </location>
+                <orient unit="DEG">
+                    <roll> 0.0 </roll>
+                    <pitch> -5.0 </pitch>
+                    <yaw> 0.0 </yaw>
+                </orient>
+                <p_factor>1.0</p_factor>
+            </thruster>
+        </engine>
+        <!--throws warning if tank not included, no real purpose-->
+        <tank type="FUEL">    <!-- Tank number 0 -->
+            <location unit="IN">
+                <x> 0.0 </x>
+                <y> 0.0 </y>
+                <z> 0.0 </z>
+            </location>
+            <capacity unit="LBS"> 0.0001 </capacity>
+            <contents unit="LBS"> 0 </contents>
+        </tank>
+    </propulsion>
+    <!-- **********************************************************************
+        FLIGHT CONTROLS
+        ********************************************************************** -->
+    <flight_control name="minion">
+        <!--
+            Elevator
+        -->
+        <channel name="Pitch">
+            <summer name="Pitch Trim Sum">
+                <input>fcs/elevator-cmd-norm</input>
+                <input>fcs/pitch-trim-cmd-norm</input>
+                <clipto>
+                    <min>-1</min>
+                    <max>1</max>
+                </clipto>
+                <output>fcs/elevator-pos-norm</output>
+            </summer>
+            <aerosurface_scale name="Elevator Control">
+                <input>fcs/pitch-trim-sum</input>
+                <gain>0.01745</gain>
+                <range>
+                    <min>-28</min>
+                    <max>23</max>
+                </range>
+                <output>fcs/elevator-pos-rad</output>
+            </aerosurface_scale>
+        </channel>
+        <!--
+            Aileron
+        -->
+        <channel name="Roll">
+            <summer name="Roll Trim Sum">
+                <input>fcs/aileron-cmd-norm</input>
+                <input>fcs/roll-trim-cmd-norm</input>
+                <clipto>
+                    <min>-1</min>
+                    <max>1</max>
+                </clipto>
+                <output>fcs/aileron-pos-norm</output>
+            </summer>
+            <aerosurface_scale name="Left Aileron Control">
+                <input>fcs/roll-trim-sum</input>
+                <gain>0.01745</gain>
+                <range>
+                    <min>-20</min>
+                    <max>20</max>
+                </range>
+                <output>fcs/left-aileron-pos-rad</output>
+            </aerosurface_scale>
+            <aerosurface_scale name="Right Aileron Control">
+                <input>fcs/roll-trim-sum</input>
+                <gain>0.01745</gain>
+                <range>
+                    <min>-20</min>
+                    <max>20</max>
+                </range>
+                <output>fcs/right-aileron-pos-rad</output>
+            </aerosurface_scale>
+        </channel>
+        <!--
+            Rudder
+        -->
+        <channel name="Yaw">
+            <summer name="Yaw Trim Sum">
+                <input>fcs/rudder-cmd-norm</input>
+                <input>fcs/yaw-trim-cmd-norm</input>
+                <clipto>
+                    <min>-1</min>
+                    <max>1</max>
+                </clipto>
+            </summer>
+            <summer name="Yaw Mix">
+                <input>fcs/yaw-trim-sum</input>
+                <clipto>
+                    <min>-1</min>
+                    <max>1</max>
+                </clipto>
+            </summer>
+            <aerosurface_scale name="Rudder Control">
+                <input>fcs/yaw-mix</input>
+                <gain>-0.01745</gain>
+                <range>
+                    <min>-27</min>
+                    <max>27</max>
+                </range>
+                <output>fcs/rudder-pos-rad</output>
+            </aerosurface_scale>
+        </channel>
+        <!--
+            Throttle (linear vs rpm approx.)
+        -->
+        <channel name="Throttle">
+            <fcs_function name="fcs/rpm-scaled-throttle">
+                <function>
+                    <pow>
+                        <property>fcs/throttle-cmd-norm</property>
+                        <value>3</value>
+                    </pow>
+                </function>
+            </fcs_function>
+            <aerosurface_scale name="Throttle Control">
+                <input>fcs/rpm-scaled-throttle</input>
+                <range>
+                    <min>-1</min>
+                    <max>1</max>
+                </range>
+                <output>fcs/throttle-pos-norm</output>
+            </aerosurface_scale>
+        </channel>
+
+    </flight_control>
+
+    <aerodynamics file="Systems/aerodynamics_minion.xml"/>
+</fdm_config>
