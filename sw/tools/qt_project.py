@@ -3,6 +3,7 @@ import sys
 import re
 from os import path, getenv
 from lxml import etree
+import fileinput
 
 # Get the paparazzi home dir (if not set assume this folder is correct)
 home_dir = getenv("PAPARAZZI_HOME", path.normpath(path.join(
@@ -108,4 +109,21 @@ creator_file.close()
 
 # Close the ap_srcs.list
 ap_srcs_list.close()
+
+#Create a .user file, which contains user settings such as editor settings and build settings
+input = sys.stdin
+output = sys.stdout
+input = open(path.join(home_dir , "sw/tools/qtc.creator.user_template"))
+output = open(path.join(home_dir, target + ".creator.user"), 'w')
+for s in input.xreadlines():
+    if "!TARGET1!" in s:
+        output.write(s.replace("!TARGET1!", aircraft + " " + target + ".compile"))
+    elif "!TARGET2!" in s:
+        output.write(s.replace("!TARGET2!", aircraft))
+    elif "!PPRZHOME!" in s:
+        output.write(s.replace("!PPRZHOME!", getenv("PAPARAZZI_HOME")))
+    else:
+        output.write(s.replace("!PPRZSRC!", getenv("PAPARAZZI_SRC")))
+
+
 print("Done generating the Qt Creator project!")
