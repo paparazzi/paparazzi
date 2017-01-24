@@ -12,7 +12,7 @@
   <header>
     <file name="actuators_sbus.h" dir="subsystems/actuators"/>
   </header>
-  <makefile target="!sim|nps">
+  <makefile target="!sim">
     <configure name="ACTUATORS_SBUS_DEV" default="uart4" case="upper|lower"/>
     <define name="ACTUATORS"/>
     <define name="ACTUATORS_SBUS_DEV" value="$(ACTUATORS_SBUS_DEV_LOWER)"/>

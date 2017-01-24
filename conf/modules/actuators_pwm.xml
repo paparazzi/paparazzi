@@ -9,7 +9,7 @@
   <header>
     <file name="actuators_pwm.h" dir="subsystems/actuators"/>
   </header>
-  <makefile target="!sim|nps">
+  <makefile target="!sim">
     <define name="ACTUATORS"/>
     <file_arch name="actuators_pwm_arch.c" dir="subsystems/actuators"/>
     <file_arch name="actuators_shared_arch.c" dir="subsystems/actuators" cond="ifeq ($(ARCH), stm32)"/>

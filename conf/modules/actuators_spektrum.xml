@@ -15,7 +15,7 @@
   <header>
     <file name="actuators_spektrum.h" dir="subsystems/actuators"/>
   </header>
-  <makefile target="!sim|nps">
+  <makefile target="!sim">
     <configure name="ACTUATORS_SPEKTRUM_DEV" default="uart4" case="upper|lower"/>
     <configure name="ACTUATORS_SPEKTRUM_DEV2" case="upper|lower"/>
     <define name="ACTUATORS"/>
