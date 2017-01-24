@@ -17,8 +17,7 @@
   <header>
     <file name="stereocam.h"/>
   </header>
-  <init fun="stereocam_init()"/>
-  <periodic fun="stereocam_periodic()" autorun="TRUE" freq="512"/>
+  <periodic fun="stereocam_periodic()" start="stereocam_start()" stop="stereocam_stop()" autorun="TRUE" freq="512"/>
   <makefile>
     <file name="stereoprotocol.c" dir="modules/stereocam"/>
     <configure name="STEREO_UART" case="upper|lower"/>

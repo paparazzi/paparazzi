@@ -76,7 +76,7 @@ uint8array stereocam_data = {.len = 0, .data = msg_buf, .fresh = 0, .matrix_widt
 #define BASELINE_STEREO_MM 60.0
 #define BRANDSPUNTSAFSTAND_STEREO 118.0*6
 
-void stereocam_disparity_to_meters(uint8_t *disparity, float *distancesMeters, int lengthArray)
+extern void stereocam_disparity_to_meters(uint8_t *disparity, float *distancesMeters, int lengthArray)
 {
 
   int indexArray = 0;
@@ -91,7 +91,7 @@ void stereocam_disparity_to_meters(uint8_t *disparity, float *distancesMeters, i
   }
 }
 
-void stereocam_init(void)
+extern void stereocam_start(void)
 {
   struct FloatEulers euler = {RadOfDeg(STEREO_BODY_TO_STEREO_PHI), RadOfDeg(STEREO_BODY_TO_STEREO_THETA), RadOfDeg(STEREO_BODY_TO_STEREO_PSI)};
   float_rmat_of_eulers(&body_to_stereocam, &euler);
@@ -111,8 +111,11 @@ void stereocam_init(void)
   stereocam_data.fresh = 0;
 }
 
+extern void stereocam_stop(void)
+{
+}
 
-void stereocam_periodic(void)
+extern void stereocam_periodic(void)
 {
   // read all data from the stereo com link, check that don't overtake extract
   while (linkdev->char_available(linkdev->periph) && stereoprot_add(insert_loc, 1, STEREO_BUF_SIZE) != extract_loc) {

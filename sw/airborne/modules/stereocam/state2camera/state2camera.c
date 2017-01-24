@@ -55,6 +55,8 @@ void write_serial_rot()
 #endif
 
 #if STATE2CAMERA_SEND_DATA_TYPE == 1
+
+
   // rotate body angles to camera reference frame
   struct FloatVect3 body_state;
   body_state.x = stateGetNedToBodyEulers_f()->phi;
@@ -64,7 +66,7 @@ void write_serial_rot()
   struct FloatVect3 cam_angles;
   float_rmat_vmult(&cam_angles, &body_to_stereocam, &body_state);
 
-  static int16_t lengthArrayInformation = 4 * sizeof(int16_t);
+  static int16_t lengthArrayInformation = 6 * sizeof(int16_t);
   uint8_t ar[lengthArrayInformation];
   int16_t *pointer = (int16_t *) ar;
   pointer[0] = (int16_t)(cam_angles.x * 100);   // Roll
@@ -73,6 +75,7 @@ void write_serial_rot()
   pointer[3] = (int16_t)(1);   // derotation boolean
 
   stereoprot_sendArray(&((UART_LINK).device), ar, lengthArrayInformation, 1);
+
 
 #endif
 
