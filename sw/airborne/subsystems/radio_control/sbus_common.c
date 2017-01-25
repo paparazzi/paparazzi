@@ -60,8 +60,8 @@ void sbus_common_init(struct Sbus *sbus_p, struct uart_periph *dev)
   sbus_p->status = SBUS_STATUS_UNINIT;
 
   // Set UART parameters (100K, 8 bits, 2 stops, even parity)
-  uart_periph_set_bits_stop_parity(dev, UBITS_8, USTOP_2, UPARITY_EVEN);
   uart_periph_set_baudrate(dev, B100000);
+  uart_periph_set_bits_stop_parity(dev, UBITS_8, USTOP_2, UPARITY_EVEN);
 
   // Set polarity
 #ifdef RC_POLARITY_GPIO_PORT

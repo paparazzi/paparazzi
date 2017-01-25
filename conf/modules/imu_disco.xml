@@ -1,0 +1,39 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="imu_disco" dir="imu">
+  <doc>
+    <description>
+      Driver for IMU on the Parrot Disco drone.
+      - Accelerometer/Gyroscope: MPU6000 via I2C2
+      - Magnetometer: AK8963 via I2C1
+    </description>
+    <section name="IMU" prefix="IMU_">
+      <define name="MAG_X_NEUTRAL" value="2358"/>
+      <define name="MAG_Y_NEUTRAL" value="2362"/>
+      <define name="MAG_Z_NEUTRAL" value="2119"/>
+
+      <define name="MAG_X_SENS" value="3.4936416" integer="16"/>
+      <define name="MAG_Y_SENS" value="3.607713" integer="16"/>
+      <define name="MAG_Z_SENS" value="4.90788848" integer="16"/>
+    </section>
+  </doc>
+  <autoload name="imu_common"/>
+  <autoload name="imu_nps"/>
+  <!--autoload name="sonar_bebop"/-->
+  <header>
+    <file name="imu_disco.h" dir="subsystems/imu"/>
+  </header>
+  <init fun="imu_disco_init()"/>
+  <periodic fun="imu_disco_periodic()"/>
+  <event fun="imu_disco_event()"/>
+  <makefile target="!sim|nps|fbw">
+    <define name="USE_I2C1"/>
+    <define name="USE_I2C2"/>
+    <define name="IMU_TYPE_H" value="subsystems/imu/imu_disco.h" type="string"/>
+    <file name="mpu60x0.c" dir="peripherals"/>
+    <file name="mpu60x0_i2c.c" dir="peripherals"/>
+    <file name="ak8963.c" dir="peripherals"/>
+    <file name="imu_disco.c" dir="subsystems/imu"/>
+  </makefile>
+</module>
+

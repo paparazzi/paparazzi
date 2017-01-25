@@ -60,6 +60,10 @@ def bebop_status():
 parser = argparse.ArgumentParser(description='Bebop helper tool. Use bebop.py -h for help')
 parser.add_argument('--host', metavar='HOST', default='192.168.42.1',
                     help='the ip address of bebop')
+parser.add_argument('--min_version', metavar='MIN', default='3.2.0',
+                    help='force minimum version allowed')
+parser.add_argument('--max_version', metavar='MAX', default='3.9.0',
+                    help='force maximum version allowed')
 subparsers = parser.add_subparsers(title='Command to execute', metavar='command', dest='command')
 
 # All the subcommands and arguments
@@ -125,8 +129,8 @@ elif args.command == 'upload_file_and_run':
     #check firmware version
     v = parrot_utils.check_version(tn, '')
     print("Checking Bebop firmware version... " + str(v) )
-    if ((v < parrot_utils.ParrotVersion('3.2.0')) or (v > parrot_utils.ParrotVersion('3.9.0'))):
-        print("Error: please upgrade your Bebop firmware to version between 3.2.0 and 3.9.0!")
+    if ((v < parrot_utils.ParrotVersion(args.min_version)) or (v > parrot_utils.ParrotVersion(args.max_version))):
+        print("Error: please upgrade your Bebop firmware to version between " + args.min_version + " and " + args.max_version + "!")
     else:
         print("Kill running " + f[1] + " and make folder " + args.folder)
         parrot_utils.execute_command(tn,"killall -9 " + f[1])
