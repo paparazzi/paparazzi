@@ -88,6 +88,16 @@ let include_xml2mk = fun f ?(target="$(TARGET)") ?(vpath=None) xml ->
     fprintf f "%s\n%s\nendif\n" cond flag
   with Xml.No_attribute _ -> fprintf f "%s\n" flag
 
+let flag_xml2mk = fun f ?(target="$(TARGET)") xml ->
+  let name = Xml.attrib xml "name"
+  and value = Xml.attrib xml "value" in
+  let flag = sprintf "%s.%s += -%s" target name value in
+  try
+    (* TODO: add condition in xml syntax ? *)
+    let cond = Xml.attrib xml "cond" in
+    fprintf f "%s\n%s\nendif\n" cond flag
+  with Xml.No_attribute _ -> fprintf f "%s\n" flag
+
 let define_xml2mk = fun f ?(target="$(TARGET)") xml ->
   let name = Xml.attrib xml "name"
   and value = try Some (Xml.attrib xml "value") with _ -> None in
@@ -185,10 +195,7 @@ let module_xml2mk = fun f target firmware m ->
           match Compat.bytes_lowercase (Xml.tag field) with
           | "define" -> define_xml2mk f ~target field
           | "include" -> include_xml2mk f ~target ~vpath:m.vpath field
-          | "flag" ->
-              let value = Xml.attrib field "value"
-              and name = Xml.attrib field "name" in
-              fprintf f "%s.%s += -%s\n" target name value
+          | "flag" -> flag_xml2mk f ~target field
           | "file" -> file_xml2mk f dir_name target field
           | "file_arch" -> file_xml2mk f ~arch:true dir_name target field
           | "raw" -> raw_xml2mk f name field

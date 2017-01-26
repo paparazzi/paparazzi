@@ -1,0 +1,20 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="spi_master" dir="mcu_periph" task="mcu">
+  <doc>
+    <description>
+      General SPI driver (master mode)
+      To activate a specific SPI peripheral, define flag USE_SPIX where X is your SPI peripheral number
+    </description>
+  </doc>
+  <header>
+    <file name="spi.h" dir="mcu_periph"/>
+  </header>
+  <makefile>
+    <define name="USE_SPI"/>
+    <define name="SPI_MASTER"/>
+    <file name="spi.c" dir="mcu_periph"/>
+    <file_arch name="spi_arch.c" dir="mcu_periph"/>
+  </makefile>
+</module>
+

@@ -1,0 +1,27 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="mcu" dir="mcu_periph" task="mcu">
+  <doc>
+    <description>
+      Automatic initialization module for all MCU peripherals
+      Also includes GPIO and LED drivers
+    </description>
+  </doc>
+  <header>
+    <file name="mcu.h" dir="."/>
+    <file name="gpio.h" dir="mcu_periph"/>
+    <file name="led.h" dir="."/>
+  </header>
+  <makefile>
+    <define name="PERIPHERALS_AUTO_INIT"/>
+    <defina name="USE_LED"/>
+    <file name="mcu.c" dir="."/>
+    <file_arch name="mcu_arch.c" dir="."/>
+    <file_arch name="armVIC.c" dir="." cond="ifeq ($(ARCH), lpc21)"/>
+    <file_arch name="gpio_arch.c" dir="mcu_periph" cond="ifeq ($(ARCH), stm32)"/>
+    <file_arch name="led_arch.c" dir="." cond="ifeq ($(ARCH), stm32)"/>
+    <file_arch name="gpio_arch.c" dir="mcu_periph" cond="ifeq ($(ARCH), chibios)"/>
+    <file_arch name="gpio_ardrone.c" dir="boards/ardrone" cond="ifeq ($(BOARD), ardrone)"/>
+  </makefile>
+</module>
+

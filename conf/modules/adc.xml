@@ -1,0 +1,18 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="adc" dir="mcu_periph" task="mcu">
+  <doc>
+    <description>
+      General ADC driver
+      To activate a specific ADC input, define flag USE_ADC_X where X is your ADC input number
+    </description>
+  </doc>
+  <header>
+    <file name="adc.h" dir="mcu_periph"/>
+  </header>
+  <makefile>
+    <define name="USE_ADC"/>
+    <file_arch name="adc_arch.c" dir="mcu_periph"/>
+  </makefile>
+</module>
+

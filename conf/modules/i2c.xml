@@ -1,0 +1,18 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="i2c" dir="mcu_periph" task="mcu">
+  <doc>
+    <description>
+      General I2C driver
+      To activate a specific I2C peripheral, define flag USE_I2CX where X is your I2C peripheral number
+    </description>
+  </doc>
+  <header>
+    <file name="i2c.h" dir="mcu_periph"/>
+  </header>
+  <makefile>
+    <file name="i2c.c" dir="mcu_periph"/>
+    <file_arch name="i2c_arch.c" dir="mcu_periph"/>
+  </makefile>
+</module>
+
