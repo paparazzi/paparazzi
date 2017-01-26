@@ -173,7 +173,7 @@ make -C $PAPARAZZI_HOME -f Makefile.ac AIRCRAFT=Moksha ap.compile
     <servo name="ELEVON_RIGHT"  no="6" min="1100" neutral="1460" max="1900"/>
     <!-- hatch is removable in this airframe, also handy if defined for fake drop with blinklight-->
     <servo name="HATCH"         no="7" min="1100" neutral="1110" max="1900"/>
-    <servo name="LIGHTS"        no="7" min="1100" neutral="1110" max="1900"/>
+    <servo name="LIGHTS"        no="5" min="1100" neutral="1110" max="1900"/>
   </servos>
 
 <!-- ***************************** COMMANDS ******************************** -->
