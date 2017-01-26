@@ -21,5 +21,16 @@
     <file name="telemetry.c" dir="subsystems/datalink"/>
     <file name="ivy_transport.c" dir="pprzlink/src"/>
   </makefile>
+  <makefile target="ap" firmware="fixedwing">
+    <file name="fixedwing_datalink.c" dir="$(SRC_FIRMWARE)"/>
+    <file name="ap_downlink.c" dir="$(SRC_FIRMWARE)"/>
+  </makefile>
+  <makefile target="ap|fbw" firmware="fixedwing">
+    <file name="fbw_downlink.c" dir="$(SRC_FIRMWARE)"/>
+  </makefile>
+  <makefile target="ap" firmware="rotorcraft">
+    <file name="rotorcraft_datalink.c" dir="$(SRC_FIRMWARE)"/>
+    <file name="rotorcraft_telemetry.c" dir="$(SRC_FIRMWARE)"/>
+  </makefile>
 </module>
 

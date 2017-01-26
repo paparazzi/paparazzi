@@ -22,6 +22,9 @@
     <file name="datalink.c" dir="subsystems/datalink"/>
     <file name="telemetry.c" dir="subsystems/datalink"/>
     <file name="ivy_transport.c" dir="pprzlink/src"/>
+    <file name="fixedwing_datalink.c" dir="$(SRC_FIRMWARE)"/>
+    <file name="ap_downlink.c" dir="$(SRC_FIRMWARE)"/>
+    <file name="fbw_downlink.c" dir="$(SRC_FIRMWARE)"/>
   </makefile>
 </module>
 
