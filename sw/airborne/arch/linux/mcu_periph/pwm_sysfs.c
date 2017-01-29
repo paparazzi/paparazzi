@@ -47,7 +47,7 @@
 // Write in file
 static int write_file(const char *path, const char *fmt, ...);
 // Read file content
-//static int read_file(const char *path, const char *fmt, ...);
+static int read_file(const char *path, const char *fmt, ...) __attribute__((unused));
 
 int pwm_sysfs_init(struct PWM_Sysfs *pwm, char *base_path,
     char *_export, char *_enable,
@@ -149,7 +149,6 @@ static int write_file(const char *path, const char *fmt, ...)
   return ret;
 }
 
-/*
 static int read_file(const char *path, const char *fmt, ...)
 {
   errno = 0;
@@ -174,6 +173,5 @@ static int read_file(const char *path, const char *fmt, ...)
 
   return ret;
 }
-*/
 
 
