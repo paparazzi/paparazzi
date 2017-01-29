@@ -23,7 +23,7 @@
     <configure name="INTER_MCU_SLAVE" default="SLAVE0"/>
     <define name="MCU_SPI_LINK"/>
     <define name="USE_SPI"/>
-    <file name="link_mcu_spi.c" dir="firmwares/fixedwing"/>
+    <file name="link_mcu_spi.c" dir="."/>
     <file name="spi.c" dir="mcu_periph"/>
     <file name="spi_arch.c" dir="$(SRC_ARCH)/mcu_periph"/>
   </makefile>
