@@ -48,7 +48,7 @@
   </doc>
   <autoload name="stabilization" type="rotorcraft"/>
   <header>
-    <file name="stabilization_heli_indi.h"/>
+    <file name="stabilization_attitude.h"/>
   </header>
   <init fun="stabilization_attitude_init()"/>
   <makefile target="ap|nps" firmware="rotorcraft">
