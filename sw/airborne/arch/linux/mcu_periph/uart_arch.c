@@ -212,8 +212,9 @@ static void *uart_thread(void *data __attribute__((unused)))
   return 0;
 }
 
-
-void uart_periph_set_baudrate(struct uart_periph *periph, uint32_t baud)
+// open serial link
+// close first if already openned
+static void uart_periph_open(struct uart_periph *periph, uint32_t baud)
 {
   periph->baudrate = baud;
 
@@ -238,6 +239,32 @@ void uart_periph_set_baudrate(struct uart_periph *periph, uint32_t baud)
     serial_port_free(port);
     periph->reg_addr = NULL;
   }
+}
+
+void uart_periph_set_baudrate(struct uart_periph *periph, uint32_t baud)
+{
+  periph->baudrate = baud;
+
+  // open serial port if not done
+  if (periph->reg_addr == NULL) {
+    uart_periph_open(periph, baud);
+  }
+  if (periph->reg_addr == NULL) {
+    // periph not started, do nothiing
+    return;
+  }
+  struct SerialPort *port = (struct SerialPort *)(periph->reg_addr);
+  serial_port_set_baudrate(port, baud);
+}
+
+void uart_periph_set_bits_stop_parity(struct uart_periph *periph, uint8_t bits, uint8_t stop, uint8_t parity)
+{
+  if (periph->reg_addr == NULL) {
+    // periph not started, do nothiing
+    return;
+  }
+  struct SerialPort *port = (struct SerialPort *)(periph->reg_addr);
+  serial_port_set_bits_stop_parity(port, bits, stop, parity);
 }
 
 void uart_put_byte(struct uart_periph *periph, long fd __attribute__((unused)), uint8_t data)

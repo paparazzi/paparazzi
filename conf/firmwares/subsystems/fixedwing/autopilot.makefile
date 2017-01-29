@@ -143,6 +143,9 @@ endif
 #
 ns_srcs 		+= mcu_periph/uart.c
 ns_srcs 		+= $(SRC_ARCH)/mcu_periph/uart_arch.c
+ifeq ($(ARCH), linux)
+ns_srcs			+= $(SRC_ARCH)/serial_port.c
+endif
 
 
 #
