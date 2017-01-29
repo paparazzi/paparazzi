@@ -19,7 +19,7 @@
     </section>
   </doc>
   <header>
-    <file name="actuators_mkk.h" dir="subsystems/actuators"/>
+    <file name="actuators_mkk_v2.h" dir="subsystems/actuators"/>
   </header>
   <makefile target="ap">
     <configure name="ACTUATORS_MKK_V2_I2C_DEV" default="i2c1" case="upper|lower"/>
