@@ -111,19 +111,17 @@ creator_file.close()
 ap_srcs_list.close()
 
 #Create a .user file, which contains user settings such as editor settings and build settings
-input = sys.stdin
-output = sys.stdout
-input = open(path.join(home_dir , "sw/tools/qtc.creator.user_template"))
-output = open(path.join(home_dir, target + ".creator.user"), 'w')
-for s in input.xreadlines():
-    if "!TARGET1!" in s:
-        output.write(s.replace("!TARGET1!", aircraft + " " + target + ".compile"))
-    elif "!TARGET2!" in s:
-        output.write(s.replace("!TARGET2!", aircraft))
-    elif "!PPRZHOME!" in s:
-        output.write(s.replace("!PPRZHOME!", getenv("PAPARAZZI_HOME")))
-    else:
-        output.write(s.replace("!PPRZSRC!", getenv("PAPARAZZI_SRC")))
+with open(path.join(home_dir , "sw/tools/qtc.creator.user_template")) as input:
+    with open(path.join(home_dir, target + ".creator.user"), 'w') as output:
+        for s in input:
+            if "!TARGET1!" in s:
+                output.write(s.replace("!TARGET1!", aircraft + " " + target + ".compile"))
+            elif "!TARGET2!" in s:
+                output.write(s.replace("!TARGET2!", aircraft))
+            elif "!PPRZHOME!" in s:
+                output.write(s.replace("!PPRZHOME!", getenv("PAPARAZZI_HOME")))
+            else:
+                output.write(s.replace("!PPRZSRC!", getenv("PAPARAZZI_SRC")))
 
 
 print("Done generating the Qt Creator project!")
