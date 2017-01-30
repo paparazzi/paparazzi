@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="stabiliztion_float_euler" dir="stabilization">
+<module name="stabilization_float_euler" dir="stabilization">
   <doc>
     <description>
       Stabilization controller for rotorcraft using float euler implementation

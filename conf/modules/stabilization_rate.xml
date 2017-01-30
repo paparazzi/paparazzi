@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="stabiliztion_rate" dir="stabilization">
+<module name="stabilization_rate" dir="stabilization">
   <doc>
     <description>
       Rate controller for rotorcraft

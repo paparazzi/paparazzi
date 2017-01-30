@@ -24,7 +24,12 @@
  */
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_rate.h"
+
+#ifdef STABILIZATION_ATTITUDE_INDI_SIMPLE
+#include "firmwares/rotorcraft/stabilization/stabilization_indi_simple.h"
+#else
 #include "firmwares/rotorcraft/stabilization/stabilization_indi.h"
+#endif
 
 void stabilization_rate_init(void)
 {

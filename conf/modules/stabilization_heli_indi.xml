@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="stabiliztion_heli_indi" dir="stabilization">
+<module name="stabilization_heli_indi" dir="stabilization">
   <doc>
     <description>
       INDI stabilization controller for helicopters
