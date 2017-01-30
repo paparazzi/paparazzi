@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="stabiliztion_passthrough" dir="stabilization">
+<module name="stabilization_passthrough" dir="stabilization">
   <doc>
     <description>
       Passthrough controller for rotorcraft

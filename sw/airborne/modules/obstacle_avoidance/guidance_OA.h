@@ -67,7 +67,7 @@ extern void guidance_h_module_enter(void);
 extern void guidance_h_module_read_rc(void);
 extern void guidance_h_module_run(bool in_flight);
 
-// Update the stabiliztion commands based on a vision result
+// Update the stabilization commands based on a vision result
 extern void OA_update(void);
 
 #endif

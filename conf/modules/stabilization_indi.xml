@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="stabiliztion_indi" dir="stabilization">
+<module name="stabilization_indi" dir="stabilization">
   <doc>
     <description>
       Full INDI stabilization controller for rotorcraft

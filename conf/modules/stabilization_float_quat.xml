@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="stabiliztion_float_quat" dir="stabilization">
+<module name="stabilization_float_quat" dir="stabilization">
   <doc>
     <description>
       Stabilization controller for rotorcraft using float quaternion implementation
