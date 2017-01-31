@@ -27,6 +27,9 @@
 #define STEREOCAM2STATE_EDGEFLOW_PIXELWISE FALSE
 #endif
 
+#include "filters/median_filter.h"
+struct MedianFilterInt medianfilter_x, medianfilter_y, medianfilter_z;
+
 #include "subsystems/datalink/telemetry.h"
 
 void stereocam_to_state(void);
@@ -34,6 +37,9 @@ void stereocam_to_state(void);
 void stereo_to_state_init(void)
 {
 
+	init_median_filter(&medianfilter_x);
+	init_median_filter(&medianfilter_y);
+	init_median_filter(&medianfilter_z);
 }
 
 void stereo_to_state_periodic(void)
@@ -93,7 +99,7 @@ void stereocam_to_state(void)
 
 #endif
 
- //Rotate velocity back to quad's frame
+ //Rotate veloci back to quad's frame
   struct FloatVect3 quad_body_vel;
   struct FloatRMat stereocam_to_body;
 
@@ -104,10 +110,16 @@ void stereocam_to_state(void)
   //TODO:: Make variance dependable on line fit error, after new horizontal filter is made
   uint32_t now_ts = get_sys_time_usec();
 
+  // Use a slight median filter to filter out the large outliers before sending it to state
+  float vel_body_x_median_filter = (float)update_median_filter(&medianfilter_x, (int32_t)(quad_body_vel.x * 100)) / 100;
+  float vel_body_y_median_filter = (float)update_median_filter(&medianfilter_y, (int32_t)(quad_body_vel.y * 100)) / 100;
+  float vel_body_z_median_filter = (float)update_median_filter(&medianfilter_z, (int32_t)(quad_body_vel.z * 100)) / 100;
+
+
   AbiSendMsgVELOCITY_ESTIMATE(STEREOCAM2STATE_SENDER_ID, now_ts,
-                                quad_body_vel.x,
-                                quad_body_vel.y,
-                                quad_body_vel.z,
+		  vel_body_x_median_filter,
+		  vel_body_y_median_filter,
+		  vel_body_z_median_filter,
                                 0.3f
                                );
 
@@ -121,7 +133,7 @@ void stereocam_to_state(void)
 
   DOWNLINK_SEND_OPTIC_FLOW_EST(DefaultChannel, DefaultDevice, &fps, &dummy_uint16, &dummy_uint16, &flow_x, &flow_y,
                                &dummy_int16, &dummy_int16,
-                               &quad_body_vel.x, &quad_body_vel.y, &dummy_float, &dummy_float, &dummy_float);
+                               &vel_body_x_median_filter, &vel_body_y_median_filter, &dummy_float, &dummy_float, &dummy_float);
 
 #endif
 
