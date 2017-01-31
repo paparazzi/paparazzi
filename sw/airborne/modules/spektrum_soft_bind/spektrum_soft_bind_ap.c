@@ -48,7 +48,7 @@ void spektrum_soft_bind_click(bool val ) {
   bind_soft_value = val;
 }
 
-
+#ifndef INTER_MCU_AP
 void send_spektrum_bind(void) {
   //power cycle the spektrum
 #if defined(RADIO_CONTROL_LED)
@@ -68,3 +68,4 @@ void send_spektrum_bind(void) {
   SpektrumUartInit();
 
 }
+#endif
