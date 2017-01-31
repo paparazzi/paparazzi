@@ -31,7 +31,9 @@
 extern void spektrum_soft_bind_init(void);
 extern void spektrum_soft_bind_click(bool val);
 
+#ifndef INTER_MCU_AP
 void send_spektrum_bind(void);
+#endif
 
 extern bool bind_soft_value;
 
