@@ -219,7 +219,7 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 #define USE_AD_TIM3 1
 
 
-// Interal ADC for battery
+// Internal ADC for battery
 #ifndef USE_ADC_1
 #define USE_ADC_1 1
 #endif

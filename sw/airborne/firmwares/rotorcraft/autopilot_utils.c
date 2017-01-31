@@ -57,13 +57,13 @@ bool ap_ahrs_is_aligned(void)
 /** Get autopilot mode as set by a RADIO_MODE 3-way switch and a 2-way switch, which are mixed together
  *  The 2 way switch negates the value, the 3 way switch changes in three steps from 0 - MAX_PPRZ.
  *  E.g. SW_1 has two positions (On/Off), SW_Mode has three positions (M1/M2/M3)
- *   1	Mode value
- *   Off	M1	-9500
- *   Off	M2	-4800
- *   Off	M3	-1850
- *   On	M1	2100
- *   On	M2	4900
- *   On	M3	9600
+ *   1  Mode value
+ *   Off  M1  -9500
+ *   Off  M2  -4800
+ *   Off  M3  -1850
+ *   On M1  2100
+ *   On M2  4900
+ *   On M3  9600
  *  This function filters out the effect of SW_1, such that a normal 3-way switch comes out.
 **/
 uint8_t ap_mode_of_3x2way_switch(void)

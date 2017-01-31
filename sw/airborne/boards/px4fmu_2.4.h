@@ -184,12 +184,36 @@
 /* allow to define ADC_CHANNEL_VSUPPLY in the airframe file*/
 #ifndef ADC_CHANNEL_VSUPPLY
 #define ADC_CHANNEL_VSUPPLY ADC_2
-#endif
-
-#if USE_ADC_2
 #define DefaultVoltageOfAdc(adc) (0.00975*adc)
 #else
-#define DefaultVoltageOfAdc(adc) (0.0021*adc) // scale internal vdd to 5V
+#define DefaultVoltageOfAdc(adc) (0.00384*adc)
+#endif
+
+/* External adc (pressure / air speed / 6.6v) */
+#ifndef USE_ADC_4
+#define USE_ADC_4 1
+#endif
+#if USE_ADC_4
+#define AD1_4_CHANNEL 15 // ADC12_IN15
+#define ADC_4 AD1_4
+#define ADC_4_GPIO_PORT GPIOC
+#define ADC_4_GPIO_PIN GPIO5
+#endif
+
+/* External adc 3.3v */
+#if USE_ADC_5
+#define AD1_5_CHANNEL 13 // ADC123_IN13
+#define ADC_5 AD1_5
+#define ADC_5_GPIO_PORT GPIOC
+#define ADC_5_GPIO_PIN GPIO3
+#endif
+
+/* External adc 3.3v */
+#if USE_ADC_6
+#define AD1_6_CHANNEL 14 // ADC12_IN14
+#define ADC_6 AD1_6
+#define ADC_6_GPIO_PORT GPIOC
+#define ADC_6_GPIO_PIN GPIO4
 #endif
 
 /*
