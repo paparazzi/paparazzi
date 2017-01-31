@@ -84,26 +84,26 @@ static void decode_sbus_buffer(const uint8_t *src, uint16_t *dst, bool *availabl
                                uint16_t *dstppm __attribute__((unused)))
 {
   // decode sbus data, unrolling the loop for efficiency
-  dst[0]  = ((src[0]    ) | (src[1]<<8))                  & 0x07FF;
-  dst[1]  = ((src[1]>>3 ) | (src[2]<<5))                  & 0x07FF;
-  dst[2]  = ((src[2]>>6 ) | (src[3]<<2)  | (src[4]<<10))  & 0x07FF;
-  dst[3]  = ((src[4]>>1 ) | (src[5]<<7))                  & 0x07FF;
-  dst[4]  = ((src[5]>>4 ) | (src[6]<<4))                  & 0x07FF;
-  dst[5]  = ((src[6]>>7 ) | (src[7]<<1 ) | (src[8]<<9))   & 0x07FF;
-  dst[6]  = ((src[8]>>2 ) | (src[9]<<6))                  & 0x07FF;
-  dst[7]  = ((src[9]>>5)  | (src[10]<<3))                 & 0x07FF;
-  dst[8]  = ((src[11]   ) | (src[12]<<8))                 & 0x07FF;
-  dst[9]  = ((src[12]>>3) | (src[13]<<5))                 & 0x07FF;
-  dst[10] = ((src[13]>>6) | (src[14]<<2) | (src[15]<<10)) & 0x07FF;
-  dst[11] = ((src[15]>>1) | (src[16]<<7))                 & 0x07FF;
-  dst[12] = ((src[16]>>4) | (src[17]<<4))                 & 0x07FF;
-  dst[13] = ((src[17]>>7) | (src[18]<<1) | (src[19]<<9))  & 0x07FF;
-  dst[14] = ((src[19]>>2) | (src[20]<<6))                 & 0x07FF;
-  dst[15] = ((src[20]>>5) | (src[21]<<3))                 & 0x07FF;
+  dst[0]  = ((src[0]) | (src[1] << 8))                  & 0x07FF;
+  dst[1]  = ((src[1] >> 3) | (src[2] << 5))                  & 0x07FF;
+  dst[2]  = ((src[2] >> 6) | (src[3] << 2)  | (src[4] << 10))  & 0x07FF;
+  dst[3]  = ((src[4] >> 1) | (src[5] << 7))                  & 0x07FF;
+  dst[4]  = ((src[5] >> 4) | (src[6] << 4))                  & 0x07FF;
+  dst[5]  = ((src[6] >> 7) | (src[7] << 1) | (src[8] << 9))   & 0x07FF;
+  dst[6]  = ((src[8] >> 2) | (src[9] << 6))                  & 0x07FF;
+  dst[7]  = ((src[9] >> 5)  | (src[10] << 3))                 & 0x07FF;
+  dst[8]  = ((src[11]) | (src[12] << 8))                 & 0x07FF;
+  dst[9]  = ((src[12] >> 3) | (src[13] << 5))                 & 0x07FF;
+  dst[10] = ((src[13] >> 6) | (src[14] << 2) | (src[15] << 10)) & 0x07FF;
+  dst[11] = ((src[15] >> 1) | (src[16] << 7))                 & 0x07FF;
+  dst[12] = ((src[16] >> 4) | (src[17] << 4))                 & 0x07FF;
+  dst[13] = ((src[17] >> 7) | (src[18] << 1) | (src[19] << 9))  & 0x07FF;
+  dst[14] = ((src[19] >> 2) | (src[20] << 6))                 & 0x07FF;
+  dst[15] = ((src[20] >> 5) | (src[21] << 3))                 & 0x07FF;
 
   // convert sbus to ppm
 #if PERIODIC_TELEMETRY
-  for (int channel=0; channel < SBUS_NB_CHANNEL; channel++) {
+  for (int channel = 0; channel < SBUS_NB_CHANNEL; channel++) {
     dstppm[channel] = USEC_OF_RC_PPM_TICKS(dst[channel]);
   }
 #endif
