@@ -3,6 +3,8 @@
 <flight_plan alt="1.5" ground_alt="0" lat0="51.990634" lon0="4.376789" max_dist_from_home="20" name="Rotorcraft Optitrack (Delft)" security_height="0.3">
   <header>
 #include "autopilot.h"
+    #include "subsystems/datalink/datalink.h"
+#include "subsystems/radio_control.h"
 </header>
   <waypoints>
     <waypoint name="HOME" x="0.0" y="0.0"/>
@@ -19,6 +21,8 @@
     <waypoint lat="51.9906409" lon="4.3767226" name="FA3"/>
     <waypoint lat="51.9906737" lon="4.3768074" name="FA4"/>
   </waypoints>
+
+
   <sectors>
     <sector color="red" name="Flight_Area">
       <corner name="FA4"/>
@@ -27,6 +31,11 @@
       <corner name="FA1"/>
     </sector>
   </sectors>
+  <exceptions>
+    <!--exception cond="datalink_time > 5" deroute="Land here"/-->
+    <exception cond="radio_control.status == RC_REALLY_LOST" deroute="landed"/>
+    <!--exception cond="stateGetPositionEnu_f()->z > 8." deroute="Land here"/-->
+</exceptions>
   <blocks>
     <block name="Wait GPS">
       <call_once fun="NavKillThrottle()"/>
