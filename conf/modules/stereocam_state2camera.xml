@@ -13,7 +13,7 @@
   <header>
     <file name="state2camera/state2camera.h"/>
   </header>
-  <periodic fun="write_serial_rot()" freq="512."/>
+  <periodic fun="write_serial_rot()" freq="30."/>
   <makefile>
     <file name="state2camera/state2camera.c"/>
     <file name="stereoprotocol.c" dir="modules/stereocam"/>
