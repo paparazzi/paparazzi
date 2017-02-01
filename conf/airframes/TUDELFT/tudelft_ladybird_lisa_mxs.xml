@@ -216,7 +216,7 @@
     <module name="imu" type="lisa_mx_v2.1"/>
 
     <module name="gps" type="ublox">
-      <!--configure name="GPS_PORT" value="UART2"/-->
+      <configure name="GPS_PORT" value="UART2"/>
       <configure name="GPS_BAUD" value="B38400"/>
     </module>
 

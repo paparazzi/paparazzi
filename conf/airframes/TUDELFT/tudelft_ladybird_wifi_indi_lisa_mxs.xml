@@ -239,6 +239,8 @@
      <define name="STATE2CAMERA_SEND_DATA_TYPE" value="1"/>
    </module>
    <module name="stereocam_stereocam2state">
+     <define name="STEREOCAM2STATE_RECEIVED_DATA_TYPE" value="0"/>
+     <define name="STEREOCAM2STATE_EDGEFLOW_PIXELWISE" value="TRUE"/>
 	 </module>
  </modules>
 

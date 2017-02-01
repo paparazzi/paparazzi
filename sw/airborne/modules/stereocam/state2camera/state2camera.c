@@ -25,7 +25,6 @@
 
 #include "modules/stereocam/state2camera/state2camera.h"
 #include "modules/stereocam/stereocam.h"
-
 #include "modules/stereocam/stereoprotocol.h"
 #include "subsystems/abi.h"
 #include "state.h"
@@ -35,7 +34,7 @@ float lastKnownHeight = 0.0;
 int pleaseResetOdroid = 0;
 
 #ifndef STATE2CAMERA_SEND_DATA_TYPE
-#define STATE2CAMERA_SEND_DATA_TYPE 1
+#define STATE2CAMERA_SEND_DATA_TYPE 0
 #endif
 
 void write_serial_rot()

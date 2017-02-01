@@ -23,8 +23,10 @@
 #define STEREOCAM2STATE_RECEIVED_DATA_TYPE 0
 #endif
 
+#if STEREOCAM2STATE_RECEIVED_DATA_TYPE == 0
 #ifndef STEREOCAM2STATE_EDGEFLOW_PIXELWISE
 #define STEREOCAM2STATE_EDGEFLOW_PIXELWISE FALSE
+#endif
 #endif
 
 #include "filters/median_filter.h"
@@ -129,7 +131,6 @@ void stereocam_to_state(void)
   uint16_t dummy_uint16 = 0;
   int16_t dummy_int16 = 0;
   float dummy_float = 0;
- // DOWNLINK_SEND_GPS_ERROR(DefaultChannel, DefaultDevice, &camera_frame_vel.x, &camera_frame_vel.y, &camera_frame_vel.z, &quad_body_vel.x,  &quad_body_vel.y,  &quad_body_vel.z);
 
   DOWNLINK_SEND_OPTIC_FLOW_EST(DefaultChannel, DefaultDevice, &fps, &dummy_uint16, &dummy_uint16, &flow_x, &flow_y,
                                &dummy_int16, &dummy_int16,
