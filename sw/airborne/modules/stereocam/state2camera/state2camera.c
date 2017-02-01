@@ -36,6 +36,7 @@ int pleaseResetOdroid = 0;
 #ifndef STATE2CAMERA_SEND_DATA_TYPE
 #define STATE2CAMERA_SEND_DATA_TYPE 0
 #endif
+PRINT_CONFIG_VAR(STATE2CAMERA_SEND_DATA_TYPE)
 
 void write_serial_rot()
 {
