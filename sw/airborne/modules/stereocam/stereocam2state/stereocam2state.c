@@ -39,9 +39,9 @@ void stereocam_to_state(void);
 void stereo_to_state_init(void)
 {
 
-	init_median_filter(&medianfilter_x);
-	init_median_filter(&medianfilter_y);
-	init_median_filter(&medianfilter_z);
+  init_median_filter(&medianfilter_x);
+  init_median_filter(&medianfilter_y);
+  init_median_filter(&medianfilter_z);
 }
 
 void stereo_to_state_periodic(void)
@@ -56,7 +56,8 @@ void stereocam_to_state(void)
 {
   int16_t RES = 100;
 
-  // Get info from stereocam data
+  // Sort the info from stereocam data from UART
+
   // 0 = stereoboard's #define SEND_EDGEFLOW
 #if STEREOCAM2STATE_RECEIVED_DATA_TYPE == 0
   // opticflow and divergence (unscaled with depth)
@@ -101,11 +102,11 @@ void stereocam_to_state(void)
 
 #endif
 
- //Rotate veloci back to quad's frame
+//Rotate veloci back to quad's frame
   struct FloatVect3 quad_body_vel;
   struct FloatRMat stereocam_to_body;
 
-  float_rmat_inv(&stereocam_to_body,&body_to_stereocam);
+  float_rmat_inv(&stereocam_to_body, &body_to_stereocam);
   float_rmat_transp_vmult(&quad_body_vel, &body_to_stereocam, &camera_frame_vel);
 
   //Send velocity estimate to state
@@ -119,15 +120,13 @@ void stereocam_to_state(void)
 
 
   AbiSendMsgVELOCITY_ESTIMATE(STEREOCAM2STATE_SENDER_ID, now_ts,
-		  vel_body_x_median_filter,
-		  vel_body_y_median_filter,
-		  vel_body_z_median_filter,
-                                0.3f
-                               );
-
+                              vel_body_x_median_filter,
+                              vel_body_y_median_filter,
+                              vel_body_z_median_filter,
+                              0.3f
+                             );
 
   // Reusing the OPTIC_FLOW_EST telemetry messages, with some values replaced by 0
-
   uint16_t dummy_uint16 = 0;
   int16_t dummy_int16 = 0;
   float dummy_float = 0;
