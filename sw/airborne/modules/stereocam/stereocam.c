@@ -38,20 +38,21 @@
 
 /* This defines the location of the stereocamera with respect to the body fixed coordinates.
  *
- *    Coordinate system stereocam
- *    y      z
+ *    Coordinate system stereocam (looking into the lens)
+ *    x      z
  * <-----(( (*) ))              ((     )) = camera lens
- *           |
- *           | x
+ *           |                     (*)    = arrow pointed outwards
+ *           | y                              (towards your direction)
  *           V
  *
- * The conversion order in euler angles is psi (yaw) -> theta (pitch) -> phi (roll
+ * The conversion order in euler angles is psi (yaw) -> theta (pitch) -> phi (roll)
  *
  * Standard rotations: MAV NED body to stereocam in Deg:
  * - facing forward:   90 -> 0 -> 90
  * - facing backward: -90 -> 0 -> 90
  * - facing downward:  90 -> 0 -> 0
  */
+
 #if !defined(STEREO_BODY_TO_STEREO_PHI) || !defined(STEREO_BODY_TO_STEREO_THETA) || !defined(STEREO_BODY_TO_STEREO_PSI)
 #warning "STEREO_BODY_TO_STEREO_XXX not defined. Using default Euler rotation angles (0,0,0)"
 #endif

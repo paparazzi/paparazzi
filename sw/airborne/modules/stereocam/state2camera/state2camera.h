@@ -28,6 +28,6 @@
 
 #include <inttypes.h>
 extern void write_serial_rot(void);
-
+extern uint8_t stereocam_derotation_on;
 #endif
 

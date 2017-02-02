@@ -16,6 +16,8 @@
 #include <std.h>
 #include "modules/stereocam/stereocam.h"
 
+extern uint8_t stereocam_medianfilter_on;
+
 extern void stereo_to_state_init(void);
 extern void stereo_to_state_periodic(void);
 

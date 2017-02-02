@@ -14,6 +14,18 @@
     <define name="SEND_STEREO" value="TRUE|FALSE" description="If TRUE, a copy of received messages is sent to the ground station over the datalink (default: TRUE)"/>
     <define name="STEREO_BUF_SIZE" value="NUM" description="Size of the receiving buffer, must be at least as large as the message being sent (default: 1024)"/>
   </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings name="stereocam">
+        <dl_setting var="stereocam_derotation_on" min="0" step="1" max="1" shortname="derotation"
+                    module="stereocam/state2camera/state2camera">
+        </dl_setting>
+        <dl_setting var="stereocam_medianfilter_on" min="0" step="1" max="1" shortname="median_filter"
+                    module="stereocam/stereocam2state/stereocam2state">
+        </dl_setting>
+      </dl_settings>
+    </dl_settings>
+  </settings>
   <header>
     <file name="stereocam.h"/>
   </header>

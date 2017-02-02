@@ -29,6 +29,7 @@ PRINT_CONFIG_VAR(STEREOCAM2STATE_RECEIVED_DATA_TYPE)
 #define STEREOCAM2STATE_EDGEFLOW_PIXELWISE FALSE
 PRINT_CONFIG_VAR(STEREOCAM2STATE_EDGEFLOW_PIXELWISE)
 #endif
+uint8_t stereocam_medianfilter_on = 1;
 #endif
 
 #include "filters/median_filter.h"
@@ -72,7 +73,7 @@ void stereocam_to_state(void)
   int16_t flow_y = (int16_t)stereocam_data.data[6] << 8;
   flow_y |= (int16_t)stereocam_data.data[7];
 
-  uint8_t agl = stereocam_data.data[8]; // in cm
+// uint8_t agl = stereocam_data.data[8]; // in cm //TODO: use agl for in a guided obstacle avoidance.
   float fps = (float)stereocam_data.data[9];
 
   // velocity global
@@ -104,27 +105,31 @@ void stereocam_to_state(void)
 
 #endif
 
-//Rotate veloci back to quad's frame
+//Rotate velocity back to quad's frame
   struct FloatVect3 quad_body_vel;
-  struct FloatRMat stereocam_to_body;
-
-  float_rmat_inv(&stereocam_to_body, &body_to_stereocam);
   float_rmat_transp_vmult(&quad_body_vel, &body_to_stereocam, &camera_frame_vel);
 
   //Send velocity estimate to state
   //TODO:: Make variance dependable on line fit error, after new horizontal filter is made
   uint32_t now_ts = get_sys_time_usec();
 
-  // Use a slight median filter to filter out the large outliers before sending it to state
-  float vel_body_x_median_filter = (float)update_median_filter(&medianfilter_x, (int32_t)(quad_body_vel.x * 100)) / 100;
-  float vel_body_y_median_filter = (float)update_median_filter(&medianfilter_y, (int32_t)(quad_body_vel.y * 100)) / 100;
-  float vel_body_z_median_filter = (float)update_median_filter(&medianfilter_z, (int32_t)(quad_body_vel.z * 100)) / 100;
+  float vel_body_x_processed = quad_body_vel.x;
+  float vel_body_y_processed = quad_body_vel.y;
+  float vel_body_z_processed = quad_body_vel.z;
 
+  if (stereocam_medianfilter_on == 1) {
+    // Use a slight median filter to filter out the large outliers before sending it to state
+    // TODO: if a float median filter exist, replace this version
+    vel_body_x_processed = (float)update_median_filter(&medianfilter_x, (int32_t)(quad_body_vel.x * 100)) / 100;
+    vel_body_y_processed = (float)update_median_filter(&medianfilter_y, (int32_t)(quad_body_vel.y * 100)) / 100;
+    vel_body_z_processed = (float)update_median_filter(&medianfilter_z, (int32_t)(quad_body_vel.z * 100)) / 100;
+  }
 
+  //Send velocities to state
   AbiSendMsgVELOCITY_ESTIMATE(STEREOCAM2STATE_SENDER_ID, now_ts,
-                              vel_body_x_median_filter,
-                              vel_body_y_median_filter,
-                              vel_body_z_median_filter,
+                              vel_body_x_processed,
+                              vel_body_y_processed,
+                              vel_body_z_processed,
                               0.3f
                              );
 
@@ -134,8 +139,8 @@ void stereocam_to_state(void)
   float dummy_float = 0;
 
   DOWNLINK_SEND_OPTIC_FLOW_EST(DefaultChannel, DefaultDevice, &fps, &dummy_uint16, &dummy_uint16, &flow_x, &flow_y,
-                               &dummy_int16, &dummy_int16,
-                               &vel_body_x_median_filter, &vel_body_y_median_filter, &dummy_float, &dummy_float, &dummy_float);
+                               &dummy_int16, &dummy_int16, &vel_body_x_processed, &vel_body_y_processed,
+                               &dummy_float, &dummy_float, &dummy_float);
 
 #endif
 
