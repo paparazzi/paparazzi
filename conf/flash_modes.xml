@@ -80,6 +80,7 @@
       <board name="li[s]?a_[ms]?_.*"/>
       <board name="li[s]?a_mx_.*"/>
       <board name="px4fmu_.*"/>
+      <board name="px4io_.*"/>
       <board name="cc3d"/>
       <board name="elle*"/>
       <board name="naze32*"/>
