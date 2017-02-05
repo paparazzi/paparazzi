@@ -256,14 +256,6 @@ void autopilot_init(void)
   gpio_clear(POWER_SWITCH_GPIO); // POWER OFF
 #endif
 
-  // call implementation init
-  // it will set startup mode
-#if USE_GENERATED_AUTOPILOT
-  autopilot_generated_init();
-#else
-  autopilot_static_init();
-#endif
-
   // register messages
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AUTOPILOT_VERSION, send_autopilot_version);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ALIVE, send_alive);
