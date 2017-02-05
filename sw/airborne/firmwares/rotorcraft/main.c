@@ -201,6 +201,14 @@ STATIC_INLINE void main_init(void)
 
   modules_init();
 
+  // call autopilot implementation init after guidance modules init
+  // it will set startup mode
+#if USE_GENERATED_AUTOPILOT
+  autopilot_generated_init();
+#else
+  autopilot_static_init();
+#endif
+
   /* temporary hack:
    * Since INS is now a module, LTP_DEF is not yet initialized when autopilot_init is called
    * This led to the problem that global waypoints were not "localized",

@@ -104,8 +104,11 @@ PRINT_CONFIG_MSG("Enabled UNLOCKED_HOME_MODE since MODE_AUTO2 is AP_MODE_HOME")
 
 void autopilot_static_init(void)
 {
-  /* mode is finally set at end of init if MODE_STARTUP is not KILL */
-  autopilot_mode = AP_MODE_KILL; // really needed ?
+  /* Mode is finally set by autopilot_static_set_mode if MODE_STARTUP is not KILL.
+   * For autopilot_static_set_mode to do anything, the requested mode needs to differ
+   * from previous mode, so we set it to a safe KILL first.
+   */
+  autopilot_mode = AP_MODE_KILL;
 
   /* set startup mode, propagates through to guidance h/v */
   autopilot_static_set_mode(MODE_STARTUP);
