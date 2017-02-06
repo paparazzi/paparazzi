@@ -106,10 +106,12 @@ endif
 # Main
 #
 ifeq ($(RTOS), chibios)
- ns_srcs += $(SRC_FIRMWARE)/main_chibios.c
-else
-ifneq ($(TARGET), fbw)
+$(TARGET).srcs += $(SRC_FIRMWARE)/main_chibios.c
+else # No RTOS
 $(TARGET).srcs += $(SRC_FIRMWARE)/main.c
+endif # RTOS
+ifneq ($(TARGET), fbw)
+$(TARGET).srcs += $(SRC_FIRMWARE)/main_ap.c
 $(TARGET).srcs += $(SRC_FIRMWARE)/autopilot.c
 $(TARGET).srcs += $(SRC_FIRMWARE)/autopilot_utils.c
 $(TARGET).srcs += $(SRC_FIRMWARE)/autopilot_guided.c
@@ -122,7 +124,6 @@ endif
 else
 $(TARGET).srcs += $(SRC_FIRMWARE)/main_fbw.c
 endif # TARGET == fbw
-endif # RTOS == ChibiOS
 
 
 
