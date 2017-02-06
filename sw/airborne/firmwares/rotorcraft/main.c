@@ -24,11 +24,16 @@
  *
  * Program main function
  * AP + FBW on single MCU
- * AP on dual MCU
+ * AP or FBW on dual MCU
  * None on SITL
  */
 
+#if FBW
+#include "firmwares/rotorcraft/main_fbw.h"
+#else
 #include "firmwares/rotorcraft/main_ap.h"
+#endif
+
 #include "mcu_periph/sys_time.h"
 
 #ifndef SITL

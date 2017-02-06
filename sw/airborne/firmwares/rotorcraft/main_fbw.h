@@ -36,12 +36,6 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#ifdef SITL
-#define STATIC_INLINE extern
-#else
-#define STATIC_INLINE static inline
-#endif
-
 /** mode to enter when RC is lost while using a mode with RC input */
 #ifndef RC_LOST_FBW_MODE
 #define RC_LOST_FBW_MODE FBW_MODE_FAILSAFE
@@ -70,10 +64,10 @@
 typedef enum {FBW_MODE_MANUAL = 0, FBW_MODE_AUTO = 1, FBW_MODE_FAILSAFE = 2} fbw_mode_enum;
 
 
-STATIC_INLINE void main_init(void);
-STATIC_INLINE void main_event(void);
-STATIC_INLINE void handle_periodic_tasks(void);
-STATIC_INLINE void main_periodic(void);
-STATIC_INLINE void telemetry_periodic(void);
+extern void main_init(void);
+extern void main_event(void);
+extern void handle_periodic_tasks(void);
+extern void main_periodic(void);
+extern void telemetry_periodic(void);
 
 #endif /* MAIN_H */
