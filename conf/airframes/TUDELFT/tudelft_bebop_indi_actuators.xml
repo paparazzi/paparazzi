@@ -32,7 +32,7 @@
     <module name="guidance" type="indi">
       <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-500.0"/>
       <define name="GUIDANCE_INDI_THRUST_DYNAMICS" value="0.1"/>
-      <define name="GUIDANCE_INDI_RC_DEBUG" value="TRUE"/>
+      <define name="GUIDANCE_INDI_RC_DEBUG" value="FALSE"/>
     </module>
   </firmware>
 

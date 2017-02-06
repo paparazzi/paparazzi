@@ -144,7 +144,8 @@ void guidance_indi_run(bool in_flight, int32_t heading) {
   sp_accel.y = (speed_sp_y - stateGetSpeedNed_f()->y) * guidance_indi_speed_gain;
   sp_accel.z = (speed_sp_z - stateGetSpeedNed_f()->z) * guidance_indi_speed_gain;
 
-#ifdef GUIDANCE_INDI_RC_DEBUG
+#if GUIDANCE_INDI_RC_DEBUG
+#warning "GUIDANCE_INDI_RC_DEBUG lets you control the accelerations via RC, but disables autonomous flight!"
   //for rc control horizontal, rotate from body axes to NED
   float psi = stateGetNedToBodyEulers_f()->psi;
   float rc_x = -(radio_control.values[RADIO_PITCH]/9600.0)*8.0;
@@ -193,7 +194,7 @@ void guidance_indi_run(bool in_flight, int32_t heading) {
   thrust_in = thrust_filt.o[0] + euler_cmd.z*thrust_in_specific_force_gain;
   Bound(thrust_in, 0, 9600);
 
-#ifdef GUIDANCE_INDI_RC_DEBUG
+#if GUIDANCE_INDI_RC_DEBUG
   if(radio_control.values[RADIO_THROTTLE]<300) {
     thrust_in = 0;
   }
