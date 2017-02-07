@@ -25,7 +25,7 @@
 MEMORY
 {
     ram (rwx) : ORIGIN = 0x20000000, LENGTH = 192K
-    /* Pixhawk seems to have had a bad badge of f4's, so only use the first 1mb */
+    /* Pixhawk seems to have had a bad batch of f4's, so only use the first 1mb */
     rom (rx) : ORIGIN = 0x08004000, LENGTH = 1008K
 }
 
