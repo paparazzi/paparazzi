@@ -127,9 +127,10 @@
 
 #define DefaultVoltageOfAdc(adc) (0.0045*adc)
 
-
-// FIXME, using baro_board right now to include the appropriate header
-#define USE_BARO_BOARD 0
+/* by default activate onboard baro */
+#ifndef USE_BARO_BOARD
+#define USE_BARO_BOARD 1
+#endif
 
 
 #endif /* CONFIG_LIA_1_1_H */
