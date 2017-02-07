@@ -23,14 +23,14 @@
 # This is the common Makefile for target using chibios
 #
 # chibios directory
-CHIBIOS =  $(PAPARAZZI_SRC)/sw/ext/chibios
+CHIBIOS = $(PAPARAZZI_SRC)/sw/ext/chibios
 
 # directory with board defines for chibios platforms (board specific)
 BOARD_DIR ?= $(BOARD)/chibios
 CHIBIOS_BOARD_DIR = $(PAPARAZZI_SRC)/sw/airborne/boards/$(BOARD_DIR)
 
-# chibos arch directory
-CHIBIOS_ARCH_DIR = $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/ld
+# chibos linker scripts directory
+CHIBIOS_LINKER_DIR ?= $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/ld
 
 # Launch with "make Q=''" to get full command display
 Q=@
@@ -184,7 +184,7 @@ include $(PAPARAZZI_HOME)/conf/chibios/fatfs.mk
 endif
 
 # Define linker script file here
-LDSCRIPT= $(CHIBIOS_ARCH_DIR)/$(CHIBIOS_BOARD_LINKER)
+LDSCRIPT= $(CHIBIOS_LINKER_DIR)/$(CHIBIOS_BOARD_LINKER)
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
