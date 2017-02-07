@@ -30,7 +30,7 @@ BOARD_DIR ?= $(BOARD)/chibios
 CHIBIOS_BOARD_DIR = $(PAPARAZZI_SRC)/sw/airborne/boards/$(BOARD_DIR)
 
 # chibos arch directory
-CHIBIOS_ARCH_DIR = $(PAPARAZZI_SRC)/sw/airborne/arch/chibios
+CHIBIOS_ARCH_DIR = $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/ld
 
 # Launch with "make Q=''" to get full command display
 Q=@
@@ -185,7 +185,6 @@ endif
 
 # Define linker script file here
 LDSCRIPT= $(CHIBIOS_ARCH_DIR)/$(CHIBIOS_BOARD_LINKER)
-#LDSCRIPT= $(STARTUPLD)/$(CHIBIOS_BOARD_LINKER)
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.

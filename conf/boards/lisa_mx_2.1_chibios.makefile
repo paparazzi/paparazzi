@@ -14,7 +14,7 @@ $(TARGET).ARCHDIR = $(ARCH)
 
 RTOS=chibios
 
-## FPU on F4
+# FPU on F4
 USE_FPU=yes
 HARD_FLOAT=yes
 
@@ -28,8 +28,7 @@ PROJECT = $(TARGET)
 
 # Project specific files and paths (see Makefile.chibios for details)
 CHIBIOS_BOARD_PLATFORM = STM32F4xx/platform.mk
-CHIBIOS_BOARD_PORT = ARMCMx/STM32F4xx/port.mk
-CHIBIOS_BOARD_LINKER = STM32F407xG_ccm.ld
+CHIBIOS_BOARD_LINKER = STM32F407xG.ld
 CHIBIOS_BOARD_STARTUP = startup_stm32f4xx.mk
 
 ##############################################################################

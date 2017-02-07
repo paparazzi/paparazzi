@@ -1,11 +1,11 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# apogee_1.0_chibios.makefile
+# Lisa_MX_2.1_chibios.makefile
 #
 #
 
-BOARD=apogee
-BOARD_VERSION=1.0
+BOARD=lisa
+BOARD_VERSION=2.1
 BOARD_DIR=$(BOARD)/chibios/v$(BOARD_VERSION)
 BOARD_CFG=\"boards/$(BOARD_DIR)/board.h\"
 
@@ -14,11 +14,11 @@ $(TARGET).ARCHDIR = $(ARCH)
 
 RTOS=chibios
 
-# FPU on F4
-USE_FPU=yes
-HARD_FLOAT=yes
+# FPU not present on F1
+USE_FPU=no
+HARD_FLOAT=no
 
-$(TARGET).CFLAGS += -DSTM32F4 -DPPRZLINK_ENABLE_FD -DUSE_HARD_FAULT_RECOVERY
+$(TARGET).CFLAGS += -DSTM32F1 -DPPRZLINK_ENABLE_FD
 
 ##############################################################################
 # Architecture or project specific options
@@ -27,20 +27,30 @@ $(TARGET).CFLAGS += -DSTM32F4 -DPPRZLINK_ENABLE_FD -DUSE_HARD_FAULT_RECOVERY
 PROJECT = $(TARGET)
 
 # Project specific files and paths (see Makefile.chibios for details)
-CHIBIOS_BOARD_PLATFORM = STM32F4xx/platform.mk
-CHIBIOS_BOARD_LINKER = STM32F407xG.ld
-CHIBIOS_BOARD_STARTUP = startup_stm32f4xx.mk
+CHIBIOS_BOARD_PLATFORM = STM32F1xx/platform.mk
+CHIBIOS_BOARD_LINKER = STM32F107xC.ld
+CHIBIOS_BOARD_STARTUP = startup_stm32f1xx.mk
 
 ##############################################################################
 # Compiler settings
 #
-MCU  = cortex-m4
+MCU  = cortex-m3
 
-# default flash mode is via usb dfu bootloader
-# possibilities: DFU-UTIL, SWD, STLINK
-FLASH_MODE ?= DFU-UTIL
+# default flash mode is via usb dfu bootloader (luftboot)
+# other possibilities: DFU-UTIL, JTAG, SWD, STLINK, SERIAL
+FLASH_MODE ?= DFU
 
-HAS_LUFTBOOT = FALSE
+HAS_LUFTBOOT ?= 1
+ifeq (,$(findstring $(HAS_LUFTBOOT),0 FALSE))
+$(TARGET).CFLAGS+=-DLUFTBOOT
+$(TARGET).LDFLAGS+=-Wl,-Ttext=0x8002000
+endif
+
+#
+#
+# some default values shared between different firmwares
+#
+#
 
 #
 # default LED configuration
@@ -51,19 +61,19 @@ AHRS_ALIGNER_LED   ?= 2
 GPS_LED            ?= 3
 SYS_TIME_LED       ?= 1
 
-#
-# default UART configuration (modem, gps, spektrum)
-#
 
-MODEM_PORT ?= UART1
+#
+# default uart configuration
+#
+RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT   ?= UART1
+RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT ?= UART5
+
+MODEM_PORT ?= UART2
 MODEM_BAUD ?= B57600
 
-GPS_PORT ?= UART4
+GPS_PORT ?= UART3
 GPS_BAUD ?= B38400
 
-RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT ?= UART2
-
-SBUS_PORT ?= UART2
 
 #
 # default actuator configuration
@@ -74,4 +84,3 @@ SBUS_PORT ?= UART2
 # e.g. <servo driver="Ppm">
 #
 ACTUATORS ?= actuators_pwm
-
