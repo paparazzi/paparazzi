@@ -150,7 +150,7 @@
     <define name="FILT_CUTOFF" value="5.0"/>
 
     <!-- first order actuator dynamics -->
-    <define name="ACT_DYN" value="0.1"/>
+    <define name="ACT_DYN" value="{0.1, 0.1, 0.1, 0.1}"/>
 
     <!-- Adaptive Learning Rate -->
     <define name="USE_ADAPTIVE" value="TRUE"/>
