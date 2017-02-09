@@ -99,7 +99,7 @@ static void guidance_h_update_reference(void);
 #if !GUIDANCE_INDI
 static void guidance_h_traj_run(bool in_flight);
 #endif
-static inline void transition_run(void);
+static inline void transition_run(bool to_forward);
 static void read_rc_setpoint_speed_i(struct Int32Vect2 *speed_sp, bool in_flight);
 
 #if PERIODIC_TELEMETRY
@@ -214,11 +214,6 @@ void guidance_h_mode_changed(uint8_t new_mode)
 {
   if (new_mode == guidance_h.mode) {
     return;
-  }
-
-  if (new_mode != GUIDANCE_H_MODE_FORWARD && new_mode != GUIDANCE_H_MODE_RATE) {
-    transition_percentage = 0;
-    transition_theta_offset = 0;
   }
 
 #if HYBRID_NAVIGATION
@@ -369,10 +364,13 @@ void guidance_h_run(bool  in_flight)
 
     case GUIDANCE_H_MODE_FORWARD:
       if (transition_percentage < (100 << INT32_PERCENTAGE_FRAC)) {
-        transition_run();
+        transition_run(true);
       }
     case GUIDANCE_H_MODE_CARE_FREE:
     case GUIDANCE_H_MODE_ATTITUDE:
+      if ((!(guidance_h.mode == GUIDANCE_H_MODE_FORWARD)) && transition_percentage > 0) {
+        transition_run(false);
+      }
       stabilization_attitude_run(in_flight);
       break;
 
@@ -610,10 +608,15 @@ void guidance_h_from_nav(bool in_flight)
   }
 }
 
-static inline void transition_run(void)
+static inline void transition_run(bool to_forward)
 {
-  //Add 0.00625%
-  transition_percentage += 1 << (INT32_PERCENTAGE_FRAC - 4);
+  if (to_forward) {
+    //Add 0.00625%
+    transition_percentage += 1 << (INT32_PERCENTAGE_FRAC - 4);
+  } else {
+    //Subtract 0.00625%
+    transition_percentage -= 1 << (INT32_PERCENTAGE_FRAC - 4);
+  }
 
 #ifdef TRANSITION_MAX_OFFSET
   const int32_t max_offset = ANGLE_BFP_OF_REAL(TRANSITION_MAX_OFFSET);
