@@ -46,6 +46,19 @@
       <define name="ADAPTIVE_MU" value="0.0001" description="adaptation parameter"/>
     </section>
   </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="indi">
+        <dl_setting var="reference_acceleration.err_p" min="0" step="1" max="2500" shortname="kp_p" param="STABILIZATION_INDI_REF_ERR_P" persistent="true"/>
+        <dl_setting var="reference_acceleration.rate_p" min="0" step="0.1" max="100" shortname="kd_p" param="STABILIZATION_INDI_REF_RATE_P" persistent="true"/>
+        <dl_setting var="reference_acceleration.err_q" min="0" step="1" max="2500" shortname="kp_q" param="STABILIZATION_INDI_REF_ERR_Q" persistent="true"/>
+        <dl_setting var="reference_acceleration.rate_q" min="0" step="0.1" max="100" shortname="kd_q" param="STABILIZATION_INDI_REF_RATE_P" persistent="true"/>
+        <dl_setting var="reference_acceleration.err_r" min="0" step="1" max="2500" shortname="kp_r" param="STABILIZATION_INDI_REF_ERR_R" persistent="true"/>
+        <dl_setting var="reference_acceleration.rate_r" min="0" step="0.1" max="100" shortname="kd_r" param="STABILIZATION_INDI_REF_RATE_P" persistent="true"/>
+        <dl_setting var="indi_use_adaptive" min="0" step="1" max="1" shortname="use_adaptive" values="FALSE|TRUE" param="STABILIZATION_INDI_USE_ADAPTIVE" type="uint8" persistent="true"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
   <autoload name="stabilization" type="rotorcraft"/>
   <header>
     <file name="stabilization_indi.h"/>
