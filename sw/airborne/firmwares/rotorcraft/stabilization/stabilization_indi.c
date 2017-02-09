@@ -75,6 +75,18 @@ bool indi_use_adaptive = true;
 bool indi_use_adaptive = false;
 #endif
 
+#ifdef STABILIZATION_INDI_ACT_RATE_LIMIT
+float act_rate_limit[INDI_NUM_ACT] = STABILIZATION_INDI_ACT_RATE_LIMIT;
+#endif
+
+#ifdef STABILIZATION_INDI_ACT_IS_SERVO
+bool act_is_servo[INDI_NUM_ACT] = STABILIZATION_INDI_ACT_IS_SERVO;
+#else
+bool act_is_servo[INDI_NUM_ACT] = {0};
+#endif
+
+float act_dyn[INDI_NUM_ACT] = STABILIZATION_INDI_ACT_DYN;
+
 // variables needed for control
 float actuator_state_filt_vect[INDI_NUM_ACT];
 struct FloatRates angular_accel_ref = {0., 0., 0.};
@@ -334,7 +346,11 @@ static void stabilization_indi_calc_cmd(struct Int32Quat *att_err, bool rate_con
 
   // Bound the inputs to the actuators
   for(i=0; i<INDI_NUM_ACT; i++) {
-    Bound(indi_u[i], 0, MAX_PPRZ);
+    if(act_is_servo[i]) {
+      BoundAbs(indi_u[i], MAX_PPRZ);
+    } else {
+      Bound(indi_u[i], 0, MAX_PPRZ);
+    }
   }
 
   // Propagate actuator filters
@@ -353,6 +369,7 @@ static void stabilization_indi_calc_cmd(struct Int32Quat *att_err, bool rate_con
   //Don't increment if thrust is off
   if(!in_flight) {
     float_vect_zero(indi_u, INDI_NUM_ACT);
+    float_vect_zero(actuator_state_filt_vect, INDI_NUM_ACT);
   }
   else if(indi_use_adaptive) {
     lms_estimation();
@@ -426,7 +443,9 @@ void stabilization_indi_read_rc(bool in_flight, bool in_carefree, bool coordinat
 
 /**
  * Function that tries to get actuator feedback.
+ *
  * If this is not available it will use a first order filter to approximate the actuator state.
+ * It is also possible to model rate limits (unit: PPRZ/loop cycle)
  */
 void get_actuator_state(void) {
 #if INDI_RPM_FEEDBACK
@@ -434,10 +453,22 @@ void get_actuator_state(void) {
 #else
   //actuator dynamics
   int8_t i;
+  float UNUSED prev_actuator_state;
   for(i=0; i<INDI_NUM_ACT; i++) {
+    prev_actuator_state = actuator_state[i];
+
     actuator_state[i] = actuator_state[i]
-      + STABILIZATION_INDI_ACT_DYN*( indi_u[i] - actuator_state[i]);
+      + act_dyn[i]*( indi_u[i] - actuator_state[i]);
+
+#ifdef STABILIZATION_INDI_ACT_RATE_LIMIT
+    if((actuator_state[i] - prev_actuator_state) > act_rate_limit[i]) {
+      actuator_state[i] = prev_actuator_state + act_rate_limit[i];
+    } else if((actuator_state[i] - prev_actuator_state) < -act_rate_limit[i]) {
+      actuator_state[i] = prev_actuator_state - act_rate_limit[i];
+    }
+#endif
   }
+
 #endif
 }
 
@@ -592,13 +623,15 @@ void calc_g1g2_pseudo_inv(void) {
   }
 }
 
-static void rpm_cb(uint8_t __attribute__((unused)) sender_id, uint16_t *rpm, uint8_t num_act)
+static void rpm_cb(uint8_t __attribute__((unused)) sender_id, uint16_t UNUSED *rpm, uint8_t UNUSED num_act)
 {
+#if INDI_RPM_FEEDBACK
   int8_t i;
   for(i=0; i<num_act; i++) {
     act_obs[i] = (rpm[i] - get_servo_min(i));
     act_obs[i] *= (MAX_PPRZ / (float)(get_servo_max(i)-get_servo_min(i)));
   }
+#endif
 }
 
 /**
