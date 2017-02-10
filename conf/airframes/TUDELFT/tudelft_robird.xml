@@ -16,7 +16,7 @@
     <!-- to avoid bat low spike detection when strong pullup withch draws short sudden power-->
     <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="80" />
     <!-- in seconds-->
-    <module name="telemetry" type="transparent" />
+    <module name="telemetry" type="xbee_api"/>
     <module name="imu" type="px4fmu_v2.4"/>
     <module name="gps" type="ublox" >
       <configure name="GPS_BAUD" value="B57600"/>
@@ -46,11 +46,10 @@
     <target name="fbw" board="px4io_2.4" />
 <!--    <module name="motor_mixing" />-->
     <define name="FBW_MODE_AUTO_ONLY" value="false"/>
-    <module name="radio_control" type="spektrum">
-      <define name="RADIO_CONTROL_SPEKTRUM_NO_SIGN" value="1"/>
-      <define name="RADIO_FBW_MODE" value="RADIO_AUX1"/>
-      <define name="RADIO_MODE" value="RADIO_GEAR"/>
-      <define name="SPEKTRUM_HAS_SOFT_BIND_PIN" value="1"/>
+    <module name="radio_control" type="sbus">
+      <configure name="SBUS_PORT" value="UART3"/>
+      <define name="RADIO_FBW_MODE" value="RADIO_MODE"/>
+      <define name="RADIO_KILL_SWITCH" value="RADIO_KILL"/>
       <define name="USE_KILL_SWITCH_FOR_MOTOR_ARMING" value="1" />
     </module>
     <module name="actuators" type="pwm">
@@ -68,9 +67,7 @@
     </module>
   </firmware>
   <modules main_freq="512">
-    <module name="px4_flash">
-      <configure name="PX4IO_UART" value="uart6"/>
-    </module>
+    <module name="px4_flash"/>
     <module name="geo_mag" />
     <module name="air_data" />
     <module name="send_imu_mag_current" />
@@ -84,7 +81,7 @@
       <define name="HMC58XX_CHAN_Y_SIGN" value="+"/>
       <define name="HMC58XX_CHAN_Z_SIGN" value="+"/>
     </module>
-      <module name="spektrum_soft_bind"/>
+
   </modules>
 
   <section name="MISC">
@@ -110,7 +107,7 @@
   </section>
 
   <commands>
-    <axis name="ROLL"     failsafe_value="4000"/>
+    <axis name="ROLL"     failsafe_value="4000"/> <!--TODO: roll is combined flap left and right-->
     <axis name="PITCH"    failsafe_value="-8000"/>
     <axis name="YAW"    failsafe_value="0"/> <!--there is no yaw,  only here to fix compile error rotorcraft-->
     <axis name="THRUST" failsafe_value="0"/>
@@ -122,9 +119,9 @@
   </rc_commands>
 
   <servos driver="Default">
-    <servo name="THROTTLE"     no="0" min="340" neutral="340"  max="1708"/>
-    <servo name="PITCH"         no="1" min="340" neutral="1024" max="1708"/>
-    <servo name="ROLL"        no="2" min="1708" neutral="1024" max="340"/>
+    <servo name="THROTTLE"     no="2" min="340" neutral="340"  max="1708"/>
+    <servo name="PITCH"         no="1" min="340" neutral="1024" max="1708"/> <!--TODO: roll is combined flap left and right-->
+    <servo name="ROLL"        no="3" min="1708" neutral="1024" max="340"/>
   </servos>
   <command_laws>
     <set servo="THROTTLE"         value="@THRUST"/>
