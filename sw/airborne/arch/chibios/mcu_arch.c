@@ -90,18 +90,13 @@ bool recovering_from_hard_fault;
 
 /*
  * SCB_VTOR has to be relocated if Luftboot is used
+ * The new SCB_VTOR location is defined in the board makefile
  */
 void mcu_arch_init(void)
 {
 #if LUFTBOOT
   PRINT_CONFIG_MSG("We are running luftboot, the interrupt vector is being relocated.")
-#if defined STM32F4
-  PRINT_CONFIG_MSG("STM32F4")
-  SCB->VTOR = 0x00004000;
-#else
-  PRINT_CONFIG_MSG("STM32F1")
-  SCB->VTOR = 0x00002000;
-#endif
+  SCB->VTOR = CORTEX_VTOR_INIT;
 #endif
 
   /*
