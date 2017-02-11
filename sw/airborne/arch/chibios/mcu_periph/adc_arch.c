@@ -55,17 +55,27 @@
 #include "hal.h"
 #include "std.h"
 
-// From active ADC channels
-//#define ADC_NUM_CHANNELS NB_ADC
 
 // Macros to automatically enable the correct ADC
-
 // FIXME we can't use NB_ADC1_CHANNELS it is not a macro
 //#if NB_ADC1_CHANNELS != 0
 #ifndef USE_AD1
 #define USE_AD1 1
 #endif
 ///#endif
+
+
+// architecture dependent settings
+#if defined(__STM32F10x_H) || defined(__STM32F105xC_H) || defined (__STM32F107xC_H)
+// STM32F1xx
+#define ADC_SAMPLE_RATE ADC_SAMPLE_41P5
+#define ADC_CR2_CFG ADC_CR2_TSVREFE
+#elif defined(__STM32F4xx_H)
+// STM32F4xx
+#define ADC_SAMPLE_RATE ADC_SAMPLE_480
+#define ADC_CR2_CFG ADC_CR2_SWSTART
+#endif // STM32F1xx vs STM32F4xx
+
 
 // Create channel map
 static const uint8_t adc_channel_map[ADC_NUM_CHANNELS] = {
@@ -326,21 +336,14 @@ void adc_init(void)
   gpio_setup_pin_analog(ADC_9_GPIO_PORT, ADC_9_GPIO_PIN);
 #endif
 
-  // Configurtion register
+  // Configuration register
   uint32_t sqr1, sqr2, sqr3;
   adc_regular_sequence(&sqr1, &sqr2, &sqr3, ADC_NUM_CHANNELS, adc_channel_map);
 
-#ifdef __STM32F10x_H
   uint32_t smpr1, smpr2;
-  adc_sample_time_on_all_channels(&smpr1, &smpr2, ADC_SAMPLE_41P5);
+  adc_sample_time_on_all_channels(&smpr1, &smpr2, ADC_SAMPLE_RATE);
 
-  adcgrpcfg.cr2 = ADC_CR2_TSVREFE;
-#elif defined(__STM32F4xx_H)
-  uint32_t smpr1, smpr2;
-  adc_sample_time_on_all_channels(&smpr1, &smpr2, ADC_SAMPLE_480);
-
-  adcgrpcfg.cr2 = ADC_CR2_SWSTART;
-#endif
+  adcgrpcfg.cr2 = ADC_CR2_CFG;
 
 #if USE_ADC_WATCHDOG
   adc_watchdog.adc = NULL;
