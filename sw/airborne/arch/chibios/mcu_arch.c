@@ -97,10 +97,10 @@ void mcu_arch_init(void)
   PRINT_CONFIG_MSG("We are running luftboot, the interrupt vector is being relocated.")
 #if defined STM32F4
   PRINT_CONFIG_MSG("STM32F4")
-  SCB_VTOR = 0x00004000;
+  SCB->VTOR = 0x00004000;
 #else
   PRINT_CONFIG_MSG("STM32F1")
-  SCB_VTOR = 0x00002000;
+  SCB->VTOR = 0x00002000;
 #endif
 #endif
 
@@ -120,7 +120,7 @@ void mcu_arch_init(void)
   RCC->AHB1ENR |= RCC_AHB1ENR_BKPSRAMEN;
   PWR->CSR |= PWR_CSR_BRE;
   while ((PWR->CSR & PWR_CSR_BRR) == 0) ; /* Waits until the regulator is stable */
-#endif
+#endif /* STM32F4 */
 
   // test if last reset was a 'real' hard fault
   recovering_from_hard_fault = false;
@@ -138,7 +138,7 @@ void mcu_arch_init(void)
   // *MANDATORY* clear of rcc bits
   RCC->CSR = RCC_CSR_RMVF;
   // end of reset bit probing
-#endif
+#endif /* USE_HARD_FAULT_RECOVERY */
 
 }
 
