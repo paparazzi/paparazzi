@@ -1,11 +1,11 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# Lisa_MX_2.1_chibios.makefile
+# Lia_1.1_chibios.makefile
 #
 #
 
-BOARD=lisa
-BOARD_VERSION=2.1
+BOARD=lia
+BOARD_VERSION=1.1
 BOARD_DIR=$(BOARD)/chibios/v$(BOARD_VERSION)
 BOARD_CFG=\"boards/$(BOARD_DIR)/board.h\"
 
@@ -42,8 +42,7 @@ FLASH_MODE ?= DFU
 
 HAS_LUFTBOOT ?= 1
 ifeq (,$(findstring $(HAS_LUFTBOOT),0 FALSE))
-$(TARGET).CFLAGS+=-DLUFTBOOT
-$(TARGET).LDFLAGS+=-Wl,-Ttext=0x8002000
+$(TARGET).CFLAGS+=-DLUFTBOOT -DCORTEX_VTOR_INIT=0x00002000
 endif
 
 #
