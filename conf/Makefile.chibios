@@ -282,7 +282,7 @@ CPPWARN = -Wall -Wextra
 UDEFS = $($(TARGET).CFLAGS) $(USER_CFLAGS) $(BOARD_CFLAGS)
 
 # Define ASM defines here
-UADEFS =
+UADEFS = $($(TARGET).CFLAGS) $(USER_CFLAGS) $(BOARD_CFLAGS)
 
 # List all user directories here
 # remove -I before include dir because ChibiOS is adding them again
