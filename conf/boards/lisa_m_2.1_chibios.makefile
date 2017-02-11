@@ -1,11 +1,11 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# Lia_1.1_chibios.makefile
+# Lisa_m_2.1_chibios.makefile
 #
 #
 
-BOARD=lia
-BOARD_VERSION=1.1
+BOARD=lisa_m
+BOARD_VERSION=2.1
 
 #
 # default LED configuration
