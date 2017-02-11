@@ -313,7 +313,6 @@ endif
 
 # Settings for GDB
 # default port configuration for BMP
-BMP_PORT = /dev/ttyACM0
 GDB = $(shell which arm-none-eabi-gdb)
 
 
