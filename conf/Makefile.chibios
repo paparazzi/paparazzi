@@ -30,7 +30,28 @@ BOARD_DIR ?= $(BOARD)/chibios
 CHIBIOS_BOARD_DIR = $(PAPARAZZI_SRC)/sw/airborne/boards/$(BOARD_DIR)
 
 # chibos linker scripts directory
+# to keep backwards compatibility with Luftboot (Lia/Lisa M) 
+# and possibly other bootloaders (like PX4 bootloader)
+# we need to keep a separate linker script with a memory offset
+# because it is not possible to pass it dynamicaly to the linker
+# hence we have two destinations for linker scripts
+CHIBIOS_BOOTLOADER_SCRIPT =
+# check if we used 1 to define presence of luftboot
+ifeq ($(HAS_LUFTBOOT),1)
+  CHIBIOS_BOOTLOADER_SCRIPT = 1
+endif
+# check if we used TRUE to define presence of luftboot
+ifeq ($(HAS_LUFTBOOT),TRUE)
+  CHIBIOS_BOOTLOADER_SCRIPT = 1
+endif
+
+ifdef CHIBIOS_BOOTLOADER_SCRIPT
+# we use the modified linker script
+CHIBIOS_LINKER_DIR ?= $(PAPARAZZI_SRC)/sw/airborne/arch/chibios/
+else
+# we use the original linker script
 CHIBIOS_LINKER_DIR ?= $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/ld
+endif
 
 # Launch with "make Q=''" to get full command display
 Q=@
