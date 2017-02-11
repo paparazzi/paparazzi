@@ -97,6 +97,7 @@
       <board name="li[s]?a_mx_.*"/>
       <board name="px4fmu_.*"/>
       <board name="elle*"/>
+      <board name="lia_.*"/>
     </boards>
   </mode>
     <mode name="Px4 bootloader">
