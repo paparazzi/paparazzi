@@ -60,14 +60,7 @@ PRINT_CONFIG_MSG("Gyro/Accel output rate is 2kHz at 8kHz internal sampling")
 PRINT_CONFIG_VAR(BEBOP_SMPLRT_DIV)
 PRINT_CONFIG_VAR(BEBOP_LOWPASS_FILTER)
 
-#ifndef BEBOP_GYRO_RANGE
-#define BEBOP_GYRO_RANGE MPU60X0_GYRO_RANGE_1000
-#endif
 PRINT_CONFIG_VAR(BEBOP_GYRO_RANGE)
-
-#ifndef BEBOP_ACCEL_RANGE
-#define BEBOP_ACCEL_RANGE MPU60X0_ACCEL_RANGE_8G
-#endif
 PRINT_CONFIG_VAR(BEBOP_ACCEL_RANGE)
 
 struct OrientationReps imu_to_mag_bebop;    ///< IMU to magneto rotation

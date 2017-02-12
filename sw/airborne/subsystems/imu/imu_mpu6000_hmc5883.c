@@ -53,20 +53,13 @@ PRINT_CONFIG_MSG("Gyro/Accel output rate is 100Hz at 1kHz internal sampling")
 #define IMU_MPU_SMPLRT_DIV 3
 PRINT_CONFIG_MSG("Gyro/Accel output rate is 2kHz at 8kHz internal sampling")
 #else
-#error Non-default PERIODIC_FREQUENCY: please define MPU_HMC_LOWPASS_FILTER and MPU_HMC_SMPLRT_DIV.
+#error Non-default PERIODIC_FREQUENCY: please define IMU_MPU_LOWPASS_FILTER and IMU_MPU_SMPLRT_DIV.
 #endif
 #endif
 PRINT_CONFIG_VAR(IMU_MPU_LOWPASS_FILTER)
 PRINT_CONFIG_VAR(IMU_MPU_SMPLRT_DIV)
 
-#ifndef IMU_MPU_GYRO_RANGE
-#define IMU_MPU_GYRO_RANGE MPU60X0_GYRO_RANGE_2000
-#endif
 PRINT_CONFIG_VAR(IMU_MPU_GYRO_RANGE)
-
-#ifndef IMU_MPU_ACCEL_RANGE
-#define IMU_MPU_ACCEL_RANGE MPU60X0_ACCEL_RANGE_16G
-#endif
 PRINT_CONFIG_VAR(IMU_MPU_ACCEL_RANGE)
 
 // Default channels order

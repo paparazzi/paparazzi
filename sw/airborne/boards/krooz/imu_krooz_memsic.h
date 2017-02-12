@@ -40,44 +40,21 @@
 #include "peripherals/hmc58xx.h"
 #include "mcu_periph/spi.h"
 
-// Default configuration
-#if !defined IMU_GYRO_P_SIGN & !defined IMU_GYRO_Q_SIGN & !defined IMU_GYRO_R_SIGN
-#define IMU_GYRO_P_SIGN   1
-#define IMU_GYRO_Q_SIGN   1
-#define IMU_GYRO_R_SIGN   1
-#endif
-#if !defined IMU_ACCEL_X_SIGN & !defined IMU_ACCEL_Y_SIGN & !defined IMU_ACCEL_Z_SIGN
-#define IMU_ACCEL_X_SIGN  1
-#define IMU_ACCEL_Y_SIGN  1
-#define IMU_ACCEL_Z_SIGN  1
-#endif
-#if !defined IMU_MAG_X_SIGN & !defined IMU_MAG_Y_SIGN & !defined IMU_MAG_Z_SIGN
-#define IMU_MAG_X_SIGN    1
-#define IMU_MAG_Y_SIGN    1
-#define IMU_MAG_Z_SIGN    1
+#ifndef KROOZ_GYRO_RANGE
+#define KROOZ_GYRO_RANGE MPU60X0_GYRO_RANGE_250
 #endif
 
-/** default gyro sensitivy and neutral from the datasheet
- * MPU with 250 deg/s has 131.072 LSB/(deg/s)
- * sens = 1/131.072 * pi/180 * 2^INT32_RATE_FRAC
- * sens = 1/131.072 * pi/180 * 4096 = 0.5454
- I*/
+// Set default sensitivity based on range if needed
 #if !defined IMU_GYRO_P_SENS & !defined IMU_GYRO_Q_SENS & !defined IMU_GYRO_R_SENS
-// FIXME
-#define IMU_GYRO_P_SENS 0.5454
-#define IMU_GYRO_P_SENS_NUM 2727
-#define IMU_GYRO_P_SENS_DEN 5000
-#define IMU_GYRO_Q_SENS 0.5454
-#define IMU_GYRO_Q_SENS_NUM 2727
-#define IMU_GYRO_Q_SENS_DEN 5000
-#define IMU_GYRO_R_SENS 0.5454
-#define IMU_GYRO_R_SENS_NUM 2727
-#define IMU_GYRO_R_SENS_DEN 5000
-#endif
-#if !defined IMU_GYRO_P_NEUTRAL & !defined IMU_GYRO_Q_NEUTRAL & !defined IMU_GYRO_R_NEUTRAL
-#define IMU_GYRO_P_NEUTRAL 0
-#define IMU_GYRO_Q_NEUTRAL 0
-#define IMU_GYRO_R_NEUTRAL 0
+#define IMU_GYRO_P_SENS MPU60X0_GYRO_SENS[KROOZ_GYRO_RANGE]
+#define IMU_GYRO_P_SENS_NUM MPU60X0_GYRO_SENS_FRAC[KROOZ_GYRO_RANGE][0]
+#define IMU_GYRO_P_SENS_DEN MPU60X0_GYRO_SENS_FRAC[KROOZ_GYRO_RANGE][1]
+#define IMU_GYRO_Q_SENS MPU60X0_GYRO_SENS[KROOZ_GYRO_RANGE]
+#define IMU_GYRO_Q_SENS_NUM MPU60X0_GYRO_SENS_FRAC[KROOZ_GYRO_RANGE][0]
+#define IMU_GYRO_Q_SENS_DEN MPU60X0_GYRO_SENS_FRAC[KROOZ_GYRO_RANGE][1]
+#define IMU_GYRO_R_SENS MPU60X0_GYRO_SENS[KROOZ_GYRO_RANGE]
+#define IMU_GYRO_R_SENS_NUM MPU60X0_GYRO_SENS_FRAC[KROOZ_GYRO_RANGE][0]
+#define IMU_GYRO_R_SENS_DEN MPU60X0_GYRO_SENS_FRAC[KROOZ_GYRO_RANGE][1]
 #endif
 
 
