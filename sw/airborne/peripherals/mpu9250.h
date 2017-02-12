@@ -52,6 +52,52 @@
 #define MPU9250_I2C_NB_SLAVES 5
 #endif
 
+/** default gyro sensitivy from the datasheet
+ * sens = 1/ [LSB/(deg/s)] * pi/180 * 2^INT32_RATE_FRAC
+ * ex: MPU with 1000 deg/s has 32.8 LSB/(deg/s)
+ *     sens = 1/32.8 * pi/180 * 4096 = 2.17953
+ */
+#define MPU9250_GYRO_SENS_250 0.544883
+#define MPU9250_GYRO_SENS_250_NUM 19327
+#define MPU9250_GYRO_SENS_250_DEN 35470
+#define MPU9250_GYRO_SENS_500 1.08977
+#define MPU9250_GYRO_SENS_500_NUM 57663
+#define MPU9250_GYRO_SENS_500_DEN 52913
+#define MPU9250_GYRO_SENS_1000 2.17953
+#define MPU9250_GYRO_SENS_1000_NUM 18271
+#define MPU9250_GYRO_SENS_1000_DEN 8383
+#define MPU9250_GYRO_SENS_2000 4.35906
+#define MPU9250_GYRO_SENS_2000_NUM 36542
+#define MPU9250_GYRO_SENS_2000_DEN 8383
+
+// Get default sensitivity from a table
+extern const float MPU9250_GYRO_SENS[4];
+// Get default sensitivity numerator and denominator from a table
+extern const int32_t MPU9250_GYRO_SENS_FRAC[4][2];
+
+/** default accel sensitivy from the datasheet
+ * sens = 9.81 [m/s^2] / [LSB/g] * 2^INT32_ACCEL_FRAC
+ * ex: MPU with 8g has 4096 LSB/g
+ *     sens = 9.81 [m/s^2] / 4096 [LSB/g] * 2^INT32_ACCEL_FRAC = 2.4525
+ */
+#define MPU9250_ACCEL_SENS_2G 0.613125
+#define MPU9250_ACCEL_SENS_2G_NUM 981
+#define MPU9250_ACCEL_SENS_2G_DEN 1600
+#define MPU9250_ACCEL_SENS_4G 1.22625
+#define MPU9250_ACCEL_SENS_4G_NUM 981
+#define MPU9250_ACCEL_SENS_4G_DEN 800
+#define MPU9250_ACCEL_SENS_8G 2.4525
+#define MPU9250_ACCEL_SENS_8G_NUM 981
+#define MPU9250_ACCEL_SENS_8G_DEN 400
+#define MPU9250_ACCEL_SENS_16G 4.905
+#define MPU9250_ACCEL_SENS_16G_NUM 981
+#define MPU9250_ACCEL_SENS_16G_DEN 200
+
+// Get default sensitivity from a table
+extern const float MPU9250_ACCEL_SENS[4];
+// Get default sensitivity numerator and denominator from a table
+extern const int32_t MPU9250_ACCEL_SENS_FRAC[4][2];
+
 enum Mpu9250ConfStatus {
   MPU9250_CONF_UNINIT,
   MPU9250_CONF_RESET,
