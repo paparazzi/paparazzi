@@ -111,7 +111,7 @@ extern void stereocam_disparity_to_meters(uint8_t *disparity, float *distancesMe
 
 extern void stereocam_start(void)
 {
-  struct FloatEulers euler = {RadOfDeg(STEREO_BODY_TO_STEREO_PHI), RadOfDeg(STEREO_BODY_TO_STEREO_THETA), RadOfDeg(STEREO_BODY_TO_STEREO_PSI)};
+  struct FloatEulers euler = {STEREO_BODY_TO_STEREO_PHI, STEREO_BODY_TO_STEREO_THETA, STEREO_BODY_TO_STEREO_PSI};
   float_rmat_of_eulers(&body_to_stereocam, &euler);
 
   // initialize local variables
