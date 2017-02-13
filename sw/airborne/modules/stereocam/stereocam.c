@@ -35,6 +35,42 @@
 #define SEND_STEREO TRUE
 #endif
 
+
+/* This defines the location of the stereocamera with respect to the body fixed coordinates.
+ *
+ *    Coordinate system stereocam (looking into the lens)
+ *    x      z
+ * <-----(( (*) ))              ((     )) = camera lens
+ *           |                     (*)    = arrow pointed outwards
+ *           | y                              (towards your direction)
+ *           V
+ *
+ * The conversion order in euler angles is psi (yaw) -> theta (pitch) -> phi (roll)
+ *
+ * Standard rotations: MAV NED body to stereocam in Deg:
+ * - facing forward:   90 -> 0 -> 90
+ * - facing backward: -90 -> 0 -> 90
+ * - facing downward:  90 -> 0 -> 0
+ */
+
+#if !defined(STEREO_BODY_TO_STEREO_PHI) || !defined(STEREO_BODY_TO_STEREO_THETA) || !defined(STEREO_BODY_TO_STEREO_PSI)
+#warning "STEREO_BODY_TO_STEREO_XXX not defined. Using default Euler rotation angles (0,0,0)"
+#endif
+
+#ifndef STEREO_BODY_TO_STEREO_PHI
+#define STEREO_BODY_TO_STEREO_PHI 0
+#endif
+
+#ifndef STEREO_BODY_TO_STEREO_THETA
+#define STEREO_BODY_TO_STEREO_THETA 0
+#endif
+
+#ifndef STEREO_BODY_TO_STEREO_PSI
+#define STEREO_BODY_TO_STEREO_PSI 0
+#endif
+
+struct FloatRMat body_to_stereocam;
+
 // define coms link for stereocam
 #define STEREO_PORT   (&((UART_LINK).device))
 struct link_device *linkdev = STEREO_PORT;
@@ -42,7 +78,6 @@ struct link_device *linkdev = STEREO_PORT;
 
 // pervasive local variables
 MsgProperties msgProperties;
-
 
 uint16_t freq_counter = 0;
 uint8_t frequency = 0;
@@ -76,6 +111,9 @@ extern void stereocam_disparity_to_meters(uint8_t *disparity, float *distancesMe
 
 extern void stereocam_start(void)
 {
+  struct FloatEulers euler = {STEREO_BODY_TO_STEREO_PHI, STEREO_BODY_TO_STEREO_THETA, STEREO_BODY_TO_STEREO_PSI};
+  float_rmat_of_eulers(&body_to_stereocam, &euler);
+
   // initialize local variables
   msgProperties = (MsgProperties) {0, 0, 0};
 
@@ -110,11 +148,9 @@ extern void stereocam_periodic(void)
 #if SEND_STEREO
       if (stereocam_data.len > 100) {
         DOWNLINK_SEND_STEREO_IMG(DefaultChannel, DefaultDevice, &frequency, &(stereocam_data.len), 100, stereocam_data.data);
-
       } else {
         DOWNLINK_SEND_STEREO_IMG(DefaultChannel, DefaultDevice, &frequency, &(stereocam_data.len), stereocam_data.len,
                                  stereocam_data.data);
-
       }
 #endif
     }

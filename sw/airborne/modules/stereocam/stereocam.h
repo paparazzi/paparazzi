@@ -38,6 +38,7 @@ typedef struct {
 } uint8array;
 
 extern uint8array stereocam_data;
+extern struct FloatRMat body_to_stereocam;
 
 extern void stereocam_disparity_to_meters(uint8_t *, float *, int);
 extern void stereocam_start(void);
