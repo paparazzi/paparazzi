@@ -49,7 +49,7 @@ static void sys_tick_handler(void);
 void sys_time_arch_init(void)
 {
 
-  sys_time.cpu_ticks_per_sec = STM32_SYSCLK;
+  sys_time.cpu_ticks_per_sec = CH_CFG_ST_FREQUENCY;
 
   /* cpu ticks per desired sys_time timer step */
   sys_time.resolution_cpu_ticks = (uint32_t)(sys_time.resolution * sys_time.cpu_ticks_per_sec + 0.5);
