@@ -144,7 +144,6 @@ else ifeq ($(FLASH_MODE),SWD)
 # only works if BMP_PORT is defined
 BMP_PORT ?= $(shell ls /dev/bmp-gdb 2>/dev/null || echo /dev/ttyACM0)
 BMP_UPLOAD_SCRIPT ?= $(PAPARAZZI_SRC)/sw/tools/flash_scripts/bmp_swd_flash.scr
-$(info BMP_PORT = $(BMP_PORT))
 upload: $(OBJDIR)/$(TARGET).elf
 	@echo "Assuming luftboot bootloader: $(ASSUMING_LUFTBOOT)"
 	@echo "Using Black Magic Probe with SWD on BMP_PORT $(BMP_PORT)"
