@@ -4,9 +4,12 @@
   <doc>
     <description>
       Dummy actuators driver
+      This module prevents autoloading of actuators by fixedwing firmware
     </description>
   </doc>
   <header/>
-  <makefile/>
+  <makefile>
+    <configure name="ACTUATORS"/>
+  </makefile>
 </module>
 

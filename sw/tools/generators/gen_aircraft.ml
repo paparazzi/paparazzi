@@ -76,7 +76,10 @@ let configure_xml2mk = fun ?(default_configure=false) f xml ->
   else
     (* Only print variable if value is not empty *)
     if Compat.bytes_length value > 0 then
-      fprintf f "%s = %s\n" name value
+      fprintf f "%s = %s\n" name value;
+    (* Or if only the name is given (unset a variable *)
+    if Compat.bytes_length value = 0 && Compat.bytes_length default = 0 && Compat.bytes_length case = 0 then
+      fprintf f "%s =\n" name
 
 let include_xml2mk = fun f ?(target="$(TARGET)") ?(vpath=None) xml ->
   let name = Xml.attrib xml "name"
