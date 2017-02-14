@@ -9,7 +9,7 @@
   </doc>
   <header/>
   <makefile>
-    <configure name="ACTUATORS"/>
+    <configure name="ACTUATORS" value="none"/>
   </makefile>
 </module>
 
