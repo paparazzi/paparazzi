@@ -27,14 +27,14 @@
  */
 
 #include "firmwares/rotorcraft/autopilot_guided.h"
-#include "firmwares/rotorcraft/autopilot.h"
+#include "autopilot.h"
 #include "firmwares/rotorcraft/guidance.h"
 #include "state.h"
 
 
 bool autopilot_guided_goto_ned(float x, float y, float z, float heading)
 {
-  if (autopilot_mode == AP_MODE_GUIDED) {
+  if (autopilot_get_mode() == AP_MODE_GUIDED) {
     guidance_h_set_guided_pos(x, y);
     guidance_h_set_guided_heading(heading);
     guidance_v_set_guided_z(z);
@@ -45,7 +45,7 @@ bool autopilot_guided_goto_ned(float x, float y, float z, float heading)
 
 bool autopilot_guided_goto_ned_relative(float dx, float dy, float dz, float dyaw)
 {
-  if (autopilot_mode == AP_MODE_GUIDED && stateIsLocalCoordinateValid()) {
+  if (autopilot_get_mode() == AP_MODE_GUIDED && stateIsLocalCoordinateValid()) {
     float x = stateGetPositionNed_f()->x + dx;
     float y = stateGetPositionNed_f()->y + dy;
     float z = stateGetPositionNed_f()->z + dz;
@@ -57,7 +57,7 @@ bool autopilot_guided_goto_ned_relative(float dx, float dy, float dz, float dyaw
 
 bool autopilot_guided_goto_body_relative(float dx, float dy, float dz, float dyaw)
 {
-  if (autopilot_mode == AP_MODE_GUIDED && stateIsLocalCoordinateValid()) {
+  if (autopilot_get_mode() == AP_MODE_GUIDED && stateIsLocalCoordinateValid()) {
     float psi = stateGetNedToBodyEulers_f()->psi;
     float x = stateGetPositionNed_f()->x + cosf(-psi) * dx + sinf(-psi) * dy;
     float y = stateGetPositionNed_f()->y - sinf(-psi) * dx + cosf(-psi) * dy;
@@ -70,7 +70,7 @@ bool autopilot_guided_goto_body_relative(float dx, float dy, float dz, float dya
 
 bool autopilot_guided_move_ned(float vx, float vy, float vz, float heading)
 {
-  if (autopilot_mode == AP_MODE_GUIDED) {
+  if (autopilot_get_mode() == AP_MODE_GUIDED) {
     guidance_h_set_guided_vel(vx, vy);
     guidance_h_set_guided_heading(heading);
     guidance_v_set_guided_vz(vz);
@@ -95,7 +95,7 @@ bool autopilot_guided_move_ned(float vx, float vy, float vz, float heading)
 void autopilot_guided_update(uint8_t flags, float x, float y, float z, float yaw)
 {
   /* only update setpoints when in guided mode */
-  if (autopilot_mode != AP_MODE_GUIDED) {
+  if (autopilot_get_mode() != AP_MODE_GUIDED) {
     return;
   }
 

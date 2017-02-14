@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005 Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2017 Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *
  * This file is part of paparazzi.
  *
@@ -14,27 +14,25 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 /**
- * @file firmwares/fixedwing/main_ap.h
+ * @file firmwares/rotorcraft/autopilot_firmware.h
  *
- * AP ( AutoPilot ) process API
- *
+ * Rotorcraft specific autopilot interface
+ * and initialization
  */
 
-#ifndef AP_H
-#define AP_H
+#ifndef AUTOPILOT_FIRMWARE_H
+#define AUTOPILOT_FIRMWARE_H
 
-extern void init_ap(void);
-extern void handle_periodic_tasks_ap(void);
-extern void event_task_ap(void);
+#include "std.h"
+#include "autopilot.h"
 
-extern void sensors_task(void);
-extern void monitor_task(void);
-extern void reporting_task(void);
+extern uint8_t autopilot_mode_auto2;
 
-#endif
+extern void autopilot_firmware_init(void);
+
+#endif /* AUTOPILOT_FIRMWARE_H */

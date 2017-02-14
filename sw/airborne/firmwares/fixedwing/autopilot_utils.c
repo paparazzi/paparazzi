@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005 Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2017 Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *
  * This file is part of paparazzi.
  *
@@ -20,21 +20,11 @@
  */
 
 /**
- * @file firmwares/fixedwing/main_ap.h
+ * @file firmwares/fixedwing/autopilot_utils.c
  *
- * AP ( AutoPilot ) process API
+ * Utility functions and includes for autopilots
  *
  */
 
-#ifndef AP_H
-#define AP_H
+#include "firmwares/fixedwing/autopilot_utils.h"
 
-extern void init_ap(void);
-extern void handle_periodic_tasks_ap(void);
-extern void event_task_ap(void);
-
-extern void sensors_task(void);
-extern void monitor_task(void);
-extern void reporting_task(void);
-
-#endif

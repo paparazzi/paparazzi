@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Gautier Hattenberger <gautier.hattenberger@enac.fr>
+ * Copyright (C) 2017 Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *
  * This file is part of paparazzi.
  *
@@ -19,14 +19,14 @@
  */
 
 /**
- * @file firmwares/rotorcraft/autopilot_generated.c
+ * @file firmwares/fixedwing/autopilot_generated.c
  *
  * Generated autopilot implementation.
  *
  */
 #define AUTOPILOT_CORE_AP_C
 
-#include "firmwares/rotorcraft/autopilot_generated.h"
+#include "firmwares/fixedwing/autopilot_generated.h"
 #include "autopilot.h"
 
 #include "subsystems/radio_control.h"
@@ -37,17 +37,6 @@
 
 #include "generated/settings.h"
 
-#if USE_KILL_SWITCH_FOR_MOTOR_ARMING
-#include "autopilot_arming_switch.h"
-PRINT_CONFIG_MSG("Using kill switch for motor arming")
-#elif USE_THROTTLE_FOR_MOTOR_ARMING
-#include "autopilot_arming_throttle.h"
-PRINT_CONFIG_MSG("Using throttle for motor arming")
-#else
-#include "autopilot_arming_yaw.h"
-PRINT_CONFIG_MSG("Using 2 sec yaw for motor arming")
-#endif
-
 
 void autopilot_generated_init(void)
 {
@@ -55,9 +44,6 @@ void autopilot_generated_init(void)
   autopilot_core_ap_init();
   // copy generated mode to public mode (set at startup)
   autopilot.mode = autopilot_mode_ap;
-
-  // init arming
-  autopilot_arming_init();
 }
 
 
@@ -68,13 +54,6 @@ void autopilot_generated_periodic(void)
 
   // copy generated mode to public mode (may be changed on internal exceptions)
   autopilot.mode = autopilot_mode_ap;
-
-  /* Reset ground detection _after_ running flight plan
-   */
-  if (!autopilot_in_flight()) {
-    autopilot.ground_detected = false;
-    autopilot.detect_ground_once = false;
-  }
 
 }
 
@@ -98,49 +77,27 @@ void autopilot_generated_set_mode(uint8_t new_autopilot_mode)
 
 void autopilot_generated_set_motors_on(bool motors_on)
 {
-  if (ap_ahrs_is_aligned() && motors_on
-#ifdef AP_MODE_KILL
-      && autopilot.mode != AP_MODE_KILL
-#endif
-      ) {
-    autopilot.motors_on = true;
-  } else {
-    autopilot.motors_on = false;
-  }
-  autopilot_arming_set(autopilot.motors_on);
+  // Do nothing on fixedwing ?
 }
 
+static inline void copy_from_to_fbw(void)
+{
+  PPRZ_MUTEX_LOCK(fbw_state_mtx);
+  PPRZ_MUTEX_LOCK(ap_state_mtx);
+#ifdef SetAutoCommandsFromRC
+  SetAutoCommandsFromRC(ap_state->commands, fbw_state->channels);
+#elif defined RADIO_YAW && defined COMMAND_YAW
+  ap_state->commands[COMMAND_YAW] = fbw_state->channels[RADIO_YAW];
+#endif
+  PPRZ_MUTEX_UNLOCK(ap_state_mtx);
+  PPRZ_MUTEX_UNLOCK(fbw_state_mtx);
+}
 
 void autopilot_generated_on_rc_frame(void)
 {
 
   // FIXME what to do here ?
-
-  /* an arming sequence is used to start/stop motors.
-   * only allow arming if ahrs is aligned
-   */
-  if (ap_ahrs_is_aligned()) {
-    autopilot_arming_check_motors_on();
-    autopilot.kill_throttle = ! autopilot.motors_on;
-  }
-
-  /* if not in FAILSAFE or HOME mode, read RC and set commands accordingly */
-//  if (autopilot.mode != AP_MODE_FAILSAFE && autopilot.mode != AP_MODE_HOME) {
-//
-//    /* if there are some commands that should always be set from RC, do it */
-//#ifdef SetAutoCommandsFromRC
-//    SetAutoCommandsFromRC(commands, radio_control.values);
-//#endif
-//
-//    /* if not in NAV_MODE set commands from the rc */
-//#ifdef SetCommandsFromRC
-//    if (autopilot.mode != AP_MODE_NAV) {
-//      SetCommandsFromRC(commands, radio_control.values);
-//    }
-//#endif
-//
-//    guidance_v_read_rc();
-//    guidance_h_read_rc(autopilot.in_flight);
-//  }
+  copy_from_to_fbw();
 
 }
+

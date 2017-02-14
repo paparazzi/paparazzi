@@ -27,7 +27,7 @@
  *
  */
 
-#include "firmwares/rotorcraft/autopilot.h"
+#include "autopilot.h"
 
 #include "subsystems/radio_control.h"
 #include "subsystems/commands.h"
@@ -108,7 +108,7 @@ void autopilot_static_init(void)
    * For autopilot_static_set_mode to do anything, the requested mode needs to differ
    * from previous mode, so we set it to a safe KILL first.
    */
-  autopilot_mode = AP_MODE_KILL;
+  autopilot.mode = AP_MODE_KILL;
 
   /* set startup mode, propagates through to guidance h/v */
   autopilot_static_set_mode(MODE_STARTUP);
@@ -124,7 +124,7 @@ void autopilot_static_periodic(void)
 
   RunOnceEvery(NAV_PRESCALER, compute_dist2_to_home());
 
-  if (autopilot_in_flight && autopilot_mode == AP_MODE_NAV) {
+  if (autopilot_in_flight() && autopilot.mode == AP_MODE_NAV) {
     if (too_far_from_home || datalink_lost() || higher_than_max_altitude()) {
       if (dist2_to_home > failsafe_mode_dist2) {
         autopilot_static_set_mode(FAILSAFE_MODE_TOO_FAR_FROM_HOME);
@@ -134,7 +134,7 @@ void autopilot_static_periodic(void)
     }
   }
 
-  if (autopilot_mode == AP_MODE_HOME) {
+  if (autopilot.mode == AP_MODE_HOME) {
     RunOnceEvery(NAV_PRESCALER, nav_home());
   } else {
     // otherwise always call nav_periodic_task so that carrot is always updated in GCS for other modes
@@ -145,14 +145,14 @@ void autopilot_static_periodic(void)
   /* If in FAILSAFE mode and either already not in_flight anymore
    * or just "detected" ground, go to KILL mode.
    */
-  if (autopilot_mode == AP_MODE_FAILSAFE) {
-    if (!autopilot_in_flight) {
+  if (autopilot.mode == AP_MODE_FAILSAFE) {
+    if (!autopilot_in_flight()) {
       autopilot_static_set_mode(AP_MODE_KILL);
     }
 
 #if FAILSAFE_GROUND_DETECT
     INFO("Using FAILSAFE_GROUND_DETECT: KILL")
-    if (autopilot_ground_detected) {
+    if (autopilot.ground_detected) {
       autopilot_static_set_mode(AP_MODE_KILL);
     }
 #endif
@@ -160,21 +160,21 @@ void autopilot_static_periodic(void)
 
   /* Reset ground detection _after_ running flight plan
    */
-  if (!autopilot_in_flight) {
-    autopilot_ground_detected = false;
-    autopilot_detect_ground_once = false;
+  if (!autopilot_in_flight()) {
+    autopilot.ground_detected = false;
+    autopilot.detect_ground_once = false;
   }
 
   /* Set fixed "failsafe" commands from airframe file if in KILL mode.
    * If in FAILSAFE mode, run normal loops with failsafe attitude and
    * downwards velocity setpoints.
    */
-  if (autopilot_mode == AP_MODE_KILL) {
+  if (autopilot.mode == AP_MODE_KILL) {
     SetCommands(commands_failsafe);
   } else {
-    guidance_v_run(autopilot_in_flight);
-    guidance_h_run(autopilot_in_flight);
-    SetRotorcraftCommands(stabilization_cmd, autopilot_in_flight, autopilot_motors_on);
+    guidance_v_run(autopilot_in_flight());
+    guidance_h_run(autopilot_in_flight());
+    SetRotorcraftCommands(stabilization_cmd, autopilot.in_flight, autopilot.motors_on);
   }
 
 }
@@ -207,7 +207,7 @@ void autopilot_static_set_mode(uint8_t new_autopilot_mode)
     new_autopilot_mode = MODE_STARTUP;
   }
 
-  if (new_autopilot_mode != autopilot_mode) {
+  if (new_autopilot_mode != autopilot.mode) {
     /* horizontal mode */
     switch (new_autopilot_mode) {
       case AP_MODE_FAILSAFE:
@@ -217,8 +217,7 @@ void autopilot_static_set_mode(uint8_t new_autopilot_mode)
         break;
 #endif
       case AP_MODE_KILL:
-        autopilot_in_flight = false;
-        autopilot_in_flight_counter = 0;
+        autopilot_set_in_flight(false);
         guidance_h_mode_changed(GUIDANCE_H_MODE_KILL);
         break;
       case AP_MODE_RC_DIRECT:
@@ -321,19 +320,19 @@ void autopilot_static_set_mode(uint8_t new_autopilot_mode)
         break;
     }
     //if switching to rate mode but rate mode is not defined, the function returned
-    autopilot_mode = new_autopilot_mode;
+    autopilot.mode = new_autopilot_mode;
   }
 }
 
 
 void autopilot_static_set_motors_on(bool motors_on)
 {
-  if (autopilot_mode != AP_MODE_KILL && ap_ahrs_is_aligned() && motors_on) {
-    autopilot_motors_on = true;
+  if (autopilot.mode != AP_MODE_KILL && ap_ahrs_is_aligned() && motors_on) {
+    autopilot.motors_on = true;
   } else {
-    autopilot_motors_on = false;
+    autopilot.motors_on = false;
   }
-  autopilot_arming_set(autopilot_motors_on);
+  autopilot_arming_set(autopilot.motors_on);
 }
 
 void autopilot_static_on_rc_frame(void)
@@ -360,7 +359,7 @@ void autopilot_static_on_rc_frame(void)
         autopilot_static_set_mode(new_autopilot_mode);
       }
       /* if in HOME mode, don't allow switching to non-manual modes */
-      else if ((autopilot_mode != AP_MODE_HOME)
+      else if ((autopilot.mode != AP_MODE_HOME)
 #if UNLOCKED_HOME_MODE
                /* Allowed to leave home mode when UNLOCKED_HOME_MODE */
                || !too_far_from_home
@@ -376,11 +375,11 @@ void autopilot_static_on_rc_frame(void)
    */
   if (ap_ahrs_is_aligned()) {
     autopilot_arming_check_motors_on();
-    kill_throttle = ! autopilot_motors_on;
+    autopilot.kill_throttle = ! autopilot.motors_on;
   }
 
   /* if not in FAILSAFE or HOME mode, read RC and set commands accordingly */
-  if (autopilot_mode != AP_MODE_FAILSAFE && autopilot_mode != AP_MODE_HOME) {
+  if (autopilot.mode != AP_MODE_FAILSAFE && autopilot.mode != AP_MODE_HOME) {
 
     /* if there are some commands that should always be set from RC, do it */
 #ifdef SetAutoCommandsFromRC
@@ -389,13 +388,13 @@ void autopilot_static_on_rc_frame(void)
 
     /* if not in NAV_MODE set commands from the rc */
 #ifdef SetCommandsFromRC
-    if (autopilot_mode != AP_MODE_NAV) {
+    if (autopilot.mode != AP_MODE_NAV) {
       SetCommandsFromRC(commands, radio_control.values);
     }
 #endif
 
     guidance_v_read_rc();
-    guidance_h_read_rc(autopilot_in_flight);
+    guidance_h_read_rc(autopilot_in_flight());
   }
 
 }

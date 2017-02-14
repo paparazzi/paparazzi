@@ -172,7 +172,14 @@ fbw_srcs 		+= subsystems/actuators.c
 
 ap_CFLAGS 		+= -DAP
 ap_srcs 		+= $(SRC_FIRMWARE)/main_ap.c
-ap_srcs 		+= $(SRC_FIRMWARE)/autopilot.c
+ap_srcs 		+= autopilot.c
+ap_srcs 		+= $(SRC_FIRMWARE)/autopilot_firmware.c
+ifeq ($(USE_GENERATED_AUTOPILOT), TRUE)
+ap_srcs 		+= $(SRC_FIRMWARE)/autopilot_generated.c
+ap_CFLAGS 	+= -DUSE_GENERATED_AUTOPILOT=1
+else
+ap_srcs 		+= $(SRC_FIRMWARE)/autopilot_static.c
+endif
 ap_srcs 		+= state.c
 ap_srcs 		+= subsystems/settings.c
 ap_srcs 		+= $(SRC_ARCH)/subsystems/settings_arch.c
