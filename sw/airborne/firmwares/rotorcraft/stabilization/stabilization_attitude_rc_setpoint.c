@@ -41,6 +41,16 @@
 #define STABILIZATION_ATTITUDE_DEADBAND_E 0
 #endif
 
+/**
+ * Airspeed that will be used in the turning speed calculation (m/s).
+ *
+ * This variable is for calculation of the turn speed, and does not influence the airspeed.
+ * With a higher speed, the vehicle will turn less in a turn with the same roll.
+ * */
+#ifndef COORDINATED_TURN_AIRSPEED
+#define COORDINATED_TURN_AIRSPEED 12.0
+#endif
+
 #define YAW_DEADBAND_EXCEEDED()                                         \
   (radio_control.values[RADIO_YAW] >  STABILIZATION_ATTITUDE_DEADBAND_R || \
    radio_control.values[RADIO_YAW] < -STABILIZATION_ATTITUDE_DEADBAND_R)
@@ -184,13 +194,12 @@ void stabilization_attitude_read_rc_setpoint_eulers(struct Int32Eulers *sp, bool
     if (coordinated_turn) {
       //Coordinated turn
       //feedforward estimate angular rotation omega = g*tan(phi)/v
-      //Take v = 9.81/1.3 m/s
       int32_t omega;
-      const int32_t max_phi = ANGLE_BFP_OF_REAL(RadOfDeg(85.0));
+      const int32_t max_phi = ANGLE_BFP_OF_REAL(RadOfDeg(60.0));
       if (abs(sp->phi) < max_phi) {
-        omega = ANGLE_BFP_OF_REAL(1.3 * tanf(ANGLE_FLOAT_OF_BFP(sp->phi)));
-      } else { //max 60 degrees roll, then take constant omega
-        omega = ANGLE_BFP_OF_REAL(1.3 * 1.72305 * ((sp->phi > 0) - (sp->phi < 0)));
+        omega = ANGLE_BFP_OF_REAL(9.81 / COORDINATED_TURN_AIRSPEED * tanf(ANGLE_FLOAT_OF_BFP(sp->phi)));
+      } else { //max 60 degrees roll
+        omega = ANGLE_BFP_OF_REAL(9.81 / COORDINATED_TURN_AIRSPEED * 1.72305 * ((sp->phi > 0) - (sp->phi < 0)));
       }
 
       sp->psi += omega * dt;
@@ -264,13 +273,12 @@ void stabilization_attitude_read_rc_setpoint_eulers_f(struct FloatEulers *sp, bo
     if (coordinated_turn) {
       //Coordinated turn
       //feedforward estimate angular rotation omega = g*tan(phi)/v
-      //Take v = 9.81/1.3 m/s
       float omega;
-      const float max_phi = RadOfDeg(85.0);
+      const float max_phi = RadOfDeg(60.0);
       if (fabsf(sp->phi) < max_phi) {
-        omega = 1.3 * tanf(sp->phi);
-      } else { //max 60 degrees roll, then take constant omega
-        omega = 1.3 * 1.72305 * ((sp->phi > 0) - (sp->phi < 0));
+        omega = 9.81 / COORDINATED_TURN_AIRSPEED * tanf(sp->phi);
+      } else { //max 60 degrees roll
+        omega = 9.81 / COORDINATED_TURN_AIRSPEED * 1.72305 * ((sp->phi > 0) - (sp->phi < 0));
       }
 
       sp->psi += omega * dt;
