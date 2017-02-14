@@ -207,20 +207,18 @@ void stabilization_indi_init(void)
 }
 
 /**
- * Function that resets important values upon engaging INDI
+ * Function that resets important values upon engaging INDI.
+ *
+ * Don't reset inputs and filters, because it is unlikely to switch stabilization in flight,
+ * and there are multiple modes that use (the same) stabilization. Resetting the controller
+ * is not so nice when you are flying.
+ * FIXME: Ideally we should detect when coming from something that is not INDI
  */
 void stabilization_indi_enter(void)
 {
   /* reset psi setpoint to current psi angle */
   stab_att_sp_euler.psi = stabilization_attitude_get_heading_i();
 
-  // reset filters
-  init_filters();
-
-
-  float_vect_zero(actuator_state, INDI_NUM_ACT);
-  float_vect_zero(indi_u, INDI_NUM_ACT);
-  float_vect_zero(indi_du, INDI_NUM_ACT);
   float_vect_zero(du_estimation, INDI_NUM_ACT);
   float_vect_zero(ddu_estimation, INDI_NUM_ACT);
 }
