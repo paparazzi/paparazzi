@@ -46,7 +46,7 @@ static inline float wp_dist(float wp1_x, float wp1_y, float wp2_x, float wp2_y) 
   </exceptions>
   <blocks>
     <block name="Wait GPS">
-      <set value="1" var="kill_throttle"/>
+      <set value="1" var="autopilot.kill_throttle"/>
       <while cond="!GpsFixValid()"/>
     </block>
     <block name="Geo init">
@@ -54,7 +54,7 @@ static inline float wp_dist(float wp1_x, float wp1_y, float wp2_x, float wp2_y) 
       <!--call fun="NavSetGroundReferenceHere()"/-->
     </block>
     <block name="Holding point">
-      <set value="1" var="kill_throttle"/>
+      <set value="1" var="autopilot.kill_throttle"/>
       <attitude roll="0" throttle="0" vmode="throttle"/>
     </block>
     <block name="Set Low Alt">
@@ -65,7 +65,7 @@ static inline float wp_dist(float wp1_x, float wp1_y, float wp2_x, float wp2_y) 
       <call fun="{ hackhd_command(HACKHD_POWER_ON); FALSE; }"/>
       <while cond="LessThan(NavBlockTime(), 4)"/>
       <call fun="{ hackhd_command(HACKHD_SHOOT); FALSE; }"/>
-      <set value="0" var="kill_throttle"/>
+      <set value="0" var="autopilot.kill_throttle"/>
       <set value="0" var="autopilot_flight_time"/>
       <go from="HOME" pitch="30" throttle="1.0" vmode="throttle" wp="CLIMB"/>
     </block>

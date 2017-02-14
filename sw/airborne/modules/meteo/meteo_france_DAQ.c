@@ -69,7 +69,7 @@ void mf_daq_send_state(void)
 {
   // Send aircraft state to DAQ board
   DOWNLINK_SEND_MF_DAQ_STATE(extra_pprz_tp, EXTRA_DOWNLINK_DEVICE,
-                             &autopilot_flight_time,
+                             &autopilot.flight_time,
                              &stateGetBodyRates_f()->p,
                              &stateGetBodyRates_f()->q,
                              &stateGetBodyRates_f()->r,
@@ -127,7 +127,7 @@ void parse_mf_daq_msg(void)
     if (log_started) {
       DOWNLINK_SEND_PAYLOAD_FLOAT(pprzlog_tp, chibios_sdlog, mf_daq.nb, mf_daq.values);
       DOWNLINK_SEND_MF_DAQ_STATE(pprzlog_tp, chibios_sdlog,
-                                 &autopilot_flight_time,
+                                 &autopilot.flight_time,
                                  &stateGetBodyRates_f()->p,
                                  &stateGetBodyRates_f()->q,
                                  &stateGetBodyRates_f()->r,

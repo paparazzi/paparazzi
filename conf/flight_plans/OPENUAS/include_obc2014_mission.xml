@@ -266,7 +266,7 @@ TST-3 = -26° 35' 23.2" * 151° 50' 45.9"
 
     <block key="t" name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
       <!-- <set value="3000" var="ap_state->commands[COMMAND_CAMBER]"/> -->
-      <set value="0" var="kill_throttle"/>
+      <set value="0" var="autopilot.kill_throttle"/>
       <set value="1" var="launch"/>
       <set value="0" var="autopilot_flight_time"/>
       <call_once fun="AirbrakesOff()"/>

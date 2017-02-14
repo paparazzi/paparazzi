@@ -97,7 +97,7 @@ LiPo/LiIo-Zellen: 3
   </section>
 
   <command_laws>
-    <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
+    <call fun="motor_mixing_run(autopilot_get_motors_on(),FALSE,values)"/>
     <set servo="FRONTRIGHT" value="motor_mixing.commands[0]"/>
     <set servo="FRONTLEFT" value="motor_mixing.commands[1]"/>
     <set servo="BACK" value="motor_mixing.commands[2]"/>

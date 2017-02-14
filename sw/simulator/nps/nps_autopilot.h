@@ -24,7 +24,7 @@ struct NpsAutopilot {
   bool launch;
 };
 
-extern struct NpsAutopilot autopilot;
+extern struct NpsAutopilot nps_autopilot;
 
 extern bool nps_bypass_ahrs;
 extern bool nps_bypass_ins;

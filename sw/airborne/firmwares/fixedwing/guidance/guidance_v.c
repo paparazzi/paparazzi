@@ -29,7 +29,7 @@
 #include "state.h"
 #include "firmwares/fixedwing/nav.h"
 #include "generated/airframe.h"
-#include "firmwares/fixedwing/autopilot.h"
+#include "autopilot.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h" //> allow for roll control during landing final flare
 
 /* mode */
@@ -324,7 +324,7 @@ void v_ctl_landing_loop(void)
   float land_speed_err = v_ctl_landing_desired_speed - stateGetHorizontalSpeedNorm_f();
   float land_alt_err = v_ctl_altitude_setpoint - stateGetPositionUtm_f()->alt;
 
-  if (kill_throttle
+  if (autopilot_throttle_killed()
       && (kill_alt - v_ctl_altitude_setpoint)
           > (v_ctl_landing_alt_throttle_kill - v_ctl_landing_alt_flare)) {
     v_ctl_throttle_setpoint = 0.0;  // Throttle is already in KILL (command redundancy)
@@ -350,7 +350,7 @@ void v_ctl_landing_loop(void)
 
     // update kill_alt until final kill throttle is initiated - allows for mode switch to first part of if statement above
     // eliminates the need for knowing the altitude of TD
-    if (!kill_throttle) {
+    if (!autopilot_throttle_killed()) {
       kill_alt = v_ctl_altitude_setpoint;  //
       if (land_alt_err > 0.0) {
         nav_pitch = 0.01;  //  if below desired alt close to ground command level pitch

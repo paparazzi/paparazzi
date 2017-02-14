@@ -29,7 +29,7 @@
 
 #include "std.h"
 #include "modules/nav/takeoff_detect.h"
-#include "firmwares/fixedwing/autopilot.h"
+#include "autopilot.h"
 #include "state.h"
 #include "generated/modules.h" // for status and function's period
 
@@ -89,7 +89,7 @@ void takeoff_detect_periodic(void)
     case TO_DETECT_ARMED:
       // test for "nose up" + AP in AUTO2 (+ GPS OK ? FIXME)
       if (stateGetNedToBodyEulers_f()->theta > TAKEOFF_DETECT_LAUNCH_PITCH
-          && pprz_mode == PPRZ_MODE_AUTO2) {
+          && autopilot_get_mode() == PPRZ_MODE_AUTO2) {
         takeoff_detect.timer++;
       } else {
         // else reset timer
@@ -97,7 +97,7 @@ void takeoff_detect_periodic(void)
       }
       // if timer is finished, start launching
       if (takeoff_detect.timer > (int)(TAKEOFF_DETECT_PERIODIC_FREQ * TAKEOFF_DETECT_TIMER)) {
-        launch = true;
+        autopilot.launch = true;
         takeoff_detect.state = TO_DETECT_LAUNCHING;
         takeoff_detect.timer = 0;
       }
@@ -105,9 +105,9 @@ void takeoff_detect_periodic(void)
     case TO_DETECT_LAUNCHING:
       // abort if pitch goes below threshold while launching
       if (stateGetNedToBodyEulers_f()->theta < TAKEOFF_DETECT_ABORT_PITCH
-          || pprz_mode != PPRZ_MODE_AUTO2) {
+          || autopilot_get_mode() != PPRZ_MODE_AUTO2) {
         // back to ARMED state
-        launch = false;
+        autopilot.launch = false;
         takeoff_detect.state = TO_DETECT_ARMED;
       }
       // increment timer and disable detection after some time

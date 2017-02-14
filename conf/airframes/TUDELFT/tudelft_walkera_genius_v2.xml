@@ -163,7 +163,7 @@
     <let var="hoverstick" value=".1*MAX_PPRZ"/>
     <let var="halfway" value="(@THRUST >= ($hoverstick) ? 1 : 0)"/>
 
-    <call fun="throttle_curve_run(autopilot_motors_on, values)"/>
+    <call fun="throttle_curve_run(autopilot_get_motors_on(), values)"/>
     <call fun="swashplate_mixing_run(values)"/>
     <set servo="CIC_FRONT" value="-swashplate_mixing.commands[SW_FRONT]"/>
     <set servo="CIC_LEFT" value="-swashplate_mixing.commands[SW_LEFTBACK]"/>

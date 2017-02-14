@@ -38,7 +38,7 @@
 #include "state.h"
 #include "generated/airframe.h"
 #include "firmwares/fixedwing/nav.h"
-#include "firmwares/fixedwing/autopilot.h"
+#include "autopilot.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 
 #include "mcu_periph/uart.h"

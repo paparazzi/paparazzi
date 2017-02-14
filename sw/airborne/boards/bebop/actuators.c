@@ -91,7 +91,7 @@ void actuators_bebop_commit(void)
   }
 
   // Start the motors
-  if (actuators_bebop.i2c_trans.buf[10] != 4 && actuators_bebop.i2c_trans.buf[10] != 2 && autopilot_motors_on) {
+  if (actuators_bebop.i2c_trans.buf[10] != 4 && actuators_bebop.i2c_trans.buf[10] != 2 && autopilot_get_motors_on()) {
     // Reset the error
     actuators_bebop.i2c_trans.buf[0] = ACTUATORS_BEBOP_CLEAR_ERROR;
     i2c_transmit(&i2c1, &actuators_bebop.i2c_trans, actuators_bebop.i2c_trans.slave_addr, 1);
@@ -107,10 +107,10 @@ void actuators_bebop_commit(void)
     i2c_transmit(&i2c1, &actuators_bebop.i2c_trans, actuators_bebop.i2c_trans.slave_addr, 2);
   }
   // Stop the motors
-  else if (actuators_bebop.i2c_trans.buf[10] == 4 && !autopilot_motors_on) {
+  else if (actuators_bebop.i2c_trans.buf[10] == 4 && !autopilot_get_motors_on()) {
     actuators_bebop.i2c_trans.buf[0] = ACTUATORS_BEBOP_STOP_PROP;
     i2c_transmit(&i2c1, &actuators_bebop.i2c_trans, actuators_bebop.i2c_trans.slave_addr, 1);
-  } else if (actuators_bebop.i2c_trans.buf[10] == 4 && autopilot_motors_on) {
+  } else if (actuators_bebop.i2c_trans.buf[10] == 4 && autopilot_get_motors_on()) {
     // Send the commands
     actuators_bebop.i2c_trans.buf[0] = ACTUATORS_BEBOP_SET_REF_SPEED;
     actuators_bebop.i2c_trans.buf[1] = actuators_bebop.rpm_ref[0] >> 8;

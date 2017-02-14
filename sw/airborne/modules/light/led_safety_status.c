@@ -50,19 +50,19 @@ void led_safety_status_periodic(void)
   if (radio_control.status == RC_LOST || radio_control.status == RC_REALLY_LOST) {
     RunXTimesEvery(0, 60, 5, 7, {LED_TOGGLE(SAFETY_WARNING_LED);});
     RunXTimesEvery(130, 130, 10, 6, {LED_TOGGLE(SAFETY_WARNING_LED);});
-  } else if (!(autopilot_mode == MODE_MANUAL) && !autopilot_motors_on) {
+  } else if (!(autopilot_get_mode() == MODE_MANUAL) && !autopilot_get_motors_on()) {
     RunXTimesEvery(20, 240, 40, 1, {LED_ON(SAFETY_WARNING_LED);});
     RunXTimesEvery(0, 240, 40, 1, {LED_OFF(SAFETY_WARNING_LED);});
-  } else if (!THROTTLE_STICK_DOWN() && !autopilot_motors_on) {
+  } else if (!THROTTLE_STICK_DOWN() && !autopilot_get_motors_on()) {
     RunXTimesEvery(20, 240, 40, 2, {LED_ON(SAFETY_WARNING_LED);});
     RunXTimesEvery(0, 240, 40, 2, {LED_OFF(SAFETY_WARNING_LED);});
-  } else if (!ROLL_STICK_CENTERED() && !autopilot_motors_on) {
+  } else if (!ROLL_STICK_CENTERED() && !autopilot_get_motors_on()) {
     RunXTimesEvery(20, 240, 40, 3, {LED_ON(SAFETY_WARNING_LED);});
     RunXTimesEvery(0, 240, 40, 3, {LED_OFF(SAFETY_WARNING_LED);});
-  } else if (!PITCH_STICK_CENTERED() && !autopilot_motors_on) {
+  } else if (!PITCH_STICK_CENTERED() && !autopilot_get_motors_on()) {
     RunXTimesEvery(20, 240, 40, 4, {LED_ON(SAFETY_WARNING_LED);});
     RunXTimesEvery(0, 240, 40, 4, {LED_OFF(SAFETY_WARNING_LED);});
-  } else if (!YAW_STICK_CENTERED() && !autopilot_motors_on) {
+  } else if (!YAW_STICK_CENTERED() && !autopilot_get_motors_on()) {
     RunXTimesEvery(20, 240, 40, 5, {LED_ON(SAFETY_WARNING_LED);});
     RunXTimesEvery(0, 240, 40, 5, {LED_OFF(SAFETY_WARNING_LED);});
   }

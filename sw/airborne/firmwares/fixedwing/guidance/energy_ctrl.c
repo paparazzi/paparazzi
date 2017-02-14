@@ -65,7 +65,7 @@
 #include "state.h"
 #include "firmwares/fixedwing/nav.h"
 #include "generated/airframe.h"
-#include "firmwares/fixedwing/autopilot.h"
+#include "autopilot.h"
 #include "subsystems/abi.h"
 
 /////// DEFAULT GUIDANCE_V NECESSITIES //////
@@ -391,7 +391,7 @@ void v_ctl_climb_loop(void)
   float en_dis_err = gamma_err - vdot_err;
 
   // Auto Cruise Throttle
-  if (launch && (v_ctl_mode >= V_CTL_MODE_AUTO_CLIMB)) {
+  if (autopilot.launch && (v_ctl_mode >= V_CTL_MODE_AUTO_CLIMB)) {
     v_ctl_auto_throttle_nominal_cruise_throttle +=
       v_ctl_auto_throttle_of_airspeed_igain * speed_error * dt_attidude
       + en_tot_err * v_ctl_energy_total_igain * dt_attidude;
@@ -404,7 +404,7 @@ void v_ctl_climb_loop(void)
                               + v_ctl_auto_throttle_of_airspeed_pgain * speed_error
                               + v_ctl_energy_total_pgain * en_tot_err;
 
-  if ((controlled_throttle >= 1.0f) || (controlled_throttle <= 0.0f) || (kill_throttle == 1)) {
+  if ((controlled_throttle >= 1.0f) || (controlled_throttle <= 0.0f) || (autopilot_throttle_killed() == 1)) {
     // If your energy supply is not sufficient, then neglect the climb requirement
     en_dis_err = -vdot_err;
 
@@ -415,7 +415,7 @@ void v_ctl_climb_loop(void)
 
 
   /* pitch pre-command */
-  if (launch && (v_ctl_mode >= V_CTL_MODE_AUTO_CLIMB)) {
+  if (autopilot.launch && (v_ctl_mode >= V_CTL_MODE_AUTO_CLIMB)) {
     v_ctl_auto_throttle_nominal_cruise_pitch +=  v_ctl_auto_pitch_of_airspeed_igain * (-speed_error) * dt_attidude
         + v_ctl_energy_diff_igain * en_dis_err * dt_attidude;
     Bound(v_ctl_auto_throttle_nominal_cruise_pitch, H_CTL_PITCH_MIN_SETPOINT, H_CTL_PITCH_MAX_SETPOINT);
@@ -426,7 +426,7 @@ void v_ctl_climb_loop(void)
     + v_ctl_auto_pitch_of_airspeed_dgain * vdot
     + v_ctl_energy_diff_pgain * en_dis_err
     + v_ctl_auto_throttle_nominal_cruise_pitch;
-  if (kill_throttle) { v_ctl_pitch_of_vz = v_ctl_pitch_of_vz - 1 / V_CTL_GLIDE_RATIO; }
+  if (autopilot_throttle_killed()) { v_ctl_pitch_of_vz = v_ctl_pitch_of_vz - 1 / V_CTL_GLIDE_RATIO; }
 
   v_ctl_pitch_setpoint = v_ctl_pitch_of_vz + nav_pitch;
   Bound(v_ctl_pitch_setpoint, H_CTL_PITCH_MIN_SETPOINT, H_CTL_PITCH_MAX_SETPOINT)

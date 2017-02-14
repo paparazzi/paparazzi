@@ -23,7 +23,7 @@
   </exceptions>
   <blocks>
     <block name="Wait GPS">
-      <set value="1" var="kill_throttle"/>
+      <set value="1" var="autopilot.kill_throttle"/>
       <while cond="!GpsFixValid()"/>
     </block>
     <block name="Geo init">
@@ -31,16 +31,16 @@
       <call_once fun="NavSetGroundReferenceHere()"/>
     </block>
     <block name="Holding point">
-      <set value="1" var="kill_throttle"/>
+      <set value="1" var="autopilot.kill_throttle"/>
       <attitude roll="0" throttle="0" vmode="throttle"/>
       <exception cond="NavBlockTime() > 10" deroute="Takeoff"/>
     </block>
     <block key="t" name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png" group="home">
       <exception cond="GetPosAlt() > GetAltRef()+25" deroute="Standby"/>
-      <set value="0" var="kill_throttle"/>
-      <set value="0" var="autopilot_flight_time"/>
+      <set value="0" var="autopilot.kill_throttle"/>
+      <set value="0" var="autopilot.flight_time"/>
       <set value="1" var="launch"/>
-      <set value="0" var="kill_throttle"/>
+      <set value="0" var="autopilot.kill_throttle"/>
       <while cond="LessThan(NavBlockTime(), 3)"/>
       <go from="HOME" throttle="1.0" vmode="throttle" wp="CLIMB" pitch="15"/>
     </block>

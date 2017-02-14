@@ -11,7 +11,7 @@
   <exceptions/>
   <blocks>
     <block name="Kill">
-      <set value="1" var="kill_throttle"/>
+      <set value="1" var="autopilot.kill_throttle"/>
       <deroute block="Standby"/>
     </block>
     <block name="Periodic 1Hz">

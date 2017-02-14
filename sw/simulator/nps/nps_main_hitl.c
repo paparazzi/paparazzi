@@ -95,13 +95,13 @@ void nps_radio_and_autopilot_init(void)
 
 void nps_update_launch_from_dl(uint8_t value)
 {
-  autopilot.launch = value;
+  nps_autopilot.launch = value;
 }
 
 void nps_main_run_sim_step(void)
 {
   nps_atmosphere_update(SIM_DT);
-  nps_fdm_run_step(autopilot.launch, autopilot.commands, NPS_COMMANDS_NB);
+  nps_fdm_run_step(nps_autopilot.launch, nps_autopilot.commands, NPS_COMMANDS_NB);
 }
 
 void *nps_ins_data_loop(void *data __attribute__((unused)))
@@ -244,10 +244,10 @@ void *nps_ap_data_loop(void *data __attribute__((unused)))
               pthread_mutex_lock(&fdm_mutex);
               // update commands
               for (uint8_t i = 0; i < NPS_COMMANDS_NB; i++) {
-                autopilot.commands[i] = (double)cmd_buf[i] / MAX_PPRZ;
+                nps_autopilot.commands[i] = (double)cmd_buf[i] / MAX_PPRZ;
               }
               // hack: invert pitch to fit most JSBSim models
-              autopilot.commands[COMMAND_PITCH] = -(double)cmd_buf[COMMAND_PITCH] / MAX_PPRZ;
+              nps_autopilot.commands[COMMAND_PITCH] = -(double)cmd_buf[COMMAND_PITCH] / MAX_PPRZ;
               pthread_mutex_unlock(&fdm_mutex);
               break;
             case DL_MOTOR_MIXING:
@@ -257,7 +257,7 @@ void *nps_ap_data_loop(void *data __attribute__((unused)))
               pthread_mutex_lock(&fdm_mutex);
               // update commands
               for (uint8_t i = 0; i < NPS_COMMANDS_NB; i++) {
-                autopilot.commands[i] = (double)cmd_buf[i] / MAX_PPRZ;
+                nps_autopilot.commands[i] = (double)cmd_buf[i] / MAX_PPRZ;
               }
               pthread_mutex_unlock(&fdm_mutex);
               break;

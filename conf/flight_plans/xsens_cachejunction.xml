@@ -24,8 +24,8 @@
   <blocks>
     <block name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
       <exception cond="GetPosAlt() > GetAltRef()+25" deroute="Standby"/>
-      <set value="0" var="kill_throttle"/>
-      <set value="0" var="autopilot_flight_time"/>
+      <set value="0" var="autopilot.kill_throttle"/>
+      <set value="0" var="autopilot.flight_time"/>
       <go from="HOME" pitch="15" throttle="1.0" vmode="throttle" wp="CLIMB"/>
     </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
@@ -70,9 +70,9 @@
     <block name="Steps pitch -10, +10">
       <while cond="TRUE">
         <attitude alt="1410" pitch="40" roll="0.0" vmode="alt"/>
-        <set value="1" var="kill_throttle"/>
+        <set value="1" var="autopilot.kill_throttle"/>
       </while>
-      <set value="0" var="kill_throttle"/>
+      <set value="0" var="autopilot.kill_throttle"/>
     </block>
     <block name="Survey S3-S4" strip_button="Survey (wp S3-S4)">
       <survey_rectangle grid="150" wp1="S3" wp2="S4"/>

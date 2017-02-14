@@ -73,7 +73,7 @@
 #include "firmwares/fixedwing/nav.h"
 #include "generated/airframe.h"
 #include CTRL_TYPE_H
-#include "firmwares/fixedwing/autopilot.h"
+#include "autopilot.h"
 
 
 /* outer loop parameters */
@@ -487,7 +487,7 @@ inline static void h_ctl_roll_loop(void)
   struct FloatRates *body_rate = stateGetBodyRates_f();
   float d_err = h_ctl_ref.roll_rate - body_rate->p;
 
-  if (pprz_mode == PPRZ_MODE_MANUAL || launch == 0) {
+  if (autopilot_get_mode() == PPRZ_MODE_MANUAL || autopilot.launch == 0) {
     h_ctl_roll_sum_err = 0.;
   } else {
     if (h_ctl_roll_igain > 0.) {
@@ -604,7 +604,7 @@ inline static void h_ctl_pitch_loop(void)
   last_err = err;
 #endif
 
-  if (pprz_mode == PPRZ_MODE_MANUAL || launch == 0) {
+  if (autopilot_get_mode() == PPRZ_MODE_MANUAL || autopilot.launch == 0) {
     h_ctl_pitch_sum_err = 0.;
   } else {
     if (h_ctl_pitch_igain > 0.) {
@@ -646,7 +646,7 @@ inline static void h_ctl_yaw_loop(void)
   float ny = 0.f;
 #endif
 
-  if (pprz_mode == PPRZ_MODE_MANUAL || launch == 0) {
+  if (autopilot_get_mode() == PPRZ_MODE_MANUAL || autopilot.launch == 0) {
     h_ctl_yaw_ny_sum_err = 0.;
   } else {
     if (h_ctl_yaw_ny_igain > 0.) {
@@ -729,7 +729,7 @@ inline static void h_ctl_cl_loop(void)
   }
 
   // no control in manual mode
-  if (pprz_mode == PPRZ_MODE_MANUAL) {
+  if (autopilot_get_mode() == PPRZ_MODE_MANUAL) {
     cmd = 0.f;
   }
   // bound max flap angle
