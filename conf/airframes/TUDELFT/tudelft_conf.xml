@@ -156,7 +156,7 @@
   <aircraft
    name="GeniusDDBart"
    ac_id="130"
-   airframe="airframes/TUDELFT/Bart_heliDD_INDI.xml"
+   airframe="airframes/TUDELFT/tudelft_bs_helidd_indi.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
