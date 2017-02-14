@@ -119,14 +119,14 @@
   </rc_commands>
 
   <servos driver="Default">
-    <servo name="THROTTLE"     no="2" min="340" neutral="340"  max="1708"/>
-    <servo name="PITCH"         no="1" min="340" neutral="1024" max="1708"/> <!--TODO: roll is combined flap left and right-->
-    <servo name="ROLL"        no="3" min="1708" neutral="1024" max="340"/>
+    <servo name="THROTTLE"     no="2" min="1100" neutral="1180"  max="1900"/>
+    <servo name="AILEVONRIGHT"        no="3" min="1900" neutral="1500" max="1100"/>
+    <servo name="AILEVONLEFT"         no="1" min="1100" neutral="1500" max="1900"/>
   </servos>
   <command_laws>
     <set servo="THROTTLE"         value="@THRUST"/>
-    <set servo="PITCH"         value="@PITCH"/>
-    <set servo="ROLL"         value="@ROLL"/>
+    <set servo="AILEVONLEFT"         value="@PITCH - @ROLL"/>
+    <set servo="AILEVONRIGHT"         value="@PITCH + @ROLL"/>
   </command_laws>
 
 
