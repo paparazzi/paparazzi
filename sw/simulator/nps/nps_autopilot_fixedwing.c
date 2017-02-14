@@ -50,7 +50,7 @@
 #include "subsystems/abi.h"
 
 // for launch
-#include "firmwares/fixedwing/autopilot.h"
+#include "autopilot.h"
 
 // for datalink_time hack
 #include "subsystems/datalink/datalink.h"

@@ -487,7 +487,7 @@ inline static void h_ctl_roll_loop(void)
   struct FloatRates *body_rate = stateGetBodyRates_f();
   float d_err = h_ctl_ref.roll_rate - body_rate->p;
 
-  if (autopilot_get_mode() == PPRZ_MODE_MANUAL || autopilot.launch == 0) {
+  if (autopilot_get_mode() == PPRZ_MODE_MANUAL || autopilot.launch == false) {
     h_ctl_roll_sum_err = 0.;
   } else {
     if (h_ctl_roll_igain > 0.) {
@@ -604,7 +604,7 @@ inline static void h_ctl_pitch_loop(void)
   last_err = err;
 #endif
 
-  if (autopilot_get_mode() == PPRZ_MODE_MANUAL || autopilot.launch == 0) {
+  if (autopilot_get_mode() == PPRZ_MODE_MANUAL || autopilot.launch == false) {
     h_ctl_pitch_sum_err = 0.;
   } else {
     if (h_ctl_pitch_igain > 0.) {
@@ -646,7 +646,7 @@ inline static void h_ctl_yaw_loop(void)
   float ny = 0.f;
 #endif
 
-  if (autopilot_get_mode() == PPRZ_MODE_MANUAL || autopilot.launch == 0) {
+  if (autopilot_get_mode() == PPRZ_MODE_MANUAL || autopilot.launch == false) {
     h_ctl_yaw_ny_sum_err = 0.;
   } else {
     if (h_ctl_yaw_ny_igain > 0.) {
