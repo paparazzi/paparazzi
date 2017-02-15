@@ -80,6 +80,14 @@ ac_settings_modules = ac_node.attrib['settings_modules'].split(" ")
 for ac_settings_module in ac_settings_modules:
     if ac_settings_module[0] != '[':
         files_file.write(path.join("conf", ac_settings_module) + "\n")
+
+
+#manually add msg def xml:
+files_file.write("sw/ext/pprzlink/message_definitions/v1.0/messages.xml\n" )
+#manually active conf xml:
+files_file.write(sys.argv[2] +"\n")
+
+
 # Parse the source files
 srcs_all = ap_srcs_list.readline().split(":  ")[1]
 srcs = re.findall(r'([^ \t\n\r]+)', srcs_all)
