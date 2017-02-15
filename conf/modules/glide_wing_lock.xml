@@ -1,0 +1,25 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="glide_wing_lock">
+  <doc>
+    <description>Locks the wing of an ornicopter so it can glide.</description>
+    <configure name="ADC_MOTOR_SENSOR" value="ADC_*" description="ADC to use"/>
+    <configure name="WING_POS_DOWN_THRESH" value="0-5000" description="Threshold below of wich wing is considered down"/>
+    <configure name="WING_POS_LOCK_MIN_THRESH" value="0-5000" description="Prefered lock position of the wing"/>
+    <configure name="WING_POS_LOCK_MAX_THRESH" value="0-5000" description="Prefered lock position of the wing"/>
+    <configure name="WING_POS_LOCK_SWITCH" value="0-5000" description="RC switch to activate lock of the wing"/>
+    <configure name="WING_POS_NOMINAL_THRUST" value="0-9600" description="Nominal thrust to use just before locking"/>
+  </doc>
+  <header>
+    <file name="glide_wing_lock.h"/>
+  </header>
+  <init fun="glide_wing_lock_init()"/>
+  <periodic fun="glide_wing_lock_periodic()" freq="10"/>
+  <event fun="glide_wing_lock_event()"/>
+  <makefile target="ap">
+    <file name="glide_wing_lock.c"/>
+    <define name="ADC_CHANNEL_MOTORSENSOR" value="$(ADC_MOTOR_SENSOR)"/>
+    <define name="USE_$(ADC_MOTOR_SENSOR)"/>
+  </makefile>
+</module>
+

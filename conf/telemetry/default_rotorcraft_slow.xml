@@ -28,7 +28,8 @@
       <message name="SURVEY"                 period="4.5"/>
       <message name="OPTIC_FLOW_EST"         period="0.5"/>
       <message name="VECTORNAV_INFO"         period="0.5"/>
-      <message name="FBW_STATUS"             period="2"/>
+      <message name="FBW_STATUS"             period="2"/>      
+      <message name="WING_POS"               period="0.1"/>
     </mode>
 
     <mode name="ppm">

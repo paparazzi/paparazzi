@@ -34,18 +34,20 @@
     <module name="current_sensor">
       <configure name="ADC_CURRENT_SENSOR" value="ADC_3" />
     </module>
+    <module name="glide_wing_lock">
+      <configure name="ADC_MOTOR_SENSOR" value="ADC_4" />
+      <configure name="WING_POS_DOWN_THRESH" value="100" />
+      <configure name="WING_POS_LOCK_MIN_THRESH" value="2000" />
+      <configure name="WING_POS_LOCK_MAX_THRESH" value="2100" />
+      <configure name="WING_POS_LOCK_SWITCH" value="RADIO_AUX2" />
+    </module>
     <module name="intermcu" type="uart">
       <configure name="INTERMCU_PORT" value="UART6" />
       <configure name="INTERMCU_BAUD" value="B1500000" /> <!-- This is only during first 10s start up, afterwards it is set to 230400-->
     </module>
-<!--    <module name="actuators" type="pwm">-->
-       <!-- gimbal and buzzer -->
-<!--      <define name="SERVO_HZ" value="400" />-->
-<!--    </module>-->
   </firmware>
   <firmware name="rotorcraft">
     <target name="fbw" board="px4io_2.4" />
-<!--    <module name="motor_mixing" />-->
     <define name="FBW_MODE_AUTO_ONLY" value="false"/>
     <module name="radio_control" type="sbus">
       <configure name="SBUS_PORT" value="UART3"/>
@@ -230,8 +232,8 @@
   </section>
   <section name="AUTOPILOT">
     <define name="MODE_STARTUP" value="AP_MODE_ATTITUDE_DIRECT" />
-    <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT" />
-    <define name="MODE_AUTO1" value="AP_MODE_HOVER_Z_HOLD" />
+    <define name="MODE_MANUAL" value="AP_MODE_RC_DIRECT" />
+    <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_DIRECT" />
     <define name="MODE_AUTO2" value="AP_MODE_NAV" />
     <define name="NO_RC_THRUST_LIMIT" value="TRUE" />
   </section>
