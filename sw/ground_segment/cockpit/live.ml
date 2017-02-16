@@ -756,6 +756,8 @@ let create_ac = fun ?(confirm_kill=true) alert (geomap:G.widget) (acs_notebook:G
     match dl_settings_page with
         Some settings_tab ->
     (** Connect the strip buttons *)
+          let firmware = ExtXml.child af_xml "firmware" in
+          let firmware_name = ExtXml.attrib firmware "name" in
           let connect = fun ?(warning=true) setting_name strip_connect ->
             try
               let id = settings_tab#assoc setting_name in
@@ -772,8 +774,11 @@ let create_ac = fun ?(confirm_kill=true) alert (geomap:G.widget) (acs_notebook:G
           connect "autopilot.launch" ~warning:false ac.strip#connect_launch;
           connect "autopilot.kill_throttle" (ac.strip#connect_kill confirm_kill);
           (* try to connect either pprz_mode (fixedwing) or autopilot_mode (rotorcraft) *)
-          (*connect "autopilot.mode" ~warning:false (ac.strip#connect_mode 2.); FIXME *)
-          (*connect "autopilot.mode" ~warning:false (ac.strip#connect_mode 13.); FIXME *)
+          begin match firmware_name with
+          | "fixedwing" -> connect "autopilot.mode" ~warning:false (ac.strip#connect_mode 2.)
+          | "rotorcraft" -> connect "autopilot.mode" ~warning:false (ac.strip#connect_mode 13.)
+          | _ -> ()
+          end;
           connect "nav_shift" ~warning:false  ac.strip#connect_shift_lateral;
           connect "autopilot.flight_time" ac.strip#connect_flight_time;
           let get_ac_unix_time = fun () -> ac.last_unix_time in
