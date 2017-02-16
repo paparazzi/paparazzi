@@ -60,6 +60,7 @@ Q=@
 RTOS_DEBUG ?= 0
 
 ifeq (,$(findstring $(RTOS_DEBUG),0 FALSE))
+$(info ChibiOS Debug mode is ON)
 $(TARGET).CFLAGS += \
 	-DCH_DBG_STATISTICS=TRUE \
 	-DCH_DBG_SYSTEM_STATE_CHECK=TRUE \
