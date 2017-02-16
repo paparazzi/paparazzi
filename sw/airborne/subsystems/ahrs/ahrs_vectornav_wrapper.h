@@ -35,5 +35,6 @@
 #endif
 
 extern void ahrs_vectornav_register(void);
+extern bool ahrs_vectornav_is_enabled(void);
 
 #endif /* AHRS_VECTORNAV_WRAPPER_H */
