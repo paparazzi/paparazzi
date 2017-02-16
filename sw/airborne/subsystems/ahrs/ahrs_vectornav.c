@@ -72,11 +72,17 @@ void ahrs_vectornav_event(void)
   if (ahrs_vn.vn_packet.msg_available) {
     vn200_read_message(&(ahrs_vn.vn_packet),&(ahrs_vn.vn_data));
     ahrs_vn.vn_packet.msg_available = false;
-    ahrs_vectornav_propagate();
+
+    if (ahrs_vectornav_is_enabled()) {
+      ahrs_vectornav_propagate();
+    }
 
     // send ABI messages
     uint32_t now_ts = get_sys_time_usec();
+    // in fixed point for sending as ABI and telemetry msgs
+    RATES_BFP_OF_REAL(ahrs_vn.gyro_i, ahrs_vn.vn_data.gyro);
     AbiSendMsgIMU_GYRO_INT32(IMU_VECTORNAV_ID, now_ts, &ahrs_vn.gyro_i);
+    ACCELS_BFP_OF_REAL(ahrs_vn.accel_i, ahrs_vn.vn_data.accel);
     AbiSendMsgIMU_ACCEL_INT32(IMU_VECTORNAV_ID, now_ts, &ahrs_vn.accel_i);
   }
 }
@@ -124,11 +130,8 @@ void ahrs_vectornav_propagate(void)
   // Attitude [deg]
   static struct FloatQuat imu_quat; // convert from euler to quat
   float_quat_of_eulers(&imu_quat, &ahrs_vn.vn_data.attitude);
-  static struct FloatRMat imu_rmat; // convert from quat to rmat
-  float_rmat_of_quat(&imu_rmat, &imu_quat);
-  static struct FloatRMat ltp_to_body_rmat; // rotate to body frame
-  float_rmat_comp(&ltp_to_body_rmat, &imu_rmat, orientationGetRMat_f(&ahrs_vn.body_to_imu));
-  stateSetNedToBodyRMat_f(&ltp_to_body_rmat); // set body states [rad]
+  stateSetNedToBodyQuat_f(&imu_quat);
+
 }
 
 

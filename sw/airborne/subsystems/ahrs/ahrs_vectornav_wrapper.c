@@ -59,6 +59,10 @@ static bool ahrs_vectornav_enable_output(bool enable)
   return ahrs_vectornav_output_enabled;
 }
 
+bool ahrs_vectornav_is_enabled(void){
+  return ahrs_vectornav_output_enabled;
+}
+
 void ahrs_vectornav_register(void)
 {
   ahrs_vectornav_output_enabled = AHRS_VECTORNAV_OUTPUT_ENABLED;
