@@ -8,4 +8,5 @@
 BOARD=lisa_m
 BOARD_VERSION=2.0
 
+include $(PAPARAZZI_SRC)/conf/boards/lisa_m_defaults.makefile
 include $(PAPARAZZI_SRC)/conf/boards/lisa_m_common.makefile

@@ -19,4 +19,5 @@ else
 $(error Unknown RADIO_CONTROL_PPM_PIN, configure it to either PA01 or PA10)
 endif
 
+include $(PAPARAZZI_SRC)/conf/boards/lisa_m_defaults.makefile
 include $(PAPARAZZI_SRC)/conf/boards/lisa_m_common_chibios.makefile
