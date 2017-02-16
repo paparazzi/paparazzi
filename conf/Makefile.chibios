@@ -23,14 +23,35 @@
 # This is the common Makefile for target using chibios
 #
 # chibios directory
-CHIBIOS =  $(PAPARAZZI_SRC)/sw/ext/chibios
+CHIBIOS = $(PAPARAZZI_SRC)/sw/ext/chibios
 
 # directory with board defines for chibios platforms (board specific)
 BOARD_DIR ?= $(BOARD)/chibios
 CHIBIOS_BOARD_DIR = $(PAPARAZZI_SRC)/sw/airborne/boards/$(BOARD_DIR)
 
-# chibos arch directory
-CHIBIOS_ARCH_DIR = $(PAPARAZZI_SRC)/sw/airborne/arch/chibios
+# chibos linker scripts directory
+# to keep backwards compatibility with Luftboot (Lia/Lisa M) 
+# and possibly other bootloaders (like PX4 bootloader)
+# we need to keep a separate linker script with a memory offset
+# because it is not possible to pass it dynamicaly to the linker
+# hence we have two destinations for linker scripts
+CHIBIOS_BOOTLOADER_SCRIPT =
+# check if we used 1 to define presence of luftboot
+ifeq ($(HAS_LUFTBOOT),1)
+  CHIBIOS_BOOTLOADER_SCRIPT = 1
+endif
+# check if we used TRUE to define presence of luftboot
+ifeq ($(HAS_LUFTBOOT),TRUE)
+  CHIBIOS_BOOTLOADER_SCRIPT = 1
+endif
+
+ifdef CHIBIOS_BOOTLOADER_SCRIPT
+# we use the modified linker script
+CHIBIOS_LINKER_DIR ?= $(PAPARAZZI_SRC)/sw/airborne/arch/chibios/
+else
+# we use the original linker script
+CHIBIOS_LINKER_DIR ?= $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/ld
+endif
 
 # Launch with "make Q=''" to get full command display
 Q=@
@@ -39,7 +60,7 @@ Q=@
 RTOS_DEBUG ?= 0
 
 ifeq (,$(findstring $(RTOS_DEBUG),0 FALSE))
-$(info DEBUGGING ON)
+$(info ChibiOS Debug mode is ON)
 $(TARGET).CFLAGS += \
 	-DCH_DBG_STATISTICS=TRUE \
 	-DCH_DBG_SYSTEM_STATE_CHECK=TRUE \
@@ -50,7 +71,6 @@ $(TARGET).CFLAGS += \
 	-DCH_DBG_FILL_THREADS=TRUE \
 	-DCH_DBG_THREADS_PROFILING=TRUE
 else
-$(info DEBUGGING OFF)
 $(TARGET).CFLAGS += -DCH_DBG_THREADS_PROFILING=TRUE
 endif
 
@@ -184,8 +204,7 @@ include $(PAPARAZZI_HOME)/conf/chibios/fatfs.mk
 endif
 
 # Define linker script file here
-LDSCRIPT= $(CHIBIOS_ARCH_DIR)/$(CHIBIOS_BOARD_LINKER)
-#LDSCRIPT= $(STARTUPLD)/$(CHIBIOS_BOARD_LINKER)
+LDSCRIPT= $(CHIBIOS_LINKER_DIR)/$(CHIBIOS_BOARD_LINKER)
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -285,7 +304,7 @@ CPPWARN = -Wall -Wextra
 UDEFS = $($(TARGET).CFLAGS) $(USER_CFLAGS) $(BOARD_CFLAGS)
 
 # Define ASM defines here
-UADEFS =
+UADEFS = $($(TARGET).CFLAGS) $(USER_CFLAGS) $(BOARD_CFLAGS)
 
 # List all user directories here
 # remove -I before include dir because ChibiOS is adding them again
@@ -316,7 +335,6 @@ endif
 
 # Settings for GDB
 # default port configuration for BMP
-BMP_PORT = /dev/ttyACM0
 GDB = $(shell which arm-none-eabi-gdb)
 
 

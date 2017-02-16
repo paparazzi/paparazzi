@@ -47,6 +47,7 @@
       <board name="li[s]?a_mx_.*"/>
       <board name="px4fmu_.*"/>
       <board name="elle*"/>
+      <board name="lia_.*"/>
     </boards>
   </mode>
   <mode name="USB DFU-UTIL">
@@ -86,6 +87,7 @@
       <board name="naze32*"/>
       <board name="cjmcu*"/>
       <board name="openpilot_revo.*"/>
+      <board name="lia_.*"/>
     </boards>
   </mode>
   <mode name="BlackMagic Probe (JTAG)">

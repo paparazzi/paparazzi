@@ -148,7 +148,7 @@ static inline uint16_t spi_resolve_slave_pin(uint8_t slave)
 static inline uint16_t spi_resolve_CR1(struct spi_transaction *t)
 {
   uint16_t CR1 = 0;
-#if defined(__STM32F10x_H) || defined(__STM32F4xx_H)
+#if defined(__STM32F10x_H) || defined(__STM32F105xC_H) || defined (__STM32F107xC_H) || defined(__STM32F4xx_H)
   if (t->dss == SPIDss16bit) {
     CR1 |= SPI_CR1_DFF;
   }
@@ -189,7 +189,7 @@ static inline uint16_t spi_resolve_CR1(struct spi_transaction *t)
     default:
       break;
   }
-#endif /* STM32F10x_H || STM32F4xx_H */
+#endif /* __STM32F10x_H || __STM32F105xC_H || __STM32F107xC_H || STM32F4xx_H */
   return CR1;
 }
 
