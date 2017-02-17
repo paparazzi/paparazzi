@@ -184,12 +184,9 @@
 /* allow to define ADC_CHANNEL_VSUPPLY in the airframe file*/
 #ifndef ADC_CHANNEL_VSUPPLY
 #define ADC_CHANNEL_VSUPPLY ADC_2
-#endif
-
-#if USE_ADC_2
 #define DefaultVoltageOfAdc(adc) (0.00975*adc)
 #else
-#define DefaultVoltageOfAdc(adc) (0.0021*adc) // scale internal vdd to 5V
+#define DefaultVoltageOfAdc(adc) (0.00384*adc)
 #endif
 
 /* External adc (pressure / air speed / 6.6v) */

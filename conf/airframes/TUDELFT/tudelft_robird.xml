@@ -12,6 +12,7 @@
   <firmware name="rotorcraft">
     <target name="ap" board="px4fmu_2.4" />
     <define name="BAT_CHECKER_DELAY" value="80" />
+    <define name="ADC_CHANNEL_VSUPPLY" value="ADC_1"/>
     <!-- amount of time it take for the bat to check -->
     <!-- to avoid bat low spike detection when strong pullup withch draws short sudden power-->
     <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="80" />
@@ -81,12 +82,13 @@
       <define name="HMC58XX_CHAN_Y_SIGN" value="+"/>
       <define name="HMC58XX_CHAN_Z_SIGN" value="+"/>
     </module>
-
   </modules>
 
   <section name="MISC">
     <define name="MilliAmpereOfAdc(adc)" value="((float)adc) * (3.3f / 4096.0f) * (90.0f / 5.0f)" />
     <!-- 100Amp = 2Volt -> 2482,42 tick/100Amp"(0.0402832*adc)" -->
+
+    <define name="DefaultVoltageOfAdc(adc)" value="(0.00384*adc)"/>
   </section>
   <section name="IMU" prefix="IMU_">
     <!-- replace this with your own calibration -->
