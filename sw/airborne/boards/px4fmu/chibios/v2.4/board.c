@@ -75,11 +75,13 @@ void __early_init(void) {
 #if HAL_USE_SDC || defined(__DOXYGEN__)
 /**
  * @brief   SDC card detection.
+ * PX4FMU_2.4 doesn't have a sense line for card insertion
+ * it is assumed always present.
  */
 bool sdc_lld_is_card_inserted(SDCDriver *sdcp) {
 
   (void)sdcp;
-  return !palReadPad(GPIOB, GPIOB_SDIO_DETECT);
+  return true;
 }
 
 /**
