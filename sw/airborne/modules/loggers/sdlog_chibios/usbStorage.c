@@ -223,7 +223,11 @@ const USBConfig usbConfig = {
 /* Turns on a LED when there is I/O activity on the USB port */
 static void usbActivity(bool active)
 {
+#ifdef GPIOC_LED4
   palWritePad(GPIOC, GPIOC_LED4, active);
+#else
+  (void)active;
+#endif
 }
 
 /* USB mass storage configuration */
@@ -279,6 +283,7 @@ static void thdUsbStorage(void *arg)
   // used via libopencm3, ISR are routed on pprz/opencm3 and cannot
   // be used concurrently by chibios api
   // Should be fixed when using chibios-rt branch
+  // FIXME: Is the comment still relevant?
   while (!chThdShouldTerminateX() && antiBounce) {
     const bool usbConnected = palReadPad(GPIOA, GPIOA_OTG_FS_VBUS);
     if (usbConnected) {

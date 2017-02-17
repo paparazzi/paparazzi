@@ -205,7 +205,7 @@ static void thd_startlog(void *arg)
     chThdSleepMilliseconds (sdOk == true ? 1000 : 200);
     static uint32_t timestamp = 0;
 
-#if HAL_USE_RTC
+#if HAL_USE_RTC && USE_GPS
     // FIXME this could be done somewhere else, like in sys_time
     // we sync gps time to rtc every 5 seconds
     if (chVTGetSystemTime() - timestamp > 5000) {
