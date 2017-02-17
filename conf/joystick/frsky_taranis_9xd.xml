@@ -1,0 +1,23 @@
+<joystick>
+	<input>
+		<axis index="0" name="throttle" />
+		<axis index="1" name="roll" />
+		<axis index="2" name="pitch" />
+		<axis index="3" name="yaw" />
+		<axis index="4" name="mode" />
+		<axis index="5" name="kill" />
+	</input>
+
+
+	<messages period="0.1">
+		<message class="datalink" name="RC_5CH" send_always="true">
+			<field name="throttle" value="Scale(throttle,0,128)" />
+			<field name="roll" value="roll" />
+			<field name="pitch" value="pitch" />
+			<field name="yaw" value="yaw" />
+			<field name="mode" value="Scale(mode,-127,128)" />
+			<field name="kill" value="kill" />
+		</message>
+	</messages>
+
+</joystick>
