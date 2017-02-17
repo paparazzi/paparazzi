@@ -1,0 +1,18 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="datalink_rc" dir="datalink">
+  <doc>
+    <description>
+      Receives radio packets over datalink (5 channels only for now)
+    </description>
+  </doc>
+  <header>
+    <file name="datalink_rc.h"/>
+  </header>
+  <init fun="datalink_rc_init()"/>
+  <datalink message="RC_5CH" fun="dl_parse_datalink_rc_5ch()"/>
+  <makefile>
+    <file name="datalink_rc.c"/>
+  </makefile>
+</module>
+
