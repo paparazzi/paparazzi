@@ -48,7 +48,8 @@ enum MissionInsertMode {
   Append,         ///< add at the last position
   Prepend,        ///< add before the current element
   ReplaceCurrent, ///< replace current element
-  ReplaceAll      ///< remove all elements and add the new one
+  ReplaceAll,     ///< remove all elements and add the new one
+  ReplaceNexts    ///< replace the next element and remove all the others
 };
 
 struct _mission_wp {
