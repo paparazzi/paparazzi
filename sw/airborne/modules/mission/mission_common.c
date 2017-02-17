@@ -74,9 +74,9 @@ bool mission_insert(enum MissionInsertMode insert, struct _mission_element *elem
       mission.insert_idx = 1;
       break;
     case ReplaceNexts:
-        tmp = (mission.current_idx + 1) % MISSION_ELEMENT_NB;
-        mission.elements[tmp] = *element;
-        mission.insert_idx = (mission.current_idx + 2) % MISSION_ELEMENT_NB;
+      tmp = (mission.current_idx + 1) % MISSION_ELEMENT_NB;
+      mission.elements[tmp] = *element;
+      mission.insert_idx = (mission.current_idx + 2) % MISSION_ELEMENT_NB;
     default:
       // unknown insertion mode
       return false;
