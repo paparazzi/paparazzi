@@ -202,6 +202,7 @@ else ifeq ($(BOARD), apogee)
   BARO_BOARD_CFLAGS += -DUSE_I2C1
   BARO_BOARD_SRCS += peripherals/mpl3115.c
   BARO_BOARD_SRCS += $(SRC_BOARD)/baro_board.c
+  BARO_PERIODIC_FREQUENCY ?= 50
 
 # Umarim
 else ifeq ($(BOARD), umarim)
