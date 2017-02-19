@@ -32,7 +32,7 @@
 #include "subsystems/electrical.h"
 #include "generated/airframe.h"
 #include "inter_mcu.h"
-#include "firmwares/fixedwing/autopilot.h"
+#include "autopilot.h"
 #include "subsystems/navigation/common_nav.h"
 
 #define NB_DATA 24
@@ -82,9 +82,9 @@ void generic_com_periodic(void)
   com_trans.buf[17] = electrical.vsupply; // decivolts
   com_trans.buf[18] = (uint8_t)(energy / 100); // deciAh
   com_trans.buf[19] = (uint8_t)(imcu_get_command(COMMAND_THROTTLE) * 100 / MAX_PPRZ);
-  com_trans.buf[20] = pprz_mode;
+  com_trans.buf[20] = autopilot_get_mode();
   com_trans.buf[21] = nav_block;
-  FillBufWith16bit(com_trans.buf, 22, autopilot_flight_time);
+  FillBufWith16bit(com_trans.buf, 22, autopilot.flight_time);
   i2c_transmit(&GENERIC_COM_I2C_DEV, &com_trans, GENERIC_COM_SLAVE_ADDR, NB_DATA);
 
 }

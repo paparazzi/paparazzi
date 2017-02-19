@@ -88,7 +88,7 @@ ARK RT
   </section>
 
   <command_laws>
-    <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
+    <call fun="motor_mixing_run(autopilot_get_motors_on(),FALSE,values)"/>
     <set servo="FRONT"  value="motor_mixing.commands[SERVO_FRONT]"/>
     <set servo="FRONT_RIGHT" value="motor_mixing.commands[SERVO_FRONT_RIGHT]"/>
     <set servo="BACK_RIGHT"   value="motor_mixing.commands[SERVO_BACK_RIGHT]"/>

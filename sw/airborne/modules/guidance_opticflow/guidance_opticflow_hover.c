@@ -152,7 +152,7 @@ static void stabilization_opticflow_vel_cb(uint8_t sender_id __attribute__((unus
     uint32_t stamp, float vel_x, float vel_y, float vel_z, float noise)
 {
   /* Check if we are in the correct AP_MODE before setting commands */
-  if (autopilot_mode != AP_MODE_MODULE) {
+  if (autopilot_get_mode() != AP_MODE_MODULE) {
     return;
   }
 

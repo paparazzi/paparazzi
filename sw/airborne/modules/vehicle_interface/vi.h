@@ -28,7 +28,7 @@
 
 #include "std.h"
 #include "math/pprz_algebra_int.h"
-#include "firmwares/rotorcraft/autopilot.h"
+#include "autopilot.h"
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/guidance.h"
 #include "firmwares/rotorcraft/navigation.h"

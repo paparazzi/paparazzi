@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2008-2012 The Paparazzi Team
- * Copyright (C) 2016 Gautier Hattenberger <gautier.hattenberger@enac.fr>
+ * Copyright (C) 2016-2017 Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *
  * This file is part of paparazzi.
  *
@@ -15,9 +15,8 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 /**
@@ -27,21 +26,15 @@
  *
  */
 
-#include <stdint.h>
-#include "firmwares/rotorcraft/autopilot.h"
+#include "firmwares/rotorcraft/autopilot_firmware.h"
 
 #include "generated/modules.h"
 
-#include "mcu_periph/uart.h"
-#include "mcu_periph/sys_time.h"
-#include "subsystems/radio_control.h"
-#include "subsystems/commands.h"
-#include "subsystems/actuators.h"
+#include <stdint.h>
+//#include "mcu_periph/sys_time.h"
 #include "subsystems/electrical.h"
-#include "subsystems/settings.h"
 #include "subsystems/datalink/telemetry.h"
-
-#include "generated/settings.h"
+#include "subsystems/radio_control.h"
 
 #if USE_GPS
 #include "subsystems/gps.h"
@@ -53,27 +46,8 @@
 #endif
 #endif
 
-#ifdef POWER_SWITCH_GPIO
-#include "mcu_periph/gpio.h"
-#endif
-
-#include "pprz_version.h"
-
-uint8_t  autopilot_mode;
 uint8_t  autopilot_mode_auto2;
-
-bool   autopilot_in_flight;
-uint32_t autopilot_in_flight_counter;
-uint16_t autopilot_flight_time;
-
-bool   autopilot_motors_on;
-bool   kill_throttle;
-
-bool   autopilot_rc;
-bool   autopilot_power_switch;
-
-bool   autopilot_ground_detected;
-bool   autopilot_detect_ground_once;
+static uint32_t autopilot_in_flight_counter;
 
 /* Geofence exceptions */
 #include "modules/nav/nav_geofence.h"
@@ -98,24 +72,11 @@ bool   autopilot_detect_ground_once;
 #define AUTOPILOT_IN_FLIGHT_MIN_THRUST 500
 #endif
 
+/** Z-acceleration threshold to detect ground in m/s^2 */
+#ifndef THRESHOLD_GROUND_DETECT
+#define THRESHOLD_GROUND_DETECT 25.0
+#endif
 
-void send_autopilot_version(struct transport_tx *trans, struct link_device *dev)
-{
-  static uint32_t ap_version = PPRZ_VERSION_INT;
-  static char *ver_desc = PPRZ_VERSION_DESC;
-  pprz_msg_send_AUTOPILOT_VERSION(trans, dev, AC_ID, &ap_version, strlen(ver_desc), ver_desc);
-}
-
-static void send_alive(struct transport_tx *trans, struct link_device *dev)
-{
-  pprz_msg_send_ALIVE(trans, dev, AC_ID, 16, MD5SUM);
-}
-
-static void send_attitude(struct transport_tx *trans, struct link_device *dev)
-{
-  struct FloatEulers *att = stateGetNedToBodyEulers_f();
-  pprz_msg_send_ATTITUDE(trans, dev, AC_ID, &(att->phi), &(att->psi), &(att->theta));
-};
 
 #if USE_MOTOR_MIXING
 #include "subsystems/actuators/motor_mixing.h"
@@ -134,13 +95,13 @@ static void send_status(struct transport_tx *trans, struct link_device *dev)
 #else
   uint8_t fix = 0;
 #endif
-  uint8_t in_flight = autopilot_in_flight;
-  uint8_t motors_on = autopilot_motors_on;
+  uint8_t in_flight = autopilot.in_flight;
+  uint8_t motors_on = autopilot.motors_on;
   uint16_t time_sec = sys_time.nb_sec;
   pprz_msg_send_ROTORCRAFT_STATUS(trans, dev, AC_ID,
                                   &imu_nb_err, &_motor_nb_err,
                                   &radio_control.status, &radio_control.frame_rate,
-                                  &fix, &autopilot_mode, &in_flight, &motors_on,
+                                  &fix, &autopilot.mode, &in_flight, &motors_on,
                                   &guidance_h.mode, &guidance_v_mode,
                                   &electrical.vsupply, &time_sec);
 }
@@ -175,7 +136,7 @@ static void send_fp(struct transport_tx *trans, struct link_device *dev)
                               &carrot_up,
                               &guidance_h.sp.heading,
                               &stabilization_cmd[COMMAND_THRUST],
-                              &autopilot_flight_time);
+                              &autopilot.flight_time);
 }
 
 static void send_fp_min(struct transport_tx *trans, struct link_device *dev)
@@ -194,11 +155,6 @@ static void send_fp_min(struct transport_tx *trans, struct link_device *dev)
 }
 
 #ifdef RADIO_CONTROL
-static void send_rc(struct transport_tx *trans, struct link_device *dev)
-{
-  pprz_msg_send_RC(trans, dev, AC_ID, RADIO_CONTROL_NB_CHANNEL, radio_control.values);
-}
-
 static void send_rotorcraft_rc(struct transport_tx *trans, struct link_device *dev)
 {
 #ifdef RADIO_KILL_SWITCH
@@ -217,18 +173,6 @@ static void send_rotorcraft_rc(struct transport_tx *trans, struct link_device *d
 }
 #endif
 
-#ifdef ACTUATORS
-static void send_actuators(struct transport_tx *trans, struct link_device *dev)
-{
-  pprz_msg_send_ACTUATORS(trans, dev, AC_ID , ACTUATORS_NB, actuators);
-}
-#endif
-
-static void send_dl_value(struct transport_tx *trans, struct link_device *dev)
-{
-  PeriodicSendDlValue(trans, dev);
-}
-
 static void send_rotorcraft_cmd(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_ROTORCRAFT_CMD(trans, dev, AC_ID,
@@ -239,104 +183,55 @@ static void send_rotorcraft_cmd(struct transport_tx *trans, struct link_device *
 }
 
 
-void autopilot_init(void)
+void autopilot_firmware_init(void)
 {
-  autopilot_motors_on = false;
-  kill_throttle = ! autopilot_motors_on;
-  autopilot_in_flight = false;
   autopilot_in_flight_counter = 0;
   autopilot_mode_auto2 = MODE_AUTO2;
-  autopilot_ground_detected = false;
-  autopilot_detect_ground_once = false;
-  autopilot_flight_time = 0;
-  autopilot_rc = true;
-  autopilot_power_switch = false;
-#ifdef POWER_SWITCH_GPIO
-  gpio_setup_output(POWER_SWITCH_GPIO);
-  gpio_clear(POWER_SWITCH_GPIO); // POWER OFF
-#endif
 
   // register messages
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AUTOPILOT_VERSION, send_autopilot_version);
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ALIVE, send_alive);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ROTORCRAFT_STATUS, send_status);
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ATTITUDE, send_attitude);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ENERGY, send_energy);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ROTORCRAFT_FP, send_fp);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ROTORCRAFT_FP_MIN, send_fp_min);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ROTORCRAFT_CMD, send_rotorcraft_cmd);
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DL_VALUE, send_dl_value);
-#ifdef ACTUATORS
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ACTUATORS, send_actuators);
-#endif
 #ifdef RADIO_CONTROL
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_RC, send_rc);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ROTORCRAFT_RADIO_CONTROL, send_rotorcraft_rc);
 #endif
 }
 
-/** AP periodic call
+/** autopilot event function
+ *
+ * used for automatic ground detection
  */
-void autopilot_periodic(void)
+void autopilot_event(void)
 {
-#if USE_GENERATED_AUTOPILOT
-  autopilot_generated_periodic();
-#else
-  autopilot_static_periodic();
+  if (autopilot.detect_ground_once
+#ifdef AP_MODE_FAILSAFE
+      || autopilot.mode == AP_MODE_FAILSAFE
 #endif
+     ) {
+    struct NedCoor_f *accel = stateGetAccelNed_f();
+    if (accel->z < -THRESHOLD_GROUND_DETECT ||
+        accel->z > THRESHOLD_GROUND_DETECT) {
+      autopilot.ground_detected = true;
+      autopilot.detect_ground_once = false;
+    }
+  }
 }
 
-/** set autopilot mode
+/** reset in_flight counter
  */
-void autopilot_set_mode(uint8_t new_autopilot_mode)
+void autopilot_reset_in_flight_counter(void);
+void autopilot_reset_in_flight_counter(void)
 {
-#if USE_GENERATED_AUTOPILOT
-  autopilot_generated_set_mode(new_autopilot_mode);
-#else
-  autopilot_static_set_mode(new_autopilot_mode);
-#endif
-}
-
-/** AP mode setting handler
- */
-void autopilot_SetModeHandler(float mode)
-{
-#if USE_GENERATED_AUTOPILOT
-  autopilot_generated_SetModeHandler(mode);
-#else
-  autopilot_static_SetModeHandler(mode);
-#endif
-}
-
-/** RC frame handler
- */
-void autopilot_on_rc_frame(void)
-{
-#if USE_GENERATED_AUTOPILOT
-  autopilot_generated_on_rc_frame();
-#else
-  autopilot_static_on_rc_frame();
-#endif
-}
-
-/** turn motors on/off, eventually depending of the current mode
- *  set kill_throttle accordingly
- */
-void autopilot_set_motors_on(bool motors_on)
-{
-#if USE_GENERATED_AUTOPILOT
-  autopilot_generated_set_motors_on(motors_on);
-#else
-  autopilot_static_set_motors_on(motors_on);
-#endif
-  kill_throttle = ! autopilot_motors_on;
+  autopilot_in_flight_counter = 0;
 }
 
 /** in flight check utility function
  */
 void autopilot_check_in_flight(bool motors_on)
 {
-  if (autopilot_in_flight) {
+  if (autopilot.in_flight) {
     if (autopilot_in_flight_counter > 0) {
       /* probably in_flight if thrust, speed and accel above IN_FLIGHT_MIN thresholds */
       if ((stabilization_cmd[COMMAND_THRUST] <= AUTOPILOT_IN_FLIGHT_MIN_THRUST) &&
@@ -344,7 +239,7 @@ void autopilot_check_in_flight(bool motors_on)
           (fabsf(stateGetAccelNed_f()->z) < AUTOPILOT_IN_FLIGHT_MIN_ACCEL)) {
         autopilot_in_flight_counter--;
         if (autopilot_in_flight_counter == 0) {
-          autopilot_in_flight = false;
+          autopilot.in_flight = false;
         }
       } else { /* thrust, speed or accel not above min threshold, reset counter */
         autopilot_in_flight_counter = AUTOPILOT_IN_FLIGHT_TIME;
@@ -359,7 +254,7 @@ void autopilot_check_in_flight(bool motors_on)
       if (stabilization_cmd[COMMAND_THRUST] > AUTOPILOT_IN_FLIGHT_MIN_THRUST) {
         autopilot_in_flight_counter++;
         if (autopilot_in_flight_counter == AUTOPILOT_IN_FLIGHT_TIME) {
-          autopilot_in_flight = true;
+          autopilot.in_flight = true;
         }
       } else { /* currently not in_flight and thrust below threshold, reset counter */
         autopilot_in_flight_counter = 0;

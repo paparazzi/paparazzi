@@ -13,7 +13,7 @@
 
 <blocks>
   <block name="init">
-    <while cond="(autopilot_flight_time)"></while>
+    <while cond="(autopilot.flight_time)"></while>
     <heading course="QFU" vmode="climb" climb="2.0" until="(GetPosAlt() > SECURITY_ALT)"/>
   </block>
 

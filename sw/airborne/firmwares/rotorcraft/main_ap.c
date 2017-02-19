@@ -60,7 +60,7 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 
 #include "subsystems/electrical.h"
 
-#include "firmwares/rotorcraft/autopilot.h"
+#include "autopilot.h"
 
 #include "subsystems/radio_control.h"
 
@@ -259,15 +259,15 @@ void main_periodic(void)
   /* run control loops */
   autopilot_periodic();
   /* set actuators     */
-  //actuators_set(autopilot_motors_on);
+  //actuators_set(autopilot_get_motors_on());
 #ifndef INTER_MCU_AP
-  SetActuatorsFromCommands(commands, autopilot_mode);
+  SetActuatorsFromCommands(commands, autopilot_get_mode());
 #else
-  intermcu_set_actuators(commands, autopilot_mode);
+  intermcu_set_actuators(commands, autopilot_get_mode());
 #endif
 
-  if (autopilot_in_flight) {
-    RunOnceEvery(PERIODIC_FREQUENCY, autopilot_flight_time++);
+  if (autopilot_in_flight()) {
+    RunOnceEvery(PERIODIC_FREQUENCY, autopilot.flight_time++);
   }
 
 #if defined DATALINK || defined SITL
@@ -284,7 +284,7 @@ void telemetry_periodic(void)
   /* initialisation phase during boot */
   if (boot) {
 #if DOWNLINK
-    send_autopilot_version(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
+    autopilot_send_version();
 #endif
     boot = false;
   }
@@ -305,26 +305,26 @@ void failsafe_check(void)
 {
 #if !USE_GENERATED_AUTOPILOT
   if (radio_control.status == RC_REALLY_LOST &&
-      autopilot_mode != AP_MODE_KILL &&
-      autopilot_mode != AP_MODE_HOME &&
-      autopilot_mode != AP_MODE_FAILSAFE &&
-      autopilot_mode != AP_MODE_NAV &&
-      autopilot_mode != AP_MODE_MODULE &&
-      autopilot_mode != AP_MODE_FLIP &&
-      autopilot_mode != AP_MODE_GUIDED) {
+      autopilot_get_mode() != AP_MODE_KILL &&
+      autopilot_get_mode() != AP_MODE_HOME &&
+      autopilot_get_mode() != AP_MODE_FAILSAFE &&
+      autopilot_get_mode() != AP_MODE_NAV &&
+      autopilot_get_mode() != AP_MODE_MODULE &&
+      autopilot_get_mode() != AP_MODE_FLIP &&
+      autopilot_get_mode() != AP_MODE_GUIDED) {
     autopilot_set_mode(RC_LOST_MODE);
   }
 
 #if FAILSAFE_ON_BAT_CRITICAL
-  if (autopilot_mode != AP_MODE_KILL &&
+  if (autopilot_get_mode() != AP_MODE_KILL &&
       electrical.bat_critical) {
     autopilot_set_mode(AP_MODE_FAILSAFE);
   }
 #endif
 
 #if USE_GPS
-  if (autopilot_mode == AP_MODE_NAV &&
-      autopilot_motors_on &&
+  if (autopilot_get_mode() == AP_MODE_NAV &&
+      autopilot_get_motors_on() &&
 #if NO_GPS_LOST_WITH_RC_VALID
       radio_control.status != RC_OK &&
 #endif
@@ -332,15 +332,15 @@ void failsafe_check(void)
     autopilot_set_mode(AP_MODE_FAILSAFE);
   }
 
-  if (autopilot_mode == AP_MODE_HOME &&
-      autopilot_motors_on && GpsIsLost()) {
+  if (autopilot_get_mode() == AP_MODE_HOME &&
+      autopilot_get_motors_on() && GpsIsLost()) {
     autopilot_set_mode(AP_MODE_FAILSAFE);
   }
 #endif
 
 #endif // !USE_GENERATED_AUTOPILOT
 
-  autopilot_check_in_flight(autopilot_motors_on);
+  autopilot_check_in_flight(autopilot_get_motors_on());
 }
 
 void main_event(void)
@@ -348,7 +348,7 @@ void main_event(void)
   /* event functions for mcu peripherals: i2c, usb_serial.. */
   mcu_event();
 
-  if (autopilot_rc) {
+  if (autopilot.use_rc) {
     RadioControlEvent(autopilot_on_rc_frame);
   }
 
@@ -356,9 +356,7 @@ void main_event(void)
   BaroEvent();
 #endif
 
-#if FAILSAFE_GROUND_DETECT || KILL_ON_GROUND_DETECT
-  DetectGroundEvent();
-#endif
+  autopilot_event();
 
   modules_event_task();
 }

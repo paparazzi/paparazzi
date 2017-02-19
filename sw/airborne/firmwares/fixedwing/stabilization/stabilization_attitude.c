@@ -33,7 +33,7 @@
 #include "firmwares/fixedwing/nav.h"
 #include "generated/airframe.h"
 #include CTRL_TYPE_H
-#include "firmwares/fixedwing/autopilot.h"
+#include "autopilot.h"
 
 /* outer loop parameters */
 float h_ctl_course_setpoint; /* rad, CW/north */
@@ -267,7 +267,7 @@ void h_ctl_course_loop(void)
   static float h_ctl_course_slew_rate = 0.;
   float nav_angle_saturation = h_ctl_roll_max_setpoint / h_ctl_course_pgain; /* heading error corresponding to max_roll */
   float half_nav_angle_saturation = nav_angle_saturation / 2.;
-  if (launch) {  /* prevent accumulator run-up on the ground */
+  if (autopilot.launch) {  /* prevent accumulator run-up on the ground */
     if (err > half_nav_angle_saturation) {
       h_ctl_course_slew_rate = Max(h_ctl_course_slew_rate, 0.);
       err = Min(err, (half_nav_angle_saturation + h_ctl_course_slew_rate));

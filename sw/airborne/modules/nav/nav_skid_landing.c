@@ -57,7 +57,7 @@
 #include "generated/airframe.h"
 #include "state.h"
 #include "modules/nav/nav_skid_landing.h"
-#include "firmwares/fixedwing/autopilot.h"
+#include "autopilot.h"
 #include "firmwares/fixedwing/nav.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 
@@ -164,10 +164,10 @@ bool nav_skid_landing_run(void)
     case Final:
       if ((stateGetPositionUtm_f()->alt - waypoints[td_waypoint].a)
           < v_ctl_landing_alt_throttle_kill) {
-        kill_throttle = 1;
+        autopilot_set_kill_throttle(true);
       }
       nav_skid_landing_glide(aw_waypoint, td_waypoint);
-      if (!kill_throttle) {
+      if (!autopilot_throttle_killed()) {
         nav_route_xy(waypoints[aw_waypoint].x, waypoints[aw_waypoint].y,
             waypoints[td_waypoint].x, waypoints[td_waypoint].y);
       }

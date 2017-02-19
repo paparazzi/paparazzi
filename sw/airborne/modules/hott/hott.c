@@ -216,7 +216,7 @@ static void hott_check_serial_data(uint32_t tnow)
 #if HOTT_SIM_TEXTMODE
         case HOTT_TEXT_MODE_REQUEST_ID:
           //Text mode, handle only if not armed!
-          if (!autopilot_motors_on) {
+          if (!autopilot_get_motors_on()) {
             hott_txt_msg.start_byte = 0x7b;
             hott_txt_msg.stop_byte = 0x7d;
             uint8_t tmp = (addr >> 4);  // Sensor type

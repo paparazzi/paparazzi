@@ -35,7 +35,7 @@
 #include "subsystems/ins.h"
 #include "state.h"
 
-#include "firmwares/rotorcraft/autopilot.h"
+#include "autopilot.h"
 #include "generated/modules.h"
 #include "generated/flight_plan.h"
 
@@ -315,10 +315,10 @@ bool nav_check_wp_time(struct EnuCoor_i *wp, uint16_t stay_time)
   if (dist_to_point < ARRIVED_AT_WAYPOINT) {
     if (!wp_reached) {
       wp_reached = true;
-      wp_entry_time = autopilot_flight_time;
+      wp_entry_time = autopilot.flight_time;
       time_at_wp = 0;
     } else {
-      time_at_wp = autopilot_flight_time - wp_entry_time;
+      time_at_wp = autopilot.flight_time - wp_entry_time;
     }
   } else {
     time_at_wp = 0;
@@ -404,14 +404,14 @@ void navigation_update_wp_from_speed(uint8_t wp, struct Int16Vect3 speed_sp, int
 
 bool nav_detect_ground(void)
 {
-  if (!autopilot_ground_detected) { return false; }
-  autopilot_ground_detected = false;
+  if (!autopilot.ground_detected) { return false; }
+  autopilot.ground_detected = false;
   return true;
 }
 
 bool nav_is_in_flight(void)
 {
-  return autopilot_in_flight;
+  return autopilot_in_flight();
 }
 
 /** Home mode navigation */

@@ -59,7 +59,7 @@ void guidance_flip_enter(void)
   flip_state = 0;
   flip_rollout = false;
   heading_save = stabilization_attitude_get_heading_i();
-  autopilot_mode_old = autopilot_mode;
+  autopilot_mode_old = autopilot_get_mode();
 }
 
 void guidance_flip_run(void)
@@ -77,7 +77,7 @@ void guidance_flip_run(void)
       flip_cmd_earth.y = 0;
       stabilization_attitude_set_earth_cmd_i(&flip_cmd_earth,
                                              heading_save);
-      stabilization_attitude_run(autopilot_in_flight);
+      stabilization_attitude_run(autopilot_in_flight());
       stabilization_cmd[COMMAND_THRUST] = 8000; //Thrust to go up first
       timer_save = 0;
 
@@ -114,7 +114,7 @@ void guidance_flip_run(void)
       flip_cmd_earth.y = 0;
       stabilization_attitude_set_earth_cmd_i(&flip_cmd_earth,
                                              heading_save);
-      stabilization_attitude_run(autopilot_in_flight);
+      stabilization_attitude_run(autopilot_in_flight());
 
       stabilization_cmd[COMMAND_THRUST] = FINAL_THRUST_LEVEL; //Thrust to stop falling
 

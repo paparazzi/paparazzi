@@ -86,7 +86,7 @@ Altough Switching the mode to auto2/NAV from any other mode will reset nav_headi
     <!--  old way  <set var="nav_heading" value="stateGetNedToBodyEulers_i()->psi">--> <!-- make sure the current heading is set just befor takeoff as far as possible, MAGNETO anyone?-->
       <call_once fun="nav_set_heading_current()"/> <!-- make sure the current heading is set just befor takeoff as far as possible -->
       <call_once fun="NavResurrect()"/>
-      <set value="0" var="kill_throttle"/>
+      <set value="0" var="autopilot.kill_throttle"/>
       <call_once fun="NavResurrect()"/><!-- Ressurect again, since sometimes once is not enough and motors will not start spinning -->
       <!-- TODO improve try takeof 5 times than give up an go to Holding point, something stuck in the prop, a finger maybe ;)-->
       <!--   <exception cond="!autopilot_motors_on" deroute="Takeoff"/>-->
@@ -131,7 +131,7 @@ Altough Switching the mode to auto2/NAV from any other mode will reset nav_headi
     <block name="Emergency" key="e" strip_button="Emergency" strip_icon="home_emergency.png">
        <exception cond="!nav_is_in_flight()" deroute="landed"/>
    <!-- If landing would takes to long take drastic measures, kill everything -->
-     <!-- <exception cond="Block_time > 50" value="1" var="kill_throttle"/>-->
+     <!-- <exception cond="Block_time > 50" value="1" var="autopilot.kill_throttle"/>-->
       <call_once fun="NavSetWaypointHere(WP__TDEMERGENCY)"/>
   <!--TODO: better test detect landing different surfaces and agles with sonar baro combi of AR-Drone 2 -->
       <call_once fun="NavStartDetectGround()"/>

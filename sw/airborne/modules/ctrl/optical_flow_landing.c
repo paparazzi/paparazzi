@@ -53,7 +53,7 @@ float previous_cov_err;
 #define MINIMUM_GAIN 0.1
 
 // used for automated landing:
-#include "firmwares/rotorcraft/autopilot.h"
+#include "autopilot.h"
 #include "subsystems/navigation/common_flight_plan.h"
 #include "subsystems/datalink/telemetry.h"
 

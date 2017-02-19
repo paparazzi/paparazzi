@@ -110,12 +110,12 @@ It has 8 buttons.
 
     <!-- resurrect throttle on start button -->
     <message class="ground" name="DL_SETTING" on_event="b_start">
-      <field name="index" value="IndexOfSetting(kill_throttle)"/>
+      <field name="index" value="IndexOfSetting(autopilot.kill_throttle)"/>
       <field name="value" value="0"/>
     </message>
     <!-- kill throttle when pressing both back and blue buttons at the same time -->
     <message class="ground" name="DL_SETTING" on_event="b_back && b_blue">
-      <field name="index" value="IndexOfSetting(kill_throttle)"/>
+      <field name="index" value="IndexOfSetting(autopilot.kill_throttle)"/>
       <field name="value" value="1"/>
     </message>
 

@@ -30,7 +30,7 @@
 
 #include "subsystems/navigation/common_nav.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
-#include "firmwares/fixedwing/autopilot.h"
+#include "autopilot.h"
 
 // Control
 gvf_con gvf_control;

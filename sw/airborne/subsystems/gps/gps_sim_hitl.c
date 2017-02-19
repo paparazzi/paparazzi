@@ -31,7 +31,7 @@
 #include "state.h"
 #include "guidance/guidance_h.h"
 #include "guidance/guidance_v.h"
-#include "firmwares/rotorcraft/autopilot.h"
+#include "autopilot.h"
 
 bool gps_available;
 uint32_t gps_sim_hitl_timer;
@@ -48,7 +48,7 @@ void gps_sim_hitl_event(void)
     gps.last_msg_ticks = sys_time.nb_sec_rem;
     gps.last_msg_time = sys_time.nb_sec;
     if (state.ned_initialized_i) {
-      if (!autopilot_in_flight) {
+      if (!autopilot_in_flight()) {
         struct Int32Vect2 zero_vector;
         INT_VECT2_ZERO(zero_vector);
         gh_set_ref(zero_vector, zero_vector, zero_vector);

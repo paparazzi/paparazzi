@@ -217,7 +217,7 @@ void main_periodic(void)
   }
 
   /* Set actuators */
-  SetActuatorsFromCommands(commands, autopilot_mode);
+  SetActuatorsFromCommands(commands, autopilot_get_mode());
 
   /* Periodic blinking */
   RunOnceEvery(10, LED_PERIODIC());

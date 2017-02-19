@@ -34,9 +34,7 @@ extern void handle_periodic_tasks_ap(void);
 extern void event_task_ap(void);
 
 extern void sensors_task(void);
-extern void navigation_task(void);
 extern void monitor_task(void);
 extern void reporting_task(void);
-extern void attitude_loop(void);
 
 #endif

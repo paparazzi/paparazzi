@@ -29,7 +29,7 @@
 
 #include <stdio.h>
 #include "modules/mission/mission_common.h"
-#include "firmwares/rotorcraft/autopilot.h"
+#include "autopilot.h"
 #include "firmwares/rotorcraft/navigation.h"
 #include "generated/flight_plan.h"
 

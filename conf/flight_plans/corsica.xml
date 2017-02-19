@@ -25,17 +25,17 @@
   </exceptions>
   <blocks>
     <block name="Wait GPS">
-      <set value="1" var="kill_throttle"/>
+      <set value="1" var="autopilot.kill_throttle"/>
       <while cond="!GpsFixValid()"/>
     </block>
     <block name="Holding point">
-      <set value="1" var="kill_throttle"/>
+      <set value="1" var="autopilot.kill_throttle"/>
       <attitude roll="0" throttle="0" vmode="throttle"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
       <exception cond="GetPosAlt() > GetAltRef()+25" deroute="Standby Menton"/>
-      <set value="0" var="kill_throttle"/>
-      <set value="0" var="autopilot_flight_time"/>
+      <set value="0" var="autopilot.kill_throttle"/>
+      <set value="0" var="autopilot.flight_time"/>
       <go throttle="1.0" vmode="throttle" wp="CLIMB" pitch="15"/>
     </block>
     <block name="Standby Menton" strip_button="Standby Menton" strip_icon="home.png">

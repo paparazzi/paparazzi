@@ -59,8 +59,8 @@ static inline void autopilot_arming_set(bool motors_on)
     if (autopilot_arming_state == STATE_MOTORS_ON) {
       autopilot_arming_state = STATE_STARTABLE;
       /* if turned off in an AUTO mode, remember it so it can be turned on again in AUTO */
-      if (autopilot_mode != MODE_MANUAL && autopilot_mode != AP_MODE_KILL &&
-          autopilot_mode != AP_MODE_FAILSAFE) {
+      if (autopilot_get_mode() != MODE_MANUAL && autopilot_get_mode() != AP_MODE_KILL &&
+          autopilot_get_mode() != AP_MODE_FAILSAFE) {
         autopilot_unarmed_in_auto = true;
       } else {
         autopilot_unarmed_in_auto = false;
@@ -96,11 +96,11 @@ static inline void autopilot_arming_check_motors_on(void)
     case STATE_STARTABLE:
       autopilot_motors_on = false;
       /* don't allow to start if in KILL mode or kill switch is on */
-      if (autopilot_mode == AP_MODE_KILL || kill_switch_is_on()) {
+      if (autopilot_get_mode() == AP_MODE_KILL || kill_switch_is_on()) {
         break;
       }
       else if (THROTTLE_STICK_DOWN() && rc_attitude_sticks_centered() &&
-               (autopilot_mode == MODE_MANUAL || autopilot_unarmed_in_auto)) {
+               (autopilot_get_mode() == MODE_MANUAL || autopilot_unarmed_in_auto)) {
         autopilot_arming_state = STATE_MOTORS_ON;
       }
       break;
@@ -110,8 +110,8 @@ static inline void autopilot_arming_check_motors_on(void)
         autopilot_motors_on = false;
         autopilot_arming_state = STATE_STARTABLE;
         /* if turned off in an AUTO mode, remember it so it can be turned on again in AUTO */
-        if (autopilot_mode != MODE_MANUAL && autopilot_mode != AP_MODE_KILL &&
-            autopilot_mode != AP_MODE_FAILSAFE) {
+        if (autopilot_get_mode() != MODE_MANUAL && autopilot_get_mode() != AP_MODE_KILL &&
+            autopilot_get_mode() != AP_MODE_FAILSAFE) {
           autopilot_unarmed_in_auto = true;
         } else {
           autopilot_unarmed_in_auto = false;

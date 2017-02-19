@@ -76,7 +76,7 @@ so e.g. HatDown(hat)
 
     <!-- kill throttle when pressing both fire buttons at the same time -->
     <message class="ground" name="DL_SETTING" on_event="fire && fire2">
-      <field name="index" value="IndexOfSetting(kill_throttle)"/>
+      <field name="index" value="IndexOfSetting(autopilot.kill_throttle)"/>
       <field name="value" value="1"/>
     </message>
 

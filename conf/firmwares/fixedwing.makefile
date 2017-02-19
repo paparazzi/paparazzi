@@ -27,10 +27,11 @@ include $(CFG_FIXEDWING)/autopilot.makefile
 
 # automatically include correct actuators for the ap target
 ACTUATOR_TARGET = ap
+ACTUATORS ?= none
 
 ifeq ($(TARGET),$(ACTUATOR_TARGET))
 
-  ifneq ($(ACTUATORS),)
+  ifneq ($(ACTUATORS),none)
     include $(CFG_SHARED)/$(ACTUATORS).makefile
   endif
 

@@ -186,7 +186,7 @@ static void on_DL_SETTING(IvyClientPtr app __attribute__((unused)),
   printf("setting %d %f\n", index, value);
 
   /*
-   * In case of HITL, update autopilot.launch from DL_SETTINGS
+   * In case of HITL, update nps_autopilot.launch from DL_SETTINGS
    * so the plane can be properly launched.
    *
    * In case of STIL nps_update_launch_from_dl() is an empty function
