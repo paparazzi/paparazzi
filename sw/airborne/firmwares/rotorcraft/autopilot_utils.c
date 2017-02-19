@@ -27,7 +27,7 @@
  */
 
 #include "firmwares/rotorcraft/autopilot_utils.h"
-#include "firmwares/rotorcraft/autopilot.h"
+#include "autopilot.h"
 #include "firmwares/rotorcraft/autopilot_rc_helpers.h"
 #include "state.h"
 #include "subsystems/radio_control.h"

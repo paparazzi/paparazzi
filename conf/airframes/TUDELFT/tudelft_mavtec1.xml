@@ -60,7 +60,7 @@
   </section>
 
   <command_laws>
-    <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
+    <call fun="motor_mixing_run(autopilot_get_motors_on(),FALSE,values)"/>
     <set servo="MOTOR_0"  value="motor_mixing.commands[MOTOR_FRONT_LEFT]"/>
     <set servo="MOTOR_1"  value="motor_mixing.commands[MOTOR_FRONT_RIGHT]"/>
     <set servo="MOTOR_2"  value="motor_mixing.commands[MOTOR_BACK_RIGHT]"/>

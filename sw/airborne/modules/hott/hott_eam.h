@@ -156,7 +156,7 @@ static void hott_update_eam_msg(struct HOTT_EAM_MSG *hott_eam_msg)
   hott_eam_msg->climbrate3s = (uint8_t)(120 + (stateGetSpeedEnu_i()->z) * 3 / (1 << INT32_SPEED_FRAC));
 
   //display ON when motors are armed
-  if (autopilot_motors_on) {
+  if (autopilot_get_motors_on()) {
     hott_eam_msg->alarm_invers2 |= 0x80;
   } else {
     hott_eam_msg->alarm_invers2 &= 0x7f;

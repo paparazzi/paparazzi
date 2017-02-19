@@ -645,10 +645,10 @@ void parse_ac_settings(int DevNameIndex, char *filename) {
         xmlTextReaderMoveToAttribute(reader,(const xmlChar *)"var");
 
         value = xmlTextReaderValue(reader);
-        if (xmlStrEqual(value, (const xmlChar *)"launch")) {
+        if (xmlStrEqual(value, (const xmlChar *)"autopilot.launch")) {
           DevNames[DevNameIndex].dl_launch_ind=valind;
         }
-        if (xmlStrEqual(value, (const xmlChar *)"kill_throttle")) {
+        if (xmlStrEqual(value, (const xmlChar *)"autopilot.kill_throttle")) {
           DevNames[DevNameIndex].kill_thr_ind=valind;
         }
         if (xmlStrEqual(value, (const xmlChar *)"flight_altitude")) {

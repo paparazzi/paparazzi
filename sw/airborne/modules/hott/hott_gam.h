@@ -145,7 +145,7 @@ static void hott_update_gam_msg(struct HOTT_GAM_MSG *hott_gam_msg)
   hott_gam_msg->speed_L = 10;
 
   //display ON when motors are armed
-  if (autopilot_motors_on) {
+  if (autopilot_get_motors_on()) {
     hott_gam_msg->alarm_invers2 |= 0x80;
   } else {
     hott_gam_msg->alarm_invers2 &= 0x7f;

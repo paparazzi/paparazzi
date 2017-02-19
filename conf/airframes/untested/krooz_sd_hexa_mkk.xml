@@ -69,7 +69,7 @@
   </section>
 
   <command_laws>
-    <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
+    <call fun="motor_mixing_run(autopilot_get_motors_on(),FALSE,values)"/>
     <set servo="FF"   value="motor_mixing.commands[0]"/>
     <set servo="FR"   value="motor_mixing.commands[1]"/>
     <set servo="DR"   value="motor_mixing.commands[2]"/>

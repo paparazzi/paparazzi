@@ -757,6 +757,8 @@ let create_ac = fun ?(confirm_kill=true) alert (geomap:G.widget) (acs_notebook:G
     match dl_settings_page with
         Some settings_tab ->
     (** Connect the strip buttons *)
+          let firmware = ExtXml.child af_xml "firmware" in
+          let firmware_name = ExtXml.attrib firmware "name" in
           let connect = fun ?(warning=true) setting_name strip_connect ->
             try
               let id = settings_tab#assoc setting_name in
@@ -770,13 +772,16 @@ let create_ac = fun ?(confirm_kill=true) alert (geomap:G.widget) (acs_notebook:G
               if warning then
                 fprintf stderr "Warning: %s not setable from GCS strip (i.e. not listed in the xml settings file)\n" setting_name in
           connect "flight_altitude" (fun f -> ac.strip#connect_shift_alt (fun x -> f (ac.target_alt+.x)));
-          connect "launch" ~warning:false ac.strip#connect_launch;
-          connect "kill_throttle" (ac.strip#connect_kill confirm_kill);
+          connect "autopilot.launch" ~warning:false ac.strip#connect_launch;
+          connect "autopilot.kill_throttle" (ac.strip#connect_kill confirm_kill);
           (* try to connect either pprz_mode (fixedwing) or autopilot_mode (rotorcraft) *)
-          connect "pprz_mode" ~warning:false (ac.strip#connect_mode 2.);
-          connect "autopilot_mode" ~warning:false (ac.strip#connect_mode 13.);
+          begin match firmware_name with
+          | "fixedwing" -> connect "autopilot.mode" ~warning:false (ac.strip#connect_mode 2.)
+          | "rotorcraft" -> connect "autopilot.mode" ~warning:false (ac.strip#connect_mode 13.)
+          | _ -> ()
+          end;
           connect "nav_shift" ~warning:false  ac.strip#connect_shift_lateral;
-          connect "autopilot_flight_time" ac.strip#connect_flight_time;
+          connect "autopilot.flight_time" ac.strip#connect_flight_time;
           let get_ac_unix_time = fun () -> ac.last_unix_time in
           connect ~warning:false "snav_desired_tow" (ac.strip#connect_apt get_ac_unix_time);
           begin (* Periodically update the appointment *)

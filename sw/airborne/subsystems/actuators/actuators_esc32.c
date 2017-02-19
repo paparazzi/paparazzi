@@ -156,7 +156,7 @@ void actuators_esc32_commit(void)
       case ESC32_STATUS_RUNNING:
         actuators_esc32_duty(ESC32_CAN_TT_GROUP, i, &actuators_esc32.cmds[(i - 1) * 4]);
 
-        if (!autopilot_motors_on) {
+        if (!autopilot_get_motors_on()) {
           actuators_esc32_disarm(ESC32_CAN_TT_GROUP, i);
           actuators_esc32.status = ESC32_STATUS_UNARMED;
         }
@@ -166,7 +166,7 @@ void actuators_esc32_commit(void)
       case ESC32_STATUS_UNARMED:
         actuators_esc32_duty(ESC32_CAN_TT_GROUP, i, &actuators_esc32.cmds[(i - 1) * 4]);
 
-        if (autopilot_motors_on) {
+        if (autopilot_get_motors_on()) {
           actuators_esc32_arm(ESC32_CAN_TT_GROUP, i);
           actuators_esc32_start(ESC32_CAN_TT_GROUP, i);
           actuators_esc32.status = ESC32_STATUS_RUNNING;

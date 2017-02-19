@@ -189,7 +189,7 @@ void actuators_ardrone_motor_status(void)
 
   // If a motor IRQ line is set
   if (gpio_get(ARDRONE_GPIO_PORT, ARDRONE_GPIO_PIN_IRQ_INPUT) == 1) {
-    if (autopilot_motors_on) {
+    if (autopilot_get_motors_on()) {
       if (last_motor_on) {
         // Tell paparazzi that one motor has stalled
         autopilot_set_motors_on(FALSE);
@@ -200,7 +200,7 @@ void actuators_ardrone_motor_status(void)
 
     }
   }
-  last_motor_on = autopilot_motors_on;
+  last_motor_on = autopilot_get_motors_on();
 
 }
 

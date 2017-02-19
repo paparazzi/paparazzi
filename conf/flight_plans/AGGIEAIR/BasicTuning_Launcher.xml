@@ -46,14 +46,14 @@
   </exceptions>
   <blocks>
     <block name="Wait GPS">
-      <set value="1" var="kill_throttle"/>
+      <set value="1" var="autopilot.kill_throttle"/>
       <while cond="!GpsFixValid()"/>
     </block>
     <block name="Geo init">
       <call_once fun="NavSetGroundReferenceHere()"/>
     </block>
     <block name="Setup Wait">
-      <set value="1" var="kill_throttle"/>
+      <set value="1" var="autopilot.kill_throttle"/>
       <while cond="TRUE"/>
     </block>
     <block name="Launch" strip_button="TakeOff (wp CLIMB)" strip_icon="takeoff.png">

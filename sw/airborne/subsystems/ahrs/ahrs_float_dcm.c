@@ -29,7 +29,7 @@
 
 #include "subsystems/ahrs/ahrs_float_dcm.h"
 #include "subsystems/ahrs/ahrs_float_utils.h"
-#include "firmwares/fixedwing/autopilot.h"  // launch detection
+#include "autopilot.h"  // launch detection
 
 #include "subsystems/ahrs/ahrs_float_dcm_algebra.h"
 #include "math/pprz_algebra_float.h"
@@ -434,7 +434,7 @@ void Drift_correction()
   }
 #if USE_MAGNETOMETER_ONGROUND
   PRINT_CONFIG_MSG("AHRS_FLOAT_DCM uses magnetometer prior to takeoff and GPS during flight")
-  else if (launch == FALSE) {
+  else if (autopilot.launch == FALSE) {
     float COGX = mag->x; // Non-Tilt-Compensated (for filter stability reasons)
     float COGY = mag->y; // Non-Tilt-Compensated (for filter stability reasons)
 

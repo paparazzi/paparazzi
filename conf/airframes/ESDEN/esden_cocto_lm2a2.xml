@@ -66,7 +66,7 @@ B2L -> CW
   </commands>
 
   <command_laws>
-    <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
+    <call fun="motor_mixing_run(autopilot_get_motors_on(),FALSE,values)"/>
     <set servo="A1U" value="motor_mixing.commands[0]"/>
     <set servo="A1L" value="motor_mixing.commands[1]"/>
     <set servo="A2U" value="motor_mixing.commands[2]"/>

@@ -76,7 +76,7 @@ The goal of this flightplan is to have a safe, simple no-brainer flightplan for 
       <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
       <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
       <exception cond="stateGetPositionEnu_f()->z > 5.0" deroute="Standby"/>
-      <set value="0" var="autopilot_flight_time"/>
+      <set value="0" var="autopilot.flight_time"/>
       <!-- If take-off to first point takes to long to reach somehow because of some reason, abort flight -->
      <exception cond="block_time > 30" deroute="land"/>
      <!-- To make sure that takoff is straight up -->

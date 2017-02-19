@@ -22,7 +22,7 @@
   </waypoints>
   <blocks>
     <block name="start">
-      <attitude pitch="20" roll="0" throttle="0.8" until="(autopilot_flight_time > 3)" vmode="throttle"/>
+      <attitude pitch="20" roll="0" throttle="0.8" until="(autopilot.flight_time > 3)" vmode="throttle"/>
       <go wp="START"/>
     </block>
     <block name="wait" strip_button="wait">

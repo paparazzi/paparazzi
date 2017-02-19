@@ -79,7 +79,7 @@ extern void actuators_asctec_set(bool motors_on);
 
 #define ActuatorAsctecSet(_i, _v) { actuators_asctec.cmds[_i] = _v; }
 #define ActuatorsAsctecInit() actuators_asctec_init()
-#define ActuatorsAsctecCommit() actuators_asctec_set(autopilot_motors_on)
+#define ActuatorsAsctecCommit() actuators_asctec_set(autopilot_get_motors_on())
 
 
 #endif /* ACTUATORS_ASCTEC_H */

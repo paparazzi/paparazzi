@@ -557,7 +557,7 @@ void stabilization_attitude_run(bool in_flight)
   /* Thrust is not applied */
 
   /* Disable tail when not armed, because this thing goes crazy */
-  if (!autopilot_motors_on) {
+  if (!autopilot_get_motors_on()) {
     stabilization_cmd[COMMAND_YAW] = 0;
   }
 }

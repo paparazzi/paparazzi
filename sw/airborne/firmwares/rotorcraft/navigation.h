@@ -33,7 +33,7 @@
 
 #include "subsystems/navigation/waypoints.h"
 #include "subsystems/navigation/common_flight_plan.h"
-#include "firmwares/rotorcraft/autopilot.h"
+#include "autopilot.h"
 
 /** default approaching_time for a wp */
 #ifndef CARROT
@@ -135,17 +135,17 @@ extern void nav_set_failsafe(void);
 
 /* ground detection */
 extern bool nav_detect_ground(void);
-#define NavStartDetectGround() ({ autopilot_detect_ground_once = true; false; })
+#define NavStartDetectGround() ({ autopilot.detect_ground_once = true; false; })
 #define NavDetectGround() nav_detect_ground()
 
 /* switching motors on/off */
 static inline void NavKillThrottle(void)
 {
-  if (autopilot_mode == AP_MODE_NAV) { autopilot_set_motors_on(FALSE); }
+  if (autopilot_get_mode() == AP_MODE_NAV) { autopilot_set_motors_on(FALSE); }
 }
 static inline void NavResurrect(void)
 {
-  if (autopilot_mode == AP_MODE_NAV) { autopilot_set_motors_on(TRUE); }
+  if (autopilot_get_mode() == AP_MODE_NAV) { autopilot_set_motors_on(TRUE); }
 }
 
 

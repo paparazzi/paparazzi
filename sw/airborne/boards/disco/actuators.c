@@ -135,7 +135,7 @@ void actuators_disco_commit(void)
   // When detected a suicide
   uint8_t bldc_status = obs_data.status & 0x07;
   if (obs_data.error == 2 && bldc_status != DISCO_BLDC_STATUS_STOPPED) {
-    kill_throttle = true;
+    autopilot_set_kill_throttle(true);
   }
 
   // Start the motors

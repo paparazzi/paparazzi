@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Gautier Hattenberger
+ * Copyright (C) 2012-2017 Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *
  * This file is part of paparazzi.
  *
@@ -14,64 +14,34 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 /**
- * @file firmwares/fixedwing/autopilot.c
+ * @file firmwares/fixedwing/autopilot_firmware.c
  *
- * Fixedwing autopilot inititalization.
+ * Fixedwing specific autopilot interface
+ * and initialization
  *
  */
 
-#include <stdint.h>
-#include "firmwares/fixedwing/autopilot.h"
+#include "firmwares/fixedwing/autopilot_firmware.h"
 
 #include "state.h"
 #include "firmwares/fixedwing/nav.h"
-
-#ifdef POWER_SWITCH_GPIO
-#include "mcu_periph/gpio.h"
-#endif
-
-#include "pprz_version.h"
-
-uint8_t pprz_mode;
-bool kill_throttle;
-uint8_t  mcu1_status;
-
-bool launch;
-
-/** flight time in seconds. */
-uint16_t autopilot_flight_time;
-
-uint8_t lateral_mode;
+#include <stdint.h>
 
 uint16_t vsupply;
 int32_t current;
 float energy;
 
-bool gps_lost;
-
-bool power_switch;
+uint8_t lateral_mode;
+uint8_t  mcu1_status;
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 #include "generated/settings.h"
-
-void send_autopilot_version(struct transport_tx *trans, struct link_device *dev)
-{
-  static uint32_t ap_version = PPRZ_VERSION_INT;
-  static char *ver_desc = PPRZ_VERSION_DESC;
-  pprz_msg_send_AUTOPILOT_VERSION(trans, dev, AC_ID, &ap_version, strlen(ver_desc), ver_desc);
-}
-
-static void send_alive(struct transport_tx *trans, struct link_device *dev)
-{
-  pprz_msg_send_ALIVE(trans, dev, AC_ID, 16, MD5SUM);
-}
 
 #if defined RADIO_CALIB && defined RADIO_CONTROL_SETTINGS
 #include "modules/settings/rc_settings.h"
@@ -88,15 +58,8 @@ uint8_t rc_settings_mode = 0;
 static void send_mode(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_PPRZ_MODE(trans, dev, AC_ID,
-                          &pprz_mode, &v_ctl_mode, &lateral_mode, &horizontal_mode, &rc_settings_mode, &mcu1_status);
+                          &autopilot.mode, &v_ctl_mode, &lateral_mode, &horizontal_mode, &rc_settings_mode, &mcu1_status);
 }
-
-static void send_attitude(struct transport_tx *trans, struct link_device *dev)
-{
-  struct FloatEulers *att = stateGetNedToBodyEulers_f();
-  pprz_msg_send_ATTITUDE(trans, dev, AC_ID,
-                         &(att->phi), &(att->psi), &(att->theta));
-};
 
 static void send_estimator(struct transport_tx *trans, struct link_device *dev)
 {
@@ -114,7 +77,7 @@ static void send_bat(struct transport_tx *trans, struct link_device *dev)
   }
   pprz_msg_send_BAT(trans, dev, AC_ID,
                     &v_ctl_throttle_slewed, &vsupply, &amps,
-                    &autopilot_flight_time, (uint8_t *)(&kill_throttle),
+                    &autopilot.flight_time, (uint8_t *)(&autopilot.kill_throttle),
                     &block_time, &stage_time, &e);
 }
 
@@ -128,11 +91,6 @@ static void send_energy(struct transport_tx *trans, struct link_device *dev)
   float curs = ((float)current) / 1000.0f;
   float power = vsup * curs;
   pprz_msg_send_ENERGY(trans, dev, AC_ID, &vsup, &curs, &e, &power);
-}
-
-static void send_dl_value(struct transport_tx *trans, struct link_device *dev)
-{
-  PeriodicSendDlValue(trans, dev);
 }
 
 // FIXME not the best place
@@ -172,34 +130,19 @@ void autopilot_send_mode(void)
 #endif
 }
 
-void autopilot_init(void)
+void autopilot_firmware_init(void)
 {
-  pprz_mode = PPRZ_MODE_AUTO2;
-  kill_throttle = false;
-  launch = false;
-  autopilot_flight_time = 0;
-
-  lateral_mode = LATERAL_MODE_MANUAL;
-
-  gps_lost = false;
-
-  power_switch = false;
-#ifdef POWER_SWITCH_GPIO
-  gpio_setup_output(POWER_SWITCH_GPIO);
-  gpio_clear(POWER_SWITCH_GPIO);
-#endif
+  vsupply = 0;
+  current = 0;
+  energy = 0.f;
 
 #if PERIODIC_TELEMETRY
   /* register some periodic message */
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AUTOPILOT_VERSION, send_autopilot_version);
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ALIVE, send_alive);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_PPRZ_MODE, send_mode);
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ATTITUDE, send_attitude);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ESTIMATOR, send_estimator);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AIRSPEED, send_airspeed);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_BAT, send_bat);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ENERGY, send_energy);
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DL_VALUE, send_dl_value);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DESIRED, send_desired);
 #if defined RADIO_CALIB && defined RADIO_CONTROL_SETTINGS
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_RC_SETTINGS, send_rc_settings);
