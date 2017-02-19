@@ -119,7 +119,7 @@ ARK RT
     <define name="MAG_Z_SENS" value="4.40442339014" integer="16"/>
   </section>
 
-    <section name="AHRS" prefix="AHRS_">
+  <section name="AHRS" prefix="AHRS_">
     <define name="H_X" value="0.3770441"/>
     <define name="H_Y" value="0.0193986"/>
     <define name="H_Z" value="0.9259921"/>

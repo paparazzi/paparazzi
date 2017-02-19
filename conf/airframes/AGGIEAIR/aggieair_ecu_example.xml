@@ -1,74 +1,38 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <!--
-RP3 Lisa MX
+Viking Motorsports ECU example
 -->
 
-<airframe name="RP3 Lisa MX">
+<airframe name="ECU">
 
   <firmware name="fixedwing">
-    <target name="ap" board="lisa_mx_2.1_chibios">
-      <module name="radio_control" type="sbus">
-        <configure name="SBUS_PORT" value="UART5"/>
-      </module>
+    <target name="ap" board="vms_ecu_1.0_chibios">
+      <configure name="PERIODIC_FREQUENCY" value="120"/>
+      <module name="radio_control" type="sbus"/>
     </target>
 
-    <!-- NOTE: if you want to use extra_dl module for HITL
-    you have to set TELEMETRY_FREQUENCY to CONTROL_FREQUENCY -->
-    <configure name="PERIODIC_FREQUENCY" value="100"/>
-    <define name="CONTROL_FREQUENCY" value="100"/>
-    <configure name="TELEMETRY_FREQUENCY" value="100"/>
-    <define name="SERVO_HZ" value="100"/>
-
-    <target name="nps" board="pc">
-      <module name="fdm" type="jsbsim"/>
-      <module name="radio_control" type="spektrum"/>
-      <!--configure name="USE_HITL" value="1"/-->
-      <configure name="INS_DEV" value="/dev/ttyUSB1"/>
-      <configure name="INS_BAUD" value="B921600"/>
-      <configure name="AP_DEV" value="/dev/ttyUSB2"/>
-      <configure name="AP_BAUD" value="B921600"/>
-    </target>
-
-    <module name="control"/>
-    <module name="navigation"/>
-
+    <!-- Communication -->
     <module name="telemetry"   type="transparent">
       <configure name="MODEM_PORT"        value="UART3"/>
       <configure name="MODEM_BAUD"        value="B57600"/>
     </module>
 
-    <module name="ins"       type="vectornav">
-      <configure name="VN_PORT" value="UART2"/>
-      <configure name="VN_BAUD" value="B921600"/>
+    <!-- Sensors -->
+    <module name="gps"           type="ublox">
+      <configure name="GPS_PORT" value="UART6"/>
+      <configure name="GPS_BAUD" value="B115200"/>
     </module>
 
-    <define name="AGR_CLIMB" />
-    <define name="POLY_OSAM_HALF_SWEEP_ENABLED" value="FALSE"/>
-    <define name="GEOFENCE_DATALINK_LOST_TIME" value="45"/>
+    <module name="imu" type="lisa_m_v2.1"/>
+    <module name="ahrs" type="float_mlkf"/>
+    <module name="ins"/>
+    <module name="control"/>
+    <module name="navigation"/>
   </firmware>
 
   <modules>
-    <module name="nav" type="line"/>
-    <module name="nav" type="flower"/>
-    <module name="nav" type="survey_poly_osam"/>
-    <module name="nav" type="launcher"/>
-    <module name="nav" type="skid_landing"/>
     <module name="sys_mon"/>
-    <module name="extra_dl">
-      <!-- in order to use uart1 without chibios we need to remap the peripheral-->
-      <define name="REMAP_UART1" value="TRUE"/>
-      <configure name="EXTRA_DL_PORT" value="UART1"/>
-      <configure name="EXTRA_DL_BAUD" value="B921600"/>
-    </module>
-    <module name="lidar_sf11"/>
-    <module name="battery_monitor.xml">
-      <define name="BATMON_REV4" value="1"/>
-      <define name="BATMON_CURRENT_OFFSET" value="-120"/>
-      <define name="BATMON_CURRENT_SENSITIVITY" value="25.6"/>
-      <define name="BATMON_TEMP_OFFSET" value="250"/>
-      <define name="BATMON_TEMP_SENSITIVITY" value="10"/>
-    </module>
   </modules>
 
   <!-- commands section -->
@@ -132,20 +96,34 @@ RP3 Lisa MX
   </section>
 
   <section name="IMU" prefix="IMU_">
-    <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
-    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
-    <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
+    <define name="ACCEL_X_NEUTRAL" value="-50"/>
+    <define name="ACCEL_Y_NEUTRAL" value="189"/>
+    <define name="ACCEL_Z_NEUTRAL" value="270"/>
+    <define name="ACCEL_X_SENS" value="0.59633793275" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="0.616609304777" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="0.624348656549" integer="16"/>
 
-    <!-- Dummy Mag values for NPS -
-         replace with your own calibration -->
-    <define name="MAG_X_NEUTRAL" value="0"/>
-    <define name="MAG_Y_NEUTRAL" value="0"/>
-    <define name="MAG_Z_NEUTRAL" value="0"/>
+    <define name="MAG_X_NEUTRAL" value="75"/>
+    <define name="MAG_Y_NEUTRAL" value="-10"/>
+    <define name="MAG_Z_NEUTRAL" value="7"/>
+    <define name="MAG_X_SENS" value="4.12309023427" integer="16"/>
+    <define name="MAG_Y_SENS" value="4.23759023915" integer="16"/>
+    <define name="MAG_Z_SENS" value="4.61141601045" integer="16"/>
+
+    <define name="BODY_TO_IMU_PHI" value="0." unit="deg" />
+    <define name="BODY_TO_IMU_THETA" value="0." unit="deg" />
+    <define name="BODY_TO_IMU_PSI" value="0." unit="deg" />
   </section>
 
   <section name="INS" prefix="INS_">
     <define name="ROLL_NEUTRAL_DEFAULT"  value="0" unit="deg"/>
     <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+  </section>
+
+  <section name="AHRS" prefix="AHRS_">
+    <define name="H_X" value="0.3770441"/>
+    <define name="H_Y" value="0.0193986"/>
+    <define name="H_Z" value="0.9259921"/>
   </section>
 
 
@@ -261,34 +239,6 @@ RP3 Lisa MX
     <define name="MIN_SPEED_LINE" value="5" unit="m/s"/>
   </section>
 
-  <!-- Skid Landing Configuration -->
-  <section name="LANDING" prefix="SKID_LANDING_">
-    <define name="AF_HEIGHT" value="50" unit="m"/>
-    <define name="FINAL_HEIGHT" value="50" unit="m"/>
-    <define name="FINAL_STAGE_TIME" value="10" unit="s"/>
-  </section>
 
-  <section name="SIMULATOR" prefix="NPS_">
-    <define name="JSBSIM_LAUNCHSPEED" value="25"/>
-    <define name="JSBSIM_MODEL" value="AGGIEAIR/minion" type="string"/>
-    <define name="SENSORS_PARAMS" value="nps_sensors_params_invariant.h" type="string"/>
-    <define name="JS_AXIS_THROTTLE" value="0"/>
-    <define name="JS_AXIS_THROTTLE_REVERSED" value="1"/>
-
-    <define name="JS_AXIS_ROLL" value="1"/>
-
-    <define name="JS_AXIS_PITCH" value="2"/>
-    <define name="JS_AXIS_PITCH_REVERSED" value="1"/>
-
-    <define name="JS_AXIS_YAW" value="3"/>
-    <define name="JS_AXIS_YAW_REVERSED" value="1"/>
-
-    <define name="JS_AXIS_FLAPS" value="5"/>
-    <define name="JS_AXIS_MODE" value="7"/>
-
-    <define name="JSBSIM_ROLL_TRIM" value="0.008"/>
-    <define name="JSBSIM_PITCH_TRIM" value="0.0375"/>
-    <define name="JSBSIM_YAW_TRIM" value="0.001"/>
-  </section>
 
 </airframe>
