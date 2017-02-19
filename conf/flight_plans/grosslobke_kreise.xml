@@ -12,7 +12,7 @@
   </waypoints>
   <blocks>
     <block NAME="start">
-      <attitude roll="0" pitch="0.1" vmode="throttle" throttle="0.7" until="(autopilot_flight_time > 5)"/>
+      <attitude roll="0" pitch="0.1" vmode="throttle" throttle="0.7" until="(autopilot.flight_time > 5)"/>
       <go wp="START"/>
     </block>
     <block NAME="east">

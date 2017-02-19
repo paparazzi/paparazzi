@@ -75,7 +75,7 @@ static inline void autopilot_arming_check_motors_on(void)
 {
 
   /* only allow switching motor if not in KILL mode */
-  if (autopilot_mode != AP_MODE_KILL) {
+  if (autopilot_get_mode() != AP_MODE_KILL) {
 
     switch (autopilot_arming_state) {
       case STATE_UNINIT:
@@ -99,7 +99,7 @@ static inline void autopilot_arming_check_motors_on(void)
         autopilot_arming_delay_counter = 0;
         if (!THROTTLE_STICK_DOWN() &&
             rc_attitude_sticks_centered() &&
-            (autopilot_mode == MODE_MANUAL || autopilot_unarmed_in_auto)) {
+            (autopilot_get_mode() == MODE_MANUAL || autopilot_unarmed_in_auto)) {
           autopilot_arming_state = STATE_ARMING;
         }
         break;
@@ -108,7 +108,7 @@ static inline void autopilot_arming_check_motors_on(void)
         autopilot_arming_delay_counter++;
         if (THROTTLE_STICK_DOWN() ||
             !rc_attitude_sticks_centered() ||
-            (autopilot_mode != MODE_MANUAL && !autopilot_unarmed_in_auto)) {
+            (autopilot_get_mode() != MODE_MANUAL && !autopilot_unarmed_in_auto)) {
           autopilot_arming_state = STATE_MOTORS_OFF_READY;
         } else if (autopilot_arming_delay_counter >= AUTOPILOT_ARMING_DELAY) {
           autopilot_arming_state = STATE_MOTORS_ON;
@@ -128,7 +128,7 @@ static inline void autopilot_arming_check_motors_on(void)
           autopilot_arming_state = STATE_MOTORS_ON;
         } else if (autopilot_arming_delay_counter == 0) {
           autopilot_arming_state = STATE_MOTORS_OFF_READY;
-          if (autopilot_mode != MODE_MANUAL) {
+          if (autopilot_get_mode() != MODE_MANUAL) {
             autopilot_unarmed_in_auto = true;
           } else {
             autopilot_unarmed_in_auto = false;

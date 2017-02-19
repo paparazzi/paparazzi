@@ -112,7 +112,7 @@ void sdlogger_spi_direct_periodic(void)
   sdcard_spi_periodic(&sdcard1);
 
 #if SDLOGGER_ON_ARM
-  if(autopilot_motors_on) {
+  if(autopilot_get_motors_on()) {
     sdlogger_spi.do_log = 1;
   } else {
     sdlogger_spi.do_log = 0;

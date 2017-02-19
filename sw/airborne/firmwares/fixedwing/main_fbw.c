@@ -40,7 +40,7 @@
 #include "subsystems/actuators.h"
 #include "subsystems/electrical.h"
 #include "subsystems/radio_control.h"
-#include "firmwares/fixedwing/autopilot.h"
+#include "autopilot.h"
 #include "paparazzi.h"
 #include "mcu_periph/i2c.h"
 #include "mcu_periph/uart.h"
@@ -173,7 +173,7 @@ void update_actuators(void)
     trimmed_commands[COMMAND_YAW] += ChopAbs(command_yaw_trim, MAX_PPRZ);
 #endif /* COMMAND_YAW */
 
-    SetActuatorsFromCommands(trimmed_commands, autopilot_mode);
+    SetActuatorsFromCommands(trimmed_commands, autopilot_get_mode());
     fbw_new_actuators = 0;
   }
 }

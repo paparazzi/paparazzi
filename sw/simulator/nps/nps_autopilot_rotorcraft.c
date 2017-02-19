@@ -45,7 +45,7 @@
 // for datalink_time hack
 #include "subsystems/datalink/datalink.h"
 
-struct NpsAutopilot autopilot;
+struct NpsAutopilot nps_autopilot;
 bool nps_bypass_ahrs;
 bool nps_bypass_ins;
 
@@ -63,7 +63,7 @@ bool nps_bypass_ins;
 
 void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, char *rc_dev)
 {
-  autopilot.launch = TRUE;
+  nps_autopilot.launch = TRUE;
 
   nps_radio_control_init(type_rc, num_rc_script, rc_dev);
   nps_electrical_init();
@@ -152,7 +152,7 @@ void nps_autopilot_run_step(double time)
 
   /* scale final motor commands to 0-1 for feeding the fdm */
   for (uint8_t i = 0; i < NPS_COMMANDS_NB; i++) {
-    autopilot.commands[i] = (double)motor_mixing.commands[i] / MAX_PPRZ;
+    nps_autopilot.commands[i] = (double)motor_mixing.commands[i] / MAX_PPRZ;
   }
 }
 

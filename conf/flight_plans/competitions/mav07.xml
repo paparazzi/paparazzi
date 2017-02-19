@@ -61,19 +61,19 @@
   </exceptions>
   <blocks>
     <block name="init">
-      <set value="1" var="kill_throttle"/>
+      <set value="1" var="autopilot.kill_throttle"/>
       <while cond="LessThan(NavBlockTime(), 10)"/>
       <set value="baro_MS5534A_pressure" var="baro_MS5534A_ground_pressure"/>
     </block>
     <block name="kill">
-      <set value="1" var="kill_throttle"/>
+      <set value="1" var="autopilot.kill_throttle"/>
       <while cond="TRUE">
         <go wp="STDBY"/>
       </while>
     </block>
     <block name="takeoff">
       <exception cond="GetPosAlt() > GetAltRef() + 25" deroute="standby"/>
-      <set value="0" var="kill_throttle"/>
+      <set value="0" var="autopilot.kill_throttle"/>
       <go wp="TAKEOFF"/>
     </block>
     <block name="standby" strip_button="STDBY">

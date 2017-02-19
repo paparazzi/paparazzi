@@ -50,7 +50,7 @@
 #include "subsystems/abi.h"
 
 // for launch
-#include "firmwares/fixedwing/autopilot.h"
+#include "autopilot.h"
 
 // for datalink_time hack
 #include "subsystems/datalink/datalink.h"
@@ -60,7 +60,7 @@
 #include "subsystems/datalink/downlink.h"
 #endif
 
-struct NpsAutopilot autopilot;
+struct NpsAutopilot nps_autopilot;
 bool nps_bypass_ahrs;
 bool nps_bypass_ins;
 
@@ -80,7 +80,7 @@ bool nps_bypass_ins;
 void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, char *rc_dev)
 {
 
-  autopilot.launch = FALSE;
+  nps_autopilot.launch = FALSE;
 
   if (rc_dev != NULL)  {
     nps_radio_control_init(type_rc, num_rc_script, rc_dev);
@@ -183,30 +183,30 @@ void nps_autopilot_run_step(double time)
   //PRINT_CONFIG_VAR(NPS_ACTUATOR_NAMES)
 
   for (uint8_t i = 0; i < NPS_COMMANDS_NB; i++) {
-    autopilot.commands[i] = (double)commands[i] / MAX_PPRZ;
+    nps_autopilot.commands[i] = (double)commands[i] / MAX_PPRZ;
   }
   // hack: invert pitch to fit most JSBSim models
-  autopilot.commands[COMMAND_PITCH] = -(double)commands[COMMAND_PITCH] / MAX_PPRZ;
+  nps_autopilot.commands[COMMAND_PITCH] = -(double)commands[COMMAND_PITCH] / MAX_PPRZ;
 #else
   PRINT_CONFIG_MSG("Using throttle, roll, pitch, yaw commands instead of explicit actuators.")
   PRINT_CONFIG_VAR(COMMAND_THROTTLE)
   PRINT_CONFIG_VAR(COMMAND_ROLL)
   PRINT_CONFIG_VAR(COMMAND_PITCH)
 
-  autopilot.commands[COMMAND_THROTTLE] = (double)commands[COMMAND_THROTTLE] / MAX_PPRZ;
-  autopilot.commands[COMMAND_ROLL] = (double)commands[COMMAND_ROLL] / MAX_PPRZ;
+  nps_autopilot.commands[COMMAND_THROTTLE] = (double)commands[COMMAND_THROTTLE] / MAX_PPRZ;
+  nps_autopilot.commands[COMMAND_ROLL] = (double)commands[COMMAND_ROLL] / MAX_PPRZ;
   // hack: invert pitch to fit most JSBSim models
-  autopilot.commands[COMMAND_PITCH] = -(double)commands[COMMAND_PITCH] / MAX_PPRZ;
+  nps_autopilot.commands[COMMAND_PITCH] = -(double)commands[COMMAND_PITCH] / MAX_PPRZ;
 #ifdef COMMAND_YAW
   PRINT_CONFIG_VAR(COMMAND_YAW)
-  autopilot.commands[COMMAND_YAW] = (double)commands[COMMAND_YAW] / MAX_PPRZ;
+  nps_autopilot.commands[COMMAND_YAW] = (double)commands[COMMAND_YAW] / MAX_PPRZ;
 #endif /* COMMAND_YAW */
 #endif /* NPS_ACTUATOR_NAMES */
 
   // do the launch when clicking launch in GCS
-  autopilot.launch = launch && !kill_throttle;
-  if (!launch) {
-    autopilot.commands[COMMAND_THROTTLE] = 0;
+  nps_autopilot.launch = autopilot.launch && !autopilot.kill_throttle;
+  if (!autopilot.launch) {
+    nps_autopilot.commands[COMMAND_THROTTLE] = 0;
   }
 }
 

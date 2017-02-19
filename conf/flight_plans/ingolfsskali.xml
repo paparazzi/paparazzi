@@ -22,7 +22,7 @@
     <block name="start">
       <set value="10" var="my_nav_roll"/>
       <set value="-10" var="my_nav_pitch"/>
-      <attitude pitch="5" roll="0" throttle="0.7" until="(autopilot_flight_time > 5)" vmode="throttle"/>
+      <attitude pitch="5" roll="0" throttle="0.7" until="(autopilot.flight_time > 5)" vmode="throttle"/>
       <go wp="1"/>
     </block>
     <block name="east">

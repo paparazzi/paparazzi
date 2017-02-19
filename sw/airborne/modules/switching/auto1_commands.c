@@ -22,7 +22,7 @@
 
 #include "auto1_commands.h"
 #include "generated/airframe.h"
-#include "firmwares/fixedwing/autopilot.h"
+#include "autopilot.h"
 #include "inter_mcu.h"
 
 void periodic_auto1_commands(void)

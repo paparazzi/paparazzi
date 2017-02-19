@@ -38,7 +38,7 @@
 #include "state.h"
 #include "generated/airframe.h"
 #include "firmwares/fixedwing/nav.h"
-#include "firmwares/fixedwing/autopilot.h"
+#include "autopilot.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 
 #include "mcu_periph/uart.h"
@@ -127,7 +127,7 @@ void nav_catapult_highrate_module(void)
         return;
       }
 #else
-      if (launch != 1) {
+      if (autopilot.launch != true) {
         // wait for simulated launch
         nav_catapult.timer = 0;
         return;
@@ -138,7 +138,7 @@ void nav_catapult_highrate_module(void)
     else if (nav_catapult.timer >= nav_catapult.motor_delay * NAV_CATAPULT_HIGHRATE_MODULE_FREQ) {
       // turn on motor
       NavVerticalThrottleMode(MAX_PPRZ * nav_catapult.initial_throttle);
-      launch = 1;
+      autopilot.launch = true;
       // go to next stage
       nav_catapult.status = NAV_CATAPULT_MOTOR_ON;
     }

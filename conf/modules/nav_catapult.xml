@@ -15,7 +15,7 @@ Block example:
 @verbatim
 <block name="Catapult Take-Off">
   <exception cond="GetPosAlt() > GetAltRef()+25" deroute="Standby"/>
-  <set value="0" var="kill_throttle"/>
+  <set value="0" var="autopilot.kill_throttle"/>
   <set value="0" var="autopilot_flight_time"/>
   <call fun="nav_catapult_run(WP_CLIMB)"/>
 </block>

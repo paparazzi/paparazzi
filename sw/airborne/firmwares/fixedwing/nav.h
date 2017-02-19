@@ -206,7 +206,7 @@ bool nav_approaching_xy(float x, float y, float from_x, float from_y, float appr
 
 #define NavAttitude(_roll) { \
     lateral_mode = LATERAL_MODE_ROLL; \
-    if(pprz_mode != PPRZ_MODE_AUTO1)  \
+    if(autopilot_get_mode() != PPRZ_MODE_AUTO1)  \
     {h_ctl_roll_setpoint = _roll;} \
   }
 
@@ -217,7 +217,7 @@ bool nav_approaching_xy(float x, float y, float from_x, float from_y, float appr
 
 #define nav_SetNavRadius(x) { if (x==1) nav_radius = DEFAULT_CIRCLE_RADIUS; else if (x==-1) nav_radius = -DEFAULT_CIRCLE_RADIUS; else nav_radius = x; }
 
-#define NavKillThrottle() { kill_throttle = 1; }
+#define NavKillThrottle() { autopilot_set_kill_throttle(true); }
 
 /// Get current x (east) position in local coordinates
 #define GetPosX() (stateGetPositionEnu_f()->x)

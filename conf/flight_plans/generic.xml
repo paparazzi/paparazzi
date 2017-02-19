@@ -10,7 +10,7 @@
   </waypoints>
   <blocks>
 	  <block name="Wait GPS">
-		  <set value="1" var="kill_throttle"/>
+		  <set value="1" var="autopilot.kill_throttle"/>
 		  <while cond="!GpsFixValid()"/>
 	  </block>
 	  <block name="Geo init">
