@@ -88,6 +88,7 @@
       <board name="cjmcu*"/>
       <board name="openpilot_revo.*"/>
       <board name="lia_.*"/>
+      <board name="vms_ecu_.*"/>
     </boards>
   </mode>
   <mode name="BlackMagic Probe (JTAG)">
