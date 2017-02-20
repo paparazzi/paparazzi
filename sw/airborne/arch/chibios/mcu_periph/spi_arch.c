@@ -218,7 +218,7 @@ static inline uint16_t spi_resolve_CR1(struct spi_transaction *t)
  *
  * @param[in] t pointer to a @p spi_transaction struct
  */
-static inline uint16_t spi_resolve_CR2(struct spi_transaction *t)
+static inline uint16_t spi_resolve_CR2(struct spi_transaction *t __attribute__((unused)))
 {
   uint16_t CR2 = 0;
 #if defined(__STM32F7xx_H)
@@ -260,9 +260,7 @@ static void handle_spi_thd(struct spi_periph *p)
     spi_resolve_slave_port(t->slave_idx),
     spi_resolve_slave_pin(t->slave_idx),
     spi_resolve_CR1(t),
-#if defined(__STM32F7xx_H)
     spi_resolve_CR2(t)
-#endif
   };
 
   // find max transaction length

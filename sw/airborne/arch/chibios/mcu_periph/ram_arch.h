@@ -42,7 +42,7 @@
 #define STD_SECTION   ".ram0"
 #define FAST_SECTION  ".ram0"
 #define DMA_SECTION   ".ram0"
-#if defined STM32F4
+#elif defined STM32F4
 #define STD_SECTION   ".ram0"
 #define FAST_SECTION  ".ram4"
 #define DMA_SECTION   ".ram0"
