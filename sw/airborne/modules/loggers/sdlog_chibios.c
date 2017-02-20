@@ -32,10 +32,11 @@
 #include "modules/loggers/sdlog_chibios.h"
 #include "modules/tlsf/tlsf_malloc.h"
 #include "mcu_periph/adc.h"
+#include "mcu.h"
 #include "led.h"
 
 #if HAL_USE_RTC
-#include <rtc.h>
+#include <hal_rtc.h>
 #include <time.h>
 #include "subsystems/gps.h"
 #endif
@@ -67,7 +68,6 @@ static __attribute__((noreturn)) void thd_startlog(void *arg);
 static THD_WORKING_AREA(wa_thd_bat_survey, 1024);
 static __attribute__((noreturn)) void thd_bat_survey(void *arg);
 static void  powerOutageIsr (void);
-static void systemDeepSleep (void);
 event_source_t powerOutageSource;
 event_listener_t powerOutageListener;
 
@@ -235,13 +235,12 @@ static void thd_bat_survey(void *arg)
   chEvtRegister(&powerOutageSource, &powerOutageListener, 1);
   chThdSleepMilliseconds (2000);
 
-  // FIXME: &ADCD1 and channel AD1_4 should not be hardcoded like this
-  register_adc_watchdog(&ADCD1, AD1_4_CHANNEL, V_ALERT, &powerOutageIsr);
+  register_adc_watchdog(&SDLOG_BAT_ADC, SDLOG_BAT_CHAN, V_ALERT, &powerOutageIsr);
 
   chEvtWaitOne(EVENT_MASK(1));
   sdlog_chibios_finish (true);
   chThdExit(0);
-  systemDeepSleep();
+  mcu_deep_sleep();
   chThdSleepMilliseconds (TIME_INFINITE);
   while (1); // never goes here, only to avoid compiler  warning: 'noreturn' function does return
 }
@@ -255,12 +254,3 @@ static void  powerOutageIsr (void)
   chEvtBroadcastI(&powerOutageSource);
 }
 
-
-static void systemDeepSleep (void)
-{
-  chSysLock();
-  SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
-  PWR->CR |= (PWR_CR_PDDS | PWR_CR_LPDS | PWR_CR_CSBF | PWR_CR_CWUF);
-  __WFE();
-  chSysUnlock();
-}

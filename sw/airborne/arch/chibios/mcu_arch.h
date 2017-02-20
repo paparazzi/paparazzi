@@ -44,4 +44,40 @@ extern void mcu_arch_init(void);
 extern bool recovering_from_hard_fault;
 #endif
 
+#include <ch.h>
+
+static inline void mcu_deep_sleep(void)
+{
+#if defined STM32F4
+  /* clear PDDS and LPDS bits */
+  PWR->CR &= ~(PWR_CR_PDDS | PWR_CR_LPDS);
+  /* set LPDS and clear  */
+  PWR->CR |= (PWR_CR_LPDS | PWR_CR_CSBF | PWR_CR_CWUF);
+#elif defined STM32F7
+  /* clear PDDS and LPDS bits */
+  PWR->CR1 &= ~(PWR_CR1_PDDS | PWR_CR1_LPDS);
+  /* set LPDS and clear  */
+  PWR->CR1 |= (PWR_CR1_LPDS | PWR_CR1_CSBF);
+#endif
+
+  /* Setup the deepsleep mask */
+  SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
+
+  __disable_irq();
+
+  __SEV();
+  __WFE();
+  __WFE();
+
+  __enable_irq();
+
+  /* clear the deepsleep mask */
+  SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk;
+}
+
+static inline void mcu_reset(void)
+{
+  NVIC_SystemReset();
+}
+
 #endif /* CHIBIOS_MCU_ARCH_H */

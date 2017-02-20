@@ -1,0 +1,20 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="imu_chimera" dir="imu">
+  <doc>
+    <description>
+      MPU9250 IMU via SPI.
+      Basically the same as imu_mpu9250_spi, only changed axes assignment for Chimera.
+    </description>
+  </doc>
+  <autoload name="imu_mpu9250_i2c"/>
+  <makefile target="!sim|nps|fbw">
+    <configure name="IMU_MPU9250_I2C_DEV" value="i2c1" case="upper|lower"/>
+    <define name="IMU_MPU9250_CHAN_X" value="1"/>
+    <define name="IMU_MPU9250_CHAN_Y" value="0"/>
+    <define name="IMU_MPU9250_CHAN_Z" value="2"/>
+    <define name="IMU_MPU9250_X_SIGN" value="-1"/>
+    <define name="IMU_MPU9250_Y_SIGN" value="-1"/>
+    <define name="IMU_MPU9250_Z_SIGN" value="-1"/>
+  </makefile>
+</module>

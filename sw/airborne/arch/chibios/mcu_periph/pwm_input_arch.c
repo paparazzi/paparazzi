@@ -100,14 +100,14 @@ void pwm_input_init(void)
 
 #ifdef USE_PWM_INPUT1
   icuStart(&PWM_INPUT1_ICU, &pwm_input1_cfg);
-  gpio_setup_pin_af(PWM_INPUT1_GPIO_PORT, PWM_INPUT1_GPIO_PIN, PWM_INPUT1_GPIO_AF);
+  gpio_setup_pin_af(PWM_INPUT1_GPIO_PORT, PWM_INPUT1_GPIO_PIN, PWM_INPUT1_GPIO_AF, FALSE);
   icuStartCapture(&PWM_INPUT1_ICU);
   icuEnableNotifications(&PWM_INPUT1_ICU);
 #endif
 
 #ifdef USE_PWM_INPUT2
   icuStart(&PWM_INPUT2_ICU, &pwm_input2_cfg);
-  gpio_setup_pin_af(PWM_INPUT2_GPIO_PORT, PWM_INPUT2_GPIO_PIN, PWM_INPUT2_GPIO_AF);
+  gpio_setup_pin_af(PWM_INPUT2_GPIO_PORT, PWM_INPUT2_GPIO_PIN, PWM_INPUT2_GPIO_AF, FALSE);
   icuStartCapture(&PWM_INPUT2_ICU);
   icuEnableNotifications(&PWM_INPUT2_ICU);
 #endif

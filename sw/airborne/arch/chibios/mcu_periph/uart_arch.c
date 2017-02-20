@@ -38,6 +38,7 @@
 #include <ch.h>
 #include <hal.h>
 #include "mcu_periph/gpio.h"
+#include BOARD_CONFIG
 
 struct SerialInit {
   SerialConfig *conf;
@@ -195,11 +196,20 @@ void uart1_init(void)
 #define USE_UART2_RX TRUE
 #endif
 
+/* by default disable HW flow control */
+#ifndef UART2_HW_FLOW_CONTROL
+#define UART2_HW_FLOW_CONTROL FALSE
+#endif
+
 static SerialConfig usart2_config = {
   UART2_BAUD,                                               /*     BITRATE    */
   0,                                                        /*    USART CR1   */
   USART_CR2_STOP1_BITS,                                     /*    USART CR2   */
+#if UART2_HW_FLOW_CONTROL
+  USART_CR3_CTSE | USART_CR3_RTSE
+#else
   0                                                         /*    USART CR3   */
+#endif
 };
 
 static struct SerialInit uart2_init_struct = { NULL, NULL, NULL, NULL, NULL };
@@ -852,6 +862,14 @@ void uart_periph_set_baudrate(struct uart_periph *p, uint32_t baud )
 void uart_periph_set_mode(struct uart_periph *p __attribute__((unused)), bool tx_enabled __attribute__((unused)),
                           bool rx_enabled __attribute__((unused)), bool hw_flow_control __attribute__((unused))) {}
 
+#if defined STM32F7
+#define __USART_CR1_M USART_CR1_M_0
+#elif defined STM32F4
+#define __USART_CR1_M USART_CR1_M
+#else
+#error unsupported board
+#endif
+
 /**
  * Set parity and stop bits
  */
@@ -866,21 +884,21 @@ void uart_periph_set_bits_stop_parity(struct uart_periph *p,
     conf->cr1 |= USART_CR1_PCE; // set parity control bit
     conf->cr1 &= ~USART_CR1_PS; // clear parity selection bit
     if (bits == UBITS_7) {
-      conf->cr1 &= ~USART_CR1_M; // clear word length bit
+      conf->cr1 &= ~__USART_CR1_M; // clear word length bit
     } else { // 8 data bits by default
-      conf->cr1 |= USART_CR1_M; // set word length bit
+      conf->cr1 |= __USART_CR1_M; // set word length bit
     }
   } else if (parity == UPARITY_ODD) {
     conf->cr1 |= USART_CR1_PCE; // set parity control bit
     conf->cr1 |= USART_CR1_PS; // set parity selection bit
     if (bits == UBITS_7) {
-      conf->cr1 &= ~USART_CR1_M; // clear word length bit
+      conf->cr1 &= ~__USART_CR1_M; // clear word length bit
     } else { // 8 data bits by default
-      conf->cr1 |= USART_CR1_M; // set word length bit
+      conf->cr1 |= __USART_CR1_M; // set word length bit
     }
   } else { // 8 data bist, NO_PARITY by default
     conf->cr1 &= ~USART_CR1_PCE; // clear parity control bit
-    conf->cr1 &= ~USART_CR1_M; // clear word length bit
+    conf->cr1 &= ~__USART_CR1_M; // clear word length bit
   }
   /* Configure USART stop bits */
   conf->cr2 &= ~USART_CR2_STOP; // clear stop bits
@@ -893,6 +911,29 @@ void uart_periph_set_bits_stop_parity(struct uart_periph *p,
   sdStop((SerialDriver*)(p->reg_addr));
   sdStart((SerialDriver*)(p->reg_addr), conf);
 }
+
+#ifdef STM32F7
+/**
+ * Invert data logic
+ */
+void uart_periph_invert_data_logic(struct uart_periph *p, bool invert_rx, bool invert_tx)
+{
+  struct SerialInit *init_struct = (struct SerialInit*)(p->init_struct);
+  SerialConfig *conf = init_struct->conf;
+  if (invert_rx) {
+    conf->cr2 |= USART_CR2_RXINV; // set rxinv bit
+  } else {
+    conf->cr2 &= ~USART_CR2_RXINV; // clear rxinv bit
+  }
+  if (invert_tx) {
+    conf->cr2 |= USART_CR2_TXINV; // set txinv bit
+  } else {
+    conf->cr2 &= ~USART_CR2_TXINV; // clear txinv bit
+  }
+  sdStop((SerialDriver*)(p->reg_addr));
+  sdStart((SerialDriver*)(p->reg_addr), conf);
+}
+#endif
 
 // Check free space and set a positive value for fd if valid
 // and lock driver with mutex
