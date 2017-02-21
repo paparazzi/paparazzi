@@ -134,10 +134,12 @@ def scale_measurements(meas, p):
 def estimate_mag_current_relation(meas):
     """Calculate linear coefficient of magnetometer-current relation."""
     coefficient = []
+    offset = []
     for i in range(0, 3):
         gradient, intercept, r_value, p_value, std_err = stats.linregress(meas[:, 3], meas[:, i])
         coefficient.append(gradient)
-    return coefficient
+        offset.append(intercept)
+    return coefficient, offset
 
 
 def print_xml(p, sensor, res):
@@ -376,3 +378,18 @@ def read_turntable_log(ac_id, tt_id, filename, _min, _max):
         if m and last_tt and _min < last_tt < _max:
             list_tt.append([last_tt, float(m.group(2)), float(m.group(3)), float(m.group(4))])
     return np.array(list_tt)
+
+
+def plot_mag_current_fit(measurements, coefficient, offset):
+    plt.subplot(2, 1, 1)
+    plt.plot(measurements[:, 0])
+    plt.plot(measurements[:, 1])
+    plt.plot(measurements[:, 2])
+    plt.plot(measurements[:, 3]*coefficient[0]+offset[0])
+    plt.plot(measurements[:, 3]*coefficient[1]+offset[1])
+    plt.plot(measurements[:, 3]*coefficient[2]+offset[2])
+    plt.ylabel('ADC')
+    plt.title("Raw measurements")
+    plt.subplot(2, 1, 2)
+    plt.plot(measurements[:, 3])
+    plt.show()
