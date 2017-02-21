@@ -158,10 +158,10 @@ static inline uint16_t spi_resolve_slave_pin(uint8_t slave)
  *
  * @param[in] t pointer to a @p spi_transaction struct
  */
-static inline uint16_t spi_resolve_CR1(struct spi_transaction *t)
+static inline uint16_t spi_resolve_CR1(struct spi_transaction *t __attribute__((unused)))
 {
   uint16_t CR1 = 0;
-#if defined(__STM32F10x_H) || defined(__STM32F105xC_H) || defined (__STM32F107xC_H) || defined(__STM32F4xx_H) || defined(__STM32F7xx_H)
+#if defined(STM32F1) || defined(STM32F4) || defined(STM32F7)
   if (t->dss == SPIDss16bit) {
     CR1 |= SPI_CR1_DFF;
   }
@@ -202,7 +202,7 @@ static inline uint16_t spi_resolve_CR1(struct spi_transaction *t)
     default:
       break;
   }
-#endif /* __STM32F10x_H || __STM32F105xC_H || __STM32F107xC_H || STM32F4xx_H || STM32F7xx_H */
+#endif /* STM32F1 || STM32F4 || STM32F7 */
   return CR1;
 }
 
@@ -221,14 +221,14 @@ static inline uint16_t spi_resolve_CR1(struct spi_transaction *t)
 static inline uint16_t spi_resolve_CR2(struct spi_transaction *t __attribute__((unused)))
 {
   uint16_t CR2 = 0;
-#if defined(__STM32F7xx_H)
+#if defined(STM32F7)
   if (t->dss == SPIDss16bit) {
     CR2 |= SPI_CR2_DS_0 | SPI_CR2_DS_1 | SPI_CR2_DS_2 | SPI_CR2_DS_3;
   }
   else {
     CR2 |= SPI_CR2_DS_0 | SPI_CR2_DS_1 | SPI_CR2_DS_2;
   }
-#endif /* STM32F7xx_H */
+#endif /* STM32F7 */
   return CR2;
 }
 

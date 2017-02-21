@@ -542,13 +542,27 @@
 /* Port-specific settings (override port settings defaulted in chcore.h).    */
 /*===========================================================================*/
 
-// point to correct interrupt vector when using ITCM flash on F7
-#if USE_ITCM
+
+
+#ifndef CORTEX_VTOR_INIT // try to find the correct init address if not defined
+
+#if USE_ITCM // point to correct interrupt vector when using ITCM flash on F7
 #define CORTEX_VTOR_INIT                    0x00200000U
+
+#elif LUFTBOOT // using LUFTBOOT bootloader
+#if defined STM32F4
+#define CORTEX_VTOR_INIT                    0x00004000U
 #else
+#define CORTEX_VTOR_INIT                    0x00002000U
+#endif
+
+#else // default value
 #define CORTEX_VTOR_INIT                    0x08000000U
 #endif
 
+#endif // CORTEX_VTOR_INIT
+
+// allow float for the ChibiOS print function (used with logger)
 #define CHPRINTF_USE_FLOAT 1
 
 #endif  /* _CHCONF_H_ */

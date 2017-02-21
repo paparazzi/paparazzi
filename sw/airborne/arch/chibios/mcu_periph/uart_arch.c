@@ -864,7 +864,7 @@ void uart_periph_set_mode(struct uart_periph *p __attribute__((unused)), bool tx
 
 #if defined STM32F7
 #define __USART_CR1_M USART_CR1_M_0
-#elif defined STM32F4
+#elif defined STM32F1 || defined STM32F4
 #define __USART_CR1_M USART_CR1_M
 #else
 #error unsupported board
