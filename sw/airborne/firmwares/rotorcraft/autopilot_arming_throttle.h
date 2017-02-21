@@ -79,7 +79,7 @@ static inline void autopilot_arming_check_motors_on(void)
 
     switch (autopilot_arming_state) {
       case STATE_UNINIT:
-        autopilot_motors_on = false;
+        autopilot.motors_on = false;
         autopilot_arming_delay_counter = 0;
         if (THROTTLE_STICK_DOWN()) {
           autopilot_arming_state = STATE_MOTORS_OFF_READY;
@@ -88,14 +88,14 @@ static inline void autopilot_arming_check_motors_on(void)
         }
         break;
       case STATE_WAITING:
-        autopilot_motors_on = false;
+        autopilot.motors_on = false;
         autopilot_arming_delay_counter = 0;
         if (THROTTLE_STICK_DOWN()) {
           autopilot_arming_state = STATE_MOTORS_OFF_READY;
         }
         break;
       case STATE_MOTORS_OFF_READY:
-        autopilot_motors_on = false;
+        autopilot.motors_on = false;
         autopilot_arming_delay_counter = 0;
         if (!THROTTLE_STICK_DOWN() &&
             rc_attitude_sticks_centered() &&
@@ -104,7 +104,7 @@ static inline void autopilot_arming_check_motors_on(void)
         }
         break;
       case STATE_ARMING:
-        autopilot_motors_on = false;
+        autopilot.motors_on = false;
         autopilot_arming_delay_counter++;
         if (THROTTLE_STICK_DOWN() ||
             !rc_attitude_sticks_centered() ||
@@ -115,14 +115,14 @@ static inline void autopilot_arming_check_motors_on(void)
         }
         break;
       case STATE_MOTORS_ON:
-        autopilot_motors_on = true;
+        autopilot.motors_on = true;
         autopilot_arming_delay_counter = AUTOPILOT_ARMING_DELAY;
         if (THROTTLE_STICK_DOWN()) {
           autopilot_arming_state = STATE_UNARMING;
         }
         break;
       case STATE_UNARMING:
-        autopilot_motors_on = true;
+        autopilot.motors_on = true;
         autopilot_arming_delay_counter--;
         if (!THROTTLE_STICK_DOWN()) {
           autopilot_arming_state = STATE_MOTORS_ON;
