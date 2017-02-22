@@ -33,10 +33,11 @@
  */
 #define SBUS_START_BYTE 0x0f
 #define SBUS_END_BYTE_0 0x00 // only possible end byte for SBUS v1
-#define SBUS_END_BYTE_1 0x04 // with SBUS v2 end byte is cycling
-#define SBUS_END_BYTE_2 0x14 // through the following 4 types
-#define SBUS_END_BYTE_3 0x24 // in order
-#define SBUS_END_BYTE_4 0x34 //
+#define SBUS_END_BYTE_1 0x04 // with SBUS v2 and 14CH mode
+#define SBUS_END_BYTE_2 0x14 // end byte is cycling
+#define SBUS_END_BYTE_3 0x24 // through the following 4 types
+#define SBUS_END_BYTE_4 0x34 // in order
+#define SBUS_END_BYTE_5 0x08 // with SBUS v2 and 12CH mode
 #define SBUS_BIT_PER_CHANNEL 11
 #define SBUS_BIT_PER_BYTE 8
 #define SBUS_FLAGS_BYTE 22
@@ -137,7 +138,8 @@ void sbus_common_decode_event(struct Sbus *sbus_p, struct uart_periph *dev)
                 rbyte == SBUS_END_BYTE_1 ||
                 rbyte == SBUS_END_BYTE_2 ||
                 rbyte == SBUS_END_BYTE_3 ||
-                rbyte == SBUS_END_BYTE_4) {
+                rbyte == SBUS_END_BYTE_4 ||
+                rbyte == SBUS_END_BYTE_5) {
               decode_sbus_buffer(sbus_p->buffer, sbus_p->pulses, &sbus_p->frame_available, sbus_p->ppm);
             }
             sbus_p->status = SBUS_STATUS_UNINIT;
