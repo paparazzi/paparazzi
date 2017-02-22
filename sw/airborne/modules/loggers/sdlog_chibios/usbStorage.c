@@ -221,12 +221,14 @@ const USBConfig usbConfig = {
 };
 
 /* Turns on a LED when there is I/O activity on the USB port */
-static void usbActivity(bool active)
+static void usbActivity(bool active __attribute__((unused)))
 {
+#ifdef SDLOG_USB_LED
   if (active)
     LED_ON(SDLOG_USB_LED);
   else
     LED_OFF(SDLOG_USB_LED);
+#endif
 }
 
 /* USB mass storage configuration */

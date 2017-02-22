@@ -36,6 +36,11 @@ CHIBIOS_BOARD_PLATFORM = STM32F7xx/platform.mk
 CHIBIOS_BOARD_PORT = ARMCMx/STM32F7xx/port.mk
 CHIBIOS_BOARD_LINKER = STM32F76xxI.ld
 CHIBIOS_BOARD_STARTUP = startup_stm32f7xx.mk
+
+# ITCM flash is a special flash that allow faster operations
+# At the moment it is not possible to flash the code in this mode using dfu-util
+# but it should work with the BlackMagicProbe or STLINK
+# By default, normal flash is used
 ifeq ($(USE_ITCM),1)
 $(TARGET).CFLAGS += -DUSE_ITCM=1
 DFU_ADDR = 0x00200000

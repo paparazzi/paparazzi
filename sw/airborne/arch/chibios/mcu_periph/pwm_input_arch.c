@@ -34,12 +34,12 @@
 #ifdef USE_PWM_INPUT1
 static void input1_period_cb(ICUDriver *icup) {
   pwm_input_period_tics[PWM_INPUT1] = icuGetPeriodX(icup);
-  pwm_input_period_valid[PWM_INPUT1] = TRUE;
+  pwm_input_period_valid[PWM_INPUT1] = true;
 }
 
 static void input1_width_cb(ICUDriver *icup) {
   pwm_input_duty_tics[PWM_INPUT1] = icuGetWidthX(icup);
-  pwm_input_duty_valid[PWM_INPUT1] = TRUE;
+  pwm_input_duty_valid[PWM_INPUT1] = true;
 }
 
 static ICUConfig pwm_input1_cfg = {
@@ -62,12 +62,12 @@ static ICUConfig pwm_input1_cfg = {
 #ifdef USE_PWM_INPUT2
 static void input2_period_cb(ICUDriver *icup) {
   pwm_input_period_tics[PWM_INPUT2] = icuGetPeriodX(icup);
-  pwm_input_period_valid[PWM_INPUT2] = TRUE;
+  pwm_input_period_valid[PWM_INPUT2] = true;
 }
 
 static void input2_width_cb(ICUDriver *icup) {
   pwm_input_duty_tics[PWM_INPUT2] = icuGetWidthX(icup);
-  pwm_input_duty_valid[PWM_INPUT2] = TRUE;
+  pwm_input_duty_valid[PWM_INPUT2] = true;
 }
 
 static ICUConfig pwm_input2_cfg = {
@@ -100,14 +100,14 @@ void pwm_input_init(void)
 
 #ifdef USE_PWM_INPUT1
   icuStart(&PWM_INPUT1_ICU, &pwm_input1_cfg);
-  gpio_setup_pin_af(PWM_INPUT1_GPIO_PORT, PWM_INPUT1_GPIO_PIN, PWM_INPUT1_GPIO_AF, FALSE);
+  gpio_setup_pin_af(PWM_INPUT1_GPIO_PORT, PWM_INPUT1_GPIO_PIN, PWM_INPUT1_GPIO_AF, false);
   icuStartCapture(&PWM_INPUT1_ICU);
   icuEnableNotifications(&PWM_INPUT1_ICU);
 #endif
 
 #ifdef USE_PWM_INPUT2
   icuStart(&PWM_INPUT2_ICU, &pwm_input2_cfg);
-  gpio_setup_pin_af(PWM_INPUT2_GPIO_PORT, PWM_INPUT2_GPIO_PIN, PWM_INPUT2_GPIO_AF, FALSE);
+  gpio_setup_pin_af(PWM_INPUT2_GPIO_PORT, PWM_INPUT2_GPIO_PIN, PWM_INPUT2_GPIO_AF, false);
   icuStartCapture(&PWM_INPUT2_ICU);
   icuEnableNotifications(&PWM_INPUT2_ICU);
 #endif

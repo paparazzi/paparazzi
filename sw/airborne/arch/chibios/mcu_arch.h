@@ -27,8 +27,6 @@
  * @file arch/chibios/mcu_arch.h
  * Microcontroller initialization function for ChibiOS
  *
- * ChibiOS initialized peripherals by itself, hence empty
- * functions for Paparazzi compatibility.
  */
 #ifndef CHIBIOS_MCU_ARCH_H
 #define CHIBIOS_MCU_ARCH_H
@@ -46,6 +44,14 @@ extern bool recovering_from_hard_fault;
 
 #include <ch.h>
 
+/** Put MCU into deep sleep mode
+ *
+ *  This can be used when closing the SD log files
+ *  right after a power down to save the remaining
+ *  energy for the SD card internal MCU
+ *
+ *  Never call this during flight!
+ */
 static inline void mcu_deep_sleep(void)
 {
 #if defined STM32F4
@@ -75,6 +81,8 @@ static inline void mcu_deep_sleep(void)
   SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk;
 }
 
+/** Request a software reset of the MCU
+ */
 static inline void mcu_reset(void)
 {
   NVIC_SystemReset();
