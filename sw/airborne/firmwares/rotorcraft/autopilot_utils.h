@@ -50,35 +50,18 @@ extern uint8_t ap_mode_of_two_switches(void)
 /** Set Rotorcraft commands.
  *  Limit thrust and/or yaw depending of the in_flight
  *  and motors_on flag status
+ *
+ *  A default implementation is provided, but the function can be redefined
+ *
+ *  @param[out] cmd_out output command vector in pprz_t (usually commands array)
+ *  @param[in/out] cmd_in input commands to apply, might be affected by in_flight and motors_on param (FIXME really ?)
+ *  @param[in] in_flight tells if rotorcraft is in flight
+ *  @param[in] motors_on tells if motors are running
  */
-#ifdef ROTORCRAFT_IS_HELI
-#define SetRotorcraftCommands(_cmd, _in_flight,  _motor_on) { \
-    commands[COMMAND_ROLL] = _cmd[COMMAND_ROLL];                \
-    commands[COMMAND_PITCH] = _cmd[COMMAND_PITCH];              \
-    commands[COMMAND_YAW] = _cmd[COMMAND_YAW];                  \
-    commands[COMMAND_THRUST] = _cmd[COMMAND_THRUST];            \
-  }
-#else
+extern void set_rotorcraft_commands(pprz_t *cmd_out, int32_t *cmd_in, bool in_flight, bool motors_on);
 
-#ifndef ROTORCRAFT_COMMANDS_YAW_ALWAYS_ENABLED
-#define SetRotorcraftCommands(_cmd, _in_flight,  _motor_on) { \
-    if (!(_in_flight)) { _cmd[COMMAND_YAW] = 0; }               \
-    if (!(_motor_on)) { _cmd[COMMAND_THRUST] = 0; }             \
-    commands[COMMAND_ROLL] = _cmd[COMMAND_ROLL];                \
-    commands[COMMAND_PITCH] = _cmd[COMMAND_PITCH];              \
-    commands[COMMAND_YAW] = _cmd[COMMAND_YAW];                  \
-    commands[COMMAND_THRUST] = _cmd[COMMAND_THRUST];            \
-  }
-#else
-#define SetRotorcraftCommands(_cmd, _in_flight,  _motor_on) { \
-    if (!(_motor_on)) { _cmd[COMMAND_THRUST] = 0; }             \
-    commands[COMMAND_ROLL] = _cmd[COMMAND_ROLL];                \
-    commands[COMMAND_PITCH] = _cmd[COMMAND_PITCH];              \
-    commands[COMMAND_YAW] = _cmd[COMMAND_YAW];                  \
-    commands[COMMAND_THRUST] = _cmd[COMMAND_THRUST];            \
-  }
-#endif
-#endif
+// in case, backward compatibility macro
+#define SetRotorcraftCommands(_cmd, _in_flight, _motors_on) set_rotorcraft_commands(commands, _cmd, _in_flight, _motors_on)
 
 #endif // AUTOPILOT_UTILS_H
 
