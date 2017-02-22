@@ -71,12 +71,15 @@ def main():
     if options.verbose:
         print("found "+str(len(measurements))+" records")
 
-    coefficient = calibration_utils.estimate_mag_current_relation(measurements)
+    coefficient, offset = calibration_utils.estimate_mag_current_relation(measurements)
 
     print("")
     print("<define name= \"MAG_X_CURRENT_COEF\" value=\""+str(coefficient[0])+"\"/>")
     print("<define name= \"MAG_Y_CURRENT_COEF\" value=\""+str(coefficient[1])+"\"/>")
     print("<define name= \"MAG_Z_CURRENT_COEF\" value=\""+str(coefficient[2])+"\"/>")
+
+    # calibration_utils.plot_measurements("MAG", measurements)
+    calibration_utils.plot_mag_current_fit(measurements, coefficient, offset)
 
 
 if __name__ == "__main__":
