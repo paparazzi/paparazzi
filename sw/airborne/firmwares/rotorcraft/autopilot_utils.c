@@ -128,3 +128,25 @@ uint8_t ap_mode_of_two_switches(void)
 #endif
 
 
+/** Set Rotorcraft commands.
+ *  Limit thrust and/or yaw depending of the in_flight
+ *  and motors_on flag status
+ */
+void WEAK set_rotorcraft_commands(pprz_t *cmd_out, int32_t *cmd_in, bool in_flight __attribute__((unused)), bool motors_on __attribute__((unused)))
+{
+#if !ROTORCRAFT_IS_HELI
+#if !ROTORCRAFT_COMMANDS_YAW_ALWAYS_ENABLED
+  if (!in_flight) {
+    cmd_in[COMMAND_YAW] = 0;
+  }
+#endif
+  if (!motors_on) {
+    cmd_in[COMMAND_THRUST] = 0;
+  }
+#endif
+  cmd_out[COMMAND_ROLL] = cmd_in[COMMAND_ROLL];
+  cmd_out[COMMAND_PITCH] = cmd_in[COMMAND_PITCH];
+  cmd_out[COMMAND_YAW] = cmd_in[COMMAND_YAW];
+  cmd_out[COMMAND_THRUST] = cmd_in[COMMAND_THRUST];
+}
+
