@@ -139,9 +139,15 @@ elif args.command == 'upload_file_and_run':
         print('Uploading \'' + f[1] + "\' from " + f[0] + " to " + args.folder)
         parrot_utils.uploadfile(ftp, args.folder + "/" + f[1], file(args.file, "rb"))
         sleep(0.5)
+        
+        from datetime import datetime
+        parrot_utils.execute_command(tn, "date --set '" + datetime.now().strftime('%Y-%m-%d %H:%M:%S') + "'")
+        print("Set date on Bebop to " + datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+        
         parrot_utils.execute_command(tn, "chmod 777 /data/ftp/" + args.folder + "/" + f[1])
         parrot_utils.execute_command(tn, "/data/ftp/" + args.folder + "/" + f[1] + " > /dev/null 2>&1 &")
         print("#pragma message: Upload and Start of ap.elf to Bebop succesful !")
+        
 
 elif args.command == 'upload_file':
     # Split filename and path
