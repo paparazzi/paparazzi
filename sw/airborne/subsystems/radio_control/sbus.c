@@ -28,6 +28,12 @@
 #include "subsystems/radio_control/sbus.h"
 #include BOARD_CONFIG
 
+#ifndef RC_POLARITY_GPIO_PORT
+#define RC_POLARITY_GPIO_PORT 0
+#endif
+#ifndef RC_POLARITY_GPIO_PIN
+#define RC_POLARITY_GPIO_PIN 0
+#endif
 
 /** SBUS struct */
 struct Sbus sbus;
@@ -47,7 +53,7 @@ static void send_sbus(struct transport_tx *trans, struct link_device *dev)
 // Init function
 void radio_control_impl_init(void)
 {
-  sbus_common_init(&sbus, &SBUS_UART_DEV);
+  sbus_common_init(&sbus, &SBUS_UART_DEV, RC_POLARITY_GPIO_PORT, RC_POLARITY_GPIO_PIN);
 
   // Register telemetry message
 #if PERIODIC_TELEMETRY

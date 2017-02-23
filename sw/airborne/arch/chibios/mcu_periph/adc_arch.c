@@ -54,6 +54,7 @@
 #include "mcu_periph/gpio.h"
 #include "hal.h"
 #include "std.h"
+#include "mcu_periph/ram_arch.h"
 
 
 // Macros to automatically enable the correct ADC
@@ -70,11 +71,11 @@
 // STM32F1xx
 #define ADC_SAMPLE_RATE ADC_SAMPLE_41P5
 #define ADC_CR2_CFG ADC_CR2_TSVREFE
-#elif defined(__STM32F4xx_H)
-// STM32F4xx
+#elif defined(__STM32F4xx_H) || defined(__STM32F7xx_H)
+// STM32F4xx | STM32F7xx
 #define ADC_SAMPLE_RATE ADC_SAMPLE_480
 #define ADC_CR2_CFG ADC_CR2_SWSTART
-#endif // STM32F1xx vs STM32F4xx
+#endif
 
 
 // Create channel map
@@ -137,7 +138,7 @@ ADCDriver *adcp_err = NULL;
 #ifndef ADC_BUF_DEPTH
 #define ADC_BUF_DEPTH (MAX_AV_NB_SAMPLE/2)
 #endif
-static adcsample_t adc_samples[ADC_NUM_CHANNELS * ADC_BUF_DEPTH];
+static IN_DMA_SECTION(adcsample_t adc_samples[ADC_NUM_CHANNELS * ADC_BUF_DEPTH]);
 
 #if USE_AD1
 static struct adc_buf *adc1_buffers[ADC_NUM_CHANNELS];

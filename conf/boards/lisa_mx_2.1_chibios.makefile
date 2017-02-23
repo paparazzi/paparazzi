@@ -14,9 +14,8 @@ $(TARGET).ARCHDIR = $(ARCH)
 
 RTOS=chibios
 
-# FPU on F4
-USE_FPU=yes
-HARD_FLOAT=yes
+## FPU on F4
+USE_FPU=hard
 
 $(TARGET).CFLAGS += -DSTM32F4 -DPPRZLINK_ENABLE_FD
 

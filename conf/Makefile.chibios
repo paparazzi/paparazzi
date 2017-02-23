@@ -50,7 +50,7 @@ ifdef CHIBIOS_BOOTLOADER_SCRIPT
 CHIBIOS_LINKER_DIR ?= $(PAPARAZZI_SRC)/sw/airborne/arch/chibios/
 else
 # we use the original linker script
-CHIBIOS_LINKER_DIR ?= $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/ld
+CHIBIOS_LINKER_DIR ?= $(STARTUPLD)
 endif
 
 # Launch with "make Q=''" to get full command display
@@ -129,6 +129,11 @@ endif
 # Enable this if you want link time optimizations (LTO)
 ifeq ($(USE_LTO),)
   USE_LTO = no
+else
+# Force LTO to 'no' if in debug mode
+ifeq (,$(findstring $(RTOS_DEBUG),0 FALSE))
+  USE_LTO = no
+endif
 endif
 
 # If enabled, this option allows to compile the application in THUMB mode.
@@ -171,9 +176,9 @@ ifeq ($(USE_EXCEPTIONS_STACKSIZE),)
   USE_EXCEPTIONS_STACKSIZE = 0x400
 endif
 
-# Enables the use of FPU on Cortex-M4.
+# Enables the use of FPU on Cortex-M4 / M7 (no, softfp, hard).
 ifeq ($(USE_FPU),)
-  USE_FPU = yes
+  USE_FPU = hard
 endif
 
 #
@@ -188,7 +193,7 @@ endif
 
 # Imported source files and paths
 # Startup files.
-include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/$(CHIBIOS_BOARD_STARTUP)
+include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/$(CHIBIOS_BOARD_STARTUP)
 # HAL-OSAL files (optional).
 include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/hal/ports/STM32/$(CHIBIOS_BOARD_PLATFORM)
@@ -196,9 +201,9 @@ include $(CHIBIOS_BOARD_DIR)/board.mk
 include $(CHIBIOS)/os/hal/osal/rt/osal.mk
 # RTOS files (optional).
 include $(CHIBIOS)/os/rt/rt.mk
-include $(CHIBIOS)/os/rt/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
+include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
 # Other files (optional).
-#include $(CHIBIOS)/test/rt/test.mk
+#
 ifeq ($(USE_FATFS), TRUE)
 include $(PAPARAZZI_HOME)/conf/chibios/fatfs.mk
 endif
@@ -246,9 +251,9 @@ TCSRC =
 TCPPSRC =
 
 # List ASM source files here
-ASMSRC = $(STARTUPASM) $(PORTASM) $(OSALASM)
+ASMXSRC = $(STARTUPASM) $(PORTASM) $(OSALASM)
 
-INCDIR = $(STARTUPINC) $(KERNINC) $(PORTINC) $(OSALINC) \
+INCDIR = $(CHIBIOS)/os/license $(STARTUPINC) $(KERNINC) $(PORTINC) $(OSALINC) \
          $(HALINC) $(PLATFORMINC) $(BOARDINC) $(FATFSINC) \
          $(CHIBIOS)/os/various $(CHIBIOS_BOARD_DIR) $(CHIBIOS_PROJECT_DIR)
 
@@ -308,7 +313,7 @@ UADEFS = $($(TARGET).CFLAGS) $(USER_CFLAGS) $(BOARD_CFLAGS)
 
 # List all user directories here
 # remove -I before include dir because ChibiOS is adding them again
-UINCDIR = $(patsubst -I%,%,$(INCLUDES))
+UINCDIR = $(CHIBIOS)/os/license $(patsubst -I%,%,$(INCLUDES))
 
 # List the user directory to look for the libraries here
 ULIBDIR =
@@ -334,7 +339,6 @@ endif
 
 
 # Settings for GDB
-# default port configuration for BMP
 GDB = $(shell which arm-none-eabi-gdb)
 
 
@@ -353,7 +357,7 @@ endif
 
 ###############################################################################
 
-RULESPATH = $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC
+RULESPATH = $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC
 #include $(RULESPATH)/rules.mk
 
 EXTRA_RULES_INCLUDE_PATH = $(PAPARAZZI_HOME)/conf/chibios/chibios_extra_rules.mk

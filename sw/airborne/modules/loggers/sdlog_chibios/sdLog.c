@@ -78,17 +78,25 @@
 #ifdef SDLOG_NEED_QUEUE
 #include "modules/loggers/sdlog_chibios/msg_queue.h"
 
-#if defined STM32F4XX
-#define NODMA_SECTION ".ram4"
-#define DMA_SECTION ".ram0"
-#elif  defined STM32F7XX
-#define NODMA_SECTION ".ram0"
-#define DMA_SECTION ".ram3"
-#else
-#error "section defined only for STM32F4 and STM32F7"
-#endif
+#include "mcu_periph/ram_arch.h"
 
-static msg_t   queMbBuffer[SDLOG_QUEUE_BUCKETS] __attribute__((section(NODMA_SECTION), aligned(8))) ;
+/*
+  The buffers that do DMA are the caches (named buf) in the FIL and FATFS struct of fatfs library
+  It's the only buffers that have to reside in DMA capable memory.
+
+  The buffer associated with message queue, and the cache buffer for caching file write 
+  could reside in non DMA  capable memory. 
+  
+  stm32f4 : regular sram : 128ko, dma,     slow
+            ccm sram     :  64ko,  no_dma, fast
+
+  stm32f7 : regular sram  : 256ko, dma only possible if data cache are explicitely flushed, fast
+            dtcm sram     : 64ko, dma, slow (no cache)
+ */
+
+
+
+static msg_t   IN_STD_SECTION (queMbBuffer[SDLOG_QUEUE_BUCKETS]);
 static MsgQueue messagesQueue;
 
 #define WRITE_BYTE_CACHE_SIZE 15 // limit overhead :
@@ -113,7 +121,7 @@ struct FilePoolUnit {
   uint8_t writeByteSeek;
 };
 
-static  struct FilePoolUnit fileDes[SDLOG_NUM_BUFFER] = {
+static  struct FilePoolUnit IN_DMA_SECTION (fileDes[SDLOG_NUM_BUFFER]) = {
   [0 ... SDLOG_NUM_BUFFER - 1] = {
     .fil = {0}, .inUse = false, .tagAtClose = false,
     .writeByteCache = NULL, .writeByteSeek = 0
@@ -138,8 +146,8 @@ struct _SdLogBuffer {
 #define LOG_MESSAGE_PREBUF_LEN (SDLOG_MAX_MESSAGE_LEN+sizeof(LogMessage))
 #endif //  SDLOG_NEED_QUEUE
 
-
-static FATFS fatfs; /* File system object */
+/* File system object */
+static IN_DMA_SECTION (FATFS fatfs); 
 
 #ifdef SDLOG_NEED_QUEUE
 static size_t logMessageLen(const LogMessage *lm);
@@ -801,7 +809,7 @@ static msg_t thdSdLog(void *arg)
   } ;
 
   UINT bw;
-  static struct PerfBuffer perfBuffers[SDLOG_NUM_BUFFER] __attribute__((section(DMA_SECTION), aligned(8))) = {
+  static IN_STD_SECTION(struct PerfBuffer perfBuffers[SDLOG_NUM_BUFFER]) = {
     [0 ... SDLOG_NUM_BUFFER - 1] = {.buffer = {0}, .size = 0}
   };
 
