@@ -115,7 +115,7 @@ void intermcu_set_actuators(pprz_t *command_values, uint8_t ap_mode __attribute_
   }
 
   // Set the autopilot motors on status
-  if (autopilot_motors_on) {
+  if (autopilot_get_motors_on()) {
     INTERMCU_SET_CMD_STATUS(INTERMCU_CMD_MOTORS_ON);
   }
 
