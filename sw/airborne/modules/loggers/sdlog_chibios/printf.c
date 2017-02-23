@@ -191,7 +191,7 @@ static void _chvsnprintf(char *buffer, BaseSequentialStream *chp, size_t size, c
         return true;
       }
     } else if (chp != NULL) {
-      chSequentialStreamPut(chp, _c);
+      streamPut(chp, _c);
       return false;
     }
     return false;

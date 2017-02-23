@@ -27,17 +27,21 @@ ifeq ($(USE_LTO),yes)
   OPT += -flto
 endif
 
-# FPU-related options
-ifeq ($(USE_FPU),yes)
-ifeq ($(HARD_FLOAT),yes)
-  OPT += -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fsingle-precision-constant
-else
-  OPT += -mfloat-abi=softfp -mfpu=fpv4-sp-d16 -fsingle-precision-constant
+# FPU options default (Cortex-M4 and Cortex-M7 single precision).
+ifeq ($(USE_FPU_OPT),)
+  USE_FPU_OPT = -mfpu=fpv4-sp-d16 -fsingle-precision-constant
 endif
-  DDEFS += -DCORTEX_USE_FPU=TRUE
+
+# FPU-related options
+ifeq ($(USE_FPU),)
+  USE_FPU = no
+endif
+ifneq ($(USE_FPU),no)
+  OPT    += -mfloat-abi=$(USE_FPU) $(USE_FPU_OPT)
+  DDEFS  += -DCORTEX_USE_FPU=TRUE
   DADEFS += -DCORTEX_USE_FPU=TRUE
 else
-  DDEFS += -DCORTEX_USE_FPU=FALSE
+  DDEFS  += -DCORTEX_USE_FPU=FALSE
   DADEFS += -DCORTEX_USE_FPU=FALSE
 endif
 
@@ -80,8 +84,8 @@ else
   ACSRC += $(CSRC)
   ACPPSRC += $(CPPSRC)
 endif
-ASRC	  = $(ACSRC)$(ACPPSRC)
-TSRC	  = $(TCSRC)$(TCPPSRC)
+ASRC	  = $(ACSRC) $(ACPPSRC)
+TSRC	  = $(TCSRC) $(TCPPSRC)
 SRCPATHS  = $(sort $(dir $(ASMXSRC)) $(dir $(ASMSRC)) $(dir $(ASRC)) $(dir $(TSRC)))
 
 # Various directories
@@ -115,24 +119,27 @@ ASFLAGS   = $(MCFLAGS) -Wa,-amhls=$(LSTDIR)/$(notdir $(<:.s=.lst)) $(ADEFS)
 ASXFLAGS  = $(MCFLAGS) -Wa,-amhls=$(LSTDIR)/$(notdir $(<:.S=.lst)) $(ADEFS)
 CFLAGS    = $(MCFLAGS) $(OPT) $(COPT) $(CWARN) -Wa,-alms=$(LSTDIR)/$(notdir $(<:.c=.lst)) $(DEFS)
 CPPFLAGS  = $(MCFLAGS) $(OPT) $(CPPOPT) $(CPPWARN) -Wa,-alms=$(LSTDIR)/$(notdir $(<:.cpp=.lst)) $(DEFS)
-LDFLAGS   = $(MCFLAGS) $(OPT) -nostartfiles $(LLIBDIR) -Wl,-Map=$(BUILDDIR)/$(PROJECT).map,--cref,--no-warn-mismatch,--library-path=$(RULESPATH),--script=$(LDSCRIPT)$(LDOPT)
+LDFLAGS   = $(MCFLAGS) $(OPT) -nostartfiles $(LLIBDIR) -Wl,-Map=$(BUILDDIR)/$(PROJECT).map,--cref,--no-warn-mismatch,--library-path=$(RULESPATH)/ld,--script=$(LDSCRIPT)$(LDOPT)
 
 # Thumb interwork enabled only if needed because it kills performance.
-ifneq ($(TSRC),)
+ifneq ($(strip $(TSRC)),)
   CFLAGS   += -DTHUMB_PRESENT
   CPPFLAGS += -DTHUMB_PRESENT
   ASFLAGS  += -DTHUMB_PRESENT
-  ifneq ($(ASRC),)
+  ASXFLAGS += -DTHUMB_PRESENT
+  ifneq ($(strip $(ASRC)),)
     # Mixed ARM and THUMB mode.
     CFLAGS   += -mthumb-interwork
     CPPFLAGS += -mthumb-interwork
     ASFLAGS  += -mthumb-interwork
+    ASXFLAGS += -mthumb-interwork
     LDFLAGS  += -mthumb-interwork
   else
     # Pure THUMB mode, THUMB C code cannot be called by ARM asm code directly.
     CFLAGS   += -mno-thumb-interwork -DTHUMB_NO_INTERWORKING
     CPPFLAGS += -mno-thumb-interwork -DTHUMB_NO_INTERWORKING
     ASFLAGS  += -mno-thumb-interwork -DTHUMB_NO_INTERWORKING -mthumb
+    ASXFLAGS += -mno-thumb-interwork -DTHUMB_NO_INTERWORKING -mthumb
     LDFLAGS  += -mno-thumb-interwork -mthumb
   endif
 else
@@ -140,11 +147,13 @@ else
   CFLAGS   += -mno-thumb-interwork
   CPPFLAGS += -mno-thumb-interwork
   ASFLAGS  += -mno-thumb-interwork
+  ASXFLAGS += -mno-thumb-interwork
   LDFLAGS  += -mno-thumb-interwork
 endif
 
 # Generate dependency information
 ASFLAGS  += -MD -MP -MF $(BUILDDIR)/.dep/$(@F).d
+ASXFLAGS += -MD -MP -MF $(BUILDDIR)/.dep/$(@F).d
 CFLAGS   += -MD -MP -MF $(BUILDDIR)/.dep/$(@F).d
 CPPFLAGS += -MD -MP -MF $(BUILDDIR)/.dep/$(@F).d
 
@@ -239,6 +248,7 @@ else
 endif
 
 %.elf: $(OBJS) $(LDSCRIPT)
+#$(BUILDDIR)/$(PROJECT).elf: $(OBJS) $(LDSCRIPT)
 ifeq ($(USE_VERBOSE_COMPILE),yes)
 	@echo
 	$(LD) $(OBJS) $(LDFLAGS) $(LIBS) -o $@
@@ -247,7 +257,7 @@ else
 	@$(LD) $(OBJS) $(LDFLAGS) $(LIBS) -o $@
 endif
 
-%.hex: %.elf $(LDSCRIPT)
+%.hex: %.elf
 ifeq ($(USE_VERBOSE_COMPILE),yes)
 	$(HEX) $< $@
 else
@@ -255,7 +265,7 @@ else
 	@$(HEX) $< $@
 endif
 
-%.bin: %.elf $(LDSCRIPT)
+%.bin: %.elf
 ifeq ($(USE_VERBOSE_COMPILE),yes)
 	$(BIN) $< $@
 else
@@ -263,7 +273,7 @@ else
 	@$(BIN) $< $@
 endif
 
-%.srec: %.elf $(LDSCRIPT)
+%.srec: %.elf
 ifeq ($(USE_VERBOSE_COMPILE),yes)
 	$(SREC) $< $@
 else
@@ -271,7 +281,7 @@ else
 	@$(SREC) $< $@
 endif
 
-%.dmp: %.elf $(LDSCRIPT)
+%.dmp: %.elf
 ifeq ($(USE_VERBOSE_COMPILE),yes)
 	$(OD) $(ODFLAGS) $< > $@
 	$(SZ) $<

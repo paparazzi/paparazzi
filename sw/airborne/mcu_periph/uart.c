@@ -296,3 +296,7 @@ void WEAK uart_arch_init(void)
 {
 }
 
+void WEAK uart_periph_invert_data_logic(struct uart_periph *p __attribute__((unused)), bool invert_rx __attribute__((unused)), bool invert_tx __attribute__((unused)))
+{
+}
+

@@ -38,4 +38,4 @@ GPS_BAUD ?= B38400
 #
 ACTUATORS ?= actuators_pwm
 
-include $(PAPARAZZI_SRC)/conf/boards/lisa_m_common_chibios.makefile
+include $(PAPARAZZI_HOME)/conf/boards/lisa_m_common_chibios.makefile

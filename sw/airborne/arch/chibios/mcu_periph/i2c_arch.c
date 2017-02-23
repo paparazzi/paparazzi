@@ -38,6 +38,9 @@
 
 #include <ch.h>
 #include <hal.h>
+#include "mcu_periph/ram_arch.h"
+#include "string.h"
+
 
 #if USE_I2C1 || USE_I2C2 || USE_I2C3
 
@@ -45,6 +48,9 @@
 struct i2c_init {
   semaphore_t *sem;
   I2CConfig *cfg;
+#ifdef STM32F7
+  uint8_t *dma_buf;
+#endif
 };
 
 
@@ -78,18 +84,41 @@ static void handle_i2c_thd(struct i2c_periph *p)
   msg_t status;
   // submit i2c transaction (R/W or R only depending of len_w)
   if (t->len_w > 0) {
+#if defined STM32F7
+    // we do stupid mem copy because F7 needs a special RAM for DMA operation
+    memcpy(i->dma_buf, (void*)t->buf, (size_t)(t->len_w));
+    status = i2cMasterTransmitTimeout(
+        (I2CDriver*)p->reg_addr,
+        (i2caddr_t)((t->slave_addr)>>1),
+        (uint8_t*)i->dma_buf, (size_t)(t->len_w),
+        (uint8_t*)i->dma_buf, (size_t)(t->len_r),
+        tmo);
+    memcpy((void*)t->buf, i->dma_buf, (size_t)(t->len_r));
+#else
     status = i2cMasterTransmitTimeout(
         (I2CDriver*)p->reg_addr,
         (i2caddr_t)((t->slave_addr)>>1),
         (uint8_t*)t->buf, (size_t)(t->len_w),
         (uint8_t*)t->buf, (size_t)(t->len_r),
         tmo);
+#endif
   } else {
+#if defined STM32F7
+    // we do stupid mem copy because F7 needs a special RAM for DMA operation
+    memcpy(i->dma_buf, (void*)t->buf, (size_t)(t->len_w));
+    status = i2cMasterReceiveTimeout(
+        (I2CDriver*)p->reg_addr,
+        (i2caddr_t)((t->slave_addr)>>1),
+        (uint8_t*)i->dma_buf, (size_t)(t->len_r),
+        tmo);
+    memcpy((void*)t->buf, i->dma_buf, (size_t)(t->len_r));
+#else
     status = i2cMasterReceiveTimeout(
         (I2CDriver*)p->reg_addr,
         (i2caddr_t)((t->slave_addr)>>1),
         (uint8_t*)t->buf, (size_t)(t->len_r),
         tmo);
+#endif
   }
 
   chSysLock();
@@ -151,10 +180,20 @@ static void handle_i2c_thd(struct i2c_periph *p)
 PRINT_CONFIG_VAR(I2C1_CLOCK_SPEED)
 static SEMAPHORE_DECL(i2c1_sem, 0);
 static I2CConfig i2cfg1 = I2C1_CFG_DEF;
+#if defined STM32F7
+// We need a special buffer for DMA operations
+static IN_DMA_SECTION(uint8_t i2c1_dma_buf[I2C_BUF_LEN]);
+static struct i2c_init i2c1_init_s = {
+  .sem = &i2c1_sem,
+  .cfg = &i2cfg1,
+  .dma_buf = i2c1_dma_buf
+};
+#else
 static struct i2c_init i2c1_init_s = {
   .sem = &i2c1_sem,
   .cfg = &i2cfg1
 };
+#endif
 // Errors
 struct i2c_errors i2c1_errors;
 // Thread
@@ -195,10 +234,20 @@ static void thd_i2c1(void *arg)
 PRINT_CONFIG_VAR(I2C2_CLOCK_SPEED)
 static SEMAPHORE_DECL(i2c2_sem, 0);
 static I2CConfig i2cfg2 = I2C2_CFG_DEF;
+#if defined STM32F7
+// We need a special buffer for DMA operations
+static IN_DMA_SECTION(uint8_t i2c2_dma_buf[I2C_BUF_LEN]);
+static struct i2c_init i2c2_init_s = {
+  .sem = &i2c2_sem,
+  .cfg = &i2cfg2,
+  .dma_buf = i2c2_dma_buf
+};
+#else
 static struct i2c_init i2c2_init_s = {
   .sem = &i2c2_sem,
   .cfg = &i2cfg2
 };
+#endif
 // Errors
 struct i2c_errors i2c2_errors;
 // Thread
@@ -240,10 +289,20 @@ static void thd_i2c2(void *arg)
 PRINT_CONFIG_VAR(I2C3_CLOCK_SPEED)
 static SEMAPHORE_DECL(i2c3_sem, 0);
 static I2CConfig i2cfg3 = I2C3_CFG_DEF;
+#if defined STM32F7
+// We need a special buffer for DMA operations
+static IN_DMA_SECTION(uint8_t i2c3_dma_buf[I2C_BUF_LEN]);
+static struct i2c_init i2c3_init_s = {
+  .sem = &i2c3_sem,
+  .cfg = &i2cfg3,
+  .dma_buf = i2c3_dma_buf
+};
+#else
 static struct i2c_init i2c3_init_s = {
   .sem = &i2c3_sem,
   .cfg = &i2cfg3
 };
+#endif
 // Errors
 struct i2c_errors i2c3_errors;
 // Thread

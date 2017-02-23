@@ -30,8 +30,13 @@
 #ifndef GPIO_ARCH_H
 #define GPIO_ARCH_H
 
-#include "hal.h"
+#include <hal.h>
 #include "mcu_periph/gpio_def.h"
+
+/**
+ * Abstract gpio port type for hardware independent part
+ */
+typedef ioportid_t gpio_port_t;
 
 /**
  * Setup one or more pins of the given GPIO port as outputs.
@@ -65,7 +70,7 @@ extern void gpio_setup_input_pulldown(ioportid_t port, uint16_t gpios);
  * Setup a gpio for input or output with alternate function.
  * This is an STM32 specific helper funtion and should only be used in stm32 code.
  */
-extern void gpio_setup_pin_af(ioportid_t port, uint16_t pin, uint8_t af);
+extern void gpio_setup_pin_af(ioportid_t port, uint16_t pin, uint8_t af, bool is_output);
 
 /**
  * Setup a gpio for analog use.
