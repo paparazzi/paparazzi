@@ -1019,6 +1019,31 @@
 #define ActuatorsDefaultInit() ActuatorsPwmInit()
 #define ActuatorsDefaultCommit() ActuatorsPwmCommit()
 
+
+/**
+ * SDIO
+ */
+#define SDIO_D0_PORT GPIOC
+#define SDIO_D0_PIN GPIOC_SDIO_D0
+#define SDIO_D1_PORT GPIOC
+#define SDIO_D1_PIN GPIOC_SDIO_D1
+#define SDIO_D2_PORT GPIOC
+#define SDIO_D2_PIN GPIOC_SDIO_D2
+#define SDIO_D3_PORT GPIOC
+#define SDIO_D3_PIN GPIOC_SDIO_D3
+#define SDIO_CK_PORT GPIOC
+#define SDIO_CK_PIN GPIOC_SDIO_CK
+#define SDIO_CMD_PORT GPIOD
+#define SDIO_CMD_PIN GPIOD_SDIO_CMD
+#define SDIO_AF 12
+// bat monitoring for file closing
+#define SDLOG_BAT_ADC ADCD1
+#define SDLOG_BAT_CHAN AD1_4_CHANNEL
+// usb led status
+#define SDLOG_USB_LED 4
+#define SDLOG_USB_VBUS_PORT GPIOA
+#define SDLOG_USB_VBUS_PIN GPIO9
+
 #if !defined(_FROM_ASM_)
 #ifdef __cplusplus
 extern "C" {

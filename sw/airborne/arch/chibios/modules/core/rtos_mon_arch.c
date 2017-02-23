@@ -59,8 +59,8 @@ void rtos_mon_periodic_arch(void)
   tp = chRegFirstThread();
   do {
     // add beginning of thread name to buffer
-    for (i = 0; i < RTOS_MON_NAME_LEN-1 && tp->p_name[i] != '\0'; i++) {
-      rtos_mon.thread_names[rtos_mon.thread_name_idx++] = tp->p_name[i];
+    for (i = 0; i < RTOS_MON_NAME_LEN-1 && tp->name[i] != '\0'; i++) {
+      rtos_mon.thread_names[rtos_mon.thread_name_idx++] = tp->name[i];
     }
     rtos_mon.thread_names[rtos_mon.thread_name_idx++] = ';';
 
@@ -68,12 +68,12 @@ void rtos_mon_periodic_arch(void)
     rtos_mon.thread_free_stack[i] = get_stack_free(tp);
 
     // store time spend in thread
-    thread_p_time[rtos_mon.thread_counter] = tp->p_time;
-    sum += (float)(tp->p_time);
+    thread_p_time[rtos_mon.thread_counter] = tp->time;
+    sum += (float)(tp->time);
 
     // if current thread is 'idle' thread, store its value separately
     if (tp == chSysGetIdleThreadX()) {
-      idle_counter = (uint32_t)tp->p_time;
+      idle_counter = (uint32_t)tp->time;
     }
     // get next thread
     tp = chRegNextThread(tp);

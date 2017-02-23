@@ -58,7 +58,7 @@ void gpio_setup_input_pulldown(ioportid_t port, uint16_t gpios)
   chSysUnlock();
 }
 
-void gpio_setup_pin_af(ioportid_t port, uint16_t pin, uint8_t af)
+void gpio_setup_pin_af(ioportid_t port, uint16_t pin, uint8_t af, bool is_output)
 {
   chSysLock();
 // architecture dependent settings
@@ -68,11 +68,18 @@ void gpio_setup_pin_af(ioportid_t port, uint16_t pin, uint8_t af)
   (void)port;
   (void)pin;
   (void)af;
-#elif defined(__STM32F4xx_H)
-// STM32F4xx
-  palSetPadMode(port, pin, PAL_MODE_ALTERNATE(af));
-#endif // STM32F1xx vs STM32F4xx
-
+#elif defined(__STM32F4xx_H) || defined(__STM32F7xx_H)
+// STM32F4xx and STM32F7xx
+  if (af) {
+    palSetPadMode(port, pin, PAL_MODE_ALTERNATE(af));
+  } else {
+    if (is_output) {
+      palSetPadMode(port, pin, PAL_MODE_OUTPUT_PUSHPULL);
+    } else {
+      palSetPadMode(port, pin, PAL_MODE_INPUT);
+    }
+  }
+#endif
   chSysUnlock();
 }
 

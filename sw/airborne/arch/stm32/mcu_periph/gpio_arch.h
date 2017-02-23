@@ -34,6 +34,11 @@
 #include <libopencm3/stm32/gpio.h>
 
 /**
+ * Abstract gpio port type for hardware independent part
+ */
+typedef uint32_t gpio_port_t;
+
+/**
  * Setup one or more pins of the given GPIO port as outputs.
  * @param[in] port
  * @param[in] gpios If multiple pins are to be changed, use logical OR '|' to separate them.

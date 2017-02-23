@@ -35,6 +35,7 @@
  */
 #include "hal.h"
 #include "mcu_periph/gpio_def.h"
+#include BOARD_CONFIG
 
 /*
  * Regular GPIO driven LEDs

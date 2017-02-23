@@ -30,6 +30,9 @@
 #define _PRINTF_H_
 
 #include <stdarg.h>
+#include <ch.h>
+#include <hal.h>
+
 /**
  * @brief   Float type support.
  */
