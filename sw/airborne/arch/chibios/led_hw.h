@@ -33,7 +33,7 @@
 /*
  * hal.h is needed for palXXX functions
  */
-#include "hal.h"
+#include <hal.h>
 #include "mcu_periph/gpio_def.h"
 #include BOARD_CONFIG
 
@@ -46,10 +46,11 @@
 #define LED_GPIO(i) _LED_GPIO(LED_ ## i ## _GPIO)
 #define LED_GPIO_PIN(i) _LED_GPIO_PIN(LED_ ## i ## _GPIO_PIN)
 
-#define LED_INIT(i) {}
+#define LED_INIT(i) palSetPadMode(LED_GPIO(i), LED_GPIO_PIN(i), PAL_MODE_OUTPUT_PUSHPULL)
 #define LED_ON(i) palClearPad(LED_GPIO(i), LED_GPIO_PIN(i))
 #define LED_OFF(i) palSetPad(LED_GPIO(i), LED_GPIO_PIN(i))
 #define LED_TOGGLE(i) palTogglePad(LED_GPIO(i), LED_GPIO_PIN(i))
+#define LED_DISABLE(i) palSetPadMode(LED_GPIO(i), LED_GPIO_PIN(i), PAL_MODE_INPUT)
 #define LED_PERIODIC() {}
 
 #endif /* LED_HW_H */
