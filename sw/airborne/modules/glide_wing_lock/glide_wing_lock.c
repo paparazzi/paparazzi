@@ -55,40 +55,42 @@ int lock_wings;
 #endif
 
 
-void glide_wing_lock_init(void) {
+void glide_wing_lock_init(void)
+{
   adc_buf_channel(ADC_CHANNEL_MOTORSENSOR, &adcbuf, 1);
 }
 
-void glide_wing_lock_event() {    
+void glide_wing_lock_event()
+{
   static int lockstate = 0;
   if (radio_control.values[WING_POS_LOCK_SWITCH] > (MIN_PPRZ / 2)) { // check glide switch
     float wpos = adcbuf.sum / adcbuf.av_nb_sample;
-    switch(lockstate) {
-    case 0:
-      if (wpos < WING_POS_DOWN_THRESH) { //set wings to fixed speed for one rotation starting from when wings are at lowest position
-        lock_wings = 1;
-        lockstate++;
-      }
-      break;
-    case 1:
-      if (wpos > WING_POS_LOCK_MIN_THRESH) { //start wait for a rotation
-        lockstate++;
-      }
-      break;
-    case 2:
-      if (wpos < WING_POS_DOWN_THRESH) { //rotation finished
-        lockstate++;
-      }
-      break;
-    case 3:
-      if (wpos > WING_POS_LOCK_MIN_THRESH && wpos < WING_POS_LOCK_MAX_THRESH) { // wait for exact wing position
-        //esc brakes when throttle = 0, which should lock the wing in this position;
-        lock_wings = 2;
-        lockstate++;
-      }
-      break;
-    default:
-      break;
+    switch (lockstate) {
+      case 0:
+        if (wpos < WING_POS_DOWN_THRESH) { //set wings to fixed speed for one rotation starting from when wings are at lowest position
+          lock_wings = 1;
+          lockstate++;
+        }
+        break;
+      case 1:
+        if (wpos > WING_POS_LOCK_MIN_THRESH) { //start wait for a rotation
+          lockstate++;
+        }
+        break;
+      case 2:
+        if (wpos < WING_POS_DOWN_THRESH) { //rotation finished
+          lockstate++;
+        }
+        break;
+      case 3:
+        if (wpos > WING_POS_LOCK_MIN_THRESH && wpos < WING_POS_LOCK_MAX_THRESH) { // wait for exact wing position
+          //esc brakes when throttle = 0, which should lock the wing in this position;
+          lock_wings = 2;
+          lockstate++;
+        }
+        break;
+      default:
+        break;
     }
   } else {
     lock_wings = 0;
@@ -96,12 +98,14 @@ void glide_wing_lock_event() {
   }
 }
 
-void glide_wing_lock_periodic() {
+void glide_wing_lock_periodic()
+{
   uint16_t wpos = adcbuf.sum / adcbuf.av_nb_sample;
   DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, DefaultDevice, &wpos, &wpos);
 }
 
-void set_rotorcraft_commands(pprz_t *cmd_out, int32_t *cmd_in, bool in_flight, bool motors_on ) {
+void set_rotorcraft_commands(pprz_t *cmd_out, int32_t *cmd_in, bool in_flight, bool motors_on)
+{
   if (!(in_flight)) { cmd_in[COMMAND_YAW] = 0; }
   if (!(motors_on)) { cmd_in[COMMAND_THRUST] = 0; }
   cmd_out[COMMAND_ROLL] = cmd_in[COMMAND_ROLL];
