@@ -97,8 +97,8 @@ void glide_wing_lock_event() {
 }
 
 void glide_wing_lock_periodic() {
-  float wpos = adcbuf.sum / adcbuf.av_nb_sample;
-  DOWNLINK_SEND_WING_POS(DefaultChannel, DefaultDevice, &wpos);
+  uint16_t wpos = adcbuf.sum / adcbuf.av_nb_sample;
+  DOWNLINK_SEND_ADC_GENERIC(DefaultChannel, DefaultDevice, &wpos, &wpos);
 }
 
 void set_rotorcraft_commands(pprz_t *cmd_out, int32_t *cmd_in, bool in_flight, bool motors_on ) {
