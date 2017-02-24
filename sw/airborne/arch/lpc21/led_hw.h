@@ -34,4 +34,7 @@
         LED_OFF(i)        \
       }
 
+/* set pin as input */
+#define LED_DISABLE(i)  LED_DIR(i) &= ~(_BV(LED_PIN(i)))
+
 #endif /* LED_HW_H */

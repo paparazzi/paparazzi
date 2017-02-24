@@ -1,6 +1,7 @@
 #include "led_hw.h"
 
 value *leds_closure = 0;
+bool led_disable = false;
 
 value register_leds_cb(value cb_name)
 {

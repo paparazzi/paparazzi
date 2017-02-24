@@ -33,6 +33,9 @@
 
 #include "led_hw.h"
 
+/** Automatic initialization of actived LED
+ *  Set to OFF at startup
+ */
 static inline void led_init(void)
 {
 #if USE_LED_1
@@ -96,14 +99,70 @@ static inline void led_init(void)
 #endif /* LED_12 */
 }
 
+/** Automatic disabling of activated LED
+ *  Usually by setting control GPIO in high impedance input mode
+ */
+static inline void led_disable(void)
+{
+#if USE_LED_1
+  LED_DISABLE(1);
+#endif /* LED_1 */
+
+#if USE_LED_2
+  LED_DISABLE(2);
+#endif /* LED_2 */
+
+#if USE_LED_3
+  LED_DISABLE(3);
+#endif /* LED_3 */
+
+#if USE_LED_4
+  LED_DISABLE(4);
+#endif /* LED_4 */
+
+#if USE_LED_5
+  LED_DISABLE(5);
+#endif /* LED_5 */
+
+#if USE_LED_6
+  LED_DISABLE(6);
+#endif /* LED_6 */
+
+#if USE_LED_7
+  LED_DISABLE(7);
+#endif /* LED_7 */
+
+#if USE_LED_8
+  LED_DISABLE(8);
+#endif /* LED_8 */
+
+#if USE_LED_9
+  LED_DISABLE(9);
+#endif /* LED_9 */
+
+#if USE_LED_10
+  LED_DISABLE(10);
+#endif /* LED_10 */
+
+#ifdef USE_LED_BODY
+  LED_DISABLE(BODY);
+#endif /* LED_BODY */
+
+#if USE_LED_12
+  LED_DISABLE(12);
+#endif /* LED_12 */
+}
+
 #define _LED_AVAILABLE(i) USE_LED_ ## i
 #define LED_AVAILABLE(i) _LED_AVAILABLE(i)
 
 #else /* USE_LED */
 static inline void led_init(void) {}
+static inline void led_disable(void) {}
 #define LED_ON(i) {}
 #define LED_OFF(i) {}
 #define LED_TOGGLE(i) {}
+#define LED_DISABLE(i) {}
 #define LED_PERIODIC() {}
 #define LED_AVAILABLE(i) 0
 #endif /* USE_LED */
