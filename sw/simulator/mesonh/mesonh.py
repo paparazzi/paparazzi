@@ -23,26 +23,19 @@ atm = None
 origin = np.array([0, 0, 0, 0])
 scale = np.array([1., 1/M_IN_KM, 1/M_IN_KM, 1/M_IN_KM])
 
-#ivy_req = None
-#ivy_mes = None
-
-
-#nps_udp_socket = None
-#nps_udp_dest = None
-
 start_time = time.time()
 
 
 def get_wind(east, north, up):
-	t = time.time() - start_time
-	print("east :",east)
-	print("north :",north)
-	print("up :",up)
-	loc = np.array([t, up, east, north])
-	loc = loc*scale + origin
-	print("loc:",loc)
-	weast, wnorth, wup = atm.get_wind(loc)
-	return weast, wnorth, wup
+    t = time.time() - start_time
+    print("east :",east)
+    print("north :",north)
+    print("up :",up)
+    loc = np.array([t, up, east, north])
+    loc = loc*scale + origin
+    print("loc:",loc)
+    weast, wnorth, wup = atm.get_wind(loc)
+    return weast, wnorth, wup
 
 
 def ivy_request_callback(sender, msg, resp, *args, **kwargs):
@@ -82,61 +75,6 @@ def worldenv_cb(ac_id, msg):
     ivy.send(msg_back,None)
 
 
-def ivy_callback(acid, msg):
-    """
-    Ivy callback for non-request paparazzi messages.
-    
-    NPS_SPEED_POS message is used to now ac position and send wind
-    data to NPS
-    """
-    if msg.msg_class == "telemetry" and msg.name == "NPS_SPEED_POS":
-        north, east, down = float(msg.ltpp_x),\
-            float(msg.ltpp_y),\
-            float(msg.ltpp_z)
-        up = -down
-
-        weast, wnorth, wup = get_wind(east, north, up)
-
-        wup *= -1
-
-        send_wind_nps_udp(acid, weast, wnorth, wup)
-
-        # some debug print
-        ivy_callback.acid_print[acid] = "[{}] pos {:.2f} {:.2f} {:.2f} wind {:.2f} {:.2f} {:.2f}"\
-            .format(acid, east, north, up, weast, wnorth, wup)
-        if ivy_callback.last_print + 1 <= time.time():
-            for s in ivy_callback.acid_print.viewvalues():
-                print(s)
-            ivy_callback.last_print = time.time()
-            ivy_callback.acid_print.clear()
-
-
-ivy_callback.last_print = time.time()
-ivy_callback.acid_print = {}
-
-
-#def send_wind_nps_udp(acid, wnorth, weast, wup):
-#
-#    if acid in send_wind_nps_udp.acids_nosend:
-#        return
-#    if acid not in nps_udp_dest:
-#        print("WARN: Aircraft id {} has no NPS port defined, "
-#              "not sending wind (will not be displayed again)."
-#              .format(acid),
-#              file=sys.stderr)
-#        send_wind_nps_udp.acids_nosend[acid] = True
-#        return
-#
-#    elapsed = time.time() - start_time
-#    (speed, heading) = cmath.polar(wnorth + weast*1j)
-#    values = (elapsed, wnorth, weast, wup, heading, speed, 0x12345678)
-#    message = send_wind_nps_udp.packer.pack(*values)
-#    nps_udp_socket.sendto(message, nps_udp_dest[acid])
-#
-#send_wind_nps_udp.packer = struct.Struct("d f f f f f I")
-#send_wind_nps_udp.acids_nosend = {}
-
-
 def signal_handler(signal, frame):
     print('\nShutting down IVY...')
     ivy.shutdown()
@@ -154,16 +92,6 @@ def main():
                       help="Duration of a time step between MesoNH Files.")
     argp.add_argument("-f", "--files", required=True, nargs='+',
                       help="MesoNH netCDF files, in temporal ordering")
-    #argp.add_argument("-n", "--nps-host", required=False, action="store",
-    #                  default="127.0.0.1",
-    #                  help="NPS host")
-    #argp.add_argument("-p", "--nps-ports", required=False, type=int,
-    #                  default=[], nargs="+",
-    #                  help="NPS Environment packets listen Port(s)")
-    #argp.add_argument("-i", "--nps-acids", required=False, type=int,
-    #                  default=[], nargs="+",
-    #                  help="NPS aircraft id(s), corresponding to nps "
-    #                  "port(s) argument.")
     argp.add_argument("-x", "--origin-x", required=False, type=float,
                       default=0.,
                       help="Origin translation x.")
