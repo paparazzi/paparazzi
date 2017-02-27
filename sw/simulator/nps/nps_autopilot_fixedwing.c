@@ -138,7 +138,7 @@ void nps_autopilot_run_step(double time)
     AbiSendMsgTEMPERATURE(BARO_SIM_SENDER_ID, (float)sensors.temp.value);
   }
 
-#if USE_AIRSPEED
+#if USE_AIRSPEED || USE_NPS_AIRSPEED
   if (nps_sensors_airspeed_available()) {
     stateSetAirspeed_f((float)sensors.airspeed.value);
     Fbw(event_task);
@@ -160,6 +160,22 @@ void nps_autopilot_run_step(double time)
     uint16_t foo = 0;
     DOWNLINK_SEND_SONAR(DefaultChannel, DefaultDevice, &foo, &dist);
 
+    Fbw(event_task);
+    Ap(event_task);
+  }
+#endif
+
+#if USE_NPS_AOA
+  if (nps_sensors_aoa_available()) {
+    stateSetAngleOfAttack_f((float)sensors.aoa.value);
+    Fbw(event_task);
+    Ap(event_task);
+  }
+#endif
+
+#if USE_NPS_SIDESLIP
+  if (nps_sensors_sideslip_available()) {
+    stateSetSideslip_f((float)sensors.sideslip.value);
     Fbw(event_task);
     Ap(event_task);
   }
