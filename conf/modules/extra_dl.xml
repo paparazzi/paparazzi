@@ -12,7 +12,7 @@
   <init fun="extra_pprz_dl_init()"/>
   <periodic fun="extra_pprz_dl_periodic()" freq="TELEMETRY_FREQUENCY" autorun="TRUE"/>
   <event fun="ExtraDatalinkEvent()"/>
-  <makefile target="ap">
+  <makefile target="ap|nps">
     <configure name="EXTRA_DL_PORT" default="uart1" case="upper|lower"/>
     <define name="EXTRA_DOWNLINK_DEVICE" value="$(EXTRA_DL_PORT_LOWER)"/>
     <define name="USE_$(EXTRA_DL_PORT_UPPER)"/>
