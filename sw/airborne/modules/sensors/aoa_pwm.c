@@ -23,6 +23,11 @@
 * @author Jean-François Erdelyi
 * @brief Angle of Attack sensor on PWM
 *
+* Driver for a PWM based angle of attack sensor
+* A second sensor can be defined for the sideslip angle
+* It is assumed that both sensors are the same, only
+* sensitivity, offset and direction can differ.
+*
 * SENSOR, exemple : US DIGITAL MA3-P12-125-B
 * @see http://www.usdigital.com/products/encoders/absolute/rotary/shaft/ma3
 */
@@ -37,6 +42,8 @@
 #include "modules/loggers/sdlog_chibios.h"
 bool log_started;
 #endif
+
+/* Config parameters for angle of attack sensor (mandatory) */
 
 #ifndef AOA_PWM_CHANNEL
 #error "AOA_PWM_CHANNEL needs to be defined to use AOA_pwm module"
@@ -83,16 +90,57 @@ bool log_started;
 
 struct Aoa_Pwm aoa_pwm;
 
+
+/* Config parameters for sideslip angle sensor (optional) */
+
+#if defined USE_SIDESLIP && !(defined SSA_PWM_CHANNEL)
+#error "SSA_PWM_CHANNEL needs to be defined to use sideslip sensor"
+#endif
+
+// Default extra offset that can be ajusted from settings
+#ifndef SSA_OFFSET
+#define SSA_OFFSET 0.0f
+#endif
+// Default filter value
+#ifndef SSA_FILTER
+#define SSA_FILTER 0.0f
+#endif
+// Default sensitivity (2*pi on a PWM of period AOA_PWM_PERIOD)
+#ifndef SSA_SENS
+#define SSA_SENS ((2.0f*M_PI)/AOA_PWM_PERIOD)
+#endif
+// Set SSA_REVERSE to TRUE to change rotation direction
+#if SSA_REVERSE
+#define SSA_SIGN -1
+#else
+#define SSA_SIGN 1
+#endif
+struct Aoa_Pwm ssa_pwm;
+
+
+/* telemetry */
+enum Aoa_Type aoa_send_type;
+
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
 static void send_aoa(struct transport_tx *trans, struct link_device *dev)
 {
-  pprz_msg_send_AOA(trans, dev, AC_ID, &aoa_pwm.raw, &aoa_pwm.angle);
+  // FIXME use a second message, more fields or add a sensor ID to send sideslip
+  switch (aoa_send_type) {
+    case SEND_TYPE_SIDESLIP:
+      pprz_msg_send_AOA(trans, dev, AC_ID, &ssa_pwm.raw, &ssa_pwm.angle);
+      break;
+    case SEND_TYPE_AOA:
+    default:
+      pprz_msg_send_AOA(trans, dev, AC_ID, &aoa_pwm.raw, &aoa_pwm.angle);
+      break;
+  }
 }
 
 #endif
 
+/* init */
 void aoa_pwm_init(void)
 {
   aoa_pwm.offset = AOA_OFFSET;
@@ -100,22 +148,28 @@ void aoa_pwm_init(void)
   aoa_pwm.sens = AOA_SENS;
   aoa_pwm.angle = 0.0f;
   aoa_pwm.raw = 0.0f;
+  ssa_pwm.offset = SSA_OFFSET;
+  ssa_pwm.filter = SSA_FILTER;
+  ssa_pwm.sens = SSA_SENS;
+  ssa_pwm.angle = 0.0f;
+  ssa_pwm.raw = 0.0f;
 #if LOG_AOA
   log_started = false;
 #endif
+  aoa_send_type = SEND_TYPE_AOA;
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AOA, send_aoa);
 #endif
 }
 
+/* update, log and send */
 void aoa_pwm_update(void) {
   static float prev_aoa = 0.0f;
-
   // raw duty cycle in usec
-  uint32_t duty_raw = get_pwm_input_duty_in_usec(AOA_PWM_CHANNEL);
+  uint32_t aoa_duty_raw = get_pwm_input_duty_in_usec(AOA_PWM_CHANNEL);
 
   // remove some offset if needed
-  aoa_pwm.raw = duty_raw - AOA_PWM_OFFSET;
+  aoa_pwm.raw = aoa_duty_raw - AOA_PWM_OFFSET;
   // FIXME for some reason, the last value of the MA3 encoder is not 4096 but 4097
   // this case is not handled since we don't care about angles close to +- 180 deg
   aoa_pwm.angle = AOA_SIGN * (((float)aoa_pwm.raw * aoa_pwm.sens) - aoa_pwm.offset - AOA_ANGLE_OFFSET);
@@ -127,18 +181,36 @@ void aoa_pwm_update(void) {
   stateSetAngleOfAttack_f(aoa_pwm.angle);
 #endif
 
+#if USE_SIDESLIP
+  static float prev_ssa = 0.0f;
+  // raw duty cycle in usec
+  uint32_t ssa_duty_raw = get_pwm_input_duty_in_usec(SSA_PWM_CHANNEL);
+
+  // remove some offset if needed
+  ssa_pwm.raw = ssa_duty_raw - AOA_PWM_OFFSET;
+  // FIXME for some reason, the last value of the MA3 encoder is not 4096 but 4097
+  // this case is not handled since we don't care about angles close to +- 180 deg
+  ssa_pwm.angle = SSA_SIGN * (((float)ssa_pwm.raw * ssa_pwm.sens) - ssa_pwm.offset - AOA_ANGLE_OFFSET);
+  // filter angle
+  ssa_pwm.angle = ssa_pwm.filter * prev_ssa + (1.0f - ssa_pwm.filter) * ssa_pwm.angle;
+  prev_ssa = ssa_pwm.angle;
+
+  stateSetSideslip_f(ssa_pwm.angle);
+#endif
+
 #if SEND_SYNC_AOA
-  RunOnceEvery(10, DOWNLINK_SEND_AOA(DefaultChannel, DefaultDevice, &aoa_pwm.raw, &aoa_pwm.angle));
+  RunOnceEvery(10, send_aoa(&(DefaultChannel).trans_tx, &(DefaultDevice).device));
 #endif
 
 #if LOG_AOA
   if(pprzLogFile != -1) {
     if (!log_started) {
-      sdLogWriteLog(pprzLogFile, "AOA_PWM: ANGLE(deg) RAW(int16)\n");
+      sdLogWriteLog(pprzLogFile, "AOA_PWM: AOA_ANGLE(deg) AOA_RAW(int16) SSA_ANGLE(deg) SSA_RAW(int16)\n");
       log_started = true;
     } else {
-      float angle = DegOfRad(aoa_pwm.angle);
-      sdLogWriteLog(pprzLogFile, "AOA_PWM: %.3f %d\n", angle, aoa_pwm.raw);
+      float aoa_angle = DegOfRad(aoa_pwm.angle);
+      float ssa_angle = DegOfRad(ssa_pwm.angle);
+      sdLogWriteLog(pprzLogFile, "AOA_PWM: %.3f %d %.3f %d\n", aoa_angle, aoa_pwm.raw, ssa_angle, ssa_pwm.raw);
     }
   }
 #endif

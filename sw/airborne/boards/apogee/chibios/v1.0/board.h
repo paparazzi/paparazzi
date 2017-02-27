@@ -932,7 +932,7 @@
 #if (USE_PWM1 && USE_PWM_INPUT2)
 #error "PW1 and PWM_INPUT2 are not compatible"
 #endif
-#define PWM_INPUT2_ICU            ICUD2
+#define PWM_INPUT2_ICU            ICUD9
 #define PWM_INPUT2_CHANNEL        ICU_CHANNEL_1
 #define PWM_INPUT2_GPIO_PORT      GPIOA
 #define PWM_INPUT2_GPIO_PIN       GPIO2
