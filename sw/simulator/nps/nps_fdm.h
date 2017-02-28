@@ -112,6 +112,8 @@ struct NpsFdm {
   double dynamic_pressure; ///< dynamic pressure in Pascal
   double temperature;      ///< current temperature in degrees Celcius
   double pressure_sl;      ///< pressure at sea level in Pascal
+  double aoa;			         ///< angle of attack in rad
+  double sideslip;         ///< sideslip angle in rad
 
   // Control surface positions (normalized values)
   float elevator;
