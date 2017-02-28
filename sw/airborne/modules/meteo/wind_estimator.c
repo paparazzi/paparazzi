@@ -34,6 +34,9 @@
 #include "state.h"
 #include <string.h>
 #ifndef SITL // no chibios threads in sim
+#if !USE_CHIBIOS_RTOS
+#error Only Chibios is supported
+#endif
 #include <ch.h>
 #include <hal.h>
 #endif
