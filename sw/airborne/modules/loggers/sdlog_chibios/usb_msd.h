@@ -26,21 +26,39 @@
 
 #pragma once
 
-#include <ch.h>
-#include <hal.h>
-#include "std.h"
 
-#ifndef PACK_STRUCT_BEGIN
-#define PACK_STRUCT_BEGIN
-#endif
+#include "ch.h"
+#include "hal.h"
+#include "chdebug.h"
+#include "modules/loggers/sdlog_chibios/usb_msd.h"
 
-#ifndef PACK_STRUCT_END
-#define PACK_STRUCT_END
-#endif
-
-#ifndef PACK_STRUCT_STRUCT
 #define PACK_STRUCT_STRUCT __attribute__((packed))
-#endif
+#define PACK_STRUCT_BEGIN
+#define PACK_STRUCT_END
+
+/* endpoint index */
+#define USB_MS_DATA_EP 1
+
+
+
+#define USBD USBD1
+
+#define SEM_TAKEN
+#define SEM_RELEASED
+
+#define         EVT_USB_RESET                           (1 << 0)
+#define         EVT_BOT_RESET                           (1 << 1)
+#define         EVT_SEM_TAKEN                           (1 << 2)
+#define         EVT_SEM_RELEASED                        (1 << 3)
+#define         EVT_USB_CONFIGURED                      (1 << 4)
+#define         EVT_SCSI_REQ_TEST_UNIT_READY            (1 << 5)
+#define         EVT_SCSI_REQ_READ_FMT_CAP               (1 << 6)
+#define         EVT_SCSI_REQ_SENSE6                     (1 << 7)
+#define         EVT_SCSI_REQ_SENSE10                    (1 << 8)
+#define         EVT_WAIT_FOR_COMMAND_BLOCK              (1 << 9)
+#define         EVT_SCSI_REQ_SEND_DIAGNOSTIC            (1 << 10)
+#define         EVT_SCSI_REQ_READ_CAP10                 (1 << 11)
+#define         EVT_SCSI_PROC_INQ                       (1 << 12)
 
 /**
  * @brief Command Block Wrapper structure
@@ -95,7 +113,8 @@ PACK_STRUCT_BEGIN typedef struct {
 typedef enum {
   MSD_IDLE,
   MSD_READ_COMMAND_BLOCK,
-  MSD_EJECTED
+  MSD_EJECTED,
+  MSD_BOT_RESET
 } msd_state_t;
 
 /**
@@ -103,44 +122,44 @@ typedef enum {
  */
 typedef struct {
   /**
-   * @brief USB driver to use for communication
-   */
+  * @brief USB driver to use for communication
+  */
   USBDriver *usbp;
 
   /**
-   * @brief Block device to use for storage
-   */
+  * @brief Block device to use for storage
+  */
   BaseBlockDevice *bbdp;
 
   /**
-   * @brief Index of the USB endpoint to use for transfers
-   */
+  * @brief Index of the USB endpoint to use for transfers
+  */
   usbep_t bulk_ep;
 
   /**
-   * @brief Optional callback that will be called whenever there is
-   *        read/write activity
-   * @note  The callback is called with argument true when activity starts,
-   *        and false when activity stops.
-   */
+  * @brief Optional callback that will be called whenever there is
+  *        read/write activity
+  * @note  The callback is called with argument true when activity starts,
+  *        and false when activity stops.
+  */
   void (*rw_activity_callback)(bool);
 
   /**
-   * @brief Short vendor identification
-   * @note  ASCII characters only, maximum 8 characters (pad with zeroes).
-   */
+  * @brief Short vendor identification
+  * @note  ASCII characters only, maximum 8 characters (pad with zeroes).
+  */
   uint8_t short_vendor_id[8];
 
   /**
-   * @brief Short product identification
-   * @note  ASCII characters only, maximum 16 characters (pad with zeroes).
-   */
+  * @brief Short product identification
+  * @note  ASCII characters only, maximum 16 characters (pad with zeroes).
+  */
   uint8_t short_product_id[16];
 
   /**
-   * @brief Short product revision
-   * @note  ASCII characters only, maximum 4 characters (pad with zeroes).
-   */
+  * @brief Short product revision
+  * @note  ASCII characters only, maximum 4 characters (pad with zeroes).
+  */
   uint8_t short_product_version[4];
 
 } USBMassStorageConfig;
@@ -161,7 +180,9 @@ typedef struct {
   msd_csw_t csw;
   msd_scsi_sense_response_t sense;
   msd_scsi_inquiry_response_t inquiry;
+  bool reconfigured_or_reset_event;
   bool result;
+  bool bot_reset;
 } USBMassStorageDriver;
 
 #ifdef __cplusplus
@@ -214,8 +235,25 @@ void msdConfigureHookI(USBMassStorageDriver *msdp);
  */
 bool msdRequestsHook(USBDriver *usbp);
 
+
+void init_msd_driver(void *dbgThreadPtr, USBMassStorageConfig *msdConfig);
+void deinit_msd_driver(void);
+
+/**
+ * @brief   register connected event source in local event mask
+ * @details This function is a stub to  chEvtRegisterMask
+ */
+void msd_register_evt_connected(event_listener_t *elp, eventmask_t mask);
+
+/**
+ * @brief   register ejected event source in local event mask
+ * @details This function is a stub to  chEvtRegisterMask
+ *          ejected event is a logical event : when host unmount the filesystem,
+ *          not a physical event (event is not sent in case of unplugged usb wire)
+ */
+void msd_register_evt_ejected(event_listener_t *elp, eventmask_t mask);
+
+
 #ifdef __cplusplus
 }
 #endif
-
-

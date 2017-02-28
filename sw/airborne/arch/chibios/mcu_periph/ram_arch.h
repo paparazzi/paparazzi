@@ -54,9 +54,17 @@
 #error "section defined only for STM32F1, STM32F4 and STM32F7"
 #endif
 
-#define IN_STD_SECTION(var) var __attribute__ ((section(STD_SECTION), aligned(8)))
-#define IN_FAST_SECTION(var) var __attribute__ ((section(FAST_SECTION), aligned(8)))
-#define IN_DMA_SECTION(var) var __attribute__ ((section(DMA_SECTION), aligned(8)))
+#define IN_STD_SECTION_NOINIT(var) var __attribute__ ((section(STD_SECTION), aligned(8)))
+#define IN_STD_SECTION_CLEAR(var) var __attribute__ ((section(STD_SECTION "_clear"), aligned(8)))
+#define IN_STD_SECTION(var) var __attribute__ ((section(STD_SECTION "_init"), aligned(8)))
+  
+#define IN_FAST_SECTION_NOINIT(var) var __attribute__ ((section(FAST_SECTION), aligned(8)))
+#define IN_FAST_SECTION_CLEAR(var) var __attribute__ ((section(FAST_SECTION "_clear"), aligned(8)))
+#define IN_FAST_SECTION(var) var __attribute__ ((section(FAST_SECTION "_init"), aligned(8)))
+
+#define IN_DMA_SECTION_NOINIT(var) var __attribute__ ((section(DMA_SECTION), aligned(8)))
+#define IN_DMA_SECTION_CLEAR(var) var __attribute__ ((section(DMA_SECTION "_clear"), aligned(8)))
+#define IN_DMA_SECTION(var) var __attribute__ ((section(DMA_SECTION "_init"), aligned(8)))
 
 #endif
 

@@ -49,7 +49,6 @@ extern FileDes flightRecorderLogFile;
 extern void sdlog_chibios_init(void);
 extern void sdlog_chibios_finish(bool flush);
 
-
 /** chibios_sdlog structure
  */
 struct chibios_sdlog {
