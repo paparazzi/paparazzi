@@ -55,6 +55,8 @@
     <file name="nps_sensor_gps.c" dir="nps"/>
     <file name="nps_sensor_airspeed.c" dir="nps"/>
     <file name="nps_sensor_temperature.c" dir="nps"/>
+    <file name="nps_sensor_aoa.c" dir="nps"/>
+    <file name="nps_sensor_sideslip.c" dir="nps"/>
     <file name="nps_electrical.c" dir="nps"/>
     <file name="nps_atmosphere.c" dir="nps"/>
     <file name="nps_ivy.c" dir="nps"/>
