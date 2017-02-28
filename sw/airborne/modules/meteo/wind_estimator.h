@@ -20,9 +20,10 @@
 
 /**
  * @file "modules/meteo/wind_estimator.h"
- * @author Maurin
  *
  * Wind Estimator based on generated library from Matlab
+ *
+ * Original Simulink files available at https://github.com/enacuavlab/UKF_Wind_Estimation
  */
 
 #ifndef WIND_ESTIMATOR_H
