@@ -137,6 +137,7 @@
       <message name="DATALINK_REPORT"     period="1.0"/>
       <message name="ESC"                 period="0.1"/>
       <message name="ADC_GENERIC"         period="0.05"/>
+      <message name="WIND_INFO_RET"       period="0.1"/>
     </mode>
   </process>
 </telemetry>

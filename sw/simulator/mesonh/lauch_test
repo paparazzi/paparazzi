@@ -1,0 +1,2 @@
+python mesonh.py -t 3600 -f ARMHR.1.sc464.001diaKCL.nc ARMHR.1.sc464.002diaKCL.nc ARMHR.1.sc464.003diaKCL.nc ARMHR.1.sc464.004diaKCL.nc ARMHR.1.sc464.005diaKCL.nc ARMHR.1.sc464.006diaKCL.nc ARMHR.1.sc464.007diaKCL.nc ARMHR.1.sc464.008diaKCL.nc -x 2.2 -y 2.2
+

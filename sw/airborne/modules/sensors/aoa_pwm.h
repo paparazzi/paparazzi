@@ -23,6 +23,11 @@
 * @author Jean-François Erdelyi
 * @brief Angle of Attack sensor on PWM
 *
+* Driver for a PWM based angle of attack sensor
+* A second sensor can be defined for the sideslip angle
+* It is assumed that both sensors are the same, only
+* sensitivity, offset and direction can differ.
+*
 * SENSOR, example : US DIGITAL MA3-P12-125-B
 */
 
@@ -44,7 +49,16 @@ struct Aoa_Pwm {
   float filter;
 };
 
-extern struct Aoa_Pwm aoa_pwm;
+extern struct Aoa_Pwm aoa_pwm; // angle of attack sensor
+extern struct Aoa_Pwm ssa_pwm; // sideslip angle sensor
+
+/** Selection of sensor type to be send over telemetry
+ */
+enum Aoa_Type {
+  SEND_TYPE_AOA,
+  SEND_TYPE_SIDESLIP
+};
+extern enum Aoa_Type aoa_send_type;
 
 extern void aoa_pwm_init(void);
 extern void aoa_pwm_update(void);
