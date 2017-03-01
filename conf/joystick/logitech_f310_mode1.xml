@@ -1,0 +1,98 @@
+<!-- Logitech F310 controller profile
+
+  Joystick has six axes:
+  axis 0: X on left stick
+  axis 1: Y on left stick
+  axis 2: linear button on left side (LT)
+  axis 3: X on right stick
+  axis 4: Y on right stick
+  axis 5: linear button on right side (RT)
+  axis 6: X on D pad
+  axis 7: Y on D pad
+
+  and 11 buttons:
+  button 0: A, green
+  button 1: B, red
+  button 2: X, blue
+  button 3: Y, orange
+  button 4: LB, left front up
+  button 5: RB, left front up
+  button 6: BACK, left top
+  button 7: START, right top
+  button 8: logitech, top "home" button
+  button 9: left stick press
+  button 10: right stick press
+
+The "mode" button swaps the axes on the left stick and the d pad.
+-->
+
+<joystick>
+ <input>
+  <axis index="0" name="lx" limit="1.00" trim="0"/>
+  <axis index="1" name="ly" trim="0"/>
+  <axis index="2" name="lt" limit="1.00" trim="0"/>
+  <axis index="3" name="rx" limit="1.00" trim="0"/>
+  <axis index="4" name="ry" limit="1.00" trim="0"/>
+  <axis index="5" name="rt" limit="1.00" trim="0"/>
+  <axis index="6" name="dpadx"/>
+  <axis index="7" name="dpady"/>
+  <button index="0" name="b0"/>
+  <button index="1" name="b1"/>
+  <button index="2" name="b2"/>
+  <button index="3" name="b3"/>
+  <button index="4" name="b4"/>
+  <button index="5" name="b5"/>
+  <button index="6" name="b6"/>
+  <button index="7" name="b7"/>
+  <button index="8" name="b8"/>
+  <button index="9" name="b9"/>
+  <button index="10" name="b10"/>
+  <button index="11" name="b11"/>
+</input>
+
+<variables>
+  <!-- manual by default and when pressing A, AUTO1 on B, AUTO2 on Y -->
+  <var name="mode" default="2"/>
+  <set var="mode" value="0" on_event="b0"/>
+  <set var="mode" value="1" on_event="b1"/>
+  <set var="mode" value="2" on_event="b3"/>
+</variables>
+
+<messages period="0.017">
+
+  <message class="datalink" name="RC_4CH" send_always="true">
+   <field name="mode" value="mode"/>
+   <field name="throttle" value="Fit(0-ry,-127,127,0,127)"/>
+   <field name="roll" value="rx"/>
+   <field name="yaw" value="Fit(lx,-127,127,-64,64)"/>
+   <field name="pitch" value="ly"/>
+  </message>
+
+  <!-- trim commands -->
+<!--  not needed
+  <message class="trim_plus" name="lx" on_event="b9"/>
+  <message class="trim_minus" name="lx" on_event="b8"/>
+  <message class="trim_plus" name="ly" on_event="b10"/>
+  <message class="trim_minus" name="ly" on_event="b11"/>
+  <message class="trim_plus" name="rx" on_event="b2"/>
+  <message class="trim_minus" name="rx" on_event="b0"/>
+  <message class="trim_minus" name="ry" on_event="b3"/>
+  <message class="trim_plus" name="ry" on_event="b1"/>
+  <message class="trim_save" name="" on_event="b5"/>
+ -->
+
+    <!-- Button "6" / "BACK" for kill -->
+    <message class="ground" name="DL_SETTING" on_event="b6">
+      <field name="index" value="IndexOfSetting(kill_throttle)"/>
+      <field name="value" value="1"/>
+    </message>
+
+    <!-- Button "7" / "START" for resurrect -->
+    <message class="ground" name="DL_SETTING" on_event="b7">
+      <field name="index" value="IndexOfSetting(kill_throttle)"/>
+      <field name="value" value="0"/>
+    </message>
+
+</messages>
+
+</joystick>
