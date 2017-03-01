@@ -1,0 +1,25 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="humid_sht_uart" dir="meteo">
+  <doc>
+    <description>
+      SHTxx humidity sensor.
+      This reads the values for humidity and temperature from the SHTxx sensor through an uart.
+    </description>
+    <configure name="SHT_UART" value="UARTX" description="UART on which computer is connected"/>
+  </doc>
+  <header>
+    <file name="humid_sht_uart.h"/>
+  </header>
+  <init fun="humid_sht_uart_init()"/>
+  <periodic fun="humid_sht_uart_periodic()" freq="1."/>
+  <event fun="humid_sht_uart_event()"/>
+  <makefile target="ap">
+    <configure name="SHT_UART" case="upper|lower"/>
+    <file name="humid_sht_uart.c"/>
+    <define name="USE_$(SHT_UART_UPPER)"/>
+    <define name="MET_LINK" value="$(SHT_UART_LOWER)"/>
+    <define name="$(SHT_UART_UPPER)_BAUD" value="B115200"/>
+  </makefile>
+</module>
+
