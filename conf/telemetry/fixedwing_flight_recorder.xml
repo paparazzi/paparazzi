@@ -35,6 +35,7 @@
       <message name="FBW_STATUS"          period="2"/>
       <message name="AIR_DATA"            period="1.3"/>
       <message name="ESC"                 period="0.9"/>
+      <message name="LOGGER_STATUS"       period="5.1"/>
     </mode>
     <mode name="minimal">
       <message name="ALIVE"               period="5"/>

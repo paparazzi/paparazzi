@@ -46,6 +46,15 @@
 #define SDLOG_START_DELAY 30
 #endif
 
+// Auto-flush period (in seconds)
+#ifndef SDLOG_AUTO_FLUSH_PERIOD
+#define SDLOG_AUTO_FLUSH_PERIOD 10
+#endif
+
+// Contiguous storage memory (in Mo)
+#ifndef SDLOG_CONTIGUOUS_STORAGE_MEM
+#define SDLOG_CONTIGUOUS_STORAGE_MEM 50
+#endif
 
 #if (!defined USE_ADC_WATCHDOG) || (USE_ADC_WATCHDOG == 0)
 #error sdlog_chibios need USE_ADC_WATCHDOG in order to properly close files when power is unplugged
@@ -67,7 +76,7 @@ static __attribute__((noreturn)) void thd_startlog(void *arg);
  */
 static THD_WORKING_AREA(wa_thd_bat_survey, 1024);
 static __attribute__((noreturn)) void thd_bat_survey(void *arg);
-static void  powerOutageIsr (void);
+static void  powerOutageIsr(void);
 event_source_t powerOutageSource;
 event_listener_t powerOutageListener;
 
@@ -83,9 +92,28 @@ static const char FR_LOG_DIR[] = "FLIGHT_RECORDER";
 FileDes flightRecorderLogFile = -1;
 #endif
 
+/** sdlog status
+ */
+static enum {
+  SDLOG_STOPPED = 0,
+  SDLOG_RUNNING,
+  SDLOG_ERROR
+} chibios_sdlog_status;
+
+#if PERIODIC_TELEMETRY
+#include "subsystems/datalink/telemetry.h"
+static void send_sdlog_status(struct transport_tx *trans, struct link_device *dev)
+{
+  uint8_t status = (uint8_t) chibios_sdlog_status;
+  uint8_t errno = (uint8_t) sdLogGetStorageStatus();
+  uint32_t used = (uint32_t) sdLogGetNbBytesWrittenToStorage();
+  pprz_msg_send_LOGGER_STATUS(trans, dev, AC_ID, &status, &errno, &used);
+}
+#endif
+
 
 // Functions for the generic device API
-static int sdlog_check_free_space(struct chibios_sdlog* p __attribute__((unused)), long *fd, uint16_t len)
+static int sdlog_check_free_space(struct chibios_sdlog *p __attribute__((unused)), long *fd, uint16_t len)
 {
   SdLogBuffer *sdb;
   SdioError status = sdLogAllocSDB(&sdb, len);
@@ -97,7 +125,7 @@ static int sdlog_check_free_space(struct chibios_sdlog* p __attribute__((unused)
   }
 }
 
-static void sdlog_transmit(struct chibios_sdlog* p __attribute__((unused)), long fd, uint8_t byte)
+static void sdlog_transmit(struct chibios_sdlog *p __attribute__((unused)), long fd, uint8_t byte)
 {
   SdLogBuffer *sdb = (SdLogBuffer *) fd;
   uint8_t *data = (uint8_t *) sdLogGetBufferFromSDB(sdb);
@@ -105,14 +133,14 @@ static void sdlog_transmit(struct chibios_sdlog* p __attribute__((unused)), long
   sdLogSeekBufferFromSDB(sdb, 1);
 }
 
-static void sdlog_transmit_buffer(struct chibios_sdlog* p __attribute__((unused)), long fd, uint8_t *data, uint16_t len)
+static void sdlog_transmit_buffer(struct chibios_sdlog *p __attribute__((unused)), long fd, uint8_t *data, uint16_t len)
 {
   SdLogBuffer *sdb = (SdLogBuffer *) fd;
   memcpy(sdLogGetBufferFromSDB(sdb), data, len);
   sdLogSeekBufferFromSDB(sdb, len);
 }
 
-static void sdlog_send(struct chibios_sdlog* p, long fd)
+static void sdlog_send(struct chibios_sdlog *p, long fd)
 {
   SdLogBuffer *sdb = (SdLogBuffer *) fd;
   sdLogWriteSDB(*(p->file), sdb);
@@ -137,25 +165,34 @@ void chibios_sdlog_init(struct chibios_sdlog *sdlog, FileDes *file)
 
 void sdlog_chibios_init(void)
 {
+  chibios_sdlog_status = SDLOG_STOPPED;
+#if PERIODIC_TELEMETRY
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_LOGGER_STATUS, send_sdlog_status);
+#endif
+
   // Start polling on USB
   usbStorageStartPolling();
 
   // Start log thread
   chThdCreateStatic(wa_thd_startlog, sizeof(wa_thd_startlog),
-      NORMALPRIO+2, thd_startlog, NULL);
+                    NORMALPRIO + 2, thd_startlog, NULL);
 }
 
 
-void sdlog_chibios_finish(bool flush)
+void sdlog_chibios_finish(const bool flush)
 {
   if (pprzLogFile != -1) {
+    // disable all the LEDs to save energy and maximize chance to flush files
+    // to mass storage and avoid infamous dirty bit on filesystem
+    led_disable();
     sdLogCloseAllLogs(flush);
-    sdLogFinish ();
+    sdLogFinish();
     pprzLogFile = 0;
 #if FLIGHTRECORDER_SDLOG
     flightRecorderLogFile = 0;
 #endif
   }
+  chibios_sdlog_status = SDLOG_STOPPED;
 }
 
 static void thd_startlog(void *arg)
@@ -164,10 +201,11 @@ static void thd_startlog(void *arg)
   chRegSetThreadName("start log");
 
   // Wait before starting the log if needed
-  chThdSleepSeconds (SDLOG_START_DELAY);
+  chThdSleepSeconds(SDLOG_START_DELAY);
   // Check if we are already in USB Storage mode
-  if (usbStorageIsItRunning ())
-    chThdSleepSeconds (20000); // stuck here for hours FIXME stop the thread ?
+  if (usbStorageIsItRunning()) {
+    chThdSleepSeconds(20000);  // stuck here for hours FIXME stop the thread ?
+  }
 
   // Init sdlog struct
   chibios_sdlog_init(&chibios_sdlog, &pprzLogFile);
@@ -175,37 +213,52 @@ static void thd_startlog(void *arg)
   // Check for init errors
   sdOk = true;
 
-  if (sdLogInit (NULL) != SDLOG_OK) {
+  if (sdLogInit(NULL) != SDLOG_OK) {
     sdOk = false;
-  }
-  else {
-    removeEmptyLogs (PPRZ_LOG_DIR, PPRZ_LOG_NAME, 50);
-    if (sdLogOpenLog (&pprzLogFile, PPRZ_LOG_DIR, PPRZ_LOG_NAME, true) != SDLOG_OK)
+  } else {
+    removeEmptyLogs(PPRZ_LOG_DIR, PPRZ_LOG_NAME, 50);
+    if (sdLogOpenLog(&pprzLogFile, PPRZ_LOG_DIR, PPRZ_LOG_NAME, SDLOG_AUTO_FLUSH_PERIOD, true) != SDLOG_OK) {
       sdOk = false;
-
+    }
+    // try to reserve contiguous mass storage memory
+    sdLogExpandLogFile(pprzLogFile, SDLOG_CONTIGUOUS_STORAGE_MEM, false);
 #if FLIGHTRECORDER_SDLOG
-    removeEmptyLogs (FR_LOG_DIR, FLIGHTRECORDER_LOG_NAME, 50);
-    if (sdLogOpenLog (&flightRecorderLogFile, FR_LOG_DIR, FLIGHTRECORDER_LOG_NAME, false) != SDLOG_OK)
+    removeEmptyLogs(FR_LOG_DIR, FLIGHTRECORDER_LOG_NAME, 50);
+    if (sdLogOpenLog(&flightRecorderLogFile, FR_LOG_DIR, FLIGHTRECORDER_LOG_NAME, SDLOG_AUTO_FLUSH_PERIOD, false) != SDLOG_OK) {
       sdOk = false;
+    }
+    // try to reserve contiguous mass storage memory
+    sdLogExpandLogFile(flightRecorderLogFile, SDLOG_CONTIGUOUS_STORAGE_MEM, false);
 #endif
   }
 
   if (sdOk) {
     // Create Battery Survey Thread with event
-    chEvtObjectInit (&powerOutageSource);
-    chThdCreateStatic (wa_thd_bat_survey, sizeof(wa_thd_bat_survey),
-        NORMALPRIO+2, thd_bat_survey, NULL);
+    chEvtObjectInit(&powerOutageSource);
+    chThdCreateStatic(wa_thd_bat_survey, sizeof(wa_thd_bat_survey),
+                      NORMALPRIO + 2, thd_bat_survey, NULL);
+
+    chibios_sdlog_status = SDLOG_RUNNING;
+  } else {
+    chibios_sdlog_status = SDLOG_ERROR;
   }
 
   while (true) {
-#ifdef LED_SDLOG
-    LED_TOGGLE(LED_SDLOG);
+#ifdef SDLOG_LED
+    LED_TOGGLE(SDLOG_LED);
 #endif
     // Blink faster if init has errors
-    chThdSleepMilliseconds (sdOk == true ? 1000 : 200);
-    static uint32_t timestamp = 0;
+    chThdSleepMilliseconds(sdOk == true ? 1000 : 200);
+    if (sdLogGetStorageStatus() != SDLOG_OK) {
+      chibios_sdlog_status = SDLOG_ERROR;
+      sdOk = false;
+    } else {
+      chibios_sdlog_status = SDLOG_RUNNING;
+      sdOk = true;
+    }
 
 #if HAL_USE_RTC && USE_GPS
+    static uint32_t timestamp = 0;
     // FIXME this could be done somewhere else, like in sys_time
     // we sync gps time to rtc every 5 seconds
     if (chVTGetSystemTime() - timestamp > 5000) {
@@ -214,7 +267,7 @@ static void thd_startlog(void *arg)
         // Unix timestamp of the GPS epoch 1980-01-06 00:00:00 UTC
         const uint32_t unixToGpsEpoch = 315964800;
         struct tm time_tm;
-        time_t univTime = ((gps.week * 7 * 24 * 3600) + (gps.tow/1000)) + unixToGpsEpoch;
+        time_t univTime = ((gps.week * 7 * 24 * 3600) + (gps.tow / 1000)) + unixToGpsEpoch;
         gmtime_r(&univTime, &time_tm);
         // Chibios date struct
         RTCDateTime date;
@@ -231,25 +284,26 @@ static void thd_startlog(void *arg)
 static void thd_bat_survey(void *arg)
 {
   (void)arg;
-  chRegSetThreadName ("battery survey");
+  chRegSetThreadName("battery survey");
   chEvtRegister(&powerOutageSource, &powerOutageListener, 1);
-  chThdSleepMilliseconds (2000);
+  chThdSleepMilliseconds(2000);
 
   register_adc_watchdog(&SDLOG_BAT_ADC, SDLOG_BAT_CHAN, V_ALERT, &powerOutageIsr);
 
   chEvtWaitOne(EVENT_MASK(1));
-  sdlog_chibios_finish (true);
+  // in case of powerloss, we should go fast and avoid to flush ram buffer
+  sdlog_chibios_finish(false);
   chThdExit(0);
   mcu_deep_sleep();
-  chThdSleepMilliseconds (TIME_INFINITE);
-  while (1); // never goes here, only to avoid compiler  warning: 'noreturn' function does return
+  chThdSleep(TIME_INFINITE);
+  while (true); // never goes here, only to avoid compiler  warning: 'noreturn' function does return
 }
 
 
 /*
   powerOutageIsr is called within a lock zone from an isr, so no lock/unlock is needed
  */
-static void  powerOutageIsr (void)
+static void  powerOutageIsr(void)
 {
   chEvtBroadcastI(&powerOutageSource);
 }
