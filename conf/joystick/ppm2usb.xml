@@ -1,0 +1,26 @@
+<!-- 
+
+thomaspfeifer.net PPM2USB joystick adapter with Futaba transmitter
+
+-->
+
+<joystick>
+  <input>
+    <axis index="0" name="mode"/>
+    <axis index="1" name="pitch"/> 
+    <axis index="2" name="throttle"/>
+    <axis index="3" name="yaw"/>
+    <axis index="4" name="roll"/>
+    <axis index="5" name="kill"/>
+  </input>
+
+  <messages period="0.05">
+    <message class="datalink" name="RC_4CH" send_always="true">
+      <field name="mode" value="PprzMode(mode)"/>
+      <field name="throttle" value="Fit(throttle,-100,100,0,127)" />
+      <field name="roll" value="Fit(-roll,-100,100,-127,127)" />
+      <field name="pitch" value="Fit(pitch,-100,100,-127,127)" />
+      <field name="yaw" value="Fit(yaw,-100,100,-127,127)"/>
+    </message>
+  </messages>
+</joystick>
