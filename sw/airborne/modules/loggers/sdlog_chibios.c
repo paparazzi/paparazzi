@@ -244,8 +244,8 @@ static void thd_startlog(void *arg)
   }
 
   while (true) {
-#ifdef LED_SDLOG
-    LED_TOGGLE(LED_SDLOG);
+#ifdef SDLOG_LED
+    LED_TOGGLE(SDLOG_LED);
 #endif
     // Blink faster if init has errors
     chThdSleepMilliseconds(sdOk == true ? 1000 : 200);

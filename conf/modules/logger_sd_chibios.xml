@@ -9,6 +9,10 @@
       Files are written on a FAT file system using the FatFS library and can be accessed
       by using the autopilot as a mass storage (plug USB while the board is running).
     </description>
+    <configure name="SDLOG_LED" value="none|num" description="LED number or 'none' to disable. Default: none"/>
+    <define name="SDLOG_START_DELAY" value="30" unit="s" description="Set the delay in seconds before starting the logger. This delay can be used to get plug USB cable and get data without starting a new log. Default: 30s"/>
+    <define name="SDLOG_AUTO_FLUSH_PERIOD" value="10" unit="s" description="Data flush period. Shorter period may decrease performances. Default: 10s"/>
+    <define name="SDLOG_CONTIGUOUS_STORAGE_MEM" value="50" unit="Mo" description="Try to reserve a given contiguous mass storage memory. Default: 50Mo"/>
   </doc>
   <depends>tlsf</depends>
   <header>
@@ -16,6 +20,8 @@
   </header>
   <init fun="sdlog_chibios_init()"/>
   <makefile target="ap">
+    <configure name="SDLOG_LED" default="none"/>
+    <define name="SDLOG_LED" value="$(SDLOG_LED)" cond="ifneq ($(SDLOG_LED),none)"/>
     <file name="sdlog_chibios.c"/>
     <file name="sdlog_chibios/sdLog.c"/>
     <file name="sdlog_chibios/msg_queue.c"/>
