@@ -65,7 +65,6 @@ extern "C" {
  use of the api :
  sdLogInit (initialize peripheral,  verify sdCard availibility)
  sdLogOpenLog : open file
- sdLogExpandLogFile : reserve contiguous space on storage
  sdLogWriteXXX : write log using one off the many function of the API
  sdLogCloseLog : close log
  sdLogFinish : terminate logging thread
@@ -192,26 +191,18 @@ SdioError sdLogFinish(void);
  * @param[in] appendTagAtClose : at close, a marker will be added to prove that the file is complete
  *    and not corrupt. useful for text logging purpose, but probably not wanted for binary
  *    files.
- * @return  status (always check status)
- */
-SdioError sdLogOpenLog(FileDes *fileObject, const char *directoryName, const char *fileName,
-                       const uint32_t autoFlushPeriod,
-                       const bool appendTagAtClose);
-
-
-/**
- * @brief expand underlying file to maximise throughtput
- * @details ask underlying file system to prepare a contiguous data area to the file.
- *          if expand fail, file system is still avalaible but performance may suffer
- * @param[in] fileObject : file descriptor returned by sdLogOpenLog
  * @param[in] sizeInMo   : size of the contiguous storage
  * @param[in] preallocate : if true, the file is preallocated at asked size, more efficient
- *                          but take room on storage ans is not easy to manipulate afterward because of big files
+ *                          but take room on storage ans is not easy to manipulate afterward because 
+ *                          of big files
  *                          even if no log id recorded on file
  * @return  status (always check status)
  */
-SdioError sdLogExpandLogFile(const FileDes fileObject, const size_t sizeInMo,
-                             const bool preallocate);
+SdioError sdLogOpenLog(FileDes *fileObject, const char *directoryName, const char *fileName,
+                       const uint32_t autoFlushPeriod, const bool appendTagAtClose,
+		       const size_t sizeInMo, const bool preallocate);
+
+
 
 
 /**
@@ -256,7 +247,8 @@ SdioError sdLogCloseAllLogs(bool flush);
  * @param[in] fmt : format and args in printf convention
  * @return  status (always check status)
  */
-SdioError sdLogWriteLog(const FileDes fileObject, const char *fmt, ...);
+SdioError sdLogWriteLog(const FileDes fileObject, const char *fmt, ...)
+  __attribute__ ((format (printf, 2, 3)));;
 
 
 /**

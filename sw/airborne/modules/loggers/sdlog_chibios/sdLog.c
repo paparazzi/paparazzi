@@ -176,6 +176,8 @@ static thread_t *sdLogThd = NULL;
 static SdioError  getNextFIL(FileDes *fd);
 static void removeFromQueue(const size_t nbMsgToRFemov);
 static void cleanQueue(const bool allQueue);
+static SdioError sdLogExpandLogFile(const FileDes fileObject, const size_t sizeInMo,
+				    const bool preallocate);
 
 #if (CH_KERNEL_MAJOR > 2)
 static void thdSdLog(void *arg) ;
@@ -270,18 +272,25 @@ SdioError sdLogFinish(void)
 
 #ifdef SDLOG_NEED_QUEUE
 SdioError sdLogOpenLog(FileDes *fd, const char *directoryName, const char *prefix,
-                       const uint32_t autoFlushPeriod, const bool appendTagAtClose)
+                       const uint32_t autoFlushPeriod, const bool appendTagAtClose,
+		       const size_t sizeInMo, const bool preallocate)
 {
   FRESULT rc; /* fatfs result code */
-  SdioError sde; /* sdio result code */
+  SdioError sde = SDLOG_OK; /* sdio result code */
   //DIR dir; /* Directory object */
   //FILINFO fno; /* File information object */
   char fileName[32];
 
-  sde = getNextFIL(fd);
+  /* local file descriptor
+     using fd is a bad idea since fd is set before fatfs objets are coherents
+     in a multithreaded application where sdLogXXX are done before sdLogWriteLog is done
+     we can have a race condition. setting fd only when fatfs files are opened resolve the problem
+   */
+  FileDes ldf;
+
+  sde = getNextFIL(&ldf);
   if (sde != SDLOG_OK) {
-    storageStatus = sde;
-    return sde;
+    return storageStatus = sde;
   }
 
   sde = getFileName(prefix, directoryName, fileName, sizeof(fileName), +1);
@@ -291,17 +300,19 @@ SdioError sdLogOpenLog(FileDes *fd, const char *directoryName, const char *prefi
   }
 
 
-  rc = f_open(&fileDes[*fd].fil, fileName, FA_WRITE | FA_CREATE_ALWAYS);
+  rc = f_open(&fileDes[ldf].fil, fileName, FA_WRITE | FA_CREATE_ALWAYS);
   if (rc) {
-    fileDes[*fd].inUse = false;
+    fileDes[ldf].inUse = false;
     return storageStatus = SDLOG_FATFS_ERROR;
   } else {
-    fileDes[*fd].tagAtClose = appendTagAtClose;
-    fileDes[*fd].autoFlushPeriod = autoFlushPeriod;
-    fileDes[*fd].lastFlushTs = 0;
+    fileDes[ldf].tagAtClose = appendTagAtClose;
+    fileDes[ldf].autoFlushPeriod = autoFlushPeriod;
+    fileDes[ldf].lastFlushTs = 0;
+    sde = sdLogExpandLogFile(ldf, sizeInMo, preallocate);
   }
-
-  return storageStatus = SDLOG_OK;
+  
+  *fd = ldf;
+  return storageStatus = sde;
 }
 
 SdioError sdLogCloseAllLogs(bool flush)
@@ -870,7 +881,7 @@ static void cleanQueue(const bool allQueue)
       }
     } while (true);
   } else {
-    removeFromQueue(10000);
+    removeFromQueue(SDLOG_QUEUE_BUCKETS);
   }
 }
 
@@ -919,7 +930,7 @@ static msg_t thdSdLog(void *arg)
   } ;
 
   UINT bw;
-  static IN_STD_SECTION_CLEAR(struct PerfBuffer perfBuffers[SDLOG_NUM_FILES]);
+  static IN_DMA_SECTION_CLEAR(struct PerfBuffer perfBuffers[SDLOG_NUM_FILES]);
   storageStatus = SDLOG_OK;
   chRegSetThreadName("thdSdLog");
   while (true) {
@@ -986,7 +997,8 @@ static msg_t thdSdLog(void *arg)
                 }
               }
               if (rc) {
-                chThdExit(storageStatus = SDLOG_FATFS_ERROR);
+                //chThdExit(storageStatus = SDLOG_FATFS_ERROR);
+		storageStatus = SDLOG_FATFS_ERROR;
               } else if (bw != SDLOG_WRITE_BUFFER_SIZE) {
                 chThdExit(storageStatus = SDLOG_FSFULL);
               }
