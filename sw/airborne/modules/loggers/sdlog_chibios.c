@@ -217,18 +217,18 @@ static void thd_startlog(void *arg)
     sdOk = false;
   } else {
     removeEmptyLogs(PPRZ_LOG_DIR, PPRZ_LOG_NAME, 50);
-    if (sdLogOpenLog(&pprzLogFile, PPRZ_LOG_DIR, PPRZ_LOG_NAME, SDLOG_AUTO_FLUSH_PERIOD, true) != SDLOG_OK) {
+    if (sdLogOpenLog(&pprzLogFile, PPRZ_LOG_DIR,
+		     PPRZ_LOG_NAME, SDLOG_AUTO_FLUSH_PERIOD, true,
+		     SDLOG_CONTIGUOUS_STORAGE_MEM, false) != SDLOG_OK) {
       sdOk = false;
     }
-    // try to reserve contiguous mass storage memory
-    sdLogExpandLogFile(pprzLogFile, SDLOG_CONTIGUOUS_STORAGE_MEM, false);
 #if FLIGHTRECORDER_SDLOG
     removeEmptyLogs(FR_LOG_DIR, FLIGHTRECORDER_LOG_NAME, 50);
-    if (sdLogOpenLog(&flightRecorderLogFile, FR_LOG_DIR, FLIGHTRECORDER_LOG_NAME, SDLOG_AUTO_FLUSH_PERIOD, false) != SDLOG_OK) {
+    if (sdLogOpenLog(&flightRecorderLogFile, FR_LOG_DIR, FLIGHTRECORDER_LOG_NAME,
+		     SDLOG_AUTO_FLUSH_PERIOD, false,
+		      SDLOG_CONTIGUOUS_STORAGE_MEM, false) != SDLOG_OK) {
       sdOk = false;
     }
-    // try to reserve contiguous mass storage memory
-    sdLogExpandLogFile(flightRecorderLogFile, SDLOG_CONTIGUOUS_STORAGE_MEM, false);
 #endif
   }
 
