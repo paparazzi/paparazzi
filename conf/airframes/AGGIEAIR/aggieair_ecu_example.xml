@@ -33,6 +33,7 @@ Viking Motorsports ECU example
 
   <modules>
     <module name="sys_mon"/>
+    <module name="vms_ecu_demo"/>
   </modules>
 
   <!-- commands section -->

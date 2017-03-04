@@ -1074,50 +1074,7 @@
 /*
  * LEDs
  */
-/* 1 red, on PA8 */
-#ifndef USE_LED_1
-#define USE_LED_1 1
-#endif
-#define LED_1_GPIO GPIOA
-#define LED_1_GPIO_PIN 8
-#define LED_1_GPIO_ON gpio_clear
-#define LED_1_GPIO_OFF gpio_set
-
-/* 2 green, shared with JTAG_TRST */
-#ifndef USE_LED_2
-#define USE_LED_2 1
-#endif
-#define LED_2_GPIO GPIOB
-#define LED_2_GPIO_PIN 4
-#define LED_2_GPIO_ON gpio_clear
-#define LED_2_GPIO_OFF gpio_set
-
-/* 3 green, shared with ADC12 (ADC_6 on connector ANALOG2) */
-#ifndef USE_LED_3
-#define USE_LED_3 1
-#endif
-#define LED_3_GPIO GPIOC
-#define LED_3_GPIO_PIN 2
-#define LED_3_GPIO_ON gpio_clear
-#define LED_3_GPIO_OFF gpio_set
-
-/* 4 red, shared with ADC15 (ADC_4 on connector ANALOG2) */
-#ifndef USE_LED_4
-#define USE_LED_4 1
-#endif
-#define LED_4_GPIO GPIOC
-#define LED_4_GPIO_PIN 5
-#define LED_4_GPIO_ON gpio_clear
-#define LED_4_GPIO_OFF gpio_set
-
-/* 5 green, on PC15 */
-#ifndef USE_LED_5
-#define USE_LED_5 0
-#endif
-#define LED_5_GPIO GPIOC
-#define LED_5_GPIO_PIN 15
-#define LED_5_GPIO_ON gpio_set
-#define LED_5_GPIO_OFF gpio_clear
+// no LEDS here
 
 /*
  * ADCs
@@ -1199,6 +1156,7 @@
 
 /*
  * PWM defines
+ * no PWM outputs used
  */
 #ifndef USE_PWM0
 #define USE_PWM0 1
@@ -1263,6 +1221,7 @@
 
 /**
  * PPM radio defines
+ * no ppm inputs used
  */
 #define RC_PPM_TICKS_PER_USEC 6
 #define PPM_TIMER_FREQUENCY 6000000
@@ -1271,6 +1230,7 @@
 
 /**
  * I2C defines
+ * No I2C devices used
  */
 #define I2C1_CLOCK_SPEED 400000
 #define I2C1_CFG_DEF {       \
@@ -1289,29 +1249,26 @@
 /**
  * SPI Config
  */
-#define SPI1_GPIO_AF GPIO_AF5
-#define SPI1_GPIO_PORT_MISO GPIOA
-#define SPI1_GPIO_MISO GPIO6
-#define SPI1_GPIO_PORT_MOSI GPIOA
-#define SPI1_GPIO_MOSI GPIO7
-#define SPI1_GPIO_PORT_SCK GPIOA
-#define SPI1_GPIO_SCK GPIO5
-
-// SLAVE0 on SPI connector
+// SLAVE0  - unconnected
 #define SPI_SELECT_SLAVE0_PORT GPIOB
 #define SPI_SELECT_SLAVE0_PIN 9
-// SLAVE1 on AUX1
+// SLAVE1  - unconnected
 #define SPI_SELECT_SLAVE1_PORT GPIOB
 #define SPI_SELECT_SLAVE1_PIN 1
-// SLAVE2 on AUX2
-#define SPI_SELECT_SLAVE2_PORT GPIOC
-#define SPI_SELECT_SLAVE2_PIN 5
-// SLAVE3 on AUX3
-#define SPI_SELECT_SLAVE3_PORT GPIOC
-#define SPI_SELECT_SLAVE3_PIN 4
-// SLAVE4 on AUX4
+// SLAVE2 is ASPIRIN MPU600 CS
+#define SPI_SELECT_SLAVE2_PORT GPIOB
+#define SPI_SELECT_SLAVE2_PIN 12
+// SLAVE3 is BARO_CS
+#define SPI_SELECT_SLAVE3_PORT GPIOE
+#define SPI_SELECT_SLAVE3_PIN 3
+// SLAVE4 - unconnected
 #define SPI_SELECT_SLAVE4_PORT GPIOB
-#define SPI_SELECT_SLAVE4_PIN 5
+#define SPI_SELECT_SLAVE4_PIN 2
+
+/**
+ * SD card
+ * TODO: add defines for SD log
+ */
 
 /**
  * Baro
