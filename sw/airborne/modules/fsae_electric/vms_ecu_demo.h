@@ -45,6 +45,7 @@ extern bool rtds;
 
 void vms_ecu_demo_init(void);
 void vms_ecu_demo_periodic(void);
+void vms_ecu_demo_downlink(void);
 /** Reset sweep number */
 extern void vms_ecu_demo_UpdateDac1(uint16_t val);
 extern void vms_ecu_demo_UpdateDac2(uint16_t val);
