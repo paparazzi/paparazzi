@@ -1,0 +1,18 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="imu_temp_ctrl" dir="ins">
+  <doc>
+    <description>
+      Bebop2/Disco INS (MPU6x) sensor temperature control.
+    </description>
+    <define name="IMU_TEMP_CTRL_DEBUG" description="output heater setting in percent and temperature in TMP_STATUS message"/>
+  </doc>
+  <header>
+    <file name="imu_temp_ctrl.h"/>
+  </header>
+  <init fun="imu_temp_ctrl_init()"/>
+  <periodic fun="imu_temp_ctrl_periodic()" freq="20."/>
+  <makefile target="ap">
+    <file name="imu_temp_ctrl.c"/>
+  </makefile>
+</module>
