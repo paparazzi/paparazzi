@@ -27,6 +27,11 @@
  * for more details
  */
 #include "modules/fsae_electric/vms_ecu_demo.h"
+
+// Messages
+#include "pprzlink/messages.h"
+#include "subsystems/datalink/downlink.h"
+
 #include "mcu_periph/gpio.h"
 #include "ch.h" // for DAC
 #include "hal.h" // for DAC
@@ -72,13 +77,13 @@ uint16_t dac_1;
 uint16_t dac_2;
 
 static const DACConfig dac1cfg1 = {
-  .init         = 2047U,
-  .datamode     = DAC_DHRM_12BIT_RIGHT
+    .init         = 2047U,
+    .datamode     = DAC_DHRM_12BIT_RIGHT
 };
 
 static const DACConfig dac1cfg2 = {
-  .init         = 0U,
-  .datamode     = DAC_DHRM_12BIT_RIGHT
+    .init         = 0U,
+    .datamode     = DAC_DHRM_12BIT_RIGHT
 };
 
 
@@ -117,18 +122,18 @@ static const struct can_instance can2 = {&CAND2, 12};
  * See section 22.7.7 on the STM32 reference manual.
  */
 static const CANConfig cancfg_lb = {
-  CAN_MCR_ABOM | CAN_MCR_AWUM | CAN_MCR_TXFP,
-  CAN_BTR_LBKM | CAN_BTR_SJW(0) | CAN_BTR_TS2(1) |
-  CAN_BTR_TS1(8) | CAN_BTR_BRP(6)
+    CAN_MCR_ABOM | CAN_MCR_AWUM | CAN_MCR_TXFP,
+    CAN_BTR_LBKM | CAN_BTR_SJW(0) | CAN_BTR_TS2(1) |
+    CAN_BTR_TS1(8) | CAN_BTR_BRP(6)
 };
 
 /*
  * Normal mode, see if we can ping each other
  */
 static const CANConfig cancfg = {
-  CAN_MCR_ABOM | CAN_MCR_AWUM | CAN_MCR_TXFP,
-  CAN_BTR_SJW(0) | CAN_BTR_TS2(1) |
-  CAN_BTR_TS1(8) | CAN_BTR_BRP(6)
+    CAN_MCR_ABOM | CAN_MCR_AWUM | CAN_MCR_TXFP,
+    CAN_BTR_SJW(0) | CAN_BTR_TS2(1) |
+    CAN_BTR_TS1(8) | CAN_BTR_BRP(6)
 };
 
 /*
@@ -148,7 +153,7 @@ static THD_FUNCTION(can_rx, p) {
     if (chEvtWaitAnyTimeout(ALL_EVENTS, MS2ST(100)) == 0)
       continue;
     while (canReceive(cip->canp, CAN_ANY_MAILBOX,
-                      &rxmsg, TIME_IMMEDIATE) == MSG_OK) {
+        &rxmsg, TIME_IMMEDIATE) == MSG_OK) {
       // Process message.
       palTogglePad(GPIOD, cip->led);
     }
@@ -181,20 +186,6 @@ static THD_FUNCTION(can_tx, p) {
   }
 }
 
-
-#if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
-static void send_ecu(struct transport_tx *trans, struct link_device *dev)
-{
-  pprz_msg_send_ECU(trans, dev, AC_ID,
-        &stg_in,
-        &stb_in,
-        &ain_1,
-        &ain_2,
-        &ain_3,
-        &ain_4);
-}
-#endif
 
 void vms_ecu_demo_init(void)
 {
@@ -232,21 +223,17 @@ void vms_ecu_demo_init(void)
    * Starting the transmitter and receiver threads.
    */
   chThdCreateStatic(can_rx1_wa, sizeof(can_rx1_wa), NORMALPRIO + 7,
-                    can_rx, (void *)&can1);
+      can_rx, (void *)&can1);
   chThdCreateStatic(can_rx2_wa, sizeof(can_rx2_wa), NORMALPRIO + 7,
-                    can_rx, (void *)&can2);
+      can_rx, (void *)&can2);
   chThdCreateStatic(can_tx_wa, sizeof(can_tx_wa), NORMALPRIO + 7,
-                    can_tx, NULL);
-
-#if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ECU, send_ecu);
-#endif
+      can_tx, NULL);
 
   //DAC
   /*
-     * Starting DAC1 driver, setting up the output pin as analog as suggested
-     * by the Reference Manual.
-     */
+   * Starting DAC1 driver, setting up the output pin as analog as suggested
+   * by the Reference Manual.
+   */
   palSetPadMode(GPIOA, 4, PAL_MODE_INPUT_ANALOG);
   palSetPadMode(GPIOA, 5, PAL_MODE_INPUT_ANALOG);
   dacStart(&DACD1, &dac1cfg1);
@@ -308,6 +295,17 @@ void vms_ecu_demo_periodic(void)
   ain_2 = ((float)(adc_buf_2.sum/adc_buf_2.av_nb_sample))*ADC_VREF_MULT*ADC_VGAIN/1000.0;
   ain_3 = ((float)(adc_buf_3.sum/adc_buf_3.av_nb_sample))*ADC_VREF_MULT*ADC_VGAIN/1000.0;
   ain_4 = ((float)(adc_buf_4.sum/adc_buf_4.av_nb_sample))*ADC_VREF_MULT*ADC_VGAIN/1000.0;
+}
+
+
+void vms_ecu_demo_downlink(void) {
+  DOWNLINK_SEND_ECU(DefaultChannel, DefaultDevice,
+      &stg_in,
+      &stb_in,
+      &ain_1,
+      &ain_2,
+      &ain_3,
+      &ain_4);
 }
 
 

@@ -31,6 +31,7 @@
   </header>
   <init fun="vms_ecu_demo_init()"/>
   <periodic fun="vms_ecu_demo_periodic()" freq="10."/>
+  <periodic fun="vms_ecu_demo_downlink()" freq="4." autorun="TRUE"/>
   <makefile>
     <file name="vms_ecu_demo.c"/>
     <define name="USE_DAC1" value="1" />
