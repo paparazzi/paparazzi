@@ -37,8 +37,8 @@
 /**
  * Macro to use radio.h file
  *
- *  HOTT:   7040..12000..16800 (sweep 2048)
- *  PPM:  880..1520..2160 (sweep 1280)
+ *  HOTT:   7040..12000..16800 
+ *  PPM:  880..1500..2100
  */
 #define RC_PPM_TICKS_OF_USEC(_v)        ((_v) * 8 ) // USEC IN HOTT OUT
 #define RC_PPM_SIGNED_TICKS_OF_USEC(_v) ((_v) * 8 ) // usec -1000 + 1000 in, HOTT out
@@ -53,14 +53,12 @@
 /**
  * Define number of channels.
  *
- * HOTT frame always have 16 channels
- * but only the X first one will be available
- * depending of the RC transmitter.
+ * HOTT SUMD frame has between 2 and 32 channels
  * The radio XML file is used to assign the
  * input values to RC channels.
  */
 #define HOTT_NB_CHANNEL 32
-#define HOTT_BUF_LENGTH HOTT_NB_CHANNEL*2+3
+#define HOTT_BUF_LENGTH (HOTT_NB_CHANNEL*2+3+2) // 2 bytes per chennel 3 bytes header, 2 bytes CRC 
 
 /**
  * Default number of channels to actually use.
@@ -70,7 +68,7 @@
 #endif
 
 #if RADIO_CONTROL_NB_CHANNEL > HOTT_NB_CHANNEL
-#error "RADIO_CONTROL_NB_CHANNEL mustn't be higher than 16."
+#error "RADIO_CONTROL_NB_CHANNEL mustn't be higher than 32."
 #endif
 
 /**
@@ -89,8 +87,7 @@ struct SHott {
 /**
  * Init function
  */
-void hott_common_init(struct SHott *hott, struct uart_periph *dev,
-                      gpio_port_t gpio_polarity_port, uint16_t gpio_polarity_pin);
+void hott_common_init(struct SHott *hott, struct uart_periph *dev);
 
 /**
  * Decoding event function

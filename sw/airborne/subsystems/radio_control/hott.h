@@ -21,7 +21,7 @@
 /**
  * @file subsystems/radio_control/hott.h
  *
- * Radio control via single HOTT receiver.
+ * Radio control via single HOTT receiver in SUMD mode.
  */
 
 #ifndef RC_HOTT_H

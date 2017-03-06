@@ -21,19 +21,13 @@
 
 /** @file subsystems/radio_control/hott.c
  *
- * Single HOTT radio_control
+ * Single HOTT radio_control SUMD
  */
 
 #include "subsystems/radio_control.h"
 #include "subsystems/radio_control/hott.h"
 #include BOARD_CONFIG
 
-#ifndef RC_POLARITY_GPIO_PORT
-#define RC_POLARITY_GPIO_PORT 0
-#endif
-#ifndef RC_POLARITY_GPIO_PIN
-#define RC_POLARITY_GPIO_PIN 0
-#endif
 
 /** HOTT struct */
 struct SHott hott;
@@ -53,7 +47,7 @@ static void send_hott(struct transport_tx *trans, struct link_device *dev)
 // Init function
 void radio_control_impl_init(void)
 {
-  hott_common_init(&hott, &HOTT_UART_DEV, RC_POLARITY_GPIO_PORT, RC_POLARITY_GPIO_PIN);
+  hott_common_init(&hott, &HOTT_UART_DEV);
 
   // Register telemetry message
 #if PERIODIC_TELEMETRY
