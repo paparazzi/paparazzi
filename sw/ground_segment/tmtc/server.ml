@@ -49,8 +49,8 @@ let logs_path = Env.paparazzi_home // "var" // "logs"
 let conf_xml = ExtXml.parse_file (Env.paparazzi_home // "conf" // "conf.xml")
 let srtm_path = Env.paparazzi_home // "data" // "srtm"
 
-let get_indexed_value = fun t i ->
-  if i >= 0 then t.(i) else "UNK"
+let get_indexed_value = fun ?(text="UNK") t i ->
+  if i >= 0 then t.(i) else text
 
 (** The aircrafts store *)
 let aircrafts = Hashtbl.create 3
@@ -416,7 +416,7 @@ let send_aircraft_msg = fun ac ->
                   "energy", PprzLink.Int a.energy] in
     Ground_Pprz.message_send my_id "ENGINE_STATUS" values;
 
-    let ap_mode = get_indexed_value (modes_of_aircraft a) a.ap_mode in
+    let ap_mode = get_indexed_value ~text:(if a.ap_mode = -2 then "FAIL" else "UNK") (modes_of_aircraft a) a.ap_mode in
     let gaz_mode = get_indexed_value gaz_modes a.gaz_mode in
     let lat_mode = get_indexed_value lat_modes a.lateral_mode in
     let horiz_mode = get_indexed_value horiz_modes a.horizontal_mode in

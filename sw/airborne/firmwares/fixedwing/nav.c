@@ -170,7 +170,7 @@ void nav_glide(uint8_t start_wp, uint8_t wp)
 #define MAX_HEIGHT_CARROT 150.
 
 #define Goto3D(radius) {                                                \
-    if (autopilot_get_mode() == PPRZ_MODE_AUTO2) {                                 \
+    if (autopilot_get_mode() == AP_MODE_AUTO2) {                                 \
       int16_t yaw = imcu_get_radio(RADIO_YAW);                          \
       if (yaw > MIN_DX || yaw < -MIN_DX) {                              \
         carrot_x += FLOAT_OF_PPRZ(yaw, 0, -20.);                        \

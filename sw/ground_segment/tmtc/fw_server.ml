@@ -244,7 +244,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
           else "MANUAL";
       end ;
       if a.fbw.rc_mode = "FAILSAFE" then
-        a.ap_mode <- 5 (* Override and set FAIL(Safe) Mode *)
+        a.ap_mode <- -2 (* Override and set to FAIL (see server.ml) *)
       else
         a.ap_mode <- check_index (ivalue "ap_mode") (modes_of_aircraft a) "AP_MODE"
     | "CAM" ->

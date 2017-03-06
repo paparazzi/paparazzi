@@ -206,7 +206,7 @@ bool nav_approaching_xy(float x, float y, float from_x, float from_y, float appr
 
 #define NavAttitude(_roll) { \
     lateral_mode = LATERAL_MODE_ROLL; \
-    if(autopilot_get_mode() != PPRZ_MODE_AUTO1)  \
+    if(autopilot_get_mode() != AP_MODE_AUTO1)  \
     {h_ctl_roll_setpoint = _roll;} \
   }
 

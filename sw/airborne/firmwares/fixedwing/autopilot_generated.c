@@ -55,6 +55,13 @@ void autopilot_generated_periodic(void)
   // copy generated mode to public mode (may be changed on internal exceptions)
   autopilot.mode = autopilot_mode_ap;
 
+#if defined MCU_SPI_LINK || defined MCU_UART_LINK || defined MCU_CAN_LINK
+  link_mcu_send();
+#elif defined INTER_MCU && defined SINGLE_MCU
+  /**Directly set the flag indicating to FBW that shared buffer is available*/
+  inter_mcu_received_ap = true;
+#endif
+
 }
 
 /** AP mode setting handler
@@ -75,7 +82,7 @@ void autopilot_generated_set_mode(uint8_t new_autopilot_mode)
 }
 
 
-void autopilot_generated_set_motors_on(bool motors_on)
+void autopilot_generated_set_motors_on(bool motors_on __attribute__((unused)))
 {
   // Do nothing on fixedwing ?
 }
@@ -95,6 +102,9 @@ static inline void copy_from_to_fbw(void)
 
 void autopilot_generated_on_rc_frame(void)
 {
+
+  // update electrical from FBW
+  imcu_get_electrical(&vsupply, &current, &energy);
 
   // FIXME what to do here ?
   copy_from_to_fbw();

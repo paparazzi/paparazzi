@@ -30,6 +30,83 @@
 #define AUTOPILOT_UTILS_H
 
 #include "std.h"
+#include "inter_mcu.h"
+#include "generated/airframe.h"
+
+/** Get mode from pulse
+ */
+#define AP_MODE_OF_PULSE(pprz) \
+  (pprz > THRESHOLD2 ? AP_MODE_AUTO2 : \
+   (pprz > THRESHOLD1 ? AP_MODE_AUTO1 : AP_MODE_MANUAL))
+
+/** Stick pushed
+ */
+#define STICK_PUSHED(pprz) (pprz < THRESHOLD1 || pprz > THRESHOLD2)
+
+/** pprz_t to float with saturation
+ */
+#define FLOAT_OF_PPRZ(pprz, center, travel) ((float)pprz / (float)MAX_PPRZ * travel + center)
+
+/** Takeoff detection threshold from throttle
+ */
+#define THROTTLE_THRESHOLD_TAKEOFF (pprz_t)(MAX_PPRZ * 0.9)
+
+/** Threshold for RC mode detection.
+ */
+#define THRESHOLD_MANUAL_PPRZ (MIN_PPRZ / 2)
+#define THRESHOLD1 THRESHOLD_MANUAL_PPRZ
+#define THRESHOLD2 (MAX_PPRZ/2)
+
+/** AP command setter macros for usual commands
+ */
+
+// COMMAND_ROLL
+#define AP_COMMAND_SET_ROLL(_roll) { ap_state->commands[COMMAND_ROLL] = _roll; }
+
+// COMMAND_PITCH
+#define AP_COMMAND_SET_PITCH(_pitch) { ap_state->commands[COMMAND_PITCH] = _pitch; }
+
+// COMMAND_YAW
+#if H_CTL_YAW_LOOP && defined COMMAND_YAW
+#define AP_COMMAND_SET_YAW(_yaw) { ap_state->commands[COMMAND_YAW] = _yaw; }
+#else
+#define AP_COMMAND_SET_YAW(_yaw) {}
+#endif
+
+// COMMAND_THROTTLE
+#define AP_COMMAND_SET_THROTTLE(_throttle) { ap_state->commands[COMMAND_THROTTLE] = _throttle; }
+
+// COMMAND_CL
+#if H_CTL_CL_LOOP && defined COMMAND_CL
+#define AP_COMMAND_SET_CL(_cl) { ap_state->commands[COMMAND_CL] = cl; }
+#else
+#define AP_COMMAND_SET_CL(_cl) {}
+#endif
+
+// ROLL setpoint from RADIO
+#define AP_SETPOINT_ROLL(_roll, _max) { \
+  _roll = FLOAT_OF_PPRZ(fbw_state->channels[RADIO_ROLL], 0., _max); \
+}
+
+// PITCH setpoint from RADIO
+#define AP_SETPOINT_PITCH(_pitch, _max) { \
+  _pitch = FLOAT_OF_PPRZ(fbw_state->channels[RADIO_PITCH], 0., _max); \
+}
+
+// PITCH setpoint from RADIO
+#if H_CTL_YAW_LOOP && defined RADIO_YAW
+#define AP_SETPOINT_YAW_RATE(_yaw, _max) { \
+  _yaw = FLOAT_OF_PPRZ(fbw_state->channels[RADIO_YAW], 0., _max); \
+}
+#else
+#define AP_SETPOINT_YAW_RATE(_yaw, _max) {}
+#endif
+
+// THROTTLE setpoint from RADIO
+#define AP_SETPOINT_THROTTLE(_throttle) { \
+  _throttle = fbw_state->channels[RADIO_THROTTLE]; \
+}
+
 
 #endif // AUTOPILOT_UTILS_H
 

@@ -130,7 +130,7 @@ void cam_periodic(void)
 {
 #if defined(CAM_FIXED_FOR_FPV_IN_AUTO1) && CAM_FIXED_FOR_FPV_IN_AUTO1 == 1
   //Position the camera for straight view.
-  if (autopilot_get_mode() == PPRZ_MODE_AUTO2) {
+  if (autopilot_get_mode() == AP_MODE_AUTO2) {
 #endif
     switch (cam_mode) {
       case CAM_MODE_OFF:
@@ -169,7 +169,7 @@ void cam_periodic(void)
         break;
     }
 #if defined(CAM_FIXED_FOR_FPV_IN_AUTO1) && CAM_FIXED_FOR_FPV_IN_AUTO1 == 1
-  } else if (autopilot_get_mode() == PPRZ_MODE_AUTO1) {
+  } else if (autopilot_get_mode() == AP_MODE_AUTO1) {
     //Position the camera for straight view.
 
 #if defined(CAM_TILT_POSITION_FOR_FPV)

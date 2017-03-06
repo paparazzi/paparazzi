@@ -216,7 +216,7 @@ static inline void v_ctl_set_pitch(void)
 {
   static float last_err = 0.;
 
-  if (autopilot_get_mode() == PPRZ_MODE_MANUAL || autopilot.launch == false) {
+  if (autopilot_get_mode() == AP_MODE_MANUAL || autopilot.launch == false) {
     v_ctl_auto_pitch_sum_err = 0;
   }
 
@@ -244,7 +244,7 @@ static inline void v_ctl_set_throttle(void)
 {
   static float last_err = 0.;
 
-  if (autopilot_get_mode() == PPRZ_MODE_MANUAL || autopilot.launch == false) {
+  if (autopilot_get_mode() == AP_MODE_MANUAL || autopilot.launch == false) {
     v_ctl_auto_throttle_sum_err = 0;
   }
 
@@ -307,7 +307,7 @@ static inline void v_ctl_set_airspeed(void)
 
 
   // Reset integrators in manual or before flight
-  if (autopilot_get_mode() == PPRZ_MODE_MANUAL || autopilot.launch == false) {
+  if (autopilot_get_mode() == AP_MODE_MANUAL || autopilot.launch == false) {
     v_ctl_auto_throttle_sum_err = 0.;
     v_ctl_auto_pitch_sum_err = 0.;
     v_ctl_auto_airspeed_throttle_sum_err = 0.;

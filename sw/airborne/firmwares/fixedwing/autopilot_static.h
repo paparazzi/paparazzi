@@ -33,12 +33,12 @@
 
 /** AP modes.
  */
-#define  PPRZ_MODE_MANUAL 0
-#define  PPRZ_MODE_AUTO1 1
-#define  PPRZ_MODE_AUTO2 2
-#define  PPRZ_MODE_HOME 3
-#define  PPRZ_MODE_GPS_OUT_OF_ORDER 4
-#define  PPRZ_MODE_NB 5
+#define  AP_MODE_MANUAL 0
+#define  AP_MODE_AUTO1 1
+#define  AP_MODE_AUTO2 2
+#define  AP_MODE_HOME 3
+#define  AP_MODE_GPS_OUT_OF_ORDER 4
+#define  AP_MODE_NB 5
 
 /** Static autopilot functions
  */
@@ -55,29 +55,6 @@ extern void autopilot_static_set_motors_on(bool motors_on);
 extern void navigation_task(void);
 extern void attitude_loop(void);
 
-/** Threshold for RC mode detection.
- */
-#define THRESHOLD_MANUAL_PPRZ (MIN_PPRZ / 2)
-#define THRESHOLD1 THRESHOLD_MANUAL_PPRZ
-#define THRESHOLD2 (MAX_PPRZ/2)
-
-#define PPRZ_MODE_OF_PULSE(pprz) \
-  (pprz > THRESHOLD2 ? PPRZ_MODE_AUTO2 : \
-   (pprz > THRESHOLD1 ? PPRZ_MODE_AUTO1 : PPRZ_MODE_MANUAL))
-
-
-// FIXME, move to control
-#define LATERAL_MODE_MANUAL    0
-#define LATERAL_MODE_ROLL_RATE 1
-#define LATERAL_MODE_ROLL      2
-#define LATERAL_MODE_COURSE    3
-#define LATERAL_MODE_NB        4
-extern uint8_t lateral_mode;
-
-#define STICK_PUSHED(pprz) (pprz < THRESHOLD1 || pprz > THRESHOLD2)
-#define FLOAT_OF_PPRZ(pprz, center, travel) ((float)pprz / (float)MAX_PPRZ * travel + center)
-
-#define THROTTLE_THRESHOLD_TAKEOFF (pprz_t)(MAX_PPRZ * 0.9)
 
 /* CONTROL_RATE will be removed in the next release
  * please use CONTROL_FREQUENCY instead

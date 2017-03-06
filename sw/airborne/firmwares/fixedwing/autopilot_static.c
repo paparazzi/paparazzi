@@ -54,9 +54,9 @@ static inline uint8_t pprz_mode_update(void);
 static inline uint8_t mcu1_status_update(void);
 static inline void copy_from_to_fbw(void);
 
-/** mode to enter when RC is lost in PPRZ_MODE_MANUAL or PPRZ_MODE_AUTO1 */
+/** mode to enter when RC is lost in AP_MODE_MANUAL or AP_MODE_AUTO1 */
 #ifndef RC_LOST_MODE
-#define RC_LOST_MODE PPRZ_MODE_HOME
+#define RC_LOST_MODE AP_MODE_HOME
 #endif
 
 
@@ -89,7 +89,7 @@ void autopilot_event(void)
 
 void autopilot_static_init(void)
 {
-  autopilot.mode = PPRZ_MODE_AUTO2;
+  autopilot.mode = AP_MODE_AUTO2;
 
   lateral_mode = LATERAL_MODE_MANUAL;
   gps_lost = false;
@@ -116,11 +116,11 @@ void autopilot_static_on_rc_frame(void)
 
   /* really_lost is true if we lost RC in MANUAL or AUTO1 */
   uint8_t really_lost = bit_is_set(imcu_get_status(), STATUS_RADIO_REALLY_LOST) &&
-                        (autopilot_get_mode() == PPRZ_MODE_AUTO1 || autopilot_get_mode() == PPRZ_MODE_MANUAL);
+                        (autopilot_get_mode() == AP_MODE_AUTO1 || autopilot_get_mode() == AP_MODE_MANUAL);
 
-  if (autopilot_get_mode() != PPRZ_MODE_HOME && autopilot_get_mode() != PPRZ_MODE_GPS_OUT_OF_ORDER && autopilot.launch) {
+  if (autopilot_get_mode() != AP_MODE_HOME && autopilot_get_mode() != AP_MODE_GPS_OUT_OF_ORDER && autopilot.launch) {
     if (too_far_from_home || datalink_lost() || higher_than_max_altitude()) {
-      mode_changed = autopilot_set_mode(PPRZ_MODE_HOME);
+      mode_changed = autopilot_set_mode(AP_MODE_HOME);
     }
     if (really_lost) {
       mode_changed = autopilot_set_mode(RC_LOST_MODE);
@@ -144,7 +144,7 @@ void autopilot_static_on_rc_frame(void)
   /** In AUTO1 mode, compute roll setpoint and pitch setpoint from
    * \a RADIO_ROLL and \a RADIO_PITCH \n
    */
-  if (autopilot_get_mode() == PPRZ_MODE_AUTO1) {
+  if (autopilot_get_mode() == AP_MODE_AUTO1) {
     /** Roll is bounded between [-AUTO1_MAX_ROLL;AUTO1_MAX_ROLL] */
     h_ctl_roll_setpoint = FLOAT_OF_PPRZ(imcu_get_radio(RADIO_ROLL), 0., AUTO1_MAX_ROLL);
 
@@ -158,7 +158,7 @@ void autopilot_static_on_rc_frame(void)
 
   /** In AUTO1, throttle comes from RADIO_THROTTLE
       In MANUAL, the value is copied to get it in the telemetry */
-  if (autopilot_get_mode() == PPRZ_MODE_MANUAL || autopilot_get_mode() == PPRZ_MODE_AUTO1) {
+  if (autopilot_get_mode() == AP_MODE_MANUAL || autopilot_get_mode() == AP_MODE_AUTO1) {
     v_ctl_throttle_setpoint = imcu_get_radio(RADIO_THROTTLE);
   }
   /** else asynchronously set by v_ctl_climb_loop(); */
@@ -173,7 +173,7 @@ void autopilot_static_on_rc_frame(void)
   /* the SITL check is a hack to prevent "automatic" launch in NPS */
 #ifndef SITL
   if (!autopilot.flight_time) {
-    if (autopilot_get_mode() == PPRZ_MODE_AUTO2 && imcu_get_radio(RADIO_THROTTLE) > THROTTLE_THRESHOLD_TAKEOFF) {
+    if (autopilot_get_mode() == AP_MODE_AUTO2 && imcu_get_radio(RADIO_THROTTLE) > THROTTLE_THRESHOLD_TAKEOFF) {
       autopilot.launch = true;
     }
   }
@@ -212,12 +212,12 @@ void navigation_task(void)
   static uint8_t last_pprz_mode;
 
   /** If aircraft is launched and is in autonomus mode, go into
-      PPRZ_MODE_GPS_OUT_OF_ORDER mode (Failsafe) if we lost the GPS */
+      AP_MODE_GPS_OUT_OF_ORDER mode (Failsafe) if we lost the GPS */
   if (autopilot.launch) {
     if (GpsTimeoutError) {
-      if (autopilot_get_mode() == PPRZ_MODE_AUTO2 || autopilot_get_mode() == PPRZ_MODE_HOME) {
+      if (autopilot_get_mode() == AP_MODE_AUTO2 || autopilot_get_mode() == AP_MODE_HOME) {
         last_pprz_mode = autopilot_get_mode();
-        autopilot_set_mode(PPRZ_MODE_GPS_OUT_OF_ORDER);
+        autopilot_set_mode(AP_MODE_GPS_OUT_OF_ORDER);
         autopilot_send_mode();
         gps_lost = true;
       }
@@ -231,9 +231,9 @@ void navigation_task(void)
 #endif /* GPS && FAILSAFE_DELAY_WITHOUT_GPS */
 
   common_nav_periodic_task_4Hz();
-  if (autopilot_get_mode() == PPRZ_MODE_HOME) {
+  if (autopilot_get_mode() == AP_MODE_HOME) {
     nav_home();
-  } else if (autopilot_get_mode() == PPRZ_MODE_GPS_OUT_OF_ORDER) {
+  } else if (autopilot_get_mode() == AP_MODE_GPS_OUT_OF_ORDER) {
     nav_without_gps();
   } else {
     nav_periodic_task();
@@ -254,8 +254,8 @@ void navigation_task(void)
     v_ctl_altitude_loop();
   }
 
-  if (autopilot_get_mode() == PPRZ_MODE_AUTO2 || autopilot_get_mode() == PPRZ_MODE_HOME
-      || autopilot_get_mode() == PPRZ_MODE_GPS_OUT_OF_ORDER) {
+  if (autopilot_get_mode() == AP_MODE_AUTO2 || autopilot_get_mode() == AP_MODE_HOME
+      || autopilot_get_mode() == AP_MODE_GPS_OUT_OF_ORDER) {
 #ifdef H_CTL_RATE_LOOP
     /* Be sure to be in attitude mode, not roll */
     h_ctl_auto1_rate = false;
@@ -272,7 +272,7 @@ void navigation_task(void)
 void attitude_loop(void)
 {
 
-  if (autopilot_get_mode() >= PPRZ_MODE_AUTO2) {
+  if (autopilot_get_mode() >= AP_MODE_AUTO2) {
 #if CTRL_VERTICAL_LANDING
     if (v_ctl_mode == V_CTL_MODE_LANDING) {
       v_ctl_landing_loop();
@@ -339,29 +339,29 @@ void attitude_loop(void)
 #if defined RADIO_CONTROL || defined RADIO_CONTROL_AUTO1
 static inline uint8_t pprz_mode_update(void)
 {
-  if ((autopilot_get_mode() != PPRZ_MODE_HOME &&
-       autopilot_get_mode() != PPRZ_MODE_GPS_OUT_OF_ORDER)
+  if ((autopilot_get_mode() != AP_MODE_HOME &&
+       autopilot_get_mode() != AP_MODE_GPS_OUT_OF_ORDER)
 #ifdef UNLOCKED_HOME_MODE
       || true
 #endif
      ) {
 #ifndef RADIO_AUTO_MODE
-    return autopilot_set_mode(PPRZ_MODE_OF_PULSE(imcu_get_radio(RADIO_MODE)));
+    return autopilot_set_mode(AP_MODE_OF_PULSE(imcu_get_radio(RADIO_MODE)));
 #else
     INFO("Using RADIO_AUTO_MODE to switch between AUTO1 and AUTO2.")
     /* If RADIO_AUTO_MODE is enabled mode swithing will be seperated between two switches/channels
-     * RADIO_MODE will switch between PPRZ_MODE_MANUAL and any PPRZ_MODE_AUTO mode selected by RADIO_AUTO_MODE.
+     * RADIO_MODE will switch between AP_MODE_MANUAL and any AP_MODE_AUTO mode selected by RADIO_AUTO_MODE.
      *
      * This is mainly a cludge for entry level radios with no three-way switch but two available two-way switches which can be used.
      */
-    if (PPRZ_MODE_OF_PULSE(imcu_get_radio(RADIO_MODE)) == PPRZ_MODE_MANUAL) {
+    if (AP_MODE_OF_PULSE(imcu_get_radio(RADIO_MODE)) == AP_MODE_MANUAL) {
       /* RADIO_MODE in MANUAL position */
-      return autopilot_set_mode(PPRZ_MODE_MANUAL);
+      return autopilot_set_mode(AP_MODE_MANUAL);
     } else {
       /* RADIO_MODE not in MANUAL position.
        * Select AUTO mode bassed on RADIO_AUTO_MODE channel
        */
-      return autopilot_set_mode((imcu_get_radio(RADIO_AUTO_MODE) > THRESHOLD2) ? PPRZ_MODE_AUTO2 : PPRZ_MODE_AUTO1);
+      return autopilot_set_mode((imcu_get_radio(RADIO_AUTO_MODE) > THRESHOLD2) ? AP_MODE_AUTO2 : AP_MODE_AUTO1);
     }
 #endif // RADIO_AUTO_MODE
   } else {

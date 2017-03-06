@@ -62,7 +62,11 @@ value sim_sys_time_task(value unit)
 value sim_periodic_task(value unit)
 {
   sensors_task();
+#if USE_GENERATED_AUTOPILOT
+  autopilot_periodic();
+#else
   attitude_loop();
+#endif
   reporting_task();
   modules_periodic_task();
   periodic_task_fbw();
@@ -80,7 +84,9 @@ value sim_monitor_task(value unit)
 
 value sim_nav_task(value unit)
 {
+#if !USE_GENERATED_AUTOPILOT
   navigation_task();
+#endif
   return unit;
 }
 

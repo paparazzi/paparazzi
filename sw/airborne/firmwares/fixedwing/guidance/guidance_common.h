@@ -72,6 +72,11 @@ extern void v_ctl_altitude_loop(void);
 extern void v_ctl_climb_loop(void);
 extern void v_ctl_landing_loop(void);
 
+/** General guidance logic
+ *  This will call the proper control loops according to the sub-modes
+ */
+extern void v_ctl_guidance_loop(void);
+
 /** Computes throttle_slewed from throttle_setpoint */
 extern void v_ctl_throttle_slew(void);
 

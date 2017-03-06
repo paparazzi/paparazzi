@@ -441,16 +441,16 @@ static void mavlink_send_heartbeat(struct transport_tx *trans, struct link_devic
 #ifdef AP
   uint8_t mav_type = MAV_TYPE_FIXED_WING;
   switch (autopilot_get_mode()) {
-    case PPRZ_MODE_MANUAL:
+    case AP_MODE_MANUAL:
       mav_mode |= MAV_MODE_FLAG_MANUAL_INPUT_ENABLED;
       break;
-    case PPRZ_MODE_AUTO1:
+    case AP_MODE_AUTO1:
       mav_mode |= MAV_MODE_FLAG_STABILIZE_ENABLED | MAV_MODE_FLAG_MANUAL_INPUT_ENABLED;
       break;
-    case PPRZ_MODE_AUTO2:
+    case AP_MODE_AUTO2:
       mav_mode |= MAV_MODE_FLAG_AUTO_ENABLED;
       break;
-    case PPRZ_MODE_HOME:
+    case AP_MODE_HOME:
       mav_mode |= MAV_MODE_FLAG_GUIDED_ENABLED | MAV_MODE_FLAG_AUTO_ENABLED;
       break;
     default:
