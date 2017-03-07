@@ -35,9 +35,9 @@
   </metrics>
 
   <mass_balance>
-    <ixx unit="SLUG*FT2"> 0.000988 </ixx>
-    <iyy unit="SLUG*FT2"> 0.00125 </iyy>
-    <izz unit="SLUG*FT2"> 0.00224 </izz>
+    <ixx unit="SLUG*FT2"> 0.000619 </ixx>
+    <iyy unit="SLUG*FT2"> 0.000848 </iyy>
+    <izz unit="SLUG*FT2"> 0.00147 </izz>
     <ixy unit="SLUG*FT2"> 0. </ixy>
     <ixz unit="SLUG*FT2"> 0. </ixz>
     <iyz unit="SLUG*FT2"> 0. </iyz>
@@ -164,15 +164,15 @@
 
       <pure_gain name="g2timesactd">
         <input>fcs/ne_motor_d</input>
-        <gain>0.45</gain>
+        <gain>0.295</gain>
         <output>fcs/g2timesactd</output>
       </pure_gain>
       <pure_gain name="g1timesact">
         <input>fcs/ne_motor_lag</input>
-        <gain>0.0649</gain>
+        <gain>0.0425</gain>
         <output>fcs/g1timesact</output>
       </pure_gain>
-      <summer name="summer1">
+      <summer name="summer0">
         <input>fcs/g2timesactd</input>
         <input>fcs/g1timesact</input>
         <output>fcs/yawcontrol</output>
@@ -180,12 +180,12 @@
 
       <pure_gain name="g2timesactd1">
         <input>fcs/se_motor_d</input>
-        <gain>0.45</gain>
+        <gain>0.295</gain>
         <output>fcs/g2timesactd1</output>
       </pure_gain>
       <pure_gain name="g1timesact1">
         <input>fcs/se_motor_lag</input>
-        <gain>0.0649</gain>
+        <gain>0.0425</gain>
         <output>fcs/g1timesact1</output>
       </pure_gain>
       <summer name="summer1">
@@ -196,15 +196,15 @@
 
       <pure_gain name="g2timesactd2">
         <input>fcs/sw_motor_d</input>
-        <gain>0.45</gain>
+        <gain>0.295</gain>
         <output>fcs/g2timesactd2</output>
       </pure_gain>
       <pure_gain name="g1timesact">
         <input>fcs/sw_motor_lag</input>
-        <gain>0.0649</gain>
+        <gain>0.0425</gain>
         <output>fcs/g1timesact2</output>
       </pure_gain>
-      <summer name="summer1">
+      <summer name="summer2">
         <input>fcs/g2timesactd2</input>
         <input>fcs/g1timesact2</input>
         <output>fcs/yawcontrol2</output>
@@ -212,15 +212,15 @@
 
       <pure_gain name="g2timesactd3">
         <input>fcs/nw_motor_d</input>
-        <gain>0.45</gain>
+        <gain>0.295</gain>
         <output>fcs/g2timesactd3</output>
       </pure_gain>
       <pure_gain name="g1timesact">
         <input>fcs/nw_motor_lag</input>
-        <gain>0.0649</gain>
+        <gain>0.0425</gain>
         <output>fcs/g1timesact3</output>
       </pure_gain>
-      <summer name="summer1">
+      <summer name="summer3">
         <input>fcs/g2timesactd3</input>
         <input>fcs/g1timesact3</input>
         <output>fcs/yawcontrol3</output>
@@ -250,8 +250,8 @@
         </product>
       </function>
       <location unit="IN">
-        <x>-4.87</x>
-        <y>5.51</y>
+        <x>-3.05</x>
+        <y>3.74</y>
         <z>0</z>
       </location>
       <direction>
@@ -269,8 +269,8 @@
         </product>
       </function>
       <location unit="IN">
-        <x>4.87</x>
-        <y>-5.51</y>
+        <x>3.05</x>
+        <y>-3.74</y>
         <z>0</z>
       </location>
       <direction>
@@ -288,8 +288,8 @@
         </product>
       </function>
       <location unit="IN">
-        <x>4.87</x>
-        <y>5.51</y>
+        <x>3.05</x>
+        <y>3.74</y>
         <z>0</z>
       </location>
       <direction>
@@ -307,8 +307,8 @@
         </product>
       </function>
       <location unit="IN">
-        <x>-4.87</x>
-        <y>-5.51</y>
+        <x>-3.05</x>
+        <y>-3.74</y>
         <z>0</z>
       </location>
       <direction>
