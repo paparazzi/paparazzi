@@ -31,6 +31,8 @@
 
 #include "std.h"
 
+typedef uint32_t gpio_port_t;
+
 /**
  * Setup one or more pins of the given GPIO port as outputs.
  * @param[in] port
