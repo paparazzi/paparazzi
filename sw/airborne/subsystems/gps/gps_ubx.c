@@ -286,6 +286,8 @@ void gps_ubx_read_message(void)
             rtcm_man.Cnt187 += 1;
             rtcm_man.Crc187 += crcFailed;;
             break;
+          default:
+            break;
         }
       } else {
         DEBUG_PRINT("Unknown RXM_RTCM version: %i\n", version);
@@ -520,7 +522,7 @@ void gps_inject_data(uint8_t packet_id, uint8_t length, uint8_t *data)
               }
             } else {
               DEBUG_PRINT("Skipping message %i (CRC failed) - %d", packet_id, rtcm.buff[0]);
-              int j;
+              unsigned int j;
               for (j = 1; j < rtcm.len; j++) {
                 DEBUG_PRINT(",%d", rtcm.buff[j]);
               }
