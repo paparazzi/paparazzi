@@ -12,7 +12,7 @@ install:
   - sudo apt-get install -y --force-yes paparazzi-dev paparazzi-jsbsim gcc-arm-embedded libipc-run-perl cmake
 script:
   - arm-none-eabi-gcc --version
-  - if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then make test; fi
+  - if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then if [ "${TRAVIS_EVENT_TYPE}" == "cron" ]; then make test_all_confs; else make test; fi; fi
 
 env:
   global:
