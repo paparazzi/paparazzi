@@ -132,7 +132,7 @@
 /*
  * ADCs
  */
-// AUX 0
+// AUX0
 #if USE_ADC_1
 #define AD1_1_CHANNEL ADC_CHANNEL_IN5
 #define ADC_1 AD1_1
@@ -140,23 +140,23 @@
 #define ADC_1_GPIO_PIN GPIO5
 #endif
 
-// AUX 0
+// AUX1
 #if USE_ADC_2
 #define AD1_2_CHANNEL ADC_CHANNEL_IN2
 #define ADC_2 AD1_2
 #define ADC_2_GPIO_PORT GPIOA
-#define ADC_2_GPIO_PIN GPIO2
+#define ADC_2_GPIO_PIN GPIO3
 #endif
 
-// AUX 2
+// AUX2
 #if USE_ADC_3
 #define AD1_3_CHANNEL ADC_CHANNEL_IN2
 #define ADC_3 AD1_3
 #define ADC_3_GPIO_PORT GPIOA
-#define ADC_3_GPIO_PIN GPIO3
+#define ADC_3_GPIO_PIN GPIO2
 #endif
 
-// AUX 3
+// AUX3
 #if USE_ADC_4
 #define AD1_4_CHANNEL ADC_CHANNEL_IN0
 #define ADC_4 AD1_4
@@ -164,7 +164,7 @@
 #define ADC_4_GPIO_PIN GPIO0
 #endif
 
-// AUX 4
+// AUX4
 #if USE_ADC_5
 #define AD1_5_CHANNEL ADC_CHANNEL_IN13
 #define ADC_5 AD1_5
@@ -172,7 +172,7 @@
 #define ADC_5_GPIO_PIN GPIO3
 #endif
 
-// AUX 5
+// AUX5
 #if USE_ADC_6
 #define AD1_6_CHANNEL ADC_CHANNEL_IN12
 #define ADC_6 AD1_6
