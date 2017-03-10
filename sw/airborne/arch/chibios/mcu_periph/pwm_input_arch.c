@@ -27,7 +27,8 @@
  */
 #include "mcu_periph/pwm_input_arch.h"
 #include "mcu_periph/gpio.h"
-#include "hal.h"
+#include <hal.h>
+#include BOARD_CONFIG
 
 #define ONE_MHZ_CLK 1000000
 
