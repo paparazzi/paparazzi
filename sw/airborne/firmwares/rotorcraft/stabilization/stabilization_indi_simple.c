@@ -287,10 +287,10 @@ static inline void stabilization_indi_calc_cmd(int32_t indi_commands[], struct I
   rates_for_feedback.p = indi.rate[0].o[0];
 #endif
 #if STABILIZATION_INDI_FILTER_PITCH_RATE
-  rates_for_feedback.q = indi.rate[1].o[0]
+  rates_for_feedback.q = indi.rate[1].o[0];
 #endif
 #if STABILIZATION_INDI_FILTER_YAW_RATE
-  rates_for_feedback.r = indi.rate[2].o[0].
+  rates_for_feedback.r = indi.rate[2].o[0];
 #endif
 
   indi.angular_accel_ref.p = indi.reference_acceleration.err_p * QUAT1_FLOAT_OF_BFP(att_err->qx)
