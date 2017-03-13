@@ -272,8 +272,22 @@ void vms_ecu_demo_periodic(void)
   }
 
   //  *PD13 - Digital output. (DOUT_LS4).
+  static uint8_t cnt = 0;
   if (rtds) {
-    gpio_set(GPIOD, 13);
+    // 120Hz, 0-5 Ain
+    // 5V -> fast flash
+    // 0V -> slow flash
+    if (cnt > (10-(uint8_t)(ain_1 + ain_2))) {
+
+      gpio_set(GPIOD, 13);
+      cnt = 0;
+    }
+    else {
+      gpio_clear(GPIOD, 13);
+      cnt++;
+    }
+
+
   }
   else {
     gpio_clear(GPIOD, 13);

@@ -97,13 +97,14 @@ Viking Motorsports ECU example
   </section>
 
   <section name="IMU" prefix="IMU_">
+<!--
     <define name="ACCEL_X_NEUTRAL" value="-50"/>
     <define name="ACCEL_Y_NEUTRAL" value="189"/>
     <define name="ACCEL_Z_NEUTRAL" value="270"/>
     <define name="ACCEL_X_SENS" value="0.59633793275" integer="16"/>
     <define name="ACCEL_Y_SENS" value="0.616609304777" integer="16"/>
     <define name="ACCEL_Z_SENS" value="0.624348656549" integer="16"/>
-
+-->
     <define name="MAG_X_NEUTRAL" value="75"/>
     <define name="MAG_Y_NEUTRAL" value="-10"/>
     <define name="MAG_Z_NEUTRAL" value="7"/>
@@ -111,9 +112,10 @@ Viking Motorsports ECU example
     <define name="MAG_Y_SENS" value="4.23759023915" integer="16"/>
     <define name="MAG_Z_SENS" value="4.61141601045" integer="16"/>
 
-    <define name="BODY_TO_IMU_PHI" value="0." unit="deg" />
+
+    <define name="BODY_TO_IMU_PHI" value="180." unit="deg" />
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg" />
-    <define name="BODY_TO_IMU_PSI" value="0." unit="deg" />
+    <define name="BODY_TO_IMU_PSI" value="90." unit="deg" />
   </section>
 
   <section name="INS" prefix="INS_">
