@@ -76,14 +76,11 @@ class GVFFrame(wx.Frame):
         if int(ac_id) == self.ac_id:
             if msg.name == 'GPS':
                 self.course = int(msg.get_field(3))*np.pi/1800
-
             if msg.name == 'NAVIGATION':
                 self.XY[0] = float(msg.get_field(2))
                 self.XY[1] = float(msg.get_field(3))
-
             if msg.name == 'ATTITUDE':
                 self.yaw = float(msg.get_field(1))
-
             if msg.name == 'DL_VALUE' and \
                     self.indexes_are_good == len(self.list_of_indexes):
                 if int(msg.get_field(0)) == int(self.ke_index):
@@ -372,8 +369,8 @@ class traj_sin:
         xtr = np.linspace(-200, 200, 400)
         ytr = self.A*np.sin(self.w*xtr + self.off)
 
-        xsin =  -(xtr-a)*np.sin(self.alpha) + (ytr-b)*np.cos(self.alpha)
-        ysin =   (xtr-a)*np.cos(self.alpha) + (ytr-b)*np.sin(self.alpha)
+        xsin = -xtr*np.sin(self.alpha) + ytr*np.cos(self.alpha) + a
+        ysin =  xtr*np.cos(self.alpha) + ytr*np.sin(self.alpha) + b
 
         self.traj_points = np.vstack((xsin, ysin))
 
