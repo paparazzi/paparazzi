@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Alexandre Bustico, Gautier Hattenberger
+ * Copyright (C) 2013 Alexandre Bustico, Gautier Hattenberger
  *
  * This file is part of paparazzi.
  *
@@ -19,29 +19,16 @@
  */
 
 /**
- * @file arch/chibios/modules/tlsf/tlsf_malloc_arch.h
+ * @file subsystems/radio_control/hott.h
  *
- * Dynamic memory allocation based on TLSF library.
- *
+ * Radio control via single HOTT receiver in SUMD mode.
  */
 
-#ifndef TLSF_MALLOC_ARCH_H
-#define TLSF_MALLOC_ARCH_H
-#include <ch.h>
-#include <hal.h>
-#include "mcu_periph/ram_arch.h"
+#ifndef RC_HOTT_H
+#define RC_HOTT_H
 
+#include "subsystems/radio_control/hott_common.h"
 
-#define HEAP_CCM          ccmHeap
-// F7 has more than twice RAM than others families
-#if defined STM32F7XX
-#define HEAP_CCM_SIZE     65536
-#else 
-#define HEAP_CCM_SIZE     16384
-#endif
-#define HEAP_CCM_SECTION  FAST_SECTION
+extern struct SHott hott;
 
-#define HEAP_DEFAULT      HEAP_CCM
-
-#endif
-
+#endif /* RC_HOTT_H */

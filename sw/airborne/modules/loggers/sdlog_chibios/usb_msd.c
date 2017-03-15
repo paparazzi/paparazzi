@@ -25,6 +25,7 @@
  */
 
 #include "modules/loggers/sdlog_chibios/usb_msd.h"
+#include "mcu_periph/ram_arch.h"
 
 
 static THD_WORKING_AREA(mass_storage_thread_wa, 1024);
@@ -127,7 +128,7 @@ PACK_STRUCT_BEGIN typedef struct {
 /**
  * @brief   Read-write buffers (TODO: need a way of specifying the size of this)
  */
-static uint8_t rw_buf[2][512];
+static uint8_t IN_DMA_SECTION_CLEAR(rw_buf[2][512]);
 
 typedef uint32_t DWORD __attribute__((__may_alias__));;
 typedef uint16_t WORD  __attribute__((__may_alias__));

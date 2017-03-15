@@ -35,7 +35,13 @@
 #include "subsystems/ins.h"
 #include "math/pprz_algebra.h"
 
+#ifndef NPS_NO_MOTOR_MIXING
 #include "subsystems/actuators/motor_mixing.h"
+
+#if NPS_COMMANDS_NB != MOTOR_MIXING_NB_MOTOR
+#warning "NPS_COMMANDS_NB does not match MOTOR_MIXING_NB_MOTOR!"
+#endif
+#endif
 
 #include "subsystems/abi.h"
 
@@ -44,6 +50,7 @@
 
 // for datalink_time hack
 #include "subsystems/datalink/datalink.h"
+#include "subsystems/actuators.h"
 
 struct NpsAutopilot nps_autopilot;
 bool nps_bypass_ahrs;
@@ -57,8 +64,8 @@ bool nps_bypass_ins;
 #define NPS_BYPASS_INS FALSE
 #endif
 
-#if NPS_COMMANDS_NB != MOTOR_MIXING_NB_MOTOR
-#error "NPS_COMMANDS_NB does not match MOTOR_MIXING_NB_MOTOR!"
+#if INDI_RPM_FEEDBACK
+#error "INDI_RPM_FEEDBACK can not be used in simulation!"
 #endif
 
 void nps_autopilot_init(enum NpsRadioControlType type_rc, int num_rc_script, char *rc_dev)
@@ -152,7 +159,12 @@ void nps_autopilot_run_step(double time)
 
   /* scale final motor commands to 0-1 for feeding the fdm */
   for (uint8_t i = 0; i < NPS_COMMANDS_NB; i++) {
+#if NPS_NO_MOTOR_MIXING
+    actuators_pprz[i] = autopilot_get_motors_on() ? actuators_pprz[i] : 0;
+    nps_autopilot.commands[i] = (double)actuators_pprz[i] / MAX_PPRZ;
+#else
     nps_autopilot.commands[i] = (double)motor_mixing.commands[i] / MAX_PPRZ;
+#endif
   }
 }
 

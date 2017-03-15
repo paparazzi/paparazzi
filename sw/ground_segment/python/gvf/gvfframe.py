@@ -369,8 +369,8 @@ class traj_sin:
         xtr = np.linspace(-200, 200, 400)
         ytr = self.A*np.sin(self.w*xtr + self.off)
 
-        xsin =  -(xtr-a)*np.sin(self.alpha) + (ytr-b)*np.cos(self.alpha)
-        ysin =   (xtr-a)*np.cos(self.alpha) + (ytr-b)*np.sin(self.alpha)
+        xsin = -xtr*np.sin(self.alpha) + ytr*np.cos(self.alpha) + a
+        ysin =  xtr*np.cos(self.alpha) + ytr*np.sin(self.alpha) + b
 
         self.traj_points = np.vstack((xsin, ysin))
 
