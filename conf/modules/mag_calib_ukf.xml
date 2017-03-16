@@ -1,0 +1,29 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="mag_calib_ukf" dir="calibration">
+  <doc>
+    <description>Calibrate magnetometer using UKF</description>
+    <section name="MAG_CALIB_UKF" prefix="MAG_CALIB_UKF_">
+      <define name="HOTSTART" value="TRUE" description="Read calibration on initialization and Write calibration periodically to file"/>
+      <define name="HOTSTART_SAVE_FILE" value="/data/ftp/internal_000/mag_ukf_calib.txt" description="Hotstart save file"/>
+      <define name="NORM" value="1.0f" description="Measurement norm of magnetometer"/>
+      <define name="NOISE_RMS" value="2e-1f" description="Noise RMS of magnetometer"/>
+      <define name="GEO_MAG_TIMEOUT" value="0" description="Geo_mag update timeout (0 = disabled)"/>
+      <define name="VERBOSE" value="FALSE" description="Enable terminal verbose mode"/>
+  </section>
+  </doc>
+  <header>
+    <file name="mag_calib_ukf.h"/>
+  </header>
+  <periodic fun="mag_calib_hotstart_write()" freq="0.25"/>
+  <makefile>
+    <file name="mag_calib_ukf.c"/>
+    <flag name="CFLAGS" value="I$(PAPARAZZI_SRC)/sw/ext/TRICAL/include"/>
+    <flag name="CFLAGS" value="I$(PAPARAZZI_SRC)/sw/ext/TRICAL/src"/>
+    <file name="../../../ext/TRICAL/src/TRICAL.c"/>
+    <file name="../../../ext/TRICAL/src/filter.c"/>
+    <flag name="CFLAGS" value="Wno-unknown-pragmas"/>
+    <flag name="CFLAGS" value="Wno-shadow"/>
+  </makefile>
+</module>
+

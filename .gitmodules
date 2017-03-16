@@ -25,3 +25,6 @@
 [submodule "sw/ext/opencv_bebop"]
 	path = sw/ext/opencv_bebop
 	url = https://github.com/tudelft/opencv_bebop.git
+[submodule "sw/ext/TRICAL"]
+	path = sw/ext/TRICAL
+	url = https://github.com/sfwa/TRICAL.git
