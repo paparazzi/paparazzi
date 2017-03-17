@@ -161,6 +161,7 @@ void uart1_init(void)
 
   sdStart(&SD1, &usart1_config);
   uart1.reg_addr = &SD1;
+  uart1.baudrate = UART1_BAUD;
   uart1.init_struct = &uart1_init_struct;
   uart1_init_struct.conf = &usart1_config;
 
@@ -262,6 +263,7 @@ void uart2_init(void)
 
   sdStart(&SD2, &usart2_config);
   uart2.reg_addr = &SD2;
+  uart2.baudrate = UART2_BAUD;
   uart2.init_struct = &uart2_init_struct;
   uart2_init_struct.conf = &usart2_config;
 
@@ -353,6 +355,7 @@ void uart3_init(void)
 
   sdStart(&SD3, &usart3_config);
   uart3.reg_addr = &SD3;
+  uart3.baudrate = UART3_BAUD;
   uart3.init_struct = &uart3_init_struct;
   uart3_init_struct.conf = &usart3_config;
 
@@ -444,6 +447,7 @@ void uart4_init(void)
 
   sdStart(&SD4, &usart4_config);
   uart4.reg_addr = &SD4;
+  uart4.baudrate = UART4_BAUD;
   uart4.init_struct = &uart4_init_struct;
   uart4_init_struct.conf = &usart4_config;
 
@@ -535,6 +539,7 @@ void uart5_init(void)
 
   sdStart(&SD5, &usart5_config);
   uart5.reg_addr = &SD5;
+  uart5.baudrate = UART5_BAUD;
   uart5.init_struct = &uart5_init_struct;
   uart5_init_struct.conf = &usart5_config;
 
@@ -626,6 +631,7 @@ void uart6_init(void)
 
   sdStart(&SD6, &usart6_config);
   uart6.reg_addr = &SD6;
+  uart6.baudrate = UART6_BAUD;
   uart6.init_struct = &uart6_init_struct;
   uart6_init_struct.conf = &usart6_config;
 
@@ -717,6 +723,7 @@ void uart7_init(void)
 
   sdStart(&SD7, &usart7_config);
   uart7.reg_addr = &SD7;
+  uart7.baudrate = UART7_BAUD;
   uart7.init_struct = &uart7_init_struct;
   uart7_init_struct.conf = &usart7_config;
 
@@ -808,6 +815,7 @@ void uart8_init(void)
 
   sdStart(&SD8, &usart8_config);
   uart8.reg_addr = &SD8;
+  uart8.baudrate = UART8_BAUD;
   uart8.init_struct = &uart8_init_struct;
   uart8_init_struct.conf = &usart8_config;
 
@@ -851,6 +859,7 @@ void uart_periph_set_baudrate(struct uart_periph *p, uint32_t baud )
   SerialConfig *conf = init_struct->conf;
   // set new baudrate
   conf->speed = baud;
+  p->baudrate = baud;
   // restart periph
   sdStop((SerialDriver*)(p->reg_addr));
   sdStart((SerialDriver*)(p->reg_addr), conf);
