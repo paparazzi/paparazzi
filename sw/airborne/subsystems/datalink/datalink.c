@@ -127,6 +127,15 @@ void dl_parse_msg(struct link_device *dev, struct transport_tx *trans, uint8_t *
         );
       }
       break;
+#if USE_GPS_UBX_RTCM
+      case DL_RTCM_INJECT : {
+        // GPS parse data
+        gps_inject_data(DL_RTCM_INJECT_packet_id(buf),
+                        DL_RTCM_INJECT_data_length(buf),
+                        DL_RTCM_INJECT_data(buf));
+      }
+      break;
+#endif  // USE_GPS_UBX_RTCM
 #endif  // USE_GPS
 
       default:
