@@ -347,10 +347,6 @@ static bool gps_ubx_ucenter_autobaud(uint8_t nr)
 #define GPS_UBX_NAV5_DYNAMICS NAV5_DYN_AIRBORNE_2G
 #endif
 
-#ifndef GPS_UBX_ENABLE_NMEA_DATA_MASK
-#define GPS_UBX_ENABLE_NMEA_DATA_MASK 0x00
-#endif
-
 #define NAV5_MASK 0x05 // Apply dynamic model and position fix mode settings
 
 #define NAV5_2D_ONLY 1
@@ -371,6 +367,7 @@ static inline void gps_ubx_ucenter_config_nav(void)
 {
   // New ublox firmware v5 or higher uses CFG_NAV5 message, CFG_NAV is no longer available
   // If version message couldn't be fetched, default to NAV5
+  DEBUG_PRINT("sw_ver: %i, hw_ver: %i\n", gps_ubx_ucenter.sw_ver_h, gps_ubx_ucenter.hw_ver_h);
   if (gps_ubx_ucenter.sw_ver_h < 5 && gps_ubx_ucenter.hw_ver_h < 6 &&
       gps_ubx_ucenter.sw_ver_h != 0 && gps_ubx_ucenter.hw_ver_h != 0) {
     UbxSend_CFG_NAV(gps_ubx_ucenter.dev,
@@ -378,10 +375,17 @@ static inline void gps_ubx_ucenter_config_nav(void)
         0x3C, 0x14, 0x03E8 , 0x0000, 0x0, 0x17, 0x00FA, 0x00FA,
         0x0064, 0x012C, 0x000F, 0x00, 0x00);
   } else {
+#if USE_GPS_UBX_RTCM
+    UbxSend_CFG_NAV5_HPG(gps_ubx_ucenter.dev,
+        NAV5_MASK, GPS_UBX_NAV5_DYNAMICS, NAV5_3D_ONLY, IGNORED, IGNORED, NAV5_DEFAULT_MIN_ELEV, RESERVED,
+        NAV5_DEFAULT_PDOP_MASK, NAV5_DEFAULT_TDOP_MASK, NAV5_DEFAULT_P_ACC, NAV5_DEFAULT_T_ACC,
+        NAV5_DEFAULT_STATIC_HOLD_THRES, 125, 0, 0, RESERVED, 0, 0, RESERVED, RESERVED);
+#else
     UbxSend_CFG_NAV5(gps_ubx_ucenter.dev,
         NAV5_MASK, GPS_UBX_NAV5_DYNAMICS, NAV5_3D_ONLY, IGNORED, IGNORED, NAV5_DEFAULT_MIN_ELEV, RESERVED,
         NAV5_DEFAULT_PDOP_MASK, NAV5_DEFAULT_TDOP_MASK, NAV5_DEFAULT_P_ACC, NAV5_DEFAULT_T_ACC,
         NAV5_DEFAULT_STATIC_HOLD_THRES, RESERVED, RESERVED, RESERVED, RESERVED);
+#endif
   }
 }
 
@@ -397,16 +401,17 @@ static inline void gps_ubx_ucenter_config_nav(void)
 // UART mode: 8N1 with reserved1 set for compatability with A4
 #define UBX_UART_MODE_MASK 0x000008D0
 
-#define UBX_PROTO_MASK  0x0001
-#define NMEA_PROTO_MASK 0x0002
-#define RTCM_PROTO_MASK 0x0004
+#define UBX_PROTO_MASK    0x0001
+#define NMEA_PROTO_MASK   0x0002
+#define RTCM_PROTO_MASK   0x0004
+#define RTCM3_PROTO_MASK  0x0020
 
 #define GPS_PORT_DDC      0x00
 #define GPS_PORT_UART1    0x01
 #define GPS_PORT_UART2    0x02
 #define GPS_PORT_USB      0x03
 #define GPS_PORT_SPI      0x04
-#define GPS_PORT_RESERVED   0x05
+#define GPS_PORT_RESERVED 0x05
 
 #ifndef GPS_UBX_UCENTER_RATE
 #define GPS_UBX_UCENTER_RATE 0x00FA // In milliseconds. 0x00FA = 250ms = 4Hz
@@ -427,8 +432,8 @@ static inline void gps_ubx_ucenter_config_port(void)
     case GPS_PORT_UART1:
     case GPS_PORT_UART2:
       UbxSend_CFG_PRT(gps_ubx_ucenter.dev,
-          gps_ubx_ucenter.port_id, 0x0, 0x0,
-          UBX_UART_MODE_MASK, UART_SPEED(gps_ubx_ucenter.baud_target), UBX_PROTO_MASK | NMEA_PROTO_MASK,
+          gps_ubx_ucenter.port_id, RESERVED, RESERVED,
+          UBX_UART_MODE_MASK, UART_SPEED(gps_ubx_ucenter.baud_target), UBX_PROTO_MASK | NMEA_PROTO_MASK | RTCM3_PROTO_MASK,
           UBX_PROTO_MASK | (NMEA_PROTO_MASK & GPS_UBX_ENABLE_NMEA_DATA_MASK), 0x0, 0x0);
       break;
       // USB Interface
@@ -542,8 +547,10 @@ static bool gps_ubx_ucenter_configure(uint8_t nr)
 #endif
       break;
     case 12:
+#if ! USE_GPS_UBX_RXM_RAW
       // Disable UTM on old Lea4P
       gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_POSUTM_ID, 0);
+#endif
       break;
     case 13:
       // SBAS Configuration
@@ -565,11 +572,29 @@ static bool gps_ubx_ucenter_configure(uint8_t nr)
       gps_ubx_ucenter_enable_msg(UBX_RXM_ID, UBX_RXM_SFRB_ID, 1);
 #endif
       break;
+#if USE_GPS_UBX_RTCM
     case 17:
+      DEBUG_PRINT("CFG_DGNSS\n");
+      UbxSend_CFG_DGNSS(gps_ubx_ucenter.dev, 0x03, RESERVED, RESERVED);
+      break;
+    case 18:
+      DEBUG_PRINT("Enable RELPOSNED\n");
+      gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_RELPOSNED_ID, 1);
+      break;
+    case 19:
+      DEBUG_PRINT("Enable HPPPOSLLH\n");
+      gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_HPPOSLLH_ID, 1);
+      break;
+    case 20:
+      DEBUG_PRINT("Enable RXM_RTCM\n");
+      gps_ubx_ucenter_enable_msg(UBX_RXM_ID, UBX_RXM_RTCM_ID, 1);
+      break;
+#endif
+    case 21:
       // Try to save on non-ROM devices...
       UbxSend_CFG_CFG(gps_ubx_ucenter.dev, 0x00000000, 0xffffffff, 0x00000000);
       break;
-    case 18:
+    case 22:
 #if DEBUG_GPS_UBX_UCENTER
       // Debug Downlink the result of all configuration steps: see messages
       // To view, enable DEBUG message in your telemetry configuration .xml
@@ -585,4 +610,9 @@ static bool gps_ubx_ucenter_configure(uint8_t nr)
 
   gps_ubx_ucenter.reply = GPS_UBX_UCENTER_REPLY_NONE;
   return true; // Continue, except for the last case
+}
+
+int gps_ubx_ucenter_get_status(void)
+{
+  return gps_ubx_ucenter.status;
 }

@@ -32,7 +32,7 @@
 #include "pprzlink/pprzlink_device.h"
 
 /** U-Center Variables */
-#define GPS_UBX_UCENTER_CONFIG_STEPS    19
+#define GPS_UBX_UCENTER_CONFIG_STEPS    23
 
 struct gps_ubx_ucenter_struct {
   uint8_t status;
@@ -63,6 +63,8 @@ extern struct gps_ubx_ucenter_struct gps_ubx_ucenter;
 extern void gps_ubx_ucenter_init(void);
 extern void gps_ubx_ucenter_periodic(void);
 extern void gps_ubx_ucenter_event(void);
+
+extern int gps_ubx_ucenter_get_status(void);
 
 #endif
 

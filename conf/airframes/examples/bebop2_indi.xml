@@ -14,6 +14,7 @@
       <define name="STABILIZATION_INDI_G2_R" value="0.0"/>
     </target>
 
+    <!-- define name="USE_GPS_UBX_RTCM" value="TRUE"/-->
 	  <!-- Subsystem section -->
     <module name="telemetry" type="transparent_udp"/>
     <module name="radio_control" type="datalink"/>
