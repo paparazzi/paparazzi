@@ -26,6 +26,14 @@ PX4_TARGET = "ap"
 PX4_PROTOTYPE ?= "${PAPARAZZI_HOME}/sw/tools/px4/px4fmu-v2.prototype"
 PX4_BL_PORT ?= "/dev/serial/by-id/usb-3D_Robotics*,/dev/serial/by-id/pci-3D_Robotics*"
 
+HAS_LUFTBOOT ?= 0
+ifeq (,$(findstring $(HAS_LUFTBOOT),0 FALSE))
+$(TARGET).CFLAGS+=-DLUFTBOOT
+$(TARGET).LDFLAGS+=-Wl,-Ttext=0x8004000
+DFU_ADDR = 0x8004000
+DFU_PRODUCT = Lisa/Lia
+endif
+
 
 #
 # default LED configuration
