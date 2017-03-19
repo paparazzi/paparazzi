@@ -45,33 +45,13 @@
 
 #include "modules/datalink/extra_pprz_dl.h"
 #include "subsystems/datalink/telemetry.h"
-#include "subsystems/datalink/datalink.h"
-#include "pprzlink/pprz_transport.h"
-
-#if USE_UDP
-#include "mcu_periph/udp.h"
-#endif
-
-#if USE_USB_SERIAL
-#include "mcu_periph/usb_serial.h"
-#endif
 
 
-bool extra_dl_msg_available;
-uint8_t extra_dl_buffer[MSG_SIZE]  __attribute__((aligned));
-
-/* PPRZ transport structure */
 struct pprz_transport extra_pprz_tp;
 
 void extra_pprz_dl_init(void)
 {
   pprz_transport_init(&extra_pprz_tp);
-}
-
-extern void extra_pprz_dl_event(void)
-{
-  pprz_check_and_parse(&EXTRA_DOWNLINK_DEVICE.device, &extra_pprz_tp, extra_dl_buffer, &extra_dl_msg_available);
-  DlCheckAndParse(&EXTRA_DOWNLINK_DEVICE.device, &extra_pprz_tp.trans_tx, extra_dl_buffer);
 }
 
 void extra_pprz_dl_periodic(void)
@@ -82,21 +62,3 @@ void extra_pprz_dl_periodic(void)
 #endif
 }
 
-
-void extra_pprz_dl_parse_payload_cmd(void)
-{
-  // check if the command it meant for me
-  if (AC_ID != DL_PAYLOAD_COMMAND_ac_id(extra_dl_buffer)){
-    return;
-  }
-
-  // check if the payload length it correct
-  if (EXPECTED_PAYLOAD_LENGTH != DL_PAYLOAD_COMMAND_command_length(extra_dl_buffer)){
-    return;
-  }
-
-  // optionally we can check for PAYLOAD_COMMAND version etc, depending on what we define in the packet
-  if (DL_PAYLOAD_COMMAND_command(extra_dl_buffer)[PAYLOAD_CMD_IDX] == PAYLOAD_CMD_INFO){
-    // TODO: do something
-  }
-}
