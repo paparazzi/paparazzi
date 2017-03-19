@@ -16,8 +16,10 @@
       <configure name="PERIODIC_FREQUENCY" value="200"/>
       <configure name="TELEMETRY_FREQUENCY" value="60"/>
 
-    <!-- amount of time it take for the bat to check -->
-    <!-- to avoid bat low spike detection when strong pullup withch draws short sudden power-->
+    <comment>
+      amount of time it take for the bat to check
+      to avoid bat low spike detection when strong pullup withch draws short sudden power
+    </comment>
     <define name="BAT_CHECKER_DELAY" value="80" /><!-- in seconds-->
     <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="80" /><!-- in seconds-->
 
@@ -36,6 +38,7 @@
     </module-->
 
 
+
     <!--module name="ahrs" type="int_cmpl_quat">
       <define name="AHRS_ICQ_IMU_ID" value="IMU_PX4_ID" />
       <define name="AHRS_ICQ_MAG_ID" value="MAG_HMC58XX_SENDER_ID" />
@@ -46,7 +49,9 @@
     <module name="ahrs" type="float_mlkf">
       <configure name="SECONDARY_AHRS" value="float_mlkf"/>
       <define name="AHRS_MLKF_IMU_ID" value="IMU_PX4_ID"/>
-      <!-- use onboard mag -->
+      <comment>
+        use external mag
+      </comment>
       <define name="AHRS_MLKF_MAG_ID" value="MAG_HMC58XX_SENDER_ID" />
       <configure name="USE_MAGNETOMETER" value="TRUE"/>
     </module>
@@ -128,8 +133,9 @@
 
     <!-- optical flow camera over i2c-->
     <module name="px4flow_i2c">
-      <configure name="USE_PX4FLOW_AGL" value="0"/> <!-- don't send AGL measurements -->
-      <configure name="PX4FLOW_COMPENSATE_ROTATION" value="1"/> <!-- compensate AGL for body rotation -->
+      <configure name="USE_PX4FLOW_AGL" value="0" description="don't send AGL measurements"/>
+      <comment>compensate AGL for body rotation</comment>
+      <configure name="PX4FLOW_COMPENSATE_ROTATION" value="1"/>
       <configure name="PX4FLOW_NOISE_STDDEV" value="10.0"/> <!-- standard deviation of the optical flow measurements-->
     </module>
 
