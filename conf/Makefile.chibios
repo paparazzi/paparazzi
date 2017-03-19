@@ -349,9 +349,7 @@ else
 OOCD_BOARD =  $($(TARGET).OOCD_BOARD)
 endif
 
-###############################################################################
-# Upload makefile
-include $(PAPARAZZI_HOME)/conf/Makefile.stm32-upload
+
 
 ###############################################################################
 
@@ -360,3 +358,7 @@ RULESPATH = $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC
 
 EXTRA_RULES_INCLUDE_PATH = $(PAPARAZZI_HOME)/conf/chibios/chibios_extra_rules.mk
 include $(PAPARAZZI_HOME)/conf/chibios/chibios_rules.mk
+
+###############################################################################
+# Upload makefile
+include $(PAPARAZZI_HOME)/conf/Makefile.stm32-upload
