@@ -12,7 +12,7 @@
 
   <firmware name="rotorcraft">
 
-    <target name="ap" board="px4fmu_2.4" />
+    <target name="ap" board="px4fmu_2.4_chibios" />
       <configure name="PERIODIC_FREQUENCY" value="200"/>
       <configure name="TELEMETRY_FREQUENCY" value="60"/>
 
@@ -121,7 +121,7 @@
 
   <modules main_freq="PERIODIC_FREQUENCY">
     <!-- allow flashing FBW target through AP -->
-    <module name="px4_flash"/>
+    <!--module name="px4_flash"/-->
 
     <!-- CPU utilization monitor -->
     <module name="sys_mon"/>
