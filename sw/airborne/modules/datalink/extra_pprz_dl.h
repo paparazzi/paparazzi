@@ -27,34 +27,29 @@
 #ifndef EXTRA_PPRZ_DL_H
 #define EXTRA_PPRZ_DL_H
 
-#include "subsystems/datalink/datalink.h"
-#include "pprzlink/pprz_transport.h"
+// example of checking for correct PAYLOAD_COMMAND message
+#define EXPECTED_PAYLOAD_LENGTH 8
 
-#if USE_UDP
-#include "mcu_periph/udp.h"
-#endif
+// example of a payload command
+#define PAYLOAD_CMD_INFO 1
 
-#if USE_USB_SERIAL
-#include "mcu_periph/usb_serial.h"
-#endif
+// so we don't have to remember the index of bytes
+#define PAYLOAD_CMD_IDX 0
 
-/* PPRZ transport structure */
-extern struct pprz_transport extra_pprz_tp;
-
-/* Datalink Event */
-#define ExtraDatalinkEvent() {                            \
-    pprz_check_and_parse(&EXTRA_DOWNLINK_DEVICE.device, &extra_pprz_tp, dl_buffer, &dl_msg_available); \
-    DlCheckAndParse(&EXTRA_DOWNLINK_DEVICE.device, &extra_pprz_tp.trans_tx, dl_buffer); \
-  }
+/** Datalink Event */
+void extra_pprz_dl_event(void);
 
 /** Init function */
-extern void extra_pprz_dl_init(void);
+void extra_pprz_dl_init(void);
 
 /** Periodic function
  *
  * should be called at TELEMETRY_FREQUENCY
  */
-extern void extra_pprz_dl_periodic(void);
+void extra_pprz_dl_periodic(void);
+
+/** Process payload commands */
+void extra_pprz_dl_parse_payload_cmd(void);
 
 #endif /* EXTRA_PPRZ_DL_H */
 
