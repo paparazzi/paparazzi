@@ -33,19 +33,24 @@
 #include <time.h>
 
 #include "modules/calibration/mag_calib_ukf.h"
+#include "modules/geo_mag/geo_mag.h"                     ///< The geo_mag module doesn't support requesting for updates so we need it's structure
 #include "subsystems/ahrs/ahrs_magnetic_field_model.h"
 #include "math/pprz_algebra_double.h"
 #include "TRICAL.h"
 #include "state.h"
-#include "modules/geo_mag/geo_mag.h"
 #include "generated/airframe.h"
 #include "subsystems/gps.h"
 #include "subsystems/abi_common.h"
 #include "abi_messages.h"
 
 static void mag_calib_ukf_run(uint8_t __attribute__((unused)) sender_id, uint32_t __attribute__((unused)) stamp, struct Int32Vect3 *mag);
+static void mag_calib_update_field(uint8_t __attribute__((unused)) sender_id, struct FloatVect3 *h);
 
 #define PRINT(string,...) fprintf(stderr, "[CALIB_UKF->%s()] " string,__FUNCTION__ , ##__VA_ARGS__)
+
+#if !defined MAG_CALIB_UKF_ABI_BIND_ID
+#define MAG_CALIB_UKF_ABI_BIND_ID IMU_BOARD_ID
+#endif
 
 #if !defined MAG_CALIB_UKF_GEO_MAG_TIMEOUT
 #define MAG_CALIB_UKF_GEO_MAG_TIMEOUT 0
@@ -79,13 +84,18 @@ PRINT_CONFIG_VAR(MAG_CALIB_UKF_HOTSTART_SAVE_FILE)
 #endif
 PRINT_CONFIG_VAR(MAG_CALIB_UKF_VERBOSE)
 
-TRICAL_instance_t mag_calib;
-static abi_event mag_ev;
 bool settings_reset_state = false;
+
+static TRICAL_instance_t mag_calib;
+static abi_event mag_ev;
+static abi_event h_ev;
+
+static uint32_t timestamp_geo_mag;
+static struct FloatVect3 H = { .x = AHRS_H_X, .y = AHRS_H_Y, .z =  AHRS_H_Z};
 
 #if MAG_CALIB_UKF_HOTSTART
 static FILE *fp;
-char hotstart_file_name[512];
+static char hotstart_file_name[512];
 #endif
 
 void mag_calib_ukf_init(void)
@@ -97,62 +107,60 @@ void mag_calib_ukf_init(void)
 
   mag_calib_hotstart_read();
   AbiBindMsgIMU_MAG_INT32(IMU_BOARD_ID, &mag_ev, mag_calib_ukf_run);
+  AbiBindMsgGEO_MAG(ABI_BROADCAST, &h_ev, mag_calib_update_field);    ///< GEO_MAG_SENDER_ID is defined in geo_mag.c so unknown
 #endif
 }
 
-void mag_calib_ukf_run(uint8_t __attribute__((unused)) sender_id, uint32_t __attribute__((unused)) stamp, struct Int32Vect3 *mag)
+void mag_calib_ukf_run(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *mag)
 {
-  static time_t mag_field_from_geo_mag;
-  static bool update_geo_mag_field = true;
-  static struct FloatVect3 H = { .x = AHRS_H_X, .y = AHRS_H_Y, .z =  AHRS_H_Z};
   float measurement[3] = {0.0, 0.0, 0.0}, calibrated_measurement[3] = {0.0, 0.0, 0.0};
-  /** Update geo_mag based on MAG_CALIB_UKF_GEO_MAG_TIMEOUT (0 = no periodic updates) **/
-  if (update_geo_mag_field && geo_mag.ready) {
-    double n                = double_vect3_norm(&geo_mag.vect);
-    if (n > 0.01) {
-      H.x                     = (float) geo_mag.vect.x / n;
-      H.y                     = (float) geo_mag.vect.y / n;
-      H.z                     = (float) geo_mag.vect.z / n;
-      mag_field_from_geo_mag  = time(0);
-      update_geo_mag_field    = false;
-      VERBOSE_PRINT("Updating local magnetic field from geo_mag module (Hx: %4.2f, Hy: %4.2f, Hz: %4.2f)\n", H.x, H.y, H.z);
+  if (sender_id != MAG_CALIB_UKF_ID) {
+    /** Update geo_mag based on MAG_CALIB_UKF_GEO_MAG_TIMEOUT (0 = no periodic updates) **/
+    if (MAG_CALIB_UKF_GEO_MAG_TIMEOUT && GpsFixValid() && (get_sys_time_msec() - timestamp_geo_mag) >= 1000 * MAG_CALIB_UKF_GEO_MAG_TIMEOUT) {
+      geo_mag.ready     = false;
+      geo_mag.calc_once = true;   ///< Geo_mag will not re-update the calculation when the throttle is on so this is neccesary
     }
-  }
-  if (MAG_CALIB_UKF_GEO_MAG_TIMEOUT && GpsFixValid() && difftime(time(0), mag_field_from_geo_mag) >= MAG_CALIB_UKF_GEO_MAG_TIMEOUT) {
-    geo_mag.ready           = false;
-    geo_mag.calc_once       = true;   ///< Geo_mag will not re-update the calculation when the throttle is on so this is neccesary
-    update_geo_mag_field    = true;
-  }
-  /** See if we need to reset the state **/
-  if(settings_reset_state){
+    /** See if we need to reset the state **/
+    if (settings_reset_state) {
       TRICAL_reset(&mag_calib);
       settings_reset_state = false;
+    }
+    /** Update magnetometer UKF and calibrate measurement **/
+    if (mag->x != 0 || mag->y != 0 || mag->z != 0) {
+      /** Rotate the local magnetic field by our current attitude **/
+      struct FloatQuat *body_quat = stateGetNedToBodyQuat_f();
+      struct FloatVect3 expected_measurement;
+      float_quat_vmult(&expected_measurement, body_quat, &H);
+      float expected_mag_field[3] = { expected_measurement.x, expected_measurement.y, expected_measurement.z };
+      /** Update magnetometer UKF **/
+      measurement[0] = MAG_FLOAT_OF_BFP(mag->x);
+      measurement[1] = MAG_FLOAT_OF_BFP(mag->y);
+      measurement[2] = MAG_FLOAT_OF_BFP(mag->z);
+      TRICAL_estimate_update(&mag_calib, measurement, expected_mag_field);
+      TRICAL_measurement_calibrate(&mag_calib, measurement, calibrated_measurement);
+      /** Save calibrated result **/
+      mag->x = (int32_t) MAG_BFP_OF_REAL(calibrated_measurement[0]);
+      mag->y = (int32_t) MAG_BFP_OF_REAL(calibrated_measurement[1]);
+      mag->z = (int32_t) MAG_BFP_OF_REAL(calibrated_measurement[2]);
+      VERBOSE_PRINT("magnetometer measurement (x: %4.2f  y: %4.2f  z: %4.2f) norm: %4.2f\n", measurement[0], measurement[1], measurement[2], hypot(hypot(measurement[0], measurement[1]), measurement[2]));
+      VERBOSE_PRINT("magnetometer bias_f      (x: %4.2f  y: %4.2f  z: %4.2f)\n", mag_calib.state[0], mag_calib.state[1],  mag_calib.state[2]);
+      VERBOSE_PRINT("expected measurement     (x: %4.2f  y: %4.2f  z: %4.2f) norm: %4.2f\n", expected_mag_field[0], expected_mag_field[1], expected_mag_field[2], hypot(hypot(expected_mag_field[0], expected_mag_field[1]), expected_mag_field[2]));
+      VERBOSE_PRINT("calibrated   measurement (x: %4.2f  y: %4.2f  z: %4.2f) norm: %4.2f\n\n", calibrated_measurement[0], calibrated_measurement[1], calibrated_measurement[2], hypot(hypot(calibrated_measurement[0], calibrated_measurement[1]), calibrated_measurement[2]));
+    }
+    AbiSendMsgIMU_MAG_INT32(MAG_CALIB_UKF_ID, stamp, mag);
   }
-  /** Update magnetometer UKF and calibrate measurement **/
-  if (mag->x != 0 || mag->y != 0 || mag->z != 0) {
-    /** Rotate the local magnetic field by our current attitude **/
-    struct FloatQuat *body_quat = stateGetNedToBodyQuat_f();
-    struct FloatRMat body_rmat;
-    float_rmat_of_quat(&body_rmat, body_quat);
-    struct FloatVect3 expected_measurement;
-    float_rmat_vmult(&expected_measurement, &body_rmat, &H);
-    float expected_mag_field[3] = { expected_measurement.x, expected_measurement.y, expected_measurement.z };
-    /** Update magnetometer UKF **/
-    measurement[0] = MAG_FLOAT_OF_BFP(mag->x);
-    measurement[1] = MAG_FLOAT_OF_BFP(mag->y);
-    measurement[2] = MAG_FLOAT_OF_BFP(mag->z);
-    TRICAL_estimate_update(&mag_calib, measurement, expected_mag_field);
-    TRICAL_measurement_calibrate(&mag_calib, measurement, calibrated_measurement);
-    /** Save calibrated result **/
-    mag->x = (int32_t) MAG_BFP_OF_REAL(calibrated_measurement[0]);
-    mag->y = (int32_t) MAG_BFP_OF_REAL(calibrated_measurement[1]);
-    mag->z = (int32_t) MAG_BFP_OF_REAL(calibrated_measurement[2]);
-    VERBOSE_PRINT("magnetometer measurement (x: %4.2f  y: %4.2f  z: %4.2f) norm: %4.2f\n", measurement[0], measurement[1], measurement[2], hypot(hypot(measurement[0], measurement[1]), measurement[2]));
-    VERBOSE_PRINT("magnetometer bias_f      (x: %4.2f  y: %4.2f  z: %4.2f)\n", mag_calib.state[0], mag_calib.state[1],  mag_calib.state[2]);
-    VERBOSE_PRINT("expected measurement     (x: %4.2f  y: %4.2f  z: %4.2f) norm: %4.2f\n", expected_mag_field[0], expected_mag_field[1], expected_mag_field[2], hypot(hypot(expected_mag_field[0], expected_mag_field[1]), expected_mag_field[2]));
-    VERBOSE_PRINT("calibrated   measurement (x: %4.2f  y: %4.2f  z: %4.2f) norm: %4.2f\n\n", calibrated_measurement[0], calibrated_measurement[1], calibrated_measurement[2], hypot(hypot(calibrated_measurement[0], calibrated_measurement[1]), calibrated_measurement[2]));
+}
+
+void mag_calib_update_field(uint8_t __attribute__((unused)) sender_id, struct FloatVect3 *h)
+{
+  double n                = float_vect3_norm(h);
+  if (n > 0.01) {
+    H.x               = (float) h->x / n;
+    H.y               = (float) h->y / n;
+    H.z               = (float) h->z / n;
+    timestamp_geo_mag = get_sys_time_msec();
+    VERBOSE_PRINT("Updating local magnetic field from geo_mag module (Hx: %4.2f, Hy: %4.2f, Hz: %4.2f)\n", H.x, H.y, H.z);
   }
-  AbiSendMsgIMU_MAG_INT32(MAG_CALIB_UKF_ID, get_sys_time_usec(), mag);
 }
 
 void mag_calib_hotstart_read(void)
