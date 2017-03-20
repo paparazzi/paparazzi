@@ -15,13 +15,14 @@
   <header>
     <file name="mag_calib_ukf.h"/>
   </header>
+  <init fun="mag_calib_ukf_init()"/>
   <periodic fun="mag_calib_hotstart_write()" freq="0.25"/>
   <makefile>
     <file name="mag_calib_ukf.c"/>
     <flag name="CFLAGS" value="I$(PAPARAZZI_SRC)/sw/ext/TRICAL/include"/>
     <flag name="CFLAGS" value="I$(PAPARAZZI_SRC)/sw/ext/TRICAL/src"/>
-    <file name="../../../ext/TRICAL/src/TRICAL.c"/>
-    <file name="../../../ext/TRICAL/src/filter.c"/>
+    <file name="TRICAL.c" dir="$(PAPARAZZI_SRC)/sw/ext/TRICAL/src"/>
+    <file name="filter.c" dir="$(PAPARAZZI_SRC)/sw/ext/TRICAL/src"/>
     <flag name="CFLAGS" value="Wno-unknown-pragmas"/>
     <flag name="CFLAGS" value="Wno-shadow"/>
   </makefile>

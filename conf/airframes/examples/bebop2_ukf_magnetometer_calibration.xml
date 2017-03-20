@@ -19,9 +19,7 @@
     <module name="radio_control" type="datalink"/>
     <module name="motor_mixing"/>
     <module name="actuators" type="bebop"/>
-    <module name="imu" type="bebop">
-      <define name="UKF_CALIBRATE_FIELD_SENSOR" value="TRUE"/>
-    </module>
+    <module name="imu" type="bebop" />
     <module name="gps" type="ublox"/>
     <module name="stabilization" type="indi_simple"/>
     <module name="ahrs" type="int_cmpl_quat">
@@ -62,7 +60,7 @@
     <define name="NORM" value="1.0f"/>
     <define name="NOISE_RMS" value="2e-1f"/>
     <define name="GEO_MAG_TIMEOUT" value="0"/>
-    <define name="VERBOSE" value="FALSE"/>
+    <define name="VERBOSE" value="TRUE"/>
   </section>
 
   <section name="MIXING" prefix="MOTOR_MIXING_">
@@ -89,6 +87,7 @@
 
   <section name="IMU" prefix="IMU_">
     <!-- Magneto calibration -->
+    <define name="MAG_X_NEUTRAL" value="8"/>
     <define name="MAG_X_SENS" value="8" integer="16"/>
     <define name="MAG_Y_SENS" value="8" integer="16"/>
     <define name="MAG_Z_SENS" value="8" integer="16"/>
@@ -106,6 +105,7 @@
     <define name="H_X" value="0.3892503"/>
     <define name="H_Y" value="0.0017972"/>
     <define name="H_Z" value="0.9211303"/>
+    <define name="MAG_UPDATE_ALL_AXES" value="TRUE" />
   </section>
 
   <section name="INS" prefix="INS_">

@@ -26,14 +26,43 @@
 #ifndef MAG_CALIB_UKF_H
 #define MAG_CALIB_UKF_H
 
-#include "subsystems/imu.h"
-
-#if USE_MAGNETOMETER
-extern void mag_calib_ukf_init( struct Imu *_imu );
-extern void mag_calib_ukf_run( struct Imu *_imu );
-void mag_calib_hotstart_read( void );
-void mag_calib_hotstart_write( void );
+#ifdef AHRS_FLOAT_CMPL_WRAPPER_H
+#undef AHRS_FC_MAG_ID
+#define AHRS_FC_MAG_ID MAG_CALIB_UKF_ID
 #endif
 
+#ifdef AHRS_INT_CMPL_EULER_WRAPPER_H
+#undef  AHRS_ICE_MAG_ID
+#define AHRS_ICE_MAG_ID MAG_CALIB_UKF_ID
 #endif
 
+#ifdef AHRS_FLOAT_MLKF_WRAPPER_H
+#undef  AHRS_MLKF_MAG_ID
+#define AHRS_MLKF_MAG_ID MAG_CALIB_UKF_ID
+#endif
+
+#ifdef AHRS_FLOAT_INVARIANT_WRAPPER_H
+#undef  AHRS_FINV_MAG_ID
+#define AHRS_FINV_MAG_ID MAG_CALIB_UKF_ID
+#endif
+
+#ifdef AHRS_FLOAT_DCM_WRAPPER_H
+#undef  AHRS_DCM_MAG_ID
+#define AHRS_DCM_MAG_ID MAG_CALIB_UKF_ID
+#endif
+
+#ifdef AHRS_INT_CMPL_QUAT_WRAPPER_H
+#undef  AHRS_ICQ_MAG_ID
+#define AHRS_ICQ_MAG_ID MAG_CALIB_UKF_ID
+#endif
+
+#ifdef INS_FLOAT_INVARIANT_WRAPPER_H
+#undef  INS_FINV_MAG_ID
+#define INS_FINV_MAG_ID MAG_CALIB_UKF_ID
+#endif
+
+void mag_calib_ukf_init(void);
+void mag_calib_hotstart_write(void);
+void mag_calib_hotstart_read(void);
+
+#endif
