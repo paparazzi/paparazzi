@@ -42,6 +42,16 @@
 extern struct pprz_transport extra_pprz_tp;
 
 
+// example of checking for correct PAYLOAD_COMMAND message
+#define EXPECTED_PAYLOAD_LENGTH 8
+
+// example of a payload command
+#define PAYLOAD_CMD_INFO 1
+
+// so we don't have to remember the index of bytes
+#define PAYLOAD_CMD_IDX 0
+
+
 /** Datalink Event */
 void extra_pprz_dl_event(void);
 
@@ -54,6 +64,9 @@ extern void extra_pprz_dl_init(void);
  * should be called at TELEMETRY_FREQUENCY
  */
 extern void extra_pprz_dl_periodic(void);
+
+/** Process payload commands */
+void extra_pprz_dl_parse_payload_cmd(void);
 
 #endif /* EXTRA_PPRZ_DL_H */
 

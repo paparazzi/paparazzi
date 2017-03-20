@@ -74,3 +74,21 @@ void extra_pprz_dl_periodic(void)
 #endif
 }
 
+void extra_pprz_dl_parse_payload_cmd(void)
+{
+  // check if the command it meant for me
+  if (AC_ID != DL_PAYLOAD_COMMAND_ac_id(extra_dl_buffer)){
+    return;
+  }
+
+  // check if the payload length it correct
+  if (EXPECTED_PAYLOAD_LENGTH != DL_PAYLOAD_COMMAND_command_length(extra_dl_buffer)){
+    return;
+  }
+
+  // optionally we can check for PAYLOAD_COMMAND version etc, depending on what we define in the packet
+  if (DL_PAYLOAD_COMMAND_command(extra_dl_buffer)[PAYLOAD_CMD_IDX] == PAYLOAD_CMD_INFO){
+    // TODO: do something
+  }
+}
+
