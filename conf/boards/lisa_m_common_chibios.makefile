@@ -25,7 +25,7 @@ PROJECT = $(TARGET)
 
 # Project specific files and paths (see Makefile.chibios for details)
 CHIBIOS_BOARD_PLATFORM = STM32F1xx/platform.mk
-# CHIBIOS_BOARD_LINKER script depends on whether we use a bootloader or not, see below
+CHIBIOS_BOARD_LINKER = STM32F107xC.ld
 CHIBIOS_BOARD_STARTUP = startup_stm32f1xx.mk
 
 ##############################################################################
@@ -39,8 +39,7 @@ FLASH_MODE ?= DFU
 
 HAS_LUFTBOOT ?= 1
 ifeq (,$(findstring $(HAS_LUFTBOOT),0 FALSE))
-$(TARGET).CFLAGS+=-DLUFTBOOT -DCORTEX_VTOR_INIT=0x00002000
-CHIBIOS_BOARD_LINKER = STM32F107xC_luftboot.ld
-else
-CHIBIOS_BOARD_LINKER = STM32F107xC.ld
+$(TARGET).CFLAGS+=-DLUFTBOOT
+DFU_ADDR = 0x8002000
+DFU_PRODUCT = Lisa/Lia
 endif

@@ -73,6 +73,7 @@
       <arg flag="-s" constant="0.75"/>
       <arg flag="-r" constant="3"/>
     </program>
+    <program name="rtcm2ivy" command="sw/ground_segment/misc/rtcm2ivy"/>
  </section>
 
   <section name="sessions">

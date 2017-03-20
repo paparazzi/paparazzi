@@ -5,3 +5,9 @@
 	rcommit = f53f1f326a730caf6fe5ec9bf8e84f04c7c8e986
         rpath = tools
 
+[package "sw/airborne/subsystems/gps"]
+	url = https://github.com/paparazzi/ubx_RTK_groundstation.git
+	lcommit = c053239c036a62366c7e17c78e34420a8bae5da6
+	lpath = sw/airborne/subsystems/gps/librtcm3
+	rcommit = 27ceb21c7d60548faa8c362d1dbde00057c5e678
+	rpath = lib
