@@ -234,10 +234,15 @@ static void fbw_on_rc_frame(void)
   if (radio_control.values[RADIO_FBW_MODE] < (MIN_PPRZ / 2) && !FBW_MODE_AUTO_ONLY) {
 
 #ifdef RADIO_KILL_SWITCH
+    static bool  kill_state_init = false; // require a kill == off before enabling engines with kill == on
     if (radio_control.values[RADIO_KILL_SWITCH] < (MIN_PPRZ / 2)) {
       fbw_mode = FBW_MODE_FAILSAFE;
+      kill_state_init = true;
     } else {
-      fbw_mode = FBW_MODE_MANUAL;
+      if (kill_state_init)
+        fbw_mode = FBW_MODE_MANUAL;
+      else
+        fbw_mode = FBW_MODE_FAILSAFE;
     }
 #else
       fbw_mode = FBW_MODE_MANUAL;
