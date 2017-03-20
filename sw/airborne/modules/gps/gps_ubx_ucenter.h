@@ -63,6 +63,7 @@ extern struct gps_ubx_ucenter_struct gps_ubx_ucenter;
 extern void gps_ubx_ucenter_init(void);
 extern void gps_ubx_ucenter_periodic(void);
 extern void gps_ubx_ucenter_event(void);
+extern int gps_ubx_ucenter_get_status(void);
 
 #endif
 
