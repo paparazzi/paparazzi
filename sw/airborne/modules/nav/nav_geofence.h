@@ -30,8 +30,7 @@
  * home_mode_max_alt is (optionally) defined in the flight plan
  * GEOFENCE_DATALINK_LOST_TIME is defined in the airframe config file
  */
-
-#include <stdbool.h>
+#include "subsystems/datalink/datalink.h"
 
 #ifdef GEOFENCE_DATALINK_LOST_TIME
 /*

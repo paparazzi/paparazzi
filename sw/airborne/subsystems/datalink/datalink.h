@@ -79,7 +79,7 @@ EXTERN bool datalink_enabled;
 }
 
 /** Check for new message and parse */
-static inline void DlCheckAndParse(struct link_device *dev, struct transport_tx *trans, uint8_t *buf)
+static inline void DlCheckAndParse(struct link_device *dev, struct transport_tx *trans, uint8_t *buf, bool *msg_available)
 {
   // make it possible to disable datalink in NPS sim
 #if USE_NPS
@@ -88,11 +88,11 @@ static inline void DlCheckAndParse(struct link_device *dev, struct transport_tx 
   }
 #endif
 
-  if (dl_msg_available) {
+  if (*msg_available) {
     datalink_time = 0;
     datalink_nb_msgs++;
     dl_parse_msg(dev, trans, buf);
-    dl_msg_available = false;
+    *msg_available = false;
   }
 }
 

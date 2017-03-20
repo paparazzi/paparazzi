@@ -60,7 +60,6 @@
 bool extra_dl_msg_available;
 uint8_t extra_dl_buffer[MSG_SIZE]  __attribute__((aligned));
 
-/* PPRZ transport structure */
 struct pprz_transport extra_pprz_tp;
 
 void extra_pprz_dl_init(void)
@@ -68,10 +67,10 @@ void extra_pprz_dl_init(void)
   pprz_transport_init(&extra_pprz_tp);
 }
 
-extern void extra_pprz_dl_event(void)
+void extra_pprz_dl_event(void)
 {
   pprz_check_and_parse(&EXTRA_DOWNLINK_DEVICE.device, &extra_pprz_tp, extra_dl_buffer, &extra_dl_msg_available);
-  DlCheckAndParse(&EXTRA_DOWNLINK_DEVICE.device, &extra_pprz_tp.trans_tx, extra_dl_buffer);
+  DlCheckAndParse(&EXTRA_DOWNLINK_DEVICE.device, &extra_pprz_tp.trans_tx, extra_dl_buffer, &extra_dl_msg_available);
 }
 
 void extra_pprz_dl_periodic(void)

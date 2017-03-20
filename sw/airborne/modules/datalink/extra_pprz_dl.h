@@ -36,6 +36,9 @@
 // so we don't have to remember the index of bytes
 #define PAYLOAD_CMD_IDX 0
 
+/* PPRZ transport structure */
+extern struct pprz_transport extra_pprz_tp;
+
 /** Datalink Event */
 void extra_pprz_dl_event(void);
 
