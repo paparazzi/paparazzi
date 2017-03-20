@@ -100,7 +100,6 @@ static char hotstart_file_name[512];
 
 void mag_calib_ukf_init(void)
 {
-#if USE_MAGNETOMETER
   TRICAL_init(&mag_calib);
   TRICAL_norm_set(&mag_calib, MAG_CALIB_UKF_NORM);
   TRICAL_noise_set(&mag_calib, MAG_CALIB_UKF_NOISE_RMS);
@@ -108,7 +107,6 @@ void mag_calib_ukf_init(void)
   mag_calib_hotstart_read();
   AbiBindMsgIMU_MAG_INT32(IMU_BOARD_ID, &mag_ev, mag_calib_ukf_run);
   AbiBindMsgGEO_MAG(ABI_BROADCAST, &h_ev, mag_calib_update_field);    ///< GEO_MAG_SENDER_ID is defined in geo_mag.c so unknown
-#endif
 }
 
 void mag_calib_ukf_run(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *mag)
