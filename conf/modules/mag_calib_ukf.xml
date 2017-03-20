@@ -12,6 +12,13 @@
       <define name="VERBOSE" value="FALSE" description="Enable terminal verbose mode"/>
   </section>
   </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="mag calib">
+        <dl_setting var="settings_reset_state" min="0" step="1" max="1" shortname="Reset UKF state" values="FALSE|TRUE" type="bool" />
+      </dl_settings>
+    </dl_settings>
+  </settings>
   <header>
     <file name="mag_calib_ukf.h"/>
   </header>

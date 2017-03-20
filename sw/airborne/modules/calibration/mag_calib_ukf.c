@@ -81,10 +81,7 @@ PRINT_CONFIG_VAR(MAG_CALIB_UKF_VERBOSE)
 
 TRICAL_instance_t mag_calib;
 static abi_event mag_ev;
-
-time_t mag_field_from_geo_mag;
-bool   update_geo_mag_field = true;
-struct FloatVect3 H = { .x = MAG_CALIB_UKF_NORM, .y = 0.0f, .z =  0.0f};
+bool settings_reset_state = false;
 
 #if MAG_CALIB_UKF_HOTSTART
 static FILE *fp;
@@ -98,11 +95,6 @@ void mag_calib_ukf_init(void)
   TRICAL_norm_set(&mag_calib, MAG_CALIB_UKF_NORM);
   TRICAL_noise_set(&mag_calib, MAG_CALIB_UKF_NOISE_RMS);
 
-  H.x = AHRS_H_X;
-  H.y = AHRS_H_Y;
-  H.z = AHRS_H_Z;
-  VERBOSE_PRINT("Local magnetic field loaded from airframe file (Hx: %4.2f, Hy: %4.2f, Hz: %4.2f)\n", H.x, H.y, H.z);
-
   mag_calib_hotstart_read();
   AbiBindMsgIMU_MAG_INT32(IMU_BOARD_ID, &mag_ev, mag_calib_ukf_run);
 #endif
@@ -110,6 +102,9 @@ void mag_calib_ukf_init(void)
 
 void mag_calib_ukf_run(uint8_t __attribute__((unused)) sender_id, uint32_t __attribute__((unused)) stamp, struct Int32Vect3 *mag)
 {
+  static time_t mag_field_from_geo_mag;
+  static bool update_geo_mag_field = true;
+  static struct FloatVect3 H = { .x = AHRS_H_X, .y = AHRS_H_Y, .z =  AHRS_H_Z};
   float measurement[3] = {0.0, 0.0, 0.0}, calibrated_measurement[3] = {0.0, 0.0, 0.0};
   /** Update geo_mag based on MAG_CALIB_UKF_GEO_MAG_TIMEOUT (0 = no periodic updates) **/
   if (update_geo_mag_field && geo_mag.ready) {
@@ -127,6 +122,11 @@ void mag_calib_ukf_run(uint8_t __attribute__((unused)) sender_id, uint32_t __att
     geo_mag.ready           = false;
     geo_mag.calc_once       = true;   ///< Geo_mag will not re-update the calculation when the throttle is on so this is neccesary
     update_geo_mag_field    = true;
+  }
+  /** See if we need to reset the state **/
+  if(settings_reset_state){
+      TRICAL_reset(&mag_calib);
+      settings_reset_state = false;
   }
   /** Update magnetometer UKF and calibrate measurement **/
   if (mag->x != 0 || mag->y != 0 || mag->z != 0) {

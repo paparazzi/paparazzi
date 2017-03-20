@@ -61,6 +61,8 @@
 #define INS_FINV_MAG_ID MAG_CALIB_UKF_ID
 #endif
 
+extern bool settings_reset_state;
+
 void mag_calib_ukf_init(void);
 void mag_calib_hotstart_write(void);
 void mag_calib_hotstart_read(void);
