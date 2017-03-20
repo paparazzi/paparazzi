@@ -2,7 +2,10 @@
 
 <module name="mag_calib_ukf" dir="calibration">
   <doc>
-    <description>Calibrate magnetometer using UKF</description>
+    <description>
+      Calibrate magnetometer using UKF
+      Online calibration of the magnetometer sensor using an UKF approach. For more information see TRICAL project page (https://www.github.com/sfwa/TRICAL)
+    </description>
     <section name="MAG_CALIB_UKF" prefix="MAG_CALIB_UKF_">
       <define name="HOTSTART" value="TRUE" description="Read calibration on initialization and Write calibration periodically to file"/>
       <define name="HOTSTART_SAVE_FILE" value="/data/ftp/internal_000/mag_ukf_calib.txt" description="Hotstart save file"/>
