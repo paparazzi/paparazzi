@@ -37,7 +37,6 @@
 #include "math/pprz_algebra_double.h"
 #include "TRICAL.h"
 #include "state.h"
-#include "subsystems/imu/imu_bebop.h"
 #include "modules/geo_mag/geo_mag.h"
 #include "generated/airframe.h"
 #include "subsystems/gps.h"
