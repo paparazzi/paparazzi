@@ -4,21 +4,25 @@
   <doc>
     <description>
       Calibrate magnetometer using UKF
-      Online calibration of the magnetometer sensor using an UKF approach. For more information see TRICAL project page (https://www.github.com/sfwa/TRICAL)
+      Online calibration of the magnetometer sensor using an UKF approach.
+      It is required to redirect the magnetometer measurements to this module before using them in your estimation filters. In order to do that, define the mag id for your filter (for example AHRS_MLKF_MAG_ID for the mlkf ahrs filter) to MAG_CALIB_UKF_ID.
+      
+      For more information see TRICAL project page (https://www.github.com/sfwa/TRICAL).
     </description>
+    <define name="[AHRS/INS]_XXX_MAG_ID" value="MAG_CALIB_UKF_ID" description="Select correct input mag for your estimation filter (AHRS or INS), replace XXX by your filter name as defined in sw/airborne/subssytems/abi_sender_ids.h"/>
     <section name="MAG_CALIB_UKF" prefix="MAG_CALIB_UKF_">
-      <define name="HOTSTART" value="TRUE" description="Read calibration on initialization and Write calibration periodically to file"/>
-      <define name="HOTSTART_SAVE_FILE" value="/data/ftp/internal_000/mag_ukf_calib.txt" description="Hotstart save file"/>
       <define name="NORM" value="1.0f" description="Measurement norm of magnetometer"/>
       <define name="NOISE_RMS" value="2e-1f" description="Noise RMS of magnetometer"/>
-      <define name="GEO_MAG_TIMEOUT" value="0" description="Geo_mag update timeout (0 = disabled)"/>
-      <define name="VERBOSE" value="FALSE" description="Enable terminal verbose mode"/>
+      <define name="ABI_BIND_ID" value="ABI_BROADCAST" description="Bind to a specific source for input data, broadcast ID by default"/>
+      <define name="HOTSTART" value="TRUE" description="Read calibration on initialization and Write calibration periodically to file (only for Linux-based boards)"/>
+      <define name="HOTSTART_SAVE_FILE" value="/data/ftp/internal_000/mag_ukf_calib.txt" description="Hotstart save file (only for Linux-based boards)"/>
+      <define name="VERBOSE" value="FALSE" description="Enable terminal verbose mode (only for Linux-based boards)"/>
   </section>
   </doc>
   <settings>
     <dl_settings>
       <dl_settings NAME="mag calib">
-        <dl_setting var="settings_reset_state" min="0" step="1" max="1" shortname="Reset UKF state" values="FALSE|TRUE" type="bool" />
+        <dl_setting var="mag_calib_ukf_reset_state" min="0" step="1" max="1" shortname="Reset UKF state" values="FALSE|TRUE" type="bool" />
       </dl_settings>
     </dl_settings>
   </settings>
@@ -29,12 +33,12 @@
   <periodic fun="mag_calib_hotstart_write()" freq="0.25"/>
   <makefile>
     <file name="mag_calib_ukf.c"/>
-    <flag name="CFLAGS" value="I$(PAPARAZZI_SRC)/sw/ext/TRICAL/include"/>
-    <flag name="CFLAGS" value="I$(PAPARAZZI_SRC)/sw/ext/TRICAL/src"/>
+    <include name="$(PAPARAZZI_SRC)/sw/ext/TRICAL/include"/>
+    <include name="$(PAPARAZZI_SRC)/sw/ext/TRICAL/src"/>
     <file name="TRICAL.c" dir="$(PAPARAZZI_SRC)/sw/ext/TRICAL/src"/>
     <file name="filter.c" dir="$(PAPARAZZI_SRC)/sw/ext/TRICAL/src"/>
-    <flag name="CFLAGS" value="Wno-unknown-pragmas"/>
-    <flag name="CFLAGS" value="Wno-shadow"/>
+    <define name="NDEBUG"/> <!-- disable assert -->
+    <flag name="CFLAGS" value="Wno-unknown-pragmas"/> <!-- silence warnings due to TRICAL pragmas -->
   </makefile>
 </module>
 

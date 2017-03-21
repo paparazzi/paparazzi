@@ -26,70 +26,102 @@
  *   - http://au.tono.my/log/20131213-trical-magnetometer-calibration.html
  *   - http://www.acsu.buffalo.edu/~johnc/mag_cal05.pdf
  */
+#include "modules/calibration/mag_calib_ukf.h"
 
-#include <stdio.h>
-#include <error.h>
-#include <stdbool.h>
 #include "math/pprz_algebra_double.h"
 #include "state.h"
 #include "subsystems/imu.h"
-#include "subsystems/gps.h"
-#include "subsystems/abi_common.h"
-#include "subsystems/ahrs/ahrs_magnetic_field_model.h"
-#include "modules/calibration/mag_calib_ukf.h"
-#include "modules/geo_mag/geo_mag.h"                     ///< The geo_mag module doesn't support requesting for updates so we need it's structure
-#include "abi_messages.h"
+#include "subsystems/abi.h"
 #include "generated/airframe.h"
+#include "subsystems/ahrs/ahrs_magnetic_field_model.h"
 #include "TRICAL.h"
 
-static void mag_calib_ukf_run(uint8_t __attribute__((unused)) sender_id, uint32_t __attribute__((unused)) stamp, struct Int32Vect3 *mag);
+//
+// Try to print warnings to user for bad configuration
+//
+#if !defined AHRS_FC_MAG_ID && !defined AHRS_ICE_MAG_ID && !defined AHRS_MLKF_MAG_ID && !defined AHRS_FINV_MAG_ID && \
+  !defined AHRS_DCM_MAG_ID && !defined AHRS_ICQ_MAG_ID && !defined INS_FINV_MAG_ID
+#warning "your AHRS/INS configuration might be wrong to use onboard mag calibration, please refer to the documentation"
+#endif
+
+#if defined AHRS_FC_MAG_ID && (AHRS_FC_MAG_ID != MAG_CALIB_UKF_ID)
+#warning "your AHRS_FC_MAG_ID might by wrong please set to MAG_CALIB_UKF_ID to use onboard mag calibration"
+#endif
+
+#if defined AHRS_ICE_MAG_ID && (AHRS_ICE_MAG_ID != MAG_CALIB_UKF_ID)
+#warning "your AHRS_ICE_MAG_ID might by wrong please set to MAG_CALIB_UKF_ID to use onboard mag calibration"
+#endif
+
+#if defined AHRS_MLKF_MAG_ID && (AHRS_MLKF_MAG_ID != MAG_CALIB_UKF_ID)
+#warning "your AHRS_MLKF_MAG_ID might by wrong please set to MAG_CALIB_UKF_ID to use onboard mag calibration"
+#endif
+
+#if defined AHRS_FINV_MAG_ID && (AHRS_FINV_MAG_ID != MAG_CALIB_UKF_ID)
+#warning "your AHRS_FINV_MAG_ID might by wrong please set to MAG_CALIB_UKF_ID to use onboard mag calibration"
+#endif
+
+#if defined AHRS_DCM_MAG_ID && (AHRS_DCM_MAG_ID != MAG_CALIB_UKF_ID)
+#warning "your AHRS_DCM_MAG_ID might by wrong please set to MAG_CALIB_UKF_ID to use onboard mag calibration"
+#endif
+
+#if defined AHRS_ICQ_MAG_ID && (AHRS_ICQ_MAG_ID != MAG_CALIB_UKF_ID)
+#warning "your AHRS_ICQ_MAG_ID might by wrong please set to MAG_CALIB_UKF_ID to use onboard mag calibration"
+#endif
+
+#if defined INS_FINV_MAG_ID && (INS_FINV_MAG_ID != MAG_CALIB_UKF_ID)
+#warning "your INS_FINV_MAG_ID might by wrong please set to MAG_CALIB_UKF_ID to use onboard mag calibration"
+#endif
+
+// ABI callback declarations
+static void mag_calib_ukf_run(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *mag);
 static void mag_calib_update_field(uint8_t __attribute__((unused)) sender_id, struct FloatVect3 *h);
 
-#if !defined MAG_CALIB_UKF_VERBOSE || !MAG_CALIB_UKF_VERBOSE
-#define VERBOSE_PRINT(...)
-#else
+// Verbose mode is only available on Linux-based autopilots
+#ifndef MAG_CALIB_UKF_VERBOSE
+#define MAG_CALIB_UKF_VERBOSE FALSE
+#endif
+
+#if MAG_CALIB_UKF_VERBOSE
+#include <stdio.h>
 #define VERBOSE_PRINT(string,...) fprintf(stderr, "[CALIB_UKF->%s()] " string,__FUNCTION__ , ##__VA_ARGS__)
+#else
+#define VERBOSE_PRINT(...)
 #endif
 PRINT_CONFIG_VAR(MAG_CALIB_UKF_VERBOSE)
 
-#if !defined MAG_CALIB_UKF_ABI_BIND_ID
-#define MAG_CALIB_UKF_ABI_BIND_ID IMU_BOARD_ID
+#ifndef MAG_CALIB_UKF_ABI_BIND_ID
+#define MAG_CALIB_UKF_ABI_BIND_ID ABI_BROADCAST
 #endif
 PRINT_CONFIG_VAR(MAG_CALIB_UKF_ABI_BIND_ID)
 
-#if !defined MAG_CALIB_UKF_GEO_MAG_TIMEOUT
-#define MAG_CALIB_UKF_GEO_MAG_TIMEOUT 0
-#endif
-PRINT_CONFIG_VAR(MAG_CALIB_UKF_GEO_MAG_TIMEOUT)
-
-#if !defined MAG_CALIB_UKF_NORM
+#ifndef MAG_CALIB_UKF_NORM
 #define MAG_CALIB_UKF_NORM 1.0f
 #endif
 PRINT_CONFIG_VAR(MAG_CALIB_UKF_NORM)
 
-#if !defined MAG_CALIB_UKF_NOISE_RMS
+#ifndef MAG_CALIB_UKF_NOISE_RMS
 #define MAG_CALIB_UKF_NOISE_RMS 2e-1f
 #endif
 PRINT_CONFIG_VAR(MAG_CALIB_UKF_NOISE_RMS)
 
-#if !defined MAG_CALIB_UKF_HOTSTART
+// Hotstart is only available on Linux-based autopilots
+#ifndef MAG_CALIB_UKF_HOTSTART
 #define MAG_CALIB_UKF_HOTSTART FALSE
 #endif
 PRINT_CONFIG_VAR(MAG_CALIB_UKF_HOTSTART)
 
-#if !defined MAG_CALIB_UKF_HOTSTART_SAVE_FILE
+#ifndef MAG_CALIB_UKF_HOTSTART_SAVE_FILE
 #define MAG_CALIB_UKF_HOTSTART_SAVE_FILE /data/ftp/internal_000/mag_ukf_calib.txt
 #endif
 PRINT_CONFIG_VAR(MAG_CALIB_UKF_HOTSTART_SAVE_FILE)
 
-bool settings_reset_state = false;
+bool mag_calib_ukf_reset_state = false;
 struct Int32Vect3 calibrated_mag;
 
 static TRICAL_instance_t mag_calib;
 static abi_event mag_ev;
 static abi_event h_ev;
 
-static uint32_t timestamp_geo_mag;
 static struct FloatVect3 H = { .x = AHRS_H_X, .y = AHRS_H_Y, .z =  AHRS_H_Z};
 
 #if MAG_CALIB_UKF_HOTSTART
@@ -104,23 +136,22 @@ void mag_calib_ukf_init(void)
   TRICAL_noise_set(&mag_calib, MAG_CALIB_UKF_NOISE_RMS);
 
   mag_calib_hotstart_read();
-  AbiBindMsgIMU_MAG_INT32(IMU_BOARD_ID, &mag_ev, mag_calib_ukf_run);
+  AbiBindMsgIMU_MAG_INT32(MAG_CALIB_UKF_ABI_BIND_ID, &mag_ev, mag_calib_ukf_run);
   AbiBindMsgGEO_MAG(ABI_BROADCAST, &h_ev, mag_calib_update_field);    ///< GEO_MAG_SENDER_ID is defined in geo_mag.c so unknown
 }
 
+/** Callback function run for every new mag measurement
+ */
 void mag_calib_ukf_run(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *mag)
 {
-  float measurement[3] = {0.0, 0.0, 0.0}, calibrated_measurement[3] = {0.0, 0.0, 0.0};
+  float measurement[3] = {0.0f, 0.0f, 0.0f};
+  float calibrated_measurement[3] = {0.0f, 0.0f, 0.0f};
+
   if (sender_id != MAG_CALIB_UKF_ID) {
-    /** Update geo_mag based on MAG_CALIB_UKF_GEO_MAG_TIMEOUT (0 = no periodic updates) **/
-    if (MAG_CALIB_UKF_GEO_MAG_TIMEOUT && GpsFixValid() && (get_sys_time_msec() - timestamp_geo_mag) >= 1000 * MAG_CALIB_UKF_GEO_MAG_TIMEOUT) {
-      geo_mag.ready     = false;
-      geo_mag.calc_once = true;   ///< Geo_mag will not re-update the calculation when the throttle is on so this is neccesary
-    }
     /** See if we need to reset the state **/
-    if (settings_reset_state) {
+    if (mag_calib_ukf_reset_state) {
       TRICAL_reset(&mag_calib);
-      settings_reset_state = false;
+      mag_calib_ukf_reset_state = false;
     }
     /** Update magnetometer UKF and calibrate measurement **/
     if (mag->x != 0 || mag->y != 0 || mag->z != 0) {
@@ -142,23 +173,28 @@ void mag_calib_ukf_run(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *mag
       imu.mag.x = calibrated_mag.x;
       imu.mag.y = calibrated_mag.y;
       imu.mag.z = calibrated_mag.z;
+
+      /** Debug print */
       VERBOSE_PRINT("magnetometer measurement (x: %4.2f  y: %4.2f  z: %4.2f) norm: %4.2f\n", measurement[0], measurement[1], measurement[2], hypot(hypot(measurement[0], measurement[1]), measurement[2]));
       VERBOSE_PRINT("magnetometer bias_f      (x: %4.2f  y: %4.2f  z: %4.2f)\n", mag_calib.state[0], mag_calib.state[1],  mag_calib.state[2]);
       VERBOSE_PRINT("expected measurement     (x: %4.2f  y: %4.2f  z: %4.2f) norm: %4.2f\n", expected_mag_field[0], expected_mag_field[1], expected_mag_field[2], hypot(hypot(expected_mag_field[0], expected_mag_field[1]), expected_mag_field[2]));
       VERBOSE_PRINT("calibrated   measurement (x: %4.2f  y: %4.2f  z: %4.2f) norm: %4.2f\n\n", calibrated_measurement[0], calibrated_measurement[1], calibrated_measurement[2], hypot(hypot(calibrated_measurement[0], calibrated_measurement[1]), calibrated_measurement[2]));
     }
+    /** Forward calibrated data
+     * FIXME do we really send 0 if input data was 0 */
     AbiSendMsgIMU_MAG_INT32(MAG_CALIB_UKF_ID, stamp, &calibrated_mag);
   }
 }
 
+/** Callback function to update reference magnetic field from geo_mag module
+ */
 void mag_calib_update_field(uint8_t __attribute__((unused)) sender_id, struct FloatVect3 *h)
 {
-  double n                = float_vect3_norm(h);
+  double n = float_vect3_norm(h);
   if (n > 0.01) {
-    H.x               = (float) h->x / n;
-    H.y               = (float) h->y / n;
-    H.z               = (float) h->z / n;
-    timestamp_geo_mag = get_sys_time_msec();
+    H.x = (float) (h->x / n);
+    H.y = (float) (h->y / n);
+    H.z = (float) (h->z / n);
     VERBOSE_PRINT("Updating local magnetic field from geo_mag module (Hx: %4.2f, Hy: %4.2f, Hz: %4.2f)\n", H.x, H.y, H.z);
   }
 }

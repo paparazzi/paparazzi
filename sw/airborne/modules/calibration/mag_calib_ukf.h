@@ -20,48 +20,20 @@
 /**
  * @file "modules/calibration/mag_calib_ukf.h"
  * @author w.vlenterie
- * Calibrate magnetometer using UKF
+ * Calibrate the magnetometer using an unscented kalman filter
+ * For more information please visit the following links:
+ *   - https://github.com/sfwa/trical
+ *   - http://au.tono.my/log/20131213-trical-magnetometer-calibration.html
+ *   - http://www.acsu.buffalo.edu/~johnc/mag_cal05.pdf
  */
 
 #ifndef MAG_CALIB_UKF_H
 #define MAG_CALIB_UKF_H
 
-#ifdef AHRS_FLOAT_CMPL_WRAPPER_H
-#undef AHRS_FC_MAG_ID
-#define AHRS_FC_MAG_ID MAG_CALIB_UKF_ID
-#endif
+#include "std.h"
 
-#ifdef AHRS_INT_CMPL_EULER_WRAPPER_H
-#undef  AHRS_ICE_MAG_ID
-#define AHRS_ICE_MAG_ID MAG_CALIB_UKF_ID
-#endif
-
-#ifdef AHRS_FLOAT_MLKF_WRAPPER_H
-#undef  AHRS_MLKF_MAG_ID
-#define AHRS_MLKF_MAG_ID MAG_CALIB_UKF_ID
-#endif
-
-#ifdef AHRS_FLOAT_INVARIANT_WRAPPER_H
-#undef  AHRS_FINV_MAG_ID
-#define AHRS_FINV_MAG_ID MAG_CALIB_UKF_ID
-#endif
-
-#ifdef AHRS_FLOAT_DCM_WRAPPER_H
-#undef  AHRS_DCM_MAG_ID
-#define AHRS_DCM_MAG_ID MAG_CALIB_UKF_ID
-#endif
-
-#ifdef AHRS_INT_CMPL_QUAT_WRAPPER_H
-#undef  AHRS_ICQ_MAG_ID
-#define AHRS_ICQ_MAG_ID MAG_CALIB_UKF_ID
-#endif
-
-#ifdef INS_FLOAT_INVARIANT_WRAPPER_H
-#undef  INS_FINV_MAG_ID
-#define INS_FINV_MAG_ID MAG_CALIB_UKF_ID
-#endif
-
-extern bool settings_reset_state;
+// setting to request state reset
+extern bool mag_calib_ukf_reset_state;
 
 void mag_calib_ukf_init(void);
 void mag_calib_hotstart_write(void);
