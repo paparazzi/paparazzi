@@ -28,6 +28,7 @@
 #include "modules/guidance/gvf/trajectories/gvf_line.h"
 #include "modules/guidance/gvf/trajectories/gvf_sin.h"
 
+#include "firmwares/fixedwing/nav.h"
 #include "subsystems/navigation/common_nav.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "autopilot.h"
@@ -236,6 +237,9 @@ bool gvf_ellipse(uint8_t wp, float a, float b, float alpha)
     gvf_trajectory.p[2] = 60;
     gvf_trajectory.p[3] = 60;
   }
+
+  if (gvf_trajectory.p[2] == gvf_trajectory.p[3])
+    horizontal_mode = HORIZONTAL_MODE_CIRCLE;
 
   gvf_ellipse_info(&e, &grad_ellipse, &Hess_ellipse);
   gvf_control_2D(gvf_control.ke, gvf_control.kn, e, &grad_ellipse, &Hess_ellipse);
