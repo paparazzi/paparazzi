@@ -30,27 +30,32 @@
 #include <stdio.h>
 #include <error.h>
 #include <stdbool.h>
-#include <time.h>
-
-#include "modules/calibration/mag_calib_ukf.h"
-#include "modules/geo_mag/geo_mag.h"                     ///< The geo_mag module doesn't support requesting for updates so we need it's structure
-#include "subsystems/ahrs/ahrs_magnetic_field_model.h"
 #include "math/pprz_algebra_double.h"
-#include "TRICAL.h"
 #include "state.h"
-#include "generated/airframe.h"
+#include "subsystems/imu.h"
 #include "subsystems/gps.h"
 #include "subsystems/abi_common.h"
+#include "subsystems/ahrs/ahrs_magnetic_field_model.h"
+#include "modules/calibration/mag_calib_ukf.h"
+#include "modules/geo_mag/geo_mag.h"                     ///< The geo_mag module doesn't support requesting for updates so we need it's structure
 #include "abi_messages.h"
+#include "generated/airframe.h"
+#include "TRICAL.h"
 
 static void mag_calib_ukf_run(uint8_t __attribute__((unused)) sender_id, uint32_t __attribute__((unused)) stamp, struct Int32Vect3 *mag);
 static void mag_calib_update_field(uint8_t __attribute__((unused)) sender_id, struct FloatVect3 *h);
 
-#define PRINT(string,...) fprintf(stderr, "[CALIB_UKF->%s()] " string,__FUNCTION__ , ##__VA_ARGS__)
+#if !defined MAG_CALIB_UKF_VERBOSE || !MAG_CALIB_UKF_VERBOSE
+#define VERBOSE_PRINT(...)
+#else
+#define VERBOSE_PRINT(string,...) fprintf(stderr, "[CALIB_UKF->%s()] " string,__FUNCTION__ , ##__VA_ARGS__)
+#endif
+PRINT_CONFIG_VAR(MAG_CALIB_UKF_VERBOSE)
 
 #if !defined MAG_CALIB_UKF_ABI_BIND_ID
 #define MAG_CALIB_UKF_ABI_BIND_ID IMU_BOARD_ID
 #endif
+PRINT_CONFIG_VAR(MAG_CALIB_UKF_ABI_BIND_ID)
 
 #if !defined MAG_CALIB_UKF_GEO_MAG_TIMEOUT
 #define MAG_CALIB_UKF_GEO_MAG_TIMEOUT 0
@@ -77,14 +82,8 @@ PRINT_CONFIG_VAR(MAG_CALIB_UKF_HOTSTART)
 #endif
 PRINT_CONFIG_VAR(MAG_CALIB_UKF_HOTSTART_SAVE_FILE)
 
-#if !defined MAG_CALIB_UKF_VERBOSE || !MAG_CALIB_UKF_VERBOSE
-#define VERBOSE_PRINT(...)
-#else
-#define VERBOSE_PRINT PRINT
-#endif
-PRINT_CONFIG_VAR(MAG_CALIB_UKF_VERBOSE)
-
 bool settings_reset_state = false;
+struct Int32Vect3 calibrated_mag;
 
 static TRICAL_instance_t mag_calib;
 static abi_event mag_ev;
@@ -137,15 +136,18 @@ void mag_calib_ukf_run(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *mag
       TRICAL_estimate_update(&mag_calib, measurement, expected_mag_field);
       TRICAL_measurement_calibrate(&mag_calib, measurement, calibrated_measurement);
       /** Save calibrated result **/
-      mag->x = (int32_t) MAG_BFP_OF_REAL(calibrated_measurement[0]);
-      mag->y = (int32_t) MAG_BFP_OF_REAL(calibrated_measurement[1]);
-      mag->z = (int32_t) MAG_BFP_OF_REAL(calibrated_measurement[2]);
+      calibrated_mag.x = (int32_t) MAG_BFP_OF_REAL(calibrated_measurement[0]);
+      calibrated_mag.y = (int32_t) MAG_BFP_OF_REAL(calibrated_measurement[1]);
+      calibrated_mag.z = (int32_t) MAG_BFP_OF_REAL(calibrated_measurement[2]);
+      imu.mag.x = calibrated_mag.x;
+      imu.mag.y = calibrated_mag.y;
+      imu.mag.z = calibrated_mag.z;
       VERBOSE_PRINT("magnetometer measurement (x: %4.2f  y: %4.2f  z: %4.2f) norm: %4.2f\n", measurement[0], measurement[1], measurement[2], hypot(hypot(measurement[0], measurement[1]), measurement[2]));
       VERBOSE_PRINT("magnetometer bias_f      (x: %4.2f  y: %4.2f  z: %4.2f)\n", mag_calib.state[0], mag_calib.state[1],  mag_calib.state[2]);
       VERBOSE_PRINT("expected measurement     (x: %4.2f  y: %4.2f  z: %4.2f) norm: %4.2f\n", expected_mag_field[0], expected_mag_field[1], expected_mag_field[2], hypot(hypot(expected_mag_field[0], expected_mag_field[1]), expected_mag_field[2]));
       VERBOSE_PRINT("calibrated   measurement (x: %4.2f  y: %4.2f  z: %4.2f) norm: %4.2f\n\n", calibrated_measurement[0], calibrated_measurement[1], calibrated_measurement[2], hypot(hypot(calibrated_measurement[0], calibrated_measurement[1]), calibrated_measurement[2]));
     }
-    AbiSendMsgIMU_MAG_INT32(MAG_CALIB_UKF_ID, stamp, mag);
+    AbiSendMsgIMU_MAG_INT32(MAG_CALIB_UKF_ID, stamp, &calibrated_mag);
   }
 }
 
