@@ -41,11 +41,9 @@
 /* PPRZ transport structure */
 extern struct pprz_transport extra_pprz_tp;
 
-/* Datalink Event */
-#define ExtraDatalinkEvent() {                            \
-    pprz_check_and_parse(&EXTRA_DOWNLINK_DEVICE.device, &extra_pprz_tp, dl_buffer, &dl_msg_available); \
-    DlCheckAndParse(&EXTRA_DOWNLINK_DEVICE.device, &extra_pprz_tp.trans_tx, dl_buffer); \
-  }
+/** Datalink Event */
+void extra_pprz_dl_event(void);
+
 
 /** Init function */
 extern void extra_pprz_dl_init(void);

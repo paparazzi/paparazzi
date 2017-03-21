@@ -31,9 +31,8 @@
  * GEOFENCE_DATALINK_LOST_TIME is defined in the airframe config file
  */
 
-#include <stdbool.h>
-
 #ifdef GEOFENCE_DATALINK_LOST_TIME
+#include "subsystems/datalink/datalink.h"
 /*
  * from the airfame config file:
  * go to HOME mode if datalink lost for GEOFENCE_DATALINK_LOST_TIME

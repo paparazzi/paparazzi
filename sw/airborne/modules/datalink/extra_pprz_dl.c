@@ -46,6 +46,8 @@
 #include "modules/datalink/extra_pprz_dl.h"
 #include "subsystems/datalink/telemetry.h"
 
+bool extra_dl_msg_available;
+uint8_t extra_dl_buffer[MSG_SIZE]  __attribute__((aligned));
 
 struct pprz_transport extra_pprz_tp;
 
@@ -54,6 +56,14 @@ void extra_pprz_dl_init(void)
   pprz_transport_init(&extra_pprz_tp);
 }
 
+
+void extra_pprz_dl_event(void)
+{
+  pprz_check_and_parse(&EXTRA_DOWNLINK_DEVICE.device, &extra_pprz_tp, extra_dl_buffer, &extra_dl_msg_available);
+  DlCheckAndParse(&EXTRA_DOWNLINK_DEVICE.device, &extra_pprz_tp.trans_tx, extra_dl_buffer, &extra_dl_msg_available);
+}
+
+
 void extra_pprz_dl_periodic(void)
 {
 #if PERIODIC_TELEMETRY && defined(TELEMETRY_PROCESS_Extra)
@@ -61,4 +71,3 @@ void extra_pprz_dl_periodic(void)
   periodic_telemetry_send_Extra(DefaultPeriodic, &extra_pprz_tp.trans_tx, &(EXTRA_DOWNLINK_DEVICE).device);
 #endif
 }
-

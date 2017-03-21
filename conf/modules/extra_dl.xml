@@ -11,7 +11,16 @@
   </header>
   <init fun="extra_pprz_dl_init()"/>
   <periodic fun="extra_pprz_dl_periodic()" freq="TELEMETRY_FREQUENCY" autorun="TRUE"/>
-  <event fun="ExtraDatalinkEvent()"/>
+
+  <!--
+  The event function listens on the extra telemetry port (from the payload computer for example)
+  and parses the received "datalink" messages, such as MOVE_WP.
+  We need this function to be able to listen to the extra telemetry port  
+
+  As a result all messages normally handled by the autopilot (such as MOVE_WP) are processed.
+  -->
+  <event fun="extra_pprz_dl_event()"/>
+
   <makefile target="ap">
     <configure name="EXTRA_DL_PORT" default="uart1" case="upper|lower"/>
     <define name="EXTRA_DOWNLINK_DEVICE" value="$(EXTRA_DL_PORT_LOWER)"/>
