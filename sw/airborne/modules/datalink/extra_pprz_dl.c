@@ -46,8 +46,6 @@
 #include "modules/datalink/extra_pprz_dl.h"
 #include "subsystems/datalink/telemetry.h"
 
-
-
 bool extra_dl_msg_available;
 uint8_t extra_dl_buffer[MSG_SIZE]  __attribute__((aligned));
 
@@ -73,22 +71,3 @@ void extra_pprz_dl_periodic(void)
   periodic_telemetry_send_Extra(DefaultPeriodic, &extra_pprz_tp.trans_tx, &(EXTRA_DOWNLINK_DEVICE).device);
 #endif
 }
-
-void extra_pprz_dl_parse_payload_cmd(void)
-{
-  // check if the command it meant for me
-  if (AC_ID != DL_PAYLOAD_COMMAND_ac_id(extra_dl_buffer)){
-    return;
-  }
-
-  // check if the payload length it correct
-  if (EXPECTED_PAYLOAD_LENGTH != DL_PAYLOAD_COMMAND_command_length(extra_dl_buffer)){
-    return;
-  }
-
-  // optionally we can check for PAYLOAD_COMMAND version etc, depending on what we define in the packet
-  if (DL_PAYLOAD_COMMAND_command(extra_dl_buffer)[PAYLOAD_CMD_IDX] == PAYLOAD_CMD_INFO){
-    // TODO: do something
-  }
-}
-
