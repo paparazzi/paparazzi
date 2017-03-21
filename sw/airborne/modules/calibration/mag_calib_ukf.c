@@ -34,6 +34,7 @@
 #include "subsystems/abi.h"
 #include "generated/airframe.h"
 #include "subsystems/ahrs/ahrs_magnetic_field_model.h"
+#include "subsystems/datalink/telemetry.h"
 #include "TRICAL.h"
 
 //
@@ -104,6 +105,12 @@ PRINT_CONFIG_VAR(MAG_CALIB_UKF_NORM)
 #endif
 PRINT_CONFIG_VAR(MAG_CALIB_UKF_NOISE_RMS)
 
+#ifdef MAG_CALIB_UKF_INITIAL_STATE
+#define MAG_CALIB_UKF_USE_INITIAL_STATE 1
+#else
+#define MAG_CALIB_UKF_USE_INITIAL_STATE 0
+#endif
+
 // Hotstart is only available on Linux-based autopilots
 #ifndef MAG_CALIB_UKF_HOTSTART
 #define MAG_CALIB_UKF_HOTSTART FALSE
@@ -116,6 +123,7 @@ PRINT_CONFIG_VAR(MAG_CALIB_UKF_HOTSTART)
 PRINT_CONFIG_VAR(MAG_CALIB_UKF_HOTSTART_SAVE_FILE)
 
 bool mag_calib_ukf_reset_state = false;
+bool mag_calib_ukf_send_state = false;
 struct Int32Vect3 calibrated_mag;
 
 static TRICAL_instance_t mag_calib;
@@ -134,8 +142,22 @@ void mag_calib_ukf_init(void)
   TRICAL_init(&mag_calib);
   TRICAL_norm_set(&mag_calib, MAG_CALIB_UKF_NORM);
   TRICAL_noise_set(&mag_calib, MAG_CALIB_UKF_NOISE_RMS);
-
   mag_calib_hotstart_read();
+#if MAG_CALIB_UKF_USE_INITIAL_STATE
+  float initial_state[12] = MAG_CALIB_UKF_INITIAL_STATE;
+  mag_calib.state[0] = initial_state[0];
+  mag_calib.state[1] = initial_state[1];
+  mag_calib.state[2] = initial_state[2];
+  mag_calib.state[3] = initial_state[3];
+  mag_calib.state[4] = initial_state[4];
+  mag_calib.state[5] = initial_state[5];
+  mag_calib.state[6] = initial_state[6];
+  mag_calib.state[7] = initial_state[7];
+  mag_calib.state[8] = initial_state[8];
+  mag_calib.state[9] = initial_state[9];
+  mag_calib.state[10] = initial_state[10];
+  mag_calib.state[11] = initial_state[11];
+#endif
   AbiBindMsgIMU_MAG_INT32(MAG_CALIB_UKF_ABI_BIND_ID, &mag_ev, mag_calib_ukf_run);
   AbiBindMsgGEO_MAG(ABI_BROADCAST, &h_ev, mag_calib_update_field);    ///< GEO_MAG_SENDER_ID is defined in geo_mag.c so unknown
 }
@@ -149,6 +171,10 @@ void mag_calib_ukf_run(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *mag
 
   if (sender_id != MAG_CALIB_UKF_ID) {
     /** See if we need to reset the state **/
+    if (mag_calib_ukf_send_state) {
+      mag_calib_send_state();
+      mag_calib_ukf_send_state = false;
+    }
     if (mag_calib_ukf_reset_state) {
       TRICAL_reset(&mag_calib);
       mag_calib_ukf_reset_state = false;
@@ -179,10 +205,9 @@ void mag_calib_ukf_run(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *mag
       VERBOSE_PRINT("magnetometer bias_f      (x: %4.2f  y: %4.2f  z: %4.2f)\n", mag_calib.state[0], mag_calib.state[1],  mag_calib.state[2]);
       VERBOSE_PRINT("expected measurement     (x: %4.2f  y: %4.2f  z: %4.2f) norm: %4.2f\n", expected_mag_field[0], expected_mag_field[1], expected_mag_field[2], hypot(hypot(expected_mag_field[0], expected_mag_field[1]), expected_mag_field[2]));
       VERBOSE_PRINT("calibrated   measurement (x: %4.2f  y: %4.2f  z: %4.2f) norm: %4.2f\n\n", calibrated_measurement[0], calibrated_measurement[1], calibrated_measurement[2], hypot(hypot(calibrated_measurement[0], calibrated_measurement[1]), calibrated_measurement[2]));
+      /** Forward calibrated data */
+      AbiSendMsgIMU_MAG_INT32(MAG_CALIB_UKF_ID, stamp, &calibrated_mag);
     }
-    /** Forward calibrated data
-     * FIXME do we really send 0 if input data was 0 */
-    AbiSendMsgIMU_MAG_INT32(MAG_CALIB_UKF_ID, stamp, &calibrated_mag);
   }
 }
 
@@ -192,10 +217,21 @@ void mag_calib_update_field(uint8_t __attribute__((unused)) sender_id, struct Fl
 {
   double n = float_vect3_norm(h);
   if (n > 0.01) {
-    H.x = (float) (h->x / n);
-    H.y = (float) (h->y / n);
-    H.z = (float) (h->z / n);
+    H.x = (float)(h->x / n);
+    H.y = (float)(h->y / n);
+    H.z = (float)(h->z / n);
     VERBOSE_PRINT("Updating local magnetic field from geo_mag module (Hx: %4.2f, Hy: %4.2f, Hz: %4.2f)\n", H.x, H.y, H.z);
+  }
+}
+
+void mag_calib_send_state(void)
+{
+  // TODO: find a better way to relay the filter state
+  char data[256];
+  uint8_t i;
+  for (i = 0; i < 12; i++) {
+    snprintf(data, 256, "%s, mag_calib.state[%d]: %0.6f", AIRFRAME_NAME, i, mag_calib.state[i]);
+    DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, strlen(data), data);
   }
 }
 

@@ -34,9 +34,11 @@
 
 // setting to request state reset
 extern bool mag_calib_ukf_reset_state;
+extern bool mag_calib_ukf_send_state;
 
 void mag_calib_ukf_init(void);
 void mag_calib_hotstart_write(void);
 void mag_calib_hotstart_read(void);
+void mag_calib_send_state(void);
 
 #endif

@@ -14,6 +14,7 @@
       <define name="NORM" value="1.0f" description="Measurement norm of magnetometer"/>
       <define name="NOISE_RMS" value="2e-1f" description="Noise RMS of magnetometer"/>
       <define name="ABI_BIND_ID" value="ABI_BROADCAST" description="Bind to a specific source for input data, broadcast ID by default"/>
+      <define name="INITIAL_STATE" value="{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}" type="float[12]" description="Initial state to be used by filter (suggested for non-Linux-based boards). You can get the state via settings."/>
       <define name="HOTSTART" value="TRUE" description="Read calibration on initialization and Write calibration periodically to file (only for Linux-based boards)"/>
       <define name="HOTSTART_SAVE_FILE" value="/data/ftp/internal_000/mag_ukf_calib.txt" description="Hotstart save file (only for Linux-based boards)"/>
       <define name="VERBOSE" value="FALSE" description="Enable terminal verbose mode (only for Linux-based boards)"/>
@@ -22,6 +23,7 @@
   <settings>
     <dl_settings>
       <dl_settings NAME="mag calib">
+        <dl_setting var="mag_calib_ukf_send_state" min="0" step="1" max="1" shortname="Send UKF state" values="FALSE|TRUE" type="bool" />
         <dl_setting var="mag_calib_ukf_reset_state" min="0" step="1" max="1" shortname="Reset UKF state" values="FALSE|TRUE" type="bool" />
       </dl_settings>
     </dl_settings>
@@ -38,7 +40,7 @@
     <file name="TRICAL.c" dir="$(PAPARAZZI_SRC)/sw/ext/TRICAL/src"/>
     <file name="filter.c" dir="$(PAPARAZZI_SRC)/sw/ext/TRICAL/src"/>
     <define name="NDEBUG"/> <!-- disable assert -->
-    <flag name="CFLAGS" value="Wno-unknown-pragmas"/> <!-- silence warnings due to TRICAL pragmas -->
+    <flag name="CFLAGS" value="Wno-unknown-pragmas -Wno-shadow"/> <!-- silence warnings due to TRICAL pragmas -->
   </makefile>
 </module>
 
