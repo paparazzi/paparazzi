@@ -58,7 +58,7 @@ static void send_gvf(struct transport_tx *trans, struct link_device *dev)
       plen = 6;
       break;
     default:
-      plen = 0;
+      plen = 1;
       break;
   }
 
