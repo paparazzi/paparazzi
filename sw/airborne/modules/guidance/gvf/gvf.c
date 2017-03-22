@@ -240,6 +240,8 @@ bool gvf_ellipse(uint8_t wp, float a, float b, float alpha)
 
   if (gvf_trajectory.p[2] == gvf_trajectory.p[3])
     horizontal_mode = HORIZONTAL_MODE_CIRCLE;
+  else
+    horizontal_mode = HORIZONTAL_MODE_WAYPOINT;
 
   gvf_ellipse_info(&e, &grad_ellipse, &Hess_ellipse);
   gvf_control_2D(gvf_control.ke, gvf_control.kn, e, &grad_ellipse, &Hess_ellipse);
