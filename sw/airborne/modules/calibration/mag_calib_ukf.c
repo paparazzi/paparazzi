@@ -105,12 +105,6 @@ PRINT_CONFIG_VAR(MAG_CALIB_UKF_NORM)
 #endif
 PRINT_CONFIG_VAR(MAG_CALIB_UKF_NOISE_RMS)
 
-#ifdef MAG_CALIB_UKF_INITIAL_STATE
-#define MAG_CALIB_UKF_USE_INITIAL_STATE 1
-#else
-#define MAG_CALIB_UKF_USE_INITIAL_STATE 0
-#endif
-
 // Hotstart is only available on Linux-based autopilots
 #ifndef MAG_CALIB_UKF_HOTSTART
 #define MAG_CALIB_UKF_HOTSTART FALSE
@@ -143,20 +137,9 @@ void mag_calib_ukf_init(void)
   TRICAL_norm_set(&mag_calib, MAG_CALIB_UKF_NORM);
   TRICAL_noise_set(&mag_calib, MAG_CALIB_UKF_NOISE_RMS);
   mag_calib_hotstart_read();
-#if MAG_CALIB_UKF_USE_INITIAL_STATE
+#ifdef MAG_CALIB_UKF_INITIAL_STATE
   float initial_state[12] = MAG_CALIB_UKF_INITIAL_STATE;
-  mag_calib.state[0] = initial_state[0];
-  mag_calib.state[1] = initial_state[1];
-  mag_calib.state[2] = initial_state[2];
-  mag_calib.state[3] = initial_state[3];
-  mag_calib.state[4] = initial_state[4];
-  mag_calib.state[5] = initial_state[5];
-  mag_calib.state[6] = initial_state[6];
-  mag_calib.state[7] = initial_state[7];
-  mag_calib.state[8] = initial_state[8];
-  mag_calib.state[9] = initial_state[9];
-  mag_calib.state[10] = initial_state[10];
-  mag_calib.state[11] = initial_state[11];
+  memcpy(&mag_calib.state, &initial_state, 12 * sizeof(float));
 #endif
   AbiBindMsgIMU_MAG_INT32(MAG_CALIB_UKF_ABI_BIND_ID, &mag_ev, mag_calib_ukf_run);
   AbiBindMsgGEO_MAG(ABI_BROADCAST, &h_ev, mag_calib_update_field);    ///< GEO_MAG_SENDER_ID is defined in geo_mag.c so unknown
@@ -226,13 +209,7 @@ void mag_calib_update_field(uint8_t __attribute__((unused)) sender_id, struct Fl
 
 void mag_calib_send_state(void)
 {
-  // TODO: find a better way to relay the filter state
-  char data[256];
-  uint8_t i;
-  for (i = 0; i < 12; i++) {
-    snprintf(data, 256, "%s, mag_calib.state[%d]: %0.6f", AIRFRAME_NAME, i, mag_calib.state[i]);
-    DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, strlen(data), data);
-  }
+  DOWNLINK_SEND_PAYLOAD_FLOAT(DefaultChannel, DefaultDevice, 12, mag_calib.state);
 }
 
 void mag_calib_hotstart_read(void)
