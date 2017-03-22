@@ -123,7 +123,7 @@ void imu_init(void)
 #if defined IMU_MAG_X_NEUTRAL && defined IMU_MAG_Y_NEUTRAL && defined IMU_MAG_Z_NEUTRAL
   VECT3_ASSIGN(imu.mag_neutral,   IMU_MAG_X_NEUTRAL,   IMU_MAG_Y_NEUTRAL,   IMU_MAG_Z_NEUTRAL);
 #else
-#if USE_MAGNETOMETER
+#if USE_MAGNETOMETER && (!defined MAG_CALIB_UKF_H)
   INFO("Magnetometer neutrals are set to zero, you should calibrate!")
 #endif
   INT_VECT3_ZERO(imu.mag_neutral);

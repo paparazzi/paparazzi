@@ -294,4 +294,8 @@
 #define THRUST_INCREMENT_ID 1
 #endif
 
+#ifndef MAG_CALIB_UKF_ID
+#define MAG_CALIB_UKF_ID 20
+#endif
+
 #endif /* ABI_SENDER_IDS_H */
