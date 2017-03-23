@@ -268,7 +268,7 @@ void line_fit(int32_t *displacement, int32_t *divergence, int32_t *flow, uint32_
   // compute fixed sums
   int32_t xend = size_int - border_int - 1;
   sumX = xend * (xend + 1) / 2 - border_int * (border_int + 1) / 2 + border_int;
-  sumX2 = xend * (xend + 1) * (2 * xend + 1) / 6;
+  sumX2 = xend * (xend + 1) * (2 * xend + 1) / 6 - border_int * (border_int + 1) * (2 * border_int + 1) / 6 + border_int*border_int;
   xMean = (size_int - 1) / 2;
   count = size_int - 2 * border_int;
 
