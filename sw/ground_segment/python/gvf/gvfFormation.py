@@ -111,9 +111,9 @@ def main():
         interface.shutdown()
         return
 
-    B = np.loadtxt('./formation/' + sys.argv[1])
-    desired_sigmas = np.loadtxt('./formation/' + sys.argv[2])*np.pi/180.0
-    ids = np.loadtxt('./formation/' + sys.argv[3])
+    B = np.loadtxt(sys.argv[1])
+    desired_sigmas = np.loadtxt(sys.argv[2])*np.pi/180.0
+    ids = np.loadtxt(sys.argv[3])
     radius = float(sys.argv[4])
     k = float(sys.argv[5])
 
