@@ -122,9 +122,9 @@ void calculate_edge_histogram(struct image_t *img, int32_t edge_histogram[],
         sobel_sum = 0;
 
         for (c = -1; c <= 1; c++) {
-          idx = interlace * (image_width * y + (x + c)); // 2 for interlace
+          idx = interlace * (image_width * y + (x + c));
 
-          sobel_sum += Sobel[c + 1] * (int32_t)img_buf[idx + 1];
+          sobel_sum += Sobel[c + 1] * (int32_t)img_buf[idx];
         }
         sobel_sum = abs(sobel_sum);
         if (sobel_sum > edge_threshold) {
@@ -141,9 +141,9 @@ void calculate_edge_histogram(struct image_t *img, int32_t edge_histogram[],
         sobel_sum = 0;
 
         for (c = -1; c <= 1; c++) {
-          idx = interlace * (image_width * (y + c) + x); // 2 for interlace
+          idx = interlace * (image_width * (y + c) + x);
 
-          sobel_sum += Sobel[c + 1] * (int32_t)img_buf[idx + 1];
+          sobel_sum += Sobel[c + 1] * (int32_t)img_buf[idx];
         }
         sobel_sum = abs(sobel_sum);
         if (sobel_sum > edge_threshold) {
