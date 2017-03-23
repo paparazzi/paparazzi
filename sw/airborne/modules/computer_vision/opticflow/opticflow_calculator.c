@@ -584,6 +584,10 @@ void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *
 #endif
   // Increment and wrap current time frame
   current_frame_nr = (current_frame_nr + 1) % MAX_HORIZON;
+
+  // Free malloc'd variables
+  free(displacement.x);
+  free(displacement.y);
 }
 
 
