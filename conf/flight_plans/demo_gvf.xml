@@ -1,9 +1,7 @@
 <!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
 
 <flight_plan alt="260" ground_alt="185" lat0="43.46223" lon0="1.27289" max_dist_from_home="1500" name="Basic" security_height="25">
-  <header>
 
-</header>
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>
     <waypoint alt="235" name="STDBY" x="49.5" y="100.1"/>
@@ -14,7 +12,11 @@
     <waypoint alt="235.0" name="CIRCLE" x="-83.9" y="89.4"/>
     <waypoint alt="235.0" name="ELLIPSE" x="0.5" y="109.0"/>
   </waypoints>
-  <exceptions/>
+
+  <modules>
+    <module name="gvf_module"/>
+  </modules>
+
   <blocks>
     <block name="Wait GPS">
       <set value="1" var="autopilot.kill_throttle"/>
