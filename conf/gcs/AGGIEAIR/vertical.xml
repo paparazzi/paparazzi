@@ -1,0 +1,52 @@
+<layout width="1280" height="709">
+  <columns>
+    <rows SIZE="600">
+      <widget NAME="strips" SIZE="225"/>
+      <widget NAME="aircraft" SIZE="350"/>
+      <widget NAME="alarms"/>
+    </rows>
+    <rows>
+      <widget NAME="map2d">
+        <papget type="message_field" display="gauge" x="77" y="304">
+          <property name="field" value="CAMERA_PAYLOAD:used_memory"/>
+          <property name="scale" value="1.0"/>
+          <property name="min" value="0."/>
+          <property name="max" value="100."/>
+          <property name="size" value="50."/>
+          <property name="text" value="Used memory(%)"/>
+        </papget>
+        <papget type="message_field" display="gauge" x="74" y="198">
+          <property name="field" value="CAMERA_PAYLOAD:used_disk"/>
+          <property name="scale" value="1.0"/>
+          <property name="min" value="0."/>
+          <property name="max" value="100."/>
+          <property name="size" value="50."/>
+          <property name="text" value="Used disk(%)"/>
+        </papget>
+        <papget type="message_field" display="text" x="45" y="414">
+          <property name="field" value="CAMERA_PAYLOAD:error_code"/>
+          <property name="size" value="15."/>
+          <property name="format" value="Error code: %.0f"/>
+          <property name="color" value="green"/>
+        </papget>
+        <papget type="message_field" display="led" x="151" y="395">
+          <property name="scale" value="1"/>
+          <property name="field" value="CAMERA_PAYLOAD:error_code"/>
+          <property name="size" value="15."/>
+          <property name="text" value="Error:"/>
+          <property name="test_value" value="0"/> <!-- will be green only if value==0 -->
+          <property name="test_invert" value="true"/>
+        </papget>
+        <papget type="message_field" display="led" x="152" y="366">
+          <property name="scale" value="1"/>
+          <property name="field" value="CAMERA_PAYLOAD:door_status"/>
+          <property name="size" value="15."/>
+          <property name="text" value="Door status:"/>
+          <property name="test_value" value="2"/> <!-- will be green only if value==2 -->
+          <property name="test_invert" value="true"/>
+        </papget>
+
+      </widget>
+    </rows>
+  </columns>
+</layout>

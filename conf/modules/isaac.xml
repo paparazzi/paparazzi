@@ -1,0 +1,33 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="isaac" dir="cartography">
+  <doc>
+    <description>
+    ISaAC: The Intelligent Safety and Airworthiness Co-Pilot module
+    Based on paper "A Payload Verification and Management Framework
+    for Small UAV-based Personal Remote Sensing Systems" by Cal Coopmans
+    and Chris Coffin. Link: http://ieeexplore.ieee.org/abstract/document/6309316/
+
+    ISaAC is intented mainly for mapping applications.
+
+    This module processes messages from ISaAC, and either forwards them to the GCS
+    (such as CAMERA_SNAPSHOT or CAMERA_PAYLOAD messages), or responds to them necessary
+    (such as MOVE_WP).
+
+    The module assumes the source of the messages is trusted (i.e. not authentication besides 
+    AC_ID check is performed).
+    </description>
+  </doc>
+  <depends>extra_dl</depends>
+  <header>
+    <file name="isaac.h"/>
+  </header>
+  <init fun="isaac_init()"/>
+  <periodic fun="isaac_periodic()" freq="1." autorun="TRUE"/>
+  <datalink message="CAMERA_SNAPSHOT" fun="isaac_parse_cam_snapshot_dl()"/>
+  <datalink message="CAMERA_PAYLOAD" fun="isaac_parse_cam_payload_dl()"/>
+  <makefile>
+    <file name="isaac.c"/>
+  </makefile>
+</module>
+

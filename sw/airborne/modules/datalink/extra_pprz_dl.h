@@ -41,6 +41,8 @@
 /* PPRZ transport structure */
 extern struct pprz_transport extra_pprz_tp;
 
+extern uint8_t extra_dl_buffer[MSG_SIZE]  __attribute__((aligned));
+
 /** Datalink Event */
 void extra_pprz_dl_event(void);
 
