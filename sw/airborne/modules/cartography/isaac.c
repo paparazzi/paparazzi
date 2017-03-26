@@ -68,13 +68,16 @@ void isaac_periodic(void)
         &cam_snapshot.cam_state,
         &cam_snapshot.snapshot_num,
         &cam_snapshot.snapshot_valid,
-        &cam_snapshot.lens_temp);
+        &cam_snapshot.lens_temp,
+        &cam_snapshot.array_temp);
 
     send_cam_snapshot = false;
   }
 
   if (send_cam_payload)
   {
+    // NOTE: this would send the message over the EXTRA_DL port
+    // DOWNLINK_SEND_CAMERA_PAYLOAD(extra_pprz_tp, EXTRA_DOWNLINK_DEVICE,
     // send down to GCS
     DOWNLINK_SEND_CAMERA_PAYLOAD(DefaultChannel, DefaultDevice,
         &cam_payload.timestamp,
@@ -104,8 +107,9 @@ void isaac_parse_cam_snapshot_dl(void)
   cam_snapshot.cam_id = DL_CAMERA_SNAPSHOT_camera_id(extra_dl_buffer);
   cam_snapshot.cam_state = DL_CAMERA_SNAPSHOT_camera_state(extra_dl_buffer);
   cam_snapshot.snapshot_num = DL_CAMERA_SNAPSHOT_snapshot_image_number(extra_dl_buffer);
-  cam_snapshot.snapshot_valid = DL_CAMERA_SNAPSHOT_valid_snapshot(extra_dl_buffer);
+  cam_snapshot.snapshot_valid = DL_CAMERA_SNAPSHOT_snapshot_valid(extra_dl_buffer);
   cam_snapshot.lens_temp = DL_CAMERA_SNAPSHOT_lens_temp(extra_dl_buffer);
+  cam_snapshot.array_temp = DL_CAMERA_SNAPSHOT_array_temp(extra_dl_buffer);
 }
 
 void isaac_parse_cam_payload_dl(void){

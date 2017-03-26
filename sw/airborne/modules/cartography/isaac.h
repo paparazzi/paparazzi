@@ -57,6 +57,7 @@ struct CameraSnapshot {
   uint16_t snapshot_num;
   uint8_t snapshot_valid;
   float lens_temp;
+  float array_temp;
 };
 
 /** Init function */

@@ -26,7 +26,7 @@
   <periodic fun="isaac_periodic()" freq="1." autorun="TRUE"/>
   <datalink message="CAMERA_SNAPSHOT" fun="isaac_parse_cam_snapshot_dl()"/>
   <datalink message="CAMERA_PAYLOAD" fun="isaac_parse_cam_payload_dl()"/>
-  <makefile>
+  <makefile target="ap">
     <file name="isaac.c"/>
   </makefile>
 </module>
