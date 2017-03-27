@@ -194,23 +194,9 @@ static int cmp_flow(const void *a, const void *b);
 /**
  * Initialize the opticflow calculator
  * @param[out] *opticflow The new optical flow calculator
- * @param[in] *w The image width
- * @param[in] *h The image height
  */
-void opticflow_calc_init(struct opticflow_t *opticflow, uint16_t w, uint16_t h)
+void opticflow_calc_init(struct opticflow_t *opticflow)
 {
-
-  init_median_filter(&vel_x_filt);
-  init_median_filter(&vel_y_filt);
-
-  /* Create the image buffers */
-  image_create(&opticflow->img_gray, w, h, IMAGE_GRAYSCALE);
-  image_create(&opticflow->prev_img_gray, w, h, IMAGE_GRAYSCALE);
-
-  /* Set the previous values */
-  opticflow->got_first_img = false;
-  FLOAT_RATES_ZERO(opticflow->prev_rates);
-
   /* Set the default values */
   opticflow->method = OPTICFLOW_METHOD; //0 = LK_fast9, 1 = Edgeflow
   opticflow->window_size = OPTICFLOW_WINDOW_SIZE;
@@ -234,7 +220,6 @@ void opticflow_calc_init(struct opticflow_t *opticflow, uint16_t w, uint16_t h)
   opticflow->fast9_padding = OPTICFLOW_FAST9_PADDING;
   opticflow->fast9_rsize = 512;
   opticflow->fast9_ret_corners = malloc(sizeof(struct point_t) * opticflow->fast9_rsize);
-
 }
 /**
  * Run the optical flow with fast9 and lukaskanade on a new image frame
@@ -247,7 +232,17 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
                              struct opticflow_result_t *result)
 {
   if (opticflow->just_switched_method) {
-    opticflow_calc_init(opticflow, img->w, img->h);
+	// Create the image buffers
+	image_create(&opticflow->img_gray, img->w, img->h, IMAGE_GRAYSCALE);
+	image_create(&opticflow->prev_img_gray, img->w, img->h, IMAGE_GRAYSCALE);
+
+	// Set the previous values
+	opticflow->got_first_img = false;
+	FLOAT_RATES_ZERO(opticflow->prev_rates);
+
+	// Init median filters with zeros
+	init_median_filter(&vel_x_filt);
+	init_median_filter(&vel_y_filt);
   }
 
   // variables for size_divergence:
