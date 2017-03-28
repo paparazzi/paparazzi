@@ -135,6 +135,23 @@
      </program>
    </session>
 
+   <session name="NPS Flight Gear">
+     <program name="Data Link">
+       <arg flag="-udp"/>
+       <arg flag="-udp_broadcast"/>
+     </program>
+     <program name="Server">
+      <arg flag="-n"/>
+     </program>
+     <program name="GCS"/>
+     <program name="Simulator">
+      <arg flag="-a" constant="@AIRCRAFT"/>
+      <arg flag="-f" constant="127.0.0.1"/>
+      <arg flag="-b" constant="127.255.255.255"/>
+      <arg flag="--fg_fdm" constant=""/>
+     </program>
+   </session>
+
    <session name="HITL+SBUS USB-serial@57600">
      <program name="Data Link">
        <arg flag="-d" constant="/dev/ttyUSB0"/>
