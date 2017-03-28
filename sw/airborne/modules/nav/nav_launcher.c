@@ -120,7 +120,6 @@ void nav_launcher_setup(void)
       stateGetPositionUtm_f()->alt + LAUNCHER_TAKEOFF_CIRCLE_ALT;
 
   CLaunch_Status = L_Pitch_Nav;
-  autopilot_set_kill_throttle(false);
 }
 
 bool nav_launcher_run(void)
@@ -141,7 +140,6 @@ bool nav_launcher_run(void)
       NavVerticalThrottleMode(MAX_PPRZ * (1));
       NavAttitude(0);
 
-      autopilot_set_kill_throttle(false);
 
       //If the plane has been launched and has traveled for more than a specified distance, switch to line nav
       if (stateGetHorizontalSpeedNorm_f() > LAUNCHER_TAKEOFF_MIN_SPEED_LINE) {
@@ -159,7 +157,6 @@ bool nav_launcher_run(void)
       NavVerticalAutoThrottleMode(LAUNCHER_TAKEOFF_PITCH);
       NavVerticalThrottleMode(MAX_PPRZ * (1));
       nav_route_xy(launch_x, launch_y, launch_line_x, launch_line_y);
-      autopilot_set_kill_throttle(false);
 
       //If the aircraft is above a specific alt, greater than a specific speed or too far away, circle up
       if (((stateGetPositionUtm_f()->alt
