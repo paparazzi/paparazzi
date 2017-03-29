@@ -52,8 +52,12 @@
 #ifndef RADIO_YAW
 #define RADIO_YAW        3
 #endif
+#ifndef RADIO_GEAR
 #define RADIO_GEAR       4
+#endif
+#ifndef RADIO_FLAP
 #define RADIO_FLAP       5
+#endif
 #define RADIO_AUX1       5
 #define RADIO_AUX2       6
 #define RADIO_AUX3       7

@@ -471,6 +471,16 @@
         <arg flag="-ac" constant="@AIRCRAFT"/>
       </program>
     </session>
+    <session name="OpenUAS Replay">
+      <program name="Log File Player"/>
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="GCS">
+        <arg flag="-speech"/>
+      </program>
+      <program name="Messages"/>
+    </session>
     <session name="OU Simulation">
       <program name="Simulator">
         <arg flag="-a" constant="VivifyMK1"/>
