@@ -52,15 +52,33 @@
 #ifndef RADIO_YAW
 #define RADIO_YAW        3
 #endif
+#ifndef RADIO_GEAR
 #define RADIO_GEAR       4
+#endif
+#ifndef RADIO_FLAP
 #define RADIO_FLAP       5
+#endif
+#ifndef RADIO_AUX1
 #define RADIO_AUX1       5
+#endif
+#ifndef RADIO_AUX2
 #define RADIO_AUX2       6
+#endif
+#ifndef RADIO_AUX3
 #define RADIO_AUX3       7
+#endif
+#ifndef RADIO_AUX4
 #define RADIO_AUX4       8
+#endif
+#ifndef RADIO_AUX5
 #define RADIO_AUX5       9
+#endif
+#ifndef RADIO_AUX6
 #define RADIO_AUX6       10
+#endif
+#ifndef RADIO_AUX7
 #define RADIO_AUX7       11
+#endif
 
 /* reverse some channels to suit Paparazzi conventions          */
 /* the maximum number of channels a Spektrum can transmit is 12 */
