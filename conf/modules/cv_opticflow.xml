@@ -31,6 +31,7 @@
       <define name="WINDOW_SIZE" value="10" description="Window size used for block matching (pixels)"/>
       <define name="SEARCH_DISTANCE" value="10" description="Maximum search distance for blockmatching (pixels)"/>
       <define name="SUBPIXEL_FACTOR" value="10" description="Amount of subpixels per pixel, used for more precise (subpixel) calculations of the flow"/>
+      <define name="RESOLUTION_FACTOR" value="1000" description="The resolution factor needed to calculate the divergence without floats"/>
       <define name="DEROTATION" value="1" description="Derotation either turned on or off (depended on gyroscope measurements)"/>
       <define name="MEDIAN_FILTER" value="0" description="A median filter on the resulting velocities to be turned on or off (last 5 measurements)"/>
       <define name="KALMAN_FILTER" value="1" description="A kalman filter on the resulting velocities to be turned on or off (fused with accelerometers)"/>
@@ -58,6 +59,7 @@
         <dl_setting var="opticflow.window_size" module="computer_vision/opticflow_module" min="0" step="1" max="20" shortname="window_size" param="OPTICFLOW_WINDOW_SIZE"/>
         <dl_setting var="opticflow.search_distance" module="computer_vision/opticflow_module" min="0" step="1" max="50" shortname="search_distance" param="SEARCH_DISTANCE"/>
         <dl_setting var="opticflow.subpixel_factor" module="computer_vision/opticflow_module" min="0" step="10" max="1000" shortname="subpixel_factor" param="OPTICFLOW_SUBPIXEL_FACTOR"/>
+        <dl_setting var="opticflow.resolution_factor" module="computer_vision/opticflow_module" min="10" step="10" max="10000" shortname="resolution_factor" param="OPTICFLOW_RESOLUTION_FACTOR"/>
         <dl_setting var="opticflow.derotation" min="0" step="1" max="1" module="computer_vision/opticflow_module" values="OFF|ON" shortname="derotation" param="OPTICFLOW_DEROTATION"/>
         <dl_setting var="opticflow.median_filter" module="computer_vision/opticflow_module" min="0" step="1" max="1" values="OFF|ON" shortname="median_filter" param="OPTICFLOW_MEDIAN_FILTER"/>
         <dl_setting var="opticflow.kalman_filter" module="computer_vision/opticflow_module" min="0" step="1" max="1" values="OFF|ON" shortname="kalman_filter" param="OPTICFLOW_KALMAN_FILTER"/>

@@ -102,6 +102,11 @@ PRINT_CONFIG_VAR(OPTICFLOW_SEARCH_DISTANCE)
 #endif
 PRINT_CONFIG_VAR(OPTICFLOW_SUBPIXEL_FACTOR)
 
+#ifndef OPTICFLOW_RESOLUTION_FACTOR
+#define OPTICFLOW_RESOLUTION_FACTOR 100
+#endif
+PRINT_CONFIG_VAR(OPTICFLOW_RESOLUTION_FACTOR)
+
 #ifndef OPTICFLOW_MAX_ITERATIONS
 #define OPTICFLOW_MAX_ITERATIONS 10
 #endif
@@ -207,6 +212,7 @@ void opticflow_calc_init(struct opticflow_t *opticflow)
 
   opticflow->max_track_corners = OPTICFLOW_MAX_TRACK_CORNERS;
   opticflow->subpixel_factor = OPTICFLOW_SUBPIXEL_FACTOR;
+  opticflow->resolution_factor = OPTICFLOW_RESOLUTION_FACTOR;
   opticflow->max_iterations = OPTICFLOW_MAX_ITERATIONS;
   opticflow->threshold_vec = OPTICFLOW_THRESHOLD_VEC;
   opticflow->pyramid_level = OPTICFLOW_PYRAMID_LEVEL;
@@ -466,7 +472,7 @@ void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *
     window_size = MAX_WINDOW_SIZE;
   }
 
-  uint16_t RES = opticflow->subpixel_factor;
+  uint16_t RES = opticflow->resolution_factor;
 
   //......................Calculating EdgeFlow..................... //
 
@@ -521,7 +527,7 @@ void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *
 
   /* Save Resulting flow in results
    * Warning: The flow detected here is different in sign
-   * and size, therefore this will be multiplied with
+   * and size, therefore this will be divided with
    * the same subpixel factor and -1 to make it on par with
    * the LK algorithm of t opticalflow_calculator.c
    * */
@@ -530,6 +536,9 @@ void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *
 
   result->flow_x = (int16_t)edgeflow.flow_x / previous_frame_offset[0];
   result->flow_y = (int16_t)edgeflow.flow_y / previous_frame_offset[1];
+
+  result->flow_x = (int16_t)edgeflow.flow_x / RES;
+  result->flow_y = (int16_t)edgeflow.flow_y / RES;
 
   //Fill up the results optic flow to be on par with LK_fast9
   result->flow_der_x =  result->flow_x;

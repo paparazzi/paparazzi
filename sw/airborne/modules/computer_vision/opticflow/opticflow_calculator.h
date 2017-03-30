@@ -57,6 +57,7 @@ struct opticflow_t {
   float derotation_correction_factor_y;     ///< Correction factor for derotation in Y axis, determined from a fit from the gyros and flow rotation. (wrong FOV, camera not in center)
 
   uint16_t subpixel_factor;                 ///< The amount of subpixels per pixel
+  uint16_t resolution_factor;                 ///< The resolution in EdgeFlow to determine the Divergence
   uint8_t max_iterations;               ///< The maximum amount of iterations the Lucas Kanade algorithm should do
   uint8_t threshold_vec;                ///< The threshold in x, y subpixels which the algorithm should stop
   uint8_t pyramid_level;              ///< Number of pyramid levels used in Lucas Kanade algorithm (0 == no pyramids used)
