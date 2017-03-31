@@ -260,9 +260,9 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 #endif
 
 #if USE_ADC_2
-#define DefaultVoltageOfAdc(adc) (0.00827*adc)
+#define DefaultVoltageOfAdc(adc) ((float(adc) * (0.012660247f))// (0.00827*adc) //0,012660247
 #else
-#define DefaultVoltageOfAdc(adc) (0.0021*adc) // scale internal vdd to 5V
+#define DefaultVoltageOfAdc(adc) (0.003214815 * adc) // scale internal vdd to 5V
 #endif
 
 /* I2C mapping */

@@ -39,6 +39,7 @@ NOTES:
       <configure name="CPU_LED" value="1"/>
       
       <module name="imu" type="mpu9250_spi">
+         <define name="USE_ADC_2"/>
         <configure name="IMU_MPU9250_SPI_DEV" value="spi1"/>
         <configure name="IMU_MPU9250_SPI_SLAVE_IDX" value="SPI_SLAVE2"/>
         <define name="IMU_MPU9250_READ_MAG" value="FALSE"/>
@@ -61,7 +62,7 @@ NOTES:
         <!-- <define name="RADIO_CONTROL_NB_CHANNEL" value="9"/> --> 
         
         <!-- Mode set one a three way switch -->
-        <define name="RADIO_MODE" value="RADIO_GEAR"/> <!-- yes, already done by default if not redefined to something else-->
+        <define name="RADIO_MODE" value="4"/> <!-- yes, already done by default if not redefined to something else-->
         <define name="RADIO_GEAR" value="RADIO_AUX1"/>
         <define name="RADIO_FLAP" value="RADIO_AUX2"/>
         <!-- <define name="SPEKTRUM_HAS_SOFT_BIND_PIN" value="1"/> -->
@@ -152,8 +153,8 @@ NOTES:
     
     <module name="ahrs" type="int_cmpl_quat">
       <define name="AHRS_ICQ_MAG_ID" value="MAG_HMC58XX_SENDER_ID" />       <!-- Meaning the external hmc-->
-      <configure name="USE_MAGNETOMETER" value="TRUE"/> <!-- First autoflight set to false better make sure it works and is callibrated if set to TRUE >;-)-->
-      <define name="AHRS_USE_GPS_HEADING" value="FALSE"/> <!-- FALSE thus data from magneto only, testing, brrrr -->
+      <configure name="USE_MAGNETOMETER" value="FALSE"/> <!-- First autoflight set to false better make sure it works and is callibrated if set to TRUE >;-)-->
+      <define name="AHRS_USE_GPS_HEADING" value="TRUE"/> <!-- FALSE thus data from magneto only, testing, brrrr -->
       <!--<define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN"/> --><!-- value="TRUE"/> -->
     </module>
       
@@ -268,11 +269,14 @@ NOTES:
     </module>
 
     <module name="current_sensor">
+        
         <define name="USE_ADC_3"/>
         <configure name="ADC_CURRENT_SENSOR" value="ADC_3"/>
        <!--  <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.3"/>--><!-- TODO determine -->
     </module>
     
+    
+   
    <!-- <module name="adc_generic">-->
    <!-- SONar -->
    <!--   <configure name="ADC_CHANNEL_GENERIC1" value="ADC_1"/>-->  
@@ -477,9 +481,9 @@ NOTES:
       Handy if in auto1 for sidewind stabilized crabbing landing, also for steering if someting not OK with course gains in Autonomous flight
       TODO disable again after strong wind sidewind autolanding is 100% tuned
       Note that in auto2 mode the Flaps and Gears are after test then controlable by flightplan conditions e.g landng block extend gear and flaps -->
-     <set command="YAW" value="@YAW"/>   <!-- TODO: Diable later -->
-     <!-- <set command="GEAR" value="@GEAR"/>--> <!-- TODO: Diable later -->
-     <!-- <set command="FLAP" value="@FLAP"/>--> <!-- TODO: Diable later -->
+      <set command="YAW" value="@YAW"/>   <!-- TODO: Diable later -->
+      <set command="GEAR" value="@GEAR"/> <!-- TODO: Diable later -->
+      <set command="FLAP" value="@FLAP"/> <!-- TODO: Diable later -->
   </auto_rc_commands>
 
   <!-- ************************* BAT ************************* -->
@@ -487,9 +491,10 @@ NOTES:
     <!--<define name="MilliAmpereOfAdc(adc)" value="((adc) - 505) * 124.0f"/>--><!-- TODO -->
     <!--  hint TODO Fix <define name="MilliAmpereOfAdc(adc)" value="((float)adc) * (3.3f / 4096.0f) * (90.0f / 5.0f)" />-->
     <!-- 100Amp = 2Volt -> 2482,42 tick/100Amp"(0.0402832*adc)" -->
-    <!-- A simple powerbrickmodul from CN -->
-<!-- <define name="VoltageOfAdc(adc)" value="10.6"/> --><!-- Quick send data test -->
-    <define name="VoltageOfAdc(adc)" value="(0.00265f * adc)"/>
+    <!-- A simple powerblock module from CN -->
+   <!-- <define name="VoltageOfAdc(adc)" value="10"/> --><!-- Quick send data test -->
+   <!--  <define name="VoltageOfAdc(adc)" value="24 - (0.004043478f * adc)"/>-->
+    <define name="VoltageOfAdc(adc)" value="12-((float)adc * 0.003f )"/>
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="20000"/>  <!-- TODO unknown value, measure, now used as avarage value if no current sensor is attatched-->
     <define name="MAX_BAT_LEVEL" value="12.6" unit="V"/><!-- 3S lipo 3x4.2 = 12.6 -->
     <define name="LOW_BAT_LEVEL" value="10.8" unit="V"/>
