@@ -37,6 +37,16 @@ NOTES:
 
       <configure name="AHRS_ALIGNER_LED" value="2"/>
       <configure name="CPU_LED" value="1"/>
+      <!--  TODO: After first flights try to find optimum value -->
+      <!-- PERIODIC_FREQUENCY should be least equal or greater than AHRS_PROPAGATE_FREQUENCY -->
+      <configure name="PERIODIC_FREQUENCY" value="120"/> <!--  unit="Hz" -->
+      <configure name="AHRS_PROPAGATE_FREQUENCY" value="100"/><!--  unit="Hz" -->
+      <configure name="AHRS_CORRECT_FREQUENCY" value="100"/> <!--  unit="Hz" -->
+      
+      <configure name="NAVIGATION_FREQUENCY" value="16"/> <!--  unit="Hz" -->
+      <configure name="CONTROL_FREQUENCY" value="120"/> <!--  unit="Hz" -->
+      <configure name="TELEMETRY_FREQUENCY" value="60"/> <!--  unit="Hz" -->
+      <!-- <configure name="MODULES_FREQUENCY" value="512"/> --> <!--  unit="Hz" -->
       
       <module name="imu" type="mpu9250_spi">
         <!-- <define name="USE_ADC_2"/>-->
@@ -72,14 +82,12 @@ NOTES:
         <!-- <define name="RADIO_CONTROL_SPEKTRUM_SIGNS" value="\{1,-1,-1,-1,1,-1,1,1,1,1,1,1\}"/> -->
        </module>
        
-       <!--  <define name="autopilot_motors_on" value="FALSE"/>-->
-       
        <!-- <module name="spektrum_soft_bind"/> TODO: Not working yet -->
       
-       <!-- not of use in sim -->
+       <!-- Not of use in sim so here-->
        <module name="tune_airspeed"/>
        <module name="sys_mon"/>
-       
+              
      </target>
     
 <!-- *********************** For simulation of the flight ****************************-->  
@@ -125,24 +133,13 @@ NOTES:
        
     <define name="autopilot_motors_on" value="FALSE"/>
     <!-- temp fix for geomag, normally only used for rotorcraft -->
-    <define name="SENSOR_SYNC_SEND"/>
+   <!--  <define name="SENSOR_SYNC_SEND"/>-->
       
     <!-- <define name="AHRS_TRIGGERED_ATTITUDE_LOOP"/> -->
-    <!--<define name="USE_AHRS_GPS_ACCELERATIONS"/>-->
+    <!-- <define name="USE_AHRS_GPS_ACCELERATIONS"/>-->
       
-      
-    <!--  TODO: After first flights try to find optimum value -->
-    <!-- PERIODIC_FREQUENCY should be least equal or greater than AHRS_PROPAGATE_FREQUENCY -->
-    <!--<configure name="PERIODIC_FREQUENCY" value="512"/>--> <!--  unit="Hz" -->
-    <!--<configure name="AHRS_PROPAGATE_FREQUENCY" value="100"/> --><!--  unit="Hz" -->
-    <!--<configure name="AHRS_CORRECT_FREQUENCY" value="100"/>--> <!--  unit="Hz" -->
-      
-    <!-- <configure name="NAVIGATION_FREQUENCY" value="16"/> --> <!--  unit="Hz" -->
-    <!-- <configure name="CONTROL_FREQUENCY" value="120"/>--> <!--  unit="Hz" -->
-    <!-- <configure name="TELEMETRY_FREQUENCY" value="60"/>--> <!--  unit="Hz" -->
-    <!-- <configure name="MODULES_FREQUENCY" value="512"/> --> <!--  unit="Hz" -->
 
-    <configure name="USE_BARO_BOARD" value="TRUE"/>
+    <configure name="USE_BARO_BOARD" value="FALSE"/> <!-- TODO -->
     <!-- amount of time it take for the bat to trigger check -->
     <!-- to avoid bat low spike detection when strong pullup withch draws short sudden power-->    
     <!-- <define name="BAT_CHECKER_DELAY" value="60" unit="s/10"/>--> <!-- in tenth of seconds-->
@@ -155,7 +152,7 @@ NOTES:
     <module name="ahrs" type="int_cmpl_quat">
       <define name="AHRS_ICQ_MAG_ID" value="MAG_HMC58XX_SENDER_ID" />       <!-- Meaning the external hmc-->
       <configure name="USE_MAGNETOMETER" value="FALSE"/> <!-- First autoflight set to false better make sure it works and is callibrated if set to TRUE >;-)-->
-      <define name="AHRS_USE_GPS_HEADING" value="TRUE"/> <!-- FALSE thus data from magneto only, testing, brrrr -->
+     <!--   <define name="AHRS_USE_GPS_HEADING" value="TRUE"/>--> <!-- FALSE thus data from magneto only, testing, brrrr -->
       <!-- <define name="USE_MAGNETOMETER_ONGROUND" value="FALSE"/> -->
       <!--<define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN" value="TRUE"/> -->
     </module>
@@ -171,7 +168,7 @@ NOTES:
     <module name="navigation"/>
     <module name="gps" type="ublox">
       <configure name="GPS_BAUD" value="B57600"/>
-      <!-- <configure name="GPS_PORT" value="UARTx"/>--><!-- Default GPS port on pixracer -->
+      <!-- <configure name="GPS_PORT" value="UARTx"/>--><!-- Now uses the default GPS port on pixracer -->
     </module>
   </firmware>
   
@@ -466,16 +463,16 @@ NOTES:
      
     https://github.com/paparazzi/paparazzi/blob/master/sw/airborne/modules/nav.c#L132
     -->
-    <define name="COURSE_PRE_BANK_CORRECTION" value="0.8"/>
-    <define name="ROLL_MAX_SETPOINT" value="45" unit="deg"/><!--  Determine best val without scaring the sh*t out of us-->
-    <define name="PITCH_MAX_SETPOINT" value="50" unit="deg"/><!--  Determine best val without scaring the sh*t out of us-->
-    <define name="PITCH_MIN_SETPOINT" value="-50" unit="deg"/><!--  Determine best val without scaring the sh*t out of us-->
-    <define name="PITCH_PGAIN" value="12000"/>
-    <define name="PITCH_DGAIN" value="1.5"/>
-    <define name="ELEVATOR_OF_ROLL" value="1300" unit="PPRZ_MAX"/>
-    <define name="ROLL_SLEW" value="0.7"/>
-    <define name="ROLL_ATTITUDE_GAIN" value="8000"/>
-    <define name="ROLL_RATE_GAIN" value="500."/>
+    <define name="COURSE_PRE_BANK_CORRECTION" value="0.95"/>
+    <define name="ROLL_MAX_SETPOINT" value="35" unit="deg"/><!--  Determine best val without scaring the sh*t out of us-->
+    <define name="PITCH_MAX_SETPOINT" value="40" unit="deg"/><!--  Determine best val without scaring the sh*t out of us-->
+    <define name="PITCH_MIN_SETPOINT" value="-40" unit="deg"/><!--  Determine best val without scaring the sh*t out of us-->
+    <define name="PITCH_PGAIN" value="10000"/>
+    <define name="PITCH_DGAIN" value="3.5"/>
+    <define name="ELEVATOR_OF_ROLL" value="1600" unit="PPRZ_MAX"/>
+    <define name="ROLL_SLEW" value="0.3"/>
+    <define name="ROLL_ATTITUDE_GAIN" value="6000"/>
+    <define name="ROLL_RATE_GAIN" value="200."/>
   </section>
 
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
@@ -483,18 +480,19 @@ NOTES:
     <define name="POWER_CTL_BAT_NOMINAL" value="11.2" unit="volt"/>
     <!-- outer loop proportional gain -->
     <define name="ALTITUDE_PGAIN" value="0.2"/>
-    <define name="AIRSPEED_PGAIN" value="0.2"/>
+    <define name="AIRSPEED_PGAIN" value="0.1"/>
     <!-- outer loop saturation -->
-    <define name="ALTITUDE_MAX_CLIMB" value="8."/> <!-- TODO Determine -->
-    <define name="MAX_ACCELERATION" value="2."/> <!-- TODO Determine -->
-    <!-- energy -->
-    <define name="ENERGY_TOT_PGAIN" value="0.2"/>
-    <define name="ENERGY_TOT_IGAIN" value="0.4"/>
-    <define name="ENERGY_DIFF_PGAIN" value="0.4"/>
-    <define name="ENERGY_DIFF_IGAIN" value="0.2"/>
+    <define name="ALTITUDE_MAX_CLIMB" value="5."/> <!-- TODO Determine -->
+    <define name="MAX_ACCELERATION" value="3."/> <!-- TODO Determine -->
+    <!-- energy --> 
+    <define name="ENERGY_TOT_PGAIN" value="0.35"/>
+    <define name="ENERGY_TOT_IGAIN" value="0.30"/>
+    <define name="ENERGY_DIFF_PGAIN" value="0.40"/>
+    <define name="ENERGY_DIFF_IGAIN" value="0.35"/>
     <define name="GLIDE_RATIO" value="7."/> <!-- TODO Determine -->
     <!-- auto throttle -->
     <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.5"/> <!-- TODO Determine -->
+    <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.5"/> <!-- TODO Determine -->
     <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0." unit="%/(m/s)"/>
     <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0."/>
     <!-- extra's -->
@@ -504,8 +502,9 @@ NOTES:
     <define name="AUTO_PITCH_OF_AIRSPEED_PGAIN" value="0.0"/>
     <define name="AUTO_PITCH_OF_AIRSPEED_IGAIN" value="0.0"/>
     <define name="AUTO_PITCH_OF_AIRSPEED_DGAIN" value="0.0"/>
-    <define name="THROTTLE_SLEW_LIMITER" value="0.7" unit="m/s/s"/>
-        <!--
+    <define name="THROTTLE_SLEW_LIMITER" value="0.5" unit="m/s/s"/>
+    
+    <!-- only in the case if we take ground mapping photos and the camera cannot keep up....
       <define name="AUTO_GROUNDSPEED_SETPOINT" value="16." unit="m/s"/>
       <define name="AUTO_GROUNDSPEED_PGAIN" value="0.7"/>
       <define name="AUTO_GROUNDSPEED_IGAIN" value="0."/>
@@ -540,29 +539,33 @@ NOTES:
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="30000"/>  <!-- TODO unknown value, measure, now used as avarage value if no current sensor is attatched-->
     <define name="MAX_BAT_LEVEL" value="12.6" unit="V"/><!-- 3S lipo 3x4.2 = 12.6 -->
     <define name="LOW_BAT_LEVEL" value="10.8" unit="V"/>
-    <define name="CRITIC_BAT_LEVEL" value="10.2" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="10.4" unit="V"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
     <define name="MIN_BAT_LEVEL" value="9.0" unit="V"/><!-- Get rid if this one .. -->
   </section>
 
   <!-- ************************* MISC ************************* -->
   <section name="MISC">
-    <define name="CLIMB_AIRSPEED" value="10." unit="m/s"/> <!-- TODO determine -->
-    <define name="NOMINAL_AIRSPEED" value="11." unit="m/s"/> <!-- TODO determine -->
-    <define name="GLIDE_AIRSPEED" value="9." unit="m/s"/> <!-- TODO determine -->
-    <define name="RACE_AIRSPEED" value="13." unit="m/s"/> <!-- TODO determine -->
-    <define name="STALL_AIRSPEED" value="8." unit="m/s"/><!-- TODO determine --> <!-- No flaps, an pct flp ratio-->
-    <define name="CARROT" value="5." unit="s"/> <!-- TODO maye ~4s -->
-    <define name="DEFAULT_CIRCLE_RADIUS" value="80." unit="m"/> <!-- TODO determine -->
-    <define name="DEFAULT_CIRCLE_RADIUS" value="80."/> <!-- TODO determine -->
-    <define name="LANDING_CIRCLE_RADIUS" value="70."/> <!-- TODO determine -->
+  
+    <!-- Values here are only referred to by the flightplan m*_s*_airspeed.xml -->
+    <define name="CLIMB_AIRSPEED" value="7." unit="m/s"/> <!-- TODO get best values -->
+    <define name="TRACKING_AIRSPEED" value="20." unit="m/s"/> <!-- TODO get best values -->
+    <define name="NOMINAL_AIRSPEED" value="21." unit="m/s"/> <!-- TODO get best values -->
+    <define name="GLIDE_AIRSPEED" value="16." unit="m/s"/> <!-- TODO get best values -->
+    <define name="STALL_AIRSPEED" value="12." unit="m/s"/> <!-- measue limit of plane in testflight and set 80% from this --> <!-- No flaps, an pct flp ratio-->
+    <define name="RACE_AIRSPEED" value="21." unit="m/s"/> <!-- TODO determine -->
+    <define name="TAKEOFF_PITCH_ANGLE" value="40" unit="deg" /> <!-- TODO get best values -->
+    <define name="FLARE_PITCH_ANGLE" value="15" unit="deg" /> <!-- TODO get best values -->
+    <define name="AIRSPEED_SETPOINT_SLEW" value="0.4" unit="m/s/s"/> <!-- TODO get best values -->
+  
+    <define name="CARROT" value="6." unit="s"/> <!-- TODO maye ~?s -->
+    <define name="DEFAULT_CIRCLE_RADIUS" value="100." unit="m"/> <!-- TODO determine -->
+    <define name="LANDING_CIRCLE_RADIUS" value="90."/> <!-- TODO determine -->
      <!-- MIN_CIRCLE_RADIUS used and needed for spiral navigation function and panic autolanding turns-->
-    <define name="MIN_CIRCLE_RADIUS" value="50."/> <!-- TODO determine -->
+    <define name="MIN_CIRCLE_RADIUS" value="80."/> <!-- TODO determine -->
     <define name="NAV_GLIDE_PITCH_TRIM" value="-1.0" unit="deg"/> <!-- TODO determine -->
-    <define name="MIN_SPEED_FOR_TAKEOFF" value="4." unit="m/s"/> <!-- TODO determine and change to make it for airspeed -->
-    <define name="TAKEOFF_PITCH_ANGLE" value="30" unit="deg" /> <!-- TODO determine -->
-    <define name="FLARE_PITCH_ANGLE" value="5" unit="deg" /> <!-- TODO determine -->
-           
+    <define name="MIN_SPEED_FOR_TAKEOFF" value="6." unit="m/s"/> <!-- TODO determine and change to make it for airspeed -->
+       
     <!--UNLOCKED_HOME_MODE if set to TRUE means that HOME mode does not get stuck.
     If not set before when you would enter home mode you had to flip a bit via the GCS to get out. -->
     <define name="UNLOCKED_HOME_MODE" value="TRUE"/>
