@@ -9,6 +9,9 @@
 #define EXT_CLK 24000000 //OK
 #define AHB_CLK 168000000 //OK
 
+//#define STM32F4 //to debug ADC on F4 does no work
+//#define ADC_SAMPLE_TIME ADC_SMPR_SMP_56CYC //to debug ADC on F4 does no work
+
 /* On PCB Multicolor LED */
 /* Red */
 //OK
@@ -110,7 +113,7 @@
 #define RADIO_CONTROL_POWER_ON gpio_clear // yes, inverted
 #define RADIO_CONTROL_POWER_OFF gpio_set
 
-
+//A sat
 #define PERIPHERAL3V3_ENABLE_PORT GPIOC //VDD_3V3_PERIPHERAL_EN
 #define PERIPHERAL3V3_ENABLE_PIN GPIO5
 #define PERIPHERAL3V3_ENABLE_ON gpio_set
@@ -218,11 +221,11 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 #endif
 #define USE_AD_TIM3 1
 
-
-// Internal ADC for battery
+// Internal ADC for voltage level measurement
 #ifndef USE_ADC_1
 #define USE_ADC_1 1
 #endif
+
 #if USE_ADC_1
 #define AD1_1_CHANNEL 4 //ADC12_IN4
 #define ADC_1 AD1_1
@@ -230,10 +233,11 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 #define ADC_1_GPIO_PIN GPIO4
 #endif
 
-// External ADC for battery
+// Sense voltage level via external sensor on ADC
 #ifndef USE_ADC_2
 #define USE_ADC_2 1
 #endif
+
 #if USE_ADC_2
 #define AD1_2_CHANNEL 2 // ADC123_IN2 (--> IN2 corresponds to channel 2)
 #define ADC_2 AD1_2 // ADC123 means it can be used by ADC 1 and 2 and 3 (the f4 supports 3 adc's), does not matter which. Each ADC can address 4 pins, so in this case we are using ADC 1, on its second pin.
@@ -241,11 +245,11 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 #define ADC_2_GPIO_PIN GPIO2
 #endif
 
-
-// external current sens
+// Sense current via external sensor on ADC
 #ifndef USE_ADC_3
 #define USE_ADC_3 1
 #endif
+
 #if USE_ADC_3
 #define AD1_3_CHANNEL 3 // ADC123_IN3
 #define ADC_3 AD1_3
@@ -255,27 +259,33 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 #define MilliAmpereOfAdc(adc)((float)adc) * (3.3f / 4096.0f) * (90.0f / 5.0f)
 
 /* allow to define ADC_CHANNEL_VSUPPLY in the airframe file*/
-#ifndef ADC_CHANNEL_VSUPPLY
-#define ADC_CHANNEL_VSUPPLY ADC_2
-#endif
+//#ifndef ADC_CHANNEL_VSUPPLY
+#define ADC_CHANNEL_VSUPPLY ADC_1
+//#endif
 
-#if USE_ADC_2
-#define DefaultVoltageOfAdc(adc) ((float(adc) * (0.012660247f))// (0.00827*adc) //0,012660247
-#else
-#define DefaultVoltageOfAdc(adc) (0.003214815 * adc) // scale internal vdd to 5V
-#endif
+
+//??FT = Five-volt tolerant. In order to sustain a voltage higher than VDD+0.3 the internal pull-up/pull-down resistors must be disabled.
+//#define DefaultVoltageOfAdc(adc) (0.0045*adc)
+
+//Set stock values
+//#if USE_ADC_2
+//#define DefaultVoltageOfAdc(adc) (0.0005f * (float)adc)//FIXME: Value...
+//#else
+#define DefaultVoltageOfAdc(adc) (0.004 * adc) // scale internal vdd to 5V
+//#endif
 
 /* I2C mapping */
 #define I2C1_GPIO_PORT GPIOB
 #define I2C1_GPIO_SCL GPIO8
 #define I2C1_GPIO_SDA GPIO9
 
+//Onboard Barometer
 #ifndef USE_BARO_BOARD
 #define USE_BARO_BOARD 1
 #endif
 
 /* Another Magnetometer on board a HMC5983 not the one in the IMU 9250*/
-//TODO
+//TODO:
 #ifndef USE_MAGNETOMETER_B
 #define USE_MAGNETOMETER_B 0
 #endif
@@ -349,7 +359,7 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 #define PWM_SERVO_4_OC_BIT 0
 #endif
 
-/* -ESC Servo 5 */
+/* -ESC or Servo 5 */
 #if USE_PWM5
 #define PWM_SERVO_5 4
 #define PWM_SERVO_5_TIMER TIM4
@@ -362,7 +372,7 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 #define PWM_SERVO_5_OC_BIT 0
 #endif
 
-/* -ESC Servo 6 */
+/* -ESC or Servo 6 */
 #if USE_PWM6
 #define PWM_SERVO_6 5
 #define PWM_SERVO_6_TIMER TIM4
@@ -379,7 +389,6 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 #define PWM_TIM4_CHAN_MASK (PWM_SERVO_5_OC_BIT|PWM_SERVO_6_OC_BIT)
 
 /* Buzzer (A.k.a. Alarm) */
-
 #if USE_BUZZER
 #define PWM_BUZZER
 #define PWM_BUZZER_TIMER TIM2
@@ -392,7 +401,5 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 #else
 #define PWM_BUZZER_OC_BIT 0
 #endif
-
-
 
 #endif /* CONFIG_PX4FMU_4_0_H */

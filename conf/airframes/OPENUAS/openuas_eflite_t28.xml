@@ -39,7 +39,7 @@ NOTES:
       <configure name="CPU_LED" value="1"/>
       
       <module name="imu" type="mpu9250_spi">
-         <define name="USE_ADC_2"/>
+        <!-- <define name="USE_ADC_2"/>-->
         <configure name="IMU_MPU9250_SPI_DEV" value="spi1"/>
         <configure name="IMU_MPU9250_SPI_SLAVE_IDX" value="SPI_SLAVE2"/>
         <define name="IMU_MPU9250_READ_MAG" value="FALSE"/>
@@ -94,6 +94,7 @@ NOTES:
       <!-- <module name="ahrs" type="int_cmpl_quat">
         <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN"/>
         <define name="USE_MAGNETOMETER" value="TRUE"/>
+        <define name="USE_MAGNETOMETER_ONGROUND" value="FALSE"/>
       </module>-->
       <!--<module name="uart"/>--><!-- TODO Exteral HITL PC debugging e.g a photocam trigger etc -->
     </target>
@@ -155,7 +156,8 @@ NOTES:
       <define name="AHRS_ICQ_MAG_ID" value="MAG_HMC58XX_SENDER_ID" />       <!-- Meaning the external hmc-->
       <configure name="USE_MAGNETOMETER" value="FALSE"/> <!-- First autoflight set to false better make sure it works and is callibrated if set to TRUE >;-)-->
       <define name="AHRS_USE_GPS_HEADING" value="TRUE"/> <!-- FALSE thus data from magneto only, testing, brrrr -->
-      <!--<define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN"/> --><!-- value="TRUE"/> -->
+      <!-- <define name="USE_MAGNETOMETER_ONGROUND" value="FALSE"/> -->
+      <!--<define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN" value="TRUE"/> -->
     </module>
       
     <module name="ins" type="alt_float"/>
@@ -184,8 +186,9 @@ NOTES:
   </firmware> -->
   
   <!--  To test various things for the new board -->
-  <!-- 
+   
   <firmware name="test_progs">
+  <!-- 
     <target name="test_module" board="px4fmu_4.0">
       <module name="usb_serial_stm32_example1"/>
     </target>
@@ -207,15 +210,16 @@ NOTES:
         <configure name="IMU_MPU9250_SPI_SLAVE_IDX" value="SPI_SLAVE2"/>
       </module>    
       <configure name="PERIODIC_FREQUENCY" value="120"/>
-    </target> 
-       
+    </target>      
     <target name="test_actuators_pwm_sin"   board="px4fmu_4.0">
     </target>
    
    <target name="test_baro_board"          board="px4fmu_4.0">
       <configure name="BARO_LED" value="2"/>
    </target>
+   -->
    <target name="test_adc"                 board="px4fmu_4.0"/>
+   <!-- 
    <target name="test_uart"                board="px4fmu_4.0">
       <define name="USE_UART1"/>
       <define name="UART1_BAUD" value="B57600"/>
@@ -239,7 +243,8 @@ NOTES:
    <!--       <target name="test_actuators_pwm"       board="px4fmu_4.0">-->
       <!--  <define name="SERVO_HZ" value="40"/> -->
    <!-- </target>-->
-  <!--</firmware>-->
+   
+  </firmware>
 
 <!-- ************************* MODULES ************************* -->
   <modules>
@@ -268,17 +273,19 @@ NOTES:
       <configure name="AIRSPEED_ETS_I2C_DEV" value="i2c1"/>
     </module>
 
-    <module name="current_sensor">
-        
+   <!--  <module name="current_sensor">       
         <define name="USE_ADC_3"/>
-        <configure name="ADC_CURRENT_SENSOR" value="ADC_3"/>
-       <!--  <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.3"/>--><!-- TODO determine -->
-    </module>
+        <configure name="ADC_CURRENT_SENSOR" value="ADC_3"/>-->
+        <!--  <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.3"/>--><!-- TODO determine -->
+   <!--  </module>-->
     
-    
+   <!--  <module name="adc_generic">
+     <configure name="ADC_CHANNEL_GENERIC1" value="ADC_2"/> 
+     <configure name="ADC_CHANNEL_GENERIC2" value="ADC_3"/>
+   </module> -->
    
    <!-- <module name="adc_generic">-->
-   <!-- SONar -->
+   <!-- Sonar -->
    <!--   <configure name="ADC_CHANNEL_GENERIC1" value="ADC_1"/>-->  
       <!--<configure name="ADC_SONAR" value="ADC_1"/>-->
    <!-- RPM measuring sensor -->
@@ -392,32 +399,44 @@ NOTES:
   <!-- ************************* SENSORS ************************* -->
 
   <section name="IMU" prefix="IMU_"> <!-- TODO -->
+    <!-- ***************** MAGNETO *****************-->
     <!-- replace this with your own calibration (on the correct sensor?) -->
-    <define name="MAG_X_NEUTRAL" value="-179"/>
-    <define name="MAG_Y_NEUTRAL" value="-21"/>
-    <define name="MAG_Z_NEUTRAL" value="79"/>
+    <!-- TODO: Calibrate, 
+    <!-- RE-CALIBRATE after your aircraft changes e.g. cabeling or something else !-->
+    <define name="MAG_X_NEUTRAL" value="0"/>
+    <define name="MAG_Y_NEUTRAL" value="0"/>
+    <define name="MAG_Z_NEUTRAL" value="0"/>
     <define name="MAG_X_SENS" value="4.17334785618" integer="16"/>
     <define name="MAG_Y_SENS" value="3.98885954135" integer="16"/>
     <define name="MAG_Z_SENS" value="4.40442339014" integer="16"/>
-
-    <define name="BODY_TO_IMU_PHI" value="0"/>
-    <define name="BODY_TO_IMU_THETA" value="0"/>
-    <define name="BODY_TO_IMU_PSI" value="0"/>
+   
+    <define name="BODY_TO_IMU_PHI" value="0.0"/>
+    <define name="BODY_TO_IMU_THETA" value="0.0"/>
+    <define name="BODY_TO_IMU_PSI" value="0.0"/>
   </section>
     
   <section name="AHRS" prefix="AHRS_">
     <!-- values used if no GPS fix, on 3D fix is update by geo_mag module -->
     <!-- NL -->
-    <define name="H_X" value="0.3892503" />
-    <define name="H_Y" value="0.0017972" />
-    <define name="H_Z" value="0.9211303" /> 
+    <!--TODO: start using geo_mag module, else replace the values with your local magnetic field -->
+    <!-- Local Magnetic field NL Testfield-->
+    <!--
+     <define name="H_X" value="0.382478"/>
+     <define name="H_Y" value="0.00563406"/>
+     <define name="H_Z" value="0.923948"/>
+   -->
+    <!-- Local Magnetic field DE Testfield -->
+    <define name="H_X" value="0.51562740288882"/>
+    <define name="H_Y" value="-0.05707735220832"/>
+    <define name="H_Z" value="0.85490967783446"/>
+    
     <!-- Some insights https://lists.nongnu.org/archive/html/paparazzi-devel/2013-10/msg00126.html -->
     <!--  <define name="GRAVITY_HEURISTIC_FACTOR" value="2"/>--><!-- TODO test and determine best val for heavy vibrating airfame -->
   </section>
 
   <section name="INS" prefix="INS_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="0.0" unit="deg"/><!-- TODO: Determine when fixed in final -->
-    <define name="PITCH_NEUTRAL_DEFAULT" value="0.0" unit="deg"/><!-- TODO: Determine when fixed in final -->
+    <define name="ROLL_NEUTRAL_DEFAULT" value="0.0" unit="deg"/><!-- TODO: Determine when mechanical in final fixed position in airframe -->
+    <define name="PITCH_NEUTRAL_DEFAULT" value="0.0" unit="deg"/><!-- TODO: Determine when mechanical in final fixed position in airframe -->
   </section>
 
   <!-- TODO: Set correct values for Maxbotix LV1 (Model 1010) -->
@@ -431,9 +450,23 @@ NOTES:
 
   <!-- ************************* GAINS ************************* -->
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="0.80"/>
-    <define name="COURSE_DGAIN" value="0.20"/>
-    <define name="COURSE_PRE_BANK_CORRECTION" value="1.0"/>
+     <!-- TODO: Tune value -->
+     <define name="COURSE_PGAIN" value="0.80"/>
+     <define name="COURSE_DGAIN" value="0.10"/>
+     <!-- 
+     The prebank is an adjustment to the roll setting which is performed when the aircraft is
+     trying to do a circle and when it is close to the circumference of the circle. This way
+     it does not fly straight into the circumference but instead it starts to make a roll as
+     the one needed to fly in circles.
+     There is a value in the airframe file COURSE_PRE_BANK_CORRECTION which can be used to 
+     increase o decrease the effect. If set to 1 then the normal prebank is done. 
+     If set to 0.5 then half of the additional roll is done. This causes the aircraft to not roll
+     enough in order to fly the intended circle and it ends up flying in a larger circle.  
+     A value > 1 makes it fly a smaller circle.
+     
+    https://github.com/paparazzi/paparazzi/blob/master/sw/airborne/modules/nav.c#L132
+    -->
+    <define name="COURSE_PRE_BANK_CORRECTION" value="0.8"/>
     <define name="ROLL_MAX_SETPOINT" value="45" unit="deg"/><!--  Determine best val without scaring the sh*t out of us-->
     <define name="PITCH_MAX_SETPOINT" value="50" unit="deg"/><!--  Determine best val without scaring the sh*t out of us-->
     <define name="PITCH_MIN_SETPOINT" value="-50" unit="deg"/><!--  Determine best val without scaring the sh*t out of us-->
@@ -471,7 +504,12 @@ NOTES:
     <define name="AUTO_PITCH_OF_AIRSPEED_PGAIN" value="0.0"/>
     <define name="AUTO_PITCH_OF_AIRSPEED_IGAIN" value="0.0"/>
     <define name="AUTO_PITCH_OF_AIRSPEED_DGAIN" value="0.0"/>
-    <define name="THROTTLE_SLEW_LIMITER" value="1" unit="m/s/s"/>
+    <define name="THROTTLE_SLEW_LIMITER" value="0.7" unit="m/s/s"/>
+        <!--
+      <define name="AUTO_GROUNDSPEED_SETPOINT" value="16." unit="m/s"/>
+      <define name="AUTO_GROUNDSPEED_PGAIN" value="0.7"/>
+      <define name="AUTO_GROUNDSPEED_IGAIN" value="0."/>
+    -->
   </section>
 
   <!-- ************************ AUTO RC COMMANDS ***************************** -->
@@ -492,15 +530,19 @@ NOTES:
     <!--  hint TODO Fix <define name="MilliAmpereOfAdc(adc)" value="((float)adc) * (3.3f / 4096.0f) * (90.0f / 5.0f)" />-->
     <!-- 100Amp = 2Volt -> 2482,42 tick/100Amp"(0.0402832*adc)" -->
     <!-- A simple powerblock module from CN -->
-   <!-- <define name="VoltageOfAdc(adc)" value="10"/> --><!-- Quick send data test -->
+    <!--  <define name="VoltageOfAdc(adc)" value="11.8"/>--> <!-- Quick send data test -->
    <!--  <define name="VoltageOfAdc(adc)" value="24 - (0.004043478f * adc)"/>-->
-    <define name="VoltageOfAdc(adc)" value="12-((float)adc * 0.003f )"/>
-    <define name="MILLIAMP_AT_FULL_THROTTLE" value="20000"/>  <!-- TODO unknown value, measure, now used as avarage value if no current sensor is attatched-->
+     <!--    <define name="VOLTAGE_ADC_SCALE" value="0.004511719f"/> --><!--  war 0.018 0.008 R1 (Bat - ADC input) = 22k, R2 (ADC input - GND) = 2.2K--->
+   <!--  <define name="VOLTAGE_OFFSET" value="0" unit="V"/>
+    <define name="VoltageOfAdc(adc)" value="((float)adc * VOLTAGE_ADC_SCALE + VOLTAGE_OFFSET)"/>
+   <define name="DefaultVoltageOfAdc(adc)" value="(0.00384*adc)"/>-->
+    <!--  <define name="VoltageOfAdc(adc)" value="((float)adc * 0.0001f )"/>-->
+    <define name="MILLIAMP_AT_FULL_THROTTLE" value="30000"/>  <!-- TODO unknown value, measure, now used as avarage value if no current sensor is attatched-->
     <define name="MAX_BAT_LEVEL" value="12.6" unit="V"/><!-- 3S lipo 3x4.2 = 12.6 -->
     <define name="LOW_BAT_LEVEL" value="10.8" unit="V"/>
     <define name="CRITIC_BAT_LEVEL" value="10.2" unit="V"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
-    <!--  <define name="MIN_BAT_LEVEL" value="9.0" unit="V"/>--><!-- Get rid if this one .. -->
+    <define name="MIN_BAT_LEVEL" value="9.0" unit="V"/><!-- Get rid if this one .. -->
   </section>
 
   <!-- ************************* MISC ************************* -->
@@ -554,6 +596,16 @@ NOTES:
   <section name="GCS">
     <define name="SPEECH_NAME" value="Tee 28"/>
     <define name="AC_ICON" value="fixedwing"/> <!--  Just to make sure ;) -->
+    <define name="ALT_SHIFT_PLUS_PLUS" value="50"/>
+    <define name="ALT_SHIFT_PLUS" value="10"/>
+    <define name="ALT_SHIFT_MINUS" value="-10"/>
+  </section>
+  
+  <section name="SIMU">
+    <define name="WEIGHT" value ="1."/>
+    <define name="YAW_RESPONSE_FACTOR" value =".9"/>   <!--default 1.-->
+    <define name="PITCH_RESPONSE_FACTOR" value ="1."/> <!--default 1.-->
+    <define name="ROLL_RESPONSE_FACTOR" value ="15."/> <!--default 15-->
   </section>
 
 </airframe>
