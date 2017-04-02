@@ -303,7 +303,7 @@ NOTES:
    
    <!-- <module name="adc_generic">-->
    <!-- Sonar -->
-   <!--   <configure name="ADC_CHANNEL_GENERIC1" value="ADC_1"/>-->  
+   <!--   <configure name="ADC_CHANNEL_GENERIC1" value="ADC_1"/>-->  <!-- Misuse the RSSI pin? -->
       <!--<configure name="ADC_SONAR" value="ADC_1"/>-->
    <!-- RPM measuring sensor -->
    <!-- <configure name="ADC_CHANNEL_GENERIC2" value="ADC_?"/>
@@ -606,8 +606,8 @@ NOTES:
     <define name="CLIMB_PITCH" value="45" unit="deg"/> <!-- Pitch for Aggressive Climb -->
     <define name="DESCENT_THROTTLE" value="0.4" unit="%"/> <!-- Gaz for Aggressive Decent -->
     <define name="DESCENT_PITCH" value="-30" unit="deg"/> <!-- Pitch for Aggressive Decent -->
-    <define name="CLIMB_NAV_RATIO" value="0.6"/> <!-- Percent Navigation for Altitude Error Equal to Start Altitude -->
-    <define name="DESCENT_NAV_RATIO" value="0.9"/>
+    <define name="CLIMB_NAV_RATIO" value="0.6" unit="%"/> <!-- Percent Navigation for Altitude Error Equal to Start Altitude -->
+    <define name="DESCENT_NAV_RATIO" value="0.9" unit="%"/>
   </section>
 
   <!-- ************************* BAT ************************* -->
