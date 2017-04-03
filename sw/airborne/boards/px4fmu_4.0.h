@@ -6,15 +6,15 @@
 /* PX4FMU_V4 a.k.a. Pixracer board has a 24MHz external clock and 168MHz internal. */
 
 /* STM32F4 STM32F427VIT6 */
-#define EXT_CLK 24000000 //OK
-#define AHB_CLK 168000000 //OK
+#define EXT_CLK 24000000
+#define AHB_CLK 168000000
 
 //#define STM32F4 //to debug ADC on F4 does no work
 //#define ADC_SAMPLE_TIME ADC_SMPR_SMP_56CYC //to debug ADC on F4 does no work
 
-/* On PCB Multicolor LED */
+/* On PCB there is a Multicolor LED */
+
 /* Red */
-//OK
 #ifndef USE_LED_1
 #define USE_LED_1 1
 #endif
@@ -25,7 +25,6 @@
 #define LED_1_AFIO_REMAP ((void)0)
 
 /* Green */
-//OK
 #ifndef USE_LED_2
 #define USE_LED_2 1
 #endif
@@ -36,7 +35,6 @@
 #define LED_2_AFIO_REMAP ((void)0)
 
 /* Blue */
-//OK
 #ifndef USE_LED_3
 #define USE_LED_3 1
 #endif
@@ -52,6 +50,7 @@
 /* UART SCHTUFFFF*/
 
 /* -WiFi ESP Connector, it is just a serial port*/
+//TODO: Test
 #define UART1_GPIO_AF GPIO_AF7
 #define UART1_GPIO_PORT_RX GPIOB
 #define UART1_GPIO_RX GPIO7
@@ -87,12 +86,12 @@
 #define UART4_GPIO_PORT_TX GPIOA
 #define UART4_GPIO_TX GPIO0
 
-/* Spektrum (only rx)*/
+/* e.g. for a Spektrum satellite receiver rx only)*/
 #define UART6_GPIO_AF GPIO_AF8
 #define UART6_GPIO_PORT_RX GPIOC
 #define UART6_GPIO_RX GPIO7
 
-/* Serial Debugging Connector, not used with PPRZ, use JTAG, can be put to other good use */
+/* Serial Debugging Connector, not used with PPRZ as of now, use JTAG, can be put to other good use */
 #define UART7_GPIO_AF GPIO_AF8
 #define UART7_GPIO_PORT_RX GPIOE
 #define UART7_GPIO_RX GPIO7
@@ -100,6 +99,7 @@
 #define UART7_GPIO_TX GPIO8
 
 /* Connector -FRS FrSky */
+//TODO: Test
 #define UART8_GPIO_AF GPIO_AF8
 #define UART8_GPIO_PORT_RX GPIOE
 #define UART8_GPIO_RX GPIO0
@@ -107,24 +107,23 @@
 #define UART8_GPIO_TX GPIO1
 
 /* Soft binding Spektrum */
-//ok
+//TODO: Test and or FIXME:
 #define RADIO_CONTROL_POWER_PORT GPIOE
 #define RADIO_CONTROL_POWER_PIN GPIO4 //SPEKTRUM POWER
 #define RADIO_CONTROL_POWER_ON gpio_clear // yes, inverted
 #define RADIO_CONTROL_POWER_OFF gpio_set
 
-//A sat
+//A receiver on powered on 3.3v
 #define PERIPHERAL3V3_ENABLE_PORT GPIOC //VDD_3V3_PERIPHERAL_EN
 #define PERIPHERAL3V3_ENABLE_PIN GPIO5
 #define PERIPHERAL3V3_ENABLE_ON gpio_set
 #define PERIPHERAL3V3_ENABLE_OFF gpio_clear
 
 /* Turn SBUS invert */
-//ok
+//TODO: Test
 #define RC_POLARITY_GPIO_PORT GPIOC
 #define RC_POLARITY_GPIO_PIN GPIO13
 
-//ok
 #define SPEKTRUM_UART6_RCC RCC_USART6
 #define SPEKTRUM_UART6_BANK GPIOC
 #define SPEKTRUM_UART6_PIN GPIO7
@@ -136,7 +135,6 @@
 /* SPI */
 
 /* SPI1 for MPU and extra accel/gyro/mag */
-// OK
 #define SPI1_GPIO_AF GPIO_AF5
 #define SPI1_GPIO_PORT_MISO GPIOA
 #define SPI1_GPIO_MISO GPIO6
@@ -146,7 +144,6 @@
 #define SPI1_GPIO_SCK GPIO5
 
 /* SPI2 for FRAM, connects to BARO */
-// OK
 #define SPI2_GPIO_AF GPIO_AF5
 #define SPI2_GPIO_PORT_MISO GPIOB
 #define SPI2_GPIO_MISO GPIO14
@@ -167,8 +164,9 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
  * SPI slave pin declaration
  */
 
-//So use best speced sensors as second or ref the other or determine it on task type?
+//So use best spec'd sensors as second or ref the other or determine it on task type?
 /* EXTRA ACC_GYRO_CS on SPI1 ICM 20609-G*/
+// TODO: Make it useful
 #define SPI_SELECT_SLAVE0_PORT GPIOC
 #define SPI_SELECT_SLAVE0_PIN GPIO15
 
@@ -177,17 +175,16 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 #define SPI_SELECT_SLAVE1_PORT GPIOE
 #define SPI_SELECT_SLAVE1_PIN GPIO15
 
-/* MDL
+/* MDL */
+// FIXME: Test n fix of not working
 #define SPI_SELECT_SLAVE1_PORT GPIOE
 #define SPI_SELECT_SLAVE1_PIN GPIO15 */
 
 /* MPU_9250_CS on SPI1 */
-//OK
 #define SPI_SELECT_SLAVE2_PORT GPIOC
 #define SPI_SELECT_SLAVE2_PIN GPIO2
 
 /* MS5611 BARO_CS on SPI2 - FRAM*/
-//OK
 #define SPI_SELECT_SLAVE3_PORT GPIOD
 #define SPI_SELECT_SLAVE3_PIN GPIO7
 
@@ -196,11 +193,13 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 #define SPI_SELECT_SLAVE4_PIN GPIO10
 
 /* SPI3 NSS on microSD connector */
+//FIXME: not tested
 //#define SPI_SELECT_SLAVE4_PORT GPIOA
 //#define SPI_SELECT_SLAVE4_PIN GPIO4
 
 
 /* SDIO to microSD card connector */
+//FIXME: Fix and test
 #define SDIO_AF GPIO_AF12
 #define SDIO_D0_PORT GPIOC
 #define SDIO_D0_PIN GPIO8
@@ -222,6 +221,7 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 #define USE_AD_TIM3 1
 
 // Internal ADC for voltage level measurement
+////FIXME: test and fix if still not working
 #ifndef USE_ADC_1
 #define USE_ADC_1 1
 #endif
@@ -233,11 +233,11 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 #define ADC_1_GPIO_PIN GPIO4
 #endif
 
-// Sense voltage level via external sensor on ADC
+// Per default for the board to sense voltage level via external sensor on ADC
+//FIXME: test and fix if still not working
 #ifndef USE_ADC_2
 #define USE_ADC_2 1
 #endif
-
 #if USE_ADC_2
 #define AD1_2_CHANNEL 2 // ADC123_IN2 (--> IN2 corresponds to channel 2)
 #define ADC_2 AD1_2 // ADC123 means it can be used by ADC 1 and 2 and 3 (the f4 supports 3 adc's), does not matter which. Each ADC can address 4 pins, so in this case we are using ADC 1, on its second pin.
@@ -245,34 +245,35 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 #define ADC_2_GPIO_PIN GPIO2
 #endif
 
-// Sense current via external sensor on ADC
+// Per default for the board to sense current via external sensor on ADC
 #ifndef USE_ADC_3
 #define USE_ADC_3 1
 #endif
-
 #if USE_ADC_3
 #define AD1_3_CHANNEL 3 // ADC123_IN3
 #define ADC_3 AD1_3
 #define ADC_3_GPIO_PORT GPIOA
 #define ADC_3_GPIO_PIN GPIO3
 #endif
-#define MilliAmpereOfAdc(adc)((float)adc) * (3.3f / 4096.0f) * (90.0f / 5.0f)
+#define MilliAmpereOfAdc(adc)((float)adc) * (3.3f / 4096.0f) * (90.0f / 5.0f) //TODO: test if valid
 
-/* allow to define ADC_CHANNEL_VSUPPLY in the airframe file*/
-//#ifndef ADC_CHANNEL_VSUPPLY
-#define ADC_CHANNEL_VSUPPLY ADC_1
-//#endif
+/* Allow to define ADC_CHANNEL_VSUPPLY in the airframe file */
+#ifndef ADC_CHANNEL_VSUPPLY
+#define ADC_CHANNEL_VSUPPLY ADC_2
+#endif
 
+/* Allow to define another ADC for Current measurement in the airframe file */
+#ifndef ADC_CHANNEL_CURRENT
+#define ADC_CHANNEL_CURRENT ADC_3
+#endif
 
 //??FT = Five-volt tolerant. In order to sustain a voltage higher than VDD+0.3 the internal pull-up/pull-down resistors must be disabled.
-//#define DefaultVoltageOfAdc(adc) (0.0045*adc)
-
-//Set stock values
-//#if USE_ADC_2
-//#define DefaultVoltageOfAdc(adc) (0.0005f * (float)adc)//FIXME: Value...
-//#else
-#define DefaultVoltageOfAdc(adc) (0.004 * adc) // scale internal vdd to 5V
-//#endif
+//FIXME: Determine best stock values
+#if USE_ADC_2
+#define DefaultVoltageOfAdc(adc) (0.004f * (float)adc) // FIXME: Value scale for a common PowerBrick
+#else
+#define DefaultVoltageOfAdc(adc) (0.004f * (float)adc) // FIXME: Value scale internal vdd to 5V
+#endif
 
 /* I2C mapping */
 #define I2C1_GPIO_PORT GPIOB
@@ -285,7 +286,7 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 #endif
 
 /* Another Magnetometer on board a HMC5983 not the one in the IMU 9250*/
-//TODO:
+//FIXME: better default option for use of maybe fuse data
 #ifndef USE_MAGNETOMETER_B
 #define USE_MAGNETOMETER_B 0
 #endif
@@ -307,7 +308,7 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 #define USE_PWM5 1
 #define USE_PWM6 1
 
-/* -ESC Servo 1 */
+/* Servo 1 */
 #if USE_PWM1
 #define PWM_SERVO_1 0
 #define PWM_SERVO_1_TIMER TIM1
@@ -320,7 +321,7 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 #define PWM_SERVO_1_OC_BIT 0
 #endif
 
-/* -ESC Servo 2 */
+/* Servo 2 */
 #if USE_PWM2
 #define PWM_SERVO_2 1
 #define PWM_SERVO_2_TIMER TIM1
@@ -333,7 +334,7 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 #define PWM_SERVO_2_OC_BIT 0
 #endif
 
-/* -ESC Servo 3 */
+/* Servo 3 */
 #if USE_PWM3
 #define PWM_SERVO_3 2  //#define PWM_SERVO_3_IDX 2
 #define PWM_SERVO_3_TIMER TIM1
@@ -346,7 +347,7 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 #define PWM_SERVO_3_OC_BIT 0
 #endif
 
-/* -ESC Servo 4 */
+/* Servo 4 */
 #if USE_PWM4
 #define PWM_SERVO_4 3
 #define PWM_SERVO_4_TIMER TIM1
@@ -359,7 +360,7 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 #define PWM_SERVO_4_OC_BIT 0
 #endif
 
-/* -ESC or Servo 5 */
+/* Servo 5 */
 #if USE_PWM5
 #define PWM_SERVO_5 4
 #define PWM_SERVO_5_TIMER TIM4
@@ -372,7 +373,7 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 #define PWM_SERVO_5_OC_BIT 0
 #endif
 
-/* -ESC or Servo 6 */
+/* Servo 6 */
 #if USE_PWM6
 #define PWM_SERVO_6 5
 #define PWM_SERVO_6_TIMER TIM4
@@ -389,6 +390,7 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 #define PWM_TIM4_CHAN_MASK (PWM_SERVO_5_OC_BIT|PWM_SERVO_6_OC_BIT)
 
 /* Buzzer (A.k.a. Alarm) */
+//TODO: Test
 #if USE_BUZZER
 #define PWM_BUZZER
 #define PWM_BUZZER_TIMER TIM2

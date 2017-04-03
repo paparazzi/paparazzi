@@ -43,9 +43,9 @@ NOTES:
       <configure name="CPU_LED" value="1"/>
       <!--  TODO: After first flights try to find optimum value -->
       <!-- PERIODIC_FREQUENCY should be least equal or greater than AHRS_PROPAGATE_FREQUENCY -->
-      <configure name="PERIODIC_FREQUENCY" value="120"/> <!--  unit="Hz" -->
-      <configure name="AHRS_PROPAGATE_FREQUENCY" value="100"/><!--  unit="Hz" -->
-      <configure name="AHRS_CORRECT_FREQUENCY" value="100"/> <!--  unit="Hz" -->
+      <configure name="PERIODIC_FREQUENCY" value="512"/> <!--  unit="Hz" -->
+      <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/><!--  unit="Hz" -->
+      <configure name="AHRS_CORRECT_FREQUENCY" value="500"/> <!--  unit="Hz" -->
       
       <configure name="NAVIGATION_FREQUENCY" value="16"/> <!--  unit="Hz" -->
       <configure name="CONTROL_FREQUENCY" value="120"/> <!--  unit="Hz" -->
@@ -155,8 +155,8 @@ NOTES:
 
     <!-- Not working ATM <module name="spektrum_soft_bind"/> -->
     
-    <!-- <define name="AHRS_TRIGGERED_ATTITUDE_LOOP"/> -->
-    <!-- <define name="USE_AHRS_GPS_ACCELERATIONS"/>-->
+    <define name="AHRS_TRIGGERED_ATTITUDE_LOOP"/>
+    <define name="USE_AHRS_GPS_ACCELERATIONS"/>
     <!-- <define name="USE_MAGNETOMETER_ONGROUND" value="FALSE"/> -->
     <module name="ahrs" type="float_cmpl_quat">  
     	<configure name="AHRS_USE_MAGNETOMETER" value="FALSE"/> <!-- First autoflight set to false better make sure it works and is callibrated if set to TRUE -->
@@ -169,7 +169,7 @@ NOTES:
      	<define name="AHRS_BIAS_UPDATE_HEADING_THRESHOLD" value="5.0"/> <!-- don't update gyro bias if heading deviation is above this threshold in degrees"-->
      	<define name="AHRS_HEADING_UPDATE_GPS_MIN_SPEED" value="1.0"/> <!-- CAREFULL,  Don't update heading from GPS course if GPS ground speed is below is this threshold in m/s" -->
   <!-- Some insights https://lists.nongnu.org/archive/html/paparazzi-devel/2013-10/msg00126.html -->
-     	<define name="AHRS_GRAVITY_HEURISTIC_FACTOR" value="5.0"/> <!-- Default is 30. Reduce accelerometer cut-off frequency when the vehicle is accelerating: norm(ax,ay,az) 9,81 m/s2. WARNING: when the IMU is not well damped, the norm of accelerometers never equals to 9,81 m/s2. As a result, the GRAVITY_HEURISTIC_FACTOR will reduce the accelerometer bandwith even if the vehicle is not accelerating. Set to 0 in case of vibrations -->
+     	<define name="AHRS_GRAVITY_HEURISTIC_FACTOR" value="10.0"/> <!-- Default is 30. Reduce accelerometer cut-off frequency when the vehicle is accelerating: norm(ax,ay,az) 9,81 m/s2. WARNING: when the IMU is not well damped, the norm of accelerometers never equals to 9,81 m/s2. As a result, the GRAVITY_HEURISTIC_FACTOR will reduce the accelerometer bandwith even if the vehicle is not accelerating. Set to 0 in case of vibrations -->
 
      	<!-- <define name="AHRS_ICQ_IMU_ID" value="ABI_BROADCAST"/>--> <!-- ABI sender id of IMU to use -->
      	<define name="AHRS_ICQ_MAG_ID" value="MAG_HMC58XX_SENDER_ID"/> <!-- ABI sender id of magnetometer to use, this case the external HMC on GPS board -->
