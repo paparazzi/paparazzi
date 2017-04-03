@@ -121,7 +121,7 @@ void calculate_edge_histogram(struct image_t *img, int32_t edge_histogram[],
       for (y = 0; y < image_height; y++) {
         sobel_sum = 0;
 
-        for (c = -1; c <= 1; c++) {
+        for (c = -1; c <= 1; c+=2) {
           idx = interlace * (image_width * y + (x + c));
 
           sobel_sum += Sobel[c + 1] * (int32_t)img_buf[idx];
@@ -140,7 +140,7 @@ void calculate_edge_histogram(struct image_t *img, int32_t edge_histogram[],
       for (x = 0; x < image_width; x++) {
         sobel_sum = 0;
 
-        for (c = -1; c <= 1; c++) {
+        for (c = -1; c <= 1; c+=2) {
           idx = interlace * (image_width * (y + c) + x);
 
           sobel_sum += Sobel[c + 1] * (int32_t)img_buf[idx];
@@ -198,7 +198,6 @@ void calculate_edge_displacement(int32_t *edge_histogram, int32_t *edge_histogra
   }
     // TODO: replace with arm offset subtract
     for (x = border[0]; x < border[1]; x++) {
-      displacement[x] = 0;
       if (!SHIFT_TOO_FAR) {
         for (c = -D; c <= D; c++) {
           SAD_temp[c + D] = 0;
