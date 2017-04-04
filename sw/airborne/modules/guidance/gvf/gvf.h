@@ -53,6 +53,14 @@ typedef struct {
   float p[16];
 } gvf_tra;
 
+typedef struct {
+  int seg = 0;
+  float x1;
+  float y1;
+  float x2;
+  float y2;
+} gvf_seg;
+
 extern gvf_tra gvf_trajectory;
 
 struct gvf_grad {
