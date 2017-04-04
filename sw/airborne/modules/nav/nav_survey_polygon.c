@@ -32,6 +32,7 @@
 #include "state.h"
 #include "autopilot.h"
 #include "generated/flight_plan.h"
+#include "modules/guidance/gvf.h"
 
 #ifdef DIGITAL_CAM
 #include "modules/digital_cam/dc.h"
@@ -41,7 +42,7 @@ struct SurveyPolyAdv survey;
 
 static void nav_points(struct FloatVect2 start, struct FloatVect2 end)
 {
-  nav_route_xy(start.x, start.y, end.x, end.y);
+  gvf_line_XY1_XY2(start.x, start.y, end.x, end.y);
 }
 
 /**
@@ -297,6 +298,90 @@ bool nav_survey_polygon_run(void)
     //turn from return to stage
   } else if (survey.stage == TURN2) {
     nav_circle_XY(survey.seg_center2.x, survey.seg_center2.y, -(2 * survey.psa_min_rad + survey.psa_sweep_width) * 0.5);
+    if (NavCourseCloseTo(survey.segment_angle)) {
+      survey.stage = SEG;
+      nav_init_stage();
+#ifdef DIGITAL_CAM
+      dc_survey(survey.psa_shot_dist, survey.seg_start.x - survey.dir_vec.x * survey.psa_shot_dist * 0.5,
+                survey.seg_start.y - survey.dir_vec.y * survey.psa_shot_dist * 0.5);
+#endif
+    }
+  }
+
+  return true;
+}
+
+bool nav_survey_polygon_gvf_run(void)
+{
+  NavVerticalAutoThrottleMode(0.0);
+  NavVerticalAltitudeMode(survey.psa_altitude, 0.0);
+
+  //entry circle around entry-center until the desired altitude is reached
+  if (survey.stage == ENTRY) {
+    gvf_set_direction(-1);
+    gvf_ellipse_XY(survey.entry_center.x, survey.entry_center.y, survey.psa_min_rad, survey.psa_min_rad, 0);
+    if (NavCourseCloseTo(survey.segment_angle)
+        && nav_approaching_xy(survey.seg_start.x, survey.seg_start.y, last_x, last_y, CARROT)
+        && fabs(stateGetPositionUtm_f()->alt - survey.psa_altitude) <= 20) {
+      survey.stage = SEG;
+      nav_init_stage();
+#ifdef DIGITAL_CAM
+      dc_survey(survey.psa_shot_dist, survey.seg_start.x - survey.dir_vec.x * survey.psa_shot_dist * 0.5,
+                survey.seg_start.y - survey.dir_vec.y * survey.psa_shot_dist * 0.5);
+#endif
+    }
+  }
+  //fly the segment until seg_end is reached
+  if (survey.stage == SEG) {
+    nav_points(survey.seg_start, survey.seg_end);
+    //calculate all needed points for the next flyover
+    if (nav_approaching_xy(survey.seg_end.x, survey.seg_end.y, survey.seg_start.x, survey.seg_start.y, 0)) {
+#ifdef DIGITAL_CAM
+      dc_stop();
+#endif
+      VECT2_DIFF(survey.seg_center1, survey.seg_end, survey.rad_vec);
+      survey.ret_start.x = survey.seg_end.x - 2 * survey.rad_vec.x;
+      survey.ret_start.y = survey.seg_end.y - 2 * survey.rad_vec.y;
+
+      //if we get no intersection the survey is finished
+      static struct FloatVect2 sum_start_sweep;
+      static struct FloatVect2 sum_end_sweep;
+      VECT2_SUM(sum_start_sweep, survey.seg_start, survey.sweep_vec);
+      VECT2_SUM(sum_end_sweep, survey.seg_end, survey.sweep_vec);
+      if (!get_two_intersects(&survey.seg_start, &survey.seg_end, sum_start_sweep, sum_end_sweep)) {
+        return false;
+      }
+
+      survey.ret_end.x = survey.seg_start.x - survey.sweep_vec.x - 2 * survey.rad_vec.x;
+      survey.ret_end.y = survey.seg_start.y - survey.sweep_vec.y - 2 * survey.rad_vec.y;
+
+      survey.seg_center2.x = survey.seg_start.x - 0.5 * (2.0 * survey.rad_vec.x + survey.sweep_vec.x);
+      survey.seg_center2.y = survey.seg_start.y - 0.5 * (2.0 * survey.rad_vec.y + survey.sweep_vec.y);
+
+      survey.stage = TURN1;
+      nav_init_stage();
+    }
+  }
+  //turn from stage to return
+  else if (survey.stage == TURN1) {
+    gvf_set_direction(-1);
+    gvf_ellipse_XY(survey.entry_center.x, survey.entry_center.y, survey.psa_min_rad, survey.psa_min_rad, 0);
+    if (NavCourseCloseTo(survey.return_angle)) {
+      survey.stage = RET;
+      nav_init_stage();
+    }
+    //return
+  } else if (survey.stage == RET) {
+    nav_points(survey.ret_start, survey.ret_end);
+    if (nav_approaching_xy(survey.ret_end.x, survey.ret_end.y, survey.ret_start.x, survey.ret_start.y, 0)) {
+      survey.stage = TURN2;
+      nav_init_stage();
+    }
+    //turn from return to stage
+  } else if (survey.stage == TURN2) {
+    gvf_set_direction(-1);
+    float rad_sur = (2 * survey.psa_min_rad + survey.psa_sweep_width) * 0.5;
+    gvf_ellipse_XY(survey.entry_center.x, survey.entry_center.y, survey.psa_min_rad, survey.psa_min_rad, 0);
     if (NavCourseCloseTo(survey.segment_angle)) {
       survey.stage = SEG;
       nav_init_stage();
