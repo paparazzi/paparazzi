@@ -177,8 +177,8 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 
 /* MDL */
 // FIXME: Test n fix of not working
-#define SPI_SELECT_SLAVE1_PORT GPIOE
-#define SPI_SELECT_SLAVE1_PIN GPIO15 */
+//#define SPI_SELECT_SLAVE1_PORT GPIOE
+//#define SPI_SELECT_SLAVE1_PIN GPIO15 */
 
 /* MPU_9250_CS on SPI1 */
 #define SPI_SELECT_SLAVE2_PORT GPIOC

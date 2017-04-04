@@ -4,7 +4,7 @@
 + Pixracer http://arsovtech.com/?page_id=1590
 * in Fixedwing (http://www.openuas.org/)
 + Airframe to test the PX4 Pixracer v1 firmware while developing...
-  E-Flite T28 Trojan fully equiped with Retractable gear and Flaps
+  E-Flite T28 Trojan fully equiped with Retractable gear and flap
      + Autopilot:   PX4FMU 4.0 aka Pixracer v1.0
      + Actuators:   Regular digital servos
      + GPS:         Ublox M8N GNSS           
@@ -75,7 +75,7 @@ NOTES:
         <!-- <define name="RADIO_CONTROL_NB_CHANNEL" value="9"/> --> 
         
         <!-- Mode set one a three way switch -->
-        <define name="RADIO_MODE" value="4"/> <!-- yes, already done by default if not redefined to something else-->
+       <!--  Per defaulr already GEAR if not defined  <define name="RADIO_MODE" value="RADIO_GEAR"/> --><!-- yes, already done by default if not redefined to something else-->
         <define name="RADIO_GEAR" value="RADIO_AUX1"/>
         <define name="RADIO_FLAP" value="RADIO_AUX2"/>
         <!-- <define name="SPEKTRUM_HAS_SOFT_BIND_PIN" value="1"/> -->
@@ -162,8 +162,8 @@ NOTES:
     	<configure name="AHRS_USE_MAGNETOMETER" value="FALSE"/> <!-- First autoflight set to false better make sure it works and is callibrated if set to TRUE -->
      	<configure name="AHRS_ALIGNER_LED" value="2"/>
      	<define name="AHRS_MAG_UPDATE_ALL_AXES" value="TRUE"/> <!-- with those high roll n pith angles better id calibrated well -->
-     	<define name="AHRS_USE_GPS_HEADING" value="TRUE"/> <!-- Use GPS course to update heading for time being,if FALSE data from magneto only, testing, brrrr... -->
-     	<define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN" value="TRUE"/> <!-- Compensation of centrifugal force via GPS speed (to fly in circles with a fixedwing)"-->
+     	<!--  TRUE by default <define name="AHRS_USE_GPS_HEADING" value="FALSE"/> --><!-- Use GPS course to update heading for time being,if FALSE data from magneto only, testing, brrrr... -->
+     	<!--  TRUE by default <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN" value="FALSE"/>--> <!-- Compensation of centrifugal force via GPS speed (to fly in circles with a fixedwing)"-->
      	<define name="AHRS_GPS_SPEED_IN_NEGATIVE_Z_DIRECTION" value="FALSE"/> <!-- AHRS_GRAVITY_UPDATE_COORDINATED_TURN assumes the GPS speed is in the X axis direction. Quadshot, DelftaCopter and other hybrids can have the GPS speed in the negative Z direction" -->
      	<define name="AHRS_PROPAGATE_LOW_PASS_RATES" value="TRUE"/> <!-- apply a low pass filter on rotational velocity"-->
      	<define name="AHRS_BIAS_UPDATE_HEADING_THRESHOLD" value="5.0"/> <!-- don't update gyro bias if heading deviation is above this threshold in degrees"-->
@@ -266,7 +266,7 @@ NOTES:
 
 <!-- ************************* MODULES ************************* -->
   <modules>
-   <!-- <module name="auto1_commands"/>--><!-- NOT finished for NON intermcu to be able to set GEAR and FLAPS etc. in stabiized mode for easier testflights -->
+   <module name="auto1_commands"/><!-- NOT finished for NON intermcu to be able to set GEAR and FLAP etc. in stabiized mode for easier testflights -->
 
     <module name="baro_ms5611_spi" >
       <configure name="MS5611_SPI_DEV" value="spi1"/>
@@ -352,9 +352,9 @@ NOTES:
     <!--  Just name a few,  value can be used in e.g. flightplan -->
     <define name="LANINGGEAR_EXTEND" value="-MAX_PPRZ" />
     <define name="LANDINGGEAR_RETRACT" value="MAX_PPRZ" />
-    <define name="FLAPS_FULL" value="-MAX_PPRZ" />
-    <define name="FLAPS_HALF" value="-MAX_PPRZ/2" />
-    <define name="FLAPS_NONE" value="0" /><!-- TODO hardware mod use full servo range -->
+    <define name="FLAP_FULL" value="-MAX_PPRZ" />
+    <define name="FLAP_HALF" value="-MAX_PPRZ/2" />
+    <define name="FLAP_NONE" value="0" /><!-- TODO hardware mod use full servo range -->
     <define name="BEACON_ROTATE" value="MAX_PPRZ" />
     <define name="BEACON_FLASH" value="0" />
     <define name="BEACON_OFF" value="-MAX_PPRZ" />
@@ -369,7 +369,7 @@ NOTES:
     <servo name="S_FLAP" no="5" min="1100" neutral="1500" max="1900"/>
   </servos>
 
-   <!--For mixed controlflaps -->
+   <!--For mixed controls -->
   <section name="MIXER">
      <!-- just a tiny bit works well-->
      <define name="ASSIST_ROLL_WITH_RUDDER" value="0.09"/>
@@ -395,7 +395,7 @@ NOTES:
     <!-- To still be able to use rudder in auto mode, which is handy with sidewind landing in auto1 stabilization mode only YAW
     Handy if in auto1 for sidewind stabilized crabbing landing, also for steering if someting not OK with course gains in Autonomous flight
     TODO disable again after strong wind sidewind autolanding is 100% tuned
-      Note that in auto2 mode the Flaps and Gears are after test then controlable by flightplan conditions e.g landng block extend gear and flaps -->
+      Note that in auto2 mode the Flap and Gear are after test then controlable by flightplan conditions e.g landng block extend gear and flap -->
     <set command="YAW" value="@YAW"/>   <!-- TODO: Diable later -->
     <set command="GEAR" value="@GEAR"/> <!-- TODO: Diable later -->
     <set command="FLAP" value="@FLAP"/> <!-- TODO: Diable later -->
@@ -444,7 +444,7 @@ NOTES:
     <define name="DEFAULT_GEAR" value="1100"/>
     <define name="DEFAULT_ROLL" value="10.0" unit="deg"/>
     <define name="DEFAULT_PITCH" value="-5.0" unit="deg"/>
-    <!--  TODO Maybe extent flaps to landing position, testfly it first -->
+    <!--  TODO Maybe extent flap to landing position, testfly it first -->
     <define name="HOME_RADIUS" value="DEFAULT_CIRCLE_RADIUS" unit="m"/>
     <define name="KILL_MODE_DISTANCE" value="MAX_DIST_FROM_HOME*1.3+HOME_RADIUS" unit="m"/><!--  improve value by default turn radius calc -->
     <define name="DELAY_WITHOUT_GPS" value="4" unit="s"/>
@@ -656,7 +656,7 @@ NOTES:
     <define name="CLIMB_AIRSPEED" value="7." unit="m/s"/> <!-- TODO get best values -->
     <define name="TRACKING_AIRSPEED" value="20." unit="m/s"/> <!-- TODO get best values -->
     <define name="GLIDE_AIRSPEED" value="16." unit="m/s"/> <!-- TODO get best values -->
-    <define name="STALL_AIRSPEED" value="12." unit="m/s"/> <!-- measue limit of plane in testflight and set 80% from this --> <!-- No flaps, an pct flp ratio-->
+    <define name="STALL_AIRSPEED" value="12." unit="m/s"/> <!-- measue limit of plane in testflight and set 80% from this --> <!-- No flap, an pct flp ratio-->
     <define name="RACE_AIRSPEED" value="21." unit="m/s"/> <!-- TODO determine -->
     
     <define name="MIN_SPEED_FOR_TAKEOFF" value="4." unit="m/s"/> <!-- TODO determine and change to make it for airspeed -->
