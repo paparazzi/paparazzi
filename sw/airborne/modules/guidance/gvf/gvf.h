@@ -80,15 +80,16 @@ extern void gvf_set_gains(float ke, float kd);
 extern void gvf_set_direction(int8_t s);
 
 // Straigh line
-void gvf_line(float x, float y, float alpha);
+extern bool gvf_line_XY_heading(float x, float y, float alpha);
 extern bool gvf_line_wp1_wp2(uint8_t wp1, uint8_t wp2);
 extern bool gvf_line_wp_heading(uint8_t wp, float alpha);
 
 // Ellipse
-extern bool gvf_ellipse(uint8_t wp, float a, float b, float alpha);
+extern bool gvf_ellipse_wp(uint8_t wp, float a, float b, float alpha);
+extern bool gvf_ellipse_XY(float x, float y, float a, float b, float alpha);
 
 // Sinusoidal
-void gvf_sin(float x, float y, float alpha, float w, float off, float A);
+extern bool gvf_sin_XY_heading(float x, float y, float alpha, float w, float off, float A);
 extern bool gvf_sin_wp1_wp2(uint8_t wp1, uint8_t wp2, float w, float off,
                             float A);
 extern bool gvf_sin_wp_heading(uint8_t wp, float alpha, float w, float off,
