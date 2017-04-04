@@ -38,6 +38,7 @@ gvf_con gvf_control;
 
 // Trajectory
 gvf_tra gvf_trajectory;
+gvf_seg gvf_segment;
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
@@ -78,6 +79,15 @@ static void send_circle(struct transport_tx *trans, struct link_device *dev)
   }
 }
 
+static void send_segment(struct transport_tx *trans, struct link_device *dev)
+{
+  if (gvf_trajectory.type == LINE && gvf_segment.seg == 1) {
+    pprz_msg_send_SEGMENT(trans, dev, AC_ID,
+                         &gvf_segment.x1, &gvf_segment.y1,
+                         &gvf_segment.x2, &gvf_segment.y2);
+  }
+}
+
 #endif
 
 void gvf_init(void)
@@ -89,8 +99,8 @@ void gvf_init(void)
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GVF, send_gvf);
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_CIRCLE,
-                              send_circle);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_CIRCLE, send_circle);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_SEGMENT, send_segment);
 #endif
 }
 
@@ -188,6 +198,8 @@ bool gvf_line_XY_heading(float a, float b, float alpha)
 
   gvf_control.error = e;
 
+  gvf_segment.seg = 0;
+
   return true;
 }
 
@@ -199,6 +211,12 @@ bool gvf_line_XY1_XY2(float x1, float y1, float x2, float y2)
   float alpha = atanf(zy / zx);
 
   gvf_line_XY_heading(x1, y1, alpha);
+  
+  gvf_segment.seg = 1;
+  gvf_segment.x1 = x1;
+  gvf_segment.y1 = y1;
+  gvf_segment.x2 = x2;
+  gvf_segment.y2 = y2;
 
   return true;
 }
@@ -216,6 +234,12 @@ bool gvf_line_wp1_wp2(uint8_t wp1, uint8_t wp2)
   float alpha = atanf(zy / zx);
 
   gvf_line_XY_heading(x1, y1, alpha);
+
+  gvf_segment.seg = 1;
+  gvf_segment.x1 = x1;
+  gvf_segment.y1 = y1;
+  gvf_segment.x2 = x2;
+  gvf_segment.y2 = y2;
 
   return true;
 }
