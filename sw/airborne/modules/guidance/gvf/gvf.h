@@ -81,6 +81,7 @@ extern void gvf_set_direction(int8_t s);
 
 // Straigh line
 extern bool gvf_line_XY_heading(float x, float y, float alpha);
+extern bool gvf_line_XY1_XY2(float x1, float y1, float x2, float y2);
 extern bool gvf_line_wp1_wp2(uint8_t wp1, uint8_t wp2);
 extern bool gvf_line_wp_heading(uint8_t wp, float alpha);
 

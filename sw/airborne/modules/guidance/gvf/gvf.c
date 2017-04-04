@@ -191,6 +191,18 @@ bool gvf_line_XY_heading(float a, float b, float alpha)
   return true;
 }
 
+bool gvf_line_XY1_XY2(float x1, float y1, float x2, float y2)
+{
+  float zx = x1 - x2;
+  float zy = y1 - y2;
+
+  float alpha = atanf(zy / zx);
+
+  gvf_line_XY_heading(x1, y1, alpha);
+
+  return true;
+}
+
 bool gvf_line_wp1_wp2(uint8_t wp1, uint8_t wp2)
 {
   float x1 = waypoints[wp1].x;
