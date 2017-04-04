@@ -336,6 +336,13 @@ NOTES:
       <define name="HMC58XX_CHAN_X_SIGN" value="-"/>
       <define name="HMC58XX_CHAN_Y_SIGN" value="+"/>
       <define name="HMC58XX_CHAN_Z_SIGN" value="+"/>
+      
+      <!-- 
+      If you build in your GPS where theMAGNETOMETER resides on the board not alligned with the Accelo/Gyro axis the nset these values 
+      <define name="MAG_TO_IMU_PHI" value="0.0" unit="deg"/>
+      <define name="MAG_TO_IMU_PSI" value="0.0" unit="deg"/>
+      <define name="MAG_TO_IMU_THETA" value="0.0" unit="deg"/>
+      -->
     </module>
   </modules>
 
@@ -479,9 +486,17 @@ NOTES:
     <define name="H_Z" value="0.91053"/>
   </section>
 
-  <section name="INS" prefix="INS_">
-    <define name="ROLL_NEUTRAL_DEFAULT" value="0.0" unit="deg"/><!-- TODO: Determine when mechanical in final fixed position in airframe -->
-    <define name="PITCH_NEUTRAL_DEFAULT" value="0.0" unit="deg"/><!-- TODO: Determine when mechanical in final fixed position in airframe -->
+  <section name="INS">
+    <!-- 
+    <define name="INS_BODY_TO_GPS_X" value="5.0" unit="cm"/> 
+    <define name="INS_BODY_TO_GPS_Y" value="0.0" unit="cm"/> 
+    <define name="INS_BODY_TO_GPS_Z" value="6.0" unit="cm"/>
+    --> 
+
+    <!--  <define name="USE_INS_MODULE"/>
+    <define name="INS_ROLL_NEUTRAL_DEFAULT" value="0.0" unit="deg"/>
+    <define name="INS_PITCH_NEUTRAL_DEFAULT" value="0.0" unit="deg"/>
+    -->
   </section>
 
   <!-- TODO: Set correct values for Maxbotix LV1 (Model 1010) -->
