@@ -35,7 +35,13 @@ typedef struct {
   float alpha;
 } gvf_li_par;
 
+typedef struct {
+  float d1;
+  float d2;
+} gvf_seg_par;
+
 extern gvf_li_par gvf_line_par;
+extern gvf_seg_par gvf_segment_par;
 
 extern void gvf_line_info(float *phi, struct gvf_grad *, struct gvf_Hess *);
 

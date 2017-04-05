@@ -34,7 +34,16 @@
 #define GVF_LINE_ALPHA 0
 #endif
 
+#ifndef GVF_SEGMENT_D1
+#define GVF_SEGMENT_D1 0
+#endif
+
+#ifndef GVF_SEGMENT_D2
+#define GVF_SEGMENT_D2 0
+#endif
+
 gvf_li_par gvf_line_par = {GVF_LINE_ALPHA};
+gvf_seg_par gvf_segment_par = {GVF_SEGMENT_D1, GVF_SEGMENT_D2};
 
 void gvf_line_info(float *phi, struct gvf_grad *grad,
                    struct gvf_Hess *hess)
