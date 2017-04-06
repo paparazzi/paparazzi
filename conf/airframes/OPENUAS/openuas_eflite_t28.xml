@@ -289,7 +289,32 @@ NOTES:
       <define name="AIRSPEED_ETS_SYNC_SEND"/> <!-- TODO Disable after first 10 test flights -->
       <configure name="AIRSPEED_ETS_I2C_DEV" value="i2c1"/>
     </module>
-
+      
+    <!-- The Pixravcer has a built in SD card slot connected over SPI bus to the MCU -->
+ <!-- TODO: fixme
+    <module name="logger_sd_spi_direct.xml">
+      <configure name="SDLOGGER_DIRECT_SPI" value="spi2"/>
+      <configure name="SDLOGGER_DIRECT_SPI_SLAVE" value="SPI_SLAVE4"/>
+      <configure name="SDLOGGER_DIRECT_CONTROL_SWITCH" value="RADIO_AUX3"/>
+      <configure name="LOGGER_LED" value="3"/>
+    </module>
+    
+   ----- As in telemetry file to add stil...
+    <process name="Logger">
+    <mode name="default">
+      <message name="FBW_STATUS"          period="1.2"/>
+      <message name="DL_VALUE"            period="0.5"/>
+      <message name="IMU_ACCEL"           period="0.05"/>
+      <message name="IMU_GYRO"            period="0.05"/>
+      <message name="IMU_MAG"             period="0.1"/>
+      <message name="IMU_ACCEL_RAW"       period="0.002"/>
+      <message name="IMU_GYRO_RAW"        period="0.002"/>
+      <message name="IMU_MAG_RAW"         period="0.002"/>
+      <message name="COMMANDS"            period=".002"/>
+    </mode>
+  </process>  
+  -->  
+ 
    <!--  <module name="current_sensor">       
         <define name="USE_ADC_3"/>
         <configure name="ADC_CURRENT_SENSOR" value="ADC_3"/>-->

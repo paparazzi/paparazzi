@@ -176,9 +176,9 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 #define SPI_SELECT_SLAVE1_PIN GPIO15
 
 /* MDL */
-// FIXME: Test n fix of not working
+// FIXME: Test n fix or emoveal
 //#define SPI_SELECT_SLAVE1_PORT GPIOE
-//#define SPI_SELECT_SLAVE1_PIN GPIO15 */
+//#define SPI_SELECT_SLAVE1_PIN GPIO15
 
 /* MPU_9250_CS on SPI1 */
 #define SPI_SELECT_SLAVE2_PORT GPIOC
@@ -194,8 +194,8 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 
 /* SPI3 NSS on microSD connector */
 //FIXME: not tested
-//#define SPI_SELECT_SLAVE4_PORT GPIOA
-//#define SPI_SELECT_SLAVE4_PIN GPIO4
+//#define SPI_SELECT_SLAVE5_PORT GPIOA
+//#define SPI_SELECT_SLAVE5_PIN GPIO4
 
 
 /* SDIO to microSD card connector */
@@ -300,6 +300,10 @@ When a read-operation of an RTD resistance data register occurs, DRDY returns hi
 /* PWM */
 #define PWM_USE_TIM1 1
 #define PWM_USE_TIM4 1
+
+
+//TODO: ifdef USE_SERVO6 for PPM out to e.g. servo extender board ...
+// Basically a inter mcu Extra device;)
 
 #define USE_PWM1 1
 #define USE_PWM2 1
