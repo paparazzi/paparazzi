@@ -22,6 +22,8 @@ For more details we refer to https://wiki.paparazziuav.org/wiki/Module/guidance_
         </dl_settings>
           <dl_settings NAME="Line">
           <dl_setting MAX="180" MIN="-180" STEP="1" VAR="gvf_line_par.alpha" shortname="alpha" param="GVF_LINE_ALPHA"/>
+          <dl_setting MAX="100" MIN="0" STEP="1" VAR="gvf_segment_par.d1" shortname="d1_seg" param="GVF_SEGMENT_D1"/>
+          <dl_setting MAX="100" MIN="0" STEP="1" VAR="gvf_segment_par.d2" shortname="d2_seg" param="GVF_SEGMENT_D2"/>
         </dl_settings>
         <dl_settings NAME="Sine">
           <dl_setting MAX="180" MIN="-180" STEP="1" VAR="gvf_sin_par.alpha" shortname="alpha" param="GVF_SIN_ALPHA"/>
@@ -62,6 +64,8 @@ For more details we refer to https://wiki.paparazziuav.org/wiki/Module/guidance_
      <define name="GVF_SIN_OFF" value="0"/>
      <define name="GVF_SIN_A" value="0"/>
      <define name="GVF_LINE_ALPHA" value="0"/>
+     <define name="GVF_SEGMENT_D1" value="0"/>
+     <define name="GVF_SEGMENT_D2" value="0"/>
      <file name="gvf.c"/>
      <file name="trajectories/gvf_line.c"/>
      <file name="trajectories/gvf_sin.c"/>

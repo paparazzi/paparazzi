@@ -32,7 +32,7 @@
 #include "state.h"
 #include "autopilot.h"
 #include "generated/flight_plan.h"
-#include "modules/guidance/gvf.h"
+#include "modules/guidance/gvf/gvf.h"
 
 #ifdef DIGITAL_CAM
 #include "modules/digital_cam/dc.h"
@@ -42,7 +42,12 @@ struct SurveyPolyAdv survey;
 
 static void nav_points(struct FloatVect2 start, struct FloatVect2 end)
 {
-  gvf_line_XY1_XY2(start.x, start.y, end.x, end.y);
+  nav_route_xy(start.x, start.y, end.x, end.y);
+}
+
+static void nav_points_gvf(struct FloatVect2 start, struct FloatVect2 end)
+{
+  gvf_segment_XY1_XY2(start.x, start.y, end.x, end.y, 0, 0);
 }
 
 /**
@@ -333,7 +338,7 @@ bool nav_survey_polygon_gvf_run(void)
   }
   //fly the segment until seg_end is reached
   if (survey.stage == SEG) {
-    nav_points(survey.seg_start, survey.seg_end);
+    nav_points_gvf(survey.seg_start, survey.seg_end);
     //calculate all needed points for the next flyover
     if (nav_approaching_xy(survey.seg_end.x, survey.seg_end.y, survey.seg_start.x, survey.seg_start.y, 0)) {
 #ifdef DIGITAL_CAM
@@ -372,7 +377,7 @@ bool nav_survey_polygon_gvf_run(void)
     }
     //return
   } else if (survey.stage == RET) {
-    nav_points(survey.ret_start, survey.ret_end);
+    nav_points_gvf(survey.ret_start, survey.ret_end);
     if (nav_approaching_xy(survey.ret_end.x, survey.ret_end.y, survey.ret_start.x, survey.ret_start.y, 0)) {
       survey.stage = TURN2;
       nav_init_stage();
