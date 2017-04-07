@@ -67,8 +67,9 @@ void isaac_init(void);
 void isaac_periodic(void);
 
 /** Message processing functions */
-void isaac_parse_cam_snapshot_dl(void);
-void isaac_parse_cam_payload_dl(void);
+void isaac_parse_cam_snapshot_dl(uint8_t *buf);
+void isaac_parse_cam_payload_dl(uint8_t *buf);
+void isaac_parse_move_wp_dl(uint8_t *buf);
 
 #endif /* ISAAC_H */
 

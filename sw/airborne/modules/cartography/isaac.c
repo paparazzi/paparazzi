@@ -41,11 +41,17 @@
 #include "subsystems/datalink/telemetry.h"
 #include <string.h>
 
+// needed for WP_MOVED confirmation
+#include "firmwares/fixedwing/nav.h"
+#include "subsystems/navigation/common_nav.h"
+#include "math/pprz_geodetic_float.h"
+
 bool send_cam_snapshot;
 bool send_cam_payload;
 
 struct CameraPayload cam_payload;
 struct CameraSnapshot cam_snapshot;
+
 
 /** Init function */
 void isaac_init(void)
@@ -101,24 +107,73 @@ void isaac_periodic(void)
  *
  * TODO: protect with mutexes?
  * */
-void isaac_parse_cam_snapshot_dl(void)
+void isaac_parse_cam_snapshot_dl(uint8_t *buf)
 {
   // copy CAMERA_SNAPSHOT message and mark it to be sent
-  cam_snapshot.cam_id = DL_CAMERA_SNAPSHOT_camera_id(extra_dl_buffer);
-  cam_snapshot.cam_state = DL_CAMERA_SNAPSHOT_camera_state(extra_dl_buffer);
-  cam_snapshot.snapshot_num = DL_CAMERA_SNAPSHOT_snapshot_image_number(extra_dl_buffer);
-  cam_snapshot.snapshot_valid = DL_CAMERA_SNAPSHOT_snapshot_valid(extra_dl_buffer);
-  cam_snapshot.lens_temp = DL_CAMERA_SNAPSHOT_lens_temp(extra_dl_buffer);
-  cam_snapshot.array_temp = DL_CAMERA_SNAPSHOT_array_temp(extra_dl_buffer);
+  cam_snapshot.cam_id = DL_CAMERA_SNAPSHOT_camera_id(buf);
+  cam_snapshot.cam_state = DL_CAMERA_SNAPSHOT_camera_state(buf);
+  cam_snapshot.snapshot_num = DL_CAMERA_SNAPSHOT_snapshot_image_number(buf);
+  cam_snapshot.snapshot_valid = DL_CAMERA_SNAPSHOT_snapshot_valid(buf);
+  cam_snapshot.lens_temp = DL_CAMERA_SNAPSHOT_lens_temp(buf);
+  cam_snapshot.array_temp = DL_CAMERA_SNAPSHOT_array_temp(buf);
 }
 
-void isaac_parse_cam_payload_dl(void){
+void isaac_parse_cam_payload_dl(uint8_t *buf){
   // copy CAMERA_PAYLOAD message and mark it to be sent
-  cam_payload.timestamp = DL_CAMERA_PAYLOAD_timestamp(extra_dl_buffer);
-  cam_payload.used_mem = DL_CAMERA_PAYLOAD_used_memory(extra_dl_buffer);
-  cam_payload.used_disk = DL_CAMERA_PAYLOAD_used_disk(extra_dl_buffer);
-  cam_payload.door_status = DL_CAMERA_PAYLOAD_door_status(extra_dl_buffer);
-  cam_payload.error_code = DL_CAMERA_PAYLOAD_error_code(extra_dl_buffer);
+  cam_payload.timestamp = DL_CAMERA_PAYLOAD_timestamp(buf);
+  cam_payload.used_mem = DL_CAMERA_PAYLOAD_used_memory(buf);
+  cam_payload.used_disk = DL_CAMERA_PAYLOAD_used_disk(buf);
+  cam_payload.door_status = DL_CAMERA_PAYLOAD_door_status(buf);
+  cam_payload.error_code = DL_CAMERA_PAYLOAD_error_code(buf);
 
   send_cam_payload = true;
+}
+
+/**
+ * If MOVE_WP from GCS
+ *  - processed in  firmware_parse_msg(dev, trans, buf); with regular buffer
+ *  - reponse over telemetry (regular buffer)
+ *  - here send WP_MOVED over extra_dl
+ *
+ *  If MOVE_WP from extra_dl
+ *  - processed in firmware_parse_msg(dev, trans, buf); with extra buffer
+ *  - response over extra_dl
+ *  - send an update to GCS
+ *
+ *  In both cases, the MOVE_WP message was already processed in firmware_parse
+ *  here we are taking care only about propagating the change
+ */
+void isaac_parse_move_wp_dl(uint8_t *buf)
+{
+  if (DL_MOVE_WP_ac_id(buf) == AC_ID) {
+    uint8_t wp_id = DL_MOVE_WP_wp_id(buf);
+
+    /* Computes from (lat, long) in the referenced UTM zone */
+    struct LlaCoor_f lla;
+    lla.lat = RadOfDeg((float)(DL_MOVE_WP_lat(buf) / 1e7));
+    lla.lon = RadOfDeg((float)(DL_MOVE_WP_lon(buf) / 1e7));
+    lla.alt = ((float)(DL_MOVE_WP_alt(buf)))/1000.;
+    struct UtmCoor_f utm;
+    utm.zone = nav_utm_zone0;
+    utm_of_lla_f(&utm, &lla);
+    //nav_move_waypoint(wp_id, utm.east, utm.north, utm.alt);
+
+    /* Waypoint range is limited. Computes the UTM pos back from the relative
+             coordinates */
+    utm.east = waypoints[wp_id].x + nav_utm_east0;
+    utm.north = waypoints[wp_id].y + nav_utm_north0;
+
+    if (buf == extra_dl_buffer) {
+       // MOVE_WP came from extra_dl, respond over telemetry
+      DOWNLINK_SEND_WP_MOVED(DefaultChannel, DefaultDevice,
+                             &wp_id, &utm.east, &utm.north, &utm.alt, &nav_utm_zone0);
+    }
+
+    if (buf == dl_buffer) {
+      // MOVE_WP came over telemetry, respond over extra_dl
+      DOWNLINK_SEND_WP_MOVED(extra_pprz_tp, EXTRA_DOWNLINK_DEVICE,
+                             &wp_id, &utm.east, &utm.north, &utm.alt, &nav_utm_zone0);
+    }
+  }
+
 }

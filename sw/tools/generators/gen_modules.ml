@@ -304,7 +304,10 @@ let print_event_functions = fun modules ->
 let print_datalink_functions = fun modules ->
   lprintf out_h "\n#include \"pprzlink/messages.h\"\n";
   lprintf out_h "#include \"generated/airframe.h\"\n";
-  lprintf out_h "static inline void modules_parse_datalink(uint8_t msg_id __attribute__ ((unused))) {\n";
+  lprintf out_h "static inline void modules_parse_datalink(uint8_t msg_id __attribute__ ((unused)),
+                                          struct link_device *dev __attribute__((unused)),
+                                          struct transport_tx *trans __attribute__((unused)),
+                                          uint8_t *buf __attribute__((unused))) {\n";
   right ();
   let else_ = ref "" in
   List.iter (fun m ->
