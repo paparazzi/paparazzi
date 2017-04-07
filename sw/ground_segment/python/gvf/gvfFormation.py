@@ -42,7 +42,7 @@ def message_recv(ac_id, msg):
 
         if msg.name == 'GVF':
             if int(msg.get_field(1)) == 1:
-                param = msg.get_field(3).split(',')
+                param = msg.get_field(4).split(',')
                 ac.XYc[0] = float(param[0])
                 ac.XYc[1] = float(param[1])
                 ac.a = float(param[2])
@@ -134,14 +134,14 @@ def main():
 
     for ac in list_aircraft:
         settings = PaparazziACSettings(ac.id)
-        list_of_indexes = ['a', 'b']
+        list_of_indexes = ['ell_a', 'ell_b']
 
         for setting_ in list_of_indexes:
             try:
                 index = settings.name_lookup[setting_].index
-                if setting_ == 'a':
+                if setting_ == 'ell_a':
                     ac.a_index = index
-                if setting_ == 'b':
+                if setting_ == 'ell_b':
                     ac.b_index = index
             except Exception as e:
                 print(e)
