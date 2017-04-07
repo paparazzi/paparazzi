@@ -7,44 +7,37 @@ For more details we refer to https://wiki.paparazziuav.org/wiki/Module/guidance_
     </description>
   </doc>
 
-  <settings name="complete">
+  <settings name="GVF">
     <dl_settings>
       <dl_settings NAME="GVF">
         <dl_settings NAME="Control">
-          <dl_setting MAX="5" MIN="0.0" STEP="0.01" VAR="gvf_control.ke" shortname="gvf_ke" param="GVF_KE"/>
-          <dl_setting MAX="5" MIN="0.0" STEP="0.01" VAR="gvf_control.kn" shortname="gvf_kn" param="GVF_KN"/>
           <dl_setting MAX="1" MIN="-1" STEP="2" VAR="gvf_control.s" shortname = "direction"/>
         </dl_settings>
         <dl_settings NAME="Ellipse">
-          <dl_setting MAX="150" MIN="0.0" STEP="10" VAR="gvf_ellipse_par.a" shortname="a" param="GVF_ELLIPSE_A"/>
-          <dl_setting MAX="150" MIN="0.0" STEP="10" VAR="gvf_ellipse_par.b" shortname="b" param="GVF_ELLIPSE_B"/>
-          <dl_setting MAX="90" MIN="-90" STEP="1" VAR="gvf_ellipse_par.alpha" shortname="alpha" param="GVF_ELLIPSE_ALPHA"/>
+          <dl_setting MAX="5" MIN="0.0" STEP="0.01" VAR="gvf_ellipse_par.ke" shortname="ell_ke" param="GVF_ELLIPSE_KE"/>
+          <dl_setting MAX="5" MIN="0.0" STEP="0.01" VAR="gvf_ellipse_par.kn" shortname="ell_kn" param="GVF_ELLIPSE_KN"/>
+          <dl_setting MAX="150" MIN="0.0" STEP="10" VAR="gvf_ellipse_par.a" shortname="ell_a" param="GVF_ELLIPSE_A"/>
+          <dl_setting MAX="150" MIN="0.0" STEP="10" VAR="gvf_ellipse_par.b" shortname="ell_b" param="GVF_ELLIPSE_B"/>
+          <dl_setting MAX="90" MIN="-90" STEP="1" VAR="gvf_ellipse_par.alpha" shortname="ell_alpha" param="GVF_ELLIPSE_ALPHA"/>
         </dl_settings>
           <dl_settings NAME="Line">
-          <dl_setting MAX="180" MIN="-180" STEP="1" VAR="gvf_line_par.alpha" shortname="alpha" param="GVF_LINE_ALPHA"/>
+		  <dl_setting MAX="5" MIN="0.0" STEP="0.01" VAR="gvf_line_par.ke" shortname="line_ke" param="GVF_LINE_KE"/>
+          <dl_setting MAX="5" MIN="0.0" STEP="0.01" VAR="gvf_line_par.kn" shortname="line_kn" param="GVF_LINE_KN"/>
+          <dl_setting MAX="180" MIN="-180" STEP="1" VAR="gvf_line_par.heading" shortname="line_heading" param="GVF_LINE_HEADING"/>
           <dl_setting MAX="100" MIN="0" STEP="1" VAR="gvf_segment_par.d1" shortname="d1_seg" param="GVF_SEGMENT_D1"/>
           <dl_setting MAX="100" MIN="0" STEP="1" VAR="gvf_segment_par.d2" shortname="d2_seg" param="GVF_SEGMENT_D2"/>
         </dl_settings>
         <dl_settings NAME="Sine">
-          <dl_setting MAX="180" MIN="-180" STEP="1" VAR="gvf_sin_par.alpha" shortname="alpha" param="GVF_SIN_ALPHA"/>
-          <dl_setting MAX="0.01" MIN="0" STEP="0.0001" VAR="gvf_sin_par.w" shortname="w" param="GVF_SIN_W"/>
-          <dl_setting MAX="6.2" MIN="0" STEP="0.002" VAR="gvf_sin_par.off" shortname="off" param="GVF_SIN_OFF"/>
-          <dl_setting MAX="100" MIN="0" STEP="1" VAR="gvf_sin_par.A" shortname="amplitude" param="GVF_SIN_A"/>
+		  <dl_setting MAX="5" MIN="0.0" STEP="0.01" VAR="gvf_sin_par.ke" shortname="sin_ke" param="GVF_SIN_KE"/>
+          <dl_setting MAX="5" MIN="0.0" STEP="0.01" VAR="gvf_sin_par.kn" shortname="sin_kn" param="GVF_SIN_KN"/>
+          <dl_setting MAX="180" MIN="-180" STEP="1" VAR="gvf_sin_par.alpha" shortname="sin_alpha" param="GVF_SIN_ALPHA"/>
+          <dl_setting MAX="0.01" MIN="0" STEP="0.0001" VAR="gvf_sin_par.w" shortname="sin_w" param="GVF_SIN_W"/>
+          <dl_setting MAX="6.2" MIN="0" STEP="0.002" VAR="gvf_sin_par.off" shortname="sin_off" param="GVF_SIN_OFF"/>
+          <dl_setting MAX="100" MIN="0" STEP="1" VAR="gvf_sin_par.A" shortname="sin_amplitude" param="GVF_SIN_A"/>
         </dl_settings>
       </dl_settings>
     </dl_settings>
   </settings>
-  <settings name="control">
-    <dl_settings>
-      <dl_settings NAME="GVF">
-         <dl_settings NAME="Control">
-           <dl_setting MAX="5" MIN="0.0" STEP="0.01" VAR="gvf_control.ke" shortname="gvf_ke" param="GVF_KE"/>
-           <dl_setting MAX="5" MIN="0.0" STEP="0.01" VAR="gvf_control.kn" shortname="gvf_kn" param="GVF_KN"/>
-           <dl_setting MAX="1" MIN="-1" STEP="2" VAR="gvf_control.s" shortname="direction"/>
-         </dl_settings>
-       </dl_settings>
-     </dl_settings>
-   </settings>
 
    <header>
      <file name="gvf.h"/>
@@ -56,14 +49,20 @@ For more details we refer to https://wiki.paparazziuav.org/wiki/Module/guidance_
    <init fun = "gvf_init()"/>
 
    <makefile firmware="fixedwing">
+	 <define name="GVF_ELLIPSE_KE" value="1"/>
+	 <define name="GVF_ELLIPSE_KN" value="1"/>
      <define name="GVF_ELLIPSE_A" value="80"/>
      <define name="GVF_ELLIPSE_B" value="80"/>
      <define name="GVF_ELLIPSE_ALPHA" value="0"/>
+	 <define name="GVF_SIN_KE" value="1"/>
+	 <define name="GVF_SIN_KN" value="1"/>
      <define name="GVF_SIN_ALPHA" value="0"/>
      <define name="GVF_SIN_W" value="0"/>
      <define name="GVF_SIN_OFF" value="0"/>
-     <define name="GVF_SIN_A" value="0"/>
-     <define name="GVF_LINE_ALPHA" value="0"/>
+	 <define name="GVF_SIN_A" value="0"/>
+	 <define name="GVF_LINE_KE" value="1"/>
+	 <define name="GVF_LINE_KN" value="1"/>
+     <define name="GVF_LINE_HEADING" value="0"/>
      <define name="GVF_SEGMENT_D1" value="0"/>
      <define name="GVF_SEGMENT_D2" value="0"/>
      <file name="gvf.c"/>
