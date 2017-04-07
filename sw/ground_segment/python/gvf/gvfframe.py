@@ -37,7 +37,6 @@ class GVFFrame(wx.Frame):
         self.timer_traj = 0 # We do not update the traj every time we receive a msg
         self.timer_traj_lim = 7 # (7+1) * 0.25secs
         self.s = 0
-        self.kn = 0
         self.ke = 0
         self.map_gvf = map2d(np.array([0, 0]), 150000)
         self.traj = None
@@ -54,23 +53,6 @@ class GVFFrame(wx.Frame):
         self.interface = IvyMessagesInterface("GVF")
         self.interface.subscribe(self.message_recv)
         settings = PaparazziACSettings(ac_id)
-        self.ke_index = None
-        self.kn_index = None
-        self.indexes_are_good = 0
-        self.list_of_indexes = ['gvf_ke', 'gvf_kn']
-
-        for setting_ in self.list_of_indexes:
-            try:
-                index = settings.name_lookup[setting_].index
-                if setting_ == 'gvf_ke':
-                    self.ke_index = index
-                if setting_ == 'gvf_kn':
-                    self.kn_index = index
-                self.indexes_are_good = self.indexes_are_good + 1
-            except Exception as e:
-                print(e)
-                print(setting_ + " setting not found, \
-                        have you forgotten gvf.xml in your settings?")
 
     def message_recv(self, ac_id, msg):
         if int(ac_id) == self.ac_id:
@@ -100,7 +82,8 @@ class GVFFrame(wx.Frame):
                 if int(msg.get_field(1)) == 0 \
                         and self.timer_traj == self.timer_traj_lim:
                     self.s = int(msg.get_field(2))
-                    param = [float(x) for x in msg.get_field(3).split(',')]
+                    self.ke = float(msg.get_field(3))
+                    param = [float(x) for x in msg.get_field(4).split(',')]
                     a = param[0]
                     b = param[1]
                     c = param[2]
@@ -113,7 +96,8 @@ class GVFFrame(wx.Frame):
                 if int(msg.get_field(1)) == 1 \
                         and self.timer_traj == self.timer_traj_lim:
                     self.s = int(msg.get_field(2))
-                    param = [float(x) for x in msg.get_field(3).split(',')]
+                    self.ke = float(msg.get_field(3))
+                    param = [float(x) for x in msg.get_field(4).split(',')]
                     ex = param[0]
                     ey = param[1]
                     ea = param[2]
@@ -127,7 +111,8 @@ class GVFFrame(wx.Frame):
                 if int(msg.get_field(1)) == 2 \
                         and self.timer_traj == self.timer_traj_lim:
                     self.s = int(msg.get_field(2))
-                    param = [float(x) for x in msg.get_field(3).split(',')]
+                    self.ke = float(msg.get_field(3))
+                    param = [float(x) for x in msg.get_field(4).split(',')]
                     a = param[0]
                     b = param[1]
                     alpha = param[2]
