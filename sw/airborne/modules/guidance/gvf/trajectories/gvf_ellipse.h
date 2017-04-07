@@ -32,6 +32,8 @@
 #include "modules/guidance/gvf/gvf.h"
 
 typedef struct {
+  float ke;
+  float kn;
   float a;
   float b;
   float alpha;

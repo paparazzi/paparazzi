@@ -30,6 +30,14 @@
 #include "subsystems/navigation/common_nav.h"
 #include "gvf_ellipse.h"
 
+#ifndef GVF_ELLIPSE_KE
+#define GVF_ELLIPSE_KE 1
+#endif
+
+#ifndef GVF_ELLIPSE_KN
+#define GVF_ELLIPSE_KN 1
+#endif
+
 #ifndef GVF_ELLIPSE_A
 #define GVF_ELLIPSE_A 80
 #endif
@@ -42,7 +50,8 @@
 #define GVF_ELLIPSE_ALPHA 0
 #endif
 
-gvf_ell_par gvf_ellipse_par = {GVF_ELLIPSE_A, GVF_ELLIPSE_B, GVF_ELLIPSE_ALPHA};
+gvf_ell_par gvf_ellipse_par = {GVF_ELLIPSE_KE, GVF_ELLIPSE_KN, 
+    GVF_ELLIPSE_A, GVF_ELLIPSE_B, GVF_ELLIPSE_ALPHA};
 
 void gvf_ellipse_info(float *phi, struct gvf_grad *grad,
                       struct gvf_Hess *hess)

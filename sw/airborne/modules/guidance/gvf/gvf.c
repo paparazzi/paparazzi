@@ -66,7 +66,7 @@ static void send_gvf(struct transport_tx *trans, struct link_device *dev)
   uint8_t traj_type = (uint8_t)gvf_trajectory.type;
 
   pprz_msg_send_GVF(trans, dev, AC_ID, &gvf_control.error, &traj_type,
-                    &gvf_control.s, plen, gvf_trajectory.p);
+                    &gvf_control.s, &gvf_control.ke, plen, gvf_trajectory.p);
 }
 
 static void send_circle(struct transport_tx *trans, struct link_device *dev)
@@ -169,12 +169,6 @@ void gvf_control_2D(float ke, float kn, float e,
   lateral_mode = LATERAL_MODE_ROLL;
 }
 
-void gvf_set_gains(float ke, float kn)
-{
-  gvf_control.ke = ke;
-  gvf_control.kn = kn;
-}
-
 void gvf_set_direction(int8_t s)
 {
   gvf_control.s = s;
@@ -182,7 +176,7 @@ void gvf_set_direction(int8_t s)
 
 // STRAIGHT LINE
 
-bool gvf_line_XY_heading(float a, float b, float alpha)
+bool gvf_line_XY_heading(float a, float b, float heading)
 {
   float e;
   struct gvf_grad grad_line;
@@ -191,10 +185,11 @@ bool gvf_line_XY_heading(float a, float b, float alpha)
   gvf_trajectory.type = 0;
   gvf_trajectory.p[0] = a;
   gvf_trajectory.p[1] = b;
-  gvf_trajectory.p[2] = alpha;
+  gvf_trajectory.p[2] = heading;
 
   gvf_line_info(&e, &grad_line, &Hess_line);
-  gvf_control_2D(1e-2 * gvf_control.ke, gvf_control.kn, e, &grad_line, &Hess_line);
+  gvf_control.ke = gvf_line_par.ke;
+  gvf_control_2D(1e-2 * gvf_line_par.ke, gvf_line_par.kn, e, &grad_line, &Hess_line);
 
   gvf_control.error = e;
 
@@ -233,9 +228,9 @@ bool gvf_line_wp1_wp2(uint8_t wp1, uint8_t wp2)
   float zx = x2 - x1;
   float zy = y2 - y1;
 
-  float alpha = atanf(zx / zy);
+  float heading = atanf(zx / zy);
 
-  gvf_line_XY_heading(x1, y1, alpha);
+  gvf_line_XY_heading(x1, y1, heading);
 
   horizontal_mode = HORIZONTAL_MODE_ROUTE;
   gvf_segment.seg = 1;
@@ -301,14 +296,14 @@ bool gvf_segment_wp1_wp2(uint8_t wp1, uint8_t wp2, float d1, float d2)
     return true;
 }
 
-bool gvf_line_wp_heading(uint8_t wp, float alpha)
+bool gvf_line_wp_heading(uint8_t wp, float heading)
 {
-  alpha = alpha * M_PI / 180;
+  heading = heading * M_PI / 180;
 
   float a = waypoints[wp].x;
   float b = waypoints[wp].y;
 
-  gvf_line_XY_heading(a, b, alpha);
+  gvf_line_XY_heading(a, b, heading);
 
   return true;
 }
@@ -340,7 +335,9 @@ bool gvf_ellipse_XY(float x, float y, float a, float b, float alpha)
     horizontal_mode = HORIZONTAL_MODE_WAYPOINT;
 
   gvf_ellipse_info(&e, &grad_ellipse, &Hess_ellipse);
-  gvf_control_2D(gvf_control.ke, gvf_control.kn, e, &grad_ellipse, &Hess_ellipse);
+  gvf_control.ke = gvf_ellipse_par.ke;
+  gvf_control_2D(gvf_ellipse_par.ke, gvf_ellipse_par.kn,
+          e, &grad_ellipse, &Hess_ellipse);
 
   gvf_control.error = e;
 
@@ -356,7 +353,7 @@ bool gvf_ellipse_wp(uint8_t wp, float a, float b, float alpha)
 
 // SINUSOIDAL (if w = 0 and off = 0, then we just have the straight line case)
 
-bool gvf_sin_XY_heading(float a, float b, float alpha, float w, float off, float A)
+bool gvf_sin_XY_alpha(float a, float b, float alpha, float w, float off, float A)
 {
   float e;
   struct gvf_grad grad_line;
@@ -371,7 +368,8 @@ bool gvf_sin_XY_heading(float a, float b, float alpha, float w, float off, float
   gvf_trajectory.p[5] = A;
 
   gvf_sin_info(&e, &grad_line, &Hess_line);
-  gvf_control_2D(1e-2 * gvf_control.ke, gvf_control.kn, e, &grad_line, &Hess_line);
+  gvf_control.ke = gvf_sin_par.ke;
+  gvf_control_2D(1e-2 * gvf_sin_par.ke, gvf_sin_par.kn, e, &grad_line, &Hess_line);
 
   gvf_control.error = e;
 
@@ -392,12 +390,12 @@ bool gvf_sin_wp1_wp2(uint8_t wp1, uint8_t wp2, float w, float off, float A)
 
   float alpha = atanf(zy / zx);
 
-  gvf_sin_XY_heading(x1, y1, alpha, w, off, A);
+  gvf_sin_XY_alpha(x1, y1, alpha, w, off, A);
 
   return true;
 }
 
-bool gvf_sin_wp_heading(uint8_t wp, float alpha, float w, float off, float A)
+bool gvf_sin_wp_alpha(uint8_t wp, float alpha, float w, float off, float A)
 {
   w = 2 * M_PI * w;
   alpha = alpha * M_PI / 180;
@@ -405,7 +403,7 @@ bool gvf_sin_wp_heading(uint8_t wp, float alpha, float w, float off, float A)
   float x = waypoints[wp].x;
   float y = waypoints[wp].y;
 
-  gvf_sin_XY_heading(x, y, alpha, w, off, A);
+  gvf_sin_XY_alpha(x, y, alpha, w, off, A);
 
   return true;
 }
