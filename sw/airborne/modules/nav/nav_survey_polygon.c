@@ -316,6 +316,14 @@ bool nav_survey_polygon_run(void)
   return true;
 }
 
+void nav_direction_circle_gvf(float rad)
+{
+    if(rad > 0)
+        gvf_set_direction(-1);
+    else
+        gvf_set_direction(1);
+}
+
 bool nav_survey_polygon_gvf_run(void)
 {
   NavVerticalAutoThrottleMode(0.0);
@@ -323,7 +331,7 @@ bool nav_survey_polygon_gvf_run(void)
 
   //entry circle around entry-center until the desired altitude is reached
   if (survey.stage == ENTRY) {
-    gvf_set_direction(-1);
+    nav_direction_circle_gvf(survey.psa_min_rad);
     gvf_ellipse_XY(survey.entry_center.x, survey.entry_center.y, survey.psa_min_rad, survey.psa_min_rad, 0);
     if (NavCourseCloseTo(survey.segment_angle)
         && nav_approaching_xy(survey.seg_start.x, survey.seg_start.y, last_x, last_y, CARROT)
@@ -369,8 +377,8 @@ bool nav_survey_polygon_gvf_run(void)
   }
   //turn from stage to return
   else if (survey.stage == TURN1) {
-    gvf_set_direction(-1);
-    gvf_ellipse_XY(survey.entry_center.x, survey.entry_center.y, survey.psa_min_rad, survey.psa_min_rad, 0);
+    nav_direction_circle_gvf(survey.psa_min_rad);
+    gvf_ellipse_XY(survey.seg_center1.x, survey.seg_center1.y, survey.psa_min_rad, survey.psa_min_rad, 0);
     if (NavCourseCloseTo(survey.return_angle)) {
       survey.stage = RET;
       nav_init_stage();
@@ -384,9 +392,9 @@ bool nav_survey_polygon_gvf_run(void)
     }
     //turn from return to stage
   } else if (survey.stage == TURN2) {
-    gvf_set_direction(-1);
     float rad_sur = (2 * survey.psa_min_rad + survey.psa_sweep_width) * 0.5;
-    gvf_ellipse_XY(survey.entry_center.x, survey.entry_center.y, survey.psa_min_rad, survey.psa_min_rad, 0);
+    nav_direction_circle_gvf(rad_sur);
+    gvf_ellipse_XY(survey.seg_center2.x, survey.seg_center2.y, rad_sur, rad_sur, 0);
     if (NavCourseCloseTo(survey.segment_angle)) {
       survey.stage = SEG;
       nav_init_stage();
