@@ -30,6 +30,14 @@
 #include "subsystems/navigation/common_nav.h"
 #include "gvf_sin.h"
 
+#ifndef GVF_SIN_KE
+#define GVF_SIN_KE 1
+#endif
+
+#ifndef GVF_SIN_KN
+#define GVF_SIN_KN 1
+#endif
+
 #ifndef GVF_SIN_ALPHA
 #define GVF_SIN_ALPHA 0
 #endif
@@ -46,7 +54,8 @@
 #define GVF_SIN_A 0
 #endif
 
-gvf_s_par gvf_sin_par = {GVF_SIN_ALPHA, GVF_SIN_W, GVF_SIN_OFF, GVF_SIN_A};
+gvf_s_par gvf_sin_par = {GVF_SIN_KE, GVF_SIN_KN, 
+    GVF_SIN_ALPHA, GVF_SIN_W, GVF_SIN_OFF, GVF_SIN_A};
 
 
 void gvf_sin_info(float *phi, struct gvf_grad *grad,

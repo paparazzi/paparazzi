@@ -30,8 +30,16 @@
 #include "subsystems/navigation/common_nav.h"
 #include "gvf_line.h"
 
-#ifndef GVF_LINE_ALPHA
-#define GVF_LINE_ALPHA 0
+#ifndef GVF_LINE_KE
+#define GVF_LINE_KE 1
+#endif
+
+#ifndef GVF_LINE_KN
+#define GVF_LINE_KN 1
+#endif
+
+#ifndef GVF_LINE_HEADING
+#define GVF_LINE_HEADING 0
 #endif
 
 #ifndef GVF_SEGMENT_D1
@@ -42,7 +50,7 @@
 #define GVF_SEGMENT_D2 0
 #endif
 
-gvf_li_par gvf_line_par = {GVF_LINE_ALPHA};
+gvf_li_par gvf_line_par = {GVF_LINE_KE, GVF_LINE_KN, GVF_LINE_HEADING};
 gvf_seg_par gvf_segment_par = {GVF_SEGMENT_D1, GVF_SEGMENT_D2};
 
 void gvf_line_info(float *phi, struct gvf_grad *grad,

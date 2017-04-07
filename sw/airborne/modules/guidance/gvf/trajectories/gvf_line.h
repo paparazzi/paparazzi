@@ -32,7 +32,9 @@
 #include "modules/guidance/gvf/gvf.h"
 
 typedef struct {
-  float alpha;
+  float ke;
+  float kn;
+  float heading;
 } gvf_li_par;
 
 typedef struct {
