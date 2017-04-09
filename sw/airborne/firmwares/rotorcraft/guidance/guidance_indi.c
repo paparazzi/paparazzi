@@ -122,11 +122,11 @@ void guidance_indi_enter(void) {
 
 /**
  * @param in_flight in flight boolean
- * @param heading the desired heading [rad]
+ * @param heading_sp the desired heading [rad]
  *
  * main indi guidance function
  */
-void guidance_indi_run(bool in_flight, int32_t heading) {
+void guidance_indi_run(bool in_flight, float heading_sp) {
 
   //filter accel to get rid of noise and filter attitude to synchronize with accel
   guidance_indi_propagate_filters();
@@ -209,7 +209,7 @@ void guidance_indi_run(bool in_flight, int32_t heading) {
   Bound(guidance_euler_cmd.theta, -GUIDANCE_H_MAX_BANK, GUIDANCE_H_MAX_BANK);
 
   //set the quat setpoint with the calculated roll and pitch
-  stabilization_attitude_set_setpoint_rp_quat_f(&guidance_euler_cmd, in_flight, heading);
+  stabilization_attitude_set_setpoint_rp_quat_f(&guidance_euler_cmd, in_flight, heading_sp);
 }
 
 #ifdef GUIDANCE_INDI_SPECIFIC_FORCE_GAIN
@@ -278,7 +278,7 @@ void guidance_indi_calcG(struct FloatMat33 *Gmat) {
  *
  * function that creates a quaternion from a roll, pitch and yaw setpoint
  */
-void stabilization_attitude_set_setpoint_rp_quat_f(struct FloatEulers* indi_rp_cmd, bool in_flight, int32_t heading)
+void stabilization_attitude_set_setpoint_rp_quat_f(struct FloatEulers* indi_rp_cmd, bool in_flight, float heading)
 {
   struct FloatQuat q_rp_cmd;
   //this is a quaternion without yaw! add the desired yaw before you use it!
@@ -300,7 +300,7 @@ void stabilization_attitude_set_setpoint_rp_quat_f(struct FloatEulers* indi_rp_c
   if (in_flight) {
     /* get current heading setpoint */
     struct FloatQuat q_yaw_sp;
-    float_quat_of_axis_angle(&q_yaw_sp, &zaxis, ANGLE_FLOAT_OF_BFP(heading));
+    float_quat_of_axis_angle(&q_yaw_sp, &zaxis, heading);
 
 
     /* rotation between current yaw and yaw setpoint */
