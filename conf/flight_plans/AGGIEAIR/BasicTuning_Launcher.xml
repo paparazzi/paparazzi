@@ -22,6 +22,7 @@
     <waypoint alt="1347.0" name="TD" x="1155.4" y="-354.1"/>
     <waypoint name="CLIMB" x="1142.0" y="-97.9"/>
     <waypoint name="_BASELEG" x="168.8" y="-13.8"/>
+    <waypoint name="PAYLOAD" x="100" y="50"/>
   </waypoints>
   <sectors>
     <sector name="Section1">
