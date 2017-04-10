@@ -50,8 +50,9 @@
 #define GVF_ELLIPSE_ALPHA 0
 #endif
 
-gvf_ell_par gvf_ellipse_par = {GVF_ELLIPSE_KE, GVF_ELLIPSE_KN, 
-    GVF_ELLIPSE_A, GVF_ELLIPSE_B, GVF_ELLIPSE_ALPHA};
+gvf_ell_par gvf_ellipse_par = {GVF_ELLIPSE_KE, GVF_ELLIPSE_KN,
+                               GVF_ELLIPSE_A, GVF_ELLIPSE_B, GVF_ELLIPSE_ALPHA
+                              };
 
 void gvf_ellipse_info(float *phi, struct gvf_grad *grad,
                       struct gvf_Hess *hess)

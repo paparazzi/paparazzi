@@ -83,8 +83,8 @@ static void send_segment(struct transport_tx *trans, struct link_device *dev)
 {
   if (gvf_trajectory.type == LINE && gvf_segment.seg == 1) {
     pprz_msg_send_SEGMENT(trans, dev, AC_ID,
-                         &gvf_segment.x1, &gvf_segment.y1,
-                         &gvf_segment.x2, &gvf_segment.y2);
+                          &gvf_segment.x1, &gvf_segment.y1,
+                          &gvf_segment.x2, &gvf_segment.y2);
   }
 }
 
@@ -96,7 +96,7 @@ void gvf_init(void)
   gvf_control.kn = 1;
   gvf_control.s = 1;
   gvf_trajectory.type = NONE;
-  
+
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GVF, send_gvf);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_CIRCLE, send_circle);
@@ -207,7 +207,7 @@ bool gvf_line_XY1_XY2(float x1, float y1, float x2, float y2)
   float alpha = atanf(zx / zy);
 
   gvf_line_XY_heading(x1, y1, alpha);
-  
+
   horizontal_mode = HORIZONTAL_MODE_ROUTE;
   gvf_segment.seg = 1;
   gvf_segment.x1 = x1;
@@ -244,56 +244,60 @@ bool gvf_line_wp1_wp2(uint8_t wp1, uint8_t wp2)
 
 int out_of_segment_area(float x1, float y1, float x2, float y2, float d1, float d2)
 {
-    struct EnuCoor_f *p = stateGetPositionEnu_f();
-    float px = p->x - x1;
-    float py = p->y - y1;
+  struct EnuCoor_f *p = stateGetPositionEnu_f();
+  float px = p->x - x1;
+  float py = p->y - y1;
 
-    float zx = x2 - x1;
-    float zy = y2 - y1;
-    float alpha = atan2f(zy, zx);
+  float zx = x2 - x1;
+  float zy = y2 - y1;
+  float alpha = atan2f(zy, zx);
 
-    float cosa = cosf(-alpha);
-    float sina = sinf(-alpha);
+  float cosa = cosf(-alpha);
+  float sina = sinf(-alpha);
 
-    float pxr = px*cosa - py*sina;
-    float zxr = zx*cosa - zy*sina;
+  float pxr = px * cosa - py * sina;
+  float zxr = zx * cosa - zy * sina;
 
-    int s = 0;
+  int s = 0;
 
-    if (pxr < -d1)
-        s = 1;
-    else if (pxr > (zxr+d2))
-        s = -1;
+  if (pxr < -d1) {
+    s = 1;
+  } else if (pxr > (zxr + d2)) {
+    s = -1;
+  }
 
-    if (zy < 0)
-        s *= -1;
+  if (zy < 0) {
+    s *= -1;
+  }
 
-    return s;
+  return s;
 }
 
 bool gvf_segment_XY1_XY2(float x1, float y1, float x2, float y2, float d1, float d2)
 {
-    int s = out_of_segment_area(x1, y1, x2, y2, d1, d2);
-     if(s != 0)
-       gvf_control.s = s;
+  int s = out_of_segment_area(x1, y1, x2, y2, d1, d2);
+  if (s != 0) {
+    gvf_control.s = s;
+  }
 
-    gvf_line_XY1_XY2(x1, y1, x2, y2);
-    return true;
+  gvf_line_XY1_XY2(x1, y1, x2, y2);
+  return true;
 }
 
 bool gvf_segment_wp1_wp2(uint8_t wp1, uint8_t wp2, float d1, float d2)
 {
-    float x1 = waypoints[wp1].x;
-    float y1 = waypoints[wp1].y;
-    float x2 = waypoints[wp2].x;
-    float y2 = waypoints[wp2].y;
+  float x1 = waypoints[wp1].x;
+  float y1 = waypoints[wp1].y;
+  float x2 = waypoints[wp2].x;
+  float y2 = waypoints[wp2].y;
 
-    int s = out_of_segment_area(x1, y1, x2, y2, d1, d2);
-    if(s != 0)
-        gvf_control.s = s;
+  int s = out_of_segment_area(x1, y1, x2, y2, d1, d2);
+  if (s != 0) {
+    gvf_control.s = s;
+  }
 
-    gvf_line_XY1_XY2(x1, y1, x2, y2);
-    return true;
+  gvf_line_XY1_XY2(x1, y1, x2, y2);
+  return true;
 }
 
 bool gvf_line_wp_heading(uint8_t wp, float heading)
@@ -329,15 +333,16 @@ bool gvf_ellipse_XY(float x, float y, float a, float b, float alpha)
     gvf_trajectory.p[3] = 60;
   }
 
-  if (gvf_trajectory.p[2] == gvf_trajectory.p[3])
+  if (gvf_trajectory.p[2] == gvf_trajectory.p[3]) {
     horizontal_mode = HORIZONTAL_MODE_CIRCLE;
-  else
+  } else {
     horizontal_mode = HORIZONTAL_MODE_WAYPOINT;
+  }
 
   gvf_ellipse_info(&e, &grad_ellipse, &Hess_ellipse);
   gvf_control.ke = gvf_ellipse_par.ke;
   gvf_control_2D(gvf_ellipse_par.ke, gvf_ellipse_par.kn,
-          e, &grad_ellipse, &Hess_ellipse);
+                 e, &grad_ellipse, &Hess_ellipse);
 
   gvf_control.error = e;
 
