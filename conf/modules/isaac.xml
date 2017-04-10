@@ -24,8 +24,9 @@
   </header>
   <init fun="isaac_init()"/>
   <periodic fun="isaac_periodic()" freq="1." autorun="TRUE"/>
-  <datalink message="CAMERA_SNAPSHOT" fun="isaac_parse_cam_snapshot_dl(buf)"/>
-  <datalink message="CAMERA_PAYLOAD" fun="isaac_parse_cam_payload_dl(buf)"/>
+  <datalink message="CAMERA_SHOT" fun="isaac_parse_cam_snapshot_dl(buf)"/>
+  <datalink message="CAMERA_PAYL" fun="isaac_parse_cam_payload_dl(buf)"/>
+  <datalink message="COPILOT_STAT" fun="isaac_parse_copilot_status_dl(buf)"/>
   <datalink message="MOVE_WP" fun="isaac_parse_move_wp_dl(buf)"/>
   <makefile target="ap">
     <file name="isaac.c"/>

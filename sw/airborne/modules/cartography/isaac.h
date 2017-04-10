@@ -60,6 +60,14 @@ struct CameraSnapshot {
   float array_temp;
 };
 
+struct CopilotStatus {
+  float timestamp;
+  uint8_t used_mem;
+  uint8_t used_disk;
+  uint8_t status;
+  uint8_t error_code;
+};
+
 /** Init function */
 void isaac_init(void);
 
@@ -69,6 +77,7 @@ void isaac_periodic(void);
 /** Message processing functions */
 void isaac_parse_cam_snapshot_dl(uint8_t *buf);
 void isaac_parse_cam_payload_dl(uint8_t *buf);
+void isaac_parse_copilot_status_dl(uint8_t *buf);
 void isaac_parse_move_wp_dl(uint8_t *buf);
 
 #endif /* ISAAC_H */

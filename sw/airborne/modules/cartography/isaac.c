@@ -48,9 +48,11 @@
 
 bool send_cam_snapshot;
 bool send_cam_payload;
+bool send_copilot_status;
 
 struct CameraPayload cam_payload;
 struct CameraSnapshot cam_snapshot;
+struct CopilotStatus copilot_status;
 
 
 /** Init function */
@@ -58,6 +60,7 @@ void isaac_init(void)
 {
   send_cam_snapshot = false;
   send_cam_payload = false;
+  send_copilot_status = false;
 
   memset(&cam_payload, 0, sizeof(cam_payload));
   memset(&cam_snapshot, 0, sizeof(cam_snapshot));
@@ -94,6 +97,18 @@ void isaac_periodic(void)
 
     send_cam_payload = false;
   }
+
+  if (send_copilot_status)
+  {
+    DOWNLINK_SEND_COPILOT_STATUS(DefaultChannel, DefaultDevice,
+        &copilot_status.timestamp,
+        &copilot_status.used_mem,
+        &copilot_status.used_disk,
+        &copilot_status.status,
+        &copilot_status.error_code);
+
+    send_copilot_status = false;
+  }
 }
 
 /** Message processing functions
@@ -110,23 +125,33 @@ void isaac_periodic(void)
 void isaac_parse_cam_snapshot_dl(uint8_t *buf)
 {
   // copy CAMERA_SNAPSHOT message and mark it to be sent
-  cam_snapshot.cam_id = DL_CAMERA_SNAPSHOT_camera_id(buf);
-  cam_snapshot.cam_state = DL_CAMERA_SNAPSHOT_camera_state(buf);
-  cam_snapshot.snapshot_num = DL_CAMERA_SNAPSHOT_snapshot_image_number(buf);
-  cam_snapshot.snapshot_valid = DL_CAMERA_SNAPSHOT_snapshot_valid(buf);
-  cam_snapshot.lens_temp = DL_CAMERA_SNAPSHOT_lens_temp(buf);
-  cam_snapshot.array_temp = DL_CAMERA_SNAPSHOT_array_temp(buf);
+  cam_snapshot.cam_id = DL_CAMERA_SHOT_camera_id(buf);
+  cam_snapshot.cam_state = DL_CAMERA_SHOT_camera_state(buf);
+  cam_snapshot.snapshot_num = DL_CAMERA_SHOT_snapshot_image_number(buf);
+  cam_snapshot.snapshot_valid = DL_CAMERA_SHOT_snapshot_valid(buf);
+  cam_snapshot.lens_temp = DL_CAMERA_SHOT_lens_temp(buf);
+  cam_snapshot.array_temp = DL_CAMERA_SHOT_array_temp(buf);
 }
 
 void isaac_parse_cam_payload_dl(uint8_t *buf){
   // copy CAMERA_PAYLOAD message and mark it to be sent
-  cam_payload.timestamp = DL_CAMERA_PAYLOAD_timestamp(buf);
-  cam_payload.used_mem = DL_CAMERA_PAYLOAD_used_memory(buf);
-  cam_payload.used_disk = DL_CAMERA_PAYLOAD_used_disk(buf);
-  cam_payload.door_status = DL_CAMERA_PAYLOAD_door_status(buf);
-  cam_payload.error_code = DL_CAMERA_PAYLOAD_error_code(buf);
+  cam_payload.timestamp = DL_CAMERA_PAYL_timestamp(buf);
+  cam_payload.used_mem = DL_CAMERA_PAYL_used_memory(buf);
+  cam_payload.used_disk = DL_CAMERA_PAYL_used_disk(buf);
+  cam_payload.door_status = DL_CAMERA_PAYL_door_status(buf);
+  cam_payload.error_code = DL_CAMERA_PAYL_error_code(buf);
 
   send_cam_payload = true;
+}
+
+void isaac_parse_copilot_status_dl(uint8_t *buf)
+{
+  copilot_status.timestamp = DL_COPILOT_STAT_timestamp(buf);
+  copilot_status.used_mem = DL_COPILOT_STAT_used_memory(buf);
+  copilot_status.used_disk = DL_COPILOT_STAT_used_disk(buf);
+  copilot_status.status = DL_COPILOT_STAT_status(buf);
+  copilot_status.error_code = DL_COPILOT_STAT_error_code(buf);
+  send_copilot_status = true;
 }
 
 /**
