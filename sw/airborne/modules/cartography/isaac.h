@@ -68,6 +68,15 @@ struct CopilotStatus {
   uint8_t error_code;
 };
 
+extern bool send_cam_snapshot;
+extern bool send_cam_payload;
+extern bool send_copilot_status;
+
+extern uint8_t snapshot_cnt;
+extern uint8_t status_cnt;
+extern uint8_t isaac_cnt;
+extern uint8_t move_wp_cnt;
+
 /** Init function */
 void isaac_init(void);
 

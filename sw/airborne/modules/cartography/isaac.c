@@ -54,6 +54,10 @@ struct CameraPayload cam_payload;
 struct CameraSnapshot cam_snapshot;
 struct CopilotStatus copilot_status;
 
+uint8_t snapshot_cnt;
+uint8_t status_cnt;
+uint8_t isaac_cnt;
+uint8_t move_wp_cnt;
 
 /** Init function */
 void isaac_init(void)
@@ -62,8 +66,15 @@ void isaac_init(void)
   send_cam_payload = false;
   send_copilot_status = false;
 
+  snapshot_cnt = 0;
+  status_cnt = 0;
+  isaac_cnt = 0;
+  move_wp_cnt = 0;
+
+
   memset(&cam_payload, 0, sizeof(cam_payload));
   memset(&cam_snapshot, 0, sizeof(cam_snapshot));
+  memset(&send_copilot_status, 0, sizeof(send_copilot_status));
 }
 
 /** Periodic function */
@@ -82,6 +93,7 @@ void isaac_periodic(void)
 
     send_cam_snapshot = false;
   }
+
 
   if (send_cam_payload)
   {
@@ -109,6 +121,7 @@ void isaac_periodic(void)
 
     send_copilot_status = false;
   }
+
 }
 
 /** Message processing functions
@@ -131,6 +144,10 @@ void isaac_parse_cam_snapshot_dl(uint8_t *buf)
   cam_snapshot.snapshot_valid = DL_CAMERA_SHOT_snapshot_valid(buf);
   cam_snapshot.lens_temp = DL_CAMERA_SHOT_lens_temp(buf);
   cam_snapshot.array_temp = DL_CAMERA_SHOT_array_temp(buf);
+
+  send_cam_snapshot = true;
+
+  snapshot_cnt++;
 }
 
 void isaac_parse_cam_payload_dl(uint8_t *buf){
@@ -142,6 +159,8 @@ void isaac_parse_cam_payload_dl(uint8_t *buf){
   cam_payload.error_code = DL_CAMERA_PAYL_error_code(buf);
 
   send_cam_payload = true;
+
+  status_cnt++;
 }
 
 void isaac_parse_copilot_status_dl(uint8_t *buf)
@@ -151,7 +170,10 @@ void isaac_parse_copilot_status_dl(uint8_t *buf)
   copilot_status.used_disk = DL_COPILOT_STAT_used_disk(buf);
   copilot_status.status = DL_COPILOT_STAT_status(buf);
   copilot_status.error_code = DL_COPILOT_STAT_error_code(buf);
+
   send_copilot_status = true;
+
+  isaac_cnt++;
 }
 
 /**
@@ -199,6 +221,13 @@ void isaac_parse_move_wp_dl(uint8_t *buf)
       DOWNLINK_SEND_WP_MOVED(extra_pprz_tp, EXTRA_DOWNLINK_DEVICE,
                              &wp_id, &utm.east, &utm.north, &utm.alt, &nav_utm_zone0);
     }
+
+    // only increment wp_payload
+    if (wp_id == 18) {
+      move_wp_cnt++;
+    }
   }
+
+
 
 }

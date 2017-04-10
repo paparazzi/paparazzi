@@ -82,7 +82,9 @@
        <arg flag="-s" constant="57600"/>
      </program>
      <program name="Server"/>
-     <program name="GCS"/>
+     <program name="GCS">
+      <arg flag="-layout" constant="AGGIEAIR/vertical.xml"/>
+     </program>
      <program name="Messages"/>
      <program name="Real-time Plotter"/>
    </session>

@@ -18,6 +18,21 @@
     AC_ID check is performed).
     </description>
   </doc>
+
+  <settings>
+    <dl_settings NAME="ISaAC">
+      <dl_settings NAME="Isaac">
+        <dl_setting MAX="1" MIN="0" STEP="1" VAR="send_cam_snapshot" shortname="snapshot"/>
+        <dl_setting MAX="1" MIN="0" STEP="1" VAR="send_cam_payload" shortname="payload"/>
+        <dl_setting MAX="1" MIN="0" STEP="1" VAR="send_copilot_status" shortname="copilot"/>
+        <dl_setting MAX="254" MIN="0" STEP="1" VAR="snapshot_cnt" shortname="snapshot_cnt"/>
+        <dl_setting MAX="254" MIN="0" STEP="1" VAR="status_cnt" shortname="status_cnt"/>
+        <dl_setting MAX="254" MIN="0" STEP="1" VAR="isaac_cnt" shortname="isaac_cnt"/>
+        <dl_setting MAX="254" MIN="0" STEP="1" VAR="move_wp_cnt" shortname="move_wp_cnt"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
   <depends>extra_dl</depends>
   <header>
     <file name="isaac.h"/>
