@@ -59,7 +59,7 @@ static void nav_points_gvf(struct FloatVect2 start, struct FloatVect2 end)
  * @param a1, a2, b1, b2  second line by coordinates a1/a2, b1/b2
  */
 static bool intercept_two_lines(struct FloatVect2 *p, struct FloatVect2 x, struct FloatVect2 y, float a1, float a2,
-                                  float b1, float b2)
+                                float b1, float b2)
 {
   float divider, fac;
 
@@ -318,10 +318,11 @@ bool nav_survey_polygon_run(void)
 
 void nav_direction_circle_gvf(float rad)
 {
-    if(rad > 0)
-        gvf_set_direction(-1);
-    else
-        gvf_set_direction(1);
+  if (rad > 0) {
+    gvf_set_direction(-1);
+  } else {
+    gvf_set_direction(1);
+  }
 }
 
 bool nav_survey_polygon_gvf_run(void)
