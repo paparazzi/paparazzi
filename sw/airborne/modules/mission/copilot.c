@@ -20,26 +20,32 @@
  *
  */
 /**
- * @file "modules/cartography/isaac.c"
+ * @file "modules/mission/copilot.c"
  *
+ *  Mission Computer module, interfacing the mission computer (also known as Copilot),
+ *  based losely on
  *  ISaAC: The Intelligent Safety and Airworthiness Co-Pilot module
  *  Based on paper "A Payload Verification and Management Framework
  *  for Small UAV-based Personal Remote Sensing Systems" by Cal Coopmans
  *  and Chris Coffin. Link: http://ieeexplore.ieee.org/abstract/document/6309316/
  *
- *  ISaAC is intented mainly for mapping applications.
+ *  More info can be found on http://wiki.paparazziuav.org/wiki/Mission_computer
  *
- *  This module processes messages from ISaAC, and either forwards them to the GCS
- *  (such as CAMERA_SNAPSHOT or CAMERA_PAYLOAD messages), or responds to them necessary
+ *  Copilot is intended mainly for mapping applications.
+ *
+ *   This module processes messages from Copilot, and either forwards them to the GCS
+ *  (such as CAMERA_SNAPSHOT or CAMERA_PAYLOAD messages), or responds to them as necessary
  *  (such as MOVE_WP).
  *
  *  The module assumes the source of the messages is trusted (i.e. not authentication besides
  *  AC_ID check is performed).
  */
 
-#include "modules/cartography/isaac.h"
+#include "modules/mission/copilot.h"
 #include "subsystems/datalink/telemetry.h"
 #include <string.h>
+
+#include "pprz_mutex.h"
 
 // needed for WP_MOVED confirmation
 #include "firmwares/fixedwing/nav.h"
@@ -54,32 +60,30 @@ struct CameraPayload cam_payload;
 struct CameraSnapshot cam_snapshot;
 struct CopilotStatus copilot_status;
 
-uint8_t snapshot_cnt;
-uint8_t status_cnt;
-uint8_t isaac_cnt;
-uint8_t move_wp_cnt;
+PPRZ_MUTEX(copilot_cam_snapshot_mtx);
+PPRZ_MUTEX(copilot_cam_payload_mtx);
+PPRZ_MUTEX(copilot_status_mtx);
 
 /** Init function */
-void isaac_init(void)
+void copilot_init(void)
 {
   send_cam_snapshot = false;
   send_cam_payload = false;
   send_copilot_status = false;
 
-  snapshot_cnt = 0;
-  status_cnt = 0;
-  isaac_cnt = 0;
-  move_wp_cnt = 0;
-
-
   memset(&cam_payload, 0, sizeof(cam_payload));
   memset(&cam_snapshot, 0, sizeof(cam_snapshot));
-  memset(&send_copilot_status, 0, sizeof(send_copilot_status));
+  memset(&copilot_status, 0, sizeof(copilot_status));
+
+  PPRZ_MUTEX_INIT(copilot_cam_snapshot_mtx);
+  PPRZ_MUTEX_INIT(copilot_cam_payload_mtx);
+  PPRZ_MUTEX_INIT(copilot_status_mtx);
 }
 
 /** Periodic function */
-void isaac_periodic(void)
+void copilot_periodic(void)
 {
+  PPRZ_MUTEX_LOCK(copilot_cam_snapshot_mtx);
   if (send_cam_snapshot)
   {
     // send down to GCS
@@ -93,12 +97,15 @@ void isaac_periodic(void)
 
     send_cam_snapshot = false;
   }
+  PPRZ_MUTEX_UNLOCK(copilot_cam_snapshot_mtx);
 
 
+  PPRZ_MUTEX_LOCK(copilot_cam_payload_mtx);
   if (send_cam_payload)
   {
-    // NOTE: this would send the message over the EXTRA_DL port
-    // DOWNLINK_SEND_CAMERA_PAYLOAD(extra_pprz_tp, EXTRA_DOWNLINK_DEVICE,
+    // NOTE: to send the message over the EXTRA_DL port
+    // use "DOWNLINK_SEND_CAMERA_PAYLOAD(extra_pprz_tp, EXTRA_DOWNLINK_DEVICE,"
+
     // send down to GCS
     DOWNLINK_SEND_CAMERA_PAYLOAD(DefaultChannel, DefaultDevice,
         &cam_payload.timestamp,
@@ -109,7 +116,10 @@ void isaac_periodic(void)
 
     send_cam_payload = false;
   }
+  PPRZ_MUTEX_UNLOCK(copilot_cam_payload_mtx);
 
+  PPRZ_MUTEX_LOCK(copilot_status_mtx);
+  // send down to GCS
   if (send_copilot_status)
   {
     DOWNLINK_SEND_COPILOT_STATUS(DefaultChannel, DefaultDevice,
@@ -121,22 +131,23 @@ void isaac_periodic(void)
 
     send_copilot_status = false;
   }
+  PPRZ_MUTEX_UNLOCK(copilot_status_mtx);
 
 }
 
-/** Message processing functions
- * It would be nice to be able to have the dl buffer passed as
- * an argument to the parsing function, but for now we assume that
- * the message always comes from the extra_dl_buffer
+/**
+ *
+ * copy CAMERA_SNAPSHOT message and mark it to be sent
  *
  * In case of multiple cameras, it is up to the payload computer to send
  * CAMERA_SNAPSHOT messages for each camera at proper interval, so the values
  * don't get overwritten.
  *
- * TODO: protect with mutexes?
- * */
-void isaac_parse_cam_snapshot_dl(uint8_t *buf)
+ */
+void copilot_parse_cam_snapshot_dl(uint8_t *buf)
 {
+  PPRZ_MUTEX_LOCK(copilot_cam_snapshot_mtx);
+
   // copy CAMERA_SNAPSHOT message and mark it to be sent
   cam_snapshot.cam_id = DL_CAMERA_SHOT_camera_id(buf);
   cam_snapshot.cam_state = DL_CAMERA_SHOT_camera_state(buf);
@@ -147,11 +158,16 @@ void isaac_parse_cam_snapshot_dl(uint8_t *buf)
 
   send_cam_snapshot = true;
 
-  snapshot_cnt++;
+  PPRZ_MUTEX_UNLOCK(copilot_cam_snapshot_mtx);
 }
 
-void isaac_parse_cam_payload_dl(uint8_t *buf){
-  // copy CAMERA_PAYLOAD message and mark it to be sent
+/**
+ * copy CAMERA_PAYLOAD message and mark it to be sent
+ */
+void copilot_parse_cam_payload_dl(uint8_t *buf)
+{
+  PPRZ_MUTEX_LOCK(copilot_cam_payload_mtx);
+
   cam_payload.timestamp = DL_CAMERA_PAYL_timestamp(buf);
   cam_payload.used_mem = DL_CAMERA_PAYL_used_memory(buf);
   cam_payload.used_disk = DL_CAMERA_PAYL_used_disk(buf);
@@ -160,11 +176,16 @@ void isaac_parse_cam_payload_dl(uint8_t *buf){
 
   send_cam_payload = true;
 
-  status_cnt++;
+  PPRZ_MUTEX_UNLOCK(copilot_cam_payload_mtx);
 }
 
-void isaac_parse_copilot_status_dl(uint8_t *buf)
+/**
+ * copy COPILOT_STATUS message and mark it to be sent
+ */
+void copilot_parse_copilot_status_dl(uint8_t *buf)
 {
+  PPRZ_MUTEX_LOCK(copilot_status_mtx);
+
   copilot_status.timestamp = DL_COPILOT_STAT_timestamp(buf);
   copilot_status.used_mem = DL_COPILOT_STAT_used_memory(buf);
   copilot_status.used_disk = DL_COPILOT_STAT_used_disk(buf);
@@ -173,7 +194,7 @@ void isaac_parse_copilot_status_dl(uint8_t *buf)
 
   send_copilot_status = true;
 
-  isaac_cnt++;
+  PPRZ_MUTEX_UNLOCK(copilot_status_mtx);
 }
 
 /**
@@ -190,7 +211,7 @@ void isaac_parse_copilot_status_dl(uint8_t *buf)
  *  In both cases, the MOVE_WP message was already processed in firmware_parse
  *  here we are taking care only about propagating the change
  */
-void isaac_parse_move_wp_dl(uint8_t *buf)
+void copilot_parse_move_wp_dl(uint8_t *buf)
 {
   if (DL_MOVE_WP_ac_id(buf) == AC_ID) {
     uint8_t wp_id = DL_MOVE_WP_wp_id(buf);
@@ -222,12 +243,5 @@ void isaac_parse_move_wp_dl(uint8_t *buf)
                              &wp_id, &utm.east, &utm.north, &utm.alt, &nav_utm_zone0);
     }
 
-    // only increment wp_payload
-    if (wp_id == 18) {
-      move_wp_cnt++;
-    }
   }
-
-
-
 }

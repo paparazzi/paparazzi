@@ -57,7 +57,7 @@ RP3 Lisa MX
     <module name="nav" type="launcher"/>
     <module name="nav" type="skid_landing"/>
     <module name="sys_mon"/>
-    <module name="isaac"/>
+    <module name="copilot"/>
     <module name="extra_dl">
       <!-- in order to use uart1 without chibios we need to remap the peripheral-->
       <define name="REMAP_UART1" value="TRUE"/>
@@ -65,7 +65,6 @@ RP3 Lisa MX
       <configure name="EXTRA_DL_BAUD" value="B921600"/>
     </module>
     <module name="lidar_sf11"/>
-    <module name="rssi"/>
     <module name="battery_monitor.xml">
       <define name="BATMON_REV4" value="1"/>
       <define name="BATMON_CURRENT_OFFSET" value="-120"/>

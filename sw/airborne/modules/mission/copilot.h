@@ -20,25 +20,29 @@
  *
  */
 /**
- * @file "modules/cartography/isaac.h"
+ * @file "modules/mission/copilot.h"
  *
+ *  Mission Computer module, interfacing the mission computer (also known as Copilot),
+ *  based losely on
  *  ISaAC: The Intelligent Safety and Airworthiness Co-Pilot module
  *  Based on paper "A Payload Verification and Management Framework
  *  for Small UAV-based Personal Remote Sensing Systems" by Cal Coopmans
  *  and Chris Coffin. Link: http://ieeexplore.ieee.org/abstract/document/6309316/
  *
- *  ISaAC is intented mainly for mapping applications.
+ *  More info can be found on http://wiki.paparazziuav.org/wiki/Mission_computer
  *
- *  This module processes messages from ISaAC, and either forwards them to the GCS
- *  (such as CAMERA_SNAPSHOT or CAMERA_PAYLOAD messages), or responds to them necessary
+ *  Copilot is intended mainly for mapping applications.
+ *
+ *   This module processes messages from Copilot, and either forwards them to the GCS
+ *  (such as CAMERA_SNAPSHOT or CAMERA_PAYLOAD messages), or responds to them as necessary
  *  (such as MOVE_WP).
  *
  *  The module assumes the source of the messages is trusted (i.e. not authentication besides
  *  AC_ID check is performed).
  */
 
-#ifndef ISAAC_H
-#define ISAAC_H
+#ifndef COPILOT_H
+#define COPILOT_H
 
 #include "subsystems/datalink/datalink.h"
 #include "modules/datalink/extra_pprz_dl.h"
@@ -72,22 +76,17 @@ extern bool send_cam_snapshot;
 extern bool send_cam_payload;
 extern bool send_copilot_status;
 
-extern uint8_t snapshot_cnt;
-extern uint8_t status_cnt;
-extern uint8_t isaac_cnt;
-extern uint8_t move_wp_cnt;
-
 /** Init function */
-void isaac_init(void);
+void copilot_init(void);
 
 /** Periodic function */
-void isaac_periodic(void);
+void copilot_periodic(void);
 
 /** Message processing functions */
-void isaac_parse_cam_snapshot_dl(uint8_t *buf);
-void isaac_parse_cam_payload_dl(uint8_t *buf);
-void isaac_parse_copilot_status_dl(uint8_t *buf);
-void isaac_parse_move_wp_dl(uint8_t *buf);
+void copilot_parse_cam_snapshot_dl(uint8_t *buf);
+void copilot_parse_cam_payload_dl(uint8_t *buf);
+void copilot_parse_copilot_status_dl(uint8_t *buf);
+void copilot_parse_move_wp_dl(uint8_t *buf);
 
-#endif /* ISAAC_H */
+#endif /* COPILOT_H */
 
