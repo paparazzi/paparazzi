@@ -638,13 +638,13 @@ void calc_g1g2_pseudo_inv(void) {
   }
 
   //there are numerical errors if the scaling is not right.
-  float_vect_scale(g1g2_trans_mult[0], 100.0, INDI_OUTPUTS*INDI_NUM_ACT);
+  float_vect_scale(g1g2_trans_mult[0], 100.0, INDI_OUTPUTS*INDI_OUTPUTS);
 
   //inverse of 4x4 matrix
   float_mat_inv_4d(g1g2inv[0], g1g2_trans_mult[0]);
 
   //scale back
-  float_vect_scale(g1g2inv[0], 100.0, INDI_OUTPUTS*INDI_NUM_ACT);
+  float_vect_scale(g1g2inv[0], 100.0, INDI_OUTPUTS*INDI_OUTPUTS);
 
   //G1G2'*G1G2inv
   //calculate matrix multiplication INDI_NUM_ACTxINDI_OUTPUTS x INDI_OUTPUTSxINDI_OUTPUTS
