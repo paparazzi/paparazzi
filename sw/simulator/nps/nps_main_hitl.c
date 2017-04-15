@@ -96,6 +96,7 @@ void nps_radio_and_autopilot_init(void)
 void nps_update_launch_from_dl(uint8_t value)
 {
   nps_autopilot.launch = value;
+  printf("Launch value=%u\n",nps_autopilot.launch);
 }
 
 void nps_main_run_sim_step(void)
@@ -173,8 +174,10 @@ void *nps_ins_data_loop(void *data __attribute__((unused)))
       nanosleep(&waitFor, NULL);
     } else {
       // task took longer than the period
+#ifdef PRINT_TIME
       printf("INS THREAD: task took longer than one period, exactly %f [ms], but the period is %f [ms]\n",
              (double)task_ns / 1E6, (double)period_ns / 1E6);
+#endif
     }
   }
   return(NULL);
@@ -326,8 +329,10 @@ void *nps_main_loop(void *data __attribute__((unused)))
       nanosleep(&waitFor, NULL);
     } else {
       // task took longer than the period
+#ifdef PRINT_TIME
       printf("MAIN THREAD: task took longer than one period, exactly %f [ms], but the period is %f [ms]\n",
              (double)task_ns / 1E6, (double)period_ns / 1E6);
+#endif
     }
   }
   return(NULL);
