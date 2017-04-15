@@ -176,8 +176,10 @@ void *nps_main_loop(void *data __attribute__((unused)))
       nanosleep(&waitFor, NULL);
     } else {
       // task took longer than the period
+#ifdef PRINT_TIME
       printf("MAIN THREAD: task took longer than one period, exactly %f [ms], but the period is %f [ms]\n",
              (double)task_ns / 1E6, (double)period_ns / 1E6);
+#endif
     }
   }
   return(NULL);
