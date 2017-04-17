@@ -144,6 +144,7 @@ paparazzi.sublime-workspace
 # /sw/simulator/
 /sw/simulator/gaia
 /sw/simulator/simhitl
+/sw/simulator/hitl/hitl.bin
 
 # /sw/supervision/
 /sw/supervision/gtk_process.ml
