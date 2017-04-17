@@ -149,12 +149,12 @@ void copilot_parse_cam_snapshot_dl(uint8_t *buf)
   PPRZ_MUTEX_LOCK(copilot_cam_snapshot_mtx);
 
   // copy CAMERA_SNAPSHOT message and mark it to be sent
-  cam_snapshot.cam_id = DL_CAMERA_SHOT_camera_id(buf);
-  cam_snapshot.cam_state = DL_CAMERA_SHOT_camera_state(buf);
-  cam_snapshot.snapshot_num = DL_CAMERA_SHOT_snapshot_image_number(buf);
-  cam_snapshot.snapshot_valid = DL_CAMERA_SHOT_snapshot_valid(buf);
-  cam_snapshot.lens_temp = DL_CAMERA_SHOT_lens_temp(buf);
-  cam_snapshot.array_temp = DL_CAMERA_SHOT_array_temp(buf);
+  cam_snapshot.cam_id = DL_CAMERA_SNAPSHOT_DL_camera_id(buf);
+  cam_snapshot.cam_state = DL_CAMERA_SNAPSHOT_DL_camera_state(buf);
+  cam_snapshot.snapshot_num = DL_CAMERA_SNAPSHOT_DL_snapshot_image_number(buf);
+  cam_snapshot.snapshot_valid = DL_CAMERA_SNAPSHOT_DL_snapshot_valid(buf);
+  cam_snapshot.lens_temp = DL_CAMERA_SNAPSHOT_DL_lens_temp(buf);
+  cam_snapshot.array_temp = DL_CAMERA_SNAPSHOT_DL_array_temp(buf);
 
   send_cam_snapshot = true;
 
@@ -168,11 +168,11 @@ void copilot_parse_cam_payload_dl(uint8_t *buf)
 {
   PPRZ_MUTEX_LOCK(copilot_cam_payload_mtx);
 
-  cam_payload.timestamp = DL_CAMERA_PAYL_timestamp(buf);
-  cam_payload.used_mem = DL_CAMERA_PAYL_used_memory(buf);
-  cam_payload.used_disk = DL_CAMERA_PAYL_used_disk(buf);
-  cam_payload.door_status = DL_CAMERA_PAYL_door_status(buf);
-  cam_payload.error_code = DL_CAMERA_PAYL_error_code(buf);
+  cam_payload.timestamp = DL_CAMERA_PAYLOAD_DL_timestamp(buf);
+  cam_payload.used_mem = DL_CAMERA_PAYLOAD_DL_used_memory(buf);
+  cam_payload.used_disk = DL_CAMERA_PAYLOAD_DL_used_disk(buf);
+  cam_payload.door_status = DL_CAMERA_PAYLOAD_DL_door_status(buf);
+  cam_payload.error_code = DL_CAMERA_PAYLOAD_DL_error_code(buf);
 
   send_cam_payload = true;
 
@@ -186,11 +186,11 @@ void copilot_parse_copilot_status_dl(uint8_t *buf)
 {
   PPRZ_MUTEX_LOCK(copilot_status_mtx);
 
-  copilot_status.timestamp = DL_COPILOT_STAT_timestamp(buf);
-  copilot_status.used_mem = DL_COPILOT_STAT_used_memory(buf);
-  copilot_status.used_disk = DL_COPILOT_STAT_used_disk(buf);
-  copilot_status.status = DL_COPILOT_STAT_status(buf);
-  copilot_status.error_code = DL_COPILOT_STAT_error_code(buf);
+  copilot_status.timestamp = DL_COPILOT_STATUS_DL_timestamp(buf);
+  copilot_status.used_mem = DL_COPILOT_STATUS_DL_used_memory(buf);
+  copilot_status.used_disk = DL_COPILOT_STATUS_DL_used_disk(buf);
+  copilot_status.status = DL_COPILOT_STATUS_DL_status(buf);
+  copilot_status.error_code = DL_COPILOT_STATUS_DL_error_code(buf);
 
   send_copilot_status = true;
 

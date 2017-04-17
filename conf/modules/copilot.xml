@@ -30,9 +30,9 @@
   </header>
   <init fun="copilot_init()"/>
   <periodic fun="copilot_periodic()" freq="1." autorun="TRUE"/>
-  <datalink message="CAMERA_SHOT" fun="copilot_parse_cam_snapshot_dl(buf)"/>
-  <datalink message="CAMERA_PAYL" fun="copilot_parse_cam_payload_dl(buf)"/>
-  <datalink message="COPILOT_STAT" fun="copilot_parse_copilot_status_dl(buf)"/>
+  <datalink message="CAMERA_SNAPSHOT_DL" fun="copilot_parse_cam_snapshot_dl(buf)"/>
+  <datalink message="CAMERA_PAYLOAD_DL" fun="copilot_parse_cam_payload_dl(buf)"/>
+  <datalink message="COPILOT_STATUS_DL" fun="copilot_parse_copilot_status_dl(buf)"/>
   <datalink message="MOVE_WP" fun="copilot_parse_move_wp_dl(buf)"/>
   <makefile target="ap">
     <file name="copilot.c"/>
