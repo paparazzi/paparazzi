@@ -210,6 +210,7 @@ void copilot_parse_copilot_status_dl(uint8_t *buf)
  *
  *  In both cases, the MOVE_WP message was already processed in firmware_parse
  *  here we are taking care only about propagating the change
+ *
  */
 void copilot_parse_move_wp_dl(uint8_t *buf)
 {
@@ -224,10 +225,9 @@ void copilot_parse_move_wp_dl(uint8_t *buf)
     struct UtmCoor_f utm;
     utm.zone = nav_utm_zone0;
     utm_of_lla_f(&utm, &lla);
-    //nav_move_waypoint(wp_id, utm.east, utm.north, utm.alt);
 
-    /* Waypoint range is limited. Computes the UTM pos back from the relative
-             coordinates */
+    // Waypoint range is limited. Computes the UTM pos back from the relative
+    // coordinates */
     utm.east = waypoints[wp_id].x + nav_utm_east0;
     utm.north = waypoints[wp_id].y + nav_utm_north0;
 
