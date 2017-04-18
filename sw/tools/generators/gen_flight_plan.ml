@@ -136,7 +136,7 @@ let print_waypoint_enu = fun utm0 default_alt waypoint ->
   let ecef0 = Latlong.ecef_of_geo Latlong.WGS84 (Latlong.of_utm Latlong.WGS84 utm0) !ground_alt in
   let ecef = Latlong.ecef_of_geo Latlong.WGS84 (Latlong.of_utm Latlong.WGS84 (Latlong.utm_add utm0 (x, y))) (float_of_string alt) in
   let ned = Latlong.array_of_ned (Latlong.ned_of_ecef ecef0 ecef) in
-  printf " {%.2f, %.2f, %.2f}, /* ENU in meters  */ \\\n" ned.(1) ned.(0) (-.ned.(2))
+  printf " {%.2f, %.2f, %.2f}, /* ENU in meters  */ \\\n" x y (-.ned.(2))
 
 let convert_angle = fun rad -> Int64.of_float (1e7 *. (Rad>>Deg)rad)
 
