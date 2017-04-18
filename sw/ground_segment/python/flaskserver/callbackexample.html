@@ -1,0 +1,33 @@
+<html>
+	<head>
+		<title>Subscriber example</title>
+		<style>
+			body { margin: 0; }
+			canvas { width: 100%; height: 100% }
+		</style>
+	</head>
+	<body>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script> 
+		<script>
+            function useMessage(data){
+                var element=$('<div>message: '+data+"</div>");
+                element.appendTo("#allMessages");
+            }
+            
+            function subscribeToMessage(host,frequency,aircraftID,messageName,callbackfunction){
+                
+                setInterval(function(){$.get( host+'/message/'+aircraftID+'/'+messageName, {none:"hello"}, callbackfunction)}, frequency);
+            }
+            
+            $(document).ready(function(){
+                subscribeToMessage('http://127.0.0.1:5000',100,201,"INS",useMessage)
+            }); 
+
+
+
+        </script>
+        <div id="allMessages">All messages:</div>
+        
+    </body>
+</html>
+
