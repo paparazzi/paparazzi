@@ -21,8 +21,6 @@
       <message name="DL_VALUE"            period="1.5"/>
       <message name="IR_SENSORS"          period="1.2"/>
       <message name="SURVEY"              period="2.1"/>
-      <message name="CAM"                 period="0.5"/>
-      <message name="CAM_POINT"           period="1.0"/>
       <message name="COMMANDS"            period="1"/>
       <message name="FBW_STATUS"          period="2"/>
       <message name="VECTORNAV_INFO"      period="1.0"/>
@@ -109,7 +107,7 @@
   </process>
   <process name="Extra">
     <mode name="default">
-    <!--message name="COMMANDS"            period="0.01"/-->
+      <message name="COMMANDS"            period="0.01"/>
       <message name="GPS_LLA"             period="1.25"/>
       <message name="ATTITUDE"            period="1.1"/>
       <message name="VECTORNAV_INFO"      period="1.0"/>
