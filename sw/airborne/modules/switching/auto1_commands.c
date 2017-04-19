@@ -28,7 +28,7 @@
 void periodic_auto1_commands(void)
 {
   // Copy Radio commands in AUTO1
-  if (pprz_mode == AP_MODE_AUTO1) {
+  if (autopilot_get_mode() == AP_MODE_AUTO1) {
 #ifdef COMMAND_HATCH
 #ifndef RADIO_HATCH
 #error auto1_commands COMMAND_HATCH needs RADIO_HATCH channel

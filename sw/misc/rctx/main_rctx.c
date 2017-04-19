@@ -177,7 +177,7 @@ void event_task_rctx( void) {
 #ifdef USE_RCTX_MODE_SWITCH
     // TODO: set rxtx_mode from GPIO connected switch (e.g. I2C pins)
 #else
-    rctx_mode = PPRZ_MODE_OF_PULSE(rc_values[RADIO_MODE], 0) & 3;
+    rctx_mode = AP_MODE_OF_PULSE(rc_values[RADIO_MODE], 0) & 3;
 #endif
 
     rctx_mode |= rctx_under_voltage << 2;
