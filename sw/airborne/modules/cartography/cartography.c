@@ -151,7 +151,16 @@ void init_carto(void)
 
 void periodic_downlink_carto(void)
 {
-  DOWNLINK_SEND_CAMERA_SNAPSHOT(DefaultChannel, DefaultDevice, &camera_snapshot_image_number);
+  static uint16_t dummy_id = 0;
+  static uint8_t dummy_state = 0;
+  static uint8_t snapshot_valid = 1;
+  static float dummy_temp = NAN;
+  DOWNLINK_SEND_CAMERA_SNAPSHOT(DefaultChannel, DefaultDevice,
+      &dummy_d,
+      &dummy_state,
+      &camera_snapshot_image_number,
+      &snapshot_valid,
+      &dummy_temp);
 }
 
 void start_carto(void)

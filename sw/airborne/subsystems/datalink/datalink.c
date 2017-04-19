@@ -146,7 +146,7 @@ void dl_parse_msg(struct link_device *dev, struct transport_tx *trans, uint8_t *
   firmware_parse_msg(dev, trans, buf);
 
   /* Parse modules datalink */
-  modules_parse_datalink(msg_id);
+  modules_parse_datalink(msg_id, dev, trans, buf);
 }
 
 /* default empty WEAK implementation for firmwares without an extra firmware_parse_msg */

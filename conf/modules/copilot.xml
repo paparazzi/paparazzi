@@ -1,0 +1,41 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="copilot" dir="mission">
+  <doc>
+    <description>
+    Mission Computer module, interfacing the mission computer (also known as Copilot),
+    based losely on
+    ISaAC: The Intelligent Safety and Airworthiness Co-Pilot module
+    Based on paper "A Payload Verification and Management Framework
+    for Small UAV-based Personal Remote Sensing Systems" by Cal Coopmans
+    and Chris Coffin. Link: http://ieeexplore.ieee.org/abstract/document/6309316/
+
+    More info can be found on http://wiki.paparazziuav.org/wiki/Mission_computer
+
+    Copilot is intended mainly for mapping applications.
+
+    This module processes messages from Copilot, and either forwards them to the GCS
+    (such as CAMERA_SNAPSHOT or CAMERA_PAYLOAD messages), or responds to them as necessary
+    (such as MOVE_WP).
+
+    The module assumes the source of the messages is trusted (i.e. not authentication besides 
+    AC_ID check is performed).
+    </description>
+  </doc>
+
+
+  <depends>extra_dl</depends>
+  <header>
+    <file name="copilot.h"/>
+  </header>
+  <init fun="copilot_init()"/>
+  <periodic fun="copilot_periodic()" freq="1." autorun="TRUE"/>
+  <datalink message="CAMERA_SNAPSHOT_DL" fun="copilot_parse_cam_snapshot_dl(buf)"/>
+  <datalink message="CAMERA_PAYLOAD_DL" fun="copilot_parse_cam_payload_dl(buf)"/>
+  <datalink message="COPILOT_STATUS_DL" fun="copilot_parse_copilot_status_dl(buf)"/>
+  <datalink message="MOVE_WP" fun="copilot_parse_move_wp_dl(buf)"/>
+  <makefile target="ap">
+    <file name="copilot.c"/>
+  </makefile>
+</module>
+
