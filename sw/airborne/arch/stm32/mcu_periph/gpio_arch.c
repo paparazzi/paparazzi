@@ -141,12 +141,14 @@ void gpio_setup_input(uint32_t port, uint16_t gpios)
 void gpio_setup_input_pullup(uint32_t port, uint16_t gpios)
 {
   gpio_enable_clock(port);
+  gpio_set(port, gpios);
   gpio_mode_setup(port, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP, gpios);
 }
 
 void gpio_setup_input_pulldown(uint32_t port, uint16_t gpios)
 {
   gpio_enable_clock(port);
+  gpio_clear(port, gpios);
   gpio_mode_setup(port, GPIO_MODE_INPUT, GPIO_PUPD_PULLDOWN, gpios);
 }
 
