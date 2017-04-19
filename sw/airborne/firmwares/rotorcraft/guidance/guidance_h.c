@@ -245,6 +245,7 @@ void guidance_h_mode_changed(uint8_t new_mode)
       break;
 
     case GUIDANCE_H_MODE_GUIDED:
+    // Falls through to GUIDANCE_H_MODE_HOVER
     case GUIDANCE_H_MODE_HOVER:
 #if GUIDANCE_INDI
       guidance_indi_enter();
@@ -377,7 +378,7 @@ void guidance_h_run(bool  in_flight)
     case GUIDANCE_H_MODE_HOVER:
       /* set psi command from RC */
       guidance_h.sp.heading = guidance_h.rc_sp.psi;
-      /* fall trough to GUIDED to update ref, run traj and set final attitude setpoint */
+    /* fall trough to GUIDED to update ref, run traj and set final attitude setpoint */
 
     case GUIDANCE_H_MODE_GUIDED:
       guidance_h_guided_run(in_flight);
@@ -439,8 +440,28 @@ static void guidance_h_update_reference(void)
   }
 }
 
-#define MAX_POS_ERR   POS_BFP_OF_REAL(16.)
-#define MAX_SPEED_ERR SPEED_BFP_OF_REAL(16.)
+/**
+ * GUIDANCE_H_MAX_POS_ERR_METER sets how much distance the drone tries to overcome in the horizontal loop at the same time
+ * Setting this value higher will result in more aggressive position holding
+ * Setting this value lower will result in a slower moving drone
+ */
+#ifndef GUIDANCE_H_MAX_POS_ERR_METER
+#define GUIDANCE_H_MAX_POS_ERR_METER 16.0
+#endif
+PRINT_CONFIG_VAR(GUIDANCE_H_MAX_POS_ERR_METER)
+
+
+/**
+ * GUIDANCE_H_MAX_SPEED_ERR_METER sets how fast the drone can move at max when following a velocity setpoint
+ * Set this value to the max speed your drone can/may handle
+ */
+#ifndef GUIDANCE_H_MAX_SPEED_ERR_METER
+#define GUIDANCE_H_MAX_SPEED_ERR_METER 16.0
+#endif
+PRINT_CONFIG_VAR(GUIDANCE_H_MAX_SPEED_ERR_METER)
+
+#define MAX_POS_ERR   POS_BFP_OF_REAL(GUIDANCE_H_MAX_POS_ERR_METER)
+#define MAX_SPEED_ERR SPEED_BFP_OF_REAL(GUIDANCE_H_MAX_SPEED_ERR_METER)
 
 #ifndef GUIDANCE_H_THRUST_CMD_FILTER
 #define GUIDANCE_H_THRUST_CMD_FILTER 10
