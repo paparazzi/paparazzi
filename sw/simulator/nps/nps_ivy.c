@@ -154,10 +154,11 @@ void nps_ivy_send_WORLD_ENV_REQ(void)
 
 int find_launch_index(void)
 {
-  static const char ap_launch[] = "lau"; // short name has only 3 first letters
+  static const char ap_launch[] = "aut_lau"; // short name
   char *ap_settings[NB_SETTING] = SETTINGS_NAMES_SHORT;
 
-  // list through the settinsg
+  // list through the settings
+  // TODO: maybe search for a substring with if(strstr(sent, word) != NULL)
   for (uint8_t idx=0;idx<NB_SETTING;idx++) {
    if (strcmp(ap_settings[idx],ap_launch) == 0) {
      return (int)idx;
@@ -184,6 +185,7 @@ static void on_DL_SETTING(IvyClientPtr app __attribute__((unused)),
   DlSetting(index, value);
   DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &index, &value);
   printf("setting %d %f\n", index, value);
+
 
   /*
    * In case of HITL, update nps_autopilot.launch from DL_SETTINGS

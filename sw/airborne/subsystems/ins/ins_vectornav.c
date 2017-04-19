@@ -299,6 +299,12 @@ void ins_vectornav_propagate()
   gps.hmsl =  (int32_t)((ins_vn.lla_pos.alt - geoid_h)* 1000.0f);
   SetBit(gps.valid_fields, GPS_VALID_HMSL_BIT);
 
+  // Set GPS fix
+  gps.fix = ins_vn.vn_data.gps_fix;
+
+  // Set GPS num_sv
+  gps.num_sv = ins_vn.vn_data.num_sv;
+
   // set position uncertainty
   ins_vectornav_set_pacc();
 

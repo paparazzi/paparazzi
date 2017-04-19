@@ -7,7 +7,7 @@ RP3 Lisa MX
 <airframe name="RP3 Lisa MX">
 
   <firmware name="fixedwing">
-    <target name="ap" board="lisa_mx_2.1_chibios">
+    <target name="ap" board="lisa_mx_2.1">
       <module name="radio_control" type="sbus">
         <configure name="SBUS_PORT" value="UART5"/>
       </module>
@@ -25,7 +25,7 @@ RP3 Lisa MX
     <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
       <module name="radio_control" type="spektrum"/>
-      <!--configure name="USE_HITL" value="1"/-->
+      <configure name="USE_HITL" value="1"/>
       <configure name="INS_DEV" value="/dev/ttyUSB1"/>
       <configure name="INS_BAUD" value="B921600"/>
       <configure name="AP_DEV" value="/dev/ttyUSB2"/>
@@ -37,7 +37,7 @@ RP3 Lisa MX
 
     <module name="telemetry"   type="transparent">
       <configure name="MODEM_PORT"        value="UART3"/>
-      <configure name="MODEM_BAUD"        value="B57600"/>
+      <configure name="MODEM_BAUD"        value="B115200"/>
     </module>
 
     <module name="ins"       type="vectornav">
@@ -63,14 +63,16 @@ RP3 Lisa MX
       <configure name="EXTRA_DL_PORT" value="UART1"/>
       <configure name="EXTRA_DL_BAUD" value="B921600"/>
     </module>
-    <module name="lidar_sf11"/>
-    <module name="battery_monitor.xml">
+    <module name="lidar_sf11">
+      <configure name="LIDAR_SF11_I2C_DEV" value="i2c2"/>
+    </module>
+    <!--module name="battery_monitor.xml">
       <define name="BATMON_REV4" value="1"/>
       <define name="BATMON_CURRENT_OFFSET" value="-120"/>
       <define name="BATMON_CURRENT_SENSITIVITY" value="25.6"/>
       <define name="BATMON_TEMP_OFFSET" value="250"/>
       <define name="BATMON_TEMP_SENSITIVITY" value="10"/>
-    </module>
+    </module-->
   </modules>
 
   <!-- commands section -->
