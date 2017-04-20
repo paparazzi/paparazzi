@@ -462,6 +462,10 @@ let create_ac = fun ?(confirm_kill=true) alert (geomap:G.widget) (acs_notebook:G
   let af_xml = ExtXml.parse_file ~noprovedtd:via_http af_file in
   let af_xml = try Gen_common.expand_includes ac_id af_xml with _ -> af_xml in
 
+  (** Get firmware name *)
+  let firmware = ExtXml.child af_xml "firmware" in
+  let firmware_name = ExtXml.attrib firmware "name" in
+
   (** Get an alternate speech name if available *)
   let speech_name = get_speech_name af_xml name in
 
@@ -750,7 +754,7 @@ let create_ac = fun ?(confirm_kill=true) alert (geomap:G.widget) (acs_notebook:G
     true
   in
 
-  if is_int ac_id then
+  if is_int ac_id && firmware_name = "fixedwing" then
     ignore (Glib.Timeout.add 10000 send_wind);
 
   begin
