@@ -60,33 +60,16 @@ static void send_ins_ref(struct transport_tx *trans, struct link_device *dev)
 
 static void send_vn_info(struct transport_tx *trans, struct link_device *dev)
 {
-  // we want at least 75% of periodic frequency to be able to control the airfcraft
-  if (ins_vn.vn_freq < (PERIODIC_FREQUENCY*0.75)) {
-    gps.fix = GPS_FIX_NONE;
-  }
-
-  static uint16_t last_cnt = 0;
-  static uint16_t sec_cnt = 0;
-
-  sec_cnt = ins_vn.vn_packet.counter -  last_cnt;
-  ins_vn.vn_freq = sec_cnt; // update frequency counter
-
   pprz_msg_send_VECTORNAV_INFO(trans, dev, AC_ID,
                                &ins_vn.vn_data.timestamp,
                                &ins_vn.vn_packet.chksm_error,
                                &ins_vn.vn_packet.hdr_error,
-                               &sec_cnt,
+                               &ins_vn.vn_rate,
                                &ins_vn.vn_data.mode,
                                &ins_vn.vn_data.err,
                                &ins_vn.vn_data.ypr_u.phi,
                                &ins_vn.vn_data.ypr_u.theta,
                                &ins_vn.vn_data.ypr_u.psi);
-
-  // update counter
-  last_cnt = ins_vn.vn_packet.counter;
-
-  // reset mode
-  ins_vn.vn_data.mode = 0;
 }
 
 static void send_accel(struct transport_tx *trans, struct link_device *dev)
@@ -119,6 +102,34 @@ static void send_gyro_scaled(struct transport_tx *trans, struct link_device *dev
 PRINT_CONFIG_MSG("USE_INS_NAV_INIT defaulting to TRUE");
 #endif
 
+
+/**
+ * Monitors vectornav data rate
+ * and changes GPS lock if the data rate
+ * is too low.
+ *
+ */
+void ins_vectornav_monitor(void)
+{
+  static uint16_t last_cnt = 0;
+  static uint16_t sec_cnt = 0;
+
+  sec_cnt = ins_vn.vn_packet.counter -  last_cnt;
+  ins_vn.vn_rate = sec_cnt; // update frequency counter
+
+  // we want at least 75% of periodic frequency to be able to control the airfcraft
+  if (ins_vn.vn_rate < (PERIODIC_FREQUENCY*0.75)) {
+    gps.fix = GPS_FIX_NONE;
+  }
+
+  // update counter
+  last_cnt = ins_vn.vn_packet.counter;
+
+  // reset mode
+  ins_vn.vn_data.mode = 0;
+}
+
+
 /**
  * Event handling for Vectornav
  */
@@ -143,7 +154,7 @@ void ins_vectornav_init(void)
 {
   // Initialize variables
   ins_vn.vn_status = VNNotTracking;
-  ins_vn.vn_freq = 0;
+  ins_vn.vn_rate = 0;
 
   // Initialize packet
   ins_vn.vn_packet.status = VNMsgSync;

@@ -15,6 +15,7 @@
     <file name="ins.h" dir="subsystems"/>
   </header>
   <init fun="ins_vectornav_init()"/>
+  <periodic fun="ins_vectornav_monitor()" freq="1.0" autorun="TRUE"/>
   <event fun="ins_vectornav_event()"/>
   <makefile target="ap">
     <configure name="VN_PORT" default="uart3" case="upper|lower"/>

@@ -80,7 +80,7 @@ struct InsVectornav {
   struct VNPacket vn_packet;///< Packet struct
   struct VNData vn_data; ///< Data struct
   enum VNStatus vn_status;  ///< VN status
-  float vn_freq;            ///< data frequency
+  uint16_t vn_rate;            ///< data frequency
 
   // in fixed point for sending as ABI and telemetry msgs
   struct Int32Vect3 accel_i;
@@ -99,5 +99,6 @@ extern void ins_vectornav_event(void);
 extern void ins_vectornav_set_sacc(void);
 extern void ins_vectornav_set_pacc(void);
 extern void ins_vectornav_propagate(void);
+extern void ins_vectornav_monitor(void);
 
 #endif /* INS_VECTORNAV_H */
