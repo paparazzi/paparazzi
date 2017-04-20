@@ -50,7 +50,7 @@
     </control_block>
 
     <exceptions>
-      <exception cond="too_far_from_home" deroute="HOME"/>
+      <exception cond="too_far_from_home && autopilot_in_flight()" deroute="HOME"/>
     </exceptions>
 
     <mode name="MANUAL" gcs_name="MANU">
@@ -62,7 +62,7 @@
       <control> <!-- only for display -->
         <call fun="v_ctl_throttle_slewed = imcu_get_radio(RADIO_THROTTLE)"/>
       </control>
-      <exception cond="RCLost()" deroute="HOME"/>
+      <exception cond="RCLost() && autopilot_in_flight()" deroute="HOME"/>
     </mode>
 
     <mode name="AUTO1">
@@ -76,7 +76,7 @@
         <call_block name="attitude"/>
         <call_block name="actuators_ap"/>
       </control>
-      <exception cond="RCLost()" deroute="HOME"/>
+      <exception cond="RCLost() && autopilot_in_flight()" deroute="HOME"/>
     </mode>
 
     <mode name="AUTO2">
@@ -91,7 +91,7 @@
         <call_block name="attitude"/>
         <call_block name="actuators_ap"/>
       </control>
-      <exception cond="GpsIsLost()" deroute="GPS_LOST"/>
+      <exception cond="GpsIsLost() && autopilot_in_flight()" deroute="GPS_LOST"/>
     </mode>
 
     <mode name="HOME" settings="hide">
@@ -104,7 +104,7 @@
         <call_block name="attitude"/>
         <call_block name="actuators_ap"/>
       </control>
-      <exception cond="GpsIsLost()" deroute="GPS_LOST"/>
+      <exception cond="GpsIsLost() && autopilot_in_flight()" deroute="GPS_LOST"/>
     </mode>
 
     <mode name="GPS_LOST" gcs_name="NOGPS" settings="hide">
