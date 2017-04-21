@@ -31,10 +31,6 @@
 	  <variable var="angle_ps" init="0" min="-180" max="179" step="1"/>
   </variables>
 
-  <modules>
-    <module name="nav" type="survey_polygon"/>
-  </modules>
-
   <blocks>
     <block name="Wait GPS">
       <set value="1" var="autopilot.kill_throttle"/>
