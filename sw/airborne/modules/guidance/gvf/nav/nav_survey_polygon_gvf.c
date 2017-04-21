@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2013  The Paparazzi Team
+ * Copyright (C) 2017  The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -20,18 +20,20 @@
  */
 
 /**
- * @file modules/nav/nav_survey_polygon.c
+ * @file modules/guidance/gvf/nav_survey_polygon_gvf.c
  *
- * Advanced polygon survey for fixedwings from Uni Stuttgart.
+ * Advanced polygon survey for fixedwings from Uni Stuttgart
+ * adapted for being used with the Guidance Vector Field.
  *
  */
 
-#include "nav_survey_polygon.h"
+#include "nav_survey_polygon_gvf.h"
 
 #include "firmwares/fixedwing/nav.h"
 #include "state.h"
 #include "autopilot.h"
 #include "generated/flight_plan.h"
+#include "modules/guidance/gvf/gvf.h"
 
 #ifdef DIGITAL_CAM
 #include "modules/digital_cam/dc.h"
@@ -39,9 +41,9 @@
 
 struct SurveyPolyAdv survey;
 
-static void nav_points(struct FloatVect2 start, struct FloatVect2 end)
+static void nav_points_gvf(struct FloatVect2 start, struct FloatVect2 end)
 {
-  nav_route_xy(start.x, start.y, end.x, end.y);
+  gvf_segment_XY1_XY2(start.x, start.y, end.x, end.y, 0, 0);
 }
 
 /**
@@ -230,14 +232,24 @@ void nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, float
  * Position and stage and navigates accordingly.
  * @returns True until the survey is finished
  */
-bool nav_survey_polygon_run(void)
+void nav_direction_circle_gvf(float rad)
+{
+  if (rad > 0) {
+    gvf_set_direction(-1);
+  } else {
+    gvf_set_direction(1);
+  }
+}
+
+bool nav_survey_polygon_gvf_run(void)
 {
   NavVerticalAutoThrottleMode(0.0);
   NavVerticalAltitudeMode(survey.psa_altitude, 0.0);
 
   //entry circle around entry-center until the desired altitude is reached
   if (survey.stage == ENTRY) {
-    nav_circle_XY(survey.entry_center.x, survey.entry_center.y, -survey.psa_min_rad);
+    nav_direction_circle_gvf(survey.psa_min_rad);
+    gvf_ellipse_XY(survey.entry_center.x, survey.entry_center.y, survey.psa_min_rad, survey.psa_min_rad, 0);
     if (NavCourseCloseTo(survey.segment_angle)
         && nav_approaching_xy(survey.seg_start.x, survey.seg_start.y, last_x, last_y, CARROT)
         && fabs(stateGetPositionUtm_f()->alt - survey.psa_altitude) <= 20) {
@@ -251,7 +263,7 @@ bool nav_survey_polygon_run(void)
   }
   //fly the segment until seg_end is reached
   if (survey.stage == SEG) {
-    nav_points(survey.seg_start, survey.seg_end);
+    nav_points_gvf(survey.seg_start, survey.seg_end);
     //calculate all needed points for the next flyover
     if (nav_approaching_xy(survey.seg_end.x, survey.seg_end.y, survey.seg_start.x, survey.seg_start.y, 0)) {
 #ifdef DIGITAL_CAM
@@ -282,21 +294,24 @@ bool nav_survey_polygon_run(void)
   }
   //turn from stage to return
   else if (survey.stage == TURN1) {
-    nav_circle_XY(survey.seg_center1.x, survey.seg_center1.y, -survey.psa_min_rad);
+    nav_direction_circle_gvf(survey.psa_min_rad);
+    gvf_ellipse_XY(survey.seg_center1.x, survey.seg_center1.y, survey.psa_min_rad, survey.psa_min_rad, 0);
     if (NavCourseCloseTo(survey.return_angle)) {
       survey.stage = RET;
       nav_init_stage();
     }
     //return
   } else if (survey.stage == RET) {
-    nav_points(survey.ret_start, survey.ret_end);
+    nav_points_gvf(survey.ret_start, survey.ret_end);
     if (nav_approaching_xy(survey.ret_end.x, survey.ret_end.y, survey.ret_start.x, survey.ret_start.y, 0)) {
       survey.stage = TURN2;
       nav_init_stage();
     }
     //turn from return to stage
   } else if (survey.stage == TURN2) {
-    nav_circle_XY(survey.seg_center2.x, survey.seg_center2.y, -(2 * survey.psa_min_rad + survey.psa_sweep_width) * 0.5);
+    float rad_sur = (2 * survey.psa_min_rad + survey.psa_sweep_width) * 0.5;
+    nav_direction_circle_gvf(rad_sur);
+    gvf_ellipse_XY(survey.seg_center2.x, survey.seg_center2.y, rad_sur, rad_sur, 0);
     if (NavCourseCloseTo(survey.segment_angle)) {
       survey.stage = SEG;
       nav_init_stage();

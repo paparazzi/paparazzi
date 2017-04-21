@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011-2013  The Paparazzi Team
+ * Copyright (C) 2017  The Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -20,14 +20,15 @@
  */
 
 /**
- * @file modules/nav/nav_survey_polygon.h
+ * @file modules/guidance/gvf/nav_survey_polygon_gvf.h
  *
- * Advanced polygon survey for fixedwings from Uni Stuttgart.
+ * Advanced polygon survey for fixedwings from Uni Stuttgart
+ * adapted to be employed with the Guidance Vector Field
  *
  */
 
-#ifndef NAV_SURVEY_POLYGON_H
-#define NAV_SURVEY_POLYGON_H
+#ifndef NAV_SURVEY_POLYGON_GVF_H
+#define NAV_SURVEY_POLYGON_GVF_H
 
 #include "std.h"
 #include "math/pprz_algebra_float.h"
@@ -84,6 +85,8 @@ struct SurveyPolyAdv {
 
 extern void nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, float sweep_width, float shot_dist,
                                      float min_rad, float altitude);
-extern bool nav_survey_polygon_run(void);
+
+void nav_direction_circle_gvf(float rad);
+extern bool nav_survey_polygon_gvf_run(void);
 
 #endif
