@@ -43,9 +43,9 @@
   RET   : fly from ret_start to ret_end
   TURN2 : do a 180° turn around seg_center2
 */
-enum SurveyStage {ERR, ENTRY, SEG, TURN1, RET, TURN2};
+enum gvf_SurveyStage {gERR, gENTRY, gSEG, gTURN1, gRET, gTURN2};
 
-struct SurveyPolyAdv {
+struct gvf_SurveyPolyAdv {
   /*
   The following variables are set by nav_survey_polygon_start and not changed later on
   */
@@ -72,7 +72,7 @@ struct SurveyPolyAdv {
   /*
      The Following variables are dynamic, changed while navigating.
   */
-  enum SurveyStage stage;
+  enum gvf_SurveyStage stage;
   // points for navigation
   struct FloatVect2 seg_start;
   struct FloatVect2 seg_end;
@@ -83,10 +83,10 @@ struct SurveyPolyAdv {
   struct FloatVect2 ret_end;
 };
 
-extern void nav_survey_polygon_setup_gvf(uint8_t first_wp, uint8_t size, float angle, float sweep_width, float shot_dist,
+extern void gvf_nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, float sweep_width, float shot_dist,
                                      float min_rad, float altitude);
 
-void nav_direction_circle_gvf(float rad);
-extern bool nav_survey_polygon_gvf_run(void);
+void gvf_nav_direction_circle(float rad);
+extern bool gvf_nav_survey_polygon_run(void);
 
 #endif

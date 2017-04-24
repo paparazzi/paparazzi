@@ -64,8 +64,8 @@
 	<call fun="gvf_sin_wp_alpha(WP_ELLIPSE, gvf_sin_par.alpha, gvf_sin_par.w, gvf_sin_par.off, gvf_sin_par.A)"/>
     </block>
 	<block name="Poly Survey">
-      <call_once fun="nav_survey_polygon_setup(WP_S1, 4, angle_ps, 30, 30, 40, 235)"/>
-      <call fun="nav_survey_polygon_gvf_run()"/>
+      <call_once fun="gvf_nav_survey_polygon_setup(WP_S1, 4, angle_ps, 30, 30, 40, 235)"/>
+      <call fun="gvf_nav_survey_polygon_run()"/>
     </block>
     <block group="land" name="Land Right AF-TD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png">
       <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
