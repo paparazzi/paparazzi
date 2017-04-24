@@ -55,9 +55,15 @@
 #include "math/pprz_isa.h"
 
 
+#ifndef INS_USE_MODULE
+#define INS_USE_MODULE FALSE
+#elif INS_USE_MODULE
+#include "ins_module_int.h"
+#endif
+
 #if USE_SONAR
-#if !USE_VFF_EXTENDED
-#error USE_SONAR needs USE_VFF_EXTENDED
+#if !USE_VFF_EXTENDED && !INS_USE_MODULE
+#error USE_SONAR needs either USE_VFF_EXTENDED or INS_USE_MODULE
 #endif
 
 /** default sonar to use in INS */
@@ -218,6 +224,10 @@ void ins_int_init(void)
   INT32_VECT3_ZERO(ins_int.ltp_speed);
   INT32_VECT3_ZERO(ins_int.ltp_accel);
 
+#if INS_USE_MODULE
+  ins_module_int_init();
+#endif
+
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS, send_ins);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS_Z, send_ins_z);
@@ -246,6 +256,10 @@ void ins_reset_local_origin(void)
   }
 #else
   ins_int.ltp_initialized = false;
+#endif
+
+#if INS_USE_MODULE
+  ins_module_int_reset_local_origin();
 #endif
 
 #if USE_HFF
@@ -281,6 +295,9 @@ void ins_int_propagate(struct Int32Vect3 *accel, float dt)
 
   float z_accel_meas_float = ACCEL_FLOAT_OF_BFP(accel_meas_ltp.z);
 
+#if INS_USE_MODULE
+  ins_module_int_propagate( &accel_meas_ltp, dt );
+#else
   /* Propagate only if we got any measurement during the last INS_MAX_PROPAGATION_STEPS.
    * Otherwise halt the propagation to not diverge and only set the acceleration.
    * This should only be relevant in the startup phase when the baro is not yet initialized
@@ -306,6 +323,8 @@ void ins_int_propagate(struct Int32Vect3 *accel, float dt)
   ins_int.ltp_accel.y = accel_meas_ltp.y;
 #endif /* USE_HFF */
 
+#endif /* INS_USE_MODULE */
+
   ins_ned_to_state();
 
   /* increment the propagation counter, while making sure it doesn't overflow */
@@ -323,6 +342,9 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, float pressure)
   }
 
   if (ins_int.baro_initialized) {
+#if INS_USE_MODULE && USE_BARO_BOARD
+    ins_module_int_update_baro( pressure );
+#else
     if (ins_int.vf_reset) {
       ins_int.vf_reset = false;
       ins_int.qfe = pressure;
@@ -346,8 +368,10 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, float pressure)
       vff_update_baro(ins_int.baro_z);
 #else
       vff_update(ins_int.baro_z);
-#endif
+#endif //USE_VFF_EXTENDED
     }
+#endif //INS_USE_MODULE
+
     ins_ned_to_state();
 
     /* reset the counter to indicate we just had a measurement update */
@@ -356,7 +380,7 @@ static void baro_cb(uint8_t __attribute__((unused)) sender_id, float pressure)
 }
 
 #if USE_GPS
-void ins_int_update_gps(struct GpsState *gps_s)
+void ins_int_update_gps(struct GpsState *gps_s, float dt)
 {
   if (gps_s->fix < GPS_FIX_3D) {
     return;
@@ -389,6 +413,15 @@ void ins_int_update_gps(struct GpsState *gps_s)
   /// @todo maybe use gps_s->ned_vel directly??
   struct NedCoor_i gps_speed_cm_s_ned;
   ned_of_ecef_vect_i(&gps_speed_cm_s_ned, &ins_int.ltp_def, &gps_s->ecef_vel);
+
+#if INS_USE_MODULE
+  struct NedCoor_i gps_pos_ned, gps_speed_ned;
+  INT32_VECT3_SCALE_2(gps_pos_ned, gps_pos_cm_ned,
+                      INT32_POS_OF_CM_NUM, INT32_POS_OF_CM_DEN);
+  INT32_VECT3_SCALE_2(gps_speed_ned, gps_speed_cm_s_ned,
+                      INT32_SPEED_OF_CM_S_NUM, INT32_SPEED_OF_CM_S_DEN);
+  ins_module_int_update_gps( &gps_pos_ned, &gps_speed_ned, dt );
+#else
 
 #if INS_USE_GPS_ALT
   vff_update_z_conf(((float)gps_pos_cm_ned.z) / 100.0, INS_VFF_R_GPS);
@@ -426,13 +459,15 @@ void ins_int_update_gps(struct GpsState *gps_s)
                       INT32_SPEED_OF_CM_S_NUM, INT32_SPEED_OF_CM_S_DEN);
 #endif /* USE_HFF */
 
+#endif /* INS_USE_MODULE */
+
   ins_ned_to_state();
 
   /* reset the counter to indicate we just had a measurement update */
   ins_int.propagation_cnt = 0;
 }
 #else
-void ins_int_update_gps(struct GpsState *gps_s __attribute__((unused))) {}
+void ins_int_update_gps(struct GpsState *gps_s __attribute__((unused)), float dt __attribute__((unused))) {}
 #endif /* USE_GPS */
 
 
@@ -440,6 +475,19 @@ void ins_int_update_gps(struct GpsState *gps_s __attribute__((unused))) {}
 static void sonar_cb(uint8_t __attribute__((unused)) sender_id, float distance)
 {
   static float last_offset = 0.;
+
+#if INS_USE_MODULE
+  PRINT_CONFIG_MSG("Calculating dt for INS int propagation.")
+  /* timestamp in usec when last callback was received */
+  static uint32_t last_stamp = 0;
+
+  float dt = (float)(stamp - last_stamp) * 1e-6;
+  ins_module_int_update_sonar(distance, dt);
+
+  ins_ned_to_state();
+
+  last_stamp = stamp;
+#else
 
   /* update filter assuming a flat ground */
   if (distance < INS_SONAR_MAX_RANGE && distance > INS_SONAR_MIN_RANGE
@@ -460,6 +508,8 @@ static void sonar_cb(uint8_t __attribute__((unused)) sender_id, float distance)
 
   /* reset the counter to indicate we just had a measurement update */
   ins_int.propagation_cnt = 0;
+
+#endif // INS_USE_MODULE
 }
 #endif // USE_SONAR
 
@@ -517,7 +567,14 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
                    uint32_t stamp __attribute__((unused)),
                    struct GpsState *gps_s)
 {
-  ins_int_update_gps(gps_s);
+  PRINT_CONFIG_MSG("Calculating dt for INS int propagation.")
+  /* timestamp in usec when last callback was received */
+  static uint32_t last_stamp = 0;
+
+  float dt = (float)(stamp - last_stamp) * 1e-6;
+  ins_int_update_gps(gps_s, dt);
+
+  last_stamp = stamp;
 }
 
 static void vel_est_cb(uint8_t sender_id __attribute__((unused)),
