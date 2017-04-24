@@ -20,10 +20,10 @@ from time import sleep
 
 
 class Guidance(object):
-    def __init__(self, ac_id, verbose=False):
+    def __init__(self, ac_id, verbose=False, interface=None):
         self.ac_id = ac_id
         self.verbose = verbose
-        self._interface = None
+        self._interface = interface
         self.auto2_index = None
         try:
             settings = PaparazziACSettings(self.ac_id)
@@ -35,7 +35,8 @@ class Guidance(object):
         except Exception as e:
             print(e)
             print("auto2 setting not found, mode change not possible.")
-        self._interface = IvyMessagesInterface("guided mode example")
+        if self._interface is None:
+            self._interface = IvyMessagesInterface("guided mode example")
 
     def shutdown(self):
         if self._interface is not None:
@@ -142,10 +143,65 @@ class Guidance(object):
         self._interface.send_raw_datalink(msg)
 
 
-if __name__ == '__main__':
-    ac_id = 11
+class IvyRequester(object):
+    def __init__(self, interface=None):
+        self._interface = interface
+        if interface is None:
+            self._interface = IvyMessagesInterface("ivy requester")
+        self.ac_list = []
+
+    def __del__(self):
+        self.shutdown()
+
+    def shutdown(self):
+        if self._interface is not None:
+            print("Shutting down ivy interface...")
+            self._interface.shutdown()
+            self._interface = None
+
+    def get_aircrafts(self):
+
+        def aircrafts_cb(ac_id, msg):
+            self.ac_list = [int(a) for a in msg['ac_list'].split(',') if a]
+            print("aircrafts: {}".format(self.ac_list))
+
+        self._interface.subscribe(aircrafts_cb, "(.*AIRCRAFTS .*)")
+        sender = 'get_aircrafts'
+        request_id = '42_1' # fake request id, should be PID_index
+        self._interface.send("{} {} AIRCRAFTS_REQ".format(sender, request_id))
+        # hack: sleep briefly to wait for answer
+        sleep(0.1)
+        return self.ac_list
+
+
+def main():
+    import argparse
+    parser = argparse.ArgumentParser(description="Guided mode example")
+    parser.add_argument("-i", "--ac_id", dest='ac_id', default=0, type=int, help="aircraft ID")
+    args = parser.parse_args()
+
+    interface = None
+    if args.ac_id > 0:
+        ac_id = args.ac_id
+    else:
+        print("No aircraft ID specified, checking available aircrafts...")
+        interface = IvyMessagesInterface("guided mode example")
+        req = IvyRequester(interface)
+        # hack: sleep briefly so that connections can be established
+        sleep(0.1)
+        aircrafts = req.get_aircrafts()
+        if not aircrafts:
+            print("No active aircrafts found, aborting...")
+            sys.exit(1)
+        elif len(aircrafts) == 1:
+            ac_id = aircrafts[0]
+        else:
+            print("multiple aircrafts found: {}".format(aircrafts))
+            print("please specify one on the commandline...")
+            sys.exit(1)
+
     try:
-        g = Guidance(ac_id)
+        g = Guidance(ac_id, interface=interface)
         sleep(0.1)
         g.set_guided_mode()
         sleep(0.2)
@@ -164,3 +220,7 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print("Stopping on request")
     g.shutdown()
+
+
+if __name__ == '__main__':
+    main()
