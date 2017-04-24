@@ -331,8 +331,9 @@ struct flow_t *opticFlowLK_flat(struct image_t *new_img, struct image_t *old_img
         vectors[new_p].pos.y + vectors[new_p].flow_y
       };
       // If the pixel is outside ROI, do not track it
-      if (new_point.x / subpixel_factor < half_window_size || (old_img->w - new_point.x / subpixel_factor) < half_window_size
-          || new_point.y / subpixel_factor < half_window_size || (old_img->h - new_point.y / subpixel_factor) < half_window_size) {
+      if (new_point.x / subpixel_factor < half_window_size || (old_img->w - new_point.x / subpixel_factor) <= half_window_size
+          || new_point.y / subpixel_factor < half_window_size || (old_img->h - new_point.y / subpixel_factor) <= half_window_size
+          || new_point.x / subpixel_factor > old_img->w || new_point.y / subpixel_factor > old_img->h) {
         tracked = FALSE;
         break;
       }

@@ -124,6 +124,7 @@ void opticflow_module_init(void)
 
   // Initialize the opticflow calculation
   opticflow_got_result = false;
+  opticflow_calc_init(&opticflow);
 
   cv_add_to_device(&OPTICFLOW_CAMERA, opticflow_module_calc);
 

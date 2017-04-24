@@ -353,6 +353,7 @@ void pyramid_build(struct image_t *input, struct image_t *output_array, uint8_t 
  * This outputs a subpixel window image in grayscale
  * Currently only works with Grayscale images as input but could be upgraded to
  * also support YUV422 images.
+ * You can and should only ask a subpixel window of a center point that is w/2 pixels away from the edges
  * @param[in] *input Input image (grayscale only)
  * @param[out] *output Window output (width and height is used to calculate the window size)
  * @param[in] *center Center point in subpixel coordinates
@@ -369,18 +370,18 @@ void image_subpixel_window(struct image_t *input, struct image_t *output, struct
   // Calculate the window size
   uint16_t half_window = output->w / 2;
 
-  uint32_t subpixel_w = input->w * subpixel_factor;
-  uint32_t subpixel_h = input->h * subpixel_factor;
+  uint32_t subpixel_w = (input->w -2) * subpixel_factor;
+  uint32_t subpixel_h = (input->h -2) * subpixel_factor;
 
   // Go through the whole window size in normal coordinates
   for (uint16_t i = 0; i < output->w; i++) {
     for (uint16_t j = 0; j < output->h; j++) {
       // Calculate the subpixel coordinate
-      uint32_t x = center->x + border_size * subpixel_factor + (i - half_window) * subpixel_factor ;
-      uint32_t y = center->y + border_size * subpixel_factor + (j - half_window) * subpixel_factor ;
+      uint32_t x = center->x + border_size * subpixel_factor + (i - half_window) * subpixel_factor;
+      uint32_t y = center->y + border_size * subpixel_factor + (j - half_window) * subpixel_factor;
 
-      BoundUpper(x, subpixel_w - 1);
-      BoundUpper(y, subpixel_h - 1);
+      BoundUpper(x, subpixel_w);
+      BoundUpper(y, subpixel_h);
 
       // Calculate the original pixel coordinate
       uint16_t orig_x = x / subpixel_factor;

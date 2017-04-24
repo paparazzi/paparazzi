@@ -121,10 +121,10 @@ void calculate_edge_histogram(struct image_t *img, int32_t edge_histogram[],
       for (y = 0; y < image_height; y++) {
         sobel_sum = 0;
 
-        for (c = -1; c <= 1; c++) {
-          idx = interlace * (image_width * y + (x + c)); // 2 for interlace
+        for (c = -1; c <= 1; c+=2) {
+          idx = interlace * (image_width * y + (x + c));
 
-          sobel_sum += Sobel[c + 1] * (int32_t)img_buf[idx + 1];
+          sobel_sum += Sobel[c + 1] * (int32_t)img_buf[idx];
         }
         sobel_sum = abs(sobel_sum);
         if (sobel_sum > edge_threshold) {
@@ -140,10 +140,10 @@ void calculate_edge_histogram(struct image_t *img, int32_t edge_histogram[],
       for (x = 0; x < image_width; x++) {
         sobel_sum = 0;
 
-        for (c = -1; c <= 1; c++) {
-          idx = interlace * (image_width * (y + c) + x); // 2 for interlace
+        for (c = -1; c <= 1; c+=2) {
+          idx = interlace * (image_width * (y + c) + x);
 
-          sobel_sum += Sobel[c + 1] * (int32_t)img_buf[idx + 1];
+          sobel_sum += Sobel[c + 1] * (int32_t)img_buf[idx];
         }
         sobel_sum = abs(sobel_sum);
         if (sobel_sum > edge_threshold) {
@@ -159,7 +159,7 @@ void calculate_edge_histogram(struct image_t *img, int32_t edge_histogram[],
  * Calculate_displacement calculates the displacement between two histograms
  * @param[in] *edge_histogram  The edge histogram from the current frame_step
  * @param[in] *edge_histogram_prev  The edge histogram from the previous frame_step
- * @param[in] *displacement array with pixel displacement of the sequential edge histograms
+ * @param[out] *displacement array with pixel displacement of the sequential edge histograms
  * @param[in] size  Indicating the size of the displacement array
  * @param[in] window Indicating the search window size
  * @param[in] disp_range  Indicating the maximum disparity range for the block matching
@@ -196,10 +196,8 @@ void calculate_edge_displacement(int32_t *edge_histogram, int32_t *edge_histogra
   if (border[0] >= border[1] || abs(der_shift) >= 10) {
     SHIFT_TOO_FAR = 1;
   }
-  {
     // TODO: replace with arm offset subtract
     for (x = border[0]; x < border[1]; x++) {
-      displacement[x] = 0;
       if (!SHIFT_TOO_FAR) {
         for (c = -D; c <= D; c++) {
           SAD_temp[c + D] = 0;
@@ -211,8 +209,6 @@ void calculate_edge_displacement(int32_t *edge_histogram, int32_t *edge_histogra
       } else {
       }
     }
-  }
-
 }
 
 /**
@@ -271,7 +267,7 @@ void line_fit(int32_t *displacement, int32_t *divergence, int32_t *flow, uint32_
   // compute fixed sums
   int32_t xend = size_int - border_int - 1;
   sumX = xend * (xend + 1) / 2 - border_int * (border_int + 1) / 2 + border_int;
-  sumX2 = xend * (xend + 1) * (2 * xend + 1) / 6;
+  sumX2 = xend * (xend + 1) * (2 * xend + 1) / 6 - border_int * (border_int + 1) * (2 * border_int + 1) / 6 + border_int*border_int;
   xMean = (size_int - 1) / 2;
   count = size_int - 2 * border_int;
 
