@@ -29,13 +29,13 @@
     </settings>
 
     <control_block name="set_actuators">
-      <call fun="SetRotorcraftCommands(stabilization_cmd, autopilot_in_flight, autopilot_motors_on)"/>
+      <call fun="SetRotorcraftCommands(stabilization_cmd, autopilot_in_flight(), autopilot_get_motors_on())"/>
       <call fun="SetActuatorsFromCommands(commands, autopilot_mode)"/>
     </control_block>
 
     <control_block name="attitude_loop">
-      <call fun="stabilization_attitude_read_rc(autopilot_in_flight, FALSE, FALSE)"/>
-      <call fun="stabilization_attitude_run(autopilot_in_flight)"/>
+      <call fun="stabilization_attitude_read_rc(autopilot_in_flight(), FALSE, FALSE)"/>
+      <call fun="stabilization_attitude_run(autopilot_in_flight())"/>
     </control_block>
 
     <control_block name="throttle_direct">
@@ -46,7 +46,7 @@
 
     <control_block name="altitude_loop">
       <call fun="gv_update_ref_from_z_sp(guidance_v_z_sp)"/>
-      <call fun="run_hover_loop(autopilot_in_flight)"/>
+      <call fun="run_hover_loop(autopilot_in_flight())"/>
       <!--call fun="SaturateThrottle(rc_values)"/-->
     </control_block>
 
@@ -99,12 +99,12 @@
         <call fun="nav_periodic_task()"/>
       </control>
       <control>
-        <call fun="guidance_v_thrust_adapt(autopilot_in_flight)"/>
-        <call fun="guidance_v_from_nav(autopilot_in_flight)"/>
-        <call fun="guidance_h_from_nav(autopilot_in_flight)"/>
+        <call fun="guidance_v_thrust_adapt(autopilot_in_flight())"/>
+        <call fun="guidance_v_from_nav(autopilot_in_flight())"/>
+        <call fun="guidance_h_from_nav(autopilot_in_flight())"/>
         <call_block name="set_actuators"/>
       </control>
-      <exception cond="GpsIsLost() && autopilot_in_flight" deroute="FAILSAFE"/>
+      <exception cond="GpsIsLost() && autopilot_in_flight()" deroute="FAILSAFE"/>
     </mode>
 
     <mode name="GUIDED">
@@ -119,12 +119,12 @@
         <call fun="nav_periodic_task()"/>
       </control>
       <control>
-        <call fun="guidance_v_thrust_adapt(autopilot_in_flight)"/>
-        <call fun="guidance_v_guided_run(autopilot_in_flight)"/>
-        <call fun="guidance_h_guided_run(autopilot_in_flight)"/>
+        <call fun="guidance_v_thrust_adapt(autopilot_in_flight())"/>
+        <call fun="guidance_v_guided_run(autopilot_in_flight())"/>
+        <call fun="guidance_h_guided_run(autopilot_in_flight())"/>
         <call_block name="set_actuators"/>
       </control>
-      <exception cond="GpsIsLost() && autopilot_in_flight" deroute="FAILSAFE"/>
+      <exception cond="GpsIsLost() && autopilot_in_flight()" deroute="FAILSAFE"/>
     </mode>
 
     <mode name="HOME">
@@ -137,9 +137,9 @@
         <call fun="nav_home()"/>
       </control>
       <control>
-        <call fun="guidance_v_thrust_adapt(autopilot_in_flight)"/>
-        <call fun="guidance_v_from_nav(autopilot_in_flight)"/>
-        <call fun="guidance_h_from_nav(autopilot_in_flight)"/>
+        <call fun="guidance_v_thrust_adapt(autopilot_in_flight())"/>
+        <call fun="guidance_v_from_nav(autopilot_in_flight())"/>
+        <call fun="guidance_h_from_nav(autopilot_in_flight())"/>
         <call_block name="set_actuators"/>
       </control>
       <exception cond="GpsIsLost()" deroute="FAILSAFE"/>
@@ -154,9 +154,9 @@
       </on_enter>
       <control>
         <call fun="stabilization_attitude_set_failsafe_setpoint()"/>
-        <call fun="stabilization_attitude_run(autopilot_in_flight)"/>
+        <call fun="stabilization_attitude_run(autopilot_in_flight())"/>
         <call fun="gv_update_ref_from_zd_sp(guidance_v_zd_sp, stateGetPositionNed_i()->z)"/>
-        <call fun="run_hover_loop(autopilot_in_flight)"/>
+        <call fun="run_hover_loop(autopilot_in_flight())"/>
         <call_block name="set_actuators"/>
       </control>
       <exception cond="!GpsIsLost()" deroute="$LAST_MODE"/>
@@ -167,8 +167,7 @@
       <select cond="$DEFAULT_MODE"/>
       <select cond="kill_switch_is_on()"/>
       <on_enter>
-        <call fun="autopilot_in_flight = false"/>
-        <call fun="autopilot_in_flight_counter = 0"/>
+        <call fun="autopilot_set_in_flight(false)"/>
         <call fun="autopilot_set_motors_on(false)"/>
         <call fun="stabilization_cmd[COMMAND_THRUST] = 0"/>
       </on_enter>
