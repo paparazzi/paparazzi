@@ -41,11 +41,11 @@ if mode == 1:
             print ("AP responded with: " + c)
             if c == "TIMEOUT":
                 print(
-                    "Error: FBW bootloader TIMEOUT. Power cycle the board and wait between 5 seconds to 20 seconds to retry.")
+                    "Error: FBW bootloader TIMEOUT. Power cycle the board and wait between 10 seconds to 20 seconds to retry.")
                 sys.exit(1)
             elif c != "FBWOKOK":
                 print(
-                    "Error: unknown error. Power cycle the board and wait between 5 seconds to 20 seconds to retry.")
+                    "Error: unknown error. Power cycle the board and wait between 10 seconds to 20 seconds to retry.")
                 sys.exit(1)
         except serial.serialutil.SerialException:
             pass

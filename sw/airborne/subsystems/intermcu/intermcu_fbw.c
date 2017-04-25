@@ -89,7 +89,7 @@ void intermcu_init(void)
 #endif
 
 #ifdef BOARD_PX4IO
-  px4bl_tid = sys_time_register_timer(10.0, NULL);
+  px4bl_tid = sys_time_register_timer(20.0, NULL); //bootloader time out. After this intermcu will be set to slow baud.
 #endif
 }
 
@@ -266,7 +266,7 @@ static void checkPx4RebootCommand(uint8_t b)
       sys_time_cancel_timer(px4bl_tid);
       //for unknown reasons, 1500000 baud does not work reliably after prolonged times.
       //I suspect a temperature related issue, combined with the fbw f1 crystal which is out of specs
-      //After a initial period on 1500000, revert to 230400
+      //After an initial period on 1500000, revert to 230400
       //We still start at 1500000 to remain compatible with original PX4 firmware. (which always runs at 1500000)
       uart_periph_set_baudrate(intermcu.device->periph, B230400);
       intermcu.stable_px4_baud = CHANGING_BAUD;
