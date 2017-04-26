@@ -99,6 +99,7 @@
         <call fun="nav_periodic_task()"/>
       </control>
       <control>
+        <call fun="guidance_v_read_rc()"/>
         <call fun="guidance_v_thrust_adapt(autopilot_in_flight())"/>
         <call fun="guidance_v_from_nav(autopilot_in_flight())"/>
         <call fun="guidance_h_from_nav(autopilot_in_flight())"/>
@@ -119,6 +120,7 @@
         <call fun="nav_periodic_task()"/>
       </control>
       <control>
+        <call fun="guidance_v_read_rc()"/>
         <call fun="guidance_v_thrust_adapt(autopilot_in_flight())"/>
         <call fun="guidance_v_guided_run(autopilot_in_flight())"/>
         <call fun="guidance_h_guided_run(autopilot_in_flight())"/>
@@ -137,6 +139,7 @@
         <call fun="nav_home()"/>
       </control>
       <control>
+        <call fun="guidance_v_read_rc()"/>
         <call fun="guidance_v_thrust_adapt(autopilot_in_flight())"/>
         <call fun="guidance_v_from_nav(autopilot_in_flight())"/>
         <call fun="guidance_h_from_nav(autopilot_in_flight())"/>
