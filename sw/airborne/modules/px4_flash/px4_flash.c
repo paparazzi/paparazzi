@@ -72,7 +72,7 @@ void px4flash_init(void)
   setToBootloaderMode = false;
 #ifdef INTER_MCU_AP
   px4ioRebootTimeout = false;
-  px4iobl_tid = sys_time_register_timer(15.0, NULL); //20 (fbw pprz bl timeout)-5 (px4 fmu bl timeout)
+  px4iobl_tid = sys_time_register_timer(12.0, NULL); //20 (fbw pprz bl timeout)-5 (px4 fmu bl timeout) - 3 (uncertainty and random delays)
 #endif
 }
 
