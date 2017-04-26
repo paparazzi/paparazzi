@@ -275,6 +275,7 @@ let parse_firmware = fun makefile_ac ac_id ac_xml firmware fp ->
   let mods, rest = ExtXml.partition_tag "module" rest in
   let subsystems, rest = ExtXml.partition_tag "subsystem" rest in
   let defines, _ = ExtXml.partition_tag "define" rest in
+  let autopilot, _ = ExtXml.partition_tag "autopilot" (Xml.children ac_xml) in
   (* iter on all targets *)
   List.iter (fun target ->
     (* get configures, defines and subsystems for this target *)
@@ -294,6 +295,9 @@ let parse_firmware = fun makefile_ac ac_id ac_xml firmware fp ->
         fprintf makefile_ac "BOARD_PROCESSOR = %s\n" proc
       with Xml.No_attribute _ -> ()
     end;
+    (* auto activation of generated autopilot if needed *)
+    if List.length autopilot = 1 then
+      fprintf makefile_ac "USE_GENERATED_AUTOPILOT = TRUE\n";
     List.iter (configure_xml2mk makefile_ac) config;
     List.iter (configure_xml2mk makefile_ac) t_config;
     List.iter (subsystem_configure_xml2mk makefile_ac) subsystems;
