@@ -63,19 +63,6 @@ class GVFFrame(wx.Frame):
                 self.XY[1] = float(msg.get_field(3))
             if msg.name == 'ATTITUDE':
                 self.yaw = float(msg.get_field(1))
-            if msg.name == 'DL_VALUE' and \
-                    self.indexes_are_good == len(self.list_of_indexes):
-                if int(msg.get_field(0)) == int(self.ke_index):
-                    self.ke = float(msg.get_field(1))
-                    if self.traj is not None:
-                        self.traj.vector_field(self.traj.XYoff, \
-                                self.map_gvf.area, self.s, self.kn, self.ke)
-                if int(msg.get_field(0)) == int(self.kn_index):
-                    self.kn = float(msg.get_field(1))
-                    if self.traj is not None:
-                        self.traj.vector_field(self.traj.XYoff, \
-                                self.map_gvf.area, self.s, self.kn, self.ke)
-
             if msg.name == 'GVF':
                 self.gvf_error = float(msg.get_field(0))
                 # Straight line
@@ -90,7 +77,7 @@ class GVFFrame(wx.Frame):
 
                     self.traj = traj_line(np.array([-100,100]), a, b, c)
                     self.traj.vector_field(self.traj.XYoff, self.map_gvf.area, \
-                            self.s, self.kn, self.ke)
+                            self.s, self.ke)
 
                 # Ellipse
                 if int(msg.get_field(1)) == 1 \
@@ -105,7 +92,7 @@ class GVFFrame(wx.Frame):
                     ealpha = param[4]
                     self.traj = traj_ellipse(np.array([ex, ey]), ealpha, ea, eb)
                     self.traj.vector_field(self.traj.XYoff, \
-                            self.map_gvf.area, self.s, self.kn, self.ke)
+                            self.map_gvf.area, self.s, self.ke)
 
                 # Sin
                 if int(msg.get_field(1)) == 2 \
@@ -122,7 +109,7 @@ class GVFFrame(wx.Frame):
                     self.traj = traj_sin(np.array([-100, 100]), a, b, alpha, \
                             w, off, A)
                     self.traj.vector_field(self.traj.XYoff, \
-                            self.map_gvf.area, self.s, self.kn, self.ke)
+                            self.map_gvf.area, self.s, self.ke)
 
                 self.timer_traj = self.timer_traj + 1
                 if self.timer_traj > self.timer_traj_lim:
@@ -247,7 +234,7 @@ class traj_line:
     def param_point(self, t):
         i = 0
 
-    def vector_field(self, XYoff, area, s, kn, ke):
+    def vector_field(self, XYoff, area, s, ke):
         self.mapgrad_X, self.mapgrad_Y = np.mgrid[XYoff[0]-0.5*np.sqrt(area):\
                 XYoff[0]+0.5*np.sqrt(area):30j, \
                 XYoff[1]-0.5*np.sqrt(area):\
@@ -299,7 +286,7 @@ class traj_ellipse:
                 self.a*np.cos(angle)*np.sin(-self.rot) + \
                 self.b*np.sin(angle)*np.cos(-self.rot)])
 
-    def vector_field(self, XYoff, area, s, kn, ke):
+    def vector_field(self, XYoff, area, s, ke):
         self.mapgrad_X, self.mapgrad_Y = np.mgrid[XYoff[0]-0.5*np.sqrt(area):\
                 XYoff[0]+0.5*np.sqrt(area):30j, \
                 XYoff[1]-0.5*np.sqrt(area):\
@@ -362,7 +349,7 @@ class traj_sin:
     def param_point(self, t):
         i = 0
 
-    def vector_field(self, XYoff, area, s, kn, ke):
+    def vector_field(self, XYoff, area, s, ke):
         self.mapgrad_X, self.mapgrad_Y = np.mgrid[XYoff[0]-0.5*np.sqrt(area):\
                 XYoff[0]+0.5*np.sqrt(area):30j, \
                 XYoff[1]-0.5*np.sqrt(area):\
