@@ -585,7 +585,7 @@ static inline void stmi2c_clear_pending_interrupts(uint32_t i2c)
     uint8_t dummy __attribute__((unused)) = i2c_get_data(i2c);
     i2c_send_data(i2c, 0x00);
   }
-
+  I2C_CR1(i2c) |= I2C_CR1_START; ///// start over again
 }
 
 
