@@ -53,13 +53,16 @@ def message_recv(ac_id, msg):
     return
 
 def formation(B, ds, radius, k):
-    no_telemetry = 0
     for ac in list_aircraft:
-        if ac.a == -999 or ac.XY[0] == -999:
-            print "Waiting for telemetry of aircraft ", ac.id
-            no_telemetry = 1
-
-    if no_telemetry:
+        waiting_for_msgs = 0
+        if ac.a == -999:
+            print "Waiting for GVF msg of aircraft ", ac.id
+            waiting_for_msgs = 1
+        if ac.XY[0] == -999:
+            print "Waiting for NAV msg of aircraft ", ac.id
+            waiting_for_msgs = 1
+    
+    if waiting_for_msgs == 1:
         return
 
     sigma = np.zeros(len(list_aircraft))
