@@ -24,6 +24,7 @@
 
 open Printf
 
+exception Firmware_Found of Xml.xml
 
 (** simple boolean expressions *)
 type bool_expr =
@@ -99,17 +100,61 @@ let targets_of_field =
 
 (** [get_autopilot_of_airframe xml]
     * Returns (autopilot xml, main freq) from airframe xml file *)
-let get_autopilot_of_airframe = fun xml ->
-  (* extract all "autopilot" sections *)
-  let section = List.filter (fun s -> compare (Xml.tag s) "autopilot" = 0) (Xml.children xml) in
+let get_autopilot_of_airframe = fun ?target xml ->
+  (* first, find firmware related to the target *)
+  let firmware =
+    match target with
+    | None -> None
+    | Some t -> begin try
+        Xml.iter (fun x ->
+          if Xml.tag x = "firmware" then begin
+            Xml.iter (fun xt ->
+              if Xml.tag xt = "target" then begin
+                if Xml.attrib xt "name" = t then raise (Firmware_Found x)
+              end) x
+          end) xml;
+          None
+        with Firmware_Found f -> Some f | _ -> None
+    end
+  in
+  (* extract all autopilot node from xml tree for correct target *)
+  let rec iter = fun targets ap xml ->
+    match xml with
+    | Xml.PCData _ -> ap
+    | Xml.Element (tag, _attrs, children) when tag = "autopilot" ->
+        [Xml.Element (tag, _attrs, children)] @ ap (* found an autopilot *)
+    | Xml.Element (tag, _attrs, children) when tag = "firmware" ->
+        begin match firmware with
+        | Some f when String.compare (Xml.to_string f) (Xml.to_string xml) = 0 ->
+            List.fold_left (fun acc xml ->
+              iter targets acc xml) ap children
+        | None ->
+            List.fold_left (fun acc xml ->
+              iter targets acc xml) ap children
+        | _ -> ap end (* skip wrong firmware *)
+    | Xml.Element (tag, _attrs, children) when tag = "target" ->
+        let target_name = Xml.attrib xml "name" in
+        begin match target with
+        | None ->
+            List.fold_left
+              (fun acc xml -> iter targets acc xml) ap children
+        | Some t when t = target_name ->
+            List.fold_left
+              (fun acc xml -> iter targets acc xml) ap children
+        | _ -> ap end (* skip wrong target *)
+    | Xml.Element (tag, _attrs, children) ->
+        List.fold_left
+          (fun acc xml -> iter targets acc xml) ap children
+  in
+  let ap = iter target [] xml in
   (* Raise error if more than one modules section *)
-  match section with
+  match ap with
       [autopilot] ->
         let freq = try Some (Xml.attrib autopilot "freq") with _ -> None in
         let ap = try Xml.attrib autopilot "name" with _ -> raise Not_found in
         (autopilot_dir // ap, freq)
     | [] -> raise Not_found
-    | _ -> failwith "Error: you have more than one 'autopilot' section in your airframe file"
+    | _ -> failwith "Error: you have more than one 'autopilot' section per firmware/target in your airframe file"
 
 (** [get_targets_of_module xml]
  * Returns the boolean expression of targets of a module *)
@@ -198,7 +243,6 @@ let expand_includes = fun ac_id xml ->
         else x @ [c]
       ) [] children)
 
-exception Firmware_Found of Xml.xml
 (** [get_modules_of_airframe xml]
  * Returns a list of module configuration from airframe file *)
 let rec get_modules_of_airframe = fun ?target xml ->
@@ -265,7 +309,7 @@ let rec get_modules_of_airframe = fun ?target xml ->
   let modules = iter_modules (Var "") [] xml in
   let ap_modules =
     try
-      let ap_file = fst (get_autopilot_of_airframe xml) in
+      let ap_file = fst (get_autopilot_of_airframe ?target xml) in
       iter_modules (Var "") [] (ExtXml.parse_file ap_file)
     with _ -> [] in
   let modules = List.rev (ap_modules @ modules) in

@@ -24,8 +24,8 @@
 <!ELEMENT modules (load|module)*>
 <!ELEMENT load (configure|define)*>
 <!ELEMENT configure EMPTY>
-<!ELEMENT firmware (target|subsystem|module|configure|define|comment)*>
-<!ELEMENT target (subsystem|module|configure|define|comment)*>
+<!ELEMENT firmware (target|subsystem|module|autopilot|configure|define|comment)*>
+<!ELEMENT target (subsystem|module|autopilot|configure|define|comment)*>
 <!ELEMENT subsystem (configure|define|comment)*>
 <!ELEMENT module (configure|define|comment)*>
 <!ELEMENT autopilot EMPTY>
