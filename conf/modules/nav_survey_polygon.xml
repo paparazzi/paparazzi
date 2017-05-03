@@ -19,7 +19,7 @@
 Block example:
 @verbatim
 <block name="Poly Survey" strip_button="Poly Survey">
-  <call once fun="nav_survey_polygon_setup(first_wp, size, angle, sweep_width, shot_dist, min_rad, altitude)"/>
+  <call_once fun="nav_survey_polygon_setup(first_wp, size, angle, sweep_width, shot_dist, min_rad, altitude)"/>
   <call fun="nav_survey_polygon_run()"/>
 </block>
 @endverbatim

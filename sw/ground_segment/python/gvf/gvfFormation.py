@@ -12,6 +12,7 @@ sys.path.append(PPRZ_SRC + "/sw/ext/pprzlink/lib/v1.0/python")
 from pprzlink.ivy import IvyMessagesInterface
 from pprzlink.message import PprzMessage 
 from settings_xml_parse import PaparazziACSettings
+from __future__ import print_function
 
 class aircraft:
     def __init__(self, ac_id):
