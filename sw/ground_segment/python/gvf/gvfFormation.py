@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 
 import time
 import sys
@@ -12,7 +13,6 @@ sys.path.append(PPRZ_SRC + "/sw/ext/pprzlink/lib/v1.0/python")
 from pprzlink.ivy import IvyMessagesInterface
 from pprzlink.message import PprzMessage 
 from settings_xml_parse import PaparazziACSettings
-from __future__ import print_function
 
 class aircraft:
     def __init__(self, ac_id):
@@ -57,10 +57,10 @@ def formation(B, ds, radius, k):
     for ac in list_aircraft:
         waiting_for_msgs = 0
         if ac.a == -999:
-            print "Waiting for GVF msg of aircraft ", ac.id
+            print ("Waiting for GVF msg of aircraft ", ac.id)
             waiting_for_msgs = 1
         if ac.XY[0] == -999:
-            print "Waiting for NAV msg of aircraft ", ac.id
+            print ("Waiting for NAV msg of aircraft ", ac.id)
             waiting_for_msgs = 1
     
     if waiting_for_msgs == 1:
@@ -90,7 +90,7 @@ def formation(B, ds, radius, k):
 
     u = -k*B.dot(error_sigma)
 
-    print list_aircraft[0].time, " ", str(error_sigma*180.0/np.pi).replace('[','').replace(']','')
+    print (list_aircraft[0].time, " ", str(error_sigma*180.0/np.pi).replace('[','').replace(']',''))
 
     i = 0
     for ac in list_aircraft:
@@ -111,7 +111,7 @@ def formation(B, ds, radius, k):
 
 def main():
     if len(sys.argv) != 6:
-        print "Usage: gvfFormationApp topology.txt desired_sigma.txt ids.txt radius k"
+        print ("Usage: gvfFormationApp topology.txt desired_sigma.txt ids.txt radius k")
         interface.shutdown()
         return
 
@@ -126,7 +126,7 @@ def main():
     map(int, list_ids)
 
     if np.size(ids) != np.size(B,0):
-        print "The ammount of aircrafts in the topology and ids does not match"
+        print ("The ammount of aircrafts in the topology and ids does not match")
         return
 
     for i in range(0, len(ids)):
