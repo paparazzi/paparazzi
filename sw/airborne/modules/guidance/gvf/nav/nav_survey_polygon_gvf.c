@@ -55,7 +55,7 @@ static void gvf_nav_points(struct FloatVect2 start, struct FloatVect2 end)
  * @param a1, a2, b1, b2  second line by coordinates a1/a2, b1/b2
  */
 static bool gvf_intercept_two_lines(struct FloatVect2 *p, struct FloatVect2 x, struct FloatVect2 y, float a1, float a2,
-                                float b1, float b2)
+                                    float b1, float b2)
 {
   float divider, fac;
 
@@ -84,7 +84,7 @@ static bool gvf_get_two_intersects(struct FloatVect2 *x, struct FloatVect2 *y, s
 
   for (i = 0; i < gvf_survey.poly_count - 1; i++)
     if (gvf_intercept_two_lines(&tmp, a, b, waypoints[gvf_survey.poly_first + i].x, waypoints[gvf_survey.poly_first + i].y,
-                            waypoints[gvf_survey.poly_first + i + 1].x, waypoints[gvf_survey.poly_first + i + 1].y)) {
+                                waypoints[gvf_survey.poly_first + i + 1].x, waypoints[gvf_survey.poly_first + i + 1].y)) {
       if (count == 0) {
         *x = tmp;
         count++;
@@ -98,8 +98,8 @@ static bool gvf_get_two_intersects(struct FloatVect2 *x, struct FloatVect2 *y, s
   //wrapover first,last polygon waypoint
   if (count == 1
       && gvf_intercept_two_lines(&tmp, a, b, waypoints[gvf_survey.poly_first + gvf_survey.poly_count - 1].x,
-                             waypoints[gvf_survey.poly_first + gvf_survey.poly_count - 1].y, waypoints[gvf_survey.poly_first].x,
-                             waypoints[gvf_survey.poly_first].y)) {
+                                 waypoints[gvf_survey.poly_first + gvf_survey.poly_count - 1].y, waypoints[gvf_survey.poly_first].x,
+                                 waypoints[gvf_survey.poly_first].y)) {
     *y = tmp;
     count++;
   }
@@ -135,7 +135,7 @@ static bool gvf_get_two_intersects(struct FloatVect2 *x, struct FloatVect2 *y, s
  *  @param altitude      the altitude that must be reached before the flyover starts
  **/
 void gvf_nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, float sweep_width, float shot_dist,
-                              float min_rad, float altitude)
+                                  float min_rad, float altitude)
 {
   int i;
   struct FloatVect2 small, sweep;

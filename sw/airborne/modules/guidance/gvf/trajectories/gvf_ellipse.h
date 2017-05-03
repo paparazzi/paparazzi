@@ -31,6 +31,14 @@
 
 #include "modules/guidance/gvf/gvf.h"
 
+/** \typedef gvf_ell_par
+* \brief Parameters for the GVF line trajectory
+* \param ke Gain defining how agressive is the vector field
+* \param kn Gain for making converge the vehile to the vector field
+* \param a First axis of the ellipse in meters
+* \param b Second axis of the ellipse in meters
+* \param alpha Orientation of the ellipse in rads
+*/
 typedef struct {
   float ke;
   float kn;

@@ -30,22 +30,27 @@
 #include "subsystems/navigation/common_nav.h"
 #include "gvf_line.h"
 
+/*! Gain ke for the line trajectory*/
 #ifndef GVF_LINE_KE
 #define GVF_LINE_KE 1
 #endif
 
+/*! Gain kn for the line trajectory*/
 #ifndef GVF_LINE_KN
 #define GVF_LINE_KN 1
 #endif
 
+/*! Default heading in degrees for a trajectory called from gvf_line_**_HEADING */
 #ifndef GVF_LINE_HEADING
 #define GVF_LINE_HEADING 0
 #endif
 
+/*! In case of tracking a segment, how much distance in meters will go the vehicle beyond the point x1,y1 before turning back */
 #ifndef GVF_SEGMENT_D1
 #define GVF_SEGMENT_D1 0
 #endif
 
+/*! In case of tracking a segment, how much distance in meters will go the vehicle beyond the point x2,y2 before turning back */
 #ifndef GVF_SEGMENT_D2
 #define GVF_SEGMENT_D2 0
 #endif

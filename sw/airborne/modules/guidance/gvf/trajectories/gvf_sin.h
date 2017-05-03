@@ -31,6 +31,15 @@
 
 #include "modules/guidance/gvf/gvf.h"
 
+/** \typedef gvf_s_par
+* \brief Parameters for the GVF line trajectory
+* \param ke Gain defining how agressive is the vector field
+* \param kn Gain for making converge the vehile to the vector field
+* \param alpha Orientation in rads of the sin trajectory
+* \param w Frequency in rads of the sin trajectory
+* \param off Off-set in rads of the sin trajectory
+* \param A Amplitude in meters of the sin trajectory
+*/
 typedef struct {
   float ke;
   float kn;
