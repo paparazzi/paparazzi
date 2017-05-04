@@ -99,7 +99,7 @@ OOCD_OPTIONS = -c "ft2232_serial $(BOARD_SERIAL)"
 endif
 
 ifndef $(TARGET).OOCD_INTERFACE
-OOCD_INTERFACE = lisa-l
+OOCD_INTERFACE = ftdi/lisa-l
 else
 OOCD_INTERFACE =  $($(TARGET).OOCD_INTERFACE)
 endif

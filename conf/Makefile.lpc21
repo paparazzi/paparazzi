@@ -157,7 +157,7 @@ LPC21IAP = $(PAPARAZZI_SRC)/sw/ground_segment/lpc21iap/lpc21iap
 # ---------------------------------------------------------------------------
 # Flash-Programming support using openocd
 OOCD ?= openocd
-OOCD_INTERFACE = arm-usb-ocd
+OOCD_INTERFACE = ftdi/olimex-arm-usb-ocd
 OOCD_TARGET    = csc
 
 

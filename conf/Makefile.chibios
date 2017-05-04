@@ -343,8 +343,8 @@ GDB = $(shell which arm-none-eabi-gdb)
 
 
 # Settings for OOCD
-$(TARGET).OOCD_INTERFACE=flossjtag
-OOCD_INTERFACE=flossjtag
+$(TARGET).OOCD_INTERFACE=ftdi/flossjtag
+OOCD_INTERFACE=ftdi/flossjtag
 OOCD = $(shell which openocd)
 
 ifndef $(TARGET).OOCD_BOARD

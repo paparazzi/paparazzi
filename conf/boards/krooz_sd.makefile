@@ -16,8 +16,8 @@ ARCH_DIR=stm32
 SRC_ARCH=arch/$(ARCH_DIR)
 $(TARGET).ARCHDIR = $(ARCH)
 # not needed?
-$(TARGET).OOCD_INTERFACE=flossjtag
-#$(TARGET).OOCD_INTERFACE=jtagkey-tiny
+$(TARGET).OOCD_INTERFACE=ftdi/flossjtag
+#$(TARGET).OOCD_INTERFACE=ftdi/jtagkey
 $(TARGET).LDSCRIPT=$(SRC_ARCH)/krooz.ld
 
 # -----------------------------------------------------------------------
