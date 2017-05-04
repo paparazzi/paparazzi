@@ -154,7 +154,7 @@
      </program>
    </session>
 
-   <session name="NPS Flight Gear">
+   <session name="NPS Payload Simulation">
      <program name="Data Link">
        <arg flag="-udp"/>
        <arg flag="-udp_broadcast"/>
@@ -162,13 +162,16 @@
      <program name="Server">
       <arg flag="-n"/>
      </program>
-     <program name="GCS"/>
+     <program name="GCS">
+      <arg flag="-layout" constant="AGGIEAIR/vertical.xml"/>
+     </program>
      <program name="Simulator">
       <arg flag="-a" constant="@AIRCRAFT"/>
       <arg flag="-f" constant="127.0.0.1"/>
       <arg flag="-b" constant="127.255.255.255"/>
       <arg flag="--fg_fdm" constant=""/>
      </program>
+     <program name="Messages"/>
    </session>
 
    <session name="HITL+SBUS USB-serial@57600">
