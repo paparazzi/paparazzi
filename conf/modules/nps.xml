@@ -12,7 +12,7 @@
     <configure name="USE_HITL" value="0|1" description="run as SITL (0:default) or HITL (1) simulation"/>
   </doc>
   <header/>
-  <makefile target="nps">
+  <makefile target="nps|hitl">
     <configure name="USE_HITL" default="0"/>
     <flag name="ARCHDIR" value="sim"/>
     <flag name="MAKEFILE" value="nps"/>
@@ -67,6 +67,7 @@
     <file name="nps_main_common.c" dir="nps"/>
     <file name="math/pprz_geodetic_wmm2015.c" dir="math"/>
   </makefile>
+<!--
   <makefile target="nps" cond="if ($(USE_HITL),0)">
     <file name="nps_main_sitl.c" dir="nps"/>
   </makefile>
@@ -80,12 +81,13 @@
     <define name="AP_DEV" value="$(AP_DEV)" type="string"/>
     <define name="AP_BAUD" value="$(AP_BAUD)"/>
     <file name="nps_main_hitl.c" dir="nps"/>
-    <file name="nps_ins_vectornav.c" dir="nps"/> <!-- TODO: move to ins_vectornav -->
+    <file name="nps_ins_vectornav.c" dir="nps"/>
   </makefile>
-  <makefile target="nps" firmware="fixedwing">
+-->
+  <makefile target="nps|hitl" firmware="fixedwing">
     <file name="nps_autopilot_fixedwing" dir="nps"/>
   </makefile>
-  <makefile target="nps" firmware="rotorcraft">
+  <makefile target="nps|hitl" firmware="rotorcraft">
     <file name="nps_autopilot_rotorcraft" dir="nps"/>
   </makefile>
 </module>

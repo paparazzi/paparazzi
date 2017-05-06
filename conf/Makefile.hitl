@@ -1,0 +1,4 @@
+$(TARGET).CFLAGS += nps.CFLAGS
+$(TARGET).srcs 	+= nps.srcs
+$(TARGET).LDFLAGS += nps.LDFLAGS
+include $(PAPARAZZI_SRC)/conf/Makefile.nps

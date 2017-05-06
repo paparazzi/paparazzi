@@ -5,16 +5,13 @@
 #
 # HITL specific makefile
 #
+include $(CFG_SHARED)/nps_common.makefile
 
 nps.srcs += $(NPSDIR)/nps_main_hitl.c
 
 # TODO: have this in ins_vectornav.xml
 # will hopefully work better once nps and HITL are separate targets
 nps.srcs += $(NPSDIR)/nps_ins_vectornav.c
-
-# glib is still needed for some components (such as radio input)
-nps.CFLAGS  += $(shell pkg-config glib-2.0 --cflags)
-nps.LDFLAGS += $(shell pkg-config glib-2.0 --libs)
 
 INS_DEV ?= \"/dev/ttyUSB1\"
 INS_BAUD ?= B921600

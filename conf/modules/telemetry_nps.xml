@@ -18,7 +18,7 @@
   </header>
   <init fun="pprz_dl_init()"/>
   <event fun="pprz_dl_event()"/>
-  <makefile target="nps">
+  <makefile target="nps|hitl">
     <configure name="MODEM_DEV" default="UDP0" case="upper|lower"/>
     <configure name="MODEM_PORT_OUT" default="4242"/>
     <configure name="MODEM_PORT_IN" default="4243"/>
@@ -43,12 +43,12 @@
       include $(CFG_SHARED)/udp.makefile
     </raw>
   </makefile>
-  <makefile target="nps" firmware="fixedwing">
+  <makefile target="nps|hitl" firmware="fixedwing">
     <file name="fixedwing_datalink.c" dir="$(SRC_FIRMWARE)"/>
     <file name="ap_downlink.c" dir="$(SRC_FIRMWARE)"/>
     <file name="fbw_downlink.c" dir="$(SRC_FIRMWARE)"/>
   </makefile>
-  <makefile target="nps" firmware="rotorcraft">
+  <makefile target="nps|hitl" firmware="rotorcraft">
     <file name="rotorcraft_datalink.c" dir="$(SRC_FIRMWARE)"/>
     <file name="rotorcraft_telemetry.c" dir="$(SRC_FIRMWARE)"/>
   </makefile>
