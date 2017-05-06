@@ -20,7 +20,7 @@
  *
  */
 /**
- * @file "modules/mission/copilot.c"
+ * @file "modules/mission/copilot_common.c"
  *
  *  Mission Computer module, interfacing the mission computer (also known as Copilot),
  *  based losely on
@@ -43,14 +43,6 @@
 
 #include "modules/mission/copilot.h"
 #include "subsystems/datalink/telemetry.h"
-#include <string.h>
-
-#include "pprz_mutex.h"
-
-// needed for WP_MOVED confirmation
-#include "firmwares/fixedwing/nav.h"
-#include "subsystems/navigation/common_nav.h"
-#include "math/pprz_geodetic_float.h"
 
 bool send_cam_snapshot;
 bool send_cam_payload;
@@ -195,53 +187,4 @@ void copilot_parse_copilot_status_dl(uint8_t *buf)
   send_copilot_status = true;
 
   PPRZ_MUTEX_UNLOCK(copilot_status_mtx);
-}
-
-/**
- * If MOVE_WP from GCS
- *  - processed in  firmware_parse_msg(dev, trans, buf); with regular buffer
- *  - reponse over telemetry (regular buffer)
- *  - here send WP_MOVED over extra_dl
- *
- *  If MOVE_WP from extra_dl
- *  - processed in firmware_parse_msg(dev, trans, buf); with extra buffer
- *  - response over extra_dl
- *  - send an update to GCS
- *
- *  In both cases, the MOVE_WP message was already processed in firmware_parse
- *  here we are taking care only about propagating the change
- *
- */
-void copilot_parse_move_wp_dl(uint8_t *buf)
-{
-  if (DL_MOVE_WP_ac_id(buf) == AC_ID) {
-    uint8_t wp_id = DL_MOVE_WP_wp_id(buf);
-
-    /* Computes from (lat, long) in the referenced UTM zone */
-    struct LlaCoor_f lla;
-    lla.lat = RadOfDeg((float)(DL_MOVE_WP_lat(buf) / 1e7));
-    lla.lon = RadOfDeg((float)(DL_MOVE_WP_lon(buf) / 1e7));
-    lla.alt = ((float)(DL_MOVE_WP_alt(buf)))/1000.;
-    struct UtmCoor_f utm;
-    utm.zone = nav_utm_zone0;
-    utm_of_lla_f(&utm, &lla);
-
-    // Waypoint range is limited. Computes the UTM pos back from the relative
-    // coordinates */
-    utm.east = waypoints[wp_id].x + nav_utm_east0;
-    utm.north = waypoints[wp_id].y + nav_utm_north0;
-
-    if (buf == extra_dl_buffer) {
-       // MOVE_WP came from extra_dl, respond over telemetry
-      DOWNLINK_SEND_WP_MOVED(DefaultChannel, DefaultDevice,
-                             &wp_id, &utm.east, &utm.north, &utm.alt, &nav_utm_zone0);
-    }
-
-    if (buf == dl_buffer) {
-      // MOVE_WP came over telemetry, respond over extra_dl
-      DOWNLINK_SEND_WP_MOVED(extra_pprz_tp, EXTRA_DOWNLINK_DEVICE,
-                             &wp_id, &utm.east, &utm.north, &utm.alt, &nav_utm_zone0);
-    }
-
-  }
 }
