@@ -46,6 +46,11 @@
 
 #include "subsystems/datalink/datalink.h"
 #include "modules/datalink/extra_pprz_dl.h"
+#include "pprz_mutex.h"
+
+PPRZ_MUTEX_DECL(copilot_cam_snapshot_mtx);
+PPRZ_MUTEX_DECL(copilot_cam_payload_mtx);
+PPRZ_MUTEX_DECL(copilot_status_mtx);
 
 struct CameraPayload {
   float timestamp;

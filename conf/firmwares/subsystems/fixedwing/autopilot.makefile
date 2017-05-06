@@ -25,7 +25,7 @@
 ##
 ## COMMON FIXEDWING ALL TARGETS (SIM + AP + FBW ...)
 ##
-
+$(TARGET).CFLAGS += -DFIRMWARE=FIXEDWING
 
 #
 # Board config + Include paths
