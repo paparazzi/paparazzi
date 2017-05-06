@@ -37,6 +37,10 @@ uint16_t rpm;
 #endif
 
 
+#ifndef USE_PWM_INPUT
+#error rpm sensor requires module pwm_meas.xml
+#endif
+
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
