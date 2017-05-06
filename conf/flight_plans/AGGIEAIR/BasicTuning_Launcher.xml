@@ -58,6 +58,7 @@
       <while cond="TRUE"/>
     </block>
     <block name="Launch" strip_button="TakeOff (wp CLIMB)" strip_icon="takeoff.png">
+      <set value="0" var="autopilot.kill_throttle"/>
       <call_once fun="nav_launcher_setup()"/>
       <call fun="nav_launcher_run()"/>
       <deroute block="Standby"/>
