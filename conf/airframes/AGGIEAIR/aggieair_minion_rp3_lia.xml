@@ -1,10 +1,10 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <!--
-RP3 Lisa MX
+AggieAir RP3 Minion
 -->
 
-<airframe name="RP3 Lisa MX">
+<airframe name="Minion PR3">
 
   <firmware name="fixedwing">
     <target name="ap" board="lisa_mx_2.1">
