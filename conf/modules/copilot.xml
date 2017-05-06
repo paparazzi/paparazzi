@@ -36,26 +36,12 @@
   <datalink message="MOVE_WP" fun="copilot_parse_move_wp_dl(buf)"/>
   <makefile target="ap">
     <file name="copilot_common.c"/>
-      <raw>
-        # attach the correct file based on firmware
-        RESULT=0
-
-        ifneq (,$(findstring ROTORCRAFT,$($(TARGET).CFLAGS)))
-            # Rotorcraft
-            RESULT=1
-            $(TARGET).srcs += $(SRC_MODULES)/mission/copilot_rotorcraft.c
-        endif
-
-        ifneq (,$(findstring FIXEDWING,$($(TARGET).CFLAGS)))
-            # Fixedwing
-            $(TARGET).srcs += $(SRC_MODULES)/mission/copilot_fixedwing.c
-            RESULT=1
-        endif
-
-        ifeq ($(RESULT), 0)
-            $(error Error: Copilot module can be compiled only in Fixeding or Rotorcraft firmware. Please check your firmware.)
-        endif
-    </raw>
+  </makefile>
+  <makefile target="ap" firmware="fixedwing">
+    <file name="copilot_fixedwing.c"/>
+  </makefile>
+  <makefile target="ap" firmware="rotorcraft">
+    <file name="copilot_rotorcraft.c"/>
   </makefile>
 </module>
 
