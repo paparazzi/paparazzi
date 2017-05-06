@@ -294,6 +294,12 @@ let parse_firmware = fun makefile_ac ac_id ac_xml firmware fp ->
         fprintf makefile_ac "BOARD_PROCESSOR = %s\n" proc
       with Xml.No_attribute _ -> ()
     end;
+    begin (* auto activation of generated autopilot if needed *)
+      try
+        let _ = Gen_common.get_autopilot_of_airframe ~target:target_name ac_xml in
+        fprintf makefile_ac "USE_GENERATED_AUTOPILOT = TRUE\n";
+      with Not_found -> ()
+    end;
     List.iter (configure_xml2mk makefile_ac) config;
     List.iter (configure_xml2mk makefile_ac) t_config;
     List.iter (subsystem_configure_xml2mk makefile_ac) subsystems;

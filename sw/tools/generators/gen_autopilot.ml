@@ -473,7 +473,8 @@ let () =
   and h_dir = Sys.argv.(2)
   and out_set = open_out Sys.argv.(3) in
   let (autopilot, ap_freq) = try
-    Gen_common.get_autopilot_of_airframe (Xml.parse_file xml_file)
+    let target = try Some (Sys.getenv "TARGET") with _ -> None in
+    Gen_common.get_autopilot_of_airframe ?target (Xml.parse_file xml_file)
     with
       Xml.Error e -> fprintf stderr "%s: XML error:%s\n" xml_file (Xml.error e); exit 1
     | Dtd.Prove_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.prove_error e); exit 1

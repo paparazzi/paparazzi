@@ -345,8 +345,8 @@ void vPoint(float fPlaneEast, float fPlaneNorth, float fPlaneAltitude,
 
 #if defined(RADIO_CAM_LOCK)
       float radio_cam_lock = imcu_get_radio(RADIO_CAM_LOCK);
-      if ((radio_cam_lock > MAX_PPRZ / 2) && autopilot_get_mode() == PPRZ_MODE_AUTO2) { cam_lock = true; }
-      if ((radio_cam_lock < MIN_PPRZ / 2) && autopilot_get_mode() == PPRZ_MODE_AUTO2) { cam_lock = false; }
+      if ((radio_cam_lock > MAX_PPRZ / 2) && autopilot_get_mode() == AP_MODE_AUTO2) { cam_lock = true; }
+      if ((radio_cam_lock < MIN_PPRZ / 2) && autopilot_get_mode() == AP_MODE_AUTO2) { cam_lock = false; }
 #endif
     // When the variable "cam_lock" is set then the last calculated position is set as the target waypoint.
     if (cam_lock == FALSE) {

@@ -262,6 +262,45 @@ void v_ctl_init(void)
 #endif
 }
 
+void v_ctl_guidance_loop(void)
+{
+  if (v_ctl_mode == V_CTL_MODE_AUTO_ALT) {
+    v_ctl_altitude_loop();
+  }
+#if CTRL_VERTICAL_LANDING
+  if (v_ctl_mode == V_CTL_MODE_LANDING) {
+    v_ctl_landing_loop();
+  } else {
+#endif
+    if (v_ctl_mode == V_CTL_MODE_AUTO_THROTTLE) {
+      v_ctl_throttle_setpoint = nav_throttle_setpoint;
+      v_ctl_pitch_setpoint = nav_pitch;
+    } else {
+      if (v_ctl_mode >= V_CTL_MODE_AUTO_CLIMB) {
+        v_ctl_climb_loop();
+      } /* v_ctl_mode >= V_CTL_MODE_AUTO_CLIMB */
+    } /* v_ctl_mode == V_CTL_MODE_AUTO_THROTTLE */
+#if CTRL_VERTICAL_LANDING
+  } /* v_ctl_mode == V_CTL_MODE_LANDING */
+#endif
+
+#if defined V_CTL_THROTTLE_IDLE
+  Bound(v_ctl_throttle_setpoint, TRIM_PPRZ(V_CTL_THROTTLE_IDLE * MAX_PPRZ), MAX_PPRZ);
+#endif
+
+#ifdef V_CTL_POWER_CTL_BAT_NOMINAL
+  if (vsupply > 0.) {
+    v_ctl_throttle_setpoint *= 10. * V_CTL_POWER_CTL_BAT_NOMINAL / (float)vsupply;
+    v_ctl_throttle_setpoint = TRIM_UPPRZ(v_ctl_throttle_setpoint);
+  }
+#endif
+
+  if (autopilot.kill_throttle || (!autopilot.flight_time && !autopilot.launch)) {
+    v_ctl_throttle_setpoint = 0;
+  }
+}
+
+
 /**
  * outer loop
  * \brief Computes v_ctl_climb_setpoint and sets v_ctl_auto_throttle_submode

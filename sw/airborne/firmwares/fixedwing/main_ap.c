@@ -100,7 +100,9 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 
 /* if PRINT_CONFIG is defined, print some config options */
 PRINT_CONFIG_VAR(PERIODIC_FREQUENCY)
+#if !USE_GENERATED_AUTOPILOT
 PRINT_CONFIG_VAR(NAVIGATION_FREQUENCY)
+#endif
 PRINT_CONFIG_VAR(CONTROL_FREQUENCY)
 
 /* TELEMETRY_FREQUENCY is defined in generated/periodic_telemetry.h
@@ -138,7 +140,9 @@ tid_t modules_tid;     ///< id for modules_periodic_task() timer
 tid_t telemetry_tid;   ///< id for telemetry_periodic() timer
 tid_t sensors_tid;     ///< id for sensors_task() timer
 tid_t attitude_tid;    ///< id for attitude_loop() timer
+#if !USE_GENERATED_AUTOPILOT
 tid_t navigation_tid;  ///< id for navigation_task() timer
+#endif
 tid_t monitor_tid;     ///< id for monitor_task() timer
 #if USE_BARO_BOARD
 tid_t baro_tid;          ///< id for baro_periodic() timer
@@ -195,7 +199,9 @@ void init_ap(void)
 
   /**** start timers for periodic functions *****/
   sensors_tid = sys_time_register_timer(1. / PERIODIC_FREQUENCY, NULL);
+#if !USE_GENERATED_AUTOPILOT
   navigation_tid = sys_time_register_timer(1. / NAVIGATION_FREQUENCY, NULL);
+#endif
   attitude_tid = sys_time_register_timer(1. / CONTROL_FREQUENCY, NULL);
   modules_tid = sys_time_register_timer(1. / MODULES_FREQUENCY, NULL);
   telemetry_tid = sys_time_register_timer(1. / TELEMETRY_FREQUENCY, NULL);

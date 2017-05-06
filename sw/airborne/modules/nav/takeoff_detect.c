@@ -89,7 +89,7 @@ void takeoff_detect_periodic(void)
     case TO_DETECT_ARMED:
       // test for "nose up" + AP in AUTO2 (+ GPS OK ? FIXME)
       if (stateGetNedToBodyEulers_f()->theta > TAKEOFF_DETECT_LAUNCH_PITCH
-          && autopilot_get_mode() == PPRZ_MODE_AUTO2) {
+          && autopilot_get_mode() == AP_MODE_AUTO2) {
         takeoff_detect.timer++;
       } else {
         // else reset timer
@@ -105,7 +105,7 @@ void takeoff_detect_periodic(void)
     case TO_DETECT_LAUNCHING:
       // abort if pitch goes below threshold while launching
       if (stateGetNedToBodyEulers_f()->theta < TAKEOFF_DETECT_ABORT_PITCH
-          || autopilot_get_mode() != PPRZ_MODE_AUTO2) {
+          || autopilot_get_mode() != AP_MODE_AUTO2) {
         // back to ARMED state
         autopilot.launch = false;
         takeoff_detect.state = TO_DETECT_ARMED;

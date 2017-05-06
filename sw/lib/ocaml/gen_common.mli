@@ -88,11 +88,11 @@ val get_modules_name : string -> Xml.xml -> string list
  * Returns the list of modules directories *)
 val get_modules_dir : module_conf list -> string list
 
-(** [get_autopilot_of_airframe xml]
+(** [get_autopilot_of_airframe ?target xml]
  * Returns (autopilot file, main freq) from airframe xml file
  * Raise Not_found if no autopilot
  * Fail if more than one *)
-val get_autopilot_of_airframe : Xml.xml -> (string * string option)
+val get_autopilot_of_airframe : ?target:string -> Xml.xml -> (string * string option)
 
 (** [is_element_unselected target modules file]
  * Returns True if [target] is supported in the element [file] and, if it is

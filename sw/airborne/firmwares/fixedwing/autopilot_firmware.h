@@ -31,6 +31,14 @@
 #include "std.h"
 #include "autopilot.h"
 
+// FIXME, move to control
+#define LATERAL_MODE_MANUAL    0
+#define LATERAL_MODE_ROLL_RATE 1
+#define LATERAL_MODE_ROLL      2
+#define LATERAL_MODE_COURSE    3
+#define LATERAL_MODE_NB        4
+extern uint8_t lateral_mode;
+
 /** Supply voltage in deciVolt.
  * This the ap copy of the measurement from fbw
  * FIXME use electrical module ?

@@ -268,7 +268,7 @@ let parse_rc_setting = fun xml ->
 
 
 let parse_rc_mode = fun xml ->
-  lprintf "if (pprz_mode == PPRZ_MODE_%s) { \\\n" (ExtXml.attrib xml "name");
+  lprintf "if (autopilot_get_mode() == AP_MODE_%s) { \\\n" (ExtXml.attrib xml "name");
   right ();
   List.iter parse_rc_setting (Xml.children xml);
   left (); lprintf "} \\\n"

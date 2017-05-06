@@ -10,10 +10,8 @@
 
 <airframe name="Hooper Gen AP">
 
-  <autopilot name="rotorcraft_autopilot.xml"/>
-
   <firmware name="rotorcraft">
-    <configure name="USE_GENERATED_AUTOPILOT" value="TRUE"/>
+    <autopilot name="rotorcraft_autopilot.xml"/>
 
     <configure name="AHRS_ALIGNER_LED" value="2"/>
     <define name="IMU_MPU9250_READ_MAG" value="0"/>
