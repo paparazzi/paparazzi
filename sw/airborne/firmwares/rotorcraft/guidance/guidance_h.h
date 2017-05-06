@@ -29,6 +29,7 @@
 
 
 #include "math/pprz_algebra_int.h"
+#include "math/pprz_algebra_float.h"
 
 #include "firmwares/rotorcraft/guidance/guidance_h_ref.h"
 #include "generated/airframe.h"
@@ -69,8 +70,8 @@ struct HorizontalGuidanceSetpoint {
    */
   struct Int32Vect2 pos;
   struct Int32Vect2 speed;  ///< only used in HOVER mode if GUIDANCE_H_USE_SPEED_REF or in GUIDED mode
-  int32_t heading;          ///< with #INT32_ANGLE_FRAC
-  int32_t heading_rate;     ///< with #INT32_RATE_FRAC
+  float heading;
+  float heading_rate;
   uint8_t mask;             ///< bit 5: vx & vy, bit 6: vz, bit 7: vyaw
 };
 
@@ -99,7 +100,7 @@ struct HorizontalGuidance {
   struct HorizontalGuidanceSetpoint sp; ///< setpoints
   struct HorizontalGuidanceReference ref; ///< reference calculated from setpoints
 
-  struct Int32Eulers rc_sp;    ///< with #INT32_ANGLE_FRAC
+  struct FloatEulers rc_sp;
 };
 
 extern struct HorizontalGuidance guidance_h;
