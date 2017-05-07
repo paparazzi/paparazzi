@@ -14,7 +14,7 @@
     <configure name="JSBSIM_ROOT" value="/opt/jsbsim" description="set root directory for JSBSim library when auto-detection (see FIND_JSBSIM_VIA_PKG_CONFIG) is not used (default path: /opt/jsbsim)"/>
   </doc>
   <header/>
-  <makefile target="nps">
+  <makefile target="nps|hitl">
     <configure name="JSBSIM_ROOT" default="/opt/jsbsim"/>
     <configure name="JSBSIM_INC" value="$(JSBSIM_ROOT)/include/JSBSim"/>
     <configure name="JSBSIM_LIB" value="$(JSBSIM_ROOT)/lib"/>

@@ -9,10 +9,9 @@
 # <subsystem name="fdm" type="jsbsim"/>
 #
 
-nps.ARCHDIR = sim
+$(info >>>Calling nps_common.makefile)
 
-# include Makefile.nps instead of Makefile.sim
-nps.MAKEFILE = hitl
+nps.ARCHDIR = sim
 
 nps.CFLAGS  += -DSITL -DUSE_NPS
 nps.LDFLAGS += -lm -livy $(shell pcre-config --libs) -lgsl -lgslcblas

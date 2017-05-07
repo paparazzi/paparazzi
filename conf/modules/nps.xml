@@ -13,9 +13,7 @@
   </doc>
   <header/>
   <makefile target="nps|hitl">
-    <configure name="USE_HITL" default="0"/>
     <flag name="ARCHDIR" value="sim"/>
-    <flag name="MAKEFILE" value="nps"/>
     <define name="SITL"/>
     <define name="USE_NPS"/>
     <raw>
@@ -67,11 +65,13 @@
     <file name="nps_main_common.c" dir="nps"/>
     <file name="math/pprz_geodetic_wmm2015.c" dir="math"/>
   </makefile>
-<!--
-  <makefile target="nps" cond="if ($(USE_HITL),0)">
+
+  <makefile target="nps">
+    <flag name="MAKEFILE" value="nps"/>
     <file name="nps_main_sitl.c" dir="nps"/>
   </makefile>
-  <makefile target="nps" cond="if ($(USE_HITL),1)">
+  <makefile target="hitl">
+    <flag name="MAKEFILE" value="hitl"/>
     <configure name="INS_DEV" default="/dev/ttyUSB1"/>
     <configure name="INS_BAUD" default="B921600"/>
     <configure name="AP_DEV" default="/dev/ttyUSB2"/>
@@ -83,7 +83,7 @@
     <file name="nps_main_hitl.c" dir="nps"/>
     <file name="nps_ins_vectornav.c" dir="nps"/>
   </makefile>
--->
+
   <makefile target="nps|hitl" firmware="fixedwing">
     <file name="nps_autopilot_fixedwing" dir="nps"/>
   </makefile>

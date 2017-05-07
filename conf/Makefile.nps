@@ -23,6 +23,7 @@
 #
 # This is the common Makefile for the nps target.
 #
+$(info >>>Calling Makefile.nps)
 
 SRC_ARCH = arch/sim
 
