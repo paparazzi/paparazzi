@@ -10,6 +10,7 @@
 $(info >>>Calling hilt.makefile)
 
 hitl.MAKEFILE = hitl
+nps.MAKEFILE = hitl
 
 include $(CFG_SHARED)/nps_common.makefile
 
