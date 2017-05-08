@@ -12,9 +12,35 @@
     <waypoint name="p2" x="27.5" y="-48.2"/>
     <waypoint name="p3" x="16.7" y="-19.6"/>
     <waypoint name="p4" x="13.7" y="-40.7"/>
+    <waypoint name="FLY1" x="200" y="200"/>
+    <waypoint name="FLY2" x="200" y="-200"/>
+    <waypoint name="FLY3" x="-200" y="-200"/>
+    <waypoint name="FLY4" x="-200" y="200"/>
+    <waypoint name="KILL1" x="280" y="280"/>
+    <waypoint name="KILL2" x="280" y="-280"/>
+    <waypoint name="KILL3" x="-280" y="-280"/>
+    <waypoint name="KILL4" x="-280" y="280"/>
     <waypoint name="CAM" x="-20" y="-50" height="2."/>
     <waypoint name="TD" x="5.6" y="-10.9"/>
   </waypoints>
+  <sectors>
+    <sector color="orange" name="Flight_Area">
+      <corner name="FLY1"/>
+      <corner name="FLY2"/>
+      <corner name="FLY3"/>
+      <corner name="FLY4"/>
+    </sector>
+    <sector color="red" name="Kill">
+      <corner name="KILL1"/>
+      <corner name="KILL2"/>
+      <corner name="KILL3"/>
+      <corner name="KILL4"/>
+    </sector>
+  </sectors>
+  <exceptions>
+	<!-- Check inside Flight Area, then goto Standby -->
+    <exception cond="Or(!InsideFlight_Area(GetPosX(), GetPosY()), GetPosAlt() > ground_alt + 50) && !(nav_block == IndexOfBlock('Wait GPS')) && !(nav_block == IndexOfBlock('Geo init')) && !(nav_block == IndexOfBlock('Holding point')) && !(nav_block == IndexOfBlock('landed')) && !(nav_block == IndexOfBlock('Standby'))" deroute="Standby"/>
+  </exceptions>
   <blocks>
     <block name="Wait GPS">
       <call_once fun="NavKillThrottle()"/>
@@ -38,7 +64,7 @@
       <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
       <stay vmode="climb" climb="nav_climb_vspeed" wp="CLIMB"/>
     </block>
-    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+    <block name="Standby" strip_button="Standby" strip_icon="home.png" pre_call="if(!InsideKill(GetPosX(), GetPosY())) NavKillThrottle();">
       <stay wp="STDBY"/>
     </block>
     <block name="stay_p1">
