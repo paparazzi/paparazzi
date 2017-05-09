@@ -20,7 +20,7 @@
  *
  */
 
-/** \file gvf.h
+/** @file gvf.h
  *
  *  Guidance algorithm based on vector fields
  */
@@ -32,12 +32,12 @@
 
 #include "std.h"
 
-/** \typedef gvf_conf
-* \brief Parameters for the GVF
-* \param ke Gain defining how agressive is the vector field
-* \param kn Gain for making converge the vehile to the vector field
-* \param error Error signal
-* \param s Right or left direction
+/** @typedef gvf_conf
+* @brief Parameters for the GVF
+* @param ke Gain defining how agressive is the vector field
+* @param kn Gain for making converge the vehile to the vector field
+* @param error Error signal. It does not have any specific units. It depends on how the trajectory has been implemented. Check the specific wiki entry for each trajectory.
+* @param s Defines the direction to be tracked. Its meaning depends on the trajectory and its implementation. Check the wiki entry of the GVF. It takes the values -1 or 1.
 */
 typedef struct {
   float ke;
@@ -60,13 +60,13 @@ typedef struct {
   float p[16];
 } gvf_tra;
 
-/** \typedef gvf_seg
-* \brief Struct employed by the LINE trajectory for the special case of trackinga segment, described by the coordinates x1, y1, x2, y2
-* \param seg Tracking a segment or not
-* \param x1 coordinate w.r.t. HOME
-* \param y1 coordinate w.r.t. HOME
-* \param x2 coordinate w.r.t. HOME
-* \param y2 coordinate w.r.t. HOME
+/** @typedef gvf_seg
+* @brief Struct employed by the LINE trajectory for the special case of trackinga segment, which is described by the coordinates x1, y1, x2, y2
+* @param seg Tracking a segment or not
+* @param x1 coordinate w.r.t. HOME
+* @param y1 coordinate w.r.t. HOME
+* @param x2 coordinate w.r.t. HOME
+* @param y2 coordinate w.r.t. HOME
 */
 typedef struct {
   int seg;
