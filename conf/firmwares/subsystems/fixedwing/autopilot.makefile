@@ -248,7 +248,11 @@ ap.srcs 		+= $(ap_srcs) $(ns_srcs)
 ##
 ## include firmware independent nps makefile and add fixedwing specifics
 ##
-include $(CFG_SHARED)/nps.makefile
+ifneq ($(TARGET), hitl)
+  include $(CFG_SHARED)/nps.makefile
+else
+  include $(CFG_SHARED)/hitl.makefile
+endif
 nps.srcs += nps/nps_autopilot_fixedwing.c
 
 # add normal ap and fbw sources

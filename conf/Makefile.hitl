@@ -1,5 +1,5 @@
-$(TARGET).CFLAGS += nps.CFLAGS
-$(TARGET).srcs 	+= nps.srcs
-$(TARGET).LDFLAGS += nps.LDFLAGS
+$(TARGET).CFLAGS += $(nps.CFLAGS)
+$(TARGET).srcs 	+= $(nps.srcs)
+$(TARGET).LDFLAGS += $(nps.LDFLAGS)
 $(info >>>Calling Makefile.hitl)
 include $(PAPARAZZI_SRC)/conf/Makefile.nps

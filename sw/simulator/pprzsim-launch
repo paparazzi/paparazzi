@@ -39,7 +39,7 @@ def main():
                       action="store", metavar="NAME",
                       help="Aircraft name to use")
     parser.add_option("-t", "--type", dest="simtype",
-                      type='choice', choices=['sim', 'nps'],
+                      type='choice', choices=['sim', 'nps','hitl'],
                       action="store", default=None,
                       help="Simulator type to start: sim or nps")
     parser.add_option("-b", "--ivy_bus", dest="ivy_bus", action="store",
@@ -134,7 +134,7 @@ def main():
         if options.fg_host:
             simargs.append("-fg")
             simargs.append(options.fg_host)
-    elif options.simtype == "nps":
+    elif (options.simtype == "nps") or (options.simtype == "hitl"):
         if options.fg_host:
             simargs.append("--fg_host")
             simargs.append(options.fg_host)

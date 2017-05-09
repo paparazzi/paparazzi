@@ -7,10 +7,9 @@
 #
 # include Makefile.nps instead of Makefile.sim
 
-$(info >>>Calling hilt.makefile)
+$(info >>>Calling hitl.makefile)
 
 hitl.MAKEFILE = hitl
-nps.MAKEFILE = hitl
 
 include $(CFG_SHARED)/nps_common.makefile
 

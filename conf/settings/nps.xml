@@ -1,6 +1,6 @@
 <!DOCTYPE settings SYSTEM "settings.dtd">
 
-<settings target="nps">
+<settings target="nps|hitl">
   <dl_settings>
 
     <dl_settings NAME="Sim">

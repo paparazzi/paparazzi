@@ -219,6 +219,10 @@ fbw.srcs 		+= $(ns_srcs)
 ##
 ## include firmware independent nps makefile and add rotorcraft specifics
 ##
-include $(CFG_SHARED)/nps.makefile
-nps.srcs += nps/nps_autopilot_rotorcraft.c
+ifneq ($(TARGET), hitl)
+  include $(CFG_SHARED)/nps.makefile
+else
+  include $(CFG_SHARED)/hitl.makefile
+endif
 
+nps.srcs += nps/nps_autopilot_rotorcraft.c

@@ -7,5 +7,5 @@
     </description>
   </doc>
   <autoload name="nav_basic_fw"/>
-  <makefile target="ap|sim|nps"/>
+  <makefile target="ap|sim|nps|hitl"/>
 </module>

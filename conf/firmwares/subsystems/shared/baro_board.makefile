@@ -281,8 +281,12 @@ endif
 ap.CFLAGS += $(BARO_BOARD_CFLAGS)
 ap.srcs += $(BARO_BOARD_SRCS)
 
-# don't use for NPS
+# don't use for NPS or HITL
 ifeq ($(TARGET),nps)
+$(TARGET).CFLAGS += -DUSE_BARO_BOARD=FALSE
+endif
+
+ifeq ($(TARGET),hitl)
 $(TARGET).CFLAGS += -DUSE_BARO_BOARD=FALSE
 endif
 

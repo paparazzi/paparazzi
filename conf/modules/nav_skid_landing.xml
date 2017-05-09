@@ -52,7 +52,7 @@
   <header>
     <file name="nav_skid_landing.h"/>
   </header>
-  <makefile target="ap|sim|nps">
+  <makefile target="ap|sim|nps|hitl">
     <file name="nav_skid_landing.c"/>
     <define name="CTRL_VERTICAL_LANDING" value="1"/>
   </makefile>
