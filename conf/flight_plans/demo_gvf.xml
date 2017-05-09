@@ -51,7 +51,8 @@
       <go from="HOME" pitch="15" throttle="1.0" vmode="throttle" wp="CLIMB"/>
     </block>
     <block group="home" key="Ctrl+a" name="Standby" strip_button="Standby" strip_icon="home.png">
-      <set value="V_CTL_MODE_AUTO_ALT" var="v_ctl_mode"/>
+      <call_once fun="NavVerticalAutoThrottleMode(0.0)"/>
+      <call_once fun="NavVerticalAltitudeMode(flight_altitude, 0.0)"/>
       <call fun="gvf_ellipse_wp(WP_STDBY, nav_radius, nav_radius, 0)"/>
     </block>
     <block name="ellipse">
@@ -64,7 +65,7 @@
 	<call fun="gvf_sin_wp_alpha(WP_ELLIPSE, gvf_sin_par.alpha, gvf_sin_par.w, gvf_sin_par.off, gvf_sin_par.A)"/>
     </block>
 	<block name="Poly Survey">
-      <call_once fun="gvf_nav_survey_polygon_setup(WP_S1, 4, angle_ps, 30, 30, 40, 235)"/>
+      <call_once fun="gvf_nav_survey_polygon_setup(WP_S1, 4, angle_ps, 30, 30, 40, flight_altitude)"/>
       <call fun="gvf_nav_survey_polygon_run()"/>
     </block>
     <block group="land" name="Land Right AF-TD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png">
