@@ -29,7 +29,6 @@
 // for timer_get_frequency
 #include "arch/stm32/mcu_arch.h"
 
-
 /** Set PWM channel configuration
  */
 void actuators_pwm_arch_channel_init(uint32_t timer_peripheral,
@@ -121,5 +120,26 @@ void set_servo_timer(uint32_t timer, uint32_t freq, uint8_t channels_mask)
   /* Counter enable. */
   timer_enable_counter(timer);
 
+}
+
+/** kill servos and finish the last pulse, by setting to preload and then sending 0
+ * @param[in] timer Timer register address base
+ * @param[in] oc output compare channels
+ */
+void kill_servos(uint32_t timer, uint32_t oc) {
+  timer_enable_preload(timer);
+
+  timer_set_oc_value(timer, oc, 0);
+}
+
+/** set servos and make sure preload is disabled
+ * @param[in] timer Timer register address base
+ * @param[in] oc output compare channels
+ * @param[in] servo_value the servo value to set
+ */
+void set_servo(uint32_t timer, uint32_t oc, uint32_t servo_value) {
+  timer_disable_preload(timer);
+
+  timer_set_oc_value(timer, oc, servo_value);
 }
 
