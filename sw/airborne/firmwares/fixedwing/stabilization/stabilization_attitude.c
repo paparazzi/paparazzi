@@ -63,6 +63,10 @@ float  h_ctl_pitch_pgain;
 float  h_ctl_pitch_dgain;
 pprz_t h_ctl_elevator_setpoint;
 
+#ifndef USE_GYRO_PITCH_RATE
+#define USE_GYRO_PITCH_RATE TRUE
+#endif
+
 /* inner yaw loop parameters */
 #if H_CTL_YAW_LOOP
 float  h_ctl_yaw_rate_setpoint;
@@ -410,10 +414,6 @@ static inline void h_ctl_roll_rate_loop()
 #endif /* !H_CTL_ROLL_ATTITUDE_GAIN */
 
 
-
-
-
-
 #ifdef LOITER_TRIM
 
 float v_ctl_auto_throttle_loiter_trim = V_CTL_AUTO_THROTTLE_LOITER_TRIM;
@@ -444,8 +444,8 @@ inline static float loiter(void)
 
 inline static void h_ctl_pitch_loop(void)
 {
-  static float last_err;
   struct FloatEulers *att = stateGetNedToBodyEulers_f();
+
   /* sanity check */
   if (h_ctl_elevator_of_roll < 0.) {
     h_ctl_elevator_of_roll = 0.;
@@ -458,28 +458,33 @@ inline static void h_ctl_pitch_loop(void)
     h_ctl_pitch_loop_setpoint =  h_ctl_pitch_setpoint + h_ctl_elevator_of_roll / h_ctl_pitch_pgain * fabs(att->phi);
   }
 
-  float err = 0;
+  static float err = 0;
 
 #ifdef USE_AOA
   switch (h_ctl_pitch_mode) {
     case H_CTL_PITCH_MODE_THETA:
-      err = att->theta - h_ctl_pitch_loop_setpoint;
+      err = h_ctl_pitch_loop_setpoint - att->theta;
       break;
     case H_CTL_PITCH_MODE_AOA:
-      err = stateGetAngleOfAttack_f() - h_ctl_pitch_loop_setpoint;
+      err = h_ctl_pitch_loop_setpoint - stateGetAngleOfAttack_f();
       break;
     default:
-      err = att->theta - h_ctl_pitch_loop_setpoint;
+      err = h_ctl_pitch_loop_setpoint - att->theta;
       break;
   }
 #else //NO_AOA
-  err = att->theta - h_ctl_pitch_loop_setpoint;
+  err = h_ctl_pitch_loop_setpoint - att->theta;
 #endif
 
-
-  float d_err = err - last_err;
+#if USE_GYRO_PITCH_RATE
+  float d_err = stateGetBodyRates_f()->q;
+#else // soft derivation
+  static float last_err = 0.0;
+  float d_err = (err - last_err) / H_CTL_REF_DT;
   last_err = err;
-  float cmd = -h_ctl_pitch_pgain * (err + h_ctl_pitch_dgain * d_err);
+#endif
+
+  float cmd = (h_ctl_pitch_pgain * err) + (h_ctl_pitch_dgain * d_err);
 #ifdef LOITER_TRIM
   cmd += loiter();
 #endif
