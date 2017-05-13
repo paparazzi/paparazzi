@@ -11,7 +11,7 @@ BOARD_CFG=\"boards/$(BOARD).h\"
 ARCH=stm32
 $(TARGET).ARCHDIR = $(ARCH)
 # not needed?
-$(TARGET).OOCD_INTERFACE=flossjtag
+$(TARGET).OOCD_INTERFACE=ftdi/flossjtag
 $(TARGET).LDSCRIPT=$(SRC_ARCH)/cc3d.ld
 
 # -----------------------------------------------------------------------

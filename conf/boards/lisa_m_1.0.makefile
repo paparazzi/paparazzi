@@ -12,8 +12,8 @@ BOARD_CFG=\"boards/$(BOARD)_$(BOARD_VERSION).h\"
 ARCH=stm32
 $(TARGET).ARCHDIR = $(ARCH)
 # not needed?
-$(TARGET).OOCD_INTERFACE=flossjtag
-#$(TARGET).OOCD_INTERFACE=jtagkey-tiny
+$(TARGET).OOCD_INTERFACE=ftdi/flossjtag
+#$(TARGET).OOCD_INTERFACE=ftdi/jtagkey
 $(TARGET).LDSCRIPT=$(SRC_ARCH)/lisa-m.ld
 
 # -----------------------------------------------------------------------
