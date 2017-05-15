@@ -22,6 +22,8 @@ class aircraft:
         self.a = -999
         self.b = -999
 
+        self.s = -999
+
         self.sigma = -999
 
         self.a_index = -999
@@ -48,14 +50,16 @@ def message_recv(ac_id, msg):
                 ac.XYc[1] = float(param[1])
                 ac.a = float(param[2])
                 ac.b = float(param[3])
+                ac.s = float(msg.get_field(2))
 
         if msg.name == 'BAT':
             ac.time = float(msg.get_field(3))
     return
 
 def formation(B, ds, radius, k):
+
+    waiting_for_msgs = 0
     for ac in list_aircraft:
-        waiting_for_msgs = 0
         if ac.a == -999:
             print("Waiting for GVF msg of aircraft ", ac.id)
             waiting_for_msgs = 1
@@ -88,7 +92,8 @@ def formation(B, ds, radius, k):
         elif error_sigma <= -np.pi:
             error_sigma = error_sigma + 2*np.pi
 
-    u = -k*B.dot(error_sigma)
+
+    u = -list_aircraft[0].s*k*B.dot(error_sigma)
 
     print(list_aircraft[0].time, " ", str(error_sigma*180.0/np.pi).replace('[','').replace(']',''))
 
