@@ -534,8 +534,8 @@ void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *
   edgeflow.flow_x = -1 * edgeflow.flow_x;
   edgeflow.flow_y = -1 * edgeflow.flow_y;
 
-  result->flow_x = (int16_t)edgeflow.flow_x / previous_frame_offset[0];
-  result->flow_y = (int16_t)edgeflow.flow_y / previous_frame_offset[1];
+  edgeflow.flow_x = (int16_t)edgeflow.flow_x / previous_frame_offset[0];
+  edgeflow.flow_y = (int16_t)edgeflow.flow_y / previous_frame_offset[1];
 
   result->flow_x = (int16_t)edgeflow.flow_x / RES;
   result->flow_y = (int16_t)edgeflow.flow_y / RES;
