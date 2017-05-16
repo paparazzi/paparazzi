@@ -6,7 +6,7 @@
     <target name="ap" board="ardrone2"/>
 
     <target name="nps" board="pc">
-      <module name="fdm" type="jsbsim"/>
+      <module name="fdm" type="gazebo"/>
     </target>
 
     <define name="USE_SONAR" value="TRUE"/>

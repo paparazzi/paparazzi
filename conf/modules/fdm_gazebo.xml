@@ -1,0 +1,15 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="fdm_gazebo" dir="fdm">
+  <doc>
+    <description>
+      Gazebo backend for NPS simulator
+      NPS doc: http://wiki.paparazziuav.org/wiki/NPS
+    </description>
+  </doc>
+  <header/>
+  <makefile target="nps">
+    <file name="nps_fdm_gazebo.cpp" dir="nps"/>
+  </makefile>
+</module>
+
