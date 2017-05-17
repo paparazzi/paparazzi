@@ -308,6 +308,10 @@ test: test_math test_examples
 test_coverity: all
 	CONF_XML=conf/conf_tests_coverity.xml prove tests/aircrafts/
 
+# test AggieAir conf
+test_aggieair: all
+	CONF_XML=conf/airframes/AGGIEAIR/aggieair_conf.xml prove tests/aircrafts/
+
 # compiles all aircrafts in conf_tests.xml
 test_examples: all
 	CONF_XML=conf/conf_tests.xml prove tests/aircrafts/
