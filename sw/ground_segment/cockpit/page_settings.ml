@@ -307,7 +307,7 @@ let rec build_settings = fun do_change ac_id i flat_list keys xml_settings packi
             incr i)
           xml_settings
     | "dl_settings" ->
-      let n = GPack.notebook ~packing () in
+      let n = GPack.notebook ~packing ~scrollable:true () in
 
       List.iter (fun dl_settings ->
         let text = ExtXml.attrib dl_settings "name" in
