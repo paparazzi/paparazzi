@@ -27,23 +27,109 @@
  */
 
 #include <cstdio>
+#include <cstdlib>
+#include <string>
+#include <iostream>
+
+#include <gazebo/gazebo.hh>
+#include <gazebo/common/common.hh>
+#include <gazebo/physics/physics.hh>
 
 #include "nps_fdm.h"
+#include "math/pprz_algebra_double.h"
 
-static void initialize_fdm_struct(void);
+#include "generated/airframe.h"
+#include "autopilot.h"
+
+using namespace std;
+
+#ifndef GAZEBO_WORLD
+#define GAZEBO_WORLD "ardrone.world"
+#endif
+#ifndef GAZEBO_AC_NAME
+#define GAZEBO_AC_NAME "paparazzi_uav"
+#endif
 
 /// Holds all necessary NPS FDM state information
 struct NpsFdm fdm;
 
+// Pointer to Gazebo data
+static gazebo::physics::ModelPtr model = NULL;
+
+static void set_irrelevant_data(double dt);
+static void init_gazebo(void);
+static void gazebo_read(void);
+static void gazebo_write(double commands[], int commands_nb);
+
+// Conversion routines
+inline struct EcefCoor_d to_pprz_ecef(ignition::math::Vector3d ecef_i) {
+	struct EcefCoor_d ecef_p;
+	ecef_p.x = ecef_i.X();
+	ecef_p.y = ecef_i.Y();
+	ecef_p.z = ecef_i.Z();
+	return ecef_p;
+}
+
+inline struct NedCoor_d to_pprz_ned(ignition::math::Vector3d global) {
+	struct NedCoor_d ned;
+	ned.x = global.Y();
+	ned.y = global.X();
+	ned.z = -global.Z();
+	return ned;
+}
+
+inline struct LlaCoor_d to_pprz_lla(ignition::math::Vector3d lla_i) {
+	struct LlaCoor_d lla_p;
+	lla_p.lat = lla_i.X();
+	lla_p.lon = lla_i.Y();
+	lla_p.alt = lla_i.Z();
+	return lla_p;
+}
+
+inline struct DoubleVect3 to_pprz_body(gazebo::math::Vector3 body_g) {
+	struct DoubleVect3 body_p;
+	body_p.x = body_g.x;
+	body_p.y = -body_g.y;
+	body_p.z = -body_g.z;
+	return body_p;
+}
+
+inline struct DoubleRates to_pprz_rates(gazebo::math::Vector3 body_g) {
+	struct DoubleRates body_p;
+	body_p.p = body_g.x;
+	body_p.q = -body_g.y;
+	body_p.r = -body_g.z;
+	return body_p;
+}
+
+inline struct DoubleEulers to_pprz_eulers(gazebo::math::Quaternion quat) {
+	struct DoubleEulers eulers;
+	eulers.psi = -quat.GetYaw() - M_PI / 2;
+	eulers.theta = -quat.GetPitch();
+	eulers.phi = quat.GetRoll();
+	return eulers;
+}
+
+inline struct DoubleVect3 to_pprz_ltp(gazebo::math::Vector3 xyz) {
+	struct DoubleVect3 ltp;
+	ltp.x = xyz.y;
+	ltp.y = xyz.x;
+	ltp.z = -xyz.z;
+	return ltp;
+}
+
 // External functions, interface with Paparazzi's NPS as declared in nps_fdm.h
 
 void nps_fdm_init(double dt) {
-	printf("nps_fdm_init\n\n");
-	initialize_fdm_struct();
+	set_irrelevant_data(dt); // Not all fields in fdm are used.
+	init_gazebo();
+	gazebo_read();
 }
 
 void nps_fdm_run_step(bool launch, double *commands, int commands_nb) {
-	printf("nps_fdm_run_step\n");
+	gazebo_write(commands, commands_nb);
+	gazebo::runWorld(model->GetWorld(), 1);
+	gazebo_read();
 }
 void nps_fdm_set_wind(double speed, double dir) {
 }
@@ -59,52 +145,150 @@ void nps_fdm_set_temperature(double temp, double h) {
 }
 
 // Internal functions
-static void initialize_fdm_struct(void) {
-	// XXX Temporary, should be replaced by fetch() function to properly
-	// initialize using Gazebo's state!
-	fdm.time = 0;
-	fdm.init_dt = 0;
-	fdm.curr_dt = 0;
-	fdm.on_ground = true;
-	fdm.nan_count = 0;
+static void set_irrelevant_data(double dt) {
+	fdm.init_dt = dt; // JSBsim specific
+	fdm.curr_dt = dt; // JSBsim specific
+	fdm.nan_count = 0; // JSBsim specific
+}
+
+static void init_gazebo(void) {
+	string gazebo_home = "/conf/simulator/gazebo/";
+	string pprz_home(getenv("PAPARAZZI_HOME"));
+	string gazebodir = pprz_home + gazebo_home;
+	cout << "Gazebo directory: " << gazebodir << endl;
+
+	if (!gazebo::setupServer(0, NULL)) {
+		cout << "Failed to start Gazebo, exiting." << endl;
+		std::exit(-1);
+	}
+
+	cout << "Load world: " << gazebodir + "world/" + GAZEBO_WORLD << endl;
+	gazebo::physics::WorldPtr world = gazebo::loadWorld(
+			gazebodir + "world/" + GAZEBO_WORLD);
+	if (!world) {
+		cout << "Failed to open world, exiting." << endl;
+		std::exit(-1);
+	}
+
+	cout << "Get pointer to aircraft: " << GAZEBO_AC_NAME << endl;
+	model = world->GetModel(GAZEBO_AC_NAME);
+	if (!model) {
+		cout << "Failed to find '" << GAZEBO_AC_NAME << "', exiting." << endl;
+		std::exit(-1);
+	}
+
+	cout << "Gazebo initialized successfully!" << endl;
+}
+
+static void gazebo_read(void) {
+	gazebo::physics::WorldPtr world = model->GetWorld();
+	gazebo::math::Pose pose = model->GetWorldPose(); // In LOCAL xyz frame
+	gazebo::math::Vector3 vel = model->GetWorldLinearVel();
+	gazebo::math::Vector3 accel = model->GetWorldLinearAccel();
+	gazebo::math::Vector3 ang_vel = model->GetWorldAngularVel();
+	gazebo::common::SphericalCoordinatesPtr sphere =
+			world->GetSphericalCoordinates();
+	gazebo::math::Quaternion local_to_global_quat(0, 0,
+			-sphere->HeadingOffset().Radian());
+
+	/* Fill FDM struct */
+	fdm.time = world->GetSimTime().Double();
+
+	// init_dt: unused
+	// curr_dt: unused
+	// on_ground: unused
+	// nan_count: unused
 
 	/* position */
-	fdm.ecef_pos = {0, 0, 0};
-	fdm.ltpprz_pos = {0, 0, 0};
-	fdm.lla_pos = {0, 0, 0};
-	// for debugginf
-	fdm.lla_pos_pprz = {0, 0, 0};
-	fdm.lla_pos_geod = {0, 0, 0};
-	fdm.lla_pos_geoc = {0, 0, 0};
-	fdm.agl = 0;
+	fdm.ecef_pos = to_pprz_ecef(
+			sphere->PositionTransform(pose.pos.Ign(),
+					gazebo::common::SphericalCoordinates::LOCAL,
+					gazebo::common::SphericalCoordinates::ECEF));
+	fdm.ltpprz_pos = to_pprz_ned(
+			sphere->PositionTransform(pose.pos.Ign(),
+					gazebo::common::SphericalCoordinates::LOCAL,
+					gazebo::common::SphericalCoordinates::GLOBAL));
+	fdm.lla_pos = to_pprz_lla(
+			sphere->PositionTransform(pose.pos.Ign(),
+					gazebo::common::SphericalCoordinates::LOCAL,
+					gazebo::common::SphericalCoordinates::SPHERICAL));
+	fdm.hmsl = pose.pos.z;
+	/* debug positions */
+	fdm.lla_pos_pprz = fdm.lla_pos; // Don't really care...
+	fdm.lla_pos_geod = fdm.lla_pos;
+	fdm.lla_pos_geoc = fdm.lla_pos;
+	fdm.agl = pose.pos.z; // TODO Measure with sensor
 
-	/* velocity in ECEF wrt ECEF */
-	fdm.ecef_ecef_vel = {0, 0, 0};
-	/* accel in ECEF wrt ECEF */
-	fdm.ecef_ecef_accel = {0, 0, 0};
+	/* velocity */
+	fdm.ecef_ecef_vel = to_pprz_ecef(
+			sphere->VelocityTransform(vel.Ign(),
+					gazebo::common::SphericalCoordinates::LOCAL,
+					gazebo::common::SphericalCoordinates::ECEF));
+	fdm.body_ecef_vel = to_pprz_body(pose.rot.RotateVectorReverse(vel)); // Note: unused
+	fdm.ltp_ecef_vel = to_pprz_ned(
+			sphere->VelocityTransform(vel.Ign(),
+					gazebo::common::SphericalCoordinates::LOCAL,
+					gazebo::common::SphericalCoordinates::GLOBAL));
+	fdm.ltpprz_ecef_vel = fdm.ltp_ecef_vel; // ???
 
-	/* velocity in BODY wrt ECEF */
-	fdm.body_ecef_vel = {0, 0, 0};
-	/* accel in BODY wrt ECEF */
-	fdm.body_ecef_accel = {0, 0, 0};
+	/* acceleration */
+	fdm.ecef_ecef_accel = to_pprz_ecef(
+			sphere->VelocityTransform(accel.Ign(),
+					gazebo::common::SphericalCoordinates::LOCAL,
+					gazebo::common::SphericalCoordinates::ECEF)); // Note: unused
+	fdm.body_ecef_accel = to_pprz_body(pose.rot.RotateVectorReverse(accel));
+	fdm.ltp_ecef_accel = to_pprz_ned(
+			sphere->VelocityTransform(accel.Ign(),
+					gazebo::common::SphericalCoordinates::LOCAL,
+					gazebo::common::SphericalCoordinates::GLOBAL)); // Note: unused
+	fdm.ltpprz_ecef_accel = fdm.ltp_ecef_accel; // ???
+	fdm.body_inertial_accel = fdm.body_ecef_accel; // Approximate, unused.
+	fdm.body_accel = to_pprz_body(
+			pose.rot.RotateVectorReverse(accel.Ign() - world->Gravity()));
 
-	/* velocity in LTP wrt ECEF */
-	fdm.ltp_ecef_vel = {0, 0, 0};
-	/* accel in LTP wrt ECEF */
-	fdm.ltp_ecef_accel = {0, 0, 0};
+	/* attitude */
+	// ecef_to_body_quat: unused
+	fdm.ltp_to_body_eulers = to_pprz_eulers(local_to_global_quat * pose.rot);
+	double_quat_of_eulers(&(fdm.ltp_to_body_quat), &(fdm.ltp_to_body_eulers));
+	fdm.ltpprz_to_body_quat = fdm.ltp_to_body_quat; // unused
+	fdm.ltpprz_to_body_eulers = fdm.ltp_to_body_eulers; // unused
 
-	/* velocity in LTPPRZ wrt ECEF */
-	fdm.ltpprz_ecef_vel = {0, 0, 0};
-	/* accel in LTPPRZ wrt ECEF */
-	fdm.ltpprz_ecef_accel = {0, 0, 0};
+	/* angular velocity */
+	fdm.body_ecef_rotvel = to_pprz_rates(pose.rot.RotateVectorReverse(ang_vel));
+	fdm.body_inertial_rotvel = fdm.body_ecef_rotvel; // Approximate
 
-	/* accel in BODY wrt ECI */
-	fdm.body_inertial_accel = {0, 0, 0};
+	/* angular acceleration */
+	// body_ecef_rotaccel: unused
+	// body_inertial_rotaccel: unused
+	/* misc */
+	fdm.ltp_g = to_pprz_ltp(
+			sphere->VelocityTransform(-1 * world->Gravity(),
+					gazebo::common::SphericalCoordinates::LOCAL,
+					gazebo::common::SphericalCoordinates::GLOBAL)); // unused
+	fdm.ltp_h = to_pprz_ltp(
+			sphere->VelocityTransform(world->MagneticField(),
+					gazebo::common::SphericalCoordinates::LOCAL,
+					gazebo::common::SphericalCoordinates::GLOBAL));
 
-	/* accel in BODY as measured by accelerometer (incl. gravity) */
-	fdm.body_accel = {0, 0, 9.81};
+	/* atmosphere */
+	// TODO after upgrade to gazebo 8!
+	/* flight controls: unused */
+	/* engine: unused */
+}
 
-	/* Attitude */
-	// TODO
+static void gazebo_write(double commands[], int commands_nb) {
+	const string names[] = NPS_ACTUATOR_NAMES;
+	const double thrusts[] = { NPS_ACTUATOR_THRUSTS };
+	const double torques[] = { NPS_ACTUATOR_TORQUES };
+
+	for (int i = 0; i < commands_nb; ++i) {
+		double thrust = autopilot.motors_on ? thrusts[i] * commands[i] : 0.0;
+		double torque = autopilot.motors_on ? torques[i] * commands[i] : 0.0;
+		gazebo::physics::LinkPtr link = model->GetLink(names[i]);
+		link->AddRelativeForce(gazebo::math::Vector3(0, 0, thrust));
+		link->AddRelativeTorque(gazebo::math::Vector3(0, 0, torque));
+		// cout << "Motor '" << link->GetName() << "': thrust = " << thrust
+		//		<< " N, torque = " << torque << " Nm" << endl;
+	}
 }
 
