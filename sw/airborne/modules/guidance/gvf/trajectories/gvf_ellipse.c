@@ -29,6 +29,7 @@
 
 #include "subsystems/navigation/common_nav.h"
 #include "gvf_ellipse.h"
+#include "generated/airframe.h"
 
 /*! Default gain ke for the ellipse trajectory */
 #ifndef GVF_ELLIPSE_KE

@@ -28,8 +28,12 @@
   </sectors>
 
   <variables>
-	  <variable var="angle_ps" init="0" min="-180" max="179" step="1"/>
+    <variable var="angle_ps" init="0" min="-180" max="179" step="1"/>
   </variables>
+
+  <modules> 
+    <module name="gvf_module">
+  </modules>
 
   <blocks>
     <block name="Wait GPS">

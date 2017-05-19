@@ -29,6 +29,7 @@
 
 #include "subsystems/navigation/common_nav.h"
 #include "gvf_line.h"
+#include "generated/airframe.h"
 
 /*! Gain ke for the line trajectory*/
 #ifndef GVF_LINE_KE
