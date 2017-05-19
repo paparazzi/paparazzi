@@ -29,6 +29,7 @@
 
 #include "subsystems/navigation/common_nav.h"
 #include "gvf_sin.h"
+#include "generated/airframe.h"
 
 /*! Default gain ke for the sin trajectory*/
 #ifndef GVF_SIN_KE
