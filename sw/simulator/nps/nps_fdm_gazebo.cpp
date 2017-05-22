@@ -136,6 +136,7 @@ void nps_fdm_init(double dt) {
 }
 
 void nps_fdm_run_step(bool launch, double *commands, int commands_nb) {
+	static int test = 100;
 #ifdef NPS_SIMULATE_VIDEO
 	// Initialize here, as the video thread is not ready for use during fdm_init.
 	if (!video_initialized) {
@@ -145,8 +146,12 @@ void nps_fdm_run_step(bool launch, double *commands, int commands_nb) {
 #endif
 	gazebo_write(commands, commands_nb);
 	gazebo::runWorld(model->GetWorld(), 1);
+//	try {
 	cout << "Run sensors..." << endl;
-	gazebo::sensors::run_once();
+	gazebo::sensors::run_once(); // <== CRASH!
+//	} catch (...) {
+//		cout << "ERROR: sensor call resulted in exception!" << endl;
+//	}
 	gazebo_read();
 }
 void nps_fdm_set_wind(double speed, double dir) {
@@ -207,37 +212,24 @@ static void init_gazebo(void) {
 
 #ifdef NPS_SIMULATE_VIDEO
 static void init_gazebo_video(void) {
-	// Get sensor manager to find cameras
-	gazebo::sensors::SensorManager *mgr =
-			gazebo::sensors::SensorManager::Instance();
 	// Prepare to subscribe dummy callback (see below)
 	gazebo::transport::NodePtr node(new gazebo::transport::Node());
-	gazebo::transport::SubscriberPtr sub;
 	node->Init();
 
-	// Loop through cameras added to video_thread.
-	cout << "Initializing cameras..." << endl;
-	for (int i = 0; i < VIDEO_THREAD_MAX_CAMERAS && cameras[i] != NULL; ++i) {
-		// Find camera in model
-		gazebo::physics::LinkPtr link = model->GetLink(cameras[i]->dev_name);
-		if (!link) {
-			cout << "ERROR: Could not find link '" << cameras[i]->dev_name
-					<< "'!" << endl;
-			continue;
-		}
-		if (link->GetSensorCount() != 1) {
-			cout << "ERROR: link '" << cameras[i]->dev_name
-					<< "' should only contain one camera sensor!" << endl;
-			continue;
-		}
-		string sensorname = link->GetSensorName(0);
-		cout << "Found sensor '" << sensorname << "'." << endl;
-		// Attach Gazebo callback
-		// XXX Without subscription, the camera does not seem to update its
-		// ImageData()...
-		cout << "Attach callback to " << cameras[i]->dev_name
-				<< endl;
-		node->Subscribe(sensorname + "/image", dummy_callback);
+	// Add dummy callbacks to all Gazebo cameras
+	// Might fix unknown bug that causes Gazebo to crash
+	// or cameras to withold images that occurs otherwise...
+	// Nope, does not solve crashes.
+	// Btw, callback can also take class method, which might be
+	// an alternative to polling once the crashes are solved...
+	gazebo::sensors::SensorManager *mgr =
+			gazebo::sensors::SensorManager::Instance();
+	gazebo::sensors::Sensor_V sensors = mgr->GetSensors();
+	cout << "Adding sensor callbacks..." << endl;
+	for (auto& sensor : sensors) {
+		if (sensor->Category() != gazebo::sensors::SensorCategory::IMAGE) continue;
+		cout << sensor->Topic() << endl;
+		node->Subscribe(sensor->Topic(), dummy_callback);
 	}
 
 	cout << "Camera initialization finished." << endl;

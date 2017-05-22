@@ -81,54 +81,54 @@
       <heading_deg>180</heading_deg>
     </spherical_coordinates>
     <state world_name='default'>
-      <sim_time>76 839000000</sim_time>
-      <real_time>21 777526716</real_time>
-      <wall_time>1495440884 610040409</wall_time>
-      <iterations>21360</iterations>
+      <sim_time>108 23000000</sim_time>
+      <real_time>31 567033348</real_time>
+      <wall_time>1495447020 377726439</wall_time>
+      <iterations>31184</iterations>
       <model name='paparazzi_uav'>
-        <pose frame=''>0.043703 -0.025482 0.025001 1e-06 -6e-06 7e-06</pose>
+        <pose frame=''>0.012843 -0.001294 0.025 0 -0 0</pose>
         <scale>1 1 1</scale>
         <link name='bottom_camera'>
-          <pose frame=''>0.043702 -0.025482 -0.005 0.001045 1.57001 0.001052</pose>
-          <velocity>-0.000246 -1.1e-05 0.008109 -0.000497 0.000629 -2.8e-05</velocity>
-          <acceleration>-0.194594 0.040416 16.8015 -0.973292 0.763883 -0.004143</acceleration>
-          <wrench>-0.194594 0.040416 16.8015 0 -0 0</wrench>
+          <pose frame=''>0.012843 -0.001294 -0.005 0 1.57 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
         </link>
         <link name='chassis'>
-          <pose frame=''>0.043703 -0.025482 0.025001 1e-06 -6e-06 7e-06</pose>
-          <velocity>-0.000325 -4e-06 0.008078 0.000171 -0.013019 0</velocity>
-          <acceleration>-0.172755 0.062321 16.8213 3.11196 0.618883 -3.13196</acceleration>
-          <wrench>-0.069102 0.024929 6.72851 0 -0 0</wrench>
+          <pose frame=''>0.012843 -0.001294 0.025 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
         </link>
         <link name='front_camera'>
-          <pose frame=''>0.193703 -0.025481 0.024997 0 2.5e-05 7e-06</pose>
-          <velocity>-0.000207 -1e-06 0.008012 0.000732 0.00094 -4.2e-05</velocity>
-          <acceleration>-0.162536 0.07295 16.3987 -3.0094 0.524095 -3.1331</acceleration>
-          <wrench>-0.162536 0.07295 16.3987 0 -0 0</wrench>
+          <pose frame=''>0.162843 -0.001294 0.025 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
         </link>
         <link name='ne_motor'>
-          <pose frame=''>0.163704 -0.145482 0.025001 1e-06 -5e-06 7e-06</pose>
-          <velocity>-0.000234 6e-06 0.009634 0.000182 -0.01312 -5.4e-05</velocity>
-          <acceleration>-0.167203 0.071296 18.7753 3.11172 0.655465 3.12987</acceleration>
-          <wrench>-0.001672 0.000713 0.187753 0 -0 0</wrench>
+          <pose frame=''>0.132843 -0.121294 0.025 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
         </link>
         <link name='nw_motor'>
-          <pose frame=''>0.163702 0.094519 0.025001 1e-06 -5e-06 7e-06</pose>
-          <velocity>-0.000225 -9e-06 0.009669 0.000178 -0.013118 -1.6e-05</velocity>
-          <acceleration>-0.165444 0.065365 18.7724 3.13691 0.656392 -3.13761</acceleration>
-          <wrench>-0.001654 0.000654 0.187724 0 -0 0</wrench>
+          <pose frame=''>0.132843 0.118706 0.025 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
         </link>
         <link name='se_motor'>
-          <pose frame=''>-0.076296 -0.145483 0.025 1e-06 -5e-06 7e-06</pose>
-          <velocity>-0.000233 0 0.006537 0.000243 -0.013185 -5e-05</velocity>
-          <acceleration>-0.166673 0.067137 14.837 3.09725 0.616318 3.13351</acceleration>
-          <wrench>-0.001667 0.000671 0.14837 0 -0 0</wrench>
+          <pose frame=''>-0.107157 -0.121294 0.025 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
         </link>
         <link name='sw_motor'>
-          <pose frame=''>-0.076298 0.094517 0.025 1e-06 -5e-06 7e-06</pose>
-          <velocity>-0.000225 1.5e-05 0.006572 0.000118 -0.013185 -1.2e-05</velocity>
-          <acceleration>-0.166122 0.073083 14.8348 -3.13208 0.615598 -3.13445</acceleration>
-          <wrench>-0.001661 0.000731 0.148348 0 -0 0</wrench>
+          <pose frame=''>-0.107157 0.118706 0.025 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
       <model name='ground_plane'>
@@ -153,7 +153,7 @@
       </camera>
     </gui>
     <model name='paparazzi_uav'>
-      <pose frame=''>0.044631 -0.025484 0.1 0 -0 0</pose>
+      <pose frame=''>0.012843 -0.001294 0.1 0 -0 0</pose>
       <link name='chassis'>
         <inertial>
           <mass>0.4</mass>
@@ -199,6 +199,17 @@
       </link>
       <link name='front_camera'>
         <pose frame=''>0.15 0 0 0 -0 0</pose>
+        <inertial>
+          <mass>0.01</mass>
+          <inertia>
+            <ixx>0.0001</ixx>
+            <iyy>0.0001</iyy>
+            <izz>0.0001</izz>
+            <ixy>0</ixy>
+            <iyz>0</iyz>
+            <ixz>0</ixz>
+          </inertia>
+        </inertial>
         <sensor name='front_camera' type='camera'>
           <update_rate>30</update_rate>
           <camera name='front_camera'>
@@ -220,17 +231,6 @@
           </camera>
         </sensor>
         <self_collide>0</self_collide>
-        <inertial>
-          <inertia>
-            <ixx>1</ixx>
-            <ixy>0</ixy>
-            <ixz>0</ixz>
-            <iyy>1</iyy>
-            <iyz>0</iyz>
-            <izz>1</izz>
-          </inertia>
-          <mass>1</mass>
-        </inertial>
         <kinematic>0</kinematic>
         <gravity>1</gravity>
       </link>
@@ -240,6 +240,17 @@
       </joint>
       <link name='bottom_camera'>
         <pose frame=''>0 0 -0.03 0 1.57 0</pose>
+        <inertial>
+          <mass>0.01</mass>
+          <inertia>
+            <ixx>0.0001</ixx>
+            <iyy>0.0001</iyy>
+            <izz>0.0001</izz>
+            <ixy>0</ixy>
+            <iyz>0</iyz>
+            <ixz>0</ixz>
+          </inertia>
+        </inertial>
         <sensor name='bottom_camera' type='camera'>
           <update_rate>30</update_rate>
           <camera name='bottom_camera'>
@@ -261,17 +272,6 @@
           </camera>
         </sensor>
         <self_collide>0</self_collide>
-        <inertial>
-          <inertia>
-            <ixx>1</ixx>
-            <ixy>0</ixy>
-            <ixz>0</ixz>
-            <iyy>1</iyy>
-            <iyz>0</iyz>
-            <izz>1</izz>
-          </inertia>
-          <mass>1</mass>
-        </inertial>
         <kinematic>0</kinematic>
         <gravity>1</gravity>
       </link>
