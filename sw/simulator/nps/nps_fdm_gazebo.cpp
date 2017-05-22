@@ -36,6 +36,7 @@
 #include <gazebo/physics/physics.hh>
 #include <gazebo/sensors/sensors.hh>
 #include <gazebo/transport/transport.hh>
+#include <gazebo/rendering/rendering.hh>
 
 #include "nps_fdm.h"
 #include "math/pprz_algebra_double.h"
@@ -152,6 +153,17 @@ void nps_fdm_run_step(bool launch, double *commands, int commands_nb) {
 //	} catch (...) {
 //		cout << "ERROR: sensor call resulted in exception!" << endl;
 //	}
+
+	gazebo::sensors::SensorManager *mgr =
+			gazebo::sensors::SensorManager::Instance();
+	gazebo::sensors::CameraSensorPtr cam = std::static_pointer_cast
+			< gazebo::sensors::CameraSensor
+			> (mgr->GetSensor(
+					"default::paparazzi_uav::front_camera::front_camera"));
+	cout << cam << endl;
+	cout << (void*)(cam->ImageData()) << endl;
+	cout << endl;
+
 	gazebo_read();
 }
 void nps_fdm_set_wind(double speed, double dir) {
@@ -199,6 +211,11 @@ static void init_gazebo(void) {
 		cout << "Failed to find '" << GAZEBO_AC_NAME << "', exiting." << endl;
 		std::exit(-1);
 	}
+
+	// Rendering engine settings
+	cout << "Render path type: "
+			<< gazebo::rendering::RenderEngine::Instance()->GetRenderPathType()
+			<< endl;
 
 	// Initialize sensors
 	gazebo::runWorld(world, 1);

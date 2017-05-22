@@ -11,7 +11,9 @@
   <makefile target="nps">
   	<raw>
   	nps.CFLAGS  += $(shell pkg-config gazebo --cflags)
+  	nps.CFLAGS  += -I/usr/include/OGRE -I/usr/include/OGRE/Terrain -I/usr/include/OGRE/Paging
     nps.LDFLAGS += $(shell pkg-config gazebo --libs)
+    nps.LDFLAGS += -lOgreMain -lOgreTerrain -lOgrePaging
   	</raw>
     <file name="nps_fdm_gazebo.cpp" dir="nps"/>
   </makefile>
