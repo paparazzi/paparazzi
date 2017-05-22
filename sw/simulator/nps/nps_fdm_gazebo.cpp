@@ -34,6 +34,8 @@
 #include <gazebo/gazebo.hh>
 #include <gazebo/common/common.hh>
 #include <gazebo/physics/physics.hh>
+#include <gazebo/sensors/sensors.hh>
+#include <gazebo/transport/transport.hh>
 
 #include "nps_fdm.h"
 #include "math/pprz_algebra_double.h"
@@ -48,6 +50,13 @@ using namespace std;
 #endif
 #ifndef GAZEBO_AC_NAME
 #define GAZEBO_AC_NAME "paparazzi_uav"
+#endif
+
+#ifdef NPS_SIMULATE_VIDEO
+#include "modules/computer_vision/video_thread_nps.h"
+static bool video_initialized = false;
+static void init_gazebo_video(void);
+static void dummy_callback(ConstImageStampedPtr &msg);
 #endif
 
 /// Holds all necessary NPS FDM state information
@@ -127,8 +136,17 @@ void nps_fdm_init(double dt) {
 }
 
 void nps_fdm_run_step(bool launch, double *commands, int commands_nb) {
+#ifdef NPS_SIMULATE_VIDEO
+	// Initialize here, as the video thread is not ready for use during fdm_init.
+	if (!video_initialized) {
+		init_gazebo_video();
+		video_initialized = true;
+	}
+#endif
 	gazebo_write(commands, commands_nb);
 	gazebo::runWorld(model->GetWorld(), 1);
+	cout << "Run sensors..." << endl;
+	gazebo::sensors::run_once();
 	gazebo_read();
 }
 void nps_fdm_set_wind(double speed, double dir) {
@@ -177,8 +195,57 @@ static void init_gazebo(void) {
 		std::exit(-1);
 	}
 
+	// Initialize sensors
+	gazebo::runWorld(world, 1);
+	gazebo::sensors::run_once(true);
+	gazebo::sensors::run_threads();
+	gazebo::runWorld(world, 1);
+	cout << "Sensors initialized..." << endl;
+
 	cout << "Gazebo initialized successfully!" << endl;
 }
+
+#ifdef NPS_SIMULATE_VIDEO
+static void init_gazebo_video(void) {
+	// Get sensor manager to find cameras
+	gazebo::sensors::SensorManager *mgr =
+			gazebo::sensors::SensorManager::Instance();
+	// Prepare to subscribe dummy callback (see below)
+	gazebo::transport::NodePtr node(new gazebo::transport::Node());
+	gazebo::transport::SubscriberPtr sub;
+	node->Init();
+
+	// Loop through cameras added to video_thread.
+	cout << "Initializing cameras..." << endl;
+	for (int i = 0; i < VIDEO_THREAD_MAX_CAMERAS && cameras[i] != NULL; ++i) {
+		// Find camera in model
+		gazebo::physics::LinkPtr link = model->GetLink(cameras[i]->dev_name);
+		if (!link) {
+			cout << "ERROR: Could not find link '" << cameras[i]->dev_name
+					<< "'!" << endl;
+			continue;
+		}
+		if (link->GetSensorCount() != 1) {
+			cout << "ERROR: link '" << cameras[i]->dev_name
+					<< "' should only contain one camera sensor!" << endl;
+			continue;
+		}
+		string sensorname = link->GetSensorName(0);
+		cout << "Found sensor '" << sensorname << "'." << endl;
+		// Attach Gazebo callback
+		// XXX Without subscription, the camera does not seem to update its
+		// ImageData()...
+		cout << "Attach callback to " << cameras[i]->dev_name
+				<< endl;
+		node->Subscribe(sensorname + "/image", dummy_callback);
+	}
+
+	cout << "Camera initialization finished." << endl;
+}
+
+static void dummy_callback(ConstImageStampedPtr &msg) {
+}
+#endif
 
 static void gazebo_read(void) {
 	gazebo::physics::WorldPtr world = model->GetWorld();

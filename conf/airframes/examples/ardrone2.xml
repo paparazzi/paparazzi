@@ -34,6 +34,9 @@
     <!--module name="logger_file"/-->
     <module name="video_thread">
     </module>
+    <module name="cv_colorfilter">
+      <define name="COLORFILTER_CAMERA" value="front_camera"/>
+    </module>
 
     <module name="video_rtp_stream">
       <define name="VIEWVIDEO_CAMERA" value="front_camera"/>
@@ -187,6 +190,7 @@
     <define name="SENSORS_PARAMS" value="nps_sensors_params_ardrone2.h" type="string"/>
     <define name="BYPASS_AHRS" value="1"/>
     <define name="BYPASS_INS" value="1"/>
+    <define name="SIMULATE_VIDEO" value="1"/>
   </section>
 
   <section name="AUTOPILOT">

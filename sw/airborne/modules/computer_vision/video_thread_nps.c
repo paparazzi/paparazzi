@@ -20,62 +20,88 @@
  */
 
 /**
- * Dummy C implementation for simulation
- * The V4L2 could also work in simulation, but must be adapted a bit.
+ * Video thread dummy for simulation. *
+ *
+ * Keeps track of added devices, which can be referenced by simulation code
+ * such as in simulator/nps/fdm_gazebo.c.
  */
 
 // Own header
+#include "video_thread_nps.h"
 #include "video_thread.h"
 #include "cv.h"
 #include "lib/vision/image.h"
 
+#include "modules/computer_vision/lib/v4l/v4l2.h"
+#include "peripherals/video_device.h"
+
+// Camera structs for use in modules.
+// See boards/pc_sim.h
+// Default values from ARDrone can be overwritten by simulator.
+struct video_config_t front_camera = {
+		.output_size = { .w = 1280, .h = 720 },
+		.sensor_size = { .w = 1280, .h = 720 },
+		.crop = { .x = 0, .y = 0, .w = 1280, .h = 720 },
+		.dev_name = "front_camera",
+		.subdev_name = NULL,
+		.format = V4L2_PIX_FMT_UYVY,
+		.buf_cnt = 10,
+		.filters = 0,
+		.cv_listener = NULL,
+		.fps = 0 };
+
+struct video_config_t bottom_camera = {
+		.output_size = { .w = 320, .h = 240 },
+		.sensor_size = { .w = 320, .h = 240 },
+		.crop = { .x = 0, .y = 0, .w = 320, .h = 240 },
+		.dev_name = "bottom_camera",
+		.subdev_name = NULL,
+		.format = V4L2_PIX_FMT_UYVY,
+		.buf_cnt = 10,
+		.filters = 0,
+		.cv_listener = NULL,
+		.fps = 0 };
+
+// Keep track of added devices.
+struct video_config_t *cameras[VIDEO_THREAD_MAX_CAMERAS] = { NULL };
 
 // Initialize the video_thread structure with the defaults
-struct video_thread_t video_thread = {
-  .is_running = FALSE
-};
+//struct video_thread_t video_thread = { .is_running = FALSE }; // unused
 
 // All dummy functions
-void video_thread_init(void) {}
-void video_thread_periodic(void)
-{
-  struct image_t img;
-  image_create(&img, 320, 240, IMAGE_YUV422);
-  int i, j;
-  uint8_t u, v;
+void video_thread_init(void) {
+}
+void video_thread_periodic(void) {
 
-#ifdef SMARTUAV_SIMULATOR
-  SMARTUAV_IMPORT(&img);
-#else
-  if (video_thread.is_running) {
-    u = 0;
-    v = 255;
-  } else {
-    u = 255;
-    v = 0;
-  }
-  uint8_t *p = (uint8_t *) img.buf;
-  for (j = 0; j < img.h; j++) {
-    for (i = 0; i < img.w; i += 2) {
-      *p++ = u;
-      *p++ = j;
-      *p++ = v;
-      *p++ = j;
-    }
-  }
-  video_thread.is_running = ! video_thread.is_running;
-#endif
-
-  // Calling this function will not work because video_config_t is NULL (?) and img
-  // has no timestamp
-  // Commenting out for now
-  // cv_run_device(NULL,&img);
-
-  image_free(&img);
 }
 
-void video_thread_start(void) {}
-void video_thread_stop(void) {}
-void video_thread_take_shot(bool take __attribute__((unused))) {}
+void video_thread_start(void) {
+}
+void video_thread_stop(void) {
+}
+//void video_thread_take_shot(bool take __attribute__((unused))) { // unused
+//}
 
-bool add_video_device(struct video_config_t *device __attribute__((unused))){ return true; }
+bool add_video_device(struct video_config_t *device) {
+	// Loop over camera array
+	for (int i = 0; i < VIDEO_THREAD_MAX_CAMERAS; ++i) {
+		// If device is already registered, break
+		if (cameras[i] == device) {
+			break;
+		}
+		// If camera slot is already used, continue
+		if (cameras[i] != NULL) {
+			continue;
+		}
+		// No initialization, should be handled by simulation!
+		// Store device pointer
+		cameras[i] = device;
+		// Debug statement
+		printf("[video_thread_nps] Added %s to camera array.\n",
+				device->dev_name);
+		// Successfully added
+		return true;
+	}
+	// Camera array is full
+	return false;
+}
