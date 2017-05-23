@@ -35,8 +35,6 @@
 #include <gazebo/common/common.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo/sensors/sensors.hh>
-#include <gazebo/transport/transport.hh>
-#include <gazebo/rendering/rendering.hh>
 
 #include "nps_fdm.h"
 #include "math/pprz_algebra_double.h"
@@ -140,31 +138,54 @@ void nps_fdm_run_step(bool launch, double *commands, int commands_nb) {
 	static int test = 100;
 #ifdef NPS_SIMULATE_VIDEO
 	// Initialize here, as the video thread is not ready for use during fdm_init.
-	if (!video_initialized) {
-		init_gazebo_video();
-		video_initialized = true;
-	}
-#endif
-	gazebo_write(commands, commands_nb);
-	gazebo::runWorld(model->GetWorld(), 1);
-//	try {
-	cout << "Run sensors..." << endl;
-	gazebo::sensors::run_once(); // <== CRASH!
-//	} catch (...) {
-//		cout << "ERROR: sensor call resulted in exception!" << endl;
+//	if (!video_initialized) {
+//		init_gazebo_video();
+//		video_initialized = true;
 //	}
-
-	gazebo::sensors::SensorManager *mgr =
-			gazebo::sensors::SensorManager::Instance();
-	gazebo::sensors::CameraSensorPtr cam = std::static_pointer_cast
-			< gazebo::sensors::CameraSensor
-			> (mgr->GetSensor(
-					"default::paparazzi_uav::front_camera::front_camera"));
-	cout << cam << endl;
-	cout << (void*)(cam->ImageData()) << endl;
-	cout << endl;
-
-	gazebo_read();
+#endif
+	try {
+		cout << "Run WORLD @ " << model->GetWorld() << endl;
+		gazebo::runWorld(model->GetWorld(), 1);
+	} catch (...) {
+		cout << "ERROR: runWorld caused exception!" << endl;
+	}
+	try {
+		cout << "Run sensors... ";
+		gazebo::sensors::run_once(); // <== CRASH!
+		cout << "finished." << endl;
+	} catch (...) {
+		cout << "ERROR: sensor call resulted in exception!" << endl;
+	}
+	try {
+		gazebo::sensors::SensorManager *mgr =
+				gazebo::sensors::SensorManager::Instance();
+		gazebo::sensors::CameraSensorPtr cam = std::static_pointer_cast
+				< gazebo::sensors::CameraSensor
+				> (mgr->GetSensor(
+						"front_camera"));
+		cout << "CameraSensorPtr: " << cam << endl;
+		cout << "CameraSensor::IsActive(): " << cam->IsActive() << endl;
+		cout << "CameraSensor::UpdateRate(): " << cam->UpdateRate() << endl;
+		cout << "CameraSensor::LastMeasurementTime(): "
+				<< cam->LastMeasurementTime() << endl;
+		cout << "CameraSensor::LastUpdateTime(): " << cam->LastUpdateTime()
+				<< endl;
+		cout << "CameraPtr: " << cam->Camera() << endl;
+		cout << "ImageDataPtr: " << (void*)(cam->ImageData()) << endl;
+		cout << endl;
+	} catch (...) {
+		cout << "ERROR: Cam readout caused exception!" << endl;
+	}
+	try {
+		gazebo_write(commands, commands_nb);
+	} catch (...) {
+		cout << "ERROR: gazebo_write caused exception" << endl;
+	}
+	try {
+		gazebo_read();
+	} catch (...) {
+		cout << "ERROR: gazebo_read caused exception!" << endl;
+	}
 }
 void nps_fdm_set_wind(double speed, double dir) {
 }
@@ -204,6 +225,7 @@ static void init_gazebo(void) {
 		cout << "Failed to open world, exiting." << endl;
 		std::exit(-1);
 	}
+	cout << "WORLD @ " << world << endl;
 
 	cout << "Get pointer to aircraft: " << GAZEBO_AC_NAME << endl;
 	model = world->GetModel(GAZEBO_AC_NAME);
@@ -211,16 +233,24 @@ static void init_gazebo(void) {
 		cout << "Failed to find '" << GAZEBO_AC_NAME << "', exiting." << endl;
 		std::exit(-1);
 	}
+	cout << "MODEL @ " << model << endl;
 
 	// Rendering engine settings
-	cout << "Render path type: "
-			<< gazebo::rendering::RenderEngine::Instance()->GetRenderPathType()
-			<< endl;
+//	cout << "Render path type: "
+//			<< gazebo::rendering::RenderEngine::Instance()->GetRenderPathType()
+//			<< endl;
 
 	// Initialize sensors
-	gazebo::runWorld(world, 1);
-	gazebo::sensors::run_once(true);
-	gazebo::sensors::run_threads();
+	try {
+		gazebo::sensors::run_once(true);
+	} catch (...) {
+		cout << "ERROR: Initialization run_once(true)!" << endl;
+	}
+	try {
+		gazebo::sensors::run_threads();
+	} catch (...) {
+		cout << "ERROR: Initialization run_threads()!" << endl;
+	}
 	gazebo::runWorld(world, 1);
 	cout << "Sensors initialized..." << endl;
 
@@ -230,8 +260,8 @@ static void init_gazebo(void) {
 #ifdef NPS_SIMULATE_VIDEO
 static void init_gazebo_video(void) {
 	// Prepare to subscribe dummy callback (see below)
-	gazebo::transport::NodePtr node(new gazebo::transport::Node());
-	node->Init();
+//	gazebo::transport::NodePtr node(new gazebo::transport::Node());
+//	node->Init();
 
 	// Add dummy callbacks to all Gazebo cameras
 	// Might fix unknown bug that causes Gazebo to crash
@@ -246,7 +276,7 @@ static void init_gazebo_video(void) {
 	for (auto& sensor : sensors) {
 		if (sensor->Category() != gazebo::sensors::SensorCategory::IMAGE) continue;
 		cout << sensor->Topic() << endl;
-		node->Subscribe(sensor->Topic(), dummy_callback);
+//		node->Subscribe(sensor->Topic(), dummy_callback);
 	}
 
 	cout << "Camera initialization finished." << endl;

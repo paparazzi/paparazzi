@@ -211,7 +211,9 @@
           </inertia>
         </inertial>
         <sensor name='front_camera' type='camera'>
-          <update_rate>30</update_rate>
+          <update_rate>10</update_rate>
+          <always_on>1</always_on>
+          <visualize>1</visualize>
           <camera name='front_camera'>
             <horizontal_fov>1.39626</horizontal_fov>
             <image>
@@ -252,7 +254,9 @@
           </inertia>
         </inertial>
         <sensor name='bottom_camera' type='camera'>
-          <update_rate>30</update_rate>
+          <update_rate>10</update_rate>
+          <always_on>1</always_on>
+          <visualize>1</visualize>
           <camera name='bottom_camera'>
             <horizontal_fov>1.39626</horizontal_fov>
             <image>
