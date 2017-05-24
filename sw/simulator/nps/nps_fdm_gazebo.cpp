@@ -62,9 +62,9 @@ static void dummy_callback(ConstImageStampedPtr &msg);
 struct NpsFdm fdm;
 
 // Pointer to Gazebo data
+static bool gazebo_initialized = false;
 static gazebo::physics::ModelPtr model = NULL;
 
-static void set_irrelevant_data(double dt);
 static void init_gazebo(void);
 static void gazebo_read(void);
 static void gazebo_write(double commands[], int commands_nb);
@@ -129,13 +129,18 @@ inline struct DoubleVect3 to_pprz_ltp(gazebo::math::Vector3 xyz) {
 // External functions, interface with Paparazzi's NPS as declared in nps_fdm.h
 
 void nps_fdm_init(double dt) {
-	set_irrelevant_data(dt); // Not all fields in fdm are used.
-	init_gazebo();
-	gazebo_read();
+	// Unused, on different thread as run_step???
+	fdm.init_dt = dt; // JSBsim specific
+	fdm.curr_dt = dt; // JSBsim specific
+	fdm.nan_count = 0; // JSBsim specific
 }
 
 void nps_fdm_run_step(bool launch, double *commands, int commands_nb) {
-	static int test = 100;
+	if (!gazebo_initialized) {
+		init_gazebo();
+		gazebo_read();
+		gazebo_initialized = true;
+	}
 #ifdef NPS_SIMULATE_VIDEO
 	// Initialize here, as the video thread is not ready for use during fdm_init.
 //	if (!video_initialized) {
@@ -201,12 +206,6 @@ void nps_fdm_set_temperature(double temp, double h) {
 }
 
 // Internal functions
-static void set_irrelevant_data(double dt) {
-	fdm.init_dt = dt; // JSBsim specific
-	fdm.curr_dt = dt; // JSBsim specific
-	fdm.nan_count = 0; // JSBsim specific
-}
-
 static void init_gazebo(void) {
 	string gazebo_home = "/conf/simulator/gazebo/";
 	string pprz_home(getenv("PAPARAZZI_HOME"));
