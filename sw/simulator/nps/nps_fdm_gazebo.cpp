@@ -36,11 +36,21 @@
 #include <gazebo/physics/physics.hh>
 #include <gazebo/sensors/sensors.hh>
 
+extern "C" {
 #include "nps_fdm.h"
 #include "math/pprz_algebra_double.h"
 
 #include "generated/airframe.h"
 #include "autopilot.h"
+
+#ifdef NPS_SIMULATE_VIDEO
+#pragma message("NPS Gazebo: video_thread will be simulated.")
+#include "modules/computer_vision/cv.h"
+#include "modules/computer_vision/video_thread_nps.h"
+#include "modules/computer_vision/lib/vision/image.h"
+#include "mcu_periph/sys_time.h"
+#endif
+}
 
 using namespace std;
 
@@ -52,10 +62,17 @@ using namespace std;
 #endif
 
 #ifdef NPS_SIMULATE_VIDEO
-#include "modules/computer_vision/video_thread_nps.h"
-static bool video_initialized = false;
 static void init_gazebo_video(void);
-static void dummy_callback(ConstImageStampedPtr &msg);
+static void gazebo_read_video(void);
+static void read_image(
+		struct image_t *img,
+		gazebo::sensors::CameraSensorPtr cam);
+struct gazebocam_t {
+	gazebo::sensors::CameraSensorPtr cam;
+	gazebo::common::Time last_measurement_time;
+};
+static struct gazebocam_t gazebo_cams[VIDEO_THREAD_MAX_CAMERAS] =
+		{ { NULL, 0 } };
 #endif
 
 /// Holds all necessary NPS FDM state information
@@ -139,48 +156,43 @@ void nps_fdm_run_step(bool launch, double *commands, int commands_nb) {
 	if (!gazebo_initialized) {
 		init_gazebo();
 		gazebo_read();
+#ifdef NPS_SIMULATE_VIDEO
+		init_gazebo_video();
+#endif
 		gazebo_initialized = true;
 	}
-#ifdef NPS_SIMULATE_VIDEO
-	// Initialize here, as the video thread is not ready for use during fdm_init.
-//	if (!video_initialized) {
-//		init_gazebo_video();
-//		video_initialized = true;
-//	}
-#endif
 	try {
-		cout << "Run WORLD @ " << model->GetWorld() << endl;
+//		cout << "Run WORLD @ " << model->GetWorld() << endl;
 		gazebo::runWorld(model->GetWorld(), 1);
 	} catch (...) {
 		cout << "ERROR: runWorld caused exception!" << endl;
 	}
 	try {
-		cout << "Run sensors... ";
-		gazebo::sensors::run_once(); // <== CRASH!
-		cout << "finished." << endl;
+//		cout << "Run sensors... ";
+		gazebo::sensors::run_once();
+//		cout << "finished." << endl;
 	} catch (...) {
 		cout << "ERROR: sensor call resulted in exception!" << endl;
 	}
-	try {
-		gazebo::sensors::SensorManager *mgr =
-				gazebo::sensors::SensorManager::Instance();
-		gazebo::sensors::CameraSensorPtr cam = std::static_pointer_cast
-				< gazebo::sensors::CameraSensor
-				> (mgr->GetSensor(
-						"front_camera"));
-		cout << "CameraSensorPtr: " << cam << endl;
-		cout << "CameraSensor::IsActive(): " << cam->IsActive() << endl;
-		cout << "CameraSensor::UpdateRate(): " << cam->UpdateRate() << endl;
-		cout << "CameraSensor::LastMeasurementTime(): "
-				<< cam->LastMeasurementTime() << endl;
-		cout << "CameraSensor::LastUpdateTime(): " << cam->LastUpdateTime()
-				<< endl;
-		cout << "CameraPtr: " << cam->Camera() << endl;
-		cout << "ImageDataPtr: " << (void*)(cam->ImageData()) << endl;
-		cout << endl;
-	} catch (...) {
-		cout << "ERROR: Cam readout caused exception!" << endl;
-	}
+//	try {
+//		gazebo::sensors::SensorManager *mgr =
+//				gazebo::sensors::SensorManager::Instance();
+//		gazebo::sensors::CameraSensorPtr cam = std::static_pointer_cast
+//				< gazebo::sensors::CameraSensor
+//				> (mgr->GetSensor("front_camera"));
+//		cout << "CameraSensorPtr: " << cam << endl;
+//		cout << "CameraSensor::IsActive(): " << cam->IsActive() << endl;
+//		cout << "CameraSensor::UpdateRate(): " << cam->UpdateRate() << endl;
+//		cout << "CameraSensor::LastMeasurementTime(): "
+//				<< cam->LastMeasurementTime() << endl;
+//		cout << "CameraSensor::LastUpdateTime(): " << cam->LastUpdateTime()
+//				<< endl;
+//		cout << "CameraPtr: " << cam->Camera() << endl;
+//		cout << "ImageDataPtr: " << (void*)(cam->ImageData()) << endl;
+//		cout << endl;
+//	} catch (...) {
+//		cout << "ERROR: Cam readout caused exception!" << endl;
+//	}
 	try {
 		gazebo_write(commands, commands_nb);
 	} catch (...) {
@@ -191,6 +203,9 @@ void nps_fdm_run_step(bool launch, double *commands, int commands_nb) {
 	} catch (...) {
 		cout << "ERROR: gazebo_read caused exception!" << endl;
 	}
+#ifdef NPS_SIMULATE_VIDEO
+	gazebo_read_video();
+#endif
 }
 void nps_fdm_set_wind(double speed, double dir) {
 }
@@ -255,35 +270,6 @@ static void init_gazebo(void) {
 
 	cout << "Gazebo initialized successfully!" << endl;
 }
-
-#ifdef NPS_SIMULATE_VIDEO
-static void init_gazebo_video(void) {
-	// Prepare to subscribe dummy callback (see below)
-//	gazebo::transport::NodePtr node(new gazebo::transport::Node());
-//	node->Init();
-
-	// Add dummy callbacks to all Gazebo cameras
-	// Might fix unknown bug that causes Gazebo to crash
-	// or cameras to withold images that occurs otherwise...
-	// Nope, does not solve crashes.
-	// Btw, callback can also take class method, which might be
-	// an alternative to polling once the crashes are solved...
-	gazebo::sensors::SensorManager *mgr =
-			gazebo::sensors::SensorManager::Instance();
-	gazebo::sensors::Sensor_V sensors = mgr->GetSensors();
-	cout << "Adding sensor callbacks..." << endl;
-	for (auto& sensor : sensors) {
-		if (sensor->Category() != gazebo::sensors::SensorCategory::IMAGE) continue;
-		cout << sensor->Topic() << endl;
-//		node->Subscribe(sensor->Topic(), dummy_callback);
-	}
-
-	cout << "Camera initialization finished." << endl;
-}
-
-static void dummy_callback(ConstImageStampedPtr &msg) {
-}
-#endif
 
 static void gazebo_read(void) {
 	gazebo::physics::WorldPtr world = model->GetWorld();
@@ -396,4 +382,106 @@ static void gazebo_write(double commands[], int commands_nb) {
 		//		<< " N, torque = " << torque << " Nm" << endl;
 	}
 }
+
+#ifdef NPS_SIMULATE_VIDEO
+static void init_gazebo_video(void) {
+	gazebo::sensors::SensorManager* mgr =
+			gazebo::sensors::SensorManager::Instance();
+
+	cout << "Initializing cameras..." << endl;
+	// Loop over cameras registered in video_thread_nps
+	for (int i = 0; i < VIDEO_THREAD_MAX_CAMERAS && cameras[i] != NULL; ++i) {
+		// Find link in gazebo model
+		cout << "Setting up '" << cameras[i]->dev_name << "'... ";
+		gazebo::physics::LinkPtr link = model->GetLink(cameras[i]->dev_name);
+		if (!link) {
+			cout << "ERROR: Link '" << cameras[i]->dev_name << "' not found!"
+					<< endl;
+			;
+			continue;
+		}
+		// Get a pointer to the sensor using its full name
+		if (link->GetSensorCount() != 1) {
+			cout << "ERROR: Link '" << link->GetName()
+					<< "' should only contain 1 sensor!" << endl;
+			continue;
+		}
+		string name = link->GetSensorName(0);
+		gazebo::sensors::CameraSensorPtr cam = static_pointer_cast
+				< gazebo::sensors::CameraSensor > (mgr->GetSensor(name));
+		if (!cam) {
+			cout << "ERROR: Could not get pointer to '" << name << "'!" << endl;
+			continue;
+		}
+		// Add to list of cameras
+		gazebo_cams[i].cam = cam;
+		gazebo_cams[i].last_measurement_time = cam->LastMeasurementTime();
+		// Copy video_config settings from Gazebo's camera
+		cameras[i]->output_size.w = cam->ImageWidth();
+		cameras[i]->output_size.h = cam->ImageHeight();
+		cameras[i]->sensor_size.w = cam->ImageWidth();
+		cameras[i]->sensor_size.h = cam->ImageHeight();
+		cameras[i]->crop.w = cam->ImageWidth();
+		cameras[i]->crop.h = cam->ImageHeight();
+		cameras[i]->fps = cam->UpdateRate();
+		cout << "ok" << endl;
+	}
+}
+
+static void gazebo_read_video(void) {
+	for (int i = 0; i < VIDEO_THREAD_MAX_CAMERAS; ++i) {
+		gazebo::sensors::CameraSensorPtr &cam = gazebo_cams[i].cam;
+		// Skip unregistered or unfound cameras
+		if (cam == NULL) continue;
+		// Skip if not updated
+		// Also skip when LastMeasurementTime() is zero (workaround)
+		if (cam->LastMeasurementTime() == gazebo_cams[i].last_measurement_time
+				|| cam->LastMeasurementTime() == 0) continue;
+		// Grab image, convert and send to video thread
+		struct image_t img;
+		read_image(&img, cam);
+		cv_run_device(cameras[i], &img);
+		// Free image buffer after use.
+		image_free(&img);
+		// Keep track of last update time.
+//		cout << "Camera '" << cam->Name() << "' updated at "
+//				<< cam->LastMeasurementTime() << endl;
+		gazebo_cams[i].last_measurement_time = cam->LastMeasurementTime();
+	}
+}
+
+static void read_image(
+		struct image_t *img,
+		gazebo::sensors::CameraSensorPtr cam) {
+	image_create(img, cam->ImageWidth(), cam->ImageHeight(), IMAGE_YUV422);
+	// Convert Gazebo's *RGB888* image to Paparazzi's YUV422
+	const uint8_t *data_rgb = cam->ImageData();
+	uint8_t *data_yuv = (uint8_t*)(img->buf);
+	for (int x = 0; x < img->w; ++x) {
+		for (int y = 0; y < img->h; ++y) {
+			int idx_rgb = 3 * (img->w * y + x);
+			int idx_yuv = 2 * (img->w * y + x);
+			int idx_px = img->w * y + x;
+			if (idx_px % 2 == 0) { // Pick U or V
+				data_yuv[idx_yuv] = -0.148 * data_rgb[idx_rgb]
+						- 0.291 * data_rgb[idx_rgb + 1]
+						+ 0.439 * data_rgb[idx_rgb + 2] + 128; // U
+			} else {
+				data_yuv[idx_yuv] = 0.439 * data_rgb[idx_rgb]
+						- 0.368 * data_rgb[idx_rgb + 1]
+						- 0.071 * data_rgb[idx_rgb + 2] + 128; // V
+			}
+			data_yuv[idx_yuv + 1] = 0.257 * data_rgb[idx_rgb]
+					+ 0.504 * data_rgb[idx_rgb + 1]
+					+ 0.098 * data_rgb[idx_rgb + 2] + 16; // Y
+		}
+	}
+	// Fill miscellaneous fields
+	gazebo::common::Time ts = cam->LastMeasurementTime();
+	img->ts.tv_sec = ts.sec;
+	img->ts.tv_usec = ts.nsInMs * ts.nsec;
+	img->pprz_ts = get_sys_time_usec();
+	img->buf_idx = 0; // unused
+}
+#endif
 
