@@ -144,3 +144,26 @@ static void sys_tick_handler(void)
     }
   }
 }
+
+/**
+ * Get the time in microseconds since startup.
+ * WARNING: overflows after 71min34seconds!
+ * @return current system time as uint32_t
+ */
+uint32_t get_sys_time_usec(void)
+{
+  /* get current time */
+  struct timespec now;
+  clock_gettime(CLOCK_MONOTONIC, &now);
+
+  /* time difference to startup */
+  time_t d_sec = now.tv_sec - startup_time.tv_sec;
+  long d_nsec = now.tv_nsec - startup_time.tv_nsec;
+
+  /* wrap if negative nanoseconds */
+  if (d_nsec < 0) {
+    d_sec -= 1;
+    d_nsec += 1000000000L;
+  }
+  return d_sec * 1000000 + d_nsec/1000;
+}
