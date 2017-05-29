@@ -238,7 +238,7 @@ If not set before when you would enter home mode you had to flip a bit via the G
 <!-- RC_LOST_MODE means that if your RC Transmitter signal is not received anymore in the autopilot, e.g. you switch it off
      or  fly a long range mission you define the wanted mode behaviour here.
      If you do not define it, it defaults to flying to the flightplan HOME -->
-    <define name="RC_LOST_MODE" value="PPRZ_MODE_AUTO2"/>
+    <define name="RC_LOST_MODE" value="AP_MODE_AUTO2"/>
 
     <!-- OLD <define name="ALT_KALMAN_ENABLED" value="TRUE"/>-->
     <define name="TRIGGER_DELAY" value="1.0"/>
