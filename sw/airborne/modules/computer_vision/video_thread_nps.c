@@ -65,9 +65,6 @@ struct video_config_t bottom_camera = {
 // Keep track of added devices.
 struct video_config_t *cameras[VIDEO_THREAD_MAX_CAMERAS] = { NULL };
 
-// Initialize the video_thread structure with the defaults
-//struct video_thread_t video_thread = { .is_running = FALSE }; // unused
-
 // All dummy functions
 void video_thread_init(void) {
 }
@@ -79,9 +76,10 @@ void video_thread_start(void) {
 }
 void video_thread_stop(void) {
 }
-//void video_thread_take_shot(bool take __attribute__((unused))) { // unused
-//}
 
+/**
+ *  Keep track of video devices added by modules.
+ */
 bool add_video_device(struct video_config_t *device) {
 	// Loop over camera array
 	for (int i = 0; i < VIDEO_THREAD_MAX_CAMERAS; ++i) {
