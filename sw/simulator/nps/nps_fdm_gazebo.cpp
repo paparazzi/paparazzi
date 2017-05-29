@@ -444,6 +444,8 @@ static void init_gazebo_video(void) {
 			cout << "ERROR: Could not get pointer to '" << name << "'!" << endl;
 			continue;
 		}
+		// Activate sensor
+		cam->SetActive(true);
 		// Add to list of cameras
 		gazebo_cams[i].cam = cam;
 		gazebo_cams[i].last_measurement_time = cam->LastMeasurementTime();
@@ -483,8 +485,6 @@ static void gazebo_read_video(void) {
 		// Free image buffer after use.
 		image_free(&img);
 		// Keep track of last update time.
-		cout << "Camera '" << cam->Name() << "' updated at "
-				<< cam->LastMeasurementTime() << endl;
 		gazebo_cams[i].last_measurement_time = cam->LastMeasurementTime();
 	}
 }
@@ -531,9 +531,6 @@ static void read_image(
 	img->ts.tv_usec = ts.nsec / 1000.0;
 	img->pprz_ts = ts.Double() * 1e6;
 	img->buf_idx = 0; // unused
-	cout << "img->ts.tv_sec = " << img->ts.tv_sec << endl;
-	cout << "img->ts.tv_usec = " << img->ts.tv_usec << endl;
-	cout << "img->ts.pprz_ts = " << img->pprz_ts << endl;
 }
 #endif
 
