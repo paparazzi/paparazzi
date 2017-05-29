@@ -46,7 +46,6 @@ extern "C" {
 #include "autopilot.h"
 
 #ifdef NPS_SIMULATE_VIDEO
-#pragma message("NPS Gazebo: video_thread will be simulated.")
 #include "modules/computer_vision/cv.h"
 #include "modules/computer_vision/video_thread_nps.h"
 #include "modules/computer_vision/lib/vision/image.h"
@@ -56,13 +55,14 @@ extern "C" {
 
 using namespace std;
 
-#ifndef GAZEBO_WORLD
-#define GAZEBO_WORLD "ardrone.world"
+#ifndef NPS_GAZEBO_WORLD
+#define NPS_GAZEBO_WORLD "ardrone.world"
 #endif
-#ifndef GAZEBO_AC_NAME
-#define GAZEBO_AC_NAME "paparazzi_uav"
+#ifndef NPS_GAZEBO_AC_NAME
+#define NPS_GAZEBO_AC_NAME "paparazzi_uav"
 #endif
 
+// Add video handling functions if req'd.
 #ifdef NPS_SIMULATE_VIDEO
 static void init_gazebo_video(void);
 static void gazebo_read_video(void);
@@ -84,6 +84,7 @@ struct NpsFdm fdm;
 static bool gazebo_initialized = false;
 static gazebo::physics::ModelPtr model = NULL;
 
+// Helper functions
 static void init_gazebo(void);
 static void gazebo_read(void);
 static void gazebo_write(double commands[], int commands_nb);
@@ -147,14 +148,32 @@ inline struct DoubleVect3 to_pprz_ltp(gazebo::math::Vector3 xyz) {
 
 // External functions, interface with Paparazzi's NPS as declared in nps_fdm.h
 
+/**
+ * Set JSBsim specific fields that are not used for Gazebo.
+ * @param dt
+ */
 void nps_fdm_init(double dt) {
-	// Unused, on different thread as run_step???
 	fdm.init_dt = dt; // JSBsim specific
 	fdm.curr_dt = dt; // JSBsim specific
 	fdm.nan_count = 0; // JSBsim specific
 }
 
-void nps_fdm_run_step(bool launch, double *commands, int commands_nb) {
+/**
+ * Update the simulation state.
+ * @param launch
+ * @param commands
+ * @param commands_nb
+ */
+void nps_fdm_run_step(
+		bool launch __attribute__((unused)),
+		double *commands,
+		int commands_nb) {
+	// Initialize Gazebo if req'd.
+	// Initialization is peformed here instead of in nps_fdm_init because:
+	// - Video devices need to added at this point. Video devices have not been
+	//   added yet when nps_fdm_init is called.
+	// - nps_fdm_init runs on a different thread then nps_fdm_run_step, which
+	//   causes problems with Gazebo.
 	if (!gazebo_initialized) {
 		init_gazebo();
 		gazebo_read();
@@ -163,66 +182,47 @@ void nps_fdm_run_step(bool launch, double *commands, int commands_nb) {
 #endif
 		gazebo_initialized = true;
 	}
-	try {
-//		cout << "Run WORLD @ " << model->GetWorld() << endl;
-		gazebo::runWorld(model->GetWorld(), 1);
-	} catch (...) {
-		cout << "ERROR: runWorld caused exception!" << endl;
-	}
-	try {
-//		cout << "Run sensors... ";
-		gazebo::sensors::run_once();
-//		cout << "finished." << endl;
-	} catch (...) {
-		cout << "ERROR: sensor call resulted in exception!" << endl;
-	}
-//	try {
-//		gazebo::sensors::SensorManager *mgr =
-//				gazebo::sensors::SensorManager::Instance();
-//		gazebo::sensors::CameraSensorPtr cam = std::static_pointer_cast
-//				< gazebo::sensors::CameraSensor
-//				> (mgr->GetSensor("front_camera"));
-//		cout << "CameraSensorPtr: " << cam << endl;
-//		cout << "CameraSensor::IsActive(): " << cam->IsActive() << endl;
-//		cout << "CameraSensor::UpdateRate(): " << cam->UpdateRate() << endl;
-//		cout << "CameraSensor::LastMeasurementTime(): "
-//				<< cam->LastMeasurementTime() << endl;
-//		cout << "CameraSensor::LastUpdateTime(): " << cam->LastUpdateTime()
-//				<< endl;
-//		cout << "CameraPtr: " << cam->Camera() << endl;
-//		cout << "ImageDataPtr: " << (void*)(cam->ImageData()) << endl;
-//		cout << endl;
-//	} catch (...) {
-//		cout << "ERROR: Cam readout caused exception!" << endl;
-//	}
-	try {
-		gazebo_write(commands, commands_nb);
-	} catch (...) {
-		cout << "ERROR: gazebo_write caused exception" << endl;
-	}
-	try {
-		gazebo_read();
-	} catch (...) {
-		cout << "ERROR: gazebo_read caused exception!" << endl;
-	}
+
+	// Update the simulation for a single timestep.
+	gazebo::runWorld(model->GetWorld(), 1);
+	gazebo::sensors::run_once();
+	gazebo_write(commands, commands_nb);
+	gazebo_read();
 #ifdef NPS_SIMULATE_VIDEO
 	gazebo_read_video();
 #endif
 }
+
+// TODO Atmosphere functions have not been implemented yet.
+// Starting at version 8, Gazebo has its own atmosphere and wind model.
 void nps_fdm_set_wind(double speed, double dir) {
 }
+
 void nps_fdm_set_wind_ned(
 		double wind_north,
 		double wind_east,
 		double wind_down) {
 }
+
 void nps_fdm_set_turbulence(double wind_speed, int turbulence_severity) {
 }
+
 /** Set temperature in degrees Celcius at given height h above MSL */
 void nps_fdm_set_temperature(double temp, double h) {
 }
 
 // Internal functions
+/**
+ * Set up a Gazebo server.
+ *
+ * Starts a Gazebo server, adds conf/simulator/gazebo/models to its model path
+ * and loads the world specified by NPS_GAZEBO_WORLD.
+ *
+ * This function also obtaines a pointer to the aircraft model, named
+ * NPS_GAZEBO_AC_NAME ('paparazzi_uav' by default). This pointer, 'model',
+ * is used to read the state and write actuator commands in gazebo_read and
+ * _write.
+ */
 static void init_gazebo(void) {
 	string gazebo_home = "/conf/simulator/gazebo/";
 	string pprz_home(getenv("PAPARAZZI_HOME"));
@@ -238,45 +238,39 @@ static void init_gazebo(void) {
 	gazebo::common::SystemPaths::Instance()->AddModelPaths(
 			gazebodir + "models/");
 
-	cout << "Load world: " << gazebodir + "world/" + GAZEBO_WORLD << endl;
+	cout << "Load world: " << gazebodir + "world/" + NPS_GAZEBO_WORLD << endl;
 	gazebo::physics::WorldPtr world = gazebo::loadWorld(
-			gazebodir + "world/" + GAZEBO_WORLD);
+			gazebodir + "world/" + NPS_GAZEBO_WORLD);
 	if (!world) {
 		cout << "Failed to open world, exiting." << endl;
 		std::exit(-1);
 	}
-	cout << "WORLD @ " << world << endl;
 
-	cout << "Get pointer to aircraft: " << GAZEBO_AC_NAME << endl;
-	model = world->GetModel(GAZEBO_AC_NAME);
+	cout << "Get pointer to aircraft: " << NPS_GAZEBO_AC_NAME << endl;
+	model = world->GetModel(NPS_GAZEBO_AC_NAME);
 	if (!model) {
-		cout << "Failed to find '" << GAZEBO_AC_NAME << "', exiting." << endl;
+		cout << "Failed to find '" << NPS_GAZEBO_AC_NAME << "', exiting."
+				<< endl;
 		std::exit(-1);
 	}
-	cout << "MODEL @ " << model << endl;
-
-	// Rendering engine settings
-//	cout << "Render path type: "
-//			<< gazebo::rendering::RenderEngine::Instance()->GetRenderPathType()
-//			<< endl;
 
 	// Initialize sensors
-	try {
-		gazebo::sensors::run_once(true);
-	} catch (...) {
-		cout << "ERROR: Initialization run_once(true)!" << endl;
-	}
-	try {
-		gazebo::sensors::run_threads();
-	} catch (...) {
-		cout << "ERROR: Initialization run_threads()!" << endl;
-	}
+	gazebo::sensors::run_once(true);
+	gazebo::sensors::run_threads();
 	gazebo::runWorld(world, 1);
 	cout << "Sensors initialized..." << endl;
 
 	cout << "Gazebo initialized successfully!" << endl;
 }
 
+/**
+ * Read Gazebo's simulation state and store the results in the fdm struct used
+ * by NPS.
+ *
+ * Not all fields are filled at the moment, as some of them are unused by
+ * paparazzi (see comments) and others are not available in Gazebo 7
+ * (atmosphere).
+ */
 static void gazebo_read(void) {
 	gazebo::physics::WorldPtr world = model->GetWorld();
 	gazebo::math::Pose pose = model->GetWorldPose(); // In LOCAL xyz frame
@@ -373,6 +367,23 @@ static void gazebo_read(void) {
 	/* engine: unused */
 }
 
+/**
+ * Write actuator commands to Gazebo.
+ *
+ * This function takes the normalized commands and applies them as forces and
+ * torques in Gazebo. Since the commands are normalized in [0,1], their
+ * thrusts (NPS_ACTUATOR_THRUSTS) and torques (NPS_ACTUATOR_TORQUES) need to
+ * be specified in the airframe file. Their values need to be specified in the
+ * same order as the NPS_ACTUATOR_NAMES and should be provided in SI units.
+ * See conf/airframes/examples/ardrone2_gazebo.xml for an example.
+ *
+ * The forces and torques are applied to (the origin of) the links named in
+ * NPS_ACTUATOR_NAMES. See conf/simulator/gazebo/models/ardrone/ardrone.sdf
+ * for an example.
+ *
+ * @param commands
+ * @param commands_nb
+ */
 static void gazebo_write(double commands[], int commands_nb) {
 	const string names[] = NPS_ACTUATOR_NAMES;
 	const double thrusts[] = { NPS_ACTUATOR_THRUSTS };
@@ -390,6 +401,20 @@ static void gazebo_write(double commands[], int commands_nb) {
 }
 
 #ifdef NPS_SIMULATE_VIDEO
+/**
+ * Set up cameras.
+ *
+ * This function finds the video devices added through add_video_device
+ * (sw/airborne/modules/computer_vision/cv.h). The camera links in the Gazebo AC
+ * model should have the same name as the .dev_name field in the corresponding
+ * video_config_t struct stored in 'cameras[]' (computer_vision/
+ * video_thread_nps.h). Pointers to Gazebo's cameras are stored in gazebo_cams
+ * at the same index as their 'cameras[]' counterpart.
+ *
+ * The video_config_t parameters are updated using the values provided by
+ * Gazebo. This should simplify the use of different UAVs with different camera
+ * setups.
+ */
 static void init_gazebo_video(void) {
 	gazebo::sensors::SensorManager* mgr =
 			gazebo::sensors::SensorManager::Instance();
@@ -434,6 +459,14 @@ static void init_gazebo_video(void) {
 	}
 }
 
+/**
+ * Read camera images.
+ *
+ * Polls gazebo cameras. If the last measurement time has been updated, a new
+ * frame is available. This frame is converted to Paparazzi's UYVY format
+ * and passed to cv_run_device which runs the callbacks registered by various
+ * modules.
+ */
 static void gazebo_read_video(void) {
 	for (int i = 0; i < VIDEO_THREAD_MAX_CAMERAS; ++i) {
 		gazebo::sensors::CameraSensorPtr &cam = gazebo_cams[i].cam;
@@ -456,6 +489,16 @@ static void gazebo_read_video(void) {
 	}
 }
 
+/**
+ * Read Gazebo image and convert.
+ *
+ * Converts the current camera frame to the format used by Paparazzi. This
+ * includes conversion to UYVY. Gazebo's simulation time is used for the image
+ * timestamp.
+ *
+ * @param img
+ * @param cam
+ */
 static void read_image(
 		struct image_t *img,
 		gazebo::sensors::CameraSensorPtr cam) {
@@ -486,10 +529,6 @@ static void read_image(
 	gazebo::common::Time ts = cam->LastMeasurementTime();
 	img->ts.tv_sec = ts.sec;
 	img->ts.tv_usec = ts.nsec / 1000.0;
-//	gettimeofday(&(img->ts), NULL);
-//	img->ts.tv_sec = 0;
-//	img->ts.tv_usec = get_sys_time_usec();
-//	img->pprz_ts = get_sys_time_usec();
 	img->pprz_ts = ts.Double() * 1e6;
 	img->buf_idx = 0; // unused
 	cout << "img->ts.tv_sec = " << img->ts.tv_sec << endl;
