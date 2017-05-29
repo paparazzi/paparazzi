@@ -234,6 +234,10 @@ static void init_gazebo(void) {
 		std::exit(-1);
 	}
 
+	cout << "Add Paparazzi model path: " << gazebodir + "models/" << endl;
+	gazebo::common::SystemPaths::Instance()->AddModelPaths(
+			gazebodir + "models/");
+
 	cout << "Load world: " << gazebodir + "world/" + GAZEBO_WORLD << endl;
 	gazebo::physics::WorldPtr world = gazebo::loadWorld(
 			gazebodir + "world/" + GAZEBO_WORLD);
