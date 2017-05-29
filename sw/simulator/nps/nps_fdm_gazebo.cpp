@@ -37,6 +37,8 @@
 #include <gazebo/sensors/sensors.hh>
 
 extern "C" {
+#include <sys/time.h>
+
 #include "nps_fdm.h"
 #include "math/pprz_algebra_double.h"
 
@@ -444,8 +446,8 @@ static void gazebo_read_video(void) {
 		// Free image buffer after use.
 		image_free(&img);
 		// Keep track of last update time.
-//		cout << "Camera '" << cam->Name() << "' updated at "
-//				<< cam->LastMeasurementTime() << endl;
+		cout << "Camera '" << cam->Name() << "' updated at "
+				<< cam->LastMeasurementTime() << endl;
 		gazebo_cams[i].last_measurement_time = cam->LastMeasurementTime();
 	}
 }
@@ -479,9 +481,16 @@ static void read_image(
 	// Fill miscellaneous fields
 	gazebo::common::Time ts = cam->LastMeasurementTime();
 	img->ts.tv_sec = ts.sec;
-	img->ts.tv_usec = ts.nsInMs * ts.nsec;
-	img->pprz_ts = get_sys_time_usec();
+	img->ts.tv_usec = ts.nsec / 1000.0;
+//	gettimeofday(&(img->ts), NULL);
+//	img->ts.tv_sec = 0;
+//	img->ts.tv_usec = get_sys_time_usec();
+//	img->pprz_ts = get_sys_time_usec();
+	img->pprz_ts = ts.Double() * 1e6;
 	img->buf_idx = 0; // unused
+	cout << "img->ts.tv_sec = " << img->ts.tv_sec << endl;
+	cout << "img->ts.tv_usec = " << img->ts.tv_usec << endl;
+	cout << "img->ts.pprz_ts = " << img->pprz_ts << endl;
 }
 #endif
 
