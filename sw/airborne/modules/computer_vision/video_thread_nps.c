@@ -41,67 +41,74 @@
 // See boards/pc_sim.h
 // Default values from ARDrone can be overwritten by simulator.
 struct video_config_t front_camera = {
-		.output_size = { .w = 1280, .h = 720 },
-		.sensor_size = { .w = 1280, .h = 720 },
-		.crop = { .x = 0, .y = 0, .w = 1280, .h = 720 },
-		.dev_name = "front_camera",
-		.subdev_name = NULL,
-		.format = V4L2_PIX_FMT_UYVY,
-		.buf_cnt = 10,
-		.filters = 0,
-		.cv_listener = NULL,
-		.fps = 0 };
+  .output_size = { .w = 1280, .h = 720 },
+  .sensor_size = { .w = 1280, .h = 720 },
+  .crop = { .x = 0, .y = 0, .w = 1280, .h = 720 },
+  .dev_name = "front_camera",
+  .subdev_name = NULL,
+  .format = V4L2_PIX_FMT_UYVY,
+  .buf_cnt = 10,
+  .filters = 0,
+  .cv_listener = NULL,
+  .fps = 0
+};
 
 struct video_config_t bottom_camera = {
-		.output_size = { .w = 320, .h = 240 },
-		.sensor_size = { .w = 320, .h = 240 },
-		.crop = { .x = 0, .y = 0, .w = 320, .h = 240 },
-		.dev_name = "bottom_camera",
-		.subdev_name = NULL,
-		.format = V4L2_PIX_FMT_UYVY,
-		.buf_cnt = 10,
-		.filters = 0,
-		.cv_listener = NULL,
-		.fps = 0 };
+  .output_size = { .w = 320, .h = 240 },
+  .sensor_size = { .w = 320, .h = 240 },
+  .crop = { .x = 0, .y = 0, .w = 320, .h = 240 },
+  .dev_name = "bottom_camera",
+  .subdev_name = NULL,
+  .format = V4L2_PIX_FMT_UYVY,
+  .buf_cnt = 10,
+  .filters = 0,
+  .cv_listener = NULL,
+  .fps = 0
+};
 
 // Keep track of added devices.
 struct video_config_t *cameras[VIDEO_THREAD_MAX_CAMERAS] = { NULL };
 
 // All dummy functions
-void video_thread_init(void) {
+void video_thread_init(void)
+{
 }
-void video_thread_periodic(void) {
+void video_thread_periodic(void)
+{
 
 }
 
-void video_thread_start(void) {
+void video_thread_start(void)
+{
 }
-void video_thread_stop(void) {
+void video_thread_stop(void)
+{
 }
 
 /**
  *  Keep track of video devices added by modules.
  */
-bool add_video_device(struct video_config_t *device) {
-	// Loop over camera array
-	for (int i = 0; i < VIDEO_THREAD_MAX_CAMERAS; ++i) {
-		// If device is already registered, break
-		if (cameras[i] == device) {
-			break;
-		}
-		// If camera slot is already used, continue
-		if (cameras[i] != NULL) {
-			continue;
-		}
-		// No initialization, should be handled by simulation!
-		// Store device pointer
-		cameras[i] = device;
-		// Debug statement
-		printf("[video_thread_nps] Added %s to camera array.\n",
-				device->dev_name);
-		// Successfully added
-		return true;
-	}
-	// Camera array is full
-	return false;
+bool add_video_device(struct video_config_t *device)
+{
+  // Loop over camera array
+  for (int i = 0; i < VIDEO_THREAD_MAX_CAMERAS; ++i) {
+    // If device is already registered, break
+    if (cameras[i] == device) {
+      break;
+    }
+    // If camera slot is already used, continue
+    if (cameras[i] != NULL) {
+      continue;
+    }
+    // No initialization, should be handled by simulation!
+    // Store device pointer
+    cameras[i] = device;
+    // Debug statement
+    printf("[video_thread_nps] Added %s to camera array.\n",
+           device->dev_name);
+    // Successfully added
+    return true;
+  }
+  // Camera array is full
+  return false;
 }
