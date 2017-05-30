@@ -95,15 +95,15 @@ let check_altitude_srtm = fun a x wgs84 ->
   Srtm.add_path (Env.paparazzi_home ^ "/data/srtm");
   try
     let srtm_alt = float (Srtm.of_wgs84 wgs84) in
-    if a < srtm_alt then begin
-      fprintf stderr "\nMAJOR WARNING: below SRTM ground altitude (%.0f<%.0f) in %s\n" a srtm_alt (Xml.to_string x)
+    if a < srtm_alt then begin (* Not fully correct, Flightplan "alt" is not alt as we know it *)
+      fprintf stderr "MAJOR NOTICE: below SRTM ground altitude (%.0f<%.0f) in %s\n" a srtm_alt (Xml.to_string x)
     end
   with Srtm.Tile_not_found e ->
     fprintf stderr "No SRTM data found to check altitude.\n"
 
 let check_altitude = fun a x ->
   if a < !ground_alt +. !security_height then begin
-    fprintf stderr "\nWarning: low altitude (%.0f<%.0f+%.0f) in %s\n\n" a !ground_alt !security_height (Xml.to_string x)
+    fprintf stderr "\nNOTICE: low altitude (%.0f<%.0f+%.0f) in %s\n\n" a !ground_alt !security_height (Xml.to_string x)
   end
 
 

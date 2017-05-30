@@ -49,7 +49,12 @@
   <modules>
     <module name="gps" type="ubx_ucenter"/>
     <module name="infrared_adc"/>
-    <module name="ahrs_infrared"/>
+    <module name="ahrs_infrared"/>  
+
+    <module name="digital_cam">
+      <!-- <define name="DC_SHUTTER_GPIO" value="CAM_SWITCH_GPIO"/>--><!-- Not compiling ATM -->
+      <define name="DC_SHUTTER_GPIO" value="GPIOB,GPIO22"/>
+    </module>  
 <!--
     <module name="sys_mon"/>
 -->
@@ -70,6 +75,17 @@
       <configure name="ADC_CHANNEL_GENERIC1" value="ADC_7"/>
     </module>
 -->
+    <module name="nav" type="line"/>
+    <module name="nav" type="line_border"/>
+    <module name="nav" type="line_osam"/>
+    <module name="nav" type="survey_polygon"/>
+    <module name="nav" type="survey_poly_osam"/>
+    <module name="nav" type="smooth"/>
+    <module name="nav" type="vertical_raster"/>
+    <module name="nav" type="flower"/>
+    <module name="nav" type="bungee_takeoff"/>
+    <module name="nav" type="catapult"/>
+    
   </modules>
 
 <!-- Define here to which CONNECTOR NUMBER the servo is connected to, on the autopilot cicuit board -->
@@ -238,7 +254,7 @@ If not set before when you would enter home mode you had to flip a bit via the G
 <!-- RC_LOST_MODE means that if your RC Transmitter signal is not received anymore in the autopilot, e.g. you switch it off
      or  fly a long range mission you define the wanted mode behaviour here.
      If you do not define it, it defaults to flying to the flightplan HOME -->
-    <define name="RC_LOST_MODE" value="PPRZ_MODE_AUTO2"/>
+    <define name="RC_LOST_MODE" value="AP_MODE_AUTO2"/>
 
     <!-- OLD <define name="ALT_KALMAN_ENABLED" value="TRUE"/>-->
     <define name="TRIGGER_DELAY" value="1.0"/>
@@ -365,6 +381,11 @@ If not set before when you would enter home mode you had to flip a bit via the G
   <section name="DATALINK" prefix="DATALINK_">
     <define name="DEVICE_TYPE" value="PPRZ"/>
     <define name="DEVICE_ADDRESS" value="...."/>
+  </section>
+  
+  <section name="DIGITAL_CAMERA" prefix="DC_">
+    <define name="AUTOSHOOT_PERIOD" value="3" unit="sec"/>
+    <define name="AUTOSHOOT_DISTANCE_INTERVAL" value="70" unit="meter"/>
   </section>
 
 <!-- ******************************** SIMU ********************************* -->

@@ -57,3 +57,9 @@ GPS_BAUD ?= B38400
 # e.g. <servo driver="Ppm">
 #
 ACTUATORS ?= actuators_pwm
+
+#
+# default External Current and Volt Sensor configuration
+#
+# ADC_CURRENT_SENSOR ?= ADC_3
+# ADC_VOLTAGE_SENSOR ?= ADC_2

@@ -117,8 +117,16 @@ make -C $PAPARAZZI_HOME -f Makefile.ac AIRCRAFT=Moksha ap.compile
    <!--  </module>-->
     <!-- Navigation modules-->
     <module name="nav" type="drop"/>
-    <module name="nav" type="survey_polygon"/>
     <module name="nav" type="line"/>
+    <module name="nav" type="line_border"/>
+    <module name="nav" type="line_osam"/>
+    <module name="nav" type="survey_polygon"/>
+    <module name="nav" type="survey_poly_osam"/>
+    <module name="nav" type="smooth"/>
+    <module name="nav" type="vertical_raster"/>
+    <module name="nav" type="flower"/>
+    <module name="nav" type="bungee_takeoff"/>
+    <module name="nav" type="catapult"/>
     <!-- to test, analyze performance etc.-->
     <!-- module name="sys_mon"/> -->
     <!--
@@ -240,7 +248,7 @@ make -C $PAPARAZZI_HOME -f Makefile.ac AIRCRAFT=Moksha ap.compile
 <!-- <set servo="ELEVON_LEFT"  value="(@ROLL*0.8f) + (@PITCH)"/> -->
 <!-- <set servo="ELEVON_RIGHT" value="(@ROLL*0.8f) - (@PITCH)"/> -->
     <set servo="LIGHTS"         value="@ACTIVELIGHTS"/>
-<!--   <set servo="LIGHTS"         value="(PPRZ_MODE_AUTO2 ? MAX_PPRZ : @ACTIVELIGHTS)"/> -->
+<!--   <set servo="LIGHTS"         value="(AP_MODE_AUTO2 ? MAX_PPRZ : @ACTIVELIGHTS)"/> -->
    <!-- TODO test if  tuning by RC still works -->
 <!--  <let var="roll_neutral" value="@GAIN1"/> -->
 <!--  <let var="ir_roll_neutral" value="@GAIN1"/> -->
@@ -530,7 +538,7 @@ If not set before when you would enter home mode you had to flip a bit via the G
     <!-- RC_LOST_MODE means that if your RC Transmitter signal is not received anymore in the autopilot, e.g. you switch it off
      or  fly a long range mission you define the wanted mode behaviour here.
      If you do not define it, it defaults to flying to the flightplan HOME -->
-    <define name="RC_LOST_MODE" value="PPRZ_MODE_AUTO2"/>
+    <define name="RC_LOST_MODE" value="AP_MODE_AUTO2"/>
     <define name="NO_XBEE_API_INIT" value="TRUE"/>
   </section>
 

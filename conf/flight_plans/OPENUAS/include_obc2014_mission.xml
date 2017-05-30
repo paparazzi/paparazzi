@@ -151,7 +151,7 @@ TST-3 = -26° 35' 23.2" * 151° 50' 45.9"
     <!-- If datalink is lost for more than 10 seconds and we are in launched state -->
 
     <!-- below for the real SnR --> <!--  TODO: if datalinkloss but still closeby move to commhold? strange better airfiledhome loiter IMHO -->
-    <exception cond="And((datalink_time/2) > 9, launch > 0) && (!AircraftIsBooting())" deroute="CommsHoldLoiter"/> <!-- deroute="AirfieldHomeLoiter"/> -->
+    <exception cond="And((datalink_time/2) > 9, autopilot.launch > 0) && (!AircraftIsBooting())" deroute="CommsHoldLoiter"/> <!-- deroute="AirfieldHomeLoiter"/> -->
 
  <!--   <exception cond="if Joefoundandretunvalformticket deroute="Waitforjudges"/>-->
 
@@ -267,8 +267,8 @@ TST-3 = -26° 35' 23.2" * 151° 50' 45.9"
     <block key="t" name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
       <!-- <set value="3000" var="ap_state->commands[COMMAND_CAMBER]"/> -->
       <set value="0" var="autopilot.kill_throttle"/>
-      <set value="1" var="launch"/>
-      <set value="0" var="autopilot_flight_time"/>
+      <set value="1" var="autopilot.launch"/>
+      <set value="0" var="autopilot.flight_time"/>
       <call_once fun="AirbrakesOff()"/>
       <set value="nav_airspeed_nominal_setting" var="v_ctl_auto_airspeed_setpoint"/>
       <attitude pitch="nav_takeoff_pitch_setting" roll="0" throttle="1.0" until="MoreThan(NavBlockTime(), 2)" vmode="throttle"/>

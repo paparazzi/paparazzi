@@ -30,7 +30,7 @@ DRONE = $(PAPARAZZI_SRC)/sw/tools/parrot/bebop.py
 
 # Program the device and start it.
 upload program: $(OBJDIR)/$(TARGET).elf
-	$(Q)$(DRONE) --host=$(HOST) --min_version='1.0.0' --max_version='1.2.1' upload_file_and_run $(OBJDIR)/$(TARGET).elf $(SUB_DIR)
+	$(Q)$(DRONE) --host=$(HOST) --min_version='1.0.0' --max_version='1.3.0' upload_file_and_run $(OBJDIR)/$(TARGET).elf $(SUB_DIR)
 
 # Listing of phony targets.
 .PHONY : upload program

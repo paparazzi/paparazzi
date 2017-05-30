@@ -137,8 +137,8 @@ perhaps a few global alt exceptions? But where do they deroute to assuming the a
 
   <!-- The header section allows one to include advanced navigation routines and header files that allow access to variables that may be useful for exceptions or advanced flightplan routines dependent on various internal autopilot variables -->
   <header>
-#include "subsystems/navigation/nav_line.h"
-#include "datalink.h"
+#include "subsystems/datalink/datalink.h"
+#include "state.h"
   </header>
   <!-- The waypoints section must contain 1 or more waypoints. For tuning, setup STDBY in a location in front of the pilot at least DEFAULT_CIRCLE_RADIUS metres away from the flight line if restricted to no overflights. Setup 1 and 2 in front of and to the left and right of the pilot, respectively. These are only used for testing ovals and eights after tuning. Again, waypoints should be at least a radius away from the flight line (probably 1.5xRadius) to prevent overflights. HOME can be set somewhere in the vicinity of STDBY or the pilot. CLIMB is for takeoff (mostly for sim, should manually takeoff for tuning)-->
   <waypoints>
@@ -173,9 +173,10 @@ perhaps a few global alt exceptions? But where do they deroute to assuming the a
     </block>
     <!-- need this for simulation, manual takeoff for real testing -->
     <block key="t" name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png" group="home">
-      <exception cond="estimator_z > (ground_alt+25)" deroute="Standby"/>
+      <exception cond="GetPosAlt() > (ground_alt+25)" deroute="Standby"/>
       <set value="0" var="autopilot.kill_throttle"/>
-      <set value="0" var="estimator_flight_time"/>
+      <set value="1" var="autopilot.launch"/>
+      <set value="0" var="autopilot.flight_time"/>
       <go from="HOME" throttle="1.0" vmode="throttle" wp="CLIMB" pitch="15"/>
     </block>
     <block key="<Control>a" name="Standby" strip_button="Standby" strip_icon="home.png" group="home">
@@ -214,7 +215,7 @@ perhaps a few global alt exceptions? But where do they deroute to assuming the a
       </while>
     </block>
     <block name="Descent Auto Throttle Tuning">
-      <while cond="estimator_z > (ground_alt + 25)">
+      <while cond="GetPosAlt() > (ground_alt + 25)">
       	<attitude roll="0.0" vmode="climb" climb="-V_CTL_ALTITUDE_MAX_CLIMB"/>
       </while>
     </block>
@@ -243,7 +244,7 @@ perhaps a few global alt exceptions? But where do they deroute to assuming the a
       </while>
     </block>
     <block name="Descent Auto Pitch Tuning">
-      <while cond="estimator_z > (ground_alt + 25)">
+      <while cond="GetPosAlt() > (ground_alt + 25)">
       	<attitude roll="0.0" pitch="auto" throttle="V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" vmode="climb" climb="-V_CTL_ALTITUDE_MAX_CLIMB"/>
       </while>
     </block>
@@ -262,7 +263,7 @@ perhaps a few global alt exceptions? But where do they deroute to assuming the a
     		nav_altitude = flight_altitude -> can be set in the flight params setting page
     -->
 	<block name="Altitude Tuning">
-      <set var="flight_altitude" value="estimator_z"/>
+      <set var="flight_altitude" value="GetPosAlt()"/>
       <while cond="TRUE">
       	<attitude roll="0.0" vmode="alt" alt="flight_altitude"/>
       </while>
@@ -276,7 +277,7 @@ perhaps a few global alt exceptions? But where do they deroute to assuming the a
     		nav_throttle_setpoint = 9600*(V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE)
     -->
     <block name="Course Tuning">
-      <set var="nav_course" value="estimator_hspeed_dir"/>
+      <set var="nav_course" value="state.h_speed_dir_i"/>
       <while cond="TRUE">
       	<heading course="nav_course" vmode="throttle" throttle="V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" until="FALSE"/> <!--continues forever-->
       </while>
@@ -333,8 +334,8 @@ perhaps a few global alt exceptions? But where do they deroute to assuming the a
       <oval p1="1" p2="2" radius="nav_radius"/>
     </block>
     <block name="Line 1-2" strip_button="Line (wp 1-2)" strip_icon="line.png" group="base_pattern">
-      <call_once fun="nav_line_init()"/>
-      <call fun="nav_line(WP_1, WP_2, nav_radius)"/>
+      <call_once fun="nav_line_setup()"/>
+      <call fun="nav_line_run(WP_1, WP_2, nav_radius)"/>
     </block>
 
   </blocks>

@@ -11,7 +11,6 @@ Your safe aircraft operation is *your* responsibility
 <!-- Default flightplan alt set to 30m. This hight makes it fly over most of trees in this world by default. Security height 15m a tradeof between telemetry loss, airframe damage and avarage small building and hill height -->
 <flight_plan alt="230" ground_alt="200" lat0="50.799999" lon0="7.566666" max_dist_from_home="100" name="Parrot Simple" security_height="15">
   <header>
-
 //Set Generic options
     #include "autopilot.h"
 //Enable AHRS Health test functions
@@ -21,7 +20,6 @@ Your safe aircraft operation is *your* responsibility
 //Enable datalink tests
     #include "subsystems/datalink/datalink.h"
 #include "firmwares/rotorcraft/guidance/guidance_v.h"
-
   </header>
 
   <waypoints>
@@ -38,7 +36,7 @@ Your safe aircraft operation is *your* responsibility
  <!--   <exception cond="electrical.bat_low && !(nav_block == IndexOfBlock('Setting home location')) && !(nav_block == IndexOfBlock('Holding point')) && !(nav_block == IndexOfBlock('Land')) && !(nav_block == IndexOfBlock('Emergency'))" deroute="Land"/>-->
     <exception cond="electrical.bat_critical && !(nav_block == IndexOfBlock('Setting home location')) && !(nav_block == IndexOfBlock('Holding point')) && !(nav_block == IndexOfBlock('Land')) && !(nav_block == IndexOfBlock('Emergency'))" deroute="Emergency"/>
     <!-- No connection for some time in flight, then try to land -->
-    <exception cond="autopilot_in_flight && datalink_time > 55 && !(nav_block == IndexOfBlock('Setting home location')) && !(nav_block == IndexOfBlock('Holding point')) && !(nav_block == IndexOfBlock('Land')) && !(nav_block == IndexOfBlock('Emergency'))" deroute="Land"/>
+    <exception cond="autopilot_in_flight() && datalink_time > 55 && !(nav_block == IndexOfBlock('Setting home location')) && !(nav_block == IndexOfBlock('Holding point')) && !(nav_block == IndexOfBlock('Land')) && !(nav_block == IndexOfBlock('Emergency'))" deroute="Land"/>
     <!-- If somehow the AC isVALUEVALUE higher than initial ground position plus 60m, just land -->
  <!--tofix only in flight   <exception cond="GetPosAlt() > (GetAltRef() + 60)" deroute="Land"/> -->
     <!-- No link for 20 seconds and no GPS valid position fix, but the AC can still hover...however no option to give commands, emergency landing -->
@@ -90,7 +88,7 @@ Altough Switching the mode to auto2/NAV from any other mode will reset nav_headi
       <call_once fun="NavResurrect()"/><!-- Ressurect again, since sometimes once is not enough and motors will not start spinning -->
       <!-- TODO improve try takeof 5 times than give up an go to Holding point, something stuck in the prop, a finger maybe ;)-->
       <!--   <exception cond="!autopilot_motors_on" deroute="Takeoff"/>-->
-      <set value="0" var="autopilot_flight_time"/>
+      <set value="0" var="autopilot.flight_time"/>
       <!-- If take-off to first point takes to long to reach somehow because of some reason, abort flight -->
       <!-- todo test  various times -->
      <exception cond="block_time > 560" deroute="Land"/>

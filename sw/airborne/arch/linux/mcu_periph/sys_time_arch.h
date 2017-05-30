@@ -36,21 +36,13 @@
  * WARNING: overflows after 71min34seconds!
  * @return current system time as uint32_t
  */
-static inline uint32_t get_sys_time_usec(void)
-{
-  return sys_time.nb_sec * 1000000 +
-         usec_of_cpu_ticks(sys_time.nb_sec_rem);
-}
+extern uint32_t get_sys_time_usec(void);
 
 /**
  * Get the time in milliseconds since startup.
  * @return milliseconds since startup as uint32_t
  */
-static inline uint32_t get_sys_time_msec(void)
-{
-  return sys_time.nb_sec * 1000 +
-         msec_of_cpu_ticks(sys_time.nb_sec_rem);
-}
+extern uint32_t get_sys_time_msec(void);
 
 static inline void sys_time_usleep(uint32_t us)
 {
