@@ -35,6 +35,8 @@
 #include "modules/computer_vision/lib/v4l/v4l2.h"
 #include "peripherals/video_device.h"
 
+#include <stdio.h>
+
 // Camera structs for use in modules.
 // See boards/pc_sim.h
 // Default values from ARDrone can be overwritten by simulator.

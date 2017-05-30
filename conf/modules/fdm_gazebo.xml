@@ -10,7 +10,7 @@
   <header/>
   <makefile target="nps">
   	<raw>
-  	nps.CFLAGS  += $(shell pkg-config gazebo --cflags)
+  	nps.CXXFLAGS  += $(shell pkg-config gazebo --cflags)
     nps.LDFLAGS += $(shell pkg-config gazebo --libs)
   	</raw>
     <file name="nps_fdm_gazebo.cpp" dir="nps"/>

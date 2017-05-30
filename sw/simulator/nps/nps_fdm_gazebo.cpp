@@ -26,6 +26,11 @@
  * This is an FDM for NPS that uses Gazebo as the simulation engine.
  */
 
+// The transition from Gazebo 7 to 8 deprecates a large number of functions.
+// Ignore these errors for now...
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 #include <cstdio>
 #include <cstdlib>
 #include <string>
@@ -195,20 +200,26 @@ void nps_fdm_run_step(
 
 // TODO Atmosphere functions have not been implemented yet.
 // Starting at version 8, Gazebo has its own atmosphere and wind model.
-void nps_fdm_set_wind(double speed, double dir) {
+void nps_fdm_set_wind(
+		double speed __attribute__((unused)),
+		double dir __attribute__((unused))) {
 }
 
 void nps_fdm_set_wind_ned(
-		double wind_north,
-		double wind_east,
-		double wind_down) {
+		double wind_north __attribute__((unused)),
+		double wind_east __attribute__((unused)),
+		double wind_down __attribute__((unused))) {
 }
 
-void nps_fdm_set_turbulence(double wind_speed, int turbulence_severity) {
+void nps_fdm_set_turbulence(
+		double wind_speed __attribute__((unused)),
+		int turbulence_severity __attribute__((unused))) {
 }
 
 /** Set temperature in degrees Celcius at given height h above MSL */
-void nps_fdm_set_temperature(double temp, double h) {
+void nps_fdm_set_temperature(
+		double temp __attribute__((unused)),
+		double h __attribute__((unused))) {
 }
 
 // Internal functions
@@ -534,3 +545,4 @@ static void read_image(
 }
 #endif
 
+#pragma GCC diagnostic pop // Ignore -Wdeprecated-declarations
