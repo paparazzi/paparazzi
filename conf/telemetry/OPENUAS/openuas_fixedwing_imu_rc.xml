@@ -100,13 +100,27 @@
       <message name="IMU_MAG_RAW"         period="0.5"/>
     </mode>
     <mode name="debug_rc" key_press="c">
+      <message name="PPRZ_MODE"           period="1.0"/>
       <message name="PPM"                 period="0.25"/>
       <message name="RC"                  period="0.25"/>
       <message name="COMMANDS"            period="0.25"/>
       <message name="FBW_STATUS"          period="1.0"/>
-      <message name="ACTUATORS"           period="0.5"/> <!-- For trimming -->
+      <message name="ACTUATORS"           period="0.5"/>
     </mode>
-  </process>  
+    <mode name="empty">
+    </mode>      
+  </process>
+    
+  <process name="Logger">
+    <mode name="default">
+      <message name="DL_VALUE"               period="0.5"/>
+      <message name="ALIVE"                  period="2.1"/>
+      <message name="IMU_GYRO_SCALED"        period="0.017"/>
+      <message name="IMU_ACCEL_SCALED"       period="0.017"/>
+      <message name="IMU_MAG_SCALED"         period="0.1"/>
+    </mode>
+  </process>    
+       
   <process name="Fbw">
     <mode name="default">
       <message name="COMMANDS"            period="5.0"/>
@@ -118,7 +132,7 @@
       <message name="RC"                  period="0.5"/>
       <message name="COMMANDS"            period="0.5"/>
       <message name="FBW_STATUS"          period="1.0"/>
-      <message name="ACTUATORS"           period="5.0"/> <!-- For trimming -->
+      <message name="ACTUATORS"           period="5.0"/>
     </mode>
   </process>
 </telemetry>
