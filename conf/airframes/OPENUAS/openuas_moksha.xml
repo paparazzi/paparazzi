@@ -117,8 +117,16 @@ make -C $PAPARAZZI_HOME -f Makefile.ac AIRCRAFT=Moksha ap.compile
    <!--  </module>-->
     <!-- Navigation modules-->
     <module name="nav" type="drop"/>
-    <module name="nav" type="survey_polygon"/>
     <module name="nav" type="line"/>
+    <module name="nav" type="line_border"/>
+    <module name="nav" type="line_osam"/>
+    <module name="nav" type="survey_polygon"/>
+    <module name="nav" type="survey_poly_osam"/>
+    <module name="nav" type="smooth"/>
+    <module name="nav" type="vertical_raster"/>
+    <module name="nav" type="flower"/>
+    <module name="nav" type="bungee_takeoff"/>
+    <module name="nav" type="catapult"/>
     <!-- to test, analyze performance etc.-->
     <!-- module name="sys_mon"/> -->
     <!--

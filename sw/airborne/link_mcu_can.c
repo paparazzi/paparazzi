@@ -213,7 +213,7 @@ static void send_fbw_status(struct transport_tx *trans, struct link_device *dev)
 
 void link_mcu_init(void)
 {
-  ppz_can_init(link_mcu_on_can_msg);
+  ppz_can_init((can_rx_callback_t)link_mcu_on_can_msg);
 
 #ifdef AP
 #if PERIODIC_TELEMETRY
