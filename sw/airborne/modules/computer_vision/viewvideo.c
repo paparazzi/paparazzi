@@ -48,7 +48,6 @@
 
 #include BOARD_CONFIG
 
-
 // Downsize factor for video stream
 #ifndef VIEWVIDEO_DOWNSIZE_FACTOR
 #define VIEWVIDEO_DOWNSIZE_FACTOR 4
@@ -67,19 +66,9 @@ PRINT_CONFIG_VAR(VIEWVIDEO_QUALITY_FACTOR)
 #endif
 PRINT_CONFIG_VAR(VIEWVIDEO_RTP_TIME_INC)
 
-// Default image folder
-#ifndef VIEWVIDEO_SHOT_PATH
-#ifdef VIDEO_THREAD_SHOT_PATH
-#define VIEWVIDEO_SHOT_PATH VIDEO_THREAD_SHOT_PATH
-#else
-#define VIEWVIDEO_SHOT_PATH /data/video/images
-#endif
-#endif
-PRINT_CONFIG_VAR(VIEWVIDEO_SHOT_PATH)
-
 // Define stream framerate
 #ifndef VIEWVIDEO_FPS
-#define VIEWVIDEO_FPS 10
+#define VIEWVIDEO_FPS 5
 #endif
 PRINT_CONFIG_VAR(VIEWVIDEO_FPS)
 
@@ -87,7 +76,7 @@ PRINT_CONFIG_VAR(VIEWVIDEO_FPS)
 #ifndef VIEWVIDEO_NICE_LEVEL
 #define VIEWVIDEO_NICE_LEVEL 5
 #endif
-PRINT_CONFIG_VAR(VIEWVIDEO_FPS)
+PRINT_CONFIG_VAR(VIEWVIDEO_NICE_LEVEL)
 
 // Check if we are using netcat instead of RTP/UDP
 #ifndef VIEWVIDEO_USE_NETCAT
@@ -102,7 +91,8 @@ PRINT_CONFIG_VAR(VIEWVIDEO_FPS)
 #include <sys/wait.h>
 PRINT_CONFIG_MSG("[viewvideo] Using netcat.")
 #else
-struct UdpSocket video_sock;
+struct UdpSocket video_sock1;
+struct UdpSocket video_sock2;
 PRINT_CONFIG_MSG("[viewvideo] Using RTP/UDP stream.")
 PRINT_CONFIG_VAR(VIEWVIDEO_USE_RTP)
 #endif
@@ -110,6 +100,7 @@ PRINT_CONFIG_VAR(VIEWVIDEO_USE_RTP)
 /* These are defined with configure */
 PRINT_CONFIG_VAR(VIEWVIDEO_HOST)
 PRINT_CONFIG_VAR(VIEWVIDEO_PORT_OUT)
+PRINT_CONFIG_VAR(VIEWVIDEO_PORT2_OUT)
 
 // Initialize the viewvideo structure with the defaults
 struct viewvideo_t viewvideo = {
@@ -123,10 +114,9 @@ struct viewvideo_t viewvideo = {
 
 /**
  * Handles all the video streaming and saving of the image shots
- * This is a sepereate thread, so it needs to be thread safe!
+ * This is a separate thread, so it needs to be thread safe!
  */
-struct image_t *viewvideo_function(struct image_t *img);
-struct image_t *viewvideo_function(struct image_t *img)
+static struct image_t *viewvideo_function(struct UdpSocket *socket, struct image_t *img, uint32_t *rtp_frame_nr)
 {
   // Resize image if needed
   struct image_t img_small;
@@ -178,27 +168,18 @@ struct image_t *viewvideo_function(struct image_t *img)
     }
 #else
     if (viewvideo.use_rtp) {
-
       // Send image with RTP
       rtp_frame_send(
-        &video_sock,              // UDP socket
+        socket,              // UDP socket
         &img_jpeg,
         0,                        // Format 422
         VIEWVIDEO_QUALITY_FACTOR, // Jpeg-Quality
         0,                        // DRI Header
-        VIEWVIDEO_RTP_TIME_INC    // 90kHz time increment
+        (img->ts.tv_sec * 1000000 + img->ts.tv_usec),
+        rtp_frame_nr
       );
-      // Extra note: when the time increment is set to 0,
-      // it is automaticaly calculated by the send_rtp_frame function
-      // based on gettimeofday value. This seems to introduce some lag or jitter.
-      // An other way is to compute the time increment and set the correct value.
-      // It seems that a lower value is also working (when the frame is received
-      // the timestamp is always "late" so the frame is displayed immediately).
-      // Here, we set the time increment to the lowest possible value
-      // (1 = 1/90000 s) which is probably stupid but is actually working.
     }
 #endif
-
   }
 
   // Free all buffers
@@ -207,16 +188,27 @@ struct image_t *viewvideo_function(struct image_t *img)
   return NULL; // No new images were created
 }
 
+#ifdef VIEWVIDEO_CAMERA
+static struct image_t *viewvideo_function1(struct image_t *img)
+{
+  static uint32_t rtp_frame_nr = 0;
+  return viewvideo_function(&video_sock1, img, &rtp_frame_nr);
+}
+#endif
+
+#ifdef VIEWVIDEO_CAMERA2
+static struct image_t *viewvideo_function2(struct image_t *img)
+{
+  static uint32_t rtp_frame_nr = 0;
+  return viewvideo_function(&video_sock2, img, &rtp_frame_nr);
+}
+#endif
+
 /**
  * Initialize the view video
  */
 void viewvideo_init(void)
 {
-  char save_name[512];
-
-  struct video_listener *listener = cv_add_to_device_async(&VIEWVIDEO_CAMERA, viewvideo_function, VIEWVIDEO_NICE_LEVEL);
-  listener->maximum_fps = VIEWVIDEO_FPS;
-
   viewvideo.is_streaming = true;
 
 #if VIEWVIDEO_USE_NETCAT
@@ -237,19 +229,32 @@ void viewvideo_init(void)
   }
 #else
   // Open udp socket
-  udp_socket_create(&video_sock, STRINGIFY(VIEWVIDEO_HOST), VIEWVIDEO_PORT_OUT, -1, VIEWVIDEO_BROADCAST);
-
-  // Create an SDP file for the streaming
-  sprintf(save_name, "%s/stream.sdp", STRINGIFY(VIEWVIDEO_SHOT_PATH));
-  FILE *fp = fopen(save_name, "w");
-  if (fp != NULL) {
-    fprintf(fp, "v=0\n");
-    fprintf(fp, "m=video %d RTP/AVP 26\n", (int)(VIEWVIDEO_PORT_OUT));
-    fprintf(fp, "c=IN IP4 0.0.0.0\n");
-    fclose(fp);
-  } else {
-    printf("[viewvideo] Failed to create SDP file.\n");
+#ifdef VIEWVIDEO_CAMERA
+  if (udp_socket_create(&video_sock1, STRINGIFY(VIEWVIDEO_HOST), VIEWVIDEO_PORT_OUT, -1, VIEWVIDEO_BROADCAST)) {
+    printf("[viewvideo]: failed to open view video socket, HOST=%s, port=%d\n", STRINGIFY(VIEWVIDEO_HOST),
+           VIEWVIDEO_PORT_OUT);
   }
 #endif
-}
 
+#ifdef VIEWVIDEO_CAMERA2
+  if (udp_socket_create(&video_sock2, STRINGIFY(VIEWVIDEO_HOST), VIEWVIDEO_PORT2_OUT, -1, VIEWVIDEO_BROADCAST)) {
+    printf("[viewvideo]: failed to open view video socket, HOST=%s, port=%d\n", STRINGIFY(VIEWVIDEO_HOST),
+           VIEWVIDEO_PORT2_OUT);
+  }
+#endif
+#endif
+
+#ifdef VIEWVIDEO_CAMERA
+  struct video_listener *listener1 = cv_add_to_device_async(&VIEWVIDEO_CAMERA, viewvideo_function1,
+                                     VIEWVIDEO_NICE_LEVEL);
+  listener1->maximum_fps = VIEWVIDEO_FPS;
+  fprintf(stderr, "[viewvideo] Added asynchronous video streamer lister for CAMERA1\n");
+#endif
+
+#ifdef VIEWVIDEO_CAMERA2
+  struct video_listener *listener2 = cv_add_to_device_async(&VIEWVIDEO_CAMERA2, viewvideo_function2,
+                                     VIEWVIDEO_NICE_LEVEL);
+  listener2->maximum_fps = VIEWVIDEO_FPS;
+  fprintf(stderr, "[viewvideo] Added asynchronous video streamer lister for CAMERA2\n");
+#endif
+}
