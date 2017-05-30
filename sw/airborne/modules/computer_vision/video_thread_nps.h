@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017
+ * Copyright (C) 2017 Tom van Dijk
  *
  * This file is part of Paparazzi.
  *

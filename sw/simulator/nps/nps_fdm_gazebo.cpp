@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Tom van Dijk <tomvand@users.noreply.github.com>
+ * Copyright (C) 2017 Tom van Dijk
  *
  * This file is part of paparazzi.
  *
