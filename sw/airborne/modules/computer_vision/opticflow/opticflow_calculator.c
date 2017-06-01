@@ -279,10 +279,12 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
   // FAST corner detection
   // TODO: There is something wrong with fast9_detect destabilizing FPS. This problem is reduced with putting min_distance
   // to 0 (see defines), however a more permanent solution should be considered
+  // last parameter (for ROI detection) set to NULL because feature management is not implemented yet.
   fast9_detect(img, opticflow->fast9_threshold, opticflow->fast9_min_distance,
                opticflow->fast9_padding, opticflow->fast9_padding, &result->corner_cnt,
                &opticflow->fast9_rsize,
-               opticflow->fast9_ret_corners);
+               opticflow->fast9_ret_corners,
+			   0);
 
   // Adaptive threshold
   if (opticflow->fast9_adaptive) {
