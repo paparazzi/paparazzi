@@ -40,6 +40,7 @@
 #include <gazebo/common/common.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo/sensors/sensors.hh>
+#include <gazebo/gazebo_config.h>
 
 extern "C" {
 #include <sys/time.h>
@@ -388,9 +389,29 @@ static void gazebo_read(void)
                                           gazebo::common::SphericalCoordinates::GLOBAL));
 
   /* atmosphere */
-  // TODO after upgrade to gazebo 8!
+#if GAZEBO_MAJOR_VERSION >= 8 && 0 // TODO implement
+
+#else
+  // Gazebo versions < 8 do not have atmosphere or wind support
+  // Use placeholder values. Valid for low altitude, low speed flights.
+  fdm.wind = {.x = 0, .y = 0, .z = 0};
+  fdm.pressure_sl = 101325; // Pa
+
+  fdm.airspeed = 0;
+  fdm.pressure = fdm.pressure_sl; // Pa
+  fdm.dynamic_pressure = fdm.pressure_sl; // Pa
+  fdm.temperature = 20.0; // C
+  fdm.aoa = 0; // rad
+  fdm.sideslip = 0; // rad
+#endif
   /* flight controls: unused */
+  fdm.elevator = 0;
+  fdm.flap = 0;
+  fdm.left_aileron = 0;
+  fdm.right_aileron = 0;
+  fdm.rudder = 0;
   /* engine: unused */
+  fdm.num_engines = 0;
 }
 
 /**
