@@ -30,16 +30,23 @@
  * de Croon, G.C.H.E. (2016). Monocular distance estimation with optical flow maneuvers and efference copies:
  * a stability-based strategy. Bioinspiration & biomimetics, 11(1), 016004.
  * <http://iopscience.iop.org/article/10.1088/1748-3190/11/1/016004>
+ *
+ * Based on the above theory, we have also developed a new strategy for landing that consists of two phases:
+ * (1) while hovering, the drone determines the optimal gain by increasing the gain until oscillation
+ * (2) the drone starts landing while exponentially decreasing the gain over time
+ *
+ * This strategy leads to smooth, high-performance constant divergence landings, as explained in the article:
+ * H.W. Ho, G.C.H.E. de Croon, E. van Kampen, Q.P. Chu, and M. Mulder (submitted)
+ * Adaptive Control Strategy for Constant Optical Flow Divergence Landing,
+ * <https://arxiv.org/abs/1609.06767>
  */
 
 #ifndef OPTICAL_FLOW_LANDING_H_
 #define OPTICAL_FLOW_LANDING_H_
 
-// number of time steps used for calculating the covariance (oscillations)
-#define COV_WINDOW_SIZE 60
-
 #include "std.h"
 
+#define MAX_COV_WINDOW_SIZE 100
 
 struct OpticalFlowLanding {
   float agl;                    ///< agl = height from sonar (only used when using "fake" divergence)
@@ -51,6 +58,7 @@ struct OpticalFlowLanding {
   float igain;                  ///< I-gain for constant divergence control
   float dgain;                  ///< D-gain for constant divergence control
   float sum_err;                ///< integration of the error for I-gain
+  float d_err;                  ///< difference of error for the D-gain
   float nominal_thrust;         ///< nominal thrust around which the PID-control operates
   int VISION_METHOD;            ///< whether to use vision (1) or Optitrack / sonar (0)
   int CONTROL_METHOD;           ///< type of divergence control: 0 = fixed gain, 1 = adaptive gain
@@ -61,19 +69,25 @@ struct OpticalFlowLanding {
   float dgain_adaptive;         ///< D-gain for adaptive gain control
   int COV_METHOD;               ///< method to calculate the covariance: between thrust and div (0) or div and div past (1)
   int delay_steps;              ///< number of delay steps for div past
+  int window_size;              ///< number of time steps in "window" used for getting the covariance
+  float reduction_factor_elc;   ///< reduction factor - after oscillation, how much to reduce the gain...
+  float lp_cov_div_factor;      ///< low-pass factor for the covariance of divergence in order to trigger the second landing phase in the exponential strategy.
+  int count_transition;         ///< how many time steps the drone has to be oscillating in order to transition to the hover phase with reduced gain
+  float p_land_threshold;       ///< if during the exponential landing the gain reaches this value, the final landing procedure is triggered
 };
 
 extern struct OpticalFlowLanding of_landing_ctrl;
 
 // arrays containing histories for determining covariance
-float thrust_history[COV_WINDOW_SIZE];
-float divergence_history[COV_WINDOW_SIZE];
-float past_divergence_history[COV_WINDOW_SIZE];
+float thrust_history[MAX_COV_WINDOW_SIZE];
+float divergence_history[MAX_COV_WINDOW_SIZE];
+float past_divergence_history[MAX_COV_WINDOW_SIZE];
+float dt_history[MAX_COV_WINDOW_SIZE];
 unsigned long ind_hist;
 
 // Without optitrack set to: GUIDANCE_H_MODE_ATTITUDE
-// With optitrack set to: GUIDANCE_H_MODE_HOVER
-#define GUIDANCE_H_MODE_MODULE_SETTING GUIDANCE_H_MODE_HOVER
+// With optitrack set to: GUIDANCE_H_MODE_HOVER / NAV
+#define GUIDANCE_H_MODE_MODULE_SETTING GUIDANCE_H_MODE_NAV
 
 // Own guidance_v
 #define GUIDANCE_V_MODE_MODULE_SETTING GUIDANCE_V_MODE_MODULE
@@ -81,6 +95,15 @@ unsigned long ind_hist;
 // supporting functions for cov calculation:
 float get_cov(float *a, float *b, int n_elements);
 float get_mean_array(float *a, int n_elements);
+
+// common functions for different landing strategies:
+void set_cov_div(int32_t thrust);
+int32_t PID_divergence_control(float divergence_setpoint, float P, float I, float D, float* err);
+void update_errors(float error);
+void final_landing_procedure(void);
+
+
+// resetting all variables to be called for instance when starting up / re-entering module
 void reset_all_vars(void);
 
 // Implement own Vertical loops

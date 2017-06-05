@@ -38,6 +38,7 @@
     </block>
     <block name="Start Engine">
       <call_once fun="NavResurrect()"/>
+      <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
