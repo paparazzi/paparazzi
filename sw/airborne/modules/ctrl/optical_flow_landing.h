@@ -98,7 +98,7 @@ float get_mean_array(float *a, int n_elements);
 
 // common functions for different landing strategies:
 void set_cov_div(int32_t thrust);
-int32_t PID_divergence_control(float divergence_setpoint, float P, float I, float D, float* err);
+int32_t PID_divergence_control(float divergence_setpoint, float P, float I, float D, float *err);
 void update_errors(float error);
 void final_landing_procedure(void);
 
