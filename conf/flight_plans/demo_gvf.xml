@@ -32,7 +32,7 @@
   </variables>
 
   <modules> 
-    <module name="gvf_module">
+    <module name="gvf_module"/>
   </modules>
 
   <blocks>
@@ -62,8 +62,8 @@
     <block name="ellipse">
       <call fun="gvf_ellipse_wp(WP_ELLIPSE, gvf_ellipse_par.a, gvf_ellipse_par.b, gvf_ellipse_par.alpha)"/>
     </block>
-    <block name="segment">
-      <call fun="gvf_segment_wp1_wp2(WP_ELLIPSE, WP_STDBY, gvf_segment_par.d1, gvf_segment_par.d2)"/>
+	<block name="segment_loop">
+      <call fun="gvf_segment_loop_wp1_wp2(WP_ELLIPSE, WP_STDBY, gvf_segment_par.d1, gvf_segment_par.d2)"/>
     </block>
 	<block name="Sinusoidal">
 	<call fun="gvf_sin_wp_alpha(WP_ELLIPSE, gvf_sin_par.alpha, gvf_sin_par.w, gvf_sin_par.off, gvf_sin_par.A)"/>
