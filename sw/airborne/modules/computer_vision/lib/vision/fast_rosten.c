@@ -46,12 +46,12 @@ static void fast_make_offsets(int32_t *pixel, uint16_t row_stride, uint8_t pixel
  * @param[in] y_padding The padding in the y direction to not scan for corners
  * @param[in] *num_corners reference to the amount of corners found, set by this function
  * @param[in] *ret_corners_length the length of the array *ret_corners.
- * @param[in] *ret_corners array which contains the corners that were detected.
+ * @param[in] **ret_corners pointer to the array which contains the corners that were detected.
  * @param[in] *roi array of format [x0 y0 x1 y1] describing the region of interest in the image where the corners will be detected. If null, the whole image is used.
 */
-void fast9_detect(struct image_t *img, uint8_t threshold, uint16_t min_dist, uint16_t x_padding, uint16_t y_padding, uint16_t *num_corners, uint16_t *ret_corners_length,struct point_t *ret_corners, uint16_t *roi) {
+void fast9_detect(struct image_t *img, uint8_t threshold, uint16_t min_dist, uint16_t x_padding, uint16_t y_padding, uint16_t *num_corners, uint16_t *ret_corners_length, struct point_t **ret_corners, uint16_t *roi) {
 
-  uint32_t corner_cnt = 0;
+  uint16_t corner_cnt = 0;
   int pixel[16];
   int16_t i;
   uint16_t x, y, x_min, x_max, y_min, x_start, x_end, y_start, y_end;
@@ -100,10 +100,10 @@ void fast9_detect(struct image_t *img, uint8_t threshold, uint16_t min_dist, uin
 
           // corners are stored with increasing y,
           // so if we go from the last to the first, then their y-coordinate will go out of range
-          if(ret_corners[i].y < y_min)
+          if((*ret_corners)[i].y < y_min)
             break;
 
-          if (x_min < ret_corners[i].x && ret_corners[i].x < x_max) {
+          if (x_min < (*ret_corners)[i].x && (*ret_corners)[i].x < x_max) {
             need_skip = 1;
             break;
           }
@@ -3655,11 +3655,11 @@ void fast9_detect(struct image_t *img, uint8_t threshold, uint16_t min_dist, uin
       // When we have more corner than allocted space reallocate
       if (corner_cnt >= *ret_corners_length) {
         *ret_corners_length *= 2;
-        ret_corners = realloc(ret_corners, sizeof(struct point_t) * (*ret_corners_length));
+        *ret_corners = realloc(*ret_corners, sizeof(struct point_t) * (*ret_corners_length));
       }
 
-      ret_corners[corner_cnt].x = x;
-      ret_corners[corner_cnt].y = y;
+      (*ret_corners)[corner_cnt].x = x;
+      (*ret_corners)[corner_cnt].y = y;
       corner_cnt++;
 
       // Skip some in the width direction

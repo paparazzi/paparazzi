@@ -283,7 +283,7 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
   fast9_detect(img, opticflow->fast9_threshold, opticflow->fast9_min_distance,
                opticflow->fast9_padding, opticflow->fast9_padding, &result->corner_cnt,
                &opticflow->fast9_rsize,
-               opticflow->fast9_ret_corners,
+               &opticflow->fast9_ret_corners,
 			   0);
 
   // Adaptive threshold
