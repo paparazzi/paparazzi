@@ -105,9 +105,8 @@ extern void gvf_set_direction(int8_t s);
 extern bool gvf_line_XY_heading(float x, float y, float heading);
 extern bool gvf_line_XY1_XY2(float x1, float y1, float x2, float y2);
 extern bool gvf_line_wp1_wp2(uint8_t wp1, uint8_t wp2);
-int out_of_segment_area(float x1, float y1, float x2, float y2, float d1, float d2);
-extern bool gvf_segment_XY1_XY2(float x1, float y1, float x2, float y2, float d1, float d2);
-extern bool gvf_segment_wp1_wp2(uint8_t wp1, uint8_t wp2, float d1, float d2);
+extern bool gvf_segment_loop_XY1_XY2(float x1, float y1, float x2, float y2, float d1, float d2);
+extern bool gvf_segment_loop_wp1_wp2(uint8_t wp1, uint8_t wp2, float d1, float d2);
 extern bool gvf_line_wp_heading(uint8_t wp, float heading);
 
 

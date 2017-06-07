@@ -43,7 +43,7 @@ struct gvf_SurveyPolyAdv gvf_survey;
 
 static void gvf_nav_points(struct FloatVect2 start, struct FloatVect2 end)
 {
-  gvf_segment_XY1_XY2(start.x, start.y, end.x, end.y, 0, 0);
+  gvf_segment_loop_XY1_XY2(start.x, start.y, end.x, end.y, 0, 0);
 }
 
 /**
@@ -195,17 +195,20 @@ void gvf_nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, f
 
   //calculate the leftmost point if one sees the dir vec as going "up" and the sweep vec as going right
   if (divider < 0.0) {
-    for (i = 1; i < gvf_survey.poly_count; i++)
+    for (i = 1; i < gvf_survey.poly_count; i++) {
       if ((gvf_survey.dir_vec.x * (waypoints[gvf_survey.poly_first + i].y - small.y)) + (gvf_survey.dir_vec.y *
           (small.x - waypoints[gvf_survey.poly_first + i].x)) > 0.0) {
         VECT2_COPY(small, waypoints[gvf_survey.poly_first + i]);
       }
-  } else
-    for (i = 1; i < gvf_survey.poly_count; i++)
+    }
+  } else {
+    for (i = 1; i < gvf_survey.poly_count; i++) {
       if ((gvf_survey.dir_vec.x * (waypoints[gvf_survey.poly_first + i].y - small.y)) + (gvf_survey.dir_vec.y *
           (small.x - waypoints[gvf_survey.poly_first + i].x)) > 0.0) {
         VECT2_COPY(small, waypoints[gvf_survey.poly_first + i]);
       }
+    }
+  }
 
   //calculate the line the defines the first flyover
   gvf_survey.seg_start.x = small.x + 0.5 * gvf_survey.sweep_vec.x;

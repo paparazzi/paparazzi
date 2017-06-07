@@ -90,6 +90,37 @@ static void send_segment(struct transport_tx *trans, struct link_device *dev)
 
 #endif
 
+static int out_of_segment_area(float x1, float y1, float x2, float y2, float d1, float d2)
+{
+  struct EnuCoor_f *p = stateGetPositionEnu_f();
+  float px = p->x - x1;
+  float py = p->y - y1;
+
+  float zx = x2 - x1;
+  float zy = y2 - y1;
+  float alpha = atan2f(zy, zx);
+
+  float cosa = cosf(-alpha);
+  float sina = sinf(-alpha);
+
+  float pxr = px * cosa - py * sina;
+  float zxr = zx * cosa - zy * sina;
+
+  int s = 0;
+
+  if (pxr < -d1) {
+    s = 1;
+  } else if (pxr > (zxr + d2)) {
+    s = -1;
+  }
+
+  if (zy < 0) {
+    s *= -1;
+  }
+
+  return s;
+}
+
 void gvf_init(void)
 {
   gvf_control.ke = 1;
@@ -244,38 +275,7 @@ bool gvf_line_wp1_wp2(uint8_t wp1, uint8_t wp2)
   return true;
 }
 
-int out_of_segment_area(float x1, float y1, float x2, float y2, float d1, float d2)
-{
-  struct EnuCoor_f *p = stateGetPositionEnu_f();
-  float px = p->x - x1;
-  float py = p->y - y1;
-
-  float zx = x2 - x1;
-  float zy = y2 - y1;
-  float alpha = atan2f(zy, zx);
-
-  float cosa = cosf(-alpha);
-  float sina = sinf(-alpha);
-
-  float pxr = px * cosa - py * sina;
-  float zxr = zx * cosa - zy * sina;
-
-  int s = 0;
-
-  if (pxr < -d1) {
-    s = 1;
-  } else if (pxr > (zxr + d2)) {
-    s = -1;
-  }
-
-  if (zy < 0) {
-    s *= -1;
-  }
-
-  return s;
-}
-
-bool gvf_segment_XY1_XY2(float x1, float y1, float x2, float y2, float d1, float d2)
+bool gvf_segment_loop_XY1_XY2(float x1, float y1, float x2, float y2, float d1, float d2)
 {
   int s = out_of_segment_area(x1, y1, x2, y2, d1, d2);
   if (s != 0) {
@@ -286,7 +286,7 @@ bool gvf_segment_XY1_XY2(float x1, float y1, float x2, float y2, float d1, float
   return true;
 }
 
-bool gvf_segment_wp1_wp2(uint8_t wp1, uint8_t wp2, float d1, float d2)
+bool gvf_segment_loop_wp1_wp2(uint8_t wp1, uint8_t wp2, float d1, float d2)
 {
   float x1 = waypoints[wp1].x;
   float y1 = waypoints[wp1].y;
