@@ -193,7 +193,7 @@ void gvf_control_2D(float ke, float kn, float e,
   float omega = omega_d + kn * (mr_x * md_y - mr_y * md_x);
 
   // Coordinated turn
-  if (autopilot_get_mode() == PPRZ_MODE_AUTO2) {
+  if (autopilot_get_mode() == AP_MODE_AUTO2) {
     h_ctl_roll_setpoint =
       -atanf(omega * ground_speed / GVF_GRAVITY / cosf(att->theta));
     BoundAbs(h_ctl_roll_setpoint, h_ctl_roll_max_setpoint);
