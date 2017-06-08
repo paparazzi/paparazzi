@@ -105,7 +105,7 @@ static uint64_t vn_get_time_of_week(void)
   localtime_r(&curTime.tv_sec, &t_res);
   struct tm *tt = &t_res;
 
-  uint64_t tow = GPS_SEC_IN_DAY * tt->tm_wday + 3600 * tt->tm_hour + 60 * tt->tm_min + tt->tm_sec; // sec
+  uint64_t tow = (uint64_t)GPS_SEC_IN_DAY * tt->tm_wday + (uint64_t)3600 * tt->tm_hour + (uint64_t)60 * tt->tm_min + tt->tm_sec; // sec
   tow = tow * 1000; // tow to ms
   tow = tow + milli; // tow with added ms
   tow = tow * 1e6; // tow in nanoseconds
