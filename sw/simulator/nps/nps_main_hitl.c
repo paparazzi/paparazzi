@@ -213,6 +213,8 @@ void *nps_ap_data_loop(void *data __attribute__((unused)))
 
   struct pprz_transport pprz_tp_logger;
 
+  pprz_transport_init(&pprz_tp_logger);
+
   while (TRUE) {
     // receive messages from the autopilot
     rdlen = read(fd, buf, sizeof(buf) - 1);
@@ -256,6 +258,10 @@ void *nps_ap_data_loop(void *data __attribute__((unused)))
             case DL_MOTOR_MIXING:
               // parse actuarors message
               cmd_len = DL_MOTOR_MIXING_values_length(buf);
+              // check for out-of-bounds access
+              if (cmd_len > NPS_COMMANDS_NB) {
+                cmd_len = NPS_COMMANDS_NB;
+              }
               memcpy(&cmd_buf, DL_MOTOR_MIXING_values(buf), cmd_len * sizeof(int16_t));
               pthread_mutex_lock(&fdm_mutex);
               // update commands
