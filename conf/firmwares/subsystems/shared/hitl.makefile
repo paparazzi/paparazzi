@@ -6,9 +6,6 @@
 # HITL specific makefile
 #
 # include Makefile.nps instead of Makefile.sim
-
-$(info >>>Calling hitl.makefile)
-
 hitl.MAKEFILE = hitl
 
 include $(CFG_SHARED)/nps_common.makefile

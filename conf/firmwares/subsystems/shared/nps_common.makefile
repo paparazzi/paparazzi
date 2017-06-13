@@ -9,8 +9,6 @@
 # <subsystem name="fdm" type="jsbsim"/>
 #
 
-$(info >>>Calling nps_common.makefile)
-
 nps.ARCHDIR = sim
 
 nps.CFLAGS  += -DSITL -DUSE_NPS
