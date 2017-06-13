@@ -46,8 +46,6 @@
 
 #include "std.h"
 
-#define MAX_COV_WINDOW_SIZE 100
-
 struct OpticalFlowLanding {
   float agl;                    ///< agl = height from sonar (only used when using "fake" divergence)
   float agl_lp;                 ///< low-pass version of agl
@@ -74,16 +72,10 @@ struct OpticalFlowLanding {
   float lp_cov_div_factor;      ///< low-pass factor for the covariance of divergence in order to trigger the second landing phase in the exponential strategy.
   int count_transition;         ///< how many time steps the drone has to be oscillating in order to transition to the hover phase with reduced gain
   float p_land_threshold;       ///< if during the exponential landing the gain reaches this value, the final landing procedure is triggered
+  float div_factor;             ///< Number that transforms the divergence in pixels per frame from the camera to (1 / frame) - taking into account field of view, etc.
 };
 
 extern struct OpticalFlowLanding of_landing_ctrl;
-
-// arrays containing histories for determining covariance
-float thrust_history[MAX_COV_WINDOW_SIZE];
-float divergence_history[MAX_COV_WINDOW_SIZE];
-float past_divergence_history[MAX_COV_WINDOW_SIZE];
-float dt_history[MAX_COV_WINDOW_SIZE];
-unsigned long ind_hist;
 
 // Without optitrack set to: GUIDANCE_H_MODE_ATTITUDE
 // With optitrack set to: GUIDANCE_H_MODE_HOVER / NAV
@@ -91,20 +83,6 @@ unsigned long ind_hist;
 
 // Own guidance_v
 #define GUIDANCE_V_MODE_MODULE_SETTING GUIDANCE_V_MODE_MODULE
-
-// supporting functions for cov calculation:
-float get_cov(float *a, float *b, int n_elements);
-float get_mean_array(float *a, int n_elements);
-
-// common functions for different landing strategies:
-void set_cov_div(int32_t thrust);
-int32_t PID_divergence_control(float divergence_setpoint, float P, float I, float D, float *err);
-void update_errors(float error);
-void final_landing_procedure(void);
-
-
-// resetting all variables to be called for instance when starting up / re-entering module
-void reset_all_vars(void);
 
 // Implement own Vertical loops
 extern void guidance_v_module_init(void);

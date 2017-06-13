@@ -40,6 +40,7 @@
         <dl_setting var="of_landing_ctrl.igain_adaptive" min="0" step="0.01" max="1.0" module="ctrl/optical_flow_landing" shortname="igain_adaptive"/>
         <dl_setting var="of_landing_ctrl.dgain_adaptive" min="0" step="0.01" max="5.0" module="ctrl/optical_flow_landing" shortname="dgain_adaptive"/>
         <dl_setting var="of_landing_ctrl.reduction_factor_elc" min="0.1" step="0.01" max="3.0" module="ctrl/optical_flow_landing" shortname="reduction_factor_elc"/>
+        <dl_setting var="of_landing_ctrl.div_factor" min="-3.0" step="0.01" max="3.0" module="ctrl/optical_flow_landing" shortname="div_factor"/>
       </dl_settings>
     </dl_settings>
   </settings>

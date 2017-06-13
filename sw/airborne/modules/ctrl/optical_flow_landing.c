@@ -42,7 +42,81 @@
  */
 
 
+// Includes:
+#include "modules/ctrl/optical_flow_landing.h"
+// used for automated landing:
+#include "autopilot.h"
+#include "subsystems/navigation/common_flight_plan.h"
+#include "subsystems/datalink/telemetry.h"
+// for measuring time
+#include "mcu_periph/sys_time.h"
+#include "generated/airframe.h"
+#include "paparazzi.h"
+#include "subsystems/abi.h"
+#include "firmwares/rotorcraft/stabilization.h"
+#include "state.h"
+
+// Auxiliary functions:
+// supporting functions for cov calculation:
+float get_cov(float *a, float *b, int n_elements);
+float get_mean_array(float *a, int n_elements);
+// common functions for different landing strategies:
+void set_cov_div(int32_t thrust);
+int32_t PID_divergence_control(float divergence_setpoint, float P, float I, float D, float *err);
+void update_errors(float error);
+void final_landing_procedure(void);
+// resetting all variables to be called for instance when starting up / re-entering module
+void reset_all_vars(void);
+
+
+// Defines:
+// for exponential gain landing, gain increase per second during the first (hover) phase:
+#define INCREASE_GAIN_PER_SECOND 0.02
+// maximal window size in time steps the user can set for covariance determination:
+#define MAX_COV_WINDOW_SIZE 100
+// minimum value of the P-gain for divergence control
+// adaptive control / exponential gain control will not be able to go lower
+#define MINIMUM_GAIN 0.1
+/* Default sonar/agl to use */
+#ifndef OPTICAL_FLOW_LANDING_AGL_ID
+#define OPTICAL_FLOW_LANDING_AGL_ID ABI_BROADCAST
+#endif
+PRINT_CONFIG_VAR(OPTICAL_FLOW_LANDING_AGL_ID)
+/* Use optical flow estimates */
+#ifndef OPTICAL_FLOW_LANDING_OPTICAL_FLOW_ID
+#define OPTICAL_FLOW_LANDING_OPTICAL_FLOW_ID ABI_BROADCAST
+#endif
+PRINT_CONFIG_VAR(OPTICAL_FLOW_LANDING_OPTICAL_FLOW_ID)
+// Other default values:
+#ifndef OPTICAL_FLOW_LANDING_PGAIN
+#define OPTICAL_FLOW_LANDING_PGAIN 0.40
+#endif
+#ifndef OPTICAL_FLOW_LANDING_IGAIN
+#define OPTICAL_FLOW_LANDING_IGAIN 0.01
+#endif
+#ifndef OPTICAL_FLOW_LANDING_DGAIN
+#define OPTICAL_FLOW_LANDING_DGAIN 0.0
+#endif
+#ifndef OPTICAL_FLOW_LANDING_VISION_METHOD
+#define OPTICAL_FLOW_LANDING_VISION_METHOD 1
+#endif
+#ifndef OPTICAL_FLOW_LANDING_CONTROL_METHOD
+#define OPTICAL_FLOW_LANDING_CONTROL_METHOD 0
+#endif
+#ifndef OPTICAL_FLOW_LANDING_COV_METHOD
+#define OPTICAL_FLOW_LANDING_COV_METHOD 0
+#endif
+// number of time steps used for calculating the covariance (oscillations)
+#ifndef OPTICAL_FLOW_LANDING_COV_WINDOW_SIZE
+#define OPTICAL_FLOW_LANDING_COV_WINDOW_SIZE 30
+#endif
+
 // variables retained between module calls
+float thrust_history[MAX_COV_WINDOW_SIZE];
+float divergence_history[MAX_COV_WINDOW_SIZE];
+float past_divergence_history[MAX_COV_WINDOW_SIZE];
+float dt_history[MAX_COV_WINDOW_SIZE];
+unsigned long ind_hist;
 float divergence;
 float divergence_vision;
 float divergence_vision_dt;
@@ -58,29 +132,17 @@ int previous_message_nr;
 int landing;
 float previous_err;
 float previous_cov_err;
-
 // for the exponentially decreasing gain strategy:
 int elc_phase;
-long elc_time_start;
+uint32_t elc_time_start;
 float elc_p_gain_start;
 float elc_i_gain_start;
 float elc_d_gain_start;
 long count_covdiv;
 float lp_cov_div;
 
-// minimum value of the P-gain for divergence control
-// adaptive control / exponential gain control will not be able to go lower
-#define MINIMUM_GAIN 0.1
-
-// used for automated landing:
-#include "autopilot.h"
-#include "subsystems/navigation/common_flight_plan.h"
-#include "subsystems/datalink/telemetry.h"
-
-// for measuring time
-#include <time.h>
-long previous_time;
-long module_enter_time;
+uint32_t previous_time;
+uint32_t module_enter_time;
 
 // sending the divergence message to the ground station:
 static void send_divergence(struct transport_tx *trans, struct link_device *dev)
@@ -90,54 +152,6 @@ static void send_divergence(struct transport_tx *trans, struct link_device *dev)
                            &cov_div, &pstate, &pused, &(of_landing_ctrl.agl));
 }
 
-#include "modules/ctrl/optical_flow_landing.h"
-#include "generated/airframe.h"
-#include "paparazzi.h"
-#include "subsystems/abi.h"
-#include "firmwares/rotorcraft/stabilization.h"
-
-/* Default sonar/agl to use */
-#ifndef OPTICAL_FLOW_LANDING_AGL_ID
-#define OPTICAL_FLOW_LANDING_AGL_ID ABI_BROADCAST
-#endif
-PRINT_CONFIG_VAR(OPTICAL_FLOW_LANDING_AGL_ID)
-
-/* Use optical flow estimates */
-#ifndef OPTICAL_FLOW_LANDING_OPTICAL_FLOW_ID
-#define OPTICAL_FLOW_LANDING_OPTICAL_FLOW_ID ABI_BROADCAST
-#endif
-PRINT_CONFIG_VAR(OPTICAL_FLOW_LANDING_OPTICAL_FLOW_ID)
-
-// Other default values:
-#ifndef OPTICAL_FLOW_LANDING_PGAIN
-#define OPTICAL_FLOW_LANDING_PGAIN 0.40
-#endif
-
-#ifndef OPTICAL_FLOW_LANDING_IGAIN
-#define OPTICAL_FLOW_LANDING_IGAIN 0.01
-#endif
-
-#ifndef OPTICAL_FLOW_LANDING_DGAIN
-#define OPTICAL_FLOW_LANDING_DGAIN 0.0
-#endif
-
-#ifndef OPTICAL_FLOW_LANDING_VISION_METHOD
-#define OPTICAL_FLOW_LANDING_VISION_METHOD 1
-#endif
-
-#ifndef OPTICAL_FLOW_LANDING_CONTROL_METHOD
-#define OPTICAL_FLOW_LANDING_CONTROL_METHOD 0
-#endif
-
-#ifndef OPTICAL_FLOW_LANDING_COV_METHOD
-#define OPTICAL_FLOW_LANDING_COV_METHOD 0
-#endif
-
-// number of time steps used for calculating the covariance (oscillations)
-#ifndef OPTICAL_FLOW_LANDING_COV_WINDOW_SIZE
-#define OPTICAL_FLOW_LANDING_COV_WINDOW_SIZE 30
-#endif
-
 static abi_event agl_ev; ///< The altitude ABI event
 static abi_event optical_flow_ev;
 
@@ -146,15 +160,11 @@ static void vertical_ctrl_agl_cb(uint8_t sender_id __attribute__((unused)), floa
 // Callback function of the optical flow estimate:
 static void vertical_ctrl_optical_flow_cb(uint8_t sender_id __attribute__((unused)), uint32_t stamp, int16_t flow_x,
     int16_t flow_y, int16_t flow_der_x, int16_t flow_der_y, float quality, float size_divergence, float dist);
-
 // struct containing most relevant parameters
 struct OpticalFlowLanding of_landing_ctrl;
 
 void vertical_ctrl_module_init(void);
 void vertical_ctrl_module_run(bool in_flight);
-
-// for exponential gain landing, gain increase per second during the first (hover) phase:
-#define INCREASE_GAIN_PER_SECOND 0.02
 
 /**
  * Initialize the optical flow landing module
@@ -195,10 +205,10 @@ void vertical_ctrl_module_init(void)
     300; // tuned for Bebop 2 (higher frame rate than AR drone) - number of time steps the low-passed cov div should be beyond the limit
   of_landing_ctrl.p_land_threshold =
     0.15f; // if the gain reaches this value during an exponential landing, the drone makes the final landing.
+  // TODO: this div_factor depends on the subpixel-factor (automatically adapt?)
+  of_landing_ctrl.div_factor = -1.28f;
 
-  struct timespec spec;
-  clock_gettime(CLOCK_MONOTONIC, &spec);
-  previous_time = spec.tv_sec * 1E3 + spec.tv_nsec / 1.0E6;
+  previous_time = get_sys_time_msec();
   module_enter_time = previous_time;
 
   // clear histories:
@@ -258,9 +268,7 @@ void reset_all_vars()
   previous_err = 0.0f;
   previous_cov_err = 0.0f;
   divergence = of_landing_ctrl.divergence_setpoint;
-  struct timespec spec;
-  clock_gettime(CLOCK_MONOTONIC, &spec);
-  previous_time = spec.tv_sec * 1E3 + spec.tv_nsec / 1.0E6;
+  previous_time = get_sys_time_msec();
   vision_message_nr = 1;
   previous_message_nr = 0;
   ind_hist = 0;
@@ -283,23 +291,20 @@ void vertical_ctrl_module_run(bool in_flight)
 {
   int i;
   float lp_height; // low-pass height
-  float div_factor; // factor that maps divergence in pixels as received from vision to 1 / frame
 
   // ensure dt >= 0
   if (dt < 0) { dt = 0.0f; }
 
   // get delta time, dt, to scale the divergence measurements correctly when using "simulated" vision:
-  struct timespec spec;
-  clock_gettime(CLOCK_MONOTONIC, &spec);
-  long new_time = spec.tv_sec * 1E3 + spec.tv_nsec / 1.0E6;
-  long delta_t = new_time - previous_time;
+  uint32_t new_time = get_sys_time_msec();
+  uint32_t delta_t = new_time - previous_time;
   dt += ((float)delta_t) / 1000.0f;
   if (dt > 10.0f) {
     dt = 0.0f;
     return;
   }
   previous_time = new_time;
-  long module_active_time = new_time - module_enter_time;
+  uint32_t module_active_time = new_time - module_enter_time;
   float module_active_time_sec = (float) module_active_time / 1000.0f;
   dt_history[ind_hist % of_landing_ctrl.window_size] = dt;
   ind_hist++;
@@ -320,7 +325,8 @@ void vertical_ctrl_module_run(bool in_flight)
     // SIMULATED DIVERGENCE:
 
     // USE OPTITRACK HEIGHT
-    of_landing_ctrl.agl = (float) gps.lla_pos.alt / 1000.0f;
+    // of_landing_ctrl.agl = (float) gps.lla_pos.alt / 1000.0f;
+    of_landing_ctrl.agl = stateGetPositionLla_f()->alt;
     // else we get an immediate jump in divergence when switching on.
     if (of_landing_ctrl.agl_lp < 1E-5 || ind_hist == 0) {
       of_landing_ctrl.agl_lp = of_landing_ctrl.agl;
@@ -343,7 +349,7 @@ void vertical_ctrl_module_run(bool in_flight)
         divergence = of_landing_ctrl.vel / of_landing_ctrl.agl_lp;
         divergence_vision_dt = (divergence_vision / dt);
         if (fabs(divergence_vision_dt) > 1E-5) {
-          div_factor = divergence / divergence_vision_dt;
+          of_landing_ctrl.div_factor = divergence / divergence_vision_dt;
         }
       } else {
         divergence = 1000.0f;
@@ -359,9 +365,7 @@ void vertical_ctrl_module_run(bool in_flight)
 
     if (vision_message_nr != previous_message_nr && dt > 1E-5 && ind_hist > 1) {
 
-      // TODO: this div_factor depends on the subpixel-factor (automatically adapt?)
-      div_factor = -1.28f; // magic number comprising field of view etc.
-      float new_divergence = (divergence_vision * div_factor) / dt;
+      float new_divergence = (divergence_vision * of_landing_ctrl.div_factor) / dt;
 
       // deal with (unlikely) fast changes in divergence:
       float max_div_dt = 0.20;
@@ -509,8 +513,7 @@ void vertical_ctrl_module_run(bool in_flight)
           if (ind_hist >= of_landing_ctrl.window_size && count_covdiv > of_landing_ctrl.count_transition) {
             // next phase:
             elc_phase = 1;
-            clock_gettime(CLOCK_MONOTONIC, &spec);
-            elc_time_start = spec.tv_sec * 1E3 + spec.tv_nsec / 1E6;
+            elc_time_start = get_sys_time_msec();
 
             // we don't want to oscillate, so reduce the gain:
             elc_p_gain_start = of_landing_ctrl.reduction_factor_elc * pstate;
@@ -527,8 +530,7 @@ void vertical_ctrl_module_run(bool in_flight)
           istate = elc_i_gain_start;
           dstate = elc_d_gain_start;
 
-          clock_gettime(CLOCK_MONOTONIC, &spec);
-          new_time = spec.tv_sec * 1E3 + spec.tv_nsec / 1E6;
+          new_time = get_sys_time_msec();
           float t_interval = (new_time - elc_time_start) / 1000.0f;
           // printf("start = %d, now = %d, time interval = %f\n", elc_time_start, new_time, t_interval);
           // this should not happen, but just to be sure to prevent too high gain values:
@@ -545,14 +547,12 @@ void vertical_ctrl_module_run(bool in_flight)
           if (t_interval >= 3.0f && divergence * of_landing_ctrl.divergence_setpoint >= 0.0f) {
             // next phase:
             elc_phase = 2;
-            clock_gettime(CLOCK_MONOTONIC, &spec);
-            elc_time_start = spec.tv_sec * 1E3 + spec.tv_nsec / 1E6;
+            elc_time_start = get_sys_time_msec();
             count_covdiv = 0;
           }
         } else if (elc_phase == 2) {
           // land while exponentially decreasing the gain:
-          clock_gettime(CLOCK_MONOTONIC, &spec);
-          new_time = spec.tv_sec * 1E3 + spec.tv_nsec / 1E6;
+          new_time = get_sys_time_msec();
           float t_interval = (new_time - elc_time_start) / 1000.0f;
 
           // this should not happen, but just to be sure to prevent too high gain values:
