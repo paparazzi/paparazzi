@@ -30,7 +30,7 @@ You can use:
   <header>
     <file name="nav_survey_poly_osam.h"/>
   </header>
-  <makefile target="ap|sim|nps">
+  <makefile target="ap|sim|nps|hitl">
     <file name="nav_survey_poly_osam.c"/>
   </makefile>
 </module>

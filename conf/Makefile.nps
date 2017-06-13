@@ -23,7 +23,6 @@
 #
 # This is the common Makefile for the nps target.
 #
-
 SRC_ARCH = arch/sim
 
 OPT ?= 2

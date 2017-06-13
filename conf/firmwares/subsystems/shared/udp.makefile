@@ -13,6 +13,10 @@ ifeq ($(TARGET), nps)
 UDP_CFLAGS += -Iarch/linux
 UDP_SRCS += arch/linux/udp_socket.c
 endif
+ifeq ($(TARGET), hitl)
+UDP_CFLAGS += -Iarch/linux
+UDP_SRCS += arch/linux/udp_socket.c
+endif
 
 $(TARGET).CFLAGS += $(UDP_CFLAGS)
 $(TARGET).srcs += $(UDP_SRCS)

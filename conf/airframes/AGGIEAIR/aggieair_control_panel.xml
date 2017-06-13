@@ -189,6 +189,7 @@
       <arg flag="-f" constant="127.0.0.1"/>
       <arg flag="-b" constant="127.255.255.255"/>
       <arg flag="--fg_fdm" constant=""/>
+      <arg flag="-t" constant="hitl"/>
      </program>
      <program name="Sbus Fakerator">
        <arg flag="-p" constant="/dev/ttyUSB3"/>
@@ -210,6 +211,7 @@
       <arg flag="-f" constant="127.0.0.1"/>
       <arg flag="-b" constant="127.255.255.255"/>
       <arg flag="--fg_fdm" constant=""/>
+      <arg flag="-t" constant="hitl"/>
      </program>
      <program name="Sbus Fakerator">
        <arg flag="-p" constant="/dev/ttyUSB3"/>

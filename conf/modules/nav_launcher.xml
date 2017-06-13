@@ -15,7 +15,7 @@
   <header>
     <file name="nav_launcher.h"/>
   </header>
-  <makefile target="ap|sim|nps">
+  <makefile target="ap|sim|nps|hitl">
     <file name="nav_launcher.c"/>
   </makefile>
 </module>

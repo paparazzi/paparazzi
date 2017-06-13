@@ -11,7 +11,7 @@
     </description>
   </doc>
   <autoload name="imu_aspirin_v2_common"/>
-  <makefile target="!sim|nps|fbw">
+  <makefile target="!sim|nps|fbw|hitl">
     <!-- SLAVE3 is on PC13, which is the baro CS -->
     <define name="DUSE_SPI_SLAVE3"/>
   </makefile>

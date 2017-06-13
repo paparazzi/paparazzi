@@ -15,7 +15,7 @@
     <file name="ins_int.h" dir="subsystems/ins"/>
   </header>
   <init fun="ins_int_init()"/>
-  <makefile target="ap|nps">
+  <makefile target="ap|nps|hitl">
     <define name="INS_TYPE_H" value="subsystems/ins/ins_int.h" type="string"/>
     <file name="ins.c" dir="subsystems"/>
     <file name="ins_int.c" dir="subsystems/ins"/>

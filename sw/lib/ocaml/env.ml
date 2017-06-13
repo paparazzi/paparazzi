@@ -72,7 +72,7 @@ let get_gcs_icon_path = fun theme icon ->
 
 let dump_fp = paparazzi_src // "sw" // "tools" // "generators" // "gen_flight_plan.out -dump"
 
-let default_module_targets = "ap|sim|nps"
+let default_module_targets = "ap|sim|nps|hitl"
 
 let filter_absolute_path = fun path ->
   Str.replace_first (Str.regexp (paparazzi_home // "conf/")) "" path

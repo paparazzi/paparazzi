@@ -15,7 +15,7 @@
   </header>
   <init fun="stabilization_init()"/>
   <init fun="stabilization_none_init()"/>
-  <makefile target="ap|nps" firmware="rotorcraft">
+  <makefile target="ap|nps|hitl" firmware="rotorcraft">
     <file name="stabilization.c" dir="$(SRC_FIRMWARE)"/>
     <file name="stabilization_none.c" dir="$(SRC_FIRMWARE)/stabilization"/>
   </makefile>
