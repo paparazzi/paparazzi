@@ -65,6 +65,7 @@ paparazzi.sublime-workspace
 /conf/maps_data/*
 /conf/maps.xml
 /conf/gps/ublox_conf
+!/conf/simulator/gazebo/**/*.config
 
 # /doc/pprz_algebra/
 /doc/pprz_algebra/headfile.log

@@ -20,4 +20,8 @@
 #endif
 extern struct video_config_t webcam;
 
+// Simulated cameras, see modules/computer_vision/video_thread_nps.c
+extern struct video_config_t front_camera;
+extern struct video_config_t bottom_camera;
+
 #endif /* CONFIG_PC_SIM_H */
