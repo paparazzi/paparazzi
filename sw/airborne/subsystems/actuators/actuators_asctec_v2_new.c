@@ -143,6 +143,7 @@ void actuators_asctec_v2_set(void)
           break;
         case 4:
           //update ID of the motor based on the address
+          // NOTE: the missing break; at the end of this case is intentional
           actuators_asctec_v2.i2c_trans.buf[0] = actuators_asctec_v2.new_addr;
           actuators_asctec_v2.i2c_trans.buf[1] = serial_num[0];
           actuators_asctec_v2.i2c_trans.buf[2] = serial_num[1];
