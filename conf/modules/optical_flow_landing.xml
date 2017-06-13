@@ -30,7 +30,7 @@
         <dl_setting var="of_landing_ctrl.cov_limit" min="0" step="0.0001" max="3" module="ctrl/optical_flow_landing" shortname="cov_limit"/>
         <dl_setting var="of_landing_ctrl.pgain" min="0" step="0.001" max="6" module="ctrl/optical_flow_landing" shortname="pgain" param="OPTICAL_FLOW_LANDING_PGAIN"/>
         <dl_setting var="of_landing_ctrl.igain" min="0" step="0.001" max="1" module="ctrl/optical_flow_landing" shortname="igain" param="OPTICAL_FLOW_LANDING_IGAIN"/>
-        <dl_setting var="of_landing_ctrl.dgain" min="-6" step="0.1" max="6" module="ctrl/optical_flow_landing" shortname="dgain" param="OPTICAL_FLOW_LANDING_DGAIN"/>
+        <dl_setting var="of_landing_ctrl.dgain" min="0" step="0.1" max="6" module="ctrl/optical_flow_landing" shortname="dgain" param="OPTICAL_FLOW_LANDING_DGAIN"/>
         <dl_setting var="of_landing_ctrl.VISION_METHOD" min="0" step="1" max="1" module="ctrl/optical_flow_landing" shortname="VISION_METHOD" param="OPTICAL_FLOW_LANDING_VISION_METHOD"/>
         <dl_setting var="of_landing_ctrl.CONTROL_METHOD" min="0" step="1" max="2" module="ctrl/optical_flow_landing" shortname="CONTROL_METHOD" param="OPTICAL_FLOW_LANDING_CONTROL_METHOD"/>
         <dl_setting var="of_landing_ctrl.COV_METHOD" min="0" step="1" max="1" module="ctrl/optical_flow_landing" shortname="COV_METHOD" param="OPTICAL_FLOW_LANDING_COV_METHOD"/>
