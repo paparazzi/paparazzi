@@ -34,7 +34,7 @@
   </header>
 
   <init fun="viewvideo_init()"/>
-  <makefile>
+  <makefile target="ap|nps">
 
     <file name="viewvideo.c"/>
     <!-- Include the needed Computer Vision files -->
