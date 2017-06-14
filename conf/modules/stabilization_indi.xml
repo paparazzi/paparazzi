@@ -69,6 +69,9 @@
     <file name="stabilization_attitude_quat_indi.c" dir="$(SRC_FIRMWARE)/stabilization"/>
     <file name="stabilization_attitude_quat_transformations.c" dir="$(SRC_FIRMWARE)/stabilization"/>
     <file name="stabilization_attitude_rc_setpoint.c" dir="$(SRC_FIRMWARE)/stabilization"/>
+    <file name="wls_alloc.c" dir="$(SRC_FIRMWARE)/stabilization/wls"/>
+    <file name="qr_solve.c" dir="$(SRC_FIRMWARE)/stabilization/wls"/>
+    <file name="r8lib_min.c" dir="$(SRC_FIRMWARE)/stabilization/wls"/>
     <define name="STABILIZATION_ATTITUDE_TYPE_INT"/>
     <define name="STABILIZATION_ATTITUDE_TYPE_H" value="stabilization/stabilization_attitude_quat_indi.h" type="string"/>
     <define name="STABILIZATION_ATTITUDE_INDI_FULL" value="true"/>

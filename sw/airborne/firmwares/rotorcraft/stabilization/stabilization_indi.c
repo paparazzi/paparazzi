@@ -42,6 +42,14 @@
 #include "subsystems/actuators.h"
 #include "subsystems/abi.h"
 #include "filters/low_pass_filter.h"
+#include "wls/wls_alloc.h"
+#include <stdio.h>
+
+float u_min[4];
+float u_max[4];
+float indi_v[4];
+float* Bwls[4];
+int num_iter = 0;
 
 static void lms_estimation(void);
 static void get_actuator_state(void);
@@ -193,6 +201,12 @@ void stabilization_indi_init(void)
   //Calculate G1G2_PSEUDO_INVERSE
   calc_g1g2_pseudo_inv();
 
+  // Initialize the array of pointers to the rows of g1g2
+  uint8_t i;
+  for(i=0; i<INDI_OUTPUTS; i++) {
+    Bwls[i] = g1g2[i];
+  }
+
   // Initialize the estimator matrices
   float_vect_copy(g1_est[0], g1[0], INDI_OUTPUTS*INDI_NUM_ACT);
   float_vect_copy(g2_est, g2, INDI_NUM_ACT);
@@ -296,7 +310,7 @@ void stabilization_indi_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading)
 
   quat_from_earth_cmd_i(&stab_att_sp_quat, cmd, heading);
 }
-
+#include "subsystems/radio_control.h"
 /**
  * @param att_err attitude error
  * @param rate_control boolean that states if we are in rate control or attitude control
@@ -340,45 +354,41 @@ static void stabilization_indi_calc_cmd(struct Int32Quat *att_err, bool rate_con
   //G2 is scaled by INDI_G_SCALING to make it readable
   g2_times_du = g2_times_du/INDI_G_SCALING;
 
-  // Calculate the increment for each actuator
-  for(i=0; i<INDI_NUM_ACT; i++) {
-    indi_du[i] = (g1g2_pseudo_inv[i][0] * (angular_accel_ref.p - angular_acceleration[0]))
-               + (g1g2_pseudo_inv[i][1] * (angular_accel_ref.q - angular_acceleration[1]))
-               + (g1g2_pseudo_inv[i][2] * (angular_accel_ref.r - angular_acceleration[2] + g2_times_du));
-  }
-
+  float v_thrust = 0.0;
   if(indi_thrust_increment_set){
-    // The required body-z acceleration is calculated by the outer loop INDI controller
+    v_thrust = indi_thrust_increment;
+
+    //update thrust command such that the current is correctly estimated
+    stabilization_cmd[COMMAND_THRUST] = (actuator_state[0] + actuator_state[1] + actuator_state[2] + actuator_state[3])/4.0;
+  } else {
+    // incremental thrust
     for(i=0; i<INDI_NUM_ACT; i++) {
-      indi_du[i] = indi_du[i] + g1g2_pseudo_inv[i][3]*indi_thrust_increment;
+      v_thrust +=
+        (stabilization_cmd[COMMAND_THRUST] - actuator_state_filt_vect[i])*Bwls[3][i];
     }
-
-    // Add the increments to the actuators
-    float_vect_sum(indi_u, actuator_state_filt_vect, indi_du, INDI_NUM_ACT);
-  } else
-  {
-    // Add the increments to the actuators without the thrust
-    float_vect_sum(indi_u, actuator_state_filt_vect, indi_du, INDI_NUM_ACT);
-
-    // Calculate the average of the actuators as a measure for the thrust
-    float avg_u_in = 0;
-    for(i=0; i<INDI_NUM_ACT; i++) {
-      avg_u_in += indi_u[i];
-    }
-    avg_u_in /= INDI_NUM_ACT;
-
-    // Make sure the thrust is bounded
-    Bound(stabilization_cmd[COMMAND_THRUST],0, MAX_PPRZ);
-
-    //avoid dividing by zero
-    if(avg_u_in < 1.0) {
-      avg_u_in = 1.0;
-    }
-
-    // Rescale the command to the actuators to get the desired thrust
-    float indi_cmd_scaling = stabilization_cmd[COMMAND_THRUST] / avg_u_in;
-    float_vect_smul(indi_u, indi_u, indi_cmd_scaling, INDI_NUM_ACT);
   }
+
+  // Calculate the min and max increments
+  for(i=0; i<INDI_NUM_ACT; i++) {
+    u_min[i] = -MAX_PPRZ*act_is_servo[i] - actuator_state_filt_vect[i];
+    u_max[i] = MAX_PPRZ - actuator_state_filt_vect[i];
+  }
+
+  //State prioritization {W Roll, W pitch, W yaw, TOTAL THRUST}
+  static float Wv[INDI_OUTPUTS] = {1000, 1000, 1, 100};
+
+  // The control objective in array format
+  indi_v[0] = (angular_accel_ref.p - angular_acceleration[0]);
+  indi_v[1] = (angular_accel_ref.q - angular_acceleration[1]);
+  indi_v[2] = (angular_accel_ref.r - angular_acceleration[2] + g2_times_du);
+  indi_v[3] = v_thrust;
+
+  // WLS Control Allocator
+  num_iter =
+    wls_alloc(indi_du,indi_v,u_min,u_max,Bwls,INDI_NUM_ACT,INDI_OUTPUTS,0,0,Wv,0,u_min,10000,10);
+
+  // Add the increments to the actuators
+  float_vect_sum(indi_u, actuator_state_filt_vect, indi_du, INDI_NUM_ACT);
 
   // Bound the inputs to the actuators
   for(i=0; i<INDI_NUM_ACT; i++) {
@@ -387,6 +397,11 @@ static void stabilization_indi_calc_cmd(struct Int32Quat *att_err, bool rate_con
     } else {
       Bound(indi_u[i], 0, MAX_PPRZ);
     }
+  }
+
+  if(radio_control.values[RADIO_THROTTLE] < 300) {
+    float_vect_zero(indi_u, INDI_NUM_ACT);
+    float_vect_zero(indi_du, INDI_NUM_ACT);
   }
 
   // Propagate actuator filters
@@ -666,6 +681,7 @@ static void rpm_cb(uint8_t __attribute__((unused)) sender_id, uint16_t UNUSED *r
   for(i=0; i<num_act; i++) {
     act_obs[i] = (rpm[i] - get_servo_min(i));
     act_obs[i] *= (MAX_PPRZ / (float)(get_servo_max(i)-get_servo_min(i)));
+    Bound(act_obs[i], 0, MAX_PPRZ);
   }
 #endif
 }
