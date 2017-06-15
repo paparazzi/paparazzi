@@ -393,9 +393,19 @@ static void stabilization_indi_calc_cmd(struct Int32Quat *att_err, bool rate_con
   indi_v[2] = (angular_accel_ref.r - angular_acceleration[2] + g2_times_du);
   indi_v[3] = v_thrust;
 
+#if STABILIZATION_INDI_ALLOCATION_PSEUDO_INVERSE
+  // Calculate the increment for each actuator
+  for(i=0; i<INDI_NUM_ACT; i++) {
+    indi_du[i] = (g1g2_pseudo_inv[i][0] * indi_v[0])
+               + (g1g2_pseudo_inv[i][1] * indi_v[1])
+               + (g1g2_pseudo_inv[i][2] * indi_v[2])
+               + (g1g2_pseudo_inv[i][3] * indi_v[3]);
+  }
+#else
   // WLS Control Allocator
   num_iter =
     wls_alloc(indi_du,indi_v,du_min,du_max,Bwls,INDI_NUM_ACT,INDI_OUTPUTS,0,0,Wv,0,du_min,10000,10);
+#endif
 
   // Add the increments to the actuators
   float_vect_sum(indi_u, actuator_state_filt_vect, indi_du, INDI_NUM_ACT);
