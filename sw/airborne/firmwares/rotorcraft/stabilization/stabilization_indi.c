@@ -45,8 +45,9 @@
 #include "wls/wls_alloc.h"
 #include <stdio.h>
 
-float u_min[4];
-float u_max[4];
+float du_min[4];
+float du_max[4];
+float du_pref[4];
 float indi_v[4];
 float* Bwls[4];
 int num_iter = 0;
@@ -91,6 +92,14 @@ float act_rate_limit[INDI_NUM_ACT] = STABILIZATION_INDI_ACT_RATE_LIMIT;
 bool act_is_servo[INDI_NUM_ACT] = STABILIZATION_INDI_ACT_IS_SERVO;
 #else
 bool act_is_servo[INDI_NUM_ACT] = {0};
+#endif
+
+#ifdef STABILIZATION_INDI_ACT_PREF
+// Preferred (neutral, least energy) actuator value
+float act_pref[4] = STABILIZATION_INDI_ACT_PREF;
+#else
+// Assume 0 is neutral
+float act_pref[4] = {0.0};
 #endif
 
 float act_dyn[INDI_NUM_ACT] = STABILIZATION_INDI_ACT_DYN;
@@ -370,8 +379,9 @@ static void stabilization_indi_calc_cmd(struct Int32Quat *att_err, bool rate_con
 
   // Calculate the min and max increments
   for(i=0; i<INDI_NUM_ACT; i++) {
-    u_min[i] = -MAX_PPRZ*act_is_servo[i] - actuator_state_filt_vect[i];
-    u_max[i] = MAX_PPRZ - actuator_state_filt_vect[i];
+    du_min[i] = -MAX_PPRZ*act_is_servo[i] - actuator_state_filt_vect[i];
+    du_max[i] = MAX_PPRZ - actuator_state_filt_vect[i];
+    du_pref[i] = act_pref[i] - actuator_state_filt_vect[i];
   }
 
   //State prioritization {W Roll, W pitch, W yaw, TOTAL THRUST}
@@ -385,7 +395,7 @@ static void stabilization_indi_calc_cmd(struct Int32Quat *att_err, bool rate_con
 
   // WLS Control Allocator
   num_iter =
-    wls_alloc(indi_du,indi_v,u_min,u_max,Bwls,INDI_NUM_ACT,INDI_OUTPUTS,0,0,Wv,0,u_min,10000,10);
+    wls_alloc(indi_du,indi_v,du_min,du_max,Bwls,INDI_NUM_ACT,INDI_OUTPUTS,0,0,Wv,0,du_min,10000,10);
 
   // Add the increments to the actuators
   float_vect_sum(indi_u, actuator_state_filt_vect, indi_du, INDI_NUM_ACT);

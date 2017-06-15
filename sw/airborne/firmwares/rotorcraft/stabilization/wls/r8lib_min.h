@@ -1,4 +1,9 @@
-// Minimal set of functions from r8lib to use qr_solve
+/*
+ * This file is a modified subset of the R8lib from John Burkardt.
+ * It is the minimal set of functions from r8lib needed to use qr_solve.
+ *
+ * This code is distributed under the GNU LGPL license.
+ */
 
 void r8mat_copy_new ( int m, int n, float a1[], float a2[] );
 float r8_epsilon ( void );

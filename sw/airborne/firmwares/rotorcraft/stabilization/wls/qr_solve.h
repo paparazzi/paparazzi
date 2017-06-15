@@ -1,3 +1,11 @@
+/*
+ * This is part of the qr_solve library from John Burkardt.
+ * It is slightly modified to make it compile on simple microprocessors,
+ * and to remove all dynamic memory.
+ *
+ * This code is distributed under the GNU LGPL license.
+ */
+
 void daxpy ( int n, float da, float dx[], int incx, float dy[], int incy );
 float ddot ( int n, float dx[], int incx, float dy[], int incy );
 float dnrm2 ( int n, float x[], int incx );

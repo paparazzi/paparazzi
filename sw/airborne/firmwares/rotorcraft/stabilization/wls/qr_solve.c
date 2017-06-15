@@ -1,3 +1,11 @@
+/*
+ * This is part of the qr_solve library from John Burkardt.
+ * It is slightly modified to make it compile on simple microprocessors,
+ * and to remove all dynamic memory.
+ *
+ * This code is distributed under the GNU LGPL license.
+ */
+
 #include "std.h"
 # include <stdlib.h>
 # include <math.h>

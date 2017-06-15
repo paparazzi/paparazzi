@@ -27,6 +27,10 @@
  * the control objective, taking into account the weighting matrices on the
  * control objective and the control effort.
  *
+ * The algorithm is described in:
+ * Prioritized Control Allocation for Quadrotors Subject to Saturation -
+ * E.J.J. Smeur, D.C. Höppener, C. de Wagter. Submitted to IMAV 2017
+ *
  * written by Anton Naruta && Daniel Hoppener 2016
  * MAVLab Delft University of Technology
  */
@@ -35,8 +39,9 @@
 #include <stdio.h>
 #include "std.h"
 
-void print_shebang(int printloc, int n_u, int n_v, float* u, float** B, float* v, float* umin, float* umax);
+void print_final_values(int n_u, int n_v, float* u, float** B, float* v, float* umin, float* umax);
 void print_in_and_outputs(int n_c, int n_free, float** A_free_ptr, float* d, float* p_free);
+
 // provide loop feedback
 #define WLS_VERBOSE FALSE
 
@@ -69,7 +74,7 @@ void qr_solve_wrapper(int m, int n, float** A, float* b, float* x) {
  * @param n_u Length of u
  * @param n_v Lenght of v
  * @param u_guess Initial value for u
- * @param W_init
+ * @param W_init Initial working set, if known
  * @param Wv Weighting on different control objectives
  * @param Wu Weighting on different controls
  * @param up Preferred control vector
@@ -161,6 +166,7 @@ int wls_alloc(float* u, float* v, float* umin, float* umax, float** B,
     memset(p, 0, n_u * sizeof(float));
     memcpy(u_opt, u, n_u * sizeof(float));
 
+    // Construct a matrix with the free columns of A
     if (free_chk != n_free) {
       for (int i = 0; i < n_c; i++) {
         for (int j = 0; j < n_free; j++) {
@@ -170,22 +176,21 @@ int wls_alloc(float* u, float* v, float* umin, float* umax, float** B,
       free_chk = n_free;
     }
 
-    // print iteration
-#if WLS_VERBOSE
-      printf("Iteration %d \n",iter);
-      printf("u = \n");
-      for(int i = 0; i < n_u; i++)
-        printf("%.2f\n", u[i]);
-#endif
 
     if (n_free) {
       // Still free variables left, calculate corresponding solution
 
       // use a solver to find the solution to A_free*p_free = d
       qr_solve_wrapper(n_c, n_free, A_free_ptr, d, p_free);
-      /*print_in_and_outputs(n_c, n_free, A_free_ptr, d, p_free);*/
-      /*RunOnceEvery(512, print_in_and_outputs(n_c, n_free, A_free_ptr, d, p_free););*/
+
+      //print results current step
+#if WLS_VERBOSE
+      print_in_and_outputs(n_c, n_free, A_free_ptr, d, p_free);
+#endif
+
     }
+
+    // Set the nonzero values of p and add to u_opt
     for (int i = 0; i < n_free; i++) {
       p[free_index[i]] = p_free[i];
       u_opt[free_index[i]] += p_free[i];
@@ -197,8 +202,8 @@ int wls_alloc(float* u, float* v, float* umin, float* umax, float** B,
         infeasible_index[n_infeasible++] = i;
       }
     }
-    /*if(n_infeasible != 0)*/
-      /*printf("u_opt = %f, %f, %f, %f\n", u_opt[0], u_opt[1], u_opt[2], u_opt[3]);*/
+
+    // Check feasibility of the solution
     if (n_infeasible == 0) {
       // all variables are within limits
       memcpy(u, u_opt, n_u * sizeof(float));
@@ -230,8 +235,11 @@ int wls_alloc(float* u, float* v, float* umin, float* umax, float** B,
         }
       }
       if (break_flag) {
-        /*if( (u[0]>9500) || (u[1]>9500) || (u[2]>9500) || (u[3]>9500))*/
-          /*print_shebang(1, n_u, n_v, u, B, v, umin, umax);*/
+
+#if WLS_VERBOSE
+        print_final_values(1, n_u, n_v, u, B, v, umin, umax);
+#endif
+
         // if solution is found, return number of iterations
         return iter;
       }
@@ -302,8 +310,8 @@ void print_in_and_outputs(int n_c, int n_free, float** A_free_ptr, float* d, flo
   printf("\n\n");
 }
 
-void print_shebang(int printloc, int n_u, int n_v, float* u, float** B, float* v, float* umin, float* umax) {
-  printf("n_u = %d n_v = %d printloc = %d\n", n_u, n_v, printloc);
+void print_final_values(int n_u, int n_v, float* u, float** B, float* v, float* umin, float* umax) {
+  printf("n_u = %d n_v = %d\n", n_u, n_v);
 
   printf("B =\n");
   for(int i = 0; i < n_v; i++) {
