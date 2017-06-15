@@ -1,5 +1,7 @@
 /*
  * This is part of the qr_solve library from John Burkardt.
+ * http://people.sc.fsu.edu/~jburkardt/c_src/qr_solve/qr_solve.html
+ *
  * It is slightly modified to make it compile on simple microprocessors,
  * and to remove all dynamic memory.
  *

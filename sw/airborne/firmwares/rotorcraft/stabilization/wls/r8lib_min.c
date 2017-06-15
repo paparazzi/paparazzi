@@ -1,5 +1,7 @@
 /*
  * This file is a modified subset of the R8lib from John Burkardt.
+ * http://people.sc.fsu.edu/~jburkardt/c_src/r8lib/r8lib.html
+ *
  * It is the minimal set of functions from r8lib needed to use qr_solve.
  *
  * This code is distributed under the GNU LGPL license.
