@@ -43,7 +43,7 @@ static inline uint32_t timeval_diff(struct timeval *A, struct timeval *B)
 }
 
 
-struct video_listener *cv_add_to_device(struct video_config_t *device, cv_function func)
+struct video_listener *cv_add_to_device(struct video_config_t *device, cv_function func, uint16_t fps)
 {
   // Create a new video listener
   struct video_listener *new_listener = malloc(sizeof(struct video_listener));
@@ -53,7 +53,7 @@ struct video_listener *cv_add_to_device(struct video_config_t *device, cv_functi
   new_listener->func = func;
   new_listener->next = NULL;
   new_listener->async = NULL;
-  new_listener->maximum_fps = 0;
+  new_listener->maximum_fps = fps;
 
   // Initialise the device that we want our function to use
   add_video_device(device);
@@ -79,10 +79,10 @@ struct video_listener *cv_add_to_device(struct video_config_t *device, cv_functi
 }
 
 
-struct video_listener *cv_add_to_device_async(struct video_config_t *device, cv_function func, int nice_level)
+struct video_listener *cv_add_to_device_async(struct video_config_t *device, cv_function func, int nice_level, uint16_t fps)
 {
   // Create a normal listener
-  struct video_listener *listener = cv_add_to_device(device, func);
+  struct video_listener *listener = cv_add_to_device(device, func, fps);
 
   // Add asynchronous structure to override default synchronous behavior
   listener->async = malloc(sizeof(struct cv_async));

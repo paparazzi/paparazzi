@@ -33,10 +33,10 @@
 
 void detect_window_init(void)
 {
-  cv_add_to_device(&BLOB_LOCATOR_CAMERA, detect_window);
+  cv_add_to_device(&DETECT_WINDOW_CAMERA, detect_window, DETECT_WINDOW_FPS);
 }
 
-struct image_t* detect_window(struct image_t *img)
+struct image_t *detect_window(struct image_t *img)
 {
 
   uint16_t coordinate[2];

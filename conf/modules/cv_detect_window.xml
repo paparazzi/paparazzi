@@ -5,6 +5,8 @@
     <description>
     	Detect window
     </description>
+    <define name="DETECT_WINDOW_CAMERA" value="front_camera|bottom_camera" description="Video device to use"/>
+    <define name="DETECT_WINDOW_FPS" value="0" description="The (maximum) frequency to run the calculations at. If zero, it will max out at the camera frame rate"/>
   </doc>
 
   <header>

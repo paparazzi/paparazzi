@@ -52,7 +52,7 @@ static void fast_make_offsets(int32_t *pixel, uint16_t row_stride, uint8_t pixel
 void fast9_detect(struct image_t *img, uint8_t threshold, uint16_t min_dist, uint16_t x_padding, uint16_t y_padding, uint16_t *num_corners, uint16_t *ret_corners_length, struct point_t **ret_corners, uint16_t *roi)
 {
 
-  uint16_t corner_cnt = 0;
+  uint16_t corner_cnt = *num_corners;
   int pixel[16];
   int16_t i;
   uint16_t x, y, x_min, x_max, y_min, x_start, x_end, y_start, y_end;
@@ -61,6 +61,14 @@ void fast9_detect(struct image_t *img, uint8_t threshold, uint16_t min_dist, uin
   uint8_t pixel_size = 1;
   if (img->type == IMAGE_YUV422) {
     pixel_size = 2;
+  }
+
+  // Padding less than min_dist could cause overflow on some comparisons below.
+  if (x_padding < min_dist) {
+    x_padding = min_dist;
+  }
+  if (y_padding < min_dist) {
+    y_padding = min_dist;
   }
 
   if (!roi) {
@@ -82,7 +90,9 @@ void fast9_detect(struct image_t *img, uint8_t threshold, uint16_t min_dist, uin
   // Go trough all the pixels (minus the borders and inside the requested roi)
   for (y = y_start; y < y_end; y++) {
 
-    if (min_dist > 0) { y_min = y - min_dist; }
+    if (min_dist > 0) {
+      y_min = y - min_dist;
+    }
 
     for (x = x_start; x < x_end; x++) {
       // First check if we aren't in range vertical (TODO: fix less intensive way)
@@ -103,6 +113,15 @@ void fast9_detect(struct image_t *img, uint8_t threshold, uint16_t min_dist, uin
           if ((*ret_corners)[i].y < y_min) {
             break;
           }
+          /*
+                    // If detecting with already existing corners gives too much overlap uncomment this comparison instead of the one above.
+                    // But, it will make the detection more time consuming
+                    // TODO: maybe sort the corners before calling...
+                    if(ret_corners[i].y < y_min || ret_corners[i].y > y_max){
+                      i--;
+                      continue;
+                    }
+          */
 
           if (x_min < (*ret_corners)[i].x && (*ret_corners)[i].x < x_max) {
             need_skip = 1;
