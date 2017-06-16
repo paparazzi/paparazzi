@@ -37,6 +37,7 @@
       <define name="KALMAN_FILTER" value="1" description="A kalman filter on the resulting velocities to be turned on or off (fused with accelerometers)"/>
       <define name="KALMAN_FILTER_PROCESS_NOISE" value="0.01" description="The expected variance of the error of the model's prediction in the kalman filter"/>
       <define name="FEATURE_MANAGEMENT" value="1" description="Whether to keep already tracked corners in memory for the next frame or re-detect new ones every time"/>
+      <define name="FPS" value="0" description="The (maximum) frequency to run the calculations at. If zero, it will max out at the camera frame rate"/>
 
       <!-- Lucas Kanade optical flow calculation parameters -->
       <define name="MAX_TRACK_CORNERS" value="25" description="The maximum amount of corners the Lucas Kanade algorithm is tracking between two frames"/>

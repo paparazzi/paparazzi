@@ -41,7 +41,7 @@ struct image_t *contour_func(struct image_t *img)
 
 void detect_contour_init(void)
 {
-  cv_add_to_device(&DETECT_CONTOUR_CAMERA, contour_func);
+  cv_add_to_device(&DETECT_CONTOUR_CAMERA, contour_func, DETECT_CONTOUR_FPS);
   // in the mavlab, bright
   cont_thres.lower_y = 16;  cont_thres.lower_u = 135; cont_thres.lower_v = 80;
   cont_thres.upper_y = 100; cont_thres.upper_u = 175; cont_thres.upper_v = 165;

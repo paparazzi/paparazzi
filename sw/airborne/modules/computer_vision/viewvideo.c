@@ -246,15 +246,13 @@ void viewvideo_init(void)
 
 #ifdef VIEWVIDEO_CAMERA
   struct video_listener *listener1 = cv_add_to_device_async(&VIEWVIDEO_CAMERA, viewvideo_function1,
-                                     VIEWVIDEO_NICE_LEVEL);
-  listener1->maximum_fps = VIEWVIDEO_FPS;
-  fprintf(stderr, "[viewvideo] Added asynchronous video streamer lister for CAMERA1\n");
+                                     VIEWVIDEO_NICE_LEVEL, VIEWVIDEO_FPS);
+  fprintf(stderr, "[viewvideo] Added asynchronous video streamer listener for CAMERA1 at %u FPS \n", VIEWVIDEO_FPS);
 #endif
 
 #ifdef VIEWVIDEO_CAMERA2
   struct video_listener *listener2 = cv_add_to_device_async(&VIEWVIDEO_CAMERA2, viewvideo_function2,
-                                     VIEWVIDEO_NICE_LEVEL);
-  listener2->maximum_fps = VIEWVIDEO_FPS;
-  fprintf(stderr, "[viewvideo] Added asynchronous video streamer lister for CAMERA2\n");
+                                     VIEWVIDEO_NICE_LEVEL, VIEWVIDEO_FPS);
+  fprintf(stderr, "[viewvideo] Added asynchronous video streamer listener for CAMERA2 at %u FPS \n", VIEWVIDEO_FPS);
 #endif
 }

@@ -12,6 +12,7 @@
     <define name="VIDEO_CAPTURE_CAMERA" value="front_camera|bottom_camera" description="Video device to use"/>
     <define name="VIDEO_CAPTURE_PATH" value="/data/video/images" description="Location to save images"/>
     <define name="VIDEO_CAPTURE_JPEG_QUALITY" value="99" description="JPEG quality of images"/>
+    <define name="VIDEO_CAPTURE_FPS" value="0" description="The (maximum) frequency to run the calculations at. If zero, it will max out at the camera frame rate"/>
   </doc>
 
   <settings>

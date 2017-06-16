@@ -4,6 +4,7 @@
   <doc>
     <description>ColorFilter</description>
     <define name="COLORFILTER_CAMERA" value="front_camera|bottom_camera" description="Video device to use"/>
+    <define name="COLORFILTER_FPS" value="0" description="The (maximum) frequency to run the calculations at. If zero, it will max out at the camera frame rate"/>
   </doc>
 
   <settings>

@@ -5,6 +5,7 @@
     <description>Find a colored item and track its geo-location and update a waypoint to it</description>
 
     <define name="BLOB_LOCATOR_CAMERA" value="front_camera|bottom_camera" description="Video device to use"/>
+    <define name="BLOB_LOCATOR_FPS" value="0" description="The (maximum) frequency to run the calculations at. If zero, it will max out at the camera frame rate"/>
   </doc>
   <settings>
     <dl_settings>

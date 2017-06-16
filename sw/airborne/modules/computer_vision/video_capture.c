@@ -66,7 +66,7 @@ void video_capture_init(void)
   }
 
   // Add function to computer vision pipeline
-  cv_add_to_device(&VIDEO_CAPTURE_CAMERA, video_capture_func);
+  cv_add_to_device(&VIDEO_CAPTURE_CAMERA, video_capture_func, VIDEO_CAPTURE_FPS);
 }
 
 

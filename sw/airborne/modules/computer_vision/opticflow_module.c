@@ -126,7 +126,7 @@ void opticflow_module_init(void)
   opticflow_got_result = false;
   opticflow_calc_init(&opticflow);
 
-  cv_add_to_device(&OPTICFLOW_CAMERA, opticflow_module_calc);
+  cv_add_to_device(&OPTICFLOW_CAMERA, opticflow_module_calc, OPTICFLOW_FPS);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_OPTIC_FLOW_EST, opticflow_telem_send);

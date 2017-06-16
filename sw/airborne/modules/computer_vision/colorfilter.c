@@ -58,5 +58,5 @@ struct image_t *colorfilter_func(struct image_t *img)
 
 void colorfilter_init(void)
 {
-  listener = cv_add_to_device(&COLORFILTER_CAMERA, colorfilter_func);
+  listener = cv_add_to_device(&COLORFILTER_CAMERA, colorfilter_func, COLORFILTER_FPS);
 }
