@@ -183,7 +183,7 @@ struct image_t *opticflow_module_calc(struct image_t *img)
   temp_state.rates = pose.rates;
 
   // Do the optical flow calculation
-  struct opticflow_result_t temp_result = {}; // new initialization
+  static struct opticflow_result_t temp_result = {}; // static so that the number of corners is kept between frames
   opticflow_calc_frame(&opticflow, &temp_state, img, &temp_result);
 
   // Copy the result if finished
