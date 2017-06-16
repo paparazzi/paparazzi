@@ -61,6 +61,10 @@ PRINT_CONFIG_VAR(OPTICFLOW_BODY_TO_IMU_ID)
 #endif
 PRINT_CONFIG_VAR(OPTICFLOW_SEND_ABI_ID)
 
+#ifndef OPTICFLOW_FPS
+#define OPTICFLOW_FPS 0       ///< Default ID to send abi messages
+#endif
+PRINT_CONFIG_VAR(OPTICFLOW_FPS)
 
 /* The main opticflow variables */
 struct opticflow_t opticflow;                      ///< Opticflow calculations
