@@ -11,12 +11,25 @@
       <define name="SP_MAX_R"     value="90." description="max setpoint for yaw rate" unit="deg/s"/>
       <define name="DEADBAND_R"   value="250" description="deadband on yaw rate input"/>
     </section>
+    <section name="ATTITUDE_REFERENCE" prefix="STABILIZATION_ATTITUDE_">
+      <define name="REF_OMEGA_P"  value="400" description="reference generator omega param on roll rate" unit="deg/s"/>
+      <define name="REF_ZETA_P"   value="0.9" description="reference generator zeta param on roll rate"/>
+      <define name="REF_MAX_P"    value="300." description="reference generator max roll rate" unit="deg/s"/>
+      <define name="REF_MAX_PDOT" value="RadOfDeg(7000.)" description="reference generator max roll acceleration"/>
+      <define name="REF_OMEGA_Q"  value="400" description="reference generator omega param on pitch rate" unit="deg/s"/>
+      <define name="REF_ZETA_Q"   value="0.9" description="reference generator zeta param on pitch rate"/>
+      <define name="REF_MAX_Q"    value="300." description="reference generator max pitch rate" unit="deg/s"/>
+      <define name="REF_MAX_QDOT" value="RadOfDeg(7000.)" description="reference generator max pitch acceleration"/>
+      <define name="REF_OMEGA_R"  value="250" description="reference generator omega param on yaw rate" unit="deg/s"/>
+      <define name="REF_ZETA_R"   value="0.9" description="reference generator zeta param on yaw rate"/>
+      <define name="REF_MAX_R"    value="180." description="reference generator max yaw rate" unit="deg/s"/>
+      <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)" description="reference generator max yaw acceleration"/>
+    </section>
     <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
-      <define name="G1_ROLL" value="{20 , -20, -20 , 20 }" description="control effectiveness of every actuator on the roll axis"/>
-      <define name="G1_PITCH" value="{14 , 14, -14 , -14 }" description="control effectiveness of every actuator on the pitch axis"/>
-      <define name="G1_YAW" value="{-1, 1, -1, 1}" description="control effectiveness of every actuator on the yaw axis"/>
-      <define name="G1_THRUST" value="{-.4, -.4, -.4, -.4}" description="control effectiveness of every actuator on the thrust axis"/>
-      <define name="G2" value="{-60.0,   60.0,  -60.0,  60.0}" description="control effectiveness of every actuator derivative on the yaw axis (important for propellers with strong torque changes)"/>
+      <define name="G1_P" value="0.0639" description="control effectiveness G1 gain on roll rate"/>
+      <define name="G1_Q" value="0.0361" description="control effectiveness G1 gain on pitch rate"/>
+      <define name="G1_R" value="0.0022" description="control effectiveness G1 gain on yaw rate"/>
+      <define name="G2_R" value="0.1450" description="control effectiveness G2 gain on yaw rate"/>
       <define name="REF_ERR_P" value="600.0" description="reference acceleration"/>
       <define name="REF_ERR_Q" value="600.0" description="reference acceleration"/>
       <define name="REF_ERR_R" value="600.0" description="reference acceleration"/>
@@ -26,10 +39,9 @@
       <define name="MAX_R" value="120.0" description="max yaw rate" unit="deg/s"/>
       <define name="FILT_CUTOFF" value="8.0" description="second order cutoff parameter"/>
       <define name="ESTIMATION_FILT_CUTOFF" value="8.0" description="second order cutoff parameter"/>
-      <define name="ACT_DYN" value="{0.1, 0.1, 0.1, 0.1}" description="actuator dynamics"/>
-      <define name="ACT_IS_SERVO" value="{0,0,0,0}" description="1 for every actuator that is a servo"/>
-      <define name="ACT_RATE_LIMIT" value="{9600,9600,9600,9600}" description="rate limit in PPRZ units per timestep (depends on control frequency)"/>
-      <define name="ACT_PREF" value="{0.0, 0.0, 0.0, 0.0}" description="preferred (low energy) actuator value. Important when the system is over-determined!"/>
+      <define name="ACT_DYN_P" value="0.1" description="first order actuator dynamics on roll rate"/>
+      <define name="ACT_DYN_Q" value="0.1" description="first order actuator dynamics on pitch rate"/>
+      <define name="ACT_DYN_R" value="0.1" description="first order actuator dynamics on yaw rate"/>
       <define name="USE_ADAPTIVE" value="FALSE|TRUE" description="enable adaptive gains"/>
       <define name="ADAPTIVE_MU" value="0.0001" description="adaptation parameter"/>
     </section>
@@ -57,9 +69,6 @@
     <file name="stabilization_attitude_quat_indi.c" dir="$(SRC_FIRMWARE)/stabilization"/>
     <file name="stabilization_attitude_quat_transformations.c" dir="$(SRC_FIRMWARE)/stabilization"/>
     <file name="stabilization_attitude_rc_setpoint.c" dir="$(SRC_FIRMWARE)/stabilization"/>
-    <file name="wls_alloc.c" dir="$(SRC_FIRMWARE)/stabilization/wls"/>
-    <file name="qr_solve.c" dir="$(SRC_FIRMWARE)/stabilization/wls"/>
-    <file name="r8lib_min.c" dir="$(SRC_FIRMWARE)/stabilization/wls"/>
     <define name="STABILIZATION_ATTITUDE_TYPE_INT"/>
     <define name="STABILIZATION_ATTITUDE_TYPE_H" value="stabilization/stabilization_attitude_quat_indi.h" type="string"/>
     <define name="STABILIZATION_ATTITUDE_INDI_FULL" value="true"/>
