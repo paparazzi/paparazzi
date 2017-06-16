@@ -27,6 +27,11 @@
 #define RES 100
 #define N_WINDOW_SIZES 1
 
+#ifndef DETECT_WINDOW_FPS
+#define DETECT_WINDOW_FPS 0       ///< Default FPS (zero means run at camera fps)
+#endif
+PRINT_CONFIG_VAR(DETECT_WINDOW_FPS)
+
 #include "cv.h"
 #include "detect_window.h"
 #include <stdio.h>

@@ -43,6 +43,11 @@
 #define VIDEO_USB_LOGGER_PATH /data/video/usb
 #endif
 
+#ifndef VIDEO_USB_LOGGER_FPS
+#define VIDEO_USB_LOGGER_FPS 0       ///< Default FPS (zero means run at camera fps)
+#endif
+PRINT_CONFIG_VAR(VIDEO_USB_LOGGER_FPS)
+
 /** The file pointer */
 static FILE *video_usb_logger = NULL;
 struct image_t img_jpeg_global;

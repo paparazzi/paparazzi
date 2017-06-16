@@ -34,6 +34,11 @@
 #endif
 bool drawRectangleAroundQRCode = QRCODE_DRAW_RECTANGLE;
 
+#ifndef QRCODE_FPS
+#define QRCODE_FPS 0       ///< Default FPS (zero means run at camera fps)
+#endif
+PRINT_CONFIG_VAR(QRCODE_FPS)
+
 void qrcode_init(void)
 {
   // Add qrscan to the list of image processing tasks in video_thread

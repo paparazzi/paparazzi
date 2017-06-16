@@ -29,6 +29,11 @@
 
 #include "modules/computer_vision/lib/vision/image.h"
 
+#ifndef COLORFILTER_FPS
+#define COLORFILTER_FPS 0       ///< Default FPS (zero means run at camera fps)
+#endif
+PRINT_CONFIG_VAR(COLORFILTER_FPS)
+
 struct video_listener *listener = NULL;
 
 // Filter Settings

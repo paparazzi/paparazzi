@@ -23,6 +23,11 @@
  * Find a colored item and track its geo-location and update a waypoint to it
  */
 
+#ifndef BLOB_LOCATOR_FPS
+#define BLOB_LOCATOR_FPS 0       ///< Default FPS (zero means run at camera fps)
+#endif
+PRINT_CONFIG_VAR(BLOB_LOCATOR_FPS)
+
 #include "modules/computer_vision/cv_blob_locator.h"
 #include "modules/computer_vision/cv.h"
 #include "modules/computer_vision/blob/blob_finder.h"
