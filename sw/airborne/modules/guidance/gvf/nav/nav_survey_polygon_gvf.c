@@ -43,7 +43,7 @@ struct gvf_SurveyPolyAdv gvf_survey;
 
 static void gvf_nav_points(struct FloatVect2 start, struct FloatVect2 end)
 {
-  gvf_segment_loop_XY1_XY2(start.x, start.y, end.x, end.y, 0, 0);
+  gvf_segment_XY1_XY2(start.x, start.y, end.x, end.y);
 }
 
 /**
