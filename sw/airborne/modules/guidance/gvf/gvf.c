@@ -209,7 +209,7 @@ void gvf_set_direction(int8_t s)
 
 // STRAIGHT LINE
 
-bool gvf_line_XY_heading(float a, float b, float heading)
+static void gvf_line(float a, float b, float heading)
 {
   float e;
   struct gvf_grad grad_line;
@@ -228,8 +228,13 @@ bool gvf_line_XY_heading(float a, float b, float heading)
 
   horizontal_mode = HORIZONTAL_MODE_WAYPOINT;
   gvf_segment.seg = 0;
+}
 
-  return true;
+bool gvf_line_XY_heading(float a, float b, float heading)
+{
+    gvf_set_direction(1);
+    gvf_line(a, b, heading);
+    return true;
 }
 
 bool gvf_line_XY1_XY2(float x1, float y1, float x2, float y2)
@@ -239,7 +244,17 @@ bool gvf_line_XY1_XY2(float x1, float y1, float x2, float y2)
 
   float alpha = atanf(zx / zy);
 
-  gvf_line_XY_heading(x1, y1, alpha);
+  float beta = atan2f(zy, zx);
+  float cosb = cosf(-beta);
+  float sinb = sinf(-beta);
+  float zxr = zx * cosb - zy * sinb;
+  if((zxr > 0 && zy > 0) || (zxr < 0 && zy < 0)) {
+      gvf_set_direction(1);
+  } else {
+      gvf_set_direction(-1);
+  }
+
+  gvf_line(x1, y1, alpha);
 
   horizontal_mode = HORIZONTAL_MODE_ROUTE;
   gvf_segment.seg = 1;
@@ -258,12 +273,21 @@ bool gvf_line_wp1_wp2(uint8_t wp1, uint8_t wp2)
   float x2 = waypoints[wp2].x;
   float y2 = waypoints[wp2].y;
 
+  return gvf_line_XY1_XY2(x1, y1, x2, y2);
+}
+
+bool gvf_segment_loop_XY1_XY2(float x1, float y1, float x2, float y2, float d1, float d2)
+{
+  int s = out_of_segment_area(x1, y1, x2, y2, d1, d2);
+  if (s != 0) {
+    gvf_control.s = s;
+  }
+
   float zx = x2 - x1;
   float zy = y2 - y1;
+  float alpha = atanf(zx / zy);
 
-  float heading = atanf(zx / zy);
-
-  gvf_line_XY_heading(x1, y1, heading);
+  gvf_line(x1, y1, alpha);
 
   horizontal_mode = HORIZONTAL_MODE_ROUTE;
   gvf_segment.seg = 1;
@@ -275,17 +299,6 @@ bool gvf_line_wp1_wp2(uint8_t wp1, uint8_t wp2)
   return true;
 }
 
-bool gvf_segment_loop_XY1_XY2(float x1, float y1, float x2, float y2, float d1, float d2)
-{
-  int s = out_of_segment_area(x1, y1, x2, y2, d1, d2);
-  if (s != 0) {
-    gvf_control.s = s;
-  }
-
-  gvf_line_XY1_XY2(x1, y1, x2, y2);
-  return true;
-}
-
 bool gvf_segment_loop_wp1_wp2(uint8_t wp1, uint8_t wp2, float d1, float d2)
 {
   float x1 = waypoints[wp1].x;
@@ -293,13 +306,39 @@ bool gvf_segment_loop_wp1_wp2(uint8_t wp1, uint8_t wp2, float d1, float d2)
   float x2 = waypoints[wp2].x;
   float y2 = waypoints[wp2].y;
 
-  int s = out_of_segment_area(x1, y1, x2, y2, d1, d2);
-  if (s != 0) {
-    gvf_control.s = s;
+  return gvf_segment_loop_XY1_XY2(x1, y1, x2, y2, d1, d2);
+}
+
+bool gvf_segment_XY1_XY2(float x1, float y1, float x2, float y2)
+{
+  struct EnuCoor_f *p = stateGetPositionEnu_f();
+  float px = p->x - x1;
+  float py = p->y - y1;
+
+  float zx = x2 - x1;
+  float zy = y2 - y1;
+
+  float beta = atan2f(zy, zx);
+  float cosb = cosf(-beta);
+  float sinb = sinf(-beta);
+  float zxr = zx * cosb - zy * sinb;
+  float pxr = px * cosb - py * sinb;
+
+  if((zxr > 0 && pxr > zxr) || (zxr < 0 && pxr < zxr)) {
+      return false;
   }
 
-  gvf_line_XY1_XY2(x1, y1, x2, y2);
-  return true;
+  return gvf_line_XY1_XY2(x1, y1, x2, y2);
+}
+
+bool gvf_segment_wp1_wp2(uint8_t wp1, uint8_t wp2)
+{
+  float x1 = waypoints[wp1].x;
+  float y1 = waypoints[wp1].y;
+  float x2 = waypoints[wp2].x;
+  float y2 = waypoints[wp2].y;
+
+  return gvf_segment_XY1_XY2(x1, y1, x2, y2);
 }
 
 bool gvf_line_wp_heading(uint8_t wp, float heading)
@@ -309,9 +348,7 @@ bool gvf_line_wp_heading(uint8_t wp, float heading)
   float a = waypoints[wp].x;
   float b = waypoints[wp].y;
 
-  gvf_line_XY_heading(a, b, heading);
-
-  return true;
+  return gvf_line_XY_heading(a, b, heading);
 }
 
 // ELLIPSE
