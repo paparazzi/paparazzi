@@ -62,13 +62,19 @@
     <block name="ellipse">
       <call fun="gvf_ellipse_wp(WP_ELLIPSE, gvf_ellipse_par.a, gvf_ellipse_par.b, gvf_ellipse_par.alpha)"/>
     </block>
-	<block name="segment_loop">
+    <block name="segment_loop">
       <call fun="gvf_segment_loop_wp1_wp2(WP_ELLIPSE, WP_STDBY, gvf_segment_par.d1, gvf_segment_par.d2)"/>
     </block>
-	<block name="Sinusoidal">
-	<call fun="gvf_sin_wp_alpha(WP_ELLIPSE, gvf_sin_par.alpha, gvf_sin_par.w, gvf_sin_par.off, gvf_sin_par.A)"/>
+    <block name="segment">
+      <call fun="gvf_segment_wp1_wp2(WP_ELLIPSE, WP_STDBY)"/>
     </block>
-	<block name="Poly Survey">
+    <block name="line">
+      <call fun="gvf_line_wp_heading(WP_ELLIPSE, gvf_line_par.heading)"/>
+    </block>
+    <block name="Sinusoidal">
+    <call fun="gvf_sin_wp_alpha(WP_ELLIPSE, gvf_sin_par.alpha, gvf_sin_par.w, gvf_sin_par.off, gvf_sin_par.A)"/>
+    </block>
+    <block name="Poly Survey">
       <call_once fun="gvf_nav_survey_polygon_setup(WP_S1, 4, angle_ps, 30, 30, 40, flight_altitude)"/>
       <call fun="gvf_nav_survey_polygon_run()"/>
     </block>
