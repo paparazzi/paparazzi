@@ -419,7 +419,8 @@ static void stabilization_indi_calc_cmd(struct Int32Quat *att_err, bool rate_con
     }
   }
 
-  if(radio_control.values[RADIO_THROTTLE] < 300) {
+  //Don't increment if not flying (not armed)
+  if(!in_flight) {
     float_vect_zero(indi_u, INDI_NUM_ACT);
     float_vect_zero(indi_du, INDI_NUM_ACT);
   }
@@ -437,12 +438,8 @@ static void stabilization_indi_calc_cmd(struct Int32Quat *att_err, bool rate_con
     actuator_state_filt_vectdd[i] = (actuator_state_filt_vectd[i] - actuator_state_filt_vectd_prev)*PERIODIC_FREQUENCY;
   }
 
-  //Don't increment if thrust is off
-  if(!in_flight) {
-    float_vect_zero(indi_u, INDI_NUM_ACT);
-    float_vect_zero(actuator_state_filt_vect, INDI_NUM_ACT);
-  }
-  else if(indi_use_adaptive) {
+  // Use online effectiveness estimation only when flying
+  if(in_flight && indi_use_adaptive) {
     lms_estimation();
   }
 
