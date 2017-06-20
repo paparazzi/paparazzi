@@ -14,12 +14,12 @@
         - shot_dist     distance between the shots
         - min_rad       minimal radius when navigating
         - altitude      the altitude that must be reached before the flyover starts
-      2. Run the survey with nav_survey_polygon_run()
+      2. Run the survey with nav_survey_polygon_run() for employing the carrot guidance algorithm
 <!--
 Block example:
 @verbatim
 <block name="Poly Survey" strip_button="Poly Survey">
-  <call fun="nav_survey_polygon_setup(first_wp, size, angle, sweep_width, shot_dist, min_rad, altitude)"/>
+  <call_once fun="nav_survey_polygon_setup(first_wp, size, angle, sweep_width, shot_dist, min_rad, altitude)"/>
   <call fun="nav_survey_polygon_run()"/>
 </block>
 @endverbatim

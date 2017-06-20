@@ -20,7 +20,7 @@
  *
  */
 
-/** \file gvf.h
+/** @file gvf.h
  *
  *  Guidance algorithm based on vector fields
  */
@@ -32,10 +32,17 @@
 
 #include "std.h"
 
+/** @typedef gvf_conf
+* @brief Parameters for the GVF
+* @param ke Gain defining how agressive is the vector field
+* @param kn Gain for making converge the vehile to the vector field
+* @param error Error signal. It does not have any specific units. It depends on how the trajectory has been implemented. Check the specific wiki entry for each trajectory.
+* @param s Defines the direction to be tracked. Its meaning depends on the trajectory and its implementation. Check the wiki entry of the GVF. It takes the values -1 or 1.
+*/
 typedef struct {
-  float error;
   float ke;
   float kn;
+  float error;
   int8_t s;
 } gvf_con;
 
@@ -52,6 +59,22 @@ typedef struct {
   enum trajectories type;
   float p[16];
 } gvf_tra;
+
+/** @typedef gvf_seg
+* @brief Struct employed by the LINE trajectory for the special case of trackinga segment, which is described by the coordinates x1, y1, x2, y2
+* @param seg Tracking a segment or not
+* @param x1 coordinate w.r.t. HOME
+* @param y1 coordinate w.r.t. HOME
+* @param x2 coordinate w.r.t. HOME
+* @param y2 coordinate w.r.t. HOME
+*/
+typedef struct {
+  int seg;
+  float x1;
+  float y1;
+  float x2;
+  float y2;
+} gvf_seg;
 
 extern gvf_tra gvf_trajectory;
 
@@ -76,23 +99,29 @@ struct gvf_Hess {
 extern void gvf_init(void);
 void gvf_control_2D(float ke, float kn, float e,
                     struct gvf_grad *, struct gvf_Hess *);
-extern void gvf_set_gains(float ke, float kd);
 extern void gvf_set_direction(int8_t s);
 
 // Straigh line
-void gvf_line(float x, float y, float alpha);
+extern bool gvf_line_XY_heading(float x, float y, float heading);
+extern bool gvf_line_XY1_XY2(float x1, float y1, float x2, float y2);
 extern bool gvf_line_wp1_wp2(uint8_t wp1, uint8_t wp2);
-extern bool gvf_line_wp_heading(uint8_t wp, float alpha);
+extern bool gvf_segment_loop_XY1_XY2(float x1, float y1, float x2, float y2, float d1, float d2);
+extern bool gvf_segment_loop_wp1_wp2(uint8_t wp1, uint8_t wp2, float d1, float d2);
+extern bool gvf_segment_XY1_XY2(float x1, float y1, float x2, float y2);
+extern bool gvf_segment_wp1_wp2(uint8_t wp1, uint8_t wp2);
+extern bool gvf_line_wp_heading(uint8_t wp, float heading);
+
 
 // Ellipse
-extern bool gvf_ellipse(uint8_t wp, float a, float b, float alpha);
+extern bool gvf_ellipse_wp(uint8_t wp, float a, float b, float alpha);
+extern bool gvf_ellipse_XY(float x, float y, float a, float b, float alpha);
 
 // Sinusoidal
-void gvf_sin(float x, float y, float alpha, float w, float off, float A);
+extern bool gvf_sin_XY_alpha(float x, float y, float alpha, float w, float off, float A);
 extern bool gvf_sin_wp1_wp2(uint8_t wp1, uint8_t wp2, float w, float off,
                             float A);
-extern bool gvf_sin_wp_heading(uint8_t wp, float alpha, float w, float off,
-                               float A);
+extern bool gvf_sin_wp_alpha(uint8_t wp, float alpha, float w, float off,
+                             float A);
 
 
 #endif // GVF_H

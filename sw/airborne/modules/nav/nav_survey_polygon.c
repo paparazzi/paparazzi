@@ -53,7 +53,7 @@ static void nav_points(struct FloatVect2 start, struct FloatVect2 end)
  * @param a1, a2, b1, b2  second line by coordinates a1/a2, b1/b2
  */
 static bool intercept_two_lines(struct FloatVect2 *p, struct FloatVect2 x, struct FloatVect2 y, float a1, float a2,
-                                  float b1, float b2)
+                                float b1, float b2)
 {
   float divider, fac;
 
@@ -132,8 +132,7 @@ static bool get_two_intersects(struct FloatVect2 *x, struct FloatVect2 *y, struc
  *  @param min_rad       minimal radius when navigating
  *  @param altitude      the altitude that must be reached before the flyover starts
  **/
-void nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, float sweep_width, float shot_dist,
-                              float min_rad, float altitude)
+void nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, float sweep_width, float shot_dist, float min_rad, float altitude)
 {
   int i;
   struct FloatVect2 small, sweep;

@@ -37,7 +37,6 @@ class GVFFrame(wx.Frame):
         self.timer_traj = 0 # We do not update the traj every time we receive a msg
         self.timer_traj_lim = 7 # (7+1) * 0.25secs
         self.s = 0
-        self.kn = 0
         self.ke = 0
         self.map_gvf = map2d(np.array([0, 0]), 150000)
         self.traj = None
@@ -54,23 +53,6 @@ class GVFFrame(wx.Frame):
         self.interface = IvyMessagesInterface("GVF")
         self.interface.subscribe(self.message_recv)
         settings = PaparazziACSettings(ac_id)
-        self.ke_index = None
-        self.kn_index = None
-        self.indexes_are_good = 0
-        self.list_of_indexes = ['gvf_ke', 'gvf_kn']
-
-        for setting_ in self.list_of_indexes:
-            try:
-                index = settings.name_lookup[setting_].index
-                if setting_ == 'gvf_ke':
-                    self.ke_index = index
-                if setting_ == 'gvf_kn':
-                    self.kn_index = index
-                self.indexes_are_good = self.indexes_are_good + 1
-            except Exception as e:
-                print(e)
-                print(setting_ + " setting not found, \
-                        have you forgotten gvf.xml in your settings?")
 
     def message_recv(self, ac_id, msg):
         if int(ac_id) == self.ac_id:
@@ -81,39 +63,28 @@ class GVFFrame(wx.Frame):
                 self.XY[1] = float(msg.get_field(3))
             if msg.name == 'ATTITUDE':
                 self.yaw = float(msg.get_field(1))
-            if msg.name == 'DL_VALUE' and \
-                    self.indexes_are_good == len(self.list_of_indexes):
-                if int(msg.get_field(0)) == int(self.ke_index):
-                    self.ke = float(msg.get_field(1))
-                    if self.traj is not None:
-                        self.traj.vector_field(self.traj.XYoff, \
-                                self.map_gvf.area, self.s, self.kn, self.ke)
-                if int(msg.get_field(0)) == int(self.kn_index):
-                    self.kn = float(msg.get_field(1))
-                    if self.traj is not None:
-                        self.traj.vector_field(self.traj.XYoff, \
-                                self.map_gvf.area, self.s, self.kn, self.ke)
-
             if msg.name == 'GVF':
                 self.gvf_error = float(msg.get_field(0))
                 # Straight line
                 if int(msg.get_field(1)) == 0 \
                         and self.timer_traj == self.timer_traj_lim:
                     self.s = int(msg.get_field(2))
-                    param = [float(x) for x in msg.get_field(3).split(',')]
+                    self.ke = float(msg.get_field(3))
+                    param = [float(x) for x in msg.get_field(4).split(',')]
                     a = param[0]
                     b = param[1]
                     c = param[2]
 
                     self.traj = traj_line(np.array([-100,100]), a, b, c)
                     self.traj.vector_field(self.traj.XYoff, self.map_gvf.area, \
-                            self.s, self.kn, self.ke)
+                            self.s, self.ke)
 
                 # Ellipse
                 if int(msg.get_field(1)) == 1 \
                         and self.timer_traj == self.timer_traj_lim:
                     self.s = int(msg.get_field(2))
-                    param = [float(x) for x in msg.get_field(3).split(',')]
+                    self.ke = float(msg.get_field(3))
+                    param = [float(x) for x in msg.get_field(4).split(',')]
                     ex = param[0]
                     ey = param[1]
                     ea = param[2]
@@ -121,13 +92,14 @@ class GVFFrame(wx.Frame):
                     ealpha = param[4]
                     self.traj = traj_ellipse(np.array([ex, ey]), ealpha, ea, eb)
                     self.traj.vector_field(self.traj.XYoff, \
-                            self.map_gvf.area, self.s, self.kn, self.ke)
+                            self.map_gvf.area, self.s, self.ke)
 
                 # Sin
                 if int(msg.get_field(1)) == 2 \
                         and self.timer_traj == self.timer_traj_lim:
                     self.s = int(msg.get_field(2))
-                    param = [float(x) for x in msg.get_field(3).split(',')]
+                    self.ke = float(msg.get_field(3))
+                    param = [float(x) for x in msg.get_field(4).split(',')]
                     a = param[0]
                     b = param[1]
                     alpha = param[2]
@@ -137,7 +109,7 @@ class GVFFrame(wx.Frame):
                     self.traj = traj_sin(np.array([-100, 100]), a, b, alpha, \
                             w, off, A)
                     self.traj.vector_field(self.traj.XYoff, \
-                            self.map_gvf.area, self.s, self.kn, self.ke)
+                            self.map_gvf.area, self.s, self.ke)
 
                 self.timer_traj = self.timer_traj + 1
                 if self.timer_traj > self.timer_traj_lim:
@@ -262,7 +234,7 @@ class traj_line:
     def param_point(self, t):
         i = 0
 
-    def vector_field(self, XYoff, area, s, kn, ke):
+    def vector_field(self, XYoff, area, s, ke):
         self.mapgrad_X, self.mapgrad_Y = np.mgrid[XYoff[0]-0.5*np.sqrt(area):\
                 XYoff[0]+0.5*np.sqrt(area):30j, \
                 XYoff[1]-0.5*np.sqrt(area):\
@@ -314,7 +286,7 @@ class traj_ellipse:
                 self.a*np.cos(angle)*np.sin(-self.rot) + \
                 self.b*np.sin(angle)*np.cos(-self.rot)])
 
-    def vector_field(self, XYoff, area, s, kn, ke):
+    def vector_field(self, XYoff, area, s, ke):
         self.mapgrad_X, self.mapgrad_Y = np.mgrid[XYoff[0]-0.5*np.sqrt(area):\
                 XYoff[0]+0.5*np.sqrt(area):30j, \
                 XYoff[1]-0.5*np.sqrt(area):\
@@ -377,7 +349,7 @@ class traj_sin:
     def param_point(self, t):
         i = 0
 
-    def vector_field(self, XYoff, area, s, kn, ke):
+    def vector_field(self, XYoff, area, s, ke):
         self.mapgrad_X, self.mapgrad_Y = np.mgrid[XYoff[0]-0.5*np.sqrt(area):\
                 XYoff[0]+0.5*np.sqrt(area):30j, \
                 XYoff[1]-0.5*np.sqrt(area):\

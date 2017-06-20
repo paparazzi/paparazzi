@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 
 import time
 import sys
@@ -21,6 +22,8 @@ class aircraft:
         self.a = -999
         self.b = -999
 
+        self.s = -999
+
         self.sigma = -999
 
         self.a_index = -999
@@ -42,24 +45,29 @@ def message_recv(ac_id, msg):
 
         if msg.name == 'GVF':
             if int(msg.get_field(1)) == 1:
-                param = msg.get_field(3).split(',')
+                param = msg.get_field(4).split(',')
                 ac.XYc[0] = float(param[0])
                 ac.XYc[1] = float(param[1])
                 ac.a = float(param[2])
                 ac.b = float(param[3])
+                ac.s = float(msg.get_field(2))
 
         if msg.name == 'BAT':
             ac.time = float(msg.get_field(3))
     return
 
 def formation(B, ds, radius, k):
-    no_telemetry = 0
-    for ac in list_aircraft:
-        if ac.a == -999 or ac.XY[0] == -999:
-            print "Waiting for telemetry of aircraft ", ac.id
-            no_telemetry = 1
 
-    if no_telemetry:
+    waiting_for_msgs = 0
+    for ac in list_aircraft:
+        if ac.a == -999:
+            print("Waiting for GVF msg of aircraft ", ac.id)
+            waiting_for_msgs = 1
+        if ac.XY[0] == -999:
+            print("Waiting for NAV msg of aircraft ", ac.id)
+            waiting_for_msgs = 1
+    
+    if waiting_for_msgs == 1:
         return
 
     sigma = np.zeros(len(list_aircraft))
@@ -84,9 +92,10 @@ def formation(B, ds, radius, k):
         elif error_sigma <= -np.pi:
             error_sigma = error_sigma + 2*np.pi
 
-    u = -k*B.dot(error_sigma)
 
-    print list_aircraft[0].time, " ", str(error_sigma*180.0/np.pi).replace('[','').replace(']','')
+    u = -list_aircraft[0].s*k*B.dot(error_sigma)
+
+    print(list_aircraft[0].time, " ", str(error_sigma*180.0/np.pi).replace('[','').replace(']',''))
 
     i = 0
     for ac in list_aircraft:
@@ -107,7 +116,7 @@ def formation(B, ds, radius, k):
 
 def main():
     if len(sys.argv) != 6:
-        print "Usage: gvfFormationApp topology.txt desired_sigma.txt ids.txt radius k"
+        print("Usage: gvfFormationApp topology.txt desired_sigma.txt ids.txt radius k")
         interface.shutdown()
         return
 
@@ -122,7 +131,7 @@ def main():
     map(int, list_ids)
 
     if np.size(ids) != np.size(B,0):
-        print "The ammount of aircrafts in the topology and ids does not match"
+        print("The ammount of aircrafts in the topology and ids does not match")
         return
 
     for i in range(0, len(ids)):
@@ -134,14 +143,14 @@ def main():
 
     for ac in list_aircraft:
         settings = PaparazziACSettings(ac.id)
-        list_of_indexes = ['a', 'b']
+        list_of_indexes = ['ell_a', 'ell_b']
 
         for setting_ in list_of_indexes:
             try:
                 index = settings.name_lookup[setting_].index
-                if setting_ == 'a':
+                if setting_ == 'ell_a':
                     ac.a_index = index
-                if setting_ == 'b':
+                if setting_ == 'ell_b':
                     ac.b_index = index
             except Exception as e:
                 print(e)

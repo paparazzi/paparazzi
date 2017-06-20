@@ -20,7 +20,7 @@
  *
  */
 
-/** \file gvf_line.h
+/** @file gvf_line.h
  *
  *  Guidance algorithm based on vector fields
  *  2D straight line trajectory
@@ -31,11 +31,30 @@
 
 #include "modules/guidance/gvf/gvf.h"
 
+/** @typedef gvf_li_par
+* @brief Parameters for the GVF line trajectory
+* @param ke Gain defining how agressive is the vector field
+* @param kn Gain for making converge the vehile to the vector field
+* @param heading Heading in rads defining the orientation of the line
+*/
 typedef struct {
-  float alpha;
+  float ke;
+  float kn;
+  float heading;
 } gvf_li_par;
 
+/** @typedef gvf_seg_par
+* @brief Parameters for the segment case of the GVF line trajectory
+* @param d1 Distance beyond x1,y1 that the vehicle travels before turning back
+* @param d2 Distance beyond x2,y2 that the vehicle travels before turning back
+*/
+typedef struct {
+  float d1;
+  float d2;
+} gvf_seg_par;
+
 extern gvf_li_par gvf_line_par;
+extern gvf_seg_par gvf_segment_par;
 
 extern void gvf_line_info(float *phi, struct gvf_grad *, struct gvf_Hess *);
 

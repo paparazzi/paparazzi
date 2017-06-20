@@ -29,20 +29,36 @@
 
 #include "subsystems/navigation/common_nav.h"
 #include "gvf_ellipse.h"
+#include "generated/airframe.h"
 
+/*! Default gain ke for the ellipse trajectory */
+#ifndef GVF_ELLIPSE_KE
+#define GVF_ELLIPSE_KE 1
+#endif
+
+/*! Default gain kn for the ellipse trajectory */
+#ifndef GVF_ELLIPSE_KN
+#define GVF_ELLIPSE_KN 1
+#endif
+
+/*! Default first axis for the ellipse trajectory */
 #ifndef GVF_ELLIPSE_A
 #define GVF_ELLIPSE_A 80
 #endif
 
+/*! Default second axis for the ellipse trajectory */
 #ifndef GVF_ELLIPSE_B
 #define GVF_ELLIPSE_B 80
 #endif
 
+/*! Default orientation in degrees for the ellipse trajectory */
 #ifndef GVF_ELLIPSE_ALPHA
 #define GVF_ELLIPSE_ALPHA 0
 #endif
 
-gvf_ell_par gvf_ellipse_par = {GVF_ELLIPSE_A, GVF_ELLIPSE_B, GVF_ELLIPSE_ALPHA};
+gvf_ell_par gvf_ellipse_par = {GVF_ELLIPSE_KE, GVF_ELLIPSE_KN,
+                               GVF_ELLIPSE_A, GVF_ELLIPSE_B, GVF_ELLIPSE_ALPHA
+                              };
 
 void gvf_ellipse_info(float *phi, struct gvf_grad *grad,
                       struct gvf_Hess *hess)
