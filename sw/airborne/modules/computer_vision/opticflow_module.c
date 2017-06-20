@@ -61,6 +61,10 @@ PRINT_CONFIG_VAR(OPTICFLOW_BODY_TO_IMU_ID)
 #endif
 PRINT_CONFIG_VAR(OPTICFLOW_SEND_ABI_ID)
 
+#ifndef OPTICFLOW_FPS
+#define OPTICFLOW_FPS 0       ///< Default FPS (zero means run at camera fps)
+#endif
+PRINT_CONFIG_VAR(OPTICFLOW_FPS)
 
 /* The main opticflow variables */
 struct opticflow_t opticflow;                      ///< Opticflow calculations
@@ -126,7 +130,7 @@ void opticflow_module_init(void)
   opticflow_got_result = false;
   opticflow_calc_init(&opticflow);
 
-  cv_add_to_device(&OPTICFLOW_CAMERA, opticflow_module_calc);
+  cv_add_to_device(&OPTICFLOW_CAMERA, opticflow_module_calc, OPTICFLOW_FPS);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_OPTIC_FLOW_EST, opticflow_telem_send);
@@ -183,7 +187,7 @@ struct image_t *opticflow_module_calc(struct image_t *img)
   temp_state.rates = pose.rates;
 
   // Do the optical flow calculation
-  struct opticflow_result_t temp_result = {}; // new initialization
+  static struct opticflow_result_t temp_result = {}; // static so that the number of corners is kept between frames
   opticflow_calc_frame(&opticflow, &temp_state, img, &temp_result);
 
   // Copy the result if finished

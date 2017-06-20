@@ -46,6 +46,11 @@
 #define VIDEO_CAPTURE_JPEG_QUALITY 99
 #endif
 
+#ifndef VIDEO_CAPTURE_FPS
+#define VIDEO_CAPTURE_FPS 0       ///< Default FPS (zero means run at camera fps)
+#endif
+PRINT_CONFIG_VAR(VIDEO_CAPTURE_FPS)
+
 // Module settings
 bool video_capture_take_shot = false;
 int video_capture_index = 0;
@@ -66,7 +71,7 @@ void video_capture_init(void)
   }
 
   // Add function to computer vision pipeline
-  cv_add_to_device(&VIDEO_CAPTURE_CAMERA, video_capture_func);
+  cv_add_to_device(&VIDEO_CAPTURE_CAMERA, video_capture_func, VIDEO_CAPTURE_FPS);
 }
 
 

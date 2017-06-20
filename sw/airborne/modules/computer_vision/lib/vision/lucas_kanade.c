@@ -76,8 +76,7 @@ struct flow_t *opticFlowLK(struct image_t *new_img, struct image_t *old_img, str
 {
 
   // if no pyramids, use the old code:
-  if(pyramid_level == 0)
-  {
+  if (pyramid_level == 0) {
     // use the old code in this case:
     return opticFlowLK_flat(new_img, old_img, points, points_cnt, half_window_size, subpixel_factor, max_iterations, step_threshold, max_points);
   }
@@ -87,6 +86,7 @@ struct flow_t *opticFlowLK(struct image_t *new_img, struct image_t *old_img, str
 
   // Determine patch sizes and initialize neighborhoods
   uint16_t patch_size = 2 * half_window_size + 1;
+  // TODO: Feature management shows that this threshold rejects corners maybe too often, maybe another formula could be chosen
   uint32_t error_threshold = (25 * 25) * (patch_size * patch_size);
   uint16_t padded_patch_size = patch_size + 2;
   uint8_t border_size = padded_patch_size / 2 + 2; // amount of padding added to images
@@ -251,7 +251,8 @@ struct flow_t *opticFlowLK(struct image_t *new_img, struct image_t *old_img, str
  * @return The vectors from the original *points in subpixels
  */
 struct flow_t *opticFlowLK_flat(struct image_t *new_img, struct image_t *old_img, struct point_t *points, uint16_t *points_cnt,
-                           uint16_t half_window_size, uint16_t subpixel_factor, uint8_t max_iterations, uint8_t step_threshold, uint16_t max_points) {
+                                uint16_t half_window_size, uint16_t subpixel_factor, uint8_t max_iterations, uint8_t step_threshold, uint16_t max_points)
+{
   // A straightforward one-level implementation of Lucas-Kanade.
   // For all points:
   // (1) determine the subpixel neighborhood in the old image
@@ -271,7 +272,7 @@ struct flow_t *opticFlowLK_flat(struct image_t *new_img, struct image_t *old_img
 
   // determine patch sizes and initialize neighborhoods
   uint16_t patch_size = 2 * half_window_size;
-  uint32_t error_threshold = (25 * 25) *(patch_size *patch_size);
+  uint32_t error_threshold = (25 * 25) * (patch_size * patch_size);
   uint16_t padded_patch_size = patch_size + 2;
 
   // Create the window images

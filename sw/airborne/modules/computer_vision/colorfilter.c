@@ -29,6 +29,11 @@
 
 #include "modules/computer_vision/lib/vision/image.h"
 
+#ifndef COLORFILTER_FPS
+#define COLORFILTER_FPS 0       ///< Default FPS (zero means run at camera fps)
+#endif
+PRINT_CONFIG_VAR(COLORFILTER_FPS)
+
 struct video_listener *listener = NULL;
 
 // Filter Settings
@@ -58,5 +63,5 @@ struct image_t *colorfilter_func(struct image_t *img)
 
 void colorfilter_init(void)
 {
-  listener = cv_add_to_device(&COLORFILTER_CAMERA, colorfilter_func);
+  listener = cv_add_to_device(&COLORFILTER_CAMERA, colorfilter_func, COLORFILTER_FPS);
 }

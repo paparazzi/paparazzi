@@ -23,6 +23,11 @@
  * Find a colored item and track its geo-location and update a waypoint to it
  */
 
+#ifndef BLOB_LOCATOR_FPS
+#define BLOB_LOCATOR_FPS 0       ///< Default FPS (zero means run at camera fps)
+#endif
+PRINT_CONFIG_VAR(BLOB_LOCATOR_FPS)
+
 #include "modules/computer_vision/cv_blob_locator.h"
 #include "modules/computer_vision/cv.h"
 #include "modules/computer_vision/blob/blob_finder.h"
@@ -53,11 +58,13 @@ volatile bool marker_enabled = false;
 volatile bool window_enabled = false;
 
 // Computer vision thread
-struct image_t* cv_marker_func(struct image_t *img);
-struct image_t* cv_marker_func(struct image_t *img) {
+struct image_t *cv_marker_func(struct image_t *img);
+struct image_t *cv_marker_func(struct image_t *img)
+{
 
-  if (!marker_enabled)
+  if (!marker_enabled) {
     return NULL;
+  }
 
   struct marker_deviation_t m = marker(img, marker_size);
 
@@ -73,14 +80,16 @@ struct image_t* cv_marker_func(struct image_t *img) {
 
 
 // Computer vision thread
-struct image_t* cv_window_func(struct image_t *img);
-struct image_t* cv_window_func(struct image_t *img) {
+struct image_t *cv_window_func(struct image_t *img);
+struct image_t *cv_window_func(struct image_t *img)
+{
 
-  if (!window_enabled)
+  if (!window_enabled) {
     return NULL;
+  }
 
 
-  uint16_t coordinate[2] = {0,0};
+  uint16_t coordinate[2] = {0, 0};
   uint16_t response = 0;
   uint32_t integral_image[img->w * img->h];
 
@@ -88,7 +97,7 @@ struct image_t* cv_window_func(struct image_t *img) {
   image_create(&gray, img->w, img->h, IMAGE_GRAYSCALE);
   image_to_grayscale(img, &gray);
 
-  response = detect_window_sizes( (uint8_t*)gray.buf, (uint32_t)img->w, (uint32_t)img->h, coordinate, integral_image, MODE_BRIGHT);
+  response = detect_window_sizes((uint8_t *)gray.buf, (uint32_t)img->w, (uint32_t)img->h, coordinate, integral_image, MODE_BRIGHT);
 
   image_free(&gray);
 
@@ -98,13 +107,13 @@ struct image_t* cv_window_func(struct image_t *img) {
 
   if (response < 92) {
 
-    for (int y = 0; y < img->h-1; y++) {
+    for (int y = 0; y < img->h - 1; y++) {
       Img(px, y)   = 65;
-      Img(px+1, y) = 255;
+      Img(px + 1, y) = 255;
     }
-    for (int x = 0; x < img->w-1; x+=2) {
+    for (int x = 0; x < img->w - 1; x += 2) {
       Img(x, py)   = 65;
-      Img(x+1, py) = 255;
+      Img(x + 1, py) = 255;
     }
 
     uint32_t temp = coordinate[0];
@@ -118,11 +127,13 @@ struct image_t* cv_window_func(struct image_t *img) {
 }
 
 
-struct image_t* cv_blob_locator_func(struct image_t *img);
-struct image_t* cv_blob_locator_func(struct image_t *img) {
+struct image_t *cv_blob_locator_func(struct image_t *img);
+struct image_t *cv_blob_locator_func(struct image_t *img)
+{
 
-  if (!blob_enabled)
+  if (!blob_enabled) {
     return NULL;
+  }
 
 
   // Color Filter
@@ -137,9 +148,9 @@ struct image_t* cv_blob_locator_func(struct image_t *img) {
   // Output image
   struct image_t dst;
   image_create(&dst,
-                 img->w,
-                 img->h,
-                 IMAGE_GRADIENT);
+               img->w,
+               img->h,
+               IMAGE_GRADIENT);
 
   // Labels
   uint16_t labels_count = 512;
@@ -152,7 +163,7 @@ struct image_t* cv_blob_locator_func(struct image_t *img) {
   int largest_size = 0;
 
   // Find largest
-  for (int i=0; i<labels_count; i++) {
+  for (int i = 0; i < labels_count; i++) {
     // Only consider large blobs
     if (labels[i].pixel_cnt > 50) {
       if (labels[i].pixel_cnt > largest_size) {
@@ -162,21 +173,20 @@ struct image_t* cv_blob_locator_func(struct image_t *img) {
     }
   }
 
-  if (largest_id >= 0)
-  {
-    uint8_t *p = (uint8_t*) img->buf;
-    uint16_t* l = (uint16_t*) dst.buf;
-    for (int y=0;y<dst.h;y++) {
-      for (int x=0;x<dst.w/2;x++) {
-        if (l[y*dst.w+x] != 0xffff) {
-          uint8_t c=0xff;
-          if (l[y*dst.w+x] == largest_id) {
+  if (largest_id >= 0) {
+    uint8_t *p = (uint8_t *) img->buf;
+    uint16_t *l = (uint16_t *) dst.buf;
+    for (int y = 0; y < dst.h; y++) {
+      for (int x = 0; x < dst.w / 2; x++) {
+        if (l[y * dst.w + x] != 0xffff) {
+          uint8_t c = 0xff;
+          if (l[y * dst.w + x] == largest_id) {
             c = 0;
           }
-          p[y*dst.w*2+x*4]=c;
-          p[y*dst.w*2+x*4+1]=0x80;
-          p[y*dst.w*2+x*4+2]=c;
-          p[y*dst.w*2+x*4+3]=0x80;
+          p[y * dst.w * 2 + x * 4] = c;
+          p[y * dst.w * 2 + x * 4 + 1] = 0x80;
+          p[y * dst.w * 2 + x * 4 + 2] = c;
+          p[y * dst.w * 2 + x * 4 + 3] = 0x80;
         }
       }
     }
@@ -185,19 +195,19 @@ struct image_t* cv_blob_locator_func(struct image_t *img) {
     uint16_t cgx = labels[largest_id].x_sum / labels[largest_id].pixel_cnt * 2;
     uint16_t cgy = labels[largest_id].y_sum / labels[largest_id].pixel_cnt;
 
-    if ((cgx > 1) && (cgx < (dst.w-2)) &&
-        (cgy > 1) && (cgy < (dst.h-2))
-        ) {
-      p[cgy*dst.w*2+cgx*2-4] = 0xff;
-      p[cgy*dst.w*2+cgx*2-2] = 0x00;
-      p[cgy*dst.w*2+cgx*2] = 0xff;
-      p[cgy*dst.w*2+cgx*2+2] = 0x00;
-      p[cgy*dst.w*2+cgx*2+4] = 0xff;
-      p[cgy*dst.w*2+cgx*2+6] = 0x00;
-      p[(cgy-1)*dst.w*2+cgx*2] = 0xff;
-      p[(cgy-1)*dst.w*2+cgx*2+2] = 0x00;
-      p[(cgy+1)*dst.w*2+cgx*2] = 0xff;
-      p[(cgy+1)*dst.w*2+cgx*2+2] = 0x00;
+    if ((cgx > 1) && (cgx < (dst.w - 2)) &&
+        (cgy > 1) && (cgy < (dst.h - 2))
+       ) {
+      p[cgy * dst.w * 2 + cgx * 2 - 4] = 0xff;
+      p[cgy * dst.w * 2 + cgx * 2 - 2] = 0x00;
+      p[cgy * dst.w * 2 + cgx * 2] = 0xff;
+      p[cgy * dst.w * 2 + cgx * 2 + 2] = 0x00;
+      p[cgy * dst.w * 2 + cgx * 2 + 4] = 0xff;
+      p[cgy * dst.w * 2 + cgx * 2 + 6] = 0x00;
+      p[(cgy - 1)*dst.w * 2 + cgx * 2] = 0xff;
+      p[(cgy - 1)*dst.w * 2 + cgx * 2 + 2] = 0x00;
+      p[(cgy + 1)*dst.w * 2 + cgx * 2] = 0xff;
+      p[(cgy + 1)*dst.w * 2 + cgx * 2 + 2] = 0x00;
     }
 
 
@@ -217,7 +227,8 @@ struct image_t* cv_blob_locator_func(struct image_t *img) {
 #include <stdio.h>
 
 
-void cv_blob_locator_init(void) {
+void cv_blob_locator_init(void)
+{
   // Red board in sunlight
   color_lum_min = 100;
   color_lum_max = 200;
@@ -238,40 +249,41 @@ void cv_blob_locator_init(void) {
 
   georeference_init();
 
-  cv_add_to_device(&BLOB_LOCATOR_CAMERA, cv_blob_locator_func);
-  cv_add_to_device(&BLOB_LOCATOR_CAMERA, cv_marker_func);
-  cv_add_to_device(&BLOB_LOCATOR_CAMERA, cv_window_func);
+  cv_add_to_device(&BLOB_LOCATOR_CAMERA, cv_blob_locator_func, BLOB_LOCATOR_FPS);
+  cv_add_to_device(&BLOB_LOCATOR_CAMERA, cv_marker_func, BLOB_LOCATOR_FPS);
+  cv_add_to_device(&BLOB_LOCATOR_CAMERA, cv_window_func, BLOB_LOCATOR_FPS);
 }
 
-void cv_blob_locator_periodic(void) {
+void cv_blob_locator_periodic(void)
+{
 
 }
 
 
 
-void cv_blob_locator_event(void) {
-  switch (cv_blob_locator_type)
-  {
-  case 1:
-    blob_enabled = true;
-    marker_enabled = false;
-    window_enabled = false;
-    break;
-  case 2:
-    blob_enabled = false;
-    marker_enabled = true;
-    window_enabled = false;
-    break;
-  case 3:
-    blob_enabled = false;
-    marker_enabled = false;
-    window_enabled = true;
-    break;
-  default:
-    blob_enabled = false;
-    marker_enabled = false;
-    window_enabled = false;
-    break;
+void cv_blob_locator_event(void)
+{
+  switch (cv_blob_locator_type) {
+    case 1:
+      blob_enabled = true;
+      marker_enabled = false;
+      window_enabled = false;
+      break;
+    case 2:
+      blob_enabled = false;
+      marker_enabled = true;
+      window_enabled = false;
+      break;
+    case 3:
+      blob_enabled = false;
+      marker_enabled = false;
+      window_enabled = true;
+      break;
+    default:
+      blob_enabled = false;
+      marker_enabled = false;
+      window_enabled = false;
+      break;
   }
   if (blob_locator != 0) {
     // CV thread has results: import
@@ -282,11 +294,11 @@ void cv_blob_locator_event(void) {
     uint16_t y = temp & 0x0000ffff;
     temp = temp >> 16;
     uint16_t x = temp & 0x0000ffff;
-    printf("Found %d %d \n",x,y);
+    printf("Found %d %d \n", x, y);
 
     struct camera_frame_t cam;
-    cam.px = x/2;
-    cam.py = y/2;
+    cam.px = x / 2;
+    cam.py = y / 2;
     cam.f = 400;
     cam.h = 240;
     cam.w = 320;
@@ -295,31 +307,36 @@ void cv_blob_locator_event(void) {
     georeference_project(&cam, WP_p1);
 #endif
 #ifdef WP_CAM
-    georeference_filter(FALSE,WP_CAM, geofilter_length);
+    georeference_filter(FALSE, WP_CAM, geofilter_length);
 #endif
 
   }
 }
 
-extern void cv_blob_locator_start(void) {
+extern void cv_blob_locator_start(void)
+{
   georeference_init();
 }
 
-extern void cv_blob_locator_stop(void) {
+extern void cv_blob_locator_stop(void)
+{
 
 }
 
-void start_vision(void) {
+void start_vision(void)
+{
   georeference_init();
   record_video = 1;
   cv_blob_locator_type = 3;
 }
-void start_vision_land(void) {
+void start_vision_land(void)
+{
   georeference_init();
   record_video = 1;
   cv_blob_locator_type = 2;
 }
-void stop_vision(void) {
+void stop_vision(void)
+{
   georeference_init();
   record_video = 0;
   cv_blob_locator_type = 0;

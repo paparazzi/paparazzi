@@ -27,16 +27,21 @@
 #define RES 100
 #define N_WINDOW_SIZES 1
 
+#ifndef DETECT_WINDOW_FPS
+#define DETECT_WINDOW_FPS 0       ///< Default FPS (zero means run at camera fps)
+#endif
+PRINT_CONFIG_VAR(DETECT_WINDOW_FPS)
+
 #include "cv.h"
 #include "detect_window.h"
 #include <stdio.h>
 
 void detect_window_init(void)
 {
-  cv_add_to_device(&BLOB_LOCATOR_CAMERA, detect_window);
+  cv_add_to_device(&DETECT_WINDOW_CAMERA, detect_window, DETECT_WINDOW_FPS);
 }
 
-struct image_t* detect_window(struct image_t *img)
+struct image_t *detect_window(struct image_t *img)
 {
 
   uint16_t coordinate[2];

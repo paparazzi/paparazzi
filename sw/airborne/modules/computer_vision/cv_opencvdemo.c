@@ -27,16 +27,19 @@
 #include "modules/computer_vision/cv_opencvdemo.h"
 #include "modules/computer_vision/opencv_example.h"
 
+#ifndef OPENCVDEMO_FPS
+#define OPENCVDEMO_FPS 0       ///< Default FPS (zero means run at camera fps)
+#endif
+PRINT_CONFIG_VAR(OPENCVDEMO_FPS)
 
 // Function
-struct image_t* opencv_func(struct image_t* img);
-struct image_t* opencv_func(struct image_t* img)
+struct image_t *opencv_func(struct image_t *img);
+struct image_t *opencv_func(struct image_t *img)
 {
 
-  if (img->type == IMAGE_YUV422)
-  {
+  if (img->type == IMAGE_YUV422) {
     // Call OpenCV (C++ from paparazzi C function)
-    opencv_example((char*) img->buf, img->w, img->h);
+    opencv_example((char *) img->buf, img->w, img->h);
   }
 
 // opencv_example(NULL, 10,10);
@@ -46,6 +49,6 @@ struct image_t* opencv_func(struct image_t* img)
 
 void opencvdemo_init(void)
 {
-  cv_add_to_device(&OPENCVDEMO_CAMERA, opencv_func);
+  cv_add_to_device(&OPENCVDEMO_CAMERA, opencv_func, OPENCVDEMO_FPS);
 }
 
