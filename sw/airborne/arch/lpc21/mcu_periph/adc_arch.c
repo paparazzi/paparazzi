@@ -140,6 +140,7 @@ static const uint32_t ADC_PINSEL1_ONES = 0
 #endif
     ;
 
+#ifdef USE_AD0
 static const uint32_t ADC_AD0CR_SEL_HW_SCAN = 0
 #if defined USE_AD0_0
     | 1 << 0
@@ -166,7 +167,9 @@ static const uint32_t ADC_AD0CR_SEL_HW_SCAN = 0
     | 1 << 7
 #endif
     ;
+#endif
 
+#ifdef USE_AD1
 static const uint32_t ADC_AD1CR_SEL_HW_SCAN = 0
 #if defined USE_AD1_0
     | 1 << 0
@@ -193,6 +196,7 @@ static const uint32_t ADC_AD1CR_SEL_HW_SCAN = 0
     | 1 << 7
 #endif
     ;
+#endif
 
 void adc_init(void)
 {

@@ -13,7 +13,7 @@
   </header>
   <init fun="pprz_dl_init()"/>
   <event fun="pprz_dl_event()"/>
-  <makefile target="!fbw|sim|nps">
+  <makefile target="!fbw|sim|nps|hitl">
     <define name="DOWNLINK"/>
     <define name="PERIODIC_TELEMETRY"/>
     <define name="USE_USB_SERIAL"/>

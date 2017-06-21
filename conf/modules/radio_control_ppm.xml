@@ -16,13 +16,13 @@
   <header>
     <file name="ppm.h" dir="subsystems/radio_control"/>
   </header>
-  <makefile target="ap|fbw|sim|nps">
+  <makefile target="ap|fbw|sim|nps|hitl">
     <configure name="RADIO_CONTROL_LED" default="none"/>
     <define name="RADIO_CONTROL_LED" value="$(RADIO_CONTROL_LED)" cond="ifneq ($(RADIO_CONTROL_LED),none)"/>
     <define name="RADIO_CONTROL_TYPE_H" value="subsystems/radio_control/ppm.h" type="string"/>
     <define name="PPM_CONFIG" value="$(PPM_CONFIG)" cond="ifdef PPM_CONFIG"/>
   </makefile>
-  <makefile target="fbw|sim|nps">
+  <makefile target="fbw|sim|nps|hitl">
     <define name="RADIO_CONTROL"/>
     <define name="RADIO_CONTROL_TYPE_PPM"/>
     <file name="radio_control.c" dir="subsystems"/>

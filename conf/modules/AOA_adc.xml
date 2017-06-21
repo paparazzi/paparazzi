@@ -7,12 +7,14 @@
     <define name="AOA_SENS" value="(2*3.14)/1024" description="sensor sensitivity"/>
     <define name="AOA_OFFSET" value="3.14"  description="offset in radians"/>
     <define name="AOA_FILTER" value="0.5" description="filtering parameter between 0 (no filtering) and 1"/>
+
+
   </doc>
   <settings>
     <dl_settings>
       <dl_settings NAME="AOA">
-        <dl_setting MAX="4" MIN="-4" STEP="0.0001" VAR="AOA_offset" shortname="AOA_offset" module="modules/sensors/AOA_adc" param="AOA_OFFSET"/>
-        <dl_setting MAX="0.95" MIN="0" STEP="0.001" VAR="AOA_filter" shortname="AOA_filter" module="modules/sensors/AOA_adc" param="AOA_FILTER"/>
+        <dl_setting MAX="4" MIN="-4" STEP="0.0001" VAR="aoa_adc.offset" shortname="AOA_offset" module="modules/sensors/aoa_adc" param="AOA_OFFSET"/>
+        <dl_setting MAX="0.95" MIN="0" STEP="0.001" VAR="aoa_adc.filter" shortname="AOA_filter" module="modules/sensors/aoa_adc" param="AOA_FILTER"/>
         <dl_setting MAX="1" MIN="0" STEP="1" VAR="h_ctl_pitch_mode" shortname="PITCH_Mode"  module="stabilization/stabilization_attitude" />
       </dl_settings>
     </dl_settings>

@@ -1,0 +1,29 @@
+<!DOCTYPE layout SYSTEM "../layout.dtd">
+<layout width="1215" height="776">
+  <columns>
+    <rows SIZE="470">
+      <widget NAME="strips" SIZE="225"/>
+      <widget NAME="aircraft" SIZE="350"/>
+      <widget NAME="alarms"/>
+    </rows>
+    <rows>
+      <widget NAME="map2d">
+        <papget type="message_field" display="text" x="682" y="107">
+          <property name="scale" value="1."/>
+          <property name="field" value="AIRSPEED_IND:ind_airspeed"/>
+          <property name="format" value="%.2f"/>
+          <property name="size" value="15."/>
+          <property name="color" value="green"/>
+        </papget>
+        <papget type="message_field" display="gauge" x="696" y="60">
+          <property name="scale" value="1."/>
+          <property name="field" value="AIRSPEED_IND:ind_airspeed"/>
+          <property name="min" value="0"/>
+          <property name="max" value="25"/>
+          <property name="size" value="50."/>
+          <property name="text" value="Airspeed"/>
+        </papget>
+      </widget>
+    </rows>
+  </columns>
+</layout>

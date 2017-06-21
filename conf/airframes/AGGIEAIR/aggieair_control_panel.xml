@@ -2,6 +2,13 @@
 <control_panel name="aggieair control panel">
 
   <section name="programs">
+    <!-- AggieAir specific programs -->
+    <program name="Payload" command="payload_start.sh"/>
+    <program name="Altitude Update" command="altitude_update.sh"/>
+    <program name="uGear Sim" command="start_ugear_sim.sh"/>
+    <program name="ADS-B" command="start_adsb.sh"/>
+
+    <!-- default programs -->
     <program name="Server" command="sw/ground_segment/tmtc/server"/>
     <program name="Data Link" command="sw/ground_segment/tmtc/link">
       <arg flag="-d" constant="/dev/ttyUSB0"/>
@@ -68,6 +75,7 @@
 
   <section name="sessions">
 
+  <!-- Defeault test sessions -->
    <session name="Flight USB-serial@9600">
       <program name="Data Link">
         <arg flag="-d" constant="/dev/ttyUSB0"/>
@@ -136,25 +144,7 @@
      </program>
    </session>
 
-
-   <session name="NPS Flight Gear">
-     <program name="Data Link">
-       <arg flag="-udp"/>
-       <arg flag="-udp_broadcast"/>
-     </program>
-     <program name="Server">
-      <arg flag="-n"/>
-     </program>
-     <program name="GCS"/>
-     <program name="Simulator">
-      <arg flag="-a" constant="@AIRCRAFT"/>
-      <arg flag="-f" constant="127.0.0.1"/>
-      <arg flag="-b" constant="127.255.255.255"/>
-      <arg flag="--fg_fdm" constant=""/>
-     </program>
-   </session>
-
-   <session name="NPS Payload Simulation">
+   <session name="AggieAir Simulation">
      <program name="Data Link">
        <arg flag="-udp"/>
        <arg flag="-udp_broadcast"/>
@@ -172,6 +162,7 @@
       <arg flag="--fg_fdm" constant=""/>
      </program>
      <program name="Messages"/>
+     <program name="Environment Simulator"/>
    </session>
 
    <session name="HITL+SBUS USB-serial@57600">
@@ -290,7 +281,6 @@
       </program>
     </session>
 
-
     <session name="Log Replay">
       <program name="Log File Player"/>
       <program name="Server">
@@ -302,6 +292,84 @@
       </program>
       <program name="Real-time Plotter"/>
       <program name="Environment Simulator"/>
+    </session>
+
+
+    <!-- Service center sessions -->
+    <session name="Ground Control Minions Umarim Serial">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyS0"/>
+        <arg flag="-transport" constant="xbee"/>
+        <arg flag="-uplink"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS">
+        <arg flag="-layout" constant="AGGIEAIR/CSOIS_minions_osu.xml"/>
+        <arg flag="-srtm"/>
+      </program>
+      <program name="Messages">
+        <arg flag="-c" constant="telemetry:*"/>
+      </program>
+      <program name="Payload"/>
+      <program name="Altitude Update"/>
+      <program name="ADS-B"/>
+    </session>
+
+    <session name="Ground Control Minions Umarim USB">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-transport" constant="xbee"/>
+        <arg flag="-uplink"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS">
+        <arg flag="-layout" constant="AGGIEAIR/CSOIS_minions_osu.xml"/>
+        <arg flag="-srtm"/>
+      </program>
+      <program name="Messages">
+        <arg flag="-c" constant="telemetry:*"/>
+      </program>
+      <program name="Payload"/>
+      <program name="Altitude Update"/>
+    </session>
+
+    <session name="Ground Control Minions">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyS0"/>
+        <arg flag="-transport" constant="xbee"/>
+        <arg flag="-uplink"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS">
+        <arg flag="-layout" constant="AGGIEAIR/CSOIS_minions.xml"/>
+        <arg flag="-srtm"/>
+      </program>
+      <program name="Messages">
+        <arg flag="-c" constant="telemetry:*"/>
+      </program>
+      <program name="Payload"/>
+    </session>
+
+    <session name="Mobile Ground Station">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyS0"/>
+        <arg flag="-transport" constant="xbee"/>
+        <arg flag="-uplink"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server">
+        <arg flag="-no_md5_check" constant="option"/>
+      </program>
+      <program name="GCS">
+        <arg flag="-layout" constant="AGGIEAIR/CSOIS_flyingwings.xml"/>
+        <arg flag="-srtm"/>
+      </program>
+      <program name="Messages">
+        <arg flag="-c" constant="telemetry:*"/>
+      </program>
     </session>
 
   </section>
