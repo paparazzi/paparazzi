@@ -1,0 +1,86 @@
+<!DOCTYPE layout SYSTEM "../layout.dtd">
+<layout width="1280" height="725">
+  <columns>
+    <rows SIZE="470">
+      <widget NAME="strips" SIZE="225"/>
+      <widget NAME="aircraft" SIZE="350"/>
+      <widget NAME="alarms"/>
+    </rows>
+    <rows>
+      <widget NAME="map2d">
+        <papget type="message_field" display="led" x="204" y="102">
+          <property name="scale" value="1-1"/>
+          <property name="field" value="AGGIECAP:errorcode"/>
+          <property name="size" value="15."/>
+          <property name="text" value="Status"/>
+        </papget>
+        <papget type="message_field" display="gauge" x="722" y="58">
+          <property name="scale" value="1."/>
+          <property name="field" value="AIRSPEED_IND:ind_airspeed"/>
+          <property name="min" value="0"/>
+          <property name="max" value="25"/>
+          <property name="size" value="50."/>
+          <property name="text" value="Airspeed"/>
+        </papget>
+        <papget type="message_field" display="text" x="702" y="104">
+          <property name="scale" value="1."/>
+          <property name="field" value="AIRSPEED_IND:ind_airspeed"/>
+          <property name="format" value="%.2f"/>
+          <property name="size" value="15."/>
+          <property name="color" value="green"/>
+        </papget>
+        <papget type="message_field" display="led" x="204" y="21">
+          <property name="scale" value="1."/>
+          <property name="field" value="AGGIECAP:payloadstatus"/>
+          <property name="size" value="15."/>
+          <property name="text" value="Init"/>
+        </papget>
+        <papget type="message_field" display="led" x="205" y="47">
+          <property name="scale" value=".5-1"/>
+          <property name="field" value="AGGIECAP:payloadstatus"/>
+          <property name="size" value="15."/>
+          <property name="text" value="Cool"/>
+        </papget>
+        <papget type="message_field" display="led" x="435" y="91">
+          <property name="scale" value="1-1899"/>
+          <property name="field" value="ACTUATORS:values[5]"/>
+          <property name="size" value="15."/>
+          <property name="text" value="off"/>
+        </papget>
+        <papget type="message_field" display="led" x="507" y="12">
+          <property name="scale" value="1-1580"/>
+          <property name="field" value="ACTUATORS:values[5]"/>
+          <property name="size" value="15."/>
+          <property name="text" value="med"/>
+        </papget>
+        <papget type="message_field" display="led" x="611" y="91">
+          <property name="scale" value="1-1262"/>
+          <property name="field" value="ACTUATORS:values[5]"/>
+          <property name="size" value="15."/>
+          <property name="text" value="full"/>
+        </papget>
+        <papget type="message_field" display="led" x="203" y="74">
+          <property name="scale" value="1-1"/>
+          <property name="field" value="AGGIECAP:payloadstatus"/>
+          <property name="size" value="15."/>
+          <property name="text" value="Warm"/>
+        </papget>
+        <papget type="message_field" display="text" x="235" y="12">
+          <property name="scale" value="1."/>
+          <property name="field" value="AGGIECAP:capturenum"/>
+          <property name="format" value="Capture Num %.2f"/>
+          <property name="size" value="15."/>
+          <property name="color" value="green"/>
+        </papget>
+        <papget type="message_field" display="gauge" x="507" y="69">
+          <property name="scale" value="1."/>
+          <property name="field" value="ACTUATORS:values[5]"/>
+          <property name="min" value="1900"/>
+          <property name="max" value="1100"/>
+          <property name="size" value="50."/>
+          <property name="text" value="Crow"/>
+        </papget>
+      </widget>
+    </rows>
+  </columns>
+</layout>
