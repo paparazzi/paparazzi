@@ -42,7 +42,6 @@
     <include name="L" procedure="AGGIEAIR/aggieair_landing.xml"/>
   </includes>
   <exceptions>
-    <!--exception cond="datalink_time > 30" deroute="Standby"/-->
     <exception cond="InsideFlightArea(GetPosX(), GetPosY()) == FALSE" deroute="Go Home"/>
   </exceptions>
   <blocks>

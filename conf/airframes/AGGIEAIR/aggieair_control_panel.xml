@@ -162,6 +162,7 @@
       <arg flag="--fg_fdm" constant=""/>
      </program>
      <program name="Messages"/>
+     <program name="Environment Simulator"/>
    </session>
 
    <session name="HITL+SBUS USB-serial@57600">
