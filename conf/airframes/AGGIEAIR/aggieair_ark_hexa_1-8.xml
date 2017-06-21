@@ -63,16 +63,13 @@ Aggie Air ARK
       <configure name="EXTRA_DL_PORT" value="UART1"/>
       <configure name="EXTRA_DL_BAUD" value="B921600"/>
     </module>
-    <module name="lidar_sf11">
-      <configure name="LIDAR_SF11_I2C_DEV" value="i2c2"/>
-    </module>
-    <!--module name="battery_monitor.xml">
+    <module name="battery_monitor.xml">
       <define name="BATMON_REV4" value="0"/>
       <define name="BATMON_CURRENT_OFFSET" value="-120"/>
       <define name="BATMON_CURRENT_SENSITIVITY" value="25.6"/>
       <define name="BATMON_TEMP_OFFSET" value="250"/>
       <define name="BATMON_TEMP_SENSITIVITY" value="10"/>
-    </module-->
+    </module>
   </modules>
 
   <!--These values are set for the Castle Creations HV Lite 60A ESCs-->

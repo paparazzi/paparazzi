@@ -1,51 +1,79 @@
-<layout width="1280" height="709">
+<!DOCTYPE layout SYSTEM "../layout.dtd">
+
+<layout width="1600" height="939">
   <columns>
     <rows SIZE="600">
-      <widget NAME="strips" SIZE="225"/>
-      <widget NAME="aircraft" SIZE="350"/>
-      <widget NAME="alarms"/>
+      <widget NAME="strips" size="225"/>
+      <widget NAME="aircraft" size="350"/>
+      <widget NAME="alarms" size="350"/>
     </rows>
     <rows>
-      <widget NAME="map2d">
-        <papget type="message_field" display="gauge" x="77" y="304">
-          <property name="field" value="CAMERA_PAYLOAD:used_memory"/>
-          <property name="scale" value="1.0"/>
-          <property name="min" value="0."/>
-          <property name="max" value="100."/>
-          <property name="size" value="50."/>
-          <property name="text" value="Used memory(%)"/>
-        </papget>
-        <papget type="message_field" display="gauge" x="74" y="198">
-          <property name="field" value="CAMERA_PAYLOAD:used_disk"/>
-          <property name="scale" value="1.0"/>
-          <property name="min" value="0."/>
-          <property name="max" value="100."/>
-          <property name="size" value="50."/>
-          <property name="text" value="Used disk(%)"/>
-        </papget>
-        <papget type="message_field" display="text" x="45" y="414">
-          <property name="field" value="CAMERA_PAYLOAD:error_code"/>
+      <widget NAME="map2d" size="937">
+        <papget type="message_field" display="text" x="145" y="11">
+          <property name="scale" value="1"/>
+          <property name="field" value="CAMERA_SNAPSHOT:array_temp"/>
+          <property name="format" value="FPA Temp: %.2f"/>
           <property name="size" value="15."/>
-          <property name="format" value="Error code: %.0f"/>
           <property name="color" value="green"/>
         </papget>
-        <papget type="message_field" display="led" x="151" y="395">
+        <papget type="message_field" display="gauge" x="60" y="176">
+          <property name="scale" value="1"/>
+          <property name="field" value="CAMERA_PAYLOAD:used_disk"/>
+          <property name="min" value="0."/>
+          <property name="max" value="100."/>
+          <property name="size" value="50."/>
+          <property name="text" value="Payload disk(%)"/>
+        </papget>
+        <papget type="message_field" display="led" x="465" y="22">
           <property name="scale" value="1"/>
           <property name="field" value="CAMERA_PAYLOAD:error_code"/>
           <property name="size" value="15."/>
-          <property name="text" value="Error:"/>
-          <property name="test_value" value="0"/> <!-- will be green only if value==0 -->
-          <property name="test_invert" value="true"/>
+          <property name="text" value="Payload status:"/>
         </papget>
-        <papget type="message_field" display="led" x="152" y="366">
+        <papget type="message_field" display="text" x="144" y="57">
+          <property name="scale" value="1"/>
+          <property name="field" value="CAMERA_SNAPSHOT:snapshot_image_number"/>
+          <property name="format" value="Capture number: %.0f"/>
+          <property name="size" value="15."/>
+          <property name="color" value="green"/>
+        </papget>
+        <papget type="message_field" display="text" x="478" y="11">
+          <property name="scale" value="1"/>
+          <property name="field" value="CAMERA_PAYLOAD:error_code"/>
+          <property name="format" value="code: %.0f"/>
+          <property name="size" value="15."/>
+          <property name="color" value="green"/>
+        </papget>
+        <papget type="message_field" display="gauge" x="66" y="464">
+          <property name="scale" value="1."/>
+          <property name="field" value="COPILOT_STATUS:used_memory"/>
+          <property name="min" value="0."/>
+          <property name="max" value="100."/>
+          <property name="size" value="50."/>
+          <property name="text" value="Copilot mem(%)"/>
+        </papget>
+        <papget type="message_field" display="gauge" x="64" y="367">
+          <property name="scale" value="1."/>
+          <property name="field" value="COPILOT_STATUS:used_disk"/>
+          <property name="min" value="0."/>
+          <property name="max" value="100."/>
+          <property name="size" value="50."/>
+          <property name="text" value="Copilot disk(%)"/>
+        </papget>
+        <papget type="message_field" display="led" x="268" y="46">
           <property name="scale" value="1"/>
           <property name="field" value="CAMERA_PAYLOAD:door_status"/>
           <property name="size" value="15."/>
           <property name="text" value="Door status:"/>
-          <property name="test_value" value="2"/> <!-- will be green only if value==2 -->
-          <property name="test_invert" value="true"/>
         </papget>
-
+        <papget type="message_field" display="gauge" x="64" y="272">
+          <property name="scale" value="1.0"/>
+          <property name="field" value="CAMERA_PAYLOAD:used_memory"/>
+          <property name="min" value="0."/>
+          <property name="max" value="100."/>
+          <property name="size" value="50."/>
+          <property name="text" value="Payload mem(%)"/>
+        </papget>
       </widget>
     </rows>
   </columns>
