@@ -15,32 +15,33 @@
 
 int main(int argc, char **argv)
 {
-  float u_min[4] = {-107, -19093, 0, -95, };
-  float u_max[4] = {19093, 107, 4600, 4505, };
+  float u_min[INDI_NUM_ACT] = { -107, -19093, 0, -95, };
+  float u_max[INDI_NUM_ACT] = {19093, 107, 4600, 4505, };
 
-  float g1g2[4][4] =
-  {{      0,         0,  -0.0105,  0.0107016},
-  {-0.0030044, 0.0030044, 0.035, 0.035},
-  {-0.004856, -0.004856, 0, 0},
-  {       0,         0,   -0.0011,   -0.0011}};
+  float g1g2[INDI_OUTPUTS][INDI_NUM_ACT] = {
+    {      0,         0,  -0.0105,  0.0107016},
+    { -0.0030044, 0.0030044, 0.035, 0.035},
+    { -0.004856, -0.004856, 0, 0},
+    {       0,         0,   -0.0011,   -0.0011}
+  };
 
   //State prioritization {W Roll, W pitch, W yaw, TOTAL THRUST}
   static float Wv[INDI_OUTPUTS] = {100, 1000, 0.1, 10};
   /*static float Wv[INDI_OUTPUTS] = {10, 10, 0.1, 1};*/
 
   // The control objective in array format
-  float indi_v[4] = {10.8487,  -10.5658,    6.8383,    1.8532};
-  float indi_du[4];
+  float indi_v[INDI_OUTPUTS] = {10.8487,  -10.5658,    6.8383,    1.8532};
+  float indi_du[INDI_NUM_ACT];
 
   // Initialize the array of pointers to the rows of g1g2
-  float* Bwls[4];
+  float *Bwls[INDI_OUTPUTS];
   uint8_t i;
-  for(i=0; i<INDI_OUTPUTS; i++) {
+  for (i = 0; i < INDI_OUTPUTS; i++) {
     Bwls[i] = g1g2[i];
   }
 
   // WLS Control Allocator
   int num_iter =
-    wls_alloc(indi_du,indi_v,u_min,u_max,Bwls,INDI_NUM_ACT,INDI_OUTPUTS,0,0,Wv,0,0,10000,10);
-  printf("du = %f, %f, %f, %f\n", indi_du[0],indi_du[1],indi_du[2],indi_du[3]);
+    wls_alloc(indi_du, indi_v, u_min, u_max, Bwls, INDI_NUM_ACT, INDI_OUTPUTS, 0, 0, Wv, 0, 0, 10000, 10);
+  printf("du = %f, %f, %f, %f\n", indi_du[0], indi_du[1], indi_du[2], indi_du[3]);
 }

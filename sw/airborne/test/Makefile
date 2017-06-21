@@ -21,7 +21,7 @@ test_algebra: test_algebra.c ../math/pprz_trig_int.c ../math/pprz_algebra_int.c 
 test_bla: test_bla.c ../math/pprz_trig_int.c ../math/pprz_algebra_int.c ../math/pprz_algebra_float.c ../math/pprz_algebra_double.c
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-test_alloc: test_alloc.c ../firmwares/rotorcraft/stabilization/wls/wls_alloc.c ../firmwares/rotorcraft/stabilization/wls/r8lib_min.c ../firmwares/rotorcraft/stabilization/wls/qr_solve.c
+test_alloc: test_alloc.c ../firmwares/rotorcraft/stabilization/wls/wls_alloc.c ../math/qr_solve/r8lib_min.c ../math/qr_solve/qr_solve.c
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 %.exe : %.c

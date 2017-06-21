@@ -29,7 +29,7 @@
  *
  * The algorithm is described in:
  * Prioritized Control Allocation for Quadrotors Subject to Saturation -
- * E.J.J. Smeur, D.C. Höppener, C. de Wagter. Submitted to IMAV 2017
+ * E.J.J. Smeur, D.C. Höppener, C. de Wagter. In IMAV 2017
  *
  * written by Anton Naruta && Daniel Hoppener 2016
  * MAVLab Delft University of Technology
@@ -39,13 +39,27 @@
 #include <stdio.h>
 #include "std.h"
 
+#include <string.h>
+#include <math.h>
+#include <float.h>
+#include "math/qr_solve/qr_solve.h"
+#include "math/qr_solve/r8lib_min.h"
+
 void print_final_values(int n_u, int n_v, float* u, float** B, float* v, float* umin, float* umax);
 void print_in_and_outputs(int n_c, int n_free, float** A_free_ptr, float* d, float* p_free);
 
 // provide loop feedback
 #define WLS_VERBOSE FALSE
 
-// the wrapper can use any solver function
+/**
+ * @brief Wrapper for qr solve
+ *
+ * Possible to use a different solver if needed.
+ * Solves a system of the form Ax = b for x.
+ *
+ * @param m number of rows
+ * @param n number of columns
+ */
 void qr_solve_wrapper(int m, int n, float** A, float* b, float* x) {
   float in[m * n];
   // convert A to 1d array
@@ -286,6 +300,7 @@ int wls_alloc(float* u, float* v, float* umin, float* umax, float** B,
   return -1;
 }
 
+#if WLS_VERBOSE
 void print_in_and_outputs(int n_c, int n_free, float** A_free_ptr, float* d, float* p_free) {
 
   printf("n_c = %d n_free = %d\n", n_c, n_free);
@@ -345,3 +360,4 @@ void print_final_values(int n_u, int n_v, float* u, float** B, float* v, float* 
   printf("\n\n");
 
 }
+#endif
