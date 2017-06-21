@@ -32,7 +32,6 @@
       <message name="BATTERY_MONITOR"        period="1.0"/>
       
       <message name="GPS_LLA"                period="1.0"/>
-      <message name="MOTOR_MIXING"           period="1.0"/>
       <message name="ATTITUDE"               period="1.0"/>
     </mode>
 

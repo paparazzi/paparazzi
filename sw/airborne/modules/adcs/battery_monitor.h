@@ -195,9 +195,12 @@ extern float batmon_temp_sensitivity;
  * Status for Bus ADC
  */
 enum BatmonBusStatus {
-  BATTERY_MONITOR_BUS_CURRENT,
-  BATTERY_MONITOR_BUS_VOLTAGE,
-  BATTERY_MONITOR_BUS_TEMPERATURE
+  BATTERY_MONITOR_BUS_CURRENT_REQ,
+  BATTERY_MONITOR_BUS_CURRENT_READ,
+  BATTERY_MONITOR_BUS_VOLTAGE_REQ,
+  BATTERY_MONITOR_BUS_VOLTAGE_READ,
+  BATTERY_MONITOR_BUS_TEMPERATURE_REQ,
+  BATTERY_MONITOR_BUS_TEMPERATURE_READ
 };
 
 /**
@@ -255,6 +258,7 @@ void battery_monitor_read_balance_ports_2(void);
 void battery_monitor_read_balance_ports(struct BatMonBal *);
 
 void battery_monitor_event(void);
+void battery_monitor_check_i2c_transaction(struct i2c_transaction* t);
 
 uint8_t battery_monitor_get_address(uint8_t channel);
 

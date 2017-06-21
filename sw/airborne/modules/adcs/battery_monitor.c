@@ -60,23 +60,23 @@ static void send_batmon(struct transport_tx *trans, struct link_device *dev)
   uint8_t batmonbal1_bus_trans_status = batmonbal1.bus_trans.status;
   uint8_t batmonbal2_bus_trans_status = batmonbal2.bus_trans.status;
   pprz_msg_send_BATTERY_MONITOR(trans, dev, AC_ID,
-        &version,
-        &batmonbus.bus_status,
-	      &batmonbus_bus_trans_status,
-	      &batmonbus.bus_current_mvolts,
-	      &batmonbus.bus_current,
-	      &batmonbus.bus_voltage_mvolts,
-	      TEMP_SENSORS_NB,
-	      batmonbus.bus_tempsensors_mvolts,
-	      TEMP_SENSORS_NB,
-	      batmonbus.bus_temp,
-	      &batmonbal1_bus_trans_status,
-	      BATTERY_CELLS_NB,
-	      batmonbal1.bat_cell_mvolts,
-	      &batmonbal2_bus_trans_status,
-	      BATTERY_CELLS_NB,
-	      batmonbal2.bat_cell_mvolts,
-	      &power_status);
+      &version,
+      &batmonbus.bus_status,
+      &batmonbus_bus_trans_status,
+      &batmonbus.bus_current_mvolts,
+      &batmonbus.bus_current,
+      &batmonbus.bus_voltage_mvolts,
+      TEMP_SENSORS_NB,
+      batmonbus.bus_tempsensors_mvolts,
+      TEMP_SENSORS_NB,
+      batmonbus.bus_temp,
+      &batmonbal1_bus_trans_status,
+      BATTERY_CELLS_NB,
+      batmonbal1.bat_cell_mvolts,
+      &batmonbal2_bus_trans_status,
+      BATTERY_CELLS_NB,
+      batmonbal2.bat_cell_mvolts,
+      &power_status);
 }
 #endif
 
@@ -110,7 +110,7 @@ void battery_monitor_init_bus(void){
   // transactions
   batmonbus.bus_trans.status = I2CTransDone;
   batmonbus.addr = BATTERY_MONITOR_BUS_ADC_I2C_ADDR;
-  batmonbus.bus_status = BATTERY_MONITOR_BUS_CURRENT; // device status
+  batmonbus.bus_status = BATTERY_MONITOR_BUS_CURRENT_REQ; // device status
   // Current readings
   batmonbus.bus_current_mvolts = 0; // mV
   batmonbus.bus_current = 0; // A
@@ -125,7 +125,7 @@ void battery_monitor_init_bus(void){
 }
 
 /**
- * Initalizes balance ADC 1
+ * Initalizes balance ADC
  */
 void battery_monitor_init_balance(struct BatMonBal* batmonbal){
   batmonbal->bus_trans.status = I2CTransDone;
@@ -156,9 +156,39 @@ void battery_monitor_init(void) {
 
 /**
  * Event function
+ * Check i2c transaction status for each device
  */
 void battery_monitor_event(void){
-  // Empty for now
+  battery_monitor_check_i2c_transaction(&batmonbal1.bus_trans);
+  battery_monitor_check_i2c_transaction(&batmonbal2.bus_trans);
+  battery_monitor_check_i2c_transaction(&batmonbus.bus_trans);
+}
+
+/**
+ * Complete i2c transactions once they succeed or fail
+ */
+void battery_monitor_check_i2c_transaction(struct i2c_transaction* t){
+  switch (t->status) {
+    case I2CTransPending:
+      // wait and do nothing
+      break;
+    case I2CTransRunning:
+      // wait and do nothing
+      break;
+    case I2CTransSuccess:
+      // set to done
+      t->status = I2CTransDone;
+      break;
+    case I2CTransFailed:
+      // set to done
+      t->status = I2CTransDone;
+      break;
+    case I2CTransDone:
+      // do nothing
+      break;
+    default:
+      break;
+  }
 }
 
 /**
@@ -168,126 +198,137 @@ void battery_monitor_read_bus(void){
   batmonbus.data = 0; // erase at each iteration
 
   switch (batmonbus.bus_status) {
-    case BATTERY_MONITOR_BUS_CURRENT:
+    // reqtest BUS_CURRENT measurement
+    case BATTERY_MONITOR_BUS_CURRENT_REQ:
       // set ADC to current channel
       batmonbus.bus_trans.buf[0] = battery_monitor_get_address(
-                                   (uint8_t)BATTERY_MONITOR_BUS_CURRENT_CHANNEL);
+          (uint8_t)BATTERY_MONITOR_BUS_CURRENT_CHANNEL);
       //set to zero so we can detect an error
       batmonbus.bus_current = 0;
-      // blocking transaction
-      if (i2c_transceive(&BATTERY_MONITOR_I2C_DEV, &batmonbus.bus_trans, batmonbus.addr, 1, 2)){
-        // proceed only if transaction was submitted successfully
-        if (batmonbus.bus_trans.status == I2CTransSuccess) {
-          // read data
-          batmonbus.data = (uint16_t) (batmonbus.bus_trans.buf[0] << 8 | batmonbus.bus_trans.buf[1]);
-          // NOTE: we are not using the ALERT_FLAG at the moment,
-          // get counts
-          batmonbus.bus_current_mvolts = batmonbus.data & 0xFFF;
-          // shift right by 2 bits if 10-bit reads only
-          if (BATTERY_MONITOR_BIT_RES == 10){
-            batmonbus.bus_current_mvolts = (batmonbus.bus_current_mvolts) >> 2;
-          }
-          // convert to mV
-          batmonbus.bus_current_mvolts = (uint16_t)(
-                                         (float)batmonbus.bus_current_mvolts * BATTERY_MONITOR_VREF_MULT);
-          // convert to [A]
-          batmonbus.bus_current = ((float)batmonbus.bus_current_mvolts +
-                                   (float)batmon_current_offset) / batmon_current_sensitivity;
-        }
-        // optional: check for errors and reset i2c transaction
-        // shouldn't be needed
 
-        // update status
-        batmonbus.bus_status = BATTERY_MONITOR_BUS_VOLTAGE;
+      // non-blocking transaction
+      if (i2c_transceive(&BATTERY_MONITOR_I2C_DEV, &batmonbus.bus_trans, batmonbus.addr, 1, 2)){
+        batmonbus.bus_status = BATTERY_MONITOR_BUS_CURRENT_READ;
       }
-      //update electrical subsystem, current in mAs
-      electrical.current = (int32_t)(batmonbus.bus_current*1000);
       break;
 
-    case BATTERY_MONITOR_BUS_VOLTAGE:
+      // read BUS_CURRENT data
+    case BATTERY_MONITOR_BUS_CURRENT_READ:
+      if (batmonbus.bus_trans.status == I2CTransDone) {
+        // read data
+        batmonbus.data = (uint16_t) (batmonbus.bus_trans.buf[0] << 8 | batmonbus.bus_trans.buf[1]);
+        // NOTE: we are not using the ALERT_FLAG at the moment,
+        // get counts
+        batmonbus.bus_current_mvolts = batmonbus.data & 0xFFF;
+        // shift right by 2 bits if 10-bit reads only
+        if (BATTERY_MONITOR_BIT_RES == 10){
+          batmonbus.bus_current_mvolts = (batmonbus.bus_current_mvolts) >> 2;
+        }
+        // convert to mV
+        batmonbus.bus_current_mvolts = (uint16_t)(
+            (float)batmonbus.bus_current_mvolts * BATTERY_MONITOR_VREF_MULT);
+        // convert to [A]
+        batmonbus.bus_current = ((float)batmonbus.bus_current_mvolts +
+            (float)batmon_current_offset) / batmon_current_sensitivity;
+        //update electrical subsystem, current in mAs
+        electrical.current = (int32_t)(batmonbus.bus_current*1000);
+
+        // increment status
+        batmonbus.bus_status = BATTERY_MONITOR_BUS_VOLTAGE_REQ;
+      }
+      break;
+
+      // request voltage data
+    case BATTERY_MONITOR_BUS_VOLTAGE_REQ:
       // set ADC to voltage channel
       batmonbus.bus_trans.buf[0] = battery_monitor_get_address(
-                                   (uint8_t)BATTERY_MONITOR_BUS_VOLTAGE_CHANNEL);
+          (uint8_t)BATTERY_MONITOR_BUS_VOLTAGE_CHANNEL);
       //set to zero so we can detect an error
       batmonbus.bus_voltage_mvolts = 0;
-      // blocking transaction
+
+      // non-blocking transaction
       if (i2c_transceive(&BATTERY_MONITOR_I2C_DEV, &batmonbus.bus_trans, batmonbus.addr, 1, 2)){
-        // proceed only if transaction was submitted successfully
-        if (batmonbus.bus_trans.status == I2CTransSuccess) {
-          // read data
-          batmonbus.data = (uint16_t) (batmonbus.bus_trans.buf[0] << 8 | batmonbus.bus_trans.buf[1]);
-          // NOTE: we are not using the ALERT_FLAG at the moment,
-          // get counts
-          batmonbus.bus_voltage_mvolts = batmonbus.data & 0xFFF;
-          // shift right by 2 bits if 10-bit reads only
-          if (BATTERY_MONITOR_BIT_RES == 10){
-            batmonbus.bus_voltage_mvolts = (batmonbus.bus_voltage_mvolts) >> 2;
-          }
-          // convert to mV
-          batmonbus.bus_voltage_mvolts = (uint16_t)(
-                                         (float)batmonbus.bus_voltage_mvolts * BATTERY_MONITOR_VREF_MULT);
-          // convert to actual voltage
-          batmonbus.bus_voltage_mvolts = (uint16_t)(
-                                         (float)batmonbus.bus_voltage_mvolts * BatmonVbusGain);
-        }
-        // optional: check for errors and reset i2c transaction
-        // shouldn't be needed
-
-        // update status
-        batmonbus.bus_status = BATTERY_MONITOR_BUS_TEMPERATURE;
-      }
-
-      //update electrical subsystem, voltage in decivolts
-      if (batmonbus.bus_voltage_mvolts != 0) {
-        electrical.vsupply = (uint16_t)(batmonbus.bus_voltage_mvolts/100);
-      }
-      else {
-        electrical.vsupply = 0;
+        batmonbus.bus_status = BATTERY_MONITOR_BUS_VOLTAGE_READ;
       }
       break;
 
-    case BATTERY_MONITOR_BUS_TEMPERATURE:
+      // read voltage data
+    case BATTERY_MONITOR_BUS_VOLTAGE_READ:
+      if (batmonbus.bus_trans.status == I2CTransDone) {
+        // read data
+        batmonbus.data = (uint16_t) (batmonbus.bus_trans.buf[0] << 8 | batmonbus.bus_trans.buf[1]);
+        // NOTE: we are not using the ALERT_FLAG at the moment,
+        // get counts
+        batmonbus.bus_voltage_mvolts = batmonbus.data & 0xFFF;
+        // shift right by 2 bits if 10-bit reads only
+        if (BATTERY_MONITOR_BIT_RES == 10){
+          batmonbus.bus_voltage_mvolts = (batmonbus.bus_voltage_mvolts) >> 2;
+        }
+        // convert to mV
+        batmonbus.bus_voltage_mvolts = (uint16_t)(
+            (float)batmonbus.bus_voltage_mvolts * BATTERY_MONITOR_VREF_MULT);
+        // convert to actual voltage
+        batmonbus.bus_voltage_mvolts = (uint16_t)(
+            (float)batmonbus.bus_voltage_mvolts * BatmonVbusGain);
+
+        //update electrical subsystem, voltage in decivolts
+        if (batmonbus.bus_voltage_mvolts != 0) {
+          electrical.vsupply = (uint16_t)(batmonbus.bus_voltage_mvolts/100);
+        }
+        else {
+          electrical.vsupply = 0;
+        }
+
+        // update status
+        batmonbus.bus_status = BATTERY_MONITOR_BUS_TEMPERATURE_REQ;
+      }
+      break;
+
+      // request temperature data
+    case BATTERY_MONITOR_BUS_TEMPERATURE_REQ:
       // set ADC to correct temperature channel
       batmonbus.bus_trans.buf[0] = battery_monitor_get_address(
-                                   battery_monitor_tempmap[batmonbus.t_idx]);
+          battery_monitor_tempmap[batmonbus.t_idx]);
       //set to zero so we can detect an error
       batmonbus.bus_temp[batmonbus.t_idx] = 0;
-      // blocking transaction
-      if (i2c_transceive(&BATTERY_MONITOR_I2C_DEV, &batmonbus.bus_trans, batmonbus.addr, 1, 2)){
-        // proceed only if transaction was submitted successfully
-        if (batmonbus.bus_trans.status == I2CTransSuccess) {
-          // read data
-          batmonbus.data = (uint16_t) (batmonbus.bus_trans.buf[0] << 8 | batmonbus.bus_trans.buf[1]);
-          // NOTE: we are not using the ALERT_FLAG at the moment,
-          // get counts
-          batmonbus.bus_tempsensors_mvolts[batmonbus.t_idx] = batmonbus.data & 0xFFF;
-          // shift right by 2 bits if 10-bit reads only
-          if (BATTERY_MONITOR_BIT_RES == 10){
-            batmonbus.bus_tempsensors_mvolts[batmonbus.t_idx] =
-                (batmonbus.bus_tempsensors_mvolts[batmonbus.t_idx]) >> 2;
-          }
-          // convert to mV
-          batmonbus.bus_tempsensors_mvolts[batmonbus.t_idx] = (uint16_t)(
-              (float)batmonbus.bus_tempsensors_mvolts[batmonbus.t_idx] * BATTERY_MONITOR_VREF_MULT);
-          // convert to temperature[C]
-          batmonbus.bus_temp[batmonbus.t_idx] =
-              ((float)batmonbus.bus_tempsensors_mvolts[batmonbus.t_idx] +
-                  (float)batmon_temp_offset ) / batmon_temp_sensitivity;
-        }
-      }
-      // optional: check for errors and reset i2c transaction
-      // shouldn't be needed
 
-      // increment counter
-      batmonbus.t_idx++;
-      if (batmonbus.t_idx == TEMP_SENSORS_NB) {
-        batmonbus.t_idx = 0;
-        batmonbus.bus_status = BATTERY_MONITOR_BUS_CURRENT; // to loop through
+      // non-blocking transaction
+      if (i2c_transceive(&BATTERY_MONITOR_I2C_DEV, &batmonbus.bus_trans, batmonbus.addr, 1, 2)){
+        batmonbus.bus_status = BATTERY_MONITOR_BUS_TEMPERATURE_READ;
+      }
+      break;
+
+      // read temperature data
+    case BATTERY_MONITOR_BUS_TEMPERATURE_READ:
+      if (batmonbus.bus_trans.status == I2CTransDone) {
+        // read data
+        batmonbus.data = (uint16_t) (batmonbus.bus_trans.buf[0] << 8 | batmonbus.bus_trans.buf[1]);
+        // NOTE: we are not using the ALERT_FLAG at the moment,
+        // get counts
+        batmonbus.bus_tempsensors_mvolts[batmonbus.t_idx] = batmonbus.data & 0xFFF;
+        // shift right by 2 bits if 10-bit reads only
+        if (BATTERY_MONITOR_BIT_RES == 10){
+          batmonbus.bus_tempsensors_mvolts[batmonbus.t_idx] =
+              (batmonbus.bus_tempsensors_mvolts[batmonbus.t_idx]) >> 2;
+        }
+        // convert to mV
+        batmonbus.bus_tempsensors_mvolts[batmonbus.t_idx] = (uint16_t)(
+            (float)batmonbus.bus_tempsensors_mvolts[batmonbus.t_idx] * BATTERY_MONITOR_VREF_MULT);
+        // convert to temperature[C]
+        batmonbus.bus_temp[batmonbus.t_idx] =
+            ((float)batmonbus.bus_tempsensors_mvolts[batmonbus.t_idx] +
+                (float)batmon_temp_offset ) / batmon_temp_sensitivity;
+        // increment counter
+        batmonbus.t_idx++;
+        if (batmonbus.t_idx == TEMP_SENSORS_NB) {
+          batmonbus.t_idx = 0;
+          batmonbus.bus_status = BATTERY_MONITOR_BUS_CURRENT_REQ; // to loop through
+        }
       }
       break;
     default:
       // a recovery in case of a glitch
-      batmonbus.bus_status = BATTERY_MONITOR_BUS_CURRENT;
+      batmonbus.bus_status = BATTERY_MONITOR_BUS_CURRENT_REQ;
       break;
   }
 }
@@ -311,51 +352,52 @@ void battery_monitor_read_balance_ports_2(void) {
  * Read balance ADC
  */
 void battery_monitor_read_balance_ports(struct BatMonBal* batmonbal) {
-  batmonbal->data = 0; // erase at each iteration
-
-  // set the right address into ADC
-  // cell_index is the number of the cell we want to probe
-  // battery_monitor_cellmap1 contains the mapping of channels for given cell number
-  // i.e. Cell_1 (cell_idx = 0) has channel 2
-  // this gets translated into hexadecimal number representing the channel internally
-  batmonbal->bus_trans.buf[0] =
-      battery_monitor_get_address((uint8_t)battery_monitor_cellmap[batmonbal->cell_index]);
-
-  //set to zero so we can detect an error
-  batmonbal->bat_cell_mvolts[batmonbal->cell_index] = 0;
-
-  // blocking transaction
-  if (i2c_transceive(&BATTERY_MONITOR_I2C_DEV, &batmonbal->bus_trans, batmonbal->addr, 1, 2)){
-    // proceed only if transaction was submitted successfully
-    if (batmonbal->bus_trans.status == I2CTransSuccess) {
-      // read data
-      batmonbal->data = (uint16_t) (batmonbal->bus_trans.buf[0] << 8 | batmonbal->bus_trans.buf[1]);
-      // NOTE: we are not using the ALERT_FLAG at the moment,
-      // get counts
-      batmonbal->bat_cell_mvolts[batmonbal->cell_index] = batmonbal->data & 0xFFF;
-      // shift right by 2 bits if 10-bit reads only
-      if (BATTERY_MONITOR_BIT_RES == 10){
-        batmonbal->bat_cell_mvolts[batmonbal->cell_index] =
-            (batmonbal->bat_cell_mvolts[batmonbal->cell_index]) >> 2;
-      }
-      // convert to mV
+  // non-blocking transaction
+  // if transaction is done, request another measurement
+  // NOTE: optionally add startup delay, but it shouldn't be necessary
+  if (batmonbal->bus_trans.status == I2CTransDone) {
+    // read data first (worst case we get some zeros)
+    batmonbal->data = (uint16_t) (batmonbal->bus_trans.buf[0] << 8 | batmonbal->bus_trans.buf[1]);
+    // NOTE: we are not using the ALERT_FLAG at the moment,
+    // get counts
+    batmonbal->bat_cell_mvolts[batmonbal->cell_index] = batmonbal->data & 0xFFF;
+    // shift right by 2 bits if 10-bit reads only
+    if (BATTERY_MONITOR_BIT_RES == 10){
       batmonbal->bat_cell_mvolts[batmonbal->cell_index] =
-          (uint16_t)((float)batmonbal->bat_cell_mvolts[batmonbal->cell_index] * BATTERY_MONITOR_VREF_MULT);
-      // convert to actual voltage
-      // we get the multiplier from battery_monitor_cellgains array, which contains multipliers
-      // for cells 1-6(in this order) battery_monitor_cellgains[0] gives us multiplier for cell_1
-      // and so on
-      batmonbal->bat_cell_mvolts[batmonbal->cell_index] =
-          (uint16_t)((float)batmonbal->bat_cell_mvolts[batmonbal->cell_index] *
-              battery_monitor_cellgains[batmonbal->cell_index]);
+          (batmonbal->bat_cell_mvolts[batmonbal->cell_index]) >> 2;
     }
-    // optional: check for errors and reset i2c transaction
-    // shouldn't be needed
-  }
+    // convert to mV
+    batmonbal->bat_cell_mvolts[batmonbal->cell_index] =
+        (uint16_t)((float)batmonbal->bat_cell_mvolts[batmonbal->cell_index] * BATTERY_MONITOR_VREF_MULT);
+    // convert to actual voltage
+    // we get the multiplier from battery_monitor_cellgains array, which contains multipliers
+    // for cells 1-6(in this order) battery_monitor_cellgains[0] gives us multiplier for cell_1
+    // and so on
+    batmonbal->bat_cell_mvolts[batmonbal->cell_index] =
+        (uint16_t)((float)batmonbal->bat_cell_mvolts[batmonbal->cell_index] *
+            battery_monitor_cellgains[batmonbal->cell_index]);
 
-  // increment counter
-  batmonbal->cell_index++;
-  if (batmonbal->cell_index == BATTERY_CELLS_NB) {
-    batmonbal->cell_index = 0;
+    // increment counter
+    batmonbal->cell_index++;
+    if (batmonbal->cell_index == BATTERY_CELLS_NB) {
+      batmonbal->cell_index = 0;
+    }
+
+    // erase data
+    batmonbal->data = 0; // erase at each iteration
+
+    //set to zero so we can detect an error
+    batmonbal->bat_cell_mvolts[batmonbal->cell_index] = 0;
+
+    // set the right address into ADC
+    // cell_index is the number of the cell we want to probe
+    // battery_monitor_cellmap1 contains the mapping of channels for given cell number
+    // i.e. Cell_1 (cell_idx = 0) has channel 2
+    // this gets translated into hexadecimal number representing the channel internally
+    batmonbal->bus_trans.buf[0] =
+        battery_monitor_get_address((uint8_t)battery_monitor_cellmap[batmonbal->cell_index]);
+
+    // request more data
+    i2c_transceive(&BATTERY_MONITOR_I2C_DEV, &batmonbal->bus_trans, batmonbal->addr, 1, 2);
   }
 }
