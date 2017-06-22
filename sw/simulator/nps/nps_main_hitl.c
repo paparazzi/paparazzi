@@ -37,9 +37,6 @@
 #include "pprzlink/pprz_transport.h"
 #include "generated/airframe.h"
 
-/* Message id helpers */
-#define SenderIdOfPprzMsg(x) (x[0])
-#define IdOfPprzMsg(x) (x[1])
 
 #include "nps_main.h"
 #include "nps_sensors.h"

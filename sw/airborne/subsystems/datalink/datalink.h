@@ -36,10 +36,6 @@
 #include "std.h"
 #include "pprzlink/dl_protocol.h"
 
-/* Message id helpers */
-#define SenderIdOfPprzMsg(x) (x[0])
-#define IdOfPprzMsg(x) (x[1])
-
 /** Datalink kinds */
 #define PPRZ 1
 #define XBEE 2
