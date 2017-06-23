@@ -96,10 +96,10 @@ bool act_is_servo[INDI_NUM_ACT] = {0};
 
 #ifdef STABILIZATION_INDI_ACT_PREF
 // Preferred (neutral, least energy) actuator value
-float act_pref[4] = STABILIZATION_INDI_ACT_PREF;
+float act_pref[INDI_NUM_ACT] = STABILIZATION_INDI_ACT_PREF;
 #else
 // Assume 0 is neutral
-float act_pref[4] = {0.0};
+float act_pref[INDI_NUM_ACT] = {0.0};
 #endif
 
 float act_dyn[INDI_NUM_ACT] = STABILIZATION_INDI_ACT_DYN;
@@ -127,11 +127,17 @@ float estimation_rate_d[INDI_NUM_ACT];
 float estimation_rate_dd[INDI_NUM_ACT];
 float du_estimation[INDI_NUM_ACT];
 float ddu_estimation[INDI_NUM_ACT];
-float mu1[4] = {0.00001, 0.00001, 0.000003, 0.000002};
+
+// The learning rate per axis (roll, pitch, yaw, thrust)
+float mu1[INDI_OUTPUTS] = {0.00001, 0.00001, 0.000003, 0.000002};
+// The learning rate for the propeller inertia (scaled by 512 wrt mu1)
 float mu2 = 0.002;
 
 // other variables
 float act_obs[INDI_NUM_ACT];
+
+// Number of actuators used to provide thrust
+int32_t num_thrusters;
 
 struct Int32Eulers stab_att_sp_euler;
 struct Int32Quat   stab_att_sp_quat;
@@ -223,6 +229,12 @@ void stabilization_indi_init(void)
   // Remember the initial matrices
   float_vect_copy(g1_init[0], g1[0], INDI_OUTPUTS * INDI_NUM_ACT);
   float_vect_copy(g2_init, g2, INDI_NUM_ACT);
+
+  // Assume all non-servos are delivering thrust
+  num_thrusters = INDI_NUM_ACT;
+  for (i = 0; i < INDI_NUM_ACT; i++) {
+    num_thrusters -= act_is_servo[i];
+  }
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INDI_G, send_indi_g);
@@ -371,11 +383,8 @@ static void stabilization_indi_calc_cmd(struct Int32Quat *att_err, bool rate_con
 
     //update thrust command such that the current is correctly estimated
     stabilization_cmd[COMMAND_THRUST] = 0;
-    int32_t num_thrusters = INDI_NUM_ACT;
     for (i = 0; i < INDI_NUM_ACT; i++) {
       stabilization_cmd[COMMAND_THRUST] += actuator_state[i] * -((int32_t) act_is_servo[i] - 1);
-      // Assume all non-servos are delivering thrust
-      num_thrusters -= act_is_servo[i];
     }
     stabilization_cmd[COMMAND_THRUST] /= num_thrusters;
 
