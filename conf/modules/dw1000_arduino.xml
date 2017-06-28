@@ -1,0 +1,43 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="dw1000_arduino" dir="decawave">
+  <doc>
+    <description>
+      Driver to get ranging data from Decawave DW1000 modules connected to Arduino
+
+      Decawave DW1000 modules (http://www.decawave.com/products/dwm1000-module) are Ultra-Wide-Band devices that can be used for communication and ranging.
+      Especially, using 3 modules as anchors can provide data for a localization system based on trilateration.
+      The DW1000 is using a SPI connection, but an arduino-compatible board can be used with the library https://github.com/thotro/arduino-dw1000 to hyde the low level drivers and provide direct ranging informations.
+    </description>
+    <configure name="DW1000_ARDUINO_UART" value="UARTX" description="UART on which arduino and its DW1000 module is connected"/>
+    <configure name="DW1000_ARDUINO_BAUD" value="B115200" description="UART Baudrate, default to 115200"/>
+    <section name="DW1000" prefix="DW1000_">
+      <define name="ANCHORS_IDS" value="1, 2, 3" type="int[]" description="Comma separated list of anchors ID"/>
+      <define name="ANCHORS_POS_X" value="0., 0., 5." type="float[]" description="Comma separated list of anchors ID over X axis"/>
+      <define name="ANCHORS_POS_Y" value="0., 5., 0." type="float[]" description="Comma separated list of anchors ID over Y axis"/>
+      <define name="ANCHORS_POS_Z" value="0., 0., 0." type="float[]" description="Comma separated list of anchors ID over Z axis"/>
+      <define name="OFFSET" value="0., 0., 0." type="float[]" description="Position offset other X, Y and Z axis"/>
+      <define name="SCALE" value="1., 1., 1." type="float[]" description="Position scale factor other X, Y and Z axis"/>
+      <define name="INITIAL_HEADING" value="0." description="Initial heading correction between anchors frame and global frame"/>
+      <define name="NB_ANCHORS" value="3" description="Set number of anchors, only 3 are required/supported at the moment"/>
+    </section>
+  </doc>
+  <header>
+    <file name="dw1000_arduino.h"/>
+  </header>
+  <init fun="dw1000_arduino_init()"/>
+  <periodic fun="dw1000_arduino_periodic()" freq="10"/>
+  <periodic fun="dw1000_arduino_report()" freq="10" autorun="FALSE"/>
+  <periodic fun="dw1000_reset_heading_ref()" freq="1" autorun="FALSE"/>
+  <event fun="dw1000_arduino_event()"/>
+  <makefile>
+    <configure name="DW1000_ARDUINO_UART" case="upper|lower"/>
+    <configure name="DW1000_ARDUINO_BAUD" default="B115200"/>
+    <file name="dw1000_arduino.c"/>
+    <file name="trilateration.c"/>
+    <define name="USE_$(DW1000_ARDUINO_UART_UPPER)"/>
+    <define name="DW1000_ARDUINO_DEV" value="$(DW1000_ARDUINO_UART_LOWER)"/>
+    <define name="$(DW1000_ARDUINO_UART_UPPER)_BAUD" value="$(DW1000_ARDUINO_BAUD)"/>
+  </makefile>
+</module>
+

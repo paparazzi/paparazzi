@@ -583,6 +583,15 @@ static inline void float_vect_scale(float *a, const float s, const int n)
   for (i = 0; i < n; i++) { a[i] *= s; }
 }
 
+/** a.b */
+static inline float float_vect_dot_product(const float *a, const float *b, const int n)
+{
+  int i;
+  float dot = 0.f;
+  for (i = 0; i < n; i++) { dot += a[i] * b[i]; }
+  return dot;
+}
+
 //
 //
 // Generic matrix algebra
