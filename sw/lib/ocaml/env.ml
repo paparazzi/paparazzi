@@ -111,7 +111,7 @@ let filter_modules_target = fun module_file ->
         List.filter (fun t ->
           Xml.tag t = "settings" && ExtXml.attrib_or_default t "name" "" = name)
         (Xml.children module_xml))
-      else Xml.Element ("",[],[])
+      else Xml.Element ("settings",[],[])
     end
   else module_xml
 
