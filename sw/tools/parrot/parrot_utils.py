@@ -86,17 +86,17 @@ def split_into_path_and_file(name):
     return name.rsplit('/', 1)
 
 # Execute a command
-def execute_command(tn, command):
+def execute_command(tn, command, prompt='#'):
     tn.write(command + '\n')
-    return tn.read_until('# ')[len(command) + 2:-4]
+    return tn.read_until(prompt+' ')[len(command) + 2:-4]
 
 # Check the version
-def check_version(tn, directory):
-    return ParrotVersion(execute_command(tn, 'cat ' + directory + '/version.txt').strip())
+def check_version(tn, directory, prompt='#'):
+    return ParrotVersion(execute_command(tn, 'cat ' + directory + '/version.txt', prompt).strip())
 
 # Check what currently is running on the drone
-def check_running(tn):
-    ps_aux = execute_command(tn, 'ps')
+def check_running(tn, prompt='#'):
+    ps_aux = execute_command(tn, 'ps', prompt)
     running = ""
 
 
@@ -111,12 +111,12 @@ def check_running(tn):
     return running[1:]
 
 # Check the filesystem
-def check_filesystem(tn):
-    return execute_command(tn, 'df -h')
+def check_filesystem(tn, prompt='#'):
+    return execute_command(tn, 'df -h', prompt)
 
 # Reboot the drone
-def reboot(tn):
-    execute_command(tn, 'reboot')
+def reboot(tn, prompt='#'):
+    execute_command(tn, 'reboot', prompt)
 
 # Upload ftp and catch memory-full error
 def uploadfile(ftp, filename, content):
@@ -131,12 +131,12 @@ def uploadfile(ftp, filename, content):
 
 
 # Connect with telnet and ftp, wait until login
-def connect(host):
+def connect(host, prompt='#'):
     try:
         tn = telnetlib.Telnet(host, timeout=3)
         ftp = FTP(host)
         ftp.login()
-        tn.read_until('# ')
+        tn.read_until(prompt+' ')
         return tn, ftp
     except:
         print('Could not connect to Parrot UAV (host: ' + host + ')')
