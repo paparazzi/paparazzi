@@ -274,7 +274,7 @@
     <module name="control"/>
     <module name="navigation"/>
 
-    <module name="telemetry"   type="xbee_api">
+    <module name="telemetry"   type="transparent">
       <configure name="MODEM_PORT"        value="UART1"/>
       <configure name="MODEM_BAUD"        value="B57600"/>
     </module>
