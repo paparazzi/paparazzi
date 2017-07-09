@@ -49,30 +49,32 @@
 struct OpticalFlowLanding {
   float agl;                    ///< agl = height from sonar (only used when using "fake" divergence)
   float agl_lp;                 ///< low-pass version of agl
-  float lp_factor;              ///< low-pass factor in [0,1], with 0 purely using the current measurement
+  float lp_const;               ///< low-pass filter constant
   float vel;                    ///< vertical velocity as determined with sonar (only used when using "fake" divergence)
   float divergence_setpoint;    ///< setpoint for constant divergence approach
   float pgain;                  ///< P-gain for constant divergence control (from divergence error to thrust)
   float igain;                  ///< I-gain for constant divergence control
   float dgain;                  ///< D-gain for constant divergence control
+  float divergence;             ///< Divergence estimate
+  float previous_err;           ///< Previous divergence tracking error
   float sum_err;                ///< integration of the error for I-gain
   float d_err;                  ///< difference of error for the D-gain
   float nominal_thrust;         ///< nominal thrust around which the PID-control operates
-  int VISION_METHOD;            ///< whether to use vision (1) or Optitrack / sonar (0)
-  int CONTROL_METHOD;           ///< type of divergence control: 0 = fixed gain, 1 = adaptive gain
+  uint32_t VISION_METHOD;       ///< whether to use vision (1) or Optitrack / sonar (0)
+  uint32_t CONTROL_METHOD;      ///< type of divergence control: 0 = fixed gain, 1 = adaptive gain
   float cov_set_point;          ///< for adaptive gain control, setpoint of the covariance (oscillations)
   float cov_limit;              ///< for fixed gain control, what is the cov limit triggering the landing
   float pgain_adaptive;         ///< P-gain for adaptive gain control
   float igain_adaptive;         ///< I-gain for adaptive gain control
   float dgain_adaptive;         ///< D-gain for adaptive gain control
-  int COV_METHOD;               ///< method to calculate the covariance: between thrust and div (0) or div and div past (1)
-  int delay_steps;              ///< number of delay steps for div past
-  int window_size;              ///< number of time steps in "window" used for getting the covariance
+  uint32_t COV_METHOD;          ///< method to calculate the covariance: between thrust and div (0) or div and div past (1)
+  uint32_t delay_steps;         ///< number of delay steps for div past
+  uint32_t window_size;         ///< number of time steps in "window" used for getting the covariance
   float reduction_factor_elc;   ///< reduction factor - after oscillation, how much to reduce the gain...
   float lp_cov_div_factor;      ///< low-pass factor for the covariance of divergence in order to trigger the second landing phase in the exponential strategy.
-  int count_transition;         ///< how many time steps the drone has to be oscillating in order to transition to the hover phase with reduced gain
+  float t_transition;           ///< how many seconds the drone has to be oscillating in order to transition to the hover phase with reduced gain
   float p_land_threshold;       ///< if during the exponential landing the gain reaches this value, the final landing procedure is triggered
-  float div_factor;             ///< Number that transforms the divergence in pixels per frame from the camera to (1 / frame) - taking into account field of view, etc.
+  bool elc_oscillate;           ///< Whether or not to oscillate at beginning of elc to find optimum gain
 };
 
 extern struct OpticalFlowLanding of_landing_ctrl;
