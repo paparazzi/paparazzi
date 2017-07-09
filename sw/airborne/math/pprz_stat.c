@@ -41,7 +41,8 @@ int32_t mean_i(int32_t *array, uint32_t n_elements)
 {
   // determine the mean for the vector:
   float sum = 0.;
-  for (uint32_t i = 0; i < n_elements; i++) {
+  uint32_t i;
+  for (i = 0; i < n_elements; i++) {
     sum += (float)array[i];
   }
 
@@ -78,7 +79,8 @@ int32_t covariance_i(int32_t *array1, int32_t *array2, uint32_t n_elements)
   float sumX = 0., sumY = 0., sumXY = 0;
 
   // Determine the covariance:
-  for (uint32_t i = 0; i < n_elements; i++) {
+  uint32_t i;
+  for (i = 0; i < n_elements; i++) {
     sumX += (float)array1[i];
     sumY += (float)array2[i];
     sumXY += (float)(array1[i]) * (float)(array2[i]);
@@ -101,7 +103,8 @@ float mean_f(float *array, uint32_t n_elements)
 {
   // determine the mean for the vector:
   float sum = 0.;
-  for (uint32_t i = 0; i < n_elements; i++) {
+  uint32_t i = 0;
+  for (i = 0; i < n_elements; i++) {
     sum += array[i];
   }
 
@@ -137,7 +140,8 @@ float covariance_f(float *arr1, float *arr2, uint32_t n_elements)
   float sumX = 0., sumY = 0., sumXY = 0;
 
   // Determine the covariance:
-  for (uint32_t i = 0; i < n_elements; i++) {
+  uint32_t i;
+  for (i = 0; i < n_elements; i++) {
     sumX += arr1[i];
     sumY += arr2[i];
     sumXY += arr1[i] * arr2[i];
