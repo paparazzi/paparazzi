@@ -135,7 +135,7 @@ float divergence_vision_dt;
 float normalized_thrust;
 float cov_div;
 float pstate, pused;
-float istate,
+float istate;
 float dstate;
 float vision_time,  prev_vision_time;
 bool landing;
