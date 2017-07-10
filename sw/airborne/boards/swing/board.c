@@ -36,53 +36,13 @@
 #include <linux/input.h>
 #include "subsystems/electrical.h"
 
-#if 0
-static int stop_gracefull(char *process_name)
-{
-  /* "pidof" always in /bin on Bebop firmware tested 1.98, 2.0.57, no need for "which" */
-  char pidof_commandline[200] = "/bin/pidof ";
-  strcat(pidof_commandline, process_name);
-  /* Bebop Busybox a
-     $ cat /proc/sys/kernel/pid_max
-     Gives max 32768, makes sure it never kills existing other process
-  */
-  char pid[7] = "";
-  int ret = 0; /* Return code of kill system call */
-  FILE *fp;
-
-  //while (ret == 0) {
-    fp = popen(pidof_commandline, "r");
-    if (fp != NULL) { /* Could open the pidof with line */
-      if (fgets(pid, sizeof(pid) - 1, fp) != NULL) {
-        //printf("Process ID deducted: \"%s\"\n", pid);
-        if (atoi(pid) > 0) { /* To make sure we end 0 > There is a real process id found */
-          char kill_command_and_process[200] = "kill -STOP "; /* BTW there is no pkill on this Busybox */
-          strcat(kill_command_and_process, pid);
-          ret = system(kill_command_and_process);
-          /* No need to wait */
-          return ret;
-        }
-      } else {
-        ret = 256; /* Could not get handle */
-        pclose(fp);
-      }
-    } else {
-      ret = 256; /* fp NULL, so no process, just return */
-      return 0;
-    }
-  //} /* end while */
-  return 0;
-}
-#endif
-
 /**
  * Battery reading thread
- * TODO something better ?
  */
 static void *bat_read(void *data __attribute__((unused)))
 {
   FILE *fp;
-  char path[1035];
+  char path[16];
 
   while (TRUE) {
     /* Open the command for reading. */
@@ -103,6 +63,7 @@ static void *bat_read(void *data __attribute__((unused)))
     }
 
     // Wait 100ms
+    // reading is done at 10Hz like the electrical_periodic from rotorcraft main program
     usleep(100000);
   }
 
@@ -111,13 +72,13 @@ static void *bat_read(void *data __attribute__((unused)))
 
 /**
  * Check button thread
- * TODO something better ?
  */
 static void *button_read(void *data __attribute__((unused)))
 {
   struct input_event ev;
   ssize_t n;
 
+  /* Open power button event sysfs file */
   int fd_button = open("/dev/input/pm_mcu_event", O_RDONLY);
   if (fd_button == -1) {
     printf("Unable to open mcu_event to read power button state\n");
@@ -125,22 +86,14 @@ static void *button_read(void *data __attribute__((unused)))
   }
 
   while (TRUE) {
-    /* Check power button */
-    printf("read\n");
+    /* Check power button (read is blocking) */
     n = read(fd_button, &ev, sizeof(ev));
-    printf("done %d\n", n);
     if (n == sizeof(ev) && ev.type == EV_KEY && ev.code == KEY_POWER && ev.value > 0) {
       printf("Stopping Paparazzi from power button and rebooting\n");
       usleep(1000);
-      int ret __attribute__((unused));
-      //ret = system("pstart delosd");
-      //ret = system("pstart dragon-prog");
-      ret = system("reboot.sh");
+      int ret __attribute__((unused)) = system("reboot.sh");
       exit(0);
     }
-
-    // Wait 100ms
-    //usleep(100000);
   }
 
   return NULL;
@@ -149,14 +102,10 @@ static void *button_read(void *data __attribute__((unused)))
 void board_init(void)
 {
   /*
-   *  Stop original process
+   *  Stop original processes using pstop/ptart commands
    *  Don't kill to avoid automatic restart
    *
-   * -  /usr/bin/dragon-prog
-   *
    */
-  //stop_gracefull("delosd");
-  //stop_gracefull("dragon-prog");
   int ret __attribute__((unused));
   ret = system("pstop delosd");
   ret = system("pstop dragon-prog");

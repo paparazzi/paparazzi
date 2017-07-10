@@ -29,6 +29,7 @@
 #include <sys/ioctl.h>
 #include <fcntl.h>
 
+/* build ioctl unique identifiers for R/W operations */
 #define PWM_MAGIC 'p'
 typedef struct { unsigned int val[4]; } __attribute__ ((packed)) pwm_delos_quadruplet;
 #define PWM_DELOS_SET_RATIOS _IOR(PWM_MAGIC, 9,  pwm_delos_quadruplet*)
