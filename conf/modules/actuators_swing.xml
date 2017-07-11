@@ -1,0 +1,17 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="actuators_swing" dir="actuators" task="actuators">
+  <doc>
+    <description>
+      Actuators Driver for Swing
+    </description>
+  </doc>
+  <header>
+    <file name="actuators.h" dir="boards/swing"/>
+  </header>
+  <makefile target="ap">
+    <define name="ACTUATORS"/>
+    <file name="actuators.c" dir="$(SRC_BOARD)"/>
+  </makefile>
+</module>
+
