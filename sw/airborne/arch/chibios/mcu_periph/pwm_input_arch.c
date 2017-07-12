@@ -26,6 +26,7 @@
  * handling of stm32 PWM input using a timer with capture.
  */
 #include "mcu_periph/pwm_input_arch.h"
+#include "mcu_periph/pwm_input.h"
 #include "mcu_periph/gpio.h"
 #include <hal.h>
 #include BOARD_CONFIG
@@ -51,7 +52,7 @@ static ICUConfig pwm_input1_cfg = {
 #else
 #error "Unknown PWM_INPUT1_PULSE_TYPE"
 #endif
-  PWM_INPUT_TICKS_PER_USEC * ONE_MHZ_CLK,
+  PWM_INPUT1_TICKS_PER_USEC * ONE_MHZ_CLK,
   input1_width_cb,
   input1_period_cb,
   NULL,
@@ -79,7 +80,7 @@ static ICUConfig pwm_input2_cfg = {
 #else
 #error "Unknown PWM_INPUT2_PULSE_TYPE"
 #endif
-  PWM_INPUT_TICKS_PER_USEC * ONE_MHZ_CLK,
+  PWM_INPUT2_TICKS_PER_USEC * ONE_MHZ_CLK,
   input2_width_cb,
   input2_period_cb,
   NULL,
@@ -113,13 +114,5 @@ void pwm_input_init(void)
   icuEnableNotifications(&PWM_INPUT2_ICU);
 #endif
 
-}
-
-uint32_t get_pwm_input_duty_in_usec(uint32_t channel) {
-  return pwm_input_duty_tics[channel] / PWM_INPUT_TICKS_PER_USEC;
-}
-
-uint32_t get_pwm_input_period_in_usec(uint32_t channel) {
-  return pwm_input_period_tics[channel] / PWM_INPUT_TICKS_PER_USEC;
 }
 

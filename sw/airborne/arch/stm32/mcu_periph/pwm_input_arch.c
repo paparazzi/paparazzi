@@ -48,11 +48,6 @@
 #define PWM_INPUT_IRQ_PRIO 2
 #endif
 
-static const uint32_t pwm_input_ticks_per_usec[] = {
-  PWM_INPUT1_TICKS_PER_USEC,
-  PWM_INPUT2_TICKS_PER_USEC
-};
-
 static inline void pwm_input_set_timer(uint32_t tim, uint32_t ticks_per_usec)
 {
   timer_reset(tim);
@@ -186,13 +181,6 @@ void pwm_input_init(void)
 
 }
 
-uint32_t get_pwm_input_duty_in_usec(uint32_t channel) {
-  return pwm_input_duty_tics[channel] / pwm_input_ticks_per_usec[channel];
-}
-
-uint32_t get_pwm_input_period_in_usec(uint32_t channel) {
-  return pwm_input_period_tics[channel] / pwm_input_ticks_per_usec[channel];
-}
 
 #if USE_PWM_INPUT_TIM1
 
