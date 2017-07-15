@@ -1,30 +1,189 @@
 #!/usr/bin/env python
+# coding: utf-8
+
+r"""Airframe editor"""
 
 from __future__ import print_function
+
+from os.path import join
+
+# Own Modules
+import gui_dialogs
+import xml_airframe
+import paparazzi
 
 import pygtk
 import gtk
 pygtk.require('2.0')
 
-from os import path
-
-# Owm Modules
-import gui_dialogs
-import xml_airframe
-import paparazzi
-
 
 # Airframe File
-airframe_file = path.join(paparazzi.airframes_dir, "examples/quadrotor_lisa_m_2_pwm_spektrum.xml")
+airframe_file = join(paparazzi.airframes_dir,
+                     "examples/quadrotor_lisa_m_2_pwm_spektrum.xml")
 
 
-class AirframeEditor:
+class AirframeEditor(object):
+    def __init__(self):
+        self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        self.window.set_title("Paparazzi Airframe File Editor")
+
+        self.my_vbox = gtk.VBox()
+
+        # MenuBar
+        mb = gtk.MenuBar()
+
+        # File
+        filemenu = gtk.Menu()
+
+        # File Title
+        filem = gtk.MenuItem("File")
+        filem.set_submenu(filemenu)
+
+        openm = gtk.MenuItem("Open")
+        openm.connect("activate", self.open)
+        filemenu.append(openm)
+
+        exitm = gtk.MenuItem("Exit")
+        exitm.connect("activate", gtk.main_quit)
+        filemenu.append(exitm)
+
+        mb.append(filem)
+
+        # Help
+        helpmenu = gtk.Menu()
+
+        # Help Title
+        helpm = gtk.MenuItem("Help")
+        helpm.set_submenu(helpmenu)
+
+        aboutm = gtk.MenuItem("About")
+        aboutm.connect("activate", self.about)
+        helpmenu.append(aboutm)
+
+        mb.append(helpm)
+
+        self.my_vbox.pack_start(mb, False)
+
+        # #### Buttons
+        self.btnExit = gtk.Button("Exit")
+        self.btnExit.connect("clicked", self.destroy)
+        self.btnExit.set_tooltip_text("Close application")
+
+        self.btnOpen = gtk.Button("Open")
+        self.btnOpen.connect("clicked", self.open)
+
+        self.btnRun = gtk.Button("Reorganize XML")
+        self.btnRun.connect("clicked", self.reorganize_xml)
+
+        self.btnFirmwares = gtk.Button("Firmwares")
+        self.btnFirmwares.connect("clicked", self.find_firmwares)
+
+        self.btnSubSystem = gtk.Button("SubSystems")
+        self.btnSubSystem.connect("clicked", self.find_subsystems)
+
+        self.btnModules = gtk.Button("Add Modules")
+        self.btnModules.connect("clicked", self.find_modules)
+
+        self.btnModuleDefines = gtk.Button("Define")
+        self.btnModuleDefines.connect("clicked", self.find_module_defines)
+
+        self.btnAbout = gtk.Button("About")
+        self.btnAbout.connect("clicked", self.about)
+
+        self.toolbar = gtk.HBox()
+        self.toolbar.pack_start(self.btnOpen)
+        self.toolbar.pack_start(self.btnRun)
+        self.toolbar.pack_start(self.btnAbout)
+        self.toolbar.pack_start(self.btnExit)
+
+        self.my_vbox.pack_start(self.toolbar, False)
+
+        self.firmwares_combo = gtk.combo_box_entry_new_text()
+        self.find_firmwares(self.firmwares_combo)
+        self.firmwares_combo.connect("changed", self.find_subsystems)
+
+        self.subsystems_combo = gtk.combo_box_entry_new_text()
+
+        self.boards_combo = gtk.combo_box_entry_new_text()
+        self.find_boards(self.boards_combo)
+
+        self.firmwarebar = gtk.HBox()
+        self.firmwarebar.pack_start(self.btnFirmwares)
+        self.firmwarebar.pack_start(self.btnSubSystem)
+        self.firmwarebar.pack_start(self.firmwares_combo)
+        self.firmwarebar.pack_start(self.boards_combo)
+        self.firmwarebar.pack_start(self.subsystems_combo)
+
+        self.modules_combo = gtk.combo_box_entry_new_text()
+        self.find_modules(self.modules_combo)
+        self.modules_combo.connect("changed", self.find_module_defines)
+
+        # self.modulebar = gtk.HBox()
+        self.firmwarebar.pack_start(self.btnModules)
+        self.firmwarebar.pack_start(self.btnModuleDefines)
+        self.firmwarebar.pack_start(self.modules_combo)
+
+        # self.my_vbox.pack_start(self.modulebar)
+
+        self.my_vbox.pack_start(self.firmwarebar, False)
+
+        # #### Middle
+
+        self.editor = gtk.HBox()
+
+        self.fill_tree_from_airframe()
+
+        self.scrolltree = gtk.ScrolledWindow()
+        self.scrolltree.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        self.scrolltree.add(self.treeview)
+        self.scrolltree.set_size_request(400, 600)
+
+        self.editor.pack_start(self.scrolltree)
+
+        self.fill_datagrid_from_section()
+        self.datagrid.set_size_request(900, 600)
+        self.editor.pack_start(self.datagrid)
+
+        self.my_vbox.pack_start(self.editor)
+
+        self.text_box = gtk.Label("")
+        self.text_box.set_size_request(600, 1000)
+
+        self.scrolltext = gtk.ScrolledWindow()
+        self.scrolltext.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        self.scrolltext.add_with_viewport(self.text_box)
+        self.scrolltext.set_size_request(400, 100)
+
+        self.my_vbox.pack_start(self.scrolltext)
+
+        self.load_airframe_xml()
+
+        # #### Bottom
+
+        self.searchbar = gtk.HBox()
+
+        self.textbox = gtk.Entry()
+        # self.textbox.connect("changed",self.textchanged)
+
+        self.btnSearch = gtk.Button("Search...")
+        self.btnSearch.connect("clicked", self.search)
+
+        self.searchbar.pack_start(self.textbox)
+        self.searchbar.pack_start(self.btnSearch)
+
+        self.my_vbox.pack_start(self.searchbar, False)
+
+        self.window.add(self.my_vbox)
+        self.window.show_all()
+        self.window.connect("destroy", self.destroy)
 
     # General Functions
 
     def load_airframe_xml(self):
+        r"""Load airframe xml file and update widgets"""
         global airframe_file
-        self.tvcolumn.set_title(airframe_file.replace(paparazzi.airframes_dir, ""))
+        self.tvcolumn.set_title(airframe_file.replace(paparazzi.airframes_dir,
+                                                      ""))
         [e, self.xml, self.xml_header] = xml_airframe.load(airframe_file)
         if e:
             gui_dialogs.error_loading_xml(e.__str__())
@@ -32,6 +191,14 @@ class AirframeEditor:
         xml_airframe.fill_tree(self.xml, self.treestore)
 
     def update_combo(self, combo, c_list):
+        r"""Update combo using c_list (choices)
+
+        Parameters
+        ----------
+        combo : gtk combo
+        c_list : choices list
+
+        """
         combo.set_sensitive(False)
         combo.get_model().clear()
         for i in c_list:
@@ -42,19 +209,23 @@ class AirframeEditor:
     # CallBack Functions
 
     def find_firmwares(self, widget):
+        r"""Find firmwares and update firmware combo"""
         list_of_firmwares = paparazzi.get_list_of_firmwares()
         self.update_combo(self.firmwares_combo, list_of_firmwares)
 
     def find_modules(self, widget):
+        r"""Find modules and update modules combo"""
         list_of_modules = paparazzi.get_list_of_modules()
         self.update_combo(self.modules_combo, list_of_modules)
 
     def find_subsystems(self, widget):
+        r"""Find subsystems and update subsystems combo"""
         self.textbox.set_text(self.firmwares_combo.get_active_text())
         list_of_subsystems = paparazzi.get_list_of_subsystems(self.firmwares_combo.get_active_text())
         self.update_combo(self.subsystems_combo, list_of_subsystems)
 
     def find_boards(self, widget):
+        r"""Find boards and update boards combo"""
         list_of_boards = paparazzi.get_list_of_boards()
         self.update_combo(self.boards_combo, list_of_boards)
 
@@ -72,13 +243,16 @@ class AirframeEditor:
             self.gridstore.append(["define", d[0], d[1], d[2], d[3]])
 
     def reorganize_xml(self, widget):
+        r"""Reorganize XML description of the airframe"""
         self.xml = xml_airframe.reorganize_airframe_xml(self.xml)
         xml_airframe.fill_tree(self.xml, self.treestore)
 
     def about(self, widget):
+        r"""About box"""
         gui_dialogs.about(paparazzi.home_dir)
 
     def open(self, widget):
+        r"""Choose a file and open it in the airframe editor"""
         global airframe_file
         filename = gui_dialogs.filechooser(paparazzi.airframes_dir)
         if filename == "":
@@ -88,6 +262,7 @@ class AirframeEditor:
         self.load_airframe_xml()
 
     def search(self, widget):
+        r"""Run a search using text in bottom text box"""
         ret = paparazzi.search(self.textbox.get_text())
         self.text_box.set_text(ret)
         print(ret)
@@ -95,29 +270,31 @@ class AirframeEditor:
     # Tree Callbacks
 
     def select_section(self, widget):
-        #get data from highlighted selection
+        # get data from highlighted selection
         treeselection = self.datagrid.get_selection()
         (model, row_iter) = treeselection.get_selected()
         if row_iter is not None:
             name_of_data = self.gridstore.get_value(row_iter, 1)
-            #print("Selected ",name_of_data)
+            # print("Selected ",name_of_data)
             self.textbox.set_text(name_of_data)
-            # xml_airframe.defines(self.treestore.get_value(row_iter, 1), self.gridstore)
+            # xml_airframe.defines(self.treestore.get_value(row_iter, 1),
+            #                      self.gridstore)
 
     def select(self, widget):
-        #get data from highlighted selection
+        # get data from highlighted selection
         treeselection = self.treeview.get_selection()
         (model, row_iter) = treeselection.get_selected()
         if row_iter is not None:
             name_of_data = self.treestore.get_value(row_iter, 0)
-            #print("Selected ",name_of_data)
+            # print("Selected ",name_of_data)
             self.textbox.set_text(name_of_data)
-            xml_airframe.defines(self.treestore.get_value(row_iter, 1), self.gridstore)
+            xml_airframe.defines(self.treestore.get_value(row_iter, 1),
+                                 self.gridstore)
 
     # Constructor Functions
 
     def fill_tree_from_airframe(self):
-
+        r"""Fill tree from airframe xml content"""
         # create a TreeStore with one string column to use as the model
         self.treestore = gtk.TreeStore(str, object)
 
@@ -182,169 +359,8 @@ class AirframeEditor:
         self.name_column.set_sort_column_id(0)
         self.datagrid.set_reorderable(True)
 
-
     def destroy(self, widget, data=None):
         gtk.main_quit()
-
-    def __init__(self):
-        self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-        self.window.set_title("Paparazzi Airframe File Editor")
-
-        self.my_vbox = gtk.VBox()
-
-        # MenuBar
-        mb = gtk.MenuBar()
-
-        # File
-        filemenu = gtk.Menu()
-
-        # File Title
-        filem = gtk.MenuItem("File")
-        filem.set_submenu(filemenu)
-
-        openm = gtk.MenuItem("Open")
-        openm.connect("activate", self.open)
-        filemenu.append(openm)
-
-        exitm = gtk.MenuItem("Exit")
-        exitm.connect("activate", gtk.main_quit)
-        filemenu.append(exitm)
-
-        mb.append(filem)
-
-        # Help
-        helpmenu = gtk.Menu()
-
-        # Help Title
-        helpm = gtk.MenuItem("Help")
-        helpm.set_submenu(helpmenu)
-
-        aboutm = gtk.MenuItem("About")
-        aboutm.connect("activate", self.about)
-        helpmenu.append(aboutm)
-
-        mb.append(helpm)
-
-        self.my_vbox.pack_start(mb, False)
-
-        ##### Buttons
-        self.btnExit = gtk.Button("Exit")
-        self.btnExit.connect("clicked", self.destroy)
-        self.btnExit.set_tooltip_text("Close application")
-
-        self.btnOpen = gtk.Button("Open")
-        self.btnOpen.connect("clicked", self.open)
-
-        self.btnRun = gtk.Button("Reorganize XML")
-        self.btnRun.connect("clicked", self.reorganize_xml)
-
-        self.btnFirmwares = gtk.Button("Firmwares")
-        self.btnFirmwares.connect("clicked", self.find_firmwares)
-
-        self.btnSubSystem = gtk.Button("SubSystems")
-        self.btnSubSystem.connect("clicked", self.find_subsystems)
-
-        self.btnModules = gtk.Button("Add Modules")
-        self.btnModules.connect("clicked", self.find_modules)
-
-        self.btnModuleDefines = gtk.Button("Define")
-        self.btnModuleDefines.connect("clicked", self.find_module_defines)
-
-        self.btnAbout = gtk.Button("About")
-        self.btnAbout.connect("clicked", self.about)
-
-        self.toolbar = gtk.HBox()
-        self.toolbar.pack_start(self.btnOpen)
-        self.toolbar.pack_start(self.btnRun)
-        self.toolbar.pack_start(self.btnAbout)
-        self.toolbar.pack_start(self.btnExit)
-
-        self.my_vbox.pack_start(self.toolbar, False)
-
-
-
-        self.firmwares_combo = gtk.combo_box_entry_new_text()
-        self.find_firmwares(self.firmwares_combo)
-        self.firmwares_combo.connect("changed", self.find_subsystems)
-
-        self.subsystems_combo = gtk.combo_box_entry_new_text()
-
-        self.boards_combo = gtk.combo_box_entry_new_text()
-        self.find_boards(self.boards_combo)
-
-
-        self.firmwarebar = gtk.HBox()
-        self.firmwarebar.pack_start(self.btnFirmwares)
-        self.firmwarebar.pack_start(self.btnSubSystem)
-        self.firmwarebar.pack_start(self.firmwares_combo)
-        self.firmwarebar.pack_start(self.boards_combo)
-        self.firmwarebar.pack_start(self.subsystems_combo)
-
-        self.modules_combo = gtk.combo_box_entry_new_text()
-        self.find_modules(self.modules_combo)
-        self.modules_combo.connect("changed", self.find_module_defines)
-
-        #self.modulebar = gtk.HBox()
-        self.firmwarebar.pack_start(self.btnModules)
-        self.firmwarebar.pack_start(self.btnModuleDefines)
-        self.firmwarebar.pack_start(self.modules_combo)
-
-        #self.my_vbox.pack_start(self.modulebar)
-
-        self.my_vbox.pack_start(self.firmwarebar, False)
-
-
-
-
-        ##### Middle
-
-        self.editor = gtk.HBox()
-
-        self.fill_tree_from_airframe()
-
-        self.scrolltree = gtk.ScrolledWindow()
-        self.scrolltree.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        self.scrolltree.add(self.treeview)
-        self.scrolltree.set_size_request(400,600)
-
-        self.editor.pack_start(self.scrolltree)
-
-        self.fill_datagrid_from_section()
-        self.datagrid.set_size_request(900, 600)
-        self.editor.pack_start(self.datagrid)
-
-        self.my_vbox.pack_start(self.editor)
-
-        self.text_box = gtk.Label("")
-        self.text_box.set_size_request(600, 1000)
-
-        self.scrolltext = gtk.ScrolledWindow()
-        self.scrolltext.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        self.scrolltext.add_with_viewport(self.text_box)
-        self.scrolltext.set_size_request(400, 100)
-
-        self.my_vbox.pack_start(self.scrolltext)
-
-        self.load_airframe_xml()
-
-        ##### Bottom
-
-        self.searchbar = gtk.HBox()
-
-        self.textbox = gtk.Entry()
-        #self.textbox.connect("changed",self.textchanged)
-
-        self.btnSearch = gtk.Button("Search...")
-        self.btnSearch.connect("clicked", self.search)
-
-        self.searchbar.pack_start(self.textbox)
-        self.searchbar.pack_start(self.btnSearch)
-
-        self.my_vbox.pack_start(self.searchbar, False)
-
-        self.window.add(self.my_vbox)
-        self.window.show_all()
-        self.window.connect("destroy", self.destroy)
 
     def main(self):
         gtk.main()
@@ -355,4 +371,3 @@ if __name__ == "__main__":
         airframe_file = sys.argv[1]
     gui = AirframeEditor()
     gui.main()
-
