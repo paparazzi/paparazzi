@@ -8,15 +8,9 @@
      * RC:          two Spektrum sats         http://wiki.paparazziuav.org/wiki/Subsystem/radio_control#Spektrum
 -->
 
-<airframe name="TeensyFly Quad Elle0 v1_2">
+<airframe name="RacerPEX Quad Elle0 v1_2">
 
   <firmware name="rotorcraft">
-
-    <configure name="RADIO_CONTROL_LED" value="none"/>
-    <configure name="GPS_LED" value="3"/>
-    <define name="LOW_NOISE_THRESHOLD" value="3500"/>
-    <define name="LOW_NOISE_TIME" value="10"/>
-
     <target name="ap" board="elle0_1.2">
     </target>
 
@@ -89,8 +83,32 @@
     <set servo="BACK_LEFT"   value="motor_mixing.commands[3]"/>
   </command_laws>
 
-  <!-- include airframe calibration -->
-  <include href="conf/airframes/HOOPERFLY/hooperfly_teensyfly_quad_elle0_v1_2_$AC_ID.xml"/>
+  <section name="IMU" prefix="IMU_">
+    <!-- Accelerometer calibration -->
+    <define name="ACCEL_X_NEUTRAL" value="-99"/>
+    <define name="ACCEL_Y_NEUTRAL" value="-31"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-6"/>
+    <define name="ACCEL_X_SENS" value="2.44943658342" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="2.4508133939" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="2.42774270545" integer="16"/>
+
+    <!-- Magnetometer calibration -->
+    <define name="MAG_X_NEUTRAL" value="244"/>
+    <define name="MAG_Y_NEUTRAL" value="-186"/>
+    <define name="MAG_Z_NEUTRAL" value="-202"/>
+    <define name="MAG_X_SENS" value="9.63426370268" integer="16"/>
+    <define name="MAG_Y_SENS" value="8.12694407541" integer="16"/>
+    <define name="MAG_Z_SENS" value="6.16184541025" integer="16"/>
+
+    <!-- Magnetometer current calibration -->
+    <define name= "MAG_X_CURRENT_COEF" value="0.00162839672033"/>
+    <define name= "MAG_Y_CURRENT_COEF" value="0.00309421447631"/>
+    <define name= "MAG_Z_CURRENT_COEF" value="-0.00642385318878"/>
+
+    <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
+  </section>
 
   <section name="AHRS" prefix="AHRS_">
     <!-- values used if no GPS fix, on 3D fix is update by geo_mag module -->
@@ -98,6 +116,7 @@
     <define name="H_Y" value="0.10300471"/>
     <define name="H_Z" value="0.9238937"/>
   </section>
+
 
 
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
@@ -126,16 +145,16 @@
     <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
 
     <!-- feedback -->
-    <define name="PHI_PGAIN"  value="750"/>
-    <define name="PHI_DGAIN"  value="300"/>
+    <define name="PHI_PGAIN"  value="1246"/>
+    <define name="PHI_DGAIN"  value="495"/>
     <define name="PHI_IGAIN"  value="200"/>
 
-    <define name="THETA_PGAIN"  value="750"/>
-    <define name="THETA_DGAIN"  value="300"/>
+    <define name="THETA_PGAIN"  value="1246"/>
+    <define name="THETA_DGAIN"  value="495"/>
     <define name="THETA_IGAIN"  value="200"/>
 
-    <define name="PSI_PGAIN"  value="2820"/>
-    <define name="PSI_DGAIN"  value="1536"/>
+    <define name="PSI_PGAIN"  value="1622"/>
+    <define name="PSI_DGAIN"  value="1241"/>
     <define name="PSI_IGAIN"  value="10"/>
 
     <!-- feedforward -->
@@ -148,7 +167,7 @@
     <define name="HOVER_KP"    value="150"/>
     <define name="HOVER_KD"    value="80"/>
     <define name="HOVER_KI"    value="20"/>
-    <define name="NOMINAL_HOVER_THROTTLE" value="0.63"/>
+    <define name="NOMINAL_HOVER_THROTTLE" value="0.53"/>
     <define name="ADAPT_THROTTLE_ENABLED" value="TRUE"/>
   </section>
 
@@ -168,7 +187,7 @@
 
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES"  value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
-    <define name="JSBSIM_MODEL"    value="HOOPERFLY/hooperfly_teensyfly_quad" type="string"/>
+    <define name="JSBSIM_MODEL"    value="HOOPERFLY/hooperfly_racerpex_quad" type="string"/>
     <define name="SENSORS_PARAMS"  value="nps_sensors_params_default.h" type="string"/>
     <!-- mode switch on joystick channel 5 (axis numbering starting at zero) -->
     <define name="JS_AXIS_MODE"    value="4"/>
@@ -183,8 +202,8 @@
   </section>
 
   <section name="BAT">
-    <define name="MILLIAMP_AT_IDLE_THROTTLE" value="3920" />
-    <define name="MILLIAMP_AT_FULL_THROTTLE" value="39200"/>
+    <define name="MILLIAMP_AT_IDLE_THROTTLE" value="8000" />
+    <define name="MILLIAMP_AT_FULL_THROTTLE" value="80000"/>
     <define name="CATASTROPHIC_BAT_LEVEL"    value="9.3"  unit="V"/>
     <define name="CRITIC_BAT_LEVEL"          value="9.6"  unit="V"/>
     <define name="LOW_BAT_LEVEL"             value="10.1" unit="V"/>
@@ -196,7 +215,7 @@
     <define name="ALT_SHIFT_PLUS_PLUS" value="30"/>
     <define name="ALT_SHIFT_PLUS"      value="10"/>
     <define name="ALT_SHIFT_MINUS"     value="-10"/>
-    <define name="SPEECH_NAME"         value="Teensy Fly Quad Elle0 v1_2 $(AC_ID)"/>
+    <define name="SPEECH_NAME"         value="Racer PEX Quad Elle0"/>
     <define name="AC_ICON"             value="quadrotor_x"/>
   </section>
 
