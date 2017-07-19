@@ -214,7 +214,7 @@ class ParrotUtils:
     # Get the version of the drone
     def check_version(self):
         if self.version_file is not None:
-            return ParrotVersion(execute_command('cat ' + self.version_file).strip())
+            return ParrotVersion(self.execute_command('cat ' + self.version_file).strip())
         else:
             return "Unknown version"
 
