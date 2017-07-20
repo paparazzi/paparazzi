@@ -53,23 +53,23 @@ class Ardrone2(ParrotUtils):
             self.execute_command('sed -i "s/\(' + name + ' *= *\).*/\\1' + value + '/g" ' + self.config_file)
 
     def uav_status(self):
-        print('Parrot version:\t\t' + self.check_version())
+        print('Parrot version:\t\t' + str(self.check_version()))
         print('Host address:\t\t' + self.address +
-                ' (' + self.read_from_config('static_ip_address_base', config_ini) +
-                self.read_from_config('static_ip_address_probe', config_ini) + ' after boot)')
+                ' (' + self.read_from_config('static_ip_address_base') +
+                self.read_from_config('static_ip_address_probe') + ' after boot)')
         print('Serial number:\t\t' + self.read_from_config('drone_serial'))
         print('Network id:\t\t' + self.read_from_config('ssid_single_player'))
         print('Motor software:\t\t' +
-                self.read_from_config('motor1_soft', config_ini) + '\t' + read_from_config('motor2_soft', config_ini) + '\t' +
-                self.read_from_config('motor3_soft', config_ini) + '\t' + read_from_config('motor4_soft', config_ini))
+                self.read_from_config('motor1_soft') + '\t' + self.read_from_config('motor2_soft') + '\t' +
+                self.read_from_config('motor3_soft') + '\t' + self.read_from_config('motor4_soft'))
         print('Motor hardware:\t\t' +
-                self.read_from_config('motor1_hard', config_ini) + '\t' + read_from_config('motor2_hard', config_ini) + '\t' +
-                self.read_from_config('motor3_hard', config_ini) + '\t' + read_from_config('motor4_hard', config_ini))
+                self.read_from_config('motor1_hard') + '\t' + self.read_from_config('motor2_hard') + '\t' +
+                self.read_from_config('motor3_hard') + '\t' + self.read_from_config('motor4_hard'))
         sleep(2.0) #Wait running process reporting back lag
         print('Currently running:\t' + self.check_running())
         autorun = {'': 'Native', '0': 'Native', '1': 'Paparazzi'}
         if self.check_autoboot():
-            print('Autorun at start:\tInstalled booting ' + autorun[self.read_from_config('start_paparazzi', config_ini)])
+            print('Autorun at start:\tInstalled booting ' + autorun[self.read_from_config('start_paparazzi')])
         else:
             print('Autorun at start:\tNot installed')
 
@@ -168,14 +168,14 @@ class Ardrone2(ParrotUtils):
     
     # Set network SSID
     def ardrone2_set_ssid(self, name):
-        write_to_config('ssid_single_player', name)
+        self.write_to_config('ssid_single_player', name)
         print('The network ID (SSID) of the ARDrone 2 is changed to ' + name)
     
     # Set IP address
     def ardrone2_set_ip_address(self, address):
         splitted_ip = address.split(".")
-        write_to_config('static_ip_address_base', splitted_ip[0] + '.' + splitted_ip[1] + '.' + splitted_ip[2] + '.')
-        write_to_config('static_ip_address_probe', splitted_ip[3])
+        self.write_to_config('static_ip_address_base', splitted_ip[0] + '.' + splitted_ip[1] + '.' + splitted_ip[2] + '.')
+        self.write_to_config('static_ip_address_probe', splitted_ip[3])
         print('The IP Address of the ARDrone 2 is changed to ' + address)
     
     # Set wifi mode (0: master, 1: ad-hoc, 2: managed, *: master)
@@ -186,12 +186,12 @@ class Ardrone2(ParrotUtils):
         except:
             print('Unexpected wifi mode, setting to master (default)')
             val = modes['master']
-        write_to_config('wifi_mode', val)
+        self.write_to_config('wifi_mode', val)
         print('The Wifi mode of the ARDrone2 is changed to ' + mode + ' (' + val + ')')
     
     # Set network channel
     def ardrone2_set_wifi_channel(self, chan):
-        write_to_config('wifi_channel', chan)
+        self.write_to_config('wifi_channel', chan)
         print('The network channel of the ARDrone 2 is changed to ' + chan)
 
     def init_extra_parser(self):
@@ -242,13 +242,13 @@ class Ardrone2(ParrotUtils):
 
         # Install and configure network
         elif args.command == 'configure_network':
-            config_ini = self.execute_command('cat /data/config.ini')
+            self.config_content = self.execute_command('cat ' + self.config_file)
             print('=== Current network setup ===')
-            print('Network id:\t' + self.read_from_config('ssid_single_player', config_ini))
-            print('Host:\t\t' + args.host + ' (' + read_from_config('static_ip_address_base', config_ini) +
-                  self.read_from_config('static_ip_address_probe', config_ini) + ' after boot)')
-            print('Mode:\t\t' + self.read_from_config('wifi_mode', config_ini))
-            print('Channel:\t' + self.read_from_config('wifi_channel', config_ini))
+            print('Network id:\t' + self.read_from_config('ssid_single_player'))
+            print('Host:\t\t' + args.host + ' (' + self.read_from_config('static_ip_address_base') +
+                  self.read_from_config('static_ip_address_probe') + ' after boot)')
+            print('Mode:\t\t' + self.read_from_config('wifi_mode'))
+            print('Channel:\t' + self.read_from_config('wifi_channel'))
             print('=============================')
             if self.check_wifi_setup():
                 print('Custom Wifi script already installed')
@@ -263,13 +263,13 @@ class Ardrone2(ParrotUtils):
             self.ardrone2_set_ip_address(args.address)
             self.ardrone2_set_wifi_mode(args.mode)
             self.ardrone2_set_wifi_channel(args.channel)
-            config_ini = self.execute_command('cat /data/config.ini')
+            self.config_content = self.execute_command('cat ' + self.config_file)
             print('== New network setup after boot ==')
-            print('Network id:\t' + self.read_from_config('ssid_single_player', config_ini))
-            print('Host:\t\t' + self.read_from_config('static_ip_address_base', config_ini) +
-                  self.read_from_config('static_ip_address_probe', config_ini))
-            print('Mode:\t\t' + self.read_from_config('wifi_mode', config_ini))
-            print('Channel:\t' + self.read_from_config('wifi_channel', config_ini))
+            print('Network id:\t' + self.read_from_config('ssid_single_player'))
+            print('Host:\t\t' + self.read_from_config('static_ip_address_base') +
+                  self.read_from_config('static_ip_address_probe'))
+            print('Mode:\t\t' + self.read_from_config('wifi_mode'))
+            print('Channel:\t' + self.read_from_config('wifi_channel'))
             print('==================================')
 
             if raw_input("Shall I restart the ARDrone 2? (y/N) ").lower() == 'y':

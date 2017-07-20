@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2012-2017 The Paparazzi Team
+# Copyright (C) 2012-2014 The Paparazzi Team
+#               2015 Freek van Tienen <freek.v.tienen@gmail.com>
+#               2017 Gautier Hattenberger <gautier.hattenberger@enac.fr>
 #
 # This file is part of Paparazzi.
 #
@@ -22,19 +24,24 @@
 from __future__ import print_function
 from parrot_utils import ParrotUtils
 
-class Swing(ParrotUtils):
-    uav_name = 'Swing'
-    address = '192.168.4.1'
-    version_file = None
-    upload_path = '/data/edu/'
-    prompt = '$ '
+class Disco(ParrotUtils):
+    uav_name = 'Disco'
+    address = '192.168.42.1'
+    version_file = '/version.txt'
+    upload_path = '/data/ftp/'
+    check_version_before_run = True
+    update_time_before_run = True
 
     def uav_status(self):
         print('Parrot version:\t\t' + str(self.check_version()))
 
     def init_extra_parser(self):
-        # nothing here
-        pass
+
+        # Parse the extra arguments
+        self.parser.add_argument('--min_version', metavar='MIN', default='1.0.0',
+                help='force minimum version allowed')
+        self.parser.add_argument('--max_version', metavar='MAX', default='1.3.0',
+                help='force maximum version allowed')
 
     def parse_extra_args(self, args):
         # nothing here
@@ -42,7 +49,7 @@ class Swing(ParrotUtils):
 
 
 if __name__ == "__main__":
-    swing = Swing()
-    swing.parse_args()
+    disco = Disco()
+    disco.parse_args()
     exit(0)
 

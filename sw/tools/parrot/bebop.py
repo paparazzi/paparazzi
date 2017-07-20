@@ -33,7 +33,7 @@ class Bebop(ParrotUtils):
     update_time_before_run = True
 
     def uav_status(self):
-        print('Parrot version:\t\t' + self.check_version())
+        print('Parrot version:\t\t' + str(self.check_version()))
 
     def init_extra_parser(self):
 
