@@ -179,10 +179,10 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
       let msg_id, _ = Dl_Pprz.message_of_name name in
       let s = Dl_Pprz.payload_of_values msg_id ground_id vs in
       set_message (Protocol.string_of_payload s) in
-    let ac_id = PprzLink.int_assoc "ac_id" vs in
-    match link_mode with
-      PprzLink.Forwarded when ac_id = !my_id -> if dl_button#active then set ()
-    | PprzLink.Broadcasted -> if dl_button#active then set ()
+    let ac_id = try Some (PprzLink.int_assoc "ac_id" vs) with _ -> None in
+    match link_mode, ac_id with
+      PprzLink.Forwarded, Some x when x = !my_id -> if dl_button#active then set ()
+    | PprzLink.Broadcasted, _ -> if dl_button#active then set ()
     | _ -> ()
 
   let message_bind = fun name link_mode ->
