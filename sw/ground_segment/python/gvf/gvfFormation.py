@@ -7,9 +7,9 @@ import wx
 import numpy as np
 import sys
 from os import path, getenv
-PPRZ_SRC = getenv("PAPARAZZI_SRC", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../../')))
-sys.path.append(PPRZ_SRC + "/sw/lib/python")
-sys.path.append(PPRZ_SRC + "/sw/ext/pprzlink/lib/v1.0/python")
+PPRZ_HOME = getenv("PAPARAZZI_HOME", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../../')))
+sys.path.append(PPRZ_HOME + "/sw/lib/python")
+sys.path.append(PPRZ_HOME + "/var/lib/python")
 from pprzlink.ivy import IvyMessagesInterface
 from pprzlink.message import PprzMessage 
 from settings_xml_parse import PaparazziACSettings
@@ -45,7 +45,7 @@ def message_recv(ac_id, msg):
 
         if msg.name == 'GVF':
             if int(msg.get_field(1)) == 1:
-                param = msg.get_field(4).split(',')
+                param = msg.get_field(4)
                 ac.XYc[0] = float(param[0])
                 ac.XYc[1] = float(param[1])
                 ac.a = float(param[2])
