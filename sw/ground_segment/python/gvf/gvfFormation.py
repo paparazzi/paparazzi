@@ -8,7 +8,7 @@ import numpy as np
 import sys
 from os import path, getenv
 PPRZ_HOME = getenv("PAPARAZZI_HOME", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../../')))
-PPRZ_HOME = getenv("PAPARAZZI_SRC", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../../')))
+PPRZ_SRC = getenv("PAPARAZZI_SRC", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../../')))
 sys.path.append(PPRZ_SRC + "/sw/lib/python")
 sys.path.append(PPRZ_HOME + "/var/lib/python")
 from pprzlink.ivy import IvyMessagesInterface
