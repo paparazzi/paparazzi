@@ -160,7 +160,7 @@ struct OpticalFlowLanding of_landing_ctrl;
 static void send_divergence(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_DIVERGENCE(trans, dev, AC_ID,
-                           &(of_landing_ctrl.divergence), &divergence_vision_dt, &of_landing_ctrl.nominal_thrust,
+                           &(of_landing_ctrl.divergence), &divergence_vision_dt, &normalized_thrust,
                            &cov_div, &pstate, &pused, &(of_landing_ctrl.agl));
 }
 
