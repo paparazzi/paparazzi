@@ -5,7 +5,9 @@ Update changelog
 
 General
 -------
-
+- updated to pprzlink v.2.0. [#2083] https://github.com/paparazzi/paparazzi/pull/2083
+- HITL as a standalone target [#2062] https://github.com/paparazzi/paparazzi/pull/2062
+- Added Gazebo as simulation backend for NPS [#2069] https://github.com/paparazzi/paparazzi/pull/2069
 - possibility to use generated autopilot for rotorcraft
   [#1975] (http://github.com/paparazzi/paparazzi/pull/1975)
 - also compile C++ files
@@ -28,7 +30,10 @@ General
 
 Airborne
 --------
-
+- initial support for Parrot Swing [#2085] https://github.com/paparazzi/paparazzi/pull/2085
+- polygon survey via Guidance Vector Field [#2052] https://github.com/paparazzi/paparazzi/pull/2052
+- added support for Chimera autopilot [#2018] https://github.com/paparazzi/paparazzi/pull/2018
+- added support for Parrod Disco [#1992] https://github.com/paparazzi/paparazzi/pull/1992
 - convert telemetry subsystems to modules
   [#1835] (http://github.com/paparazzi/paparazzi/pull/1835)
 - change behavior of command laws
