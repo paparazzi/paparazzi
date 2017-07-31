@@ -202,7 +202,7 @@ void vertical_ctrl_module_init(void)
   of_landing_ctrl.cov_set_point = OFL_COV_SETPOINT;
   of_landing_ctrl.cov_limit = fabsf(OFL_COV_LANDING_LIMIT);
   of_landing_ctrl.lp_const = OFL_LP_CONST;
-  Bound(of_landing_ctrl.lp_const, 0.001, 1.);
+  Bound(of_landing_ctrl.lp_const, 0.001f, 1.f);
   of_landing_ctrl.pgain = OFL_PGAIN;
   of_landing_ctrl.igain = OFL_IGAIN;
   of_landing_ctrl.dgain = OFL_DGAIN;
@@ -222,8 +222,8 @@ void vertical_ctrl_module_init(void)
   of_landing_ctrl.reduction_factor_elc =
     0.80f; // for exponential gain landing, after detecting oscillations, the gain is multiplied with this factor
   of_landing_ctrl.lp_cov_div_factor =
-    0.99; // low pass filtering cov div so that the drone is really oscillating when triggering the descent
-  of_landing_ctrl.t_transition = 2.;
+    0.99f; // low pass filtering cov div so that the drone is really oscillating when triggering the descent
+  of_landing_ctrl.t_transition = 2.f;
   // if the gain reaches this value during an exponential landing, the drone makes the final landing.
   of_landing_ctrl.p_land_threshold = OFL_P_LAND_THRESHOLD;
   of_landing_ctrl.elc_oscillate = OFL_ELC_OSCILLATE;
@@ -292,12 +292,13 @@ void vertical_ctrl_module_run(bool in_flight)
   float dt = vision_time - prev_vision_time;
 
   // check if new measurement received
-  if (dt <= 0) {
+  if (dt <= 1e-5f) {
     return;
   }
 
+  Bound(of_landing_ctrl.lp_const, 0.001f, 1.f);
   float lp_factor = dt / of_landing_ctrl.lp_const;
-  Bound(lp_factor, 0., 1.);
+  Bound(lp_factor, 0.f, 1.f);
 
   /***********
    * VISION
@@ -319,11 +320,11 @@ void vertical_ctrl_module_run(bool in_flight)
     of_landing_ctrl.vel = stateGetSpeedEnu_f()->z;
 
     // calculate the fake divergence:
-    if (of_landing_ctrl.agl_lp > 0.0001f) {
+    if (of_landing_ctrl.agl_lp > 1e-5f) {
       of_landing_ctrl.divergence = of_landing_ctrl.vel / of_landing_ctrl.agl_lp;
       // TODO: this time scaling should be done in optical flow module
       divergence_vision_dt = (divergence_vision / dt);
-      if (fabsf(divergence_vision_dt) > 1E-5) {
+      if (fabsf(divergence_vision_dt) > 1e-5f) {
         div_factor = of_landing_ctrl.divergence / divergence_vision_dt;
       }
     }
@@ -337,7 +338,7 @@ void vertical_ctrl_module_run(bool in_flight)
     float new_divergence = (divergence_vision * div_factor) / dt;
 
     // deal with (unlikely) fast changes in divergence:
-    static const float max_div_dt = 0.20;
+    static const float max_div_dt = 0.20f;
     if (fabsf(new_divergence - of_landing_ctrl.divergence) > max_div_dt) {
       if (new_divergence < of_landing_ctrl.divergence) { new_divergence = of_landing_ctrl.divergence - max_div_dt; }
       else { new_divergence = of_landing_ctrl.divergence + max_div_dt; }
@@ -582,7 +583,7 @@ int32_t PID_divergence_control(float setpoint, float P, float I, float D, float 
 void update_errors(float err, float dt)
 {
   float lp_factor = dt / of_landing_ctrl.lp_const;
-  Bound(lp_factor, 0., 1.);
+  Bound(lp_factor, 0.f, 1.f);
 
   // maintain the controller errors:
   of_landing_ctrl.sum_err += err;
