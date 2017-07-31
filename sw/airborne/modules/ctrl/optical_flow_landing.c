@@ -183,9 +183,8 @@ static void reset_all_vars(void);
 float thrust_history[OFL_COV_WINDOW_SIZE];
 float divergence_history[OFL_COV_WINDOW_SIZE];
 float past_divergence_history[OFL_COV_WINDOW_SIZE];
-float dt_history[OFL_COV_WINDOW_SIZE];
 uint32_t ind_hist;
-bool cov_array_filled;
+uint8_t cov_array_filled;
 
 void vertical_ctrl_module_init(void);
 void vertical_ctrl_module_run(bool in_flight);
@@ -258,12 +257,11 @@ static void reset_all_vars(void)
   prev_vision_time = vision_time;
 
   ind_hist = 0;
-  cov_array_filled = false;
+  cov_array_filled = 0;
   uint32_t i;
   for (i = 0; i < OFL_COV_WINDOW_SIZE; i++) {
     thrust_history[i] = 0;
     divergence_history[i] = 0;
-    dt_history[i] = 0;
   }
 
   landing = false;
@@ -297,12 +295,6 @@ void vertical_ctrl_module_run(bool in_flight)
   if (dt <= 0) {
     return;
   }
-
-  dt_history[ind_hist] = dt;
-  if (!cov_array_filled && ind_hist + 1 == of_landing_ctrl.window_size) {
-    cov_array_filled = true;
-  }
-  ind_hist = (ind_hist + 1) % of_landing_ctrl.window_size;
 
   float lp_factor = dt / of_landing_ctrl.lp_const;
   Bound(lp_factor, 0., 1.);
@@ -519,14 +511,16 @@ uint32_t final_landing_procedure()
 
 /**
  * Set the covariance of the divergence and the thrust / past divergence
+ * This funciton should only be called once per time step
  * @param[in] thrust: the current thrust value
  */
 void set_cov_div(int32_t thrust)
 {
   // histories and cov detection:
+  divergence_history[ind_hist] = of_landing_ctrl.divergence;
+
   normalized_thrust = (float)(thrust / (MAX_PPRZ / 100));
   thrust_history[ind_hist] = normalized_thrust;
-  divergence_history[ind_hist] = of_landing_ctrl.divergence;
 
   int ind_past = ind_hist - of_landing_ctrl.delay_steps;
   while (ind_past < 0) { ind_past += of_landing_ctrl.window_size; }
@@ -534,16 +528,18 @@ void set_cov_div(int32_t thrust)
 
   // determine the covariance for landing detection:
   // only take covariance into account if there are enough samples in the histories:
-  if (cov_array_filled) {
-    if (of_landing_ctrl.COV_METHOD == 0) {
-      // TODO: step in landing set point causes an incorrectly perceived covariance
-      cov_div = covariance_f(thrust_history, divergence_history, of_landing_ctrl.window_size);
-    } else {
-      cov_div = covariance_f(past_divergence_history, divergence_history, of_landing_ctrl.window_size);
-    }
-  } else {
-    cov_div = 0.;
+  if (of_landing_ctrl.COV_METHOD == 0 && cov_array_filled > 0) {
+    // TODO: step in landing set point causes an incorrectly perceived covariance
+    cov_div = covariance_f(thrust_history, divergence_history, of_landing_ctrl.window_size);
+  } else if (of_landing_ctrl.COV_METHOD == 1 && cov_array_filled > 1){
+    // todo: delay steps should be invariant to the run frequency
+    cov_div = covariance_f(past_divergence_history, divergence_history, of_landing_ctrl.window_size);
   }
+
+  if (cov_array_filled < 2 && ind_hist + 1 == of_landing_ctrl.window_size) {
+    cov_array_filled++;
+  }
+  ind_hist = (ind_hist + 1) % of_landing_ctrl.window_size;
 }
 
 /**
