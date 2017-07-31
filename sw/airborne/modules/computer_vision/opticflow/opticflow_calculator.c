@@ -629,7 +629,7 @@ void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *
   result->flow_der_y =  result->flow_y;
   result->corner_cnt = getAmountPeaks(edge_hist_x, 500 , img->w);
   result->tracked_cnt = getAmountPeaks(edge_hist_x, 500 , img->w);
-  result->divergence = (float)edgeflow.div_x / RES;
+  result->divergence = -1.0 * (float)edgeflow.div_x / RES;
   result->div_size = 0.0f;
   result->noise_measurement = 0.0f;
   result->surface_roughness = 0.0f;
