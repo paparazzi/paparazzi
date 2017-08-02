@@ -3,6 +3,7 @@
 <airframe name="ardrone2_opticflow">
 
   <firmware name="rotorcraft">
+  <configure name="PREFIX" value="/opt/arm-2012.03/bin/arm-none-linux-gnueabi" />
     <target name="ap" board="ardrone2"/>
 
     <!--target name="nps" board="pc">
