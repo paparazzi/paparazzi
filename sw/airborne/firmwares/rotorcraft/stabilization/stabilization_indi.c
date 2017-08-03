@@ -306,9 +306,9 @@ void stabilization_indi_set_failsafe_setpoint(void)
 void stabilization_indi_set_rpy_setpoint_i(struct Int32Eulers *rpy)
 {
   // stab_att_sp_euler.psi still used in ref..
-  memcpy(&stab_att_sp_euler, rpy, sizeof(struct Int32Eulers));
+  stab_att_sp_euler = *rpy;
 
-  quat_from_rpy_cmd_i(&stab_att_sp_quat, &stab_att_sp_euler);
+  int32_quat_of_eulers(&stab_att_sp_quat, &stab_att_sp_euler);
 }
 
 /**
