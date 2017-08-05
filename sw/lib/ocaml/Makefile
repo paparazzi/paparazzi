@@ -77,7 +77,7 @@ PP_OPTS = -pp "camlp4o pa_macro.cmo $(CAMLP4_DEFS)"
 PP_SRC =  http.ml compat.ml
 
 INCLUDES=
-PKGCOMMON=pprzlink,xml-light,netclient,glibivy,lablgtk2
+PKGCOMMON=pprzlink,xml-light,netclient,nettls-gnutls,glibivy,lablgtk2
 XINCLUDES=
 XPKGCOMMON=pprzlink,xml-light,glibivy,$(LABLGTK2GNOMECANVAS),lablgtk2.glade
 
