@@ -4,12 +4,11 @@ exception Blocked of string
 
 IFDEF NETCLIENT_V_4 THEN
 module H = Nethttp_client
+let () =
+  Nettls_gnutls.init()
 ELSE
 module H = Http_client
 END
-
-let () =
-  Nettls_gnutls.init()
 
 let file_of_url = fun ?dest url ->
   if Compat.bytes_sub url 0 7 = "file://" then
