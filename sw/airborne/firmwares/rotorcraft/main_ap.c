@@ -42,9 +42,6 @@
 
 #include "subsystems/commands.h"
 #include "subsystems/actuators.h"
-#if USE_MOTOR_MIXING
-#include "subsystems/actuators/motor_mixing.h"
-#endif
 
 #if USE_IMU
 #include "subsystems/imu.h"
@@ -135,10 +132,6 @@ void main_init(void)
   actuators_init();
 #else
   intermcu_init();
-#endif
-
-#if USE_MOTOR_MIXING
-  motor_mixing_init();
 #endif
 
 #ifndef INTER_MCU_AP
