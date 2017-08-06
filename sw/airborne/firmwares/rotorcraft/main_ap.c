@@ -64,9 +64,6 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 
 #include "subsystems/radio_control.h"
 
-#include "firmwares/rotorcraft/stabilization.h"
-#include "firmwares/rotorcraft/guidance.h"
-
 #include "subsystems/ahrs.h"
 #if USE_AHRS_ALIGNER
 #include "subsystems/ahrs/ahrs_aligner.h"
