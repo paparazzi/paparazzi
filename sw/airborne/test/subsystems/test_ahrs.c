@@ -50,7 +50,6 @@
 
 #include "subsystems/imu.h"
 #include "subsystems/ahrs.h"
-#include "subsystems/ahrs/ahrs_aligner.h"
 
 static inline void main_init(void);
 static inline void main_periodic_task(void);
@@ -75,9 +74,6 @@ static inline void main_init(void)
   sys_time_register_timer((1. / PERIODIC_FREQUENCY), NULL);
 
   modules_init();
-#if USE_AHRS_ALIGNER
-  ahrs_aligner_init();
-#endif
   ahrs_init();
   pprz_dl_init();
   downlink_init();

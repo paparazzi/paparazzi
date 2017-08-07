@@ -29,7 +29,6 @@
 #include "subsystems/ahrs/ahrs_float_invariant.h"
 
 #include "subsystems/ahrs/ahrs_int_utils.h"
-#include "subsystems/ahrs/ahrs_aligner.h"
 
 #include "generated/airframe.h"
 

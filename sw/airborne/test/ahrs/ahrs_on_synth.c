@@ -4,7 +4,6 @@
 
 #include "subsystems/imu.h"
 #include "subsystems/ahrs.h"
-#include "subsystems/ahrs/ahrs_aligner.h"
 #include "../simulator/nps/nps_random.h"
 
 #include "../pprz_algebra_print.h"
@@ -111,7 +110,6 @@ void aos_init(int traj_nb)
 
   imu_init();
   ahrs_init();
-  ahrs_aligner_init();
 
 #ifdef PERFECT_SENSORS
   RATES_ASSIGN(aos.gyro_bias,  RadOfDeg(0.), RadOfDeg(0.), RadOfDeg(0.));
