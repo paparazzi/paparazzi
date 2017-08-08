@@ -26,6 +26,8 @@
 #include "nps_fdm.h"
 #include <time.h>
 #include <stdio.h>
+#include "nps_sensors.h"
+#include <stdlib.h>     /* srand, rand */
 
 /*
  * Vectornav info
@@ -113,6 +115,11 @@ static uint64_t vn_get_time_of_week(void)
   return tow;
 }
 
+/**
+ * Fetch data from FDM and store them into vectornav packet
+ * NOTE: some noise is being added, see Vectornav specifications
+ * for details about the precision: http://www.vectornav.com/products/vn-200/specifications
+ */
 void nps_ins_fetch_data(struct NpsFdm *fdm_ins)
 {
   struct NpsFdm fdm_data;
@@ -133,9 +140,9 @@ void nps_ins_fetch_data(struct NpsFdm *fdm_ins)
 
   //Pos LLA, double,[beg, deg, m]
   //The estimated position given as latitude, longitude, and altitude given in [deg, deg, m] respectfully.
-  vn_data.Position[0] = DegOfRad(fdm_data.lla_pos.lat);
-  vn_data.Position[1] = DegOfRad(fdm_data.lla_pos.lon);
-  vn_data.Position[2] = fdm_data.lla_pos.alt; // TODO: make sure it shows the correct starting point
+  vn_data.Position[0] = DegOfRad(sensors.gps.lla_pos.lat);
+  vn_data.Position[1] = DegOfRad(sensors.gps.lla_pos.lon);
+  vn_data.Position[2] = sensors.gps.lla_pos.alt;
 
   //VelNed, float [m/s]
   //The estimated velocity in the North East Down (NED) frame, given in m/s.
@@ -155,13 +162,18 @@ void nps_ins_fetch_data(struct NpsFdm *fdm_ins)
   vn_data.NumSats = 8; // random number
 
   //gps fix, uint8
+  // TODO: add warm-up time
   vn_data.Fix = 3; // 3D fix
 
   //posU, float[3]
-  // TODO
+  // TODO: use proper sensor simulation
+  vn_data.PosU[0] = 2.5+(((float)rand())/RAND_MAX)*0.1;
+  vn_data.PosU[1] = 2.5+(((float)rand())/RAND_MAX)*0.1;
+  vn_data.PosU[2] = 2.5+(((float)rand())/RAND_MAX)*0.1;
 
   //velU, float
-  // TODO
+  // TODO: use proper sensor simulation
+  vn_data.VelU = 5.0+(((float)rand())/RAND_MAX)*0.1;
 
   //linear acceleration imu-body frame, float [m/s^2]
   vn_data.LinearAccelBody[0] = (float)fdm_data.ltp_ecef_vel.x;
@@ -169,7 +181,10 @@ void nps_ins_fetch_data(struct NpsFdm *fdm_ins)
   vn_data.LinearAccelBody[2] = (float)fdm_data.ltp_ecef_vel.z;
 
   //YprU, float[3]
-  // TODO
+  // TODO: use proper sensor simulation
+  vn_data.YprU[0] = 2.5+(((float)rand())/RAND_MAX)*0.1;
+  vn_data.YprU[1] = 0.5+(((float)rand())/RAND_MAX)*0.1;
+  vn_data.YprU[2] = 0.5+(((float)rand())/RAND_MAX)*0.1;
 
   //instatus, uint16
   vn_data.InsStatus = 0x02;

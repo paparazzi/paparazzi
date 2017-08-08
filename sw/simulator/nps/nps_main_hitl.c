@@ -99,7 +99,10 @@ void nps_update_launch_from_dl(uint8_t value)
 void nps_main_run_sim_step(void)
 {
   nps_atmosphere_update(SIM_DT);
+
   nps_fdm_run_step(nps_autopilot.launch, nps_autopilot.commands, NPS_COMMANDS_NB);
+
+  nps_sensors_run_step(nps_main.sim_time);
 }
 
 void *nps_ins_data_loop(void *data __attribute__((unused)))
@@ -312,6 +315,7 @@ void *nps_main_loop(void *data __attribute__((unused)))
     guard = 0;
     while ((real_time - fdm.time) > SIM_DT) {
       nps_main_run_sim_step();
+      nps_main.sim_time = fdm.time;
       guard++;
       if (guard > 2) {
         //If we are too much behind, catch up incrementaly
