@@ -93,9 +93,10 @@ uint8_t StartEngines(void)
  * ResetAlt: Reset the altitude reference to the current GPS alt if GPS is used
  * @param[return] False boolean for flight plan to only run once
  */
-uint8_t ResetAlt(void) {
-	ins_reset_altitude_ref();
-	return false;
+uint8_t ResetAlt(void)
+{
+  ins_reset_altitude_ref();
+  return false;
 }
 
 /**
@@ -133,7 +134,7 @@ bool ChangeVerticalMode(uint8_t mode)
  */
 bool TakeOff(float climb_rate)
 {
-	// Waits untill autopilot mode is AP_MODE_GUIDED before taking off
+  // Waits untill autopilot mode is AP_MODE_GUIDED before taking off
   if (autopilot.mode != AP_MODE_GUIDED) { return true; }
 
   guidance_v_set_guided_vz(-climb_rate);
@@ -188,136 +189,136 @@ uint8_t MoveForward(float vx)
 }
 
 
- /********************************************//**
-  *  Rotating functions
-  ***********************************************/
+/********************************************//**
+ *  Rotating functions
+ ***********************************************/
 
- /**
-  * RotateToHeading: Rotate to a given heading in guided mode
-  * @param[in] heading, rotate to the wanted heading in [rad] (clockwise is positive)
-  * @param[return] Boolean for flight plan to keep running (true) or to just run once (false)
-  */
- bool RotateToHeading(float heading)
- {
-   if (autopilot.mode != AP_MODE_GUIDED) { return true; }
+/**
+ * RotateToHeading: Rotate to a given heading in guided mode
+ * @param[in] heading, rotate to the wanted heading in [rad] (clockwise is positive)
+ * @param[return] Boolean for flight plan to keep running (true) or to just run once (false)
+ */
+bool RotateToHeading(float heading)
+{
+  if (autopilot.mode != AP_MODE_GUIDED) { return true; }
 
-   guidance_h_set_guided_heading(heading);
-   return false;
- }
+  guidance_h_set_guided_heading(heading);
+  return false;
+}
 
- /**
-  * SpeedRotateToHeading: Will slowly turn to a given heading with a fixed speed
-  * @param[in] roation_speed, speed to slowly rotate the heading(clockwise is positive)
-  * @param[in] heading, here the MAV will stop spinning [rad] (clockwise is positive)
-  *  @param[return] Boolean for flight plan to keep running (true) or to just run once (false)
-  */
- bool SpeedRotateToHeading(float rotation_speed, float heading)
- {
-   guidance_h_set_guided_heading_rate(rotation_speed);
-   if (fabs(heading - stateGetNedToBodyEulers_f()->psi) < 0.1) {
-     guidance_h_set_guided_heading(heading);
-     return false;
-   }
-   return true;
- }
+/**
+ * SpeedRotateToHeading: Will slowly turn to a given heading with a fixed speed
+ * @param[in] roation_speed, speed to slowly rotate the heading(clockwise is positive)
+ * @param[in] heading, here the MAV will stop spinning [rad] (clockwise is positive)
+ *  @param[return] Boolean for flight plan to keep running (true) or to just run once (false)
+ */
+bool SpeedRotateToHeading(float rotation_speed, float heading)
+{
+  guidance_h_set_guided_heading_rate(rotation_speed);
+  if (fabs(heading - stateGetNedToBodyEulers_f()->psi) < 0.1) {
+    guidance_h_set_guided_heading(heading);
+    return false;
+  }
+  return true;
+}
 
- /*NOTE: THe following rotating in ATT mode functions are necessary when no exact position (GPS or Optitrack) information is available
-  * From experience, the guided rotating functions are very unstable and will cause the drone to drift significantly during the turn
-  *   which can compromise the flight plane's mission. Hopefully in the future when the guided control in yaw has improved, these
-  *   will not be necessary anymore
-  */
+/*NOTE: THe following rotating in ATT mode functions are necessary when no exact position (GPS or Optitrack) information is available
+ * From experience, the guided rotating functions are very unstable and will cause the drone to drift significantly during the turn
+ *   which can compromise the flight plane's mission. Hopefully in the future when the guided control in yaw has improved, these
+ *   will not be necessary anymore
+ */
 
- /**
-  * RotateToHeading_ATT: Rotate to heading in ATT mode
-  * @param[in] heading, to turn to in a guided flight [rad] (clockwise is positive)
-  * @param[in] trim_phi, during turn, apply a small trim to the roll if sideways drift is noticeable [rad]
-  * @param[in] trim_theta, during turn, apply a small trim to the pitch if forward/backwards drift is noticeable
-  * @param[in] in_flight, bool necessary for stabilization loop to check if the MAV is flying
-  * @param[return] Boolean for flight plan to keep running (true) or to just run once (false)
-  */
- bool RotateToHeading_ATT(float heading, float trim_phi, float trim_theta, bool in_flight)
- {
-   struct Int32Eulers cmd;
+/**
+ * RotateToHeading_ATT: Rotate to heading in ATT mode
+ * @param[in] heading, to turn to in a guided flight [rad] (clockwise is positive)
+ * @param[in] trim_phi, during turn, apply a small trim to the roll if sideways drift is noticeable [rad]
+ * @param[in] trim_theta, during turn, apply a small trim to the pitch if forward/backwards drift is noticeable
+ * @param[in] in_flight, bool necessary for stabilization loop to check if the MAV is flying
+ * @param[return] Boolean for flight plan to keep running (true) or to just run once (false)
+ */
+bool RotateToHeading_ATT(float heading, float trim_phi, float trim_theta, bool in_flight)
+{
+  struct Int32Eulers cmd;
 
-   if (guidance_h.mode == GUIDANCE_H_MODE_ATTITUDE) {
-     cmd.phi = ANGLE_BFP_OF_REAL(trim_phi); //trim?
-     cmd.theta = ANGLE_BFP_OF_REAL(trim_theta);
-     cmd.psi = ANGLE_BFP_OF_REAL(heading);
+  if (guidance_h.mode == GUIDANCE_H_MODE_ATTITUDE) {
+    cmd.phi = ANGLE_BFP_OF_REAL(trim_phi); //trim?
+    cmd.theta = ANGLE_BFP_OF_REAL(trim_theta);
+    cmd.psi = ANGLE_BFP_OF_REAL(heading);
 
-     stabilization_attitude_set_rpy_setpoint_i(&cmd);
-     stabilization_attitude_run(in_flight);
-   }
-   return false;
- }
+    stabilization_attitude_set_rpy_setpoint_i(&cmd);
+    stabilization_attitude_run(in_flight);
+  }
+  return false;
+}
 
- /**
-  * ResetAngles_ATT: Reset all angles while in ATT mode
-  * @param[in] current_heading, indicated the current heading of the MAV [rad] (clockwise is positive)
-  * @param[in] in_flight, bool necessary for stabilization loop to check if the MAV is flying
-  * @param[return] Boolean for flight plan to keep running (true) or to just run once (false)
-  */
- bool ResetAngles_ATT(float current_heading, bool in_flight)
- {
-   struct Int32Eulers cmd;
-   if (guidance_h.mode == GUIDANCE_H_MODE_ATTITUDE) {
-     cmd.phi = ANGLE_BFP_OF_REAL(0.0f);
-     cmd.theta = ANGLE_BFP_OF_REAL(0.0f);
-     cmd.psi = ANGLE_BFP_OF_REAL(current_heading);
+/**
+ * ResetAngles_ATT: Reset all angles while in ATT mode
+ * @param[in] current_heading, indicated the current heading of the MAV [rad] (clockwise is positive)
+ * @param[in] in_flight, bool necessary for stabilization loop to check if the MAV is flying
+ * @param[return] Boolean for flight plan to keep running (true) or to just run once (false)
+ */
+bool ResetAngles_ATT(float current_heading, bool in_flight)
+{
+  struct Int32Eulers cmd;
+  if (guidance_h.mode == GUIDANCE_H_MODE_ATTITUDE) {
+    cmd.phi = ANGLE_BFP_OF_REAL(0.0f);
+    cmd.theta = ANGLE_BFP_OF_REAL(0.0f);
+    cmd.psi = ANGLE_BFP_OF_REAL(current_heading);
 
-     stabilization_attitude_set_rpy_setpoint_i(&cmd);
-     stabilization_attitude_run(in_flight);
-   }
-   return false;
- }
+    stabilization_attitude_set_rpy_setpoint_i(&cmd);
+    stabilization_attitude_run(in_flight);
+  }
+  return false;
+}
 
 /********************************************//**
  *  Blocking conditions
  ***********************************************/
 
- /**
-  * WaitUntilAltitude: Blocks while waiting until a certain altitude is reached
-  * @param[in] altitude in [m] (positive z-axis is up)
-  * @param[return] Boolean for flight plan to keep running (true) or to just run once (false)
-  */
- bool WaitUntilAltitude(float altitude)
- {
-   if (autopilot.mode != AP_MODE_GUIDED) { return true; }
+/**
+ * WaitUntilAltitude: Blocks while waiting until a certain altitude is reached
+ * @param[in] altitude in [m] (positive z-axis is up)
+ * @param[return] Boolean for flight plan to keep running (true) or to just run once (false)
+ */
+bool WaitUntilAltitude(float altitude)
+{
+  if (autopilot.mode != AP_MODE_GUIDED) { return true; }
 
-   if (stateGetPositionEnu_f()->z < -altitude) { return true; }
+  if (stateGetPositionEnu_f()->z < -altitude) { return true; }
 
-   return false;
- }
+  return false;
+}
 
- /**
-  * WaitUntilSpeedOrAltitude: Blocks while waiting until a certain altitude or speed is reached
-  * @param[in] fail_altitude, wait for altitude in [m] (positive z-axis is up)
-  * @param[in] speed, speed in [m/s] (positive z-axis is up)
-  * @param[return] Boolean for flight plan to keep running (true) or to just run once (false)
-  */
- bool WaitUntilSpeedOrAltitude(float speed, float fail_altitude)
- {
-   if (autopilot.mode != AP_MODE_GUIDED) { return true; }
+/**
+ * WaitUntilSpeedOrAltitude: Blocks while waiting until a certain altitude or speed is reached
+ * @param[in] fail_altitude, wait for altitude in [m] (positive z-axis is up)
+ * @param[in] speed, speed in [m/s] (positive z-axis is up)
+ * @param[return] Boolean for flight plan to keep running (true) or to just run once (false)
+ */
+bool WaitUntilSpeedOrAltitude(float speed, float fail_altitude)
+{
+  if (autopilot.mode != AP_MODE_GUIDED) { return true; }
 
-   if (stateGetPositionEnu_f()->z > -fail_altitude) { return false; }
-   if (stateGetSpeedEnu_f()->z < -speed) { return true; }
+  if (stateGetPositionEnu_f()->z > -fail_altitude) { return false; }
+  if (stateGetSpeedEnu_f()->z < -speed) { return true; }
 
-   return false;
- }
+  return false;
+}
 
- /**
-  * WaitforHeading: Blocks untill wanted heading is achieved
-  * @param[in] heading, waits untill MAV reached certain heading [rad] (clockwise is positive)
-  *  @param[return] Boolean for flight plan to keep running (true) or to just run once (false)
-  *
-  * TODO: Wrap the angle around -pi and pi
-  */
- bool WaitforHeading(float heading)
- {
-   if (fabs(heading - stateGetNedToBodyEulers_f()->psi) < 0.1) {
-     return false;
-   }
-   return true;
- }
+/**
+ * WaitforHeading: Blocks untill wanted heading is achieved
+ * @param[in] heading, waits untill MAV reached certain heading [rad] (clockwise is positive)
+ *  @param[return] Boolean for flight plan to keep running (true) or to just run once (false)
+ *
+ * TODO: Wrap the angle around -pi and pi
+ */
+bool WaitforHeading(float heading)
+{
+  if (fabs(heading - stateGetNedToBodyEulers_f()->psi) < 0.1) {
+    return false;
+  }
+  return true;
+}
 
 /**
  * WaitForHMode: Blocks until specified horizontal mode is achieved
@@ -398,7 +399,7 @@ bool ResetCounter(void)
  */
 bool WaitUntilCounter(int32_t end_counter)
 {
-	  if (autopilot.mode != AP_MODE_GUIDED) { return true; }
+  if (autopilot.mode != AP_MODE_GUIDED) { return true; }
   counter++;
   if (counter > end_counter) {
     return false;
