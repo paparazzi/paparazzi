@@ -1,0 +1,71 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="1.0" ground_alt="0" lat0="51.990634" lon0="4.376789" max_dist_from_home="20" name="Rotorcraft Optitrack (Delft)" security_height="0.3">
+  <header>
+	  #include "autopilot.h"
+    #include "guidance/guidance_h.h"
+    #include "guidance/guidance_v.h"
+    #include "modules/flight_plan_guided/flight_plan_guided.h"
+    #include "subsystems/datalink/datalink.h"
+	  #include "subsystems/radio_control.h"
+</header>
+  <waypoints>
+    <waypoint name="HOME" x="0.0" y="0.0"/>
+    <waypoint name="STDBY" x="0.0" y="0.0"/>
+    <waypoint name="p1" x="2.0" y="2.5"/>
+    <waypoint name="p2" x="2.0" y="-2.5"/>
+    <waypoint name="p3" x="-2.0" y="-2.5"/>
+    <waypoint name="p4" x="-2.0" y="2.5"/>
+  </waypoints>
+  <sectors>
+    <sector color="red" name="Flight_Area">
+      <corner name="p1"/>
+      <corner name="p2"/>
+      <corner name="p3"/>
+      <corner name="p4"/>
+    </sector>
+  </sectors>
+  
+  <exceptions>
+    <!--uncomment when flying for real-->
+    <!--exception cond="datalink_time > 3" deroute="landed"/>
+    <exception cond="radio_control.status == RC_REALLY_LOST" deroute="kill"/-->
+  </exceptions>
+
+  <blocks>
+    <block name="Geo init">
+      <call_once fun="NavKillThrottle()"/>
+      <while cond="!GpsFixValid()"/>
+      <call_once fun="ResetAlt()"/>
+      <while cond="1"/>
+    </block>
+
+    <block name="Start Engine">
+      <call fun="StartEngines()"/>
+      <while cond="1"/>
+    </block>
+    
+    <block name="Take off">
+      <call fun="TakeOff(0.5)"/>
+      <call fun="WaitUntilAltitude(nom_flight_alt)"/>
+      <call fun="Hover(nom_flight_alt)"/>
+    </block>
+
+    <block name="Go Forward">
+      <call fun="ResetSpecialTimer()"/>
+      <call fun="MoveForward(0.5)"/>
+      <call fun="WaitUntilTimer(5)"/>
+      <call fun="Hover(nom_flight_alt)"/>
+      <call fun="ResetSpecialTimer()"/>
+      <call fun="WaitUntilTimer(1)"/>
+    </block>
+
+    <block name="Turn 90 deg">
+      <call fun="RotateToHeading(stateGetNedToBodyEulers_f()->psi + RadOfDeg(90.0))"/>
+      <call fun="ResetSpecialTimer()"/>
+      <call fun="WaitUntilTimer(1)"/>
+      <deroute block="Go Forward"/>
+    </block>
+
+  </blocks>
+</flight_plan>
