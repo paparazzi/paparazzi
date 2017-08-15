@@ -242,7 +242,7 @@ uint8_t MoveForward(float vx)
    if (guidance_h.mode == GUIDANCE_H_MODE_ATTITUDE) {
      cmd.phi = ANGLE_BFP_OF_REAL(trim_phi); //trim?
      cmd.theta = ANGLE_BFP_OF_REAL(trim_theta);
-     cmd.psi = ANGLE_BFP_OF_REAL(new_heading);
+     cmd.psi = ANGLE_BFP_OF_REAL(heading);
 
      stabilization_attitude_set_rpy_setpoint_i(&cmd);
      stabilization_attitude_run(in_flight);
