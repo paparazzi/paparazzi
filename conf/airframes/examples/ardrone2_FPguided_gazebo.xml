@@ -36,6 +36,7 @@
     </module>
     <module name="cv_colorfilter">
       <define name="COLORFILTER_CAMERA" value="front_camera"/>
+      <define name="COLORFILTER_SEND_OBSTACLE" value="TRUE"/>
     </module>
 
     <module name="video_rtp_stream">
@@ -179,9 +180,9 @@
     <define name="MAX_BANK" value="20" unit="deg"/>
     <!-- Bad weather -->
     <!-- define name="MAX_BANK" value="32" unit="deg"/ -->
-    <define name="PGAIN" value="79"/>
-    <define name="DGAIN" value="100"/>
-    <define name="IGAIN" value="30"/>
+    <define name="PGAIN" value="160"/>
+    <define name="DGAIN" value="200"/>
+    <define name="IGAIN" value="60"/>
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">

@@ -32,6 +32,12 @@
     <exception cond="radio_control.status == RC_REALLY_LOST" deroute="kill"/-->
   </exceptions>
 
+<!--Simple Guided flight plan:
+
+1. Flies in a small square, just based on guided flight commands (no waypoints)
+2. If it detects an obstacle (example shows only from color detector), it will turn the 90 degrees more quickly
+-->
+
   <blocks>
     <block name="Geo init">
       <call_once fun="NavKillThrottle()"/>
@@ -55,16 +61,23 @@
       <call fun="ResetSpecialTimer()"/>
       <call fun="MoveForward(0.5)"/>
       <call fun="WaitUntilTimer(5)"/>
-      <call fun="Hover(nom_flight_alt)"/>
-      <call fun="ResetSpecialTimer()"/>
-      <call fun="WaitUntilTimer(1)"/>
+      <exception cond="2>distance_obstacle_FP" deroute="Turn 90 deg"/> 
     </block>
 
     <block name="Turn 90 deg">
+      <call fun="Hover(nom_flight_alt)"/>
+      <call fun="ResetSpecialTimer()"/>
+      <call fun="WaitUntilTimer(1)"/>
       <call fun="RotateToHeading(stateGetNedToBodyEulers_f()->psi + RadOfDeg(90.0))"/>
       <call fun="ResetSpecialTimer()"/>
       <call fun="WaitUntilTimer(1)"/>
       <deroute block="Go Forward"/>
+    </block>
+
+    <block name="Land">
+      <call fun="TakeOff(-0.2)"/>
+      <call fun="WaitUntilAltitude(0)"/>
+      <call fun="KillEngines()"/>
     </block>
 
   </blocks>

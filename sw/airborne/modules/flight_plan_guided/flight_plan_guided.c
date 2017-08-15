@@ -24,7 +24,7 @@
  * Functions to use directly in a flight plan during an AP_GUIDED flight.
  *
  * @author MAVLab IMAV 2016
- * @author K. N. McGuire
+ * @author K. N. McGuire 2017
  *
  */
 
@@ -51,17 +51,35 @@
 float nom_flight_alt; // nominal flight altitude
 
 
-// TODO: add abi messages for variables from other modules, like stop triggers for
-//   obstacle avoidance ?
+/********************************************//**
+ *  ABI messages for exception triggers or added values for the guided flight plan
+ ***********************************************/
 
-//#include "subsystems/datalink/telemetry.h"
-//#include "subsystems/abi.h"
+// ABI for obstacle detection (In here it comes from the module colorfilter)
+#include "subsystems/abi.h"
+
+#ifndef FP_GUIDED_OBSTACLE_DETECTION_ID
+#define FP_GUIDED_OBSTACLE_DETECTION_ID ABI_BROADCAST    ///< Default sonar/agl to use in opticflow visual_estimator
+#endif
+PRINT_CONFIG_VAR(FP_GUIDED_OBSTACLE_DETECTION_ID)
+
+static abi_event obstacle_detection_ev;
+static void obstacle_detection_cb(uint8_t sender_id, float distance_obstacle, float heading_obstacle);
+float distance_obstacle_FP;
+static void obstacle_detection_cb(uint8_t UNUSED(sender_id), float distance_obstacle, float UNUSED(heading_obstacle))
+{
+  distance_obstacle_FP = distance_obstacle;
+}
 
 
 // Module functions
 void flight_plan_guided_init(void)
 {
   nom_flight_alt = NOM_FLIGHT_ALT;
+
+  // Bind to ABI messages for triggers for guided flightplan
+  AbiBindMsgOBSTACLE_DETECTION(FP_GUIDED_OBSTACLE_DETECTION_ID, &obstacle_detection_ev, obstacle_detection_cb);
+
 }
 
 

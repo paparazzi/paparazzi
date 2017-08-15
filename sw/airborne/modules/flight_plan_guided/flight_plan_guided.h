@@ -33,6 +33,7 @@
 #include <std.h>
 
 extern float nom_flight_alt;
+extern float distance_obstacle_FP;
 
 /*TODO: More functions to add in the future (feel free to add more)
  *

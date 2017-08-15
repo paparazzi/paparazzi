@@ -34,6 +34,12 @@
 #endif
 PRINT_CONFIG_VAR(COLORFILTER_FPS)
 
+
+#ifndef COLORFILTER_SEND_OBSTACLE
+#define COLORFILTER_SEND_OBSTACLE FALSE    ///< Default sonar/agl to use in opticflow visual_estimator
+#endif
+PRINT_CONFIG_VAR(COLORFILTER_SEND_OBSTACLE)
+
 struct video_listener *listener = NULL;
 
 // Filter Settings
@@ -47,6 +53,10 @@ uint8_t color_cr_max  = 255;
 // Result
 int color_count = 0;
 
+#include "subsystems/abi.h"
+
+
+
 // Function
 struct image_t *colorfilter_func(struct image_t *img);
 struct image_t *colorfilter_func(struct image_t *img)
@@ -57,6 +67,17 @@ struct image_t *colorfilter_func(struct image_t *img)
                                        color_cb_min, color_cb_max,
                                        color_cr_min, color_cr_max
                                       );
+
+
+  if (COLORFILTER_SEND_OBSTACLE) {
+    if (color_count > 20)
+      AbiSendMsgOBSTACLE_DETECTION(ABI_BROADCAST, 1,
+                                   0);
+    else
+      AbiSendMsgOBSTACLE_DETECTION(ABI_BROADCAST, 10,
+                                   0);
+
+  }
 
   return img; // Colorfilter did not make a new image
 }

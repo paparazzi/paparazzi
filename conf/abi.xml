@@ -93,6 +93,11 @@
       <field name="thrust_increment" type="float" unit="m/s^2"/>
     </message>
 
+    <message name="OBSTACLE_DETECTION" id="17">
+      <field name="distance_obstacle" type="float" unit="m"/>
+      <field name="relative_heading" type="float" unit="rad"/>
+    </message>
+
   </msg_class>
 
 </protocol>
