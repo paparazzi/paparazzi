@@ -108,7 +108,9 @@ struct gazebo_actuators_t gazebo_actuators = {NPS_ACTUATOR_NAMES, {NPS_ACTUATOR_
 
 
 #ifdef NPS_SIMULATE_RANGE_SENSORS
-
+#include "subsystems/abi.h"
+static void gazebo_init_range_sensors(void);
+static void gazebo_read_range_sensors(void);
 struct gazebo_range_sensors_t
 {
 	gazebo::sensors::RaySensorPtr ray_front;
@@ -121,7 +123,7 @@ struct gazebo_range_sensors_t
 
 };
 
-static struct gazebo_range_sensors_t gazebo_range_sensors { {NULL, NULL, NULL, NULL, NULL, NULL, 0}}
+static struct gazebo_range_sensors_t gazebo_range_sensors;
 
 
 #endif
@@ -255,6 +257,10 @@ void nps_fdm_run_step(
 #ifdef NPS_SIMULATE_VIDEO
   gazebo_read_video();
 #endif
+#ifdef NPS_SIMULATE_RANGE_SENSORS
+  gazebo_read_range_sensors();
+#endif
+
 }
 
 // TODO Atmosphere functions have not been implemented yet.
@@ -681,7 +687,9 @@ static void read_image(
 #ifdef NPS_SIMULATE_RANGE_SENSORS
 static void gazebo_init_range_sensors(void)
 {
-
+	  gazebo::sensors::SensorManager *mgr =
+	    gazebo::sensors::SensorManager::Instance();
+	  cout<<"Amount of sensors found: "<<model->GetSensorCount()<<endl;
 	gazebo_range_sensors.ray_front = static_pointer_cast<gazebo::sensors::RaySensor>(mgr->GetSensor("front_range_sensor"));
 	gazebo_range_sensors.ray_right = static_pointer_cast<gazebo::sensors::RaySensor>(mgr->GetSensor("right_range_sensor"));
 	gazebo_range_sensors.ray_back = static_pointer_cast<gazebo::sensors::RaySensor>(mgr->GetSensor("back_range_sensor"));
@@ -692,8 +700,8 @@ static void gazebo_init_range_sensors(void)
 
 	if (!gazebo_range_sensors.ray_left||!gazebo_range_sensors.ray_right||!gazebo_range_sensors.ray_up||
 			!gazebo_range_sensors.ray_down||!gazebo_range_sensors.ray_front||!gazebo_range_sensors.ray_back) {
-	    cout << "ERROR: Could not get pointer to raysensor!" << endl;
-	      continue;
+	    cout << "ERROR: Could not get pointer to raysensor!" << gazebo_range_sensors.ray_left<<gazebo_range_sensors.ray_right<<gazebo_range_sensors.ray_up<<
+				gazebo_range_sensors.ray_down<<gazebo_range_sensors.ray_front<<gazebo_range_sensors.ray_back<<endl;
 	  }
 
 	gazebo_range_sensors.ray_left->SetActive(true);
@@ -708,14 +716,19 @@ static void gazebo_init_range_sensors(void)
 static void gazebo_read_range_sensors(void)
 {
 	int16_t range_sensors_int16[6];
-	range_sensors_int16[0] = (int16_t)(ray_front->Range(0)*1000);
-	range_sensors_int16[1] = (int16_t)(ray_right>Range(0)*1000);
-	range_sensors_int16[2] = (int16_t)(ray_back->Range(0)*1000);
-	range_sensors_int16[3] = (int16_t)(ray_left->Range(0)*1000);
-	range_sensors_int16[4] = (int16_t)(ray_up->Range(0)*1000);
-	range_sensors_int16[5] = (int16_t)(ray_down->Range(0)*1000);
+	range_sensors_int16[0] = (int16_t)(gazebo_range_sensors.ray_front->Range(0)*1000);
+	range_sensors_int16[1] = (int16_t)(gazebo_range_sensors.ray_right->Range(0)*1000);
+	range_sensors_int16[2] = (int16_t)(gazebo_range_sensors.ray_back->Range(0)*1000);
+	range_sensors_int16[3] = (int16_t)(gazebo_range_sensors.ray_left->Range(0)*1000);
+	range_sensors_int16[4] = (int16_t)(gazebo_range_sensors.ray_up->Range(0)*1000);
+	range_sensors_int16[5] = (int16_t)(gazebo_range_sensors.ray_down->Range(0)*1000);
 
-	//SEND ABI MESSAGE
+	//SEND ABI MESSAGES
+	// Standard range sensor message
+	  AbiSendMsgRANGE_SENSORS(ABI_BROADCAST, range_sensors_int16[0], range_sensors_int16[1], range_sensors_int16[2],
+			  range_sensors_int16[3], range_sensors_int16[4],range_sensors_int16[5]);
+	// Down range sensor as "Sonar"
+	  AbiSendMsgAGL(ABI_BROADCAST, gazebo_range_sensors.ray_down->Range(0));
 
 
 }

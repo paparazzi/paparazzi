@@ -28,30 +28,30 @@
 #include <std.h>
 
 struct range_finders_ {
-  int16_t front;  // mm
-  int16_t right;  // mm
-  int16_t left;   // mm
-  int16_t back;   // mm
-  int16_t bottom;   // mm
-  int16_t top;   // mm
+  float front;  // m
+  float right;  // m
+  float left;   // m
+  float back;   // m
+  float bottom; // m
+  float top;    // m
 
 };
-
+extern float vel_body_x_guided;
+extern float vel_body_y_guided;
+extern float vel_body_z_guided;
 
 extern float inner_border_FF;
 extern float outer_border_FF;
 extern float min_vel_command;
 extern float max_vel_command;
 
-
 extern void range_init(void);
 extern void range_run(void);
 
-
-void range_sensor_force_field(float *vel_body_x, float *vel_body_y, float *vel_body_z, int16_t avoid_inner_border, int16_t avoid_outer_border,
-    int16_t tinder_range, float min_vel_command_lc, float max_vel_command_lc);
-void stereo_force_field(float *vel_body_x, float distance_stereo, float avoid_inner_border, float avoid_outer_border,
-                        float tinder_range, float min_vel_command_lc, float max_vel_command_lc);
+void range_sensor_horizontal_velocity_force_field(float *vel_body_x, float *vel_body_y, float avoid_inner_border, float avoid_outer_border,
+                              float attract_border, float min_vel_command_lc, float max_vel_command_lc);
+void range_sensor_vertical_velocity_force_field(float *vel_body_z, float avoid_inner_border, float avoid_outer_border,
+                              float attract_border, float min_vel_command_lc, float max_vel_command_lc);
 
 
 #endif

@@ -4,11 +4,21 @@
   <doc>
     <description>This module contains functions to accomendate the use of single point range sensors. </description>
   </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="Range Velocity Force Field">
+        <dl_setting var="inner_border_FF" min="0.5" step="0.1" max="3." module="range_module/range_module" shortname="inner_border" param="inner_border_FF"/>
+        <dl_setting var="outer_border_FF" min="0.5" step="0.1" max="3." module="range_module/range_module" shortname="outer_border" param="outer_border_FF"/>
+        <dl_setting var="min_vel_command" min="0.0" step="0.1" max="1." module="range_module/range_module" shortname="min_vel_command" param="min_vel_command"/>
+        <dl_setting var="max_vel_command" min="0.1" step="0.1" max="5." module="range_module/range_module" shortname="max_vel_command" param="max_vel_command"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
   <header>
     <file name="range_module.h"/>
   </header>
   <init fun="range_init()"/>
-  <periodic fun="range_run()" freq="512" autorun="TRUE"/>
+  <!--periodic fun="range_run()" freq="512" autorun="TRUE"/-->
   <makefile>
     <file name="range_module.c"/>
   </makefile>

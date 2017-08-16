@@ -26,12 +26,14 @@
 
 #include "modules/range_module/range_module.h"
 #include "subsystems/abi.h"
-#include "subsystems/datalink/telemetry.h"
+
 
 float inner_border_FF;
 float outer_border_FF;
 float min_vel_command;
 float max_vel_command;
+float vel_body_x_guided;
+float vel_body_y_guided;
 
 //abi for range sensors
 #ifndef RANGE_MODULE_SENDER_ID
@@ -45,79 +47,68 @@ struct range_finders_ range_finders;
 static void range_sensors_cb(uint8_t UNUSED(sender_id),
                              int16_t range_front, int16_t range_right, int16_t range_back, int16_t range_left, int16_t range_bottom, int16_t range_top)
 {
-  /* TODO: Toe removed
-    static int32_t front_wall_detect_counter = 0;
-    static const int32_t max_sensor_range = 2000;
-  */
 
-  //TODO: Make a seperate module
-  // save range finders values
-  range_finders.front = range_front;
-  range_finders.right = range_right;
-  range_finders.left = range_left;
-  range_finders.back = range_back;
-  range_finders.top = range_top;
-  range_finders.bottom = range_bottom;
-     uint16_t tel_buf[4] = {0,range_right, 0 , range_left};
-      uint8_t length = 4;
-
-//  DOWNLINK_SEND_RANGE_FINDERS(DefaultChannel, DefaultDevice, length, tel_buf);
-
-
+  range_finders.front = (float)range_front/1000;
+  range_finders.right = (float)range_right/1000;
+  range_finders.back = (float)range_back/1000;
+  range_finders.left = (float)range_left/1000;
+  range_finders.top = (float)range_top/1000;
+  range_finders.bottom = (float)range_bottom/1000;
 }
-static abi_event stereocam_obstacle_ev;
-static void stereocam_obstacle_cb(uint8_t sender_id, float heading, float range,float flow_quality);
-float stereo_range;
-void stereocam_obstacle_cb(uint8_t UNUSED(sender_id), float UNUSED(heading), float range, float UNUSED(flow_quality))
-{
-	stereo_range = range;
- // DOWNLINK_SEND_PONG(DefaultChannel, DefaultDevice);
-}
-
 
 void range_init(void)
 {
     inner_border_FF = 1.0f;
     outer_border_FF = 1.4f;
-    min_vel_command = 0.1f;
+    min_vel_command = 0.0f;
     max_vel_command = 0.3f;
+    vel_body_x_guided = 0.0f;
+    vel_body_y_guided = 0.0f;
 
   AbiBindMsgRANGE_SENSORS(RANGE_MODULE_SENDER_ID, &range_sensors_ev, range_sensors_cb);
-  AbiBindMsgSTEREOCAM_OBSTACLE(ABI_BROADCAST, &stereocam_obstacle_ev, stereocam_obstacle_cb);
 
 }
 
-
-void range_run(void)
+//TODO: In the ideal case, this should always be running, however for now just these functions will be used in the flight plan
+/*void range_run(void)
 {
   float vel_body_x  = 0;
   float vel_body_y  = 0;
   float vel_body_z  = 0;
 
-/*  int16_t avoid_inner_border = 800;
-  int16_t avoid_outer_border = 1200;*/
-  int16_t tinder_range = 2000;
+  range_sensor_horizontal_force_field(&vel_body_x_guided, &vel_body_y_guided,
+		  inner_border_FF, outer_border_FF, min_vel_command, max_vel_command);
 
-  range_sensor_force_field(&vel_body_x, &vel_body_y, &vel_body_z,
-		  (int16_t)(inner_border_FF *1000), (int16_t)(outer_border_FF *1000), tinder_range, min_vel_command, max_vel_command);
+  range_sensor_vertical_force_field(&vel_body_z,
+		  inner_border_FF, outer_border_FF, min_vel_command, max_vel_command);
+}*/
 
-  stereo_force_field(&vel_body_x, stereo_range,   inner_border_FF, outer_border_FF, (float)tinder_range/1000, min_vel_command, max_vel_command);
+/*  range_sensor_horizontal_force_field: This function adjusts the intended velocity commands in the horizontal plane
+ * to move away from obstacles and walls as detected by single ray range sensors. An simple linear equation with the distance
+ * measured by the range sensors and the given minimum and maximum avoid velocity, it will create a velocity forcefield which
+ * can be used during a guided flight.
+ *
+ *
+ * @param[in] vel_body_x, intended body fixed velocity in the x direction in [m/s]
+ * @param[in] vel_body_y, intended body fixed velocity in the y direction in [m/s]
+ * @param[in] avoid_inner_border, minimum allowable distance from the obstacle in [m]
+ * @param[in] avoid_outer_border, maximum allowable distance from the obstacle in [m]
+ * @param[in] min_vel_command_lc, minimum velocity for the forcefield generation [m/s]
+ * @param[in] max_vel_command_lc, maximum velocity for the forcefield generation [m/s]
+ * @param[out] vel_body_x, adjusted body velocity in x direction [m/s]
+ * @param[out] vel_body_y, adjusted body velocity in y direction [m/s]
+ * */
 
-  AbiSendMsgFORCEFIELD_VELOCITY(RANGE_MODULE_SENDER_ID, vel_body_x, vel_body_y, vel_body_z);
-}
-
-
-void range_sensor_force_field(float *vel_body_x, float *vel_body_y, float *vel_body_z, int16_t avoid_inner_border, int16_t avoid_outer_border,
-                              int16_t tinder_range, float min_vel_command_lc, float max_vel_command_lc)
+void range_sensor_horizontal_velocity_force_field(float *vel_body_x, float *vel_body_y, float avoid_inner_border, float avoid_outer_border,
+                              float attract_border, float min_vel_command_lc, float max_vel_command_lc)
 {
-  static const int16_t max_sensor_range = 2000;
+  static const float max_sensor_range = 2;
 
-  int16_t difference_inner_outer = avoid_outer_border - avoid_inner_border;
+  float difference_inner_outer = avoid_outer_border - avoid_inner_border;
 
   // Velocity commands
   float avoid_x_command = *vel_body_x;
   float avoid_y_command = *vel_body_y;
-  float avoid_z_command = *vel_body_z;
 
   // Balance avoidance command for y direction (sideways)
   if (range_finders.right < 1 || range_finders.right > max_sensor_range) {
@@ -152,8 +143,6 @@ void range_sensor_force_field(float *vel_body_x, float *vel_body_y, float *vel_b
     avoid_x_command -= (max_vel_command_lc - min_vel_command_lc) *
                        ((float)avoid_outer_border - (float)range_finders.front)
                        / (float)difference_inner_outer;
-  } else if (range_finders.front > tinder_range) {
-    avoid_x_command += max_vel_command_lc;
   } else {}
 
 
@@ -170,38 +159,53 @@ void range_sensor_force_field(float *vel_body_x, float *vel_body_y, float *vel_b
 
   *vel_body_x = avoid_x_command;
   *vel_body_y = avoid_y_command;
-  *vel_body_z = avoid_z_command;
 
 }
 
-void stereo_force_field(float *vel_body_x, float stereo_range, float avoid_inner_border, float avoid_outer_border,
-                        float tinder_range, float min_vel_command_lc, float max_vel_command_lc)
+/*  range_sensor_vertical_force_field: Same function as for horizontal plane (see range_sensor_vertical_force_field), but then for the top and bottom range sensor
+ *
+ * @param[in] vel_body_z, intended body fixed velocity in the z direction in [m/s]
+ * @param[in] avoid_inner_border, minimum allowable distance from the obstacle in [m]
+ * @param[in] avoid_outer_border, maximum allowable distance from the obstacle in [m]
+ * @param[in] min_vel_command_lc, minimum velocity for the forcefield generation [m/s]
+ * @param[in] max_vel_command_lc, maximum velocity for the forcefield generation [m/s]
+ * @param[out] vel_body_x, adjusted body velocity in x direction [m/s]
+ * @param[out] vel_body_y, adjusted body velocity in y direction [m/s]
+ * */
+void range_sensor_vertical_velocity_force_field(float *vel_body_z, float avoid_inner_border, float avoid_outer_border,
+                              float attract_border, float min_vel_command_lc, float max_vel_command_lc)
 {
-  static const int16_t max_sensor_range = 2.0f;
+  static const float max_sensor_range = 2;
 
   float difference_inner_outer = avoid_outer_border - avoid_inner_border;
 
   // Velocity commands
-  float avoid_x_command = *vel_body_x;
+  float avoid_z_command = *vel_body_z;
 
-  // Balance avoidance command for front direction (sideways)
-  if (stereo_range > max_sensor_range) {
+  // Balance avoidance command for y direction (sideways)
+  if (range_finders.top < 1 || range_finders.top > max_sensor_range) {
     //do nothing
-  } else if (stereo_range < avoid_inner_border) {
-    avoid_x_command -= max_vel_command_lc;
-
-  } else if (stereo_range < avoid_outer_border) {
+  } else if (range_finders.top < avoid_inner_border) {
+	  avoid_z_command -= max_vel_command_lc;
+  } else if (range_finders.top < avoid_outer_border) {
     // Linear
+	  avoid_z_command -= (max_vel_command_lc - min_vel_command_lc) *
+                       ((float)avoid_outer_border - (float)range_finders.top)
+                       / (float)difference_inner_outer;
+  } else {}
 
-    avoid_x_command -= (max_vel_command_lc - min_vel_command_lc) *
-                       (avoid_outer_border - stereo_range)
-                       / difference_inner_outer;
-  } else {
-    if (stereo_range > tinder_range) {
-     // avoid_x_command += max_vel_command_lc;
+  if (range_finders.bottom < 1 || range_finders.left > max_sensor_range) {
+    //do nothing
+  } else if (range_finders.bottom < avoid_inner_border) {
+	  avoid_z_command += max_vel_command_lc;
+  } else if (range_finders.bottom < avoid_outer_border) {
+    // Linear
+	  avoid_z_command += (max_vel_command_lc - min_vel_command_lc) *
+                       ((float)avoid_outer_border - (float)range_finders.bottom)
+                       / (float)difference_inner_outer;
+  } else {}
 
-    }
-  }
 
-  *vel_body_x = avoid_x_command;
+  *vel_body_z = avoid_z_command;
 }
+
