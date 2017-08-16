@@ -83,6 +83,25 @@ static struct gazebocam_t gazebo_cams[VIDEO_THREAD_MAX_CAMERAS] =
 { { NULL, 0 } };
 #endif
 
+#ifdef NPS_SIMULATE_RANGE_SENSORS
+
+struct gazebo_range_sensors_t
+{
+	gazebo::sensors::RaySensorPtr ray_front;
+	gazebo::sensors::RaySensorPtr ray_right;
+	gazebo::sensors::RaySensorPtr ray_back;
+	gazebo::sensors::RaySensorPtr ray_left;
+	gazebo::sensors::RaySensorPtr ray_down;
+	gazebo::sensors::RaySensorPtr ray_up;
+	gazebo::common::Time last_measurement_time;
+
+};
+
+static struct gazebo_range_sensors_t gazebo_range_sensors { {NULL, NULL, NULL, NULL, NULL, NULL, 0}}
+
+
+#endif
+
 /// Holds all necessary NPS FDM state information
 struct NpsFdm fdm;
 
@@ -194,6 +213,9 @@ void nps_fdm_run_step(
     gazebo_read();
 #ifdef NPS_SIMULATE_VIDEO
     init_gazebo_video();
+#endif
+#ifdef NPS_SIMULATE_RANGE_SENSORS
+    gazebo_init_range_sensors();
 #endif
     gazebo_initialized = true;
   }
@@ -539,6 +561,7 @@ static void gazebo_read_video(void)
   }
 }
 
+
 /**
  * Read Gazebo image and convert.
  *
@@ -582,6 +605,49 @@ static void read_image(
   img->ts.tv_usec = ts.nsec / 1000.0;
   img->pprz_ts = ts.Double() * 1e6;
   img->buf_idx = 0; // unused
+}
+#endif
+
+#ifdef NPS_SIMULATE_RANGE_SENSORS
+static void gazebo_init_range_sensors(void)
+{
+
+	gazebo_range_sensors.ray_front = static_pointer_cast<gazebo::sensors::RaySensor>(mgr->GetSensor("front_range_sensor"));
+	gazebo_range_sensors.ray_right = static_pointer_cast<gazebo::sensors::RaySensor>(mgr->GetSensor("right_range_sensor"));
+	gazebo_range_sensors.ray_back = static_pointer_cast<gazebo::sensors::RaySensor>(mgr->GetSensor("back_range_sensor"));
+	gazebo_range_sensors.ray_left = static_pointer_cast<gazebo::sensors::RaySensor>(mgr->GetSensor("left_range_sensor"));
+	gazebo_range_sensors.ray_up = static_pointer_cast<gazebo::sensors::RaySensor>(mgr->GetSensor("up_range_sensor"));
+	gazebo_range_sensors.ray_down = static_pointer_cast<gazebo::sensors::RaySensor>(mgr->GetSensor("down_range_sensor"));
+
+
+	if (!gazebo_range_sensors.ray_left||!gazebo_range_sensors.ray_right||!gazebo_range_sensors.ray_up||
+			!gazebo_range_sensors.ray_down||!gazebo_range_sensors.ray_front||!gazebo_range_sensors.ray_back) {
+	    cout << "ERROR: Could not get pointer to raysensor!" << endl;
+	      continue;
+	  }
+
+	gazebo_range_sensors.ray_left->SetActive(true);
+	gazebo_range_sensors.ray_right->SetActive(true);
+	gazebo_range_sensors.ray_up->SetActive(true);
+	gazebo_range_sensors.ray_down->SetActive(true);
+	gazebo_range_sensors.ray_front->SetActive(true);
+	gazebo_range_sensors.ray_back->SetActive(true);
+
+
+}
+static void gazebo_read_range_sensors(void)
+{
+	int16_t range_sensors_int16[6];
+	range_sensors_int16[0] = (int16_t)(ray_front->Range(0)*1000);
+	range_sensors_int16[1] = (int16_t)(ray_right>Range(0)*1000);
+	range_sensors_int16[2] = (int16_t)(ray_back->Range(0)*1000);
+	range_sensors_int16[3] = (int16_t)(ray_left->Range(0)*1000);
+	range_sensors_int16[4] = (int16_t)(ray_up->Range(0)*1000);
+	range_sensors_int16[5] = (int16_t)(ray_down->Range(0)*1000);
+
+	//SEND ABI MESSAGE
+
+
 }
 #endif
 
