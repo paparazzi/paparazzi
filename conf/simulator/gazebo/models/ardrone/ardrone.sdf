@@ -245,5 +245,18 @@
 			<parent>chassis</parent>
 			<child>bottom_camera</child>
 		</joint>
+
+<!-- RANGE SENSORS -->
+
+    <include>
+      <uri>model://range_sensors</uri>
+      <pose>0 0 0 0 0 0</pose>
+    </include>
+
+		<joint name="range_sensor_joint" type="fixed">
+			<parent>chasis</parent>
+			<child>base</child>
+		</joint>
+
 	</model>
 </sdf>
