@@ -98,12 +98,6 @@ class track = fun ?(name="Noname") ?(icon="fixedwing") ?(size = 500) ?(color="re
     ignore ( GnoCanvas.ellipse ~x1: (-5.) ~y1: (-5.) ~x2: 5. ~y2: 5. ~fill_color:"red" ~props:[`WIDTH_UNITS 1.; `OUTLINE_COLOR "red"; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] mission_target) in
   let _ = mission_target#hide () in
 
-  (** data at map scale *)
-  let max_cam_half_height_scaled = 10000.0  in
-  let max_oblic_distance_scaled = 10000.0  in
-  let min_distance_scaled = 10.  in
-  let min_height_scaled = 0.1 in
-
   let _desired_circle = GnoCanvas.ellipse group
   and _desired_segment = GnoCanvas.line group in
 
@@ -282,7 +276,7 @@ object (self)
           let points = geomap#convert_positions_to_points positions in
           ac_cam_cover#set [`POINTS points;
                             `OUTLINE_COLOR color];
-          cam#affine_absolute points;
+          (*cam#affine_absolute points; *)
           let (mission_target_xw, mission_target_yw) = geomap#world_of mission_target_wgs84 in
           mission_target#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value mission_target_xw mission_target_yw 0.0)
       | _ -> ()
