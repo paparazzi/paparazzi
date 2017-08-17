@@ -47,13 +47,14 @@ struct range_finders_ range_finders;
 static void range_sensors_cb(uint8_t UNUSED(sender_id),
                              int16_t range_front, int16_t range_right, int16_t range_back, int16_t range_left, int16_t range_bottom, int16_t range_top)
 {
-
   range_finders.front = (float)range_front/1000;
   range_finders.right = (float)range_right/1000;
   range_finders.back = (float)range_back/1000;
   range_finders.left = (float)range_left/1000;
   range_finders.top = (float)range_top/1000;
   range_finders.bottom = (float)range_bottom/1000;
+
+
 }
 
 void range_init(void)
@@ -111,7 +112,7 @@ void range_sensor_horizontal_velocity_force_field(float *vel_body_x, float *vel_
   float avoid_y_command = *vel_body_y;
 
   // Balance avoidance command for y direction (sideways)
-  if (range_finders.right < 1 || range_finders.right > max_sensor_range) {
+  if (range_finders.right < 0.001 || range_finders.right > max_sensor_range) {
     //do nothing
   } else if (range_finders.right < avoid_inner_border) {
     avoid_y_command -= max_vel_command_lc;
@@ -122,7 +123,7 @@ void range_sensor_horizontal_velocity_force_field(float *vel_body_x, float *vel_
                        / (float)difference_inner_outer;
   } else {}
 
-  if (range_finders.left < 1 || range_finders.left > max_sensor_range) {
+  if (range_finders.left < 0.001  || range_finders.left > max_sensor_range) {
     //do nothing
   } else if (range_finders.left < avoid_inner_border) {
     avoid_y_command += max_vel_command_lc;
@@ -134,7 +135,7 @@ void range_sensor_horizontal_velocity_force_field(float *vel_body_x, float *vel_
   } else {}
 
   // balance avoidance command for x direction (forward/backward)
-  if (range_finders.front < 1 || range_finders.front > max_sensor_range) {
+  if (range_finders.front < 0.001  || range_finders.front > max_sensor_range) {
     //do nothing
   } else if (range_finders.front < avoid_inner_border) {
     avoid_x_command -= max_vel_command_lc;
@@ -146,7 +147,7 @@ void range_sensor_horizontal_velocity_force_field(float *vel_body_x, float *vel_
   } else {}
 
 
-  if (range_finders.back < 1 || range_finders.back > max_sensor_range) {
+  if (range_finders.back < 0.001  || range_finders.back > max_sensor_range) {
     //do nothing
   } else if (range_finders.back < avoid_inner_border) {
     avoid_x_command += max_vel_command_lc;
