@@ -41,6 +41,8 @@ extern float nominal_alt;
  * * Wait for vertical mode
  */
 
+extern float wanted_heading;
+
 // Module functions
 void flight_plan_guided_init(void);
 

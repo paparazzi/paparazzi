@@ -50,6 +50,23 @@
 
 float nominal_alt; // nominal flight altitude
 
+//TODO: Find equivelant function in math (couldn't find it yet...)
+
+/* Wraps an angle in radians between -PI and +PI */
+float wrapToPi_guided(float ang)
+{
+  if (ang > M_PI) {
+    while (ang > M_PI) {
+      ang = ang - 2 * M_PI;
+    }
+  } else if (ang < -M_PI) {
+    while (ang < -M_PI) {
+      ang = ang + 2 * M_PI;
+    }
+  }
+  return ang;
+}
+
 // Module functions
 void flight_plan_guided_init(void)
 {
@@ -156,7 +173,7 @@ uint8_t Hover(float alt)
 /********************************************//**
  *  Rotating functions
  ***********************************************/
-
+float wanted_heading = 0;
 /**
  * RotateToHeading: Rotate to a given heading in guided mode
  * @param[in] heading, rotate to the wanted heading in [rad] (clockwise is positive)
@@ -172,14 +189,15 @@ bool RotateToHeading(float heading)
 
 /**
  * SpeedRotateToHeading: Will slowly turn to a given heading with a fixed speed
- * @param[in] roation_speed, speed to slowly rotate the heading(clockwise is positive)
+ * @param[in] rotation_rate, speed to slowly rotate the heading(clockwise is positive)
  * @param[in] heading, here the MAV will stop spinning [rad] (clockwise is positive)
  *  @param[return] Boolean for flight plan to keep running (true) or to just run once (false)
  */
-bool SpeedRotateToHeading(float rotation_speed, float heading)
+bool SpeedRotateToHeading(float rotation_rate, float heading)
 {
-  guidance_h_set_guided_heading_rate(rotation_speed);
-  if (fabs(heading - stateGetNedToBodyEulers_f()->psi) < 0.1) {
+  guidance_h_set_guided_heading_rate(rotation_rate);
+
+  if (fabs(wrapToPi_guided(heading) - stateGetNedToBodyEulers_f()->psi) < 0.1) {
     guidance_h_set_guided_heading(heading);
     return false;
   }
@@ -229,7 +247,7 @@ bool WaitUntilSpeedOrAltitude(float speed, float fail_altitude)
  */
 bool WaitforHeading(float heading)
 {
-  if (fabs(heading - stateGetNedToBodyEulers_f()->psi) < 0.1) {
+  if (fabs(wrapToPi_guided(heading) - stateGetNedToBodyEulers_f()->psi) < 0.1) {
     return false;
   }
   return true;

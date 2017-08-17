@@ -84,9 +84,11 @@ static void obstacle_detection_cb(uint8_t UNUSED(sender_id), float distance_obst
 
     <block name="Turn 90 deg">
       <call fun="Hover(nominal_alt)"/>
+      <set var="wanted_heading" value="stateGetNedToBodyEulers_f()->psi + RadOfDeg(90.0)"/>
       <call fun="ResetSpecialTimer()"/>
       <call fun="WaitUntilTimer(1)"/>
-      <call fun="RotateToHeading(stateGetNedToBodyEulers_f()->psi + RadOfDeg(90.0))"/>
+      <call fun="SpeedRotateToHeading(0.5,wanted_heading)"/>
+      <call fun="WaitforHeading(wanted_heading)"/>
       <call fun="ResetSpecialTimer()"/>
       <call fun="WaitUntilTimer(1)"/>
       <deroute block="Go Forward"/>
