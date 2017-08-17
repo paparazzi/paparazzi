@@ -32,8 +32,7 @@
 
 #include <std.h>
 
-extern float nom_flight_alt;
-extern float distance_obstacle_FP;
+extern float nominal_alt;
 
 /*TODO: More functions to add in the future (feel free to add more)
  *
@@ -49,11 +48,9 @@ void flight_plan_guided_init(void);
 extern uint8_t KillEngines(void);
 extern uint8_t StartEngines(void);
 extern uint8_t ResetAlt(void);
-extern bool ChangeHorizontalMode(uint8_t mode);
-extern bool ChangeVerticalMode(uint8_t mode);
 
 // Guided commands during flight
-extern bool TakeOff(float climb_rate);
+extern bool Climb(float climb_rate);
 extern uint8_t Hover(float alt);
 extern uint8_t MoveForward(float vx);
 extern uint8_t MoveSideways(float vy);

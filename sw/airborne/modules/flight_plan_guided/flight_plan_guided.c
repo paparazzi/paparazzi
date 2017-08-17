@@ -42,18 +42,18 @@
 
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
 
+
 #include "mcu_periph/uart.h"
 
 // start and stop modules
 #include "generated/modules.h"
 
-#define NOM_FLIGHT_ALT 1.7  // nominal flight altitude
-float nom_flight_alt; // nominal flight altitude
+float nominal_alt; // nominal flight altitude
 
 // Module functions
 void flight_plan_guided_init(void)
 {
-  nom_flight_alt = NOM_FLIGHT_ALT;
+  nominal_alt = NOMINAL_ALT;
 
 }
 
@@ -92,46 +92,45 @@ uint8_t ResetAlt(void)
   return false;
 }
 
-/**
- * ChangeHorizontalMode: Change horizontal mode in autopilot guided mode
- * @param[in] mode, number of the specific horizontal mode that you want to change to
- * @param[return] Boolean for flight plan to keep running (true) or to just run once (false)
- */
-bool ChangeHorizontalMode(uint8_t mode)
-{
-  guidance_h_mode_changed(mode);
-  return false;
-}
-
-/**
- * ChangeVerticalMode: Change vertical mode in autopilot guided mode
- * @param[in] mode, number of the specific horizontal mode that you want to change to
- * @param[return] Boolean for flight plan to keep running (true) or to just run once (false)
- */
-bool ChangeVerticalMode(uint8_t mode)
-{
-  guidance_v_mode_changed(mode);
-  return false;
-}
-
 
 /********************************************//**
  *  Guided commands during flight
  ***********************************************/
 
 /**
- * TakeOff: Take off with a certain climb rate
+ * Climb: Climb with a certain climb rate
  * @param[in] climb_rate, climb_rate in [m/s] (positive z-axis is up)
  * @param[return] Boolean for flight plan to keep running (true) or to just run once (false)
  *
  */
-bool TakeOff(float climb_rate)
+bool Climb(float climb_rate)
 {
   // Waits untill autopilot mode is AP_MODE_GUIDED before taking off
   if (autopilot.mode != AP_MODE_GUIDED) { return true; }
 
-  guidance_v_set_guided_vz(-climb_rate);
-  guidance_h_set_guided_body_vel(0, 0);
+  if (climb_rate > 0) {
+    guidance_v_set_guided_vz(-climb_rate);
+    guidance_h_set_guided_body_vel(0, 0);
+  } else { return true; }
+
+  return false;
+}
+
+/**
+ * Descent: Descent with a certain climb rate
+ * @param[in] descent_rate, descent_rate in [m/s] (positive z-axis is down)
+ * @param[return] Boolean for flight plan to keep running (true) or to just run once (false)
+ *
+ */
+bool Descent(float descent_rate)
+{
+  // Waits untill autopilot mode is AP_MODE_GUIDED before taking off
+  if (autopilot.mode != AP_MODE_GUIDED) { return true; }
+
+  if (descent_rate < 0) {
+    guidance_v_set_guided_vz(descent_rate);
+    guidance_h_set_guided_body_vel(0, 0);
+  } else { return true; }
 
   return false;
 }
@@ -152,34 +151,6 @@ uint8_t Hover(float alt)
   return false;
 }
 
-/**
- * MoveForward: Move forward in body fixed coordinates, trying to keep sideways drift at 0
- * @param[in] vx, Forward velocity in [m/s]
- * @param[return] Boolean for flight plan to keep running (true) or to just run once (false)
- */
-uint8_t MoveForward(float vx)
-{
-  if (autopilot.mode != AP_MODE_GUIDED) { return true; }
-
-  if (autopilot.mode == AP_MODE_GUIDED) {
-    guidance_h_set_guided_body_vel(vx, 0);
-  }
-  return false;
-}
-
-/**
- * MoveSideways: Move sideways in body fixed coordinates, trying to keep sideways drift at 0
- * @param[in] vy, Sideways velocity in [m/s] (to the right is positive)
- * @param[return] Boolean for flight plan to keep running (true) or to just run once (false)
- */uint8_t MoveSideways(float vy)
-{
-  if (autopilot.mode != AP_MODE_GUIDED) { return true; }
-
-  if (autopilot.mode == AP_MODE_GUIDED) {
-    guidance_h_set_guided_body_vel(0, vy);
-  }
-  return false;
-}
 
 
 /********************************************//**
@@ -213,55 +184,6 @@ bool SpeedRotateToHeading(float rotation_speed, float heading)
     return false;
   }
   return true;
-}
-
-/*NOTE: THe following rotating in ATT mode functions are necessary when no exact position (GPS or Optitrack) information is available
- * From experience, the guided rotating functions are very unstable and will cause the drone to drift significantly during the turn
- *   which can compromise the flight plane's mission. Hopefully in the future when the guided control in yaw has improved, these
- *   will not be necessary anymore
- */
-
-/**
- * RotateToHeading_ATT: Rotate to heading in ATT mode
- * @param[in] heading, to turn to in a guided flight [rad] (clockwise is positive)
- * @param[in] trim_phi, during turn, apply a small trim to the roll if sideways drift is noticeable [rad]
- * @param[in] trim_theta, during turn, apply a small trim to the pitch if forward/backwards drift is noticeable
- * @param[in] in_flight, bool necessary for stabilization loop to check if the MAV is flying
- * @param[return] Boolean for flight plan to keep running (true) or to just run once (false)
- */
-bool RotateToHeading_ATT(float heading, float trim_phi, float trim_theta, bool in_flight)
-{
-  struct Int32Eulers cmd;
-
-  if (guidance_h.mode == GUIDANCE_H_MODE_ATTITUDE) {
-    cmd.phi = ANGLE_BFP_OF_REAL(trim_phi); //trim?
-    cmd.theta = ANGLE_BFP_OF_REAL(trim_theta);
-    cmd.psi = ANGLE_BFP_OF_REAL(heading);
-
-    stabilization_attitude_set_rpy_setpoint_i(&cmd);
-    stabilization_attitude_run(in_flight);
-  }
-  return false;
-}
-
-/**
- * ResetAngles_ATT: Reset all angles while in ATT mode
- * @param[in] current_heading, indicated the current heading of the MAV [rad] (clockwise is positive)
- * @param[in] in_flight, bool necessary for stabilization loop to check if the MAV is flying
- * @param[return] Boolean for flight plan to keep running (true) or to just run once (false)
- */
-bool ResetAngles_ATT(float current_heading, bool in_flight)
-{
-  struct Int32Eulers cmd;
-  if (guidance_h.mode == GUIDANCE_H_MODE_ATTITUDE) {
-    cmd.phi = ANGLE_BFP_OF_REAL(0.0f);
-    cmd.theta = ANGLE_BFP_OF_REAL(0.0f);
-    cmd.psi = ANGLE_BFP_OF_REAL(current_heading);
-
-    stabilization_attitude_set_rpy_setpoint_i(&cmd);
-    stabilization_attitude_run(in_flight);
-  }
-  return false;
 }
 
 /********************************************//**

@@ -2,7 +2,8 @@
 
 <flight_plan alt="1.0" ground_alt="0" lat0="51.990634" lon0="4.376789" max_dist_from_home="20" name="Rotorcraft Optitrack (Delft)" security_height="0.3">
   <header>
-	  #include "autopilot.h"
+
+#include "autopilot.h"
 
 /********************************************//**
  *  ABI messages for exception triggers or added values for the guided flight plan
@@ -23,7 +24,6 @@ static void obstacle_detection_cb(uint8_t UNUSED(sender_id), float distance_obst
 {
   distance_obstacle_FP = distance_obstacle;
 }
-
 
 </header>
   <waypoints>
@@ -60,11 +60,6 @@ static void obstacle_detection_cb(uint8_t UNUSED(sender_id), float distance_obst
       <call_once fun="NavKillThrottle()"/>
       <while cond="!GpsFixValid()"/>
       <call_once fun="ResetAlt()"/>
-      <while cond="1"/>
-    </block>
-
-
-    <block name="Bind Abi">
       <call_once fun="AbiBindMsgOBSTACLE_DETECTION(FP_GUIDED_OBSTACLE_DETECTION_ID, &obstacle_detection_ev, obstacle_detection_cb)"/>
       <while cond="1"/>
     </block>
@@ -75,20 +70,20 @@ static void obstacle_detection_cb(uint8_t UNUSED(sender_id), float distance_obst
     </block>
     
     <block name="Take off">
-      <call fun="TakeOff(0.5)"/>
-      <call fun="WaitUntilAltitude(nom_flight_alt)"/>
-      <call fun="Hover(nom_flight_alt)"/>
+      <call fun="Climb(0.5)"/>
+      <call fun="WaitUntilAltitude(nominal_alt)"/>
+      <call fun="Hover(nominal_alt)"/>
     </block>
 
     <block name="Go Forward">
       <call fun="ResetSpecialTimer()"/>
-      <call fun="MoveForward(0.5)"/>
+      <call_once fun="guidance_h_set_guided_body_vel(0.5,0.0)"/>
       <call fun="WaitUntilTimer(5)"/>
       <exception cond="2>distance_obstacle_FP" deroute="Turn 90 deg"/> 
     </block>
 
     <block name="Turn 90 deg">
-      <call fun="Hover(nom_flight_alt)"/>
+      <call fun="Hover(nominal_alt)"/>
       <call fun="ResetSpecialTimer()"/>
       <call fun="WaitUntilTimer(1)"/>
       <call fun="RotateToHeading(stateGetNedToBodyEulers_f()->psi + RadOfDeg(90.0))"/>
@@ -98,7 +93,7 @@ static void obstacle_detection_cb(uint8_t UNUSED(sender_id), float distance_obst
     </block>
 
     <block name="Land">
-      <call fun="TakeOff(-0.2)"/>
+      <call fun="Descent(0.2)"/>
       <call fun="WaitUntilAltitude(0)"/>
       <call fun="KillEngines()"/>
     </block>

@@ -940,6 +940,7 @@ let () =
       check_altitude (float_of_string alt) xml;
       check_altitude_srtm (float_of_string alt) xml !fp_wgs84;
 
+      Xml2h.define "NOMINAL_ALT" (sprintf "%.0f /* nominal altitude of the flight plan */" (float_of_string alt));
       Xml2h.define "NAV_UTM_EAST0" (sprintf "%.0f" utm0.utm_x);
       Xml2h.define "NAV_UTM_NORTH0" (sprintf "%.0f" utm0.utm_y);
       Xml2h.define "NAV_UTM_ZONE0" (sprintf "%d" utm0.utm_zone);
