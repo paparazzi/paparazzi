@@ -35,11 +35,7 @@
 extern float nominal_alt;
 
 /*TODO: More functions to add in the future (feel free to add more)
- *
- * * Land function
- * * Diagonal movement function
- * * Wait for vertical mode
- */
+  */
 
 extern float wanted_heading;
 
@@ -53,9 +49,8 @@ extern uint8_t ResetAlt(void);
 
 // Guided commands during flight
 extern bool Climb(float climb_rate);
+extern bool Descent(float climb_rate);
 extern uint8_t Hover(float alt);
-extern uint8_t MoveForward(float vx);
-extern uint8_t MoveSideways(float vy);
 
 // Rotating functions
 extern bool RotateToHeading(float heading);
@@ -65,14 +60,15 @@ extern bool ResetAngles_ATT(float current_heading, bool in_flight);
 
 //Blocking conditions
 extern bool WaitUntilAltitude(float altitude);
+extern bool WaitUntilGround(void);
 extern bool WaitUntilSpeedOrAltitude(float speed, float fail_altitude);
 extern bool WaitforHeading(float heading);
 
 //Timer functions conditions
-extern bool ResetSpecialTimer(void);
-extern bool WaitUntilTimer(float sec);
-extern bool ResetCounter(void);
-extern bool WaitUntilCounter(int32_t end_counter);
+extern bool ResetNavTimer(void);
+extern bool WaitUntilNavTimer(float sec);
+extern bool ResetNavCounter(void);
+extern bool WaitUntilNavCounter(int32_t end_counter);
 extern bool WaitUntilTimerOrAltitude(float sec, float fail_altitude);
 
 #endif

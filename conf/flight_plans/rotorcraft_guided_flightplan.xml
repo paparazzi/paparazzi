@@ -70,33 +70,34 @@ static void obstacle_detection_cb(uint8_t UNUSED(sender_id), float distance_obst
     </block>
     
     <block name="Take off">
-      <call fun="Climb(0.5)"/>
+      <call fun="Climb(0.2)"/>
       <call fun="WaitUntilAltitude(nominal_alt)"/>
       <call fun="Hover(nominal_alt)"/>
     </block>
 
     <block name="Go Forward">
-      <call fun="ResetSpecialTimer()"/>
+      <call fun="ResetNavTimer()"/>
       <call_once fun="guidance_h_set_guided_body_vel(0.5,0.0)"/>
-      <call fun="WaitUntilTimer(5)"/>
+      <call fun="WaitUntilNavTimer(5)"/>
       <exception cond="2>distance_obstacle_FP" deroute="Turn 90 deg"/> 
     </block>
 
     <block name="Turn 90 deg">
       <call fun="Hover(nominal_alt)"/>
       <set var="wanted_heading" value="stateGetNedToBodyEulers_f()->psi + RadOfDeg(90.0)"/>
-      <call fun="ResetSpecialTimer()"/>
-      <call fun="WaitUntilTimer(1)"/>
+      <call fun="ResetNavTimer()"/>
+      <call fun="WaitUntilNavTimer(1)"/>
       <call fun="SpeedRotateToHeading(0.5,wanted_heading)"/>
       <call fun="WaitforHeading(wanted_heading)"/>
-      <call fun="ResetSpecialTimer()"/>
-      <call fun="WaitUntilTimer(1)"/>
+      <call fun="ResetNavTimer()"/>
+      <call fun="WaitUntilNavTimer(1)"/>
       <deroute block="Go Forward"/>
     </block>
 
     <block name="Land">
+      <call fun="Hover(nominal_alt)"/>
       <call fun="Descent(0.2)"/>
-      <call fun="WaitUntilAltitude(0)"/>
+      <call fun="WaitUntilGround()"/>
       <call fun="KillEngines()"/>
     </block>
 

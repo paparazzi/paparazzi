@@ -144,7 +144,7 @@ bool Descent(float descent_rate)
   // Waits untill autopilot mode is AP_MODE_GUIDED before taking off
   if (autopilot.mode != AP_MODE_GUIDED) { return true; }
 
-  if (descent_rate < 0) {
+  if (descent_rate > 0) {
     guidance_v_set_guided_vz(descent_rate);
     guidance_h_set_guided_body_vel(0, 0);
   } else { return true; }
@@ -216,8 +216,21 @@ bool SpeedRotateToHeading(float rotation_rate, float heading)
 bool WaitUntilAltitude(float altitude)
 {
   if (autopilot.mode != AP_MODE_GUIDED) { return true; }
+  if (stateGetPositionEnu_f()->z < altitude) { return true; }
 
-  if (stateGetPositionEnu_f()->z < -altitude) { return true; }
+  return false;
+}
+
+
+/**
+ * WaitUntilAltitude: Blocks while waiting until a certain altitude is reached
+ * @param[in] altitude in [m] (positive z-axis is up)
+ * @param[return] Boolean for flight plan to keep running (true) or to just run once (false)
+ */
+bool WaitUntilGround(void)
+{
+  if (autopilot.mode != AP_MODE_GUIDED) { return true; }
+  if (stateGetPositionEnu_f()->z > 0.1) { return true; }
 
   return false;
 }
@@ -228,12 +241,12 @@ bool WaitUntilAltitude(float altitude)
  * @param[in] speed, speed in [m/s] (positive z-axis is up)
  * @param[return] Boolean for flight plan to keep running (true) or to just run once (false)
  */
-bool WaitUntilSpeedOrAltitude(float speed, float fail_altitude)
+bool WaitUntilSpeedOrAltitude(float speed, float altitude)
 {
   if (autopilot.mode != AP_MODE_GUIDED) { return true; }
 
-  if (stateGetPositionEnu_f()->z > -fail_altitude) { return false; }
-  if (stateGetSpeedEnu_f()->z < -speed) { return true; }
+  if (stateGetPositionEnu_f()->z > altitude) { return false; }
+  if (stateGetSpeedEnu_f()->z < speed) { return true; }
 
   return false;
 }
@@ -254,7 +267,8 @@ bool WaitforHeading(float heading)
 }
 
 /**
- * WaitForHMode: Blocks until specified horizontal mode is achieved
+ * WaitForHMode: Blocks until specified horizontal mode is achieved (handy for if you want to start the
+ * flightplan with a flip of the switch)
  * @param[in] mode, number of the specific horizontal mode that you want to wait for
  * @param[return] Boolean for flight plan to keep running (true) or to just run once (false)
  */
@@ -275,10 +289,10 @@ bool WaitForHMode(uint8_t mode)
  * ResetSpecialTimer: Reset a special timer, that works outside of the block and stage time
  * @param[return] Boolean for flight plan to keep running (true) or to just run once (false)
  */
-float specialtimer = 0;
-bool ResetSpecialTimer(void)
+float navtimer = 0;
+bool ResetNavTimer(void)
 {
-  specialtimer = 0;
+  navtimer = 0;
   return false;
 }
 
@@ -287,12 +301,12 @@ bool ResetSpecialTimer(void)
  * @param[in] sec, wait for amount of seconds [sec]
  * @param[return] Boolean for flight plan to keep running (true) or to just run once (false)
  */
-bool WaitUntilTimer(float sec)
+bool WaitUntilNavTimer(float sec)
 {
   if (autopilot.mode != AP_MODE_GUIDED) { return true; }
 
-  specialtimer += 1.0f / ((float)NAV_FREQ);
-  if (specialtimer < sec) { return true; }
+  navtimer += 1.0f / ((float)NAV_FREQ);
+  if (navtimer < sec) { return true; }
 
   return false;
 }
@@ -303,13 +317,13 @@ bool WaitUntilTimer(float sec)
  * @param[in] fail_altitude, wait for altitude in [m] (positive z-axis is up)
  * @param[return] Boolean for flight plan to keep running (true) or to just run once (false)
  */
-bool WaitUntilTimerOrAltitude(float sec, float fail_altitude)
+bool WaitUntilTimerOrAltitude(float sec, float altitude)
 {
   if (autopilot.mode != AP_MODE_GUIDED) { return true; }
 
-  if (stateGetPositionEnu_f()->z > fail_altitude) { return false; }
-  specialtimer += 1.0f / ((float)NAV_FREQ);
-  if (specialtimer < sec) { return true; }
+  if (stateGetPositionEnu_f()->z > altitude) { return false; }
+  navtimer += 1.0f / ((float)NAV_FREQ);
+  if (navtimer < sec) { return true; }
 
   return false;
 }
@@ -318,10 +332,10 @@ bool WaitUntilTimerOrAltitude(float sec, float fail_altitude)
  * ResetCounter: Resets a special counter
  * @param[return] Boolean for flight plan to keep running (true) or to just run once (false)
  */
-int32_t counter = 0;
-bool ResetCounter(void)
+int32_t navcounter = 0;
+bool ResetNavCounter(void)
 {
-  counter = 0;
+  navcounter = 0;
   return false;
 }
 
@@ -330,11 +344,11 @@ bool ResetCounter(void)
  * @param[in] end_counter, condition for the counter to stop
  * @param[return] Boolean for flight plan to keep running (true) or to just run once (false)
  */
-bool WaitUntilCounter(int32_t end_counter)
+bool WaitUntilNavCounter(int32_t end_counter)
 {
   if (autopilot.mode != AP_MODE_GUIDED) { return true; }
-  counter++;
-  if (counter > end_counter) {
+  navcounter++;
+  if (navcounter > end_counter) {
     return false;
   }
 
