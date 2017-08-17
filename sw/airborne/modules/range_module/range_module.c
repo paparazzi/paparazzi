@@ -47,24 +47,24 @@ struct range_finders_ range_finders;
 static void range_sensors_cb(uint8_t UNUSED(sender_id),
                              int16_t range_front, int16_t range_right, int16_t range_back, int16_t range_left, int16_t range_bottom, int16_t range_top)
 {
-  range_finders.front = (float)range_front/1000;
-  range_finders.right = (float)range_right/1000;
-  range_finders.back = (float)range_back/1000;
-  range_finders.left = (float)range_left/1000;
-  range_finders.top = (float)range_top/1000;
-  range_finders.bottom = (float)range_bottom/1000;
+  range_finders.front = (float)range_front / 1000;
+  range_finders.right = (float)range_right / 1000;
+  range_finders.back = (float)range_back / 1000;
+  range_finders.left = (float)range_left / 1000;
+  range_finders.top = (float)range_top / 1000;
+  range_finders.bottom = (float)range_bottom / 1000;
 
 
 }
 
 void range_init(void)
 {
-    inner_border_FF = 1.0f;
-    outer_border_FF = 1.4f;
-    min_vel_command = 0.0f;
-    max_vel_command = 0.3f;
-    vel_body_x_guided = 0.0f;
-    vel_body_y_guided = 0.0f;
+  inner_border_FF = 1.0f;
+  outer_border_FF = 1.4f;
+  min_vel_command = 0.0f;
+  max_vel_command = 0.3f;
+  vel_body_x_guided = 0.0f;
+  vel_body_y_guided = 0.0f;
 
   AbiBindMsgRANGE_SENSORS(RANGE_MODULE_SENDER_ID, &range_sensors_ev, range_sensors_cb);
 
@@ -78,10 +78,10 @@ void range_init(void)
   float vel_body_z  = 0;
 
   range_sensor_horizontal_force_field(&vel_body_x_guided, &vel_body_y_guided,
-		  inner_border_FF, outer_border_FF, min_vel_command, max_vel_command);
+      inner_border_FF, outer_border_FF, min_vel_command, max_vel_command);
 
   range_sensor_vertical_force_field(&vel_body_z,
-		  inner_border_FF, outer_border_FF, min_vel_command, max_vel_command);
+      inner_border_FF, outer_border_FF, min_vel_command, max_vel_command);
 }*/
 
 /*  range_sensor_horizontal_force_field: This function adjusts the intended velocity commands in the horizontal plane
@@ -101,7 +101,7 @@ void range_init(void)
  * */
 
 void range_sensor_horizontal_velocity_force_field(float *vel_body_x, float *vel_body_y, float avoid_inner_border, float avoid_outer_border,
-                              float attract_border, float min_vel_command_lc, float max_vel_command_lc)
+    float attract_border, float min_vel_command_lc, float max_vel_command_lc)
 {
   static const float max_sensor_range = 2;
 
@@ -174,7 +174,7 @@ void range_sensor_horizontal_velocity_force_field(float *vel_body_x, float *vel_
  * @param[out] vel_body_y, adjusted body velocity in y direction [m/s]
  * */
 void range_sensor_vertical_velocity_force_field(float *vel_body_z, float avoid_inner_border, float avoid_outer_border,
-                              float attract_border, float min_vel_command_lc, float max_vel_command_lc)
+    float attract_border, float min_vel_command_lc, float max_vel_command_lc)
 {
   static const float max_sensor_range = 2;
 
@@ -187,10 +187,10 @@ void range_sensor_vertical_velocity_force_field(float *vel_body_z, float avoid_i
   if (range_finders.top < 1 || range_finders.top > max_sensor_range) {
     //do nothing
   } else if (range_finders.top < avoid_inner_border) {
-	  avoid_z_command -= max_vel_command_lc;
+    avoid_z_command -= max_vel_command_lc;
   } else if (range_finders.top < avoid_outer_border) {
     // Linear
-	  avoid_z_command -= (max_vel_command_lc - min_vel_command_lc) *
+    avoid_z_command -= (max_vel_command_lc - min_vel_command_lc) *
                        ((float)avoid_outer_border - (float)range_finders.top)
                        / (float)difference_inner_outer;
   } else {}
@@ -198,10 +198,10 @@ void range_sensor_vertical_velocity_force_field(float *vel_body_z, float avoid_i
   if (range_finders.bottom < 1 || range_finders.left > max_sensor_range) {
     //do nothing
   } else if (range_finders.bottom < avoid_inner_border) {
-	  avoid_z_command += max_vel_command_lc;
+    avoid_z_command += max_vel_command_lc;
   } else if (range_finders.bottom < avoid_outer_border) {
     // Linear
-	  avoid_z_command += (max_vel_command_lc - min_vel_command_lc) *
+    avoid_z_command += (max_vel_command_lc - min_vel_command_lc) *
                        ((float)avoid_outer_border - (float)range_finders.bottom)
                        / (float)difference_inner_outer;
   } else {}
