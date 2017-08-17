@@ -22,7 +22,6 @@
     <module name="stabilization" type="int_quat"/>
     <module name="ahrs" type="int_cmpl_quat"/>
     <module name="ins" type="extended"/>
-
     <module name="bat_voltage_ardrone2"/>
     <!-- remove the gps_ubx_ucenter module if you use the sirf gps (flight recorder) -->
     <module name="gps" type="ubx_ucenter"/>
@@ -41,11 +40,11 @@
       <define name="VIEWVIDEO_CAMERA" value="front_camera"/>
       <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="4"/>
       <define name="VIEWVIDEO_QUALITY_FACTOR" value="60"/>
-  </firmware>
-
+    </module>
 
     <module name="flight_plan_guided"/>
-  </modules>
+
+  </firmware>
 
   <commands>
     <axis name="PITCH" failsafe_value="0"/>
