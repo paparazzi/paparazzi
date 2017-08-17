@@ -244,8 +244,7 @@ bool WaitUntilSpeedOrAltitude(float speed, float altitude)
 {
   if (autopilot.mode != AP_MODE_GUIDED) { return true; }
 
-  if (stateGetPositionEnu_f()->z > altitude) { return false; }
-  if (stateGetSpeedEnu_f()->z < speed) { return true; }
+  if (stateGetPositionEnu_f()->z < altitude && stateGetSpeedEnu_f()->z < speed) { return true; }
 
   return false;
 }
@@ -320,10 +319,8 @@ bool WaitUntilTimerOrAltitude(float sec, float altitude)
 {
   if (autopilot.mode != AP_MODE_GUIDED) { return true; }
 
-  if (stateGetPositionEnu_f()->z > altitude) { return false; }
   navtimer += 1.0f / ((float)NAV_FREQ);
-  if (navtimer < sec) { return true; }
-
+  if (stateGetPositionEnu_f()->z < altitude && navtimer < sec) { return true; }
   return false;
 }
 
