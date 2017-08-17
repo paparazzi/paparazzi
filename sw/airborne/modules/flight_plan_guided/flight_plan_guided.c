@@ -33,7 +33,6 @@
 #include "firmwares/rotorcraft/navigation.h"
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
 #include "firmwares/rotorcraft/guidance/guidance_v.h"
-#include "modules/sonar/sonar_bebop.h"
 #include "generated/flight_plan.h"
 #include "autopilot.h"
 #include <stdio.h>

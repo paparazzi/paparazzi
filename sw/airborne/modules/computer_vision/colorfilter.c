@@ -71,10 +71,10 @@ struct image_t *colorfilter_func(struct image_t *img)
 
   if (COLORFILTER_SEND_OBSTACLE) {
     if (color_count > 20)
-      AbiSendMsgOBSTACLE_DETECTION(ABI_BROADCAST, 1,
+      AbiSendMsgOBSTACLE_DETECTION(CV_COLORDETECTION, 1,
                                    0);
     else
-      AbiSendMsgOBSTACLE_DETECTION(ABI_BROADCAST, 10,
+      AbiSendMsgOBSTACLE_DETECTION(CV_COLORDETECTION, 10,
                                    0);
 
   }
