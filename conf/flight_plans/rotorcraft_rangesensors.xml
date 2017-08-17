@@ -57,6 +57,7 @@
         <set var="vel_body_x_guided" value="0.0"/>
         <set var="vel_body_y_guided" value="0.0"/>
        <call_once fun="range_sensor_horizontal_velocity_force_field(&vel_body_x_guided,&vel_body_y_guided, inner_border_FF, outer_border_FF, 0, min_vel_command, max_vel_command)"/>
+       <call_once fun="guidance_v_set_guided_z(-1.5)"/>
        <call_once fun="guidance_h_set_guided_body_vel(vel_body_x_guided,vel_body_y_guided)"/>
        <deroute block="Hover with range sensors"/>
     </block>

@@ -254,8 +254,8 @@
     </include>
 
 		<joint name="range_sensor_joint" type="fixed">
-			<parent>chasis</parent>
-			<child>base</child>
+			<parent>chassis</parent>
+			<child>range_sensors::base</child>
 		</joint>
 
 	</model>

@@ -689,28 +689,29 @@ static void gazebo_init_range_sensors(void)
 {
 	  gazebo::sensors::SensorManager *mgr =
 	    gazebo::sensors::SensorManager::Instance();
+
 	  cout<<"Amount of sensors found: "<<model->GetSensorCount()<<endl;
-	gazebo_range_sensors.ray_front = static_pointer_cast<gazebo::sensors::RaySensor>(mgr->GetSensor("front_range_sensor"));
-	gazebo_range_sensors.ray_right = static_pointer_cast<gazebo::sensors::RaySensor>(mgr->GetSensor("right_range_sensor"));
-	gazebo_range_sensors.ray_back = static_pointer_cast<gazebo::sensors::RaySensor>(mgr->GetSensor("back_range_sensor"));
-	gazebo_range_sensors.ray_left = static_pointer_cast<gazebo::sensors::RaySensor>(mgr->GetSensor("left_range_sensor"));
-	gazebo_range_sensors.ray_up = static_pointer_cast<gazebo::sensors::RaySensor>(mgr->GetSensor("up_range_sensor"));
-	gazebo_range_sensors.ray_down = static_pointer_cast<gazebo::sensors::RaySensor>(mgr->GetSensor("down_range_sensor"));
+	gazebo_range_sensors.ray_front = static_pointer_cast<gazebo::sensors::RaySensor>(mgr->GetSensor("range_sensors::front_range_sensor"));
+	gazebo_range_sensors.ray_right = static_pointer_cast<gazebo::sensors::RaySensor>(mgr->GetSensor("range_sensors::right_range_sensor"));
+	gazebo_range_sensors.ray_back = static_pointer_cast<gazebo::sensors::RaySensor>(mgr->GetSensor("range_sensors::back_range_sensor"));
+	gazebo_range_sensors.ray_left = static_pointer_cast<gazebo::sensors::RaySensor>(mgr->GetSensor("range_sensors::left_range_sensor"));
+	gazebo_range_sensors.ray_up = static_pointer_cast<gazebo::sensors::RaySensor>(mgr->GetSensor("range_sensors::up_range_sensor"));
+	gazebo_range_sensors.ray_down = static_pointer_cast<gazebo::sensors::RaySensor>(mgr->GetSensor("range_sensors::down_range_sensor"));
 
-
-	if (!gazebo_range_sensors.ray_left||!gazebo_range_sensors.ray_right||!gazebo_range_sensors.ray_up||
+    if (!gazebo_range_sensors.ray_left||!gazebo_range_sensors.ray_right||!gazebo_range_sensors.ray_up||
 			!gazebo_range_sensors.ray_down||!gazebo_range_sensors.ray_front||!gazebo_range_sensors.ray_back) {
 	    cout << "ERROR: Could not get pointer to raysensor!" << gazebo_range_sensors.ray_left<<gazebo_range_sensors.ray_right<<gazebo_range_sensors.ray_up<<
 				gazebo_range_sensors.ray_down<<gazebo_range_sensors.ray_front<<gazebo_range_sensors.ray_back<<endl;
 	  }
 
-	gazebo_range_sensors.ray_left->SetActive(true);
-	gazebo_range_sensors.ray_right->SetActive(true);
-	gazebo_range_sensors.ray_up->SetActive(true);
-	gazebo_range_sensors.ray_down->SetActive(true);
-	gazebo_range_sensors.ray_front->SetActive(true);
-	gazebo_range_sensors.ray_back->SetActive(true);
 
+	gazebo_range_sensors.ray_left->SetActive(true);   cout<<"check"<<endl;
+
+	gazebo_range_sensors.ray_right->SetActive(true);cout<<"check"<<endl;
+	gazebo_range_sensors.ray_up->SetActive(true);cout<<"check"<<endl;
+	gazebo_range_sensors.ray_down->SetActive(true);cout<<"check"<<endl;
+	gazebo_range_sensors.ray_front->SetActive(true);cout<<"check"<<endl;
+	gazebo_range_sensors.ray_back->SetActive(true);cout<<"check"<<endl;
 
 }
 static void gazebo_read_range_sensors(void)
