@@ -253,7 +253,7 @@ void opticflow_calc_init(struct opticflow_t *opticflow)
  * @param[in] *img The image frame to calculate the optical flow from
  * @param[out] *result The optical flow result
  */
-void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_state_t *state, struct image_t *img,
+void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_state_t *cam_state, struct image_t *img,
                              struct opticflow_result_t *result)
 {
   if (opticflow->just_switched_method) {
@@ -449,13 +449,13 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
   float diff_flow_y = 0;
 
   /*// Flow Derotation TODO:
-  float diff_flow_x = (state->phi - opticflow->prev_phi) * img->w / OPTICFLOW_FOV_W;
-  float diff_flow_y = (state->theta - opticflow->prev_theta) * img->h / OPTICFLOW_FOV_H;*/
+  float diff_flow_x = (cam_state->phi - opticflow->prev_phi) * img->w / OPTICFLOW_FOV_W;
+  float diff_flow_y = (cam_state->theta - opticflow->prev_theta) * img->h / OPTICFLOW_FOV_H;*/
 
   if (opticflow->derotation && result->tracked_cnt > 5) {
-    diff_flow_x = (state->rates.p)  / result->fps * img->w /
+    diff_flow_x = (cam_state->rates.p)  / result->fps * img->w /
                   OPTICFLOW_FOV_W;// * img->w / OPTICFLOW_FOV_W;
-    diff_flow_y = (state->rates.q) / result->fps * img->h /
+    diff_flow_y = (cam_state->rates.q) / result->fps * img->h /
                   OPTICFLOW_FOV_H;// * img->h / OPTICFLOW_FOV_H;
   }
 
@@ -463,13 +463,13 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
                        opticflow->derotation_correction_factor_x;
   result->flow_der_y = result->flow_y - diff_flow_y * opticflow->subpixel_factor *
                        opticflow->derotation_correction_factor_y;
-  opticflow->prev_rates = state->rates;
+  opticflow->prev_rates = cam_state->rates;
 
   // Velocity calculation
   // Right now this formula is under assumption that the flow only exist in the center axis of the camera.
   // TODO Calculate the velocity more sophisticated, taking into account the drone's angle and the slope of the ground plane.
-  float vel_x = result->flow_der_x * result->fps * state->agl / opticflow->subpixel_factor  / OPTICFLOW_FX;
-  float vel_y = result->flow_der_y * result->fps * state->agl / opticflow->subpixel_factor  / OPTICFLOW_FY;
+  float vel_x = result->flow_der_x * result->fps * cam_state->agl / opticflow->subpixel_factor  / OPTICFLOW_FX;
+  float vel_y = result->flow_der_y * result->fps * cam_state->agl / opticflow->subpixel_factor  / OPTICFLOW_FY;
 
   //Apply a  median filter to the velocity if wanted
   if (opticflow->median_filter == true) {
@@ -480,8 +480,8 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
     result->vel_y = vel_y;
   }
   // Velocity calculation: uncomment if focal length of the camera is not known or incorrect.
-  //  result->vel_x =  - result->flow_der_x * result->fps * state->agl / opticflow->subpixel_factor * OPTICFLOW_FOV_W / img->w
-  //  result->vel_y =  result->flow_der_y * result->fps * state->agl / opticflow->subpixel_factor * OPTICFLOW_FOV_H / img->h
+  //  result->vel_x =  - result->flow_der_x * result->fps * cam_state->agl / opticflow->subpixel_factor * OPTICFLOW_FOV_W / img->w
+  //  result->vel_y =  result->flow_der_y * result->fps * cam_state->agl / opticflow->subpixel_factor * OPTICFLOW_FOV_H / img->h
 
 
   // Determine quality of noise measurement for state filter
@@ -516,7 +516,7 @@ void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_sta
  * @param[in] *img The image frame to calculate the optical flow from
  * @param[out] *result The optical flow result
  */
-void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *state, struct image_t *img,
+void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *cam_state, struct image_t *img,
                        struct opticflow_result_t *result)
 {
   // Define Static Variables
@@ -569,7 +569,7 @@ void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *
 
   // Copy frame time and angles of image to calculated edge histogram
   edge_hist[current_frame_nr].frame_time = img->ts;
-  edge_hist[current_frame_nr].rates = state->rates;
+  edge_hist[current_frame_nr].rates = cam_state->rates;
 
   // Calculate which previous edge_hist to compare with the current
   uint8_t previous_frame_nr[2];
@@ -651,8 +651,8 @@ void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *
   result->fps = fps_x;
 
   // Calculate velocity
-  float vel_x = edgeflow.flow_x * fps_x * state->agl * OPTICFLOW_FOV_W / (img->w * RES);
-  float vel_y = edgeflow.flow_y * fps_y * state->agl * OPTICFLOW_FOV_H / (img->h * RES);
+  float vel_x = edgeflow.flow_x * fps_x * cam_state->agl * OPTICFLOW_FOV_W / (img->w * RES);
+  float vel_y = edgeflow.flow_y * fps_y * cam_state->agl * OPTICFLOW_FOV_H / (img->h * RES);
 
   //Apply a  median filter to the velocity if wanted
   if (opticflow->median_filter == true) {
@@ -686,7 +686,7 @@ void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *
  * @param[in] *img The image frame to calculate the optical flow from
  * @param[out] *result The optical flow result
  */
-void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_t *state, struct image_t *img,
+void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_t *cam_state, struct image_t *img,
                           struct opticflow_result_t *result)
 {
 
@@ -704,9 +704,9 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
 
   // Switch between methods (0 = fast9/lukas-kanade, 1 = EdgeFlow)
   if (opticflow->method == 0) {
-    calc_fast9_lukas_kanade(opticflow, state, img, result);
+    calc_fast9_lukas_kanade(opticflow, cam_state, img, result);
   } else if (opticflow->method == 1) {
-    calc_edgeflow_tot(opticflow, state, img, result);
+    calc_edgeflow_tot(opticflow, cam_state, img, result);
   }
 
   /* Rotate velocities from camera frame coordinates to body coordinates for control
@@ -736,9 +736,9 @@ void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_
       // Get accelerometer values rotated to body axis
       // TODO: use acceleration from the state ?
       struct FloatVect3 accel_imu_f;
-      ACCELS_FLOAT_OF_BFP(accel_imu_f, state->accel_imu_meas);
+      ACCELS_FLOAT_OF_BFP(accel_imu_f, cam_state->accel_imu_meas);
       struct FloatVect3 accel_meas_body;
-      float_quat_vmult(&accel_meas_body, &state->imu_to_body_quat, &accel_imu_f);
+      float_quat_vmult(&accel_meas_body, &cam_state->imu_to_body_quat, &accel_imu_f);
 
       float acceleration_measurement[2];
       acceleration_measurement[0] = accel_meas_body.x;
