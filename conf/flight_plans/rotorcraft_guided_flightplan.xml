@@ -3,11 +3,28 @@
 <flight_plan alt="1.0" ground_alt="0" lat0="51.990634" lon0="4.376789" max_dist_from_home="20" name="Rotorcraft Optitrack (Delft)" security_height="0.3">
   <header>
 	  #include "autopilot.h"
-    #include "guidance/guidance_h.h"
-    #include "guidance/guidance_v.h"
-    #include "modules/flight_plan_guided/flight_plan_guided.h"
-    #include "subsystems/datalink/datalink.h"
-	  #include "subsystems/radio_control.h"
+
+/********************************************//**
+ *  ABI messages for exception triggers or added values for the guided flight plan
+ ***********************************************/
+
+// ABI for obstacle detection (In here it comes from the module colorfilter)
+#include "subsystems/abi.h"
+
+#ifndef FP_GUIDED_OBSTACLE_DETECTION_ID
+#define FP_GUIDED_OBSTACLE_DETECTION_ID ABI_BROADCAST    
+PRINT_CONFIG_VAR(FP_GUIDED_OBSTACLE_DETECTION_ID)
+#endif
+
+static abi_event obstacle_detection_ev;
+static void obstacle_detection_cb(uint8_t sender_id, float distance_obstacle, float heading_obstacle);
+float distance_obstacle_FP;
+static void obstacle_detection_cb(uint8_t UNUSED(sender_id), float distance_obstacle, float UNUSED(heading_obstacle))
+{
+  distance_obstacle_FP = distance_obstacle;
+}
+
+
 </header>
   <waypoints>
     <waypoint name="HOME" x="0.0" y="0.0"/>
@@ -43,6 +60,12 @@
       <call_once fun="NavKillThrottle()"/>
       <while cond="!GpsFixValid()"/>
       <call_once fun="ResetAlt()"/>
+      <while cond="1"/>
+    </block>
+
+
+    <block name="Bind Abi">
+      <call_once fun="AbiBindMsgOBSTACLE_DETECTION(FP_GUIDED_OBSTACLE_DETECTION_ID, &obstacle_detection_ev, obstacle_detection_cb)"/>
       <while cond="1"/>
     </block>
 
