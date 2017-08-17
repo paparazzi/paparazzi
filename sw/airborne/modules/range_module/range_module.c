@@ -184,7 +184,7 @@ void range_sensor_vertical_velocity_force_field(float *vel_body_z, float avoid_i
   float avoid_z_command = *vel_body_z;
 
   // Balance avoidance command for y direction (sideways)
-  if (range_finders.top < 1 || range_finders.top > max_sensor_range) {
+  if (range_finders.top < 0.001 || range_finders.top > max_sensor_range) {
     //do nothing
   } else if (range_finders.top < avoid_inner_border) {
     avoid_z_command -= max_vel_command_lc;
@@ -195,7 +195,7 @@ void range_sensor_vertical_velocity_force_field(float *vel_body_z, float avoid_i
                        / (float)difference_inner_outer;
   } else {}
 
-  if (range_finders.bottom < 1 || range_finders.left > max_sensor_range) {
+  if (range_finders.bottom < 0.001 || range_finders.left > max_sensor_range) {
     //do nothing
   } else if (range_finders.bottom < avoid_inner_border) {
     avoid_z_command += max_vel_command_lc;

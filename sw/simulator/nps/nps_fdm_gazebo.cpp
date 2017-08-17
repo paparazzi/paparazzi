@@ -633,14 +633,12 @@ static void gazebo_init_range_sensors(void)
          gazebo_range_sensors.ray_down << gazebo_range_sensors.ray_front << gazebo_range_sensors.ray_back << endl;
   }
 
-
-  gazebo_range_sensors.ray_left->SetActive(true);   cout << "check" << endl;
-
-  gazebo_range_sensors.ray_right->SetActive(true); cout << "check" << endl;
-  gazebo_range_sensors.ray_up->SetActive(true); cout << "check" << endl;
-  gazebo_range_sensors.ray_down->SetActive(true); cout << "check" << endl;
-  gazebo_range_sensors.ray_front->SetActive(true); cout << "check" << endl;
-  gazebo_range_sensors.ray_back->SetActive(true); cout << "check" << endl;
+  gazebo_range_sensors.ray_left->SetActive(true);
+  gazebo_range_sensors.ray_right->SetActive(true);
+  gazebo_range_sensors.ray_up->SetActive(true);
+  gazebo_range_sensors.ray_down->SetActive(true);
+  gazebo_range_sensors.ray_front->SetActive(true);
+  gazebo_range_sensors.ray_back->SetActive(true);
 
 }
 static void gazebo_read_range_sensors(void)
