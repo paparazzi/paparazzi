@@ -94,6 +94,12 @@
       <board name="vms_ecu_.*"/>
     </boards>
   </mode>
+  <mode name="BlackMagic Probe (SWD_NOPWR)">
+    <variable name="FLASH_MODE" value="SWD_NOPWR"/>
+    <boards>
+      <board name="li[s]?a_mxs_.*"/>      
+    </boards>
+  </mode>
   <mode name="BlackMagic Probe (JTAG)">
     <variable name="FLASH_MODE" value="JTAG_BMP"/>
     <boards>
