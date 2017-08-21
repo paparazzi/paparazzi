@@ -8,6 +8,7 @@
       Still requires at least one module providing the actual GPS implementation.
     </description>
     <configure name="GPS_LED" value="2" description="LED number to indicate fix or none"/>
+    <define name="GPS_POS_BROADCAST" value="FALSE|TRUE" description="Broadcast GPS position instead of sending it to the ground station only. This requires to use PPRZLINK version 2 and a capable modem"/>
   </doc>
 
   <settings>
