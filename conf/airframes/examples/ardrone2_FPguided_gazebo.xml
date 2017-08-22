@@ -42,8 +42,6 @@
       <define name="VIEWVIDEO_QUALITY_FACTOR" value="60"/>
     </module>
 
-    <module name="flight_plan_guided"/>
-
   </firmware>
 
   <commands>

@@ -17,15 +17,23 @@
 PRINT_CONFIG_VAR(FP_GUIDED_OBSTACLE_DETECTION_ID)
 #endif
 
-static abi_event obstacle_detection_ev;
-static void obstacle_detection_cb(uint8_t sender_id, float distance_obstacle, float heading_obstacle);
-float distance_obstacle_FP;
-static void obstacle_detection_cb(uint8_t UNUSED(sender_id), float distance_obstacle, float UNUSED(heading_obstacle))
+#ifdef NAV_C
+abi_event obstacle_detection_ev;
+float distance_obstacle_FP = 0.f;
+void obstacle_detection_cb(uint8_t UNUSED(sender_id), float distance_obstacle, float UNUSED(heading_obstacle))
 {
   distance_obstacle_FP = distance_obstacle;
 }
+#else
+extern abi_event obstacle_detection_ev;
+extern float distance_obstacle_FP;
+extern void obstacle_detection_cb(uint8_t sender_id, float distance_obstacle, float heading_obstacle);
+#endif
+
 
 </header>
+
+
   <waypoints>
     <waypoint name="HOME" x="0.0" y="0.0"/>
     <waypoint name="STDBY" x="0.0" y="0.0"/>
@@ -42,11 +50,11 @@ static void obstacle_detection_cb(uint8_t UNUSED(sender_id), float distance_obst
       <corner name="p4"/>
     </sector>
   </sectors>
-  
+  <variables>
+		<variable var="wanted_heading_2" init="0.0f" type="float" min="0." max="10." step="0.1"/>
+		<variable var="nominal_alt" init="NOMINAL_ALT" type="float" min="0." max="10." step="0.1"/>
+</variables>
   <exceptions>
-    <!--uncomment when flying for real-->
-    <!--exception cond="datalink_time > 3" deroute="landed"/>
-    <exception cond="radio_control.status == RC_REALLY_LOST" deroute="kill"/-->
   </exceptions>
 
 <!--Simple Guided flight plan:
@@ -54,51 +62,49 @@ static void obstacle_detection_cb(uint8_t UNUSED(sender_id), float distance_obst
 1. Flies in a small square, just based on guided flight commands (no waypoints)
 2. If it detects an obstacle (example shows only from color detector), it will turn the 90 degrees more quickly
 -->
-
   <blocks>
     <block name="Geo init">
       <call_once fun="NavKillThrottle()"/>
       <while cond="!GpsFixValid()"/>
-      <call_once fun="ResetAlt()"/>
       <call_once fun="AbiBindMsgOBSTACLE_DETECTION(FP_GUIDED_OBSTACLE_DETECTION_ID, &obstacle_detection_ev, obstacle_detection_cb)"/>
       <while cond="1"/>
     </block>
 
     <block name="Start Engine">
-      <call fun="StartEngines()"/>
+      <call_once fun="autopilot_set_motors_on(TRUE)"/>
       <while cond="1"/>
     </block>
     
     <block name="Take off">
-      <call fun="Climb(0.2)"/>
-      <call fun="WaitUntilAltitude(nominal_alt)"/>
-      <call fun="Hover(nominal_alt)"/>
+      <call_once fun="guidance_v_set_guided_vz(-0.2)"/>
+      <while cond="LessThan(stateGetPositionEnu_f()->z,nominal_alt)"/>
+      <call_once fun="guidance_v_set_guided_z(-nominal_alt)"/>
+      <while cond="LessThan(stage_time,1)"/>
     </block>
 
     <block name="Go Forward">
-      <call fun="ResetNavTimer()"/>
       <call_once fun="guidance_h_set_guided_body_vel(0.5,0.0)"/>
-      <call fun="WaitUntilNavTimer(5)"/>
+      <while cond="LessThan(block_time,5)" />
+      <call_once fun="guidance_h_set_guided_body_vel(0.0,0.0)"/>
       <exception cond="2>distance_obstacle_FP" deroute="Turn 90 deg"/> 
     </block>
 
     <block name="Turn 90 deg">
-      <call fun="Hover(nominal_alt)"/>
-      <set var="wanted_heading" value="stateGetNedToBodyEulers_f()->psi + RadOfDeg(90.0)"/>
-      <call fun="ResetNavTimer()"/>
-      <call fun="WaitUntilNavTimer(1)"/>
-      <call fun="SpeedRotateToHeading(0.5,wanted_heading)"/>
-      <call fun="WaitforHeading(wanted_heading)"/>
-      <call fun="ResetNavTimer()"/>
-      <call fun="WaitUntilNavTimer(1)"/>
+      <set var="wanted_heading_2" value="stateGetNedToBodyEulers_f()->psi + RadOfDeg(90.0)"/>
+      <while cond="LessThan(stage_time,1)"/>
+      <call_once fun="guidance_h_set_guided_heading_rate(0.5)"/>
+      <while cond="!CloseDegAngles(DegOfRad(stateGetNedToBodyEulers_f()->psi),DegOfRad(wanted_heading_2))"/>
+      <call_once fun="guidance_h_set_guided_heading(wanted_heading_2)"/>
+      <while cond="LessThan(stage_time,1)"/>
       <deroute block="Go Forward"/>
     </block>
 
     <block name="Land">
-      <call fun="Hover(nominal_alt)"/>
-      <call fun="Descent(0.2)"/>
-      <call fun="WaitUntilGround()"/>
-      <call fun="KillEngines()"/>
+      <call_once fun="guidance_h_set_guided_body_vel(0.0,0.0)"/>
+      <call_once fun="guidance_v_set_guided_vz(0.2)"/>
+      <while cond="MoreThan(stateGetPositionEnu_f()->z,0.1)"/>
+      <call_once fun="guidance_v_set_guided_z(0.0)"/>
+      <call_once fun="autopilot_set_motors_on(FALSE)"/>
     </block>
 
   </blocks>
