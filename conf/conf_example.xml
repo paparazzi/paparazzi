@@ -244,7 +244,7 @@
   <aircraft
    name="ardrone2_flightplan_guided_gazebo"
    ac_id="35"
-   airframe="airframes/examples/ardrone2_FPguided_gazebo.xml"
+   airframe="airframes/examples/ardrone2_gazebo.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_guided_flightplan.xml"
