@@ -29,8 +29,6 @@ extern abi_event obstacle_detection_ev;
 extern float distance_obstacle_FP;
 extern void obstacle_detection_cb(uint8_t sender_id, float distance_obstacle, float heading_obstacle);
 #endif
-
-
 </header>
 
 
@@ -52,7 +50,7 @@ extern void obstacle_detection_cb(uint8_t sender_id, float distance_obstacle, fl
   </sectors>
   <variables>
 		<variable var="wanted_heading_2" init="0.0f" type="float" min="0." max="10." step="0.1"/>
-		<variable var="nominal_alt" init="NOMINAL_ALT" type="float" min="0." max="10." step="0.1"/>
+		<variable var="nominal_alt" init="NAV_DEFAULT_ALT" type="float" min="0." max="10." step="0.1"/>
 </variables>
   <exceptions>
   </exceptions>
@@ -63,9 +61,9 @@ extern void obstacle_detection_cb(uint8_t sender_id, float distance_obstacle, fl
 2. If it detects an obstacle (example shows only from color detector), it will turn the 90 degrees more quickly
 -->
   <blocks>
-    <block name="Geo init">
-      <call_once fun="NavKillThrottle()"/>
+    <block name="FPInit">
       <while cond="!GpsFixValid()"/>
+      <call_once fun="ins_reset_altitude_ref()"/>
       <call_once fun="AbiBindMsgOBSTACLE_DETECTION(FP_GUIDED_OBSTACLE_DETECTION_ID, &obstacle_detection_ev, obstacle_detection_cb)"/>
       <while cond="1"/>
     </block>
