@@ -23,27 +23,36 @@
 /** @file modules/stereocam/stereocam.c
  *  @brief interface to TU Delft serial stereocam
  *  Include stereocam.xml to your airframe file.
- *  Parameters STEREO_PORT, STEREO_BAUD, SEND_STEREO and STEREO_BUF_SIZE should be configured with stereocam.xml.
+ *  Parameters STEREO_PORT, STEREO_BAUD, SEND_STEREO should be configured with stereocam.xml.
  */
 
 #include "modules/stereocam/stereocam.h"
+
 #include "mcu_periph/uart.h"
-#include "mcu_periph/sys_time.h"
 #include "subsystems/datalink/telemetry.h"
-#include "modules/stereocam/stereoprotocol.h"
-#ifndef SEND_STEREO
-#define SEND_STEREO TRUE
+#include "pprzlink/messages.h"
+#include "pprzlink/intermcu_msg.h"
+
+#include "mcu_periph/sys_time.h"
+#include "subsystems/abi.h"
+
+#include "stereocam_follow_me/follow_me.h"
+
+
+// forward received image to ground station
+#ifndef FORWARD_IMAGE_DATA
+#define FORWARD_IMAGE_DATA FALSE
 #endif
 
 
 /* This defines the location of the stereocamera with respect to the body fixed coordinates.
  *
- *    Coordinate system stereocam (looking into the lens)
- *    x      z
- * <-----(( (*) ))              ((     )) = camera lens
- *           |                     (*)    = arrow pointed outwards
- *           | y                              (towards your direction)
- *           V
+ *    Coordinate system stereocam (image coordinates)
+ *    z      x
+ * (( * ))----->
+ *    |                       * = arrow pointed into the frame away from you
+ *    | y
+ *    V
  *
  * The conversion order in euler angles is psi (yaw) -> theta (pitch) -> phi (roll)
  *
@@ -53,6 +62,7 @@
  * - facing downward:  90 -> 0 -> 0
  */
 
+// general stereocam definitions
 #if !defined(STEREO_BODY_TO_STEREO_PHI) || !defined(STEREO_BODY_TO_STEREO_THETA) || !defined(STEREO_BODY_TO_STEREO_PSI)
 #warning "STEREO_BODY_TO_STEREO_XXX not defined. Using default Euler rotation angles (0,0,0)"
 #endif
@@ -69,90 +79,150 @@
 #define STEREO_BODY_TO_STEREO_PSI 0
 #endif
 
-struct FloatRMat body_to_stereocam;
+struct stereocam_t stereocam = {
+  .device = (&((UART_LINK).device)),
+  .msg_available = false
+};
+static uint8_t stereocam_msg_buf[256]  __attribute__((aligned));   ///< The message buffer for the stereocamera
 
-// define coms link for stereocam
-#define STEREO_PORT   (&((UART_LINK).device))
-struct link_device *linkdev = STEREO_PORT;
-#define StereoGetch() STEREO_PORT ->get_byte(STEREO_PORT->periph)
-
-// pervasive local variables
-MsgProperties msgProperties;
-
-uint16_t freq_counter = 0;
-uint8_t frequency = 0;
-uint32_t previous_time = 0;
-
-#ifndef STEREO_BUF_SIZE
-#define STEREO_BUF_SIZE 1024                     // size of circular buffer
+// incoming messages definitions
+#ifndef STEREOCAM2STATE_SENDER_ID
+#define STEREOCAM2STATE_SENDER_ID ABI_BROADCAST
 #endif
-uint8_t ser_read_buf[STEREO_BUF_SIZE];           // circular buffer for incoming data
-uint16_t insert_loc, extract_loc, msg_start;   // place holders for buffer read and write
-uint8_t msg_buf[STEREO_BUF_SIZE];         // define local data
-uint8array stereocam_data = {.len = 0, .data = msg_buf, .fresh = 0, .matrix_width = 0, .matrix_height = 0}; // buffer used to contain image without line endings
 
-#define BASELINE_STEREO_MM 60.0
-#define BRANDSPUNTSAFSTAND_STEREO 118.0*6
+#ifndef STEREOCAM_USE_MEDIAN_FILTER
+#define STEREOCAM_USE_MEDIAN_FILTER 0
+#endif
 
-extern void stereocam_disparity_to_meters(uint8_t *disparity, float *distancesMeters, int lengthArray)
-{
+#include "filters/median_filter.h"
+struct MedianFilter3Float medianfilter;
 
-  int indexArray = 0;
-  for (indexArray = 0; indexArray < lengthArray; indexArray++) {
-    if (disparity[indexArray] != 0) {
-      distancesMeters[indexArray] = ((BASELINE_STEREO_MM * BRANDSPUNTSAFSTAND_STEREO / (float)disparity[indexArray] - 18.0)) /
-                                    1000;
-      //  printf("%i, distanceMeters: %f \n",indexArray,distancesMeters[indexArray]);
-    } else {
-      distancesMeters[indexArray] = 1000;
-    }
-  }
-}
-
-extern void stereocam_start(void)
+void stereocam_init(void)
 {
   struct FloatEulers euler = {STEREO_BODY_TO_STEREO_PHI, STEREO_BODY_TO_STEREO_THETA, STEREO_BODY_TO_STEREO_PSI};
-  float_rmat_of_eulers(&body_to_stereocam, &euler);
+  float_rmat_of_eulers(&stereocam.body_to_cam, &euler);
 
-  // initialize local variables
-  msgProperties = (MsgProperties) {0, 0, 0};
+  // Initialize transport protocol
+  pprz_transport_init(&stereocam.transport);
 
-  insert_loc = 0;
-  extract_loc = 0;
-  msg_start = 0;
-
-  //sys_time_init();
-  freq_counter = 0;
-  frequency = 0;
-  previous_time = sys_time.nb_tick;
-
-  stereocam_data.fresh = 0;
+  InitMedianFilterVect3Float(medianfilter, MEDIAN_DEFAULT_SIZE);
 }
 
-extern void stereocam_stop(void)
+/* Parse the InterMCU message */
+static void stereocam_parse_msg(void)
 {
-}
+  uint32_t now_ts = get_sys_time_usec();
 
-extern void stereocam_periodic(void)
-{
-  // read all data from the stereo com link, check that don't overtake extract
-  while (linkdev->char_available(linkdev->periph) && stereoprot_add(insert_loc, 1, STEREO_BUF_SIZE) != extract_loc) {
-    if (handleStereoPackage(StereoGetch(), STEREO_BUF_SIZE, &insert_loc, &extract_loc, &msg_start, msg_buf, ser_read_buf,
-                            &stereocam_data.fresh, &stereocam_data.len, &stereocam_data.matrix_width, &stereocam_data.matrix_height)) {
-      freq_counter++;
-      if ((sys_time.nb_tick - previous_time) > sys_time.ticks_per_sec) {  // 1s has past
-        frequency = (uint8_t)((freq_counter * (sys_time.nb_tick - previous_time)) / sys_time.ticks_per_sec);
-        freq_counter = 0;
-        previous_time = sys_time.nb_tick;
-      }
-#if SEND_STEREO
-      if (stereocam_data.len > 100) {
-        DOWNLINK_SEND_STEREO_IMG(DefaultChannel, DefaultDevice, &frequency, &(stereocam_data.len), 100, stereocam_data.data);
-      } else {
-        DOWNLINK_SEND_STEREO_IMG(DefaultChannel, DefaultDevice, &frequency, &(stereocam_data.len), stereocam_data.len,
-                                 stereocam_data.data);
-      }
-#endif
+  /* Parse the mag-pitot message */
+  uint8_t msg_id = stereocam_msg_buf[1];
+  switch (msg_id) {
+
+  case DL_STEREOCAM_VELOCITY: {
+    static struct FloatVect3 camera_vel;
+
+    float res = (float)DL_STEREOCAM_VELOCITY_resolution(stereocam_msg_buf);
+
+    camera_vel.x = (float)DL_STEREOCAM_VELOCITY_velx(stereocam_msg_buf)/res;
+    camera_vel.y = (float)DL_STEREOCAM_VELOCITY_vely(stereocam_msg_buf)/res;
+    camera_vel.z = (float)DL_STEREOCAM_VELOCITY_velz(stereocam_msg_buf)/res;
+
+    float noise = 1-(float)DL_STEREOCAM_VELOCITY_vRMS(stereocam_msg_buf)/res;
+
+    // Rotate camera frame to body frame
+    struct FloatVect3 body_vel;
+    float_rmat_transp_vmult(&body_vel, &stereocam.body_to_cam, &camera_vel);
+
+    //todo make setting
+    if (STEREOCAM_USE_MEDIAN_FILTER) {
+      // Use a slight median filter to filter out the large outliers before sending it to state
+      UpdateMedianFilterVect3Float(medianfilter, body_vel);
     }
+
+    //Send velocities to state
+    AbiSendMsgVELOCITY_ESTIMATE(STEREOCAM2STATE_SENDER_ID, now_ts,
+                                body_vel.x,
+                                body_vel.y,
+                                body_vel.z,
+                                noise
+                               );
+
+    // todo activate this after changing optical flow message to be dimentionless instead of in pixels
+    /*
+    static struct FloatVect3 camera_flow;
+
+    float avg_dist = (float)DL_STEREOCAM_VELOCITY_avg_dist(stereocam_msg_buf)/res;
+
+    camera_flow.x = (float)DL_STEREOCAM_VELOCITY_velx(stereocam_msg_buf)/DL_STEREOCAM_VELOCITY_avg_dist(stereocam_msg_buf);
+    camera_flow.y = (float)DL_STEREOCAM_VELOCITY_vely(stereocam_msg_buf)/DL_STEREOCAM_VELOCITY_avg_dist(stereocam_msg_buf);
+    camera_flow.z = (float)DL_STEREOCAM_VELOCITY_velz(stereocam_msg_buf)/DL_STEREOCAM_VELOCITY_avg_dist(stereocam_msg_buf);
+
+    struct FloatVect3 body_flow;
+    float_rmat_transp_vmult(&body_flow, &body_to_stereocam, &camera_flow);
+
+    AbiSendMsgOPTICAL_FLOW(STEREOCAM2STATE_SENDER_ID, now_ts,
+                                body_flow.x,
+                                body_flow.y,
+                                body_flow.z,
+                                quality,
+                                body_flow.z,
+                                avg_dist
+                               );
+    */
+    break;
   }
+
+  case DL_STEREOCAM_ARRAY: {
+#if FORWARD_IMAGE_DATA
+    // forward image to ground station
+    uint8_t type = DL_STEREOCAM_ARRAY_type(stereocam_msg_buf);
+    uint8_t w = DL_STEREOCAM_ARRAY_width(stereocam_msg_buf);
+    uint8_t h = DL_STEREOCAM_ARRAY_height(stereocam_msg_buf);
+    uint8_t nb = DL_STEREOCAM_ARRAY_package_nb(stereocam_msg_buf);
+    uint8_t l = DL_STEREOCAM_ARRAY_image_data_length(stereocam_msg_buf);
+
+    DOWNLINK_SEND_STEREO_IMG(DefaultChannel, DefaultDevice, &type, &w, &h, &nb,
+        l, DL_STEREOCAM_ARRAY_image_data(stereocam_msg_buf));
+#endif
+    break;
+  }
+
+#ifdef STEREOCAM_FOLLOWME
+  // todo is follow me still used?
+  case DL_STEREOCAM_FOLLOW_ME: {
+    follow_me( DL_STEREOCAM_FOLLOW_ME_headingToFollow(stereocam_msg_buf),
+               DL_STEREOCAM_FOLLOW_ME_heightObject(stereocam_msg_buf),
+               DL_STEREOCAM_FOLLOW_ME_distanceToObject(stereocam_msg_buf));
+    break;
+  }
+#endif
+
+    default:
+      break;
+  }
+}
+
+/* We need to wait for incomming messages */
+void stereocam_event(void) {
+  // Check if we got some message from the Magneto or Pitot
+  pprz_check_and_parse(stereocam.device, &stereocam.transport, stereocam_msg_buf, &stereocam.msg_available);
+
+  // If we have a message we should parse it
+  if (stereocam.msg_available) {
+    stereocam_parse_msg();
+    stereocam.msg_available = false;
+  }
+}
+
+/* Send state to camera to facilitate derotation
+ *
+ */
+void state2stereocam(void)
+{
+  // rotate body angles to camera reference frame
+  static struct FloatEulers cam_angles;
+  float_rmat_mult(&cam_angles, &stereocam.body_to_cam, stateGetNedToBodyEulers_f());
+
+  float agl = 0;//stateGetAgl);
+  pprz_msg_send_STEREOCAM_STATE(&(stereocam.transport.trans_tx), stereocam.device,
+      AC_ID, &(cam_angles.phi), &(cam_angles.theta), &(cam_angles.psi), &agl);
 }

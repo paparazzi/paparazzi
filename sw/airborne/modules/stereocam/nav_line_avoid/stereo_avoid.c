@@ -45,7 +45,7 @@ void stereo_avoid_init(void)
   init_avoid_navigation();
 }
 
-
+// TODO fixme
 void stereo_avoid_run(void)
 {
 	if(stereocam_data.fresh)
