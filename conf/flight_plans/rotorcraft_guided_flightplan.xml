@@ -6,16 +6,7 @@
 #include "autopilot.h"
 #include "autopilot_guided.h"
 
-
-#define GUIDED_FLAG_XY_VEL_BODY GUIDED_FLAG_XY_BODY|GUIDED_FLAG_XY_VEL
-#define GUIDED_FLAG_XY_VEL_BODY_YAW_OFFSET GUIDED_FLAG_XY_BODY|GUIDED_FLAG_XY_VEL|GUIDED_FLAG_YAW_OFFSET
-#define GUIDED_FLAG_XY_VEL_BODY_YAW_RATE GUIDED_FLAG_XY_BODY|GUIDED_FLAG_XY_VEL|GUIDED_FLAG_YAW_RATE 
-#define GUIDED_FLAG_XY_OFFSET_Z_VEL_YAW_OFFSET GUIDED_FLAG_XY_OFFSET|GUIDED_FLAG_Z_VEL|GUIDED_FLAG_YAW_OFFSET
-#define GUIDED_FLAG_XY_OFFSET_YAW_OFFSET GUIDED_FLAG_XY_OFFSET|GUIDED_FLAG_YAW_OFFSET
-
 </header>
-
-
   <waypoints>
     <waypoint name="HOME" x="0.0" y="0.0"/>
     <waypoint name="STDBY" x="0.0" y="0.0"/>
@@ -34,6 +25,10 @@
   </sectors>
   <variables>
 		<variable var="desired_heading" init="0.0f" type="float" min="0." max="10." step="0.1"/>
+		<variable var="turn_angle" init="90.0f" type="float" min="-180" max="180" step="1"/>
+		<variable var="turn_rate" init="0.5f" type="float" min="0." max="10." step="0.1"/>
+    <variable var="climb_descent_vel" init="0.3f" type="float" min="0." max="1" step="0.1"/>
+    <variable var="forward_vel" init="0.5f" type="float" min="0." max="2" step="0.1"/>
 		<variable var="nominal_alt" init="NAV_DEFAULT_ALT" type="float" min="0." max="10." step="0.1"/>
 		<variable var="flag_xy_vel_body_z_NED" init="NAV_DEFAULT_ALT" type="float" min="0." max="10." step="0.1"/>
     <abi_binding name="OBSTACLE_DETECTION" vars="distance_obstacle_FP, _"/>
@@ -45,6 +40,8 @@
 
 1. Flies in a small square, just based on guided flight commands (no waypoints)
 2. If it detects an obstacle (example shows only from color detector), it will turn the 90 degrees more quickly
+
+Remember to choose AP_MODE_GUIDED or else it won't work!!!
 -->
   <blocks>
     <block name="FPInit">
@@ -66,7 +63,7 @@
  3. It will hold the nominal altitude and wait for 1 second before it moves to Go Forward-->
 
     <block name="Take off">
-      <call_once fun="autopilot_guided_update(GUIDED_FLAG_XY_OFFSET_Z_VEL_YAW_OFFSET,0.,0.,-0.3,0.)"/>
+      <call_once fun="autopilot_guided_update(GUIDED_FLAG_XY_OFFSET_Z_VEL_YAW_OFFSET,0.,0.,-climb_descent_vel,0.)"/>
       <while cond="LessThan(stateGetPositionEnu_f()->z,nominal_alt)"/>
       <call_once fun="autopilot_guided_update(GUIDED_FLAG_XY_OFFSET_YAW_OFFSET,0.,0.,-nominal_alt,0.)"/>    
       <while cond="LessThan(stage_time,1)"/>
@@ -78,7 +75,7 @@
 An exception is triggered if an obstacle is detected (in this example given by the color detector). Then it will go to the "Turn 90 deg" block immediatly -->
 
     <block name="Go Forward">
-      <call_once fun="autopilot_guided_update(GUIDED_FLAG_XY_VEL_BODY_YAW_OFFSET,0.5,0.,-nominal_alt,0.)"/>
+      <call_once fun="autopilot_guided_update(GUIDED_FLAG_XY_VEL_BODY_YAW_OFFSET,forward_vel,0.,-nominal_alt,0.)"/>
       <while cond="LessThan(block_time,5)" />
       <exception cond="2>distance_obstacle_FP" deroute="Turn 90 deg"/> 
     </block>
@@ -93,8 +90,8 @@ An exception is triggered if an obstacle is detected (in this example given by t
     <block name="Turn 90 deg">
       <call_once fun="autopilot_guided_update(GUIDED_FLAG_XY_VEL_BODY_YAW_OFFSET,0.,0.,-nominal_alt,0.)"/>
       <while cond="LessThan(stage_time,1)"/>
-      <set var="desired_heading" value="stateGetNedToBodyEulers_f()->psi + RadOfDeg(90.0)"/>
-      <call_once fun="autopilot_guided_update(GUIDED_FLAG_XY_VEL_BODY_YAW_RATE,0.,0.,-nominal_alt,0.5)"/>
+      <set var="desired_heading" value="stateGetNedToBodyEulers_f()->psi + RadOfDeg(turn_angle)"/>
+      <call_once fun="autopilot_guided_update(GUIDED_FLAG_XY_VEL_BODY_YAW_RATE,0.,0.,-nominal_alt,turn_rate)"/>
       <while cond="!CloseDegAngles(DegOfRad(stateGetNedToBodyEulers_f()->psi),DegOfRad(desired_heading))"/>
       <call_once fun="autopilot_guided_update(GUIDED_FLAG_XY_VEL_BODY,0.,0.,-nominal_alt,desired_heading)"/>
       <while cond="LessThan(stage_time,1)"/>
@@ -107,10 +104,10 @@ An exception is triggered if an obstacle is detected (in this example given by t
 3. After 3 seconds, it will shut off its motors -->
 
     <block name="Land">
-      <call_once fun="autopilot_guided_update(GUIDED_FLAG_XY_OFFSET_Z_VEL_YAW_OFFSET,0.,0.,0.3,0.)"/>
+      <call_once fun="autopilot_guided_update(GUIDED_FLAG_XY_OFFSET_Z_VEL_YAW_OFFSET,0.,0.,climb_descent_vel,0.)"/>
       <while cond="MoreThan(stateGetPositionEnu_f()->z,0.1)"/>
       <call_once fun="autopilot_guided_update(GUIDED_FLAG_XY_OFFSET_YAW_OFFSET,0.,0.,0.,0.)"/>  
-      <while cond="LessThan(block_time,3)"/>
+      <while cond="LessThan(block_time,5)"/>
       <deroute block="Kill Engines"/>
     </block>
 
