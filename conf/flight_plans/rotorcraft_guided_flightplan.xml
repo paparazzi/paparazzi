@@ -2,27 +2,19 @@
 
 <flight_plan alt="1.0" ground_alt="0" lat0="51.990634" lon0="4.376789" max_dist_from_home="20" name="Rotorcraft Optitrack (Delft)" security_height="0.3">
   <header>
+  	#include "autopilot_guided.h"
 
-#include "autopilot.h"
-#include "autopilot_guided.h"
-
-</header>
+		// Useful Combination of the flags fir the autopilot_guided_update
+		#define GUIDED_FLAG_XY_VEL_BODY GUIDED_FLAG_XY_BODY|GUIDED_FLAG_XY_VEL
+		#define GUIDED_FLAG_XY_VEL_BODY_YAW_OFFSET GUIDED_FLAG_XY_BODY|GUIDED_FLAG_XY_VEL|GUIDED_FLAG_YAW_OFFSET
+		#define GUIDED_FLAG_XY_VEL_BODY_YAW_RATE GUIDED_FLAG_XY_BODY|GUIDED_FLAG_XY_VEL|GUIDED_FLAG_YAW_RATE
+		#define GUIDED_FLAG_XY_OFFSET_Z_VEL_YAW_OFFSET GUIDED_FLAG_XY_OFFSET|GUIDED_FLAG_Z_VEL|GUIDED_FLAG_YAW_OFFSET
+		#define GUIDED_FLAG_XY_OFFSET_YAW_OFFSET GUIDED_FLAG_XY_OFFSET|GUIDED_FLAG_YAW_OFFSET
+  </header>
   <waypoints>
     <waypoint name="HOME" x="0.0" y="0.0"/>
     <waypoint name="STDBY" x="0.0" y="0.0"/>
-    <waypoint name="p1" x="2.0" y="2.5"/>
-    <waypoint name="p2" x="2.0" y="-2.5"/>
-    <waypoint name="p3" x="-2.0" y="-2.5"/>
-    <waypoint name="p4" x="-2.0" y="2.5"/>
   </waypoints>
-  <sectors>
-    <sector color="red" name="Flight_Area">
-      <corner name="p1"/>
-      <corner name="p2"/>
-      <corner name="p3"/>
-      <corner name="p4"/>
-    </sector>
-  </sectors>
   <variables>
 		<variable var="desired_heading" init="0.0f" type="float" min="0." max="10." step="0.1"/>
 		<variable var="turn_angle" init="90.0f" type="float" min="-180" max="180" step="1"/>
@@ -31,9 +23,7 @@
     <variable var="forward_vel" init="0.5f" type="float" min="0." max="2" step="0.1"/>
 		<variable var="nominal_alt" init="NAV_DEFAULT_ALT" type="float" min="0." max="10." step="0.1"/>
     <abi_binding name="OBSTACLE_DETECTION" vars="distance_obstacle_FP, _"/>
-</variables>
-  <exceptions>
-  </exceptions>
+	</variables>
 
 <!--Example Guided flight plan:
 
@@ -45,7 +35,7 @@ Remember to choose AP_MODE_GUIDED or else it won't work!!!
   <blocks>
     <block name="FPInit">
       <while cond="!GpsFixValid()"/>
-      <set var = "distance_obstacle_FP" value="10.0"/><!--Or else it will turn everytime if abi is not on-->
+      <set var = "distance_obstacle_FP" value="10.0"/><!--Or else it will turn everytime if the abi message is not received-->
       <call_once fun="ins_reset_altitude_ref()"/>
       <while cond="1"/>
     </block>
@@ -55,7 +45,6 @@ Remember to choose AP_MODE_GUIDED or else it won't work!!!
       <while cond="1"/>
     </block>
     
-
  <!--Take off:
  1. The MAV will first climb with 0.3 m/s upwards (z is down)   
  2. If it detects that the MAV has surpased the nominal altitude (given obove in the flightplan)"
@@ -85,7 +74,7 @@ An exception is triggered if an obstacle is detected (in this example given by t
 3. Then the drone turns with an constant rate (default: 0.5 rad/s)
 4. Once the desired heading is reached, the MAV will stop turning and keep this heading
 5. After 1 second, it will go back to the "Go Forward" block  -->
-
+		
     <block name="Turn 90 deg">
       <call_once fun="autopilot_guided_update(GUIDED_FLAG_XY_VEL_BODY_YAW_OFFSET,0.,0.,-nominal_alt,0.)"/>
       <while cond="LessThan(stage_time,1)"/>
@@ -114,7 +103,5 @@ An exception is triggered if an obstacle is detected (in this example given by t
       <call_once fun="autopilot_set_motors_on(FALSE)"/>
       <while cond="1"/>
     </block>
-    
-
   </blocks>
 </flight_plan>
