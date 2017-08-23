@@ -222,7 +222,6 @@ void autopilot_event(void)
 
 /** reset in_flight counter
  */
-void autopilot_reset_in_flight_counter(void);
 void autopilot_reset_in_flight_counter(void)
 {
   autopilot_in_flight_counter = 0;

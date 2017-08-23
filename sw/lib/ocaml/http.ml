@@ -4,6 +4,8 @@ exception Blocked of string
 
 IFDEF NETCLIENT_V_4 THEN
 module H = Nethttp_client
+let () =
+  Nettls_gnutls.init()
 ELSE
 module H = Http_client
 END

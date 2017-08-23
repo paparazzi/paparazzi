@@ -124,7 +124,11 @@ void mpu60x0_spi_event(struct Mpu60x0_Spi *mpu)
         mpu->data_rates.rates.r = Int16FromBuf(mpu->rx_buf, 14);
 
         int16_t temp_raw = Int16FromBuf(mpu->rx_buf, 8);
+#if ICM20608
+        mpu->temp = (float)temp_raw / 326.8f + 25.0f;
+#else
         mpu->temp = (float)temp_raw / 340.0f + 36.53f;
+#endif
 
         // if we are reading slaves, copy the ext_sens_data
         if (mpu->config.nb_slaves > 0) {

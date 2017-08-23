@@ -235,7 +235,6 @@ void WEAK autopilot_check_in_flight(bool motors_on __attribute__((unused))) {}
 /** reset in_flight counter
  *  actual implementation is firmware dependent
  */
-void autopilot_reset_in_flight_counter(void);
 void WEAK autopilot_reset_in_flight_counter(void) {}
 
 /** set in_flight flag
