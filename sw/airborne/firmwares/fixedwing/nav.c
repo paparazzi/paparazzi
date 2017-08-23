@@ -549,6 +549,9 @@ void nav_init(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_SEGMENT, send_segment);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_SURVEY, send_survey);
 #endif
+
+  // generated init function
+  auto_nav_init();
 }
 
 /**
