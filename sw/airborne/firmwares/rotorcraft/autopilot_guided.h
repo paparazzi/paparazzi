@@ -96,9 +96,8 @@ extern void autopilot_guided_update(uint8_t flags, float x, float y, float z, fl
 #define GUIDED_FLAG_Z_OFFSET    (1<<2)
 #define GUIDED_FLAG_YAW_OFFSET  (1<<3)
 #define GUIDED_FLAG_XY_VEL      (1<<5)
-#define GUIDED_FLAG_2_VEL       (1<<6)
+#define GUIDED_FLAG_Z_VEL       (1<<6)
 #define GUIDED_FLAG_YAW_RATE    (1<<7)
-
 
 #endif /* AUTOPILOT_GUIDED_H */
 
