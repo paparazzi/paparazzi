@@ -4,6 +4,7 @@
   <header>
 
 #include "autopilot.h"
+#include "autopilot_guided.h"
 
 /********************************************//**
  *  ABI messages for exception triggers or added values for the guided flight plan
@@ -19,7 +20,7 @@ PRINT_CONFIG_VAR(FP_GUIDED_OBSTACLE_DETECTION_ID)
 
 #ifdef NAV_C
 abi_event obstacle_detection_ev;
-float distance_obstacle_FP = 0.f;
+float distance_obstacle_FP = 10.f;
 void obstacle_detection_cb(uint8_t UNUSED(sender_id), float distance_obstacle, float UNUSED(heading_obstacle))
 {
   distance_obstacle_FP = distance_obstacle;
@@ -51,6 +52,7 @@ extern void obstacle_detection_cb(uint8_t sender_id, float distance_obstacle, fl
   <variables>
 		<variable var="wanted_heading_2" init="0.0f" type="float" min="0." max="10." step="0.1"/>
 		<variable var="nominal_alt" init="NAV_DEFAULT_ALT" type="float" min="0." max="10." step="0.1"/>
+		<variable var="flags" type="uint8_t" init="42" min="0." max="10." step="0.1"/>
 </variables>
   <exceptions>
   </exceptions>
@@ -81,7 +83,8 @@ extern void obstacle_detection_cb(uint8_t sender_id, float distance_obstacle, fl
     </block>
 
     <block name="Go Forward">
-      <call_once fun="guidance_h_set_guided_body_vel(0.5,0.0)"/>
+      <!--call_once fun="guidance_h_set_guided_body_vel(0.5,0.0)"/-->
+      <call_once fun="autopilot_guided_update(42,0.,0.5,-nominal_alt,0.)"/>
       <while cond="LessThan(block_time,5)" />
       <call_once fun="guidance_h_set_guided_body_vel(0.0,0.0)"/>
       <exception cond="2>distance_obstacle_FP" deroute="Turn 90 deg"/> 
