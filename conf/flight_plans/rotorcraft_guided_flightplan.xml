@@ -30,7 +30,6 @@
     <variable var="climb_descent_vel" init="0.3f" type="float" min="0." max="1" step="0.1"/>
     <variable var="forward_vel" init="0.5f" type="float" min="0." max="2" step="0.1"/>
 		<variable var="nominal_alt" init="NAV_DEFAULT_ALT" type="float" min="0." max="10." step="0.1"/>
-		<variable var="flag_xy_vel_body_z_NED" init="NAV_DEFAULT_ALT" type="float" min="0." max="10." step="0.1"/>
     <abi_binding name="OBSTACLE_DETECTION" vars="distance_obstacle_FP, _"/>
 </variables>
   <exceptions>
