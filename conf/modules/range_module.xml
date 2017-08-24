@@ -18,7 +18,7 @@
     <file name="range_module.h"/>
   </header>
   <init fun="range_init()"/>
-  <!--periodic fun="range_run()" freq="512" autorun="TRUE"/-->
+  <periodic fun="range_run()" freq="30" autorun="TRUE"/>
   <makefile>
     <file name="range_module.c"/>
   </makefile>
