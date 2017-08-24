@@ -317,5 +317,29 @@
 #define CV_COLORDETECTION 1
 #endif
 
+/*
+ * IDs of Range sensor related variables
+ */
+
+#ifndef RANGE_SENSORS
+#define RANGE_SENSORS 1
+#endif
+
+#ifndef RANGE_SENSORS_GAZEBO
+#define RANGE_SENSORS_GAZEBO 2
+#endif
+
+#ifndef AGL_RANGE_SENSORS
+#define AGL_RANGE_SENSORS 3
+#endif
+
+#ifndef AGL_RANGE_SENSORS_GAZEBO
+#define AGL_RANGE_SENSORS_GAZEBO 4
+#endif
+
+#ifndef RANGE_FORCEFIELD
+#define RANGE_FORCEFIELD 5
+#endif
+
 
 #endif /* ABI_SENDER_IDS_H */
