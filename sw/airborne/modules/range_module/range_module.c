@@ -36,8 +36,8 @@ float vel_body_x_guided;
 float vel_body_y_guided;
 
 //abi for range sensors
-#ifndef RANGE_MODULE_SENDER_ID
-#define RANGE_MODULE_SENDER_ID ABI_BROADCAST
+#ifndef RANGE_MODULE_RECIEVE_ID
+#define RANGE_MODULE_RECIEVE_ID ABI_BROADCAST
 #endif
 
 static abi_event range_sensors_ev;
@@ -62,27 +62,28 @@ void range_init(void)
   inner_border_FF = 1.0f;
   outer_border_FF = 1.4f;
   min_vel_command = 0.0f;
-  max_vel_command = 0.3f;
+  max_vel_command = 0.5f;
   vel_body_x_guided = 0.0f;
   vel_body_y_guided = 0.0f;
 
-  AbiBindMsgRANGE_SENSORS(RANGE_MODULE_SENDER_ID, &range_sensors_ev, range_sensors_cb);
+  AbiBindMsgRANGE_SENSORS(RANGE_MODULE_RECIEVE_ID, &range_sensors_ev, range_sensors_cb);
 
 }
 
-//TODO: In the ideal case, this should always be running, however for now just these functions will be used in the flight plan
-/*void range_run(void)
+void range_run(void)
 {
   float vel_body_x  = 0;
   float vel_body_y  = 0;
   float vel_body_z  = 0;
 
-  range_sensor_horizontal_force_field(&vel_body_x_guided, &vel_body_y_guided,
+  range_sensor_horizontal_velocity_force_field(&vel_body_x, &vel_body_y,
       inner_border_FF, outer_border_FF, min_vel_command, max_vel_command);
 
-  range_sensor_vertical_force_field(&vel_body_z,
+  range_sensor_vertical_velocity_force_field(&vel_body_z,
       inner_border_FF, outer_border_FF, min_vel_command, max_vel_command);
-}*/
+
+  AbiSendMsgRANGE_FORCEFIELD(RANGE_FORCEFIELD, vel_body_x, vel_body_y, vel_body_z);
+}
 
 /*  range_sensor_horizontal_force_field: This function adjusts the intended velocity commands in the horizontal plane
  * to move away from obstacles and walls as detected by single ray range sensors. An simple linear equation with the distance
@@ -101,7 +102,7 @@ void range_init(void)
  * */
 
 void range_sensor_horizontal_velocity_force_field(float *vel_body_x, float *vel_body_y, float avoid_inner_border, float avoid_outer_border,
-    float attract_border, float min_vel_command_lc, float max_vel_command_lc)
+     float min_vel_command_lc, float max_vel_command_lc)
 {
   static const float max_sensor_range = 2;
 
@@ -174,7 +175,7 @@ void range_sensor_horizontal_velocity_force_field(float *vel_body_x, float *vel_
  * @param[out] vel_body_y, adjusted body velocity in y direction [m/s]
  * */
 void range_sensor_vertical_velocity_force_field(float *vel_body_z, float avoid_inner_border, float avoid_outer_border,
-    float attract_border, float min_vel_command_lc, float max_vel_command_lc)
+    float min_vel_command_lc, float max_vel_command_lc)
 {
   static const float max_sensor_range = 2;
 
