@@ -723,10 +723,10 @@ static void gazebo_read_range_sensors(void)
 
   //SEND ABI MESSAGES
   // Standard range sensor message
-  AbiSendMsgRANGE_SENSORS(RANGE_SENSORS_GAZEBO, range_sensors_int16[0], range_sensors_int16[1], range_sensors_int16[2],
+  AbiSendMsgRANGE_SENSORS(RANGE_SENSORS_GAZEBO_ID, range_sensors_int16[0], range_sensors_int16[1], range_sensors_int16[2],
                           range_sensors_int16[3], range_sensors_int16[4], range_sensors_int16[5]);
   // Down range sensor as "Sonar"
-  AbiSendMsgAGL(AGL_RANGE_SENSORS_GAZEBO, gazebo_range_sensors.ray_down->Range(0));
+  AbiSendMsgAGL(AGL_RANGE_SENSORS_GAZEBO_ID, gazebo_range_sensors.ray_down->Range(0));
 
 
 }

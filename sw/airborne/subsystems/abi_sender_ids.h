@@ -313,32 +313,32 @@
  * IDs of Computer Vision Calculated variables
  */
 
-#ifndef CV_COLORDETECTION
-#define CV_COLORDETECTION 1
+#ifndef CV_COLORDETECTION_ID
+#define CV_COLORDETECTION_ID 1
 #endif
 
 /*
  * IDs of Range sensor related variables
  */
 
-#ifndef RANGE_SENSORS
-#define RANGE_SENSORS 1
+#ifndef RANGE_SENSORS_ID
+#define RANGE_SENSORS_ID 1
 #endif
 
-#ifndef RANGE_SENSORS_GAZEBO
-#define RANGE_SENSORS_GAZEBO 2
+#ifndef RANGE_SENSORS_GAZEBO_ID
+#define RANGE_SENSORS_GAZEBO_ID 2
 #endif
 
-#ifndef AGL_RANGE_SENSORS
-#define AGL_RANGE_SENSORS 3
+#ifndef AGL_RANGE_SENSORS_ID
+#define AGL_RANGE_SENSORS_ID 3
 #endif
 
-#ifndef AGL_RANGE_SENSORS_GAZEBO
-#define AGL_RANGE_SENSORS_GAZEBO 4
+#ifndef AGL_RANGE_SENSORS_GAZEBO_ID
+#define AGL_RANGE_SENSORS_GAZEBO_ID 4
 #endif
 
-#ifndef RANGE_FORCEFIELD
-#define RANGE_FORCEFIELD 5
+#ifndef RANGE_FORCEFIELD_ID
+#define RANGE_FORCEFIELD_ID 5
 #endif
 
 
