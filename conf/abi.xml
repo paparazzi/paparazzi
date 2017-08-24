@@ -107,6 +107,12 @@
       <field name="top_range_sensor" type="int16_t" unit="mm"/>
     </message>
 
+    <message name="RANGE_FORCEFIELD" id="19">
+      <field name="vel_body_x_FF" type="float" unit="m/s"/>
+      <field name="vel_body_y_FF" type="float" unit="m/s"/>
+      <field name="vel_body_z_FF" type="float" unit="m/s"/>
+    </message>
+
   </msg_class>
 
 </protocol>
