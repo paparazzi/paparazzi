@@ -82,7 +82,7 @@ void range_run(void)
   range_sensor_vertical_velocity_force_field(&vel_body_z,
       inner_border_FF, outer_border_FF, min_vel_command, max_vel_command);
 
-  AbiSendMsgRANGE_FORCEFIELD(RANGE_FORCEFIELD, vel_body_x, vel_body_y, vel_body_z);
+  AbiSendMsgRANGE_FORCEFIELD(RANGE_FORCEFIELD_ID, vel_body_x, vel_body_y, vel_body_z);
 }
 
 /*  range_sensor_horizontal_force_field: This function adjusts the intended velocity commands in the horizontal plane
