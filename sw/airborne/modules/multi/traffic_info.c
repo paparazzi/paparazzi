@@ -79,7 +79,11 @@ bool parse_acinfo_dl(void)
   uint8_t msg_id = IdOfPprzMsg(dl_buffer);
 
   /* handle telemetry message */
+#if PPRZLINK_DEFAULT_VER == 2
+  if (pprzlink_get_msg_class_id(dl_buffer) == DL_telemetry_CLASS_ID) {
+#else
   if (sender_id > 0) {
+#endif
     switch (msg_id) {
       case DL_GPS_SMALL: {
         uint32_t multiplex_speed = DL_GPS_SMALL_multiplex_speed(dl_buffer);

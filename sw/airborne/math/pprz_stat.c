@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Gautier Hattenberger (ENAC), 2017 Kirk Scheper
+ * Copyright (C) 2017 Kirk Scheper
  *
  * This file is part of paparazzi.
  *
@@ -19,19 +19,16 @@
  */
 
 /**
- * @file pprz_stat.h
+ * @file pprz_stat.c
  * @brief Statistics functions.
  *
  */
 
-#ifndef PPRZ_STAT_H
-#define PPRZ_STAT_H
+#include "math/pprz_stat.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include "std.h"
+/*********
+ * Integer implementations
+ *********/
 
 /** Compute the mean value of an array
  *  This is implemented using floats to handle scaling of all variables
@@ -39,7 +36,17 @@ extern "C" {
  *  @param[in] n_elements Number of elements in the array
  *  @return mean
  */
-extern int32_t mean_i(int32_t *array, uint32_t n_elements);
+int32_t mean_i(int32_t *array, uint32_t n_elements)
+{
+  // determine the mean for the vector:
+  float sum = 0.f;
+  uint32_t i;
+  for (i = 0; i < n_elements; i++) {
+    sum += (float)array[i];
+  }
+
+  return (int32_t)(sum / n_elements);
+}
 
 /** Compute the variance of an array of values (integer).
  *  The variance is a measure of how far a set of numbers is spread out
@@ -50,7 +57,10 @@ extern int32_t mean_i(int32_t *array, uint32_t n_elements);
  *  @param n_elements number of elements in the array
  *  @return variance
  */
-extern int32_t variance_i(int32_t *array, uint32_t n_elements);
+int32_t variance_i(int32_t *array, uint32_t n_elements)
+{
+  return (covariance_i(array, array, n_elements));
+}
 
 /** Compute the covariance of two arrays
  *  V(X) = E[(X-E[X])(Y-E[Y])] = E[XY] - E[X]E[Y]
@@ -61,14 +71,42 @@ extern int32_t variance_i(int32_t *array, uint32_t n_elements);
  *  @param[in] n_elements Number of elements in the arrays
  *  @return covariance
  */
-extern int32_t covariance_i(int32_t *array1, int32_t *array2, uint32_t n_elements);
+int32_t covariance_i(int32_t *array1, int32_t *array2, uint32_t n_elements)
+{
+  // Determine means for each vector:
+  float sumX = 0.f, sumY = 0.f, sumXY = 0.f;
+
+  // Determine the covariance:
+  uint32_t i;
+  for (i = 0; i < n_elements; i++) {
+    sumX += (float)array1[i];
+    sumY += (float)array2[i];
+    sumXY += (float)(array1[i]) * (float)(array2[i]);
+  }
+
+  return (int32_t)(sumXY / n_elements - sumX * sumY / (n_elements * n_elements));
+}
+
+/*********
+ * Float implementations
+ *********/
 
 /** Compute the mean value of an array (float)
  *  @param[in] *array The array
  *  @param[in] n_elements Number of elements in the array
  *  @return mean
  */
-extern float mean_f(float *arr, uint32_t n_elements);
+float mean_f(float *array, uint32_t n_elements)
+{
+  // determine the mean for the vector:
+  float sum = 0.f;
+  uint32_t i;
+  for (i = 0; i < n_elements; i++) {
+    sum += array[i];
+  }
+
+  return (sum / n_elements);
+}
 
 /** Compute the variance of an array of values (float).
  *  The variance is a measure of how far a set of numbers is spread out
@@ -78,7 +116,10 @@ extern float mean_f(float *arr, uint32_t n_elements);
  *  @param n_elements Number of values in the array
  *  @return variance
  */
-extern float variance_f(float *array, uint32_t n_elements);
+float variance_f(float *array, uint32_t n_elements)
+{
+  return covariance_f(array, array, n_elements);
+}
 
 /** Compute the covariance of two arrays
  *  V(X) = E[(X-E[X])(Y-E[Y])] = E[XY] - E[X]E[Y]
@@ -88,10 +129,18 @@ extern float variance_f(float *array, uint32_t n_elements);
  *  @param[in] n_elements Number of elements in the arrays
  *  @return covariance
  */
-extern float covariance_f(float *array1, float *array2, uint32_t n_elements);
+float covariance_f(float *arr1, float *arr2, uint32_t n_elements)
+{
+  // Determine means for each vector:
+  float sumX = 0.f, sumY = 0.f, sumXY = 0.f;
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
+  // Determine the covariance:
+  uint32_t i;
+  for (i = 0; i < n_elements; i++) {
+    sumX += arr1[i];
+    sumY += arr2[i];
+    sumXY += arr1[i] * arr2[i];
+  }
 
-#endif /* PPRZ_STAT_H */
+  return (sumXY / n_elements - sumX * sumY / (n_elements * n_elements));
+}
