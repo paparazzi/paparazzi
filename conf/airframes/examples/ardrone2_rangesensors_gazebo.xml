@@ -157,10 +157,10 @@
   </section>
 
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
-    <define name="HOVER_KP" value="283"/>
-    <define name="HOVER_KD" value="82"/>
-    <define name="HOVER_KI" value="13"/>
-    <define name="NOMINAL_HOVER_THROTTLE" value="0.655"/>
+    <define name="HOVER_KP" value="560"/>
+    <define name="HOVER_KD" value="160"/>
+    <define name="HOVER_KI" value="25"/>
+    <define name="NOMINAL_HOVER_THROTTLE" value="0.70"/>
     <define name="ADAPT_THROTTLE_ENABLED" value="FALSE"/>
   </section>
 
@@ -169,8 +169,8 @@
     <define name="MAX_BANK" value="20" unit="deg"/>
     <!-- Bad weather -->
     <!-- define name="MAX_BANK" value="32" unit="deg"/ -->
-    <define name="PGAIN" value="79"/>
-    <define name="DGAIN" value="100"/>
+    <define name="PGAIN" value="130"/>
+    <define name="DGAIN" value="180"/>
     <define name="IGAIN" value="30"/>
   </section>
 
