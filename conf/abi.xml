@@ -93,7 +93,12 @@
       <field name="thrust_increment" type="float" unit="m/s^2"/>
     </message>
 
-    <message name="RANGE_SENSORS" id="17">
+    <message name="OBSTACLE_DETECTION" id="17">
+      <field name="distance_obstacle" type="float" unit="m"/>
+      <field name="relative_heading" type="float" unit="rad"/>
+    </message>
+
+    <message name="RANGE_SENSORS" id="18">
       <field name="front_range_sensor" type="int16_t" unit="mm"/>
       <field name="right_range_sensor" type="int16_t" unit="mm"/>
       <field name="back_range_sensor" type="int16_t" unit="mm"/>
