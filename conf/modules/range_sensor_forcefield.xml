@@ -15,12 +15,12 @@
     </dl_settings>
   </settings>
   <header>
-    <file name="range_module.h"/>
+    <file name="range_sensor_forcefield.h"/>
   </header>
   <init fun="range_init()"/>
   <periodic fun="range_run()" freq="30" autorun="TRUE"/>
   <makefile>
-    <file name="range_module.c"/>
+    <file name="range_sensor_forcefield.c"/>
   </makefile>
 </module>
 
