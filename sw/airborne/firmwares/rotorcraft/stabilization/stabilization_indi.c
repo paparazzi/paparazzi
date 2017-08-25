@@ -378,7 +378,7 @@ static void stabilization_indi_calc_cmd(struct Int32Quat *att_err, bool rate_con
   g2_times_du = g2_times_du / INDI_G_SCALING;
 
   float v_thrust = 0.0;
-  if (indi_thrust_increment_set) {
+  if (indi_thrust_increment_set && in_flight) {
     v_thrust = indi_thrust_increment;
 
     //update thrust command such that the current is correctly estimated
