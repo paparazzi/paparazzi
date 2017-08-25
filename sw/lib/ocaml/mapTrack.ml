@@ -276,7 +276,6 @@ object (self)
           let points = geomap#convert_positions_to_points positions in
           ac_cam_cover#set [`POINTS points;
                             `OUTLINE_COLOR color];
-          (*cam#affine_absolute points; *)
           let (mission_target_xw, mission_target_yw) = geomap#world_of mission_target_wgs84 in
           mission_target#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value mission_target_xw mission_target_yw 0.0)
       | _ -> ()

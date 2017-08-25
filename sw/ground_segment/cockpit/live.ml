@@ -333,6 +333,19 @@ let mark = fun (geomap:G.widget) ac_id track plugin_frame ->
             let png = sprintf "%s/var/logs/%s" Env.paparazzi_home name in
             GdkPixbuf.save png "png" dest;
             incr i;
+
+      (* Computing the footprint: front_left and back_right *)
+            let cam_aperture = 2.4/.1.9 in (* width over distance FIXME *)
+            let alt = track#last_altitude -. float (Srtm.of_wgs84 geo) in
+            let width = cam_aperture *. alt in
+            let height = width *. 3. /. 4. in
+            let utm = utm_of WGS84 geo in
+            let a = (Deg>>Rad)track#last_heading in
+            let (xfl,yfl) = rotate a (-.width/.2., height/.2.)
+            and (xbr,ybr) = rotate a (width/.2., -.height/.2.) in
+            let geo_FL = of_utm WGS84 (utm_add utm (xfl,yfl))
+            and geo_BR = of_utm WGS84 (utm_add utm (xbr,ybr)) in
+            ignore (point#connect#event (show_snapshot geomap geo_FL geo_BR point dest name))
           end
       | None -> ()
 
