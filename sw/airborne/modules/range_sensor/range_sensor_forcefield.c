@@ -24,7 +24,7 @@
  * This module contains functions to accomendate the use of single point range sensors.
  */
 
-#include "modules/range_module/range_module.h"
+#include "modules/range_sensor/range_sensor_forcefield.h"
 #include "subsystems/abi.h"
 
 
