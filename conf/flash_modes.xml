@@ -80,7 +80,7 @@
     <boards>
       <board name="apogee_.*"/>
       <board name="stm32f4_discovery"/>
-      <board name="li[s]?a_[ms]?_.*"/>
+      <board name="li[s]?a_m_.*"/>
       <board name="li[s]?a_mx_.*"/>
       <board name="px4fmu_.*"/>
       <board name="px4io_.*"/>
@@ -97,7 +97,8 @@
   <mode name="BlackMagic Probe (SWD_NOPWR)">
     <variable name="FLASH_MODE" value="SWD_NOPWR"/>
     <boards>
-      <board name="li[s]?a_mxs_.*"/>      
+      <board name="li[s]?a_mxs_.*"/>
+      <board name="li[s]?a_s_.*"/>
     </boards>
   </mode>
   <mode name="BlackMagic Probe (JTAG)">
