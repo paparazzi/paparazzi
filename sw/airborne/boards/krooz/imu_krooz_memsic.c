@@ -79,9 +79,9 @@ void imu_krooz_init(void)
 
   // Init median filters
 #if IMU_KROOZ_USE_ACCEL_MEDIAN_FILTER
-  InitMedianFilterVect3Int(median_accel);
+  InitMedianFilterVect3Int(median_accel, MEDIAN_DEFAULT_SIZE);
 #endif
-  InitMedianFilterVect3Int(median_mag);
+  InitMedianFilterVect3Int(median_mag, MEDIAN_DEFAULT_SIZE);
 
   RATES_ASSIGN(imu_krooz.rates_sum, 0, 0, 0);
   VECT3_ASSIGN(imu_krooz.accel_sum, 0, 0, 0);

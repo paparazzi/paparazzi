@@ -28,6 +28,7 @@
  */
 
 #include "subsystems/sensors/baro.h"
+#include "boards/bebop/baro_board.h"
 #include "peripherals/ms5611_i2c.h"
 
 #include "mcu_periph/sys_time.h"

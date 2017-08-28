@@ -11,6 +11,7 @@
     <configure name="LIDAR_LITE_I2C_ADDR" value="0x62" description="default slave address of lidar"/>
     <configure name="USE_LIDAR_LITE_AGL" value="1" description="use this lidar for AGL measurements. On by deafult"/>
     <configure name="LIDAR_LITE_COMPENSATE_ROTATION" value="1" description="compensate AGL measurements for body rotation"/>
+    <configure name="LIDAR_LITE_MEDIAN_LENGTH" value="7" description="Length of median filter for Lidar-lite measurements"/>
   </doc>
 
   <settings>
@@ -35,11 +36,13 @@
     <configure name="LIDAR_LITE_I2C_ADDR" default="0xC4"/>
     <configure name="USE_LIDAR_LITE_AGL" default="1"/>
     <configure name="LIDAR_LITE_COMPENSATE_ROTATION" default="1"/>
+    <configure name="LIDAR_LITE_MEDIAN_LENGTH" default="7"/>
     <define name="LIDAR_LITE_I2C_DEV" value="$(LIDAR_LITE_I2C_DEV_LOWER)"/>
     <define name="USE_$(LIDAR_LITE_I2C_DEV_UPPER)"/>
     <define name="LIDAR_LITE_I2C_ADDR" value="$(LIDAR_LITE_I2C_ADDR)"/>
     <define name="USE_LIDAR_LITE_AGL" value="$(USE_LIDAR_LITE_AGL)"/>
     <define name="LIDAR_LITE_COMPENSATE_ROTATION" value="$(LIDAR_LITE_COMPENSATE_ROTATION)"/>
+    <define name="LIDAR_LITE_MEDIAN_LENGTH" value="$(LIDAR_LITE_MEDIAN_LENGTH)"/>
     <file name="lidar_lite.c"/>
   </makefile>
   <makefile target="nps">
