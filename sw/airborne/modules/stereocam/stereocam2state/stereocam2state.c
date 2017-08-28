@@ -33,7 +33,7 @@ uint8_t stereocam_medianfilter_on = 1;
 #endif
 
 #include "filters/median_filter.h"
-struct MedianFilterInt medianfilter_x, medianfilter_y, medianfilter_z;
+struct MedianFilter3Float velFilter;
 
 #include "subsystems/datalink/telemetry.h"
 
@@ -41,10 +41,7 @@ void stereocam_to_state(void);
 
 void stereo_to_state_init(void)
 {
-
-  init_median_filter(&medianfilter_x);
-  init_median_filter(&medianfilter_y);
-  init_median_filter(&medianfilter_z);
+  InitMedianFilterVect3Float(velFilter, MEDIAN_DEFAULT_SIZE);
 }
 
 void stereo_to_state_periodic(void)
@@ -120,9 +117,7 @@ void stereocam_to_state(void)
   if (stereocam_medianfilter_on == 1) {
     // Use a slight median filter to filter out the large outliers before sending it to state
     // TODO: if a float median filter exist, replace this version
-    vel_body_x_processed = (float)update_median_filter(&medianfilter_x, (int32_t)(quad_body_vel.x * 100)) / 100;
-    vel_body_y_processed = (float)update_median_filter(&medianfilter_y, (int32_t)(quad_body_vel.y * 100)) / 100;
-    vel_body_z_processed = (float)update_median_filter(&medianfilter_z, (int32_t)(quad_body_vel.z * 100)) / 100;
+    UpdateMedianFilterVect3Float(velFilter, quad_body_vel);
   }
 
   //Send velocities to state

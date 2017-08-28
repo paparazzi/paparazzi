@@ -9,6 +9,7 @@
     <configure name="PX4FLOW_NOISE_STDDEV" value="1.0" description="standard deviation of the flow measurement (if known)"/>
     <configure name="USE_PX4FLOW_AGL" value="1" description="update AGL measurements from onboard sonar"/>
     <configure name="PX4FLOW_COMPENSATE_ROTATION" value="1" description="compensate AGL measurements for body rotation"/>
+    <configure name="PX4FLOW_MEDIAN_LENGTH" value="7" description="Median filter length for the px4flow measurements"/>
   </doc>
 
   <settings>
@@ -34,6 +35,7 @@
     <configure name="PX4FLOW_NOISE_STDDEV" default="1.0"/>
     <configure name="USE_PX4FLOW_AGL" default="1"/>
     <configure name="PX4FLOW_COMPENSATE_ROTATION" default="1"/>
+    <configure name="PX4FLOW_MEDIAN_LENGTH" default="7"/>
     <define name="PX4FLOW_I2C_DEV" value="$(PX4FLOW_I2C_DEV_LOWER)"/>
     <define name="USE_$(PX4FLOW_I2C_DEV_UPPER)"/>
     <define name="PX4FLOW_I2C_ADDR" value="$(PX4FLOW_I2C_ADDR)"/>
@@ -41,6 +43,7 @@
     <define name="PX4FLOW_NOISE_STDDEV" value="$(PX4FLOW_NOISE_STDDEV)"/>
     <define name="USE_PX4FLOW_AGL" value="$(USE_PX4FLOW_AGL)"/>
     <define name="PX4FLOW_COMPENSATE_ROTATION" value="$(PX4FLOW_COMPENSATE_ROTATION)"/>
+    <define name="PX4FLOW_MEDIAN_LENGTH" value="$(PX4FLOW_MEDIAN_LENGTH)"/>
     <file name="px4flow_i2c.c"/>
   </makefile>
 </module>
