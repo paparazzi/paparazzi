@@ -1,0 +1,37 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="relativeavoidancefilter" dir="relativeavoidancefilter">
+	<doc>
+		<description>
+			Relative Localization Filter for collision avoidance between drones
+		</description>
+	</doc>
+	<header>
+		<!-- Main file -->
+		<file name="relativeavoidancefilter.h"/>
+		<!-- Functions files -->
+		<file name="functions/arrayfunctions.h"/>
+		<file name="functions/collisioncone.h"/>
+		<file name="functions/coordinateconversions.h"/>
+		<file name="functions/discreteekf.h"/>
+		<file name="functions/fmatrix.h"/>
+		<file name="functions/PID.h"/>
+		<file name="functions/shape.h"/>
+		<file name="functions/randomgenerator.h"/>
+	</header>
+	<init fun="relativeavoidancefilter_init()"/>
+	<periodic fun="relativeavoidancefilter_periodic()" freq="20" autorun="TRUE"/>
+	<makefile>
+		<!-- Main file -->
+		<file name="relativeavoidancefilter.c"/>
+		<!-- Functions files -->
+		<file name="functions/arrayfunctions.c"/>
+		<file name="functions/collisioncone.c"/>
+		<file name="functions/coordinateconversions.c"/>
+		<file name="functions/discreteekf.c"/>
+		<file name="functions/fmatrix.c"/>
+		<file name="functions/PID.c"/>
+		<file name="functions/shape.c"/>
+		<file name="functions/randomgenerator.c"/>
+	</makefile>
+</module>
