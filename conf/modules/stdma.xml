@@ -1,0 +1,41 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="stdma" dir="stdma">
+  <doc>
+    <description>
+      Telemetry using PPRZ protocol over Bluegiga modules
+
+      Bluegiga is a SPI-slave device without Chip select but with a compulsory DRDY
+
+      Required:
+      BLUEGIGA_SPI_DEV: the SPI device which MUST have a SLAVE mode without chipselect
+
+      Optional: (defaults to SUPERBITRF DRDY)
+      BLUEGIGA_DRDY_GPIO
+      BLUEGIGA_DRDY_GPIO_PIN
+
+      On Lisa-s, the Superbit-RF module can be replaced with a bluegiga-bluetooth 4 low power board.
+      This module puts the telemetry over this bluetooth 4 link.
+    </description>
+    <configure name="BLUEGIGA_UART_DEV" value="UARTx" description="UART where the modem is connected to (UART1, UART2, etc)"/>
+    <configure name="MODEM_LED" value="none" description="LED number for modem status, 'none' to disable"/>
+  </doc>
+  <header>
+    <file name="stdma.h"/>
+  </header>
+  <init fun="stdma_init()"/>
+  <periodic fun="stdma_periodic()" autorun="TRUE" freq="30"/>
+  <event fun="read_message()"/>
+  <event fun="write_message()"/>
+  <makefile target="!fbw|sim|nps">
+  	<configure name="BLUEGIGA_UART" default="UART2" case="upper|lower"/>
+  	<configure name="BLUEGIGA_BAUD" default="B115200"/>
+    <define name="USE_$(BLUEGIGA_UART_UPPER)"/>
+    <define name="BLUEGIGA_UART" value="$(BLUEGIGA_UART_LOWER)"/>
+    <define name="$(BLUEGIGA_UART_UPPER)_BAUD" value="$(BLUEGIGA_BAUD)"/>
+    <file name="stdma.c"/>
+    <file name="cmd_def.c" dir="modules/stdma"/>
+    <file name="stubs.c" dir="modules/stdma"/>
+    <file name="pprz_transport.c" dir="pprzlink/src"/>
+  </makefile>
+</module>

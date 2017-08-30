@@ -22,28 +22,26 @@
   </sectors>
   <blocks>
     <block name="Wait GPS">
-      <call fun="NavKillThrottle()"/>
+      <call_once fun="NavKillThrottle()"/>
       <while cond="!GpsFixValid()"/>
     </block>
     <block name="Holding point">
-      <call fun="NavKillThrottle()"/>
+      <call_once fun="NavKillThrottle()"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
-      <!-- <call fun="NavSetWaypointHere(WP_STDBY)"/> -->
     </block>
     <block name="Start Engine">
-      <call fun="NavResurrect()"/>
+      <call_once fun="NavResurrect()"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
       <exception cond="stateGetPositionEnu_f()->z > 0.5" deroute="Standby"/>
-      <!-- <call fun="NavSetWaypointHere(WP_STDBY)"/> -->
       <stay climb="nav_climb_vspeed" vmode="climb" wp="STDBY"/>
     </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
       <stay wp="STDBY"/>
     </block>
     <block name="landed">
-      <call fun="NavKillThrottle()"/>
+      <call_once fun="NavKillThrottle()"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
   </blocks>

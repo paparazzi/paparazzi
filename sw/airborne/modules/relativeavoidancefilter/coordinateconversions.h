@@ -1,13 +1,35 @@
+/*
+ * Copyright (C) Mario Coppola
+ *
+ * This file is part of paparazzi
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
+/**
+ * @file "modules/relativeavoidancefilter/coordinateconversions.h"
+ * @author Mario Coppola
+ * Functions to convert between coordinate frames
+ */
+
 #ifndef COORDINATECONVERSIONS_H
 #define COORDINATECONVERSIONS_H
 
 // Standard C includes
 #include "math.h"
 
-/* Function to convert polar coordinates to cartesian
-
-Compliments of 
-http://stackoverflow.com/questions/29089710/pointers-in-c-programming-coordinate-conversion */
+/* Function to convert polar coordinates to cartesian*/
 void polar2cart(float radius, float radians, float *x, float *y);
 
 /* Function to convert cartesian coordinates to polar */
