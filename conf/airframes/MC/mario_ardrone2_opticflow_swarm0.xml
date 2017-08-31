@@ -27,16 +27,18 @@
     <module name="gps" type="datalink"/>
     <module name="stabilization" type="indi_simple"/>
     <module name="ahrs" type="int_cmpl_quat">
-      <configure name="USE_MAGNETOMETER" value="FALSE"/>
+      <configure name="USE_MAGNETOMETER" value="TRUE"/>
       <configure name="AHRS_USE_GPS" value="FALSE"/>
       <!--configure name="AHRS_USE_GPS_HEADING" value="TRUE"/-->
     </module>
     <module name="ins" type="extended"/>
   </firmware>
 
- <section name="RELATIVEAVOIDANCEFILTER" prefix="">
+ <section name="RELATIVELOCALIZATIONFILTER" prefix="">
   <define name="RSSINOISE" value="5.0"/>  <!-- (Expected) Noise on RSSI -->
   <define name="SPEEDNOISE" value="0.2"/> <!-- (Expected) Noise on other measurements -->
+  <define name="NUAVS" value="5"/>        <!-- Maximum number of UAVs to track -->
+  <define name="BLUEGIGA_DONGLE" value="TRUE" />
  </section>
 
   <modules main_freq="512">
@@ -53,7 +55,7 @@
     </module>
     <module name="traffic_info.xml"/>
     <module name="rssi.xml"/>
-    <module name="relativeavoidancefilter.xml"/>
+    <module name="relativelocalizationfilter.xml"/>
 
     <module name="video_thread"/>
 

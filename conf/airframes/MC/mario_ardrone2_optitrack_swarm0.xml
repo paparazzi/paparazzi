@@ -1,4 +1,4 @@
-<!DOCTYPE airframe SYSTEM "../../airframe.dtd">
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <airframe name="ardrone2_optitrack">
 
@@ -12,9 +12,9 @@
       <configure name="MODEM_BROADCAST" value="FALSE"/>
     </target>
 
-    <target name="nps" board="pc">
+    <!--target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
-    </target>
+    </target-->
 
     <define name="FAILSAFE_DESCENT_SPEED" value="0.5"/>
     <define name="USE_SONAR" value="0"/>
@@ -27,18 +27,17 @@
     <module name="actuators" type="ardrone2"/>
     <module name="imu" type="ardrone2"/>
     <module name="gps" type="datalink"/>
-    <module name="stabilization" type="indi"/>
+    <module name="stabilization" type="indi_simple"/>
     <module name="ahrs" type="int_cmpl_quat"/>
     <module name="ins" type="extended"/>
-    </firmware>
+  </firmware>
 
-     <section name="RELATIVEAVOIDANCEFILTER" prefix="">
-      <define name="MAVSIZE" value="0.6"/> <!-- Size of collision cone (= 1.0 + 2*radius)-->
-      <define name="ASIDE" value="2.0"/> <!-- Size of arena -->
-      <define name="RSSINOISE" value="5.0"/> <!-- (Expected) Noise on RSSI -->
-      <define name="SPEEDNOISE" value="0.2"/> <!-- (Expected) Noise on other measurements -->
-      <define name="V_NOMINAL" value="0.5"/> <!-- Desired nominal velocity -->
-     </section>
+ <section name="RELATIVELOCALIZATIONFILTER" prefix="">
+  <define name="RSSINOISE" value="5.0"/>  <!-- (Expected) Noise on RSSI -->
+  <define name="SPEEDNOISE" value="0.2"/> <!-- (Expected) Noise on other measurements -->
+  <define name="NUAVS" value="5"/>        <!-- Maximum number of UAVs to track -->
+  <define name="BLUEGIGA_DONGLE" value="TRUE" />
+ </section>
 
 <modules main_freq="512">
     <module name="bat_voltage_ardrone2.xml"/>
@@ -51,7 +50,7 @@
     </module>
     <module name="traffic_info.xml"/>
     <module name="rssi.xml"/>
-    <load name="relativeavoidancefilter.xml"/>
+    <module name="relativelocalizationfilter.xml"/>
   </modules>
 
   <commands>
@@ -78,7 +77,7 @@
   </section>
 
   <command_laws>
-    <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
+    <call fun="motor_mixing_run(autopilot_get_motors_on(),FALSE,values)"/>
     <set servo="TOP_LEFT" value="motor_mixing.commands[MOTOR_FRONT_LEFT]"/>
     <set servo="TOP_RIGHT" value="motor_mixing.commands[MOTOR_FRONT_RIGHT]"/>
     <set servo="BOTTOM_RIGHT" value="motor_mixing.commands[MOTOR_BACK_RIGHT]"/>

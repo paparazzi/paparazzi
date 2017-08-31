@@ -18,7 +18,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/relativeavoidancefilter/coordinateconversions.h"
+ * @file "modules/relativelocalizationfilter/coordinateconversions.h"
  * @author Mario Coppola
  * Functions to convert between coordinate frames
  */

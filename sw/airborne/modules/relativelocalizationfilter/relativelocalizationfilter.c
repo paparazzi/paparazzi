@@ -18,12 +18,12 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/relativeavoidancefilter/relativeavoidancefilter.c"
+ * @file "modules/relativelocalizationfilter/relativelocalizationfilter.c"
  * @author Mario Coppola
  * Relative Localization Filter for collision avoidance between drones
  */
 
-#include "relativeavoidancefilter.h"
+#include "relativelocalizationfilter.h"
 #include "subsystems/datalink/telemetry.h"
 #include "modules/multi/traffic_info.h"
 #include "modules/stdma/stdma.h"
@@ -33,7 +33,9 @@
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/datalink/downlink.h"
 
+#ifndef NUAVS
 #define NUAVS 5				// Maximum expected number of drones
+#endif
 
 #ifndef INS_INT_VEL_ID
 #define INS_INT_VEL_ID ABI_BROADCAST
@@ -138,58 +140,43 @@ static void bluetoothmsg_cb(uint8_t sender_id __attribute__((unused)),
 	}
 };
 
-// bool alternate;
-// static void send_rafilterdata(struct transport_tx *trans, struct link_device *dev)
-// {	
-// 	// Store the relative localization data
-// 	uint8_t i;
-// 	// To avoid overflowing, it is best to send the data of each tracked drone separately.
-// 	// To do so, we can cycle through the filters at each new timestep.
-// 	// cnt++;
-// 	// if (cnt == nf)
-// 	// 	cnt = 0;
-	
-// 	// TODO: MAKE THIS SWITCHING NOT LAZY BUT PROPER FOR UNLIMITED MAVS
-// 	// array_shiftleft(vec, nf, 1);
-// 	// vec is a vector of 0 to nf defined each time nf increases
-// 	if (nf == 2) {
-// 		if (alternate) {
-// 			alternate = false;
-// 			i = 1;
-// 		}
-// 		else {
-// 			alternate = true;
-// 			i = 0;
-// 		}
-// 	}
-// 	else { //only data on first
-// 		i = 0;
-// 	}
+#ifdef PPRZ_MSG_ID_RLFILTER
+int cnt;
+static void send_rafilterdata(struct transport_tx *trans, struct link_device *dev)
+{
+	// To avoid overflowing, it is best to send the data of each tracked drone separately.
+	// To do so, we can cycle through the filters at each new timestep.
+	cnt++;
+	if (cnt == nf)
+		cnt = 0;
 
-// 	int8_t id = (int8_t)IDarray[i]; // Extract ID
+	pprz_msg_send_RLFILTER(
+		trans, dev, AC_ID,			 // Standard stuff
+		&id,			     		 // ID of the tracked UAV in question
+		&RSSIarray[i], 		    	 // Received ID and RSSI
+		&srcstrength[i],		     // Source strength
+		&ekf[i].X[0], &ekf[i].X[1],  // Relative position [North, East]
+		&ekf[i].X[2], &ekf[i].X[3],  // Own velocity [North, East]
+		&ekf[i].X[4], &ekf[i].X[5],  // Relative velocity of other drone [North, East]
+		&ekf[i].X[6]				 // Height separation [Down]
+		); 
+			 
+};
+#endif
 
-// 	pprz_msg_send_RLFILTER(
-// 		trans, dev, AC_ID,			 // Standard stuff
-// 		&id,			     		 // ID of the tracked UAV in question
-// 		&RSSIarray[i], 		    	 // Received ID and RSSI
-// 		&srcstrength[i],		     // Source strength
-// 		&ekf[i].X[0], &ekf[i].X[1],  // Relative position [North, East]
-// 		&ekf[i].X[2], &ekf[i].X[3],  // Own velocity [North, East]
-// 		&ekf[i].X[4], &ekf[i].X[5],  // Relative velocity of other drone [North, East]
-// 		&ekf[i].X[6]				 // Height separation [Down]
-// 		);  				 
-// };
-
-void relativeavoidancefilter_init(void)
+void relativelocalizationfilter_init(void)
 {
 	array_make_zeros_int(NUAVS-1, IDarray); // Clear out the known IDs
 	nf = 0; // Number of active filters upon initialization
 
 	AbiBindMsgRSSI(ABI_BROADCAST, &rssi_ev, bluetoothmsg_cb); // Subscribe to the ABI RSSI messages
-	// register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_RLFILTER, send_rafilterdata); // Send out the filter data
+	#ifdef PPRZ_MSG_ID_RLFILTER
+	cnt = 0;
+	register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_RLFILTER, send_rafilterdata); // Send out the filter data
+	#endif
 };
 
-void relativeavoidancefilter_periodic(void)
+void relativelocalizationfilter_periodic(void)
 {	
 	/*********************************************
 		Sending speed directly between drones
@@ -207,8 +194,10 @@ void relativeavoidancefilter_periodic(void)
 	int16_t alt = (int16_t)(stateGetPositionEnu_f()->z*100.0);
 
 	// Use this for communication via the AR drones + Bluetooth dongle
+	#ifdef BLUEGIGA_DONGLE
 	DOWNLINK_SEND_GPS_SMALL(extra_pprz_tp, EXTRA_DOWNLINK_DEVICE, &multiplex_speed, &gps.lla_pos.lat, &gps.lla_pos.lon, &alt);
-	
+	#elif BLUETOOTH_UART
 	// Message through USB bluetooth dongle to other drones
-	// DOWNLINK_SEND_GPS_SMALL(stdma_trans, bluegiga_p, &multiplex_speed, &gps.lla_pos.lat, &gps.lla_pos.lon, &alt);
+	DOWNLINK_SEND_GPS_SMALL(stdma_trans, bluegiga_p, &multiplex_speed, &gps.lla_pos.lat, &gps.lla_pos.lon, &alt);
+	#endif
 }

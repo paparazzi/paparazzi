@@ -1,4 +1,4 @@
-<!DOCTYPE airframe SYSTEM "../../airframe.dtd">
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <airframe name="ardrone2_opticflow">
 
@@ -25,21 +25,20 @@
     <module name="actuators" type="ardrone2"/>
     <module name="imu" type="ardrone2"/>
     <module name="gps" type="datalink"/>
-    <module name="stabilization" type="indi"/>
+    <module name="stabilization" type="indi_simple"/>
     <module name="ahrs" type="int_cmpl_quat">
-      <configure name="USE_MAGNETOMETER" value="FALSE"/>
+      <configure name="USE_MAGNETOMETER" value="TRUE"/>
       <configure name="AHRS_USE_GPS" value="FALSE"/>
-      <configure name="AHRS_USE_GPS_HEADING" value="FALSE"/>
+      <!--configure name="AHRS_USE_GPS_HEADING" value="TRUE"/-->
     </module>
     <module name="ins" type="extended"/>
   </firmware>
 
- <section name="RELATIVEAVOIDANCEFILTER" prefix="">
-  <define name="MAVSIZE" value="0.6"/>    <!-- MAV diameter -->
-  <define name="ASIDE" value="2.0"/>      <!-- Size of arena (for testing) -->
+ <section name="RELATIVELOCALIZATIONFILTER" prefix="">
   <define name="RSSINOISE" value="5.0"/>  <!-- (Expected) Noise on RSSI -->
   <define name="SPEEDNOISE" value="0.2"/> <!-- (Expected) Noise on other measurements -->
-  <define name="V_NOMINAL" value="0.5"/>  <!-- Desired nominal velocity -->
+  <define name="NUAVS" value="5"/>        <!-- Maximum number of UAVs to track -->
+  <define name="BLUEGIGA_DONGLE" value="TRUE" />
  </section>
 
   <modules main_freq="512">
@@ -56,7 +55,7 @@
     </module>
     <module name="traffic_info.xml"/>
     <module name="rssi.xml"/>
-    <module name="relativeavoidancefilter.xml"/>
+    <module name="relativelocalizationfilter.xml"/>
 
     <module name="video_thread"/>
 
@@ -100,7 +99,7 @@
   </section>
 
   <command_laws>
-    <call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/>
+    <call fun="motor_mixing_run(autopilot_get_motors_on(),FALSE,values)"/>
     <set servo="TOP_LEFT" value="motor_mixing.commands[MOTOR_FRONT_LEFT]"/>
     <set servo="TOP_RIGHT" value="motor_mixing.commands[MOTOR_FRONT_RIGHT]"/>
     <set servo="BOTTOM_RIGHT" value="motor_mixing.commands[MOTOR_BACK_RIGHT]"/>
@@ -156,10 +155,7 @@
     <define name="H_X" value="0.3892503"/>
     <define name="H_Y" value="0.0017972"/>
     <define name="H_Z" value="0.9211303"/>
-
-    <!-- Use GPS heading instead of magneto -->
-    <!-- <define name="HEADING_UPDATE_GPS_MIN_SPEED" value="0"/> -->
- </section>
+  </section>
 
   <section name="INS" prefix="INS_">
     <define name="SONAR_MAX_RANGE" value="2.2"/>

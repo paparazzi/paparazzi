@@ -34,41 +34,41 @@
   </sectors>
   <blocks>
     <block name="Wait GPS">
-      <call fun="NavKillThrottle()"/>
+      <call_once fun="NavKillThrottle()"/>
       <while cond="!GpsFixValid()"/>
     </block>
     <block name="Holding point">
-      <call fun="NavKillThrottle()"/>
+      <call_once fun="NavKillThrottle()"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
-      <call fun="NavSetWaypointHere(WP_STDBY)"/>
+      <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
     </block>
     <block name="Start Engine">
-      <call fun="NavResurrect()"/>
+      <call_once fun="NavResurrect()"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
       <exception cond="stateGetPositionEnu_f()->z > 0.5" deroute="Standby"/>
-      <call fun="NavSetWaypointHere(WP_STDBY)"/>
+      <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
       <stay climb="nav_climb_vspeed" vmode="climb" wp="STDBY"/>
     </block>
     <block name="Standby" strip_button="Standby" strip_icon="home.png">
-      <call fun="nav_set_heading_deg(0)"/>
+      <call_once fun="nav_set_heading_deg(0)"/>
       <stay wp="STDBY"/>
     </block>
     <block name="InitialPos1" strip_button="Init1">
-      <call fun="nav_set_heading_deg(0)"/>
+      <call_once fun="nav_set_heading_deg(0)"/>
       <stay wp="TD1"/>
     </block>
     <block name="InitialPos2" strip_button="Init2">
-      <call fun="nav_set_heading_deg(0)"/>
+      <call_once fun="nav_set_heading_deg(0)"/>
       <stay wp="TD2"/>
     </block>
     <block name="InitialPos3" strip_button="Init3">
-      <call fun="nav_set_heading_deg(0)"/>
+      <call_once fun="nav_set_heading_deg(0)"/>
       <stay wp="TD3"/>
     </block>
     <block name="land here" strip_button="Land Here" strip_icon="land-right.png">
-      <call fun="NavSetWaypointHere(WP_STDBY)"/>
+      <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
     </block>
     <block name="land">
       <go wp="STDBY"/>
@@ -76,11 +76,11 @@
     <block name="flare">
       <exception cond="NavDetectGround()" deroute="Holding point"/>
       <exception cond="!nav_is_in_flight()" deroute="landed"/>
-      <call fun="NavStartDetectGround()"/>
+      <call_once fun="NavStartDetectGround()"/>
       <stay climb="nav_descend_vspeed" vmode="climb" wp="STDBY"/>
     </block>
     <block name="landed">
-      <call fun="NavKillThrottle()"/>
+      <call_once fun="NavKillThrottle()"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
     <block name="stay_wp1">

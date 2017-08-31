@@ -18,7 +18,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/relativeavoidancefilter/fmatrix.h"
+ * @file "modules/relativelocalizationfilter/fmatrix.h"
  * @author Mario Coppola
  * C matrix functions
  */

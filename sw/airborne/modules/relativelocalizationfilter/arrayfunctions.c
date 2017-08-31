@@ -18,7 +18,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/relativeavoidancefilter/arrayfunctions.c"
+ * @file "modules/relativelocalizationfilter/arrayfunctions.c"
  * @author Mario Coppola
  * Array functions for array processing
  */

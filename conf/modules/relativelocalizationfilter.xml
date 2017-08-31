@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="relativeavoidancefilter" dir="relativeavoidancefilter">
+<module name="relativelocalizationfilter" dir="relativelocalizationfilter">
 	<doc>
 		<description>
 			Relative Localization Filter based on Bluetooth Communication between drones
@@ -8,18 +8,18 @@
 	</doc>
 	<header>
 		<!-- Main file -->
-		<file name="relativeavoidancefilter.h"/>
+		<file name="relativelocalizationfilter.h"/>
 		<!-- Functions files -->
 		<file name="arrayfunctions.h"/>
 		<file name="coordinateconversions.h"/>
 		<file name="discreteekf.h"/>
 		<file name="fmatrix.h"/>
 	</header>
-	<init fun="relativeavoidancefilter_init()"/>
-	<periodic fun="relativeavoidancefilter_periodic()" freq="20" autorun="TRUE"/>
+	<init fun="relativelocalizationfilter_init()"/>
+	<periodic fun="relativelocalizationfilter_periodic()" freq="20" autorun="TRUE"/>
 	<makefile>
 		<!-- Main file -->
-		<file name="relativeavoidancefilter.c"/>
+		<file name="relativelocalizationfilter.c"/>
 		<!-- Functions files -->
 		<file name="arrayfunctions.c"/>
 		<file name="coordinateconversions.c"/>
