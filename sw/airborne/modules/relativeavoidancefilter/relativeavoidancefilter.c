@@ -138,47 +138,47 @@ static void bluetoothmsg_cb(uint8_t sender_id __attribute__((unused)),
 	}
 };
 
-bool alternate;
-static void send_rafilterdata(struct transport_tx *trans, struct link_device *dev)
-{	
-	// Store the relative localization data
-	uint8_t i;
-	// To avoid overflowing, it is best to send the data of each tracked drone separately.
-	// To do so, we can cycle through the filters at each new timestep.
-	// cnt++;
-	// if (cnt == nf)
-	// 	cnt = 0;
+// bool alternate;
+// static void send_rafilterdata(struct transport_tx *trans, struct link_device *dev)
+// {	
+// 	// Store the relative localization data
+// 	uint8_t i;
+// 	// To avoid overflowing, it is best to send the data of each tracked drone separately.
+// 	// To do so, we can cycle through the filters at each new timestep.
+// 	// cnt++;
+// 	// if (cnt == nf)
+// 	// 	cnt = 0;
 	
-	// TODO: MAKE THIS SWITCHING NOT LAZY BUT PROPER FOR UNLIMITED MAVS
-	// array_shiftleft(vec, nf, 1);
-	// vec is a vector of 0 to nf defined each time nf increases
-	if (nf == 2) {
-		if (alternate) {
-			alternate = false;
-			i = 1;
-		}
-		else {
-			alternate = true;
-			i = 0;
-		}
-	}
-	else { //only data on first
-		i = 0;
-	}
+// 	// TODO: MAKE THIS SWITCHING NOT LAZY BUT PROPER FOR UNLIMITED MAVS
+// 	// array_shiftleft(vec, nf, 1);
+// 	// vec is a vector of 0 to nf defined each time nf increases
+// 	if (nf == 2) {
+// 		if (alternate) {
+// 			alternate = false;
+// 			i = 1;
+// 		}
+// 		else {
+// 			alternate = true;
+// 			i = 0;
+// 		}
+// 	}
+// 	else { //only data on first
+// 		i = 0;
+// 	}
 
-	int8_t id = (int8_t)IDarray[i]; // Extract ID
+// 	int8_t id = (int8_t)IDarray[i]; // Extract ID
 
-	pprz_msg_send_RLFILTER(
-		trans, dev, AC_ID,			 // Standard stuff
-		&id,			     		 // ID of the tracked UAV in question
-		&RSSIarray[i], 		    	 // Received ID and RSSI
-		&srcstrength[i],		     // Source strength
-		&ekf[i].X[0], &ekf[i].X[1],  // Relative position [North, East]
-		&ekf[i].X[2], &ekf[i].X[3],  // Own velocity [North, East]
-		&ekf[i].X[4], &ekf[i].X[5],  // Relative velocity of other drone [North, East]
-		&ekf[i].X[6]				 // Height separation [Down]
-		);  				 
-};
+// 	pprz_msg_send_RLFILTER(
+// 		trans, dev, AC_ID,			 // Standard stuff
+// 		&id,			     		 // ID of the tracked UAV in question
+// 		&RSSIarray[i], 		    	 // Received ID and RSSI
+// 		&srcstrength[i],		     // Source strength
+// 		&ekf[i].X[0], &ekf[i].X[1],  // Relative position [North, East]
+// 		&ekf[i].X[2], &ekf[i].X[3],  // Own velocity [North, East]
+// 		&ekf[i].X[4], &ekf[i].X[5],  // Relative velocity of other drone [North, East]
+// 		&ekf[i].X[6]				 // Height separation [Down]
+// 		);  				 
+// };
 
 void relativeavoidancefilter_init(void)
 {
@@ -186,7 +186,7 @@ void relativeavoidancefilter_init(void)
 	nf = 0; // Number of active filters upon initialization
 
 	AbiBindMsgRSSI(ABI_BROADCAST, &rssi_ev, bluetoothmsg_cb); // Subscribe to the ABI RSSI messages
-	register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_RLFILTER, send_rafilterdata); // Send out the filter data
+	// register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_RLFILTER, send_rafilterdata); // Send out the filter data
 };
 
 void relativeavoidancefilter_periodic(void)
