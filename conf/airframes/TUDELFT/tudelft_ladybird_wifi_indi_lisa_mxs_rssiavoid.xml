@@ -242,15 +242,6 @@
      <configure name="STEREO_BAUD" value="B115200"/>
      <define name="SEND_STEREO" value="FALSE"/>
    </module>
-   <module name="stereocam_state2camera">
-     <configure name="STEREO_UART" value="UART2"/>
-     <configure name="STEREO_BAUD" value="B115200"/>
-     <define name="STATE2CAMERA_SEND_DATA_TYPE" value="1"/>
-   </module>
-   <module name="stereocam_stereocam2state">
-     <define name="STEREOCAM2STATE_RECEIVED_DATA_TYPE" value="0"/>
-     <define name="STEREOCAM2STATE_EDGEFLOW_PIXELWISE" value="TRUE"/>
-	 </module>
 
 <module name="stdma">
      <configure name="BLUEGIGA_UART" value="UART3"/>
