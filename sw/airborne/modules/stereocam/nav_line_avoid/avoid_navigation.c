@@ -50,9 +50,6 @@
 #include "led.h"
 
 
-
-
-
 struct AvoidNavigationStruct avoid_navigation_data;
 bool obstacle_detected = false;
 int32_t counter = 0;

@@ -10,9 +10,8 @@
   <header>
     <file name="stereocam_follow_me/follow_me.h"/>
   </header>
-  <periodic fun="follow_me_periodic()" freq="512"/>
   <makefile>
-    <file name="stereocam_follow_me/follow_me.c"  />
+    <define name="STEREOCAM_FOLLOWME"/>
+    <file name="stereocam_follow_me/follow_me.c"/>
   </makefile>
 </module>
-
