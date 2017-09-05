@@ -24,6 +24,7 @@
 #include <std.h>
 
 #include "modules/dcf/dcf.h"
+#include "subsystems/datalink/datalink.h" // dl_buffer
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
@@ -40,8 +41,12 @@ static void send_dcf(struct transport_tx *trans, struct link_device *dev)
 #ifndef DCF_GAIN_K
 #define DCF_GAIN_K 10
 #endif
+/*! Default radius for the circumference */
+#ifndef DCF_RADIUS
+#define DCF_RADIUS 80
+#endif
 
-dcf_con dcf_control = {DCF_GAIN_K};
+dcf_con dcf_control = {DCF_GAIN_K, DCF_RADIUS};
 
 /*! Default number of neighbors per aircraft */
 #ifndef DCF_MAX_NEIGHBORS
@@ -62,4 +67,22 @@ void dcf_init(void)
 bool dcf_run(void)
 {
     return true;
+}
+
+void parseRegTable(void)
+{
+  uint8_t ac_id = DL_DCF_REG_TABLE_ac_id(dl_buffer);
+  int16_t desired_theta = DL_DCF_REG_TABLE_desired_theta(dl_buffer);
+
+  for(int i=0; i<DCF_MAX_NEIGHBORS; i++)
+      if(tableNei[i][0] == -1){
+        tableNei[i][0] = (int16_t)ac_id;
+        tableNei[i][2] = desired_theta;
+        break;
+      }
+}
+
+void parseThetaTable(void)
+{
+    
 }
