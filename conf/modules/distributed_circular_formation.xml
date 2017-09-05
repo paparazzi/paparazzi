@@ -14,20 +14,26 @@
       <dl_settings NAME="DCF">
         <dl_settings NAME="Control">
           <dl_setting MAX="20" MIN="0" STEP="0.2" VAR="dcf_control.k" shortname = "Gain" param="DCF_GAIN_K"/>
+          <dl_setting MAX="200" MIN="0" STEP="1" VAR="dcf_control.radius" shortname = "Radius" param="DCF_RADIUS"/>
         </dl_settings>
        </dl_settings>
     </dl_settings>
   </settings>
 
-   <header>
-     <file name="dcf.h"/>
-   </header>
+  <depends>gvf_module.xml</depends>
 
-   <init fun="dcf_init()"/>
+  <header>
+    <file name="dcf.h"/>
+  </header>
 
-   <makefile firmware="fixedwing">
-     <file name="dcf.c"/>
-   </makefile>
+  <init fun="dcf_init()"/>
+
+  <datalink message="DCF_REG_TABLE" fun="parseRegTable()"/>
+  <datalink message="DCF_THETA" fun="parseThetaTable()"/>
+
+  <makefile firmware="fixedwing">
+    <file name="dcf.c"/>
+  </makefile>
 
 </module>
 

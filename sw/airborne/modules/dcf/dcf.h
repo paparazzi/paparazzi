@@ -32,6 +32,7 @@
 
 typedef struct{
     float k;
+    float radius;
 } dcf_con;
 
 extern dcf_con dcf_control;
@@ -39,5 +40,7 @@ extern int16_t tableNei[][4];
 
 extern void dcf_init(void);
 extern bool dcf_run(void);
+
+extern void parseRegTable(void);
 
 #endif // DCF_H
