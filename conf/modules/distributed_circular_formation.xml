@@ -1,0 +1,33 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="distributed_circular_formation" dir="dcf">
+  <doc>
+    <description>Distributed algorithm for circular formations.
+    </description>
+    <section name="Parameters" prefix="DCF_">
+      <define name="MAX_NEIGHBORS" value="4" description="Maximum number of accepted neighbors for an aircraft"/>
+    </section>
+  </doc>
+
+  <settings name="DCF">
+    <dl_settings>
+      <dl_settings NAME="DCF">
+        <dl_settings NAME="Control">
+          <dl_setting MAX="20" MIN="0" STEP="0.2" VAR="dcf_control.k" shortname = "Gain" param="DCF_GAIN_K"/>
+        </dl_settings>
+       </dl_settings>
+    </dl_settings>
+  </settings>
+
+   <header>
+     <file name="dcf.h"/>
+   </header>
+
+   <init fun="dcf_init()"/>
+
+   <makefile firmware="fixedwing">
+     <file name="dcf.c"/>
+   </makefile>
+
+</module>
+
