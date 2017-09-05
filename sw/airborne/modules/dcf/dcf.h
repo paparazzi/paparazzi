@@ -42,5 +42,6 @@ extern void dcf_init(void);
 extern bool dcf_run(void);
 
 extern void parseRegTable(void);
+extern void parseThetaTable(void);
 
 #endif // DCF_H

@@ -72,14 +72,18 @@ bool dcf_run(void)
 void parseRegTable(void)
 {
   uint8_t ac_id = DL_DCF_REG_TABLE_ac_id(dl_buffer);
-  int16_t desired_theta = DL_DCF_REG_TABLE_desired_theta(dl_buffer);
+  if(ac_id == AC_ID)
+  {
+    uint8_t nei_id = DL_DCF_REG_TABLE_nei_id(dl_buffer);
+    int16_t desired_sigma = DL_DCF_REG_TABLE_desired_sigma(dl_buffer);
 
-  for(int i=0; i<DCF_MAX_NEIGHBORS; i++)
-      if(tableNei[i][0] == -1){
-        tableNei[i][0] = (int16_t)ac_id;
-        tableNei[i][2] = desired_theta;
-        break;
-      }
+    for(int i=0; i<DCF_MAX_NEIGHBORS; i++)
+        if(tableNei[i][0] == -1){
+          tableNei[i][0] = (int16_t)nei_id;
+          tableNei[i][2] = desired_sigma;
+          break;
+        }
+  }
 }
 
 void parseThetaTable(void)
