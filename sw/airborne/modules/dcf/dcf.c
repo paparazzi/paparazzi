@@ -22,17 +22,17 @@
 
 #include <math.h>
 #include <std.h>
+#include <stdio.h>
 
 #include "modules/dcf/dcf.h"
 #include "subsystems/datalink/datalink.h" // dl_buffer
+#include "subsystems/datalink/telemetry.h"
+#include "subsystems/navigation/common_nav.h"
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
-
 static void send_dcf(struct transport_tx *trans, struct link_device *dev)
 {
-    int tablelen = 4*DCF_MAX_NEIGHBORS;
-    pprz_msg_send_DCF(trans, dev, AC_ID, tablelen, &(tableNei[0][0]));
+    pprz_msg_send_DCF(trans, dev, AC_ID, 4*DCF_MAX_NEIGHBORS, &(tableNei[0][0]), DCF_MAX_NEIGHBORS, error_sigma);
 }
 #endif // PERIODIC TELEMETRY
 
@@ -45,28 +45,89 @@ static void send_dcf(struct transport_tx *trans, struct link_device *dev)
 #ifndef DCF_RADIUS
 #define DCF_RADIUS 80
 #endif
+/*! Default timeout for the neighbors' information */
+#ifndef DCF_TIMEOUT
+#define DCF_TIMEOUT 1500
+#endif
 
-dcf_con dcf_control = {DCF_GAIN_K, DCF_RADIUS};
+dcf_con dcf_control = {DCF_GAIN_K, DCF_RADIUS, DCF_TIMEOUT, 0};
 
 /*! Default number of neighbors per aircraft */
 #ifndef DCF_MAX_NEIGHBORS
 #define DCF_MAX_NEIGHBORS 4
 #endif
 int16_t tableNei[DCF_MAX_NEIGHBORS][4];
+int16_t error_sigma[DCF_MAX_NEIGHBORS];
+uint32_t last_theta[DCF_MAX_NEIGHBORS];
 
 void dcf_init(void)
 {
-    for(int i=0; i<DCF_MAX_NEIGHBORS; i++)
+    for(int i=0; i<DCF_MAX_NEIGHBORS; i++){
         tableNei[i][0] = -1;
+        error_sigma[i] = 0;
+    }
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DCF, send_dcf);
 #endif
 }
 
-bool dcf_run(void)
+bool distributed_circular(uint8_t wp)
 {
-    return true;
+  float xc = waypoints[wp].x;
+  float yc = waypoints[wp].y;
+  struct EnuCoor_f *p = stateGetPositionEnu_f();
+  float x = p->x;
+  float y = p->y;
+  float u = 0;
+
+  dcf_control.theta = atan2f(y-yc, x-xc);
+
+  uint32_t now = get_sys_time_msec();
+
+  for(int i=0; i<DCF_MAX_NEIGHBORS; i++){
+    if(tableNei[i][0] != -1){
+      uint32_t timeout = now - last_theta[i];
+      if(timeout > dcf_control.timeout)
+        tableNei[i][3] = dcf_control.timeout;
+      else{
+        tableNei[i][3] = (uint16_t)timeout;
+
+        float e = dcf_control.theta - tableNei[i][1] - (tableNei[i][2])*M_PI/1800.0;
+        if(e > M_PI)
+            e -= 2*M_PI;
+        else if(e <= -M_PI)
+            e += 2*M_PI;
+
+        u += e;
+        error_sigma[i] = (uint16_t)(e*1800.0/M_PI);
+      }
+    }
+  }
+
+  u *= dcf_control.k;
+
+ //printf("ac_id:%i %f\n", AC_ID, u);
+
+  gvf_ellipse_XY(xc, yc, dcf_control.radius+u, dcf_control.radius+u, 0);
+
+  return true;
+}
+
+void send_theta_to_nei(void)
+{
+  struct pprzlink_msg msg;
+
+  for(int i=0; i<DCF_MAX_NEIGHBORS; i++)
+    if(tableNei[i][0] != -1){
+      msg.trans = &(DefaultChannel).trans_tx;
+      msg.dev = &(DefaultDevice).device;
+      msg.sender_id = AC_ID;
+      //msg.receiver_id = tableNei[i][0];
+      msg.receiver_id = PPRZLINK_MSG_BROADCAST;
+      msg.component_id = 0;
+      pprzlink_msg_send_DCF_THETA(&msg, &(dcf_control.theta));
+  }
 }
 
 void parseRegTable(void)
@@ -88,5 +149,13 @@ void parseRegTable(void)
 
 void parseThetaTable(void)
 {
-    
+  printf("ac_id:%i recivido!\n", AC_ID);
+
+  int16_t sender_id = (int16_t)(SenderIdOfPprzMsg(dl_buffer));
+  for(int i=0; i<DCF_MAX_NEIGHBORS; i++)
+      if(tableNei[i][0] == sender_id){
+          last_theta[i] = get_sys_time_msec();
+          tableNei[i][1] = DL_DCF_THETA_theta(dl_buffer);
+          break;
+      }
 }

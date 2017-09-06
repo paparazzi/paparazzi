@@ -15,6 +15,7 @@
         <dl_settings NAME="Control">
           <dl_setting MAX="20" MIN="0" STEP="0.2" VAR="dcf_control.k" shortname = "Gain" param="DCF_GAIN_K"/>
           <dl_setting MAX="200" MIN="0" STEP="1" VAR="dcf_control.radius" shortname = "Radius" param="DCF_RADIUS"/>
+          <dl_setting MAX="5000" MIN="0" STEP="1" VAR="dcf_control.timeout" shortname = "Timeout" param="DCF_TIMEOUT"/>
         </dl_settings>
        </dl_settings>
     </dl_settings>
@@ -27,6 +28,7 @@
   </header>
 
   <init fun="dcf_init()"/>
+  <periodic fun="send_theta_to_nei()" freq="5."/>
 
   <datalink message="DCF_REG_TABLE" fun="parseRegTable()"/>
   <datalink message="DCF_THETA" fun="parseThetaTable()"/>
