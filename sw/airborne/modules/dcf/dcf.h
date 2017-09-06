@@ -33,13 +33,17 @@
 typedef struct{
     float k;
     float radius;
+    uint16_t timeout;
+    float theta;
 } dcf_con;
 
 extern dcf_con dcf_control;
 extern int16_t tableNei[][4];
+extern int16_t error_sigma[];
 
 extern void dcf_init(void);
-extern bool dcf_run(void);
+extern bool distributed_circular(uint8_t wp);
+extern void send_theta_to_nei(void);
 
 extern void parseRegTable(void);
 extern void parseThetaTable(void);
