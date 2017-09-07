@@ -60,12 +60,6 @@ PRINT_CONFIG_VAR(VIEWVIDEO_DOWNSIZE_FACTOR)
 #endif
 PRINT_CONFIG_VAR(VIEWVIDEO_QUALITY_FACTOR)
 
-// RTP time increment at 90kHz (default: 0 for automatic)
-#ifndef VIEWVIDEO_RTP_TIME_INC
-#define VIEWVIDEO_RTP_TIME_INC 0
-#endif
-PRINT_CONFIG_VAR(VIEWVIDEO_RTP_TIME_INC)
-
 // Define stream framerate
 #ifndef VIEWVIDEO_FPS
 #define VIEWVIDEO_FPS 5
@@ -116,7 +110,7 @@ struct viewvideo_t viewvideo = {
  * Handles all the video streaming and saving of the image shots
  * This is a separate thread, so it needs to be thread safe!
  */
-static struct image_t *viewvideo_function(struct UdpSocket *socket, struct image_t *img, uint32_t *rtp_frame_nr)
+static struct image_t *viewvideo_function(struct UdpSocket *socket, struct image_t *img, uint16_t *rtp_packet_nr, uint32_t *rtp_frame_time)
 {
   // Resize image if needed
   struct image_t img_small;
@@ -175,8 +169,10 @@ static struct image_t *viewvideo_function(struct UdpSocket *socket, struct image
         0,                        // Format 422
         VIEWVIDEO_QUALITY_FACTOR, // Jpeg-Quality
         0,                        // DRI Header
-        (img->ts.tv_sec * 1000000 + img->ts.tv_usec),
-        rtp_frame_nr
+        VIEWVIDEO_FPS,
+        //(img->ts.tv_sec * 1000000 + img->ts.tv_usec),
+        rtp_packet_nr,
+        rtp_frame_time
       );
     }
 #endif
@@ -191,16 +187,18 @@ static struct image_t *viewvideo_function(struct UdpSocket *socket, struct image
 #ifdef VIEWVIDEO_CAMERA
 static struct image_t *viewvideo_function1(struct image_t *img)
 {
-  static uint32_t rtp_frame_nr = 0;
-  return viewvideo_function(&video_sock1, img, &rtp_frame_nr);
+  static uint16_t rtp_packet_nr = 0;
+  static uint32_t rtp_frame_time = 0;
+  return viewvideo_function(&video_sock1, img, &rtp_packet_nr, &rtp_frame_time);
 }
 #endif
 
 #ifdef VIEWVIDEO_CAMERA2
 static struct image_t *viewvideo_function2(struct image_t *img)
 {
-  static uint32_t rtp_frame_nr = 0;
-  return viewvideo_function(&video_sock2, img, &rtp_frame_nr);
+  static uint16_t rtp_packet_nr = 0;
+  static uint32_t rtp_frame_time = 0;
+  return viewvideo_function(&video_sock2, img, &rtp_packet_nr, &rtp_frame_time);
 }
 #endif
 
