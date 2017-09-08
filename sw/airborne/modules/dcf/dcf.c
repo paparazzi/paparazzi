@@ -93,7 +93,7 @@ bool distributed_circular(uint8_t wp)
       else{
         tableNei[i][3] = (uint16_t)timeout;
 
-        float e = dcf_control.theta - tableNei[i][1] - (tableNei[i][2])*M_PI/1800.0;
+        float e = dcf_control.theta - (tableNei[i][1] + (tableNei[i][2]))*M_PI/1800.0;
         if(e > M_PI)
             e -= 2*M_PI;
         else if(e <= -M_PI)
@@ -123,8 +123,7 @@ void send_theta_to_nei(void)
       msg.trans = &(DefaultChannel).trans_tx;
       msg.dev = &(DefaultDevice).device;
       msg.sender_id = AC_ID;
-      //msg.receiver_id = tableNei[i][0];
-      msg.receiver_id = PPRZLINK_MSG_BROADCAST;
+      msg.receiver_id = tableNei[i][0];
       msg.component_id = 0;
       pprzlink_msg_send_DCF_THETA(&msg, &(dcf_control.theta));
   }
@@ -149,13 +148,11 @@ void parseRegTable(void)
 
 void parseThetaTable(void)
 {
-  printf("ac_id:%i recivido!\n", AC_ID);
-
   int16_t sender_id = (int16_t)(SenderIdOfPprzMsg(dl_buffer));
   for(int i=0; i<DCF_MAX_NEIGHBORS; i++)
       if(tableNei[i][0] == sender_id){
           last_theta[i] = get_sys_time_msec();
-          tableNei[i][1] = DL_DCF_THETA_theta(dl_buffer);
+          tableNei[i][1] = (int16_t)((DL_DCF_THETA_theta(dl_buffer))*1800/M_PI);
           break;
       }
 }
