@@ -107,8 +107,6 @@ bool distributed_circular(uint8_t wp)
 
   u *= dcf_control.k;
 
- //printf("ac_id:%i %f\n", AC_ID, u);
-
   gvf_ellipse_XY(xc, yc, dcf_control.radius+u, dcf_control.radius+u, 0);
 
   return true;
