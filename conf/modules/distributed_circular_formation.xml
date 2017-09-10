@@ -28,7 +28,7 @@
   </header>
 
   <init fun="dcf_init()"/>
-  <periodic fun="send_theta_to_nei()" freq="5."/>
+  <!--periodic fun="send_theta_to_nei()" freq="5."/-->
 
   <datalink message="DCF_REG_TABLE" fun="parseRegTable()"/>
   <datalink message="DCF_THETA" fun="parseThetaTable()"/>
