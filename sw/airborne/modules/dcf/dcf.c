@@ -59,7 +59,7 @@ dcf_con dcf_control = {DCF_GAIN_K, DCF_RADIUS, DCF_TIMEOUT, 0};
 int16_t tableNei[DCF_MAX_NEIGHBORS][4];
 int16_t error_sigma[DCF_MAX_NEIGHBORS];
 uint32_t last_theta[DCF_MAX_NEIGHBORS];
-uint32_t last_tansmision = 0;
+uint32_t last_transmision = 0;
 
 void dcf_init(void)
 {
@@ -110,9 +110,9 @@ bool distributed_circular(uint8_t wp)
 
   gvf_ellipse_XY(xc, yc, dcf_control.radius+u, dcf_control.radius+u, 0);
 
-  if(now - last_transmission > 200){
+  if(now - last_transmision > 200){
       send_theta_to_nei();
-      last_transmission = now;
+      last_transmision = now;
   }
 
   return true;
