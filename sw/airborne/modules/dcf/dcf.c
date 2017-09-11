@@ -32,7 +32,7 @@
 #if PERIODIC_TELEMETRY
 static void send_dcf(struct transport_tx *trans, struct link_device *dev)
 {
-    pprz_msg_send_DCF(trans, dev, AC_ID, 4*DCF_MAX_NEIGHBORS, &(tableNei[0][0]), DCF_MAX_NEIGHBORS, error_sigma);
+  pprz_msg_send_DCF(trans, dev, AC_ID, 4 * DCF_MAX_NEIGHBORS, &(tableNei[0][0]), DCF_MAX_NEIGHBORS, error_sigma);
 }
 #endif // PERIODIC TELEMETRY
 
@@ -63,10 +63,10 @@ uint32_t last_transmision = 0;
 
 void dcf_init(void)
 {
-    for(int i=0; i<DCF_MAX_NEIGHBORS; i++){
-        tableNei[i][0] = -1;
-        error_sigma[i] = 0;
-    }
+  for (int i = 0; i < DCF_MAX_NEIGHBORS; i++) {
+    tableNei[i][0] = -1;
+    error_sigma[i] = 0;
+  }
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DCF, send_dcf);
@@ -82,37 +82,38 @@ bool distributed_circular(uint8_t wp)
   float y = p->y;
   float u = 0;
 
-  dcf_control.theta = atan2f(y-yc, x-xc);
+  dcf_control.theta = atan2f(y - yc, x - xc);
 
   uint32_t now = get_sys_time_msec();
 
-  for(int i=0; i<DCF_MAX_NEIGHBORS; i++){
-    if(tableNei[i][0] != -1){
+  for (int i = 0; i < DCF_MAX_NEIGHBORS; i++) {
+    if (tableNei[i][0] != -1) {
       uint32_t timeout = now - last_theta[i];
-      if(timeout > dcf_control.timeout)
+      if (timeout > dcf_control.timeout) {
         tableNei[i][3] = dcf_control.timeout;
-      else{
+      } else {
         tableNei[i][3] = (uint16_t)timeout;
 
-        float e = dcf_control.theta - (tableNei[i][1] + (tableNei[i][2]))*M_PI/1800.0;
-        if(e > M_PI)
-            e -= 2*M_PI;
-        else if(e <= -M_PI)
-            e += 2*M_PI;
+        float e = dcf_control.theta - (tableNei[i][1] + (tableNei[i][2])) * M_PI / 1800.0;
+        if (e > M_PI) {
+          e -= 2 * M_PI;
+        } else if (e <= -M_PI) {
+          e += 2 * M_PI;
+        }
 
         u += e;
-        error_sigma[i] = (uint16_t)(e*1800.0/M_PI);
+        error_sigma[i] = (uint16_t)(e * 1800.0 / M_PI);
       }
     }
   }
 
   u *= dcf_control.k;
 
-  gvf_ellipse_XY(xc, yc, dcf_control.radius+u, dcf_control.radius+u, 0);
+  gvf_ellipse_XY(xc, yc, dcf_control.radius + u, dcf_control.radius + u, 0);
 
-  if(now - last_transmision > 200){
-      send_theta_to_nei();
-      last_transmision = now;
+  if (now - last_transmision > 200) {
+    send_theta_to_nei();
+    last_transmision = now;
   }
 
   return true;
@@ -122,41 +123,40 @@ void send_theta_to_nei(void)
 {
   struct pprzlink_msg msg;
 
-  for(int i=0; i<DCF_MAX_NEIGHBORS; i++)
-    if(tableNei[i][0] != -1){
+  for (int i = 0; i < DCF_MAX_NEIGHBORS; i++)
+    if (tableNei[i][0] != -1) {
       msg.trans = &(DefaultChannel).trans_tx;
       msg.dev = &(DefaultDevice).device;
       msg.sender_id = AC_ID;
       msg.receiver_id = tableNei[i][0];
       msg.component_id = 0;
       pprzlink_msg_send_DCF_THETA(&msg, &(dcf_control.theta));
-  }
+    }
 }
 
 void parseRegTable(void)
 {
   uint8_t ac_id = DL_DCF_REG_TABLE_ac_id(dl_buffer);
-  if(ac_id == AC_ID)
-  {
+  if (ac_id == AC_ID) {
     uint8_t nei_id = DL_DCF_REG_TABLE_nei_id(dl_buffer);
     int16_t desired_sigma = DL_DCF_REG_TABLE_desired_sigma(dl_buffer);
 
-    for(int i=0; i<DCF_MAX_NEIGHBORS; i++)
-        if(tableNei[i][0] == -1){
-          tableNei[i][0] = (int16_t)nei_id;
-          tableNei[i][2] = desired_sigma;
-          break;
-        }
+    for (int i = 0; i < DCF_MAX_NEIGHBORS; i++)
+      if (tableNei[i][0] == -1) {
+        tableNei[i][0] = (int16_t)nei_id;
+        tableNei[i][2] = desired_sigma;
+        break;
+      }
   }
 }
 
 void parseThetaTable(void)
 {
   int16_t sender_id = (int16_t)(SenderIdOfPprzMsg(dl_buffer));
-  for(int i=0; i<DCF_MAX_NEIGHBORS; i++)
-      if(tableNei[i][0] == sender_id){
-          last_theta[i] = get_sys_time_msec();
-          tableNei[i][1] = (int16_t)((DL_DCF_THETA_theta(dl_buffer))*1800/M_PI);
-          break;
-      }
+  for (int i = 0; i < DCF_MAX_NEIGHBORS; i++)
+    if (tableNei[i][0] == sender_id) {
+      last_theta[i] = get_sys_time_msec();
+      tableNei[i][1] = (int16_t)((DL_DCF_THETA_theta(dl_buffer)) * 1800 / M_PI);
+      break;
+    }
 }

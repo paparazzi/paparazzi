@@ -30,11 +30,11 @@
 
 #include "std.h"
 
-typedef struct{
-    float k;
-    float radius;
-    uint16_t timeout;
-    float theta;
+typedef struct {
+  float k;
+  float radius;
+  uint16_t timeout;
+  float theta;
 } dcf_con;
 
 extern dcf_con dcf_control;
