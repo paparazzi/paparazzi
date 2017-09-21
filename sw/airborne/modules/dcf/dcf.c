@@ -158,6 +158,14 @@ void parseRegTable(void)
   }
 }
 
+void parseCleanTable(void)
+{
+  uint8_t ac_id = DL_DCF_REG_TABLE_ac_id(dl_buffer);
+  if (ac_id == AC_ID)
+    for (int i = 0; i < DCF_MAX_NEIGHBORS; i++)
+      tableNei[i][0] = -1;
+}
+
 void parseThetaTable(void)
 {
   int16_t sender_id = (int16_t)(SenderIdOfPprzMsg(dl_buffer));
