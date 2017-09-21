@@ -28,6 +28,7 @@
 #include "subsystems/datalink/datalink.h" // dl_buffer
 #include "subsystems/datalink/telemetry.h"
 #include "subsystems/navigation/common_nav.h"
+#include "autopilot.h"
 
 #if PERIODIC_TELEMETRY
 static void send_dcf(struct transport_tx *trans, struct link_device *dev)
@@ -111,7 +112,7 @@ bool distributed_circular(uint8_t wp)
 
   gvf_ellipse_XY(xc, yc, dcf_control.radius + u, dcf_control.radius + u, 0);
 
-  if (now - last_transmision > 200) {
+  if ((now - last_transmision > 200) && (autopilot_get_mode() == AP_MODE_AUTO2)) {
     send_theta_to_nei();
     last_transmision = now;
   }
@@ -142,10 +143,17 @@ void parseRegTable(void)
     int16_t desired_sigma = DL_DCF_REG_TABLE_desired_sigma(dl_buffer);
 
     for (int i = 0; i < DCF_MAX_NEIGHBORS; i++)
+      if (tableNei[i][0] == (int16_t)nei_id) {
+        tableNei[i][0] = (int16_t)nei_id;
+        tableNei[i][2] = desired_sigma;
+        return;
+      }
+
+    for (int i = 0; i < DCF_MAX_NEIGHBORS; i++)
       if (tableNei[i][0] == -1) {
         tableNei[i][0] = (int16_t)nei_id;
         tableNei[i][2] = desired_sigma;
-        break;
+        return;
       }
   }
 }
