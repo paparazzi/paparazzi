@@ -31,6 +31,7 @@
   <!--periodic fun="send_theta_to_nei()" freq="5."/-->
 
   <datalink message="DCF_REG_TABLE" fun="parseRegTable()"/>
+  <datalink message="DCF_CLEAN_TABLE" fun="parseCleanTable()"/>
   <datalink message="DCF_THETA" fun="parseThetaTable()"/>
 
   <makefile firmware="fixedwing">

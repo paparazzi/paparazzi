@@ -18,16 +18,14 @@ from settings_xml_parse import PaparazziACSettings
 list_ids = []
 interface = IvyMessagesInterface("DCF")
 
-if len(sys.argv) != 6:
-    print("Usage: dcfInitTables topology.txt desired_sigma.txt ids.txt radius k")
+if len(sys.argv) != 4:
+    print("Usage: dcfInitTables topology.txt desired_sigma.txt ids.txt")
     interface.shutdown()
     exit()
 
 B = np.loadtxt(sys.argv[1])
 desired_sigmas = np.loadtxt(sys.argv[2])*np.pi/180.0
 ids = np.loadtxt(sys.argv[3])
-radius = float(sys.argv[4])
-k = float(sys.argv[5])
 
 list_ids = np.ndarray.tolist(ids)
 
@@ -36,6 +34,19 @@ if np.size(ids) != np.size(B,0):
     interface.shutdown()
     exit()
 time.sleep(2)
+
+for count, column in enumerate(B.T):
+    index = np.nonzero(column)
+    i = index[0]
+
+    msg_clean_a = PprzMessage("datalink", "DCF_CLEAN_TABLE")
+    msg_clean_a['ac_id'] = int(list_ids[i[0]])
+    msg_clean_b = PprzMessage("datalink", "DCF_CLEAN_TABLE")
+    msg_clean_b['ac_id'] = int(list_ids[i[1]])
+
+    interface.send(msg_clean_a)
+    interface.send(msg_clean_b)
+
 for count, column in enumerate(B.T):
     index = np.nonzero(column)
     i = index[0]

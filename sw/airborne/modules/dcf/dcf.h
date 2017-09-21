@@ -46,6 +46,7 @@ extern bool distributed_circular(uint8_t wp);
 extern void send_theta_to_nei(void);
 
 extern void parseRegTable(void);
+extern void parseCleanTable(void);
 extern void parseThetaTable(void);
 
 #endif // DCF_H
