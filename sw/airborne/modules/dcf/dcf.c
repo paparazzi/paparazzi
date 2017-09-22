@@ -108,7 +108,7 @@ bool distributed_circular(uint8_t wp)
     }
   }
 
-  u *= dcf_control.k;
+  u *= -gvf_control.s*dcf_control.k;
 
   gvf_ellipse_XY(xc, yc, dcf_control.radius + u, dcf_control.radius + u, 0);
 
