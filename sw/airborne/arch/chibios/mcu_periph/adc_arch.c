@@ -75,6 +75,10 @@
 // STM32F4xx | STM32F7xx
 #define ADC_SAMPLE_RATE ADC_SAMPLE_480
 #define ADC_CR2_CFG ADC_CR2_SWSTART
+#elif defined(__STM32F373xC_H)
+#define ADC_SAMPLE_RATE ADC_SAMPLE_239P5
+#elif defined(__STM32F3xx_H)
+#define ADC_SAMPLE_RATE ADC_SMPR_SMP_601P5
 #endif
 
 
@@ -344,8 +348,6 @@ void adc_init(void)
   uint32_t smpr1, smpr2;
   adc_sample_time_on_all_channels(&smpr1, &smpr2, ADC_SAMPLE_RATE);
 
-  adcgrpcfg.cr2 = ADC_CR2_CFG;
-
 #if USE_ADC_WATCHDOG
   adc_watchdog.adc = NULL;
   adc_watchdog.cb = NULL;
@@ -357,12 +359,30 @@ void adc_init(void)
   adcgrpcfg.num_channels = ADC_NUM_CHANNELS;
   adcgrpcfg.end_cb = adc1callback;
   adcgrpcfg.error_cb = adcerrorcallback;
+#if defined(__STM32F373xC_H)
+  //TODO: set AD regs
+  #warning ADC's not tested with stm32f37
+
+#elif defined(__STM32F3xx_H)
+  //TODO: check if something needs to be done with the other regs (can be found in ~/paparazzi/sw/ext/chibios/os/hal/ports/STM32/LLD/ADCv3)
+  #warning ADC's not tested with stm32f37  
+  // cfgr
+  // tr1
+
+  adcgrpcfg.smpr[0] = smpr1; // is this even correct?
+  adcgrpcfg.smpr[1] = smpr2;
+  adcgrpcfg.sqr[0]  = sqr1;
+  adcgrpcfg.sqr[1]  = sqr2;
+  adcgrpcfg.sqr[2]  = sqr3;
+#else
+  adcgrpcfg.cr2 = ADC_CR2_CFG;
   adcgrpcfg.cr1 = 0;
   adcgrpcfg.smpr1 = smpr1;
   adcgrpcfg.smpr2 = smpr2;
   adcgrpcfg.sqr1 = sqr1;
   adcgrpcfg.sqr2 = sqr2;
   adcgrpcfg.sqr3 = sqr3;
+#endif
 
   // Start ADC in continious conversion mode
   adcStart(&ADCD1, NULL);
