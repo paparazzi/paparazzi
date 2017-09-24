@@ -146,7 +146,7 @@ void imu_mpu9250_event(void)
     AbiSendMsgIMU_GYRO_INT32(IMU_MPU9250_ID, now_ts, &imu.gyro);
     AbiSendMsgIMU_ACCEL_INT32(IMU_MPU9250_ID, now_ts, &imu.accel);
   }
-
+#if IMU_MPU9250_READ_MAG
   // Test if mag data are updated
   if (imu_mpu9250.mpu.akm.data_available) {
     struct Int32Vect3 mag = {
@@ -158,7 +158,8 @@ void imu_mpu9250_event(void)
     imu_mpu9250.mpu.akm.data_available = false;
     imu_scale_mag(&imu);
     AbiSendMsgIMU_MAG_INT32(IMU_MPU9250_ID, now_ts, &imu.mag);
-  }
 
+  }
+#endif
 }
 

@@ -116,7 +116,7 @@ void ahrs_fc_init(void)
 }
 
 bool ahrs_fc_align(struct FloatRates *lp_gyro, struct FloatVect3 *lp_accel,
-                     struct FloatVect3 *lp_mag)
+                     struct FloatVect3 *lp_mag __attribute__((unused)))
 {
 
 #if USE_MAGNETOMETER
@@ -276,7 +276,7 @@ void ahrs_fc_update_accel(struct FloatVect3 *accel, float dt)
 }
 
 
-void ahrs_fc_update_mag(struct FloatVect3 *mag, float dt)
+void ahrs_fc_update_mag(struct FloatVect3 *mag __attribute__((unused)), float dt __attribute__((unused)))
 {
 #if USE_MAGNETOMETER
   // check if we had at least one propagation since last update

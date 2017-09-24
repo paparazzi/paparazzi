@@ -47,8 +47,10 @@ void mpu9250_i2c_init(struct Mpu9250_I2c *mpu, struct i2c_periph *i2c_p, uint8_t
   mpu->config.initialized = false;
   mpu->config.init_status = MPU9250_CONF_UNINIT;
 
+#if IMU_MPU9250_READ_MAG
   /* "internal" ak8963 magnetometer */
   ak8963_init(&mpu->akm, i2c_p, MPU9250_MAG_ADDR);
+
   /* mag is declared as slave to call the configure function,
    * regardless if it is an actual MPU slave or passthrough
    */
@@ -59,6 +61,7 @@ void mpu9250_i2c_init(struct Mpu9250_I2c *mpu, struct i2c_periph *i2c_p, uint8_t
   mpu->config.i2c_bypass = true;
 
   mpu->slave_init_status = MPU9250_I2C_CONF_UNINIT;
+#endif
 }
 
 
@@ -88,10 +91,12 @@ void mpu9250_i2c_read(struct Mpu9250_I2c *mpu)
     mpu->i2c_trans.buf[0] = MPU9250_REG_INT_STATUS;
     i2c_transceive(mpu->i2c_p, &(mpu->i2c_trans), mpu->i2c_trans.slave_addr, 1, mpu->config.nb_bytes);
     /* read mag */
+#if IMU_MPU9250_READ_MAG
 #ifdef MPU9250_MAG_PRESCALER
     RunOnceEvery(MPU9250_MAG_PRESCALER, ak8963_read(&mpu->akm));
 #else
     ak8963_read(&mpu->akm);
+#endif
 #endif
   }
 }
@@ -144,8 +149,10 @@ void mpu9250_i2c_event(struct Mpu9250_I2c *mpu)
         break;
     }
   }
+#if IMU_MPU9250_READ_MAG
   // Ak8963 event function
   ak8963_event(&mpu->akm);
+#endif
 }
 
 /** callback function to configure ak8963 mag
