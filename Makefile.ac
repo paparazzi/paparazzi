@@ -56,6 +56,7 @@ RADIO_H=$(AC_GENERATED)/radio.h
 FLIGHT_PLAN_H=$(AC_GENERATED)/flight_plan.h
 FLIGHT_PLAN_XML=$(AIRCRAFT_BUILD_DIR)/flight_plan.xml
 SRCS_LIST=$(AIRCRAFT_BUILD_DIR)/$(TARGET)_srcs.list
+TMP_LIST=$(AIRCRAFT_BUILD_DIR)/$(TARGET)_tmp.list
 SETTINGS_H=$(AC_GENERATED)/settings.h
 SETTINGS_XMLS=$(patsubst %,$(CONF)/%,$(SETTINGS))
 SETTINGS_XMLS_DEP=$(filter-out %~,$(SETTINGS_XMLS))
@@ -155,14 +156,20 @@ all_ac_h: $(SRCS_LIST) qt_project
 
 $(SRCS_LIST) : $(CONF_XML) $(AIRFRAME_H) $(MODULES_H) autopilot_h $(SETTINGS_H) $(MAKEFILE_AC) $(PERIODIC_H)
 	@echo "TARGET: " $(TARGET) > $(SRCS_LIST)
-	@echo "CFLAGS: " $(CFLAGS) >> $(SRCS_LIST)
+	@echo "CFLAGS: " $(CFLAGS) $(IINCDIR) $(TOPT) >> $(SRCS_LIST)
 	@echo "LDFLAGS: " $($(TARGET).LDFLAGS) >> $(SRCS_LIST)
 	@echo "srcs: " $($(TARGET).srcs) >> $(SRCS_LIST)
 	@echo -n "headers:  " >> $(SRCS_LIST)
+	@echo $(VPATH) > $(TMP_LIST)
+	@echo $($(TARGET).srcs) >> $(TMP_LIST)
+	@echo $(CFLAGS) >> $(TMP_LIST)
+	@echo $(IINCDIR) >> $(TMP_LIST)
+	@echo $(TOPT)>> $(TMP_LIST)	
+	@echo ../../sw/tools/find_vpaths.py $(CC)  $(TMP_LIST) $(PAPARAZZI_SRC)
 ifeq (,$(findstring cpp,$($(TARGET).srcs)))
-	$(Q)cd $(AIRBORNE) ; ../../sw/tools/find_vpaths.py $(CC) $(VPATH) + $($(TARGET).srcs) + $(CFLAGS) $(IINCDIR) $(TOPT) >> $(SRCS_LIST)
+	$(Q)cd $(PAPARAZZI_SRC) ; ./sw/tools/find_vpaths.py $(CC) $(TMP_LIST) $(PAPARAZZI_SRC) >> $(SRCS_LIST) 
 else
-	$(Q)cd $(AIRBORNE) ; ../../sw/tools/find_vpaths.py $(CXX) $(VPATH) + $($(TARGET).srcs) + $(CXXFLAGS) $(IINCDIR) $(TOPT) >> $(SRCS_LIST)
+	$(Q)cd $(PAPARAZZI_SRC) ; ./sw/tools/find_vpaths.py $(CXX) $(TMP_LIST) $(PAPARAZZI_SRC) >> $(SRCS_LIST)
 endif
 
 qt_project : $(SRCS_LIST)
