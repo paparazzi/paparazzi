@@ -128,7 +128,7 @@ static __attribute__((noreturn)) void thd_uart1_rx(void *arg)
   }
 }
 
-static THD_WORKING_AREA(wa_thd_uart1_rx, 1024);
+static THD_WORKING_AREA(wa_thd_uart1_rx, 256);
 #endif
 
 #if USE_UART1_TX
@@ -144,7 +144,7 @@ static __attribute__((noreturn)) void thd_uart1_tx(void *arg)
     handle_uart_tx(&uart1);
   }
 }
-static THD_WORKING_AREA(wa_thd_uart1_tx, 1024);
+static THD_WORKING_AREA(wa_thd_uart1_tx, 256);
 #endif
 
 void uart1_init(void)
@@ -230,7 +230,7 @@ static __attribute__((noreturn)) void thd_uart2_rx(void *arg)
   }
 }
 
-static THD_WORKING_AREA(wa_thd_uart2_rx, 1024);
+static THD_WORKING_AREA(wa_thd_uart2_rx, 256);
 #endif
 
 #if USE_UART2_TX
@@ -246,7 +246,7 @@ static __attribute__((noreturn)) void thd_uart2_tx(void *arg)
     handle_uart_tx(&uart2);
   }
 }
-static THD_WORKING_AREA(wa_thd_uart2_tx, 1024);
+static THD_WORKING_AREA(wa_thd_uart2_tx, 256);
 #endif
 
 void uart2_init(void)
@@ -322,7 +322,7 @@ static __attribute__((noreturn)) void thd_uart3_rx(void *arg)
   }
 }
 
-static THD_WORKING_AREA(wa_thd_uart3_rx, 1024);
+static THD_WORKING_AREA(wa_thd_uart3_rx, 256);
 #endif
 
 #if USE_UART3_TX
@@ -338,7 +338,7 @@ static __attribute__((noreturn)) void thd_uart3_tx(void *arg)
     handle_uart_tx(&uart3);
   }
 }
-static THD_WORKING_AREA(wa_thd_uart3_tx, 1024);
+static THD_WORKING_AREA(wa_thd_uart3_tx, 256);
 #endif
 
 void uart3_init(void)
@@ -414,7 +414,7 @@ static __attribute__((noreturn)) void thd_uart4_rx(void *arg)
   }
 }
 
-static THD_WORKING_AREA(wa_thd_uart4_rx, 1024);
+static THD_WORKING_AREA(wa_thd_uart4_rx, 256);
 #endif
 
 #if USE_UART4_TX
@@ -430,7 +430,7 @@ static __attribute__((noreturn)) void thd_uart4_tx(void *arg)
     handle_uart_tx(&uart4);
   }
 }
-static THD_WORKING_AREA(wa_thd_uart4_tx, 1024);
+static THD_WORKING_AREA(wa_thd_uart4_tx, 256);
 #endif
 
 void uart4_init(void)
@@ -506,7 +506,7 @@ static __attribute__((noreturn)) void thd_uart5_rx(void *arg)
   }
 }
 
-static THD_WORKING_AREA(wa_thd_uart5_rx, 1024);
+static THD_WORKING_AREA(wa_thd_uart5_rx, 256);
 #endif
 
 #if USE_UART5_TX
@@ -522,7 +522,7 @@ static __attribute__((noreturn)) void thd_uart5_tx(void *arg)
     handle_uart_tx(&uart5);
   }
 }
-static THD_WORKING_AREA(wa_thd_uart5_tx, 1024);
+static THD_WORKING_AREA(wa_thd_uart5_tx, 256);
 #endif
 
 void uart5_init(void)
@@ -873,7 +873,7 @@ void uart_periph_set_mode(struct uart_periph *p __attribute__((unused)), bool tx
 
 #if defined STM32F7
 #define __USART_CR1_M USART_CR1_M_0
-#elif defined STM32F1 || defined STM32F4
+#elif defined STM32F1 || defined STM32F4 || defined STM32F3
 #define __USART_CR1_M USART_CR1_M
 #else
 #error unsupported board

@@ -42,7 +42,7 @@
  * Also include FBW on single MCU
  */
 static void thd_ap(void *arg);
-static THD_WORKING_AREA(wa_thd_ap, 8192);
+THD_WORKING_AREA(wa_thd_ap, 1024);
 static thread_t *apThdPtr = NULL;
 
 /**

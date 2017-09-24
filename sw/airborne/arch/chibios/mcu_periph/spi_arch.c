@@ -347,7 +347,7 @@ static __attribute__((noreturn)) void thd_spi1(void *arg)
   }
 }
 
-static THD_WORKING_AREA(wa_thd_spi1, 1024);
+static THD_WORKING_AREA(wa_thd_spi1, 256);
 
 void spi1_arch_init(void)
 {
@@ -386,7 +386,7 @@ static __attribute__((noreturn)) void thd_spi2(void *arg)
   }
 }
 
-static THD_WORKING_AREA(wa_thd_spi2, 1024);
+static THD_WORKING_AREA(wa_thd_spi2, 256);
 
 void spi2_arch_init(void)
 {

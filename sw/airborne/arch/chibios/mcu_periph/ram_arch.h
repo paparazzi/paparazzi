@@ -26,6 +26,11 @@
  *  F1
  *   ram0: 64ko   std
  *
+ *  F3
+ *   ram4: 8ko   ccm, fast, no dma
+ *   ram0: 40Ko  std
+ *  F37   
+ *   ram0: 32Ko  std
  *  F4
  *   ram4: 64ko   ccm, fast, no dma
  *   ram0: 128Ko  std
@@ -41,6 +46,10 @@
 #if defined STM32F1
 #define STD_SECTION   ".ram0"
 #define FAST_SECTION  ".ram0"
+#define DMA_SECTION   ".ram0"
+#elif defined STM32F3
+#define STD_SECTION   ".ram0"
+#define FAST_SECTION  ".ram4"
 #define DMA_SECTION   ".ram0"
 #elif defined STM32F4
 #define STD_SECTION   ".ram0"

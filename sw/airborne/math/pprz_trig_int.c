@@ -26,7 +26,7 @@
 
 #include "pprz_trig_int.h"
 #include "pprz_algebra_int.h"
-
+#if !defined(PPRZ_TRIG_INT_USE_FLOAT)
 #if !defined(PPRZ_TRIG_INT_COMPR_FLASH) || defined(PPRZ_TRIG_INT_TEST)
 PPRZ_TRIG_CONST int16_t pprz_trig_int[6434] = {    0,
                                                    3,     7,    11,    15,    19,    23,    27,    31,    35,    39,    43,    47,    51,    55,    59,    63,
@@ -581,7 +581,7 @@ const uint8_t pprz_trig_int_compr[TRIG_INT_COMPR_LEN] = {
   0x10, 0x1F, 0x10, 0x3F, 0x10, 0x8F, 0x10, 0xFF, 0xA8, 0x00
 };
 #endif
-
+#endif
 
 #if defined(PPRZ_TRIG_INT_COMPR_FLASH)
 
@@ -858,6 +858,13 @@ inline int16_t pprz_trig_int_f(int32_t angle)
 
 int32_t pprz_itrig_sin(int32_t angle)
 {
+#if defined(PPRZ_TRIG_INT_USE_FLOAT)
+    float tmp;
+    tmp = ANGLE_FLOAT_OF_BFP(angle);
+    tmp = sinf(tmp);
+    angle = ANGLE_BFP_OF_REAL(tmp);
+    return angle;
+#else
   INT32_ANGLE_NORMALIZE(angle);
   if (angle > INT32_ANGLE_PI_2) {
     angle = INT32_ANGLE_PI - angle;
@@ -875,6 +882,7 @@ int32_t pprz_itrig_sin(int32_t angle)
     return -pprz_trig_int[-angle];
 #endif
   }
+#endif
 }
 
 int32_t pprz_itrig_cos(int32_t angle)
