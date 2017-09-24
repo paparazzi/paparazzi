@@ -340,9 +340,17 @@ static inline void stabilization_indi_calc_cmd(int32_t indi_commands[], struct I
   indi.u_in.r = indi.u[2].o[0] + indi.du.r;
 
   //bound the total control input
+#ifdef INDI_FULL_AUTHORITY
+  Bound(indi.u_in.p, -9600, 9600);
+  Bound(indi.u_in.q, -9600, 9600);
+  float rlim = 9600 - fabs(indi.u_in.q);
+  Bound(indi.u_in.r, -rlim, rlim);
+  Bound(indi.u_in.r, -9600, 9600);
+#else
   Bound(indi.u_in.p, -4500, 4500);
   Bound(indi.u_in.q, -4500, 4500);
   Bound(indi.u_in.r, -4500, 4500);
+#endif
 
   //Propagate input filters
   //first order actuator dynamics

@@ -15,6 +15,7 @@
     <!-- amount of time it take for the bat to check -->
     <!-- to avoid bat low spike detection when strong pullup withch draws short sudden power-->
     <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="80" />
+    <define name="INDI_FULL_AUTHORITY" value="TRUE"/>
 
 <!--<define name="PPRZ_TRIG_INT_USE_FLOAT"/>-->
 <!--<define name="PPRZ_TRIG_INT_COMPR_FLASH"/>-->
