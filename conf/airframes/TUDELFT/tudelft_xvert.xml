@@ -48,7 +48,7 @@
       <define name="INS_PROPAGATE_FREQUENCY" value="500"/>
       <define name="INS_FINV_MAG_ID" value="MAG_HMC58XX_SENDER_ID"/>
     </module>
-    <module name="actuators" type="pwm">
+    <module name="actuators" type="xvert">
       <define name="SERVO_HZ" value="400" />
     </module>
 
@@ -75,7 +75,7 @@
   </firmware>
 
 	<modules main_freq="512">
-     <module name="vertx_escs"/>
+<!--     <module name="vertx_escs"/>-->
      <module name="gps" type="ubx_ucenter"/>
      <module name="send_imu_mag_current"/>
      <module name="air_data"/>
@@ -114,7 +114,7 @@
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
 
-  <servos driver="Pwm">
+  <servos driver="Xvert">
     <servo name="RM" no="0" min="1160" neutral="1200" max="1880"/>
     <servo name="LM" no="1" min="1160" neutral="1200" max="1880"/>
     <servo name="ELEVON_RIGHT"  no="2" min="1000" neutral="1500" max="2000"/>

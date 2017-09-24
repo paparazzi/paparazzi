@@ -1318,39 +1318,11 @@
 //#define DefaultVoltageOfAdc(adc) (0.006185*adc)
 
 #define ACTUATORS_PWM_NB 4
-/*
- * PWM defines
- */
-#ifndef USE_PWM0
-#define USE_PWM0 1
-#endif
-#if USE_PWM0
-#define PWM_SERVO_0 0
-//#define PWM_SERVO_0_GPIO GPIOB
-//#define PWM_SERVO_0_PIN GPIO5
-//#define PWM_SERVO_0_AF GPIO_AF2
-//#define PWM_SERVO_0_DRIVER PWMD6
-//#define PWM_SERVO_0_CHANNEL 1
-//#define PWM_SERVO_0_ACTIVE PWM_OUTPUT_ACTIVE_HIGH
-//#else
-#define PWM_SERVO_0_ACTIVE PWM_OUTPUT_DISABLED
-#endif
+//the first two motors are through the xvert escs
+//the second two are two standard pwm servos
 
-#ifndef USE_PWM1
-#define USE_PWM1 1
-#endif
-#if USE_PWM1
-#define PWM_SERVO_1 1
-//#define PWM_SERVO_1_GPIO GPIOB
-//#define PWM_SERVO_1_PIN GPIO4
-//#define PWM_SERVO_1_AF GPIO_AF2
-//#define PWM_SERVO_1_DRIVER PWMD6
-//#define PWM_SERVO_1_CHANNEL 0
-//#define PWM_SERVO_1_ACTIVE PWM_OUTPUT_ACTIVE_HIGH
-//#else
-#define PWM_SERVO_1_ACTIVE PWM_OUTPUT_DISABLED
-#endif
-
+#define XVERT_ESC_0 0
+#define XVERT_ESC_1 1
 
 #ifndef USE_PWM2
 #define USE_PWM2 1

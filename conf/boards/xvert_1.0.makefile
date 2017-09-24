@@ -72,4 +72,4 @@ SBUS_PORT ?= UART3
 # and by setting the correct "driver" attribute in servo section
 # e.g. <servo driver="Ppm">
 #
-ACTUATORS ?= actuators_pwm
+ACTUATORS ?= actuators_xvert
