@@ -60,10 +60,6 @@ GPS_LED            ?= none
 MODEM_PORT ?= UART2
 MODEM_BAUD ?= B57600
 
-RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT ?= UART3
-SBUS_PORT ?= UART3
-
-
 #
 # default actuator configuration
 #

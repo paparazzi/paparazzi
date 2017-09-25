@@ -17,11 +17,10 @@
     <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="80" />
     <define name="INDI_FULL_AUTHORITY" value="TRUE"/>
 
-<!--<define name="PPRZ_TRIG_INT_USE_FLOAT"/>-->
-<!--<define name="PPRZ_TRIG_INT_COMPR_FLASH"/>-->
-<!--<define name="PPRZ_TRIG_INT_COMPR_HIGHEST"/>-->
-<!--<define name="TRIG_INT_COMPR_LEN" value="256"/>-->
-    <define name="PPRZ_TRIG_CONST" value="const"/> <!--TODO: prolly want this in some makefile somewhere-->
+    <!-- To fix the 32k ram limit issue:-->
+    <!--<define name="PPRZ_TRIG_INT_USE_FLOAT"/>-->
+    <define name="PPRZ_TRIG_CONST" value="const"/>
+
     <configure name="USE_MAGNETOMETER" value="FALSE"/>
 
     <!-- in seconds-->
@@ -37,12 +36,10 @@
         <define name="IMU_MPU9250_READ_MAG" value="FALSE"/>
         <define name="IMU_MPU9250_I2C_ADDR" value="MPU9250_ADDR"/>
         <define name="AHRS_ICQ_MAG_ID" value="MAG_HMC58XX_SENDER_ID" />         <!-- Meaning the external hmc-->
-        <configure name="USE_MAGNETOMETER" value="FALSE"/>
     </module>
 
     <module name="stabilization" type="indi_simple" />
     <module name="ahrs" type="float_cmpl_quat" >
-      <configure name="USE_MAGNETOMETER" value="FALSE"/>
       <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
     </module>
     <module name="ins" type="float_invariant">
@@ -60,9 +57,6 @@
       <configure name="GPS_UBX_I2C_DEV" value="i2c2"/>
   </module>
 
-  <!--<module name="mag" type="hmc5843">
-      <configure name="HMC5843_I2C_DEV" value="i2c2"/>
-  </module>-->
   <module name="mag" type="hmc58xx">
     <configure name="MAG_HMC58XX_I2C_DEV" value="i2c2"/>
     <define name="MODULE_HMC58XX_UPDATE_AHRS" value="TRUE"/>
@@ -76,7 +70,6 @@
   </firmware>
 
 	<modules main_freq="512">
-<!--     <module name="vertx_escs"/>-->
      <module name="gps" type="ubx_ucenter"/>
      <module name="send_imu_mag_current"/>
      <module name="air_data"/>
@@ -127,30 +120,21 @@
   <set servo="RM" value="motor_mixing.commands[0]"/>
   <set servo="LM"  value="motor_mixing.commands[1]"/>
 
-<!-- Mode dependent actuator laws for the elevons. The elevons act different in rc attitude flight mode-->
-<!-- First the correct feedback is stored in variables -->
+  <!-- Mode dependent actuator laws for the elevons. The elevons act different in rc attitude flight mode-->
+  <!-- First the correct feedback is stored in variables -->
   <let var="aileron_feedback_left"  value="@YAW"/>
   <let var="aileron_feedback_right" value="@YAW"/>
 
   <let var="elevator_feedback_left"  value="-@PITCH"/>
   <let var="elevator_feedback_right" value="+@PITCH"/>
 
-<!-- Here the gains are defined for the two feedback cases, hover and forward-->
-  <!--<let var="hover_left"  value="$aileron_feedback_left"/>
-  <let var="hover_right" value="$aileron_feedback_right"/>-->
-
-<!--     if using INDI -->
-<!--    <let var="forward_left"  value="aileron_gain*$aileron_feedback_left+elevator_gain*$elevator_feedback_left"/>
-  <let var="forward_right" value="aileron_gain*$aileron_feedback_right+elevator_gain*$elevator_feedback_right"/>-->
-
-<!--     if using PID with gain scheduling -->
+  <!--     if using PID with gain scheduling -->
   <let var="forward_left"  value="$aileron_feedback_left + $elevator_feedback_left"/>
   <let var="forward_right" value="$aileron_feedback_right + $elevator_feedback_right"/>
 
   <!-- This statement tells the autopilot to use the hover feedback if in mode attitude direct and to use the forward feedback in all other cases-->
   <set servo="ELEVON_LEFT"    value="$forward_left" />
   <set servo="ELEVON_RIGHT"   value="$forward_right" />
-<!--     <set servo="ELEVON_RIGHT"   value="AP_MODE == AP_MODE_ATTITUDE_DIRECT ? 9000 : -9000" /> -->
 </command_laws>
 
   <section name="AIR_DATA" prefix="AIR_DATA_">
