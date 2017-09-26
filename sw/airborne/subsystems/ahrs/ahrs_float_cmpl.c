@@ -116,7 +116,7 @@ void ahrs_fc_init(void)
 }
 
 bool ahrs_fc_align(struct FloatRates *lp_gyro, struct FloatVect3 *lp_accel,
-                     struct FloatVect3 *lp_mag __attribute__((unused)))
+                   struct FloatVect3 *lp_mag __attribute__((unused)))
 {
 
 #if USE_MAGNETOMETER

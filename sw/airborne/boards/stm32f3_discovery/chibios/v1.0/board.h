@@ -1446,18 +1446,18 @@
 #define PWM_CONF_TIM2 1
 #endif
 #define PWM_CONF2_DEF { \
-  PWM_FREQUENCY, \
-  PWM_FREQUENCY/TIM2_SERVO_HZ, \
-  NULL, \
-  { \
-    { PWM_SERVO_5_ACTIVE, NULL }, \
-    { PWM_SERVO_4_ACTIVE, NULL }, \
-    { PWM_SERVO_1_ACTIVE, NULL }, \
-    { PWM_OUTPUT_DISABLED, NULL }, \
-  }, \
-  0, \
-  0 \
-}
+    PWM_FREQUENCY, \
+    PWM_FREQUENCY/TIM2_SERVO_HZ, \
+    NULL, \
+    { \
+      { PWM_SERVO_5_ACTIVE, NULL }, \
+      { PWM_SERVO_4_ACTIVE, NULL }, \
+      { PWM_SERVO_1_ACTIVE, NULL }, \
+      { PWM_OUTPUT_DISABLED, NULL }, \
+    }, \
+    0, \
+    0 \
+  }
 
 #ifdef STM32_PWM_USE_TIM3
 #define PWM_CONF_TIM3 STM32_PWM_USE_TIM3
@@ -1465,18 +1465,18 @@
 #define PWM_CONF_TIM3 1
 #endif
 #define PWM_CONF3_DEF { \
-  PWM_FREQUENCY, \
-  PWM_FREQUENCY/TIM3_SERVO_HZ, \
-  NULL, \
-  { \
-    { PWM_SERVO_3_ACTIVE, NULL }, \
-    { PWM_SERVO_2_ACTIVE, NULL }, \
-    { PWM_SERVO_0_ACTIVE, NULL }, \
-    { PWM_SERVO_6_ACTIVE, NULL }, \
-  }, \
-  0, \
-  0 \
-}
+    PWM_FREQUENCY, \
+    PWM_FREQUENCY/TIM3_SERVO_HZ, \
+    NULL, \
+    { \
+      { PWM_SERVO_3_ACTIVE, NULL }, \
+      { PWM_SERVO_2_ACTIVE, NULL }, \
+      { PWM_SERVO_0_ACTIVE, NULL }, \
+      { PWM_SERVO_6_ACTIVE, NULL }, \
+    }, \
+    0, \
+    0 \
+  }
 
 /**
  * PPM radio defines
@@ -1521,10 +1521,10 @@
 #error Invalid I2C1 clock speed
 #endif
 #define I2C1_CFG_DEF {        \
-           OPMODE_I2C,        \
-           I2C1_CLOCK_SPEED,  \
-           I2C1_DUTY_CYCLE,   \
-           }
+    OPMODE_I2C,        \
+    I2C1_CLOCK_SPEED,  \
+    I2C1_DUTY_CYCLE,   \
+  }
 
 #ifndef I2C2_CLOCK_SPEED
 #define I2C2_CLOCK_SPEED 400000
@@ -1537,10 +1537,10 @@
 #error Invalid I2C2 clock speed
 #endif
 #define I2C2_CFG_DEF {        \
-           OPMODE_I2C,        \
-           I2C2_CLOCK_SPEED,  \
-           I2C2_DUTY_CYCLE,   \
-           }
+    OPMODE_I2C,        \
+    I2C2_CLOCK_SPEED,  \
+    I2C2_DUTY_CYCLE,   \
+  }
 
 /**
  * SPI Config
@@ -1582,7 +1582,7 @@
 /*
  * Actuators for fixedwing
  */
- /* Default actuators driver */
+/* Default actuators driver */
 #define DEFAULT_ACTUATORS "subsystems/actuators/actuators_pwm.h"
 #define ActuatorDefaultSet(_x,_y) ActuatorPwmSet(_x,_y)
 #define ActuatorsDefaultInit() ActuatorsPwmInit()
@@ -1619,7 +1619,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void boardInit(void);
+void boardInit(void);
 #ifdef __cplusplus
 }
 #endif

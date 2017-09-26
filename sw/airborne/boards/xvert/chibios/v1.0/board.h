@@ -1360,18 +1360,18 @@
 #define PWM_CONF_TIM5 1
 #endif
 #define PWM_CONF5_DEF { \
-  PWM_FREQUENCY, \
-  PWM_FREQUENCY/TIM5_SERVO_HZ, \
-  NULL, \
-  { \
-    { PWM_SERVO_3_ACTIVE, NULL }, \
-    { PWM_SERVO_2_ACTIVE, NULL }, \
-    { PWM_SERVO_3_ACTIVE, NULL }, \
-    { PWM_SERVO_3_ACTIVE, NULL }, \
-  }, \
-  0, \
-  0 \
-}
+    PWM_FREQUENCY, \
+    PWM_FREQUENCY/TIM5_SERVO_HZ, \
+    NULL, \
+    { \
+      { PWM_SERVO_3_ACTIVE, NULL }, \
+      { PWM_SERVO_2_ACTIVE, NULL }, \
+      { PWM_SERVO_3_ACTIVE, NULL }, \
+      { PWM_SERVO_3_ACTIVE, NULL }, \
+    }, \
+    0, \
+    0 \
+  }
 
 
 /**
@@ -1407,20 +1407,20 @@
  * I2C defines
  */
 #define I2C1_CFG_DEF {      \
-STM32_TIMINGR_PRESC(15U) |  \
-STM32_TIMINGR_SCLDEL(4U) |  \
-STM32_TIMINGR_SDADEL(2U) |  \
-STM32_TIMINGR_SCLH(15U)  |  \
-STM32_TIMINGR_SCLL(21U),    \
-0,0 }
+    STM32_TIMINGR_PRESC(15U) |  \
+    STM32_TIMINGR_SCLDEL(4U) |  \
+    STM32_TIMINGR_SDADEL(2U) |  \
+    STM32_TIMINGR_SCLH(15U)  |  \
+    STM32_TIMINGR_SCLL(21U),    \
+    0,0 }
 
 #define I2C2_CFG_DEF {      \
-STM32_TIMINGR_PRESC(15U) |  \
-STM32_TIMINGR_SCLDEL(4U) |  \
-STM32_TIMINGR_SDADEL(2U) |  \
-STM32_TIMINGR_SCLH(15U)  |  \
-STM32_TIMINGR_SCLL(21U),    \
-0,0 }
+    STM32_TIMINGR_PRESC(15U) |  \
+    STM32_TIMINGR_SCLDEL(4U) |  \
+    STM32_TIMINGR_SDADEL(2U) |  \
+    STM32_TIMINGR_SCLH(15U)  |  \
+    STM32_TIMINGR_SCLL(21U),    \
+    0,0 }
 
 
 ///**
@@ -1456,14 +1456,14 @@ STM32_TIMINGR_SCLL(21U),    \
  * Apparently needed for backwards compatibility
  * with the ancient onboard baro boards
  */
- #ifndef USE_BARO_BOARD
- #define USE_BARO_BOARD 1
- #endif
+#ifndef USE_BARO_BOARD
+#define USE_BARO_BOARD 1
+#endif
 
 /*
  * Actuators for fixedwing
  */
- /* Default actuators driver */
+/* Default actuators driver */
 #define DEFAULT_ACTUATORS "subsystems/actuators/actuators_pwm.h"
 #define ActuatorDefaultSet(_x,_y) ActuatorPwmSet(_x,_y)
 #define ActuatorsDefaultInit() ActuatorsPwmInit()
@@ -1501,7 +1501,7 @@ STM32_TIMINGR_SCLL(21U),    \
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void boardInit(void);
+void boardInit(void);
 #ifdef __cplusplus
 }
 #endif

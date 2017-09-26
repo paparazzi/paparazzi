@@ -250,7 +250,7 @@ void adc1callback(ADCDriver *adcp, adcsample_t *buffer, size_t n)
         (adc_watchdog.cb != NULL)) {
       if (adc1_buffers[adc_watchdog.channel]->sum <
           (adc1_buffers[adc_watchdog.channel]->av_nb_sample * adc_watchdog.vmin)) {
-        adc_watchdog.cb ();
+        adc_watchdog.cb();
       }
     }
 #endif // USE_ADC_WATCHDOG
@@ -280,7 +280,7 @@ static void adcerrorcallback(ADCDriver *adcp, adcerror_t err)
 void adc_buf_channel(uint8_t adc_channel, struct adc_buf *s, uint8_t av_nb_sample)
 {
   // check for out-of-bounds access
-  if (adc_channel >= ADC_NUM_CHANNELS) return;
+  if (adc_channel >= ADC_NUM_CHANNELS) { return; }
   adc1_buffers[adc_channel] = s;
   if (av_nb_sample <= MAX_AV_NB_SAMPLE) {
     s->av_nb_sample = av_nb_sample;
@@ -352,7 +352,7 @@ void adc_init(void)
   adc_watchdog.adc = NULL;
   adc_watchdog.cb = NULL;
   adc_watchdog.channel = 0;
-  adc_watchdog.vmin = (1<<12)-1; // max adc
+  adc_watchdog.vmin = (1 << 12) - 1; // max adc
 #endif
 
   adcgrpcfg.circular = TRUE;
@@ -361,11 +361,11 @@ void adc_init(void)
   adcgrpcfg.error_cb = adcerrorcallback;
 #if defined(__STM32F373xC_H)
   //TODO: set AD regs
-  #warning ADC's not tested with stm32f37
+#warning ADC's not tested with stm32f37
 
 #elif defined(__STM32F3xx_H)
   //TODO: check if something needs to be done with the other regs (can be found in ~/paparazzi/sw/ext/chibios/os/hal/ports/STM32/LLD/ADCv3)
-  #warning ADC's not tested with stm32f37  
+#warning ADC's not tested with stm32f37
   // cfgr
   // tr1
 
@@ -391,9 +391,9 @@ void adc_init(void)
 
 #if USE_ADC_WATCHDOG
 void register_adc_watchdog(ADCDriver *adc, adc_channels_num_t channel, adcsample_t vmin,
-			   adc_watchdog_callback cb)
+                           adc_watchdog_callback cb)
 {
-  for (int i=0; i< NB_ADC1_CHANNELS; i++) { // FIXME when more than ADC1 will be in use
+  for (int i = 0; i < NB_ADC1_CHANNELS; i++) { // FIXME when more than ADC1 will be in use
     if (adc_channel_map[i] == channel) {
       adc_watchdog.adc = adc;
       adc_watchdog.channel = i;

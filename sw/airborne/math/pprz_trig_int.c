@@ -859,11 +859,11 @@ inline int16_t pprz_trig_int_f(int32_t angle)
 int32_t pprz_itrig_sin(int32_t angle)
 {
 #if defined(PPRZ_TRIG_INT_USE_FLOAT)
-    float tmp;
-    tmp = ANGLE_FLOAT_OF_BFP(angle);
-    tmp = sinf(tmp);
-    angle = ANGLE_BFP_OF_REAL(tmp);
-    return angle;
+  float tmp;
+  tmp = ANGLE_FLOAT_OF_BFP(angle);
+  tmp = sinf(tmp);
+  angle = ANGLE_BFP_OF_REAL(tmp);
+  return angle;
 #else
   INT32_ANGLE_NORMALIZE(angle);
   if (angle > INT32_ANGLE_PI_2) {

@@ -33,19 +33,19 @@
 #define ESCS_DATA_MYSTERYBIT 32768
 
 struct EscData {
-    unsigned char start; //0xfe
-    unsigned char len; //8
-    unsigned char id; //2
+  unsigned char start; //0xfe
+  unsigned char len; //8
+  unsigned char id; //2
 
-    //1200 - 1800, maybe 1100-1900
-    //1160 = off, max ~1880
-    //in both data ints, 2e byte toggles the 64 bit  (15e bit in total). If on, its the first, if off its the other
-    //in d2 16e bit always on
+  //1200 - 1800, maybe 1100-1900
+  //1160 = off, max ~1880
+  //in both data ints, 2e byte toggles the 64 bit  (15e bit in total). If on, its the first, if off its the other
+  //in d2 16e bit always on
 
-    uint32_t d1 ;
-    uint32_t d2 ;
-    unsigned char crc;
-}__attribute__((__packed__));
+  uint32_t d1 ;
+  uint32_t d2 ;
+  unsigned char crc;
+} __attribute__((__packed__));
 
 
 extern int32_t actuators_xvert_values[ACTUATORS_PWM_NB];

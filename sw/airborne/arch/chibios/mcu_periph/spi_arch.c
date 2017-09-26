@@ -224,8 +224,7 @@ static inline uint16_t spi_resolve_CR2(struct spi_transaction *t __attribute__((
 #if defined(STM32F7)
   if (t->dss == SPIDss16bit) {
     CR2 |= SPI_CR2_DS_0 | SPI_CR2_DS_1 | SPI_CR2_DS_2 | SPI_CR2_DS_3;
-  }
-  else {
+  } else {
     CR2 |= SPI_CR2_DS_0 | SPI_CR2_DS_1 | SPI_CR2_DS_2;
   }
 #endif /* STM32F7 */
@@ -242,7 +241,7 @@ static void handle_spi_thd(struct spi_periph *p)
   struct spi_init *i = (struct spi_init *) p->init_struct;
 
   // wait for a transaction to be pushed in the queue
-  chSemWait (i->sem);
+  chSemWait(i->sem);
 
   if ((p->trans_insert_idx == p->trans_extract_idx) || p->suspend) {
     p->status = SPIIdle;
@@ -284,11 +283,11 @@ static void handle_spi_thd(struct spi_periph *p)
   // Start synchronous data transfer
 #if defined STM32F7
   // we do stupid mem copy because F7 needs a special RAM for DMA operation
-  memcpy(i->dma_buf_out, (void*)t->output_buf, (size_t)t->output_length);
+  memcpy(i->dma_buf_out, (void *)t->output_buf, (size_t)t->output_length);
   spiExchange((SPIDriver *)p->reg_addr, t_length, i->dma_buf_out, i->dma_buf_in);
-  memcpy((void*)t->input_buf, i->dma_buf_in, (size_t)t->input_length);
+  memcpy((void *)t->input_buf, i->dma_buf_in, (size_t)t->input_length);
 #else
-  spiExchange((SPIDriver *)p->reg_addr, t_length, (uint8_t*)t->output_buf, (uint8_t*)t->input_buf);
+  spiExchange((SPIDriver *)p->reg_addr, t_length, (uint8_t *)t->output_buf, (uint8_t *)t->input_buf);
 #endif
 
   // Unselect the slave
@@ -355,7 +354,7 @@ void spi1_arch_init(void)
   spi1.init_struct = &spi1_init_s;
   // Create thread
   chThdCreateStatic(wa_thd_spi1, sizeof(wa_thd_spi1),
-      NORMALPRIO+1, thd_spi1, NULL);
+                    NORMALPRIO + 1, thd_spi1, NULL);
 }
 #endif
 
@@ -394,7 +393,7 @@ void spi2_arch_init(void)
   spi2.init_struct = &spi2_init_s;
   // Create thread
   chThdCreateStatic(wa_thd_spi2, sizeof(wa_thd_spi2),
-      NORMALPRIO+1, thd_spi2, NULL);
+                    NORMALPRIO + 1, thd_spi2, NULL);
 }
 #endif
 
@@ -433,7 +432,7 @@ void spi3_arch_init(void)
   spi3.init_struct = &spi3_init_s;
   // Create thread
   chThdCreateStatic(wa_thd_spi3, sizeof(wa_thd_spi3),
-      NORMALPRIO+1, thd_spi3, NULL);
+                    NORMALPRIO + 1, thd_spi3, NULL);
 }
 #endif
 
@@ -477,7 +476,7 @@ bool spi_submit(struct spi_periph *p, struct spi_transaction *t)
   p->trans_insert_idx = idx;
 
   chSysUnlock();
-  chSemSignal (((struct spi_init *)p->init_struct)->sem);
+  chSemSignal(((struct spi_init *)p->init_struct)->sem);
   // transaction submitted
   return TRUE;
 }

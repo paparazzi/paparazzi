@@ -42,85 +42,89 @@ int32_t actuators_xvert_values[ACTUATORS_PWM_NB];
 
 
 static unsigned char crc8_table[256];     /* 8-bit table */
-static int made_table=0;
+static int made_table = 0;
 
 static void init_crc8(void)
-     /*
-      * Should be called before any other crc function.
-      */
+/*
+ * Should be called before any other crc function.
+ */
 {
-  int i,j;
+  int i, j;
   unsigned char crc;
 
   if (!made_table) {
-    for (i=0; i<256; i++) {
+    for (i = 0; i < 256; i++) {
       crc = i;
-      for (j=0; j<8; j++)
+      for (j = 0; j < 8; j++) {
         crc = (crc << 1) ^ ((crc & 0x80) ? DI : 0);
+      }
       crc8_table[i] = crc & 0xFF;
       /* printf("table[%d] = %d (0x%X)\n", i, crc, crc); */
     }
-    made_table=1;
+    made_table = 1;
   }
 }
 
 
 void crc8(unsigned char *crc, unsigned char m)
-     /*
-      * For a byte array whose accumulated crc value is stored in *crc, computes
-      * resultant crc obtained by appending m to the byte array
-      */
+/*
+ * For a byte array whose accumulated crc value is stored in *crc, computes
+ * resultant crc obtained by appending m to the byte array
+ */
 {
-  if (!made_table)
+  if (!made_table) {
     init_crc8();
+  }
 
   *crc = crc8_table[(*crc) ^ m];
   *crc &= 0xFF;
 }
 
 
-void actuators_xvert_init(void) {
-    actuators_pwm_arch_init();
+void actuators_xvert_init(void)
+{
+  actuators_pwm_arch_init();
 }
 
 
 
-void actuators_xvert_commit(void) {
-    if (ESCS_PORT->char_available(ESCS_PORT->periph)) {
-        //unsigned char b1 = ESCS_PORT->get_byte(ESCS_PORT->periph);
-    }
+void actuators_xvert_commit(void)
+{
+  if (ESCS_PORT->char_available(ESCS_PORT->periph)) {
+    //unsigned char b1 = ESCS_PORT->get_byte(ESCS_PORT->periph);
+  }
 
-    struct EscData package;
-    package.start = ESCS_START_BYTE;
-    package.len = 8;
-    package.id = 2;
+  struct EscData package;
+  package.start = ESCS_START_BYTE;
+  package.len = 8;
+  package.id = 2;
 
-    package.d1 =actuators_xvert_values[XVERT_ESC_0];
-    package.d2 =actuators_xvert_values[XVERT_ESC_1];
+  package.d1 = actuators_xvert_values[XVERT_ESC_0];
+  package.d2 = actuators_xvert_values[XVERT_ESC_1];
 
-    //do some package magic:
-    static bool bitflipper = true;
-    if (bitflipper)
-        package.d1 += ESCS_DATA_FLIPBIT;
-    else {
-        package.d2 += ESCS_DATA_FLIPBIT;
-    }
-    package.d1 += ESCS_DATA_MYSTERYBIT;
-    bitflipper = !bitflipper;
+  //do some package magic:
+  static bool bitflipper = true;
+  if (bitflipper) {
+    package.d1 += ESCS_DATA_FLIPBIT;
+  } else {
+    package.d2 += ESCS_DATA_FLIPBIT;
+  }
+  package.d1 += ESCS_DATA_MYSTERYBIT;
+  bitflipper = !bitflipper;
 
-    unsigned char crc = 0;
-    unsigned char * data = (unsigned char *)&package;
-    for(unsigned char i = 1 ; i< sizeof(struct EscData)-1;i++) {
-        crc8(&crc, data[i]);
-    }
-    package.crc = crc;
+  unsigned char crc = 0;
+  unsigned char *data = (unsigned char *)&package;
+  for (unsigned char i = 1 ; i < sizeof(struct EscData) - 1; i++) {
+    crc8(&crc, data[i]);
+  }
+  package.crc = crc;
 
-    ESCS_PORT->put_buffer(ESCS_PORT->periph, 0, (unsigned char *) &package, sizeof(struct EscData));
+  ESCS_PORT->put_buffer(ESCS_PORT->periph, 0, (unsigned char *) &package, sizeof(struct EscData));
 
 
-    //send the pwm signals for the two elerons to the pwm driver:
-    actuators_pwm_values[PWM_SERVO_2] = actuators_xvert_values[PWM_SERVO_2];
-    actuators_pwm_values[PWM_SERVO_3] = actuators_xvert_values[PWM_SERVO_3];
-    actuators_pwm_commit();
+  //send the pwm signals for the two elerons to the pwm driver:
+  actuators_pwm_values[PWM_SERVO_2] = actuators_xvert_values[PWM_SERVO_2];
+  actuators_pwm_values[PWM_SERVO_3] = actuators_xvert_values[PWM_SERVO_3];
+  actuators_pwm_commit();
 
 }

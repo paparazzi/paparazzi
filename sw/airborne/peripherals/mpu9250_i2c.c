@@ -28,7 +28,7 @@
 #include "peripherals/mpu9250_i2c.h"
 
 bool imu_mpu9250_configure_mag_slave(Mpu9250ConfigSet mpu_set __attribute__((unused)),
-                                       void *mpu __attribute__((unused)));
+                                     void *mpu __attribute__((unused)));
 
 void mpu9250_i2c_init(struct Mpu9250_I2c *mpu, struct i2c_periph *i2c_p, uint8_t addr)
 {
@@ -192,12 +192,11 @@ bool mpu9250_configure_i2c_slaves(Mpu9250ConfigSet mpu_set, void *mpu)
     case MPU9250_I2C_CONF_SLAVES_CONFIGURE:
       /* configure each slave until all nb_slaves are done */
       if (mpu_i2c->config.nb_slave_init < mpu_i2c->config.nb_slaves && mpu_i2c->config.nb_slave_init < MPU9250_I2C_NB_SLAVES) {
-         // proceed to next slave if configure for current one returns true
+        // proceed to next slave if configure for current one returns true
         if (mpu_i2c->config.slaves[mpu_i2c->config.nb_slave_init].configure(mpu_set, mpu)) {
           mpu_i2c->config.nb_slave_init++;
         }
-      }
-      else {
+      } else {
         /* all slave devies configured, continue MPU side configuration of I2C slave stuff */
         mpu_i2c->slave_init_status++;
       }

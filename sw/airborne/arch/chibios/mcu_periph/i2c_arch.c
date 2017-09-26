@@ -57,7 +57,7 @@ struct i2c_init {
 static void handle_i2c_thd(struct i2c_periph *p);
 
 // Timeout for I2C transaction
-static const systime_t tmo = US2ST(10000000/PERIODIC_FREQUENCY);
+static const systime_t tmo = US2ST(10000000 / PERIODIC_FREQUENCY);
 
 /**
  * main thread function
@@ -69,7 +69,7 @@ static void handle_i2c_thd(struct i2c_periph *p)
   struct i2c_init *i = (struct i2c_init *) p->init_struct;
 
   // wait for a transaction to be pushed in the queue
-  chSemWait (i->sem);
+  chSemWait(i->sem);
 
   if (p->trans_insert_idx == p->trans_extract_idx) {
     p->status = I2CIdle;
@@ -86,38 +86,38 @@ static void handle_i2c_thd(struct i2c_periph *p)
   if (t->len_w > 0) {
 #if defined STM32F7
     // we do stupid mem copy because F7 needs a special RAM for DMA operation
-    memcpy(i->dma_buf, (void*)t->buf, (size_t)(t->len_w));
+    memcpy(i->dma_buf, (void *)t->buf, (size_t)(t->len_w));
     status = i2cMasterTransmitTimeout(
-        (I2CDriver*)p->reg_addr,
-        (i2caddr_t)((t->slave_addr)>>1),
-        (uint8_t*)i->dma_buf, (size_t)(t->len_w),
-        (uint8_t*)i->dma_buf, (size_t)(t->len_r),
-        tmo);
-    memcpy((void*)t->buf, i->dma_buf, (size_t)(t->len_r));
+               (I2CDriver *)p->reg_addr,
+               (i2caddr_t)((t->slave_addr) >> 1),
+               (uint8_t *)i->dma_buf, (size_t)(t->len_w),
+               (uint8_t *)i->dma_buf, (size_t)(t->len_r),
+               tmo);
+    memcpy((void *)t->buf, i->dma_buf, (size_t)(t->len_r));
 #else
     status = i2cMasterTransmitTimeout(
-        (I2CDriver*)p->reg_addr,
-        (i2caddr_t)((t->slave_addr)>>1),
-        (uint8_t*)t->buf, (size_t)(t->len_w),
-        (uint8_t*)t->buf, (size_t)(t->len_r),
-        tmo);
+               (I2CDriver *)p->reg_addr,
+               (i2caddr_t)((t->slave_addr) >> 1),
+               (uint8_t *)t->buf, (size_t)(t->len_w),
+               (uint8_t *)t->buf, (size_t)(t->len_r),
+               tmo);
 #endif
   } else {
 #if defined STM32F7
     // we do stupid mem copy because F7 needs a special RAM for DMA operation
-    memcpy(i->dma_buf, (void*)t->buf, (size_t)(t->len_w));
+    memcpy(i->dma_buf, (void *)t->buf, (size_t)(t->len_w));
     status = i2cMasterReceiveTimeout(
-        (I2CDriver*)p->reg_addr,
-        (i2caddr_t)((t->slave_addr)>>1),
-        (uint8_t*)i->dma_buf, (size_t)(t->len_r),
-        tmo);
-    memcpy((void*)t->buf, i->dma_buf, (size_t)(t->len_r));
+               (I2CDriver *)p->reg_addr,
+               (i2caddr_t)((t->slave_addr) >> 1),
+               (uint8_t *)i->dma_buf, (size_t)(t->len_r),
+               tmo);
+    memcpy((void *)t->buf, i->dma_buf, (size_t)(t->len_r));
 #else
     status = i2cMasterReceiveTimeout(
-        (I2CDriver*)p->reg_addr,
-        (i2caddr_t)((t->slave_addr)>>1),
-        (uint8_t*)t->buf, (size_t)(t->len_r),
-        tmo);
+               (I2CDriver *)p->reg_addr,
+               (i2caddr_t)((t->slave_addr) >> 1),
+               (uint8_t *)t->buf, (size_t)(t->len_r),
+               tmo);
 #endif
   }
 
@@ -140,13 +140,13 @@ static void handle_i2c_thd(struct i2c_periph *p)
       //if a timeout occurred before operation end
       // mark as failed and restart
       t->status = I2CTransFailed;
-      i2cStart((I2CDriver*)p->reg_addr, i->cfg);
+      i2cStart((I2CDriver *)p->reg_addr, i->cfg);
       break;
     case MSG_RESET:
       //if one or more I2C errors occurred, the errors can
       //be retrieved using @p i2cGetErrors().
       t->status = I2CTransFailed;
-      i2cflags_t errors = i2cGetErrors((I2CDriver*)p->reg_addr);
+      i2cflags_t errors = i2cGetErrors((I2CDriver *)p->reg_addr);
       if (errors & I2C_BUS_ERROR) {
         p->errors->miss_start_stop_cnt++;
       }
@@ -211,7 +211,7 @@ void i2c1_hw_init(void)
   i2c1.init_struct = &i2c1_init_s;
   // Create thread
   chThdCreateStatic(wa_thd_i2c1, sizeof(wa_thd_i2c1),
-      NORMALPRIO+1, thd_i2c1, NULL);
+                    NORMALPRIO + 1, thd_i2c1, NULL);
 }
 
 /*
@@ -261,11 +261,11 @@ void i2c2_hw_init(void)
 {
   i2cStart(&I2CD2, &i2cfg2);
   i2c2.reg_addr = &I2CD2;
-    i2c2.errors = &i2c2_errors;
+  i2c2.errors = &i2c2_errors;
   i2c2.init_struct = &i2c2_init_s;
   // Create thread
   chThdCreateStatic(wa_thd_i2c2, sizeof(wa_thd_i2c2),
-      NORMALPRIO+1, thd_i2c2, NULL);
+                    NORMALPRIO + 1, thd_i2c2, NULL);
 }
 
 /*
@@ -320,7 +320,7 @@ void i2c3_hw_init(void)
   i2c3.init_struct = &i2c3_init_s;
   // Create thread
   chThdCreateStatic(wa_thd_i2c3, sizeof(wa_thd_i2c3),
-      NORMALPRIO+1, thd_i2c3, NULL);
+                    NORMALPRIO + 1, thd_i2c3, NULL);
 }
 
 /*
@@ -394,7 +394,7 @@ bool i2c_submit(struct i2c_periph *p, struct i2c_transaction *t)
   p->trans_insert_idx = temp;
 
   chSysUnlock();
-  chSemSignal (((struct i2c_init *)p->init_struct)->sem);
+  chSemSignal(((struct i2c_init *)p->init_struct)->sem);
   // transaction submitted
   return TRUE;
 #else
