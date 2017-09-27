@@ -77,6 +77,7 @@
 #define ADC_CR2_CFG ADC_CR2_SWSTART
 #elif defined(__STM32F373xC_H)
 #define ADC_SAMPLE_RATE ADC_SAMPLE_239P5
+#define ADC_CR2_CFG ADC_CR2_SWSTART
 #elif defined(__STM32F3xx_H)
 #define ADC_SAMPLE_RATE ADC_SMPR_SMP_601P5
 #endif
@@ -360,12 +361,16 @@ void adc_init(void)
   adcgrpcfg.end_cb = adc1callback;
   adcgrpcfg.error_cb = adcerrorcallback;
 #if defined(__STM32F373xC_H)
-  //TODO: set AD regs
-#warning ADC's not tested with stm32f37
-
+  adcgrpcfg.u.adc.smpr[0] = smpr1;
+  adcgrpcfg.u.adc.smpr[1] = smpr2;
+  adcgrpcfg.u.adc.sqr[0] = sqr1;
+  adcgrpcfg.u.adc.sqr[1] = sqr2;
+  adcgrpcfg.u.adc.sqr[2] = sqr3;
+  adcgrpcfg.u.adc.cr1 = 0;
+  adcgrpcfg.u.adc.cr2 = ADC_CR2_CFG;
 #elif defined(__STM32F3xx_H)
   //TODO: check if something needs to be done with the other regs (can be found in ~/paparazzi/sw/ext/chibios/os/hal/ports/STM32/LLD/ADCv3)
-#warning ADC's not tested with stm32f37
+#warning ADCs not tested with stm32f30
   // cfgr
   // tr1
 

@@ -54,14 +54,14 @@
  * IO pins assignments.
  */
 #define GPIOA_PIN0                  0U
-#define GPIOA_LED                   1U
+#define GPIOA_ADC_VDD               1U
 #define GPIOA_UART2TX               2U
 #define GPIOA_UART2RX               3U
 #define GPIOA_PIN4                  4U
 #define GPIOA_ADC1                  5U
 #define GPIOA_ADC2                  6U
 #define GPIOA_PIN7                  7U
-#define GPIOA_PIN8                  8U
+#define GPIOA_LED_RED               8U
 #define GPIOA_UART1TX               9U
 #define GPIOA_UART1RX               10U
 #define GPIOA_PWM_PIN11             11U
@@ -112,7 +112,7 @@
 #define GPIOD_USART2_TX             5U
 #define GPIOD_USART2_RX             6U
 #define GPIOD_PIN7                  7U
-#define GPIOD_PIN8                  8U
+#define GPIOD_LED_GREEN             8U
 #define GPIOD_PIN9                  9U
 #define GPIOD_PIN10                 10U
 #define GPIOD_AUDIO_RST             11U
@@ -271,14 +271,14 @@
 
 
 #define VAL_GPIOA_MODER             (PIN_MODE_INPUT(GPIOA_PIN0) |    \
-                                     PIN_MODE_OUTPUT(GPIOA_LED) |       \
+                                     PIN_MODE_ANALOG(GPIOA_ADC_VDD) |       \
                                      PIN_MODE_ALTERNATE(GPIOA_UART2TX) |     \
                                      PIN_MODE_ALTERNATE(GPIOA_UART2RX) |           \
                                      PIN_MODE_INPUT(GPIOA_PIN4) |           \
                                      PIN_MODE_ANALOG(GPIOA_ADC1) |           \
                                      PIN_MODE_ANALOG(GPIOA_ADC2) |           \
                                      PIN_MODE_OUTPUT(GPIOA_PIN7) |     \
-                                     PIN_MODE_INPUT(GPIOA_PIN8) |       \
+                                     PIN_MODE_OUTPUT(GPIOA_LED_RED) |       \
                                      PIN_MODE_ALTERNATE(GPIOA_UART1TX) |   \
                                      PIN_MODE_ALTERNATE(GPIOA_UART1RX) |   \
                                      PIN_MODE_INPUT(GPIOA_PWM_PIN11) |     \
@@ -288,14 +288,14 @@
                                      PIN_MODE_INPUT(GPIOA_PIN15))
 
 #define VAL_GPIOA_OTYPER            (PIN_OTYPE_PUSHPULL(GPIOA_PIN0) |    \
-                                     PIN_OTYPE_PUSHPULL(GPIOA_LED) |       \
+                                     PIN_OTYPE_PUSHPULL(GPIOA_ADC_VDD) |       \
                                      PIN_OTYPE_PUSHPULL(GPIOA_UART2TX) |     \
                                      PIN_OTYPE_PUSHPULL(GPIOA_UART2RX) |           \
                                      PIN_OTYPE_PUSHPULL(GPIOA_PIN4) |           \
                                      PIN_OTYPE_PUSHPULL(GPIOA_ADC1) |           \
                                      PIN_OTYPE_PUSHPULL(GPIOA_ADC2) |           \
                                      PIN_OTYPE_PUSHPULL(GPIOA_PIN7) |     \
-                                     PIN_OTYPE_PUSHPULL(GPIOA_PIN8) |       \
+                                     PIN_OTYPE_PUSHPULL(GPIOA_LED_RED) |       \
                                      PIN_OTYPE_PUSHPULL(GPIOA_UART1TX) |   \
                                      PIN_OTYPE_PUSHPULL(GPIOA_UART1RX) |   \
                                      PIN_OTYPE_OPENDRAIN(GPIOA_PWM_PIN11) |     \
@@ -305,14 +305,14 @@
                                      PIN_OTYPE_PUSHPULL(GPIOA_PIN15))
 
 #define VAL_GPIOA_OSPEEDR           (PIN_OSPEED_VERYLOW(GPIOA_PIN0) |\
-                                     PIN_OSPEED_VERYLOW(GPIOA_LED) |    \
+                                     PIN_OSPEED_VERYLOW(GPIOA_ADC_VDD) |    \
                                      PIN_OSPEED_HIGH(GPIOA_UART2TX) | \
                                      PIN_OSPEED_HIGH(GPIOA_UART2RX) |       \
                                      PIN_OSPEED_VERYLOW(GPIOA_PIN4) |       \
                                      PIN_OSPEED_VERYLOW(GPIOA_ADC1) |          \
                                      PIN_OSPEED_VERYLOW(GPIOA_ADC2) |       \
                                      PIN_OSPEED_VERYLOW(GPIOA_PIN7) |     \
-                                     PIN_OSPEED_VERYLOW(GPIOA_PIN8) |   \
+                                     PIN_OSPEED_VERYLOW(GPIOA_LED_RED) |   \
                                      PIN_OSPEED_HIGH(GPIOA_UART1TX) |      \
                                      PIN_OSPEED_HIGH(GPIOA_UART1RX) |      \
                                      PIN_OSPEED_VERYLOW(GPIOA_PWM_PIN11) |        \
@@ -322,14 +322,14 @@
                                      PIN_OSPEED_VERYLOW(GPIOA_PIN15))
 
 #define VAL_GPIOA_PUPDR             (PIN_PUPDR_FLOATING(GPIOA_PIN0) |\
-                                     PIN_PUPDR_FLOATING(GPIOA_LED) |    \
+                                     PIN_PUPDR_FLOATING(GPIOA_ADC_VDD) |    \
                                      PIN_PUPDR_FLOATING(GPIOA_UART2TX) | \
                                      PIN_PUPDR_FLOATING(GPIOA_UART2RX) |         \
                                      PIN_PUPDR_PULLUP(GPIOA_PIN4) |         \
                                      PIN_PUPDR_FLOATING(GPIOA_ADC1) |       \
                                      PIN_PUPDR_FLOATING(GPIOA_ADC2) |         \
                                      PIN_PUPDR_FLOATING(GPIOA_PIN7) |  \
-                                     PIN_PUPDR_FLOATING(GPIOA_PIN8) |   \
+                                     PIN_PUPDR_FLOATING(GPIOA_LED_RED) |   \
                                      PIN_PUPDR_FLOATING(GPIOA_UART1TX) |   \
                                      PIN_PUPDR_FLOATING(GPIOA_UART1RX) |   \
                                      PIN_PUPDR_PULLDOWN(GPIOA_PWM_PIN11) |     \
@@ -338,14 +338,14 @@
                                      PIN_PUPDR_PULLDOWN(GPIOA_SWCLK) |      \
                                      PIN_PUPDR_FLOATING(GPIOA_PIN15))
 #define VAL_GPIOA_ODR               (PIN_ODR_HIGH(GPIOA_PIN0) |      \
-                                     PIN_ODR_HIGH(GPIOA_LED) |          \
+                                     PIN_ODR_HIGH(GPIOA_ADC_VDD) |          \
                                      PIN_ODR_HIGH(GPIOA_UART2TX) |       \
                                      PIN_ODR_HIGH(GPIOA_UART2RX) |             \
                                      PIN_ODR_HIGH(GPIOA_PIN4) |             \
                                      PIN_ODR_HIGH(GPIOA_ADC1) |             \
                                      PIN_ODR_HIGH(GPIOA_ADC2) |             \
                                      PIN_ODR_LOW(GPIOA_PIN7) |         \
-                                     PIN_ODR_HIGH(GPIOA_PIN8) |         \
+                                     PIN_ODR_HIGH(GPIOA_LED_RED) |         \
                                      PIN_ODR_HIGH(GPIOA_UART1TX) |         \
                                      PIN_ODR_HIGH(GPIOA_UART1RX) |         \
                                      PIN_ODR_HIGH(GPIOA_PWM_PIN11) |           \
@@ -354,14 +354,14 @@
                                      PIN_ODR_HIGH(GPIOA_SWCLK) |            \
                                      PIN_ODR_HIGH(GPIOA_PIN15))
 #define VAL_GPIOA_AFRL              (PIN_AFIO_AF(GPIOA_PIN0, 0U) |   \
-                                     PIN_AFIO_AF(GPIOA_LED, 0U) |       \
+                                     PIN_AFIO_AF(GPIOA_ADC_VDD, 0U) |       \
                                      PIN_AFIO_AF(GPIOA_UART2TX, 7U) |    \
                                      PIN_AFIO_AF(GPIOA_UART2RX, 7U) |          \
                                      PIN_AFIO_AF(GPIOA_PIN4, 0U) |          \
                                      PIN_AFIO_AF(GPIOA_ADC1, 0U) |          \
                                      PIN_AFIO_AF(GPIOA_ADC2, 0U) |          \
                                      PIN_AFIO_AF(GPIOA_PIN7, 0U))
-#define VAL_GPIOA_AFRH              (PIN_AFIO_AF(GPIOA_PIN8, 0U) |      \
+#define VAL_GPIOA_AFRH              (PIN_AFIO_AF(GPIOA_LED_RED, 0U) |      \
                                      PIN_AFIO_AF(GPIOA_UART1TX, 7U) |      \
                                      PIN_AFIO_AF(GPIOA_UART1RX, 7U) |      \
                                      PIN_AFIO_AF(GPIOA_PWM_PIN11, 2U) |       \
@@ -632,7 +632,7 @@
                                      PIN_MODE_ALTERNATE(GPIOD_USART2_TX) |  \
                                      PIN_MODE_ALTERNATE(GPIOD_USART2_RX) |  \
                                      PIN_MODE_INPUT(GPIOD_PIN7) |           \
-                                     PIN_MODE_INPUT(GPIOD_PIN8) |           \
+                                     PIN_MODE_OUTPUT(GPIOD_LED_GREEN) |           \
                                      PIN_MODE_INPUT(GPIOD_PIN9) |           \
                                      PIN_MODE_INPUT(GPIOD_PIN10) |          \
                                      PIN_MODE_OUTPUT(GPIOD_AUDIO_RST) |     \
@@ -648,7 +648,7 @@
                                      PIN_OTYPE_PUSHPULL(GPIOD_USART2_TX) |  \
                                      PIN_OTYPE_PUSHPULL(GPIOD_USART2_RX) |  \
                                      PIN_OTYPE_PUSHPULL(GPIOD_PIN7) |       \
-                                     PIN_OTYPE_PUSHPULL(GPIOD_PIN8) |       \
+                                     PIN_OTYPE_PUSHPULL(GPIOD_LED_GREEN) |       \
                                      PIN_OTYPE_PUSHPULL(GPIOD_PIN9) |       \
                                      PIN_OTYPE_PUSHPULL(GPIOD_PIN10) |      \
                                      PIN_OTYPE_PUSHPULL(GPIOD_AUDIO_RST) |  \
@@ -664,7 +664,7 @@
                                      PIN_OSPEED_HIGH(GPIOD_USART2_TX) |     \
                                      PIN_OSPEED_HIGH(GPIOD_USART2_RX) |     \
                                      PIN_OSPEED_VERYLOW(GPIOD_PIN7) |       \
-                                     PIN_OSPEED_VERYLOW(GPIOD_PIN8) |       \
+                                     PIN_OSPEED_VERYLOW(GPIOD_LED_GREEN) |       \
                                      PIN_OSPEED_VERYLOW(GPIOD_PIN9) |       \
                                      PIN_OSPEED_VERYLOW(GPIOD_PIN10) |      \
                                      PIN_OSPEED_HIGH(GPIOD_AUDIO_RST) |     \
@@ -680,7 +680,7 @@
                                      PIN_PUPDR_FLOATING(GPIOD_USART2_TX) |  \
                                      PIN_PUPDR_FLOATING(GPIOD_USART2_RX) |  \
                                      PIN_PUPDR_PULLUP(GPIOD_PIN7) |         \
-                                     PIN_PUPDR_PULLUP(GPIOD_PIN8) |         \
+                                     PIN_PUPDR_PULLUP(GPIOD_LED_GREEN) |         \
                                      PIN_PUPDR_PULLUP(GPIOD_PIN9) |         \
                                      PIN_PUPDR_PULLUP(GPIOD_PIN10) |        \
                                      PIN_PUPDR_FLOATING(GPIOD_AUDIO_RST) |  \
@@ -696,7 +696,7 @@
                                      PIN_ODR_HIGH(GPIOD_USART2_TX) |        \
                                      PIN_ODR_HIGH(GPIOD_USART2_RX) |        \
                                      PIN_ODR_HIGH(GPIOD_PIN7) |             \
-                                     PIN_ODR_HIGH(GPIOD_PIN8) |             \
+                                     PIN_ODR_HIGH(GPIOD_LED_GREEN) |             \
                                      PIN_ODR_HIGH(GPIOD_PIN9) |             \
                                      PIN_ODR_HIGH(GPIOD_PIN10) |            \
                                      PIN_ODR_LOW(GPIOD_AUDIO_RST) |         \
@@ -712,7 +712,7 @@
                                      PIN_AFIO_AF(GPIOD_USART2_TX, 7U) |     \
                                      PIN_AFIO_AF(GPIOD_USART2_RX, 7U) |     \
                                      PIN_AFIO_AF(GPIOD_PIN7, 0U))
-#define VAL_GPIOD_AFRH              (PIN_AFIO_AF(GPIOD_PIN8, 0U) |          \
+#define VAL_GPIOD_AFRH              (PIN_AFIO_AF(GPIOD_LED_GREEN, 0U) |          \
                                      PIN_AFIO_AF(GPIOD_PIN9, 0U) |          \
                                      PIN_AFIO_AF(GPIOD_PIN10, 0U) |         \
                                      PIN_AFIO_AF(GPIOD_AUDIO_RST, 0U) |     \
@@ -1280,10 +1280,13 @@
  * ADCs
  */
 // AUX 1
+#ifndef USE_ADC_1
+#define USE_ADC_1 1
+#endif
 #if USE_ADC_1
-#define AD1_1_CHANNEL ADC_CHANNEL_IN9
+#define AD1_1_CHANNEL ADC_CHANNEL_IN1
 #define ADC_1 AD1_1
-#define ADC_1_GPIO_PORT GPIOB
+#define ADC_1_GPIO_PORT GPIOA
 #define ADC_1_GPIO_PIN GPIO1
 #endif
 
@@ -1291,8 +1294,8 @@
 #if USE_ADC_2
 #define AD1_2_CHANNEL ADC_CHANNEL_IN15
 #define ADC_2 AD1_2
-#define ADC_2_GPIO_PORT GPIOC
-#define ADC_2_GPIO_PIN GPIO5
+#define ADC_2_GPIO_PORT GPIOA
+#define ADC_2_GPIO_PIN GPIO6
 #endif
 
 // AUX 3
@@ -1311,11 +1314,11 @@
 #endif
 
 ///* allow to define ADC_CHANNEL_VSUPPLY in the airframe file*/
-//#ifndef ADC_CHANNEL_VSUPPLY
-//#define ADC_CHANNEL_VSUPPLY ADC_4
-//#endif
+#ifndef ADC_CHANNEL_VSUPPLY
+#define ADC_CHANNEL_VSUPPLY ADC_1
+#endif
 
-//#define DefaultVoltageOfAdc(adc) (0.006185*adc)
+#define DefaultVoltageOfAdc(adc) (0.003765*adc)
 
 #define ACTUATORS_PWM_NB 4
 //the first two motors are through the xvert escs
