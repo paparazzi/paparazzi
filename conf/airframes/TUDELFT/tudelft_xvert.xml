@@ -49,24 +49,21 @@
     <module name="actuators" type="xvert">
       <define name="SERVO_HZ" value="400" />
     </module>
-
     <module name="radio_control" type="datalink"/>
+    <module name="gps" type="ubx_i2c">
+       <configure name="GPS_UBX_I2C_DEV" value="i2c2"/>
+    </module>
 
-
-   <module name="gps" type="ubx_i2c">
-      <configure name="GPS_UBX_I2C_DEV" value="i2c2"/>
-  </module>
-
-  <module name="mag" type="hmc58xx">
-    <configure name="MAG_HMC58XX_I2C_DEV" value="i2c2"/>
-    <define name="MODULE_HMC58XX_UPDATE_AHRS" value="TRUE"/>
-    <define name="HMC58XX_CHAN_X" value="1"/>
-    <define name="HMC58XX_CHAN_Y" value="0"/>
-    <define name="HMC58XX_CHAN_Z" value="2"/>
-    <define name="HMC58XX_CHAN_X_SIGN" value="-"/>
-    <define name="HMC58XX_CHAN_Y_SIGN" value="+"/>
-    <define name="HMC58XX_CHAN_Z_SIGN" value="+"/>
-  </module>
+    <module name="mag" type="hmc58xx">
+      <configure name="MAG_HMC58XX_I2C_DEV" value="i2c2"/>
+      <define name="MODULE_HMC58XX_UPDATE_AHRS" value="TRUE"/>
+      <define name="HMC58XX_CHAN_X" value="1"/>
+      <define name="HMC58XX_CHAN_Y" value="0"/>
+      <define name="HMC58XX_CHAN_Z" value="2"/>
+      <define name="HMC58XX_CHAN_X_SIGN" value="-"/>
+      <define name="HMC58XX_CHAN_Y_SIGN" value="+"/>
+      <define name="HMC58XX_CHAN_Z_SIGN" value="+"/>
+    </module>
   </firmware>
 
 	<modules main_freq="512">
@@ -107,7 +104,6 @@
     <axis name="YAW"    failsafe_value="0"/>
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
-
   <servos driver="Xvert">
     <servo name="RM" no="0" min="1160" neutral="1200" max="1880"/>
     <servo name="LM" no="1" min="1160" neutral="1200" max="1880"/>
@@ -115,27 +111,27 @@
     <servo name="ELEVON_LEFT" no="3" min="1000" neutral="1500" max="2000"/>
   </servos>
 
-<command_laws>
-  <call fun="motor_mixing_run(autopilot_get_motors_on(),FALSE,values)"/>
-  <set servo="RM" value="motor_mixing.commands[0]"/>
-  <set servo="LM"  value="motor_mixing.commands[1]"/>
+  <command_laws>
+    <call fun="motor_mixing_run(autopilot_get_motors_on(),FALSE,values)"/>
+    <set servo="RM" value="motor_mixing.commands[0]"/>
+    <set servo="LM"  value="motor_mixing.commands[1]"/>
 
-  <!-- Mode dependent actuator laws for the elevons. The elevons act different in rc attitude flight mode-->
-  <!-- First the correct feedback is stored in variables -->
-  <let var="aileron_feedback_left"  value="@YAW"/>
-  <let var="aileron_feedback_right" value="@YAW"/>
+    <!-- Mode dependent actuator laws for the elevons. The elevons act different in rc attitude flight mode-->
+    <!-- First the correct feedback is stored in variables -->
+    <let var="aileron_feedback_left"  value="@YAW"/>
+    <let var="aileron_feedback_right" value="@YAW"/>
 
-  <let var="elevator_feedback_left"  value="-@PITCH"/>
-  <let var="elevator_feedback_right" value="+@PITCH"/>
+    <let var="elevator_feedback_left"  value="-@PITCH"/>
+    <let var="elevator_feedback_right" value="+@PITCH"/>
 
-  <!--     if using PID with gain scheduling -->
-  <let var="forward_left"  value="$aileron_feedback_left + $elevator_feedback_left"/>
-  <let var="forward_right" value="$aileron_feedback_right + $elevator_feedback_right"/>
+    <!--     if using PID with gain scheduling -->
+    <let var="forward_left"  value="$aileron_feedback_left + $elevator_feedback_left"/>
+    <let var="forward_right" value="$aileron_feedback_right + $elevator_feedback_right"/>
 
-  <!-- This statement tells the autopilot to use the hover feedback if in mode attitude direct and to use the forward feedback in all other cases-->
-  <set servo="ELEVON_LEFT"    value="$forward_left" />
-  <set servo="ELEVON_RIGHT"   value="$forward_right" />
-</command_laws>
+    <!-- This statement tells the autopilot to use the hover feedback if in mode attitude direct and to use the forward feedback in all other cases-->
+    <set servo="ELEVON_LEFT"    value="$forward_left" />
+    <set servo="ELEVON_RIGHT"   value="$forward_right" />
+  </command_laws>
 
   <section name="AIR_DATA" prefix="AIR_DATA_">
     <define name="CALC_AIRSPEED" value="FALSE" />
@@ -217,25 +213,25 @@
 <!--    <define name="MODE_AUTO2" value="AP_MODE_RATE_DIRECT" />-->
     <define name="NO_RC_THRUST_LIMIT" value="TRUE" />
   </section>
+
   <section name="BAT">
-    <define name="MILLIAMP_AT_FULL_THROTTLE" value="8700" />
-    <define name="CATASTROPHIC_BAT_LEVEL" value="9.2" unit="V" />
-    <define name="CRITIC_BAT_LEVEL" value="9.9" unit="V" />
-    <define name="LOW_BAT_LEVEL" value="10.2" unit="V" />
-    <define name="MAX_BAT_LEVEL" value="12.4" unit="V" />
+    <!-- 2S LiPo with 950mAh -->
+    <define name="LOW_BAT_LEVEL" value="7.5" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="7.3" unit="V"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="7.0" unit="V"/>
+    <define name="MAX_BAT_LEVEL" value="8.4" unit="V"/>
   </section>
 
-<section name="MIXING" prefix="MOTOR_MIXING_">
-  <define name="TRIM_ROLL" value="0"/>
-  <define name="TRIM_PITCH" value="0"/>
-  <define name="TRIM_YAW" value="0"/>
-  <define name="NB_MOTOR" value="2"/>
-  <define name="SCALE" value="256"/>
-  <define name="PITCH_COEF"  value="{ 0, 0}"/>
-  <define name="ROLL_COEF"   value="{  -256, 256 }"/>
-  <define name="YAW_COEF"    value="{ 0,  0 }"/>
-  <define name="THRUST_COEF" value="{  256,  256 }"/>
-</section>
-
+  <section name="MIXING" prefix="MOTOR_MIXING_">
+    <define name="TRIM_ROLL" value="0"/>
+    <define name="TRIM_PITCH" value="0"/>
+    <define name="TRIM_YAW" value="0"/>
+    <define name="NB_MOTOR" value="2"/>
+    <define name="SCALE" value="256"/>
+    <define name="PITCH_COEF"  value="{ 0, 0}"/>
+    <define name="ROLL_COEF"   value="{  -256, 256 }"/>
+    <define name="YAW_COEF"    value="{ 0,  0 }"/>
+    <define name="THRUST_COEF" value="{  256,  256 }"/>
+  </section>
 
 </airframe>
