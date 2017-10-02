@@ -14,7 +14,7 @@
   </header>
   <init fun="orange_avoider_init()"/>
   <periodic fun="orange_avoider_periodic()" freq="4"/>
-  <makefile target="ap">
+  <makefile >
     <file name="orange_avoider.c"/>
   </makefile>
 </module>
