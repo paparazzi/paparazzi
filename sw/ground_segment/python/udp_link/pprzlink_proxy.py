@@ -31,7 +31,7 @@ class Proxy:
         self.gcs = pprzlink.udp.UdpMessagesInterface(self.proccess_gcs_msg, False, gcs_conf[2], gcs_conf[1], 'datalink') # crossing ports here
         self.mavs = []
         for mav in mavs_conf:
-            self.mavs.append((mav[0], pprzlink.udp.UdpMessagesInterface(self.proccess_mav_msg, False, mav[2], mav[1], 'telemetry', 0))) # crossing ports here
+            self.mavs.append((mav[0], pprzlink.udp.UdpMessagesInterface(self.proccess_mav_msg, False, mav[2], mav[1], 'telemetry', None))) # crossing ports here
 
     def proccess_mav_msg(self, sender, address, msg, length, receiver_id=None, component_id=None):
         if receiver_id is None:
