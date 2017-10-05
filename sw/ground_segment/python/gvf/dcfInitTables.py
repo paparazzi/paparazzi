@@ -30,10 +30,13 @@ ids = np.loadtxt(sys.argv[3])
 list_ids = np.ndarray.tolist(ids)
 
 if np.size(ids) != np.size(B,0):
-    print("The ammount of aircrafts in the topology and ids does not match")
+    print("The ammount of aircrafts in the topology and ids do not match")
     interface.shutdown()
     exit()
 time.sleep(2)
+
+if len(list_ids) == 2:
+    B.shape = (2,1)
 
 for count, column in enumerate(B.T):
     index = np.nonzero(column)
@@ -54,13 +57,19 @@ for count, column in enumerate(B.T):
     msga = PprzMessage("datalink", "DCF_REG_TABLE")
     msga['ac_id'] = int(list_ids[i[0]])
     msga['nei_id'] = int(list_ids[i[1]])
-    msga['desired_sigma'] = int(desired_sigmas[count])
+    if len(list_ids) == 2:
+        msga['desired_sigma'] = int(desired_sigmas)
+    else:
+        msga['desired_sigma'] = int(desired_sigmas[count])
     interface.send(msga)
 
     msgb = PprzMessage("datalink", "DCF_REG_TABLE")
     msgb['ac_id'] = int(list_ids[i[1]])
     msgb['nei_id'] = int(list_ids[i[0]])
-    msgb['desired_sigma'] = int(desired_sigmas[count])
+    if len(list_ids) == 2:
+        msgb['desired_sigma'] = int(desired_sigmas)
+    else:
+        msgb['desired_sigma'] = int(desired_sigmas[count])
     interface.send(msgb)
 
     print(msga)
