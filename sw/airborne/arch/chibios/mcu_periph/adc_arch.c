@@ -75,6 +75,11 @@
 // STM32F4xx | STM32F7xx
 #define ADC_SAMPLE_RATE ADC_SAMPLE_480
 #define ADC_CR2_CFG ADC_CR2_SWSTART
+#elif defined(__STM32F373xC_H)
+#define ADC_SAMPLE_RATE ADC_SAMPLE_239P5
+#define ADC_CR2_CFG ADC_CR2_SWSTART
+#elif defined(__STM32F3xx_H)
+#define ADC_SAMPLE_RATE ADC_SMPR_SMP_601P5
 #endif
 
 
@@ -246,7 +251,7 @@ void adc1callback(ADCDriver *adcp, adcsample_t *buffer, size_t n)
         (adc_watchdog.cb != NULL)) {
       if (adc1_buffers[adc_watchdog.channel]->sum <
           (adc1_buffers[adc_watchdog.channel]->av_nb_sample * adc_watchdog.vmin)) {
-        adc_watchdog.cb ();
+        adc_watchdog.cb();
       }
     }
 #endif // USE_ADC_WATCHDOG
@@ -276,7 +281,7 @@ static void adcerrorcallback(ADCDriver *adcp, adcerror_t err)
 void adc_buf_channel(uint8_t adc_channel, struct adc_buf *s, uint8_t av_nb_sample)
 {
   // check for out-of-bounds access
-  if (adc_channel >= ADC_NUM_CHANNELS) return;
+  if (adc_channel >= ADC_NUM_CHANNELS) { return; }
   adc1_buffers[adc_channel] = s;
   if (av_nb_sample <= MAX_AV_NB_SAMPLE) {
     s->av_nb_sample = av_nb_sample;
@@ -344,25 +349,45 @@ void adc_init(void)
   uint32_t smpr1, smpr2;
   adc_sample_time_on_all_channels(&smpr1, &smpr2, ADC_SAMPLE_RATE);
 
-  adcgrpcfg.cr2 = ADC_CR2_CFG;
-
 #if USE_ADC_WATCHDOG
   adc_watchdog.adc = NULL;
   adc_watchdog.cb = NULL;
   adc_watchdog.channel = 0;
-  adc_watchdog.vmin = (1<<12)-1; // max adc
+  adc_watchdog.vmin = (1 << 12) - 1; // max adc
 #endif
 
   adcgrpcfg.circular = TRUE;
   adcgrpcfg.num_channels = ADC_NUM_CHANNELS;
   adcgrpcfg.end_cb = adc1callback;
   adcgrpcfg.error_cb = adcerrorcallback;
+#if defined(__STM32F373xC_H)
+  adcgrpcfg.u.adc.smpr[0] = smpr1;
+  adcgrpcfg.u.adc.smpr[1] = smpr2;
+  adcgrpcfg.u.adc.sqr[0] = sqr1;
+  adcgrpcfg.u.adc.sqr[1] = sqr2;
+  adcgrpcfg.u.adc.sqr[2] = sqr3;
+  adcgrpcfg.u.adc.cr1 = 0;
+  adcgrpcfg.u.adc.cr2 = ADC_CR2_CFG;
+#elif defined(__STM32F3xx_H)
+  //TODO: check if something needs to be done with the other regs (can be found in ~/paparazzi/sw/ext/chibios/os/hal/ports/STM32/LLD/ADCv3)
+#warning ADCs not tested with stm32f30
+  // cfgr
+  // tr1
+
+  adcgrpcfg.smpr[0] = smpr1; // is this even correct?
+  adcgrpcfg.smpr[1] = smpr2;
+  adcgrpcfg.sqr[0]  = sqr1;
+  adcgrpcfg.sqr[1]  = sqr2;
+  adcgrpcfg.sqr[2]  = sqr3;
+#else
+  adcgrpcfg.cr2 = ADC_CR2_CFG;
   adcgrpcfg.cr1 = 0;
   adcgrpcfg.smpr1 = smpr1;
   adcgrpcfg.smpr2 = smpr2;
   adcgrpcfg.sqr1 = sqr1;
   adcgrpcfg.sqr2 = sqr2;
   adcgrpcfg.sqr3 = sqr3;
+#endif
 
   // Start ADC in continious conversion mode
   adcStart(&ADCD1, NULL);
@@ -371,9 +396,9 @@ void adc_init(void)
 
 #if USE_ADC_WATCHDOG
 void register_adc_watchdog(ADCDriver *adc, adc_channels_num_t channel, adcsample_t vmin,
-			   adc_watchdog_callback cb)
+                           adc_watchdog_callback cb)
 {
-  for (int i=0; i< NB_ADC1_CHANNELS; i++) { // FIXME when more than ADC1 will be in use
+  for (int i = 0; i < NB_ADC1_CHANNELS; i++) { // FIXME when more than ADC1 will be in use
     if (adc_channel_map[i] == channel) {
       adc_watchdog.adc = adc;
       adc_watchdog.channel = i;

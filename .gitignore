@@ -42,7 +42,7 @@ paparazzi.sublime-workspace
 
 # QtCreator IDE
 *.creator
-*.creator.user
+*.creator.user*
 *.config
 *.files
 *.includes
