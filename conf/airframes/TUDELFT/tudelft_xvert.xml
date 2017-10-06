@@ -15,7 +15,7 @@
     <!-- amount of time it take for the bat to check -->
     <!-- to avoid bat low spike detection when strong pullup withch draws short sudden power-->
     <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="80" />
-    <define name="INDI_FULL_AUTHORITY" value="TRUE"/>
+
 
     <!-- To fix the 32k ram limit issue:-->
     <!--<define name="PPRZ_TRIG_INT_USE_FLOAT"/>-->
@@ -183,6 +183,7 @@
     <!-- max rates (conservative) -->
     <define name="STABILIZATION_INDI_MAX_RATE" value="343.77" unit="deg/s"/>
     <define name="STABILIZATION_INDI_MAX_R" value="200" unit="deg/s"/> <!--Does not seem to be applied-->
+    <define name="FULL_AUTHORITY" value="TRUE"/>
   </section>
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
     <define name="HOVER_KP" value="350" />
