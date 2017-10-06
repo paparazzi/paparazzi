@@ -16,7 +16,6 @@
     <!-- to avoid bat low spike detection when strong pullup withch draws short sudden power-->
     <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="80" />
 
-
     <!-- To fix the 32k ram limit issue:-->
     <!--<define name="PPRZ_TRIG_INT_USE_FLOAT"/>-->
     <define name="PPRZ_TRIG_CONST" value="const"/>
@@ -30,14 +29,15 @@
     <module name="guidance"      type="hybrid"/>
     <module name="motor_mixing"/>
     <module name="sys_mon"/>
-
+    <module name="gps" type="ubx_ucenter"/>
+    <module name="send_imu_mag_current"/>
+    <module name="air_data"/>
     <module name="imu" type="mpu9250_i2c">
         <configure name="IMU_MPU9250_I2C_DEV" value="i2c1"/>
         <define name="IMU_MPU9250_READ_MAG" value="FALSE"/>
         <define name="IMU_MPU9250_I2C_ADDR" value="MPU9250_ADDR"/>
         <define name="AHRS_ICQ_MAG_ID" value="MAG_HMC58XX_SENDER_ID" />         <!-- Meaning the external hmc-->
     </module>
-
     <module name="stabilization" type="indi_simple" />
     <module name="ahrs" type="float_cmpl_quat" >
       <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
@@ -53,7 +53,6 @@
     <module name="gps" type="ubx_i2c">
        <configure name="GPS_UBX_I2C_DEV" value="i2c2"/>
     </module>
-
     <module name="mag" type="hmc58xx">
       <configure name="MAG_HMC58XX_I2C_DEV" value="i2c2"/>
       <define name="MODULE_HMC58XX_UPDATE_AHRS" value="TRUE"/>
@@ -63,14 +62,8 @@
       <define name="HMC58XX_CHAN_X_SIGN" value="-"/>
       <define name="HMC58XX_CHAN_Y_SIGN" value="+"/>
       <define name="HMC58XX_CHAN_Z_SIGN" value="+"/>
-    </module>
+    </module>    
   </firmware>
-
-	<modules main_freq="512">
-     <module name="gps" type="ubx_ucenter"/>
-     <module name="send_imu_mag_current"/>
-     <module name="air_data"/>
-	 </modules>
 
   <section name="INS" prefix="INS_">
     <define name="H_X" value="0.5138"/>
@@ -154,11 +147,7 @@
     <define name="G1_P" value="0.01292" />
     <define name="G1_Q" value="0.014867" />
     <define name="G1_R" value="0.012055" />
-    <define name="G2_R" value="0.0" />
-    <!--<define name="G1_P" value="0.02592" />
-    <define name="G1_Q" value="0.049" />
-    <define name="G1_R" value="0.04366" />
-    <define name="G2_R" value="0.2" />-->
+    <define name="G2_R" value="0.0" />    
     <!-- For the bebop2 we need to filter the roll rate due to the dampers -->
     <define name="FILTER_ROLL_RATE" value="FALSE" />
     <define name="FILTER_PITCH_RATE" value="FALSE" />
@@ -211,7 +200,6 @@
     <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT" />
     <define name="MODE_AUTO1" value="AP_MODE_HOVER_Z_HOLD" />
     <define name="MODE_AUTO2" value="AP_MODE_RC_DIRECT" />
-<!--    <define name="MODE_AUTO2" value="AP_MODE_RATE_DIRECT" />-->
     <define name="NO_RC_THRUST_LIMIT" value="TRUE" />
   </section>
 
@@ -234,5 +222,4 @@
     <define name="YAW_COEF"    value="{ 0,  0 }"/>
     <define name="THRUST_COEF" value="{  256,  256 }"/>
   </section>
-
 </airframe>
