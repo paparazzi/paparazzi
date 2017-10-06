@@ -42,6 +42,28 @@ extern "C" {
 
 
 /**
+ * @brief Altitude Reference
+ */
+enum vertical_reference {
+  REF_ELLIPSOID = 0,       // = GPS altitude WGS84
+  REF_GEOID,               // = GPS height above MSL,
+  REF_QFE,                 // = Take-Off field elevation pressure set to zero (Geoinit)
+  REF_QNH,                 // = AMSL = Aviation altitude: fill pressure of MSL
+//  REF_AGL,                // = Using terrain model (not supported yet)
+  REF_SONAR
+};
+
+/**
+ * @brief Altitude or Height
+ */
+struct Vertical_i {
+  int32_t vert;                 ///< in millimeters
+  enum vertical_reference ref;  ///< reference
+};
+
+
+
+/**
  * @brief vector in EarthCenteredEarthFixed coordinates
  * @details Origin at center of mass of the Earth. Z-axis is pointing north,
  * the x-axis intersects the sphere of the earth at 0° latitude (Equator)
