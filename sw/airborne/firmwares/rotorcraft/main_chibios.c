@@ -37,12 +37,16 @@
 
 #include "firmwares/rotorcraft/main_ap.h"
 
+#ifndef THD_WORKING_AREA_MAIN
+#define THD_WORKING_AREA_MAIN 8192
+#endif
+
 /*
  * PPRZ/AP thread
  * Also include FBW on single MCU
  */
 static void thd_ap(void *arg);
-THD_WORKING_AREA(wa_thd_ap, 1024);
+THD_WORKING_AREA(wa_thd_ap, THD_WORKING_AREA_MAIN);
 static thread_t *apThdPtr = NULL;
 
 /**

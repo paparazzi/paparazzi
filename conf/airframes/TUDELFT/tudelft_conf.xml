@@ -535,7 +535,7 @@
    telemetry="telemetry/default_rotorcraft_slow.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
    settings="settings/rotorcraft_basic.xml"
-   settings_modules="modules/air_data.xml modules/gps_ubx_ucenter.xml modules/gps.xml modules/ahrs_float_cmpl_quat.xml modules/stabilization_indi_simple.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/guidance_hybrid.xml"
+   settings_modules="modules/gps.xml modules/ahrs_float_cmpl_quat.xml modules/stabilization_indi_simple.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/imu_common.xml modules/air_data.xml modules/gps_ubx_ucenter.xml modules/guidance_hybrid.xml"
    gui_color="#ffffcccaccca"
   />
 </conf>
