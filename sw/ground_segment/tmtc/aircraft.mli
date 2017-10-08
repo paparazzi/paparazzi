@@ -126,6 +126,7 @@ type aircraft = {
     mutable horizontal_mode : int;
     mutable periodic_callbacks : Glib.Timeout.id list;
     cam : ac_cam;
+    camaov : (float * float);
     mutable gps_mode : int;
     mutable gps_Pacc : int;
     mutable state_filter_mode : int;

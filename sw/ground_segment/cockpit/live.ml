@@ -1550,70 +1550,10 @@ let get_cam_status = fun (geomap:MapCanvas.widget) _sender vs ->
     let ac = get_ac vs in
     let a = fun s -> PprzLink.float_assoc s vs in
     let target_wgs84 = { posn_lat = (Deg>>Rad)(a "cam_target_lat"); posn_long = (Deg>>Rad)(a "cam_target_long") } in
-
-    let (hfv, vfv) = ac.camaov in
-    let phi_absolute = (Deg>>Rad)ac.roll
-    and theta_absolute = (Deg>>Rad)ac.pitch in
-
-    let heading = -. (Deg>>Rad)ac.heading in
-
-    let tr = quaternion_from_angle (hfv /. -2.0) (vfv /. 2.0) 0.0
-    and tl = quaternion_from_angle (hfv /. 2.0) (vfv /. 2.0) 0.0
-    and br = quaternion_from_angle (hfv /. -2.0) (vfv /. -2.0) 0.0
-    and bl = quaternion_from_angle (hfv /. 2.0) (vfv /. -2.0) 0.0 in
-
-    let gimRot = quaternion_from_angle 0.0 0.0 0.0
-    and acRot = quaternion_from_angle phi_absolute theta_absolute heading in
-
-    let tr_rotated = multiply_quaternion acRot (multiply_quaternion gimRot tr)
-    and tl_rotated = multiply_quaternion acRot (multiply_quaternion gimRot tl) 
-    and br_rotated = multiply_quaternion acRot (multiply_quaternion gimRot br) 
-    and bl_rotated = multiply_quaternion acRot (multiply_quaternion gimRot bl) in
-
-    let geo = { posn_lat = (Deg>>Rad)(ac.lat); posn_long = (Deg>>Rad)(ac.long) } in
-    let u = utm_of WGS84 geo in
-
-    let find_point_on_ground q =
-      let angles = quaternion_to_angle q in
-      let dx = ac.agl *. tan(angles.r) 
-      and dy = ac.agl *. tan(angles.p) in
-
-      let utmx =
-        dx *. cos angles.y -. dy *. sin angles.y
-      and utmy =
-        dx *. sin angles.y +. dy *. cos angles.y in
-
-      let corner = { utm_zone = u.utm_zone; utm_x = u.utm_x +. utmx ; utm_y = u.utm_y +. utmy} in
-      of_utm WGS84 corner in
-    
-    let geo_1 = find_point_on_ground tr_rotated
-    and geo_2 = find_point_on_ground tl_rotated
-    and geo_3 = find_point_on_ground bl_rotated
-    and geo_4 = find_point_on_ground br_rotated in
-
-    
-
-    (*let rdx =   ac.agl *. tan (hfv/.2. -. phi_absolute) (* *)
-    and ldx = -.ac.agl *. tan (hfv/.2. +. phi_absolute)
-    and fdy =   ac.agl *. tan (vfv/.2. +. theta_absolute)
-    and rdy = -.ac.agl *. tan (vfv/.2. -. theta_absolute) in
-
-    (*Get UTM *)
-    let xp = fun x y a->  x *. cos a -. y *. sin a in
-    let yp = fun x y a->  x *. sin a +. y *. cos a in
-
-    
-    let corner_1 = { utm_zone = u.utm_zone; utm_x = u.utm_x +. (xp rdx fdy heading); utm_y = u.utm_y +. (yp rdx fdy heading)} in
-    let geo_1 = of_utm WGS84 corner_1 in
-
-    let corner_2 = { utm_zone = u.utm_zone; utm_x = u.utm_x +. (xp ldx fdy heading); utm_y = u.utm_y +. (yp ldx fdy heading) } in
-    let geo_2 = of_utm WGS84 corner_2 in
-
-    let corner_3 = { utm_zone = u.utm_zone; utm_x = u.utm_x +. (xp ldx rdy heading); utm_y = u.utm_y +. (yp ldx rdy heading) } in
-    let geo_3 = of_utm WGS84 corner_3 in
-
-    let corner_4 = { utm_zone = u.utm_zone; utm_x = u.utm_x +. (xp rdx rdy heading); utm_y = u.utm_y +. (yp rdx rdy heading) } in
-    let geo_4 = of_utm WGS84 corner_4 in*)
+    let geo_1 = { posn_lat = (Deg>>Rad)(a "cam_lat_tr"); posn_long = (Deg>>Rad)(a "cam_lon_tr") } in
+    let geo_2 = { posn_lat = (Deg>>Rad)(a "cam_lat_tl"); posn_long = (Deg>>Rad)(a "cam_lon_tl") } in
+    let geo_3 = { posn_lat = (Deg>>Rad)(a "cam_lat_bl"); posn_long = (Deg>>Rad)(a "cam_lon_bl") } in
+    let geo_4 = { posn_lat = (Deg>>Rad)(a "cam_lat_br"); posn_long = (Deg>>Rad)(a "cam_lon_br") } in
 
     ac.track#move_cam [|geo_1; geo_2; geo_3; geo_4|] target_wgs84
 
