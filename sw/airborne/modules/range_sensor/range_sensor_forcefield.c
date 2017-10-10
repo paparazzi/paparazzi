@@ -21,7 +21,7 @@
 /*
  * @file "modules/range_module/range_module.c"
  * @author K. N. McGuire
- * This module contains functions to accomendate the use of single point range sensors.
+ * This module contains functions to accommodate the use of single point range sensors.
  */
 
 #include "modules/range_sensor/range_sensor_forcefield.h"
