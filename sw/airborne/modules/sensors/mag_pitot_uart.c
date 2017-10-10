@@ -122,7 +122,7 @@ static inline void mag_pitot_parse_msg(void)
       uint8_t length = 4;
 
       // Send ABI
-      float agl = (float)tel_buf[3]/1000.; // Double check if 3 is pointed downwards
+      float agl = (float)tel_buf[3] / 1000.; // Double check if 3 is pointed downwards
       AbiSendMsgAGL(IMU_MAG_PITOT_ID, agl);
       //front right back left bottom top
       uint16_t dummy_range = 0;
