@@ -114,6 +114,7 @@ static inline void mag_pitot_parse_msg(void)
       break;
     }
 
+    /* Get Time of Flight laser range sensor ring  message */
     case DL_IMCU_REMOTE_GROUND: {
       uint8_t id = DL_IMCU_REMOTE_GROUND_id(mp_msg_buf);
       uint16_t range = DL_IMCU_REMOTE_GROUND_range(mp_msg_buf);
@@ -121,8 +122,8 @@ static inline void mag_pitot_parse_msg(void)
       uint8_t length = 4;
 
       // Send ABI
-      float agl = bottom_range;
-      AbiSendMsgAGL(RANGE_SENSORS_ID, agl);
+      float agl = (float)tel_buf[3]/1000.; // Double check if 3 is pointed downwards
+      AbiSendMsgAGL(IMU_MAG_PITOT_ID, agl);
       //front right back left bottom top
       uint16_t dummy_range = 0;
       AbiSendMsgRANGE_SENSORS(RANGE_SENSORS_ID, dummy_range, tel_buf[2], dummy_range, tel_buf[0], tel_buf[3], tel_buf[1]);
