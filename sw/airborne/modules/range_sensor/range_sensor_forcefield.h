@@ -49,7 +49,7 @@ extern void range_init(void);
 extern void range_run(void);
 
 void range_sensor_horizontal_velocity_force_field(float *vel_body_x, float *vel_body_y, float avoid_inner_border, float avoid_outer_border,
-                              float min_vel_command_lc, float max_vel_command_lc);
+    float min_vel_command_lc, float max_vel_command_lc);
 void range_sensor_vertical_velocity_force_field(float *vel_body_z, float avoid_inner_border, float avoid_outer_border,
     float min_vel_command_lc, float max_vel_command_lc);
 

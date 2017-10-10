@@ -722,7 +722,7 @@ static void gazebo_read_range_sensors(void)
   range_sensors_int16[5] = (int16_t)(gazebo_range_sensors.ray_down->Range(0) * 1000);
 
 // Max value for range_sensors if nothing is detected (which 0 indicates for gazebo)
-  for(int i=0;i<6;i++){ if(range_sensors_int16[i] == 0) range_sensors_int16[i] = 32767;}
+  for (int i = 0; i < 6; i++) { if (range_sensors_int16[i] == 0) { range_sensors_int16[i] = 32767; }}
 
   //SEND ABI MESSAGES
   // Standard range sensor message
