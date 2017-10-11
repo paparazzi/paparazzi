@@ -111,19 +111,10 @@ struct gazebo_actuators_t gazebo_actuators = {NPS_ACTUATOR_NAMES, {NPS_ACTUATOR_
 #include "subsystems/abi.h"
 static void gazebo_init_range_sensors(void);
 static void gazebo_read_range_sensors(void);
-struct gazebo_range_sensors_t {
-  gazebo::sensors::RaySensorPtr ray_front;
-  gazebo::sensors::RaySensorPtr ray_right;
-  gazebo::sensors::RaySensorPtr ray_back;
-  gazebo::sensors::RaySensorPtr ray_left;
-  gazebo::sensors::RaySensorPtr ray_down;
-  gazebo::sensors::RaySensorPtr ray_up;
-  gazebo::common::Time last_measurement_time;
-
-};
-
-static struct gazebo_range_sensors_t gazebo_range_sensors;
-
+#ifndef GAZEBO_MAX_RANGE_SENSORS
+#define GAZEBO_MAX_RANGE_SENSORS 255
+#endif
+gazebo::sensors::RaySensorPtr RaySensorPtr_array[GAZEBO_MAX_RANGE_SENSORS];
 
 #endif
 
@@ -684,52 +675,52 @@ static void read_image(
 #endif
 
 #ifdef NPS_SIMULATE_RANGE_SENSORS
+uint8_t ray_sensor_count = 0;
 static void gazebo_init_range_sensors(void)
 {
   gazebo::sensors::SensorManager *mgr =
     gazebo::sensors::SensorManager::Instance();
 
-  cout << "Amount of sensors found: " << model->GetSensorCount() << endl;
-  gazebo_range_sensors.ray_front = static_pointer_cast<gazebo::sensors::RaySensor>(mgr->GetSensor("range_sensors::front_range_sensor"));
-  gazebo_range_sensors.ray_right = static_pointer_cast<gazebo::sensors::RaySensor>(mgr->GetSensor("range_sensors::right_range_sensor"));
-  gazebo_range_sensors.ray_back = static_pointer_cast<gazebo::sensors::RaySensor>(mgr->GetSensor("range_sensors::back_range_sensor"));
-  gazebo_range_sensors.ray_left = static_pointer_cast<gazebo::sensors::RaySensor>(mgr->GetSensor("range_sensors::left_range_sensor"));
-  gazebo_range_sensors.ray_up = static_pointer_cast<gazebo::sensors::RaySensor>(mgr->GetSensor("range_sensors::up_range_sensor"));
-  gazebo_range_sensors.ray_down = static_pointer_cast<gazebo::sensors::RaySensor>(mgr->GetSensor("range_sensors::down_range_sensor"));
 
-  if (!gazebo_range_sensors.ray_left || !gazebo_range_sensors.ray_right || !gazebo_range_sensors.ray_up ||
-      !gazebo_range_sensors.ray_down || !gazebo_range_sensors.ray_front || !gazebo_range_sensors.ray_back) {
-    cout << "ERROR: Could not get pointer to raysensor!" << gazebo_range_sensors.ray_left << gazebo_range_sensors.ray_right << gazebo_range_sensors.ray_up <<
-         gazebo_range_sensors.ray_down << gazebo_range_sensors.ray_front << gazebo_range_sensors.ray_back << endl;
-  }
+  gazebo::sensors::Sensor_V sensor_vector = mgr->GetSensors();
+  uint8_t sensor_count = model->GetSensorCount();
 
-  gazebo_range_sensors.ray_left->SetActive(true);
-  gazebo_range_sensors.ray_right->SetActive(true);
-  gazebo_range_sensors.ray_up->SetActive(true);
-  gazebo_range_sensors.ray_down->SetActive(true);
-  gazebo_range_sensors.ray_front->SetActive(true);
-  gazebo_range_sensors.ray_back->SetActive(true);
+  for (int i = 0; i < sensor_count; i++) {
+    if (sensor_vector.at(i)->Type() == "ray") {
+      RaySensorPtr_array[ray_sensor_count] = dynamic_pointer_cast<gazebo::sensors::RaySensor>(sensor_vector.at(i));
+      if (!RaySensorPtr_array[ray_sensor_count]) {
+        cout << "ERROR: Could not get pointer to raysensor " << i << "!" << endl;
+      }
+      RaySensorPtr_array[ray_sensor_count]->SetActive(true);
+      ray_sensor_count ++;
+    }
+  };
 
 }
 static void gazebo_read_range_sensors(void)
 {
-  int16_t range_sensors_int16[6];
-  range_sensors_int16[0] = (int16_t)(gazebo_range_sensors.ray_front->Range(0) * 1000);
-  range_sensors_int16[1] = (int16_t)(gazebo_range_sensors.ray_right->Range(0) * 1000);
-  range_sensors_int16[2] = (int16_t)(gazebo_range_sensors.ray_back->Range(0) * 1000);
-  range_sensors_int16[3] = (int16_t)(gazebo_range_sensors.ray_left->Range(0) * 1000);
-  range_sensors_int16[4] = (int16_t)(gazebo_range_sensors.ray_up->Range(0) * 1000);
-  range_sensors_int16[5] = (int16_t)(gazebo_range_sensors.ray_down->Range(0) * 1000);
 
-// Max value for range_sensors if nothing is detected (which 0 indicates for gazebo)
-  for (int i = 0; i < 6; i++) { if (range_sensors_int16[i] == 0) { range_sensors_int16[i] = 32767; }}
 
-  //SEND ABI MESSAGES
-  // Standard range sensor message
-  AbiSendMsgRANGE_SENSORS(RANGE_SENSORS_GAZEBO_ID, range_sensors_int16[0], range_sensors_int16[1], range_sensors_int16[2],
-                          range_sensors_int16[3], range_sensors_int16[4], range_sensors_int16[5]);
-  // Down range sensor as "Sonar"
-  AbiSendMsgAGL(AGL_RANGE_SENSORS_GAZEBO_ID, gazebo_range_sensors.ray_down->Range(0));
+  int16_t range_sensors_int16[GAZEBO_MAX_RANGE_SENSORS];
+
+
+  for (int i = 0; i < ray_sensor_count; i++) {
+    range_sensors_int16[i] = (int16_t)(RaySensorPtr_array[i]->Range(0) * 1000.);
+    if (range_sensors_int16[i] == 0) { range_sensors_int16[i] = 32767;}
+    ignition::math::Pose3d pose3d_sensor = RaySensorPtr_array[i]->Pose();
+    gazebo::math::Pose pose_sensor = gazebo::math::Pose(pose3d_sensor);
+  }
+
+  /*
+
+    //SEND ABI MESSAGES
+    // Standard range sensor message
+    AbiSendMsgRANGE_SENSORS(RANGE_SENSORS_GAZEBO_ID, range_sensors_int16[0], range_sensors_int16[1], range_sensors_int16[2],
+                            range_sensors_int16[3], range_sensors_int16[4], range_sensors_int16[5]);
+    // Down range sensor as "Sonar"
+    AbiSendMsgAGL(AGL_RANGE_SENSORS_GAZEBO_ID, gazebo_range_sensors.ray_down->Range(0));
+
+  */
 
 
 }
