@@ -42,7 +42,7 @@
 					<ixz>0</ixz>
 				</inertia>
 			</inertial>
-      <sensor type= "ray" name="down_range_sensor">
+      <sensor type= "ray" name="ray_0_1.57_0">
         <visualize>true</visualize>
         <update_rate>30</update_rate>
 					<ray>
@@ -73,7 +73,7 @@
 					<ixz>0</ixz>
 				</inertia>
 			</inertial>
-      <sensor type= "ray" name="up_range_sensor">
+      <sensor type= "ray" name="ray_0_-1.57_0">
         <visualize>true</visualize>
         <update_rate>30</update_rate>
 					<ray>
@@ -104,7 +104,7 @@
 					<ixz>0</ixz>
 				</inertia>
 			</inertial>
-      <sensor type= "ray" name="left_range_sensor">
+      <sensor type= "ray" name="ray_0_0_1.57">
         <visualize>true</visualize>
         <update_rate>30</update_rate>
 					<ray>
@@ -135,7 +135,7 @@
 					<ixz>0</ixz>
 				</inertia>
 			</inertial>
-      <sensor type= "ray" name="right_range_sensor">
+      <sensor type= "ray" name="ray_0_0_-1.57">
         <visualize>true</visualize>
         <update_rate>30</update_rate>
 					<ray>
@@ -166,7 +166,7 @@
 					<ixz>0</ixz>
 				</inertia>
 			</inertial>
-      <sensor type= "ray" name="front_range_sensor">
+      <sensor type= "ray" name="ray_0_0_0">
         <visualize>true</visualize>
         <update_rate>30</update_rate>
 					<ray>
@@ -197,7 +197,7 @@
 					<ixz>0</ixz>
 				</inertia>
 			</inertial>
-      <sensor type= "ray" name="back_range_sensor">
+      <sensor type= "ray" name="ray_0_0_3.14">
         <visualize>true</visualize>
         <update_rate>30</update_rate>
 					<ray>

@@ -99,12 +99,7 @@
     </message>
 
     <message name="RANGE_SENSORS" id="18">
-      <field name="front_range_sensor" type="int16_t" unit="mm"/>
-      <field name="right_range_sensor" type="int16_t" unit="mm"/>
-      <field name="back_range_sensor" type="int16_t" unit="mm"/>
-      <field name="left_range_sensor" type="int16_t" unit="mm"/>
-      <field name="bottom_range_sensor" type="int16_t" unit="mm"/>
-      <field name="top_range_sensor" type="int16_t" unit="mm"/>
+      <field name="distance" type="int16_t[]" unit="mm"/>
     </message>
 
     <message name="RANGE_FORCEFIELD" id="19">

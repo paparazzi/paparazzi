@@ -35,6 +35,7 @@
 #include <cstdlib>
 #include <string>
 #include <iostream>
+#include <sstream>
 
 #include <gazebo/gazebo.hh>
 #include <gazebo/common/common.hh>
@@ -47,6 +48,7 @@ extern "C" {
 
 #include "nps_fdm.h"
 #include "math/pprz_algebra_double.h"
+#include "math/pprz_algebra.h"
 
 #include "generated/airframe.h"
 #include "autopilot.h"
@@ -632,25 +634,56 @@ static void gazebo_read_range_sensors(void)
 
 
   int16_t range_sensors_int16[GAZEBO_MAX_RANGE_SENSORS];
+  int32_t range_sensors_phi_int32[GAZEBO_MAX_RANGE_SENSORS];
+  int32_t range_sensors_theta_int32[GAZEBO_MAX_RANGE_SENSORS];
+  int32_t range_sensors_psi_int32[GAZEBO_MAX_RANGE_SENSORS];
 
+  struct FloatEulers eulers_f;
+  struct Int32Eulers eulers_i;
 
   for (int i = 0; i < ray_sensor_count; i++) {
     range_sensors_int16[i] = (int16_t)(RaySensorPtr_array[i]->Range(0) * 1000.);
     if (range_sensors_int16[i] == 0) { range_sensors_int16[i] = 32767;}
-    ignition::math::Pose3d pose3d_sensor = RaySensorPtr_array[i]->Pose();
-    gazebo::math::Pose pose_sensor = gazebo::math::Pose(pose3d_sensor);
+
+    /* Because of an error in Gazebo, the pose of the raysensors can not be
+    * read out. Make sure that the sensor name of the range sensor is called "ray_[phi]_[theta]_[psi]"
+    * where [phi],[theta] and [psi] is replaced with the euler angles given in
+    * <pose></pose>
+    * TODO: remove this when this error is fixed
+    */
+    std::istringstream iss(RaySensorPtr_array[i]->Name());
+    string underscore_string;
+    getline(iss, underscore_string, '_');
+    iss >> eulers_f.phi;
+    getline(iss, underscore_string, '_');
+    iss >> eulers_f.theta;
+    getline(iss, underscore_string, '_');
+    iss >> eulers_f.psi;
+    //cout<<" "<<eulers_f.phi<<" "<<eulers_f.theta<<" "<<eulers_f.psi<<endl;
+    EULERS_BFP_OF_REAL(eulers_i, eulers_f);
+    range_sensors_phi_int32[i] = eulers_i.phi;
+    range_sensors_theta_int32[i] = eulers_i.theta;
+    range_sensors_psi_int32[i] = eulers_i.psi;
+
+    //This is the right way of how to read out the pose, but it only gives out zeros probably an error in gazebo
+    //TODO: After this is fixed in gazebo, change the pose retrieval back to underneath.
+    /*    ignition::math::Pose3d pose3d_sensor = RaySensorPtr_array[i]->Pose();
+        gazebo::math::Pose pose_sensor = gazebo::math::Pose(pose3d_sensor);
+        roll = pose_sensor.rot.GetRoll()
+        pitch = pose_sensor.rot.GetPitch()
+        yaw = pose_sensor.rot.GetYaw()*/
+
   }
 
-  /*
 
-    //SEND ABI MESSAGES
-    // Standard range sensor message
-    AbiSendMsgRANGE_SENSORS(RANGE_SENSORS_GAZEBO_ID, range_sensors_int16[0], range_sensors_int16[1], range_sensors_int16[2],
-                            range_sensors_int16[3], range_sensors_int16[4], range_sensors_int16[5]);
-    // Down range sensor as "Sonar"
-    AbiSendMsgAGL(AGL_RANGE_SENSORS_GAZEBO_ID, gazebo_range_sensors.ray_down->Range(0));
 
-  */
+  //SEND ABI MESSAGES
+  // Standard range sensor message
+  AbiSendMsgRANGE_SENSORS(RANGE_SENSORS_GAZEBO_ID, range_sensors_int16);
+  // Down range sensor as "Sonar"
+  //AbiSendMsgAGL(AGL_RANGE_SENSORS_GAZEBO_ID, gazebo_range_sensors.ray_down->Range(0));
+
+
 
 
 }
