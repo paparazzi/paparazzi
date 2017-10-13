@@ -41,18 +41,12 @@ float vel_body_y_guided;
 #endif
 
 static abi_event range_sensors_ev;
-static void range_sensors_cb(uint8_t sender_id,
-                             int16_t range_front, int16_t range_right, int16_t range_back, int16_t range_left, int16_t range_bottom, int16_t range_top);
+static void range_sensors_cb(uint8_t sender_id, int16_t range_array_size, int16_t *range_array, int32_t *phi_array, int32_t *theta_array, int32_t *psi_array);
 struct range_finders_ range_finders;
-static void range_sensors_cb(uint8_t UNUSED(sender_id),
-                             int16_t range_front, int16_t range_right, int16_t range_back, int16_t range_left, int16_t range_bottom, int16_t range_top)
+static void range_sensors_cb(uint8_t sender_id, int16_t range_array_size, int16_t *range_array, int32_t *phi_array, int32_t *theta_array, int32_t *psi_array)
 {
-  range_finders.front = (float)range_front / 1000;
-  range_finders.right = (float)range_right / 1000;
-  range_finders.back = (float)range_back / 1000;
-  range_finders.left = (float)range_left / 1000;
-  range_finders.top = (float)range_top / 1000;
-  range_finders.bottom = (float)range_bottom / 1000;
+//TODO: per range sensor, calculate required forcefield velocity and rotate it to body frame.
+
 
 
 }

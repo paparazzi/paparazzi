@@ -34,7 +34,7 @@
     <!--module name="logger_file"/-->
     <module name="video_thread">
     </module>
-    <!--module name="range_sensor_forcefield"/-->
+    <module name="range_sensor_forcefield"/>
   </modules>
 
   <commands>
