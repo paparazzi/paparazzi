@@ -631,17 +631,12 @@ static void gazebo_init_range_sensors(void)
 }
 static void gazebo_read_range_sensors(void)
 {
-
-
   int16_t range_sensors_int16[GAZEBO_MAX_RANGE_SENSORS];
   int32_t range_sensors_phi_int32[GAZEBO_MAX_RANGE_SENSORS];
   int32_t range_sensors_theta_int32[GAZEBO_MAX_RANGE_SENSORS];
   int32_t range_sensors_psi_int32[GAZEBO_MAX_RANGE_SENSORS];
 
-
-
   float range_sensor_down = 0;
-
   for (int i = 0; i < ray_sensor_count; i++) {
     range_sensors_int16[i] = (int16_t)(RaySensorPtr_array[i]->Range(0) * 1000.);
     if (range_sensors_int16[i] == 0 || isinf(range_sensors_int16[i])) { range_sensors_int16[i] = 32767;}
@@ -649,9 +644,14 @@ static void gazebo_read_range_sensors(void)
     //Read out the pose from per ray sensors in gazebo
     ignition::math::Pose3d pose3d_sensor = RaySensorPtr_array[i]->Pose();
     gazebo::math::Pose pose_sensor = gazebo::math::Pose(pose3d_sensor);
+
+    /* Putting the angles of the range sensors in the array.
+     *  In gazebo, the x axis is forward, y-axis to the left and z axis up. However for paparazzi, z and y are inverted,
+    */
     range_sensors_phi_int32[i] = ANGLE_BFP_OF_REAL(pose_sensor.rot.GetRoll());
-    range_sensors_theta_int32[i] = ANGLE_BFP_OF_REAL(pose_sensor.rot.GetPitch());
-    range_sensors_psi_int32[i] = ANGLE_BFP_OF_REAL(pose_sensor.rot.GetYaw());
+    range_sensors_theta_int32[i] = ANGLE_BFP_OF_REAL(-1 * pose_sensor.rot.GetPitch());
+    range_sensors_psi_int32[i] = ANGLE_BFP_OF_REAL(-1 * pose_sensor.rot.GetYaw());
+
 
     /* One of the range sensors can be selected to act like a sonar. In the *.sdf file, add "AGL" somewhere in
      * the sensor name, and it will select it as the sonar signal
@@ -674,8 +674,6 @@ static void gazebo_read_range_sensors(void)
   if (range_sensor_down != 0) {
     AbiSendMsgAGL(AGL_RANGE_SENSORS_GAZEBO_ID, range_sensor_down);
   }
-
-
 
 
 }

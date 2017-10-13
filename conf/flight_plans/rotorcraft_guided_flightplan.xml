@@ -38,6 +38,9 @@ Remember to choose AP_MODE_GUIDED or else it won't work!!!
     <block name="FPInit">
       <while cond="!GpsFixValid()"/>
       <set var = "distance_obstacle_FP" value="10.0"/><!--Or else it will turn everytime if the abi message is not received-->
+      <set var = "vel_body_x_FF" value="0."/>
+      <set var = "vel_body_y_FF" value="0."/>
+      <set var = "vel_body_z_FF" value="0."/>
       <call_once fun="ins_reset_altitude_ref()"/>
       <while cond="1"/>
     </block>
@@ -62,7 +65,10 @@ Remember to choose AP_MODE_GUIDED or else it won't work!!!
 <!-- Go Forward:
 1. The MAV will move forward with a constant speed (0.5 m/s), keeping the sideways speed zero while maintaining it's height on the nominal Altitude
 2. If 5 seconds has passed in the block, It will go to the "Turn 90 deg" block
-An exception is triggered if an obstacle is detected (in this example given by the color detector). Then it will go to the "Turn 90 deg" block immediatly -->
+An exception is triggered if an obstacle is detected (in this example given by the color detector). Then it will go to the "Turn 90 deg" block immediatly 
+
+NOTE: A velocity forcefield in the horizontal plane applied here, so if an obstacle comes within a certain distance (adjust in settings), it will give an opposite wanted velocity to get out of the way. 
+-->
 
     <block name="Go Forward">
       <while cond="LessThan(block_time,5)" >
