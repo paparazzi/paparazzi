@@ -168,57 +168,51 @@ let send_cam_status = fun a ->
     match a.nav_ref with
         None -> () (* No geo ref for camera target *)
       | Some nav_ref ->
-          let (hfv, vfv) = a.camaov in
-  
-          let tr = quaternion_from_angle (hfv /. -2.0) (vfv /. 2.0) 0.0
-          and tl = quaternion_from_angle (hfv /. 2.0) (vfv /. 2.0) 0.0
-          and br = quaternion_from_angle (hfv /. -2.0) (vfv /. -2.0) 0.0
-          and bl = quaternion_from_angle (hfv /. 2.0) (vfv /. -2.0) 0.0 in
-  
-          let gimRot = quaternion_from_angle a.cam.phi a.cam.theta 0.0
-          and acRot = quaternion_from_angle a.roll a.pitch (-.a.heading) in
-  
-          let tr_rotated = multiply_quaternion acRot (multiply_quaternion gimRot tr)
-          and tl_rotated = multiply_quaternion acRot (multiply_quaternion gimRot tl) 
-          and br_rotated = multiply_quaternion acRot (multiply_quaternion gimRot br) 
-          and bl_rotated = multiply_quaternion acRot (multiply_quaternion gimRot bl) in
-          
-          let absF (f:float) = if f > 0.0 then f else (f *. -1.0) in
+        let (hfv, vfv) = a.camaov in
 
-          let bind_max_angles a =
-            if absF a > cam_max_angle then copysign cam_max_angle a else a in
-          
-          let find_point_on_ground q =
-            let angles = quaternion_to_angle q in
-            let dx = a.agl *. tan(bind_max_angles angles.r) 
-            and dy = a.agl *. tan(bind_max_angles angles.p) in
-  
-            let utmx =
-              dx *. cos angles.y -. dy *. sin angles.y
-            and utmy =
-              dx *. sin angles.y +. dy *. cos angles.y in
-              
-            Aircraft.add_pos_to_nav_ref (Geo a.pos) (utmx, utmy) in
-      
-          let geo_1 = find_point_on_ground tr_rotated
-          and geo_2 = find_point_on_ground tl_rotated
-          and geo_3 = find_point_on_ground bl_rotated
-          and geo_4 = find_point_on_ground br_rotated in
-          
-          let twgs84 = Aircraft.add_pos_to_nav_ref nav_ref a.cam.target in
+        let tr = quaternion_from_angle (hfv /. -2.0) (vfv /.  2.0) 0.0
+        and tl = quaternion_from_angle (hfv /.  2.0) (vfv /.  2.0) 0.0
+        and br = quaternion_from_angle (hfv /. -2.0) (vfv /. -2.0) 0.0
+        and bl = quaternion_from_angle (hfv /.  2.0) (vfv /. -2.0) 0.0 in
 
-          let values = ["ac_id", PprzLink.String a.id;
-                        "cam_lat_tr", PprzLink.Float ((Rad>>Deg)geo_1.posn_lat);
-                        "cam_lon_tr", PprzLink.Float ((Rad>>Deg)geo_1.posn_long);
-                        "cam_lat_tl", PprzLink.Float ((Rad>>Deg)geo_2.posn_lat);
-                        "cam_lon_tl", PprzLink.Float ((Rad>>Deg)geo_2.posn_long);
-                        "cam_lat_bl", PprzLink.Float ((Rad>>Deg)geo_3.posn_lat);
-                        "cam_lon_bl", PprzLink.Float ((Rad>>Deg)geo_3.posn_long);
-                        "cam_lat_br", PprzLink.Float ((Rad>>Deg)geo_4.posn_lat);
-                        "cam_lon_br", PprzLink.Float ((Rad>>Deg)geo_4.posn_long);
-                        "cam_target_lat", PprzLink.Float ((Rad>>Deg)twgs84.posn_lat);
-                        "cam_target_long", PprzLink.Float ((Rad>>Deg)twgs84.posn_long)] in
-          Ground_Pprz.message_send my_id "CAM_STATUS" values
+        let gimRot = quaternion_from_angle a.cam.phi a.cam.theta 0.0
+        and acRot = quaternion_from_angle a.roll a.pitch (-.a.heading) in
+
+        let tr_rotated = multiply_quaternion acRot (multiply_quaternion gimRot tr)
+        and tl_rotated = multiply_quaternion acRot (multiply_quaternion gimRot tl) 
+        and br_rotated = multiply_quaternion acRot (multiply_quaternion gimRot br) 
+        and bl_rotated = multiply_quaternion acRot (multiply_quaternion gimRot bl) in
+        
+        let bind_max_angles a =
+          if abs_float a > cam_max_angle then copysign cam_max_angle a else a in
+        
+        let find_point_on_ground q =
+          let angles = quaternion_to_angle q in
+          let dx = a.agl *. tan(bind_max_angles angles.r) 
+          and dy = a.agl *. tan(bind_max_angles angles.p) in
+
+          let utmx = dx *. cos angles.y -. dy *. sin angles.y
+          and utmy = dx *. sin angles.y +. dy *. cos angles.y in
+            
+          Aircraft.add_pos_to_nav_ref (Geo a.pos) (utmx, utmy) in
+    
+        let geo_1 = find_point_on_ground tr_rotated
+        and geo_2 = find_point_on_ground tl_rotated
+        and geo_3 = find_point_on_ground bl_rotated
+        and geo_4 = find_point_on_ground br_rotated in
+        
+        
+        let lats = sprintf "%f,%f,%f,%f," ((Rad>>Deg)geo_1.posn_lat) ((Rad>>Deg)geo_2.posn_lat) ((Rad>>Deg)geo_3.posn_lat) ((Rad>>Deg)geo_4.posn_lat) in  
+        let longs = sprintf "%f,%f,%f,%f," ((Rad>>Deg)geo_1.posn_long) ((Rad>>Deg)geo_2.posn_long) ((Rad>>Deg)geo_3.posn_long) ((Rad>>Deg)geo_4.posn_long) in 
+        
+
+        let twgs84 = Aircraft.add_pos_to_nav_ref nav_ref a.cam.target in
+        let values = ["ac_id", PprzLink.String a.id;
+                      "lats", PprzLink.String lats;
+                      "longs", PprzLink.String longs;
+                      "cam_target_lat", PprzLink.Float ((Rad>>Deg)twgs84.posn_lat);
+                      "cam_target_long", PprzLink.Float ((Rad>>Deg)twgs84.posn_long)] in
+        Ground_Pprz.message_send my_id "CAM_STATUS" values
           
 let send_if_calib = fun a ->
   let if_mode = get_indexed_value if_modes a.inflight_calib.if_mode in

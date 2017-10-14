@@ -26,7 +26,6 @@ module G = MapCanvas
 open Latlong
 module LL = Latlong
 open Printf
-open Quaternion
 
 
 module Tele_Pprz = PprzLink.Messages(struct let name = "telemetry" end)
@@ -80,7 +79,6 @@ type gps_acc_level = GPS_ACC_HIGH | GPS_ACC_LOW | GPS_ACC_VERY_LOW | GPS_NO_ACC
 type aircraft = {
   ac_name : string;
   ac_speech_name : string;
-  camaov : (float * float);
   config : PprzLink.values;
   track : MapTrack.track;
   color: color;
@@ -106,12 +104,6 @@ type aircraft = {
   mutable in_kill_mode : bool;
   mutable speed : float;
   mutable alt : float;
-  mutable agl : float;
-  mutable roll : float;
-  mutable pitch : float;
-  mutable heading : float;
-  mutable lat : float;
-  mutable long : float;
   mutable target_alt : float;
   mutable flight_time : int;
   mutable wind_speed : float;
@@ -414,16 +406,6 @@ let get_speech_name = fun af_xml def_name ->
     fvalue "SPEECH_NAME" default_speech_name
   with _ -> default_speech_name
 
-let get_cam_aov = fun af_xml ->
-  let default_cam_aov = ((Deg>>Rad)65. , (Deg>>Rad)35.) in
-  try
-    let gcs_section = ExtXml.child af_xml ~select:(fun x -> Xml.attrib x "name" = "GCS") "section" in
-    let fvalue = fun name default->
-      try ExtXml.float_attrib (ExtXml.child gcs_section ~select:(fun x -> ExtXml.attrib x "name" = name) "define") "value" with _ -> default in
-    (Deg>>Rad) (fvalue "CAM_HFV" 65.),
-    (Deg>>Rad) (fvalue "CAM_VFV" 35.)
-  with _ -> default_cam_aov
-
 let get_icon_and_track_size = fun af_xml ->
   (* firmware name as default if fixedwing or rotorcraft *)
   let firmware = ExtXml.child af_xml "firmware" in
@@ -482,9 +464,6 @@ let create_ac = fun ?(confirm_kill=true) alert (geomap:G.widget) (acs_notebook:G
 
   (** Get an alternate speech name if available *)
   let speech_name = get_speech_name af_xml name in
-
-  (** Get an cam footprint angle of view if available*)
-  let cam_aov = get_cam_aov af_xml in
 
   (* Aicraft menu decorated with a colored box *)
   let image = GBin.event_box ~width:10 ~height:10 () in
@@ -717,36 +696,33 @@ let create_ac = fun ?(confirm_kill=true) alert (geomap:G.widget) (acs_notebook:G
         if w#name = "HOME" then Some w else loop ws in
     loop fp#waypoints in
 
-    let ac = { track = track; color = color; last_dist_to_wp = 0.;
-               fp_group = fp; fp_show = fp_show ; config = config ;
-               wp_HOME = wp_HOME; fp = fp_xml;
-               ac_name = name; ac_speech_name = speech_name;
-               camaov = cam_aov;
-               blocks = blocks; last_ap_mode= "";
-               last_stage = (-1,-1);
-               ir_page = ir_page; flight_time = 0;
-               gps_page = gps_page;
-               pfd_page = pfd_page;
-               link_page = link_page;
-               misc_page = misc_page;
-               dl_settings_page = dl_settings_page;
-               rc_settings_page = rc_settings_page;
-               strip = strip; first_pos = true;
-               last_block_name = ""; alt = 0.; target_alt = 0.;
-               agl = 0.; lat = 0.; long = 0.;
-               pitch = 0.; roll = 0.; heading = 0.;
-               in_kill_mode = false; speed = 0.;
-               wind_dir = 42.; ground_prox = true;
-               wind_speed = 0.;
-               pages = ac_frame#coerce;
-               notebook_label = _label;
-               got_track_status_timer = 1000;
-               dl_values = [||]; last_unix_time = 0.;
-               airspeed = 0.;
-               version = "";
-               last_gps_acc = GPS_NO_ACC;
-               last_bat_warn_time = 0.
-             } in
+  let ac = { track = track; color = color; last_dist_to_wp = 0.;
+             fp_group = fp; fp_show = fp_show ; config = config ;
+             wp_HOME = wp_HOME; fp = fp_xml;
+             ac_name = name; ac_speech_name = speech_name;
+             blocks = blocks; last_ap_mode= "";
+             last_stage = (-1,-1);
+             ir_page = ir_page; flight_time = 0;
+             gps_page = gps_page;
+             pfd_page = pfd_page;
+             link_page = link_page;
+             misc_page = misc_page;
+             dl_settings_page = dl_settings_page;
+             rc_settings_page = rc_settings_page;
+             strip = strip; first_pos = true;
+             last_block_name = ""; alt = 0.; target_alt = 0.;
+             in_kill_mode = false; speed = 0.;
+             wind_dir = 42.; ground_prox = true;
+             wind_speed = 0.;
+             pages = ac_frame#coerce;
+             notebook_label = _label;
+             got_track_status_timer = 1000;
+             dl_values = [||]; last_unix_time = 0.;
+             airspeed = 0.;
+             version = "";
+             last_gps_acc = GPS_NO_ACC;
+             last_bat_warn_time = 0.
+           } in
   Hashtbl.add aircrafts ac_id ac;
   select_ac acs_notebook ac_id;
 
@@ -1180,19 +1156,14 @@ let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
       let a = fun s -> PprzLink.float_assoc s vs in
       let alt = a "alt"
       and climb = a "climb"
-      and speed = a "speed"
-      and roll = a "roll"
-      and pitch = a "pitch"
-      and heading = a "heading"
-      and lat = a "lat"
-      and long = a "long" in
+      and speed = a "speed" in
       pfd_page#set_attitude (a "roll") (a "pitch");
       pfd_page#set_alt alt;
       pfd_page#set_climb climb;
       pfd_page#set_speed speed;
 
-      let wgs84 = { posn_lat=(Deg>>Rad)lat; posn_long = (Deg>>Rad)long } in
-      ac.track#move_icon wgs84 heading alt speed climb;
+      let wgs84 = { posn_lat=(Deg>>Rad)(a "lat"); posn_long = (Deg>>Rad)(a "long") } in
+      ac.track#move_icon wgs84 (a "heading") alt speed climb;
       ac.speed <- speed;
 
       let unix_time = a "unix_time" in
@@ -1215,12 +1186,6 @@ let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
       ac.strip#set_climb climb;
       let agl = (a "agl") in
       ac.alt <- alt;
-      ac.agl <- agl;
-      ac.roll <- roll;
-      ac.pitch <- pitch;
-      ac.heading <- heading;
-      ac.lat <- lat;
-      ac.long <- long;
       ac.strip#set_agl agl;
       if not ac.ground_prox && ac.flight_time > 10 && agl < 20. then begin
         log_and_say alert ac.ac_name (sprintf "%s, %s" ac.ac_speech_name "Ground Proximity Warning");
@@ -1291,6 +1256,26 @@ let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
         _NotSoImportant -> ()
   in
   safe_bind "NAV_STATUS" get_ns;
+
+  let get_cam_status = fun _sender vs ->
+    let ac = get_ac vs in
+    let a = fun s -> PprzLink.float_assoc s vs in
+    let lats_str = PprzLink.string_assoc "lats" vs in
+    let longs_str = PprzLink.string_assoc "longs" vs in
+    
+    let lats = List.map float_of_string (Str.split list_separator lats_str) in
+    let longs = List.map float_of_string (Str.split list_separator longs_str) in
+
+    let target_wgs84 = { posn_lat = (Deg>>Rad)(a "cam_target_lat"); posn_long = (Deg>>Rad)(a "cam_target_long") } in
+    
+    let geo_1 = { posn_lat = (Deg>>Rad)(List.nth lats 0); posn_long = (Deg>>Rad)(List.nth longs 0) } 
+    and geo_2 = { posn_lat = (Deg>>Rad)(List.nth lats 1); posn_long = (Deg>>Rad)(List.nth longs 1) } 
+    and geo_3 = { posn_lat = (Deg>>Rad)(List.nth lats 2); posn_long = (Deg>>Rad)(List.nth longs 2) } 
+    and geo_4 = { posn_lat = (Deg>>Rad)(List.nth lats 3); posn_long = (Deg>>Rad)(List.nth longs 3) } in
+
+    ac.track#move_cam [|geo_1; geo_2; geo_3; geo_4|] target_wgs84
+  in
+  safe_bind "CAM_STATUS" get_cam_status;
 
   let get_circle_status = fun _sender vs ->
     let ac = get_ac vs in
@@ -1546,20 +1531,6 @@ let get_shapes = fun (geomap:G.widget)_sender vs ->
 let listen_shapes = fun (geomap:G.widget) ->
   safe_bind "SHAPE" (get_shapes geomap)
 
-let get_cam_status = fun (geomap:MapCanvas.widget) _sender vs ->
-    let ac = get_ac vs in
-    let a = fun s -> PprzLink.float_assoc s vs in
-    let target_wgs84 = { posn_lat = (Deg>>Rad)(a "cam_target_lat"); posn_long = (Deg>>Rad)(a "cam_target_long") } in
-    let geo_1 = { posn_lat = (Deg>>Rad)(a "cam_lat_tr"); posn_long = (Deg>>Rad)(a "cam_lon_tr") } in
-    let geo_2 = { posn_lat = (Deg>>Rad)(a "cam_lat_tl"); posn_long = (Deg>>Rad)(a "cam_lon_tl") } in
-    let geo_3 = { posn_lat = (Deg>>Rad)(a "cam_lat_bl"); posn_long = (Deg>>Rad)(a "cam_lon_bl") } in
-    let geo_4 = { posn_lat = (Deg>>Rad)(a "cam_lat_br"); posn_long = (Deg>>Rad)(a "cam_lon_br") } in
-
-    ac.track#move_cam [|geo_1; geo_2; geo_3; geo_4|] target_wgs84
-
-let listen_cam = fun (geomap:G.widget) ->
-  safe_bind "CAM_STATUS" (get_cam_status geomap)
-
 let listen_acs_and_msgs = fun geomap ac_notebook strips confirm_kill my_alert auto_center_new_ac alt_graph timestamp ->
   (** Probe live A/Cs *)
   let probe = fun () ->
@@ -1586,7 +1557,6 @@ let listen_acs_and_msgs = fun geomap ac_notebook strips confirm_kill my_alert au
   listen_dcshot geomap timestamp;
   listen_intruders geomap;
   listen_shapes geomap;
-  listen_cam geomap;
 
   (** Select the active aircraft on notebook page selection *)
   let callback = fun i ->
