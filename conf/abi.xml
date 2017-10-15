@@ -97,6 +97,14 @@
       <field name="relative_heading" type="float" unit="rad"/>
     </message>
 
+    <message name="POSITION_ESTIMATE" id="18">
+      <field name="stamp" type="uint32_t" unit="us"/>
+      <field name="x" type="float" unit="m"/>
+      <field name="y" type="float" unit="m"/>
+      <field name="z" type="float" unit="m"/>
+      <field name="noise" type="float"/>
+    </message>
+
   </msg_class>
 
 </protocol>

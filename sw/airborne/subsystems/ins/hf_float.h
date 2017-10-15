@@ -31,32 +31,34 @@
 
 #include "std.h"
 #include "math/pprz_algebra_float.h"
+#include "math/pprz_algebra_int.h"
 #include "generated/airframe.h"
 
-#define HFF_STATE_SIZE 2
+// X = [ z zdot bias ]
+#define HFF_STATE_SIZE 3
 
 struct HfilterFloat {
   float x;
-  /* float xbias; */
   float xdot;
   float xdotdot;
+  float xbias;
   float y;
-  /* float ybias; */
   float ydot;
   float ydotdot;
+  float ybias;
   float xP[HFF_STATE_SIZE][HFF_STATE_SIZE];
   float yP[HFF_STATE_SIZE][HFF_STATE_SIZE];
   uint16_t lag_counter;
   bool rollback;
 };
 
-extern struct HfilterFloat b2_hff_state;
+extern struct HfilterFloat hff;
 
-extern void b2_hff_init(float init_x, float init_xdot, float init_y, float init_ydot);
-extern void b2_hff_propagate(void);
-extern void b2_hff_update_gps(struct FloatVect2 *pos_ned, struct FloatVect2 *speed_ned);
-extern void b2_hff_update_pos(struct FloatVect2 pos, struct FloatVect2 Rpos);
-extern void b2_hff_update_vel(struct FloatVect2 vel, struct FloatVect2 Rvel);
-extern void b2_hff_realign(struct FloatVect2 pos, struct FloatVect2 vel);
+extern void hff_init(float init_x, float init_xdot, float init_y, float init_ydot);
+extern void hff_propagate(void);
+extern void hff_update_gps(struct FloatVect2 *pos_ned, struct FloatVect2 *speed_ned);
+extern void hff_update_pos(struct FloatVect2 pos, struct FloatVect2 Rpos);
+extern void hff_update_vel(struct FloatVect2 vel, struct FloatVect2 Rvel);
+extern void hff_realign(struct FloatVect2 pos, struct FloatVect2 vel);
 
 #endif /* HF_FLOAT_H */
