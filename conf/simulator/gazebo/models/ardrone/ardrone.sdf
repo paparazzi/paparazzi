@@ -31,93 +31,15 @@
 					</box>
 				</geometry>
 			</visual>
+			
+			<sensor name="contactsensor" type="contact">
+				<contact>
+					<collision>collision</collision>
+				</contact>
+			</sensor>
 		</link>
 
-		<link name="front_camera">
-			<pose>0.15 0 0 0 0 0</pose>
-			<inertial>
-				<mass>0.001</mass>
-				<inertia>
-					<ixx>.0001</ixx>
-					<iyy>.0001</iyy>
-					<izz>.0001</izz>
-					<ixy>0</ixy>
-					<iyz>0</iyz>
-					<ixz>0</ixz>
-				</inertia>
-			</inertial>
-			<sensor type="camera" name="front_camera">
-				<update_rate>30.0</update_rate>
-				<camera name="front_camera">
-					<horizontal_fov>1.3962634</horizontal_fov>
-					<image>
-						<width>1280</width>
-						<height>720</height>
-						<format>R8G8B8</format>
-					</image>
-					<clip>
-						<near>0.02</near>
-						<far>300</far>
-					</clip>
-					<noise>
-						<type>gaussian</type>
-						<!-- Noise is sampled independently per pixel on each frame. That pixel's 
-							noise value is added to each of its color channels, which at that point lie 
-							in the range [0,1]. -->
-						<mean>0.0</mean>
-						<stddev>0.007</stddev>
-					</noise>
-				</camera>
-			</sensor>
-		</link>
-		
-		<joint name="front_camera_joint" type="fixed">
-			<parent>chassis</parent>
-			<child>front_camera</child>
-		</joint>
-		
-		<link name="bottom_camera">
-			<pose>0 0 -.03 0 1.57 0</pose>
-			<inertial>
-				<mass>0.001</mass>
-				<inertia>
-					<ixx>.0001</ixx>
-					<iyy>.0001</iyy>
-					<izz>.0001</izz>
-					<ixy>0</ixy>
-					<iyz>0</iyz>
-					<ixz>0</ixz>
-				</inertia>
-			</inertial>
-			<sensor type="camera" name="bottom_camera">
-				<update_rate>30.0</update_rate>
-				<camera name="bottom_camera">
-					<horizontal_fov>1.3962634</horizontal_fov>
-					<image>
-						<width>320</width>
-						<height>240</height>
-						<format>R8G8B8</format>
-					</image>
-					<clip>
-						<near>0.02</near>
-						<far>300</far>
-					</clip>
-					<noise>
-						<type>gaussian</type>
-						<!-- Noise is sampled independently per pixel on each frame. That pixel's 
-							noise value is added to each of its color channels, which at that point lie 
-							in the range [0,1]. -->
-						<mean>0.0</mean>
-						<stddev>0.007</stddev>
-					</noise>
-				</camera>
-			</sensor>
-		</link>
-		
-		<joint name="bottom_camera_joint" type="fixed">
-			<parent>chassis</parent>
-			<child>bottom_camera</child>
-		</joint>
+<!-- MOTORS -->
 
 		<link name="nw_motor">
 			<pose>0.12 0.12 0 0 0 0</pose>
@@ -229,6 +151,95 @@
 		<joint type="fixed" name="sw_motor_joint">
 			<parent>chassis</parent>
 			<child>sw_motor</child>
+		</joint>
+
+
+		<!-- CAMERAS -->
+
+		<link name="front_camera">
+			<pose>0.15 0 0 0 0 0</pose>
+			<inertial>
+				<mass>0.001</mass>
+				<inertia>
+					<ixx>.0001</ixx>
+					<iyy>.0001</iyy>
+					<izz>.0001</izz>
+					<ixy>0</ixy>
+					<iyz>0</iyz>
+					<ixz>0</ixz>
+				</inertia>
+			</inertial>
+			<sensor type="camera" name="front_camera">
+				<update_rate>30.0</update_rate>
+				<camera name="front_camera">
+					<horizontal_fov>1.3962634</horizontal_fov>
+					<image>
+						<width>1280</width>
+						<height>720</height>
+						<format>R8G8B8</format>
+					</image>
+					<clip>
+						<near>0.02</near>
+						<far>300</far>
+					</clip>
+					<noise>
+						<type>gaussian</type>
+						<!-- Noise is sampled independently per pixel on each frame. That pixel's 
+							noise value is added to each of its color channels, which at that point lie 
+							in the range [0,1]. -->
+						<mean>0.0</mean>
+						<stddev>0.007</stddev>
+					</noise>
+				</camera>
+			</sensor>
+		</link>
+		
+		<joint name="front_camera_joint" type="fixed">
+			<parent>chassis</parent>
+			<child>front_camera</child>
+		</joint>
+		
+		<link name="bottom_camera">
+			<pose>0 0 -.03 0 1.57 0</pose>
+			<inertial>
+				<mass>0.001</mass>
+				<inertia>
+					<ixx>.0001</ixx>
+					<iyy>.0001</iyy>
+					<izz>.0001</izz>
+					<ixy>0</ixy>
+					<iyz>0</iyz>
+					<ixz>0</ixz>
+				</inertia>
+			</inertial>
+			<sensor type="camera" name="bottom_camera">
+				<update_rate>30.0</update_rate>
+				<camera name="bottom_camera">
+					<horizontal_fov>1.3962634</horizontal_fov>
+					<image>
+						<width>320</width>
+						<height>240</height>
+						<format>R8G8B8</format>
+					</image>
+					<clip>
+						<near>0.02</near>
+						<far>300</far>
+					</clip>
+					<noise>
+						<type>gaussian</type>
+						<!-- Noise is sampled independently per pixel on each frame. That pixel's 
+							noise value is added to each of its color channels, which at that point lie 
+							in the range [0,1]. -->
+						<mean>0.0</mean>
+						<stddev>0.007</stddev>
+					</noise>
+				</camera>
+			</sensor>
+		</link>
+		
+		<joint name="bottom_camera_joint" type="fixed">
+			<parent>chassis</parent>
+			<child>bottom_camera</child>
 		</joint>
 	</model>
 </sdf>

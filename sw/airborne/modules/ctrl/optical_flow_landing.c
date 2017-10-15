@@ -169,7 +169,7 @@ static void send_divergence(struct transport_tx *trans, struct link_device *dev)
 void vertical_ctrl_agl_cb(uint8_t sender_id, float distance);
 // Callback function of the optical flow estimate:
 void vertical_ctrl_optical_flow_cb(uint8_t sender_id, uint32_t stamp, int16_t flow_x,
-                                   int16_t flow_y, int16_t flow_der_x, int16_t flow_der_y, float quality, float size_divergence, float dist);
+                                   int16_t flow_y, int16_t flow_der_x, int16_t flow_der_y, float quality, float size_divergence);
 
 // common functions for different landing strategies:
 static void set_cov_div(int32_t thrust);
@@ -532,7 +532,7 @@ void set_cov_div(int32_t thrust)
   if (of_landing_ctrl.COV_METHOD == 0 && cov_array_filled > 0) {
     // TODO: step in landing set point causes an incorrectly perceived covariance
     cov_div = covariance_f(thrust_history, divergence_history, of_landing_ctrl.window_size);
-  } else if (of_landing_ctrl.COV_METHOD == 1 && cov_array_filled > 1){
+  } else if (of_landing_ctrl.COV_METHOD == 1 && cov_array_filled > 1) {
     // todo: delay steps should be invariant to the run frequency
     cov_div = covariance_f(past_divergence_history, divergence_history, of_landing_ctrl.window_size);
   }
@@ -599,7 +599,7 @@ void vertical_ctrl_agl_cb(uint8_t sender_id UNUSED, float distance)
 
 void vertical_ctrl_optical_flow_cb(uint8_t sender_id UNUSED, uint32_t stamp, int16_t flow_x UNUSED,
                                    int16_t flow_y UNUSED,
-                                   int16_t flow_der_x UNUSED, int16_t flow_der_y UNUSED, float quality UNUSED, float size_divergence, float dist UNUSED)
+                                   int16_t flow_der_x UNUSED, int16_t flow_der_y UNUSED, float quality UNUSED, float size_divergence)
 {
   divergence_vision = size_divergence;
   vision_time = ((float)stamp) / 1e6;

@@ -65,7 +65,7 @@ struct edge_hist_t {
   int32_t *x;
   int32_t *y;
   struct timeval frame_time;
-  struct FloatRates rates;
+  struct FloatEulers eulers;
 };
 
 struct edgeflow_displacement_t {
@@ -98,7 +98,7 @@ uint32_t timeval_diff2(struct timeval *starttime, struct timeval *finishtime);
 uint32_t getMinimum(uint32_t *a, uint32_t n);
 void line_fit(int32_t *displacement, int32_t *divergence, int32_t *flow, uint32_t size, uint32_t border,
               uint16_t RES);
-uint32_t getAmountPeaks(int32_t *edgehist, uint32_t median, int32_t size);
+uint32_t getAmountPeaks(int32_t *edgehist, int32_t thresh, int32_t size);
 
 
 #endif /* EDGE_FLOW_H_ */

@@ -47,8 +47,6 @@
 #define MAX_COUNT_PT 50
 
 #define MIN_SAMPLES_FIT 3
-#define NO_FIT 0
-#define FIT 1
 
 /**
  * Analyze a linear flow field, retrieving information such as divergence, surface roughness, focus of expansion, etc.
@@ -62,12 +60,12 @@
  * @param[in] im_height Image height in pixels
  * @param[out] info Contains all info extracted from the linear flow fit.
  */
-int analyze_linear_flow_field(struct flow_t *vectors, int count, float error_threshold, int n_iterations, int n_samples, int im_width, int im_height, struct linear_flow_fit_info *info)
+bool analyze_linear_flow_field(struct flow_t *vectors, int count, float error_threshold, int n_iterations, int n_samples, int im_width, int im_height, struct linear_flow_fit_info *info)
 {
   // Are there enough flow vectors to perform a fit?
   if (count < MIN_SAMPLES_FIT) {
     // return that no fit was made:
-    return NO_FIT;
+    return false;
   }
 
   // fit linear flow field:
@@ -80,11 +78,11 @@ int analyze_linear_flow_field(struct flow_t *vectors, int count, float error_thr
   // surface roughness is equal to fit error:
   info->surface_roughness = info->fit_error;
   info->divergence = info->relative_velocity_z;
-  float diverg = (abs(info->divergence) < 1E-5) ? 1E-5 : info->divergence;
+  float diverg = (fabsf(info->divergence) < 1E-5) ? 1E-5 : info->divergence;
   info->time_to_contact = 1.0f / diverg;
 
   // return successful fit:
-  return FIT;
+  return true;
 }
 
 /**

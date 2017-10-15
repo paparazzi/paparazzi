@@ -45,7 +45,7 @@ struct image_t {
   uint16_t w;             ///< Image width
   uint16_t h;             ///< Image height
   struct timeval ts;      ///< The timestamp of creation
-  struct FloatEulers *eulerAngles;   ///< Pointer to the Euler Angles
+  struct FloatEulers eulers;   ///< Euler Angles at time of image
   uint32_t pprz_ts;       ///< The timestamp in us since system startup
 
   uint8_t buf_idx;        ///< Buffer index for V4L2 freeing
@@ -58,7 +58,7 @@ struct point_t {
   uint32_t x;             ///< The x coordinate of the point
   uint32_t y;             ///< The y coordinate of the point
   uint16_t count;         ///< Number of times the point has been tracked successfully
-  uint16_t x_sub;     ///< The x subpixel coordinate of the point
+  uint16_t x_sub;         ///< The x subpixel coordinate of the point
   uint16_t y_sub;         ///< The y subpixel coordinate of the point
 };
 
@@ -104,6 +104,6 @@ void image_show_flow(struct image_t *img, struct flow_t *vectors, uint16_t point
 void image_draw_line(struct image_t *img, struct point_t *from, struct point_t *to);
 void image_draw_line_color(struct image_t *img, struct point_t *from, struct point_t *to, uint8_t *color);
 void pyramid_next_level(struct image_t *input, struct image_t *output, uint8_t border_size);
-void pyramid_build(struct image_t *input, struct image_t *output_array, uint8_t pyr_level, uint8_t border_size);
+void pyramid_build(struct image_t *input, struct image_t *output_array, uint8_t pyr_level, uint16_t border_size);
 
 #endif

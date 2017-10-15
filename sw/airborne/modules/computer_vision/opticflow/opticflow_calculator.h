@@ -40,18 +40,14 @@
 struct opticflow_t {
   bool got_first_img;                 ///< If we got a image to work with
   bool just_switched_method;        ///< Boolean to check if methods has been switched (for reinitialization)
-  struct FloatRates prev_rates;         ///< Gyro Rates from the previous image frame
   struct image_t img_gray;              ///< Current gray image frame
   struct image_t prev_img_gray;         ///< Previous gray image frame
-  struct timeval prev_timestamp;        ///< Timestamp of the previous frame, used for FPS calculation
 
   uint8_t method;                   ///< Method to use to calculate the optical flow
   uint16_t window_size;               ///< Window size for the blockmatching algorithm (general value for all methods)
   uint16_t search_distance;           ///< Search distance for blockmatching alg.
   bool derotation;                    ///< Derotation switched on or off (depended on the quality of the gyroscope measurement)
   bool median_filter;                 ///< Decides to use a median filter on the velocity
-  bool kalman_filter;                       ///< Decide to use Kalman filter to filter velocity with accelerometers
-  float kalman_filter_process_noise;        ///< Process noise of the model used in the kalman filter
 
   float derotation_correction_factor_x;     ///< Correction factor for derotation in x axis, determined from a fit from the gyros and flow rotation. (wrong FOV, camera not in center)
   float derotation_correction_factor_y;     ///< Correction factor for derotation in Y axis, determined from a fit from the gyros and flow rotation. (wrong FOV, camera not in center)
@@ -77,12 +73,12 @@ struct opticflow_t {
 
 
 void opticflow_calc_init(struct opticflow_t *opticflow);
-void opticflow_calc_frame(struct opticflow_t *opticflow, struct opticflow_state_t *state, struct image_t *img,
+bool opticflow_calc_frame(struct opticflow_t *opticflow, struct image_t *img,
                           struct opticflow_result_t *result);
 
-void calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct opticflow_state_t *state, struct image_t *img,
+bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
                              struct opticflow_result_t *result);
-void calc_edgeflow_tot(struct opticflow_t *opticflow, struct opticflow_state_t *state, struct image_t *img,
+bool calc_edgeflow_tot(struct opticflow_t *opticflow, struct image_t *img,
                        struct opticflow_result_t *result);
 
 void kalman_filter_opticflow_velocity(float *velocity_x, float *velocity_y, float *acceleration_measurement, float fps,
