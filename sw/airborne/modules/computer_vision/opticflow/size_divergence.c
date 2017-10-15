@@ -24,13 +24,15 @@
 
 /**
  * @file modules/computer_vision/opticflow/size_divergence.c
- * @brief Calculate divergence from flow vectors by looking at line sizes beteween the points.
+ * @brief Calculate divergence from flow vectors by looking at line sizes between the points.
  *
  * Uses optical flow vectors as determined with a corner tracker and Lucas Kanade to estimate divergence.
  */
 
 #include "size_divergence.h"
 #include <stdlib.h>
+
+#include "math/pprz_stat.h"
 
 #define NO_DIV 0.0
 
@@ -43,57 +45,48 @@
  */
 float get_size_divergence(struct flow_t *vectors, int count, int n_samples)
 {
-  float distance_1;
-  float distance_2;
-  float *divs;
-  unsigned int sample;
-  float dx;
-  float dy;
-  float mean_divergence;
-  int n_elements;
-  unsigned int i, j;
+  float distance_1, distance_2;
+  float *divs;  // divs will contain the individual divergence estimates:
+  uint32_t used_samples = 0;
+  float dx, dy;
+  int32_t i, j;
 
-  // TODO: if count!/(2!*count-2!) lower than n_samples, do full sampling
+  int32_t max_samples = (count * count - count) / 2;
+
   if (count < 2) {
     return NO_DIV;
+  } else if (count >= max_samples) {
+    n_samples = 0;
   }
 
   if (n_samples == 0) {
-    // divs will contain the individual divergence estimates:
-    n_elements = (count * count - count) / 2;
-    divs = (float *) malloc(sizeof(float) * n_elements);
+    divs = (float *) malloc(sizeof(float) * max_samples);
 
     // go through all possible lines:
-    sample = 0;
     for (i = 0; i < count; i++) {
       for (j = i + 1; j < count; j++) {
         // distance in previous image:
         dx = (float)vectors[i].pos.x - (float)vectors[j].pos.x;
         dy = (float)vectors[i].pos.y - (float)vectors[j].pos.y;
-        distance_1 = sqrt(dx * dx + dy * dy);
+        distance_1 = sqrtf(dx * dx + dy * dy);
 
         // distance in current image:
         dx = (float)vectors[i].pos.x + (float)vectors[i].flow_x - (float)vectors[j].pos.x - (float)vectors[j].flow_x;
         dy = (float)vectors[i].pos.y + (float)vectors[i].flow_y - (float)vectors[j].pos.y - (float)vectors[j].flow_y;
-        distance_2 = sqrt(dx * dx + dy * dy);
+        distance_2 = sqrtf(dx * dx + dy * dy);
 
         // calculate divergence for this sample:
-        divs[sample] = (distance_2 - distance_1) / distance_1;
-        sample++;
+        if (distance_1 > 1E-5) {
+          divs[used_samples] = (distance_2 - distance_1) / distance_1;
+          used_samples++;
+        }
       }
     }
-
-    // calculate the mean divergence:
-    mean_divergence = get_mean(divs, n_elements);
-
-    // free the memory of divs:
-    free(divs);
   } else {
-    // vector that will contain individual divergence estimates:
     divs = (float *) malloc(sizeof(float) * n_samples);
 
     // take random samples:
-    for (sample = 0; sample < n_samples; sample++) {
+    for (uint16_t sample = 0; sample < n_samples; sample++) {
       // take two random indices:
       i = rand() % count;
       j = rand() % count;
@@ -114,34 +107,19 @@ float get_size_divergence(struct flow_t *vectors, int count, int n_samples)
 
 
       // calculate divergence for this sample:
-      divs[sample] = (distance_2 - distance_1) / distance_1;
+      if (distance_1 > 1E-5) {
+        divs[used_samples] = (distance_2 - distance_1) / distance_1;
+        used_samples++;
+      }
     }
-
-    // calculate the mean divergence:
-    mean_divergence = get_mean(divs, n_samples);
-    // free the memory of divs:
-    free(divs);
   }
+
+  // calculate the mean divergence:
+  float mean_divergence = mean_f(divs, used_samples);
+
+  // free the memory of divs:
+  free(divs);
 
   // return the calculated divergence:
   return mean_divergence;
 }
-
-/**
- * Get the sample mean of a vector of floats
- * @param[in] numbers     Vector of numbers
- * @param[in] n_elements  Number of elements
- * @return mean
- */
-float get_mean(float *numbers, int n_elements)
-{
-  int i = 0;
-  float mean = 0;
-  for (i = 0; i < n_elements; i++) {
-    mean += numbers[i];
-  }
-  mean /= n_elements;
-  return mean;
-}
-
-

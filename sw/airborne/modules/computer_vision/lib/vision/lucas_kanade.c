@@ -89,7 +89,7 @@ struct flow_t *opticFlowLK(struct image_t *new_img, struct image_t *old_img, str
   // TODO: Feature management shows that this threshold rejects corners maybe too often, maybe another formula could be chosen
   uint32_t error_threshold = (25 * 25) * (patch_size * patch_size);
   uint16_t padded_patch_size = patch_size + 2;
-  uint8_t border_size = padded_patch_size / 2 + 2; // amount of padding added to images
+  uint16_t border_size = padded_patch_size / 2 + 2; // amount of padding added to images
 
   // Allocate memory for image pyramids
   struct image_t *pyramid_old = malloc(sizeof(struct image_t) * (pyramid_level + 1));
@@ -137,9 +137,9 @@ struct flow_t *opticFlowLK(struct image_t *new_img, struct image_t *old_img, str
 
       // If the pixel is outside original image, do not track it
       if ((((int32_t) vectors[new_p].pos.x + vectors[new_p].flow_x) < 0)
-          || ((vectors[new_p].pos.x + vectors[new_p].flow_x) > ((pyramid_new[LVL].w - 1 - 2 * border_size)* subpixel_factor))
+          || ((vectors[new_p].pos.x + vectors[new_p].flow_x) > (uint32_t)((pyramid_new[LVL].w - 1 - 2 * border_size)* subpixel_factor))
           || (((int32_t) vectors[new_p].pos.y + vectors[new_p].flow_y) < 0)
-          || ((vectors[new_p].pos.y + vectors[new_p].flow_y) > ((pyramid_new[LVL].h - 1 - 2 * border_size)* subpixel_factor))) {
+          || ((vectors[new_p].pos.y + vectors[new_p].flow_y) > (uint32_t)((pyramid_new[LVL].h - 1 - 2 * border_size)* subpixel_factor))) {
         continue;
       }
 
@@ -167,15 +167,15 @@ struct flow_t *opticFlowLK(struct image_t *new_img, struct image_t *old_img, str
 
       for (uint8_t it = max_iterations; it--;) {
         struct point_t new_point = { vectors[new_p].pos.x  + vectors[new_p].flow_x,
-                 vectors[new_p].pos.y + vectors[new_p].flow_y
-        };
-
+                                     vectors[new_p].pos.y + vectors[new_p].flow_y,
+                                     0, 0, 0
+                                    };
 
         // If the pixel is outside original image, do not track it
         if ((((int32_t)vectors[new_p].pos.x  + vectors[new_p].flow_x) < 0)
-            || (new_point.x > ((pyramid_new[LVL].w - 1 - 2 * border_size)*subpixel_factor))
+            || (new_point.x > (uint32_t)((pyramid_new[LVL].w - 1 - 2 * border_size)*subpixel_factor))
             || (((int32_t)vectors[new_p].pos.y  + vectors[new_p].flow_y) < 0)
-            || (new_point.y > ((pyramid_new[LVL].h - 1 - 2 * border_size)*subpixel_factor))) {
+            || (new_point.y > (uint32_t)((pyramid_new[LVL].h - 1 - 2 * border_size)*subpixel_factor))) {
           tracked = false;
           break;
         }
@@ -286,7 +286,7 @@ struct flow_t *opticFlowLK_flat(struct image_t *new_img, struct image_t *old_img
   // Calculate the amount of points to skip
   float skip_points = (points_orig > max_points) ? points_orig / max_points : 1;
 
-  // Go trough all points
+  // Go through all points
   for (uint16_t i = 0; i < max_points && i < points_orig; i++) {
     uint16_t p = i * skip_points;
 
@@ -329,7 +329,8 @@ struct flow_t *opticFlowLK_flat(struct image_t *new_img, struct image_t *old_img
     for (uint8_t it = 0; it < max_iterations; it++) {
       struct point_t new_point =  {
         vectors[new_p].pos.x + vectors[new_p].flow_x,
-        vectors[new_p].pos.y + vectors[new_p].flow_y
+        vectors[new_p].pos.y + vectors[new_p].flow_y,
+        0,0,0
       };
       // If the pixel is outside ROI, do not track it
       if (new_point.x / subpixel_factor < half_window_size || (old_img->w - new_point.x / subpixel_factor) <= half_window_size

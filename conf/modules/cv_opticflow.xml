@@ -11,8 +11,6 @@
     <!-- Optical flow calculation parameters -->
     <section name="OPTICFLOW" prefix="OPTICFLOW_">
       <define name="AGL_ID" value="ABI_BROADCAST" description="ABI receive id for ABI message (sonar measurement) (default: ABI_BROADCAST)"/>
-<define name="IMU_ID" value="ABI_BROADCAST" description="ABI receive id for ABI message (accelerometers) (default: ABI_BROADCAST)"/>
-<define name="BODY_TO_IMU_ID" value="ABI_BROADCAST" description="ABI receive id for ABI message (body to imu quat) (default: ABI_BROADCAST)"/>
       <define name="SEND_ABI_ID" value="1" description="ABI sender id for opticflow messages (default: 1)"/>
 
       <!-- Video device parameters -->
@@ -25,6 +23,9 @@
       <define name="FY" value="348.5053" description="Field in the y direction of the camera (Defaults are from an ARDrone 2)"/>
       <define name="DEROTATION_CORRECTION_FACTOR_X" value="1.0" description="Correction factor for derotation (in x direction), estimated from a fit between the gyro's rates and the resulting flow (caused by the camera not being exactly in the middle (Defaults are from an ARDrone 2)"/>
       <define name="DEROTATION_CORRECTION_FACTOR_Y" value="1.0" description="Correction factor for derotation (in y direction), estimated from a fit between the gyro's rates and the resulting flow (caused by the camera not being exactly in the middle (Defaults are from an ARDrone 2)"/>
+      <configure name="BODY_TO_CAM_PHI" value="0" description="Rotation from body frame to camera frame around x axis"/>
+      <configure name="BODY_TO_CAM_THETA" value="0" description="Rotation from body frame to camera frame around y axis"/>
+      <configure name="BODY_TO_CAM_PSI" value="0" description="Rotation from body frame to camera frame around z axis"/>
 
       <!-- General optical flow calculation parameters -->
       <define name="METHOD" value="0" description="Method used to calculate optical flow"/>
@@ -34,8 +35,6 @@
       <define name="RESOLUTION_FACTOR" value="1000" description="The resolution factor needed to calculate the divergence without floats"/>
       <define name="DEROTATION" value="1" description="Derotation either turned on or off (depended on gyroscope measurements)"/>
       <define name="MEDIAN_FILTER" value="0" description="A median filter on the resulting velocities to be turned on or off (last 5 measurements)"/>
-      <define name="KALMAN_FILTER" value="1" description="A kalman filter on the resulting velocities to be turned on or off (fused with accelerometers)"/>
-      <define name="KALMAN_FILTER_PROCESS_NOISE" value="0.01" description="The expected variance of the error of the model's prediction in the kalman filter"/>
       <define name="FEATURE_MANAGEMENT" value="1" description="Whether to keep already tracked corners in memory for the next frame or re-detect new ones every time"/>
       <define name="FPS" value="0" description="The (maximum) frequency to run the calculations at. If zero, it will max out at the camera frame rate"/>
 
@@ -56,8 +55,7 @@
 
   <settings>
 	<dl_settings NAME="Vision stabilization">
-
-      	<!-- Optical flow calculations parameters -->
+      <!-- Optical flow calculations parameters -->
       <dl_settings name="vision_calc">
       <dl_setting var="opticflow.method" min="0" step="1" max="1" module="computer_vision/opticflow_module" shortname="method" values="LK_Fast9|EdgeFlow" param="METHOD"/>
         <dl_setting var="opticflow.window_size" module="computer_vision/opticflow_module" min="0" step="1" max="20" shortname="window_size" param="OPTICFLOW_WINDOW_SIZE"/>
@@ -66,11 +64,9 @@
         <dl_setting var="opticflow.resolution_factor" module="computer_vision/opticflow_module" min="10" step="10" max="10000" shortname="resolution_factor" param="OPTICFLOW_RESOLUTION_FACTOR"/>
         <dl_setting var="opticflow.derotation" min="0" step="1" max="1" module="computer_vision/opticflow_module" values="OFF|ON" shortname="derotation" param="OPTICFLOW_DEROTATION"/>
         <dl_setting var="opticflow.median_filter" module="computer_vision/opticflow_module" min="0" step="1" max="1" values="OFF|ON" shortname="median_filter" param="OPTICFLOW_MEDIAN_FILTER"/>
-        <dl_setting var="opticflow.kalman_filter" module="computer_vision/opticflow_module" min="0" step="1" max="1" values="OFF|ON" shortname="kalman_filter" param="OPTICFLOW_KALMAN_FILTER"/>
-        <dl_setting var="opticflow.kalman_filter_process_noise" module="computer_vision/opticflow_module" min="0.0001" step="0.0001" max="0.1"  shortname="KF_process_noise" param="OPTICFLOW_KALMAN_FILTER_PROCESS_NOISE"/>
         <dl_setting var="opticflow.feature_management" module="computer_vision/opticflow_module" min="0" step="1" max="1" values="OFF|ON" shortname="feature_management" param="OPTICFLOW_FEATURE_MANAGEMENT"/>
 
-	<!-- Specifically for Lucas Kanade and FAST9 -->
+        <!-- Specifically for Lucas Kanade and FAST9 -->
         <dl_setting var="opticflow.max_track_corners" module="computer_vision/opticflow_module" min="0" step="1" max="500" shortname="max_trck_corners" param="OPTICFLOW_MAX_TRACK_CORNERS"/>
         <dl_setting var="opticflow.max_iterations" module="computer_vision/opticflow_module" min="0" step="1" max="100" shortname="max_iterations" param="OPTICFLOW_MAX_ITERATIONS"/>
         <dl_setting var="opticflow.threshold_vec" module="computer_vision/opticflow_module" min="0" step="1" max="100" shortname="threshold_vec" param="OPTICFLOW_THRESHOLD_VEC"/>
@@ -82,15 +78,15 @@
         <dl_setting var="opticflow.fast9_region_detect" module="computer_vision/opticflow_module" min="0" step="1" max="1" values="OFF|ON" shortname="fast9_region_detect" param="OPTICFLOW_FAST9_REGION_DETECT"/>
         <dl_setting var="opticflow.fast9_num_regions" module="computer_vision/opticflow_module" min="1" step="1" max="25" shortname="fast9_num_regions" param="OPTICFLOW_FAST9_NUM_REGIONS"/>
 
-
-	<!-- Changes pyramid level of lucas kanade optical flow. -->
+        <!-- Changes pyramid level of lucas kanade optical flow. -->
         <dl_setting var="opticflow.pyramid_level" module="computer_vision/opticflow_module" min="0" step="1" max="10" shortname="pyramid_level" param="OPTICFLOW_PYRAMID_LEVEL"/>
-
       </dl_settings>
     </dl_settings>
   </settings>
 
-  <depends>video_thread,pose_history</depends>
+  <autoload name="agl_dist"/>
+  <autoload name="video_thread"/>
+  <autoload name="pose_history"/>
 
   <header>
     <file name="opticflow_module.h"/>
@@ -99,7 +95,7 @@
   <init fun="opticflow_module_init()"/>
   <periodic fun="opticflow_module_run()" autorun="TRUE"/>
 
-  <makefile target="ap">
+  <makefile target="ap|nps">
     <!-- Include the needed Computer Vision files -->
     <include name="modules/computer_vision"/>
     <file name="image.c" dir="modules/computer_vision/lib/vision"/>
@@ -119,9 +115,5 @@
     <file name="fast_rosten.c" dir="modules/computer_vision/lib/vision"/>
     <file name="lucas_kanade.c" dir="modules/computer_vision/lib/vision"/>
     <file name="edge_flow.c" dir="modules/computer_vision/lib/vision"/>
-    <file name="kalman_filter_vision.c" dir="modules/computer_vision/lib/filters"/>
   </makefile>
-
-
 </module>
-
