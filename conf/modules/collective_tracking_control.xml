@@ -1,0 +1,38 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="collective_tracking_control" dir="ctc">
+  <doc>
+	  <description>Distributed algorithm for tracking a velocity/position reference signal.
+    </description>
+    <section name="Parameters" prefix="CTC_">
+      <define name="MAX_AC" value="4" description="Maximum number of expected aircraft"/>
+    </section>
+  </doc>
+
+  <settings name="CTC">
+    <dl_settings>
+      <dl_settings NAME="CTC">
+        <dl_settings NAME="Control">
+          <dl_setting MAX="20" MIN="0" STEP="0.2" VAR="ctc_control.k" shortname = "Gain" param="CTC_GAIN_K"/>
+          <dl_setting MAX="5000" MIN="0" STEP="1" VAR="ctc_control.timeout" shortname = "Timeout" param="CTC_TIMEOUT"/>
+        </dl_settings>
+       </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <header>
+    <file name="ctc.h"/>
+  </header>
+
+  <init fun="ctc_init()"/>
+
+  <datalink message="CTC_REG_TABLE" fun="parseRegTable()"/>
+  <datalink message="CTC_CLEAN_TABLE" fun="parseCleanTable()"/>
+  <datalink message="CTC_THETA_AND_SPEED" fun="parseThetaAndSpeedTable()"/>
+
+  <makefile firmware="fixedwing">
+    <file name="ctc.c"/>
+  </makefile>
+
+</module>
+
