@@ -19,13 +19,13 @@
  */
 
 /*
- * @file "modules/range_module/range_module.c"
+ * @file "modules/range_forcefield/range_forcefield.h"
  * @author K. N. McGuire
  * This module generates a forcefield based on range sensor measurements the use of single point range sensors.
  */
 
 
-#include "modules/range_sensor/range_sensor_forcefield.h"
+#include "modules/range_forcefield/range_forcefield.h"
 #include "subsystems/abi.h"
 
 
@@ -42,9 +42,9 @@ float vel_body_y_guided;
 #endif
 
 
-static abi_event range_sensors_ev;
-static void range_sensors_cb(uint8_t sender_id, int16_t range_array_size, uint16_t *range_array, int32_t *orientation_array);
-static void range_sensors_cb(uint8_t sender_id  __attribute__((unused)), int16_t range_array_size, uint16_t *range_array, int32_t *orientation_array)
+static abi_event range_sensor_array_ev;
+static void range_sensor_array_cb(uint8_t sender_id, int16_t range_array_size, uint16_t *range_array, int32_t *orientation_array);
+static void range_sensor_array_cb(uint8_t sender_id  __attribute__((unused)), int16_t range_array_size, uint16_t *range_array, int32_t *orientation_array)
 {
 
   struct FloatEulers body_to_sensors_eulers = {0, 0, 0};
@@ -64,12 +64,12 @@ static void range_sensors_cb(uint8_t sender_id  __attribute__((unused)), int16_t
         inner_border_FF,  outer_border_FF,  min_vel_command,  max_vel_command);
   }
 
-  //Send the range velocity forcefield throught abi
+  //Send the range velocity forcefield through abi
   AbiSendMsgRANGE_FORCEFIELD(RANGE_FORCEFIELD_ID, vel_avoid_body.x, vel_avoid_body.y, vel_avoid_body.z);
 }
 
 
-void range_init(void)
+void range_forcefield_init(void)
 {
   inner_border_FF = 1.0f;
   outer_border_FF = 1.4f;
@@ -78,10 +78,8 @@ void range_init(void)
   vel_body_x_guided = 0.0f;
   vel_body_y_guided = 0.0f;
 
-  AbiBindMsgRANGE_SENSORS_ARRAY(RANGE_MODULE_RECIEVE_ID, &range_sensors_ev, range_sensors_cb);
-
+  AbiBindMsgRANGE_SENSORS_ARRAY(RANGE_MODULE_RECIEVE_ID, &range_sensor_array_ev, range_sensor_array_cb);
 }
-
 
 /*  range_sensor_single_velocity_force_field: This function adjusts the intended velocity commands in the horizontal plane
  * to move away from obstacles and walls as detected by single ray range sensors. An simple linear equation with the distance
