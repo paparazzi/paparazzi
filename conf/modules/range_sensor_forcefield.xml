@@ -17,6 +17,7 @@
   <header>
     <file name="range_sensor_forcefield.h"/>
   </header>
+  <init fun="range_init()"/>
   <makefile>
     <file name="range_sensor_forcefield.c"/>
   </makefile>

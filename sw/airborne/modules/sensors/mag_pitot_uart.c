@@ -40,7 +40,18 @@ static struct mag_pitot_t mag_pitot = {
 };
 static uint8_t mp_msg_buf[128]  __attribute__((aligned));   ///< The message buffer for the Magneto and pitot
 
-static uint16_t tel_buf[4] = {0 , 0 , 0 , 0 };
+
+#ifndef MAG_PITOT_REMOTE_GROUND_AMOUNT_SENSORS
+#define MAG_PITOT_REMOTE_GROUND_AMOUNT_SENSORS 0
+#endif
+
+#ifndef MAG_PITOT_REMOTE_GROUND_ORIENTATIONS
+#define MAG_PITOT_REMOTE_GROUND_ORIENTATIONS 0,0,0
+#endif
+
+static uint16_t remote_ground_value_array[MAG_PITOT_REMOTE_GROUND_AMOUNT_SENSORS];
+static int32_t remote_ground_orientation_array[MAG_PITOT_REMOTE_GROUND_AMOUNT_SENSORS * 3];
+
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
@@ -62,6 +73,7 @@ void mag_pitot_init()
   struct FloatEulers imu_to_mag_eulers =
   {IMU_TO_MAG_PHI, IMU_TO_MAG_THETA, IMU_TO_MAG_PSI};
   orientationSetEulers_f(&mag_pitot.imu_to_mag, &imu_to_mag_eulers);
+
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_IMU_MAG_RAW, mag_pitot_raw_downlink);
@@ -114,19 +126,33 @@ static inline void mag_pitot_parse_msg(void)
       break;
     }
 
-    /* Get Time of Flight laser range sensor ring  message */
+    /* Get Time of Flight laser range sensor ring  messages */
     case DL_IMCU_REMOTE_GROUND: {
+      // Retrieve ID and Range of the laser range sensor
       uint8_t id = DL_IMCU_REMOTE_GROUND_id(mp_msg_buf);
       uint16_t range = DL_IMCU_REMOTE_GROUND_range(mp_msg_buf);
-      tel_buf[id] = range;
-      uint8_t length = 4;
 
-      // Send ABI
-      float agl = (float)tel_buf[3] / 1000.; // Double check if 3 is pointed downwards
-      AbiSendMsgAGL(IMU_MAG_PITOT_ID, agl);
-      //front right back left bottom top
-      uint16_t dummy_range = 0;
-      AbiSendMsgRANGE_SENSORS(RANGE_SENSORS_ID, dummy_range, tel_buf[2], dummy_range, tel_buf[0], tel_buf[3], tel_buf[1]);
+      /* If the retrieved ID is the same or smaller that the total amount of specified sensors,continue
+       */
+      if (id <= MAG_PITOT_REMOTE_GROUND_AMOUNT_SENSORS - 1) {
+        //Save the range and the orientation in the specified index (as defined in the airframe file
+        remote_ground_value_array[id] = range;
+        int16_t length = MAG_PITOT_REMOTE_GROUND_AMOUNT_SENSORS;
+        static float remote_ground_orientation_array_float[] = {MAG_PITOT_REMOTE_GROUND_ORIENTATIONS};
+        for (int n = 0; n < 3; n++) {
+          remote_ground_orientation_array[id * 3 + n] =
+            ANGLE_BFP_OF_REAL(remote_ground_orientation_array_float[id * 3 + n]);
+        }
+        //Send the abi message to be used by
+        AbiSendMsgRANGE_SENSORS_ARRAY(RANGE_SENSOR_ARRAY_VL53L0_ID, length, remote_ground_value_array, remote_ground_orientation_array);
+
+        //If an AGL_sonar orientation is defined, send this also by ABI
+#ifdef MAG_PITOT_REMOTE_GROUND_ORIENTATION_AGL
+        float agl = (float)tel_buf[3] / 1000.;
+        AbiSendMsgAGL(AGL_VL53L0_LASER_ARRAY_ID, agl);
+#endif
+      }
+
       break;
     }
 

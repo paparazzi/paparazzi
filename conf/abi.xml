@@ -115,10 +115,8 @@
 
     <message name="RANGE_SENSORS" id="19">
       <field name="range_array_size" type="int16_t"/>
-      <field name="range_array" unit="mm" type="int16_t*"/>
-      <field name="phi_array" unit="rad" type="int32_t*"/>
-      <field name="theta_array" unit="rad" type="int32_t*"/>
-      <field name="psi_array" unit="rad" type="int32_t*"/>
+      <field name="range_array" unit="mm" type="uint16_t*"/>
+      <field name="orientation_array" unit="rad" type="int32_t*"/>
     </message>
 
     <message name="RANGE_FORCEFIELD" id="20">

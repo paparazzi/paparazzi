@@ -41,7 +41,7 @@
 					<ixz>0</ixz>
 				</inertia>
 			</inertial>
-      <sensor type= "ray" name="down_range_sensor_AGL">
+      <sensor type= "ray" name="down_range_sensor">
         <pose>0.0 0 0 0 1.57 0</pose>
         <visualize>true</visualize>
         <update_rate>30</update_rate>
@@ -196,7 +196,7 @@
 					<ixz>0</ixz>
 				</inertia>
 			</inertial>
-      <sensor type= "ray" name="front_range_sensor">
+      <sensor type= "ray" name="back_range_sensor">
       	<pose>0.0 0 0.1 0 0 3.14</pose>
         <visualize>true</visualize>
         <update_rate>30</update_rate>

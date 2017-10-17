@@ -28,34 +28,14 @@
 #include <std.h>
 #include "math/pprz_algebra_float.h"
 
-struct range_finders_ {
-  float front;  // m
-  float right;  // m
-  float left;   // m
-  float back;   // m
-  float bottom; // m
-  float top;    // m
-
-};
-extern float vel_body_x_guided;
-extern float vel_body_y_guided;
-extern float vel_body_z_guided;
-
 extern float inner_border_FF;
 extern float outer_border_FF;
 extern float min_vel_command;
 extern float max_vel_command;
 
 extern void range_init(void);
-extern void range_run(void);
-
-
-void range_sensor_single_velocity_force_field(struct FloatVect3* vel_avoid_body, float range, struct FloatEulers* body_to_sensors_eulers,
-		float avoid_inner_border, float avoid_outer_border, float min_vel_command_lc, float max_vel_command_lc);
-void range_sensor_horizontal_velocity_force_field(float *vel_body_x, float *vel_body_y, float avoid_inner_border, float avoid_outer_border,
-    float min_vel_command_lc, float max_vel_command_lc);
-void range_sensor_vertical_velocity_force_field(float *vel_body_z, float avoid_inner_border, float avoid_outer_border,
-    float min_vel_command_lc, float max_vel_command_lc);
+void range_sensor_single_velocity_force_field(struct FloatVect3 *vel_avoid_body, float range, struct FloatEulers *body_to_sensors_eulers,
+    float avoid_inner_border, float avoid_outer_border, float min_vel_command_lc, float max_vel_command_lc);
 
 #endif
 
