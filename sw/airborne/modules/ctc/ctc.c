@@ -117,6 +117,8 @@ bool collective_tracking_control()
 
   int num_neighbors = 0;
 
+  int num_neighbors = 0;
+
   for (int i = 0; i < CTC_MAX_AC; i++) {
     if (tableNei[i][0] != -1) {
       uint32_t timeout = now - last_info[i];
