@@ -21,7 +21,7 @@
 /*
  * @file "modules/range_module/range_module.c"
  * @author K. N. McGuire
- * This module contains functions to accommodate the use of single point range sensors.
+ * This module generates a forcefield based on range sensor measurements the use of single point range sensors.
  */
 
 
@@ -43,29 +43,43 @@ float vel_body_y_guided;
 
 
 static abi_event range_sensors_ev;
-static void range_sensors_cb(uint8_t sender_id, int16_t range_array_size, int16_t *range_array, int32_t *phi_array, int32_t *theta_array, int32_t *psi_array);
-struct range_finders_ range_finders;
-static void range_sensors_cb(uint8_t sender_id, int16_t range_array_size, int16_t *range_array, int32_t *phi_array, int32_t *theta_array, int32_t *psi_array)
+static void range_sensors_cb(uint8_t sender_id, int16_t range_array_size, uint16_t *range_array, int32_t *orientation_array);
+static void range_sensors_cb(uint8_t sender_id  __attribute__((unused)), int16_t range_array_size, uint16_t *range_array, int32_t *orientation_array)
 {
 
   struct FloatEulers body_to_sensors_eulers = {0, 0, 0};
   struct FloatVect3 vel_avoid_body = {0, 0, 0};
   float range = 0;
 
-
-
-//TODO: per range sensor, calculate required forcefield velocity and rotate it to body frame.
-  for (int i; i < range_array_size; i++) {
-    body_to_sensors_eulers.phi = ANGLE_FLOAT_OF_BFP(phi_array[i]);
-    body_to_sensors_eulers.theta = ANGLE_FLOAT_OF_BFP(theta_array[i]);
-    body_to_sensors_eulers.psi = ANGLE_FLOAT_OF_BFP(psi_array[i]);
-
+  // loop through the range sensor array
+  for (int i = 0; i < range_array_size; i++) {
+    // Get the orientation  and value of the range array measurement (per sensor)
+    body_to_sensors_eulers.phi = ANGLE_FLOAT_OF_BFP(orientation_array[3 * i]);
+    body_to_sensors_eulers.theta = ANGLE_FLOAT_OF_BFP(orientation_array[3 * i + 1]);
+    body_to_sensors_eulers.psi = ANGLE_FLOAT_OF_BFP(orientation_array[3 * i + 2]);
     range = (float)range_array[i] / 1000.;
 
+    // Calculate forcefield for that one measurement
     range_sensor_single_velocity_force_field(&vel_avoid_body,  range, &body_to_sensors_eulers,
         inner_border_FF,  outer_border_FF,  min_vel_command,  max_vel_command);
   }
+
+  //Send the range velocity forcefield throught abi
   AbiSendMsgRANGE_FORCEFIELD(RANGE_FORCEFIELD_ID, vel_avoid_body.x, vel_avoid_body.y, vel_avoid_body.z);
+}
+
+
+void range_init(void)
+{
+  inner_border_FF = 1.0f;
+  outer_border_FF = 1.4f;
+  min_vel_command = 0.0f;
+  max_vel_command = 0.5f;
+  vel_body_x_guided = 0.0f;
+  vel_body_y_guided = 0.0f;
+
+  AbiBindMsgRANGE_SENSORS_ARRAY(RANGE_MODULE_RECIEVE_ID, &range_sensors_ev, range_sensors_cb);
+
 }
 
 
@@ -95,7 +109,7 @@ void range_sensor_single_velocity_force_field(struct FloatVect3 *vel_avoid_body,
   // Velocity commands
   float avoid_command = 0;
 
-  // balance avoidance command for x direction (forward/backward)
+  // Calculate avoidance velocity
   if (range < 0.001  || range > max_sensor_range) {
     //do nothing
   } else if (range < avoid_inner_border) {
@@ -115,6 +129,7 @@ void range_sensor_single_velocity_force_field(struct FloatVect3 *vel_avoid_body,
   struct FloatVect3 quad_body_avoid_vel;
   float_rmat_transp_vmult(&quad_body_avoid_vel, &range_sensor_to_body, &quad_sensor_avoid_vel);
 
+  // Add velocity forcefield to previous values (for balancing the command)
   vel_avoid_body->x += quad_body_avoid_vel.x;
   vel_avoid_body->y += quad_body_avoid_vel.y;
   vel_avoid_body->z += quad_body_avoid_vel.z;

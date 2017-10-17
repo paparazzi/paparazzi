@@ -123,6 +123,13 @@
 #define AGL_LIDAR_SF11_ID 8
 #endif
 
+#ifndef AGL_VL53L0_LASER_ARRAY_ID
+#define AGL_VL53L0_LASER_ARRAY_ID 9
+#endif
+
+#ifndef AGL_RAY_SENSOR_GAZEBO_ID
+#define AGL_RAY_SENSOR_GAZEBO_ID 10
+#endif
 /*
  * IDs of magnetometer sensors (including IMUs with mag)
  */
@@ -312,27 +319,24 @@
 #endif
 
 /*
- * IDs of Range sensor related variables
+ * IDs of range array sensor related variables
  */
 
-#ifndef RANGE_SENSORS_ID
-#define RANGE_SENSORS_ID 1
+#ifndef RANGE_SENSOR_ARRAY_VL53L0_ID
+#define RANGE_SENSOR_ARRAY_VL53L0_ID 1
 #endif
 
-#ifndef RANGE_SENSORS_GAZEBO_ID
-#define RANGE_SENSORS_GAZEBO_ID 2
+#ifndef RANGE_SENSOR_ARRAY_RAY_SENSOR_GAZEBO_ID
+#define RANGE_SENSOR_ARRAY_RAY_SENSOR_GAZEBO_ID 2
 #endif
 
-#ifndef AGL_RANGE_SENSORS_ID
-#define AGL_RANGE_SENSORS_ID 3
-#endif
 
-#ifndef AGL_RANGE_SENSORS_GAZEBO_ID
-#define AGL_RANGE_SENSORS_GAZEBO_ID 4
-#endif
+/*
+ * ID's of forcefield generating type functions
+ */
 
 #ifndef RANGE_FORCEFIELD_ID
-#define RANGE_FORCEFIELD_ID 5
+#define RANGE_FORCEFIELD_ID 1
 #endif
 
 
