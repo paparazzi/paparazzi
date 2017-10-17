@@ -175,7 +175,7 @@ let send_cam_status = fun a ->
         and br = quaternion_from_angle (hfv /. -2.0) (vfv /. -2.0) 0.0
         and bl = quaternion_from_angle (hfv /.  2.0) (vfv /. -2.0) 0.0 in
 
-        let gimRot = quaternion_from_angle a.cam.phi a.cam.theta 0.0
+        let gimRot = quaternion_from_angle 0.0 a.cam.theta (-.a.cam.psi)
         and acRot = quaternion_from_angle a.roll a.pitch (-.a.heading) in
 
         let tr_rotated = multiply_quaternion acRot (multiply_quaternion gimRot tr)
@@ -201,11 +201,9 @@ let send_cam_status = fun a ->
         and geo_3 = find_point_on_ground bl_rotated
         and geo_4 = find_point_on_ground br_rotated in
         
-        
         let lats = sprintf "%f,%f,%f,%f," ((Rad>>Deg)geo_1.posn_lat) ((Rad>>Deg)geo_2.posn_lat) ((Rad>>Deg)geo_3.posn_lat) ((Rad>>Deg)geo_4.posn_lat) in  
         let longs = sprintf "%f,%f,%f,%f," ((Rad>>Deg)geo_1.posn_long) ((Rad>>Deg)geo_2.posn_long) ((Rad>>Deg)geo_3.posn_long) ((Rad>>Deg)geo_4.posn_long) in 
         
-
         let twgs84 = Aircraft.add_pos_to_nav_ref nav_ref a.cam.target in
         let values = ["ac_id", PprzLink.String a.id;
                       "lats", PprzLink.String lats;
