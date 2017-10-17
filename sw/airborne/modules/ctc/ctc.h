@@ -35,6 +35,9 @@ typedef struct {
   uint16_t timeout;
   float speed_ref;
   float theta_ref;
+  float speed;
+  float theta;
+  uint16_t time_broad;
 } ctc_con;
 
 extern ctc_con ctc_control;
@@ -44,8 +47,8 @@ extern void ctc_init(void);
 extern bool collective_tracking_control(void);
 extern void send_theta_and_speed_to_nei(void);
 
-extern void parseRegTable(void);
-extern void parseCleanTable(void);
-extern void parseThetaAndSpeedTable(void);
+extern void parse_ctc_RegTable(void);
+extern void parse_ctc_CleanTable(void);
+extern void parse_ctc_ThetaAndSpeedTable(void);
 
 #endif // CTC_H

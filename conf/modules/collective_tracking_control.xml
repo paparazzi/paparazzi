@@ -15,6 +15,7 @@
         <dl_settings NAME="Control">
           <dl_setting MAX="20" MIN="0" STEP="0.2" VAR="ctc_control.k" shortname = "Gain" param="CTC_GAIN_K"/>
           <dl_setting MAX="5000" MIN="0" STEP="1" VAR="ctc_control.timeout" shortname = "Timeout" param="CTC_TIMEOUT"/>
+          <dl_setting MAX="1000" MIN="0" STEP="1" VAR="ctc_control.time_broad" shortname = "Broadcasting time" param="CTC_TIME_BROAD"/>
         </dl_settings>
        </dl_settings>
     </dl_settings>
@@ -26,9 +27,9 @@
 
   <init fun="ctc_init()"/>
 
-  <datalink message="CTC_REG_TABLE" fun="parseRegTable()"/>
-  <datalink message="CTC_CLEAN_TABLE" fun="parseCleanTable()"/>
-  <datalink message="CTC_THETA_AND_SPEED" fun="parseThetaAndSpeedTable()"/>
+  <datalink message="CTC_REG_TABLE" fun="parse_ctc_RegTable()"/>
+  <datalink message="CTC_CLEAN_TABLE" fun="parse_ctc_CleanTable()"/>
+  <datalink message="CTC_THETA_SPEED" fun="parse_ctc_ThetaAndSpeedTable()"/>
 
   <makefile firmware="fixedwing">
     <file name="ctc.c"/>

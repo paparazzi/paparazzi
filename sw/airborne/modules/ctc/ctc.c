@@ -28,12 +28,18 @@
 #include "subsystems/datalink/datalink.h" // dl_buffer
 #include "subsystems/datalink/telemetry.h"
 #include "subsystems/navigation/common_nav.h"
+#include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "autopilot.h"
+
+/*! Max expected number of aircraft */
+#ifndef CTC_MAX_AC
+#define CTC_MAX_AC 4
+#endif
 
 #if PERIODIC_TELEMETRY
 static void send_ctc(struct transport_tx *trans, struct link_device *dev)
 {
-  // pprz_msg_send_CTC(trans, dev, AC_ID, error);
+   pprz_msg_send_CTC(trans, dev, AC_ID, 4*CTC_MAX_AC, &(tableNei[0][0]));
 }
 #endif // PERIODIC TELEMETRY
 
@@ -42,17 +48,17 @@ static void send_ctc(struct transport_tx *trans, struct link_device *dev)
 #ifndef CTC_GAIN_K
 #define CTC_GAIN_K 10
 #endif
-/*! Default timeout for the neighbors' information */
+/*! Default timeout in ms for the neighbors' information */
 #ifndef CTC_TIMEOUT
 #define CTC_TIMEOUT 1500
 #endif
-
-ctc_con ctc_control = {CTC_GAIN_K, CTC_TIMEOUT, 0, 0};
-
-/*! Max expected number of aircraft */
-#ifndef CTC_MAX_AC
-#define CTC_MAX_AC 4
+/*! Default time in ms for broadcasting information */
+#ifndef CTC_TIME_BROAD
+#define CTC_TIME_BROAD 200
 #endif
+
+ctc_con ctc_control = {CTC_GAIN_K, CTC_TIMEOUT, 0, 0, 0, 0, CTC_TIME_BROAD};
+
 int16_t tableNei[CTC_MAX_AC][4];
 uint32_t last_info[CTC_MAX_AC];
 uint32_t last_transmision = 0;
@@ -70,87 +76,104 @@ void ctc_init(void)
 
 bool collective_tracking_control()
 {
-  struct EnuCoor_f *p = stateGetPositionEnu_f();
-  float x = p->x;
-  float y = p->y;
+  struct FloatEulers *att = stateGetNedToBodyEulers_f();
+  struct EnuCoor_f *v = stateGetSpeedEnu_f();
+  float vx = v->x;
+  float vy = v->y;
+
+  ctc_control.speed = sqrtf(vx*vx + vy*vy);
+  ctc_control.theta = atan2f(vy, vx);
+
   float u = 0;
 
   uint32_t now = get_sys_time_msec();
 
+  int num_neighbors = 0;
+
   for (int i = 0; i < CTC_MAX_AC; i++) {
     if (tableNei[i][0] != -1) {
-      uint32_t timeout = now - last_theta[i];
+      uint32_t timeout = now - last_info[i];
       if (timeout > ctc_control.timeout) {
         tableNei[i][3] = ctc_control.timeout;
       } else {
         tableNei[i][3] = (uint16_t)timeout;
-
-       // u += e;
+        num_neighbors++;
+        float speed_nei = tableNei[i][1] / 100;
+        float theta_nei = tableNei[i][2] * M_PI / 1800;
+        u += speed_nei*sinf(theta_nei - ctc_control.theta);
       }
     }
   }
 
-  if ((now - last_transmision > 200) && (autopilot_get_mode() == AP_MODE_AUTO2)) {
-    send_theta_and_vel_to_nei();
+  if(num_neighbors != 0)
+      u /= num_neighbors;
+
+  u -= ctc_control.speed_ref*sinf(ctc_control.theta_ref - ctc_control.theta);
+  u *= (ctc_control.k + ctc_control.speed);
+
+  if (autopilot_get_mode() == AP_MODE_AUTO2) {
+    h_ctl_roll_setpoint =
+      -atanf(u * ctc_control.speed / 9.8 / cosf(att->theta));
+    BoundAbs(h_ctl_roll_setpoint, h_ctl_roll_max_setpoint);
+
+    lateral_mode = LATERAL_MODE_ROLL;
+  }
+
+  if (((now - last_transmision) > ctc_control.time_broad) && (autopilot_get_mode() == AP_MODE_AUTO2)) {
+    send_theta_and_speed_to_nei();
     last_transmision = now;
   }
 
   return true;
 }
 
-void send_theta_and_vel_to_nei(void)
+void send_theta_and_speed_to_nei(void)
 {
   struct pprzlink_msg msg;
 
-  for (int i = 0; i < CTC_MAX_NEIGHBORS; i++)
+  for (int i = 0; i < CTC_MAX_AC; i++)
     if (tableNei[i][0] != -1) {
       msg.trans = &(DefaultChannel).trans_tx;
       msg.dev = &(DefaultDevice).device;
       msg.sender_id = AC_ID;
       msg.receiver_id = tableNei[i][0];
       msg.component_id = 0;
-      //pprzlink_msg_send_CTC_THETA_AND_VEL(&msg, &(dcf_control.theta));
+      pprzlink_msg_send_CTC_THETA_SPEED(&msg, &ctc_control.theta, &ctc_control.speed);
     }
 }
 
-void parseRegTable(void)
+void parse_ctc_RegTable(void)
 {
-  uint8_t ac_id = DL_DCF_REG_TABLE_ac_id(dl_buffer);
+  uint8_t ac_id = DL_CTC_REG_TABLE_ac_id(dl_buffer);
   if (ac_id == AC_ID) {
-    uint8_t nei_id = DL_DCF_REG_TABLE_nei_id(dl_buffer);
-    int16_t desired_sigma = DL_DCF_REG_TABLE_desired_sigma(dl_buffer);
-
-    for (int i = 0; i < DCF_MAX_NEIGHBORS; i++)
-      if (tableNei[i][0] == (int16_t)nei_id) {
-        tableNei[i][0] = (int16_t)nei_id;
-        tableNei[i][2] = desired_sigma;
-        return;
-      }
+    uint8_t nei_id = DL_CTC_REG_TABLE_nei_id(dl_buffer);
+    ctc_control.speed_ref = DL_CTC_REG_TABLE_desired_speed(dl_buffer) / 100;
+    ctc_control.theta_ref = DL_CTC_REG_TABLE_desired_theta(dl_buffer) * M_PI/1800;
 
     for (int i = 0; i < DCF_MAX_NEIGHBORS; i++)
       if (tableNei[i][0] == -1) {
         tableNei[i][0] = (int16_t)nei_id;
-        tableNei[i][2] = desired_sigma;
         return;
       }
   }
 }
 
-void parseCleanTable(void)
+void parse_ctc_CleanTable(void)
 {
-  uint8_t ac_id = DL_DCF_REG_TABLE_ac_id(dl_buffer);
+  uint8_t ac_id = DL_CTC_REG_TABLE_ac_id(dl_buffer);
   if (ac_id == AC_ID)
     for (int i = 0; i < DCF_MAX_NEIGHBORS; i++)
       tableNei[i][0] = -1;
 }
 
-void parseThetaAndVelTable(void)
+void parse_ctc_ThetaAndSpeedTable(void)
 {
   int16_t sender_id = (int16_t)(SenderIdOfPprzMsg(dl_buffer));
   for (int i = 0; i < DCF_MAX_NEIGHBORS; i++)
     if (tableNei[i][0] == sender_id) {
-      last_theta[i] = get_sys_time_msec();
-      tableNei[i][1] = (int16_t)((DL_DCF_THETA_theta(dl_buffer)) * 1800 / M_PI);
+      last_info[i] = get_sys_time_msec();
+      tableNei[i][1] = (int16_t)DL_CTC_THETA_SPEED_speed(dl_buffer);
+      tableNei[i][2] = (int16_t)((DL_CTC_THETA_SPEED_theta(dl_buffer)) * 1800 / M_PI);
       break;
     }
 }
