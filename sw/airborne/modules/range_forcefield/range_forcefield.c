@@ -115,7 +115,7 @@ void range_sensor_single_velocity_force_field(struct FloatVect3 *vel_avoid_body,
   } else if (range < avoid_outer_border) {
     // Linear
     avoid_command -= (max_vel_command_lc - min_vel_command_lc) *
-                     (range - range)
+                     (avoid_outer_border - range)
                      / difference_inner_outer;
   }
 

@@ -33,8 +33,11 @@
     <!--module name="logger_file"/-->
     <module name="video_thread">
     </module>
+   <module name="mag_pitot_uart.xml">
+       <configure name="MAG_PITOT_BAUD" value="38400"/>
+       <configure name="MAG_PITOT_PORT" value="UART1"/>
+   </module>
     <module name="range_forcefield"/>
-    <module name="mag_pitot_uart"/>
   </firmware>
 
 
@@ -70,11 +73,17 @@
   </command_laws>
 
 
-  <section name="MAG_PITOT" prefix="MAG_PITOT">
-      <define name="PORT" value="UART1"/>
-      <define name="BAUD" value="38400"/>
+<!--Orientation of the laser array with 4 sensors relative from the body fixed coordinates
+, with the hand right rule with eulerangle order of (phi, theta, phi) in [rad]:
+       0) (0,  0, -1.57) -> left
+       1) (0, 1.57, 0) -> up
+       2) (0, 0, 1.57) -> right
+       4) (0, -1.57, 0) -> down
+-->
+  <section name="MAG_PITOT" prefix="MAG_PITOT_">
       <define name="REMOTE_GROUND_AMOUNT_SENSORS" value="4"/>
-      <define name="REMOTE_GROUND_ORIENTATIONS" value="0., 0., 0., 0., 0., 1.57,  0., 0., -1.57, 0., 0., 3.14" type="double[]"/>
+      <define name="REMOTE_GROUND_ORIENTATIONS" value="0., 0., -1.57, 0., 1.57, 0.,  0., 0., 1.57, 0., -1.57, 0." type="double[]"/>
+      <define name="REMOTE_GROUND_ORIENTATION_AGL" value="0., -1.57, 0." type="double[]"/>
   </section>
 
   <section name="IMU" prefix="IMU_">
