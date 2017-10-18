@@ -84,9 +84,9 @@ void imu_navgo_init(void)
 
 #if NAVGO_USE_MEDIAN_FILTER
   // Init median filters
-  InitMedianFilterRatesInt(median_gyro);
-  InitMedianFilterVect3Int(median_accel);
-  InitMedianFilterVect3Int(median_mag);
+  InitMedianFilterRatesInt(median_gyro, MEDIAN_DEFAULT_SIZE);
+  InitMedianFilterVect3Int(median_accel, MEDIAN_DEFAULT_SIZE);
+  InitMedianFilterVect3Int(median_mag, MEDIAN_DEFAULT_SIZE);
 #endif
 }
 

@@ -88,5 +88,16 @@ extern bool autopilot_guided_move_ned(float vx, float vy, float vz, float headin
  */
 extern void autopilot_guided_update(uint8_t flags, float x, float y, float z, float yaw);
 
+/** Bitmask for setting the flags attribute in autopilot_guided_update function
+ *  See function description for more details
+ */
+#define GUIDED_FLAG_XY_OFFSET   (1<<0)
+#define GUIDED_FLAG_XY_BODY     (1<<1)
+#define GUIDED_FLAG_Z_OFFSET    (1<<2)
+#define GUIDED_FLAG_YAW_OFFSET  (1<<3)
+#define GUIDED_FLAG_XY_VEL      (1<<5)
+#define GUIDED_FLAG_Z_VEL       (1<<6)
+#define GUIDED_FLAG_YAW_RATE    (1<<7)
+
 #endif /* AUTOPILOT_GUIDED_H */
 

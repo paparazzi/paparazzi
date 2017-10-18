@@ -302,4 +302,14 @@
 #define MAG_CALIB_UKF_ID 20
 #endif
 
+
+/*
+ * IDs of Computer Vision Calculated variables
+ */
+
+#ifndef CV_COLORDETECTION
+#define CV_COLORDETECTION 1
+#endif
+
+
 #endif /* ABI_SENDER_IDS_H */

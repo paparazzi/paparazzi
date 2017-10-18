@@ -1,3 +1,9 @@
+Paparazzi v5.12_stable
+======================
+
+Stable version release
+
+
 Paparazzi v5.11_devel
 =====================
 
@@ -5,16 +11,29 @@ Update changelog
 
 General
 -------
-- updated to pprzlink v.2.0. [#2083] https://github.com/paparazzi/paparazzi/pull/2083
-- HITL as a standalone target [#2062] https://github.com/paparazzi/paparazzi/pull/2062
-- Added Gazebo as simulation backend for NPS [#2069] https://github.com/paparazzi/paparazzi/pull/2069
+- updated to pprzlink v.2.0.
+  [#2083] (https://github.com/paparazzi/paparazzi/pull/2083)
+- HITL as a standalone target
+  [#2062] (https://github.com/paparazzi/paparazzi/pull/2062)
+- Added Gazebo as simulation backend for NPS
+  [#2069] (https://github.com/paparazzi/paparazzi/pull/2069)
+- conversion of subsystems to modules
+  [#1978] (https://github.com/paparazzi/paparazzi/pull/1978)
+  [#1985] (https://github.com/paparazzi/paparazzi/pull/1985)
+  [#1989] (https://github.com/paparazzi/paparazzi/pull/1989)
+- live MAG calibration tool and onboard calibration algorithm
+  [#2043] (https://github.com/paparazzi/paparazzi/pull/2043)
+  [#1977] (https://github.com/paparazzi/paparazzi/pull/1977)
 - possibility to use generated autopilot for rotorcraft
+  [#2055] (https://github.com/paparazzi/paparazzi/pull/2055)
   [#1975] (http://github.com/paparazzi/paparazzi/pull/1975)
 - also compile C++ files
   [#1561] (http://github.com/paparazzi/paparazzi/pull/1561)
 - mag live calibration tool
   [#1977] (http://github.com/paparazzi/paparazzi/pull/1977)
 - flight plans
+  [#2106] (http://github.com/paparazzi/paparazzi/pull/2106)
+  [#2101] (http://github.com/paparazzi/paparazzi/pull/2101)
   [#1970] (http://github.com/paparazzi/paparazzi/pull/1970)
   [#1967] (http://github.com/paparazzi/paparazzi/pull/1967)
   [#1943] (http://github.com/paparazzi/paparazzi/pull/1943)
@@ -22,7 +41,7 @@ General
   [#1900] (http://github.com/paparazzi/paparazzi/pull/1900)
 - mission index
   [#1918] (http://github.com/paparazzi/paparazzi/pull/1918)
-- sevral conf cleaning
+- several conf cleaning
 - NPS update
   [#1831] (http://github.com/paparazzi/paparazzi/pull/1931)
 - mini package manager
@@ -30,10 +49,36 @@ General
 
 Airborne
 --------
-- initial support for Parrot Swing [#2085] https://github.com/paparazzi/paparazzi/pull/2085
-- polygon survey via Guidance Vector Field [#2052] https://github.com/paparazzi/paparazzi/pull/2052
-- added support for Chimera autopilot [#2018] https://github.com/paparazzi/paparazzi/pull/2018
-- added support for Parrod Disco [#1992] https://github.com/paparazzi/paparazzi/pull/1992
+- cleaning TUDelft stereocam modules
+  [#2107] (https://github.com/paparazzi/paparazzi/pull/2107)
+- support of lisa mxs board
+  [#2104] (https://github.com/paparazzi/paparazzi/pull/2104)
+- initial support for Parrot Swing
+  [#2085] (https://github.com/paparazzi/paparazzi/pull/2085)
+- initial support for Decawave DW1000 modules
+  [#2084] (https://github.com/paparazzi/paparazzi/pull/2084)
+- polygon survey via Guidance Vector Field
+  [#2052] (https://github.com/paparazzi/paparazzi/pull/2052)
+- added support of RTK with UBlox8 modules
+  [#2034] (https://github.com/paparazzi/paparazzi/pull/2034)
+- added support of HOTT radio control
+  [#2030] (https://github.com/paparazzi/paparazzi/pull/2030)
+- added support for Chimera autopilot
+  [#2018] (https://github.com/paparazzi/paparazzi/pull/2018)
+- refactoring autopilot code
+  [#2009] (https://github.com/paparazzi/paparazzi/pull/2009)
+- several improvments to Hybrid control and INDI
+  [#2063] (https://github.com/paparazzi/paparazzi/pull/2063)
+  [#2011] (https://github.com/paparazzi/paparazzi/pull/2011)
+  [#2005] (https://github.com/paparazzi/paparazzi/pull/2005)
+  [#2004] (https://github.com/paparazzi/paparazzi/pull/2004)
+  [#2003] (https://github.com/paparazzi/paparazzi/pull/2003)
+  [#2002] (https://github.com/paparazzi/paparazzi/pull/2002)
+- added support for ChibiOS on rotorcraft
+  [#1999] (https://github.com/paparazzi/paparazzi/pull/1999)
+- added support for Parrod Disco
+  [#2066] (https://github.com/paparazzi/paparazzi/pull/2066)
+  [#1992] (https://github.com/paparazzi/paparazzi/pull/1992)
 - convert telemetry subsystems to modules
   [#1835] (http://github.com/paparazzi/paparazzi/pull/1835)
 - change behavior of command laws
@@ -57,6 +102,8 @@ Airborne
 - lidar lite and teraranger drivers
   [#1926] (http://github.com/paparazzi/paparazzi/pull/1926)
   [#1888] (http://github.com/paparazzi/paparazzi/pull/1888)
+- variable size median filter
+  [#1909] (http://github.com/paparazzi/paparazzi/pull/1909)
 
 
 Paparazzi v5.10_stable

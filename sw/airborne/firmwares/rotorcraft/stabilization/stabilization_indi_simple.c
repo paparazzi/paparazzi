@@ -94,14 +94,16 @@ struct IndiVariables indi = {
     STABILIZATION_INDI_REF_ERR_R,
     STABILIZATION_INDI_REF_RATE_P,
     STABILIZATION_INDI_REF_RATE_Q,
-    STABILIZATION_INDI_REF_RATE_R},
+    STABILIZATION_INDI_REF_RATE_R
+  },
 
   /* Estimation parameters for adaptive INDI */
   .est = {
     .g1 = {
       STABILIZATION_INDI_G1_P / INDI_EST_SCALE,
       STABILIZATION_INDI_G1_Q / INDI_EST_SCALE,
-      STABILIZATION_INDI_G1_R / INDI_EST_SCALE},
+      STABILIZATION_INDI_G1_R / INDI_EST_SCALE
+    },
     .g2 = STABILIZATION_INDI_G2_R / INDI_EST_SCALE,
     .mu = STABILIZATION_INDI_ADAPTIVE_MU,
   },
@@ -135,6 +137,20 @@ static void send_att_indi(struct transport_tx *trans, struct link_device *dev)
                                    &g1_disp.r,
                                    &g2_disp);
 }
+
+static void send_ahrs_ref_quat(struct transport_tx *trans, struct link_device *dev)
+{
+  struct Int32Quat *quat = stateGetNedToBodyQuat_i();
+  pprz_msg_send_AHRS_REF_QUAT(trans, dev, AC_ID,
+                              &stab_att_sp_quat.qi,
+                              &stab_att_sp_quat.qx,
+                              &stab_att_sp_quat.qy,
+                              &stab_att_sp_quat.qz,
+                              &(quat->qi),
+                              &(quat->qx),
+                              &(quat->qy),
+                              &(quat->qz));
+}
 #endif
 
 void stabilization_indi_init(void)
@@ -144,18 +160,20 @@ void stabilization_indi_init(void)
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STAB_ATTITUDE_INDI, send_att_indi);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AHRS_REF_QUAT, send_ahrs_ref_quat);
 #endif
 }
 
-void indi_init_filters(void) {
+void indi_init_filters(void)
+{
   // tau = 1/(2*pi*Fc)
-  float tau = 1.0/(2.0*M_PI*STABILIZATION_INDI_FILT_CUTOFF);
-  float tau_r = 1.0/(2.0*M_PI*STABILIZATION_INDI_FILT_CUTOFF_R);
+  float tau = 1.0 / (2.0 * M_PI * STABILIZATION_INDI_FILT_CUTOFF);
+  float tau_r = 1.0 / (2.0 * M_PI * STABILIZATION_INDI_FILT_CUTOFF_R);
   float tau_axis[3] = {tau, tau, tau_r};
-  float tau_est = 1.0/(2.0*M_PI*STABILIZATION_INDI_ESTIMATION_FILT_CUTOFF);
-  float sample_time = 1.0/PERIODIC_FREQUENCY;
+  float tau_est = 1.0 / (2.0 * M_PI * STABILIZATION_INDI_ESTIMATION_FILT_CUTOFF);
+  float sample_time = 1.0 / PERIODIC_FREQUENCY;
   // Filtering of gyroscope and actuators
-  for(int8_t i=0; i<3; i++) {
+  for (int8_t i = 0; i < 3; i++) {
     init_butterworth_2_low_pass(&indi.u[i], tau_axis[i], sample_time, 0.0);
     init_butterworth_2_low_pass(&indi.rate[i], tau_axis[i], sample_time, 0.0);
     init_butterworth_2_low_pass(&indi.est.u[i], tau_est, sample_time, 0.0);
@@ -228,7 +246,8 @@ void stabilization_indi_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading)
  * @param filter The filter array to use
  * @param new_values The new values
  */
-static inline void filter_pqr(Butterworth2LowPass *filter, struct FloatRates *new_values) {
+static inline void filter_pqr(Butterworth2LowPass *filter, struct FloatRates *new_values)
+{
   update_butterworth_2_low_pass(&filter[0], new_values->p);
   update_butterworth_2_low_pass(&filter[1], new_values->q);
   update_butterworth_2_low_pass(&filter[2], new_values->r);
@@ -241,9 +260,10 @@ static inline void filter_pqr(Butterworth2LowPass *filter, struct FloatRates *ne
  * @param output The output array
  * @param filter The filter array input
  */
-static inline void finite_difference_from_filter(float *output, Butterworth2LowPass *filter) {
-  for(int8_t i=0; i<3; i++) {
-    output[i] = (filter[i].o[0] - filter[i].o[1])*PERIODIC_FREQUENCY;
+static inline void finite_difference_from_filter(float *output, Butterworth2LowPass *filter)
+{
+  for (int8_t i = 0; i < 3; i++) {
+    output[i] = (filter[i].o[0] - filter[i].o[1]) * PERIODIC_FREQUENCY;
   }
 }
 
@@ -254,8 +274,9 @@ static inline void finite_difference_from_filter(float *output, Butterworth2LowP
  * @param new[3] The newest values
  * @param old[3] The values of the previous timestep
  */
-static inline void finite_difference(float output[3], float new[3], float old[3]) {
-  for(int8_t i=0; i<3; i++) {
+static inline void finite_difference(float output[3], float new[3], float old[3])
+{
+  for (int8_t i = 0; i < 3; i++) {
     output[i] = (new[i] - old[i])*PERIODIC_FREQUENCY;
   }
 }
@@ -300,12 +321,12 @@ static inline void stabilization_indi_calc_cmd(int32_t indi_commands[], struct I
                              - indi.reference_acceleration.rate_q * rates_for_feedback.q;
 
   //This separates the P and D controller and lets you impose a maximum yaw rate.
-  float rate_ref_r = indi.reference_acceleration.err_r * QUAT1_FLOAT_OF_BFP(att_err->qz)/indi.reference_acceleration.rate_r;
+  float rate_ref_r = indi.reference_acceleration.err_r * QUAT1_FLOAT_OF_BFP(att_err->qz) / indi.reference_acceleration.rate_r;
   BoundAbs(rate_ref_r, indi.attitude_max_yaw_rate);
   indi.angular_accel_ref.r = indi.reference_acceleration.rate_r * (rate_ref_r - rates_for_feedback.r);
 
   /* Check if we are running the rate controller and overwrite */
-  if(rate_control) {
+  if (rate_control) {
     indi.angular_accel_ref.p =  indi.reference_acceleration.rate_p * ((float)radio_control.values[RADIO_ROLL]  / MAX_PPRZ * indi.max_rate - body_rates->p);
     indi.angular_accel_ref.q =  indi.reference_acceleration.rate_q * ((float)radio_control.values[RADIO_PITCH] / MAX_PPRZ * indi.max_rate - body_rates->q);
     indi.angular_accel_ref.r =  indi.reference_acceleration.rate_r * ((float)radio_control.values[RADIO_YAW]   / MAX_PPRZ * indi.max_rate - body_rates->r);
@@ -325,9 +346,17 @@ static inline void stabilization_indi_calc_cmd(int32_t indi_commands[], struct I
   indi.u_in.r = indi.u[2].o[0] + indi.du.r;
 
   //bound the total control input
+#if STABILIZATION_INDI_FULL_AUTHORITY
+  Bound(indi.u_in.p, -9600, 9600);
+  Bound(indi.u_in.q, -9600, 9600);
+  float rlim = 9600 - fabs(indi.u_in.q);
+  Bound(indi.u_in.r, -rlim, rlim);
+  Bound(indi.u_in.r, -9600, 9600);  
+#else
   Bound(indi.u_in.p, -4500, 4500);
   Bound(indi.u_in.q, -4500, 4500);
   Bound(indi.u_in.r, -4500, 4500);
+#endif
 
   //Propagate input filters
   //first order actuator dynamics

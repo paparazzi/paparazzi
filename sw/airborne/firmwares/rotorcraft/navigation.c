@@ -213,6 +213,9 @@ void nav_init(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ROTORCRAFT_NAV_STATUS, send_nav_status);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WP_MOVED, send_wp_moved);
 #endif
+
+  // generated init function
+  auto_nav_init();
 }
 
 static inline void UNUSED nav_advance_carrot(void)

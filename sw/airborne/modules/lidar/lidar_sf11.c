@@ -52,7 +52,7 @@ void lidar_sf11_init(void)
   lidar_sf11.distance = 0;
   lidar_sf11.distance_raw = 0;
 
-  init_median_filter(&lidar_sf11_filter);
+  init_median_filter_i(&lidar_sf11_filter, MEDIAN_DEFAULT_SIZE);
 }
 
 /**
@@ -100,7 +100,7 @@ void lidar_sf11_periodic(void)
     case LIDAR_SF11_READ_OK:
       // process results
       // filter data
-      lidar_sf11.distance_raw = update_median_filter(
+      lidar_sf11.distance_raw = update_median_filter_i(
                                   &lidar_sf11_filter,
                                   (uint32_t)((lidar_sf11.trans.buf[0] << 8) | lidar_sf11.trans.buf[1]));
       lidar_sf11.distance = ((float)lidar_sf11.distance_raw)/100.0;

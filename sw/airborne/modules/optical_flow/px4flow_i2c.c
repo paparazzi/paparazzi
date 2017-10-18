@@ -98,7 +98,7 @@ static inline void px4flow_i2c_frame_cb(void)
   static float ground_distance_float = 0.0;
 
   // update filter
-  ground_distance = update_median_filter(&sonar_filter, (int32_t)px4flow.i2c_frame.ground_distance);
+  ground_distance = update_median_filter_i(&sonar_filter, (int32_t)px4flow.i2c_frame.ground_distance);
   ground_distance_float = ((float)ground_distance) / 1000.0;
 
   // compensate AGL measurement for body rotation
@@ -141,7 +141,7 @@ void px4flow_i2c_init(void)
   px4flow.compensate_rotation = PX4FLOW_COMPENSATE_ROTATION;
   px4flow.stddev = PX4FLOW_NOISE_STDDEV;
 
-  init_median_filter(&sonar_filter);
+  init_median_filter_i(&sonar_filter, PX4FLOW_MEDIAN_LENGTH);
 }
 
 /**
