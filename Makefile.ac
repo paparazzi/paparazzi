@@ -162,13 +162,17 @@ $(SRCS_LIST) : $(CONF_XML) $(AIRFRAME_H) $(MODULES_H) autopilot_h $(SETTINGS_H) 
 	@echo -n "headers:  " >> $(SRCS_LIST)
 	@echo $(VPATH) > $(TMP_LIST)
 	@echo $($(TARGET).srcs) >> $(TMP_LIST)
+ifeq (,$(findstring cpp,$($(TARGET).srcs)))
 	@echo $(CFLAGS) >> $(TMP_LIST)
 	@echo $(IINCDIR) >> $(TMP_LIST)
 	@echo $(TOPT)>> $(TMP_LIST)	
 	@echo ../../sw/tools/find_vpaths.py $(CC)  $(TMP_LIST) $(PAPARAZZI_SRC)
-ifeq (,$(findstring cpp,$($(TARGET).srcs)))
 	$(Q)cd $(PAPARAZZI_SRC) ; ./sw/tools/find_vpaths.py $(CC) $(TMP_LIST) $(PAPARAZZI_SRC) >> $(SRCS_LIST) 
 else
+	@echo $(CXXFLAGS) >> $(TMP_LIST)
+	@echo $(IINCDIR) >> $(TMP_LIST)
+	@echo $(TOPT)>> $(TMP_LIST)	
+	@echo ../../sw/tools/find_vpaths.py $(CXX)  $(TMP_LIST) $(PAPARAZZI_SRC)
 	$(Q)cd $(PAPARAZZI_SRC) ; ./sw/tools/find_vpaths.py $(CXX) $(TMP_LIST) $(PAPARAZZI_SRC) >> $(SRCS_LIST)
 endif
 
