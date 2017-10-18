@@ -175,7 +175,7 @@ let send_cam_status = fun a ->
         and br = quaternion_from_angle (hfv /. -2.0) (vfv /. -2.0) 0.0
         and bl = quaternion_from_angle (hfv /.  2.0) (vfv /. -2.0) 0.0 in
 
-        let gimRot = quaternion_from_angle 0.0 a.cam.theta (-.a.cam.psi)
+        let gimRot = quaternion_from_angle 0.0 (-.a.cam.tilt) (-.a.cam.pan)
         and acRot = quaternion_from_angle a.roll a.pitch (-.a.heading) in
 
         let tr_rotated = multiply_quaternion acRot (multiply_quaternion gimRot tr)

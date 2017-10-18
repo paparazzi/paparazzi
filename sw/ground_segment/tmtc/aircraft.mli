@@ -23,8 +23,8 @@
 (** State of an A/C handled by the server *)
 
 type ac_cam = {
-    mutable psi : float; (* Rad, right = >0 *)
-    mutable theta : float; (* Rad, front = >0 *)
+    mutable pan : float; (* Rad, right = >0 *)
+    mutable tilt : float; (* Rad, front = >0 *)
     mutable target : (float * float) (* meter*meter relative *)
   }
 

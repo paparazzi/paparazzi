@@ -23,8 +23,8 @@
 open Latlong
 
 type ac_cam = {
-  mutable psi : float; (* Rad, right = >0 *)
-  mutable theta : float; (* Rad, front = >0 *)
+  mutable pan : float; (* Rad, right = >0 *)
+  mutable tilt : float; (* Rad, front = >0 *)
   mutable target : (float * float) (* meter*meter relative *)
 }
 
@@ -227,7 +227,7 @@ let new_aircraft = fun id name fp airframe ->
     gaz_mode= -1; lateral_mode= -1;
     gps_mode = 0; gps_Pacc = 0; periodic_callbacks = [];
     state_filter_mode = 0;
-    cam = { psi = 0.; theta = 0. ; target=(0.,0.)};
+    cam = { pan = 0.; tilt = 0. ; target=(0.,0.)};
     camaov = get_cam_aov airframe;
     fbw = { rc_status = "???"; rc_mode = "???"; rc_rate=0; fbw_bat=0.; pprz_mode_msgs_since_last_fbw_status_msg=0 };
     svinfo = svsinfo_init;
