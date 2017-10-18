@@ -30,7 +30,7 @@
 bool i2c_idle(struct i2c_periph *p __attribute__((unused))) { return true; }
 bool i2c_submit(struct i2c_periph *p __attribute__((unused)), struct i2c_transaction *t __attribute__((unused))) { return true;}
 void i2c_event(void) { }
-void i2c2_setbitrate(int bitrate __attribute__((unused))) { }
+void i2c_setbitrate(struct i2c_periph *p __attribute__((unused)), int bitrate __attribute__((unused))) { }
 
 #if USE_I2C0
 struct i2c_errors i2c0_errors;

@@ -83,10 +83,15 @@
   <header/>
   <makefile target="nps">
   	<raw>
-  	nps.CXXFLAGS  += $(shell pkg-config gazebo --cflags)
-    nps.LDFLAGS += $(shell pkg-config gazebo --libs)
+          nps.CXXFLAGS += $(shell pkg-config gazebo --cflags opencv)
+          nps.LDFLAGS  += $(shell pkg-config gazebo --libs)
   	</raw>
     <file name="nps_fdm_gazebo.cpp" dir="nps"/>
+
+    <!--OPENCV-->
+    <flag name="LDFLAGS" value="lopencv_imgproc" />
+    <flag name="LDFLAGS" value="lopencv_highgui" />
+    <flag name="LDFLAGS" value="lopencv_core" />
   </makefile>
 </module>
 

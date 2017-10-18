@@ -31,10 +31,19 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
+
+#ifdef NPS_DEBUG_VIDEO
+// Opencv tools
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#endif
+
 #include <cstdio>
 #include <cstdlib>
 #include <string>
 #include <iostream>
+#include <sys/time.h>
 
 #include <gazebo/gazebo.hh>
 #include <gazebo/common/common.hh>
@@ -43,20 +52,13 @@
 #include <gazebo/gazebo_config.h>
 
 extern "C" {
-#include <sys/time.h>
-
 #include "nps_fdm.h"
-#include "math/pprz_algebra_double.h"
 
 #include "generated/airframe.h"
 #include "autopilot.h"
 
-#ifdef NPS_SIMULATE_VIDEO
-#include "modules/computer_vision/cv.h"
-#include "modules/computer_vision/video_thread_nps.h"
-#include "modules/computer_vision/lib/vision/image.h"
-#include "mcu_periph/sys_time.h"
-#endif
+#include "math/pprz_isa.h"
+#include "math/pprz_algebra_double.h"
 }
 
 using namespace std;
@@ -70,6 +72,13 @@ using namespace std;
 
 // Add video handling functions if req'd.
 #ifdef NPS_SIMULATE_VIDEO
+extern "C" {
+#include "modules/computer_vision/cv.h"
+#include "modules/computer_vision/video_thread_nps.h"
+#include "modules/computer_vision/lib/vision/image.h"
+#include "mcu_periph/sys_time.h"
+}
+
 static void init_gazebo_video(void);
 static void gazebo_read_video(void);
 static void read_image(
@@ -90,10 +99,13 @@ struct NpsFdm fdm;
 static bool gazebo_initialized = false;
 static gazebo::physics::ModelPtr model = NULL;
 
+// Get contact sensor
+static gazebo::sensors::ContactSensorPtr ct;
+
 // Helper functions
 static void init_gazebo(void);
 static void gazebo_read(void);
-static void gazebo_write(double commands[], int commands_nb);
+static void gazebo_write(double act_commands[], int commands_nb);
 
 // Conversion routines
 inline struct EcefCoor_d to_pprz_ecef(ignition::math::Vector3d ecef_i)
@@ -175,12 +187,12 @@ void nps_fdm_init(double dt)
 /**
  * Update the simulation state.
  * @param launch
- * @param commands
+ * @param act_commands
  * @param commands_nb
  */
 void nps_fdm_run_step(
   bool launch __attribute__((unused)),
-  double *commands,
+  double *act_commands,
   int commands_nb)
 {
   // Initialize Gazebo if req'd.
@@ -201,7 +213,7 @@ void nps_fdm_run_step(
   // Update the simulation for a single timestep.
   gazebo::runWorld(model->GetWorld(), 1);
   gazebo::sensors::run_once();
-  gazebo_write(commands, commands_nb);
+  gazebo_write(act_commands, commands_nb);
   gazebo_read();
 #ifdef NPS_SIMULATE_VIDEO
   gazebo_read_video();
@@ -286,6 +298,11 @@ static void init_gazebo(void)
   gazebo::runWorld(world, 1);
   cout << "Sensors initialized..." << endl;
 
+  // activate collision sensor
+  gazebo::sensors::SensorManager *mgr = gazebo::sensors::SensorManager::Instance();
+  ct = static_pointer_cast < gazebo::sensors::ContactSensor > (mgr->GetSensor("contactsensor"));
+  ct->SetActive(true);
+
   cout << "Gazebo initialized successfully!" << endl;
 }
 
@@ -361,9 +378,15 @@ static void gazebo_read(void)
                              gazebo::common::SphericalCoordinates::GLOBAL)); // Note: unused
   fdm.ltpprz_ecef_accel = fdm.ltp_ecef_accel; // ???
   fdm.body_inertial_accel = fdm.body_ecef_accel; // Approximate, unused.
-  fdm.body_accel = to_pprz_body(
-                     pose.rot.RotateVectorReverse(accel.Ign() - world->Gravity()));
 
+  // only use accelerometer if no collisions or if not on ground
+  if (ct->Contacts().contact_size() || pose.pos.z < 0.03){
+    fdm.body_accel = to_pprz_body(
+                     pose.rot.RotateVectorReverse(-world->Gravity()));
+  } else {
+    fdm.body_accel = to_pprz_body(
+                     pose.rot.RotateVectorReverse(accel.Ign() - world->Gravity()));
+  }
   /* attitude */
   // ecef_to_body_quat: unused
   fdm.ltp_to_body_eulers = to_pprz_eulers(local_to_global_quat * pose.rot);
@@ -398,7 +421,7 @@ static void gazebo_read(void)
   fdm.pressure_sl = 101325; // Pa
 
   fdm.airspeed = 0;
-  fdm.pressure = fdm.pressure_sl; // Pa
+  fdm.pressure = pprz_isa_pressure_of_height(fdm.hmsl, fdm.pressure_sl);
   fdm.dynamic_pressure = fdm.pressure_sl; // Pa
   fdm.temperature = 20.0; // C
   fdm.aoa = 0; // rad
@@ -428,23 +451,21 @@ static void gazebo_read(void)
  * NPS_ACTUATOR_NAMES. See conf/simulator/gazebo/models/ardrone/ardrone.sdf
  * for an example.
  *
- * @param commands
+ * @param act_commands
  * @param commands_nb
  */
-static void gazebo_write(double commands[], int commands_nb)
+static void gazebo_write(double act_commands[], int commands_nb)
 {
   const string names[] = NPS_ACTUATOR_NAMES;
   const double thrusts[] = { NPS_ACTUATOR_THRUSTS };
   const double torques[] = { NPS_ACTUATOR_TORQUES };
 
   for (int i = 0; i < commands_nb; ++i) {
-    double thrust = autopilot.motors_on ? thrusts[i] * commands[i] : 0.0;
-    double torque = autopilot.motors_on ? torques[i] * commands[i] : 0.0;
+    double thrust = autopilot.motors_on ? thrusts[i] * act_commands[i] : 0.0;
+    double torque = autopilot.motors_on ? torques[i] * act_commands[i] : 0.0;
     gazebo::physics::LinkPtr link = model->GetLink(names[i]);
     link->AddRelativeForce(gazebo::math::Vector3(0, 0, thrust));
     link->AddRelativeTorque(gazebo::math::Vector3(0, 0, torque));
-    // cout << "Motor '" << link->GetName() << "': thrust = " << thrust
-    //    << " N, torque = " << torque << " Nm" << endl;
   }
 }
 
@@ -526,11 +547,20 @@ static void gazebo_read_video(void)
     if (cam == NULL) { continue; }
     // Skip if not updated
     // Also skip when LastMeasurementTime() is zero (workaround)
-    if (cam->LastMeasurementTime() == gazebo_cams[i].last_measurement_time
+    if ((cam->LastMeasurementTime() - gazebo_cams[i].last_measurement_time).Float() < 0.005
         || cam->LastMeasurementTime() == 0) { continue; }
     // Grab image, convert and send to video thread
     struct image_t img;
     read_image(&img, cam);
+
+#ifdef NPS_DEBUG_VIDEO
+    cv::Mat RGB_cam(cam->ImageHeight(),cam->ImageWidth(),CV_8UC3,(uint8_t *)cam->ImageData());
+    cv::cvtColor(RGB_cam, RGB_cam, cv::COLOR_RGB2BGR);
+    cv::namedWindow(cameras[i]->dev_name, cv::WINDOW_AUTOSIZE);  // Create a window for display.
+    cv::imshow(cameras[i]->dev_name, RGB_cam);
+    cv::waitKey(1);
+#endif
+
     cv_run_device(cameras[i], &img);
     // Free image buffer after use.
     image_free(&img);

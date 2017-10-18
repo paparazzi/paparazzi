@@ -32,7 +32,14 @@ DEBUG_FLAGS ?= -ggdb3
 # Launch with "make Q=''" to get full command display
 Q=@
 
-CFLAGS  = -W -Wall
+# flags for warnings (C and C++)
+WARN_FLAGS += -W -Wall -Wextra
+WARN_FLAGS += -Wunused -Wcast-align -Wpointer-arith -Wswitch-default -Wmissing-declarations
+#WARN_FLAGS += -Wcast-qual
+#WARN_FLAGS += -Wredundant-decls
+#WARN_FLAGS += -Wshadow
+
+CFLAGS  = $(WARN_FLAGS)
 CFLAGS += $(INCLUDES)
 CFLAGS += $($(TARGET).CFLAGS)
 CFLAGS += $(USER_CFLAGS) $(BOARD_CFLAGS)
@@ -41,7 +48,7 @@ CFLAGS += $(DEBUG_FLAGS)
 CFLAGS += -std=gnu99
 CFLAGS += $(shell pkg-config --cflags-only-I ivy-glib)
 
-CXXFLAGS  = -W -Wall
+CXXFLAGS  = $(WARN_FLAGS)
 CXXFLAGS += $(INCLUDES)
 CXXFLAGS += $($(TARGET).CFLAGS)
 CXXFLAGS += $($(TARGET).CXXFLAGS)
