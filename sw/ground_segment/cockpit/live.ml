@@ -1260,10 +1260,20 @@ let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
   let get_cam_status = fun _sender vs ->
     let ac = get_ac vs in
     let a = fun s -> PprzLink.float_assoc s vs in
-    let cam_wgs84 = { posn_lat = (Deg>>Rad)(a "cam_lat"); posn_long = (Deg>>Rad)(a "cam_long") }
-    and target_wgs84 = { posn_lat = (Deg>>Rad)(a "cam_target_lat"); posn_long = (Deg>>Rad)(a "cam_target_long") } in
+    let lats_str = PprzLink.string_assoc "lats" vs in
+    let longs_str = PprzLink.string_assoc "longs" vs in
+    
+    let lats = List.map float_of_string (Str.split list_separator lats_str) in
+    let longs = List.map float_of_string (Str.split list_separator longs_str) in
 
-    ac.track#move_cam cam_wgs84 target_wgs84
+    let target_wgs84 = { posn_lat = (Deg>>Rad)(a "cam_target_lat"); posn_long = (Deg>>Rad)(a "cam_target_long") } in
+    
+    let geo_1 = { posn_lat = (Deg>>Rad)(List.nth lats 0); posn_long = (Deg>>Rad)(List.nth longs 0) } 
+    and geo_2 = { posn_lat = (Deg>>Rad)(List.nth lats 1); posn_long = (Deg>>Rad)(List.nth longs 1) } 
+    and geo_3 = { posn_lat = (Deg>>Rad)(List.nth lats 2); posn_long = (Deg>>Rad)(List.nth longs 2) } 
+    and geo_4 = { posn_lat = (Deg>>Rad)(List.nth lats 3); posn_long = (Deg>>Rad)(List.nth longs 3) } in
+
+    ac.track#move_cam [|geo_1; geo_2; geo_3; geo_4|] target_wgs84
   in
   safe_bind "CAM_STATUS" get_cam_status;
 

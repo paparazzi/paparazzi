@@ -3,7 +3,7 @@
 # --------------------------------------------------
 
 # List of aircraft instances. These are the names defined in conf.xml
-Aircraft=( 'Teensy_Fly_Quad_Elle0' 'Teensy_Fly_Quad' 'Teensy_Fly_Hexa' 'Racer_PEX_Quad' 'Racer_PEX_Hexa' 'Racer_PEX_Octo' )
+Aircraft=( 'Teensy_Fly_Quad_Elle0' 'Teensy_Fly_Quad_Elle0_v1_2_216' 'Teensy_Fly_Quad_Elle0_v1_2_215' 'Teensy_Fly_Quad_Elle0_v1_2_214' 'Teensy_Fly_Quad_Elle0_v1_2_213' 'Teensy_Fly_Quad_Elle0_v1_2_212' 'Teensy_Fly_Quad' 'Teensy_Fly_Hexa' 'Racer_PEX_Quad' 'Racer_PEX_Quad_Elle0_v1_2_223' 'Racer_PEX_Hexa' 'Racer_PEX_Octo' )
 
 # check if running on Linux or OSX
 UNAME=$(uname -s)
@@ -36,6 +36,31 @@ papload_tfqe () {
     make AIRCRAFT=Teensy_Fly_Quad_Elle0 clean_ac FLASH_MODE=DFU-UTIL  ap.upload
 }
 
+papload_tfqev12_216 () {
+    papenv
+    make AIRCRAFT=Teensy_Fly_Quad_Elle0_v1_2_216 clean_ac FLASH_MODE=DFU-UTIL  ap.upload
+}
+
+papload_tfqev12_215 () {
+    papenv
+    make AIRCRAFT=Teensy_Fly_Quad_Elle0_v1_2_215 clean_ac FLASH_MODE=DFU-UTIL  ap.upload
+}
+
+papload_tfqev12_214 () {
+    papenv
+    make AIRCRAFT=Teensy_Fly_Quad_Elle0_v1_2_214 clean_ac FLASH_MODE=DFU-UTIL  ap.upload
+}
+
+papload_tfqev12_213 () {
+    papenv
+    make AIRCRAFT=Teensy_Fly_Quad_Elle0_v1_2_213 clean_ac FLASH_MODE=DFU-UTIL  ap.upload
+}
+
+papload_tfqev12_212 () {
+    papenv
+    make AIRCRAFT=Teensy_Fly_Quad_Elle0_v1_2_212 clean_ac FLASH_MODE=DFU-UTIL  ap.upload
+}
+
 papload_tfq () {
     papenv
     make AIRCRAFT=Teensy_Fly_Quad clean_ac ap.upload BMP_PORT=/dev/bmp-gdb
@@ -49,6 +74,11 @@ papload_tfh () {
 papload_rpq () {
     papenv
     make AIRCRAFT=Racer_PEX_Quad clean_ac ap.upload BMP_PORT=/dev/bmp-gdb
+}
+
+papload_rpqev12_223 () {
+    papenv
+    make AIRCRAFT=Racer_PEX_Quad_Elle0_v1_2_223 clean_ac FLASH_MODE=DFU-UTIL  ap.upload
 }
 
 papload_rph () {
@@ -105,6 +135,11 @@ papsim_stop() {
 	kill $(jobs -p)
 }
 
+pappull () {
+    papenv
+    git pull paparazzi master
+}
+
 papfetch () {
 	papenv
 	git fetch paparazzi
@@ -118,4 +153,26 @@ papmerge () {
 pappush () {
 	papenv
 	git push origin master
+}
+
+paplinkenv () {
+    cd ~/pprzlink
+    if [ $UNAME == "Darwin" ]; then
+        eval `opam config env`
+    fi  
+}
+
+paplinkfetch () {
+    paplinkenv
+    git fetch pprzlink
+}
+
+paplinkmerge () {
+    paplinkenv
+    git merge pprzlink/master
+}
+
+paplinkpush () {
+    paplinkenv
+    git push origin master
 }

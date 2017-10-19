@@ -3,25 +3,25 @@
   <section name="IMU" prefix="IMU_">
 
     <!-- Accelerometer calibration -->
-    <define name="ACCEL_X_NEUTRAL" value="-67"/>
-    <define name="ACCEL_Y_NEUTRAL" value="-19"/>
-    <define name="ACCEL_Z_NEUTRAL" value="219"/>
-    <define name="ACCEL_X_SENS" value="2.44402019869" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="2.44875128187" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="2.42587369757" integer="16"/>
+    <define name="ACCEL_X_NEUTRAL" value="-38"/>
+    <define name="ACCEL_Y_NEUTRAL" value="-9"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-137"/>
+    <define name="ACCEL_X_SENS" value="2.44942966171" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="2.44671655107" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="2.44499730659" integer="16"/>
 
     <!-- Magnetometer calibration -->
-    <define name="MAG_X_NEUTRAL" value="-68"/>
-    <define name="MAG_Y_NEUTRAL" value="-333"/>
-    <define name="MAG_Z_NEUTRAL" value="-305"/>
-    <define name="MAG_X_SENS" value="8.27980230766" integer="16"/>
-    <define name="MAG_Y_SENS" value="8.37184374456" integer="16"/>
-    <define name="MAG_Z_SENS" value="6.60725149679" integer="16"/>
+<define name="MAG_X_NEUTRAL" value="22"/>
+<define name="MAG_Y_NEUTRAL" value="5"/>
+<define name="MAG_Z_NEUTRAL" value="-271"/>
+<define name="MAG_X_SENS" value="10.1580792039" integer="16"/>
+<define name="MAG_Y_SENS" value="8.29839966029" integer="16"/>
+<define name="MAG_Z_SENS" value="6.00338731528" integer="16"/>
 
     <!-- Magnetometer current calibration -->
-    <define name= "MAG_X_CURRENT_COEF" value="-0.00284737868011"/>
-    <define name= "MAG_Y_CURRENT_COEF" value="0.00240832136469"/>
-    <define name= "MAG_Z_CURRENT_COEF" value="-0.000908830770325"/>
+    <define name= "MAG_X_CURRENT_COEF" value="-0.00190237658801"/>
+    <define name= "MAG_Y_CURRENT_COEF" value="0.00206818172337"/>
+    <define name= "MAG_Z_CURRENT_COEF" value="0.00138575021393"/>
 
     <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>

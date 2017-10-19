@@ -21,7 +21,7 @@
     <define name="MT9F002_X_ODD_INC_VAL" value="1"/>
     <define name="MT9F002_Y_ODD_INC_VAL" value="1"/>
 
-    <!--define name="USE_SONAR" value="TRUE"/-->
+    <define name="USE_SONAR" value="true"/>
 
 	<!-- Subsystem section -->
     <module name="telemetry" type="transparent_udp"/>

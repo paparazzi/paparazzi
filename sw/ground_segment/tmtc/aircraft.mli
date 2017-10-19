@@ -23,8 +23,8 @@
 (** State of an A/C handled by the server *)
 
 type ac_cam = {
-    mutable phi : float; (* Rad, right = >0 *)
-    mutable theta : float; (* Rad, front = >0 *)
+    mutable pan : float; (* Rad, right = >0 *)
+    mutable tilt : float; (* Rad, front = >0 *)
     mutable target : (float * float) (* meter*meter relative *)
   }
 
@@ -126,6 +126,7 @@ type aircraft = {
     mutable horizontal_mode : int;
     mutable periodic_callbacks : Glib.Timeout.id list;
     cam : ac_cam;
+    camaov : (float * float);
     mutable gps_mode : int;
     mutable gps_Pacc : int;
     mutable state_filter_mode : int;

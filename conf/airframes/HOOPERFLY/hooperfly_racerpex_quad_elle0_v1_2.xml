@@ -11,6 +11,12 @@
 <airframe name="RacerPEX Quad Elle0 v1_2">
 
   <firmware name="rotorcraft">
+
+    <configure name="RADIO_CONTROL_LED" value="none"/>
+    <configure name="GPS_LED" value="3"/>
+    <define name="LOW_NOISE_THRESHOLD" value="3500"/>
+    <define name="LOW_NOISE_TIME"      value="10"/>
+
     <target name="ap" board="elle0_1.2">
     </target>
 
@@ -85,25 +91,25 @@
 
   <section name="IMU" prefix="IMU_">
     <!-- Accelerometer calibration -->
-    <define name="ACCEL_X_NEUTRAL" value="-99"/>
-    <define name="ACCEL_Y_NEUTRAL" value="-31"/>
-    <define name="ACCEL_Z_NEUTRAL" value="-6"/>
-    <define name="ACCEL_X_SENS" value="2.44943658342" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="2.4508133939" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="2.42774270545" integer="16"/>
+    <define name="ACCEL_X_NEUTRAL" value="-104"/>
+    <define name="ACCEL_Y_NEUTRAL" value="-32"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-10"/>
+    <define name="ACCEL_X_SENS" value="2.44861361621" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="2.45042493913" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="2.42812924191" integer="16"/>
 
     <!-- Magnetometer calibration -->
-    <define name="MAG_X_NEUTRAL" value="244"/>
-    <define name="MAG_Y_NEUTRAL" value="-186"/>
-    <define name="MAG_Z_NEUTRAL" value="-202"/>
-    <define name="MAG_X_SENS" value="9.63426370268" integer="16"/>
-    <define name="MAG_Y_SENS" value="8.12694407541" integer="16"/>
-    <define name="MAG_Z_SENS" value="6.16184541025" integer="16"/>
+    <define name="MAG_X_NEUTRAL" value="236"/>
+    <define name="MAG_Y_NEUTRAL" value="-177"/>
+    <define name="MAG_Z_NEUTRAL" value="-204"/>
+    <define name="MAG_X_SENS" value="9.44875845387" integer="16"/>
+    <define name="MAG_Y_SENS" value="8.37596334381" integer="16"/>
+    <define name="MAG_Z_SENS" value="6.32684865126" integer="16"/>
 
     <!-- Magnetometer current calibration -->
-    <define name= "MAG_X_CURRENT_COEF" value="0.00162839672033"/>
-    <define name= "MAG_Y_CURRENT_COEF" value="0.00309421447631"/>
-    <define name= "MAG_Z_CURRENT_COEF" value="-0.00642385318878"/>
+    <define name= "MAG_X_CURRENT_COEF" value="-0.00171135592158"/>
+    <define name= "MAG_Y_CURRENT_COEF" value="0.000627013357834"/>
+    <define name= "MAG_Z_CURRENT_COEF" value="0.00187410090891"/>
 
     <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>

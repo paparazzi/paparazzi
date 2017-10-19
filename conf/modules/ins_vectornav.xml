@@ -24,6 +24,8 @@
     <define name="VN_PORT" value="$(VN_PORT_LOWER)"/>
     <define name="$(VN_PORT_UPPER)_BAUD" value="$(VN_BAUD)"/>
 
+    <define name="GPS_NB_CHANNELS" value="1" description="define a single GPS channel to show pacc on GCS GPS page"/>
+
     <file name="vn200_serial.c" dir="peripherals"/>
 
     <file name="ins.c" dir="subsystems"/>

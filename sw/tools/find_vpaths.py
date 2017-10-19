@@ -3,55 +3,71 @@
 #It finds the correct VPATH to each source file from make, and then feeds all info to gcc -MM.
 import sys
 import os
-from os import path, getenv
+from os import path, getenv, environ
 
-# first argument is the gcc compiler
-# thereafter are the vpaths closed by a '+'
-# thereafter are the srcs closed by a '+'
-# thereafter are the cflags
+pprzswdir = os.environ['PAPARAZZI_SRC']
+pprzswdir = path.join(pprzswdir, "sw/airborne")
 
-#parse the input arguments into seperate lists
 cc = sys.argv[1]
-vpaths = list()
-srcs = list()
-cflags = list()
-mode = 0
-for i in range(2,len(sys.argv)):
-    vpath = sys.argv[i]
-    if vpath == '+':
-        mode = mode + 1
-    else:
-        if mode == 0:
-            vpaths.append(vpath)
-        elif mode == 1:
-            srcs.append(sys.argv[i])
-        elif mode == 2:
-            cflags.append(sys.argv[i])
 
-#create the command for gcc -MM cflags srcs
-cmd = cc + ' -MM '
-for flg in cflags:
-    qflg = "" # append all quotes with escape char
-    for i in range(0,len(flg)):
-        if flg[i] == "\"":
-            qflg = qflg +  "\\\""
-        else:
-            qflg = qflg + flg[i]
-    cmd = cmd + qflg + ' '
+with open(sys.argv[2]) as fp:
+    vpathsl = fp.readline()
+    srcsl = fp.readline()
+    cflagsl = fp.readline()
+    includesl = fp.readline()
+    toptl = fp.readline()
 
-for i in range(0,len(srcs)):
-    f = srcs[i]
-    found = 0
-    for vpath in vpaths:
-        if os.path.isfile(path.join(vpath, f)) :
-            cmd = cmd + path.join(vpath, f) + ' '
-            found = found +1
-            break
-    if found == 0:
-        print("ERROR, could not find: " + f)
-    if found > 1:
-        print("ERROR, found more than once: " + f)
+    vpaths = vpathsl.strip().split(" ")
+    srcs = srcsl.strip().split(" ")
+    cflags = cflagsl.strip().split(" ")
+    includes = includesl.strip().split(" ")
 
-#call gcc
-os.system(cmd)
+    
+    cflagsn = "" #" -I" + pprzswdir + " -I" + pprzvardir + " "
+    for i in range(0,len(cflags)):
+        f = cflags[i]          
+
+        nf = "" # append all quotes with escape char
+        for j in range(0,len(f)):
+            if f[j] == "\"":
+                nf = nf +  "\\\""
+            else:
+                nf = nf + f[j]
+        f = nf
+
+
+        if f.startswith("-I"):   #for whatever reason, these includes miss the pprz path. Which gives issues with gcc         
+            f = "-I" + path.join(pprzswdir, f[2:])                    
+        elif f.startswith ("-M"):
+            break;
+            f = " "
+        cflagsn = cflagsn + f + " "
+
+    topt = toptl.strip().split(" ")
+
+    vpaths.append(pprzswdir)    
+
+    #create the command for gcc -MM cflags srcs
+    cmd = cc + ' -MM ' + includesl.strip() + " " + cflagsn.strip() + " " + toptl.strip()
+
+    #print("****************************************************")
+    for i in range(0,len(srcs)):
+        f = srcs[i]
+        found = 0
+        for vpath in vpaths:
+            if os.path.isfile(path.join(vpath, f)) :
+                cmd = cmd + path.join(vpath, f) + ' '
+                found = found +1
+                # break
+        if found == 0:
+            tmps = "ERROR: could not find src: " + f
+            cmd = cmd + tmps #hack to make the error known
+            print(tmps)            
+        if found > 1:
+            tmps = "ERROR: found src more than once: " + f
+            cmd = cmd + tmps #hack to make the error known
+            print(tmps)            
+    #print(cmd)
+    #call gcc
+    os.system(cmd)
 

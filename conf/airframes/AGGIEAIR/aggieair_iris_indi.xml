@@ -90,8 +90,6 @@
       <define name="SERVO_HZ" value="200" />
     </module>
 
-    <define name="MEDIAN_DATASIZE" value="7"/>
-
 <!--
     <module name="tlsf"/>
     <module name="pprzlog"/>

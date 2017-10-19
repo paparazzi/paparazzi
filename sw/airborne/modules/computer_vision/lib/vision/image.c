@@ -84,6 +84,8 @@ void image_copy(struct image_t *input, struct image_t *output)
   output->h = input->h;
   output->buf_size = input->buf_size;
   output->ts = input->ts;
+  output->eulers = input->eulers;
+  output->pprz_ts = input->pprz_ts;
   memcpy(output->buf, input->buf, input->buf_size);
 }
 
@@ -150,8 +152,8 @@ uint16_t image_yuv422_colorfilt(struct image_t *input, struct image_t *output, u
                                 uint8_t u_M, uint8_t v_m, uint8_t v_M)
 {
   uint16_t cnt = 0;
-  uint8_t *source = input->buf;
-  uint8_t *dest = output->buf;
+  uint8_t *source = (uint8_t *)input->buf;
+  uint8_t *dest = (uint8_t *)output->buf;
 
   // Copy the creation timestamp (stays the same)
   output->ts = input->ts;
@@ -334,7 +336,7 @@ void pyramid_next_level(struct image_t *input, struct image_t *output, uint8_t b
  * @param[in]  border_size  - amount of padding around image. Padding is made by reflecting image elements at the edge
  *                  Example: f e d c b a | a b c d e f | f e d c b a
  */
-void pyramid_build(struct image_t *input, struct image_t *output_array, uint8_t pyr_level, uint8_t border_size)
+void pyramid_build(struct image_t *input, struct image_t *output_array, uint8_t pyr_level, uint16_t border_size)
 {
   // Pad input image and save it as '0' pyramid level
   image_add_border(input, &output_array[0], border_size);
@@ -370,8 +372,8 @@ void image_subpixel_window(struct image_t *input, struct image_t *output, struct
   // Calculate the window size
   uint16_t half_window = output->w / 2;
 
-  uint32_t subpixel_w = (input->w -2) * subpixel_factor;
-  uint32_t subpixel_h = (input->h -2) * subpixel_factor;
+  uint32_t subpixel_w = (input->w - 2) * subpixel_factor;
+  uint32_t subpixel_h = (input->h - 2) * subpixel_factor;
 
   // Go through the whole window size in normal coordinates
   for (uint16_t i = 0; i < output->w; i++) {
@@ -581,11 +583,17 @@ void image_show_flow(struct image_t *img, struct flow_t *vectors, uint16_t point
     // Draw a line from the original position with the flow vector
     struct point_t from = {
       vectors[i].pos.x / subpixel_factor,
-      vectors[i].pos.y / subpixel_factor
+      vectors[i].pos.y / subpixel_factor,
+      0,
+      vectors[i].pos.x % subpixel_factor,
+      vectors[i].pos.y % subpixel_factor
     };
     struct point_t to = {
       (vectors[i].pos.x + vectors[i].flow_x) / subpixel_factor,
-      (vectors[i].pos.y + vectors[i].flow_y) / subpixel_factor
+      (vectors[i].pos.y + vectors[i].flow_y) / subpixel_factor,
+      0,
+      (vectors[i].pos.x + vectors[i].flow_x) % subpixel_factor,
+      (vectors[i].pos.y + vectors[i].flow_y) % subpixel_factor
     };
     image_draw_line(img, &from, &to);
   }
@@ -597,7 +605,8 @@ void image_show_flow(struct image_t *img, struct flow_t *vectors, uint16_t point
  * @param[in] *from The point to draw from
  * @param[in] *to The point to draw to
  */
-void image_draw_line(struct image_t *img, struct point_t *from, struct point_t *to) {
+void image_draw_line(struct image_t *img, struct point_t *from, struct point_t *to)
+{
   static uint8_t color[4] = {255, 255, 255, 255};
   image_draw_line_color(img, from, to, color);
 }

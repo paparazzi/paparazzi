@@ -1,6 +1,6 @@
 #include "nps_sensor_gps.h"
 
-
+#include <stdio.h>
 #include "generated/airframe.h"
 #include "nps_fdm.h"
 #include "nps_random.h"
@@ -38,11 +38,9 @@ void nps_sensor_gps_init(struct NpsSensorGps *gps, double time)
 
 void nps_sensor_gps_run_step(struct NpsSensorGps *gps, double time)
 {
-
   if (time < gps->next_update) {
     return;
   }
-
 
   /*
    * simulate speed sensor

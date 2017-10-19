@@ -157,7 +157,7 @@ class MessagesFrame(wx.Frame):
         self.aircrafts[ac_id].messages[msg.name].last_seen = time.time()
 
         for index in range(0, len(msg.fieldvalues)):
-            aircraft.messages[msg.name].field_controls[index].SetLabel(msg.get_field(index))
+            aircraft.messages[msg.name].field_controls[index].SetLabel(str(msg.get_field(index)))
 
     def __init__(self, msg_class="telemetry"):
         wx.Frame.__init__(self, id=-1, parent=None, name=u'MessagesFrame', size=wx.Size(WIDTH, HEIGHT), style=wx.DEFAULT_FRAME_STYLE, title=u'Messages')

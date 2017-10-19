@@ -27,6 +27,11 @@
 
 #include "subsystems/ahrs.h"
 
+#if USE_AHRS_ALIGNER
+#include "subsystems/ahrs/ahrs_aligner.h"
+#endif
+
+
 #ifndef PRIMARY_AHRS
 #error "PRIMARY_AHRS not set!"
 #else
@@ -79,6 +84,10 @@ void ahrs_init(void)
 
   // enable primary AHRS by default
   ahrs_switch(0);
+
+#if USE_AHRS_ALIGNER
+  ahrs_aligner_init();
+#endif
 }
 
 int ahrs_switch(uint8_t idx)

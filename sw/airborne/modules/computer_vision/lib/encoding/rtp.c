@@ -31,11 +31,39 @@
 
 #include "rtp.h"
 
-static void rtp_packet_send(struct UdpSocket *udp, uint8_t *Jpeg, int JpegLen, uint32_t m_SequenceNumber,
+static void rtp_packet_send(struct UdpSocket *udp, uint8_t *Jpeg, int JpegLen, uint16_t m_SequenceNumber,
                             uint32_t m_Timestamp, uint32_t m_offset, uint8_t marker_bit, int w, int h, uint8_t format_code, uint8_t quality_code,
                             uint8_t has_dri_header);
 
-// http://www.ietf.org/rfc/rfc3550.txt
+/*
+ * RTP Protocol documentation
+ *
+ * Full description:
+ * - http://www.ietf.org/rfc/rfc3550.txt
+ *
+ * Packet content:
+ * - https://tools.ietf.org/html/rfc3550#section-5.1
+ *
+ * Format specific details:
+ * - https://en.wikipedia.org/wiki/RTP_audio_video_profile
+ * - protocol 26 (Jpeg) has a clock rate of 90 000
+ *
+ * The timestamp reflects the sampling instant of the first octet in
+ * the RTP data packet. The sampling instant MUST be derived from a
+ * clock that increments monotonically and linearly in time to allow
+ * synchronization and jitter calculations (see Section 6.4.1). The
+ * resolution of the clock MUST be sufficient for the desired
+ * synchronization accuracy and for measuring packet arrival jitter
+ * (one tick per video frame is typically not sufficient). The clock
+ * frequency is dependent on the format of data carried as payload
+ * and is specified statically in the profile or payload format
+ * specification that defines the format, or MAY be specified
+ * dynamically for payload formats defined through non-RTP means. If
+ * RTP packets are generated periodically, the nominal sampling
+ * instant as determined from the sampling clock is to be used, not a
+ * reading of the system clock.
+ */
+
 
 #define KJpegCh1ScanDataLen 32
 #define KJpegCh2ScanDataLen 56
@@ -93,22 +121,19 @@ void rtp_frame_test(struct UdpSocket *udp)
  * @param[in] quality_code The JPEG encoding quality
  * @param[in] has_dri_header Whether we have an DRI header or not
  * @param[in] frame_time Time image was taken in usec (if set to 0 or less it is calculated)
- * @param[in] packet_number The frame number of the rtp stream
+ * @param[out] packet_number The frame number of the rtp stream
+ * @param[out] rtp_time_counter The frame time counter of the rtp stream
  */
 void rtp_frame_send(struct UdpSocket *udp, struct image_t *img, uint8_t format_code,
-                    uint8_t quality_code, uint8_t has_dri_header, uint32_t frame_time, uint32_t *packet_number)
+                    uint8_t quality_code, uint8_t has_dri_header, float average_frame_rate, uint16_t *packet_number, uint32_t *rtp_time_counter)
 {
   uint32_t offset = 0;
   uint32_t jpeg_size = img->buf_size;
   uint8_t *jpeg_ptr = img->buf;
 
-#define MAX_PACKET_SIZE 1400
+  *rtp_time_counter += ((uint32_t) (90000.0f / average_frame_rate));
 
-  if (frame_time <= 0) {
-    struct timeval tv;
-    gettimeofday(&tv, 0);
-    frame_time = (tv.tv_sec % (256 * 256)) + tv.tv_usec;
-  }
+#define MAX_PACKET_SIZE 1400
 
   // Split frame into packets
   for (; jpeg_size > 0;) {
@@ -120,13 +145,15 @@ void rtp_frame_send(struct UdpSocket *udp, struct image_t *img, uint8_t format_c
       len = jpeg_size;
     }
 
-    rtp_packet_send(udp, jpeg_ptr, len, (*packet_number)++, frame_time, offset, lastpacket, img->w, img->h, format_code,
+    rtp_packet_send(udp, jpeg_ptr, len, *packet_number, *rtp_time_counter, offset, lastpacket, img->w, img->h, format_code,
                     quality_code, has_dri_header);
 
+    (*packet_number)++;
     jpeg_size -= len;
     jpeg_ptr  += len;
     offset    += len;
   }
+
 }
 
 /*
@@ -134,17 +161,13 @@ void rtp_frame_send(struct UdpSocket *udp, struct image_t *img, uint8_t format_c
  * The RTP marker bit MUST be set in the last packet of a frame.
  * Extra note: When the time difference between frames is non-constant,
    there seems to introduce some lag or jitter in the video streaming.
-   One way to solve this is to send the timestamp in units of 90000Hz
-   rather than 100000 (when the frame is received the timestamp is always
-   "late" so the frame is displayed immediately). (1 = 1/90000 s) which
-   is probably stupid but is actually working.
  * @param[in] *udp The UDP socket to send the RTP packet over
  * @param[in] *Jpeg JPEG encoded image byte buffer
  * @param[in] JpegLen The length of the byte buffer
  * @param[in] m_SequenceNumber RTP sequence number
- * @param[in] m_Timestamp Timestamp of the image in usec
+ * @param[in] m_Timestamp Time counter: RTP requires monolitically lineraly increasing timecount. FMT26 uses 90kHz clock.
  * @param[in] m_offset 3 byte fragmentation offset for fragmented images
- * @param[in] marker_bit RTP marker bit
+ * @param[in] marker_bit RTP marker bit: must be set in last packet of a frame.
  * @param[in] w The width of the JPEG image
  * @param[in] h The height of the image
  * @param[in] format_code 0 for YUV422 and 1 for YUV421
@@ -154,7 +177,7 @@ void rtp_frame_send(struct UdpSocket *udp, struct image_t *img, uint8_t format_c
 static void rtp_packet_send(
   struct UdpSocket *udp,
   uint8_t *Jpeg, int JpegLen,
-  uint32_t m_SequenceNumber, uint32_t m_Timestamp,
+  uint16_t m_SequenceNumber, uint32_t m_Timestamp,
   uint32_t m_offset, uint8_t marker_bit,
   int w, int h,
   uint8_t format_code, uint8_t quality_code,
@@ -186,7 +209,6 @@ static void rtp_packet_send(
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    * */
 
-  m_Timestamp *= 9 / 100; // convert timestamp to units of 1 / 90000 Hz
   // Prepare the 12 byte RTP header
   RtpBuf[0]  = 0x80;                               // RTP version
   RtpBuf[1]  = 0x1a + (marker_bit << 7);           // JPEG payload (26) and marker bit

@@ -50,7 +50,7 @@ class track :
     method last_climb : float
     method last_heading : float
     method last_speed : float
-    method move_cam : Latlong.geographic -> Latlong.geographic -> unit
+    method move_cam : Latlong.geographic array -> Latlong.geographic -> unit
     method move_carrot : Latlong.geographic -> unit
     method move_icon :
       Latlong.geographic -> float -> float -> float -> float -> unit

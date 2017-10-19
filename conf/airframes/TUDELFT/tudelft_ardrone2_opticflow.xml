@@ -24,10 +24,8 @@
       <configure name="USE_MAGNETOMETER" value="TRUE"/>
       <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
     </module>
-    <module name="ins" type="extended"/>
-  </firmware>
-
-  <modules main_freq="512">
+    <module name="ins" type="hff_extended"/>
+    
     <module name="bat_voltage_ardrone2"/>
     <module name="gps" type="ubx_ucenter"/>
     <module name="send_imu_mag_current"/>
@@ -44,9 +42,7 @@
       <define name="VIDEO_CAPTURE_CAMERA" value="bottom_camera"/>
       <define name="VIDEO_CAPTURE_PATH" value="/data/ftp/internal_000/images"/>
     </module>
-
-    <!--module name="opticflow_hover"/-->
-  </modules>
+  </firmware>
 
   <commands>
     <axis name="PITCH" failsafe_value="0"/>

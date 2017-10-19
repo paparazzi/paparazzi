@@ -23,8 +23,8 @@
 open Latlong
 
 type ac_cam = {
-  mutable phi : float; (* Rad, right = >0 *)
-  mutable theta : float; (* Rad, front = >0 *)
+  mutable pan : float; (* Rad, right = >0 *)
+  mutable tilt : float; (* Rad, front = >0 *)
   mutable target : (float * float) (* meter*meter relative *)
 }
 
@@ -134,6 +134,16 @@ let add_pos_to_nav_ref = fun nav_ref  ?(z = 0.) (x, y) ->
 
 type waypoint = { altitude : float; wp_geo : Latlong.geographic }
 
+let get_cam_aov = fun af_xml ->
+  let default_cam_aov = ((Deg>>Rad)65. , (Deg>>Rad)35.) in
+  try
+    let gcs_section = ExtXml.child af_xml ~select:(fun x -> Xml.attrib x "name" = "CAM") "section" in
+    let fvalue = fun name default->
+      try ExtXml.float_attrib (ExtXml.child gcs_section ~select:(fun x -> ExtXml.attrib x "name" = name) "define") "value" with _ -> default in
+    (Deg>>Rad) (fvalue "CAM_HFV" 65.),
+   (Deg>>Rad) (fvalue "CAM_VFV" 35.)
+  with _ -> default_cam_aov
+
 type aircraft = {
   mutable vehicle_type : vehicle_type;
   id : string;
@@ -175,6 +185,7 @@ type aircraft = {
   mutable horizontal_mode : int;
   mutable periodic_callbacks : Glib.Timeout.id list;
   cam : ac_cam;
+  camaov : (float * float);
   mutable gps_mode : int;
   mutable gps_Pacc : int;
   mutable state_filter_mode : int;
@@ -216,7 +227,8 @@ let new_aircraft = fun id name fp airframe ->
     gaz_mode= -1; lateral_mode= -1;
     gps_mode = 0; gps_Pacc = 0; periodic_callbacks = [];
     state_filter_mode = 0;
-    cam = { phi = 0.; theta = 0. ; target=(0.,0.)};
+    cam = { pan = 0.; tilt = 0. ; target=(0.,0.)};
+    camaov = get_cam_aov airframe;
     fbw = { rc_status = "???"; rc_mode = "???"; rc_rate=0; fbw_bat=0.; pprz_mode_msgs_since_last_fbw_status_msg=0 };
     svinfo = svsinfo_init;
     dl_setting_values = Array.make max_nb_dl_setting_values None;

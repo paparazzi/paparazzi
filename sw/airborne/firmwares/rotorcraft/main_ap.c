@@ -42,9 +42,6 @@
 
 #include "subsystems/commands.h"
 #include "subsystems/actuators.h"
-#if USE_MOTOR_MIXING
-#include "subsystems/actuators/motor_mixing.h"
-#endif
 
 #if USE_IMU
 #include "subsystems/imu.h"
@@ -64,13 +61,7 @@ PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BO
 
 #include "subsystems/radio_control.h"
 
-#include "firmwares/rotorcraft/stabilization.h"
-#include "firmwares/rotorcraft/guidance.h"
-
 #include "subsystems/ahrs.h"
-#if USE_AHRS_ALIGNER
-#include "subsystems/ahrs/ahrs_aligner.h"
-#endif
 
 #include "state.h"
 
@@ -140,20 +131,12 @@ void main_init(void)
   intermcu_init();
 #endif
 
-#if USE_MOTOR_MIXING
-  motor_mixing_init();
-#endif
-
 #ifndef INTER_MCU_AP
   radio_control_init();
 #endif
 
 #if USE_BARO_BOARD
   baro_init();
-#endif
-
-#if USE_AHRS_ALIGNER
-  ahrs_aligner_init();
 #endif
 
 #if USE_AHRS

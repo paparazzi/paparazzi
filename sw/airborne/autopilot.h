@@ -158,6 +158,11 @@ extern void autopilot_set_in_flight(bool in_flight);
  */
 extern bool autopilot_in_flight(void);
 
+/** reset in_flight counter
+ *  actual implementation is firmware dependent
+ */
+extern void autopilot_reset_in_flight_counter(void);
+
 /** Set power switch state
  *  This will actually enable the switch if POWER_SWITCH_GPIO is defined
  *  Also provide macro for dl_setting backward compatibility
