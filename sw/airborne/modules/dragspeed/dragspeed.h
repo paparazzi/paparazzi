@@ -31,6 +31,8 @@
 struct dragspeed_t {
 	// Estimated velocity
 	struct FloatVect2 vel;
+	// Low-pass filter
+	float filter;
 	// Drag coefficient calibration
 	float coeff;
 	int do_calibrate_coeff;

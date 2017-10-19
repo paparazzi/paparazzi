@@ -41,6 +41,10 @@
 #define DRAGSPEED_R 0.25 /// Measurement noise variance [(m/s)^2]
 #endif
 
+#ifndef DRAGSPEED_FILTER
+#define DRAGSPEED_FILTER 0.9 /// First-order low-pass filter strength [0..1]. Pretty high default value as accelero's tend to be noisy.
+#endif
+
 struct dragspeed_t dragspeed;
 
 static abi_event accel_ev;
@@ -64,8 +68,11 @@ static void accel_cb(
 		uint32_t stamp,
 		struct Int32Vect3 *mag) {
 	// Estimate current velocity
-	dragspeed.vel.x = ACCEL_FLOAT_OF_BFP(mag->x) / dragspeed.coeff;
-	dragspeed.vel.y = ACCEL_FLOAT_OF_BFP(mag->y) / dragspeed.coeff;
+	float vx = ACCEL_FLOAT_OF_BFP(mag->x) / dragspeed.coeff;
+	float vy = ACCEL_FLOAT_OF_BFP(mag->y) / dragspeed.coeff;
+	// Simple low-pass filter
+	dragspeed.vel.x += (1 - dragspeed.filter) * (vx - dragspeed.vel.x);
+	dragspeed.vel.y += (1 - dragspeed.filter) * (vy - dragspeed.vel.y);
 	// Send as ABI VELOCITY_ESTIMATE message
 	// Note: set VEL_DRAGSPEED_ID to ABI_DISABLE to disable
 #if VEL_DRAGSPEED_ID
@@ -114,7 +121,7 @@ static void calibrate_coeff(struct Int32Vect3 *mag) {
 	float accel_magn = sqrt(
 			ACCEL_FLOAT_OF_BFP(mag->x) * ACCEL_FLOAT_OF_BFP(mag->x) +
 			ACCEL_FLOAT_OF_BFP(mag->y) * ACCEL_FLOAT_OF_BFP(mag->y));
-	if (ins_speed > 0.25 && accel_magn != 0) {
+	if (ins_speed > 0.5 && accel_magn != 0) {
 		float this_coeff = accel_magn / ins_speed;
 		coeff = (coeff * num_samples + this_coeff) / (num_samples + 1);
 		num_samples++;

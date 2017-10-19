@@ -9,6 +9,7 @@
       <dl_settings name="dragspeed">
         <dl_setting shortname="Coeff" var="dragspeed.coeff" min="0" step="0.01" max="2.0"/>
         <dl_setting shortname="Calibrate coeff" var="dragspeed.do_calibrate_coeff" min="0" step="1" max="1"/>
+        <dl_setting shortname="Filter" var="dragspeed.filter" min="0" step="0.01" max="1.0"/>
       </dl_settings>
     </dl_settings>
   </settings>
