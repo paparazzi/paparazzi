@@ -4,6 +4,10 @@
 		<pose>0 0 .1 0 0 0</pose>
 
 		<link name="chassis">
+			<velocity_decay>
+				<linear>0.001</linear>
+			</velocity_decay>
+		
 			<inertial><!-- Taken from Paparazzi's ARDrone model for JSBsim -->
 				<mass>0.4</mass>
 				<inertia>
