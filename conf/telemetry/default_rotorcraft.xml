@@ -166,6 +166,10 @@
       <message name="GPS_INT"                period=".25"/>
       <message name="GPS_RTK"               period="1"/>
     </mode>
+    
+    <mode name="dragspeed">
+      <message name="DRAGSPEED" period="0.02"/>
+    </mode>
 
   </process>
 

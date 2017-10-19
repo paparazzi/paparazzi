@@ -1,0 +1,15 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="dragspeed">
+  <doc>
+    <description>This module estimates the velocity of rotorcraft by measuring the drag force using the accelerometer.</description>
+  </doc>
+  <header>
+    <file name="dragspeed.h"/>
+  </header>
+  <init fun="dragspeed_init()"/>
+  <makefile>
+    <file name="dragspeed.c"/>
+  </makefile>
+</module>
+
