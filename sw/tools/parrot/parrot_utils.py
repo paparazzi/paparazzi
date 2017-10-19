@@ -249,7 +249,7 @@ class ParrotUtils:
 
     # Remove a directory
     def remove_directory(self, name):
-        self.sexecute_command('rm -r ' + name)
+        self.execute_command('rm -r ' + name)
         print('Removed directory "' + name + '"')
 
     # Upload a new file

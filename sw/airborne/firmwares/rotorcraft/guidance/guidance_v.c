@@ -528,7 +528,7 @@ void guidance_v_guided_run(bool in_flight)
     case GUIDANCE_V_GUIDED_MODE_THROTTLE:
       // Throttle
       guidance_v_z_sp = stateGetPositionNed_i()->z; // for display only
-      stabilization_cmd[COMMAND_THRUST] = guidance_v_th_sp;
+      guidance_v_delta_t = guidance_v_th_sp;
       break;
     default:
       break;
@@ -586,7 +586,7 @@ bool guidance_v_set_guided_th(float th)
 
     /* reset guidance reference */
     GuidanceVSetRef(stateGetPositionNed_i()->z, stateGetSpeedNed_i()->z, 0);
-    guidance_v_th_sp = ((float)MAX_PPRZ) * th;
+    guidance_v_th_sp = (int32_t)(MAX_PPRZ * th);
     Bound(guidance_v_th_sp, 0, MAX_PPRZ);
     return true;
   }
