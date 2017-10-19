@@ -237,7 +237,7 @@ NOTES:
     <!-- To still be able to use rudder in auto mode, which is handy with sidewind landing in auto1 stabilization mode only YAW
     Handy if in auto1 for sidewind stabilized crabbing landing, also for steering if something is not OK with course gains in Autonomous flight
     TODO disable again after strong wind sidewind autolanding is 100% tuned-->
-   <!--  <set command="YAW" value="@YAW"/>==>  <!-- TODO: Disable if multiple tests are flown in auto2 -->
+   <!--  <set command="YAW" value="@YAW"/>-->  <!-- TODO: Disable if multiple tests are flown in auto2 -->
      
     <!-- To be able to set gain values via RC Transmitter these ones below.
     This way the can keep his eye on a fast moving plane and set some gain values
@@ -250,7 +250,7 @@ NOTES:
     <axis name="ROLL" failsafe_value="0"/>
     <axis name="PITCH" failsafe_value="0"/>
     <axis name="YAW" failsafe_value="0"/>
-    <!-- <axis name="FMODE" failsafe_value="-9600"/>-><!-- TODO determine -->
+    <!-- <axis name="FMODE" failsafe_value="-9600"/>--><!-- TODO determine -->
   </commands>
   
   <!--  TODO: add mixing section -->
