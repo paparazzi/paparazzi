@@ -29,6 +29,8 @@ list_ids = np.ndarray.tolist(ids)
 
 time.sleep(2)
 
+time.sleep(2)
+
 for i in list_ids:
     msg_clean = PprzMessage("datalink", "CTC_CLEAN_TABLE")
     msg_clean['ac_id'] = int(i)
