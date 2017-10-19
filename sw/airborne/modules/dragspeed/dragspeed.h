@@ -26,6 +26,17 @@
 #ifndef DRAGSPEED_H
 #define DRAGSPEED_H
 
+#include "math/pprz_algebra_float.h"
+
+struct dragspeed_t {
+	// Estimated velocity
+	struct FloatVect2 vel;
+	// Drag coefficient calibration
+	float coeff;
+	int do_calibrate_coeff;
+};
+extern struct dragspeed_t dragspeed;
+
 extern void dragspeed_init(void);
 
 #endif

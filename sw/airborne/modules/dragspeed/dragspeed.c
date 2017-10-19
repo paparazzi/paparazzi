@@ -41,17 +41,19 @@
 #define DRAGSPEED_R 0.25 /// Measurement noise variance [(m/s)^2]
 #endif
 
-static struct dragspeed_t {
-	struct FloatVect2 vel;
-} dragspeed;
+struct dragspeed_t dragspeed;
 
 static abi_event accel_ev;
 static void accel_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *mag);
 
 static void send_dragspeed(struct transport_tx *trans, struct link_device *dev);
 
+static void calibrate_coeff(struct Int32Vect3 *mag);
 
 void dragspeed_init(void) {
+	// Set initial values
+	dragspeed.coeff = DRAGSPEED_COEFF;
+	// Register callbacks
 	register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DRAGSPEED,
 			send_dragspeed);
 	AbiBindMsgIMU_ACCEL_INT32(DRAGSPEED_ACCEL_ID, &accel_ev, accel_cb);
@@ -62,14 +64,66 @@ static void accel_cb(
 		uint32_t stamp,
 		struct Int32Vect3 *mag) {
 	// Estimate current velocity
-	dragspeed.vel.x = ACCEL_FLOAT_OF_BFP(mag->x) / DRAGSPEED_COEFF;
-	dragspeed.vel.y = ACCEL_FLOAT_OF_BFP(mag->y) / DRAGSPEED_COEFF;
+	dragspeed.vel.x = ACCEL_FLOAT_OF_BFP(mag->x) / dragspeed.coeff;
+	dragspeed.vel.y = ACCEL_FLOAT_OF_BFP(mag->y) / dragspeed.coeff;
 	// Send as ABI VELOCITY_ESTIMATE message
 	// Note: set VEL_DRAGSPEED_ID to ABI_DISABLE to disable
 #if VEL_DRAGSPEED_ID
-	AbiSendMsgVELOCITY_ESTIMATE(VEL_DRAGSPEED_ID, stamp, dragspeed.vel.x,
-			dragspeed.vel.y, 0, DRAGSPEED_R);
+	if (!dragspeed.do_calibrate_coeff) {
+		AbiSendMsgVELOCITY_ESTIMATE(VEL_DRAGSPEED_ID, stamp,
+				dragspeed.vel.x, dragspeed.vel.y, 0, DRAGSPEED_R);
+	}
 #endif
+	// Perform calibration if required
+	calibrate_coeff(mag);
+}
+
+/**
+ * Calibrate drag coefficient by comparing accelerometer measurements to INS
+ * velocities.
+ * Should be performed with VEL_DRAGSPEED_ID set to ABI_DISABLE, but for safety
+ * the ABI messages are also disabled automatically when calibration is active.
+ *
+ * This routine assumes that the accelerometers have been zeroed beforehand.
+ */
+static void calibrate_coeff(struct Int32Vect3 *mag) {
+	// Reset when new calibration is started
+	static int do_calibrate_prev = 0;
+	static float coeff = 0;
+	static int num_samples = 0;
+	if (dragspeed.do_calibrate_coeff && !do_calibrate_prev) {
+		coeff = 0;
+		num_samples = 0;
+	}
+	do_calibrate_prev = dragspeed.do_calibrate_coeff;
+	// Return when calibration is not active
+	if (!dragspeed.do_calibrate_coeff) {
+		return;
+	}
+
+	// Get INS velocity in body coordinates
+	struct FloatEulers *att = stateGetNedToBodyEulers_f();
+	struct EnuCoor_f *vel_ins = stateGetSpeedEnu_f();
+	struct FloatVect2 vel_ins_body = {
+			cos(att->psi) * vel_ins->y + sin(att->psi) * vel_ins->x,
+			-sin(att->psi) * vel_ins->y + cos(att->psi) * vel_ins->x
+	};
+	// Average required coefficients when velocity is sufficiently high
+	float ins_speed = sqrt(vel_ins_body.x * vel_ins_body.x +
+			vel_ins_body.y * vel_ins_body.y);
+	float accel_magn = sqrt(
+			ACCEL_FLOAT_OF_BFP(mag->x) * ACCEL_FLOAT_OF_BFP(mag->x) +
+			ACCEL_FLOAT_OF_BFP(mag->y) * ACCEL_FLOAT_OF_BFP(mag->y));
+	if (ins_speed > 0.25 && accel_magn != 0) {
+		float this_coeff = accel_magn / ins_speed;
+		coeff = (coeff * num_samples + this_coeff) / (num_samples + 1);
+		num_samples++;
+		// End calibration when enough samples are averaged
+		if (num_samples > 1000 && coeff != 0) {
+			dragspeed.coeff = coeff;
+			dragspeed.do_calibrate_coeff = 0;
+		}
+	}
 }
 
 static void send_dragspeed(struct transport_tx *trans, struct link_device *dev) {
@@ -85,5 +139,4 @@ static void send_dragspeed(struct transport_tx *trans, struct link_device *dev) 
 			&dragspeed.vel.x, &dragspeed.vel.y,
 			&vel_ins_body.x, &vel_ins_body.y);
 }
-
 
