@@ -12,8 +12,6 @@ import commands
 
 import lxml.etree as ET
 
-test = 1
-
 # if PAPARAZZI_HOME not set, then assume the tree containing this
 # file is a reasonable substitute
 PAPARAZZI_HOME  = getenv("PAPARAZZI_HOME", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../')))
@@ -94,6 +92,11 @@ def get_list_of_subsystems(firmware):
     # \todo how about shared
     #subsys_dir = path.join( firmwares_dir, "subsystems/shared/" )
     return get_list_of_files(subsys_dir, ".makefile")
+
+def get_list_of_flight_plan_files():
+    mylist = glob.glob(path.join(flight_plan_dir, "*.xml"))
+    mylist.sort()
+    return mylist
 
 def get_list_of_servo_drivers():
     # \todo where do we know this?
