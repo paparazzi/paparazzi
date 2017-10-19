@@ -28,6 +28,8 @@ list_ids = np.ndarray.tolist(ids)
 speed_ref = sys.argv[2]
 heading_ref = sys.argv[3]
 
+time.sleep(2)
+
 for i in list_ids:
     msg_clean = PprzMessage("datalink", "CTC_CLEAN_TABLE")
     msg_clean['ac_id'] = int(i)
@@ -41,11 +43,10 @@ for i in list_ids:
     for ii in list_ids:
         if(i != ii):
             msg['nei_id'] = int(ii)
-            msg['desired_speed'] = int(speed_ref)*100
-            msg['desired_theta'] = int(heading_ref)*10
-
-    print(msg)
-    interface.send(msg)
+            msg['desired_speed'] = int(float(speed_ref)*100)
+            msg['desired_theta'] = int(float(heading_ref)*10)
+            interface.send(msg)
+            print(msg)
 
 time.sleep(2)
 interface.shutdown()

@@ -46,7 +46,7 @@ static void send_ctc(struct transport_tx *trans, struct link_device *dev)
 // Control
 /*! Default gain k for the algorithm */
 #ifndef CTC_GAIN_K
-#define CTC_GAIN_K 10
+#define CTC_GAIN_K 0.05
 #endif
 /*! Default timeout in ms for the neighbors' information */
 #ifndef CTC_TIMEOUT
@@ -101,15 +101,19 @@ bool collective_tracking_control()
         float speed_nei = tableNei[i][1] / 100;
         float theta_nei = tableNei[i][2] * M_PI / 1800;
         u += speed_nei*sinf(theta_nei - ctc_control.theta);
+        printf("%i Speed nei: %f\n", AC_ID, speed_nei);
+        printf("%i Theta nei: %f\n", AC_ID, theta_nei*180/M_PI);
       }
     }
   }
 
-  if(num_neighbors != 0)
+  if(num_neighbors != 0){
       u /= num_neighbors;
+      u -= ctc_control.speed_ref*sinf(ctc_control.theta_ref - ctc_control.theta);
+      u *= -(ctc_control.k*ctc_control.speed);
+  }
 
-  u -= ctc_control.speed_ref*sinf(ctc_control.theta_ref - ctc_control.theta);
-  u *= (ctc_control.k + ctc_control.speed);
+  printf("%i Total u: %f\n", AC_ID, u*180/M_PI);
 
   if (autopilot_get_mode() == AP_MODE_AUTO2) {
     h_ctl_roll_setpoint =
@@ -172,7 +176,7 @@ void parse_ctc_ThetaAndSpeedTable(void)
   for (int i = 0; i < DCF_MAX_NEIGHBORS; i++)
     if (tableNei[i][0] == sender_id) {
       last_info[i] = get_sys_time_msec();
-      tableNei[i][1] = (int16_t)DL_CTC_THETA_SPEED_speed(dl_buffer);
+      tableNei[i][1] = (int16_t)(DL_CTC_THETA_SPEED_speed(dl_buffer)*100);
       tableNei[i][2] = (int16_t)((DL_CTC_THETA_SPEED_theta(dl_buffer)) * 1800 / M_PI);
       break;
     }
