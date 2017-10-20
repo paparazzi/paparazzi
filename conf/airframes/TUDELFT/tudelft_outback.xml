@@ -1,6 +1,7 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<!-- this is a helicopter with a double wing as frame
+<airframe name="Outback">
+  <description>Helicopter with a double wing as frame
      * Autopilot:   OPA/FTD 1.0 and OPA/AP 1.0 with STM32F4
      * IMU:         MPU6000 (FTD), MPU6000 (AP)
      * Baro:        MS5611 (AP)
@@ -8,9 +9,7 @@
      * GPS:         UBlox ??
      * RC:          Spektrum sats (2x)
      * Telemetry:   Iridium (FTD), 900Mhz ??? (AP)
--->
-
-<airframe name="Outback">
+  </description>
 
   <firmware name="rotorcraft">
     <!-- AP (autopilot) part of the board -->

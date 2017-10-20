@@ -1,6 +1,9 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <airframe name="ardrone2_opticflow">
+  <description>ARDrone2, Opticflow hover
+  </description>
+
 
   <firmware name="rotorcraft">
   <configure name="PREFIX" value="/opt/arm-2012.03/bin/arm-none-linux-gnueabi" />

@@ -1,6 +1,8 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <airframe name="ardrone2_optitrack">
+  <description>
+  </description>
 
   <firmware name="rotorcraft">
   	<configure name="PREFIX" value="/opt/arm-2012.03/bin/arm-none-linux-gnueabi" />

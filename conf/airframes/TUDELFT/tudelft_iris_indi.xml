@@ -8,6 +8,8 @@
 * RC:          PPM
 -->
 <airframe name="iris_indi">
+  <description>3DR IRIS
+  </description>
   <firmware name="rotorcraft">
     <target name="ap" board="px4fmu_2.4" />
     <define name="BAT_CHECKER_DELAY" value="80" />

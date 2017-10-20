@@ -8,6 +8,8 @@
 * RC:          Spektrum
 -->
 <airframe name="splash">
+  <description>Pixracer
+  </description>
   <firmware name="rotorcraft">
     <target name="ap" board="px4fmu_4.0" />
     <define name="BAT_CHECKER_DELAY" value="80" />

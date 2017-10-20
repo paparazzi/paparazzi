@@ -1,10 +1,10 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<!--
-	YAPA + XSens + XBee
--->
-
 <airframe name="Yapa v1">
+  <description>
+YAPA + XSens + XBee
+  </description>
+
   <!-- ************************* FIRMWARE ************************* -->
 
   <firmware name="fixedwing">

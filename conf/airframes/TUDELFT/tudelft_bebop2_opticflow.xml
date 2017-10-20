@@ -1,6 +1,8 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <airframe name="bebop2_opticflow">
+  <description>?
+  </description>
 
   <firmware name="rotorcraft">
     <target name="ap" board="bebop2"/>
