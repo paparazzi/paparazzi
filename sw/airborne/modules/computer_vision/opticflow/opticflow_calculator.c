@@ -680,8 +680,8 @@ bool calc_edgeflow_tot(struct opticflow_t *opticflow, struct image_t *img,
   /* Save Resulting flow in results
    * Warning: The flow detected here is different in sign
    * and size, therefore this will be divided with
-   * the same subpixel factor and -1 to make it on par with
-   * the LK algorithm of t opticalflow_calculator.c
+   * the same subpixel factor and multiplied by -1 to make it
+   * on par with the LK algorithm in opticalflow_calculator.c
    * */
   edgeflow.flow_x = -1 * edgeflow.flow_x;
   edgeflow.flow_y = -1 * edgeflow.flow_y;
@@ -697,9 +697,8 @@ bool calc_edgeflow_tot(struct opticflow_t *opticflow, struct image_t *img,
   result->flow_der_y =  result->flow_y;
   result->corner_cnt = getAmountPeaks(edge_hist_x, 500 , img->w);
   result->tracked_cnt = getAmountPeaks(edge_hist_x, 500 , img->w);
-  result->divergence = -1.0 * (float)edgeflow.div_x / RES;
-  result->div_size = 0.0f;
-  result->noise_measurement = 0.0f;
+  result->divergence = -1.0 * (float)edgeflow.div_x / RES; // Also multiply the divergence with -1.0 to make it on par with the LK algorithm of
+  result->div_size = result->divergence;  // Fill the div_size with the divergence to atleast get some divergenge measurement when switching from LK to EF
   result->surface_roughness = 0.0f;
 
   //......................Calculating VELOCITY ..................... //
@@ -723,7 +722,7 @@ bool calc_edgeflow_tot(struct opticflow_t *opticflow, struct image_t *img,
   // Calculate velocity
   result->vel_cam.x = edgeflow.flow_x * fps_x * agl_dist_value_filtered * OPTICFLOW_FX / RES;
   result->vel_cam.y = edgeflow.flow_y * fps_y * agl_dist_value_filtered * OPTICFLOW_FY / RES;
-  result->vel_cam.z = result->divergence * fps_y * agl_dist_value_filtered;
+  result->vel_cam.z = result->divergence * fps_x * agl_dist_value_filtered;
 
   //Apply a  median filter to the velocity if wanted
   if (opticflow->median_filter == true) {
