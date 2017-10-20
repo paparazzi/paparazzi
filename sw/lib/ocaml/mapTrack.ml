@@ -98,12 +98,6 @@ class track = fun ?(name="Noname") ?(icon="fixedwing") ?(size = 500) ?(color="re
     ignore ( GnoCanvas.ellipse ~x1: (-5.) ~y1: (-5.) ~x2: 5. ~y2: 5. ~fill_color:"red" ~props:[`WIDTH_UNITS 1.; `OUTLINE_COLOR "red"; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] mission_target) in
   let _ = mission_target#hide () in
 
-  (** data at map scale *)
-  let max_cam_half_height_scaled = 10000.0  in
-  let max_oblic_distance_scaled = 10000.0  in
-  let min_distance_scaled = 10.  in
-  let min_height_scaled = 0.1 in
-
   let _desired_circle = GnoCanvas.ellipse group
   and _desired_segment = GnoCanvas.line group in
 
@@ -128,7 +122,7 @@ object (self)
   val mutable v_params_on = false
   val mutable desired_track = NoDesired
   val zone = GnoCanvas.rect group
-  val mutable ac_cam_cover = GnoCanvas.rect ~fill_color:"grey" ~props:[`WIDTH_PIXELS 1 ; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] cam
+  val mutable ac_cam_cover = GnoCanvas.polygon ~fill_color:"grey" ~props:[`WIDTH_PIXELS 1 ; `FILL_STIPPLE (Gdk.Bitmap.create_from_data ~width:2 ~height:2 "\002\001")] cam
   val mutable event_cb = None
   val mutable destroyed = false
   method color = color
@@ -276,50 +270,15 @@ object (self)
     zone#set [`X1 x1; `Y1 y1; `X2 x2; `Y2 y2; `OUTLINE_COLOR "#ffc0c0"; `WIDTH_PIXELS 2]
 
     (** moves the rectangle representing the field covered by the camera *)
-  method move_cam = fun cam_wgs84 mission_target_wgs84 ->
+  method move_cam = fun positions mission_target_wgs84 ->
     match last, cam_on with
         Some last_ac, true ->
-          let (cam_xw, cam_yw) = geomap#world_of cam_wgs84
-          and (last_xw, last_yw) = geomap#world_of last_ac
-          and last_height_scaled = self#height () in
-
-          let pt1 = { G2d.x2D = last_xw; y2D = last_yw} in
-          let pt2 = { G2d.x2D = cam_xw ; y2D = cam_yw } in
-
-      (** y axis is downwards so North vector is as follows: *)
-          let vect_north = { G2d.x2D = 0.0 ; y2D = -1.0 } in
-          let d = G2d.distance pt1 pt2 in
-          let cam_heading =
-            if d > min_distance_scaled then
-              let cam_vect_normalized = (G2d.vect_normalize (G2d.vect_make pt1 pt2)) in
-              if (G2d.dot_product vect_north cam_vect_normalized) > 0.0 then
-                norm_angle_360 ( G2d.rad2deg (asin (G2d.cross_product vect_north cam_vect_normalized)))
-              else norm_angle_360 ( G2d.rad2deg (G2d.m_pi -. asin (G2d.cross_product vect_north cam_vect_normalized)))
-            else last_heading in
-          let (angle_of_view, oblic_distance) =
-            if last_height_scaled < min_height_scaled then
-              (half_pi, max_oblic_distance_scaled)
-            else
-              let oav = atan ( d /. last_height_scaled) in
-              (oav, last_height_scaled /. (cos oav))
-          in
-          let alpha_1 = angle_of_view +. cam_half_aperture in
-          let cam_field_half_height_1 =
-            if alpha_1 < half_pi then
-              (tan alpha_1) *. last_height_scaled -. d
-            else max_cam_half_height_scaled in
-          let cam_field_half_height_2 = d -. (tan ( angle_of_view -. cam_half_aperture)) *. last_height_scaled in
-          let cam_field_half_width = ( tan (cam_half_aperture) ) *. oblic_distance in
-          ac_cam_cover#set [`X1 (-. cam_field_half_width);
-                            `Y1 (-. cam_field_half_height_1);
-                            `X2 (cam_field_half_width);
-                            `Y2(cam_field_half_height_2);
+          let points = geomap#convert_positions_to_points positions in
+          ac_cam_cover#set [`POINTS points;
                             `OUTLINE_COLOR color];
-          cam#affine_absolute (affine_pos_and_angle 1.0 cam_xw cam_yw cam_heading);
           let (mission_target_xw, mission_target_yw) = geomap#world_of mission_target_wgs84 in
           mission_target#affine_absolute (affine_pos_and_angle geomap#zoom_adj#value mission_target_xw mission_target_yw 0.0)
       | _ -> ()
-
   method zoom = fun z ->
     let a = aircraft#i2w_affine in
     let z' = sqrt (a.(0)*.a.(0)+.a.(1)*.a.(1)) in

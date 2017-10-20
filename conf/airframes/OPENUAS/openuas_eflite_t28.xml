@@ -299,7 +299,7 @@ NOTES:
       <configure name="LOGGER_LED" value="3"/>
     </module>
     
-   ----- As in telemetry file to add stil...
+   - - - As in telemetry file to add stil...
     <process name="Logger">
     <mode name="default">
       <message name="FBW_STATUS"          period="1.2"/>

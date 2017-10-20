@@ -114,7 +114,11 @@
 
 
 #define MPU60X0_REG_WHO_AM_I        0x75
+#ifdef ICM20608
+#define MPU60X0_WHOAMI_REPLY      0xAF
+#else
 #define MPU60X0_WHOAMI_REPLY      0x68
+#endif
 
 // Bit positions
 #define MPU60X0_I2C_BYPASS_EN       1

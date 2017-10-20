@@ -50,9 +50,6 @@
 #if USE_AHRS
 #include "subsystems/ahrs.h"
 #endif
-#if USE_AHRS_ALIGNER
-#include "subsystems/ahrs/ahrs_aligner.h"
-#endif
 #if USE_BARO_BOARD
 #include "subsystems/sensors/baro.h"
 PRINT_CONFIG_MSG_VALUE("USE_BARO_BOARD is TRUE, reading onboard baro: ", BARO_BOARD)
@@ -164,10 +161,6 @@ void init_ap(void)
   stateInit();
 
   /************* Sensors initialization ***************/
-
-#if USE_AHRS_ALIGNER
-  ahrs_aligner_init();
-#endif
 
 #if USE_AHRS
   ahrs_init();

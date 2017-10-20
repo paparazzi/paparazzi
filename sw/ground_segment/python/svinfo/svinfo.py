@@ -21,7 +21,7 @@
 import wx
 import svinfoviewer
 
-class SVInfoFrame(wx.App):
+class SVInfoApp(wx.App):
     def OnInit(self):
         self.main = svinfoviewer.SVInfoFrame()
         self.main.Show()
@@ -29,7 +29,7 @@ class SVInfoFrame(wx.App):
         return True
 
 def main():
-    application = SVInfoFrame(0)
+    application = SVInfoApp(0)
     application.MainLoop()
 
 if __name__ == '__main__':

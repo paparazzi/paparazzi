@@ -48,7 +48,6 @@
 #include "state.h"
 #include "subsystems/imu.h"
 #include "subsystems/ahrs.h"
-#include "subsystems/ahrs/ahrs_aligner.h"
 
 #include "subsystems/commands.h"
 #include "subsystems/actuators.h"
@@ -94,9 +93,7 @@ static inline void main_init(void)
   actuators_init();
 
   modules_init();
-#if USE_AHRS_ALIGNER
-  ahrs_aligner_init();
-#endif
+
   ahrs_init();
 
   settings_init();

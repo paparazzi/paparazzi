@@ -41,13 +41,13 @@ class Ardrone2(ParrotUtils):
         # Search for the name
         search = re.search(name + '[^=]+=[\r\n\t ]([^\r\n\t ]+)',self.config_content)
         if search is None:
-            return None
+            return 'Unknown'
         else:
             return search.group(1)
 
     # Write to config
     def write_to_config(self, name, value):
-        if self.read_from_config(name) == None:
+        if self.read_from_config(name) == 'Unknown':
             self.execute_command('echo "' + name + ' = ' + value + '\" >> ' + self.config_file)
         else:
             self.execute_command('sed -i "s/\(' + name + ' *= *\).*/\\1' + value + '/g" ' + self.config_file)

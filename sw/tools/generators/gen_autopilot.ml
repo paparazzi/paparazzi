@@ -427,7 +427,7 @@ let write_settings = fun xml_file out_set ap ->
         match s with
         | [m; h] -> sprintf " module=\"%s\" handler=\"%s\"" m h
         | _ -> failwith "invalid handler format"
-        with _ -> "" in
+        with _ -> sprintf " module=\"autopilot_core_%s\"" name in
       (* Print if at least one mode has been found *)
       begin match min, max with
       | Some min_idx, Some max_idx ->

@@ -122,6 +122,16 @@ void ins_vectornav_monitor(void)
     gps.fix = GPS_FIX_NONE;
   }
 
+  // Make gps pacc available in GPS page on GCS
+  static uint32_t last_pacc = 0;
+  // update only if pacc changes
+  if (last_pacc != gps.pacc) {
+    last_pacc = gps.pacc;
+    // we don't know the value of CNO, hence oscillate
+    // between 0 and 1 to not confuse the user
+    gps.svinfos[0].cno = (gps.svinfos[0].cno + 1) % 2;
+  }
+
   // update counter
   last_cnt = ins_vn.vn_packet.counter;
 
@@ -282,15 +292,10 @@ void ins_vectornav_propagate()
   SetBit(gps.valid_fields, GPS_VALID_POS_LLA_BIT);
   stateSetPositionLla_i(&gps.lla_pos);
 
-  // ECEF position
-  struct LtpDef_f def;
-  ltp_def_from_lla_f(&def, &ins_vn.lla_pos);
-  struct EcefCoor_f ecef_vel;
-  ecef_of_ned_point_f(&ecef_vel, &def, &ins_vn.vn_data.vel_ned);
-  ECEF_BFP_OF_REAL(gps.ecef_vel, ecef_vel);
-  SetBit(gps.valid_fields, GPS_VALID_VEL_ECEF_BIT);
-
   // ECEF velocity
+  // TODO: properly implement
+
+  // ECEF position
   gps.ecef_pos.x = stateGetPositionEcef_i()->x;
   gps.ecef_pos.y = stateGetPositionEcef_i()->y;
   gps.ecef_pos.z = stateGetPositionEcef_i()->z;

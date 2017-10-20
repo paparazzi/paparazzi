@@ -29,7 +29,6 @@
 #include "subsystems/ins/ins_float_invariant.h"
 
 #include "subsystems/ahrs/ahrs_int_utils.h"
-#include "subsystems/ahrs/ahrs_aligner.h"
 
 #include "subsystems/ins.h"
 #include "subsystems/gps.h"

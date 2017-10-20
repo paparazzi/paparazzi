@@ -14,10 +14,12 @@
 
 #ifndef FOLLOW_ME_H
 #define FOLLOW_ME_H
+
 extern float ref_pitch;
 extern float ref_roll;
 extern float selfie_alt;
-extern void follow_me_periodic(void);
+
+extern void follow_me(uint8_t headingToFollow, uint8_t heightObject, uint8_t distanceToObject);
 
 #endif
 

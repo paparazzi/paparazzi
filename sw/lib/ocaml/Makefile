@@ -56,6 +56,8 @@ NETCLIENT_MINOR1 := $(shell echo $(NETCLIENT_VER) | cut -f2 -d.)
 NETCLIENT_MINOR2 := $(shell echo $(NETCLIENT_VER) | cut -f3 -d.)
 ifeq ($(shell test $(NETCLIENT_MAJOR) -ge 4; echo $$?),0)
 CAMLP4_DEFS += -DNETCLIENT_V_4
+NETTLS_GNUTLS = nettls-gnutls
+COMMA_NETTLS_GNUTLS = ,$(NETTLS_GNUTLS)
 ifeq ($(shell test $(NETCLIENT_MINOR2) -ge 4; echo $$?),0)
 CAMLP4_DEFS += -DNETCLIENT_V_404
 else ifeq ($(shell test $(NETCLIENT_MINOR1) -g 0; echo $$?),0)
@@ -77,11 +79,11 @@ PP_OPTS = -pp "camlp4o pa_macro.cmo $(CAMLP4_DEFS)"
 PP_SRC =  http.ml compat.ml
 
 INCLUDES=
-PKGCOMMON=pprzlink,xml-light,netclient,glibivy,lablgtk2
+PKGCOMMON=pprzlink,xml-light,netclient,glibivy,lablgtk2,$(NETTLS_GNUTLS)
 XINCLUDES=
 XPKGCOMMON=pprzlink,xml-light,glibivy,$(LABLGTK2GNOMECANVAS),lablgtk2.glade
 
-SRC = compat.ml fig.ml debug.ml base64.ml serial.ml ocaml_tools.ml expr_syntax.ml expr_parser.ml expr_lexer.ml extXml.ml env.ml xml2h.ml latlong.ml egm96.ml srtm.ml http.ml maps_support.ml gm.ml iGN.ml geometry_2d.ml cserial.o ubx.ml xmlCom.ml os_calls.ml editAirframe.ml defivybus.ml fp_proc.ml gen_common.ml
+SRC = compat.ml fig.ml debug.ml base64.ml serial.ml ocaml_tools.ml expr_syntax.ml expr_parser.ml expr_lexer.ml extXml.ml env.ml xml2h.ml latlong.ml egm96.ml srtm.ml http.ml maps_support.ml gm.ml iGN.ml geometry_2d.ml cserial.o ubx.ml xmlCom.ml os_calls.ml editAirframe.ml defivybus.ml fp_proc.ml gen_common.ml quaternion.ml
 CMO = $(SRC:.ml=.cmo)
 CMX = $(SRC:.ml=.cmx)
 
@@ -203,7 +205,7 @@ gtk_papget_led_editor.ml : widgets.glade
 
 META.pprz: META.pprz.template
 	@echo COPY $<
-	$(shell sed -e 's/LABLGTK2GNOMECANVAS/$(LABLGTK2GNOMECANVAS)/g' $< > $@)
+	$(shell sed -e 's/LABLGTK2GNOMECANVAS/$(LABLGTK2GNOMECANVAS)/g' -e 's/,NETTLS_GNUTLS/$(COMMA_NETTLS_GNUTLS)/g' $< > $@)
 
 clean :
 	$(Q)rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so tests gtk_papget_*.ml expr_parser.ml expr_parser.mli expr_lexer.ml expr_lexer.mli META.pprz

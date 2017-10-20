@@ -134,7 +134,19 @@ static void send_gps(struct transport_tx *trans, struct link_device *dev)
   int16_t climb = -gps.ned_vel.z;
   int16_t course = (DegOfRad(gps.course) / ((int32_t)1e6));
   struct UtmCoor_i utm = utm_int_from_gps(&gps, 0);
-  pprz_msg_send_GPS(trans, dev, AC_ID, &gps.fix,
+#if PPRZLINK_DEFAULT_VER == 2 && GPS_POS_BROADCAST
+  // broadcast GPS message
+  struct pprzlink_msg msg;
+  msg.trans = trans;
+  msg.dev = dev;
+  msg.sender_id = AC_ID;
+  msg.receiver_id = PPRZLINK_MSG_BROADCAST;
+  msg.component_id = 0;
+  pprzlink_msg_send_GPS(&msg,
+#else
+  pprz_msg_send_GPS(trans, dev, AC_ID,
+#endif
+                    &gps.fix,
                     &utm.east, &utm.north,
                     &course, &gps.hmsl, &gps.gspeed, &climb,
                     &gps.week, &gps.tow, &utm.zone, &zero);
@@ -169,7 +181,18 @@ static void send_gps_rxmrtcm(struct transport_tx *trans, struct link_device *dev
 
 static void send_gps_int(struct transport_tx *trans, struct link_device *dev)
 {
+#if PPRZLINK_DEFAULT_VER == 2 && GPS_POS_BROADCAST
+  // broadcast GPS message
+  struct pprzlink_msg msg;
+  msg.trans = trans;
+  msg.dev = dev;
+  msg.sender_id = AC_ID;
+  msg.receiver_id = PPRZLINK_MSG_BROADCAST;
+  msg.component_id = 0;
+  pprzlink_msg_send_GPS_INT(&msg,
+#else
   pprz_msg_send_GPS_INT(trans, dev, AC_ID,
+#endif
                         &gps.ecef_pos.x, &gps.ecef_pos.y, &gps.ecef_pos.z,
                         &gps.lla_pos.lat, &gps.lla_pos.lon, &gps.lla_pos.alt,
                         &gps.hmsl,
@@ -189,7 +212,18 @@ static void send_gps_lla(struct transport_tx *trans, struct link_device *dev)
   uint8_t err = 0;
   int16_t climb = -gps.ned_vel.z;
   int16_t course = (DegOfRad(gps.course) / ((int32_t)1e6));
+#if PPRZLINK_DEFAULT_VER == 2 && GPS_POS_BROADCAST
+  // broadcast GPS message
+  struct pprzlink_msg msg;
+  msg.trans = trans;
+  msg.dev = dev;
+  msg.sender_id = AC_ID;
+  msg.receiver_id = PPRZLINK_MSG_BROADCAST;
+  msg.component_id = 0;
+  pprzlink_msg_send_GPS_LLA(&msg,
+#else
   pprz_msg_send_GPS_LLA(trans, dev, AC_ID,
+#endif
                         &gps.lla_pos.lat, &gps.lla_pos.lon, &gps.lla_pos.alt,
                         &gps.hmsl, &course, &gps.gspeed, &climb,
                         &gps.week, &gps.tow,

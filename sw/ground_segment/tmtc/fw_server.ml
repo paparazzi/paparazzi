@@ -248,8 +248,8 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       else
         a.ap_mode <- check_index (ivalue "ap_mode") (modes_of_aircraft a) "AP_MODE"
     | "CAM" ->
-      a.cam.phi <- (Deg>>Rad) (fvalue  "phi");
-      a.cam.theta <- (Deg>>Rad) (fvalue  "theta");
+      a.cam.pan <- (Deg>>Rad) (fvalue  "pan");
+      a.cam.tilt <- (Deg>>Rad) (fvalue  "tilt");
       a.cam.target <- (fvalue  "target_x", fvalue  "target_y")
     | "SVINFO" ->
       let i = ivalue "chn" in

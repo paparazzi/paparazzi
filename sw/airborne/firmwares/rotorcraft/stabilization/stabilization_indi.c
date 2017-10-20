@@ -306,9 +306,9 @@ void stabilization_indi_set_failsafe_setpoint(void)
 void stabilization_indi_set_rpy_setpoint_i(struct Int32Eulers *rpy)
 {
   // stab_att_sp_euler.psi still used in ref..
-  memcpy(&stab_att_sp_euler, rpy, sizeof(struct Int32Eulers));
+  stab_att_sp_euler = *rpy;
 
-  quat_from_rpy_cmd_i(&stab_att_sp_quat, &stab_att_sp_euler);
+  int32_quat_of_eulers(&stab_att_sp_quat, &stab_att_sp_euler);
 }
 
 /**
@@ -378,7 +378,7 @@ static void stabilization_indi_calc_cmd(struct Int32Quat *att_err, bool rate_con
   g2_times_du = g2_times_du / INDI_G_SCALING;
 
   float v_thrust = 0.0;
-  if (indi_thrust_increment_set) {
+  if (indi_thrust_increment_set && in_flight) {
     v_thrust = indi_thrust_increment;
 
     //update thrust command such that the current is correctly estimated

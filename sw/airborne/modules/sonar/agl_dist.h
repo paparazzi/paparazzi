@@ -22,7 +22,7 @@
 /**
  * @file modules/sonar/agl_dist.h
  *
- * Bind to sonar ABI message and provide a filtered value to be used in flight plans
+ * Bind to agl ABI message and provide a filtered value to be used in flight plans
  *
  */
 

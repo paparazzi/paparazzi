@@ -27,22 +27,19 @@
 #ifndef STEREOCAM_H_
 #define STEREOCAM_H_
 
-#include <std.h>
+#include "pprzlink/pprz_transport.h"
+#include "math/pprz_algebra_float.h"
 
-typedef struct {
-  uint8_t len;
-  uint8_t *data;
-  uint8_t fresh;
-  uint8_t matrix_width;
-  uint8_t matrix_height;
-} uint8array;
+/* Main magneto pitot strcuture */
+struct stereocam_t {
+  struct link_device *device;           ///< The device which is uses for communication
+  struct pprz_transport transport;      ///< The transport layer (PPRZ)
+  struct FloatRMat body_to_cam;         ///< IMU to stereocam rotation
+  bool msg_available;                   ///< If we received a message
+};
 
-extern uint8array stereocam_data;
-extern struct FloatRMat body_to_stereocam;
-
-extern void stereocam_disparity_to_meters(uint8_t *, float *, int);
-extern void stereocam_start(void);
-extern void stereocam_stop(void);
-extern void stereocam_periodic(void);
+extern void stereocam_init(void);
+extern void stereocam_event(void);
+extern void state2stereocam(void);
 
 #endif /* STEREOCAM_H_ */

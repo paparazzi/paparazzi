@@ -21,13 +21,10 @@ import wx
 
 import sys
 import os
-import time
-import threading
 import math
-import pynotify
 
 PPRZ_SRC = os.getenv("PAPARAZZI_SRC", os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                                      '../../../..')))
+                                                                    '../../../..')))
 
 sys.path.append(PPRZ_SRC + "/sw/ext/pprzlink/lib/v1.0/python")
 
@@ -40,15 +37,16 @@ CHANNEL = 16
 
 def QIColour(qi):
     return {
-        0: wx.Colour(64,64,64),  # This channel is idle
-        1: wx.Colour(128,128,128),  # Searching
-        2: wx.Colour(0,128,128),  # Signal aquired
-        3: wx.Colour(255,0,0),  # Signal detected but unusable
-        4: wx.Colour(0,0,255),  # Code Lock on Signal
-        5: wx.Colour(0,255,0),  # Code and Carrier locked
-        6: wx.Colour(0,255,0),  # Code and Carrier locked
-        7: wx.Colour(0,255,0),  # Code and Carrier locked
+        0: wx.Colour(64, 64, 64),  # This channel is idle
+        1: wx.Colour(128, 128, 128),  # Searching
+        2: wx.Colour(0, 128, 128),  # Signal aquired
+        3: wx.Colour(255, 0, 0),  # Signal detected but unusable
+        4: wx.Colour(0, 0, 255),  # Code Lock on Signal
+        5: wx.Colour(0, 255, 0),  # Code and Carrier locked
+        6: wx.Colour(0, 255, 0),  # Code and Carrier locked
+        7: wx.Colour(0, 255, 0),  # Code and Carrier locked
     }[qi]
+
 
 class SvChannel(object):
     def __init__(self, chn, msg):
@@ -85,8 +83,7 @@ class SVInfoFrame(wx.Frame):
         h = self.w
         if h < self.w + 50:
             h = self.w + 50
-        bar = self.h-w-th-th
-
+        bar = self.h - w - th - th
 
         dc = wx.PaintDC(self)
         brush = wx.Brush("white")
@@ -94,17 +91,17 @@ class SVInfoFrame(wx.Frame):
         dc.Clear()
 
         # Background
-        dc.SetBrush(wx.Brush(wx.Colour(0,0,0), wx.TRANSPARENT))
-        dc.DrawCircle(w/2,w/2,w/2-1)
-        dc.DrawCircle(w/2,w/2,w/4-1)
-        dc.DrawCircle(w/2,w/2,1)
-        font = wx.Font(11, wx.ROMAN, wx.BOLD, wx.NORMAL)
+        dc.SetBrush(wx.Brush(wx.Colour(0, 0, 0), wx.TRANSPARENT))
+        dc.DrawCircle(w / 2, w / 2, w / 2 - 1)
+        dc.DrawCircle(w / 2, w / 2, w / 4 - 1)
+        dc.DrawCircle(w / 2, w / 2, 1)
+        font = wx.Font(11, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
         dc.SetFont(font)
 
-        dc.DrawText("N",w/2+tdx,2)
-        dc.DrawText("S",w/2+tdx,w-17)
-        dc.DrawText("E",w-15,w/2+tdy)
-        dc.DrawText("W",2,w/2+tdy)
+        dc.DrawText("N", w / 2 + tdx, 2)
+        dc.DrawText("S", w / 2 + tdx, w - 17)
+        dc.DrawText("E", w - 15, w / 2 + tdy)
+        dc.DrawText("W", 2, w / 2 + tdy)
 
         # SV
         for chn in self.sv:
@@ -117,21 +114,20 @@ class SVInfoFrame(wx.Frame):
             el = float(sv.Elev) / 90.0 * float(w) / 2.0
             az = float(sv.Azim) * math.pi / 180.0
 
-            y = float(w)/2.0 - math.cos(az) * el
-            x = float(w)/2.0 + math.sin(az) * el
+            y = float(w) / 2.0 - math.cos(az) * el
+            x = float(w) / 2.0 + math.sin(az) * el
 
             dc.SetBrush(wx.Brush(c, wx.SOLID))
-            dc.DrawCircle(int(x),int(y),s)
+            dc.DrawCircle(int(x), int(y), s)
 
             font = wx.Font(8, wx.ROMAN, wx.NORMAL, wx.NORMAL)
             dc.SetFont(font)
-            dc.DrawText(str(sv.SVID),x+tdx,y+tdy)
+            dc.DrawText(str(sv.SVID), x + tdx, y + tdy)
 
-            bh = float(bar-th-th) * float(sv.CNO) / 55.0
-            dc.DrawRectangle(w/CHANNEL*chn+5 * (1-used),self.h-th-bh,w/CHANNEL-2 - 10 * (1-used),bh)
-            dc.DrawText(str(chn),w/CHANNEL*chn,self.h-th)
-            dc.DrawText(str(sv.CNO),w/CHANNEL*chn,self.h-bar)
-
+            bh = float(bar - th - th) * float(sv.CNO) / 55.0
+            dc.DrawRectangle(w / CHANNEL * chn + 5 * (1 - used), self.h - th - bh, w / CHANNEL - 2 - 10 * (1 - used), bh)
+            dc.DrawText(str(chn), w / CHANNEL * chn, self.h - th)
+            dc.DrawText(str(sv.CNO), w / CHANNEL * chn, self.h - bar)
 
     def __init__(self):
 

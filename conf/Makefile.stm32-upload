@@ -155,6 +155,22 @@ upload: $(OBJDIR)/$(TARGET).elf
 		   $<
 
 #
+# SWD flash mode (with Black Magic Probe)
+else ifeq ($(FLASH_MODE),SWD_NOPWR)
+# only works if BMP_PORT is defined
+BMP_PORT ?= $(shell ls /dev/bmp-gdb 2>/dev/null || echo /dev/ttyACM0)
+BMP_UPLOAD_SCRIPT ?= $(PAPARAZZI_SRC)/sw/tools/flash_scripts/bmp_swd_nopwr_flash.scr
+upload: $(OBJDIR)/$(TARGET).elf
+	@echo "Assuming luftboot bootloader: $(ASSUMING_LUFTBOOT)"
+	@echo "Using Black Magic Probe with SWD on BMP_PORT $(BMP_PORT)"
+	@echo "Using GDB = $(GDB)"
+	@echo "  BMP\t$<"
+	$(Q)$(GDB) --batch \
+		   -ex 'target extended-remote $(BMP_PORT)' \
+		   -x $(BMP_UPLOAD_SCRIPT) \
+		   $<
+
+#
 # SWD flash mode (with STLINK)
 else ifeq ($(FLASH_MODE),STLINK)
 STLINK_ADDR ?= 0x08000000

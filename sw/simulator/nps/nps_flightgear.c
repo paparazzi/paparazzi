@@ -30,7 +30,7 @@ pthread_t th_fg_rx; // fligh gear receive thread
 
 void* nps_flightgear_receive(void* data __attribute__((unused)));
 
-double htond(double x)
+static double htond(double x)
 {
   int *p = (int *)&x;
   int tmp = p[0];
@@ -41,7 +41,7 @@ double htond(double x)
 }
 
 
-float htonf(float x)
+static float htonf(float x)
 {
   int *p = (int *)&x;
   *p = htonl(*p);
@@ -112,7 +112,7 @@ void nps_flightgear_init(const char *host,  unsigned int port, unsigned int port
  * For visualization with moving surfaces (elevator, propeller etc).
  * start fgfs with --native-fdm=socket... option
  */
-void nps_flightgear_send_fdm()
+void nps_flightgear_send_fdm(void)
 {
   struct FGNetFDM fgfdm;
 
@@ -176,7 +176,7 @@ void nps_flightgear_send_fdm()
  *
  * This is the default option
  */
-void nps_flightgear_send()
+void nps_flightgear_send(void)
 {
 
   struct FGNetGUI gui;

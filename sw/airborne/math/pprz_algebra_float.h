@@ -275,6 +275,18 @@ extern void float_rmat_vmult(struct FloatVect3 *vb, struct FloatRMat *m_a2b,
 extern void float_rmat_transp_vmult(struct FloatVect3 *vb, struct FloatRMat *m_b2a,
                                     struct FloatVect3 *va);
 
+/** rotate angle by rotation matrix.
+ * rb = m_a2b * ra
+ */
+extern void float_rmat_mult(struct FloatEulers *rb, struct FloatRMat *m_a2b,
+                                struct FloatEulers *ra);
+
+/** rotate angle by transposed rotation matrix.
+ * rb = m_b2a^T * ra
+ */
+extern void float_rmat_transp_mult(struct FloatEulers *rb, struct FloatRMat *m_b2a,
+                                       struct FloatEulers *ra);
+
 /** rotate anglular rates by rotation matrix.
  * rb = m_a2b * ra
  */

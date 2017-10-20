@@ -1,6 +1,5 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<?xml version="1.0" encoding="UTF-8"?>
 <!-- this is a quadrotor frame equiped with
 * Autopilot:   3dr Pixhawk 2.4
 * IMU:         L3GD20 +  LSM303D + MPU6000 + external HMC58XX
@@ -89,8 +88,6 @@
     <module name="actuators" type="pwm">
       <define name="SERVO_HZ" value="200" />
     </module>
-
-    <define name="MEDIAN_DATASIZE" value="7"/>
 
 <!--
     <module name="tlsf"/>

@@ -586,11 +586,11 @@ we had an option to use glovs, or start up spinning the prop after a throw. If t
   <!-- TODO:  determine best value, first set to very small or 0 so engine start immidiatlely -->
   <!-- make sre you ESC has no startup delay -->
   <!-- 120 or 512 should be repalced by the PERIODIC_FREQUENCY -->
-  <!--   <define name="HEADING_DELAY" value="(120*3)" unit="seconds"/> <!-- 3 seconds, thus -->
+  <!--   <define name="HEADING_DELAY" value="(120*3)" unit="seconds"/--> <!-- 3 seconds, thus -->
   <!-- 3 seconds, thus -->
   <!--  <define name="ACCELERATION_THRESHOLD" value="1.3" unit="g"/>-->
   <!--TODO: unit and tune this with final weight in airframe! not to high otherwise engine will never run, must after all go over the threshold-->
-  <!--        <define name="INITIAL_PITCH" value="0.52" unit="rad"/><!-- 30 deg -->
+  <!--        <define name="INITIAL_PITCH" value="0.52" unit="rad"/--><!-- 30 deg -->
   <!--TODO: tune this, look at graphs from manual flights-->
   <!--   <define name="INITIAL_THROTTLE" value=".99"/>-->
   <!-- PCT from 0 to 1, where 1 is 100% -->

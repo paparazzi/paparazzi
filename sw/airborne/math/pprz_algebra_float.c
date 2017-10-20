@@ -124,6 +124,26 @@ void float_rmat_transp_vmult(struct FloatVect3 *vb, struct FloatRMat *m_b2a, str
   vb->z = m_b2a->m[2] * va->x + m_b2a->m[5] * va->y + m_b2a->m[8] * va->z;
 }
 
+/** rotate angle by rotation matrix.
+ * rb = m_a2b * ra
+ */
+void float_rmat_mult(struct FloatEulers *rb, struct FloatRMat *m_a2b, struct FloatEulers *ra)
+{
+  rb->phi = m_a2b->m[0] * ra->phi + m_a2b->m[1] * ra->theta + m_a2b->m[2] * ra->psi;
+  rb->theta = m_a2b->m[3] * ra->phi + m_a2b->m[4] * ra->theta + m_a2b->m[5] * ra->psi;
+  rb->psi = m_a2b->m[6] * ra->phi + m_a2b->m[7] * ra->theta + m_a2b->m[8] * ra->psi;
+}
+
+/** rotate angle by transposed rotation matrix.
+ * rb = m_b2a^T * ra
+ */
+void float_rmat_transp_mult(struct FloatEulers *rb, struct FloatRMat *m_b2a, struct FloatEulers *ra)
+{
+  rb->phi = m_b2a->m[0] * ra->phi + m_b2a->m[3] * ra->theta + m_b2a->m[6] * ra->psi;
+  rb->theta = m_b2a->m[1] * ra->phi + m_b2a->m[4] * ra->theta + m_b2a->m[7] * ra->psi;
+  rb->psi = m_b2a->m[2] * ra->phi + m_b2a->m[5] * ra->theta + m_b2a->m[8] * ra->psi;
+}
+
 /** rotate anglular rates by rotation matrix.
  * rb = m_a2b * ra
  */
