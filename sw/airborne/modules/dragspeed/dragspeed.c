@@ -73,6 +73,20 @@ void dragspeed_init(void) {
 	AbiBindMsgIMU_ACCEL_INT32(DRAGSPEED_ACCEL_ID, &accel_ev, accel_cb);
 }
 
+bool dragspeed_calibrate_coeff(void) {
+	dragspeed.do_calibrate_coeff = 1;
+	return FALSE;
+}
+
+bool dragspeed_calibrate_zero(void) {
+	dragspeed.do_calibrate_zero = 1;
+	return FALSE;
+}
+
+bool dragspeed_is_calibrating(void) {
+	return dragspeed.do_calibrate_coeff || dragspeed.do_calibrate_zero;
+}
+
 static void accel_cb(
 		uint8_t sender_id __attribute__((unused)),
 		uint32_t stamp,
@@ -142,6 +156,9 @@ static void calibrate_coeff(struct Int32Vect3 *mag) {
 /**
  * Calibrate zero velocity by measuring the accelerations while the drone
  * hovers in-place.
+ *
+ * The zero-velocity readings can change between flights, e.g. because of small
+ * differences in battery or outer hull positions.
  */
 static void calibrate_zero(struct Int32Vect3 *mag) {
 	// Reset when new calibration is started

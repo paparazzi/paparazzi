@@ -44,5 +44,10 @@ extern struct dragspeed_t dragspeed;
 
 extern void dragspeed_init(void);
 
+// Calibration functions for use in flight plans
+extern bool dragspeed_calibrate_coeff(void);
+extern bool dragspeed_calibrate_zero(void);
+extern bool dragspeed_is_calibrating(void);
+
 #endif
 
