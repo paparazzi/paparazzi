@@ -37,12 +37,20 @@
 #define DRAGSPEED_COEFF 1.0 /// Drag coefficient (mu/m) of the linear drag model, where m*a = v*mu
 #endif
 
+#ifndef DRAGSPEED_ZERO_X
+#define DRAGSPEED_ZERO_X 0.0 /// Accelerometer reading (x axis) when stationary [m/s^2]
+#endif
+
+#ifndef DRAGSPEED_ZERO_Y
+#define DRAGSPEED_ZERO_Y 0.0 /// Accelerometer reading (y axis) when stationary [m/s^2]
+#endif
+
 #ifndef DRAGSPEED_R
-#define DRAGSPEED_R 0.25 /// Measurement noise variance [(m/s)^2]
+#define DRAGSPEED_R 0.25 /// Velocity measurement noise variance [(m/s)^2]
 #endif
 
 #ifndef DRAGSPEED_FILTER
-#define DRAGSPEED_FILTER 0.9 /// First-order low-pass filter strength [0..1]. Pretty high default value as accelero's tend to be noisy.
+#define DRAGSPEED_FILTER 0.8 /// First-order low-pass filter strength [0..1]. Pretty high default value as accelero's tend to be noisy.
 #endif
 
 struct dragspeed_t dragspeed;
