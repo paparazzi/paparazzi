@@ -1,6 +1,7 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
-<!-- RM airframe with INDI and video logging-->
 <airframe name="ardrone2_indi">
+  <description>RM airframe with INDI and video logging
+  </description>
   <firmware name="rotorcraft">
     <target name="ap" board="ardrone2">
       <define name="FAILSAFE_DESCENT_SPEED" value="0.5"/>

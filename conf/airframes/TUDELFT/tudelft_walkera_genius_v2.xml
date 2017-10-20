@@ -1,5 +1,3 @@
-<!-- this is a Walkera Genius V2 frame equiped with Lisa/S 0.1 with brushless main rotor -->
-<!-- Using Lisa/S V1.0 board file as it is software compatible. -->
 
 <!--
      Applicable configuration:
@@ -11,6 +9,10 @@
 -->
 
 <airframe name="walkera_genius_v2">
+  <description>
+This is a Walkera Genius V2 frame equiped with Lisa/S 0.1 with brushless main rotor.
+Using Lisa/S V1.0 board file as it is software compatible.
+  </description>
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_s_1.0">
       <!--define name="USE_KILL_SWITCH_FOR_MOTOR_ARMING" value="1"/-->

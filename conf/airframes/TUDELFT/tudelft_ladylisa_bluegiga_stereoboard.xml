@@ -1,5 +1,3 @@
-<!-- this is a LadyBird quadrotor frame equiped with Lisa/S 1.0 -->
-<!-- The LadyBird frame comes with four brushed motors in an X configuration. -->
 
 <!--
      The motor and rotor configuration is the following:
@@ -32,6 +30,8 @@
 -->
 
 <airframe name="quadrotor_lisa_s">
+  <description>LadyBird quadrotor frame equiped with Lisa/S 1.0 with four brushed motors in an X configuration.
+  </description>
 
   <servos driver="Pwm">
     <servo name="NE" no="0" min="0" neutral="50" max="1000"/>

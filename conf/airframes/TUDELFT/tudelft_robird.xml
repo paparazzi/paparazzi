@@ -1,13 +1,14 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<!-- this is a flapping wing frame equiped with
+<airframe name="robird">
+  <description>
+Flapping wing frame equiped with
 * Autopilot:   3dr Pixhawk 2.4
-* IMU:         L3GD20 +  LSM303D + MPU6000 + external HMC58XX
 * Actuators:   PWM motor controllers
 * GPS:         3DR gps neo v7
 * RC:          Futaba SBUS2
--->
-<airframe name="robird">
+  </description>
+
   <firmware name="rotorcraft">
     <target name="ap" board="px4fmu_2.4" />
     <define name="BAT_CHECKER_DELAY" value="80" />

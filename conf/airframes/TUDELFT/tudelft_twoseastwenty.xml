@@ -1,15 +1,11 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<!--
-  Use settings/tuning_ins.xml
-  Use telemetry/default_fixedwing_imu.xml
-
+<airframe name="TwoSeasTwenty">
+  <description>
   3x parallel redundant FBW-boards with DUAL-SBUS
   1x Lisa-L with XSens Mtig700
--->
+  </description>
 
-
-<airframe name="TwoSeasTwenty">
   <!-- ************************* FIRMWARE ************************* -->
 
   <firmware name="fixedwing">

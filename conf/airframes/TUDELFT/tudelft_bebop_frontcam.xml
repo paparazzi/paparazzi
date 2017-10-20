@@ -1,6 +1,8 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <airframe name="bebop">
+  <description>Bebop, Optitrack
+  </description>
 
   <firmware name="rotorcraft">
     <target name="ap" board="bebop"/>

@@ -1,6 +1,8 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <airframe name="bebop_opticflow">
+  <description>Bebop, hover with optical flow from bottom camera
+  </description>
 
   <firmware name="rotorcraft">
     <target name="ap" board="bebop"/>
