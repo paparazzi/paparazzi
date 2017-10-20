@@ -316,10 +316,12 @@ static void init_gazebo(void)
  */
 static void gazebo_read(void)
 {
+  static gazebo::math::Vector3 vel_prev;
+  static double time_prev;
+
   gazebo::physics::WorldPtr world = model->GetWorld();
   gazebo::math::Pose pose = model->GetWorldPose(); // In LOCAL xyz frame
   gazebo::math::Vector3 vel = model->GetWorldLinearVel();
-  gazebo::math::Vector3 accel = model->GetWorldLinearAccel();
   gazebo::math::Vector3 ang_vel = model->GetWorldAngularVel();
   gazebo::common::SphericalCoordinatesPtr sphere =
     world->GetSphericalCoordinates();
@@ -328,6 +330,15 @@ static void gazebo_read(void)
 
   /* Fill FDM struct */
   fdm.time = world->GetSimTime().Double();
+
+  // Find world acceleration by differentiating velocity
+  // model->GetWorldLinearAccel() does not seem to take the velocity_decay into account!
+  // Derivation of the velocity also follows the IMU implementation of Gazebo itself:
+  // https://bitbucket.org/osrf/gazebo/src/e26144434b932b4b6a760ddaa19cfcf9f1734748/gazebo/sensors/ImuSensor.cc?at=default&fileviewer=file-view-default#ImuSensor.cc-370
+  float dt = fdm.time - time_prev;
+  gazebo::math::Vector3 accel = (vel - vel_prev) / dt;
+  vel_prev = vel;
+  time_prev = fdm.time;
 
   // init_dt: unused
   // curr_dt: unused
@@ -380,12 +391,12 @@ static void gazebo_read(void)
   fdm.body_inertial_accel = fdm.body_ecef_accel; // Approximate, unused.
 
   // only use accelerometer if no collisions or if not on ground
-  if (ct->Contacts().contact_size() || pose.pos.z < 0.03){
+  if (ct->Contacts().contact_size() || pose.pos.z < 0.03) {
     fdm.body_accel = to_pprz_body(
-                     pose.rot.RotateVectorReverse(-world->Gravity()));
+                       pose.rot.RotateVectorReverse(-world->Gravity()));
   } else {
     fdm.body_accel = to_pprz_body(
-                     pose.rot.RotateVectorReverse(accel.Ign() - world->Gravity()));
+                       pose.rot.RotateVectorReverse(accel.Ign() - world->Gravity()));
   }
   /* attitude */
   // ecef_to_body_quat: unused
@@ -554,7 +565,7 @@ static void gazebo_read_video(void)
     read_image(&img, cam);
 
 #ifdef NPS_DEBUG_VIDEO
-    cv::Mat RGB_cam(cam->ImageHeight(),cam->ImageWidth(),CV_8UC3,(uint8_t *)cam->ImageData());
+    cv::Mat RGB_cam(cam->ImageHeight(), cam->ImageWidth(), CV_8UC3, (uint8_t *)cam->ImageData());
     cv::cvtColor(RGB_cam, RGB_cam, cv::COLOR_RGB2BGR);
     cv::namedWindow(cameras[i]->dev_name, cv::WINDOW_AUTOSIZE);  // Create a window for display.
     cv::imshow(cameras[i]->dev_name, RGB_cam);
