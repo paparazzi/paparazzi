@@ -1,6 +1,6 @@
 <!-- Paparazzi airframe DTD -->
 
-<!ELEMENT airframe (include|servos|commands|rc_commands|auto_rc_commands|ap_only_commands|command_laws|section|makefile|modules|firmware|autopilot|heli_curves)*>
+<!ELEMENT airframe (include|servos|commands|rc_commands|auto_rc_commands|ap_only_commands|command_laws|section|makefile|modules|firmware|autopilot|heli_curves|description)*>
 <!ELEMENT include EMPTY>
 <!ELEMENT servos (servo)*>
 <!ELEMENT commands (axis)*>
@@ -9,7 +9,7 @@
 <!ELEMENT ap_only_commands (copy)*>
 <!ELEMENT command_laws (let|set|call|ratelimit)*>
 <!ELEMENT heli_curves (curve)*>
-<!ELEMENT section (define|linear)*>
+<!ELEMENT section (define|linear|comment)*>
 <!ELEMENT servo EMPTY>
 <!ELEMENT axis EMPTY>
 <!ELEMENT set EMPTY>
@@ -30,6 +30,7 @@
 <!ELEMENT module (configure|define|comment)*>
 <!ELEMENT autopilot EMPTY>
 <!ELEMENT comment (#PCDATA)>
+<!ELEMENT description (#PCDATA)>
 
 <!ATTLIST include
 href CDATA #REQUIRED>

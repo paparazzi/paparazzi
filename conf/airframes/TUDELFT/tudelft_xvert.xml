@@ -1,13 +1,17 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<!-- this is a quadrotor frame equiped with
+
+<airframe name="xvert">
+  <description>
+E-flite X-VERT VTOL
+
 * Autopilot:   xvert
 * IMU:         MPU6500 + external HMC58XX
 * Actuators:   2 PWM servo's, 2 escs through some proprietary atmega uart protocol
 * GPS:         Ublox through I2C
 * RC:          Datalink
--->
-<airframe name="xvert">
+  </description>
+
   <firmware name="rotorcraft">
     <target name="ap" board="xvert_1.0"/>
     <define name="BAT_CHECKER_DELAY" value="80" />
