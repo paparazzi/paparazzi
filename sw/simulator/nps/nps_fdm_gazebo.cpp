@@ -391,12 +391,12 @@ static void gazebo_read(void)
   fdm.body_inertial_accel = fdm.body_ecef_accel; // Approximate, unused.
 
   // only use accelerometer if no collisions or if not on ground
-  if (ct->Contacts().contact_size() || pose.pos.z < 0.03) {
+  if (ct->Contacts().contact_size() || pose.pos.z < 0.03){
     fdm.body_accel = to_pprz_body(
-                       pose.rot.RotateVectorReverse(-world->Gravity()));
+                     pose.rot.RotateVectorReverse(-world->Gravity()));
   } else {
     fdm.body_accel = to_pprz_body(
-                       pose.rot.RotateVectorReverse(accel.Ign() - world->Gravity()));
+                     pose.rot.RotateVectorReverse(accel.Ign() - world->Gravity()));
   }
   /* attitude */
   // ecef_to_body_quat: unused
@@ -565,7 +565,7 @@ static void gazebo_read_video(void)
     read_image(&img, cam);
 
 #ifdef NPS_DEBUG_VIDEO
-    cv::Mat RGB_cam(cam->ImageHeight(), cam->ImageWidth(), CV_8UC3, (uint8_t *)cam->ImageData());
+    cv::Mat RGB_cam(cam->ImageHeight(),cam->ImageWidth(),CV_8UC3,(uint8_t *)cam->ImageData());
     cv::cvtColor(RGB_cam, RGB_cam, cv::COLOR_RGB2BGR);
     cv::namedWindow(cameras[i]->dev_name, cv::WINDOW_AUTOSIZE);  // Create a window for display.
     cv::imshow(cameras[i]->dev_name, RGB_cam);
