@@ -28,6 +28,7 @@
       <message name="OPTIC_FLOW_EST"         period="0.05"/>
       <message name="VECTORNAV_INFO"         period="0.5"/>
       <message name="DIVERGENCE"             period="0.05"/>
+      <message name="DRAGSPEED"              period="0.02"/>
     </mode>
 
     <mode name="ppm">
@@ -165,10 +166,6 @@
       <message name="GPS_RXMRTCM"               period="1"/>
       <message name="GPS_INT"                period=".25"/>
       <message name="GPS_RTK"               period="1"/>
-    </mode>
-    
-    <mode name="dragspeed">
-      <message name="DRAGSPEED" period="0.02"/>
     </mode>
 
   </process>
