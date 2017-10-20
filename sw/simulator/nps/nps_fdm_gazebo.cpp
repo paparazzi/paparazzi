@@ -316,10 +316,12 @@ static void init_gazebo(void)
  */
 static void gazebo_read(void)
 {
+  static gazebo::math::Vector3 vel_prev;
+  static double time_prev;
+
   gazebo::physics::WorldPtr world = model->GetWorld();
   gazebo::math::Pose pose = model->GetWorldPose(); // In LOCAL xyz frame
   gazebo::math::Vector3 vel = model->GetWorldLinearVel();
-  gazebo::math::Vector3 accel = model->GetWorldLinearAccel();
   gazebo::math::Vector3 ang_vel = model->GetWorldAngularVel();
   gazebo::common::SphericalCoordinatesPtr sphere =
     world->GetSphericalCoordinates();
@@ -328,6 +330,15 @@ static void gazebo_read(void)
 
   /* Fill FDM struct */
   fdm.time = world->GetSimTime().Double();
+
+  // Find world acceleration by differentiating velocity
+  // model->GetWorldLinearAccel() does not seem to take the velocity_decay into account!
+  // Derivation of the velocity also follows the IMU implementation of Gazebo itself:
+  // https://bitbucket.org/osrf/gazebo/src/e26144434b932b4b6a760ddaa19cfcf9f1734748/gazebo/sensors/ImuSensor.cc?at=default&fileviewer=file-view-default#ImuSensor.cc-370
+  double dt = fdm.time - time_prev;
+  gazebo::math::Vector3 accel = (vel - vel_prev) / dt;
+  vel_prev = vel;
+  time_prev = fdm.time;
 
   // init_dt: unused
   // curr_dt: unused
