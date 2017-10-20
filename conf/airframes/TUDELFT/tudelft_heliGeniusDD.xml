@@ -5,6 +5,8 @@
 -->
 
 <airframe name="GeniusDD">
+  <description>Genius Helicopter with BlueGiga
+  </description>
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_s_1.0">

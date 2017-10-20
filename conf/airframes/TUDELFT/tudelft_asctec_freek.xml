@@ -8,6 +8,8 @@
 -->
 
 <airframe name="MAVTec5">
+  <description>MavTecFreek
+  </description>
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_mx_2.1"/>

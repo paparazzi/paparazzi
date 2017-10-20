@@ -6,6 +6,8 @@
 -->
 
 <airframe name="Delfly Lisa/S 0.1">
+  <description>DelFly Outdoor Auto2
+  </description>
 
   <firmware name="fixedwing">
     <target name="ap"   board="lisa_s_1.0">

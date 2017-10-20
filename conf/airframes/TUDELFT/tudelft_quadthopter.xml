@@ -1,28 +1,7 @@
-<!-- this is an ornitopter frame equiped with Lisa/MXS 1.0 and MX-3.5A pwm motor controllers -->
-
-<!--
-     The motor and rotor configuration is the following:
-
-	   Front
-             ^
-             |
-
-    Motor3(NW)  Motor0(NE)
-        CW      CCW
-          \     /
-           ,___,
-           |   |
-           |   |
-           |___|
-          /     \
-        CCW      CW
-     Motor2(SW)  Motor1(SE)
-
-    The Lisa/S is rotated by 13deg CCW against the frame.
--->
-
 
 <airframe name="flappy">
+  <description>Ornitopter frame equiped with Lisa/MXS 1.0 and MX-3.5A pwm motor controllers
+  </description>
 
   <servos driver="Pwm">
     <servo name="NE" no="0" min="1100" neutral="1120" max="1900"/>

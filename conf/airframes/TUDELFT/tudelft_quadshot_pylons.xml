@@ -1,7 +1,9 @@
-<!-- this is a quadshot vehicle equiped with Lisa/m2.0 and an aspirin 2.1
-     More information on the Quadshot can be found at transition-robotics.com -->
 
 <airframe name="quadshot aspirin 2.1 spektrum">
+  <description>
+     This is a quadshot vehicle equiped with Lisa/m2.0 and an aspirin 2.1
+     More information on the Quadshot can be found at transition-robotics.com
+  </description>
 
   <servos driver="Pwm">
     <servo name="A1" no="0" min="1000" neutral="1100" max="2000"/>

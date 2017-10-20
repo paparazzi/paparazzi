@@ -1,10 +1,10 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<!-- Silverlit Twin
-Lisa/S v1.0 board (http://wiki.paparazziuav.org/wiki/Lisa/S)
--->
-
 <airframe name="SilverTwin">
+  <description>
+Silverlit Twin
+Lisa/S v1.0 board (http://wiki.paparazziuav.org/wiki/Lisa/S)
+  </description>
 
   <firmware name="fixedwing"> <!-- -->
     <target name="ap" board="lisa_s_1.0">
