@@ -28,7 +28,7 @@
 #define IMU_ARDRONE2_H_
 
 #include "generated/airframe.h"
-#include "navdata.h"
+#include "boards/ardrone/navdata.h"
 
 
 /** default gyro sensitivy and neutral from the datasheet
