@@ -6,7 +6,6 @@ import lxml.etree as ET
 import StringIO
 
 import xml_common
-import paparazzi
 
 
 def find_and_add(source, target, search):

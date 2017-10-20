@@ -11,6 +11,12 @@ from os import path
 # Owm Modules
 import gui_dialogs
 import xml_airframe
+
+import os, sys
+lib_path = os.path.abspath(os.path.join('..', '..', 'lib', 'python'))
+print(lib_path)
+sys.path.append(lib_path)
+
 import paparazzi
 
 
