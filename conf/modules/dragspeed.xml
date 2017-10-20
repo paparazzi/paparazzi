@@ -3,6 +3,12 @@
 <module name="dragspeed">
   <doc>
     <description>This module estimates the velocity of rotorcraft by measuring the drag force using the accelerometer.</description>
+    <define name="DRAGSPEED_ACCEL_ID" description="Accelerometer ABI ID to subscribe to (default: ABI_BROADCAST)"/>
+    <define name="DRAGSPEED_COEFF" description="Drag coefficient (mu/m), where Drag coefficient (mu/m) of the linear drag model, where m*a = v*mu"/>
+    <define name="DRAGSPEED_ZERO_X" description="Accelerometer reading (x axis) when stationary [m/s^2]"/>
+    <define name="DRAGSPEED_ZERO_Y" description="Accelerometer reading (y axis) when stationary [m/s^2]"/>
+    <define name="DRAGSPEED_R" description="Velocity measurement noise variance [(m/s)^2]"/>
+    <define name="DRAGSPEED_FILTER" description="First-order low-pass filter strength [0..1] (default: 0.8)"/>
   </doc>
   <settings>
     <dl_settings>
