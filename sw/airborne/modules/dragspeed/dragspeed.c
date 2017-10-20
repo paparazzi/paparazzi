@@ -57,6 +57,7 @@ static void calibrate_coeff(struct Int32Vect3 *mag);
 void dragspeed_init(void) {
 	// Set initial values
 	dragspeed.coeff = DRAGSPEED_COEFF;
+	dragspeed.filter = DRAGSPEED_FILTER;
 	// Register callbacks
 	register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DRAGSPEED,
 			send_dragspeed);
@@ -68,8 +69,8 @@ static void accel_cb(
 		uint32_t stamp,
 		struct Int32Vect3 *mag) {
 	// Estimate current velocity
-	float vx = ACCEL_FLOAT_OF_BFP(mag->x) / dragspeed.coeff;
-	float vy = ACCEL_FLOAT_OF_BFP(mag->y) / dragspeed.coeff;
+	float vx = -ACCEL_FLOAT_OF_BFP(mag->x) / dragspeed.coeff;
+	float vy = -ACCEL_FLOAT_OF_BFP(mag->y) / dragspeed.coeff;
 	// Simple low-pass filter
 	dragspeed.vel.x += (1 - dragspeed.filter) * (vx - dragspeed.vel.x);
 	dragspeed.vel.y += (1 - dragspeed.filter) * (vy - dragspeed.vel.y);
