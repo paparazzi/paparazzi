@@ -335,7 +335,7 @@ static void gazebo_read(void)
   // model->GetWorldLinearAccel() does not seem to take the velocity_decay into account!
   // Derivation of the velocity also follows the IMU implementation of Gazebo itself:
   // https://bitbucket.org/osrf/gazebo/src/e26144434b932b4b6a760ddaa19cfcf9f1734748/gazebo/sensors/ImuSensor.cc?at=default&fileviewer=file-view-default#ImuSensor.cc-370
-  float dt = fdm.time - time_prev;
+  double dt = fdm.time - time_prev;
   gazebo::math::Vector3 accel = (vel - vel_prev) / dt;
   vel_prev = vel;
   time_prev = fdm.time;
