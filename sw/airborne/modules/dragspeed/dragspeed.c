@@ -53,6 +53,7 @@ static void accel_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *mag);
 static void send_dragspeed(struct transport_tx *trans, struct link_device *dev);
 
 static void calibrate_coeff(struct Int32Vect3 *mag);
+static void calibrate_zero(struct Int32Vect3 *mag);
 
 void dragspeed_init(void) {
 	// Set initial values
@@ -69,21 +70,24 @@ static void accel_cb(
 		uint32_t stamp,
 		struct Int32Vect3 *mag) {
 	// Estimate current velocity
-	float vx = -ACCEL_FLOAT_OF_BFP(mag->x) / dragspeed.coeff;
-	float vy = -ACCEL_FLOAT_OF_BFP(mag->y) / dragspeed.coeff;
+	float vx = -(ACCEL_FLOAT_OF_BFP(mag->x) - dragspeed.zero.x)
+			/ dragspeed.coeff;
+	float vy = -(ACCEL_FLOAT_OF_BFP(mag->y) - dragspeed.zero.y)
+			/ dragspeed.coeff;
 	// Simple low-pass filter
 	dragspeed.vel.x += (1 - dragspeed.filter) * (vx - dragspeed.vel.x);
 	dragspeed.vel.y += (1 - dragspeed.filter) * (vy - dragspeed.vel.y);
 	// Send as ABI VELOCITY_ESTIMATE message
 	// Note: set VEL_DRAGSPEED_ID to ABI_DISABLE to disable
 #if VEL_DRAGSPEED_ID
-	if (!dragspeed.do_calibrate_coeff) {
+	if (!dragspeed.do_calibrate_coeff && !dragspeed.do_calibrate_zero) {
 		AbiSendMsgVELOCITY_ESTIMATE(VEL_DRAGSPEED_ID, stamp,
 				dragspeed.vel.x, dragspeed.vel.y, 0, DRAGSPEED_R);
 	}
 #endif
 	// Perform calibration if required
 	calibrate_coeff(mag);
+	calibrate_zero(mag);
 }
 
 /**
@@ -109,16 +113,9 @@ static void calibrate_coeff(struct Int32Vect3 *mag) {
 		return;
 	}
 
-	// Get INS velocity in body coordinates
-	struct FloatEulers *att = stateGetNedToBodyEulers_f();
-	struct EnuCoor_f *vel_ins = stateGetSpeedEnu_f();
-	struct FloatVect2 vel_ins_body = {
-			cos(att->psi) * vel_ins->y + sin(att->psi) * vel_ins->x,
-			-sin(att->psi) * vel_ins->y + cos(att->psi) * vel_ins->x
-	};
 	// Average required coefficients when velocity is sufficiently high
-	float ins_speed = sqrt(vel_ins_body.x * vel_ins_body.x +
-			vel_ins_body.y * vel_ins_body.y);
+	struct EnuCoor_f *vel_ins = stateGetSpeedEnu_f();
+	float ins_speed = sqrt(vel_ins->x * vel_ins->x + vel_ins->y * vel_ins->y);
 	float accel_magn = sqrt(
 			ACCEL_FLOAT_OF_BFP(mag->x) * ACCEL_FLOAT_OF_BFP(mag->x) +
 			ACCEL_FLOAT_OF_BFP(mag->y) * ACCEL_FLOAT_OF_BFP(mag->y));
@@ -130,6 +127,43 @@ static void calibrate_coeff(struct Int32Vect3 *mag) {
 		if (num_samples > 1000 && coeff != 0) {
 			dragspeed.coeff = coeff;
 			dragspeed.do_calibrate_coeff = 0;
+		}
+	}
+}
+
+/**
+ * Calibrate zero velocity by measuring the accelerations while the drone
+ * hovers in-place.
+ */
+static void calibrate_zero(struct Int32Vect3 *mag) {
+	// Reset when new calibration is started
+	static int do_calibrate_prev = 0;
+	static struct FloatVect2 zero;
+	static int num_samples = 0;
+	if (dragspeed.do_calibrate_zero && !do_calibrate_prev) {
+		zero.x = 0;
+		zero.y = 0;
+		num_samples = 0;
+	}
+	do_calibrate_prev = dragspeed.do_calibrate_zero;
+	// Return when calibration is not active
+	if (!dragspeed.do_calibrate_zero) {
+		return;
+	}
+
+	// Average accelerometer readings when velocity is sufficiently low
+	struct EnuCoor_f *vel_ins = stateGetSpeedEnu_f();
+	float ins_speed = sqrt(vel_ins->x * vel_ins->x + vel_ins->y * vel_ins->y);
+	if (ins_speed < 0.1) {
+		zero.x = (zero.x * num_samples + ACCEL_FLOAT_OF_BFP(mag->x))
+				/ (num_samples + 1);
+		zero.x = (zero.y * num_samples + ACCEL_FLOAT_OF_BFP(mag->y))
+				/ (num_samples + 1);
+		num_samples++;
+		// End calibration when enough samples are averaged
+		if (num_samples > 1000) {
+			dragspeed.zero = zero;
+			dragspeed.do_calibrate_zero = 0;
 		}
 	}
 }

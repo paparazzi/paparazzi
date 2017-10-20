@@ -36,6 +36,9 @@ struct dragspeed_t {
 	// Drag coefficient calibration
 	float coeff;
 	int do_calibrate_coeff;
+	// Zero calibration
+	struct FloatVect2 zero;
+	int do_calibrate_zero;
 };
 extern struct dragspeed_t dragspeed;
 
