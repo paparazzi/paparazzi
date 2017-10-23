@@ -47,10 +47,6 @@
       <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="4"/>
       <define name="VIEWVIDEO_QUALITY_FACTOR" value="60"/>
     </module>
-
-    <module name="dragspeed">
-      <define name="DRAGSPEED_COEFF" value="0.75"/>
-    </module>
   </firmware>
 
   <commands>
@@ -196,7 +192,6 @@
     <define name="ACTUATOR_TORQUES" value="0.155, -0.155, 0.155, -0.155" type="double[]"/>
     <define name="JSBSIM_MODEL" value="simple_ardrone2" type="string"/>
     <define name="SENSORS_PARAMS" value="nps_sensors_params_ardrone2.h" type="string"/>
-    <define name="BYPASS_INS" value="1"/>
     <define name="BYPASS_AHRS" value="1"/>
     <define name="SIMULATE_VIDEO" value="1"/>
   </section>
