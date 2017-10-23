@@ -152,17 +152,17 @@ static void accel_cb(
  */
 static void calibrate_coeff(struct Int32Vect3 *accel) {
 	// Reset when new calibration is started
-	static int do_calibrate_prev = FALSE;
+	static int calibrate_prev = FALSE;
 	static struct FloatVect2 coeff;
 	static int num_samples_x = 0;
 	static int num_samples_y = 0;
-	if (dragspeed.calibrate_coeff && !do_calibrate_prev) {
+	if (dragspeed.calibrate_coeff && !calibrate_prev) {
 		coeff.x = 0.0f;
 		coeff.y = 0.0f;
 		num_samples_x = 0;
 		num_samples_y = 0;
 	}
-	do_calibrate_prev = dragspeed.calibrate_coeff;
+	calibrate_prev = dragspeed.calibrate_coeff;
 	// Return when calibration is not active
 	if (!dragspeed.calibrate_coeff) {
 		return;
@@ -210,15 +210,15 @@ static void calibrate_coeff(struct Int32Vect3 *accel) {
  */
 static void calibrate_zero(struct Int32Vect3 *accel) {
 	// Reset when new calibration is started
-	static int do_calibrate_prev = FALSE;
+	static int calibrate_prev = FALSE;
 	static struct FloatVect2 zero;
 	static int num_samples = 0;
-	if (dragspeed.calibrate_zero && !do_calibrate_prev) {
+	if (dragspeed.calibrate_zero && !calibrate_prev) {
 		zero.x = 0.0f;
 		zero.y = 0.0f;
 		num_samples = 0;
 	}
-	do_calibrate_prev = dragspeed.calibrate_zero;
+	calibrate_prev = dragspeed.calibrate_zero;
 	// Return when calibration is not active
 	if (!dragspeed.calibrate_zero) {
 		return;
