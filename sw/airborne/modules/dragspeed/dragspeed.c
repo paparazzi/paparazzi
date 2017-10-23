@@ -152,7 +152,7 @@ static void accel_cb(
  */
 static void calibrate_coeff(struct Int32Vect3 *accel) {
 	// Reset when new calibration is started
-	static int calibrate_prev = FALSE;
+	static bool calibrate_prev = FALSE;
 	static struct FloatVect2 coeff;
 	static int num_samples_x = 0;
 	static int num_samples_y = 0;
@@ -210,7 +210,7 @@ static void calibrate_coeff(struct Int32Vect3 *accel) {
  */
 static void calibrate_zero(struct Int32Vect3 *accel) {
 	// Reset when new calibration is started
-	static int calibrate_prev = FALSE;
+	static bool calibrate_prev = FALSE;
 	static struct FloatVect2 zero;
 	static int num_samples = 0;
 	if (dragspeed.calibrate_zero && !calibrate_prev) {
