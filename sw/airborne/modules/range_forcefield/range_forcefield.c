@@ -43,8 +43,8 @@ float vel_body_y_guided;
 
 
 static abi_event range_sensor_array_ev;
-static void range_sensor_array_cb(uint8_t sender_id, int16_t range_array_size, uint16_t *range_array, int32_t *orientation_array);
-static void range_sensor_array_cb(uint8_t sender_id  __attribute__((unused)), int16_t range_array_size, uint16_t *range_array, int32_t *orientation_array)
+static void range_sensor_array_cb(uint8_t sender_id, int16_t range_array_size, uint16_t *range_array, float* orientation_array);
+static void range_sensor_array_cb(uint8_t sender_id  __attribute__((unused)), int16_t range_array_size, uint16_t *range_array, float *orientation_array)
 {
 
   struct FloatEulers body_to_sensors_eulers = {0, 0, 0};
@@ -54,11 +54,12 @@ static void range_sensor_array_cb(uint8_t sender_id  __attribute__((unused)), in
   // loop through the range sensor array
   for (int i = 0; i < range_array_size; i++) {
     // Get the orientation  and value of the range array measurement (per sensor)
-    body_to_sensors_eulers.phi = ANGLE_FLOAT_OF_BFP(orientation_array[3 * i]);
-    body_to_sensors_eulers.theta = ANGLE_FLOAT_OF_BFP(orientation_array[3 * i + 1]);
-    body_to_sensors_eulers.psi = ANGLE_FLOAT_OF_BFP(orientation_array[3 * i + 2]);
+    body_to_sensors_eulers.phi = orientation_array[3 * i];
+    body_to_sensors_eulers.theta = orientation_array[3 * i + 1];
+    body_to_sensors_eulers.psi = orientation_array[3 * i + 2];
     range = (float)range_array[i] / 1000.;
 
+    printf("%f %f %f\n",body_to_sensors_eulers.phi,body_to_sensors_eulers.theta,body_to_sensors_eulers.psi );
     // Calculate forcefield for that one measurement
     range_sensor_single_velocity_force_field(&vel_avoid_body,  range, &body_to_sensors_eulers,
         inner_border_FF,  outer_border_FF,  min_vel_command,  max_vel_command);

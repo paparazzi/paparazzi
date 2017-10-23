@@ -742,9 +742,9 @@ static void gazebo_init_range_sensors(void)
 static void gazebo_read_range_sensors(void)
 {
   uint16_t range_sensors_uint16[NPS_GAZEBO_RANGE_AMOUNT_SENSORS];
-  int32_t range_sensors_orientation_int32[NPS_GAZEBO_RANGE_AMOUNT_SENSORS];
 
   const double range_orientation[] = { NPS_GAZEBO_RANGE_ORIENTATION };
+  float range_orientation_f[NPS_GAZEBO_RANGE_AMOUNT_SENSORS];
   const double range_orientation_agl[] = { NPS_GAZEBO_RANGE_ORIENTATION_AGL };
 
   uint8_t ray_sensor_count_selected = 0;
@@ -783,8 +783,8 @@ static void gazebo_read_range_sensors(void)
         range_sensors_uint16[index_of_raysensor] = UINT16_MAX;
       }
       for (int n = 0; n < 3; n++) {
-        range_sensors_orientation_int32[index_of_raysensor * 3 + n] =
-          ANGLE_BFP_OF_REAL(range_orientation[index_of_raysensor * 3 + n]);
+    	  range_orientation_f[index_of_raysensor * 3 + n] =
+          (float)range_orientation[index_of_raysensor * 3 + n];
       }
       ray_sensor_count_selected++;
     }
@@ -810,7 +810,7 @@ static void gazebo_read_range_sensors(void)
 
   // SEND ABI MESSAGES
   // Standard range sensor message
-  AbiSendMsgRANGE_SENSORS_ARRAY(RANGE_SENSOR_ARRAY_RAY_SENSOR_GAZEBO_ID, ray_sensor_count_selected, range_sensors_uint16,  range_sensors_orientation_int32);
+  AbiSendMsgRANGE_SENSORS_ARRAY(RANGE_SENSOR_ARRAY_RAY_SENSOR_GAZEBO_ID, ray_sensor_count_selected, range_sensors_uint16, range_orientation_f);
   // Down range sensor as "Sonar"
   if (range_sensor_down != 0) {
     AbiSendMsgAGL(AGL_RAY_SENSOR_GAZEBO_ID, range_sensor_down);

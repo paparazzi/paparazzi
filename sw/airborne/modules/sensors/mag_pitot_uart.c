@@ -150,9 +150,9 @@ static inline void mag_pitot_parse_msg(void)
 #ifdef MAG_PITOT_REMOTE_GROUND_ORIENTATION_AGL
 
         static float remote_ground_orientation_agl_array_float[] = {MAG_PITOT_REMOTE_GROUND_ORIENTATION_AGL};
-        int32_t check_phi = ANGLE_BFP_OF_REAL(remote_ground_orientation_agl_array_float[0]);
-        int32_t check_theta = ANGLE_BFP_OF_REAL(remote_ground_orientation_agl_array_float[1]);
-        int32_t check_psi = ANGLE_BFP_OF_REAL(remote_ground_orientation_agl_array_float[2]);
+        int32_t check_phi = remote_ground_orientation_agl_array_float[0];
+        int32_t check_theta = remote_ground_orientation_agl_array_float[1];
+        int32_t check_psi = remote_ground_orientation_agl_array_float[2];
 
         if (RadOfDeg(5) > fabs(remote_ground_orientation_array[id * 3] - check_psi)
             && RadOfDeg(5) > fabs(remote_ground_orientation_array[id * 3 + 1] - check_theta)
