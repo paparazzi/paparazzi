@@ -1,14 +1,8 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<!-- this is a quadrotor frame in X-configuration equiped with
-     * Autopilot:   Lisa/MX 2.1 with STM32F4  http://wiki.paparazziuav.org/wiki/Lisa/M_v21
-     * IMU:         Integrated Aspirin 2.2    http://wiki.paparazziuav.org/wiki/AspirinIMU
-     * Actuators:   Asctec motor controllers  http://wiki.paparazziuav.org/wiki/Subsystem/actuators#Asctec_v2
-     * GPS:         Piksi                     http://wiki.paparazziuav.org/wiki/Subsystem/gps
-     * RC:          one Spektrum sats         http://wiki.paparazziuav.org/wiki/Subsystem/radio_control#Spektrum
--->
-
 <airframe name="heli450">
+  <description>450 sized helicopter without hiller bar.
+  </description>
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_m_2.0"/>

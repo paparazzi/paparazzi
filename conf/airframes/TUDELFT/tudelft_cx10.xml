@@ -25,6 +25,8 @@
 -->
 
 <airframe name="quadrotor_lisa_mxs">
+  <description>Lisa MX-CX10 (F4)
+  </description>
 
   <servos driver="Pwm">
     <servo name="NE" no="0" min="0" neutral="50" max="1000"/>

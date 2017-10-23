@@ -1,6 +1,9 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <airframe name="ardrone2_opticflow">
+  <description>ARDrone2, Opticflow hover
+  </description>
+
 
   <firmware name="rotorcraft">
     <target name="ap" board="ardrone2"/>

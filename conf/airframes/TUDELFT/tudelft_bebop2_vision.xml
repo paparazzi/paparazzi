@@ -1,6 +1,9 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <airframe name="bebop2_vision">
+  <description>Bebop2, Vision disabled
+  </description>
+
 
   <firmware name="rotorcraft">
     <target name="ap" board="bebop2"/>
