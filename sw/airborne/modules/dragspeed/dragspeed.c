@@ -157,8 +157,8 @@ static void calibrate_coeff(struct Int32Vect3 *accel) {
 	static int num_samples_x = 0;
 	static int num_samples_y = 0;
 	if (dragspeed.calibrate_coeff && !do_calibrate_prev) {
-		coeff.x = 0;
-		coeff.y = 0;
+		coeff.x = 0.0f;
+		coeff.y = 0.0f;
 		num_samples_x = 0;
 		num_samples_y = 0;
 	}
@@ -214,8 +214,8 @@ static void calibrate_zero(struct Int32Vect3 *accel) {
 	static struct FloatVect2 zero;
 	static int num_samples = 0;
 	if (dragspeed.calibrate_zero && !do_calibrate_prev) {
-		zero.x = 0;
-		zero.y = 0;
+		zero.x = 0.0f;
+		zero.y = 0.0f;
 		num_samples = 0;
 	}
 	do_calibrate_prev = dragspeed.calibrate_zero;
@@ -226,7 +226,7 @@ static void calibrate_zero(struct Int32Vect3 *accel) {
 
 	// Average accelerometer readings when velocity is sufficiently low
 	struct EnuCoor_f *vel_ins = stateGetSpeedEnu_f();
-	float ins_speed = sqrt(vel_ins->x * vel_ins->x + vel_ins->y * vel_ins->y);
+	float ins_speed = sqrtf(vel_ins->x * vel_ins->x + vel_ins->y * vel_ins->y);
 	if (ins_speed < 0.1) {
 		zero.x = (zero.x * num_samples + ACCEL_FLOAT_OF_BFP(accel->x))
 				/ (num_samples + 1);
