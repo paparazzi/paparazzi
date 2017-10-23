@@ -20,7 +20,20 @@
 /**
  * @file "modules/dragspeed/dragspeed.c"
  * @author Tom van Dijk
- * This module estimates the velocity of rotorcraft by measuring the drag force using the accelerometer.
+ * This module estimates the velocity of rotorcraft by measuring the drag force
+ * using the accelerometer.
+ *
+ * During flight, gravity, thrust and drag act on the quadrotor. Only the drag
+ * is measured along the quadrotor's horizontal axes. Using a simple linear drag
+ * model, this deceleration can be transformed back into an estimate of the
+ * drone's airspeed.
+ *
+ * This module makes the following assumptions:
+ * - The drag acting on the quadrotor grows linearly with velocity.
+ * - The size and weight of the drone are constant (changes in size and weight
+ *   require re-calibration).
+ * - Pitch and roll angles are small (< ~20 deg).
+ * - No wind (when used as ground speed).
  */
 
 #include "modules/dragspeed/dragspeed.h"
