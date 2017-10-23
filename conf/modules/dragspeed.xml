@@ -15,7 +15,7 @@
       - The drag acting on the quadrotor grows linearly with velocity.
       - The size and weight of the drone are constant (changes in size and weight
         require re-calibration).
-      - Pitch and roll angles are small (< ~20 deg).
+      - Pitch and roll angles are small (less than ~20 deg).
       - No wind (when used as ground speed).
     </description>
     <define name="DRAGSPEED_SEND_ABI_MESSAGE" description="Send VELOCITY_ESTIMATE ABI messages" value="TRUE|FALSE (default: TRUE)"/>
@@ -31,11 +31,11 @@
       <dl_settings name="dragspeed">
         <dl_setting shortname="Coeff X" var="dragspeed.coeff.x" min="0" step="0.01" max="2.0"/>
         <dl_setting shortname="Coeff Y" var="dragspeed.coeff.y" min="0" step="0.01" max="2.0"/>
-        <dl_setting shortname="Calibrate coeff" var="dragspeed.do_calibrate_coeff" min="0" step="1" max="1"/>
+        <dl_setting shortname="Calibrate coeff" var="dragspeed.calibrate_coeff" min="0" step="1" max="1"/>
         <dl_setting shortname="Filter" var="dragspeed.filter" min="0" step="0.01" max="1.0"/>
         <dl_setting shortname="Zero_X" var="dragspeed.zero.x" min="-2.0" step="0.01" max="2.0"/>
         <dl_setting shortname="Zero_Y" var="dragspeed.zero.y" min="-2.0" step="0.01" max="2.0"/>
-        <dl_setting shortname="Calibrate zero" var="dragspeed.do_calibrate_zero" min="0" step="1" max="1"/>
+        <dl_setting shortname="Calibrate zero" var="dragspeed.calibrate_zero" min="0" step="1" max="1"/>
       </dl_settings>
     </dl_settings>
   </settings>

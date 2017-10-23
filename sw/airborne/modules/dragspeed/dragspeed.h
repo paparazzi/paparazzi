@@ -35,10 +35,10 @@ struct dragspeed_t {
 	float filter;
 	// Drag coefficient calibration
 	struct FloatVect2 coeff;
-	int do_calibrate_coeff;
+	bool calibrate_coeff;
 	// Zero calibration
 	struct FloatVect2 zero;
-	int do_calibrate_zero;
+	bool calibrate_zero;
 };
 extern struct dragspeed_t dragspeed;
 

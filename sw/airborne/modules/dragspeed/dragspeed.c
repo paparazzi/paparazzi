@@ -101,17 +101,17 @@ void dragspeed_init(void) {
 }
 
 bool dragspeed_calibrate_coeff(void) {
-	dragspeed.do_calibrate_coeff = 1;
+	dragspeed.calibrate_coeff = TRUE;
 	return FALSE;
 }
 
 bool dragspeed_calibrate_zero(void) {
-	dragspeed.do_calibrate_zero = 1;
+	dragspeed.calibrate_zero = TRUE;
 	return FALSE;
 }
 
 bool dragspeed_is_calibrating(void) {
-	return dragspeed.do_calibrate_coeff || dragspeed.do_calibrate_zero;
+	return dragspeed.calibrate_coeff || dragspeed.calibrate_zero;
 }
 
 static void accel_cb(
@@ -128,7 +128,7 @@ static void accel_cb(
 	dragspeed.vel.y += (1 - dragspeed.filter) * (vy - dragspeed.vel.y);
 	// Send as ABI VELOCITY_ESTIMATE message
 #if DRAGSPEED_SEND_ABI_MESSAGE
-	if (!dragspeed.do_calibrate_coeff && !dragspeed.do_calibrate_zero) {
+	if (!dragspeed.calibrate_coeff && !dragspeed.calibrate_zero) {
 		AbiSendMsgVELOCITY_ESTIMATE(VEL_DRAGSPEED_ID, stamp,
 				dragspeed.vel.x, dragspeed.vel.y, 0, DRAGSPEED_R);
 	}
@@ -148,19 +148,19 @@ static void accel_cb(
  */
 static void calibrate_coeff(struct Int32Vect3 *accel) {
 	// Reset when new calibration is started
-	static int do_calibrate_prev = 0;
+	static int do_calibrate_prev = FALSE;
 	static struct FloatVect2 coeff;
 	static int num_samples_x = 0;
 	static int num_samples_y = 0;
-	if (dragspeed.do_calibrate_coeff && !do_calibrate_prev) {
+	if (dragspeed.calibrate_coeff && !do_calibrate_prev) {
 		coeff.x = 0;
 		coeff.y = 0;
 		num_samples_x = 0;
 		num_samples_y = 0;
 	}
-	do_calibrate_prev = dragspeed.do_calibrate_coeff;
+	do_calibrate_prev = dragspeed.calibrate_coeff;
 	// Return when calibration is not active
-	if (!dragspeed.do_calibrate_coeff) {
+	if (!dragspeed.calibrate_coeff) {
 		return;
 	}
 
@@ -186,7 +186,7 @@ static void calibrate_coeff(struct Int32Vect3 *accel) {
 	if (num_samples_x > 1000 && num_samples_y > 1000 && coeff.x != 0
 			&& coeff.y != 0) {
 		dragspeed.coeff = coeff;
-		dragspeed.do_calibrate_coeff = 0;
+		dragspeed.calibrate_coeff = FALSE;
 	}
 }
 
@@ -199,17 +199,17 @@ static void calibrate_coeff(struct Int32Vect3 *accel) {
  */
 static void calibrate_zero(struct Int32Vect3 *accel) {
 	// Reset when new calibration is started
-	static int do_calibrate_prev = 0;
+	static int do_calibrate_prev = FALSE;
 	static struct FloatVect2 zero;
 	static int num_samples = 0;
-	if (dragspeed.do_calibrate_zero && !do_calibrate_prev) {
+	if (dragspeed.calibrate_zero && !do_calibrate_prev) {
 		zero.x = 0;
 		zero.y = 0;
 		num_samples = 0;
 	}
-	do_calibrate_prev = dragspeed.do_calibrate_zero;
+	do_calibrate_prev = dragspeed.calibrate_zero;
 	// Return when calibration is not active
-	if (!dragspeed.do_calibrate_zero) {
+	if (!dragspeed.calibrate_zero) {
 		return;
 	}
 
@@ -225,7 +225,7 @@ static void calibrate_zero(struct Int32Vect3 *accel) {
 		// End calibration when enough samples are averaged
 		if (num_samples > 1000) {
 			dragspeed.zero = zero;
-			dragspeed.do_calibrate_zero = 0;
+			dragspeed.calibrate_zero = FALSE;
 		}
 	}
 }
