@@ -179,16 +179,16 @@ static void calibrate_coeff(struct Int32Vect3 *accel) {
 	struct FloatEulers *att = stateGetNedToBodyEulers_f();
 	struct EnuCoor_f *vel_ins = stateGetSpeedEnu_f();
 	struct FloatVect2 vel_ins_body = {
-			cos(att->psi) * vel_ins->y + sin(att->psi) * vel_ins->x,
-			-sin(att->psi) * vel_ins->y + cos(att->psi) * vel_ins->x
+			cosf(att->psi) * vel_ins->y + sinf(att->psi) * vel_ins->x,
+			-sinf(att->psi) * vel_ins->y + cosf(att->psi) * vel_ins->x
 	};
 	// Calibrate coefficient when velocity is sufficiently high
-	if (abs(vel_ins_body.x) > 0.5) {
+	if (fabsf(vel_ins_body.x) > 0.5) {
 		float this_coeff = -ACCEL_FLOAT_OF_BFP(accel->x) / vel_ins_body.x;
 		coeff.x = (coeff.x * num_samples_x + this_coeff) / (num_samples_x + 1);
 		num_samples_x++;
 	}
-	if (abs(vel_ins_body.y) > 0.5) {
+	if (fabsf(vel_ins_body.y) > 0.5) {
 		float this_coeff = -ACCEL_FLOAT_OF_BFP(accel->y) / vel_ins_body.y;
 		coeff.y = (coeff.y * num_samples_y + this_coeff) / (num_samples_y + 1);
 		num_samples_y++;
@@ -247,8 +247,8 @@ static void send_dragspeed(struct transport_tx *trans, struct link_device *dev) 
 	struct FloatEulers *att = stateGetNedToBodyEulers_f();
 	struct EnuCoor_f *vel_ins = stateGetSpeedEnu_f();
 	struct FloatVect2 vel_ins_body = {
-			cos(att->psi) * vel_ins->y + sin(att->psi) * vel_ins->x,
-			-sin(att->psi) * vel_ins->y + cos(att->psi) * vel_ins->x
+			cosf(att->psi) * vel_ins->y + sinf(att->psi) * vel_ins->x,
+			-sinf(att->psi) * vel_ins->y + cosf(att->psi) * vel_ins->x
 	};
 	// Send telemetry message
 	pprz_msg_send_DRAGSPEED(trans, dev, AC_ID,
