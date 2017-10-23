@@ -127,7 +127,6 @@ static void accel_cb(
 	dragspeed.vel.x += (1 - dragspeed.filter) * (vx - dragspeed.vel.x);
 	dragspeed.vel.y += (1 - dragspeed.filter) * (vy - dragspeed.vel.y);
 	// Send as ABI VELOCITY_ESTIMATE message
-	// Note: set VEL_DRAGSPEED_ID to ABI_DISABLE to disable
 #if DRAGSPEED_SEND_ABI_MESSAGE
 	if (!dragspeed.do_calibrate_coeff && !dragspeed.do_calibrate_zero) {
 		AbiSendMsgVELOCITY_ESTIMATE(VEL_DRAGSPEED_ID, stamp,
