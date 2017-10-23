@@ -141,10 +141,10 @@ static inline void mag_pitot_parse_msg(void)
         static float remote_ground_orientation_array_float[] = {MAG_PITOT_REMOTE_GROUND_ORIENTATIONS};
         for (int n = 0; n < 3; n++) {
           remote_ground_orientation_array[id * 3 + n] =
-            ANGLE_BFP_OF_REAL(remote_ground_orientation_array_float[id * 3 + n]);
+           (float)remote_ground_orientation_array_float[id * 3 + n];
         }
         //Send the abi message to be used by
-        AbiSendMsgRANGE_SENSORS_ARRAY(RANGE_SENSOR_ARRAY_VL53L0_ID, length, remote_ground_value_array, remote_ground_orientation_array);
+        AbiSendMsgRANGE_SENSORS_ARRAY(RANGE_SENSOR_ARRAY_VL53L0_ID, length, remote_ground_value_array, remote_ground_orientation_array_float);
 
         //If an AGL_sonar orientation is defined, send this also by ABI
 #ifdef MAG_PITOT_REMOTE_GROUND_ORIENTATION_AGL
@@ -154,7 +154,7 @@ static inline void mag_pitot_parse_msg(void)
         int32_t check_theta = remote_ground_orientation_agl_array_float[1];
         int32_t check_psi = remote_ground_orientation_agl_array_float[2];
 
-        if (RadOfDeg(5) > fabs(remote_ground_orientation_array[id * 3] - check_psi)
+        if (RadOfDeg(5) > fabs(remote_ground_orientation_array[id * 3] - check_phi)
             && RadOfDeg(5) > fabs(remote_ground_orientation_array[id * 3 + 1] - check_theta)
             && RadOfDeg(5) > fabs(remote_ground_orientation_array[id * 3 + 2] - check_psi)) {
           float agl = (float)range / 1000.;

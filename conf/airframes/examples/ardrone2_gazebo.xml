@@ -22,9 +22,8 @@
     <module name="stabilization" type="int_quat"/>
     <module name="ahrs" type="int_cmpl_quat"/>
     <module name="ins" type="extended"/>
-  </firmware>
 
-  <modules main_freq="512">
+<!-- Modules -->
     <module name="bat_voltage_ardrone2"/>
     <!-- remove the gps_ubx_ucenter module if you use the sirf gps (flight recorder) -->
     <module name="gps" type="ubx_ucenter"/>
@@ -34,6 +33,7 @@
     <!--module name="logger_file"/-->
     <module name="video_thread">
     </module>
+    <module name="range_forcefield"/>    
     <module name="cv_colorfilter">
       <define name="COLORFILTER_CAMERA" value="front_camera"/>
       <!--define name="COLORFILTER_SEND_OBSTACLE" value="TRUE"/-->  <!-- If you want to test out the guided flightplan, uncomment this define-->  
@@ -44,7 +44,9 @@
       <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="4"/>
       <define name="VIEWVIDEO_QUALITY_FACTOR" value="60"/>
     </module>
-  </modules>
+
+  </firmware>
+
 
   <commands>
     <axis name="PITCH" failsafe_value="0"/>
@@ -76,6 +78,20 @@
     <set servo="BOTTOM_RIGHT" value="motor_mixing.commands[MOTOR_BACK_RIGHT]"/>
     <set servo="BOTTOM_LEFT" value="motor_mixing.commands[MOTOR_BACK_LEFT]"/>
   </command_laws>
+
+
+<!--Orientation of the laser array with 4 sensors relative from the body fixed coordinates
+, with the hand right rule with eulerangle order of (phi, theta, phi) in [rad]:
+       0) (0,  0, -1.57) -> left
+       1) (0, 1.57, 0) -> up
+       2) (0, 0, 1.57) -> right
+       4) (0, -1.57, 0) -> down
+-->
+  <section name="MAG_PITOT" prefix="MAG_PITOT_">
+      <define name="REMOTE_GROUND_AMOUNT_SENSORS" value="4"/>
+      <define name="REMOTE_GROUND_ORIENTATIONS" value="0., 0., -1.57, 0., 1.57, 0.,  0., 0., 1.57, 0., -1.57, 0." type="double[]"/>
+      <define name="REMOTE_GROUND_ORIENTATION_AGL" value="0., -1.57, 0." type="double[]"/>
+  </section>
 
   <section name="IMU" prefix="IMU_">
     <!-- Accelero -->
@@ -191,6 +207,9 @@
     <define name="SENSORS_PARAMS" value="nps_sensors_params_ardrone2.h" type="string"/>
     <define name="BYPASS_AHRS" value="1"/>
     <define name="SIMULATE_VIDEO" value="1"/>
+    <define name="SIMULATE_RANGE_SENSORS" value="1"/>
+    <define name="GAZEBO_RANGE_AMOUNT_SENSORS" value="6"/>
+    <define name="GAZEBO_RANGE_ORIENTATION" value="0., -1.57, 0.,  0., 1.57, 0.,  0., 0., -1.57, 0., 0., 1.57, 0., 0., 0.,  0., 0., -3.14" type="double[]"/>      
   </section>
 
   <section name="AUTOPILOT">
