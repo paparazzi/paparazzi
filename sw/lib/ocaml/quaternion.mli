@@ -29,9 +29,9 @@ type quaternion = {
   z : float}
 
 type euler_angle = {
-  r : float;
-  p : float;
-  y : float}
+  ro : float;
+  pi : float;
+  ya : float}
 
 val quaternion_from_angle : float -> float -> float -> quaternion
 

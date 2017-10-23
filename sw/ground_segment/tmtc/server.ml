@@ -175,7 +175,7 @@ let send_cam_status = fun a ->
         and br = quaternion_from_angle (hfv /. -2.0) (vfv /. -2.0) 0.0
         and bl = quaternion_from_angle (hfv /.  2.0) (vfv /. -2.0) 0.0 in
 
-        let gimRot = quaternion_from_angle 0.0 (-.a.cam.tilt) (-.a.cam.pan)
+        let gimRot = quaternion_from_angle 0.0 (-. (a.cam.tilt -. (Deg>>Rad) 90.)) (-.a.cam.pan)
         and acRot = quaternion_from_angle a.roll a.pitch (-.a.heading) in
 
         let tr_rotated = multiply_quaternion acRot (multiply_quaternion gimRot tr)
@@ -188,11 +188,11 @@ let send_cam_status = fun a ->
         
         let find_point_on_ground q =
           let angles = quaternion_to_angle q in
-          let dx = a.agl *. tan(bind_max_angles angles.r) 
-          and dy = a.agl *. tan(bind_max_angles angles.p) in
+          let dx = a.agl *. tan(bind_max_angles angles.ro) 
+          and dy = a.agl *. tan(bind_max_angles angles.pi) in
 
-          let utmx = dx *. cos angles.y -. dy *. sin angles.y
-          and utmy = dx *. sin angles.y +. dy *. cos angles.y in
+          let utmx = dx *. cos angles.ya -. dy *. sin angles.ya
+          and utmy = dx *. sin angles.ya +. dy *. cos angles.ya in
             
           Aircraft.add_pos_to_nav_ref (Geo a.pos) (utmx, utmy) in
     
