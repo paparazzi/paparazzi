@@ -182,7 +182,7 @@ static void calibrate_zero(struct Int32Vect3 *mag) {
 	if (ins_speed < 0.1) {
 		zero.x = (zero.x * num_samples + ACCEL_FLOAT_OF_BFP(mag->x))
 				/ (num_samples + 1);
-		zero.x = (zero.y * num_samples + ACCEL_FLOAT_OF_BFP(mag->y))
+		zero.y = (zero.y * num_samples + ACCEL_FLOAT_OF_BFP(mag->y))
 				/ (num_samples + 1);
 		num_samples++;
 		// End calibration when enough samples are averaged
