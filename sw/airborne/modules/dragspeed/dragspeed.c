@@ -75,6 +75,8 @@ void dragspeed_init(void) {
 	dragspeed.coeff.x = DRAGSPEED_COEFF_X;
 	dragspeed.coeff.y = DRAGSPEED_COEFF_Y;
 	dragspeed.filter = DRAGSPEED_FILTER;
+	dragspeed.zero.x = DRAGSPEED_ZERO_X;
+	dragspeed.zero.y = DRAGSPEED_ZERO_Y;
 	// Register callbacks
 	register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DRAGSPEED,
 			send_dragspeed);
