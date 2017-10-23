@@ -34,7 +34,7 @@ struct dragspeed_t {
 	// Low-pass filter
 	float filter;
 	// Drag coefficient calibration
-	float coeff;
+	struct FloatVect2 coeff;
 	int do_calibrate_coeff;
 	// Zero calibration
 	struct FloatVect2 zero;

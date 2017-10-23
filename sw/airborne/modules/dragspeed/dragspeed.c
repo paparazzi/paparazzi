@@ -33,8 +33,12 @@
 #define DRAGSPEED_ACCEL_ID ABI_BROADCAST
 #endif
 
-#ifndef DRAGSPEED_COEFF
-#define DRAGSPEED_COEFF 1.0 /// Drag coefficient (mu/m) of the linear drag model, where m*a = v*mu
+#ifndef DRAGSPEED_COEFF_X
+#define DRAGSPEED_COEFF_X 1.0 /// Drag coefficient (mu/m) of the linear drag model along x axis, where m*a = v*mu
+#endif
+
+#ifndef DRAGSPEED_COEFF_Y
+#define DRAGSPEED_COEFF_Y 1.0 /// Drag coefficient (mu/m) of the linear drag model along y axis, where m*a = v*mu
 #endif
 
 #ifndef DRAGSPEED_ZERO_X
@@ -56,16 +60,20 @@
 struct dragspeed_t dragspeed;
 
 static abi_event accel_ev;
-static void accel_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *mag);
+static void accel_cb(
+		uint8_t sender_id,
+		uint32_t stamp,
+		struct Int32Vect3 *accel);
 
 static void send_dragspeed(struct transport_tx *trans, struct link_device *dev);
 
-static void calibrate_coeff(struct Int32Vect3 *mag);
-static void calibrate_zero(struct Int32Vect3 *mag);
+static void calibrate_coeff(struct Int32Vect3 *accel);
+static void calibrate_zero(struct Int32Vect3 *accel);
 
 void dragspeed_init(void) {
 	// Set initial values
-	dragspeed.coeff = DRAGSPEED_COEFF;
+	dragspeed.coeff.x = DRAGSPEED_COEFF_X;
+	dragspeed.coeff.y = DRAGSPEED_COEFF_Y;
 	dragspeed.filter = DRAGSPEED_FILTER;
 	// Register callbacks
 	register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DRAGSPEED,
@@ -90,12 +98,12 @@ bool dragspeed_is_calibrating(void) {
 static void accel_cb(
 		uint8_t sender_id __attribute__((unused)),
 		uint32_t stamp,
-		struct Int32Vect3 *mag) {
+		struct Int32Vect3 *accel) {
 	// Estimate current velocity
-	float vx = -(ACCEL_FLOAT_OF_BFP(mag->x) - dragspeed.zero.x)
-			/ dragspeed.coeff;
-	float vy = -(ACCEL_FLOAT_OF_BFP(mag->y) - dragspeed.zero.y)
-			/ dragspeed.coeff;
+	float vx = -(ACCEL_FLOAT_OF_BFP(accel->x) - dragspeed.zero.x)
+			/ dragspeed.coeff.x;
+	float vy = -(ACCEL_FLOAT_OF_BFP(accel->y) - dragspeed.zero.y)
+			/ dragspeed.coeff.y;
 	// Simple low-pass filter
 	dragspeed.vel.x += (1 - dragspeed.filter) * (vx - dragspeed.vel.x);
 	dragspeed.vel.y += (1 - dragspeed.filter) * (vy - dragspeed.vel.y);
@@ -108,8 +116,8 @@ static void accel_cb(
 	}
 #endif
 	// Perform calibration if required
-	calibrate_coeff(mag);
-	calibrate_zero(mag);
+	calibrate_coeff(accel);
+	calibrate_zero(accel);
 }
 
 /**
@@ -120,14 +128,17 @@ static void accel_cb(
  *
  * This routine assumes that the accelerometers have been zeroed beforehand.
  */
-static void calibrate_coeff(struct Int32Vect3 *mag) {
+static void calibrate_coeff(struct Int32Vect3 *accel) {
 	// Reset when new calibration is started
 	static int do_calibrate_prev = 0;
-	static float coeff = 0;
-	static int num_samples = 0;
+	static struct FloatVect2 coeff;
+	static int num_samples_x = 0;
+	static int num_samples_y = 0;
 	if (dragspeed.do_calibrate_coeff && !do_calibrate_prev) {
-		coeff = 0;
-		num_samples = 0;
+		coeff.x = 0;
+		coeff.y = 0;
+		num_samples_x = 0;
+		num_samples_y = 0;
 	}
 	do_calibrate_prev = dragspeed.do_calibrate_coeff;
 	// Return when calibration is not active
@@ -135,21 +146,29 @@ static void calibrate_coeff(struct Int32Vect3 *mag) {
 		return;
 	}
 
-	// Average required coefficients when velocity is sufficiently high
+	// Calculate INS velocity in body frame
+	struct FloatEulers *att = stateGetNedToBodyEulers_f();
 	struct EnuCoor_f *vel_ins = stateGetSpeedEnu_f();
-	float ins_speed = sqrt(vel_ins->x * vel_ins->x + vel_ins->y * vel_ins->y);
-	float accel_magn = sqrt(
-			ACCEL_FLOAT_OF_BFP(mag->x) * ACCEL_FLOAT_OF_BFP(mag->x) +
-			ACCEL_FLOAT_OF_BFP(mag->y) * ACCEL_FLOAT_OF_BFP(mag->y));
-	if (ins_speed > 0.5 && accel_magn != 0) {
-		float this_coeff = accel_magn / ins_speed;
-		coeff = (coeff * num_samples + this_coeff) / (num_samples + 1);
-		num_samples++;
-		// End calibration when enough samples are averaged
-		if (num_samples > 1000 && coeff != 0) {
-			dragspeed.coeff = coeff;
-			dragspeed.do_calibrate_coeff = 0;
-		}
+	struct FloatVect2 vel_ins_body = {
+			cos(att->psi) * vel_ins->y + sin(att->psi) * vel_ins->x,
+			-sin(att->psi) * vel_ins->y + cos(att->psi) * vel_ins->x
+	};
+	// Calibrate coefficient when velocity is sufficiently high
+	if (abs(vel_ins_body.x) > 0.5) {
+		float this_coeff = -ACCEL_FLOAT_OF_BFP(accel->x) / vel_ins_body.x;
+		coeff.x = (coeff.x * num_samples_x + this_coeff) / (num_samples_x + 1);
+		num_samples_x++;
+	}
+	if (abs(vel_ins_body.y) > 0.5) {
+		float this_coeff = -ACCEL_FLOAT_OF_BFP(accel->y) / vel_ins_body.y;
+		coeff.y = (coeff.y * num_samples_y + this_coeff) / (num_samples_y + 1);
+		num_samples_y++;
+	}
+	// End calibration when enough samples are averaged
+	if (num_samples_x > 1000 && num_samples_y > 1000 && coeff.x != 0
+			&& coeff.y != 0) {
+		dragspeed.coeff = coeff;
+		dragspeed.do_calibrate_coeff = 0;
 	}
 }
 
@@ -160,7 +179,7 @@ static void calibrate_coeff(struct Int32Vect3 *mag) {
  * The zero-velocity readings can change between flights, e.g. because of small
  * differences in battery or outer hull positions.
  */
-static void calibrate_zero(struct Int32Vect3 *mag) {
+static void calibrate_zero(struct Int32Vect3 *accel) {
 	// Reset when new calibration is started
 	static int do_calibrate_prev = 0;
 	static struct FloatVect2 zero;
@@ -180,9 +199,9 @@ static void calibrate_zero(struct Int32Vect3 *mag) {
 	struct EnuCoor_f *vel_ins = stateGetSpeedEnu_f();
 	float ins_speed = sqrt(vel_ins->x * vel_ins->x + vel_ins->y * vel_ins->y);
 	if (ins_speed < 0.1) {
-		zero.x = (zero.x * num_samples + ACCEL_FLOAT_OF_BFP(mag->x))
+		zero.x = (zero.x * num_samples + ACCEL_FLOAT_OF_BFP(accel->x))
 				/ (num_samples + 1);
-		zero.y = (zero.y * num_samples + ACCEL_FLOAT_OF_BFP(mag->y))
+		zero.y = (zero.y * num_samples + ACCEL_FLOAT_OF_BFP(accel->y))
 				/ (num_samples + 1);
 		num_samples++;
 		// End calibration when enough samples are averaged
