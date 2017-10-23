@@ -42,6 +42,8 @@
 #include "subsystems/abi_common.h"
 #include "subsystems/datalink/telemetry.h"
 
+#include <stdio.h>
+
 #ifndef DRAGSPEED_SEND_ABI_MESSAGE
 #define DRAGSPEED_SEND_ABI_MESSAGE TRUE
 #endif
@@ -56,14 +58,6 @@
 
 #ifndef DRAGSPEED_COEFF_Y
 #define DRAGSPEED_COEFF_Y 1.0 /// Drag coefficient (mu/m) of the linear drag model along y axis, where m*a = v*mu
-#endif
-
-#ifndef DRAGSPEED_ZERO_X
-#define DRAGSPEED_ZERO_X 0.0 /// Accelerometer reading (x axis) when stationary [m/s^2]
-#endif
-
-#ifndef DRAGSPEED_ZERO_Y
-#define DRAGSPEED_ZERO_Y 0.0 /// Accelerometer reading (y axis) when stationary [m/s^2]
 #endif
 
 #ifndef DRAGSPEED_R
@@ -92,8 +86,17 @@ void dragspeed_init(void) {
 	dragspeed.coeff.x = DRAGSPEED_COEFF_X;
 	dragspeed.coeff.y = DRAGSPEED_COEFF_Y;
 	dragspeed.filter = DRAGSPEED_FILTER;
+#ifdef DRAGSPEED_ZERO_X
 	dragspeed.zero.x = DRAGSPEED_ZERO_X;
+#endif
+#ifdef DRAGSPEED_ZERO_Y
 	dragspeed.zero.y = DRAGSPEED_ZERO_Y;
+#endif
+#if defined(DRAGSPEED_ZERO_X) && defined(DRAGSPEED_ZERO_Y)
+	dragspeed.zero_calibrated = TRUE;
+#else
+	dragspeed.zero_calibrated = FALSE;
+#endif
 	// Register callbacks
 	register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DRAGSPEED,
 			send_dragspeed);
@@ -144,7 +147,8 @@ static void accel_cb(
  * Should be performed with VEL_DRAGSPEED_ID set to ABI_DISABLE, but for safety
  * the ABI messages are also disabled automatically when calibration is active.
  *
- * This routine assumes that the accelerometers have been zeroed beforehand.
+ * This routine requires the accelerometers to have been zeroed beforehand,
+ * otherwise it will return without changing the drag coefficient!
  */
 static void calibrate_coeff(struct Int32Vect3 *accel) {
 	// Reset when new calibration is started
@@ -161,6 +165,13 @@ static void calibrate_coeff(struct Int32Vect3 *accel) {
 	do_calibrate_prev = dragspeed.calibrate_coeff;
 	// Return when calibration is not active
 	if (!dragspeed.calibrate_coeff) {
+		return;
+	}
+	// Also return if zero calibration has not been performed yet
+	if (!dragspeed.zero_calibrated) {
+		fprintf(stderr,
+				"[dragspeed] Error: zero measurement should be calibrated before drag coefficient!\n");
+		dragspeed.calibrate_coeff = FALSE;
 		return;
 	}
 
@@ -226,6 +237,7 @@ static void calibrate_zero(struct Int32Vect3 *accel) {
 		if (num_samples > 1000) {
 			dragspeed.zero = zero;
 			dragspeed.calibrate_zero = FALSE;
+			dragspeed.zero_calibrated = TRUE;
 		}
 	}
 }

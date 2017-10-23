@@ -39,6 +39,7 @@ struct dragspeed_t {
 	// Zero calibration
 	struct FloatVect2 zero;
 	bool calibrate_zero;
+	bool zero_calibrated;
 };
 extern struct dragspeed_t dragspeed;
 
