@@ -59,7 +59,6 @@ static void range_sensor_array_cb(uint8_t sender_id  __attribute__((unused)), in
     body_to_sensors_eulers.psi = orientation_array[3 * i + 2];
     range = (float)range_array[i] / 1000.;
 
-    printf("%f %f %f\n",body_to_sensors_eulers.phi,body_to_sensors_eulers.theta,body_to_sensors_eulers.psi );
     // Calculate forcefield for that one measurement
     range_sensor_single_velocity_force_field(&vel_avoid_body,  range, &body_to_sensors_eulers,
         inner_border_FF,  outer_border_FF,  min_vel_command,  max_vel_command);

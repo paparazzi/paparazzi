@@ -80,6 +80,20 @@
     <set servo="BOTTOM_LEFT" value="motor_mixing.commands[MOTOR_BACK_LEFT]"/>
   </command_laws>
 
+
+<!--Orientation of the laser array with 4 sensors relative from the body fixed coordinates
+, with the hand right rule with eulerangle order of (phi, theta, phi) in [rad]:
+       0) (0,  0, -1.57) -> left
+       1) (0, 1.57, 0) -> up
+       2) (0, 0, 1.57) -> right
+       4) (0, -1.57, 0) -> down
+-->
+  <section name="MAG_PITOT" prefix="MAG_PITOT_">
+      <define name="REMOTE_GROUND_AMOUNT_SENSORS" value="4"/>
+      <define name="REMOTE_GROUND_ORIENTATIONS" value="0., 0., -1.57, 0., 1.57, 0.,  0., 0., 1.57, 0., -1.57, 0." type="double[]"/>
+      <define name="REMOTE_GROUND_ORIENTATION_AGL" value="0., -1.57, 0." type="double[]"/>
+  </section>
+
   <section name="IMU" prefix="IMU_">
     <!-- Accelero -->
     <define name="ACCEL_X_NEUTRAL" value="2048"/>
@@ -194,6 +208,9 @@
     <define name="SENSORS_PARAMS" value="nps_sensors_params_ardrone2.h" type="string"/>
     <define name="BYPASS_AHRS" value="1"/>
     <define name="SIMULATE_VIDEO" value="1"/>
+    <define name="SIMULATE_RANGE_SENSORS" value="1"/>
+    <define name="GAZEBO_RANGE_AMOUNT_SENSORS" value="6"/>
+    <define name="GAZEBO_RANGE_ORIENTATION" value="0., -1.57, 0.,  0., 1.57, 0.,  0., 0., -1.57, 0., 0., 1.57, 0., 0., 0.,  0., 0., -3.14" type="double[]"/>      
   </section>
 
   <section name="AUTOPILOT">
