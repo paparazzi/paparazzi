@@ -2,7 +2,23 @@
 
 <module name="dragspeed">
   <doc>
-    <description>This module estimates the velocity of rotorcraft by measuring the drag force using the accelerometer.</description>
+    <description>
+      This module estimates the velocity of rotorcraft by measuring the drag force
+      using the accelerometer.
+   
+      During flight, gravity, thrust and drag act on the quadrotor. Only the drag
+      is measured along the quadrotor's horizontal axes. Using a simple linear drag
+      model, this deceleration can be transformed back into an estimate of the
+      drone's airspeed.
+   
+      This module makes the following assumptions:
+      - The drag acting on the quadrotor grows linearly with velocity.
+      - The size and weight of the drone are constant (changes in size and weight
+        require re-calibration).
+      - Pitch and roll angles are small (< ~20 deg).
+      - No wind (when used as ground speed).
+    </description>
+    <define name="DRAGSPEED_SEND_ABI_MESSAGE" description="Send VELOCITY_ESTIMATE ABI messages" value="TRUE|FALSE (default: TRUE)"/>
     <define name="DRAGSPEED_ACCEL_ID" description="Accelerometer ABI ID to subscribe to (default: ABI_BROADCAST)"/>
     <define name="DRAGSPEED_COEFF" description="Drag coefficient (mu/m), where Drag coefficient (mu/m) of the linear drag model, where m*a = v*mu"/>
     <define name="DRAGSPEED_ZERO_X" description="Accelerometer reading (x axis) when stationary [m/s^2]"/>

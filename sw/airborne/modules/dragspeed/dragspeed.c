@@ -42,6 +42,10 @@
 #include "subsystems/abi_common.h"
 #include "subsystems/datalink/telemetry.h"
 
+#ifndef DRAGSPEED_SEND_ABI_MESSAGE
+#define DRAGSPEED_SEND_ABI_MESSAGE TRUE
+#endif
+
 #ifndef DRAGSPEED_ACCEL_ID
 #define DRAGSPEED_ACCEL_ID ABI_BROADCAST
 #endif
@@ -124,7 +128,7 @@ static void accel_cb(
 	dragspeed.vel.y += (1 - dragspeed.filter) * (vy - dragspeed.vel.y);
 	// Send as ABI VELOCITY_ESTIMATE message
 	// Note: set VEL_DRAGSPEED_ID to ABI_DISABLE to disable
-#if VEL_DRAGSPEED_ID
+#if DRAGSPEED_SEND_ABI_MESSAGE
 	if (!dragspeed.do_calibrate_coeff && !dragspeed.do_calibrate_zero) {
 		AbiSendMsgVELOCITY_ESTIMATE(VEL_DRAGSPEED_ID, stamp,
 				dragspeed.vel.x, dragspeed.vel.y, 0, DRAGSPEED_R);
