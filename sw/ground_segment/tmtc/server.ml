@@ -188,11 +188,11 @@ let send_cam_status = fun a ->
         
         let find_point_on_ground q =
           let angles = quaternion_to_angle q in
-          let dx = a.agl *. tan(bind_max_angles angles.ro) 
-          and dy = a.agl *. tan(bind_max_angles angles.pi) in
+          let dx = a.agl *. tan(bind_max_angles angles.r) 
+          and dy = a.agl *. tan(bind_max_angles angles.p) in
 
-          let utmx = dx *. cos angles.ya -. dy *. sin angles.ya
-          and utmy = dx *. sin angles.ya +. dy *. cos angles.ya in
+          let utmx = dx *. cos angles.y -. dy *. sin angles.y
+          and utmy = dx *. sin angles.y +. dy *. cos angles.y in
             
           Aircraft.add_pos_to_nav_ref (Geo a.pos) (utmx, utmy) in
     

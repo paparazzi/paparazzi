@@ -868,12 +868,10 @@ let print_auto_init_bindings = fun abi_msgs variables ->
     | FP_binding (n, vs, _) ->
         let field_types = Hashtbl.find abi_msgs n in
         printf "static void FP_%s_cb(uint8_t sender_id __attribute__((unused))" n;
-        let n = List.length vs in
-        for i=1 to n-1 do
-          let v = List.nth vs i in
+        List.iteri (fun i v ->
           if v = "_" then printf ", %s _unused_%d __attribute__((unused))" (List.nth field_types i) i
-          else printf ", %s _%s" (List.nth field_types i) v        
-        done;
+          else printf ", %s _%s" (List.nth field_types i) v
+        ) vs;
         printf ") {\n";
         List.iter (fun v ->
           if not (v = "_") then printf "  %s = _%s;\n" v v

@@ -29,9 +29,9 @@ type quaternion = {
   z : float};;
 
 type euler_angle = {
-  ro : float;
-  pi : float;
-  ya : float};;
+  r : float;
+  p : float;
+  y : float};;
 
 let quaternion_from_angle roll pitch yaw = 
   let cy = cos (yaw *. 0.5)
@@ -68,9 +68,9 @@ let quaternion_to_angle q =
   and cosy = +1.0 -. 2.0 *. (q.y *. q.y +. q.z *. q.z) in
   let yaw = atan2 siny cosy in
 
-  {  ro = roll;
-     pi = pitch;
-     ya = yaw};;
+  {  r = roll;
+     p = pitch;
+     y = yaw};;
 
 let multiply_quaternion q1 q2 = 
   { x = (  q1.x) *. q2.w +. q1.y *. q2.z -. q1.z *. q2.y +. q1.w *. q2.x;
