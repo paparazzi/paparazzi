@@ -27,23 +27,14 @@
       <define name="AHRS_USE_GPS_HEADING" value="TRUE"/>
     </module>
     <module name="ins" type="extended"/>
-    <module name="guidance" type="indi">
-      <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-500.0"/>
-      <define name="GUIDANCE_INDI_THRUST_DYNAMICS" value="0.1"/>
-      <define name="GUIDANCE_INDI_RC_DEBUG" value="FALSE"/>
-      <define name="GUIDANCE_INDI_POS_GAIN" value="0.7"/>
-      <define name="GUIDANCE_INDI_SPEED_GAIN" value="1.5"/>
-    </module>
-  </firmware>
-
-  <modules main_freq="512">
+    <module name="guidance" type="indi"/>
     <module name="geo_mag"/>
     <module name="air_data"/>
     <module name="send_imu_mag_current"/>
     <!--module name="logger_file">
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
     </module-->
-  </modules>
+  </firmware>
 
   <commands>
     <axis name="PITCH" failsafe_value="0"/>
@@ -92,6 +83,14 @@
     <!-- For vibrating airfames -->
     <define name="GRAVITY_HEURISTIC_FACTOR" value="0"/>
     <define name="HEADING_UPDATE_GPS_MIN_SPEED" value="0"/>
+  </section>
+
+  <section name="GUIDANCE_INDI">
+    <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-500.0"/>
+    <define name="GUIDANCE_INDI_THRUST_DYNAMICS" value="0.1"/>
+    <define name="GUIDANCE_INDI_RC_DEBUG" value="FALSE"/>
+    <define name="GUIDANCE_INDI_POS_GAIN" value="0.7"/>
+    <define name="GUIDANCE_INDI_SPEED_GAIN" value="1.5"/>
   </section>
 
   <section name="INS" prefix="INS_">
