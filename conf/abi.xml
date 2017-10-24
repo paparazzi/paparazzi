@@ -101,7 +101,7 @@
     <message name="RANGE_SENSORS_ARRAY" id="18">
       <field name="range_array_size" type="int16_t"/>
       <field name="range_array" unit="mm" type="uint16_t*"/>
-      <field name="orientation_array" unit="rad" type="float*"/>
+      <field name="orientation_array" unit="rad" type="double*"/>
     </message>
 
     <message name="RANGE_FORCEFIELD" id="19">

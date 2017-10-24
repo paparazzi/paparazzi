@@ -179,6 +179,9 @@ extern void double_rmat_comp(struct DoubleRMat *m_a2c, struct DoubleRMat *m_a2b,
  */
 extern void double_rmat_vmult(struct DoubleVect3 *vb, struct DoubleRMat *m_a2b,
                               struct DoubleVect3 *va);
+extern void double_rmat_transp_vmult(struct DoubleVect3 *vb, struct DoubleRMat *m_b2a,
+                                     struct DoubleVect3 *va);
+
 extern void double_rmat_of_quat(struct DoubleRMat *rm, struct DoubleQuat *q);
 static inline void double_rmat_of_eulers(struct DoubleRMat *rm, struct DoubleEulers *e)
 {

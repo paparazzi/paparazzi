@@ -27,19 +27,19 @@
 #define RANGE_FORCEFIELD_H
 #include <std.h>
 #include "math/pprz_algebra_float.h"
+#include "math/pprz_algebra_double.h"
 
-struct range_forcefield_param_t
-{
-	float  inner_border_FF;
-	float  outer_border_FF;
-	float  min_vel_command;
-	float  max_vel_command;
+struct range_forcefield_param_t {
+  float  inner_border_FF;
+  float  outer_border_FF;
+  float  min_vel_command;
+  float  max_vel_command;
 };
 
 extern struct range_forcefield_param_t range_forcefield_param;
 
 extern void range_forcefield_init(void);
-void range_sensor_single_velocity_force_field(struct FloatVect3 *vel_avoid_body, float range, struct FloatEulers *body_to_sensors_eulers,
+void range_sensor_single_velocity_force_field(struct FloatVect3 *vel_avoid_body, float range, struct DoubleEulers *body_to_sensors_eulers,
     float avoid_inner_border, float avoid_outer_border, float min_vel_command_lc, float max_vel_command_lc);
 
 #endif

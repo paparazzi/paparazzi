@@ -150,6 +150,17 @@ void double_rmat_vmult(struct DoubleVect3 *vb, struct DoubleRMat *m_a2b, struct 
   vb->z = m_a2b->m[6] * va->x + m_a2b->m[7] * va->y + m_a2b->m[8] * va->z;
 }
 
+/** rotate 3D vector by transposed rotation matrix.
+ * vb = m_b2a^T * va
+ */
+void double_rmat_transp_vmult(struct DoubleVect3 *vb, struct DoubleRMat *m_b2a, struct DoubleVect3 *va)
+{
+  vb->x = m_b2a->m[0] * va->x + m_b2a->m[3] * va->y + m_b2a->m[6] * va->z;
+  vb->y = m_b2a->m[1] * va->x + m_b2a->m[4] * va->y + m_b2a->m[7] * va->z;
+  vb->z = m_b2a->m[2] * va->x + m_b2a->m[5] * va->y + m_b2a->m[8] * va->z;
+}
+
+
 /* C n->b rotation matrix */
 void double_rmat_of_quat(struct DoubleRMat *rm, struct DoubleQuat *q)
 {

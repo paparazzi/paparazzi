@@ -44,7 +44,10 @@
         <define name="SERVO_HZ" value="36000"/>
       </module>
       <module name="motor_mixing"/>
-      <module name="mag_pitot_uart"/>
+      <module name="laser_range_array">
+        <configure name="LASER_RANGE_ARRAY_BAUD" value="38400"/>
+        <configure name="LASER_RANGE_ARRAY_PORT" value="UART2"/>
+      </module>
     </target>
 
 <!-- At the moment (24/10/17), this airframe is not compatible with the nps simulation
@@ -142,10 +145,10 @@
        4) (0, -1.57, 0) -> down
 -->
 
-  <section name="MAG_PITOT" prefix="MAG_PITOT_">
-      <define name="REMOTE_GROUND_AMOUNT_SENSORS" value="4"/>
-      <define name="REMOTE_GROUND_ORIENTATIONS" value="0., 0., -1.57, 0., 1.57, 0.,  0., 0., 1.57, 0., -1.57, 0." type="double[]"/>
-      <define name="REMOTE_GROUND_ORIENTATION_AGL" value="0., -1.57, 0." type="double[]"/>
+  <section name="LASER_RANGE_ARRAY" prefix="LASER_RANGE_ARRAY_">
+      <define name="NUMBER_SENSORS" value="4"/>
+      <define name="ORIENTATIONS" value="0., 0., -1.57,  0., 1.57, 0.,   0., 0., 1.57, 0., -1.57, 0." type="double[]"/>
+      <define name="ORIENTATION_AGL" value="0., -1.57, 0." type="double[]"/>
   </section>
 
 
