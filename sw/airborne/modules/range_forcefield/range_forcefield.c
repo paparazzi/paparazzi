@@ -29,17 +29,43 @@
 #include "subsystems/abi.h"
 
 
-float inner_border_FF;
-float outer_border_FF;
-float min_vel_command;
-float max_vel_command;
 float vel_body_x_guided;
 float vel_body_y_guided;
 
+struct range_forcefield_param_t range_forcefield_param;
+
+
 //abi for range sensors
-#ifndef RANGE_MODULE_RECIEVE_ID
-#define RANGE_MODULE_RECIEVE_ID ABI_BROADCAST
+#ifndef RANGE_FORCEFIELD_RECIEVE_ID
+#define RANGE_FORCEFIELD_RECIEVE_ID ABI_BROADCAST
 #endif
+
+#ifndef RANGE_FORCEFIELD_INNER_BORDER_FF
+#define RANGE_FORCEFIELD_INNER_BORDER_FF 1.0f
+#endif
+PRINT_CONFIG_VAR(RANGE_FORCEFIELD_INNER_BORDER_FF)
+
+#ifndef RANGE_FORCEFIELD_OUTER_BORDER_FF
+#define RANGE_FORCEFIELD_OUTER_BORDER_FF 1.4f
+#endif
+PRINT_CONFIG_VAR(RANGE_FORCEFIELD_OUTER_BORDER_FF)
+
+#ifndef RANGE_FORCEFIELD_MIN_VEL_COMMAND
+#define RANGE_FORCEFIELD_MIN_VEL_COMMAND 0.0f
+#endif
+PRINT_CONFIG_VAR(RANGE_FORCEFIELD_MIN_VEL_COMMAND)
+
+#ifndef RANGE_FORCEFIELD_MAX_VEL_COMMAND
+#define RANGE_FORCEFIELD_MAX_VEL_COMMAND 0.5f
+#endif
+PRINT_CONFIG_VAR(RANGE_FORCEFIELD_MAX_VEL_COMMAND)
+
+#ifndef RANGE_FORCEFIELD_MAX_SENSOR_RANGE
+#define RANGE_FORCEFIELD_MAX_SENSOR_RANGE 2.0f
+#endif
+PRINT_CONFIG_VAR(RANGE_FORCEFIELD_MAX_SENSOR_RANGE)
+
+float max_sensor_range = RANGE_FORCEFIELD_MAX_SENSOR_RANGE;
 
 
 static abi_event range_sensor_array_ev;
@@ -61,7 +87,8 @@ static void range_sensor_array_cb(uint8_t sender_id  __attribute__((unused)), in
 
     // Calculate forcefield for that one measurement
     range_sensor_single_velocity_force_field(&vel_avoid_body,  range, &body_to_sensors_eulers,
-        inner_border_FF,  outer_border_FF,  min_vel_command,  max_vel_command);
+    		range_forcefield_param.inner_border_FF,  range_forcefield_param.outer_border_FF,
+			range_forcefield_param.min_vel_command,  range_forcefield_param.max_vel_command);
   }
 
   //Send the range velocity forcefield through abi
@@ -71,14 +98,15 @@ static void range_sensor_array_cb(uint8_t sender_id  __attribute__((unused)), in
 
 void range_forcefield_init(void)
 {
-  inner_border_FF = 1.0f;
-  outer_border_FF = 1.4f;
-  min_vel_command = 0.0f;
-  max_vel_command = 0.5f;
+
+  range_forcefield_param.inner_border_FF = RANGE_FORCEFIELD_INNER_BORDER_FF;
+  range_forcefield_param.outer_border_FF = RANGE_FORCEFIELD_OUTER_BORDER_FF;
+  range_forcefield_param.min_vel_command = RANGE_FORCEFIELD_MIN_VEL_COMMAND;
+  range_forcefield_param.max_vel_command = RANGE_FORCEFIELD_MAX_VEL_COMMAND;
   vel_body_x_guided = 0.0f;
   vel_body_y_guided = 0.0f;
 
-  AbiBindMsgRANGE_SENSORS_ARRAY(RANGE_MODULE_RECIEVE_ID, &range_sensor_array_ev, range_sensor_array_cb);
+  AbiBindMsgRANGE_SENSORS_ARRAY(RANGE_FORCEFIELD_RECIEVE_ID, &range_sensor_array_ev, range_sensor_array_cb);
 }
 
 /*  range_sensor_single_velocity_force_field: This function adjusts the intended velocity commands in the horizontal plane
@@ -101,8 +129,6 @@ void range_forcefield_init(void)
 void range_sensor_single_velocity_force_field(struct FloatVect3 *vel_avoid_body, float range, struct FloatEulers *body_to_sensors_eulers,
     float avoid_inner_border, float avoid_outer_border, float min_vel_command_lc, float max_vel_command_lc)
 {
-  static const float max_sensor_range = 2;
-  float difference_inner_outer = avoid_outer_border - avoid_inner_border;
 
   // Velocity commands
   float avoid_command = 0;
@@ -116,7 +142,7 @@ void range_sensor_single_velocity_force_field(struct FloatVect3 *vel_avoid_body,
     // Linear
     avoid_command -= (max_vel_command_lc - min_vel_command_lc) *
                      (avoid_outer_border - range)
-                     / difference_inner_outer;
+                     / (avoid_outer_border - avoid_inner_border);
   }
 
   struct FloatRMat range_sensor_to_body;

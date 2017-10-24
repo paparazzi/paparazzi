@@ -33,7 +33,7 @@
     <!--module name="logger_file"/-->
     <module name="video_thread">
     </module>
-    <!--module name="range_forcefield"/-->    
+    <module name="range_forcefield"/>    
     <module name="cv_colorfilter">
       <define name="COLORFILTER_CAMERA" value="front_camera"/>
       <!--define name="COLORFILTER_SEND_OBSTACLE" value="TRUE"/-->  <!-- If you want to test out the guided flightplan, uncomment this define-->  
@@ -208,7 +208,7 @@
     <define name="BYPASS_AHRS" value="1"/>
     <define name="SIMULATE_VIDEO" value="1"/>
     <define name="SIMULATE_RANGE_SENSORS" value="1"/>
-    <define name="GAZEBO_RANGE_AMOUNT_SENSORS" value="6"/>
+    <define name="GAZEBO_RANGE_NUMBER_SENSORS" value="6"/>
     <define name="GAZEBO_RANGE_ORIENTATION" value="0., -1.57, 0.,  0., 1.57, 0.,  0., 0., -1.57, 0., 0., 1.57, 0., 0., 0.,  0., 0., -3.14" type="double[]"/>      
   </section>
 
