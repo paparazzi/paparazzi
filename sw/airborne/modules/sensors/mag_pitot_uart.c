@@ -41,18 +41,6 @@ static struct mag_pitot_t mag_pitot = {
 static uint8_t mp_msg_buf[128]  __attribute__((aligned));   ///< The message buffer for the Magneto and pitot
 
 
-#ifndef MAG_PITOT_REMOTE_GROUND_AMOUNT_SENSORS
-#define MAG_PITOT_REMOTE_GROUND_AMOUNT_SENSORS 0
-#endif
-
-#ifndef MAG_PITOT_REMOTE_GROUND_ORIENTATIONS
-#define MAG_PITOT_REMOTE_GROUND_ORIENTATIONS 0,0,0
-#endif
-
-static uint16_t remote_ground_value_array[MAG_PITOT_REMOTE_GROUND_AMOUNT_SENSORS];
-static int32_t remote_ground_orientation_array[MAG_PITOT_REMOTE_GROUND_AMOUNT_SENSORS * 3];
-
-
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
@@ -126,45 +114,6 @@ static inline void mag_pitot_parse_msg(void)
       break;
     }
 
-    /* Get Time of Flight laser range sensor ring  messages */
-    case DL_IMCU_REMOTE_GROUND: {
-      // Retrieve ID and Range of the laser range sensor
-      uint8_t id = DL_IMCU_REMOTE_GROUND_id(mp_msg_buf);
-      uint16_t range = DL_IMCU_REMOTE_GROUND_range(mp_msg_buf);
-
-      /* If the retrieved ID is the same or smaller that the total amount of specified sensors,continue
-       */
-      if (id <= MAG_PITOT_REMOTE_GROUND_AMOUNT_SENSORS - 1) {
-        //Save the range and the orientation in the specified index (as defined in the airframe file
-        remote_ground_value_array[id] = range;
-        int16_t length = MAG_PITOT_REMOTE_GROUND_AMOUNT_SENSORS;
-        static float remote_ground_orientation_array_float[] = {MAG_PITOT_REMOTE_GROUND_ORIENTATIONS};
-        for (int n = 0; n < 3; n++) {
-          remote_ground_orientation_array[id * 3 + n] =
-           (float)remote_ground_orientation_array_float[id * 3 + n];
-        }
-        //Send the abi message to be used by
-        AbiSendMsgRANGE_SENSORS_ARRAY(RANGE_SENSOR_ARRAY_VL53L0_ID, length, remote_ground_value_array, remote_ground_orientation_array_float);
-
-        //If an AGL_sonar orientation is defined, send this also by ABI
-#ifdef MAG_PITOT_REMOTE_GROUND_ORIENTATION_AGL
-
-        static float remote_ground_orientation_agl_array_float[] = {MAG_PITOT_REMOTE_GROUND_ORIENTATION_AGL};
-        int32_t check_phi = remote_ground_orientation_agl_array_float[0];
-        int32_t check_theta = remote_ground_orientation_agl_array_float[1];
-        int32_t check_psi = remote_ground_orientation_agl_array_float[2];
-
-        if (RadOfDeg(5) > fabs(remote_ground_orientation_array[id * 3] - check_phi)
-            && RadOfDeg(5) > fabs(remote_ground_orientation_array[id * 3 + 1] - check_theta)
-            && RadOfDeg(5) > fabs(remote_ground_orientation_array[id * 3 + 2] - check_psi)) {
-          float agl = (float)range / 1000.;
-          AbiSendMsgAGL(AGL_VL53L0_LASER_ARRAY_ID, agl);
-        }
-#endif
-      }
-
-      break;
-    }
 
     default:
       break;

@@ -208,9 +208,7 @@
     <define name="SENSORS_PARAMS" value="nps_sensors_params_ardrone2.h" type="string"/>
     <define name="BYPASS_AHRS" value="1"/>
     <define name="SIMULATE_VIDEO" value="1"/>
-    <define name="SIMULATE_RANGE_SENSORS" value="1"/>
-    <define name="GAZEBO_RANGE_AMOUNT_SENSORS" value="6"/>
-    <define name="GAZEBO_RANGE_ORIENTATION" value="0., -1.57, 0.,  0., 1.57, 0.,  0., 0., -1.57, 0., 0., 1.57, 0., 0., 0.,  0., 0., -3.14" type="double[]"/>      
+    <define name="SIMULATE_RANGE_SENSORS" value="1"/>     
   </section>
 
   <section name="AUTOPILOT">

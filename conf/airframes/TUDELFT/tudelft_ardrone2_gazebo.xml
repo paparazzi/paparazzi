@@ -38,7 +38,10 @@
       <define name="COLORFILTER_CAMERA" value="front_camera"/>
       <!--define name="COLORFILTER_SEND_OBSTACLE" value="TRUE"/-->  <!-- If you want to test out the guided flightplan, uncomment this define-->  
     </module>
-
+      <module name="laser_range_array">
+        <configure name="LASER_RANGE_ARRAY_BAUD" value="38400"/>
+        <configure name="LASER_RANGE_ARRAY_PORT" value="UART2"/>
+      </module>
     <module name="video_rtp_stream">
       <define name="VIEWVIDEO_CAMERA" value="front_camera"/>
       <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="4"/>
@@ -87,11 +90,13 @@
        2) (0, 0, 1.57) -> right
        4) (0, -1.57, 0) -> down
 -->
-  <section name="MAG_PITOT" prefix="MAG_PITOT_">
-      <define name="REMOTE_GROUND_AMOUNT_SENSORS" value="4"/>
-      <define name="REMOTE_GROUND_ORIENTATIONS" value="0., 0., -1.57, 0., 1.57, 0.,  0., 0., 1.57, 0., -1.57, 0." type="double[]"/>
-      <define name="REMOTE_GROUND_ORIENTATION_AGL" value="0., -1.57, 0." type="double[]"/>
+  <section name="LASER_RANGE_ARRAY" prefix="LASER_RANGE_ARRAY_">
+      <define name="NUMBER_SENSORS" value="4"/>
+      <define name="ORIENTATIONS" value="0., 0., -1.57,  0., 1.57, 0.,   0., 0., 1.57, 0., -1.57, 0." type="double[]"/>
+      <define name="ORIENTATION_AGL" value="0., -1.57, 0." type="double[]"/>
   </section>
+
+
 
   <section name="IMU" prefix="IMU_">
     <!-- Accelero -->
@@ -207,9 +212,7 @@
     <define name="SENSORS_PARAMS" value="nps_sensors_params_ardrone2.h" type="string"/>
     <define name="BYPASS_AHRS" value="1"/>
     <define name="SIMULATE_VIDEO" value="1"/>
-    <define name="SIMULATE_RANGE_SENSORS" value="1"/>
-    <define name="GAZEBO_RANGE_NUMBER_SENSORS" value="6"/>
-    <define name="GAZEBO_RANGE_ORIENTATION" value="0., -1.57, 0.,  0., 1.57, 0.,  0., 0., -1.57, 0., 0., 1.57, 0., 0., 0.,  0., 0., -3.14" type="double[]"/>      
+    <define name="SIMULATE_RANGE_SENSORS" value="1"/>   
   </section>
 
   <section name="AUTOPILOT">
