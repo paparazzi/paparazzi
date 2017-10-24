@@ -28,10 +28,15 @@
 #include <std.h>
 #include "math/pprz_algebra_float.h"
 
-extern float inner_border_FF;
-extern float outer_border_FF;
-extern float min_vel_command;
-extern float max_vel_command;
+struct range_forcefield_param_t
+{
+	float  inner_border_FF;
+	float  outer_border_FF;
+	float  min_vel_command;
+	float  max_vel_command;
+};
+
+extern struct range_forcefield_param_t range_forcefield_param;
 
 extern void range_forcefield_init(void);
 void range_sensor_single_velocity_force_field(struct FloatVect3 *vel_avoid_body, float range, struct FloatEulers *body_to_sensors_eulers,

@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
 <sdf version='1.4'>
-	<model name="range_sensors">
+	<model name="laser_range_array">
 
 
 		<link name="base">

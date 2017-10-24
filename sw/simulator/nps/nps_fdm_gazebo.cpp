@@ -108,7 +108,9 @@ struct gazebo_actuators_t gazebo_actuators = {NPS_ACTUATOR_NAMES, {NPS_ACTUATOR_
 
 
 #ifdef NPS_SIMULATE_RANGE_SENSORS
+extern "C" {
 #include "subsystems/abi.h"
+}
 static void gazebo_init_range_sensors(void);
 static void gazebo_read_range_sensors(void);
 #ifndef NPS_GAZEBO_RANGE_MAX_SENSORS
@@ -118,20 +120,18 @@ static void gazebo_read_range_sensors(void);
 gazebo::sensors::RaySensorPtr RaySensorPtr_array[NPS_GAZEBO_RANGE_MAX_SENSORS];
 
 
-#ifndef NPS_GAZEBO_RANGE_AMOUNT_SENSORS
-#define NPS_GAZEBO_RANGE_AMOUNT_SENSORS 0
+#ifndef NPS_GAZEBO_RANGE_NUMBER_SENSORS
+#define NPS_GAZEBO_RANGE_NUMBER_SENSORS 0
 #endif
 
 
 #ifndef NPS_GAZEBO_RANGE_ORIENTATION
-#define NPS_GAZEBO_RANGE_ORIENTATION 0, 0, 0
+#define NPS_GAZEBO_RANGE_ORIENTATION 0., 0., 0.
 #endif
 
 #ifndef NPS_GAZEBO_RANGE_ORIENTATION_AGL
-#define NPS_GAZEBO_RANGE_ORIENTATION_AGL 0, -1.57, 0
+#define NPS_GAZEBO_RANGE_ORIENTATION_AGL 0., M_PI_2, 0.
 #endif
-
-
 
 
 #endif
@@ -741,14 +741,14 @@ static void gazebo_init_range_sensors(void)
 
 static void gazebo_read_range_sensors(void)
 {
-  uint16_t range_sensors_uint16[NPS_GAZEBO_RANGE_AMOUNT_SENSORS];
+  uint16_t range_sensors_uint16[NPS_GAZEBO_RANGE_NUMBER_SENSORS];
 
   const double range_orientation[] = { NPS_GAZEBO_RANGE_ORIENTATION };
-  float range_orientation_f[NPS_GAZEBO_RANGE_AMOUNT_SENSORS];
+  float range_orientation_f[NPS_GAZEBO_RANGE_NUMBER_SENSORS * 3];
   const double range_orientation_agl[] = { NPS_GAZEBO_RANGE_ORIENTATION_AGL };
 
   uint8_t ray_sensor_count_selected = 0;
-  float range_sensor_down = 0;
+  float agl = 0;
 
   //Loop through all ray sensors found in gazebo
   for (int i = 0; i < ray_sensor_count_in_gazebo; i++) {
@@ -763,7 +763,7 @@ static void gazebo_read_range_sensors(void)
      */
     bool found_a_match = false;
     int8_t index_of_raysensor = 0;
-    for (int k = 0; k < NPS_GAZEBO_RANGE_AMOUNT_SENSORS; k++) {
+    for (int k = 0; k < NPS_GAZEBO_RANGE_NUMBER_SENSORS; k++) {
       if (RadOfDeg(5) > fabs((float)pose_sensor.rot.GetRoll() - range_orientation[k * 3 + 0]) &&
           RadOfDeg(5) > fabs((float)(-1 * pose_sensor.rot.GetPitch()) - range_orientation[k * 3 + 1]) &&
           RadOfDeg(5) > fabs((float)(-1 * pose_sensor.rot.GetYaw()) - range_orientation[k * 3 + 2])) {
@@ -798,13 +798,13 @@ static void gazebo_read_range_sensors(void)
         RadOfDeg(5) > fabs((float)pose_sensor.rot.GetRoll() - range_orientation_agl[0]) &&
         RadOfDeg(5) > fabs((float)(-1 * pose_sensor.rot.GetPitch()) - range_orientation_agl[1]) &&
         RadOfDeg(5) > fabs((float)(-1 * pose_sensor.rot.GetYaw()) - range_orientation_agl[2])) {
-      range_sensor_down = RaySensorPtr_array[i]->Range(0);
+    	agl = RaySensorPtr_array[i]->Range(0);
     }
-  }
 #endif
+  }
 
-  if (ray_sensor_count_selected != NPS_GAZEBO_RANGE_AMOUNT_SENSORS)
-    cout << "ERROR: you have defined " << NPS_GAZEBO_RANGE_AMOUNT_SENSORS << " sensors in your airframe file, but only "
+  if (ray_sensor_count_selected != NPS_GAZEBO_RANGE_NUMBER_SENSORS)
+    cout << "ERROR: you have defined " << NPS_GAZEBO_RANGE_NUMBER_SENSORS << " sensors in your airframe file, but only "
          << (int)ray_sensor_count_selected << " sensors have been found in the gazebo simulator, "
          "with the same orientation as in the airframe file " << endl;
 
@@ -812,8 +812,8 @@ static void gazebo_read_range_sensors(void)
   // Standard range sensor message
   AbiSendMsgRANGE_SENSORS_ARRAY(RANGE_SENSOR_ARRAY_RAY_SENSOR_GAZEBO_ID, ray_sensor_count_selected, range_sensors_uint16, range_orientation_f);
   // Down range sensor as "Sonar"
-  if (range_sensor_down != 0) {
-    AbiSendMsgAGL(AGL_RAY_SENSOR_GAZEBO_ID, range_sensor_down);
+  if (agl != 0.0f) {
+    AbiSendMsgAGL(AGL_RAY_SENSOR_GAZEBO_ID, agl);
   }
 }
 #endif
