@@ -285,8 +285,8 @@ void v_ctl_init(void)
   AbiBindMsgBODY_TO_IMU_QUAT(V_CTL_ENERGY_IMU_ID, &body_to_imu_ev, body_to_imu_cb);
 }
 
-const float dt_attidude = 1.0 / ((float)CONTROL_FREQUENCY);
-const float dt_navigation = 1.0 / ((float)NAVIGATION_FREQUENCY);
+static const float dt_attidude = 1.0 / ((float)CONTROL_FREQUENCY);
+static const float dt_navigation = 1.0 / ((float)NAVIGATION_FREQUENCY);
 
 /**
  * outer loop
