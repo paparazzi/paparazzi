@@ -1,12 +1,18 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+r"""XML common functions"""
+
 from __future__ import print_function
 
 
 def indent(elem, level=0, more_sibs=False):
+    r"""Indent an XML element"""
     i = "\n"
     num_kids = len(elem)
     if level:
         i += (level-1) * '  '
-    #print(level, elem.tag, num_kids, more_sibs)
+    # print(level, elem.tag, num_kids, more_sibs)
     if num_kids:
         if not elem.text or not elem.text.strip():
             elem.text = i + "  "
