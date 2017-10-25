@@ -185,12 +185,14 @@ static void calibrate_coeff(struct Int32Vect3 *accel)
       + cosf(att->psi) * vel_ins->x };
   // Calibrate coefficient when velocity is sufficiently high
   if (fabsf(vel_ins_body.x) > 0.5) {
-    float this_coeff = -ACCEL_FLOAT_OF_BFP(accel->x) / vel_ins_body.x;
+    float this_coeff = -(ACCEL_FLOAT_OF_BFP(accel->x) - dragspeed.zero.x)
+        / vel_ins_body.x;
     coeff.x = (coeff.x * num_samples_x + this_coeff) / (num_samples_x + 1);
     num_samples_x++;
   }
   if (fabsf(vel_ins_body.y) > 0.5) {
-    float this_coeff = -ACCEL_FLOAT_OF_BFP(accel->y) / vel_ins_body.y;
+    float this_coeff = -(ACCEL_FLOAT_OF_BFP(accel->y) - dragspeed.zero.y)
+        / vel_ins_body.y;
     coeff.y = (coeff.y * num_samples_y + this_coeff) / (num_samples_y + 1);
     num_samples_y++;
   }
