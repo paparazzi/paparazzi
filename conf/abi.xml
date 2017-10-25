@@ -62,8 +62,7 @@
       <field name="flow_der_x" type="int16_t">The derotated flow calculation in the x direction (in subpixels)</field>
       <field name="flow_der_y" type="int16_t">The derotated flow calculation in the y direction (in subpixels)</field>
       <field name="quality" type="float"/>
-      <field name="size_divergence" type="float">Divergence as determined with the size method (in 1/seconds)</field>
-      <field name="dist" type="float">Distance to ground</field>
+      <field name="size_divergence" type="float">Divergence as determined with the size method (in 1/seconds) with LK, and Divergence (1/seconds) itself with EF</field>
     </message>
 
     <message name="VELOCITY_ESTIMATE" id="12">
@@ -96,6 +95,14 @@
     <message name="OBSTACLE_DETECTION" id="17">
       <field name="distance_obstacle" type="float" unit="m"/>
       <field name="relative_heading" type="float" unit="rad"/>
+    </message>
+
+    <message name="POSITION_ESTIMATE" id="18">
+      <field name="stamp" type="uint32_t" unit="us"/>
+      <field name="x" type="float" unit="m"/>
+      <field name="y" type="float" unit="m"/>
+      <field name="z" type="float" unit="m"/>
+      <field name="noise" type="float"/>
     </message>
 
   </msg_class>

@@ -5,6 +5,8 @@
 -->
 
 <airframe name="GeniusDD">
+  <description>BSlinger Genius Micro Helicopter with BlueGiga
+  </description>
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_s_1.0">

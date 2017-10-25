@@ -1,3 +1,9 @@
+Paparazzi v5.12_stable
+======================
+
+Stable version release
+
+
 Paparazzi v5.11_devel
 =====================
 
@@ -26,6 +32,8 @@ General
 - mag live calibration tool
   [#1977] (http://github.com/paparazzi/paparazzi/pull/1977)
 - flight plans
+  [#2106] (http://github.com/paparazzi/paparazzi/pull/2106)
+  [#2101] (http://github.com/paparazzi/paparazzi/pull/2101)
   [#1970] (http://github.com/paparazzi/paparazzi/pull/1970)
   [#1967] (http://github.com/paparazzi/paparazzi/pull/1967)
   [#1943] (http://github.com/paparazzi/paparazzi/pull/1943)
@@ -33,7 +41,7 @@ General
   [#1900] (http://github.com/paparazzi/paparazzi/pull/1900)
 - mission index
   [#1918] (http://github.com/paparazzi/paparazzi/pull/1918)
-- sevral conf cleaning
+- several conf cleaning
 - NPS update
   [#1831] (http://github.com/paparazzi/paparazzi/pull/1931)
 - mini package manager
@@ -41,6 +49,10 @@ General
 
 Airborne
 --------
+- cleaning TUDelft stereocam modules
+  [#2107] (https://github.com/paparazzi/paparazzi/pull/2107)
+- support of lisa mxs board
+  [#2104] (https://github.com/paparazzi/paparazzi/pull/2104)
 - initial support for Parrot Swing
   [#2085] (https://github.com/paparazzi/paparazzi/pull/2085)
 - initial support for Decawave DW1000 modules
@@ -90,6 +102,8 @@ Airborne
 - lidar lite and teraranger drivers
   [#1926] (http://github.com/paparazzi/paparazzi/pull/1926)
   [#1888] (http://github.com/paparazzi/paparazzi/pull/1888)
+- variable size median filter
+  [#1909] (http://github.com/paparazzi/paparazzi/pull/1909)
 
 
 Paparazzi v5.10_stable

@@ -1,6 +1,9 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <airframe name="ardrone2_optitrack">
+  <description>
+ARDrone2 with optical_flow landing.
+  </description>
 
   <firmware name="rotorcraft">
     <target name="ap" board="ardrone2">

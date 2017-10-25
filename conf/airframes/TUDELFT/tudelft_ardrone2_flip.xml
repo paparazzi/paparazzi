@@ -1,6 +1,8 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <airframe name="ardrone2_indi">
+  <description>ARDrone2, Loopings
+  </description>
 
   <firmware name="rotorcraft">
     <target name="ap" board="ardrone2">

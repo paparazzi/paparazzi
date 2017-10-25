@@ -1,6 +1,8 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <airframe name="bebop_indi">
+  <description>Bebop, Makes Loopings
+  </description>
 
   <firmware name="rotorcraft">
     <target name="ap" board="bebop"/>

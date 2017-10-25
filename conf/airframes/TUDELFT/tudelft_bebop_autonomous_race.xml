@@ -1,6 +1,8 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <airframe name="bebop">
+  <description>Autonomous Race 2017 Bebop1
+  </description>
 
   <firmware name="rotorcraft">
     <target name="ap" board="bebop"/>

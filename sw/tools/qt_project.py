@@ -96,8 +96,7 @@ for src in srcs:
 # Parse the header files
 headers_all =  ""
 line = "1"
-while line:
-    line=ap_srcs_list.readline()
+for line in ap_srcs_list:    
     line = line.strip()
     if ":" in line:
         line = line.split(":")[-1]

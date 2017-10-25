@@ -226,6 +226,8 @@ bool nps_main_parse_options(int argc, char **argv)
             nps_main.fg_fdm = 1; break;
           case 10:
             nps_main.fg_port_in = atoi(optarg); break;
+          default:
+            break;
         }
         break;
 

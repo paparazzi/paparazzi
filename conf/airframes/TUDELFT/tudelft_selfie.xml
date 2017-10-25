@@ -1,6 +1,8 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <airframe name="ardrone2_oa_avoid">
+  <description>ardrone with stereocam follow-me
+  </description>
 
   <firmware name="rotorcraft">
     <target name="ap" board="ardrone2">

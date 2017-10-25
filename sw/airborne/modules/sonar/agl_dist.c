@@ -22,7 +22,7 @@
 /**
  * @file modules/sonar/agl_dist.h
  *
- * Bind to sonar ABI message and provide a filtered value to be used in flight plans
+ * Bind to agl ABI message and provide a filtered value to be used in flight plans
  *
  */
 
@@ -33,45 +33,49 @@
 float agl_dist_valid;
 float agl_dist_value;
 float agl_dist_value_filtered;
+float agl_measurement_time;
 
 /** default sonar */
-#ifndef AGL_DIST_SONAR_ID
-#define AGL_DIST_SONAR_ID ABI_BROADCAST
+#ifndef AGL_DIST_ID
+#define AGL_DIST_ID ABI_BROADCAST
 #endif
-#ifndef AGL_DIST_SONAR_MAX_RANGE
-#define AGL_DIST_SONAR_MAX_RANGE 5.0
+#ifndef AGL_DIST_MAX_RANGE
+#define AGL_DIST_MAX_RANGE 5.0f
 #endif
-#ifndef AGL_DIST_SONAR_MIN_RANGE
-#define AGL_DIST_SONAR_MIN_RANGE 0.001
+#ifndef AGL_DIST_MIN_RANGE
+#define AGL_DIST_MIN_RANGE 0.001f
 #endif
-#ifndef AGL_DIST_SONAR_FILTER
-#define AGL_DIST_SONAR_FILTER 5
+#ifndef AGL_DIST_FILTER
+#define AGL_DIST_FILTER 0.1f
 #endif
 
-abi_event sonar_ev;
+abi_event agl_ev;
 
-static void sonar_cb(uint8_t sender_id, float distance);
+static void agl_cb(uint8_t sender_id, float distance);
 
 void agl_dist_init(void)
 {
   agl_dist_valid = false;
-  agl_dist_value = 0.;
-  agl_dist_value_filtered = 0.;
+  agl_dist_value = 0.f;
+  agl_dist_value_filtered = 0.f;
+  agl_measurement_time = get_sys_time_float();
 
   // Bind to AGL message
-  AbiBindMsgAGL(AGL_DIST_SONAR_ID, &sonar_ev, sonar_cb);
+  AbiBindMsgAGL(AGL_DIST_ID, &agl_ev, agl_cb);
 }
 
-
-static void sonar_cb(uint8_t __attribute__((unused)) sender_id, float distance)
+static void agl_cb(uint8_t __attribute__((unused)) sender_id, float distance)
 {
-  if (distance < AGL_DIST_SONAR_MAX_RANGE && distance > AGL_DIST_SONAR_MIN_RANGE) {
+  if (distance < AGL_DIST_MAX_RANGE && distance > AGL_DIST_MIN_RANGE) {
     agl_dist_value = distance;
     agl_dist_valid = true;
-    agl_dist_value_filtered = (AGL_DIST_SONAR_FILTER * agl_dist_value_filtered + agl_dist_value) /
-                              (AGL_DIST_SONAR_FILTER + 1);
+    float now = get_sys_time_float();
+    float dt = now - agl_measurement_time;
+    agl_measurement_time = now;
+
+    // update multirate exponentially weighted moving average filter
+    agl_dist_value_filtered += (agl_dist_value - agl_dist_value_filtered) * dt / (AGL_DIST_FILTER + dt);
   } else {
     agl_dist_valid = false;
   }
 }
-

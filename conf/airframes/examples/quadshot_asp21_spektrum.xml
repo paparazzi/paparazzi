@@ -4,10 +4,10 @@
 <airframe name="quadshot aspirin 2.1 spektrum">
 
   <servos driver="Pwm">
-    <servo name="A1" no="0" min="1000" neutral="1100" max="2000"/>
-    <servo name="A2" no="1" min="1000" neutral="1100" max="2000"/>
-    <servo name="B1"  no="2" min="1000" neutral="1100" max="2000"/>
-    <servo name="B2"  no="3" min="1000" neutral="1100" max="2000"/>
+    <servo name="A1" no="0" min="1000" neutral="1100" max="1600"/>
+    <servo name="A2" no="1" min="1000" neutral="1100" max="1600"/>
+    <servo name="B1"  no="2" min="1000" neutral="1100" max="1600"/>
+    <servo name="B2"  no="3" min="1000" neutral="1100" max="1600"/>
 <!--    <servo name="A1" no="0" min="1000" neutral="1000" max="2000"/>
     <servo name="A2" no="1" min="1000" neutral="1000" max="2000"/>
     <servo name="B1"  no="2" min="1000" neutral="1000" max="2000"/>
@@ -41,16 +41,16 @@
     <let var="elevator_feedback_right" value="+@PITCH"/>
 
  <!-- Here the gains are defined for the two feedback cases, hover and forward-->
-    <let var="hover_left"  value="15*$aileron_feedback_left"/>
-    <let var="hover_right" value="15*$aileron_feedback_right"/>
+    <let var="hover_left"  value="10*$aileron_feedback_left"/>
+    <let var="hover_right" value="10*$aileron_feedback_right"/>
 
 <!--     if using INDI -->
 <!--    <let var="forward_left"  value="aileron_gain*$aileron_feedback_left+elevator_gain*$elevator_feedback_left"/>
     <let var="forward_right" value="aileron_gain*$aileron_feedback_right+elevator_gain*$elevator_feedback_right"/>-->
 
 <!--     if using PID with gain scheduling -->
-    <let var="forward_left"  value="5*$aileron_feedback_left + 4*$elevator_feedback_left"/>
-    <let var="forward_right" value="5*$aileron_feedback_right + 4*$elevator_feedback_right"/>
+    <let var="forward_left"  value="3*$aileron_feedback_left + 4*$elevator_feedback_left"/>
+    <let var="forward_right" value="3*$aileron_feedback_right + 4*$elevator_feedback_right"/>
 
     <!-- This statement tells the autopilot to use the hover feedback if in mode attitude direct and to use the forward feedback in all other cases-->
     <set servo="ELEVON_LEFT"    value="AP_MODE == AP_MODE_ATTITUDE_DIRECT ? $hover_left  : $forward_left" />
@@ -218,9 +218,9 @@
     <define name="DEADBAND_A" value="250"/>
     <define name="SP_PSI_DELTA_LIMIT" value="90" unit="deg"/>
     <!-- control effectiveness -->
-    <define name="G1_P" value="0.025"/>
-    <define name="G1_Q" value="0.0833"/>
-    <define name="G1_R" value="0.00588"/>
+    <define name="G1_P" value="0.0179"/>
+    <define name="G1_Q" value="0.0708"/>
+    <define name="G1_R" value="0.0095"/>
     <define name="G2_R" value="0.0"/>
     <!-- reference acceleration for attitude control -->
     <define name="REF_ERR_P" value="70.0"/>
@@ -237,7 +237,7 @@
     <define name="ACT_DYN_Q" value="0.03"/>
     <define name="ACT_DYN_R" value="0.03"/>
         <!-- Adaptive Learning Rate -->
-    <define name="USE_ADAPTIVE" value="FALSE"/>
+    <define name="USE_ADAPTIVE" value="TRUE"/>
     <define name="ADAPTIVE_MU" value="0.0001"/>
   </section>
 
@@ -261,6 +261,9 @@
     <define name="H_X" value="0.39049610"/>
     <define name="H_Y" value="0.00278894"/>
     <define name="H_Z" value="0.92060036"/>
+
+    <!-- For vibrating airfames -->
+    <define name="GRAVITY_HEURISTIC_FACTOR" value="0"/>
   </section>
 
  <!-- Gains for horizontal navigation-->
@@ -341,7 +344,7 @@
     <module name="radio_control" type="spektrum">
       <define name="RADIO_KILL_SWITCH" value="5"/>
       <!-- Put the mode on channel AUX1-->
-      <define name="RADIO_MODE" value="6"/>
+      <define name="RADIO_MODE" value="4"/>
 <!--       <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/> -->
     </module>
 

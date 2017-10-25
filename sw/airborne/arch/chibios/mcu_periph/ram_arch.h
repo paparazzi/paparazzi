@@ -26,6 +26,11 @@
  *  F1
  *   ram0: 64ko   std
  *
+ *  F3
+ *   ram4: 8ko   ccm, fast, no dma
+ *   ram0: 40Ko  std
+ *  F37
+ *   ram0: 32Ko  std
  *  F4
  *   ram4: 64ko   ccm, fast, no dma
  *   ram0: 128Ko  std
@@ -42,6 +47,10 @@
 #define STD_SECTION   ".ram0"
 #define FAST_SECTION  ".ram0"
 #define DMA_SECTION   ".ram0"
+#elif defined STM32F3
+#define STD_SECTION   ".ram0"
+#define FAST_SECTION  ".ram4"
+#define DMA_SECTION   ".ram0"
 #elif defined STM32F4
 #define STD_SECTION   ".ram0"
 #define FAST_SECTION  ".ram4"
@@ -57,7 +66,7 @@
 #define IN_STD_SECTION_NOINIT(var) var __attribute__ ((section(STD_SECTION), aligned(8)))
 #define IN_STD_SECTION_CLEAR(var) var __attribute__ ((section(STD_SECTION "_clear"), aligned(8)))
 #define IN_STD_SECTION(var) var __attribute__ ((section(STD_SECTION "_init"), aligned(8)))
-  
+
 #define IN_FAST_SECTION_NOINIT(var) var __attribute__ ((section(FAST_SECTION), aligned(8)))
 #define IN_FAST_SECTION_CLEAR(var) var __attribute__ ((section(FAST_SECTION "_clear"), aligned(8)))
 #define IN_FAST_SECTION(var) var __attribute__ ((section(FAST_SECTION "_init"), aligned(8)))

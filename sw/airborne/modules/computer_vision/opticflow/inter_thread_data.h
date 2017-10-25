@@ -39,16 +39,14 @@ struct opticflow_result_t {
   uint16_t corner_cnt;    ///< The amount of coners found by FAST9
   uint16_t tracked_cnt;   ///< The amount of tracked corners
 
-  int16_t flow_x;         ///< Flow in x direction from the camera (in subpixels)
-  int16_t flow_y;         ///< Flow in y direction from the camera (in subpixels)
+  // Camera frame with the origin in the top left corner of the image
+  int16_t flow_x;         ///< Flow in x direction from the camera (in subpixels) with X positive to the right
+  int16_t flow_y;         ///< Flow in y direction from the camera (in subpixels) with Y positive to the bottom
   int16_t flow_der_x;     ///< The derotated flow calculation in the x direction (in subpixels)
   int16_t flow_der_y;     ///< The derotated flow calculation in the y direction (in subpixels)
 
-  float vel_x;            ///< The velocity in the x direction (image coordinates)
-  float vel_y;            ///< The velocity in the y direction (image coordinates)
-
-  float vel_body_x;     ///< The velocity in the x direction (body fixed coordinates)
-  float vel_body_y;     ///< The velocity in the y direction (body fixed coordinates)
+  struct FloatVect3 vel_cam;      ///< The velocity in camera frame (m/s)
+  struct FloatVect3 vel_body;     ///< The velocity in body frame (m/s) with X positive to the front of the aircraft, Y positive to the right and Z positive downwards to the ground
 
   float div_size;         ///< Divergence as determined with the size_divergence script
 
@@ -56,14 +54,6 @@ struct opticflow_result_t {
   float divergence;       ///< Divergence as determined with a linear flow fit
 
   float noise_measurement;  ///< noise of measurement, for state filter
-};
-
-/* The state of the drone when it took an image */
-struct opticflow_state_t {
-  struct FloatRates rates;   ///< Body rates
-  float agl;                 ///< height above ground [m]
-  struct FloatQuat imu_to_body_quat;   ///< imu to body quaternion
-  struct Int32Vect3 accel_imu_meas;    ///< imu acceleration in imu's coordinates
 };
 
 #endif
