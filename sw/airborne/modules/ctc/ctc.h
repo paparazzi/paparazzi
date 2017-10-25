@@ -33,22 +33,27 @@
 typedef struct {
   float k;
   uint16_t timeout;
-  float speed_ref;
-  float theta_ref;
+  float target_px;
+  float target_py;
+  float target_vx;
+  float target_vy;
   float speed;
   float theta;
+  float px;
+  float py;
   uint16_t time_broad;
 } ctc_con;
 
 extern ctc_con ctc_control;
-extern int16_t tableNei[][4];
+extern int16_t tableNei[][6];
+extern float ctc_error_to_target;
 
 extern void ctc_init(void);
 extern bool collective_tracking_control(void);
-extern void send_theta_and_speed_to_nei(void);
+extern void ctc_send_info_to_nei(void);
 
 extern void parse_ctc_RegTable(void);
 extern void parse_ctc_CleanTable(void);
-extern void parse_ctc_ThetaAndSpeedTable(void);
+extern void parse_ctc_NeiInfoTable(void);
 
 #endif // CTC_H

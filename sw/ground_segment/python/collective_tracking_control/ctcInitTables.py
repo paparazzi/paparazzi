@@ -18,15 +18,13 @@ from settings_xml_parse import PaparazziACSettings
 list_ids = []
 interface = IvyMessagesInterface("CTC")
 
-if len(sys.argv) != 4:
-    print("Usage: dcfInitTables ids.txt speed_ref heading_ref")
+if len(sys.argv) != 2:
+    print("Usage: dcfInitTables ids.txt")
     interface.shutdown()
     exit()
 
 ids = np.loadtxt(sys.argv[1])
 list_ids = np.ndarray.tolist(ids)
-speed_ref = sys.argv[2]
-heading_ref = sys.argv[3]
 
 time.sleep(2)
 
@@ -43,8 +41,6 @@ for i in list_ids:
     for ii in list_ids:
         if(i != ii):
             msg['nei_id'] = int(ii)
-            msg['desired_speed'] = int(float(speed_ref)*100)
-            msg['desired_theta'] = int(float(heading_ref)*10)
             interface.send(msg)
             print(msg)
 
