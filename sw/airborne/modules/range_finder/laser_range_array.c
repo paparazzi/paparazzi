@@ -1,5 +1,5 @@
 /*
- * Copyright (C)
+ * Copyright (C) 2017 K. N. McGuire
  *
  * This file is part of paparazzi
  *
@@ -17,8 +17,9 @@
  * along with paparazzi; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
-/**
- * @file "modules/laser_range_array/laser_range_array.c"
+
+/*
+ * @file "modules/range_finder/laser_range_array.c"
  * @author K. N. McGuire
  * Reads out values through uart of an laser range ring (array), containing multiple ToF IR laser range modules
  */
@@ -26,100 +27,142 @@
 #include "modules/range_finder/laser_range_array.h"
 
 #include "generated/airframe.h"
+
 #include "pprzlink/pprz_transport.h"
 #include "pprzlink/intermcu_msg.h"
 #include "mcu_periph/uart.h"
-#include "subsystems/abi.h"
-#include "subsystems/imu.h"
-#include "state.h"
 
-/* Main magneto structure */
+#include "subsystems/abi.h"
+
+#include "message_pragmas.h"
+
+/* Main device strcuture */
+struct laser_range_array_t {
+  struct link_device *device;           ///< The device which is uses for communication
+  struct pprz_transport transport;      ///< The transport layer (PPRZ)
+  bool msg_available;                   ///< If we received a message
+};
+
 static struct laser_range_array_t laser_range_array = {
   .device = (&((LASER_RANGE_ARRAY_PORT).device)),
   .msg_available = false
 };
-static uint8_t lra_msg_buf[128]  __attribute__((aligned));   ///< The message buffer for the Magneto and pitot
 
-#ifndef LASER_RANGE_ARRAY_NUMBER_SENSORS
-#define LASER_RANGE_ARRAY_NUMBER_SENSORS 0
-#endif
-PRINT_CONFIG_VAR(LASER_RANGE_ARRAY_AMOUNT_SENSORS)
+static uint8_t lra_msg_buf[128]  __attribute__((aligned));   ///< The message buffer
 
+PRINT_CONFIG_VAR(LASER_RANGE_ARRAY_NUM_SENSORS)
+uint16_t laser_range_array_values[LASER_RANGE_ARRAY_NUM_SENSORS];
+float laser_range_array_orientations[] = LASER_RANGE_ARRAY_ORIENTATIONS;
 
-#ifndef LASER_RANGE_ARRAY_ORIENTATIONS
-#define LASER_RANGE_ARRAY_ORIENTATIONS 0. ,0., 0.
-#endif
+uint8_t agl_id = 255;
+uint8_t front_id = 255;
 
+uint8_t id_recieved[LASER_RANGE_ARRAY_NUM_SENSORS] = {0};
 
-uint16_t laser_range_array_values[LASER_RANGE_ARRAY_NUMBER_SENSORS];
-double laser_range_array_orientations_d[] = {LASER_RANGE_ARRAY_ORIENTATIONS};
-#ifdef LASER_RANGE_ARRAY_ORIENTATION_AGL
-float laser_range_array_orientation_agl_d[] = {LASER_RANGE_ARRAY_ORIENTATION_AGL};
-#endif
-
-void laser_ring_array_init(void)
+void laser_range_array_init(void)
 {
   // Initialize transport protocol
   pprz_transport_init(&laser_range_array.transport);
+
+#ifdef LASER_RANGE_ARRAY_SEND_AGL
+  // Determine which sensor is looking down
+  struct FloatEulers pose_down = {0., -M_PI_2, 0.};
+
+  struct FloatQuat q_down;
+  float_quat_of_eulers(&q_down, &pose_down);
+
+  for (int k = 0; k < LASER_RANGE_ARRAY_NUM_SENSORS; k++) {
+    struct FloatEulers def = {laser_range_array_orientations[k * 3], laser_range_array_orientations[k * 3 + 1],
+        laser_range_array_orientations[k * 3 + 2]};
+    struct FloatQuat q_def;
+    float_quat_of_eulers(&q_def, &def);
+    // get angle between required angle and ray angle
+    float angle = acosf(QUAT_DOT_PRODUCT(q_down, q_def));
+
+    if (fabsf(angle) < RadOfDeg(5)) {
+      agl_id = k;
+      break;
+    }
+  }
+#endif
+#ifdef LASER_RANGE_ARRAY_SEND_FRONT_OBSTACLE
+  // Determine which sensor is looking down
+  struct FloatEulers pose_forward = {0., 0., 0.};
+
+  struct FloatQuat q_forward;
+  float_quat_of_eulers(&q_forward, &pose_forward);
+
+  for (int k = 0; k < LASER_RANGE_ARRAY_NUM_SENSORS; k++) {
+    struct FloatEulers def = {laser_range_array_orientations[k * 3], laser_range_array_orientations[k * 3 + 1],
+        laser_range_array_orientations[k * 3 + 2]};
+    struct FloatQuat q_def;
+    float_quat_of_eulers(&q_def, &def);
+    // get angle between required angle and ray angle
+    float angle = acosf(QUAT_DOT_PRODUCT(q_forward, q_def));
+
+    if (fabsf(angle) < RadOfDeg(5)) {
+      front_id = k;
+      break;
+    }
+  }
+#endif
 }
 
 /* Parse the InterMCU message */
-static inline void laser_range_array_parse_msg(void)
+static void laser_range_array_parse_msg(void)
 {
-  /* Parse the message */
   uint8_t msg_id = lra_msg_buf[1];
-  /* Get Time of Flight laser range sensor ring  messages */
-  switch (msg_id) {
 
+  // Get Time of Flight laser range sensor ring  messages
+  switch (msg_id) {
     case DL_IMCU_REMOTE_GROUND: {
-      // Retrieve ID and Range of the laser range sensor
       uint8_t id = DL_IMCU_REMOTE_GROUND_id(lra_msg_buf);
       uint16_t range = DL_IMCU_REMOTE_GROUND_range(lra_msg_buf);
 
-      /* If the retrieved ID is the same or smaller that the total amount of specified sensors,continue
-       */
-      if (id <= LASER_RANGE_ARRAY_NUMBER_SENSORS - 1) {
-        //Save the range and the orientation in the specified index (as defined in the airframe file
+      if (id < LASER_RANGE_ARRAY_NUM_SENSORS) {
         laser_range_array_values[id] = range;
-        int16_t length = LASER_RANGE_ARRAY_NUMBER_SENSORS;
+        id_recieved[id] = 1;
 
+        // check how many sensors received
+        int16_t sum = 0;
+        for (uint8_t i = 0; i < LASER_RANGE_ARRAY_NUM_SENSORS; i++)
+        {
+          sum += id_recieved[id];
+        }
 
-        //Send the abi message to be used by
-        AbiSendMsgRANGE_SENSORS_ARRAY(RANGE_SENSOR_ARRAY_VL53L0_ID, length, laser_range_array_values, laser_range_array_orientations_d);
+        if(sum == LASER_RANGE_ARRAY_NUM_SENSORS)
+        {
+          // wait till all sensors received before sending update
+          AbiSendMsgRANGE_SENSOR_ARRAY(RANGE_SENSOR_ARRAY_VL53L0_ID, LASER_RANGE_ARRAY_NUM_SENSORS,
+              laser_range_array_values, laser_range_array_orientations);
+          // reset id array
+          memset(id_recieved, 0, sizeof(id_recieved));
+        }
 
-        //If an AGL_sonar orientation is defined, send this also by ABI
-#ifdef LASER_RANGE_ARRAY_ORIENTATION_AGL
-        float check_phi = laser_range_array_orientation_agl_d[0];
-        float check_theta = laser_range_array_orientation_agl_d[1];
-        float check_psi = laser_range_array_orientation_agl_d[2];
-
-        if (RadOfDeg(5) > fabs(laser_range_array_orientations_d[id * 3] - check_phi)
-            && RadOfDeg(5) > fabs(laser_range_array_orientations_d[id * 3 + 1] - check_theta)
-            && RadOfDeg(5) > fabs(laser_range_array_orientations_d[id * 3 + 2] - check_psi)) {
+        if (id == agl_id) {
           float agl = (float)range / 1000.;
           AbiSendMsgAGL(AGL_VL53L0_LASER_ARRAY_ID, agl);
         }
-#endif
+        if (id == front_id) {
+          float dist = (float)range / 1000.;
+          // todo create distance estimate sender ids
+          AbiSendMsgOBSTACLE_DETECTION(RANGE_SENSOR_ARRAY_VL53L0_ID, dist, 0.);
+        }
       }
-
-
       break;
     }
     default:
       break;
   }
 }
-void laser_range_array_event()
-{
-  // Check if we got some message from the Magneto or Pitot
-  pprz_check_and_parse(laser_range_array.device, &laser_range_array.transport, lra_msg_buf, &laser_range_array.msg_available);
 
-  // If we have a message we should parse it
+void laser_range_array_event(void)
+{
+  pprz_check_and_parse(laser_range_array.device, &laser_range_array.transport, lra_msg_buf,
+      &laser_range_array.msg_available);
+
   if (laser_range_array.msg_available) {
     laser_range_array_parse_msg();
     laser_range_array.msg_available = false;
   }
-
 }
-
-

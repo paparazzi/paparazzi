@@ -179,6 +179,10 @@ extern void double_rmat_comp(struct DoubleRMat *m_a2c, struct DoubleRMat *m_a2b,
  */
 extern void double_rmat_vmult(struct DoubleVect3 *vb, struct DoubleRMat *m_a2b,
                               struct DoubleVect3 *va);
+
+/** rotate 3D vector by transposed rotation matrix.
+ * vb = m_b2a^T * va
+ */
 extern void double_rmat_transp_vmult(struct DoubleVect3 *vb, struct DoubleRMat *m_b2a,
                                      struct DoubleVect3 *va);
 

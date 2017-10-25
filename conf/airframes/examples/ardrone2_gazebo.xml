@@ -80,20 +80,6 @@
     <set servo="BOTTOM_LEFT" value="motor_mixing.commands[MOTOR_BACK_LEFT]"/>
   </command_laws>
 
-
-<!--Orientation of the laser array with 4 sensors relative from the body fixed coordinates
-, with the hand right rule with eulerangle order of (phi, theta, phi) in [rad]:
-       0) (0,  0, -1.57) -> left
-       1) (0, 1.57, 0) -> up
-       2) (0, 0, 1.57) -> right
-       4) (0, -1.57, 0) -> down
--->
-  <section name="MAG_PITOT" prefix="MAG_PITOT_">
-      <define name="REMOTE_GROUND_AMOUNT_SENSORS" value="4"/>
-      <define name="REMOTE_GROUND_ORIENTATIONS" value="0., 0., -1.57, 0., 1.57, 0.,  0., 0., 1.57, 0., -1.57, 0." type="double[]"/>
-      <define name="REMOTE_GROUND_ORIENTATION_AGL" value="0., -1.57, 0." type="double[]"/>
-  </section>
-
   <section name="IMU" prefix="IMU_">
     <!-- Accelero -->
     <define name="ACCEL_X_NEUTRAL" value="2048"/>
@@ -202,13 +188,11 @@
 
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES" value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
-    <define name="ACTUATOR_THRUSTS" value="1.55, 1.55, 1.55, 1.55" type="double[]"/>
-    <define name="ACTUATOR_TORQUES" value="0.155, -0.155, 0.155, -0.155" type="double[]"/>
+    <define name="ACTUATOR_THRUSTS" value="1.55, 1.55, 1.55, 1.55" type="float[]"/>
+    <define name="ACTUATOR_TORQUES" value="0.155, -0.155, 0.155, -0.155" type="float[]"/>
     <define name="JSBSIM_MODEL" value="simple_ardrone2" type="string"/>
     <define name="SENSORS_PARAMS" value="nps_sensors_params_ardrone2.h" type="string"/>
     <define name="BYPASS_AHRS" value="1"/>
-    <define name="SIMULATE_VIDEO" value="1"/>
-    <define name="SIMULATE_RANGE_SENSORS" value="1"/>     
   </section>
 
   <section name="AUTOPILOT">

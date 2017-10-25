@@ -47,21 +47,19 @@ static uint8_t mp_msg_buf[128]  __attribute__((aligned));   ///< The message buf
 static void mag_pitot_raw_downlink(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_IMU_MAG_RAW(trans, dev, AC_ID, &imu.mag_unscaled.x, &imu.mag_unscaled.y,
-                            &imu.mag_unscaled.z);
+                             &imu.mag_unscaled.z);
 }
 #endif
 
 /* Initialize the magneto and pitot */
-void mag_pitot_init()
-{
+void mag_pitot_init() {
   // Initialize transport protocol
   pprz_transport_init(&mag_pitot.transport);
 
   // Set the Imu to Magneto rotation
   struct FloatEulers imu_to_mag_eulers =
-  {IMU_TO_MAG_PHI, IMU_TO_MAG_THETA, IMU_TO_MAG_PSI};
+    {IMU_TO_MAG_PHI, IMU_TO_MAG_THETA, IMU_TO_MAG_PSI};
   orientationSetEulers_f(&mag_pitot.imu_to_mag, &imu_to_mag_eulers);
-
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_IMU_MAG_RAW, mag_pitot_raw_downlink);
@@ -77,43 +75,42 @@ static inline void mag_pitot_parse_msg(void)
   uint8_t msg_id = mp_msg_buf[1];
   switch (msg_id) {
 
-    /* Got a magneto message */
-    case DL_IMCU_REMOTE_MAG: {
-      struct Int32Vect3 raw_mag;
+  /* Got a magneto message */
+  case DL_IMCU_REMOTE_MAG: {
+    struct Int32Vect3 raw_mag;
 
-      // Read the raw magneto information
-      raw_mag.x = DL_IMCU_REMOTE_MAG_mag_x(mp_msg_buf);
-      raw_mag.y = DL_IMCU_REMOTE_MAG_mag_y(mp_msg_buf);
-      raw_mag.z = DL_IMCU_REMOTE_MAG_mag_z(mp_msg_buf);
+    // Read the raw magneto information
+    raw_mag.x = DL_IMCU_REMOTE_MAG_mag_x(mp_msg_buf);
+    raw_mag.y = DL_IMCU_REMOTE_MAG_mag_y(mp_msg_buf);
+    raw_mag.z = DL_IMCU_REMOTE_MAG_mag_z(mp_msg_buf);
 
-      // Rotate the magneto
-      struct Int32RMat *imu_to_mag_rmat = orientationGetRMat_i(&mag_pitot.imu_to_mag);
-      int32_rmat_vmult(&imu.mag_unscaled, imu_to_mag_rmat, &raw_mag);
+    // Rotate the magneto
+    struct Int32RMat *imu_to_mag_rmat = orientationGetRMat_i(&mag_pitot.imu_to_mag);
+    int32_rmat_vmult(&imu.mag_unscaled, imu_to_mag_rmat, &raw_mag);
 
-      // Send and set the magneto IMU data
-      imu_scale_mag(&imu);
-      AbiSendMsgIMU_MAG_INT32(IMU_MAG_PITOT_ID, now_ts, &imu.mag);
-      break;
-    }
+    // Send and set the magneto IMU data
+    imu_scale_mag(&imu);
+    AbiSendMsgIMU_MAG_INT32(IMU_MAG_PITOT_ID, now_ts, &imu.mag);
+    break;
+  }
 
-    /* Got a barometer message */
-    case DL_IMCU_REMOTE_BARO: {
-      float pitot_stat = DL_IMCU_REMOTE_BARO_pitot_stat(mp_msg_buf);
-      float pitot_temp = DL_IMCU_REMOTE_BARO_pitot_temp(mp_msg_buf);
+  /* Got a barometer message */
+  case DL_IMCU_REMOTE_BARO: {
+    float pitot_stat = DL_IMCU_REMOTE_BARO_pitot_stat(mp_msg_buf);
+    float pitot_temp = DL_IMCU_REMOTE_BARO_pitot_temp(mp_msg_buf);
 
-      AbiSendMsgBARO_ABS(IMU_MAG_PITOT_ID, pitot_stat);
-      AbiSendMsgTEMPERATURE(IMU_MAG_PITOT_ID, pitot_temp);
-      break;
-    }
+    AbiSendMsgBARO_ABS(IMU_MAG_PITOT_ID, pitot_stat);
+    AbiSendMsgTEMPERATURE(IMU_MAG_PITOT_ID, pitot_temp);
+    break;
+  }
 
-    /* Got an airspeed message */
-    case DL_IMCU_REMOTE_AIRSPEED: {
-      // Should be updated to differential pressure
-      float pitot_ias = DL_IMCU_REMOTE_AIRSPEED_pitot_IAS(mp_msg_buf);
-      AbiSendMsgAIRSPEED(IMU_MAG_PITOT_ID, pitot_ias);
-      break;
-    }
-
+  /* Got an airspeed message */
+  case DL_IMCU_REMOTE_AIRSPEED: {
+    // Should be updated to differential pressure
+    float pitot_ias = DL_IMCU_REMOTE_AIRSPEED_pitot_IAS(mp_msg_buf);
+    AbiSendMsgAIRSPEED(IMU_MAG_PITOT_ID, pitot_ias);
+    break;
+  }
 
     default:
       break;
@@ -121,8 +118,7 @@ static inline void mag_pitot_parse_msg(void)
 }
 
 /* We need to wait for incomming messages */
-void mag_pitot_event()
-{
+void mag_pitot_event() {
   // Check if we got some message from the Magneto or Pitot
   pprz_check_and_parse(mag_pitot.device, &mag_pitot.transport, mp_msg_buf, &mag_pitot.msg_available);
 

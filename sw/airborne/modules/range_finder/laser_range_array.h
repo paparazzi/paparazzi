@@ -1,5 +1,5 @@
 /*
- * Copyright (C)
+ * Copyright (C) 2017 K. N. McGuire
  *
  * This file is part of paparazzi
  *
@@ -17,27 +17,16 @@
  * along with paparazzi; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
-/**
- * @file "modules/laser_range_array/laser_range_array.h"
- * @author
+/*
+ * @file "modules/range_finder/laser_range_array.h"
+ * @author K. N. McGuire
  * Reads out values through uart of an laser range ring (array), containing multiple ToF IR laser range modules
  */
 
 #ifndef LASER_RANGE_ARRAY_H
 #define LASER_RANGE_ARRAY_H
 
-#include "std.h"
-#include "generated/airframe.h"
-#include "pprzlink/pprz_transport.h"
-
-/* Main magneto pitot strcuture */
-struct laser_range_array_t {
-  struct link_device *device;           ///< The device which is uses for communication
-  struct pprz_transport transport;      ///< The transport layer (PPRZ)
-  bool msg_available;                 ///< If we received a message
-};
-
-extern void laser_ring_array_init(void);
+extern void laser_range_array_init(void);
 extern void laser_range_array_event(void);
 
 #endif

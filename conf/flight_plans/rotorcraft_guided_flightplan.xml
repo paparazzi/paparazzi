@@ -10,7 +10,6 @@
 		#define GUIDED_FLAG_XY_VEL_BODY_YAW_RATE GUIDED_FLAG_XY_BODY|GUIDED_FLAG_XY_VEL|GUIDED_FLAG_YAW_RATE
 		#define GUIDED_FLAG_XY_OFFSET_Z_VEL_YAW_OFFSET GUIDED_FLAG_XY_OFFSET|GUIDED_FLAG_Z_VEL|GUIDED_FLAG_YAW_OFFSET
 		#define GUIDED_FLAG_XY_OFFSET_YAW_OFFSET GUIDED_FLAG_XY_OFFSET|GUIDED_FLAG_YAW_OFFSET
-
   </header>
   <waypoints>
     <waypoint name="HOME" x="0.0" y="0.0"/>
@@ -61,15 +60,11 @@ Remember to choose AP_MODE_GUIDED or else it won't work!!!
 <!-- Go Forward:
 1. The MAV will move forward with a constant speed (0.5 m/s), keeping the sideways speed zero while maintaining it's height on the nominal Altitude
 2. If 5 seconds has passed in the block, It will go to the "Turn 90 deg" block
-An exception is triggered if an obstacle is detected (in this example given by the color detector). Then it will go to the "Turn 90 deg" block immediatly 
-
-NOTE: A velocity forcefield in the horizontal plane applied here, so if an obstacle comes within a certain distance (adjust in settings), it will give an opposite wanted velocity to get out of the way. 
--->
+An exception is triggered if an obstacle is detected (in this example given by the color detector). Then it will go to the "Turn 90 deg" block immediatly -->
 
     <block name="Go Forward">
-      <while cond="LessThan(block_time,5)" >
-        <call_once fun="autopilot_guided_update(GUIDED_FLAG_XY_VEL_BODY_YAW_OFFSET,forward_vel + 0,0,-nominal_alt,0.)"/>
-      </while>
+      <call_once fun="autopilot_guided_update(GUIDED_FLAG_XY_VEL_BODY_YAW_OFFSET,forward_vel,0.,-nominal_alt,0.)"/>
+      <while cond="LessThan(block_time,5)" />
       <exception cond="2>distance_obstacle_FP" deroute="Turn 90 deg"/> 
     </block>
 

@@ -14,7 +14,7 @@
   </header>
   <init fun="mag_pitot_init()"/>
   <event fun="mag_pitot_event()"/>
-  <makefile target="ap">
+  <makefile>
     <!-- Configure default UART port and baudrate -->
     <configure name="MAG_PITOT_PORT" default="UART5" case="upper|lower"/>
     <configure name="MAG_PITOT_BAUD" default="250000"/>

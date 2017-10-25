@@ -5,27 +5,31 @@
     <description>Reads out values through uart of an laser range ring (array), containing multiple ToF IR laser range modules</description>
     <configure name="LASER_RANGE_ARRAY_PORT" value="UART2" description="select which uart it is connected to"/>
     <configure name="LASER_RANGE_ARRAY_BAUD" value="38400" description="set the baudrate of the uart"/>
-    <define name="LASER_RANGE_ARRAY_NUMBER_SENSORS" value="0" description="Total amount of laser range sensors on the airframe"/>
-    <define name="LASER_RANGE_ARRAY_ORIENTATIONS" value="0,0,0" description="The orientation per laser range sensor in the order: phi,theta, psi. The array is build up like (phi_1, theta_1, psi_1, phi_2,theta_2,psi_2,...phi_n,theta_n,psi_n) with n=LASER_RANGE_ARRAY_NUMBER_SENSORS"/>
+    <define name="LASER_RANGE_ARRAY_NUM_SENSORS" value="0" description="Total amount of laser range sensors on the airframe"/>
+    <define name="LASER_RANGE_ARRAY_ORIENTATIONS" value="0,0,0" description="The orientation per laser range sensor in the order: phi,theta, psi. The array is build up like (phi_1, theta_1, psi_1, phi_2,theta_2,psi_2,...phi_n,theta_n,psi_n) with n=LASER_RANGE_ARRAY_NUM_SENSORS"/>
   </doc>
   <header>
     <file name="laser_range_array.h"/>
   </header>
-  <init fun="laser_ring_array_init()"/>
+  <init fun="laser_range_array_init()"/>
   <event fun="laser_range_array_event()"/>
   <makefile>
-        <!-- Configure default UART port and baudrate -->
+    <!-- Configure default UART port and baudrate -->
     <configure name="LASER_RANGE_ARRAY_PORT" default="UART5" case="upper|lower"/>
     <configure name="LASER_RANGE_ARRAY_BAUD" default="38400"/>
     
-        <!-- Enable UART and set baudrate -->
+    <!-- Enable UART and set baudrate -->
     <define name="USE_$(LASER_RANGE_ARRAY_PORT_UPPER)"/>
     <define name="USE_$(LASER_RANGE_ARRAY_PORT_UPPER)_TX" value="FALSE"/>
     <define name="$(LASER_RANGE_ARRAY_PORT_UPPER)_BAUD" value="$(LASER_RANGE_ARRAY_BAUD)"/>
-    <define name="LASER_RANGE_ARRAY_PORT" value="$(LASER_RANGE_ARRAY_PORT_LOWER)"/>    
-
+    <define name="LASER_RANGE_ARRAY_PORT" value="$(LASER_RANGE_ARRAY_PORT_LOWER)"/>
+    
     <file name="laser_range_array.c"/>
     <file name="pprz_transport.c" dir="pprzlink/src"/>
+  </makefile>
+
+  <makefile target="nps">
+    <define name="NPS_SIMULATE_LASER_RANGE_ARRAY" value="1"/>
   </makefile>
 </module>
 

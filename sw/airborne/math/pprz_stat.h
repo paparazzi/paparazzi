@@ -63,6 +63,14 @@ extern int32_t variance_i(int32_t *array, uint32_t n_elements);
  */
 extern int32_t covariance_i(int32_t *array1, int32_t *array2, uint32_t n_elements);
 
+
+/** Compute the sum array elements
+ *  @param[in] *array The first array
+ *  @param[in] n_elements Number of elements in the arrays
+ *  @return array sum
+ */
+extern float sum_f(float *array, uint32_t n_elements);
+
 /** Compute the mean value of an array (float)
  *  @param[in] *array The array
  *  @param[in] n_elements Number of elements in the array

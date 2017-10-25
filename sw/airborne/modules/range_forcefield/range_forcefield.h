@@ -1,5 +1,5 @@
 /*
- * Copyright (C) K. N. McGuire
+ * Copyright (C) 2017 K. N. McGuire
  *
  * This file is part of paparazzi
  *
@@ -17,30 +17,29 @@
  * along with paparazzi; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
-/**
+/*
  * @file "modules/range_forcefield/range_forcefield.h"
  * @author K. N. McGuire
-* This module generates a forcefield based on range sensor measurements the use of single point range sensors.
+ * This module generates a forcefield based on range sensor measurements the use of single point range sensors.
  */
 
 #ifndef RANGE_FORCEFIELD_H
 #define RANGE_FORCEFIELD_H
+
 #include <std.h>
 #include "math/pprz_algebra_float.h"
-#include "math/pprz_algebra_double.h"
 
 struct range_forcefield_param_t {
-  float  inner_border_FF;
-  float  outer_border_FF;
-  float  min_vel_command;
-  float  max_vel_command;
+  float  inner_limit;
+  float  outer_limit;
+  float  min_vel;
+  float  max_vel;
 };
 
 extern struct range_forcefield_param_t range_forcefield_param;
 
 extern void range_forcefield_init(void);
-void range_sensor_single_velocity_force_field(struct FloatVect3 *vel_avoid_body, float range, struct DoubleEulers *body_to_sensors_eulers,
-    float avoid_inner_border, float avoid_outer_border, float min_vel_command_lc, float max_vel_command_lc);
+extern void range_forcefield_update(struct FloatVect3 *vel_avoid_body, float range,
+    struct FloatEulers *body_to_sensors_eulers, float ff_inner_limit, float ff_outer_limit, float min_vel, float max_vel);
 
 #endif
-

@@ -255,6 +255,7 @@ static inline void NavCircleWaypoint(uint8_t wp_center, float radius)
 #define NavCircleQdr() ({ int32_t qdr = INT32_DEG_OF_RAD(INT32_ANGLE_PI_2 - nav_circle_qdr) >> INT32_ANGLE_FRAC; NormCourse(qdr); qdr; })
 
 #define CloseDegAngles(_c1, _c2) ({ int32_t _diff = _c1 - _c2; NormCourse(_diff); 350 < _diff || _diff < 10; })
+#define CloseRadAngles(_c1, _c2) ({ float _diff = _c1 - _c2; NormRadAngle(_diff); -0.0177 < _diff || _diff < 0.0177; })
 /** True if x (in degrees) is close to the current QDR (less than 10 degrees)*/
 #define NavQdrCloseTo(x) CloseDegAngles(((x) >> INT32_ANGLE_FRAC), NavCircleQdr())
 #define NavCourseCloseTo(x) {}

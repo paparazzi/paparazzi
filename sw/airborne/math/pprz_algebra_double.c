@@ -160,7 +160,6 @@ void double_rmat_transp_vmult(struct DoubleVect3 *vb, struct DoubleRMat *m_b2a, 
   vb->z = m_b2a->m[2] * va->x + m_b2a->m[5] * va->y + m_b2a->m[8] * va->z;
 }
 
-
 /* C n->b rotation matrix */
 void double_rmat_of_quat(struct DoubleRMat *rm, struct DoubleQuat *q)
 {
