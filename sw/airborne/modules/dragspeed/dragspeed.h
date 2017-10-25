@@ -28,18 +28,19 @@
 
 #include "math/pprz_algebra_float.h"
 
-struct dragspeed_t {
-	// Estimated velocity
-	struct FloatVect2 vel;
-	// Low-pass filter
-	float filter;
-	// Drag coefficient calibration
-	struct FloatVect2 coeff;
-	bool calibrate_coeff;
-	// Zero calibration
-	struct FloatVect2 zero;
-	bool calibrate_zero;
-	bool zero_calibrated;
+struct dragspeed_t
+{
+  // Estimated velocity
+  struct FloatVect2 vel;
+  // Low-pass filter
+  float filter;
+  // Drag coefficient calibration
+  struct FloatVect2 coeff;
+  bool calibrate_coeff;
+  // Zero calibration
+  struct FloatVect2 zero;
+  bool calibrate_zero;
+  bool zero_calibrated;
 };
 extern struct dragspeed_t dragspeed;
 
