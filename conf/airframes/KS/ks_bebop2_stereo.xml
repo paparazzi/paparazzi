@@ -9,7 +9,6 @@
     <target name="nps" board="pc">
       <module name="fdm" type="gazebo"/>
       <module name="stabilization" type="int_quat"/>
-      <configure name="STEREO_PATH" value="/home/kirk/mavlab/stereoboard"/>
     </target>
 
     <module name="telemetry" type="transparent_udp"/>
@@ -208,7 +207,6 @@
     <define name="ACTUATOR_THRUSTS" value="1.55, 1.55, 1.55, 1.55" type="double[]"/>
     <define name="ACTUATOR_TORQUES" value="0.155, 0.155, 0.155, 0.155" type="double[]"/>
     
-    <define name="GAZEBO_WORLD" value="ardrone.world" type="string"/>
     <!--define name="DEBUG_STEREOCAM" value="1"/-->
     <!--define name="NO_GPS" value="1"/-->
   </section>

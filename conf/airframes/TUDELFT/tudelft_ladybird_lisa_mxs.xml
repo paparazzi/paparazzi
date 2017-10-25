@@ -7,7 +7,7 @@
              ^
              |
 
-    Motor0(NW)  Motor1(NE)
+    Motor3(NW)  Motor0(NE)
         CW      CCW
           \     /
            ,___,
@@ -16,7 +16,7 @@
            |___|
           /     \
         CCW      CW
-     Motor3(SW)  Motor2(SE)
+     Motor2(SW)  Motor1(SE)
 
 -->
 
