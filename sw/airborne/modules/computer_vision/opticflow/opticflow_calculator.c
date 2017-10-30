@@ -39,6 +39,7 @@
 #include "lib/vision/image.h"
 #include "lib/vision/lucas_kanade.h"
 #include "lib/vision/fast_rosten.h"
+#include "lib/vision/act_fast.h"
 #include "lib/vision/edge_flow.h"
 #include "size_divergence.h"
 #include "linear_flow_fit.h"
@@ -47,6 +48,13 @@
 // whether to show the flow and corners:
 #define OPTICFLOW_SHOW_FLOW 0
 #define OPTICFLOW_SHOW_CORNERS 0
+
+#define EXHAUSTIVE_FAST 0
+#define ACT_FAST 1
+uint16_t n_time_steps = 10;
+uint16_t n_agents = 25;
+// corner method:
+#define CORNER_METHOD 0
 
 // What methods are run to determine divergence, lateral flow, etc.
 // SIZE_DIV looks at line sizes and only calculates divergence
@@ -307,23 +315,52 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
   } else if (!opticflow->feature_management) {
     // needs to be set to 0 because result is now static
     result->corner_cnt = 0;
-    // FAST corner detection
-    // TODO: There is something wrong with fast9_detect destabilizing FPS. This problem is reduced with putting min_distance
-    // to 0 (see defines), however a more permanent solution should be considered
-    fast9_detect(&opticflow->prev_img_gray, opticflow->fast9_threshold, opticflow->fast9_min_distance,
-                 opticflow->fast9_padding, opticflow->fast9_padding, &result->corner_cnt,
-                 &opticflow->fast9_rsize,
-                 &opticflow->fast9_ret_corners,
-                 NULL);
+
+    if(CORNER_METHOD == EXHAUSTIVE_FAST) {
+      // FAST corner detection
+      // TODO: There is something wrong with fast9_detect destabilizing FPS. This problem is reduced with putting min_distance
+      // to 0 (see defines), however a more permanent solution should be considered
+      fast9_detect(&opticflow->prev_img_gray, opticflow->fast9_threshold, opticflow->fast9_min_distance,
+                   opticflow->fast9_padding, opticflow->fast9_padding, &result->corner_cnt,
+                   &opticflow->fast9_rsize,
+                   &opticflow->fast9_ret_corners,
+                   NULL);
+
+    }
+    else if (CORNER_METHOD == ACT_FAST) {
+        // ACT-FAST corner detection:
+        // TODO: all relevant things should be settings:
+        float long_step = 10; // 5
+        float short_step = 2; // 2
+        int min_gradient = 10; // 10
+        printf("opticflow->fast9_threshold = %d, n_agents = %d, n_time_steps = %d\n", opticflow->fast9_threshold, n_agents, n_time_steps);
+        act_fast(&opticflow->prev_img_gray, opticflow->fast9_threshold, &result->corner_cnt,
+            &opticflow->fast9_ret_corners, n_agents, n_time_steps,
+            long_step, short_step, min_gradient);
+    }
 
     // Adaptive threshold
     if (opticflow->fast9_adaptive) {
+
+        // This works well for exhaustive FAST, but drives the threshold to the minimum for ACT-FAST:
       // Decrease and increase the threshold based on previous values
-      if (result->corner_cnt < 40
-          && opticflow->fast9_threshold > FAST9_LOW_THRESHOLD) { // TODO: Replace 40 with OPTICFLOW_MAX_TRACK_CORNERS / 2
-        opticflow->fast9_threshold--;
+      if (result->corner_cnt < 40) { // TODO: Replace 40 with OPTICFLOW_MAX_TRACK_CORNERS / 2
+        // make detections easier:
+        if(opticflow->fast9_threshold > FAST9_LOW_THRESHOLD) {
+            opticflow->fast9_threshold--;
+        }
+
+        if(CORNER_METHOD == ACT_FAST) {
+            n_time_steps++;
+            n_agents++;
+        }
+
       } else if (result->corner_cnt > OPTICFLOW_MAX_TRACK_CORNERS * 2 && opticflow->fast9_threshold < FAST9_HIGH_THRESHOLD) {
         opticflow->fast9_threshold++;
+        if(CORNER_METHOD == ACT_FAST && n_time_steps > 5 && n_agents > 10) {
+            n_time_steps--;
+            n_agents--;
+        }
       }
     }
   }
