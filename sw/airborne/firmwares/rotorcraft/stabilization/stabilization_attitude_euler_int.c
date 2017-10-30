@@ -35,6 +35,10 @@
 #include "math/pprz_algebra_int.h"
 #include "state.h"
 
+#if (FILTER_COMMANDS_ROLL_PITCH || FILTER_COMMANDS_YAW)
+  #include "filters/low_pass_filter.h"
+#endif
+
 /** explicitly define to zero to disable attitude reference generation */
 #ifndef USE_ATTITUDE_REF
 #define USE_ATTITUDE_REF 1
@@ -62,6 +66,15 @@ int32_t stabilization_att_ff_cmd[COMMANDS_NB];
 
 struct Int32Eulers stab_att_sp_euler;
 struct AttRefEulerInt att_ref_euler_i;
+
+#if FILTER_CMD_ROLL_PITCH
+  struct SecondOrderLowPass_int filter_roll;
+  struct SecondOrderLowPass_int filter_pitch;
+#endif
+#if FILTER_CMD_YAW
+  struct SecondOrderLowPass_int filter_yaw;
+#endif
+
 
 static inline void reset_psi_ref_from_body(void)
 {
@@ -151,6 +164,30 @@ void stabilization_attitude_init(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STAB_ATTITUDE_INT, send_att);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STAB_ATTITUDE_REF_INT, send_att_ref);
 #endif
+
+#if FILTER_CMD_ROLL_PITCH
+  // Initialize low pass filters
+  #ifndef FILTER_CMD_ROLL_CUTOFF
+    FILTER_CMD_ROLL_CUTOFF=20.0;
+  #endif
+  #ifndef FILTER_CMD_PITCH_CUTOFF
+    FILTER_CMD_PITCH_CUTOFF=20.0;
+  #endif
+
+  init_second_order_low_pass_int(&filter_roll, FILTER_CMD_ROLL_CUTOFF, 0.7071, 1.0/PERIODIC_FREQUENCY, 0.0);
+  init_second_order_low_pass_int(&filter_pitch, FILTER_CMD_PITCH_CUTOFF, 0.7071, 1.0/PERIODIC_FREQUENCY, 0.0);
+#endif
+
+#if FILTER_CMD_YAW
+  // Initialize low pass filter
+  #ifndef FILTER_CMD_YAW_CUTOFF
+    FILTER_CMD_YAW_CUTOFF=20.0;
+  #endif
+
+  init_second_order_low_pass_int(&filter_yaw, FILTER_CMD_YAW_CUTOFF, 0.7071, 1.0/PERIODIC_FREQUENCY, 0.0);
+#endif
+
+
 }
 
 void stabilization_attitude_read_rc(bool in_flight, bool in_carefree, bool coordinated_turn)
@@ -282,4 +319,12 @@ void stabilization_attitude_run(bool  in_flight)
   BoundAbs(stabilization_cmd[COMMAND_PITCH], MAX_PPRZ);
   BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ);
 
+  /* Filter the commands */
+#if FILTER_CMD_ROLL_PITCH
+  stabilization_cmd[COMMAND_ROLL]=update_second_order_low_pass_int(&filter_roll, stabilization_cmd[COMMAND_ROLL]);
+  stabilization_cmd[COMMAND_PITCH]=update_second_order_low_pass_int(&filter_pitch, stabilization_cmd[COMMAND_PITCH]);
+#endif
+#if FILTER_CMD_YAW
+  stabilization_cmd[COMMAND_YAW]=update_second_order_low_pass_int(&filter_yaw, stabilization_cmd[COMMAND_YAW]);
+#endif
 }

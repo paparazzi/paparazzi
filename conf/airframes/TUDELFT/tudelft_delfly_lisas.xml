@@ -1,0 +1,256 @@
+<!-- this is a generic DelFly frame equiped with Lisa/S 1.0 -->
+
+<!--
+     Applicable configuration:
+     airframe="airframes/TUDELFT/tudelft_delfly_lisas.xml"
+     radio="radios/cockpitSX.xml" (SuperbitRF) / radio="radios/delfly_Rx31_Devo10.xml" (DelTang Rx31)
+     telemetry="telemetry/default_rotorcraft.xml" (no logger) / telemetry="telemetry/rotorcraft_with_logger.xml" (with logger)
+     flight_plan="flight_plans/rotorcraft_basic.xml"
+     settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml ../conf/modules/logger_sd_spi_direct.xml (if SD logger is used)"
+-->
+
+<airframe name="delfly_lisa_s">
+	
+	<!-- FIRMWARE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%-->
+	
+	<firmware name="rotorcraft">
+		<target name="ap" board="lisa_s_1.0">
+			<!-- SuperbitRF RC -->
+				<!-- module name="radio_control" type="superbitrf_rc"/-->
+			<!-- DelTang Rx31 -->
+			<module name="radio_control" type="ppm">
+				<configure name="RADIO_CONTROL_PPM_PIN" value="SERVO6"/>
+				<define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
+        		<define name="RADIO_YAW" value="RADIO_ROLL"/>
+        	</module>
+			
+			<configure name="USE_MAGNETOMETER" value="0"/>
+			<configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
+			<define name="USE_PERSISTENT_SETTINGS" value="TRUE"/>
+		</target>
+		
+		<!-- Necessary to build succesfully, but not used -->
+		<module name="motor_mixing"/>
+		
+		<!-- Rpm sensing settings (cannot be pushed to master) -->
+			<!--subsystem name="rpm_sensor" type="eagletree"-->
+				<!--define name="PULSES_PER_ROTATION" value="5"/-->
+			<!--/subsystem-->
+			
+		<module name="actuators" type="pwm">
+			<define name="SERVO_HZ" value="400"/>
+			<define name="USE_SERVOS_1AND2"/>
+		</module>
+		
+		<!-- TELEMETRY -->
+		<!-- SuperbitRF telemetry -->
+			<!--module name="telemetry" type="superbitrf"/-->
+		<!-- Debug serial interface telemetry -->
+		<module name="telemetry" type="transparent">
+			<configure name="MODEM_BAUD" value="B115200"/>
+			<configure name="MODEM_PORT" value="UART1"/>
+		</module>
+		
+		<module name="imu" type="lisa_s_v1.0"/>
+		<module name="gps" type="ublox"/>
+		<module name="stabilization" type="int_euler">
+			<configure name="FILTER_COMMANDS_ROLL_PITCH" value="1"/>
+			<configure name="FILTER_COMMANDS_YAW" value="1"/>
+			<configure name="FILTER_CMD_ROLL_CUTOFF" value="15.0"/>
+			<configure name="FILTER_CMD_PITCH_CUTOFF" value="15.0"/>
+			<configure name="FILTER_CMD_YAW_CUTOFF" value="10.0"/>	
+		</module>
+		<module name="ahrs" type="int_cmpl_quat"/>
+		<module name="ins"/>
+	</firmware>
+	
+	<!-- MODULES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%-->
+	
+	<modules main_freq="512">
+		<module name="send_imu_mag_current"/>
+		<!-- When sd logger is used, then radio should be DelTang (PPM) and telemetry should
+			be transparent (cable/WiFi) -->
+		<module name="logger_sd_spi_direct.xml">
+			<define name="SDLOGGER_ON_ARM" value="TRUE"/>
+			<!--define name="LOGGER_LED" value="3"/-->
+		</module>
+	</modules>
+	
+	<!-- ACTUATORS & COMMANDS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%-->
+	<servos driver="Pwm">
+		<servo name="MOTOR" no="4" min="1100" neutral="1100" max="1900"/>
+		<servo name="ELEVATOR" no="5" min="1100" neutral="1500" max="1900"/>
+		<servo name="RUDDER" no="0" min="1100" neutral="1500" max="1900"/>
+	</servos>
+	
+	<commands>
+		<axis name="PITCH" failsafe_value="0"/>
+		<axis name="ROLL" failsafe_value="0"/>
+		<axis name="YAW" failsafe_value="0"/>
+		<axis name="THRUST" failsafe_value="0"/>
+	</commands>
+	
+	<command_laws>
+		<!--call fun="motor_mixing_run(autopilot_motors_on,FALSE,values)"/-->
+		<set servo="MOTOR" value="@THRUST"/>
+		<set servo="ELEVATOR" value="@PITCH"/>
+		<set servo="RUDDER" value="@YAW"/>
+	</command_laws>
+	
+	<!-- SETTINGS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%-->
+	
+	<section name="IMU" prefix="IMU_">
+		<define name="BODY_TO_IMU_PHI" value="0." unit="deg"/>
+		<define name="BODY_TO_IMU_THETA" value="245." unit="deg"/>
+		<define name="BODY_TO_IMU_PSI" value="0." unit="deg"/>
+		
+		<!-- MAGNETO CALIBRATION DELFT - calibration still needs to be done !!! -->
+		<define name="MAG_X_NEUTRAL" value="10"/>
+		<define name="MAG_Y_NEUTRAL" value="238"/>
+		<define name="MAG_Z_NEUTRAL" value="-74"/>
+		<define name="MAG_X_SENS" value="3.67001348283" integer="16"/>
+		<define name="MAG_Y_SENS" value="3.98840260231" integer="16"/>
+		<define name="MAG_Z_SENS" value="4.32568461736" integer="16"/>
+		
+		<!-- MAGNETO CURRENT CALIBRATION -->
+		<define name= "MAG_X_CURRENT_COEF" value="-0.0176704713698"/>
+		<define name= "MAG_Y_CURRENT_COEF" value="0.0174222594634"/>
+		<define name= "MAG_Z_CURRENT_COEF" value="0.0187570316492"/>
+	</section>
+	
+	<section name="AHRS" prefix="AHRS_">
+		<!--     Delft magnetic field -->
+		<define name="H_X" value="0.39049610"/>
+		<define name="H_Y" value="0.00278894"/>
+		<define name="H_Z" value="0.92060036"/>
+		<define name="USE_GPS_HEADING" value="0"/>
+		
+		<!-- For vibrating airfames -->
+		<define name="GRAVITY_HEURISTIC_FACTOR" value="0"/>
+	</section>
+	
+	<section name="AUTOPILOT">
+		<define name="MODE_STARTUP" value="AP_MODE_RC_DIRECT"/>
+		<define name="MODE_MANUAL" value="AP_MODE_RC_DIRECT"/>
+		<define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_DIRECT"/>
+		<define name="MODE_AUTO2" value="AP_MODE_ATTITUDE_DIRECT"/>
+		
+		<define name="USE_THROTTLE_FOR_MOTOR_ARMING" value="TRUE"/>
+		<define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
+	</section>
+	
+	<section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
+		
+		<!-- setpoints -->
+		<define name="SP_MAX_PHI" value="45." unit="deg"/>
+		<define name="SP_MAX_THETA" value="45." unit="deg"/>
+		<define name="SP_MAX_PSI" value="45." unit="deg"/>
+		<define name="SP_MAX_R" value="90." unit="deg/s"/>
+		<define name="SP_MAX_P" value="90." unit="deg/s"/>
+		<define name="DEADBAND_R" value="250"/>
+		<define name="DEADBAND_A" value="250"/>
+		
+		<!-- reference -->
+		<define name="REF_OMEGA_P" value="800" unit="deg/s"/>
+		<define name="REF_ZETA_P" value="0.85"/>
+		<define name="REF_MAX_P" value="400." unit="deg/s"/>
+		<define name="REF_MAX_PDOT" value="RadOfDeg(8000.)"/>
+		
+		<define name="REF_OMEGA_Q" value="800" unit="deg/s"/>
+		<define name="REF_ZETA_Q" value="0.85"/>
+		<define name="REF_MAX_Q" value="400." unit="deg/s"/>
+		<define name="REF_MAX_QDOT" value="RadOfDeg(8000.)"/>
+		
+		<define name="REF_OMEGA_R" value="500" unit="deg/s"/>
+		<define name="REF_ZETA_R" value="0.85"/>
+		<define name="REF_MAX_R" value="90." unit="deg/s"/>
+		<define name="REF_MAX_RDOT" value="RadOfDeg(900.)"/>
+		
+		<!-- feedback -->
+		<define name="PHI_PGAIN" value="1"/>
+		<define name="PHI_DGAIN" value="1"/>
+		<define name="PHI_IGAIN" value="1"/>
+		
+		<define name="THETA_PGAIN" value="2024"/>
+		<define name="THETA_DGAIN" value="200"/>
+		<define name="THETA_IGAIN" value="800"/>
+		
+		<define name="PSI_PGAIN" value="1300"/>
+		<define name="PSI_DGAIN" value="300"/>
+		<define name="PSI_IGAIN" value="60"/>
+		
+		<!-- feedforward -->
+		<define name="PHI_DDGAIN" value="0"/>
+		<define name="THETA_DDGAIN" value="0"/>
+		<define name="PSI_DDGAIN" value=" 0"/>
+		
+		<define name="PHI_AGAIN" value="0"/>
+		<define name="THETA_AGAIN" value="0"/>
+		<define name="PSI_AGAIN" value="0"/>
+	</section>
+	
+	<section name="INS" prefix="INS_">
+		<define name="USE_GPS_ALT" value="1"/>
+	</section>
+	
+	<section name="GPS" prefix="GPS_">
+		<define name="USE_DATALINK_SMALL" value="1"/>
+		<define name="LOCAL_ECEF_ORIGIN_X" value="392433200"/>
+		<define name="LOCAL_ECEF_ORIGIN_Y" value="30036200"/>
+		<define name="LOCAL_ECEF_ORIGIN_Z" value="500219700"/>
+	</section>
+	
+	<section name="GUIDANCE_V" prefix="GUIDANCE_V_">
+		<define name="HOVER_KP" value="276"/>
+		<define name="HOVER_KD" value="455"/>
+		<define name="HOVER_KI" value="100"/>
+		<define name="NOMINAL_HOVER_THROTTLE" value="0.65"/>
+		<define name="ADAPT_THROTTLE_ENABLED" value="FALSE"/>
+	</section>
+	
+	
+	<section name="GUIDANCE_H" prefix="GUIDANCE_H_">
+		<define name="PGAIN" value="120"/>
+		<define name="DGAIN" value="40"/>
+		<define name="IGAIN" value="0"/>
+		<define name="REF_MAX_SPEED" value="0.5"/>
+		<define name="USE_REF" value="FALSE"/>
+	</section>
+	
+	<section name="NAVIGATION" prefix="NAV_">
+		<define name="CLIMB_VSPEED" value="1.0"/>
+		<define name="DESCEND_VSPEED" value="-0.5"/>
+	</section>
+	
+	<section name="MISC">
+		<define name="ARRIVED_AT_WAYPOINT" value="0.2"/>
+	</section>
+	
+	<section name="BAT">
+		<define name="MILLIAMP_AT_FULL_THROTTLE" value="2000"/>
+		<define name="CATASTROPHIC_BAT_LEVEL" value="3.0" unit="V"/>
+		<define name="CRITIC_BAT_LEVEL" value="3.2" unit="V"/>
+		<define name="LOW_BAT_LEVEL" value="3.5" unit="V"/>
+		<define name="MAX_BAT_LEVEL" value="4.1" unit="V"/>
+	</section>
+	
+	<section name="SIMULATOR" prefix="NPS_">
+		<define name="ACTUATOR_NAMES" value="ne_motor, se_motor, sw_motor, nw_motor" type="string[]"/>
+		<define name="JSBSIM_MODEL" value="simple_x_quad_ccw" type="string"/>
+		<define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
+	</section>
+	
+	<!--Motor mixing not used, presence necessary for a succesful build...-->
+	<section name="MIXING" prefix="MOTOR_MIXING_">
+		<define name="TRIM_ROLL" value="0"/>
+		<define name="TRIM_PITCH" value="0"/>
+		<define name="TRIM_YAW" value="0"/>
+		<define name="NB_MOTOR" value="4"/>
+		<define name="SCALE" value="256"/>
+		<define name="ROLL_COEF" value="{  -256, -256,  256,  256 }"/>
+		<define name="PITCH_COEF" value="{  256, -256, -256,  256 }"/>
+		<define name="YAW_COEF" value="{    256, -256,  256, -256 }"/>
+		<define name="THRUST_COEF" value="{ 256,  256,  256,  256 }"/>
+	</section>
+	
+</airframe>
