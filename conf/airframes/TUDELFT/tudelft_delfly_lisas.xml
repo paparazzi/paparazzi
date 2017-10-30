@@ -53,12 +53,12 @@
 		
 		<module name="imu" type="lisa_s_v1.0"/>
 		<module name="gps" type="ublox"/>
-		<module name="stabilization" type="int_euler">
-			<configure name="FILTER_COMMANDS_ROLL_PITCH" value="1"/>
-			<configure name="FILTER_COMMANDS_YAW" value="1"/>
-			<configure name="FILTER_CMD_ROLL_CUTOFF" value="15.0"/>
-			<configure name="FILTER_CMD_PITCH_CUTOFF" value="15.0"/>
-			<configure name="FILTER_CMD_YAW_CUTOFF" value="10.0"/>	
+		<module name="stabilization" type="int_euler" prefix="STABILIZATION_">
+			<define name="FILTER_CMD_ROLL_PITCH" value="1"/>
+			<define name="FILTER_CMD_YAW" value="1"/>
+			<define name="FILTER_CMD_ROLL_CUTOFF" value="15.0"/>
+			<define name="FILTER_CMD_PITCH_CUTOFF" value="15.0"/>
+			<define name="FILTER_CMD_YAW_CUTOFF" value="10.0"/>	
 		</module>
 		<module name="ahrs" type="int_cmpl_quat"/>
 		<module name="ins"/>

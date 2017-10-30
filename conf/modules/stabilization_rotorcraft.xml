@@ -7,6 +7,13 @@
       Also provide the direct mode 'stabilization_none'
       As a durty hack, it also provides navigation and guidance: this should be done in the airframe at some point
     </description>
+    <section name="STABILIZATION_FILTER_CMD" prefix="STABILIZATION_FILTER_CMD_">
+      <define name="ROLL_PITCH" value="0" description="roll and pitch command filter toggle" unit="bool"/>
+	  <define name="YAW" value="0" description="yaw command filter toggle" unit="bool"/>
+	  <define name="ROLL_CUTOFF" value="20.0" description="roll command filter cut-off" unit="Hz"/>
+	  <define name="PITCH_CUTOFF" value="20.0" description="pitch command filter cut-off" unit="Hz"/>
+	  <define name="YAW_CUTOFF" value="20.0" description="yaw command filter cut-off" unit="Hz"/>	
+    </section>
   </doc>
   <autoload name="nav_basic_rotorcraft"/>
   <header>

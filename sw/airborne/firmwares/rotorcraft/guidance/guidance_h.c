@@ -319,7 +319,7 @@ void guidance_h_read_rc(bool  in_flight)
       stabilization_attitude_read_rc(in_flight, FALSE, FALSE);
       break;
     case GUIDANCE_H_MODE_HOVER:
-      stabilization_attitude_read_rc_setpoint_eulers_f(&guidance_h.rc_sp, in_flight, FALSE, FALSE );
+      stabilization_attitude_read_rc_setpoint_eulers_f(&guidance_h.rc_sp, in_flight, FALSE, FALSE);
 #if GUIDANCE_H_USE_SPEED_REF
       read_rc_setpoint_speed_i(&guidance_h.sp.speed, in_flight);
       /* enable x,y velocity setpoints */
@@ -374,6 +374,12 @@ void guidance_h_run(bool  in_flight)
         transition_run(false);
       }
       stabilization_attitude_run(in_flight);
+#if (STABILIZATION_FILTER_CMD_ROLL_PITCH || STABILIZATION_FILTER_CMD_YAW)
+      if (in_flight) {
+        stabilization_filter_commands();
+      }
+#endif
+
       break;
 
     case GUIDANCE_H_MODE_HOVER:
@@ -605,7 +611,7 @@ void guidance_h_from_nav(bool in_flight)
     /* set final attitude setpoint */
     int32_t heading_sp_i = ANGLE_BFP_OF_REAL(guidance_h.sp.heading);
     stabilization_attitude_set_earth_cmd_i(&guidance_h_cmd_earth,
-        heading_sp_i);
+                                           heading_sp_i);
 #endif
 
 #endif
