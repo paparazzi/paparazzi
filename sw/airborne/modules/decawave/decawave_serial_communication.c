@@ -25,12 +25,12 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/decawave/Serial/Serial_Communication.h"
+ * @file "modules/decawave_serial_communication.h"
  * @author S. vd H, C. DW
  *
  */
 
-#include "modules/decawave/Serial/Serial_Communication.h"
+#include "decawave_serial_communication.h"
 #include "subsystems/datalink/telemetry.h"
 #include "subsystems/radio_control.h"
 #include "state.h"
@@ -104,7 +104,7 @@ void decawave_serial_communication_periodic(void)
 {
 	sendFloat(UWB_SERIAL_COMM_VX,stateGetSpeedEnu_f()->y);
 	sendFloat(UWB_SERIAL_COMM_VY,stateGetSpeedEnu_f()->x);
-	sendFloat(UWB_SERIAL_COMM_Z,current_pos.z);
+	sendFloat(UWB_SERIAL_COMM_Z, stateGetPositionEnu_f()->z);
 }
 
 /**
