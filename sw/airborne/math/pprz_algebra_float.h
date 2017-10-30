@@ -731,7 +731,7 @@ static inline void float_mat_col(float *o, float **a, int m, int c)
 
 extern bool float_mat_inv_2d(float inv_out[4], float mat_in[4]);
 extern void float_mat2_mult(struct FloatVect2 *vect_out, float mat[4], struct FloatVect2 vect_in);
-extern void float_mat_inv_4d(float invOut[16], float mat_in[16]);
+extern bool float_mat_inv_4d(float invOut[16], float mat_in[16]);
 
 #ifdef __cplusplus
 } /* extern "C" */

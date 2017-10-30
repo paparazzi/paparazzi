@@ -687,7 +687,7 @@ bool float_mat_inv_2d(float inv_out[4], float mat_in[4])
   inv_out[2] = -mat_in[2] / det;
   inv_out[3] =  mat_in[0] / det;
 
-  return 0; //return succes
+  return 0; //return success
 }
 
 /**
@@ -708,7 +708,7 @@ void float_mat2_mult(struct FloatVect2 *vect_out, float mat[4], struct FloatVect
  * obtained from: http://rodolphe-vaillant.fr/?e=7
  */
 float float_mat_minor_4d(float m[16], int r0, int r1, int r2, int c0, int c1, int c2);
-void float_mat_adjoint_4d(float m[16], float adjOut[16]);
+void float_mat_adjoint_4d(float adjOut[16], float m[16]);
 float float_mat_det_4d(float m[16]);
 
 float float_mat_minor_4d(float m[16], int r0, int r1, int r2, int c0, int c1, int c2)
@@ -719,7 +719,7 @@ float float_mat_minor_4d(float m[16], int r0, int r1, int r2, int c0, int c1, in
 }
 
 
-void float_mat_adjoint_4d(float m[16], float adjOut[16])
+void float_mat_adjoint_4d(float adjOut[16], float m[16])
 {
   adjOut[ 0] =  float_mat_minor_4d(m, 1, 2, 3, 1, 2, 3);
   adjOut[ 1] = -float_mat_minor_4d(m, 0, 2, 3, 1, 2, 3);
@@ -753,13 +753,18 @@ float float_mat_det_4d(float m[16])
  * @param invOut output array, inverse of mat_in
  * @param mat_in input array
  */
-void float_mat_inv_4d(float invOut[16], float mat_in[16])
+bool float_mat_inv_4d(float invOut[16], float mat_in[16])
 {
-  float_mat_adjoint_4d(mat_in, invOut);
+  float_mat_adjoint_4d(invOut, mat_in);
 
-  float inv_det = 1.0f / float_mat_det_4d(mat_in);
+  float det = float_mat_det_4d(mat_in);
+  if (fabsf(det) < 1e-4) { return 1; } //not invertible
+
+  float inv_det = 1.0f / det;
   int i;
   for (i = 0; i < 16; ++i) {
     invOut[i] = invOut[i] * inv_det;
   }
+
+  return 0; //success
 }
