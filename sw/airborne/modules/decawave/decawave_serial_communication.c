@@ -236,7 +236,7 @@ void sendFloat(uint8_t msgtype, float outfloat){
 	encodeHighBytes(floatbyte,4);
 	SerialSend1(UWB_SERIAL_COMM_START_MARKER);
 	SerialSend1(msgtype);
-	SerialSend(tempBuffer2,_dataTotalSend);
+	SerialSend( _tempBuffer2,_dataTotalSend);
 	SerialSend1(UWB_SERIAL_COMM_END_MARKER);
 }
 
