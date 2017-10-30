@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
 <sdf version='1.4'>
-	<model name="ardrone">
+	<model name="simple_quad">
 		<pose>0 0 .1 0 0 0</pose>
 
 		<link name="chassis">
@@ -45,8 +45,8 @@
 		</link>
 
 		<!-- MOTORS -->
-		<link name="nw_motor">
-			<pose>0.12 0.12 0 0 0 0</pose>
+		<link name="front_motor">
+			<pose>0.12 0 0 0 0 0</pose>
 			<inertial>
 				<mass>0.01</mass>
 				<inertia>
@@ -68,13 +68,13 @@
 			</visual>
 		</link>
 
-		<joint type="fixed" name="nw_motor_joint">
+		<joint type="fixed" name="front_motor_joint">
 			<parent>chassis</parent>
-			<child>nw_motor</child>
+			<child>front_motor</child>
 		</joint>
 
-		<link name="se_motor">
-			<pose>-0.12 -0.12 0 0 0 0</pose>
+		<link name="back_motor">
+			<pose>-0.12 0 0 0 0 0</pose>
 			<inertial>
 				<mass>0.01</mass>
 				<inertia>
@@ -96,13 +96,13 @@
 			</visual>
 		</link>
 
-		<joint type="fixed" name="se_motor_joint">
+		<joint type="fixed" name="back_motor_joint">
 			<parent>chassis</parent>
-			<child>se_motor</child>
+			<child>back_motor</child>
 		</joint>
 
-		<link name="ne_motor">
-			<pose>0.12 -0.12 0 0 0 0</pose>
+		<link name="right_motor">
+			<pose>0 -0.12 0 0 0 0</pose>
 			<inertial>
 				<mass>0.01</mass>
 				<inertia>
@@ -124,13 +124,13 @@
 			</visual>
 		</link>
 
-		<joint type="fixed" name="ne_motor_joint">
+		<joint type="fixed" name="right_motor_joint">
 			<parent>chassis</parent>
-			<child>ne_motor</child>
+			<child>right_motor</child>
 		</joint>
 
-		<link name="sw_motor">
-			<pose>-0.12 0.12 0 0 0 0</pose>
+		<link name="left_motor">
+			<pose>0 0.12 0 0 0 0</pose>
 			<inertial>
 				<mass>0.01</mass>
 				<inertia>
@@ -152,9 +152,9 @@
 			</visual>
 		</link>
 
-		<joint type="fixed" name="sw_motor_joint">
+		<joint type="fixed" name="left_motor_joint">
 			<parent>chassis</parent>
-			<child>sw_motor</child>
+			<child>left_motor</child>
 		</joint>
 
 

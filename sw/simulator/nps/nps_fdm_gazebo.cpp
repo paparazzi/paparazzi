@@ -32,13 +32,6 @@
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 
-#ifdef NPS_DEBUG_VIDEO
-// Opencv tools
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#endif
-
 #include <cstdio>
 #include <cstdlib>
 #include <string>
@@ -47,27 +40,39 @@
 
 #include <gazebo/gazebo.hh>
 #include <gazebo/common/common.hh>
+#include <gazebo/math/gzmath.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo/sensors/sensors.hh>
 #include <gazebo/gazebo_config.h>
+#include <sdf/sdf.hh>
 
 extern "C" {
 #include "nps_fdm.h"
+#include "nps_autopilot.h"
 
 #include "generated/airframe.h"
 #include "autopilot.h"
 
 #include "math/pprz_isa.h"
 #include "math/pprz_algebra_double.h"
+
+#include "subsystems/actuators/motor_mixing_types.h"
 }
+
+#if defined(NPS_DEBUG_VIDEO) || defined(NPS_DEBUG_STEREOCAM)
+// Opencv tools
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#endif
 
 using namespace std;
 
 #ifndef NPS_GAZEBO_WORLD
-#define NPS_GAZEBO_WORLD "ardrone.world"
+#define NPS_GAZEBO_WORLD "empty.world"
 #endif
 #ifndef NPS_GAZEBO_AC_NAME
-#define NPS_GAZEBO_AC_NAME "paparazzi_uav"
+#define NPS_GAZEBO_AC_NAME "ardrone"
 #endif
 
 // Add video handling functions if req'd.
@@ -91,6 +96,15 @@ struct gazebocam_t {
 static struct gazebocam_t gazebo_cams[VIDEO_THREAD_MAX_CAMERAS] =
 { { NULL, 0 } };
 #endif
+
+struct gazebo_actuators_t
+{
+  string names[NPS_COMMANDS_NB];
+  double thrusts[NPS_COMMANDS_NB];
+  double torques[NPS_COMMANDS_NB];
+};
+
+struct gazebo_actuators_t gazebo_actuators = {NPS_ACTUATOR_NAMES, {NPS_ACTUATOR_THRUSTS}, {NPS_ACTUATOR_THRUSTS}};
 
 /// Holds all necessary NPS FDM state information
 struct NpsFdm fdm;
@@ -277,8 +291,17 @@ static void init_gazebo(void)
     gazebodir + "models/");
 
   cout << "Load world: " << gazebodir + "world/" + NPS_GAZEBO_WORLD << endl;
-  gazebo::physics::WorldPtr world = gazebo::loadWorld(
-                                      gazebodir + "world/" + NPS_GAZEBO_WORLD);
+
+  sdf::SDFPtr world_sdf(new sdf::SDF());
+  sdf::init(world_sdf);
+  sdf::readFile(gazebodir + "world/" + NPS_GAZEBO_WORLD, world_sdf);
+
+  world_sdf->Root()->GetFirstElement()->AddElement("include")->GetElement("uri")->Set((string)"model://" + NPS_GAZEBO_AC_NAME);
+  world_sdf->Write(pprz_home + "/var/gazebo.world");
+
+  // TODO add sensors to the gazebo model in the same way as the vehicle.
+
+  gazebo::physics::WorldPtr world = gazebo::loadWorld(pprz_home + "/var/gazebo.world");
   if (!world) {
     cout << "Failed to open world, exiting." << endl;
     std::exit(-1);
@@ -303,6 +326,15 @@ static void init_gazebo(void)
   ct = static_pointer_cast < gazebo::sensors::ContactSensor > (mgr->GetSensor("contactsensor"));
   ct->SetActive(true);
 
+  // Overwrite motor directions as defined by motor_mixing
+#ifdef MOTOR_MIXING_YAW_COEF
+  const double yaw_coef[] = MOTOR_MIXING_YAW_COEF;
+
+  for (uint8_t i = 0; i < NPS_COMMANDS_NB; i++)
+  {
+    gazebo_actuators.torques[i] = -fabs(gazebo_actuators.torques[i]) * yaw_coef[i] / fabs(yaw_coef[i]);
+  }
+#endif
   cout << "Gazebo initialized successfully!" << endl;
 }
 
@@ -428,7 +460,7 @@ static void gazebo_read(void)
 #else
   // Gazebo versions < 8 do not have atmosphere or wind support
   // Use placeholder values. Valid for low altitude, low speed flights.
-  fdm.wind = {.x = 0, .y = 0, .z = 0};
+  fdm.wind = (struct DoubleVect3){0, 0, 0};
   fdm.pressure_sl = 101325; // Pa
 
   fdm.airspeed = 0;
@@ -467,14 +499,11 @@ static void gazebo_read(void)
  */
 static void gazebo_write(double act_commands[], int commands_nb)
 {
-  const string names[] = NPS_ACTUATOR_NAMES;
-  const double thrusts[] = { NPS_ACTUATOR_THRUSTS };
-  const double torques[] = { NPS_ACTUATOR_TORQUES };
-
+  // TODO simulte actuator dynamics so indi can work
   for (int i = 0; i < commands_nb; ++i) {
-    double thrust = autopilot.motors_on ? thrusts[i] * act_commands[i] : 0.0;
-    double torque = autopilot.motors_on ? torques[i] * act_commands[i] : 0.0;
-    gazebo::physics::LinkPtr link = model->GetLink(names[i]);
+    double thrust = autopilot.motors_on ? gazebo_actuators.thrusts[i] * act_commands[i] : 0.0;
+    double torque = autopilot.motors_on ? gazebo_actuators.torques[i] * act_commands[i] : 0.0;
+    gazebo::physics::LinkPtr link = model->GetLink(gazebo_actuators.names[i]);
     link->AddRelativeForce(gazebo::math::Vector3(0, 0, thrust));
     link->AddRelativeTorque(gazebo::math::Vector3(0, 0, torque));
   }

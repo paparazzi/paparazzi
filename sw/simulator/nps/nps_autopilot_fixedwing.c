@@ -146,13 +146,11 @@ void nps_autopilot_run_step(double time)
   }
 #endif
 
-#ifndef NPS_NO_GPS
   if (nps_sensors_gps_available()) {
     gps_feed_value();
     Fbw(event_task);
     Ap(event_task);
   }
-#endif
 
 #if USE_SONAR
   if (nps_sensors_sonar_available()) {

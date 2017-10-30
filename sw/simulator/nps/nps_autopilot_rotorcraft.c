@@ -140,7 +140,7 @@ void nps_autopilot_run_step(double time)
   }
 #endif
 
-#if USE_GPS && !defined(NPS_NO_GPS)
+#if USE_GPS
   if (nps_sensors_gps_available()) {
     gps_feed_value();
     main_event();

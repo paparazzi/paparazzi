@@ -66,8 +66,13 @@ void gps_feed_value(void)
   gps_nps.gspeed = sqrt(ned_vel_d.x * ned_vel_d.x + ned_vel_d.y * ned_vel_d.y) * 100;
   gps_nps.speed_3d = sqrt(ned_vel_d.x * ned_vel_d.x + ned_vel_d.y * ned_vel_d.y + ned_vel_d.z * ned_vel_d.z) * 100;
 
+#if PRIMARY_GPS == GPS_DATALINK
+  /* vehicle heading in radians * 1e7 */
+  gps_nps.course = fdm.ltp_to_body_eulers.psi * 1e7;
+#else
   /* ground course in radians * 1e7 */
   gps_nps.course = atan2(ned_vel_d.y, ned_vel_d.x) * 1e7;
+#endif
   SetBit(gps_nps.valid_fields, GPS_VALID_COURSE_BIT);
 
   if (gps_has_fix) {

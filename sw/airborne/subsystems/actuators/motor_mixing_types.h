@@ -26,6 +26,8 @@
 #ifndef MOTOR_MIXING_TYPES_H
 #define MOTOR_MIXING_TYPES_H
 
+#include "generated/airframe.h"
+
 /* already defined common configurations*/
 #define QUAD_PLUS   1
 #define QUAD_X      2

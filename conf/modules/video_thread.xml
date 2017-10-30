@@ -43,5 +43,7 @@
     <file name="image.c" dir="modules/computer_vision/lib/vision"/>
     <file name="jpeg.c" dir="modules/computer_vision/lib/encoding"/>
     <flag name="LDFLAGS" value="lpthread"/>
+    
+    <define name="NPS_SIMULATE_VIDEO" value="1"/>
   </makefile>
 </module>
