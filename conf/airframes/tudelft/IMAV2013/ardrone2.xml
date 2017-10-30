@@ -71,7 +71,7 @@
     <set servo="BOTTOM_RIGHT" value="motor_mixing.commands[3]"/>
   </command_laws>
 
-  <include href="conf/airframes/TUDELFT/IMAV2013/calibrations/$AC_ID_calib.xml"/>
+  <include href="conf/airframes/tudelft/IMAV2013/calibrations/$AC_ID_calib.xml"/>
   <section name="IMU" prefix="IMU_">
     <!-- Body to IMU is no difference -->
     <define name="BODY_TO_IMU_PHI" value="0." unit="deg"/>

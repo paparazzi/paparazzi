@@ -130,7 +130,7 @@ Using Lisa/S V1.0 board file as it is software compatible.
   </section>
 
   <!-- magneto calibration -->
-  <!--include href="conf/airframes/TUDELFT/calibrations/walkera_2016_03_16.xml"/-->
+  <!--include href="conf/airframes/tudelft/calibrations/walkera_2016_03_16.xml"/-->
 
   <heli_curves>
     <curve throttle="0,4800,7200,8400,9600" collective="-1500,-1500,0,3000,3000"/>
