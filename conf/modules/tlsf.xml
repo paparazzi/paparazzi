@@ -17,6 +17,7 @@
     <define name="MAX_FLI" value="$(TLSF_MAX_FLI)"/>
     <file_arch name="tlsf_malloc_arch.c"/>
     <include name="$(PAPARAZZI_SRC)/sw/ext/tlsf"/>
-    <file name="tlsf.c" dir="$(PAPARAZZI_SRC)/sw/ext/tlsf"/>
+    <file name="tlsf.c" dir="../../tlsf"/>
+    <!--<file name="tlsf.c" dir="$(PAPARAZZI_SRC)/sw/ext/tlsf"/>-->
   </makefile>
 </module>

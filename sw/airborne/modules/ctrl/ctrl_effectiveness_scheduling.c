@@ -64,7 +64,6 @@ void ctrl_eff_scheduling_init(void)
   }
 }
 
-#if EFF_SCHED_USE_FUNCTION
 void ctrl_eff_scheduling_periodic(void)
 {
   // Go from transition percentage to ratio
@@ -74,12 +73,7 @@ void ctrl_eff_scheduling_periodic(void)
   int8_t j;
   for (i = 0; i < INDI_OUTPUTS; i++) {
     for (j = 0; j < INDI_NUM_ACT; j++) {
-      if ((g1g2_hover[i][j] == 0.0) && (g1g2_forward[i][j] == 0.0)) {
-        g1g2[i][j] = 0.0;
-      } else {
-        g1g2[i][j] = (g1g2_hover[i][j] * (1.0 - ratio) + g1g2_forward[i][j] * ratio);
-      }
+      g1g2[i][j] = (g1g2_hover[i][j] * (1.0 - ratio) + g1g2_forward[i][j] * ratio);
     }
   }
 }
-#endif
