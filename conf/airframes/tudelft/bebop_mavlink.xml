@@ -1,15 +1,19 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <airframe name="bebop_indi">
-  <description>Outdoor bebop, INDI
+  <description>Bebop with MavLink
   </description>
 
+
   <firmware name="rotorcraft">
-    <target name="ap" board="bebop"/>
+    <target name="ap" board="bebop">
+      <define name="STABILIZATION_INDI_G2_R" value="0.1450"/>
+    </target>
 
     <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
       <module name="udp"/>
+      <define name="STABILIZATION_INDI_G2_R" value="0.0"/>
     </target>
 
     <!--define name="USE_SONAR" value="TRUE"/-->
@@ -22,23 +26,51 @@
     <module name="imu" type="bebop"/>
     <module name="gps" type="furuno"/>
     <module name="stabilization" type="indi_simple"/>
-    <module name="stabilization" type="rate_indi"/>
     <module name="ahrs" type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="TRUE"/>
       <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
     </module>
     <module name="ins" type="extended"/>
-    <module name="guidance" type="indi">
-      <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-500.0"/>
-    </module>
   </firmware>
 
   <modules main_freq="512">
     <module name="geo_mag"/>
     <module name="air_data"/>
     <module name="send_imu_mag_current"/>
-    <module name="logger_file">
+    <!--module name="logger_file">
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
+    </module-->
+    <module name="video_thread"/>
+
+    <module name="cv_blob_locator">
+      <define name="BLOB_LOCATOR_CAMERA" value="bottom_camera"/>
+    </module>
+
+    <!--<module name="video_rtp_stream">
+      <define name="VIEWVIDEO_CAMERA" value="bottom_camera"/>
+      <define name="VIEWVIDEO_QUALITY_FACTOR" value="80"/>
+      <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
+    </module>-->
+
+    <module name="nav" type="survey_rectangle_rotorcraft">
+      <define name="RECTANGLE_SURVEY_DEFAULT_SWEEP" value="10"/>
+    </module>
+    <module name="nav" type="survey_poly_rotorcraft">
+      <define name="POLYSURVEY_DEFAULT_DISTANCE" value="10"/>
+    </module>
+    <module name="video_capture">
+      <define name="VIDEO_CAPTURE_CAMERA" value="bottom_camera"/>
+    </module>
+    <module name="digital_cam_video">
+      <define name="DC_AUTOSHOOT_DISTANCE_INTERVAL" value="5"/>
+    </module>
+    <module name="video_exif"/>
+    <module name="mavlink">
+      <define name="UDP1_PORT_OUT" value="5000"/>
+      <define name="UDP1_PORT_IN" value="5000"/>
+      <define name="UDP1_HOST" value="192.168.42.2"/>
+      <configure name="MAVLINK_PORT" value="UDP1"/>
+      <define name="MAVLINK_SYSID" value="1"/>
     </module>
   </modules>
 
@@ -77,7 +109,7 @@
     <define name="CALC_AMSL_BARO" value="TRUE"/>
   </section>
 
-  <include href="conf/airframes/TUDELFT/calibrations/bebop7.xml" />
+  <include href="conf/airframes/tudelft/calibrations/bebop5.xml" />
 
   <section name="IMU" prefix="IMU_">
     <define name="BODY_TO_IMU_PHI" value="0." unit="deg"/>
@@ -89,13 +121,14 @@
   <!-- http://wiki.paparazziuav.org/wiki/Subsystem/ahrs#Local_Magnetic_Field -->
   <section name="AHRS" prefix="AHRS_">
     <!-- values used if no GPS fix, on 3D fix is update by geo_mag module -->
+    <!-- Toulouse -->
+    <!--define name="H_X" value="0.513081"/>
+    <define name="H_Y" value="-0.00242783"/>
+    <define name="H_Z" value="0.858336"/-->
     <!-- Delft -->
     <define name="H_X" value="0.3892503"/>
     <define name="H_Y" value="0.0017972"/>
     <define name="H_Z" value="0.9211303"/>
-
-    <!-- For vibrating airfames -->
-    <define name="GRAVITY_HEURISTIC_FACTOR" value="0"/>
   </section>
 
   <section name="INS" prefix="INS_">
@@ -103,11 +136,12 @@
     <define name="SONAR_UPDATE_ON_AGL" value="TRUE"/>
   </section>
 
+
   <section name="RC_SETPOINT" prefix="STABILIZATION_ATTITUDE_">
     <!-- setpoint limits for attitude stabilization rc flight -->
     <define name="SP_MAX_PHI" value="45" unit="deg"/>
     <define name="SP_MAX_THETA" value="45" unit="deg"/>
-    <define name="SP_MAX_R" value="120" unit="deg/s"/>
+    <define name="SP_MAX_R" value="300" unit="deg/s"/>
     <define name="DEADBAND_A" value="0"/>
     <define name="DEADBAND_E" value="0"/>
     <define name="DEADBAND_R" value="50"/>
@@ -136,7 +170,6 @@
     <define name="G1_P" value="0.0639"/>
     <define name="G1_Q" value="0.0361"/>
     <define name="G1_R" value="0.0022"/>
-    <define name="G2_R" value="0.1450"/>
 
     <!-- reference acceleration for attitude control -->
     <define name="REF_ERR_P" value="600.0"/>
@@ -146,12 +179,9 @@
     <define name="REF_RATE_Q" value="28.0"/>
     <define name="REF_RATE_R" value="28.0"/>
 
-    <!--Maxium yaw rate, to avoid instability-->
-    <define name="MAX_R" value="120.0" unit="deg/s"/>
-
     <!-- second order filter parameters -->
     <define name="FILT_CUTOFF" value="8.0"/>
-    <define name="ESTIMATION_FILT_CUTOFF" value="8.0"/>
+    <define name="FILT_CUTOFF_R" value="8.0"/>
 
     <!-- first order actuator dynamics -->
     <define name="ACT_DYN_P" value="0.1"/>
@@ -198,8 +228,6 @@
     <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
     <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_Z_HOLD"/>
     <define name="MODE_AUTO2" value="AP_MODE_NAV"/>
-
-    <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
   </section>
 
   <section name="BAT">

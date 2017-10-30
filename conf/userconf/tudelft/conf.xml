@@ -13,7 +13,7 @@
   <aircraft
    name="ARDrone2_flip"
    ac_id="14"
-   airframe="airframes/TUDELFT/tudelft_ardrone2_flip.xml"
+   airframe="airframes/tudelft/ardrone2_flip.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
@@ -24,7 +24,7 @@
   <aircraft
    name="ARDrone2_indi"
    ac_id="13"
-   airframe="airframes/TUDELFT/tudelft_ardrone2_indi.xml"
+   airframe="airframes/tudelft/ardrone2_indi.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
@@ -35,7 +35,7 @@
   <aircraft
    name="ARDrone2_opticflow"
    ac_id="12"
-   airframe="airframes/TUDELFT/tudelft_ardrone2_opticflow.xml"
+   airframe="airframes/tudelft/ardrone2_opticflow.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
@@ -46,7 +46,7 @@
   <aircraft
    name="ARDrone2_optitrack"
    ac_id="11"
-   airframe="airframes/TUDELFT/tudelft_ardrone2_optitrack.xml"
+   airframe="airframes/tudelft/ardrone2_optitrack.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_optitrack.xml"
@@ -57,7 +57,7 @@
   <aircraft
    name="Ardrone2_182"
    ac_id="182"
-   airframe="airframes/TUDELFT/IMAV2013/tudelft_ardrone2.xml"
+   airframe="airframes/tudelft/IMAV2013/ardrone2.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
@@ -68,10 +68,10 @@
   <aircraft
    name="BebopMavlink"
    ac_id="9"
-   airframe="airframes/TUDELFT/tudelft_bebop_mavlink.xml"
+   airframe="airframes/tudelft/bebop_mavlink.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft_mavlink.xml"
-   flight_plan="flight_plans/TUDELFT/tudelft_rotorcraft_survey_delft.xml"
+   flight_plan="flight_plans/tudelft/rotorcraft_survey_delft.xml"
    settings="settings/rotorcraft_basic.xml settings/estimation/ahrs_secondary.xml settings/control/rotorcraft_speed.xml"
    settings_modules="modules/digital_cam_video.xml modules/video_capture.xml [modules/nav_survey_poly_rotorcraft.xml] [modules/nav_survey_rectangle_rotorcraft.xml] modules/cv_blob_locator.xml modules/air_data.xml modules/geo_mag.xml modules/ins_extended.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_indi_simple.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
    gui_color="#ffff0689b7a1"
@@ -82,7 +82,7 @@
    airframe="airframes/CDW/cdw_bebop.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/TUDELFT/tudelft_rotorcraft_survey_imav2015_competition.xml"
+   flight_plan="flight_plans/tudelft/rotorcraft_survey_imav2015_competition.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_speed.xml"
    settings_modules="modules/digital_cam_video.xml modules/video_capture.xml modules/nav_survey_poly_rotorcraft.xml [modules/nav_survey_rectangle_rotorcraft.xml] modules/video_rtp_stream.xml modules/cv_blob_locator.xml modules/air_data.xml [modules/geo_mag.xml] modules/ins_extended.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_indi_simple.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
    gui_color="#f84eb57ae827"
@@ -90,34 +90,23 @@
   <aircraft
    name="Bebop_Smeur"
    ac_id="21"
-   airframe="airframes/TUDELFT/tudelft_bebop_indi.xml"
+   airframe="airframes/tudelft/bebop_indi.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/TUDELFT/tudelft_delft_basic.xml"
+   flight_plan="flight_plans/tudelft/delft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_speed.xml"
    settings_modules="modules/air_data.xml [modules/geo_mag.xml] modules/ins_extended.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_indi_simple.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
    gui_color="#ffffcccaccca"
   />
   <aircraft
-   name="fan_demo"
-   ac_id="28"
-   airframe="airframes/TUDELFT/tudelft_bebop_indi_actuators.xml"
-   radio="radios/dummy.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/TUDELFT/fan_demo.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_speed.xml"
-   settings_modules="modules/air_data.xml [modules/geo_mag.xml] modules/guidance_indi.xml modules/ins_extended.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_indi.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
-   gui_color="#ffffcccaccca"
-  />
-  <aircraft
    name="Bebop_actuators"
    ac_id="24"
-   airframe="airframes/TUDELFT/tudelft_bebop_indi_actuators.xml"
+   airframe="airframes/tudelft/bebop_indi_actuators.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/TUDELFT/tudelft_delft_basic.xml"
+   flight_plan="flight_plans/tudelft/delft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_speed.xml"
-   settings_modules="modules/air_data.xml [modules/geo_mag.xml] modules/ins_extended.xml modules/ahrs_int_cmpl_quat.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
+   settings_modules="modules/air_data.xml [modules/geo_mag.xml] modules/guidance_indi.xml modules/ins_extended.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_indi.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
    gui_color="#ffffcccaccca"
   />
   <aircraft
@@ -134,7 +123,7 @@
   <aircraft
    name="CX10"
    ac_id="18"
-   airframe="airframes/TUDELFT/tudelft_cx10.xml"
+   airframe="airframes/tudelft/cx10.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
@@ -145,7 +134,7 @@
   <aircraft
    name="ChouChou_LisaS"
    ac_id="135"
-   airframe="airframes/TUDELFT/IMAV2013/tudelft_chouchou_lisa_s.xml"
+   airframe="airframes/tudelft/IMAV2013/chouchou_lisa_s.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
@@ -156,9 +145,9 @@
   <aircraft
    name="DelftaCopter"
    ac_id="6"
-   airframe="airframes/TUDELFT/tudelft_outback.xml"
+   airframe="airframes/tudelft/outback.xml"
    radio="radios/dummy.xml"
-   telemetry="telemetry/TUDELFT/tudelft_outback.xml"
+   telemetry="telemetry/tudelft/outback.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
    settings="settings/rotorcraft_basic.xml"
    settings_modules="modules/gps_ubx_ucenter.xml modules/logger_sd_spi_direct.xml modules/temp_adc.xml modules/air_data.xml modules/geo_mag.xml modules/opa_controller.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_rate.xml modules/stabilization_int_quat.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
@@ -180,7 +169,7 @@
   <aircraft
    name="Flappy"
    ac_id="231"
-   airframe="airframes/TUDELFT/tudelft_quadthopter.xml"
+   airframe="airframes/tudelft/quadthopter.xml"
    radio="radios/deltang_rx31.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
@@ -192,7 +181,7 @@
   <aircraft
    name="GeniusDD"
    ac_id="129"
-   airframe="airframes/TUDELFT/tudelft_heliGeniusDD.xml"
+   airframe="airframes/tudelft/heliGeniusDD.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
@@ -203,7 +192,7 @@
   <aircraft
    name="GeniusDDBart"
    ac_id="130"
-   airframe="airframes/TUDELFT/tudelft_bs_helidd_indi.xml"
+   airframe="airframes/tudelft/bs_helidd_indi.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
@@ -214,7 +203,7 @@
   <aircraft
    name="Heli450"
    ac_id="99"
-   airframe="airframes/TUDELFT/tudelft_heli450.xml"
+   airframe="airframes/tudelft/heli450.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
@@ -225,7 +214,7 @@
   <aircraft
    name="Helisa"
    ac_id="114"
-   airframe="airframes/TUDELFT/tudelft_walkera_genius_v2.xml"
+   airframe="airframes/tudelft/walkera_genius_v2.xml"
    radio="radios/FlyElectricRx31_DX6.xml"
    telemetry="telemetry/rotorcraft_with_logger.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
@@ -236,10 +225,10 @@
   <aircraft
    name="Iris"
    ac_id="66"
-   airframe="airframes/TUDELFT/tudelft_iris_indi.xml"
+   airframe="airframes/tudelft/iris_indi.xml"
    radio="radios/FrSky3dr.xml"
    telemetry="telemetry/default_rotorcraft_slow.xml"
-   flight_plan="flight_plans/TUDELFT/tudelft_delft_basic.xml"
+   flight_plan="flight_plans/tudelft/delft_basic.xml"
    settings="settings/rotorcraft_basic.xml"
    settings_modules="[modules/air_data.xml] modules/geo_mag.xml modules/ins_extended.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_indi_simple.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps_ubx_ucenter.xml modules/gps.xml modules/imu_common.xml"
    gui_color="#ffffcccaccca"
@@ -248,7 +237,7 @@
   <aircraft
    name="LadybirdMXS"
    ac_id="15"
-   airframe="airframes/TUDELFT/tudelft_ladybird_lisa_mxs.xml"
+   airframe="airframes/tudelft/ladybird_lisa_mxs.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
@@ -259,7 +248,7 @@
   <aircraft
    name="Logo600"
    ac_id="111"
-   airframe="airframes/TUDELFT/tudelft_logo600.xml"
+   airframe="airframes/tudelft/logo600.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/dummy.xml"
@@ -271,10 +260,10 @@
   <aircraft
    name="MAVTec1_Kirk"
    ac_id="32"
-   airframe="airframes/TUDELFT/tudelft_mavtec1.xml"
+   airframe="airframes/tudelft/mavtec1.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/TUDELFT/tudelft_delft_basic.xml"
+   flight_plan="flight_plans/tudelft/delft_basic.xml"
    settings="settings/rotorcraft_basic.xml"
    settings_modules="modules/air_data.xml modules/geo_mag.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_indi_simple.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
    gui_color="#ffff00000000"
@@ -286,7 +275,7 @@
    airframe="airframes/CDW/cdw_mavtec.xml"
    radio="radios/R6107SP_7ch.xml"
    telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/TUDELFT/tudelft_rotorcraft_survey_imav2015_competition.xml"
+   flight_plan="flight_plans/tudelft/rotorcraft_survey_imav2015_competition.xml"
    settings="settings/rotorcraft_basic.xml settings/modules/config_asctec_v2.xml"
    settings_modules="modules/geo_mag.xml modules/nav_survey_poly_rotorcraft.xml modules/nav_survey_rectangle_rotorcraft.xml modules/gps_ubx_ucenter.xml modules/switch_servo.xml modules/ahrs_float_mlkf.xml modules/stabilization_int_quat.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
    gui_color="blue"
@@ -295,10 +284,10 @@
   <aircraft
    name="MAVTec4_Bart"
    ac_id="34"
-   airframe="airframes/TUDELFT/tudelft_mavtec4.xml"
+   airframe="airframes/tudelft/mavtec4.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/TUDELFT/tudelft_delft_basic.xml"
+   flight_plan="flight_plans/tudelft/delft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/modules/config_asctec_v2.xml"
    settings_modules="modules/switch_servo.xml [modules/air_data.xml] [modules/geo_mag.xml] modules/ahrs_int_cmpl_quat.xml modules/stabilization_int_quat.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
    gui_color="#e66affffaa08"
@@ -306,10 +295,10 @@
   <aircraft
    name="MAVTec5_Freek"
    ac_id="35"
-   airframe="airframes/TUDELFT/tudelft_mavtec5.xml"
+   airframe="airframes/tudelft/mavtec5.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/TUDELFT/tudelft_delft_basic.xml"
+   flight_plan="flight_plans/tudelft/delft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/modules/config_asctec_v2.xml"
    settings_modules="modules/gps_ubx_ucenter.xml modules/switch_servo.xml [modules/air_data.xml] [modules/geo_mag.xml] modules/ahrs_int_cmpl_quat.xml modules/stabilization_indi_simple.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
    gui_color="#8c63ffff8e00"
@@ -317,7 +306,7 @@
   <aircraft
    name="MavRick_LisaS"
    ac_id="131"
-   airframe="airframes/TUDELFT/IMAV2013/tudelft_mavrick_lisa_s.xml"
+   airframe="airframes/tudelft/IMAV2013/mavrick_lisa_s.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_fixedwing_imu.xml"
    flight_plan="flight_plans/basic.xml"
@@ -351,7 +340,7 @@
   <aircraft
    name="Quadplane"
    ac_id="222"
-   airframe="airframes/TUDELFT/tudelft_aa_quadplane.xml"
+   airframe="airframes/tudelft/aa_quadplane.xml"
    radio="radios/spektrum.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
@@ -374,10 +363,10 @@
   <aircraft
    name="Robird"
    ac_id="68"
-   airframe="airframes/TUDELFT/tudelft_robird.xml"
+   airframe="airframes/tudelft/robird.xml"
    radio="radios/T14SG_SBUS.xml"
    telemetry="telemetry/default_rotorcraft_slow.xml"
-   flight_plan="flight_plans/TUDELFT/tudelft_delft_basic.xml"
+   flight_plan="flight_plans/tudelft/delft_basic.xml"
    settings="settings/rotorcraft_basic.xml ../conf/modules/px4_flash.xml ../conf/modules/glide_wing_lock.xml"
    settings_modules="[modules/air_data.xml] modules/geo_mag.xml modules/ins_extended.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_indi_simple.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps_ubx_ucenter.xml modules/gps.xml modules/imu_common.xml"
    gui_color="#ffffcccaccca"
@@ -386,7 +375,7 @@
   <aircraft
    name="SkyWalker"
    ac_id="2"
-   airframe="airframes/TUDELFT/tudelft_yapa_xsens.xml"
+   airframe="airframes/tudelft/yapa_xsens.xml"
    radio="radios/R6107SP_7ch.xml"
    telemetry="telemetry/default_fixedwing_imu_9k6.xml"
    flight_plan="flight_plans/versatile.xml"
@@ -398,10 +387,10 @@
   <aircraft
    name="Splash"
    ac_id="67"
-   airframe="airframes/TUDELFT/tudelft_splash.xml"
+   airframe="airframes/tudelft/splash.xml"
    radio="radios/spektrum.xml"
    telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/TUDELFT/tudelft_delft_basic.xml"
+   flight_plan="flight_plans/tudelft/delft_basic.xml"
    settings="settings/rotorcraft_basic.xml"
    settings_modules="modules/spektrum_soft_bind.xml [modules/air_data.xml] modules/geo_mag.xml modules/ins_extended.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_indi_simple.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps_ubx_ucenter.xml modules/gps.xml modules/imu_common.xml"
    gui_color="#fff0cccaccca"
@@ -409,7 +398,7 @@
   <aircraft
    name="TwoSeasTwenty"
    ac_id="200"
-   airframe="airframes/TUDELFT/tudelft_twoseastwenty.xml"
+   airframe="airframes/tudelft/twoseastwenty.xml"
    radio="radios/CDW/cdw_t8fg_sbus.xml"
    telemetry="telemetry/default_fixedwing.xml"
    flight_plan="flight_plans/versatile.xml"
@@ -420,7 +409,7 @@
   <aircraft
    name="Walkera_GeniusV1"
    ac_id="134"
-   airframe="airframes/TUDELFT/IMAV2013/tudelft_walkera_genius_v1.xml"
+   airframe="airframes/tudelft/IMAV2013/walkera_genius_v1.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
@@ -431,7 +420,7 @@
   <aircraft
    name="Walkera_V120D02S"
    ac_id="133"
-   airframe="airframes/TUDELFT/IMAV2013/tudelft_walkera_V120D02S.xml"
+   airframe="airframes/tudelft/IMAV2013/walkera_V120D02S.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
@@ -442,7 +431,7 @@
   <aircraft
    name="autonomous_race"
    ac_id="8"
-   airframe="airframes/TUDELFT/tudelft_bebop_autonomous_race.xml"
+   airframe="airframes/tudelft/bebop_autonomous_race.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
@@ -454,10 +443,10 @@
   <aircraft
    name="bebop2_22"
    ac_id="22"
-   airframe="airframes/TUDELFT/tudelft_bebop2_indi.xml"
+   airframe="airframes/tudelft/bebop2_indi.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/TUDELFT/tudelft_delft_basic.xml"
+   flight_plan="flight_plans/tudelft/delft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/estimation/ahrs_secondary.xml"
    settings_modules="modules/gps_ubx_ucenter.xml modules/air_data.xml modules/geo_mag.xml modules/ins_extended.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_indi_simple.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
    gui_color="#baa3d698b729"
@@ -465,7 +454,7 @@
   <aircraft
    name="bebop2_23"
    ac_id="23"
-   airframe="airframes/TUDELFT/tudelft_bebop2_indi_MAVlink.xml"
+   airframe="airframes/tudelft/bebop2_indi_MAVlink.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
@@ -476,10 +465,10 @@
   <aircraft
    name="bebop2_no_dampers"
    ac_id="26"
-   airframe="airframes/TUDELFT/tudelft_bebop2_no_damping.xml"
+   airframe="airframes/tudelft/bebop2_no_damping.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/TUDELFT/tudelft_delft_basic.xml"
+   flight_plan="flight_plans/tudelft/delft_basic.xml"
    settings="settings/rotorcraft_basic.xml"
    settings_modules="modules/gps_ubx_ucenter.xml modules/air_data.xml modules/geo_mag.xml modules/ins_extended.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_indi_simple.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
    gui_color="#baa3d698b729"
@@ -487,10 +476,10 @@
   <aircraft
    name="bebop2_vision"
    ac_id="27"
-   airframe="airframes/TUDELFT/tudelft_bebop2_vision.xml"
+   airframe="airframes/tudelft/bebop2_vision.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/TUDELFT/tudelft_delft_basic.xml"
+   flight_plan="flight_plans/tudelft/delft_basic.xml"
    settings="settings/rotorcraft_basic.xml"
    settings_modules="modules/gps_ubx_ucenter.xml modules/air_data.xml modules/geo_mag.xml modules/ins_extended.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_indi_simple.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
    gui_color="#ffffbf17bf17"
@@ -498,7 +487,7 @@
   <aircraft
    name="bebop_flip"
    ac_id="3"
-   airframe="airframes/TUDELFT/tudelft_bebop_flip.xml"
+   airframe="airframes/tudelft/bebop_flip.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/dummy.xml"
@@ -507,12 +496,23 @@
    gui_color="#7d7fd7e7ffff"
   />
   <aircraft
+   name="fan_demo"
+   ac_id="28"
+   airframe="airframes/tudelft/bebop_indi_actuators.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/tudelft/fan_demo.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_speed.xml"
+   settings_modules="modules/air_data.xml [modules/geo_mag.xml] modules/guidance_indi.xml modules/ins_extended.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_indi.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
+   gui_color="#ffffcccaccca"
+  />
+  <aircraft
    name="frog1"
    ac_id="25"
    airframe="airframes/BR/bebop_indi_frog.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/TUDELFT/tudelft_rotorcraft_survey_imav2015_competition.xml"
+   flight_plan="flight_plans/tudelft/rotorcraft_survey_imav2015_competition.xml"
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_speed.xml"
    settings_modules="modules/digital_cam_video.xml modules/video_capture.xml modules/nav_survey_poly_rotorcraft.xml [modules/nav_survey_rectangle_rotorcraft.xml] modules/video_rtp_stream.xml modules/cv_blob_locator.xml modules/air_data.xml [modules/geo_mag.xml] modules/ins_extended.xml modules/ahrs_int_cmpl_quat.xml modules/ahrs_float_mlkf.xml modules/stabilization_indi_simple.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
    gui_color="#68f5eb116e0c"
@@ -531,7 +531,7 @@
   <aircraft
    name="mavshot"
    ac_id="5"
-   airframe="airframes/TUDELFT/tudelft_mavshot.xml"
+   airframe="airframes/tudelft/mavshot.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/dummy.xml"
@@ -545,7 +545,7 @@
    airframe="airframes/examples/quadshot_asp21_spektrum.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/TUDELFT/tudelft_delft_basic.xml"
+   flight_plan="flight_plans/tudelft/delft_basic.xml"
    settings="settings/rotorcraft_basic.xml"
    settings_modules="modules/ahrs_int_cmpl_quat.xml modules/guidance_hybrid.xml modules/stabilization_indi_simple.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml modules/gps_ubx_ucenter.xml"
    gui_color="blue"
@@ -554,7 +554,7 @@
   <aircraft
    name="quadshot_pylons"
    ac_id="178"
-   airframe="airframes/TUDELFT/tudelft_quadshot_pylons.xml"
+   airframe="airframes/tudelft/quadshot_pylons.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/dummy.xml"
@@ -565,7 +565,7 @@
   <aircraft
    name="xvert"
    ac_id="69"
-   airframe="airframes/TUDELFT/tudelft_xvert.xml"
+   airframe="airframes/tudelft/xvert.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft_slow.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
@@ -575,3 +575,4 @@
    release="2a6ad556f183875fa9fb8072d774beec7ba55701"
   />
 </conf>
+

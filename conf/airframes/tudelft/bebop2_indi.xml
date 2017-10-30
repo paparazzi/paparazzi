@@ -1,30 +1,24 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<airframe name="bebop_indi">
-  <description>Bebop with MavLink
+<airframe name="bebop2_indi">
+  <description>Bebop2, Outdoor
   </description>
 
-
   <firmware name="rotorcraft">
-    <target name="ap" board="bebop">
-      <define name="STABILIZATION_INDI_G2_R" value="0.1450"/>
-    </target>
+    <target name="ap" board="bebop2"/>
 
     <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
       <module name="udp"/>
-      <define name="STABILIZATION_INDI_G2_R" value="0.0"/>
     </target>
 
-    <!--define name="USE_SONAR" value="TRUE"/-->
-
-	<!-- Subsystem section -->
+	  <!-- Subsystem section -->
     <module name="telemetry" type="transparent_udp"/>
     <module name="radio_control" type="datalink"/>
     <module name="motor_mixing"/>
     <module name="actuators" type="bebop"/>
     <module name="imu" type="bebop"/>
-    <module name="gps" type="furuno"/>
+    <module name="gps" type="ublox"/>
     <module name="stabilization" type="indi_simple"/>
     <module name="ahrs" type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="TRUE"/>
@@ -37,40 +31,9 @@
     <module name="geo_mag"/>
     <module name="air_data"/>
     <module name="send_imu_mag_current"/>
-    <!--module name="logger_file">
+    <module name="gps" type="ubx_ucenter"/>
+    <module name="logger_file">
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
-    </module-->
-    <module name="video_thread"/>
-
-    <module name="cv_blob_locator">
-      <define name="BLOB_LOCATOR_CAMERA" value="bottom_camera"/>
-    </module>
-
-    <!--<module name="video_rtp_stream">
-      <define name="VIEWVIDEO_CAMERA" value="bottom_camera"/>
-      <define name="VIEWVIDEO_QUALITY_FACTOR" value="80"/>
-      <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
-    </module>-->
-
-    <module name="nav" type="survey_rectangle_rotorcraft">
-      <define name="RECTANGLE_SURVEY_DEFAULT_SWEEP" value="10"/>
-    </module>
-    <module name="nav" type="survey_poly_rotorcraft">
-      <define name="POLYSURVEY_DEFAULT_DISTANCE" value="10"/>
-    </module>
-    <module name="video_capture">
-      <define name="VIDEO_CAPTURE_CAMERA" value="bottom_camera"/>
-    </module>
-    <module name="digital_cam_video">
-      <define name="DC_AUTOSHOOT_DISTANCE_INTERVAL" value="5"/>
-    </module>
-    <module name="video_exif"/>
-    <module name="mavlink">
-      <define name="UDP1_PORT_OUT" value="5000"/>
-      <define name="UDP1_PORT_IN" value="5000"/>
-      <define name="UDP1_HOST" value="192.168.42.2"/>
-      <configure name="MAVLINK_PORT" value="UDP1"/>
-      <define name="MAVLINK_SYSID" value="1"/>
     </module>
   </modules>
 
@@ -82,16 +45,17 @@
   </commands>
 
   <servos driver="Default">
-    <servo name="TOP_LEFT" no="0" min="3000" neutral="3000" max="12000"/>
-    <servo name="TOP_RIGHT" no="1" min="3000" neutral="3000" max="12000"/>
-    <servo name="BOTTOM_RIGHT" no="2" min="3000" neutral="3000" max="12000"/>
-    <servo name="BOTTOM_LEFT" no="3" min="3000" neutral="3000" max="12000"/>
+    <servo name="TOP_LEFT" no="0" min="2500" neutral="2500" max="12000"/>
+    <servo name="TOP_RIGHT" no="1" min="2500" neutral="2500" max="12000"/>
+    <servo name="BOTTOM_RIGHT" no="2" min="2500" neutral="2500" max="12000"/>
+    <servo name="BOTTOM_LEFT" no="3" min="2500" neutral="2500" max="12000"/>
   </servos>
 
   <section name="MIXING" prefix="MOTOR_MIXING_">
     <define name="TRIM_ROLL" value="0"/>
     <define name="TRIM_PITCH" value="0"/>
     <define name="TRIM_YAW" value="0"/>
+    <define name="REVERSE" value="TRUE"/>
     <define name="TYPE" value="QUAD_X"/>
   </section>
 
@@ -109,13 +73,7 @@
     <define name="CALC_AMSL_BARO" value="TRUE"/>
   </section>
 
-  <include href="conf/airframes/TUDELFT/calibrations/bebop5.xml" />
-
-  <section name="IMU" prefix="IMU_">
-    <define name="BODY_TO_IMU_PHI" value="0." unit="deg"/>
-    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
-    <define name="BODY_TO_IMU_PSI" value="0." unit="deg"/>
-  </section>
+  <include href="conf/airframes/tudelft/calibrations/bebop2_$AC_ID.xml" />
 
   <!-- local magnetic field -->
   <!-- http://wiki.paparazziuav.org/wiki/Subsystem/ahrs#Local_Magnetic_Field -->
@@ -167,26 +125,32 @@
 
   <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
     <!-- control effectiveness -->
-    <define name="G1_P" value="0.0639"/>
-    <define name="G1_Q" value="0.0361"/>
+    <define name="G1_P" value="0.05"/>
+    <define name="G1_Q" value="0.025"/>
     <define name="G1_R" value="0.0022"/>
+    <define name="G2_R" value="0.20"/>
+
+    <!-- For the bebop2 we need to filter the roll rate due to the dampers -->
+    <define name="FILTER_ROLL_RATE" value="TRUE"/>
+    <define name="FILTER_PITCH_RATE" value="FALSE"/>
+    <define name="FILTER_YAW_RATE" value="FALSE"/>
 
     <!-- reference acceleration for attitude control -->
-    <define name="REF_ERR_P" value="600.0"/>
+    <define name="REF_ERR_P" value="170.0"/>
     <define name="REF_ERR_Q" value="600.0"/>
     <define name="REF_ERR_R" value="600.0"/>
-    <define name="REF_RATE_P" value="28.0"/>
+    <define name="REF_RATE_P" value="14.3"/>
     <define name="REF_RATE_Q" value="28.0"/>
     <define name="REF_RATE_R" value="28.0"/>
 
     <!-- second order filter parameters -->
-    <define name="FILT_CUTOFF" value="8.0"/>
-    <define name="FILT_CUTOFF_R" value="8.0"/>
+    <define name="FILT_CUTOFF" value="3.2"/>
+    <define name="FILT_CUTOFF_R" value="3.2"/>
 
     <!-- first order actuator dynamics -->
-    <define name="ACT_DYN_P" value="0.1"/>
-    <define name="ACT_DYN_Q" value="0.1"/>
-    <define name="ACT_DYN_R" value="0.1"/>
+    <define name="ACT_DYN_P" value="0.06"/>
+    <define name="ACT_DYN_Q" value="0.06"/>
+    <define name="ACT_DYN_R" value="0.06"/>
 
     <!-- Adaptive Learning Rate -->
     <define name="USE_ADAPTIVE" value="FALSE"/>
@@ -194,8 +158,8 @@
   </section>
 
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
-    <define name="HOVER_KP" value="283"/>
-    <define name="HOVER_KD" value="82"/>
+    <define name="HOVER_KP" value="350"/>
+    <define name="HOVER_KD" value="85"/>
     <define name="HOVER_KI" value="20"/>
     <define name="NOMINAL_HOVER_THROTTLE" value="0.655"/>
     <define name="ADAPT_THROTTLE_ENABLED" value="TRUE"/>
@@ -207,13 +171,13 @@
     <define name="REF_MAX_SPEED" value="2" unit="m/s"/>
     <!-- Bad weather -->
     <!-- define name="MAX_BANK" value="32" unit="deg"/ -->
-    <define name="PGAIN" value="79"/>
+    <define name="PGAIN" value="120"/>
     <define name="DGAIN" value="100"/>
     <define name="IGAIN" value="30"/>
   </section>
 
   <section name="NAVIGATION" prefix="NAV_">
-    <define name="CLIMB_VSPEED" value="2.5"/>
+    <define name="CLIMB_VSPEED" value="4.5"/>
     <define name="DESCEND_VSPEED" value="-1.0"/>
   </section>
 
@@ -228,6 +192,8 @@
     <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
     <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_Z_HOLD"/>
     <define name="MODE_AUTO2" value="AP_MODE_NAV"/>
+
+    <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
   </section>
 
   <section name="BAT">

@@ -2,7 +2,7 @@
   <aircraft
    name="ARDrone2_opticflow"
    ac_id="12"
-   airframe="airframes/TUDELFT/tudelft_ardrone2_opticflow.xml"
+   airframe="airframes/tudelft/ardrone2_opticflow.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
@@ -13,7 +13,7 @@
   <aircraft
    name="Bebop_opticflow"
    ac_id="14"
-   airframe="airframes/TUDELFT/tudelft_bebop_opticflow.xml"
+   airframe="airframes/tudelft/bebop_opticflow.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
@@ -24,7 +24,7 @@
   <aircraft
    name="LadyLisaBluegiga"
    ac_id="114"
-   airframe="airframes/TUDELFT/tudelft_ladylisa_bluegiga_stereoboard.xml"
+   airframe="airframes/tudelft/ladylisa_bluegiga_stereoboard.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/default_rotorcraft_slow.xml"
    flight_plan="flight_plans/rotorcraft_optitrack.xml"
@@ -35,7 +35,7 @@
   <aircraft
    name="LadybirdMXS_wifi_indi_stereocam"
    ac_id="15"
-   airframe="airframes/TUDELFT/tudelft_ladybird_wifi_indi_lisa_mxs.xml"
+   airframe="airframes/tudelft/ladybird_wifi_indi_lisa_mxs.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_optitrack.xml"
