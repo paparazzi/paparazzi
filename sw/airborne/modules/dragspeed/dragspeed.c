@@ -122,6 +122,8 @@ bool dragspeed_is_calibrating(void)
 static void accel_cb(uint8_t sender_id __attribute__((unused)), uint32_t stamp,
     struct Int32Vect3 *accel)
 {
+  printf("ACCEL CB: att->psi = %+.2f\n",
+      stateGetNedToBodyEulers_f()->psi / M_PI * 180.0);
   // Estimate current velocity
   float vx = -(ACCEL_FLOAT_OF_BFP(accel->x) - dragspeed.zero.x)
       / dragspeed.coeff.x;
