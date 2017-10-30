@@ -9,26 +9,25 @@ Paparazzi UAS
        src="https://scan.coverity.com/projects/4928/badge.svg"/>
 </a>
 
-Paparazzi is an attempt to develop a free software Unmanned (Air) Vehicle System.
- As of today the system is being used successfuly by a number of hobbyists, universities and companies all over the world, on vehicle of various size ( 100g to 25Kg ) and of various nature ( fixed wing, rotorcrafts, boats and surface vehicles).
+Paparazzi is a free open source software package for Unmanned (Air) Vehicle Systems.
+For many years, the system has been used successfuly by hobbyists, universities and companies all over the world, on vehicles of various sizes (11.9g to 25kg).
+Paparazzi supports fixed wing, rotorcraft, hybrids, flapping vehicles and it is even possible to use it for boats and surface vehicles.
 
-Up to date information is available in the wiki http://wiki.paparazziuav.org
+Up to date information is available on the wiki http://wiki.paparazziuav.org
 
-and from the mailing list [paparazzi-devel@nongnu.org] (http://savannah.nongnu.org/mail/?group=paparazzi)
-and the IRC channel (freenode, #paparazzi).
+To get in touch, subscribe to the mailing list [paparazzi-devel@nongnu.org] (http://savannah.nongnu.org/mail/?group=paparazzi), the IRC channel (freenode, #paparazzi) and Gitter (https://gitter.im/paparazzi/discuss).
 
-
-Required Software
+Required software
 -----------------
 
-Installation is described in the wiki (http://wiki.paparazziuav.org/wiki/Installation).
+Instructions for installation can be found on the wiki (http://wiki.paparazziuav.org/wiki/Installation).
 
 For Ubuntu users, required packages are available in the [paparazzi-uav PPA] (https://launchpad.net/~paparazzi-uav/+archive/ppa),
 Debian users can use the [OpenSUSE Build Service repository] (http://download.opensuse.org/repositories/home:/flixr:/paparazzi-uav/Debian_7.0/)
 
 Debian/Ubuntu packages:
-- **paparazzi-dev** is the meta-package that depends on everything needed to compile and run the ground segment and the simulator.
-- **paparazzi-jsbsim** is needed for using JSBSim as flight dynamic model for the simulator.
+- **paparazzi-dev** is the meta-package on which the Paparazzi software depends to compile and run the ground segment and simulator.
+- **paparazzi-jsbsim** is needed for using JSBSim as flight dynamics model for the simulator.
 
 Recommended cross compiling toolchain: https://launchpad.net/gcc-arm-embedded
 
@@ -63,7 +62,7 @@ Compilation and demo simulation
   Switch to the "Takeoff" block (lower-left blue airway button in the strip).
   Takeoff with the green launch button.
 
-Uploading of the embedded software
+Uploading the embedded software
 ----------------------------------
 
 1. Power the flight controller board while it is connected to the PC with the USB cable.
@@ -74,4 +73,4 @@ Uploading of the embedded software
 Flight
 ------
 
-1.  From the Paparazzi Center, select the flight session and ... do the same than in simulation !
+1.  From the Paparazzi Center, select the flight session and ... do the same as in simulation !
