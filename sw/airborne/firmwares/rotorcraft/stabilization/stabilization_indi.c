@@ -45,14 +45,8 @@
 #include "wls/wls_alloc.h"
 #include <stdio.h>
 
-//only 4 actuators supported for now
-#define INDI_NUM_ACT 4
-// outputs: roll, pitch, yaw, thrust
-#define INDI_OUTPUTS 4
 // Factor that the estimated G matrix is allowed to deviate from initial one
 #define INDI_ALLOWED_G_FACTOR 2.0
-// Scaling for the control effectiveness to make it readible
-#define INDI_G_SCALING 1000.0
 
 float du_min[INDI_NUM_ACT];
 float du_max[INDI_NUM_ACT];
