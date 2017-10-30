@@ -707,11 +707,8 @@ void float_mat2_mult(struct FloatVect2 *vect_out, float mat[4], struct FloatVect
  * 4x4 Matrix inverse.
  * obtained from: http://rodolphe-vaillant.fr/?e=7
  */
-float float_mat_minor_4d(float m[16], int r0, int r1, int r2, int c0, int c1, int c2);
-void float_mat_adjoint_4d(float adjOut[16], float m[16]);
-float float_mat_det_4d(float m[16]);
 
-float float_mat_minor_4d(float m[16], int r0, int r1, int r2, int c0, int c1, int c2)
+static float float_mat_minor_4d(float m[16], int r0, int r1, int r2, int c0, int c1, int c2)
 {
   return m[4 * r0 + c0] * (m[4 * r1 + c1] * m[4 * r2 + c2] - m[4 * r2 + c1] * m[4 * r1 + c2]) -
          m[4 * r0 + c1] * (m[4 * r1 + c0] * m[4 * r2 + c2] - m[4 * r2 + c0] * m[4 * r1 + c2]) +
@@ -719,7 +716,7 @@ float float_mat_minor_4d(float m[16], int r0, int r1, int r2, int c0, int c1, in
 }
 
 
-void float_mat_adjoint_4d(float adjOut[16], float m[16])
+static void float_mat_adjoint_4d(float adjOut[16], float m[16])
 {
   adjOut[ 0] =  float_mat_minor_4d(m, 1, 2, 3, 1, 2, 3);
   adjOut[ 1] = -float_mat_minor_4d(m, 0, 2, 3, 1, 2, 3);
@@ -739,7 +736,7 @@ void float_mat_adjoint_4d(float adjOut[16], float m[16])
   adjOut[15] =  float_mat_minor_4d(m, 0, 1, 2, 0, 1, 2);
 }
 
-float float_mat_det_4d(float m[16])
+static float float_mat_det_4d(float m[16])
 {
   return m[0] * float_mat_minor_4d(m, 1, 2, 3, 1, 2, 3) -
          m[1] * float_mat_minor_4d(m, 1, 2, 3, 0, 2, 3) +
