@@ -5,27 +5,73 @@ from __future__ import print_function
 import glob
 
 from collections import namedtuple
-from os import path, getenv
+from os import path, getenv, walk
+from fnmatch import fnmatch
 #from subprocess import call
 import commands
 
 import lxml.etree as ET
 
+test = 1
+
 # if PAPARAZZI_HOME not set, then assume the tree containing this
 # file is a reasonable substitute
-home_dir = getenv("PAPARAZZI_HOME", path.normpath(path.join(
-    path.dirname(path.abspath(__file__)), '../../../')))
+PAPARAZZI_HOME  = getenv("PAPARAZZI_HOME", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../')))
 
 # Directories
-firmwares_dir = path.join(home_dir, "conf/firmwares/")
-modules_dir   = path.join(home_dir, "conf/modules/")
-airframes_dir = path.join(home_dir, "conf/airframes/")
-boards_dir    = path.join(home_dir, "conf/boards/")
+conf_dir        = path.join(PAPARAZZI_HOME, "conf/")
+
+firmwares_dir   = path.join(conf_dir, "firmwares/")
+modules_dir     = path.join(conf_dir, "modules/")
+airframes_dir   = path.join(conf_dir, "airframes/")
+boards_dir      = path.join(conf_dir, "boards/")
+
+flight_plan_dir = path.join(conf_dir, "flight_plans/")
 
 # Structures
 PprzModule = namedtuple("PprzModule", "description defines configures")
 
 # List Of Stuff
+
+def get_list_of_conf_files(exclude_backups = 1):
+    conf_files = []
+    pattern = "*conf[._-]*xml"
+    backup_pattern = "*conf[._-]*xml.20[0-9][0-9]-[01][0-9]-[0-3][0-9]_*"
+    excludes = ["%gconf.xml"]
+
+    for cpath, subdirs, files in walk(conf_dir):
+        for name in files:
+            if exclude_backups and fnmatch(name, backup_pattern):
+                continue
+            if fnmatch(name, pattern):
+                filepath = path.join(cpath, name)
+                entry = path.relpath(filepath, conf_dir)
+                if not path.islink(filepath) and entry not in excludes:
+                    conf_files.append(entry)
+
+    conf_files.sort()
+    return conf_files
+
+def get_list_of_controlpanel_files(exclude_backups = 1):
+    controlpanel_files = []
+    pattern = "*control_panel[._-]*xml"
+    backup_pattern = "*control_panel[._-]*xml.20[0-9][0-9]-[01][0-9]-[0-3][0-9]_*"
+    excludes = []
+
+    for cpath, subdirs, files in walk(conf_dir):
+        for name in files:
+            if exclude_backups and fnmatch(name, backup_pattern):
+                continue
+            if fnmatch(name, pattern):
+                filepath = path.join(cpath, name)
+                entry = path.relpath(filepath, conf_dir)
+                if not path.islink(filepath) and entry not in excludes:
+                    controlpanel_files.append(entry)
+    controlpanel_files.sort()
+    return controlpanel_files
+
+
+
 def get_list_of_files(directory, extension):
     mylist = glob.glob(path.join(directory, "*" + extension))
     mylist.sort()
@@ -72,11 +118,11 @@ def get_module_information(module_name):
 
 
 def search(string):
-    #return call(["grep", "-r", string , home_dir + "/sw/airborne/"])
-    #return system("grep -r " + string + " " + home_dir + "/sw/airborne/")
-    cmd = "grep -r " + string + " " + home_dir + "/sw/airborne/"
+    #return call(["grep", "-r", string , PAPARAZZI_HOME + "/sw/airborne/"])
+    #return system("grep -r " + string + " " + PAPARAZZI_HOME + "/sw/airborne/")
+    cmd = "grep -r " + string + " " + PAPARAZZI_HOME + "/sw/airborne/"
     status, output = commands.getstatusoutput(cmd)
-    return output.replace(home_dir + "/sw/airborne/", "")
+    return output.replace(PAPARAZZI_HOME + "/sw/airborne/", "")
 
 
 if __name__ == '__main__':

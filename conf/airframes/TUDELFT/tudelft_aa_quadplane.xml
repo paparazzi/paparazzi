@@ -2,7 +2,7 @@
 
 <airframe name="Quadplane LisaM_2.0 pwm">
   <description>Quadplane: modified mini-talon with 6inch quadrotor.
-  <description>
+  </description>
 <!--   FIRMWARE    -->
 
   <firmware name="rotorcraft">
