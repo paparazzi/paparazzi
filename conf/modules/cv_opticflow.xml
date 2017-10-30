@@ -112,6 +112,7 @@
     <file name="pprz_matrix_decomp_float.c" dir="math"/>
 
     <!-- Main vision calculations -->
+    <file name="act_fast.c" dir="modules/computer_vision/lib/vision"/>
     <file name="fast_rosten.c" dir="modules/computer_vision/lib/vision"/>
     <file name="lucas_kanade.c" dir="modules/computer_vision/lib/vision"/>
     <file name="edge_flow.c" dir="modules/computer_vision/lib/vision"/>
