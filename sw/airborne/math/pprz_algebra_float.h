@@ -729,6 +729,84 @@ static inline void float_mat_col(float *o, float **a, int m, int c)
   }
 }
 
+/** Calculate inverse of any n x n matrix (passed as C array) matinv = mat^-1
+
+Algorithm verified with Matlab. 
+Compliments to: https://www.quora.com/How-do-I-make-a-C++-program-to-get-the-inverse-of-a-matrix-100-X-100
+
+*/
+static inline void float_mat_invert(float* matinv, float *mat, uint8_t n)
+{
+  uint8_t i, j, k, row, col;
+  float t;
+
+  float a[2*n*n];
+
+  // Append an identity matrix on the right of the original matrix
+  for(row = 0; row < n; row++) {
+    for(col = 0; col < 2*n; col++) {
+      if (col < n) {
+        a[ row*2*n+col ] = mat[row*n + col];
+      }
+      else if( (col >= n) && (col == row+n)) {
+        a[ row*2*n+col ] = 1.0;
+      }
+      else {
+        a[ row*2*n+col ] = 0.0;
+      }
+    } 
+  }
+
+  // Do the inversion
+  for( i = 0; i < n; i++) {
+    // Store diagonal variable (temp)
+    t = a[ i*2*n + i ];
+
+    for(j = i; j < 2*n; j++) {
+      // Divide by the diagonal value
+      a[ i*2*n + j ] = a[ i*2*n + j ]/t;
+    }
+
+    for(j = 0; j < n; j++) {
+      if( i!=j ) {
+        t = a[ j*2*n + i ];
+        for( k = 0; k < 2*n; k++) {
+          a[j*2*n + k] = a[j*2*n + k] - t*a[i*2*n + k];
+        }
+      }
+    }
+
+  }
+}
+
+/** Make an n x n identity matrix (for matrix passed as array) */
+static inline void float_mat_identity(float *matrix, uint8_t n)
+{
+  uint8_t i,j;
+  for(i = 0 ; i < n; i++) {
+    for(j = 0 ; j < n; j++) {
+      if (i == j) {
+        matrix[i*n+j] = 1.0;
+      }
+      else {
+        matrix[i*n+j] = 0.0;
+      }
+    }
+  }
+};
+
+/** Add a scalar value to a matrix (for matrix passed as array) r = a + k*b */
+static inline void fmat_add_scal_mult(uint8_t n_row, uint8_t n_col, float* r, float*a, float k, float* b) {
+  uint8_t row, col, ridx;
+  for (row = 0; row < n_row; row++) {
+    for (col = 0; col < n_col; col++) {
+      ridx = row * n_col + col;
+      r[ridx] = a[ridx] + k * b[ridx];
+    }
+  }
+}
+
+
 extern bool float_mat_inv_2d(float inv_out[4], float mat_in[4]);
 extern void float_mat2_mult(struct FloatVect2 *vect_out, float mat[4], struct FloatVect2 vect_in);
 extern bool float_mat_inv_4d(float invOut[16], float mat_in[16]);
