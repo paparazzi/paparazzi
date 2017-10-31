@@ -122,8 +122,6 @@ bool dragspeed_is_calibrating(void)
 static void accel_cb(uint8_t sender_id __attribute__((unused)), uint32_t stamp,
     struct Int32Vect3 *accel)
 {
-  printf("ACCEL CB: att->psi = %+.2f\n",
-      stateGetNedToBodyEulers_f()->psi / M_PI * 180.0);
   // Estimate current velocity
   float vx = -(ACCEL_FLOAT_OF_BFP(accel->x) - dragspeed.zero.x)
       / dragspeed.coeff.x;
@@ -257,7 +255,6 @@ static void send_dragspeed(struct transport_tx *trans, struct link_device *dev)
   struct FloatVect2 vel_ins_body = { cosf(att->psi) * vel_ins->y
       + sinf(att->psi) * vel_ins->x, -sinf(att->psi) * vel_ins->y
       + cosf(att->psi) * vel_ins->x };
-  printf("SEND_DRAGSPEED: att->psi = %+.2f deg\n", att->psi / M_PI * 180);
   // Send telemetry message
   pprz_msg_send_DRAGSPEED(trans, dev, AC_ID, &dragspeed.vel.x, &dragspeed.vel.y,
       &vel_ins_body.x, &vel_ins_body.y);
