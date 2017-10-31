@@ -41,7 +41,7 @@ Aggie Air ARK
       <define name="SERVO_HZ" value="160"/>
     </module>
 
-    <module name="telemetry"     type="transparent">
+    <module name="telemetry"     type="transparent_secure">
       <configure name="MODEM_PORT" value="UART3"/>
       <configure name="MODEM_BAUD" value="B57600"/>
     </module>
