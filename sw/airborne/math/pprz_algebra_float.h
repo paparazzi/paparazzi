@@ -795,18 +795,6 @@ static inline void float_mat_identity(float *matrix, uint8_t n)
   }
 };
 
-/** Add a scalar value to a matrix (for matrix passed as array) r = a + k*b */
-static inline void fmat_add_scal_mult(uint8_t n_row, uint8_t n_col, float* r, float*a, float k, float* b) {
-  uint8_t row, col, ridx;
-  for (row = 0; row < n_row; row++) {
-    for (col = 0; col < n_col; col++) {
-      ridx = row * n_col + col;
-      r[ridx] = a[ridx] + k * b[ridx];
-    }
-  }
-}
-
-
 extern bool float_mat_inv_2d(float inv_out[4], float mat_in[4]);
 extern void float_mat2_mult(struct FloatVect2 *vect_out, float mat[4], struct FloatVect2 vect_in);
 extern bool float_mat_inv_4d(float invOut[16], float mat_in[16]);
