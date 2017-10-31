@@ -732,7 +732,7 @@ static inline void float_mat_col(float *o, float **a, int m, int c)
 /** Calculate inverse of any n x n matrix (passed as C array) matinv = mat^-1
 
 Algorithm verified with Matlab. 
-Compliments to: https://www.quora.com/How-do-I-make-a-C++-program-to-get-the-inverse-of-a-matrix-100-X-100
+Thanks to: https://www.quora.com/How-do-I-make-a-C++-program-to-get-the-inverse-of-a-matrix-100-X-100
 
 */
 static inline void float_mat_invert(float* matinv, float *mat, uint8_t n)
