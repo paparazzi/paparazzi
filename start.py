@@ -12,6 +12,11 @@ import shutil
 import datetime
 from fnmatch import fnmatch
 import subprocess
+import sys
+
+lib_path = os.path.abspath(os.path.join( 'sw', 'lib', 'python'))
+sys.path.append(lib_path)
+import paparazzi
 
 
 class ConfChooser(object):
@@ -24,7 +29,7 @@ class ConfChooser(object):
         current_index = 0
         for (i, text) in enumerate(clist):
             combo.append_text(text)
-            if os.path.join(self.conf_dir, text) == os.path.realpath(active):
+            if os.path.join(paparazzi.conf_dir, text) == os.path.realpath(active):
                 current_index = i
         combo.set_active(current_index)
         combo.set_sensitive(True)
@@ -40,7 +45,7 @@ class ConfChooser(object):
                 else:
                     desc += "broken symlink to "
             real_conf_path = os.path.realpath(self.conf_xml)
-            desc += os.path.relpath(real_conf_path, self.conf_dir)
+            desc += os.path.relpath(real_conf_path, paparazzi.conf_dir)
         self.conf_explain.set_text(desc)
 
     def update_controlpanel_label(self):
@@ -54,57 +59,27 @@ class ConfChooser(object):
                 else:
                     desc += "broken symlink to "
             real_conf_path = os.path.realpath(self.controlpanel_xml)
-            desc += os.path.relpath(real_conf_path, self.conf_dir)
+            desc += os.path.relpath(real_conf_path, paparazzi.conf_dir)
         self.controlpanel_explain.set_text(desc)
 
     # CallBack Functions
 
     def find_conf_files(self):
-        conf_files = []
-        pattern = "*conf[._-]*xml"
-        backup_pattern = "*conf[._-]*xml.20[0-9][0-9]-[01][0-9]-[0-3][0-9]_*"
-        excludes = ["%gconf.xml"]
-
-        for path, subdirs, files in os.walk(self.conf_dir):
-            for name in files:
-                if self.exclude_backups and fnmatch(name, backup_pattern):
-                    continue
-                if fnmatch(name, pattern):
-                    filepath = os.path.join(path, name)
-                    entry = os.path.relpath(filepath, self.conf_dir)
-                    if not os.path.islink(filepath) and entry not in excludes:
-                        conf_files.append(entry)
-
-        conf_files.sort()
+        conf_files = paparazzi.get_list_of_conf_files(self.exclude_backups)
         self.update_combo(self.conf_file_combo, conf_files, self.conf_xml)
 
     def find_controlpanel_files(self):
-        controlpanel_files = []
-        pattern = "*control_panel[._-]*xml"
-        backup_pattern = "*control_panel[._-]*xml.20[0-9][0-9]-[01][0-9]-[0-3][0-9]_*"
-        excludes = []
-
-        for path, subdirs, files in os.walk(self.conf_dir):
-            for name in files:
-                if self.exclude_backups and fnmatch(name, backup_pattern):
-                    continue
-                if fnmatch(name, pattern):
-                    filepath = os.path.join(path, name)
-                    entry = os.path.relpath(filepath, self.conf_dir)
-                    if not os.path.islink(filepath) and entry not in excludes:
-                        controlpanel_files.append(entry)
-
-        controlpanel_files.sort()
+        controlpanel_files = paparazzi.get_list_of_controlpanel_files(self.exclude_backups)
         self.update_combo(self.controlpanel_file_combo, controlpanel_files, self.controlpanel_xml)
 
     def about(self, widget):
         about_d = gtk.AboutDialog()
         about_d.set_program_name("Paparazzi Configuration Selector")
-        about_d.set_version("1.0")
+        about_d.set_version("1.1")
         about_d.set_copyright("(c) GPL v2")
         about_d.set_comments("Select the active configuration")
         about_d.set_website("http://paparazzi.github.com")
-        about_d.set_logo(gtk.gdk.pixbuf_new_from_file(os.path.join(self.paparazzi_home, "data/pictures/penguin_icon.png")))
+        about_d.set_logo(gtk.gdk.pixbuf_new_from_file(os.path.join(paparazzi.PAPARAZZI_HOME, "data/pictures/penguin_icon.png")))
         about_d.run()
         about_d.destroy()
 
@@ -142,13 +117,13 @@ class ConfChooser(object):
         else:
             if os.path.exists(self.conf_xml):
                 newname = "conf.xml." + timestr
-                backup_file = os.path.join(self.conf_dir, newname)
+                backup_file = os.path.join(paparazzi.conf_dir, newname)
                 shutil.copyfile(self.conf_xml, backup_file)
                 self.print_status("Made a backup: " + newname)
 
         if use_personal:
             backup_name = self.conf_personal_name + "." + timestr
-            conf_personal_backup = os.path.join(self.conf_dir, backup_name)
+            conf_personal_backup = os.path.join(paparazzi.conf_dir, backup_name)
             if os.path.exists(self.conf_personal):
                 self.print_status("Backup conf.xml.personal to " + backup_name)
                 shutil.copyfile(self.conf_personal, conf_personal_backup)
@@ -161,19 +136,19 @@ class ConfChooser(object):
         else:
             if os.path.exists(self.controlpanel_xml):
                 newname = "control_panel.xml." + timestr
-                backup_file = os.path.join(self.conf_dir, newname)
+                backup_file = os.path.join(paparazzi.conf_dir, newname)
                 shutil.copyfile(self.controlpanel_xml, backup_file)
                 self.print_status("Made a backup: " + newname)
 
         if use_personal:
             backup_name = self.controlpanel_personal_name + "." + timestr
-            controlpanel_personal_backup = os.path.join(self.conf_dir, backup_name)
+            controlpanel_personal_backup = os.path.join(paparazzi.conf_dir, backup_name)
             if os.path.exists(self.controlpanel_personal):
                 self.print_status("Backup control_panel.xml.personal to " + backup_name)
                 shutil.copyfile(self.controlpanel_personal, controlpanel_personal_backup)
 
     def delete_conf(self, widget):
-        filename = os.path.join(self.conf_dir, self.conf_file_combo.get_active_text())
+        filename = os.path.join(paparazzi.conf_dir, self.conf_file_combo.get_active_text())
         ret = self.sure(widget, filename)
         if ret:
             if os.path.exists(filename):
@@ -183,7 +158,7 @@ class ConfChooser(object):
             self.print_status("Deleted: " + filename)
 
     def delete_controlpanel(self, widget):
-        filename = os.path.join(self.conf_dir, self.controlpanel_file_combo.get_active_text())
+        filename = os.path.join(paparazzi.conf_dir, self.controlpanel_file_combo.get_active_text())
         ret = self.sure(widget, filename)
         if ret:
             if os.path.exists(filename):
@@ -220,7 +195,7 @@ class ConfChooser(object):
             self.print_status("Your personal conf file already exists!")
         else:
             self.backupconf(True)
-            template_file = os.path.join(self.conf_dir, self.conf_file_combo.get_active_text())
+            template_file = os.path.join(paparazzi.conf_dir, self.conf_file_combo.get_active_text())
             shutil.copyfile(template_file, self.conf_personal)
             os.remove(self.conf_xml)
             os.symlink(self.conf_personal_name, self.conf_xml)
@@ -232,7 +207,7 @@ class ConfChooser(object):
             self.print_status("Your personal control_panel file already exists!")
         else:
             self.backupcontrolpanel(True)
-            template_file = os.path.join(self.conf_dir, self.controlpanel_file_combo.get_active_text())
+            template_file = os.path.join(paparazzi.conf_dir, self.controlpanel_file_combo.get_active_text())
             shutil.copyfile(template_file, self.controlpanel_personal)
             os.remove(self.controlpanel_xml)
             os.symlink(self.controlpanel_personal_name, self.controlpanel_xml)
@@ -252,17 +227,13 @@ class ConfChooser(object):
 
         self.my_vbox = gtk.VBox()
 
-        # if PAPARAZZI_HOME not set, then assume the tree containing this
-        # file is a reasonable substitute
-        self.paparazzi_home = os.getenv("PAPARAZZI_HOME", os.path.dirname(os.path.abspath(__file__)))
-        self.conf_dir = os.path.join(self.paparazzi_home, "conf")
-        self.conf_xml = os.path.join(self.conf_dir, "conf.xml")
+        self.conf_xml = os.path.join(paparazzi.conf_dir, "conf.xml")
         self.conf_personal_name = "conf_personal.xml"
-        self.conf_personal = os.path.join(self.conf_dir, self.conf_personal_name)
+        self.conf_personal = os.path.join(paparazzi.conf_dir, self.conf_personal_name)
 
-        self.controlpanel_xml = os.path.join(self.conf_dir, "control_panel.xml")
+        self.controlpanel_xml = os.path.join(paparazzi.conf_dir, "control_panel.xml")
         self.controlpanel_personal_name = "control_panel_personal.xml"
-        self.controlpanel_personal = os.path.join(self.conf_dir, self.controlpanel_personal_name)
+        self.controlpanel_personal = os.path.join(paparazzi.conf_dir, self.controlpanel_personal_name)
 
         self.exclude_backups = True
         self.verbose = False
