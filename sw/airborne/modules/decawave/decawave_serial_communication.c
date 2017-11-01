@@ -47,11 +47,8 @@
 #include <stdio.h>
 #include "subsystems/abi.h"
 
-PRINT_CONFIG_VAR(UWB_SERIAL_UART)
-PRINT_CONFIG_VAR(UWB_SERIAL_BAUD)
-
-// define coms link for stereocam
-#define UWB_SERIAL_PORT &((UWB_SERIAL_UART).device)
+#define UWB_SERIAL_PORT (&((SERIAL_UART).device))
+struct link_device *xdev = UWB_SERIAL_PORT;
 
 // Some meta data for serial communication
 #define UWB_SERIAL_COMM_MAX_MESSAGE 10
@@ -90,6 +87,7 @@ static struct nodeState _states[UWB_SERIAL_COMM_DIST_NUM_NODES];
 static void decodeHighBytes(uint8_t _bytesRecvd);
 static void encodeHighBytes(uint8_t *sendData, uint8_t msgSize);
 static void handleNewStateValue(uint8_t nodeIndex, uint8_t msgType, float value);
+static void sendFloat(uint8_t msgtype, float outfloat);
 
 /**
  * Helper function that sets the boolean that tells whether a remote drone has a new state update to false.
@@ -115,7 +113,39 @@ static void checkStatesUpdated(void)
     }
     if (checkbool) {
       AbiSendMsgUWB_COMMUNICATION(UWB_COMM_ID, i, _states[i].r, _states[i].vx, _states[i].vy, _states[i].z);
+      printf("States for drone %i: r = %f, vx = %f, vy = %f, z = %f \n",i,_states[i].r,_states[i].vx,_states[i].vy,_states[i].z);
       setNodeStatesFalse(i);
+    }
+  }
+}
+
+/**
+ * Function for receiving serial data.
+ * Only receives serial data that is between the start and end markers. Discards all other data.
+ * Stores the received data in _tempBuffer, and after decodes the high bytes and copies the final
+ * message to the corresponding message in _messages.
+ */
+static void getSerialData(uint8_t *_bytesRecvd)
+{
+  static bool _inProgress = false;
+  static uint8_t _varByte;
+
+  while ( xdev->char_available(xdev->periph) ) {
+    _varByte = UWB_SERIAL_PORT->get_byte(UWB_SERIAL_PORT->periph);
+    
+    if (_varByte == UWB_SERIAL_COMM_START_MARKER) {
+      (*_bytesRecvd) = 0;
+      _inProgress = true;
+    }
+
+    if (_inProgress) {
+      _tempBuffer[*_bytesRecvd] = _varByte;
+      (*_bytesRecvd)++;
+    }
+
+    if (_varByte == UWB_SERIAL_COMM_END_MARKER) {
+      _inProgress = false;
+      decodeHighBytes(*_bytesRecvd);
     }
   }
 }
@@ -147,39 +177,9 @@ void decawave_serial_communication_periodic(void)
  */
 void decawave_serial_communication_event(void)
 {
-  uint8_t _bytesRecvd;
+  static uint8_t _bytesRecvd;
   getSerialData(&_bytesRecvd);
-  checkStatesUpdated(_bytesRecvd);
-}
-
-/**
- * Function for receiving serial data.
- * Only receives serial data that is between the start and end markers. Discards all other data.
- * Stores the received data in _tempBuffer, and after decodes the high bytes and copies the final
- * message to the corresponding message in _messages.
- */
-void getSerialData(uint8_t *_bytesRecvd)
-{
-
-  static bool _inProgress = false;
-
-  while (UWB_SERIAL_PORT->char_available(UWB_SERIAL_PORT->periph)) {
-    uint8_t _varByte = UWB_SERIAL_PORT->get_byte(UWB_SERIAL_PORT->periph);
-    if (_varByte == UWB_SERIAL_COMM_START_MARKER) {
-      _bytesRecvd = 0;
-      _inProgress = true;
-    }
-
-    if (_inProgress) {
-      _tempBuffer[_bytesRecvd] = _varByte;
-      _bytesRecvd++;
-    }
-
-    if (_varByte == UWB_SERIAL_COMM_END_MARKER) {
-      _inProgress = false;
-      decodeHighBytes(_bytesRecvd);
-    }
-  }
+  checkStatesUpdated();
 }
 
 /**

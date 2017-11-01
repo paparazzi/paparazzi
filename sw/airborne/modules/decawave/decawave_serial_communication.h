@@ -15,7 +15,4 @@ extern void decawave_serial_communication_init(void);
 extern void decawave_serial_communication_periodic(void);
 extern void decawave_serial_communication_event(void);
 
-extern void getSerialData(void);
-extern void sendFloat(uint8_t msgtype, float outfloat);
-
 #endif /* DECAWAVE_SERIAL_COMMUNICATION_H_ */
