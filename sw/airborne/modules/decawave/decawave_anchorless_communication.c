@@ -114,7 +114,8 @@ static void handleNewStateValue(uint8_t nodeIndex, uint8_t msgType, float value)
  */
 static void decodeHighBytes(uint8_t bytesReceived, uint8_t received_message[UWB_SERIAL_COMM_MAX_MESSAGE])
 {
-  uint8_t recvBuffer[UWB_SERIAL_COMM_FLOAT_SIZE];
+  static uint8_t recvBuffer[UWB_SERIAL_COMM_FLOAT_SIZE];
+  float tempfloat;
   uint8_t dataRecvCount = 0;
   uint8_t thisAddress = received_message[1];
   uint8_t msgFrom = received_message[2];
@@ -133,7 +134,10 @@ static void decodeHighBytes(uint8_t bytesReceived, uint8_t received_message[UWB_
     dataRecvCount++;
   }
   if (dataRecvCount == UWB_SERIAL_COMM_FLOAT_SIZE) {
-    handleNewStateValue(nodeIndex, msgType, recvBuffer[0]);
+    // Move memory from integer buffer to float variable
+    memcpy(&tempfloat, &recvBuffer, UWB_SERIAL_COMM_FLOAT_SIZE);
+    // Set the variable to the appropriate type and store it in state
+    handleNewStateValue(nodeIndex, msgType, tempfloat);
   }
 }
 
