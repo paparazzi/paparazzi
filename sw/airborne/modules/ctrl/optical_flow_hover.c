@@ -1,6 +1,7 @@
 #include "optical_flow_hover.h"
+#include "optical_flow_functions.h"
 
-//#include "generated/airframe.h"
+#include "generated/airframe.h"
 #include "paparazzi.h"
 #include "subsystems/abi.h"
 #include "firmwares/rotorcraft/stabilization.h"
@@ -30,21 +31,17 @@ PRINT_CONFIG_VAR(OFH_OPTICAL_FLOW_ID)
 #define XY_SYMMETRICAL 0
 #endif
 
-#ifndef LP_CONST
-#define LP_CONST 0.4
-#endif
-
 #ifndef OFH_COV_METHOD
 #define OFH_COV_METHOD 0
 #endif
 
 // number of time steps used for calculating the covariance (oscillations) and the delay steps
-#ifndef OFH_COV_WINDOW_SIZE
-#define OFH_COV_WINDOW_SIZE (10*30)
+#ifndef COV_WINDOW_SIZE
+#define COV_WINDOW_SIZE (10*30)
 #endif
 
 #ifndef OFH_COV_DELAY_STEPS
-#define OFH_COV_DELAY_STEPS (5*30)
+#define OFH_COV_DELAY_STEPS COV_WINDOW_SIZE
 #endif
 
 #ifndef OFH_PGAINZ
@@ -107,7 +104,8 @@ PRINT_CONFIG_VAR(OFH_OPTICAL_FLOW_ID)
 #define OFH_COVFLOW_SETPOINT -500
 #endif
 
-#include "optical_flow_functions.h"
+struct DesiredInputs des_inputs;
+struct Covariances covariances;
 
 // variables retained between module calls
 float vision_time, prev_vision_timeXY, prev_vision_timeZ;
@@ -116,33 +114,16 @@ bool oscillatingX;
 bool oscillatingY;
 int16_t flowX;
 int16_t flowY;
-uint32_t ind_histXY;
-uint8_t cov_array_filledXY;
-float cov_flowX = 0;
-float cov_flowY = 0;
-float flowX_history[OFH_COV_WINDOW_SIZE];
-float flowY_history[OFH_COV_WINDOW_SIZE];
-float past_flowX_history[OFH_COV_WINDOW_SIZE];
-float past_flowY_history[OFH_COV_WINDOW_SIZE];
-float phi_history[OFH_COV_WINDOW_SIZE];
-float theta_history[OFH_COV_WINDOW_SIZE];
+struct OFhistory historyX;
+struct OFhistory historyY;
 
 // Stabilizing commands
 struct Int32Eulers ofh_sp_eu;
 
-float phi_des;
-float theta_des;
-
 bool oscillatingZ;
 float divergence_vision;
-float thrust_history[OFH_COV_WINDOW_SIZE];
-float divergence_history[OFH_COV_WINDOW_SIZE];
-float past_divergence_history[OFH_COV_WINDOW_SIZE];
-uint32_t ind_histZ;
-uint8_t cov_array_filledZ;
-float normalized_thrust;
-float cov_divZ;
-int32_t thrust_set;
+
+struct OFhistory historyZ;
 
 float height;
 
@@ -150,8 +131,6 @@ float height;
 static abi_event optical_flow_ev;
 
 // struct containing most relevant parameters
-struct OpticalFlowHover of_hover;
-struct NominalValues of_hover_nominal;
 struct OpticalFlowHoverControl of_hover_ctrl_X;
 struct OpticalFlowHoverControl of_hover_ctrl_Y;
 struct OpticalFlowHoverControl of_hover_ctrl_Z;
@@ -160,11 +139,6 @@ struct OpticalFlowHoverControl of_hover_ctrl_Z;
 // Callback function of the optical flow estimate:
 void ofh_optical_flow_cb(uint8_t sender_id __attribute__((unused)), uint32_t stamp, int16_t flow_x, int16_t flow_y, int16_t flow_der_x, int16_t flow_der_y, float quality, float size_div);
 
-// common functions for different hover strategies:
-static void set_cov_div(int32_t thrust);
-static void set_cov_flow(void);
-static int32_t PID_divergence_control(float dt, struct OpticalFlowHoverControl *of_hover_ctrl);
-
 // resetting all variables to be called for instance when starting up / re-entering module
 static void reset_horizontal_vars(void);
 static void reset_vertical_vars(void);
@@ -172,8 +146,6 @@ void vertical_ctrl_module_init(void);
 void vertical_ctrl_module_run(bool in_flight);
 void horizontal_ctrl_module_init(void);
 void horizontal_ctrl_module_run(bool in_flight);
-void guidance_h_module_read_rc(void);
-
 
 // Compute OptiTrack stabilization for 1/2 axes
 void computeOptiTrack(bool phi, bool theta,struct Int32Eulers *opti_sp_eu);
@@ -196,9 +168,9 @@ struct Int32Vect2 of_hover_cmd_earth;
 // sending the divergence message to the ground station:
 static void send_optical_flow_hover(struct transport_tx *trans, struct link_device *dev)
 {
-  pprz_msg_send_OPTICAL_FLOW_HOVER(trans, dev, AC_ID,&(of_hover.flowX),&(of_hover.flowY),&(of_hover.divergence),
-      &cov_flowX,&cov_flowY,&cov_divZ,&of_hover_ctrl_X.PID.P,&of_hover_ctrl_Y.PID.P,&of_hover_ctrl_Z.PID.P,&(of_hover_ctrl_X.errors.sum_err),&(of_hover_ctrl_Y.errors.sum_err),&(of_hover_ctrl_Z.errors.sum_err),
-      &thrust_set,&phi_des,&theta_des);
+  pprz_msg_send_OPTICAL_FLOW_HOVER(trans, dev, AC_ID,&of_hover.flowX,&of_hover.flowY,&of_hover.divergence,
+      &covariances.X,&covariances.Y,&covariances.Z,&of_hover_ctrl_X.PID.P,&of_hover_ctrl_Y.PID.P,&of_hover_ctrl_Z.PID.P,&of_hover_ctrl_X.errors.sum_err,&of_hover_ctrl_Y.errors.sum_err,&of_hover_ctrl_Z.errors.sum_err,
+      &des_inputs.thrust,&des_inputs.phi,&des_inputs.theta);
 }
 
 
@@ -245,13 +217,6 @@ void optical_flow_hover_init()
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_OPTICAL_FLOW_HOVER, send_optical_flow_hover);
 }
 
-// Start the optical flow hover module
-void optical_flow_hover_start(void){}
-// Run the optical flow hover module
-void optical_flow_hover_periodic(void){}
-// Stop the optical flow hover module
-void optical_flow_hover_stop(void){}
-
 /**
  * Initialize the vertical optical flow hover module
  */
@@ -277,11 +242,11 @@ static void reset_horizontal_vars(void)
 {
   struct Int32Eulers tempangle;
   int32_eulers_of_quat(&tempangle,&stab_att_sp_quat);
-  of_hover_nominal.phi = DegOfRad(FLOAT_OF_BFP(tempangle.phi,INT32_ANGLE_FRAC));;
-  of_hover_nominal.theta = DegOfRad(FLOAT_OF_BFP(tempangle.theta,INT32_ANGLE_FRAC));;
+  of_hover_ctrl_X.nominal_value = DegOfRad(FLOAT_OF_BFP(tempangle.phi,INT32_ANGLE_FRAC));
+  of_hover_ctrl_Y.nominal_value = DegOfRad(FLOAT_OF_BFP(tempangle.theta,INT32_ANGLE_FRAC));
 
-  phi_des = 0;
-  theta_des = 0;
+  des_inputs.phi = 0;
+  des_inputs.theta = 0;
 
   if((hover_method == 0) && (GUIDANCE_V_MODE_MODULE_SETTING == GUIDANCE_V_MODE_MODULE))
   {
@@ -321,23 +286,23 @@ static void reset_horizontal_vars(void)
   of_hover_ctrl_Y.errors.d_err = 0.0f;
   of_hover_ctrl_Y.errors.previous_err = 0.0f;
 
-  ofh_sp_eu.phi = of_hover_nominal.phi;
-  ofh_sp_eu.phi = of_hover_nominal.theta;
+  ofh_sp_eu.phi = of_hover_ctrl_X.nominal_value;
+  ofh_sp_eu.theta = of_hover_ctrl_Y.nominal_value;
 
   ind_histXY = 0;
   cov_array_filledXY = 0;
 
-  cov_flowX = 0.0f;
-  cov_flowY = 0.0f;
+  covariances.X = 0.0f;
+  covariances.Y = 0.0f;
 
-  for(uint16_t i=0;i<OFH_COV_WINDOW_SIZE;i++)
+  for(uint16_t i=0;i<COV_WINDOW_SIZE;i++)
   {
-    flowX_history[i] = 0.0f;
-    flowY_history[i] = 0.0f;
-    past_flowX_history[i] = 0.0f;
-    past_flowY_history[i] = 0.0f;
-    phi_history[i] = 0.0f;
-    theta_history[i] = 0.0f;
+    historyX.OF[i] = 0.0f;
+    historyY.OF[i] = 0.0f;
+    historyX.past_OF[i] = 0.0f;
+    historyY.past_OF[i] = 0.0f;
+    historyX.input[i] = 0.0f;
+    historyY.input[i] = 0.0f;
   }
 
   of_hover.flowX = 0;
@@ -357,18 +322,16 @@ static void reset_vertical_vars(void)
   divergence_vision = 0;
   of_hover.divergence = 0;
 
-  for(uint16_t i=0;i<OFH_COV_WINDOW_SIZE;i++)
+  for(uint16_t i=0;i<COV_WINDOW_SIZE;i++)
   {
-    divergence_history[i] = 0.0f;
-    thrust_history[i] = 0.0f;
-    past_divergence_history[i] = 0.0f;
+    historyZ.OF[i] = 0.0f;
+    historyZ.past_OF[i] = 0.0f;
+    historyZ.input[i] = 0.0f;
   }
-
-  normalized_thrust = 0;
 
   ind_histZ = 0;
 
-  cov_divZ = 0.0f;
+  covariances.Z = 0.0f;
   cov_array_filledZ = 0;
 
   of_hover_ctrl_Z.PID.P = OFH_PGAINZ;
@@ -407,7 +370,7 @@ void horizontal_ctrl_module_run(bool in_flight)
    * VISION
    ***********/
 
-  float lp_factor = dt / LP_CONST;
+  float lp_factor = dt / OF_LP_CONST;
   Bound(lp_factor, 0.f, 1.f);
 
   float new_flowX = (flowX * ventral_factor) / dt;
@@ -439,22 +402,22 @@ void horizontal_ctrl_module_run(bool in_flight)
   if(oscphi)
   {
     of_hover_ctrl_X.errors.err = of_hover_ctrl_X.setpoint- of_hover.flowX;
-    phi_des = of_hover_nominal.phi + PID_flow_control(dt, &of_hover_ctrl_X);
+    des_inputs.phi = of_hover_ctrl_X.nominal_value + PID_flow_control(dt, &of_hover_ctrl_X);
   }
   if(osctheta)
   {
     of_hover_ctrl_Y.errors.err = of_hover_ctrl_Y.setpoint- of_hover.flowY;
-    theta_des = of_hover_nominal.theta + PID_flow_control(dt, &of_hover_ctrl_Y);
+    des_inputs.theta = of_hover_ctrl_Y.nominal_value + PID_flow_control(dt, &of_hover_ctrl_Y);
   }
 
   // update covariance
-  set_cov_flow();
+  set_cov_flow(cov_method,&historyX,&historyY,&des_inputs,&covariances);
 
-  ofh_sp_eu.phi = BFP_OF_REAL(RadOfDeg(phi_des*oscphi), INT32_ANGLE_FRAC);
-  ofh_sp_eu.theta = BFP_OF_REAL(RadOfDeg(theta_des*osctheta), INT32_ANGLE_FRAC);
+  ofh_sp_eu.phi = BFP_OF_REAL(RadOfDeg(des_inputs.phi*oscphi), INT32_ANGLE_FRAC);
+  ofh_sp_eu.theta = BFP_OF_REAL(RadOfDeg(des_inputs.theta*osctheta), INT32_ANGLE_FRAC);
 
   // Check for oscillations
-  if( (cov_flowX<of_hover_ctrl_X.cov_setpoint) && (!oscillatingX) )
+  if( (covariances.X<of_hover_ctrl_X.cov_setpoint) && (!oscillatingX) )
   {
     oscillatingX = 1;
 
@@ -473,7 +436,7 @@ void horizontal_ctrl_module_run(bool in_flight)
       of_hover_ctrl_Y.PID.P = of_hover_ctrl_X.PID.P;
     }
   }
-  if( (cov_flowY<of_hover_ctrl_Y.cov_setpoint) && (!oscillatingY) )
+  if( (covariances.Y<of_hover_ctrl_Y.cov_setpoint) && (!oscillatingY) )
   {
     oscillatingY = 1;
     of_hover_ctrl_Y.PID.P = of_hover_ctrl_Y.PID.P*of_hover_ctrl_Y.reduction_factor;
@@ -484,41 +447,7 @@ void horizontal_ctrl_module_run(bool in_flight)
   // Run the stabilization mode
   stabilization_attitude_set_rpy_setpoint_i(&ofh_sp_eu);
 
-
-
-
-
-
-  // Alternatively run normal stabilization, but replace the desired command
-  //	INT32_VECT2_NED_OF_ENU(guidance_h.sp.pos, navigation_carrot);
-  //	guidance_h_update_reference();
-  //	/* set psi command */
-  //	guidance_h.sp.heading = ANGLE_FLOAT_OF_BFP(nav_heading);
-  //	FLOAT_ANGLE_NORMALIZE(guidance_h.sp.heading);
-  //#if GUIDANCE_INDI
-  //	guidance_indi_run(in_flight, guidance_h.sp.heading);
-  //#else
-  //	/* compute x,y earth commands */
-  //	guidance_h_traj_run(in_flight);
-  //	/* set final attitude setpoint */
-  //	int32_t heading_sp_i = ANGLE_BFP_OF_REAL(guidance_h.sp.heading);
-  //	stabilization_attitude_set_earth_cmd_i(&guidance_h_cmd_earth,
-  //			heading_sp_i);
-  //#endif
-  //
-  //	int32_eulers_of_quat(&stab_att_sp_euler,&stab_att_sp_quat);
-  //	if(oscphi)
-  //	{
-  //		stab_att_sp_euler.phi= BFP_OF_REAL(RadOfDeg(phi_des), INT32_ANGLE_FRAC);
-  //	}
-  //	if(osctheta)
-  //	{
-  //		stab_att_sp_euler.theta= BFP_OF_REAL(RadOfDeg(theta_des), INT32_ANGLE_FRAC);
-  //	}
-  //	int32_quat_of_eulers(&stab_att_sp_quat, &stab_att_sp_euler);
-
   prev_vision_timeXY = vision_time;
-
 }
 
 /**
@@ -543,7 +472,7 @@ void vertical_ctrl_module_run(bool in_flight)
    * VISION
    ***********/
 
-  float lp_factor = dt / LP_CONST;
+  float lp_factor = dt / OF_LP_CONST;
   Bound(lp_factor, 0.f, 1.f);
 
   // Vision
@@ -574,10 +503,12 @@ void vertical_ctrl_module_run(bool in_flight)
 
   // use the divergence for control:
   of_hover_ctrl_Z.errors.err = of_hover_ctrl_Z.setpoint- of_hover.divergence;
-  thrust_set = PID_divergence_control(dt, &of_hover_ctrl_Z);
+  des_inputs.thrust = PID_divergence_control(dt, &of_hover_ctrl_Z);
+
+  covariances.Z = set_cov_div(cov_method,&historyZ,&des_inputs);
 
   // Check for oscillations
-  if(cov_divZ<of_hover_ctrl_Z.cov_setpoint && (!oscillatingZ))
+  if(covariances.Z<of_hover_ctrl_Z.cov_setpoint && (!oscillatingZ))
   {
     float estimatedHeight = 0.995*of_hover_ctrl_Z.PID.P + 0.066; // ARDRONE2
     oscillatingZ = 1;
@@ -603,131 +534,13 @@ void vertical_ctrl_module_run(bool in_flight)
       of_hover_ctrl_Y.errors.sum_err = 0.0f;
       of_hover_ctrl_X.PID.I = OFH_IGAINX;
       of_hover_ctrl_Y.PID.I = OFH_IGAINY;
-      of_hover_ctrl_X.PID.P = 0.4*(estimatedHeight+0.341)/183.524; // ARDRONE2 Slope
-      of_hover_ctrl_Y.PID.P = 0.4*(estimatedHeight+0.341)/183.524; // ARDRONE2 Slope
+      of_hover_ctrl_X.PID.P = OFH_REDUCTIONXY*(estimatedHeight+0.341)/183.524; // ARDRONE2 Slope
+      of_hover_ctrl_Y.PID.P = OFH_REDUCTIONXY*(estimatedHeight+0.341)/183.524; // ARDRONE2 Slope
     }
   }
 
-  stabilization_cmd[COMMAND_THRUST] = thrust_set;
+  stabilization_cmd[COMMAND_THRUST] = des_inputs.thrust;
 }
-
-
-
-/**
- * Set the covariance of the flow and past flow / desired angle
- * This funciton should only be called once per time step
- */
-void set_cov_flow(void)
-{
-  // histories and cov detection:
-  flowX_history[ind_histXY] = of_hover.flowX;
-  flowY_history[ind_histXY] = of_hover.flowY;
-
-  int ind_past = ind_histXY - OFH_COV_DELAY_STEPS;
-  while (ind_past < 0) { ind_past += OFH_COV_WINDOW_SIZE; }
-  past_flowX_history[ind_histXY] = flowX_history[ind_past];
-  past_flowY_history[ind_histXY] = flowY_history[ind_past];
-  float normalized_phi = (float)(100.0 * phi_des / OFH_MAXBANK);
-  float normalized_theta = (float)(100.0 * theta_des / OFH_MAXBANK);
-  phi_history[ind_histXY] = normalized_phi;
-  theta_history[ind_histXY] = normalized_theta;
-
-  //	 determine the covariance for hover detection:
-  //	 only take covariance into account if there are enough samples in the histories:
-  if (cov_method == 0 && cov_array_filledXY > 0)
-  {
-    //		// TODO: step in hover set point causes an incorrectly perceived covariance
-    cov_flowX = covariance_f(phi_history, flowX_history, OFH_COV_WINDOW_SIZE);
-    cov_flowY = covariance_f(theta_history, flowY_history, OFH_COV_WINDOW_SIZE);
-
-  }
-  else if (cov_method == 1 && cov_array_filledXY > 1)
-  {
-    if (cov_array_filledXY > 1){
-      // todo: delay steps should be invariant to the run frequency
-      cov_flowX = covariance_f(past_flowX_history, flowX_history, OFH_COV_WINDOW_SIZE);
-      cov_flowY = covariance_f(past_flowY_history, flowY_history, OFH_COV_WINDOW_SIZE);
-    }
-  }
-  if (cov_array_filledXY < 2 && ind_histXY + 1 == OFH_COV_WINDOW_SIZE)
-  {
-    cov_array_filledXY++;
-  }
-  ind_histXY = (ind_histXY + 1) % OFH_COV_WINDOW_SIZE;
-}
-
-
-
-/**
- * Set the covariance of the divergence and the thrust / past divergence
- * This funciton should only be called once per time step
- * @param[in] thrust: the current thrust value
- */
-void set_cov_div(int32_t thrust)
-{
-  // histories and cov detection:
-  divergence_history[ind_histZ] = of_hover.divergence;
-
-  normalized_thrust = (float)(100.0 * thrust / MAX_PPRZ );
-  thrust_history[ind_histZ] = normalized_thrust;
-
-  int ind_past = ind_histZ - OFH_COV_DELAY_STEPS;
-  while (ind_past < 0) { ind_past += OFH_COV_WINDOW_SIZE; }
-  past_divergence_history[ind_histZ] = divergence_history[ind_past];
-
-  // determine the covariance for hover detection:
-  // only take covariance into account if there are enough samples in the histories:
-  if (cov_method == 0 && cov_array_filledZ > 0)
-  {
-    // TODO: step in hover set point causes an incorrectly perceived covariance
-    cov_divZ = covariance_f(thrust_history, divergence_history, OFH_COV_WINDOW_SIZE);
-  }
-  else if (cov_method == 1 && cov_array_filledZ > 1)
-  {
-    // todo: delay steps should be invariant to the run frequency
-    cov_divZ = covariance_f(past_divergence_history, divergence_history, OFH_COV_WINDOW_SIZE);
-  }
-
-  if (cov_array_filledZ < 2 && ind_histZ + 1 == OFH_COV_WINDOW_SIZE) {
-    cov_array_filledZ++;
-  }
-  ind_histZ = (ind_histZ + 1) % OFH_COV_WINDOW_SIZE;
-}
-
-
-/**
- * Determine and set the thrust for constant divergence control
- * @param[out] thrust
- * @param[in] dt: time difference since last update
- * @param[in] *of_hover_ctrl: OpticalFlowHoverControl structure
- */
-int32_t PID_divergence_control(float dt, struct OpticalFlowHoverControl *of_hover_ctrl)
-{
-  // update the controller errors:
-  float lp_factor = dt / LP_CONST;
-  Bound(lp_factor, 0.f, 1.f);
-
-  // maintain the controller errors:
-  of_hover_ctrl->errors.sum_err += of_hover_ctrl->errors.err;
-  of_hover_ctrl->errors.d_err += (((of_hover_ctrl->errors.err - of_hover_ctrl->errors.previous_err) / dt) - of_hover_ctrl->errors.d_err) * lp_factor;
-  of_hover_ctrl->errors.previous_err = of_hover_ctrl->errors.err;
-
-  // PID control:
-  int32_t thrust = (of_hover_nominal.thrust
-      + of_hover_ctrl->PID.P * of_hover_ctrl->errors.err
-      + of_hover_ctrl->PID.I * of_hover_ctrl->errors.sum_err
-      + of_hover_ctrl->PID.D * of_hover_ctrl->errors.d_err) * MAX_PPRZ;
-
-  // bound thrust:
-  Bound(thrust, 0.25 * of_hover_nominal.thrust * MAX_PPRZ, MAX_PPRZ);
-
-  // update covariance
-  set_cov_div(thrust);
-
-  return thrust;
-}
-
-
 
 void ofh_optical_flow_cb(uint8_t sender_id __attribute__((unused)), uint32_t stamp, int16_t flow_x, int16_t flow_y, int16_t flow_der_x, int16_t flow_der_y, float quality, float size_div)
 {
@@ -767,8 +580,8 @@ void guidance_v_module_enter(void)
   reset_vertical_vars();
 
   // adaptive estimation - assume hover condition when entering the module
-  of_hover_nominal.thrust = (float) stabilization_cmd[COMMAND_THRUST] / MAX_PPRZ;
-  thrust_set = of_hover_nominal.thrust * MAX_PPRZ;
+  of_hover_ctrl_Z.nominal_value = (float) stabilization_cmd[COMMAND_THRUST] / MAX_PPRZ;
+  des_inputs.thrust = (int32_t) of_hover_ctrl_Z.nominal_value * MAX_PPRZ;
 }
 
 /**
@@ -825,7 +638,6 @@ void computeOptiTrack(bool phi, bool theta,struct Int32Eulers *opti_sp_eu)
   bool optiVelOnly;
   optiVelOnly = 0;
 
-  // Heading is going wrong?
   int32_t psi = stateGetNedToBodyEulers_i()->psi;
 
   struct NedCoor_i vel_from_GPS;

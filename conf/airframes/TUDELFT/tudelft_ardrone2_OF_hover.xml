@@ -4,6 +4,7 @@
 
 	<firmware name="rotorcraft">
 		<target name="ap" board="ardrone2">
+
 		  <configure name="PREFIX" value="/opt/arm-2012.03/bin/arm-none-linux-gnueabi" />
 			<configure name="USE_BARO_BOARD" value="FALSE" />
 		</target>
@@ -40,8 +41,11 @@
 			<define name="OFH_HOVER_METHOD" value = "1" />
 			<define name="XY_SYMMETRICAL" value = "0" />
 		
-			<define name="OFH_MAXBANK" value = "10" />
-			<define name="LP_CONST" value = "0.6" />
+		    
+		    <define name="COV_WINDOW_SIZE" value = "300" />
+			<define name="OF_LP_CONST" value = "0.6" />
+			
+			<define name="OFH_MAXBANK" value = "10.0" />
 			<define name="OFH_COV_WINDOW_SIZE" value = "100" />
 			<define name="OFH_COV_DELAY_STEPS" value = "50" />
 			<define name="OFH_RAMPZ" value = "0.05" />

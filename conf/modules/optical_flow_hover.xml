@@ -1,0 +1,60 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="optical_flow_hover" dir="ctrl">
+	<doc>
+		<description>
+			Optical flow Hover.
+
+			This module stabilizes the quadcopter in all three axis using only the
+			camera and the IMU
+		</description>
+	</doc>
+	<settings>
+		<dl_settings>
+			 <dl_settings name="OpticalFlowHover">
+			 	<dl_settings name="General">
+			 		<dl_setting var="cov_method" min="0" step="1" max="1" values="input|past" module="ctrl/optical_flow_hover" shortname="COV_METHOD" param="OFH_COV_METHOD"/>
+			 		<dl_setting var="hover_method" min="0" step="1" max="2" values="Sub|Same|Smart" module="ctrl/optical_flow_hover" shortname="HOVER_METHOD" param="OFH_HOVER_METHOD"/>
+			 	</dl_settings>		        
+			 	<dl_settings name="Vertical">
+		        	<dl_setting var="of_hover_ctrl_Z.cov_setpoint" min="-5.05" step="0.00001" max="0" module="ctrl/optical_flow_hover" shortname="covDiv_set_point" param="OFH_COVDIV_SETPOINT"/>
+		        	<dl_setting var="of_hover_ctrl_Z.ramp" min="0" step="0.005" max="1" module="ctrl/optical_flow_hover" shortname="rampZ" param="OFH_RAMPZ"/>
+		        	<dl_setting var="of_hover_ctrl_Z.reduction_factor" min="0.1" step="0.01" max="1" module="ctrl/optical_flow_hover" shortname="reduction_factorZ" param="OFH_REDUCTIONZ"/>
+		        	<dl_setting var="of_hover_ctrl_Z.PID.P" min="0" step="0.01" max="1" module="ctrl/optical_flow_hover" shortname="pgainZ"/>
+		        	<dl_setting var="of_hover_ctrl_Z.PID.I" min="0" step="0.001" max="0.1" module="ctrl/optical_flow_hover" shortname="igainZ" param="OFH_IGAINZ"/>
+		        	<dl_setting var="of_hover_ctrl_Z.PID.D" min="0" step="0.01" max="1" module="ctrl/optical_flow_hover" shortname="dgainZ" param="OFH_DGAINZ"/>		        	
+             	</dl_settings>		        
+             	<dl_settings name="Horizontal">
+             		<dl_setting var="of_hover_ctrl_X.cov_setpoint" min="-100000" step="100" max="10000" module="ctrl/optical_flow_hover" shortname="covFlow_set_pointX" param="OFH_COVDIV_SETPOINT"/>
+             		<dl_setting var="of_hover_ctrl_Y.cov_setpoint" min="-100000" step="100" max="10000" module="ctrl/optical_flow_hover" shortname="covFlow_set_pointY" param="OFH_COVDIV_SETPOINT"/>
+		        	<dl_setting var="of_hover_ctrl_X.ramp" min="0" step="0.0001" max="0.05" module="ctrl/optical_flow_hover" shortname="rampX" param="OFH_RAMPXY"/>
+		        	<dl_setting var="of_hover_ctrl_Y.ramp" min="0" step="0.0001" max="0.05" module="ctrl/optical_flow_hover" shortname="rampY" param="OFH_RAMPXY"/>
+		        	<dl_setting var="of_hover_ctrl_X.reduction_factor" min="0.1" step="0.01" max="1" module="ctrl/optical_flow_hover" shortname="reduction_factorX" param="OFH_REDUCTIONXY"/>
+		        	<dl_setting var="of_hover_ctrl_Y.reduction_factor" min="0.1" step="0.01" max="1" module="ctrl/optical_flow_hover" shortname="reduction_factorY" param="OFH_REDUCTIONXY"/>
+		        	<dl_setting var="of_hover_ctrl_X.PID.P" min="0" step="0.00001" max="0.01" module="ctrl/optical_flow_hover" shortname="pgainX"/>
+		        	<dl_setting var="of_hover_ctrl_X.PID.I" min="0" step="0.00001" max="0.001" module="ctrl/optical_flow_hover" shortname="IgainX" param="OFH_IGAINX"/>
+		        	<dl_setting var="of_hover_ctrl_X.PID.D" min="0" step="0.00001" max="0.001" module="ctrl/optical_flow_hover" shortname="DgainX" param="OFH_DGAINX"/>
+		        	<dl_setting var="of_hover_ctrl_Y.PID.P" min="0" step="0.00001" max="0.01" module="ctrl/optical_flow_hover" shortname="pgainY"/>
+		        	<dl_setting var="of_hover_ctrl_Y.PID.I" min="0" step="0.00001" max="0.001" module="ctrl/optical_flow_hover" shortname="IgainY" param="OFH_IGAINY"/>
+		        	<dl_setting var="of_hover_ctrl_Y.PID.D" min="0" step="0.00001" max="0.001" module="ctrl/optical_flow_hover" shortname="DgainY" param="OFH_DGAINY"/>
+		        	<dl_setting var="oscphi" min="0" step="1" max="1" values="No|OSC" module="ctrl/optical_flow_hover" shortname="oscphi" />
+		        	<dl_setting var="osctheta" min="0" step="1" max="1" values="No|OSC" module="ctrl/optical_flow_hover" shortname="osctheta" />
+		        	<dl_setting var="derotated" min="0" step="1" max="1" values="Reg|Der" module="ctrl/optical_flow_hover" shortname="derotated" />
+             	</dl_settings>
+             </dl_settings>
+      </dl_settings>
+	</settings>
+
+	<header>
+		<file name="optical_flow_hover.h" />
+		<file name="optical_flow_functions.h" />
+	</header>
+
+	<init fun="optical_flow_hover_init()" />
+
+	<makefile target="ap">
+		<file name="optical_flow_hover.c" />
+		<file name="optical_flow_functions.c" />
+	</makefile>
+
+</module>

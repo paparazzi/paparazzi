@@ -38,17 +38,12 @@ bool derotated;
 bool cov_method; 			   ///< method to calculate the covariance: between thrust and div / angle and flow (0) or div and div past / flow and past flow(1)
 uint8_t hover_method;		   ///< Method used to hover 0 = All axis after each other; 1 = all axis at the same time; 2 = vertical only, use relation to set horizontal
 
-extern struct OpticalFlowHover of_hover;
-extern struct NominalValues of_hover_nominal;
 extern struct OpticalFlowHoverControl of_hover_ctrl_X;
 extern struct OpticalFlowHoverControl of_hover_ctrl_Y;
 extern struct OpticalFlowHoverControl of_hover_ctrl_Z;
 
 // The module functions
 extern void optical_flow_hover_init(void);
-extern void optical_flow_hover_start(void);
-extern void optical_flow_hover_periodic(void);
-extern void optical_flow_hover_stop(void);
 
 // Implement own Vertical loops
 extern void guidance_v_module_init(void);
@@ -59,5 +54,6 @@ extern void guidance_v_module_run(bool in_flight);
 extern void guidance_h_module_init(void);
 extern void guidance_h_module_enter(void);
 extern void guidance_h_module_run(bool in_flight);
+extern void guidance_h_module_read_rc(void);
 
 #endif /* OPTICAL_FLOW_LANDING_H_ */
