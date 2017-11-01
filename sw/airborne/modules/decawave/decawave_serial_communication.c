@@ -28,7 +28,8 @@
  * @file "modules/decawave_serial_communication.h"
  * @author S. vd H, C. DW
  *
-	Decawave DWM1000 module serial communication for use in anchorless network where the UWB modules are attached to MAVs and need to communicate on-board values with each-other (for purposes such as relative localization, co-ordination, or collision avoidance).
+	Decawave DWM1000 module serial communication for use in anchorless network where the UWB modules are attached to MAVs and need to communicate 
+	on-board values with each-other (for purposes such as relative localization, co-ordination, or collision avoidance).
 	This module must be used together with the Decawave DWM1000 running the appropriate Serial Communication code, which can be flashed on the Arduino board.
 	The arduino library can be found at:
 		https://github.com/StevenH2812/arduino-dw1000/tree/UWB_localization_v1.0
