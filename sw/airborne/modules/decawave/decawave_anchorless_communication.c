@@ -57,7 +57,6 @@ struct link_device *external_device = UWB_SERIAL_PORT;
 #define UWB_SERIAL_COMM_START_MARKER 254
 #define UWB_SERIAL_COMM_NODE_STATE_SIZE 4
 
-#define UWB_SERIAL_COMM_FLOAT_SIZE 4 // Size of a floating point number
 #define UWB_SERIAL_COMM_MAX_NODES 5  // Setting up how many nodes can maximally be in the network
 #define UWB_SERIAL_COMM_NUM_NODES 3 // How many nodes actually are in the network
 #define UWB_SERIAL_COMM_DIST_NUM_NODES UWB_SERIAL_COMM_NUM_NODES-1  // How many distant nodes are in the network (one less than the toal number of nodes)
@@ -114,7 +113,7 @@ static void handleNewStateValue(uint8_t nodeIndex, uint8_t msg_type, float value
  */
 static void decodeHighBytes(uint8_t bytes_received, uint8_t *received_message)
 {
-  static uint8_t receive_buffer[UWB_SERIAL_COMM_FLOAT_SIZE];
+  static uint8_t receive_buffer[4];
   float tempfloat;
   uint8_t data_received_count = 0;
   uint8_t this_address = received_message[1];
@@ -128,14 +127,14 @@ static void decodeHighBytes(uint8_t bytes_received, uint8_t *received_message)
       i++;
       var_byte = var_byte + received_message[i];
     }
-    if (data_received_count <= UWB_SERIAL_COMM_FLOAT_SIZE) {
+    if (data_received_count <= 4) {
       receive_buffer[data_received_count] = var_byte;
     }
     data_received_count++;
   }
-  if (data_received_count == UWB_SERIAL_COMM_FLOAT_SIZE) {
+  if (data_received_count == 4) {
     // Move memory from integer buffer to float variable
-    memcpy(&tempfloat, &receive_buffer, UWB_SERIAL_COMM_FLOAT_SIZE);
+    memcpy(&tempfloat, &receive_buffer, 4);
     // Set the variable to the appropriate type and store it in state
     handleNewStateValue(nodeIndex, msg_type, tempfloat);
   }
