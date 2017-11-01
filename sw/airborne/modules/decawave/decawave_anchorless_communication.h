@@ -8,9 +8,6 @@
 #ifndef DECAWAVE_ANCHORLESS_COMMUNICATION_H_
 #define DECAWAVE_ANCHORLESS_COMMUNICATION_H_
 
-#include <stdint.h>
-#include <stdbool.h>
-
 extern void decawave_anchorless_communication_init(void);
 extern void decawave_anchorless_communication_periodic(void);
 extern void decawave_anchorless_communication_event(void);
