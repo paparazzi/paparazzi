@@ -1,29 +1,29 @@
- <!DOCTYPE module SYSTEM "module.dtd">
+<!DOCTYPE module SYSTEM "module.dtd">
 
 <module name="decawave_serial_communication" dir="decawave">
-	<doc>
-		<description>
-			Decawave DWM1000 module serial communication for use in anchorless network where the UWB modules are attached to MAVs and need to communicate on-board values with each-other (for purposes such as relative localization, co-ordination, or collision avoidance).
-			This module must be used together with the Decawave DWM1000 running the appropriate Serial Communication code, which can be flashed on the Arduino board.
-			The arduino library can be found at:
-				https://github.com/StevenH2812/arduino-dw1000/tree/UWB_localization_v1.0
-			The example file to flash the Arduino Micro can be found in
-				examples/UWB_localization_v1_0/UWB_localization_v1_0.ino
-		</description>
-	</doc>
-	<header>
-		<file name="decawave_serial_communication.h" />
-	</header>
-	<init fun="decawave_serial_communication_init()" />
-	<periodic fun="decawave_serial_communication_periodic()" freq="30" autorun="TRUE" />
-	<event fun="decawave_serial_communication_event()"/>
-	<makefile target="ap">
-		<file name="decawave_serial_communication.c" />
-		<configure name="SERIAL_UART" default="uart2" case="upper|lower" />
-		<configure name="SERIAL_BAUD" default="B9600" />
-		<configure name="SERIAL_LED" default="3" />
-		<define name="USE_$(SERIAL_UART_UPPER)" />
-		<define name="SERIAL_UART" value="$(SERIAL_UART_LOWER)" />
-		<define name="$(SERIAL_UART_UPPER)_BAUD" value="$(SERIAL_BAUD)" />
-	</makefile>
+  <doc>
+    <description>
+      Decawave DWM1000 module serial communication for use in anchorless network where the UWB modules are attached to MAVs and need to communicate on-board values with each-other (for purposes such as relative localization, co-ordination, or collision avoidance).
+      This module must be used together with the Decawave DWM1000 running the appropriate Serial Communication code, which can be flashed on the Arduino board.
+      The arduino library can be found at:
+        https://github.com/StevenH2812/arduino-dw1000/tree/UWB_localization_v1.0
+      The example file to flash the Arduino Micro can be found in
+        examples/UWB_localization_v1_0/UWB_localization_v1_0.ino
+    </description>
+  </doc>
+  <header>
+    <file name="decawave_serial_communication.h" />
+  </header>
+  <init fun="decawave_serial_communication_init()" />
+  <periodic fun="decawave_serial_communication_periodic()" freq="30" autorun="TRUE" />
+  <event fun="decawave_serial_communication_event()"/>
+  <makefile target="ap">
+    <file name="decawave_serial_communication.c" />
+    <configure name="SERIAL_UART" default="uart2" case="upper|lower" />
+    <configure name="SERIAL_BAUD" default="B9600" />
+    <configure name="SERIAL_LED" default="3" />
+    <define name="USE_$(SERIAL_UART_UPPER)" />
+    <define name="SERIAL_UART" value="$(SERIAL_UART_LOWER)" />
+    <define name="$(SERIAL_UART_UPPER)_BAUD" value="$(SERIAL_BAUD)" />
+  </makefile>
 </module>
