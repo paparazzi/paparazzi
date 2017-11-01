@@ -77,17 +77,97 @@ struct nodeState {
   bool stateUpdated[UWB_SERIAL_COMM_NODE_STATE_SIZE];
 };
 
-static uint8_t _tempBuffer[UWB_SERIAL_COMM_MAX_MESSAGE];
 static uint8_t _tempBuffer2[UWB_SERIAL_COMM_MAX_MESSAGE];
 static uint8_t _recvBuffer[UWB_SERIAL_COMM_FLOAT_SIZE];
 static uint8_t _dataTotalSend = 0;
-
 static struct nodeState _states[UWB_SERIAL_COMM_DIST_NUM_NODES];
 
-static void decodeHighBytes(uint8_t _bytesRecvd);
-static void encodeHighBytes(uint8_t *sendData, uint8_t msgSize);
-static void handleNewStateValue(uint8_t nodeIndex, uint8_t msgType, float value);
-static void sendFloat(uint8_t msgtype, float outfloat);
+/**
+ * Function that is called when over the serial a new state value from a remote node is received
+ */
+static void handleNewStateValue(uint8_t nodeIndex, uint8_t msgType, float value)
+{
+  struct nodeState *node = &_states[nodeIndex];
+  switch (msgType) {
+    case UWB_SERIAL_COMM_VX : node->vx = value; node->stateUpdated[UWB_SERIAL_COMM_VX] = true; break;
+    case UWB_SERIAL_COMM_VY : node->vy = value; node->stateUpdated[UWB_SERIAL_COMM_VY] = true; break;
+    case UWB_SERIAL_COMM_Z  : node->z = value ; node->stateUpdated[UWB_SERIAL_COMM_Z]  = true; break;
+    case UWB_SERIAL_COMM_RANGE : node->r = value ; node->stateUpdated[UWB_SERIAL_COMM_RANGE]  = true; break;
+  }
+}
+
+/**
+ * Function for decoding the high bytes of received serial data and saving the message.
+ * Since the start and end marker could also be regular payload bytes (since they are simply the values
+ * 254 and 255, which could also be payload data) the payload values 254 and 255 have been encoded
+ * as byte pairs 253 1 and 253 2 respectively. Value 253 itself is encoded as 253 0.
+ *  This function will decode these back into values the original payload values.
+ */
+static void decodeHighBytes(uint8_t _bytesRecvd, uint8_t *_tempBuffer[UWB_SERIAL_COMM_MAX_MESSAGE])
+{
+  uint8_t _dataRecvCount = 0;
+  float tempfloat;
+  uint8_t thisAddress = _tempBuffer[1];
+  uint8_t msgFrom = _tempBuffer[2];
+  uint8_t msgType = _tempBuffer[3];
+  uint8_t nodeIndex = msgFrom - 1 - (uint8_t)(thisAddress < msgFrom);
+  for (uint8_t i = 4; i < _bytesRecvd - 1; i++) { // Skip the begin marker (0), this address (1), remote address (2), message type (3), and end marker (_bytesRecvd-1)
+    uint8_t _varByte = _tempBuffer[i]; 
+    if (_varByte == UWB_SERIAL_COMM_SPECIAL_BYTE) {
+      i++;
+      _varByte = _varByte + _tempBuffer[i];
+    }
+    if (_dataRecvCount <= UWB_SERIAL_COMM_FLOAT_SIZE) {
+      _recvBuffer[_dataRecvCount] = _varByte;
+    }
+    _dataRecvCount++;
+  }
+  if (_dataRecvCount == UWB_SERIAL_COMM_FLOAT_SIZE) {
+    memcpy(&tempfloat, &_recvBuffer, UWB_SERIAL_COMM_FLOAT_SIZE);
+    handleNewStateValue(nodeIndex, msgType, tempfloat);
+  }
+}
+
+/**
+ * Function that encodes the high bytes of the serial data to be sent.
+ * Start and end markers are reserved values 254 and 255. In order to be able to send these values,
+ * the payload values 253, 254, and 255 are encoded as 2 bytes, respectively 253 0, 253 1, and 253 2.
+ */
+static void encodeHighBytes(uint8_t *sendData, uint8_t msgSize)
+{
+  uint8_t _dataSendCount = msgSize;
+  _dataTotalSend = 0;
+  for (uint8_t i = 0; i < _dataSendCount; i++) {
+    if (sendData[i] >= UWB_SERIAL_COMM_SPECIAL_BYTE) {
+      _tempBuffer2[_dataTotalSend] = UWB_SERIAL_COMM_SPECIAL_BYTE;
+      _dataTotalSend++;
+      _tempBuffer2[_dataTotalSend] = sendData[i] - UWB_SERIAL_COMM_SPECIAL_BYTE;
+    } else {
+      _tempBuffer2[_dataTotalSend] = sendData[i];
+    }
+    _dataTotalSend++;
+  }
+}
+
+/**
+ * Function that will send a float over serial. The actual message that will be sent will have
+ * a start marker, the message type, 4 bytes for the float, and the end marker.
+ */
+static void sendFloat(uint8_t msgtype, float outfloat)
+{
+  uint8_t floatbyte[4];
+  memcpy(floatbyte, &outfloat, 4);
+  encodeHighBytes(floatbyte, 4);
+
+  UWB_SERIAL_PORT->put_byte(UWB_SERIAL_PORT->periph, 0, UWB_SERIAL_COMM_START_MARKER);
+  UWB_SERIAL_PORT->put_byte(UWB_SERIAL_PORT->periph, 0, msgtype);
+
+  for (uint8_t i = 0; i< (_dataTotalSend); i++) {
+    UWB_SERIAL_PORT->put_byte(UWB_SERIAL_PORT->periph, 0, _tempBuffer2[i]);
+  }
+
+  UWB_SERIAL_PORT->put_byte(UWB_SERIAL_PORT->periph, 0, UWB_SERIAL_COMM_END_MARKER);
+}
 
 /**
  * Helper function that sets the boolean that tells whether a remote drone has a new state update to false.
@@ -129,6 +209,7 @@ static void getSerialData(uint8_t *_bytesRecvd)
 {
   static bool _inProgress = false;
   static uint8_t _varByte;
+  static uint8_t _tempBuffer[UWB_SERIAL_COMM_MAX_MESSAGE];
 
   while ( xdev->char_available(xdev->periph) ) {
     _varByte = UWB_SERIAL_PORT->get_byte(UWB_SERIAL_PORT->periph);
@@ -145,7 +226,7 @@ static void getSerialData(uint8_t *_bytesRecvd)
 
     if (_varByte == UWB_SERIAL_COMM_END_MARKER) {
       _inProgress = false;
-      decodeHighBytes(*_bytesRecvd);
+      decodeHighBytes(*_bytesRecvd, _tempBuffer);
     }
   }
 }
@@ -180,91 +261,4 @@ void decawave_serial_communication_event(void)
   static uint8_t _bytesRecvd;
   getSerialData(&_bytesRecvd);
   checkStatesUpdated();
-}
-
-/**
- * Function for decoding the high bytes of received serial data and saving the message.
- * Since the start and end marker could also be regular payload bytes (since they are simply the values
- * 254 and 255, which could also be payload data) the payload values 254 and 255 have been encoded
- * as byte pairs 253 1 and 253 2 respectively. Value 253 itself is encoded as 253 0.
- *  This function will decode these back into values the original payload values.
- */
-static void decodeHighBytes(uint8_t _bytesRecvd)
-{
-  uint8_t _dataRecvCount = 0;
-  float tempfloat;
-  uint8_t thisAddress = _tempBuffer[1];
-  uint8_t msgFrom = _tempBuffer[2];
-  uint8_t msgType = _tempBuffer[3];
-  uint8_t nodeIndex = msgFrom - 1 - (uint8_t)(thisAddress < msgFrom);
-  for (uint8_t i = 4; i < _bytesRecvd - 1; i++) { // Skip the begin marker (0), this address (1), remote address (2), message type (3), and end marker (_bytesRecvd-1)
-    uint8_t _varByte = _tempBuffer[i]; 
-    if (_varByte == UWB_SERIAL_COMM_SPECIAL_BYTE) {
-      i++;
-      _varByte = _varByte + _tempBuffer[i];
-    }
-    if (_dataRecvCount <= UWB_SERIAL_COMM_FLOAT_SIZE) {
-      _recvBuffer[_dataRecvCount] = _varByte;
-    }
-    _dataRecvCount++;
-  }
-  if (_dataRecvCount == UWB_SERIAL_COMM_FLOAT_SIZE) {
-    memcpy(&tempfloat, &_recvBuffer, UWB_SERIAL_COMM_FLOAT_SIZE);
-    handleNewStateValue(nodeIndex, msgType, tempfloat);
-  }
-}
-
-/**
- * Function that is called when over the serial a new state value from a remote node is received
- */
-static void handleNewStateValue(uint8_t nodeIndex, uint8_t msgType, float value)
-{
-  struct nodeState *node = &_states[nodeIndex];
-  switch (msgType) {
-    case UWB_SERIAL_COMM_VX : node->vx = value; node->stateUpdated[UWB_SERIAL_COMM_VX] = true; break;
-    case UWB_SERIAL_COMM_VY : node->vy = value; node->stateUpdated[UWB_SERIAL_COMM_VY] = true; break;
-    case UWB_SERIAL_COMM_Z  : node->z = value ; node->stateUpdated[UWB_SERIAL_COMM_Z]  = true; break;
-    case UWB_SERIAL_COMM_RANGE : node->r = value ; node->stateUpdated[UWB_SERIAL_COMM_RANGE]  = true; break;
-  }
-}
-
-/**
- * Function that will send a float over serial. The actual message that will be sent will have
- * a start marker, the message type, 4 bytes for the float, and the end marker.
- */
-void sendFloat(uint8_t msgtype, float outfloat)
-{
-  uint8_t floatbyte[4];
-  memcpy(floatbyte, &outfloat, 4);
-  encodeHighBytes(floatbyte, 4);
-
-  UWB_SERIAL_PORT->put_byte(UWB_SERIAL_PORT->periph, 0, UWB_SERIAL_COMM_START_MARKER);
-  UWB_SERIAL_PORT->put_byte(UWB_SERIAL_PORT->periph, 0, msgtype);
-
-  for (uint8_t i = 0; i< (_dataTotalSend); i++) {
-    UWB_SERIAL_PORT->put_byte(UWB_SERIAL_PORT->periph, 0, _tempBuffer2[i]);
-  }
-
-  UWB_SERIAL_PORT->put_byte(UWB_SERIAL_PORT->periph, 0, UWB_SERIAL_COMM_END_MARKER);
-}
-
-/**
- * Function that encodes the high bytes of the serial data to be sent.
- * Start and end markers are reserved values 254 and 255. In order to be able to send these values,
- * the payload values 253, 254, and 255 are encoded as 2 bytes, respectively 253 0, 253 1, and 253 2.
- */
-static void encodeHighBytes(uint8_t *sendData, uint8_t msgSize)
-{
-  uint8_t _dataSendCount = msgSize;
-  _dataTotalSend = 0;
-  for (uint8_t i = 0; i < _dataSendCount; i++) {
-    if (sendData[i] >= UWB_SERIAL_COMM_SPECIAL_BYTE) {
-      _tempBuffer2[_dataTotalSend] = UWB_SERIAL_COMM_SPECIAL_BYTE;
-      _dataTotalSend++;
-      _tempBuffer2[_dataTotalSend] = sendData[i] - UWB_SERIAL_COMM_SPECIAL_BYTE;
-    } else {
-      _tempBuffer2[_dataTotalSend] = sendData[i];
-    }
-    _dataTotalSend++;
-  }
 }
