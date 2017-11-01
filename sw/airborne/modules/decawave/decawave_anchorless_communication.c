@@ -57,7 +57,6 @@ struct link_device *external_device = UWB_SERIAL_PORT;
 #define UWB_SERIAL_COMM_START_MARKER 254
 #define UWB_SERIAL_COMM_NODE_STATE_SIZE 4
 
-#define UWB_SERIAL_COMM_MAX_NODES 5  // Setting up how many nodes can maximally be in the network
 #define UWB_SERIAL_COMM_NUM_NODES 3 // How many nodes actually are in the network
 #define UWB_SERIAL_COMM_DIST_NUM_NODES UWB_SERIAL_COMM_NUM_NODES-1  // How many distant nodes are in the network (one less than the toal number of nodes)
 
