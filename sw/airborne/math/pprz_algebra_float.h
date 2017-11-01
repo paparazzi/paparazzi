@@ -279,13 +279,13 @@ extern void float_rmat_transp_vmult(struct FloatVect3 *vb, struct FloatRMat *m_b
  * rb = m_a2b * ra
  */
 extern void float_rmat_mult(struct FloatEulers *rb, struct FloatRMat *m_a2b,
-                                struct FloatEulers *ra);
+                            struct FloatEulers *ra);
 
 /** rotate angle by transposed rotation matrix.
  * rb = m_b2a^T * ra
  */
 extern void float_rmat_transp_mult(struct FloatEulers *rb, struct FloatRMat *m_b2a,
-                                       struct FloatEulers *ra);
+                                   struct FloatEulers *ra);
 
 /** rotate anglular rates by rotation matrix.
  * rb = m_a2b * ra
@@ -450,6 +450,7 @@ extern void float_quat_vmult(struct FloatVect3 *v_out, struct FloatQuat *q, cons
 
 /// Quaternion from Euler angles.
 extern void float_quat_of_eulers(struct FloatQuat *q, struct FloatEulers *e);
+extern void float_quat_of_eulers_zxy(struct FloatQuat *q, struct FloatEulers *e);
 
 /// Quaternion from unit vector and angle.
 extern void float_quat_of_axis_angle(struct FloatQuat *q, const struct FloatVect3 *uv, float angle);
@@ -502,6 +503,7 @@ static inline float float_eulers_norm(struct FloatEulers *e)
 }
 extern void float_eulers_of_rmat(struct FloatEulers *e, struct FloatRMat *rm);
 extern void float_eulers_of_quat(struct FloatEulers *e, struct FloatQuat *q);
+extern void float_eulers_of_quat_zxy(struct FloatEulers *e, struct FloatQuat *q);
 
 /* defines for backwards compatibility */
 #define FLOAT_EULERS_OF_RMAT(_e, _rm) WARNING("FLOAT_EULERS_OF_RMAT macro is deprecated, use the lower case function instead") float_eulers_of_rmat(&(_e), &(_rm))
@@ -727,7 +729,9 @@ static inline void float_mat_col(float *o, float **a, int m, int c)
   }
 }
 
-extern void float_mat_inv_4d(float invOut[16], float mat_in[16]);
+extern bool float_mat_inv_2d(float inv_out[4], float mat_in[4]);
+extern void float_mat2_mult(struct FloatVect2 *vect_out, float mat[4], struct FloatVect2 vect_in);
+extern bool float_mat_inv_4d(float invOut[16], float mat_in[16]);
 
 #ifdef __cplusplus
 } /* extern "C" */

@@ -1,13 +1,19 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <airframe name="bebop_indi">
+  <description>Bebop with MavLink
+  </description>
+
 
   <firmware name="rotorcraft">
-    <target name="ap" board="bebop"/>
+    <target name="ap" board="bebop">
+      <define name="STABILIZATION_INDI_G2_R" value="0.1450"/>
+    </target>
 
     <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
       <module name="udp"/>
+      <define name="STABILIZATION_INDI_G2_R" value="0.0"/>
     </target>
 
     <!--define name="USE_SONAR" value="TRUE"/-->
@@ -20,11 +26,9 @@
     <module name="imu" type="bebop"/>
     <module name="gps" type="furuno"/>
     <module name="stabilization" type="indi_simple"/>
-    <module name="ahrs" type="float_mlkf"/>
     <module name="ahrs" type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="TRUE"/>
       <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
-      <configure name="SECONDARY_AHRS" value="int_cmpl_quat"/>
     </module>
     <module name="ins" type="extended"/>
   </firmware>
@@ -38,10 +42,35 @@
     </module-->
     <module name="video_thread"/>
 
-    <module name="video_rtp_stream">
+    <module name="cv_blob_locator">
+      <define name="BLOB_LOCATOR_CAMERA" value="bottom_camera"/>
+    </module>
+
+    <!--<module name="video_rtp_stream">
       <define name="VIEWVIDEO_CAMERA" value="bottom_camera"/>
       <define name="VIEWVIDEO_QUALITY_FACTOR" value="80"/>
       <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
+    </module>-->
+
+    <module name="nav" type="survey_rectangle_rotorcraft">
+      <define name="RECTANGLE_SURVEY_DEFAULT_SWEEP" value="10"/>
+    </module>
+    <module name="nav" type="survey_poly_rotorcraft">
+      <define name="POLYSURVEY_DEFAULT_DISTANCE" value="10"/>
+    </module>
+    <module name="video_capture">
+      <define name="VIDEO_CAPTURE_CAMERA" value="bottom_camera"/>
+    </module>
+    <module name="digital_cam_video">
+      <define name="DC_AUTOSHOOT_DISTANCE_INTERVAL" value="5"/>
+    </module>
+    <module name="video_exif"/>
+    <module name="mavlink">
+      <define name="UDP1_PORT_OUT" value="5000"/>
+      <define name="UDP1_PORT_IN" value="5000"/>
+      <define name="UDP1_HOST" value="192.168.42.2"/>
+      <configure name="MAVLINK_PORT" value="UDP1"/>
+      <define name="MAVLINK_SYSID" value="1"/>
     </module>
   </modules>
 
@@ -52,24 +81,11 @@
     <axis name="THRUST" failsafe_value="6000"/>
   </commands>
 
-  <section name="gyro_scaling">
-    <define name="BEBOP_GYRO_RANGE" value="MPU60X0_GYRO_RANGE_2000"/>
-    <define name="IMU_GYRO_P_SENS" value="4.359"/>
-    <define name="IMU_GYRO_Q_SENS" value="4.359"/>
-    <define name="IMU_GYRO_R_SENS" value="4.359"/>
-    <define name="IMU_GYRO_P_SENS_NUM" value="4359"/>
-    <define name="IMU_GYRO_Q_SENS_NUM" value="4359"/>
-    <define name="IMU_GYRO_R_SENS_NUM" value="4359"/>
-    <define name="IMU_GYRO_P_SENS_DEN" value="1000"/>
-    <define name="IMU_GYRO_Q_SENS_DEN" value="1000"/>
-    <define name="IMU_GYRO_R_SENS_DEN" value="1000"/>
-  </section>
-
   <servos driver="Default">
-    <servo name="TOP_RIGHT" no="0" min="3000" neutral="3000" max="12000"/>
-    <servo name="TOP_LEFT" no="1" min="3000" neutral="3000" max="12000"/>
-    <servo name="BOTTOM_LEFT" no="2" min="3000" neutral="3000" max="12000"/>
-    <servo name="BOTTOM_RIGHT" no="3" min="3000" neutral="3000" max="12000"/>
+    <servo name="TOP_LEFT" no="0" min="3000" neutral="3000" max="12000"/>
+    <servo name="TOP_RIGHT" no="1" min="3000" neutral="3000" max="12000"/>
+    <servo name="BOTTOM_RIGHT" no="2" min="3000" neutral="3000" max="12000"/>
+    <servo name="BOTTOM_LEFT" no="3" min="3000" neutral="3000" max="12000"/>
   </servos>
 
   <section name="MIXING" prefix="MOTOR_MIXING_">
@@ -93,7 +109,7 @@
     <define name="CALC_AMSL_BARO" value="TRUE"/>
   </section>
 
-  <include href="conf/airframes/tudelft/calibrations/bebop8.xml"/>
+  <include href="conf/airframes/tudelft/calibrations/bebop5.xml" />
 
   <section name="IMU" prefix="IMU_">
     <define name="BODY_TO_IMU_PHI" value="0." unit="deg"/>
@@ -154,7 +170,6 @@
     <define name="G1_P" value="0.0639"/>
     <define name="G1_Q" value="0.0361"/>
     <define name="G1_R" value="0.0022"/>
-    <define name="G2_R" value="0.1450"/>
 
     <!-- reference acceleration for attitude control -->
     <define name="REF_ERR_P" value="600.0"/>
@@ -192,7 +207,7 @@
     <define name="REF_MAX_SPEED" value="2" unit="m/s"/>
     <!-- Bad weather -->
     <!-- define name="MAX_BANK" value="32" unit="deg"/ -->
-    <define name="PGAIN" value="15"/>
+    <define name="PGAIN" value="79"/>
     <define name="DGAIN" value="100"/>
     <define name="IGAIN" value="30"/>
   </section>
@@ -211,10 +226,8 @@
   <section name="AUTOPILOT">
     <define name="MODE_STARTUP" value="AP_MODE_NAV"/>
     <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
-    <define name="MODE_AUTO1" value="AP_MODE_FLIP"/>
-    <define name="MODE_AUTO2" value="AP_MODE_FLIP"/>
-
-    <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
+    <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_Z_HOLD"/>
+    <define name="MODE_AUTO2" value="AP_MODE_NAV"/>
   </section>
 
   <section name="BAT">

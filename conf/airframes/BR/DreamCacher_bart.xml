@@ -67,7 +67,7 @@
     <define name="THRUST_COEF" value="{ 256,  256,  256,  256 }"/>
   </section>
 
-  <include href="conf/airframes/TUDELFT/calibrations/ladybird1.xml" />
+  <include href="conf/airframes/tudelft/calibrations/ladybird1.xml" />
 
   <section name="IMU" prefix="IMU_">
     <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>

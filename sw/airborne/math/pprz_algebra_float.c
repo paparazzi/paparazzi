@@ -468,6 +468,12 @@ void float_quat_derivative_lagrange(struct FloatQuat *qd, struct FloatRates *r, 
   qd->qz = -0.5 * (-r->r * q->qi - r->q * q->qx + r->p * q->qy +      c * q->qz);
 }
 
+/**
+ * @brief quat of euler roation 'ZYX'
+ *
+ * @param q Quat output
+ * @param e Euler input
+ */
 void float_quat_of_eulers(struct FloatQuat *q, struct FloatEulers *e)
 {
 
@@ -487,6 +493,33 @@ void float_quat_of_eulers(struct FloatQuat *q, struct FloatEulers *e)
   q->qy =  c_phi2 * s_theta2 * c_psi2 + s_phi2 * c_theta2 * s_psi2;
   q->qz =  c_phi2 * c_theta2 * s_psi2 - s_phi2 * s_theta2 * c_psi2;
 }
+
+/**
+ * @brief quat from euler rotation 'ZXY'
+ * This rotation order is useful if you need 90 deg pitch
+ *
+ * @param q Quat output
+ * @param e Euler input
+ */
+void float_quat_of_eulers_zxy(struct FloatQuat *q, struct FloatEulers *e)
+{
+  const float phi2   = e->phi / 2.0;
+  const float theta2 = e->theta / 2.0;
+  const float psi2   = e->psi / 2.0;
+
+  const float s_phi2   = sinf(phi2);
+  const float c_phi2   = cosf(phi2);
+  const float s_theta2 = sinf(theta2);
+  const float c_theta2 = cosf(theta2);
+  const float s_psi2   = sinf(psi2);
+  const float c_psi2   = cosf(psi2);
+
+  q->qi =  c_phi2 * c_theta2 * c_psi2 - s_phi2 * s_theta2 * s_psi2;
+  q->qx =  s_phi2 * c_theta2 * c_psi2 - c_phi2 * s_theta2 * s_psi2;
+  q->qy =  c_phi2 * s_theta2 * c_psi2 + s_phi2 * c_theta2 * s_psi2;
+  q->qz =  s_phi2 * s_theta2 * c_psi2 + c_phi2 * c_theta2 * s_psi2;
+}
+
 
 void float_quat_of_axis_angle(struct FloatQuat *q, const struct FloatVect3 *uv, float angle)
 {
@@ -577,6 +610,12 @@ void float_eulers_of_rmat(struct FloatEulers *e, struct FloatRMat *rm)
   e->psi   = atan2f(dcm01, dcm00);
 }
 
+/**
+ * @brief euler rotation 'ZYX'
+ *
+ * @param e Euler output
+ * @param q Quat input
+ */
 void float_eulers_of_quat(struct FloatEulers *e, struct FloatQuat *q)
 {
   const float qx2  = q->qx * q->qx;
@@ -599,48 +638,110 @@ void float_eulers_of_quat(struct FloatEulers *e, struct FloatQuat *q)
   e->psi = atan2f(dcm01, dcm00);
 }
 
+/**
+ * @brief euler rotation 'ZXY'
+ * This rotation order is useful if you need 90 deg pitch
+ *
+ * @param e Euler output
+ * @param q Quat input
+ */
+void float_eulers_of_quat_zxy(struct FloatEulers *e, struct FloatQuat *q)
+{
+  const float qx2  = q->qx * q->qx;
+  const float qy2  = q->qy * q->qy;
+  const float qz2  = q->qz * q->qz;
+  const float qi2  = q->qi * q->qi;
+  const float qiqx = q->qi * q->qx;
+  const float qiqy = q->qi * q->qy;
+  const float qiqz = q->qi * q->qz;
+  const float qxqy = q->qx * q->qy;
+  const float qxqz = q->qx * q->qz;
+  const float qyqz = q->qy * q->qz;
+  const float r11  = -2 * (qxqy - qiqz);
+  const float r12  = qi2 - qx2 + qy2 - qz2;
+  const float r21  =  2 * (qyqz + qiqx);
+  const float r31  = -2 * (qxqz - qiqy);
+  const float r32  = qi2 - qx2 - qy2 + qz2;
+
+  e->psi = atan2f(r11, r12);
+  e->phi = asinf(r21);
+  e->theta = atan2f(r31, r32);
+}
+
+/**
+ * @brief 2x2 matrix inverse
+ *
+ * @param inv_out[4] inverted matrix output
+ * @param mat_in[4] matrix to be inverted
+ *
+ * @return success (0) or not invertible (1)
+ */
+bool float_mat_inv_2d(float inv_out[4], float mat_in[4])
+{
+  float det = mat_in[0] * mat_in[3] - mat_in[1] * mat_in[2];
+
+  if (fabsf(det) < 1e-4) { return 1; } //not invertible
+
+  inv_out[0] =  mat_in[3] / det;
+  inv_out[1] = -mat_in[1] / det;
+  inv_out[2] = -mat_in[2] / det;
+  inv_out[3] =  mat_in[0] / det;
+
+  return 0; //return success
+}
+
+/**
+ * @brief Multiply 2D matrix with vector
+ *
+ * @param vect_out output vector
+ * @param mat[4] Matrix input
+ * @param vect_in Vector input
+ */
+void float_mat2_mult(struct FloatVect2 *vect_out, float mat[4], struct FloatVect2 vect_in)
+{
+  vect_out->x = mat[0] * vect_in.x + mat[1] * vect_in.y;
+  vect_out->y = mat[2] * vect_in.x + mat[3] * vect_in.y;
+}
+
 /*
  * 4x4 Matrix inverse.
  * obtained from: http://rodolphe-vaillant.fr/?e=7
  */
-float float_mat_minor_4d(float m[16], int r0, int r1, int r2, int c0, int c1, int c2);
-void float_mat_adjoint_4d(float m[16], float adjOut[16]);
-float float_mat_det_4d(float m[16]);
 
-float float_mat_minor_4d(float m[16], int r0, int r1, int r2, int c0, int c1, int c2)
+static float float_mat_minor_4d(float m[16], int r0, int r1, int r2, int c0, int c1, int c2)
 {
-    return m[4*r0+c0] * (m[4*r1+c1] * m[4*r2+c2] - m[4*r2+c1] * m[4*r1+c2]) -
-           m[4*r0+c1] * (m[4*r1+c0] * m[4*r2+c2] - m[4*r2+c0] * m[4*r1+c2]) +
-           m[4*r0+c2] * (m[4*r1+c0] * m[4*r2+c1] - m[4*r2+c0] * m[4*r1+c1]);
+  return m[4 * r0 + c0] * (m[4 * r1 + c1] * m[4 * r2 + c2] - m[4 * r2 + c1] * m[4 * r1 + c2]) -
+         m[4 * r0 + c1] * (m[4 * r1 + c0] * m[4 * r2 + c2] - m[4 * r2 + c0] * m[4 * r1 + c2]) +
+         m[4 * r0 + c2] * (m[4 * r1 + c0] * m[4 * r2 + c1] - m[4 * r2 + c0] * m[4 * r1 + c1]);
 }
 
 
-void float_mat_adjoint_4d(float m[16], float adjOut[16])
+static void float_mat_adjoint_4d(float adjOut[16], float m[16])
 {
-  adjOut[ 0] =  float_mat_minor_4d(m,1,2,3,1,2,3);
-  adjOut[ 1] = -float_mat_minor_4d(m,0,2,3,1,2,3);
-  adjOut[ 2] =  float_mat_minor_4d(m,0,1,3,1,2,3);
-  adjOut[ 3] = -float_mat_minor_4d(m,0,1,2,1,2,3);
-  adjOut[ 4] = -float_mat_minor_4d(m,1,2,3,0,2,3);
-  adjOut[ 5] =  float_mat_minor_4d(m,0,2,3,0,2,3);
-  adjOut[ 6] = -float_mat_minor_4d(m,0,1,3,0,2,3);
-  adjOut[ 7] =  float_mat_minor_4d(m,0,1,2,0,2,3);
-  adjOut[ 8] =  float_mat_minor_4d(m,1,2,3,0,1,3);
-  adjOut[ 9] = -float_mat_minor_4d(m,0,2,3,0,1,3);
-  adjOut[10] =  float_mat_minor_4d(m,0,1,3,0,1,3);
-  adjOut[11] = -float_mat_minor_4d(m,0,1,2,0,1,3);
-  adjOut[12] = -float_mat_minor_4d(m,1,2,3,0,1,2);
-  adjOut[13] =  float_mat_minor_4d(m,0,2,3,0,1,2);
-  adjOut[14] = -float_mat_minor_4d(m,0,1,3,0,1,2);
-  adjOut[15] =  float_mat_minor_4d(m,0,1,2,0,1,2);
+  adjOut[ 0] =  float_mat_minor_4d(m, 1, 2, 3, 1, 2, 3);
+  adjOut[ 1] = -float_mat_minor_4d(m, 0, 2, 3, 1, 2, 3);
+  adjOut[ 2] =  float_mat_minor_4d(m, 0, 1, 3, 1, 2, 3);
+  adjOut[ 3] = -float_mat_minor_4d(m, 0, 1, 2, 1, 2, 3);
+  adjOut[ 4] = -float_mat_minor_4d(m, 1, 2, 3, 0, 2, 3);
+  adjOut[ 5] =  float_mat_minor_4d(m, 0, 2, 3, 0, 2, 3);
+  adjOut[ 6] = -float_mat_minor_4d(m, 0, 1, 3, 0, 2, 3);
+  adjOut[ 7] =  float_mat_minor_4d(m, 0, 1, 2, 0, 2, 3);
+  adjOut[ 8] =  float_mat_minor_4d(m, 1, 2, 3, 0, 1, 3);
+  adjOut[ 9] = -float_mat_minor_4d(m, 0, 2, 3, 0, 1, 3);
+  adjOut[10] =  float_mat_minor_4d(m, 0, 1, 3, 0, 1, 3);
+  adjOut[11] = -float_mat_minor_4d(m, 0, 1, 2, 0, 1, 3);
+  adjOut[12] = -float_mat_minor_4d(m, 1, 2, 3, 0, 1, 2);
+  adjOut[13] =  float_mat_minor_4d(m, 0, 2, 3, 0, 1, 2);
+  adjOut[14] = -float_mat_minor_4d(m, 0, 1, 3, 0, 1, 2);
+  adjOut[15] =  float_mat_minor_4d(m, 0, 1, 2, 0, 1, 2);
 }
 
-float float_mat_det_4d(float m[16])
+static float float_mat_det_4d(float m[16])
 {
-    return m[0] * float_mat_minor_4d(m, 1, 2, 3, 1, 2, 3) -
-           m[1] * float_mat_minor_4d(m, 1, 2, 3, 0, 2, 3) +
-           m[2] * float_mat_minor_4d(m, 1, 2, 3, 0, 1, 3) -
-           m[3] * float_mat_minor_4d(m, 1, 2, 3, 0, 1, 2);
+  return m[0] * float_mat_minor_4d(m, 1, 2, 3, 1, 2, 3) -
+         m[1] * float_mat_minor_4d(m, 1, 2, 3, 0, 2, 3) +
+         m[2] * float_mat_minor_4d(m, 1, 2, 3, 0, 1, 3) -
+         m[3] * float_mat_minor_4d(m, 1, 2, 3, 0, 1, 2);
 }
 
 /**
@@ -649,12 +750,18 @@ float float_mat_det_4d(float m[16])
  * @param invOut output array, inverse of mat_in
  * @param mat_in input array
  */
-void float_mat_inv_4d(float invOut[16], float mat_in[16])
+bool float_mat_inv_4d(float invOut[16], float mat_in[16])
 {
-    float_mat_adjoint_4d(mat_in, invOut);
+  float_mat_adjoint_4d(invOut, mat_in);
 
-    float inv_det = 1.0f / float_mat_det_4d(mat_in);
-    int i;
-    for(i = 0; i < 16; ++i)
-        invOut[i] = invOut[i] * inv_det;
+  float det = float_mat_det_4d(mat_in);
+  if (fabsf(det) < 1e-4) { return 1; } //not invertible
+
+  float inv_det = 1.0f / det;
+  int i;
+  for (i = 0; i < 16; ++i) {
+    invOut[i] = invOut[i] * inv_det;
+  }
+
+  return 0; //success
 }
