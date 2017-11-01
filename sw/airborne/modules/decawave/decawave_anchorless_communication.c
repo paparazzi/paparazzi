@@ -210,8 +210,6 @@ static void checkStatesUpdated(void)
     }
     if (checkbool) {
       AbiSendMsgUWB_COMMUNICATION(UWB_COMM_ID, i, states[i].r, states[i].vx, states[i].vy, states[i].z);
-      printf("States for drone %i: r = %f, vx = %f, vy = %f, z = %f \n", i, states[i].r, states[i].vx, states[i].vy,
-             states[i].z);
       setNodeStatesFalse(i);
     }
   }
