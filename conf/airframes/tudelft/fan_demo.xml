@@ -1,6 +1,6 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<airframe name="bebop_indi">
+<airframe name="fan_demo">
 
   <firmware name="rotorcraft">
     <target name="ap" board="bebop"/>
@@ -35,6 +35,19 @@
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
     </module-->
   </firmware>
+
+  <section name="gyro_scaling">
+    <define name="BEBOP_GYRO_RANGE" value="MPU60X0_GYRO_RANGE_2000"/>
+    <define name="IMU_GYRO_P_SENS" value="4.359"/>
+    <define name="IMU_GYRO_Q_SENS" value="4.359"/>
+    <define name="IMU_GYRO_R_SENS" value="4.359"/>
+    <define name="IMU_GYRO_P_SENS_NUM" value="4359"/>
+    <define name="IMU_GYRO_Q_SENS_NUM" value="4359"/>
+    <define name="IMU_GYRO_R_SENS_NUM" value="4359"/>
+    <define name="IMU_GYRO_P_SENS_DEN" value="1000"/>
+    <define name="IMU_GYRO_Q_SENS_DEN" value="1000"/>
+    <define name="IMU_GYRO_R_SENS_DEN" value="1000"/>
+  </section>
 
   <commands>
     <axis name="PITCH" failsafe_value="0"/>
