@@ -28,7 +28,7 @@
  * @file "modules/decawave_serial_communication.h"
  * @author S. vd H, C. DW
  *
-  Decawave DWM1000 module serial communication for use in anchorless network where the UWB modules are attached to MAVs and need to communicate 
+  Decawave DWM1000 module serial communication for use in anchorless network where the UWB modules are attached to MAVs and need to communicate
   on-board values with each-other (for purposes such as relative localization, co-ordination, or collision avoidance).
   This module must be used together with the Decawave DWM1000 running the appropriate Serial Communication code, which can be flashed on the Arduino board.
   The arduino library can be found at:
@@ -47,15 +47,11 @@
 #include <stdio.h>
 #include "subsystems/abi.h"
 
-PRINT_CONFIG_VAR(SERIAL_UART)
-PRINT_CONFIG_VAR(SERIAL_BAUD)
+PRINT_CONFIG_VAR(UWB_SERIAL_UART)
+PRINT_CONFIG_VAR(UWB_SERIAL_BAUD)
 
 // define coms link for stereocam
-#define SERIAL_PORT   (&((SERIAL_UART).device))
-struct link_device *xdev = SERIAL_PORT;
-
-#define SerialSend1(c) SERIAL_PORT->put_byte(SERIAL_PORT->periph, 0, c)
-#define SerialSend(_dat,_len) { for (uint8_t i = 0; i< (_len); i++) SerialSend1(_dat[i]); };
+#define SERIAL_PORT &((UWB_SERIAL_UART).device)
 
 // Some meta data for serial communication
 #define UWB_SERIAL_COMM_MAX_MESSAGE 10
@@ -75,7 +71,7 @@ struct link_device *xdev = SERIAL_PORT;
 #define UWB_SERIAL_COMM_Z 2
 #define UWB_SERIAL_COMM_RANGE 3
 
-struct nodeState{
+struct nodeState {
   uint8_t nodeAddress;
   float vx;
   float vy;
@@ -95,7 +91,7 @@ static struct nodeState _states[UWB_SERIAL_COMM_DIST_NUM_NODES];
 float range_float = 0.0;
 
 static void decodeHighBytes(void);
-static void encodeHighBytes(uint8_t* sendData, uint8_t msgSize);
+static void encodeHighBytes(uint8_t *sendData, uint8_t msgSize);
 static void handleNewStateValue(uint8_t nodeIndex, uint8_t msgType, float value);
 static void setNodeStatesFalse(uint8_t index);
 static void checkStatesUpdated(void);
@@ -106,7 +102,7 @@ static void checkStatesUpdated(void);
 void decawave_serial_communication_init(void)
 {
   // Set all nodes to false
-  for (uint8_t i = 0; i < UWB_SERIAL_COMM_DIST_NUM_NODES; i++){
+  for (uint8_t i = 0; i < UWB_SERIAL_COMM_DIST_NUM_NODES; i++) {
     setNodeStatesFalse(i);
   }
 }
@@ -116,8 +112,8 @@ void decawave_serial_communication_init(void)
  */
 void decawave_serial_communication_periodic(void)
 {
-  sendFloat(UWB_SERIAL_COMM_VX,stateGetSpeedEnu_f()->y);
-  sendFloat(UWB_SERIAL_COMM_VY,stateGetSpeedEnu_f()->x);
+  sendFloat(UWB_SERIAL_COMM_VX, stateGetSpeedEnu_f()->y);
+  sendFloat(UWB_SERIAL_COMM_VY, stateGetSpeedEnu_f()->x);
   sendFloat(UWB_SERIAL_COMM_Z, stateGetPositionEnu_f()->z);
 }
 
@@ -125,7 +121,8 @@ void decawave_serial_communication_periodic(void)
  * Event function currently checks for serial data and whether an update of states is available for a distant drone.
  * If these cases are true, then actions are taken.
  */
-void decawave_serial_communication_event(void){
+void decawave_serial_communication_event(void)
+{
   getSerialData();
   checkStatesUpdated();
 }
@@ -133,8 +130,9 @@ void decawave_serial_communication_event(void){
 /**
  * Helper function that sets the boolean that tells whether a remote drone has a new state update to false.
  */
-static void setNodeStatesFalse(uint8_t index){
-  for (uint8_t j = 0; j < UWB_SERIAL_COMM_NODE_STATE_SIZE; j++){
+static void setNodeStatesFalse(uint8_t index)
+{
+  for (uint8_t j = 0; j < UWB_SERIAL_COMM_NODE_STATE_SIZE; j++) {
     _states[index].stateUpdated[j] = false;
   }
 }
@@ -143,14 +141,15 @@ static void setNodeStatesFalse(uint8_t index){
  * This function checks if all the states of all the distant nodes have at least once been updated.
  * If all the states are updated, then do something with it! AKA CALLBACK TO MARIO
  */
-static void checkStatesUpdated(void){
+static void checkStatesUpdated(void)
+{
   bool checkbool;
-  for (uint8_t i = 0; i < UWB_SERIAL_COMM_DIST_NUM_NODES; i++){
+  for (uint8_t i = 0; i < UWB_SERIAL_COMM_DIST_NUM_NODES; i++) {
     checkbool = true;
-    for (uint8_t j = 0; j < UWB_SERIAL_COMM_NODE_STATE_SIZE; j++){
+    for (uint8_t j = 0; j < UWB_SERIAL_COMM_NODE_STATE_SIZE; j++) {
       checkbool = checkbool && _states[i].stateUpdated[j];
     }
-    if (checkbool){
+    if (checkbool) {
       AbiSendMsgUWB_COMMUNICATION(UWB_COMM_ID, i, _states[i].r, _states[i].vx, _states[i].vy, _states[i].z);
       setNodeStatesFalse(i);
     }
@@ -164,23 +163,24 @@ static void checkStatesUpdated(void){
  * Stores the received data in _tempBuffer, and after decodes the high bytes and copies the final
  * message to the corresponding message in _messages.
  */
-void getSerialData(void){
+void getSerialData(void)
+{
 
   static bool _inProgress = false;
 
-  while ( xdev->char_available(xdev->periph) ){
+  while (SERIAL_PORT->char_available(SERIAL_PORT->periph)) {
     uint8_t _varByte = SERIAL_PORT->get_byte(SERIAL_PORT->periph);
-    if (_varByte == UWB_SERIAL_COMM_START_MARKER){
+    if (_varByte == UWB_SERIAL_COMM_START_MARKER) {
       _bytesRecvd = 0;
       _inProgress = true;
     }
 
-    if (_inProgress){
+    if (_inProgress) {
       _tempBuffer[_bytesRecvd] = _varByte;
       _bytesRecvd++;
     }
 
-    if (_varByte == UWB_SERIAL_COMM_END_MARKER){
+    if (_varByte == UWB_SERIAL_COMM_END_MARKER) {
       _inProgress = false;
       decodeHighBytes();
     }
@@ -194,40 +194,42 @@ void getSerialData(void){
  * as byte pairs 253 1 and 253 2 respectively. Value 253 itself is encoded as 253 0.
  *  This function will decode these back into values the original payload values.
  */
-static void decodeHighBytes(void){
+static void decodeHighBytes(void)
+{
   uint8_t _dataRecvCount = 0;
   float tempfloat;
   uint8_t thisAddress = _tempBuffer[1];
   uint8_t msgFrom = _tempBuffer[2];
   uint8_t msgType = _tempBuffer[3];
-  uint8_t nodeIndex = msgFrom -1 - (uint8_t)(thisAddress<msgFrom);
-  for (uint8_t i = 4; i<_bytesRecvd-1; i++){ // Skip the begin marker (0), this address (1), remote address (2), message type (3), and end marker (_bytesRecvd-1)
-    uint8_t _varByte = _tempBuffer[i];
-    if (_varByte == UWB_SERIAL_COMM_SPECIAL_BYTE){
+  uint8_t nodeIndex = msgFrom - 1 - (uint8_t)(thisAddress < msgFrom);
+  for (uint8_t i = 4; i < _bytesRecvd - 1; i++) { // Skip the begin marker (0), this address (1), remote address (2), message type (3), and end marker (_bytesRecvd-1)
+    uint8_t _varByte = _tempBuffer[i]; 
+    if (_varByte == UWB_SERIAL_COMM_SPECIAL_BYTE) {
       i++;
       _varByte = _varByte + _tempBuffer[i];
     }
-    if(_dataRecvCount<=UWB_SERIAL_COMM_FLOAT_SIZE){
+    if (_dataRecvCount <= UWB_SERIAL_COMM_FLOAT_SIZE) {
       _recvBuffer[_dataRecvCount] = _varByte;
     }
     _dataRecvCount++;
   }
-  if(_dataRecvCount==UWB_SERIAL_COMM_FLOAT_SIZE){
-    memcpy(&tempfloat,&_recvBuffer,UWB_SERIAL_COMM_FLOAT_SIZE);
-    handleNewStateValue(nodeIndex,msgType,tempfloat);
+  if (_dataRecvCount == UWB_SERIAL_COMM_FLOAT_SIZE) {
+    memcpy(&tempfloat, &_recvBuffer, UWB_SERIAL_COMM_FLOAT_SIZE);
+    handleNewStateValue(nodeIndex, msgType, tempfloat);
   }
 }
 
 /**
  * Function that is called when over the serial a new state value from a remote node is received
  */
-static void handleNewStateValue(uint8_t nodeIndex, uint8_t msgType, float value){
+static void handleNewStateValue(uint8_t nodeIndex, uint8_t msgType, float value)
+{
   struct nodeState *node = &_states[nodeIndex];
-  switch(msgType){
-    case UWB_SERIAL_COMM_VX : node->vx=value; node->stateUpdated[UWB_SERIAL_COMM_VX] = true; break;
-    case UWB_SERIAL_COMM_VY : node->vy=value; node->stateUpdated[UWB_SERIAL_COMM_VY] = true; break;
-    case UWB_SERIAL_COMM_Z  : node->z=value ; node->stateUpdated[UWB_SERIAL_COMM_Z]  = true; break;
-    case UWB_SERIAL_COMM_RANGE : node->r=value ; node->stateUpdated[UWB_SERIAL_COMM_RANGE]  = true; break;
+  switch (msgType) {
+    case UWB_SERIAL_COMM_VX : node->vx = value; node->stateUpdated[UWB_SERIAL_COMM_VX] = true; break;
+    case UWB_SERIAL_COMM_VY : node->vy = value; node->stateUpdated[UWB_SERIAL_COMM_VY] = true; break;
+    case UWB_SERIAL_COMM_Z  : node->z = value ; node->stateUpdated[UWB_SERIAL_COMM_Z]  = true; break;
+    case UWB_SERIAL_COMM_RANGE : node->r = value ; node->stateUpdated[UWB_SERIAL_COMM_RANGE]  = true; break;
   }
 }
 
@@ -235,14 +237,20 @@ static void handleNewStateValue(uint8_t nodeIndex, uint8_t msgType, float value)
  * Function that will send a float over serial. The actual message that will be sent will have
  * a start marker, the message type, 4 bytes for the float, and the end marker.
  */
-void sendFloat(uint8_t msgtype, float outfloat){
+void sendFloat(uint8_t msgtype, float outfloat)
+{
   uint8_t floatbyte[4];
-  memcpy(floatbyte,&outfloat,4);
-  encodeHighBytes(floatbyte,4);
-  SerialSend1(UWB_SERIAL_COMM_START_MARKER);
-  SerialSend1(msgtype);
-  SerialSend( _tempBuffer2,_dataTotalSend);
-  SerialSend1(UWB_SERIAL_COMM_END_MARKER);
+  memcpy(floatbyte, &outfloat, 4);
+  encodeHighBytes(floatbyte, 4);
+
+  SERIAL_PORT->put_byte(SERIAL_PORT->periph, 0, UWB_SERIAL_COMM_START_MARKER);
+  SERIAL_PORT->put_byte(SERIAL_PORT->periph, 0, msgtype);
+
+  for (uint8_t i = 0; i< (_dataTotalSend); i++) {
+    SERIAL_PORT->put_byte(SERIAL_PORT->periph, 0, _tempBuffer2[i]);
+  }
+
+  SERIAL_PORT->put_byte(SERIAL_PORT->periph, 0, UWB_SERIAL_COMM_END_MARKER);
 }
 
 /**
@@ -250,16 +258,16 @@ void sendFloat(uint8_t msgtype, float outfloat){
  * Start and end markers are reserved values 254 and 255. In order to be able to send these values,
  * the payload values 253, 254, and 255 are encoded as 2 bytes, respectively 253 0, 253 1, and 253 2.
  */
-static void encodeHighBytes(uint8_t* sendData, uint8_t msgSize){
+static void encodeHighBytes(uint8_t *sendData, uint8_t msgSize)
+{
   uint8_t _dataSendCount = msgSize;
   _dataTotalSend = 0;
-  for (uint8_t i = 0; i < _dataSendCount; i++){
-    if (sendData[i] >= UWB_SERIAL_COMM_SPECIAL_BYTE){
+  for (uint8_t i = 0; i < _dataSendCount; i++) {
+    if (sendData[i] >= UWB_SERIAL_COMM_SPECIAL_BYTE) {
       _tempBuffer2[_dataTotalSend] = UWB_SERIAL_COMM_SPECIAL_BYTE;
       _dataTotalSend++;
       _tempBuffer2[_dataTotalSend] = sendData[i] - UWB_SERIAL_COMM_SPECIAL_BYTE;
-    }
-    else{
+    } else {
       _tempBuffer2[_dataTotalSend] = sendData[i];
     }
     _dataTotalSend++;
