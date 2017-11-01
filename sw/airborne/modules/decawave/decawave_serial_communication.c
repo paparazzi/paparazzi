@@ -88,13 +88,21 @@ static uint8_t _recvBuffer[UWB_SERIAL_COMM_FLOAT_SIZE];
 static uint8_t _dataTotalSend = 0;
 
 static struct nodeState _states[UWB_SERIAL_COMM_DIST_NUM_NODES];
-float range_float = 0.0;
 
 static void decodeHighBytes(void);
 static void encodeHighBytes(uint8_t *sendData, uint8_t msgSize);
 static void handleNewStateValue(uint8_t nodeIndex, uint8_t msgType, float value);
-static void setNodeStatesFalse(uint8_t index);
 static void checkStatesUpdated(void);
+
+/**
+ * Helper function that sets the boolean that tells whether a remote drone has a new state update to false.
+ */
+static void setNodeStatesFalse(uint8_t index)
+{
+  for (uint8_t j = 0; j < UWB_SERIAL_COMM_NODE_STATE_SIZE; j++) {
+    _states[index].stateUpdated[j] = false;
+  }
+}
 
 /**
  * Initialization function. Initializes nodes (which contain data of other bebops) and registers a periodic message.
@@ -123,18 +131,9 @@ void decawave_serial_communication_periodic(void)
  */
 void decawave_serial_communication_event(void)
 {
-  getSerialData();
-  checkStatesUpdated();
-}
-
-/**
- * Helper function that sets the boolean that tells whether a remote drone has a new state update to false.
- */
-static void setNodeStatesFalse(uint8_t index)
-{
-  for (uint8_t j = 0; j < UWB_SERIAL_COMM_NODE_STATE_SIZE; j++) {
-    _states[index].stateUpdated[j] = false;
-  }
+  uint8_t _bytesRecvd;
+  getSerialData(&_bytesRecvd);
+  checkStatesUpdated(_bytesRecvd);
 }
 
 /**
@@ -163,7 +162,7 @@ static void checkStatesUpdated(void)
  * Stores the received data in _tempBuffer, and after decodes the high bytes and copies the final
  * message to the corresponding message in _messages.
  */
-void getSerialData(void)
+void getSerialData(uint8_t *_bytesRecvd)
 {
 
   static bool _inProgress = false;
@@ -194,7 +193,7 @@ void getSerialData(void)
  * as byte pairs 253 1 and 253 2 respectively. Value 253 itself is encoded as 253 0.
  *  This function will decode these back into values the original payload values.
  */
-static void decodeHighBytes(void)
+static void decodeHighBytes(uint8_t _bytesRecvd)
 {
   uint8_t _dataRecvCount = 0;
   float tempfloat;
