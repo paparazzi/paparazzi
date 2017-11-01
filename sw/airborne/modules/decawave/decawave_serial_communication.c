@@ -51,7 +51,7 @@ PRINT_CONFIG_VAR(UWB_SERIAL_UART)
 PRINT_CONFIG_VAR(UWB_SERIAL_BAUD)
 
 // define coms link for stereocam
-#define SERIAL_PORT &((UWB_SERIAL_UART).device)
+#define UWB_SERIAL_PORT &((UWB_SERIAL_UART).device)
 
 // Some meta data for serial communication
 #define UWB_SERIAL_COMM_MAX_MESSAGE 10
@@ -80,8 +80,6 @@ struct nodeState {
   bool stateUpdated[UWB_SERIAL_COMM_NODE_STATE_SIZE];
 };
 
-static uint8_t _bytesRecvd = 0;
-
 static uint8_t _tempBuffer[UWB_SERIAL_COMM_MAX_MESSAGE];
 static uint8_t _tempBuffer2[UWB_SERIAL_COMM_MAX_MESSAGE];
 static uint8_t _recvBuffer[UWB_SERIAL_COMM_FLOAT_SIZE];
@@ -89,10 +87,9 @@ static uint8_t _dataTotalSend = 0;
 
 static struct nodeState _states[UWB_SERIAL_COMM_DIST_NUM_NODES];
 
-static void decodeHighBytes(void);
+static void decodeHighBytes(uint8_t _bytesRecvd);
 static void encodeHighBytes(uint8_t *sendData, uint8_t msgSize);
 static void handleNewStateValue(uint8_t nodeIndex, uint8_t msgType, float value);
-static void checkStatesUpdated(void);
 
 /**
  * Helper function that sets the boolean that tells whether a remote drone has a new state update to false.
@@ -101,6 +98,25 @@ static void setNodeStatesFalse(uint8_t index)
 {
   for (uint8_t j = 0; j < UWB_SERIAL_COMM_NODE_STATE_SIZE; j++) {
     _states[index].stateUpdated[j] = false;
+  }
+}
+
+/**
+ * This function checks if all the states of all the distant nodes have at least once been updated.
+ * If all the states are updated, then do something with it! AKA CALLBACK TO MARIO
+ */
+static void checkStatesUpdated(void)
+{
+  bool checkbool;
+  for (uint8_t i = 0; i < UWB_SERIAL_COMM_DIST_NUM_NODES; i++) {
+    checkbool = true;
+    for (uint8_t j = 0; j < UWB_SERIAL_COMM_NODE_STATE_SIZE; j++) {
+      checkbool = checkbool && _states[i].stateUpdated[j];
+    }
+    if (checkbool) {
+      AbiSendMsgUWB_COMMUNICATION(UWB_COMM_ID, i, _states[i].r, _states[i].vx, _states[i].vy, _states[i].z);
+      setNodeStatesFalse(i);
+    }
   }
 }
 
@@ -137,26 +153,6 @@ void decawave_serial_communication_event(void)
 }
 
 /**
- * This function checks if all the states of all the distant nodes have at least once been updated.
- * If all the states are updated, then do something with it! AKA CALLBACK TO MARIO
- */
-static void checkStatesUpdated(void)
-{
-  bool checkbool;
-  for (uint8_t i = 0; i < UWB_SERIAL_COMM_DIST_NUM_NODES; i++) {
-    checkbool = true;
-    for (uint8_t j = 0; j < UWB_SERIAL_COMM_NODE_STATE_SIZE; j++) {
-      checkbool = checkbool && _states[i].stateUpdated[j];
-    }
-    if (checkbool) {
-      AbiSendMsgUWB_COMMUNICATION(UWB_COMM_ID, i, _states[i].r, _states[i].vx, _states[i].vy, _states[i].z);
-      setNodeStatesFalse(i);
-    }
-  }
-
-}
-
-/**
  * Function for receiving serial data.
  * Only receives serial data that is between the start and end markers. Discards all other data.
  * Stores the received data in _tempBuffer, and after decodes the high bytes and copies the final
@@ -167,8 +163,8 @@ void getSerialData(uint8_t *_bytesRecvd)
 
   static bool _inProgress = false;
 
-  while (SERIAL_PORT->char_available(SERIAL_PORT->periph)) {
-    uint8_t _varByte = SERIAL_PORT->get_byte(SERIAL_PORT->periph);
+  while (UWB_SERIAL_PORT->char_available(UWB_SERIAL_PORT->periph)) {
+    uint8_t _varByte = UWB_SERIAL_PORT->get_byte(UWB_SERIAL_PORT->periph);
     if (_varByte == UWB_SERIAL_COMM_START_MARKER) {
       _bytesRecvd = 0;
       _inProgress = true;
@@ -181,7 +177,7 @@ void getSerialData(uint8_t *_bytesRecvd)
 
     if (_varByte == UWB_SERIAL_COMM_END_MARKER) {
       _inProgress = false;
-      decodeHighBytes();
+      decodeHighBytes(_bytesRecvd);
     }
   }
 }
@@ -242,14 +238,14 @@ void sendFloat(uint8_t msgtype, float outfloat)
   memcpy(floatbyte, &outfloat, 4);
   encodeHighBytes(floatbyte, 4);
 
-  SERIAL_PORT->put_byte(SERIAL_PORT->periph, 0, UWB_SERIAL_COMM_START_MARKER);
-  SERIAL_PORT->put_byte(SERIAL_PORT->periph, 0, msgtype);
+  UWB_SERIAL_PORT->put_byte(UWB_SERIAL_PORT->periph, 0, UWB_SERIAL_COMM_START_MARKER);
+  UWB_SERIAL_PORT->put_byte(UWB_SERIAL_PORT->periph, 0, msgtype);
 
   for (uint8_t i = 0; i< (_dataTotalSend); i++) {
-    SERIAL_PORT->put_byte(SERIAL_PORT->periph, 0, _tempBuffer2[i]);
+    UWB_SERIAL_PORT->put_byte(UWB_SERIAL_PORT->periph, 0, _tempBuffer2[i]);
   }
 
-  SERIAL_PORT->put_byte(SERIAL_PORT->periph, 0, UWB_SERIAL_COMM_END_MARKER);
+  UWB_SERIAL_PORT->put_byte(UWB_SERIAL_PORT->periph, 0, UWB_SERIAL_COMM_END_MARKER);
 }
 
 /**
