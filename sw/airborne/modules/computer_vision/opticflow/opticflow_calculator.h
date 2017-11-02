@@ -44,6 +44,7 @@ struct opticflow_t {
   struct image_t prev_img_gray;         ///< Previous gray image frame
 
   uint8_t method;                   ///< Method to use to calculate the optical flow
+  uint8_t corner_method;            ///< Method to use for determining where the corners are
   uint16_t window_size;               ///< Window size for the blockmatching algorithm (general value for all methods)
   uint16_t search_distance;           ///< Search distance for blockmatching alg.
   bool derotation;                    ///< Derotation switched on or off (depended on the quality of the gyroscope measurement)
@@ -69,6 +70,13 @@ struct opticflow_t {
   bool feature_management;        ///< Decides whether to keep track corners in memory for the next frame instead of re-detecting every time
   bool fast9_region_detect;       ///< Decides whether to detect fast9 corners in specific regions of interest or the whole image (only for feature management)
   uint8_t fast9_num_regions;      ///< The number of regions of interest the image is split into
+
+  float actfast_long_step;        ///< Step size to take when there is no texture
+  float actfast_short_step;       ///< Step size to take when there is an edge to be followed
+  int actfast_min_gradient;       ///< Threshold that decides when there is sufficient texture for edge following
+  int actfast_gradient_method;    ///< Whether to use a simple or Sobel filter
+
+
 };
 
 
