@@ -50,6 +50,13 @@
       <define name="FAST9_PADDING" value="20" description="The outer border in which no corners will be searched"/>
       <define name="FAST9_REGION_DETECT" value="1" description="Whether to detect fast9 corners in regions of interest or the whole image (only works with feature management)"/>
       <define name="FAST9_NUM_REGIONS" value="9" description="The number of regions of interest to split the image into"/>
+
+      <!-- ACT-FAST parameters -->
+      <define name="ACTFAST_LONG_STEP" value="10" description="Step size to take when there is no texture"/>
+      <define name="ACTFAST_SHORT_STEP" value="2" description="Step size to take when there is an edge to be followed"/>
+      <define name="ACTFAST_MIN_GRADIENT" value="10" description="Threshold that decides when there is sufficient texture for edge following"/>
+      <define name="ACTFAST_GRADIENT_METHOD" value="1" description="Whether to use a simple (0) or Sobel (1) filter"/>
+
     </section>
   </doc>
 
@@ -77,6 +84,12 @@
         <dl_setting var="opticflow.fast9_padding" module="computer_vision/opticflow_module" min="0" step="1" max="50" shortname="fast9_padding" param="OPTICFLOW_FAST9_PADDING"/>
         <dl_setting var="opticflow.fast9_region_detect" module="computer_vision/opticflow_module" min="0" step="1" max="1" values="OFF|ON" shortname="fast9_region_detect" param="OPTICFLOW_FAST9_REGION_DETECT"/>
         <dl_setting var="opticflow.fast9_num_regions" module="computer_vision/opticflow_module" min="1" step="1" max="25" shortname="fast9_num_regions" param="OPTICFLOW_FAST9_NUM_REGIONS"/>
+
+        <!-- ACT-FAST settings -->
+        <dl_setting var="opticflow.actfast_long_step" module="computer_vision/opticflow_module" min="1" step="1" max="100" shortname="actfast_long_step" param="OPTICFLOW_ACTFAST_LONG_STEP"/>
+        <dl_setting var="opticflow.actfast_short_step" module="computer_vision/opticflow_module" min="1" step="1" max="10" shortname="actfast_short_step" param="OPTICFLOW_ACTFAST_SHORT_STEP"/>
+        <dl_setting var="opticflow.actfast_min_gradient" module="computer_vision/opticflow_module" min="1" step="1" max="255" shortname="actfast_min_gradient" param="OPTICFLOW_ACTFAST_MIN_GRADIENT"/>
+        <dl_setting var="opticflow.actfast_gradient_method" module="computer_vision/opticflow_module" min="1" step="1" max="1"  values="SIMPLE|SOBEL" shortname="actfast_gradient_method" param="OPTICFLOW_ACTFAST_GRADIENT_METHOD"/>        
 
         <!-- Changes pyramid level of lucas kanade optical flow. -->
         <dl_setting var="opticflow.pyramid_level" module="computer_vision/opticflow_module" min="0" step="1" max="10" shortname="pyramid_level" param="OPTICFLOW_PYRAMID_LEVEL"/>
