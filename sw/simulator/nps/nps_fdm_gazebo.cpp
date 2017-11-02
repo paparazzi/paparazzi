@@ -76,7 +76,7 @@ using namespace std;
 #endif
 
 // Add video handling functions if req'd.
-#ifdef NPS_SIMULATE_VIDEO
+#if NPS_SIMULATE_VIDEO
 extern "C" {
 #include "modules/computer_vision/cv.h"
 #include "modules/computer_vision/video_thread_nps.h"
@@ -106,7 +106,7 @@ struct gazebo_actuators_t {
 struct gazebo_actuators_t gazebo_actuators = {NPS_ACTUATOR_NAMES, NPS_ACTUATOR_THRUSTS, NPS_ACTUATOR_THRUSTS};
 
 
-#ifdef NPS_SIMULATE_LASER_RANGE_ARRAY
+#if NPS_SIMULATE_LASER_RANGE_ARRAY
 extern "C" {
 #include "subsystems/abi.h"
 }
@@ -237,10 +237,10 @@ void nps_fdm_run_step(
   if (!gazebo_initialized) {
     init_gazebo();
     gazebo_read();
-#ifdef NPS_SIMULATE_VIDEO
+#if NPS_SIMULATE_VIDEO
     init_gazebo_video();
 #endif
-#ifdef NPS_SIMULATE_LASER_RANGE_ARRAY
+#if NPS_SIMULATE_LASER_RANGE_ARRAY
     gazebo_init_range_sensors();
 #endif
     gazebo_initialized = true;
@@ -251,10 +251,10 @@ void nps_fdm_run_step(
   gazebo::sensors::run_once();
   gazebo_write(act_commands, commands_nb);
   gazebo_read();
-#ifdef NPS_SIMULATE_VIDEO
+#if NPS_SIMULATE_VIDEO
   gazebo_read_video();
 #endif
-#ifdef NPS_SIMULATE_LASER_RANGE_ARRAY
+#if NPS_SIMULATE_LASER_RANGE_ARRAY
   gazebo_read_range_sensors();
 #endif
 
@@ -323,7 +323,7 @@ static void init_gazebo(void)
   sdf::readFile(gazebodir + "models/" + NPS_GAZEBO_AC_NAME + "/" + NPS_GAZEBO_AC_NAME + ".sdf", vehicle_sdf);
 
   // add sensors
-#ifdef NPS_SIMULATE_LASER_RANGE_ARRAY
+#if NPS_SIMULATE_LASER_RANGE_ARRAY
   vehicle_sdf->Root()->GetFirstElement()->AddElement("include")->GetElement("uri")->Set("model://range_sensors");
   sdf::ElementPtr range_joint = vehicle_sdf->Root()->GetFirstElement()->AddElement("joint");
   range_joint->GetAttribute("name")->Set("range_sensor_joint");
@@ -545,7 +545,7 @@ static void gazebo_write(double act_commands[], int commands_nb)
   }
 }
 
-#ifdef NPS_SIMULATE_VIDEO
+#if NPS_SIMULATE_VIDEO
 /**
  * Set up cameras.
  *
@@ -629,7 +629,7 @@ static void gazebo_read_video(void)
     struct image_t img;
     read_image(&img, cam);
 
-#ifdef NPS_DEBUG_VIDEO
+#if NPS_DEBUG_VIDEO
     cv::Mat RGB_cam(cam->ImageHeight(), cam->ImageWidth(), CV_8UC3, (uint8_t *)cam->ImageData());
     cv::cvtColor(RGB_cam, RGB_cam, cv::COLOR_RGB2BGR);
     cv::namedWindow(cameras[i]->dev_name, cv::WINDOW_AUTOSIZE);  // Create a window for display.
@@ -691,7 +691,7 @@ static void read_image(
 }
 #endif  // NPS_SIMULATE_VIDEO
 
-#ifdef NPS_SIMULATE_LASER_RANGE_ARRAY
+#if NPS_SIMULATE_LASER_RANGE_ARRAY
 /*
  * Simulate range sensors:
  *
@@ -771,7 +771,7 @@ static void gazebo_init_range_sensors(void)
           rays[k].sensor = ray_sensor;
           rays[k].sensor->SetActive(true);
 
-#ifdef LASER_RANGE_ARRAY_SEND_AGL
+#if LASER_RANGE_ARRAY_SEND_AGL
           // find the sensor pointing down
           def = (struct DoubleEulers) {0., -M_PI_2, 0.};
           double_quat_of_eulers(&q_def, &def);
@@ -781,7 +781,7 @@ static void gazebo_init_range_sensors(void)
             ray_sensor_agl_index = k;
           }
 #endif
-#ifdef LASER_RANGE_ARRAY_SEND_FRONT_OBSTACLE
+#if LASER_RANGE_ARRAY_SEND_FRONT_OBSTACLE
           // find the sensor pointing forward
           def = (struct DoubleEulers) {0., 0., 0.};
           double_quat_of_eulers(&q_def, &def);

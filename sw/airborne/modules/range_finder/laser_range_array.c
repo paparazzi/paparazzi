@@ -64,7 +64,7 @@ void laser_range_array_init(void)
   // Initialize transport protocol
   pprz_transport_init(&laser_range_array.transport);
 
-#ifdef LASER_RANGE_ARRAY_SEND_AGL
+#if LASER_RANGE_ARRAY_SEND_AGL
   // Determine which sensor is looking down
   struct FloatEulers pose_down = {0., -M_PI_2, 0.};
 
@@ -85,7 +85,8 @@ void laser_range_array_init(void)
     }
   }
 #endif
-#ifdef LASER_RANGE_ARRAY_SEND_FRONT_OBSTACLE
+
+#if LASER_RANGE_ARRAY_SEND_FRONT_OBSTACLE
   // Determine which sensor is looking down
   struct FloatEulers pose_forward = {0., 0., 0.};
 
