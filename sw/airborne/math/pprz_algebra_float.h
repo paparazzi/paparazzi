@@ -620,6 +620,8 @@ static inline float float_vect_dot_product(const float *a, const float *b, const
     for (__i = 0; __i < _rows; __i++) { _ptr[__i] = &_mat[__i][0]; } \
   }
 
+extern void float_mat_invert(float **o, float **mat, int n);
+
 /** a = 0 */
 static inline void float_mat_zero(float **a, int m, int n)
 {
@@ -728,61 +730,6 @@ static inline void float_mat_col(float *o, float **a, int m, int c)
     o[i] = a[i][c];
   }
 }
-
-/** Calculate inverse of any n x n matrix (passed as C array) o = mat^-1
-Algorithm verified with Matlab. 
-Thanks to: https://www.quora.com/How-do-I-make-a-C++-program-to-get-the-inverse-of-a-matrix-100-X-100
-*/
-static inline void float_mat_invert(float **o, float **mat, int n)
-{
-  int i, j, k;
-  float t;
-
-  float a[n][2*n];
-
-  // Append an identity matrix on the right of the original matrix
-  for(i = 0; i < n; i++) {
-    for(j = 0; j < 2*n; j++) {
-      if (j < n) {
-        a[i][j] = mat[i][j];
-      }
-      else if( (j >= n) && (j == i+n)) {
-        a[i][j] = 1.0;
-      }
-      else {
-        a[i][j] = 0.0;
-      }
-    } 
-  }
-
-  // Do the inversion
-  for( i = 0; i < n; i++) {
-    t = a[i][i];     // Store diagonal variable (temp)
-
-    for(j = i; j < 2*n; j++) {
-      a[i][j] = a[i][j]/t; // Divide by the diagonal value
-    }
-
-    for(j = 0; j < n; j++) {
-      if( i!=j ) {
-        t = a[j][i];
-        for(k=0; k<2*n; k++) {
-          a[j][k] = a[j][k] - t*a[i][k];
-        }
-      }
-    }
-  }
-
-  /* Cut out the identity, which has now moved to the left side */
-  for(i = 0 ; i < n ; i++ ) {
-    for(j = n; j < 2*n; j++ ) {
-      o[i][j-n] = a[i][j];
-
-    }
-  }
-
-}
-
 
 /** Make an n x n identity matrix (for matrix passed as array) */
 static inline void float_mat_identity(float **o, int n)
