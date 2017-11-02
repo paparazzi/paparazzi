@@ -41,11 +41,9 @@
 #include "subsystems/datalink/telemetry.h"
 #include "subsystems/radio_control.h"
 #include "state.h"
-#include "pprzlink/messages.h"
-#include "subsystems/datalink/downlink.h"
 #include "mcu_periph/uart.h"
-#include <stdio.h>
 #include "subsystems/abi.h"
+#include <stdio.h>
 
 #define UWB_SERIAL_PORT (&((SERIAL_UART).device))
 struct link_device *external_device = UWB_SERIAL_PORT;
