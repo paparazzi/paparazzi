@@ -35,6 +35,10 @@
 #include "filters/low_pass_filter.h"
 #include "generated/airframe.h"
 
+#if PERIODIC_TELEMETRY
+#include "subsystems/datalink/telemetry.h"
+#endif
+
 #ifdef SITL
 #include <stdio.h>
 #define DBG_LEVEL 1
@@ -226,7 +230,6 @@ static void hff_update_xdot(struct HfilterFloat *filt, float vel, float Rvel);
 static void hff_update_ydot(struct HfilterFloat *filt, float vel, float Rvel);
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
 
 static void send_hff(struct transport_tx *trans, struct link_device *dev)
 {
