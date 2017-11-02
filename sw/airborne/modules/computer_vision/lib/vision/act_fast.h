@@ -25,18 +25,18 @@ All rights reserved.
 #ifndef ACT_FAST_H
 #define ACT_FAST_H
 
-struct agent
-{
-        float x;
-        float y;
-        int active;
-        float preferred_dir_x;
-        float preferred_dir_y;
+struct agent_t {
+  float x;
+  float y;
+  int active;
+  float preferred_dir_x;
+  float preferred_dir_y;
 };
 
 #include "std.h"
 #include "lib/vision/image.h"
 
-void act_fast(struct image_t *img, uint8_t fast_threshold, uint16_t *num_corners, struct point_t **ret_corners, uint16_t n_agents, uint16_t n_time_steps, float long_step, float short_step, int min_gradient);
+void act_fast(struct image_t *img, uint8_t fast_threshold, uint16_t *num_corners, struct point_t **ret_corners,
+              uint16_t n_agents, uint16_t n_time_steps, float long_step, float short_step, int min_gradient, int gradient_method);
 
 #endif

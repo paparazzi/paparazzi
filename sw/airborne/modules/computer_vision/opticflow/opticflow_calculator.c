@@ -195,6 +195,26 @@ PRINT_CONFIG_VAR(OPTICFLOW_FAST9_REGION_DETECT)
 #endif
 PRINT_CONFIG_VAR(OPTICFLOW_FAST9_NUM_REGIONS)
 
+#ifndef OPTICFLOW_ACTFAST_LONG_STEP
+#define OPTICFLOW_ACTFAST_LONG_STEP 10
+#endif
+PRINT_CONFIG_VAR(OPTICFLOW_ACTFAST_LONG_STEP)
+
+#ifndef OPTICFLOW_ACTFAST_SHORT_STEP
+#define OPTICFLOW_ACTFAST_SHORT_STEP 2
+#endif
+PRINT_CONFIG_VAR(OPTICFLOW_ACTFAST_SHORT_STEP)
+
+#ifndef OPTICFLOW_ACTFAST_GRADIENT_METHOD
+#define OPTICFLOW_ACTFAST_GRADIENT_METHOD 1
+#endif
+PRINT_CONFIG_VAR(OPTICFLOW_ACTFAST_GRADIENT_METHOD)
+
+#ifndef OPTICFLOW_ACTFAST_MIN_GRADIENT
+#define OPTICFLOW_ACTFAST_MIN_GRADIENT 10
+#endif
+PRINT_CONFIG_VAR(OPTICFLOW_ACTFAST_MIN_GRADIENT)
+
 // Defaults for ARdrone
 #ifndef OPTICFLOW_BODY_TO_CAM_PHI
 #define OPTICFLOW_BODY_TO_CAM_PHI 0
@@ -252,6 +272,12 @@ void opticflow_calc_init(struct opticflow_t *opticflow)
   opticflow->fast9_padding = OPTICFLOW_FAST9_PADDING;
   opticflow->fast9_rsize = 512;
   opticflow->fast9_ret_corners = calloc(opticflow->fast9_rsize, sizeof(struct point_t));
+
+
+  opticflow->actfast_long_step = OPTICFLOW_ACTFAST_LONG_STEP;
+  opticflow->actfast_short_step = OPTICFLOW_ACTFAST_SHORT_STEP;
+  opticflow->actfast_min_gradient = OPTICFLOW_ACTFAST_MIN_GRADIENT;
+  opticflow->actfast_gradient_method = OPTICFLOW_ACTFAST_GRADIENT_METHOD;
 
   struct FloatEulers euler = {OPTICFLOW_BODY_TO_CAM_PHI, OPTICFLOW_BODY_TO_CAM_THETA, OPTICFLOW_BODY_TO_CAM_PSI};
   float_rmat_of_eulers(&body_to_cam, &euler);
@@ -316,7 +342,7 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
     // needs to be set to 0 because result is now static
     result->corner_cnt = 0;
 
-    if(CORNER_METHOD == EXHAUSTIVE_FAST) {
+    if (CORNER_METHOD == EXHAUSTIVE_FAST) {
       // FAST corner detection
       // TODO: There is something wrong with fast9_detect destabilizing FPS. This problem is reduced with putting min_distance
       // to 0 (see defines), however a more permanent solution should be considered
@@ -326,40 +352,35 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
                    &opticflow->fast9_ret_corners,
                    NULL);
 
-    }
-    else if (CORNER_METHOD == ACT_FAST) {
-        // ACT-FAST corner detection:
-        // TODO: all relevant things should be settings:
-        float long_step = 10; // 5
-        float short_step = 2; // 2
-        int min_gradient = 10; // 10
-        printf("opticflow->fast9_threshold = %d, n_agents = %d, n_time_steps = %d\n", opticflow->fast9_threshold, n_agents, n_time_steps);
-        act_fast(&opticflow->prev_img_gray, opticflow->fast9_threshold, &result->corner_cnt,
-            &opticflow->fast9_ret_corners, n_agents, n_time_steps,
-            long_step, short_step, min_gradient);
+    } else if (CORNER_METHOD == ACT_FAST) {
+      // ACT-FAST corner detection:
+      act_fast(&opticflow->prev_img_gray, opticflow->fast9_threshold, &result->corner_cnt,
+               &opticflow->fast9_ret_corners, n_agents, n_time_steps,
+               opticflow->actfast_long_step, opticflow->actfast_short_step, opticflow->actfast_min_gradient,
+               opticflow->actfast_gradient_method);
     }
 
     // Adaptive threshold
     if (opticflow->fast9_adaptive) {
 
-        // This works well for exhaustive FAST, but drives the threshold to the minimum for ACT-FAST:
+      // This works well for exhaustive FAST, but drives the threshold to the minimum for ACT-FAST:
       // Decrease and increase the threshold based on previous values
       if (result->corner_cnt < 40) { // TODO: Replace 40 with OPTICFLOW_MAX_TRACK_CORNERS / 2
         // make detections easier:
-        if(opticflow->fast9_threshold > FAST9_LOW_THRESHOLD) {
-            opticflow->fast9_threshold--;
+        if (opticflow->fast9_threshold > FAST9_LOW_THRESHOLD) {
+          opticflow->fast9_threshold--;
         }
 
-        if(CORNER_METHOD == ACT_FAST) {
-            n_time_steps++;
-            n_agents++;
+        if (CORNER_METHOD == ACT_FAST) {
+          n_time_steps++;
+          n_agents++;
         }
 
       } else if (result->corner_cnt > OPTICFLOW_MAX_TRACK_CORNERS * 2 && opticflow->fast9_threshold < FAST9_HIGH_THRESHOLD) {
         opticflow->fast9_threshold++;
-        if(CORNER_METHOD == ACT_FAST && n_time_steps > 5 && n_agents > 10) {
-            n_time_steps--;
-            n_agents--;
+        if (CORNER_METHOD == ACT_FAST && n_time_steps > 5 && n_agents > 10) {
+          n_time_steps--;
+          n_agents--;
         }
       }
     }
@@ -473,8 +494,10 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
   // Velocity calculation
   // Right now this formula is under assumption that the flow only exist in the center axis of the camera.
   // TODO Calculate the velocity more sophisticated, taking into account the drone's angle and the slope of the ground plane.
-  result->vel_cam.x = (float)result->flow_der_x * result->fps * agl_dist_value_filtered / (opticflow->subpixel_factor * OPTICFLOW_FX);
-  result->vel_cam.y = (float)result->flow_der_y * result->fps * agl_dist_value_filtered / (opticflow->subpixel_factor * OPTICFLOW_FY);
+  result->vel_cam.x = (float)result->flow_der_x * result->fps * agl_dist_value_filtered /
+                      (opticflow->subpixel_factor * OPTICFLOW_FX);
+  result->vel_cam.y = (float)result->flow_der_y * result->fps * agl_dist_value_filtered /
+                      (opticflow->subpixel_factor * OPTICFLOW_FY);
   result->vel_cam.z = result->divergence * result->fps * agl_dist_value_filtered;
 
   //Apply a  median filter to the velocity if wanted
@@ -494,8 +517,10 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
     result->corner_cnt = result->tracked_cnt;
     //get the new positions of the corners and the "residual" subpixel positions
     for (uint16_t i = 0; i < result->tracked_cnt; i++) {
-      opticflow->fast9_ret_corners[i].x = (uint32_t)((vectors[i].pos.x + (float)vectors[i].flow_x) / opticflow->subpixel_factor);
-      opticflow->fast9_ret_corners[i].y = (uint32_t)((vectors[i].pos.y + (float)vectors[i].flow_y) / opticflow->subpixel_factor);
+      opticflow->fast9_ret_corners[i].x = (uint32_t)((vectors[i].pos.x + (float)vectors[i].flow_x) /
+                                          opticflow->subpixel_factor);
+      opticflow->fast9_ret_corners[i].y = (uint32_t)((vectors[i].pos.y + (float)vectors[i].flow_y) /
+                                          opticflow->subpixel_factor);
       opticflow->fast9_ret_corners[i].x_sub = (uint16_t)((vectors[i].pos.x + vectors[i].flow_x) % opticflow->subpixel_factor);
       opticflow->fast9_ret_corners[i].y_sub = (uint16_t)((vectors[i].pos.y + vectors[i].flow_y) % opticflow->subpixel_factor);
       opticflow->fast9_ret_corners[i].count = vectors[i].pos.count;
@@ -519,8 +544,10 @@ static void manage_flow_features(struct image_t *img, struct opticflow_t *opticf
   while (c1 < (int16_t)result->corner_cnt - 1) {
     bool exists = false;
     for (int16_t i = c1 + 1; i < result->corner_cnt; i++) {
-      if (abs((int16_t)opticflow->fast9_ret_corners[c1].x - (int16_t)opticflow->fast9_ret_corners[i].x) < opticflow->fast9_min_distance / 2
-          && abs((int16_t)opticflow->fast9_ret_corners[c1].y - (int16_t)opticflow->fast9_ret_corners[i].y) < opticflow->fast9_min_distance / 2) {
+      if (abs((int16_t)opticflow->fast9_ret_corners[c1].x - (int16_t)opticflow->fast9_ret_corners[i].x) <
+          opticflow->fast9_min_distance / 2
+          && abs((int16_t)opticflow->fast9_ret_corners[c1].y - (int16_t)opticflow->fast9_ret_corners[i].y) <
+          opticflow->fast9_min_distance / 2) {
         // if too close, replace the corner with the last one in the list:
         opticflow->fast9_ret_corners[c1].x = opticflow->fast9_ret_corners[result->corner_cnt - 1].x;
         opticflow->fast9_ret_corners[c1].y = opticflow->fast9_ret_corners[result->corner_cnt - 1].y;
@@ -587,7 +614,8 @@ static void manage_flow_features(struct image_t *img, struct opticflow_t *opticf
         bool exists = false;
         for (uint16_t k = 0; k < result->corner_cnt; k++) {
           if (abs((int16_t)new_corners[j].x - (int16_t)opticflow->fast9_ret_corners[k].x) < (int16_t)opticflow->fast9_min_distance
-              && abs((int16_t)new_corners[j].y - (int16_t)opticflow->fast9_ret_corners[k].y) < (int16_t)opticflow->fast9_min_distance) {
+              && abs((int16_t)new_corners[j].y - (int16_t)opticflow->fast9_ret_corners[k].y) < (int16_t)
+              opticflow->fast9_min_distance) {
             exists = true;
             break;
           }
@@ -734,8 +762,10 @@ bool calc_edgeflow_tot(struct opticflow_t *opticflow, struct image_t *img,
   result->flow_der_y =  result->flow_y;
   result->corner_cnt = getAmountPeaks(edge_hist_x, 500 , img->w);
   result->tracked_cnt = getAmountPeaks(edge_hist_x, 500 , img->w);
-  result->divergence = -1.0 * (float)edgeflow.div_x / RES; // Also multiply the divergence with -1.0 to make it on par with the LK algorithm of
-  result->div_size = result->divergence;  // Fill the div_size with the divergence to atleast get some divergenge measurement when switching from LK to EF
+  result->divergence = -1.0 * (float)edgeflow.div_x /
+                       RES; // Also multiply the divergence with -1.0 to make it on par with the LK algorithm of
+  result->div_size =
+    result->divergence;  // Fill the div_size with the divergence to atleast get some divergenge measurement when switching from LK to EF
   result->surface_roughness = 0.0f;
 
   //......................Calculating VELOCITY ..................... //
