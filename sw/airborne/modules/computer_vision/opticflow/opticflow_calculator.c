@@ -51,10 +51,9 @@
 
 #define EXHAUSTIVE_FAST 0
 #define ACT_FAST 1
+// TODO: these are now adapted, but perhaps later could be a setting:
 uint16_t n_time_steps = 10;
 uint16_t n_agents = 25;
-// corner method:
-#define CORNER_METHOD 0
 
 // What methods are run to determine divergence, lateral flow, etc.
 // SIZE_DIV looks at line sizes and only calculates divergence
@@ -62,6 +61,12 @@ uint16_t n_agents = 25;
 // LINEAR_FIT makes a linear optical flow field fit and extracts a lot of information:
 // relative velocities in x, y, z (divergence / time to contact), the slope of the surface, and the surface roughness.
 #define LINEAR_FIT 1
+
+#ifndef OPTICFLOW_CORNER_METHOD
+// This can be estimated by total possible image height / total Field of view
+#define OPTICFLOW_CORNER_METHOD ACT_FAST
+#endif
+PRINT_CONFIG_VAR(OPTICFLOW_CORNER_METHOD)
 
 // Camera parameters (defaults are from an ARDrone 2)
 #ifndef OPTICFLOW_FOV_W
@@ -273,7 +278,7 @@ void opticflow_calc_init(struct opticflow_t *opticflow)
   opticflow->fast9_rsize = 512;
   opticflow->fast9_ret_corners = calloc(opticflow->fast9_rsize, sizeof(struct point_t));
 
-
+  opticflow->corner_method = OPTICFLOW_CORNER_METHOD;
   opticflow->actfast_long_step = OPTICFLOW_ACTFAST_LONG_STEP;
   opticflow->actfast_short_step = OPTICFLOW_ACTFAST_SHORT_STEP;
   opticflow->actfast_min_gradient = OPTICFLOW_ACTFAST_MIN_GRADIENT;
@@ -342,7 +347,7 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
     // needs to be set to 0 because result is now static
     result->corner_cnt = 0;
 
-    if (CORNER_METHOD == EXHAUSTIVE_FAST) {
+    if (opticflow->corner_method == EXHAUSTIVE_FAST) {
       // FAST corner detection
       // TODO: There is something wrong with fast9_detect destabilizing FPS. This problem is reduced with putting min_distance
       // to 0 (see defines), however a more permanent solution should be considered
@@ -352,7 +357,7 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
                    &opticflow->fast9_ret_corners,
                    NULL);
 
-    } else if (CORNER_METHOD == ACT_FAST) {
+    } else if (opticflow->corner_method == ACT_FAST) {
       // ACT-FAST corner detection:
       act_fast(&opticflow->prev_img_gray, opticflow->fast9_threshold, &result->corner_cnt,
                &opticflow->fast9_ret_corners, n_agents, n_time_steps,
@@ -371,14 +376,14 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
           opticflow->fast9_threshold--;
         }
 
-        if (CORNER_METHOD == ACT_FAST) {
+        if (opticflow->corner_method == ACT_FAST) {
           n_time_steps++;
           n_agents++;
         }
 
       } else if (result->corner_cnt > OPTICFLOW_MAX_TRACK_CORNERS * 2 && opticflow->fast9_threshold < FAST9_HIGH_THRESHOLD) {
         opticflow->fast9_threshold++;
-        if (CORNER_METHOD == ACT_FAST && n_time_steps > 5 && n_agents > 10) {
+        if (opticflow->corner_method == ACT_FAST && n_time_steps > 5 && n_agents > 10) {
           n_time_steps--;
           n_agents--;
         }
