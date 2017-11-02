@@ -729,67 +729,74 @@ static inline void float_mat_col(float *o, float **a, int m, int c)
   }
 }
 
-/** Calculate inverse of any n x n matrix (passed as C array) matinv = mat^-1
+/** Calculate inverse of any n x n matrix (passed as C array) o = mat^-1
 
 Algorithm verified with Matlab. 
 Thanks to: https://www.quora.com/How-do-I-make-a-C++-program-to-get-the-inverse-of-a-matrix-100-X-100
 
 */
-static inline void float_mat_invert(float* matinv, float *mat, uint8_t n)
+static inline void float_mat_invert(float **o, float **mat, int n)
 {
-  uint8_t i, j, k, row, col;
+  int i, j, k;
   float t;
 
-  float a[2*n*n];
+  float a[n][2*n];
 
   // Append an identity matrix on the right of the original matrix
-  for(row = 0; row < n; row++) {
-    for(col = 0; col < 2*n; col++) {
-      if (col < n) {
-        a[ row*2*n+col ] = mat[row*n + col];
+  for(i = 0; i < n; i++) {
+    for(j = 0; j < 2*n; j++) {
+      if (j < n) {
+        a[i][j] = mat[i][j];
       }
-      else if( (col >= n) && (col == row+n)) {
-        a[ row*2*n+col ] = 1.0;
+      else if( (j >= n) && (j == i+n)) {
+        a[i][j] = 1.0;
       }
       else {
-        a[ row*2*n+col ] = 0.0;
+        a[i][j] = 0.0;
       }
     } 
   }
 
   // Do the inversion
   for( i = 0; i < n; i++) {
-    // Store diagonal variable (temp)
-    t = a[ i*2*n + i ];
+    t = a[i][i];     // Store diagonal variable (temp)
 
     for(j = i; j < 2*n; j++) {
-      // Divide by the diagonal value
-      a[ i*2*n + j ] = a[ i*2*n + j ]/t;
+      a[i][j] = a[i][j]/t; // Divide by the diagonal value
     }
 
     for(j = 0; j < n; j++) {
       if( i!=j ) {
-        t = a[ j*2*n + i ];
-        for( k = 0; k < 2*n; k++) {
-          a[j*2*n + k] = a[j*2*n + k] - t*a[i*2*n + k];
+        t = a[j][i];
+        for(k=0; k<2*n; k++) {
+          a[j][k] = a[j][k] - t*a[i][k];
         }
       }
     }
-
   }
+
+  /* Cut out the identity, which has now moved to the left side */
+  for(i = 0 ; i < n ; i++ ) {
+    for(j = n; j < 2*n; j++ ) {
+      o[i][j-n] = a[i][j];
+
+    }
+  }
+
 }
 
+
 /** Make an n x n identity matrix (for matrix passed as array) */
-static inline void float_mat_identity(float *matrix, uint8_t n)
+static inline void float_mat_identity(float **o, int n)
 {
-  uint8_t i,j;
+  int i, j;
   for(i = 0 ; i < n; i++) {
     for(j = 0 ; j < n; j++) {
       if (i == j) {
-        matrix[i*n+j] = 1.0;
+        o[i][j] = 1.0;
       }
       else {
-        matrix[i*n+j] = 0.0;
+        o[i][j] = 0.0;
       }
     }
   }
