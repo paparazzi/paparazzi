@@ -104,6 +104,14 @@
       <field name="z" type="float" unit="m"/>
       <field name="noise" type="float"/>
     </message>
+    
+    <message name="UWB_COMMUNICATION" id="19">
+      <field name="id" type="uint8_t"/>
+      <field name="range" type="float" unit="m"/>
+      <field name="vx" type="float" unit="m/s"/>
+      <field name="vy" type="float" unit="m/s"/>
+      <field name="h" type="float" unit="m"/>
+    </message>
 
   </msg_class>
 

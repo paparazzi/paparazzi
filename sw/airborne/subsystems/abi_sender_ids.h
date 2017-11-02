@@ -302,6 +302,12 @@
 #define MAG_CALIB_UKF_ID 20
 #endif
 
+/*
+ * UWB communication (message 19)
+*/
+#ifndef UWB_COMM_ID
+#define UWB_COMM_ID 1
+#endif
 
 /*
  * IDs of Computer Vision Calculated variables
