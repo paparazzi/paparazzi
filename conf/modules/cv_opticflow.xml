@@ -43,6 +43,8 @@
       <define name="MAX_ITERATIONS" value="10" description="Maximum number of iterations the Lucas Kanade algorithm should take"/>
       <define name="THRESHOLD_VEC" value="2" description="TThreshold in subpixels when the iterations of Lucas Kanade should stop"/>
 
+      <define name="CORNER_METHOD" value="1" description="Method used to look for corners, exhaustive FAST (0) or ACT-FAST (1)."/>
+
       <!-- FAST9 corner detection parameters -->
       <define name="FAST9_ADAPTIVE" value="TRUE" description="Whether we should use and adapative FAST9 crner detection threshold"/>
       <define name="FAST9_THRESHOLD" value="20" description="FAST9 default threshold"/>
@@ -65,6 +67,7 @@
       <!-- Optical flow calculations parameters -->
       <dl_settings name="vision_calc">
       <dl_setting var="opticflow.method" min="0" step="1" max="1" module="computer_vision/opticflow_module" shortname="method" values="LK_Fast9|EdgeFlow" param="METHOD"/>
+      <dl_setting var="opticflow.corner_method" min="0" step="1" max="1" module="computer_vision/opticflow_module" shortname="corner_method" values="exhaustive-FAST|ACT-FAST" param="CORNER_METHOD"/>
         <dl_setting var="opticflow.window_size" module="computer_vision/opticflow_module" min="0" step="1" max="20" shortname="window_size" param="OPTICFLOW_WINDOW_SIZE"/>
         <dl_setting var="opticflow.search_distance" module="computer_vision/opticflow_module" min="0" step="1" max="50" shortname="search_distance" param="SEARCH_DISTANCE"/>
         <dl_setting var="opticflow.subpixel_factor" module="computer_vision/opticflow_module" min="0" step="10" max="1000" shortname="subpixel_factor" param="OPTICFLOW_SUBPIXEL_FACTOR"/>
@@ -89,7 +92,7 @@
         <dl_setting var="opticflow.actfast_long_step" module="computer_vision/opticflow_module" min="1" step="1" max="100" shortname="actfast_long_step" param="OPTICFLOW_ACTFAST_LONG_STEP"/>
         <dl_setting var="opticflow.actfast_short_step" module="computer_vision/opticflow_module" min="1" step="1" max="10" shortname="actfast_short_step" param="OPTICFLOW_ACTFAST_SHORT_STEP"/>
         <dl_setting var="opticflow.actfast_min_gradient" module="computer_vision/opticflow_module" min="1" step="1" max="255" shortname="actfast_min_gradient" param="OPTICFLOW_ACTFAST_MIN_GRADIENT"/>
-        <dl_setting var="opticflow.actfast_gradient_method" module="computer_vision/opticflow_module" min="1" step="1" max="1"  values="SIMPLE|SOBEL" shortname="actfast_gradient_method" param="OPTICFLOW_ACTFAST_GRADIENT_METHOD"/>        
+        <dl_setting var="opticflow.actfast_gradient_method" module="computer_vision/opticflow_module" min="0" step="1" max="1"  values="SIMPLE|SOBEL" shortname="actfast_gradient_method" param="OPTICFLOW_ACTFAST_GRADIENT_METHOD"/>        
 
         <!-- Changes pyramid level of lucas kanade optical flow. -->
         <dl_setting var="opticflow.pyramid_level" module="computer_vision/opticflow_module" min="0" step="1" max="10" shortname="pyramid_level" param="OPTICFLOW_PYRAMID_LEVEL"/>
