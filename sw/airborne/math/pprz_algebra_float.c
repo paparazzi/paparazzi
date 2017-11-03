@@ -809,12 +809,10 @@ void float_mat_invert(float **o, float **mat, int n)
     }
   }
 
-  /* Cut out the identity, which has now moved to the left side */
+  // Cut out the identity, which has now moved to the left side
   for(i = 0 ; i < n ; i++ ) {
     for(j = n; j < 2*n; j++ ) {
       o[i][j-n] = a[i][j];
-
     }
   }
-
 }
