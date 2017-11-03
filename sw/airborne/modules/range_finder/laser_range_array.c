@@ -36,6 +36,9 @@
 
 #include "message_pragmas.h"
 
+#include "pprzlink/messages.h"
+#include "subsystems/datalink/downlink.h"
+
 /* Main device strcuture */
 struct laser_range_array_t {
   struct link_device *device;           ///< The device which is uses for communication
@@ -51,13 +54,10 @@ static struct laser_range_array_t laser_range_array = {
 static uint8_t lra_msg_buf[128]  __attribute__((aligned));   ///< The message buffer
 
 PRINT_CONFIG_VAR(LASER_RANGE_ARRAY_NUM_SENSORS)
-uint16_t laser_range_array_values[LASER_RANGE_ARRAY_NUM_SENSORS];
-float laser_range_array_orientations[] = LASER_RANGE_ARRAY_ORIENTATIONS;
+static float laser_range_array_orientations[] = LASER_RANGE_ARRAY_ORIENTATIONS;
+static uint8_t agl_id = 255;
 
-uint8_t agl_id = 255;
-uint8_t front_id = 255;
-
-uint8_t id_recieved[LASER_RANGE_ARRAY_NUM_SENSORS] = {0};
+#define VL53L0_MAX_VAL 8.191f
 
 void laser_range_array_init(void)
 {
@@ -65,44 +65,10 @@ void laser_range_array_init(void)
   pprz_transport_init(&laser_range_array.transport);
 
 #if LASER_RANGE_ARRAY_SEND_AGL
-  // Determine which sensor is looking down
-  struct FloatEulers pose_down = {0., -M_PI_2, 0.};
-
-  struct FloatQuat q_down;
-  float_quat_of_eulers(&q_down, &pose_down);
-
+  // find sensor looking down
   for (int k = 0; k < LASER_RANGE_ARRAY_NUM_SENSORS; k++) {
-    struct FloatEulers def = {laser_range_array_orientations[k * 3], laser_range_array_orientations[k * 3 + 1],
-        laser_range_array_orientations[k * 3 + 2]};
-    struct FloatQuat q_def;
-    float_quat_of_eulers(&q_def, &def);
-    // get angle between required angle and ray angle
-    float angle = acosf(QUAT_DOT_PRODUCT(q_down, q_def));
-
-    if (fabsf(angle) < RadOfDeg(5)) {
+    if (fabsf(laser_range_array_orientations[k * 2] + M_PI_2) < RadOfDeg(5)) {
       agl_id = k;
-      break;
-    }
-  }
-#endif
-
-#if LASER_RANGE_ARRAY_SEND_FRONT_OBSTACLE
-  // Determine which sensor is looking down
-  struct FloatEulers pose_forward = {0., 0., 0.};
-
-  struct FloatQuat q_forward;
-  float_quat_of_eulers(&q_forward, &pose_forward);
-
-  for (int k = 0; k < LASER_RANGE_ARRAY_NUM_SENSORS; k++) {
-    struct FloatEulers def = {laser_range_array_orientations[k * 3], laser_range_array_orientations[k * 3 + 1],
-        laser_range_array_orientations[k * 3 + 2]};
-    struct FloatQuat q_def;
-    float_quat_of_eulers(&q_def, &def);
-    // get angle between required angle and ray angle
-    float angle = acosf(QUAT_DOT_PRODUCT(q_forward, q_def));
-
-    if (fabsf(angle) < RadOfDeg(5)) {
-      front_id = k;
       break;
     }
   }
@@ -118,36 +84,15 @@ static void laser_range_array_parse_msg(void)
   switch (msg_id) {
     case DL_IMCU_REMOTE_GROUND: {
       uint8_t id = DL_IMCU_REMOTE_GROUND_id(lra_msg_buf);
-      uint16_t range = DL_IMCU_REMOTE_GROUND_range(lra_msg_buf);
 
       if (id < LASER_RANGE_ARRAY_NUM_SENSORS) {
-        laser_range_array_values[id] = range;
-        id_recieved[id] = 1;
+        float range = DL_IMCU_REMOTE_GROUND_range(lra_msg_buf) / 1000.f;
+        // wait till all sensors received before sending update
+        AbiSendMsgOBSTACLE_DETECTION(OBS_DETECTION_RANGE_ARRAY_ID, range, laser_range_array_orientations[id*2],
+            laser_range_array_orientations[id*2 + 1]);
 
-        // check how many sensors received
-        int16_t sum = 0;
-        for (uint8_t i = 0; i < LASER_RANGE_ARRAY_NUM_SENSORS; i++)
-        {
-          sum += id_recieved[id];
-        }
-
-        if(sum == LASER_RANGE_ARRAY_NUM_SENSORS)
-        {
-          // wait till all sensors received before sending update
-          AbiSendMsgRANGE_SENSOR_ARRAY(RANGE_SENSOR_ARRAY_VL53L0_ID, LASER_RANGE_ARRAY_NUM_SENSORS,
-              laser_range_array_values, laser_range_array_orientations);
-          // reset id array
-          memset(id_recieved, 0, sizeof(id_recieved));
-        }
-
-        if (id == agl_id) {
-          float agl = (float)range / 1000.;
-          AbiSendMsgAGL(AGL_VL53L0_LASER_ARRAY_ID, agl);
-        }
-        if (id == front_id) {
-          float dist = (float)range / 1000.;
-          // todo create distance estimate sender ids
-          AbiSendMsgOBSTACLE_DETECTION(RANGE_SENSOR_ARRAY_VL53L0_ID, dist, 0.);
+        if (id == agl_id && range > 1e-5 && range < VL53L0_MAX_VAL) {
+          AbiSendMsgAGL(AGL_VL53L0_LASER_ARRAY_ID, range);
         }
       }
       break;

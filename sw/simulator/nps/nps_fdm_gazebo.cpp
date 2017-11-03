@@ -707,7 +707,6 @@ static void read_image(
  * in the airframe, and will fill up an array to send and abi message to be used by other modules.
  *
  * NPS_GAZEBO_RANGE_SEND_AGL defines if the sensor that is defined as down should be used to send an AGL message.
- * NPS_GAZEBO_RANGE_SEND_FRONT_OBSTACLE defines if the sensor that is defined as pointing forward should be used
  * to send an OBSTACLE_DETECTION message.
  *
  * Functions:
@@ -715,17 +714,16 @@ static void read_image(
  *   gazebo_read_range_sensors() -> Reads and evaluates the ray sensors values, and sending it to other pprz modules
  */
 
-float range_orientation[] = LASER_RANGE_ARRAY_ORIENTATIONS;
-
 struct gazebo_ray_t {
   gazebo::sensors::RaySensorPtr sensor;
   gazebo::common::Time last_measurement_time;
 };
 
-struct gazebo_ray_t rays[LASER_RANGE_ARRAY_NUM_SENSORS] = {{NULL, 0}};
+static struct gazebo_ray_t rays[LASER_RANGE_ARRAY_NUM_SENSORS] = {{NULL, 0}};
+static float range_orientation[] = LASER_RANGE_ARRAY_ORIENTATIONS;
+static uint8_t ray_sensor_agl_index = 255;
 
-uint8_t ray_sensor_agl_index = 255;
-uint8_t ray_sensor_front_index = 255;
+#define VL53L0_MAX_VAL 8.191f
 
 static void gazebo_init_range_sensors(void)
 {
@@ -760,35 +758,21 @@ static void gazebo_init_range_sensors(void)
       /* Check the orientations of the ray sensors found in gazebo, if they are similar (within 5 deg) to the orientations
        * given in the airframe file in LASER_RANGE_ARRAY_RANGE_ORIENTATION
        */
-      for (int k = 0; k < LASER_RANGE_ARRAY_NUM_SENSORS; k++) {
-        struct DoubleEulers def = {range_orientation[k * 3], range_orientation[k * 3 + 1], range_orientation[k * 3 + 2]};
+      for (int j = 0; j < LASER_RANGE_ARRAY_NUM_SENSORS; j++) {
+        struct DoubleEulers def = {0, range_orientation[j*2], range_orientation[j*2 + 1]};
         double_quat_of_eulers(&q_def, &def);
         // get angle between required angle and ray angle
         double angle = acos(QUAT_DOT_PRODUCT(q_ray, q_def));
 
         if (fabs(angle) < RadOfDeg(5)) {
           ray_sensor_count_selected++;
-          rays[k].sensor = ray_sensor;
-          rays[k].sensor->SetActive(true);
+          rays[j].sensor = ray_sensor;
+          rays[j].sensor->SetActive(true);
 
 #if LASER_RANGE_ARRAY_SEND_AGL
           // find the sensor pointing down
-          def = (struct DoubleEulers) {0., -M_PI_2, 0.};
-          double_quat_of_eulers(&q_def, &def);
-          angle = acos(QUAT_DOT_PRODUCT(q_ray, q_def));
-
-          if (fabs(angle) < RadOfDeg(5)) {
-            ray_sensor_agl_index = k;
-          }
-#endif
-#if LASER_RANGE_ARRAY_SEND_FRONT_OBSTACLE
-          // find the sensor pointing forward
-          def = (struct DoubleEulers) {0., 0., 0.};
-          double_quat_of_eulers(&q_def, &def);
-          angle = acos(QUAT_DOT_PRODUCT(q_ray, q_def));
-
-          if (fabs(angle) < RadOfDeg(5)) {
-            ray_sensor_front_index = k;
+          if (fabs(range_orientation[j*2] + M_PI_2) < RadOfDeg(5)) {
+            ray_sensor_agl_index = j;
           }
 #endif
           break;
@@ -808,43 +792,28 @@ static void gazebo_init_range_sensors(void)
 
 static void gazebo_read_range_sensors(void)
 {
-  static uint16_t range_sensors_uint16[LASER_RANGE_ARRAY_NUM_SENSORS];
-
-  for (int i = 0; i < LASER_RANGE_ARRAY_NUM_SENSORS; i++) {
-    // wait till all sensors updated
-    if ((rays[i].sensor->LastMeasurementTime() - rays[i].last_measurement_time).Float() < 0.005
-        || rays[i].sensor->LastMeasurementTime() == 0) { return; }
-  }
+  static float range;
 
   // Loop through all ray sensors found in gazebo
   for (int i = 0; i < LASER_RANGE_ARRAY_NUM_SENSORS; i++) {
-    if (rays[i].sensor->Range(0) < 1e-5 || isinf(rays[i].sensor->Range(0))) {
-      range_sensors_uint16[i] = UINT16_MAX;
+    if ((rays[i].sensor->LastMeasurementTime() - rays[i].last_measurement_time).Float() < 0.005
+        || rays[i].sensor->LastMeasurementTime() == 0) { continue; }
+
+    if (rays[i].sensor->Range(0) < 1e-5 || rays[i].sensor->Range(0) > VL53L0_MAX_VAL) {
+      range = VL53L0_MAX_VAL;
     } else {
-      range_sensors_uint16[i] = (uint16_t)(rays[i].sensor->Range(0) * 1000.);
+      range = rays[i].sensor->Range(0);
+    }
+    AbiSendMsgOBSTACLE_DETECTION(OBS_DETECTION_RANGE_ARRAY_NPS_ID, range, range_orientation[i*2], range_orientation[i*2 + 1]);
+
+    if (i == ray_sensor_agl_index) {
+      float agl = rays[i].sensor->Range(0);
+      // Down range sensor as agl
+      if (agl > 1e-5 && !isinf(agl)) {
+        AbiSendMsgAGL(AGL_RAY_SENSOR_GAZEBO_ID, agl);
+      }
     }
     rays[i].last_measurement_time = rays[i].sensor->LastMeasurementTime();
-  }
-
-  // SEND ABI MESSAGES
-  AbiSendMsgRANGE_SENSOR_ARRAY(RANGE_SENSOR_ARRAY_GAZEBO_ID, LASER_RANGE_ARRAY_NUM_SENSORS, range_sensors_uint16,
-      range_orientation);
-
-  if (ray_sensor_agl_index < LASER_RANGE_ARRAY_NUM_SENSORS) {
-    float agl = rays[ray_sensor_agl_index].sensor->Range(0);
-    // Down range sensor as agl
-    if (agl > 1e-5 && !isinf(agl)) {
-      AbiSendMsgAGL(AGL_RAY_SENSOR_GAZEBO_ID, agl);
-    }
-  }
-
-  if (ray_sensor_front_index < LASER_RANGE_ARRAY_NUM_SENSORS) {
-    float dist = rays[ray_sensor_front_index].sensor->Range(0);
-    // Down range sensor as agl
-    if (dist > 1e-5 && !isinf(dist)) {
-      // todo create distance estimate sender ids
-      AbiSendMsgOBSTACLE_DETECTION(RANGE_SENSOR_ARRAY_VL53L0_ID, dist, 0.);
-    }
   }
 }
 #endif  // NPS_SIMULATE_LASER_RANGE_ARRAY

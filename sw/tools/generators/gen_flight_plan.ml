@@ -818,7 +818,7 @@ let parse_wpt_sector = fun indexes waypoints xml ->
 
 
 (** FP variables and ABI auto bindings *)
-type fp_var = FP_var of (string * string * string) | FP_binding of (string * string list * string)
+type fp_var = FP_var of (string * string * string) | FP_binding of (string * string list * string * string)
 
 (* get a Hashtbl of ABI messages (name, field_types) *)
 let extract_abi_msg = fun filename class_ ->
@@ -846,9 +846,10 @@ let parse_variables = fun xml ->
     | "abi_binding" ->
         let n = ExtXml.attrib var "name"
         and vs = ExtXml.attrib var "vars"
-        and i = ExtXml.attrib_or_default var "id" "ABI_BROADCAST" in
+        and i = ExtXml.attrib_or_default var "id" "ABI_BROADCAST"
+        and c = ExtXml.attrib_or_default var "if" "1" in
         let vs = Str.split (Str.regexp "[ ]*,[ ]*") vs in
-        FP_binding (n, vs, i)
+        FP_binding (n, vs, i, c)
     | _ -> failwith "Gen_flight_plan: unexpected variables tag"
   ) xml
 
@@ -858,29 +859,29 @@ let print_var_decl abi_msgs = function
 
 let print_var_impl abi_msgs = function
   | FP_var (v, t, i) -> printf "%s %s = %s;\n" t v i
-  | FP_binding (n, vs, _) ->
+  | FP_binding (n, vs, _, _) ->
       printf "static abi_event FP_%s_ev;\n" n;
       let field_types = Hashtbl.find abi_msgs n in
       List.iter2 (fun abi_t user -> if not (user = "_") then printf "static %s %s;\n" abi_t user) field_types vs
 
 let print_auto_init_bindings = fun abi_msgs variables ->
   let print_cb = function
-    | FP_binding (n, vs, _) ->
+    | FP_binding (n, vs, _, c) ->
         let field_types = Hashtbl.find abi_msgs n in
         printf "static void FP_%s_cb(uint8_t sender_id __attribute__((unused))" n;
         List.iteri (fun i v ->
           if v = "_" then printf ", %s _unused_%d __attribute__((unused))" (List.nth field_types i) i
           else printf ", %s _%s" (List.nth field_types i) v
         ) vs;
-        printf ") {\n";
+        printf ") {\n  if (%s) {\n" c;
         List.iter (fun v ->
-          if not (v = "_") then printf "  %s = _%s;\n" v v
+          if not (v = "_") then printf "    %s = _%s;\n" v v
         ) vs;
-        printf "}\n\n"
+        printf "  }\n}\n\n"
     | _ -> ()
   in
   let print_bindings = function
-    | FP_binding (n, _, i) ->
+    | FP_binding (n, _, i, _) ->
         printf "  AbiBindMsg%s(%s, &FP_%s_ev, FP_%s_cb);\n" n i n n
     | _ -> ()
   in

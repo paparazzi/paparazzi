@@ -71,12 +71,13 @@ struct image_t *colorfilter_func(struct image_t *img)
 
   if (COLORFILTER_SEND_OBSTACLE) {
     if (color_count > 20)
-      AbiSendMsgOBSTACLE_DETECTION(CV_COLORDETECTION_ID, 1,
-                                   0);
+    {
+      AbiSendMsgOBSTACLE_DETECTION(OBS_DETECTION_COLOR_ID, 1.f, 0.f, 0.f);
+    }
     else
-      AbiSendMsgOBSTACLE_DETECTION(CV_COLORDETECTION_ID, 10,
-                                   0);
-
+    {
+      AbiSendMsgOBSTACLE_DETECTION(OBS_DETECTION_COLOR_ID, 10.f, 0.f, 0.f);
+    }
   }
 
   return img; // Colorfilter did not make a new image

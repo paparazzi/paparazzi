@@ -29,6 +29,7 @@
     <file name="range_forcefield.h"/>
   </header>
   <init fun="range_forcefield_init()"/>
+  <periodic fun="range_forcefield_periodic()" freq="10"/>
   <makefile>
     <file name="range_forcefield.c"/>
   </makefile>

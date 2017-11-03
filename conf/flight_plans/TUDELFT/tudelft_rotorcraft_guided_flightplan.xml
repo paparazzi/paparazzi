@@ -22,7 +22,7 @@
     <variable var="climb_descent_vel" init="0.3f" type="float" min="0." max="1" step="0.1"/>
     <variable var="forward_vel" init="0.5f" type="float" min="0." max="2" step="0.1"/>
 	  <variable var="nominal_alt" init="NAV_DEFAULT_ALT" type="float" min="0." max="10." step="0.1"/>
-    <abi_binding name="OBSTACLE_DETECTION" vars="obstacle_dist, _"/>
+    <abi_binding name="OBSTACLE_DETECTION" vars="obstacle_dist, obstacle_elevation, obstacle_heading" if="CloseRadAngles(_obstacle_elevation,0) && CloseRadAngles(_obstacle_heading,0)"/>
     <abi_binding name="RANGE_FORCEFIELD" vars="vel_body_x_FF, vel_body_y_FF, vel_body_z_FF"/>
 	</variables>
 
@@ -74,7 +74,7 @@ NOTE: A velocity forcefield in the horizontal plane applied here, so if an obsta
       <while cond="1"><!--LessThan(block_time,5)"/-->
         <call_once fun="autopilot_guided_update(GUIDED_FLAG_XY_VEL_BODY,forward_vel + vel_body_x_FF,vel_body_y_FF,-nominal_alt,desired_heading)"/>
       </while>
-      <exception cond="2>obstacle_dist" deroute="Turn 90 deg"/>
+      <exception cond="1.5>obstacle_dist" deroute="Turn 90 deg"/>
     </block>
 
 <!-- Turn 90 deg:

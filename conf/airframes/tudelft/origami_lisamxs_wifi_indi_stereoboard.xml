@@ -120,18 +120,18 @@
     <define name= "PSI" value="90." unit="deg"/>
   </section>
   
-  <!--Orientation of the laser array with 4 sensors relative from the body fixed coordinates
-, with the hand right rule with eulerangle order of (phi, theta, phi) in [rad]:
-       0) (0,  0, -1.57) -> left
-       1) (0, 1.57, 0) -> up
-       2) (0, 0, 1.57) -> right
-       4) (0, -1.57, 0) -> down
+  <!--Orientation of the laser array with 5 sensors relative from the body fixed coordinates
+, with the hand right rule with eulerangle order of (azimuth, bearing) in [rad]:
+       0) (0, -1.57) -> left
+       1) (1.57, 0) -> up
+       2) (0, 1.57) -> right
+       4) (-1.57, 0) -> down
+       5) (0, 0) -> front
 -->
   <section name="LASER_RANGE_ARRAY" prefix="LASER_RANGE_ARRAY_">
     <define name="NUM_SENSORS" value="5"/>
-    <define name="ORIENTATIONS" value="0.,0.,-1.57, 0.,1.57,0., 0.,0.,1.57, 0.,-1.57,0., 0.,0.,0." type="float[]"/>
+    <define name="ORIENTATIONS" value="0.,-1.57, 1.57,0., 0.,1.57, -1.57,0., 0.,0." type="float[]"/>
     <define name="SEND_AGL" value="true"/>
-    <define name="SEND_FRONT_OBSTACLE" value="true"/>
   </section>
 
   <section name="IMU" prefix="IMU_">
@@ -261,7 +261,7 @@
 
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
 <!-- Guidance in vertical plane especially for use of range sensor-->
-    <define name="HOVER_KP" value="400"/>
+    <define name="HOVER_KP" value="450"/>
     <define name="HOVER_KD" value="250"/>
     <define name="HOVER_KI" value="50"/>
     <define name="NOMINAL_HOVER_THROTTLE" value="0.65"/>

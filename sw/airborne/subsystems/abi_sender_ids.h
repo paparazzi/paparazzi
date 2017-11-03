@@ -317,25 +317,20 @@
 #endif
 
 /*
- * IDs of Computer Vision Calculated variables
+ * IDs of Obstacle detection systems
  */
 
-#ifndef CV_COLORDETECTION_ID
-#define CV_COLORDETECTION_ID 1
+#ifndef OBS_DETECTION_COLOR_ID
+#define OBS_DETECTION_COLOR_ID 1
 #endif
 
-/*
- * IDs of range array sensor related variables
- */
-
-#ifndef RANGE_SENSOR_ARRAY_VL53L0_ID
-#define RANGE_SENSOR_ARRAY_VL53L0_ID 1
+#ifndef OBS_DETECTION_RANGE_ARRAY_ID
+#define OBS_DETECTION_RANGE_ARRAY_ID 2
 #endif
 
-#ifndef RANGE_SENSOR_ARRAY_GAZEBO_ID
-#define RANGE_SENSOR_ARRAY_GAZEBO_ID 2
+#ifndef OBS_DETECTION_RANGE_ARRAY_NPS_ID
+#define OBS_DETECTION_RANGE_ARRAY_NPS_ID 3
 #endif
-
 
 /*
  * ID's of forcefield generating type functions

@@ -118,7 +118,8 @@ values CDATA #IMPLIED>
 <!ATTLIST abi_binding
 name CDATA #REQUIRED
 vars CDATA #REQUIRED
-id CDATA #IMPLIED>
+id CDATA #IMPLIED
+if CDATA #IMPLIED>
 
 <!ATTLIST modules>
 
