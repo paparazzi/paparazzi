@@ -45,11 +45,6 @@
 #endif
 PRINT_CONFIG_VAR(OPTICFLOW_AGL_ID)
 
-#ifndef OPTICFLOW_SEND_ABI_ID
-#define OPTICFLOW_SEND_ABI_ID 1       ///< Default ID to send abi messages
-#endif
-PRINT_CONFIG_VAR(OPTICFLOW_SEND_ABI_ID)
-
 #ifndef OPTICFLOW_FPS
 #define OPTICFLOW_FPS 0       ///< Default FPS (zero means run at camera fps)
 #endif
@@ -116,7 +111,7 @@ void opticflow_module_run(void)
   // Update the stabilization loops on the current calculation
   if (opticflow_got_result) {
     uint32_t now_ts = get_sys_time_usec();
-    AbiSendMsgOPTICAL_FLOW(OPTICFLOW_SEND_ABI_ID, now_ts,
+    AbiSendMsgOPTICAL_FLOW(FLOW_OPTICFLOW_ID, now_ts,
                            opticflow_result.flow_x,
                            opticflow_result.flow_y,
                            opticflow_result.flow_der_x,
@@ -125,10 +120,12 @@ void opticflow_module_run(void)
                            opticflow_result.div_size);
     //TODO Find an appropriate quality measure for the noise model in the state filter, for now it is tracked_cnt
     if (opticflow_result.noise_measurement < 0.8) {
-      AbiSendMsgVELOCITY_ESTIMATE(OPTICFLOW_SEND_ABI_ID, now_ts,
+      AbiSendMsgVELOCITY_ESTIMATE(VEL_OPTICFLOW_ID, now_ts,
                                   opticflow_result.vel_body.x,
                                   opticflow_result.vel_body.y,
                                   opticflow_result.vel_body.z,
+                                  opticflow_result.noise_measurement,
+                                  opticflow_result.noise_measurement,
                                   opticflow_result.noise_measurement
                                  );
     }

@@ -98,7 +98,7 @@ struct opticflow_stab_t opticflow_stab = {
 
 
 static void stabilization_opticflow_vel_cb(uint8_t sender_id __attribute__((unused)),
-    uint32_t stamp, float vel_x, float vel_y, float vel_z, float noise);
+    uint32_t stamp, float vel_x, float vel_y, float vel_z, float noise_x, float noise_y, float noise_z);
 /**
  * Initialization of horizontal guidance module.
  */
@@ -149,28 +149,42 @@ void guidance_h_module_run(bool in_flight)
  * Update the controls on a new VELOCITY_ESTIMATE ABI message.
  */
 static void stabilization_opticflow_vel_cb(uint8_t sender_id __attribute__((unused)),
-    uint32_t stamp, float vel_x, float vel_y, float vel_z, float noise)
+    uint32_t stamp, float vel_x, float vel_y, float vel_z, float noise_x, float noise_y, float noise_z)
 {
   /* Check if we are in the correct AP_MODE before setting commands */
   if (autopilot_get_mode() != AP_MODE_MODULE) {
     return;
   }
 
-  /* Calculate the error */
-  float err_vx = opticflow_stab.desired_vx - vel_x;
-  float err_vy = opticflow_stab.desired_vy - vel_y;
+  if (noise_x >= 0.f)
+  {
+    /* Calculate the error */
+    float err_vx = opticflow_stab.desired_vx - vel_x;
 
-  /* Calculate the integrated errors (TODO: bound??) */
-  opticflow_stab.err_vx_int += err_vx / 512;
-  opticflow_stab.err_vy_int += err_vy / 512;
+    /* Calculate the integrated errors (TODO: bound??) */
+    opticflow_stab.err_vx_int += err_vx / 512;
 
-  /* Calculate the commands */
-  opticflow_stab.cmd.phi   = opticflow_stab.phi_pgain * err_vy
-                             + opticflow_stab.phi_igain * opticflow_stab.err_vy_int;
-  opticflow_stab.cmd.theta = -(opticflow_stab.theta_pgain * err_vx
+    /* Calculate the commands */
+    opticflow_stab.cmd.theta = -(opticflow_stab.theta_pgain * err_vx
                                + opticflow_stab.theta_igain * opticflow_stab.err_vx_int);
 
-  /* Bound the roll and pitch commands */
-  BoundAbs(opticflow_stab.cmd.phi, CMD_OF_SAT);
-  BoundAbs(opticflow_stab.cmd.theta, CMD_OF_SAT);
+    /* Bound the roll and pitch commands */
+    BoundAbs(opticflow_stab.cmd.theta, CMD_OF_SAT);
+  }
+
+  if (noise_y >= 0.f)
+  {
+    /* Calculate the error */
+    float err_vy = opticflow_stab.desired_vy - vel_y;
+
+    /* Calculate the integrated errors (TODO: bound??) */
+    opticflow_stab.err_vy_int += err_vy / 512;
+
+    /* Calculate the commands */
+    opticflow_stab.cmd.phi   = opticflow_stab.phi_pgain * err_vy
+                               + opticflow_stab.phi_igain * opticflow_stab.err_vy_int;
+
+    /* Bound the roll and pitch commands */
+    BoundAbs(opticflow_stab.cmd.phi, CMD_OF_SAT);
+  }
 }
