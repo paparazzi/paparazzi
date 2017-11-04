@@ -665,7 +665,9 @@ static inline void int32_vect_smul(int32_t *o, const int32_t *a, const int32_t s
   for (i = 0; i < n; i++) { o[i] = a[i] * s; }
 }
 
-/** Finds a value s in an array and returns the first location at which it is found, else -1 */
+/** Find value s in array a. Returns 1 if found, 0 if not found.
+ * If the value is found loc = index of found value in array, else loc = -1 
+ */
 static inline bool int32_vect_find(const int32_t *a, const int32_t s, int *loc, const int n) 
 {
   int i;
