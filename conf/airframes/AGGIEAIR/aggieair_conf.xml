@@ -9,6 +9,7 @@
    settings="settings/rotorcraft_basic.xml settings/nps.xml"
    settings_modules="modules/battery_monitor.xml modules/gps.xml modules/stabilization_float_euler.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/imu_common.xml"
    gui_color="#ffff954c0000"
+   release=""
   />
   <aircraft
    name="Ark_Quad"
@@ -75,6 +76,7 @@
    settings="settings/rotorcraft_basic.xml [settings/test_actuators_pwm.xml]"
    settings_modules="modules/air_data.xml modules/lidar_sf11.xml modules/lidar_lite.xml modules/px4flow_i2c.xml modules/ins_extended.xml modules/ahrs_float_mlkf.xml modules/stabilization_float_euler.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/imu_common.xml"
    gui_color="#337e387bffff"
+   release=""
   />
   <aircraft
    name="Minion_RP3"
@@ -86,5 +88,6 @@
    settings="settings/fixedwing_basic.xml settings/nps.xml"
    settings_modules="modules/battery_monitor.xml modules/lidar_sf11.xml modules/nav_skid_landing.xml modules/nav_survey_poly_osam.xml modules/gps.xml modules/nav_basic_fw.xml modules/guidance_basic_fw.xml modules/stabilization_attitude_fw.xml"
    gui_color="#00009e93ffff"
+   release=""
   />
 </conf>
