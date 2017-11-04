@@ -18,6 +18,10 @@
   <init fun="spprz_dl_init()"/>
   <event fun="spprz_dl_event()"/>
   <makefile target="!fbw|sim|nps|hitl">
+    <raw>
+      # to not use 128 bit arithmetic
+      ap.CFLAGS += -DKRML_NOUINT128
+    </raw>
     <configure name="MODEM_PORT" case="upper|lower"/>
     <define name="USE_$(MODEM_PORT_UPPER)"/>
     <define name="$(MODEM_PORT_UPPER)_BAUD" value="$(MODEM_BAUD)"/>
@@ -32,6 +36,17 @@
     <file name="datalink.c" dir="subsystems/datalink"/>
     <file name="telemetry.c" dir="subsystems/datalink"/>
     <file name="secure_pprz_transport.c" dir="pprzlink/src"/>
+
+    <!-- HACL-C files -->
+    <!-- TODO: convert into a paparazzi module? -->
+    <file name="Chacha20Poly1305.c" dir="pprzlink/src/hacl-c"/>
+    <file name="kremlib.c" dir="pprzlink/src/hacl-c"/>
+    <file name="Hacl_Policies.c" dir="pprzlink/src/hacl-c"/>
+    <file name="AEAD_Poly1305_64.c" dir="pprzlink/src/hacl-c"/>
+    <file name="Chacha20.c" dir="pprzlink/src/hacl-c"/>
+    <file name="Curve25519.c" dir="pprzlink/src/hacl-c"/>
+    <file name="Ed25519.c" dir="pprzlink/src/hacl-c"/>
+    <file name="SHA2_512.c" dir="pprzlink/src/hacl-c"/>
   </makefile>
   <makefile target="ap" firmware="fixedwing">
     <file name="fixedwing_datalink.c" dir="$(SRC_FIRMWARE)"/>
