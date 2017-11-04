@@ -1,0 +1,25 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="haclc" dir="datalink/hacl-c" task="datalink">
+  <doc>
+    <description>
+      HACL* verified cryptographic library
+      see https://github.com/mitls/hacl-star for details
+    </description>
+  </doc>
+  <makefile target="!fbw|sim|nps|hitl">
+    <file name="Chacha20Poly1305.c"/>
+    <file name="kremlib.c"/>
+    <file name="Hacl_Policies.c"/>
+    <file name="AEAD_Poly1305_64.c"/>
+    <file name="Chacha20.c"/>
+    <file name="Curve25519.c"/>
+    <file name="Ed25519.c"/>
+    <file name="SHA2_512.c"/>
+    <raw>
+      # to not use 128 bit arithmetic
+      ap.CFLAGS += -DKRML_NOUINT128
+    </raw>
+  </makefile>
+</module>
+
