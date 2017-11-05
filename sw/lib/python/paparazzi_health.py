@@ -128,18 +128,21 @@ class PaparazziOverview(object):
             return airframe
         afile = os.path.join(paparazzi.conf_dir, xmlname)
         if os.path.exists(afile):
-            e = xml.etree.ElementTree.parse(afile).getroot()
-            for atype in e.findall('firmware'):
-                if (not atype.get('name') is None) & (not atype.get('name') == "") & (not atype.get('name') in airframe.firmware):
-                     airframe.firmware.append(atype.get('name'))
-                for btype in atype.findall('target'):
-                    if (not btype.get('board') is None) & (not btype.get('board') == "") & (not btype.get('board') in airframe.board):
-                         airframe.board.append( btype.get('board') )
-            for atype in e.findall('include'):
-                if (not atype.get('href') is None) & (not atype.get('href') == ""):
-                     airframe.includes.append( atype.get('href') )
-            for atype in e.findall('description'):
-                airframe.description = atype.text
+            try:
+                e = xml.etree.ElementTree.parse(afile).getroot()
+                for atype in e.findall('firmware'):
+                    if (not atype.get('name') is None) & (not atype.get('name') == "") & (not atype.get('name') in airframe.firmware):
+                        airframe.firmware.append(atype.get('name'))
+                    for btype in atype.findall('target'):
+                        if (not btype.get('board') is None) & (not btype.get('board') == "") & (not btype.get('board') in airframe.board):
+                            airframe.board.append( btype.get('board') )
+                for atype in e.findall('include'):
+                    if (not atype.get('href') is None) & (not atype.get('href') == ""):
+                        airframe.includes.append( atype.get('href') )
+                for atype in e.findall('description'):
+                    airframe.description = atype.text
+            except xml.etree.ElementTree.ParseError as e:
+                print("Could not parse {}: {}".format(afile, e))
             
         return airframe
 
