@@ -11,11 +11,10 @@ pygtk.require('2.0')
 import os
 import shutil
 import datetime
-from fnmatch import fnmatch
 import subprocess
 import sys
 
-lib_path = os.path.abspath(os.path.join( 'sw', 'lib', 'python'))
+lib_path = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'sw', 'lib', 'python'))
 sys.path.append(lib_path)
 
 import paparazzi
