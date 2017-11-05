@@ -9,12 +9,24 @@
       <define name="BEBOP_AUTO_WHITE_BALANCE" value="true" description="Perform auto white balance (Default: true)"/>
     </section>
   </doc>
-  
+  <settings>
+  <dl_settings>
+    <dl_settings NAME="AE/AWB">
+      <dl_setting var="ae_awb_gain" min="0" step="0.01" max="1" module="computer_vision/cv_ae_awb" shortname="AE gain"/>
+      <dl_setting var="ae_middle_index" min="6" step="1" max="249" module="computer_vision/cv_ae_awb" shortname="AE histogram center"/>
+      <dl_setting var="ae_exposure_gain" min="0" step="0.01" max="1" module="computer_vision/cv_ae_awb" shortname="AE gain"/>
+      <dl_setting var="ae_dark_bins" min="0" step="1" max="127" module="computer_vision/cv_ae_awb" shortname="AE dark bins"/>
+      <dl_setting var="ae_bright_bins" min="0" step="1" max="127" module="computer_vision/cv_ae_awb" shortname="AE bright bins"/>
+      <dl_setting var="ae_dark_ignore" min="0" step="0.01" max="1" module="computer_vision/cv_ae_awb" shortname="AE ignore dark (%)"/>
+      <dl_setting var="ae_bright_ignore" min="0" step="0.01" max="1" module="computer_vision/cv_ae_awb" shortname="AE ignore bright (%)"/>
+    </dl_settings>
+  </dl_settings>
+</settings>
   <header>
     <file name="bebop_ae_awb.h"/>
   </header>
   <init fun="bebop_ae_awb_init()"/>
-  <periodic fun="bebop_ae_awb_periodic()" freq="5" autorun="TRUE"/>
+  <periodic fun="bebop_ae_awb_periodic()" freq="5" autorun="FALSE"/>
   <makefile target="ap">
     <file name="bebop_ae_awb.c"/>
   </makefile>
