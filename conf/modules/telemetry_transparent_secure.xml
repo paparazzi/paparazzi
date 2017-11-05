@@ -16,7 +16,6 @@
     <file name="spprz_dl.h"/>
   </header>
   <init fun="spprz_dl_init()"/>
-  <periodic fun="spprz_dl_periodic()" freq="PERIODIC_FREQUENCY" autorun="TRUE"/>
   <event fun="spprz_dl_event()"/>
   <makefile target="!fbw|sim|nps|hitl">
     <configure name="MODEM_PORT" case="upper|lower"/>
