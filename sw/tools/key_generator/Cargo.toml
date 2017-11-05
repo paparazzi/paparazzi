@@ -1,7 +1,7 @@
 [package]
 name = "key_generator"
 version = "0.1.0"
-authors = ["Michal Podhradsky <michal.podhradsky@galois.com>"]
+authors = ["Michal Podhradsky <mpodhradsky@galois.com>"]
 
 [dependencies]
 rusthacl = { git = "https://github.com/podhrmic/rusthacl" }
