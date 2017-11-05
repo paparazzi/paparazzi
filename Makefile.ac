@@ -195,6 +195,7 @@ $(AIRFRAME_H) : $(CONF)/$(AIRFRAME_XML) $(CONF_XML) $(AIRCRAFT_MD5)
 	$(Q)mv $($@_TMP) $@
 	$(Q)chmod a+r $@
 	$(Q)cp $(CONF)/airframes/airframe.dtd $(AIRCRAFT_CONF_DIR)/airframes
+	$(Q)cargo run --manifest-path $(PAPARAZZI_HOME)/sw/tools/key_generator/Cargo.toml --release $(AC_GENERATED)
 
 $(RADIO_H) : $(CONF)/$(RADIO) $(CONF_XML) $(GENERATORS)/gen_radio.out
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
