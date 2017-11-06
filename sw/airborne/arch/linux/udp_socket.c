@@ -145,7 +145,7 @@ int udp_socket_send_dontwait(struct UdpSocket *sock, uint8_t *buffer, uint32_t l
   }
 
   ssize_t bytes_sent = sendto(sock->sockfd, buffer, len, MSG_DONTWAIT,
-                       (struct sockaddr *)&sock->addr_out, sizeof(sock->addr_out));
+                              (struct sockaddr *)&sock->addr_out, sizeof(sock->addr_out));
   return bytes_sent;
 }
 
@@ -191,7 +191,8 @@ int udp_socket_recv(struct UdpSocket *sock, uint8_t *buffer, uint32_t len)
   return (int)bytes_read;
 }
 
-int udp_socket_subscribe_multicast(struct UdpSocket *sock, const char* multicast_addr) {
+int udp_socket_subscribe_multicast(struct UdpSocket *sock, const char *multicast_addr)
+{
   // Create the request
   struct ip_mreq mreq;
   mreq.imr_multiaddr.s_addr = inet_addr(multicast_addr);
@@ -201,15 +202,33 @@ int udp_socket_subscribe_multicast(struct UdpSocket *sock, const char* multicast
   return setsockopt(sock->sockfd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *)&mreq, sizeof(mreq));
 }
 
-int udp_socket_set_recvbuf(struct UdpSocket *sock, int buf_size) {
+int udp_socket_set_recvbuf(struct UdpSocket *sock, int buf_size)
+{
   // Set and check
   unsigned int optval_size = 4;
   int buf_ret;
   setsockopt(sock->sockfd, SOL_SOCKET, SO_RCVBUF, (char *)&buf_size, optval_size);
   getsockopt(sock->sockfd, SOL_SOCKET, SO_RCVBUF, (char *)&buf_ret, &optval_size);
 
-  if(buf_size != buf_ret)
+  if (buf_size != buf_ret) {
     return -1;
+  }
 
   return 0;
 }
+
+int udp_socket_set_sendbuf(struct UdpSocket *sock, int buf_size)
+{
+  // Set and check
+  unsigned int optval_size = 4;
+  int buf_ret;
+  setsockopt(sock->sockfd, SOL_SOCKET, SO_SNDBUF, (char *)&buf_size, optval_size);
+  getsockopt(sock->sockfd, SOL_SOCKET, SO_SNDBUF, (char *)&buf_ret, &optval_size);
+
+  if (buf_size != buf_ret) {
+    return -1;
+  }
+
+  return 0;
+}
+
