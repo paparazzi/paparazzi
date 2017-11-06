@@ -847,9 +847,9 @@ let parse_variables = fun xml ->
         let n = ExtXml.attrib var "name"
         and vs = ExtXml.attrib var "vars"
         and i = ExtXml.attrib_or_default var "id" "ABI_BROADCAST"
-        and c = ExtXml.attrib_or_default var "if" "1" in
+        and h = ExtXml.attrib_or_default var "handler" "_" in
         let vs = Str.split (Str.regexp "[ ]*,[ ]*") vs in
-        FP_binding (n, vs, i, c)
+        FP_binding (n, vs, i, h)
     | _ -> failwith "Gen_flight_plan: unexpected variables tag"
   ) xml
 
@@ -859,30 +859,35 @@ let print_var_decl abi_msgs = function
 
 let print_var_impl abi_msgs = function
   | FP_var (v, t, i) -> printf "%s %s = %s;\n" t v i
-  | FP_binding (n, vs, _, _) ->
+  | FP_binding (n, vs, _, h) ->
       printf "static abi_event FP_%s_ev;\n" n;
-      let field_types = Hashtbl.find abi_msgs n in
-      List.iter2 (fun abi_t user -> if not (user = "_") then printf "static %s %s;\n" abi_t user) field_types vs
+      if (h ="_") then
+          let field_types = Hashtbl.find abi_msgs n in
+          List.iter2 (fun abi_t user -> if not (user = "_") then printf "static %s %s;\n" abi_t user) field_types vs
 
 let print_auto_init_bindings = fun abi_msgs variables ->
   let print_cb = function
-    | FP_binding (n, vs, _, c) ->
-        let field_types = Hashtbl.find abi_msgs n in
-        printf "static void FP_%s_cb(uint8_t sender_id __attribute__((unused))" n;
-        List.iteri (fun i v ->
-          if v = "_" then printf ", %s _unused_%d __attribute__((unused))" (List.nth field_types i) i
-          else printf ", %s _%s" (List.nth field_types i) v
-        ) vs;
-        printf ") {\n  if (%s) {\n" c;
-        List.iter (fun v ->
-          if not (v = "_") then printf "    %s = _%s;\n" v v
-        ) vs;
-        printf "  }\n}\n\n"
+    | FP_binding (n, vs, _, h) ->
+        if (h = "_") then
+            let field_types = Hashtbl.find abi_msgs n in
+            printf "static void FP_%s_cb(uint8_t sender_id __attribute__((unused))" n;
+            List.iteri (fun i v ->
+              if v = "_" then printf ", %s _unused_%d __attribute__((unused))" (List.nth field_types i) i
+              else printf ", %s _%s" (List.nth field_types i) v
+            ) vs;
+            printf ") {\n";
+            List.iter (fun v ->
+              if not (v = "_") then printf "  %s = _%s;\n" v v
+            ) vs;
+            printf "}\n\n"
     | _ -> ()
   in
   let print_bindings = function
-    | FP_binding (n, _, i, _) ->
-        printf "  AbiBindMsg%s(%s, &FP_%s_ev, FP_%s_cb);\n" n i n n
+    | FP_binding (n, _, i, h) ->
+        if (h = "_") then
+            printf "  AbiBindMsg%s(%s, &FP_%s_ev, FP_%s_cb);\n" n i n n
+        else
+            printf "  AbiBindMsg%s(%s, &FP_%s_ev, %s);\n" n i n h
     | _ -> ()
   in
   List.iter print_cb variables;
@@ -979,12 +984,12 @@ let () =
       printf "#include \"std.h\"\n";
       printf "#include \"generated/modules.h\"\n";
       printf "#include \"subsystems/abi.h\"\n";
-      printf "#include \"autopilot.h\"\n";
+      printf "#include \"autopilot.h\"\n\n";
 
       begin
         try
           let header = ExtXml.child (ExtXml.child xml "header") "0" in
-          printf "%s\n" (Xml.pcdata header)
+          printf "%s\n\n" (Xml.pcdata header)
         with _ -> ()
       end;
 

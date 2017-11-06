@@ -40,7 +40,6 @@ extern struct range_forcefield_param_t range_forcefield_param;
 
 extern void range_forcefield_init(void);
 extern void range_forcefield_periodic(void);
-extern void range_forcefield_update(struct FloatVect3 *ff_vel_body, float range, struct FloatEulers *body_to_sensor_eulers,
-                             struct range_forcefield_param_t* ff_params);
+extern void range_forcefield_update(float range, struct FloatEulers *body_to_sensor_eulers);
 
 #endif

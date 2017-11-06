@@ -54,25 +54,23 @@ PRINT_CONFIG_VAR(RANGE_FORCEFIELD_MIN_VEL)
 PRINT_CONFIG_VAR(RANGE_FORCEFIELD_MAX_VEL)
 
 struct range_forcefield_param_t range_forcefield_param;
-static struct FloatVect3 ff_nearest_obs;
+static struct FloatVect3 ff_nearest_obs_pos;  // nearest obstacle on positive axis
+static struct FloatVect3 ff_nearest_obs_neg;  // nearest obstacle on negative axis
+
+static float compute_ff_vel(float range);
+static void store_min_dist(float pos, float *nearest_pos, float range);
 
 static abi_event obstacle_ev;
 static void obstacle_cb(uint8_t sender_id __attribute__((unused)), float range, float azimuth,
     float bearing)
 {
   static struct FloatEulers body_to_sensors_eulers;
-  static struct FloatVect3 ff_vel_body;
 
-  // loop through the range sensor array
-  // Get the orientation  and value of the range array measurement (per sensor)
   body_to_sensors_eulers.phi = 0;
   body_to_sensors_eulers.theta = azimuth;
   body_to_sensors_eulers.psi = bearing;
 
-  // Calculate forcefield for that one measurement
-  range_forcefield_update(&ff_vel_body, range, &body_to_sensors_eulers, &range_forcefield_param);
-
-  AbiSendMsgRANGE_FORCEFIELD(RANGE_FORCEFIELD_ID, ff_vel_body.x, ff_vel_body.y, ff_vel_body.z);
+  range_forcefield_update(range, &body_to_sensors_eulers);
 }
 
 void range_forcefield_init(void)
@@ -82,56 +80,45 @@ void range_forcefield_init(void)
   range_forcefield_param.min_vel = RANGE_FORCEFIELD_MIN_VEL;
   range_forcefield_param.max_vel = RANGE_FORCEFIELD_MAX_VEL;
 
-  ff_nearest_obs.x = RANGE_FORCEFIELD_OUTER_LIMIT;
-  ff_nearest_obs.y = RANGE_FORCEFIELD_OUTER_LIMIT;
-  ff_nearest_obs.z = RANGE_FORCEFIELD_OUTER_LIMIT;
+  ff_nearest_obs_pos.x = RANGE_FORCEFIELD_OUTER_LIMIT;
+  ff_nearest_obs_pos.y = RANGE_FORCEFIELD_OUTER_LIMIT;
+  ff_nearest_obs_pos.z = RANGE_FORCEFIELD_OUTER_LIMIT;
+
+  ff_nearest_obs_neg.x = -RANGE_FORCEFIELD_OUTER_LIMIT;
+  ff_nearest_obs_neg.y = -RANGE_FORCEFIELD_OUTER_LIMIT;
+  ff_nearest_obs_neg.z = -RANGE_FORCEFIELD_OUTER_LIMIT;
 
   AbiBindMsgOBSTACLE_DETECTION(RANGE_FORCEFIELD_RECIEVE_ID, &obstacle_ev, obstacle_cb);
 }
 
+/* Compute range forcefield and send abi message
+ *
+ */
 void range_forcefield_periodic(void)
 {
+  static struct FloatVect3 ff_vel_body;
+  ff_vel_body.x = compute_ff_vel(ff_nearest_obs_pos.x) - compute_ff_vel(fabsf(ff_nearest_obs_neg.x));
+  ff_vel_body.y = compute_ff_vel(ff_nearest_obs_pos.y) - compute_ff_vel(fabsf(ff_nearest_obs_neg.y));
+  ff_vel_body.z = compute_ff_vel(ff_nearest_obs_pos.z) - compute_ff_vel(fabsf(ff_nearest_obs_neg.z));
+
+  AbiSendMsgRANGE_FORCEFIELD(RANGE_FORCEFIELD_ID, ff_vel_body.x, ff_vel_body.y, ff_vel_body.z);
+
   // apply forgetting factor to forcefield, handles if obstacle no longer in sight / updated
-  ff_nearest_obs.x = ff_nearest_obs.x < RANGE_FORCEFIELD_OUTER_LIMIT ? ff_nearest_obs.x*1.1 : RANGE_FORCEFIELD_OUTER_LIMIT;
-  ff_nearest_obs.y = ff_nearest_obs.y < RANGE_FORCEFIELD_OUTER_LIMIT ? ff_nearest_obs.y*1.1 : RANGE_FORCEFIELD_OUTER_LIMIT;
-  ff_nearest_obs.z = ff_nearest_obs.z < RANGE_FORCEFIELD_OUTER_LIMIT ? ff_nearest_obs.z*1.1 : RANGE_FORCEFIELD_OUTER_LIMIT;
+  ff_nearest_obs_pos.x = ff_nearest_obs_pos.x < RANGE_FORCEFIELD_OUTER_LIMIT ? ff_nearest_obs_pos.x*1.1 : RANGE_FORCEFIELD_OUTER_LIMIT;
+  ff_nearest_obs_pos.y = ff_nearest_obs_pos.y < RANGE_FORCEFIELD_OUTER_LIMIT ? ff_nearest_obs_pos.y*1.1 : RANGE_FORCEFIELD_OUTER_LIMIT;
+  ff_nearest_obs_pos.z = ff_nearest_obs_pos.z < RANGE_FORCEFIELD_OUTER_LIMIT ? ff_nearest_obs_pos.z*1.1 : RANGE_FORCEFIELD_OUTER_LIMIT;
+
+  ff_nearest_obs_neg.x = ff_nearest_obs_neg.x > -RANGE_FORCEFIELD_OUTER_LIMIT ? ff_nearest_obs_neg.x*1.1 : -RANGE_FORCEFIELD_OUTER_LIMIT;
+  ff_nearest_obs_neg.y = ff_nearest_obs_neg.y > -RANGE_FORCEFIELD_OUTER_LIMIT ? ff_nearest_obs_neg.y*1.1 : -RANGE_FORCEFIELD_OUTER_LIMIT;
+  ff_nearest_obs_neg.z = ff_nearest_obs_neg.z > -RANGE_FORCEFIELD_OUTER_LIMIT ? ff_nearest_obs_neg.z*1.1 : -RANGE_FORCEFIELD_OUTER_LIMIT;
 }
 
-/* Compute the forcefield velocity command given the distance to the obstacle and the forcefield parameters
- * @param range Distance to obstacle
- * @param ff_params The forcefield settings to generate the velocity
- */
-static float compute_ff_vel(float range, struct range_forcefield_param_t* ff_params)
-{
-  float ff_vel = 0.f;
-  // Calculate avoidance velocity
-  if (range < 0.001f) {
-    //do nothing
-  } else if (range < ff_params->inner_limit) {
-    ff_vel = -ff_params->max_vel;
-  } else if (range < ff_params->outer_limit) {
-    // Linear
-    ff_vel = -(ff_params->max_vel - ff_params->min_vel) * (ff_params->outer_limit - range)
-                    / (ff_params->outer_limit - ff_params->inner_limit);
-  }
-  return ff_vel;
-}
-
-/* range_sensor_update_forcefield: This function adjusts the intended velocity commands in the horizontal plane
- * to move away from obstacles and walls as detected by single ray range sensors. An simple linear equation with
- * the distance measured by the range sensors and the given minimum and maximum avoid velocity, it will create a
- * velocity forcefield which can be used during a guided flight.
+/* range_sensor_update_forcefield: This stores the range sensor measurement in
  *
- * @param[out] ff_vel_body, intended body fixed velocity in the y direction in [m/s]
  * @param[in] range, input range measurement
  * @param[in] body_to_sensors_eulers, euler angles of the orientation of the range sensor in question[rad]
- * @param[in] ff_inner_limit, minimum allowable distance from the obstacle in [m]
- * @param[in] ff_outer_limit, maximum allowable distance from the obstacle in [m]
- * @param[in] min_vel, minimum velocity for the forcefield generation [m/s]
- * @param[in] max_vel, maximum velocity for the forcefield generation [m/s]
  * */
-void range_forcefield_update(struct FloatVect3 *ff_vel_body, float range, struct FloatEulers *body_to_sensor_eulers,
-                             struct range_forcefield_param_t* ff_params)
+void range_forcefield_update(float range, struct FloatEulers *body_to_sensor_eulers)
 {
   // generate vector to obstacle location based on range and rotation
   struct FloatVect3 obs_loc, range_vec = {range, 0, 0};
@@ -140,11 +127,54 @@ void range_forcefield_update(struct FloatVect3 *ff_vel_body, float range, struct
   float_rmat_transp_vmult(&obs_loc, &range_sensor_to_body, &range_vec);
 
   // store closest distance in each axis
-  ff_nearest_obs.x = obs_loc.x > ff_nearest_obs.x ? obs_loc.x : ff_nearest_obs.x;
-  ff_nearest_obs.y = obs_loc.y > ff_nearest_obs.y ? obs_loc.y : ff_nearest_obs.y;
-  ff_nearest_obs.z = obs_loc.z > ff_nearest_obs.z ? obs_loc.z : ff_nearest_obs.z;
+  store_min_dist(obs_loc.x, &(ff_nearest_obs_pos.x), range);
+  store_min_dist(obs_loc.x, &(ff_nearest_obs_neg.x), range);
 
-  ff_vel_body->x = compute_ff_vel(ff_nearest_obs.x, ff_params);
-  ff_vel_body->y = compute_ff_vel(ff_nearest_obs.y, ff_params);
-  ff_vel_body->z = compute_ff_vel(ff_nearest_obs.z, ff_params);
+  store_min_dist(obs_loc.y, &(ff_nearest_obs_pos.y), range);
+  store_min_dist(obs_loc.y, &(ff_nearest_obs_neg.y), range);
+
+  store_min_dist(obs_loc.z, &(ff_nearest_obs_pos.z), range);
+  store_min_dist(obs_loc.z, &(ff_nearest_obs_neg.z), range);
+}
+
+/* Compute the forcefield velocity command given the distance to the obstacle and the forcefield parameters
+ * @param range Distance to obstacle
+ * @param ff_params The forcefield settings to generate the velocity
+ */
+static float compute_ff_vel(float range)
+{
+  float ff_vel = 0.f;
+  // Calculate avoidance velocity
+  if (range < 0.001f) {
+    //do nothing
+  } else if (range < range_forcefield_param.inner_limit) {
+    ff_vel = -range_forcefield_param.max_vel;
+  } else if (range < range_forcefield_param.outer_limit) {
+    // Linear
+    ff_vel = -(range_forcefield_param.max_vel - range_forcefield_param.min_vel) * (range_forcefield_param.outer_limit - range)
+                    / (range_forcefield_param.outer_limit - range_forcefield_param.inner_limit);
+  }
+  return ff_vel;
+}
+
+/* Store the minimum directional distance
+ * pos directional position on axis
+ * nearest_pos     pointer to store nearest position
+ * range           magnitude of the range vector being stored
+ */
+static void store_min_dist(float pos, float *nearest_pos, float range)
+{
+  // check if obstacle in range for this axis
+  // 1/2 of total distance vector relates to an angle of 60deg in plane
+  if (fabsf(pos) >= range / 2.f)
+  {
+    // if obstacle should be considered in x axis, remember extremum in either direction
+    if (pos > 0.f && pos < *nearest_pos)
+    {
+      *nearest_pos = pos;
+    } else if (pos < 0.f && pos > *nearest_pos)
+    {
+      *nearest_pos = pos;
+    }
+  }
 }
