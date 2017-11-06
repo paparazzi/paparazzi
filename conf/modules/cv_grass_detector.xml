@@ -1,0 +1,35 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="GrassDetector" dir="computer_vision">
+  <doc>
+    <description>GrassDetector</description>
+    <define name="GRASS_DETECTOR_CAMERA" value="front_camera|bottom_camera" description="Video device to use"/>
+  </doc>
+
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="GrassDetector">
+         <dl_setting var="listener->active" min="0" step="1" max="1" shortname="active" />
+         <dl_setting var="color_lum_min" min="0" step="1" max="255" shortname="y_min" />
+         <dl_setting var="color_lum_max" min="0" step="1" max="255" shortname="y_max" />
+         <dl_setting var="color_cb_min"  min="0" step="1" max="255" shortname="u_min" />
+         <dl_setting var="color_cb_max"  min="0" step="1" max="255" shortname="u_max" />
+         <dl_setting var="color_cr_min"  min="0" step="1" max="255" shortname="v_min" />
+         <dl_setting var="color_cr_max"  min="0" step="1" max="255" shortname="v_max" />
+         <dl_setting var="settings_count_threshold"  min="0" step="0.01" max="1" shortname="count perc" />
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <depends>video_thread</depends>
+
+  <header>
+    <file name="grass_detector.h"/>
+  </header>
+
+  <init fun="grass_detector_init()"/>
+  <makefile target="ap">
+    <file name="grass_detector.c"/>
+  </makefile>
+</module>
+

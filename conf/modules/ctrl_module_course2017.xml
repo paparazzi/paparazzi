@@ -1,0 +1,32 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ctrl_module_course2017" dir="ctrl">
+  <doc>
+    <description>
+        Demo Control Module.
+        Only for rotorcraft firmware.
+        Simple rate controler as example on how to integrate write and call your own controller in a module.
+    </description>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="CtrlModCourse">
+        <dl_setting var="rc_yaw_gain" min="0" step="0.01" max="10" module="ctrl/ctrl_module_course2017" shortname="rc yaw gain"/>
+        <dl_setting var="rc_pitch_gain" min="0" step="0.01" max="10" module="ctrl/ctrl_module_course2017" shortname="rc yaw gain"/>
+        <dl_setting var="rc_roll_gain" min="0" step="0.01" max="10" module="ctrl/ctrl_module_course2017" shortname="rc yaw gain"/>
+        <dl_setting var="position_gain" min="0" step="0.01" max="10" module="ctrl/ctrl_module_course2017" shortname="pos gain"/>
+        <dl_setting var="settings_grass_gain" min="0" step="0.5" max="200" module="ctrl/ctrl_module_course2017" shortname="grass gain"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <header>
+    <file name="ctrl_module_course2017.h"/>
+  </header>
+
+  <makefile>
+    <file name="ctrl_module_course2017.c"/>
+  </makefile>
+
+</module>
+

@@ -13,7 +13,7 @@
     <file name="orange_avoider.h"/>
   </header>
   <init fun="orange_avoider_init()"/>
-  <periodic fun="orange_avoider_periodic()" freq="4"/>
+  <periodic fun="orange_avoider_periodic()" freq="15"/>
   <makefile target="ap">
     <file name="orange_avoider.c"/>
   </makefile>
