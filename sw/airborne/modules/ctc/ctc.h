@@ -37,8 +37,8 @@ typedef struct {
   float target_py;
   float target_vx;
   float target_vy;
-  float speed;
-  float theta;
+  float vx;
+  float vy;
   float px;
   float py;
   uint16_t time_broad;

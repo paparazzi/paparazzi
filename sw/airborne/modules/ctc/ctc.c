@@ -39,14 +39,14 @@
 #if PERIODIC_TELEMETRY
 static void send_ctc(struct transport_tx *trans, struct link_device *dev)
 {
-   pprz_msg_send_CTC(trans, dev, AC_ID, 4*CTC_MAX_AC, &(tableNei[0][0]));
+   pprz_msg_send_CTC(trans, dev, AC_ID, 6*CTC_MAX_AC, &(tableNei[0][0]));
 }
 #endif // PERIODIC TELEMETRY
 
 // Control
 /*! Default gain k for the algorithm */
 #ifndef CTC_GAIN_K
-#define CTC_GAIN_K 0.05
+#define CTC_GAIN_K 0.01
 #endif
 /*! Default timeout in ms for the neighbors' information */
 #ifndef CTC_TIMEOUT
@@ -82,13 +82,19 @@ bool collective_tracking_control()
   struct EnuCoor_f *p = stateGetPositionEnu_f();
   float vx = v->x;
   float vy = v->y;
-  float p_centroid_x = p->x;
-  float p_centroid_y = p->y;
+  float px = p->x;
+  float py = p->y;
 
-  ctc_control.speed = sqrtf(vx*vx + vy*vy);
-  ctc_control.theta = atan2f(vy, vx);
-  ctc_control.px = p->x;
-  ctc_control.py = p->y;
+  ctc_control.vx = vx;
+  ctc_control.vy = vy;
+  ctc_control.px = px;
+  ctc_control.py = py;
+
+  float v_centroid_x = vx;
+  float v_centroid_y = vy;
+  float p_centroid_x = px;
+  float p_centroid_y = py;
+
 
   float u_vel = 0;
   float u_spa = 0;
@@ -105,11 +111,13 @@ bool collective_tracking_control()
       } else {
         tableNei[i][5] = (uint16_t)timeout;
         num_neighbors++;
-        float speed_nei = tableNei[i][1] / 100;
-        float theta_nei = tableNei[i][2] * M_PI / 1800;
+        float vx_nei = tableNei[i][1] / 100;
+        float vy_nei = tableNei[i][2] / 100;
         float px_nei = tableNei[i][3] / 100;
         float py_nei = tableNei[i][4] / 100;
-        u_vel += speed_nei*sinf(theta_nei - ctc_control.theta);
+
+        v_centroid_x += vx_nei;
+        v_centroid_y += vy_nei;
         p_centroid_x += px_nei;
         p_centroid_y += py_nei;
       }
@@ -117,31 +125,33 @@ bool collective_tracking_control()
   }
 
   if(num_neighbors != 0){
-      u_vel /= num_neighbors;
+      v_centroid_x /= num_neighbors;
+      v_centroid_y /= num_neighbors;
       p_centroid_x /= num_neighbors;
       p_centroid_y /= num_neighbors;
-      
+
       float error_target_x = ctc_control.target_px - p_centroid_x;
       float error_target_y = ctc_control.target_py - p_centroid_y;
       ctc_error_to_target = sqrtf(error_target_x*error_target_x + error_target_y*error_target_y);
-      float aux = (1-expf(-0.001*ctc_error_to_target)) / ctc_error_to_target;
-      float v_ref_x = ctc_control.target_vx + aux*error_target_x;
-      float v_ref_y = ctc_control.target_vy + aux*error_target_y;
+      float aux = (1-expf(-0.01*ctc_error_to_target)) / ctc_error_to_target;
+      float v_ref_x = ctc_control.target_vx + 10*aux*error_target_x;
+      float v_ref_y = ctc_control.target_vy + 10*aux*error_target_y;
 
-      float speed_ref = sqrtf(v_ref_x*v_ref_x + v_ref_y*v_ref_y);
-      float theta_ref = atan2f(v_ref_y, v_ref_x);
+      float error_v_x = v_centroid_x - v_ref_x;
+      float error_v_y = v_centroid_y - v_ref_y;
 
-      u_vel -= speed_ref*sinf(theta_ref - ctc_control.theta);
-      u_vel *= -(ctc_control.k*ctc_control.speed);
+      u_vel = -ctc_control.k*(-error_v_x*vy + error_v_y*vx);
+
+      //float error_px = px - p_centroid_x;
+      //float error_py = py - p_centroid_y;
+      //u_spa = 0.06*(1 + ctc_control.k*(error_px*vx + error_py*vy));
   }
 
   float u = u_vel + u_spa;
 
-  printf("%i Total u: %f\n", AC_ID, u*180/M_PI);
-
   if (autopilot_get_mode() == AP_MODE_AUTO2) {
     h_ctl_roll_setpoint =
-      -atanf(u * ctc_control.speed / 9.8 / cosf(att->theta));
+      -atanf(u * (sqrtf(vx*vx+vy*vy)) / 9.8 / cosf(att->theta));
     BoundAbs(h_ctl_roll_setpoint, h_ctl_roll_max_setpoint);
 
     lateral_mode = LATERAL_MODE_ROLL;
@@ -166,7 +176,7 @@ void ctc_send_info_to_nei(void)
       msg.sender_id = AC_ID;
       msg.receiver_id = tableNei[i][0];
       msg.component_id = 0;
-      pprzlink_msg_send_CTC_INFO_TO_NEI(&msg, &ctc_control.theta, &ctc_control.speed, &ctc_control.px, &ctc_control.py);
+      pprzlink_msg_send_CTC_INFO_TO_NEI(&msg, &ctc_control.vx, &ctc_control.vy, &ctc_control.px, &ctc_control.py);
     }
 }
 
@@ -197,8 +207,8 @@ void parse_ctc_NeiInfoTable(void)
   for (int i = 0; i < DCF_MAX_NEIGHBORS; i++)
     if (tableNei[i][0] == sender_id) {
       last_info[i] = get_sys_time_msec();
-      tableNei[i][1] = (int16_t)(DL_CTC_INFO_TO_NEI_speed(dl_buffer)*100);
-      tableNei[i][2] = (int16_t)((DL_CTC_INFO_TO_NEI_theta(dl_buffer)) * 1800 / M_PI);
+      tableNei[i][1] = (int16_t)(DL_CTC_INFO_TO_NEI_vx(dl_buffer)*100);
+      tableNei[i][2] = (int16_t)(DL_CTC_INFO_TO_NEI_vy(dl_buffer)*100);
       tableNei[i][3] = (int16_t)(DL_CTC_INFO_TO_NEI_px(dl_buffer)*100);
       tableNei[i][4] = (int16_t)(DL_CTC_INFO_TO_NEI_py(dl_buffer)*100);
       break;
