@@ -1,0 +1,36 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="range_forcefield" dir="range_forcefield">
+  <doc>
+    <description>This module generates a forcefield based on range sensor measurements the use of single point range sensor </description>
+
+    <section name="RANGE_FORCEFIELD" prefix="RANGE_FORCEFIELD_">
+      <define name="INNER_LIMIT" value="1." description="The inner border of the range forcefield, where the MAV will avoid the obstacle with the maximum velocity as given by MIN_VEL (in meters)"/>
+      <define name="OUTER_LIMIT" value="1.4" description="The outer border of the range forcefield, where the MAV will start avoiding with velocity determined on the range measurement (starts with MIN_VEL)"/>
+      <define name="MIN_VEL" value="0.0" description="The minimum velocity which forces the MAV out of the forcefield (in [m/s])"/>
+      <define name="MAX_VEL" value="0.5" description="The maximum velocity which forces the MAV out of the forcefield (in [m/s])"/>
+    </section>
+  </doc>
+
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="Range Velocity Force Field">
+        <dl_setting var="range_forcefield_param.inner_limit" min="0.5" step="0.1" max="3." module="range_forcefield/range_forcefield" shortname="inner_limit" param="RANGE_FORCEFIELD_INNER_LIMIT"/>
+        <dl_setting var="range_forcefield_param.outer_limit" min="0.5" step="0.1" max="3." module="range_forcefield/range_forcefield" shortname="outer_limit" param="RANGE_FORCEFIELD_OUTER_LIMIT"/>
+        <dl_setting var="range_forcefield_param.min_vel" min="0.0" step="0.1" max="1." module="range_forcefield/range_forcefield" shortname="min_vel" param="RANGE_FORCEFIELD_MIN_VEL"/>
+        <dl_setting var="range_forcefield_param.max_vel" min="0.1" step="0.1" max="5." module="range_forcefield/range_forcefield" shortname="max_vel" param="RANGE_FORCEFIELD_MIN_VEL"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  
+  <depends>laser_range_array</depends>
+
+  <header>
+    <file name="range_forcefield.h"/>
+  </header>
+  <init fun="range_forcefield_init()"/>
+  <periodic fun="range_forcefield_periodic()" freq="10"/>
+  <makefile>
+    <file name="range_forcefield.c"/>
+  </makefile>
+</module>

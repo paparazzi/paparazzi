@@ -123,6 +123,13 @@
 #define AGL_LIDAR_SF11_ID 8
 #endif
 
+#ifndef AGL_VL53L0_LASER_ARRAY_ID
+#define AGL_VL53L0_LASER_ARRAY_ID 9
+#endif
+
+#ifndef AGL_RAY_SENSOR_GAZEBO_ID
+#define AGL_RAY_SENSOR_GAZEBO_ID 10
+#endif
 /*
  * IDs of magnetometer sensors (including IMUs with mag)
  */
@@ -310,11 +317,27 @@
 #endif
 
 /*
- * IDs of Computer Vision Calculated variables
+ * IDs of Obstacle detection systems
  */
 
-#ifndef CV_COLORDETECTION
-#define CV_COLORDETECTION 1
+#ifndef OBS_DETECTION_COLOR_ID
+#define OBS_DETECTION_COLOR_ID 1
+#endif
+
+#ifndef OBS_DETECTION_RANGE_ARRAY_ID
+#define OBS_DETECTION_RANGE_ARRAY_ID 2
+#endif
+
+#ifndef OBS_DETECTION_RANGE_ARRAY_NPS_ID
+#define OBS_DETECTION_RANGE_ARRAY_NPS_ID 3
+#endif
+
+/*
+ * ID's of forcefield generating type functions
+ */
+
+#ifndef RANGE_FORCEFIELD_ID
+#define RANGE_FORCEFIELD_ID 1
 #endif
 
 

@@ -93,8 +93,9 @@
     </message>
 
     <message name="OBSTACLE_DETECTION" id="17">
-      <field name="distance_obstacle" type="float" unit="m"/>
-      <field name="relative_heading" type="float" unit="rad"/>
+      <field name="distance" type="float" unit="m"/>
+      <field name="elevation" type="float" unit="rad"/>
+      <field name="heading" type="float" unit="rad"/>
     </message>
 
     <message name="POSITION_ESTIMATE" id="18">
@@ -111,6 +112,12 @@
       <field name="vx" type="float" unit="m/s"/>
       <field name="vy" type="float" unit="m/s"/>
       <field name="h" type="float" unit="m"/>
+    </message>
+
+    <message name="RANGE_FORCEFIELD" id="20">
+      <field name="vel_body_x_FF" type="float" unit="m/s"/>
+      <field name="vel_body_y_FF" type="float" unit="m/s"/>
+      <field name="vel_body_z_FF" type="float" unit="m/s"/>
     </message>
 
   </msg_class>

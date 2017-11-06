@@ -531,7 +531,7 @@ extern "C" {
     (_q).qz = (_z);         \
   }
 
-/* _qc = _qa - _qc */
+/* _qc = _qa - _qb */
 #define QUAT_DIFF(_qc, _qa, _qb) {      \
     (_qc).qi = (_qa).qi - (_qb).qi;     \
     (_qc).qx = (_qa).qx - (_qb).qx;     \
@@ -592,6 +592,9 @@ extern "C" {
     (_qo).qy = (_qi).qy / (_s); \
     (_qo).qz = (_qi).qz / (_s); \
   }
+
+/* return = _qa * _qb */
+#define QUAT_DOT_PRODUCT(_qa, _qb) ((_qa).qi * (_qb).qi + (_qa).qx * (_qb).qx + (_qa).qy * (_qb).qy + (_qa).qz * (_qb).qz)
 
 //
 //

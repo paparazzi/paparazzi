@@ -204,8 +204,8 @@
     <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
 
     <define name="GAZEBO_AC_NAME" value="simple_x_quad" type="string"/>    
-    <define name="ACTUATOR_THRUSTS" value="1.55, 1.55, 1.55, 1.55" type="double[]"/>
-    <define name="ACTUATOR_TORQUES" value="0.155, 0.155, 0.155, 0.155" type="double[]"/>
+    <define name="ACTUATOR_THRUSTS" value="1.55, 1.55, 1.55, 1.55" type="float[]"/>
+    <define name="ACTUATOR_TORQUES" value="0.155, 0.155, 0.155, 0.155" type="float[]"/>
     
     <!--define name="DEBUG_STEREOCAM" value="1"/-->
     <!--define name="NO_GPS" value="1"/-->

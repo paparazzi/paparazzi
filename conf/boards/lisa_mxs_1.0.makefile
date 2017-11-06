@@ -25,4 +25,6 @@ DFU_ADDR = 0x8004000
 DFU_PRODUCT = Lisa/Lia
 endif
 
+FLASH_MODE ?= SWD_NOPWR
+
 include $(PAPARAZZI_SRC)/conf/boards/lisa_m_defaults.makefile

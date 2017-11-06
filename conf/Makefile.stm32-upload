@@ -189,7 +189,7 @@ upload: $(OBJDIR)/$(TARGET).bin
 else
 upload:
 	@echo unknown FLASH_MODE $(FLASH_MODE)
-	@echo Available FLASH_MODEs: DFU, DFU-UTIL, SWD, JTAG, JTAG_BMP, STLINK, SERIAL
+	@echo Available FLASH_MODEs: DFU, DFU-UTIL, SWD, JTAG, JTAG_BMP, STLINK, SERIAL, SWD_NOPWR
 endif
 
 .PHONY : upload
