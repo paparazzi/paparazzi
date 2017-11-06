@@ -60,9 +60,6 @@
 extern struct video_config_t bottom_camera;
 extern struct video_config_t front_camera;
 
-/* ISP */
-struct mt9f002_t mt9f002;
-
 /* by default activate onboard baro */
 #ifndef USE_BARO_BOARD
 #define USE_BARO_BOARD 1

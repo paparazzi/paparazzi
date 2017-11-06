@@ -28,7 +28,7 @@
         <define name="GUIDANCE_INDI_RC_DEBUG" value="TRUE"/> </module> -->
 
 
-    <module name="video_thread"/>
+    <module name="bebop_cam"/>
     <module name="pose_history"/>
     <module name="cv_opticflow">
       <define name="OPTICFLOW_METHOD" value="0"/>

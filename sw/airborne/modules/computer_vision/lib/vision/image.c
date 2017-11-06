@@ -29,6 +29,10 @@
 #include <string.h>
 #include "lucas_kanade.h"
 
+#ifndef CACHE_LINE_LENGTH
+#define CACHE_LINE_LENGTH 64
+#endif
+
 /**
  * Create a new image
  * @param[out] *img The output image
@@ -54,7 +58,8 @@ void image_create(struct image_t *img, uint16_t width, uint16_t height, enum ima
     img->buf_size = sizeof(uint8_t) * width * height;
   }
 
-  img->buf = malloc(img->buf_size);
+  // aligned memory slightly speeds up any later copies
+  img->buf = aligned_alloc(CACHE_LINE_LENGTH, img->buf_size + (CACHE_LINE_LENGTH - img->buf_size % CACHE_LINE_LENGTH) % CACHE_LINE_LENGTH);
 }
 
 /**
@@ -87,6 +92,7 @@ void image_copy(struct image_t *input, struct image_t *output)
   output->ts = input->ts;
   output->eulers = input->eulers;
   output->pprz_ts = input->pprz_ts;
+
   memcpy(output->buf, input->buf, input->buf_size);
 }
 
@@ -296,16 +302,35 @@ void set_color_yuv422(struct image_t *im, int x, int y, uint8_t Y, uint8_t U, ui
 * @param[out] *output The downscaled YUV422 image
 * @param[in] downsample The downsample factor (must be downsample=2^X)
 */
-void image_yuv422_downsample(struct image_t *input, struct image_t *output, uint16_t downsample)
+void image_yuv422_downsample(struct image_t *input, struct image_t *output, uint8_t downsample)
 {
+  if (downsample < 1){
+    downsample = 1;
+  }
+
+  // bound downsample is a power of 2
+  if((downsample & (downsample - 1)) != 0){
+    for(int8_t i = 7; i > 0; i--){
+      if(downsample & (1<<i)){
+        downsample &= (1<<(i));
+        break;
+      }
+    }
+    downsample *= 2;
+  }
+
   uint8_t *source = input->buf;
   uint8_t *dest = output->buf;
   uint16_t pixelskip = (downsample - 1) * 2;
 
+  output->w = input->w / downsample;
+  output->h = input->h / downsample;
+  output->type = input->type;
+
   // Copy the creation timestamp (stays the same)
   output->ts = input->ts;
 
-  // Go trough all the pixels
+  // Go through all the pixels
   for (uint16_t y = 0; y < output->h; y++) {
     for (uint16_t x = 0; x < output->w; x += 2) {
       // YUYV
@@ -316,8 +341,7 @@ void image_yuv422_downsample(struct image_t *input, struct image_t *output, uint
       *dest++ = *source++; // Y
       source += pixelskip;
     }
-    // read 1 in every 'downsample' rows, so skip (downsample-1) rows after reading the first
-    source += (downsample - 1) * input->w * 2;
+    source += pixelskip * input->w;
   }
 }
 

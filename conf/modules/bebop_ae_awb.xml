@@ -2,11 +2,10 @@
 
 <module name="bebop_ae_awb" dir="computer_vision">
   <doc>
-    <description>Auto Exposure and Auto White Balancing for the Bebop 1 and 2</description>
+    <description>Auto Exposure and Auto White Balancing for the front camera on the Parrot Bebop 1 and 2 and the Disco</description>
     <section name="bebop_ae_awb">
       <define  name="BEBOP_AE_AWB_NICE" value="5" description="Nice setting for async thread"/>
       <define name="BEBOP_AUTO_EXPOSURE" value="true" description="perform auto exposure (Default: true)"/>
-      <define name="BEBOP_AE_AWB_CAMERA" value="front_camera|bottom_camera" description="which camera to run the AWB and AE"/>
       <define name="BEBOP_AE_AWB_VERBOSE" value="TRUE|FALSE" description="Whether or not to print debug information to the terminal"/>
       <define name="BEBOP_AE_EXPOSURE_GAIN" value="0.75" description="Gain to apply to autoexposure change"/>
       <define name="BEBOP_AE_MIDDLE_INDEX" value="110" description="Bin index to be considered as the center of the brightness bins"/>

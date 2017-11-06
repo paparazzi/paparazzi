@@ -117,7 +117,6 @@
     <file name="image.c" dir="modules/computer_vision/lib/vision"/>
     <file name="jpeg.c" dir="modules/computer_vision/lib/encoding"/>
     <file name="rtp.c" dir="modules/computer_vision/lib/encoding"/>
-    <file name="v4l2.c" dir="modules/computer_vision/lib/v4l"/>
 
     <!-- The optical flow module (calculator) -->
     <file name="opticflow_module.c"/>

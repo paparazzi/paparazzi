@@ -11,19 +11,6 @@
       <module name="fdm" type="gazebo"/>
     </target>
 
-    <!-- Front Camera parameters -->
-    <define name="MT9F002_INITIAL_OFFSET_X" value="0.09" /> <!-- Offset from center position [-0.5..0.5]. Set to 0.09 to center horizon. -->
-    <define name="MT9F002_INITIAL_OFFSET_Y" value="0." /> <!-- Offset from center position [-0.5..0.5] -->
-    <define name="MT9F002_OUTPUT_WIDTH" value="240" /> <!-- Output dimensions -->
-    <define name="MT9F002_OUTPUT_HEIGHT" value="520" /> <!-- Output dimensions -->
-    <define name="MT9F002_TARGET_FPS" value="30" />
-    <define name="MT9F002_TARGET_EXPOSURE" value="20" />
-    <define name="MT9F002_GAIN_GREEN1" value="4.0" />
-    <define name="MT9F002_GAIN_GREEN2" value="4.0" />
-    <define name="MT9F002_GAIN_RED" value="5.0" />
-    <define name="MT9F002_GAIN_BLUE" value="5.0" />
-    <define name="MT9F002_OUTPUT_SCALER" value="0.25"/>
-
   <!-- Subsystem section -->
     <module name="telemetry" type="transparent_udp"/>
     <module name="radio_control" type="datalink"/>
@@ -50,7 +37,7 @@
     </module>
 
     <!-- Video/Camera modules -->
-    <module name="video_thread" />
+    <module name="bebop_cam" />
     <!--module name="bebop_ae_awb">
       <define name="CV_AE_AWB_VERBOSE" value="0" />
     </module-->
@@ -100,6 +87,14 @@
     <set servo="BOTTOM_RIGHT" value="motor_mixing.commands[MOTOR_BACK_RIGHT]"/>
     <set servo="BOTTOM_LEFT" value="motor_mixing.commands[MOTOR_BACK_LEFT]"/>
   </command_laws>
+
+  <section name="BEBOP_FRONT_CAMERA" prefix="MT9F002_">
+    <define name="OUTPUT_HEIGHT" value="520" />
+    <define name="OUTPUT_WIDTH" value="240" />
+    <define name="OFFSET_X" value="0.09" />
+    <define name="TARGET_EXPOSURE" value="20" />
+    <define name="ZOOM" value="1.25"/>
+  </section>
 
   <!-- Cyberzoo bebop1 values -->
   <section name="COLORFILTER" prefix="ORANGE_AVOIDER_">

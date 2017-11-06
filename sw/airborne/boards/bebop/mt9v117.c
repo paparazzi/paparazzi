@@ -28,6 +28,7 @@
 #include "mt9v117.h"
 #include "mt9v117_regs.h"
 #include "boards/bebop.h"
+#include "generated/airframe.h"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -36,6 +37,27 @@
 #include <linux/i2c-dev.h>
 #include <linux/videodev2.h>
 #include <linux/v4l2-mediabus.h>
+
+#ifndef MT9V117_TARGET_FPS
+#define MT9V117_TARGET_FPS 0
+#endif
+
+// parameters for undistortion
+#ifndef MT9V117_FOCAL_X
+#define MT9V117_FOCAL_X 347.22f
+#endif
+#ifndef MT9V117_FOCAL_Y
+#define MT9V117_FOCAL_Y 347.22f
+#endif
+#ifndef MT9V117_CENTER_X
+#define MT9V117_CENTER_X 120.0f
+#endif
+#ifndef MT9V117_CENTER_Y
+#define MT9V117_CENTER_Y 120.0f
+#endif
+#ifndef MT9V117_DHANE_K
+#define MT9V117_DHANE_K 1.0f
+#endif
 
 /* Camera structure */
 struct video_config_t bottom_camera = {
@@ -70,6 +92,9 @@ struct video_config_t bottom_camera = {
   }
 };
 
+struct mt9v117_t mt9v117 = {
+  .i2c_periph = &i2c0
+};
 
 /* Patch lines */
 //I2C_BUF_LEN must be higher then size of these patch lines
@@ -350,15 +375,17 @@ static inline void mt9v117_config(struct mt9v117_t *mt)
   write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_CROP_WINDOW_YOFFSET_OFFSET, 0, 2);
   write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_CROP_WINDOW_WIDTH_OFFSET, 640, 2);
   write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_CROP_WINDOW_HEIGHT_OFFSET, 240, 2);
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_CROP_MODE_OFFSET, 3, 1);
 
   /* Enable auto-stats mode */
-  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_CROP_MODE_OFFSET, 3, 1);
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_STAT_AWB_HG_WINDOW_XSTART_OFFSET, 0, 2);
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_STAT_AWB_HG_WINDOW_YSTART_OFFSET, 0, 2);
   write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_STAT_AWB_HG_WINDOW_XEND_OFFSET, 319, 2);
   write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_STAT_AWB_HG_WINDOW_YEND_OFFSET, 239, 2);
   write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_STAT_AE_INITIAL_WINDOW_XSTART_OFFSET, 2, 2);
   write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_STAT_AE_INITIAL_WINDOW_YSTART_OFFSET, 2, 2);
-  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_STAT_AE_INITIAL_WINDOW_XEND_OFFSET, 65, 2);
-  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_STAT_AE_INITIAL_WINDOW_YEND_OFFSET, 49, 2);
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_STAT_AE_INITIAL_WINDOW_XEND_OFFSET, 63, 2);
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_STAT_AE_INITIAL_WINDOW_YEND_OFFSET, 47, 2);
 }
 
 /**

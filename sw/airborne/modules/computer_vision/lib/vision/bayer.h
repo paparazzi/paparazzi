@@ -29,22 +29,6 @@
 
 #include "lib/vision/image.h"
 
-static inline uint8_t clip(uint16_t x)
-{
-  if (x < 0) {
-    return 0;
-  }
-  if (x > 255) {
-    return 255;
-  }
-  return (uint8_t) x;
-}
-
-
-void BayerToYUV(struct image_t *Input, struct image_t *out,
-                 int RedX, int RedY);
-
-
 /**
  * @brief Decode Bayer Pattern
  * @param RedX, RedY the coordinates of the upper-rightmost green pixel
@@ -52,13 +36,12 @@ void BayerToYUV(struct image_t *Input, struct image_t *out,
  *
  */
 
-void BayerToYUV(struct image_t *in, struct image_t *out,
+inline void BayerToYUV(struct image_t *in, struct image_t *out,
                  int RedX, int RedY)
 {
   uint16_t *ii = (uint16_t *) in->buf;
   uint8_t *oi = (uint8_t *) out->buf;
   int x, y;
-
 
   for (y = 0; y < out->h; y++) {
     for (x = 0; x < out->w; x += 2) {
@@ -84,11 +67,10 @@ void BayerToYUV(struct image_t *in, struct image_t *out,
         u = (-0.148223 * (R1 + R2) - 0.290993 * (G1 + G2) + 0.439216 * (B1 + B2)) / 256 + 128;
         v = (0.439216 * (R1 + R2) - 0.367788 * (G1 + G2) - 0.071427 * (B1 + B2)) / 256 + 128;
 
-
-        oi[(x + y * out->w) * 2] = clip(u);
-        oi[(x + y * out->w) * 2 + 1] = clip(my1);
-        oi[(x + y * out->w) * 2 + 2] = clip(v);
-        oi[(x + y * out->w) * 2 + 3] = clip(my2);
+        oi[(x + y * out->w) * 2] = Clip(u, 0, 255);
+        oi[(x + y * out->w) * 2 + 1] = Clip(my1, 0, 255);
+        oi[(x + y * out->w) * 2 + 2] = Clip(v, 0, 255);
+        oi[(x + y * out->w) * 2 + 3] = Clip(my2, 0, 255);
       } else {
         oi[(x + y * out->w) * 2] = 0;
         oi[(x + y * out->w) * 2 + 1] = 0;
