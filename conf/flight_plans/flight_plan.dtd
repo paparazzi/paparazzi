@@ -117,7 +117,7 @@ values CDATA #IMPLIED>
 
 <!ATTLIST abi_binding
 name CDATA #REQUIRED
-vars CDATA #REQUIRED
+vars CDATA #IMPLIED
 id CDATA #IMPLIED
 handler CDATA #IMPLIED>
 
