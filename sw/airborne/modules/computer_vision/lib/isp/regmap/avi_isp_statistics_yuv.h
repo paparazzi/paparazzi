@@ -122,9 +122,9 @@ union avi_isp_statistics_yuv_increments_log2
 {
 	struct
 	{
-		uint32_t x_log2_inc      :  3;
+		uint32_t x_log2_inc      :  4;
 		unsigned /*unused */     : 13;
-		uint32_t y_log2_inc      :  3;
+		uint32_t y_log2_inc      :  4;
 	};
 	uint32_t _register;
 };

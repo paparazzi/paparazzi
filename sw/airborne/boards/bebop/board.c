@@ -62,7 +62,8 @@ struct mt9f002_t mt9f002 = {
   .output_scaler = MT9F002_OUTPUT_SCALER,
   .offset_x = MT9F002_INITIAL_OFFSET_X,
   .offset_y = MT9F002_INITIAL_OFFSET_Y,
-
+  .sensor_width = MT9F002_SENSOR_WIDTH,
+  .sensor_height = MT9F002_SENSOR_HEIGHT,
   .x_odd_inc = MT9F002_X_ODD_INC_VAL,
   .y_odd_inc = MT9F002_Y_ODD_INC_VAL,
 

@@ -43,6 +43,7 @@ struct v4l2_img_buf {
   struct timeval timestamp;   ///< The time value of the image
   uint32_t pprz_timestamp;    ///< The time of the image in us since system startup
   void *buf;                  ///< Pointer to the memory mapped buffer
+  uint32_t physp;             ///< Physical address pointer
 };
 
 /* V4L2 device */

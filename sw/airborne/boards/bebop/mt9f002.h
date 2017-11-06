@@ -27,81 +27,20 @@
 #ifndef MT9F002H
 #define MT9F002H
 
+#define CFG_SCALER_M_MIN            16
+#define CFG_SCALER_M_MAX            128
+#define CFG_MT9F002_WINDOW_WIDTH_MIN          1
+#define CFG_MT9F002_WINDOW_HEIGHT_MIN           1
+#define CFG_MT9F002_PIXEL_ARRAY_HEIGHT      3360 // 3344
+#define CFG_MT9F002_PIXEL_ARRAY_WIDTH     4304 // 4256 -> 4288
+#define CFG_MT9F002_X_ADDR_MIN              384 // 416
+#define CFG_MT9F002_X_ADDR_MAX              CFG_MT9F002_PIXEL_ARRAY_WIDTH
+#define CFG_MT9F002_Y_ADDR_MIN              0
+#define CFG_MT9F002_Y_ADDR_MAX              CFG_MT9F002_PIXEL_ARRAY_HEIGHT
+#define CFG_MT9F002_FISHEYE_RADIUS              1920
+
 #include "std.h"
 #include "mcu_periph/i2c.h"
-
-/* define required ouput image size */
-#ifndef MT9F002_OUTPUT_HEIGHT
-#define MT9F002_OUTPUT_HEIGHT 822  // full resolution 3288
-#endif
-
-#ifndef MT9F002_OUTPUT_WIDTH
-#define MT9F002_OUTPUT_WIDTH 1152 // full resolution 4608
-#endif
-
-#ifndef MT9F002_INITIAL_OFFSET_X
-#define MT9F002_INITIAL_OFFSET_X 0. // signed fractional offset from centre of image of original sensor [-0.5,0.5]
-#endif
-
-#ifndef MT9F002_INITIAL_OFFSET_Y
-#define MT9F002_INITIAL_OFFSET_Y 0. // signed fractional offset from centre of image of original sensor [-0.5,0.5]
-#endif
-
-/** Our output is only OUTPUT_SCALER of the pixels we take of the sensor
- * It is programmable in 1/16 steps determined by ScaleFactor = 16/scale_m.
- * Legal values for scale_m are 16 through 128, giving you the ability to scale from
- * 1:1 to 1:8 (with m=128).
- *  Example:
- *  output_width = 512
- *  output_height = 830
- *  output_scaler = 0.25
- *  We now get an image of 512 by 830 which contains a "compressed version"
- *  of what would normally be an image of 2048 by 3320 ISP (4608H x 2592V sensor)
- */
-#ifndef MT9F002_OUTPUT_SCALER
-#define MT9F002_OUTPUT_SCALER 1.
-#endif
-
-/** Exposure of the front camera of the bebop. Experimental values:
- * Outside: 15
- * Inside well lit: 30
- * Inside poorly lit: 60
- */
-#ifndef MT9F002_TARGET_EXPOSURE
-#define MT9F002_TARGET_EXPOSURE 30
-#endif
-
-#ifndef MT9F002_TARGET_FPS
-#define MT9F002_TARGET_FPS 15
-#endif
-
-/* Set the colour balance gains */
-#ifndef MT9F002_GAIN_GREEN1
-#define MT9F002_GAIN_GREEN1 3.0
-#endif
-
-#ifndef MT9F002_GAIN_GREEN2
-#define MT9F002_GAIN_GREEN2 3.0
-#endif
-
-#ifndef MT9F002_GAIN_RED
-#define MT9F002_GAIN_RED 3.0
-#endif
-
-#ifndef MT9F002_GAIN_BLUE
-#define MT9F002_GAIN_BLUE 4.0
-#endif
-
-/* Set pixel increment value to implement subsampling */
-/* Supported values for MT9F002_X_ODD_INC_VAL are 3, 7, 15 and 31 */
-#ifndef MT9F002_X_ODD_INC_VAL
-#define MT9F002_X_ODD_INC_VAL 1
-#endif
-
-/* Supported values for MT9F002_Y_ODD_INC_VAL are 1, 3 and 7 */
-#ifndef MT9F002_Y_ODD_INC_VAL
-#define MT9F002_Y_ODD_INC_VAL 1
-#endif
 
 /* Interface types for the MT9F002 connection */
 enum mt9f002_interface {
@@ -143,19 +82,24 @@ struct mt9f002_t {
   float output_scaler;                ///< Output scale
   uint16_t scaled_width;              ///< Width after corrected scaling
   uint16_t scaled_height;             ///< Height after corrected scaling
-  float offset_x;                  ///< Offset from left in pixels
-  float offset_y;                  ///< Offset from top in pixels
+  uint16_t offset_x;                  ///< Offset from left in pixels
+  uint16_t offset_y;                  ///< Offset from top in pixels
+
+  uint16_t sensor_width;
+  uint16_t sensor_height;
 
   uint8_t x_odd_inc;                  ///< X increment for subsampling (1,3,7,15,31 accepted)
-  uint8_t y_odd_inc;                  ///< Y increment for subsampling (1,3,7 accepted)
+  uint8_t y_odd_inc;                  ///< Y increment for subsampling (1,3,7,15,31 accepted)
 
   struct i2c_periph *i2c_periph;      ///< I2C peripheral used to communicate over
   struct i2c_transaction i2c_trans;   ///< I2C transaction for comminication with CMOS chip
 };
 
 void mt9f002_init(struct mt9f002_t *mt);
+void mt9f002_calc_resolution(struct mt9f002_t *mt);
 void mt9f002_set_resolution(struct mt9f002_t *mt);
 void mt9f002_set_exposure(struct mt9f002_t *mt);
 void mt9f002_set_gains(struct mt9f002_t *mt);
+void mt9f002_update_resolution(struct mt9f002_t *mt);
 
 #endif /* MT9F002_H */

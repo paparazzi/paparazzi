@@ -1,14 +1,15 @@
+/*
 #include "boards/bebop/mt9f002.h"
 #include "libisp.h"
 
 struct libisp_config isp_config = {
-  /* RAW 10bit to 10bit */
+  / * RAW 10bit to 10bit * /
   .vlformat_32to40 = {{
       .format = 0x00,
     }
   },
 
-  /* Don't bypass a bayer function */
+  / * Don't bypass a bayer function * /
   .bayer_inter = {{
       .pedestal_bypass     = 1,
       .grim_bypass         = 1,
@@ -21,7 +22,7 @@ struct libisp_config isp_config = {
     }
   },
 
-  /* Pedestal */
+  / * Pedestal * /
   .pedestal = {
     .cfa    = {{  3 }},
     .sub_r  = {{ 42 }},
@@ -30,7 +31,7 @@ struct libisp_config isp_config = {
     .sub_b  = {{ 42 }},
   },
 
-  /* Green imbalance (grim) */
+  / * Green imbalance (grim) * /
   .green_imbalance = {
     .bayer_cfa   = {{3}},
     .offset_x_y  = {._register = 4718720},
@@ -79,7 +80,7 @@ struct libisp_config isp_config = {
     }
   },
 
-  /* Dead pixel correction (for now bypass) */
+  / * Dead pixel correction (for now bypass) * /
   .dead_pixel_correction = {
     .cfa = {{ 3 }},
     .bypass = { ._register = 1 },
@@ -88,7 +89,7 @@ struct libisp_config isp_config = {
     .rgrim_gain = {{ 0x52 }},
   },
 
-  /* Denoising */
+  / * Denoising * /
   .denoising = {
     .cfa = {{ 3 }},
     .lumocoeff_r_03_00 = {{ 0,   0,   1,   2 }},
@@ -105,7 +106,7 @@ struct libisp_config isp_config = {
     .lumocoeff_b_13_12 = {{ 25,  27 }},
   },
 
-  /* Bayer statistics */
+  / * Bayer statistics * /
   .statistics_bayer = {
     .measure_req           = {{ 0 }},
     .window_x              = {{ .x_offset = (MT9F002_OUTPUT_WIDTH - (MT9F002_OUTPUT_WIDTH / BAYERSTATS_STATX) / 2),    .x_width = (MT9F002_OUTPUT_WIDTH / BAYERSTATS_STATX) }},
@@ -121,7 +122,7 @@ struct libisp_config isp_config = {
     .max_nb_windows        = {{ .x_window_count = BAYERSTATS_STATX, .y_window_count = BAYERSTATS_STATY }},
   },
 
-  /* Lens shading correction + AWB */
+  / * Lens shading correction + AWB * /
   .lens_shading_correction = {
     .bayer_cfa   = {{ 3 }},
     .offset_x_y  = { ._register = 4718720 },
@@ -190,8 +191,8 @@ struct libisp_config isp_config = {
     }
   },
 
-  /* Chromatic abberation (For now just bypass as it has too many difficult registers to set) */
-  /*.chromatic_aberration = {
+  / * Chromatic abberation (For now just bypass as it has too many difficult registers to set) * /
+  / *.chromatic_aberration = {
     .circle_pos_x_center = {{ 2356 }},
     .circle_pos_x_squared = {{ 5550736 }},
     .circle_pos_y_center = {{ 1585 }},
@@ -200,16 +201,16 @@ struct libisp_config isp_config = {
     .green_variation = {{ 1 }},
     .increments_log2 = {{ .x_log2_inc=0, .y_log2_inc=0 }},
   },
-  */
+  * /
 
-  /* Demosaicking */
+  / * Demosaicking * /
   .bayer = {
-    .cfa         = {{    3 }}, /* GRGB (top left to bottom right order) */
-    .threshold_1 = {{   25 }}, /* Lower threshold */
-    .threshold_2 = {{  200 }}, /* Upper threshold */
+    .cfa         = {{    3 }}, / * GRGB (top left to bottom right order) * /
+    .threshold_1 = {{   25 }}, / * Lower threshold * /
+    .threshold_2 = {{  200 }}, / * Upper threshold * /
   },
 
-  /* Color correction */
+  / * Color correction * /
   .color_correction = {
     .coeff_01_00 = { ._register = 0xF3811477 },
     .coeff_10_02 = { ._register = 0xFDF0021d },
@@ -224,18 +225,18 @@ struct libisp_config isp_config = {
     .clip_bv     = { ._register = 0x03FF0000 },
   },
 
-  /* RAW 10bit to 10bit */
+  / * RAW 10bit to 10bit * /
   .vlformat_40to32 = {{
       .format = 0x03,
     }
   },
 
-  /* Gamma corrector (Curves) */
+  / * Gamma corrector (Curves) * /
   .gamma_corrector = {
     .conf = {{
-        .bypass = 0,    /* Enable gamma corrector */
-        .palette = 0,   /* Non-linear correction mode (curve) */
-        .comp_width = 1 /* 10-bit */
+        .bypass = 0,    / * Enable gamma corrector * /
+        .palette = 0,   / * Non-linear correction mode (curve) * /
+        .comp_width = 1 / * 10-bit * /
       }
     }
   },
@@ -411,7 +412,7 @@ struct libisp_config isp_config = {
     }
   },
 
-  /* Color space conversion */
+  / * Color space conversion * /
   .chroma = {
     .coeff_01_00 = {{    436, 1464   }},
     .coeff_10_02 = {{    147, 16179  }},
@@ -426,7 +427,7 @@ struct libisp_config isp_config = {
     .clip_bv     = {{ 16, 240 }},
   },
 
-  /* YUV statistics */
+  / * YUV statistics * /
   .statistics_yuv = {
     .measure_req           = {{1, 1}},
     .measure_status        = {{0, 0}},
@@ -441,7 +442,7 @@ struct libisp_config isp_config = {
     .awb_threshold         = { ._register = 0x00000021 },
   },
 
-  /* Edge enhancement + Color reduction filter */
+  / * Edge enhancement + Color reduction filter * /
   .eecrf = {
     .ee_kernel_coeff = { {{935}}, {{ -30}}, {{ -99}}, {{ -45}}, {{ -27}},  {{ -6}} },
     .crf_kernel_coeff = { {{41}},  {{41}},  {{41}},  {{41}},  {{41}},  {{41}} },
@@ -480,11 +481,11 @@ struct libisp_config isp_config = {
     }
   },
 
-  /* Bypass 3D for now */
+  / * Bypass 3D for now * /
 
-  /* Bypass Drop for now */
+  / * Bypass Drop for now * /
 
-  /* Bypass for YUV chain */
+  / * Bypass for YUV chain * /
   .chain_yuv_inter = {{
       .ee_crf_bypass = 0,
       .i3d_lut_bypass = 1,
@@ -493,3 +494,4 @@ struct libisp_config isp_config = {
   },
 
 };
+*/
