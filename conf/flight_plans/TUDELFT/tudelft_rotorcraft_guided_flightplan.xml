@@ -14,12 +14,10 @@
 static float obstacle_dist, obstacle_azimuth, obstacle_bearing;
 static inline void obstacle_detection_cb(uint8_t sender_id __attribute__((unused)), float _obstacle_dist, float _obstacle_azimuth, float _obstacle_bearing)
 {
-  if (CloseRadAngles(_obstacle_azimuth,0)){
-    if(CloseRadAngles(_obstacle_bearing,0)) {
-      obstacle_dist = _obstacle_dist;
-      obstacle_azimuth = _obstacle_azimuth;
-      obstacle_bearing = _obstacle_bearing;
-    }
+  if (And(CloseRadAngles(_obstacle_azimuth,0), CloseRadAngles(_obstacle_bearing,0))) {
+    obstacle_dist = _obstacle_dist;
+    obstacle_azimuth = _obstacle_azimuth;
+    obstacle_bearing = _obstacle_bearing;
   }
 }
 #endif
@@ -35,7 +33,7 @@ static inline void obstacle_detection_cb(uint8_t sender_id __attribute__((unused
     <variable var="climb_descent_vel" init="0.3f" type="float" min="0." max="1" step="0.1"/>
     <variable var="forward_vel" init="0.5f" type="float" min="0." max="2" step="0.1"/>
 	  <variable var="nominal_alt" init="NAV_DEFAULT_ALT" type="float" min="0." max="10." step="0.1"/>
-    <abi_binding name="OBSTACLE_DETECTION" vars="_" handler="obstacle_detection_cb"/>
+    <abi_binding name="OBSTACLE_DETECTION" handler="obstacle_detection_cb"/>
     <abi_binding name="RANGE_FORCEFIELD" vars="vel_body_x_FF, vel_body_y_FF, vel_body_z_FF"/>
 	</variables>
 
