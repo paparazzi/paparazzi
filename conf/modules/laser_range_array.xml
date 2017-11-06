@@ -6,7 +6,7 @@
     <configure name="LASER_RANGE_ARRAY_PORT" value="UART2" description="select which uart it is connected to"/>
     <configure name="LASER_RANGE_ARRAY_BAUD" value="38400" description="set the baudrate of the uart"/>
     <define name="LASER_RANGE_ARRAY_NUM_SENSORS" value="0" description="Total amount of laser range sensors on the airframe"/>
-    <define name="LASER_RANGE_ARRAY_ORIENTATIONS" value="0,0,0" description="The orientation per laser range sensor in the order: phi,theta, psi. The array is build up like (phi_1, theta_1, psi_1, phi_2,theta_2,psi_2,...phi_n,theta_n,psi_n) with n=LASER_RANGE_ARRAY_NUM_SENSORS"/>
+    <define name="LASER_RANGE_ARRAY_ORIENTATIONS" value="0,0" type="float[]" description="The orientation per laser range sensor in the order: elevation,heading. The array is built up like (elv_1, head_1, elv_2, head_2,...elv_n, head_n) with n=LASER_RANGE_ARRAY_NUM_SENSORS"/>
   </doc>
   <header>
     <file name="laser_range_array.h"/>
@@ -32,4 +32,3 @@
     <define name="NPS_SIMULATE_LASER_RANGE_ARRAY" value="1"/>
   </makefile>
 </module>
-
