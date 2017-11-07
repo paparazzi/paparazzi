@@ -45,9 +45,9 @@
   </firmware>
 
   <modules main_freq="512">
-    <module name="geo_mag"/>
+    <!--module name="geo_mag"/-->
     <module name="air_data"/>
-    <module name="send_imu_mag_current"/>
+    <!--module name="send_imu_mag_current"/-->
     <module name="logger_file">
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
     </module>
@@ -104,6 +104,16 @@
     <set servo="BOTTOM_RIGHT" value="motor_mixing.commands[MOTOR_BACK_RIGHT]"/>
     <set servo="BOTTOM_LEFT" value="motor_mixing.commands[MOTOR_BACK_LEFT]"/>
   </command_laws>
+
+  <!-- Cyberzoo bebop1 values -->
+  <section name="COLORFILTER" prefix="ORANGE_AVOIDER_">
+    <define name="LUM_MIN" value="20"/>
+    <define name="LIM_MAX" value="255"/>
+    <define name="CB_MIN" value="75"/>
+    <define name="CB_MAX" value="145"/>
+    <define name="CR_MIN" value="167"/>
+    <define name="CR_MAX" value="255"/>
+  </section>
 
   <section name="AIR_DATA" prefix="AIR_DATA_">
     <define name="CALC_AIRSPEED" value="FALSE"/>

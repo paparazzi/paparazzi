@@ -78,6 +78,16 @@
     <set servo="BOTTOM_LEFT" value="motor_mixing.commands[MOTOR_BACK_LEFT]"/>
   </command_laws>
 
+  <!-- Gazebo Simulation values -->
+  <section name="COLORFILTER" prefix="ORANGE_AVOIDER_">
+    <define name="LUM_MIN" value="41"/>
+    <define name="LIM_MAX" value="183"/>
+    <define name="CB_MIN" value="53"/>
+    <define name="CB_MAX" value="121"/>
+    <define name="CR_MIN" value="134"/>
+    <define name="CR_MAX" value="249"/>
+  </section>
+
   <section name="IMU" prefix="IMU_">
     <!-- Accelero -->
     <define name="ACCEL_X_NEUTRAL" value="2048"/>

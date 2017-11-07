@@ -14,6 +14,7 @@
 #include "modules/computer_vision/colorfilter.h"
 #include "firmwares/rotorcraft/navigation.h"
 #include "generated/flight_plan.h"
+#include "generated/airframe.h"
 #include "state.h"
 #include <time.h>
 #include <math.h>
@@ -30,6 +31,31 @@
 #define VERBOSE_PRINT(...)
 #endif
 
+#ifndef ORANGE_AVOIDER_LUM_MIN
+#define ORANGE_AVOIDER_LUM_MIN 41
+#endif
+
+#ifndef ORANGE_AVOIDER_LUM_MAX
+#define ORANGE_AVOIDER_LUM_MAX 183
+#endif
+
+#ifndef ORANGE_AVOIDER_CB_MIN
+#define ORANGE_AVOIDER_CB_MIN 53
+#endif
+
+#ifndef ORANGE_AVOIDER_CB_MAX
+#define ORANGE_AVOIDER_CB_MAX 121
+#endif
+
+#ifndef ORANGE_AVOIDER_CR_MIN
+#define ORANGE_AVOIDER_CR_MIN 134
+#endif
+
+#ifndef ORANGE_AVOIDER_CR_MAX
+#define ORANGE_AVOIDER_CR_MAX 249
+#endif
+
+
 uint8_t safeToGoForwards        = false;
 int tresholdColorCount          = 0.05 * 124800; // 520 x 240 = 124.800 total pixels
 float incrementForAvoidance;
@@ -42,12 +68,12 @@ float maxDistance               = 2.25;
 void orange_avoider_init()
 {
   // Initialise the variables of the colorfilter to accept orange
-  color_lum_min = 20;
-  color_lum_max = 255;
-  color_cb_min  = 75;
-  color_cb_max  = 145;
-  color_cr_min  = 167;
-  color_cr_max  = 255;
+  color_lum_min = ORANGE_AVOIDER_LUM_MIN;
+  color_lum_max = ORANGE_AVOIDER_LUM_MAX;
+  color_cb_min  = ORANGE_AVOIDER_CB_MIN;
+  color_cb_max  = ORANGE_AVOIDER_CB_MAX;
+  color_cr_min  = ORANGE_AVOIDER_CR_MIN;
+  color_cr_max  = ORANGE_AVOIDER_CR_MAX;
   // Initialise random values
   srand(time(NULL));
   chooseRandomIncrementAvoidance();
