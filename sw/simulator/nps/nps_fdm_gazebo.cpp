@@ -51,6 +51,7 @@ extern "C" {
 #include "nps_autopilot.h"
 
 #include "generated/airframe.h"
+#include "generated/flight_plan.h"
 #include "autopilot.h"
 
 #include "math/pprz_isa.h"
@@ -68,9 +69,16 @@ extern "C" {
 
 using namespace std;
 
-#ifndef NPS_GAZEBO_WORLD
-#define NPS_GAZEBO_WORLD "empty.world"
+// Select world from flight plan, airframe file or the default empty world,
+// where the flight plan has the highest priority.
+#if defined(FLIGHT_PLAN_GAZEBO_WORLD)
+#define _GAZEBO_WORLD FLIGHT_PLAN_GAZEBO_WORLD
+#elif defined(NPS_GAZEBO_WORLD)
+#define _GAZEBO_WORLD NPS_GAZEBO_WORLD
+#else
+#define _GAZEBO_WORLD "empty.world"
 #endif
+
 #ifndef NPS_GAZEBO_AC_NAME
 #define NPS_GAZEBO_AC_NAME "ardrone"
 #endif
@@ -293,7 +301,7 @@ void nps_fdm_set_temperature(
  * Set up a Gazebo server.
  *
  * Starts a Gazebo server, adds conf/simulator/gazebo/models to its model path
- * and loads the world specified by NPS_GAZEBO_WORLD.
+ * and loads the world specified by _GAZEBO_WORLD.
  *
  * This function also obtaines a pointer to the aircraft model, named
  * NPS_GAZEBO_AC_NAME ('paparazzi_uav' by default). This pointer, 'model',
@@ -333,10 +341,10 @@ static void init_gazebo(void)
 #endif
 
   // get world
-  cout << "Load world: " << gazebodir + "world/" + NPS_GAZEBO_WORLD << endl;
+  cout << "Load world: " << gazebodir + "world/" + _GAZEBO_WORLD << endl;
   sdf::SDFPtr world_sdf(new sdf::SDF());
   sdf::init(world_sdf);
-  sdf::readFile(gazebodir + "world/" + NPS_GAZEBO_WORLD, world_sdf);
+  sdf::readFile(gazebodir + "world/" + _GAZEBO_WORLD, world_sdf);
 
   // add vehicles
   world_sdf->Root()->GetFirstElement()->InsertElement(vehicle_sdf->Root()->GetFirstElement());
