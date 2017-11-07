@@ -608,6 +608,14 @@ static inline void int32_vect_zero(int32_t *a, const int n)
   for (i = 0; i < n; i++) { a[i] = 0.; }
 }
 
+/** a = v * ones(n,1) */
+static inline void int32_vect_set_value(int32_t *a, const int32_t v, const int n)
+{
+  int i;
+  for(i = 0 ; i < n; i++) { a[i] = v; }
+}
+
+
 /** a = b */
 static inline void int32_vect_copy(int32_t *a, const int32_t *b, const int n)
 {
@@ -655,6 +663,22 @@ static inline void int32_vect_smul(int32_t *o, const int32_t *a, const int32_t s
 {
   int i;
   for (i = 0; i < n; i++) { o[i] = a[i] * s; }
+}
+
+/** Find value s in array a. Returns 1 if found, 0 if not found.
+ * If the value is found loc = index of found value in array, else loc = -1 
+ */
+static inline bool int32_vect_find(const int32_t *a, const int32_t s, int *loc, const int n) 
+{
+  int i;
+  for (i = 0; i < n; i++) {
+    if (a[i] == s) {
+      *loc = i;
+      return true;
+    }
+  }
+  *loc = -1;
+  return false;
 }
 
 //

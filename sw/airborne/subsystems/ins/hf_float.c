@@ -35,6 +35,10 @@
 #include "filters/low_pass_filter.h"
 #include "generated/airframe.h"
 
+#if PERIODIC_TELEMETRY
+#include "subsystems/datalink/telemetry.h"
+#endif
+
 #ifdef SITL
 #include <stdio.h>
 #define DBG_LEVEL 1
@@ -65,16 +69,16 @@
 
 /** horizontal filter propagation frequency */
 #define HFF_FREQ (AHRS_PROPAGATE_FREQUENCY / HFF_PRESCALER)
-#define DT_HFILTER (1./HFF_FREQ)
+#define HFF_DT (1./HFF_FREQ)
 
 /** initial covariance diagonal */
-#define INIT_PXX 1.
+#define HFF_INIT_PXX 1.
 /** process noise (is the same for x and y)*/
 #ifndef HFF_ACCEL_NOISE
 #define HFF_ACCEL_NOISE 0.5
 #endif
-#define Q       HFF_ACCEL_NOISE
-#define Qdotdot HFF_ACCEL_NOISE
+#define HFF_Q       HFF_ACCEL_NOISE
+#define HFF_Qdotdot HFF_ACCEL_NOISE
 
 //TODO: proper measurement noise
 #ifndef HFF_R_POS
@@ -135,7 +139,7 @@ static float hff_y_meas = 0;
 static int hff_ps_counter;
 
 /* default parameters */
-#define Qbiasbias 1e-7
+#define HFF_Qbiasbias 1e-7
 
 /*
  * For GPS lag compensation
@@ -226,7 +230,6 @@ static void hff_update_xdot(struct HfilterFloat *filt, float vel, float Rvel);
 static void hff_update_ydot(struct HfilterFloat *filt, float vel, float Rvel);
 
 #if PERIODIC_TELEMETRY
-#include "subsystems/datalink/telemetry.h"
 
 static void send_hff(struct transport_tx *trans, struct link_device *dev)
 {
@@ -288,7 +291,7 @@ void hff_init(float init_x, float init_xdot, float init_y, float init_ydot)
   printf("GPS_LAG: %f\n", GPS_LAG);
   printf("GPS_LAG_N: %d\n", GPS_LAG_N);
   printf("GPS_DT_N: %d\n", GPS_DT_N);
-  printf("DT_HFILTER: %f\n", DT_HFILTER);
+  printf("HFF_DT: %f\n", HFF_DT);
   printf("GPS_LAG_TOL_N: %i\n", GPS_LAG_TOL_N);
 #endif
 #else
@@ -328,7 +331,7 @@ static void hff_init_x(float init_x, float init_xdot, float init_xbias)
     for (j = 0; j < HFF_STATE_SIZE; j++) {
       hff.xP[i][j] = 0.;
     }
-    hff.xP[i][i] = INIT_PXX;
+    hff.xP[i][i] = HFF_INIT_PXX;
   }
 }
 
@@ -342,7 +345,7 @@ static void hff_init_y(float init_y, float init_ydot, float init_ybias)
     for (j = 0; j < HFF_STATE_SIZE; j++) {
       hff.yP[i][j] = 0.;
     }
-    hff.yP[i][i] = INIT_PXX;
+    hff.yP[i][i] = HFF_INIT_PXX;
   }
 }
 
@@ -439,8 +442,8 @@ static void hff_propagate_past(struct HfilterFloat *filt_past)
     if (hff_past->lag_counter > 0) {
       hff_get_past_accel(hff_past->lag_counter);
       PRINT_DBG(2, ("propagate past: %d\n", hff_past->lag_counter));
-      hff_propagate_x(hff_past, DT_HFILTER);
-      hff_propagate_y(hff_past, DT_HFILTER);
+      hff_propagate_x(hff_past, HFF_DT);
+      hff_propagate_y(hff_past, HFF_DT);
       hff_past->lag_counter--;
 
       if (past_save_counter > 0) {
@@ -512,8 +515,8 @@ void hff_propagate(void)
       /*
        * propagate current state
        */
-      hff_propagate_x(&hff, DT_HFILTER);
-      hff_propagate_y(&hff, DT_HFILTER);
+      hff_propagate_x(&hff, HFF_DT);
+      hff_propagate_y(&hff, HFF_DT);
 
 #ifdef GPS_LAG
       /* increase lag counter on last saved state */
@@ -623,9 +626,9 @@ void hff_realign(struct FloatVect2 pos, struct FloatVect2 vel)
  *
  * B = [ dt^2/2 dt 0]';
  *
- * Q = [ Q     0       0
- *       0     Qdotdot 0
- *       0     0       Qbiasbias ];
+ * Q = [ HFF_Q     0       0
+ *       0     HFF_Qdotdot 0
+ *       0     0       HFF_Qbiasbias ];
  *
  * Xk1 = F * Xk0 + B * accel;
  *
@@ -649,15 +652,15 @@ static void hff_propagate_x(struct HfilterFloat *filt, float dt)
   const float FPF21 = filt->xP[2][1] + dt * (-filt->xP[2][2]);
   const float FPF22 = filt->xP[2][2];
 
-  filt->xP[0][0] = FPF00 + Q * dt * dt / 2.;
+  filt->xP[0][0] = FPF00 + HFF_Q * dt * dt / 2.;
   filt->xP[0][1] = FPF01;
   filt->xP[0][2] = FPF02;
   filt->xP[1][0] = FPF10;
-  filt->xP[1][1] = FPF11 + Qdotdot * dt;
+  filt->xP[1][1] = FPF11 + HFF_Qdotdot * dt;
   filt->xP[1][2] = FPF12;
   filt->xP[2][0] = FPF20;
   filt->xP[2][1] = FPF21;
-  filt->xP[2][2] = FPF22 + Qbiasbias;
+  filt->xP[2][2] = FPF22 + HFF_Qbiasbias;
 }
 
 static void hff_propagate_y(struct HfilterFloat *filt, float dt)
@@ -677,15 +680,15 @@ static void hff_propagate_y(struct HfilterFloat *filt, float dt)
   const float FPF21 = filt->yP[2][1] + dt * (-filt->yP[2][2]);
   const float FPF22 = filt->yP[2][2];
 
-  filt->yP[0][0] = FPF00 + Q * dt * dt / 2.;
+  filt->yP[0][0] = FPF00 + HFF_Q * dt * dt / 2.;
   filt->yP[0][1] = FPF01;
   filt->yP[0][2] = FPF02;
   filt->yP[1][0] = FPF10;
-  filt->yP[1][1] = FPF11 + Qdotdot * dt;
+  filt->yP[1][1] = FPF11 + HFF_Qdotdot * dt;
   filt->yP[1][2] = FPF12;
   filt->yP[2][0] = FPF20;
   filt->yP[2][1] = FPF21;
-  filt->yP[2][2] = FPF22 + Qbiasbias;
+  filt->yP[2][2] = FPF22 + HFF_Qbiasbias;
 }
 
 

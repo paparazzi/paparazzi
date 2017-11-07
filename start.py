@@ -2,6 +2,7 @@
 
 from __future__ import print_function
 
+
 import pygtk
 import gtk
 pygtk.require('2.0')
@@ -10,14 +11,16 @@ pygtk.require('2.0')
 import os
 import shutil
 import datetime
-from fnmatch import fnmatch
 import subprocess
 import sys
 
-lib_path = os.path.abspath(os.path.join( 'sw', 'lib', 'python'))
+lib_path = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'sw', 'lib', 'python'))
 sys.path.append(lib_path)
-import paparazzi
 
+import paparazzi
+from paparazzi_health import PaparazziOverview
+
+import xml.etree.ElementTree
 
 class ConfChooser(object):
 
@@ -72,6 +75,29 @@ class ConfChooser(object):
         controlpanel_files = paparazzi.get_list_of_controlpanel_files(self.exclude_backups)
         self.update_combo(self.controlpanel_file_combo, controlpanel_files, self.controlpanel_xml)
 
+    def count_airframes_in_conf(self):
+        airframes = 0
+        releases = 0
+        if self.conf_file_combo.get_active_text() is None:
+            return
+        desc = ""
+        afile = os.path.join(paparazzi.conf_dir, self.conf_file_combo.get_active_text())
+        if os.path.exists(afile):
+            e = xml.etree.ElementTree.parse(afile).getroot()
+            for atype in e.findall('aircraft'):
+                if airframes > 0:
+                    desc += ", "
+                #print(atype.get('name'))
+                airframes += 1
+                if (not atype.get('release') is None) & (not atype.get('release') == ""):
+                    releases += 1
+                    desc += '<a href="https://github.com/paparazzi/paparazzi/commit/' + atype.get('release') + '">' + atype.get('name') + "</a>"
+                else:
+                    desc += atype.get('name')
+        desc = "<b>" + str(airframes) + " airframes:</b> " + desc
+        self.conf_airframes.set_markup(desc)
+        return
+
     def about(self, widget):
         about_d = gtk.AboutDialog()
         about_d.set_program_name("Paparazzi Configuration Selector")
@@ -97,6 +123,11 @@ class ConfChooser(object):
         self.exclude_backups = not widget.get_active()
         self.find_conf_files()
         self.find_controlpanel_files()
+
+    def more_info(self, widget):
+        obj = PaparazziOverview(0)
+        obj.run()
+
 
     def launch(self, widget):
         self.accept(widget)
@@ -154,6 +185,7 @@ class ConfChooser(object):
             if os.path.exists(filename):
                 os.remove(filename)
             self.update_conf_label()
+            self.count_airframes_in_conf()
             self.find_conf_files()
             self.print_status("Deleted: " + filename)
 
@@ -177,6 +209,7 @@ class ConfChooser(object):
                 os.remove(self.conf_xml)
             os.symlink(selected, self.conf_xml)
             self.update_conf_label()
+            self.count_airframes_in_conf()
             self.find_conf_files()
 
         selected = self.controlpanel_file_combo.get_active_text()
@@ -200,6 +233,7 @@ class ConfChooser(object):
             os.remove(self.conf_xml)
             os.symlink(self.conf_personal_name, self.conf_xml)
             self.update_conf_label()
+            self.count_airframes_in_conf()
             self.find_conf_files()
 
     def personal_controlpanel(self, widget):
@@ -216,6 +250,9 @@ class ConfChooser(object):
 
     def print_status(self, text):
         self.statusbar.push(self.context_id, text)
+
+    def changed_cb(self, entry):
+        self.count_airframes_in_conf()
 
     # Constructor Functions
     def __init__(self):
@@ -276,7 +313,7 @@ class ConfChooser(object):
 
         self.conf_file_combo = gtk.combo_box_new_text()
         self.find_conf_files()
-        # self.firmwares_combo.connect("changed", self.parse_list_of_airframes)
+        self.conf_file_combo.connect("changed", self.changed_cb)
         self.conf_file_combo.set_size_request(550, 30)
 
         self.btnDeleteConf = gtk.Button(None, gtk.STOCK_DELETE)
@@ -294,6 +331,7 @@ class ConfChooser(object):
         self.confbar.pack_start(self.btnPersonalConf)
         self.my_vbox.pack_start(self.confbar, False)
 
+
         # Explain current conf config
 
         self.conf_explain = gtk.Label("")
@@ -304,6 +342,22 @@ class ConfChooser(object):
         self.cfexbar.pack_start(self.conf_explain)
 
         self.my_vbox.pack_start(self.cfexbar, False)
+
+        # Count Airframes
+        self.conf_airframes = gtk.Label("")
+        self.count_airframes_in_conf()
+        self.conf_airframes.set_size_request(650,180)
+        self.conf_airframes.set_line_wrap(True)
+
+        self.btnInfo = gtk.Button(None, "More\nInfo")
+        self.btnInfo.connect("clicked", self.more_info)
+        self.btnInfo.set_tooltip_text("More information on airframe files")
+
+        self.caexbar = gtk.HBox()
+        self.caexbar.pack_start(self.conf_airframes)
+        self.caexbar.pack_start(self.btnInfo)
+
+        self.my_vbox.pack_start(self.caexbar, False)
 
         # Controlpanel
         self.controlpanel_label = gtk.Label("Controlpanel:")

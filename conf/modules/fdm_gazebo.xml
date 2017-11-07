@@ -47,8 +47,8 @@
 		 b) Add actuator thrusts and torques to the SIMULATOR section:
 		      &lt;section name=&quot;SIMULATOR&quot; prefix=&quot;NPS_&quot;&gt;
 		        &lt;define name=&quot;ACTUATOR_NAMES&quot; value=&quot;nw_motor, ne_motor, se_motor, sw_motor&quot; type=&quot;string[]&quot;/&gt;
-		        &lt;define name=&quot;ACTUATOR_THRUSTS&quot; value=&quot;1.55, 1.55, 1.55, 1.55&quot; type=&quot;double[]&quot;/&gt;
-		        &lt;define name=&quot;ACTUATOR_TORQUES&quot; value=&quot;0.155, -0.155, 0.155, -0.155&quot; type=&quot;double[]&quot;/&gt;
+		        &lt;define name=&quot;ACTUATOR_THRUSTS&quot; value=&quot;1.55, 1.55, 1.55, 1.55&quot; type=&quot;float[]&quot;/&gt;
+		        &lt;define name=&quot;ACTUATOR_TORQUES&quot; value=&quot;0.155, -0.155, 0.155, -0.155&quot; type=&quot;float[]&quot;/&gt;
 		        ...
 		      &lt;section&gt;
 		    The thrusts and torques are expressed in SI units (N, Nm) and should

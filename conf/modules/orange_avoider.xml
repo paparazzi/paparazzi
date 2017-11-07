@@ -5,7 +5,7 @@
     <description>
 	Avoid all objects that are orange!
 	This example module shows how you can use the camera stream and colorfilter to detect orange objects.
-	By adding this module to your flightplan and flying in the cyberzoo with the flightplan TUDELFT/tudelft_course2016_avoid_orange_cyberzoo.xml you will avoid every obstacle that is orange.
+	By adding this module to your flightplan and flying in the cyberzoo with the flightplan tudelft/course2016_avoid_orange_cyberzoo.xml you will avoid every obstacle that is orange.
     </description>
   </doc>
   <depends>cv_colorfilter.xml</depends>

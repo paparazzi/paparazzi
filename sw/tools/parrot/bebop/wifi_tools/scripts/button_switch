@@ -1,0 +1,16 @@
+#!/bin/sh
+
+BLDC_Test_Bench -n -M 1
+if [ $(bcmwl ap) -eq 1 ]
+then
+	if [ -r /data/ftp/internal_000/scripts/connect2hub ]; then
+		/data/ftp/internal_000/scripts/connect2hub
+	else
+		echo "Button activating..." | ulogger -t "ShortPressDebug" -p I
+		/bin/usbnetwork.sh                                         
+		echo "Button activated" | ulogger -t "ShortPressDebug" -p I
+	fi
+else
+	/sbin/broadcom_reset.sh
+	BLDC_Test_Bench -n -M 2
+fi

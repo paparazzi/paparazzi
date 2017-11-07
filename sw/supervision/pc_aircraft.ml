@@ -45,7 +45,8 @@ let aircraft_sample = fun name ac_id ->
       "flight_plan", "flight_plans/basic.xml";
       "settings", "settings/fixedwing_basic.xml";
       "settings_modules", "";
-      "gui_color", "blue" ],
+      "gui_color", "blue";
+      "release", "" ],
       [])
 
 
@@ -104,6 +105,31 @@ let gcs_or_edit = fun file ->
   | 2 -> ignore (Sys.command (sprintf "%s -edit '%s'&" gcs file))
   | _ -> failwith "Internal error: gcs_or_edit"
 
+let gitk_version = fun sha ->
+  ignore (Sys.command (sprintf "gitk '%s'&" sha))
+
+
+let execute_cmd_and_return_text = fun cmd ->
+  let tmp_file = Filename.temp_file "" ".txt" in
+  let _ = Sys.command @@ cmd ^ " > " ^ tmp_file in
+  let chan = open_in tmp_file in
+  let s = input_line chan in
+  close_in chan;
+  s
+
+let tag_this_version = fun _ ->
+  (execute_cmd_and_return_text "git rev-parse HEAD")
+
+let get_commits_after_version = fun sha ->
+  (execute_cmd_and_return_text (sprintf "git rev-list %s..HEAD --count" sha))
+
+let get_commits_outside_version = fun sha ->
+  (execute_cmd_and_return_text (sprintf "git rev-list HEAD..%s --count" sha))
+
+let show_gitk_of_version = fun sha ->
+  GToolbox.message_box ~title:"Compare" ("There have been " ^ (get_commits_after_version sha ) ^ " commits since the last reported test.\n The last reported test used " ^ (get_commits_outside_version sha ) ^ " commits that are not in this branch.");
+  (execute_cmd_and_return_text (sprintf "gitk %s..HEAD & gitk HEAD..%s &" sha sha))
+
 type ac_data =
     Label of GMisc.label
   | Tree of Gtk_tools.tree
@@ -154,7 +180,8 @@ let save_callback = fun ?user_save gui ac_combo tree tree_modules () ->
           "flight_plan", gui#label_flight_plan#text;
           "settings", Gtk_tools.tree_values ~only_checked:false tree;
           "settings_modules", Gtk_tools.tree_values ~only_checked:false tree_modules;
-          "gui_color", color ],
+          "gui_color", color;
+          "release", gui#label_release#text ],
           []) in
       begin try Hashtbl.remove Utils.aircrafts ac_name with _ -> () end;
       Hashtbl.add Utils.aircrafts ac_name aircraft
@@ -295,7 +322,8 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo flash_com
       "settings", "settings", Tree tree_set, Some gui#button_browse_settings, Some gui#button_edit_settings, edit, Some gui#button_remove_settings;
       "settings_modules", "settings", Tree tree_set_mod, None, None, (fun _ -> ()), None;
       "radio", "radios", Label gui#label_radio, Some gui#button_browse_radio, Some gui#button_edit_radio, edit, None;
-      "telemetry", "telemetry", Label gui#label_telemetry, Some gui#button_browse_telemetry, Some gui#button_edit_telemetry, edit, None]
+      "telemetry", "telemetry", Label gui#label_telemetry, Some gui#button_browse_telemetry, Some gui#button_edit_telemetry, edit, None;
+      "release", "release", Label gui#label_release, None, None, edit, None]
   in
 
   (* Update_params callback *)
@@ -531,6 +559,35 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo flash_com
     ignore (match button_remove with Some r -> ignore(r#connect#clicked ~callback) | _ -> ())
   )
   ac_files;
+
+  (* Tag Current Commit-Aircraft *)
+  let callback = fun _ ->
+    match GToolbox.question_box ~title:"Mark Test-flight Successfull" ~default:2 ~buttons:["Yes"; "Cancel"] "Are you sure you tested this airframe in all its modes (e.g. GPS) and confirm all works well." with
+    | 1 ->
+        begin
+        gui#label_release#set_text (tag_this_version () );
+        save_callback gui ac_combo tree_set tree_set_mod ();
+        let ac_name = Gtk_tools.combo_value ac_combo in
+        update_params ac_name
+
+        end
+    | _ -> ()
+  in
+  ignore (gui#button_store_release#connect#clicked ~callback);
+
+  (* Compare *)
+  let callback = fun _ ->
+    ignore (show_gitk_of_version gui#label_release#text)
+  in
+  ignore (gui#button_compare_release#connect#clicked ~callback);
+
+  (* Browse Version *)
+  let callback = fun _ ->
+    gitk_version gui#label_release#text
+  in
+  ignore (gui#button_gitk#connect#clicked ~callback);
+
+
 
   (* Save button *)
   ignore(gui#menu_item_save_ac#connect#activate ~callback:(save_callback ~user_save:true gui ac_combo tree_set tree_set_mod))
