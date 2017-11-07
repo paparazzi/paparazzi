@@ -92,7 +92,7 @@ uint8_t increase_nav_heading(int32_t *heading, float incrementDegrees)
   // Check if your turn made it go out of bounds...
   INT32_ANGLE_NORMALIZE(newHeading); // HEADING HAS INT32_ANGLE_FRAC....
   *heading = newHeading;
-  VERBOSE_PRINT("Increasing heading to %f\n", DegOfRad(ANGLE_FLOAT_OF_BFP(*heading));
+  VERBOSE_PRINT("Increasing heading to %f\n", DegOfRad(ANGLE_FLOAT_OF_BFP(*heading)));
   return false;
 }
 
@@ -111,7 +111,7 @@ static uint8_t calculateForwards(struct EnuCoor_i *new_coor, float distanceMeter
   new_coor->y                       = pos->y + POS_BFP_OF_REAL(cos_heading * (distanceMeters));
   VERBOSE_PRINT("Calculated %f m forward position. x: %f  y: %f based on pos(%f, %f) and heading(%f)\n", distanceMeters,	
                 POS_FLOAT_OF_BFP(new_coor->x), POS_FLOAT_OF_BFP(new_coor->y), POS_FLOAT_OF_BFP(pos->x), POS_FLOAT_OF_BFP(pos->y),
-                DegOfRad(ANGLE_FLOAT_OF_BFP(eulerAngles->psi));
+                DegOfRad(ANGLE_FLOAT_OF_BFP(eulerAngles->psi)) );
   return false;
 }
 
