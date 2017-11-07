@@ -1001,6 +1001,13 @@ let () =
       let name = ExtXml.attrib xml "name" in
       (* Xml2h.warning ("FLIGHT PLAN: "^name); *)
       Xml2h.define_string "FLIGHT_PLAN_NAME" name;
+      
+      begin
+        try
+          let gazebo_world = ExtXml.attrib xml "gazebo_world" in
+          Xml2h.define_string "FLIGHT_PLAN_GAZEBO_WORLD" gazebo_world
+        with _ -> ()
+      end;
 
       let get_float = fun x -> float_attrib xml x in
       let qfu = try get_float "qfu" with Xml.No_attribute "qfu" -> 0.
