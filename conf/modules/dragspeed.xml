@@ -17,10 +17,38 @@
         require re-calibration).
       - Pitch and roll angles are small (less than ~20 deg).
       - No wind (when used as ground speed).
+      
+      Usage instructions:
+      1. Calibrate zero (recommended before each flight)
+         a) For the best results, ensure that the INS velocity is as accurate as
+            possible (e.g. use Optitrack and set the INS type to gps_passthrough)
+            and set DRAGSPEED_SEND_ABI_MESSAGE to FALSE.
+         b) Bring the drone to a stationary hover.
+         c) In the GCS under settings/dragspeed, set "Calibrate Zero" to 1.
+         d) Keep the drone stationary until "Calibrate Zero" returns to 0.
+         e) (Optional) Copy the new Zero_X and Zero_Y values to the DRAGSPEED_ZERO_X
+            and _Y defines in the airframe file.
+      2. Calibrate drag coefficient (new airframes or after change in weight or drag)
+         a) For the best results, ensure that the INS velocity is as accurate as
+            possible (e.g. use Optitrack and set the INS type to gps_passthrough)
+            and set DRAGSPEED_SEND_ABI_MESSAGE to FALSE.
+         b) Ensure the zero measurement is calibrated first.
+         c) In the GCS under settings/dragspeed, set "Calibrate Coeff" to 1.
+         d) Fly the drone around along the body x and y axes. The drag coefficient
+            is updated at speeds larger than 0.5m/s.
+         e) Calibration is finished when "Calibrate Coeff" returns to 0. Check
+            the results by comparing the estimated and INS velocities in the
+            DRAGSPEED telemetry message.
+         f) Copy the new Coeff_X and Coeff_Y values to the DRAGSPEED_COEFF_X
+            and _Y defines in the airframe file.
+      3. By default, the estimated velocity is sent through the VELOCITY_ESTIMATE
+         ABI message to the INS. The estimated velocity can also be read from
+         the dragspeed struct.
     </description>
     <define name="DRAGSPEED_SEND_ABI_MESSAGE" description="Send VELOCITY_ESTIMATE ABI messages" value="TRUE|FALSE (default: TRUE)"/>
     <define name="DRAGSPEED_ACCEL_ID" description="Accelerometer ABI ID to subscribe to (default: ABI_BROADCAST)"/>
-    <define name="DRAGSPEED_COEFF" description="Drag coefficient (mu/m), where Drag coefficient (mu/m) of the linear drag model, where m*a = v*mu"/>
+    <define name="DRAGSPEED_COEFF_X" description="Drag coefficient (mu/m), where Drag coefficient (mu/m) of the linear drag model along the body x axis, where m*a = v*mu"/>
+    <define name="DRAGSPEED_COEFF_Y" description="Drag coefficient (mu/m), where Drag coefficient (mu/m) of the linear drag model along the body y axis, where m*a = v*mu"/>
     <define name="DRAGSPEED_ZERO_X" description="Accelerometer reading (x axis) when stationary [m/s^2]"/>
     <define name="DRAGSPEED_ZERO_Y" description="Accelerometer reading (y axis) when stationary [m/s^2]"/>
     <define name="DRAGSPEED_R" description="Velocity measurement noise variance [(m/s)^2]"/>
@@ -29,13 +57,13 @@
   <settings>
     <dl_settings>
       <dl_settings name="dragspeed">
-        <dl_setting shortname="Coeff X" var="dragspeed.coeff.x" min="0" step="0.01" max="2.0"/>
-        <dl_setting shortname="Coeff Y" var="dragspeed.coeff.y" min="0" step="0.01" max="2.0"/>
-        <dl_setting shortname="Calibrate coeff" var="dragspeed.calibrate_coeff" min="0" step="1" max="1"/>
-        <dl_setting shortname="Filter" var="dragspeed.filter" min="0" step="0.01" max="1.0"/>
+        <dl_setting shortname="Calibrate zero" var="dragspeed.calibrate_zero" min="0" step="1" max="1"/>
         <dl_setting shortname="Zero_X" var="dragspeed.zero.x" min="-2.0" step="0.01" max="2.0"/>
         <dl_setting shortname="Zero_Y" var="dragspeed.zero.y" min="-2.0" step="0.01" max="2.0"/>
-        <dl_setting shortname="Calibrate zero" var="dragspeed.calibrate_zero" min="0" step="1" max="1"/>
+        <dl_setting shortname="Calibrate coeff" var="dragspeed.calibrate_coeff" min="0" step="1" max="1"/>
+        <dl_setting shortname="Coeff X" var="dragspeed.coeff.x" min="0" step="0.01" max="2.0"/>
+        <dl_setting shortname="Coeff Y" var="dragspeed.coeff.y" min="0" step="0.01" max="2.0"/>
+        <dl_setting shortname="Filter" var="dragspeed.filter" min="0" step="0.01" max="1.0"/>
       </dl_settings>
     </dl_settings>
   </settings>
