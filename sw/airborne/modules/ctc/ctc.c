@@ -233,3 +233,11 @@ void parse_ctc_NeiInfoTable(void)
       break;
     }
 }
+
+void parse_ctc_TargetInfo(void)
+{
+  ctc_control.target_px = DL_CTC_INFO_FROM_TARGET_px(dl_buffer)/100;
+  ctc_control.target_py = DL_CTC_INFO_FROM_TARGET_py(dl_buffer)/100;
+  ctc_control.target_vx = DL_CTC_INFO_FROM_TARGET_vx(dl_buffer)/100;
+  ctc_control.target_vy = DL_CTC_INFO_FROM_TARGET_vy(dl_buffer)/100;
+}

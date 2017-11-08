@@ -58,5 +58,6 @@ extern void ctc_send_info_to_nei(void);
 extern void parse_ctc_RegTable(void);
 extern void parse_ctc_CleanTable(void);
 extern void parse_ctc_NeiInfoTable(void);
+extern void parse_ctc_TargetInfo(void);
 
 #endif // CTC_H

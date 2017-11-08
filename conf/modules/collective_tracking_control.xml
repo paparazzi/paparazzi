@@ -31,6 +31,7 @@
   <datalink message="CTC_REG_TABLE" fun="parse_ctc_RegTable()"/>
   <datalink message="CTC_CLEAN_TABLE" fun="parse_ctc_CleanTable()"/>
   <datalink message="CTC_INFO_TO_NEI" fun="parse_ctc_NeiInfoTable()"/>
+  <datalink message="CTC_INFO_FROM_TARGET" fun="parse_ctc_TargetInfo()"/>
 
   <makefile firmware="fixedwing">
     <file name="ctc.c"/>
