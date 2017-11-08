@@ -118,6 +118,7 @@ bool collective_tracking_control()
   int num_neighbors = 0;
 
   int num_neighbors = 0;
+  float dt = 0;
 
   for (int i = 0; i < CTC_MAX_AC; i++) {
     if (tableNei[i][0] != -1) {
@@ -136,6 +137,8 @@ bool collective_tracking_control()
         v_centroid_y += vy_nei;
         p_centroid_x += px_nei;
         p_centroid_y += py_nei;
+
+        dt = timeout / 1000;
       }
     }
   }
@@ -146,8 +149,8 @@ bool collective_tracking_control()
       p_centroid_x /= num_neighbors;
       p_centroid_y /= num_neighbors;
 
-      float error_target_x = ctc_control.target_px - p_centroid_x;
-      float error_target_y = ctc_control.target_py - p_centroid_y;
+      float error_target_x = ctc_control.target_px - ctc_control.ref_px;
+      float error_target_y = ctc_control.target_py - ctc_control.ref_py;
       ctc_error_to_target = sqrtf(error_target_x*error_target_x + error_target_y*error_target_y);
       if(ctc_error_to_target < 0.1)
           ctc_error_to_target = 0.1;
