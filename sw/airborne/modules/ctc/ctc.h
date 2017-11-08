@@ -41,6 +41,9 @@ typedef struct {
   float vy;
   float px;
   float py;
+  float ref_px;
+  float ref_py;
+  float omega;
   uint16_t time_broad;
 } ctc_con;
 
