@@ -84,7 +84,7 @@ extern int udp_socket_recv_dontwait(struct UdpSocket *sock, uint8_t *buffer, uin
  */
 extern int udp_socket_recv(struct UdpSocket *sock, uint8_t *buffer, uint32_t len);
 
-extern int udp_socket_subscribe_multicast(struct UdpSocket *sock, const char* multicast_addr);
+extern int udp_socket_subscribe_multicast(struct UdpSocket *sock, const char *multicast_addr);
 extern int udp_socket_set_recvbuf(struct UdpSocket *sock, int buf_size);
-
+extern int udp_socket_set_sendbuf(struct UdpSocket *sock, int buf_size);
 #endif /* UDP_SOCKET_H */
