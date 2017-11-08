@@ -106,8 +106,7 @@ let gcs_or_edit = fun file ->
   | _ -> failwith "Internal error: gcs_or_edit"
 
 let gitk_version = fun sha ->
-  (Sys.command (sprintf "gitk '%s'&" sha));
-  ()
+  ignore (Sys.command (sprintf "gitk '%s'&" sha))
 
 
 let execute_cmd_and_return_text = fun cmd ->
@@ -578,8 +577,7 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo flash_com
 
   (* Compare *)
   let callback = fun _ ->
-    show_gitk_of_version gui#label_release#text;
-    ()
+    ignore (show_gitk_of_version gui#label_release#text)
   in
   ignore (gui#button_compare_release#connect#clicked ~callback);
 

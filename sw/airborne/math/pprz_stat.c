@@ -91,12 +91,12 @@ int32_t covariance_i(int32_t *array1, int32_t *array2, uint32_t n_elements)
  * Float implementations
  *********/
 
-/** Compute the mean value of an array (float)
+/** Compute the sum array elements (float)
  *  @param[in] *array The array
- *  @param[in] n_elements Number of elements in the array
- *  @return mean
+ *  @param[in] n_elements Number of elements in the arrays
+ *  @return array sum
  */
-float mean_f(float *array, uint32_t n_elements)
+float sum_f(float *array, uint32_t n_elements)
 {
   // determine the mean for the vector:
   float sum = 0.f;
@@ -104,8 +104,17 @@ float mean_f(float *array, uint32_t n_elements)
   for (i = 0; i < n_elements; i++) {
     sum += array[i];
   }
+  return sum;
+}
 
-  return (sum / n_elements);
+/** Compute the mean value of an array (float)
+ *  @param[in] *array The array
+ *  @param[in] n_elements Number of elements in the array
+ *  @return mean
+ */
+float mean_f(float *array, uint32_t n_elements)
+{
+  return (sum_f(array, n_elements) / n_elements);
 }
 
 /** Compute the variance of an array of values (float).

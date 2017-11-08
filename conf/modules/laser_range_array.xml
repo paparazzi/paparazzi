@@ -1,0 +1,34 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="laser_range_array" dir="range_finder">
+  <doc>
+    <description>Reads out values through uart of an laser range ring (array), containing multiple ToF IR laser range modules</description>
+    <configure name="LASER_RANGE_ARRAY_PORT" value="UART2" description="select which uart it is connected to"/>
+    <configure name="LASER_RANGE_ARRAY_BAUD" value="38400" description="set the baudrate of the uart"/>
+    <define name="LASER_RANGE_ARRAY_NUM_SENSORS" value="0" description="Total amount of laser range sensors on the airframe"/>
+    <define name="LASER_RANGE_ARRAY_ORIENTATIONS" value="0,0" type="float[]" description="The orientation per laser range sensor in the order: elevation,heading. The array is built up like (elv_1, head_1, elv_2, head_2,...elv_n, head_n) with n=LASER_RANGE_ARRAY_NUM_SENSORS"/>
+  </doc>
+  <header>
+    <file name="laser_range_array.h"/>
+  </header>
+  <init fun="laser_range_array_init()"/>
+  <event fun="laser_range_array_event()"/>
+  <makefile>
+    <!-- Configure default UART port and baudrate -->
+    <configure name="LASER_RANGE_ARRAY_PORT" default="UART5" case="upper|lower"/>
+    <configure name="LASER_RANGE_ARRAY_BAUD" default="38400"/>
+    
+    <!-- Enable UART and set baudrate -->
+    <define name="USE_$(LASER_RANGE_ARRAY_PORT_UPPER)"/>
+    <define name="USE_$(LASER_RANGE_ARRAY_PORT_UPPER)_TX" value="FALSE"/>
+    <define name="$(LASER_RANGE_ARRAY_PORT_UPPER)_BAUD" value="$(LASER_RANGE_ARRAY_BAUD)"/>
+    <define name="LASER_RANGE_ARRAY_PORT" value="$(LASER_RANGE_ARRAY_PORT_LOWER)"/>
+    
+    <file name="laser_range_array.c"/>
+    <file name="pprz_transport.c" dir="pprzlink/src"/>
+  </makefile>
+
+  <makefile target="nps">
+    <define name="NPS_SIMULATE_LASER_RANGE_ARRAY" value="1"/>
+  </makefile>
+</module>

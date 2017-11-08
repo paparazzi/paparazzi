@@ -620,6 +620,8 @@ static inline float float_vect_dot_product(const float *a, const float *b, const
     for (__i = 0; __i < _rows; __i++) { _ptr[__i] = &_mat[__i][0]; } \
   }
 
+extern void float_mat_invert(float **o, float **mat, int n);
+
 /** a = 0 */
 static inline void float_mat_zero(float **a, int m, int n)
 {
@@ -728,6 +730,22 @@ static inline void float_mat_col(float *o, float **a, int m, int c)
     o[i] = a[i][c];
   }
 }
+
+/** Make an n x n identity matrix (for matrix passed as array) */
+static inline void float_mat_identity(float **o, int n)
+{
+  int i, j;
+  for(i = 0 ; i < n; i++) {
+    for(j = 0 ; j < n; j++) {
+      if (i == j) {
+        o[i][j] = 1.0;
+      }
+      else {
+        o[i][j] = 0.0;
+      }
+    }
+  }
+};
 
 extern bool float_mat_inv_2d(float inv_out[4], float mat_in[4]);
 extern void float_mat2_mult(struct FloatVect2 *vect_out, float mat[4], struct FloatVect2 vect_in);

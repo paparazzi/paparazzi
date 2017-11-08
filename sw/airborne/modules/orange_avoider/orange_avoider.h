@@ -13,13 +13,16 @@
 #ifndef ORANGE_AVOIDER_H
 #define ORANGE_AVOIDER_H
 #include <inttypes.h>
+#include "math/pprz_geodetic_int.h"
 
 extern uint8_t safeToGoForwards;
-extern int32_t incrementForAvoidance;
+extern float incrementForAvoidance;
+extern uint16_t trajectoryConfidence;
 extern void orange_avoider_init(void);
 extern void orange_avoider_periodic(void);
-extern uint8_t moveWaypointForwards(uint8_t waypoint, float distanceMeters);
-extern uint8_t increase_nav_heading(int32_t *heading, int32_t increment);
+extern uint8_t moveWaypointForward(uint8_t waypoint, float distanceMeters);
+extern uint8_t moveWaypoint(uint8_t waypoint, struct EnuCoor_i *new_coor);
+extern uint8_t increase_nav_heading(int32_t *heading, float incrementDegrees);
 extern uint8_t chooseRandomIncrementAvoidance(void);
 
 #endif

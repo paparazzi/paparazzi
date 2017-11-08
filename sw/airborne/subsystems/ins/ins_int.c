@@ -269,14 +269,16 @@ void ins_reset_local_origin(void)
 void ins_reset_altitude_ref(void)
 {
 #if USE_GPS
-  struct LlaCoor_i lla = {
-    .lat = state.ned_origin_i.lla.lat,
-    .lon = state.ned_origin_i.lla.lon,
-    .alt = gps.lla_pos.alt
-  };
-  ltp_def_from_lla_i(&ins_int.ltp_def, &lla);
-  ins_int.ltp_def.hmsl = gps.hmsl;
-  stateSetLocalOrigin_i(&ins_int.ltp_def);
+  if (GpsFixValid()) {
+    struct LlaCoor_i lla = {
+      .lat = state.ned_origin_i.lla.lat,
+      .lon = state.ned_origin_i.lla.lon,
+      .alt = gps.lla_pos.alt
+    };
+    ltp_def_from_lla_i(&ins_int.ltp_def, &lla);
+    ins_int.ltp_def.hmsl = gps.hmsl;
+    stateSetLocalOrigin_i(&ins_int.ltp_def);
+  }
 #endif
   ins_int.vf_reset = true;
 }
