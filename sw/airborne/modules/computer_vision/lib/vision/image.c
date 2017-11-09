@@ -620,7 +620,7 @@ void image_gradient_pixel(struct image_t *img, struct point_t *loc, int method, 
   uint8_t add_ind = pixel_width - 1;
 
   // check if all pixels will fall in the image:
-  if(loc->x >= 1 && loc->x < img->w-1 && loc->y >= 1 && loc->y < img->h - 1) {
+  if(loc->x >= 1 && (loc->x + 1) < img->w && loc->y >= 1 && (loc->y + 1) < img->h ) {
     if(method == 0) {
 
         // *************
