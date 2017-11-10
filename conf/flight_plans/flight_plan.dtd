@@ -70,8 +70,7 @@ qfu CDATA #IMPLIED
 home_mode_height CDATA #IMPLIED
 geofence_max_alt CDATA #IMPLIED
 geofence_max_height CDATA #IMPLIED
-geofence_sector CDATA #IMPLIED
-gazebo_world CDATA #IMPLIED>
+geofence_sector CDATA #IMPLIED>
 
 <!ATTLIST waypoints
 utm_x0 CDATA #IMPLIED
