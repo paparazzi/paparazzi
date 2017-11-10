@@ -587,12 +587,12 @@ static void manage_flow_features(struct image_t *img, struct opticflow_t *opticf
       region_count[i][1] = i;
     }
     uint16_t root_regions = (uint16_t)sqrtf((float)opticflow->fast9_num_regions);
-    int index;
+    int region_index;
     for (uint16_t i = 0; i < result->corner_cnt; i++) {
-      index = (opticflow->fast9_ret_corners[i].x * root_regions / img->w
+      region_index = (opticflow->fast9_ret_corners[i].x * root_regions / img->w
                + root_regions * (opticflow->fast9_ret_corners[i].y * root_regions / img->h));
-      index = (index < opticflow->fast9_num_regions) ? index : opticflow->fast9_num_regions - 1;
-      region_count[index][0]++;
+      region_index = (region_index < opticflow->fast9_num_regions) ? region_index : opticflow->fast9_num_regions - 1;
+      region_count[region_index][0]++;
     }
 
     //sorting region_count array according to first column (number of corners).
@@ -895,7 +895,7 @@ static int cmp_flow(const void *a, const void *b)
  */
 static int cmp_array(const void *a, const void *b)
 {
-  const uint16_t *pa = *(const uint16_t **)a;
-  const uint16_t *pb = *(const uint16_t **)b;
+  uint16_t *pa = *(uint16_t **)a;
+  uint16_t *pb = *(uint16_t **)b;
   return pa[0] - pb[0];
 }

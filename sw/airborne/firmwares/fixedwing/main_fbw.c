@@ -151,9 +151,8 @@ void fbw_datalink_event_handle(void) {}
 #endif /* FBW_DATALINK */
 
 /********** ACTUATORS defines ************************************************/
-#if defined ACTUATORS && defined INTER_MCU
 void update_actuators(void);
-
+#if defined ACTUATORS && defined INTER_MCU
 void update_actuators(void)
 {
   if (fbw_new_actuators > 0) {
