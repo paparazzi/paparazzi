@@ -172,8 +172,10 @@ static void calibrate_coeff(struct Int32Vect3 *accel)
   }
   // Also return if zero calibration has not been performed yet
   if (!dragspeed.zero_calibrated) {
+#ifdef __linux__
     fprintf(stderr,
         "[dragspeed] Error: zero measurement should be calibrated before drag coefficient!\n");
+#endif
     dragspeed.calibrate_coeff = FALSE;
     return;
   }
