@@ -14,3 +14,8 @@ To connect the Bebop 2 to a router:
 	4. Start up the router
 	5. Run connect2ssid.sh
 	6. The Bebop2 should now turn off and connect to the router. To check that this happened, you can connect to the router and try to ping to it/see all connections.
+	7. Add to the airframe file of the bebop, in the ap target, the following lines:
+~~~~
+	<configure name="HOST" value="192.168.42.$(AC_ID)" />
+	<configure name="MODEM_HOST" value="192.168.42.40" />
+~~~~
