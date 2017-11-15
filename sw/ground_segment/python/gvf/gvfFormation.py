@@ -18,14 +18,14 @@ from settings_xml_parse import PaparazziACSettings
 class aircraft:
     def __init__(self, ac_id):
         self.id = ac_id
-        self.XY = np.array([-999, -999])
-        self.XYc = np.array([-999, -999])
-        self.a = -999
-        self.b = -999
+        self.XY = np.array([-999.0, -999.0])
+        self.XYc = np.array([-999.0, -999.0])
+        self.a = -999.0
+        self.b = -999.0
 
         self.s = -999
 
-        self.sigma = -999
+        self.sigma = -999.0
 
         self.a_index = -999
         self.b_index = -999
@@ -61,10 +61,10 @@ def formation(B, ds, radius, k):
 
     waiting_for_msgs = 0
     for ac in list_aircraft:
-        if ac.a == -999:
+        if ac.a == -999.0:
             print("Waiting for GVF msg of aircraft ", ac.id)
             waiting_for_msgs = 1
-        if ac.XY[0] == -999:
+        if ac.XY[0] == -999.0:
             print("Waiting for NAV msg of aircraft ", ac.id)
             waiting_for_msgs = 1
     
