@@ -33,7 +33,7 @@ struct pano_unwrap_t
   struct FloatVect2 center;  ///< Center point of panoramic lens [fraction of image width, height]
   float radius_bottom;  ///< Distance from center point to bottom of region of interest [fraction of image height]
   float radius_top;  ///< Distance from center point to top of region of interest [fraction of image height]
-  float forward_direction;  ///< Angle [rad] in raw image that corresponds to the forward direction, where 0 points right and the value increases counterclockwise.
+  float forward_direction;  ///< Angle [deg] in raw image that corresponds to the forward direction, where 0 points right and the value increases counterclockwise.
   bool flip_horizontal;  ///< Set to true to horizontally flip the unwrapped image.
 
   float vertical_resolution;  ///< Vertical resolution of raw image in the region of interest, used for attitude derotation [fraction of image height/rad] (Note: negative values are allowed)

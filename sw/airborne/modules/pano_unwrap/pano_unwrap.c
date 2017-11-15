@@ -132,7 +132,7 @@ static void get_point(struct point_t *pt_out, const struct image_t * img,
         * (cosf(bearing) * MAT33_ELMT(*R, 0, 2)
             - sinf(bearing) * MAT33_ELMT(*R, 1, 2));
   }
-  float angle = pano_unwrap.forward_direction
+  float angle = (pano_unwrap.forward_direction / 180.0 * M_PI)
       - bearing * (pano_unwrap.flip_horizontal ? -1.f : 1.f);
 
   struct FloatVect2 pt;
@@ -215,10 +215,5 @@ void pano_unwrap_init()
 {
   image_create(&pano_unwrapped_image, 0, 0, IMAGE_YUV422);
   cv_add_to_device(&PANO_UNWRAP_CAMERA, camera_cb, 0);
-  // XXX
-  pano_unwrap.forward_direction = -M_PI_2;
-  pano_unwrap.show_calibration = TRUE;
-  pano_unwrap.overwrite_video_thread = TRUE;
-  pano_unwrap.derotate_attitude = FALSE;
 }
 

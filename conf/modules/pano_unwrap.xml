@@ -4,6 +4,24 @@
   <doc>
     <description>Unwrap images taken through a panoramic lens.</description>
   </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings name="pano_unwrap">
+        <dl_setting shortname="center_x" var="pano_unwrap.center.x" min="0.0" step="0.01" max="1.0"/>
+        <dl_setting shortname="center_y" var="pano_unwrap.center.y" min="0.0" step="0.01" max="1.0"/>
+        <dl_setting shortname="radius_bottom" var="pano_unwrap.radius_bottom" min="0.0" step="0.01" max="1.0"/>
+        <dl_setting shortname="radius_top" var="pano_unwrap.radius_top" min="0.0" step="0.01" max="1.0"/>
+        <dl_setting shortname="forward_direction" var="pano_unwrap.forward_direction" min="0" step="1" max="360"/>
+        <dl_setting shortname="flip_hor" var="pano_unwrap.flip_horizontal" type="uint8" values="FALSE|TRUE" min="0" step="1" max="1"/>
+        <dl_setting shortname="v_resolution" var="pano_unwrap.vertical_resolution" min="-0.2" step="0.01" max="0.2"/>
+        <dl_setting shortname="derotate" var="pano_unwrap.derotate_attitude" type="uint8" values="FALSE|TRUE" min="0" step="1" max="1"/>
+        <dl_setting shortname="width" var="pano_unwrap.width" min="1" step="1" max="1920"/>
+        <dl_setting shortname="height" var="pano_unwrap.height" min="0" step="1" max="1080"/>
+        <dl_setting shortname="overwrite" var="pano_unwrap.overwrite_video_thread" type="uint8" values="FALSE|TRUE" min="0" step="1" max="1"/>
+        <dl_setting shortname="show_calibration" var="pano_unwrap.show_calibration" type="uint8" values="FALSE|TRUE" min="0" step="1" max="1"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
   <header>
     <file name="pano_unwrap.h"/>
   </header>
