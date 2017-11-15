@@ -67,12 +67,19 @@
 		        &lt;define name=&quot;SIMULATE_VIDEO&quot; value=&quot;1&quot;/&gt;
 		        ...
 		      &lt;section&gt;
-		 e) If required, specify the Gazebo world and aircraft name:
+		 e) If required, set the aircraft model in the airframe file:
 		      &lt;section name=&quot;SIMULATOR&quot; prefix=&quot;NPS_&quot;&gt;
 		        ...
-		        &lt;define name=&quot;GAZEBO_WORLD&quot; value=&quot;my_world.world&quot;/&gt;
 		        &lt;define name=&quot;GAZEBO_AC_NAME&quot; value=&quot;my_uav&quot;/&gt;
 		      &lt;section&gt;
+         f) If required, set the simulation environment in the flight plan file:
+              &lt;flight_plan ...&gt;
+                &lt;header&gt;
+                  ...
+                  #define NPS_GAZEBO_WORLD &quot;my.world&quot;
+                &lt;/header&gt;
+                ...
+              &lt;flight_plan&gt;
 	  4. Make sure all included modules work with nps. At the moment, most of
 	     the modules that depend on video_thread are only built when ap is
 	     selected as the target. As a quick fix, try to remove the target
