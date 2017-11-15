@@ -130,7 +130,7 @@ static void get_point(struct point_t *pt_out, const struct image_t * img,
     const struct FloatRMat *R = stateGetNedToBodyRMat_f();
     radius += pano_unwrap.vertical_resolution
         * (cosf(bearing) * MAT33_ELMT(*R, 0, 2)
-            - sinf(bearing) * MAT33_ELMT(*R, 1, 2));
+            + sinf(bearing) * MAT33_ELMT(*R, 1, 2));
   }
   float angle = (pano_unwrap.forward_direction / 180.0 * M_PI)
       - bearing * (pano_unwrap.flip_horizontal ? -1.f : 1.f);
