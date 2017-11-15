@@ -1,7 +1,9 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <airframe name="Quadplane LisaM_2.0 pwm">
-  <description>Quadplane: modified mini-talon with 6inch quadrotor.
+  <description>Quadplane:
+ - modified mini-talon with cobra 2814/16 Kv1050 running a 10x8 prop
+ - quad with KISS esc + cobra 2207/2450kv running 6x3 props
   </description>
 <!--   FIRMWARE    -->
 
@@ -36,6 +38,11 @@
     <module name="ins"/>
 
     <!--define name="KILL_ON_GROUND_DETECT" value="TRUE"/-->
+
+    <module name="gps" type="ubx_ucenter"/>
+    <module name="geo_mag"/>
+    <module name="air_data"/>
+
   </firmware>
 
 <!--   COMMANDS    -->
@@ -98,12 +105,6 @@
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="30000"/>
   </section>
 
-
-  <modules>
-    <module name="gps" type="ubx_ucenter"/>
-    <module name="geo_mag"/>
-    <module name="air_data"/>
-  </modules>
 
   <section name="MIXING" prefix="MOTOR_MIXING_">
     <define name="NB_MOTOR" value="4"/>

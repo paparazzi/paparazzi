@@ -285,6 +285,13 @@
 #endif
 
 /*
+ * IDs of VELOCITY estimates (message 12)
+ */
+#ifndef VEL_DRAGSPEED_ID
+#define VEL_DRAGSPEED_ID 1
+#endif
+
+/*
  * IDs of RSSI measurements (message 13)
  */
 #ifndef RSSI_BLUEGIGA_ID

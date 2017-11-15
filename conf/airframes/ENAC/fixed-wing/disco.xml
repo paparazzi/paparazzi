@@ -10,10 +10,13 @@
     <configure name="PERIODIC_FREQUENCY" value="120"/>
     <configure name="USE_MAGNETOMETER" value="TRUE"/>
 
-    <target name="ap" board="disco"/>
-    <target name="sim" board="pc"/>
+    <target name="ap" board="disco">
+      <module name="radio_control" type="sbus"/>
+    </target>
+    <target name="sim" board="pc">
+      <module name="radio_control" type="ppm"/>
+    </target>
 
-    <module name="radio_control" type="sbus"/>
     <module name="telemetry" type="transparent_udp"/>
 
     <module name="imu" type="disco"/>
