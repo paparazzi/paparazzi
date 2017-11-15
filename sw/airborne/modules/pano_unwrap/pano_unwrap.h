@@ -28,28 +28,23 @@
 
 #include "modules/computer_vision/lib/vision/image.h"
 
-struct image_point_t
-{
-  uint16_t x;
-  uint16_t y;
-};
-
 struct pano_unwrap_t
 {
-  struct image_point_t center;  ///< Center point of panoramic lens
-  uint16_t radius_bottom;  ///< Distance from center point to bottom of region of interest
-  uint16_t radius_top;  ///< Distance from center point to top of region of interest
+  struct FloatVect2 center;  ///< Center point of panoramic lens [fraction of image width, height]
+  float radius_bottom;  ///< Distance from center point to bottom of region of interest [fraction of image height]
+  float radius_top;  ///< Distance from center point to top of region of interest [fraction of image height]
   float forward_direction;  ///< Angle [rad] in raw image that corresponds to the forward direction, where 0 points right and the value increases counterclockwise.
-  bool invert_horizontal;  ///< Set to true to horizontally flip the unwrapped image.
+  bool flip_horizontal;  ///< Set to true to horizontally flip the unwrapped image.
 
-  float vertical_resolution;  ///< Vertical resolution of raw image in the region of interest, used for attitude derotation
+  float vertical_resolution;  ///< Vertical resolution of raw image in the region of interest, used for attitude derotation [fraction of image height/rad] (Note: negative values are allowed)
   bool derotate_attitude;  ///< Set to true if roll/pitch movement should be corrected.
 
-  enum image_type unwrapped_image_type;  ///< Type of unwrapped image (supported: IMAGE_YUV422 (default), IMAGE_GRAYSCALE)
-  uint16_t unwrapped_width;  ///< Width of unwrapped image
-  uint16_t unwrapped_height;  ///< Height of unwrapped image. Set to 0 (default) to determine automatically from unwrapped_width, radius_bottom, _top and vertical_resolution.
+  uint16_t width;  ///< Width of unwrapped image
+  uint16_t height;  ///< Height of unwrapped image. Set to 0 (default) to determine automatically from unwrapped_width, radius_bottom, _top and vertical_resolution.
 
   bool overwrite_video_thread;  ///< Set to true if the unwrapped image should be returned to the video thread.
+
+  bool show_calibration;  ///< Draw calibration pattern on raw image.
 };
 extern struct pano_unwrap_t pano_unwrap;
 
