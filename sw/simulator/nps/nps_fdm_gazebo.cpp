@@ -51,6 +51,7 @@ extern "C" {
 #include "nps_autopilot.h"
 
 #include "generated/airframe.h"
+#include "generated/flight_plan.h"
 #include "autopilot.h"
 
 #include "math/pprz_isa.h"
