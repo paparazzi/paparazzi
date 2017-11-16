@@ -146,7 +146,7 @@ static void set_output_image_size(void)
   }
 }
 
-static void update_LUT(void)
+static void update_LUT(const struct image_t *img)
 {
   if (LUT.settings.center.x == pano_unwrap.center.x &&
       LUT.settings.center.y == pano_unwrap.center.y &&
@@ -194,12 +194,10 @@ static void update_LUT(void)
         float radius = pano_unwrap.radius_top
             + (pano_unwrap.radius_bottom - pano_unwrap.radius_top)
                 * ((float) v / (pano_unwrap.height - 1));
-        LUT.x[v + u * pano_unwrap.height] = (uint16_t) (
-        PANO_UNWRAP_CAMERA.output_size.w * pano_unwrap.center.x
-            + c * radius * PANO_UNWRAP_CAMERA.output_size.h + 0.5);
-        LUT.y[v + u * pano_unwrap.height] = (uint16_t) (
-        PANO_UNWRAP_CAMERA.output_size.h * pano_unwrap.center.y
-            - s * radius * PANO_UNWRAP_CAMERA.output_size.h + 0.5);
+        LUT.x[v + u * pano_unwrap.height] = (uint16_t) (img->w
+            * pano_unwrap.center.x + c * radius * img->h + 0.5);
+        LUT.y[v + u * pano_unwrap.height] = (uint16_t) (img->h
+            * pano_unwrap.center.y - s * radius * img->h + 0.5);
       }
     }
   }
@@ -337,25 +335,20 @@ static void draw_calibration(struct image_t *img)
 static struct image_t *camera_cb(struct image_t *img)
 {
   set_output_image_size();
-  update_LUT();
+  update_LUT(img);
   unwrap_LUT(img, &pano_unwrapped_image);
-//  if (pano_unwrap.show_calibration) {
-//    draw_calibration(img);
-//  }
-//  for (uint16_t x = 0; x < pano_unwrapped_image.w; x++) {
-//    for (uint16_t y = 0; y < pano_unwrapped_image.h; y++) {
-//      float bearing = -M_PI + (float) x / pano_unwrapped_image.w * 2 * M_PI;
-//      float height = (float) y / pano_unwrapped_image.h;
-//      struct point_t pt;
-//      get_point(&pt, img, bearing, height);
-//      PIXEL_Y(&pano_unwrapped_image, x, y) = PIXEL_Y(img, pt.x, pt.y);
-//      PIXEL_U(&pano_unwrapped_image, x, y) = PIXEL_U(img, pt.x, pt.y);
-//      PIXEL_V(&pano_unwrapped_image, x, y) = PIXEL_V(img, pt.x, pt.y);
-//    }
-//  }
   pano_unwrapped_image.ts = img->ts;
   pano_unwrapped_image.pprz_ts = img->pprz_ts;
-  return pano_unwrap.overwrite_video_thread ? &pano_unwrapped_image : NULL;
+
+  static bool first_image = TRUE;
+  if (first_image) {
+    // Workaround! video_rtp_stream seems to crash when disabling overwrite_video_thread
+    // when the first frame was overwritten... Maybe some initialization trouble?
+    first_image = FALSE;
+    return NULL;
+  } else {
+    return pano_unwrap.overwrite_video_thread ? &pano_unwrapped_image : NULL;
+  }
 }
 
 void pano_unwrap_init()
