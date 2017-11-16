@@ -2,7 +2,49 @@
 
 <module name="pano_unwrap">
   <doc>
-    <description>Unwrap images taken through a panoramic lens.</description>
+    <description>
+    Unwrap images taken through a panoramic lens
+    
+    This module unwraps images taken through a panoramic lens. The unwrapped
+    image is returned to the video thread or available in
+    `pano_unwrapped_image`.
+    
+    The user should specify the region of interest (the part of the raw image
+    that should be unwrapped) by setting the following values:
+    - The center of the lens (`center_x` and `center_y`)
+    - The radii of the top and bottom of the ROI (`radius_bottom` and
+      `radius_top`)
+    - The body +x direction in the raw image (`forward_direction`)
+    - The body +y direction in the raw image (`flip_horizontal`)
+    The region of interest can be shown by setting `show_calibration` to TRUE
+    and `overwrite_video` to FALSE.
+    
+    The size of the output image can be set with `width` and `height`. The
+    height of the image can also be set to zero, in which case it is determined
+    automatically from the `vertical_resolution`.
+    
+    Optionally, the image can be derotated to cancel the pitch and roll
+    movements of the drone. This requires a correct setting of the
+    `vertical_resolution`. Reasonable values can be found by looking at the
+    unwrapped and derotated image and adjusting the vertical resolution until
+    the environment no longer appears to move during pitch and roll motions.
+    
+    The following assumptions are made:
+    - The vertical resolution is constant throughout the region of interest.
+    - Pitch and roll angles are small (for attitude derotation).
+    </description>
+    <define name="PANO_UNWRAP_CAMERA" value="front_camera|bottom_camera (default)" description="Camera to use"/>
+    <define name="PANO_UNWRAP_CENTER_X" value="0.50" description="Center of lens in raw image [fraction of raw image width]"/>
+    <define name="PANO_UNWRAP_CENTER_Y" value="0.50" description="Center of lens in raw image [fraction of raw image height]"/>
+    <define name="PANO_UNWRAP_RADIUS_BOTTOM" value="0.20" description="Distance from the lens center to the bottom of the region of interest [fraction of raw image height]"/>
+    <define name="PANO_UNWRAP_RADIUS_TOP" value="0.30" description="Distance from lens center to the top of the region of interest [fraction of raw image height]"/>
+    <define name="PANO_UNWRAP_FORWARD_DIRECTION" value="270.0" description="Forward direction in raw image measured counterclockwise from right [deg]"/>
+    <define name="PANO_UNWRAP_FLIP_HORIZONTAL" value="TRUE|FALSE (default)" description="Flip output image horizontally"/>
+    <define name="PANO_UNWRAP_VERTICAL_RESOLUTION" value="0.18" description="Vertical resolution of region of interest [fraction of raw image height/rad]"/>
+    <define name="PANO_UNWRAP_DEROTATE_ATTITUDE" value="TRUE|FALSE (default)" description="Derotate the image, i.e. keep the panorama aligned with the horizon"/>
+    <define name="PANO_UNWRAP_WIDTH" value="640" description="Width of the unwrapped image [px]"/>
+    <define name="PANO_UNWRAP_HEIGHT" value="0" description="Height of the unwrapped image [px]. Set to 0 to determine automatically."/>
+    <define name="PANO_UNWRAP_OVERWRITE_VIDEO_THREAD" value="TRUE (default)|FALSE" description="Write unwrapped image to the video thread"/>
   </doc>
   <settings>
     <dl_settings>
@@ -17,7 +59,7 @@
         <dl_setting shortname="derotate" var="pano_unwrap.derotate_attitude" type="uint8" values="FALSE|TRUE" min="0" step="1" max="1"/>
         <dl_setting shortname="width" var="pano_unwrap.width" min="1" step="1" max="1920"/>
         <dl_setting shortname="height" var="pano_unwrap.height" min="0" step="1" max="1080"/>
-        <dl_setting shortname="overwrite" var="pano_unwrap.overwrite_video_thread" type="uint8" values="FALSE|TRUE" min="0" step="1" max="1"/>
+        <dl_setting shortname="overwrite_video" var="pano_unwrap.overwrite_video_thread" type="uint8" values="FALSE|TRUE" min="0" step="1" max="1"/>
         <dl_setting shortname="show_calibration" var="pano_unwrap.show_calibration" type="uint8" values="FALSE|TRUE" min="0" step="1" max="1"/>
       </dl_settings>
     </dl_settings>

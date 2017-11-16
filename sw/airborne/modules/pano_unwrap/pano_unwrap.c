@@ -367,11 +367,13 @@ static void draw_calibration(struct image_t *img)
 
 static struct image_t *camera_cb(struct image_t *img)
 {
+  printf("[pano_unwrap] camera_cb...");
   set_output_image_size();
   update_LUT(img);
   unwrap_LUT(img, &pano_unwrapped_image);
   pano_unwrapped_image.ts = img->ts;
   pano_unwrapped_image.pprz_ts = img->pprz_ts;
+  printf("ok\n");
 
   static bool first_image = TRUE;
   if (first_image) {
@@ -387,6 +389,7 @@ static struct image_t *camera_cb(struct image_t *img)
 void pano_unwrap_init()
 {
   image_create(&pano_unwrapped_image, 0, 0, IMAGE_YUV422);
+  set_output_image_size();
   cv_add_to_device(&PANO_UNWRAP_CAMERA, camera_cb, 0);
 }
 
