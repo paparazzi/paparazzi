@@ -71,6 +71,10 @@
 #define PANO_UNWRAP_OVERWRITE_VIDEO_THREAD TRUE
 #endif
 
+#ifndef PANO_UNWRAP_FPS
+#define PANO_UNWRAP_FPS 0
+#endif
+
 struct pano_unwrap_t pano_unwrap = {
     .center = {
         .x = PANO_UNWRAP_CENTER_X,
@@ -310,6 +314,6 @@ void pano_unwrap_init()
 {
   image_create(&pano_unwrapped_image, 0, 0, IMAGE_YUV422);
   set_output_image_size();
-  cv_add_to_device(&PANO_UNWRAP_CAMERA, camera_cb, 0);
+  cv_add_to_device(&PANO_UNWRAP_CAMERA, camera_cb, PANO_UNWRAP_FPS);
 }
 

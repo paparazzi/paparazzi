@@ -49,6 +49,7 @@
     <define name="PANO_UNWRAP_WIDTH" value="640" description="Width of the unwrapped image [px]"/>
     <define name="PANO_UNWRAP_HEIGHT" value="0" description="Height of the unwrapped image [px]. Set to 0 to determine automatically."/>
     <define name="PANO_UNWRAP_OVERWRITE_VIDEO_THREAD" value="TRUE (default)|FALSE" description="Write unwrapped image to the video thread"/>
+    <define name="PANO_UNWRAP_FPS" value="0" description="Maximum FPS (0: unlimited)"/>
   </doc>
   <settings>
     <dl_settings>
