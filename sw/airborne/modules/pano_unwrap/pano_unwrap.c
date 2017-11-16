@@ -116,8 +116,8 @@ struct LUT_t
   uint16_t *x;
   uint16_t *y;
   // Derotate LUT
-  // For each bearing (b), contains the direction in which sampling should be
-  // shifted based on euler angles phi and theta dxy(phi|b) dxy(theta|b).
+  // For each bearing/column (u), contains the direction in which sampling should be
+  // shifted based on euler angles phi and theta dxy(phi|u) dxy(theta|u).
   struct FloatVect2 *dphi;
   struct FloatVect2 *dtheta;
   // Settings for which the LUT was generated
@@ -296,94 +296,14 @@ static void unwrap_LUT(struct image_t *img_raw, struct image_t *img)
   }
 }
 
-static void get_point(struct point_t *pt_out, const struct image_t * img,
-    float bearing, float height)
-{
-  float radius = pano_unwrap.radius_top
-      + (pano_unwrap.radius_bottom - pano_unwrap.radius_top) * height;
-  if (pano_unwrap.derotate_attitude) {
-    // Note: assumes small pitch/roll angles (<= approx. 20 deg)
-    const struct FloatRMat *R = stateGetNedToBodyRMat_f();
-    radius += pano_unwrap.vertical_resolution
-        * (cosf(bearing) * MAT33_ELMT(*R, 0, 2)
-            + sinf(bearing) * MAT33_ELMT(*R, 1, 2));
-  }
-  float angle = (pano_unwrap.forward_direction / 180.0 * M_PI)
-      - bearing * (pano_unwrap.flip_horizontal ? -1.f : 1.f);
-
-  struct FloatVect2 pt;
-  pt.x = img->w * pano_unwrap.center.x + cosf(angle) * radius * img->h;
-  pt.y = img->h * pano_unwrap.center.y - sinf(angle) * radius * img->h;
-
-  // Check bounds
-  if (pt.x < 0) {
-    pt.x = 0;
-  }
-  if (pt.x > img->w - 1) {
-    pt.x = img->w - 1;
-  }
-  if (pt.y < 0) {
-    pt.y = 0;
-  }
-  if (pt.y > img->h - 1) {
-    pt.y = img->h - 1;
-  }
-
-  pt_out->x = (uint16_t) (pt.x + 0.5);
-  pt_out->y = (uint16_t) (pt.y + 0.5);
-}
-
-static void draw_calibration(struct image_t *img)
-{
-  struct point_t pt;
-  for (float bearing = 0; bearing <= 2 * M_PI; bearing += 0.01) {
-    get_point(&pt, img, bearing, 0.f);
-    PIXEL_U(img, pt.x, pt.y) = 84;
-    PIXEL_V(img, pt.x, pt.y) = 255;
-    get_point(&pt, img, bearing, 1.f);
-    PIXEL_U(img, pt.x, pt.y) = 84;
-    PIXEL_V(img, pt.x, pt.y) = 255;
-  }
-  for (float height = 0; height < 1; height += 0.1) {
-    get_point(&pt, img, 0.f, height);
-    PIXEL_Y(img, pt.x, pt.y) = 76;
-    PIXEL_U(img, pt.x, pt.y) = 84;
-    PIXEL_V(img, pt.x, pt.y) = 255;
-    get_point(&pt, img, M_PI_2, height);
-    PIXEL_Y(img, pt.x, pt.y) = 149;
-    PIXEL_U(img, pt.x, pt.y) = 43;
-    PIXEL_V(img, pt.x, pt.y) = 21;
-  }
-  pt.x = img->w * pano_unwrap.center.x;
-  pt.y = img->h * pano_unwrap.center.y;
-  for (int x = -1; x <= 1; x++) {
-    for (int y = -1; y <= 1; y++) {
-      PIXEL_Y(img, pt.x+x, pt.y+y) = 29;
-      PIXEL_U(img, pt.x+x, pt.y+y) = 255;
-      PIXEL_V(img, pt.x+x, pt.y+y) = 107;
-    }
-  }
-}
-
 static struct image_t *camera_cb(struct image_t *img)
 {
-  printf("[pano_unwrap] camera_cb...");
   set_output_image_size();
   update_LUT(img);
   unwrap_LUT(img, &pano_unwrapped_image);
   pano_unwrapped_image.ts = img->ts;
   pano_unwrapped_image.pprz_ts = img->pprz_ts;
-  printf("ok\n");
-
-  static bool first_image = TRUE;
-  if (first_image) {
-    // Workaround! video_rtp_stream seems to crash when disabling overwrite_video_thread
-    // when the first frame was overwritten... Maybe some initialization trouble?
-    first_image = FALSE;
-    return NULL;
-  } else {
-    return pano_unwrap.overwrite_video_thread ? &pano_unwrapped_image : NULL;
-  }
+  return pano_unwrap.overwrite_video_thread ? &pano_unwrapped_image : NULL;
 }
 
 void pano_unwrap_init()

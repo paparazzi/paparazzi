@@ -48,6 +48,7 @@ struct pano_unwrap_t
 };
 extern struct pano_unwrap_t pano_unwrap;
 
+/// Unwrapped panoramic image
 extern struct image_t pano_unwrapped_image;
 
 extern void pano_unwrap_init(void);
