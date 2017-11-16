@@ -94,10 +94,36 @@ struct pano_unwrap_t pano_unwrap = {
 
 struct image_t pano_unwrapped_image;
 
-#define PIXEL_UV(img,x,y) ( ((uint8_t*)((img)->buf))[2*(x) + 2*(y)*(img)->w] )
 #define PIXEL_U(img,x,y) ( ((uint8_t*)((img)->buf))[4*(int)((x)/2) + 2*(y)*(img)->w] )
 #define PIXEL_V(img,x,y) ( ((uint8_t*)((img)->buf))[4*(int)((x)/2) + 2*(y)*(img)->w + 2] )
 #define PIXEL_Y(img,x,y) ( ((uint8_t*)((img)->buf))[2*(x) + 1 + 2*(y)*(img)->w] )
+
+#define RED_Y 76
+#define RED_U 84
+#define RED_V 255
+#define GREEN_Y 149
+#define GREEN_U 43
+#define GREEN_V 21
+#define BLUE_Y 29
+#define BLUE_U 255
+#define BLUE_V 107
+
+struct LUT_t
+{
+  // Unwarping LUT
+  // For each pixel (u,v) in the unwrapped image, contains pixel coordinates of
+  // the same pixel in the raw image (x(u,v), y(u,v)).
+  uint16_t *x;
+  uint16_t *y;
+  // Derotate LUT
+  // For each bearing (b), contains the direction in which sampling should be
+  // shifted based on euler angles phi and theta dxy(phi|b) dxy(theta|b).
+  struct FloatVect2 *dphi;
+  struct FloatVect2 *dtheta;
+  // Settings for which the LUT was generated
+  struct pano_unwrap_t settings;
+};
+static struct LUT_t LUT;  // Note: initialized NULL
 
 static void set_output_image_size(void)
 {
@@ -117,6 +143,125 @@ static void set_output_image_size(void)
     image_free(&pano_unwrapped_image);
     image_create(&pano_unwrapped_image, pano_unwrap.width, pano_unwrap.height,
         IMAGE_YUV422);
+  }
+}
+
+static void update_LUT(void)
+{
+  if (LUT.settings.center.x == pano_unwrap.center.x &&
+      LUT.settings.center.y == pano_unwrap.center.y &&
+      LUT.settings.radius_bottom == pano_unwrap.radius_bottom &&
+      LUT.settings.radius_top == pano_unwrap.radius_top &&
+      LUT.settings.forward_direction == pano_unwrap.forward_direction &&
+      LUT.settings.flip_horizontal == pano_unwrap.flip_horizontal &&
+      LUT.settings.width == pano_unwrap.width &&
+      LUT.settings.height == pano_unwrap.height) {
+    // LUT is still valid, do nothing
+    return;
+  }
+
+  printf("[pano_unwrap] Regenerating LUT... ");
+  // Remove old data
+  if (LUT.x) {
+    free(LUT.x);
+    LUT.x = NULL;
+  }
+  if (LUT.y) {
+    free(LUT.y);
+    LUT.y = NULL;
+  }
+  if (LUT.dphi) {
+    free(LUT.dphi);
+    LUT.dphi = NULL;
+  }
+  if (LUT.dtheta) {
+    free(LUT.dtheta);
+    LUT.dtheta = NULL;
+  }
+  // Generate unwarping LUT
+  LUT.x = malloc(sizeof(*LUT.x) * pano_unwrap.width * pano_unwrap.height);
+  LUT.y = malloc(sizeof(*LUT.y) * pano_unwrap.width * pano_unwrap.height);
+  if (!LUT.x || !LUT.y) {
+    printf("[pano_unwrap] ERROR could not allocate x or y lookup table!\n");
+  } else {
+    for (uint16_t u = 0; u < pano_unwrap.width; u++) {
+      float bearing = -M_PI + (float) u / pano_unwrapped_image.w * 2 * M_PI;
+      float angle = (pano_unwrap.forward_direction / 180.0 * M_PI)
+          + bearing * (pano_unwrap.flip_horizontal ? 1.f : -1.f);
+      float c = cosf(angle);
+      float s = sinf(angle);
+      for (uint16_t v = 0; v < pano_unwrap.height; v++) {
+        float radius = pano_unwrap.radius_top
+            + (pano_unwrap.radius_bottom - pano_unwrap.radius_top)
+                * ((float) v / (pano_unwrap.height - 1));
+        LUT.x[v + u * pano_unwrap.height] = (uint16_t) (
+        PANO_UNWRAP_CAMERA.output_size.w * pano_unwrap.center.x
+            + c * radius * PANO_UNWRAP_CAMERA.output_size.h + 0.5);
+        LUT.y[v + u * pano_unwrap.height] = (uint16_t) (
+        PANO_UNWRAP_CAMERA.output_size.h * pano_unwrap.center.y
+            - s * radius * PANO_UNWRAP_CAMERA.output_size.h + 0.5);
+      }
+    }
+  }
+  // Generate derotation LUT
+  LUT.dphi = malloc(sizeof(*LUT.dphi) * pano_unwrap.width);
+  LUT.dtheta = malloc(sizeof(*LUT.dtheta) * pano_unwrap.width);
+  if (!LUT.dphi || !LUT.dtheta) {
+    printf(
+        "[pano_unwrap] ERROR could not allocate dphi or dtheta lookup table!\n");
+  } else {
+    for (uint16_t u = 0; u < pano_unwrap.width; u++) {
+      float bearing = -M_PI + (float) u / pano_unwrapped_image.w * 2 * M_PI;
+      float angle = (pano_unwrap.forward_direction / 180.0 * M_PI)
+          + bearing * (pano_unwrap.flip_horizontal ? 1.f : -1.f);
+      LUT.dphi[u].x = sinf(bearing) * cosf(angle);
+      LUT.dphi[u].y = sinf(bearing) * -sinf(angle);
+      LUT.dtheta[u].x = cosf(bearing) * cosf(angle);
+      LUT.dtheta[u].y = cosf(bearing) * -sinf(angle);
+    }
+  }
+  // Keep track of settings for which this LUT was generated
+  LUT.settings = pano_unwrap;
+  printf("ok\n");
+}
+
+static void unwrap_LUT(const struct image_t *img_raw, struct image_t *img)
+{
+  for (uint16_t u = 0; u < pano_unwrap.width; u++) {
+    // Derotation offset for this bearing
+    int16_t dx = 0;
+    int16_t dy = 0;
+    if (pano_unwrap.derotate_attitude) {
+      // Look up correction
+      const struct FloatRMat *R = stateGetNedToBodyRMat_f();
+      dx = (int16_t) (img_raw->h * pano_unwrap.vertical_resolution
+          * (LUT.dphi[u].x * MAT33_ELMT(*R, 1, 2)
+              + LUT.dtheta[u].x * MAT33_ELMT(*R, 0, 2)));
+      dy = (int16_t) (img_raw->h * pano_unwrap.vertical_resolution
+          * (LUT.dphi[u].y * MAT33_ELMT(*R, 1, 2)
+              + LUT.dtheta[u].y * MAT33_ELMT(*R, 0, 2)));
+    }
+    // Fill this column of unwrapped image
+    for (uint16_t v = 0; v < pano_unwrap.height; v++) {
+      // Look up sampling point
+      int16_t x = (int16_t) LUT.x[v + u * pano_unwrap.height] + dx;
+      int16_t y = (int16_t) LUT.y[v + u * pano_unwrap.height] + dy;
+      // Check bounds
+      if (x < 0) {
+        x = 0;
+      } else if (x > img_raw->w - 1) {
+        x = img_raw->w - 1;
+      }
+      if (y < 0) {
+        y = 0;
+      } else if (y > img_raw->h - 1) {
+        y = img_raw->h - 1;
+      }
+      // Copy pixel values
+      PIXEL_Y(img,u,v) = PIXEL_Y(img_raw, x, y);
+      PIXEL_U(img,u,v) = PIXEL_U(img_raw, x, y);
+      PIXEL_V(img,u,v) = PIXEL_V(img_raw, x, y);
+    }
   }
 }
 
@@ -192,20 +337,22 @@ static void draw_calibration(struct image_t *img)
 static struct image_t *camera_cb(struct image_t *img)
 {
   set_output_image_size();
-  if (pano_unwrap.show_calibration) {
-    draw_calibration(img);
-  }
-  for (uint16_t x = 0; x < pano_unwrapped_image.w; x++) {
-    for (uint16_t y = 0; y < pano_unwrapped_image.h; y++) {
-      float bearing = -M_PI + (float) x / pano_unwrapped_image.w * 2 * M_PI;
-      float height = (float) y / pano_unwrapped_image.h;
-      struct point_t pt;
-      get_point(&pt, img, bearing, height);
-      PIXEL_Y(&pano_unwrapped_image, x, y) = PIXEL_Y(img, pt.x, pt.y);
-      PIXEL_U(&pano_unwrapped_image, x, y) = PIXEL_U(img, pt.x, pt.y);
-      PIXEL_V(&pano_unwrapped_image, x, y) = PIXEL_V(img, pt.x, pt.y);
-    }
-  }
+  update_LUT();
+  unwrap_LUT(img, &pano_unwrapped_image);
+//  if (pano_unwrap.show_calibration) {
+//    draw_calibration(img);
+//  }
+//  for (uint16_t x = 0; x < pano_unwrapped_image.w; x++) {
+//    for (uint16_t y = 0; y < pano_unwrapped_image.h; y++) {
+//      float bearing = -M_PI + (float) x / pano_unwrapped_image.w * 2 * M_PI;
+//      float height = (float) y / pano_unwrapped_image.h;
+//      struct point_t pt;
+//      get_point(&pt, img, bearing, height);
+//      PIXEL_Y(&pano_unwrapped_image, x, y) = PIXEL_Y(img, pt.x, pt.y);
+//      PIXEL_U(&pano_unwrapped_image, x, y) = PIXEL_U(img, pt.x, pt.y);
+//      PIXEL_V(&pano_unwrapped_image, x, y) = PIXEL_V(img, pt.x, pt.y);
+//    }
+//  }
   pano_unwrapped_image.ts = img->ts;
   pano_unwrapped_image.pprz_ts = img->pprz_ts;
   return pano_unwrap.overwrite_video_thread ? &pano_unwrapped_image : NULL;
