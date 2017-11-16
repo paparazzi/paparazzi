@@ -5,8 +5,10 @@
     <description>
     Unwrap images taken through a panoramic lens
     
+    @image html images/airborne/modules/pano_unwrap/pano_unwrap.jpg "Left: AR.Drone 2.0 with Kogeto Dot 360 panoramic lens on bottom camera. Middle: raw image and region of interest (blue). Right: unwrapped image."
+    
     This module unwraps images taken through a panoramic lens. The unwrapped
-    image is returned to the video thread or available in
+    image is returned to the video thread or available as
     `pano_unwrapped_image`.
     
     The user should specify the region of interest (the part of the raw image
@@ -31,7 +33,9 @@
     
     The following assumptions are made:
     - The vertical resolution is constant throughout the region of interest.
-    - Pitch and roll angles are small (for attitude derotation).
+    - Pitch and roll angles are small (for derotation).
+    
+    @image html images/airborne/modules/pano_unwrap/unwrapped_derotated.png "Derotation (shown for large roll angle)."
     </description>
     <define name="PANO_UNWRAP_CAMERA" value="front_camera|bottom_camera (default)" description="Camera to use"/>
     <define name="PANO_UNWRAP_CENTER_X" value="0.50" description="Center of lens in raw image [fraction of raw image width]"/>
