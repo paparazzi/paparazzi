@@ -118,7 +118,6 @@ def formation(B, ds, radius, k):
 def main():
     if len(sys.argv) != 6:
         print("Usage: gvfFormationApp topology.txt desired_sigma.txt ids.txt radius k")
-        interface.shutdown()
         return
 
     B = np.loadtxt(sys.argv[1])
@@ -164,8 +163,9 @@ def main():
             formation(B, desired_sigmas, radius, k)
 
     except KeyboardInterrupt:
-        interface.shutdown()
+        return
 
 
 if __name__ == '__main__':
     main()
+    interface.shutdown()
