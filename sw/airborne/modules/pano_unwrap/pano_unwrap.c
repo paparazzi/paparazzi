@@ -223,7 +223,7 @@ static void update_LUT(const struct image_t *img)
   printf("ok\n");
 }
 
-static void unwrap_LUT(const struct image_t *img_raw, struct image_t *img)
+static void unwrap_LUT(struct image_t *img_raw, struct image_t *img)
 {
   for (uint16_t u = 0; u < pano_unwrap.width; u++) {
     // Derotation offset for this bearing
@@ -255,10 +255,43 @@ static void unwrap_LUT(const struct image_t *img_raw, struct image_t *img)
       } else if (y > img_raw->h - 1) {
         y = img_raw->h - 1;
       }
+      // Draw calibration pattern
+      if (pano_unwrap.show_calibration) {
+        if (v == 0 || v == pano_unwrap.height - 1) {
+          PIXEL_U(img_raw,x,y) = BLUE_U;
+          PIXEL_V(img_raw,x,y) = BLUE_V;
+        }
+        if ((u == pano_unwrap.width / 2)
+            || (u == pano_unwrap.width / 2 + 1)) {
+          PIXEL_Y(img_raw,x,y) = RED_Y;
+          PIXEL_U(img_raw,x,y) = RED_U;
+          PIXEL_V(img_raw,x,y) = RED_V;
+        }
+        if ((u == 3 * pano_unwrap.width / 4)
+            || (u == 3 * pano_unwrap.width / 4 + 1)) {
+          PIXEL_Y(img_raw,x,y) = GREEN_Y;
+          PIXEL_U(img_raw,x,y) = GREEN_U;
+          PIXEL_V(img_raw,x,y) = GREEN_V;
+        }
+      }
       // Copy pixel values
       PIXEL_Y(img,u,v) = PIXEL_Y(img_raw, x, y);
       PIXEL_U(img,u,v) = PIXEL_U(img_raw, x, y);
       PIXEL_V(img,u,v) = PIXEL_V(img_raw, x, y);
+    }
+  }
+  // Draw lens center
+  if (pano_unwrap.show_calibration) {
+    uint16_t x = pano_unwrap.center.x * img_raw->w;
+    uint16_t y = pano_unwrap.center.y * img_raw->h;
+    for (int i = -5; i <= 5; i++) {
+      for (int j = -5; j <= 5; j++) {
+        if (i == 0 || j == 0) {
+          PIXEL_Y(img_raw, x+i, y+j) = BLUE_Y;
+          PIXEL_U(img_raw, x+i, y+j) = BLUE_U;
+          PIXEL_V(img_raw, x+i, y+j) = BLUE_V;
+        }
+      }
     }
   }
 }
