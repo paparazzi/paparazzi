@@ -362,4 +362,13 @@
 #define RANGE_FORCEFIELD_ID 1
 #endif
 
+/*
+ * ID's for camera type sensors
+ */
+
+#ifndef CAM_JEVOIS_ID
+#define CAM_JEVOIS_ID 1
+#endif
+
+
 #endif /* ABI_SENDER_IDS_H */
