@@ -99,7 +99,7 @@ type aircraft = {
   pages : GObj.widget;
   notebook_label : GMisc.label;
   strip : Strip.t;
-  rc_max_rate: int;
+  rc_max_rate: float;
   mutable first_pos : bool;
   mutable last_block_name : string;
   mutable in_kill_mode : bool;
@@ -376,12 +376,12 @@ let load_mission = fun ?editable color geomap xml ->
   new MapFP.flight_plan ~format_attribs:attributes_pretty_printer ?editable ~show_moved:true geomap color Env.flight_plan_dtd xml
 
 let get_rc_max_rate = fun af_xml ->
-  let default_max_rate = 50 in
+  let default_max_rate = 50. in
   try
     let gcs_section = ExtXml.child af_xml ~select:(fun x -> Xml.attrib x "name" = "MISC") "section" in
     let fvalue = fun name default->
-      try ExtXml.int_attrib (ExtXml.child gcs_section ~select:(fun x -> ExtXml.attrib x "name" = name) "define") "value" with _ -> default in
-    (fvalue "RC_MAX_RATE" 50)
+      try ExtXml.float_attrib (ExtXml.child gcs_section ~select:(fun x -> ExtXml.attrib x "name" = name) "define") "value" with _ -> default in
+    (fvalue "RC_MAX_RATE" 50.)
   with _ -> default_max_rate
 
 let get_bat_levels = fun af_xml ->
@@ -896,7 +896,7 @@ let get_wind_msg = fun (geomap:G.widget) _sender vs ->
 let get_fbw_msg = fun alarm _sender vs ->
   let ac = get_ac vs in
   let status = PprzLink.string_assoc "rc_status" vs
-  and rate = (float_of_int ((PprzLink.int_assoc "rc_rate" vs) * 10) ) /. (float_of_int ac.rc_max_rate) in
+  and rate = (float_of_int ((PprzLink.int_assoc "rc_rate" vs) * 10) ) /. ac.rc_max_rate in
   (* divide by 5 to have normal values between 0 and 10 *)
   (* RC rate max approx. 50 Hz *)
   ac.strip#set_rc rate status;
