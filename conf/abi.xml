@@ -70,7 +70,9 @@
       <field name="x" type="float" unit="m/s"/>
       <field name="y" type="float" unit="m/s"/>
       <field name="z" type="float" unit="m/s"/>
-      <field name="noise" type="float"/>
+      <field name="noise_x" type="float">Set negative noise to disable parameter axis</field>
+      <field name="noise_y" type="float"/>
+      <field name="noise_z" type="float"/>
     </message>
 
     <message name="RSSI" id="13">
@@ -103,7 +105,9 @@
       <field name="x" type="float" unit="m"/>
       <field name="y" type="float" unit="m"/>
       <field name="z" type="float" unit="m"/>
-      <field name="noise" type="float"/>
+      <field name="noise_x" type="float">Set negative noise to disable parameter axis</field>
+      <field name="noise_y" type="float"/>
+      <field name="noise_z" type="float"/>
     </message>
     
     <message name="UWB_COMMUNICATION" id="19">

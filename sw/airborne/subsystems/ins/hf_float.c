@@ -805,9 +805,16 @@ static void hff_update_y(struct HfilterFloat *filt, float y_meas, float Rpos)
 */
 void hff_update_vel(struct FloatVect2 vel, struct FloatVect2 Rvel)
 {
-  hff_speed_lost_counter = 0;
-  hff_update_xdot(&hff, vel.x, Rvel.x);
-  hff_update_ydot(&hff, vel.y, Rvel.y);
+  if (Rvel.x >= 0.f) {
+    hff_update_xdot(&hff, vel.x, Rvel.x);
+  }
+  if (Rvel.y >= 0.f) {
+    hff_update_ydot(&hff, vel.y, Rvel.y);
+  }
+
+  if (Rvel.x >= 0.f || Rvel.y >= 0.f) {
+    hff_speed_lost_counter = 0;
+  }
 }
 
 static void hff_update_xdot(struct HfilterFloat *filt, float vel, float Rvel)

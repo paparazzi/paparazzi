@@ -85,11 +85,6 @@ struct stereocam_t stereocam = {
 };
 static uint8_t stereocam_msg_buf[256]  __attribute__((aligned));   ///< The message buffer for the stereocamera
 
-// incoming messages definitions
-#ifndef STEREOCAM2STATE_SENDER_ID
-#define STEREOCAM2STATE_SENDER_ID ABI_BROADCAST
-#endif
-
 #ifndef STEREOCAM_USE_MEDIAN_FILTER
 #define STEREOCAM_USE_MEDIAN_FILTER 0
 #endif
@@ -139,10 +134,12 @@ static void stereocam_parse_msg(void)
     }
 
     //Send velocities to state
-    AbiSendMsgVELOCITY_ESTIMATE(STEREOCAM2STATE_SENDER_ID, now_ts,
+    AbiSendMsgVELOCITY_ESTIMATE(VEL_STEREOCAM_ID, now_ts,
                                 body_vel.x,
                                 body_vel.y,
                                 body_vel.z,
+                                noise,
+                                noise,
                                 noise
                                );
 
