@@ -94,6 +94,7 @@
 <!--    <define name="NO_XBEE_API_INIT" value="TRUE"/> -->
 
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
+    <define name="RC_MAX_RATE" value="70." /> <!-- pass rate in Hz, -->
 
   </section>
 
