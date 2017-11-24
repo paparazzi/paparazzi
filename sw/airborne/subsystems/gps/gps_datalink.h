@@ -46,5 +46,6 @@ extern void gps_datalink_init(void);
 
 extern void gps_datalink_parse_REMOTE_GPS(void);
 extern void gps_datalink_parse_REMOTE_GPS_SMALL(void);
+extern void gps_datalink_parse_REMOTE_GPS_LOCAL(void);
 
 #endif /* GPS_DATALINK_H */
