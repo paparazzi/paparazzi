@@ -69,8 +69,8 @@
   <!-- commands section -->
   <servos>
     <servo name="LIGHT"         no="2" min="1000" neutral="1900" max="2000"/>
-    <servo name="AILEVON_LEFT"  no="3" min="1900" neutral="1525" max="1100"/>
-    <servo name="AILEVON_RIGHT" no="4" min="1100" neutral="1432" max="1900"/>
+    <servo name="AILEVON_LEFT"  no="3" min="1900" neutral="1615" max="1100"/>
+    <servo name="AILEVON_RIGHT" no="4" min="1100" neutral="1457" max="1900"/>
     <servo name="MOTOR"         no="5" min="1000" neutral="1000" max="2000"/>
   </servos>
 
@@ -137,7 +137,7 @@
 
   <section name="INS" prefix="INS_">
     <define name="ROLL_NEUTRAL_DEFAULT"  value="0." unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="5." unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="1." unit="deg"/>
   </section>
 
   <section name="BAT">
