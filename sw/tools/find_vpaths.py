@@ -56,14 +56,17 @@ with open(sys.argv[2]) as fp:
         found = 0
         for vpath in vpaths:
             if os.path.isfile(path.join(vpath, f)) :
-                cmd = cmd + path.join(vpath, f) + ' '
-                found = found +1
+                if found == 0:
+                    # add file in the path only once
+                    cmd = cmd + path.join(vpath, f) + ' '
+                    found = found +1
                 # break
         if found == 0:
             tmps = "ERROR: could not find src: " + f
             cmd = cmd + tmps #hack to make the error known
             print(tmps)            
         if found > 1:
+            # NOTE: this will never happen
             tmps = "ERROR: found src more than once: " + f
             cmd = cmd + tmps #hack to make the error known
             print(tmps)            

@@ -23,9 +23,9 @@
     <configure name="PIKSI_GPS_BAUD" default="B115200"/>
 
     <file name="gps_piksi.c" dir="subsystems/gps"/>
-    <include name="$(PAPARAZZI_SRC)/sw/ext/libsbp/c/include"/>
-    <file name="sbp.c" dir="$(PAPARAZZI_SRC)/sw/ext/libsbp/c/src"/>
-    <file name="edc.c" dir="$(PAPARAZZI_SRC)/sw/ext/libsbp/c/src"/>
+    <include name="../ext/libsbp/c/include"/>
+    <file name="sbp.c" dir="../ext/libsbp/c/src"/>
+    <file name="edc.c" dir="../ext/libsbp/c/src"/>
 
     <define name="USE_$(PIKSI_GPS_PORT_UPPER)"/>
     <define name="PIKSI_GPS_LINK" value="$(PIKSI_GPS_PORT_LOWER)"/>
