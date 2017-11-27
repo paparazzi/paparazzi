@@ -85,6 +85,8 @@ def main():
                         help="Time factor (default 1.0)")
     nps_opts.add_option("--fg_fdm", action="store_true",
                         help="Use FlightGear native-fdm protocol instead of native-gui")
+    nps_opts.add_option("--nodisplay", dest="nodisplay", action="store_true",
+                        help="Don't send NPS Ivy messages")
 
     parser.add_option_group(ocamlsim_opts)
     parser.add_option_group(nps_opts)
@@ -164,6 +166,8 @@ def main():
             simargs.append(str(options.time_factor))
         if options.fg_fdm:
             simargs.append("--fg_fdm")
+        if options.nodisplay:
+            simargs.append("--nodisplay")
     else:
         parser.error("Please specify a valid sim type.")
 

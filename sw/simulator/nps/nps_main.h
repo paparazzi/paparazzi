@@ -64,6 +64,7 @@ struct NpsMain {
   int rc_script;
   bool norc;
   char *ivy_bus;
+  bool nodisplay;
 };
 
 struct NpsMain nps_main;
