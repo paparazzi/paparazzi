@@ -40,8 +40,8 @@ PRINT_CONFIG_VAR(OFH_OPTICAL_FLOW_ID)
 #define COV_WINDOW_SIZE (10*30)
 #endif
 
-#ifndef OFH_COV_DELAY_STEPS
-#define OFH_COV_DELAY_STEPS COV_WINDOW_SIZE
+#ifndef OF_COV_DELAY_STEPS
+#define OF_COV_DELAY_STEPS COV_WINDOW_SIZE/2
 #endif
 
 #ifndef OFH_PGAINZ
@@ -412,7 +412,6 @@ void horizontal_ctrl_module_run(bool in_flight)
 
   // update covariance
   set_cov_flow(cov_method,&historyX,&historyY,&des_inputs,&covariances);
-
   ofh_sp_eu.phi = BFP_OF_REAL(RadOfDeg(des_inputs.phi*oscphi), INT32_ANGLE_FRAC);
   ofh_sp_eu.theta = BFP_OF_REAL(RadOfDeg(des_inputs.theta*osctheta), INT32_ANGLE_FRAC);
 
@@ -485,8 +484,8 @@ void vertical_ctrl_module_run(bool in_flight)
     if (new_divergence < of_hover.divergence) { new_divergence = of_hover.divergence - max_div_dt; }
     else { new_divergence = of_hover.divergence + max_div_dt; }
   }
-
   // low-pass filter the divergence:
+
   of_hover.divergence += (new_divergence - of_hover.divergence) * lp_factor;
   prev_vision_timeZ = vision_time;
 

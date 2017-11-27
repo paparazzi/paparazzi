@@ -169,25 +169,6 @@
 		<define name="REF_ZETA_R" value="0.9" />
 		<define name="REF_MAX_R" value="300." unit="deg/s" />
 		<define name="REF_MAX_RDOT" value="RadOfDeg(4000.)" />
-		
-		 <!-- feedback Hann Woei>
-  	  	<define name="PHI_PGAIN" value="850"/>
-    	<define name="PHI_DGAIN" value="425"/>
-    	<define name="PHI_IGAIN" value="0"/>
-
-    	<define name="THETA_PGAIN" value="850"/>
-    	<define name="THETA_DGAIN" value="425"/>
-    	<define name="THETA_IGAIN" value="0"/>
-
-    	<define name="PSI_PGAIN" value="1000"/>
-    	<define name="PSI_DGAIN" value="700"/>
-    	<define name="PSI_IGAIN" value="0"/>
-
-    	<!-- feedforward >
-    	<define name="PHI_DDGAIN" value="0"/>
-    	<define name="THETA_DDGAIN" value="0"/>
-		<define name="PSI_DDGAIN" value="100"/-->
-
 	</section>
 
 	<section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
@@ -220,34 +201,38 @@
 	</section>
 
 	<section name="GUIDANCE_V" prefix="GUIDANCE_V_">
+		<!-- Agressive gains -->
+		<define name="HOVER_KP" value="600" />
+		<define name="HOVER_KD" value="400" />
+		
+		<!-- Less Agressive Gains
 		<define name="HOVER_KP" value="363" />
-		<define name="HOVER_KD" value="237" />
-		<!-- define name="HOVER_KP" value="583" />
-		<define name="HOVER_KD" value="82" /-->
+		<define name="HOVER_KD" value="237" /> -->
+		
 		<define name="HOVER_KI" value="13" />
 		<define name="NOMINAL_HOVER_THROTTLE" value="0.61" /> 
 		<define name="ADAPT_THROTTLE_ENABLED" value="FALSE" />
 	</section>
 
 	<section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-		<!-- Hann Woei offline >
 		<define name="MAX_BANK" value="22" unit="deg" />
-		<define name="PGAIN" value="79" />
-		<define name="DGAIN" value="100" />
-		<define name="IGAIN" value="30" />
-		<define name="REF_MAX_SPEED" value="1.0"/>
-		<!-- Guido offline -->
-		<define name="MAX_BANK" value="22" unit="deg" />
+	
+		<!-- Less Agressive Gains >
 		<define name="PGAIN" value="80" />
 		<define name="DGAIN" value="40" />
-		<define name="IGAIN" value="13" />
+		<define name="IGAIN" value="13" /-->
+		
+		<!-- Agressive Gains -->
+		<define name="PGAIN" value="363" />
+		<define name="DGAIN" value="237" />
+		<define name="IGAIN" value="30" />	
 	</section>
 
 	<section name="AUTOPILOT">
-		<define name="MODE_STARTUP" value="AP_MODE_NAV" />
+		<define name="MODE_STARTUP" value="AP_MODE_ATTITUDE_DIRECT" />
 		<define name="MODE_MANUAL" value="AP_MODE_MODULE" />
 		<define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_DIRECT" />
-		<define name="MODE_AUTO2" value="AP_MODE_NAV" />
+		<define name="MODE_AUTO2" value="AP_MODE_ATTITUDE_DIRECT" />
 		<define name="NO_RC_THRUST_LIMIT" value="TRUE" />
 	</section>
 

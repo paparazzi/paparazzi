@@ -12,8 +12,8 @@
 #define OF_LP_CONST 0.5 // Average between 0.4 Bebop value and 0.6 ARDrone value
 #endif
 
-#ifndef OFH_COV_DELAY_STEPS
-#define OFH_COV_DELAY_STEPS COV_WINDOW_SIZE
+#ifndef OF_COV_DELAY_STEPS
+#define OF_COV_DELAY_STEPS COV_WINDOW_SIZE/2
 #endif
 
 /**
@@ -25,12 +25,13 @@ float set_cov_div(bool cov_method,struct OFhistory *history, struct DesiredInput
 {
   float cov_div = 0;
   // histories and cov detection:
+
   history->OF[ind_histZ] = of_hover.divergence;
 
   float normalized_thrust = (float)(100.0 * inputs->thrust / MAX_PPRZ );
   history->input[ind_histZ] = normalized_thrust;
 
-  int ind_past = ind_histZ - OFH_COV_DELAY_STEPS;
+  int ind_past = ind_histZ - OF_COV_DELAY_STEPS;
   while (ind_past < 0) { ind_past += COV_WINDOW_SIZE; }
   history->past_OF[ind_histZ] = history->OF[ind_past];
 
@@ -60,13 +61,13 @@ float set_cov_div(bool cov_method,struct OFhistory *history, struct DesiredInput
  * Set the covariance of the flow and past flow / desired angle
  * This funciton should only be called once per time step
  */
-void set_cov_flow(bool cov_method,struct OFhistory *historyX,struct OFhistory *historyY, struct DesiredInputs *inputs, struct Covariances *covs)
+void set_cov_flow(bool cov_method, struct OFhistory *historyX, struct OFhistory *historyY, struct DesiredInputs *inputs, struct Covariances *covs)
 {
   // histories and cov detection:
   historyX->OF[ind_histXY] = of_hover.flowX;
   historyY->OF[ind_histXY] = of_hover.flowY;
 
-  int ind_past = ind_histXY - OFH_COV_DELAY_STEPS;
+  int ind_past = ind_histXY - OF_COV_DELAY_STEPS;
   while (ind_past < 0) { ind_past += COV_WINDOW_SIZE; }
   historyX->past_OF[ind_histXY] = historyX->OF[ind_past];
   historyY->past_OF[ind_histXY] = historyY->OF[ind_past];
@@ -82,7 +83,6 @@ void set_cov_flow(bool cov_method,struct OFhistory *historyX,struct OFhistory *h
     //    // TODO: step in hover set point causes an incorrectly perceived covariance
     covs->X = covariance_f(historyX->input, historyX->OF, COV_WINDOW_SIZE);
     covs->Y = covariance_f(historyY->input, historyY->OF, COV_WINDOW_SIZE);
-
   }
   else if (cov_method == 1 && cov_array_filledXY > 1)
   {
@@ -92,6 +92,7 @@ void set_cov_flow(bool cov_method,struct OFhistory *historyX,struct OFhistory *h
       covs->Y = covariance_f(historyY->past_OF, historyY->OF, COV_WINDOW_SIZE);
     }
   }
+
   if (cov_array_filledXY < 2 && ind_histXY + 1 == COV_WINDOW_SIZE)
   {
     cov_array_filledXY++;
@@ -108,21 +109,21 @@ void set_cov_flow(bool cov_method,struct OFhistory *historyX,struct OFhistory *h
  */
 float PID_flow_control(float dt, struct OpticalFlowHoverControl *of_hover_ctrl)
 {
-	float des_angle = 0;
+  float des_angle = 0;
 
-	// update the controller errors:
-	float lp_factor = dt / OF_LP_CONST;
-	Bound(lp_factor, 0.f, 1.f);
+  // update the controller errors:
+  float lp_factor = dt / OF_LP_CONST;
+  Bound(lp_factor, 0.f, 1.f);
 
-	// maintain the controller errors:
-	of_hover_ctrl->errors.sum_err += of_hover_ctrl->errors.err;
-	of_hover_ctrl->errors.d_err += (((of_hover_ctrl->errors.err - of_hover_ctrl->errors.previous_err) / dt) - of_hover_ctrl->errors.d_err) * lp_factor;
-	of_hover_ctrl->errors.previous_err = of_hover_ctrl->errors.err;
+  // maintain the controller errors:
+  of_hover_ctrl->errors.sum_err += of_hover_ctrl->errors.err;
+  of_hover_ctrl->errors.d_err += (((of_hover_ctrl->errors.err - of_hover_ctrl->errors.previous_err) / dt) - of_hover_ctrl->errors.d_err) * lp_factor;
+  of_hover_ctrl->errors.previous_err = of_hover_ctrl->errors.err;
 
-	// compute the desired angle
-	des_angle = Max(-OFH_MAXBANK,Min(of_hover_ctrl->PID.P * of_hover_ctrl->errors.err + of_hover_ctrl->PID.I * of_hover_ctrl->errors.sum_err + of_hover_ctrl->PID.D * of_hover_ctrl->errors.d_err,OFH_MAXBANK));
+  // compute the desired angle
+  des_angle = Max(-OFH_MAXBANK,Min(of_hover_ctrl->PID.P * of_hover_ctrl->errors.err + of_hover_ctrl->PID.I * of_hover_ctrl->errors.sum_err + of_hover_ctrl->PID.D * of_hover_ctrl->errors.d_err,OFH_MAXBANK));
 
-	return des_angle;
+  return des_angle;
 }
 
 /**
