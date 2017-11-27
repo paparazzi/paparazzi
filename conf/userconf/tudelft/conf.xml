@@ -2,7 +2,7 @@
   <aircraft
    name="ARDrone2_OF_Hover"
    ac_id="44"
-   airframe="airframes/tudelft/tudelft_ardrone2_OF_hover.xml"
+   airframe="airframes/tudelft/ardrone2_OF_hover.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
