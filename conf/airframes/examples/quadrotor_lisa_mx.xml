@@ -53,6 +53,7 @@
     <module name="gps" type="ubx_ucenter"/>
     <module name="geo_mag"/>
     <module name="air_data"/>
+    <module name="rng"/>
   </modules>
 
   <servos driver="Pwm">
