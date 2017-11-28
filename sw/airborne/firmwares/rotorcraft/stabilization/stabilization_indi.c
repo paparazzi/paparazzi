@@ -650,8 +650,10 @@ void lms_estimation(void)
   float_vect_copy(g1[0], g1_est[0], INDI_OUTPUTS * INDI_NUM_ACT);
   float_vect_copy(g2, g2_est, INDI_NUM_ACT);
 
+#if STABILIZATION_INDI_ALLOCATION_PSEUDO_INVERSE
   // Calculate the inverse of (G1+G2)
   calc_g1g2_pseudo_inv();
+#endif
 }
 
 /**
