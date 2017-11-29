@@ -109,6 +109,13 @@ float act_dyn[INDI_NUM_ACT] = STABILIZATION_INDI_ACT_DYN;
 #define STABILIZATION_INDI_MAX_RATE 6.0
 #endif
 
+#ifdef STABILIZATION_INDI_WLS_PRIORITIES
+static float Wv[INDI_OUTPUTS] = STABILIZATION_INDI_WLS_PRIORITIES;
+#else
+//State prioritization {W Roll, W pitch, W yaw, TOTAL THRUST}
+static float Wv[INDI_OUTPUTS] = {1000, 1000, 1, 100};
+#endif
+
 // variables needed for control
 float actuator_state_filt_vect[INDI_NUM_ACT];
 struct FloatRates angular_accel_ref = {0., 0., 0.};
@@ -396,20 +403,6 @@ static void stabilization_indi_calc_cmd(struct Int32Quat *att_err, bool rate_con
     }
   }
 
-  // Calculate the min and max increments
-  for (i = 0; i < INDI_NUM_ACT; i++) {
-    du_min[i] = -MAX_PPRZ * act_is_servo[i] - actuator_state_filt_vect[i];
-    du_max[i] = MAX_PPRZ - actuator_state_filt_vect[i];
-    du_pref[i] = act_pref[i] - actuator_state_filt_vect[i];
-  }
-
-#ifndef STABILIZATION_INDI_WLS_PRIORITIES
-  //State prioritization {W Roll, W pitch, W yaw, TOTAL THRUST}
-  static float Wv[INDI_OUTPUTS] = {1000, 1000, 1, 100};
-#else
-  static float Wv[INDI_OUTPUTS] = STABILIZATION_INDI_WLS_PRIORITIES;
-#endif
-
   // The control objective in array format
   indi_v[0] = (angular_accel_ref.p - angular_acceleration[0]);
   indi_v[1] = (angular_accel_ref.q - angular_acceleration[1]);
@@ -425,9 +418,16 @@ static void stabilization_indi_calc_cmd(struct Int32Quat *att_err, bool rate_con
                  + (g1g2_pseudo_inv[i][3] * indi_v[3]);
   }
 #else
+  // Calculate the min and max increments
+  for (i = 0; i < INDI_NUM_ACT; i++) {
+    du_min[i] = -MAX_PPRZ * act_is_servo[i] - actuator_state_filt_vect[i];
+    du_max[i] = MAX_PPRZ - actuator_state_filt_vect[i];
+    du_pref[i] = act_pref[i] - actuator_state_filt_vect[i];
+  }
+
   // WLS Control Allocator
   num_iter =
-    wls_alloc(indi_du, indi_v, du_min, du_max, Bwls, INDI_NUM_ACT, INDI_OUTPUTS, 0, 0, Wv, 0, du_min, 10000, 10);
+    wls_alloc(indi_du, indi_v, du_min, du_max, Bwls, INDI_NUM_ACT, INDI_OUTPUTS, 0, 0, Wv, 0, du_pref, 10000, 10);
 #endif
 
   // Add the increments to the actuators
