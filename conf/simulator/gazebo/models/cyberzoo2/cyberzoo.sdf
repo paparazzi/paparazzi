@@ -1,0 +1,45 @@
+<?xml version='1.0'?>
+<sdf version='1.4'>
+  <model name="cyberzoo">
+    <static>true</static>
+    <pose>0 0 0 0 0 0</pose>
+
+    <link name="cyberzoo">
+      <pose>0 0 0.01 0 0 0</pose>
+      <visual name="solid">
+        <geometry>
+          <mesh>
+            <uri>model://cyberzoo2/cyberzoo_solid.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <visual name="poles">
+        <geometry>
+          <mesh>
+            <uri>model://cyberzoo2/cyberzoo_poles.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://cyberzoo2/cyberzoo_poles</uri>
+            <name>Cyberzoo/Poles</name>
+          </script>
+        </material>
+      </visual>
+      <visual name="net">
+        <geometry>
+          <mesh>
+            <uri>model://cyberzoo2/cyberzoo_net.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://cyberzoo2/cyberzoo_net</uri>
+            <name>Cyberzoo/Net</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+
+  </model>
+</sdf>
