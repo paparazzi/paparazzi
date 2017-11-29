@@ -403,8 +403,12 @@ static void stabilization_indi_calc_cmd(struct Int32Quat *att_err, bool rate_con
     du_pref[i] = act_pref[i] - actuator_state_filt_vect[i];
   }
 
+#ifndef STABILIZATION_INDI_WLS_PRIORITIES
   //State prioritization {W Roll, W pitch, W yaw, TOTAL THRUST}
   static float Wv[INDI_OUTPUTS] = {1000, 1000, 1, 100};
+#else
+  static float Wv[INDI_OUTPUTS] = STABILIZATION_INDI_WLS_PRIORITIES;
+#endif
 
   // The control objective in array format
   indi_v[0] = (angular_accel_ref.p - angular_acceleration[0]);
