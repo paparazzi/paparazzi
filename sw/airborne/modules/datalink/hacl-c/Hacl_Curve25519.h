@@ -22,22 +22,48 @@
  */
 
 #include "kremlib.h"
-#ifndef __Hacl_Policies_H
-#define __Hacl_Policies_H
+#ifndef __Hacl_Curve25519_H
+#define __Hacl_Curve25519_H
 
 
 
 
 
-uint8_t Hacl_Policies_declassify_u8(uint8_t x);
+typedef uint64_t Hacl_Bignum_Constants_limb;
 
-uint32_t Hacl_Policies_declassify_u32(uint32_t x);
+typedef FStar_UInt128_t Hacl_Bignum_Constants_wide;
 
-uint64_t Hacl_Policies_declassify_u64(uint64_t x);
+typedef uint64_t Hacl_Bignum_Parameters_limb;
 
-FStar_UInt128_t Hacl_Policies_declassify_u128(FStar_UInt128_t x);
+typedef FStar_UInt128_t Hacl_Bignum_Parameters_wide;
 
-uint8_t Hacl_Policies_cmp_bytes_(uint8_t *b1, uint8_t *b2, uint32_t len, uint8_t *tmp);
+typedef uint32_t Hacl_Bignum_Parameters_ctr;
 
-uint8_t Hacl_Policies_cmp_bytes(uint8_t *b1, uint8_t *b2, uint32_t len);
+typedef uint64_t *Hacl_Bignum_Parameters_felem;
+
+typedef FStar_UInt128_t *Hacl_Bignum_Parameters_felem_wide;
+
+typedef void *Hacl_Bignum_Parameters_seqelem;
+
+typedef void *Hacl_Bignum_Parameters_seqelem_wide;
+
+typedef FStar_UInt128_t Hacl_Bignum_Wide_t;
+
+typedef uint64_t Hacl_Bignum_Limb_t;
+
+extern void Hacl_Bignum_lemma_diff(Prims_int x0, Prims_int x1, Prims_pos x2);
+
+typedef uint64_t *Hacl_EC_Point_point;
+
+typedef uint8_t *Hacl_EC_Ladder_SmallLoop_uint8_p;
+
+typedef uint8_t *Hacl_EC_Ladder_uint8_p;
+
+typedef uint8_t *Hacl_EC_Format_uint8_p;
+
+void Hacl_EC_crypto_scalarmult(uint8_t *mypublic, uint8_t *secret, uint8_t *basepoint);
+
+typedef uint8_t *Hacl_Curve25519_uint8_p;
+
+void Hacl_Curve25519_crypto_scalarmult(uint8_t *mypublic, uint8_t *secret, uint8_t *basepoint);
 #endif

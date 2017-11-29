@@ -54,6 +54,7 @@
     <module name="geo_mag"/>
     <module name="air_data"/>
     <module name="rng"/>
+    <module name="haclc"/>
   </modules>
 
   <servos driver="Pwm">

@@ -22,22 +22,52 @@
  */
 
 #include "kremlib.h"
-#ifndef __Hacl_Policies_H
-#define __Hacl_Policies_H
+#ifndef __Hacl_Chacha20_Vec128_H
+#define __Hacl_Chacha20_Vec128_H
 
 
 
+#include "vec128.h"
 
+typedef uint32_t Hacl_Impl_Xor_Lemmas_u32;
 
-uint8_t Hacl_Policies_declassify_u8(uint8_t x);
+typedef uint8_t Hacl_Impl_Xor_Lemmas_u8;
 
-uint32_t Hacl_Policies_declassify_u32(uint32_t x);
+typedef uint32_t Hacl_Impl_Chacha20_Vec128_State_u32;
 
-uint64_t Hacl_Policies_declassify_u64(uint64_t x);
+typedef uint32_t Hacl_Impl_Chacha20_Vec128_State_h32;
 
-FStar_UInt128_t Hacl_Policies_declassify_u128(FStar_UInt128_t x);
+typedef uint8_t *Hacl_Impl_Chacha20_Vec128_State_uint8_p;
 
-uint8_t Hacl_Policies_cmp_bytes_(uint8_t *b1, uint8_t *b2, uint32_t len, uint8_t *tmp);
+typedef vec *Hacl_Impl_Chacha20_Vec128_State_state;
 
-uint8_t Hacl_Policies_cmp_bytes(uint8_t *b1, uint8_t *b2, uint32_t len);
+typedef uint32_t Hacl_Impl_Chacha20_Vec128_u32;
+
+typedef uint32_t Hacl_Impl_Chacha20_Vec128_h32;
+
+typedef uint8_t *Hacl_Impl_Chacha20_Vec128_uint8_p;
+
+typedef uint32_t Hacl_Impl_Chacha20_Vec128_idx;
+
+typedef struct 
+{
+  void *k;
+  void *n;
+  uint32_t ctr;
+}
+Hacl_Impl_Chacha20_Vec128_log_t_;
+
+typedef void *Hacl_Impl_Chacha20_Vec128_log_t;
+
+typedef uint8_t *Hacl_Chacha20_Vec128_uint8_p;
+
+void
+Hacl_Chacha20_Vec128_chacha20(
+  uint8_t *output,
+  uint8_t *plain,
+  uint32_t len,
+  uint8_t *k,
+  uint8_t *n1,
+  uint32_t ctr
+);
 #endif

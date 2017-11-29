@@ -22,7 +22,7 @@
  */
 
 
-#include "AEAD_Poly1305_64.h"
+#include "Hacl_Poly1305_64.h"
 
 inline static void Hacl_Bignum_Modulo_reduce(uint64_t *b)
 {
@@ -335,90 +335,138 @@ Hacl_Standalone_Poly1305_64_poly1305_partial(
   Hacl_Standalone_Poly1305_64_poly1305_blocks(st, input, len1);
 }
 
-Prims_nat AEAD_Poly1305_64_seval(void *b)
+static void
+Hacl_Standalone_Poly1305_64_poly1305_complete(
+  Hacl_Impl_Poly1305_64_State_poly1305_state st,
+  uint8_t *m,
+  uint64_t len1,
+  uint8_t *k1
+)
 {
-  KRML_HOST_PRINTF("KreMLin abort at %s:%d\n%s\n", __FILE__, __LINE__, "noextract flag");
-  KRML_HOST_EXIT(255U);
+  uint8_t *kr = k1;
+  uint64_t len16 = len1 >> (uint32_t)4U;
+  uint64_t rem16 = len1 & (uint64_t)0xfU;
+  uint8_t *part_input = m;
+  uint8_t *last_block = m + (uint32_t)((uint64_t)16U * len16);
+  Hacl_Standalone_Poly1305_64_poly1305_partial(st, part_input, len16, kr);
+  if (!(rem16 == (uint64_t)0U))
+    Hacl_Impl_Poly1305_64_poly1305_process_last_block(st, last_block, rem16);
+  Hacl_Impl_Poly1305_64_State_poly1305_state scrut = st;
+  uint64_t *h = scrut.h;
+  uint64_t *acc = h;
+  Hacl_Impl_Poly1305_64_poly1305_last_pass(acc);
 }
 
-Prims_int AEAD_Poly1305_64_selem(void *s)
+static void
+Hacl_Standalone_Poly1305_64_crypto_onetimeauth_(
+  uint8_t *output,
+  uint8_t *input,
+  uint64_t len1,
+  uint8_t *k1
+)
 {
-  KRML_HOST_PRINTF("KreMLin abort at %s:%d\n%s\n", __FILE__, __LINE__, "noextract flag");
-  KRML_HOST_EXIT(255U);
+  uint64_t buf[6U] = { 0U };
+  uint64_t *r = buf;
+  uint64_t *h = buf + (uint32_t)3U;
+  Hacl_Impl_Poly1305_64_State_poly1305_state st = Hacl_Impl_Poly1305_64_mk_state(r, h);
+  uint8_t *key_s = k1 + (uint32_t)16U;
+  Hacl_Standalone_Poly1305_64_poly1305_complete(st, input, len1, k1);
+  Hacl_Impl_Poly1305_64_State_poly1305_state scrut = st;
+  uint64_t *h3 = scrut.h;
+  uint64_t *acc = h3;
+  FStar_UInt128_t k_ = load128_le(key_s);
+  uint64_t h0 = acc[0U];
+  uint64_t h1 = acc[1U];
+  uint64_t h2 = acc[2U];
+  FStar_UInt128_t
+  acc_ =
+    FStar_UInt128_logor(FStar_UInt128_shift_left(FStar_UInt128_uint64_to_uint128(h2
+          << (uint32_t)24U
+          | h1 >> (uint32_t)20U),
+        (uint32_t)64U),
+      FStar_UInt128_uint64_to_uint128(h1 << (uint32_t)44U | h0));
+  FStar_UInt128_t mac_ = FStar_UInt128_add_mod(acc_, k_);
+  store128_le(output, mac_);
+}
+
+static void
+Hacl_Standalone_Poly1305_64_crypto_onetimeauth(
+  uint8_t *output,
+  uint8_t *input,
+  uint64_t len1,
+  uint8_t *k1
+)
+{
+  Hacl_Standalone_Poly1305_64_crypto_onetimeauth_(output, input, len1, k1);
 }
 
 Hacl_Impl_Poly1305_64_State_poly1305_state
-AEAD_Poly1305_64_mk_state(uint64_t *r, uint64_t *acc)
+Hacl_Poly1305_64_mk_state(uint64_t *r, uint64_t *acc)
 {
   return Hacl_Impl_Poly1305_64_mk_state(r, acc);
 }
 
-uint32_t AEAD_Poly1305_64_mul_div_16(uint32_t len1)
+void Hacl_Poly1305_64_init(Hacl_Impl_Poly1305_64_State_poly1305_state st, uint8_t *k1)
 {
-  return (uint32_t)16U * (len1 >> (uint32_t)4U);
+  Hacl_Impl_Poly1305_64_State_poly1305_state scrut = st;
+  uint64_t *r = scrut.r;
+  uint64_t *x0 = r;
+  FStar_UInt128_t k10 = load128_le(k1);
+  FStar_UInt128_t
+  k_clamped =
+    FStar_UInt128_logand(k10,
+      FStar_UInt128_logor(FStar_UInt128_shift_left(FStar_UInt128_uint64_to_uint128((uint64_t)0x0ffffffc0ffffffcU),
+          (uint32_t)64U),
+        FStar_UInt128_uint64_to_uint128((uint64_t)0x0ffffffc0fffffffU)));
+  uint64_t r0 = FStar_UInt128_uint128_to_uint64(k_clamped) & (uint64_t)0xfffffffffffU;
+  uint64_t
+  r1 =
+    FStar_UInt128_uint128_to_uint64(FStar_UInt128_shift_right(k_clamped, (uint32_t)44U))
+    & (uint64_t)0xfffffffffffU;
+  uint64_t
+  r2 = FStar_UInt128_uint128_to_uint64(FStar_UInt128_shift_right(k_clamped, (uint32_t)88U));
+  x0[0U] = r0;
+  x0[1U] = r1;
+  x0[2U] = r2;
+  Hacl_Impl_Poly1305_64_State_poly1305_state scrut0 = st;
+  uint64_t *h = scrut0.h;
+  uint64_t *x00 = h;
+  x00[0U] = (uint64_t)0U;
+  x00[1U] = (uint64_t)0U;
+  x00[2U] = (uint64_t)0U;
+}
+
+void Hacl_Poly1305_64_update_block(Hacl_Impl_Poly1305_64_State_poly1305_state st, uint8_t *m)
+{
+  Hacl_Impl_Poly1305_64_poly1305_update(st, m);
 }
 
 void
-AEAD_Poly1305_64_pad_last(
+Hacl_Poly1305_64_update(
   Hacl_Impl_Poly1305_64_State_poly1305_state st,
-  uint8_t *input,
-  uint32_t len1
+  uint8_t *m,
+  uint32_t num_blocks
 )
 {
-  uint8_t b[16U];
-  if (!(len1 == (uint32_t)0U))
+  if (!(num_blocks == (uint32_t)0U))
   {
-    memset(b, 0U, (uint32_t)16U * sizeof b[0U]);
-    memcpy(b, input, len1 * sizeof input[0U]);
-    uint8_t *b0 = b;
-    Hacl_Impl_Poly1305_64_poly1305_update(st, b0);
+    uint8_t *block = m;
+    uint8_t *m_ = m + (uint32_t)16U;
+    uint32_t n1 = num_blocks - (uint32_t)1U;
+    Hacl_Poly1305_64_update_block(st, block);
+    Hacl_Poly1305_64_update(st, m_, n1);
   }
 }
 
 void
-AEAD_Poly1305_64_poly1305_blocks_init(
+Hacl_Poly1305_64_update_last(
   Hacl_Impl_Poly1305_64_State_poly1305_state st,
-  uint8_t *input,
-  uint32_t len1,
-  uint8_t *k1
-)
-{
-  uint32_t len_16 = len1 >> (uint32_t)4U;
-  uint32_t rem_16 = len1 & (uint32_t)15U;
-  uint8_t *kr = k1;
-  uint32_t len_ = (uint32_t)16U * (len1 >> (uint32_t)4U);
-  uint8_t *part_input = input;
-  uint8_t *last_block = input + len_;
-  Hacl_Standalone_Poly1305_64_poly1305_partial(st, part_input, (uint64_t)len_16, kr);
-  AEAD_Poly1305_64_pad_last(st, last_block, rem_16);
-}
-
-void
-AEAD_Poly1305_64_poly1305_blocks_continue(
-  Hacl_Impl_Poly1305_64_State_poly1305_state st,
-  uint8_t *input,
+  uint8_t *m,
   uint32_t len1
 )
 {
-  uint32_t len_16 = len1 >> (uint32_t)4U;
-  uint32_t rem_16 = len1 & (uint32_t)15U;
-  uint32_t len_ = (uint32_t)16U * (len1 >> (uint32_t)4U);
-  uint8_t *part_input = input;
-  uint8_t *last_block = input + len_;
-  Hacl_Standalone_Poly1305_64_poly1305_blocks(st, part_input, (uint64_t)len_16);
-  AEAD_Poly1305_64_pad_last(st, last_block, rem_16);
-}
-
-void
-AEAD_Poly1305_64_poly1305_blocks_finish_(
-  Hacl_Impl_Poly1305_64_State_poly1305_state st,
-  uint8_t *input
-)
-{
-  Hacl_Impl_Poly1305_64_poly1305_update(st, input);
-  uint8_t *x2 = input + (uint32_t)16U;
-  if (!((uint64_t)0U == (uint64_t)0U))
-    Hacl_Impl_Poly1305_64_poly1305_process_last_block(st, x2, (uint64_t)0U);
+  if (!((uint64_t)len1 == (uint64_t)0U))
+    Hacl_Impl_Poly1305_64_poly1305_process_last_block(st, m, (uint64_t)len1);
   Hacl_Impl_Poly1305_64_State_poly1305_state scrut = st;
   uint64_t *h = scrut.h;
   uint64_t *acc = h;
@@ -426,28 +474,19 @@ AEAD_Poly1305_64_poly1305_blocks_finish_(
 }
 
 void
-AEAD_Poly1305_64_poly1305_blocks_finish(
+Hacl_Poly1305_64_finish(
   Hacl_Impl_Poly1305_64_State_poly1305_state st,
-  uint8_t *input,
   uint8_t *mac,
-  uint8_t *key_s
+  uint8_t *k1
 )
 {
-  Hacl_Impl_Poly1305_64_poly1305_update(st, input);
-  uint8_t *x2 = input + (uint32_t)16U;
-  if (!((uint64_t)0U == (uint64_t)0U))
-    Hacl_Impl_Poly1305_64_poly1305_process_last_block(st, x2, (uint64_t)0U);
   Hacl_Impl_Poly1305_64_State_poly1305_state scrut = st;
   uint64_t *h = scrut.h;
   uint64_t *acc = h;
-  Hacl_Impl_Poly1305_64_poly1305_last_pass(acc);
-  Hacl_Impl_Poly1305_64_State_poly1305_state scrut0 = st;
-  uint64_t *h3 = scrut0.h;
-  uint64_t *acc0 = h3;
-  FStar_UInt128_t k_ = load128_le(key_s);
-  uint64_t h0 = acc0[0U];
-  uint64_t h1 = acc0[1U];
-  uint64_t h2 = acc0[2U];
+  FStar_UInt128_t k_ = load128_le(k1);
+  uint64_t h0 = acc[0U];
+  uint64_t h1 = acc[1U];
+  uint64_t h2 = acc[2U];
   FStar_UInt128_t
   acc_ =
     FStar_UInt128_logor(FStar_UInt128_shift_left(FStar_UInt128_uint64_to_uint128(h2
@@ -457,5 +496,16 @@ AEAD_Poly1305_64_poly1305_blocks_finish(
       FStar_UInt128_uint64_to_uint128(h1 << (uint32_t)44U | h0));
   FStar_UInt128_t mac_ = FStar_UInt128_add_mod(acc_, k_);
   store128_le(mac, mac_);
+}
+
+void
+Hacl_Poly1305_64_crypto_onetimeauth(
+  uint8_t *output,
+  uint8_t *input,
+  uint64_t len1,
+  uint8_t *k1
+)
+{
+  Hacl_Standalone_Poly1305_64_crypto_onetimeauth(output, input, len1, k1);
 }
 

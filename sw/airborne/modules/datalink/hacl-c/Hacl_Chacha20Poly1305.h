@@ -22,22 +22,59 @@
  */
 
 #include "kremlib.h"
-#ifndef __Hacl_Policies_H
-#define __Hacl_Policies_H
+#ifndef __Hacl_Chacha20Poly1305_H
+#define __Hacl_Chacha20Poly1305_H
 
 
+#include "Hacl_Policies.h"
+#include "Hacl_Chacha20.h"
+#include "AEAD_Poly1305_64.h"
 
+extern Prims_int Hacl_Chacha20Poly1305_noncelen;
 
+extern Prims_int Hacl_Chacha20Poly1305_keylen;
 
-uint8_t Hacl_Policies_declassify_u8(uint8_t x);
+extern Prims_int Hacl_Chacha20Poly1305_maclen;
 
-uint32_t Hacl_Policies_declassify_u32(uint32_t x);
+typedef Hacl_Impl_Poly1305_64_State_poly1305_state Hacl_Chacha20Poly1305_state;
 
-uint64_t Hacl_Policies_declassify_u64(uint64_t x);
+typedef void *Hacl_Chacha20Poly1305_log_t;
 
-FStar_UInt128_t Hacl_Policies_declassify_u128(FStar_UInt128_t x);
+void Hacl_Chacha20Poly1305_encode_length(uint8_t *lb, uint32_t aad_len, uint32_t mlen);
 
-uint8_t Hacl_Policies_cmp_bytes_(uint8_t *b1, uint8_t *b2, uint32_t len, uint8_t *tmp);
+uint32_t
+Hacl_Chacha20Poly1305_aead_encrypt_(
+  uint8_t *c,
+  uint8_t *mac,
+  uint8_t *m,
+  uint32_t mlen,
+  uint8_t *aad1,
+  uint32_t aadlen,
+  uint8_t *k1,
+  uint8_t *n1
+);
 
-uint8_t Hacl_Policies_cmp_bytes(uint8_t *b1, uint8_t *b2, uint32_t len);
+uint32_t
+Hacl_Chacha20Poly1305_aead_encrypt(
+  uint8_t *c,
+  uint8_t *mac,
+  uint8_t *m,
+  uint32_t mlen,
+  uint8_t *aad1,
+  uint32_t aadlen,
+  uint8_t *k1,
+  uint8_t *n1
+);
+
+uint32_t
+Hacl_Chacha20Poly1305_aead_decrypt(
+  uint8_t *m,
+  uint8_t *c,
+  uint32_t mlen,
+  uint8_t *mac,
+  uint8_t *aad1,
+  uint32_t aadlen,
+  uint8_t *k1,
+  uint8_t *n1
+);
 #endif

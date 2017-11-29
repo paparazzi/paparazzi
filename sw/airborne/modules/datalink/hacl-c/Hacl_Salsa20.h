@@ -22,22 +22,63 @@
  */
 
 #include "kremlib.h"
-#ifndef __Hacl_Policies_H
-#define __Hacl_Policies_H
+#ifndef __Hacl_Salsa20_H
+#define __Hacl_Salsa20_H
 
 
 
 
 
-uint8_t Hacl_Policies_declassify_u8(uint8_t x);
+typedef uint32_t Hacl_Impl_Xor_Lemmas_u32;
 
-uint32_t Hacl_Policies_declassify_u32(uint32_t x);
+typedef uint8_t Hacl_Impl_Xor_Lemmas_u8;
 
-uint64_t Hacl_Policies_declassify_u64(uint64_t x);
+typedef uint32_t Hacl_Lib_Create_h32;
 
-FStar_UInt128_t Hacl_Policies_declassify_u128(FStar_UInt128_t x);
+typedef uint8_t *Hacl_Lib_LoadStore32_uint8_p;
 
-uint8_t Hacl_Policies_cmp_bytes_(uint8_t *b1, uint8_t *b2, uint32_t len, uint8_t *tmp);
+typedef uint32_t Hacl_Impl_Salsa20_u32;
 
-uint8_t Hacl_Policies_cmp_bytes(uint8_t *b1, uint8_t *b2, uint32_t len);
+typedef uint32_t Hacl_Impl_Salsa20_h32;
+
+typedef uint8_t *Hacl_Impl_Salsa20_uint8_p;
+
+typedef uint32_t *Hacl_Impl_Salsa20_state;
+
+typedef uint32_t Hacl_Impl_Salsa20_idx;
+
+typedef struct 
+{
+  void *k;
+  void *n;
+}
+Hacl_Impl_Salsa20_log_t_;
+
+typedef void *Hacl_Impl_Salsa20_log_t;
+
+typedef uint32_t Hacl_Impl_HSalsa20_h32;
+
+typedef uint32_t Hacl_Impl_HSalsa20_u32;
+
+typedef uint8_t *Hacl_Impl_HSalsa20_uint8_p;
+
+typedef uint32_t *Hacl_Impl_HSalsa20_state;
+
+typedef uint8_t *Hacl_Salsa20_uint8_p;
+
+typedef uint32_t Hacl_Salsa20_uint32_t;
+
+typedef uint32_t *Hacl_Salsa20_state;
+
+void
+Hacl_Salsa20_salsa20(
+  uint8_t *output,
+  uint8_t *plain,
+  uint32_t len,
+  uint8_t *k,
+  uint8_t *n1,
+  uint64_t ctr
+);
+
+void Hacl_Salsa20_hsalsa20(uint8_t *output, uint8_t *key, uint8_t *nonce);
 #endif

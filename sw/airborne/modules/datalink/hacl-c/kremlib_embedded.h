@@ -20,24 +20,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#ifndef __KREMLIB_EMBEDDED_H
+#define __KREMLIB_EMBEDDED_H
 
-#include "kremlib.h"
-#ifndef __Hacl_Policies_H
-#define __Hacl_Policies_H
+#define KRML_HOST_EXIT while
+#define KRML_HOST_PRINTF(Fmt,...) snprintf(NULL, 0, Fmt, __VA_ARGS__);
 
-
-
-
-
-uint8_t Hacl_Policies_declassify_u8(uint8_t x);
-
-uint32_t Hacl_Policies_declassify_u32(uint32_t x);
-
-uint64_t Hacl_Policies_declassify_u64(uint64_t x);
-
-FStar_UInt128_t Hacl_Policies_declassify_u128(FStar_UInt128_t x);
-
-uint8_t Hacl_Policies_cmp_bytes_(uint8_t *b1, uint8_t *b2, uint32_t len, uint8_t *tmp);
-
-uint8_t Hacl_Policies_cmp_bytes(uint8_t *b1, uint8_t *b2, uint32_t len);
 #endif

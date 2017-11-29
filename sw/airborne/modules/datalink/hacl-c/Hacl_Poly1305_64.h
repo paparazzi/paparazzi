@@ -22,8 +22,8 @@
  */
 
 #include "kremlib.h"
-#ifndef __AEAD_Poly1305_64_H
-#define __AEAD_Poly1305_64_H
+#ifndef __Hacl_Poly1305_64_H
+#define __Hacl_Poly1305_64_H
 
 
 
@@ -70,54 +70,47 @@ typedef uint8_t *Hacl_Impl_Poly1305_64_wordB;
 
 typedef uint8_t *Hacl_Impl_Poly1305_64_wordB_16;
 
-typedef uint8_t *AEAD_Poly1305_64_uint8_p;
+typedef uint8_t *Hacl_Poly1305_64_uint8_p;
 
-typedef uint8_t *AEAD_Poly1305_64_key;
+typedef uint64_t Hacl_Poly1305_64_uint64_t;
 
-Prims_nat AEAD_Poly1305_64_seval(void *b);
+typedef uint8_t *Hacl_Poly1305_64_key;
 
-Prims_int AEAD_Poly1305_64_selem(void *s);
-
-typedef Hacl_Impl_Poly1305_64_State_poly1305_state AEAD_Poly1305_64_state;
+typedef Hacl_Impl_Poly1305_64_State_poly1305_state Hacl_Poly1305_64_state;
 
 Hacl_Impl_Poly1305_64_State_poly1305_state
-AEAD_Poly1305_64_mk_state(uint64_t *r, uint64_t *acc);
+Hacl_Poly1305_64_mk_state(uint64_t *r, uint64_t *acc);
 
-uint32_t AEAD_Poly1305_64_mul_div_16(uint32_t len1);
+void Hacl_Poly1305_64_init(Hacl_Impl_Poly1305_64_State_poly1305_state st, uint8_t *k1);
+
+void Hacl_Poly1305_64_update_block(Hacl_Impl_Poly1305_64_State_poly1305_state st, uint8_t *m);
 
 void
-AEAD_Poly1305_64_pad_last(
+Hacl_Poly1305_64_update(
   Hacl_Impl_Poly1305_64_State_poly1305_state st,
-  uint8_t *input,
+  uint8_t *m,
+  uint32_t num_blocks
+);
+
+void
+Hacl_Poly1305_64_update_last(
+  Hacl_Impl_Poly1305_64_State_poly1305_state st,
+  uint8_t *m,
   uint32_t len1
 );
 
 void
-AEAD_Poly1305_64_poly1305_blocks_init(
+Hacl_Poly1305_64_finish(
   Hacl_Impl_Poly1305_64_State_poly1305_state st,
-  uint8_t *input,
-  uint32_t len1,
+  uint8_t *mac,
   uint8_t *k1
 );
 
 void
-AEAD_Poly1305_64_poly1305_blocks_continue(
-  Hacl_Impl_Poly1305_64_State_poly1305_state st,
+Hacl_Poly1305_64_crypto_onetimeauth(
+  uint8_t *output,
   uint8_t *input,
-  uint32_t len1
-);
-
-void
-AEAD_Poly1305_64_poly1305_blocks_finish_(
-  Hacl_Impl_Poly1305_64_State_poly1305_state st,
-  uint8_t *input
-);
-
-void
-AEAD_Poly1305_64_poly1305_blocks_finish(
-  Hacl_Impl_Poly1305_64_State_poly1305_state st,
-  uint8_t *input,
-  uint8_t *mac,
-  uint8_t *key_s
+  uint64_t len1,
+  uint8_t *k1
 );
 #endif
