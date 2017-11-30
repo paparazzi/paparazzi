@@ -112,9 +112,6 @@
       <define name="INS_FINV_MAG_ID" value="MAG_HMC58XX_SENDER_ID"/>
     </module>
 
-  </firmware>
-
-  <modules main_freq="512">
     <!--<module name="gps" type="ubx_ucenter"/>-->
     <module name="tlsf"/>
     <module name="pprzlog">
@@ -140,7 +137,8 @@
       <define name="USE_PWM_INPUT1" value="PWM_PULSE_TYPE_ACTIVE_LOW"/>
       <define name="USE_PWM_INPUT2" value="PWM_PULSE_TYPE_ACTIVE_LOW"/>
     </module>
-  </modules>
+
+  </firmware>
 
   <servos driver="Pwm">
     <servo name="ELEVON_LEFT"  no="0" min="1000" neutral="1500" max="2000"/>
@@ -179,13 +177,6 @@
     <define name="BODY_TO_IMU_PHI"   value="180." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="90." unit="deg"/>
     <define name="BODY_TO_IMU_PSI"   value="180." unit="deg"/>
-  </section>
-
-  <section name="AUTOPILOT">
-    <define name="MODE_MANUAL"  value="AP_MODE_ATTITUDE_DIRECT"/>
-    <define name="MODE_AUTO1" value="AP_MODE_FORWARD"/>
-    <define name="MODE_AUTO2"  value="AP_MODE_NAV"/>
-    <define name="MODE_STARTUP"  value="AP_MODE_NAV"/>
   </section>
 
   <section name="BAT">
@@ -302,6 +293,13 @@
     <define name="JSBSIM_MODEL" value="cyclone" type="string"/>
     <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
     <define name="NO_MOTOR_MIXING" value="TRUE"/>
+  </section>
+
+  <section name="AUTOPILOT">
+    <define name="MODE_MANUAL"  value="AP_MODE_ATTITUDE_DIRECT"/>
+    <define name="MODE_AUTO1" value="AP_MODE_FORWARD"/>
+    <define name="MODE_AUTO2"  value="AP_MODE_NAV"/>
+    <define name="MODE_STARTUP"  value="AP_MODE_NAV"/>
   </section>
 
 </airframe>
