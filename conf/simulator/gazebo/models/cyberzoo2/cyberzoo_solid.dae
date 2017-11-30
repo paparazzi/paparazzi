@@ -465,7 +465,7 @@
                     <lambert>
                         <diffuse>
                             <texture texture="ID8" texcoord="UVSET0" />
-                        </diffuse>
+                        </diffuse><ambient><color>1 1 1 1</color></ambient>
                     </lambert>
                 </technique>
             </profile_COMMON>
@@ -486,7 +486,7 @@
                     <lambert>
                         <diffuse>
                             <texture texture="ID21" texcoord="UVSET0" />
-                        </diffuse>
+                        </diffuse><ambient><color>1 1 1 1</color></ambient>
                     </lambert>
                 </technique>
             </profile_COMMON>
@@ -507,7 +507,7 @@
                     <lambert>
                         <diffuse>
                             <texture texture="ID34" texcoord="UVSET0" />
-                        </diffuse>
+                        </diffuse><ambient><color>1 1 1 1</color></ambient>
                     </lambert>
                 </technique>
             </profile_COMMON>
@@ -528,7 +528,7 @@
                     <lambert>
                         <diffuse>
                             <texture texture="ID55" texcoord="UVSET0" />
-                        </diffuse>
+                        </diffuse><ambient><color>1 1 1 1</color></ambient>
                     </lambert>
                 </technique>
             </profile_COMMON>
