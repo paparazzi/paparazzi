@@ -1,0 +1,22 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ctrl_effectiveness_scheduling" dir="ctrl">
+  <doc>
+    <description>
+      Interpolation of control effectivenss matrix.
+      This is necessary if the vehicle has different operating points,
+      with significantly different control effectivenss. 
+      
+      If instead using online adaptation is an option, be sure to 
+      not use this module at the same time!
+    </description>
+  </doc>
+  <header>
+    <file name="ctrl_effectiveness_scheduling.h"/>
+  </header>
+  <init fun="ctrl_eff_scheduling_init()"/>
+  <periodic fun="ctrl_eff_scheduling_periodic()" freq="20"/>
+  <makefile>
+    <file name="ctrl_effectiveness_scheduling.c"/>
+  </makefile>
+</module>
