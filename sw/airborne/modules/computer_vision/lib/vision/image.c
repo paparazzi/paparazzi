@@ -583,19 +583,18 @@ void image_show_points_color(struct image_t *img, struct point_t *points, uint16
 
   // Go trough all points and color them
   for (int i = 0; i < points_cnt; i++) {
-      if(!cross_hair) {
-        uint32_t idx = pixel_width * points[i].y * img->w + points[i].x * pixel_width;
-        img_buf[idx] = 255;
+    if (!cross_hair) {
+      uint32_t idx = pixel_width * points[i].y * img->w + points[i].x * pixel_width;
+      img_buf[idx] = 255;
 
-        // YUV422 consists of 2 pixels
-        if (img->type == IMAGE_YUV422) {
-          idx++;
-          img_buf[idx] = 255;
-        }
+      // YUV422 consists of 2 pixels
+      if (img->type == IMAGE_YUV422) {
+        idx++;
+        img_buf[idx] = 255;
       }
-      else {
-          image_draw_crosshair(img, &(points[i]), color, size_crosshair);
-      }
+    } else {
+      image_draw_crosshair(img, &(points[i]), color, size_crosshair);
+    }
   }
 }
 
@@ -608,8 +607,8 @@ void image_show_points_color(struct image_t *img, struct point_t *points, uint16
  */
 void image_show_flow(struct image_t *img, struct flow_t *vectors, uint16_t points_cnt, uint8_t subpixel_factor)
 {
-  uint8_t color[4] = {255,255,255,255};
-  int size_crosshair = 5;
+  static uint8_t color[4] = {255, 255, 255, 255};
+  static int size_crosshair = 5;
 
   // Go through all the points
   for (uint16_t i = 0; i < points_cnt; i++) {
@@ -706,7 +705,8 @@ void image_gradient_pixel(struct image_t *img, struct point_t *loc, int method, 
  * @param[in] y_max end of y
  * @param[in] color in [U, Y, V, Y] format
  */
-void image_draw_rectangle(struct image_t *img, int x_min, int x_max, int y_min, int y_max, uint8_t * color) {
+void image_draw_rectangle(struct image_t *img, int x_min, int x_max, int y_min, int y_max, uint8_t *color)
+{
   struct point_t from, to;
 
   // bottom from left to right:
@@ -747,22 +747,23 @@ void image_draw_rectangle(struct image_t *img, int x_min, int x_max, int y_min, 
  *                   Example colors: white = {127, 255, 127, 255}, green = {0, 127, 0, 127};
  * @param[in] size_crosshair Actually the half size of the cross hair
  */
-void image_draw_crosshair(struct image_t *img, struct point_t *loc, uint8_t *color, int size_crosshair) {
+void image_draw_crosshair(struct image_t *img, struct point_t *loc, uint8_t *color, int size_crosshair)
+{
   struct point_t from, to;
 
-  if(loc->x >= size_crosshair && loc->x < img->w - size_crosshair
+  if (loc->x >= size_crosshair && loc->x < img->w - size_crosshair
       && loc->y >= size_crosshair && loc->y < img->h - size_crosshair) {
-      // draw the lines:
-      from.x = loc->x - size_crosshair;
-      from.y = loc->y;
-      to.x = loc->x + size_crosshair;
-      to.y = loc->y;
-      image_draw_line_color(img, &from, &to, color);
-      from.x = loc->x;
-      from.y = loc->y - size_crosshair;
-      to.x = loc->x;
-      to.y = loc->y + size_crosshair;
-      image_draw_line_color(img, &from, &to, color);
+    // draw the lines:
+    from.x = loc->x - size_crosshair;
+    from.y = loc->y;
+    to.x = loc->x + size_crosshair;
+    to.y = loc->y;
+    image_draw_line_color(img, &from, &to, color);
+    from.x = loc->x;
+    from.y = loc->y - size_crosshair;
+    to.x = loc->x;
+    to.y = loc->y + size_crosshair;
+    image_draw_line_color(img, &from, &to, color);
   }
 }
 
@@ -825,15 +826,14 @@ void image_draw_line_color(struct image_t *img, struct point_t *from, struct poi
   for (uint16_t t = 0; /* starty >= 0 && */ starty < img->h && /* startx >= 0 && */ startx < img->w
        && t <= distance + 1; t++) {
 
-      // depending on startx being odd or even, we first have to set U or V
-      if(startx % 2 == 1) {
-          temp_color[0] = color[2];
-          temp_color[2] = color[0];
-      }
-      else {
-          temp_color[0] = color[0];
-          temp_color[2] = color[2];
-      }
+    // depending on startx being odd or even, we first have to set U or V
+    if (startx % 2 == 1) {
+      temp_color[0] = color[2];
+      temp_color[2] = color[0];
+    } else {
+      temp_color[0] = color[0];
+      temp_color[2] = color[2];
+    }
     uint32_t buf_loc = img->w * pixel_width * starty + startx * pixel_width;
     img_buf[buf_loc] = temp_color[0]; // u (when startx even)
 
