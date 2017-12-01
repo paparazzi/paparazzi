@@ -146,8 +146,8 @@ def receiveRigidBodyFrame( ac_id, pos, quat ):
         msg['tow'] = int(timestamp[i]) # TODO convert to GPS itow ?
         # convert quaternion to psi euler angle
         dcm_0_0 = 1.0 - 2.0 * (quat[1] * quat[1] + quat[2] * quat[2])
-        dcm_1_0 = 2.0 * (quat[0] * quat[1] + quat[3] * quat[2])
-        msg['course'] = 180. * np.arctan2(dcm_1_0, -dcm_0_0) / 3.14
+        dcm_1_0 = 2.0 * (quat[0] * quat[1] - quat[3] * quat[2])
+        msg['course'] = 180. * np.arctan2(dcm_1_0, dcm_0_0) / 3.14
         ivy.send(msg)
 
 
