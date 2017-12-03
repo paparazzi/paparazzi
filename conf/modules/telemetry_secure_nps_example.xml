@@ -1,0 +1,70 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="telemetry_secure_nps" dir="datalink" task="datalink">
+  <doc>
+    <description>
+      Example of using secure telemetr over PPRZ protocol over UDP
+
+      This file serves only as an example and should not be used in real applications, 
+      because it only passes though all data (so it is equivalent to using plaintext data).
+
+      However, this example should make it easier for users to device their own encryption scheme.      
+
+      Note that this file largely copies "telemetry_transparent_secure_example" module,
+      the major difference are the device definitions.
+    </description>
+    <configure name="MODEM_DEV" value="UDPx" description="UDP port used for communication"/>
+    <configure name="MODEM_HOST" value="192.168.1.255" description="IP address of the ground station (can be a broadcast address)"/>
+    <configure name="MODEM_PORT_OUT" value="4242" description="output UDP port"/>
+    <configure name="MODEM_PORT_IN" value="4243" description="input UDP port"/>
+    <configure name="MODEM_BROADCAST" value="TRUE|FALSE" description="UDP socket in broadcast mode"/>
+  </doc>
+  <header>
+    <!-- required header file declaring spprz_transport -->
+    <file name="spprz_dl.h"/>
+  </header>
+  <!-- required init and event functions -->
+  <init fun="spprz_dl_init()"/>
+  <event fun="spprz_dl_event()"/>
+  <makefile target="nps|hitl">
+    <configure name="MODEM_DEV" default="UDP0" case="upper|lower"/>
+    <configure name="MODEM_PORT_OUT" default="4242"/>
+    <configure name="MODEM_PORT_IN" default="4243"/>
+    <configure name="MODEM_BROADCAST" default="TRUE"/>
+    <define name="USE_$(MODEM_DEV_UPPER)"/>
+    <define name="$(MODEM_DEV_UPPER)_HOST" value="$(MODEM_HOST)"/>
+    <define name="$(MODEM_DEV_UPPER)_PORT_OUT" value="$(MODEM_PORT_OUT)"/>
+    <define name="$(MODEM_DEV_UPPER)_PORT_IN" value="$(MODEM_PORT_IN)"/>
+    <define name="$(MODEM_DEV_UPPER)_BROADCAST" value="$(MODEM_BROADCAST)"/>
+    <define name="DOWNLINK"/>
+    <define name="PERIODIC_TELEMETRY"/>
+    <define name="DOWNLINK_DEVICE" value="$(MODEM_DEV_LOWER)"/>
+    <define name="PPRZ_UART" value="$(MODEM_DEV_LOWER)"/>
+    <!-- we are using "spprz_tp" instead of "pprz_tp" --> 
+    <define name="DOWNLINK_TRANSPORT" value="spprz_tp"/>
+    <define name="DATALINK" value="PPRZ"/>
+    <file name="downlink.c" dir="subsystems/datalink"/>
+    <file name="datalink.c" dir="subsystems/datalink"/>
+    <file name="telemetry.c" dir="subsystems/datalink"/>
+    <!-- provide your own source file, or expand the template one -->
+    <file name="spprz_dl.c"/>
+    <!-- required files, defining the secure transport -->
+    <file name="spprz_transport.c" dir="pprzlink/src"/>
+    <!-- and providing default pass-through implementation -->
+    <!-- this file shouldn't be used in your implementation -->
+    <file name="spprz_utils.c" dir="pprzlink/src"/>
+    <raw>
+      include $(CFG_SHARED)/udp.makefile
+    </raw>
+  </makefile>
+  <makefile target="nps|hitl" firmware="fixedwing">
+    <file name="fixedwing_datalink.c" dir="$(SRC_FIRMWARE)"/>
+    <file name="ap_downlink.c" dir="$(SRC_FIRMWARE)"/>
+    <file name="fbw_downlink.c" dir="$(SRC_FIRMWARE)"/>
+  </makefile>
+  <makefile target="nps|hitl" firmware="rotorcraft">
+    <file name="rotorcraft_datalink.c" dir="$(SRC_FIRMWARE)"/>
+    <file name="rotorcraft_telemetry.c" dir="$(SRC_FIRMWARE)"/>
+  </makefile>
+</module>
+

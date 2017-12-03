@@ -26,7 +26,7 @@
 #ifndef SPPRZ_DL_H
 #define SPPRZ_DL_H
 
-#include "pprzlink/secure_pprz_transport.h"
+#include "pprzlink/spprz_transport.h"
 
 #include "mcu_periph/uart.h"
 #if USE_USB_SERIAL
