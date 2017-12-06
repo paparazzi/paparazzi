@@ -204,7 +204,7 @@ void parse_ctc_RegTable(void)
   uint8_t ac_id = DL_CTC_REG_TABLE_ac_id(dl_buffer);
   if (ac_id == AC_ID) {
     uint8_t nei_id = DL_CTC_REG_TABLE_nei_id(dl_buffer);
-    for (int i = 0; i < DCF_MAX_NEIGHBORS; i++)
+    for (int i = 0; i < CTC_MAX_AC; i++)
       if (tableNei[i][0] == -1) {
         tableNei[i][0] = (int16_t)nei_id;
         return;
@@ -216,14 +216,14 @@ void parse_ctc_CleanTable(void)
 {
   uint8_t ac_id = DL_CTC_REG_TABLE_ac_id(dl_buffer);
   if (ac_id == AC_ID)
-    for (int i = 0; i < DCF_MAX_NEIGHBORS; i++)
+    for (int i = 0; i < CTC_MAX_AC; i++)
       tableNei[i][0] = -1;
 }
 
 void parse_ctc_NeiInfoTable(void)
 {
   int16_t sender_id = (int16_t)(SenderIdOfPprzMsg(dl_buffer));
-  for (int i = 0; i < DCF_MAX_NEIGHBORS; i++)
+  for (int i = 0; i < CTC_MAX_AC; i++)
     if (tableNei[i][0] == sender_id) {
       last_info[i] = get_sys_time_msec();
       tableNei[i][1] = (int16_t)(DL_CTC_INFO_TO_NEI_vx(dl_buffer)*100);
@@ -236,8 +236,8 @@ void parse_ctc_NeiInfoTable(void)
 
 void parse_ctc_TargetInfo(void)
 {
-  ctc_control.target_px = DL_CTC_INFO_FROM_TARGET_px(dl_buffer)/100;
-  ctc_control.target_py = DL_CTC_INFO_FROM_TARGET_py(dl_buffer)/100;
-  ctc_control.target_vx = DL_CTC_INFO_FROM_TARGET_vx(dl_buffer)/100;
-  ctc_control.target_vy = DL_CTC_INFO_FROM_TARGET_vy(dl_buffer)/100;
+  ctc_control.target_px = DL_CTC_INFO_FROM_TARGET_px(dl_buffer);
+  ctc_control.target_py = DL_CTC_INFO_FROM_TARGET_py(dl_buffer);
+  ctc_control.target_vx = DL_CTC_INFO_FROM_TARGET_vx(dl_buffer);
+  ctc_control.target_vy = DL_CTC_INFO_FROM_TARGET_vy(dl_buffer);
 }

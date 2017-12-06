@@ -15,7 +15,7 @@
 
   <init fun="ctc_target_init()"/>
 
-  <periodic fun="broadcast_pos_vel()" freq="0.25" start="start_demo()" stop="stop_demo()"/>
+  <periodic fun="ctc_target_send_info_to_nei()" freq="0.25"/>
 
   <makefile>
     <file name="ctc_target.c"/>
