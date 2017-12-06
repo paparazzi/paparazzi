@@ -128,27 +128,30 @@ def compute_velocity(ac_id):
 def receiveRigidBodyFrame( ac_id, pos, quat ):
     t = time()
     i = str(ac_id)
+    if i not in id_dict.keys():
+      return
+
     store_track(i, pos, t)
     if abs(t - timestamp[i]) < period:
         return # too early for next message
     timestamp[i] = t
-    if i in id_dict.keys():
-        msg = PprzMessage("datalink", "REMOTE_GPS_LOCAL")
-        msg['ac_id'] = id_dict[i]
-        msg['pad'] = 0
-        msg['enu_x'] = pos[0]
-        msg['enu_y'] = pos[1]
-        msg['enu_z'] = pos[2]
-        vel = compute_velocity(i)
-        msg['enu_xd'] = vel[0]
-        msg['enu_yd'] = vel[1]
-        msg['enu_zd'] = vel[2]
-        msg['tow'] = int(timestamp[i]) # TODO convert to GPS itow ?
-        # convert quaternion to psi euler angle
-        dcm_0_0 = 1.0 - 2.0 * (quat[1] * quat[1] + quat[2] * quat[2])
-        dcm_1_0 = 2.0 * (quat[0] * quat[1] - quat[3] * quat[2])
-        msg['course'] = 180. * np.arctan2(dcm_1_0, dcm_0_0) / 3.14
-        ivy.send(msg)
+
+    msg = PprzMessage("datalink", "REMOTE_GPS_LOCAL")
+    msg['ac_id'] = id_dict[i]
+    msg['pad'] = 0
+    msg['enu_x'] = pos[0]
+    msg['enu_y'] = pos[1]
+    msg['enu_z'] = pos[2]
+    vel = compute_velocity(i)
+    msg['enu_xd'] = vel[0]
+    msg['enu_yd'] = vel[1]
+    msg['enu_zd'] = vel[2]
+    msg['tow'] = int(timestamp[i]) # TODO convert to GPS itow ?
+    # convert quaternion to psi euler angle
+    dcm_0_0 = 1.0 - 2.0 * (quat[1] * quat[1] + quat[2] * quat[2])
+    dcm_1_0 = 2.0 * (quat[0] * quat[1] - quat[3] * quat[2])
+    msg['course'] = 180. * np.arctan2(dcm_1_0, dcm_0_0) / 3.14
+    ivy.send(msg)
 
 
 # start natnet interface
