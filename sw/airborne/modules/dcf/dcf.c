@@ -51,7 +51,7 @@ static void send_dcf(struct transport_tx *trans, struct link_device *dev)
 #define DCF_TIMEOUT 1500
 #endif
 
-dcf_con dcf_control = {DCF_GAIN_K, DCF_RADIUS, DCF_TIMEOUT, 0};
+struct dcf_con dcf_control = {DCF_GAIN_K, DCF_RADIUS, DCF_TIMEOUT, 0};
 
 /*! Default number of neighbors per aircraft */
 #ifndef DCF_MAX_NEIGHBORS

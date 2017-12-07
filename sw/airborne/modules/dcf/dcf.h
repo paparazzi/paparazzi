@@ -30,12 +30,12 @@
 
 #include "std.h"
 
-typedef struct {
+struct dcf_con{
   float k;
   float radius;
   uint16_t timeout;
   float theta;
-} dcf_con;
+};
 
 extern dcf_con dcf_control;
 extern int16_t tableNei[][4];
