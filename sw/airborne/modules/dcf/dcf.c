@@ -33,7 +33,7 @@
 #if PERIODIC_TELEMETRY
 static void send_dcf(struct transport_tx *trans, struct link_device *dev)
 {
-  pprz_msg_send_DCF(trans, dev, AC_ID, 4 * DCF_MAX_NEIGHBORS, &(tableNei[0][0]), DCF_MAX_NEIGHBORS, error_sigma);
+  pprz_msg_send_DCF(trans, dev, AC_ID, 4 * DCF_MAX_NEIGHBORS, &(dcf_tables.tableNei[0][0]), DCF_MAX_NEIGHBORS, dcf_tables.error_sigma);
 }
 #endif // PERIODIC TELEMETRY
 
@@ -52,21 +52,15 @@ static void send_dcf(struct transport_tx *trans, struct link_device *dev)
 #endif
 
 struct dcf_con dcf_control = {DCF_GAIN_K, DCF_RADIUS, DCF_TIMEOUT, 0};
+struct dcf_tab dcf_tables;
 
-/*! Default number of neighbors per aircraft */
-#ifndef DCF_MAX_NEIGHBORS
-#define DCF_MAX_NEIGHBORS 4
-#endif
-int16_t tableNei[DCF_MAX_NEIGHBORS][4];
-int16_t error_sigma[DCF_MAX_NEIGHBORS];
-uint32_t last_theta[DCF_MAX_NEIGHBORS];
 uint32_t last_transmision = 0;
 
 void dcf_init(void)
 {
   for (int i = 0; i < DCF_MAX_NEIGHBORS; i++) {
-    tableNei[i][0] = -1;
-    error_sigma[i] = 0;
+    dcf_tables.tableNei[i][0] = -1;
+    dcf_tables.error_sigma[i] = 0;
   }
 
 #if PERIODIC_TELEMETRY
@@ -88,14 +82,14 @@ bool distributed_circular(uint8_t wp)
   uint32_t now = get_sys_time_msec();
 
   for (int i = 0; i < DCF_MAX_NEIGHBORS; i++) {
-    if (tableNei[i][0] != -1) {
-      uint32_t timeout = now - last_theta[i];
+    if (dcf_tables.tableNei[i][0] != -1) {
+      uint32_t timeout = now - dcf_tables.last_theta[i];
       if (timeout > dcf_control.timeout) {
-        tableNei[i][3] = dcf_control.timeout;
+        dcf_tables.tableNei[i][3] = dcf_control.timeout;
       } else {
-        tableNei[i][3] = (uint16_t)timeout;
+        dcf_tables.tableNei[i][3] = (uint16_t)timeout;
 
-        float e = dcf_control.theta - (tableNei[i][1] + (tableNei[i][2])) * M_PI / 1800.0;
+        float e = dcf_control.theta - (dcf_tables.tableNei[i][1] + (dcf_tables.tableNei[i][2])) * M_PI / 1800.0;
         if (e > M_PI) {
           e -= 2 * M_PI;
         } else if (e <= -M_PI) {
@@ -103,7 +97,7 @@ bool distributed_circular(uint8_t wp)
         }
 
         u += e;
-        error_sigma[i] = (uint16_t)(e * 1800.0 / M_PI);
+        dcf_tables.error_sigma[i] = (uint16_t)(e * 1800.0 / M_PI);
       }
     }
   }
@@ -125,11 +119,11 @@ void send_theta_to_nei(void)
   struct pprzlink_msg msg;
 
   for (int i = 0; i < DCF_MAX_NEIGHBORS; i++)
-    if (tableNei[i][0] != -1) {
+    if (dcf_tables.tableNei[i][0] != -1) {
       msg.trans = &(DefaultChannel).trans_tx;
       msg.dev = &(DefaultDevice).device;
       msg.sender_id = AC_ID;
-      msg.receiver_id = tableNei[i][0];
+      msg.receiver_id = dcf_tables.tableNei[i][0];
       msg.component_id = 0;
       pprzlink_msg_send_DCF_THETA(&msg, &(dcf_control.theta));
     }
@@ -144,20 +138,20 @@ void parseRegTable(void)
 
         if(nei_id == 0){
             for (int i = 0; i < DCF_MAX_NEIGHBORS; i++)
-                tableNei[i][0] = -1;
+                dcf_tables.tableNei[i][0] = -1;
         }else
         {
             for (int i = 0; i < DCF_MAX_NEIGHBORS; i++)
-                if (tableNei[i][0] == (int16_t)nei_id) {
-                    tableNei[i][0] = (int16_t)nei_id;
-                    tableNei[i][2] = desired_sigma;
+                if (dcf_tables.tableNei[i][0] == (int16_t)nei_id) {
+                    dcf_tables.tableNei[i][0] = (int16_t)nei_id;
+                    dcf_tables.tableNei[i][2] = desired_sigma;
                     return;
                 }
 
             for (int i = 0; i < DCF_MAX_NEIGHBORS; i++)
-                if (tableNei[i][0] == -1) {
-                    tableNei[i][0] = (int16_t)nei_id;
-                    tableNei[i][2] = desired_sigma;
+                if (dcf_tables.tableNei[i][0] == -1) {
+                    dcf_tables.tableNei[i][0] = (int16_t)nei_id;
+                    dcf_tables.tableNei[i][2] = desired_sigma;
                     return;
                 }
         }
@@ -168,9 +162,9 @@ void parseThetaTable(void)
 {
   int16_t sender_id = (int16_t)(SenderIdOfPprzMsg(dl_buffer));
   for (int i = 0; i < DCF_MAX_NEIGHBORS; i++)
-    if (tableNei[i][0] == sender_id) {
-      last_theta[i] = get_sys_time_msec();
-      tableNei[i][1] = (int16_t)((DL_DCF_THETA_theta(dl_buffer)) * 1800 / M_PI);
+    if (dcf_tables.tableNei[i][0] == sender_id) {
+      dcf_tables.last_theta[i] = get_sys_time_msec();
+      dcf_tables.tableNei[i][1] = (int16_t)((DL_DCF_THETA_theta(dl_buffer)) * 1800 / M_PI);
       break;
     }
 }

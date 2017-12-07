@@ -30,6 +30,11 @@
 
 #include "std.h"
 
+/*! Default number of neighbors per aircraft */
+#ifndef DCF_MAX_NEIGHBORS
+#define DCF_MAX_NEIGHBORS 4
+#endif
+
 struct dcf_con{
   float k;
   float radius;
@@ -37,9 +42,15 @@ struct dcf_con{
   float theta;
 };
 
-extern dcf_con dcf_control;
-extern int16_t tableNei[][4];
-extern int16_t error_sigma[];
+extern struct dcf_con dcf_control;
+
+struct dcf_tab{
+  int16_t tableNei[DCF_MAX_NEIGHBORS][4];
+  int16_t error_sigma[DCF_MAX_NEIGHBORS];
+  uint32_t last_theta[DCF_MAX_NEIGHBORS];
+};
+
+extern struct dcf_tab dcf_tables;
 
 extern void dcf_init(void);
 extern bool distributed_circular(uint8_t wp);
