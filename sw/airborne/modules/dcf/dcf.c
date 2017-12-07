@@ -137,33 +137,31 @@ void send_theta_to_nei(void)
 
 void parseRegTable(void)
 {
-  uint8_t ac_id = DL_DCF_REG_TABLE_ac_id(dl_buffer);
-  if (ac_id == AC_ID) {
-    uint8_t nei_id = DL_DCF_REG_TABLE_nei_id(dl_buffer);
-    int16_t desired_sigma = DL_DCF_REG_TABLE_desired_sigma(dl_buffer);
+    uint8_t ac_id = DL_DCF_REG_TABLE_ac_id(dl_buffer);
+    if (ac_id == AC_ID) {
+        uint8_t nei_id = DL_DCF_REG_TABLE_nei_id(dl_buffer);
+        int16_t desired_sigma = DL_DCF_REG_TABLE_desired_sigma(dl_buffer);
 
-    for (int i = 0; i < DCF_MAX_NEIGHBORS; i++)
-      if (tableNei[i][0] == (int16_t)nei_id) {
-        tableNei[i][0] = (int16_t)nei_id;
-        tableNei[i][2] = desired_sigma;
-        return;
-      }
+        if(nei_id == 0){
+            for (int i = 0; i < DCF_MAX_NEIGHBORS; i++)
+                tableNei[i][0] = -1;
+        }else
+        {
+            for (int i = 0; i < DCF_MAX_NEIGHBORS; i++)
+                if (tableNei[i][0] == (int16_t)nei_id) {
+                    tableNei[i][0] = (int16_t)nei_id;
+                    tableNei[i][2] = desired_sigma;
+                    return;
+                }
 
-    for (int i = 0; i < DCF_MAX_NEIGHBORS; i++)
-      if (tableNei[i][0] == -1) {
-        tableNei[i][0] = (int16_t)nei_id;
-        tableNei[i][2] = desired_sigma;
-        return;
-      }
-  }
-}
-
-void parseCleanTable(void)
-{
-  uint8_t ac_id = DL_DCF_REG_TABLE_ac_id(dl_buffer);
-  if (ac_id == AC_ID)
-    for (int i = 0; i < DCF_MAX_NEIGHBORS; i++)
-      tableNei[i][0] = -1;
+            for (int i = 0; i < DCF_MAX_NEIGHBORS; i++)
+                if (tableNei[i][0] == -1) {
+                    tableNei[i][0] = (int16_t)nei_id;
+                    tableNei[i][2] = desired_sigma;
+                    return;
+                }
+        }
+    }
 }
 
 void parseThetaTable(void)
