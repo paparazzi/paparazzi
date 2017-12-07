@@ -51,8 +51,12 @@ static void send_dcf(struct transport_tx *trans, struct link_device *dev)
 #ifndef DCF_TIMEOUT
 #define DCF_TIMEOUT 1500
 #endif
+/*! Default broadcasting time */
+#ifndef DCF_BROADTIME
+#define DCF_BROADTIME 200
+#endif
 
-struct dcf_con dcf_control = {DCF_GAIN_K, DCF_RADIUS, DCF_TIMEOUT, 0};
+struct dcf_con dcf_control = {DCF_GAIN_K, DCF_RADIUS, DCF_TIMEOUT, 0, DCF_BROADTIME};
 struct dcf_tab dcf_tables;
 
 uint32_t last_transmision = 0;
@@ -102,7 +106,7 @@ bool distributed_circular(uint8_t wp)
 
   gvf_ellipse_XY(xc, yc, dcf_control.radius + u, dcf_control.radius + u, 0);
 
-  if ((now - last_transmision > 200) && (autopilot_get_mode() == AP_MODE_AUTO2)) {
+  if ((now - last_transmision > dcf_control.broadtime) && (autopilot_get_mode() == AP_MODE_AUTO2)) {
     send_theta_to_nei();
     last_transmision = now;
   }

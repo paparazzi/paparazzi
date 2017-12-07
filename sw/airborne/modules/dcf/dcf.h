@@ -40,6 +40,7 @@ struct dcf_con{
   float radius;
   uint16_t timeout;
   float theta;
+  uint16_t broadtime;
 };
 
 extern struct dcf_con dcf_control;
