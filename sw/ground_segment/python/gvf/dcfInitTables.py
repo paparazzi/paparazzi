@@ -42,10 +42,12 @@ for count, column in enumerate(B.T):
     index = np.nonzero(column)
     i = index[0]
 
-    msg_clean_a = PprzMessage("datalink", "DCF_CLEAN_TABLE")
+    msg_clean_a = PprzMessage("datalink", "DCF_REG_TABLE")
     msg_clean_a['ac_id'] = int(list_ids[i[0]])
-    msg_clean_b = PprzMessage("datalink", "DCF_CLEAN_TABLE")
+    msg_clean_a['nei_id'] = 0
+    msg_clean_b = PprzMessage("datalink", "DCF_REG_TABLE")
     msg_clean_b['ac_id'] = int(list_ids[i[1]])
+    msg_clean_b['nei_id'] = 0
 
     interface.send(msg_clean_a)
     interface.send(msg_clean_b)
