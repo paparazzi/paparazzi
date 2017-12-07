@@ -35,7 +35,7 @@
 #define DCF_MAX_NEIGHBORS 4
 #endif
 
-struct dcf_con{
+struct dcf_con {
   float k;
   float radius;
   uint16_t timeout;
@@ -45,7 +45,7 @@ struct dcf_con{
 
 extern struct dcf_con dcf_control;
 
-struct dcf_tab{
+struct dcf_tab {
   int16_t tableNei[DCF_MAX_NEIGHBORS][4];
   int16_t error_sigma[DCF_MAX_NEIGHBORS];
   uint32_t last_theta[DCF_MAX_NEIGHBORS];

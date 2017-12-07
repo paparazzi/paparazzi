@@ -33,7 +33,8 @@
 #if PERIODIC_TELEMETRY
 static void send_dcf(struct transport_tx *trans, struct link_device *dev)
 {
-  pprz_msg_send_DCF(trans, dev, AC_ID, 4 * DCF_MAX_NEIGHBORS, &(dcf_tables.tableNei[0][0]), DCF_MAX_NEIGHBORS, dcf_tables.error_sigma);
+  pprz_msg_send_DCF(trans, dev, AC_ID, 4 * DCF_MAX_NEIGHBORS, &(dcf_tables.tableNei[0][0]), DCF_MAX_NEIGHBORS,
+                    dcf_tables.error_sigma);
 }
 #endif // PERIODIC TELEMETRY
 
@@ -101,7 +102,7 @@ bool distributed_circular(uint8_t wp)
     }
   }
 
-  u *= -gvf_control.s*dcf_control.k;
+  u *= -gvf_control.s * dcf_control.k;
 
   gvf_ellipse_XY(xc, yc, dcf_control.radius + u, dcf_control.radius + u, 0);
 
@@ -130,31 +131,31 @@ void send_theta_to_nei(void)
 
 void parseRegTable(void)
 {
-    uint8_t ac_id = DL_DCF_REG_TABLE_ac_id(dl_buffer);
-    if (ac_id == AC_ID) {
-        uint8_t nei_id = DL_DCF_REG_TABLE_nei_id(dl_buffer);
-        int16_t desired_sigma = DL_DCF_REG_TABLE_desired_sigma(dl_buffer);
+  uint8_t ac_id = DL_DCF_REG_TABLE_ac_id(dl_buffer);
+  if (ac_id == AC_ID) {
+    uint8_t nei_id = DL_DCF_REG_TABLE_nei_id(dl_buffer);
+    int16_t desired_sigma = DL_DCF_REG_TABLE_desired_sigma(dl_buffer);
 
-        if(nei_id == 0){
-            for (int i = 0; i < DCF_MAX_NEIGHBORS; i++)
-                dcf_tables.tableNei[i][0] = -1;
-        }else
-        {
-            for (int i = 0; i < DCF_MAX_NEIGHBORS; i++)
-                if (dcf_tables.tableNei[i][0] == (int16_t)nei_id) {
-                    dcf_tables.tableNei[i][0] = (int16_t)nei_id;
-                    dcf_tables.tableNei[i][2] = desired_sigma;
-                    return;
-                }
+    if (nei_id == 0) {
+      for (int i = 0; i < DCF_MAX_NEIGHBORS; i++) {
+        dcf_tables.tableNei[i][0] = -1;
+      }
+    } else {
+      for (int i = 0; i < DCF_MAX_NEIGHBORS; i++)
+        if (dcf_tables.tableNei[i][0] == (int16_t)nei_id) {
+          dcf_tables.tableNei[i][0] = (int16_t)nei_id;
+          dcf_tables.tableNei[i][2] = desired_sigma;
+          return;
+        }
 
-            for (int i = 0; i < DCF_MAX_NEIGHBORS; i++)
-                if (dcf_tables.tableNei[i][0] == -1) {
-                    dcf_tables.tableNei[i][0] = (int16_t)nei_id;
-                    dcf_tables.tableNei[i][2] = desired_sigma;
-                    return;
-                }
+      for (int i = 0; i < DCF_MAX_NEIGHBORS; i++)
+        if (dcf_tables.tableNei[i][0] == -1) {
+          dcf_tables.tableNei[i][0] = (int16_t)nei_id;
+          dcf_tables.tableNei[i][2] = desired_sigma;
+          return;
         }
     }
+  }
 }
 
 void parseThetaTable(void)
