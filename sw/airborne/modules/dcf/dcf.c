@@ -29,6 +29,7 @@
 #include "subsystems/datalink/telemetry.h"
 #include "subsystems/navigation/common_nav.h"
 #include "autopilot.h"
+#include "std.h"
 
 #if PERIODIC_TELEMETRY
 static void send_dcf(struct transport_tx *trans, struct link_device *dev)
@@ -90,12 +91,7 @@ bool distributed_circular(uint8_t wp)
         dcf_tables.tableNei[i][3] = (uint16_t)timeout;
 
         float e = dcf_control.theta - (dcf_tables.tableNei[i][1] + (dcf_tables.tableNei[i][2])) * M_PI / 1800.0;
-        if (e > M_PI) {
-          e -= 2 * M_PI;
-        } else if (e <= -M_PI) {
-          e += 2 * M_PI;
-        }
-
+        NormRadAngle(e);
         u += e;
         dcf_tables.error_sigma[i] = (uint16_t)(e * 1800.0 / M_PI);
       }
