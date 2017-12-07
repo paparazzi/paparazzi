@@ -236,7 +236,7 @@ class NatNetClient:
                 offset += 4
 
                 # Version 2.6 and later
-                if( ( self.__natNetStreamVersion[0] == 2 and self.__natNetStreamVersion[1] >= 6 ) or self.__natNetStreamVersion[0] > 2):
+                if( ( self.__natNetStreamVersion[0] == 2 and self.__natNetStreamVersion[1] >= 6 ) or self.__natNetStreamVersion[0] > 2 or self.__natNetStreamVersion[0] == 0 ):
                     param, = struct.unpack( 'h', data[offset:offset+2] )
                     offset += 2
                     occluded = ( param & 0x01 ) != 0
@@ -244,7 +244,7 @@ class NatNetClient:
                     modelSolved = ( param & 0x04 ) != 0
 
                 # Version 3.0 and later
-                if( self.__natNetStreamVersion[0] >= 3 ):
+                if( self.__natNetStreamVersion[0] >= 3 or self.__natNetStreamVersion[0] == 0 ):
                     residual, = FloatValue.unpack( data[offset:offset+4] )
                     offset += 4
                     self.__trace( "Residual:", residual )
@@ -314,7 +314,7 @@ class NatNetClient:
             offset += 4
 
         # Hires Timestamp (Version 3.0 and later)
-        if( self.__natNetStreamVersion[0] >= 3 ):
+        if( self.__natNetStreamVersion[0] >= 3 or self.__natNetStreamVersion[0] == 0 ):
             stampCameraExposure = int.from_bytes( data[offset:offset+8], byteorder='little' )
             offset += 8
             stampDataReceived = int.from_bytes( data[offset:offset+8], byteorder='little' )
