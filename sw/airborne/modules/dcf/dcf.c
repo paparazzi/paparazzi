@@ -22,7 +22,6 @@
 
 #include <math.h>
 #include <std.h>
-#include <stdio.h>
 
 #include "modules/dcf/dcf.h"
 #include "subsystems/datalink/datalink.h" // dl_buffer
