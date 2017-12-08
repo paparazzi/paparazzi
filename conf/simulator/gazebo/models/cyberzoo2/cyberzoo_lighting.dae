@@ -2624,7 +2624,7 @@
                     <lambert>
                         <diffuse>
                             <color>0.8078431 0.8078431 0.8078431 1</color>
-                        </diffuse>
+                        </diffuse><ambient><color>1 1 1 1</color></ambient>
                     </lambert>
                 </technique>
             </profile_COMMON>
@@ -2635,7 +2635,7 @@
                     <lambert>
                         <diffuse>
                             <color>1 1 1 1</color>
-                        </diffuse>
+                        </diffuse><emission><color>1 1 1 1</color></emission>
                     </lambert>
                 </technique>
             </profile_COMMON>
