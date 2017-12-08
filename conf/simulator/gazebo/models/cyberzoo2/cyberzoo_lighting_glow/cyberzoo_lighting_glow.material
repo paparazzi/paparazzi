@@ -1,0 +1,18 @@
+material Cyberzoo/Glow
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			transparent_sorting force
+			depth_write off
+			scene_blend add
+			
+			texture_unit
+			{
+				texture tl_glow.png
+			}
+		}
+	}
+}

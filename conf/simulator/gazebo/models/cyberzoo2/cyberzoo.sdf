@@ -7,6 +7,7 @@
     <link name="cyberzoo">
       <pose>0 0 0.01 0 0 0</pose>
       <visual name="solid">
+      <cast_shadows>false</cast_shadows>
         <geometry>
           <mesh>
             <uri>model://cyberzoo2/cyberzoo_solid.dae</uri>
@@ -14,6 +15,7 @@
         </geometry>
       </visual>
       <visual name="poles">
+      <cast_shadows>false</cast_shadows>
         <geometry>
           <mesh>
             <uri>model://cyberzoo2/cyberzoo_poles.dae</uri>
@@ -27,6 +29,7 @@
         </material>
       </visual>
       <visual name="net">
+      <cast_shadows>false</cast_shadows>
         <geometry>
           <mesh>
             <uri>model://cyberzoo2/cyberzoo_net.dae</uri>
@@ -36,6 +39,28 @@
           <script>
             <uri>model://cyberzoo2/cyberzoo_net</uri>
             <name>Cyberzoo/Net</name>
+          </script>
+        </material>
+      </visual>
+      <visual name="lighting">
+      <cast_shadows>false</cast_shadows>
+        <geometry>
+          <mesh>
+            <uri>model://cyberzoo2/cyberzoo_lighting.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <visual name="glow">
+      <cast_shadows>false</cast_shadows>
+        <geometry>
+          <mesh>
+            <uri>model://cyberzoo2/cyberzoo_lighting_glow.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://cyberzoo2/cyberzoo_lighting_glow</uri>
+            <name>Cyberzoo/Glow</name>
           </script>
         </material>
       </visual>
