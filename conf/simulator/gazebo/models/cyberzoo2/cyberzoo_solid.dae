@@ -2315,6 +2315,9 @@
                         <diffuse>
                             <color>0 0 0 1</color>
                         </diffuse>
+                        <ambient>
+                            <color>0 0 0 1</color>
+                        </ambient>
                     </lambert>
                 </technique>
             </profile_COMMON>
