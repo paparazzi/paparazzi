@@ -2303,7 +2303,7 @@
                     <lambert>
                         <diffuse>
                             <texture texture="ID92" texcoord="UVSET0" />
-                        </diffuse><ambient><color>1 1 1 1</color></ambient>
+                        </diffuse><emission><color>1 1 1 1</color></emission>
                     </lambert>
                 </technique>
             </profile_COMMON>
@@ -2314,7 +2314,7 @@
                     <lambert>
                         <diffuse>
                             <color>0 0 0 1</color>
-                        </diffuse><ambient><color>1 1 1 1</color></ambient>
+                        </diffuse>
                     </lambert>
                 </technique>
             </profile_COMMON>
