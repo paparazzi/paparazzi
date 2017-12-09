@@ -27,6 +27,7 @@ AggieAir RP3 Minion
       <module name="radio_control" type="spektrum"/>
     </target>
 
+<!-- secure link currently doesn't work for hitl
     <target name="hitl" board="pc">
       <module name="fdm" type="jsbsim"/>
       <module name="radio_control" type="spektrum"/>
@@ -35,11 +36,12 @@ AggieAir RP3 Minion
       <configure name="AP_DEV" value="/dev/ttyUSB2"/>
       <configure name="AP_BAUD" value="B921600"/>
     </target>
+-->
 
     <module name="control"/>
     <module name="navigation"/>
 
-    <module name="telemetry"   type="transparent">
+    <module name="telemetry"   type="transparent_secure_example">
       <configure name="MODEM_PORT"        value="UART3"/>
       <configure name="MODEM_BAUD"        value="B57600"/>
     </module>
