@@ -1,0 +1,25 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="telemetry_transparent_secure_gec" dir="datalink" task="datalink">
+  <doc>
+    <description>
+      Example of using secure telemetry over PPRZ protocol over UART
+      
+      This file serves only as an example and should not be used in real applications, 
+      because it only passes through all data (so it is equivalent to using plaintext data).
+
+      However, this example should make it easier for users to devise their own encryption scheme.       
+    </description>
+
+  </doc>
+
+  <autoload name="telemetry" type="secure_common"/>
+  <autoload name="rng"/>
+  <autoload name="haclc"/>
+
+  <makefile target="!fbw|sim">
+    <file name="gec_ke.c" dir="modules/datalink/gec"/>
+  </makefile>
+
+</module>
+

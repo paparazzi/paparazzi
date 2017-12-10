@@ -7,7 +7,7 @@
    telemetry="telemetry/AGGIEAIR/aggieair_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_basic_geofence.xml"
    settings="settings/rotorcraft_basic.xml settings/nps.xml"
-   settings_modules="modules/battery_monitor.xml modules/gps.xml modules/stabilization_float_euler.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/imu_common.xml"
+   settings_modules="modules/battery_monitor.xml modules/gps.xml modules/stabilization_float_euler.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml"
    gui_color="#ffff954c0000"
   />
   <aircraft
