@@ -25,6 +25,7 @@
 
 #include "gec_dl.h"
 #include "subsystems/datalink/datalink.h"
+#include "pprzlink/messages.h"
 #include <string.h> // for memset()
 
 struct gec_transport gec_tp;
@@ -80,10 +81,11 @@ static uint8_t size_of(struct pprzlink_msg *msg, uint8_t len)
  * TODO
  */
 static void start_message(struct pprzlink_msg *msg,
-                          long fd __attribute__((unused)), uint8_t payload_len)
+                          long fd __attribute__((unused)),
+                          uint8_t payload_len)
 {
   PPRZ_MUTEX_LOCK(get_trans(msg)->mtx_tx); // lock mutex
-  memset(get_trans(msg)->tx_msg, 0, TRANSPORT_PAYLOAD_LEN);
+  memset(get_trans(msg)->tx_msg, _FD, TRANSPORT_PAYLOAD_LEN);
   get_trans(msg)->tx_msg_idx = 0;
   // TODO add crypto header to buffer if needed
 }
@@ -100,8 +102,8 @@ static void end_message(struct pprzlink_msg *msg, long fd)
     get_trans(msg)->pprz_tp.trans_tx.start_message(msg, fd, get_trans(msg)->tx_msg_idx);
     for (int i = 0; i < get_trans(msg)->tx_msg_idx; i++) {
       // add byte one by one for now
-      get_trans(msg)->pprz_tp.trans_tx.put_bytes(msg, 0, DL_TYPE_UINT8, DL_FORMAT_SCALAR,
-          get_trans(msg)->tx_msg[i], 1);
+      get_trans(msg)->pprz_tp.trans_tx.put_bytes(msg, _FD, DL_TYPE_UINT8, DL_FORMAT_SCALAR,
+          &(get_trans(msg)->tx_msg[i]), 1);
     }
     get_trans(msg)->pprz_tp.trans_tx.end_message(msg, fd);
 
@@ -165,7 +167,7 @@ void gec_dl_init(void)
 void gec_dl_event(void)
 {
   pprz_check_and_parse(&DOWNLINK_DEVICE.device, &gec_tp.pprz_tp, gec_tp.trans_rx.payload,
-                       &gec_tp.trans_rx.msg_received);
+                      (bool*) &gec_tp.trans_rx.msg_received);
   if (gec_tp.trans_rx.msg_received) {
     // decrypt msg here
 
