@@ -9,7 +9,7 @@
   <header>
     <file name="rng.h" dir="mcu_periph"/>
   </header>
-  <makefile target="ap|fbw">
+  <makefile target="!fbw|sim">
     <define name="USE_RNG"/>
     <file_arch name="rng_arch.c" dir="mcu_periph"/>
   </makefile>
