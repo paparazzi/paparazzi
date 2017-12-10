@@ -18,7 +18,7 @@
     <file name="Hacl_SHA2_512.c" dir="../ext/hacl-c"/>
     <raw>
       # to not use 128 bit arithmetic
-      ap.CFLAGS += -DKRML_NOUINT128
+      ap.CFLAGS += -DKRML_NOUINT128 -fPIC
     </raw>
   </makefile>
 </module>

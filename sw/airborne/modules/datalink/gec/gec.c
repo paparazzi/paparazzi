@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Michal Podhradsky <michal.podhradsky@aggiemail.usu.edu>
+ * Copyright (C) 2017 Michal Podhradsky <mpodhradsky@galois.com>
  *
  * This file is part of paparazzi.
  *
@@ -16,34 +16,12 @@
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * @file datalink/gec/gec.c
+ *
+ * Galois embedded crypto iplementation
  *
  */
-
-/** \file modules/datalink/spprz_dl.h
- *  \brief Datalink using secure PPRZ protocol
- */
-
-#ifndef SPPRZ_DL_H
-#define SPPRZ_DL_H
-
-#include "pprzlink/secure_pprz_transport.h"
-
-#include "mcu_periph/uart.h"
-#if USE_USB_SERIAL
-#include "mcu_periph/usb_serial.h"
-#endif
-#if USE_UDP
-#include "mcu_periph/udp.h"
-#endif
-
-/** PPRZ transport structure */
-extern struct spprz_transport spprz_tp;
-
-/** Init function */
-extern void spprz_dl_init(void);
-
-/** Datalink Event */
-extern void spprz_dl_event(void);
-
-#endif /* SPPRZ_DL_H */
-
+#include "modules/datalink/gec/gec.h"

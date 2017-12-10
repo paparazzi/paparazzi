@@ -3,9 +3,9 @@
 <module name="telemetry_nps_secure" dir="datalink" task="datalink">
   <doc>
     <description>
-      Telemetry module for NPS simalation
-
-      Currently a simple copy of telemetry UDP but only for target nps
+      Telemetry module for NPS simulation
+      Common parts of comms, not to be used as a stadalone module. Instead, this module
+      is autoloaded where appropriate.
     </description>
     <configure name="MODEM_DEV" value="UDPx" description="UDP port used for communication"/>
     <configure name="MODEM_HOST" value="192.168.1.255" description="IP address of the ground station (can be a broadcast address)"/>
