@@ -15,6 +15,7 @@
     </program>
     <program name="Secure Link" command="sw/ext/rustlink/link">
       <arg flag="-d" constant="/dev/ttyUSB0"/>
+      <arg flag="-a" constant="@AC_ID"/>
     </program>
     <program name="Link Combiner" command="sw/ground_segment/python/redundant_link/link_combiner.py"/>
     <program name="GCS" command="sw/ground_segment/cockpit/gcs"/>
