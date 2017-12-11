@@ -177,10 +177,15 @@ else
 	$(Q)cd $(PAPARAZZI_SRC) ; ./sw/tools/find_vpaths.py $(CXX) $(TMP_LIST) $(PAPARAZZI_SRC) >> $(SRCS_LIST)
 endif
 
+CARGO=$(shell which cargo)
 generate_keys:
 ifeq ($(GENERATE_KEYS),1)
+ifneq	($(CARGO),)
 	@echo GENERATE KEYS
 	$(Q)cargo run --manifest-path $(PAPARAZZI_SRC)/sw/ext/key_generator/Cargo.toml --release $(AC_GENERATED)
+else
+	@echo "Warning: Cargo (Rust) is not found, not generating keys"
+endif
 endif
 
 qt_project : $(SRCS_LIST)
