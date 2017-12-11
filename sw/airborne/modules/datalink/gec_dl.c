@@ -24,9 +24,11 @@
  */
 
 #include "gec_dl.h"
+#include "modules/datalink/gec/gec.h"
 #include "subsystems/datalink/datalink.h"
 #include "pprzlink/messages.h"
 #include <string.h> // for memset()
+
 
 struct gec_transport gec_tp;
 
@@ -104,6 +106,7 @@ static void end_message(struct pprzlink_msg *msg, long fd)
       // add byte one by one for now
       get_trans(msg)->pprz_tp.trans_tx.put_bytes(msg, _FD, DL_TYPE_UINT8, DL_FORMAT_SCALAR,
           &(get_trans(msg)->tx_msg[i]), 1);
+      // TODO: replace with one put_bytes() call
     }
     get_trans(msg)->pprz_tp.trans_tx.end_message(msg, fd);
 
@@ -151,6 +154,31 @@ static void gec_transport_init(struct gec_transport *t)
 
 
 
+#if PERIODIC_TELEMETRY
+#include "subsystems/datalink/telemetry.h"
+
+static void send_secure_link_info(struct transport_tx *trans, struct link_device *dev)
+{
+#if PPRZLINK_DEFAULT_VER == 2
+  struct pprzlink_msg msg;
+  msg.trans = trans;
+  msg.dev = dev;
+  msg.sender_id = AC_ID;
+  msg.receiver_id = PPRZLINK_MSG_BROADCAST;
+  msg.component_id = 0;
+  pprzlink_msg_v2_send_SECURE_LINK_STATUS(&msg,
+#else
+  pprz_msg_send_SECURE_LINK_STATUS(trans, dev, AC_ID,
+#endif
+    (uint8_t*)&gec_tp.sts.protocol_stage,
+    (uint8_t*)&gec_tp.sts.last_error,
+    &gec_tp.sts.counter_err,
+    &gec_tp.sts.decrypt_err,
+    &gec_tp.sts.encrypt_err);
+}
+
+#endif
+
 
 
 
@@ -161,6 +189,14 @@ void gec_dl_init(void)
 
   // init crypto transport
   gec_transport_init(&gec_tp);
+
+
+  // initialize keys
+  gec_sts_init(&gec_tp.sts);
+
+#if PERIODIC_TELEMETRY
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_SECURE_LINK_STATUS, send_secure_link_info);
+#endif
 }
 
 

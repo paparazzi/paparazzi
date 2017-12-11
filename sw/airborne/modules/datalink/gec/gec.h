@@ -98,6 +98,28 @@ struct gec_sts_ctx {
     stage_t protocol_stage;
     party_t party;
     sts_error_t last_error;
+    uint32_t counter_err;
+    uint32_t encrypt_err;
+    uint32_t decrypt_err;
 };
+
+void gec_sts_init(struct gec_sts_ctx * sts);
+
+void clear_sts(struct gec_sts_ctx * ctx);
+
+/*
+void spprz_process_sts_msg(struct link_device *dev, struct spprz_transport *trans, uint8_t *buf);
+
+void respond_sts(struct link_device *dev, struct spprz_transport *trans, uint8_t *buf);
+
+void finish_sts(struct link_device *dev, struct spprz_transport *trans, uint8_t *buf);
+
+void generate_ephemeral_keys(struct gec_privkey *sk);
+
+void derive_key_material(struct gec_sts_ctx *ctx, uint8_t* z);
+
+uint32_t gec_encrypt(struct gec_sym_key *k, uint8_t *ciphertext, uint8_t *plaintext, size_t len, uint8_t *mac);
+uint32_t gec_decrypt(struct gec_sym_key *k, uint8_t *plaintext, uint8_t *ciphertext, size_t len, uint8_t *mac);
+*/
 
 #endif /* SPPRZ_GEC_H */
