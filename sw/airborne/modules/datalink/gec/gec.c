@@ -26,14 +26,6 @@
  */
 #include "modules/datalink/gec/gec.h"
 
-#include "mcu_periph/rng.h"
-#include "generated/keys_uav.h"
-#include "../ext/hacl-c/Hacl_Ed25519.h"
-#include "../ext/hacl-c/Hacl_Curve25519.h"
-#include "../ext/hacl-c/Hacl_SHA2_512.h"
-#include "../ext/hacl-c/Hacl_Chacha20Poly1305.h"
-
-
 void gec_sts_init(struct gec_sts_ctx * sts)
 {
   clear_sts(sts);
@@ -131,3 +123,5 @@ uint32_t gec_encrypt(struct gec_sym_key *k, uint8_t *ciphertext, uint8_t *plaint
                                                k->nonce);  // nonce
   return res;
 }
+
+

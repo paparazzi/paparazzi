@@ -28,46 +28,56 @@
 #define SPPRZ_GEC_H
 
 #include "std.h"
+#include "mcu_periph/rng.h"
+#include "generated/keys_uav.h"
+#include "../ext/hacl-c/Hacl_Ed25519.h"
+#include "../ext/hacl-c/Hacl_Curve25519.h"
+#include "../ext/hacl-c/Hacl_SHA2_512.h"
+#include "../ext/hacl-c/Hacl_Chacha20Poly1305.h"
+
 
 #define PPRZ_SIGN_LEN 64
 #define PPRZ_KEY_LEN 32
 #define PPRZ_NONCE_LEN 12
-
+#define PPRZ_MAC_LEN 16
 
 typedef unsigned char ed25519_signature[64];
 
-struct gec_privkey {
-    uint8_t priv[PPRZ_KEY_LEN];
-    uint8_t pub[PPRZ_KEY_LEN];
+struct gec_privkey
+{
+  uint8_t priv[PPRZ_KEY_LEN];
+  uint8_t pub[PPRZ_KEY_LEN];
 };
 
-struct gec_pubkey {
-    uint8_t pub[PPRZ_KEY_LEN];
+struct gec_pubkey
+{
+  uint8_t pub[PPRZ_KEY_LEN];
 };
 
-struct gec_sym_key {
-    uint8_t  key[PPRZ_KEY_LEN];
-    uint8_t  nonce[PPRZ_NONCE_LEN];
-    uint32_t ctr;
+struct gec_sym_key
+{
+  uint8_t key[PPRZ_KEY_LEN];
+  uint8_t nonce[PPRZ_NONCE_LEN];
+  uint32_t ctr;
 };
 
-typedef enum {
-  INIT,
-  WAIT_MSG1,
-  WAIT_MSG2,
-  WAIT_MSG3,
-  CRYPTO_OK,
+typedef enum
+{
+  INIT, WAIT_MSG1, WAIT_MSG2, WAIT_MSG3, CRYPTO_OK,
 } stage_t;
 
-typedef enum {
-    INITIATOR, RESPONDER, CLIENT, INVALID_PARTY
+typedef enum
+{
+  INITIATOR, RESPONDER, CLIENT, INVALID_PARTY
 } party_t;
 
-typedef enum {
+typedef enum
+{
   P_AE, P_BE, SIG,
 } gec_sts_msg_type_t;
 
-typedef enum {
+typedef enum
+{
   ERROR_NONE,
   // RESPONDER ERRORS
   MSG1_TIMEOUT_ERROR,
@@ -88,41 +98,33 @@ typedef enum {
 
 // Intermediate data structure containing information relating to the stage of
 // the STS protocol.
-struct gec_sts_ctx {
-    struct gec_pubkey theirPublicKey;
-    struct gec_privkey myPrivateKey;
-    struct gec_pubkey theirPublicKeyEphemeral;
-    struct gec_privkey myPrivateKeyEphemeral;
-    struct gec_sym_key theirSymmetricKey;
-    struct gec_sym_key mySymmetricKey;
-    stage_t protocol_stage;
-    party_t party;
-    sts_error_t last_error;
-    uint32_t counter_err;
-    uint32_t encrypt_err;
-    uint32_t decrypt_err;
+struct gec_sts_ctx
+{
+  struct gec_pubkey theirPublicKey;
+  struct gec_privkey myPrivateKey;
+  struct gec_pubkey theirPublicKeyEphemeral;
+  struct gec_privkey myPrivateKeyEphemeral;
+  struct gec_sym_key theirSymmetricKey;
+  struct gec_sym_key mySymmetricKey;
+  stage_t protocol_stage;
+  party_t party;
+  sts_error_t last_error;
+  uint32_t counter_err;
+  uint32_t encrypt_err;
+  uint32_t decrypt_err;
 };
 
 void gec_sts_init(struct gec_sts_ctx * sts);
 
-void clear_sts(struct gec_sts_ctx * ctx);
+void clear_sts(struct gec_sts_ctx * sts);
 
 void generate_ephemeral_keys(struct gec_privkey *sk);
 
-void derive_key_material(struct gec_sts_ctx *ctx, uint8_t* z);
+void derive_key_material(struct gec_sts_ctx *sts, uint8_t* z);
 
-uint32_t gec_encrypt(struct gec_sym_key *k, uint8_t *ciphertext, uint8_t *plaintext,
-                     uint8_t len, uint8_t *mac);
-uint32_t gec_decrypt(struct gec_sym_key *k, uint8_t *plaintext, uint8_t *ciphertext,
-                     uint8_t len, uint8_t *mac);
-
-/*
-void spprz_process_sts_msg(struct link_device *dev, struct spprz_transport *trans, uint8_t *buf);
-
-void respond_sts(struct link_device *dev, struct spprz_transport *trans, uint8_t *buf);
-
-void finish_sts(struct link_device *dev, struct spprz_transport *trans, uint8_t *buf);
-
-*/
+uint32_t gec_encrypt(struct gec_sym_key *k, uint8_t *ciphertext,
+    uint8_t *plaintext, uint8_t len, uint8_t *mac);
+uint32_t gec_decrypt(struct gec_sym_key *k, uint8_t *plaintext,
+    uint8_t *ciphertext, uint8_t len, uint8_t *mac);
 
 #endif /* SPPRZ_GEC_H */

@@ -72,5 +72,11 @@ extern void gec_dl_event(void);
 void gec_check_and_parse(struct link_device *dev, struct gec_transport *trans,
                           uint8_t *buf, bool *msg_available);
 
+void gec_process_sts_msg(struct link_device *dev, struct gec_transport *trans, uint8_t *buf);
+
+void respond_sts(struct link_device *dev, struct gec_transport *trans, uint8_t *buf);
+
+void finish_sts(struct link_device *dev, struct gec_transport *trans, uint8_t *buf);
+
 #endif /* GEC_DL_H */
 
