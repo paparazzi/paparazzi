@@ -177,6 +177,12 @@ else
 	$(Q)cd $(PAPARAZZI_SRC) ; ./sw/tools/find_vpaths.py $(CXX) $(TMP_LIST) $(PAPARAZZI_SRC) >> $(SRCS_LIST)
 endif
 
+generate_keys:
+ifeq ($(GENERATE_KEYS),1)
+	@echo GENERATE KEYS
+	$(Q)cargo run --manifest-path $(PAPARAZZI_SRC)/sw/ext/key_generator/Cargo.toml --release $(AC_GENERATED)
+endif
+
 qt_project : $(SRCS_LIST)
 ifneq ($(PAPARAZZI_QT_GEN),)
 	$(Q)./sw/tools/qt_project.py $(AIRCRAFT) $(CONF_XML) $(SRCS_LIST)
@@ -188,8 +194,7 @@ flight_plan_ac_h : $(FLIGHT_PLAN_H) $(FLIGHT_PLAN_XML)
 
 makefile_ac: $(MAKEFILE_AC)
 
-ifeq ($(GENERATE_KEYS),1)
-$(AIRFRAME_H) : $(CONF)/$(AIRFRAME_XML) $(CONF_XML) $(AIRCRAFT_MD5)
+$(AIRFRAME_H) : $(CONF)/$(AIRFRAME_XML) $(CONF_XML) $(AIRCRAFT_MD5) generate_keys
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
 	@echo GENERATE $@ from $(AIRFRAME_XML)
 	$(eval $@_TMP := $(shell $(MKTEMP)))
@@ -197,18 +202,6 @@ $(AIRFRAME_H) : $(CONF)/$(AIRFRAME_XML) $(CONF_XML) $(AIRCRAFT_MD5)
 	$(Q)mv $($@_TMP) $@
 	$(Q)chmod a+r $@
 	$(Q)cp $(CONF)/airframes/airframe.dtd $(AIRCRAFT_CONF_DIR)/airframes
-	@echo GENERATE KEYS
-	$(Q)cargo run --manifest-path $(PAPARAZZI_HOME)/sw/ext/key_generator/Cargo.toml --release $(AC_GENERATED)
-else
-$(AIRFRAME_H) : $(CONF)/$(AIRFRAME_XML) $(CONF_XML) $(AIRCRAFT_MD5)
-	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
-	@echo GENERATE $@ from $(AIRFRAME_XML)
-	$(eval $@_TMP := $(shell $(MKTEMP)))
-	$(Q)$(GENERATORS)/gen_airframe.out $(AC_ID) $(AIRCRAFT) $(MD5SUM) $< > $($@_TMP)
-	$(Q)mv $($@_TMP) $@
-	$(Q)chmod a+r $@
-	$(Q)cp $(CONF)/airframes/airframe.dtd $(AIRCRAFT_CONF_DIR)/airframes
-endif
 
 $(RADIO_H) : $(CONF)/$(RADIO) $(CONF_XML) $(GENERATORS)/gen_radio.out
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
