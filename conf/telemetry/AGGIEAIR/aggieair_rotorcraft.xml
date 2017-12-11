@@ -33,6 +33,7 @@
       
       <message name="GPS_LLA"                period="1.0"/>
       <message name="ATTITUDE"               period="1.0"/>
+      <message name="SECURE_LINK_STATUS"     period="1.0"/>
     </mode>
 
     <mode name="ppm">
