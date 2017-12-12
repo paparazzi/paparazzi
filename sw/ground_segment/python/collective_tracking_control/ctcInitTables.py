@@ -19,11 +19,12 @@ list_ids = []
 interface = IvyMessagesInterface("CTC")
 
 if len(sys.argv) != 2:
-    print("Usage: dcfInitTables ids.txt")
+    print("Usage: dcfInitTables targetID ids.txt")
     interface.shutdown()
     exit()
 
-ids = np.loadtxt(sys.argv[1])
+target_id = int(sys.argv[1])
+ids = np.loadtxt(sys.argv[2])
 list_ids = np.ndarray.tolist(ids)
 
 time.sleep(2)
@@ -43,6 +44,18 @@ for i in list_ids:
             msg['nei_id'] = int(ii)
             interface.send(msg)
             print(msg)
+
+msg_clean = PprzMessage("datalink", "CTC_CLEAN_TABLE")
+msg_clean['ac_id'] = target_id
+print(msg_clean)
+interface.send(msg_clean)
+
+msg = PprzMessage("datalink", "CTC_REG_TABLE")
+msg['ac_id'] = target_id
+for i in list_ids:
+    msg['nei_id'] = int(i)
+    interface.send(msg)
+    print(msg)
 
 time.sleep(2)
 interface.shutdown()
