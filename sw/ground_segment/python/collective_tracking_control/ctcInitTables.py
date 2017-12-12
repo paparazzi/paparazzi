@@ -18,7 +18,7 @@ from settings_xml_parse import PaparazziACSettings
 list_ids = []
 interface = IvyMessagesInterface("CTC")
 
-if len(sys.argv) != 2:
+if len(sys.argv) != 3:
     print("Usage: dcfInitTables targetID ids.txt")
     interface.shutdown()
     exit()

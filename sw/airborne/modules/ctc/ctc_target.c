@@ -39,6 +39,9 @@ int16_t tableNei[CTC_MAX_AC][6];
 
 void ctc_target_init(void)
 {
+  for (int i = 0; i < CTC_MAX_AC; i++) {
+    tableNei[i][0] = -1;
+  }
 }
 
 void ctc_target_send_info_to_nei(void)
@@ -60,7 +63,7 @@ void ctc_target_send_info_to_nei(void)
       msg.sender_id = AC_ID;
       msg.receiver_id = tableNei[i][0];
       msg.component_id = 0;
-      pprzlink_msg_send_CTC_INFO_FROM_TARGET(&msg, &vx, &vy, &px, &py);
+      pprzlink_msg_send_CTC_INFO_FROM_TARGET(&msg, &px, &py, &vx, &vy);
     }
 }
 

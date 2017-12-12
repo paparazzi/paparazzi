@@ -67,6 +67,7 @@ ctc_con ctc_control = {CTC_GAIN_K, CTC_TIMEOUT, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 int16_t tableNei[CTC_MAX_AC][6];
 uint32_t last_info[CTC_MAX_AC];
 uint32_t last_transmision = 0;
+uint32_t before = 0;
 float ctc_error_to_target = 0;
 
 void ctc_init(void)
@@ -105,9 +106,10 @@ bool collective_tracking_control()
   float u_spa = 0;
 
   uint32_t now = get_sys_time_msec();
+  float dt = (now - before)/1000.0;
+  before = now;
 
   int num_neighbors = 0;
-  float dt = 0;
 
   for (int i = 0; i < CTC_MAX_AC; i++) {
     if (tableNei[i][0] != -1) {
@@ -117,17 +119,15 @@ bool collective_tracking_control()
       } else {
         tableNei[i][5] = (uint16_t)timeout;
         num_neighbors++;
-        float vx_nei = tableNei[i][1] / 100;
-        float vy_nei = tableNei[i][2] / 100;
-        float px_nei = tableNei[i][3] / 100;
-        float py_nei = tableNei[i][4] / 100;
+        float vx_nei = tableNei[i][1] / 100.0;
+        float vy_nei = tableNei[i][2] / 100.0;
+        float px_nei = tableNei[i][3] / 100.0;
+        float py_nei = tableNei[i][4] / 100.0;
 
         v_centroid_x += vx_nei;
         v_centroid_y += vy_nei;
         p_centroid_x += px_nei;
         p_centroid_y += py_nei;
-
-        dt = timeout / 1000;
       }
     }
   }
@@ -152,21 +152,21 @@ bool collective_tracking_control()
 
       float error_v_x = v_centroid_x - v_ref_x;
       float error_v_y = v_centroid_y - v_ref_y;
-      u_vel = -ctc_control.k*(-error_v_x*vy + error_v_y*vx);
+      u_vel = -ctc_control.k*(-error_v_y*vx + error_v_x*vy);
 
 
       float error_ref_x = px - ctc_control.ref_px;
       float error_ref_y = py - ctc_control.ref_py;
       u_spa = ctc_control.omega*(1 + 0.1*ctc_control.k*(error_ref_x*vx + error_ref_y*vy));
 
-      printf("err_v %i %f \n", AC_ID, sqrtf(error_v_x*error_v_x + error_v_y*error_v_y));
-      printf("err_ref %i %f \n", AC_ID, sqrtf(error_ref_x*error_ref_x + error_ref_y*error_ref_y));
+      //printf("err_v %i %f \n", AC_ID, sqrtf(error_v_x*error_v_x + error_v_y*error_v_y));
+      //printf("err_ref %i %f \n", AC_ID, sqrtf(error_ref_x*error_ref_x + error_ref_y*error_ref_y));
 
   }
 
   float u = u_vel + u_spa;
   
-  printf("u %i %f \n", AC_ID, u_spa);
+  //printf("u %i %f \n", AC_ID, u_spa);
 
   if (autopilot_get_mode() == AP_MODE_AUTO2) {
     h_ctl_roll_setpoint =

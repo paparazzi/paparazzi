@@ -15,7 +15,10 @@
 
   <init fun="ctc_target_init()"/>
 
-  <periodic fun="ctc_target_send_info_to_nei()" freq="0.25"/>
+  <periodic fun="ctc_target_send_info_to_nei()" freq="1"/>
+
+  <datalink message="CTC_REG_TABLE" fun="parse_ctc_target_RegTable()"/>
+  <datalink message="CTC_CLEAN_TABLE" fun="parse_ctc_target_CleanTable()"/>
 
   <makefile>
     <file name="ctc_target.c"/>
