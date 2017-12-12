@@ -57,7 +57,7 @@ void clear_sts(struct gec_sts_ctx * sts)
  */
 void generate_ephemeral_keys(struct gec_privkey *sk)
 {
-  for (uint8_t i = 0; i < (PPRZ_KEY_LEN / sizeof(uint32_t)); i++) {
+  for (uint16_t i = 0; i < (PPRZ_KEY_LEN / sizeof(uint32_t)); i++) {
     uint32_t tmp = rng_wait_and_get();
     sk->priv[i] = (uint8_t) tmp;
     sk->priv[i + 1] = (uint8_t) (tmp >> 8);
