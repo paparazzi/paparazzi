@@ -5,7 +5,7 @@
     <pose>0 0 0 0 0 0</pose>
 
     <link name="traffic_mat">
-      <pose>0 0 0.01 0 0 0</pose>
+      <pose>0 0 0.02 0 0 0</pose>
       <visual name="mat">
         <geometry>
           <mesh>

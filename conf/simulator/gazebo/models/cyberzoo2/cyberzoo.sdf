@@ -5,9 +5,9 @@
     <pose>0 0 0 0 0 0</pose>
 
     <link name="cyberzoo">
-      <pose>0 0 0.01 0 0 0</pose>
+      <pose>-5 -5 0.01 0 0 0</pose>
       <visual name="solid">
-      <cast_shadows>false</cast_shadows>
+        <cast_shadows>false</cast_shadows>
         <geometry>
           <mesh>
             <uri>model://cyberzoo2/cyberzoo_solid.dae</uri>
@@ -64,6 +64,15 @@
           </script>
         </material>
       </visual>
+      
+      <collision name="floor">
+        <pose>5 5 -0.005 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>10 10 0.01</size>
+          </box>
+        </geometry>
+      </collision>
     </link>
 
   </model>
