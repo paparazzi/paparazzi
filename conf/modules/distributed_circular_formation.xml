@@ -1,0 +1,46 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="distributed_circular_formation" dir="dcf">
+  <doc>
+    <description>Distributed algorithm for circular formations with air-to-air communications.
+		For more details we refer to https://wiki.paparazziuav.org/wiki/Module/guidance_vector_field 
+    </description>
+    <section name="Parameters" prefix="DCF_">
+      <define name="MAX_NEIGHBORS" value="4" description="Maximum number of accepted neighbors for an aircraft"/>
+      <define name="GAIN_K" value="10" description="Control gain for the algorithm. It sets the possible maximum and minimum radius of the circle to be tracked"/>
+      <define name="RADIUS" value="80" description="Radius for the desired steady-state circle"/>
+      <define name="TIMEOUT" value="1500" description="After this time (in ms) if we do not have any msg from a neighborh, we ignore it"/>
+      <define name="BROAD_TIME" value="200" description="Time in ms for transmiting theta to your neighbors"/>
+    </section>
+  </doc>
+
+  <settings name="DCF">
+    <dl_settings>
+      <dl_settings NAME="DCF">
+        <dl_settings NAME="Control">
+          <dl_setting MAX="20" MIN="0" STEP="0.2" VAR="dcf_control.k" shortname = "Gain" param="DCF_GAIN_K"/>
+          <dl_setting MAX="200" MIN="0" STEP="1" VAR="dcf_control.radius" shortname = "Radius" param="DCF_RADIUS"/>
+          <dl_setting MAX="5000" MIN="0" STEP="1" VAR="dcf_control.timeout" shortname = "Timeout" param="DCF_TIMEOUT"/>
+          <dl_setting MAX="1000" MIN="0" STEP="1" VAR="dcf_control.broadtime" shortname = "Broadcasting" param="DCF_BROAD_TIME"/>
+        </dl_settings>
+       </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <depends>gvf_module.xml</depends>
+
+  <header>
+    <file name="dcf.h"/>
+  </header>
+
+  <init fun="dcf_init()"/>
+
+  <datalink message="DCF_REG_TABLE" fun="parseRegTable()"/>
+  <datalink message="DCF_THETA" fun="parseThetaTable()"/>
+
+  <makefile firmware="fixedwing">
+    <file name="dcf.c"/>
+  </makefile>
+
+</module>
+
