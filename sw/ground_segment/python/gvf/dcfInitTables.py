@@ -1,81 +1,124 @@
 #!/usr/bin/env python
-from __future__ import print_function
+#!/usr/bin/env python
+#
+# Copyright (C) 2017 Hector Garcia de Marina <hgdemarina@gmail.com>
+#                    Gautier Hattenberger <gautier.hattenberger@enac.fr>
+#
+# This file is part of paparazzi.
+#
+# paparazzi is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# paparazzi is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with paparazzi; see the file COPYING.  If not, see
+# <http://www.gnu.org/licenses/>.
+
+'''
+Init the aircraft's tables for the decentralized circular formations module
+'''
 
 import time
 import sys
 import wx
 import numpy as np
 import sys
+import json
 from os import path, getenv
 PPRZ_HOME = getenv("PAPARAZZI_HOME", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../../')))
-PPRZ_SRC = getenv("PAPARAZZI_SRC", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../../')))
-sys.path.append(PPRZ_SRC + "/sw/lib/python")
 sys.path.append(PPRZ_HOME + "/var/lib/python")
 from pprzlink.ivy import IvyMessagesInterface
-from pprzlink.message import PprzMessage 
-from settings_xml_parse import PaparazziACSettings
+from pprzlink.message import PprzMessage
 
-list_ids = []
-interface = IvyMessagesInterface("DCF")
+class initTable:
+    def __init__(self, config, verbose=False):
+        self.verbose = verbose
+        self.config = config
+        self.ids = np.array(self.config['ids'])
+        self.B = np.array(self.config['topology'])
+        self.Zdesired = np.array(self.config['desired_intervehicle_angles'])
+        self.list_ids = np.ndarray.tolist(self.ids)
 
-if len(sys.argv) != 4:
-    print("Usage: dcfInitTables topology.txt desired_sigma.txt ids.txt")
-    interface.shutdown()
-    exit()
+        # Start IVY interface
+        self._interface = IvyMessagesInterface("Init DCF tables")
 
-B = np.loadtxt(sys.argv[1])
-desired_sigmas = np.loadtxt(sys.argv[2])*np.pi/180.0
-ids = np.loadtxt(sys.argv[3])
+    def __del__(self):
+        self.stop()
 
-list_ids = np.ndarray.tolist(ids)
+    def stop(self):
+        # Stop IVY interface
+        if self._interface is not None:
+            self._interface.shutdown()
 
-if np.size(ids) != np.size(B,0):
-    print("The ammount of aircrafts in the topology and ids do not match")
-    interface.shutdown()
-    exit()
-time.sleep(2)
+    def init_dcftables(self):
+        time.sleep(2)
 
-if len(list_ids) == 2:
-    B.shape = (2,1)
+        for count, column in enumerate(self.B.T):
+            index = np.nonzero(column)
+            i = index[0]
 
-for count, column in enumerate(B.T):
-    index = np.nonzero(column)
-    i = index[0]
+            msg_clean_a = PprzMessage("datalink", "DCF_REG_TABLE")
+            msg_clean_a['ac_id'] = int(self.list_ids[i[0]])
+            msg_clean_a['nei_id'] = 0
+            msg_clean_b = PprzMessage("datalink", "DCF_REG_TABLE")
+            msg_clean_b['ac_id'] = int(self.list_ids[i[1]])
+            msg_clean_b['nei_id'] = 0
 
-    msg_clean_a = PprzMessage("datalink", "DCF_REG_TABLE")
-    msg_clean_a['ac_id'] = int(list_ids[i[0]])
-    msg_clean_a['nei_id'] = 0
-    msg_clean_b = PprzMessage("datalink", "DCF_REG_TABLE")
-    msg_clean_b['ac_id'] = int(list_ids[i[1]])
-    msg_clean_b['nei_id'] = 0
+            self._interface.send(msg_clean_a)
+            self._interface.send(msg_clean_b)
 
-    interface.send(msg_clean_a)
-    interface.send(msg_clean_b)
+            if self.verbose:
+                print(msg_clean_a)
+                print(msg_clean_b)
 
-for count, column in enumerate(B.T):
-    index = np.nonzero(column)
-    i = index[0]
+        for count, column in enumerate(self.B.T):
+            index = np.nonzero(column)
+            i = index[0]
 
-    msga = PprzMessage("datalink", "DCF_REG_TABLE")
-    msga['ac_id'] = int(list_ids[i[0]])
-    msga['nei_id'] = int(list_ids[i[1]])
-    if len(list_ids) == 2:
-        msga['desired_sigma'] = int(desired_sigmas)
-    else:
-        msga['desired_sigma'] = int(desired_sigmas[count])
-    interface.send(msga)
+            msga = PprzMessage("datalink", "DCF_REG_TABLE")
+            msga['ac_id'] = int(self.list_ids[i[0]])
+            msga['nei_id'] = int(self.list_ids[i[1]])
+            if len(self.list_ids) == 2:
+                msga['desired_sigma'] = int(self.Zdesired)
+            else:
+                msga['desired_sigma'] = int(self.Zdesired[count])
+            self._interface.send(msga)
 
-    msgb = PprzMessage("datalink", "DCF_REG_TABLE")
-    msgb['ac_id'] = int(list_ids[i[1]])
-    msgb['nei_id'] = int(list_ids[i[0]])
-    if len(list_ids) == 2:
-        msgb['desired_sigma'] = int(desired_sigmas)
-    else:
-        msgb['desired_sigma'] = int(desired_sigmas[count])
-    interface.send(msgb)
+            msgb = PprzMessage("datalink", "DCF_REG_TABLE")
+            msgb['ac_id'] = int(self.list_ids[i[1]])
+            msgb['nei_id'] = int(self.list_ids[i[0]])
+            if len(self.list_ids) == 2:
+                msgb['desired_sigma'] = int(self.Zdesired)
+            else:
+                msgb['desired_sigma'] = int(self.Zdesired[count])
+            self._interface.send(msgb)
 
-    print(msga)
-    print(msgb)
+            if self.verbose:
+                print(msga)
+                print(msgb)
 
-time.sleep(2)
-interface.shutdown()
+        time.sleep(2)
+
+if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser(description="Init tables for DCF module")
+    parser.add_argument('config_file', help="JSON configuration file")
+    parser.add_argument('-v', '--verbose', dest='verbose', default=False, action='store_true', help="display debug messages")
+    args = parser.parse_args()
+
+    with open(args.config_file, 'r') as f:
+        conf = json.load(f)
+    if args.verbose:
+        print(json.dumps(conf))
+    try:
+        initTableDCF = initTable(conf, verbose=args.verbose)
+        initTableDCF.init_dcftables()
+    except KeyboardInterrupt:
+        initTableDCF.stop()
+    initTableDCF.stop()
