@@ -240,6 +240,7 @@ void guidance_v_mode_changed(uint8_t new_mode)
     case GUIDANCE_V_MODE_RC_CLIMB:
     case GUIDANCE_V_MODE_CLIMB:
       guidance_v_zd_sp = 0;
+      /* Falls through. */
     case GUIDANCE_V_MODE_NAV:
       guidance_v_z_sum_err = 0;
       GuidanceVSetRef(stateGetPositionNed_i()->z, stateGetSpeedNed_i()->z, 0);
@@ -326,6 +327,7 @@ void guidance_v_run(bool in_flight)
 
     case GUIDANCE_V_MODE_HOVER:
       guidance_v_guided_mode = GUIDANCE_V_GUIDED_MODE_ZHOLD;
+      /* Falls through. */
     case GUIDANCE_V_MODE_GUIDED:
       guidance_v_guided_run(in_flight);
       break;

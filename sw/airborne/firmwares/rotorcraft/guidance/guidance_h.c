@@ -233,6 +233,7 @@ void guidance_h_mode_changed(uint8_t new_mode)
 
     case GUIDANCE_H_MODE_CARE_FREE:
       stabilization_attitude_reset_care_free_heading();
+      /* Falls through. */
     case GUIDANCE_H_MODE_FORWARD:
     case GUIDANCE_H_MODE_ATTITUDE:
 #if NO_ATTITUDE_RESET_ON_MODE_CHANGE
@@ -366,6 +367,7 @@ void guidance_h_run(bool  in_flight)
       if (transition_percentage < (100 << INT32_PERCENTAGE_FRAC)) {
         transition_run(true);
       }
+      /* Falls through. */
     case GUIDANCE_H_MODE_CARE_FREE:
     case GUIDANCE_H_MODE_ATTITUDE:
       if ((!(guidance_h.mode == GUIDANCE_H_MODE_FORWARD)) && transition_percentage > 0) {
@@ -379,6 +381,7 @@ void guidance_h_run(bool  in_flight)
       guidance_h.sp.heading = guidance_h.rc_sp.psi;
       /* fall trough to GUIDED to update ref, run traj and set final attitude setpoint */
 
+      /* Falls through. */
     case GUIDANCE_H_MODE_GUIDED:
       guidance_h_guided_run(in_flight);
       break;
