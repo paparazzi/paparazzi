@@ -33,7 +33,7 @@ EXT_DIR=$(PAPARAZZI_SRC)/sw/ext
 include $(PAPARAZZI_SRC)/conf/Makefile.arm-embedded-toolchain
 
 
-all: libopencm3 luftboot chibios fatfs libsbp mavlink TRICAL
+all: libopencm3 luftboot chibios fatfs libsbp mavlink TRICAL hacl
 
 # update (and init if needed) all submodules
 update_submodules:
@@ -54,6 +54,9 @@ libopencm3.build:
 
 # update and then build libopencm3
 libopencm3: libopencm3.update libopencm3.build
+
+hacl:
+	$(Q)$(MAKE) -C hacl-c
 
 # only build current checkout of luftboot
 luftboot.build: libopencm3.build
