@@ -145,6 +145,7 @@ void adxl345_spi_event(struct Adxl345_Spi *adxl)
     switch (adxl->spi_trans.status) {
       case SPITransFailed:
         adxl->init_status--; // Retry config (TODO max retry)
+        /* Falls through. */
       case SPITransSuccess:
       case SPITransDone:
         adxl->spi_trans.status = SPITransDone;
