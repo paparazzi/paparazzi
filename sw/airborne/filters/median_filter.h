@@ -36,11 +36,7 @@ struct MedianFilterInt {
   uint8_t size;
 };
 
-inline void init_median_filter_i(struct MedianFilterInt *filter, uint8_t size);
-inline int32_t update_median_filter_i(struct MedianFilterInt *filter, int32_t new_data);
-inline int32_t get_median_filter_i(struct MedianFilterInt *filter);
-
-inline void init_median_filter_i(struct MedianFilterInt *filter, uint8_t size)
+static inline void init_median_filter_i(struct MedianFilterInt *filter, uint8_t size)
 {
   uint8_t i;
   if (size > MAX_MEDIAN_DATASIZE){
@@ -59,7 +55,17 @@ inline void init_median_filter_i(struct MedianFilterInt *filter, uint8_t size)
   filter->dataIndex = 0;
 }
 
-inline int32_t update_median_filter_i(struct MedianFilterInt *filter, int32_t new_data)
+static inline int32_t get_median_filter_i(struct MedianFilterInt *filter)
+{
+  if (filter->size % 2){
+    return filter->sortData[filter->size >> 1];
+  } else {
+    // this should not be used if init_median_filter was used
+    return (filter->sortData[filter->size / 2] + filter->sortData[filter->size / 2 - 1]) / 2;
+  }
+}
+
+static inline int32_t update_median_filter_i(struct MedianFilterInt *filter, int32_t new_data)
 {
   int temp, i, j; // used to sort array
 
@@ -82,16 +88,6 @@ inline int32_t update_median_filter_i(struct MedianFilterInt *filter, int32_t ne
   }
   // return data value in middle of sorted array
   return get_median_filter_i(filter);
-}
-
-inline int32_t get_median_filter_i(struct MedianFilterInt *filter)
-{
-  if (filter->size % 2){
-    return filter->sortData[filter->size >> 1];
-  } else {
-    // this should not be used if init_median_filter was used
-    return (filter->sortData[filter->size / 2] + filter->sortData[filter->size / 2 - 1]) / 2;
-  }
 }
 
 struct MedianFilter3Int {
@@ -149,11 +145,7 @@ struct MedianFilterFloat {
   uint8_t size;
 };
 
-inline void init_median_filter_f(struct MedianFilterFloat *filter, uint8_t size);
-inline float update_median_filter_f(struct MedianFilterFloat *filter, float new_data);
-inline float get_median_filter_f(struct MedianFilterFloat *filter);
-
-inline void init_median_filter_f(struct MedianFilterFloat *filter, uint8_t size)
+static inline void init_median_filter_f(struct MedianFilterFloat *filter, uint8_t size)
 {
   uint8_t i;
   if (size > MAX_MEDIAN_DATASIZE){
@@ -170,7 +162,17 @@ inline void init_median_filter_f(struct MedianFilterFloat *filter, uint8_t size)
   filter->dataIndex = 0;
 }
 
-inline float update_median_filter_f(struct MedianFilterFloat *filter, float new_data)
+static inline float get_median_filter_f(struct MedianFilterFloat *filter)
+{
+  if (filter->size % 2){
+    return filter->sortData[filter->size >> 1];
+  } else {
+    // this should not be used if init_median_filter was used
+    return (filter->sortData[filter->size / 2] + filter->sortData[filter->size / 2 - 1]) / 2;
+  }
+}
+
+static inline float update_median_filter_f(struct MedianFilterFloat *filter, float new_data)
 {
   float temp;
   int i, j; // used to sort array
@@ -194,16 +196,6 @@ inline float update_median_filter_f(struct MedianFilterFloat *filter, float new_
   }
   // return data value in middle of sorted array
   return get_median_filter_f(filter);
-}
-
-inline float get_median_filter_f(struct MedianFilterFloat *filter)
-{
-  if (filter->size % 2){
-    return filter->sortData[filter->size >> 1];
-  } else {
-    // this should not be used if init_median_filter was used
-    return (filter->sortData[filter->size / 2] + filter->sortData[filter->size / 2 - 1]) / 2;
-  }
 }
 
 struct MedianFilter3Float {
