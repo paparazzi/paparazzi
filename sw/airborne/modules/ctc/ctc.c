@@ -44,9 +44,15 @@ static void send_ctc(struct transport_tx *trans, struct link_device *dev)
 #endif // PERIODIC TELEMETRY
 
 // Control
-/*! Default gain k for the algorithm */
-#ifndef CTC_GAIN_K
-#define CTC_GAIN_K 0.005
+/*! Default gains for the algorithm */
+#ifndef CTC_GAIN_K1
+#define CTC_GAIN_K1 0.005
+#endif
+#ifndef CTC_GAIN_K2
+#define CTC_GAIN_K2 0.0005
+#endif
+#ifndef CTC_GAIN_ALPHA
+#define CTC_GAIN_ALPHA 0.1
 #endif
 /*! Default timeout in ms for the neighbors' information */
 #ifndef CTC_TIMEOUT
@@ -58,11 +64,11 @@ static void send_ctc(struct transport_tx *trans, struct link_device *dev)
 #endif
 /*! Default time in ms for broadcasting information */
 #ifndef CTC_TIME_BROAD
-#define CTC_TIME_BROAD 200
+#define CTC_TIME_BROAD 100
 #endif
 
-ctc_con ctc_control = {CTC_GAIN_K, CTC_TIMEOUT, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-    CTC_OMEGA, CTC_TIME_BROAD};
+ctc_con ctc_control = {CTC_GAIN_K1, CTC_GAIN_K2, CTC_GAIN_ALPHA, CTC_TIMEOUT, 
+                       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CTC_OMEGA, CTC_TIME_BROAD};
 
 int16_t tableNei[CTC_MAX_AC][6];
 uint32_t last_info[CTC_MAX_AC];
@@ -143,7 +149,7 @@ bool collective_tracking_control()
       ctc_error_to_target = sqrtf(error_target_x*error_target_x + error_target_y*error_target_y);
       if(ctc_error_to_target < 0.1)
           ctc_error_to_target = 0.1;
-      float aux = (1-expf(-0.1*ctc_error_to_target)) / ctc_error_to_target;
+      float aux = (1-expf(-ctc_control.alpha*ctc_error_to_target)) / ctc_error_to_target;
       float v_ref_x = ctc_control.target_vx + aux*error_target_x;
       float v_ref_y = ctc_control.target_vy + aux*error_target_y;
 
@@ -152,12 +158,12 @@ bool collective_tracking_control()
 
       float error_v_x = v_centroid_x - v_ref_x;
       float error_v_y = v_centroid_y - v_ref_y;
-      u_vel = -ctc_control.k*(-error_v_y*vx + error_v_x*vy);
+      u_vel = -ctc_control.k1*(-error_v_y*vx + error_v_x*vy);
 
 
       float error_ref_x = px - ctc_control.ref_px;
       float error_ref_y = py - ctc_control.ref_py;
-      u_spa = ctc_control.omega*(1 + 0.1*ctc_control.k*(error_ref_x*vx + error_ref_y*vy));
+      u_spa = ctc_control.omega*(1 + ctc_control.k2*(error_ref_x*vx + error_ref_y*vy));
 
       //printf("err_v %i %f \n", AC_ID, sqrtf(error_v_x*error_v_x + error_v_y*error_v_y));
       //printf("err_ref %i %f \n", AC_ID, sqrtf(error_ref_x*error_ref_x + error_ref_y*error_ref_y));

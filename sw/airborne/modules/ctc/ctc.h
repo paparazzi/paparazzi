@@ -31,7 +31,9 @@
 #include "std.h"
 
 typedef struct {
-  float k;
+  float k1;
+  float k2;
+  float alpha;
   uint16_t timeout;
   float target_px;
   float target_py;
