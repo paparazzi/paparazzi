@@ -5,5 +5,5 @@ gvfApp draws an aircraft following the guidance vector vield, ex:
 python gvfApp 80 , draws for the aircraft with id 80.
 
 gvfFormation control several aircraft in a circular formation, ex:
-python gvfFormation ./formation/topology.txt ./formation/sigmas.txt
+python gvfFormation.py ./formation/topology.txt ./formation/sigmas.txt
 ./formation/ids.txt 80 10

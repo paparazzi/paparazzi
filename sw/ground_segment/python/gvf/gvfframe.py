@@ -70,7 +70,7 @@ class GVFFrame(wx.Frame):
                         and self.timer_traj == self.timer_traj_lim:
                     self.s = int(msg.get_field(2))
                     self.ke = float(msg.get_field(3))
-                    param = [float(x) for x in msg.get_field(4).split(',')]
+                    param = [float(x) for x in msg.get_field(4)]
                     a = param[0]
                     b = param[1]
                     c = param[2]
@@ -84,7 +84,7 @@ class GVFFrame(wx.Frame):
                         and self.timer_traj == self.timer_traj_lim:
                     self.s = int(msg.get_field(2))
                     self.ke = float(msg.get_field(3))
-                    param = [float(x) for x in msg.get_field(4).split(',')]
+                    param = [float(x) for x in msg.get_field(4)]
                     ex = param[0]
                     ey = param[1]
                     ea = param[2]
@@ -99,7 +99,7 @@ class GVFFrame(wx.Frame):
                         and self.timer_traj == self.timer_traj_lim:
                     self.s = int(msg.get_field(2))
                     self.ke = float(msg.get_field(3))
-                    param = [float(x) for x in msg.get_field(4).split(',')]
+                    param = [float(x) for x in msg.get_field(4)]
                     a = param[0]
                     b = param[1]
                     alpha = param[2]

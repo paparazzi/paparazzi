@@ -56,6 +56,7 @@ Aggie Air ARK
 
   <modules>
     <module name="sys_mon"/>
+    <module name="rng"/>
     <module name="copilot"/>
     <module name="extra_dl">
       <!-- in order to use uart1 without chibios we need to remap the peripheral-->

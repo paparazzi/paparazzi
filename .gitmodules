@@ -28,3 +28,6 @@
 [submodule "sw/ext/TRICAL"]
 	path = sw/ext/TRICAL
 	url = https://github.com/sfwa/TRICAL.git
+[submodule "sw/ext/hacl-c"]
+	path = sw/ext/hacl-c
+	url = https://github.com/paparazzi/hacl-c.git

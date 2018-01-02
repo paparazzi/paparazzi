@@ -81,7 +81,7 @@ SUBDIRS = $(PPRZCENTER) $(MISC) $(LOGALIZER) sw/tools
 #
 # Communication protocol version
 #
-PPRZLINK_LIB_VERSION ?= 1.0
+PPRZLINK_LIB_VERSION ?= 2.0
 
 #
 # xml files used as input for header generation

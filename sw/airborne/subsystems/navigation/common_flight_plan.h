@@ -43,16 +43,16 @@ void nav_goto_block(uint8_t block_id);
 
 #define InitStage() nav_init_stage();
 
-#define Block(x) case x: nav_block=x;
+#define Block(x) /* Falls through. */ case x: nav_block=x;
 #define NextBlock() nav_goto_block(nav_block + 1)
 #define GotoBlock(b) nav_goto_block(b)
 
-#define Stage(s) case s: nav_stage=s;
+#define Stage(s) /* Falls through. */ case s: nav_stage=s;
 #define NextStage() { nav_stage++; InitStage(); }
 #define NextStageAndBreak() { nav_stage++; InitStage(); break; }
 #define NextStageAndBreakFrom(wp) { last_wp = wp; NextStageAndBreak(); }
 
-#define Label(x) label_ ## x:
+#define Label(x) /* Falls through. */ label_ ## x:
 #define Goto(x) { goto label_ ## x; }
 #define Return(x) { nav_block=last_block; if (x==1) {nav_stage=0;} else {nav_stage=last_stage;} block_time=0;}
 

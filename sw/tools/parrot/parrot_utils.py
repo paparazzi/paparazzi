@@ -32,13 +32,6 @@ import argparse
 import re
 
 class ParrotVersion(object):
-    def __init__(self):
-        self.h = 0
-        self.m = 0
-        self.l = 0
-        self.rc = 0
-        self.raw = ''
-
     def __init__(self, s):
         try:
             self.raw = s
@@ -52,7 +45,11 @@ class ParrotVersion(object):
             else:
                 self.rc = 0
         except:
-            self.__init__()
+            self.h = 0
+            self.m = 0
+            self.l = 0
+            self.rc = 0
+            self.raw = ''
 
     def version(self):
         return ( ( (self.h * 100 + self.m) * 100) + self.l) * 100 + self.rc
@@ -273,8 +270,8 @@ class ParrotUtils:
     def upload_and_run(self, name, folder, min_ver=None, max_ver=None):
         if self.check_version_before_run and min_ver is not None and max_ver is not None:
             v = self.check_version()
-            print("Checking " + self.uav_name + " firmware version... " + str(v) )
-            if ((v < ParrotVersion(min_ver)) or (v > ParrotVersion(max_ver))):
+            print("Checking " + self.uav_name + " firmware version... " + str(v))
+            if ((not v == ParrotVersion('0.0.0.0')) and ((v < ParrotVersion(min_ver)) or (v > ParrotVersion(max_ver)))):
                 print("Error: please upgrade your " + self.uav_name + " firmware to version between " + min_ver + " and " + max_ver + "!")
                 return
             
