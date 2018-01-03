@@ -6,8 +6,9 @@
 
 
   <firmware name="rotorcraft">
-    <target name="ap" board="ardrone2"/>
-
+    <target name="ap" board="ardrone2">
+      <configure name="PREFIX" value="/opt/arm-2012.03/bin/arm-none-linux-gnueabi" />
+</target>
     <!--target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
     </target-->
