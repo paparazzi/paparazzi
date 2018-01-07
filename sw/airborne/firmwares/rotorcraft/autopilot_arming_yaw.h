@@ -30,6 +30,7 @@
 #define AUTOPILOT_ARMING_YAW_H
 
 #include "autopilot_rc_helpers.h"
+#include "autopilot_firmware.h"
 
 /** Delay until motors are armed/disarmed.
  * In number of rc frames recieved.
@@ -74,6 +75,32 @@ static inline void autopilot_arming_set(bool motors_on)
   }
 }
 
+#define YAW_MUST_BE_CENTERED true
+#define YAW_MUST_BE_PUSHED false
+/*Checks all arm requirements and returns false if OK and true otherwise.
+ * Also sets the arming status to provide information to the user
+ */
+static inline bool autopilot_arming_check_arm_requirements(bool yaw_must_be_centered)
+{
+  if (!THROTTLE_STICK_DOWN()) {
+    autopilot.arming_status = AP_ARMING_STATUS_THROTTLE_NOT_DOWN;
+  } else if (!PITCH_STICK_CENTERED()) {
+    autopilot.arming_status = AP_ARMING_STATUS_PITCH_NOT_CENTERED;
+  } else if (!ROLL_STICK_CENTERED()) {
+    autopilot.arming_status = AP_ARMING_STATUS_ROLL_NOT_CENTERED;
+  } else {
+    if (yaw_must_be_centered && !YAW_STICK_CENTERED()) {
+      autopilot.arming_status = AP_ARMING_STATUS_YAW_NOT_CENTERED;
+    } else if (!yaw_must_be_centered && YAW_STICK_CENTERED()) {
+      autopilot.arming_status = AP_ARMING_STATUS_YAW_CENTERED;
+    } else {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 /**
  * State machine to check if motors should be turned ON or OFF.
  * The motors start/stop when pushing the yaw stick without throttle until #MOTOR_ARMING_DELAY is reached.
@@ -87,7 +114,7 @@ static inline void autopilot_arming_check_motors_on(void)
 
     switch (autopilot_check_motor_status) {
       case STATUS_INITIALISE_RC: // Wait until RC is initialised (it being centered is a good pointer to this)
-        if (THROTTLE_STICK_DOWN() && YAW_STICK_CENTERED() && PITCH_STICK_CENTERED() && ROLL_STICK_CENTERED()) {
+        if (!autopilot_arming_check_arm_requirements(YAW_MUST_BE_CENTERED)) {
           autopilot_check_motor_status = STATUS_MOTORS_OFF;
         }
         break;
@@ -96,20 +123,22 @@ static inline void autopilot_arming_check_motors_on(void)
         //wait extra delay before enabling the normal arming state machine
         autopilot.motors_on = false;
         autopilot_motors_on_counter = 0;
-        if (THROTTLE_STICK_DOWN() && YAW_STICK_CENTERED()) { // stick released
+        if (!autopilot_arming_check_arm_requirements(YAW_MUST_BE_CENTERED)) {
           autopilot_check_motor_status = STATUS_MOTORS_AUTOMATICALLY_OFF_SAFETY_WAIT;
         }
         break;
       case STATUS_MOTORS_AUTOMATICALLY_OFF_SAFETY_WAIT:
-          autopilot_motors_on_counter++;
-          if (autopilot_motors_on_counter >= MOTOR_ARMING_DELAY) {
-            autopilot_check_motor_status = STATUS_MOTORS_OFF;
-          }
+        autopilot_motors_on_counter++;
+        if (autopilot_motors_on_counter >= MOTOR_ARMING_DELAY) {
+          autopilot_check_motor_status = STATUS_MOTORS_OFF;
+        } else {
+          autopilot.arming_status = AP_ARMING_STATUS_WAITING;
+        }
         break;
       case STATUS_MOTORS_OFF:
         autopilot.motors_on = false;
         autopilot_motors_on_counter = 0;
-        if (THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED()) { // stick pushed
+        if (!autopilot_arming_check_arm_requirements(YAW_MUST_BE_PUSHED)) { // stick pushed
           autopilot_check_motor_status = STATUS_M_OFF_STICK_PUSHED;
         }
         break;
@@ -118,18 +147,21 @@ static inline void autopilot_arming_check_motors_on(void)
         autopilot_motors_on_counter++;
         if (autopilot_motors_on_counter >= MOTOR_ARMING_DELAY) {
           autopilot_check_motor_status = STATUS_START_MOTORS;
-        } else if (!(THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED())) { // stick released too soon
+        } else if (!autopilot_arming_check_arm_requirements(YAW_MUST_BE_PUSHED)) { // stick released too soon
           autopilot_check_motor_status = STATUS_MOTORS_OFF;
+        } else {
+          autopilot.arming_status = AP_ARMING_STATUS_WAITING;
         }
         break;
       case STATUS_START_MOTORS:
         autopilot.motors_on = true;
         autopilot_motors_on_counter = MOTOR_ARMING_DELAY;
-        if (!(THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED())) { // wait until stick released
+        if (!autopilot_arming_check_arm_requirements(YAW_MUST_BE_CENTERED)) { // wait until stick released
           autopilot_check_motor_status = STATUS_MOTORS_ON;
         }
         break;
       case STATUS_MOTORS_ON:
+        autopilot.arming_status = AP_ARMING_STATUS_ARMED;
         autopilot.motors_on = true;
         autopilot_motors_on_counter = MOTOR_ARMING_DELAY;
         if (THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED()) { // stick pushed
@@ -143,18 +175,20 @@ static inline void autopilot_arming_check_motors_on(void)
           autopilot_check_motor_status = STATUS_STOP_MOTORS;
         } else if (!(THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED())) { // stick released too soon
           autopilot_check_motor_status = STATUS_MOTORS_ON;
+        } else {
+          autopilot.arming_status = AP_ARMING_STATUS_DISARMING;
         }
         break;
       case STATUS_STOP_MOTORS:
         autopilot.motors_on = false;
         autopilot_motors_on_counter = 0;
-        if (!(THROTTLE_STICK_DOWN() && YAW_STICK_PUSHED())) { // wait until stick released
-          autopilot_check_motor_status = STATUS_MOTORS_OFF;
-        }
+        autopilot_check_motor_status = STATUS_MOTORS_OFF;
         break;
       default:
         break;
     }
+  } else {
+    autopilot.arming_status = AP_ARMING_STATUS_KILLED;
   }
 }
 
