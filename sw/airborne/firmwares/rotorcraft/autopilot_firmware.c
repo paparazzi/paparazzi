@@ -97,12 +97,13 @@ static void send_status(struct transport_tx *trans, struct link_device *dev)
 #endif
   uint8_t in_flight = autopilot.in_flight;
   uint8_t motors_on = autopilot.motors_on;
+  uint8_t arming_status = autopilot.arming_status;
   uint16_t time_sec = sys_time.nb_sec;
   pprz_msg_send_ROTORCRAFT_STATUS(trans, dev, AC_ID,
                                   &imu_nb_err, &_motor_nb_err,
                                   &radio_control.status, &radio_control.frame_rate,
                                   &fix, &autopilot.mode, &in_flight, &motors_on,
-                                  &guidance_h.mode, &guidance_v_mode,
+                                  &arming_status, &guidance_h.mode, &guidance_v_mode,
                                   &electrical.vsupply, &time_sec);
 }
 
@@ -149,10 +150,10 @@ static void send_fp_min(struct transport_tx *trans, struct link_device *dev)
   uint16_t gspeed = stateGetHorizontalSpeedNorm_f() / 100;
 #endif
   pprz_msg_send_ROTORCRAFT_FP_MIN(trans, dev, AC_ID,
-                              &(stateGetPositionEnu_i()->x),
-                              &(stateGetPositionEnu_i()->y),
-                              &(stateGetPositionEnu_i()->z),
-                              &gspeed);
+                                  &(stateGetPositionEnu_i()->x),
+                                  &(stateGetPositionEnu_i()->y),
+                                  &(stateGetPositionEnu_i()->z),
+                                  &gspeed);
 }
 
 #ifdef RADIO_CONTROL
