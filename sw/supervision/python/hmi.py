@@ -387,6 +387,7 @@ class Hmi(Widgets.QMainWindow):
         self.ui.actionSave_3.triggered.connect(self.save_current_session)
 
         self.ui.actionFull_screen.triggered.connect(self.fullscreen_view)
+        self.ui.actionHide_overviews.triggered.connect(self.toggle_overview)
 
         self.ui.actionAbout_Paparazzi_UAV.triggered.connect(
             self.credits_popup.show)
@@ -556,6 +557,14 @@ class Hmi(Widgets.QMainWindow):
             self.resize(800, 600)
         else:
             self.showMaximized()
+
+    def toggle_overview(self):
+        if self.ui.dockWidget.isVisible():
+            self.ui.dockWidget.hide()
+            self.ui.actionHide_overviews.setText("Show overviews")
+        else:
+            self.ui.dockWidget.show()
+            self.ui.actionHide_overviews.setText("Hide overviews")
 
     def update_set_combo(self):
         """
