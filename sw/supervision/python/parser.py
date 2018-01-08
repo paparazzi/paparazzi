@@ -381,7 +381,15 @@ def load_init_files(conf_path):
     matching with '*conf*.xml', 'control_panel.xml' and 'flash_modes.xml'.
     -> Show the result of scan if DEBUG mode is on (main.py)
     """
-    conf_files, cp_files, devices_files = [], [], []
+    conf_files, devices_files = [], []
+    cp_file = None
+    
+    cp_path = conf_path + "/" + CONTROL_PANEL + XML_EXT
+    if os.path.exists(cp_path):
+        cp_file = cp_path
+    else:
+        raise Exception("%s not found!"% conf_path)
+    
     for root, dirs, files in os.walk(conf_path):
         for file in files:
             ext = os.path.splitext(file)[1]
@@ -392,12 +400,12 @@ def load_init_files(conf_path):
                         and xml_file != env.PAPARAZZI_CONF+"/conf.xml":
                     conf_files.append(xml_file)
                 elif file == CONTROL_PANEL_FILE and "airframes" not in root:
-                    cp_files.append(xml_file)
+                    pass
                 elif file == DEVICES_FILE:
                     devices_files.append(xml_file)
 
-    result = "{} startup files found."
-    files_nb = sum((len(conf_files), len(cp_files), len(devices_files)))
+    result = "{} startup files found."  # exclude control_panel.xml
+    files_nb = sum((len(conf_files), len(devices_files)))
     info = result.format(files_nb)
 
     if logging.DEBUG:
@@ -408,9 +416,8 @@ def load_init_files(conf_path):
         for file in devices_files:
             LOGGER.debug(file)
         LOGGER.debug("'control_panel' file(s) :")
-        for file in cp_files:
-            LOGGER.debug(file)
-    return conf_files, cp_files, devices_files, info
+        LOGGER.debug(cp_file)
+    return conf_files, cp_file, devices_files, info
 
 
 ###############################################################################
@@ -812,10 +819,10 @@ class Data(object):
 
     def load_sessions_and_programs(self):
         LOGGER.info("Loading programs and sessions...")
-        if len(self.cp_file) == 1:
+        if self.cp_file is not None:
             self.tools, self.sessions, \
-                load_info = load_sessions_and_programs(self.cp_file[0])
+                load_info = load_sessions_and_programs(self.cp_file)
             LOGGER.debug(load_info)
             LOGGER.info("Programs and sessions loaded.\n")
         else:
-            LOGGER.error("ERROR : Multiple '%s' XML files !", CONTROL_PANEL)
+            LOGGER.error("ERROR : control_panel.xml not found!")
