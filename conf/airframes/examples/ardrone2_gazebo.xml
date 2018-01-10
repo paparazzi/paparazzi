@@ -34,7 +34,10 @@
     <module name="cv_opticflow">
       <define name="OPTICFLOW_CAMERA" value="bottom_camera"/>
       <define name="OPTICFLOW_DEROTATION_CORRECTION_FACTOR_X" value="0.8"/> <!--Obtained from a linefit--> 
-      <define name="OPTICFLOW_DEROTATION_CORRECTION_FACTOR_Y" value="0.85"/> <!--Obtained from a linefit--> 
+      <define name="OPTICFLOW_DEROTATION_CORRECTION_FACTOR_Y" value="0.85"/> <!--Obtained from a linefit-->
+      <!-- ARDrone2 FPS improvements - Remaining in sync with real life-->
+	  <define name="OPTICFLOW_PYRAMID_LEVEL" value="0"/>
+      <define name="OPTICFLOW_FEATURE_MANAGEMENT" value="1"/> 
     </module>
 
     <module name="cv_colorfilter">
