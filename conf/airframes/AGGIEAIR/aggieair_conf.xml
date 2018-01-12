@@ -22,6 +22,18 @@
    gui_color="#ffff954c0000"
   />
   <aircraft
+   name="Atomic"
+   ac_id="9"
+   airframe="airframes/AGGIEAIR/aggieair_atomic_lia.xml"
+   radio="radios/AGGIEAIR/aggieair_taranis.xml"
+   telemetry="telemetry/AGGIEAIR/aggieair_fixedwing.xml"
+   flight_plan="flight_plans/AGGIEAIR/BasicTuning_Launcher.xml"
+   settings="settings/fixedwing_basic.xml settings/nps.xml"
+   settings_modules="modules/battery_monitor.xml modules/lidar_sf11.xml modules/nav_skid_landing.xml modules/nav_survey_poly_osam.xml modules/gps.xml modules/nav_basic_fw.xml modules/guidance_basic_fw.xml modules/stabilization_attitude_fw.xml"
+   gui_color="#ffff42870000"
+   release=""
+  />
+  <aircraft
    name="BluJay_Goose"
    ac_id="7"
    airframe="airframes/AGGIEAIR/aggieair_blujay_goose.xml"
@@ -41,7 +53,7 @@
    flight_plan="flight_plans/AGGIEAIR/BasicTuning_Launcher.xml"
    settings="settings/fixedwing_basic.xml settings/nps.xml"
    settings_modules="modules/battery_monitor.xml modules/lidar_sf11.xml modules/nav_skid_landing.xml modules/nav_survey_poly_osam.xml modules/gps.xml modules/nav_basic_fw.xml modules/guidance_basic_fw.xml modules/stabilization_attitude_fw.xml"
-   gui_color="#00009e93ffff"
+   gui_color="#ffffffffffff"
   />
   <aircraft
    name="ECU"
