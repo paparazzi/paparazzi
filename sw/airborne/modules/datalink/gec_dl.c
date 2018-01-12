@@ -40,7 +40,6 @@ struct gec_transport gec_tp;
 
 static void send_secure_link_info(struct transport_tx *trans, struct link_device *dev)
 {
-
   pprz_msg_send_SECURE_LINK_STATUS(trans, dev, AC_ID,
     (uint8_t*)&gec_tp.sts.protocol_stage,
     (uint8_t*)&gec_tp.sts.last_error,
