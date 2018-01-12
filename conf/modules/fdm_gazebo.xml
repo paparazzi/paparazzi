@@ -5,7 +5,7 @@
     <description>
       Gazebo backend for NPS simulator
       NPS doc: http://wiki.paparazziuav.org/wiki/NPS
-      
+
       Usage:
       1. Make sure gazebo 7 or 8 is installed. (sudo apt-get install gazebo8 libgazebo8-dev)
       2. Prepare the Gazebo world and model:
@@ -20,7 +20,7 @@
           - Camera links should have the name specified in .dev_name in the
             corresponding video_config_t struct, see sw/airborne/boards/pc_sim.h
             and sw/airborne/modules/computer_vision/video_thread_nps.c.
-        2. Prepare the world (see conf/simulator/gazebo/worlds/ardrone.world). 
+        2. Prepare the world (see conf/simulator/gazebo/worlds/ardrone.world).
           Pay attention to the following:
           - The real-time update rate should be set to zero, as this is
             already handled by Paparazzi:
@@ -104,19 +104,23 @@
           &lt;flight_plan&gt;
         @endcode
     </description>
+    <configure name="NPS_DEBUG_VIDEO" value="0|1" description="show window with video for debugging"/>
   </doc>
   <header/>
   <makefile target="nps">
   	<raw>
-          nps.CXXFLAGS += $(shell pkg-config gazebo --cflags opencv)
-          nps.LDFLAGS  += $(shell pkg-config gazebo --libs)
+      nps.CXXFLAGS += $(shell pkg-config gazebo --cflags)
+      nps.LDFLAGS  += $(shell pkg-config gazebo --libs)
+
+      <!-- OpenCV for video debugging -->
+      NPS_DEBUG_VIDEO ?= 0
+      ifeq (,$(findstring $(NPS_DEBUG_VIDEO),0 FALSE))
+        nps.CXXFLAGS += -DNPS_DEBUG_VIDEO
+        nps.CXXFLAGS += $(shell pkg-config opencv)
+        nps.LDFLAGS  += -lopencv_imgproc -lopencv_highgui -lopencv_core
+      endif
   	</raw>
     <file name="nps_fdm_gazebo.cpp" dir="nps"/>
-
-    <!--OPENCV-->
-    <flag name="LDFLAGS" value="lopencv_imgproc" />
-    <flag name="LDFLAGS" value="lopencv_highgui" />
-    <flag name="LDFLAGS" value="lopencv_core" />
   </makefile>
 </module>
 

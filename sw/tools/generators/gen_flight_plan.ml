@@ -355,6 +355,7 @@ let rec print_stage = fun index_of_waypoints x ->
         lprintf "GotoBlock(%d);\n" (get_index_block (ExtXml.attrib x "block"));
         lprintf "break;\n"
       | "exit_block" ->
+        lprintf "/* Falls through. */\n";
         lprintf "default:\n";
         stage ();
         lprintf "NextBlock();\n";

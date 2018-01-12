@@ -13,7 +13,7 @@ FloatValue = struct.Struct( '<f' )
 DoubleValue = struct.Struct( '<d' )
 
 class NatNetClient:
-    def __init__( self, server="127.0.0.1", multicast="239.255.42.99", commandPort=1510, dataPort=1511, rigidBodyListener=None, newFrameListener=None, verbose=False ):
+    def __init__( self, server="127.0.0.1", multicast="239.255.42.99", commandPort=1510, dataPort=1511, rigidBodyListener=None, newFrameListener=None, rigidBodyListListener=None, verbose=False ):
         # IP address of the NatNet server.
         self.serverIPAddress = server
 
@@ -32,6 +32,10 @@ class NatNetClient:
         # Set this to a callback method of your choice to receive data at each frame.
         self.newFrameListener = newFrameListener
         
+        # Set this to a callback method of your choice to receive rigid-body data list and timestamp at each frame.
+        self.rigidBodyListListener = rigidBodyListListener
+        self.rigidBodyList = []
+
         # NatNet stream version. This will be updated to the actual version the server is using during initialization.
         self.__natNetStreamVersion = (3,0,0,0)
 
@@ -96,6 +100,9 @@ class NatNetClient:
         offset += 16
         self.__trace( "\tOrientation:", rot[0],",", rot[1],",", rot[2],",", rot[3] )
 
+        # Store data
+        self.rigidBodyList.append((id, pos, rot))
+
         # Send information to any listener.
         if self.rigidBodyListener is not None:
             self.rigidBodyListener( id, pos, rot )
@@ -126,10 +133,6 @@ class NatNetClient:
                     size = FloatValue.unpack( data[offset:offset+4] )
                     offset += 4
                     self.__trace( "\tMarker Size", i, ":", size[0] )
-                    
-        # Skip padding inserted by the server
-        if( self.__natNetStreamVersion[0] > 2 ):
-            offset += 4
 
         if( self.__natNetStreamVersion[0] >= 2 ):
             markerError, = FloatValue.unpack( data[offset:offset+4] )
@@ -167,6 +170,7 @@ class NatNetClient:
 
         data = memoryview( data )
         offset = 0
+        self.rigidBodyList = []
         
         # Frame number (4 bytes)
         frameNumber = int.from_bytes( data[offset:offset+4], byteorder='little' )
@@ -298,7 +302,12 @@ class NatNetClient:
                         deviceChannelVal = int.from_bytes( data[offset:offset+4], byteorder='little' )
                         offset += 4
                         self.__trace( "\t\t", deviceChannelVal )
-						       
+	
+        # software latency (removed in version 3.0)
+        if self.__natNetStreamVersion[0] < 3:
+            latency = FloatValue.unpack( data[offset:offset+4] )
+            offset += 4
+
         # Timecode            
         timecode = int.from_bytes( data[offset:offset+4], byteorder='little' )
         offset += 4
@@ -332,6 +341,10 @@ class NatNetClient:
         if self.newFrameListener is not None:
             self.newFrameListener( frameNumber, markerSetCount, unlabeledMarkersCount, rigidBodyCount, skeletonCount,
                                   labeledMarkerCount, timecode, timecodeSub, timestamp, isRecording, trackedModelsChanged )
+
+        # Send rigid body list and timestamp
+        if self.rigidBodyListListener is not None:
+            self.rigidBodyListListener( self.rigidBodyList, timestamp )
 
     # Unpack a marker set description packet
     def __unpackMarkerSetDescription( self, data ):

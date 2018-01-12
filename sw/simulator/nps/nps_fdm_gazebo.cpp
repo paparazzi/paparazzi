@@ -60,7 +60,7 @@ extern "C" {
 #include "subsystems/actuators/motor_mixing_types.h"
 }
 
-#if defined(NPS_DEBUG_VIDEO) || defined(NPS_DEBUG_STEREOCAM)
+#if defined(NPS_DEBUG_VIDEO)
 // Opencv tools
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>

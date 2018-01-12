@@ -80,7 +80,7 @@ if args.ac is None:
 id_dict = dict(args.ac)
 
 # initial time per AC
-timestamp = dict([(ac_id, time()) for ac_id in id_dict.keys()])
+timestamp = dict([(ac_id, None) for ac_id in id_dict.keys()])
 period = 1. / args.freq
 
 # initial track per AC
@@ -112,6 +112,8 @@ def compute_velocity(ac_id):
                 t1 = t2
             else:
                 dt = t2 - t1
+                if dt < 1e-5:
+                    continue
                 vel[0] = (p2[0] - p1[0]) / dt
                 vel[1] = (p2[1] - p1[1]) / dt
                 vel[2] = (p2[2] - p1[2]) / dt
@@ -124,40 +126,41 @@ def compute_velocity(ac_id):
     return vel
 
 
-# This is a callback function that gets connected to the NatNet client. It is called once per rigid body per frame
-def receiveRigidBodyFrame( ac_id, pos, quat ):
-    t = time()
-    i = str(ac_id)
-    if i not in id_dict.keys():
-      return
+def receiveRigidBodyList( rigidBodyList, stamp ):
+    for (ac_id, pos, quat) in rigidBodyList:
+        i = str(ac_id)
+        if i not in id_dict.keys():
+            continue
 
-    store_track(i, pos, t)
-    if abs(t - timestamp[i]) < period:
-        return # too early for next message
-    timestamp[i] = t
+        store_track(i, pos, stamp)
+        if timestamp[i] is None or abs(stamp - timestamp[i]) < period:
+            if timestamp[i] is None:
+                timestamp[i] = stamp
+            continue # too early for next message
+        timestamp[i] = stamp
 
-    msg = PprzMessage("datalink", "REMOTE_GPS_LOCAL")
-    msg['ac_id'] = id_dict[i]
-    msg['pad'] = 0
-    msg['enu_x'] = pos[0]
-    msg['enu_y'] = pos[1]
-    msg['enu_z'] = pos[2]
-    vel = compute_velocity(i)
-    msg['enu_xd'] = vel[0]
-    msg['enu_yd'] = vel[1]
-    msg['enu_zd'] = vel[2]
-    msg['tow'] = int(timestamp[i]) # TODO convert to GPS itow ?
-    # convert quaternion to psi euler angle
-    dcm_0_0 = 1.0 - 2.0 * (quat[1] * quat[1] + quat[2] * quat[2])
-    dcm_1_0 = 2.0 * (quat[0] * quat[1] - quat[3] * quat[2])
-    msg['course'] = 180. * np.arctan2(dcm_1_0, dcm_0_0) / 3.14
-    ivy.send(msg)
+        msg = PprzMessage("datalink", "REMOTE_GPS_LOCAL")
+        msg['ac_id'] = id_dict[i]
+        msg['pad'] = 0
+        msg['enu_x'] = pos[0]
+        msg['enu_y'] = pos[1]
+        msg['enu_z'] = pos[2]
+        vel = compute_velocity(i)
+        msg['enu_xd'] = vel[0]
+        msg['enu_yd'] = vel[1]
+        msg['enu_zd'] = vel[2]
+        msg['tow'] = int(stamp) # TODO convert to GPS itow ?
+        # convert quaternion to psi euler angle
+        dcm_0_0 = 1.0 - 2.0 * (quat[1] * quat[1] + quat[2] * quat[2])
+        dcm_1_0 = 2.0 * (quat[0] * quat[1] - quat[3] * quat[2])
+        msg['course'] = 180. * np.arctan2(dcm_1_0, dcm_0_0) / 3.14
+        ivy.send(msg)
 
 
 # start natnet interface
 natnet = NatNetClient(
         server=args.server,
-        rigidBodyListener=receiveRigidBodyFrame,
+        rigidBodyListListener=receiveRigidBodyList,
         dataPort=args.data_port,
         commandPort=args.command_port,
         verbose=args.verbose)
@@ -174,4 +177,9 @@ except (KeyboardInterrupt, SystemExit):
     print("Shutting down ivy and natnet interfaces...")
     natnet.stop()
     ivy.shutdown()
+except OSError:
+    print("Natnet connection error")
+    natnet.stop()
+    ivy.stop()
+    exit(-1)
 
