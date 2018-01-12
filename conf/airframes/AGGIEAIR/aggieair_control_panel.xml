@@ -75,6 +75,9 @@
     <program name="ADS-B Intruders receiver" command="sw/ground_segment/misc/sbs2ivy">
       <arg flag="--ac" constant="@AC_ID"/>
     </program>
+    <program name="RustLink" command="sw/ext/rustlink/link">
+      <arg flag="-d" constant="/dev/ttyUSB0"/>
+    </program>
  </section>
 
   <section name="sessions">
