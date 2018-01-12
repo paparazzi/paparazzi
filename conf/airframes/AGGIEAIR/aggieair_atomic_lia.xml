@@ -1,0 +1,304 @@
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+
+<!--
+AggieAir RP3 Minion
+-->
+
+<airframe name="Minion PR3">
+
+  <firmware name="fixedwing">
+    <target name="ap" board="lisa_mx_2.1">
+      <module name="radio_control" type="sbus">
+        <configure name="SBUS_PORT" value="UART5"/>
+      </module>
+      <configure name="HAS_LUFTBOOT" value="0"/>
+      <configure name="FLASH_MODE" value="SWD"/>
+    </target>
+
+    <!-- NOTE: if you want to use extra_dl module for HITL
+    you have to set TELEMETRY_FREQUENCY to CONTROL_FREQUENCY -->
+    <configure name="PERIODIC_FREQUENCY" value="100"/>
+    <define name="CONTROL_FREQUENCY" value="100"/>
+    <configure name="TELEMETRY_FREQUENCY" value="100"/>
+    <define name="SERVO_HZ" value="100"/>
+
+    <target name="nps" board="pc">
+      <module name="fdm" type="jsbsim"/>
+      <module name="radio_control" type="spektrum"/>
+    </target>
+
+    <target name="hitl" board="pc">
+      <module name="fdm" type="jsbsim"/>
+      <module name="radio_control" type="spektrum"/>
+      <configure name="INS_DEV" value="/dev/ttyUSB1"/>
+      <configure name="INS_BAUD" value="B921600"/>
+      <configure name="AP_DEV" value="/dev/ttyUSB2"/>
+      <configure name="AP_BAUD" value="B921600"/>
+    </target>
+
+    <module name="control"/>
+    <module name="navigation"/>
+
+    <module name="telemetry"   type="transparent">
+      <configure name="MODEM_PORT"        value="UART3"/>
+      <configure name="MODEM_BAUD"        value="B57600"/>
+    </module>
+
+    <module name="ins"       type="vectornav">
+      <configure name="VN_PORT" value="UART2"/>
+      <configure name="VN_BAUD" value="B921600"/>
+    </module>
+
+    <define name="AGR_CLIMB" />
+    <define name="POLY_OSAM_HALF_SWEEP_ENABLED" value="FALSE"/>
+    <define name="GEOFENCE_DATALINK_LOST_TIME" value="45"/>
+  </firmware>
+
+  <modules>
+    <module name="nav" type="line"/>
+    <module name="nav" type="flower"/>
+    <module name="nav" type="survey_poly_osam"/>
+    <module name="nav" type="launcher"/>
+    <module name="nav" type="skid_landing"/>
+    <module name="sys_mon"/>
+    <module name="copilot"/>
+    <module name="extra_dl">
+      <!-- in order to use uart1 without chibios we need to remap the peripheral-->
+      <define name="REMAP_UART1" value="TRUE"/>
+      <configure name="EXTRA_DL_PORT" value="UART1"/>
+      <configure name="EXTRA_DL_BAUD" value="B921600"/>
+    </module>
+    <module name="lidar_sf11">
+      <configure name="LIDAR_SF11_I2C_DEV" value="i2c2"/>
+    </module>
+    <module name="battery_monitor.xml">
+      <define name="BATMON_REV4" value="1"/>
+      <define name="BATMON_CURRENT_OFFSET" value="-120"/>
+      <define name="BATMON_CURRENT_SENSITIVITY" value="25.6"/>
+      <define name="BATMON_TEMP_OFFSET" value="250"/>
+      <define name="BATMON_TEMP_SENSITIVITY" value="10"/>
+    </module>
+  </modules>
+
+  <!-- commands section -->
+  <!-- Servo Configuration -->
+  <servos>
+    <servo name="THROTTLE"	no="5" min="1100" neutral="1100" max="1900"/>
+    <servo name="AILERON_RIGHT" no="1" min="900" neutral="1500" max="2100"/>
+    <servo name="AILERON_LEFT"	no="2" min="2100" neutral="1500" max="900"/>
+    <servo name="ELEVATOR"      no="3" min="975" neutral="1500" max="2100"/>
+    <servo name="RUDDER"        no="4" min="2100" neutral="1500" max="900"/>
+    <servo name="FLAP"		no="0" min="1900" neutral="1500" max="900"/>
+  </servos>
+
+  <!-- Servo Command Structure -->
+  <commands>
+    <axis name="THROTTLE"   failsafe_value="0"/>
+    <axis name="ROLL"       failsafe_value="0"/>
+    <axis name="PITCH"      failsafe_value="0"/>
+    <axis name="YAW"          failsafe_value="0"/>
+    <axis name="FLAP"         failsafe_value="0"/>
+  </commands>
+
+  <!-- RC Command Structure -->
+  <rc_commands>
+    <set command="THROTTLE" value="@THROTTLE"/>
+    <set command="ROLL"     value="@ROLL"/>
+    <set command="PITCH"    value=" - @PITCH"/>
+    <set command="YAW"	value="@YAW"/>
+    <set command="FLAP"     value="@FLAP"/>
+  </rc_commands>
+
+  <!-- Define RC commands to Servo in Auto Mode -->
+  <auto_rc_commands>
+    <set command="YAW"  value="@YAW"/>
+    <set command="FLAP"     value="@FLAP"/>
+  </auto_rc_commands>
+
+  <!-- Define Mixing Parameters -->
+  <section name="MIXER">
+    <define name="AILERON_AILERON_RATE" value="0.9"/>
+    <define name="ELEV_ELEV_RATE" value="0.8"/>
+  </section>
+
+  <!-- Define RC commands to Servos in Manual -->
+  <command_laws>
+    <let var="aileron" value="@ROLL * AILERON_AILERON_RATE"/>
+    <let var="elevator" value="@PITCH * ELEV_ELEV_RATE"/>
+
+    <set servo="THROTTLE"       value="@THROTTLE"/>
+    <set servo="AILERON_RIGHT"      value="$aileron"/>  <!--flip signs if necessary -->
+    <set servo="AILERON_LEFT"     value=" - $aileron"/>
+    <set servo="ELEVATOR"       value="$elevator"/>
+    <set servo="RUDDER"         value="@YAW"/>
+    <set servo="FLAP"       value="@FLAP"/>
+  </command_laws>
+
+  <!-- Define Max Roll and Pitch setpoints in Auto1 -->
+  <section name="AUTO1" prefix="AUTO1_">
+    <define name="MAX_ROLL" value="0.7"/>
+    <define name="MAX_PITCH" value="0.6"/>
+  </section>
+
+  <section name="IMU" prefix="IMU_">
+    <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
+
+    <!-- Dummy Mag values for NPS -
+         replace with your own calibration -->
+    <define name="MAG_X_NEUTRAL" value="0"/>
+    <define name="MAG_Y_NEUTRAL" value="0"/>
+    <define name="MAG_Z_NEUTRAL" value="0"/>
+  </section>
+
+  <section name="INS" prefix="INS_">
+    <define name="ROLL_NEUTRAL_DEFAULT"  value="0" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+  </section>
+
+
+  <!-- Define current estimator and Battery Level Warnings -->
+  <section name="BAT">
+    <define name="MILLIAMP_AT_FULL_THROTTLE" value="50000"/>
+    <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.3"/>
+
+    <!-- Flight values -->
+    <!--
+    <define name="MAX_BAT_LEVEL" value="16.5" unit="V" />
+    <define name="LOW_BAT_LEVEL" value="14.1" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="13.8" unit="V"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="13.5" unit="V"/>
+    -->
+
+    <!-- Simulator values -->
+    <define name="MAX_BAT_LEVEL" value="5.0" unit="V" />
+    <define name="LOW_BAT_LEVEL" value="4.0" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="3.5" unit="V"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="3.0" unit="V"/>
+  </section>
+
+  <section name="MISC">
+    <define name="NOMINAL_AIRSPEED"   value="16."     unit="m/s"/> <!-- GCS only -->
+    <define name="CARROT"             value="5."  unit="s"/>   <!-- GCS only -->
+    <define name="KILL_MODE_DISTANCE"   value="(1.5*MAX_DIST_FROM_HOME)"/>
+    <define name="DEFAULT_CIRCLE_RADIUS" value="120."/>
+  </section>
+
+  <section name="VERTICAL CONTROL" prefix="V_CTL_">
+    <!-- TODO: double check the power controls settings, this value seems to be outdated -->
+    <!--define name="POWER_CTL_BAT_NOMINAL" value="23.2" unit="volt"/-->
+    <!-- outer loop proportional gain -->
+    <define name="ALTITUDE_PGAIN" value="0.136"/>
+    <!-- outer loop saturation -->
+    <define name="ALTITUDE_MAX_CLIMB" value="3."/>
+
+    <!-- auto throttle inner loop -->
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.40"/>
+    <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.20"/>
+    <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.70"/>
+    <define name="AUTO_THROTTLE_LOITER_TRIM" value="1500"/>
+    <define name="AUTO_THROTTLE_DASH_TRIM" value="-4000"/>
+    <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.05" unit="%/(m/s)"/>
+    <define name="AUTO_THROTTLE_PGAIN" value="0.01"/>
+    <define name="AUTO_THROTTLE_IGAIN" value="0.1"/>
+    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.142"/>
+    <define name="THROTTLE_SLEW_LIMITER" value="2" unit="s"/>
+
+    <!-- auto pitch inner loop -->
+    <define name="AUTO_PITCH_PGAIN"           value="0.1"/>
+    <define name="AUTO_PITCH_IGAIN"             value="0.025"/>
+    <define name="AUTO_PITCH_MAX_PITCH"             value="0.31415"     unit="rad"/>
+    <define name="AUTO_PITCH_MIN_PITCH"             value="-0.31415"    unit="rad"/>
+
+    <!-- landing control loop -->
+    <define name="LANDING_THROTTLE_PGAIN"           value="600.0"/>
+    <define name="LANDING_THROTTLE_IGAIN"           value="10.0"/>
+    <define name="LANDING_THROTTLE_MAX"           value="0.65"/>
+    <define name="LANDING_DESIRED_SPEED"           value="18" unit="m/s"/>
+    <define name="LANDING_PITCH_PGAIN"           value="0.1"/>
+    <define name="LANDING_PITCH_IGAIN"           value="0.1"/>
+    <define name="LANDING_PITCH_LIMITS"           value="0.2" unit="rad"/>
+    <define name="LANDING_PITCH_FLARE"           value="0.06"/>
+    <define name="LANDING_ALT_THROTTLE_KILL"           value="15" unit="m"/>
+    <define name="LANDING_ALT_FLARE"           value="5" unit="m"/>
+  </section>
+
+  <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
+    <define name="COURSE_PGAIN" value="1.135"/>
+    <define name="COURSE_DGAIN" value="0.35"/>
+    <define name="ROLL_MAX_SETPOINT" value="0.5" unit="rad"/>
+    <define name="PITCH_MAX_SETPOINT" value="0.35" unit="rad"/>
+    <define name="PITCH_MIN_SETPOINT" value="-0.2" unit="rad"/>
+    <define name="PITCH_PGAIN" value="12900."/>
+    <!-- ORIGINAL GAIN     -->
+    <define name="PITCH_DGAIN" value="1.5"/>
+
+    <!-- SIMULATOR GAIN
+    <define name="PITCH_DGAIN" value="151.5"/>
+     -->
+    <define name="ELEVATOR_OF_ROLL" value="1250"/>
+    <define name="ROLL_ATTITUDE_GAIN" value="9000"/>
+    <define name="ROLL_RATE_GAIN" value="1600"/>
+    <define name="ROLL_SLEW"        value="0.1"/>
+  </section>
+
+  <section name="AGGRESSIVE" prefix="AGR_">
+    <define name="BLEND_START" value="20"/><!-- Altitude Error to Initiate Aggressive Climb CANNOT BE ZERO!!-->
+    <define name="BLEND_END" value="10"/><!-- Altitude Error to Blend Aggressive to Regular Climb Modes  CANNOT BE ZERO!!-->
+    <define name="CLIMB_THROTTLE" value="0.75"/><!-- Gaz for Aggressive Climb -->
+    <define name="CLIMB_PITCH" value="0.13"/><!-- Pitch for Aggressive Climb -->
+    <define name="DESCENT_THROTTLE" value="0.1"/><!-- Gaz for Aggressive Decent -->
+    <define name="DESCENT_PITCH" value="-0.1"/><!-- Pitch for Aggressive Decent -->
+    <define name="CLIMB_NAV_RATIO" value="0.8"/><!-- Percent Navigation for Altitude Error Equal to Start Altitude -->
+    <define name="DESCENT_NAV_RATIO" value="1.0"/>
+  </section>
+
+  <section name="FAILSAFE" prefix="FAILSAFE_">
+    <define name="DELAY_WITHOUT_GPS" value="5" unit="s"/>
+    <define name="DEFAULT_THROTTLE" value="0" unit="%"/>
+    <define name="DEFAULT_ROLL" value="0.3" unit="rad"/>
+    <define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
+    <define name="HOME_RADIUS" value="100" unit="m"/>
+  </section>
+
+  <!-- Launcher Takeoff Configuration -->
+  <section name="LAUNCHER" prefix="LAUNCHER_TAKEOFF_">
+    <define name="PITCH" value="0.23" unit="rad"/>
+    <define name="HEIGHT" value="70" unit="m"/>
+    <define name="MIN_SPEED_CIRCLE" value="8" unit="m/s"/>
+    <define name="DISTANCE" value="30" unit="m"/>
+    <define name="MIN_SPEED_LINE" value="5" unit="m/s"/>
+  </section>
+
+  <!-- Skid Landing Configuration -->
+  <section name="LANDING" prefix="SKID_LANDING_">
+    <define name="AF_HEIGHT" value="50" unit="m"/>
+    <define name="FINAL_HEIGHT" value="50" unit="m"/>
+    <define name="FINAL_STAGE_TIME" value="10" unit="s"/>
+  </section>
+
+  <section name="SIMULATOR" prefix="NPS_">
+    <define name="JSBSIM_LAUNCHSPEED" value="25"/>
+    <define name="JSBSIM_MODEL" value="AGGIEAIR/minion" type="string"/>
+    <define name="SENSORS_PARAMS" value="nps_sensors_params_invariant.h" type="string"/>
+    <define name="JS_AXIS_THROTTLE" value="0"/>
+    <define name="JS_AXIS_THROTTLE_REVERSED" value="1"/>
+
+    <define name="JS_AXIS_ROLL" value="1"/>
+
+    <define name="JS_AXIS_PITCH" value="2"/>
+    <define name="JS_AXIS_PITCH_REVERSED" value="1"/>
+
+    <define name="JS_AXIS_YAW" value="3"/>
+    <define name="JS_AXIS_YAW_REVERSED" value="1"/>
+
+    <define name="JS_AXIS_FLAPS" value="5"/>
+    <define name="JS_AXIS_MODE" value="7"/>
+
+    <define name="JSBSIM_ROLL_TRIM" value="0.008"/>
+    <define name="JSBSIM_PITCH_TRIM" value="0.0375"/>
+    <define name="JSBSIM_YAW_TRIM" value="0.001"/>
+  </section>
+
+</airframe>
