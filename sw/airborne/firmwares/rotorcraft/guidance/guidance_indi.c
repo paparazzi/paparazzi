@@ -23,8 +23,13 @@
  * @file firmwares/rotorcraft/guidance/guidance_indi.c
  *
  * A guidance mode based on Incremental Nonlinear Dynamic Inversion
- * Come to IROS2016 to learn more!
  *
+ * Based on the papers:
+ * Cascaded Incremental Nonlinear Dynamic Inversion Control for MAV Disturbance Rejection
+ * https://www.researchgate.net/publication/312907985_Cascaded_Incremental_Nonlinear_Dynamic_Inversion_Control_for_MAV_Disturbance_Rejection
+ *
+ * Gust Disturbance Alleviation with Incremental Nonlinear Dynamic Inversion
+ * https://www.researchgate.net/publication/309212603_Gust_Disturbance_Alleviation_with_Incremental_Nonlinear_Dynamic_Inversion
  */
 
 #include "generated/airframe.h"
