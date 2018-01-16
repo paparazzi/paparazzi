@@ -118,6 +118,7 @@ float get_size_divergence(struct flow_t *vectors, int count, int n_samples)
   // calculate the mean divergence or use 0 when used_samples is still 0
   if(used_samples==0)
   {
+    // Note that this shouldn't happen
     mean_divergence = 0.0;
   }
   else
