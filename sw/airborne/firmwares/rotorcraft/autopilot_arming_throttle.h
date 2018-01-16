@@ -30,6 +30,7 @@
 #define AUTOPILOT_ARMING_THROTTLE_H
 
 #include "autopilot_rc_helpers.h"
+#include "autopilot_firmware.h"
 
 #define AUTOPILOT_ARMING_DELAY 10
 
@@ -64,6 +65,30 @@ static inline void autopilot_arming_set(bool motors_on)
   }
 }
 
+/*Checks all arm requirements and returns false if OK and true otherwise.
+ * Also sets the arming status to provide information to the user
+ */
+static inline bool autopilot_arming_check_arm_requirements(void)
+{
+  if (!PITCH_STICK_CENTERED()) {
+    autopilot.arming_status = AP_ARMING_STATUS_PITCH_NOT_CENTERED;
+  } else if (!ROLL_STICK_CENTERED()) {
+    autopilot.arming_status = AP_ARMING_STATUS_ROLL_NOT_CENTERED;
+  } else if (!YAW_STICK_CENTERED()) {
+    autopilot.arming_status = AP_ARMING_STATUS_YAW_NOT_CENTERED;
+  } else if (autopilot_get_mode() != MODE_MANUAL) {
+    autopilot.arming_status = AP_ARMING_STATUS_NOT_MODE_MANUAL;
+  } else if (autopilot_unarmed_in_auto) {
+    autopilot.arming_status = AP_ARMING_STATUS_UNARMED_IN_AUTO;
+  } else if (THROTTLE_STICK_DOWN()) {
+    autopilot.arming_status = AP_ARMING_STATUS_THROTTLE_DOWN;
+  } else {
+    return false;
+  }
+
+  return true;
+}
+
 /**
  * State machine to check if motors should be turned ON or OFF.
  * - automatically unkill when applying throttle
@@ -87,35 +112,37 @@ static inline void autopilot_arming_check_motors_on(void)
           autopilot_arming_state = STATE_WAITING;
         }
         break;
-      case STATE_WAITING:
+      case STATE_WAITING: // after startup wait until throttle is down before attempting to arm
         autopilot.motors_on = false;
         autopilot_arming_delay_counter = 0;
         if (THROTTLE_STICK_DOWN()) {
           autopilot_arming_state = STATE_MOTORS_OFF_READY;
+        } else {
+          autopilot.arming_status = AP_ARMING_STATUS_THROTTLE_NOT_DOWN;
         }
         break;
       case STATE_MOTORS_OFF_READY:
         autopilot.motors_on = false;
         autopilot_arming_delay_counter = 0;
-        if (!THROTTLE_STICK_DOWN() &&
-            rc_attitude_sticks_centered() &&
-            (autopilot_get_mode() == MODE_MANUAL || autopilot_unarmed_in_auto)) {
+        if (!autopilot_arming_check_arm_requirements()) {
           autopilot_arming_state = STATE_ARMING;
         }
         break;
       case STATE_ARMING:
         autopilot.motors_on = false;
+        autopilot.arming_status = AP_ARMING_STATUS_ARMING;
         autopilot_arming_delay_counter++;
-        if (THROTTLE_STICK_DOWN() ||
-            !rc_attitude_sticks_centered() ||
-            (autopilot_get_mode() != MODE_MANUAL && !autopilot_unarmed_in_auto)) {
+        if (autopilot_arming_check_arm_requirements()) {
           autopilot_arming_state = STATE_MOTORS_OFF_READY;
         } else if (autopilot_arming_delay_counter >= AUTOPILOT_ARMING_DELAY) {
           autopilot_arming_state = STATE_MOTORS_ON;
+        } else {
+          autopilot.arming_status = AP_ARMING_STATUS_ARMING;
         }
         break;
       case STATE_MOTORS_ON:
         autopilot.motors_on = true;
+        autopilot.arming_status = AP_ARMING_STATUS_ARMED;
         autopilot_arming_delay_counter = AUTOPILOT_ARMING_DELAY;
         if (THROTTLE_STICK_DOWN()) {
           autopilot_arming_state = STATE_UNARMING;
@@ -123,6 +150,7 @@ static inline void autopilot_arming_check_motors_on(void)
         break;
       case STATE_UNARMING:
         autopilot.motors_on = true;
+        autopilot.arming_status = AP_ARMING_STATUS_DISARMING;
         autopilot_arming_delay_counter--;
         if (!THROTTLE_STICK_DOWN()) {
           autopilot_arming_state = STATE_MOTORS_ON;
@@ -138,6 +166,8 @@ static inline void autopilot_arming_check_motors_on(void)
       default:
         break;
     }
+  } else {
+    autopilot.arming_status = AP_ARMING_STATUS_KILLED;
   }
 
 }
