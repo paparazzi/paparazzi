@@ -3,11 +3,12 @@
 <telemetry>
   <process name="Ap">
     <mode name="default">
+      <message name="ACTUATORS"           period=".5"/> <!-- For trimming -->
       <message name="AUTOPILOT_VERSION"   period="11.1"/>
       <message name="ALIVE"               period="5.1"/>
       <message name="GPS_LLA"             period="0.25"/>
       <message name="NAVIGATION"          period="1."/>
-      <message name="ATTITUDE"            period="0.1"/>
+      <message name="ATTITUDE"            period="0.5"/>
       <message name="ESTIMATOR"           period="0.5"/>
       <message name="WP_MOVED"            period="0.5"/>
       <message name="CIRCLE"              period="1.05"/>

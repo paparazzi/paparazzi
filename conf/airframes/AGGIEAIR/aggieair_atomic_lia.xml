@@ -1,10 +1,10 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <!--
-AggieAir Blujayujay
+AggieAir RP3 Minion
 -->
 
-<airframe name="Blujay">
+<airframe name="Minion PR3">
 
   <firmware name="fixedwing">
     <target name="ap" board="lisa_mx_2.1">
@@ -12,7 +12,7 @@ AggieAir Blujayujay
         <configure name="SBUS_PORT" value="UART5"/>
       </module>
       <configure name="HAS_LUFTBOOT" value="0"/>
-      <configure name="FLASH_MODE" value="DFU"/>
+      <configure name="FLASH_MODE" value="SWD"/>
     </target>
 
     <!-- NOTE: if you want to use extra_dl module for HITL
@@ -25,7 +25,11 @@ AggieAir Blujayujay
     <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
       <module name="radio_control" type="spektrum"/>
-      <configure name="USE_HITL" value="1"/>
+    </target>
+
+    <target name="hitl" board="pc">
+      <module name="fdm" type="jsbsim"/>
+      <module name="radio_control" type="spektrum"/>
       <configure name="INS_DEV" value="/dev/ttyUSB1"/>
       <configure name="INS_BAUD" value="B921600"/>
       <configure name="AP_DEV" value="/dev/ttyUSB2"/>
@@ -79,12 +83,12 @@ AggieAir Blujayujay
   <!-- commands section -->
   <!-- Servo Configuration -->
   <servos>
-    <servo name="FLAP" no="0" min="900" neutral="1500" max="2100"/>
+    <servo name="THROTTLE"	no="5" min="1100" neutral="1100" max="1900"/>
     <servo name="AILERON_RIGHT" no="1" min="900" neutral="1500" max="2100"/>
-    <servo name="AILERON_LEFT" no="2" min="2100" neutral="1500" max="900"/>
-    <servo name="ELEVATOR" no="3" min="900" neutral="1500" max="92100"/>
-    <servo name="RUDDER" no="4" min="900" neutral="1500" max="2100"/>
-    <servo name="THROTTLE" no="5" min="1100" neutral="1100" max="1900"/>
+    <servo name="AILERON_LEFT"	no="2" min="2100" neutral="1500" max="900"/>
+    <servo name="ELEVATOR"      no="3" min="975" neutral="1500" max="2100"/>
+    <servo name="RUDDER"        no="4" min="2100" neutral="1500" max="900"/>
+    <servo name="FLAP"		no="0" min="1900" neutral="1500" max="900"/>
   </servos>
 
   <!-- Servo Command Structure -->
@@ -100,7 +104,7 @@ AggieAir Blujayujay
   <rc_commands>
     <set command="THROTTLE" value="@THROTTLE"/>
     <set command="ROLL"     value="@ROLL"/>
-    <set command="PITCH"    value="@PITCH"/>
+    <set command="PITCH"    value=" - @PITCH"/>
     <set command="YAW"	value="@YAW"/>
     <set command="FLAP"     value="@FLAP"/>
   </rc_commands>
@@ -153,6 +157,27 @@ AggieAir Blujayujay
     <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
   </section>
 
+
+  <!-- Define current estimator and Battery Level Warnings -->
+  <section name="BAT">
+    <define name="MILLIAMP_AT_FULL_THROTTLE" value="50000"/>
+    <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.3"/>
+
+    <!-- Flight values -->
+    <!--
+    <define name="MAX_BAT_LEVEL" value="16.5" unit="V" />
+    <define name="LOW_BAT_LEVEL" value="14.1" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="13.8" unit="V"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="13.5" unit="V"/>
+    -->
+
+    <!-- Simulator values -->
+    <define name="MAX_BAT_LEVEL" value="5.0" unit="V" />
+    <define name="LOW_BAT_LEVEL" value="4.0" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="3.5" unit="V"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="3.0" unit="V"/>
+  </section>
+
   <section name="MISC">
     <define name="NOMINAL_AIRSPEED"   value="16."     unit="m/s"/> <!-- GCS only -->
     <define name="CARROT"             value="5."  unit="s"/>   <!-- GCS only -->
@@ -161,7 +186,8 @@ AggieAir Blujayujay
   </section>
 
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
-    <define name="POWER_CTL_BAT_NOMINAL" value="23.2" unit="volt"/>
+    <!-- TODO: double check the power controls settings, this value seems to be outdated -->
+    <!--define name="POWER_CTL_BAT_NOMINAL" value="23.2" unit="volt"/-->
     <!-- outer loop proportional gain -->
     <define name="ALTITUDE_PGAIN" value="0.136"/>
     <!-- outer loop saturation -->
@@ -180,44 +206,41 @@ AggieAir Blujayujay
     <define name="THROTTLE_SLEW_LIMITER" value="2" unit="s"/>
 
     <!-- auto pitch inner loop -->
-    <define name="AUTO_PITCH_PGAIN" value="0.1"/>
-    <define name="AUTO_PITCH_IGAIN" value="0.025"/>
-    <define name="AUTO_PITCH_MAX_PITCH" value="0.31415" unit="rad"/>
-    <define name="AUTO_PITCH_MIN_PITCH" value="-0.31415" unit="rad"/>    
-    
-      <!--New Landing V_CTL_loop --> 
-    <define name="LANDING_THROTTLE_PGAIN" value="600"/>
-	  <define name="LANDING_THROTTLE_IGAIN" value="30"/>
-	  <define name="LANDING_THROTTLE_MAX" value="0.60" unit="%"/>
-	  <define name="LANDING_DESIRED_SPEED" value="18.00" unit="(m/s)"/>
-	  <define name="LANDING_PITCH_PGAIN" value="0.3"/>
-	  <define name="LANDING_PITCH_IGAIN" value="0.0130"/>
-	  <define name="LANDING_PITCH_LIMITS" value="0.2000" unit="rad"/>
-	  <define name="LANDING_PITCH_FLARE" value="0.15000" unit="rad"/>
-    <define name="LANDING_ALT_THROTTLE_KILL" value="6" unit="m"/>
-    <define name="LANDING_ALT_FLARE" value="3" unit="m"/> 
-    <define name="USE_LIDAR" value="TRUE"/>
+    <define name="AUTO_PITCH_PGAIN"           value="0.1"/>
+    <define name="AUTO_PITCH_IGAIN"             value="0.025"/>
+    <define name="AUTO_PITCH_MAX_PITCH"             value="0.31415"     unit="rad"/>
+    <define name="AUTO_PITCH_MIN_PITCH"             value="-0.31415"    unit="rad"/>
+
+    <!-- landing control loop -->
+    <define name="LANDING_THROTTLE_PGAIN"           value="600.0"/>
+    <define name="LANDING_THROTTLE_IGAIN"           value="10.0"/>
+    <define name="LANDING_THROTTLE_MAX"           value="0.65"/>
+    <define name="LANDING_DESIRED_SPEED"           value="18" unit="m/s"/>
+    <define name="LANDING_PITCH_PGAIN"           value="0.1"/>
+    <define name="LANDING_PITCH_IGAIN"           value="0.1"/>
+    <define name="LANDING_PITCH_LIMITS"           value="0.2" unit="rad"/>
+    <define name="LANDING_PITCH_FLARE"           value="0.06"/>
+    <define name="LANDING_ALT_THROTTLE_KILL"           value="15" unit="m"/>
+    <define name="LANDING_ALT_FLARE"           value="5" unit="m"/>
   </section>
 
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
-    <define name="COURSE_PGAIN" value="1.33"/>
-    <define name="COURSE_DGAIN" value="0."/>
-    <define name="ROLL_MAX_SETPOINT" value="0.575959" unit="rad"/>
+    <define name="COURSE_PGAIN" value="1.135"/>
+    <define name="COURSE_DGAIN" value="0.35"/>
+    <define name="ROLL_MAX_SETPOINT" value="0.5" unit="rad"/>
     <define name="PITCH_MAX_SETPOINT" value="0.35" unit="rad"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.2" unit="rad"/>
-    <define name="PITCH_PGAIN" value="12900."/>   
-    
-    <!-- ORIGINAL GAIN-->
+    <define name="PITCH_PGAIN" value="12900."/>
+    <!-- ORIGINAL GAIN     -->
     <define name="PITCH_DGAIN" value="1.5"/>
-    
-    <!-- SIMULATOR GAIN 
+
+    <!-- SIMULATOR GAIN
     <define name="PITCH_DGAIN" value="151.5"/>
-    -->
+     -->
     <define name="ELEVATOR_OF_ROLL" value="1250"/>
     <define name="ROLL_ATTITUDE_GAIN" value="9000"/>
     <define name="ROLL_RATE_GAIN" value="1600"/>
-    <define name="ROLL_SLEW" value="0.1"/>
-    <define name="ELE_IGAIN" value="0."/>
+    <define name="ROLL_SLEW"        value="0.1"/>
   </section>
 
   <section name="AGGRESSIVE" prefix="AGR_">
@@ -276,26 +299,6 @@ AggieAir Blujayujay
     <define name="JSBSIM_ROLL_TRIM" value="0.008"/>
     <define name="JSBSIM_PITCH_TRIM" value="0.0375"/>
     <define name="JSBSIM_YAW_TRIM" value="0.001"/>
-  </section>
-
-  <!-- Define current estimator and Battery Level Warnings -->
-  <section name="BAT">
-    <define name="MILLIAMP_AT_FULL_THROTTLE" value="50000"/>
-    <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.3"/>
-
-    <!-- Flight values -->
-    <!--
-    <define name="MAX_BAT_LEVEL" value="16.5" unit="V" />
-    <define name="LOW_BAT_LEVEL" value="14.1" unit="V"/>
-    <define name="CRITIC_BAT_LEVEL" value="13.8" unit="V"/>
-    <define name="CATASTROPHIC_BAT_LEVEL" value="13.5" unit="V"/>
-    -->
-
-    <!-- Simulator values -->
-    <define name="MAX_BAT_LEVEL" value="5.0" unit="V" />
-    <define name="LOW_BAT_LEVEL" value="4.0" unit="V"/>
-    <define name="CRITIC_BAT_LEVEL" value="3.5" unit="V"/>
-    <define name="CATASTROPHIC_BAT_LEVEL" value="3.0" unit="V"/>
   </section>
 
 </airframe>

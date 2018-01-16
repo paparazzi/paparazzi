@@ -11,8 +11,8 @@ AggieAir RP3 Minion
       <module name="radio_control" type="sbus">
         <configure name="SBUS_PORT" value="UART5"/>
       </module>
-      <configure name="HAS_LUFTBOOT" value="1"/>
-      <configure name="FLASH_MODE" value="DFU"/>
+      <configure name="HAS_LUFTBOOT" value="0"/>
+      <configure name="FLASH_MODE" value="JTAG"/>
     </target>
 
     <!-- NOTE: if you want to use extra_dl module for HITL
