@@ -35,7 +35,7 @@
     <module name="cv_opticflow">
       <define name="OPTICFLOW_CAMERA" value="bottom_camera"/>
       <!-- ARDrone2 FPS improvements -->
-	  <define name="OPTICFLOW_PYRAMID_LEVEL" value="0"/>
+      <define name="OPTICFLOW_PYRAMID_LEVEL" value="0"/>
       <define name="OPTICFLOW_FEATURE_MANAGEMENT" value="1"/>
     </module>
 
