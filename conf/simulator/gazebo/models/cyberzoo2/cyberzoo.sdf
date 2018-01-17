@@ -15,7 +15,7 @@
         </geometry>
       </visual>
       <visual name="poles">
-      <cast_shadows>false</cast_shadows>
+        <cast_shadows>false</cast_shadows>
         <geometry>
           <mesh>
             <uri>model://cyberzoo2/cyberzoo_poles.dae</uri>
@@ -29,7 +29,7 @@
         </material>
       </visual>
       <visual name="net">
-      <cast_shadows>false</cast_shadows>
+        <cast_shadows>false</cast_shadows>
         <geometry>
           <mesh>
             <uri>model://cyberzoo2/cyberzoo_net.dae</uri>
@@ -43,7 +43,7 @@
         </material>
       </visual>
       <visual name="lighting">
-      <cast_shadows>false</cast_shadows>
+        <cast_shadows>false</cast_shadows>
         <geometry>
           <mesh>
             <uri>model://cyberzoo2/cyberzoo_lighting.dae</uri>
@@ -51,7 +51,7 @@
         </geometry>
       </visual>
       <visual name="glow">
-      <cast_shadows>false</cast_shadows>
+        <cast_shadows>false</cast_shadows>
         <geometry>
           <mesh>
             <uri>model://cyberzoo2/cyberzoo_lighting_glow.dae</uri>
