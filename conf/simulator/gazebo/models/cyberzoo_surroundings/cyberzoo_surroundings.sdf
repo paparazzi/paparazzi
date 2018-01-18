@@ -14,6 +14,21 @@
           </mesh>
         </geometry>
       </visual>
+      
+      <visual name="toolcart">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <mesh>
+            <uri>model://cyberzoo_surroundings/cyberzoo_toolcart.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://cyberzoo_surroundings/cyberzoo_toolcart</uri>
+            <name>Cyberzoo/Toolcart</name>
+          </script>
+        </material>
+      </visual>
     </link>
 
   </model>
