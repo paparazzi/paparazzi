@@ -256,14 +256,6 @@ static void reset_horizontal_vars(void)
     of_hover_ctrl_X.PID.P = OFH_PGAINX;
     of_hover_ctrl_Y.PID.P = OFH_PGAINX;
   }
-  else if(hover_method == 1)
-  {
-    //All axes
-    oscillatingX = 0;
-    oscillatingY = 0;
-    of_hover_ctrl_X.PID.P = OFH_PGAINX;
-    of_hover_ctrl_Y.PID.P = OFH_PGAINX;
-  }
   else if((hover_method == 2) && (GUIDANCE_V_MODE_MODULE_SETTING == GUIDANCE_V_MODE_MODULE))
   {
     // Z Set XY
@@ -273,6 +265,15 @@ static void reset_horizontal_vars(void)
     of_hover_ctrl_Y.PID.P = OFH_PGAINY;
     of_hover_ctrl_X.PID.I = OFH_IGAINX/4; // Have a slighly lower I gain during Z
     of_hover_ctrl_Y.PID.I = OFH_IGAINY/4; // Have a slighly lower I gain during Z
+  }
+  else
+  {
+    // if V is in NAV or hover_method = 1
+    //All axes
+    oscillatingX = 0;
+    oscillatingY = 0;
+    of_hover_ctrl_X.PID.P = OFH_PGAINX;
+    of_hover_ctrl_Y.PID.P = OFH_PGAINX;
   }
 
   flowX = 0;
@@ -521,11 +522,6 @@ void vertical_ctrl_module_run(bool in_flight)
       oscillatingX = 0;
       of_hover_ctrl_X.PID.P = OFH_PGAINX;
     }
-    else if(hover_method == 1)
-    {
-      //All axes
-
-    }
     else if(hover_method == 2)
     {
       // Start XY axes with computed slope
@@ -535,6 +531,12 @@ void vertical_ctrl_module_run(bool in_flight)
       of_hover_ctrl_Y.PID.I = OFH_IGAINY;
       of_hover_ctrl_X.PID.P = OFH_REDUCTIONXY*(estimatedHeight+0.341)/183.524; // ARDRONE2 Slope
       of_hover_ctrl_Y.PID.P = OFH_REDUCTIONXY*(estimatedHeight+0.341)/183.524; // ARDRONE2 Slope
+    }
+    else
+    {
+      // hover_method = 1
+      //All axes
+
     }
   }
 

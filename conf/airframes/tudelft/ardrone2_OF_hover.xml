@@ -36,23 +36,24 @@
 			<define name="OPTICFLOW_METHOD" value="0" />
 			<define name="OPTICFLOW_CAMERA" value="bottom_camera" />
 	        <!-- ARDrone2 FPS improvements -->
-	  		<define name="OPTICFLOW_PYRAMID_LEVEL" value="0"/>
+	        <define name="OPTICFLOW_PYRAMID_LEVEL" value="0"/>
       		<define name="OPTICFLOW_FEATURE_MANAGEMENT" value="1"/>
 		</module>
 		
 		<module name="optical_flow_hover" >
 			<define name="OFH_HOVER_METHOD" value = "1" />
+			<define name="OFH_MAXBANK" value = "10.0" />
 			<define name="XY_SYMMETRICAL" value = "0" />
 		
 		    
 		    <define name="COV_WINDOW_SIZE" value = "300" />
 			<define name="OF_LP_CONST" value = "0.6" />
 			
-			<define name="OFH_MAXBANK" value = "10.0" />
-			<define name="OFH_COV_WINDOW_SIZE" value = "100" />
-			<define name="OFH_COV_DELAY_STEPS" value = "50" />
-			<define name="OFH_RAMPZ" value = "0.05" />
-			<define name="OFH_COVDIV_SETPOINT" value = "-0.02" />
+			<define name="OFH_IGAINZ" value = "0.000" />
+			<define name="OFH_RAMPZ" value = "0.125" />
+			<define name="OFH_REDUCTIONZ" value = "0.45" />
+			<define name="OFH_COVDIV_SETPOINT" value = "-0.025" />
+			
 			<define name="OFH_IGAINX" value = "0.0001" />
 			<define name="OFH_IGAINY" value = "0.0001" />
 			<define name="OFH_RAMPXY" value = "0.0004" />
