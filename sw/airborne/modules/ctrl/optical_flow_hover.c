@@ -202,7 +202,7 @@ void optical_flow_hover_init()
   of_hover_ctrl_Z.reduction_factor = OFH_REDUCTIONZ;
 
   oscphi = 1;
-  osctheta = 1;
+  osctheta = 0;
 
   cov_method = OFH_COV_METHOD;
   hover_method = OFH_HOVER_METHOD;
@@ -510,7 +510,7 @@ void vertical_ctrl_module_run(bool in_flight)
   // Check for oscillations
   if(covariances.Z<of_hover_ctrl_Z.cov_setpoint && (!oscillatingZ))
   {
-    float estimatedHeight = 0.995*of_hover_ctrl_Z.PID.P + 0.066; // ARDRONE2
+    float estimatedHeight = (of_hover_ctrl_Z.PID.P + 0.5)/2; // ARDRONE2 Vertical slope
     oscillatingZ = 1;
     of_hover_ctrl_Z.setpoint = 0.0f;
     of_hover_ctrl_Z.PID.P = of_hover_ctrl_Z.PID.P*of_hover_ctrl_Z.reduction_factor;
@@ -529,8 +529,8 @@ void vertical_ctrl_module_run(bool in_flight)
       of_hover_ctrl_Y.errors.sum_err = 0.0f;
       of_hover_ctrl_X.PID.I = OFH_IGAINX;
       of_hover_ctrl_Y.PID.I = OFH_IGAINY;
-      of_hover_ctrl_X.PID.P = OFH_REDUCTIONXY*(estimatedHeight+0.341)/183.524; // ARDRONE2 Slope
-      of_hover_ctrl_Y.PID.P = OFH_REDUCTIONXY*(estimatedHeight+0.341)/183.524; // ARDRONE2 Slope
+      of_hover_ctrl_X.PID.P = OFH_REDUCTIONXY*(estimatedHeight-0.25)*2; // ARDRONE2 Horizontal Slope
+      of_hover_ctrl_Y.PID.P = OFH_REDUCTIONXY*(estimatedHeight-0.25)*2; // ARDRONE2 Horizontal Slope
     }
     else
     {
