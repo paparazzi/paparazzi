@@ -55,13 +55,26 @@
             &lt;section name=&quot;SIMULATOR&quot; prefix=&quot;NPS_&quot;&gt;
               &lt;define name=&quot;ACTUATOR_NAMES&quot; value=&quot;nw_motor, ne_motor, se_motor, sw_motor&quot; type=&quot;string[]&quot;/&gt;
               &lt;define name=&quot;ACTUATOR_THRUSTS&quot; value=&quot;1.55, 1.55, 1.55, 1.55&quot; type=&quot;float[]&quot;/&gt;
-              &lt;define name=&quot;ACTUATOR_TORQUES&quot; value=&quot;0.155, -0.155, 0.155, -0.155&quot; type=&quot;float[]&quot;/&gt;
+              &lt;define name=&quot;ACTUATOR_TORQUES&quot; value=&quot;0.155, 0.155, 0.155, 0.155&quot; type=&quot;float[]&quot;/&gt;
               ...
-            &lt;section&gt;
+            &lt;/section&gt;
           @endcode
           The thrusts and torques are expressed in SI units (N, Nm) and should
           be in the same order as the ACTUATOR_NAMES.
-        3. In the same section, bypass the AHRS and INS as these are not
+          The torque direction is determined automatically from the motor mixing.
+        3. (Optional) Add actuator dynamics to the SIMULATOR section:
+          @code{.xml}
+            &lt;section name=&quot;SIMULATOR&quot; prefix=&quot;NPS_&quot;&gt;
+              ...
+              &lt;define name=&quot;ACTUATOR_TIME_CONSTANTS&quot; value=&quot;0.02, 0.02, 0.02, 0.02&quot; type=&quot;float[]&quot;/&gt;
+              &lt;define name=&quot;ACTUATOR_MAX_ANGULAR_MOMENTUM&quot; value=&quot;0.19, 0.19, 0.19, 0.19&quot; type=&quot;float[]&quot;/&gt;
+              ...
+            &lt;/section&gt;
+          @endcode
+          Actuator time constants can be provided without specifying the
+          actuator's maximum angular momentum. If the maximum angular momentum
+          is provided as well, it is used to calculate the rotor spin-up torque.
+        4. In the same section, bypass the AHRS and INS as these are not
           supported yet:
           @code{.xml}
             &lt;section name=&quot;SIMULATOR&quot; prefix=&quot;NPS_&quot;&gt;
@@ -71,7 +84,7 @@
               ...
             &lt;/section&gt;
           @endcode
-        4. If required, enable video thread simulation:
+        5. If required, enable video thread simulation:
           @code{.xml}
             &lt;section name=&quot;SIMULATOR&quot; prefix=&quot;NPS_&quot;&gt;
               ...
@@ -79,21 +92,21 @@
               ...
             &lt;/section&gt;
           @endcode
-        5. If required, set the aircraft model in the airframe file:
+        6. Set the aircraft model in the airframe file:
           @code{.xml}
             &lt;section name=&quot;SIMULATOR&quot; prefix=&quot;NPS_&quot;&gt;
               ...
               &lt;define name=&quot;GAZEBO_AC_NAME&quot; value=&quot;my_uav&quot;/&gt;
             &lt;/section&gt;
           @endcode
-        6. Make sure all included modules work with nps. At the moment, most of
+        7. Make sure all included modules work with nps. At the moment, most of
           the modules that depend on video_thread are only built when ap is
           selected as the target. To fix this, add nps to the target attribute
           in the module xml, e.g.:
           @code{.xml}
             &lt;makefile target=&quot;ap|nps&quot;&gt;
           @endcode
-      4. If required, set the simulation environment in the flight plan file:
+      4. The simulation environment is set in the flight plan file:
         @code{.xml}
           &lt;flight_plan ...&gt;
             &lt;header&gt;
@@ -101,7 +114,7 @@
               #define NPS_GAZEBO_WORLD &quot;my.world&quot;
             &lt;/header&gt;
             ...
-          &lt;flight_plan&gt;
+          &lt;/flight_plan&gt;
         @endcode
     </description>
     <configure name="NPS_DEBUG_VIDEO" value="0|1" description="show window with video for debugging"/>
