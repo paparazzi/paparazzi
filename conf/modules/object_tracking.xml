@@ -1,0 +1,34 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="object_tracking" dir="ctrl">
+  <doc>
+    <description>
+      Control a rotorcraft heading to track an object detected by a camera
+
+      Data are coming from FOLLOW_TARGET ABI message
+    </description>
+    <section name="OBJECT_TRACKING" prefix="OBJECT_TRACKING_">
+      <define name="ID" value="ABI_BROADCAST" description="ABI binding ID"/>
+      <define name="TIMEOUT" value="2." description="timeout for entering search mode"/>
+      <define name="RATE" value="10." unit="deg/s" description="turn rate during control mode"/>
+      <define name="SEARCH_RATE" value="20." unit="deg/s" description="turn rate during search mode"/>
+      <define name="DEBUG" value="FALSE/TRUE" description="send debug message over telemetry"/>
+    </section>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="object track">
+        <dl_setting MAX="90." MIN="0." STEP="0.1" VAR="object_tracking_search_rate" shortname="search rate" unit="rad/s" alt_unit="deg/s" module="modules/ctrl/object_tracking"/>
+        <dl_setting MAX="90." MIN="0." STEP="0.1" VAR="object_tracking_rate" shortname="tracking rate" unit="rad/s" alt_unit="deg/s" module="modules/ctrl/object_tracking"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="object_tracking.h"/>
+  </header>
+  <init fun="object_tracking_init()"/>
+  <makefile>
+    <file name="object_tracking.c"/>
+  </makefile>
+</module>
+
