@@ -110,7 +110,7 @@ struct gazebo_actuators_t {
 };
 
 struct gazebo_actuators_t gazebo_actuators = { NPS_ACTUATOR_NAMES,
-    NPS_ACTUATOR_THRUSTS, NPS_ACTUATOR_TORQUES };
+    NPS_ACTUATOR_THRUSTS, NPS_ACTUATOR_TORQUES, { }, { }, { } };
 
 #if NPS_SIMULATE_LASER_RANGE_ARRAY
 extern "C" {
