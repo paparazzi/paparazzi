@@ -578,7 +578,6 @@ static void gazebo_write(double act_commands[], int commands_nb)
         sp);
     double spinup_torque = gazebo_actuators.max_ang_momentum[i] /
     (2 * sqrtf(u > 0.05 ? u : 0.05)) * udot;
-//    double spinup_torque = 5 * gazebo_actuators.torques[i] * udot;
     torque += spinup_torque;
 #endif
 
