@@ -112,21 +112,6 @@ struct gazebo_actuators_t {
 struct gazebo_actuators_t gazebo_actuators = { NPS_ACTUATOR_NAMES,
     NPS_ACTUATOR_THRUSTS, NPS_ACTUATOR_TORQUES };
 
-
-extern "C"
-{
-  struct gazebo_debug_t
-  {
-    float sp[NPS_COMMANDS_NB];
-    float u[NPS_COMMANDS_NB];
-    float udot[NPS_COMMANDS_NB];
-    float spinup_out[NPS_COMMANDS_NB];
-    float thrust_out[NPS_COMMANDS_NB];
-    float torque_out[NPS_COMMANDS_NB];
-  } gazebo_debug;
-}
-
-
 #if NPS_SIMULATE_LASER_RANGE_ARRAY
 extern "C" {
 #include "subsystems/abi.h"
@@ -596,14 +581,6 @@ static void gazebo_write(double act_commands[], int commands_nb)
 //    double spinup_torque = 5 * gazebo_actuators.torques[i] * udot;
     torque += spinup_torque;
 #endif
-
-    // XXX Debug
-    gazebo_debug.sp[i] = sp;
-    gazebo_debug.u[i] = u;
-    gazebo_debug.udot[i] = udot;
-    gazebo_debug.spinup_out[i] = spinup_torque;
-    gazebo_debug.thrust_out[i] = thrust;
-    gazebo_debug.torque_out[i] = torque;
 
     // Apply force and torque to gazebo model
     gazebo::physics::LinkPtr link = model->GetLink(gazebo_actuators.names[i]);
