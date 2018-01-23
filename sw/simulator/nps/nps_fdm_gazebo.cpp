@@ -56,6 +56,8 @@ extern "C" {
 
 #include "math/pprz_isa.h"
 #include "math/pprz_algebra_double.h"
+#include "filters/low_pass_filter.h"
+#include "filters/high_pass_filter.h"
 
 #include "subsystems/actuators/motor_mixing_types.h"
 }
@@ -102,9 +104,13 @@ struct gazebo_actuators_t {
   string names[NPS_COMMANDS_NB];
   double thrusts[NPS_COMMANDS_NB];
   double torques[NPS_COMMANDS_NB];
+  struct FirstOrderLowPass lowpass[NPS_COMMANDS_NB];
+  struct FirstOrderHighPass highpass[NPS_COMMANDS_NB];
+  float max_ang_momentum[NPS_COMMANDS_NB];
 };
 
-struct gazebo_actuators_t gazebo_actuators = {NPS_ACTUATOR_NAMES, NPS_ACTUATOR_THRUSTS, NPS_ACTUATOR_THRUSTS};
+struct gazebo_actuators_t gazebo_actuators = { NPS_ACTUATOR_NAMES,
+    NPS_ACTUATOR_THRUSTS, NPS_ACTUATOR_THRUSTS };
 
 
 #if NPS_SIMULATE_LASER_RANGE_ARRAY
@@ -208,7 +214,7 @@ inline struct DoubleVect3 to_pprz_ltp(gazebo::math::Vector3 xyz)
 // External functions, interface with Paparazzi's NPS as declared in nps_fdm.h
 
 /**
- * Set JSBsim specific fields that are not used for Gazebo.
+ * Initialize actuator dynamics, set unused fields in fdm
  * @param dt
  */
 void nps_fdm_init(double dt)
@@ -216,6 +222,22 @@ void nps_fdm_init(double dt)
   fdm.init_dt = dt; // JSBsim specific
   fdm.curr_dt = dt; // JSBsim specific
   fdm.nan_count = 0; // JSBsim specific
+
+#ifdef NPS_ACTUATOR_TIME_CONSTANTS
+  // Set up low-pass filter to simulate delayed actuator response
+  const float tau[NPS_COMMANDS_NB] = NPS_ACTUATOR_TIME_CONSTANTS;
+  for(int i=0; i<NPS_COMMANDS_NB; i++) {
+    init_first_order_low_pass(&gazebo_actuators.lowpass[i], tau[i], dt, 0.f);
+  }
+#ifdef NPS_ACTUATOR_MAX_ANGULAR_MOMENTUM
+  // Set up high-pass filter to simulate spinup torque
+  const float Iwmax[NPS_COMMANDS_NB] = NPS_ACTUATOR_MAX_ANGULAR_MOMENTUM;
+  for(int i=0; i<NPS_COMMANDS_NB; i++) {
+    init_first_order_high_pass(&gazebo_actuators.highpass[i], tau[i], dt, 0.f);
+    gazebo_actuators.max_ang_momentum[i] = Iwmax[i];
+  }
+#endif
+#endif
 }
 
 /**
@@ -536,10 +558,32 @@ static void gazebo_read(void)
  */
 static void gazebo_write(double act_commands[], int commands_nb)
 {
-  // TODO simulte actuator dynamics so indi can work
   for (int i = 0; i < commands_nb; ++i) {
-    double thrust = autopilot.motors_on ? gazebo_actuators.thrusts[i] * act_commands[i] : 0.0;
-    double torque = autopilot.motors_on ? gazebo_actuators.torques[i] * act_commands[i] : 0.0;
+    // Thrust setpoint
+    double sp = autopilot.motors_on ? act_commands[i] : 0.0;  // Normalized thrust setpoint
+
+    // Actuator dynamics, forces and torques
+#ifdef NPS_ACTUATOR_TIME_CONSTANTS
+    // Delayed response from actuator
+    double u = update_first_order_low_pass(&gazebo_actuators.lowpass[i], sp);// Normalized actual thrust
+#else
+    double u = sp;
+#endif
+    double thrust = gazebo_actuators.thrusts[i] * u;
+    double torque = gazebo_actuators.torques[i] * u;
+
+#ifdef NPS_ACTUATOR_MAX_ANGULAR_MOMENTUM
+    // Spinup torque
+    double udot = update_first_order_high_pass(&gazebo_actuators.highpass[i],
+        sp);
+    double spinup_torque = gazebo_actuators.max_ang_momentum[i] /
+    (2 * sqrtf(u > 0.05 ? u : 0.05)) * udot;
+//    double spinup_torque = 5 * gazebo_actuators.torques[i] * udot;
+    printf("spinup %d = %.2f\n", i, spinup_torque);
+    torque += spinup_torque;
+#endif
+
+    // Apply force and torque to gazebo model
     gazebo::physics::LinkPtr link = model->GetLink(gazebo_actuators.names[i]);
     link->AddRelativeForce(gazebo::math::Vector3(0, 0, thrust));
     link->AddRelativeTorque(gazebo::math::Vector3(0, 0, torque));
