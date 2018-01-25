@@ -82,7 +82,7 @@ let float_attrib = fun xml a ->
   try
     float_of_string (Xml.attrib xml a)
   with
-      Failure "float_of_string" ->
+      Failure _ ->
         failwith (sprintf "Float expected in attribute '%s' from %s" a (Xml.to_string_fmt xml))
 let name_of = fun wp -> ExtXml.attrib wp "name"
 
@@ -205,7 +205,7 @@ let pprz_throttle = fun s ->
       if g < 0. || g > 1. then
         failwith "throttle must be > 0 and < 1"
     with
-        Failure "float_of_string" -> () (* No possible check on expression *)
+        Failure _ -> () (* No possible check on expression *)
   end;
   sprintf "9600*(%s)" s
 
@@ -237,7 +237,7 @@ let output_vmode = fun stage_xml wp last_wp ->
                 check_altitude (float_of_string a) stage_xml
               with
         (* Impossible to check the altitude on an expression: *)
-                  Failure "float_of_string" -> ()
+                  Failure _ -> ()
             end;
             a
           with _ ->
@@ -248,7 +248,7 @@ let output_vmode = fun stage_xml wp last_wp ->
                   check_altitude ((float_of_string h) +. !ground_alt) stage_xml
                 with
           (* Impossible to check the altitude on an expression: *)
-                    Failure "float_of_string" -> ()
+                    Failure _ -> ()
               end;
               sprintf "Height(%s)" h
             with _ ->

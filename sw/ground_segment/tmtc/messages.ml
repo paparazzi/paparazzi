@@ -164,7 +164,7 @@ let one_page = fun sender class_name (notebook:GPack.notebook) (topnote:GPack.no
       eb#coerce#misc#set_state `SELECTED;
       ignore (GMain.Timeout.add led_delay (fun () -> eb#coerce#misc#set_state `NORMAL; false))
     with
-        Invalid_argument "List.iter2" ->
+        Invalid_argument _ ->
           Printf.fprintf stderr "%s: expected %d args, got %d\n" id n (List.length values); flush stderr
       | exc -> prerr_endline (Printexc.to_string exc)
   in

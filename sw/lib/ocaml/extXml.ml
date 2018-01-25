@@ -44,7 +44,7 @@ let child = fun xml ?select c ->
 
   (* Let's try with a numeric index *)
   try (Array.of_list children).(int_of_string c)
-  with Failure "int_of_string" -> (* Bad luck. Go through the children *)
+  with Failure _ -> (* Bad luck. Go through the children *)
     find children
 
 

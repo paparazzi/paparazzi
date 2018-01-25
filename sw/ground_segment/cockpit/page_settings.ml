@@ -55,7 +55,7 @@ object
           let v = float_of_string s in
           last_known_value <- Some v;
           set_default v
-        with Failure "float_of_string" -> ()
+        with Failure _ -> ()
       end
 end
 

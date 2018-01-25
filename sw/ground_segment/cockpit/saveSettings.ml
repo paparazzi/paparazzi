@@ -170,7 +170,7 @@ let fill_data = fun (model:GTree.tree_store) settings airframe_xml ->
         try
           float_of_string (List.hd str_val) *. airframe_scale *. extra_scale
         with
-            Failure "float_of_string" -> raise (EditAirframe.No_param param)
+            Failure _ -> raise (EditAirframe.No_param param)
       in
       let airframe_value_new = value /. airframe_scale in
       (* test if is has to be saved as integer or float *)

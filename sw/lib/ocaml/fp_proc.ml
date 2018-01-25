@@ -38,7 +38,7 @@ let parse_expression = fun s ->
   try
     Expr_parser.expression Expr_lexer.token lexbuf
   with
-      Failure("lexing: empty token") ->
+      Failure _ ->
         fprintf stderr "Lexing error in '%s': unexpected char: '%c' \n"
           s (Lexing.lexeme_char lexbuf 0);
         exit 1

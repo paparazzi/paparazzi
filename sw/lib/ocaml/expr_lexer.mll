@@ -63,7 +63,7 @@ rule token = parse
     try
       Expr_parser.expression token lexbuf
     with
-      Failure("lexing: empty token") ->
+      Failure _ ->
 	Printf.fprintf stderr "Lexing error in '%s': unexpected char: '%c' \n"
 	  s (Lexing.lexeme_char lexbuf 0);
 	exit 1
