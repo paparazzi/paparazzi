@@ -156,7 +156,7 @@ let parse_element = fun prefix s ->
 
 
 let print_reverse_servo_table = fun driver servos ->
-  let d = match driver with "Default" -> "" | _ -> "_"^(String.uppercase driver) in
+  let d = match driver with "Default" -> "" | _ -> "_"^(Compat.string_uppercase driver) in
   printf "static inline int get_servo_min%s(int _idx) {\n" d;
   printf "  switch (_idx) {\n";
   List.iter (fun c ->

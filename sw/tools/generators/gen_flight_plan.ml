@@ -213,7 +213,7 @@ let pprz_throttle = fun s ->
 (********************* Vertical control ********************************************)
 let output_vmode = fun stage_xml wp last_wp ->
   let pitch = try Xml.attrib stage_xml "pitch" with _ -> "0.0" in
-  if String.lowercase (Xml.tag stage_xml) <> "manual"
+  if Compat.string_lowercase (Xml.tag stage_xml) <> "manual"
   then begin
     if pitch = "auto"
     then begin
@@ -316,7 +316,7 @@ let rec index_stage = fun x ->
   end
 
 
-let inside_function = fun name -> "Inside" ^ String.capitalize name
+let inside_function = fun name -> "Inside" ^ Compat.string_capitalize name
 
 (* pre call utility function *)
 let fp_pre_call = fun x ->
@@ -342,7 +342,7 @@ let stage_until = fun x ->
 let rec print_stage = fun index_of_waypoints x ->
   let stage () = incr stage;lprintf "Stage(%d)\n" !stage; right () in
   begin
-    match String.lowercase (Xml.tag x) with
+    match Compat.string_lowercase (Xml.tag x) with
       | "return" ->
         stage ();
         lprintf "Return(%s);\n" (ExtXml.attrib_or_default x "reset_stage" "0");
@@ -547,9 +547,9 @@ let rec print_stage = fun index_of_waypoints x ->
         let statement = ExtXml.attrib  x "fun" in
         (* by default, function is called while returning TRUE *)
         (* otherwise, function is called once and returned value is ignored *)
-        let loop = String.uppercase (ExtXml.attrib_or_default x "loop" "TRUE") in
+        let loop = Compat.string_uppercase (ExtXml.attrib_or_default x "loop" "TRUE") in
         (* be default, go to next stage immediately *)
-        let break = String.uppercase (ExtXml.attrib_or_default x "break" "FALSE") in
+        let break = Compat.string_uppercase (ExtXml.attrib_or_default x "break" "FALSE") in
         begin match loop with
         | "TRUE" ->
             lprintf "if (! (%s)) {\n" statement;
@@ -582,7 +582,7 @@ let rec print_stage = fun index_of_waypoints x ->
         stage ();
         let statement = ExtXml.attrib  x "fun" in
         (* by default, go to next stage immediately *)
-        let break = String.uppercase (ExtXml.attrib_or_default x "break" "FALSE") in
+        let break = Compat.string_uppercase (ExtXml.attrib_or_default x "break" "FALSE") in
         lprintf "%s;\n" statement;
         begin match break with
         | "TRUE" -> lprintf "NextStageAndBreak();\n";
@@ -1144,7 +1144,7 @@ let () =
         List.map (fun w -> incr i; (name_of w, !i)) waypoints in
 
       let sectors_element = try ExtXml.child xml "sectors" with Not_found -> Xml.Element ("", [], []) in
-      let sectors = List.filter (fun x -> String.lowercase (Xml.tag x) = "sector") (Xml.children sectors_element) in
+      let sectors = List.filter (fun x -> Compat.string_lowercase (Xml.tag x) = "sector") (Xml.children sectors_element) in
       let sectors_type = List.map (fun x -> match ExtXml.attrib_or_default x "type" "static" with "dynamic" -> DynamicSector | _ -> StaticSector) sectors in
       let sectors = List.map (parse_wpt_sector index_of_waypoints waypoints) sectors in
       List.iter2 print_inside_sector sectors_type sectors;

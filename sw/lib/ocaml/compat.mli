@@ -38,3 +38,7 @@ val bytes_get : string -> int -> char
 val bytes_compare : string -> string -> int
 val bytes_set : string -> int -> char -> unit
 val bytes_iter : (char -> unit) -> string -> unit
+
+val string_lowercase : string -> string
+val string_uppercase : string -> string
+val string_capitalize : string -> string

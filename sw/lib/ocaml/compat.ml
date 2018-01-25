@@ -22,11 +22,12 @@
  *
  *)
 
- IFDEF HAS_BYTES_MODULE THEN
- module BYTES = Bytes
- ELSE
- module BYTES = String
- END
+
+IFDEF HAS_BYTES_MODULE THEN
+module BYTES = Bytes
+ELSE
+module BYTES = String
+END
 
 let bytes_create = fun len ->
   BYTES.create len
@@ -42,12 +43,6 @@ let bytes_make = fun n c->
 
 let bytes_copy = fun s->
   BYTES.copy s
-
-let bytes_lowercase = fun s->
-  BYTES.lowercase s
-
-let bytes_uppercase = fun s->
-  BYTES.uppercase s
 
 let bytes_blit = fun src srcoff dst dstoff len->
   BYTES.blit src srcoff dst dstoff len
@@ -75,3 +70,39 @@ let bytes_set = fun s n c->
 
 let bytes_iter = fun f s->
   BYTES.iter f s
+
+IFDEF OCAML_V405 THEN
+let string_lowercase = fun s ->
+  String.lowercase_ascii s
+  
+let string_uppercase = fun s ->
+  String.uppercase_ascii s
+  
+let string_capitalize = fun s ->
+  String.capitalize_ascii s
+  
+let bytes_lowercase = fun s->
+  BYTES.lowercase_ascii s
+  
+let bytes_uppercase = fun s->
+  BYTES.uppercase_ascii s
+  
+ELSE
+let string_lowercase = fun s ->
+  String.lowercase s
+  
+let string_uppercase = fun s ->
+  String.uppercase s
+  
+let string_capitalize = fun s ->
+  String.capitalize s
+  
+let bytes_lowercase = fun s->
+  BYTES.lowercase s
+  
+let bytes_uppercase = fun s->
+  BYTES.uppercase s
+  
+END
+  
+  
