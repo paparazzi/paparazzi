@@ -22,12 +22,11 @@
  *
  *)
 
-
-IFDEF HAS_BYTES_MODULE THEN
-module BYTES = Bytes
-ELSE
-module BYTES = String
-END
+ IFDEF HAS_BYTES_MODULE THEN
+ module BYTES = Bytes
+ ELSE
+ module BYTES = String
+ END
 
 let bytes_create = fun len ->
   BYTES.create len
@@ -71,7 +70,7 @@ let bytes_set = fun s n c->
 let bytes_iter = fun f s->
   BYTES.iter f s
 
-IFDEF OCAML_V405 THEN
+IFDEF OCAML_V404 THEN
 let string_lowercase = fun s ->
   String.lowercase_ascii s
   
