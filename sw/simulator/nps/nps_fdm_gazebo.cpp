@@ -106,7 +106,7 @@ struct gazebo_actuators_t {
   double torques[NPS_COMMANDS_NB];
   struct FirstOrderLowPass lowpass[NPS_COMMANDS_NB];
   struct FirstOrderHighPass highpass[NPS_COMMANDS_NB];
-  float max_ang_momentum[NPS_COMMANDS_NB];
+  double max_ang_momentum[NPS_COMMANDS_NB];
 };
 
 struct gazebo_actuators_t gazebo_actuators = { NPS_ACTUATOR_NAMES,
@@ -574,10 +574,9 @@ static void gazebo_write(double act_commands[], int commands_nb)
 
 #ifdef NPS_ACTUATOR_MAX_ANGULAR_MOMENTUM
     // Spinup torque
-    double udot = update_first_order_high_pass(&gazebo_actuators.highpass[i],
-        sp);
+    double udot = update_first_order_high_pass(&gazebo_actuators.highpass[i], sp);
     double spinup_torque = gazebo_actuators.max_ang_momentum[i] /
-    (2 * sqrtf(u > 0.05 ? u : 0.05)) * udot;
+        (2 * sqrtf(u > 0.05 ? u : 0.05)) * udot;
     torque += spinup_torque;
 #endif
 

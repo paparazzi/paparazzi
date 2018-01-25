@@ -63,6 +63,9 @@ static inline void init_first_order_high_pass(struct FirstOrderHighPass *filter,
 
 /** Update first order high pass filter state with a new value.
  *
+ * @param filter first order high pass filter structure
+ * @param value new input value of the filter
+ * @return new filtered value
  */
 static inline float update_first_order_high_pass(
     struct FirstOrderHighPass *filter, float value)
@@ -77,8 +80,8 @@ static inline float update_first_order_high_pass(
 
 /** Get current value of the first order high pass filter.
  *
- *@param filter first order high pass filter structure
- *@return current value of the filter
+ * @param filter first order high pass filter structure
+ * @return current value of the filter
  */
 static inline float get_first_order_high_pass(struct FirstOrderHighPass *filter)
 {
