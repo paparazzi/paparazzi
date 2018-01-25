@@ -71,37 +71,17 @@ let bytes_iter = fun f s->
   BYTES.iter f s
 
 IFDEF OCAML_V404 THEN
-let string_lowercase = fun s ->
-  String.lowercase_ascii s
-  
-let string_uppercase = fun s ->
-  String.uppercase_ascii s
-  
-let string_capitalize = fun s ->
-  String.capitalize_ascii s
-  
-let bytes_lowercase = fun s->
-  BYTES.lowercase_ascii s
-  
-let bytes_uppercase = fun s->
-  BYTES.uppercase_ascii s
-  
+let lowercase_ascii = BYTES.lowercase_ascii
+
+let uppercase_ascii = BYTES.uppercase_ascii
+
+let capitalize_ascii = BYTES.capitalize_ascii
+
 ELSE
-let string_lowercase = fun s ->
-  String.lowercase s
-  
-let string_uppercase = fun s ->
-  String.uppercase s
-  
-let string_capitalize = fun s ->
-  String.capitalize s
-  
-let bytes_lowercase = fun s->
-  BYTES.lowercase s
-  
-let bytes_uppercase = fun s->
-  BYTES.uppercase s
-  
+let lowercase_ascii = BYTES.lowercase
+
+let uppercase_ascii = BYTES.uppercase
+
+let capitalize_ascii = BYTES.capitalize
+
 END
-  
-  
