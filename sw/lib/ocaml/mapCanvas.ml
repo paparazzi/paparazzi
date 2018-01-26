@@ -587,7 +587,7 @@ object (self)
           end
           | _ ->    false
       with
-          Invalid_argument "ml_lookup_from_c" -> (* Raised GdkEvent.get_type *)
+          Invalid_argument _ -> (* Raised GdkEvent.get_type *)
             false
 
 

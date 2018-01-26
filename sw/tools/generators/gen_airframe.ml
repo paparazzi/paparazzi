@@ -156,7 +156,7 @@ let parse_element = fun prefix s ->
 
 
 let print_reverse_servo_table = fun driver servos ->
-  let d = match driver with "Default" -> "" | _ -> "_"^(String.uppercase driver) in
+  let d = match driver with "Default" -> "" | _ -> "_"^(Compat.uppercase_ascii driver) in
   printf "static inline int get_servo_min%s(int _idx) {\n" d;
   printf "  switch (_idx) {\n";
   List.iter (fun c ->
@@ -312,8 +312,8 @@ let rec parse_section = fun ac_id s ->
       let servos = Xml.children s in
       let nb_servos = List.fold_right (fun s m -> Pervasives.max (int_of_string (ExtXml.attrib s "no")) m) servos min_int + 1 in
 
-      define (sprintf "SERVOS_%s_NB" (Compat.bytes_uppercase driver)) (string_of_int nb_servos);
-      printf "#include \"subsystems/actuators/actuators_%s.h\"\n" (Compat.bytes_lowercase driver);
+      define (sprintf "SERVOS_%s_NB" (Compat.uppercase_ascii driver)) (string_of_int nb_servos);
+      printf "#include \"subsystems/actuators/actuators_%s.h\"\n" (Compat.lowercase_ascii driver);
       nl ();
       List.iter (parse_servo driver) servos;
       print_reverse_servo_table driver servos;

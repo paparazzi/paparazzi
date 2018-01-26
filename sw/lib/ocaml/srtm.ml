@@ -87,7 +87,8 @@ let area_of_tile = fun tile ->
   let area = open_compressed "srtm.data.bz2" in
   let rec _area_of_tile = fun () ->
     try
-      Scanf.fscanf area "%s %s\n" (fun t a ->
+      let ib = Scanf.Scanning.from_channel area in
+      Scanf.bscanf ib "%s %s\n" (fun t a ->
         if t = tile then a
         else _area_of_tile ())
     with

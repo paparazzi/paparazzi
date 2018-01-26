@@ -101,7 +101,7 @@ module Make(A:Data.MISSION) = struct
 
   let float_value = fun section s ->
     let x = (defined_value section s) in
-    try float_of_string x with Failure "float_of_string" ->
+    try float_of_string x with Failure _ ->
       failwith (sprintf "float_of_string: %s" x)
 
   (* FIXME: refactor code_unit_scale of tag to pprz.ml *)
