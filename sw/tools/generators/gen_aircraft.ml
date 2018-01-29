@@ -58,7 +58,7 @@ let check_unique_id_and_name = fun conf conf_xml ->
 
 let configure_xml2mk = fun ?(default_configure=false) f xml ->
   (* all makefiles variables are forced to uppercase *)
-  let name = Compat.bytes_uppercase (ExtXml.attrib xml "name")
+  let name = Compat.uppercase_ascii (ExtXml.attrib xml "name")
   and value = ExtXml.attrib_or_default xml "value" ""
   and default = ExtXml.attrib_or_default xml "default" ""
   and case = ExtXml.attrib_or_default xml "case" "" in
@@ -138,7 +138,7 @@ let file_xml2mk = fun f ?(arch = false) dir_name target xml ->
 let module_configure_xml2mk = fun ?(default_configure=false) f target firmware m ->
   (* print global config flags *)
   List.iter (fun flag ->
-    match Compat.bytes_lowercase (Xml.tag flag) with
+    match Compat.lowercase_ascii (Xml.tag flag) with
     | "configure" -> configure_xml2mk ~default_configure f flag
     | _ -> ()) m.param;
   (* Look for makefile section *)
@@ -158,7 +158,7 @@ let module_configure_xml2mk = fun ?(default_configure=false) f target firmware m
       in
       Xml.iter
       (fun field ->
-          match Compat.bytes_lowercase (Xml.tag field) with
+          match Compat.lowercase_ascii (Xml.tag field) with
           | "configure" -> configure_xml2mk ~default_configure f field
           | _ -> ()
         ) section
@@ -168,11 +168,11 @@ let module_configure_xml2mk = fun ?(default_configure=false) f target firmware m
 let module_xml2mk = fun f target firmware m ->
   let name = ExtXml.attrib m.xml "name" in
   let dir = try Xml.attrib m.xml "dir" with Xml.No_attribute _ -> name in
-  let dir_name = Compat.bytes_uppercase dir ^ "_DIR" in
+  let dir_name = Compat.uppercase_ascii dir ^ "_DIR" in
   (* print global flags as compilation defines and flags *)
   fprintf f "\n# makefile for module %s in modules/%s\n" name dir;
   List.iter (fun flag ->
-    match Compat.bytes_lowercase (Xml.tag flag) with
+    match Compat.lowercase_ascii (Xml.tag flag) with
     | "define" -> define_xml2mk f ~target flag
     | _ -> ()) m.param;
   (* Look for makefile section *)
@@ -195,7 +195,7 @@ let module_xml2mk = fun f target firmware m ->
       let _ = match cond with Some c -> fprintf f "%s\n" c | None -> () in
       Xml.iter
       (fun field ->
-          match Compat.bytes_lowercase (Xml.tag field) with
+          match Compat.lowercase_ascii (Xml.tag field) with
           | "define" -> define_xml2mk f ~target field
           | "include" -> include_xml2mk f ~target ~vpath:m.vpath field
           | "flag" -> flag_xml2mk f ~target field
@@ -216,7 +216,7 @@ let modules_xml2mk = fun f target ac_id xml fp ->
   (** include modules directory for ALL targets, not just the defined ones **)
   fprintf f "$(TARGET).CFLAGS += -Imodules -Iarch/$(ARCH)/modules\n";
   List.iter
-    (fun dir -> fprintf f "%s_DIR = modules/%s\n" (Compat.bytes_uppercase dir) dir
+    (fun dir -> fprintf f "%s_DIR = modules/%s\n" (Compat.uppercase_ascii dir) dir
     ) dir_list;
   (* add vpath for external modules *)
   List.iter
@@ -250,7 +250,7 @@ let subsystem_xml2mk = fun f firmware s ->
   List.iter (fun def -> define_xml2mk f def) s_defines;
   (* include subsystem *) (* TODO test if file exists with the generator ? *)
   let s_name = name ^ s_type ^ ".makefile" in
-  let s_dir = "CFG_" ^ Compat.bytes_uppercase (Xml.attrib firmware "name") in
+  let s_dir = "CFG_" ^ Compat.uppercase_ascii (Xml.attrib firmware "name") in
   fprintf f "ifneq ($(strip $(wildcard $(%s)/%s)),)\n" s_dir s_name;
   fprintf f "\tinclude $(%s)/%s\n" s_dir s_name;
   fprintf f "else\n";

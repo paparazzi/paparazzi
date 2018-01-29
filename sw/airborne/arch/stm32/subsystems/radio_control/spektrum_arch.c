@@ -759,6 +759,8 @@ void radio_control_spektrum_try_bind(void) {
    */
   gpio_setup_input_pulldown(SPEKTRUM_BIND_PIN_PORT, SPEKTRUM_BIND_PIN);
 
+  sys_time_usleep(10); // wait for electrical level to stabilize
+
   /* exit if the BIND_PIN is low, it needs to
      be pulled high at startup to initiate bind */
   if (gpio_get(SPEKTRUM_BIND_PIN_PORT, SPEKTRUM_BIND_PIN) == 0) {
@@ -770,6 +772,8 @@ void radio_control_spektrum_try_bind(void) {
    * case with Lisa/M and Lisa/MX prior to version 2.1.
    */
   gpio_setup_input_pullup(SPEKTRUM_BIND_PIN_PORT, SPEKTRUM_BIND_PIN);
+
+  sys_time_usleep(10); // wait for electrical level to stabilize
 
   /* exit if the BIND_PIN is high, it needs to
      be pulled low at startup to initiate bind */

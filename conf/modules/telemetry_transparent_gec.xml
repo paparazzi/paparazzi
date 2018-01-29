@@ -1,0 +1,27 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="telemetry_transparent_gec" dir="datalink" task="datalink">
+  <doc>
+    <description>
+      Galois Embedded Crypto over transparent datalink
+    </description>
+  </doc>
+
+  <autoload name="telemetry" type="secure_common"/>
+  <autoload name="rng"/>
+  <autoload name="haclc"/>
+
+  <header>
+    <file name="gec_dl.h"/>
+  </header>
+  <init fun="gec_dl_init()"/>
+  <event fun="gec_dl_event()"/>
+
+  <makefile target="!fbw|sim">
+    <define name="DOWNLINK_TRANSPORT" value="gec_tp"/>
+    <file name="gec_dl.c"/>
+    <file name="gec.c" dir="modules/datalink/gec"/>
+  </makefile>
+
+</module>
+

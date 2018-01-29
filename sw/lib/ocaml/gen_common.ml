@@ -160,7 +160,7 @@ let get_autopilot_of_airframe = fun ?target xml ->
  * Returns the boolean expression of targets of a module *)
 let get_targets_of_module = fun xml ->
   Xml.fold (fun a x ->
-    match Compat.bytes_lowercase (Xml.tag x) with
+    match Compat.lowercase_ascii (Xml.tag x) with
     | "makefile" when a = Var "" -> targets_of_field x Env.default_module_targets
     | "makefile" -> Or (a, targets_of_field x Env.default_module_targets)
     | _ -> a

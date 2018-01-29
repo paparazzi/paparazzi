@@ -70,6 +70,7 @@ MODULES_H=$(AC_GENERATED)/modules.h
 MODULES_DIR=$(PAPARAZZI_HOME)/conf/modules/
 AUTOPILOT_DIR=$(AC_GENERATED)/
 AIRCRAFT_MD5=$(AIRCRAFT_CONF_DIR)/aircraft.md5
+GENERATE_KEYS ?= 0
 
 UNAME = $(shell uname -s)
 ifeq ("$(UNAME)","Darwin")
@@ -176,6 +177,17 @@ else
 	$(Q)cd $(PAPARAZZI_SRC) ; ./sw/tools/find_vpaths.py $(CXX) $(TMP_LIST) $(PAPARAZZI_SRC) >> $(SRCS_LIST)
 endif
 
+CARGO=$(shell which cargo)
+generate_keys:
+ifeq ($(GENERATE_KEYS),1)
+ifneq	($(CARGO),)
+	@echo GENERATE KEYS
+	$(Q)cargo run --manifest-path $(PAPARAZZI_SRC)/sw/ext/key_generator/Cargo.toml --release $(AC_GENERATED)
+else
+	@echo "Error: Cargo (Rust) is not found, keys are not generated. Please install cargo."
+endif
+endif
+
 qt_project : $(SRCS_LIST)
 ifneq ($(PAPARAZZI_QT_GEN),)
 	$(Q)./sw/tools/qt_project.py $(AIRCRAFT) $(CONF_XML) $(SRCS_LIST)
@@ -187,7 +199,7 @@ flight_plan_ac_h : $(FLIGHT_PLAN_H) $(FLIGHT_PLAN_XML)
 
 makefile_ac: $(MAKEFILE_AC)
 
-$(AIRFRAME_H) : $(CONF)/$(AIRFRAME_XML) $(CONF_XML) $(AIRCRAFT_MD5)
+$(AIRFRAME_H) : $(CONF)/$(AIRFRAME_XML) $(CONF_XML) $(AIRCRAFT_MD5) generate_keys
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
 	@echo GENERATE $@ from $(AIRFRAME_XML)
 	$(eval $@_TMP := $(shell $(MKTEMP)))
