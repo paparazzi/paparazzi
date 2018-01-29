@@ -125,6 +125,8 @@ with open(path.join(home_dir , "sw/tools/qtc.creator.user_template")) as input:
                 output.write(s.replace("!TARGET1!", aircraft + " " + target + ".compile"))
             elif "!TARGET2!" in s:
                 output.write(s.replace("!TARGET2!", aircraft))
+            elif "!TARGET3!" in s:
+                output.write(s.replace("!TARGET3!", aircraft + " " + target + ".upload"))
             elif "!PPRZHOME!" in s:
                 output.write(s.replace("!PPRZHOME!", getenv("PAPARAZZI_HOME")))
             else:
