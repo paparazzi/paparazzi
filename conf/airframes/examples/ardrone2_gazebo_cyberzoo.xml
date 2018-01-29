@@ -194,14 +194,10 @@
   <section name="SIMULATOR" prefix="NPS_">
     <define name="GAZEBO_WORLD" value='"ardrone_cyberzoo.world"'/>
     <define name="ACTUATOR_NAMES" value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
-    <define name="ACTUATOR_THRUSTS" value="1.55, 1.55, 1.55, 1.55" type="double[]"/>
-    <define name="ACTUATOR_TORQUES" value="0.155, -0.155, 0.155, -0.155" type="double[]"/>
     <define name="JSBSIM_MODEL" value="simple_ardrone2" type="string"/>
     <define name="SENSORS_PARAMS" value="nps_sensors_params_ardrone2.h" type="string"/>
-    <define name="BYPASS_INS" value="1"/>
-    <define name="BYPASS_AHRS" value="1"/>
-    <define name="SIMULATE_VIDEO" value="1"/>
   </section>
+  <include href="conf/simulator/gazebo/airframes/ardrone2.xml"/>
 
   <section name="AUTOPILOT">
     <define name="MODE_STARTUP" value="AP_MODE_NAV"/>
