@@ -1,3 +1,23 @@
+/*
+ * Copyright (C) 2018
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
+
 #include "optical_flow_hover.h"
 #include "optical_flow_functions.h"
 
@@ -250,7 +270,7 @@ static void reset_horizontal_vars(void)
 
   if((hover_method == 0) && (GUIDANCE_V_MODE_MODULE_SETTING == GUIDANCE_V_MODE_MODULE))
   {
-    // Z- X - Y Order
+    // Z - X - Y Order
     oscillatingX = 1;
     oscillatingY = 1;
     of_hover_ctrl_X.PID.P = OFH_PGAINX;
@@ -402,12 +422,12 @@ void horizontal_ctrl_module_run(bool in_flight)
   // set desired pitch en roll
   if(oscphi)
   {
-    of_hover_ctrl_X.errors.err = of_hover_ctrl_X.setpoint- of_hover.flowX;
+    of_hover_ctrl_X.errors.err = of_hover_ctrl_X.setpoint - of_hover.flowX;
     des_inputs.phi = of_hover_ctrl_X.nominal_value + PID_flow_control(dt, &of_hover_ctrl_X);
   }
   if(osctheta)
   {
-    of_hover_ctrl_Y.errors.err = of_hover_ctrl_Y.setpoint- of_hover.flowY;
+    of_hover_ctrl_Y.errors.err = of_hover_ctrl_Y.setpoint - of_hover.flowY;
     des_inputs.theta = of_hover_ctrl_Y.nominal_value + PID_flow_control(dt, &of_hover_ctrl_Y);
   }
 

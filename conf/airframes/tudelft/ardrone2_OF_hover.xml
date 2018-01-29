@@ -1,7 +1,34 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <airframe name="ardrone2">
-
+  <description>
+  	This module implements monocular vision height estimation and uses this estimate to stabilize a quadrotor using only a downwards 
+  	facing camera and an IMU. For scientific background please visit: 
+  	https://repository.tudelft.nl/islandora/object/uuid%3A6e3ce742-a974-491d-97c2-1cafc090b3d9
+  	
+  	The gain height relationship as first described in http://iopscience.iop.org/article/10.1088/1748-3190/11/1/016004 is calibrated 
+  	in a controlled environment so that the resulting relationship can be used to determine the height at which the quadrotor is flying.
+  	In addition to the vertical axis the same principle is applied to the horizontal axes. 
+  	
+  	A short guide on how to determine the slope:
+  	Picking a relatively high OFH_RAMP* with a very high negative OFH_COV*_SETPOINT (i.e. -6000000), 
+  	looking at when the quadrotor starts oscillating, the respective message (covariances.*) should be used to determine a suitable
+  	threshold value for OFH_COV*_SETPOINT. The slope can then be decreased to gain accuracy in reaching the oscillations.
+  	Finally when flying the quadrotor on different heights the gain at which instability occurs can be noted to determine the slope of the 
+  	gain-height relationship.
+  	 
+  	Important settings: 
+  	-OFH_HOVER_METHOD/hover_method:
+  	1, the method is applied to all 3 axes in the following order: Z - X - Y
+    2, the method is applied to the Z axis and the estimated height is used to determine the proper gains
+  		for the horizontal axes using the predetermined relationship.
+  	3, the method is applied to all 3 axes at the same time
+  	 
+  	-XY_SYMMETRICAL is set to 1 if the drone is roughly symmetrical, causing the found gains for the X axis is also used for the Y axis.
+  	-OFH_*GAIN* can be used to set starting gains to prevent initial drift while still estimating height and appropriate gains.
+  	-OFH_REDUCTION* is used to reduce the gain after determining the oscillation to stabilize the quadrotor.
+  	
+  </description>
 	<firmware name="rotorcraft">
 		<target name="ap" board="ardrone2">
 
@@ -43,7 +70,7 @@
 		<module name="optical_flow_hover" >
 			<define name="OFH_HOVER_METHOD" value = "1" />
 			<define name="OFH_MAXBANK" value = "10.0" />
-			<define name="XY_SYMMETRICAL" value = "0" />
+			<define name="XY_SYMMETRICAL" value = "1" />
 		
 		    
 		    <define name="COV_WINDOW_SIZE" value = "300" />
@@ -54,10 +81,10 @@
 			<define name="OFH_REDUCTIONZ" value = "0.45" />
 			<define name="OFH_COVDIV_SETPOINT" value = "-0.025" />
 			
-			<define name="OFH_IGAINX" value = "0.0001" />
-			<define name="OFH_IGAINY" value = "0.0001" />
+			<define name="OFH_IGAINX" value = "0.00005" />
+			<define name="OFH_IGAINY" value = "0.00005" />
 			<define name="OFH_RAMPXY" value = "0.0004" />
-			<define name="OFH_REDUCTIONXY" value = "0.4" />
+			<define name="OFH_REDUCTIONXY" value = "0.3" />
 			<define name="OFH_COVFLOW_SETPOINT" value = "-2000" />
 		</module>
 

@@ -1,3 +1,22 @@
+/*
+ * Copyright (C) 2018
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
 
 #include "optical_flow_functions.h"
 #include "paparazzi.h"
@@ -109,7 +128,7 @@ void set_cov_flow(bool cov_method, struct OFhistory *historyX, struct OFhistory 
  */
 float PID_flow_control(float dt, struct OpticalFlowHoverControl *of_hover_ctrl)
 {
-  float des_angle = 0;
+
 
   // update the controller errors:
   float lp_factor = dt / OF_LP_CONST;
@@ -121,7 +140,10 @@ float PID_flow_control(float dt, struct OpticalFlowHoverControl *of_hover_ctrl)
   of_hover_ctrl->errors.previous_err = of_hover_ctrl->errors.err;
 
   // compute the desired angle
-  des_angle = Max(-OFH_MAXBANK,Min(of_hover_ctrl->PID.P * of_hover_ctrl->errors.err + of_hover_ctrl->PID.I * of_hover_ctrl->errors.sum_err + of_hover_ctrl->PID.D * of_hover_ctrl->errors.d_err,OFH_MAXBANK));
+  float des_angle = of_hover_ctrl->PID.P * of_hover_ctrl->errors.err + of_hover_ctrl->PID.I * of_hover_ctrl->errors.sum_err + of_hover_ctrl->PID.D * of_hover_ctrl->errors.d_err;
+
+  // Bound angle:
+  Bound(des_angle,-OFH_MAXBANK,OFH_MAXBANK);
 
   return des_angle;
 }
@@ -150,7 +172,7 @@ int32_t PID_divergence_control(float dt, struct OpticalFlowHoverControl *of_hove
       + of_hover_ctrl->PID.D * of_hover_ctrl->errors.d_err) * MAX_PPRZ;
 
   // bound thrust:
-  Bound(thrust, 0.25 * of_hover_ctrl->nominal_value* MAX_PPRZ, MAX_PPRZ);
+  Bound(thrust, 0.25 * of_hover_ctrl->nominal_value * MAX_PPRZ, MAX_PPRZ);
 
   return thrust;
 }
