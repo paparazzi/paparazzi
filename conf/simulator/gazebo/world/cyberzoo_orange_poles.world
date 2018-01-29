@@ -36,7 +36,7 @@
     </include>
     
     <include>
-      <uri>model://cyberzoo2</uri>
+      <uri>model://cyberzoo</uri>
       <pose>0 0 0 0 0 0.454</pose>
     </include>
     <include>
@@ -49,23 +49,23 @@
     </include>
     
     <include>
-      <uri>model://orange_pole2</uri>
+      <uri>model://orange_pole</uri>
       <pose>-1.8 -3.4 0 0 0 0</pose>
     </include>
     <include>
-      <uri>model://orange_pole2</uri>
+      <uri>model://orange_pole</uri>
       <pose>-1.8 0.5 0 0 0 0</pose>
     </include>
     <include>
-      <uri>model://orange_pole2</uri>
+      <uri>model://orange_pole</uri>
       <pose>0.6 0.7 0 0 0 0</pose>
     </include>
     <include>
-      <uri>model://orange_pole2</uri>
+      <uri>model://orange_pole</uri>
       <pose>1.5 -2.5 0 0 0 0</pose>
     </include>
     <include>
-      <uri>model://orange_pole2</uri>
+      <uri>model://orange_pole</uri>
       <pose>2.8 2.5 0 0 0 0</pose>
     </include>
   </world>

@@ -14,7 +14,7 @@
   <aircraft
    name="simulate_orange_avoid"
    ac_id="232"
-   airframe="airframes/examples/ardrone2_gazebo_cyberzoo.xml"
+   airframe="airframes/tudelft/ardrone2_orangeavoid_course2017_gazebo.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/tudelft/course2017_avoid_orange_cyberzoo.xml"
