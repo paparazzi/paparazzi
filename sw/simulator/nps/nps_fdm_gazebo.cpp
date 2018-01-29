@@ -576,7 +576,7 @@ static void gazebo_write(double act_commands[], int commands_nb)
     // Spinup torque
     double udot = update_first_order_high_pass(&gazebo_actuators.highpass[i], sp);
     double spinup_torque = gazebo_actuators.max_ang_momentum[i] /
-        (2 * sqrtf(u > 0.05 ? u : 0.05)) * udot;
+        (2.0 * sqrt(u > 0.05 ? u : 0.05)) * udot;
     torque += spinup_torque;
 #endif
 
