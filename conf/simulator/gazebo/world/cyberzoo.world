@@ -24,25 +24,28 @@
     </light>
     <spherical_coordinates>
       <surface_model>EARTH_WGS84</surface_model>
-      <latitude_deg>51.9906340</latitude_deg>
-      <longitude_deg>4.3767889</longitude_deg>
+      <latitude_deg>51.9906361</latitude_deg>
+      <longitude_deg>4.3767874</longitude_deg>
       <elevation>45.110</elevation>
       <heading_deg>180</heading_deg><!-- Temporary fix for issue https://bitbucket.org/osrf/gazebo/issues/2022/default-sphericalcoordinates-frame-should -->
     </spherical_coordinates>
 
     <include>
       <uri>model://ground_plane</uri>
-      <pose>0 0 -0.02 0 0 0</pose>
+      <pose>0 0 -0.02 0 0 0.454</pose>
     </include>
     
     <include>
       <uri>model://cyberzoo2</uri>
+      <pose>0 0 0 0 0 0.454</pose>
     </include>
     <include>
       <uri>model://cyberzoo_surroundings</uri>
+      <pose>0 0 0 0 0 0.454</pose>
     </include>
     <include>
       <uri>model://cyberzoo_outer_walls</uri>
+      <pose>0 0 0 0 0 0.454</pose>
     </include>
   </world>
 </sdf>

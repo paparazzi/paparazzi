@@ -1,10 +1,10 @@
 <?xml version='1.0'?>
 <sdf version='1.4'>
-  <model name="cyberzoo">
+  <model name="cyberzoo_model">
     <static>true</static>
     <pose>0 0 0 0 0 0</pose>
 
-    <link name="cyberzoo">
+    <link name="cyberzoo_link">
       <pose>-5 -5 0.01 0 0 0</pose>
       <visual name="solid">
         <cast_shadows>false</cast_shadows>
