@@ -50,56 +50,69 @@
               &lt;module name=&quot;fdm&quot; type=&quot;gazebo&quot;/&gt;
             &lt;/target&gt;
           @endcode
-        2. Add actuator thrusts and torques to the SIMULATOR section:
-          @code{.xml}
-            &lt;section name=&quot;SIMULATOR&quot; prefix=&quot;NPS_&quot;&gt;
-              &lt;define name=&quot;ACTUATOR_NAMES&quot; value=&quot;nw_motor, ne_motor, se_motor, sw_motor&quot; type=&quot;string[]&quot;/&gt;
-              &lt;define name=&quot;ACTUATOR_THRUSTS&quot; value=&quot;1.55, 1.55, 1.55, 1.55&quot; type=&quot;float[]&quot;/&gt;
-              &lt;define name=&quot;ACTUATOR_TORQUES&quot; value=&quot;0.155, 0.155, 0.155, 0.155&quot; type=&quot;float[]&quot;/&gt;
-              ...
-            &lt;/section&gt;
-          @endcode
-          The thrusts and torques are expressed in SI units (N, Nm) and should
-          be in the same order as the ACTUATOR_NAMES.
-          The torque direction is determined automatically from the motor mixing.
-        3. (Optional) Add actuator dynamics to the SIMULATOR section:
+        2. Include the gazebo defines for the vehicle:
           @code{.xml}
             &lt;section name=&quot;SIMULATOR&quot; prefix=&quot;NPS_&quot;&gt;
               ...
-              &lt;define name=&quot;ACTUATOR_TIME_CONSTANTS&quot; value=&quot;0.02, 0.02, 0.02, 0.02&quot; type=&quot;float[]&quot;/&gt;
-              &lt;define name=&quot;ACTUATOR_MAX_ANGULAR_MOMENTUM&quot; value=&quot;0.19, 0.19, 0.19, 0.19&quot; type=&quot;float[]&quot;/&gt;
-              ...
             &lt;/section&gt;
+            &lt;include href=&quot;conf/simulator/gazebo/airframes/ardrone2.xml&quot;/&gt;
           @endcode
-          Actuator time constants can be provided without specifying the
-          actuator's maximum angular momentum. If the maximum angular momentum
-          is provided as well, it is used to calculate the rotor spin-up torque.
-        4. In the same section, bypass the AHRS and INS as these are not
-          supported yet:
-          @code{.xml}
-            &lt;section name=&quot;SIMULATOR&quot; prefix=&quot;NPS_&quot;&gt;
-              ...
-              &lt;define name=&quot;BYPASS_AHRS&quot; value=&quot;1&quot;/&gt;
-              &lt;define name=&quot;BYPASS_INS&quot; value=&quot;1&quot;/&gt;
-              ...
-            &lt;/section&gt;
-          @endcode
-        5. If required, enable video thread simulation:
-          @code{.xml}
-            &lt;section name=&quot;SIMULATOR&quot; prefix=&quot;NPS_&quot;&gt;
-              ...
-              &lt;define name=&quot;SIMULATE_VIDEO&quot; value=&quot;1&quot;/&gt;
-              ...
-            &lt;/section&gt;
-          @endcode
-        6. Set the aircraft model in the airframe file:
-          @code{.xml}
-            &lt;section name=&quot;SIMULATOR&quot; prefix=&quot;NPS_&quot;&gt;
-              ...
-              &lt;define name=&quot;GAZEBO_AC_NAME&quot; value=&quot;my_uav&quot;/&gt;
-            &lt;/section&gt;
-          @endcode
-        7. Make sure all included modules work with nps. At the moment, most of
+          - If conf/simulator/gazebo/airframes does not contain an xml for the
+          vehicle model, it should be created with the following contents:
+            1. Actuator thrusts and torques
+              @code{.xml}
+              &lt;!DOCTYPE airframe SYSTEM &quot;../../../airframes/airframe.dtd&quot;&gt;
+  
+                &lt;airframe&gt;
+                  &lt;section name=&quot;SIMULATOR&quot; prefix=&quot;NPS_&quot;&gt;
+                    &lt;define name=&quot;ACTUATOR_THRUSTS&quot; value=&quot;1.55, 1.55, 1.55, 1.55&quot; type=&quot;float[]&quot;/&gt;
+                    &lt;define name=&quot;ACTUATOR_TORQUES&quot; value=&quot;0.155, 0.155, 0.155, 0.155&quot; type=&quot;float[]&quot;/&gt;
+                    ...
+                  &lt;/section&gt;
+                &lt;/airframe&gt;
+              @endcode
+              The thrusts and torques are expressed in SI units (N, Nm) and should
+              be in the same order as the ACTUATOR_NAMES defined in the airframe file.
+              The torque direction is determined automatically from the motor mixing.
+            2. (Optional) Add actuator dynamics to the SIMULATOR section:
+              @code{.xml}
+                &lt;section name=&quot;SIMULATOR&quot; prefix=&quot;NPS_&quot;&gt;
+                  ...
+                  &lt;define name=&quot;ACTUATOR_TIME_CONSTANTS&quot; value=&quot;0.02, 0.02, 0.02, 0.02&quot; type=&quot;float[]&quot;/&gt;
+                  &lt;define name=&quot;ACTUATOR_MAX_ANGULAR_MOMENTUM&quot; value=&quot;0.19, 0.19, 0.19, 0.19&quot; type=&quot;float[]&quot;/&gt;
+                  ...
+                &lt;/section&gt;
+              @endcode
+              Actuator time constants can be provided without specifying the
+              actuator's maximum angular momentum. If the maximum angular momentum
+              is provided as well, it is used to calculate the rotor spin-up torque.
+            3. In the same section, bypass the AHRS and INS as these are not
+              supported yet:
+              @code{.xml}
+                &lt;section name=&quot;SIMULATOR&quot; prefix=&quot;NPS_&quot;&gt;
+                  ...
+                  &lt;define name=&quot;BYPASS_AHRS&quot; value=&quot;1&quot;/&gt;
+                  &lt;define name=&quot;BYPASS_INS&quot; value=&quot;1&quot;/&gt;
+                  ...
+                &lt;/section&gt;
+              @endcode
+    
+            4. If required, enable video thread simulation:
+              @code{.xml}
+                &lt;section name=&quot;SIMULATOR&quot; prefix=&quot;NPS_&quot;&gt;
+                  ...
+                  &lt;define name=&quot;SIMULATE_VIDEO&quot; value=&quot;1&quot;/&gt;
+                  ...
+                &lt;/section&gt;
+              @endcode
+            5. Set the aircraft model in the xml file:
+              @code{.xml}
+                &lt;section name=&quot;SIMULATOR&quot; prefix=&quot;NPS_&quot;&gt;
+                  ...
+                  &lt;define name=&quot;GAZEBO_AC_NAME&quot; value=&quot;my_uav&quot;/&gt;
+                &lt;/section&gt;
+              @endcode
+        3. Make sure all included modules work with nps. At the moment, most of
           the modules that depend on video_thread are only built when ap is
           selected as the target. To fix this, add nps to the target attribute
           in the module xml, e.g.:
