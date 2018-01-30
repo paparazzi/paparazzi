@@ -8,15 +8,10 @@
     </target>
 
     <target name="nps" board="pc">
-      <!-- for JSBSim: -->
       <module name="fdm" type="jsbsim"/>
       <module name="udp"/>
-      <!-- rotor inertia not modelled in simple_quad JSBSim model, set G2 to zero -->
-      <define name="STABILIZATION_INDI_G2_R" value="0.0"/>
-      
-      <!--  for Gazebo: -->
-      <!-- <module name="fdm" type="gazebo"/>
-      <define name="STABILIZATION_INDI_G2_R" value="0.20"/> -->
+      <define name="STABILIZATION_INDI_G2_R" value="0.0"/><!-- for jsbsim (rotor inertia is not modelled) -->
+      <!-- <define name="STABILIZATION_INDI_G2_R" value="0.20"/> --><!-- for gazebo -->
     </target>
 
 	  <!-- Subsystem section -->
@@ -143,7 +138,7 @@
     <define name="G1_R" value="0.0022"/>
 
     <!-- For the bebop2 we need to filter the roll rate due to the dampers -->
-    <define name="FILTER_ROLL_RATE" value="TRUE"/>
+    <define name="FILTER_ROLL_RATE" value="FALSE"/><!-- Set to TRUE when flying without locked dampers -->
     <define name="FILTER_PITCH_RATE" value="FALSE"/>
     <define name="FILTER_YAW_RATE" value="FALSE"/>
 
