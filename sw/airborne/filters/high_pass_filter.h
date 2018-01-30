@@ -30,6 +30,63 @@
 #include "std.h"
 #include "math/pprz_algebra_int.h"
 
+/** First order high pass filter structure.
+ *
+ * using bilinear z transform
+ */
+struct FirstOrderHighPass
+{
+  float time_const;
+  float last_in;
+  float last_out;
+};
+
+/** Init first order high pass filter.
+ *
+ * Laplace transform in continuous time:
+ *          tau*s
+ * H(s) = ---------
+ *        1 + tau*s
+ *
+ * @param filter first order high pass filter structure
+ * @param tau time constant of the first order high pass filter
+ * @param sample_time sampling period of the signal
+ * @param value initial value of the filter
+ */
+static inline void init_first_order_high_pass(struct FirstOrderHighPass *filter,
+    float tau, float sample_time, float value)
+{
+  filter->last_in = value;
+  filter->last_out = value;
+  filter->time_const = 2.0f * tau / sample_time;
+}
+
+/** Update first order high pass filter state with a new value.
+ *
+ * @param filter first order high pass filter structure
+ * @param value new input value of the filter
+ * @return new filtered value
+ */
+static inline float update_first_order_high_pass(
+    struct FirstOrderHighPass *filter, float value)
+{
+  float out = (filter->time_const * (value - filter->last_in)
+      + (filter->time_const - 1.0f) * filter->last_out)
+      / (1.0f + filter->time_const);
+  filter->last_in = value;
+  filter->last_out = out;
+  return out;
+}
+
+/** Get current value of the first order high pass filter.
+ *
+ * @param filter first order high pass filter structure
+ * @return current value of the filter
+ */
+static inline float get_first_order_high_pass(struct FirstOrderHighPass *filter)
+{
+  return filter->last_out;
+}
 
 /** Fourth order filter structure.
  *

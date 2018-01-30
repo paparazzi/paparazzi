@@ -33,9 +33,7 @@
     <module name="stabilization" type="int_quat"/>
     <module name="ahrs"          type="float_mlkf"/>
     <module name="ins" type="extended"/>
-  </firmware>
-
-  <modules main_freq="512">
+    
     <module name="geo_mag"/>
     <module name="air_data"/>
     <module name="send_imu_mag_current"/>
@@ -53,8 +51,7 @@
     </module>
 
     <module name="bebop_ae_awb"/>
-
-  </modules>
+  </firmware>
 
   <commands>
     <axis name="PITCH" failsafe_value="0"/>
@@ -196,6 +193,7 @@
     <define name="JSBSIM_MODEL" value="simple_x_quad_ccw" type="string"/>
     <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
   </section>
+  <include href="conf/simulator/gazebo/airframes/bebop.xml"/>
 
   <section name="AUTOPILOT">
     <define name="MODE_STARTUP" value="AP_MODE_NAV"/>
