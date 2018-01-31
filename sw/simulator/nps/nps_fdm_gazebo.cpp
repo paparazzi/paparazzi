@@ -43,7 +43,6 @@
 #include <gazebo/math/gzmath.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo/sensors/sensors.hh>
-#include <gazebo/rendering/rendering.hh>
 #include <gazebo/gazebo_config.h>
 #include <sdf/sdf.hh>
 
@@ -345,7 +344,8 @@ static void init_gazebo(void)
   sdf::init(vehicle_sdf);
   sdf::readFile(gazebodir + "models/" + NPS_GAZEBO_AC_NAME + "/" + NPS_GAZEBO_AC_NAME + ".sdf", vehicle_sdf);
 
-  // add sensors
+  // add or set up sensors before the vehicle gets loaded
+  // laser range array
 #if NPS_SIMULATE_LASER_RANGE_ARRAY
   vehicle_sdf->Root()->GetFirstElement()->AddElement("include")->GetElement("uri")->Set("model://range_sensors");
   sdf::ElementPtr range_joint = vehicle_sdf->Root()->GetFirstElement()->AddElement("joint");
@@ -353,6 +353,22 @@ static void init_gazebo(void)
   range_joint->GetAttribute("type")->Set("fixed");
   range_joint->GetElement("parent")->Set("chassis");
   range_joint->GetElement("child")->Set("range_sensors::base");
+#endif
+  // bebop front camera
+#ifdef MT9F002_OUTPUT_SCALER
+  sdf::ElementPtr link = vehicle_sdf->Root()->GetFirstElement()->GetElement("link");
+  while(link) {
+    if(link->Get<string>("name") == "front_camera") {
+      int w = link->GetElement("sensor")->GetElement("camera")->GetElement("image")->GetElement("width")->Get<int>();
+      link->GetElement("sensor")->GetElement("camera")->GetElement("image")->GetElement("width")->Set(w * MT9F002_OUTPUT_SCALER);
+      int h = link->GetElement("sensor")->GetElement("camera")->GetElement("image")->GetElement("height")->Get<int>();
+      link->GetElement("sensor")->GetElement("camera")->GetElement("image")->GetElement("height")->Set(h * MT9F002_OUTPUT_SCALER);
+      int env = link->GetElement("sensor")->GetElement("camera")->GetElement("lens")->GetElement("env_texture_size")->Get<int>();
+      link->GetElement("sensor")->GetElement("camera")->GetElement("lens")->GetElement("env_texture_size")->Set(env * MT9F002_OUTPUT_SCALER);
+      cout << "Applied MT9F002_OUTPUT_SCALER (=" << MT9F002_OUTPUT_SCALER << ") to " << link->Get<string>("name") << endl;
+    }
+    link = link->GetNextElement("link");
+  }
 #endif
 
   // get world
@@ -633,28 +649,6 @@ static void init_gazebo_video(void)
       cout << "ERROR: Could not get pointer to '" << name << "'!" << endl;
       continue;
     }
-    // Emulate bebop front camera defines
-#ifdef MT9F002_OUTPUT_SCALER
-    if(strcmp(cameras[i]->dev_name, "front_camera") == 0) {
-      cout << endl << "Applying MT9F002_OUTPUT_SCALER (" << MT9F002_OUTPUT_SCALER << ") to front_camera..." << endl;
-      // Get pointer to WideAngleCamera rendering options
-      cout << "get wacam_sensor" << endl;
-      gazebo::sensors::WideAngleCameraSensorPtr wacam_sensor = static_pointer_cast<gazebo::sensors::WideAngleCameraSensor>(cam);
-      cout << "get wacam" << endl;
-      gazebo::rendering::WideAngleCameraPtr wacam = static_pointer_cast<gazebo::rendering::WideAngleCamera>(wacam_sensor->Camera());
-      // Scale output image and environment texture
-      cout << "set image size" << endl;
-      wacam->SetImageSize(
-          wacam->ImageWidth() * MT9F002_OUTPUT_SCALER,
-          wacam->ImageHeight() * MT9F002_OUTPUT_SCALER
-          );
-//      cout << "set env texture size" << endl;
-//      wacam->SetEnvTextureSize(4096 * MT9F002_OUTPUT_SCALER);
-      cout << "done, report values" << endl;
-      cout << "Image size: " << wacam->ImageWidth() << "x" << wacam->ImageHeight() << endl;
-      cout << "Env texture size: " << wacam->EnvTextureSize() << endl;
-    }
-#endif
     // Activate sensor
     cam->SetActive(true);
     // Add to list of cameras

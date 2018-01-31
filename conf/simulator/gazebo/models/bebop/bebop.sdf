@@ -192,7 +192,7 @@
         <update_rate>30.0</update_rate>
         <camera name="front_camera">
           <image>
-            <width>4608</width><!-- with MT9F002_OUTPUT_SCALER = 1.00 -->
+            <width>4608</width><!-- with MT9F002_OUTPUT_SCALER = 1.00, will be scaled by NPS -->
             <height>3288</height>
             <format>R8G8B8</format>
           </image>
@@ -200,7 +200,7 @@
           <lens>
             <type>equisolid_angle</type>
             <scale_to_hfov>true</scale_to_hfov>
-            <env_texture_size>512</env_texture_size><!-- should be ok for reasonable output sizes -->
+            <env_texture_size>1024</env_texture_size><!-- with MT9F002_OUTPUT_SCALER = 1.00, will be scaled by NPS -->
           </lens>
           <clip>
             <near>0.02</near>

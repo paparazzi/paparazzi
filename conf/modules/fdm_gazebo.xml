@@ -137,7 +137,6 @@
   	<raw>
       nps.CXXFLAGS += $(shell pkg-config gazebo --cflags)
       nps.LDFLAGS  += $(shell pkg-config gazebo --libs)
-      nps.CXXFLAGS += $(shell pkg-config OGRE-Terrain --cflags)
 
       <!-- OpenCV for video debugging -->
       NPS_DEBUG_VIDEO ?= 0
