@@ -176,7 +176,7 @@
     <!-- CAMERAS -->
 
     <link name="front_camera">
-      <pose>0.15 0 0 0 0 0</pose>
+      <pose>0.15 0 0 -1.57 0 0</pose><!-- Bebop camera output is rotated 90 degrees -->
       <inertial>
         <mass>0.001</mass>
         <inertia>
@@ -192,14 +192,15 @@
         <update_rate>30.0</update_rate>
         <camera name="front_camera">
           <image>
-            <width>800</width>
-            <height>800</height>
+            <width>4608</width><!-- with MT9F002_OUTPUT_SCALER = 1.00 -->
+            <height>3288</height>
             <format>R8G8B8</format>
           </image>
-          <horizontal_fov>2.56</horizontal_fov>
+          <horizontal_fov>3.69</horizontal_fov>
           <lens>
             <type>equisolid_angle</type>
             <scale_to_hfov>true</scale_to_hfov>
+            <env_texture_size>512</env_texture_size><!-- should be ok for reasonable output sizes -->
           </lens>
           <clip>
             <near>0.02</near>

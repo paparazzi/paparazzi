@@ -43,6 +43,7 @@
 #include <gazebo/math/gzmath.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo/sensors/sensors.hh>
+#include <gazebo/rendering/rendering.hh>
 #include <gazebo/gazebo_config.h>
 #include <sdf/sdf.hh>
 
@@ -632,18 +633,50 @@ static void init_gazebo_video(void)
       cout << "ERROR: Could not get pointer to '" << name << "'!" << endl;
       continue;
     }
+    // Emulate bebop front camera defines
+#ifdef MT9F002_OUTPUT_SCALER
+    if(strcmp(cameras[i]->dev_name, "front_camera") == 0) {
+      cout << endl << "Applying MT9F002_OUTPUT_SCALER (" << MT9F002_OUTPUT_SCALER << ") to front_camera..." << endl;
+      // Get pointer to WideAngleCamera rendering options
+      cout << "get wacam_sensor" << endl;
+      gazebo::sensors::WideAngleCameraSensorPtr wacam_sensor = static_pointer_cast<gazebo::sensors::WideAngleCameraSensor>(cam);
+      cout << "get wacam" << endl;
+      gazebo::rendering::WideAngleCameraPtr wacam = static_pointer_cast<gazebo::rendering::WideAngleCamera>(wacam_sensor->Camera());
+      // Scale output image and environment texture
+      cout << "set image size" << endl;
+      wacam->SetImageSize(
+          wacam->ImageWidth() * MT9F002_OUTPUT_SCALER,
+          wacam->ImageHeight() * MT9F002_OUTPUT_SCALER
+          );
+//      cout << "set env texture size" << endl;
+//      wacam->SetEnvTextureSize(4096 * MT9F002_OUTPUT_SCALER);
+      cout << "done, report values" << endl;
+      cout << "Image size: " << wacam->ImageWidth() << "x" << wacam->ImageHeight() << endl;
+      cout << "Env texture size: " << wacam->EnvTextureSize() << endl;
+    }
+#endif
     // Activate sensor
     cam->SetActive(true);
     // Add to list of cameras
     gazebo_cams[i].cam = cam;
     gazebo_cams[i].last_measurement_time = cam->LastMeasurementTime();
     // Copy video_config settings from Gazebo's camera
+#if defined(MT9F002_OUTPUT_WIDTH) && defined(MT9F002_OUTPUT_HEIGHT)
+    // See boards/bebop/mt9f002.c
+    cameras[i]->output_size.w = MT9F002_OUTPUT_WIDTH;
+    cameras[i]->output_size.h = MT9F002_OUTPUT_HEIGHT;
+    cameras[i]->sensor_size.w = MT9F002_OUTPUT_WIDTH;
+    cameras[i]->sensor_size.h = MT9F002_OUTPUT_HEIGHT;
+    cameras[i]->crop.w = MT9F002_OUTPUT_WIDTH;
+    cameras[i]->crop.h = MT9F002_OUTPUT_HEIGHT;
+#else
     cameras[i]->output_size.w = cam->ImageWidth();
     cameras[i]->output_size.h = cam->ImageHeight();
     cameras[i]->sensor_size.w = cam->ImageWidth();
     cameras[i]->sensor_size.h = cam->ImageHeight();
     cameras[i]->crop.w = cam->ImageWidth();
     cameras[i]->crop.h = cam->ImageHeight();
+#endif
     cameras[i]->fps = cam->UpdateRate();
     cout << "ok" << endl;
   }
