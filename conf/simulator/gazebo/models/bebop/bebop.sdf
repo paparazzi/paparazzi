@@ -188,15 +188,19 @@
           <ixz>0</ixz>
         </inertia>
       </inertial>
-      <sensor type="camera" name="front_camera">
+      <sensor type="wideanglecamera" name="front_camera">
         <update_rate>30.0</update_rate>
         <camera name="front_camera">
-          <horizontal_fov>1.3962634</horizontal_fov>
           <image>
-            <width>1280</width>
-            <height>720</height>
+            <width>800</width>
+            <height>800</height>
             <format>R8G8B8</format>
           </image>
+          <horizontal_fov>2.56</horizontal_fov>
+          <lens>
+            <type>equisolid_angle</type>
+            <scale_to_hfov>true</scale_to_hfov>
+          </lens>
           <clip>
             <near>0.02</near>
             <far>300</far>
