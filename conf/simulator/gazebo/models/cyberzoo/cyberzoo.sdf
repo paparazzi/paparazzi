@@ -6,14 +6,24 @@
 
     <link name="cyberzoo_link">
       <pose>-5 -5 0.01 0 0 0</pose>
-      <visual name="solid">
+      
+      <visual name="floor">
         <cast_shadows>false</cast_shadows>
         <geometry>
           <mesh>
-            <uri>model://cyberzoo/cyberzoo_solid.dae</uri>
+            <uri>model://cyberzoo/cyberzoo_floor.dae</uri>
           </mesh>
         </geometry>
       </visual>
+      <collision name="floor">
+        <pose>5 5 -0.005 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>10 10 0.01</size>
+          </box>
+        </geometry>
+      </collision>
+      
       <visual name="poles">
         <cast_shadows>false</cast_shadows>
         <geometry>
@@ -27,20 +37,31 @@
             <name>Cyberzoo/Poles</name>
           </script>
         </material>
+        <meta>
+          <layer>0</layer>
+        </meta>
       </visual>
-      <visual name="net">
+      <visual name="wires">
         <cast_shadows>false</cast_shadows>
         <geometry>
           <mesh>
-            <uri>model://cyberzoo/cyberzoo_net.dae</uri>
+            <uri>model://cyberzoo/cyberzoo_wires.dae</uri>
           </mesh>
         </geometry>
-        <material>
-          <script>
-            <uri>model://cyberzoo/cyberzoo_net</uri>
-            <name>Cyberzoo/Net</name>
-          </script>
-        </material>
+        <meta>
+          <layer>0</layer>
+        </meta>
+      </visual>
+      <visual name="cams">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <mesh>
+            <uri>model://cyberzoo/cyberzoo_cams.dae</uri>
+          </mesh>
+        </geometry>
+        <meta>
+          <layer>0</layer>
+        </meta>
       </visual>
       <visual name="lighting">
         <cast_shadows>false</cast_shadows>
@@ -49,6 +70,9 @@
             <uri>model://cyberzoo/cyberzoo_lighting.dae</uri>
           </mesh>
         </geometry>
+        <meta>
+          <layer>0</layer>
+        </meta>
       </visual>
       <visual name="glow">
         <cast_shadows>false</cast_shadows>
@@ -63,16 +87,39 @@
             <name>Cyberzoo/Glow</name>
           </script>
         </material>
+        <meta>
+          <layer>0</layer>
+        </meta>
       </visual>
       
-      <collision name="floor">
-        <pose>5 5 -0.005 0 0 0</pose>
+      <visual name="walls">
+        <cast_shadows>false</cast_shadows>
         <geometry>
-          <box>
-            <size>10 10 0.01</size>
-          </box>
+          <mesh>
+            <uri>model://cyberzoo/cyberzoo_walls.dae</uri>
+          </mesh>
         </geometry>
-      </collision>
+        <meta>
+          <layer>1</layer>
+        </meta>
+      </visual>
+      <visual name="net">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <mesh>
+            <uri>model://cyberzoo/cyberzoo_net.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://cyberzoo/cyberzoo_net</uri>
+            <name>Cyberzoo/Net</name>
+          </script>
+        </material>
+        <meta>
+          <layer>1</layer>
+        </meta>
+      </visual>
     </link>
 
   </model>
