@@ -176,7 +176,7 @@
     <!-- CAMERAS -->
 
     <link name="front_camera">
-      <pose>0.15 0 0 -1.57 0 0</pose><!-- Bebop camera output is rotated 90 degrees -->
+      <pose>0.15 0 0 -1.57 0.33 0</pose><!-- Bebop camera output is rotated 90 degrees and pitched slightly downwards -->
       <inertial>
         <mass>0.001</mass>
         <inertia>

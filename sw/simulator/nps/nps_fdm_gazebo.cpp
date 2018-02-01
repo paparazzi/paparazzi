@@ -78,6 +78,14 @@ using namespace std;
 #define NPS_GAZEBO_AC_NAME "ardrone"
 #endif
 
+// For bebop camera simulation
+#ifndef MT9F002_INITIAL_OFFSET_X
+#define MT9F002_INITIAL_OFFSET_X 0.0
+#endif
+#ifndef MT9F002_INITIAL_OFFSET_Y
+#define MT9F002_INITIAL_OFFSET_Y 0.0
+#endif
+
 // Add video handling functions if req'd.
 #if NPS_SIMULATE_VIDEO
 extern "C" {
@@ -728,13 +736,22 @@ static void read_image(
   struct image_t *img,
   gazebo::sensors::CameraSensorPtr cam)
 {
+  int xstart, ystart;
+#if defined(MT9F002_OUTPUT_WIDTH) && defined(MT9F002_OUTPUT_HEIGHT)
+  image_create(img, MT9F002_OUTPUT_WIDTH, MT9F002_OUTPUT_HEIGHT, IMAGE_YUV422);
+  xstart = cam->ImageWidth() * (0.5 + MT9F002_INITIAL_OFFSET_X) - MT9F002_OUTPUT_WIDTH / 2;
+  ystart = cam->ImageHeight() * (0.5 + MT9F002_INITIAL_OFFSET_Y) - MT9F002_OUTPUT_HEIGHT / 2;
+#else
   image_create(img, cam->ImageWidth(), cam->ImageHeight(), IMAGE_YUV422);
+  xstart = 0;
+  ystart = 0;
+#endif
   // Convert Gazebo's *RGB888* image to Paparazzi's YUV422
   const uint8_t *data_rgb = cam->ImageData();
   uint8_t *data_yuv = (uint8_t *)(img->buf);
   for (int x = 0; x < img->w; ++x) {
     for (int y = 0; y < img->h; ++y) {
-      int idx_rgb = 3 * (img->w * y + x);
+      int idx_rgb = 3 * (cam->ImageWidth() * (y + ystart) + (x + xstart));
       int idx_yuv = 2 * (img->w * y + x);
       int idx_px = img->w * y + x;
       if (idx_px % 2 == 0) { // Pick U or V
