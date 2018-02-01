@@ -78,14 +78,6 @@ using namespace std;
 #define NPS_GAZEBO_AC_NAME "ardrone"
 #endif
 
-// For bebop camera simulation
-#ifndef MT9F002_INITIAL_OFFSET_X
-#define MT9F002_INITIAL_OFFSET_X 0.0
-#endif
-#ifndef MT9F002_INITIAL_OFFSET_Y
-#define MT9F002_INITIAL_OFFSET_Y 0.0
-#endif
-
 // Add video handling functions if req'd.
 #if NPS_SIMULATE_VIDEO
 extern "C" {
@@ -106,7 +98,15 @@ struct gazebocam_t {
 };
 static struct gazebocam_t gazebo_cams[VIDEO_THREAD_MAX_CAMERAS] =
 { { NULL, 0 } };
+
+// For bebop camera simulation
+#ifndef MT9F002_INITIAL_OFFSET_X
+#define MT9F002_INITIAL_OFFSET_X 0.0
 #endif
+#ifndef MT9F002_INITIAL_OFFSET_Y
+#define MT9F002_INITIAL_OFFSET_Y 0.0
+#endif
+#endif // NPS_SIMULATE_VIDEO
 
 struct gazebo_actuators_t {
   string names[NPS_COMMANDS_NB];
@@ -381,7 +381,7 @@ static void init_gazebo(void)
     }
     link = link->GetNextElement("link");
   }
-#endif
+#endif // MT9F002_OUTPUT_SCALER
 
 
   // get world
