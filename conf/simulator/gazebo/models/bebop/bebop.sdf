@@ -203,7 +203,7 @@
             <env_texture_size>1024</env_texture_size><!-- with MT9F002_OUTPUT_SCALER = 1.00, will be scaled by NPS -->
           </lens>
           <clip>
-            <near>0.02</near>
+            <near>0.01</near>
             <far>300</far>
           </clip>
           <noise>
@@ -224,7 +224,7 @@
     </joint>
     
     <link name="bottom_camera">
-      <pose>0 0 -.03 0 1.57 0</pose>
+      <pose>0 0 0 0 1.57 0</pose>
       <inertial>
         <mass>0.001</mass>
         <inertia>
@@ -239,9 +239,9 @@
       <sensor type="camera" name="bottom_camera">
         <update_rate>30.0</update_rate>
         <camera name="bottom_camera">
-          <horizontal_fov>1.3962634</horizontal_fov>
+          <horizontal_fov>0.7175</horizontal_fov>
           <image>
-            <width>320</width>
+            <width>240</width>
             <height>240</height>
             <format>R8G8B8</format>
           </image>
