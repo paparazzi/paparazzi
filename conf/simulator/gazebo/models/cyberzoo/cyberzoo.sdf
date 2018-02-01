@@ -14,6 +14,14 @@
           </mesh>
         </geometry>
       </visual>
+      <collision name="floor_collision">
+        <pose>-5 -5 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>10 10 0.02</size>
+          </box>
+        </geometry>
+      </collision>
       
       <visual name="poles">
         <pose>-5 -5 0 0 0 0</pose>
