@@ -374,10 +374,15 @@ static void init_gazebo(void)
       int env = link->GetElement("sensor")->GetElement("camera")->GetElement("lens")->GetElement("env_texture_size")->Get<int>();
       link->GetElement("sensor")->GetElement("camera")->GetElement("lens")->GetElement("env_texture_size")->Set(env * MT9F002_OUTPUT_SCALER);
       cout << "Applied MT9F002_OUTPUT_SCALER (=" << MT9F002_OUTPUT_SCALER << ") to " << link->Get<string>("name") << endl;
+#ifdef MT9F002_TARGET_FPS
+      link->GetElement("sensor")->GetElement("update_rate")->Set(MT9F002_TARGET_FPS);
+      cout << "Applied MT9F002_TARGET_FPS (=" << MT9F002_TARGET_FPS << ") to " << link->Get<string>("name") << endl;
+#endif
     }
     link = link->GetNextElement("link");
   }
 #endif
+
 
   // get world
   cout << "Load world: " << gazebodir + "world/" + NPS_GAZEBO_WORLD << endl;

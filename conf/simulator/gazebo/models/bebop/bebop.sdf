@@ -189,7 +189,7 @@
         </inertia>
       </inertial>
       <sensor type="wideanglecamera" name="front_camera">
-        <update_rate>30.0</update_rate>
+        <update_rate>15.0</update_rate><!-- adjust with MT9F002_TARGET_FPS -->
         <camera name="front_camera">
           <image>
             <width>4608</width><!-- with MT9F002_OUTPUT_SCALER = 1.00, will be scaled by NPS -->
