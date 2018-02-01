@@ -4,10 +4,9 @@
     <static>true</static>
     <pose>0 0 0 0 0 0</pose>
 
-    <link name="cyberzoo_link">
-      <pose>-5 -5 0.01 0 0 0</pose>
-      
+    <link name="cyberzoo_link">      
       <visual name="floor">
+        <pose>-5 -5 0.01 0 0 0</pose>
         <cast_shadows>false</cast_shadows>
         <geometry>
           <mesh>
@@ -15,16 +14,9 @@
           </mesh>
         </geometry>
       </visual>
-      <collision name="floor">
-        <pose>5 5 -0.005 0 0 0</pose>
-        <geometry>
-          <box>
-            <size>10 10 0.01</size>
-          </box>
-        </geometry>
-      </collision>
       
       <visual name="poles">
+        <pose>-5 -5 0 0 0 0</pose>
         <cast_shadows>false</cast_shadows>
         <geometry>
           <mesh>
@@ -42,6 +34,7 @@
         </meta>
       </visual>
       <visual name="wires">
+        <pose>-5 -5 0 0 0 0</pose>
         <cast_shadows>false</cast_shadows>
         <geometry>
           <mesh>
@@ -53,6 +46,7 @@
         </meta>
       </visual>
       <visual name="cams">
+        <pose>-5 -5 0 0 0 0</pose>
         <cast_shadows>false</cast_shadows>
         <geometry>
           <mesh>
@@ -64,6 +58,7 @@
         </meta>
       </visual>
       <visual name="lighting">
+        <pose>-5 -5 0 0 0 0</pose>
         <cast_shadows>false</cast_shadows>
         <geometry>
           <mesh>
@@ -75,6 +70,7 @@
         </meta>
       </visual>
       <visual name="glow">
+        <pose>-5 -5 0 0 0 0</pose>
         <cast_shadows>false</cast_shadows>
         <geometry>
           <mesh>
@@ -93,6 +89,7 @@
       </visual>
       
       <visual name="walls">
+        <pose>-5 -5 0 0 0 0</pose>
         <cast_shadows>false</cast_shadows>
         <geometry>
           <mesh>
@@ -104,6 +101,7 @@
         </meta>
       </visual>
       <visual name="net">
+        <pose>-5 -5 0 0 0 0</pose>
         <cast_shadows>false</cast_shadows>
         <geometry>
           <mesh>
@@ -118,6 +116,47 @@
         </material>
         <meta>
           <layer>1</layer>
+        </meta>
+      </visual>
+      
+      <visual name="surroundings">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <mesh>
+            <uri>model://cyberzoo/cyberzoo_surroundings.dae</uri>
+          </mesh>
+        </geometry>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+      <visual name="toolcart">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <mesh>
+            <uri>model://cyberzoo/cyberzoo_toolcart.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://cyberzoo/cyberzoo_toolcart</uri>
+            <name>Cyberzoo/Toolcart</name>
+          </script>
+        </material>
+        <meta>
+          <layer>2</layer>
+        </meta>
+      </visual>
+      
+      <visual name="outer_walls">
+        <cast_shadows>false</cast_shadows>
+        <geometry>
+          <mesh>
+            <uri>model://cyberzoo/cyberzoo_outer_walls.dae</uri>
+          </mesh>
+        </geometry>
+        <meta>
+          <layer>3</layer>
         </meta>
       </visual>
     </link>

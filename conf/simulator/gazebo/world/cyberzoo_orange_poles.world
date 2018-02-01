@@ -39,14 +39,6 @@
       <uri>model://cyberzoo</uri>
       <pose>0 0 0 0 0 0.454</pose>
     </include>
-    <include>
-      <uri>model://cyberzoo_surroundings</uri>
-      <pose>0 0 0 0 0 0.454</pose>
-    </include>
-    <include>
-      <uri>model://cyberzoo_outer_walls</uri>
-      <pose>0 0 0 0 0 0.454</pose>
-    </include>
     
     <include>
       <uri>model://orange_pole</uri>
