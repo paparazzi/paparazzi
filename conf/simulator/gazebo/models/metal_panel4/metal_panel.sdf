@@ -1,22 +1,21 @@
 <?xml version='1.0'?>
 <sdf version='1.4'>
-  <model name="orange_pole">
+  <model name="metal panel">
     <static>true</static>
     <pose>0 0 0 0 0 0</pose>
 
-    <link name="orange_pole">
-      <pose>0 0 0 0 0 0</pose>
-      <visual name="pole">
+    <link name="metal panel">
+      <visual name="panel">
         <geometry>
           <mesh>
-            <uri>model://orange_pole/orange_pole.dae</uri>
+            <uri>model://metal_panel4/metal_panel.dae</uri>
           </mesh>
         </geometry>
       </visual>
-      <collision name="pole_collision">
+      <collision name="panel_collision">
         <geometry>
           <mesh>
-            <uri>model://orange_pole/orange_pole.dae</uri>
+            <uri>model://metal_panel4/metal_panel.dae</uri>
           </mesh>
         </geometry>
       </collision>

@@ -1,22 +1,21 @@
 <?xml version='1.0'?>
 <sdf version='1.4'>
-  <model name="orange_pole">
+  <model name="dronerace gate">
     <static>true</static>
     <pose>0 0 0 0 0 0</pose>
 
-    <link name="orange_pole">
-      <pose>0 0 0 0 0 0</pose>
-      <visual name="pole">
+    <link name="dronerace gate">
+      <visual name="gate">
         <geometry>
           <mesh>
-            <uri>model://orange_pole/orange_pole.dae</uri>
+            <uri>model://dronerace_gate/dronerace_gate.dae</uri>
           </mesh>
         </geometry>
       </visual>
-      <collision name="pole_collision">
+      <collision name="gate_collision">
         <geometry>
           <mesh>
-            <uri>model://orange_pole/orange_pole.dae</uri>
+            <uri>model://dronerace_gate/dronerace_gate.dae</uri>
           </mesh>
         </geometry>
       </collision>
