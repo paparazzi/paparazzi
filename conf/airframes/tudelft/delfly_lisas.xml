@@ -59,6 +59,7 @@
 			<define name="FILTER_CMD_ROLL_CUTOFF" value="15.0"/>
 			<define name="FILTER_CMD_PITCH_CUTOFF" value="15.0"/>
 			<define name="FILTER_CMD_YAW_CUTOFF" value="10.0"/>	
+			<define name="ATTITUDE_SP_PSI_DELTA_LIMIT" value="1.57"/>
 		</module>
 		<module name="ahrs" type="int_cmpl_quat"/>
 		<module name="ins"/>
@@ -163,7 +164,7 @@
 		
 		<define name="REF_OMEGA_R" value="500" unit="deg/s"/>
 		<define name="REF_ZETA_R" value="0.85"/>
-		<define name="REF_MAX_R" value="90." unit="deg/s"/>
+		<define name="REF_MAX_R" value="180." unit="deg/s"/>
 		<define name="REF_MAX_RDOT" value="RadOfDeg(900.)"/>
 		
 		<!-- feedback -->
@@ -171,12 +172,12 @@
 		<define name="PHI_DGAIN" value="1"/>
 		<define name="PHI_IGAIN" value="1"/>
 		
-		<define name="THETA_PGAIN" value="2024"/>
+		<define name="THETA_PGAIN" value="4024"/>
 		<define name="THETA_DGAIN" value="200"/>
 		<define name="THETA_IGAIN" value="800"/>
 		
-		<define name="PSI_PGAIN" value="1300"/>
-		<define name="PSI_DGAIN" value="300"/>
+		<define name="PSI_PGAIN" value="4000"/>
+		<define name="PSI_DGAIN" value="2000"/>
 		<define name="PSI_IGAIN" value="60"/>
 		
 		<!-- feedforward -->

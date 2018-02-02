@@ -2,7 +2,7 @@
   <aircraft
    name="DelFly_LisaS"
    ac_id="111"
-   airframe="airframes/TUDELFT/tudelft_delfly_lisas.xml"
+   airframe="airframes/tudelft/delfly_lisas.xml"
    radio="radios/delfly_Rx31_DEVO10.xml"
    telemetry="telemetry/rotorcraft_with_logger.xml"
    flight_plan="flight_plans/rotorcraft_basic.xml"
