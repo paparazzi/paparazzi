@@ -49,6 +49,7 @@
 extern "C" {
 #include "nps_fdm.h"
 #include "nps_autopilot.h"
+#include NPS_SENSORS_PARAMS
 
 #include "generated/airframe.h"
 #include "generated/flight_plan.h"
@@ -98,14 +99,6 @@ struct gazebocam_t {
 };
 static struct gazebocam_t gazebo_cams[VIDEO_THREAD_MAX_CAMERAS] =
 { { NULL, 0 } };
-
-// For bebop camera simulation
-#ifndef MT9F002_INITIAL_OFFSET_X
-#define MT9F002_INITIAL_OFFSET_X 0.0
-#endif
-#ifndef MT9F002_INITIAL_OFFSET_Y
-#define MT9F002_INITIAL_OFFSET_Y 0.0
-#endif
 #endif // NPS_SIMULATE_VIDEO
 
 struct gazebo_actuators_t {
@@ -668,21 +661,22 @@ static void init_gazebo_video(void)
     gazebo_cams[i].cam = cam;
     gazebo_cams[i].last_measurement_time = cam->LastMeasurementTime();
     // Copy video_config settings from Gazebo's camera
-#if defined(MT9F002_OUTPUT_WIDTH) && defined(MT9F002_OUTPUT_HEIGHT)
-    // See boards/bebop/mt9f002.c
-    cameras[i]->output_size.w = MT9F002_OUTPUT_WIDTH;
-    cameras[i]->output_size.h = MT9F002_OUTPUT_HEIGHT;
-    cameras[i]->sensor_size.w = MT9F002_OUTPUT_WIDTH;
-    cameras[i]->sensor_size.h = MT9F002_OUTPUT_HEIGHT;
-    cameras[i]->crop.w = MT9F002_OUTPUT_WIDTH;
-    cameras[i]->crop.h = MT9F002_OUTPUT_HEIGHT;
-#else
     cameras[i]->output_size.w = cam->ImageWidth();
     cameras[i]->output_size.h = cam->ImageHeight();
     cameras[i]->sensor_size.w = cam->ImageWidth();
     cameras[i]->sensor_size.h = cam->ImageHeight();
     cameras[i]->crop.w = cam->ImageWidth();
     cameras[i]->crop.h = cam->ImageHeight();
+#if defined(MT9F002_OUTPUT_WIDTH) && defined(MT9F002_OUTPUT_HEIGHT)
+    // See boards/bebop/mt9f002.c
+    if(cam->Name() == "front_camera") {
+      cameras[i]->output_size.w = MT9F002_OUTPUT_WIDTH;
+      cameras[i]->output_size.h = MT9F002_OUTPUT_HEIGHT;
+      cameras[i]->sensor_size.w = MT9F002_OUTPUT_WIDTH;
+      cameras[i]->sensor_size.h = MT9F002_OUTPUT_HEIGHT;
+      cameras[i]->crop.w = MT9F002_OUTPUT_WIDTH;
+      cameras[i]->crop.h = MT9F002_OUTPUT_HEIGHT;
+    }
 #endif
     cameras[i]->fps = cam->UpdateRate();
     cout << "ok" << endl;
@@ -741,15 +735,18 @@ static void read_image(
   struct image_t *img,
   gazebo::sensors::CameraSensorPtr cam)
 {
-  int xstart, ystart;
+  int xstart = 0;
+  int ystart = 0;
 #if defined(MT9F002_OUTPUT_WIDTH) && defined(MT9F002_OUTPUT_HEIGHT)
-  image_create(img, MT9F002_OUTPUT_WIDTH, MT9F002_OUTPUT_HEIGHT, IMAGE_YUV422);
-  xstart = cam->ImageWidth() * (0.5 + MT9F002_INITIAL_OFFSET_X) - MT9F002_OUTPUT_WIDTH / 2;
-  ystart = cam->ImageHeight() * (0.5 + MT9F002_INITIAL_OFFSET_Y) - MT9F002_OUTPUT_HEIGHT / 2;
+  if(cam->Name() == "front_camera") {
+    image_create(img, MT9F002_OUTPUT_WIDTH, MT9F002_OUTPUT_HEIGHT, IMAGE_YUV422);
+    xstart = cam->ImageWidth() * (0.5 + MT9F002_INITIAL_OFFSET_X) - MT9F002_OUTPUT_WIDTH / 2;
+    ystart = cam->ImageHeight() * (0.5 + MT9F002_INITIAL_OFFSET_Y) - MT9F002_OUTPUT_HEIGHT / 2;
+  } else {
+    image_create(img, cam->ImageWidth(), cam->ImageHeight(), IMAGE_YUV422);
+  }
 #else
   image_create(img, cam->ImageWidth(), cam->ImageHeight(), IMAGE_YUV422);
-  xstart = 0;
-  ystart = 0;
 #endif
   // Convert Gazebo's *RGB888* image to Paparazzi's YUV422
   const uint8_t *data_rgb = cam->ImageData();
