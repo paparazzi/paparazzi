@@ -364,7 +364,7 @@ SdioError sdLogCloseAllLogs(bool flush)
     // queue flush + close order, then stop worker thread
     for (FileDes fd = 0; fd < SDLOG_NUM_FILES; fd++) {
       if (fileDes[fd].inUse) {
-        flushWriteByteBuffer(fd);
+        (void)flushWriteByteBuffer(fd);
         sdLogCloseLog(fd);
       }
     }

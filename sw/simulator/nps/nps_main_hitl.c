@@ -245,6 +245,9 @@ void *nps_ap_data_loop(void *data __attribute__((unused)))
             case DL_COMMANDS:
               // parse commands message
               cmd_len = DL_COMMANDS_values_length(buf);
+              if (cmd_len > NPS_COMMANDS_NB) {
+                cmd_len = NPS_COMMANDS_NB;
+              }
               memcpy(&cmd_buf, DL_COMMANDS_values(buf), cmd_len * sizeof(int16_t));
               pthread_mutex_lock(&fdm_mutex);
               // update commands

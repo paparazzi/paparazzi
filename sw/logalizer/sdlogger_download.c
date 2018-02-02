@@ -140,6 +140,7 @@ unsigned int get_baud(unsigned int baud_rate)
       break;
     default:
       printf("Baud rate not recognized, using default B57600\n");
+      // no break
     case 57600:
       BAUD = B57600;
       break;
@@ -466,7 +467,7 @@ void parse_download_byte(unsigned char byte)
       fprintf(stderr, "Could not run sd2log to process data!\n");
     }
     /* Remove file */
-    remove("temp.tlm");
+    (void)remove("temp.tlm");
     /* Reset and get ready for next command */
     need_input = true;
     dcnt = 0;

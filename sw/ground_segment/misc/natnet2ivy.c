@@ -133,7 +133,7 @@ double tracking_offset_angle;       ///< The offset from the tracking system to 
 float natnet_latency;
 
 /** Parse the packet from NatNet */
-void natnet_parse(unsigned char *in)
+void natnet_parse(uint8_t *in)
 {
   int i, j, k;
 
@@ -164,9 +164,15 @@ void natnet_parse(unsigned char *in)
     for (i = 0; i < nMarkerSets; i++) {
       // Markerset name
       char szName[256];
-      strcpy(szName, ptr);
-      int nDataBytes = (int) strlen(szName) + 1;
-      ptr += nDataBytes;
+      int nDataBytes = (int)strlen(ptr);
+      if (nDataBytes < 255){
+        strcpy(szName, ptr);
+      } else {
+        memcpy(szName, ptr, 255);
+        szName[255] = '0';
+      }
+
+      ptr += nDataBytes + 1;
       printf_natnet("Model Name: %s\n", szName);
 
       // marker data
@@ -718,9 +724,13 @@ static gboolean sample_data(GIOChannel *chan, GIOCondition cond, gpointer data)
 {
   static unsigned char buffer_data[MAX_PACKETSIZE];
   static int bytes_data = 0;
+  static int bytes_recv;
 
   // Keep on reading until we have the whole packet
-  bytes_data += udp_socket_recv(&natnet_data, buffer_data, MAX_PACKETSIZE);
+  bytes_recv = udp_socket_recv(&natnet_data, buffer_data, MAX_PACKETSIZE);
+  if (bytes_recv > 0){
+    bytes_data += bytes_recv;
+  }
 
   // Parse NatNet data
   if (bytes_data >= 2) {
@@ -796,7 +806,7 @@ static void parse_options(int argc, char **argv)
     else if (strcmp(argv[i], "-ac") == 0) {
       check_argcount(argc, argv, i, 2);
 
-      int rigid_id = atoi(argv[++i]);
+      uint8_t rigid_id = atoi(argv[++i]);
       uint8_t ac_id = atoi(argv[++i]);
 
       if (rigid_id >= MAX_RIGIDBODIES) {
@@ -933,12 +943,16 @@ int main(int argc, char **argv)
   // Create the network connections
   printf_debug("Starting NatNet listening (multicast address: %s, data port: %d, version: %d.%d)\n",
                natnet_multicast_addr, natnet_data_port, natnet_major, natnet_minor);
-  udp_socket_create(&natnet_data, "", -1, natnet_data_port, 0); // Only receiving
+  if (udp_socket_create(&natnet_data, "", -1, natnet_data_port, 0)){ // Only receiving
+    return(-1);
+  }
   udp_socket_subscribe_multicast(&natnet_data, natnet_multicast_addr);
   udp_socket_set_recvbuf(&natnet_data, 0x100000); // 1MB
 
   printf_debug("Starting NatNet command socket (server address: %s, command port: %d)\n", natnet_addr, natnet_cmd_port);
-  udp_socket_create(&natnet_cmd, natnet_addr, natnet_cmd_port, 0, 1);
+  if(udp_socket_create(&natnet_cmd, natnet_addr, natnet_cmd_port, 0, 1)){
+    return(-1);
+  }
   udp_socket_set_recvbuf(&natnet_cmd, 0x100000); // 1MB
 
   // Create the Ivy Client

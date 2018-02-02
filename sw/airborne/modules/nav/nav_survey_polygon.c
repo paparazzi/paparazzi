@@ -136,10 +136,10 @@ void nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, float
 {
   int i;
   struct FloatVect2 small, sweep;
-  float divider, angle_rad = angle / 180.0 * M_PI;
+  float divider, angle_rad = angle / 180.f * M_PI;
 
-  if (angle < 0.0) { angle += 360.0; }
-  if (angle >= 360.0) { angle -= 360.0; }
+  if (angle < 0.f) { angle += 360.f; }
+  if (angle >= 360.f) { angle -= 360.f; }
 
   survey.poly_first = first_wp;
   survey.poly_count = size;
@@ -153,29 +153,29 @@ void nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, float
   survey.return_angle = angle + 180;
   if (survey.return_angle > 359) { survey.return_angle -= 360; }
 
-  if (angle <= 45.0 || angle >= 315.0) {
+  if (angle <= 45.f || angle >= 315.f) {
     //north
-    survey.dir_vec.y = 1.0;
-    survey.dir_vec.x = 1.0 * tanf(angle_rad);
-    sweep.x = 1.0;
+    survey.dir_vec.y = 1.f;
+    survey.dir_vec.x = 1.f * tanf(angle_rad);
+    sweep.x = 1.f;
     sweep.y = - survey.dir_vec.x / survey.dir_vec.y;
-  } else if (angle <= 135.0) {
+  } else if (angle <= 135.f) {
     //east
-    survey.dir_vec.x = 1.0;
-    survey.dir_vec.y = 1.0 / tanf(angle_rad);
-    sweep.y = - 1.0;
+    survey.dir_vec.x = 1.f;
+    survey.dir_vec.y = 1.f / tanf(angle_rad);
+    sweep.y = - 1.f;
     sweep.x = survey.dir_vec.y / survey.dir_vec.x;
-  } else if (angle <= 225.0) {
+  } else if (angle <= 225.f) {
     //south
-    survey.dir_vec.y = -1.0;
-    survey.dir_vec.x = -1.0 * tanf(angle_rad);
-    sweep.x = -1.0;
+    survey.dir_vec.y = -1.f;
+    survey.dir_vec.x = -1.f * tanf(angle_rad);
+    sweep.x = -1.f;
     sweep.y = survey.dir_vec.x / survey.dir_vec.y;
   } else {
     //west
-    survey.dir_vec.x = -1.0;
-    survey.dir_vec.y = -1.0 / tanf(angle_rad);
-    sweep.y = 1.0;
+    survey.dir_vec.x = -1.f;
+    survey.dir_vec.y = -1.f / tanf(angle_rad);
+    sweep.y = 1.f;
     sweep.x = - survey.dir_vec.y / survey.dir_vec.x;
   }
 
@@ -191,22 +191,22 @@ void nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, float
   divider = (survey.sweep_vec.y * survey.dir_vec.x) - (survey.sweep_vec.x * survey.dir_vec.y);
 
   //calculate the leftmost point if one sees the dir vec as going "up" and the sweep vec as going right
-  if (divider < 0.0) {
+  if (divider < 0.f) {
     for (i = 1; i < survey.poly_count; i++)
       if ((survey.dir_vec.x * (waypoints[survey.poly_first + i].y - small.y)) + (survey.dir_vec.y *
-          (small.x - waypoints[survey.poly_first + i].x)) > 0.0) {
+          (small.x - waypoints[survey.poly_first + i].x)) > 0.f) {
         VECT2_COPY(small, waypoints[survey.poly_first + i]);
       }
   } else
     for (i = 1; i < survey.poly_count; i++)
       if ((survey.dir_vec.x * (waypoints[survey.poly_first + i].y - small.y)) + (survey.dir_vec.y *
-          (small.x - waypoints[survey.poly_first + i].x)) > 0.0) {
+          (small.x - waypoints[survey.poly_first + i].x)) > 0.f) {
         VECT2_COPY(small, waypoints[survey.poly_first + i]);
       }
 
   //calculate the line the defines the first flyover
-  survey.seg_start.x = small.x + 0.5 * survey.sweep_vec.x;
-  survey.seg_start.y = small.y + 0.5 * survey.sweep_vec.y;
+  survey.seg_start.x = small.x + 0.5f * survey.sweep_vec.x;
+  survey.seg_start.y = small.y + 0.5f * survey.sweep_vec.y;
   VECT2_SUM(survey.seg_end, survey.seg_start, survey.dir_vec);
 
   if (!get_two_intersects(&survey.seg_start, &survey.seg_end, survey.seg_start, survey.seg_end)) {
@@ -219,7 +219,7 @@ void nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, float
 
   //fast climbing to desired altitude
   NavVerticalAutoThrottleMode(0.0);
-  NavVerticalAltitudeMode(survey.psa_altitude, 0.0);
+  NavVerticalAltitudeMode(survey.psa_altitude, 0.f);
 
   survey.stage = ENTRY;
 }
@@ -231,8 +231,8 @@ void nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, float
  */
 bool nav_survey_polygon_run(void)
 {
-  NavVerticalAutoThrottleMode(0.0);
-  NavVerticalAltitudeMode(survey.psa_altitude, 0.0);
+  NavVerticalAutoThrottleMode(0.f);
+  NavVerticalAltitudeMode(survey.psa_altitude, 0.f);
 
   //entry circle around entry-center until the desired altitude is reached
   if (survey.stage == ENTRY) {
@@ -243,8 +243,8 @@ bool nav_survey_polygon_run(void)
       survey.stage = SEG;
       nav_init_stage();
 #ifdef DIGITAL_CAM
-      dc_survey(survey.psa_shot_dist, survey.seg_start.x - survey.dir_vec.x * survey.psa_shot_dist * 0.5,
-                survey.seg_start.y - survey.dir_vec.y * survey.psa_shot_dist * 0.5);
+      dc_survey(survey.psa_shot_dist, survey.seg_start.x - survey.dir_vec.x * survey.psa_shot_dist * 0.5f,
+                survey.seg_start.y - survey.dir_vec.y * survey.psa_shot_dist * 0.5f);
 #endif
     }
   }
@@ -252,13 +252,13 @@ bool nav_survey_polygon_run(void)
   if (survey.stage == SEG) {
     nav_points(survey.seg_start, survey.seg_end);
     //calculate all needed points for the next flyover
-    if (nav_approaching_xy(survey.seg_end.x, survey.seg_end.y, survey.seg_start.x, survey.seg_start.y, 0)) {
+    if (nav_approaching_xy(survey.seg_end.x, survey.seg_end.y, survey.seg_start.x, survey.seg_start.y, 0.f)) {
 #ifdef DIGITAL_CAM
       dc_stop();
 #endif
       VECT2_DIFF(survey.seg_center1, survey.seg_end, survey.rad_vec);
-      survey.ret_start.x = survey.seg_end.x - 2 * survey.rad_vec.x;
-      survey.ret_start.y = survey.seg_end.y - 2 * survey.rad_vec.y;
+      survey.ret_start.x = survey.seg_end.x - 2.f * survey.rad_vec.x;
+      survey.ret_start.y = survey.seg_end.y - 2.f * survey.rad_vec.y;
 
       //if we get no intersection the survey is finished
       static struct FloatVect2 sum_start_sweep;
@@ -269,11 +269,11 @@ bool nav_survey_polygon_run(void)
         return false;
       }
 
-      survey.ret_end.x = survey.seg_start.x - survey.sweep_vec.x - 2 * survey.rad_vec.x;
-      survey.ret_end.y = survey.seg_start.y - survey.sweep_vec.y - 2 * survey.rad_vec.y;
+      survey.ret_end.x = survey.seg_start.x - survey.sweep_vec.x - 2.f * survey.rad_vec.x;
+      survey.ret_end.y = survey.seg_start.y - survey.sweep_vec.y - 2.f * survey.rad_vec.y;
 
-      survey.seg_center2.x = survey.seg_start.x - 0.5 * (2.0 * survey.rad_vec.x + survey.sweep_vec.x);
-      survey.seg_center2.y = survey.seg_start.y - 0.5 * (2.0 * survey.rad_vec.y + survey.sweep_vec.y);
+      survey.seg_center2.x = survey.seg_start.x - 0.f * (2.f * survey.rad_vec.x + survey.sweep_vec.x);
+      survey.seg_center2.y = survey.seg_start.y - 0.f * (2.f * survey.rad_vec.y + survey.sweep_vec.y);
 
       survey.stage = TURN1;
       nav_init_stage();
@@ -289,19 +289,19 @@ bool nav_survey_polygon_run(void)
     //return
   } else if (survey.stage == RET) {
     nav_points(survey.ret_start, survey.ret_end);
-    if (nav_approaching_xy(survey.ret_end.x, survey.ret_end.y, survey.ret_start.x, survey.ret_start.y, 0)) {
+    if (nav_approaching_xy(survey.ret_end.x, survey.ret_end.y, survey.ret_start.x, survey.ret_start.y, 0.f)) {
       survey.stage = TURN2;
       nav_init_stage();
     }
     //turn from return to stage
   } else if (survey.stage == TURN2) {
-    nav_circle_XY(survey.seg_center2.x, survey.seg_center2.y, -(2 * survey.psa_min_rad + survey.psa_sweep_width) * 0.5);
+    nav_circle_XY(survey.seg_center2.x, survey.seg_center2.y, -(2.f * survey.psa_min_rad + survey.psa_sweep_width) * 0.5f);
     if (NavCourseCloseTo(survey.segment_angle)) {
       survey.stage = SEG;
       nav_init_stage();
 #ifdef DIGITAL_CAM
-      dc_survey(survey.psa_shot_dist, survey.seg_start.x - survey.dir_vec.x * survey.psa_shot_dist * 0.5,
-                survey.seg_start.y - survey.dir_vec.y * survey.psa_shot_dist * 0.5);
+      dc_survey(survey.psa_shot_dist, survey.seg_start.x - survey.dir_vec.x * survey.psa_shot_dist * 0.5f,
+                survey.seg_start.y - survey.dir_vec.y * survey.psa_shot_dist * 0.5f);
 #endif
     }
   }

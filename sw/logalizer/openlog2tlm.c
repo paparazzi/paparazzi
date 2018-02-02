@@ -55,9 +55,9 @@ int main(int argc, char *argv[]) {
     puts("openlog2tlm wasn't able to open the inputfile\n");
     return EXIT_FAILURE;
   }
-  fseek(in,0L,SEEK_END);/// place the descriptor at the end of the file
+  (void)fseek(in,0L,SEEK_END);/// place the descriptor at the end of the file
   int inlength = ftell(in);/// get the length of the file
-  fseek(in,0L,SEEK_SET);/// place the descriptor to the head of the file
+  (void)fseek(in,0L,SEEK_SET);/// place the descriptor to the head of the file
   if((out=fopen(argv[2],"w+"))==NULL){
     puts("openlog2tlm wasn't able to open the outputfile\n");
     return EXIT_FAILURE;
@@ -74,7 +74,7 @@ int main(int argc, char *argv[]) {
 		  }
 		 }
   }
-  fseek(in,-1L,SEEK_CUR);///put the filedescriptor back to read 0x99 again
+  (void)fseek(in,-1L,SEEK_CUR);///put the filedescriptor back to read 0x99 again
 
 
   while(!feof(in)){/// do this from the first STX (descriptor for STX is here) until the end of the file
@@ -95,7 +95,7 @@ int main(int argc, char *argv[]) {
     	  err = 1;///set the error flag, so this package won't be written
     	  if (inlength <= ftell(in)) break;///break if the end is reached
       }
-      fseek(in,-1L,SEEK_CUR);///put the filedescriptor back to read 0x99 again
+      (void)fseek(in,-1L,SEEK_CUR);///put the filedescriptor back to read 0x99 again
       temp = fgetc(in);//read the next char
       if (err!=1){///don't write damaged packages and don't do something else with it
           if(message[1]==MSG_NUMBER){/// if the message was a timestamp, update the timestamp to write
@@ -132,15 +132,15 @@ int main(int argc, char *argv[]) {
   ///In case it won't be overwritten, sd2log will crash
   ///put the file-descriptor to the end of the file
 
-  fseek(out, 0L, SEEK_END);
+  (void)fseek(out, 0L, SEEK_END);
   int end = ftell(out);//remember the offset
   ///rewind to the last STX, to find the beginning of the last package and place the filedescriptor there
   int temp2 = fgetc(out);
   while(temp2!=0x99 && nomsg==0) {/// skip the rewind in case there was no message, otherwise search for the last STX
-	  fseek(out, -2L, SEEK_CUR);
+	  (void)fseek(out, -2L, SEEK_CUR);
 	  temp2 = fgetc(out);
   }
-  fseek(out,-1L,SEEK_CUR);///overwrite the STX as well
+  (void)fseek(out,-1L,SEEK_CUR);///overwrite the STX as well
 
   while(ftell(out)!=end) {///overwrite the corrupt data with zeroes
 	  fputc(0x0,out);

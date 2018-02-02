@@ -253,5 +253,5 @@ static void rtp_packet_send(
   // append the JPEG scan data to the RTP buffer
   memcpy(&RtpBuf[20], Jpeg, JpegLen);
 
-  udp_socket_send_dontwait(udp, RtpBuf, RtpPacketSize);
+  (void)udp_socket_send_dontwait(udp, RtpBuf, RtpPacketSize);
 };

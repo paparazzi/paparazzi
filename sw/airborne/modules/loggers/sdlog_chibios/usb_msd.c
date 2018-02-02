@@ -128,7 +128,8 @@ PACK_STRUCT_BEGIN typedef struct {
 /**
  * @brief   Read-write buffers (TODO: need a way of specifying the size of this)
  */
-static uint8_t IN_DMA_SECTION_CLEAR(rw_buf[2][512]);
+#define RW_BUF_SIZE 512
+static uint8_t IN_DMA_SECTION_CLEAR(rw_buf[2][RW_BUF_SIZE]);
 
 typedef uint32_t DWORD __attribute__((__may_alias__));;
 typedef uint16_t WORD  __attribute__((__may_alias__));
@@ -231,11 +232,11 @@ bool msdRequestsHook(USBDriver *usbp)
                     CBW from the host.
                     To generate the BOT Mass Storage Reset, the host must send a device request on the
                     default pipe of:
-                    • bmRequestType: Class, interface, host to device
-                    • bRequest field set to 255 (FFh)
-                    • wValue field set to ‘0’
-                    • wIndex field set to the interface number
-                    • wLength field set to ‘0’
+                    ï¿½ bmRequestType: Class, interface, host to device
+                    ï¿½ bRequest field set to 255 (FFh)
+                    ï¿½ wValue field set to ï¿½0ï¿½
+                    ï¿½ wIndex field set to the interface number
+                    ï¿½ wLength field set to ï¿½0ï¿½
         */
         UMSD.bot_reset = true;
         chSysLockFromISR();
@@ -466,6 +467,9 @@ bool msd_scsi_process_start_read_write_10(USBMassStorageDriver *msdp)
 
   uint32_t rw_block_address = swap_uint32(*(DWORD *)&cbw->scsi_cmd_data[2]);
   uint16_t total = swap_uint16(*(WORD *)&cbw->scsi_cmd_data[7]);
+  if (total > RW_BUF_SIZE){
+    total = RW_BUF_SIZE;
+  }
   uint16_t i = 0;
 
   if (rw_block_address >= msdp->block_dev_info.blk_num) {

@@ -50,6 +50,7 @@ bool rng_get(uint32_t *rand_nr)
   if (res != len) {
     printf("Error on reading, expected %u bytes, got %u bytes\n",
         len, res);
+    close(fd);
     return false;
   }
   close(fd);

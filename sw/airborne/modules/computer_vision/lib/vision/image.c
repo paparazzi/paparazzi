@@ -662,8 +662,8 @@ void image_show_points_color(struct image_t *img, struct point_t *points, uint16
   uint8_t *img_buf = (uint8_t *)img->buf;
   uint8_t pixel_width = (img->type == IMAGE_YUV422) ? 2 : 1;
 
-  int cross_hair = 1;
-  int size_crosshair = 5;
+  static const int cross_hair = 1;
+  static const int size_crosshair = 5;
 
   // Go trough all points and color them
   for (int i = 0; i < points_cnt; i++) {

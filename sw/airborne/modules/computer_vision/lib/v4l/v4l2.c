@@ -231,6 +231,7 @@ struct v4l2_device *v4l2_init(char *device_name, struct img_size_t size, struct 
   // Accept if no format can be get
   if(fmtdesc.index != 0 && fmtdesc.pixelformat != _pixelformat) {
     printf("[v4l2] Pixelformat not available on device %s (wanted: %4X)\r\n", device_name, _pixelformat);
+    close(fd);
     return NULL;
   }
 

@@ -77,7 +77,7 @@ void send_udp(const char *send_to_ip, int port, char *mesg) {
       exit_player(EXIT_ERROR);*/
 
     // Enable broadcast
-    setsockopt(sockfd, SOL_SOCKET, SO_BROADCAST, &one, sizeof(one));
+    (void)setsockopt(sockfd, SOL_SOCKET, SO_BROADCAST, &one, sizeof(one));
 
 #if HAVE_WINSOCK2_H
     socketinfo.sin_addr.s_addr = inet_addr(send_to_ip);
@@ -95,7 +95,7 @@ void send_udp(const char *send_to_ip, int port, char *mesg) {
     socketinfo.sin_port   = htons(port);
   }
 
-  sendto(sockfd, mesg, (size_t)strlen(mesg), 0, (struct sockaddr *) &socketinfo,
+  (void)sendto(sockfd, mesg, (size_t)strlen(mesg), 0, (struct sockaddr *) &socketinfo,
          sizeof(socketinfo));
 }
 

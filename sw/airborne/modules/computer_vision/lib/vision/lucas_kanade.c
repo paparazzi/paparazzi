@@ -237,12 +237,12 @@ struct flow_t *opticFlowLK(struct image_t *new_img, struct image_t *old_img, str
   image_free(&window_DY);
   image_free(&window_diff);
 
-  for (int8_t i = pyramid_level; i != -1; i--) {
+  for (int8_t i = 0; i < pyramid_level; i++) {
     image_free(&pyramid_old[i]);
     image_free(&pyramid_new[i]);
   }
-  pyramid_old = NULL;
-  pyramid_new = NULL;
+  free(pyramid_old);
+  free(pyramid_new);
 
   // Return the vectors
   return vectors;

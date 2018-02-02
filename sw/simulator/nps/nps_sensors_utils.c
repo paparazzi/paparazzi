@@ -21,7 +21,9 @@ void UpdateSensorLatency(double time, gpointer cur_reading, GSList **history, do
   }
   /* update sensor        */
   //g_memmove((gpointer)sensor_reading, (gpointer)((struct BoozDatedSensor*)last->data)->value, sizeof(struct DoubleVect3));
-  VECT3_COPY(*((struct DoubleVect3 *)sensor_reading), *((struct BoozDatedSensor *)last->data)->value);
+  if (last) {
+    VECT3_COPY(*((struct DoubleVect3 *)sensor_reading), *((struct BoozDatedSensor *)last->data)->value);
+  }
 }
 
 void UpdateSensorLatency_Single(double time, gpointer cur_reading, GSList **history, double latency,
@@ -44,6 +46,7 @@ void UpdateSensorLatency_Single(double time, gpointer cur_reading, GSList **hist
 
   /* update sensor        */
   //g_memmove((gpointer)sensor_reading, (gpointer)((struct BoozDatedSensor*)last->data)->value, sizeof(struct DoubleVect3));
-  *((double *)sensor_reading) = *(((struct BoozDatedSensor_Single *)last->data)->value);
-
+  if(last) {
+    *((double *)sensor_reading) = *(((struct BoozDatedSensor_Single *)last->data)->value);
+  }
 }

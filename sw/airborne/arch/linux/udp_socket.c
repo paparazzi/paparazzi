@@ -76,17 +76,31 @@ int udp_socket_create(struct UdpSocket *sock, char *host, int port_out, int port
 
   // Create the socket with the correct protocl
   sock->sockfd = socket(PF_INET, SOCK_DGRAM, 0);
+  if (sock->sockfd < 0)
+  {
+    return -1;
+  }
+
   int one = 1;
   // Enable reusing of address
-  setsockopt(sock->sockfd, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one));
+  if(setsockopt(sock->sockfd, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one)))
+  {
+    return -1;
+  }
 #ifdef SO_REUSEPORT
   // needed for OSX
-  setsockopt(sock->sockfd, SOL_SOCKET, SO_REUSEPORT, &one, sizeof(one));
+  if(setsockopt(sock->sockfd, SOL_SOCKET, SO_REUSEPORT, &one, sizeof(one)))
+  {
+    return -1;
+  }
 #endif
 
   // Enable broadcasting
   if (broadcast) {
-    setsockopt(sock->sockfd, SOL_SOCKET, SO_BROADCAST, &one, sizeof(one));
+    if(setsockopt(sock->sockfd, SOL_SOCKET, SO_BROADCAST, &one, sizeof(one)))
+    {
+      return -1;
+    }
   }
 
   // if an input port was specified, bind to it
@@ -96,7 +110,10 @@ int udp_socket_create(struct UdpSocket *sock, char *host, int port_out, int port
     sock->addr_in.sin_port = htons(port_in);
     sock->addr_in.sin_addr.s_addr = htonl(INADDR_ANY);
 
-    bind(sock->sockfd, (struct sockaddr *)&sock->addr_in, sizeof(sock->addr_in));
+    if(bind(sock->sockfd, (struct sockaddr *)&sock->addr_in, sizeof(sock->addr_in)))
+    {
+      return -1;
+    }
   }
 
   // set the output/destination address for use in sendto later
@@ -206,9 +223,9 @@ int udp_socket_set_recvbuf(struct UdpSocket *sock, int buf_size)
 {
   // Set and check
   unsigned int optval_size = 4;
-  int buf_ret;
-  setsockopt(sock->sockfd, SOL_SOCKET, SO_RCVBUF, (char *)&buf_size, optval_size);
-  getsockopt(sock->sockfd, SOL_SOCKET, SO_RCVBUF, (char *)&buf_ret, &optval_size);
+  int buf_ret = -1;
+  (void)setsockopt(sock->sockfd, SOL_SOCKET, SO_RCVBUF, (char *)&buf_size, optval_size);
+  (void)getsockopt(sock->sockfd, SOL_SOCKET, SO_RCVBUF, (char *)&buf_ret, &optval_size);
 
   if (buf_size != buf_ret) {
     return -1;
@@ -222,10 +239,10 @@ int udp_socket_set_sendbuf(struct UdpSocket *sock, int buf_size)
   // Set and check
   unsigned int optval_size = 4;
   int buf_ret;
-  setsockopt(sock->sockfd, SOL_SOCKET, SO_SNDBUF, (char *)&buf_size, optval_size);
-  getsockopt(sock->sockfd, SOL_SOCKET, SO_SNDBUF, (char *)&buf_ret, &optval_size);
 
-  if (buf_size != buf_ret) {
+  if (setsockopt(sock->sockfd, SOL_SOCKET, SO_SNDBUF, (char *)&buf_size, optval_size) ||
+      getsockopt(sock->sockfd, SOL_SOCKET, SO_SNDBUF, (char *)&buf_ret, &optval_size) ||
+      buf_size != buf_ret) {
     return -1;
   }
 

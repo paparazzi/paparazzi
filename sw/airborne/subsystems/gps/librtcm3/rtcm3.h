@@ -111,7 +111,7 @@ typedef struct {
   u8 msg_class;
   u16 crc;
   u16 msg_len;
-  u8 n_read;
+  u16 n_read;
   u8 msg_buff[1024 + 6 + 1];
   rtcm3_msg_callbacks_node_t *rtcm3_msg_callbacks_head;
   u8 status;

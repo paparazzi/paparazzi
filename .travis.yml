@@ -10,6 +10,7 @@ before_install:
   - sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
   - wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
   - sudo apt-get update -q
+  - echo -n | openssl s_client -connect https://scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
 install:
   - sudo apt-get install -y --force-yes paparazzi-dev paparazzi-jsbsim gcc-arm-embedded gcc-arm-linux-gnueabi libipc-run-perl rustc cargo libgazebo7-dev
 script:
@@ -20,7 +21,7 @@ env:
   global:
    # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
    #   via the "travis encrypt" command using the project repo's public key
-   - secure: "QGE7s/sTIX3F4hG8YYbpYjB2x0YsUUo9qHf+Dv5BqNcTtZ2TLO0tHPWxoI5wlRLiMEOOnINNwYk7ooM3oOXa0Fm9urja9k78cFutbbDtvGD6DjUFajwJ0KnwXnLulCgG+l67umGitSazQpyEQE4pvX/8EnB9/pgq706DlmCbkds="
+   - secure: "jAar1cuq5FiOX9mSa3VxQa8BCf78JrHLQAzUSF5HOQx3ZBhGdTHaPM/ht79cOhXTI5bYaMaq6oPNkYjNLAqBs1FoeJ9woz4unEbAQ0OSowtV7galoY+KJdcIlOECi0SVuKGzjdHrZ67ONUtTwkefKYg9ngwSyu5IxUcp8D5+oIU="
 
 addons:
   coverity_scan:

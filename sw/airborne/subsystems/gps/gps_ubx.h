@@ -50,7 +50,11 @@ extern void gps_ubx_event(void);
 
 #define GPS_UBX_NB_CHANNELS 16
 
+#if USE_GPS_UBX_RXM_RAW
+#define GPS_UBX_MAX_PAYLOAD 512   // need larger buffer to capture data for all GPS_UBX_NB_CHANNELS
+#else
 #define GPS_UBX_MAX_PAYLOAD 255
+#endif  // USE_GPS_UBX_RXM_RAW
 struct GpsUbx {
   bool msg_available;
   uint8_t msg_buf[GPS_UBX_MAX_PAYLOAD] __attribute__((aligned));
@@ -92,7 +96,7 @@ struct GpsUbxRaw {
 };
 
 extern struct GpsUbxRaw gps_ubx_raw;
-#endif
+#endif  // USE_GPS_UBX_RXM_RAW
 
 /*
  * This part is used by the autopilot to read data from a uart
