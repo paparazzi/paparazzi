@@ -49,7 +49,6 @@
 extern "C" {
 #include "nps_fdm.h"
 #include "nps_autopilot.h"
-#include NPS_SENSORS_PARAMS
 
 #include "generated/airframe.h"
 #include "generated/flight_plan.h"
@@ -99,6 +98,9 @@ struct gazebocam_t {
 };
 static struct gazebocam_t gazebo_cams[VIDEO_THREAD_MAX_CAMERAS] =
 { { NULL, 0 } };
+#if NPS_SIMULATE_MT9F002
+#include "boards/bebop/mt9f002.h"
+#endif
 #endif // NPS_SIMULATE_VIDEO
 
 struct gazebo_actuators_t {
@@ -356,7 +358,7 @@ static void init_gazebo(void)
   range_joint->GetElement("child")->Set("range_sensors::base");
 #endif
   // bebop front camera
-#ifdef MT9F002_OUTPUT_SCALER
+#ifdef NPS_SIMULATE_MT9F002
   sdf::ElementPtr link = vehicle_sdf->Root()->GetFirstElement()->GetElement("link");
   while(link) {
     if(link->Get<string>("name") == "front_camera") {
@@ -367,14 +369,12 @@ static void init_gazebo(void)
       int env = link->GetElement("sensor")->GetElement("camera")->GetElement("lens")->GetElement("env_texture_size")->Get<int>();
       link->GetElement("sensor")->GetElement("camera")->GetElement("lens")->GetElement("env_texture_size")->Set(env * MT9F002_OUTPUT_SCALER);
       cout << "Applied MT9F002_OUTPUT_SCALER (=" << MT9F002_OUTPUT_SCALER << ") to " << link->Get<string>("name") << endl;
-#ifdef MT9F002_TARGET_FPS
       link->GetElement("sensor")->GetElement("update_rate")->Set(MT9F002_TARGET_FPS);
       cout << "Applied MT9F002_TARGET_FPS (=" << MT9F002_TARGET_FPS << ") to " << link->Get<string>("name") << endl;
-#endif
     }
     link = link->GetNextElement("link");
   }
-#endif // MT9F002_OUTPUT_SCALER
+#endif // NPS_SIMULATE_MT9F002
 
 
   // get world
@@ -667,7 +667,7 @@ static void init_gazebo_video(void)
     cameras[i]->sensor_size.h = cam->ImageHeight();
     cameras[i]->crop.w = cam->ImageWidth();
     cameras[i]->crop.h = cam->ImageHeight();
-#if defined(MT9F002_OUTPUT_WIDTH) && defined(MT9F002_OUTPUT_HEIGHT)
+#if NPS_SIMULATE_MT9F002
     // See boards/bebop/mt9f002.c
     if(cam->Name() == "front_camera") {
       cameras[i]->output_size.w = MT9F002_OUTPUT_WIDTH;
@@ -737,7 +737,7 @@ static void read_image(
 {
   int xstart = 0;
   int ystart = 0;
-#if defined(MT9F002_OUTPUT_WIDTH) && defined(MT9F002_OUTPUT_HEIGHT)
+#if NPS_SIMULATE_MT9F002
   if(cam->Name() == "front_camera") {
     image_create(img, MT9F002_OUTPUT_WIDTH, MT9F002_OUTPUT_HEIGHT, IMAGE_YUV422);
     xstart = cam->ImageWidth() * (0.5 + MT9F002_INITIAL_OFFSET_X) - MT9F002_OUTPUT_WIDTH / 2;
