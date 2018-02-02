@@ -9,7 +9,7 @@
       <visual name="mat">
         <geometry>
           <mesh>
-            <uri>model://traffic_mat/traffic_mat_1.dae</uri>
+            <uri>model://traffic_mat/traffic_mat.dae</uri>
           </mesh>
         </geometry>
       </visual>

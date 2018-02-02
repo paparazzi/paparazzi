@@ -8,7 +8,7 @@
       <visual name="curtain">
         <geometry>
           <mesh>
-            <uri>model://curtain_striped/curtain_striped.dae</uri>
+            <uri>model://curtain_striped/shower_curtain.dae</uri>
           </mesh>
         </geometry>
       </visual>
