@@ -98,7 +98,10 @@ struct gazebocam_t {
 };
 static struct gazebocam_t gazebo_cams[VIDEO_THREAD_MAX_CAMERAS] =
 { { NULL, 0 } };
+#if NPS_SIMULATE_MT9F002
+#include "boards/bebop/mt9f002.h"
 #endif
+#endif // NPS_SIMULATE_VIDEO
 
 struct gazebo_actuators_t {
   string names[NPS_COMMANDS_NB];
@@ -344,7 +347,8 @@ static void init_gazebo(void)
   sdf::init(vehicle_sdf);
   sdf::readFile(gazebodir + "models/" + NPS_GAZEBO_AC_NAME + "/" + NPS_GAZEBO_AC_NAME + ".sdf", vehicle_sdf);
 
-  // add sensors
+  // add or set up sensors before the vehicle gets loaded
+  // laser range array
 #if NPS_SIMULATE_LASER_RANGE_ARRAY
   vehicle_sdf->Root()->GetFirstElement()->AddElement("include")->GetElement("uri")->Set("model://range_sensors");
   sdf::ElementPtr range_joint = vehicle_sdf->Root()->GetFirstElement()->AddElement("joint");
@@ -353,6 +357,25 @@ static void init_gazebo(void)
   range_joint->GetElement("parent")->Set("chassis");
   range_joint->GetElement("child")->Set("range_sensors::base");
 #endif
+  // bebop front camera
+#ifdef NPS_SIMULATE_MT9F002
+  sdf::ElementPtr link = vehicle_sdf->Root()->GetFirstElement()->GetElement("link");
+  while(link) {
+    if(link->Get<string>("name") == "front_camera") {
+      int w = link->GetElement("sensor")->GetElement("camera")->GetElement("image")->GetElement("width")->Get<int>();
+      link->GetElement("sensor")->GetElement("camera")->GetElement("image")->GetElement("width")->Set(w * MT9F002_OUTPUT_SCALER);
+      int h = link->GetElement("sensor")->GetElement("camera")->GetElement("image")->GetElement("height")->Get<int>();
+      link->GetElement("sensor")->GetElement("camera")->GetElement("image")->GetElement("height")->Set(h * MT9F002_OUTPUT_SCALER);
+      int env = link->GetElement("sensor")->GetElement("camera")->GetElement("lens")->GetElement("env_texture_size")->Get<int>();
+      link->GetElement("sensor")->GetElement("camera")->GetElement("lens")->GetElement("env_texture_size")->Set(env * MT9F002_OUTPUT_SCALER);
+      cout << "Applied MT9F002_OUTPUT_SCALER (=" << MT9F002_OUTPUT_SCALER << ") to " << link->Get<string>("name") << endl;
+      link->GetElement("sensor")->GetElement("update_rate")->Set(MT9F002_TARGET_FPS);
+      cout << "Applied MT9F002_TARGET_FPS (=" << MT9F002_TARGET_FPS << ") to " << link->Get<string>("name") << endl;
+    }
+    link = link->GetNextElement("link");
+  }
+#endif // NPS_SIMULATE_MT9F002
+
 
   // get world
   cout << "Load world: " << gazebodir + "world/" + NPS_GAZEBO_WORLD << endl;
@@ -644,6 +667,17 @@ static void init_gazebo_video(void)
     cameras[i]->sensor_size.h = cam->ImageHeight();
     cameras[i]->crop.w = cam->ImageWidth();
     cameras[i]->crop.h = cam->ImageHeight();
+#if NPS_SIMULATE_MT9F002
+    // See boards/bebop/mt9f002.c
+    if(cam->Name() == "front_camera") {
+      cameras[i]->output_size.w = MT9F002_OUTPUT_WIDTH;
+      cameras[i]->output_size.h = MT9F002_OUTPUT_HEIGHT;
+      cameras[i]->sensor_size.w = MT9F002_OUTPUT_WIDTH;
+      cameras[i]->sensor_size.h = MT9F002_OUTPUT_HEIGHT;
+      cameras[i]->crop.w = MT9F002_OUTPUT_WIDTH;
+      cameras[i]->crop.h = MT9F002_OUTPUT_HEIGHT;
+    }
+#endif
     cameras[i]->fps = cam->UpdateRate();
     cout << "ok" << endl;
   }
@@ -701,13 +735,25 @@ static void read_image(
   struct image_t *img,
   gazebo::sensors::CameraSensorPtr cam)
 {
+  int xstart = 0;
+  int ystart = 0;
+#if NPS_SIMULATE_MT9F002
+  if(cam->Name() == "front_camera") {
+    image_create(img, MT9F002_OUTPUT_WIDTH, MT9F002_OUTPUT_HEIGHT, IMAGE_YUV422);
+    xstart = cam->ImageWidth() * (0.5 + MT9F002_INITIAL_OFFSET_X) - MT9F002_OUTPUT_WIDTH / 2;
+    ystart = cam->ImageHeight() * (0.5 + MT9F002_INITIAL_OFFSET_Y) - MT9F002_OUTPUT_HEIGHT / 2;
+  } else {
+    image_create(img, cam->ImageWidth(), cam->ImageHeight(), IMAGE_YUV422);
+  }
+#else
   image_create(img, cam->ImageWidth(), cam->ImageHeight(), IMAGE_YUV422);
+#endif
   // Convert Gazebo's *RGB888* image to Paparazzi's YUV422
   const uint8_t *data_rgb = cam->ImageData();
   uint8_t *data_yuv = (uint8_t *)(img->buf);
   for (int x = 0; x < img->w; ++x) {
     for (int y = 0; y < img->h; ++y) {
-      int idx_rgb = 3 * (img->w * y + x);
+      int idx_rgb = 3 * (cam->ImageWidth() * (y + ystart) + (x + xstart));
       int idx_yuv = 2 * (img->w * y + x);
       int idx_px = img->w * y + x;
       if (idx_px % 2 == 0) { // Pick U or V

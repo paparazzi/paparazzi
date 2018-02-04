@@ -176,7 +176,7 @@
     <!-- CAMERAS -->
 
     <link name="front_camera">
-      <pose>0.15 0 0 0 0 0</pose>
+      <pose>0.15 0 0 -1.57 0.33 0</pose><!-- Bebop camera output is rotated 90 degrees and pitched slightly downwards -->
       <inertial>
         <mass>0.001</mass>
         <inertia>
@@ -188,17 +188,22 @@
           <ixz>0</ixz>
         </inertia>
       </inertial>
-      <sensor type="camera" name="front_camera">
-        <update_rate>30.0</update_rate>
+      <sensor type="wideanglecamera" name="front_camera">
+        <update_rate>15.0</update_rate><!-- adjust with MT9F002_TARGET_FPS -->
         <camera name="front_camera">
-          <horizontal_fov>1.3962634</horizontal_fov>
           <image>
-            <width>1280</width>
-            <height>720</height>
+            <width>4608</width><!-- with MT9F002_OUTPUT_SCALER = 1.00, will be scaled by NPS -->
+            <height>3288</height>
             <format>R8G8B8</format>
           </image>
+          <horizontal_fov>3.69</horizontal_fov>
+          <lens>
+            <type>equisolid_angle</type>
+            <scale_to_hfov>true</scale_to_hfov>
+            <env_texture_size>2048</env_texture_size><!-- with MT9F002_OUTPUT_SCALER = 1.00, will be scaled by NPS -->
+          </lens>
           <clip>
-            <near>0.02</near>
+            <near>0.01</near>
             <far>300</far>
           </clip>
           <noise>
@@ -219,7 +224,7 @@
     </joint>
     
     <link name="bottom_camera">
-      <pose>0 0 -.03 0 1.57 0</pose>
+      <pose>0 0 0 0 1.57 0</pose>
       <inertial>
         <mass>0.001</mass>
         <inertia>
@@ -234,9 +239,9 @@
       <sensor type="camera" name="bottom_camera">
         <update_rate>30.0</update_rate>
         <camera name="bottom_camera">
-          <horizontal_fov>1.3962634</horizontal_fov>
+          <horizontal_fov>0.7175</horizontal_fov>
           <image>
-            <width>320</width>
+            <width>240</width>
             <height>240</height>
             <format>R8G8B8</format>
           </image>
