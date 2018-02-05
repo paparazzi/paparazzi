@@ -35,30 +35,61 @@
 #include "../ext/hacl-c/Hacl_SHA2_512.h"
 #include "../ext/hacl-c/Hacl_Chacha20Poly1305.h"
 
-
+#define PPRZ_MSG_TYPE_PLAINTEXT 0xaa
+#define PPRZ_MSG_TYPE_ENCRYPTED 0x55
+// index of encrypted/payload byte
+#define PPRZ_GEC_IDX 0
+// index of the beginning of the counter
+#define PPRZ_CNTR_IDX 1
+// index of the beginning of the authenticated bytes
+#define PPRZ_AUTH_IDX 5
+// index of the beginning of the ciphertex
+#define PPRZ_CIPH_IDX 7
+// legth of the message signature
 #define PPRZ_SIGN_LEN 64
+// lenght of a hash for key derivation
+#define PPRZ_HASH_LEN 64
+// length of the encryption keys
 #define PPRZ_KEY_LEN 32
-#define PPRZ_NONCE_LEN 12
+// length of the authenticated data
+#define PPRZ_AUTH_LEN 2
+// length of the message authentication tag
 #define PPRZ_MAC_LEN 16
+// length of the message nonce
+#define PPRZ_NONCE_LEN 12
+// length of the counter
+#define PPRZ_COUNTER_LEN 4
+// index of the message ID for plaintext messages
+#define PPRZ_PLAINTEXT_MSG_ID_IDX 4
+// 4 bytes of MSG info (source_ID, dest_ID, class_byte, msg_ID) + 1 GEC byte
+#define PPRZ_PLAINTEXT_MSG_MIN_LEN 5
+// 20 bytes crypto overhead + 4 bytes MSG info + 1 GEC byte
+#define PPRZ_ENCRYPTED_MSG_MIN_LEN 25
+// length of the crypto overhead (4 bytes of counter + 16 bytes of tag)
+#define PPRZ_CRYPTO_OVERHEAD 20
+// basepoint value for the scalar curve multiplication
+#define PPRZ_CURVE_BASEPOINT 9
+// minimal size of the encrypted message
+#define PPRZ_V2_MSG_ID 3
 
 typedef unsigned char ed25519_signature[64];
 
 struct gec_privkey
 {
   uint8_t priv[PPRZ_KEY_LEN];
-  uint8_t pub[PPRZ_KEY_LEN];
+  uint8_t pub[PPRZ_KEY_LEN];bool ready;
 };
 
 struct gec_pubkey
 {
-  uint8_t pub[PPRZ_KEY_LEN];
+  uint8_t pub[PPRZ_KEY_LEN];bool ready;
 };
 
 struct gec_sym_key
 {
   uint8_t key[PPRZ_KEY_LEN];
   uint8_t nonce[PPRZ_NONCE_LEN];
-  uint32_t ctr;
+  uint32_t counter;bool ready;
 };
 
 typedef enum
@@ -92,39 +123,31 @@ typedef enum
   MSG3_ENCRYPT_ERROR,
   // BOTH PARTIES
   UNEXPECTED_MSG_TYPE_ERROR,
-  UNEXPECTED_STS_STAGE_ERROR,
-  UNEXPECTED_MSG_ERROR
+  UNEXPECTED_MSG_DATA_ERROR,
+  UNEXPECTED_MSG_ERROR,
 } sts_error_t;
 
 // Intermediate data structure containing information relating to the stage of
 // the STS protocol.
 struct gec_sts_ctx
 {
-  struct gec_pubkey theirPublicKey;
-  struct gec_privkey myPrivateKey;
-  struct gec_pubkey theirPublicKeyEphemeral;
-  struct gec_privkey myPrivateKeyEphemeral;
-  struct gec_sym_key theirSymmetricKey;
-  struct gec_sym_key mySymmetricKey;
+  struct gec_pubkey their_public_key;
+  struct gec_privkey my_private_key;
+  struct gec_pubkey their_public_ephemeral;
+  struct gec_privkey my_private_ephemeral;
+  struct gec_sym_key rx_sym_key;
+  struct gec_sym_key tx_sym_key;
   stage_t protocol_stage;
   party_t party;
   sts_error_t last_error;
-  uint32_t counter_err;
+  uint32_t rx_counter_err;
   uint32_t encrypt_err;
   uint32_t decrypt_err;
 };
 
 void gec_sts_init(struct gec_sts_ctx * sts);
-
-void clear_sts(struct gec_sts_ctx * sts);
-
-void generate_ephemeral_keys(struct gec_privkey *sk);
-
-void derive_key_material(struct gec_sts_ctx *sts, uint8_t* z);
-
-uint32_t gec_encrypt(struct gec_sym_key *k, uint8_t *ciphertext,
-    uint8_t *plaintext, uint8_t len, uint8_t *mac);
-uint32_t gec_decrypt(struct gec_sym_key *k, uint8_t *plaintext,
-    uint8_t *ciphertext, uint8_t len, uint8_t *mac);
+void gec_clear_sts(struct gec_sts_ctx * sts);
+void gec_generate_ephemeral_keys(struct gec_privkey *sk);
+void gec_derive_key_material(struct gec_sts_ctx *sts, uint8_t* z);
 
 #endif /* SPPRZ_GEC_H */
