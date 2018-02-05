@@ -39,6 +39,33 @@
 #include "mcu_periph/udp.h"
 #endif
 
+// TODO: a hack to to allow passing the key exchage messages before
+// secure comlink is established
+#define KEY_EXCHANGE_MSG_ID_UAV 239
+#define KEY_EXCHANGE_MSG_ID_GCS 159
+#define WHITELIST_LEN 20
+
+/**
+ * Whitelist for sending and receiving
+ * unencrypted messages
+ * (mostly for KEY_EXCHANGE messages)
+ */
+struct gec_whitelist {
+  uint8_t whitelist[WHITELIST_LEN];
+  uint8_t idx;
+  bool init;
+};
+
+/**
+ * Auxilliary message buffer for storing
+ * precomputed key exchange messages
+ */
+struct message_buffer {
+  uint8_t msg[TRANSPORT_PAYLOAD_LEN];
+  uint8_t len;
+  bool message_ready;
+};
+
 struct gec_transport {
   // pprz encapsulation layer
   struct pprz_transport pprz_tp;
@@ -50,14 +77,15 @@ struct gec_transport {
   struct transport_tx trans_tx;
   // buffered tx message
   uint8_t tx_msg[TRANSPORT_PAYLOAD_LEN];
-  volatile uint8_t tx_msg_idx;
+  uint8_t tx_msg_idx;
 
   // ecnryption primitives
   struct gec_sts_ctx sts;
 
+  struct gec_whitelist whitelist;
+
   PPRZ_MUTEX(mtx_tx); // optional mutex
 };
-
 
 /** PPRZ transport structure */
 extern struct gec_transport gec_tp;
@@ -78,5 +106,15 @@ void respond_sts(struct link_device *dev, struct gec_transport *trans, uint8_t *
 
 void finish_sts(struct link_device *dev, struct gec_transport *trans, uint8_t *buf);
 
+void gec_add_to_whitelist(struct gec_whitelist* whitelist, uint8_t id);
+bool gec_is_in_the_whitelist(struct gec_whitelist* whitelist, uint8_t id);
+bool gec_decrypt_message(uint8_t *buf, volatile uint8_t *payload_len);
+bool gec_encrypt_message(uint8_t *buf, uint8_t *payload_len);
+void gec_counter_to_bytes(uint32_t n, uint8_t* bytes);
+uint32_t gec_bytes_to_counter(uint8_t* bytes);
+void gec_process_msg1(uint8_t *buf);
+bool gec_process_msg3(uint8_t *buf);
+void gec_print_array(uint8_t *buf, uint8_t array_len);
+void gec_print_sts_data(struct gec_sts_ctx *sts);
 #endif /* GEC_DL_H */
 

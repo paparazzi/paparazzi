@@ -28,25 +28,36 @@
 
 void gec_sts_init(struct gec_sts_ctx * sts)
 {
-  clear_sts(sts);
+  // reset all keys
+  gec_clear_sts(sts);
 
+  // load their public key
   uint8_t theirPublicKey[PPRZ_KEY_LEN] = GCS_PUBLIC;
-  memcpy(&sts->theirPublicKey, theirPublicKey, PPRZ_KEY_LEN);
+  memcpy(&sts->their_public_key, theirPublicKey, PPRZ_KEY_LEN);
+  sts->their_public_key.ready = true;
 
+  // load my private key
   uint8_t myPublicKey[PPRZ_KEY_LEN] = UAV_PUBLIC;
-  memcpy(&sts->myPrivateKey.pub, myPublicKey, PPRZ_KEY_LEN);
-
+  memcpy(&sts->my_private_key.pub, myPublicKey, PPRZ_KEY_LEN);
   uint8_t myPrivateKey[PPRZ_KEY_LEN] = UAV_PRIVATE;
-  memcpy(&sts->myPrivateKey.priv, myPrivateKey, PPRZ_KEY_LEN);
+  memcpy(&sts->my_private_key.priv, myPrivateKey, PPRZ_KEY_LEN);
+  sts->my_private_key.ready = true;
 
+  // generate ephemeral key
+  gec_generate_ephemeral_keys(&sts->my_private_ephemeral);
 }
 
-void clear_sts(struct gec_sts_ctx * sts)
+void gec_clear_sts(struct gec_sts_ctx * sts)
 {
-  memset(&sts->theirPublicKeyEphemeral, 0, sizeof(struct gec_pubkey));
-  memset(&sts->myPrivateKeyEphemeral, 0, sizeof(struct gec_privkey));
-  memset(&sts->theirSymmetricKey, 0, sizeof(struct gec_sym_key));
-  memset(&sts->mySymmetricKey, 0, sizeof(struct gec_sym_key));
+  memset(&sts->their_public_ephemeral, 0, sizeof(struct gec_pubkey));
+  sts->their_public_ephemeral.ready = false;
+  memset(&sts->my_private_ephemeral, 0, sizeof(struct gec_privkey));
+  sts->my_private_ephemeral.ready = false;
+  memset(&sts->rx_sym_key, 0, sizeof(struct gec_sym_key));
+  sts->rx_sym_key.ready = false;
+  memset(&sts->tx_sym_key, 0, sizeof(struct gec_sym_key));
+  sts->tx_sym_key.ready = false;
+
   sts->protocol_stage = WAIT_MSG1;
   sts->party = RESPONDER;
   sts->last_error = ERROR_NONE;
@@ -55,9 +66,9 @@ void clear_sts(struct gec_sts_ctx * sts)
 /**
  * Generate private and public key pairs for future use.
  */
-void generate_ephemeral_keys(struct gec_privkey *sk)
+void gec_generate_ephemeral_keys(struct gec_privkey *sk)
 {
-  for (uint16_t i = 0; i < (PPRZ_KEY_LEN / sizeof(uint32_t)); i++) {
+  for (uint16_t i = 0; i < PPRZ_KEY_LEN; i += sizeof(uint32_t)) {
     uint32_t tmp = rng_wait_and_get();
     sk->priv[i] = (uint8_t) tmp;
     sk->priv[i + 1] = (uint8_t) (tmp >> 8);
@@ -67,13 +78,14 @@ void generate_ephemeral_keys(struct gec_privkey *sk)
   uint8_t basepoint[32] = {0};
   basepoint[0] = 9; // default basepoint
   Hacl_Curve25519_crypto_scalarmult(sk->pub, sk->priv, basepoint);
+  sk->ready = true;
 }
 
 
 /**
  * Derive key material for both sender and receiver
  */
-void derive_key_material(struct gec_sts_ctx *ctx, uint8_t* z) {
+void gec_derive_key_material(struct gec_sts_ctx *ctx, uint8_t* z) {
   uint8_t tmp[PPRZ_KEY_LEN*2] = {0};
   uint8_t input[PPRZ_KEY_LEN+1] = {0};
 
@@ -81,47 +93,17 @@ void derive_key_material(struct gec_sts_ctx *ctx, uint8_t* z) {
   memcpy(input, z, PPRZ_KEY_LEN);
   input[PPRZ_KEY_LEN] = 0;
   Hacl_SHA2_512_hash(tmp, input, sizeof(input));
-  memcpy(ctx->theirSymmetricKey.key, tmp, PPRZ_KEY_LEN); // K_a
-  memcpy(ctx->theirSymmetricKey.nonce, &tmp[PPRZ_KEY_LEN], PPRZ_NONCE_LEN); // S_a
+  memcpy(ctx->rx_sym_key.key, tmp, PPRZ_KEY_LEN); // K_a
+  memcpy(ctx->rx_sym_key.nonce, &tmp[PPRZ_KEY_LEN], PPRZ_NONCE_LEN); // S_a
+  ctx->rx_sym_key.counter = 0;
+  ctx->rx_sym_key.ready = true;
 
   // Kb|| Sb = kdf(z,1)
   input[PPRZ_KEY_LEN] = 1;
   Hacl_SHA2_512_hash(tmp, input, sizeof(input));
-  memcpy(ctx->mySymmetricKey.key, tmp, PPRZ_KEY_LEN);  // K_b
-  memcpy(ctx->mySymmetricKey.nonce, &tmp[PPRZ_KEY_LEN], PPRZ_NONCE_LEN);  // S_b
+  memcpy(ctx->tx_sym_key.key, tmp, PPRZ_KEY_LEN);  // K_b
+  memcpy(ctx->tx_sym_key.nonce, &tmp[PPRZ_KEY_LEN], PPRZ_NONCE_LEN);  // S_b
+  ctx->tx_sym_key.counter = 0;
+  ctx->tx_sym_key.ready = true;
 }
-
-
-/**
- * Decrypt a message, no AAD for now
- * if res == 0 everything OK
- */
-uint32_t gec_decrypt(struct gec_sym_key *k, uint8_t *plaintext, uint8_t *ciphertext, uint8_t len, uint8_t *mac){
-  uint32_t res = Hacl_Chacha20Poly1305_aead_decrypt(plaintext,
-                                               ciphertext,
-                                               len,
-                                               mac,
-                                               NULL,
-                                               0,
-                                               k->key,
-                                               k->nonce);
-  return res;
-}
-
-/**
- * Encrypt a message, no AAD for now
- * if res == 0 everything OK
- */
-uint32_t gec_encrypt(struct gec_sym_key *k, uint8_t *ciphertext, uint8_t *plaintext, uint8_t len, uint8_t *mac) {
-  uint32_t res = Hacl_Chacha20Poly1305_aead_encrypt(ciphertext,  // ciphertext
-                                               mac,  // mac
-                                               plaintext,  // plaintext
-                                               len,  // plaintext len
-                                               NULL,  // aad
-                                               0,  // aad len
-                                               k->key,  // key
-                                               k->nonce);  // nonce
-  return res;
-}
-
 
