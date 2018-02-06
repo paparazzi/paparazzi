@@ -8,6 +8,7 @@
     <scene>
       <ambient>0.6 0.6 0.6 1</ambient>
       <background>0.7 0.7 0.7 1</background>
+      <origin_visual>false</origin_visual>
     </scene>
     <light name='toplight' type='directional'>
       <cast_shadows>true</cast_shadows>
