@@ -43,14 +43,17 @@
 #endif
 PRINT_CONFIG_VAR(OFH_OPTICAL_FLOW_ID)
 
+// Set the standard method (1) to apply the algorithm to all 3 axes at the same time
 #ifndef OFH_HOVER_METHOD
 #define OFH_HOVER_METHOD 1
 #endif
 
+// Set the standard method to assume the quadrotor is not (0) symmetrical
 #ifndef XY_SYMMETRICAL
 #define XY_SYMMETRICAL 0
 #endif
 
+// Set the standard method to use vision signal and the known input and signal (0) optionally one can use the autocovariance (1)
 #ifndef OFH_COV_METHOD
 #define OFH_COV_METHOD 0
 #endif
@@ -60,8 +63,17 @@ PRINT_CONFIG_VAR(OFH_OPTICAL_FLOW_ID)
 #define COV_WINDOW_SIZE (10*30)
 #endif
 
+// In case the autocovariance is used, select half the window size as the delay
 #ifndef OF_COV_DELAY_STEPS
 #define OF_COV_DELAY_STEPS COV_WINDOW_SIZE/2
+#endif
+
+#ifndef OFH_OSCPHI
+#define OFH_OSCPHI 1
+#endif
+
+#ifndef OFH_OSCTHETA
+#define OFH_OSCTHETA 1
 #endif
 
 #ifndef OFH_PGAINZ
@@ -145,8 +157,6 @@ float divergence_vision;
 
 struct OFhistory historyZ;
 
-float height;
-
 // The optical flow ABI event
 static abi_event optical_flow_ev;
 
@@ -221,8 +231,8 @@ void optical_flow_hover_init()
   of_hover_ctrl_Z.ramp  = OFH_RAMPZ;
   of_hover_ctrl_Z.reduction_factor = OFH_REDUCTIONZ;
 
-  oscphi = 1;
-  osctheta = 0;
+  oscphi = OFH_OSCPHI;
+  osctheta = OFH_OSCTHETA;
 
   cov_method = OFH_COV_METHOD;
   hover_method = OFH_HOVER_METHOD;
@@ -260,6 +270,7 @@ void horizontal_ctrl_module_init(void)
  */
 static void reset_horizontal_vars(void)
 {
+  // Take the current angles as neutral
   struct Int32Eulers tempangle;
   int32_eulers_of_quat(&tempangle,&stab_att_sp_quat);
   of_hover_ctrl_X.nominal_value = DegOfRad(FLOAT_OF_BFP(tempangle.phi,INT32_ANGLE_FRAC));
@@ -363,8 +374,6 @@ static void reset_vertical_vars(void)
 
   vision_time = get_sys_time_float();
   prev_vision_timeZ = vision_time;
-
-  height = (stateGetPositionEnu_i()->z)*0.0039063; // This factor is from messages.xml
 }
 
 // Read H RC
@@ -517,9 +526,7 @@ void vertical_ctrl_module_run(bool in_flight)
   {
     // if not oscillating, increase gain
     of_hover_ctrl_Z.PID.P += of_hover_ctrl_Z.ramp*dt;
-
   }
-
 
   // use the divergence for control:
   of_hover_ctrl_Z.errors.err = of_hover_ctrl_Z.setpoint- of_hover.divergence;
@@ -556,7 +563,6 @@ void vertical_ctrl_module_run(bool in_flight)
     {
       // hover_method = 1
       //All axes
-
     }
   }
 
@@ -569,7 +575,8 @@ void ofh_optical_flow_cb(uint8_t sender_id __attribute__((unused)), uint32_t sta
   {
     flowX = flow_x;
     flowY = flow_y;
-  } else
+  }
+  else
   {
     flowX = flow_der_x;
     flowY = flow_der_y;

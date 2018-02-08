@@ -2,37 +2,16 @@
 
 <airframe name="ardrone2">
   <description>
-  	This module implements monocular vision height estimation and uses this estimate to stabilize a quadrotor using only a downwards 
-  	facing camera and an IMU. For scientific background please visit: 
-  	https://repository.tudelft.nl/islandora/object/uuid%3A6e3ce742-a974-491d-97c2-1cafc090b3d9
+  	This airframe uses the optical flow module that uses monocular vision height estimation to stabilize a quadrotor using only a downwards 
+  	facing camera and an IMU. For additional documentation please visit the module xml file.
   	
-  	The gain height relationship as first described in http://iopscience.iop.org/article/10.1088/1748-3190/11/1/016004 is calibrated 
-  	in a controlled environment so that the resulting relationship can be used to determine the height at which the quadrotor is flying.
-  	In addition to the vertical axis the same principle is applied to the horizontal axes. 
-  	
-  	A short guide on how to determine the slope:
-  	Picking a relatively high OFH_RAMP* with a very high negative OFH_COV*_SETPOINT (i.e. -6000000), 
-  	looking at when the quadrotor starts oscillating, the respective message (covariances.*) should be used to determine a suitable
-  	threshold value for OFH_COV*_SETPOINT. The slope can then be decreased to gain accuracy in reaching the oscillations.
-  	Finally when flying the quadrotor on different heights the gain at which instability occurs can be noted to determine the slope of the 
-  	gain-height relationship.
-  	 
-  	Important settings: 
-  	-OFH_HOVER_METHOD/hover_method:
-  	1, the method is applied to all 3 axes in the following order: Z - X - Y
-    2, the method is applied to the Z axis and the estimated height is used to determine the proper gains
-  		for the horizontal axes using the predetermined relationship.
-  	3, the method is applied to all 3 axes at the same time
-  	 
-  	-XY_SYMMETRICAL is set to 1 if the drone is roughly symmetrical, causing the found gains for the X axis is also used for the Y axis.
-  	-OFH_*GAIN* can be used to set starting gains to prevent initial drift while still estimating height and appropriate gains.
-  	-OFH_REDUCTION* is used to reduce the gain after determining the oscillation to stabilize the quadrotor.
-  	
+  	The settings in this airframe are calibrated for performance on an ARDrone2 specifically. 	
   </description>
 	<firmware name="rotorcraft">
 		<target name="ap" board="ardrone2">
-
-		  <configure name="PREFIX" value="/opt/arm-2012.03/bin/arm-none-linux-gnueabi" />
+			<!-- This setting was implemented to fly ARDrones with UBUNTU 16.04 LTS -->
+			<configure name="PREFIX" value="/opt/arm-2012.03/bin/arm-none-linux-gnueabi" />
+			
 			<configure name="USE_BARO_BOARD" value="FALSE" />
 		</target>
 		<define name="USE_SONAR" value="FALSE" />
@@ -47,13 +26,14 @@
 		<!-- Switch GPS for Optitrack mode -->
 		<module name="gps" type="datalink" />
 
-		<!-- module name="stabilization" type="int_quat" /-->
 		<module name="stabilization" type="indi_simple" />
 		<module name="ahrs" type="int_cmpl_quat">
 			<configure name="USE_MAGNETOMETER" value="0" />
 		</module>
+		
 		<!--module name="ins" type="extended">
 		</module-->
+		
 		<module name="ins" type="gps_passthrough"/>
 		
 		<module name="bat_voltage_ardrone2" />
@@ -71,8 +51,10 @@
 			<define name="OFH_HOVER_METHOD" value = "1" />
 			<define name="OFH_MAXBANK" value = "10.0" />
 			<define name="XY_SYMMETRICAL" value = "1" />
-		
-		    
+			
+			<define name="OFH_OSCPHI" value = "1" />
+			<define name="OFH_OSCTHETA" value = "0" />
+				    
 		    <define name="COV_WINDOW_SIZE" value = "300" />
 			<define name="OF_LP_CONST" value = "0.6" />
 			
@@ -88,9 +70,6 @@
 			<define name="OFH_COVFLOW_SETPOINT" value = "-2000" />
 		</module>
 
-		<!--module name="video_rtp_stream"> <define name="VIEWVIDEO_CAMERA" value="bottom_camera" 
-			/> <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="4" /> <define name="VIEWVIDEO_QUALITY_FACTOR" 
-			value="95" /> </module -->
 	</firmware>
 
 	<commands>
@@ -99,9 +78,6 @@
 		<axis name="YAW" failsafe_value="0" />
 		<axis name="THRUST" failsafe_value="3000" />
 	</commands>
-
-	<!--section name="FAILSAFE" prefix="FAILSAFE_"> <define name="DELAY_WITHOUT_GPS" 
-		value="0" unit="s" /> </section -->
 
 	<servos driver="Default">
 		<servo name="TOP_LEFT" no="0" min="0" neutral="1" max="500" />
@@ -166,8 +142,6 @@
 	</section>
 
 	<section name="INS" prefix="INS_">
-		<!-- define name="SONAR_MAX_RANGE" value="2.2" />
-		<define name="SONAR_UPDATE_ON_AGL" value="TRUE" /-->
 		<!--Use GPS altitude measurments and set the R gain -->
 		<define name="USE_GPS_ALT" value="1" />
 		<define name="VFF_R_GPS" value="0.01" />
@@ -247,16 +221,15 @@
 
 	<section name="GUIDANCE_H" prefix="GUIDANCE_H_">
 		<define name="MAX_BANK" value="22" unit="deg" />
-	
-		<!-- Less Agressive Gains >
-		<define name="PGAIN" value="80" />
-		<define name="DGAIN" value="40" />
-		<define name="IGAIN" value="13" /-->
-		
 		<!-- Agressive Gains -->
 		<define name="PGAIN" value="363" />
 		<define name="DGAIN" value="237" />
-		<define name="IGAIN" value="30" />	
+		<define name="IGAIN" value="30" />
+		
+		<!-- Less Agressive Gains >
+		<define name="PGAIN" value="80" />
+		<define name="DGAIN" value="40" />
+		<define name="IGAIN" value="13" /> -->	
 	</section>
 
 	<section name="AUTOPILOT">

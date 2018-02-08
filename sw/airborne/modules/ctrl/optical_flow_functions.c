@@ -128,8 +128,6 @@ void set_cov_flow(bool cov_method, struct OFhistory *historyX, struct OFhistory 
  */
 float PID_flow_control(float dt, struct OpticalFlowHoverControl *of_hover_ctrl)
 {
-
-
   // update the controller errors:
   float lp_factor = dt / OF_LP_CONST;
   Bound(lp_factor, 0.f, 1.f);
