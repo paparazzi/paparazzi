@@ -38,9 +38,9 @@ class Disco(ParrotUtils):
     def init_extra_parser(self):
 
         # Parse the extra arguments
-        self.parser.add_argument('--min_version', metavar='MIN', default='1.0.0',
+        self.parser.add_argument('--min_version', metavar='MIN', default='1.0.5',
                 help='force minimum version allowed')
-        self.parser.add_argument('--max_version', metavar='MAX', default='1.3.0',
+        self.parser.add_argument('--max_version', metavar='MAX', default='1.4.1',
                 help='force maximum version allowed')
 
     def parse_extra_args(self, args):

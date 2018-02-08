@@ -1,0 +1,9 @@
+<!DOCTYPE airframe SYSTEM "../../../airframes/airframe.dtd">
+
+<airframe>
+  <section name="SIMULATOR" prefix="NPS_">
+    <define name="ACTUATOR_THRUSTS" value="1.55, 1.55, 1.55, 1.55" type="float[]"/>
+    <define name="ACTUATOR_TORQUES" value="0.155, 0.155, 0.155, 0.155" type="float[]"/>
+    <define name="BYPASS_AHRS" value="1"/>
+  </section>
+</airframe>

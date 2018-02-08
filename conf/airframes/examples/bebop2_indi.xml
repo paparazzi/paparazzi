@@ -10,8 +10,8 @@
     <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
       <module name="udp"/>
-      <!-- rotor inertia not modelled in simple_quad JSBSim model, set G2 to zero -->
-      <define name="STABILIZATION_INDI_G2_R" value="0.0"/>
+      <define name="STABILIZATION_INDI_G2_R" value="0.0"/><!-- for jsbsim (rotor inertia is not modelled) -->
+      <!-- <define name="STABILIZATION_INDI_G2_R" value="0.20"/> --><!-- for gazebo -->
     </target>
 
 	  <!-- Subsystem section -->
@@ -27,9 +27,7 @@
       <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
     </module>
     <module name="ins" type="extended"/>
-  </firmware>
-
-  <modules main_freq="512">
+    
     <module name="geo_mag"/>
     <module name="air_data"/>
     <module name="send_imu_mag_current"/>
@@ -37,8 +35,8 @@
     <module name="logger_file">
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
     </module>
-  </modules>
-
+  </firmware>
+  
   <commands>
     <axis name="PITCH" failsafe_value="0"/>
     <axis name="ROLL" failsafe_value="0"/>
@@ -140,7 +138,7 @@
     <define name="G1_R" value="0.0022"/>
 
     <!-- For the bebop2 we need to filter the roll rate due to the dampers -->
-    <define name="FILTER_ROLL_RATE" value="TRUE"/>
+    <define name="FILTER_ROLL_RATE" value="FALSE"/><!-- Set to TRUE when flying without locked dampers -->
     <define name="FILTER_PITCH_RATE" value="FALSE"/>
     <define name="FILTER_YAW_RATE" value="FALSE"/>
 
@@ -195,6 +193,7 @@
     <define name="JSBSIM_MODEL" value="simple_x_quad" type="string"/>
     <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
   </section>
+  <include href="conf/simulator/gazebo/airframes/bebop.xml"/>
 
   <section name="AUTOPILOT">
     <define name="MODE_STARTUP" value="AP_MODE_NAV"/>
