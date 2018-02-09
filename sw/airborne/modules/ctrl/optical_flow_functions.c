@@ -24,7 +24,7 @@
 #include "std.h"
 
 #ifndef OFH_MAXBANK
-#define OFH_MAXBANK 10.0
+#define OFH_MAXBANK 10.f
 #endif
 
 #ifndef OF_LP_CONST
@@ -40,14 +40,14 @@
  * This funciton should only be called once per time step
  * @param[in] thrust: the current thrust value
  */
-float set_cov_div(bool cov_method,struct OFhistory *history, struct DesiredInputs *inputs)
+float set_cov_div(bool cov_method, struct OFhistory *history, struct DesiredInputs *inputs)
 {
   float cov_div = 0;
   // histories and cov detection:
 
   history->OF[ind_histZ] = of_hover.divergence;
 
-  float normalized_thrust = (float)(100.0 * inputs->thrust / MAX_PPRZ );
+  float normalized_thrust = (float)(100.0 * inputs->thrust / MAX_PPRZ);
   history->input[ind_histZ] = normalized_thrust;
 
   int ind_past = ind_histZ - OF_COV_DELAY_STEPS;
@@ -56,13 +56,10 @@ float set_cov_div(bool cov_method,struct OFhistory *history, struct DesiredInput
 
   // determine the covariance for hover detection:
   // only take covariance into account if there are enough samples in the histories:
-  if (cov_method == 0 && cov_array_filledZ > 0)
-  {
+  if (cov_method == 0 && cov_array_filledZ > 0) {
     // TODO: step in hover set point causes an incorrectly perceived covariance
     cov_div = covariance_f(history->input, history->OF, COV_WINDOW_SIZE);
-  }
-  else if (cov_method == 1 && cov_array_filledZ > 1)
-  {
+  } else if (cov_method == 1 && cov_array_filledZ > 1) {
     // todo: delay steps should be invariant to the run frequency
     cov_div = covariance_f(history->past_OF, history->OF, COV_WINDOW_SIZE);
   }
@@ -80,7 +77,8 @@ float set_cov_div(bool cov_method,struct OFhistory *history, struct DesiredInput
  * Set the covariance of the flow and past flow / desired angle
  * This funciton should only be called once per time step
  */
-void set_cov_flow(bool cov_method, struct OFhistory *historyX, struct OFhistory *historyY, struct DesiredInputs *inputs, struct Covariances *covs)
+void set_cov_flow(bool cov_method, struct OFhistory *historyX, struct OFhistory *historyY, struct DesiredInputs *inputs,
+                  struct Covariances *covs)
 {
   // histories and cov detection:
   historyX->OF[ind_histXY] = of_hover.flowX;
@@ -97,23 +95,19 @@ void set_cov_flow(bool cov_method, struct OFhistory *historyX, struct OFhistory 
 
   //   determine the covariance for hover detection:
   //   only take covariance into account if there are enough samples in the histories:
-  if (cov_method == 0 && cov_array_filledXY > 0)
-  {
+  if (cov_method == 0 && cov_array_filledXY > 0) {
     //    // TODO: step in hover set point causes an incorrectly perceived covariance
     covs->X = covariance_f(historyX->input, historyX->OF, COV_WINDOW_SIZE);
     covs->Y = covariance_f(historyY->input, historyY->OF, COV_WINDOW_SIZE);
-  }
-  else if (cov_method == 1 && cov_array_filledXY > 1)
-  {
-    if (cov_array_filledXY > 1){
+  } else if (cov_method == 1 && cov_array_filledXY > 1) {
+    if (cov_array_filledXY > 1) {
       // todo: delay steps should be invariant to the run frequency
       covs->X = covariance_f(historyX->past_OF, historyX->OF, COV_WINDOW_SIZE);
       covs->Y = covariance_f(historyY->past_OF, historyY->OF, COV_WINDOW_SIZE);
     }
   }
 
-  if (cov_array_filledXY < 2 && ind_histXY + 1 == COV_WINDOW_SIZE)
-  {
+  if (cov_array_filledXY < 2 && ind_histXY + 1 == COV_WINDOW_SIZE) {
     cov_array_filledXY++;
   }
   ind_histXY = (ind_histXY + 1) % COV_WINDOW_SIZE;
@@ -134,14 +128,16 @@ float PID_flow_control(float dt, struct OpticalFlowHoverControl *of_hover_ctrl)
 
   // maintain the controller errors:
   of_hover_ctrl->errors.sum_err += of_hover_ctrl->errors.err;
-  of_hover_ctrl->errors.d_err += (((of_hover_ctrl->errors.err - of_hover_ctrl->errors.previous_err) / dt) - of_hover_ctrl->errors.d_err) * lp_factor;
+  of_hover_ctrl->errors.d_err += (((of_hover_ctrl->errors.err - of_hover_ctrl->errors.previous_err) / dt) -
+                                  of_hover_ctrl->errors.d_err) * lp_factor;
   of_hover_ctrl->errors.previous_err = of_hover_ctrl->errors.err;
 
   // compute the desired angle
-  float des_angle = of_hover_ctrl->PID.P * of_hover_ctrl->errors.err + of_hover_ctrl->PID.I * of_hover_ctrl->errors.sum_err + of_hover_ctrl->PID.D * of_hover_ctrl->errors.d_err;
+  float des_angle = of_hover_ctrl->PID.P * of_hover_ctrl->errors.err + of_hover_ctrl->PID.I *
+                    of_hover_ctrl->errors.sum_err + of_hover_ctrl->PID.D * of_hover_ctrl->errors.d_err;
 
   // Bound angle:
-  Bound(des_angle,-OFH_MAXBANK,OFH_MAXBANK);
+  Bound(des_angle, -OFH_MAXBANK, OFH_MAXBANK);
 
   return des_angle;
 }
@@ -160,14 +156,15 @@ int32_t PID_divergence_control(float dt, struct OpticalFlowHoverControl *of_hove
 
   // maintain the controller errors:
   of_hover_ctrl->errors.sum_err += of_hover_ctrl->errors.err;
-  of_hover_ctrl->errors.d_err += (((of_hover_ctrl->errors.err - of_hover_ctrl->errors.previous_err) / dt) - of_hover_ctrl->errors.d_err) * lp_factor;
+  of_hover_ctrl->errors.d_err += (((of_hover_ctrl->errors.err - of_hover_ctrl->errors.previous_err) / dt) -
+                                  of_hover_ctrl->errors.d_err) * lp_factor;
   of_hover_ctrl->errors.previous_err = of_hover_ctrl->errors.err;
 
   // PID control:
   int32_t thrust = (of_hover_ctrl->nominal_value
-      + of_hover_ctrl->PID.P * of_hover_ctrl->errors.err
-      + of_hover_ctrl->PID.I * of_hover_ctrl->errors.sum_err
-      + of_hover_ctrl->PID.D * of_hover_ctrl->errors.d_err) * MAX_PPRZ;
+                    + of_hover_ctrl->PID.P * of_hover_ctrl->errors.err
+                    + of_hover_ctrl->PID.I * of_hover_ctrl->errors.sum_err
+                    + of_hover_ctrl->PID.D * of_hover_ctrl->errors.d_err) * MAX_PPRZ;
 
   // bound thrust:
   Bound(thrust, 0.25 * of_hover_ctrl->nominal_value * MAX_PPRZ, MAX_PPRZ);

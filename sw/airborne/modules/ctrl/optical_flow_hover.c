@@ -81,7 +81,7 @@ PRINT_CONFIG_VAR(OFH_OPTICAL_FLOW_ID)
 #endif
 
 #ifndef OFH_IGAINZ
-#define OFH_IGAINZ 0.005
+#define OFH_IGAINZ 0.f
 #endif
 
 #ifndef OFH_DGAINZ
@@ -101,7 +101,7 @@ PRINT_CONFIG_VAR(OFH_OPTICAL_FLOW_ID)
 #endif
 
 #ifndef OFH_PGAINX
-#define OFH_PGAINX 0.0
+#define OFH_PGAINX 0.f
 #endif
 
 #ifndef OFH_IGAINX
@@ -109,11 +109,11 @@ PRINT_CONFIG_VAR(OFH_OPTICAL_FLOW_ID)
 #endif
 
 #ifndef OFH_DGAINX
-#define OFH_DGAINX 0.0
+#define OFH_DGAINX 0.f
 #endif
 
 #ifndef OFH_PGAINY
-#define OFH_PGAINY 0.0
+#define OFH_PGAINY 0.f
 #endif
 
 #ifndef OFH_IGAINY
@@ -121,7 +121,7 @@ PRINT_CONFIG_VAR(OFH_OPTICAL_FLOW_ID)
 #endif
 
 #ifndef OFH_DGAINY
-#define OFH_DGAINY 0.0
+#define OFH_DGAINY 0.f
 #endif
 
 #ifndef OFH_RAMPXY
@@ -133,8 +133,33 @@ PRINT_CONFIG_VAR(OFH_OPTICAL_FLOW_ID)
 #endif
 
 #ifndef OFH_COVFLOW_SETPOINT
-#define OFH_COVFLOW_SETPOINT -500
+#define OFH_COVFLOW_SETPOINT -500.f
 #endif
+
+#ifndef OFH_VER_SLOPE_A
+#define OFH_VER_SLOPE_A 0.5
+#endif
+
+#ifndef OFH_VER_SLOPE_B
+#define OFH_VER_SLOPE_B 0.25
+#endif
+
+#ifndef OFH_HOR_X_SLOPE_A
+#define OFH_HOR_X_SLOPE_A 2.f
+#endif
+
+#ifndef OFH_HOR_X_SLOPE_B
+#define OFH_HOR_X_SLOPE_B 0.5
+#endif
+
+#ifndef OFH_HOR_Y_SLOPE_A
+#define OFH_HOR_Y_SLOPE_A OFH_HOR_X_SLOPE_A
+#endif
+
+#ifndef OFH_HOR_Y_SLOPE_B
+#define OFH_HOR_Y_SLOPE_B OFH_HOR_X_SLOPE_B
+#endif
+
 
 struct DesiredInputs des_inputs;
 struct Covariances covariances;
@@ -167,7 +192,8 @@ struct OpticalFlowHoverControl of_hover_ctrl_Z;
 
 /// Function definitions
 // Callback function of the optical flow estimate:
-void ofh_optical_flow_cb(uint8_t sender_id __attribute__((unused)), uint32_t stamp, int16_t flow_x, int16_t flow_y, int16_t flow_der_x, int16_t flow_der_y, float quality, float size_div);
+void ofh_optical_flow_cb(uint8_t sender_id __attribute__((unused)), uint32_t stamp, int16_t flow_x, int16_t flow_y,
+                         int16_t flow_der_x, int16_t flow_der_y, float quality, float size_div);
 
 // resetting all variables to be called for instance when starting up / re-entering module
 static void reset_horizontal_vars(void);
@@ -178,7 +204,7 @@ void horizontal_ctrl_module_init(void);
 void horizontal_ctrl_module_run(bool in_flight);
 
 // Compute OptiTrack stabilization for 1/2 axes
-void computeOptiTrack(bool phi, bool theta,struct Int32Eulers *opti_sp_eu);
+void computeOptiTrack(bool phi, bool theta, struct Int32Eulers *opti_sp_eu);
 #ifndef GH_GAIN_SCALE
 #define GH_GAIN_SCALE 2
 #endif
@@ -198,9 +224,10 @@ struct Int32Vect2 of_hover_cmd_earth;
 // sending the divergence message to the ground station:
 static void send_optical_flow_hover(struct transport_tx *trans, struct link_device *dev)
 {
-  pprz_msg_send_OPTICAL_FLOW_HOVER(trans, dev, AC_ID,&of_hover.flowX,&of_hover.flowY,&of_hover.divergence,
-      &covariances.X,&covariances.Y,&covariances.Z,&of_hover_ctrl_X.PID.P,&of_hover_ctrl_Y.PID.P,&of_hover_ctrl_Z.PID.P,&of_hover_ctrl_X.errors.sum_err,&of_hover_ctrl_Y.errors.sum_err,&of_hover_ctrl_Z.errors.sum_err,
-      &des_inputs.thrust,&des_inputs.phi,&des_inputs.theta);
+  pprz_msg_send_OPTICAL_FLOW_HOVER(trans, dev, AC_ID, &of_hover.flowX, &of_hover.flowY, &of_hover.divergence,
+                                   &covariances.X, &covariances.Y, &covariances.Z, &of_hover_ctrl_X.PID.P, &of_hover_ctrl_Y.PID.P, &of_hover_ctrl_Z.PID.P,
+                                   &of_hover_ctrl_X.errors.sum_err, &of_hover_ctrl_Y.errors.sum_err, &of_hover_ctrl_Z.errors.sum_err,
+                                   &des_inputs.thrust, &des_inputs.phi, &des_inputs.theta);
 }
 
 
@@ -272,33 +299,28 @@ static void reset_horizontal_vars(void)
 {
   // Take the current angles as neutral
   struct Int32Eulers tempangle;
-  int32_eulers_of_quat(&tempangle,&stab_att_sp_quat);
-  of_hover_ctrl_X.nominal_value = DegOfRad(FLOAT_OF_BFP(tempangle.phi,INT32_ANGLE_FRAC));
-  of_hover_ctrl_Y.nominal_value = DegOfRad(FLOAT_OF_BFP(tempangle.theta,INT32_ANGLE_FRAC));
+  int32_eulers_of_quat(&tempangle, &stab_att_sp_quat);
+  of_hover_ctrl_X.nominal_value = DegOfRad(FLOAT_OF_BFP(tempangle.phi, INT32_ANGLE_FRAC));
+  of_hover_ctrl_Y.nominal_value = DegOfRad(FLOAT_OF_BFP(tempangle.theta, INT32_ANGLE_FRAC));
 
   des_inputs.phi = 0;
   des_inputs.theta = 0;
 
-  if((hover_method == 0) && (GUIDANCE_V_MODE_MODULE_SETTING == GUIDANCE_V_MODE_MODULE))
-  {
+  if ((hover_method == 0) && (GUIDANCE_V_MODE_MODULE_SETTING == GUIDANCE_V_MODE_MODULE)) {
     // Z - X - Y Order
     oscillatingX = 1;
     oscillatingY = 1;
     of_hover_ctrl_X.PID.P = OFH_PGAINX;
     of_hover_ctrl_Y.PID.P = OFH_PGAINX;
-  }
-  else if((hover_method == 2) && (GUIDANCE_V_MODE_MODULE_SETTING == GUIDANCE_V_MODE_MODULE))
-  {
+  } else if ((hover_method == 2) && (GUIDANCE_V_MODE_MODULE_SETTING == GUIDANCE_V_MODE_MODULE)) {
     // Z Set XY
     oscillatingX = 1;
     oscillatingY = 1;
     of_hover_ctrl_X.PID.P = OFH_PGAINX;
     of_hover_ctrl_Y.PID.P = OFH_PGAINY;
-    of_hover_ctrl_X.PID.I = OFH_IGAINX/4; // Have a slighly lower I gain during Z
-    of_hover_ctrl_Y.PID.I = OFH_IGAINY/4; // Have a slighly lower I gain during Z
-  }
-  else
-  {
+    of_hover_ctrl_X.PID.I = OFH_IGAINX / 4; // Have a slighly lower I gain during Z
+    of_hover_ctrl_Y.PID.I = OFH_IGAINY / 4; // Have a slighly lower I gain during Z
+  } else {
     // if V is in NAV or hover_method = 1
     //All axes
     oscillatingX = 0;
@@ -327,8 +349,7 @@ static void reset_horizontal_vars(void)
   covariances.X = 0.0f;
   covariances.Y = 0.0f;
 
-  for(uint16_t i=0;i<COV_WINDOW_SIZE;i++)
-  {
+  for (uint16_t i = 0; i < COV_WINDOW_SIZE; i++) {
     historyX.OF[i] = 0.0f;
     historyY.OF[i] = 0.0f;
     historyX.past_OF[i] = 0.0f;
@@ -354,8 +375,7 @@ static void reset_vertical_vars(void)
   divergence_vision = 0;
   of_hover.divergence = 0;
 
-  for(uint16_t i=0;i<COV_WINDOW_SIZE;i++)
-  {
+  for (uint16_t i = 0; i < COV_WINDOW_SIZE; i++) {
     historyZ.OF[i] = 0.0f;
     historyZ.past_OF[i] = 0.0f;
     historyZ.input[i] = 0.0f;
@@ -377,7 +397,7 @@ static void reset_vertical_vars(void)
 }
 
 // Read H RC
-void guidance_h_module_read_rc(void){}
+void guidance_h_module_read_rc(void) {}
 
 /**
  * Run the horizontal optical flow hover module
@@ -417,62 +437,54 @@ void horizontal_ctrl_module_run(bool in_flight)
    * CONTROL
    ***********/
 
-  if(!oscillatingX)
-  {
+  if (!oscillatingX) {
     // if not oscillating, increase gain
-    of_hover_ctrl_X.PID.P += of_hover_ctrl_X.ramp*dt;
+    of_hover_ctrl_X.PID.P += of_hover_ctrl_X.ramp * dt;
   }
-  if(!oscillatingY)
-  {
+  if (!oscillatingY) {
     // if not oscillating, increase gain
-    of_hover_ctrl_Y.PID.P += of_hover_ctrl_Y.ramp*dt;
+    of_hover_ctrl_Y.PID.P += of_hover_ctrl_Y.ramp * dt;
   }
 
   // set desired pitch en roll
-  if(oscphi)
-  {
+  if (oscphi) {
     of_hover_ctrl_X.errors.err = of_hover_ctrl_X.setpoint - of_hover.flowX;
     des_inputs.phi = of_hover_ctrl_X.nominal_value + PID_flow_control(dt, &of_hover_ctrl_X);
   }
-  if(osctheta)
-  {
+  if (osctheta) {
     of_hover_ctrl_Y.errors.err = of_hover_ctrl_Y.setpoint - of_hover.flowY;
     des_inputs.theta = of_hover_ctrl_Y.nominal_value + PID_flow_control(dt, &of_hover_ctrl_Y);
   }
 
   // update covariance
-  set_cov_flow(cov_method,&historyX,&historyY,&des_inputs,&covariances);
-  ofh_sp_eu.phi = BFP_OF_REAL(RadOfDeg(des_inputs.phi*oscphi), INT32_ANGLE_FRAC);
-  ofh_sp_eu.theta = BFP_OF_REAL(RadOfDeg(des_inputs.theta*osctheta), INT32_ANGLE_FRAC);
+  set_cov_flow(cov_method, &historyX, &historyY, &des_inputs, &covariances);
+  ofh_sp_eu.phi = BFP_OF_REAL(RadOfDeg(des_inputs.phi * oscphi), INT32_ANGLE_FRAC);
+  ofh_sp_eu.theta = BFP_OF_REAL(RadOfDeg(des_inputs.theta * osctheta), INT32_ANGLE_FRAC);
 
   // Check for oscillations
-  if( (covariances.X<of_hover_ctrl_X.cov_setpoint) && (!oscillatingX) )
-  {
+  if ((covariances.X < of_hover_ctrl_X.cov_setpoint) && (!oscillatingX)) {
     oscillatingX = 1;
 
-    if(hover_method == 0)
-    {
+    if (hover_method == 0) {
       //Start the Y axis
       oscillatingY = 0;
       of_hover_ctrl_Y.PID.P = OFH_PGAINY;
     }
-    of_hover_ctrl_X.PID.P = of_hover_ctrl_X.PID.P*of_hover_ctrl_X.reduction_factor;
+    of_hover_ctrl_X.PID.P = of_hover_ctrl_X.PID.P * of_hover_ctrl_X.reduction_factor;
 
-    if(XY_SYMMETRICAL)
-    {
+    if (XY_SYMMETRICAL) {
       // also set Y
       oscillatingY = 1;
       of_hover_ctrl_Y.PID.P = of_hover_ctrl_X.PID.P;
     }
   }
-  if( (covariances.Y<of_hover_ctrl_Y.cov_setpoint) && (!oscillatingY) )
-  {
+  if ((covariances.Y < of_hover_ctrl_Y.cov_setpoint) && (!oscillatingY)) {
     oscillatingY = 1;
-    of_hover_ctrl_Y.PID.P = of_hover_ctrl_Y.PID.P*of_hover_ctrl_Y.reduction_factor;
+    of_hover_ctrl_Y.PID.P = of_hover_ctrl_Y.PID.P * of_hover_ctrl_Y.reduction_factor;
   }
 
   // Compute 0, 1 or 2 horizontal axes with optitrack
-  computeOptiTrack(!oscphi,!osctheta,&ofh_sp_eu);
+  computeOptiTrack(!oscphi, !osctheta, &ofh_sp_eu);
   // Run the stabilization mode
   stabilization_attitude_set_rpy_setpoint_i(&ofh_sp_eu);
 
@@ -522,45 +534,38 @@ void vertical_ctrl_module_run(bool in_flight)
   /***********
    * CONTROL
    ***********/
-  if(!oscillatingZ)
-  {
+  if (!oscillatingZ) {
     // if not oscillating, increase gain
-    of_hover_ctrl_Z.PID.P += of_hover_ctrl_Z.ramp*dt;
+    of_hover_ctrl_Z.PID.P += of_hover_ctrl_Z.ramp * dt;
   }
 
   // use the divergence for control:
-  of_hover_ctrl_Z.errors.err = of_hover_ctrl_Z.setpoint- of_hover.divergence;
+  of_hover_ctrl_Z.errors.err = of_hover_ctrl_Z.setpoint - of_hover.divergence;
   des_inputs.thrust = PID_divergence_control(dt, &of_hover_ctrl_Z);
 
-  covariances.Z = set_cov_div(cov_method,&historyZ,&des_inputs);
+  covariances.Z = set_cov_div(cov_method, &historyZ, &des_inputs);
 
   // Check for oscillations
-  if(covariances.Z<of_hover_ctrl_Z.cov_setpoint && (!oscillatingZ))
-  {
-    float estimatedHeight = (of_hover_ctrl_Z.PID.P + 0.5)/2; // ARDRONE2 Vertical slope
+  if (covariances.Z < of_hover_ctrl_Z.cov_setpoint && (!oscillatingZ)) {
+    float estimatedHeight = of_hover_ctrl_Z.PID.P * OFH_VER_SLOPE_A + OFH_VER_SLOPE_B; // Vertical slope Z
     oscillatingZ = 1;
     of_hover_ctrl_Z.setpoint = 0.0f;
-    of_hover_ctrl_Z.PID.P = of_hover_ctrl_Z.PID.P*of_hover_ctrl_Z.reduction_factor;
+    of_hover_ctrl_Z.PID.P = of_hover_ctrl_Z.PID.P * of_hover_ctrl_Z.reduction_factor;
 
-    if(hover_method == 0)
-    {
+    if (hover_method == 0) {
       // Z- X - Y Order
-      //		Start the X axis
+      //    Start the X axis
       oscillatingX = 0;
       of_hover_ctrl_X.PID.P = OFH_PGAINX;
-    }
-    else if(hover_method == 2)
-    {
+    } else if (hover_method == 2) {
       // Start XY axes with computed slope
       of_hover_ctrl_X.errors.sum_err = 0.0f;
       of_hover_ctrl_Y.errors.sum_err = 0.0f;
       of_hover_ctrl_X.PID.I = OFH_IGAINX;
       of_hover_ctrl_Y.PID.I = OFH_IGAINY;
-      of_hover_ctrl_X.PID.P = OFH_REDUCTIONXY*(estimatedHeight-0.25)*2; // ARDRONE2 Horizontal Slope
-      of_hover_ctrl_Y.PID.P = OFH_REDUCTIONXY*(estimatedHeight-0.25)*2; // ARDRONE2 Horizontal Slope
-    }
-    else
-    {
+      of_hover_ctrl_X.PID.P = OFH_REDUCTIONXY * (estimatedHeight * OFH_HOR_X_SLOPE_A - OFH_HOR_X_SLOPE_B); // Horizontal Slope X
+      of_hover_ctrl_Y.PID.P = OFH_REDUCTIONXY * (estimatedHeight * OFH_HOR_Y_SLOPE_A - OFH_HOR_Y_SLOPE_B); //  Horizontal Slope Y
+    } else {
       // hover_method = 1
       //All axes
     }
@@ -569,15 +574,13 @@ void vertical_ctrl_module_run(bool in_flight)
   stabilization_cmd[COMMAND_THRUST] = des_inputs.thrust;
 }
 
-void ofh_optical_flow_cb(uint8_t sender_id __attribute__((unused)), uint32_t stamp, int16_t flow_x, int16_t flow_y, int16_t flow_der_x, int16_t flow_der_y, float quality, float size_div)
+void ofh_optical_flow_cb(uint8_t sender_id __attribute__((unused)), uint32_t stamp, int16_t flow_x, int16_t flow_y,
+                         int16_t flow_der_x, int16_t flow_der_y, float quality, float size_div)
 {
-  if(!derotated)
-  {
+  if (!derotated) {
     flowX = flow_x;
     flowY = flow_y;
-  }
-  else
-  {
+  } else {
     flowX = flow_der_x;
     flowY = flow_der_y;
   }
@@ -628,12 +631,9 @@ void guidance_h_module_enter(void)
 // Run the veritcal controller
 void guidance_v_module_run(bool in_flight)
 {
-  if(electrical.bat_low)
-  {
+  if (electrical.bat_low) {
     autopilot_static_set_mode(AP_MODE_NAV);
-  }
-  else
-  {
+  } else {
     // your vertical controller goes here
     vertical_ctrl_module_run(in_flight);
   }
@@ -643,12 +643,9 @@ void guidance_v_module_run(bool in_flight)
 void guidance_h_module_run(bool in_flight)
 {
 
-  if(electrical.bat_low)
-  {
+  if (electrical.bat_low) {
     autopilot_static_set_mode(AP_MODE_NAV);
-  }
-  else
-  {
+  } else {
     horizontal_ctrl_module_run(in_flight);
     stabilization_attitude_run(in_flight);
   }
@@ -660,7 +657,7 @@ void guidance_h_module_run(bool in_flight)
  * @param[in] Boolean whether to Theta or not
  * @param[out] The desired Euler angles
  */
-void computeOptiTrack(bool phi, bool theta,struct Int32Eulers *opti_sp_eu)
+void computeOptiTrack(bool phi, bool theta, struct Int32Eulers *opti_sp_eu)
 {
 
   bool optiVelOnly;
@@ -676,7 +673,7 @@ void computeOptiTrack(bool phi, bool theta,struct Int32Eulers *opti_sp_eu)
 
   /* maximum bank angle: default 20 deg, max 40 deg*/
   static const int32_t traj_max_bank = Min(BFP_OF_REAL(GUIDANCE_H_MAX_BANK, INT32_ANGLE_FRAC),
-      BFP_OF_REAL(RadOfDeg(40), INT32_ANGLE_FRAC));
+                                       BFP_OF_REAL(RadOfDeg(40), INT32_ANGLE_FRAC));
   static const int32_t total_max_bank = BFP_OF_REAL(RadOfDeg(45), INT32_ANGLE_FRAC);
 
   /* compute position error    */
@@ -693,19 +690,18 @@ void computeOptiTrack(bool phi, bool theta,struct Int32Eulers *opti_sp_eu)
   /* saturate it               */
   VECT2_STRIM(of_hover_speed_err, -MAX_SPEED_ERR, MAX_SPEED_ERR);
 
-  if(optiVelOnly)
-  {
+  if (optiVelOnly) {
     of_hover_pos_err.x = 0;
     of_hover_pos_err.y = 0;
   }
 
   /* run PID */
   of_hover_cmd_earth.x =
-      ((GUIDANCE_H_PGAIN * of_hover_pos_err.x) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
-      ((GUIDANCE_H_DGAIN * (of_hover_speed_err.x >> 2)) >> (INT32_SPEED_FRAC - GH_GAIN_SCALE - 2));
+    ((GUIDANCE_H_PGAIN * of_hover_pos_err.x) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
+    ((GUIDANCE_H_DGAIN * (of_hover_speed_err.x >> 2)) >> (INT32_SPEED_FRAC - GH_GAIN_SCALE - 2));
   of_hover_cmd_earth.y =
-      ((GUIDANCE_H_PGAIN * of_hover_pos_err.y) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
-      ((GUIDANCE_H_DGAIN * (of_hover_speed_err.y >> 2)) >> (INT32_SPEED_FRAC - GH_GAIN_SCALE - 2));
+    ((GUIDANCE_H_PGAIN * of_hover_pos_err.y) >> (INT32_POS_FRAC - GH_GAIN_SCALE)) +
+    ((GUIDANCE_H_DGAIN * (of_hover_speed_err.y >> 2)) >> (INT32_SPEED_FRAC - GH_GAIN_SCALE - 2));
 
   /* trim max bank angle from PD */
   VECT2_STRIM(of_hover_cmd_earth, -traj_max_bank, traj_max_bank);
@@ -714,7 +710,7 @@ void computeOptiTrack(bool phi, bool theta,struct Int32Eulers *opti_sp_eu)
   of_hover_trim_att_integrator.y += (GUIDANCE_H_IGAIN * of_hover_cmd_earth.y);
   /* saturate it  */
   VECT2_STRIM(of_hover_trim_att_integrator, -(traj_max_bank << (INT32_ANGLE_FRAC + GH_GAIN_SCALE * 2)),
-      (traj_max_bank << (INT32_ANGLE_FRAC + GH_GAIN_SCALE * 2)));
+              (traj_max_bank << (INT32_ANGLE_FRAC + GH_GAIN_SCALE * 2)));
 
   /* add it to the command */
   of_hover_cmd_earth.x += (of_hover_trim_att_integrator.x >> (INT32_ANGLE_FRAC + GH_GAIN_SCALE * 2));
@@ -727,12 +723,10 @@ void computeOptiTrack(bool phi, bool theta,struct Int32Eulers *opti_sp_eu)
   PPRZ_ITRIG_SIN(s_psi, psi);
   PPRZ_ITRIG_COS(c_psi, psi);
 
-  if(phi)
-  {
+  if (phi) {
     opti_sp_eu->phi = (-s_psi * of_hover_cmd_earth.x + c_psi * of_hover_cmd_earth.y) >> INT32_TRIG_FRAC;
   }
-  if(theta)
-  {
-    opti_sp_eu->theta= -(c_psi * of_hover_cmd_earth.x + s_psi * of_hover_cmd_earth.y) >> INT32_TRIG_FRAC;
+  if (theta) {
+    opti_sp_eu->theta = -(c_psi * of_hover_cmd_earth.x + s_psi * of_hover_cmd_earth.y) >> INT32_TRIG_FRAC;
   }
 }

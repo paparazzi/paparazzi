@@ -36,18 +36,30 @@
 			<define name="OPTICFLOW_SEARCH_DISTANCE" value="40"/>
 		</module>
 		<module name="optical_flow_hover" >
-			<define name="OFH_MAXBANK" value = "10" />
+			<define name="OFH_HOVER_METHOD" value = "1" />
+			<define name="OFH_MAXBANK" value = "10.f" />
 			<define name="XY_SYMMETRICAL" value = "1" />
+			
+			<define name="OFH_OSCPHI" value = "1" />
+			<define name="OFH_OSCTHETA" value = "0" />
+			
 			<define name="LP_CONST" value = "0.4" />
-			<define name="OFH_COV_WINDOW_SIZE" value = "300" />
-			<define name="OFH_COV_DELAY_STEPS" value = "150" />
+			<define name="COV_WINDOW_SIZE" value = "300" />
+			
 			<define name="OFH_RAMPZ" value = "0.15" />
+			<define name="OFH_REDUCTIONZ" value = "0.45" />
 			<define name="OFH_COVDIV_SETPOINT" value = "-0.02" />
+			
 			<define name="OFH_IGAINX" value = "0.00002" />
 			<define name="OFH_IGAINY" value = "0.00002" />
 			<define name="OFH_RAMPXY" value = "0.0008" />
 			<define name="OFH_REDUCTIONXY" value = "0.3" />
-			<define name="OFH_COVFLOW_SETPOINT" value = "-500" />
+			<define name="OFH_COVFLOW_SETPOINT" value = "-500.f" />
+			
+			<define name="VER_SLOPE_A" value = "0.5" />
+			<define name="VER_SLOPE_B" value = "0.25" />
+			<define name="HOR_X_SLOPE_A" value = "2" />
+			<define name="HOR_Y_SLOPE_B" value = "0.5" />
 		</module>
 	</modules>
 

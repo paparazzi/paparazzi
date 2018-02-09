@@ -35,8 +35,8 @@
 bool oscphi;
 bool osctheta;
 bool derotated;
-bool cov_method; 			   ///< method to calculate the covariance: between thrust and div / angle and flow (0) or div and div past / flow and past flow(1)
-uint8_t hover_method;		 ///< Method used to hover 0 = All axis after each other; 1 = all axis at the same time; 2 = vertical only, use relation to set horizontal
+bool cov_method;         ///< method to calculate the covariance: between thrust and div / angle and flow (0) or div and div past / flow and past flow(1)
+uint8_t hover_method;    ///< Method used to hover 0 = All axis after each other; 1 = all axis at the same time; 2 = vertical only, use relation to set horizontal
 
 extern struct OpticalFlowHoverControl of_hover_ctrl_X;
 extern struct OpticalFlowHoverControl of_hover_ctrl_Y;
