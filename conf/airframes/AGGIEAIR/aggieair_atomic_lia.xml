@@ -1,10 +1,10 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <!--
-AggieAir RP3 Minion
+AggieAir Atomic Tangerine
 -->
 
-<airframe name="Minion PR3">
+<airframe name="Atomic Tangerine">
 
   <firmware name="fixedwing">
     <target name="ap" board="lisa_mx_2.1">
