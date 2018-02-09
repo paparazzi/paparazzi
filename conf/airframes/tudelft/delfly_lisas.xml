@@ -63,21 +63,19 @@
     </module>
     <module name="ahrs" type="int_cmpl_quat"/>
     <module name="ins"/>
-  </firmware>
 
-  <!-- MODULES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%-->
-
-  <modules main_freq="512">
     <module name="send_imu_mag_current"/>
+
     <!-- When sd logger is used, then radio should be DelTang (PPM) and telemetry should
       be transparent (cable/WiFi) -->
     <module name="logger_sd_spi_direct.xml">
       <define name="SDLOGGER_ON_ARM" value="TRUE"/>
       <!--define name="LOGGER_LED" value="3"/-->
     </module>
-  </modules>
+  </firmware>
 
   <!-- ACTUATORS & COMMANDS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%-->
+
   <servos driver="Pwm">
     <servo name="MOTOR" no="4" min="1100" neutral="1100" max="1900"/>
     <servo name="ELEVATOR" no="5" min="1100" neutral="1500" max="1900"/>
