@@ -114,7 +114,6 @@ void gec_counter_to_bytes(uint32_t n, uint8_t* bytes);
 uint32_t gec_bytes_to_counter(uint8_t* bytes);
 void gec_process_msg1(uint8_t *buf);
 bool gec_process_msg3(uint8_t *buf);
-void gec_print_array(uint8_t *buf, uint8_t array_len);
-void gec_print_sts_data(struct gec_sts_ctx *sts);
+
 #endif /* GEC_DL_H */
 

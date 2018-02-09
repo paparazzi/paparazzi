@@ -20,7 +20,7 @@
     <program name="Secure Link" command="sw/ext/rustlink/link">
       <arg flag="-d" constant="/dev/ttyUSB0"/>
       <arg flag="-a" constant="@AC_ID"/>
-      <arg flag="-n" constant="@ACIRCRAFT"/>
+      <arg flag="-n" constant="@AIRCRAFT"/>
       <arg flag="-c" />
     </program>
     <program name="Link Combiner" command="sw/ground_segment/python/redundant_link/link_combiner.py"/>
@@ -105,6 +105,46 @@
      </program>
      <program name="Messages"/>
      <program name="Real-time Plotter"/>
+   </session>
+
+   <session name="Secure Flight USB-serial@57600">
+     <program name="Secure Link">
+       <arg flag="-d" constant="/dev/ttyUSB0"/>
+       <arg flag="-s" constant="57600"/>
+       <arg flag="-a" constant="@AC_ID"/>
+       <arg flag="-n" constant="@AIRCRAFT"/>
+       <arg flag="-c" />
+     </program>
+     <program name="Server"/>
+     <program name="GCS">
+      <arg flag="-layout" constant="AGGIEAIR/vertical.xml"/>
+     </program>
+     <program name="Messages"/>
+     <program name="Real-time Plotter"/>
+   </session>
+
+   <session name="Secure Simulation">
+     <program name="Secure Link">
+       <arg flag="--udp"/>
+       <arg flag="-a" constant="@AC_ID"/>
+       <arg flag="-n" constant="@AIRCRAFT"/>
+       <arg flag="-c" />
+     </program>
+     <program name="Server">
+      <arg flag="-n"/>
+     </program>
+     <program name="GCS">
+      <arg flag="-layout" constant="AGGIEAIR/vertical.xml"/>
+     </program>
+     <program name="Simulator">
+      <arg flag="-a" constant="@AIRCRAFT"/>
+      <arg flag="-f" constant="127.0.0.1"/>
+      <arg flag="-b" constant="127.255.255.255"/>
+      <arg flag="--fg_fdm"/>
+      <arg flag="--nodisplay"/>
+     </program>
+     <program name="Messages"/>
+     <program name="Environment Simulator"/>
    </session>
 
    <session name="Flight USB-serial@115200">

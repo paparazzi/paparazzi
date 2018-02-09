@@ -28,6 +28,9 @@
 #include "subsystems/datalink/datalink.h"
 #include "pprzlink/messages.h"
 #include <string.h> // for memset()
+#include "led.h" // for LED indication
+
+#define CRYPTO_LED 5 // green LED (formerly baro LED)
 
 #if PPRZLINK_DEFAULT_VER != 2
 #error "Secure link is only for Pprzlink v 2.0"
@@ -233,6 +236,8 @@ static int check_available_space(struct pprzlink_msg *msg, long *fd,
 
 void gec_dl_init(void)
 {
+  LED_OFF(CRYPTO_LED);
+
   // init pprz transport
   pprz_transport_init(&gec_tp.pprz_tp);
 
@@ -258,7 +263,6 @@ static void end_message(struct pprzlink_msg *msg, long fd)
 {
   switch (gec_tp.sts.protocol_stage) {
     case CRYPTO_OK:
-      printf("sending msg\n");
       if (gec_encrypt_message(gec_tp.tx_msg, &gec_tp.tx_msg_idx)) {
         gec_encapsulate_and_send_msg(msg, fd);
       }
@@ -327,7 +331,6 @@ bool gec_encrypt_message(uint8_t *buf, uint8_t *payload_len)
 
   // increment counter
   uint32_t counter = gec_tp.sts.tx_sym_key.counter + 1;
-  printf("tx counter = %u\n",counter);
   // convert to bytes
   uint8_t counter_as_bytes[4];
   gec_counter_to_bytes(counter, counter_as_bytes);
@@ -379,25 +382,20 @@ bool gec_decrypt_message(uint8_t *buf, volatile uint8_t* payload_len)
 {
   switch (buf[PPRZ_GEC_IDX]) {
     case PPRZ_MSG_TYPE_PLAINTEXT:
-      printf("we have a plaintext message\n");
       // handle plaintext message
       if (*payload_len < PPRZ_PLAINTEXT_MSG_MIN_LEN) {
-        printf("too short message %u bytes", *payload_len);
         return false;
       }
       // check if the message is in the whitelist
       if (gec_is_in_the_whitelist(&gec_tp.whitelist,
           buf[PPRZ_PLAINTEXT_MSG_ID_IDX])) {
-        printf("message in the whitelist\n");
         // return the buffer minus the crypto byte
         memmove(buf, &buf[1], *payload_len - 1);
         return true;
       }
-      printf("message not in the whitelist:-(\n");
       return false;
       break;
     case PPRZ_MSG_TYPE_ENCRYPTED:
-      printf("we have an encrypted message\n");
       // attempt decryption
       if (*payload_len < PPRZ_ENCRYPTED_MSG_MIN_LEN) {
         return false;
@@ -408,7 +406,6 @@ bool gec_decrypt_message(uint8_t *buf, volatile uint8_t* payload_len)
       }
       // first check the message counter
       uint32_t counter = gec_bytes_to_counter(&buf[PPRZ_CNTR_IDX]);
-      printf("rx counter = %u\n",counter);
       // check against the saved counter
       if (counter <= gec_tp.sts.rx_sym_key.counter) {
         gec_tp.sts.rx_counter_err++;
@@ -455,79 +452,6 @@ bool gec_decrypt_message(uint8_t *buf, volatile uint8_t* payload_len)
   return false;
 }
 
-void gec_print_array(uint8_t *buf, uint8_t array_len)
-{
-  printf("[");
-  for (uint8_t i = 0; i < array_len; i++) {
-    printf("%u, ", buf[i]);
-  }
-  printf("]\n");
-}
-
-void gec_print_sts_data(struct gec_sts_ctx *sts)
-{
-  printf("\nPrinting STS data\n");
-
-  printf("======================\n");
-  printf("sts->my_private_key.priv:\n");
-  gec_print_array(sts->my_private_key.priv, PPRZ_KEY_LEN);
-
-  printf("sts->my_private_key.pub:\n");
-  gec_print_array(sts->my_private_key.pub, PPRZ_KEY_LEN);
-
-  printf("sts->my_private_key.ready: %u\n", sts->my_private_key.ready);
-
-
-  printf("======================\n");
-  printf("sts->their_public_key.pub:\n");
-  gec_print_array(sts->their_public_key.pub, PPRZ_KEY_LEN);
-
-  printf("sts->their_public_key.ready: %u\n", sts->their_public_key.ready);
-
-
-  printf("======================\n");
-  printf("sts->my_private_ephemeral.priv:\n");
-  gec_print_array(sts->my_private_ephemeral.priv, PPRZ_KEY_LEN);
-
-  printf("sts->my_private_ephemeral.pub:\n");
-  gec_print_array(sts->my_private_ephemeral.pub, PPRZ_KEY_LEN);
-
-  printf("sts->my_private_ephemeral.ready: %u\n",
-      sts->my_private_ephemeral.ready);
-
-
-  printf("======================\n");
-  printf("sts->their_public_ephemeral.pub:\n");
-  gec_print_array(sts->their_public_ephemeral.pub, PPRZ_KEY_LEN);
-
-  printf("sts->their_public_ephemeral.ready: %u\n",
-      sts->their_public_ephemeral.ready);
-
-
-  printf("======================\n");
-  printf("sts->rx_sym_key.key:\n");
-  gec_print_array(sts->rx_sym_key.key, PPRZ_KEY_LEN);
-
-  printf("sts->rx_sym_key.nonce:\n");
-  gec_print_array(sts->rx_sym_key.nonce, PPRZ_NONCE_LEN);
-
-  printf("sts->rx_sym_key.counter: %u\n",
-        sts->rx_sym_key.counter);
-  printf("sts->rx_sym_key.ready: %u\n",
-      sts->rx_sym_key.ready);
-
-  printf("======================\n");
-  printf("sts->tx_sym_key.key:\n");
-  gec_print_array(sts->tx_sym_key.key, PPRZ_KEY_LEN);
-
-  printf("sts->tx_sym_key.nonce:\n");
-  gec_print_array(sts->tx_sym_key.nonce, PPRZ_NONCE_LEN);
-
-  printf("sts->tx_sym_key.counter: %u\n",
-        sts->tx_sym_key.counter);
-  printf("sts->tx_sym_key.ready: %u\n",
-      sts->tx_sym_key.ready);
-}
 
 /**
  * Parse incoming message bytes (PPRZ_STX..CHCKSUM B) and returns a new decrypted message if it is available.
@@ -559,16 +483,8 @@ void gec_dl_event(void)
   // we have (CRYPTO_BYTE .. MSG_PAYLOAD) in
   if (gec_tp.trans_rx.msg_received) {  // self.rx.parse_byte(b)
 
-    /*
-    printf("message received, payload_len = %u\n",
-        gec_tp.pprz_tp.trans_rx.payload_len);
-    gec_print_array(gec_tp.pprz_tp.trans_rx.payload,
-        gec_tp.pprz_tp.trans_rx.payload_len);
-    */
-
     switch (gec_tp.sts.protocol_stage) {
       case CRYPTO_OK:
-        printf("crypto ok\n");
         // decrypt message
         // if successfull return the message (sender_ID .. MSG_payload)
         if (gec_decrypt_message(gec_tp.pprz_tp.trans_rx.payload,
@@ -584,35 +500,24 @@ void gec_dl_event(void)
         }
         break;
       case WAIT_MSG1:
-        printf("wait msg1\n");
         // decrypt message (checks against the whitelist and removes the crypto byte)
         // returns (SENDER_ID .. MSG_PAYLOAD
         if (gec_decrypt_message(gec_tp.pprz_tp.trans_rx.payload,
             &gec_tp.pprz_tp.trans_rx.payload_len)) {
-          printf("message 1 decrypted\n");
           gec_process_msg1(gec_tp.pprz_tp.trans_rx.payload);
         } else {
-          printf("message 1 not decrypted\n");
         }
-        gec_print_sts_data(&gec_tp.sts);
         break;
       case WAIT_MSG3:
-        printf("wait msg3\n");
         // decrypt message (checks against the whitelist and removes the crypto byte)
         // returns (SENDER_ID .. MSG_PAYLOAD
         if (gec_decrypt_message(gec_tp.pprz_tp.trans_rx.payload,
             &gec_tp.pprz_tp.trans_rx.payload_len)) {
-          printf("processing msg 3\n");
           if (gec_process_msg3(gec_tp.pprz_tp.trans_rx.payload)) {
             // if OK, we are ready for an ongoing communication
-            printf("message 3 decrypted\n");
             gec_tp.sts.protocol_stage = CRYPTO_OK;
-          } else {
-            printf("message 3 not processed - the error is: %u\n",
-                gec_tp.sts.last_error);
+            LED_ON(CRYPTO_LED);
           }
-        } else {
-          printf("message 3 not decrypted\n");
         }
         break;
       default:
@@ -638,7 +543,6 @@ void gec_process_msg1(uint8_t *buf)
   if (SenderIdOfPprzMsg(buf) != 0) {
     // process only messages from GCS
     // log an error
-    printf("Incorrect sender\n");
     return;
   }
 
@@ -728,11 +632,9 @@ void gec_process_msg1(uint8_t *buf)
   msg2.trans = &gec_tp.pprz_tp.trans_tx;
   msg2.dev = &DOWNLINK_DEVICE.device;
 
-  printf("Sending msg2\n");
   gec_encapsulate_and_send_msg(&msg2, 0);
 
   // increment status
-  printf("Incrementing status\n");
   gec_tp.sts.protocol_stage = WAIT_MSG3;
 }
 
@@ -748,7 +650,6 @@ bool gec_process_msg3(uint8_t *buf)
   if (SenderIdOfPprzMsg(buf) != 0) {
     // process only messages from GCS
     // log an error
-    printf("incorrect sender\n");
     return false;
   }
 
@@ -780,7 +681,6 @@ bool gec_process_msg3(uint8_t *buf)
     gec_tp.sts.last_error = MSG3_DECRYPT_ERROR;
     return false;
   }
-  printf("Message 3 decrypted\n");
 
   // verify
   uint8_t p_ae_concat_p_be[PPRZ_KEY_LEN * 2] = { 0 };
@@ -792,7 +692,6 @@ bool gec_process_msg3(uint8_t *buf)
   PPRZ_SIGN_LEN, sign)) {
     // log error and return
     gec_tp.sts.last_error = MSG3_SIGNVERIFY_ERROR;
-    printf("message 3 sign verify error\n");
     return false;
   }
 
