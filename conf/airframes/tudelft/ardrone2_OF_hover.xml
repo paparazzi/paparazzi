@@ -59,6 +59,7 @@
 			<define name="OF_LP_CONST" value = "0.6" />
 			
 			<define name="OFH_RAMPZ" value = "0.125" />
+			<define name="OFH_IGAINZ" value = "0.003" />
 			<define name="OFH_REDUCTIONZ" value = "0.45" />
 			<define name="OFH_COVDIV_SETPOINT" value = "-0.025" />
 			
@@ -68,10 +69,10 @@
 			<define name="OFH_REDUCTIONXY" value = "0.3" />
 			<define name="OFH_COVFLOW_SETPOINT" value = "-2000.f" />
 			
-			<define name="VER_SLOPE_A" value = "0.5" />
-			<define name="VER_SLOPE_B" value = "0.25" />
-			<define name="HOR_X_SLOPE_A" value = "2" />
-			<define name="HOR_Y_SLOPE_B" value = "0.5" />
+			<define name="OFH_VER_SLOPE_A" value = "0.5" />
+			<define name="OFH_VER_SLOPE_B" value = "0.25" />
+			<define name="OFH_HOR_X_SLOPE_A" value = "0.006" />
+			<define name="OFH_HOR_X_SLOPE_B" value = "0.004" />
 		</module>
 
 	</firmware>
@@ -240,7 +241,7 @@
 		<define name="MODE_STARTUP" value="AP_MODE_ATTITUDE_DIRECT" />
 		<define name="MODE_MANUAL" value="AP_MODE_MODULE" />
 		<define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_DIRECT" />
-		<define name="MODE_AUTO2" value="AP_MODE_ATTITUDE_DIRECT" />
+		<define name="MODE_AUTO2" value="AP_MODE_NAV" />
 		<define name="NO_RC_THRUST_LIMIT" value="TRUE" />
 	</section>
 
