@@ -39,7 +39,7 @@ AggieAir RP3 Minion
     <module name="control"/>
     <module name="navigation"/>
 
-    <module name="telemetry"   type="transparent">
+    <module name="telemetry"   type="transparent_gec">
       <configure name="MODEM_PORT"        value="UART3"/>
       <configure name="MODEM_BAUD"        value="B57600"/>
     </module>
