@@ -43,9 +43,10 @@
 			<define name="OFH_OSCPHI" value = "1" />
 			<define name="OFH_OSCTHETA" value = "0" />
 			
-			<define name="LP_CONST" value = "0.4" />
+			<define name="OF_LP_CONST" value = "0.4" />
 			<define name="COV_WINDOW_SIZE" value = "300" />
 			
+			<define name="OFH_IGAINZ" value = "0.002" />
 			<define name="OFH_RAMPZ" value = "0.15" />
 			<define name="OFH_REDUCTIONZ" value = "0.45" />
 			<define name="OFH_COVDIV_SETPOINT" value = "-0.02" />
@@ -56,10 +57,10 @@
 			<define name="OFH_REDUCTIONXY" value = "0.3" />
 			<define name="OFH_COVFLOW_SETPOINT" value = "-500.f" />
 			
-			<define name="OFH_VER_SLOPE_A" value = "0.5" />
-			<define name="OFH_VER_SLOPE_B" value = "0.25" />
-			<define name="OFH_HOR_X_SLOPE_A" value = "0.006" />
-			<define name="OFH_HOR_X_SLOPE_B" value = "0.004" />
+			<define name="OFH_VER_SLOPE_A" value = "3.f" />
+			<define name="OFH_VER_SLOPE_B" value = "-0.5" />
+			<define name="OFH_HOR_X_SLOPE_A" value = "0.003" />
+			<define name="OFH_HOR_X_SLOPE_B" value = "0.005" />
 		</module>
 	</modules>
 

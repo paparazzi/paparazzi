@@ -68,6 +68,10 @@ PRINT_CONFIG_VAR(OFH_OPTICAL_FLOW_ID)
 #define OF_COV_DELAY_STEPS COV_WINDOW_SIZE/2
 #endif
 
+#ifndef OF_LP_CONST
+#define OF_LP_CONST 0.5
+#endif
+
 #ifndef OFH_OSCPHI
 #define OFH_OSCPHI 1
 #endif
