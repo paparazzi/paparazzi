@@ -235,4 +235,10 @@ static inline bool str_equal(const char *a, const char *b)
 #  define WEAK
 #endif
 
+#if __GNUC__ >= 7
+#  define INTENTIONAL_FALLTHRU __attribute__ ((fallthrough));
+#else
+#  define INTENTIONAL_FALLTHRU
+#endif
+
 #endif /* STD_H */
