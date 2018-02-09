@@ -384,6 +384,7 @@ let rec print_stage = fun index_of_waypoints x ->
         stage ();
         lprintf "%s = %s - 1;\n" v from_;
         lprintf "%s = %s;\n" to_var to_expr;
+        lprintf "INTENTIONAL_FALLTHRU\n";
         left ();
 
         output_label f;
