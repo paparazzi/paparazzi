@@ -1,0 +1,52 @@
+<conf>
+  <aircraft
+   name="LOGGER"
+   ac_id="232"
+   airframe="airframes/logger_sd.xml"
+   radio="radios/mc24r.xml"
+   telemetry="telemetry/default_fixedwing_imu.xml"
+   flight_plan="flight_plans/dummy.xml"
+   settings=" settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/estimation/infrared.xml"
+   gui_color="yellow"
+  />
+  <aircraft
+   name="SUMO_01"
+   ac_id="21"
+   airframe="airframes/campaign/sumogfi01.xml"
+   radio="radios/t7c.xml"
+   telemetry="telemetry/default_fixedwing_imu.xml"
+   flight_plan="flight_plans/Hailuoto/Hailuoto_S1_SUMO_BVLOS.xml"
+   settings=" settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/estimation/ins_neutrals.xml"
+   gui_color="yellow"
+  />
+  <aircraft
+   name="SUMO_02"
+   ac_id="22"
+   airframe="airframes/campaign/sumogfi02.xml"
+   radio="radios/t7c.xml"
+   telemetry="telemetry/default_fixedwing_imu.xml"
+   flight_plan="flight_plans/dummy.xml"
+   settings=" settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/estimation/ins_neutrals.xml"
+   gui_color="yellow"
+  />
+  <aircraft
+   name="SUMO_03"
+   ac_id="23"
+   airframe="airframes/campaign/sumogfi03.xml"
+   radio="radios/t7c.xml"
+   telemetry="telemetry/default_fixedwing_imu.xml"
+   flight_plan="flight_plans/Hailuoto/Hailuoto_S1_SUMO_BVLOS.xml"
+   settings=" settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/estimation/ins_neutrals.xml"
+   gui_color="yellow"
+  />
+  <aircraft
+   name="SUMO_04"
+   ac_id="24"
+   airframe="airframes/campaign/sumogfi04.xml"
+   radio="radios/t7c.xml"
+   telemetry="telemetry/default_fixedwing_imu.xml"
+   flight_plan="flight_plans/Hailuoto/Hailuoto_S1_SUMO_BVLOS.xml"
+   settings=" settings/fixedwing_basic.xml settings/control/ctl_basic.xml settings/estimation/ins_neutrals.xml"
+   gui_color="yellow"
+  />
+</conf>

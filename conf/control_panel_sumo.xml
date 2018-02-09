@@ -1,0 +1,208 @@
+<control_panel name="paparazzi control panel">
+  <section name="variables">
+    <variable name="downlink_serial_port" value="/dev/ttyUSB0"/>
+    <variable name="fbw_serial_port" value="/dev/ttyS1"/>
+    <variable name="ap_serial_port" value="/dev/ttyS0"/>
+    <variable name="ivy_bus" value="127:2010"/>
+    <variable name="map" value="muret_UTM.xml"/>
+    <variable name="flight_plan" value="flight_plans/muret1.xml"/>
+  </section>
+  <section name="programs">
+    <program name="Server" command="sw/ground_segment/tmtc/server">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="Data Link" command="sw/ground_segment/tmtc/link">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="GCS" command="sw/ground_segment/cockpit/gcs">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="Flight Plan Editor" command="sw/ground_segment/cockpit/gcs -edit"/>
+    <program name="Messages" command="sw/ground_segment/tmtc/messages">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="Messages (Python)" command="sw/ground_segment/python/messages_app/messagesapp.py"/>
+    <program name="Settings" command="sw/ground_segment/tmtc/settings">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="Settings (Python)" command="sw/ground_segment/python/settings_app/settingsapp.py"/>
+    <program name="GPSd position display" command="sw/ground_segment/tmtc/gpsd2ivy"/>
+    <program name="Log Plotter" command="sw/logalizer/plot"/>
+    <program name="Real-time Plotter" command="sw/logalizer/plotter"/>
+    <program name="Log File Player" command="sw/logalizer/play">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="Simulator" command="sw/simulator/launchsitl">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="Joystick" command="sw/ground_segment/joystick/input2ivy">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="Hardware in the Loop" command="sw/simulator/simhitl">
+      <arg flag="-fbw" variable="fbw_serial_port"/>
+      <arg flag="-ap" variable="ap_serial_port"/>
+    </program>
+    <program name="Environment Simulator" command="sw/simulator/gaia">
+      <arg flag="-b" variable="ivy_bus"/>
+    </program>
+    <program name="Http Server" command="sw/ground_segment/tmtc/boa"/>
+    <program name="Plot Meteo Profile" command="sw/logalizer/plotprofile"/>
+    <program name="Weather Station" command="sw/ground_segment/misc/davis2ivy">
+      <arg flag="-b" variable="ivy_bus"/>
+      <arg flag="-d" constant="/dev/ttyUSB1"/>
+    </program>
+  </section>
+  <section name="sessions">
+    <session name="Flight USB-serial@57600">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS"/>
+    </session>
+    <session name="Flight USB-XBee-API@57600">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/paparazzi/xbee"/>
+        <arg flag="-transport" constant="xbee"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS"/>
+      <program name="Messages"/>
+    </session>
+    <session name="Flight GFI XBee">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/paparazzi/xbee"/>
+        <arg flag="-transport" constant="xbee"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS">
+        <arg flag="-layout" constant="horizontal_sumo.xml"/>
+      </program>
+      <program name="Messages"/>
+    </session>
+    <session name="HITL">
+      <program name="Hardware in the Loop">
+        <arg flag="-a" constant="HITL"/>
+        <arg flag="-noground"/>
+        <arg flag="-boot"/>
+      </program>
+      <program name="GCS"/>
+      <program name="Data Link">
+        <arg flag="-s" constant="57600"/>
+      </program>
+      <program name="Server"/>
+    </session>
+    <session name="Booz simulation : AHRS">
+      <program name="Messages">
+        <arg flag="-c" constant="telemetry"/>
+      </program>
+      <program name="Real-time Plotter">
+        <arg flag="-t" constant="rate : p"/>
+        <arg flag="-g" constant="0+450:830x450"/>
+        <arg flag="-u" constant="0.1"/>
+        <arg flag="-c" constant="'*:telemetry:BOOZ_SIM_RATE_ATTITUDE:p'"/>
+        <arg flag="-c" constant="'*:telemetry:IMU_GYRO:gp:57.3'"/>
+        <arg flag="-c" constant="'*:telemetry:BOOZ_RATE_LOOP:est_p:57.3'"/>
+      </program>
+      <program name="Real-time Plotter">
+        <arg flag="-t" constant="rate : q"/>
+        <arg flag="-u" constant="0.1"/>
+        <arg flag="-c" constant="'*:telemetry:BOOZ_SIM_RATE_ATTITUDE:q'"/>
+        <arg flag="-c" constant="'*:telemetry:IMU_GYRO:gq:57.3'"/>
+        <arg flag="-c" constant="'*:telemetry:BOOZ_RATE_LOOP:est_q:57.3'"/>
+        <arg flag="-c" constant="'*:telemetry:BOOZ_RATE_LOOP:sp_q:57.3'"/>
+      </program>
+      <program name="Real-time Plotter">
+        <arg flag="-t" constant="rate : r"/>
+        <arg flag="-u" constant="0.1"/>
+        <arg flag="-c" constant="'*:telemetry:BOOZ_SIM_RATE_ATTITUDE:r'"/>
+        <arg flag="-c" constant="'*:telemetry:IMU_GYRO:gr:57.3'"/>
+        <arg flag="-c" constant="'*:telemetry:BOOZ_RATE_LOOP:est_r:57.3'"/>
+        <arg flag="-c" constant="'*:telemetry:BOOZ_RATE_LOOP:sp_r:57.3'"/>
+      </program>
+      <program name="Real-time Plotter">
+        <arg flag="-t" constant="attitude : phi"/>
+        <arg flag="-u" constant="0.1"/>
+        <arg flag="-c" constant="'*:telemetry:BOOZ_SIM_RATE_ATTITUDE:phi'"/>
+        <arg flag="-c" constant="'*:telemetry:BOOZ_ATT_LOOP:est_phi:57.3'"/>
+        <arg flag="-c" constant="'*:telemetry:BOOZ_ATT_LOOP:sp_phi:57.3'"/>
+        <arg flag="-c" constant="'*:telemetry:AHRS_MEASURE:phi:57.3'"/>
+      </program>
+      <program name="Real-time Plotter">
+        <arg flag="-t" constant="attitude : theta"/>
+        <arg flag="-u" constant="0.1"/>
+        <arg flag="-c" constant="'*:telemetry:BOOZ_SIM_RATE_ATTITUDE:theta'"/>
+        <arg flag="-c" constant="'*:telemetry:BOOZ_ATT_LOOP:est_theta:57.3'"/>
+        <arg flag="-c" constant="'*:telemetry:BOOZ_ATT_LOOP:sp_theta:57.3'"/>
+        <arg flag="-c" constant="'*:telemetry:AHRS_MEASURE:theta:57.3'"/>
+      </program>
+      <program name="Real-time Plotter">
+        <arg flag="-t" constant="attitude : psi"/>
+        <arg flag="-u" constant="0.1"/>
+        <arg flag="-c" constant="'*:telemetry:BOOZ_SIM_RATE_ATTITUDE:psi'"/>
+        <arg flag="-c" constant="'*:telemetry:AHRS_MEASURE:psi:57.3'"/>
+      </program>
+      <program name="Real-time Plotter">
+        <arg flag="-t" constant="speed : u v w"/>
+        <arg flag="-u" constant="0.1"/>
+        <arg flag="-c" constant="'*:telemetry:BOOZ_SIM_SPEED_POS:u'"/>
+        <arg flag="-c" constant="'*:telemetry:BOOZ_SIM_SPEED_POS:v'"/>
+        <arg flag="-c" constant="'*:telemetry:BOOZ_SIM_SPEED_POS:w'"/>
+      </program>
+      <program name="Real-time Plotter">
+        <arg flag="-t" constant="position : x"/>
+        <arg flag="-u" constant="0.1"/>
+        <arg flag="-c" constant="'*:telemetry:BOOZ_SIM_SPEED_POS:x'"/>
+        <arg flag="-c" constant="'*:telemetry:BOOZ_HOV_LOOP:est_x'"/>
+        <arg flag="-c" constant="'*:telemetry:BOOZ_HOV_LOOP:sp_x'"/>
+      </program>
+      <program name="Real-time Plotter">
+        <arg flag="-t" constant="position : y"/>
+        <arg flag="-u" constant="0.1"/>
+        <arg flag="-c" constant="'*:telemetry:BOOZ_SIM_SPEED_POS:y'"/>
+        <arg flag="-c" constant="'*:telemetry:BOOZ_HOV_LOOP:est_y:'"/>
+        <arg flag="-c" constant="'*:telemetry:BOOZ_HOV_LOOP:sp_y:'"/>
+      </program>
+      <program name="Real-time Plotter">
+        <arg flag="-t" constant="position : z"/>
+        <arg flag="-u" constant="0.1"/>
+        <arg flag="-c" constant="'*:telemetry:BOOZ_SIM_SPEED_POS:z'"/>
+        <arg flag="-c" constant="'*:telemetry:BOOZ_VERT_LOOP:est_z'"/>
+        <arg flag="-c" constant="'*:telemetry:BOOZ_VERT_LOOP:sp_z'"/>
+      </program>
+      <program name="Real-time Plotter">
+        <arg flag="-t" constant="ahrs : bp bq br"/>
+        <arg flag="-u" constant="0.1"/>
+        <arg flag="-c" constant="'*:telemetry:AHRS_EULER_STATE:bp:57.3'"/>
+        <arg flag="-c" constant="'*:telemetry:AHRS_EULER_STATE:bq:57.3'"/>
+        <arg flag="-c" constant="'*:telemetry:AHRS_EULER_STATE:br:57.3'"/>
+        <arg flag="-c" constant="'*:telemetry:BOOZ_SIM_GYRO_BIAS:bp'"/>
+        <arg flag="-c" constant="'*:telemetry:BOOZ_SIM_GYRO_BIAS:bq'"/>
+        <arg flag="-c" constant="'*:telemetry:BOOZ_SIM_GYRO_BIAS:br'"/>
+      </program>
+      <program name="Real-time Plotter">
+        <arg flag="-t" constant="ahrs : covariances"/>
+        <arg flag="-u" constant="0.1"/>
+        <arg flag="-c" constant="'*:telemetry:AHRS_EULER_COV:p_phi_phi'"/>
+        <arg flag="-c" constant="'*:telemetry:AHRS_EULER_COV:p_phi_bp'"/>
+        <arg flag="-c" constant="'*:telemetry:AHRS_EULER_COV:p_bp_bp'"/>
+        <arg flag="-c" constant="'*:telemetry:AHRS_EULER_COV:p_theta_theta'"/>
+        <arg flag="-c" constant="'*:telemetry:AHRS_EULER_COV:p_theta_bq'"/>
+        <arg flag="-c" constant="'*:telemetry:AHRS_EULER_COV:p_bq_bq'"/>
+        <arg flag="-c" constant="'*:telemetry:AHRS_EULER_COV:p_psi_psi'"/>
+        <arg flag="-c" constant="'*:telemetry:AHRS_EULER_COV:p_psi_br'"/>
+        <arg flag="-c" constant="'*:telemetry:AHRS_EULER_COV:p_br_br'"/>
+      </program>
+    </session>
+    <session name="Flight USB-serial@9600">
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+      </program>
+      <program name="Server"/>
+      <program name="GCS"/>
+    </session>
+  </section>
+</control_panel>

@@ -69,8 +69,8 @@
   <!-- commands section -->
   <servos>
     <servo name="LIGHT"         no="2" min="1000" neutral="1900" max="2000"/>
-    <servo name="AILEVON_LEFT"  no="3" min="1900" neutral="1615" max="1100"/>
-    <servo name="AILEVON_RIGHT" no="4" min="1100" neutral="1457" max="1900"/>
+    <servo name="AILEVON_LEFT"  no="3" min="1900" neutral="1628" max="1100"/>
+    <servo name="AILEVON_RIGHT" no="4" min="1100" neutral="1433" max="1900"/>
     <servo name="MOTOR"         no="5" min="1000" neutral="1000" max="2000"/>
   </servos>
 
@@ -163,7 +163,7 @@
     <define name="ALTITUDE_MAX_CLIMB" value="2."/>
 
     <!-- auto throttle inner loop -->
-    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.45"/>
+    <define name="AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" value="0.55"/>
     <define name="AUTO_THROTTLE_MIN_CRUISE_THROTTLE" value="0.25"/>
     <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.85"/>
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="1000"/>

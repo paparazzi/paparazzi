@@ -69,8 +69,8 @@
   <!-- commands section -->
   <servos>
     <servo name="LIGHT"         no="2" min="1000" neutral="1900" max="2000"/>
-    <servo name="AILEVON_LEFT"  no="3" min="1900" neutral="1497" max="1100"/>
-    <servo name="AILEVON_RIGHT" no="4" min="1100" neutral="1497" max="1900"/>
+    <servo name="AILEVON_LEFT"  no="3" min="1900" neutral="1502" max="1100"/>
+    <servo name="AILEVON_RIGHT" no="4" min="1100" neutral="1486" max="1900"/>
     <servo name="MOTOR"         no="5" min="1000" neutral="1000" max="2000"/>
   </servos>
 
@@ -108,18 +108,18 @@
 
   <section name="IMU" prefix="IMU_">
     <!-- Calibration Neutral -->
-    <define name="GYRO_P_NEUTRAL" value="0"/>
-    <define name="GYRO_Q_NEUTRAL" value="1"/>
-    <define name="GYRO_R_NEUTRAL" value="2"/>
+    <define name="GYRO_P_NEUTRAL" value="-88"/>
+    <define name="GYRO_Q_NEUTRAL" value="7"/>
+    <define name="GYRO_R_NEUTRAL" value="66"/>
 
     <!-- SENS ITG3200  1/14.375 (deg/s)/LSB, rate frac 12bit => 1/14.375 * pi / 180 * 2^12 -->
     <define name="GYRO_P_SENS" value="4.97312" integer="16"/>
     <define name="GYRO_Q_SENS" value="4.97312" integer="16"/>
     <define name="GYRO_R_SENS" value="4.97312" integer="16"/>
 
-    <define name="ACCEL_X_NEUTRAL" value="0"/>
-    <define name="ACCEL_Y_NEUTRAL" value="1"/>
-    <define name="ACCEL_Z_NEUTRAL" value="2"/>
+    <define name="ACCEL_X_NEUTRAL" value="-2"/>
+    <define name="ACCEL_Y_NEUTRAL" value="3"/>
+    <define name="ACCEL_Z_NEUTRAL" value="0"/>
 
     <!-- SENS ADXL345 16G 31.2 mg/LSB, accel frac 10bit => 31.2 * 2^10 / 1000 -->
     <define name="ACCEL_X_SENS" value="37.91" integer="10"/>
@@ -136,8 +136,8 @@
   </section>
 
   <section name="INS" prefix="INS_">
-    <define name="ROLL_NEUTRAL_DEFAULT"  value="0." unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="5." unit="deg"/>
+    <define name="ROLL_NEUTRAL_DEFAULT"  value="-4.5" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="2." unit="deg"/>
   </section>
 
   <section name="BAT">

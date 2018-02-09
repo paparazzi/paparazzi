@@ -101,11 +101,20 @@ void log_sd_spi_init(void) {
 static void log_sd_spi_req(void) {
   uint8_t cmd  = 0x23;
   uint8_t data = 0xF0 | log_sd_spi_run;
+  uint8_t turb_id=0;
+  uint32_t sync_itow=0, cycle_time=0;
+
   ScpSelect();
   SSPDR = cmd;
   SSPDR = data;
   SpiEnableRti();
   SpiEnable();
+
+  DOWNLINK_SEND_WINDTURBINE_STATUS_(DefaultChannel, DefaultDevice,
+    &log_sd_spi_run,
+    &turb_id,
+    &sync_itow,
+    &cycle_time );
 }
 
 void log_sd_spi_event( void ) {

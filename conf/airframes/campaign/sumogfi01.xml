@@ -1,6 +1,6 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<!-- Funjet Multiplex, Jeti ECO 25
+<!-- Funjet Multiplex, robbe roxxy
      Umarim Lite v2
      XBee modem
      Navilock NL-652ETTL / ublox 6
@@ -74,8 +74,8 @@
   <!-- commands section -->
   <servos>
     <servo name="LIGHT"         no="2" min="1000" neutral="1900" max="2000"/>
-    <servo name="AILEVON_LEFT"  no="3" min="1900" neutral="1443" max="1100"/>
-    <servo name="AILEVON_RIGHT" no="4" min="1100" neutral="1519" max="1900"/>
+    <servo name="AILEVON_LEFT"  no="3" min="1900" neutral="1476" max="1100"/>
+    <servo name="AILEVON_RIGHT" no="4" min="1100" neutral="1530" max="1900"/>
     <servo name="MOTOR"         no="5" min="1000" neutral="1000" max="2000"/>
   </servos>
 
