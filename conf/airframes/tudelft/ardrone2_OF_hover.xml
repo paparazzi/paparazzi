@@ -9,9 +9,6 @@
   </description>
 	<firmware name="rotorcraft">
 		<target name="ap" board="ardrone2">
-			<!-- This setting was implemented to fly ARDrones with UBUNTU 16.04 LTS -->
-			<configure name="PREFIX" value="/opt/arm-2012.03/bin/arm-none-linux-gnueabi" />
-			
 			<configure name="USE_BARO_BOARD" value="FALSE" />
 		</target>
 		<define name="USE_SONAR" value="FALSE" />
