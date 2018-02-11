@@ -34,6 +34,7 @@
 #include "../ext/hacl-c/Hacl_Curve25519.h"
 #include "../ext/hacl-c/Hacl_SHA2_512.h"
 #include "../ext/hacl-c/Hacl_Chacha20Poly1305.h"
+#include "../ext/hacl-c/kremlib.h"
 
 #define PPRZ_MSG_TYPE_PLAINTEXT 0xaa
 #define PPRZ_MSG_TYPE_ENCRYPTED 0x55

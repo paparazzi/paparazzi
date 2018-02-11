@@ -28,9 +28,10 @@
 #include "subsystems/datalink/datalink.h"
 #include "pprzlink/messages.h"
 #include <string.h> // for memset()
-#include "led.h" // for LED indication
 
-#define CRYPTO_LED 5 // green LED (formerly baro LED)
+#ifdef CRYPTO_GEC_STATUS_LED
+#include "led.h" // for LED indication
+#endif
 
 #if PPRZLINK_DEFAULT_VER != 2
 #error "Secure link is only for Pprzlink v 2.0"
@@ -65,7 +66,6 @@ uint32_t gec_bytes_to_counter(uint8_t* bytes)
   // now check the appropriate endiannes
   /* ... for Linux */
 #if defined(__linux__) || defined(__CYGWIN__)
-
   return ntohl(x);
   /* ... generic big-endian fallback code */
 #elif defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
@@ -74,7 +74,7 @@ uint32_t gec_bytes_to_counter(uint8_t* bytes)
   /* ... generic little-endian fallback code */
 #elif defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
   // do a byte swap
-  return __bswap32(x);
+  return htobe32(x);
   /* ... couldn't determine endian-ness of the target platform */
 #else
 #pragma message "Please define __BYTE_ORDER__!"
@@ -97,10 +97,10 @@ void gec_counter_to_bytes(uint32_t n, uint8_t* bytes)
   /* ... generic little-endian fallback code */
 #elif defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
   // do a byte swap
-  n = __bswap32(n);
+  n = htobe32(n);
   /* ... couldn't determine endian-ness of the target platform */
 #else
-#pragma message "Please define __BYTE_ORDER__!"
+#pragma message "Error: Please define __BYTE_ORDER__!"
 #endif /* defined(__linux__) || ... */
 
   bytes[3] = (n >> 24) & 0xFF;
@@ -236,7 +236,9 @@ static int check_available_space(struct pprzlink_msg *msg, long *fd,
 
 void gec_dl_init(void)
 {
-  LED_OFF(CRYPTO_LED);
+#ifdef GEC_STATUS_LED
+  LED_OFF(GEC_STATUS_LED);
+#endif
 
   // init pprz transport
   pprz_transport_init(&gec_tp.pprz_tp);
@@ -452,7 +454,6 @@ bool gec_decrypt_message(uint8_t *buf, volatile uint8_t* payload_len)
   return false;
 }
 
-
 /**
  * Parse incoming message bytes (PPRZ_STX..CHCKSUM B) and returns a new decrypted message if it is available.
  * While the status != Crypto_OK no message is returned, and all logic is handled internally.
@@ -516,7 +517,9 @@ void gec_dl_event(void)
           if (gec_process_msg3(gec_tp.pprz_tp.trans_rx.payload)) {
             // if OK, we are ready for an ongoing communication
             gec_tp.sts.protocol_stage = CRYPTO_OK;
-            LED_ON(CRYPTO_LED);
+#ifdef GEC_STATUS_LED
+            LED_ON(GEC_STATUS_LED);
+#endif
           }
         }
         break;
@@ -603,36 +606,49 @@ void gec_process_msg1(uint8_t *buf)
     return;
   }
 
-  // now we have to manually construct the message
-  // CRYPTO BYTE
-  // source_id
-  // sender_id
-  // class id
-  // msg id
-  // msg_type
-  // msg_data
-  gec_tp.tx_msg[PPRZ_GEC_IDX] = PPRZ_MSG_TYPE_PLAINTEXT;
-  gec_tp.tx_msg_idx = 1;
-  gec_tp.tx_msg[gec_tp.tx_msg_idx] = AC_ID;
-  gec_tp.tx_msg_idx++;
-  gec_tp.tx_msg[gec_tp.tx_msg_idx] = 0;
-  gec_tp.tx_msg_idx++;
-  gec_tp.tx_msg[gec_tp.tx_msg_idx] = 1;  // telemetry
-  gec_tp.tx_msg_idx++;
-  gec_tp.tx_msg[gec_tp.tx_msg_idx] = 239;
-  gec_tp.tx_msg_idx++;
-  gec_tp.tx_msg[gec_tp.tx_msg_idx] = P_BE;
-  gec_tp.tx_msg_idx++;
-  gec_tp.tx_msg[gec_tp.tx_msg_idx] = sizeof(msg_data);
-  gec_tp.tx_msg_idx++;
-  memcpy(&gec_tp.tx_msg[gec_tp.tx_msg_idx], msg_data, sizeof(msg_data));
-  gec_tp.tx_msg_idx += sizeof(msg_data);
+   // now we have to manually construct the message
+   // CRYPTO BYTE
+   // source_id
+   // sender_id
+   // class id
+   // msg id
+   // msg_type
+   // msg_data
+   gec_tp.tx_msg[PPRZ_GEC_IDX] = PPRZ_MSG_TYPE_PLAINTEXT;
+   gec_tp.tx_msg_idx = 1;
+   gec_tp.tx_msg[gec_tp.tx_msg_idx] = AC_ID;
+   gec_tp.tx_msg_idx++;
+   gec_tp.tx_msg[gec_tp.tx_msg_idx] = 0;
+   gec_tp.tx_msg_idx++;
+   gec_tp.tx_msg[gec_tp.tx_msg_idx] = 1;  // telemetry
+   gec_tp.tx_msg_idx++;
+   gec_tp.tx_msg[gec_tp.tx_msg_idx] = 239;
+   gec_tp.tx_msg_idx++;
+   gec_tp.tx_msg[gec_tp.tx_msg_idx] = P_BE;
+   gec_tp.tx_msg_idx++;
+   gec_tp.tx_msg[gec_tp.tx_msg_idx] = sizeof(msg_data);
+   gec_tp.tx_msg_idx++;
+   memcpy(&gec_tp.tx_msg[gec_tp.tx_msg_idx], msg_data, sizeof(msg_data));
+   gec_tp.tx_msg_idx += sizeof(msg_data);
 
-  struct pprzlink_msg msg2;
-  msg2.trans = &gec_tp.pprz_tp.trans_tx;
-  msg2.dev = &DOWNLINK_DEVICE.device;
+   struct pprzlink_msg msg2;
+   msg2.trans = &gec_tp.pprz_tp.trans_tx;
+   msg2.dev = &DOWNLINK_DEVICE.device;
 
-  gec_encapsulate_and_send_msg(&msg2, 0);
+   gec_encapsulate_and_send_msg(&msg2, 0);
+
+  /*
+   * Note that ideally we would use the following function call, but the problem is that
+   * 'end_message()` cannot currently distinguish between encrypted and plaintext message to be sent
+   * (i.e. I don't know the message ID). The second problem I am using the same buffer here as for
+   * constructing a message, so a corruption of the buffer is possible.
+   *
+   * Since I am doing this only once, the method above is fine for the time being.
+   *
+   uint8_t msg_status = P_BE;
+   pprz_msg_send_KEY_EXCHANGE_UAV(&gec_tp.pprz_tp.trans_tx, &DOWNLINK_DEVICE.device, AC_ID,
+   &msg_status, sizeof(msg_data), msg_data);
+   */
 
   // increment status
   gec_tp.sts.protocol_stage = WAIT_MSG3;
@@ -684,7 +700,8 @@ bool gec_process_msg3(uint8_t *buf)
 
   // verify
   uint8_t p_ae_concat_p_be[PPRZ_KEY_LEN * 2] = { 0 };
-  memcpy(p_ae_concat_p_be, &gec_tp.sts.their_public_ephemeral.pub, PPRZ_KEY_LEN);
+  memcpy(p_ae_concat_p_be, &gec_tp.sts.their_public_ephemeral.pub,
+  PPRZ_KEY_LEN);
   memcpy(&p_ae_concat_p_be[PPRZ_KEY_LEN], &gec_tp.sts.my_private_ephemeral.pub,
   PPRZ_KEY_LEN);
   // returns true if verified properly
