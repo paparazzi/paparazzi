@@ -92,6 +92,7 @@ void nps_autopilot_run_systime_step(void)
 
 void nps_autopilot_run_step(double time)
 {
+
   nps_electrical_run_step(time);
 
 #if RADIO_CONTROL && !RADIO_CONTROL_TYPE_DATALINK

@@ -29,7 +29,7 @@
 #include "pprzlink/messages.h"
 #include <string.h> // for memset()
 
-#ifdef CRYPTO_GEC_STATUS_LED
+#ifdef GEC_STATUS_LED
 #include "led.h" // for LED indication
 #endif
 
