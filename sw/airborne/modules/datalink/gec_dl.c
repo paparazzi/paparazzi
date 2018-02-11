@@ -48,18 +48,18 @@ struct gec_transport gec_tp;
 static void send_secure_link_info(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_SECURE_LINK_STATUS(trans, dev, AC_ID,
-      (uint8_t*)&gec_tp.sts.protocol_stage,
-      (uint8_t*)&gec_tp.sts.last_error,
-      &gec_tp.sts.rx_counter_err,
-      &gec_tp.sts.decrypt_err,
-      &gec_tp.sts.encrypt_err);
+                                   (uint8_t *)&gec_tp.sts.protocol_stage,
+                                   (uint8_t *)&gec_tp.sts.last_error,
+                                   &gec_tp.sts.rx_counter_err,
+                                   &gec_tp.sts.decrypt_err,
+                                   &gec_tp.sts.encrypt_err);
 }
 #endif
 
 /**
  * Convert from network byte order (big endian) to the machine byte order
  */
-uint32_t gec_bytes_to_counter(uint8_t* bytes)
+uint32_t gec_bytes_to_counter(uint8_t *bytes)
 {
   // assume big endian
   uint32_t x = (bytes[3] << 24) + (bytes[2] << 16) + (bytes[1] << 8) + bytes[0];
@@ -84,7 +84,7 @@ uint32_t gec_bytes_to_counter(uint8_t* bytes)
 /**
  * Convert counter to bytes in network byte order
  */
-void gec_counter_to_bytes(uint32_t n, uint8_t* bytes)
+void gec_counter_to_bytes(uint32_t n, uint8_t *bytes)
 {
   //first account for appropriate endiannes
   /* ... for Linux */
@@ -112,9 +112,9 @@ void gec_counter_to_bytes(uint32_t n, uint8_t* bytes)
 /**
  * Helper function to get the relevant transport struct
  */
-static struct gec_transport * get_trans(struct pprzlink_msg *msg)
+static struct gec_transport *get_trans(struct pprzlink_msg *msg)
 {
-  return (struct gec_transport *) (msg->trans->impl);
+  return (struct gec_transport *)(msg->trans->impl);
 }
 
 /**
@@ -127,7 +127,7 @@ static inline void insert_byte(struct gec_transport *t, const uint8_t byte)
 }
 
 // add a message id to the whitelist
-void gec_add_to_whitelist(struct gec_whitelist* whitelist, uint8_t id)
+void gec_add_to_whitelist(struct gec_whitelist *whitelist, uint8_t id)
 {
   if (whitelist->init && (whitelist->idx < WHITELIST_LEN)) {
     whitelist->whitelist[whitelist->idx] = id;
@@ -141,7 +141,7 @@ void gec_add_to_whitelist(struct gec_whitelist* whitelist, uint8_t id)
 }
 
 // return true if given message id is in the whitelist
-bool gec_is_in_the_whitelist(struct gec_whitelist* whitelist, uint8_t id)
+bool gec_is_in_the_whitelist(struct gec_whitelist *whitelist, uint8_t id)
 {
   if (whitelist->init) {
     for (uint8_t i = 0; i < whitelist->idx; i++) {
@@ -157,9 +157,9 @@ bool gec_is_in_the_whitelist(struct gec_whitelist* whitelist, uint8_t id)
  * Simply put bytes in the message buffer
  */
 static void put_bytes(struct pprzlink_msg *msg, long fd __attribute__((unused)),
-    enum TransportDataType type __attribute__((unused)),
-    enum TransportDataFormat format __attribute__((unused)), const void *bytes,
-    uint16_t len)
+                      enum TransportDataType type __attribute__((unused)),
+                      enum TransportDataFormat format __attribute__((unused)), const void *bytes,
+                      uint16_t len)
 {
   const uint8_t *b = (const uint8_t *) bytes;
   int i;
@@ -169,10 +169,10 @@ static void put_bytes(struct pprzlink_msg *msg, long fd __attribute__((unused)),
 }
 
 static void put_named_byte(struct pprzlink_msg *msg,
-    long fd __attribute__((unused)),
-    enum TransportDataType type __attribute__((unused)),
-    enum TransportDataFormat format __attribute__((unused)), uint8_t byte,
-    const char *name __attribute__((unused)))
+                           long fd __attribute__((unused)),
+                           enum TransportDataType type __attribute__((unused)),
+                           enum TransportDataFormat format __attribute__((unused)), uint8_t byte,
+                           const char *name __attribute__((unused)))
 {
   insert_byte(get_trans(msg), byte);
 }
@@ -184,15 +184,15 @@ static void put_named_byte(struct pprzlink_msg *msg,
 static uint8_t size_of(struct pprzlink_msg *msg, uint8_t len)
 {
   return PPRZ_CRYPTO_OVERHEAD + 1
-      + get_trans(msg)->pprz_tp.trans_tx.size_of(msg, len);
+         + get_trans(msg)->pprz_tp.trans_tx.size_of(msg, len);
 }
 
 /**
  * Just reset the message data
  */
 static void start_message(struct pprzlink_msg *msg,
-    long fd __attribute__((unused)),
-    uint8_t payload_len __attribute__((unused)))
+                          long fd __attribute__((unused)),
+                          uint8_t payload_len __attribute__((unused)))
 {
   PPRZ_MUTEX_LOCK(get_trans(msg)->mtx_tx);  // lock mutex
   memset(get_trans(msg)->tx_msg, _FD, TRANSPORT_PAYLOAD_LEN);  // erase message data
@@ -225,11 +225,11 @@ static void count_bytes(struct pprzlink_msg *msg, uint8_t bytes)
  *  sent before the key exchange)
  */
 static int check_available_space(struct pprzlink_msg *msg, long *fd,
-    uint16_t bytes)
+                                 uint16_t bytes)
 {
   if (get_trans(msg)->sts.protocol_stage == CRYPTO_OK) {
     return get_trans(msg)->pprz_tp.trans_tx.check_available_space(msg, fd,
-        bytes);
+           bytes);
   }
   return 0;
 }
@@ -283,14 +283,14 @@ static void gec_transport_init(struct gec_transport *t)
   t->trans_rx.msg_received = false;
   t->trans_tx.size_of = (size_of_t) size_of;
   t->trans_tx.check_available_space =
-      (check_available_space_t) check_available_space;
+    (check_available_space_t) check_available_space;
   t->trans_tx.put_bytes = (put_bytes_t) put_bytes;
   t->trans_tx.put_named_byte = (put_named_byte_t) put_named_byte;
   t->trans_tx.start_message = (start_message_t) start_message;
   t->trans_tx.end_message = (end_message_t) end_message;
   t->trans_tx.overrun = (overrun_t) overrun;
   t->trans_tx.count_bytes = (count_bytes_t) count_bytes;
-  t->trans_tx.impl = (void *) (t);
+  t->trans_tx.impl = (void *)(t);
   PPRZ_MUTEX_INIT(t->mtx_tx);  // init mutex, check if correct pointer
 
   // add whitelist messages
@@ -347,8 +347,8 @@ bool gec_encrypt_message(uint8_t *buf, uint8_t *payload_len)
   uint32_t mlen = *payload_len - PPRZ_AUTH_LEN;  // at least CLASS_BYTE and MSG_ID
 
   uint32_t res = Hacl_Chacha20Poly1305_aead_encrypt(ciphertext, tag,
-      &buf[PPRZ_AUTH_LEN], mlen, auth,
-      PPRZ_AUTH_LEN, gec_tp.sts.tx_sym_key.key, gec_tp.sts.tx_sym_key.nonce);
+                 &buf[PPRZ_AUTH_LEN], mlen, auth,
+                 PPRZ_AUTH_LEN, gec_tp.sts.tx_sym_key.key, gec_tp.sts.tx_sym_key.nonce);
 
   if (res == 0) {
     memset(buf, 0, TRANSPORT_PAYLOAD_LEN);  // reset  whole buffer
@@ -380,7 +380,7 @@ bool gec_encrypt_message(uint8_t *buf, uint8_t *payload_len)
  * Input: expects (CRYPTO_BYTE .. MSG_DATA .. optional TAG)
  * Output: returns stripped message (SENDER_ID .. MSG_PAYLOAD)
  */
-bool gec_decrypt_message(uint8_t *buf, volatile uint8_t* payload_len)
+bool gec_decrypt_message(uint8_t *buf, volatile uint8_t *payload_len)
 {
   switch (buf[PPRZ_GEC_IDX]) {
     case PPRZ_MSG_TYPE_PLAINTEXT:
@@ -390,7 +390,7 @@ bool gec_decrypt_message(uint8_t *buf, volatile uint8_t* payload_len)
       }
       // check if the message is in the whitelist
       if (gec_is_in_the_whitelist(&gec_tp.whitelist,
-          buf[PPRZ_PLAINTEXT_MSG_ID_IDX])) {
+                                  buf[PPRZ_PLAINTEXT_MSG_ID_IDX])) {
         // return the buffer minus the crypto byte
         memmove(buf, &buf[1], *payload_len - 1);
         return true;
@@ -415,7 +415,7 @@ bool gec_decrypt_message(uint8_t *buf, volatile uint8_t* payload_len)
       }
       // update nonce with 4 counter bytes
       memcpy(gec_tp.sts.rx_sym_key.nonce, &buf[PPRZ_CNTR_IDX],
-          sizeof(uint32_t));
+             sizeof(uint32_t));
       // update intermediate fields
       uint8_t auth[PPRZ_AUTH_LEN];
       memcpy(auth, &buf[PPRZ_AUTH_IDX], PPRZ_AUTH_LEN);
@@ -429,9 +429,9 @@ bool gec_decrypt_message(uint8_t *buf, volatile uint8_t* payload_len)
 
       // try decryption
       uint32_t res = Hacl_Chacha20Poly1305_aead_decrypt(plaintext, ciphertext,
-          mlen, tag, auth,
-          PPRZ_AUTH_LEN, gec_tp.sts.rx_sym_key.key,
-          gec_tp.sts.rx_sym_key.nonce);
+                     mlen, tag, auth,
+                     PPRZ_AUTH_LEN, gec_tp.sts.rx_sym_key.key,
+                     gec_tp.sts.rx_sym_key.nonce);
 
       // res == 0 means all good
       if (res == 0) {
@@ -480,7 +480,7 @@ void gec_dl_event(void)
 {
   // strip PPRZ_STX, MSG_LEN, and CHEKSUM, return (CRYPTO_BYTE..MSG_PAYLOAD)
   pprz_check_and_parse(&DOWNLINK_DEVICE.device, &gec_tp.pprz_tp,
-      gec_tp.pprz_tp.trans_rx.payload, (bool*) &gec_tp.trans_rx.msg_received);
+                       gec_tp.pprz_tp.trans_rx.payload, (bool *) &gec_tp.trans_rx.msg_received);
   // we have (CRYPTO_BYTE .. MSG_PAYLOAD) in
   if (gec_tp.trans_rx.msg_received) {  // self.rx.parse_byte(b)
 
@@ -489,22 +489,22 @@ void gec_dl_event(void)
         // decrypt message
         // if successfull return the message (sender_ID .. MSG_payload)
         if (gec_decrypt_message(gec_tp.pprz_tp.trans_rx.payload,
-            &gec_tp.pprz_tp.trans_rx.payload_len)) {
+                                &gec_tp.pprz_tp.trans_rx.payload_len)) {
           // copy the buffer over
           // NOTE/TODO: the real payload_len is at least one byte shorter
           // but we can copy whole buffer anyway since we don't overflow
           DatalinkFillDlBuffer(gec_tp.pprz_tp.trans_rx.payload,
-              gec_tp.pprz_tp.trans_rx.payload_len);
+                               gec_tp.pprz_tp.trans_rx.payload_len);
           // pass to datalink
           DlCheckAndParse(&DOWNLINK_DEVICE.device, &gec_tp.trans_tx, dl_buffer,
-              &dl_msg_available);
+                          &dl_msg_available);
         }
         break;
       case WAIT_MSG1:
         // decrypt message (checks against the whitelist and removes the crypto byte)
         // returns (SENDER_ID .. MSG_PAYLOAD
         if (gec_decrypt_message(gec_tp.pprz_tp.trans_rx.payload,
-            &gec_tp.pprz_tp.trans_rx.payload_len)) {
+                                &gec_tp.pprz_tp.trans_rx.payload_len)) {
           gec_process_msg1(gec_tp.pprz_tp.trans_rx.payload);
         } else {
         }
@@ -513,7 +513,7 @@ void gec_dl_event(void)
         // decrypt message (checks against the whitelist and removes the crypto byte)
         // returns (SENDER_ID .. MSG_PAYLOAD
         if (gec_decrypt_message(gec_tp.pprz_tp.trans_rx.payload,
-            &gec_tp.pprz_tp.trans_rx.payload_len)) {
+                                &gec_tp.pprz_tp.trans_rx.payload_len)) {
           if (gec_process_msg3(gec_tp.pprz_tp.trans_rx.payload)) {
             // if OK, we are ready for an ongoing communication
             gec_tp.sts.protocol_stage = CRYPTO_OK;
@@ -569,7 +569,7 @@ void gec_process_msg1(uint8_t *buf)
 
   // copy P_ae over
   memcpy(&gec_tp.sts.their_public_ephemeral.pub,
-      DL_KEY_EXCHANGE_GCS_msg_data(buf), sizeof(struct gec_pubkey));
+         DL_KEY_EXCHANGE_GCS_msg_data(buf), sizeof(struct gec_pubkey));
   gec_tp.sts.their_public_ephemeral.ready = true;
 
   // 2. B generates ephemeral curve25519 key pair (Pbe, Qbe).
@@ -580,7 +580,7 @@ void gec_process_msg1(uint8_t *buf)
   // 3. B computes the shared secret: z = scalar_multiplication(Qbe, Pae)
   uint8_t z[32] = { 0 };
   Hacl_Curve25519_crypto_scalarmult(z, gec_tp.sts.my_private_ephemeral.priv,
-      gec_tp.sts.their_public_ephemeral.pub);
+                                    gec_tp.sts.their_public_ephemeral.pub);
 
   // 4. B uses the key derivation function kdf(z,1) to compute Kb || Sb,
   // kdf(z,0) to compute Ka || Sa, and kdf(z,2) to compute Kclient || Sclient.
@@ -591,51 +591,51 @@ void gec_process_msg1(uint8_t *buf)
   uint8_t pbe_concat_p_ae[PPRZ_KEY_LEN * 2] = { 0 };
   memcpy(pbe_concat_p_ae, &gec_tp.sts.my_private_ephemeral.pub, PPRZ_KEY_LEN);
   memcpy(&pbe_concat_p_ae[PPRZ_KEY_LEN], &gec_tp.sts.their_public_ephemeral.pub,
-  PPRZ_KEY_LEN);
+         PPRZ_KEY_LEN);
   Hacl_Ed25519_sign(sig, gec_tp.sts.my_private_key.priv, pbe_concat_p_ae,
-  PPRZ_KEY_LEN * 2);
+                    PPRZ_KEY_LEN * 2);
 
   // 6. B computes and sends the message Pbe || Ekey=Kb,IV=Sb||zero(sig)
   uint8_t msg_data[PPRZ_KEY_LEN + PPRZ_SIGN_LEN + PPRZ_MAC_LEN] = { 0 };
   memcpy(msg_data, &gec_tp.sts.my_private_ephemeral.pub, PPRZ_KEY_LEN);
 
   if (Hacl_Chacha20Poly1305_aead_encrypt(&msg_data[PPRZ_KEY_LEN],
-      &msg_data[PPRZ_KEY_LEN + PPRZ_SIGN_LEN], sig, PPRZ_SIGN_LEN, NULL, 0,
-      gec_tp.sts.tx_sym_key.key, gec_tp.sts.tx_sym_key.nonce)) {
+                                         &msg_data[PPRZ_KEY_LEN + PPRZ_SIGN_LEN], sig, PPRZ_SIGN_LEN, NULL, 0,
+                                         gec_tp.sts.tx_sym_key.key, gec_tp.sts.tx_sym_key.nonce)) {
     gec_tp.sts.last_error = MSG1_ENCRYPT_ERROR;
     return;
   }
 
-   // now we have to manually construct the message
-   // CRYPTO BYTE
-   // source_id
-   // sender_id
-   // class id
-   // msg id
-   // msg_type
-   // msg_data
-   gec_tp.tx_msg[PPRZ_GEC_IDX] = PPRZ_MSG_TYPE_PLAINTEXT;
-   gec_tp.tx_msg_idx = 1;
-   gec_tp.tx_msg[gec_tp.tx_msg_idx] = AC_ID;
-   gec_tp.tx_msg_idx++;
-   gec_tp.tx_msg[gec_tp.tx_msg_idx] = 0;
-   gec_tp.tx_msg_idx++;
-   gec_tp.tx_msg[gec_tp.tx_msg_idx] = 1;  // telemetry
-   gec_tp.tx_msg_idx++;
-   gec_tp.tx_msg[gec_tp.tx_msg_idx] = 239;
-   gec_tp.tx_msg_idx++;
-   gec_tp.tx_msg[gec_tp.tx_msg_idx] = P_BE;
-   gec_tp.tx_msg_idx++;
-   gec_tp.tx_msg[gec_tp.tx_msg_idx] = sizeof(msg_data);
-   gec_tp.tx_msg_idx++;
-   memcpy(&gec_tp.tx_msg[gec_tp.tx_msg_idx], msg_data, sizeof(msg_data));
-   gec_tp.tx_msg_idx += sizeof(msg_data);
+  // now we have to manually construct the message
+  // CRYPTO BYTE
+  // source_id
+  // sender_id
+  // class id
+  // msg id
+  // msg_type
+  // msg_data
+  gec_tp.tx_msg[PPRZ_GEC_IDX] = PPRZ_MSG_TYPE_PLAINTEXT;
+  gec_tp.tx_msg_idx = 1;
+  gec_tp.tx_msg[gec_tp.tx_msg_idx] = AC_ID;
+  gec_tp.tx_msg_idx++;
+  gec_tp.tx_msg[gec_tp.tx_msg_idx] = 0;
+  gec_tp.tx_msg_idx++;
+  gec_tp.tx_msg[gec_tp.tx_msg_idx] = 1;  // telemetry
+  gec_tp.tx_msg_idx++;
+  gec_tp.tx_msg[gec_tp.tx_msg_idx] = 239;
+  gec_tp.tx_msg_idx++;
+  gec_tp.tx_msg[gec_tp.tx_msg_idx] = P_BE;
+  gec_tp.tx_msg_idx++;
+  gec_tp.tx_msg[gec_tp.tx_msg_idx] = sizeof(msg_data);
+  gec_tp.tx_msg_idx++;
+  memcpy(&gec_tp.tx_msg[gec_tp.tx_msg_idx], msg_data, sizeof(msg_data));
+  gec_tp.tx_msg_idx += sizeof(msg_data);
 
-   struct pprzlink_msg msg2;
-   msg2.trans = &gec_tp.pprz_tp.trans_tx;
-   msg2.dev = &DOWNLINK_DEVICE.device;
+  struct pprzlink_msg msg2;
+  msg2.trans = &gec_tp.pprz_tp.trans_tx;
+  msg2.dev = &DOWNLINK_DEVICE.device;
 
-   gec_encapsulate_and_send_msg(&msg2, 0);
+  gec_encapsulate_and_send_msg(&msg2, 0);
 
   /*
    * Note that ideally we would use the following function call, but the problem is that
@@ -691,9 +691,9 @@ bool gec_process_msg3(uint8_t *buf)
   // 13. B decrypts the message and verifies the signature.
   uint8_t sign[PPRZ_SIGN_LEN] = { 0 };
   if (Hacl_Chacha20Poly1305_aead_decrypt(sign,
-      DL_KEY_EXCHANGE_GCS_msg_data(buf),
-      PPRZ_SIGN_LEN, DL_KEY_EXCHANGE_GCS_msg_data(buf) + PPRZ_SIGN_LEN, NULL, 0,
-      gec_tp.sts.rx_sym_key.key, gec_tp.sts.rx_sym_key.nonce)) {
+                                         DL_KEY_EXCHANGE_GCS_msg_data(buf),
+                                         PPRZ_SIGN_LEN, DL_KEY_EXCHANGE_GCS_msg_data(buf) + PPRZ_SIGN_LEN, NULL, 0,
+                                         gec_tp.sts.rx_sym_key.key, gec_tp.sts.rx_sym_key.nonce)) {
     gec_tp.sts.last_error = MSG3_DECRYPT_ERROR;
     return false;
   }
@@ -701,12 +701,12 @@ bool gec_process_msg3(uint8_t *buf)
   // verify
   uint8_t p_ae_concat_p_be[PPRZ_KEY_LEN * 2] = { 0 };
   memcpy(p_ae_concat_p_be, &gec_tp.sts.their_public_ephemeral.pub,
-  PPRZ_KEY_LEN);
+         PPRZ_KEY_LEN);
   memcpy(&p_ae_concat_p_be[PPRZ_KEY_LEN], &gec_tp.sts.my_private_ephemeral.pub,
-  PPRZ_KEY_LEN);
+         PPRZ_KEY_LEN);
   // returns true if verified properly
   if (!Hacl_Ed25519_verify(gec_tp.sts.their_public_key.pub, p_ae_concat_p_be,
-  PPRZ_SIGN_LEN, sign)) {
+                           PPRZ_SIGN_LEN, sign)) {
     // log error and return
     gec_tp.sts.last_error = MSG3_SIGNVERIFY_ERROR;
     return false;

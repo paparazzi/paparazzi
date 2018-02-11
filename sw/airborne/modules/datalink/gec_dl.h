@@ -98,7 +98,7 @@ extern void gec_dl_event(void);
 
 /** Parsing a frame data and copy the payload to the datalink buffer */
 void gec_check_and_parse(struct link_device *dev, struct gec_transport *trans,
-                          uint8_t *buf, bool *msg_available);
+                         uint8_t *buf, bool *msg_available);
 
 void gec_process_sts_msg(struct link_device *dev, struct gec_transport *trans, uint8_t *buf);
 
@@ -106,12 +106,12 @@ void respond_sts(struct link_device *dev, struct gec_transport *trans, uint8_t *
 
 void finish_sts(struct link_device *dev, struct gec_transport *trans, uint8_t *buf);
 
-void gec_add_to_whitelist(struct gec_whitelist* whitelist, uint8_t id);
-bool gec_is_in_the_whitelist(struct gec_whitelist* whitelist, uint8_t id);
+void gec_add_to_whitelist(struct gec_whitelist *whitelist, uint8_t id);
+bool gec_is_in_the_whitelist(struct gec_whitelist *whitelist, uint8_t id);
 bool gec_decrypt_message(uint8_t *buf, volatile uint8_t *payload_len);
 bool gec_encrypt_message(uint8_t *buf, uint8_t *payload_len);
-void gec_counter_to_bytes(uint32_t n, uint8_t* bytes);
-uint32_t gec_bytes_to_counter(uint8_t* bytes);
+void gec_counter_to_bytes(uint32_t n, uint8_t *bytes);
+uint32_t gec_bytes_to_counter(uint8_t *bytes);
 void gec_process_msg1(uint8_t *buf);
 bool gec_process_msg3(uint8_t *buf);
 

@@ -26,7 +26,7 @@
  */
 #include "modules/datalink/gec/gec.h"
 
-void gec_sts_init(struct gec_sts_ctx * sts)
+void gec_sts_init(struct gec_sts_ctx *sts)
 {
   // reset all keys
   gec_clear_sts(sts);
@@ -47,7 +47,7 @@ void gec_sts_init(struct gec_sts_ctx * sts)
   gec_generate_ephemeral_keys(&sts->my_private_ephemeral);
 }
 
-void gec_clear_sts(struct gec_sts_ctx * sts)
+void gec_clear_sts(struct gec_sts_ctx *sts)
 {
   memset(&sts->their_public_ephemeral, 0, sizeof(struct gec_pubkey));
   sts->their_public_ephemeral.ready = false;
@@ -71,9 +71,9 @@ void gec_generate_ephemeral_keys(struct gec_privkey *sk)
   for (uint16_t i = 0; i < PPRZ_KEY_LEN; i += sizeof(uint32_t)) {
     uint32_t tmp = rng_wait_and_get();
     sk->priv[i] = (uint8_t) tmp;
-    sk->priv[i + 1] = (uint8_t) (tmp >> 8);
-    sk->priv[i + 2] = (uint8_t) (tmp >> 16);
-    sk->priv[i + 3] = (uint8_t) (tmp >> 24);
+    sk->priv[i + 1] = (uint8_t)(tmp >> 8);
+    sk->priv[i + 2] = (uint8_t)(tmp >> 16);
+    sk->priv[i + 3] = (uint8_t)(tmp >> 24);
   }
   uint8_t basepoint[32] = {0};
   basepoint[0] = 9; // default basepoint
@@ -85,9 +85,10 @@ void gec_generate_ephemeral_keys(struct gec_privkey *sk)
 /**
  * Derive key material for both sender and receiver
  */
-void gec_derive_key_material(struct gec_sts_ctx *ctx, uint8_t* z) {
-  uint8_t tmp[PPRZ_KEY_LEN*2] = {0};
-  uint8_t input[PPRZ_KEY_LEN+1] = {0};
+void gec_derive_key_material(struct gec_sts_ctx *ctx, uint8_t *z)
+{
+  uint8_t tmp[PPRZ_KEY_LEN * 2] = {0};
+  uint8_t input[PPRZ_KEY_LEN + 1] = {0};
 
   // Ka|| Sa = kdf(z,0)
   memcpy(input, z, PPRZ_KEY_LEN);
