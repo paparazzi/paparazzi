@@ -11,8 +11,8 @@ AggieAir Atomic Tangerine
       <module name="radio_control" type="sbus">
         <configure name="SBUS_PORT" value="UART5"/>
       </module>
-      <configure name="HAS_LUFTBOOT" value="0"/>
-      <configure name="FLASH_MODE" value="SWD"/>
+      <configure name="HAS_LUFTBOOT" value="1"/>
+      <configure name="FLASH_MODE" value="DFU"/>
     </target>
 
     <!-- NOTE: if you want to use extra_dl module for HITL
@@ -39,9 +39,10 @@ AggieAir Atomic Tangerine
     <module name="control"/>
     <module name="navigation"/>
 
-    <module name="telemetry"   type="transparent">
+    <module name="telemetry"   type="transparent_gec">
       <configure name="MODEM_PORT"        value="UART3"/>
       <configure name="MODEM_BAUD"        value="B57600"/>
+      <define name="GEC_STATUS_LED" value="5"/>
     </module>
 
     <module name="ins"       type="vectornav">

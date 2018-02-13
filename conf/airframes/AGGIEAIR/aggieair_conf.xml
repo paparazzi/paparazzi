@@ -31,7 +31,6 @@
    settings="settings/fixedwing_basic.xml settings/nps.xml"
    settings_modules="modules/battery_monitor.xml modules/lidar_sf11.xml modules/nav_skid_landing.xml modules/nav_survey_poly_osam.xml modules/gps.xml modules/nav_basic_fw.xml modules/guidance_basic_fw.xml modules/stabilization_attitude_fw.xml"
    gui_color="#ffff42870000"
-   release=""
   />
   <aircraft
    name="BluJay_Goose"
