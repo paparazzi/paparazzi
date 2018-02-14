@@ -1,0 +1,16 @@
+material Cyberzoo/Net
+{
+	technique
+	{
+		pass
+		{
+			alpha_rejection greater 128
+			alpha_to_coverage on
+			
+			texture_unit
+			{
+				texture net.png
+			}
+		}
+	}
+}

@@ -1,0 +1,25 @@
+<?xml version='1.0'?>
+<sdf version='1.4'>
+  <model name="dronerace gate">
+    <static>true</static>
+    <pose>0 0 0 0 0 0</pose>
+
+    <link name="dronerace gate">
+      <visual name="gate">
+        <geometry>
+          <mesh>
+            <uri>model://dronerace_gate/dronerace_gate.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <collision name="gate_collision">
+        <geometry>
+          <mesh>
+            <uri>model://dronerace_gate/dronerace_gate.dae</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+
+  </model>
+</sdf>

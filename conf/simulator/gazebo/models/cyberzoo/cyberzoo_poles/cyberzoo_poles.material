@@ -1,0 +1,15 @@
+material Cyberzoo/Poles
+{
+	technique
+	{
+		pass
+		{
+			alpha_rejection greater 128
+			
+			texture_unit
+			{
+				texture pole.png
+			}
+		}
+	}
+}
