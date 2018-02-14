@@ -8,6 +8,7 @@
     <define name="ACTUATOR_MAX_ANGULAR_MOMENTUM" value="0.19, 0.19, 0.19, 0.19" type="float[]"/>
     <define name="GAZEBO_AC_NAME" value="bebop" type="string"/>
     <define name="BYPASS_AHRS" value="1"/>
+    <define name="BYPASS_INS" value="1"/>
     <define name="SIMULATE_MT9F002" value="1"/>
   </section>
 </airframe>
