@@ -1,6 +1,6 @@
 <!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
 
-<flight_plan alt="1.0" ground_alt="0" lat0="51.9906224" lon0="4.3767678" max_dist_from_home="8" name="Bebop avoid orange TU Delft Cyberzoo" security_height="0.4">
+<flight_plan alt="1.0" ground_alt="0" lat0="51.9906361" lon0="4.3767874" max_dist_from_home="8" name="Bebop avoid orange TU Delft Cyberzoo" security_height="0.4">
   <header>
     #include "subsystems/datalink/datalink.h"
     #include "subsystems/electrical.h"
