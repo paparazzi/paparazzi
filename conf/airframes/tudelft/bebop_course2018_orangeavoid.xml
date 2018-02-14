@@ -41,9 +41,7 @@
     <!-- <module name="guidance" type="indi"> <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" 
 			value="-500.0"/> <define name="GUIDANCE_INDI_THRUST_DYNAMICS" value="0.1"/> 
 			<define name="GUIDANCE_INDI_RC_DEBUG" value="TRUE"/> </module> -->
-  </firmware>
-
-  <modules main_freq="512">
+    
     <!--module name="geo_mag"/-->
     <module name="air_data"/>
     <!--module name="send_imu_mag_current"/-->
@@ -72,8 +70,7 @@
       <!-- <define name="VIEWVIDEO_WRITE_VIDEO" value="FALSE" />
       <define name="VIEWVIDEO_VIDEO_FILE" value="orangeAvoider" /> -->
     </module>
-
-  </modules>
+  </firmware>
 
   <commands>
     <axis name="PITCH" failsafe_value="0"/>
