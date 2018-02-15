@@ -735,14 +735,6 @@ let check_geo_ref = fun wgs84 xml ->
   let x = ExtXml.subst_child "waypoints" wpts xml in
   x
 
-let dummy_waypoint =
-  Xml.Element ("waypoint",
-               ["name", "dummy";
-                "x", "0.";
-                "y", "0." ],
-               [])
-
-
 let print_inside_polygon = fun pts ->
   let (_, pts) = List.split pts in
   let layers = Geometry_2d.slice_polygon (Array.of_list pts) in
@@ -1037,8 +1029,6 @@ let () =
       Xml2h.define "NAV_MSL0" (sprintf "%.0f /* mm, EGM96 geoid-height (msl) over ellipsoid */" (1000. *. Egm96.of_wgs84 !fp_wgs84));
 
       Xml2h.define "QFU" (sprintf "%.1f" qfu);
-
-      let waypoints = dummy_waypoint :: waypoints in
 
       let (hx, hy) = home waypoints in
       List.iter (check_distance (hx, hy) mdfh) waypoints;
