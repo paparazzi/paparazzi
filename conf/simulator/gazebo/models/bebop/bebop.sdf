@@ -9,7 +9,7 @@
       </velocity_decay>
       
       <inertial>
-        <mass>0.38905</mass>
+        <mass>0.536</mass><!-- with bumpers -->
         <inertia>
           <ixx> 0.000906 </ixx>
           <iyy> 0.001242 </iyy>
