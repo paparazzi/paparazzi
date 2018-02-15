@@ -5,7 +5,6 @@
       <arg flag="-d" constant="/dev/ttyUSB0"/>
     </program>
     <program name="GCS" command="sw/ground_segment/cockpit/gcs"/>
-    <program name="Bebop Video Stream" command="/usr/bin/cvlc ftp://192.168.42.1/internal_000/stream.sdp --avcodec-hw=vaapi --no-xlib --quiet --no-interact"/>
     <program name="Messages" command="sw/ground_segment/tmtc/messages"/>
     <program name="Settings" command="sw/ground_segment/tmtc/settings">
       <arg flag="-ac" constant="@AIRCRAFT"/>
@@ -20,10 +19,10 @@
     </program>
     <program name="Environment Simulator" command="sw/simulator/gaia"/>
     <program name="NatNet" command="sw/ground_segment/misc/natnet2ivy"/>
-    <program name="Gazebo" command="gzclient"/>
+    <program name="Gazebo" command="/usr/bin/gzclient"/>
   </section>
   <section name="sessions">
-    <session name="Bebop basic">
+    <session name="Flight UDP">
       <program name="Data Link">
         <arg flag="-udp"/>
       </program>
@@ -36,29 +35,8 @@
         <arg flag="hobbyking.xml"/>
       </program>
       <program name="NatNet" command="sw/ground_segment/misc/natnet2ivy">
-      <arg flag="-ac 9999" constant="@AC_ID"/>
-    	</program>
-       <program name="Bebop Video Stream"/>
+        <arg flag="-ac 9999" constant="@AC_ID"/>
+      </program>
     </session>
-   <session name="Bebop extensive">
-      <program name="Data Link">
-        <arg flag="-udp"/>
-      </program>
-      <program name="Server"/>
-      <program name="GCS">
-        <arg flag="-speech"/>
-      </program>
-      <program name="Joystick" command="sw/ground_segment/joystick/input2ivy">
-        <arg flag="-d" constant="2"/>
-        <arg flag="-ac" constant="@AIRCRAFT"/>
-        <arg flag="hobbyking.xml"/>
-      </program>
-     <program name="NatNet" command="sw/ground_segment/misc/natnet2ivy">
-      <arg flag="-ac 3" constant="@AC_ID"/>
-    </program>
-
-      <program name="Messages" command="sw/ground_segment/tmtc/messages"/>
-    </session>
-
   </section>
 </control_panel>
