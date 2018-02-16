@@ -41,9 +41,6 @@
         <arg flag="hobbyking.xml"/>
         <arg flag="-d 0"/>
       </program>
-      <program name="NatNet" command="sw/ground_segment/misc/natnet2ivy">
-        <arg flag="-ac 9999" constant="@AC_ID"/>
-      </program>
       <program name="Gazebo"/>
     </session>
     <session name="Flight UDP">
