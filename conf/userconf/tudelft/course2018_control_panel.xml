@@ -19,9 +19,33 @@
     </program>
     <program name="Environment Simulator" command="sw/simulator/gaia"/>
     <program name="NatNet" command="sw/ground_segment/misc/natnet2ivy"/>
-    <program name="Gazebo" command="/usr/bin/gzclient"/>
+    <program name="Gazebo" command="sw/tools/gzclient_launcher.sh"/>
   </section>
   <section name="sessions">
+    <session name="Simulation - Gazebo + Joystick">
+      <program name="Simulator">
+        <arg flag="-a" constant="@AIRCRAFT"/>
+        <arg flag="-t" constant="nps"/>
+      </program>
+      <program name="Data Link">
+        <arg flag="-udp"/>
+      </program>
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="GCS">
+        <arg flag="-speech"/>
+      </program>
+      <program name="Joystick" command="sw/ground_segment/joystick/input2ivy">
+        <arg flag="-ac" constant="@AIRCRAFT"/>
+        <arg flag="hobbyking.xml"/>
+        <arg flag="-d 0"/>
+      </program>
+      <program name="NatNet" command="sw/ground_segment/misc/natnet2ivy">
+        <arg flag="-ac 9999" constant="@AC_ID"/>
+      </program>
+      <program name="Gazebo"/>
+    </session>
     <session name="Flight UDP">
       <program name="Data Link">
         <arg flag="-udp"/>
@@ -33,6 +57,7 @@
       <program name="Joystick" command="sw/ground_segment/joystick/input2ivy">
         <arg flag="-ac" constant="@AIRCRAFT"/>
         <arg flag="hobbyking.xml"/>
+        <arg flag="-d 0"/>
       </program>
       <program name="NatNet" command="sw/ground_segment/misc/natnet2ivy">
         <arg flag="-ac 9999" constant="@AC_ID"/>
