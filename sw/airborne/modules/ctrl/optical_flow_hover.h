@@ -32,11 +32,11 @@
 #define GUIDANCE_V_MODE_MODULE_SETTING GUIDANCE_V_MODE_MODULE
 //#define GUIDANCE_V_MODE_MODULE_SETTING GUIDANCE_V_MODE_NAV
 
-bool oscphi;
-bool osctheta;
-bool derotated;
-bool cov_method;         ///< method to calculate the covariance: between thrust and div / angle and flow (0) or div and div past / flow and past flow(1)
-uint8_t hover_method;    ///< Method used to hover 0 = All axis after each other; 1 = all axis at the same time; 2 = vertical only, use relation to set horizontal
+extern bool oscphi;
+extern bool osctheta;
+extern bool derotated;
+extern bool cov_method;         ///< method to calculate the covariance: between thrust and div / angle and flow (0) or div and div past / flow and past flow(1)
+extern uint8_t hover_method;    ///< Method used to hover 0 = All axis after each other; 1 = all axis at the same time; 2 = vertical only, use relation to set horizontal
 
 extern struct OpticalFlowHoverControl of_hover_ctrl_X;
 extern struct OpticalFlowHoverControl of_hover_ctrl_Y;

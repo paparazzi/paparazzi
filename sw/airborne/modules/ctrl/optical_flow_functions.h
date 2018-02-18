@@ -22,14 +22,12 @@
 #define OPTICAL_FLOW_FUNCTIONS_H_
 
 #include "std.h"
+#include "math/pprz_algebra_float.h"
 
 struct GainsPID {
   float P;             ///< P-gain for control
   float I;             ///< I-gain for control
   float D;             ///< D-gain for control
-};
-
-struct Errors {
   float err;                     ///< Current tracking error
   float previous_err;            ///< Previous tracking error
   float sum_err;                 ///< integration of the error for I-gain
@@ -44,7 +42,6 @@ struct OFhistory {
 
 struct OpticalFlowHoverControl {
   struct GainsPID PID;       ///< The struct with the PID gains
-  struct Errors errors;      ///< The struct with the errors
 
   float nominal_value;       ///< The nominal value of thrust, phi or theta depending on Z, Y, X
 
@@ -68,22 +65,16 @@ struct DesiredInputs {
   int32_t thrust;
 };
 
-struct Covariances {
-  float X;
-  float Y;
-  float Z;
-};
-
-uint32_t ind_histXY;
-uint8_t cov_array_filledXY;
-uint32_t ind_histZ;
-uint8_t cov_array_filledZ;
+extern uint32_t ind_histXY;
+extern uint8_t cov_array_filledXY;
+extern uint32_t ind_histZ;
+extern uint8_t cov_array_filledZ;
 
 struct OpticalFlowHover of_hover;
 
 extern float set_cov_div(bool cov_method, struct OFhistory *history, struct DesiredInputs *inputs);
 extern void set_cov_flow(bool cov_method, struct OFhistory *historyX, struct OFhistory *historyY,
-                         struct DesiredInputs *inputs, struct Covariances *covs);
+                         struct DesiredInputs *inputs, struct FloatVect3 *covs);
 extern float PID_flow_control(float dt, struct OpticalFlowHoverControl *of_hover_ctrl);
 extern int32_t PID_divergence_control(float dt, struct OpticalFlowHoverControl *of_hover_ctrl);
 #endif /* OPTICAL_FLOW_FUNCTIONS_H_ */

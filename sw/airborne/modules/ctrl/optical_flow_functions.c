@@ -23,17 +23,26 @@
 #include "math/pprz_stat.h"
 #include "std.h"
 
+// The maximum bank angle the algorithm can steer
 #ifndef OFH_MAXBANK
 #define OFH_MAXBANK 10.f
 #endif
 
+// The low pass filter constant for updating the vision measurements in the algorithm
 #ifndef OF_LP_CONST
 #define OF_LP_CONST 0.5 // Average between 0.4 Bebop value and 0.6 ARDrone value
 #endif
 
+// In case the autocovariance is used, select half the window size as the delay
 #ifndef OF_COV_DELAY_STEPS
 #define OF_COV_DELAY_STEPS COV_WINDOW_SIZE/2
 #endif
+
+uint32_t ind_histXY;
+uint8_t cov_array_filledXY;
+uint32_t ind_histZ;
+uint8_t cov_array_filledZ;
+
 
 /**
  * Set the covariance of the divergence and the thrust / past divergence
@@ -78,7 +87,7 @@ float set_cov_div(bool cov_method, struct OFhistory *history, struct DesiredInpu
  * This funciton should only be called once per time step
  */
 void set_cov_flow(bool cov_method, struct OFhistory *historyX, struct OFhistory *historyY, struct DesiredInputs *inputs,
-                  struct Covariances *covs)
+                  struct FloatVect3 *covs)
 {
   // histories and cov detection:
   historyX->OF[ind_histXY] = of_hover.flowX;
@@ -97,13 +106,13 @@ void set_cov_flow(bool cov_method, struct OFhistory *historyX, struct OFhistory 
   //   only take covariance into account if there are enough samples in the histories:
   if (cov_method == 0 && cov_array_filledXY > 0) {
     //    // TODO: step in hover set point causes an incorrectly perceived covariance
-    covs->X = covariance_f(historyX->input, historyX->OF, COV_WINDOW_SIZE);
-    covs->Y = covariance_f(historyY->input, historyY->OF, COV_WINDOW_SIZE);
+    covs->x = covariance_f(historyX->input, historyX->OF, COV_WINDOW_SIZE);
+    covs->y = covariance_f(historyY->input, historyY->OF, COV_WINDOW_SIZE);
   } else if (cov_method == 1 && cov_array_filledXY > 1) {
     if (cov_array_filledXY > 1) {
       // todo: delay steps should be invariant to the run frequency
-      covs->X = covariance_f(historyX->past_OF, historyX->OF, COV_WINDOW_SIZE);
-      covs->Y = covariance_f(historyY->past_OF, historyY->OF, COV_WINDOW_SIZE);
+      covs->x = covariance_f(historyX->past_OF, historyX->OF, COV_WINDOW_SIZE);
+      covs->y = covariance_f(historyY->past_OF, historyY->OF, COV_WINDOW_SIZE);
     }
   }
 
@@ -127,14 +136,14 @@ float PID_flow_control(float dt, struct OpticalFlowHoverControl *of_hover_ctrl)
   Bound(lp_factor, 0.f, 1.f);
 
   // maintain the controller errors:
-  of_hover_ctrl->errors.sum_err += of_hover_ctrl->errors.err;
-  of_hover_ctrl->errors.d_err += (((of_hover_ctrl->errors.err - of_hover_ctrl->errors.previous_err) / dt) -
-                                  of_hover_ctrl->errors.d_err) * lp_factor;
-  of_hover_ctrl->errors.previous_err = of_hover_ctrl->errors.err;
+  of_hover_ctrl->PID.sum_err += of_hover_ctrl->PID.err;
+  of_hover_ctrl->PID.d_err += (((of_hover_ctrl->PID.err - of_hover_ctrl->PID.previous_err) / dt) -
+                                  of_hover_ctrl->PID.d_err) * lp_factor;
+  of_hover_ctrl->PID.previous_err = of_hover_ctrl->PID.err;
 
   // compute the desired angle
-  float des_angle = of_hover_ctrl->PID.P * of_hover_ctrl->errors.err + of_hover_ctrl->PID.I *
-                    of_hover_ctrl->errors.sum_err + of_hover_ctrl->PID.D * of_hover_ctrl->errors.d_err;
+  float des_angle = of_hover_ctrl->PID.P * of_hover_ctrl->PID.err + of_hover_ctrl->PID.I *
+                    of_hover_ctrl->PID.sum_err + of_hover_ctrl->PID.D * of_hover_ctrl->PID.d_err;
 
   // Bound angle:
   Bound(des_angle, -OFH_MAXBANK, OFH_MAXBANK);
@@ -155,16 +164,16 @@ int32_t PID_divergence_control(float dt, struct OpticalFlowHoverControl *of_hove
   Bound(lp_factor, 0.f, 1.f);
 
   // maintain the controller errors:
-  of_hover_ctrl->errors.sum_err += of_hover_ctrl->errors.err;
-  of_hover_ctrl->errors.d_err += (((of_hover_ctrl->errors.err - of_hover_ctrl->errors.previous_err) / dt) -
-                                  of_hover_ctrl->errors.d_err) * lp_factor;
-  of_hover_ctrl->errors.previous_err = of_hover_ctrl->errors.err;
+  of_hover_ctrl->PID.sum_err += of_hover_ctrl->PID.err;
+  of_hover_ctrl->PID.d_err += (((of_hover_ctrl->PID.err - of_hover_ctrl->PID.previous_err) / dt) -
+                                  of_hover_ctrl->PID.d_err) * lp_factor;
+  of_hover_ctrl->PID.previous_err = of_hover_ctrl->PID.err;
 
   // PID control:
   int32_t thrust = (of_hover_ctrl->nominal_value
-                    + of_hover_ctrl->PID.P * of_hover_ctrl->errors.err
-                    + of_hover_ctrl->PID.I * of_hover_ctrl->errors.sum_err
-                    + of_hover_ctrl->PID.D * of_hover_ctrl->errors.d_err) * MAX_PPRZ;
+                    + of_hover_ctrl->PID.P * of_hover_ctrl->PID.err
+                    + of_hover_ctrl->PID.I * of_hover_ctrl->PID.sum_err
+                    + of_hover_ctrl->PID.D * of_hover_ctrl->PID.d_err) * MAX_PPRZ;
 
   // bound thrust:
   Bound(thrust, 0.25 * of_hover_ctrl->nominal_value * MAX_PPRZ, MAX_PPRZ);
