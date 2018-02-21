@@ -4,7 +4,15 @@
     <program name="Data Link" command="sw/ground_segment/tmtc/link">
       <arg flag="-d" constant="/dev/ttyUSB0"/>
     </program>
-    <program name="GCS" command="sw/ground_segment/cockpit/gcs"/>
+    <program name="GCS" command="sw/ground_segment/cockpit/gcs">
+        <arg flag="-speech"/>
+        <arg flag="-maximize"/>
+        <arg flag="-center_ac"/>
+        <arg flag="-mercator"/>
+        <arg flag="-maps_no_http"/>
+        <arg flag="-track_size" constant="200"/>
+        <arg flag="-zoom" constant="40."/>
+    </program>
     <program name="Messages" command="sw/ground_segment/tmtc/messages"/>
     <program name="Settings" command="sw/ground_segment/tmtc/settings">
       <arg flag="-ac" constant="@AIRCRAFT"/>
@@ -35,6 +43,12 @@
       </program>
       <program name="GCS">
         <arg flag="-speech"/>
+        <arg flag="-maximize"/>
+        <arg flag="-center_ac"/>
+        <arg flag="-mercator"/>
+        <arg flag="-maps_no_http"/>
+        <arg flag="-track_size" constant="200"/>
+        <arg flag="-zoom" constant="40."/>
       </program>
       <program name="Joystick" command="sw/ground_segment/joystick/input2ivy">
         <arg flag="-ac" constant="@AIRCRAFT"/>
