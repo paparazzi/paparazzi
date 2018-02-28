@@ -196,11 +196,11 @@
         <update_rate>15.0</update_rate><!-- adjust with MT9F002_TARGET_FPS -->
         <camera name="front_camera">
           <image>
-            <width>4608</width><!-- with MT9F002_OUTPUT_SCALER = 1.00, will be scaled by NPS -->
+            <width>3746</width><!-- with MT9F002_OUTPUT_SCALER = 1.00, will be scaled by NPS -->
             <height>3288</height>
             <format>R8G8B8</format>
           </image>
-          <horizontal_fov>3.69</horizontal_fov>
+          <horizontal_fov>3.00</horizontal_fov>
           <lens>
             <type>equisolid_angle</type>
             <scale_to_hfov>true</scale_to_hfov>
