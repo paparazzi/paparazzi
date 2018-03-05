@@ -8,6 +8,8 @@
 
   <firmware name="rotorcraft">
     <target name="ap" board="chimera_1.0">
+      <configure name="PERIODIC_FREQUENCY"  value="500"/>
+
       <module name="radio_control" type="sbus">
         <!-- Put the mode on channel AUX1-->
         <define name="RADIO_KILL_SWITCH" value="RADIO_GAIN1"/>

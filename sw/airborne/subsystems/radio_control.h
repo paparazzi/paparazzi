@@ -49,6 +49,9 @@ extern void radio_control_impl_init(void);
 #define RC_LOST        1
 #define RC_REALLY_LOST 2
 
+/* macro that can be used in the command laws */
+#define RCValue(_x) radio_control.values[_x]
+
 struct RadioControl {
   uint8_t status;
   uint8_t time_since_last_frame;
