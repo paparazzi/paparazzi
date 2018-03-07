@@ -54,7 +54,6 @@ from NatNetClient import NatNetClient
 # file is a reasonable substitute
 PPRZ_HOME = getenv("PAPARAZZI_HOME", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../../')))
 sys.path.append(PPRZ_HOME + "/var/lib/python")
-sys.path.append(PPRZ_HOME + "/var/lib/python/pprzlink") # seems needed for messages_xml_map file
 from pprzlink.ivy import IvyMessagesInterface
 from pprzlink.message import PprzMessage
 
