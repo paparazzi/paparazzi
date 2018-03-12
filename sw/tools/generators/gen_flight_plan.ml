@@ -1038,10 +1038,9 @@ let () =
 
       Xml2h.define "QFU" (sprintf "%.1f" qfu);
 
-      let waypoints = dummy_waypoint :: waypoints in
-
       let (hx, hy) = home waypoints in
       List.iter (check_distance (hx, hy) mdfh) waypoints;
+      let waypoints = dummy_waypoint :: waypoints in
       define_waypoints_indices waypoints;
 
       Xml2h.define "WAYPOINTS_UTM" "{ \\";
