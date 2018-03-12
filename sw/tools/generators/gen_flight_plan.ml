@@ -735,14 +735,6 @@ let check_geo_ref = fun wgs84 xml ->
   let x = ExtXml.subst_child "waypoints" wpts xml in
   x
 
-let dummy_waypoint =
-  Xml.Element ("waypoint",
-               ["name", "dummy";
-                "x", "42.";
-                "y", "42." ],
-               [])
-
-
 let print_inside_polygon = fun pts ->
   let (_, pts) = List.split pts in
   let layers = Geometry_2d.slice_polygon (Array.of_list pts) in
