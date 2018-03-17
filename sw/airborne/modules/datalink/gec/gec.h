@@ -143,4 +143,7 @@ void gec_clear_sts(struct gec_sts_ctx *sts);
 void gec_generate_ephemeral_keys(struct gec_privkey *sk);
 void gec_derive_key_material(struct gec_sts_ctx *sts, uint8_t *z);
 
+void gec_counter_to_bytes(uint32_t n, uint8_t *bytes);
+uint32_t gec_bytes_to_counter(uint8_t *bytes);
+
 #endif /* SPPRZ_GEC_H */

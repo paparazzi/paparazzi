@@ -21,7 +21,7 @@
       <message name="DATALINK_REPORT"     period="5.1"/>
       <message name="DL_VALUE"            period="1.5"/>
       <message name="IR_SENSORS"          period="1.2"/>
-      <message name="SURVEY"              period="2.1"/>
+      <message name="SECURE_LINK_STATUS"  period="2.1"/>
       <message name="COMMANDS"            period="1"/>
       <message name="FBW_STATUS"          period="2"/>
       <message name="VECTORNAV_INFO"      period="1.0"/>

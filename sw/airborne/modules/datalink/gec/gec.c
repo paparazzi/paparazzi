@@ -26,6 +26,10 @@
  */
 #include "modules/datalink/gec/gec.h"
 
+#if defined(__linux__) || defined(__CYGWIN__)
+#include <arpa/inet.h>
+#endif
+
 void gec_sts_init(struct gec_sts_ctx *sts)
 {
   // reset all keys
@@ -108,3 +112,55 @@ void gec_derive_key_material(struct gec_sts_ctx *ctx, uint8_t *z)
   ctx->tx_sym_key.ready = true;
 }
 
+/**
+ * Convert from network byte order (big endian) to the machine byte order
+ */
+uint32_t gec_bytes_to_counter(uint8_t *bytes)
+{
+  // assume big endian
+  uint32_t x = (bytes[3] << 24) + (bytes[2] << 16) + (bytes[1] << 8) + bytes[0];
+  // now check the appropriate endiannes
+  /* ... for Linux */
+#if defined(__linux__) || defined(__CYGWIN__)
+  return ntohl(x);
+  /* ... generic big-endian fallback code */
+#elif defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+  // the byte order is the same as for network
+  return x;
+  /* ... generic little-endian fallback code */
+#elif defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+  // do a byte swap
+  return htobe32(x);
+  /* ... couldn't determine endian-ness of the target platform */
+#else
+#pragma message "Please define __BYTE_ORDER__!"
+#endif /* defined(__linux__) || ... */
+}
+
+/**
+ * Convert counter to bytes in network byte order
+ */
+void gec_counter_to_bytes(uint32_t n, uint8_t *bytes)
+{
+  //first account for appropriate endiannes
+  /* ... for Linux */
+#if defined(__linux__) || defined(__CYGWIN__)
+  n = htonl(n);
+  /* ... generic big-endian fallback code */
+#elif defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+  // the byte order is the same as for network
+  // do nothing
+  /* ... generic little-endian fallback code */
+#elif defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+  // do a byte swap
+  n = htobe32(n);
+  /* ... couldn't determine endian-ness of the target platform */
+#else
+#pragma message "Error: Please define __BYTE_ORDER__!"
+#endif /* defined(__linux__) || ... */
+
+  bytes[3] = (n >> 24) & 0xFF;
+  bytes[2] = (n >> 16) & 0xFF;
+  bytes[1] = (n >> 8) & 0xFF;
+  bytes[0] = n & 0xFF;
+}

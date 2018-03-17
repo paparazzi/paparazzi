@@ -33,13 +33,6 @@
 #include "led.h" // for LED indication
 #endif
 
-#if PPRZLINK_DEFAULT_VER != 2
-#error "Secure link is only for Pprzlink v 2.0"
-#endif
-
-void gec_encapsulate_and_send_msg(struct pprzlink_msg *msg, long fd);
-static void gec_transport_init(struct gec_transport *t);
-
 struct gec_transport gec_tp;
 
 #if PERIODIC_TELEMETRY
@@ -57,57 +50,17 @@ static void send_secure_link_info(struct transport_tx *trans, struct link_device
 #endif
 
 /**
- * Convert from network byte order (big endian) to the machine byte order
+ * Simply insert byte to the message buffer
  */
-uint32_t gec_bytes_to_counter(uint8_t *bytes)
+static inline void insert_byte(struct gec_transport *t, const uint8_t byte)
 {
-  // assume big endian
-  uint32_t x = (bytes[3] << 24) + (bytes[2] << 16) + (bytes[1] << 8) + bytes[0];
-  // now check the appropriate endiannes
-  /* ... for Linux */
-#if defined(__linux__) || defined(__CYGWIN__)
-  return ntohl(x);
-  /* ... generic big-endian fallback code */
-#elif defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-  // the byte order is the same as for network
-  return x;
-  /* ... generic little-endian fallback code */
-#elif defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-  // do a byte swap
-  return htobe32(x);
-  /* ... couldn't determine endian-ness of the target platform */
-#else
-#pragma message "Please define __BYTE_ORDER__!"
-#endif /* defined(__linux__) || ... */
+  t->tx_msg[t->tx_msg_idx] = byte;
+  t->tx_msg_idx++;
 }
 
-/**
- * Convert counter to bytes in network byte order
- */
-void gec_counter_to_bytes(uint32_t n, uint8_t *bytes)
-{
-  //first account for appropriate endiannes
-  /* ... for Linux */
-#if defined(__linux__) || defined(__CYGWIN__)
-  n = htonl(n);
-  /* ... generic big-endian fallback code */
-#elif defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-  // the byte order is the same as for network
-  // do nothing
-  /* ... generic little-endian fallback code */
-#elif defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-  // do a byte swap
-  n = htobe32(n);
-  /* ... couldn't determine endian-ness of the target platform */
-#else
-#pragma message "Error: Please define __BYTE_ORDER__!"
-#endif /* defined(__linux__) || ... */
-
-  bytes[3] = (n >> 24) & 0xFF;
-  bytes[2] = (n >> 16) & 0xFF;
-  bytes[1] = (n >> 8) & 0xFF;
-  bytes[0] = n & 0xFF;
-}
+#if PPRZLINK_DEFAULT_VER == 2
+#pragma message "Using Pprzlink 2.0"
+void gec_encapsulate_and_send_msg(struct pprzlink_msg *msg, long fd);
 
 /**
  * Helper function to get the relevant transport struct
@@ -117,41 +70,6 @@ static struct gec_transport *get_trans(struct pprzlink_msg *msg)
   return (struct gec_transport *)(msg->trans->impl);
 }
 
-/**
- * Simply insert byte to the message buffer
- */
-static inline void insert_byte(struct gec_transport *t, const uint8_t byte)
-{
-  t->tx_msg[t->tx_msg_idx] = byte;
-  t->tx_msg_idx++;
-}
-
-// add a message id to the whitelist
-void gec_add_to_whitelist(struct gec_whitelist *whitelist, uint8_t id)
-{
-  if (whitelist->init && (whitelist->idx < WHITELIST_LEN)) {
-    whitelist->whitelist[whitelist->idx] = id;
-    whitelist->idx++;
-
-  } else {
-    memset(whitelist, 0, WHITELIST_LEN);  // erase the whitelist
-    whitelist->init = true;
-    whitelist->idx = 0;
-  }
-}
-
-// return true if given message id is in the whitelist
-bool gec_is_in_the_whitelist(struct gec_whitelist *whitelist, uint8_t id)
-{
-  if (whitelist->init) {
-    for (uint8_t i = 0; i < whitelist->idx; i++) {
-      if (whitelist->whitelist[i] == id) {
-        return true;
-      }
-    }
-  }
-  return false;
-}
 
 /**
  * Simply put bytes in the message buffer
@@ -234,26 +152,6 @@ static int check_available_space(struct pprzlink_msg *msg, long *fd,
   return 0;
 }
 
-void gec_dl_init(void)
-{
-#ifdef GEC_STATUS_LED
-  LED_OFF(GEC_STATUS_LED);
-#endif
-
-  // init pprz transport
-  pprz_transport_init(&gec_tp.pprz_tp);
-
-  // init crypto transport
-  gec_transport_init(&gec_tp);
-
-  // initialize keys
-  gec_sts_init(&gec_tp.sts);
-
-#if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_SECURE_LINK_STATUS, send_secure_link_info);
-#endif
-}
-
 /**
  * Get bytes from the message buffer (SENDER_ID .. MSG_PAYLOAD)
  * Add crypto byte
@@ -277,8 +175,28 @@ static void end_message(struct pprzlink_msg *msg, long fd)
   PPRZ_MUTEX_UNLOCK(get_trans(msg)->mtx_tx);
 }
 
+
+/**
+ * Encapsulate message data (CRYPTO_BYTE .. MSG_PAYLOAD .. TAG) with
+ * pprzlink header and checksum (PPRZ_STX .. CHECKSUM).
+ * and send message
+ */
+void gec_encapsulate_and_send_msg(struct pprzlink_msg *msg, long fd)
+{
+  get_trans(msg)->pprz_tp.trans_tx.start_message(msg, fd,
+      get_trans(msg)->tx_msg_idx);
+  get_trans(msg)->pprz_tp.trans_tx.put_bytes(msg, _FD, DL_TYPE_UINT8,
+      DL_FORMAT_SCALAR, get_trans(msg)->tx_msg, get_trans(msg)->tx_msg_idx);
+  get_trans(msg)->pprz_tp.trans_tx.end_message(msg, fd);
+}
+
+#else
+#pragma message "Using Pprzlink 1.0"
+#endif
+
+
 // Init pprz transport structure
-static void gec_transport_init(struct gec_transport *t)
+void gec_transport_init(struct gec_transport *t)
 {
   t->trans_rx.msg_received = false;
   t->trans_tx.size_of = (size_of_t) size_of;
@@ -298,19 +216,27 @@ static void gec_transport_init(struct gec_transport *t)
   gec_add_to_whitelist(&(t->whitelist), KEY_EXCHANGE_MSG_ID_GCS);
 }
 
-/**
- * Encapsulate message data (CRYPTO_BYTE .. MSG_PAYLOAD .. TAG) with
- * pprzlink header and checksum (PPRZ_STX .. CHECKSUM).
- * and send message
- */
-void gec_encapsulate_and_send_msg(struct pprzlink_msg *msg, long fd)
+
+void gec_dl_init(void)
 {
-  get_trans(msg)->pprz_tp.trans_tx.start_message(msg, fd,
-      get_trans(msg)->tx_msg_idx);
-  get_trans(msg)->pprz_tp.trans_tx.put_bytes(msg, _FD, DL_TYPE_UINT8,
-      DL_FORMAT_SCALAR, get_trans(msg)->tx_msg, get_trans(msg)->tx_msg_idx);
-  get_trans(msg)->pprz_tp.trans_tx.end_message(msg, fd);
+#ifdef GEC_STATUS_LED
+  LED_OFF(GEC_STATUS_LED);
+#endif
+
+  // init pprz transport
+  pprz_transport_init(&gec_tp.pprz_tp);
+
+  // init crypto transport
+  gec_transport_init(&gec_tp);
+
+  // initialize keys
+  gec_sts_init(&gec_tp.sts);
+
+#if PERIODIC_TELEMETRY
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_SECURE_LINK_STATUS, send_secure_link_info);
+#endif
 }
+
 
 /**
  * Attempts message encryption
@@ -369,7 +295,6 @@ bool gec_encrypt_message(uint8_t *buf, uint8_t *payload_len)
     gec_tp.sts.encrypt_err++;
     return false;
   }
-
 }
 
 /**
@@ -606,6 +531,7 @@ void gec_process_msg1(uint8_t *buf)
     return;
   }
 
+#if PPRZLINK_DEFAULT_VER == 2
   // now we have to manually construct the message
   // CRYPTO BYTE
   // source_id
@@ -636,6 +562,9 @@ void gec_process_msg1(uint8_t *buf)
   msg2.dev = &DOWNLINK_DEVICE.device;
 
   gec_encapsulate_and_send_msg(&msg2, 0);
+#else
+  // TODO: Pprzlink 1.0
+#endif // PPRZLINK 2.0
 
   /*
    * Note that ideally we would use the following function call, but the problem is that
@@ -714,4 +643,32 @@ bool gec_process_msg3(uint8_t *buf)
 
   // all ok
   return true;
+}
+
+
+// add a message id to the whitelist
+void gec_add_to_whitelist(struct gec_whitelist *whitelist, uint8_t id)
+{
+  if (whitelist->init && (whitelist->idx < WHITELIST_LEN)) {
+    whitelist->whitelist[whitelist->idx] = id;
+    whitelist->idx++;
+
+  } else {
+    memset(whitelist, 0, WHITELIST_LEN);  // erase the whitelist
+    whitelist->init = true;
+    whitelist->idx = 0;
+  }
+}
+
+// return true if given message id is in the whitelist
+bool gec_is_in_the_whitelist(struct gec_whitelist *whitelist, uint8_t id)
+{
+  if (whitelist->init) {
+    for (uint8_t i = 0; i < whitelist->idx; i++) {
+      if (whitelist->whitelist[i] == id) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
