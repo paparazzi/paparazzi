@@ -60,49 +60,68 @@
 #define PPRZ_NONCE_LEN 12
 // length of the counter
 #define PPRZ_COUNTER_LEN 4
+// length of the crypto overhead (4 bytes of counter + 16 bytes of tag)
+#define PPRZ_CRYPTO_OVERHEAD 20
+// basepoint value for the scalar curve multiplication
+#define PPRZ_CURVE_BASEPOINT 9
+
+#if PPRZLINK_DEFAULT_VER == 2
+// minimal size of the encrypted message
+#define PPRZ_MSG_ID 3
 // index of the message ID for plaintext messages
 #define PPRZ_PLAINTEXT_MSG_ID_IDX 4
 // 4 bytes of MSG info (source_ID, dest_ID, class_byte, msg_ID) + 1 GEC byte
 #define PPRZ_PLAINTEXT_MSG_MIN_LEN 5
 // 20 bytes crypto overhead + 4 bytes MSG info + 1 GEC byte
 #define PPRZ_ENCRYPTED_MSG_MIN_LEN 25
-// length of the crypto overhead (4 bytes of counter + 16 bytes of tag)
-#define PPRZ_CRYPTO_OVERHEAD 20
-// basepoint value for the scalar curve multiplication
-#define PPRZ_CURVE_BASEPOINT 9
+#else // PPRZLINK_DEFAULT_VER = 1
 // minimal size of the encrypted message
-#define PPRZ_V2_MSG_ID 3
+#define PPRZ_MSG_ID 1
+// index of the message ID for plaintext messages
+#define PPRZ_PLAINTEXT_MSG_ID_IDX 2
+// 2 bytes of MSG info (source_ID, msg_ID) + 1 GEC byte
+#define PPRZ_PLAINTEXT_MSG_MIN_LEN 3
+// 20 bytes crypto overhead + 2 bytes MSG info + 1 GEC byte
+#define PPRZ_ENCRYPTED_MSG_MIN_LEN 23
+#endif
 
 typedef unsigned char ed25519_signature[64];
 
-struct gec_privkey {
+struct gec_privkey
+{
   uint8_t priv[PPRZ_KEY_LEN];
-  uint8_t pub[PPRZ_KEY_LEN]; bool ready;
+  uint8_t pub[PPRZ_KEY_LEN];bool ready;
 };
 
-struct gec_pubkey {
-  uint8_t pub[PPRZ_KEY_LEN]; bool ready;
+struct gec_pubkey
+{
+  uint8_t pub[PPRZ_KEY_LEN];bool ready;
 };
 
-struct gec_sym_key {
+struct gec_sym_key
+{
   uint8_t key[PPRZ_KEY_LEN];
   uint8_t nonce[PPRZ_NONCE_LEN];
-  uint32_t counter; bool ready;
+  uint32_t counter;bool ready;
 };
 
-typedef enum {
+typedef enum
+{
   INIT, WAIT_MSG1, WAIT_MSG2, WAIT_MSG3, CRYPTO_OK,
 } stage_t;
 
-typedef enum {
+typedef enum
+{
   INITIATOR, RESPONDER, CLIENT, INVALID_PARTY
 } party_t;
 
-typedef enum {
+typedef enum
+{
   P_AE, P_BE, SIG,
 } gec_sts_msg_type_t;
 
-typedef enum {
+typedef enum
+{
   ERROR_NONE,
   // RESPONDER ERRORS
   MSG1_TIMEOUT_ERROR,
@@ -123,7 +142,8 @@ typedef enum {
 
 // Intermediate data structure containing information relating to the stage of
 // the STS protocol.
-struct gec_sts_ctx {
+struct gec_sts_ctx
+{
   struct gec_pubkey their_public_key;
   struct gec_privkey my_private_key;
   struct gec_pubkey their_public_ephemeral;
