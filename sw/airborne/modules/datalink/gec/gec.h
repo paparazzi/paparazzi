@@ -44,16 +44,13 @@
 #define PPRZ_CNTR_IDX 1
 // index of the beginning of the authenticated bytes
 #define PPRZ_AUTH_IDX 5
-// index of the beginning of the ciphertex
-#define PPRZ_CIPH_IDX 7
+
 // legth of the message signature
 #define PPRZ_SIGN_LEN 64
 // lenght of a hash for key derivation
 #define PPRZ_HASH_LEN 64
 // length of the encryption keys
 #define PPRZ_KEY_LEN 32
-// length of the authenticated data
-#define PPRZ_AUTH_LEN 2
 // length of the message authentication tag
 #define PPRZ_MAC_LEN 16
 // length of the message nonce
@@ -74,6 +71,10 @@
 #define PPRZ_PLAINTEXT_MSG_MIN_LEN 5
 // 20 bytes crypto overhead + 4 bytes MSG info + 1 GEC byte
 #define PPRZ_ENCRYPTED_MSG_MIN_LEN 25
+// length of the authenticated data (SOURCE ID, DEST ID)
+#define PPRZ_AUTH_LEN 2
+// index of the beginning of the ciphertext
+#define PPRZ_CIPH_IDX 7
 #else // PPRZLINK_DEFAULT_VER = 1
 // minimal size of the encrypted message
 #define PPRZ_MSG_ID 1
@@ -83,6 +84,10 @@
 #define PPRZ_PLAINTEXT_MSG_MIN_LEN 3
 // 20 bytes crypto overhead + 2 bytes MSG info + 1 GEC byte
 #define PPRZ_ENCRYPTED_MSG_MIN_LEN 23
+// length of the authenticated data (SOURCE ID)
+#define PPRZ_AUTH_LEN 1
+// index of the beginning of the ciphertext
+#define PPRZ_CIPH_IDX 6
 #endif
 
 typedef unsigned char ed25519_signature[64];
