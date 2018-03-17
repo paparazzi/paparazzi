@@ -39,8 +39,8 @@
 #include "mcu_periph/udp.h"
 #endif
 
-// TODO: a hack to to allow passing the key exchage messages before
-// secure comlink is established
+// MSG_ID for key exchange messages.
+// Update if IDs change in messages.xml
 #define KEY_EXCHANGE_MSG_ID_UAV 239
 #define KEY_EXCHANGE_MSG_ID_GCS 159
 #define WHITELIST_LEN 20
@@ -81,10 +81,10 @@ struct gec_transport {
 
   // ecnryption primitives
   struct gec_sts_ctx sts;
-
   struct gec_whitelist whitelist;
 
-  PPRZ_MUTEX(mtx_tx); // optional mutex
+  // optional mutex
+  PPRZ_MUTEX(mtx_tx);
 };
 
 /** PPRZ transport structure */
@@ -105,8 +105,8 @@ void gec_check_and_parse(struct link_device *dev, struct gec_transport *trans,
 void gec_process_sts_msg(struct link_device *dev, struct gec_transport *trans, uint8_t *buf);
 
 void respond_sts(struct link_device *dev, struct gec_transport *trans, uint8_t *buf);
-
-void finish_sts(struct link_device *dev, struct gec_transport *trans, uint8_t *buf);
+void finish_sts(struct link_device *dev, struct gec_transport *trans,
+                uint8_t *buf);
 
 void gec_add_to_whitelist(struct gec_whitelist *whitelist, uint8_t id);
 bool gec_is_in_the_whitelist(struct gec_whitelist *whitelist, uint8_t id);

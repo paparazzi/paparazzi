@@ -21,7 +21,7 @@
 /**
  * @file datalink/gec/gec.h
  *
- * Galois embedded crypto iplementation
+ * Galois embedded crypto implementation
  *
  */
 #ifndef SPPRZ_GEC_H
@@ -92,41 +92,34 @@
 
 typedef unsigned char ed25519_signature[64];
 
-struct gec_privkey
-{
+struct gec_privkey {
   uint8_t priv[PPRZ_KEY_LEN];
-  uint8_t pub[PPRZ_KEY_LEN];bool ready;
+  uint8_t pub[PPRZ_KEY_LEN]; bool ready;
 };
 
-struct gec_pubkey
-{
-  uint8_t pub[PPRZ_KEY_LEN];bool ready;
+struct gec_pubkey {
+  uint8_t pub[PPRZ_KEY_LEN]; bool ready;
 };
 
-struct gec_sym_key
-{
+struct gec_sym_key {
   uint8_t key[PPRZ_KEY_LEN];
   uint8_t nonce[PPRZ_NONCE_LEN];
-  uint32_t counter;bool ready;
+  uint32_t counter; bool ready;
 };
 
-typedef enum
-{
+typedef enum {
   INIT, WAIT_MSG1, WAIT_MSG2, WAIT_MSG3, CRYPTO_OK,
 } stage_t;
 
-typedef enum
-{
+typedef enum {
   INITIATOR, RESPONDER, CLIENT, INVALID_PARTY
 } party_t;
 
-typedef enum
-{
+typedef enum {
   P_AE, P_BE, SIG,
 } gec_sts_msg_type_t;
 
-typedef enum
-{
+typedef enum {
   ERROR_NONE,
   // RESPONDER ERRORS
   MSG1_TIMEOUT_ERROR,
@@ -147,8 +140,7 @@ typedef enum
 
 // Intermediate data structure containing information relating to the stage of
 // the STS protocol.
-struct gec_sts_ctx
-{
+struct gec_sts_ctx {
   struct gec_pubkey their_public_key;
   struct gec_privkey my_private_key;
   struct gec_pubkey their_public_ephemeral;

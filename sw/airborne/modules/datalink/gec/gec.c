@@ -75,9 +75,9 @@ void gec_generate_ephemeral_keys(struct gec_privkey *sk)
   for (uint16_t i = 0; i < PPRZ_KEY_LEN; i += sizeof(uint32_t)) {
     uint32_t tmp = rng_wait_and_get();
     sk->priv[i] = (uint8_t) tmp;
-    sk->priv[i + 1] = (uint8_t) (tmp >> 8);
-    sk->priv[i + 2] = (uint8_t) (tmp >> 16);
-    sk->priv[i + 3] = (uint8_t) (tmp >> 24);
+    sk->priv[i + 1] = (uint8_t)(tmp >> 8);
+    sk->priv[i + 2] = (uint8_t)(tmp >> 16);
+    sk->priv[i + 3] = (uint8_t)(tmp >> 24);
   }
   uint8_t basepoint[32] = { 0 };
   basepoint[0] = 9;  // default basepoint
