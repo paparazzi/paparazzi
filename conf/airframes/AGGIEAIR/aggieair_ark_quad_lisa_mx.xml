@@ -17,10 +17,6 @@
       </module>
       <configure name="HAS_LUFTBOOT" value="1"/>
       <configure name="FLASH_MODE" value="DFU"/>
-      <module name="telemetry"   type="transparent_gec">
-        <configure name="MODEM_PORT"        value="UART3"/>
-        <configure name="MODEM_BAUD"        value="B57600"/>
-      </module>
     </target>
 
     <!-- NOTE: if you want to use extra_dl module for HITL
@@ -31,18 +27,6 @@
     <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
       <module name="radio_control" type="spektrum"/>
-      <module name="telemetry"   type="transparent_gec"/>
-    </target>
-
-    <target name="hitl" board="pc">
-      <module name="fdm" type="jsbsim"/>
-      <module name="imu" type="nps"/>
-      <module name="radio_control" type="spektrum"/>
-      <configure name="INS_DEV" value="/dev/ttyUSB1"/>
-      <configure name="INS_BAUD" value="B921600"/>
-      <configure name="AP_DEV" value="/dev/ttyUSB2"/>
-      <configure name="AP_BAUD" value="B921600"/>
-      <module name="telemetry"   type="transparent"/>
     </target>
 
     <module name="stabilization" type="int_quat"/>
