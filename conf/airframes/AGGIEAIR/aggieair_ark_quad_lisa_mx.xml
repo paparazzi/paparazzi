@@ -17,19 +17,32 @@
       </module>
       <configure name="HAS_LUFTBOOT" value="1"/>
       <configure name="FLASH_MODE" value="DFU"/>
+      <module name="telemetry"   type="transparent_gec">
+        <configure name="MODEM_PORT"        value="UART3"/>
+        <configure name="MODEM_BAUD"        value="B57600"/>
+      </module>
     </target>
 
+    <!-- NOTE: if you want to use extra_dl module for HITL
+    you have to set TELEMETRY_FREQUENCY to PERIODIC_FREQUENCY -->
     <configure name="PERIODIC_FREQUENCY" value="160"/>
-
+    <configure name="TELEMETRY_FREQUENCY" value="160"/>
 
     <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
       <module name="radio_control" type="spektrum"/>
-      <!--configure name="USE_HITL" value="1"/-->
+      <module name="telemetry"   type="transparent_gec"/>
+    </target>
+
+    <target name="hitl" board="pc">
+      <module name="fdm" type="jsbsim"/>
+      <module name="imu" type="nps"/>
+      <module name="radio_control" type="spektrum"/>
       <configure name="INS_DEV" value="/dev/ttyUSB1"/>
       <configure name="INS_BAUD" value="B921600"/>
       <configure name="AP_DEV" value="/dev/ttyUSB2"/>
       <configure name="AP_BAUD" value="B921600"/>
+      <module name="telemetry"   type="transparent"/>
     </target>
 
     <module name="stabilization" type="int_quat"/>
@@ -64,12 +77,12 @@
     <module name="lidar_lite">
       <configure name="LIDAR_LITE_I2C_DEV" value="i2c2"/>
     </module>
-    <!--module name="battery_monitor.xml">
+    <module name="battery_monitor.xml">
       <define name="BATMON_CURRENT_OFFSET" value="-120"/>
       <define name="BATMON_CURRENT_SENSITIVITY" value="25.6"/>
       <define name="BATMON_TEMP_OFFSET" value="250"/>
       <define name="BATMON_TEMP_SENSITIVITY" value="10"/>
-    </module-->
+    </module>
   </modules>
 
     <servos driver="Pwm">

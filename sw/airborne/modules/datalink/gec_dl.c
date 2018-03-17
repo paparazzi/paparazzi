@@ -59,7 +59,6 @@ static inline void insert_byte(struct gec_transport *t, const uint8_t byte)
 }
 
 #if PPRZLINK_DEFAULT_VER == 2
-#pragma message "Using Pprzlink 2.0"
 void gec_encapsulate_and_send_msg(struct pprzlink_msg *msg, long fd);
 
 /**
@@ -188,8 +187,7 @@ void gec_encapsulate_and_send_msg(struct pprzlink_msg *msg, long fd)
   get_trans(msg)->pprz_tp.trans_tx.end_message(msg, fd);
 }
 
-#else
-#pragma message "Using Pprzlink 1.0"
+#else // assume Pprzlink 1.0
 
 void gec_encapsulate_and_send_msg(struct gec_transport *trans,
     struct link_device *dev, long fd);
@@ -282,7 +280,7 @@ static int check_available_space(
   return 0;
 }
 
-#endif // PPRZLINK 1.0
+#endif // PPRZLINK 2.0/1.0
 
 // Init pprz transport structure
 void gec_transport_init(struct gec_transport *t)
