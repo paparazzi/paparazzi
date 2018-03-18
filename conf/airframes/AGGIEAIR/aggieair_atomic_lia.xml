@@ -62,6 +62,7 @@ AggieAir Atomic Tangerine
     <module name="nav" type="survey_poly_osam"/>
     <module name="nav" type="launcher"/>
     <module name="nav" type="skid_landing"/>
+
     <module name="sys_mon"/>
     <module name="copilot"/>
     <module name="extra_dl">
@@ -236,9 +237,9 @@ AggieAir Atomic Tangerine
     <!-- ORIGINAL GAIN     -->
     <define name="PITCH_DGAIN" value="1.5"/>
 
-    <!-- SIMULATOR GAIN
-    <define name="PITCH_DGAIN" value="151.5"/>
-     -->
+    <!-- SIMULATOR GAIN-->
+    <!--define name="PITCH_DGAIN" value="151.5"/-->
+     
     <define name="ELEVATOR_OF_ROLL" value="1250"/>
     <define name="ROLL_ATTITUDE_GAIN" value="9000"/>
     <define name="ROLL_RATE_GAIN" value="1600"/>
