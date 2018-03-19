@@ -373,12 +373,9 @@
 /*
  * IDs of ACCEL_SP senders (message 21)
  */
-#ifndef ACCEL_SP_2D_ID
-#define ACCEL_SP_2D_ID 1
-#endif
 
-#ifndef ACCEL_SP_3D_ID
-#define ACCEL_SP_3D_ID 2
+#ifndef ACCEL_SP_FCR_ID
+#define ACCEL_SP_FCR_ID 1 // Formation Control Rotorcraft
 #endif
 
 #endif /* ABI_SENDER_IDS_H */

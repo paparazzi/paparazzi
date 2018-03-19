@@ -64,8 +64,11 @@ float guidance_indi_speed_gain = GUIDANCE_INDI_SPEED_GAIN;
 float guidance_indi_speed_gain = 1.8;
 #endif
 
+#ifndef GUIDANCE_INDI_ACCEL_SP_ID
+#define GUIDANCE_INDI_ACCEL_SP_ID ABI_BROADCAST
+#endif
 abi_event accel_sp_ev;
-static void accel_sp_cb(uint8_t sender_id, struct FloatVect3 *accel_sp);
+static void accel_sp_cb(uint8_t sender_id, uint8_t flag, struct FloatVect3 *accel_sp);
 struct FloatVect3 indi_accel_sp = {0.0, 0.0, 0.0};
 bool indi_accel_sp_set_2d = false;
 bool indi_accel_sp_set_3d = false;
@@ -119,9 +122,7 @@ static void guidance_indi_calcG(struct FloatMat33 *Gmat);
  */
 void guidance_indi_init(void)
 {
-
-  AbiBindMsgACCEL_SP(ACCEL_SP_2D_ID, &accel_sp_ev, accel_sp_cb);
-  AbiBindMsgACCEL_SP(ACCEL_SP_3D_ID, &accel_sp_ev, accel_sp_cb);
+  AbiBindMsgACCEL_SP(GUIDANCE_INDI_ACCEL_SP_ID, &accel_sp_ev, accel_sp_cb);
 }
 
 /**
@@ -364,15 +365,16 @@ void stabilization_attitude_set_setpoint_rp_quat_f(struct FloatEulers *indi_rp_c
 
 /**
  * ABI callback that obtains the acceleration setpoint from telemetry
+ * flag: 0 -> 2D, 1 -> 3D
  */
-static void accel_sp_cb(uint8_t sender_id, struct FloatVect3 *accel_sp)
+static void accel_sp_cb(uint8_t sender_id __attribute__((unused)), uint8_t flag, struct FloatVect3 *accel_sp)
 {
-  if (sender_id == 1) {
+  if (flag == 0) {
     indi_accel_sp.x = accel_sp->x;
     indi_accel_sp.y = accel_sp->y;
     indi_accel_sp_set_2d = true;
     time_of_accel_sp_2d = get_sys_time_float();
-  } else if (sender_id == 2) {
+  } else if (flag == 1) {
     indi_accel_sp.x = accel_sp->x;
     indi_accel_sp.y = accel_sp->y;
     indi_accel_sp.z = accel_sp->z;

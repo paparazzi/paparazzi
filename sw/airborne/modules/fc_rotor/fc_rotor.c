@@ -20,7 +20,6 @@
  */
 #include "math/pprz_algebra_float.h"
 #include "subsystems/abi.h"
-#include "subsystems/abi_sender_ids.h"
 #include "subsystems/datalink/datalink.h" // dl_buffer
 #include "autopilot.h"
 #include "modules/fc_rotor/fc_rotor.h"
@@ -36,19 +35,17 @@ void fc_read_msg(void)
   uint8_t ac_id = DL_DESIRED_SETPOINT_ac_id(dl_buffer);
 
   if (ac_id == AC_ID) {
+    // 0: 2D control, 1: 3D control
     uint8_t flag = DL_DESIRED_SETPOINT_flag(dl_buffer);
 
     u.x = DL_DESIRED_SETPOINT_ux(dl_buffer);
     u.y = DL_DESIRED_SETPOINT_uy(dl_buffer);
     u.z = DL_DESIRED_SETPOINT_uz(dl_buffer);
 
-    if (flag == 1) {
-      AbiSendMsgACCEL_SP(ACCEL_SP_3D_ID, &u);
-    }
-    else if (flag == 0) {
-      AbiSendMsgACCEL_SP(ACCEL_SP_2D_ID, &u);
+    AbiSendMsgACCEL_SP(ACCEL_SP_FCR_ID, flag, &u);
 
-      // set flight altitude in integer ENU LTP frame
+    if (flag == 0) {
+      // with 2D control, set flight altitude in integer ENU LTP frame
       nav_flight_altitude = POS_BFP_OF_REAL(u.z);
     }
   }

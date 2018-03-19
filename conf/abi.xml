@@ -152,6 +152,7 @@
     </message>
 
     <message name="ACCEL_SP" id="23">
+      <field name="flag" type="uint8_t">0: 2D accel setpoint, 1: 3D accel setpoint</field>
       <field name="accel_sp" type="struct FloatVect3 *" unit="m/s^2"/>
     </message>
 
