@@ -1,0 +1,24 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="fc_rotor" dir="fc_rotor">
+  <doc>
+    <description>
+      Algorithm for the formation control of a team of rotorcrafts.
+      The vehicles are are running the INDI control and the desired acceleration are given by script from ground.
+    </description>
+  </doc>
+
+  <header>
+    <file name="fc_rotor.h"/>
+  </header>
+
+  <init fun = "fc_rotor_init()"/>
+
+  <datalink message="DESIRED_SETPOINT" fun="fc_read_msg()"/>
+
+  <makefile firmware="rotorcraft">
+    <define name="FC_ROTOR"/>
+    <file name="fc_rotor.c"/>
+  </makefile>
+
+</module>

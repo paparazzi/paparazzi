@@ -58,6 +58,18 @@ struct InsGpsPassthrough {
 
 struct InsGpsPassthrough ins_gp;
 
+/** ABI bindings on ACCEL data
+ */
+#ifndef INS_PT_IMU_ID
+#define INS_PT_IMU_ID ABI_BROADCAST
+#endif
+static abi_event accel_ev;
+static void accel_cb(uint8_t sender_id, uint32_t stamp, struct Int32Vect3 *accel);
+
+static abi_event body_to_imu_ev;
+static void body_to_imu_cb(uint8_t sender_id, struct FloatQuat *q_b2i_f);
+static struct OrientationReps body_to_imu;
+
 
 /** ABI binding for gps data.
  * Used for GPS ABI messages.
@@ -107,7 +119,7 @@ static void send_ins(struct transport_tx *trans, struct link_device *dev)
 
 static void send_ins_z(struct transport_tx *trans, struct link_device *dev)
 {
-  static const float fake_baro_z = 0.0;
+  static float fake_baro_z = 0.0;
   pprz_msg_send_INS_Z(trans, dev, AC_ID,
                       (float *)&fake_baro_z, &ins_gp.ltp_pos.z,
                       &ins_gp.ltp_speed.z, &ins_gp.ltp_accel.z);
@@ -115,7 +127,7 @@ static void send_ins_z(struct transport_tx *trans, struct link_device *dev)
 
 static void send_ins_ref(struct transport_tx *trans, struct link_device *dev)
 {
-  static const float fake_qfe = 0.0;
+  static float fake_qfe = 0.0;
   if (ins_gp.ltp_initialized) {
     pprz_msg_send_INS_REF(trans, dev, AC_ID,
                           &ins_gp.ltp_def.ecef.x, &ins_gp.ltp_def.ecef.y, &ins_gp.ltp_def.ecef.z,
@@ -158,6 +170,8 @@ void ins_gps_passthrough_init(void)
 #endif
 
   AbiBindMsgGPS(INS_PT_GPS_ID, &gps_ev, gps_cb);
+  AbiBindMsgIMU_ACCEL_INT32(INS_PT_IMU_ID, &accel_ev, accel_cb);
+  AbiBindMsgBODY_TO_IMU_QUAT(INS_PT_IMU_ID, &body_to_imu_ev, body_to_imu_cb);
 }
 
 void ins_reset_local_origin(void)
@@ -180,3 +194,25 @@ void ins_reset_altitude_ref(void)
   ins_gp.ltp_def.hmsl = gps.hmsl;
   stateSetLocalOrigin_i(&ins_gp.ltp_def);
 }
+
+static void accel_cb(uint8_t sender_id __attribute__((unused)),
+                     uint32_t stamp __attribute__((unused)),
+                     struct Int32Vect3 *accel)
+{
+  // untilt accel and remove gravity
+  struct Int32Vect3 accel_body, accel_ned;
+  struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&body_to_imu);
+  int32_rmat_transp_vmult(&accel_body, body_to_imu_rmat, accel);
+  struct Int32RMat *ned_to_body_rmat = stateGetNedToBodyRMat_i();
+  int32_rmat_transp_vmult(&accel_ned, ned_to_body_rmat, &accel_body);
+  accel_ned.z += ACCEL_BFP_OF_REAL(9.81);
+  stateSetAccelNed_i((struct NedCoor_i *)&accel_ned);
+  VECT3_COPY(ins_gp.ltp_accel, accel_ned);
+}
+
+static void body_to_imu_cb(uint8_t sender_id __attribute__((unused)),
+                           struct FloatQuat *q_b2i_f)
+{
+  orientationSetQuat_f(&body_to_imu, q_b2i_f);
+}
+
