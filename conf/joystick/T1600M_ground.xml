@@ -1,0 +1,43 @@
+<!-- Thrusmaster T1600 M
+
+  4 axis, 1 hat, 16 buttons
+
+  Only send ground JOYSTICK messages (4 axis, 4 buttons)
+
+-->
+
+<joystick>
+  <input>
+    <axis index="0" name="roll"/>
+    <axis index="1" name="pitch"/>
+    <axis index="2" name="yaw"/>
+    <axis index="3" name="thrust"/>
+    <button index="0" name="fire"/>
+    <button index="1" name="top_center"/>
+    <button index="2" name="top_left"/>
+    <button index="3" name="top_right"/>
+    <button index="4" name="b4"/>
+    <button index="5" name="b5"/>
+    <button index="6" name="b6"/>
+    <button index="7" name="b7"/>
+    <button index="8" name="b8"/>
+    <button index="9" name="b9"/>
+  </input>
+
+  <messages period="0.05">
+
+    <message class="ground" name="JOYSTICK" send_always="true">
+      <field name="id"      value="JoystickID()"/>
+      <field name="axis1"   value="roll"/>
+      <field name="axis2"   value="pitch"/>
+      <field name="axis3"   value="yaw"/>
+      <field name="axis4"   value="Fit(-thrust,-127,127,0,127)"/>
+      <field name="button1" value="top_left"/>
+      <field name="button2" value="top_right"/>
+      <field name="button3" value="fire"/>
+      <field name="button4" value="top_center"/>
+    </message>
+
+  </messages>
+
+</joystick>
