@@ -172,6 +172,7 @@ void guidance_indi_run(bool in_flight, float heading_sp)
     // In 2D the vertical motion is derived from the flight plan
     sp_accel.z = (speed_sp_z - stateGetSpeedNed_f()->z) * guidance_indi_speed_gain;
     float dt = get_sys_time_float() - time_of_accel_sp_2d;
+    // If the input command is not updated after a timeout, switch back to flight plan control
     if (dt > 0.5) {
       indi_accel_sp_set_2d = false;
     }
@@ -180,6 +181,7 @@ void guidance_indi_run(bool in_flight, float heading_sp)
     sp_accel.y = indi_accel_sp.y;
     sp_accel.z = indi_accel_sp.z;
     float dt = get_sys_time_float() - time_of_accel_sp_3d;
+    // If the input command is not updated after a timeout, switch back to flight plan control
     if (dt > 0.5) {
       indi_accel_sp_set_3d = false;
     }
