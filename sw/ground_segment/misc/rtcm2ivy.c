@@ -107,7 +107,9 @@ static void ivy_send_message(uint8_t packet_id, uint8_t len, uint8_t msg[])
     snprintf(gps_packet, ivy_size, IVY_MSG_HEAD" %d %d", packet_id, msg[offset]);
 
     cpt = 1;
-    while ((cpt < (packet_size - 5)) && (cpt < (len-offset))) {
+    // max cpt = packet_size - array size (1 byte) - rtcm type (1 byte) - pprzlink header (4 bytes in v2)
+    //         = packet_size - 6
+    while ((cpt < (packet_size - 6)) && (cpt < (len-offset))) {
       snprintf(number, 5, ",%d", msg[cpt+offset]); // coma + (000..255) + '\0' = 5 chars
       strcat(gps_packet, number);
       cpt++;
