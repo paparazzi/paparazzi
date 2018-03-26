@@ -117,7 +117,7 @@ static void ivy_send_message(uint8_t packet_id, uint8_t len, uint8_t msg[])
 
     printf_debug("%s\n\n", gps_packet);
     IvySendMsg("%s", gps_packet);
-    offset += (packet_size-5);
+    offset += (packet_size-6);
 
     if (logger == TRUE) {
       pFile = fopen("./RTCM3_log.txt", "a");
