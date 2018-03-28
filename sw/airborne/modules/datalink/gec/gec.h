@@ -62,34 +62,6 @@
 // basepoint value for the scalar curve multiplication
 #define PPRZ_CURVE_BASEPOINT 9
 
-#if PPRZLINK_DEFAULT_VER == 2
-// minimal size of the encrypted message
-#define PPRZ_MSG_ID 3
-// index of the message ID for plaintext messages
-#define PPRZ_PLAINTEXT_MSG_ID_IDX 4
-// 4 bytes of MSG info (source_ID, dest_ID, class_byte, msg_ID) + 1 GEC byte
-#define PPRZ_PLAINTEXT_MSG_MIN_LEN 5
-// 20 bytes crypto overhead + 4 bytes MSG info + 1 GEC byte
-#define PPRZ_ENCRYPTED_MSG_MIN_LEN 25
-// length of the authenticated data (SOURCE ID, DEST ID)
-#define PPRZ_AUTH_LEN 2
-// index of the beginning of the ciphertext
-#define PPRZ_CIPH_IDX 7
-#else // PPRZLINK_DEFAULT_VER = 1
-// minimal size of the encrypted message
-#define PPRZ_MSG_ID 1
-// index of the message ID for plaintext messages
-#define PPRZ_PLAINTEXT_MSG_ID_IDX 2
-// 2 bytes of MSG info (source_ID, msg_ID) + 1 GEC byte
-#define PPRZ_PLAINTEXT_MSG_MIN_LEN 3
-// 20 bytes crypto overhead + 2 bytes MSG info + 1 GEC byte
-#define PPRZ_ENCRYPTED_MSG_MIN_LEN 23
-// length of the authenticated data (SOURCE ID)
-#define PPRZ_AUTH_LEN 1
-// index of the beginning of the ciphertext
-#define PPRZ_CIPH_IDX 6
-#endif
-
 typedef unsigned char ed25519_signature[64];
 
 struct gec_privkey {
