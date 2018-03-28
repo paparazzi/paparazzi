@@ -682,6 +682,7 @@ void gec_process_msg1(uint8_t *buf)
 
   gec_encapsulate_and_send_msg(&msg2, 0);
 #else
+#if PPRZLINK_DEFAULT_VER ==1
   // Pprzlink 1.0
   // now we have to manually construct the message
   // CRYPTO BYTE
@@ -703,7 +704,8 @@ void gec_process_msg1(uint8_t *buf)
   gec_tp.tx_msg_idx += sizeof(msg_data);
 
   gec_encapsulate_and_send_msg(&gec_tp, &DOWNLINK_DEVICE.device, 0);
-#endif // PPRZLINK 1.0/2.0
+#endif // PPRZLINK 1.0
+#endif // PPRZLINK 2.0
 
   /*
    * Note that ideally we would use the following function call, but the problem is that
