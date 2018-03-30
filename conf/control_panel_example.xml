@@ -7,7 +7,8 @@
     <!--program name="Server" command="sw/ground_segment/tmtc/server">
       <arg flag="-b" constant="192.168.1.255:2010"/>
     </program>
-    <program name="GCS" command="sw/ground_segment/cockpit/gcs">
+    <program name="Link Combiner" command="sw/ground_segment/python/redundant_link/link_combiner.py"/>
+    <program name="GCS" command="sw/ground_segment/cockpit/gcs" icon="gcs.svg">
       <arg flag="-layout" constant="large_left_col.xml"/>
       <arg flag="-osm"/>
     </program-->

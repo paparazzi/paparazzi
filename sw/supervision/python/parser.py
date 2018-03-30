@@ -136,6 +136,7 @@ SECTION_REF = "section"
 PROGRAM_REF = "program"
 SESSION_REF = "session"
 COMMAND_REF = "command"
+ICON_REF = "icon"
 FLAG_REF = "flag"
 OPTION_REF = "arg"
 
@@ -646,11 +647,12 @@ def parse_tools(cp_file):
         for tool_tag in tools_tags:
             tool_name = tool_tag.get(NAME_REF)
             tool_command = tool_tag.get(COMMAND_REF)
+            icon = tool_tag.get(ICON_REF)
             options = []
             for option_tag in tool_tag:
                 option = parse_arg_option(option_tag)
                 options.append(option)
-            tool_object = db.Program(tool_name, tool_command, options)
+            tool_object = db.Program(tool_name, tool_command, options, icon)
             tools[tool_name] = tool_object
 
     except Et.ParseError as msg:

@@ -26,6 +26,8 @@
 ###############################################################################
 # [Configuration class]
 
+DEFAULT_TOOL_ICON = "default_tool_icon.svg"
+
 class Configuration(object):
     """Class to define a Configuration (old aircraft) object."""
     def __init__(self, name, config_id, airframes, targets):
@@ -134,14 +136,15 @@ class Session(object):
 
 class Program(object):
     """Class to define a Program (old tool) object."""
-    def __init__(self, name, command, options):
+    def __init__(self, name, command, options, icon=DEFAULT_TOOL_ICON):
         self.name = name
         self.command = command
         self.options = options
+        self.icon = icon if icon is not None else DEFAULT_TOOL_ICON
 
     def __repr__(self):
-        string = "\t| name = {!s:<30} | command = {!s:<60} | options = {!s:<70} |"
-        format_string = string.format(self.name, self.command, self.options)
+        string = "\t| name = {!s:<30} | command = {!s:<60} | options = {!s:<70} | icon={!s} |"
+        format_string = string.format(self.name, self.command, self.options, self.icon)
         return format_string
 
 
