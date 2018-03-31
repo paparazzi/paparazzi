@@ -104,7 +104,7 @@ Butterworth2LowPass thrust_filt;
 
 struct FloatMat33 Ga;
 struct FloatMat33 Ga_inv;
-struct FloatVect3 euler_cmd;
+struct FloatVect3 control_increment; // [dtheta, dphi, dthrust]
 
 float filter_cutoff = GUIDANCE_INDI_FILTER_CUTOFF;
 
@@ -114,8 +114,9 @@ float time_of_accel_sp_3d = 0.0;
 struct FloatEulers guidance_euler_cmd;
 float thrust_in;
 
-static void guidance_indi_propagate_filters(void);
+static void guidance_indi_propagate_filters(struct FloatEulers *eulers);
 static void guidance_indi_calcG(struct FloatMat33 *Gmat);
+static void guidance_indi_calcG_yxz(struct FloatMat33 *Gmat, struct FloatEulers *euler_yxz);
 
 /**
  * @brief Init function
@@ -145,16 +146,18 @@ void guidance_indi_enter(void)
 }
 
 /**
- * @param in_flight in flight boolean
  * @param heading_sp the desired heading [rad]
  *
  * main indi guidance function
  */
-void guidance_indi_run(bool in_flight, float heading_sp)
+void guidance_indi_run(float heading_sp)
 {
+  struct FloatEulers eulers_yxz;
+  struct FloatQuat * statequat = stateGetNedToBodyQuat_f();
+  float_eulers_of_quat_yxz(&eulers_yxz, statequat);
 
   //filter accel to get rid of noise and filter attitude to synchronize with accel
-  guidance_indi_propagate_filters();
+  guidance_indi_propagate_filters(&eulers_yxz);
 
   //Linear controller to find the acceleration setpoint from position and velocity
   float pos_x_err = POS_FLOAT_OF_BFP(guidance_h.ref.pos.x) - stateGetPositionNed_f()->x;
@@ -205,7 +208,8 @@ void guidance_indi_run(bool in_flight, float heading_sp)
 #endif
 
   //Calculate matrix of partial derivatives
-  guidance_indi_calcG(&Ga);
+  guidance_indi_calcG_yxz(&Ga, &eulers_yxz);
+
   //Invert this matrix
   MAT33_INV(Ga_inv, Ga);
 
@@ -225,20 +229,19 @@ void guidance_indi_run(bool in_flight, float heading_sp)
 #endif
 
   //Calculate roll,pitch and thrust command
-  MAT33_VECT3_MUL(euler_cmd, Ga_inv, a_diff);
+  MAT33_VECT3_MUL(control_increment, Ga_inv, a_diff);
 
-  AbiSendMsgTHRUST(THRUST_INCREMENT_ID, euler_cmd.z);
+  AbiSendMsgTHRUST(THRUST_INCREMENT_ID, control_increment.z);
 
-  guidance_euler_cmd.phi = roll_filt.o[0] + euler_cmd.x;
-  guidance_euler_cmd.theta = pitch_filt.o[0] + euler_cmd.y;
-  //zero psi command, because a roll/pitch quat will be constructed later
-  guidance_euler_cmd.psi = 0;
+  guidance_euler_cmd.theta = pitch_filt.o[0] + control_increment.x;
+  guidance_euler_cmd.phi = roll_filt.o[0] + control_increment.y;
+  guidance_euler_cmd.psi = heading_sp;
 
 #ifdef GUIDANCE_INDI_SPECIFIC_FORCE_GAIN
   guidance_indi_filter_thrust();
 
   //Add the increment in specific force * specific_force_to_thrust_gain to the filtered thrust
-  thrust_in = thrust_filt.o[0] + euler_cmd.z * thrust_in_specific_force_gain;
+  thrust_in = thrust_filt.o[0] + control_increment.z * thrust_in_specific_force_gain;
   Bound(thrust_in, 0, 9600);
 
 #if GUIDANCE_INDI_RC_DEBUG
@@ -256,7 +259,9 @@ void guidance_indi_run(bool in_flight, float heading_sp)
   Bound(guidance_euler_cmd.theta, -GUIDANCE_H_MAX_BANK, GUIDANCE_H_MAX_BANK);
 
   //set the quat setpoint with the calculated roll and pitch
-  stabilization_attitude_set_setpoint_rp_quat_f(&guidance_euler_cmd, in_flight, heading_sp);
+  struct FloatQuat q_sp;
+  float_quat_of_eulers_yxz(&q_sp, &guidance_euler_cmd);
+  QUAT_BFP_OF_REAL(stab_att_sp_quat, q_sp);
 }
 
 #ifdef GUIDANCE_INDI_SPECIFIC_FORCE_GAIN
@@ -278,24 +283,53 @@ void guidance_indi_filter_thrust(void)
  * The roll and pitch also need to be filtered to synchronize them with the
  * acceleration
  */
-void guidance_indi_propagate_filters(void)
+void guidance_indi_propagate_filters(struct FloatEulers *eulers)
 {
   struct NedCoor_f *accel = stateGetAccelNed_f();
   update_butterworth_2_low_pass(&filt_accel_ned[0], accel->x);
   update_butterworth_2_low_pass(&filt_accel_ned[1], accel->y);
   update_butterworth_2_low_pass(&filt_accel_ned[2], accel->z);
 
-  update_butterworth_2_low_pass(&roll_filt, stateGetNedToBodyEulers_f()->phi);
-  update_butterworth_2_low_pass(&pitch_filt, stateGetNedToBodyEulers_f()->theta);
+  update_butterworth_2_low_pass(&roll_filt, eulers->phi);
+  update_butterworth_2_low_pass(&pitch_filt, eulers->theta);
 }
 
 /**
  * @param Gmat array to write the matrix to [3x3]
  *
- * Calculate the matrix of partial derivatives of the roll, pitch and thrust
- * w.r.t. the NED accelerations
+ * Calculate the matrix of partial derivatives of the pitch, roll and thrust.
+ * w.r.t. the NED accelerations for YXZ eulers
+ * ddx = G*[dtheta,dphi,dT]
  */
-void guidance_indi_calcG(struct FloatMat33 *Gmat)
+void guidance_indi_calcG_yxz(struct FloatMat33 *Gmat, struct FloatEulers *euler_yxz)
+{
+
+  float sphi = sinf(euler_yxz->phi);
+  float cphi = cosf(euler_yxz->phi);
+  float stheta = sinf(euler_yxz->theta);
+  float ctheta = cosf(euler_yxz->theta);
+  //minus gravity is a guesstimate of the thrust force, thrust measurement would be better
+  float T = -9.81;
+
+  RMAT_ELMT(*Gmat, 0, 0) = ctheta * cphi * T;
+  RMAT_ELMT(*Gmat, 1, 0) = 0;
+  RMAT_ELMT(*Gmat, 2, 0) = -stheta * cphi * T;
+  RMAT_ELMT(*Gmat, 0, 1) = -stheta * sphi * T;
+  RMAT_ELMT(*Gmat, 1, 1) = -cphi * T;
+  RMAT_ELMT(*Gmat, 2, 1) = -ctheta * sphi * T;
+  RMAT_ELMT(*Gmat, 0, 2) = stheta * cphi;
+  RMAT_ELMT(*Gmat, 1, 2) = -sphi;
+  RMAT_ELMT(*Gmat, 2, 2) = ctheta * cphi;
+}
+
+/**
+ * @param Gmat array to write the matrix to [3x3]
+ *
+ * Calculate the matrix of partial derivatives of the roll, pitch and thrust.
+ * w.r.t. the NED accelerations for ZYX eulers
+ * ddx = G*[dtheta,dphi,dT]
+ */
+UNUSED void guidance_indi_calcG(struct FloatMat33 *Gmat)
 {
 
   struct FloatEulers *euler = stateGetNedToBodyEulers_f();
@@ -318,51 +352,6 @@ void guidance_indi_calcG(struct FloatMat33 *Gmat)
   RMAT_ELMT(*Gmat, 0, 2) = sphi * spsi + cphi * cpsi * stheta;
   RMAT_ELMT(*Gmat, 1, 2) = cphi * spsi * stheta - cpsi * sphi;
   RMAT_ELMT(*Gmat, 2, 2) = cphi * ctheta;
-}
-
-/**
- * @param indi_rp_cmd roll/pitch command from indi guidance [rad] (float)
- * @param in_flight in flight boolean
- * @param heading the desired heading [rad] in BFP with INT32_ANGLE_FRAC
- *
- * function that creates a quaternion from a roll, pitch and yaw setpoint
- */
-void stabilization_attitude_set_setpoint_rp_quat_f(struct FloatEulers *indi_rp_cmd, bool in_flight, float heading)
-{
-  struct FloatQuat q_rp_cmd;
-  //this is a quaternion without yaw! add the desired yaw before you use it!
-  float_quat_of_eulers(&q_rp_cmd, indi_rp_cmd);
-
-  /* get current heading */
-  const struct FloatVect3 zaxis = {0., 0., 1.};
-  struct FloatQuat q_yaw;
-
-  float_quat_of_axis_angle(&q_yaw, &zaxis, stateGetNedToBodyEulers_f()->psi);
-
-  /* roll/pitch commands applied to to current heading */
-  struct FloatQuat q_rp_sp;
-  float_quat_comp(&q_rp_sp, &q_yaw, &q_rp_cmd);
-  float_quat_normalize(&q_rp_sp);
-
-  struct FloatQuat q_sp;
-
-  if (in_flight) {
-    /* get current heading setpoint */
-    struct FloatQuat q_yaw_sp;
-    float_quat_of_axis_angle(&q_yaw_sp, &zaxis, heading);
-
-
-    /* rotation between current yaw and yaw setpoint */
-    struct FloatQuat q_yaw_diff;
-    float_quat_comp_inv(&q_yaw_diff, &q_yaw_sp, &q_yaw);
-
-    /* compute final setpoint with yaw */
-    float_quat_comp_norm_shortest(&q_sp, &q_rp_sp, &q_yaw_diff);
-  } else {
-    QUAT_COPY(q_sp, q_rp_sp);
-  }
-
-  QUAT_BFP_OF_REAL(stab_att_sp_quat, q_sp);
 }
 
 /**
