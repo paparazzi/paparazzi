@@ -1,6 +1,6 @@
 <!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
 
-<flight_plan alt="1550" ground_alt="1350" lat0="41.815562" lon0="-111.982437" max_dist_from_home="3000" name="BasicTuning" security_height="25" home_mode_height="200" qfu="90" geofence_sector="FlightArea" geofence_max_alt="2000" geofence_max_height="500">
+<flight_plan alt="1550" ground_alt="1350" lat0="41.815562" lon0="-111.982437" max_dist_from_home="3000" name="BasicTuning" security_height="25" home_mode_height="200" qfu="90" geofence_sector="FlightArea" geofence_max_alt="3000" geofence_max_height="1000">
   <header>
 #include "subsystems/datalink/datalink.h"
 </header>
@@ -42,7 +42,7 @@
     <include name="L" procedure="AGGIEAIR/aggieair_landing.xml"/>
   </includes>
   <exceptions>
-    <exception cond="InsideFlightArea(GetPosX(), GetPosY()) == FALSE" deroute="Go Home"/>
+    <!--exception cond="InsideFlightArea(GetPosX(), GetPosY()) == FALSE" deroute="Go Home"/-->
   </exceptions>
   <blocks>
     <block name="Wait GPS">
