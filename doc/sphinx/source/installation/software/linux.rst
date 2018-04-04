@@ -18,9 +18,14 @@ Users of other Linux flavors than a recent Ubuntu or Debian and anyone needing m
 For the impatient
 =================
 
-For Ubuntu add the paparazzi-uav ppa sudo add-apt-repository ppa:paparazzi-uav/ppa and install the paparazzi-dev package.
+For Ubuntu add the `paparazzi-uav ppa <https://launchpad.net/~paparazzi-uav/+archive/ubuntu/ppa>`_ (*sudo add-apt-repository ppa:paparazzi-uav/ppa*)
+and install the paparazzi-dev package.
 
-TODO: link to the video tutorials
+
+.. raw:: html
+
+    <iframe width="425" height="239" src="https://www.youtube.com/embed/SshFJrBuku8" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+
 
 
 Installation of dependencies
