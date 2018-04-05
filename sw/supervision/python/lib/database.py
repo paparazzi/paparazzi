@@ -142,6 +142,7 @@ class Program(object):
         self.options = options
         self.icon = icon if icon is not None else DEFAULT_TOOL_ICON
         self.favorite = False
+        self.blacklisted = False
 
     def __repr__(self):
         string = "\t| name = {!s:<30} | command = {!s:<60} | options = {!s:<70} | icon={!s} |"

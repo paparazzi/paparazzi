@@ -36,6 +36,8 @@ import shutil
 ###############################################################################
 # [Constants]
 
+STRINGS_FALSE = ["False", "false", "0", None, "nope", "nada"]
+
 LOGGER = logging.getLogger("[PARSER]")
 
 XML_EXT = ".xml"
@@ -47,6 +49,8 @@ VALUE_REF = "value"
 CONSTANT_REF = "constant"
 VARIABLE_REF = "variable"
 MODE_REF = "mode"
+FAVORITE_REF = "favorite"
+BLACKLISTED_REF = "blacklisted"
 
 # REFERENCES AND STRUCTURES OF CONF XML FILES :
 # CONF_STRUCTURE = [(node_name, [node_attributes],
@@ -137,7 +141,7 @@ CONTROL_PANEL_FILE = CONTROL_PANEL + XML_EXT
 
 SECTION_REF = "section"
 PROGRAM_REF = "program"
-FAVORITE_PROGRAM_REF = "favorite_program"
+CUSTOM_PROGRAM_REF = "custom_program"
 SESSION_REF = "session"
 COMMAND_REF = "command"
 ICON_REF = "icon"
@@ -145,7 +149,7 @@ FLAG_REF = "flag"
 OPTION_REF = "arg"
 
 PROGRAM_TAG_REF = PROGRAM_REF
-FAVORITE_PROGRAM_TAG_REF = "/".join((SECTION_REF, FAVORITE_PROGRAM_REF))
+CUSTOM_PROGRAM_TAG_REF = "/".join((SECTION_REF, CUSTOM_PROGRAM_REF))
 SESSION_TAG_REF = "/".join((SECTION_REF, SESSION_REF))
 
 CONTROL_PANEL_STRUCTURE = [(CONTROL_PANEL, [NAME_REF],
@@ -673,7 +677,7 @@ def parse_tools(tools_file):
     return tools
 
 
-def parse_favorite_tools(cp_file, tools):
+def parse_custom_tools(cp_file, tools):
     """
     :param cp_file: control_panel file, where favorite tools are.
     :param tools: tools previously parsed, modified in this method
@@ -681,12 +685,19 @@ def parse_favorite_tools(cp_file, tools):
     -> Parse all favorite tools in the 'cp_file' given.
     """
     favorite_tools = []
+    blacklisted_tools = []
     try:
         tree = Et.parse(cp_file)
-        tools_tags = tree.findall(FAVORITE_PROGRAM_TAG_REF)
+        tools_tags = tree.findall(CUSTOM_PROGRAM_TAG_REF)
         for tool_tag in tools_tags:
             tool_name = tool_tag.get(NAME_REF)
-            favorite_tools.append(tool_name)
+            favorite = tool_tag.get(FAVORITE_REF) not in STRINGS_FALSE
+            blacklisted = tool_tag.get(BLACKLISTED_REF) not in STRINGS_FALSE
+            if favorite:
+                favorite_tools.append(tool_name)
+            # If the tool is blacklisted AND favorite, we keep it anyway.
+            if blacklisted and not favorite:
+                blacklisted_tools.append(tool_name)
 
     except Et.ParseError as msg:
             LOGGER.error("ERROR in syntax of XML file : '%s'. "
@@ -694,7 +705,8 @@ def parse_favorite_tools(cp_file, tools):
     for tool_name in favorite_tools:
         tools[tool_name].favorite = True
 
-    return favorite_tools
+    for tool_name in blacklisted_tools:
+        tools[tool_name].blacklisted = True
 
 
 def parse_sessions(cp_file, tools):
@@ -738,7 +750,7 @@ def load_sessions_and_programs(cp_file, tools_file):
     -> Show the result of scan if DEBUG mode is on (main.py)
     """
     tools = parse_tools(tools_file)
-    parse_favorite_tools(cp_file, tools)
+    parse_custom_tools(cp_file, tools)
     sessions = parse_sessions(cp_file, tools)
 
     sessions[SIMULATION_SESSION.name] = SIMULATION_SESSION

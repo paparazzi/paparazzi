@@ -548,10 +548,11 @@ class Hmi(Widgets.QMainWindow):
         """
         # The tools are sorted first by whether they are favorite or not, then by their names
         for tool in sorted(self.data.tools.values(), key=lambda tool: (not tool.favorite, tool.name)):
-            command = functools.partial(self.add_program_to_session, tool)
-            icon_name = tool.icon
-            icon_path = "/".join([env.PAPARAZZI_HOME, ICONS_TOOLS_PATH, icon_name])
-            self.ui.tools_menu.add_item(tool.name, icon_path, command)
+            if not tool.blacklisted:
+                command = functools.partial(self.add_program_to_session, tool)
+                icon_name = tool.icon
+                icon_path = "/".join([env.PAPARAZZI_HOME, ICONS_TOOLS_PATH, icon_name])
+                self.ui.tools_menu.add_item(tool.name, icon_path, command)
 
     def fullscreen_view(self):
         if self.isMaximized():
