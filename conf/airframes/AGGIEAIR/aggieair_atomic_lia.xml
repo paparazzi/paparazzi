@@ -4,8 +4,7 @@
 AggieAir Atomic Tangerine
 -->
 
-<airframe name="Atomic Tangerine">
-
+<airframe name="AggieAir Atomic Tangerine">
   <firmware name="fixedwing">
     <target name="ap" board="lisa_mx_2.1">
       <module name="radio_control" type="sbus">
@@ -91,7 +90,7 @@ AggieAir Atomic Tangerine
     <servo name="AILERON_LEFT"	no="2" min="2100" neutral="1500" max="900"/>
     <servo name="ELEVATOR"      no="3" min="975" neutral="1500" max="2100"/>
     <servo name="RUDDER"        no="4" min="2100" neutral="1500" max="900"/>
-    <servo name="FLAP"		no="0" min="1900" neutral="1500" max="900"/>
+    <servo name="FLAP"		no="0" min="990" neutral="1945" max="1945"/>
   </servos>
 
   <!-- Servo Command Structure -->
@@ -100,14 +99,14 @@ AggieAir Atomic Tangerine
     <axis name="ROLL"       failsafe_value="0"/>
     <axis name="PITCH"      failsafe_value="0"/>
     <axis name="YAW"          failsafe_value="0"/>
-    <axis name="FLAP"         failsafe_value="0"/>
+    <axis name="FLAP"         failsafe_value="9600"/>
   </commands>
 
   <!-- RC Command Structure -->
   <rc_commands>
     <set command="THROTTLE" value="@THROTTLE"/>
     <set command="ROLL"     value="@ROLL"/>
-    <set command="PITCH"    value=" - @PITCH"/>
+    <set command="PITCH"    value="@PITCH"/>
     <set command="YAW"	value="@YAW"/>
     <set command="FLAP"     value="@FLAP"/>
   </rc_commands>
@@ -115,7 +114,6 @@ AggieAir Atomic Tangerine
   <!-- Define RC commands to Servo in Auto Mode -->
   <auto_rc_commands>
     <set command="YAW"  value="@YAW"/>
-    <set command="FLAP"     value="@FLAP"/>
   </auto_rc_commands>
 
   <!-- Define Mixing Parameters -->
