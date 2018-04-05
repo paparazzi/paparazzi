@@ -88,25 +88,3 @@ class ToolsMenu(QtWidgets.QFrame):
         self.popup.move(bottomLeft)
         self.popup.show()
         self.popup.setFocus(QtCore.Qt.PopupFocusReason)
-
-    def plop(self):
-        self.add_item("plop 0", "ac.svg", lambda: print("btn 0 clicked!"))
-        self.add_item("plop 1", "ac.svg", lambda: print("btn 1 clicked!"))
-        self.add_item("plop 2", "ac.svg", lambda: print("btn 2 clicked!"))
-        self.add_item("plop 3", "ac.svg", lambda: print("btn 3 clicked!"))
-        self.add_item("plop 4", "ac.svg", lambda: print("btn 4 clicked!"))
-        self.add_item("plop 5", "ac.svg", lambda: print("btn 5 clicked!"))
-        self.add_item("plop 6", "ac.svg", lambda: print("btn 6 clicked!"))
-        self.add_item("plop 7", "ac.svg", lambda: print("btn 7 clicked!"))
-        self.add_item("plop 8", "ac.svg", lambda: print("btn 8 clicked!"))
-        self.add_item("plop 9", "ac.svg", lambda: print("btn 9 clicked!"))
-        self.add_item("plop 9", "ac.svg", lambda: print("btn 9 clicked!"))
-        self.add_item("plop 9", "ac.svg", lambda: print("btn 9 clicked!"))
-        self.add_item("plop 9", "ac.svg", lambda: print("btn 9 clicked!"))
-        self.add_item("plop 9", "ac.svg", lambda: print("btn 9 clicked!"))
-        self.add_item("plop 9", "ac.svg", lambda: print("btn 9 clicked!"))
-        self.add_item("plop 9", "ac.svg", lambda: print("btn 9 clicked!"))
-        self.add_item("plop 9", "ac.svg", lambda: print("btn 9 clicked!"))
-        self.add_item("plop 9", "ac.svg", lambda: print("btn 9 clicked!"))
-
-
