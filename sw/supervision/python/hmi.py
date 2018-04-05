@@ -546,12 +546,12 @@ class Hmi(Widgets.QMainWindow):
         -> Fill the 'Tools' menu with the names found in 'control_panel.xml'
         -> Connect each action to the corresponding tool process.
         """
-        sorted_names = parser.sorted_tools_names(self.data.tools)
-        for name in sorted_names:
-            command = functools.partial(self.add_program_to_session, self.data.tools[name])
-            icon_name = self.data.tools[name].icon
+        # The tools are sorted first by whether they are favorite or not, then by their names
+        for tool in sorted(self.data.tools.values(), key=lambda tool: (not tool.favorite, tool.name)):
+            command = functools.partial(self.add_program_to_session, tool)
+            icon_name = tool.icon
             icon_path = "/".join([env.PAPARAZZI_HOME, ICONS_TOOLS_PATH, icon_name])
-            self.ui.tools_menu.add_item(name, icon_path, command)
+            self.ui.tools_menu.add_item(tool.name, icon_path, command)
 
     def fullscreen_view(self):
         if self.isMaximized():

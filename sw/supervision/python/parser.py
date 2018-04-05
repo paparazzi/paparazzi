@@ -128,19 +128,24 @@ DEVICE_STRUCTURE = [(DEVICE, [],
 DEFAULT_DEVICE_NAME = " __Default__ "
 DEFAULT_DEVICE = db.Device(DEFAULT_DEVICE_NAME)
 
+# TOOLS
+TOOLS = "tools"
+
 # CONTROL_PANEL :
 CONTROL_PANEL = "control_panel"
 CONTROL_PANEL_FILE = CONTROL_PANEL + XML_EXT
 
 SECTION_REF = "section"
 PROGRAM_REF = "program"
+FAVORITE_PROGRAM_REF = "favorite_program"
 SESSION_REF = "session"
 COMMAND_REF = "command"
 ICON_REF = "icon"
 FLAG_REF = "flag"
 OPTION_REF = "arg"
 
-PROGRAM_TAG_REF = "/".join((SECTION_REF, PROGRAM_REF))
+PROGRAM_TAG_REF = PROGRAM_REF
+FAVORITE_PROGRAM_TAG_REF = "/".join((SECTION_REF, FAVORITE_PROGRAM_REF))
 SESSION_TAG_REF = "/".join((SECTION_REF, SESSION_REF))
 
 CONTROL_PANEL_STRUCTURE = [(CONTROL_PANEL, [NAME_REF],
@@ -384,12 +389,19 @@ def load_init_files(conf_path):
     """
     conf_files, devices_files = [], []
     cp_file = None
+    tools_file = None
     
     cp_path = conf_path + "/" + CONTROL_PANEL + XML_EXT
     if os.path.exists(cp_path):
         cp_file = cp_path
     else:
         raise Exception("%s not found!"% conf_path)
+
+    tools_path = conf_path + "/" + TOOLS + XML_EXT
+    if os.path.exists(tools_path):
+        tools_file = tools_path
+    else:
+        raise Exception("%s not found!" % tools_path)
     
     for root, dirs, files in os.walk(conf_path):
         for file in files:
@@ -418,7 +430,7 @@ def load_init_files(conf_path):
             LOGGER.debug(file)
         LOGGER.debug("'control_panel' file(s) :")
         LOGGER.debug(cp_file)
-    return conf_files, cp_file, devices_files, info
+    return conf_files, cp_file, tools_file, devices_files, info
 
 
 ###############################################################################
@@ -634,16 +646,16 @@ def parse_arg_option(option_tag):
     return option
 
 
-def parse_tools(cp_file):
+def parse_tools(tools_file):
     """
-    :param cp_file:
-    -> Parse all tools in the 'control_panel' file given.
+    :param tools_file:
+    -> Parse all tools in the 'tools' file given.
     -> Except an incorrect XML format and raise ERROR.
     """
     tools = {}
     try:
-        cp_tree = Et.parse(cp_file)
-        tools_tags = cp_tree.findall(PROGRAM_TAG_REF)
+        tree = Et.parse(tools_file)
+        tools_tags = tree.findall(PROGRAM_TAG_REF)
         for tool_tag in tools_tags:
             tool_name = tool_tag.get(NAME_REF)
             tool_command = tool_tag.get(COMMAND_REF)
@@ -657,8 +669,32 @@ def parse_tools(cp_file):
 
     except Et.ParseError as msg:
             LOGGER.error("ERROR in syntax of XML file : '%s'. "
-                         "Original message : '%s'.", cp_file, msg)
+                         "Original message : '%s'.", tools_file, msg)
     return tools
+
+
+def parse_favorite_tools(cp_file, tools):
+    """
+    :param cp_file: control_panel file, where favorite tools are.
+    :param tools: tools previously parsed, modified in this method
+    :return: The list of all favorite programs names
+    -> Parse all favorite tools in the 'cp_file' given.
+    """
+    favorite_tools = []
+    try:
+        tree = Et.parse(cp_file)
+        tools_tags = tree.findall(FAVORITE_PROGRAM_TAG_REF)
+        for tool_tag in tools_tags:
+            tool_name = tool_tag.get(NAME_REF)
+            favorite_tools.append(tool_name)
+
+    except Et.ParseError as msg:
+            LOGGER.error("ERROR in syntax of XML file : '%s'. "
+                         "Original message : '%s'.", cp_file, msg)
+    for tool_name in favorite_tools:
+        tools[tool_name].favorite = True
+
+    return favorite_tools
 
 
 def parse_sessions(cp_file, tools):
@@ -693,14 +729,16 @@ def parse_sessions(cp_file, tools):
     return sessions
 
 
-def load_sessions_and_programs(cp_file):
+def load_sessions_and_programs(cp_file, tools_file):
     """
     :param cp_file:
-    -> Parse the tools and sessions from the 'control_panel.xml' file.
+    :param tools_file:
+    -> Parse the tools and sessions from the 'tools.xml' and 'control_panel.xml' files.
     -> Add the default sessions 'simulation' & replay.
     -> Show the result of scan if DEBUG mode is on (main.py)
     """
-    tools = parse_tools(cp_file)
+    tools = parse_tools(tools_file)
+    parse_favorite_tools(cp_file, tools)
     sessions = parse_sessions(cp_file, tools)
 
     sessions[SIMULATION_SESSION.name] = SIMULATION_SESSION
@@ -766,6 +804,7 @@ class Data(object):
         self.conf_files = []
         self.devices_file = None
         self.cp_file = None
+        self.tools_file = None
 
         self.cache = {}
         self.configurations = {}
@@ -798,7 +837,7 @@ class Data(object):
 
     def load_conf_files(self):
         LOGGER.info("Scanning current directory...")
-        self.conf_files, self.cp_file, self.devices_file, load_info = \
+        self.conf_files, self.cp_file, self.tools_file, self.devices_file, load_info = \
             load_init_files(self.conf_path)
         LOGGER.debug(load_info)
         LOGGER.info("End of scan.\n")
@@ -821,10 +860,10 @@ class Data(object):
 
     def load_sessions_and_programs(self):
         LOGGER.info("Loading programs and sessions...")
-        if self.cp_file is not None:
+        if self.cp_file is not None and self.tools_file is not None:
             self.tools, self.sessions, \
-                load_info = load_sessions_and_programs(self.cp_file)
+                load_info = load_sessions_and_programs(self.cp_file, self.tools_file)
             LOGGER.debug(load_info)
             LOGGER.info("Programs and sessions loaded.\n")
         else:
-            LOGGER.error("ERROR : control_panel.xml not found!")
+            LOGGER.error("ERROR : control_panel.xml or tools.xml not found!")
