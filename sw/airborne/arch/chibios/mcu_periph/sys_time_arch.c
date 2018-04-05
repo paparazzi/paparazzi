@@ -94,8 +94,15 @@ uint32_t get_sys_time_msec(void)
  */
 void sys_time_usleep(uint32_t us)
 {
-  uint64_t wait_st = ((uint64_t)us * CH_CFG_ST_FREQUENCY) / 1000000UL;
-  chThdSleep((systime_t)wait_st);
+  if (us < 1000) {
+    // for small time, use the polled version instead of thread sleep
+    chSysLock();
+    chSysPolledDelayX(US2RTC(STM32_HCLK, us));
+    chSysUnlock();
+  } else {
+    uint64_t wait_st = ((uint64_t)us * CH_CFG_ST_FREQUENCY) / 1000000UL;
+    chThdSleep((systime_t)wait_st);
+  }
 }
 
 void sys_time_msleep(uint16_t ms)

@@ -45,7 +45,7 @@ void radio_control_impl_init(void)
 {
   spektrum_available = false;
 }
-void RadioControlEventImp(void (*frame_handler)(void))
+void spektrum_event(void (*frame_handler)(void))
 {
   if (spektrum_available) {
     radio_control.frame_cpt++;

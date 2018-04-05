@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2010 Eric Parsonage <eric@eparsonage.com>
+ * Copyright (C) 2009-2014 The Paparazzi Team
+ *               2016 Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -14,29 +15,26 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * @file subsystems/radio_control/spektrum_radio.h
  *
+ * Radio control channels defaults, because they are digital
  */
 
-#ifndef RADIO_CONTROL_SPEKTRUM_ARCH_H
-#define RADIO_CONTROL_SPEKTRUM_ARCH_H
+#ifndef RADIO_CONTROL_SPEKTRUM_RADIO_H
+#define RADIO_CONTROL_SPEKTRUM_RADIO_H
 
-
-/*
- * All Spektrum and JR 2.4 GHz transmitters
- * have the same channel assignments.
- */
-
-#define SPEKTRUM_NB_CHANNEL 12
-
+/* Amount of spektrum channels */
 #ifndef RADIO_CONTROL_NB_CHANNEL
-#define RADIO_CONTROL_NB_CHANNEL 12
+#define RADIO_CONTROL_NB_CHANNEL 14
 #endif
 
-#if RADIO_CONTROL_NB_CHANNEL > 12
-#error "RADIO_CONTROL_NB_CHANNEL mustn't be higher than 12."
+#if RADIO_CONTROL_NB_CHANNEL > 14
+#error "RADIO_CONTROL_NB_CHANNEL mustn't be higher than 14."
 #endif
 
 /* default channel assignments */
@@ -52,12 +50,8 @@
 #ifndef RADIO_YAW
 #define RADIO_YAW        3
 #endif
-#ifndef RADIO_GEAR
 #define RADIO_GEAR       4
-#endif
-#ifndef RADIO_FLAP
 #define RADIO_FLAP       5
-#endif
 #define RADIO_AUX1       5
 #define RADIO_AUX2       6
 #define RADIO_AUX3       7
@@ -65,25 +59,22 @@
 #define RADIO_AUX5       9
 #define RADIO_AUX6       10
 #define RADIO_AUX7       11
+#define RADIO_AUX8       12
+#define RADIO_AUX9       13
 
-/* reverse some channels to suit Paparazzi conventions          */
-/* the maximum number of channels a Spektrum can transmit is 12 */
-#ifndef RADIO_CONTROL_SPEKTRUM_SIGNS
-#ifdef RADIO_CONTROL_SPEKTRUM_OLD_SIGNS
-#define RADIO_CONTROL_SPEKTRUM_SIGNS {1,-1,-1,-1,1,-1,1,1,1,1,1,1} // As most transmitters are sold
-#else
-#define RADIO_CONTROL_SPEKTRUM_SIGNS {1,1,1,1,1,1,1,1,1,1,1,1} // PPRZ sign convention
-#endif
-#endif
-
-/* really for a 9 channel transmitter
-   we would swap the order of these */
+/* Default Mode channel is GEAR (number 5) */
 #ifndef RADIO_MODE
 #define RADIO_MODE       RADIO_GEAR
 #endif
 
-extern void RadioControlEventImp(void (*_received_frame_handler)(void));
-/* initialise the uarts used by the parser */
-void SpektrumUartInit(void);
+/* Possibility to reverse channels */
+#ifndef RADIO_CONTROL_SPEKTRUM_SIGNS
+//
+#ifdef RADIO_CONTROL_SPEKTRUM_OLD_SIGNS
+#define RADIO_CONTROL_SPEKTRUM_SIGNS {1,-1,-1,-1,1,-1,1,1,1,1,1,1,1,1} // As most transmitters are sold
+#else
+#define RADIO_CONTROL_SPEKTRUM_SIGNS {1,1,1,1,1,1,1,1,1,1,1,1,1,1} // PPRZ sign convention
+#endif
+#endif
 
-#endif /* RADIO_CONTROL_SPEKTRUM_ARCH_H */
+#endif /* RADIO_CONTROL_SPEKTRUM_RADIO_H */

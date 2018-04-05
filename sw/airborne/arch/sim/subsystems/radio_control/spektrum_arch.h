@@ -59,7 +59,8 @@
 #define RADIO_MODE       RADIO_GEAR
 #endif
 
-extern void RadioControlEventImp(void (*_received_frame_handler)(void));
+extern void spektrum_event(void (*_received_frame_handler)(void));
+#define RadioControlEventImp spektrum_event
 
 #if USE_NPS
 extern void radio_control_feed(void);
