@@ -30,13 +30,15 @@ import os
 import re
 import logging
 import time
+
+from typing import  List, Dict
 import shutil
 
 
 ###############################################################################
 # [Constants]
 
-STRINGS_FALSE = ["False", "false", "0", None, "nope", "nada"]
+STRINGS_FALSE = ["False", "false", None, "0", "nope", "nada"]
 
 LOGGER = logging.getLogger("[PARSER]")
 
@@ -148,7 +150,7 @@ ICON_REF = "icon"
 FLAG_REF = "flag"
 OPTION_REF = "arg"
 
-PROGRAM_TAG_REF = PROGRAM_REF
+PROGRAM_TAG_REF = "/".join((SECTION_REF, PROGRAM_REF))
 CUSTOM_PROGRAM_TAG_REF = "/".join((SECTION_REF, CUSTOM_PROGRAM_REF))
 SESSION_TAG_REF = "/".join((SECTION_REF, SESSION_REF))
 
@@ -650,7 +652,7 @@ def parse_arg_option(option_tag):
     return option
 
 
-def parse_tools(tools_file):
+def parse_tools_file(tools_file):
     """
     :param tools_file:
     -> Parse all tools in the 'tools' file given.
@@ -664,11 +666,16 @@ def parse_tools(tools_file):
             tool_name = tool_tag.get(NAME_REF)
             tool_command = tool_tag.get(COMMAND_REF)
             icon = tool_tag.get(ICON_REF)
+            fav = tool_tag.get(FAVORITE_REF)
+            favorite = fav if fav is None else (fav not in STRINGS_FALSE)
+            blackli = tool_tag.get(BLACKLISTED_REF)
+            blacklisted = blackli if blackli is None else (blackli not in STRINGS_FALSE)
+
             options = []
             for option_tag in tool_tag:
                 option = parse_arg_option(option_tag)
                 options.append(option)
-            tool_object = db.Program(tool_name, tool_command, options, icon)
+            tool_object = db.Program(tool_name, tool_command, options, icon, favorite=favorite, blacklisted=blacklisted)
             tools[tool_name] = tool_object
 
     except Et.ParseError as msg:
@@ -677,36 +684,29 @@ def parse_tools(tools_file):
     return tools
 
 
-def parse_custom_tools(cp_file, tools):
+def merge_tools(tools_orig: Dict[str, db.Program], tools_custom: Dict[str, db.Program]):
+    for tool in tools_custom.values():
+        name = tool.name
+        if tool.options:
+            tools_orig[name].options = tool.options
+        if tool.favorite is not None:
+            tools_orig[name].favorite = tool.favorite
+        if tool.blacklisted is not None:
+            tools_orig[name].blacklisted = tool.blacklisted
+    return tools_orig
+
+
+def parse_tools(tools_file, cp_file):
     """
     :param cp_file: control_panel file, where favorite tools are.
-    :param tools: tools previously parsed, modified in this method
+    :param tools_file:
     :return: The list of all favorite programs names
     -> Parse all favorite tools in the 'cp_file' given.
     """
-    favorite_tools = []
-    blacklisted_tools = []
-    try:
-        tree = Et.parse(cp_file)
-        tools_tags = tree.findall(CUSTOM_PROGRAM_TAG_REF)
-        for tool_tag in tools_tags:
-            tool_name = tool_tag.get(NAME_REF)
-            favorite = tool_tag.get(FAVORITE_REF) not in STRINGS_FALSE
-            blacklisted = tool_tag.get(BLACKLISTED_REF) not in STRINGS_FALSE
-            if favorite:
-                favorite_tools.append(tool_name)
-            # If the tool is blacklisted AND favorite, we keep it anyway.
-            if blacklisted and not favorite:
-                blacklisted_tools.append(tool_name)
-
-    except Et.ParseError as msg:
-            LOGGER.error("ERROR in syntax of XML file : '%s'. "
-                         "Original message : '%s'.", cp_file, msg)
-    for tool_name in favorite_tools:
-        tools[tool_name].favorite = True
-
-    for tool_name in blacklisted_tools:
-        tools[tool_name].blacklisted = True
+    tools = parse_tools_file(tools_file)
+    tools_custom = parse_tools_file(cp_file)
+    tools = merge_tools(tools, tools_custom)
+    return tools
 
 
 def parse_sessions(cp_file, tools):
@@ -749,8 +749,7 @@ def load_sessions_and_programs(cp_file, tools_file):
     -> Add the default sessions 'simulation' & replay.
     -> Show the result of scan if DEBUG mode is on (main.py)
     """
-    tools = parse_tools(tools_file)
-    parse_custom_tools(cp_file, tools)
+    tools = parse_tools(tools_file, cp_file)
     sessions = parse_sessions(cp_file, tools)
 
     sessions[SIMULATION_SESSION.name] = SIMULATION_SESSION

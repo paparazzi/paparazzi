@@ -8,7 +8,7 @@
       <arg flag="-b" constant="192.168.1.255:2010"/>
     </program>
     <program name="Link Combiner" command="sw/ground_segment/python/redundant_link/link_combiner.py"/>
-    <program name="GCS" command="sw/ground_segment/cockpit/gcs" icon="gcs.svg">
+    <program name="GCS" command="sw/ground_segment/cockpit/gcs" icon="gcs.svg" favorite="True">
       <arg flag="-layout" constant="large_left_col.xml"/>
       <arg flag="-osm"/>
     </program-->
@@ -16,7 +16,7 @@
     <program name="Flight Plan Editor" command="sw/ground_segment/cockpit/gcs">
       <arg flag="-edit"/>
     </program>
-    <program name="Messages" command="sw/ground_segment/tmtc/messages"/>
+    <program name="Messages" command="sw/ground_segment/tmtc/messages" favorite="True"/>
     <program name="Messages (Python)" command="sw/ground_segment/python/messages_app/messagesapp.py"/>
     <program name="Settings" command="sw/ground_segment/tmtc/settings">
       <arg flag="-ac" constant="@AIRCRAFT"/>
@@ -25,15 +25,15 @@
       <arg flag="--ac_id" constant="@AC_ID"/>
     </program>
     <program name="GPSd position display" command="sw/ground_segment/tmtc/gpsd2ivy"/>
-    <program name="Log Plotter" command="sw/logalizer/logplotter"/>
-    <program name="Real-time Plotter" command="sw/logalizer/plotter" icon="plotter.svg"/>
+    <program name="Log Plotter" command="sw/logalizer/logplotter" favorite="True"/>
+    <program name="Real-time Plotter" command="sw/logalizer/plotter" icon="plotter.svg" favorite="True"/>
     <program name="Real-time Plotter (Python)" command="sw/ground_segment/python/real_time_plot/realtimeplotapp.py" icon="plotter_python.svg"/>
     <program name="Log File Player" command="sw/logalizer/play"/>
-    <program name="Simulator" command="sw/simulator/pprzsim-launch" icon="simulator.png">
+    <program name="Simulator" command="sw/simulator/pprzsim-launch" icon="simulator.png" favorite="True">
       <arg flag="-a" constant="@AIRCRAFT"/>
     </program>
     <program name="Video Synchronizer" command="sw/ground_segment/misc/video_synchronizer"/>
-    <program name="Joystick" command="sw/ground_segment/joystick/input2ivy" icon="joystick.svg">
+    <program name="Joystick" command="sw/ground_segment/joystick/input2ivy" icon="joystick.svg" favorite="True">
       <arg flag="-ac" constant="@AIRCRAFT"/>
       <arg flag="xbox_gamepad.xml"/>
     </program>
@@ -69,7 +69,7 @@
     </program>
     <program name="OpenSky-Network Intruders" command="sw/ground_segment/python/opensky-network/opensky.py"/>
     <program name="SVInfo" command="sw/ground_segment/python/svinfo/svinfo.py"/>
-    <program name="IridiumDialer" command="sw/tools/iridium/iridium_link.py"/>
+    <program name="IridiumDialer" command="sw/tools/iridium/iridium_link.py" blacklisted="False"/>
     <program name="PayloadForward" command="sw/ground_segment/python/payload_forward/payload.py"/>
     <program name="AeronauticalInfo" command="sw/ground_segment/python/atc/atc.py"/>
     <program name="RtpViewer" command="sw/tools/rtp_viewer/rtp_viewer.py">
@@ -260,17 +260,6 @@
       </program>
     </session>
 
-  </section>
-  
-  <section name="favorite_programs">
-    <favorite_program name="GCS"/>
-    <favorite_program name="Server"/>
-    <favorite_program name="Data Link"/>
-    <favorite_program name="Messages"/>
-    <favorite_program name="Log Plotter" />
-    <favorite_program name="Real-time Plotter"/>
-    <favorite_program name="NatNet3"/>
-    <favorite_program name="Simulator"/>
   </section>
 
 </control_panel>

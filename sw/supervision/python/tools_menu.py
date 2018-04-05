@@ -6,7 +6,6 @@ POPUP_GRID_WIDTH = 4
 SC_MINIMUM_SIZE = (200, 130)
 ICON_NUMBER = 6
 
-
 class ToolList(QtWidgets.QScrollArea):
 
     def __init__(self):

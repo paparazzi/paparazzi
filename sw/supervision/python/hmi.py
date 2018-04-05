@@ -43,6 +43,8 @@ import shutil
 ###############################################################################
 # [Constants]
 
+DEFAULT_TOOL_ICON = "default_tool_icon.svg"
+
 LOGGER = logging.getLogger("[HMI]")
 
 CONF_PATH = env.PAPARAZZI_CONF
@@ -550,7 +552,7 @@ class Hmi(Widgets.QMainWindow):
         for tool in sorted(self.data.tools.values(), key=lambda tool: (not tool.favorite, tool.name)):
             if not tool.blacklisted:
                 command = functools.partial(self.add_program_to_session, tool)
-                icon_name = tool.icon
+                icon_name = tool.icon if tool.icon is not None else DEFAULT_TOOL_ICON
                 icon_path = "/".join([env.PAPARAZZI_HOME, ICONS_TOOLS_PATH, icon_name])
                 self.ui.tools_menu.add_item(tool.name, icon_path, command)
 
