@@ -2,6 +2,7 @@
 #
 # disco.makefile
 #
+# http://wiki.paparazziuav.org/wiki/Parrot_Disco
 #
 
 BOARD=disco
@@ -39,8 +40,8 @@ $(TARGET).srcs +=  $(SRC_BOARD)/board.c
 
 # Compile the video specific parts
 VIDEO_SRC = boards/bebop
-#$(TARGET).CFLAGS += -DI2C_BUF_LEN=56 -DUSE_I2C0
-#$(TARGET).srcs +=  $(VIDEO_SRC)/mt9v117.c $(VIDEO_SRC)/mt9f002.c modules/computer_vision/lib/isp/libisp.c modules/computer_vision/lib/isp/libisp_config.c
+$(TARGET).CFLAGS += -DI2C_BUF_LEN=56 -DUSE_I2C0
+$(TARGET).srcs +=  $(VIDEO_SRC)/mt9v117.c $(VIDEO_SRC)/mt9f002.c modules/computer_vision/lib/isp/libisp.c modules/computer_vision/lib/isp/libisp_config.c
 
 # Link static (Done for GLIBC)
 $(TARGET).CFLAGS += -DLINUX_LINK_STATIC
