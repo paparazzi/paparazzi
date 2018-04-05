@@ -102,7 +102,7 @@ void file_logger_periodic(void)
 
   /* Add and removed values here as wished to log */
 #ifdef COMMAND_THRUST
-  fprintf(file_logger, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
+  fprintf(file_logger, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
           counter,
           imu.gyro_unscaled.p,
           imu.gyro_unscaled.q,
@@ -114,7 +114,6 @@ void file_logger_periodic(void)
           imu.mag_unscaled.y,
           imu.mag_unscaled.z,
           stabilization_cmd[COMMAND_THRUST],
-          stabilization_cmd[COMMAND_THROTTLE],
           stabilization_cmd[COMMAND_ROLL],
           stabilization_cmd[COMMAND_PITCH],
           stabilization_cmd[COMMAND_YAW],
