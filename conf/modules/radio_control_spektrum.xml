@@ -19,7 +19,7 @@
     <configure name="RADIO_CONTROL_LED" default="none"/>
     <define name="RADIO_CONTROL_LED" value="$(RADIO_CONTROL_LED)" cond="ifneq ($(RADIO_CONTROL_LED),none)"/>
   </makefile>
-  <makefile target="fbw|hitl|test_radio_control">
+  <makefile target="fbw|test_radio_control">
     <define name="RADIO_CONTROL"/>
     <define name="RADIO_CONTROL_TYPE_H" value="subsystems/radio_control/spektrum.h" type="string"/>
     <define name="RADIO_CONTROL_BIND_IMPL_FUNC" value="spektrum_try_bind"/>
