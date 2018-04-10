@@ -43,7 +43,6 @@
 #define SPEKTRUM_MAX_FRAMES 2             ///< Maximum amount of RC frames containing different channels
 #define SPEKTRUM_MAX_CHANNELS (SPEKTRUM_CHANNELS_PER_FRAME * SPEKTRUM_MAX_FRAMES)
 #define SPEKTRUM_MIN_FRAME_SPACE  7       ///< Minum amount of time between frames (7ms), in fact either 11 or 22 ms
-#define SPEKTRUM_MAX_FRAME_TIME  4        ///< Maximum amount a frame takes to receive (4ms)
 
 /* Set the event function to the correct */
 #define RadioControlEvent(_received_frame_handler) spektrum_event(_received_frame_handler)

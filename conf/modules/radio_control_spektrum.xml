@@ -11,18 +11,17 @@
     <configure name="RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT" value="uartX" description="UART for primary spektrum receiver"/>
     <configure name="RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT" value="uartX" description="UART for optional secondary spektrum receiver"/>
     <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="0|1" description="enable secondary receiver (default: disabled)"/>
-    <define name="USE_DSMX" value="FALSE|TRUE" description="Set to true to use DSMX instead of DSM2"/>
   </doc>
   <header>
     <file name="spektrum.h" dir="subsystems/radio_control"/>
   </header>
-  <makefile target="ap|fbw|sim|nps|hitl|test_radio_control">
+  <makefile target="ap|fbw|sim|nps|test_radio_control">
     <configure name="RADIO_CONTROL_LED" default="none"/>
     <define name="RADIO_CONTROL_LED" value="$(RADIO_CONTROL_LED)" cond="ifneq ($(RADIO_CONTROL_LED),none)"/>
-    <define name="RADIO_CONTROL_TYPE_H" value="subsystems/radio_control/spektrum.h" type="string"/>
   </makefile>
   <makefile target="fbw|hitl|test_radio_control">
     <define name="RADIO_CONTROL"/>
+    <define name="RADIO_CONTROL_TYPE_H" value="subsystems/radio_control/spektrum.h" type="string"/>
     <define name="RADIO_CONTROL_BIND_IMPL_FUNC" value="spektrum_try_bind"/>
 
     <configure name="SPEKTRUM_PRIMARY_UART" value="$(RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT)" case="upper|lower"/>
@@ -42,6 +41,9 @@
 
     <file name="radio_control.c" dir="subsystems"/>
     <file name="spektrum.c" dir="subsystems/radio_control"/>
+  </makefile>
+  <makefile target="ap">
+    <define name="RADIO_CONTROL_TYPE_H" value="subsystems/radio_control/spektrum.h" type="string"/>
   </makefile>
   <makefile target="ap" cond="ifeq (,$(findstring $(SEPARATE_FBW),1 TRUE))">
     <define name="RADIO_CONTROL"/>
@@ -65,8 +67,9 @@
     <file name="radio_control.c" dir="subsystems"/>
     <file name="spektrum.c" dir="subsystems/radio_control"/>
   </makefile>
-  <makefile target="sim|nps">
+  <makefile target="sim|nps|hitl">
     <define name="RADIO_CONTROL"/>
+    <define name="RADIO_CONTROL_TYPE_H" value="subsystems/radio_control/spektrum_arch.h" type="string"/>
     <file name="radio_control.c" dir="subsystems"/>
     <file_arch name="spektrum_arch.c" dir="subsystems/radio_control"/>
   </makefile>

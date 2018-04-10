@@ -44,14 +44,6 @@
 /* Changed radio control order Notice */
 INFO("Radio-Control now follows PPRZ sign convention: this means you might need to reverese some channels in your transmitter: RollRight / PitchUp / YawRight / FullThrottle / Auto2 are positive deflections")
 
-/* Print maximum frame time for debugging */
-PRINT_CONFIG_VAR(SPEKTRUM_MAX_FRAME_TIME)
-
-/* Check if sys time is fast enough */
-#if (2000 / SPEKTRUM_MAX_FRAME_TIME) > SYS_TIME_FREQUENCY
-#error "The system timer frequency is too low for Spektrum, please define a higher SYS_TIME_FREQUENCY"
-#endif
-
 /* Number of low pulses sent during binding to the satellite receivers
  * As recommended, master and slave receivers are in DSMX 11ms mode,
  * other modes (DSM2, 22ms) will be automatically supported
@@ -71,10 +63,12 @@ PRINT_CONFIG_VAR(SPEKTRUM_MAX_FRAME_TIME)
 #define SPEKTRUM_BIND_WAIT 60000
 #endif
 
+// in case the number of channel is less than maximum
+const int8_t spektrum_signs[] = RADIO_CONTROL_SPEKTRUM_SIGNS;
+
 /* Default spektrum values */
 static struct spektrum_t spektrum = {
   .valid = false,
-  .signs = RADIO_CONTROL_SPEKTRUM_SIGNS,
   .tx_type = 0, // unknown type
 };
 
@@ -153,6 +147,11 @@ void spektrum_try_bind(void)
 /** Main Radio initialization */
 void radio_control_impl_init(void)
 {
+
+  for (uint8_t i = 0; i < RADIO_CONTROL_NB_CHANNEL; i++) {
+    spektrum.signs[i] = spektrum_signs[i];
+  }
+
   // Set polarity to normal on boards that can change this
 #ifdef RC_POLARITY_GPIO_PORT
   gpio_setup_output(RC_POLARITY_GPIO_PORT, RC_POLARITY_GPIO_PIN);

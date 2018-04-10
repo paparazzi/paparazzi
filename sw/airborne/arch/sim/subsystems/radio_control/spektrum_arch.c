@@ -27,7 +27,7 @@
  */
 
 #include "subsystems/radio_control.h"
-#include "subsystems/radio_control/spektrum.h"
+#include "subsystems/radio_control/spektrum_arch.h"
 #include "std.h"
 #include <inttypes.h>
 
@@ -38,8 +38,6 @@
 #endif
 
 static bool spektrum_available;
-
-void radio_control_spektrum_try_bind(void) {}
 
 void radio_control_impl_init(void)
 {
@@ -55,6 +53,8 @@ void spektrum_event(void (*frame_handler)(void))
   }
   spektrum_available = false;
 }
+
+void spektrum_try_bind(void) {}
 
 #if USE_NPS
 #ifdef RADIO_CONTROL
