@@ -302,7 +302,7 @@
    settings="settings/rotorcraft_basic.xml settings/modules/config_asctec_v2.xml"
    settings_modules="modules/geo_mag.xml modules/nav_survey_poly_rotorcraft.xml modules/nav_survey_rectangle_rotorcraft.xml modules/gps_ubx_ucenter.xml modules/switch_servo.xml modules/ahrs_float_mlkf.xml modules/stabilization_int_quat.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
    gui_color="blue"
-   release="2a6ad556f183875fa9fb8072d774beec7ba55701"
+   release="d603018c47baf05f7ed54d140b8fc40b272bdf9c"
   />
   <aircraft
    name="MAVTec4_Bart"
@@ -394,7 +394,7 @@
    settings="settings/fixedwing_basic.xml settings/estimation/ins_neutrals.xml settings/control/tune_agr_climb.xml"
    settings_modules="modules/digital_cam.xml modules/light.xml modules/gps.xml modules/nav_basic_fw.xml modules/guidance_basic_fw.xml modules/stabilization_attitude_fw.xml"
    gui_color="#b748fe64fe64"
-   release="7cf84458f9e2c7273215dfab122792d5e5813304"
+   release="51de434099295a06047e6e54f21036a8cabaa46a"
   />
   <aircraft
    name="Splash"
