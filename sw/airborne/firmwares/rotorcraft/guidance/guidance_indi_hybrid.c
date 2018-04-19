@@ -107,6 +107,7 @@ Butterworth2LowPass filt_accel_ned[3];
 Butterworth2LowPass roll_filt;
 Butterworth2LowPass pitch_filt;
 Butterworth2LowPass thrust_filt;
+Butterworth2LowPass accely_filt;
 
 struct FloatVect2 desired_airspeed;
 
@@ -121,7 +122,7 @@ float thrust_in;
 
 struct FloatVect3 speed_sp = {0.0, 0.0, 0.0};
 
-static void guidance_indi_propagate_filters(void);
+void guidance_indi_propagate_filters(void);
 static void guidance_indi_calcg_wing(struct FloatMat33 *Gmat);
 static float guidance_indi_get_liftd(float pitch, float theta);
 
@@ -138,12 +139,11 @@ double coef_b4[4] = {0.968439929009413,         -3.87375971603765,          5.81
 double coef_a4[4] = {-3.93586502144546,          5.80964371172319,          -3.8116542348822,         0.937875896099758};
 
 /**
- *
- * Call upon entering indi guidance
+ * @brief Init function
  */
-void guidance_indi_enter(void) {
-  thrust_in = 0.0;
-  thrust_act = 0;
+void guidance_indi_init(void)
+{
+  /*AbiBindMsgACCEL_SP(GUIDANCE_INDI_ACCEL_SP_ID, &accel_sp_ev, accel_sp_cb);*/
 
   float tau = 1.0/(2.0*M_PI*filter_cutoff);
   float sample_time = 1.0/PERIODIC_FREQUENCY;
@@ -153,18 +153,26 @@ void guidance_indi_enter(void) {
   init_butterworth_2_low_pass(&roll_filt, tau, sample_time, 0.0);
   init_butterworth_2_low_pass(&pitch_filt, tau, sample_time, 0.0);
   init_butterworth_2_low_pass(&thrust_filt, tau, sample_time, 0.0);
-
+  init_butterworth_2_low_pass(&accely_filt, tau, sample_time, 0.0);
   init_fourth_order_high_pass(&flap_accel_hp, coef_a2, coef_b2, 0);
+}
+
+/**
+ *
+ * Call upon entering indi guidance
+ */
+void guidance_indi_enter(void) {
+  thrust_in = 0.0;
+  thrust_act = 0;
 }
 
 #include "firmwares/rotorcraft/navigation.h"
 /**
- * @param in_flight in flight boolean
  * @param heading_sp the desired heading [rad]
  *
  * main indi guidance function
  */
-void guidance_indi_run(bool UNUSED in_flight, float *heading_sp) {
+void guidance_indi_run(float *heading_sp) {
 
   /*Obtain eulers with zxy rotation order*/
   float_eulers_of_quat_zxy(&eulers_zxy, stateGetNedToBodyQuat_f());
@@ -354,10 +362,6 @@ void guidance_indi_run(bool UNUSED in_flight, float *heading_sp) {
     accel_x = filt_accel_ned[0].o[0] - RMAT_ELMT(rot_mat, 0,0) * flap_accel_body_x;
     accel_y = filt_accel_ned[1].o[0] - RMAT_ELMT(rot_mat, 0,1) * flap_accel_body_x;
     accel_z = filt_accel_ned[2].o[0] - RMAT_ELMT(rot_mat, 0,2) * flap_accel_body_x;
-
-/*or: cosf(psi)cosf(theta)-sinf(theta)sinf(psi)sinf(phi), sinf(psi)cosf(theta)+sinf(theta)sinf(phi)cosf(psi), -sinf(theta)cosf(phi)*/
-    /*accel_x = filt_accel_ned[0].o[0] - (cosf(eulers_zxy.psi) - sinf(eulers_zxy.psi)) * (float) flap_accel_hp.o[0];*/
-    /*accel_y = filt_accel_ned[1].o[0] - (sinf(eulers_zxy.psi) + cosf(eulers_zxy.psi)) * (float) flap_accel_hp.o[0];*/
   } else {
     accel_x = filt_accel_ned[0].o[0];
     accel_y = filt_accel_ned[1].o[0];
@@ -466,6 +470,7 @@ void guidance_indi_filter_thrust(void)
  * Low pass the accelerometer measurements to remove noise from vibrations.
  * The roll and pitch also need to be filtered to synchronize them with the
  * acceleration
+ * Called as a periodic function with PERIODIC_FREQ
  */
 void guidance_indi_propagate_filters(void) {
   struct NedCoor_f *accel = stateGetAccelNed_f();
@@ -475,6 +480,10 @@ void guidance_indi_propagate_filters(void) {
 
   update_butterworth_2_low_pass(&roll_filt, eulers_zxy.phi);
   update_butterworth_2_low_pass(&pitch_filt, eulers_zxy.theta);
+
+  // Propagate filter for sideslip correction
+  float accely = ACCEL_FLOAT_OF_BFP(stateGetAccelBody_i()->y);
+  update_butterworth_2_low_pass(&accely_filt, accely);
 }
 
 /**

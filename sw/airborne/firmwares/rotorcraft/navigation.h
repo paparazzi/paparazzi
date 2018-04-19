@@ -113,6 +113,17 @@ extern void nav_run(void);
 
 extern void set_exception_flag(uint8_t flag_num);
 
+enum nav_source_def {NAV_GO, NAV_ACCEL, NAV_CIRCLE};
+extern enum nav_source_def nav_source;
+extern float nav_max_speed;
+extern bool force_forward;
+extern void scale_two_d(struct FloatVect3 *vect3, float bound);
+extern void scale_two_d_to_max(struct FloatVect3 *vect3, float max);
+extern struct FloatVect3 nav_get_speed_sp_from_go(struct EnuCoor_i target);
+extern struct FloatVect3 nav_get_speed_setpoint(void);
+extern struct FloatVect3 nav_get_speed_sp_from_accel(struct EnuCoor_i target);
+extern struct FloatVect3 nav_get_speed_sp_from_line(struct FloatVect2 line_v, struct FloatVect2 to_end_v, struct EnuCoor_i target);
+
 extern float get_dist2_to_waypoint(uint8_t wp_id);
 extern float get_dist2_to_point(struct EnuCoor_i *p);
 extern void compute_dist2_to_home(void);

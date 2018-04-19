@@ -29,12 +29,16 @@
 #include "firmwares/rotorcraft/guidance/guidance_hybrid.h"
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
 #include "firmwares/rotorcraft/guidance/guidance_flip.h"
-#include "firmwares/rotorcraft/guidance/guidance_indi.h"
 #include "firmwares/rotorcraft/guidance/guidance_module.h"
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
 #include "firmwares/rotorcraft/navigation.h"
 #include "subsystems/radio_control.h"
+#if GUIDANCE_INDI_HYBRID
+#include "firmwares/rotorcraft/guidance/guidance_indi_hybrid.h"
+#else
+#include "firmwares/rotorcraft/guidance/guidance_indi.h"
+#endif
 
 #include "firmwares/rotorcraft/stabilization/stabilization_none.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_rate.h"
