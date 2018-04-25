@@ -80,7 +80,6 @@ PRINT_CONFIG_VAR(GUIDANCE_H_USE_SPEED_REF)
 struct HorizontalGuidance guidance_h;
 
 int32_t transition_percentage;
-int32_t transition_theta_offset;
 
 /*
  * internal variables
