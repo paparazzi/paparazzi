@@ -81,6 +81,12 @@ PRINT_CONFIG_VAR(GUIDANCE_H_USE_SPEED_REF)
 #define GUIDANCE_INDI FALSE
 #endif
 
+// Navigation can set heading freely
+// This is false if sideslip is a problem
+#ifndef GUIDANCE_HEADING_IS_FREE
+#define GUIDANCE_HEADING_IS_FREE TRUE
+#endif
+
 struct HorizontalGuidance guidance_h;
 
 int32_t transition_percentage;
@@ -602,9 +608,11 @@ void guidance_h_from_nav(bool in_flight)
 
     guidance_h_update_reference();
 
+#if GUIDANCE_HEADING_IS_FREE
     /* set psi command */
     guidance_h.sp.heading = ANGLE_FLOAT_OF_BFP(nav_heading);
     FLOAT_ANGLE_NORMALIZE(guidance_h.sp.heading);
+#endif
 
 #if GUIDANCE_INDI
     guidance_indi_run(guidance_h.sp.heading);

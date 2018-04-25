@@ -237,6 +237,9 @@ void nav_init(void)
   dist2_to_home = 0;
   dist2_to_wp = 0;
 
+  FLOAT_VECT2_ZERO(line_vect);
+  FLOAT_VECT2_ZERO(to_end_vect);
+
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ROTORCRAFT_NAV_STATUS, send_nav_status);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WP_MOVED, send_wp_moved);

@@ -279,10 +279,14 @@ extern uint8_t nav_oval_count;
 
 /*********** Navigation along a line *************************************/
 extern void nav_route(struct EnuCoor_i *wp_start, struct EnuCoor_i *wp_end);
+extern struct FloatVect2 line_vect, to_end_vect;
 static inline void NavSegment(uint8_t wp_start, uint8_t wp_end)
 {
+  VECT2_DIFF(line_vect, waypoints[wp_end].enu_f, waypoints[wp_start].enu_f);
+  VECT2_DIFF(to_end_vect, waypoints[wp_end].enu_f, *stateGetPositionEnu_f());
+  VECT3_COPY(navigation_target, waypoints[wp_end].enu_i);
   horizontal_mode = HORIZONTAL_MODE_ROUTE;
-  nav_route(&waypoints[wp_start].enu_i, &waypoints[wp_end].enu_i);
+  //nav_route(&waypoints[wp_start].enu_i, &waypoints[wp_end].enu_i);
 }
 
 /** Nav glide routine */

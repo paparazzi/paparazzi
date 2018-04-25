@@ -66,14 +66,6 @@
           <property name="size" value="15."/>
           <property name="color" value="#00ff00"/>
         </papget>
-        <papget type="message_field" display="text" x="926" y="2">
-          <property name="scale" value="1."/>
-          <property name="field" value="AIR_DATA:airspeed"/>
-          <property name="ac_id" value="replay6"/>
-          <property name="format" value="AS %.2f kts"/>
-          <property name="size" value="15."/>
-          <property name="color" value="#00ff00"/>
-        </papget>
         <papget type="message_field" display="text" x="924" y="46">
           <property name="scale" value="3.28084"/>
           <property name="field" value="AIR_DATA:amsl_baro"/>
@@ -104,7 +96,7 @@
           <property name="color" value="#00ff00"/>
         </papget>
         <papget type="message_field" display="text" x="130" y="47">
-          <property name="scale" value="1.94384"/>
+          <property name="scale" value="1"/>
           <property name="field" value="AIR_DATA:airspeed"/>
           <property name="format" value="AS %.2f m/s"/>
           <property name="size" value="15."/>
