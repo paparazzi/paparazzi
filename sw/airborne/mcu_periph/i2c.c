@@ -247,6 +247,7 @@ void i2c_init(struct i2c_periph *p)
   p->trans_insert_idx = 0;
   p->trans_extract_idx = 0;
   p->status = I2CIdle;
+  p->reg_addr = NULL;
 
 #if PERIODIC_TELEMETRY
   // the first to register do it for the others
