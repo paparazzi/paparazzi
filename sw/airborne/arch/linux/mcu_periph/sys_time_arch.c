@@ -39,7 +39,6 @@
 #define SYS_TIME_THREAD_PRIO 29
 #endif
 
-pthread_t sys_time_thread;
 static struct timespec startup_time;
 
 static void sys_tick_handler(void);
@@ -78,7 +77,7 @@ void *sys_time_thread_main(void *data)
     unsigned long long missed;
     /* Wait for the next timer event. If we have missed any the
 	   number is written to "missed" */
-	int r = read(fd, &missed, sizeof(missed));
+	  int r = read(fd, &missed, sizeof(missed));
     if (r == -1) {
       perror("Couldn't read timer!");
     }
@@ -98,11 +97,13 @@ void sys_time_arch_init(void)
 
   clock_gettime(CLOCK_MONOTONIC, &startup_time);
 
-  int ret = pthread_create(&sys_time_thread, NULL, sys_time_thread_main, NULL);
+  pthread_t tid;
+  int ret = pthread_create(&tid, NULL, sys_time_thread_main, NULL);
   if (ret) {
     perror("Could not setup sys_time_thread");
     return;
   }
+  pthread_setname_np(tid, "pprz_sys_time_thread");
 }
 
 static void sys_tick_handler(void)

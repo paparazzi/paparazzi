@@ -116,12 +116,14 @@ void board_init(void)
   if (pthread_create(&bat_thread, NULL, bat_read, NULL) != 0) {
     printf("[swing_board] Could not create battery reading thread!\n");
   }
+  pthread_setname_np(bat_thread, "pprz_bat_thread");
 
   /* Start button reading thread */
   pthread_t button_thread;
   if (pthread_create(&button_thread, NULL, button_read, NULL) != 0) {
     printf("[swing_board] Could not create button reading thread!\n");
   }
+  pthread_setname_np(button_thread, "pprz_button_thread");
 
 }
 

@@ -97,7 +97,7 @@ struct video_listener *cv_add_to_device_async(struct video_config_t *device, cv_
 
   // Create new processing thread
   pthread_create(&listener->async->thread_id, NULL, cv_async_thread, listener);
-
+  pthread_setname_np(listener->async->thread_id, "pprz_camera_thread");
   return listener;
 }
 
