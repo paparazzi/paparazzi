@@ -477,9 +477,9 @@ void float_quat_derivative_lagrange(struct FloatQuat *qd, struct FloatRates *r, 
 void float_quat_of_eulers(struct FloatQuat *q, struct FloatEulers *e)
 {
 
-  const float phi2   = e->phi / 2.0;
-  const float theta2 = e->theta / 2.0;
-  const float psi2   = e->psi / 2.0;
+  const float phi2   = e->phi / 2.f;
+  const float theta2 = e->theta / 2.f;
+  const float psi2   = e->psi / 2.f;
 
   const float s_phi2   = sinf(phi2);
   const float c_phi2   = cosf(phi2);
@@ -503,9 +503,9 @@ void float_quat_of_eulers(struct FloatQuat *q, struct FloatEulers *e)
  */
 void float_quat_of_eulers_zxy(struct FloatQuat *q, struct FloatEulers *e)
 {
-  const float phi2   = e->phi / 2.0;
-  const float theta2 = e->theta / 2.0;
-  const float psi2   = e->psi / 2.0;
+  const float phi2   = e->phi / 2.f;
+  const float theta2 = e->theta / 2.f;
+  const float psi2   = e->psi / 2.f;
 
   const float s_phi2   = sinf(phi2);
   const float c_phi2   = cosf(phi2);
@@ -531,9 +531,9 @@ void float_quat_of_eulers_zxy(struct FloatQuat *q, struct FloatEulers *e)
  */
 void float_quat_of_eulers_yxz(struct FloatQuat *q, struct FloatEulers *e)
 {
-  const float phi2   = e->phi / 2.0;
-  const float theta2 = e->theta / 2.0;
-  const float psi2   = e->psi / 2.0;
+  const float phi2   = e->phi / 2.f;
+  const float theta2 = e->theta / 2.f;
+  const float psi2   = e->psi / 2.f;
 
   const float s_phi2   = sinf(phi2);
   const float c_phi2   = cosf(phi2);
@@ -686,10 +686,10 @@ void float_eulers_of_quat_yxz(struct FloatEulers *e, struct FloatQuat *q)
   const float qxqy = q->qx * q->qy;
   const float qxqz = q->qx * q->qz;
   const float qyqz = q->qy * q->qz;
-  const float r11  = 2 * (qxqz + qiqy);
+  const float r11  = 2.f * (qxqz + qiqy);
   const float r12  = qi2 - qx2 + qy2 + qz2;
-  const float r21  = -2 * (qyqz - qiqx);
-  const float r31  = 2 * (qxqy + qiqz);
+  const float r21  = -2.f * (qyqz - qiqx);
+  const float r31  = 2.f * (qxqy + qiqz);
   const float r32  = qi2 - qx2 + qy2 - qz2;
 
   e->theta = atan2f(r11, r12);
