@@ -106,7 +106,6 @@ struct HorizontalGuidance {
 extern struct HorizontalGuidance guidance_h;
 
 extern int32_t transition_percentage;
-extern int32_t transition_theta_offset;
 
 extern void guidance_h_init(void);
 extern void guidance_h_mode_changed(uint8_t new_mode);
