@@ -43,7 +43,11 @@
 #define STM32_HSI_ENABLED                   TRUE
 #define STM32_LSI_ENABLED                   FALSE
 #define STM32_HSE_ENABLED                   TRUE
+#if HAL_USE_RTC // disable LSE init if not needed to start faster
 #define STM32_LSE_ENABLED                   TRUE
+#else
+#define STM32_LSE_ENABLED                   FALSE
+#endif
 #define STM32_CLOCK48_REQUIRED              TRUE
 #define STM32_SW                            STM32_SW_PLL
 #define STM32_PLLSRC                        STM32_PLLSRC_HSE
@@ -54,7 +58,11 @@
 #define STM32_HPRE                          STM32_HPRE_DIV1
 #define STM32_PPRE1                         STM32_PPRE1_DIV4
 #define STM32_PPRE2                         STM32_PPRE2_DIV2
+#if HAL_USE_RTC
 #define STM32_RTCSEL                        STM32_RTCSEL_LSE
+#else
+#define STM32_RTCSEL                        STM32_RTCSEL_NOCLOCK
+#endif
 #define STM32_RTCPRE_VALUE                  25
 #define STM32_MCO1SEL                       STM32_MCO1SEL_HSE
 #define STM32_MCO1PRE                       STM32_MCO1PRE_DIV1

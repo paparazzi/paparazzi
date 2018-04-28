@@ -18,7 +18,7 @@ UBX GPS / HMC58XX mag (drotek)
       <configure name="PERIODIC_FREQUENCY" value="100"/>
     </target>
     <target name="sim" board="pc">
-      <module name="radio_control" type="ppm"/>
+      <module name="radio_control" type="spektrum"/>
     </target>
 
     <!-- Communication -->

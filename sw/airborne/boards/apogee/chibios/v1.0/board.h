@@ -918,6 +918,28 @@
 #define PPM_TIMER ICUD1
 
 /*
+ * Spektrum
+ */
+
+// shorter wait with chibios as the RTC oscillator takes longer to stabilize
+#define SPEKTRUM_BIND_WAIT 30000
+
+/* The line that is pulled low at power up to initiate the bind process
+ * PB15: AUX4
+ */
+#define SPEKTRUM_BIND_PIN GPIO15
+#define SPEKTRUM_BIND_PIN_PORT GPIOB
+
+/* The line used to send the pulse train for the bind process
+ * When using UART2 on Apogee, this as to be a different pin than the uart2 rx
+ * Default pin for this is PA8: PPM_IN
+ */
+#ifndef SPEKTRUM_PRIMARY_BIND_CONF_PORT
+#define SPEKTRUM_PRIMARY_BIND_CONF_PORT GPIOA
+#define SPEKTRUM_PRIMARY_BIND_CONF_PIN GPIO8
+#endif
+
+/*
  * PWM input
  */
 // PWM_INPUT 1 on PA8 (also PPM IN)
