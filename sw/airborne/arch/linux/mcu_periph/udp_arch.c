@@ -29,6 +29,10 @@
 #include <stdio.h>
 #include <errno.h>
 
+#ifndef _GNU_SOURCE
+// for pthread_setname_np
+#define _GNU_SOURCE
+#endif
 #include <pthread.h>
 #include <sys/select.h>
 

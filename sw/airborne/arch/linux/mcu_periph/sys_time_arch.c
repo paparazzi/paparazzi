@@ -26,9 +26,15 @@
 
 #include "mcu_periph/sys_time.h"
 #include <stdio.h>
-#include <pthread.h>
+
 #include <sys/timerfd.h>
 #include <time.h>
+
+#ifndef _GNU_SOURCE
+// for pthread_setname_np
+#define _GNU_SOURCE
+#endif
+#include <pthread.h>
 #include "rt_priority.h"
 
 #ifdef SYS_TIME_LED

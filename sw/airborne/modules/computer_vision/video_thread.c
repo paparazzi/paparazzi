@@ -50,6 +50,7 @@
 #endif
 
 // Threaded computer vision
+#define _GNU_SOURCE
 #include <pthread.h>
 #include "rt_priority.h"
 
