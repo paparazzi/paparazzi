@@ -47,70 +47,21 @@
 #endif
 
 static void *i2c_thread(void *thread_data);
-static bool i2c_threads_initialized = false;
 
-struct i2c_thread_data_t
-{
-  struct i2c_periph *p;
+// private I2C init structure
+struct i2c_thread_t {
   pthread_mutex_t mutex;
   pthread_cond_t condition;
 };
 
-#define N_I2C 4
-struct i2c_thread_data_t i2c_threads_data[N_I2C];
-
-static void i2c_arch_init(void)
+static void i2c_arch_init(struct i2c_periph *p)
 {
-  if (i2c_threads_initialized){
-    return;
-  }
-
   pthread_t tid;
-
-  /* initialise thread data array*/
-  for (int i = 0; i < N_I2C; i++){
-    i2c_threads_data[i].p = NULL;
-    pthread_mutex_init(&i2c_threads_data[i].mutex, NULL);
-    pthread_cond_init(&i2c_threads_data[i].condition, NULL);
-  }
-
-#if USE_I2C0
-  i2c_threads_data[0].p = &i2c0;
-  if (pthread_create(&tid, NULL, i2c_thread, (void*)(&i2c_threads_data[0])) != 0) {
+  if (pthread_create(&tid, NULL, i2c_thread, (void*)p) != 0) {
     fprintf(stderr, "i2c_arch_init: Could not create I2C thread.\n");
     return;
   }
-  pthread_setname_np(tid, "pprz_i2c0_thread");
-#endif
-
-#if USE_I2C1
-  i2c_threads_data[1].p = &i2c1;
-  if (pthread_create(&tid, NULL, i2c_thread, (void*)(&i2c_threads_data[1])) != 0) {
-    fprintf(stderr, "i2c_arch_init: Could not create I2C thread.\n");
-    return;
-  }
-  pthread_setname_np(tid, "pprz_i2c1_thread");
-#endif
-
-#if USE_I2C2
-  i2c_threads_data[2].p = &i2c2;
-  if (pthread_create(&tid, NULL, i2c_thread, (void*)(&i2c_threads_data[2])) != 0) {
-    fprintf(stderr, "i2c_arch_init: Could not create I2C thread.\n");
-    return;
-  }
-  pthread_setname_np(tid, "pprz_i2c2_thread");
-#endif
-
-#if USE_I2C3
-  i2c_threads_data[3].p = &i2c3;
-  if (pthread_create(&tid, NULL, i2c_thread, (void*)(&i2c_threads_data[3])) != 0) {
-    fprintf(stderr, "i2c_arch_init: Could not create I2C thread.\n");
-    return;
-  }
-  pthread_setname_np(tid, "pprz_i2c3_thread");
-#endif
-
-  i2c_threads_initialized = true;
+  pthread_setname_np(tid, "pprz_i2c_thread");
 }
 
 void i2c_event(void)
@@ -128,26 +79,18 @@ bool i2c_idle(struct i2c_periph *p __attribute__((unused)))
 
 bool i2c_submit(struct i2c_periph *p, struct i2c_transaction *t)
 {
-  static uint8_t temp;
-  static pthread_mutex_t *i2c_mutex;
-  static pthread_cond_t *condition;
+  // get mutex lock and condition
+  pthread_mutex_t *mutex = &(((struct i2c_thread_t*)(p->init_struct))->mutex);
+  pthread_cond_t *condition = &(((struct i2c_thread_t*)(p->init_struct))->condition);
 
-  // find mutex lock and condition for the appropriate thread
-  for (int i = 0; i < N_I2C; i++){
-    if (i2c_threads_data[i].p == p)
-    {
-      i2c_mutex = &(i2c_threads_data[i].mutex);
-      condition = &(i2c_threads_data[i].condition);
-    }
-  }
-
-  pthread_mutex_lock(i2c_mutex);
-  temp = (p->trans_insert_idx + 1) % I2C_TRANSACTION_QUEUE_LEN;
-  if (temp == p->trans_extract_idx) {
+  uint8_t next_idx;
+  pthread_mutex_lock(mutex);
+  next_idx = (p->trans_insert_idx + 1) % I2C_TRANSACTION_QUEUE_LEN;
+  if (next_idx == p->trans_extract_idx) {
     // queue full
     p->errors->queue_full_cnt++;
     t->status = I2CTransFailed;
-    pthread_mutex_unlock(i2c_mutex);
+    pthread_mutex_unlock(mutex);
     return false;
   }
 
@@ -155,11 +98,11 @@ bool i2c_submit(struct i2c_periph *p, struct i2c_transaction *t)
 
   /* put transaction in queue */
   p->trans[p->trans_insert_idx] = t;
-  p->trans_insert_idx = temp;
+  p->trans_insert_idx = next_idx;
 
   /* wake handler thread */
   pthread_cond_signal(condition);
-  pthread_mutex_unlock(i2c_mutex);
+  pthread_mutex_unlock(mutex);
 
   return true;
 }
@@ -169,7 +112,7 @@ bool i2c_submit(struct i2c_periph *p, struct i2c_transaction *t)
  */
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-qual"
-static void *i2c_thread(void *thread_data)
+static void *i2c_thread(void *data)
 {
   struct i2c_msg trx_msgs[2];
   struct i2c_rdwr_ioctl_data trx_data = {
@@ -179,21 +122,24 @@ static void *i2c_thread(void *thread_data)
 
   get_rt_prio(I2C_THREAD_PRIO);
 
-  struct i2c_thread_data_t *data = (struct i2c_thread_data_t*)thread_data;
+  struct i2c_periph *p = (struct i2c_periph*)data;
+  pthread_mutex_t *mutex = &(((struct i2c_thread_t*)(p->init_struct))->mutex);
+  pthread_cond_t *condition = &(((struct i2c_thread_t*)(p->init_struct))->condition);
 
   while (1)
   {
     /* wait for data to transfer */
-    pthread_mutex_lock(&data->mutex);
-    if (data->p->trans_insert_idx == data->p->trans_extract_idx) {
-      pthread_cond_wait(&data->condition, &data->mutex);
+    pthread_mutex_lock(mutex);
+    if (p->trans_insert_idx == p->trans_extract_idx) {
+      pthread_cond_wait(condition, mutex);
     }
 
-    int fd = (int)data->p->reg_addr;
+    int fd = (int)p->reg_addr;
 
-    struct i2c_transaction *t = data->p->trans[data->p->trans_extract_idx];
-    pthread_mutex_unlock(&data->mutex);
+    struct i2c_transaction *t = p->trans[p->trans_extract_idx];
+    pthread_mutex_unlock(mutex);
 
+    t->status = I2CTransSuccess;
     // Switch the different transaction types
     switch (t->type) {
       // Just transmitting
@@ -202,12 +148,10 @@ static void *i2c_thread(void *thread_data)
       ioctl(fd, I2C_SLAVE, t->slave_addr >> 1);
       if (write(fd, (uint8_t *)t->buf, t->len_w) < 0) {
         /* if write failed, increment error counter ack_fail_cnt */
-        pthread_mutex_lock(&data->mutex);
-        data->p->errors->ack_fail_cnt++;
-        pthread_mutex_unlock(&data->mutex);
+        pthread_mutex_lock(mutex);
+        p->errors->ack_fail_cnt++;
+        pthread_mutex_unlock(mutex);
         t->status = I2CTransFailed;
-      } else {
-        t->status = I2CTransSuccess;
       }
       break;
       // Just reading
@@ -216,12 +160,10 @@ static void *i2c_thread(void *thread_data)
       ioctl(fd, I2C_SLAVE, t->slave_addr >> 1);
       if (read(fd, (uint8_t *)t->buf, t->len_r) < 0) {
         /* if read failed, increment error counter arb_lost_cnt */
-        pthread_mutex_lock(&data->mutex);
-        data->p->errors->arb_lost_cnt++;
-        pthread_mutex_unlock(&data->mutex);
+        pthread_mutex_lock(mutex);
+        p->errors->arb_lost_cnt++;
+        pthread_mutex_unlock(mutex);
         t->status = I2CTransFailed;
-      } else {
-        t->status = I2CTransSuccess;
       }
       break;
       // First Transmit and then read with repeated start
@@ -236,31 +178,27 @@ static void *i2c_thread(void *thread_data)
       trx_msgs[1].buf = (void*) t->buf;
       if (ioctl(fd, I2C_RDWR, &trx_data) < 0) {
         /* if write/read failed, increment error counter miss_start_stop_cnt */
-        pthread_mutex_lock(&data->mutex);
-        data->p->errors->miss_start_stop_cnt++;
-        pthread_mutex_unlock(&data->mutex);
+        pthread_mutex_lock(mutex);
+        p->errors->miss_start_stop_cnt++;
+        pthread_mutex_unlock(mutex);
         t->status = I2CTransFailed;
-      } else {
-        t->status = I2CTransSuccess;
       }
       break;
     default:
       break;
     }
 
-    if(t->status == I2CTransSuccess) {
-      pthread_mutex_lock(&data->mutex);
-      data->p->trans_extract_idx = (data->p->trans_extract_idx + 1) % I2C_TRANSACTION_QUEUE_LEN;
-      pthread_mutex_unlock(&data->mutex);
-    }
+    pthread_mutex_lock(mutex);
+    p->trans_extract_idx = (p->trans_extract_idx + 1) % I2C_TRANSACTION_QUEUE_LEN;
+    pthread_mutex_unlock(mutex);
   }
-
   return NULL;
 }
 #pragma GCC diagnostic pop
 
 #if USE_I2C0
 struct i2c_errors i2c0_errors;
+struct i2c_thread_t i2c0_thread;
 
 void i2c0_hw_init(void)
 {
@@ -270,12 +208,17 @@ void i2c0_hw_init(void)
   /* zeros error counter */
   ZEROS_ERR_COUNTER(i2c0_errors);
 
-  i2c_arch_init();
+  pthread_mutex_init(&i2c0_thread.mutex, NULL);
+  pthread_cond_init(&i2c0_thread.condition, NULL);
+  i2c0.init_struct = (void*)(&i2c0_thread);
+
+  i2c_arch_init(&i2c0);
 }
 #endif
 
 #if USE_I2C1
 struct i2c_errors i2c1_errors;
+struct i2c_thread_t i2c1_thread;
 
 void i2c1_hw_init(void)
 {
@@ -285,12 +228,17 @@ void i2c1_hw_init(void)
   /* zeros error counter */
   ZEROS_ERR_COUNTER(i2c1_errors);
 
-  i2c_arch_init();
+  pthread_mutex_init(&i2c1_thread.mutex, NULL);
+  pthread_cond_init(&i2c1_thread.condition, NULL);
+  i2c1.init_struct = (void*)(&i2c1_thread);
+
+  i2c_arch_init(&i2c1);
 }
 #endif
 
 #if USE_I2C2
 struct i2c_errors i2c2_errors;
+struct i2c_thread_t i2c2_thread;
 
 void i2c2_hw_init(void)
 {
@@ -300,12 +248,17 @@ void i2c2_hw_init(void)
   /* zeros error counter */
   ZEROS_ERR_COUNTER(i2c2_errors);
 
-  i2c_arch_init();
+  pthread_mutex_init(&i2c2_thread.mutex, NULL);
+  pthread_cond_init(&i2c2_thread.condition, NULL);
+  i2c2.init_struct = (void*)(&i2c2_thread);
+
+  i2c_arch_init(&i2c2);
 }
 #endif
 
 #if USE_I2C3
 struct i2c_errors i2c3_errors;
+struct i2c_thread_t i2c3_thread;
 
 void i2c3_hw_init(void)
 {
@@ -315,7 +268,11 @@ void i2c3_hw_init(void)
   /* zeros error counter */
   ZEROS_ERR_COUNTER(i2c3_errors);
 
-  i2c_arch_init();
+  pthread_mutex_init(&i2c3_thread.mutex, NULL);
+  pthread_cond_init(&i2c3_thread.condition, NULL);
+  i2c3.init_struct = (void*)(&i2c3_thread);
+
+  i2c_arch_init(&i2c3);
 }
 #endif
 
