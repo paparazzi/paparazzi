@@ -139,7 +139,6 @@ static void *i2c_thread(void *data)
     struct i2c_transaction *t = p->trans[p->trans_extract_idx];
     pthread_mutex_unlock(mutex);
 
-    t->status = I2CTransSuccess;
     // Switch the different transaction types
     switch (t->type) {
       // Just transmitting
@@ -152,6 +151,8 @@ static void *i2c_thread(void *data)
         p->errors->ack_fail_cnt++;
         pthread_mutex_unlock(mutex);
         t->status = I2CTransFailed;
+      } else {
+        t->status = I2CTransSuccess;
       }
       break;
       // Just reading
@@ -164,6 +165,8 @@ static void *i2c_thread(void *data)
         p->errors->arb_lost_cnt++;
         pthread_mutex_unlock(mutex);
         t->status = I2CTransFailed;
+      } else {
+        t->status = I2CTransSuccess;
       }
       break;
       // First Transmit and then read with repeated start
@@ -182,9 +185,12 @@ static void *i2c_thread(void *data)
         p->errors->miss_start_stop_cnt++;
         pthread_mutex_unlock(mutex);
         t->status = I2CTransFailed;
+      } else {
+        t->status = I2CTransSuccess;
       }
       break;
     default:
+      t->status = I2CTransFailed;
       break;
     }
 
