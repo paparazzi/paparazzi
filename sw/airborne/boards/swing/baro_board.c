@@ -32,6 +32,10 @@
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
+#ifndef _GNU_SOURCE
+// for pthread_setname_np
+#define _GNU_SOURCE
+#endif
 #include <pthread.h>
 #include <linux/input.h>
 
@@ -81,6 +85,7 @@ void baro_init(void)
   if (pthread_create(&baro_thread, NULL, baro_read, NULL) != 0) {
     printf("[swing_board] Could not create baro reading thread!\n");
   }
+  pthread_setname_np(baro_thread, "pprz_baro_thread");
 
 }
 

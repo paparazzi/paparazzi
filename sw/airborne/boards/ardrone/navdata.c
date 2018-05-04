@@ -39,6 +39,10 @@
 #include <math.h>
 #include <errno.h>
 #include <assert.h>
+#ifndef _GNU_SOURCE
+// for pthread_setname_np
+#define _GNU_SOURCE
+#endif
 #include <pthread.h>
 
 #include "std.h"
@@ -236,6 +240,7 @@ bool navdata_init()
     printf("[navdata] Could not create navdata reading thread!\n");
     return false;
   }
+  pthread_setname_np(navdata_thread, "pprz_navdata_thread");
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ARDRONE_NAVDATA, send_navdata);

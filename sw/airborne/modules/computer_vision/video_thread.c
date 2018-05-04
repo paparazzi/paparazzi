@@ -50,6 +50,10 @@
 #endif
 
 // Threaded computer vision
+#ifndef _GNU_SOURCE
+// for pthread_setname_np
+#define _GNU_SOURCE
+#endif
 #include <pthread.h>
 #include "rt_priority.h"
 
@@ -235,6 +239,7 @@ static void start_video_thread(struct video_config_t *camera)
       printf("[viewvideo] Could not create streaming thread for camera %s: Reason: %d.\n", camera->dev_name, errno);
       return;
     }
+    pthread_setname_np(tid, "pprz_camera_thread");
   }
 }
 

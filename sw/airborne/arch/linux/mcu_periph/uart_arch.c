@@ -37,6 +37,10 @@
 #include "serial_port.h"
 #include "rt_priority.h"
 
+#ifndef _GNU_SOURCE
+// for pthread_setname_np
+#define _GNU_SOURCE
+#endif
 #include <pthread.h>
 #include <sys/select.h>
 
@@ -60,6 +64,7 @@ void uart_arch_init(void)
     fprintf(stderr, "uart_arch_init: Could not create UART reading thread.\n");
     return;
   }
+  pthread_setname_np(tid, "pprz_uart_thread");
 }
 
 static void *uart_thread(void *data __attribute__((unused)))
@@ -74,13 +79,13 @@ static void *uart_thread(void *data __attribute__((unused)))
   /* clear the fd list */
   FD_ZERO(&fds_master);
   /* add used fds */
-  int __attribute__ ((unused)) fd;
+  int __attribute__((unused)) fd;
 #if USE_UART0
   if (uart0.reg_addr != NULL) {
     fd = ((struct SerialPort *)uart0.reg_addr)->fd;
     FD_SET(fd, &fds_master);
     if (fd > fdmax) {
-      fdmax =fd;
+      fdmax = fd;
     }
   }
 #endif
@@ -89,7 +94,7 @@ static void *uart_thread(void *data __attribute__((unused)))
     fd = ((struct SerialPort *)uart1.reg_addr)->fd;
     FD_SET(fd, &fds_master);
     if (fd > fdmax) {
-      fdmax =fd;
+      fdmax = fd;
     }
   }
 #endif
@@ -98,7 +103,7 @@ static void *uart_thread(void *data __attribute__((unused)))
     fd = ((struct SerialPort *)uart2.reg_addr)->fd;
     FD_SET(fd, &fds_master);
     if (fd > fdmax) {
-      fdmax =fd;
+      fdmax = fd;
     }
   }
 #endif
@@ -107,7 +112,7 @@ static void *uart_thread(void *data __attribute__((unused)))
     fd = ((struct SerialPort *)uart3.reg_addr)->fd;
     FD_SET(fd, &fds_master);
     if (fd > fdmax) {
-      fdmax =fd;
+      fdmax = fd;
     }
   }
 #endif
@@ -116,7 +121,7 @@ static void *uart_thread(void *data __attribute__((unused)))
     fd = ((struct SerialPort *)uart4.reg_addr)->fd;
     FD_SET(fd, &fds_master);
     if (fd > fdmax) {
-      fdmax =fd;
+      fdmax = fd;
     }
   }
 #endif
@@ -125,7 +130,7 @@ static void *uart_thread(void *data __attribute__((unused)))
     fd = ((struct SerialPort *)uart5.reg_addr)->fd;
     FD_SET(fd, &fds_master);
     if (fd > fdmax) {
-      fdmax =fd;
+      fdmax = fd;
     }
   }
 #endif
@@ -134,7 +139,7 @@ static void *uart_thread(void *data __attribute__((unused)))
     fd = ((struct SerialPort *)uart6.reg_addr)->fd;
     FD_SET(fd, &fds_master);
     if (fd > fdmax) {
-      fdmax =fd;
+      fdmax = fd;
     }
   }
 #endif
@@ -148,8 +153,7 @@ static void *uart_thread(void *data __attribute__((unused)))
 
     if (select(fdmax + 1, &fds, NULL, NULL, NULL) < 0) {
       fprintf(stderr, "uart_thread: select failed!");
-    }
-    else {
+    } else {
 #if USE_UART0
       if (uart0.reg_addr != NULL) {
         fd = ((struct SerialPort *)uart0.reg_addr)->fd;
@@ -275,9 +279,9 @@ void uart_put_byte(struct uart_periph *periph, long fd __attribute__((unused)), 
   struct SerialPort *port = (struct SerialPort *)(periph->reg_addr);
 
   int ret = 0;
-  do{
+  do {
     ret = write((int)(port->fd), &data, 1);
-  } while(ret < 1 && errno == EAGAIN); //FIXME: max retry
+  } while (ret < 1 && errno == EAGAIN); //FIXME: max retry
 
   if (ret < 1) {
     TRACE("uart_put_byte: write %d failed [%d: %s]\n", data, ret, strerror(errno));
@@ -285,7 +289,7 @@ void uart_put_byte(struct uart_periph *periph, long fd __attribute__((unused)), 
 }
 
 
-static void __attribute__ ((unused)) uart_receive_handler(struct uart_periph *periph)
+static void __attribute__((unused)) uart_receive_handler(struct uart_periph *periph)
 {
   unsigned char c = 'D';
 
@@ -303,8 +307,7 @@ static void __attribute__ ((unused)) uart_receive_handler(struct uart_periph *pe
     if (temp != periph->rx_extract_idx) {
       periph->rx_buf[periph->rx_insert_idx] = c;
       periph->rx_insert_idx = temp;  // update insert index
-    }
-    else {
+    } else {
       TRACE("uart_receive_handler: rx_buf full! discarding received byte: %x %c\n", c, c);
     }
   }

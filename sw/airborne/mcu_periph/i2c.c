@@ -247,6 +247,7 @@ void i2c_init(struct i2c_periph *p)
   p->trans_insert_idx = 0;
   p->trans_extract_idx = 0;
   p->status = I2CIdle;
+  p->reg_addr = NULL;
 
 #if PERIODIC_TELEMETRY
   // the first to register do it for the others
@@ -256,7 +257,7 @@ void i2c_init(struct i2c_periph *p)
 
 
 bool i2c_transmit(struct i2c_periph *p, struct i2c_transaction *t,
-                    uint8_t s_addr, uint8_t len)
+                  uint8_t s_addr, uint8_t len)
 {
   t->type = I2CTransTx;
   t->slave_addr = s_addr;
@@ -266,7 +267,7 @@ bool i2c_transmit(struct i2c_periph *p, struct i2c_transaction *t,
 }
 
 bool i2c_receive(struct i2c_periph *p, struct i2c_transaction *t,
-                   uint8_t s_addr, uint16_t len)
+                 uint8_t s_addr, uint16_t len)
 {
   t->type = I2CTransRx;
   t->slave_addr = s_addr;
@@ -276,7 +277,7 @@ bool i2c_receive(struct i2c_periph *p, struct i2c_transaction *t,
 }
 
 bool i2c_transceive(struct i2c_periph *p, struct i2c_transaction *t,
-                      uint8_t s_addr, uint8_t len_w, uint16_t len_r)
+                    uint8_t s_addr, uint8_t len_w, uint16_t len_r)
 {
   t->type = I2CTransTxRx;
   t->slave_addr = s_addr;

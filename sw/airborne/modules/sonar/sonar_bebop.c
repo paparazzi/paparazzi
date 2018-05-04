@@ -37,6 +37,10 @@
 #include "mcu_periph/adc.h"
 #include "mcu_periph/spi.h"
 #include "subsystems/abi.h"
+#ifndef _GNU_SOURCE
+// for pthread_setname_np
+#define _GNU_SOURCE
+#endif
 #include <pthread.h>
 #include "subsystems/datalink/downlink.h"
 
@@ -90,9 +94,6 @@ struct SonarBebop sonar_bebop;
 
 static struct spi_transaction sonar_bebop_spi_t;
 void *sonar_bebop_read(void *data);
-#ifdef USE_SONAR
-static pthread_t sonar_bebop_thread;
-#endif
 
 void sonar_bebop_init(void)
 {
@@ -111,7 +112,9 @@ void sonar_bebop_init(void)
   sonar_bebop_spi_t.input_length  = 0;
 
 #if USE_SONAR
-  pthread_create(&sonar_bebop_thread, NULL, sonar_bebop_read, NULL);
+  pthread_t tid;
+  pthread_create(&tid, NULL, sonar_bebop_read, NULL);
+  pthread_setname_np(tid, "pprz_sonar_thread");
 #endif
 
   init_median_filter_f(&sonar_filt, 3);
