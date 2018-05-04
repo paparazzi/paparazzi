@@ -37,6 +37,10 @@
 #include "mcu_periph/adc.h"
 #include "mcu_periph/spi.h"
 #include "subsystems/abi.h"
+#ifndef _GNU_SOURCE
+// for pthread_setname_np
+#define _GNU_SOURCE
+#endif
 #include <pthread.h>
 #include "subsystems/datalink/downlink.h"
 

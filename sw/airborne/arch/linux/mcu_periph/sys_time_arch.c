@@ -26,15 +26,13 @@
 
 #include "mcu_periph/sys_time.h"
 #include <stdio.h>
-
-#include <sys/timerfd.h>
-#include <time.h>
-
 #ifndef _GNU_SOURCE
 // for pthread_setname_np
 #define _GNU_SOURCE
 #endif
 #include <pthread.h>
+#include <sys/timerfd.h>
+#include <time.h>
 #include "rt_priority.h"
 
 #ifdef SYS_TIME_LED
@@ -82,8 +80,8 @@ void *sys_time_thread_main(void *data)
   while (1) {
     unsigned long long missed;
     /* Wait for the next timer event. If we have missed any the
-	   number is written to "missed" */
-	  int r = read(fd, &missed, sizeof(missed));
+     number is written to "missed" */
+    int r = read(fd, &missed, sizeof(missed));
     if (r == -1) {
       perror("Couldn't read timer!");
     }
@@ -172,7 +170,7 @@ uint32_t get_sys_time_usec(void)
     d_sec -= 1;
     d_nsec += 1000000000L;
   }
-  return d_sec * 1000000 + d_nsec/1000;
+  return d_sec * 1000000 + d_nsec / 1000;
 }
 
 /**
@@ -194,5 +192,5 @@ uint32_t get_sys_time_msec(void)
     d_sec -= 1;
     d_nsec += 1000000000L;
   }
-  return d_sec * 1000 + d_nsec/1000000;
+  return d_sec * 1000 + d_nsec / 1000000;
 }

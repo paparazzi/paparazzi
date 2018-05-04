@@ -39,6 +39,10 @@
 #include <math.h>
 #include <errno.h>
 #include <assert.h>
+#ifndef _GNU_SOURCE
+// for pthread_setname_np
+#define _GNU_SOURCE
+#endif
 #include <pthread.h>
 
 #include "std.h"

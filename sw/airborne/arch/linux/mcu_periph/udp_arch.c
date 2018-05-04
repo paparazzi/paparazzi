@@ -113,8 +113,8 @@ uint8_t udp_getch(struct udp_periph *p)
  */
 void udp_receive(struct udp_periph *p)
 {
-  if (p == NULL) return;
-  if (p->network == NULL) return;
+  if (p == NULL) { return; }
+  if (p->network == NULL) { return; }
 
   int16_t i;
   int16_t available = UDP_RX_BUFFER_SIZE - udp_char_available(p);
@@ -146,8 +146,8 @@ void udp_receive(struct udp_periph *p)
  */
 void udp_send_message(struct udp_periph *p, long fd __attribute__((unused)))
 {
-  if (p == NULL) return;
-  if (p->network == NULL) return;
+  if (p == NULL) { return; }
+  if (p->network == NULL) { return; }
 
   struct UdpSocket *sock = (struct UdpSocket *) p->network;
 
@@ -157,8 +157,7 @@ void udp_send_message(struct udp_periph *p, long fd __attribute__((unused)))
     if (bytes_sent != p->tx_insert_idx) {
       if (bytes_sent < 0) {
         perror("udp_send_message failed");
-      }
-      else {
+      } else {
         fprintf(stderr, "udp_send_message: only sent %d bytes instead of %d\n",
                 (int)bytes_sent, p->tx_insert_idx);
       }
@@ -172,8 +171,8 @@ void udp_send_message(struct udp_periph *p, long fd __attribute__((unused)))
  */
 void udp_send_raw(struct udp_periph *p, long fd __attribute__((unused)), uint8_t *buffer, uint16_t size)
 {
-  if (p == NULL) return;
-  if (p->network == NULL) return;
+  if (p == NULL) { return; }
+  if (p->network == NULL) { return; }
 
   struct UdpSocket *sock = (struct UdpSocket *) p->network;
   ssize_t test __attribute__((unused)) = sendto(sock->sockfd, buffer, size, MSG_DONTWAIT,
@@ -200,21 +199,21 @@ static void *udp_thread(void *data __attribute__((unused)))
   fd = ((struct UdpSocket *)udp0.network)->sockfd;
   FD_SET(fd, &socks_master);
   if (fd > fdmax) {
-    fdmax =fd;
+    fdmax = fd;
   }
 #endif
 #if USE_UDP1
   fd = ((struct UdpSocket *)udp1.network)->sockfd;
   FD_SET(fd, &socks_master);
   if (fd > fdmax) {
-    fdmax =fd;
+    fdmax = fd;
   }
 #endif
 #if USE_UDP2
   fd = ((struct UdpSocket *)udp2.network)->sockfd;
   FD_SET(fd, &socks_master);
   if (fd > fdmax) {
-    fdmax =fd;
+    fdmax = fd;
   }
 #endif
 
@@ -227,8 +226,7 @@ static void *udp_thread(void *data __attribute__((unused)))
 
     if (select(fdmax + 1, &socks, NULL, NULL, NULL) < 0) {
       fprintf(stderr, "udp_thread: select failed!");
-    }
-    else {
+    } else {
 #if USE_UDP0
       fd = ((struct UdpSocket *)udp0.network)->sockfd;
       if (FD_ISSET(fd, &socks)) {
