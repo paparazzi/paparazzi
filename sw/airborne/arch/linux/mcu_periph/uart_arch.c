@@ -22,6 +22,11 @@
 /** @file arch/linux/mcu_periph/uart_arch.c
  * linux uart handling
  */
+ 
+#ifndef _GNU_SOURCE
+// for pthread_setname_np
+#define _GNU_SOURCE
+#endif
 
 #include BOARD_CONFIG
 
@@ -37,10 +42,6 @@
 #include "serial_port.h"
 #include "rt_priority.h"
 
-#ifndef _GNU_SOURCE
-// for pthread_setname_np
-#define _GNU_SOURCE
-#endif
 #include <pthread.h>
 #include <sys/select.h>
 

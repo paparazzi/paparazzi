@@ -23,16 +23,16 @@
  * linux UDP handling
  */
 
+#ifndef _GNU_SOURCE
+// for pthread_setname_np
+#define _GNU_SOURCE
+#endif
+
 #include "mcu_periph/udp.h"
 #include "udp_socket.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
-
-#ifndef _GNU_SOURCE
-// for pthread_setname_np
-#define _GNU_SOURCE
-#endif
 #include <pthread.h>
 #include <sys/select.h>
 
