@@ -28,8 +28,6 @@
 #ifndef LINUX_MCU_PERIPH_I2C_ARCH_H
 #define LINUX_MCU_PERIPH_I2C_ARCH_H
 
-#include "mcu_periph/i2c.h"
-
 #if USE_I2C0
 extern void i2c0_hw_init(void);
 #endif /* USE_I2C0 */
