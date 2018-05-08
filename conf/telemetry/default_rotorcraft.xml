@@ -30,6 +30,7 @@
       <message name="OPTICAL_FLOW_HOVER"     period="0.05"/>
       <message name="DIVERGENCE"             period="0.05"/>
       <message name="DRAGSPEED"              period="0.02"/>
+      <message name="RLFILTER"               period="0.1"/>
     </mode>
 
     <mode name="ppm">

@@ -673,6 +673,18 @@ static inline void float_mat_transpose(float **a, int n)
   }
 }
 
+
+/** transpose non-square matrix */
+static inline void float_mat_transpose_general(float **o, float **a, int n, int m)
+{
+  int i, j;
+  for (i = 0; i < n; i++) {
+    for (j = 0; j < m; j++) {
+      o[j][i] = a[i][j];
+    }
+  }
+}
+
 /** o = a * b
  *
  * a: [m x n]
@@ -691,6 +703,23 @@ static inline void float_mat_mul(float **o, float **a, float **b, int m, int n, 
     }
   }
 }
+
+/** o = a * b
+ *
+ * a: [m x n]
+ * b: [n x l]
+ * o: [m x l]
+ */
+static inline void float_mat_vect_mul(float *o, float **a, float *b, int m, int n)
+{
+  int i, j;
+  for (i = 0; i < m; i++) {
+    for (j = 0; j < n; j++) {
+        o[i] += a[i][j] * b[j];
+    }
+  }
+}
+
 
 /** matrix minor
  *
@@ -734,13 +763,13 @@ static inline void float_mat_col(float *o, float **a, int m, int c)
 }
 
 /** Make an n x n identity matrix (for matrix passed as array) */
-static inline void float_mat_identity(float **o, int n)
+static inline void float_mat_identity_scal(float **o, float v, int n)
 {
   int i, j;
   for(i = 0 ; i < n; i++) {
     for(j = 0 ; j < n; j++) {
       if (i == j) {
-        o[i][j] = 1.0;
+        o[i][j] = v;
       }
       else {
         o[i][j] = 0.0;

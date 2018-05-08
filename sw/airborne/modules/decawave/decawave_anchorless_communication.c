@@ -32,7 +32,7 @@
   on-board values with each-other (for purposes such as relative localization, co-ordination, or collision avoidance).
   This module must be used together with the Decawave DWM1000 running the appropriate Serial Communication code, which can be flashed on the Arduino board.
   The arduino library can be found at:
-    https://github.com/StevenH2812/arduino-dw1000/tree/UWB_localization_v1.0
+    https://github.com/StevenH2812/arduino-dw1000/tree/UWB_onboard
   The example file to flash the Arduino Micro can be found in
     examples/UWB_localization_v1_0/UWB_localization_v1_0.ino
  */
@@ -49,27 +49,34 @@
 struct link_device *external_device = UWB_SERIAL_PORT;
 
 // Some meta data for serial communication
-#define UWB_SERIAL_COMM_MAX_MESSAGE 10
+#define UWB_SERIAL_COMM_MAX_MESSAGE 20
 #define UWB_SERIAL_COMM_END_MARKER 255
 #define UWB_SERIAL_COMM_SPECIAL_BYTE 253
 #define UWB_SERIAL_COMM_START_MARKER 254
-#define UWB_SERIAL_COMM_NODE_STATE_SIZE 4
+#define UWB_SERIAL_COMM_NODE_STATE_SIZE 7
 
 #define UWB_SERIAL_COMM_NUM_NODES 3 // How many nodes actually are in the network
 #define UWB_SERIAL_COMM_DIST_NUM_NODES UWB_SERIAL_COMM_NUM_NODES-1  // How many distant nodes are in the network (one less than the toal number of nodes)
 
-// Serial message types
-#define UWB_SERIAL_COMM_VX 0
-#define UWB_SERIAL_COMM_VY 1
-#define UWB_SERIAL_COMM_Z 2
-#define UWB_SERIAL_COMM_RANGE 3
+// Serial message 
+
+#define UWB_SERIAL_COMM_RANGE 0
+#define UWB_SERIAL_COMM_VX 1
+#define UWB_SERIAL_COMM_VY 2
+#define UWB_SERIAL_COMM_Z 3
+#define UWB_SERIAL_COMM_AX 4
+#define UWB_SERIAL_COMM_AY 5
+#define UWB_SERIAL_COMM_YAWR 6
 
 struct nodeState {
   uint8_t nodeAddress;
+  float r;
   float vx;
   float vy;
   float z;
-  float r;
+  float ax;
+  float ay;
+  float yawr;
   bool state_updated[UWB_SERIAL_COMM_NODE_STATE_SIZE];
 };
 
@@ -82,6 +89,10 @@ static void handleNewStateValue(uint8_t nodeIndex, uint8_t msg_type, float value
 {
   struct nodeState *node = &states[nodeIndex];
   switch (msg_type) {
+    case UWB_SERIAL_COMM_RANGE : 
+      node->r = value;
+      node->state_updated[UWB_SERIAL_COMM_RANGE] = true;
+      break;
     case UWB_SERIAL_COMM_VX : 
       node->vx = value; 
       node->state_updated[UWB_SERIAL_COMM_VX] = true; 
@@ -94,9 +105,17 @@ static void handleNewStateValue(uint8_t nodeIndex, uint8_t msg_type, float value
       node->z = value;
       node->state_updated[UWB_SERIAL_COMM_Z] = true; 
       break;
-    case UWB_SERIAL_COMM_RANGE : 
-      node->r = value;
-      node->state_updated[UWB_SERIAL_COMM_RANGE] = true;
+    case UWB_SERIAL_COMM_AX :
+      node->ax = value;
+      node->state_updated[UWB_SERIAL_COMM_AX] = true;
+      break;
+    case UWB_SERIAL_COMM_AY :
+      node->ay=value;
+      node->state_updated[UWB_SERIAL_COMM_AY] = true;
+      break;
+    case UWB_SERIAL_COMM_YAWR :
+      node->yawr=value;
+      node->state_updated[UWB_SERIAL_COMM_YAWR] = true;
       break;
   }
 }
@@ -232,8 +251,13 @@ static void getSerialData(uint8_t *bytes_received)
     }
 
     if (in_progress) {
-      received_message[*bytes_received] = var_byte;
-      (*bytes_received)++;
+      if((*bytes_received)<UWB_SERIAL_COMM_MAX_MESSAGE-1) {
+        received_message[*bytes_received] = var_byte;
+        (*bytes_received)++;
+      }
+      else {
+        in_progress = false;
+      }
     }
 
     if (var_byte == UWB_SERIAL_COMM_END_MARKER) {
@@ -262,6 +286,10 @@ void decawave_anchorless_communication_periodic(void)
   sendFloat(UWB_SERIAL_COMM_VX, stateGetSpeedEnu_f()->y);
   sendFloat(UWB_SERIAL_COMM_VY, stateGetSpeedEnu_f()->x);
   sendFloat(UWB_SERIAL_COMM_Z, stateGetPositionEnu_f()->z);
+  sendFloat(UWB_SERIAL_COMM_AX,0.);
+  sendFloat(UWB_SERIAL_COMM_AY,0.);
+  sendFloat(UWB_SERIAL_COMM_YAWR,0.);
+
 }
 
 /**

@@ -852,7 +852,7 @@ void float_mat_invert(float **o, float **mat, int n)
 
   // Do the inversion
   for( i = 0; i < n; i++) {
-    t = a[i][i];     // Store diagonal variable (temp)
+    t = a[i][i]; // Store diagonal variable (temp)
 
     for(j = i; j < 2*n; j++) {
       a[i][j] = a[i][j]/t; // Divide by the diagonal value
