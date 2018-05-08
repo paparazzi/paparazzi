@@ -715,7 +715,7 @@ static inline void float_mat_vect_mul(float *o, float **a, float *b, int m, int 
   int i, j;
   for (i = 0; i < m; i++) {
     for (j = 0; j < n; j++) {
-        o[i] += a[i][j] * b[j];
+      o[i] += a[i][j] * b[j];
     }
   }
 }
@@ -766,12 +766,11 @@ static inline void float_mat_col(float *o, float **a, int m, int c)
 static inline void float_mat_identity_scal(float **o, float v, int n)
 {
   int i, j;
-  for(i = 0 ; i < n; i++) {
-    for(j = 0 ; j < n; j++) {
+  for (i = 0 ; i < n; i++) {
+    for (j = 0 ; j < n; j++) {
       if (i == j) {
         o[i][j] = v;
-      }
-      else {
+      } else {
         o[i][j] = 0.0;
       }
     }

@@ -58,7 +58,7 @@ struct link_device *external_device = UWB_SERIAL_PORT;
 #define UWB_SERIAL_COMM_NUM_NODES 3 // How many nodes actually are in the network
 #define UWB_SERIAL_COMM_DIST_NUM_NODES UWB_SERIAL_COMM_NUM_NODES-1  // How many distant nodes are in the network (one less than the toal number of nodes)
 
-// Serial message 
+// Serial message
 
 #define UWB_SERIAL_COMM_RANGE 0
 #define UWB_SERIAL_COMM_VX 1
@@ -89,32 +89,32 @@ static void handleNewStateValue(uint8_t nodeIndex, uint8_t msg_type, float value
 {
   struct nodeState *node = &states[nodeIndex];
   switch (msg_type) {
-    case UWB_SERIAL_COMM_RANGE : 
+    case UWB_SERIAL_COMM_RANGE :
       node->r = value;
       node->state_updated[UWB_SERIAL_COMM_RANGE] = true;
       break;
-    case UWB_SERIAL_COMM_VX : 
-      node->vx = value; 
-      node->state_updated[UWB_SERIAL_COMM_VX] = true; 
+    case UWB_SERIAL_COMM_VX :
+      node->vx = value;
+      node->state_updated[UWB_SERIAL_COMM_VX] = true;
       break;
-    case UWB_SERIAL_COMM_VY : 
-      node->vy = value; 
-      node->state_updated[UWB_SERIAL_COMM_VY] = true; 
+    case UWB_SERIAL_COMM_VY :
+      node->vy = value;
+      node->state_updated[UWB_SERIAL_COMM_VY] = true;
       break;
-    case UWB_SERIAL_COMM_Z : 
+    case UWB_SERIAL_COMM_Z :
       node->z = value;
-      node->state_updated[UWB_SERIAL_COMM_Z] = true; 
+      node->state_updated[UWB_SERIAL_COMM_Z] = true;
       break;
     case UWB_SERIAL_COMM_AX :
       node->ax = value;
       node->state_updated[UWB_SERIAL_COMM_AX] = true;
       break;
     case UWB_SERIAL_COMM_AY :
-      node->ay=value;
+      node->ay = value;
       node->state_updated[UWB_SERIAL_COMM_AY] = true;
       break;
     case UWB_SERIAL_COMM_YAWR :
-      node->yawr=value;
+      node->yawr = value;
       node->state_updated[UWB_SERIAL_COMM_YAWR] = true;
       break;
   }
@@ -137,7 +137,7 @@ static void decodeHighBytes(uint8_t bytes_received, uint8_t *received_message)
   uint8_t msg_type = received_message[3];
   uint8_t nodeIndex = msg_from - 1 - (uint8_t)(this_address < msg_from);
   for (uint8_t i = 4; i < bytes_received - 1; i++) {
-  // Skip the begin marker (0), this address (1), remote address (2), message type (3), and end marker (bytes_received-1)
+    // Skip the begin marker (0), this address (1), remote address (2), message type (3), and end marker (bytes_received-1)
     uint8_t var_byte = received_message[i];
     if (var_byte == UWB_SERIAL_COMM_SPECIAL_BYTE) {
       i++;
@@ -251,11 +251,10 @@ static void getSerialData(uint8_t *bytes_received)
     }
 
     if (in_progress) {
-      if((*bytes_received)<UWB_SERIAL_COMM_MAX_MESSAGE-1) {
+      if ((*bytes_received) < UWB_SERIAL_COMM_MAX_MESSAGE - 1) {
         received_message[*bytes_received] = var_byte;
         (*bytes_received)++;
-      }
-      else {
+      } else {
         in_progress = false;
       }
     }
@@ -286,9 +285,9 @@ void decawave_anchorless_communication_periodic(void)
   sendFloat(UWB_SERIAL_COMM_VX, stateGetSpeedEnu_f()->y);
   sendFloat(UWB_SERIAL_COMM_VY, stateGetSpeedEnu_f()->x);
   sendFloat(UWB_SERIAL_COMM_Z, stateGetPositionEnu_f()->z);
-  sendFloat(UWB_SERIAL_COMM_AX,0.);
-  sendFloat(UWB_SERIAL_COMM_AY,0.);
-  sendFloat(UWB_SERIAL_COMM_YAWR,0.);
+  sendFloat(UWB_SERIAL_COMM_AX, 0.);
+  sendFloat(UWB_SERIAL_COMM_AY, 0.);
+  sendFloat(UWB_SERIAL_COMM_YAWR, 0.);
 
 }
 

@@ -55,7 +55,7 @@ typedef struct discrete_ekf {
 extern void linear_filter(float *X, float dt, float *dX, float **A);
 extern void linear_measure(float *X, float *Y, float **H);
 
-extern void discrete_ekf_new(discrete_ekf* filter);
+extern void discrete_ekf_new(discrete_ekf *filter);
 extern void discrete_ekf_predict(discrete_ekf *filter);
 extern void discrete_ekf_update(discrete_ekf *filter, float *y);
 

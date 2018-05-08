@@ -42,43 +42,44 @@ void discrete_ekf_new(discrete_ekf *filter)
 
   // Q Matrix
   MAKE_MATRIX_PTR(_Q, filter->Q, EKF_N);
-  float_mat_identity_scal(_Q, pow(0.3,2.0), EKF_N);
+  float_mat_identity_scal(_Q, pow(0.3, 2.0), EKF_N);
   filter->Q[0][0] = 0.01;
   filter->Q[1][1] = 0.01;
-  
+
   MAKE_MATRIX_PTR(_R, filter->R, EKF_M);
-  float_mat_identity_scal(_R, pow(0.1,2.0), EKF_M);
+  float_mat_identity_scal(_R, pow(0.1, 2.0), EKF_M);
   filter->R[0][0] = 0.2;
 
   // Initial assumptions
-  float_vect_zero(filter->X,EKF_N);
+  float_vect_zero(filter->X, EKF_N);
   filter->X[0] = 2.5; // filter->X[0] and/or filter->[1] cannot be = 0
   filter->dt = 0.1;
 }
 
 /* Perform the prediction step
-  
+
     Predict state
       x_p = f(x);
       A = Jacobian of f(x)
-    
+
     Predict P
       P = A * P * A' + Q;
-    
+
     Predict measure
       z_p = h(x_p)
       H = Jacobian of h(x)
-  
+
 */
-void discrete_ekf_predict(discrete_ekf* filter) {
+void discrete_ekf_predict(discrete_ekf *filter)
+{
   float dX[EKF_N];
-  
-  MAKE_MATRIX_PTR(_tmp1, filter->tmp1, EKF_N );
-  MAKE_MATRIX_PTR(_tmp2, filter->tmp2, EKF_N );
-  MAKE_MATRIX_PTR(_tmp3, filter->tmp3, EKF_N );
-  MAKE_MATRIX_PTR(_H,    filter->H,    EKF_N );
-  MAKE_MATRIX_PTR(_P,    filter->P,    EKF_N );
-  MAKE_MATRIX_PTR(_Q,    filter->Q,    EKF_N );
+
+  MAKE_MATRIX_PTR(_tmp1, filter->tmp1, EKF_N);
+  MAKE_MATRIX_PTR(_tmp2, filter->tmp2, EKF_N);
+  MAKE_MATRIX_PTR(_tmp3, filter->tmp3, EKF_N);
+  MAKE_MATRIX_PTR(_H,    filter->H,    EKF_N);
+  MAKE_MATRIX_PTR(_P,    filter->P,    EKF_N);
+  MAKE_MATRIX_PTR(_Q,    filter->Q,    EKF_N);
 
   // Fetch dX and A given X and dt and input u
   linear_filter(filter->X, filter->dt, dX, _tmp1); // (note: _tmp1 = A)
@@ -101,21 +102,22 @@ void discrete_ekf_predict(discrete_ekf* filter) {
     Get Kalman Gain
       P12 = P * H';
       K = P12/(H * P12 + R);
-    
+
     Update x
       x = x_p + K * (z - z_p);
-    
+
     Update P
       P = (eye(numel(x)) - K * H) * P;
 */
-void discrete_ekf_update(discrete_ekf* filter, float *Z) {
-  MAKE_MATRIX_PTR(_tmp1, filter->tmp1, EKF_N );
-  MAKE_MATRIX_PTR(_tmp2, filter->tmp2, EKF_N );
-  MAKE_MATRIX_PTR(_tmp3, filter->tmp3, EKF_N );
-  MAKE_MATRIX_PTR(_P,    filter->P,    EKF_N );
-  MAKE_MATRIX_PTR(_H,    filter->H,    EKF_M );
-  MAKE_MATRIX_PTR(_Ht,   filter->Ht,   EKF_N );
-  MAKE_MATRIX_PTR(_R,    filter->R,    EKF_M );
+void discrete_ekf_update(discrete_ekf *filter, float *Z)
+{
+  MAKE_MATRIX_PTR(_tmp1, filter->tmp1, EKF_N);
+  MAKE_MATRIX_PTR(_tmp2, filter->tmp2, EKF_N);
+  MAKE_MATRIX_PTR(_tmp3, filter->tmp3, EKF_N);
+  MAKE_MATRIX_PTR(_P,    filter->P,    EKF_N);
+  MAKE_MATRIX_PTR(_H,    filter->H,    EKF_M);
+  MAKE_MATRIX_PTR(_Ht,   filter->Ht,   EKF_N);
+  MAKE_MATRIX_PTR(_R,    filter->R,    EKF_M);
 
   //  E = H * P * H' + R
   float_mat_transpose_general(_Ht, _H, EKF_M, EKF_N); // Ht = H'
@@ -145,12 +147,12 @@ void discrete_ekf_update(discrete_ekf* filter, float *Z) {
 void linear_filter(float *X, float dt, float *dX, float **A)
 {
   // dX
-  float_vect_zero(dX,EKF_N);
-  dX[0] = -(X[2] - X[4])*dt;
-  dX[1] = -(X[3] - X[5])*dt;
-  
+  float_vect_zero(dX, EKF_N);
+  dX[0] = -(X[2] - X[4]) * dt;
+  dX[1] = -(X[3] - X[5]) * dt;
+
   // A(x)
-  float_mat_identity_scal(A,1.0,EKF_N);
+  float_mat_identity_scal(A, 1.0, EKF_N);
   A[0][2] = -dt;
   A[0][4] =  dt;
   A[1][3] = -dt;
@@ -161,7 +163,7 @@ void linear_filter(float *X, float dt, float *dX, float **A)
 void linear_measure(float *X, float *Z, float **H)
 {
   uint8_t row, col;
-  Z[0] = sqrt(pow(X[0],2.0) + pow(X[1],2.0) + pow(X[6],2.0));
+  Z[0] = sqrt(pow(X[0], 2.0) + pow(X[1], 2.0) + pow(X[6], 2.0));
   Z[1] = X[2]; // x velocity of i (north)
   Z[2] = X[3]; // y velocity of i (east)
   Z[3] = X[4]; // x velocity of j (north)
@@ -169,26 +171,26 @@ void linear_measure(float *X, float *Z, float **H)
   Z[5] = X[6]; // Height difference
 
   // Generate the Jacobian Matrix
-  for (row = 0 ; row < EKF_M ; row++ ) {
-    for (col = 0 ; col < EKF_N ; col++ ) {
+  for (row = 0 ; row < EKF_M ; row++) {
+    for (col = 0 ; col < EKF_N ; col++) {
       // x, y, and z pos columns are affected by the range measurement
-      if ((row == 0) && (col == 0 || col == 1 || col == 6 )) {
-        H[row][col] = X[col]/sqrt(pow(X[0],2.0) + pow(X[1],2.0) + pow(X[6],2.0));
+      if ((row == 0) && (col == 0 || col == 1 || col == 6)) {
+        H[row][col] = X[col] / sqrt(pow(X[0], 2.0) + pow(X[1], 2.0) + pow(X[6], 2.0));
       }
-      
+
       // All other values are 1
       else if (((row == 1) && (col == 2)) ||
-        ((row == 2) && (col == 3)) ||
-        ((row == 3) && (col == 4)) ||
-        ((row == 4) && (col == 5)) ||
-        ((row == 5) && (col == 6)) ){
+               ((row == 2) && (col == 3)) ||
+               ((row == 3) && (col == 4)) ||
+               ((row == 4) && (col == 5)) ||
+               ((row == 5) && (col == 6))) {
         H[row][col] = 1.0;
-    }
+      }
 
-    else {
-      H[row][col] = 0.0;
+      else {
+        H[row][col] = 0.0;
+      }
     }
   }
-}
 
 };

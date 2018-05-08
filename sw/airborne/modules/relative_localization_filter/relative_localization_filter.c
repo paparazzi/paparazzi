@@ -37,32 +37,31 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int32_t ID_array[RL_NUAVS-1];
-uint32_t latest_update_time[RL_NUAVS-1];
+int32_t ID_array[RL_NUAVS - 1];
+uint32_t latest_update_time[RL_NUAVS - 1];
 uint8_t number_filters;
-discrete_ekf ekf_rl[RL_NUAVS-1];
-float range_array[RL_NUAVS-1];
+discrete_ekf ekf_rl[RL_NUAVS - 1];
+float range_array[RL_NUAVS - 1];
 uint8_t pprzmsg_cnt;
 
 static abi_event range_communication_event;
-static void range_msg_callback(uint8_t sender_id __attribute__((unused)), 
-  uint8_t ac_id, float range, float tracked_v_north, float tracked_v_east, float tracked_h) 
+static void range_msg_callback(uint8_t sender_id __attribute__((unused)),
+                               uint8_t ac_id, float range, float tracked_v_north, float tracked_v_east, float tracked_h)
 {
   int idx = -1; // Initialize the index of all tracked drones (-1 for null assumption of no drone found)
 
   // Check if a new aircraft ID is present, if it's a new ID we start a new EKF for it.
-  if ( !int32_vect_find(ID_array, ac_id, &idx, RL_NUAVS-1) && 
-       (number_filters < (RL_NUAVS-1)) ) {
+  if (!int32_vect_find(ID_array, ac_id, &idx, RL_NUAVS - 1) &&
+      (number_filters < (RL_NUAVS - 1))) {
     ID_array[number_filters] = ac_id;
     discrete_ekf_new(&ekf_rl[number_filters]);
     number_filters++;
-  }
-  else if (idx != -1) {
+  } else if (idx != -1) {
     range_array[idx] = range;
-    ekf_rl[idx].dt = (get_sys_time_usec() - latest_update_time[idx])/pow(10,6); // Update the time between messages
-    
+    ekf_rl[idx].dt = (get_sys_time_usec() - latest_update_time[idx]) / pow(10, 6); // Update the time between messages
+
     // Measurement Vector Z = [range owvVx(NED) ownVy(NED) tracked_v_north(NED) tracked_v_east(NED) dh]
-    float Z[EKF_M] = {range, stateGetSpeedEnu_f()->y, stateGetSpeedEnu_f()->x, tracked_v_north, tracked_v_east, tracked_h-stateGetPositionEnu_f()->z};
+    float Z[EKF_M] = {range, stateGetSpeedEnu_f()->y, stateGetSpeedEnu_f()->x, tracked_v_north, tracked_v_east, tracked_h - stateGetPositionEnu_f()->z};
 
     discrete_ekf_predict(&ekf_rl[idx]);
     discrete_ekf_update(&ekf_rl[idx], Z);
@@ -79,17 +78,17 @@ static void send_relative_localization_data(struct transport_tx *trans, struct l
     pprzmsg_cnt = 0;
   }
 
-  pprz_msg_send_RLFILTER(trans, dev, AC_ID, 
-    &ID_array[pprzmsg_cnt], &range_array[pprzmsg_cnt], 
-    &ekf_rl[pprzmsg_cnt].X[0], &ekf_rl[pprzmsg_cnt].X[1], // x y (tracked wrt own)
-    &ekf_rl[pprzmsg_cnt].X[2], &ekf_rl[pprzmsg_cnt].X[3], // vx vy (own)
-    &ekf_rl[pprzmsg_cnt].X[4], &ekf_rl[pprzmsg_cnt].X[5], // vx vy (tracked)
-    &ekf_rl[pprzmsg_cnt].X[6]); // height separation
+  pprz_msg_send_RLFILTER(trans, dev, AC_ID,
+                         &ID_array[pprzmsg_cnt], &range_array[pprzmsg_cnt],
+                         &ekf_rl[pprzmsg_cnt].X[0], &ekf_rl[pprzmsg_cnt].X[1], // x y (tracked wrt own)
+                         &ekf_rl[pprzmsg_cnt].X[2], &ekf_rl[pprzmsg_cnt].X[3], // vx vy (own)
+                         &ekf_rl[pprzmsg_cnt].X[4], &ekf_rl[pprzmsg_cnt].X[5], // vx vy (tracked)
+                         &ekf_rl[pprzmsg_cnt].X[6]); // height separation
 };
-    
+
 void relative_localization_filter_init(void)
 {
-  int32_vect_set_value(ID_array, 5, RL_NUAVS-1);
+  int32_vect_set_value(ID_array, 5, RL_NUAVS - 1);
   number_filters = 0;
   pprzmsg_cnt = 0;
 
