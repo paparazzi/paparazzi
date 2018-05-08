@@ -256,7 +256,7 @@ extern void   i2c_event(void);
  * @return TRUE if insertion to the transaction queue succeeded
  */
 extern bool i2c_transmit(struct i2c_periph *p, struct i2c_transaction *t,
-                           uint8_t s_addr, uint8_t len);
+                         uint8_t s_addr, uint8_t len);
 
 /** Submit a read only transaction.
  * Convenience function which is usually preferred over i2c_submit,
@@ -268,7 +268,7 @@ extern bool i2c_transmit(struct i2c_periph *p, struct i2c_transaction *t,
  * @return TRUE if insertion to the transaction queue succeeded
  */
 extern bool i2c_receive(struct i2c_periph *p, struct i2c_transaction *t,
-                          uint8_t s_addr, uint16_t len);
+                        uint8_t s_addr, uint16_t len);
 
 /** Submit a write/read transaction.
  * Convenience function which is usually preferred over i2c_submit,
@@ -281,7 +281,7 @@ extern bool i2c_receive(struct i2c_periph *p, struct i2c_transaction *t,
  * @return TRUE if insertion to the transaction queue succeeded
  */
 extern bool i2c_transceive(struct i2c_periph *p, struct i2c_transaction *t,
-                             uint8_t s_addr, uint8_t len_w, uint16_t len_r);
+                           uint8_t s_addr, uint8_t len_w, uint16_t len_r);
 
 /** Submit a write only transaction and wait for it to complete.
  * Convenience function which is usually preferred over i2c_submit,
@@ -293,7 +293,7 @@ extern bool i2c_transceive(struct i2c_periph *p, struct i2c_transaction *t,
  * @return TRUE if insertion to the transaction queue succeeded
  */
 bool i2c_blocking_transmit(struct i2c_periph *p, struct i2c_transaction *t,
-                  uint8_t s_addr, uint8_t len);
+                           uint8_t s_addr, uint8_t len);
 
 /** Submit a read only transaction and wait for it to complete.
  * Convenience function which is usually preferred over i2c_submit,
@@ -305,7 +305,7 @@ bool i2c_blocking_transmit(struct i2c_periph *p, struct i2c_transaction *t,
  * @return TRUE if insertion to the transaction queue succeeded
  */
 bool i2c_blocking_receive(struct i2c_periph *p, struct i2c_transaction *t,
-                 uint8_t s_addr, uint16_t len);
+                          uint8_t s_addr, uint16_t len);
 
 /** Submit a write/read transaction and wait for it to complete.
  * Convenience function which is usually preferred over i2c_submit,
@@ -318,7 +318,7 @@ bool i2c_blocking_receive(struct i2c_periph *p, struct i2c_transaction *t,
  * @return TRUE if insertion to the transaction queue succeeded
  */
 bool i2c_blocking_transceive(struct i2c_periph *p, struct i2c_transaction *t,
-                    uint8_t s_addr, uint8_t len_w, uint16_t len_r);
+                             uint8_t s_addr, uint8_t len_w, uint16_t len_r);
 /** @}*/
 /** @}*/
 

@@ -26,6 +26,7 @@
  */
 
 #include "mcu_periph/i2c.h"
+#include "mcu_periph/sys_time.h"
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
@@ -287,55 +288,64 @@ bool i2c_transceive(struct i2c_periph *p, struct i2c_transaction *t,
 }
 
 bool i2c_blocking_transmit(struct i2c_periph *p, struct i2c_transaction *t,
-                  uint8_t s_addr, uint8_t len)
+                           uint8_t s_addr, uint8_t len)
 {
   t->type = I2CTransTx;
   t->slave_addr = s_addr;
   t->len_w = len;
   t->len_r = 0;
-  if(!i2c_submit(p, t)){
+  if (!i2c_submit(p, t)) {
     return false;
   }
 
   // Wait for transaction to complete
-  while(t->status == I2CTransPending || t->status == I2CTransRunning) {
-    ;
+  float start_t = get_sys_time_float();
+  while (t->status == I2CTransPending || t->status == I2CTransRunning) {
+    if (get_sys_time_float() - start_t > 1.f) {
+      break;  // timeout after 1 second
+    }
   }
   return true;
 }
 
 bool i2c_blocking_receive(struct i2c_periph *p, struct i2c_transaction *t,
-                 uint8_t s_addr, uint16_t len)
+                          uint8_t s_addr, uint16_t len)
 {
   t->type = I2CTransRx;
   t->slave_addr = s_addr;
   t->len_w = 0;
   t->len_r = len;
-    if(!i2c_submit(p, t)){
+  if (!i2c_submit(p, t)) {
     return false;
   }
 
   // Wait for transaction to complete
-  while(t->status == I2CTransPending || t->status == I2CTransRunning) {
-    ;
+  float start_t = get_sys_time_float();
+  while (t->status == I2CTransPending || t->status == I2CTransRunning) {
+    if (get_sys_time_float() - start_t > 1.f) {
+      break;  // timeout after 1 second
+    }
   }
   return true;
 }
 
 bool i2c_blocking_transceive(struct i2c_periph *p, struct i2c_transaction *t,
-                    uint8_t s_addr, uint8_t len_w, uint16_t len_r)
+                             uint8_t s_addr, uint8_t len_w, uint16_t len_r)
 {
   t->type = I2CTransTxRx;
   t->slave_addr = s_addr;
   t->len_w = len_w;
   t->len_r = len_r;
-    if(!i2c_submit(p, t)){
+  if (!i2c_submit(p, t)) {
     return false;
   }
 
   // Wait for transaction to complete
-  while(t->status == I2CTransPending || t->status == I2CTransRunning) {
-    ;
+  float start_t = get_sys_time_float();
+  while (t->status == I2CTransPending || t->status == I2CTransRunning) {
+    if (get_sys_time_float() - start_t > 1.f) {
+      break;  // timeout after 1 second
+    }
   }
   return true;
 }
