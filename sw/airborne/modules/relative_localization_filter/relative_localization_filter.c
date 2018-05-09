@@ -40,7 +40,7 @@
 int32_t ID_array[RL_NUAVS - 1];
 uint32_t latest_update_time[RL_NUAVS - 1];
 uint8_t number_filters;
-discrete_ekf ekf_rl[RL_NUAVS - 1];
+struct discrete_ekf ekf_rl[RL_NUAVS - 1];
 float range_array[RL_NUAVS - 1];
 uint8_t pprzmsg_cnt;
 

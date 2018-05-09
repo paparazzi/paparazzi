@@ -26,7 +26,6 @@
 #ifndef DISCRETE_EKF_H
 #define DISCRETE_EKF_H
 
-// #include "fmatrix.h"
 #include "stdlib.h"
 #include "string.h"
 #include "math.h"
@@ -34,7 +33,7 @@
 #define EKF_N 7
 #define EKF_M 6
 
-typedef struct discrete_ekf {
+struct discrete_ekf {
   float X[EKF_N];  // state X
   float Xp[EKF_N]; // state prediction
   float Zp[EKF_M]; // measurement prediction
@@ -49,14 +48,13 @@ typedef struct discrete_ekf {
   float tmp3[EKF_N][EKF_N];
 
   float dt;
-
-} discrete_ekf;
+};
 
 extern void linear_filter(float *X, float dt, float *dX, float **A);
 extern void linear_measure(float *X, float *Y, float **H);
 
-extern void discrete_ekf_new(discrete_ekf *filter);
-extern void discrete_ekf_predict(discrete_ekf *filter);
-extern void discrete_ekf_update(discrete_ekf *filter, float *y);
+extern void discrete_ekf_new(struct discrete_ekf *filter);
+extern void discrete_ekf_predict(struct discrete_ekf *filter);
+extern void discrete_ekf_update(struct discrete_ekf *filter, float *y);
 
 #endif /* DISCRETE_EKF_H */

@@ -29,11 +29,11 @@
 #include <stdio.h> // needed for the printf statements
 
 // Weights are based on: Coppola et al, "On-board Communication-based Relative Localization for Collision Avoidance in Micro Air Vehicle teams", 2017
-void discrete_ekf_new(discrete_ekf *filter)
+void discrete_ekf_new(struct discrete_ekf *filter)
 {
   // P Matrix
   MAKE_MATRIX_PTR(_P, filter->P, EKF_N);
-  float_mat_identity_scal(_P, 1.0, EKF_N);
+  float_mat_identity_scal(_P, 1.f, EKF_N);
   filter->P[2][2] = 0.1;
   filter->P[3][3] = 0.1;
   filter->P[4][4] = 0.1;
@@ -42,12 +42,12 @@ void discrete_ekf_new(discrete_ekf *filter)
 
   // Q Matrix
   MAKE_MATRIX_PTR(_Q, filter->Q, EKF_N);
-  float_mat_identity_scal(_Q, pow(0.3, 2.0), EKF_N);
+  float_mat_identity_scal(_Q, pow(0.3, 2.f), EKF_N);
   filter->Q[0][0] = 0.01;
   filter->Q[1][1] = 0.01;
 
   MAKE_MATRIX_PTR(_R, filter->R, EKF_M);
-  float_mat_identity_scal(_R, pow(0.1, 2.0), EKF_M);
+  float_mat_identity_scal(_R, pow(0.1, 2.f), EKF_M);
   filter->R[0][0] = 0.2;
 
   // Initial assumptions
@@ -70,7 +70,7 @@ void discrete_ekf_new(discrete_ekf *filter)
       H = Jacobian of h(x)
 
 */
-void discrete_ekf_predict(discrete_ekf *filter)
+void discrete_ekf_predict(struct discrete_ekf *filter)
 {
   float dX[EKF_N];
 
@@ -109,7 +109,7 @@ void discrete_ekf_predict(discrete_ekf *filter)
     Update P
       P = (eye(numel(x)) - K * H) * P;
 */
-void discrete_ekf_update(discrete_ekf *filter, float *Z)
+void discrete_ekf_update(struct discrete_ekf *filter, float *Z)
 {
   MAKE_MATRIX_PTR(_tmp1, filter->tmp1, EKF_N);
   MAKE_MATRIX_PTR(_tmp2, filter->tmp2, EKF_N);
@@ -152,7 +152,7 @@ void linear_filter(float *X, float dt, float *dX, float **A)
   dX[1] = -(X[3] - X[5]) * dt;
 
   // A(x)
-  float_mat_identity_scal(A, 1.0, EKF_N);
+  float_mat_identity_scal(A, 1.f, EKF_N);
   A[0][2] = -dt;
   A[0][4] =  dt;
   A[1][3] = -dt;
@@ -163,7 +163,7 @@ void linear_filter(float *X, float dt, float *dX, float **A)
 void linear_measure(float *X, float *Z, float **H)
 {
   uint8_t row, col;
-  Z[0] = sqrt(pow(X[0], 2.0) + pow(X[1], 2.0) + pow(X[6], 2.0));
+  Z[0] = sqrt(pow(X[0], 2.f) + pow(X[1], 2.f) + pow(X[6], 2.f));
   Z[1] = X[2]; // x velocity of i (north)
   Z[2] = X[3]; // y velocity of i (east)
   Z[3] = X[4]; // x velocity of j (north)
@@ -175,7 +175,7 @@ void linear_measure(float *X, float *Z, float **H)
     for (col = 0 ; col < EKF_N ; col++) {
       // x, y, and z pos columns are affected by the range measurement
       if ((row == 0) && (col == 0 || col == 1 || col == 6)) {
-        H[row][col] = X[col] / sqrt(pow(X[0], 2.0) + pow(X[1], 2.0) + pow(X[6], 2.0));
+        H[row][col] = X[col] / sqrt(pow(X[0], 2.f) + pow(X[1], 2.f) + pow(X[6], 2.f));
       }
 
       // All other values are 1
@@ -184,11 +184,11 @@ void linear_measure(float *X, float *Z, float **H)
                ((row == 3) && (col == 4)) ||
                ((row == 4) && (col == 5)) ||
                ((row == 5) && (col == 6))) {
-        H[row][col] = 1.0;
+        H[row][col] = 1.f;
       }
 
       else {
-        H[row][col] = 0.0;
+        H[row][col] = 0.f;
       }
     }
   }

@@ -32,7 +32,8 @@
 
 #include "discrete_ekf.h"
 
-extern discrete_ekf ekf_rl[RL_NUAVS - 1];
+// This can be used elsewhere to directly read out the result of the ekf
+extern struct discrete_ekf ekf_rl[RL_NUAVS - 1];
 
 void relative_localization_filter_init(void);
 void relative_localization_filter_periodic(void);
