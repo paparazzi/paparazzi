@@ -287,6 +287,11 @@ bool i2c_transceive(struct i2c_periph *p, struct i2c_transaction *t,
   return i2c_submit(p, t);
 }
 
+/** Default timeout for blocking I2C transactions */
+#ifndef I2C_BLOCKING_TIMEOUT
+#define I2C_BLOCKING_TIMEOUT 1.f
+#endif
+
 bool i2c_blocking_transmit(struct i2c_periph *p, struct i2c_transaction *t,
                            uint8_t s_addr, uint8_t len)
 {
@@ -301,7 +306,7 @@ bool i2c_blocking_transmit(struct i2c_periph *p, struct i2c_transaction *t,
   // Wait for transaction to complete
   float start_t = get_sys_time_float();
   while (t->status == I2CTransPending || t->status == I2CTransRunning) {
-    if (get_sys_time_float() - start_t > 1.f) {
+    if (get_sys_time_float() - start_t > I2C_BLOCKING_TIMEOUT) {
       break;  // timeout after 1 second
     }
   }
@@ -322,7 +327,7 @@ bool i2c_blocking_receive(struct i2c_periph *p, struct i2c_transaction *t,
   // Wait for transaction to complete
   float start_t = get_sys_time_float();
   while (t->status == I2CTransPending || t->status == I2CTransRunning) {
-    if (get_sys_time_float() - start_t > 1.f) {
+    if (get_sys_time_float() - start_t > I2C_BLOCKING_TIMEOUT) {
       break;  // timeout after 1 second
     }
   }
@@ -343,7 +348,7 @@ bool i2c_blocking_transceive(struct i2c_periph *p, struct i2c_transaction *t,
   // Wait for transaction to complete
   float start_t = get_sys_time_float();
   while (t->status == I2CTransPending || t->status == I2CTransRunning) {
-    if (get_sys_time_float() - start_t > 1.f) {
+    if (get_sys_time_float() - start_t > I2C_BLOCKING_TIMEOUT) {
       break;  // timeout after 1 second
     }
   }
