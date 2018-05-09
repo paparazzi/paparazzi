@@ -1,5 +1,8 @@
 //
-// Bluegiga's Bluetooth Smart Demo Application
+// This is an adaptation of Bluegiga's Bluetooth Smart Demo Application to support STDMA 
+// communication between different dongles. This way, drones with the module can communicate 
+// and measure their RSSI.
+//
 // Contact: support@bluegiga.com.
 //
 // This is free software distributed under the terms of the MIT license reproduced below.
