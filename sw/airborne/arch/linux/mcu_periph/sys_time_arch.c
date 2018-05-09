@@ -103,9 +103,7 @@ void sys_time_arch_init(void)
     perror("Could not setup sys_time_thread");
     return;
   }
-#ifndef MACOSX
   pthread_setname_np(tid, "pprz_sys_time_thread");
-#endif
 }
 
 static void sys_tick_handler(void)

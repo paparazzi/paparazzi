@@ -59,7 +59,9 @@ void udp_arch_init(void)
     fprintf(stderr, "udp_arch_init: Could not create UDP reading thread.\n");
     return;
   }
+#ifndef __APPLE__
   pthread_setname_np(tid, "pprz_udp_thread");
+#endif
 }
 
 /**
