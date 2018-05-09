@@ -28,8 +28,6 @@
 #ifndef SIM_MCU_PERIPH_I2C_ARCH_H
 #define SIM_MCU_PERIPH_I2C_ARCH_H
 
-#include "mcu_periph/i2c.h"
-
 #define I2cSendStart() {}
 
 

@@ -228,7 +228,7 @@ extern bool i2c_idle(struct i2c_periph *p);
  * Must be implemented by the underlying architecture
  * @param p i2c peripheral to be used
  * @param t i2c transaction
- * @return TRUE if insertion to the transaction queue succeded
+ * @return TRUE if insertion to the transaction queue succeeded
  */
 extern bool i2c_submit(struct i2c_periph *p, struct i2c_transaction *t);
 
@@ -253,10 +253,10 @@ extern void   i2c_event(void);
  * @param t i2c transaction
  * @param s_addr slave address
  * @param len number of bytes to transmit
- * @return TRUE if insertion to the transaction queue succeded
+ * @return TRUE if insertion to the transaction queue succeeded
  */
 extern bool i2c_transmit(struct i2c_periph *p, struct i2c_transaction *t,
-                           uint8_t s_addr, uint8_t len);
+                         uint8_t s_addr, uint8_t len);
 
 /** Submit a read only transaction.
  * Convenience function which is usually preferred over i2c_submit,
@@ -265,10 +265,10 @@ extern bool i2c_transmit(struct i2c_periph *p, struct i2c_transaction *t,
  * @param t i2c transaction
  * @param s_addr slave address
  * @param len number of bytes to receive
- * @return TRUE if insertion to the transaction queue succeded
+ * @return TRUE if insertion to the transaction queue succeeded
  */
 extern bool i2c_receive(struct i2c_periph *p, struct i2c_transaction *t,
-                          uint8_t s_addr, uint16_t len);
+                        uint8_t s_addr, uint16_t len);
 
 /** Submit a write/read transaction.
  * Convenience function which is usually preferred over i2c_submit,
@@ -278,11 +278,47 @@ extern bool i2c_receive(struct i2c_periph *p, struct i2c_transaction *t,
  * @param s_addr slave address
  * @param len_w number of bytes to transmit
  * @param len_r number of bytes to receive
- * @return TRUE if insertion to the transaction queue succeded
+ * @return TRUE if insertion to the transaction queue succeeded
  */
 extern bool i2c_transceive(struct i2c_periph *p, struct i2c_transaction *t,
-                             uint8_t s_addr, uint8_t len_w, uint16_t len_r);
+                           uint8_t s_addr, uint8_t len_w, uint16_t len_r);
 
+/** Submit a write only transaction and wait for it to complete.
+ * Convenience function which is usually preferred over i2c_submit,
+ * as it explicitly sets the transaction type again.
+ * @param p i2c peripheral to be used
+ * @param t i2c transaction
+ * @param s_addr slave address
+ * @param len number of bytes to transmit
+ * @return TRUE if insertion to the transaction queue succeeded
+ */
+bool i2c_blocking_transmit(struct i2c_periph *p, struct i2c_transaction *t,
+                           uint8_t s_addr, uint8_t len);
+
+/** Submit a read only transaction and wait for it to complete.
+ * Convenience function which is usually preferred over i2c_submit,
+ * as it explicitly sets the transaction type again.
+ * @param p i2c peripheral to be used
+ * @param t i2c transaction
+ * @param s_addr slave address
+ * @param len number of bytes to receive
+ * @return TRUE if insertion to the transaction queue succeeded
+ */
+bool i2c_blocking_receive(struct i2c_periph *p, struct i2c_transaction *t,
+                          uint8_t s_addr, uint16_t len);
+
+/** Submit a write/read transaction and wait for it to complete.
+ * Convenience function which is usually preferred over i2c_submit,
+ * as it explicitly sets the transaction type again.
+ * @param p i2c peripheral to be used
+ * @param t i2c transaction
+ * @param s_addr slave address
+ * @param len_w number of bytes to transmit
+ * @param len_r number of bytes to receive
+ * @return TRUE if insertion to the transaction queue succeeded
+ */
+bool i2c_blocking_transceive(struct i2c_periph *p, struct i2c_transaction *t,
+                             uint8_t s_addr, uint8_t len_w, uint16_t len_r);
 /** @}*/
 /** @}*/
 

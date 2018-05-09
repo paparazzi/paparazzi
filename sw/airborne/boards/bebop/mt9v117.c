@@ -214,7 +214,7 @@ static void write_reg(struct mt9v117_t *mt, uint16_t addr, uint32_t val, uint16_
   }
 
   // Transmit the buffer
-  i2c_transmit(mt->i2c_periph, &mt->i2c_trans, MT9V117_ADDRESS, len + 2);
+  i2c_blocking_transmit(mt->i2c_periph, &mt->i2c_trans, MT9V117_ADDRESS, len + 2);
 }
 
 /**
@@ -227,7 +227,7 @@ static uint32_t read_reg(struct mt9v117_t *mt, uint16_t addr, uint16_t len)
   mt->i2c_trans.buf[1] = addr & 0xFF;
 
   // Transmit the buffer and receive back
-  i2c_transceive(mt->i2c_periph, &mt->i2c_trans, MT9V117_ADDRESS, 2, len);
+  i2c_blocking_transceive(mt->i2c_periph, &mt->i2c_trans, MT9V117_ADDRESS, 2, len);
 
   /* Fix sigdness */
   for (uint8_t i = 0; i < len; i++) {
@@ -285,7 +285,7 @@ static inline void mt9v117_write_patch(struct mt9v117_t *mt)
     }
 
     // Transmit the buffer
-    i2c_transmit(mt->i2c_periph, &mt->i2c_trans, mt->i2c_trans.slave_addr, mt9v117_patch_lines[i].len);
+    i2c_blocking_transmit(mt->i2c_periph, &mt->i2c_trans, mt->i2c_trans.slave_addr, mt9v117_patch_lines[i].len);
   }
 
   write_reg(mt, MT9V117_LOGICAL_ADDRESS_ACCESS, 0x0000, 2);

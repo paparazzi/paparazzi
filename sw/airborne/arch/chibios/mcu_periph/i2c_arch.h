@@ -33,8 +33,6 @@
 #ifndef I2C_HW_H
 #define I2C_HW_H
 
-#include "mcu_periph/i2c.h"
-
 #if USE_I2C1
 extern void i2c1_hw_init(void);
 #endif /* USE_I2C1 */

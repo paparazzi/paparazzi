@@ -32,10 +32,6 @@
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
-#ifndef _GNU_SOURCE
-// for pthread_setname_np
-#define _GNU_SOURCE
-#endif
 #include <pthread.h>
 #include <linux/input.h>
 

@@ -74,7 +74,7 @@ void actuators_bebop_commit(void)
 {
   // Receive the status
   actuators_bebop.i2c_trans.buf[0] = ACTUATORS_BEBOP_GET_OBS_DATA;
-  i2c_transceive(&i2c1, &actuators_bebop.i2c_trans, actuators_bebop.i2c_trans.slave_addr, 1, 13);
+  i2c_blocking_transceive(&i2c1, &actuators_bebop.i2c_trans, actuators_bebop.i2c_trans.slave_addr, 1, 13);
 
   // Update status
   electrical.vsupply = (actuators_bebop.i2c_trans.buf[9] + (actuators_bebop.i2c_trans.buf[8] << 8)) / 100;
@@ -94,7 +94,7 @@ void actuators_bebop_commit(void)
   if (actuators_bebop.i2c_trans.buf[10] != 4 && actuators_bebop.i2c_trans.buf[10] != 2 && autopilot_get_motors_on()) {
     // Reset the error
     actuators_bebop.i2c_trans.buf[0] = ACTUATORS_BEBOP_CLEAR_ERROR;
-    i2c_transmit(&i2c1, &actuators_bebop.i2c_trans, actuators_bebop.i2c_trans.slave_addr, 1);
+    i2c_blocking_transmit(&i2c1, &actuators_bebop.i2c_trans, actuators_bebop.i2c_trans.slave_addr, 1);
 
     // Start the motors
     actuators_bebop.i2c_trans.buf[0] = ACTUATORS_BEBOP_START_PROP;
@@ -104,12 +104,12 @@ void actuators_bebop_commit(void)
 #else
     actuators_bebop.i2c_trans.buf[1] = 0b00000101;
 #endif
-    i2c_transmit(&i2c1, &actuators_bebop.i2c_trans, actuators_bebop.i2c_trans.slave_addr, 2);
+    i2c_blocking_transmit(&i2c1, &actuators_bebop.i2c_trans, actuators_bebop.i2c_trans.slave_addr, 2);
   }
   // Stop the motors
   else if (actuators_bebop.i2c_trans.buf[10] == 4 && !autopilot_get_motors_on()) {
     actuators_bebop.i2c_trans.buf[0] = ACTUATORS_BEBOP_STOP_PROP;
-    i2c_transmit(&i2c1, &actuators_bebop.i2c_trans, actuators_bebop.i2c_trans.slave_addr, 1);
+    i2c_blocking_transmit(&i2c1, &actuators_bebop.i2c_trans, actuators_bebop.i2c_trans.slave_addr, 1);
   } else if (actuators_bebop.i2c_trans.buf[10] == 4 && autopilot_get_motors_on()) {
     // Send the commands
     actuators_bebop.i2c_trans.buf[0] = ACTUATORS_BEBOP_SET_REF_SPEED;
@@ -126,14 +126,14 @@ void actuators_bebop_commit(void)
 #pragma GCC diagnostic ignored "-Wcast-qual"
     actuators_bebop.i2c_trans.buf[10] = actuators_bebop_checksum((uint8_t *)actuators_bebop.i2c_trans.buf, 9);
 #pragma GCC diagnostic pop
-    i2c_transmit(&i2c1, &actuators_bebop.i2c_trans, actuators_bebop.i2c_trans.slave_addr, 11);
+    i2c_blocking_transmit(&i2c1, &actuators_bebop.i2c_trans, actuators_bebop.i2c_trans.slave_addr, 11);
   }
 
   // Update the LEDs
   if (actuators_bebop.led != (led_hw_values & 0x3)) {
     actuators_bebop.i2c_trans.buf[0] = ACTUATORS_BEBOP_TOGGLE_GPIO;
     actuators_bebop.i2c_trans.buf[1] = (led_hw_values & 0x3);
-    i2c_transmit(&i2c1, &actuators_bebop.i2c_trans, actuators_bebop.i2c_trans.slave_addr, 2);
+    i2c_blocking_transmit(&i2c1, &actuators_bebop.i2c_trans, actuators_bebop.i2c_trans.slave_addr, 2);
 
     actuators_bebop.led = led_hw_values & 0x3;
   }

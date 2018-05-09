@@ -26,10 +26,6 @@
 
 #include "mcu_periph/sys_time.h"
 #include <stdio.h>
-#ifndef _GNU_SOURCE
-// for pthread_setname_np
-#define _GNU_SOURCE
-#endif
 #include <pthread.h>
 #include <sys/timerfd.h>
 #include <time.h>
@@ -107,7 +103,9 @@ void sys_time_arch_init(void)
     perror("Could not setup sys_time_thread");
     return;
   }
+#ifndef MACOSX
   pthread_setname_np(tid, "pprz_sys_time_thread");
+#endif
 }
 
 static void sys_tick_handler(void)
