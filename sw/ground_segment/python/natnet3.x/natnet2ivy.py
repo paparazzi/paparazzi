@@ -126,7 +126,11 @@ def compute_velocity(ac_id):
     return vel
 
 def receiveRigidBodyList( rigidBodyList, stamp ):
-    for (ac_id, pos, quat) in rigidBodyList:
+    for (ac_id, pos, quat, valid) in rigidBodyList:
+        if not valid:
+            # skip if rigid body is not valid
+            continue
+
         i = str(ac_id)
         if i not in id_dict.keys():
             continue

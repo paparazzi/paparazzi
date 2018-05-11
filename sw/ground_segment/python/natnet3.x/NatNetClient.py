@@ -100,9 +100,6 @@ class NatNetClient:
         offset += 16
         self.__trace( "\tOrientation:", rot[0],",", rot[1],",", rot[2],",", rot[3] )
 
-        # Store data
-        self.rigidBodyList.append((id, pos, rot))
-
         # Send information to any listener.
         if self.rigidBodyListener is not None:
             self.rigidBodyListener( id, pos, rot )
@@ -140,11 +137,15 @@ class NatNetClient:
             self.__trace( "\tMarker Error:", markerError )
 
         # Version 2.6 and later
+        trackingValid = True # set valid by default
         if( ( ( self.__natNetStreamVersion[0] == 2 ) and ( self.__natNetStreamVersion[1] >= 6 ) ) or self.__natNetStreamVersion[0] > 2 or self.__natNetStreamVersion[0] == 0 ):
             param, = struct.unpack( 'h', data[offset:offset+2] )
             trackingValid = ( param & 0x01 ) != 0
             offset += 2
             self.__trace( "\tTracking Valid:", 'True' if trackingValid else 'False' )
+
+        # Store data
+        self.rigidBodyList.append((id, pos, rot, trackingValid))
 
         return offset
 
