@@ -60,7 +60,7 @@ void uart_arch_init(void)
     fprintf(stderr, "uart_arch_init: Could not create UART reading thread.\n");
     return;
   }
-#ifndef MACOSX
+#ifndef __APPLE__
   pthread_setname_np(tid, "pprz_uart_thread");
 #endif
 }
