@@ -157,7 +157,7 @@
     </message>
 
     <message name="RELATIVE_LOCALIZATION_EKF" id="24">
-      <field name="id" type="uint8_t"/>
+      <field name="id" type="int32_t"/>
       <field name="x" type="float" unit="m"/>
       <field name="y" type="float" unit="m"/>
       <field name="z" type="float" unit="m"/>

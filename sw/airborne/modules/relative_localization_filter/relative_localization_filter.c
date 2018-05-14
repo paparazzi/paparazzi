@@ -94,7 +94,7 @@ static void send_relative_localization_data(struct transport_tx *trans, struct l
 
 void relative_localization_filter_init(void)
 {
-  int32_vect_set_value(id_array, RL_NUAVS+1, RL_NUAVS); // The id_array is filled up with non-existant IDs (assuming drone ids are 0,1,2...)
+  int32_vect_set_value(id_array, RL_NUAVS+1, RL_NUAVS); // The id_array is initialized with non-existant IDs (assuming uwb ids are 0,1,2...)
   number_filters = 0;
   pprzmsg_cnt = 0;
 
@@ -104,9 +104,8 @@ void relative_localization_filter_init(void)
 
 void relative_localization_filter_periodic(void)
 {
-  for (int i = 0; i < number_filter; i++) {
-    AbiSendMsgRELATIVE_LOCALIZATION_EKF(RL_EKF_ID, id_array[i],
-      ekf_rl[i].X[0], ekf_rl[i].X[1], ekf_rl[i][6]
-      ekf_rl[i].X[4], ekf_rl[i].X[5])
+  for (int i = 0; i < number_filters; i++) {
+    // send id, x, y, z, vx, vy
+    AbiSendMsgRELATIVE_LOCALIZATION_EKF(RL_EKF_ID, id_array[i], ekf_rl[i].X[0], ekf_rl[i].X[1], ekf_rl[i].X[6], ekf_rl[i].X[4], ekf_rl[i].X[5]);
   }
-}
+};
