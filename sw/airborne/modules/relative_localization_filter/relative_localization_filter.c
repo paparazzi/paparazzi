@@ -37,11 +37,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int32_t ID_array[RL_NUAVS - 1];
-uint32_t latest_update_time[RL_NUAVS - 1];
+int32_t ID_array[RL_NUAVS];
+uint32_t latest_update_time[RL_NUAVS];
 uint8_t number_filters;
-struct discrete_ekf ekf_rl[RL_NUAVS - 1];
-float range_array[RL_NUAVS - 1];
+struct discrete_ekf ekf_rl[RL_NUAVS];
+float range_array[RL_NUAVS];
 uint8_t pprzmsg_cnt;
 
 static abi_event range_communication_event;
@@ -51,8 +51,8 @@ static void range_msg_callback(uint8_t sender_id __attribute__((unused)),
   int idx = -1; // Initialize the index of all tracked drones (-1 for null assumption of no drone found)
 
   // Check if a new aircraft ID is present, if it's a new ID we start a new EKF for it.
-  if (!int32_vect_find(ID_array, ac_id, &idx, RL_NUAVS - 1) &&
-      (number_filters < (RL_NUAVS - 1))) {
+  if (!int32_vect_find(ID_array, ac_id, &idx, RL_NUAVS) &&
+      (number_filters < (RL_NUAVS))) {
     ID_array[number_filters] = ac_id;
     discrete_ekf_new(&ekf_rl[number_filters]);
     number_filters++;
@@ -88,7 +88,7 @@ static void send_relative_localization_data(struct transport_tx *trans, struct l
 
 void relative_localization_filter_init(void)
 {
-  int32_vect_set_value(ID_array, 5, RL_NUAVS - 1);
+  int32_vect_set_value(ID_array, 5, RL_NUAVS);
   number_filters = 0;
   pprzmsg_cnt = 0;
 

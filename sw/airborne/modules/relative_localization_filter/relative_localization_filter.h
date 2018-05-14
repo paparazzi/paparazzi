@@ -27,13 +27,13 @@
 #define RELATIVE_LOCALIZATION_FILTER_H
 
 #ifndef RL_NUAVS
-#define RL_NUAVS 5 // Maximum expected number of UAVs
+#define RL_NUAVS 4 // Maximum expected number of other UAVs
 #endif
 
 #include "discrete_ekf.h"
 
 // This can be used elsewhere to directly read out the result of the ekf
-extern struct discrete_ekf ekf_rl[RL_NUAVS - 1];
+extern struct discrete_ekf ekf_rl[RL_NUAVS];
 
 void relative_localization_filter_init(void);
 void relative_localization_filter_periodic(void);
