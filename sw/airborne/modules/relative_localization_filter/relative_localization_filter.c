@@ -37,12 +37,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int32_t id_array[RL_NUAVS];
+int32_t id_array[RL_NUAVS]; // array of UWB IDs of all drones
 uint32_t latest_update_time[RL_NUAVS];
-uint8_t number_filters;
-struct discrete_ekf ekf_rl[RL_NUAVS];
-float range_array[RL_NUAVS];
-uint8_t pprzmsg_cnt;
+uint8_t number_filters; // the number of filters running in parallel
+struct discrete_ekf ekf_rl[RL_NUAVS]; 
+float range_array[RL_NUAVS]; // an array to store the ranges at which the other MAVs are
+uint8_t pprzmsg_cnt; // a counter to send paparazzi messages, which are sent in rotation
 
 static abi_event range_communication_event;
 static void range_msg_callback(uint8_t sender_id __attribute__((unused)),
@@ -52,7 +52,7 @@ static void range_msg_callback(uint8_t sender_id __attribute__((unused)),
 
   // Check if a new aircraft ID is present, if it's a new ID we start a new EKF for it.
   if (!int32_vect_find(id_array, ac_id, &idx, RL_NUAVS) &&
-      (number_filters < (RL_NUAVS))) {
+      (number_filters < RL_NUAVS)) {
     id_array[number_filters] = ac_id;
     discrete_ekf_new(&ekf_rl[number_filters]);
     number_filters++;
