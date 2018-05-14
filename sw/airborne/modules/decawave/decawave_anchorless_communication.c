@@ -288,7 +288,6 @@ void decawave_anchorless_communication_periodic(void)
   sendFloat(UWB_SERIAL_COMM_AX, stateGetAccelNed_f()->x);
   sendFloat(UWB_SERIAL_COMM_AY, stateGetAccelNed_f()->y);
   sendFloat(UWB_SERIAL_COMM_YAWR, stateGetBodyRates_f()->r);
-
 }
 
 /**

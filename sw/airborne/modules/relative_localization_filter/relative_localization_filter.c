@@ -25,7 +25,7 @@
 
 #include "relative_localization_filter.h"
 #include "subsystems/datalink/telemetry.h"
-#include "state.h" // To get current velocity and height
+#include "state.h" // To get current states
 
 #include "modules/datalink/extra_pprz_dl.h"
 #include "subsystems/abi.h"
@@ -36,6 +36,12 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "discrete_ekf.h"
+
+#ifndef RL_NUAVS
+#define RL_NUAVS 4 // Maximum expected number of other UAVs
+#endif
 
 int32_t id_array[RL_NUAVS]; // array of UWB IDs of all drones
 uint32_t latest_update_time[RL_NUAVS];
@@ -95,3 +101,6 @@ void relative_localization_filter_init(void)
   AbiBindMsgUWB_COMMUNICATION(UWB_COMM_ID, &range_communication_event, range_msg_callback);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_RLFILTER, send_relative_localization_data);
 };
+
+
+
