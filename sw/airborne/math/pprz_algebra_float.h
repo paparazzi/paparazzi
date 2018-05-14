@@ -707,13 +707,14 @@ static inline void float_mat_mul(float **o, float **a, float **b, int m, int n, 
 /** o = a * b
  *
  * a: [m x n]
- * b: [n x l]
- * o: [m x l]
+ * b: [n x 1]
+ * o: [m x 1]
  */
 static inline void float_mat_vect_mul(float *o, float **a, float *b, int m, int n)
 {
   int i, j;
   for (i = 0; i < m; i++) {
+    o[i] = 0;
     for (j = 0; j < n; j++) {
       o[i] += a[i][j] * b[j];
     }
