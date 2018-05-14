@@ -33,7 +33,7 @@ void discrete_ekf_new(struct discrete_ekf *filter)
 {
   // P Matrix
   MAKE_MATRIX_PTR(_P, filter->P, EKF_N);
-  float_mat_identity_scal(_P, 1.f, EKF_N);
+  float_mat_diagonal_scal(_P, 1.f, EKF_N);
   filter->P[2][2] = 0.1;
   filter->P[3][3] = 0.1;
   filter->P[4][4] = 0.1;
@@ -42,12 +42,12 @@ void discrete_ekf_new(struct discrete_ekf *filter)
 
   // Q Matrix
   MAKE_MATRIX_PTR(_Q, filter->Q, EKF_N);
-  float_mat_identity_scal(_Q, pow(0.3, 2.f), EKF_N);
+  float_mat_diagonal_scal(_Q, pow(0.3, 2.f), EKF_N);
   filter->Q[0][0] = 0.01;
   filter->Q[1][1] = 0.01;
 
   MAKE_MATRIX_PTR(_R, filter->R, EKF_M);
-  float_mat_identity_scal(_R, pow(0.1, 2.f), EKF_M);
+  float_mat_diagonal_scal(_R, pow(0.1, 2.f), EKF_M);
   filter->R[0][0] = 0.2;
 
   // Initial assumptions
@@ -152,7 +152,7 @@ void linear_filter(float *X, float dt, float *dX, float **A)
   dX[1] = -(X[3] - X[5]) * dt;
 
   // A(x)
-  float_mat_identity_scal(A, 1.f, EKF_N);
+  float_mat_diagonal_scal(A, 1.f, EKF_N);
   A[0][2] = -dt;
   A[0][4] =  dt;
   A[1][3] = -dt;

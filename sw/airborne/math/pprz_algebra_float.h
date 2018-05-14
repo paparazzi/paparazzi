@@ -764,7 +764,7 @@ static inline void float_mat_col(float *o, float **a, int m, int c)
 }
 
 /** Make an n x n identity matrix (for matrix passed as array) */
-static inline void float_mat_identity_scal(float **o, float v, int n)
+static inline void float_mat_diagonal_scal(float **o, float v, int n)
 {
   int i, j;
   for (i = 0 ; i < n; i++) {
