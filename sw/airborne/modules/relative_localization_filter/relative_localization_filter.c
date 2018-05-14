@@ -102,5 +102,11 @@ void relative_localization_filter_init(void)
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_RLFILTER, send_relative_localization_data);
 };
 
-
-
+void relative_localization_filter_periodic(void)
+{
+  for (int i = 0; i < number_filter; i++) {
+    AbiSendMsgRELATIVE_LOCALIZATION_EKF(RL_EKF_ID, id_array[i],
+      ekf_rl[i].X[0], ekf_rl[i].X[1], ekf_rl[i][6]
+      ekf_rl[i].X[4], ekf_rl[i].X[5])
+  }
+}
