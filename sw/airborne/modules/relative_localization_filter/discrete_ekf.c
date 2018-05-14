@@ -92,7 +92,7 @@ void discrete_ekf_predict(struct discrete_ekf *filter)
 
   // P = A * P * A' + Q
   float_mat_mul(_tmp2, _tmp1, _P, EKF_N, EKF_N, EKF_N); // tmp2(=A*P) = A(=_tmp1)*_P
-  float_mat_transpose(_tmp1, EKF_N); // tmp1 = A'
+  float_mat_transpose_square(_tmp1, EKF_N); // tmp1 = A'
   float_mat_mul(_tmp3, _tmp2, _tmp1, EKF_N, EKF_N, EKF_N); // tmp3 = tmp2*tmp1 = A*P * A'
   float_mat_sum(_P, _tmp3, _Q, EKF_N, EKF_N); // P = tmp3(=A*P*A') + Q
 }
@@ -120,7 +120,7 @@ void discrete_ekf_update(struct discrete_ekf *filter, float *Z)
   MAKE_MATRIX_PTR(_R,    filter->R,    EKF_M);
 
   //  E = H * P * H' + R
-  float_mat_transpose_general(_Ht, _H, EKF_M, EKF_N); // Ht = H'
+  float_mat_transpose(_Ht, _H, EKF_M, EKF_N); // Ht = H'
   float_mat_mul(_tmp2, _P, _Ht, EKF_N, EKF_N, EKF_M); // tmp2 = P*Ht = P*H'
   float_mat_mul(_tmp1, _H, _tmp2, EKF_M, EKF_N, EKF_M); // tmp1 = H*P*H'
   float_mat_sum(_tmp3, _tmp1, _R, EKF_M, EKF_M); // E = tmp1(=H*P*H') + R

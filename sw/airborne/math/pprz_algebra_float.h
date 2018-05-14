@@ -661,7 +661,7 @@ static inline void float_mat_diff(float **o, float **a, float **b, int m, int n)
 }
 
 /** transpose square matrix */
-static inline void float_mat_transpose(float **a, int n)
+static inline void float_mat_transpose_square(float **a, int n)
 {
   int i, j;
   for (i = 0; i < n; i++) {
@@ -675,7 +675,7 @@ static inline void float_mat_transpose(float **a, int n)
 
 
 /** transpose non-square matrix */
-static inline void float_mat_transpose_general(float **o, float **a, int n, int m)
+static inline void float_mat_transpose(float **o, float **a, int n, int m)
 {
   int i, j;
   for (i = 0; i < n; i++) {
