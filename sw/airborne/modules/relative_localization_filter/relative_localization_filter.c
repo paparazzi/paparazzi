@@ -88,7 +88,7 @@ static void send_relative_localization_data(struct transport_tx *trans, struct l
 
 void relative_localization_filter_init(void)
 {
-  int32_vect_set_value(id_array, 5, RL_NUAVS);
+  int32_vect_set_value(id_array, RL_NUAVS+1, RL_NUAVS); // The id_array is filled up with non-existant IDs (assuming drone ids are 0,1,2...)
   number_filters = 0;
   pprzmsg_cnt = 0;
 
