@@ -51,7 +51,7 @@ endif
 # see https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=822949 and https://bugs.launchpad.net/ubuntu/+source/lablgtk2/+bug/1577236
 # Ubuntu 16.04: 2.18.3+dfsg-1   Ubuntu 16.10: 2.18.3+dfsg-2
 LABLGTK2_DEB := $(shell LC_ALL=C apt-cache policy liblablgtk2-ocaml | grep Installed | awk '{print $$2}' 2>/dev/null)
-ifneq (,$(findstring 2.18.3+dfsg, $(LABLGTK2_DEB)))
+ifneq (,$(findstring 2.18, $(LABLGTK2_DEB)))
 CAMLP4_DEFS = -DGDK_NATIVE_WINDOW
 endif
 CAMLP4_DEFS ?=
