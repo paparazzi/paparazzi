@@ -37,3 +37,7 @@
 [submodule "sw/ext/key_generator"]
 	path = sw/ext/key_generator
 	url = https://github.com/paparazzi/key_generator.git
+[submodule "sw/ext/tudelft_gazebo_models"]
+	path = sw/ext/tudelft_gazebo_models
+	url = https://github.com/tudelft/gazebo_models.git
+	shallow = true

@@ -20,7 +20,7 @@
     </program>
     <program name="Environment Simulator" command="sw/simulator/gaia"/>
     <program name="NatNet" command="sw/ground_segment/misc/natnet2ivy"/>
-    <program name="Gazebo" command="gzclient"/>
+    <program name="Gazebo" command="sw/tools/gzclient_launcher.sh"/>
   </section>
   <section name="sessions">
     <session name="Bebop basic">
