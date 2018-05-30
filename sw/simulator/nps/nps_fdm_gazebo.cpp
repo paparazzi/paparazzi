@@ -337,15 +337,32 @@ static void init_gazebo(void)
     std::exit(-1);
   }
 
-  cout << "Add Paparazzi model path: " << gazebodir + "models/" << endl;
+  cout << "Add Paparazzi paths: " << gazebodir << endl;
   gazebo::common::SystemPaths::Instance()->AddModelPaths(
     gazebodir + "models/");
+  sdf::addURIPath("model://", gazebodir + "models/");
+  sdf::addURIPath("world://", gazebodir + "world/");
+
+  cout << "Add TU Delft paths: " << pprz_home + "/sw/ext/tudelft_gazebo_models/" << endl;
+  gazebo::common::SystemPaths::Instance()->AddModelPaths(
+      pprz_home + "/sw/ext/tudelft_gazebo_models/models/");
+  sdf::addURIPath("model://", pprz_home + "/sw/ext/tudelft_gazebo_models/models/");
+  sdf::addURIPath("world://", pprz_home + "/sw/ext/tudelft_gazebo_models/world/");
 
   // get vehicles
-  cout << "Load vehicle: " << gazebodir + "models/" + NPS_GAZEBO_AC_NAME + "/" + NPS_GAZEBO_AC_NAME + ".sdf" << endl;
+  string vehicle_uri = "model://" + string(NPS_GAZEBO_AC_NAME) + "/" + string(NPS_GAZEBO_AC_NAME) + ".sdf";
+  string vehicle_filename = sdf::findFile(vehicle_uri, false);
+  if(vehicle_filename.empty()) {
+    cout << "ERROR, could not find vehicle " + vehicle_uri << endl;
+    std::exit(-1);
+  }
+  cout << "Load vehicle: " << vehicle_filename << endl;
   sdf::SDFPtr vehicle_sdf(new sdf::SDF());
   sdf::init(vehicle_sdf);
-  sdf::readFile(gazebodir + "models/" + NPS_GAZEBO_AC_NAME + "/" + NPS_GAZEBO_AC_NAME + ".sdf", vehicle_sdf);
+  if(!sdf::readFile(vehicle_filename, vehicle_sdf)) {
+    cout << "ERROR, could not read vehicle " + vehicle_filename << endl;
+    std::exit(-1);
+  }
 
   // add or set up sensors before the vehicle gets loaded
   // laser range array
@@ -378,10 +395,19 @@ static void init_gazebo(void)
 
 
   // get world
-  cout << "Load world: " << gazebodir + "world/" + NPS_GAZEBO_WORLD << endl;
+  string world_uri = "world://" + string(NPS_GAZEBO_WORLD);
+  string world_filename = sdf::findFile(world_uri, false);
+  if(world_filename.empty()) {
+    cout << "ERROR, could not find world " + world_uri << endl;
+    std::exit(-1);
+  }
+  cout << "Load world: " << world_filename << endl;
   sdf::SDFPtr world_sdf(new sdf::SDF());
   sdf::init(world_sdf);
-  sdf::readFile(gazebodir + "world/" + NPS_GAZEBO_WORLD, world_sdf);
+  if(!sdf::readFile(world_filename, world_sdf)) {
+    cout << "ERROR, could not read world " + world_filename << endl;
+    std::exit(-1);
+  }
 
   // add vehicles
   world_sdf->Root()->GetFirstElement()->InsertElement(vehicle_sdf->Root()->GetFirstElement());

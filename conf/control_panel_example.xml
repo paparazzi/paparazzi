@@ -76,6 +76,7 @@
       <arg flag="-r" constant="3"/>
     </program>
     <program name="rtcm2ivy" command="sw/ground_segment/misc/rtcm2ivy"/>
+    <program name="Gazebo" command="sw/tools/gzclient_launcher.sh"/>
  </section>
 
   <section name="sessions">
