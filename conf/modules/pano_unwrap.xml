@@ -76,6 +76,7 @@
   <init fun="pano_unwrap_init()"/>
   <makefile>
     <file name="pano_unwrap.c"/>
+    <define name="CV_ALLOW_VIDEO_TO_CHANGE_SIZE" value="1"/>
   </makefile>
 </module>
 
