@@ -1,0 +1,95 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="optical_flow_hover" dir="ctrl">
+  <doc>
+    <description>
+	This module implements monocular vision height estimation and uses this
+	estimate to stabilize a quadrotor using only a downwards
+	facing camera and an IMU. For scientific background please visit:
+	https://repository.tudelft.nl/islandora/object/uuid%3A6e3ce742-a974-491d-97c2-1cafc090b3d9
+
+	The gain height relationship as first described in
+	http://iopscience.iop.org/article/10.1088/1748-3190/11/1/016004 is
+	calibrated
+	in a controlled environment so that the resulting relationship can be
+	used to determine the height at which the quadrotor is flying.
+	In addition to the vertical axis the same principle is applied to the
+	horizontal axes.
+
+	A short guide on how to determine the slope:
+	Picking a relatively high OFH_RAMP* with a very high negative
+	OFH_COV*_SETPOINT (i.e. -6000000),
+	looking at when the quadrotor starts oscillating, the respective message
+	(covariances.*) should be used to determine a suitable
+	threshold value for OFH_COV*_SETPOINT. The slope can then be decreased to gain
+	accuracy in reaching the oscillations.
+	Finally when flying the quadrotor on different heights the gain at which
+	instability occurs can be noted to determine the slope of the
+	gain-height relationship.
+
+	Important settings:
+	-OFH_HOVER_METHOD/hover_method:
+	0, the method is applied to all 3 axes in the following order: Z - X - Y
+	1, the method is applied to all 3 axes at the same time
+	2, the method is applied to the Z axis and the estimated height is used
+	to determine the proper gains
+	for the horizontal axes using the predetermined relationship.
+
+	-XY_SYMMETRICAL is set to 1 if the drone is roughly symmetrical,
+	causing the found gains for the X axis is also used for the Y axis.
+	-OFH_*GAIN* can be used to set starting gains to prevent initial drift
+	while still estimating height and appropriate gains.
+	-OFH_REDUCTION* is used to reduce the gain after determining the oscillation to
+	stabilize the quadrotor.
+
+    </description>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings name="OpticalFlowHover">
+        <dl_settings name="General">
+          <dl_setting var="cov_method" min="0" step="1" max="1" values="input|past" module="ctrl/optical_flow_hover" shortname="COV_METHOD" param="OFH_COV_METHOD"/>
+          <dl_setting var="hover_method" min="0" step="1" max="2" values="Sub|Same|Smart" module="ctrl/optical_flow_hover" shortname="HOVER_METHOD" param="OFH_HOVER_METHOD"/>
+        </dl_settings>		        
+        <dl_settings name="Vertical">
+          <dl_setting var="of_hover_ctrl_Z.cov_setpoint" min="-5.05" step="0.00001" max="0" module="ctrl/optical_flow_hover" shortname="covDiv_set_point" param="OFH_COVDIV_SETPOINT"/>
+          <dl_setting var="of_hover_ctrl_Z.ramp" min="0" step="0.005" max="1" module="ctrl/optical_flow_hover" shortname="rampZ" param="OFH_RAMPZ"/>
+          <dl_setting var="of_hover_ctrl_Z.reduction_factor" min="0.1" step="0.01" max="1" module="ctrl/optical_flow_hover" shortname="reduction_factorZ" param="OFH_REDUCTIONZ"/>
+          <dl_setting var="of_hover_ctrl_Z.PID.P" min="0" step="0.01" max="1" module="ctrl/optical_flow_hover" shortname="pgainZ"/>
+          <dl_setting var="of_hover_ctrl_Z.PID.I" min="0" step="0.001" max="0.1" module="ctrl/optical_flow_hover" shortname="igainZ" param="OFH_IGAINZ"/>
+          <dl_setting var="of_hover_ctrl_Z.PID.D" min="0" step="0.01" max="1" module="ctrl/optical_flow_hover" shortname="dgainZ" param="OFH_DGAINZ"/>		        	
+        </dl_settings>		        
+        <dl_settings name="Horizontal">
+          <dl_setting var="of_hover_ctrl_X.cov_setpoint" min="-100000" step="100" max="10000" module="ctrl/optical_flow_hover" shortname="covFlow_set_pointX" param="OFH_COVDIV_SETPOINT"/>
+          <dl_setting var="of_hover_ctrl_Y.cov_setpoint" min="-100000" step="100" max="10000" module="ctrl/optical_flow_hover" shortname="covFlow_set_pointY" param="OFH_COVDIV_SETPOINT"/>
+          <dl_setting var="of_hover_ctrl_X.ramp" min="0" step="0.0001" max="0.05" module="ctrl/optical_flow_hover" shortname="rampX" param="OFH_RAMPXY"/>
+          <dl_setting var="of_hover_ctrl_Y.ramp" min="0" step="0.0001" max="0.05" module="ctrl/optical_flow_hover" shortname="rampY" param="OFH_RAMPXY"/>
+          <dl_setting var="of_hover_ctrl_X.reduction_factor" min="0.1" step="0.01" max="1" module="ctrl/optical_flow_hover" shortname="reduction_factorX" param="OFH_REDUCTIONXY"/>
+          <dl_setting var="of_hover_ctrl_Y.reduction_factor" min="0.1" step="0.01" max="1" module="ctrl/optical_flow_hover" shortname="reduction_factorY" param="OFH_REDUCTIONXY"/>
+          <dl_setting var="of_hover_ctrl_X.PID.P" min="0" step="0.00001" max="0.01" module="ctrl/optical_flow_hover" shortname="pgainX"/>
+          <dl_setting var="of_hover_ctrl_X.PID.I" min="0" step="0.00001" max="0.001" module="ctrl/optical_flow_hover" shortname="IgainX" param="OFH_IGAINX"/>
+          <dl_setting var="of_hover_ctrl_X.PID.D" min="0" step="0.00001" max="0.001" module="ctrl/optical_flow_hover" shortname="DgainX" param="OFH_DGAINX"/>
+          <dl_setting var="of_hover_ctrl_Y.PID.P" min="0" step="0.00001" max="0.01" module="ctrl/optical_flow_hover" shortname="pgainY"/>
+          <dl_setting var="of_hover_ctrl_Y.PID.I" min="0" step="0.00001" max="0.001" module="ctrl/optical_flow_hover" shortname="IgainY" param="OFH_IGAINY"/>
+          <dl_setting var="of_hover_ctrl_Y.PID.D" min="0" step="0.00001" max="0.001" module="ctrl/optical_flow_hover" shortname="DgainY" param="OFH_DGAINY"/>
+          <dl_setting var="oscphi" min="0" step="1" max="1" values="No|OSC" module="ctrl/optical_flow_hover" shortname="oscphi" />
+          <dl_setting var="osctheta" min="0" step="1" max="1" values="No|OSC" module="ctrl/optical_flow_hover" shortname="osctheta" />
+          <dl_setting var="derotated" min="0" step="1" max="1" values="Reg|Der" module="ctrl/optical_flow_hover" shortname="derotated" />
+        </dl_settings>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <header>
+    <file name="optical_flow_hover.h" />
+    <file name="optical_flow_functions.h" />
+  </header>
+
+  <init fun="optical_flow_hover_init()" />
+
+  <makefile target="ap">
+    <file name="optical_flow_hover.c" />
+    <file name="optical_flow_functions.c" />
+  </makefile>
+
+</module>

@@ -236,6 +236,7 @@ bool navdata_init()
     printf("[navdata] Could not create navdata reading thread!\n");
     return false;
   }
+  pthread_setname_np(navdata_thread, "pprz_navdata_thread");
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ARDRONE_NAVDATA, send_navdata);

@@ -34,7 +34,10 @@
     <module name="cv_opticflow">
       <define name="OPTICFLOW_CAMERA" value="bottom_camera"/>
       <define name="OPTICFLOW_DEROTATION_CORRECTION_FACTOR_X" value="0.8"/> <!--Obtained from a linefit--> 
-      <define name="OPTICFLOW_DEROTATION_CORRECTION_FACTOR_Y" value="0.85"/> <!--Obtained from a linefit--> 
+      <define name="OPTICFLOW_DEROTATION_CORRECTION_FACTOR_Y" value="0.85"/> <!--Obtained from a linefit-->
+      <!-- ARDrone2 FPS improvements - Remaining in sync with real life-->
+      <define name="OPTICFLOW_PYRAMID_LEVEL" value="0"/>
+      <define name="OPTICFLOW_FEATURE_MANAGEMENT" value="1"/> 
     </module>
 
     <module name="cv_colorfilter">
@@ -188,12 +191,10 @@
 
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES" value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
-    <define name="ACTUATOR_THRUSTS" value="1.55, 1.55, 1.55, 1.55" type="float[]"/>
-    <define name="ACTUATOR_TORQUES" value="0.155, -0.155, 0.155, -0.155" type="float[]"/>
     <define name="JSBSIM_MODEL" value="simple_ardrone2" type="string"/>
     <define name="SENSORS_PARAMS" value="nps_sensors_params_ardrone2.h" type="string"/>
-    <define name="BYPASS_AHRS" value="1"/>
   </section>
+  <include href="conf/simulator/gazebo/airframes/ardrone2.xml"/>
 
   <section name="AUTOPILOT">
     <define name="MODE_STARTUP" value="AP_MODE_NAV"/>

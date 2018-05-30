@@ -70,6 +70,7 @@ MODULES_H=$(AC_GENERATED)/modules.h
 MODULES_DIR=$(PAPARAZZI_HOME)/conf/modules/
 AUTOPILOT_DIR=$(AC_GENERATED)/
 AIRCRAFT_MD5=$(AIRCRAFT_CONF_DIR)/aircraft.md5
+GENERATE_KEYS ?= 0
 
 UNAME = $(shell uname -s)
 ifeq ("$(UNAME)","Darwin")
@@ -152,14 +153,15 @@ print_version:
 	@echo "Paparazzi version" $(GIT_DESC)$(VERSION_MATCH)
 	@echo "-----------------------------------------------------------------------"
 
-all_ac_h: $(SRCS_LIST) qt_project
+all_ac_h: $(SRCS_LIST) qt_project generate_keys
 
-$(SRCS_LIST) : $(CONF_XML) $(AIRFRAME_H) $(MODULES_H) autopilot_h $(SETTINGS_H) $(MAKEFILE_AC) $(PERIODIC_H)
+$(SRCS_LIST) : $(CONF_XML) $(AIRFRAME_H) $(MODULES_H) $(SETTINGS_H) $(MAKEFILE_AC) $(PERIODIC_H)
 	@echo "TARGET: " $(TARGET) > $(SRCS_LIST)
 	@echo "CFLAGS: " $(CFLAGS) $(IINCDIR) $(TOPT) >> $(SRCS_LIST)
 	@echo "LDFLAGS: " $($(TARGET).LDFLAGS) >> $(SRCS_LIST)
 	@echo "srcs: " $($(TARGET).srcs) >> $(SRCS_LIST)
 	@echo -n "headers:  " >> $(SRCS_LIST)
+ifneq ($(PAPARAZZI_QT_GEN),)
 	@echo $(VPATH) > $(TMP_LIST)
 	@echo $($(TARGET).srcs) >> $(TMP_LIST)
 ifeq (,$(findstring cpp,$($(TARGET).srcs)))
@@ -175,6 +177,18 @@ else
 	@echo ../../sw/tools/find_vpaths.py $(CXX)  $(TMP_LIST) $(PAPARAZZI_SRC)
 	$(Q)cd $(PAPARAZZI_SRC) ; ./sw/tools/find_vpaths.py $(CXX) $(TMP_LIST) $(PAPARAZZI_SRC) >> $(SRCS_LIST)
 endif
+endif
+
+CARGO=$(shell which cargo)
+generate_keys:
+ifeq ($(GENERATE_KEYS),1)
+ifneq	($(CARGO),)
+	@echo GENERATE KEYS
+	$(Q)cargo run --manifest-path $(PAPARAZZI_SRC)/sw/ext/key_generator/Cargo.toml --release $(AC_GENERATED)
+else
+	@echo "Error: Cargo (Rust) is not found, keys are not generated. Please install cargo."
+endif
+endif
 
 qt_project : $(SRCS_LIST)
 ifneq ($(PAPARAZZI_QT_GEN),)
@@ -187,7 +201,7 @@ flight_plan_ac_h : $(FLIGHT_PLAN_H) $(FLIGHT_PLAN_XML)
 
 makefile_ac: $(MAKEFILE_AC)
 
-$(AIRFRAME_H) : $(CONF)/$(AIRFRAME_XML) $(CONF_XML) $(AIRCRAFT_MD5)
+$(AIRFRAME_H) : $(CONF)/$(AIRFRAME_XML) $(CONF_XML) $(AIRCRAFT_MD5) $(GENERATORS)/gen_airframe.out $(GENERATORS)/gen_autopilot.out $(CONF)/autopilot/*.xml
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
 	@echo GENERATE $@ from $(AIRFRAME_XML)
 	$(eval $@_TMP := $(shell $(MKTEMP)))
@@ -195,6 +209,8 @@ $(AIRFRAME_H) : $(CONF)/$(AIRFRAME_XML) $(CONF_XML) $(AIRCRAFT_MD5)
 	$(Q)mv $($@_TMP) $@
 	$(Q)chmod a+r $@
 	$(Q)cp $(CONF)/airframes/airframe.dtd $(AIRCRAFT_CONF_DIR)/airframes
+	@echo GENERATE autopilots in $(AUTOPILOT_DIR)
+	$(Q)$(GENERATORS)/gen_autopilot.out $(CONF)/$(AIRFRAME_XML) $(AUTOPILOT_DIR) $(SETTINGS_AUTOPILOT)
 
 $(RADIO_H) : $(CONF)/$(RADIO) $(CONF_XML) $(GENERATORS)/gen_radio.out
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
@@ -231,7 +247,7 @@ $(FLIGHT_PLAN_XML) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML) $(GENERATORS)/gen_flight
 	$(Q)chmod a+r $@
 
 # split system settings (generated) from user settings with a '--'
-$(SETTINGS_H) : $(SETTINGS_XMLS_DEP) $(CONF_XML) $(SETTINGS_MODULES) $(SETTINGS_TELEMETRY) $(GENERATORS)/gen_settings.out autopilot_h
+$(SETTINGS_H) : $(SETTINGS_XMLS_DEP) $(CONF_XML) $(SETTINGS_MODULES) $(SETTINGS_TELEMETRY) $(SETTINGS_AUTOPILOT) $(GENERATORS)/gen_settings.out
 	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
 	@echo GENERATE $@
 	$(eval $@_TMP := $(shell $(MKTEMP)))
@@ -247,11 +263,6 @@ $(MODULES_H) : $(CONF)/$(AIRFRAME_XML) $(FLIGHT_PLAN_XML) $(GENERATORS)/gen_modu
 	$(Q)$(GENERATORS)/gen_modules.out $(AC_ID) $(SETTINGS_MODULES) $(DEFAULT_MODULES_FREQUENCY) $(FLIGHT_PLAN_XML) $< > $($@_TMP)
 	$(Q)mv $($@_TMP) $@
 	$(Q)chmod a+r $@
-
-autopilot_h : $(CONF)/$(AIRFRAME_XML) $(GENERATORS)/gen_autopilot.out $(CONF)/autopilot/*.xml
-	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
-	@echo GENERATE autopilots in $(AUTOPILOT_DIR)
-	$(Q)$(GENERATORS)/gen_autopilot.out $(CONF)/$(AIRFRAME_XML) $(AUTOPILOT_DIR) $(SETTINGS_AUTOPILOT)
 
 $(SETTINGS_MODULES) : $(MODULES_H)
 $(SETTINGS_TELEMETRY) : $(PERIODIC_H)
@@ -285,4 +296,4 @@ clean_ac :
 	@echo "CLEANING $(AIRCRAFT)"
 	$(Q)rm -fr $(AIRCRAFT_BUILD_DIR)
 
-.PHONY: all_ac_h radio_ac_h flight_plan_ac_h makefile_ac clean_ac print_version
+.PHONY: all_ac_h radio_ac_h flight_plan_ac_h makefile_ac clean_ac print_version generate_keys

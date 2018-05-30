@@ -28,7 +28,6 @@
 
 #include "subsystems/radio_control.h"
 #include "state.h"
-#include "firmwares/rotorcraft/guidance/guidance_h.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
 #include "firmwares/rotorcraft/autopilot_rc_helpers.h"
 #include "mcu_periph/sys_time.h"
@@ -56,7 +55,7 @@
    radio_control.values[RADIO_YAW] < -STABILIZATION_ATTITUDE_DEADBAND_R)
 
 float care_free_heading = 0;
-
+int32_t transition_theta_offset = 0;
 
 static int32_t get_rc_roll(void)
 {

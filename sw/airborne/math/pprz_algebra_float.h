@@ -451,6 +451,7 @@ extern void float_quat_vmult(struct FloatVect3 *v_out, struct FloatQuat *q, cons
 /// Quaternion from Euler angles.
 extern void float_quat_of_eulers(struct FloatQuat *q, struct FloatEulers *e);
 extern void float_quat_of_eulers_zxy(struct FloatQuat *q, struct FloatEulers *e);
+extern void float_quat_of_eulers_yxz(struct FloatQuat *q, struct FloatEulers *e);
 
 /// Quaternion from unit vector and angle.
 extern void float_quat_of_axis_angle(struct FloatQuat *q, const struct FloatVect3 *uv, float angle);
@@ -504,6 +505,7 @@ static inline float float_eulers_norm(struct FloatEulers *e)
 extern void float_eulers_of_rmat(struct FloatEulers *e, struct FloatRMat *rm);
 extern void float_eulers_of_quat(struct FloatEulers *e, struct FloatQuat *q);
 extern void float_eulers_of_quat_zxy(struct FloatEulers *e, struct FloatQuat *q);
+extern void float_eulers_of_quat_yxz(struct FloatEulers *e, struct FloatQuat *q);
 
 /* defines for backwards compatibility */
 #define FLOAT_EULERS_OF_RMAT(_e, _rm) WARNING("FLOAT_EULERS_OF_RMAT macro is deprecated, use the lower case function instead") float_eulers_of_rmat(&(_e), &(_rm))

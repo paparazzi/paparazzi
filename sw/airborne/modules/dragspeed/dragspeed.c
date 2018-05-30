@@ -133,9 +133,8 @@ static void accel_cb(uint8_t sender_id __attribute__((unused)), uint32_t stamp,
   // Send as ABI VELOCITY_ESTIMATE message
 #if DRAGSPEED_SEND_ABI_MESSAGE
   if (!dragspeed.calibrate_coeff && !dragspeed.calibrate_zero) {
-    float vel_z = stateGetSpeedNed_f()->z;  // Workaround until VELOCITY_ESTIMATE contains flags to specify which axes are estimated.
     AbiSendMsgVELOCITY_ESTIMATE(VEL_DRAGSPEED_ID, stamp, dragspeed.vel.x,
-        dragspeed.vel.y, vel_z, DRAGSPEED_R);
+        dragspeed.vel.y, 0.f, DRAGSPEED_R, DRAGSPEED_R, -1.f);
   }
 #endif
   // Perform calibration if required

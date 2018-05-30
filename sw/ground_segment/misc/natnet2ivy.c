@@ -723,8 +723,11 @@ static gboolean sample_data(GIOChannel *chan, GIOCondition cond, gpointer data)
   bytes_data += udp_socket_recv(&natnet_data, buffer_data, MAX_PACKETSIZE);
 
   // Parse NatNet data
-  if (bytes_data >= 2 && bytes_data >= buffer_data[1]) {
-    natnet_parse(buffer_data);
+  if (bytes_data >= 2) {
+    uint16_t packet_size = ((uint16_t)buffer_data[3])<<8 | (uint16_t)buffer_data[2];
+    if( bytes_data - 4 >= packet_size) {  // 4 bytes for message id and packet size
+      natnet_parse(buffer_data);
+    }
     bytes_data = 0;
   }
 

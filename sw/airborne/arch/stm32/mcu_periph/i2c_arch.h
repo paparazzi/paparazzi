@@ -29,7 +29,6 @@
 #ifndef I2C_HW_H
 #define I2C_HW_H
 
-#include "mcu_periph/i2c.h"
 #include <libopencm3/stm32/i2c.h>
 
 #if USE_I2C1

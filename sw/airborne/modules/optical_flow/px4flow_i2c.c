@@ -85,12 +85,14 @@ static inline void px4flow_i2c_frame_cb(void)
 
     // flip the axis (if the PX4FLOW is mounted as shown in
     // https://pixhawk.org/modules/px4flow
-    AbiSendMsgVELOCITY_ESTIMATE(PX4FLOW_VELOCITY_ID,
+    AbiSendMsgVELOCITY_ESTIMATE(VEL_PX4FLOW_ID,
                                 time_usec,
                                 flow_comp_m_y,
                                 flow_comp_m_x,
                                 0.0f,
-                                noise);
+                                noise,
+                                noise,
+                                -1.f);
   }
 
   // distance is always positive - use median filter to remove outliers

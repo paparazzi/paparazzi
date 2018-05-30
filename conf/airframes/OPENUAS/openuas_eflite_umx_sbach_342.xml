@@ -141,7 +141,7 @@ NOTES:
         
     <module name="telemetry" type="transparent"> 
        <configure name="MODEM_PORT" value="UART1"/>
-       <configure name="MODEM_BAUD" value="B115200"/>
+       <configure name="MODEM_BAUD" value="B57600"/><!-- for nano wifi module use B115200 -->
     </module>
     <module name="control"/>
     <module name="navigation"/>

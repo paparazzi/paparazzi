@@ -48,7 +48,7 @@ void nav_goto_block(uint8_t block_id);
 #define GotoBlock(b) nav_goto_block(b)
 
 #define Stage(s) case s: nav_stage=s;
-#define NextStage() { nav_stage++; InitStage(); }
+#define NextStage() { nav_stage++; InitStage(); } INTENTIONAL_FALLTHRU
 #define NextStageAndBreak() { nav_stage++; InitStage(); break; }
 #define NextStageAndBreakFrom(wp) { last_wp = wp; NextStageAndBreak(); }
 

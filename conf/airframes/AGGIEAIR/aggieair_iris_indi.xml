@@ -22,9 +22,9 @@
     <define name="BAT_CHECKER_DELAY" value="80" /><!-- in seconds-->
     <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="80" /><!-- in seconds-->
 
-    <module name="telemetry" type="transparent">
+    <module name="telemetry" type="transparent_gec">
       <configure name="MODEM_PORT" value="UART2"/>
-      <configure name="MODEM_BAUD" value="B115200"/>
+      <configure name="MODEM_BAUD" value="B57600"/>
     </module>
 
     <module name="imu" type="px4fmu_v2.4"/>

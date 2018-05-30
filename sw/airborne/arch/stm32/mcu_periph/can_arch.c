@@ -196,9 +196,11 @@ int can_hw_transmit(uint32_t id, const uint8_t *buf, uint8_t len)
 #ifdef STM32F1
 void usb_lp_can_rx0_isr(void)
 {
-  uint32_t id, fmi;
+  uint32_t id;
+  uint8_t fmi;
   bool ext, rtr;
   uint8_t length, data[8];
+  uint16_t timestamp;
 
   can_receive(CAN1,
               0,     /* FIFO: 0 */
@@ -208,7 +210,8 @@ void usb_lp_can_rx0_isr(void)
               &rtr,
               &fmi,
               &length,
-              data);
+              data,
+              &timestamp);
 
   _can_run_rx_callback(id, data, length);
 
@@ -216,9 +219,11 @@ void usb_lp_can_rx0_isr(void)
 }
 #elif STM32F4
 void can1_rx0_isr(void){
-  uint32_t id, fmi;
+  uint32_t id;
+  uint8_t fmi;
   bool ext, rtr;
   uint8_t length, data[8];
+  uint16_t timestamp;
 
   can_receive(CAN1,
               0,     /* FIFO: 0 */
@@ -228,7 +233,8 @@ void can1_rx0_isr(void){
               &rtr,
               &fmi,
               &length,
-              data);
+              data,
+              &timestamp);
 
   _can_run_rx_callback(id, data, length);
 

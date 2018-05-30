@@ -574,7 +574,7 @@ let _ =
     match !init with
       [] -> failwith "unreachable"
     | x::xs -> init := try ignore (float_of_string s); {x with consts = s::x.consts} :: xs with
-                       | Failure "float_of_string" -> {x with curves = s::x.curves} :: xs in
+                       | Failure _ -> {x with curves = s::x.curves} :: xs in
 
   let set_title = fun s ->
     match !init with

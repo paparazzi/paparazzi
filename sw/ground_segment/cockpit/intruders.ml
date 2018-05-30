@@ -51,11 +51,11 @@ let update_intruder = fun id wgs84 heading alt speed climb time ->
 let intruder_exist = fun id ->
   Hashtbl.mem intruders id
 
-(* remove old intruders after 10s *)
+(* remove old intruders after 20s *)
 let remove_old_intruders = fun () ->
   Hashtbl.iter
     (fun id i ->
-      if (Unix.gettimeofday () -. i.last_update) > 10.0 then
+      if (Unix.gettimeofday () -. i.last_update) > 20.0 then
         remove_intruder id
     ) intruders
 

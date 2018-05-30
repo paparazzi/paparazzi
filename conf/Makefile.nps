@@ -47,6 +47,7 @@ CFLAGS += -O$(OPT)
 CFLAGS += $(DEBUG_FLAGS)
 CFLAGS += -std=gnu99
 CFLAGS += $(shell pkg-config --cflags-only-I ivy-glib)
+CFLAGS += -D_GNU_SOURCE
 
 CXXFLAGS  = $(WARN_FLAGS)
 CXXFLAGS += $(INCLUDES)
@@ -56,6 +57,7 @@ CXXFLAGS += $(USER_CFLAGS) $(BOARD_CFLAGS)
 CXXFLAGS += -O$(OPT)
 CXXFLAGS += $(DEBUG_FLAGS)
 CXXFLAGS += $(shell pkg-config --cflags-only-I ivy-glib)
+CXXFLAGS += -D_GNU_SOURCE
 
 LDFLAGS	+= $($(TARGET).LDFLAGS)
 LDFLAGS += $(BOARD_LDFLAGS)

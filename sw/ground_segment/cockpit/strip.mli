@@ -45,7 +45,7 @@ type t = <
     set_climb : float -> unit;
     set_color : string -> string -> unit;
     set_label : string -> string -> unit;
-    set_rc : int -> string -> unit;
+    set_rc : float -> string -> unit;
     hide_buttons : unit -> unit;
     show_buttons : unit -> unit;
     connect : (unit -> unit) -> unit

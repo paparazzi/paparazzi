@@ -86,12 +86,14 @@ static void decode_optical_flow_msg(struct mavlink_message *msg __attribute__((u
   if (quality > PX4FLOW_QUALITY_THRESHOLD) {
     // flip the axis (if the PX4FLOW is mounted as shown in
     // https://pixhawk.org/modules/px4flow
-    AbiSendMsgVELOCITY_ESTIMATE(PX4FLOW_VELOCITY_ID,
+    AbiSendMsgVELOCITY_ESTIMATE(VEL_PX4FLOW_ID,
                                 optical_flow.time_usec,
                                 optical_flow.flow_comp_m_y,
                                 optical_flow.flow_comp_m_x,
                                 0.0f,
-                                noise);
+                                noise,
+                                noise,
+                                -1.f);
   }
 
   // compensate AGL measurement for body rotation

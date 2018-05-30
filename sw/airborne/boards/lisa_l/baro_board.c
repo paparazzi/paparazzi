@@ -110,6 +110,7 @@ void baro_periodic(void)
       break;
     case LBS_INITIALIZING_DIFF_1:
       baro_board.running = true;
+      /* Falls through. */
     case LBS_READ_DIFF:
       baro_board_read_from_current_register(BARO_ABS_ADDR);
       baro_board.status = LBS_READING_ABS;

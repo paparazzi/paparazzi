@@ -25,6 +25,20 @@
 [submodule "sw/ext/opencv_bebop"]
 	path = sw/ext/opencv_bebop
 	url = https://github.com/tudelft/opencv_bebop.git
+	ignore = dirty
 [submodule "sw/ext/TRICAL"]
 	path = sw/ext/TRICAL
 	url = https://github.com/sfwa/TRICAL.git
+[submodule "sw/ext/hacl-c"]
+	path = sw/ext/hacl-c
+	url = https://github.com/paparazzi/hacl-c.git
+[submodule "sw/ext/rustlink"]
+	path = sw/ext/rustlink
+	url = https://github.com/paparazzi/rustlink.git
+[submodule "sw/ext/key_generator"]
+	path = sw/ext/key_generator
+	url = https://github.com/paparazzi/key_generator.git
+[submodule "sw/ext/tudelft_gazebo_models"]
+	path = sw/ext/tudelft_gazebo_models
+	url = https://github.com/tudelft/gazebo_models.git
+	shallow = true

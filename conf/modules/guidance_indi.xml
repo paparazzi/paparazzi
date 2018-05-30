@@ -17,6 +17,7 @@
   <header>
     <file name="guidance_indi.h"/>
   </header>
+  <init fun="guidance_indi_init()"/>
   <init fun="guidance_indi_enter()"/>
   <makefile target="ap|nps" firmware="rotorcraft">
     <file name="guidance_indi.c" dir="$(SRC_FIRMWARE)/guidance"/>

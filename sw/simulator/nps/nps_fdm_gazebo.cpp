@@ -51,15 +51,18 @@ extern "C" {
 #include "nps_autopilot.h"
 
 #include "generated/airframe.h"
+#include "generated/flight_plan.h"
 #include "autopilot.h"
 
 #include "math/pprz_isa.h"
 #include "math/pprz_algebra_double.h"
+#include "filters/low_pass_filter.h"
+#include "filters/high_pass_filter.h"
 
 #include "subsystems/actuators/motor_mixing_types.h"
 }
 
-#if defined(NPS_DEBUG_VIDEO) || defined(NPS_DEBUG_STEREOCAM)
+#if defined(NPS_DEBUG_VIDEO)
 // Opencv tools
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -95,16 +98,22 @@ struct gazebocam_t {
 };
 static struct gazebocam_t gazebo_cams[VIDEO_THREAD_MAX_CAMERAS] =
 { { NULL, 0 } };
+#if NPS_SIMULATE_MT9F002
+#include "boards/bebop/mt9f002.h"
 #endif
+#endif // NPS_SIMULATE_VIDEO
 
 struct gazebo_actuators_t {
   string names[NPS_COMMANDS_NB];
   double thrusts[NPS_COMMANDS_NB];
   double torques[NPS_COMMANDS_NB];
+  struct FirstOrderLowPass lowpass[NPS_COMMANDS_NB];
+  struct FirstOrderHighPass highpass[NPS_COMMANDS_NB];
+  double max_ang_momentum[NPS_COMMANDS_NB];
 };
 
-struct gazebo_actuators_t gazebo_actuators = {NPS_ACTUATOR_NAMES, NPS_ACTUATOR_THRUSTS, NPS_ACTUATOR_THRUSTS};
-
+struct gazebo_actuators_t gazebo_actuators = { NPS_ACTUATOR_NAMES,
+    NPS_ACTUATOR_THRUSTS, NPS_ACTUATOR_TORQUES, { }, { }, { } };
 
 #if NPS_SIMULATE_LASER_RANGE_ARRAY
 extern "C" {
@@ -207,7 +216,7 @@ inline struct DoubleVect3 to_pprz_ltp(gazebo::math::Vector3 xyz)
 // External functions, interface with Paparazzi's NPS as declared in nps_fdm.h
 
 /**
- * Set JSBsim specific fields that are not used for Gazebo.
+ * Initialize actuator dynamics, set unused fields in fdm
  * @param dt
  */
 void nps_fdm_init(double dt)
@@ -215,6 +224,22 @@ void nps_fdm_init(double dt)
   fdm.init_dt = dt; // JSBsim specific
   fdm.curr_dt = dt; // JSBsim specific
   fdm.nan_count = 0; // JSBsim specific
+
+#ifdef NPS_ACTUATOR_TIME_CONSTANTS
+  // Set up low-pass filter to simulate delayed actuator response
+  const float tau[NPS_COMMANDS_NB] = NPS_ACTUATOR_TIME_CONSTANTS;
+  for(int i=0; i<NPS_COMMANDS_NB; i++) {
+    init_first_order_low_pass(&gazebo_actuators.lowpass[i], tau[i], dt, 0.f);
+  }
+#ifdef NPS_ACTUATOR_MAX_ANGULAR_MOMENTUM
+  // Set up high-pass filter to simulate spinup torque
+  const float Iwmax[NPS_COMMANDS_NB] = NPS_ACTUATOR_MAX_ANGULAR_MOMENTUM;
+  for(int i=0; i<NPS_COMMANDS_NB; i++) {
+    init_first_order_high_pass(&gazebo_actuators.highpass[i], tau[i], dt, 0.f);
+    gazebo_actuators.max_ang_momentum[i] = Iwmax[i];
+  }
+#endif
+#endif
 }
 
 /**
@@ -312,17 +337,35 @@ static void init_gazebo(void)
     std::exit(-1);
   }
 
-  cout << "Add Paparazzi model path: " << gazebodir + "models/" << endl;
+  cout << "Add Paparazzi paths: " << gazebodir << endl;
   gazebo::common::SystemPaths::Instance()->AddModelPaths(
     gazebodir + "models/");
+  sdf::addURIPath("model://", gazebodir + "models/");
+  sdf::addURIPath("world://", gazebodir + "world/");
+
+  cout << "Add TU Delft paths: " << pprz_home + "/sw/ext/tudelft_gazebo_models/" << endl;
+  gazebo::common::SystemPaths::Instance()->AddModelPaths(
+      pprz_home + "/sw/ext/tudelft_gazebo_models/models/");
+  sdf::addURIPath("model://", pprz_home + "/sw/ext/tudelft_gazebo_models/models/");
+  sdf::addURIPath("world://", pprz_home + "/sw/ext/tudelft_gazebo_models/world/");
 
   // get vehicles
-  cout << "Load vehicle: " << gazebodir + "models/" + NPS_GAZEBO_AC_NAME + "/" + NPS_GAZEBO_AC_NAME + ".sdf" << endl;
+  string vehicle_uri = "model://" + string(NPS_GAZEBO_AC_NAME) + "/" + string(NPS_GAZEBO_AC_NAME) + ".sdf";
+  string vehicle_filename = sdf::findFile(vehicle_uri, false);
+  if(vehicle_filename.empty()) {
+    cout << "ERROR, could not find vehicle " + vehicle_uri << endl;
+    std::exit(-1);
+  }
+  cout << "Load vehicle: " << vehicle_filename << endl;
   sdf::SDFPtr vehicle_sdf(new sdf::SDF());
   sdf::init(vehicle_sdf);
-  sdf::readFile(gazebodir + "models/" + NPS_GAZEBO_AC_NAME + "/" + NPS_GAZEBO_AC_NAME + ".sdf", vehicle_sdf);
+  if(!sdf::readFile(vehicle_filename, vehicle_sdf)) {
+    cout << "ERROR, could not read vehicle " + vehicle_filename << endl;
+    std::exit(-1);
+  }
 
-  // add sensors
+  // add or set up sensors before the vehicle gets loaded
+  // laser range array
 #if NPS_SIMULATE_LASER_RANGE_ARRAY
   vehicle_sdf->Root()->GetFirstElement()->AddElement("include")->GetElement("uri")->Set("model://range_sensors");
   sdf::ElementPtr range_joint = vehicle_sdf->Root()->GetFirstElement()->AddElement("joint");
@@ -331,12 +374,40 @@ static void init_gazebo(void)
   range_joint->GetElement("parent")->Set("chassis");
   range_joint->GetElement("child")->Set("range_sensors::base");
 #endif
+  // bebop front camera
+#ifdef NPS_SIMULATE_MT9F002
+  sdf::ElementPtr link = vehicle_sdf->Root()->GetFirstElement()->GetElement("link");
+  while(link) {
+    if(link->Get<string>("name") == "front_camera") {
+      int w = link->GetElement("sensor")->GetElement("camera")->GetElement("image")->GetElement("width")->Get<int>();
+      link->GetElement("sensor")->GetElement("camera")->GetElement("image")->GetElement("width")->Set(w * MT9F002_OUTPUT_SCALER);
+      int h = link->GetElement("sensor")->GetElement("camera")->GetElement("image")->GetElement("height")->Get<int>();
+      link->GetElement("sensor")->GetElement("camera")->GetElement("image")->GetElement("height")->Set(h * MT9F002_OUTPUT_SCALER);
+      int env = link->GetElement("sensor")->GetElement("camera")->GetElement("lens")->GetElement("env_texture_size")->Get<int>();
+      link->GetElement("sensor")->GetElement("camera")->GetElement("lens")->GetElement("env_texture_size")->Set(env * MT9F002_OUTPUT_SCALER);
+      cout << "Applied MT9F002_OUTPUT_SCALER (=" << MT9F002_OUTPUT_SCALER << ") to " << link->Get<string>("name") << endl;
+      link->GetElement("sensor")->GetElement("update_rate")->Set(MT9F002_TARGET_FPS);
+      cout << "Applied MT9F002_TARGET_FPS (=" << MT9F002_TARGET_FPS << ") to " << link->Get<string>("name") << endl;
+    }
+    link = link->GetNextElement("link");
+  }
+#endif // NPS_SIMULATE_MT9F002
+
 
   // get world
-  cout << "Load world: " << gazebodir + "world/" + NPS_GAZEBO_WORLD << endl;
+  string world_uri = "world://" + string(NPS_GAZEBO_WORLD);
+  string world_filename = sdf::findFile(world_uri, false);
+  if(world_filename.empty()) {
+    cout << "ERROR, could not find world " + world_uri << endl;
+    std::exit(-1);
+  }
+  cout << "Load world: " << world_filename << endl;
   sdf::SDFPtr world_sdf(new sdf::SDF());
   sdf::init(world_sdf);
-  sdf::readFile(gazebodir + "world/" + NPS_GAZEBO_WORLD, world_sdf);
+  if(!sdf::readFile(world_filename, world_sdf)) {
+    cout << "ERROR, could not read world " + world_filename << endl;
+    std::exit(-1);
+  }
 
   // add vehicles
   world_sdf->Root()->GetFirstElement()->InsertElement(vehicle_sdf->Root()->GetFirstElement());
@@ -374,6 +445,7 @@ static void init_gazebo(void)
 
   for (uint8_t i = 0; i < NPS_COMMANDS_NB; i++) {
     gazebo_actuators.torques[i] = -fabs(gazebo_actuators.torques[i]) * yaw_coef[i] / fabs(yaw_coef[i]);
+    gazebo_actuators.max_ang_momentum[i] = -fabs(gazebo_actuators.max_ang_momentum[i]) * yaw_coef[i] / fabs(yaw_coef[i]);
   }
 #endif
   cout << "Gazebo initialized successfully!" << endl;
@@ -535,10 +607,29 @@ static void gazebo_read(void)
  */
 static void gazebo_write(double act_commands[], int commands_nb)
 {
-  // TODO simulte actuator dynamics so indi can work
   for (int i = 0; i < commands_nb; ++i) {
-    double thrust = autopilot.motors_on ? gazebo_actuators.thrusts[i] * act_commands[i] : 0.0;
-    double torque = autopilot.motors_on ? gazebo_actuators.torques[i] * act_commands[i] : 0.0;
+    // Thrust setpoint
+    double sp = autopilot.motors_on ? act_commands[i] : 0.0;  // Normalized thrust setpoint
+
+    // Actuator dynamics, forces and torques
+#ifdef NPS_ACTUATOR_TIME_CONSTANTS
+    // Delayed response from actuator
+    double u = update_first_order_low_pass(&gazebo_actuators.lowpass[i], sp);// Normalized actual thrust
+#else
+    double u = sp;
+#endif
+    double thrust = gazebo_actuators.thrusts[i] * u;
+    double torque = gazebo_actuators.torques[i] * u;
+
+#ifdef NPS_ACTUATOR_MAX_ANGULAR_MOMENTUM
+    // Spinup torque
+    double udot = update_first_order_high_pass(&gazebo_actuators.highpass[i], sp);
+    double spinup_torque = gazebo_actuators.max_ang_momentum[i] /
+        (2.0 * sqrt(u > 0.05 ? u : 0.05)) * udot;
+    torque += spinup_torque;
+#endif
+
+    // Apply force and torque to gazebo model
     gazebo::physics::LinkPtr link = model->GetLink(gazebo_actuators.names[i]);
     link->AddRelativeForce(gazebo::math::Vector3(0, 0, thrust));
     link->AddRelativeTorque(gazebo::math::Vector3(0, 0, torque));
@@ -602,6 +693,17 @@ static void init_gazebo_video(void)
     cameras[i]->sensor_size.h = cam->ImageHeight();
     cameras[i]->crop.w = cam->ImageWidth();
     cameras[i]->crop.h = cam->ImageHeight();
+#if NPS_SIMULATE_MT9F002
+    // See boards/bebop/mt9f002.c
+    if(cam->Name() == "front_camera") {
+      cameras[i]->output_size.w = MT9F002_OUTPUT_WIDTH;
+      cameras[i]->output_size.h = MT9F002_OUTPUT_HEIGHT;
+      cameras[i]->sensor_size.w = MT9F002_OUTPUT_WIDTH;
+      cameras[i]->sensor_size.h = MT9F002_OUTPUT_HEIGHT;
+      cameras[i]->crop.w = MT9F002_OUTPUT_WIDTH;
+      cameras[i]->crop.h = MT9F002_OUTPUT_HEIGHT;
+    }
+#endif
     cameras[i]->fps = cam->UpdateRate();
     cout << "ok" << endl;
   }
@@ -659,13 +761,25 @@ static void read_image(
   struct image_t *img,
   gazebo::sensors::CameraSensorPtr cam)
 {
+  int xstart = 0;
+  int ystart = 0;
+#if NPS_SIMULATE_MT9F002
+  if(cam->Name() == "front_camera") {
+    image_create(img, MT9F002_OUTPUT_WIDTH, MT9F002_OUTPUT_HEIGHT, IMAGE_YUV422);
+    xstart = cam->ImageWidth() * (0.5 + MT9F002_INITIAL_OFFSET_X) - MT9F002_OUTPUT_WIDTH / 2;
+    ystart = cam->ImageHeight() * (0.5 + MT9F002_INITIAL_OFFSET_Y) - MT9F002_OUTPUT_HEIGHT / 2;
+  } else {
+    image_create(img, cam->ImageWidth(), cam->ImageHeight(), IMAGE_YUV422);
+  }
+#else
   image_create(img, cam->ImageWidth(), cam->ImageHeight(), IMAGE_YUV422);
+#endif
   // Convert Gazebo's *RGB888* image to Paparazzi's YUV422
   const uint8_t *data_rgb = cam->ImageData();
   uint8_t *data_yuv = (uint8_t *)(img->buf);
   for (int x = 0; x < img->w; ++x) {
     for (int y = 0; y < img->h; ++y) {
-      int idx_rgb = 3 * (img->w * y + x);
+      int idx_rgb = 3 * (cam->ImageWidth() * (y + ystart) + (x + xstart));
       int idx_yuv = 2 * (img->w * y + x);
       int idx_px = img->w * y + x;
       if (idx_px % 2 == 0) { // Pick U or V

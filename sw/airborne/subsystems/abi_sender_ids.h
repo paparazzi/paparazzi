@@ -34,7 +34,7 @@
 #endif
 
 /*
- * IDs of baro modules that can be loaded
+ * IDs of baro modules that can be loaded (message 0)
  */
 #ifndef BARO_MS5611_SENDER_ID
 #define BARO_MS5611_SENDER_ID 10
@@ -81,7 +81,7 @@
 #endif
 
 /*
- * IDs of differential pressure sensors
+ * IDs of differential pressure sensors (message 1)
  * can usually also publish temperature like baro sensors
  */
 #ifndef MS45XX_SENDER_ID
@@ -89,7 +89,7 @@
 #endif
 
 /*
- * IDs of AGL measurment modules that can be loaded (sonars,...)
+ * IDs of AGL measurment modules that can be loaded (sonars,...) (message 2)
  */
 #ifndef AGL_SONAR_ADC_ID
 #define AGL_SONAR_ADC_ID 1
@@ -143,7 +143,7 @@
 #endif
 
 /*
- * IDs of GPS sensors
+ * IDs of GPS sensors (message 10)
  */
 #ifndef GPS_UBX_ID
 #define GPS_UBX_ID 1
@@ -272,16 +272,19 @@
 #define IMU_MPU60X0_ID 16
 #endif
 
-#ifndef PX4FLOW_VELOCITY_ID
-#define PX4FLOW_VELOCITY_ID 17
-#endif
-
 #ifndef IMU_PX4_ID
-#define IMU_PX4_ID 18
+#define IMU_PX4_ID 17
 #endif
 
 #ifndef IMU_VECTORNAV_ID
-#define IMU_VECTORNAV_ID 19
+#define IMU_VECTORNAV_ID 18
+#endif
+
+/*
+ * IDs of OPTICFLOW estimates (message 12)
+ */
+#ifndef FLOW_OPTICFLOW_ID
+#define FLOW_OPTICFLOW_ID 1
 #endif
 
 /*
@@ -289,6 +292,18 @@
  */
 #ifndef VEL_DRAGSPEED_ID
 #define VEL_DRAGSPEED_ID 1
+#endif
+
+#ifndef VEL_PX4FLOW_ID
+#define VEL_PX4FLOW_ID 2
+#endif
+
+#ifndef VEL_OPTICFLOW_ID
+#define VEL_OPTICFLOW_ID 3
+#endif
+
+#ifndef VEL_STEREOCAM_ID
+#define VEL_STEREOCAM_ID 4
 #endif
 
 /*
@@ -347,5 +362,20 @@
 #define RANGE_FORCEFIELD_ID 1
 #endif
 
+/*
+ * ID's for camera type sensors
+ */
+
+#ifndef CAM_JEVOIS_ID
+#define CAM_JEVOIS_ID 1
+#endif
+
+/*
+ * IDs of ACCEL_SP senders (message 21)
+ */
+
+#ifndef ACCEL_SP_FCR_ID
+#define ACCEL_SP_FCR_ID 1 // Formation Control Rotorcraft
+#endif
 
 #endif /* ABI_SENDER_IDS_H */

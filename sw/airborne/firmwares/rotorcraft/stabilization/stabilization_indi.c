@@ -45,14 +45,8 @@
 #include "wls/wls_alloc.h"
 #include <stdio.h>
 
-//only 4 actuators supported for now
-#define INDI_NUM_ACT 4
-// outputs: roll, pitch, yaw, thrust
-#define INDI_OUTPUTS 4
 // Factor that the estimated G matrix is allowed to deviate from initial one
 #define INDI_ALLOWED_G_FACTOR 2.0
-// Scaling for the control effectiveness to make it readible
-#define INDI_G_SCALING 1000.0
 
 float du_min[INDI_NUM_ACT];
 float du_max[INDI_NUM_ACT];
@@ -107,6 +101,13 @@ float act_dyn[INDI_NUM_ACT] = STABILIZATION_INDI_ACT_DYN;
 /** Maximum rate you can request in RC rate mode (rad/s)*/
 #ifndef STABILIZATION_INDI_MAX_RATE
 #define STABILIZATION_INDI_MAX_RATE 6.0
+#endif
+
+#ifdef STABILIZATION_INDI_WLS_PRIORITIES
+static float Wv[INDI_OUTPUTS] = STABILIZATION_INDI_WLS_PRIORITIES;
+#else
+//State prioritization {W Roll, W pitch, W yaw, TOTAL THRUST}
+static float Wv[INDI_OUTPUTS] = {1000, 1000, 1, 100};
 #endif
 
 // variables needed for control
@@ -396,16 +397,6 @@ static void stabilization_indi_calc_cmd(struct Int32Quat *att_err, bool rate_con
     }
   }
 
-  // Calculate the min and max increments
-  for (i = 0; i < INDI_NUM_ACT; i++) {
-    du_min[i] = -MAX_PPRZ * act_is_servo[i] - actuator_state_filt_vect[i];
-    du_max[i] = MAX_PPRZ - actuator_state_filt_vect[i];
-    du_pref[i] = act_pref[i] - actuator_state_filt_vect[i];
-  }
-
-  //State prioritization {W Roll, W pitch, W yaw, TOTAL THRUST}
-  static float Wv[INDI_OUTPUTS] = {1000, 1000, 1, 100};
-
   // The control objective in array format
   indi_v[0] = (angular_accel_ref.p - angular_acceleration[0]);
   indi_v[1] = (angular_accel_ref.q - angular_acceleration[1]);
@@ -421,9 +412,16 @@ static void stabilization_indi_calc_cmd(struct Int32Quat *att_err, bool rate_con
                  + (g1g2_pseudo_inv[i][3] * indi_v[3]);
   }
 #else
+  // Calculate the min and max increments
+  for (i = 0; i < INDI_NUM_ACT; i++) {
+    du_min[i] = -MAX_PPRZ * act_is_servo[i] - actuator_state_filt_vect[i];
+    du_max[i] = MAX_PPRZ - actuator_state_filt_vect[i];
+    du_pref[i] = act_pref[i] - actuator_state_filt_vect[i];
+  }
+
   // WLS Control Allocator
   num_iter =
-    wls_alloc(indi_du, indi_v, du_min, du_max, Bwls, INDI_NUM_ACT, INDI_OUTPUTS, 0, 0, Wv, 0, du_min, 10000, 10);
+    wls_alloc(indi_du, indi_v, du_min, du_max, Bwls, INDI_NUM_ACT, INDI_OUTPUTS, 0, 0, Wv, 0, du_pref, 10000, 10);
 #endif
 
   // Add the increments to the actuators
@@ -656,8 +654,10 @@ void lms_estimation(void)
   float_vect_copy(g1[0], g1_est[0], INDI_OUTPUTS * INDI_NUM_ACT);
   float_vect_copy(g2, g2_est, INDI_NUM_ACT);
 
+#if STABILIZATION_INDI_ALLOCATION_PSEUDO_INVERSE
   // Calculate the inverse of (G1+G2)
   calc_g1g2_pseudo_inv();
+#endif
 }
 
 /**

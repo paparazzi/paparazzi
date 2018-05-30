@@ -1,0 +1,43 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="telemetry_nps_secure" dir="datalink" task="datalink">
+  <doc>
+    <description>
+      Telemetry module for NPS simulation
+      Common parts of comms, not to be used as a stadalone module. Instead, this module
+      is autoloaded where appropriate.
+    </description>
+    <configure name="MODEM_DEV" value="UDPx" description="UDP port used for communication"/>
+    <configure name="MODEM_HOST" value="192.168.1.255" description="IP address of the ground station (can be a broadcast address)"/>
+    <configure name="MODEM_PORT_OUT" value="4242" description="output UDP port"/>
+    <configure name="MODEM_PORT_IN" value="4243" description="input UDP port"/>
+    <configure name="MODEM_BROADCAST" value="TRUE|FALSE" description="UDP socket in broadcast mode"/>
+  </doc>
+
+  <makefile target="nps|hitl">
+    <configure name="MODEM_DEV" default="UDP0" case="upper|lower"/>
+    <configure name="MODEM_PORT_OUT" default="4242"/>
+    <configure name="MODEM_PORT_IN" default="4243"/>
+    <configure name="MODEM_BROADCAST" default="TRUE"/>
+    <define name="USE_$(MODEM_DEV_UPPER)"/>
+    <define name="$(MODEM_DEV_UPPER)_HOST" value="$(MODEM_HOST)"/>
+    <define name="$(MODEM_DEV_UPPER)_PORT_OUT" value="$(MODEM_PORT_OUT)"/>
+    <define name="$(MODEM_DEV_UPPER)_PORT_IN" value="$(MODEM_PORT_IN)"/>
+    <define name="$(MODEM_DEV_UPPER)_BROADCAST" value="$(MODEM_BROADCAST)"/>
+    <define name="DOWNLINK_DEVICE" value="$(MODEM_DEV_LOWER)"/>
+    <define name="PPRZ_UART" value="$(MODEM_DEV_LOWER)"/>
+    <raw>
+      include $(CFG_SHARED)/udp.makefile
+    </raw>
+  </makefile>
+  <makefile target="nps|hitl" firmware="fixedwing">
+    <file name="fixedwing_datalink.c" dir="$(SRC_FIRMWARE)"/>
+    <file name="ap_downlink.c" dir="$(SRC_FIRMWARE)"/>
+    <file name="fbw_downlink.c" dir="$(SRC_FIRMWARE)"/>
+  </makefile>
+  <makefile target="nps|hitl" firmware="rotorcraft">
+    <file name="rotorcraft_datalink.c" dir="$(SRC_FIRMWARE)"/>
+    <file name="rotorcraft_telemetry.c" dir="$(SRC_FIRMWARE)"/>
+  </makefile>
+</module>
+

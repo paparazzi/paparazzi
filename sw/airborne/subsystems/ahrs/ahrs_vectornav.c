@@ -110,7 +110,7 @@ void ahrs_vectornav_init(void)
   INT32_VECT3_ZERO(ahrs_vn.accel_i);
 
   // initialize data struct
-  memset(&(ahrs_vn.vn_data), sizeof(struct VNData), 0);
+  memset(&(ahrs_vn.vn_data), 0, sizeof(struct VNData));
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_VECTORNAV_INFO, send_vn_info);

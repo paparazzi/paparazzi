@@ -23,9 +23,9 @@ Do not use start/stop functionality of the module, the module is not intended to
   <settings>
     <dl_settings NAME="sdlogger">
       <dl_settings NAME="SD Logger">
-        <dl_setting module="loggers/sdlogger_spi_direct" var="sdlogger_spi.status" min="0" max="20" step="1"/>
-        <dl_setting module="loggers/sdlogger_spi_direct" var="sdcard1.status" min="0" max="40" step="1"/>
-        <dl_setting module="loggers/sdlogger_spi_direct" var="sdcard1.error_status" min="0" max="15" step="1"/>
+        <dl_setting module="loggers/sdlogger_spi_direct" var="sdlogger_spi.status" min="0" max="20" step="1" values="UnInit|Error|Init|Index|Ready|Log|FinalBlock|Stop|GetIndexUp|UpInd|GetIndDwn|Down"/>
+        <dl_setting module="loggers/sdlogger_spi_direct" var="sdcard1.status" min="0" max="40" step="1" values="UnInit|Error|Idle|Busy|Other"/>
+        <dl_setting module="loggers/sdlogger_spi_direct" var="sdcard1.error_status" min="0" max="15" step="1" values="None|NoResp|CardInfo|Timeout|NoRes4|NoRes8|CCInval|SBNoRes|WBNoRes|SPIErr|BlockErr|RBNoRes|RBTimeout|MWNoRes|MWErr"/>
         <dl_setting module="loggers/sdlogger_spi_direct" var="sdlogger_spi.command" min="1" max="42" step="1" />
         <dl_setting module="loggers/sdlogger_spi_direct" var="sdlogger_spi.do_log" min="0" max="1" step="1" values="Off|On"/>
       </dl_settings>

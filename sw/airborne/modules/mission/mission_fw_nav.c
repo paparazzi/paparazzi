@@ -58,7 +58,7 @@ bool mission_point_of_lla(struct EnuCoor_f *point, struct LlaCoor_i *lla)
   /* Update point */
   point->x = waypoints[WP_HOME].x + dx;
   point->y = waypoints[WP_HOME].y + dy;
-  point->z = lla->alt;
+  point->z = lla_f.alt;
 
   return true;
 }

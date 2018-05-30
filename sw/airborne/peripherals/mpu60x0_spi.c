@@ -149,6 +149,7 @@ void mpu60x0_spi_event(struct Mpu60x0_Spi *mpu)
     switch (mpu->spi_trans.status) {
       case SPITransFailed:
         mpu->config.init_status--; // Retry config (TODO max retry)
+        /* Falls through. */
       case SPITransSuccess:
       case SPITransDone:
         mpu60x0_send_config(mpu60x0_spi_write_to_reg, (void *)mpu, &(mpu->config));
