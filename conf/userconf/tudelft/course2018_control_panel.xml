@@ -4,8 +4,15 @@
     <program name="Data Link" command="sw/ground_segment/tmtc/link">
       <arg flag="-d" constant="/dev/ttyUSB0"/>
     </program>
-    <program name="GCS" command="sw/ground_segment/cockpit/gcs"/>
-    <program name="Bebop Video Stream" command="/usr/bin/cvlc ftp://192.168.42.1/internal_000/stream.sdp --avcodec-hw=vaapi --no-xlib --quiet --no-interact"/>
+    <program name="GCS" command="sw/ground_segment/cockpit/gcs">
+        <arg flag="-speech"/>
+        <arg flag="-maximize"/>
+        <arg flag="-center_ac"/>
+        <arg flag="-mercator"/>
+        <arg flag="-maps_no_http"/>
+        <arg flag="-track_size" constant="200"/>
+        <arg flag="-zoom" constant="40."/>
+    </program>
     <program name="Messages" command="sw/ground_segment/tmtc/messages"/>
     <program name="Settings" command="sw/ground_segment/tmtc/settings">
       <arg flag="-ac" constant="@AIRCRAFT"/>
@@ -23,7 +30,56 @@
     <program name="Gazebo" command="sw/tools/gzclient_launcher.sh"/>
   </section>
   <section name="sessions">
-    <session name="Bebop basic">
+  <session name="Simulation - Gazebo">
+      <program name="Simulator">
+        <arg flag="-a" constant="@AIRCRAFT"/>
+        <arg flag="-t" constant="nps"/>
+      </program>
+      <program name="Data Link">
+        <arg flag="-udp"/>
+      </program>
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="GCS">
+        <arg flag="-speech"/>
+        <arg flag="-maximize"/>
+        <arg flag="-center_ac"/>
+        <arg flag="-mercator"/>
+        <arg flag="-maps_no_http"/>
+        <arg flag="-track_size" constant="200"/>
+        <arg flag="-zoom" constant="40."/>
+      </program>
+      <program name="Gazebo"/>
+    </session>
+    <session name="Simulation - Gazebo + Joystick">
+      <program name="Simulator">
+        <arg flag="-a" constant="@AIRCRAFT"/>
+        <arg flag="-t" constant="nps"/>
+      </program>
+      <program name="Data Link">
+        <arg flag="-udp"/>
+      </program>
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="GCS">
+        <arg flag="-speech"/>
+        <arg flag="-maximize"/>
+        <arg flag="-center_ac"/>
+        <arg flag="-mercator"/>
+        <arg flag="-maps_no_http"/>
+        <arg flag="-track_size" constant="200"/>
+        <arg flag="-zoom" constant="40."/>
+      </program>
+      <program name="Joystick" command="sw/ground_segment/joystick/input2ivy">
+        <arg flag="-ac" constant="@AIRCRAFT"/>
+        <arg flag="hobbyking.xml"/>
+        <arg flag="-d 0"/>
+      </program>
+      <program name="Gazebo"/>
+    </session>
+    <session name="Flight UDP">
       <program name="Data Link">
         <arg flag="-udp"/>
       </program>
@@ -34,31 +90,11 @@
       <program name="Joystick" command="sw/ground_segment/joystick/input2ivy">
         <arg flag="-ac" constant="@AIRCRAFT"/>
         <arg flag="hobbyking.xml"/>
+        <arg flag="-d 0"/>
       </program>
       <program name="NatNet" command="sw/ground_segment/misc/natnet2ivy">
-      <arg flag="-ac 9999" constant="@AC_ID"/>
-    	</program>
-       <program name="Bebop Video Stream"/>
+        <arg flag="-ac 9999" constant="@AC_ID"/>
+      </program>
     </session>
-   <session name="Bebop extensive">
-      <program name="Data Link">
-        <arg flag="-udp"/>
-      </program>
-      <program name="Server"/>
-      <program name="GCS">
-        <arg flag="-speech"/>
-      </program>
-      <program name="Joystick" command="sw/ground_segment/joystick/input2ivy">
-        <arg flag="-d" constant="2"/>
-        <arg flag="-ac" constant="@AIRCRAFT"/>
-        <arg flag="hobbyking.xml"/>
-      </program>
-     <program name="NatNet" command="sw/ground_segment/misc/natnet2ivy">
-      <arg flag="-ac 3" constant="@AC_ID"/>
-    </program>
-
-      <program name="Messages" command="sw/ground_segment/tmtc/messages"/>
-    </session>
-
   </section>
 </control_panel>

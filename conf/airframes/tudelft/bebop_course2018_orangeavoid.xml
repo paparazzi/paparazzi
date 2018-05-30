@@ -1,7 +1,7 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <airframe name="bebop_avoider">
-  <description>Vision Course TUDelft V2017
+  <description>Vision Course TUDelft V2018
   </description>
 
 
@@ -41,9 +41,7 @@
     <!-- <module name="guidance" type="indi"> <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" 
 			value="-500.0"/> <define name="GUIDANCE_INDI_THRUST_DYNAMICS" value="0.1"/> 
 			<define name="GUIDANCE_INDI_RC_DEBUG" value="TRUE"/> </module> -->
-  </firmware>
-
-  <modules main_freq="512">
+    
     <!--module name="geo_mag"/-->
     <module name="air_data"/>
     <!--module name="send_imu_mag_current"/-->
@@ -72,8 +70,7 @@
       <!-- <define name="VIEWVIDEO_WRITE_VIDEO" value="FALSE" />
       <define name="VIEWVIDEO_VIDEO_FILE" value="orangeAvoider" /> -->
     </module>
-
-  </modules>
+  </firmware>
 
   <commands>
     <axis name="PITCH" failsafe_value="0"/>
@@ -183,10 +180,10 @@
 
   <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
     <!-- control effectiveness -->
-    <define name="G1_P" value="0.0639"/>
-    <define name="G1_Q" value="0.0361"/>
-    <define name="G1_R" value="0.0022"/>
-    <define name="G2_R" value="0.1450"/>
+    <define name="G1_P" value="0.0397"/>
+    <define name="G1_Q" value="0.0299"/>
+    <define name="G1_R" value="0.0014"/>
+    <define name="G2_R" value="0.1219"/>
 
     <!-- reference acceleration for attitude control -->
     <define name="REF_ERR_P" value="600.0"/>

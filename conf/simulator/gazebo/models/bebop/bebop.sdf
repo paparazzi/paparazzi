@@ -9,7 +9,7 @@
       </velocity_decay>
       
       <inertial>
-        <mass>0.38905</mass>
+        <mass>0.536</mass><!-- With bumpers. Tuned for correct nominal hover thrust, mass is higher than in real life (~0.40kg) -->
         <inertia>
           <ixx> 0.000906 </ixx>
           <iyy> 0.001242 </iyy>
@@ -34,6 +34,10 @@
             <size>0.15 0.05 0.05</size>
           </box>
         </geometry>
+        <material>
+          <diffuse>0.82 0.07 0.07 1</diffuse>
+          <ambient>0.82 0.07 0.07 1</ambient>
+        </material>
       </visual>
       
       <sensor name="contactsensor" type="contact">
@@ -65,8 +69,8 @@
           </cylinder>
         </geometry>
         <material>
-          <diffuse>0.25 0.85 0.95 1</diffuse>
-          <ambient>0.25 0.85 0.95 1</ambient>
+          <diffuse>0.82 0.07 0.07 1</diffuse>
+          <ambient>0.82 0.07 0.07 1</ambient>
         </material>
       </visual>
     </link>
@@ -129,8 +133,8 @@
           </cylinder>
         </geometry>
         <material>
-          <diffuse>0.25 0.85 0.95 1</diffuse>
-          <ambient>0.25 0.85 0.95 1</ambient>
+          <diffuse>0.82 0.07 0.07 1</diffuse>
+          <ambient>0.82 0.07 0.07 1</ambient>
         </material>
       </visual>
     </link>
@@ -192,11 +196,11 @@
         <update_rate>15.0</update_rate><!-- adjust with MT9F002_TARGET_FPS -->
         <camera name="front_camera">
           <image>
-            <width>4608</width><!-- with MT9F002_OUTPUT_SCALER = 1.00, will be scaled by NPS -->
+            <width>3746</width><!-- with MT9F002_OUTPUT_SCALER = 1.00, will be scaled by NPS --><!-- Reduced to 3 rad FoV for Gazebo 7 compatibility -->
             <height>3288</height>
             <format>R8G8B8</format>
           </image>
-          <horizontal_fov>3.69</horizontal_fov>
+          <horizontal_fov>3.00</horizontal_fov>
           <lens>
             <type>equisolid_angle</type>
             <scale_to_hfov>true</scale_to_hfov>
