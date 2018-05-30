@@ -579,7 +579,7 @@ void image_show_points_color(struct image_t *img, struct point_t *points, uint16
   uint8_t pixel_width = (img->type == IMAGE_YUV422) ? 2 : 1;
 
   int cross_hair = 1;
-  unsigned int size_crosshair = 5;
+  int size_crosshair = 5;
 
   // Go trough all points and color them
   for (int i = 0; i < points_cnt; i++) {
@@ -608,20 +608,18 @@ void image_show_points_color(struct image_t *img, struct point_t *points, uint16
 void image_show_flow(struct image_t *img, struct flow_t *vectors, uint16_t points_cnt, uint8_t subpixel_factor)
 {
   static uint8_t color[4] = {255, 255, 255, 255};
-  static unsigned int size_crosshair = 5;
+  static int size_crosshair = 5;
 
   // Go through all the points
   for (uint16_t i = 0; i < points_cnt; i++) {
     // Draw a line from the original position with the flow vector
     struct point_t from = {
       vectors[i].pos.x / subpixel_factor,
-      vectors[i].pos.y / subpixel_factor,
-      0, 0, 0
+      vectors[i].pos.y / subpixel_factor
     };
     struct point_t to = {
       (vectors[i].pos.x + vectors[i].flow_x) / subpixel_factor,
-      (vectors[i].pos.y + vectors[i].flow_y) / subpixel_factor,
-      0, 0, 0
+      (vectors[i].pos.y + vectors[i].flow_y) / subpixel_factor
     };
     image_draw_line(img, &from, &to);
     image_draw_crosshair(img, &to, color, size_crosshair);
@@ -749,7 +747,7 @@ void image_draw_rectangle(struct image_t *img, int x_min, int x_max, int y_min, 
  *                   Example colors: white = {127, 255, 127, 255}, green = {0, 127, 0, 127};
  * @param[in] size_crosshair Actually the half size of the cross hair
  */
-void image_draw_crosshair(struct image_t *img, struct point_t *loc, uint8_t *color, unsigned int size_crosshair)
+void image_draw_crosshair(struct image_t *img, struct point_t *loc, uint8_t *color, int size_crosshair)
 {
   struct point_t from, to;
 
