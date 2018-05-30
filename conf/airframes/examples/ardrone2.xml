@@ -3,6 +3,7 @@
 <airframe name="ardrone2">
 
   <firmware name="rotorcraft">
+    <configure name="PREFIX" value="/opt/arm-2012.03/bin/arm-none-linux-gnueabi"/>
     <target name="ap" board="ardrone2"/>
 
     <target name="nps" board="pc">
@@ -34,10 +35,12 @@
     <!--module name="logger_file"/-->
     <module name="video_thread">
     </module>
+    
+    <module name="pano_unwrap"/>
 
     <module name="video_rtp_stream">
-      <define name="VIEWVIDEO_CAMERA" value="front_camera"/>
-      <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="4"/>
+      <define name="VIEWVIDEO_CAMERA" value="bottom_camera"/>
+      <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
       <define name="VIEWVIDEO_QUALITY_FACTOR" value="60"/>
     </module>
   </modules>
