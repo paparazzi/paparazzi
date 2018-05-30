@@ -23,43 +23,11 @@
 #ifndef RADIO_CONTROL_SPEKTRUM_ARCH_H
 #define RADIO_CONTROL_SPEKTRUM_ARCH_H
 
+#include "subsystems/radio_control/spektrum_radio.h"
 
-/*
- * All Spektrum and JR 2.4 GHz transmitters
- * have the same channel assignments.
- */
-
-
-#ifndef RADIO_CONTROL_NB_CHANNEL
-#define RADIO_CONTROL_NB_CHANNEL 12
-#endif
-
-#if RADIO_CONTROL_NB_CHANNEL > 12
-#error "RADIO_CONTROL_NB_CHANNEL mustn't be higher than 12."
-#endif
-
-/* channel assignments */
-#define RADIO_THROTTLE   0
-#define RADIO_ROLL       1
-#define RADIO_PITCH      2
-#define RADIO_YAW        3
-#define RADIO_GEAR       4
-#define RADIO_FLAP       5
-#define RADIO_AUX1       5
-#define RADIO_AUX2       6
-#define RADIO_AUX3       7
-#define RADIO_AUX4       8
-#define RADIO_AUX5       9
-#define RADIO_AUX6       10
-#define RADIO_AUX7       11
-
-/* really for a 9 channel transmitter
-   we would swap the order of these */
-#ifndef RADIO_MODE
-#define RADIO_MODE       RADIO_GEAR
-#endif
-
-extern void RadioControlEventImp(void (*_received_frame_handler)(void));
+extern void spektrum_event(void (*_received_frame_handler)(void));
+#define RadioControlEventImp spektrum_event
+extern void spektrum_try_bind(void);
 
 #if USE_NPS
 extern void radio_control_feed(void);

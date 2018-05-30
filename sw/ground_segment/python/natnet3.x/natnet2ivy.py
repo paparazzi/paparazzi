@@ -54,7 +54,6 @@ from NatNetClient import NatNetClient
 # file is a reasonable substitute
 PPRZ_HOME = getenv("PAPARAZZI_HOME", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../../')))
 sys.path.append(PPRZ_HOME + "/var/lib/python")
-sys.path.append(PPRZ_HOME + "/var/lib/python/pprzlink") # seems needed for messages_xml_map file
 from pprzlink.ivy import IvyMessagesInterface
 from pprzlink.message import PprzMessage
 
@@ -69,6 +68,7 @@ parser.add_argument('-dp', '--data_port', dest='data_port', type=int, default=15
 parser.add_argument('-cp', '--command_port', dest='command_port', type=int, default=1510, help="NatNet server command socket UDP port")
 parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help="display debug messages")
 parser.add_argument('-f', '--freq', dest='freq', default=10, type=int, help="transmit frequency")
+parser.add_argument('-gr', '--ground_ref', dest='ground_ref', action='store_true', help="also send the GROUND_REF message")
 parser.add_argument('-vs', '--vel_samples', dest='vel_samples', default=4, type=int, help="amount of samples to compute velocity (should be greater than 2)")
 args = parser.parse_args()
 
@@ -125,9 +125,12 @@ def compute_velocity(ac_id):
             vel[2] / nb
     return vel
 
-
 def receiveRigidBodyList( rigidBodyList, stamp ):
-    for (ac_id, pos, quat) in rigidBodyList:
+    for (ac_id, pos, quat, valid) in rigidBodyList:
+        if not valid:
+            # skip if rigid body is not valid
+            continue
+
         i = str(ac_id)
         if i not in id_dict.keys():
             continue
@@ -155,6 +158,19 @@ def receiveRigidBodyList( rigidBodyList, stamp ):
         dcm_1_0 = 2.0 * (quat[0] * quat[1] - quat[3] * quat[2])
         msg['course'] = 180. * np.arctan2(dcm_1_0, dcm_0_0) / 3.14
         ivy.send(msg)
+
+        # send GROUND_REF message if needed
+        if args.ground_ref:
+            gr = PprzMessage("ground", "GROUND_REF")
+            gr['ac_id'] = str(id_dict[i])
+            gr['frame'] = "LTP_ENU"
+            gr['pos'] = pos
+            gr['speed'] = vel
+            gr['quat'] = [quat[3], quat[0], quat[1], quat[2]]
+            gr['rate'] = [ 0., 0., 0. ]
+            gr['timestamp'] = stamp
+            ivy.send(gr)
+
 
 
 # start natnet interface

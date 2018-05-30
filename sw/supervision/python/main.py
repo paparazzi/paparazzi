@@ -37,6 +37,9 @@ import os
 def main():
     """Main program : creates the main window and starts the main loop."""
 
+    # Set this file's location as working directory
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
     # Set the environment variables (useful for some processes) :
     os.putenv(env.HOME_NAME, env.PAPARAZZI_HOME)
     os.putenv(env.SRC_NAME, env.PAPARAZZI_SRC)

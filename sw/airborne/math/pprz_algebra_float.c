@@ -477,9 +477,9 @@ void float_quat_derivative_lagrange(struct FloatQuat *qd, struct FloatRates *r, 
 void float_quat_of_eulers(struct FloatQuat *q, struct FloatEulers *e)
 {
 
-  const float phi2   = e->phi / 2.0;
-  const float theta2 = e->theta / 2.0;
-  const float psi2   = e->psi / 2.0;
+  const float phi2   = e->phi / 2.f;
+  const float theta2 = e->theta / 2.f;
+  const float psi2   = e->psi / 2.f;
 
   const float s_phi2   = sinf(phi2);
   const float c_phi2   = cosf(phi2);
@@ -503,9 +503,9 @@ void float_quat_of_eulers(struct FloatQuat *q, struct FloatEulers *e)
  */
 void float_quat_of_eulers_zxy(struct FloatQuat *q, struct FloatEulers *e)
 {
-  const float phi2   = e->phi / 2.0;
-  const float theta2 = e->theta / 2.0;
-  const float psi2   = e->psi / 2.0;
+  const float phi2   = e->phi / 2.f;
+  const float theta2 = e->theta / 2.f;
+  const float psi2   = e->psi / 2.f;
 
   const float s_phi2   = sinf(phi2);
   const float c_phi2   = cosf(phi2);
@@ -520,6 +520,33 @@ void float_quat_of_eulers_zxy(struct FloatQuat *q, struct FloatEulers *e)
   q->qz =  s_phi2 * s_theta2 * c_psi2 + c_phi2 * c_theta2 * s_psi2;
 }
 
+/**
+ * @brief quat from euler rotation 'YXZ'
+ * This function calculates a quaternion from Euler angles with the order YXZ,
+ * so pitch, roll, yaw, instead of the conventional ZYX order.
+ * See https://en.wikipedia.org/wiki/Euler_angles
+ *
+ * @param q Quat output
+ * @param e Euler input
+ */
+void float_quat_of_eulers_yxz(struct FloatQuat *q, struct FloatEulers *e)
+{
+  const float phi2   = e->phi / 2.f;
+  const float theta2 = e->theta / 2.f;
+  const float psi2   = e->psi / 2.f;
+
+  const float s_phi2   = sinf(phi2);
+  const float c_phi2   = cosf(phi2);
+  const float s_theta2 = sinf(theta2);
+  const float c_theta2 = cosf(theta2);
+  const float s_psi2   = sinf(psi2);
+  const float c_psi2   = cosf(psi2);
+
+  q->qi =  c_theta2 * c_phi2 * c_psi2 + s_theta2 * s_phi2 * s_psi2;
+  q->qx =  c_theta2 * s_phi2 * c_psi2 + s_theta2 * c_phi2 * s_psi2;
+  q->qy =  s_theta2 * c_phi2 * c_psi2 - c_theta2 * s_phi2 * s_psi2;
+  q->qz =  c_theta2 * c_phi2 * s_psi2 - s_theta2 * s_phi2 * c_psi2;
+}
 
 void float_quat_of_axis_angle(struct FloatQuat *q, const struct FloatVect3 *uv, float angle)
 {
@@ -636,6 +663,38 @@ void float_eulers_of_quat(struct FloatEulers *e, struct FloatQuat *q)
   e->phi = atan2f(dcm12, dcm22);
   e->theta = -asinf(dcm02);
   e->psi = atan2f(dcm01, dcm00);
+}
+
+/**
+ * @brief euler rotation 'YXZ'
+ * This function calculates from a quaternion the Euler angles with the order YXZ,
+ * so pitch, roll, yaw, instead of the conventional ZYX order.
+ * See https://en.wikipedia.org/wiki/Euler_angles
+ *
+ * @param e Euler output
+ * @param q Quat input
+ */
+void float_eulers_of_quat_yxz(struct FloatEulers *e, struct FloatQuat *q)
+{
+  const float qx2  = q->qx * q->qx;
+  const float qy2  = q->qy * q->qy;
+  const float qz2  = q->qz * q->qz;
+  const float qi2  = q->qi * q->qi;
+  const float qiqx = q->qi * q->qx;
+  const float qiqy = q->qi * q->qy;
+  const float qiqz = q->qi * q->qz;
+  const float qxqy = q->qx * q->qy;
+  const float qxqz = q->qx * q->qz;
+  const float qyqz = q->qy * q->qz;
+  const float r11  = 2.f * (qxqz + qiqy);
+  const float r12  = qi2 - qx2 + qy2 + qz2;
+  const float r21  = -2.f * (qyqz - qiqx);
+  const float r31  = 2.f * (qxqy + qiqz);
+  const float r32  = qi2 - qx2 + qy2 - qz2;
+
+  e->theta = atan2f(r11, r12);
+  e->phi = asinf(r21);
+  e->psi = atan2f(r31, r32);
 }
 
 /**
@@ -767,7 +826,7 @@ bool float_mat_inv_4d(float invOut[16], float mat_in[16])
 }
 
 /** Calculate inverse of any n x n matrix (passed as C array) o = mat^-1
-Algorithm verified with Matlab. 
+Algorithm verified with Matlab.
 Thanks to: https://www.quora.com/How-do-I-make-a-C++-program-to-get-the-inverse-of-a-matrix-100-X-100
 */
 void float_mat_invert(float **o, float **mat, int n)
@@ -788,7 +847,7 @@ void float_mat_invert(float **o, float **mat, int n)
       else {
         a[i][j] = 0.0;
       }
-    } 
+    }
   }
 
   // Do the inversion

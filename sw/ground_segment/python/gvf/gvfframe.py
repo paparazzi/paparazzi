@@ -10,9 +10,10 @@ import numpy as np
 
 import sys
 from os import path, getenv
+PPRZ_HOME = getenv("PAPARAZZI_HOME", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../../')))
 PPRZ_SRC = getenv("PAPARAZZI_SRC", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../../')))
+sys.path.append(PPRZ_HOME + "/var/lib/python")
 sys.path.append(PPRZ_SRC + "/sw/lib/python")
-sys.path.append(PPRZ_SRC + "/sw/ext/pprzlink/lib/v1.0/python")
 from pprzlink.ivy import IvyMessagesInterface
 from pprzlink.message import PprzMessage
 from settings_xml_parse import PaparazziACSettings

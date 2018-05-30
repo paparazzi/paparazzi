@@ -21,7 +21,7 @@
 /**
  * @file datalink/gec/gec.h
  *
- * Galois embedded crypto iplementation
+ * Galois embedded crypto implementation
  *
  */
 #ifndef SPPRZ_GEC_H
@@ -44,34 +44,23 @@
 #define PPRZ_CNTR_IDX 1
 // index of the beginning of the authenticated bytes
 #define PPRZ_AUTH_IDX 5
-// index of the beginning of the ciphertex
-#define PPRZ_CIPH_IDX 7
+
 // legth of the message signature
 #define PPRZ_SIGN_LEN 64
 // lenght of a hash for key derivation
 #define PPRZ_HASH_LEN 64
 // length of the encryption keys
 #define PPRZ_KEY_LEN 32
-// length of the authenticated data
-#define PPRZ_AUTH_LEN 2
 // length of the message authentication tag
 #define PPRZ_MAC_LEN 16
 // length of the message nonce
 #define PPRZ_NONCE_LEN 12
 // length of the counter
 #define PPRZ_COUNTER_LEN 4
-// index of the message ID for plaintext messages
-#define PPRZ_PLAINTEXT_MSG_ID_IDX 4
-// 4 bytes of MSG info (source_ID, dest_ID, class_byte, msg_ID) + 1 GEC byte
-#define PPRZ_PLAINTEXT_MSG_MIN_LEN 5
-// 20 bytes crypto overhead + 4 bytes MSG info + 1 GEC byte
-#define PPRZ_ENCRYPTED_MSG_MIN_LEN 25
 // length of the crypto overhead (4 bytes of counter + 16 bytes of tag)
 #define PPRZ_CRYPTO_OVERHEAD 20
 // basepoint value for the scalar curve multiplication
 #define PPRZ_CURVE_BASEPOINT 9
-// minimal size of the encrypted message
-#define PPRZ_V2_MSG_ID 3
 
 typedef unsigned char ed25519_signature[64];
 
@@ -142,5 +131,8 @@ void gec_sts_init(struct gec_sts_ctx *sts);
 void gec_clear_sts(struct gec_sts_ctx *sts);
 void gec_generate_ephemeral_keys(struct gec_privkey *sk);
 void gec_derive_key_material(struct gec_sts_ctx *sts, uint8_t *z);
+
+void gec_counter_to_bytes(uint32_t n, uint8_t *bytes);
+uint32_t gec_bytes_to_counter(uint8_t *bytes);
 
 #endif /* SPPRZ_GEC_H */

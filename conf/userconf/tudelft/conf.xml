@@ -1,5 +1,17 @@
 <conf>
   <aircraft
+   name="ARDrone2_OF_Hover"
+   ac_id="44"
+   airframe="airframes/tudelft/ardrone2_OF_hover.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_optitrack.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_indi.xml"
+   settings_modules="modules/optical_flow_hover.xml [modules/cv_opticflow.xml] modules/ahrs_int_cmpl_quat.xml modules/stabilization_indi_simple.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
+   gui_color="red"
+   release="ac5eaa8da36b999a135f979e598930a9d40f6401"
+  />
+  <aircraft
    name="ARDrone2_default"
    ac_id="10"
    airframe="airframes/examples/ardrone2.xml"
@@ -130,7 +142,6 @@
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_speed.xml"
    settings_modules="modules/video_capture.xml modules/cv_opticflow.xml modules/air_data.xml modules/geo_mag.xml modules/ins_hff_extended.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_indi_simple.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
    gui_color="blue"
-   release=""
   />
   <aircraft
    name="CX10"
@@ -291,7 +302,7 @@
    settings="settings/rotorcraft_basic.xml settings/modules/config_asctec_v2.xml"
    settings_modules="modules/geo_mag.xml modules/nav_survey_poly_rotorcraft.xml modules/nav_survey_rectangle_rotorcraft.xml modules/gps_ubx_ucenter.xml modules/switch_servo.xml modules/ahrs_float_mlkf.xml modules/stabilization_int_quat.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
    gui_color="blue"
-   release="2a6ad556f183875fa9fb8072d774beec7ba55701"
+   release="d603018c47baf05f7ed54d140b8fc40b272bdf9c"
   />
   <aircraft
    name="MAVTec4_Bart"
@@ -383,7 +394,7 @@
    settings="settings/fixedwing_basic.xml settings/estimation/ins_neutrals.xml settings/control/tune_agr_climb.xml"
    settings_modules="modules/digital_cam.xml modules/light.xml modules/gps.xml modules/nav_basic_fw.xml modules/guidance_basic_fw.xml modules/stabilization_attitude_fw.xml"
    gui_color="#b748fe64fe64"
-   release="7cf84458f9e2c7273215dfab122792d5e5813304"
+   release="51de434099295a06047e6e54f21036a8cabaa46a"
   />
   <aircraft
    name="Splash"
@@ -460,7 +471,7 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/tudelft/delft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/estimation/ahrs_secondary.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml modules/air_data.xml modules/geo_mag.xml modules/ins_extended.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_indi_simple.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml modules/air_data.xml modules/geo_mag.xml modules/ins_extended.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_indi.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
    gui_color="#baa3d698b729"
   />
   <aircraft
@@ -507,6 +518,17 @@
    settings_modules="modules/video_rtp_stream.xml modules/optical_flow_landing.xml modules/cv_opticflow.xml modules/video_capture.xml modules/air_data.xml modules/geo_mag.xml modules/ins_extended.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_indi_simple.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
    gui_color="#ffffbf17bf17"
    release=""
+  />
+  <aircraft
+   name="bebop_OF_Hover"
+   ac_id="45"
+   airframe="airframes/tudelft/bebop_OF_hover.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_optitrack.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_indi.xml"
+   settings_modules="modules/optical_flow_hover.xml modules/cv_opticflow.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_indi_simple.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
+   gui_color="red"
   />
   <aircraft
    name="bebop_flip"

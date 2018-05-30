@@ -35,7 +35,7 @@ then
         	wificmd="bcmwl join $WIFI_SSID key $WIFI_KEY amode $WIFI_AMODE"
         fi
         eval $wificmd
-        sleep 2
+        sleep 5
         # from the udhcpc message clip the leased IP address
         dhcpmsg=`udhcpc -n -b -i eth0 -s /data/ftp/internal_000/scripts/config_network.script -x hostname:$(hostname)`
         echo $dhcpmsg > /data/ftp/internal_000/scripts/MSG_latest_DHCP

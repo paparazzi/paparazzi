@@ -44,6 +44,8 @@ def reorganize_airframe_xml(airframe_xml):
     else:
         airframe.set('name', airframe_xml.getroot().get('name'))
 
+    find_and_add(airframe_xml, airframe, "description")
+
     find_or_add_group(airframe_xml, airframe, "FIRMWARE")
     find_and_add(airframe_xml, airframe, "firmware")
     find_and_add_sections_with_name(airframe_xml, airframe, "AUTOPILOT")

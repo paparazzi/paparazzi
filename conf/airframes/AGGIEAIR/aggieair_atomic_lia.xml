@@ -4,8 +4,7 @@
 AggieAir Atomic Tangerine
 -->
 
-<airframe name="Atomic Tangerine">
-
+<airframe name="AggieAir Atomic Tangerine">
   <firmware name="fixedwing">
     <target name="ap" board="lisa_mx_2.1">
       <module name="radio_control" type="sbus">
@@ -13,6 +12,11 @@ AggieAir Atomic Tangerine
       </module>
       <configure name="HAS_LUFTBOOT" value="1"/>
       <configure name="FLASH_MODE" value="DFU"/>
+      <module name="telemetry"   type="transparent_gec">
+        <configure name="MODEM_PORT"        value="UART3"/>
+        <configure name="MODEM_BAUD"        value="B57600"/>
+        <define name="GEC_STATUS_LED" value="5"/>
+      </module>
     </target>
 
     <!-- NOTE: if you want to use extra_dl module for HITL
@@ -25,6 +29,7 @@ AggieAir Atomic Tangerine
     <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
       <module name="radio_control" type="spektrum"/>
+      <module name="telemetry"   type="transparent_gec"/>
     </target>
 
     <target name="hitl" board="pc">
@@ -34,16 +39,11 @@ AggieAir Atomic Tangerine
       <configure name="INS_BAUD" value="B921600"/>
       <configure name="AP_DEV" value="/dev/ttyUSB2"/>
       <configure name="AP_BAUD" value="B921600"/>
+      <module name="telemetry"   type="transparent"/>
     </target>
 
     <module name="control"/>
     <module name="navigation"/>
-
-    <module name="telemetry"   type="transparent_gec">
-      <configure name="MODEM_PORT"        value="UART3"/>
-      <configure name="MODEM_BAUD"        value="B57600"/>
-      <define name="GEC_STATUS_LED" value="5"/>
-    </module>
 
     <module name="ins"       type="vectornav">
       <configure name="VN_PORT" value="UART2"/>
@@ -61,6 +61,7 @@ AggieAir Atomic Tangerine
     <module name="nav" type="survey_poly_osam"/>
     <module name="nav" type="launcher"/>
     <module name="nav" type="skid_landing"/>
+
     <module name="sys_mon"/>
     <module name="copilot"/>
     <module name="extra_dl">
@@ -89,7 +90,7 @@ AggieAir Atomic Tangerine
     <servo name="AILERON_LEFT"	no="2" min="2100" neutral="1500" max="900"/>
     <servo name="ELEVATOR"      no="3" min="975" neutral="1500" max="2100"/>
     <servo name="RUDDER"        no="4" min="2100" neutral="1500" max="900"/>
-    <servo name="FLAP"		no="0" min="1900" neutral="1500" max="900"/>
+    <servo name="FLAP"		no="0" min="990" neutral="1945" max="1945"/>
   </servos>
 
   <!-- Servo Command Structure -->
@@ -98,14 +99,14 @@ AggieAir Atomic Tangerine
     <axis name="ROLL"       failsafe_value="0"/>
     <axis name="PITCH"      failsafe_value="0"/>
     <axis name="YAW"          failsafe_value="0"/>
-    <axis name="FLAP"         failsafe_value="0"/>
+    <axis name="FLAP"         failsafe_value="9600"/>
   </commands>
 
   <!-- RC Command Structure -->
   <rc_commands>
     <set command="THROTTLE" value="@THROTTLE"/>
     <set command="ROLL"     value="@ROLL"/>
-    <set command="PITCH"    value=" - @PITCH"/>
+    <set command="PITCH"    value="@PITCH"/>
     <set command="YAW"	value="@YAW"/>
     <set command="FLAP"     value="@FLAP"/>
   </rc_commands>
@@ -113,7 +114,6 @@ AggieAir Atomic Tangerine
   <!-- Define RC commands to Servo in Auto Mode -->
   <auto_rc_commands>
     <set command="YAW"  value="@YAW"/>
-    <set command="FLAP"     value="@FLAP"/>
   </auto_rc_commands>
 
   <!-- Define Mixing Parameters -->
@@ -235,9 +235,9 @@ AggieAir Atomic Tangerine
     <!-- ORIGINAL GAIN     -->
     <define name="PITCH_DGAIN" value="1.5"/>
 
-    <!-- SIMULATOR GAIN
-    <define name="PITCH_DGAIN" value="151.5"/>
-     -->
+    <!-- SIMULATOR GAIN-->
+    <!--define name="PITCH_DGAIN" value="151.5"/-->
+     
     <define name="ELEVATOR_OF_ROLL" value="1250"/>
     <define name="ROLL_ATTITUDE_GAIN" value="9000"/>
     <define name="ROLL_RATE_GAIN" value="1600"/>

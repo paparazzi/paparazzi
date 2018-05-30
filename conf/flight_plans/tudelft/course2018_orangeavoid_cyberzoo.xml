@@ -7,6 +7,8 @@
     #include "subsystems/radio_control.h"
     #include "subsystems/ahrs.h"
     
+    // Note: use 'git submodule update --init -- sw/ext/tudelft_gazebo_models/'
+    // to download the required models.
     #define NPS_GAZEBO_WORLD "cyberzoo_orange_poles.world"
 </header>
   <waypoints>

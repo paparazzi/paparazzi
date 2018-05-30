@@ -19,7 +19,7 @@
   </doc>
   <autoload name="imu_common"/>
   <autoload name="imu_nps"/>
-  <!--autoload name="sonar_bebop"/-->
+  <autoload name="sonar_bebop"/>
   <header>
     <file name="imu_disco.h" dir="subsystems/imu"/>
   </header>

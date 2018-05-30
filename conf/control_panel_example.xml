@@ -65,6 +65,7 @@
     <program name="ADS-B Intruders receiver" command="sw/ground_segment/misc/sbs2ivy">
       <arg flag="--ac" constant="@AC_ID"/>
     </program>
+    <program name="OpenSky-Network Intruders" command="sw/ground_segment/python/opensky-network/opensky.py"/>
     <program name="SVInfo" command="sw/ground_segment/python/svinfo/svinfo.py"/>
     <program name="IridiumDialer" command="sw/tools/iridium/iridium_link.py"/>
     <program name="PayloadForward" command="sw/ground_segment/python/payload_forward/payload.py"/>
@@ -75,6 +76,7 @@
       <arg flag="-r" constant="3"/>
     </program>
     <program name="rtcm2ivy" command="sw/ground_segment/misc/rtcm2ivy"/>
+    <program name="Gazebo" command="sw/tools/gzclient_launcher.sh"/>
  </section>
 
   <section name="sessions">
