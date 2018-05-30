@@ -9,7 +9,7 @@
       </velocity_decay>
       
       <inertial>
-        <mass>0.536</mass><!-- with bumpers -->
+        <mass>0.536</mass><!-- With bumpers. Tuned for correct nominal hover thrust, mass is higher than in real life (~0.40kg) -->
         <inertia>
           <ixx> 0.000906 </ixx>
           <iyy> 0.001242 </iyy>
@@ -196,7 +196,7 @@
         <update_rate>15.0</update_rate><!-- adjust with MT9F002_TARGET_FPS -->
         <camera name="front_camera">
           <image>
-            <width>3746</width><!-- with MT9F002_OUTPUT_SCALER = 1.00, will be scaled by NPS -->
+            <width>3746</width><!-- with MT9F002_OUTPUT_SCALER = 1.00, will be scaled by NPS --><!-- Reduced to 3 rad FoV for Gazebo 7 compatibility -->
             <height>3288</height>
             <format>R8G8B8</format>
           </image>
