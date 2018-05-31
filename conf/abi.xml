@@ -156,13 +156,14 @@
       <field name="accel_sp" type="struct FloatVect3 *" unit="m/s^2"/>
     </message>
 
-    <message name="RELATIVE_LOCALIZATION_EKF" id="24">
+    <message name="RELATIVE_LOCALIZATION" id="24">
       <field name="id" type="int32_t"/>
       <field name="x" type="float" unit="m"/>
       <field name="y" type="float" unit="m"/>
       <field name="z" type="float" unit="m"/>
       <field name="vx" type="float" unit="m/s"/>
       <field name="vy" type="float" unit="m/s"/>
+      <field name="vz" type="float" unit="m/s"/>
     </message>
 
   </msg_class>

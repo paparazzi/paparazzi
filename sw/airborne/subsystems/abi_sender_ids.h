@@ -379,10 +379,10 @@
 #endif
 
 /*
- * RELATIVE_LOCALIZATION_EKF communication (message 24)
+ * RELATIVE_LOCALIZATION communication (message 24)
 */
-#ifndef RL_EKF_ID
-#define RL_EKF_ID 1
+#ifndef RELATIVE_LOCALIZATION_ID
+#define RELATIVE_LOCALIZATION_ID 1
 #endif
 
 #endif /* ABI_SENDER_IDS_H */
