@@ -102,7 +102,7 @@ void pprz_qr_float(float **Q, float **R, float **in, int m, int n)
     float_mat_copy(Q, z2, m, m);
   }
   float_mat_mul(R, Q, in, m, m, n);
-  float_mat_transpose(Q, m);
+  float_mat_transpose_square(Q, m);
 }
 
 /** Some SVD decomposition utility macros and functions

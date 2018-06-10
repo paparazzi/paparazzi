@@ -833,45 +833,43 @@ void float_mat_invert(float **o, float **mat, int n)
 {
   int i, j, k;
   float t;
-  float a[n][2*n];
+  float a[n][2 * n];
 
   // Append an identity matrix on the right of the original matrix
-  for(i = 0; i < n; i++) {
-    for(j = 0; j < 2*n; j++) {
+  for (i = 0; i < n; i++) {
+    for (j = 0; j < 2 * n; j++) {
       if (j < n) {
         a[i][j] = mat[i][j];
-      }
-      else if( (j >= n) && (j == i+n)) {
+      } else if ((j >= n) && (j == i + n)) {
         a[i][j] = 1.0;
-      }
-      else {
+      } else {
         a[i][j] = 0.0;
       }
     }
   }
 
   // Do the inversion
-  for( i = 0; i < n; i++) {
-    t = a[i][i];     // Store diagonal variable (temp)
+  for (i = 0; i < n; i++) {
+    t = a[i][i]; // Store diagonal variable (temp)
 
-    for(j = i; j < 2*n; j++) {
-      a[i][j] = a[i][j]/t; // Divide by the diagonal value
+    for (j = i; j < 2 * n; j++) {
+      a[i][j] = a[i][j] / t; // Divide by the diagonal value
     }
 
-    for(j = 0; j < n; j++) {
-      if( i!=j ) {
+    for (j = 0; j < n; j++) {
+      if (i != j) {
         t = a[j][i];
-        for(k=0; k<2*n; k++) {
-          a[j][k] = a[j][k] - t*a[i][k];
+        for (k = 0; k < 2 * n; k++) {
+          a[j][k] = a[j][k] - t * a[i][k];
         }
       }
     }
   }
 
   // Cut out the identity, which has now moved to the left side
-  for(i = 0 ; i < n ; i++ ) {
-    for(j = n; j < 2*n; j++ ) {
-      o[i][j-n] = a[i][j];
+  for (i = 0 ; i < n ; i++) {
+    for (j = n; j < 2 * n; j++) {
+      o[i][j - n] = a[i][j];
     }
   }
 }
