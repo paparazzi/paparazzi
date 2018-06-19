@@ -91,6 +91,7 @@ void stateCalcPositionEcef_i(void)
     /* could not get this representation,  set errno */
     //struct EcefCoor_i _ecef_zero = {0};
     //return _ecef_zero;
+    return;
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.pos_status, POS_ECEF_I);
@@ -170,6 +171,7 @@ void stateCalcPositionNed_i(void)
   if (errno) {
     //struct NedCoor_i _ned_zero = {0};
     //return _ned_zero;
+    return;
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.pos_status, POS_NED_I);
@@ -249,6 +251,7 @@ void stateCalcPositionEnu_i(void)
   if (errno) {
     //struct EnuCoor_i _enu_zero = {0};
     //return _enu_zero;
+    return;
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.pos_status, POS_ENU_I);
@@ -308,6 +311,7 @@ void stateCalcPositionLla_i(void)
     /* could not get this representation,  set errno */
     //struct LlaCoor_i _lla_zero = {0};
     //return _lla_zero;
+    return;
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.pos_status, POS_LLA_I);
@@ -344,6 +348,7 @@ void stateCalcPositionUtm_f(void)
     /* could not get this representation,  set errno */
     //struct EcefCoor_f _ecef_zero = {0.0f};
     //return _ecef_zero;
+    return;
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.pos_status, POS_UTM_F);
@@ -374,6 +379,7 @@ void stateCalcPositionEcef_f(void)
     /* could not get this representation,  set errno */
     //struct EcefCoor_f _ecef_zero = {0.0f};
     //return _ecef_zero;
+    return;
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.pos_status, POS_ECEF_F);
@@ -440,6 +446,7 @@ void stateCalcPositionNed_f(void)
   if (errno) {
     //struct NedCoor_f _ned_zero = {0.0f};
     //return _ned_zero;
+    return;
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.pos_status, POS_NED_F);
@@ -512,6 +519,7 @@ void stateCalcPositionEnu_f(void)
   if (errno) {
     //struct EnuCoor_f _enu_zero = {0.0f};
     //return _enu_zero;
+    return;
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.pos_status, POS_ENU_F);
@@ -550,6 +558,7 @@ void stateCalcPositionLla_f(void)
     /* could not get this representation,  set errno */
     //struct LlaCoor_f _lla_zero = {0.0};
     //return _lla_zero;
+    return;
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.pos_status, POS_LLA_F);
@@ -613,6 +622,7 @@ void stateCalcSpeedNed_i(void)
   if (errno) {
     //struct NedCoor_i _ned_zero = {0};
     //return _ned_zero;
+    return;
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.speed_status, SPEED_NED_I);
@@ -664,6 +674,7 @@ void stateCalcSpeedEnu_i(void)
   if (errno) {
     //struct EnuCoor_i _enu_zero = {0};
     //return _enu_zero;
+    return;
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.speed_status, SPEED_ENU_I);
@@ -688,6 +699,7 @@ void stateCalcSpeedEcef_i(void)
     /* could not get this representation,  set errno */
     //struct EcefCoor_i _ecef_zero = {0};
     //return _ecef_zero;
+    return;
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.speed_status, SPEED_ECEF_I);
@@ -733,6 +745,7 @@ void stateCalcHorizontalSpeedNorm_i(void)
   } else {
     //int32_t _norm_zero = 0;
     //return _norm_zero;
+    return;
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.speed_status, SPEED_HNORM_I);
@@ -762,6 +775,8 @@ void stateCalcHorizontalSpeedDir_i(void)
     SetBit(state.speed_status, SPEED_ENU_I);
     state.h_speed_dir_i = int32_atan2(state.enu_speed_i.x, state.enu_speed_i.y);
     INT32_COURSE_NORMALIZE(state.h_speed_dir_i);
+  } else {
+    return;
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.speed_status, SPEED_HDIR_I);
@@ -811,6 +826,7 @@ void stateCalcSpeedNed_f(void)
   if (errno) {
     //struct NedCoor_f _ned_zero = {0.0f};
     //return _ned_zero;
+    return;
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.speed_status, SPEED_NED_F);
@@ -860,6 +876,7 @@ void stateCalcSpeedEnu_f(void)
   if (errno) {
     //struct EnuCoor_f _enu_zero = {0};
     //return _enu_zero;
+    return;
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.speed_status, SPEED_ENU_F);
@@ -884,6 +901,7 @@ void stateCalcSpeedEcef_f(void)
     /* could not get this representation,  set errno */
     //struct EcefCoor_f _ecef_zero = {0.0f};
     //return _ecef_zero;
+    return;
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.speed_status, SPEED_ECEF_F);
@@ -909,6 +927,8 @@ void stateCalcHorizontalSpeedNorm_f(void)
     SPEEDS_FLOAT_OF_BFP(state.enu_speed_f, state.enu_speed_i);
     SetBit(state.speed_status, SPEED_ENU_F);
     state.h_speed_norm_f = FLOAT_VECT2_NORM(state.enu_speed_f);
+  } else {
+    return;
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.speed_status, SPEED_HNORM_F);
@@ -934,6 +954,8 @@ void stateCalcHorizontalSpeedDir_f(void)
     SPEEDS_FLOAT_OF_BFP(state.enu_speed_f, state.enu_speed_i);
     SetBit(state.speed_status, SPEED_ENU_F);
     state.h_speed_dir_f = atan2f(state.enu_speed_f.x, state.enu_speed_f.y);
+  } else {
+    return;
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.speed_status, SPEED_HDIR_F);
@@ -977,6 +999,7 @@ void stateCalcAccelNed_i(void)
   if (errno) {
     //struct NedCoor_i _ned_zero = {0};
     //return _ned_zero;
+    return;
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.accel_status, ACCEL_NED_I);
@@ -1007,7 +1030,9 @@ void stateCalcAccelEcef_i(void)
   } else { /* ned coordinate system not initialized,  set errno */
     errno = 2;
   }
-  if (errno) {}
+  if (errno) {
+    return;
+  }
   /* set bit to indicate this representation is computed */
   SetBit(state.accel_status, ACCEL_ECEF_I);
 }
@@ -1039,6 +1064,7 @@ void stateCalcAccelNed_f(void)
   if (errno) {
     //struct NedCoor_f _ned_zero = {0.0f};
     //return _ned_zero;
+    return;
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.accel_status, ACCEL_NED_F);
@@ -1069,7 +1095,9 @@ void stateCalcAccelEcef_f(void)
   } else { /* ned coordinate system not initialized,  set errno */
     errno = 2;
   }
-  if (errno) {}
+  if (errno) {
+    return;
+  }
   /* set bit to indicate this representation is computed */
   SetBit(state.accel_status, ACCEL_ECEF_F);
 }
@@ -1091,6 +1119,8 @@ void stateCalcBodyRates_i(void)
 
   if (bit_is_set(state.rate_status, RATE_F)) {
     RATES_BFP_OF_REAL(state.body_rates_i, state.body_rates_f);
+  } else {
+    return;
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.rate_status, RATE_I);
@@ -1104,6 +1134,8 @@ void stateCalcBodyRates_f(void)
 
   if (bit_is_set(state.rate_status, RATE_I)) {
     RATES_FLOAT_OF_BFP(state.body_rates_f, state.body_rates_i);
+  } else {
+    return;
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.rate_status, RATE_F);
@@ -1129,6 +1161,8 @@ void stateCalcHorizontalWindspeed_i(void)
   if (bit_is_set(state.wind_air_status, WINDSPEED_F)) {
     state.windspeed_i.vect2.x = SPEED_BFP_OF_REAL(state.windspeed_f.vect2.x);
     state.windspeed_i.vect2.y = SPEED_BFP_OF_REAL(state.windspeed_f.vect2.y);
+  } else {
+    return;
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.wind_air_status , WINDSPEED_I);
@@ -1142,6 +1176,8 @@ void stateCalcVerticalWindspeed_i(void)
 
   if (bit_is_set(state.wind_air_status, DOWNWIND_F)) {
     state.windspeed_i.vect3.z = SPEED_BFP_OF_REAL(state.windspeed_f.vect3.z);
+  } else {
+    return;
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.wind_air_status, DOWNWIND_I);
@@ -1155,6 +1191,8 @@ void stateCalcAirspeed_i(void)
 
   if (bit_is_set(state.wind_air_status, AIRSPEED_F)) {
     state.airspeed_i = SPEED_BFP_OF_REAL(state.airspeed_f);
+  } else {
+    return;
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.wind_air_status, AIRSPEED_I);
@@ -1169,6 +1207,8 @@ void stateCalcHorizontalWindspeed_f(void)
   if (bit_is_set(state.wind_air_status, WINDSPEED_I)) {
     state.windspeed_f.vect2.x = SPEED_FLOAT_OF_BFP(state.windspeed_i.vect2.x);
     state.windspeed_f.vect2.y = SPEED_FLOAT_OF_BFP(state.windspeed_i.vect2.y);
+  } else {
+    return;
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.wind_air_status, WINDSPEED_F);
@@ -1182,6 +1222,8 @@ void stateCalcVerticalWindspeed_f(void)
 
   if (bit_is_set(state.wind_air_status, DOWNWIND_I)) {
     state.windspeed_f.vect3.z = SPEED_FLOAT_OF_BFP(state.windspeed_i.vect3.z);
+  } else {
+    return;
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.wind_air_status, DOWNWIND_F);
@@ -1195,6 +1237,8 @@ void stateCalcAirspeed_f(void)
 
   if (bit_is_set(state.wind_air_status, AIRSPEED_I)) {
     state.airspeed_f = SPEED_FLOAT_OF_BFP(state.airspeed_i);
+  } else {
+    return;
   }
   /* set bit to indicate this representation is computed */
   SetBit(state.wind_air_status, AIRSPEED_F);
