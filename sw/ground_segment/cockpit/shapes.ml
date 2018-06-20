@@ -73,7 +73,7 @@ let text_exist = fun id ->
 
 let update_circle = fun id wgs84 opacity fill_color color radius (geomap:MapCanvas.widget) ->
   try
-    let gencircle = geomap#circle ~width:2 ~fill_color ~opacity ~color wgs84.(0) radius in
+    let gencircle = geomap#circle ~group:geomap#background ~width:2 ~fill_color ~opacity ~color wgs84.(0) radius in
     if (circle_exist id) then
       let shape = Hashtbl.find circleshapes id in
       shape#destroy ();
@@ -84,7 +84,7 @@ let update_circle = fun id wgs84 opacity fill_color color radius (geomap:MapCanv
 
 let update_polygon = fun id positionarr opacity fill_color color (geomap:MapCanvas.widget) ->
   try
-    let genpolygon = geomap#polygon ~width:2 ~fill_color ~opacity ~color  positionarr in
+    let genpolygon = geomap#polygon ~group:geomap#background ~width:2 ~fill_color ~opacity ~color  positionarr in
     if (polygon_exist id) then
       let shape = Hashtbl.find polygonshapes id in
       shape#destroy ();
@@ -95,7 +95,7 @@ let update_polygon = fun id positionarr opacity fill_color color (geomap:MapCanv
 
 let update_line = fun id positionarr color (geomap:MapCanvas.widget) ->
   try
-    let genline = geomap#segment ~width:2 ~fill_color:color positionarr.(0) positionarr.(1) in
+    let genline = geomap#segment ~group:geomap#background ~width:2 ~fill_color:color positionarr.(0) positionarr.(1) in
     if (line_exist id) then
       let shape = Hashtbl.find lineshapes id in
       shape#destroy ();
@@ -106,7 +106,7 @@ let update_line = fun id positionarr color (geomap:MapCanvas.widget) ->
 
 let update_text = fun id positionarr color text (geomap:MapCanvas.widget)->
   try
-    let gentext = geomap#text ~fill_color:color  positionarr.(0) text in
+    let gentext = geomap#text ~group:geomap#background ~fill_color:color positionarr.(0) text in
     if (text_exist id) then
       let shape = Hashtbl.find textshapes id in
       shape#destroy ();
