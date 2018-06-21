@@ -148,45 +148,51 @@ void intermcu_send_status(uint8_t mode)
 static void intermcu_parse_msg(void (*commands_frame_handler)(void))
 {
   /* Parse the Inter MCU message */
-  uint8_t msg_id = imcu_msg_buf[1];
-  switch (msg_id) {
-    case DL_IMCU_COMMANDS: {
-      uint8_t i;
-      uint8_t size = DL_IMCU_COMMANDS_values_length(imcu_msg_buf);
-      int16_t *new_commands = DL_IMCU_COMMANDS_values(imcu_msg_buf);
-      intermcu.cmd_status |= DL_IMCU_COMMANDS_status(imcu_msg_buf);
+  uint8_t msg_id = pprzlink_get_msg_id(imcu_msg_buf);
+#if PPRZLINK_DEFAULT_VER == 2
+  // Check that the message is really a intermcu message
+  if (pprzlink_get_msg_class_id(imcu_msg_buf) == DL_intermcu_CLASS_ID) {
+#endif
+    switch (msg_id) {
+      case DL_IMCU_COMMANDS: {
+        uint8_t i;
+        uint8_t size = DL_IMCU_COMMANDS_values_length(imcu_msg_buf);
+        int16_t *new_commands = DL_IMCU_COMMANDS_values(imcu_msg_buf);
+        intermcu.cmd_status |= DL_IMCU_COMMANDS_status(imcu_msg_buf);
 
-      // Read the autopilot status and then clear it
-      autopilot_motors_on = INTERMCU_GET_CMD_STATUS(INTERMCU_CMD_MOTORS_ON);
-      INTERMCU_CLR_CMD_STATUS(INTERMCU_CMD_MOTORS_ON)
+        // Read the autopilot status and then clear it
+        autopilot_motors_on = INTERMCU_GET_CMD_STATUS(INTERMCU_CMD_MOTORS_ON);
+        INTERMCU_CLR_CMD_STATUS(INTERMCU_CMD_MOTORS_ON)
 
-      for (i = 0; i < size; i++) {
-        intermcu_commands[i] = new_commands[i];
+        for (i = 0; i < size; i++) {
+          intermcu_commands[i] = new_commands[i];
+        }
+
+        intermcu.status = INTERMCU_OK;
+        intermcu.time_since_last_frame = 0;
+        commands_frame_handler();
+        break;
       }
+  #if defined(TELEMETRY_INTERMCU_DEV)
+      case DL_IMCU_TELEMETRY: {
+        uint8_t size = DL_IMCU_TELEMETRY_msg_length(imcu_msg_buf);
+        uint8_t *msg = DL_IMCU_TELEMETRY_msg(imcu_msg_buf);
+        telemetry_intermcu_on_msg(msg, size);
+        break;
+      }
+  #endif
+  #if defined(SPEKTRUM_HAS_SOFT_BIND_PIN) //TODO: make subscribable module parser
+      case DL_IMCU_SPEKTRUM_SOFT_BIND:
+        received_spektrum_soft_bind();
+        break;
+  #endif
 
-      intermcu.status = INTERMCU_OK;
-      intermcu.time_since_last_frame = 0;
-      commands_frame_handler();
-      break;
+      default:
+        break;
     }
-#if defined(TELEMETRY_INTERMCU_DEV)
-    case DL_IMCU_TELEMETRY: {
-      uint8_t id = DL_IMCU_TELEMETRY_msg_id(imcu_msg_buf);
-      uint8_t size = DL_IMCU_TELEMETRY_msg_length(imcu_msg_buf);
-      uint8_t *msg = DL_IMCU_TELEMETRY_msg(imcu_msg_buf);
-      telemetry_intermcu_on_msg(id, msg, size);
-      break;
-    }
-#endif
-#if defined(SPEKTRUM_HAS_SOFT_BIND_PIN) //TODO: make subscribable module parser
-    case DL_IMCU_SPEKTRUM_SOFT_BIND:
-      received_spektrum_soft_bind();
-      break;
-#endif
-
-    default:
-      break;
+#if PPRZLINK_DEFAULT_VER == 2
   }
+#endif
 }
 #pragma GCC diagnostic pop
 

@@ -69,7 +69,7 @@ void telemetry_intermcu_event(void)
 
 }
 
-void telemetry_intermcu_on_msg(uint8_t msg_id __attribute__((unused)), uint8_t* msg, uint8_t size __attribute__((unused)))
+void telemetry_intermcu_on_msg(uint8_t* msg, uint8_t size __attribute__((unused)))
 {
   datalink_time = 0;
   datalink_nb_msgs++;
@@ -100,6 +100,6 @@ static void telemetry_intermcu_put_buffer(struct telemetry_intermcu_t *p, long f
 static void telemetry_intermcu_send_message(struct telemetry_intermcu_t *p, long fd __attribute__((unused)))
 {
   pprz_msg_send_IMCU_TELEMETRY(&(intermcu.transport.trans_tx), intermcu.device,
-                            INTERMCU_AP, &p->buf[1], (p->buf_idx - 2), &p->buf[2]);
+                            INTERMCU_AP, p->buf_idx, p->buf);
   p->buf_idx = 0;
 }
