@@ -41,6 +41,7 @@ The xml in master currently configures the LOGO600 as a pure model aircraft: mea
     <module name="intermcu"      type="uart">
       <define name="REMAP_UART3" value="TRUE"/>
     </module>
+    <module name="heli" type="throttle_curve"/>
   </firmware>
 
   <firmware name="rotorcraft">
@@ -54,7 +55,6 @@ The xml in master currently configures the LOGO600 as a pure model aircraft: mea
     <module name="actuators"     type="spektrum">
       <configure name="ACTUATORS_SPEKTRUM_DEV2" value="UART6"/>
     </module>
-    <module name="heli" type="throttle_curve"/>
     <define name="RC_LOST_FBW_MODE" value="FBW_MODE_FAILSAFE"/><!-- Switch to Failsafe or to Autopilot on RC loss? -->
     <!--define name="RC_LOST_IN_AUTO_FBW_MODE" value="FBW_MODE_AUTO"/--><!-- Switch to AUTO2 with a working autopilot on RC loss? Warning: beware of fly-away: program a GeoFence. beware: AP can ARM the FBW: airframe is dangerous at all times.-->
     <define name="RC_LOST_IN_AUTO_FBW_MODE" value="FBW_MODE_FAILSAFE"/><!-- Behave as a model aircraft: failsafe on RC lost. -->
@@ -88,6 +88,7 @@ The xml in master currently configures the LOGO600 as a pure model aircraft: mea
 
   <commands>
     <axis name="THRUST"     failsafe_value="0"/>
+    <axis name="COLLECTIVE" failsafe_value="-9600"/>
     <axis name="ROLL"       failsafe_value="0"/>
     <axis name="PITCH"      failsafe_value="0"/>
     <axis name="YAW"        failsafe_value="0"/>
@@ -111,14 +112,13 @@ The xml in master currently configures the LOGO600 as a pure model aircraft: mea
   </heli_curves>
 
   <command_laws>
-    <call fun="throttle_curve_run(TRUE, values)"/>
     <let var="th_hold"          value="LessThan(RadioControlValues(RADIO_TH_HOLD), -4800)"/>
 
-    <set servo="THROTTLE"    value="($th_hold? -9600 : throttle_curve.throttle)"/>
+    <set servo="THROTTLE"    value="($th_hold? -9600 : @THRUST)"/>
     <set servo="ROLL"        value="@ROLL"/>
     <set servo="PITCH"       value="@PITCH"/>
     <set servo="YAW"         value="@YAW"/>
-    <set servo="COLLECTIVE"  value="throttle_curve.collective"/>
+    <set servo="COLLECTIVE"  value="@COLLECTIVE"/>
     <set servo="TAIL_GAIN"   value="0"/>
     <set servo="AUX2"        value="0"/>
   </command_laws>

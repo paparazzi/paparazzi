@@ -63,7 +63,6 @@
   </section>
 
   <command_laws>
-    <call fun="throttle_curve_run(autopilot_get_motors_on(), values)"/>
     <call fun="swashplate_mixing_run(values)"/>
     <set servo="THROTTLE"    value="throttle_curve.throttle"/>
     <set servo="BACK"        value="swashplate_mixing.commands[SW_BACK]"/>
