@@ -1,0 +1,11 @@
+{
+    "[c]": {
+        "editor.tabSize": 2,
+    },
+    "[cpp]": {
+        "editor.tabSize": 2,
+    },
+    "[python]": {
+        "editor.tabSize": 4,
+    },
+}
