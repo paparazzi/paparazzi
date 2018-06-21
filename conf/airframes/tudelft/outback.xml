@@ -73,7 +73,6 @@
       <module name="intermcu"      type="uart"/>
       <module name="telemetry"     type="intermcu"/>
       <module name="opa_controller"/>
-      <module name="heli_throttle_curve"/>
       <module name="heli_swashplate_mixing"/>
       <module name="gps" type="ublox"/>
       <module name="gps_ubx_ucenter"/>
@@ -116,57 +115,79 @@
     <set command="ROLL"     value="@ROLL"/>
     <set command="PITCH"    value="@PITCH"/>
     <set command="YAW"      value="@YAW"/>
-    <set command="FMODE"    value="@FMODE"/>
   </rc_commands>
 
   <commands>
     <axis name="THRUST"     failsafe_value="0"/>
     <axis name="ROLL"       failsafe_value="0"/>
     <axis name="PITCH"      failsafe_value="0"/>
-    <axis name="YAW"        failsafe_value="0"/>
-    <axis name="FMODE"      failsafe_value="-9600"/>
-    <axis name="TH_HOLD"    failsafe_value="-9600"/>
-    <axis name="MODE"       failsafe_value="-9600"/>
+    <axis name="YAW"        failsafe_value="9600"/>
+    <axis name="COLLECTIVE" failsafe_value="-9600"/>
   </commands>
 
   <section name="MIXING" prefix="SW_MIXING_">
     <define name="TYPE"       value="HR120"/>
     <define name="TRIM_ROLL"  value="0"/>
-    <define name="TRIM_PITCH" value="0"/>
-    <define name="TRIM_COLL"  value="0"/>
+    <define name="TRIM_PITCH" value="-682"/>
+    <define name="TRIM_COLL" value="0"/>
+  </section>
+
+  <section name="THROTTLE_CURVE" prefix="THROTTLE_CURVE_">
+    <define name="RPM_FB_P" value="5.0"/>
+    <define name="RPM_FB_I" value="5.0"/>
   </section>
 
   <command_laws>
-    <call fun="throttle_curve_run(fbw_motors_on, values)"/>
+
     <call fun="swashplate_mixing_run(values)"/>
     <let var="th_hold"          value="LessThan(RadioControlValues(RADIO_TH_HOLD), -4800)"/>
-    <let var="man_mode"         value="LessThan(RadioControlValues(RADIO_MODE), -4800)"/>
+    <let var="forward_curve"    value="INTERMCU_GET_CMD_STATUS(INTERMCU_CMD_TIPPROPS)"/>
+    <call fun="INTERMCU_CLR_CMD_STATUS(INTERMCU_CMD_TIPPROPS)"/>
 
-    <set servo="THROTTLE"       value="($th_hold? -9600 : throttle_curve.throttle)"/>
+    <set servo="THROTTLE"       value="($th_hold? -9600 : @THRUST)"/>
     <set servo="SW_BACK"        value="swashplate_mixing.commands[SW_BACK]"/>
     <set servo="SW_LEFTFRONT"   value="swashplate_mixing.commands[SW_LEFTFRONT]"/>
     <set servo="SW_RIGHTFRONT"  value="swashplate_mixing.commands[SW_RIGHTFRONT]"/>
-    <set servo="TAIL_LEFT"      value="($th_hold? 0 : (-@YAW - throttle_curve.throttle*0.25) )"/>
-    <set servo="TAIL_RIGHT"     value="($th_hold? 0 : (-@YAW - throttle_curve.throttle*0.25) )"/>
-    <set servo="AIL_LEFTLOW"    value="($man_mode? ( @PITCH - @ROLL) : 0)"/>
-    <set servo="AIL_RIGHTLOW"   value="($man_mode? (-@PITCH - @ROLL) : 0)"/>
-    <set servo="AIL_LEFTUP"     value="($man_mode? ( @PITCH - @ROLL) : 0)"/>
-    <set servo="AIL_RIGHTUP"    value="($man_mode? (-@PITCH - @ROLL) : 0)"/>
+    <set servo="TAIL_LEFT"      value="(Or($th_hold, $forward_curve)? 0 : (-@YAW - @THRUST*0.25) )"/>
+    <set servo="TAIL_RIGHT"     value="(Or($th_hold, $forward_curve)? 0 : (-@YAW - @THRUST*0.25) )"/>
+    <set servo="AIL_LEFTLOW"    value=" 2*@PITCH + 3*@YAW"/>
+    <set servo="AIL_RIGHTLOW"   value="-2*@PITCH + 3*@YAW"/>
+    <set servo="AIL_LEFTUP"     value=" 2*@PITCH + 3*@YAW"/>
+    <set servo="AIL_RIGHTUP"    value="-2*@PITCH + 3*@YAW"/>
   </command_laws>
 
-
-  <!-- Pitch RODS black laminated props: 52mm top links 65mm bottom links -->
+  <!-- v3 Pitch RODS black laminated props with straight angle root and 25deg blade-grip handles: 52mm top links 65mm bottom links -->
   <heli_curves>
-    <curve throttle="0,7000,7000" collective="-7500,-5000,-2500"/>
-    <curve throttle="7500,9000,9600" collective="-7500,-5200,-2000"/>
-    <curve throttle="7500,7500,7500" collective="-7000,500,8000"/>
+    <curve throttle="0,6000,0,0,0" collective="-9600,-8150,-6700,-5250,-3800"/>
+    <curve throttle="5000,6500,8000" rpm="1650,1650,1650" collective="-9600,-6500,-2300"/><!-- 1 blue bat: -5650 collective with 8000 throttle FF with 1650 RPM -->
+    <curve throttle="8600,8600,8600,8600,9600" collective="-9600,-7300,-5000,-2300,500"/>
   </heli_curves>
 
-  <!-- Pitch RODS white symmetric props: 56mm top links 65mm bottom links -->
+  <!-- RPM to PPRZ calculation (governer low, fixed RPM) Castle Creations BEC-->
+  <!-- RPM * 0.000214141414 + 1.2841 = ms -->
+  <!-- 1500 RPM: 1.602ms    1.602 - 1.1 = 0.502ms    9600 / 800 * 502 = 6024 PPRZ -->
+  <!-- 1650 RPM: 1.641ms    1.641 - 1.1 = 0.541ms    9600 / 800 * 541 = 6492 PPRZ -->
+  <!-- 1800 RPM: 1.672ms    1.672 - 1.1 = 0.572ms    9600 / 800 * 572 = 6864 PPRZ -->
+
+  <!-- v2 Pitch RODS black laminated props with straight angle root and straight blade-grip handles: 63mm top links 65mm bottom links -->
   <!--heli_curves>
-    <curve throttle="0,7000,7000" collective="0,2000,4000"/>
-    <curve throttle="5000,7000,9000" collective="0,2000,4000"/>
-    <curve throttle="7500,8500,9600" collective="0,2000,4000"/>
+    <curve throttle="0,6492,6492" collective="-5000,-2500,0"/>
+    <curve throttle="6492,6492,6492" collective="-5000,-2700,1500"/>
+    <curve throttle="6492,6492,6024" collective="-5000,-2700,3500"/>
+  </heli_curves-->
+
+  <!-- v1 Pitch RODS black laminated props with twisted angle root and straight blade-grip handles: 52mm top links 65mm bottom links -->
+  <!--heli_curves>
+    <curve throttle="0,6492,6492" collective="-7500,-5000,-2500"/>
+    <curve throttle="6492,6492,6492" collective="-7500,-5200,-1000"/>
+    <curve throttle="6492,6492,6024" collective="-7500,-5200,2000"/>
+  </heli_curves-->
+
+  <!-- v0 Pitch RODS white symmetric props: 56mm top links 65mm bottom links -->
+  <!--heli_curves>
+    <curve throttle="0,6024,6024" collective="0,2000,4000"/>
+    <curve throttle="6024,6024,6024" collective="0,2000,4000"/>
+    <curve throttle="6492,6492,6492" collective="0,2000,4000"/>
   </heli_curves-->
 
   <section name="MISC">
