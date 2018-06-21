@@ -72,9 +72,13 @@ static inline void mag_pitot_parse_msg(void)
   uint32_t now_ts = get_sys_time_usec();
 
   /* Parse the mag-pitot message */
-  uint8_t msg_id = mp_msg_buf[1];
-  switch (msg_id) {
+  uint8_t msg_id = pprzlink_get_msg_id(mp_msg_buf);
 
+#if PPRZLINK_DEFAULT_VER == 2
+  // Check that the message is really a intermcu message
+  if (pprzlink_get_msg_class_id(mp_msg_buf) == DL_intermcu_CLASS_ID) {
+#endif
+  switch (msg_id) {
   /* Got a magneto message */
   case DL_IMCU_REMOTE_MAG: {
     struct Int32Vect3 raw_mag;
@@ -115,6 +119,9 @@ static inline void mag_pitot_parse_msg(void)
     default:
       break;
   }
+#if PPRZLINK_DEFAULT_VER == 2
+  }
+#endif
 }
 
 /* We need to wait for incomming messages */
