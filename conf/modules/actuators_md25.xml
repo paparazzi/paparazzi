@@ -1,0 +1,24 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="actuators_md25" dir="actuators" task="actuators">
+  <doc>
+    <description>
+      Driver for the MD25 rover controller board
+    </description>
+    <configure name="ACTUATORS_MD25_DEV" value="i2cX" description="I2C port (default i2c2)"/>
+  </doc>
+  <header>
+    <file name="actuators_md25.h"/>
+  </header>
+  <periodic fun="actuators_md25_periodic()" freq="10"/>
+  <event fun="actuators_md25_event()"/>
+  <makefile>
+    <configure name="ACTUATORS_MD25_DEV" default="i2c2" case="upper|lower"/>
+    <define name="ACTUATORS"/>
+    <define name="ACTUATORS_MD25_DEV" value="$(ACTUATORS_MD25_DEV_LOWER)"/>
+    <define name="USE_$(ACTUATORS_MD25_DEV_UPPER)"/>
+    <define name="$(ACTUATORS_MD25_DEV_UPPER)_CLOCK_SPEED" value="100000"/>
+    <file name="actuators_md25.c"/>
+  </makefile>
+</module>
+
