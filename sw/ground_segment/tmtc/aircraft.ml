@@ -111,6 +111,7 @@ type nav_ref =
 type vehicle_type =
     FixedWing
   | Rotorcraft
+  | Rover
   | UnknownVehicleType
 
 let add_pos_to_nav_ref = fun nav_ref  ?(z = 0.) (x, y) ->

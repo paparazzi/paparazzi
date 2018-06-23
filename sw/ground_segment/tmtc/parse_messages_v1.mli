@@ -1,5 +1,5 @@
 (*
- * Server part specific to rotorcraft vehicles
+ * Server part for v1 message set
  *
  * Copyright (C) ENAC
  *
