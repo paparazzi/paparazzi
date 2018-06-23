@@ -1,0 +1,31 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="nav_rover_base" dir="nav">
+  <doc>
+    <description>
+      Basic navigation functions for Rovers
+    </description>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="nav">
+        <dl_setting MAX="100." MIN="-100." STEP="0.1" VAR="nav.radius"/>
+        <dl_setting MAX="359." MIN="0." STEP="5." VAR="nav.heading" unit="rad" alt_unit="deg"/>
+        <dl_setting MAX="20." MIN="-20." STEP="1." VAR="nav.shift" module="firmwares/rover/navigation" handler="IncreaseShift" shortname="inc. shift"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="nav_rover_base.h"/>
+  </header>
+  <init fun="nav_init()"/>
+  <init fun="nav_rover_init()"/>
+  <makefile>
+    <file name="nav_rover_base.c"/>
+    <file name="navigation.c" dir="firmwares/rover"/>
+    <file name="common_flight_plan.c" dir="subsystems/navigation"/>
+    <file name="waypoints.c" dir="subsystems/navigation"/>
+    <define name="USE_NAVIGATION"/>
+  </makefile>
+</module>
+

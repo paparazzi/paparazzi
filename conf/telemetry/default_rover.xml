@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<!DOCTYPE telemetry SYSTEM "telemetry.dtd">
+<telemetry>
+
+
+  <process name="Main">
+
+    <mode name="default" key_press="d">
+      <message name="AUTOPILOT_VERSION"      period="11.1"/>
+      <message name="ROVER_STATUS"           period="1.2"/>
+      <message name="ROTORCRAFT_FP"          period="0.25"/>
+      <message name="ALIVE"                  period="2.1"/>
+      <message name="DL_VALUE"               period="1.1"/>
+      <message name="ROTORCRAFT_NAV_STATUS"  period="1.6"/>
+      <message name="WP_MOVED"               period="1.3"/>
+      <message name="GPS_INT"                period=".25"/>
+      <message name="INS"                    period=".25"/>
+      <message name="INS_REF"                period="5.1"/>
+      <message name="ENERGY"                 period="2.5"/>
+      <message name="DATALINK_REPORT"        period="5.1"/>
+      <message name="STATE_FILTER_STATUS"    period="3.2"/>
+      <message name="AIR_DATA"               period="1.3"/>
+      <message name="SURVEY"                 period="2.5"/>
+      <message name="OPTIC_FLOW_EST"         period="0.05"/>
+      <message name="I2C_ERRORS"             period="4.1"/>
+      <message name="UART_ERRORS"            period="3.1"/>
+    </mode>
+
+    <mode name="rc">
+      <message name="DL_VALUE"                 period="0.5"/>
+      <message name="ALIVE"                    period="2.1"/>
+      <message name="PPM"                      period="0.5"/>
+      <message name="RC"                       period="0.5"/>
+      <message name="ROTORCRAFT_RADIO_CONTROL" period="0.5"/>
+      <message name="ROVER_STATUS"             period="1.2"/>
+    </mode>
+
+    <mode name="raw_sensors">
+      <message name="ROVER_STATUS"      period="1.2"/>
+      <message name="DL_VALUE"          period="0.5"/>
+      <message name="ALIVE"             period="2.1"/>
+      <message name="IMU_ACCEL_RAW"     period=".05"/>
+      <message name="IMU_GYRO_RAW"      period=".05"/>
+      <message name="IMU_MAG_RAW"       period=".05"/>
+      <message name="BARO_RAW"          period=".1"/>
+    </mode>
+
+    <mode name="aligner">
+      <message name="ALIVE"             period="0.9"/>
+      <message name="FILTER_ALIGNER"    period="0.02"/>
+    </mode>
+
+  </process>
+
+</telemetry>
+
