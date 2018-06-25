@@ -144,7 +144,6 @@ float nav_max_speed = NAV_MAX_SPEED;
 #ifndef MAX_DECELERATION
 #define MAX_DECELERATION 1.
 #endif
-enum nav_source_def nav_source = NAV_GO;
 
 
 static inline void nav_set_altitude(void);
@@ -329,32 +328,35 @@ bool nav_approaching_from(struct EnuCoor_i *wp, struct EnuCoor_i *from, int16_t 
   return false;
 }
 
-struct FloatVect3 nav_get_speed_setpoint(void) {
+/**
+ * @brief function that returns a speed setpoint based on flight plan.
+ *
+ * The routines are meant for a hybrid UAV and assume measurement of airspeed.
+ * Makes the vehicle track a vector field with a sink at a waypoint.
+ * Use force_forward to maintain airspeed and fly 'through' waypoints.
+ *
+ * @return desired speed setpoint FloatVect3
+ */
+struct FloatVect3 nav_get_speed_setpoint(float pos_gain) {
   struct FloatVect3 speed_sp;
-  if(nav_source == NAV_GO) {
-    if(horizontal_mode == HORIZONTAL_MODE_ROUTE) {
-      speed_sp = nav_get_speed_sp_from_line(line_vect, to_end_vect, navigation_target);
-    } else {
-      speed_sp = nav_get_speed_sp_from_go(navigation_target);
-    }
-  } else if(nav_source == NAV_ACCEL) {
-    speed_sp = nav_get_speed_sp_from_accel(navigation_target);
-  } else { //Default
-    speed_sp = nav_get_speed_sp_from_go(navigation_target);
+  if(horizontal_mode == HORIZONTAL_MODE_ROUTE) {
+    speed_sp = nav_get_speed_sp_from_line(line_vect, to_end_vect, navigation_target, pos_gain);
+  } else {
+    speed_sp = nav_get_speed_sp_from_go(navigation_target, pos_gain);
   }
   return speed_sp;
 }
 
 /**
- * @brief follow a line
+ * @brief follow a line.
  *
  * @param line_v_enu 2d vector from beginning (0) line to end in enu
  * @param to_end_v_enu 2d vector from curremtn position to end in enu
  * @param target end waypoint in enu
  *
- * @return desired speed setpoint
+ * @return desired speed setpoint FloatVect3
  */
-struct FloatVect3 nav_get_speed_sp_from_line(struct FloatVect2 line_v_enu, struct FloatVect2 to_end_v_enu, struct EnuCoor_i target) {
+struct FloatVect3 nav_get_speed_sp_from_line(struct FloatVect2 line_v_enu, struct FloatVect2 to_end_v_enu, struct EnuCoor_i target, float pos_gain) {
 
   // enu -> ned
   struct FloatVect2 line_v = {line_v_enu.y, line_v_enu.x};
@@ -370,7 +372,7 @@ struct FloatVect3 nav_get_speed_sp_from_line(struct FloatVect2 line_v_enu, struc
   if(force_forward) {
     desired_speed = nav_max_speed;
   } else {
-    desired_speed = dist_to_target * guidance_indi_pos_gain;
+    desired_speed = dist_to_target * pos_gain;
     Bound(desired_speed, 0.0, nav_max_speed);
   }
 
@@ -383,8 +385,8 @@ struct FloatVect3 nav_get_speed_sp_from_line(struct FloatVect2 line_v_enu, struc
   //Normal vector to the line, with length of the line
   struct FloatVect2 normalv;
   VECT2_ASSIGN(normalv, -line_v.y, line_v.x);
-  // TODO: length_normalv == length_line? replace?
-  float length_normalv = float_vect2_norm(&normalv);
+  // Length of normal vector is the same as of the line segment
+  float length_normalv = length_line;
   if(length_normalv < 0.01) {
     length_normalv = 0.01;
   }
@@ -438,9 +440,9 @@ struct FloatVect3 nav_get_speed_sp_from_line(struct FloatVect2 line_v_enu, struc
  *
  * @param target the target waypoint
  *
- * @return desired speed vector3
+ * @return desired speed FloatVect3
  */
-struct FloatVect3 nav_get_speed_sp_from_go(struct EnuCoor_i target) {
+struct FloatVect3 nav_get_speed_sp_from_go(struct EnuCoor_i target, float pos_gain) {
   // The speed sp that will be returned
   struct FloatVect3 speed_sp_return;
   struct NedCoor_f ned_target;
@@ -452,7 +454,7 @@ struct FloatVect3 nav_get_speed_sp_from_go(struct EnuCoor_i target) {
   struct NedCoor_f *pos = stateGetPositionNed_f();
   VECT3_DIFF(pos_error, ned_target, *pos);
 
-  VECT3_SMUL(speed_sp_return, pos_error, guidance_indi_pos_gain);
+  VECT3_SMUL(speed_sp_return, pos_error, pos_gain);
   speed_sp_return.z = guidance_indi_pos_gainz*pos_error.z;
 
   if((guidance_v_mode == GUIDANCE_V_MODE_NAV) && (vertical_mode == VERTICAL_MODE_CLIMB)) {
@@ -477,31 +479,6 @@ struct FloatVect3 nav_get_speed_sp_from_go(struct EnuCoor_i target) {
     Bound(speed_sp_return.z, -4.0, 5.0);
   } else {
     Bound(speed_sp_return.z, -nav_climb_vspeed, -nav_descend_vspeed);
-  }
-
-  return speed_sp_return;
-}
-
-struct FloatVect3 nav_get_speed_sp_from_accel(struct EnuCoor_i target) {
-  // The speed sp that will be returned
-  struct FloatVect3 speed_sp_return;
-  float alt_target;
-  // Target altitude in NED instead of ENU
-  alt_target = -POS_FLOAT_OF_BFP(target.z);
-
-  // Calculate position error
-  float alt_error = alt_target - stateGetPositionNed_f()->z;
-  speed_sp_return.z = alt_error * guidance_indi_pos_gainz;
-
-  speed_sp_return.y = 0.0;
-  static float north_vel = 0.0;
-  north_vel += 1.0/PERIODIC_FREQUENCY;
-  speed_sp_return.x = -north_vel;//FIXME: attention, North is now south!
-
-  // Reset if reached 20 m/s
-  if(north_vel > 20.0) {
-    north_vel = 0.0;
-    nav_source = NAV_GO;
   }
 
   return speed_sp_return;

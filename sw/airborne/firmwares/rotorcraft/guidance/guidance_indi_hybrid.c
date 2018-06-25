@@ -193,7 +193,7 @@ void guidance_indi_run(float *heading_sp) {
   float pos_z_err = POS_FLOAT_OF_BFP(guidance_v_z_ref - stateGetPositionNed_i()->z);
 
   if(autopilot.mode == AP_MODE_NAV) {
-    speed_sp = nav_get_speed_setpoint();
+    speed_sp = nav_get_speed_setpoint(guidance_indi_pos_gain);
   } else{
     speed_sp.x = pos_x_err * guidance_indi_pos_gain;
     speed_sp.y = pos_y_err * guidance_indi_pos_gain;
