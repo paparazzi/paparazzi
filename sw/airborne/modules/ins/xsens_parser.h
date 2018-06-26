@@ -19,23 +19,42 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/** @file modules/ins/xsens_common.h
- * Parser for the Xsens protocol.
+/** @file modules/ins/xsens_parser.h
+ * Parser for the XSens protocol.
+ * Transmit XSens protocol.
  */
 
-#ifndef XSENS_COMMON_H
-#define XSENS_COMMON_H
+#ifndef XSENS_PARSER_H
+#define XSENS_PARSER_H
 
 #include "std.h"
 
 /** Includes macros generated from xsens_MTi-G.xml */
 #include "xsens_protocol.h"
 
-extern uint8_t xsens_id;
-extern uint8_t xsens_status;
-extern uint8_t xsens_len;
-extern uint8_t xsens_msg_idx;
-extern uint8_t ck;
+#define XSENS_MAX_PAYLOAD 254
+
+// Status
+#define UNINIT        0
+#define GOT_START     1
+#define GOT_BID       2
+#define GOT_MID       3
+#define GOT_LEN       4
+#define GOT_DATA      5
+#define GOT_CHECKSUM  6
+
+struct XsensParser {
+  volatile uint8_t msg_received;
+  uint8_t id;
+  uint8_t status;
+  uint8_t len;
+  uint8_t msg_idx;
+  uint8_t ck;
+  uint8_t msg_buf[XSENS_MAX_PAYLOAD];
+};
+
+
+// Only 1 send allowed at the same time:
 extern uint8_t send_ck;
 
 #define XsensLinkDevice (&((XSENS_LINK).device))
@@ -59,17 +78,6 @@ extern uint8_t send_ck;
 #define XsensTrailer() { uint8_t i8=0x100-send_ck; XsensUartSend1(i8); }
 
 
-#define XSENS_MAX_PAYLOAD 254
-extern uint8_t xsens_msg_buf[XSENS_MAX_PAYLOAD];
+extern void xsens_parser_event(struct XsensParser *xsensparser);
 
-#define UNINIT        0
-#define GOT_START     1
-#define GOT_BID       2
-#define GOT_MID       3
-#define GOT_LEN       4
-#define GOT_DATA      5
-#define GOT_CHECKSUM  6
-
-extern void xsens_event(void);
-
-#endif /* XSENS_COMMON_H */
+#endif /* XSENS_PARSER_H */

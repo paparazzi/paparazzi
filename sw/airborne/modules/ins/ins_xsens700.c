@@ -26,7 +26,6 @@
  */
 
 #include "ins_xsens700.h"
-#include "xsens_common.h"
 #include "subsystems/ins.h"
 
 #include "generated/airframe.h"
@@ -80,11 +79,11 @@ void ins_xsens700_init(void)
 
 void ins_xsens700_event(void)
 {
-  xsens_event();
-  if (xsens700.msg_received) {
+  xsens_parser_event(&(xsens700.parser));
+  if (xsens700.parser.msg_received) {
     parse_xsens700_msg();
     handle_ins_msg();
-    xsens700.msg_received = false;
+    xsens700.parser.msg_received = false;
   }
 }
 

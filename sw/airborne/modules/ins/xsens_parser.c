@@ -23,75 +23,67 @@
  * Parser for the Xsens protocol.
  */
 
-#include "xsens_common.h"
+#include "xsens_parser.h"
 
 #include "pprzlink/pprzlink_device.h"
 #include "mcu_periph/uart.h"
 
-volatile uint8_t xsens_msg_received;
-
-uint8_t xsens_id;
-uint8_t xsens_status;
-uint8_t xsens_len;
-uint8_t xsens_msg_idx;
-uint8_t ck;
 uint8_t send_ck;
 
-uint8_t xsens_msg_buf[XSENS_MAX_PAYLOAD];
+void xsens_parser_func(struct XsensParser *xsens, uint8_t c);
 
-void parse_xsens_buffer(uint8_t c);
-
-void xsens_event(void)
+void xsens_parser_event(struct XsensParser *xsensparser)
 {
   struct link_device *dev = &((XSENS_LINK).device);
   if (dev->char_available(dev->periph)) {
-    while (dev->char_available(dev->periph) && !xsens_msg_received) {
-      parse_xsens_buffer(dev->get_byte(dev->periph));
+    while (dev->char_available(dev->periph) && !xsensparser->msg_received) {
+      xsens_parser_func(xsensparser, dev->get_byte(dev->periph));
     }
   }
 }
 
-void parse_xsens_buffer(uint8_t c)
+void xsens_parser_func(struct XsensParser *xsens, uint8_t c)
 {
-  ck += c;
-  switch (xsens_status) {
+  xsens->ck += c;
+  switch (xsens->status) {
     case UNINIT:
       if (c != XSENS_START) {
         goto error;
       }
-      xsens_status++;
-      ck = 0;
+      xsens->status++;
+      xsens->ck = 0;
       break;
     case GOT_START:
       if (c != XSENS_BID) {
         goto error;
       }
-      xsens_status++;
+      xsens->status++;
       break;
     case GOT_BID:
-      xsens_id = c;
-      xsens_status++;
+      xsens->id = c;
+      xsens->status++;
       break;
     case GOT_MID:
-      xsens_len = c;
-      if (xsens_len > XSENS_MAX_PAYLOAD) {
+      xsens->len = c;
+      if (xsens->len > XSENS_MAX_PAYLOAD) {
         goto error;
       }
-      xsens_msg_idx = 0;
-      xsens_status++;
+      xsens->msg_idx = 0;
+      xsens->status++;
       break;
     case GOT_LEN:
-      xsens_msg_buf[xsens_msg_idx] = c;
-      xsens_msg_idx++;
-      if (xsens_msg_idx >= xsens_len) {
-        xsens_status++;
+      xsens->msg_buf[xsens->msg_idx] = c;
+      xsens->msg_idx++;
+      if (xsens->msg_idx >= xsens->len) {
+        xsens->status++;
       }
       break;
     case GOT_DATA:
-      if (ck != 0) {
+      if (xsens->ck != 0) {
         goto error;
       }
-      xsens_msg_received = TRUE;
+      xsens->msg_received = TRUE;
+
       goto restart;
       break;
     default:
@@ -100,6 +92,6 @@ void parse_xsens_buffer(uint8_t c)
   return;
 error:
 restart:
-  xsens_status = UNINIT;
+  xsens->status = UNINIT;
   return;
 }
