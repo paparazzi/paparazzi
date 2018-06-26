@@ -24,7 +24,6 @@
  */
 
 #include "xsens.h"
-#include "xsens_common.h"
 
 #include "generated/airframe.h"
 #include "led.h"
@@ -113,7 +112,7 @@ void parse_xsens_buffer(uint8_t c);
 
 void xsens_init(void)
 {
-  xsens_status = UNINIT;
+  xsens.parser.status = UNINIT;
   xsens_configured = 20;
 
   xsens_msg_status = 0;
@@ -185,76 +184,76 @@ void xsens_periodic(void)
 void parse_xsens_msg(void)
 {
   uint8_t offset = 0;
-  if (xsens_id == XSENS_ReqOutputModeAck_ID) {
-    xsens_output_mode = XSENS_ReqOutputModeAck_mode(xsens_msg_buf);
-  } else if (xsens_id == XSENS_ReqOutputSettings_ID) {
-    xsens_output_settings = XSENS_ReqOutputSettingsAck_settings(xsens_msg_buf);
-  } else if (xsens_id == XSENS_ReqMagneticDeclinationAck_ID) {
-    xsens_declination = DegOfRad(XSENS_ReqMagneticDeclinationAck_declination(xsens_msg_buf));
+  if (xsens.parser.id == XSENS_ReqOutputModeAck_ID) {
+    xsens_output_mode = XSENS_ReqOutputModeAck_mode(xsens.parser.msg_buf);
+  } else if (xsens.parser.id == XSENS_ReqOutputSettings_ID) {
+    xsens_output_settings = XSENS_ReqOutputSettingsAck_settings(xsens.parser.msg_buf);
+  } else if (xsens.parser.id == XSENS_ReqMagneticDeclinationAck_ID) {
+    xsens_declination = DegOfRad(XSENS_ReqMagneticDeclinationAck_declination(xsens.parser.msg_buf));
 
     DOWNLINK_SEND_IMU_MAG_SETTINGS(DefaultChannel, DefaultDevice, &xsens_declination, &xsens_declination, &xsens_gps_arm_x,
                                    &xsens_gps_arm_y, &xsens_gps_arm_z);
-  } else if (xsens_id == XSENS_ReqLeverArmGpsAck_ID) {
-    xsens_gps_arm_x = XSENS_ReqLeverArmGpsAck_x(xsens_msg_buf);
-    xsens_gps_arm_y = XSENS_ReqLeverArmGpsAck_y(xsens_msg_buf);
-    xsens_gps_arm_z = XSENS_ReqLeverArmGpsAck_z(xsens_msg_buf);
+  } else if (xsens.parser.id == XSENS_ReqLeverArmGpsAck_ID) {
+    xsens_gps_arm_x = XSENS_ReqLeverArmGpsAck_x(xsens.parser.msg_buf);
+    xsens_gps_arm_y = XSENS_ReqLeverArmGpsAck_y(xsens.parser.msg_buf);
+    xsens_gps_arm_z = XSENS_ReqLeverArmGpsAck_z(xsens.parser.msg_buf);
 
     DOWNLINK_SEND_IMU_MAG_SETTINGS(DefaultChannel, DefaultDevice, &xsens_declination, &xsens_declination, &xsens_gps_arm_x,
                                    &xsens_gps_arm_y, &xsens_gps_arm_z);
-  } else if (xsens_id == XSENS_Error_ID) {
-    xsens_errorcode = XSENS_Error_errorcode(xsens_msg_buf);
+  } else if (xsens.parser.id == XSENS_Error_ID) {
+    xsens_errorcode = XSENS_Error_errorcode(xsens.parser.msg_buf);
   }
 #if USE_GPS_XSENS
-  else if (xsens_id == XSENS_GPSStatus_ID) {
-    xsens.gps.nb_channels = XSENS_GPSStatus_nch(xsens_msg_buf);
+  else if (xsens.parser.id == XSENS_GPSStatus_ID) {
+    xsens.gps.nb_channels = XSENS_GPSStatus_nch(xsens.parser.msg_buf);
     xsens.gps.num_sv = 0;
 
     uint8_t i;
     // Do not write outside buffer
     for (i = 0; i < Min(xsens.gps.nb_channels, GPS_NB_CHANNELS); i++) {
-      uint8_t ch = XSENS_GPSStatus_chn(xsens_msg_buf, i);
+      uint8_t ch = XSENS_GPSStatus_chn(xsens.parser.msg_buf, i);
       if (ch > xsens.gps.nb_channels) { continue; }
-      xsens.gps.svinfos[ch].svid = XSENS_GPSStatus_svid(xsens_msg_buf, i);
-      xsens.gps.svinfos[ch].flags = XSENS_GPSStatus_bitmask(xsens_msg_buf, i);
-      xsens.gps.svinfos[ch].qi = XSENS_GPSStatus_qi(xsens_msg_buf, i);
-      xsens.gps.svinfos[ch].cno = XSENS_GPSStatus_cnr(xsens_msg_buf, i);
+      xsens.gps.svinfos[ch].svid = XSENS_GPSStatus_svid(xsens.parser.msg_buf, i);
+      xsens.gps.svinfos[ch].flags = XSENS_GPSStatus_bitmask(xsens.parser.msg_buf, i);
+      xsens.gps.svinfos[ch].qi = XSENS_GPSStatus_qi(xsens.parser.msg_buf, i);
+      xsens.gps.svinfos[ch].cno = XSENS_GPSStatus_cnr(xsens.parser.msg_buf, i);
       if (xsens.gps.svinfos[ch].flags > 0) {
         xsens.gps.num_sv++;
       }
     }
   }
 #endif
-  else if (xsens_id == XSENS_MTData_ID) {
+  else if (xsens.parser.id == XSENS_MTData_ID) {
     /* test RAW modes else calibrated modes */
     //if ((XSENS_MASK_RAWInertial(xsens_output_mode)) || (XSENS_MASK_RAWGPS(xsens_output_mode))) {
     if (XSENS_MASK_RAWInertial(xsens_output_mode)) {
       /* should we write raw data to separate struct? */
-      xsens.gyro.p = XSENS_DATA_RAWInertial_gyrX(xsens_msg_buf, offset);
-      xsens.gyro.q = XSENS_DATA_RAWInertial_gyrY(xsens_msg_buf, offset);
-      xsens.gyro.r = XSENS_DATA_RAWInertial_gyrZ(xsens_msg_buf, offset);
+      xsens.gyro.p = XSENS_DATA_RAWInertial_gyrX(xsens.parser.msg_buf, offset);
+      xsens.gyro.q = XSENS_DATA_RAWInertial_gyrY(xsens.parser.msg_buf, offset);
+      xsens.gyro.r = XSENS_DATA_RAWInertial_gyrZ(xsens.parser.msg_buf, offset);
       xsens.gyro_available = TRUE;
       offset += XSENS_DATA_RAWInertial_LENGTH;
     }
     if (XSENS_MASK_RAWGPS(xsens_output_mode)) {
 #if USE_GPS_XSENS_RAW_DATA && USE_GPS_XSENS
       xsens.gps.week = 0; // FIXME
-      xsens.gps.tow = XSENS_DATA_RAWGPS_itow(xsens_msg_buf, offset) * 10;
-      xsens.gps.lla_pos.lat = XSENS_DATA_RAWGPS_lat(xsens_msg_buf, offset);
-      xsens.gps.lla_pos.lon = XSENS_DATA_RAWGPS_lon(xsens_msg_buf, offset);
-      xsens.gps.lla_pos.alt = XSENS_DATA_RAWGPS_alt(xsens_msg_buf, offset);
+      xsens.gps.tow = XSENS_DATA_RAWGPS_itow(xsens.parser.msg_buf, offset) * 10;
+      xsens.gps.lla_pos.lat = XSENS_DATA_RAWGPS_lat(xsens.parser.msg_buf, offset);
+      xsens.gps.lla_pos.lon = XSENS_DATA_RAWGPS_lon(xsens.parser.msg_buf, offset);
+      xsens.gps.lla_pos.alt = XSENS_DATA_RAWGPS_alt(xsens.parser.msg_buf, offset);
       SetBit(xsens.gps.valid_fields, GPS_VALID_POS_LLA_BIT);
 
       // Compute geoid (MSL) height
       uint32_t hmsl = wgs84_ellipsoid_to_geoid_i(xsens.gps.lla_pos.lat, xsens.gps.lla_pos.lon);
-      xsens.gps.hmsl =  XSENS_DATA_RAWGPS_alt(xsens_msg_buf, offset) - hmsl;
+      xsens.gps.hmsl =  XSENS_DATA_RAWGPS_alt(xsens.parser.msg_buf, offset) - hmsl;
       SetBit(gps.valid_fields, GPS_VALID_HMSL_BIT);
 
-      xsens.gps.ned_vel.x = XSENS_DATA_RAWGPS_vel_n(xsens_msg_buf, offset);
-      xsens.gps.ned_vel.y = XSENS_DATA_RAWGPS_vel_e(xsens_msg_buf, offset);
-      xsens.gps.ned_vel.z = XSENS_DATA_RAWGPS_vel_d(xsens_msg_buf, offset);
+      xsens.gps.ned_vel.x = XSENS_DATA_RAWGPS_vel_n(xsens.parser.msg_buf, offset);
+      xsens.gps.ned_vel.y = XSENS_DATA_RAWGPS_vel_e(xsens.parser.msg_buf, offset);
+      xsens.gps.ned_vel.z = XSENS_DATA_RAWGPS_vel_d(xsens.parser.msg_buf, offset);
       SetBit(gps.valid_fields, GPS_VALID_VEL_NED_BIT);
-      xsens.gps.pacc = XSENS_DATA_RAWGPS_hacc(xsens_msg_buf, offset) / 100;
-      xsens.gps.sacc = XSENS_DATA_RAWGPS_sacc(xsens_msg_buf, offset) / 100;
+      xsens.gps.pacc = XSENS_DATA_RAWGPS_hacc(xsens.parser.msg_buf, offset) / 100;
+      xsens.gps.sacc = XSENS_DATA_RAWGPS_sacc(xsens.parser.msg_buf, offset) / 100;
       xsens.gps.pdop = 5;  // FIXME Not output by XSens
 
       xsens.gps_available = TRUE;
@@ -268,23 +267,23 @@ void parse_xsens_msg(void)
     if (XSENS_MASK_Calibrated(xsens_output_mode)) {
       uint8_t l = 0;
       if (!XSENS_MASK_AccOut(xsens_output_settings)) {
-        xsens.accel.x = XSENS_DATA_Calibrated_accX(xsens_msg_buf, offset);
-        xsens.accel.y = XSENS_DATA_Calibrated_accY(xsens_msg_buf, offset);
-        xsens.accel.z = XSENS_DATA_Calibrated_accZ(xsens_msg_buf, offset);
+        xsens.accel.x = XSENS_DATA_Calibrated_accX(xsens.parser.msg_buf, offset);
+        xsens.accel.y = XSENS_DATA_Calibrated_accY(xsens.parser.msg_buf, offset);
+        xsens.accel.z = XSENS_DATA_Calibrated_accZ(xsens.parser.msg_buf, offset);
         xsens.accel_available = TRUE;
         l++;
       }
       if (!XSENS_MASK_GyrOut(xsens_output_settings)) {
-        xsens.gyro.p = XSENS_DATA_Calibrated_gyrX(xsens_msg_buf, offset);
-        xsens.gyro.q = XSENS_DATA_Calibrated_gyrY(xsens_msg_buf, offset);
-        xsens.gyro.r = XSENS_DATA_Calibrated_gyrZ(xsens_msg_buf, offset);
+        xsens.gyro.p = XSENS_DATA_Calibrated_gyrX(xsens.parser.msg_buf, offset);
+        xsens.gyro.q = XSENS_DATA_Calibrated_gyrY(xsens.parser.msg_buf, offset);
+        xsens.gyro.r = XSENS_DATA_Calibrated_gyrZ(xsens.parser.msg_buf, offset);
         xsens.gyro_available = TRUE;
         l++;
       }
       if (!XSENS_MASK_MagOut(xsens_output_settings)) {
-        xsens.mag.x = XSENS_DATA_Calibrated_magX(xsens_msg_buf, offset);
-        xsens.mag.y = XSENS_DATA_Calibrated_magY(xsens_msg_buf, offset);
-        xsens.mag.z = XSENS_DATA_Calibrated_magZ(xsens_msg_buf, offset);
+        xsens.mag.x = XSENS_DATA_Calibrated_magX(xsens.parser.msg_buf, offset);
+        xsens.mag.y = XSENS_DATA_Calibrated_magY(xsens.parser.msg_buf, offset);
+        xsens.mag.z = XSENS_DATA_Calibrated_magZ(xsens.parser.msg_buf, offset);
         xsens.mag_available = TRUE;
         l++;
       }
@@ -292,17 +291,17 @@ void parse_xsens_msg(void)
     }
     if (XSENS_MASK_Orientation(xsens_output_mode)) {
       if (XSENS_MASK_OrientationMode(xsens_output_settings) == 0x00) {
-        xsens.quat.qi = XSENS_DATA_Quaternion_q0(xsens_msg_buf, offset);
-        xsens.quat.qx = XSENS_DATA_Quaternion_q1(xsens_msg_buf, offset);
-        xsens.quat.qy = XSENS_DATA_Quaternion_q2(xsens_msg_buf, offset);
-        xsens.quat.qz = XSENS_DATA_Quaternion_q3(xsens_msg_buf, offset);
+        xsens.quat.qi = XSENS_DATA_Quaternion_q0(xsens.parser.msg_buf, offset);
+        xsens.quat.qx = XSENS_DATA_Quaternion_q1(xsens.parser.msg_buf, offset);
+        xsens.quat.qy = XSENS_DATA_Quaternion_q2(xsens.parser.msg_buf, offset);
+        xsens.quat.qz = XSENS_DATA_Quaternion_q3(xsens.parser.msg_buf, offset);
         //float_eulers_of_quat(&xsens.euler, &xsens.quat);
         offset += XSENS_DATA_Quaternion_LENGTH;
       }
       if (XSENS_MASK_OrientationMode(xsens_output_settings) == 0x01) {
-        xsens.euler.phi   = XSENS_DATA_Euler_roll(xsens_msg_buf, offset) * M_PI / 180;
-        xsens.euler.theta = XSENS_DATA_Euler_pitch(xsens_msg_buf, offset) * M_PI / 180;
-        xsens.euler.psi   = XSENS_DATA_Euler_yaw(xsens_msg_buf, offset) * M_PI / 180;
+        xsens.euler.phi   = XSENS_DATA_Euler_roll(xsens.parser.msg_buf, offset) * M_PI / 180;
+        xsens.euler.theta = XSENS_DATA_Euler_pitch(xsens.parser.msg_buf, offset) * M_PI / 180;
+        xsens.euler.psi   = XSENS_DATA_Euler_yaw(xsens.parser.msg_buf, offset) * M_PI / 180;
         offset += XSENS_DATA_Euler_LENGTH;
       }
       if (XSENS_MASK_OrientationMode(xsens_output_settings) == 0x10) {
@@ -321,9 +320,9 @@ void parse_xsens_msg(void)
       offset += l * XSENS_DATA_Auxiliary_LENGTH / 2;
     }
     if (XSENS_MASK_Position(xsens_output_mode)) {
-      xsens.lla_f.lat = RadOfDeg(XSENS_DATA_Position_lat(xsens_msg_buf, offset));
-      xsens.lla_f.lon = RadOfDeg(XSENS_DATA_Position_lon(xsens_msg_buf, offset));
-      xsens.lla_f.alt = XSENS_DATA_Position_alt(xsens_msg_buf, offset);
+      xsens.lla_f.lat = RadOfDeg(XSENS_DATA_Position_lat(xsens.parser.msg_buf, offset));
+      xsens.lla_f.lon = RadOfDeg(XSENS_DATA_Position_lon(xsens.parser.msg_buf, offset));
+      xsens.lla_f.alt = XSENS_DATA_Position_alt(xsens.parser.msg_buf, offset);
       offset += XSENS_DATA_Position_LENGTH;
 
 #if (! USE_GPS_XSENS_RAW_DATA) && USE_GPS_XSENS
@@ -333,13 +332,13 @@ void parse_xsens_msg(void)
 #endif
     }
     if (XSENS_MASK_Velocity(xsens_output_mode)) {
-      xsens.vel.x = XSENS_DATA_Velocity_vx(xsens_msg_buf, offset);
-      xsens.vel.y = XSENS_DATA_Velocity_vy(xsens_msg_buf, offset);
-      xsens.vel.z = XSENS_DATA_Velocity_vz(xsens_msg_buf, offset);
+      xsens.vel.x = XSENS_DATA_Velocity_vx(xsens.parser.msg_buf, offset);
+      xsens.vel.y = XSENS_DATA_Velocity_vy(xsens.parser.msg_buf, offset);
+      xsens.vel.z = XSENS_DATA_Velocity_vz(xsens.parser.msg_buf, offset);
       offset += XSENS_DATA_Velocity_LENGTH;
     }
     if (XSENS_MASK_Status(xsens_output_mode)) {
-      xsens_msg_status = XSENS_DATA_Status_status(xsens_msg_buf, offset);
+      xsens_msg_status = XSENS_DATA_Status_status(xsens.parser.msg_buf, offset);
 #if USE_GPS_XSENS
       if (bit_is_set(xsens_msg_status, 2)) { xsens.gps.fix = GPS_FIX_3D; } // gps fix
       else if (bit_is_set(xsens_msg_status, 1)) { xsens.gps.fix = 0x01; } // efk valid
@@ -355,17 +354,17 @@ void parse_xsens_msg(void)
       offset += XSENS_DATA_Status_LENGTH;
     }
     if (XSENS_MASK_TimeStamp(xsens_output_settings)) {
-      xsens.time_stamp = XSENS_DATA_TimeStamp_ts(xsens_msg_buf, offset);
+      xsens.time_stamp = XSENS_DATA_TimeStamp_ts(xsens.parser.msg_buf, offset);
       offset += XSENS_DATA_TimeStamp_LENGTH;
     }
     if (XSENS_MASK_UTC(xsens_output_settings)) {
-      xsens.time.hour = XSENS_DATA_UTC_hour(xsens_msg_buf, offset);
-      xsens.time.min = XSENS_DATA_UTC_min(xsens_msg_buf, offset);
-      xsens.time.sec = XSENS_DATA_UTC_sec(xsens_msg_buf, offset);
-      xsens.time.nanosec = XSENS_DATA_UTC_nanosec(xsens_msg_buf, offset);
-      xsens.time.year = XSENS_DATA_UTC_year(xsens_msg_buf, offset);
-      xsens.time.month = XSENS_DATA_UTC_month(xsens_msg_buf, offset);
-      xsens.time.day = XSENS_DATA_UTC_day(xsens_msg_buf, offset);
+      xsens.time.hour = XSENS_DATA_UTC_hour(xsens.parser.msg_buf, offset);
+      xsens.time.min = XSENS_DATA_UTC_min(xsens.parser.msg_buf, offset);
+      xsens.time.sec = XSENS_DATA_UTC_sec(xsens.parser.msg_buf, offset);
+      xsens.time.nanosec = XSENS_DATA_UTC_nanosec(xsens.parser.msg_buf, offset);
+      xsens.time.year = XSENS_DATA_UTC_year(xsens.parser.msg_buf, offset);
+      xsens.time.month = XSENS_DATA_UTC_month(xsens.parser.msg_buf, offset);
+      xsens.time.day = XSENS_DATA_UTC_day(xsens.parser.msg_buf, offset);
 
       offset += XSENS_DATA_UTC_LENGTH;
     }

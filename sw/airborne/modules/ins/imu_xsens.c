@@ -27,7 +27,6 @@
 
 #include "imu_xsens.h"
 #include "xsens.h"
-#include "xsens_common.h"
 
 #include "generated/airframe.h"
 
@@ -43,11 +42,11 @@ void imu_xsens_init(void)
 
 void imu_xsens_event(void)
 {
-  xsens_event();
-  if (xsens.msg_received) {
+  xsens_parser_event(&(xsens.parser));
+  if (xsens.parser.msg_received) {
     parse_xsens_msg();
     handle_ins_msg();
-    xsens.msg_received = FALSE;
+    xsens.parser.msg_received = FALSE;
   }
 }
 
