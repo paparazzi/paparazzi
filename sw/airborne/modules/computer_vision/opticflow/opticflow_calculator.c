@@ -312,11 +312,7 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
 
   // Convert image to grayscale
   image_to_grayscale(img, &opticflow->img_gray);
-  opticflow->img_gray.ts = img->ts;
-  opticflow->img_gray.pprz_ts = img->pprz_ts;
-  opticflow->img_gray.eulers = img->eulers;
 
-  // Copy to previous image if not set
   if (!opticflow->got_first_img) {
     image_copy(&opticflow->img_gray, &opticflow->prev_img_gray);
     opticflow->got_first_img = true;
@@ -329,9 +325,9 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
   struct linear_flow_fit_info fit_info;
 
   // Update FPS for information
-  float dt = timeval_diff(&(opticflow->prev_img_gray.ts), &(img->ts)) / 1000.f;
+  float dt = timeval_diff(&(opticflow->prev_img_gray.ts), &(img->ts));
   if (dt > 1e-5) {
-    result->fps = 1 / dt;
+    result->fps = 1000.f / dt;
   } else {
     return false;
   }

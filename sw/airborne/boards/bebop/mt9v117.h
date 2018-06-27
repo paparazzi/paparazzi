@@ -30,9 +30,11 @@
 #include "std.h"
 #include "mcu_periph/i2c.h"
 
+#ifndef MT9V117_TARGET_FPS
+#define MT9V117_TARGET_FPS 0
+#endif
+
 struct mt9v117_t {
-
-
   struct i2c_periph *i2c_periph;      ///< I2C peripheral used to communicate over
   struct i2c_transaction i2c_trans;   ///< I2C transaction for comminication with CMOS chip
 };

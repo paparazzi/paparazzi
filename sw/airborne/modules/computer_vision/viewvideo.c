@@ -112,16 +112,27 @@ struct viewvideo_t viewvideo = {
  */
 static struct image_t *viewvideo_function(struct UdpSocket *viewvideo_socket, struct image_t *img, uint16_t *rtp_packet_nr, uint32_t *rtp_frame_time)
 {
-  // Resize image if needed
-  struct image_t img_small;
-  image_create(&img_small,
-               img->w / viewvideo.downsize_factor,
-               img->h / viewvideo.downsize_factor,
-               IMAGE_YUV422);
+  // Resize small image if needed
+  static struct image_t img_small = {.buf=NULL, .buf_size=0};
+  if(img_small.buf_size != img->buf_size/(viewvideo.downsize_factor*viewvideo.downsize_factor)){
+    if(img_small.buf != NULL){
+      image_free(&img_small);
+    }
+    image_create(&img_small,
+                 img->w / viewvideo.downsize_factor,
+                 img->h / viewvideo.downsize_factor,
+                 IMAGE_YUV422);
+  }
 
-  // Create the JPEG encoded image
-  struct image_t img_jpeg;
-  image_create(&img_jpeg, img_small.w, img_small.h, IMAGE_JPEG);
+  // Resize JPEG encoded image if needed
+  static struct image_t img_jpeg = {.buf=NULL, .buf_size=0};
+  if(img_jpeg.w != img_small.w || img_jpeg.h != img_small.h)
+  {
+    if(img_jpeg.buf != NULL){
+      image_free(&img_jpeg);
+    }
+    image_create(&img_jpeg, img_small.w, img_small.h, IMAGE_JPEG);
+  }
 
 #if VIEWVIDEO_USE_NETCAT
   char nc_cmd[64];
@@ -178,9 +189,6 @@ static struct image_t *viewvideo_function(struct UdpSocket *viewvideo_socket, st
 #endif
   }
 
-  // Free all buffers
-  image_free(&img_jpeg);
-  image_free(&img_small);
   return NULL; // No new images were created
 }
 
@@ -208,6 +216,15 @@ static struct image_t *viewvideo_function2(struct image_t *img)
 void viewvideo_init(void)
 {
   viewvideo.is_streaming = true;
+
+  // safety check
+  if(viewvideo.downsize_factor < 1){
+    viewvideo.downsize_factor = 1;
+  }
+
+  if(viewvideo.quality_factor > 99){
+    viewvideo.quality_factor = 99;
+  }
 
 #if VIEWVIDEO_USE_NETCAT
   // Create an Netcat receiver file for the streaming

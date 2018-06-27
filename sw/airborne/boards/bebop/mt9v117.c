@@ -60,7 +60,7 @@ struct video_config_t bottom_camera = {
   .buf_cnt = 5,
   .filters = 0,
   .cv_listener = NULL,
-  .fps = 0
+  .fps = MT9V117_TARGET_FPS
 };
 
 
