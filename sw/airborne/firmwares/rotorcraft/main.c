@@ -36,6 +36,8 @@
 
 #include "mcu_periph/sys_time.h"
 
+#define POLLING_PERIOD (500000/PERIODIC_FREQUENCY)
+#include <stdio.h>
 #ifndef SITL
 int main(void)
 {
@@ -58,8 +60,8 @@ int main(void)
 
     /* sleep remaining time to limit to 1kHz */
     t_diff = get_sys_time_usec() - t_begin;
-    if (t_diff < 1000) {
-      sys_time_usleep(1000 - t_diff);
+    if (t_diff < POLLING_PERIOD) {
+      sys_time_usleep(POLLING_PERIOD - t_diff);
     }
   }
 #else
