@@ -1,0 +1,29 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="pipe" dir="mcu_periph" task="mcu">
+  <doc>
+    <description>
+      General named pipe (fifo) driver
+      Each pipe is comprised of two half-duplex fifos, one for reading from the client and one for
+      writing to them.
+      To activate a specific pipe peripheral, define flag USE_PIPEX_WRITER with the file path to the 
+      location where paparazzi whoudl wrtie to and USE_PIPEX_READER for the file location where
+      it should read from, where X is your pipe peripheral number.
+      You can also configure the size of the incoming and outgoing buffer using PIPE_RX_BUFFER_SIZE 
+      and PIPE_TX_BUFFER_SIZE
+    </description>
+    <define name="USE_PIPE0_READER" value="/tmp/pprz_in" description="File path to fifo to read from"/>
+    <define name="USE_PIPE0_WRITER" value="/tmp/pprz_out" description="File path to fifo to write to"/>
+    <define name="PIPE_RX_BUFFER_SIZE" value="1024"/>
+    <define name="PIPE_TX_BUFFER_SIZE" value="1024"/>
+  </doc>
+  <header>
+    <file name="pipe.h" dir="mcu_periph"/>
+  </header>
+  <makefile>
+    <define name="USE_PIPE"/>
+    <file name="pipe.c" dir="mcu_periph"/>
+    <file_arch name="pipe_arch.c" dir="mcu_periph"/>
+  </makefile>
+</module>
+

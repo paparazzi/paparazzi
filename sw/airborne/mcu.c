@@ -64,6 +64,9 @@
 #ifdef USE_RNG
 #include "mcu_periph/rng.h"
 #endif
+#ifdef USE_PIPE
+#include "mcu_periph/pipe.h"
+#endif
 #endif /* PERIPHERALS_AUTO_INIT */
 
 void WEAK board_init(void)
