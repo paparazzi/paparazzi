@@ -67,13 +67,13 @@
   </exceptions>
   <blocks>
     <block name="Holding point">
-      <call_once fun="NavKillThrottle()"/>
+      <call_once fun="autopilot_set_motors_on(FALSE)"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
     <block key="r" name="Start Engine">
-      <call_once fun="NavResurrect()"/>
+      <call_once fun="autopilot_set_motors_on(TRUE)"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
-      <call_once fun="NavResurrect()"/>
+      <call_once fun="autopilot_set_motors_on(TRUE)"/>
     </block>
     <block key="t" name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
       <exception cond="GetPosAlt() > 1.0" deroute="Standby"/>
@@ -97,7 +97,7 @@
       <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
     </block>
     <block name="Landed">
-      <call_once fun="NavKillThrottle()"/>
+      <call_once fun="autopilot_set_motors_on(FALSE)"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
   </blocks>

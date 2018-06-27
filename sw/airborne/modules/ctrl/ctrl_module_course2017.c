@@ -51,7 +51,7 @@ struct ctrl_module_course_struct {
 double rc_yaw_gain      = 0.05;
 double rc_pitch_gain    = 0.35;
 double rc_roll_gain     = 0.35;
-double position_gain    = 1.0;
+double position_gain    = 0.10;
 
 double settings_grass_gain = 70;
 
@@ -95,7 +95,7 @@ void ctrl_module_run(bool in_flight)
               RAD_OF_DEG(BOUND_ANGLE)
           )
       );
-      printf("theta: %4.2f phi: %4.2f\n", ANGLE_FLOAT_OF_BFP( setpoint.theta ) / M_PI * 180, ANGLE_FLOAT_OF_BFP( setpoint.phi ) / M_PI * 180);
+//      printf("theta: %4.2f phi: %4.2f\n", ANGLE_FLOAT_OF_BFP( setpoint.theta ) / M_PI * 180, ANGLE_FLOAT_OF_BFP( setpoint.phi ) / M_PI * 180);
       break;
     case GRASS_INSIDE:
       setpoint.phi      = 0; //ANGLE_BFP_OF_REAL( RAD_OF_DEG( 0.0 ) );
@@ -110,20 +110,16 @@ void ctrl_module_run(bool in_flight)
       // Get the position of the waypoint we want to center at
       struct EnuCoor_i*     center      = &waypoints[WP_CENTER].enu_i;
       // Calculate the radial coordinates of the waypoint
-      double centerAngle    = atan2(POS_FLOAT_OF_BFP(position->y - center->y), POS_FLOAT_OF_BFP(position->x - center->x));
-      //double centerRadius   = hypot(POS_FLOAT_OF_BFP(position->x - center->x), POS_FLOAT_OF_BFP(position->y - center->y));
+      double centerAngle    = atan2(POS_FLOAT_OF_BFP(center->x - position->x), POS_FLOAT_OF_BFP(center->y - position->y)); // Swap x, y to go from ENU to NED
+      double centerRadius   = hypot(POS_FLOAT_OF_BFP(center->x - position->x), POS_FLOAT_OF_BFP(center->y - position->y));
       // Determine the body angle to the waypoint
       double relativeAngle  = centerAngle - ANGLE_FLOAT_OF_BFP( orientation->psi );
       if(relativeAngle < -M_PI)     relativeAngle += 2*M_PI;
       if(relativeAngle >  M_PI)     relativeAngle -= 2*M_PI;
-      // Now we put gains on the distances from the waypoint
-      // Euler angles are derived from NED whilst waypoints are in ENU so we switch X and Y to derive our angles
-      double xGain      = position_gain * POS_FLOAT_OF_BFP(position->y - center->y);
-      double yGain      = position_gain * POS_FLOAT_OF_BFP(position->x - center->x);
-      // And rotate these according to our relative waypoint
-      // Our NED x and y gains should now be converted to body angles
-      double dTheta     = cos(relativeAngle) * xGain - sin(relativeAngle) * yGain;
-      double dPhi       = sin(relativeAngle) * xGain + cos(relativeAngle) * yGain;
+      // Now we put gains on the distance from the waypoint
+      double dTheta = -position_gain * cos(relativeAngle) * centerRadius;
+      double dPhi   =  position_gain * sin(relativeAngle) * centerRadius;
+      // Bound the setpoints
       setpoint.theta    = (int32_t) ANGLE_BFP_OF_REAL( angleBound(dTheta, RAD_OF_DEG(-BOUND_ANGLE), RAD_OF_DEG(BOUND_ANGLE) ) );
       setpoint.phi      = (int32_t) ANGLE_BFP_OF_REAL( angleBound(dPhi,   RAD_OF_DEG(-BOUND_ANGLE), RAD_OF_DEG(BOUND_ANGLE) ) );
       // Allow the user to steer the drone using RC
@@ -138,13 +134,13 @@ void ctrl_module_run(bool in_flight)
       //cv_grass_detector.range *= 1.1;
       break;
   }
-  /*
+
   if (!in_flight) {
       // We aren't flying so reset the stabilization
       setpoint.phi      = ANGLE_BFP_OF_REAL( RAD_OF_DEG( 0.0 ) );
       setpoint.theta    = ANGLE_BFP_OF_REAL( RAD_OF_DEG( 0.0 ) );
   }
-  */
+
   stabilization_attitude_set_rpy_setpoint_i(&setpoint);
   stabilization_attitude_run(in_flight);
 }

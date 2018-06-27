@@ -48,7 +48,7 @@
     <module name="video_thread" />
     <module name="cv_grass_detector"/>
     <module name="video_rtp_stream">
-      <define name="VIEWVIDEO_CAMERA" value="front_camera" />
+      <define name="VIEWVIDEO_CAMERA" value="bottom_camera" />
       <define name="VIEWVIDEO_FPS" value="18" />
       <define name="VIEWVIDEO_STREAM_VIDEO" value="TRUE" />
       <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1" />

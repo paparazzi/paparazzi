@@ -45,7 +45,7 @@ uint8_t color_lum_max = 255;
 uint8_t color_cb_min  = 0;
 uint8_t color_cb_max  = 110;
 uint8_t color_cr_min  = 0;
-uint8_t color_cr_max  = 115;
+uint8_t color_cr_max  = 130;
 
 grass_detector cv_grass_detector;
 
@@ -67,6 +67,7 @@ struct image_t *grass_detector_func(struct image_t *img)
       (uint32_t) round(settings_count_threshold * img->w * img->h);
   // Filter and find centroid
   grass_count = find_grass_centroid(img, &x_c, &y_c);
+//  printf("Grass count: %u, threshold %u, x_c %d, y_c %d\n", grass_count, count_threshold, x_c, y_c);
   if (grass_count < count_threshold) {
     cv_grass_detector.inside = GRASS_UNSURE;
   } else {
@@ -109,7 +110,7 @@ uint32_t find_grass_centroid(struct image_t *img, int32_t* p_xc, int32_t* p_yc)
         vp = &buffer[y * 2 * img->w + 2 * x + 2];  // V
         //yp = &buffer[y * 2 * img->w + 2 * x + 3]; // Y2
       } else {
-        // Even x
+        // Uneven x
         up = &buffer[y * 2 * img->w + 2 * x - 2];  // U
         //yp = &buffer[y * 2 * img->w + 2 * x - 1]; // Y1
         vp = &buffer[y * 2 * img->w + 2 * x];     // V
