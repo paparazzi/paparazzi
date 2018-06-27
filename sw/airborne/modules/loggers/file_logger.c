@@ -27,6 +27,8 @@
 #include "file_logger.h"
 
 #include <stdio.h>
+#include <sys/stat.h>
+#include <time.h>
 #include "std.h"
 
 #include "subsystems/imu.h"
@@ -44,16 +46,32 @@ static FILE *file_logger = NULL;
 /** Start the file logger and open a new file */
 void file_logger_start(void)
 {
+  // check if log path exists
+  struct stat s;
+  int err = stat(STRINGIFY(FILE_LOGGER_PATH), &s);
+
+  if(err < 0) {
+    // try to make the directory
+    mkdir(STRINGIFY(FILE_LOGGER_PATH), 0666);
+  }
+
+  // Get current date/time, format is YYYY-MM-DD.HH:mm:ss
+  char date_time[80];
+  time_t now = time(0);
+  struct tm  tstruct;
+  tstruct = *localtime(&now);
+  strftime(date_time, sizeof(date_time), "%Y-%m-%d_%X", &tstruct);
+
   uint32_t counter = 0;
   char filename[512];
 
   // Check for available files
-  sprintf(filename, "%s/%05d.csv", STRINGIFY(FILE_LOGGER_PATH), counter);
+  sprintf(filename, "%s/%s.csv", STRINGIFY(FILE_LOGGER_PATH), date_time);
   while ((file_logger = fopen(filename, "r"))) {
     fclose(file_logger);
 
+    sprintf(filename, "%s/%s_%05d.csv", STRINGIFY(FILE_LOGGER_PATH), date_time, counter);
     counter++;
-    sprintf(filename, "%s/%05d.csv", STRINGIFY(FILE_LOGGER_PATH), counter);
   }
 
   file_logger = fopen(filename, "w");
