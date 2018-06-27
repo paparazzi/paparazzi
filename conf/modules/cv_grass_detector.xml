@@ -29,7 +29,7 @@
   </header>
 
   <init fun="grass_detector_init()"/>
-  <makefile target="ap">
+  <makefile target="ap|nps">
     <file name="grass_detector.c"/>
   </makefile>
 </module>

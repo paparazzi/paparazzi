@@ -53,7 +53,7 @@ double range_threshold          = 0.09;
 double settings_count_threshold = 0.12;
 
 // Result
-int32_t grass_count = 0;
+uint32_t grass_count = 0;
 int32_t x_c = 0;
 int32_t y_c = 0;
 

@@ -38,7 +38,7 @@
 #include "generated/flight_plan.h"
 
 #define BOUND_ANGLE 25.0
-#define RAD_OF_DEG(d) (d*M_PI/180.)
+#define RAD_OF_DEG(d) ((d)*M_PI/180.)
 #define angleBound(_x, _min, _max ) ( ( _x ) > ( _max ) ? ( _max ) : ( ( _x ) < ( _min ) ? ( _min ) : ( _x ) ) )
 
 struct ctrl_module_course_struct {
@@ -46,7 +46,6 @@ struct ctrl_module_course_struct {
   int rc_y;
   int rc_z;
   int rc_t;
-
 } ctrl_module_course;
 
 double rc_yaw_gain      = 0.05;
@@ -81,10 +80,6 @@ void ctrl_module_run(bool in_flight)
   guidance_v_zd_sp = SPEED_BFP_OF_REAL( 0.0 );
   setpoint.psi     = orientation->psi;
   switch (cv_grass_detector.inside){
-    case GRASS_UNSURE:
-      // Keep same setpoints but rotate over change in yaw
-      //cv_grass_detector.range *= 1.1;
-      break;
     case GRASS_OUTSIDE:
       setpoint.theta = ANGLE_BFP_OF_REAL(
           angleBound(
@@ -108,7 +103,7 @@ void ctrl_module_run(bool in_flight)
       setpoint.phi     += rc_roll_gain * ctrl_module_course.rc_x;
       setpoint.theta   += rc_pitch_gain * ctrl_module_course.rc_y;
       setpoint.psi     += rc_yaw_gain * ctrl_module_course.rc_z;
-      /*
+
       // Get our position and orientation
       struct EnuCoor_i*     position    = stateGetPositionEnu_i();
       struct Int32Eulers*   orientation = stateGetNedToBodyEulers_i();
@@ -135,7 +130,12 @@ void ctrl_module_run(bool in_flight)
       setpoint.theta   += (int32_t) round(ctrl_module_course.rc_y * rc_pitch_gain);
       setpoint.phi     += (int32_t) round(ctrl_module_course.rc_x * rc_roll_gain);
       setpoint.psi      = orientation->psi + ((int32_t) round(ctrl_module_course.rc_z * rc_yaw_gain));
-      */
+
+      break;
+    default:
+    case GRASS_UNSURE:
+      // Keep same setpoints but rotate over change in yaw
+      //cv_grass_detector.range *= 1.1;
       break;
   }
   /*

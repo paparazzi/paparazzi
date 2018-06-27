@@ -43,7 +43,7 @@ extern uint8_t color_cr_max;
 
 extern double settings_count_threshold;
 
-extern int32_t grass_count;
+extern uint32_t grass_count;
 
 enum grass_status {
     GRASS_UNSURE,               ///< There aren't enough green pixels to be sure

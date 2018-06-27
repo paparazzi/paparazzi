@@ -41,7 +41,7 @@ extern double settings_grass_gain;
 #define GUIDANCE_H_MODE_MODULE_SETTING GUIDANCE_H_MODE_MODULE
 
 // and hover guidance_v
-#define GUIDANCE_V_MODE_MODULE_SETTING GUIDANCE_V_MODE_HOVER
+#define GUIDANCE_V_MODE_MODULE_SETTING GUIDANCE_V_MODE_NAV
 
 // Implement own Horizontal loops
 extern void guidance_h_module_init(void);
