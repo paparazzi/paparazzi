@@ -26,28 +26,24 @@
 #ifndef BEBOP_AE_AWB_H
 #define BEBOP_AE_AWB_H
 
-#define MAX_HIST_Y 256 - 20
-#define MIN_HIST_Y 16
+#include "std.h"
 
-extern uint32_t histogram_plot[256];
-
-extern float ae_awb_gain;
-extern float awb_avgU;
-extern float awb_avgV;
-extern uint32_t awb_nb_pixels;
-
-extern float ae_exposure_gain;
+extern bool    ae_active;
+extern float   ae_exposure_gain;
 extern uint8_t ae_dark_bins;
 extern uint8_t ae_bright_bins;
 extern uint8_t ae_middle_index;
-extern float ae_bright_ignore;
-extern float ae_dark_ignore;
-extern float ae_current_level;
+extern float   ae_bright_ignore;
+extern float   ae_dark_ignore;
+
+extern bool  awb_active;
+extern float awb_gain;
+extern bool  awb_gain_scheduling;
+extern float awb_gain_scheduling_target;
+extern float awb_gain_scheduling_tolerance;
+extern float awb_gain_scheduling_step;
 
 extern void bebop_ae_awb_init(void);
-extern void bebop_awb_reset(void);
-extern void bebop_ae_reset(void);
-extern void bebop_ae_awb_periodic(void);
 
 #endif
 
