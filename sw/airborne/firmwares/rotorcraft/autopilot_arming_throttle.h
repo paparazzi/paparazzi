@@ -78,10 +78,8 @@ static inline bool autopilot_arming_check_valid(void)
     autopilot.arming_status = AP_ARMING_STATUS_ROLL_NOT_CENTERED;
   } else if (!YAW_STICK_CENTERED()) {
     autopilot.arming_status = AP_ARMING_STATUS_YAW_NOT_CENTERED;
-  } else if (autopilot_get_mode() != MODE_MANUAL) {
+  } else if (autopilot_get_mode() != MODE_MANUAL && !autopilot_unarmed_in_auto) {
     autopilot.arming_status = AP_ARMING_STATUS_NOT_MODE_MANUAL;
-  } else if (autopilot_unarmed_in_auto) {
-    autopilot.arming_status = AP_ARMING_STATUS_UNARMED_IN_AUTO;
   } else if (THROTTLE_STICK_DOWN()) {
     autopilot.arming_status = AP_ARMING_STATUS_THROTTLE_DOWN;
   } else {
@@ -107,11 +105,7 @@ static inline void autopilot_arming_check_motors_on(void)
       case STATE_UNINIT:
         autopilot.motors_on = false;
         autopilot_arming_delay_counter = 0;
-        if (THROTTLE_STICK_DOWN()) {
-          autopilot_arming_state = STATE_MOTORS_OFF_READY;
-        } else {
-          autopilot_arming_state = STATE_WAITING;
-        }
+        autopilot_arming_state = STATE_WAITING;
         break;
       case STATE_WAITING: // after startup wait until throttle is down before attempting to arm
         autopilot.motors_on = false;
@@ -131,7 +125,6 @@ static inline void autopilot_arming_check_motors_on(void)
         break;
       case STATE_ARMING:
         autopilot.motors_on = false;
-        autopilot.arming_status = AP_ARMING_STATUS_ARMING;
         autopilot_arming_delay_counter++;
         if (!autopilot_arming_check_valid()) {
           autopilot_arming_state = STATE_MOTORS_OFF_READY;
