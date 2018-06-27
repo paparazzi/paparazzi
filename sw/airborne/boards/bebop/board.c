@@ -121,6 +121,9 @@ void board_init(void)
   int ret __attribute__((unused)) = system("killall -q -15 DragonStarter.sh");
   usleep(50000); /* Give DragonStarter 50ms time to end on a busy system */
   kill_gracefull("dragon-prog");
+#if PRIMARY_GPS == GPS_DATALINK
+  kill_gracefull("ephemerisd");
+#endif
 }
 
 void board_init2(void)
