@@ -61,7 +61,7 @@ void uart_arch_init(void)
     return;
   }
 #ifndef __APPLE__
-  pthread_setname_np(tid, "pprz_uart_thread");
+  pthread_setname_np(tid, "uart");
 #endif
 }
 

@@ -473,6 +473,10 @@ bool v4l2_start_capture(struct v4l2_device *dev)
     return false;
   }
 
+#ifndef __APPLE__
+  pthread_setname_np(dev->thread, "v4l2");
+#endif
+
   return true;
 }
 
