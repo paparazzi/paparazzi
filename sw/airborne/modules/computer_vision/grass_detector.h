@@ -20,7 +20,7 @@
  */
 
 /**
- * @file modules/computer_vision/colorfilter.h
+ * @file modules/computer_vision/grass_detector.h
  */
 
 #ifndef GRASS_DETECTOR_CV_H

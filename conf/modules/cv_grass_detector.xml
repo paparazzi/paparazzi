@@ -2,13 +2,13 @@
 
 <module name="GrassDetector" dir="computer_vision">
   <doc>
-    <description>GrassDetector</description>
+    <description>Grass Detector</description>
     <define name="GRASS_DETECTOR_CAMERA" value="front_camera|bottom_camera" description="Video device to use"/>
   </doc>
 
   <settings>
     <dl_settings>
-      <dl_settings NAME="GrassDetector">
+      <dl_settings name="GrassDetector">
          <dl_setting var="listener->active" min="0" step="1" max="1" shortname="active" />
          <dl_setting var="color_lum_min" min="0" step="1" max="255" shortname="y_min" />
          <dl_setting var="color_lum_max" min="0" step="1" max="255" shortname="y_max" />
