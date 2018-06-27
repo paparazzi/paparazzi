@@ -25,6 +25,7 @@
  */
 
 #include <stdbool.h>
+#include <stdio.h>
 #include "modules/ctrl/ctrl_module_course2017.h"
 #include "modules/computer_vision/grass_detector.h"
 #include "state.h"

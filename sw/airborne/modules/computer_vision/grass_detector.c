@@ -33,6 +33,9 @@
 #ifndef GRASS_DETECTOR_CAMERA
 #define GRASS_DETECTOR_CAMERA bottom_camera
 #endif
+#ifndef GRASS_DETECTOR_FPS
+#define GRASS_DETECTOR_FPS 0 ///< Default FPS (zero means run at camera fps)
+#endif
 
 struct video_listener *listener = NULL;
 
@@ -56,7 +59,7 @@ int32_t y_c = 0;
 
 // Function
 struct image_t *grass_detector_func(struct image_t *img);
-static uint32_t find_grass_centroid(struct image_t *img, int32_t* x_c, int32_t* y_c);
+static uint32_t find_grass_centroid(struct image_t *img, int32_t* p_xc, int32_t* p_yc);
 
 struct image_t *grass_detector_func(struct image_t *img)
 {
@@ -84,10 +87,10 @@ void grass_detector_init(void)
   cv_grass_detector.inside = GRASS_UNSURE;
   cv_grass_detector.angle = 0.0;
   cv_grass_detector.range = 0.0;
-  listener = cv_add_to_device(&GRASS_DETECTOR_CAMERA, grass_detector_func);
+  listener = cv_add_to_device(&GRASS_DETECTOR_CAMERA, grass_detector_func, GRASS_DETECTOR_FPS);
 }
 
-uint32_t find_grass_centroid(struct image_t *img, int32_t* x_c, int32_t* y_c)
+uint32_t find_grass_centroid(struct image_t *img, int32_t* p_xc, int32_t* p_yc)
 {
   uint32_t cnt = 0;
   uint32_t tot_x = 0;
@@ -126,11 +129,11 @@ uint32_t find_grass_centroid(struct image_t *img, int32_t* x_c, int32_t* y_c)
     }
   }
   if (cnt > 0) {
-    *x_c = (int32_t) round(tot_x / ((double) cnt) - img->w / 2.0);
-    *y_c = (int32_t) round(img->h / 2.0 - tot_y / ((double) cnt));
+    *p_xc = (int32_t) round(tot_x / ((double) cnt) - img->w / 2.0);
+    *p_yc = (int32_t) round(img->h / 2.0 - tot_y / ((double) cnt));
   } else {
-    *x_c = 0;
-    *y_c = 0;
+    *p_xc = 0;
+    *p_yc = 0;
   }
   return cnt;
 }

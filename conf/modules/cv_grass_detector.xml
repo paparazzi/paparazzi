@@ -4,6 +4,7 @@
   <doc>
     <description>Grass Detector</description>
     <define name="GRASS_DETECTOR_CAMERA" value="front_camera|bottom_camera" description="Video device to use"/>
+    <define name="GRASS_DETECTOR_FPS" value="0" description="Desired FPS (0: camera rate)"/>
   </doc>
 
   <settings>
