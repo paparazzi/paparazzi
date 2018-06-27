@@ -58,7 +58,7 @@ int main(void)
     handle_periodic_tasks();
     main_event();
 
-    /* sleep remaining time to limit to 1kHz */
+    /* sleep remaining time to limit to polling frequency */
     t_diff = get_sys_time_usec() - t_begin;
     if (t_diff < POLLING_PERIOD) {
       sys_time_usleep(POLLING_PERIOD - t_diff);

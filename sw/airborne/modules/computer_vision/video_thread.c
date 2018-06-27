@@ -31,7 +31,6 @@
 #include <errno.h>
 #include <string.h>
 #include <unistd.h>
-#include <sys/time.h>
 #include <math.h>
 
 // Video
@@ -116,28 +115,13 @@ static void *video_thread_function(void *data)
   fprintf(stdout, "[%s] Set nice level to %i.\n", print_tag, VIDEO_THREAD_NICE_LEVEL);
 
   // Initialize timing
-  struct timespec time_now;
-  struct timespec time_prev;
-  clock_gettime(CLOCK_MONOTONIC, &time_prev);
+  uint32_t time_begin;
 
   // Start streaming
   vid->thread.is_running = true;
   while (vid->thread.is_running) {
-
-    // Get time in us since last run
-    clock_gettime(CLOCK_MONOTONIC, &time_now);
-    uint32_t dt_us = sys_time_elapsed_us(&time_prev, &time_now);
-    time_prev = time_now;
-
-    // sleep remaining time to limit to specified fps
-    if (vid->fps != 0) {
-      uint32_t fps_period_us = 1000000 / vid->fps;
-      if (dt_us < fps_period_us) {
-        usleep(fps_period_us - dt_us);
-      } else {
-        fprintf(stderr, "[%s] desired %i fps, only managing %.1f fps\n", print_tag, vid->fps, 1000000.f / dt_us);
-      }
-    }
+    // Get start time
+    time_begin = get_sys_time_usec();
 
     // Wait for a new frame (blocking)
     struct image_t img;
@@ -158,6 +142,18 @@ static void *video_thread_function(void *data)
 
     // Free the image
     v4l2_image_free(vid->thread.dev, &img);
+
+    uint32_t dt_us = get_sys_time_usec() - time_begin;
+
+    // sleep remaining time to limit to specified fps
+    if (vid->fps != 0) {
+      uint32_t fps_period_us = 1000000 / vid->fps;
+      if (dt_us < fps_period_us) {
+        sys_time_usleep(fps_period_us - dt_us);
+      } else {
+        fprintf(stderr, "[%s] desired %i fps, only managing %.1f fps\n", print_tag, vid->fps, 1000000.f / dt_us);
+      }
+    }
   }
 
   image_free(&img_color);

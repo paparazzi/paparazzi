@@ -123,6 +123,8 @@ void image_to_grayscale(struct image_t *input, struct image_t *output)
 
   // Copy the creation timestamp (stays the same)
   output->ts = input->ts;
+  output->eulers = input->eulers;
+  output->pprz_ts = input->pprz_ts;
 
   // Copy the pixels
   for (int y = 0; y < output->h; y++) {

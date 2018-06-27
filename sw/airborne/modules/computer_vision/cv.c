@@ -89,6 +89,7 @@ struct video_listener *cv_add_to_device_async(struct video_config_t *device, cv_
   listener->async->thread_priority = nice_level;
 
   // Explicitly mark img_copy as uninitialized
+  listener->async->img_copy.buf = NULL;
   listener->async->img_copy.buf_size = 0;
 
   // Initialize mutex and condition variable
@@ -113,8 +114,11 @@ int8_t cv_async_function(struct cv_async *async, struct image_t *img)
     return -1;
   }
 
-  // If the image has not been initialized, do it
-  if (async->img_copy.buf_size == 0) {
+  // update image copy if input image size changed or not yet initialised
+  if (async->img_copy.buf_size != img->buf_size) {
+    if(async->img_copy.buf !=  NULL){
+      image_free(&async->img_copy);
+    }
     image_create(&async->img_copy, img->w, img->h, img->type);
   }
 #if CV_ALLOW_VIDEO_TO_CHANGE_SIZE
@@ -126,7 +130,7 @@ int8_t cv_async_function(struct cv_async *async, struct image_t *img)
 #endif
 
   // Copy image
-// TODO:this takes time causing some thread lag, should be replaced with gpu operation
+  // TODO:this takes time causing some thread lag, should be replaced with gpu operation
   image_copy(img, &async->img_copy);
 
   // Inform thread of new image
