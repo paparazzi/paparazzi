@@ -81,7 +81,7 @@
       <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
     </block>
     <block key="s" name="Standby" strip_button="Standby" strip_icon="home.png">
-      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="alt" alt="flight_altitude"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="alt" alt="1.0"/>
     </block>
     <block key="l" name="Land here" strip_button="Land Here" strip_icon="land-right.png">
       <deroute block="Flare"/>
