@@ -19,7 +19,7 @@ YAPA + XSens + XBee
     <module name="radio_control" type="ppm"/>
     <!-- Communication -->
     <module name="telemetry" type="transparent">
-      <configure name="MODEM_BAUD" value="B9600"/>
+      <configure name="MODEM_BAUD" value="B57600"/>
     </module>
     <!-- Actuators -->
     <module name="control"/>
@@ -113,9 +113,9 @@ YAPA + XSens + XBee
   </command_laws>
 
   <section name="FAILSAFE" prefix="FAILSAFE_">
-    <define name="DEFAULT_THROTTLE" value="0.35" unit="%"/>
+    <define name="DEFAULT_THROTTLE" value="0.0" unit="%"/>
     <define name="DEFAULT_ROLL" value="0.17" unit="rad"/>
-    <define name="DEFAULT_PITCH" value="0.08" unit="rad"/>
+    <define name="DEFAULT_PITCH" value="0.0" unit="rad"/>
     <define name="HOME_RADIUS" value="DEFAULT_CIRCLE_RADIUS" unit="m"/>
     <define name="KILL_MODE_DISTANCE" value="(MAX_DIST_FROM_HOME*1.5)"/>
     <define name="DELAY_WITHOUT_GPS" value="3" unit="s"/>
@@ -209,5 +209,4 @@ YAPA + XSens + XBee
     <define name="AUTOSHOOT_PERIOD" value="1.5" unit="sec"/>
     <define name="AUTOSHOOT_DISTANCE_INTERVAL" value="50" unit="meter"/>
   </section>
-
   </airframe>
