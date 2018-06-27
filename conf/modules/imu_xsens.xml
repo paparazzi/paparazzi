@@ -19,7 +19,7 @@
   <event fun="imu_xsens_event()"/>
   <makefile target="ap">
     <file name="xsens.c"/>
-    <file name="xsens_common.c"/>
+    <file name="xsens_parser.c"/>
     <file name="imu_xsens.c"/>
 
     <configure name="XSENS_PORT" default="uart1" case="upper|lower"/>

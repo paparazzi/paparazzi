@@ -43,12 +43,6 @@ let bytes_make = fun n c->
 let bytes_copy = fun s->
   BYTES.copy s
 
-let bytes_lowercase = fun s->
-  BYTES.lowercase s
-
-let bytes_uppercase = fun s->
-  BYTES.uppercase s
-
 let bytes_blit = fun src srcoff dst dstoff len->
   BYTES.blit src srcoff dst dstoff len
 
@@ -75,3 +69,19 @@ let bytes_set = fun s n c->
 
 let bytes_iter = fun f s->
   BYTES.iter f s
+
+IFDEF OCAML_V404 THEN
+let lowercase_ascii = BYTES.lowercase_ascii
+
+let uppercase_ascii = BYTES.uppercase_ascii
+
+let capitalize_ascii = BYTES.capitalize_ascii
+
+ELSE
+let lowercase_ascii = BYTES.lowercase
+
+let uppercase_ascii = BYTES.uppercase
+
+let capitalize_ascii = BYTES.capitalize
+
+END

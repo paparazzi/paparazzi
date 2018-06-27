@@ -10,9 +10,10 @@ import numpy as np
 
 import sys
 from os import path, getenv
+PPRZ_HOME = getenv("PAPARAZZI_HOME", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../../')))
 PPRZ_SRC = getenv("PAPARAZZI_SRC", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../../')))
+sys.path.append(PPRZ_HOME + "/var/lib/python")
 sys.path.append(PPRZ_SRC + "/sw/lib/python")
-sys.path.append(PPRZ_SRC + "/sw/ext/pprzlink/lib/v1.0/python")
 from pprzlink.ivy import IvyMessagesInterface
 from pprzlink.message import PprzMessage
 from settings_xml_parse import PaparazziACSettings
@@ -70,7 +71,7 @@ class GVFFrame(wx.Frame):
                         and self.timer_traj == self.timer_traj_lim:
                     self.s = int(msg.get_field(2))
                     self.ke = float(msg.get_field(3))
-                    param = [float(x) for x in msg.get_field(4).split(',')]
+                    param = [float(x) for x in msg.get_field(4)]
                     a = param[0]
                     b = param[1]
                     c = param[2]
@@ -84,7 +85,7 @@ class GVFFrame(wx.Frame):
                         and self.timer_traj == self.timer_traj_lim:
                     self.s = int(msg.get_field(2))
                     self.ke = float(msg.get_field(3))
-                    param = [float(x) for x in msg.get_field(4).split(',')]
+                    param = [float(x) for x in msg.get_field(4)]
                     ex = param[0]
                     ey = param[1]
                     ea = param[2]
@@ -99,7 +100,7 @@ class GVFFrame(wx.Frame):
                         and self.timer_traj == self.timer_traj_lim:
                     self.s = int(msg.get_field(2))
                     self.ke = float(msg.get_field(3))
-                    param = [float(x) for x in msg.get_field(4).split(',')]
+                    param = [float(x) for x in msg.get_field(4)]
                     a = param[0]
                     b = param[1]
                     alpha = param[2]

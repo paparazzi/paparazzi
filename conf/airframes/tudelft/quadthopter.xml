@@ -172,12 +172,6 @@
    <define name="SENSORS_PARAMS" value="&quot;nps_sensors_params_default.h&quot;"/>
  </section>
 
- <modules main_freq="512">
-   <!--load name="gps_ubx_ucenter.xml"/-->
-   <!--load name="send_imu_mag_current.xml"/-->
-   <!--load name="logger_uart.xml" /-->
- </modules>
-
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_mx_2.1">
       <define name="REMAP_UART3" value="TRUE" />
@@ -192,7 +186,6 @@
       </module-->
 
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
-      <define name="USE_PERSISTENT_SETTINGS" value="TRUE"/>
     </target>
 
     <target name="nps" board="pc">

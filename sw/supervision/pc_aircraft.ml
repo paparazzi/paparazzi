@@ -83,7 +83,7 @@ let parse_conf_xml = fun vbox ->
   let strings = ref [] in
   Hashtbl.iter (fun name _ac -> strings := name :: !strings) Utils.aircrafts;
   let compare_ignore_case = fun s1 s2 ->
-    String.compare (String.lowercase s1) (String.lowercase s2) in
+    String.compare (Compat.lowercase_ascii s1) (Compat.lowercase_ascii s2) in
   let ordered = List.sort compare_ignore_case ("" :: !strings) in
   Gtk_tools.combo ordered vbox
 
@@ -170,9 +170,7 @@ let save_callback = fun ?user_save gui ac_combo tree tree_modules () ->
       GToolbox.message_box ~title:"Error on A/C id" "A/C id must be a non null number less than 255"
     else
       let color = !current_color in
-      let aircraft =
-        Xml.Element ("aircraft",
-        [ "name", ac_name;
+      let attribs = ["name", ac_name;
           "ac_id", ac_id;
           "airframe", gui#label_airframe#text;
           "radio", gui#label_radio#text;
@@ -180,9 +178,9 @@ let save_callback = fun ?user_save gui ac_combo tree tree_modules () ->
           "flight_plan", gui#label_flight_plan#text;
           "settings", Gtk_tools.tree_values ~only_checked:false tree;
           "settings_modules", Gtk_tools.tree_values ~only_checked:false tree_modules;
-          "gui_color", color;
-          "release", gui#label_release#text ],
-          []) in
+          "gui_color", color ] in
+      let attribs = if gui#label_release#text = "" then attribs else attribs @ ["release", gui#label_release#text ] in
+      let aircraft = Xml.Element ("aircraft", attribs, []) in
       begin try Hashtbl.remove Utils.aircrafts ac_name with _ -> () end;
       Hashtbl.add Utils.aircrafts ac_name aircraft
   end;

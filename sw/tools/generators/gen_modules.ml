@@ -80,7 +80,7 @@ let get_cap_name = fun f ->
   match name with
     | [Str.Text t]
     | [Str.Text t; Str.Delim "("; Str.Delim ")"]
-    | [Str.Text t; Str.Delim "("; Str.Text _ ; Str.Delim ")"] -> String.uppercase t
+    | [Str.Text t; Str.Delim "("; Str.Text _ ; Str.Delim ")"] -> Compat.uppercase_ascii t
     | _ -> failwith "Gen_modules: not a valid function name"
 
 let print_function_freq = fun modules ->

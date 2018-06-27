@@ -25,11 +25,66 @@
 
 #include "firmwares/rotorcraft/stabilization.h"
 
+#if (STABILIZATION_FILTER_COMMANDS_ROLL_PITCH || STABILIZATION_FILTER_COMMANDS_YAW)
+#include "filters/low_pass_filter.h"
+#endif
+
 int32_t stabilization_cmd[COMMANDS_NB];
+
+#if STABILIZATION_FILTER_CMD_ROLL_PITCH
+#ifndef STABILIZATION_FILTER_CMD_ROLL_CUTOFF
+#define STABILIZATION_FILTER_CMD_ROLL_CUTOFF 20.0
+#endif
+
+#ifndef STABILIZATION_FILTER_CMD_PITCH_CUTOFF
+#define STABILIZATION_FILTER_CMD_PITCH_CUTOFF 20.0
+#endif
+
+struct SecondOrderLowPass_int filter_roll;
+struct SecondOrderLowPass_int filter_pitch;
+#endif
+
+#if STABILIZATION_FILTER_CMD_YAW
+#ifndef STABILIZATION_FILTER_CMD_YAW_CUTOFF
+#define STABILIZATION_FILTER_CMD_YAW_CUTOFF 20.0
+#endif
+
+struct SecondOrderLowPass_int filter_yaw;
+#endif
 
 void stabilization_init(void)
 {
   for (uint8_t i = 0; i < COMMANDS_NB; i++) {
     stabilization_cmd[i] = 0;
   }
+
+  // Initialize low pass filters
+#if STABILIZATION_FILTER_CMD_ROLL_PITCH
+  init_second_order_low_pass_int(&filter_roll, STABILIZATION_FILTER_CMD_ROLL_CUTOFF, 0.7071, 1.0 / PERIODIC_FREQUENCY,
+                                 0.0);
+  init_second_order_low_pass_int(&filter_pitch, STABILIZATION_FILTER_CMD_PITCH_CUTOFF, 0.7071, 1.0 / PERIODIC_FREQUENCY,
+                                 0.0);
+#endif
+
+#if STABILIZATION_FILTER_CMD_YAW
+  init_second_order_low_pass_int(&filter_yaw, STABILIZATION_FILTER_CMD_YAW_CUTOFF, 0.7071, 1.0 / PERIODIC_FREQUENCY, 0.0);
+#endif
+
+}
+
+void stabilization_filter_commands(void)
+{
+  /* Filter the commands & bound the result */
+#if STABILIZATION_FILTER_CMD_ROLL_PITCH
+  stabilization_cmd[COMMAND_ROLL] = update_second_order_low_pass_int(&filter_roll, stabilization_cmd[COMMAND_ROLL]);
+  stabilization_cmd[COMMAND_PITCH] = update_second_order_low_pass_int(&filter_pitch, stabilization_cmd[COMMAND_PITCH]);
+
+  BoundAbs(stabilization_cmd[COMMAND_ROLL], MAX_PPRZ);
+  BoundAbs(stabilization_cmd[COMMAND_PITCH], MAX_PPRZ);
+#endif
+#if STABILIZATION_FILTER_CMD_YAW
+  stabilization_cmd[COMMAND_YAW] = update_second_order_low_pass_int(&filter_yaw, stabilization_cmd[COMMAND_YAW]);
+
+  BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ);
+#endif
 }

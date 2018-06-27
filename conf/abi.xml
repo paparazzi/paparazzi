@@ -70,7 +70,9 @@
       <field name="x" type="float" unit="m/s"/>
       <field name="y" type="float" unit="m/s"/>
       <field name="z" type="float" unit="m/s"/>
-      <field name="noise" type="float"/>
+      <field name="noise_x" type="float">Set negative noise to disable parameter axis</field>
+      <field name="noise_y" type="float"/>
+      <field name="noise_z" type="float"/>
     </message>
 
     <message name="RSSI" id="13">
@@ -103,7 +105,9 @@
       <field name="x" type="float" unit="m"/>
       <field name="y" type="float" unit="m"/>
       <field name="z" type="float" unit="m"/>
-      <field name="noise" type="float"/>
+      <field name="noise_x" type="float">Set negative noise to disable parameter axis</field>
+      <field name="noise_y" type="float"/>
+      <field name="noise_z" type="float"/>
     </message>
     
     <message name="UWB_COMMUNICATION" id="19">
@@ -118,6 +122,48 @@
       <field name="vel_body_x_FF" type="float" unit="m/s"/>
       <field name="vel_body_y_FF" type="float" unit="m/s"/>
       <field name="vel_body_z_FF" type="float" unit="m/s"/>
+    </message>
+
+    <message name="JEVOIS_MSG" id="21">
+      <!--description>
+        Standardized serial messages sent by the Jevois smart camera
+        http://jevois.org/doc/UserSerialStyle.html
+      </description-->
+      <field name="type" type="uint8_t">Standardized message type JEVOIS_MSG_[T1|N1|D1|T2|N2|D2|F2|T3|N3|D3|F3]</field>
+      <field name="id" type="char *">Text string describing the reported object</field>
+      <field name="nb" type="uint8_t">Number of elements in the coordinates array</field>
+      <field name="coord" type="int16_t *">List of coordinates corresponding to 1D, 2D or 3D messages</field>
+      <field name="dim" type="uint16_t *">1, 2 or 3D dimension</field>
+      <field name="quat" type="struct FloatQuat">Quaternion that relates the object's frame to the camera's frame, if appropriate</field>
+      <field name="extra" type="char *">Additional text information</field>
+    </message>
+
+    <message name="FOLLOW_TARGET" id="22">
+      <field name="id" type="uint32_t">Object ID to track</field>
+      <field name="frame" type="uint8_t">
+        bitmask to select relative coordinates (0) or global coordinates (1)
+        bit 0: bearing
+        bit 1: height
+        bit 2: distance
+      </field>
+      <field name="bearing" type="float" unit="rad">Direction of object to track</field>
+      <field name="height" type="float" unit="m">Height of object to track</field>
+      <field name="distance" type="float" unit="m">Distance of object to track</field>
+    </message>
+
+    <message name="ACCEL_SP" id="23">
+      <field name="flag" type="uint8_t">0: 2D accel setpoint, 1: 3D accel setpoint</field>
+      <field name="accel_sp" type="struct FloatVect3 *" unit="m/s^2"/>
+    </message>
+
+    <message name="RELATIVE_LOCALIZATION" id="24">
+      <field name="id" type="int32_t"/>
+      <field name="x" type="float" unit="m"/>
+      <field name="y" type="float" unit="m"/>
+      <field name="z" type="float" unit="m"/>
+      <field name="vx" type="float" unit="m/s"/>
+      <field name="vy" type="float" unit="m/s"/>
+      <field name="vz" type="float" unit="m/s"/>
     </message>
 
   </msg_class>

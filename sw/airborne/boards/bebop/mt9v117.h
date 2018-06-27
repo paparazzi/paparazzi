@@ -18,11 +18,11 @@
  * <http://www.gnu.org/licenses/>.
  */
 
- /**
- * @file boards/bebop/mt9v117.h
- *
- * Initialization and configuration of the MT9V117 CMOS Chip
- */
+/**
+* @file boards/bebop/mt9v117.h
+*
+* Initialization and configuration of the MT9V117 CMOS Chip
+*/
 
 #ifndef MT9V117_H
 #define MT9V117_H

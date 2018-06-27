@@ -152,6 +152,7 @@ void l3gd20_spi_event(struct L3gd20_Spi *l3g)
     switch (l3g->spi_trans.status) {
       case SPITransFailed:
         l3g->init_status--; // Retry config (TODO max retry)
+        /* FALLTHROUGH */
       case SPITransSuccess:
         if (l3g->init_status == L3G_CONF_WHO_AM_I_OK) {
           if (l3g->rx_buf[1] == L3GD20_WHO_AM_I) {
@@ -160,6 +161,7 @@ void l3gd20_spi_event(struct L3gd20_Spi *l3g)
             l3g->init_status = L3G_CONF_WHO_AM_I;
           }
         }
+        /* FALLTHROUGH */
       case SPITransDone:
         l3g->spi_trans.status = SPITransDone;
         l3gd20_spi_send_config(l3g);

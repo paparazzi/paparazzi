@@ -158,6 +158,7 @@ bool nps_main_parse_options(int argc, char **argv)
   nps_main.ivy_bus = NULL;
   nps_main.host_time_factor = 1.0;
   nps_main.fg_fdm = 0;
+  nps_main.nodisplay = false;
 
   static const char *usage =
     "Usage: %s [options]\n"
@@ -173,6 +174,7 @@ bool nps_main_parse_options(int argc, char **argv)
     "   --norc                                 e.g. disable RC\n"
     "   --ivy_bus <ivy bus>                    e.g. 127.255.255.255\n"
     "   --time_factor <factor>                 e.g. 2.5\n"
+    "   --nodisplay                            e.g. disable NPS ivy messages\n"
     "   --fg_fdm";
 
 
@@ -190,6 +192,7 @@ bool nps_main_parse_options(int argc, char **argv)
       {"time_factor", 1, NULL, 0},
       {"fg_fdm", 0, NULL, 0},
       {"fg_port_in", 1, NULL, 0},
+      {"nodisplay", 0, NULL, 0},
       {0, 0, 0, 0}
     };
     int option_index = 0;
@@ -226,6 +229,8 @@ bool nps_main_parse_options(int argc, char **argv)
             nps_main.fg_fdm = 1; break;
           case 10:
             nps_main.fg_port_in = atoi(optarg); break;
+          case 11:
+            nps_main.nodisplay = true; break;
           default:
             break;
         }
@@ -311,34 +316,36 @@ void *nps_main_display(void *data __attribute__((unused)))
 
   nps_ivy_init(nps_main.ivy_bus);
 
-  while (TRUE) {
-    clock_get_current_time(&requestStart);
+  // start the loop only if no_display is false
+  if (!nps_main.nodisplay) {
+    while (TRUE) {
+      clock_get_current_time(&requestStart);
 
-    pthread_mutex_lock(&fdm_mutex);
-    memcpy(&fdm_ivy, &fdm, sizeof(fdm));
-    memcpy(&sensors_ivy, &sensors, sizeof(sensors));
-    pthread_mutex_unlock(&fdm_mutex);
+      pthread_mutex_lock(&fdm_mutex);
+      memcpy(&fdm_ivy, &fdm, sizeof(fdm));
+      memcpy(&sensors_ivy, &sensors, sizeof(sensors));
+      pthread_mutex_unlock(&fdm_mutex);
 
-    nps_ivy_display(&fdm_ivy, &sensors_ivy);
+      nps_ivy_display(&fdm_ivy, &sensors_ivy);
 
-    clock_get_current_time(&requestEnd);
+      clock_get_current_time(&requestEnd);
 
-    // Calculate time it took
-    task_ns = (requestEnd.tv_sec - requestStart.tv_sec) * 1000000000L + (requestEnd.tv_nsec - requestStart.tv_nsec);
+      // Calculate time it took
+      task_ns = (requestEnd.tv_sec - requestStart.tv_sec) * 1000000000L + (requestEnd.tv_nsec - requestStart.tv_nsec);
 
-    // task took less than one period, sleep for the rest of time
-    if (task_ns < period_ns) {
-      waitFor.tv_sec = 0;
-      waitFor.tv_nsec = period_ns - task_ns;
-      nanosleep(&waitFor, NULL);
-    } else {
-      // task took longer than the period
-#ifdef PRINT_TIME
-      printf("IVY DISPLAY THREAD: task took longer than one period, exactly %f [ms], but the period is %f [ms]\n",
-             (double)task_ns / 1E6, (double)period_ns / 1E6);
-#endif
+      // task took less than one period, sleep for the rest of time
+      if (task_ns < period_ns) {
+        waitFor.tv_sec = 0;
+        waitFor.tv_nsec = period_ns - task_ns;
+        nanosleep(&waitFor, NULL);
+      } else {
+        // task took longer than the period
+  #ifdef PRINT_TIME
+        printf("IVY DISPLAY THREAD: task took longer than one period, exactly %f [ms], but the period is %f [ms]\n",
+               (double)task_ns / 1E6, (double)period_ns / 1E6);
+  #endif
+      }
     }
-
   }
   return(NULL);
 }

@@ -5,93 +5,148 @@
     <description>
       Gazebo backend for NPS simulator
       NPS doc: http://wiki.paparazziuav.org/wiki/NPS
-      
+
       Usage:
       1. Make sure gazebo 7 or 8 is installed. (sudo apt-get install gazebo8 libgazebo8-dev)
       2. Prepare the Gazebo world and model:
-         a) Prepare the UAV model (see conf/simulator/gazebo/models/ardrone/):
-              Place the aircraft model in the conf/simulator/gazebo/models/
-              folder, this folder is added to Gazebo&apos;s search path when NPS is
-              launched.
-              Gazebo uses a Front, Left, Up coordinate system for aircraft, so
-              make sure the +x axis points forwards.
-              The model should include a link for each motor with the same names
-              as those listed in NPS_ACTUATOR_NAMES (see below), e.g. &apos;nw_motor&apos;.
-              Camera links should have the name specified in .dev_name in the
-              corresponding video_config_t struct, see sw/airborne/boards/pc_sim.h
-              and sw/airborne/modules/computer_vision/video_thread_nps.c.
-         b) Prepare the world (see conf/simulator/gazebo/worlds/ardrone.world). 
-            Pay attention to the following:
-              The real-time update rate should be set to zero, as this is
-              already handled by Paparazzi:
-                &lt;physics type=&quot;ode&quot;&gt;
-					&lt;max_step_size&gt;0.001&lt;/max_step_size&gt;
-					&lt;real_time_update_rate&gt;0&lt;/real_time_update_rate&gt;&lt;!-- Handled by Paparazzi! --&gt;
-				&lt;/physics&gt;
-			  Spherical coordinates should be provided for navigation.
-			  At this moment, there is an issue where Gazebo incorrectly
-			  uses a WSU coordinate system instead of ENU. This can be fixed
-			  by setting the heading to 180 degrees as shown below:
-			    &lt;spherical_coordinates&gt;
-					&lt;surface_model&gt;EARTH_WGS84&lt;/surface_model&gt;
-					&lt;latitude_deg&gt;51.9906&lt;/latitude_deg&gt;
-					&lt;longitude_deg&gt;4.37679&lt;/longitude_deg&gt;
-					&lt;elevation&gt;0&lt;/elevation&gt;
-					&lt;heading_deg&gt;180&lt;/heading_deg&gt;&lt;!-- Temporary fix for issue https://bitbucket.org/osrf/gazebo/issues/2022/default-sphericalcoordinates-frame-should --&gt;
-				&lt;/spherical_coordinates&gt;
+        1. Prepare the UAV model (see conf/simulator/gazebo/models/ardrone/):
+          - Place the aircraft model in the conf/simulator/gazebo/models/
+            folder, this folder is added to Gazebo&apos;s search path when NPS is
+            launched.
+          - Gazebo uses a Front, Left, Up coordinate system for aircraft, so
+            make sure the +x axis points forwards.
+          - The model should include a link for each motor with the same names
+            as those listed in NPS_ACTUATOR_NAMES (see below), e.g. &apos;nw_motor&apos;.
+          - Camera links should have the name specified in .dev_name in the
+            corresponding video_config_t struct, see sw/airborne/boards/pc_sim.h
+            and sw/airborne/modules/computer_vision/video_thread_nps.c.
+        2. Prepare the world (see conf/simulator/gazebo/worlds/ardrone.world).
+          Pay attention to the following:
+          - The real-time update rate should be set to zero, as this is
+            already handled by Paparazzi:
+            @code{.xml}
+              &lt;physics type=&quot;ode&quot;&gt;
+                &lt;max_step_size&gt;0.001&lt;/max_step_size&gt;
+                &lt;real_time_update_rate&gt;0&lt;/real_time_update_rate&gt;&lt;!-- Handled by Paparazzi! --&gt;
+              &lt;/physics&gt;
+            @endcode
+          - Spherical coordinates should be provided for navigation.
+            At this moment, there is an issue where Gazebo incorrectly
+            uses a WSU coordinate system instead of ENU. This can be fixed
+            by setting the heading to 180 degrees as shown below:
+            @code{.xml}
+              &lt;spherical_coordinates&gt;
+                &lt;surface_model&gt;EARTH_WGS84&lt;/surface_model&gt;
+                &lt;latitude_deg&gt;51.9906&lt;/latitude_deg&gt;
+                &lt;longitude_deg&gt;4.37679&lt;/longitude_deg&gt;
+                &lt;elevation&gt;0&lt;/elevation&gt;
+                &lt;heading_deg&gt;180&lt;/heading_deg&gt;&lt;!-- Temporary fix for issue https://bitbucket.org/osrf/gazebo/issues/2022/default-sphericalcoordinates-frame-should --&gt;
+              &lt;/spherical_coordinates&gt;
+            @endcode
       3. Prepare the airframe file (see examples/ardrone2_gazebo.xml):
-         a) Select Gazebo as the FDM (Flight Dynamics Model)
-              &lt;target name=&quot;nps&quot; board=&quot;pc&quot;&gt;
-      			&lt;module name=&quot;fdm&quot; type=&quot;gazebo&quot;/&gt;
-    		  &lt;/target&gt;
-		 b) Add actuator thrusts and torques to the SIMULATOR section:
-		      &lt;section name=&quot;SIMULATOR&quot; prefix=&quot;NPS_&quot;&gt;
-		        &lt;define name=&quot;ACTUATOR_NAMES&quot; value=&quot;nw_motor, ne_motor, se_motor, sw_motor&quot; type=&quot;string[]&quot;/&gt;
-		        &lt;define name=&quot;ACTUATOR_THRUSTS&quot; value=&quot;1.55, 1.55, 1.55, 1.55&quot; type=&quot;float[]&quot;/&gt;
-		        &lt;define name=&quot;ACTUATOR_TORQUES&quot; value=&quot;0.155, -0.155, 0.155, -0.155&quot; type=&quot;float[]&quot;/&gt;
-		        ...
-		      &lt;section&gt;
-		    The thrusts and torques are expressed in SI units (N, Nm) and should
-		    be in the same order as the ACTUATOR_NAMES.
-		 c) In the same section, bypass the AHRS and INS as these are not
-		    supported yet:
-		      &lt;section name=&quot;SIMULATOR&quot; prefix=&quot;NPS_&quot;&gt;
-		        ...
-		        &lt;define name=&quot;BYPASS_AHRS&quot; value=&quot;1&quot;/&gt;
-    			&lt;define name=&quot;BYPASS_INS&quot; value=&quot;1&quot;/&gt;
-		        ...
-		      &lt;section&gt;
-		 d) If required, enable video thread simulation:
-		      &lt;section name=&quot;SIMULATOR&quot; prefix=&quot;NPS_&quot;&gt;
-		        ...
-		        &lt;define name=&quot;SIMULATE_VIDEO&quot; value=&quot;1&quot;/&gt;
-		        ...
-		      &lt;section&gt;
-		 e) If required, specify the Gazebo world and aircraft name:
-		      &lt;section name=&quot;SIMULATOR&quot; prefix=&quot;NPS_&quot;&gt;
-		        ...
-		        &lt;define name=&quot;GAZEBO_WORLD&quot; value=&quot;my_world.world&quot;/&gt;
-		        &lt;define name=&quot;GAZEBO_AC_NAME&quot; value=&quot;my_uav&quot;/&gt;
-		      &lt;section&gt;
-	  4. Make sure all included modules work with nps. At the moment, most of
-	     the modules that depend on video_thread are only built when ap is
-	     selected as the target. As a quick fix, try to remove the target
-	     attribute from the makefile element in the module xml, e.g.:
-	       &lt;makefile target=&quot;ap&quot;&gt; ---&gt; &lt;makefile&gt; 
+        1. Select Gazebo as the FDM (Flight Dynamics Model)
+          @code{.xml}
+            &lt;target name=&quot;nps&quot; board=&quot;pc&quot;&gt;
+              &lt;module name=&quot;fdm&quot; type=&quot;gazebo&quot;/&gt;
+            &lt;/target&gt;
+          @endcode
+        2. Include the gazebo defines for the vehicle:
+          @code{.xml}
+            &lt;section name=&quot;SIMULATOR&quot; prefix=&quot;NPS_&quot;&gt;
+              ...
+            &lt;/section&gt;
+            &lt;include href=&quot;conf/simulator/gazebo/airframes/ardrone2.xml&quot;/&gt;
+          @endcode
+          - If conf/simulator/gazebo/airframes does not contain an xml for the
+          vehicle model, it should be created with the following contents:
+            1. Actuator thrusts and torques
+              @code{.xml}
+              &lt;!DOCTYPE airframe SYSTEM &quot;../../../airframes/airframe.dtd&quot;&gt;
+  
+                &lt;airframe&gt;
+                  &lt;section name=&quot;SIMULATOR&quot; prefix=&quot;NPS_&quot;&gt;
+                    &lt;define name=&quot;ACTUATOR_THRUSTS&quot; value=&quot;1.55, 1.55, 1.55, 1.55&quot; type=&quot;float[]&quot;/&gt;
+                    &lt;define name=&quot;ACTUATOR_TORQUES&quot; value=&quot;0.155, 0.155, 0.155, 0.155&quot; type=&quot;float[]&quot;/&gt;
+                    ...
+                  &lt;/section&gt;
+                &lt;/airframe&gt;
+              @endcode
+              The thrusts and torques are expressed in SI units (N, Nm) and should
+              be in the same order as the ACTUATOR_NAMES defined in the airframe file.
+              The torque direction is determined automatically from the motor mixing.
+            2. (Optional) Add actuator dynamics to the SIMULATOR section:
+              @code{.xml}
+                &lt;section name=&quot;SIMULATOR&quot; prefix=&quot;NPS_&quot;&gt;
+                  ...
+                  &lt;define name=&quot;ACTUATOR_TIME_CONSTANTS&quot; value=&quot;0.02, 0.02, 0.02, 0.02&quot; type=&quot;float[]&quot;/&gt;
+                  &lt;define name=&quot;ACTUATOR_MAX_ANGULAR_MOMENTUM&quot; value=&quot;0.19, 0.19, 0.19, 0.19&quot; type=&quot;float[]&quot;/&gt;
+                  ...
+                &lt;/section&gt;
+              @endcode
+              Actuator time constants can be provided without specifying the
+              actuator's maximum angular momentum. If the maximum angular momentum
+              is provided as well, it is used to calculate the rotor spin-up torque.
+            3. In the same section, bypass the AHRS and INS as these are not
+              supported yet:
+              @code{.xml}
+                &lt;section name=&quot;SIMULATOR&quot; prefix=&quot;NPS_&quot;&gt;
+                  ...
+                  &lt;define name=&quot;BYPASS_AHRS&quot; value=&quot;1&quot;/&gt;
+                  &lt;define name=&quot;BYPASS_INS&quot; value=&quot;1&quot;/&gt;
+                  ...
+                &lt;/section&gt;
+              @endcode
+    
+            4. If required, enable video thread simulation:
+              @code{.xml}
+                &lt;section name=&quot;SIMULATOR&quot; prefix=&quot;NPS_&quot;&gt;
+                  ...
+                  &lt;define name=&quot;SIMULATE_VIDEO&quot; value=&quot;1&quot;/&gt;
+                  ...
+                &lt;/section&gt;
+              @endcode
+            5. Set the aircraft model in the xml file:
+              @code{.xml}
+                &lt;section name=&quot;SIMULATOR&quot; prefix=&quot;NPS_&quot;&gt;
+                  ...
+                  &lt;define name=&quot;GAZEBO_AC_NAME&quot; value=&quot;my_uav&quot;/&gt;
+                &lt;/section&gt;
+              @endcode
+        3. Make sure all included modules work with nps. At the moment, most of
+          the modules that depend on video_thread are only built when ap is
+          selected as the target. To fix this, add nps to the target attribute
+          in the module xml, e.g.:
+          @code{.xml}
+            &lt;makefile target=&quot;ap|nps&quot;&gt;
+          @endcode
+      4. The simulation environment is set in the flight plan file:
+        @code{.xml}
+          &lt;flight_plan ...&gt;
+            &lt;header&gt;
+              ...
+              #define NPS_GAZEBO_WORLD &quot;my.world&quot;
+            &lt;/header&gt;
+            ...
+          &lt;/flight_plan&gt;
+        @endcode
     </description>
+    <configure name="NPS_DEBUG_VIDEO" value="0|1" description="show window with video for debugging"/>
   </doc>
   <header/>
   <makefile target="nps">
   	<raw>
-          nps.CXXFLAGS += $(shell pkg-config gazebo --cflags opencv)
-          nps.LDFLAGS  += $(shell pkg-config gazebo --libs)
+      nps.CXXFLAGS += $(shell pkg-config gazebo --cflags)
+      nps.LDFLAGS  += $(shell pkg-config gazebo --libs)
+
+      <!-- OpenCV for video debugging -->
+      NPS_DEBUG_VIDEO ?= 0
+      ifeq (,$(findstring $(NPS_DEBUG_VIDEO),0 FALSE))
+        nps.CXXFLAGS += -DNPS_DEBUG_VIDEO
+        nps.CXXFLAGS += $(shell pkg-config opencv)
+        nps.LDFLAGS  += -lopencv_imgproc -lopencv_highgui -lopencv_core
+      endif
   	</raw>
     <file name="nps_fdm_gazebo.cpp" dir="nps"/>
-
-    <!--OPENCV-->
-    <flag name="LDFLAGS" value="lopencv_imgproc" />
-    <flag name="LDFLAGS" value="lopencv_highgui" />
-    <flag name="LDFLAGS" value="lopencv_core" />
   </makefile>
 </module>
 

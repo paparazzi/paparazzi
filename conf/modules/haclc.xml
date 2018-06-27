@@ -1,24 +1,26 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="haclc" dir="datalink/hacl-c" task="datalink">
+<module name="haclc">
   <doc>
     <description>
       HACL* verified cryptographic library
       see https://github.com/mitls/hacl-star for details
     </description>
   </doc>
-  <makefile target="!fbw|sim|nps|hitl">
-    <file name="Chacha20Poly1305.c"/>
-    <file name="kremlib.c"/>
-    <file name="Hacl_Policies.c"/>
-    <file name="AEAD_Poly1305_64.c"/>
-    <file name="Chacha20.c"/>
-    <file name="Curve25519.c"/>
-    <file name="Ed25519.c"/>
-    <file name="SHA2_512.c"/>
+  <makefile target="!fbw|sim">
+    <file name="Hacl_Chacha20Poly1305.c" dir="../ext/hacl-c"/>
+    <file name="kremlib.c" dir="../ext/hacl-c"/>
+    <file name="FStar.c" dir="../ext/hacl-c"/>
+    <file name="Hacl_Policies.c" dir="../ext/hacl-c"/>
+    <file name="AEAD_Poly1305_64.c" dir="../ext/hacl-c"/>
+    <file name="Hacl_Chacha20.c" dir="../ext/hacl-c"/>
+    <file name="Hacl_Curve25519.c" dir="../ext/hacl-c"/>
+    <file name="Hacl_Ed25519.c" dir="../ext/hacl-c"/>
+    <file name="Hacl_SHA2_512.c" dir="../ext/hacl-c"/>
+    <define name="KRML_NOUINT128"/>
     <raw>
-      # to not use 128 bit arithmetic
-      ap.CFLAGS += -DKRML_NOUINT128
+      # tell Makefile.ac to generate keys
+      GENERATE_KEYS = 1
     </raw>
   </makefile>
 </module>

@@ -451,6 +451,7 @@ extern void float_quat_vmult(struct FloatVect3 *v_out, struct FloatQuat *q, cons
 /// Quaternion from Euler angles.
 extern void float_quat_of_eulers(struct FloatQuat *q, struct FloatEulers *e);
 extern void float_quat_of_eulers_zxy(struct FloatQuat *q, struct FloatEulers *e);
+extern void float_quat_of_eulers_yxz(struct FloatQuat *q, struct FloatEulers *e);
 
 /// Quaternion from unit vector and angle.
 extern void float_quat_of_axis_angle(struct FloatQuat *q, const struct FloatVect3 *uv, float angle);
@@ -504,6 +505,7 @@ static inline float float_eulers_norm(struct FloatEulers *e)
 extern void float_eulers_of_rmat(struct FloatEulers *e, struct FloatRMat *rm);
 extern void float_eulers_of_quat(struct FloatEulers *e, struct FloatQuat *q);
 extern void float_eulers_of_quat_zxy(struct FloatEulers *e, struct FloatQuat *q);
+extern void float_eulers_of_quat_yxz(struct FloatEulers *e, struct FloatQuat *q);
 
 /* defines for backwards compatibility */
 #define FLOAT_EULERS_OF_RMAT(_e, _rm) WARNING("FLOAT_EULERS_OF_RMAT macro is deprecated, use the lower case function instead") float_eulers_of_rmat(&(_e), &(_rm))
@@ -659,7 +661,7 @@ static inline void float_mat_diff(float **o, float **a, float **b, int m, int n)
 }
 
 /** transpose square matrix */
-static inline void float_mat_transpose(float **a, int n)
+static inline void float_mat_transpose_square(float **a, int n)
 {
   int i, j;
   for (i = 0; i < n; i++) {
@@ -667,6 +669,18 @@ static inline void float_mat_transpose(float **a, int n)
       float t = a[i][j];
       a[i][j] = a[j][i];
       a[j][i] = t;
+    }
+  }
+}
+
+
+/** transpose non-square matrix */
+static inline void float_mat_transpose(float **o, float **a, int n, int m)
+{
+  int i, j;
+  for (i = 0; i < n; i++) {
+    for (j = 0; j < m; j++) {
+      o[j][i] = a[i][j];
     }
   }
 }
@@ -689,6 +703,24 @@ static inline void float_mat_mul(float **o, float **a, float **b, int m, int n, 
     }
   }
 }
+
+/** o = a * b
+ *
+ * a: [m x n]
+ * b: [n x 1]
+ * o: [m x 1]
+ */
+static inline void float_mat_vect_mul(float *o, float **a, float *b, int m, int n)
+{
+  int i, j;
+  for (i = 0; i < m; i++) {
+    o[i] = 0;
+    for (j = 0; j < n; j++) {
+      o[i] += a[i][j] * b[j];
+    }
+  }
+}
+
 
 /** matrix minor
  *
@@ -732,15 +764,14 @@ static inline void float_mat_col(float *o, float **a, int m, int c)
 }
 
 /** Make an n x n identity matrix (for matrix passed as array) */
-static inline void float_mat_identity(float **o, int n)
+static inline void float_mat_diagonal_scal(float **o, float v, int n)
 {
   int i, j;
-  for(i = 0 ; i < n; i++) {
-    for(j = 0 ; j < n; j++) {
+  for (i = 0 ; i < n; i++) {
+    for (j = 0 ; j < n; j++) {
       if (i == j) {
-        o[i][j] = 1.0;
-      }
-      else {
+        o[i][j] = v;
+      } else {
         o[i][j] = 0.0;
       }
     }

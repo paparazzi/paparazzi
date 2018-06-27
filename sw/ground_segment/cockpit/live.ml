@@ -99,6 +99,7 @@ type aircraft = {
   pages : GObj.widget;
   notebook_label : GMisc.label;
   strip : Strip.t;
+  rc_max_rate: float;
   mutable first_pos : bool;
   mutable last_block_name : string;
   mutable in_kill_mode : bool;
@@ -347,7 +348,7 @@ let mark = fun (geomap:G.widget) ac_id track plugin_frame ->
 let attributes_pretty_printer = fun attribs ->
   (* Remove the optional attributes *)
   let valid = fun a ->
-    let a = Compat.bytes_lowercase a in
+    let a = Compat.lowercase_ascii a in
     a <> "no" && a <> "strip_icon" && a <> "strip_button" && a <> "pre_call"
     && a <> "post_call" && a <> "key" && a <> "group" in
 
@@ -373,6 +374,15 @@ let attributes_pretty_printer = fun attribs ->
 let load_mission = fun ?editable color geomap xml ->
   Map2d.set_georef_if_none geomap (MapFP.georef_of_xml xml);
   new MapFP.flight_plan ~format_attribs:attributes_pretty_printer ?editable ~show_moved:true geomap color Env.flight_plan_dtd xml
+
+let get_rc_max_rate = fun af_xml ->
+  let default_max_rate = 50. in
+  try
+    let gcs_section = ExtXml.child af_xml ~select:(fun x -> Xml.attrib x "name" = "MISC") "section" in
+    let fvalue = fun name default->
+      try ExtXml.float_attrib (ExtXml.child gcs_section ~select:(fun x -> ExtXml.attrib x "name" = name) "define") "value" with _ -> default in
+    (fvalue "RC_MAX_RATE" 50.)
+  with _ -> default_max_rate
 
 let get_bat_levels = fun af_xml ->
   let default_catastrophic_level = 9.
@@ -464,6 +474,7 @@ let create_ac = fun ?(confirm_kill=true) alert (geomap:G.widget) (acs_notebook:G
 
   (** Get an alternate speech name if available *)
   let speech_name = get_speech_name af_xml name in
+
 
   (* Aicraft menu decorated with a colored box *)
   let image = GBin.event_box ~width:10 ~height:10 () in
@@ -688,6 +699,8 @@ let create_ac = fun ?(confirm_kill=true) alert (geomap:G.widget) (acs_notebook:G
         Some settings_tab
     with _ -> None in
 
+  let rc_max_rate = get_rc_max_rate af_xml in
+
   let wp_HOME =
     let rec loop = function
     [] -> None
@@ -710,6 +723,7 @@ let create_ac = fun ?(confirm_kill=true) alert (geomap:G.widget) (acs_notebook:G
              dl_settings_page = dl_settings_page;
              rc_settings_page = rc_settings_page;
              strip = strip; first_pos = true;
+             rc_max_rate = rc_max_rate;
              last_block_name = ""; alt = 0.; target_alt = 0.;
              in_kill_mode = false; speed = 0.;
              wind_dir = 42.; ground_prox = true;
@@ -882,7 +896,7 @@ let get_wind_msg = fun (geomap:G.widget) _sender vs ->
 let get_fbw_msg = fun alarm _sender vs ->
   let ac = get_ac vs in
   let status = PprzLink.string_assoc "rc_status" vs
-  and rate = (PprzLink.int_assoc "rc_rate" vs) / 5 in
+  and rate = (float_of_int ((PprzLink.int_assoc "rc_rate" vs) * 10) ) /. ac.rc_max_rate in
   (* divide by 5 to have normal values between 0 and 10 *)
   (* RC rate max approx. 50 Hz *)
   ac.strip#set_rc rate status;

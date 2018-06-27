@@ -1,0 +1,17 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="relative_localization_filter" dir="relative_localization_filter">
+  <doc>
+    <description>
+      Relative Localization Filter based on UWB range measurements + Communication between drones.
+    </description>
+  </doc>
+  <header>
+    <file name="relative_localization_filter.h"/>
+  </header>
+  <init fun="relative_localization_filter_init()"/>
+  <makefile>
+    <file name="relative_localization_filter.c"/>
+    <file name="discrete_ekf.c"/>
+  </makefile>
+</module>

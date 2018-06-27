@@ -46,7 +46,7 @@ type t =
   set_climb : float -> unit;
   set_color : string -> string -> unit;
   set_label : string -> string -> unit;
-  set_rc : int -> string -> unit;
+  set_rc : float -> string -> unit;
   connect : (unit -> unit) -> unit;
   hide_buttons : unit -> unit;
   show_buttons : unit -> unit >
@@ -324,7 +324,7 @@ object
   method set_label name value = set_label !strip_labels name value
   method set_color name value = set_color !strip_labels name value
 
-  method set_rc rate status = rc#set (float_of_int rate) status
+  method set_rc rate status = rc#set rate status
 
     (* add a button widget in a vertical box if it belongs to a group (create new group if needed) *)
   method add_widget ?(group="") w =

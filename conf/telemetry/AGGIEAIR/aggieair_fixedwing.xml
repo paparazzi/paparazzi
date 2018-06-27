@@ -3,11 +3,12 @@
 <telemetry>
   <process name="Ap">
     <mode name="default">
+      <message name="ACTUATORS"           period=".5"/> <!-- For trimming -->
       <message name="AUTOPILOT_VERSION"   period="11.1"/>
       <message name="ALIVE"               period="5.1"/>
       <message name="GPS_LLA"             period="0.25"/>
       <message name="NAVIGATION"          period="1."/>
-      <message name="ATTITUDE"            period="0.1"/>
+      <message name="ATTITUDE"            period="0.5"/>
       <message name="ESTIMATOR"           period="0.5"/>
       <message name="WP_MOVED"            period="0.5"/>
       <message name="CIRCLE"              period="1.05"/>
@@ -20,7 +21,7 @@
       <message name="DATALINK_REPORT"     period="5.1"/>
       <message name="DL_VALUE"            period="1.5"/>
       <message name="IR_SENSORS"          period="1.2"/>
-      <message name="SURVEY"              period="2.1"/>
+      <message name="SECURE_LINK_STATUS"  period="2.1"/>
       <message name="COMMANDS"            period="1"/>
       <message name="FBW_STATUS"          period="2"/>
       <message name="VECTORNAV_INFO"      period="1.0"/>

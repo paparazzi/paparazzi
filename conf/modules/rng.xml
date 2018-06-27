@@ -1,0 +1,17 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="rng" dir="mcu_periph" task="mcu">
+  <doc>
+    <description>
+      Random Number Generator
+    </description>
+  </doc>
+  <header>
+    <file name="rng.h" dir="mcu_periph"/>
+  </header>
+  <makefile target="!fbw|sim">
+    <define name="USE_RNG"/>
+    <file_arch name="rng_arch.c" dir="mcu_periph"/>
+  </makefile>
+</module>
+

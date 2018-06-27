@@ -156,7 +156,7 @@ let parse_element = fun prefix s ->
 
 
 let print_reverse_servo_table = fun driver servos ->
-  let d = match driver with "Default" -> "" | _ -> "_"^(String.uppercase driver) in
+  let d = match driver with "Default" -> "" | _ -> "_"^(Compat.uppercase_ascii driver) in
   printf "static inline int get_servo_min%s(int _idx) {\n" d;
   printf "  switch (_idx) {\n";
   List.iter (fun c ->
@@ -289,14 +289,28 @@ let parse_command = fun command no ->
   let failsafe_value = int_of_string (ExtXml.attrib command "failsafe_value") in
   { failsafe_value = failsafe_value; foo = 0}
 
-let parse_heli_curves = fun heli_surves ->
-  let a = fun s -> ExtXml.attrib heli_surves s in
-  match Xml.tag heli_surves with
+let parse_heli_curves = fun heli_curves ->
+  let a = fun s -> ExtXml.attrib heli_curves s in
+  match Xml.tag heli_curves with
       "curve" ->
         let throttle = a "throttle" in
+        let rpm = ExtXml.attrib_or_default heli_curves "rpm" "" in
         let collective = a "collective" in
-        printf "  {.nb_points = %i, \\\n" (List.length (Str.split (Str.regexp ",") throttle));
+        let nb_throttle = List.length (Str.split (Str.regexp ",") throttle) in
+        let nb_rpm = List.length (Str.split (Str.regexp ",") rpm) in
+        let nb_collective = List.length (Str.split (Str.regexp ",") collective) in
+        if nb_throttle < 1 then
+          failwith (Printf.sprintf "Need at least one value in throttle curve for a throttle ('%s', '%s')" throttle collective);
+        if nb_throttle <> nb_collective then
+          failwith (Printf.sprintf "Amount of throttle points not the same as collective in throttle curve ('%s', '%s')" throttle collective);
+        if nb_throttle <> nb_rpm && nb_rpm <> 0 then
+          failwith (Printf.sprintf "Amount of throttle points not the same as rpm in throttle curve ('%s', '%s', '%s')" throttle collective rpm);
+        printf "  {.nb_points = %i, \\\n" nb_throttle;
         printf "   .throttle = {%s}, \\\n" throttle;
+        if nb_rpm <> 0 then
+          printf "   .rpm = {%s}, \\\n" rpm
+        else
+          printf "   .rpm = {0xFFFF}, \\\n";
         printf "   .collective = {%s}}, \\\n" collective
     | _ -> xml_error "mixer"
 
@@ -312,8 +326,8 @@ let rec parse_section = fun ac_id s ->
       let servos = Xml.children s in
       let nb_servos = List.fold_right (fun s m -> Pervasives.max (int_of_string (ExtXml.attrib s "no")) m) servos min_int + 1 in
 
-      define (sprintf "SERVOS_%s_NB" (Compat.bytes_uppercase driver)) (string_of_int nb_servos);
-      printf "#include \"subsystems/actuators/actuators_%s.h\"\n" (Compat.bytes_lowercase driver);
+      define (sprintf "SERVOS_%s_NB" (Compat.uppercase_ascii driver)) (string_of_int nb_servos);
+      printf "#include \"subsystems/actuators/actuators_%s.h\"\n" (Compat.lowercase_ascii driver);
       nl ();
       List.iter (parse_servo driver) servos;
       print_reverse_servo_table driver servos;

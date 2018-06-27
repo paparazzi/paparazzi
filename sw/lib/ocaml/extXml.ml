@@ -44,7 +44,7 @@ let child = fun xml ?select c ->
 
   (* Let's try with a numeric index *)
   try (Array.of_list children).(int_of_string c)
-  with Failure "int_of_string" -> (* Bad luck. Go through the children *)
+  with Failure _ -> (* Bad luck. Go through the children *)
     find children
 
 
@@ -75,7 +75,7 @@ let attrib_option = fun xml attr ->
   try Some (Xml.attrib xml attr)
   with Xml.No_attribute _ -> None
 
-let tag_is = fun x v -> Compat.bytes_lowercase (Xml.tag x) = Compat.bytes_lowercase v
+let tag_is = fun x v -> Compat.lowercase_ascii (Xml.tag x) = Compat.lowercase_ascii v
 
 let attrib_or_default = fun x a default ->
   try Xml.attrib x a
@@ -148,7 +148,7 @@ let my_to_string_fmt = fun tab_attribs x ->
 
 
 let to_string_fmt = fun ?(tab_attribs = false) xml ->
-  let l = Compat.bytes_lowercase in
+  let l = Compat.lowercase_ascii in
   let rec lower = function
     | Xml.PCData _ as x -> x
     | Xml.Element (t, ats, cs) ->
@@ -159,7 +159,7 @@ let to_string_fmt = fun ?(tab_attribs = false) xml ->
 
 
 let subst_attrib = fun attrib value xml ->
-  let u = Compat.bytes_uppercase in
+  let u = Compat.uppercase_ascii in
   let uattrib = u attrib in
   match xml with
   | Xml.Element (tag, attrs, children) ->

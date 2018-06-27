@@ -239,7 +239,7 @@ let calib_mode_of_rc = function
   | "gain_2_down" -> 2, "down"
   | x -> failwith (sprintf "Unknown rc: %s" x)
 
-let param_macro_of_type = fun x -> "ParamVal"^String.capitalize x
+let param_macro_of_type = fun x -> "ParamVal"^Compat.capitalize_ascii x
 
 let parse_rc_setting = fun xml ->
   let cursor, cm = calib_mode_of_rc (ExtXml.attrib xml "rc")
@@ -253,7 +253,7 @@ let parse_rc_setting = fun xml ->
   let var_nostruct = String.sub var dot_pos (String.length var - dot_pos) in
   let var_init = var_nostruct ^ "_init" in
 
-  lprintf "if (rc_settings_mode == RC_SETTINGS_MODE_%s) { \\\n" (String.uppercase cm);
+  lprintf "if (rc_settings_mode == RC_SETTINGS_MODE_%s) { \\\n" (Compat.uppercase_ascii cm);
   right ();
   lprintf "static %s %s; \\\n" (inttype t) var_init;
   lprintf "static int16_t slider%d_init; \\\n" cursor;

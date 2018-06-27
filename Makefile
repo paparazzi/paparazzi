@@ -81,7 +81,7 @@ SUBDIRS = $(PPRZCENTER) $(MISC) $(LOGALIZER) sw/tools
 #
 # Communication protocol version
 #
-PPRZLINK_LIB_VERSION ?= 1.0
+PPRZLINK_LIB_VERSION ?= 2.0
 
 #
 # xml files used as input for header generation
@@ -323,7 +323,7 @@ test_openuas: all
 	
 # test TU Delft conf
 test_tudelft: all
-	CONF_XML=conf/userconf/TUDELFT/tudelft_flyable_conf.xml prove tests/aircrafts/
+	CONF_XML=conf/userconf/tudelft/conf.xml prove tests/aircrafts/
 
 # compiles all aircrafts in conf_tests.xml
 test_examples: all

@@ -117,6 +117,7 @@ void mpu60x0_i2c_event(struct Mpu60x0_I2c *mpu)
     switch (mpu->i2c_trans.status) {
       case I2CTransFailed:
         mpu->config.init_status--; // Retry config (TODO max retry)
+        /* Falls through. */
       case I2CTransSuccess:
       case I2CTransDone:
         mpu60x0_send_config(mpu60x0_i2c_write_to_reg, (void *)mpu, &(mpu->config));

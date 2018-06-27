@@ -1,0 +1,100 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+
+<flight_plan alt="1550" ground_alt="1350" lat0="41.742897" lon0="-111.806986" max_dist_from_home="1600" name="BasicTuning" security_height="25" home_mode_height="200" qfu="90" geofence_sector="FlightArea" geofence_max_alt="2000" geofence_max_height="500">
+  <header>
+#include "subsystems/datalink/datalink.h"
+</header>
+  <waypoints>
+    <waypoint alt="1545.0" name="HOME" x="1006.3" y="-116.4"/>
+    <waypoint alt="1346.0" name="Bungee" x="1010.2" y="-266.0"/>
+    <waypoint alt="1545.0" name="STDBY" x="791.0" y="-215.8"/>
+    <waypoint alt="1547.0" name="1" x="1000.0" y="308.8"/>
+    <waypoint alt="1544.0" name="2" x="996.1" y="-541.7"/>
+    <waypoint alt="1793.0" name="S1" x="877.1" y="1093.2"/>
+    <waypoint alt="1793.0" name="_S2" x="2124.9" y="1115.0"/>
+    <waypoint alt="1793.0" name="_S3" x="2124.9" y="-668.0"/>
+    <waypoint alt="1793.0" name="_S4" x="877.1" y="-660.8"/>
+    <waypoint name="_P1" x="-1013.7" y="-2188.7"/>
+    <waypoint name="_P2" x="-999.8" y="1849.7"/>
+    <waypoint name="_P3" x="3104.1" y="1776.1"/>
+    <waypoint name="_P4" x="2772.9" y="-2236.1"/>
+    <waypoint alt="1404.0" name="AF" x="656.6" y="-321.0"/>
+    <waypoint alt="1347.0" name="TD" x="1155.4" y="-354.1"/>
+    <waypoint name="CLIMB" x="1142.0" y="-97.9"/>
+    <waypoint name="_BASELEG" x="168.8" y="-13.8"/>
+    <waypoint name="PAYLOAD" x="100" y="50"/>
+  </waypoints>
+  <sectors>
+    <sector name="Section1">
+      <corner name="S1"/>
+      <corner name="_S2"/>
+      <corner name="_S3"/>
+      <corner name="_S4"/>
+    </sector>
+    <sector name="FlightArea" color="red">
+      <corner name="_P1"/>
+      <corner name="_P2"/>
+      <corner name="_P3"/>
+      <corner name="_P4"/>
+    </sector>
+  </sectors>
+  <includes>
+    <include name="L" procedure="AGGIEAIR/aggieair_landing.xml"/>
+  </includes>
+  <exceptions>
+    <exception cond="InsideFlightArea(GetPosX(), GetPosY()) == FALSE" deroute="Go Home"/>
+  </exceptions>
+  <blocks>
+    <block name="Wait GPS">
+      <set value="1" var="autopilot.kill_throttle"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <call_once fun="NavSetGroundReferenceHere()"/>
+    </block>
+    <block name="Setup Wait">
+      <set value="1" var="autopilot.kill_throttle"/>
+      <while cond="TRUE"/>
+    </block>
+    <block name="Launch" strip_button="TakeOff (wp CLIMB)" strip_icon="takeoff.png">
+      <set value="0" var="autopilot.kill_throttle"/>
+      <call_once fun="nav_launcher_setup()"/>
+      <call fun="nav_launcher_run()"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="CircleUpTo1000">
+      <circle alt="2350" radius="500" wp="STDBY"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <circle radius="200" wp="STDBY"/>
+    </block>
+    <block name="StandbyLeft">
+      <circle radius="-200" wp="STDBY"/>
+    </block>
+    <block name="Figure 8 around Standby" strip_button="Figure 8 (wp 1-2)" strip_icon="eight.png">
+      <eight center="STDBY" radius="nav_radius" turn_around="1"/>
+    </block>
+    <block name="Small Figure 8 around Standby" strip_button="Figure 8 (wp 1-2)" strip_icon="eight.png">
+      <eight center="STDBY" radius="25" turn_around="1"/>
+    </block>
+    <block name="Oval 1-2" strip_button="Oval (wp 1-2)" strip_icon="oval.png">
+      <oval p1="1" p2="2" radius="nav_radius"/>
+    </block>
+    <block name="Poly Survey">
+      <call_once fun="nav_survey_poly_osam_setup(WP_S1, 4, 200, 90)"/>
+      <exception cond="PolySurveySweepBackNum >=1" deroute="Standby"/>
+      <call fun="nav_survey_poly_osam_run()"/>
+    </block>
+    <block name="Line 1-2" strip_button="Line (wp 1-2)" strip_icon="line.png">
+      <call_once fun="nav_line_setup()"/>
+      <call fun="nav_line_run(WP_1, WP_2, nav_radius)"/>
+    </block>
+    <block name="Flower">
+      <call_once fun="nav_flower_setup(WP_1,WP_2)"/>
+      <call fun="nav_flower_run()"/>
+    </block>
+    <block name="Go Home">
+      <circle radius="nav_radius" wp="HOME"/>
+    </block>
+  </blocks>
+</flight_plan>

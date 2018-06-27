@@ -23,8 +23,6 @@
  * @file firmwares/rotorcraft/guidance/guidance_indi.h
  *
  * A guidance mode based on Incremental Nonlinear Dynamic Inversion
- * Come to ICRA2016 to learn more!
- *
  */
 
 #ifndef GUIDANCE_INDI_H
@@ -35,11 +33,11 @@
 #include "math/pprz_algebra_float.h"
 
 extern void guidance_indi_enter(void);
-extern void guidance_indi_run(bool in_flight, float heading_sp);
+extern void guidance_indi_run(float heading_sp);
 extern void stabilization_attitude_set_setpoint_rp_quat_f(struct FloatEulers* indi_rp_cmd, bool in_flight, float heading);
+extern void guidance_indi_init(void);
 
 extern float guidance_indi_thrust_specific_force_gain;
-extern struct FloatVect3 euler_cmd;
 
 // settings for guidance INDI
 extern float guidance_indi_pos_gain;

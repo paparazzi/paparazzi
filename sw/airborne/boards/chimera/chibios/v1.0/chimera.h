@@ -384,14 +384,37 @@
 
 /**
  * UART3 (XBee slot), UART8 (GPS) and UART1 (Companion)
- * are configured as UART from ChibiOS board file
+ * are configured as UART from ChibiOS board file by default
  */
 
+#define UART1_GPIO_PORT_TX GPIOB
+#define UART1_GPIO_TX GPIO6
+#define UART1_GPIO_PORT_RX GPIOB
+#define UART1_GPIO_RX GPIO7
+#define UART1_GPIO_AF 7
+
+#define UART3_GPIO_PORT_TX GPIOD
+#define UART3_GPIO_TX GPIO8
+#define UART3_GPIO_PORT_RX GPIOD
+#define UART3_GPIO_RX GPIO9
+#define UART3_GPIO_AF 7
+
+#define UART8_GPIO_PORT_TX GPIOE
+#define UART8_GPIO_TX GPIO0
+#define UART8_GPIO_PORT_RX GPIOE
+#define UART8_GPIO_RX GPIO1
+#define UART8_GPIO_AF 8
+
 /**
- * SBUS
+ * SBUS / Spektrum port
+ *
+ * Recommended config:
  *
  * primary SBUS port is UART7, a.k.a. RC2 on Chimera board
  * secondary port (in dual driver) is UART4, a.k.a. RC1 on Chimera board
+ *
+ * primary Spektrum port is UART4, a.k.a. RC1 on Chimera board
+ * secondary port is UART7, a.k.a. RC2 on Chimera board
  */
 
 // In case, do dynamic config of UARTs
@@ -405,31 +428,18 @@
 
 #define USE_UART4_RX TRUE
 #define USE_UART4_TX FALSE
-#define UART4_GPIO_PORT_RX GPIOE
-#define UART4_GPIO_RX GPIO7
+#define UART4_GPIO_PORT_RX GPIOA
+#define UART4_GPIO_RX GPIO1
 #define UART4_GPIO_AF 8
 
-/*
- * Spektrum
- *
- * Not supported yet in chibios arch
- * Only here for future reference
- *
- * primary Spektrum port is UART4, a.k.a. RC1 on Chimera board
- * secondary port is UART7, a.k.a. RC2 on Chimera board
+/* The line that is pulled low at power up to initiate the bind process
+ * PC7: AUX7
  */
-/* The line that is pulled low at power up to initiate the bind process */
-/* These are not common between versions of lisa/mx and thus defined in the
- * version specific header files. */
-#define SPEKTRUM_UART4_BANK UART4_GPIO_PORT_RX
-#define SPEKTRUM_UART4_PIN UART4_GPIO_RX
-#define SPEKTRUM_UART4_AF UART4_GPIO_AF
-#define SPEKTRUM_UART4_DEV SD4
+#define SPEKTRUM_BIND_PIN GPIO7
+#define SPEKTRUM_BIND_PIN_PORT GPIOC
 
-#define SPEKTRUM_UART7_BANK UART7_GPIO_PORT_RX
-#define SPEKTRUM_UART7_PIN UART7_GPIO_RX
-#define SPEKTRUM_UART7_AF UART7_GPIO_AF
-#define SPEKTRUM_UART7_DEV SD7
+// no wait with chibios as the RTC oscillator takes longer to stabilize
+#define SPEKTRUM_BIND_WAIT 30000
 
 /**
  * PPM radio defines

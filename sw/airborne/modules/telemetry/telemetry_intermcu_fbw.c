@@ -48,7 +48,7 @@ struct telemetry_intermcu_t {
 static struct telemetry_intermcu_t telemetry_intermcu;
 
 /* Statically defined functions */
-static void telemetry_intermcu_repack(struct transport_tx *trans, struct link_device *dev, uint8_t ac_id, uint8_t msg_id, uint8_t *msg, uint8_t size);
+static void telemetry_intermcu_repack(struct transport_tx *trans, struct link_device *dev, uint8_t ac_id, uint8_t *msg, uint8_t size);
 
 /* InterMCU initialization */
 void telemetry_intermcu_init(void)
@@ -72,7 +72,7 @@ void telemetry_intermcu_event(void)
   pprz_check_and_parse(&(TELEMETRY_INTERMCU_DEV).device, &telemetry_intermcu.trans, telemetry_intermcu.rx_buffer, &telemetry_intermcu.msg_received);
   if(telemetry_intermcu.msg_received) {
     /* Switch on MSG ID */
-    switch(telemetry_intermcu.rx_buffer[1]) {
+    switch(pprzlink_get_msg_id(telemetry_intermcu.rx_buffer)) {
       case DL_EMERGENCY_CMD:
         if(DL_EMERGENCY_CMD_ac_id(telemetry_intermcu.rx_buffer) == AC_ID
             && DL_EMERGENCY_CMD_cmd(telemetry_intermcu.rx_buffer) == 0) {
@@ -92,17 +92,29 @@ void telemetry_intermcu_event(void)
   }
 }
 
-void telemetry_intermcu_on_msg(uint8_t msg_id, uint8_t* msg, uint8_t size)
+void telemetry_intermcu_on_msg(uint8_t* msg, uint8_t size)
 {
-  telemetry_intermcu_repack(&(telemetry_intermcu.trans.trans_tx), telemetry_intermcu.dev, AC_ID, msg_id, msg, size);
+  telemetry_intermcu_repack(&(telemetry_intermcu.trans.trans_tx), telemetry_intermcu.dev, AC_ID, msg, size);
 }
 
-static void telemetry_intermcu_repack(struct transport_tx *trans, struct link_device *dev, uint8_t ac_id, uint8_t msg_id, uint8_t *msg, uint8_t size)
+static void telemetry_intermcu_repack(struct transport_tx *trans, struct link_device *dev, uint8_t ac_id,uint8_t *msg, uint8_t size)
 {
-  trans->count_bytes(trans->impl, dev, trans->size_of(trans->impl, size + 2 /* msg header overhead */));
-  trans->start_message(trans->impl, dev, 0, size + 2 /* msg header overhead */);
-  trans->put_bytes(trans->impl, dev, 0, DL_TYPE_UINT8, DL_FORMAT_SCALAR, &ac_id, 1);
-  trans->put_bytes(trans->impl, dev, 0, DL_TYPE_UINT8, DL_FORMAT_SCALAR, &msg_id, 1);
+#if PPRZLINK_DEFAULT_VER == 2
+  struct pprzlink_msg pmsg;
+  pmsg.trans = trans;
+  pmsg.dev = dev;
+  pmsg.sender_id = ac_id;
+  pmsg.receiver_id = 0;
+  pmsg.component_id = 0;
+  
+  trans->count_bytes(&pmsg, size);
+  trans->start_message(&pmsg, _FD, size);
+  trans->put_bytes(&pmsg, _FD, DL_TYPE_UINT8, DL_FORMAT_ARRAY, (void *) msg, size);
+  trans->end_message(&pmsg, _FD);
+#else
+  trans->count_bytes(trans->impl, dev, trans->size_of(trans->impl, size));
+  trans->start_message(trans->impl, dev, 0, size);
   trans->put_bytes(trans->impl, dev, 0, DL_TYPE_UINT8, DL_FORMAT_ARRAY, (void *) msg, size);
   trans->end_message(trans->impl, dev, 0);
+#endif
 }

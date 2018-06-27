@@ -14,6 +14,10 @@ Aggie Air ARK
       </module>
       <configure name="HAS_LUFTBOOT" value="1"/>
       <configure name="FLASH_MODE" value="DFU"/>
+      <module name="telemetry"   type="transparent">
+        <configure name="MODEM_PORT"        value="UART3"/>
+        <configure name="MODEM_BAUD"        value="B57600"/>
+      </module>
     </target>
 
     <!-- NOTE: if you want to use extra_dl module for HITL
@@ -24,6 +28,7 @@ Aggie Air ARK
     <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
       <module name="radio_control" type="spektrum"/>
+      <module name="telemetry"   type="transparent"/>
     </target>
 
     <target name="hitl" board="pc">
@@ -34,16 +39,12 @@ Aggie Air ARK
       <configure name="INS_BAUD" value="B921600"/>
       <configure name="AP_DEV" value="/dev/ttyUSB2"/>
       <configure name="AP_BAUD" value="B921600"/>
+      <module name="telemetry"   type="transparent"/>
     </target>
 
     <module name="motor_mixing"/>
     <module name="actuators"     type="pwm">
       <define name="SERVO_HZ" value="160"/>
-    </module>
-
-    <module name="telemetry"     type="transparent">
-      <configure name="MODEM_PORT" value="UART3"/>
-      <configure name="MODEM_BAUD" value="B57600"/>
     </module>
 
     <module name="stabilization" type="float_euler"/>

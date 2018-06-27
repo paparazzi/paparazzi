@@ -67,7 +67,9 @@ struct VectornavData {
 
 struct VectornavData vn_data;
 
+void ins_vectornav_init(void);
 void ins_vectornav_init(void) {}
+void ins_vectornav_event(void);
 void ins_vectornav_event(void) {}
 
 /**
@@ -75,7 +77,7 @@ void ins_vectornav_event(void) {}
  * The CRC is calculated over the packet starting just after the sync byte (not including the sync byte)
  * and ending at the end of payload.
  */
-unsigned short vn_calculate_crc(unsigned char data[], unsigned int length)
+static short vn_calculate_crc(unsigned char data[], unsigned int length)
 {
   unsigned int i;
   unsigned short crc = 0;

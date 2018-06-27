@@ -1,0 +1,40 @@
+<!--
+FrSky Tarranis X9D plus over USB (mode 2)
+http://www.frsky-rc.com/product/pro.php?pro_id=137
+
+Channel 0: throttle
+Channel 1: roll
+Channel 2: pitch
+Channel 3: yaw
+Channel 4: arm 	(any two mode switch e.g. SF)
+Channel 5: mode (any three mode switch for toggling ATT - AUTO1 - AUTO2 e.g. SE)
+
+If you want to fly your UAS via the joystick add this to your session:
+
+ /home/username/paparazzi/sw/ground_segment/joystick/input2ivy  -d 0 -ac yourarfamename frsky_tarranis_X9D_plus.xml
+
+Where -d 0 must be -d 1 if you have a laptop with accelometer installed
+
+The basis of steering is the standard signs of aerospace convention
+-->
+
+<joystick>
+  <input>
+    <axis index="0" name="throttle"/>
+    <axis index="1" name="roll"/>
+    <axis index="2" name="pitch"/>
+    <axis index="3" name="yaw"/>
+    <axis index="4" name="mode"/>
+    <axis index="5" name="flap"/>
+  </input>
+
+  <messages period="0.05">
+    <message class="datalink" name="RC_4CH" send_always="true">
+      <field name="throttle" value="Fit(throttle,-127,127,0,127)" />
+      <field name="roll" value="roll" />
+      <field name="pitch" value="-pitch" />
+      <field name="yaw" value="yaw"/>
+      <field name="mode" value="Fit(mode,-127,126,0,2)"/>
+    </message>
+  </messages>
+</joystick>

@@ -20,7 +20,7 @@
   <event fun="ins_xsens700_event()"/>
   <makefile target="ap">
     <file name="xsens700.c"/>
-    <file name="xsens_common.c"/>
+    <file name="xsens_parser.c"/>
     <file name="ins_xsens700.c"/>
     <file name="ins.c" dir="subsystems"/>
     <configure name="XSENS_PORT" default="uart1" case="upper|lower"/>

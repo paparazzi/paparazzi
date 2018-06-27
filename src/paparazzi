@@ -13,7 +13,7 @@ let com =
   if Array.length (Sys.argv) > 1 then begin
     Printf.printf "%d\n" (Array.length (Sys.argv));
     if Sys.argv.(1) = "-python" then
-      dirname // "paparazzi-python.sh"
+      dirname // "sw/supervision/python/main.py"
     else
       dirname // "sw/supervision/paparazzicenter"
     end

@@ -27,8 +27,6 @@ val bytes_contains : string -> char -> bool
 val bytes_length : string -> int
 val bytes_make : int -> char -> string
 val bytes_copy : string -> string
-val bytes_lowercase : string -> string
-val bytes_uppercase : string -> string
 val bytes_blit : string -> int -> string -> int -> int -> unit
 val bytes_sub : string -> int -> int -> string
 val bytes_index : string -> char -> int
@@ -38,3 +36,7 @@ val bytes_get : string -> int -> char
 val bytes_compare : string -> string -> int
 val bytes_set : string -> int -> char -> unit
 val bytes_iter : (char -> unit) -> string -> unit
+
+val lowercase_ascii : string -> string
+val uppercase_ascii : string -> string
+val capitalize_ascii : string -> string

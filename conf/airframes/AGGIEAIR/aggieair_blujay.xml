@@ -4,14 +4,14 @@
 AggieAir Blujayujay
 -->
 
-<airframe name="Bl">
+<airframe name="Blujay">
 
   <firmware name="fixedwing">
     <target name="ap" board="lisa_mx_2.1">
       <module name="radio_control" type="sbus">
         <configure name="SBUS_PORT" value="UART5"/>
       </module>
-      <configure name="HAS_LUFTBOOT" value="1"/>
+      <configure name="HAS_LUFTBOOT" value="0"/>
       <configure name="FLASH_MODE" value="DFU"/>
     </target>
 
@@ -82,8 +82,8 @@ AggieAir Blujayujay
     <servo name="FLAP" no="0" min="900" neutral="1500" max="2100"/>
     <servo name="AILERON_RIGHT" no="1" min="900" neutral="1500" max="2100"/>
     <servo name="AILERON_LEFT" no="2" min="2100" neutral="1500" max="900"/>
-    <servo name="ELEVATOR" no="3" min="2100" neutral="1500" max="900"/>
-    <servo name="RUDDER" no="4" min="2100" neutral="1500" max="900"/>
+    <servo name="ELEVATOR" no="3" min="900" neutral="1500" max="92100"/>
+    <servo name="RUDDER" no="4" min="900" neutral="1500" max="2100"/>
     <servo name="THROTTLE" no="5" min="1100" neutral="1100" max="1900"/>
   </servos>
 

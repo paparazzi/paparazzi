@@ -7,6 +7,12 @@
 	This example module shows how you can use the camera stream and colorfilter to detect orange objects.
 	By adding this module to your flightplan and flying in the cyberzoo with the flightplan tudelft/course2017_avoid_orange_cyberzoo.xml you will avoid every obstacle that is orange.
     </description>
+    <define name="ORANGE_AVOIDER_LUM_MIN" value="0-255" description="Minimum Luminance To select pixel as object"/>
+    <define name="ORANGE_AVOIDER_LUM_MAX" value="0-255" description="Minimum Luminance To select pixel as object"/>
+    <define name="ORANGE_AVOIDER_CR_MIN" value="0-255" description="Minimum CR To select pixel as object"/>
+    <define name="ORANGE_AVOIDER_CR_MAX" value="0-255" description="Minimum CR To select pixel as object"/>
+    <define name="ORANGE_AVOIDER_CB_MIN" value="0-255" description="Minimum CB To select pixel as object"/>
+    <define name="ORANGE_AVOIDER_CB_MAX" value="0-255" description="Minimum CB To select pixel as object"/>
   </doc>
   <depends>cv_colorfilter.xml</depends>
   <header>
@@ -14,7 +20,7 @@
   </header>
   <init fun="orange_avoider_init()"/>
   <periodic fun="orange_avoider_periodic()" freq="15"/>
-  <makefile target="ap">
+  <makefile target="ap|nps">
     <file name="orange_avoider.c"/>
   </makefile>
 </module>

@@ -28,10 +28,10 @@ import array
 from cStringIO import StringIO
 
 
-PPRZ_SRC = os.getenv("PAPARAZZI_SRC", os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+PPRZ_HOME = os.getenv("PAPARAZZI_HOME", os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                                                       '../../../..')))
 
-sys.path.append(PPRZ_SRC + "/sw/ext/pprzlink/lib/v1.0/python")
+sys.path.append(PPRZ_HOME + "/var/lib/python")
 
 from pprzlink.ivy import IvyMessagesInterface
 

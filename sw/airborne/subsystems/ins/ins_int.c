@@ -146,7 +146,7 @@ static abi_event vel_est_ev;
 static void vel_est_cb(uint8_t sender_id,
                        uint32_t stamp,
                        float x, float y, float z,
-                       float noise);
+                       float noise_x, float noise_y, float noise_z);
 #ifndef INS_INT_POS_ID
 #define INS_INT_POS_ID ABI_BROADCAST
 #endif
@@ -154,7 +154,7 @@ static abi_event pos_est_ev;
 static void pos_est_cb(uint8_t sender_id,
                        uint32_t stamp,
                        float x, float y, float z,
-                       float noise);
+                       float noise_x, float noise_y, float noise_z);
 
 struct InsInt ins_int;
 
@@ -539,7 +539,7 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
 static void vel_est_cb(uint8_t sender_id __attribute__((unused)),
                        uint32_t stamp __attribute__((unused)),
                        float x, float y, float z,
-                       float noise)
+                       float noise_x, float noise_y, float noise_z)
 {
   struct FloatVect3 vel_body = {x, y, z};
 
@@ -549,26 +549,46 @@ static void vel_est_cb(uint8_t sender_id __attribute__((unused)),
   struct FloatVect3 vel_ned;
   float_quat_vmult(&vel_ned, &q_b2n, &vel_body);
 
+  // abi message contains an update to the horizontal velocity estimate
 #if USE_HFF
   struct FloatVect2 vel = {vel_ned.x, vel_ned.y};
-  struct FloatVect2 Rvel = {noise, noise};
+  struct FloatVect2 Rvel = {noise_x, noise_y};
 
   hff_update_vel(vel,  Rvel);
   ins_update_from_hff();
 #else
-  ins_int.ltp_speed.x = SPEED_BFP_OF_REAL(vel_ned.x);
-  ins_int.ltp_speed.y = SPEED_BFP_OF_REAL(vel_ned.y);
-
-  static uint32_t last_stamp = 0;
-  if (last_stamp > 0) {
-    float dt = (float)(stamp - last_stamp) * 1e-6;
-    ins_int.ltp_pos.x = ins_int.ltp_pos.x + POS_BFP_OF_REAL(dt * vel_ned.x);
-    ins_int.ltp_pos.y = ins_int.ltp_pos.y + POS_BFP_OF_REAL(dt * vel_ned.y);
+  if (noise_x >= 0.f)
+  {
+    ins_int.ltp_speed.x = SPEED_BFP_OF_REAL(vel_ned.x);
   }
-  last_stamp = stamp;
+  if (noise_y >= 0.f)
+  {
+    ins_int.ltp_speed.y = SPEED_BFP_OF_REAL(vel_ned.y);
+  }
+
+  static uint32_t last_stamp_x = 0, last_stamp_y = 0;
+  if (noise_x >= 0.f) {
+    if (last_stamp_x > 0)
+    {
+      float dt = (float)(stamp - last_stamp_x) * 1e-6;
+      ins_int.ltp_pos.x += POS_BFP_OF_REAL(dt * vel_ned.x);
+    }
+    last_stamp_x = stamp;
+  }
+
+  if (noise_y >= 0.f)
+  {
+    if (last_stamp_y > 0)
+    {
+      float dt = (float)(stamp - last_stamp_y) * 1e-6;
+      ins_int.ltp_pos.y += POS_BFP_OF_REAL(dt * vel_ned.y);
+    }
+    last_stamp_y = stamp;
+  }
 #endif
 
-  vff_update_vz_conf(vel_ned.z, noise);
+  // abi message contains an update to the vertical velocity estimate
+  vff_update_vz_conf(vel_ned.z, noise_z);
 
   ins_ned_to_state();
 
@@ -581,20 +601,27 @@ static void vel_est_cb(uint8_t sender_id __attribute__((unused)),
 static void pos_est_cb(uint8_t sender_id __attribute__((unused)),
                        uint32_t stamp __attribute__((unused)),
                        float x, float y, float z,
-                       float noise)
+                       float noise_x, float noise_y, float noise_z)
 {
+  
 #if USE_HFF
   struct FloatVect2 pos = {x, y};
-  struct FloatVect2 Rpos = {noise, noise};
+  struct FloatVect2 Rpos = {noise_x, noise_y};
 
   hff_update_pos(pos, Rpos);
   ins_update_from_hff();
 #else
-  ins_int.ltp_pos.x = POS_BFP_OF_REAL(x);
-  ins_int.ltp_pos.y = POS_BFP_OF_REAL(y);
+  if (noise_x >= 0.f)
+  {
+    ins_int.ltp_pos.x = POS_BFP_OF_REAL(x);
+  }
+  if (noise_y >= 0.f)
+  {
+    ins_int.ltp_pos.y = POS_BFP_OF_REAL(y);
+  }
 #endif
 
-  vff_update_z_conf(z, noise);
+  vff_update_z_conf(z, noise_z);
 
   ins_ned_to_state();
 

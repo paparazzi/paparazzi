@@ -138,85 +138,92 @@ void intermcu_send_spektrum_bind(void)
 static inline void intermcu_parse_msg(void (*rc_frame_handler)(void))
 {
   /* Parse the Inter MCU message */
-  uint8_t msg_id = imcu_msg_buf[1];
-  switch (msg_id) {
-    case DL_IMCU_RADIO_COMMANDS: {
-      uint8_t i;
-      uint8_t size = DL_IMCU_RADIO_COMMANDS_values_length(imcu_msg_buf);
-      intermcu.status = DL_IMCU_RADIO_COMMANDS_status(imcu_msg_buf);
-      for (i = 0; i < size; i++) {
-        radio_control.values[i] = DL_IMCU_RADIO_COMMANDS_values(imcu_msg_buf)[i];
+  uint8_t msg_id = pprzlink_get_msg_id(imcu_msg_buf);
+#if PPRZLINK_DEFAULT_VER == 2
+  // Check that the message is really a intermcu message
+  if (pprzlink_get_msg_class_id(imcu_msg_buf) == DL_intermcu_CLASS_ID) {
+#endif
+    switch (msg_id) {
+      case DL_IMCU_RADIO_COMMANDS: {
+        uint8_t i;
+        uint8_t size = DL_IMCU_RADIO_COMMANDS_values_length(imcu_msg_buf);
+        intermcu.status = DL_IMCU_RADIO_COMMANDS_status(imcu_msg_buf);
+        for (i = 0; i < size; i++) {
+          radio_control.values[i] = DL_IMCU_RADIO_COMMANDS_values(imcu_msg_buf)[i];
+        }
+
+        radio_control.frame_cpt++;
+        radio_control.time_since_last_frame = 0;
+        radio_control.status = RC_OK;
+        rc_frame_handler();
+        break;
       }
 
-      radio_control.frame_cpt++;
-      radio_control.time_since_last_frame = 0;
-      radio_control.status = RC_OK;
-      rc_frame_handler();
-      break;
-    }
-
-    case DL_IMCU_FBW_STATUS: {
-      fbw_status.rc_status = DL_IMCU_FBW_STATUS_rc_status(imcu_msg_buf);
-      fbw_status.frame_rate = DL_IMCU_FBW_STATUS_frame_rate(imcu_msg_buf);
-      fbw_status.mode = DL_IMCU_FBW_STATUS_mode(imcu_msg_buf);
-      fbw_status.vsupply = DL_IMCU_FBW_STATUS_vsupply(imcu_msg_buf);
-      fbw_status.current = DL_IMCU_FBW_STATUS_current(imcu_msg_buf);
-      break;
-    }
-
-#if TELEMETRY_INTERMCU
-    case DL_IMCU_DATALINK: {
-      uint8_t size = DL_IMCU_DATALINK_msg_length(imcu_msg_buf);
-      uint8_t *msg = DL_IMCU_DATALINK_msg(imcu_msg_buf);
-      telemetry_intermcu_on_msg(0, msg, size);
-      break;
-    }
-#endif
-
-#if IMCU_GPS
-    case DL_IMCU_REMOTE_GPS: {
-      uint32_t now_ts = get_sys_time_usec();
-      gps_imcu.ecef_pos.x = DL_IMCU_REMOTE_GPS_ecef_x(imcu_msg_buf);
-      gps_imcu.ecef_pos.y = DL_IMCU_REMOTE_GPS_ecef_y(imcu_msg_buf);
-      gps_imcu.ecef_pos.z = DL_IMCU_REMOTE_GPS_ecef_z(imcu_msg_buf);
-      SetBit(gps_imcu.valid_fields, GPS_VALID_POS_ECEF_BIT);
-
-      gps_imcu.lla_pos.alt = DL_IMCU_REMOTE_GPS_alt(imcu_msg_buf);
-      gps_imcu.hmsl = DL_IMCU_REMOTE_GPS_hmsl(imcu_msg_buf);
-      SetBit(gps_imcu.valid_fields, GPS_VALID_HMSL_BIT);
-
-      gps_imcu.ecef_vel.x = DL_IMCU_REMOTE_GPS_ecef_xd(imcu_msg_buf);
-      gps_imcu.ecef_vel.y = DL_IMCU_REMOTE_GPS_ecef_yd(imcu_msg_buf);
-      gps_imcu.ecef_vel.z = DL_IMCU_REMOTE_GPS_ecef_zd(imcu_msg_buf);
-      SetBit(gps_imcu.valid_fields, GPS_VALID_VEL_ECEF_BIT);
-
-      gps_imcu.course = DL_IMCU_REMOTE_GPS_course(imcu_msg_buf);
-      gps_imcu.gspeed = DL_IMCU_REMOTE_GPS_gspeed(imcu_msg_buf);
-      SetBit(gps_imcu.valid_fields, GPS_VALID_COURSE_BIT);
-
-      gps_imcu.pacc = DL_IMCU_REMOTE_GPS_pacc(imcu_msg_buf);
-      gps_imcu.sacc = DL_IMCU_REMOTE_GPS_sacc(imcu_msg_buf);
-      gps_imcu.num_sv = DL_IMCU_REMOTE_GPS_numsv(imcu_msg_buf);
-      gps_imcu.fix = DL_IMCU_REMOTE_GPS_fix(imcu_msg_buf);
-
-      // set gps msg time
-      gps_imcu.last_msg_ticks = sys_time.nb_sec_rem;
-      gps_imcu.last_msg_time = sys_time.nb_sec;
-
-      if (gps_imcu.fix >= GPS_FIX_3D) {
-        gps_imcu.last_3dfix_ticks = sys_time.nb_sec_rem;
-        gps_imcu.last_3dfix_time = sys_time.nb_sec;
+      case DL_IMCU_FBW_STATUS: {
+        fbw_status.rc_status = DL_IMCU_FBW_STATUS_rc_status(imcu_msg_buf);
+        fbw_status.frame_rate = DL_IMCU_FBW_STATUS_frame_rate(imcu_msg_buf);
+        fbw_status.mode = DL_IMCU_FBW_STATUS_mode(imcu_msg_buf);
+        fbw_status.vsupply = DL_IMCU_FBW_STATUS_vsupply(imcu_msg_buf);
+        fbw_status.current = DL_IMCU_FBW_STATUS_current(imcu_msg_buf);
+        break;
       }
 
-      AbiSendMsgGPS(GPS_IMCU_ID, now_ts, &gps_imcu);
-      break;
+  #if TELEMETRY_INTERMCU
+      case DL_IMCU_DATALINK: {
+        uint8_t size = DL_IMCU_DATALINK_msg_length(imcu_msg_buf);
+        uint8_t *msg = DL_IMCU_DATALINK_msg(imcu_msg_buf);
+        telemetry_intermcu_on_msg(msg, size);
+        break;
+      }
+  #endif
+
+  #if IMCU_GPS
+      case DL_IMCU_REMOTE_GPS: {
+        uint32_t now_ts = get_sys_time_usec();
+        gps_imcu.ecef_pos.x = DL_IMCU_REMOTE_GPS_ecef_x(imcu_msg_buf);
+        gps_imcu.ecef_pos.y = DL_IMCU_REMOTE_GPS_ecef_y(imcu_msg_buf);
+        gps_imcu.ecef_pos.z = DL_IMCU_REMOTE_GPS_ecef_z(imcu_msg_buf);
+        SetBit(gps_imcu.valid_fields, GPS_VALID_POS_ECEF_BIT);
+
+        gps_imcu.lla_pos.alt = DL_IMCU_REMOTE_GPS_alt(imcu_msg_buf);
+        gps_imcu.hmsl = DL_IMCU_REMOTE_GPS_hmsl(imcu_msg_buf);
+        SetBit(gps_imcu.valid_fields, GPS_VALID_HMSL_BIT);
+
+        gps_imcu.ecef_vel.x = DL_IMCU_REMOTE_GPS_ecef_xd(imcu_msg_buf);
+        gps_imcu.ecef_vel.y = DL_IMCU_REMOTE_GPS_ecef_yd(imcu_msg_buf);
+        gps_imcu.ecef_vel.z = DL_IMCU_REMOTE_GPS_ecef_zd(imcu_msg_buf);
+        SetBit(gps_imcu.valid_fields, GPS_VALID_VEL_ECEF_BIT);
+
+        gps_imcu.course = DL_IMCU_REMOTE_GPS_course(imcu_msg_buf);
+        gps_imcu.gspeed = DL_IMCU_REMOTE_GPS_gspeed(imcu_msg_buf);
+        SetBit(gps_imcu.valid_fields, GPS_VALID_COURSE_BIT);
+
+        gps_imcu.pacc = DL_IMCU_REMOTE_GPS_pacc(imcu_msg_buf);
+        gps_imcu.sacc = DL_IMCU_REMOTE_GPS_sacc(imcu_msg_buf);
+        gps_imcu.num_sv = DL_IMCU_REMOTE_GPS_numsv(imcu_msg_buf);
+        gps_imcu.fix = DL_IMCU_REMOTE_GPS_fix(imcu_msg_buf);
+
+        // set gps msg time
+        gps_imcu.last_msg_ticks = sys_time.nb_sec_rem;
+        gps_imcu.last_msg_time = sys_time.nb_sec;
+
+        if (gps_imcu.fix >= GPS_FIX_3D) {
+          gps_imcu.last_3dfix_ticks = sys_time.nb_sec_rem;
+          gps_imcu.last_3dfix_time = sys_time.nb_sec;
+        }
+
+        AbiSendMsgGPS(GPS_IMCU_ID, now_ts, &gps_imcu);
+        break;
+      }
+
+  #endif
+
+      default:
+        break;
     }
-
-#endif
-
-    default:
-      break;
+#if PPRZLINK_DEFAULT_VER == 2
   }
+#endif
 }
 #pragma GCC diagnostic pop
 

@@ -9,10 +9,10 @@ import struct
 import cmath
 import numpy as np
 from os import getenv
-# if PAPARAZZI_SRC not set, then assume the tree containing this
+# if PAPARAZZI_HOME not set, then assume the tree containing this
 # file is a reasonable substitute
-PPRZ_SRC = getenv("PAPARAZZI_SRC", os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../../')))
-sys.path.append(PPRZ_SRC + "/sw/ext/pprzlink/lib/v1.0/python")
+PPRZ_HOME = getenv("PAPARAZZI_HOME", os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../../')))
+sys.path.append(PPRZ_HOME + "/var/lib/python")
 
 from pprzlink.ivy import IvyMessagesInterface
 from pprzlink.message import PprzMessage

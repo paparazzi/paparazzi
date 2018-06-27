@@ -49,6 +49,7 @@ type aircraft = private {
     pages : GObj.widget;
     notebook_label : GMisc.label;
     strip : Strip.t;
+    rc_max_rate : float;
     mutable first_pos : bool;
     mutable last_block_name : string;
     mutable in_kill_mode : bool;

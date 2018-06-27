@@ -1,7 +1,9 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <airframe name="Quadplane LisaM_2.0 pwm">
-  <description>Quadplane: modified mini-talon with 6inch quadrotor.
+  <description>Quadplane:
+ - modified mini-talon with cobra 2814/16 Kv1050 running a 10x8 prop
+ - quad with KISS esc + cobra 2207/2450kv running 6x3 props
   </description>
 <!--   FIRMWARE    -->
 
@@ -16,8 +18,9 @@
 
     <module name="radio_control" type="spektrum">
       <define name="RADIO_MODE" value="RADIO_GEAR"/>
-      <define name="RADIO_FORWARD_ON" value="RADIO_AUX1"/>
-      <define name="RADIO_KILL_SWITCH" value="RADIO_AUX2"/>
+      <define name="RADIO_FORWARD_MODE" value="RADIO_AUX2"/>
+      <define name="RADIO_KILL_SWITCH" value="RADIO_AUX1"/>
+      <define name="USE_KILL_SWITCH_FOR_MOTOR_ARMING" value="1" />
     </module>
 
     <module name="motor_mixing"/>
@@ -26,7 +29,7 @@
       <define name="USE_SERVOS_7AND8"/>
     </module>
 
-    <module name="telemetry"     type="transparent"/>
+    <module name="telemetry"     type="xbee_api"/>
     <module name="imu"           type="aspirin_v2.2"/>
     <module name="gps"           type="ublox"/>
     <module name="stabilization" type="int_quat"/>
@@ -36,6 +39,11 @@
     <module name="ins"/>
 
     <!--define name="KILL_ON_GROUND_DETECT" value="TRUE"/-->
+
+    <module name="gps" type="ubx_ucenter"/>
+    <module name="geo_mag"/>
+    <module name="air_data"/>
+
   </firmware>
 
 <!--   COMMANDS    -->
@@ -45,13 +53,11 @@
     <axis name="PITCH"  failsafe_value="0"/>
     <axis name="YAW"    failsafe_value="0"/>
     <axis name="THRUST" failsafe_value="0"/>
-    <axis name="FLYMOTOR" failsafe_value="0"/>
-    <axis name="DOAMOTOR" failsafe_value="0"/>
+    <axis name="FORWARD_MODE" failsafe_value="0"/>
   </commands>
 
   <rc_commands>
-    <set command="DOAMOTOR" value="@AUX1"/>
-    <set command="FLYMOTOR" value="@THROTTLE"/>
+    <set command="FORWARD_MODE" value="@FORWARD_MODE"/>
   </rc_commands>
 
 <!--   SERVOS    -->
@@ -71,19 +77,21 @@
 
   <command_laws>
     <!-- Switch to command transition to forward flight -->
-    <let var="forward_on"     value="@DOAMOTOR > 1500? 1 : 0"/>
+    <let var="forward_on"     value="@FORWARD_MODE > -4800? 1 : 0"/>
+    <let var="forward_only"     value="@FORWARD_MODE > 4800? 1 : 0"/>
     <!-- Hover motors -->
     <call fun="motor_mixing_run(autopilot_get_motors_on(),FALSE,values)"/>
-    <set servo="FRONT_LEFT"  value="$forward_on > 0? 0 : motor_mixing.commands[0]"/>
-    <set servo="FRONT_RIGHT" value="$forward_on > 0? 0 : motor_mixing.commands[1]"/>
-    <set servo="BACK_RIGHT"  value="$forward_on > 0? 0 : motor_mixing.commands[2]"/>
-    <set servo="BACK_LEFT"   value="$forward_on > 0? 0 : motor_mixing.commands[3]"/>
-    <set servo="FLYMOTOR"             value="@FLYMOTOR * $forward_on"/>
+    <set servo="FRONT_LEFT"  value="$forward_only > 0? -9600 : motor_mixing.commands[0]"/>
+    <set servo="FRONT_RIGHT" value="$forward_only > 0? -9600 : motor_mixing.commands[1]"/>
+    <set servo="BACK_RIGHT"  value="$forward_only > 0? -9600 : motor_mixing.commands[2]"/>
+    <set servo="BACK_LEFT"   value="$forward_only > 0? -9600 : motor_mixing.commands[3]"/>
+
+    <set servo="FLYMOTOR"             value="@THRUST * $forward_on"/>
     <!-- Inverted V-tail command law -->
     <let var="rudder"                 value="@YAW * 0.8"/>
     <let var="elevator"               value="@PITCH * 1"/>
     <set servo="RUDDERVATOR_RIGHT"    value="- $elevator - $rudder"/>
-    <set servo="RUDDERVATOR_LEFT"     value="$elevator + $rudder"/>
+    <set servo="RUDDERVATOR_LEFT"     value="$elevator - $rudder"/>
     <!-- Ailerons command law -->
     <set servo="AILERONS"             value="@ROLL * 0.9" />
   </command_laws>
@@ -91,19 +99,13 @@
 <!--   Battery   -->
 
   <section name="BAT">
-    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
-    <define name="CRITIC_BAT_LEVEL" value="9.6" unit="V"/>
-    <define name="LOW_BAT_LEVEL" value="10.1" unit="V"/>
-    <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="12.4" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="14.0" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="14.8" unit="V"/>
+    <define name="MAX_BAT_LEVEL" value="16.8" unit="V"/>
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="30000"/>
   </section>
 
-
-  <modules>
-    <module name="gps" type="ubx_ucenter"/>
-    <module name="geo_mag"/>
-    <module name="air_data"/>
-  </modules>
 
   <section name="MIXING" prefix="MOTOR_MIXING_">
     <define name="NB_MOTOR" value="4"/>

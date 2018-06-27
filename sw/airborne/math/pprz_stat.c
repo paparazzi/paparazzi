@@ -38,13 +38,17 @@
  */
 int32_t mean_i(int32_t *array, uint32_t n_elements)
 {
+
+  if (n_elements == 0) {
+    // Note that something else is wrong if you want the mean of 0 samples.
+    return 0;
+  }
   // determine the mean for the vector:
   float sum = 0.f;
   uint32_t i;
   for (i = 0; i < n_elements; i++) {
     sum += (float)array[i];
   }
-
   return (int32_t)(sum / n_elements);
 }
 
@@ -73,6 +77,10 @@ int32_t variance_i(int32_t *array, uint32_t n_elements)
  */
 int32_t covariance_i(int32_t *array1, int32_t *array2, uint32_t n_elements)
 {
+  if (n_elements == 0) {
+    // Note that something else is wrong if you want the covariance of 0 samples.
+    return 0;
+  }
   // Determine means for each vector:
   float sumX = 0.f, sumY = 0.f, sumXY = 0.f;
 
@@ -83,7 +91,6 @@ int32_t covariance_i(int32_t *array1, int32_t *array2, uint32_t n_elements)
     sumY += (float)array2[i];
     sumXY += (float)(array1[i]) * (float)(array2[i]);
   }
-
   return (int32_t)(sumXY / n_elements - sumX * sumY / (n_elements * n_elements));
 }
 
@@ -114,6 +121,10 @@ float sum_f(float *array, uint32_t n_elements)
  */
 float mean_f(float *array, uint32_t n_elements)
 {
+  if (n_elements == 0) {
+    // Note that something else is wrong if you want the mean of 0 samples.
+    return 0.f;
+  }
   return (sum_f(array, n_elements) / n_elements);
 }
 
@@ -140,6 +151,10 @@ float variance_f(float *array, uint32_t n_elements)
  */
 float covariance_f(float *arr1, float *arr2, uint32_t n_elements)
 {
+  if (n_elements == 0) {
+    // Note that something else is wrong if you want the covariance of 0 samples.
+    return 0.f;
+  }
   // Determine means for each vector:
   float sumX = 0.f, sumY = 0.f, sumXY = 0.f;
 
@@ -150,6 +165,5 @@ float covariance_f(float *arr1, float *arr2, uint32_t n_elements)
     sumY += arr2[i];
     sumXY += arr1[i] * arr2[i];
   }
-
   return (sumXY / n_elements - sumX * sumY / (n_elements * n_elements));
 }

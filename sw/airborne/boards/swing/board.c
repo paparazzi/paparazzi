@@ -48,11 +48,10 @@ static void *bat_read(void *data __attribute__((unused)))
     /* Open the command for reading. */
     fp = popen("cat /sys/devices/platform/p6-spi.2/spi2.0/vbat", "r");
     if (fp == NULL) {
-      printf("Failed to read battery\n" );
-    }
-    else {
+      printf("Failed to read battery\n");
+    } else {
       /* Read the output a line at a time - output it. */
-      while (fgets(path, sizeof(path)-1, fp) != NULL) {
+      while (fgets(path, sizeof(path) - 1, fp) != NULL) {
         int raw_bat = atoi(path);
         // convert to decivolt
         // from /bin/mcu_vbat.sh: MILLIVOLTS_VALUE=$(( ($RAW_VALUE * 4250) / 1023 ))
@@ -116,12 +115,14 @@ void board_init(void)
   if (pthread_create(&bat_thread, NULL, bat_read, NULL) != 0) {
     printf("[swing_board] Could not create battery reading thread!\n");
   }
+  pthread_setname_np(bat_thread, "pprz_bat_thread");
 
   /* Start button reading thread */
   pthread_t button_thread;
   if (pthread_create(&button_thread, NULL, button_read, NULL) != 0) {
     printf("[swing_board] Could not create button reading thread!\n");
   }
+  pthread_setname_np(button_thread, "pprz_button_thread");
 
 }
 
