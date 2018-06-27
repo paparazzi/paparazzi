@@ -57,7 +57,9 @@ static void i2c_arch_init(struct i2c_periph *p)
     fprintf(stderr, "i2c_arch_init: Could not create I2C thread.\n");
     return;
   }
-  pthread_setname_np(tid, "pprz_i2c_thread");
+#ifndef __APPLE__
+  pthread_setname_np(tid, "i2c");
+#endif
 }
 
 void i2c_event(void)
