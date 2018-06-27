@@ -10,10 +10,10 @@
   </doc>
   <settings>
     <dl_settings>
-      <dl_settings NAME="CtrlModCourse">
+      <dl_settings name="CtrlModCourse">
         <dl_setting var="rc_yaw_gain" min="0" step="0.01" max="10" module="ctrl/ctrl_module_course2017" shortname="rc yaw gain"/>
-        <dl_setting var="rc_pitch_gain" min="0" step="0.01" max="10" module="ctrl/ctrl_module_course2017" shortname="rc yaw gain"/>
-        <dl_setting var="rc_roll_gain" min="0" step="0.01" max="10" module="ctrl/ctrl_module_course2017" shortname="rc yaw gain"/>
+        <dl_setting var="rc_pitch_gain" min="0" step="0.01" max="10" module="ctrl/ctrl_module_course2017" shortname="rc pitch gain"/>
+        <dl_setting var="rc_roll_gain" min="0" step="0.01" max="10" module="ctrl/ctrl_module_course2017" shortname="rc roll gain"/>
         <dl_setting var="position_gain" min="0" step="0.01" max="10" module="ctrl/ctrl_module_course2017" shortname="pos gain"/>
         <dl_setting var="settings_grass_gain" min="0" step="0.5" max="200" module="ctrl/ctrl_module_course2017" shortname="grass gain"/>
       </dl_settings>

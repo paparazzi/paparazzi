@@ -19,8 +19,8 @@
  */
 
 /**
- * @file modules/ctrl/ctrl_module_demo.c
- * @brief example empty controller
+ * @file modules/ctrl/ctrl_module_course2017.h
+ * @brief example controller for use with grass_detector
  *
  * Implements an example simple rate controller in a module.
  */

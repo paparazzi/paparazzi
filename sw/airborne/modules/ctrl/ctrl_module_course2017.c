@@ -19,8 +19,8 @@
  */
 
 /**
- * @file modules/ctrl/ctrl_module_course.h
- * @brief example empty controller
+ * @file modules/ctrl/ctrl_module_course2017.c
+ * @brief example controller for use with grass_detector
  *
  */
 
@@ -80,16 +80,28 @@ void ctrl_module_run(bool in_flight)
   guidance_v_zd_sp = SPEED_BFP_OF_REAL( 0.0 );
   setpoint.psi     = orientation->psi;
   switch (cv_grass_detector.inside){
-  case GRASS_UNSURE :
-        // Keep same setpoints but rotate over change in yaw
-        //cv_grass_detector.range *= 1.1;
+    case GRASS_UNSURE:
+      // Keep same setpoints but rotate over change in yaw
+      //cv_grass_detector.range *= 1.1;
       break;
-  case GRASS_OUTSIDE :
-      setpoint.theta    = ANGLE_BFP_OF_REAL( angleBound(-grass_gain * pow( cv_grass_detector.range, 2.0 ) * cos(cv_grass_detector.angle), RAD_OF_DEG(-BOUND_ANGLE), RAD_OF_DEG(BOUND_ANGLE) ) );
-      setpoint.phi      = ANGLE_BFP_OF_REAL( angleBound(grass_gain * pow( cv_grass_detector.range, 2.0 ) * sin(cv_grass_detector.angle) , RAD_OF_DEG(-BOUND_ANGLE), RAD_OF_DEG(BOUND_ANGLE) ) );
+    case GRASS_OUTSIDE:
+      setpoint.theta = ANGLE_BFP_OF_REAL(
+          angleBound(
+              -grass_gain * pow( cv_grass_detector.range, 2.0 ) * cos(cv_grass_detector.angle),
+              RAD_OF_DEG(-BOUND_ANGLE),
+              RAD_OF_DEG(BOUND_ANGLE)
+          )
+      );
+      setpoint.phi = ANGLE_BFP_OF_REAL(
+          angleBound(
+              grass_gain * pow( cv_grass_detector.range, 2.0 ) * sin(cv_grass_detector.angle),
+              RAD_OF_DEG(-BOUND_ANGLE),
+              RAD_OF_DEG(BOUND_ANGLE)
+          )
+      );
       printf("theta: %4.2f phi: %4.2f\n", ANGLE_FLOAT_OF_BFP( setpoint.theta ) / M_PI * 180, ANGLE_FLOAT_OF_BFP( setpoint.phi ) / M_PI * 180);
       break;
-  case GRASS_INSIDE :
+    case GRASS_INSIDE:
       setpoint.phi      = 0; //ANGLE_BFP_OF_REAL( RAD_OF_DEG( 0.0 ) );
       setpoint.theta    = 0; //ANGLE_BFP_OF_REAL( RAD_OF_DEG( 0.0 ) );
       setpoint.phi     += rc_roll_gain * ctrl_module_course.rc_x;
