@@ -88,7 +88,7 @@
 
     <set servo="FLYMOTOR"             value="@THRUST * $forward_on"/>
     <!-- Inverted V-tail command law -->
-    <let var="rudder"                 value="@YAW * 1.2"/>
+    <let var="rudder"                 value="$forward_only > 0? @YAW * 1.2 : 0"/>
     <let var="elevator"               value="@PITCH * 1.5"/>
     <set servo="RUDDERVATOR_RIGHT"    value="- $elevator - $rudder"/>
     <set servo="RUDDERVATOR_LEFT"     value="$elevator - $rudder"/>
@@ -217,7 +217,7 @@
   <section name="AUTOPILOT">
     <define name="MODE_MANUAL" value="AP_MODE_RC_DIRECT"/>
     <define name="MODE_AUTO1"  value="AP_MODE_ATTITUDE_DIRECT"/>
-    <define name="MODE_AUTO2"  value="AP_MODE_FORWARD_DIRECT"/>
+    <define name="MODE_AUTO2"  value="AP_MODE_ATTITUDE_DIRECT"/>
 
     <!--<define name="ROTORCRAFT_IS_QUADPLANE"  value="TRUE"/>-->
 

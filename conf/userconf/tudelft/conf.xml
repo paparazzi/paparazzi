@@ -175,7 +175,7 @@
    settings="settings/rotorcraft_basic.xml"
    settings_modules="modules/heli_throttle_curve.xml modules/gps_ubx_ucenter.xml modules/logger_sd_spi_direct.xml modules/temp_adc.xml modules/air_data.xml modules/geo_mag.xml modules/opa_controller.xml modules/guidance_indi.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_rate.xml modules/stabilization_int_quat.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
    gui_color="#ffffdffac31f"
-   release="dc8a90d35290784bcc817edff08d8da2df64bcef"
+   release="b7bee4ad31a8848592ae7962068ff57dd75659de"
   />
   <aircraft
    name="Disco"
@@ -302,7 +302,7 @@
    settings="settings/rotorcraft_basic.xml settings/modules/config_asctec_v2.xml"
    settings_modules="modules/geo_mag.xml modules/nav_survey_poly_rotorcraft.xml modules/nav_survey_rectangle_rotorcraft.xml modules/gps_ubx_ucenter.xml modules/switch_servo.xml modules/ahrs_float_mlkf.xml modules/stabilization_int_quat.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
    gui_color="blue"
-   release="d603018c47baf05f7ed54d140b8fc40b272bdf9c"
+   release="3fec04cfe8d018dc33fcfe8d9093c161e03c4c16"
   />
   <aircraft
    name="MAVTec4_Bart"
@@ -359,7 +359,7 @@
    settings="settings/control/stabilization_att_int.xml settings/nps.xml settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml"
    settings_modules="modules/air_data.xml modules/geo_mag.xml modules/gps_ubx_ucenter.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_int_quat.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
    gui_color="blue"
-   release="2eb8ac43a4ed229b8bb97ee3743157ce61f7c1a7"
+   release="f739a81cfa2c633e33f31ab5f095d8f617276974"
   />
   <aircraft
    name="Quadrotor_LisaS"
