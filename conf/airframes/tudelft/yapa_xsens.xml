@@ -18,7 +18,7 @@ YAPA + XSens + XBee
     <define name="AGR_CLIMB"/>
     <module name="radio_control" type="ppm"/>
     <!-- Communication -->
-    <module name="telemetry" type="transparent">
+    <module name="telemetry" type="xbee_api">
       <configure name="MODEM_BAUD" value="B57600"/>
     </module>
     <!-- Actuators -->
