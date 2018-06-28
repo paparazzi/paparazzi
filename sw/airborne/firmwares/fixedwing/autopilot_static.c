@@ -114,16 +114,20 @@ void autopilot_static_on_rc_frame(void)
   uint8_t mode_changed = false;
   copy_from_to_fbw();
 
-  /* really_lost is true if we lost RC in MANUAL or AUTO1 */
-  uint8_t really_lost = bit_is_set(imcu_get_status(), STATUS_RADIO_REALLY_LOST) &&
+  /* rc_lost_while_in_use is true if we lost RC in MANUAL or AUTO1 */
+  uint8_t rc_lost_while_in_use = bit_is_set(imcu_get_status(), STATUS_RADIO_REALLY_LOST) &&
                         (autopilot_get_mode() == AP_MODE_AUTO1 || autopilot_get_mode() == AP_MODE_MANUAL);
 
+  /* RC_LOST_MODE defaults to AP_MODE_HOME, but it can also be set to NAV_MODE_NAV or MANUAL when the RC receiver is well configured to send failsafe commands */
+  if (rc_lost_while_in_use) { // Always: no exceptions!
+    mode_changed = autopilot_set_mode(RC_LOST_MODE);
+  }
+
+  /* If in-flight, with good GPS but too far, then activate HOME mode
+   * In MANUAL with good RC, FBW will allow to override. */
   if (autopilot_get_mode() != AP_MODE_HOME && autopilot_get_mode() != AP_MODE_GPS_OUT_OF_ORDER && autopilot.launch) {
     if (too_far_from_home || datalink_lost() || higher_than_max_altitude()) {
       mode_changed = autopilot_set_mode(AP_MODE_HOME);
-    }
-    if (really_lost) {
-      mode_changed = autopilot_set_mode(RC_LOST_MODE);
     }
   }
   if (bit_is_set(imcu_get_status(), AVERAGED_CHANNELS_SENT)) {
