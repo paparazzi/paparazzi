@@ -1,0 +1,118 @@
+<!DOCTYPE airframe SYSTEM "../airframe.dtd">
+
+<airframe name="Rover Demo">
+
+  <firmware name="rover">
+    <autopilot name="rover.xml"/>
+
+    <configure name="AHRS_ALIGNER_LED" value="2"/>
+    <define name="IMU_MPU9250_READ_MAG" value="0"/>
+    <define name="LOW_NOISE_THRESHOLD" value="3500"/>
+    <define name="LOW_NOISE_TIME" value="10"/>
+
+    <target name="ap" board="chimera_1.0">
+    </target>
+
+    <module name="radio_control" type="datalink">
+      <!--define name="RADIO_KILL_SWITCH" value="RADIO_GAIN1"/-->
+    </module>
+
+    <module name="actuators"     type="md25"/>
+
+    <module name="telemetry"     type="xbee_api"/>
+    <module name="imu"           type="chimera"/>
+    <configure name="USE_MAGNETOMETER" value="FALSE"/>
+    <module name="gps" type="datalink"/>
+
+    <!--module name="stabilization" type="int_quat"/-->
+
+    <!-- Option 1) Ins(Accel + Gyro + Mag + Baro) + no GPS --> 
+    <module name="ins"  type="gps_passthrough"/>
+    <define name="INS_GP_USE_GPS_ACCEL" value="TRUE"/>
+    <module name="ahrs" type="int_cmpl_quat"/>
+
+    <module name="nav" type="rover_base"/>
+    <module name="guidance" type="rover"/>
+  </firmware>
+
+  <servos driver="MD25">
+    <servo name="MOTOR_RIGHT" no="0" min="0" neutral="128" max="255"/>
+    <servo name="MOTOR_LEFT" no="1" min="0" neutral="128" max="255"/>
+  </servos>
+
+  <commands>
+    <axis name="SPEED" failsafe_value="0"/>
+    <axis name="TURN"  failsafe_value="0"/>
+  </commands>
+
+  <rc_commands>
+    <set command="SPEED" value="@PITCH"/>
+    <set command="TURN"  value="@ROLL"/>
+  </rc_commands>
+
+  <section name="MIXER">
+    <define name="TURN_RATIO" value="0.5"/>
+  </section>
+
+  <command_laws>
+    <set servo="MOTOR_RIGHT" value="@SPEED - TURN_RATIO * @TURN"/>
+    <set servo="MOTOR_LEFT"  value="@SPEED + TURN_RATIO * @TURN"/>
+  </command_laws>
+
+  <section name="IMU" prefix="IMU_">
+    <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
+  </section>
+
+  <section name="AHRS" prefix="AHRS_">
+    <!-- values used if no GPS fix, on 3D fix is update by geo_mag module if loaded -->
+    <!-- Toulouse -->
+    <define name="H_X" value="0.513081"/>
+    <define name="H_Y" value="-0.00242783"/>
+    <define name="H_Z" value="0.858336"/>
+    <define name="USE_GPS_HEADING" value="TRUE"/>
+    <define name="HEADING_UPDATE_GPS_MIN_SPEED" value="0"/>
+  </section>
+
+  <section name="ROVER_GUIDANCE" prefix="ROVER_GUIDANCE_">
+    <define name="SPEED_PGAIN" value="0.1"/>
+    <define name="SPEED_DGAIN" value="0.1"/>
+    <define name="SPEED_IGAIN" value="0."/>
+    <define name="TURN_PGAIN" value="0.1"/>
+    <define name="TURN_DGAIN" value="0.1"/>
+    <define name="TURN_IGAIN" value="0."/>
+  </section>
+
+  <section name="SIMULATOR" prefix="NPS_">
+    <define name="ACTUATOR_NAMES"  value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
+    <define name="JSBSIM_MODEL"    value="HOOPERFLY/hooperfly_teensyfly_quad" type="string"/>
+    <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
+    <!-- mode switch on joystick channel 5 (axis numbering starting at zero) -->
+    <define name="JS_AXIS_MODE" value="4"/>
+  </section>
+
+  <section name="AUTOPILOT">
+    <define name="MODE_MANUAL" value="AP_MODE_DIRECT"/> <!-- for compilation -->
+    <define name="MODE_AUTO1"  value="AP_MODE_DIRECT"/> <!-- for compilation -->
+    <define name="MODE_AUTO2"  value="AP_MODE_NAV"/>
+  </section>
+
+  <section name="BAT">
+    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="9.8" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="10.5" unit="V"/>
+    <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
+    <define name="MILLIAMP_AT_FULL_THROTTLE" value="20000" unit="mA"/>
+    <define name="MILLIAMP_AT_IDLE_THROTTLE" value="1000" value="mA"/>
+    <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.0"/>
+  </section>
+
+  <section name="GCS">
+    <define name="ALT_SHIFT_PLUS_PLUS" value="5"/>
+    <define name="ALT_SHIFT_PLUS"      value="1"/>
+    <define name="ALT_SHIFT_MINUS"     value="-1"/>
+    <define name="AC_ICON"             value="quadrotor_x"/>
+  </section>
+
+</airframe>

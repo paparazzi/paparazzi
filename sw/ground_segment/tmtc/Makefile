@@ -34,7 +34,7 @@ LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz,pprzlink
 XPKG = -package pprz.xlib
 XLINKPKG = $(XPKG) -linkpkg -dllpath-pkg pprz.xlib,pprzlink
 
-SERVERCMO = server_globals.cmo aircraft.cmo wind.cmo airprox.cmo kml.cmo fw_server.ml rotorcraft_server.ml intruder.cmo server.cmo
+SERVERCMO = server_globals.cmo aircraft.cmo wind.cmo airprox.cmo kml.cmo parse_messages_v1.ml intruder.cmo server.cmo
 SERVERCMX = $(SERVERCMO:.cmo=.cmx)
 
 

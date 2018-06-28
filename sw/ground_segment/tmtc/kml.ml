@@ -260,7 +260,7 @@ let update_ac = fun ac ->
     let ap_mode = match ac.vehicle_type with
         Rotorcraft -> rotorcraft_ap_modes.(ac.ap_mode)
       | FixedWing -> fixedwing_ap_modes.(ac.ap_mode)
-      | UnknownVehicleType -> "UNK"
+      | Rover (* generated modes not handled *) | UnknownVehicleType -> "UNK"
     in
     let blocks = ExtXml.child ac.flight_plan "blocks" in
     let block = ExtXml.child blocks (string_of_int ac.cur_block) in

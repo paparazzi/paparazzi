@@ -1,7 +1,5 @@
-(*
- * Server part specific to rotorcraft vehicles
- *
- * Copyright (C) ENAC
+/*
+ * Copyright (C) 2018 Gautier Hattenberger, Alexandre Bustico
  *
  * This file is part of paparazzi.
  *
@@ -16,13 +14,22 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
- *
- *)
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
 
-val log_and_parse :
-  string -> Aircraft.aircraft -> PprzLink.message -> PprzLink.values -> unit
-(** [log_and_parse ac_id ac msg vs] *)
+/**
+ * @file firmwares/rover/main_chibios.h
+ */
 
+#ifndef MAIN_CHIBIOS_H
+#define MAIN_CHIBIOS_H
+
+#include <ch.h>
+
+/** Terminate all autopilot threads
+ *  Wait until proper stop
+ */
+extern void pprz_terminate_autopilot_threads(void);
+
+#endif /* MAIN_CHIBIOS_H */

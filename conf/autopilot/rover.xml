@@ -1,0 +1,105 @@
+<!DOCTYPE autopilot SYSTEM "autopilot.dtd">
+
+<autopilot name="Quadrotor Autopilot (Basic version)">
+
+  <state_machine name="ap" freq="PERIODIC_FREQUENCY" gcs_mode="true" settings_mode="true" settings_handler="autopilot_generated|SetModeHandler">
+
+    <includes>
+      <include name="generated/airframe.h"/>
+      <include name="autopilot.h"/>
+      <include name="autopilot_rc_helpers.h"/>
+      <include name="subsystems/gps.h"/>
+      <include name="subsystems/actuators.h"/>
+      <include name="navigation.h"/>
+      <include name="guidance/rover_guidance.h"/>
+      <include name="subsystems/radio_control.h"/>
+      <define name="RCLost()" value="(radio_control.status == RC_REALLY_LOST)"/>
+    </includes>
+
+    <settings>
+      <dl_setting var="autopilot.kill_throttle" min="0" step="1" max="1" module="autopilot" values="Resurrect|Kill" handler="KillThrottle"/>
+    </settings>
+
+    <exceptions>
+      <exception cond="nav.too_far_from_home" deroute="HOME"/>
+      <exception cond="kill_switch_is_on()" deroute="KILL"/>
+    </exceptions>
+
+    <mode name="DIRECT" shortname="MANUAL">
+      <select cond="RCMode0() || RCMode1()"/>
+      <control freq="NAV_FREQ">
+        <call fun="nav_periodic_task()"/>
+      </control>
+      <control>
+        <call fun="SetCommandsFromRC(commands, radio_control.values)"/>
+        <call fun="SetActuatorsFromCommands(commands, autopilot_get_mode())"/>
+      </control>
+      <exception cond="RCLost()" deroute="KILL"/>
+    </mode>
+
+    <mode name="NAV">
+      <select cond="RCMode2()" exception="HOME"/>
+      <control freq="NAV_FREQ">
+        <call fun="nav_periodic_task()"/>
+      </control>
+      <control>
+        <call fun="rover_guidance_periodic()"/>
+        <call fun="SetActuatorsFromCommands(commands, autopilot_get_mode())"/>
+      </control>
+      <exception cond="GpsIsLost() && autopilot_in_flight()" deroute="KILL"/>
+    </mode>
+
+    <mode name="HOME">
+      <control freq="NAV_FREQ">
+        <call fun="nav_home()"/>
+      </control>
+      <control>
+        <call fun="rover_guidance_periodic()"/>
+        <call fun="SetActuatorsFromCommands(commands, autopilot_get_mode())"/>
+      </control>
+      <exception cond="GpsIsLost()" deroute="KILL"/>
+    </mode>
+
+    <!-- Kill throttle mode -->
+    <mode name="KILL">
+      <select cond="$DEFAULT_MODE"/>
+      <select cond="kill_switch_is_on()"/>
+      <on_enter>
+        <call fun="autopilot_set_in_flight(false)"/>
+        <call fun="autopilot_set_motors_on(false)"/>
+      </on_enter>
+      <control>
+        <call fun="SetCommands(commands_failsafe)"/>
+      </control>
+    </mode>
+
+  </state_machine>
+
+  <state_machine name="guidance" freq="PERIODIC_FREQUENCY">
+
+    <includes>
+      <include name="navigation.h"/>
+    </includes>
+
+    <mode name="NAV_DIRECT">
+      <select cond="nav.mode == NAV_MODE_MANUAL"/>
+      <control>
+        <!-- copy manual nav controls to commands -->
+        <call fun="commands[COMMAND_SPEED] = TRIM_PPRZ(nav.speed * MAX_PPRZ)"/>
+        <call fun="commands[COMMAND_TURN] = TRIM_PPRZ(nav.turn * MAX_PPRZ)"/>
+      </control>
+    </mode>
+
+    <mode name="NAV_AUTO">
+      <select cond="nav.mode != NAV_MODE_MANUAL"/>
+      <control>
+        <call fun="VECT2_COPY(rover_guidance.sp.pos, nav.carrot)"/>
+        <call fun="rover_guidance_run(&nav.heading)"/>
+        <call fun="commands[COMMAND_SPEED] = TRIM_PPRZ(rover_guidance.cmd.motor_speed)"/>
+        <call fun="commands[COMMAND_TURN] = TRIM_PPRZ(rover_guidance.cmd.motor_turn)"/>
+      </control>
+    </mode>
+
+  </state_machine>
+
+</autopilot>

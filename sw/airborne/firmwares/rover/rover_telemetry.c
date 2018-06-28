@@ -1,7 +1,5 @@
-(*
- * Server part specific to fixed wing vehicles
- *
- * Copyright (C) 2004 CENA/ENAC, Pascal Brisset, Antoine Drouin
+/*
+ * Copyright (C) 2018 Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *
  * This file is part of paparazzi.
  *
@@ -16,13 +14,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
- *
- *)
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
 
-val log_and_parse :
-  string -> Aircraft.aircraft -> PprzLink.message -> PprzLink.values -> unit
-(** [log_and_parse ac_id ac msg vs] *)
+/* PERIODIC_C_MAIN is defined before generated/periodic_telemetry.h
+ * in order to implement telemetry_mode_Main_*
+ */
+#define PERIODIC_C_MAIN
+
+#include "generated/periodic_telemetry.h"
 
