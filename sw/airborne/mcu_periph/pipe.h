@@ -59,7 +59,7 @@ extern bool     pipe_check_free_space(struct pipe_periph *p, long *fd, uint16_t 
 extern void     pipe_put_byte(struct pipe_periph *p, long fd, uint8_t data);
 extern void     pipe_put_buffer(struct pipe_periph *p, long fd, const uint8_t *data,uint16_t len);
 
-#if USE_PIPE0_WRITER || USE_PIPE0_READER
+#if defined(USE_PIPE0_WRITER) || defined(USE_PIPE0_READER)
 extern struct pipe_periph pipe0;
 
 #ifndef USE_PIPE0_WRITER
@@ -73,7 +73,7 @@ extern struct pipe_periph pipe0;
 #define PIPE0Init() pipe_periph_init(&pipe0, STRINGIFY(USE_PIPE0_READER), STRINGIFY(USE_PIPE0_WRITER))
 #endif // USE_PIPE0
 
-#if USE_PIPE1_WRITER || USE_PIPE1_READER
+#if defined(USE_PIPE1_WRITER) || defined(USE_PIPE1_READER)
 extern struct pipe_periph pipe1;
 
 #ifndef USE_PIPE1_WRITER
@@ -87,7 +87,7 @@ extern struct pipe_periph pipe1;
 #define PIPE1Init() pipe_periph_init(&pipe1, STRINGIFY(USE_PIPE1_READER), STRINGIFY(USE_PIPE1_WRITER))
 #endif // USE_PIPE1
 
-#if USE_PIPE2_WRITER || USE_PIPE2_READER
+#if defined(USE_PIPE2_WRITER) || defined(USE_PIPE2_READER)
 extern struct pipe_periph pipe2;
 
 #ifndef USE_PIPE2_WRITER

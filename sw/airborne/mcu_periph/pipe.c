@@ -30,39 +30,39 @@
 #include <string.h>
 
 /* Print the configurations */
-#if USE_PIPE0_WRITER || USE_PIPE0_READER
+#if defined(USE_PIPE0_WRITER) || defined(USE_PIPE0_READER)
 struct pipe_periph pipe0;
 #endif
 
-#if USE_PIPE0_WRITER
+#ifdef USE_PIPE0_WRITER
 PRINT_CONFIG_VAR(USE_PIPE0_WRITER)
 #endif
 
-#if USE_PIPE0_READER
+#ifdef USE_PIPE0_READER
 PRINT_CONFIG_VAR(USE_PIPE0_READER)
 #endif
 
-#if USE_PIPE1_WRITER || USE_PIPE1_READER
+#if defined(USE_PIPE1_WRITER) || defined(USE_PIPE1_READER)
 struct pipe_periph pipe1;
 #endif
 
-#if USE_PIPE1_WRITER
+#ifdef USE_PIPE1_WRITER
 PRINT_CONFIG_VAR(USE_PIPE1_WRITER)
 #endif
 
-#if USE_PIPE1_READER
+#ifdef USE_PIPE1_READER
 PRINT_CONFIG_VAR(USE_PIPE1_READER)
 #endif
 
-#if USE_PIPE2_WRITER || USE_PIPE2_READER
+#if defined(USE_PIPE2_WRITER) || defined(USE_PIPE2_READER)
 struct pipe_periph pipe2;
 #endif
 
-#if USE_PIPE2_WRITER
+#ifdef USE_PIPE2_WRITER
 PRINT_CONFIG_VAR(USE_PIPE2_WRITER)
 #endif
 
-#if USE_PIPE2_READER
+#ifdef USE_PIPE2_READER
 PRINT_CONFIG_VAR(USE_PIPE2_READER)
 #endif
 

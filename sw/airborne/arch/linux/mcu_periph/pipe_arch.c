@@ -49,13 +49,13 @@ void pipe_arch_init(void)
 {
   pthread_mutex_init(&pipe_mutex, NULL);
 
-#if USE_PIPE0_WRITER || USE_PIPE0_READER
+#if defined(USE_PIPE0_WRITER) || defined(USE_PIPE0_READER)
   PIPE0Init();
 #endif
-#if USE_PIPE1_WRITER || USE_PIPE1_READER
+#if defined(USE_PIPE1_WRITER) || defined(USE_PIPE1_READER)
   PIPE1Init();
 #endif
-#if USE_PIPE2_WRITER || USE_PIPE2_READER
+#if defined(USE_PIPE2_WRITER) || defined(USE_PIPE2_READER)
   PIPE2Init();
 #endif
 
@@ -203,22 +203,28 @@ static void *pipe_thread(void *data __attribute__((unused)))
   FD_ZERO(&fds_master);
   /* add used file descriptors */
   int fd __attribute__((unused));
-#if USE_PIPE0_READER
-  FD_SET(pipe0.fd_read, &fds_master);
-  if (pipe0.fd_read > fdmax) {
-    fdmax = pipe0.fd_read;
+#ifdef USE_PIPE0_READER
+  if (pipe0.fd_read >= 0){
+    FD_SET(pipe0.fd_read, &fds_master);
+    if (pipe0.fd_read > fdmax) {
+      fdmax = pipe0.fd_read;
+    }
   }
 #endif
-#if USE_PIPE1_READER
-  FD_SET(pipe1.fd_read, &socks_master);
-  if (pipe1.fd_read > fdmax) {
-    fdmax = pipe1.fd_read;
+#ifdef USE_PIPE1_READER
+  if(pipe1.fd_read >= 0){
+    FD_SET(pipe1.fd_read, &socks_master);
+    if (pipe1.fd_read > fdmax) {
+      fdmax = pipe1.fd_read;
+    }
   }
 #endif
-#if USE_PIPE2_READER
-  FD_SET(pipe2.fd_read, &socks_master);
-  if (pipe2.fd_read > fdmax) {
-    fdmax = pipe2.fd_read;
+#ifdef USE_PIPE2_READER
+  if(pipe2.fd_read >= 0){
+    FD_SET(pipe2.fd_read, &socks_master);
+    if (pipe2.fd_read > fdmax) {
+      fdmax = pipe2.fd_read;
+    }
   }
 #endif
 
@@ -232,17 +238,17 @@ static void *pipe_thread(void *data __attribute__((unused)))
     if (select(fdmax + 1, &fds, NULL, NULL, NULL) < 0) {
       fprintf(stderr, "pipe_thread: select failed!");
     } else {
-#if USE_PIPE0_READER
+#ifdef USE_PIPE0_READER
       if (FD_ISSET(pipe0.fd_read, &fds)) {
         pipe_receive(&pipe0);
       }
 #endif
-#if USE_PIPE1_READER
+#ifdef USE_PIPE1_READER
        if (FD_ISSET(pipe1.fd_read, &fds)) {
         pipe_receive(&pipe1);
       }
 #endif
-#if USE_PIPE2_READER
+#ifdef USE_PIPE2_READER
        if (FD_ISSET(pipe2.fd_read, &fds)) {
         pipe_receive(&pipe2);
       }

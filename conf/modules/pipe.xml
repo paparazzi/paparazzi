@@ -7,7 +7,7 @@
       Each pipe is comprised of two half-duplex fifos, one for reading from the client and one for
       writing to them.
       To activate a specific pipe peripheral, define flag USE_PIPEX_WRITER with the file path to the 
-      location where paparazzi whoudl wrtie to and USE_PIPEX_READER for the file location where
+      location where paparazzi would wrtie to and USE_PIPEX_READER for the file location where
       it should read from, where X is your pipe peripheral number.
       You can also configure the size of the incoming and outgoing buffer using PIPE_RX_BUFFER_SIZE 
       and PIPE_TX_BUFFER_SIZE
