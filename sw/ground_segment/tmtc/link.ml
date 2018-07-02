@@ -45,7 +45,7 @@ let transport_of_string = function
 
 
 type ground_device = {
-  fd : Unix.file_descr; transport : transport ; baud_rate : int ; channel : int
+  fd : Unix.file_descr; transport : transport ; baud_rate : int ; channel : int option
 }
 
 (* We assume here a single modem is used *)
@@ -223,7 +223,9 @@ module XB = struct (** XBee module *)
     let o = Unix.out_channel_of_descr device.fd in
     Debug.trace 'x' "config xbee";
     fprintf o "%s%!" (Xbee_transport.at_set_my !my_addr);
-    fprintf o "%s%!" (Xbee_transport.at_set_channel device.channel);
+    match device.channel with
+        None -> ()
+      | Some ch ->  fprintf o "%s%!" (Xbee_transport.at_set_channel ch);
     fprintf o "%s%!" Xbee_transport.at_api_enable;
     fprintf o "%s%!" Xbee_transport.at_exit;
     Debug.trace 'x' "end init xbee"
@@ -428,7 +430,7 @@ let () =
   let ivy_bus = ref Defivybus.default_ivy_bus
   and port = ref "/dev/ttyUSB0"
   and baudrate = ref "9600"
-  and channel = ref "0x0C"
+  and channel = ref None
   and hw_flow_control = ref false
   and transport = ref "pprz"
   and uplink = ref true
@@ -442,7 +444,7 @@ let () =
       "-noac_info", Arg.Clear ac_info, (sprintf "Disables AC traffic info (uplink).");
       "-nouplink", Arg.Clear uplink, (sprintf "Disables the uplink (from the ground to the aircraft).");
       "-s", Arg.Set_string baudrate, (sprintf "<baudrate>  Default is %s" !baudrate);
-      "-ch", Arg.Set_string channel, (sprintf "<channel>  Default is %s" !channel);
+      "-ch", Arg.String (fun channel_string -> channel := Some (int_of_string channel_string)), "<channel>  Default does not change configuration.";
       "-hfc",  Arg.Set hw_flow_control, "Enable UART hardware flow control (CTS/RTS)";
       "-local_timestamp", Arg.Unit (fun () -> add_timestamp := Some (Unix.gettimeofday ())), "Add local timestamp to messages sent over ivy";
       "-transport", Arg.Set_string transport, (sprintf "<transport> Available protocols are modem,pprz,pprz2 and xbee. Default is %s" !transport);
@@ -494,8 +496,7 @@ let () =
 
     (* Create the device object *)
     let baudrate = int_of_string !baudrate in
-    let channel = int_of_string !channel in
-    let device = { fd=fd; transport=transport; baud_rate=baudrate; channel=channel } in
+    let device = { fd=fd; transport=transport; baud_rate=baudrate; channel= !channel } in
 
     (* The function to be called when data is available *)
     let read_fd =
