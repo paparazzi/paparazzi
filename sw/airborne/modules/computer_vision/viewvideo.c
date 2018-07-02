@@ -110,28 +110,27 @@ struct viewvideo_t viewvideo = {
  * Handles all the video streaming and saving of the image shots
  * This is a separate thread, so it needs to be thread safe!
  */
-static struct image_t *viewvideo_function(struct UdpSocket *viewvideo_socket, struct image_t *img, uint16_t *rtp_packet_nr, uint32_t *rtp_frame_time)
+static struct image_t *viewvideo_function(struct UdpSocket *viewvideo_socket, struct image_t *img, uint16_t *rtp_packet_nr, uint32_t *rtp_frame_time,
+    struct image_t *img_small, struct image_t *img_jpeg)
 {
   // Resize small image if needed
-  static struct image_t img_small = {.buf=NULL, .buf_size=0};
-  if(img_small.buf_size != img->buf_size/(viewvideo.downsize_factor*viewvideo.downsize_factor)){
-    if(img_small.buf != NULL){
-      image_free(&img_small);
+  if(img_small->buf_size != img->buf_size/(viewvideo.downsize_factor*viewvideo.downsize_factor)){
+    if(img_small->buf != NULL){
+      image_free(img_small);
     }
-    image_create(&img_small,
+    image_create(img_small,
                  img->w / viewvideo.downsize_factor,
                  img->h / viewvideo.downsize_factor,
                  IMAGE_YUV422);
   }
 
   // Resize JPEG encoded image if needed
-  static struct image_t img_jpeg = {.buf=NULL, .buf_size=0};
-  if(img_jpeg.w != img_small.w || img_jpeg.h != img_small.h)
+  if(img_jpeg->w != img_small->w || img_jpeg->h != img_small->h)
   {
-    if(img_jpeg.buf != NULL){
-      image_free(&img_jpeg);
+    if(img_jpeg->buf != NULL){
+      image_free(img_jpeg);
     }
-    image_create(&img_jpeg, img_small.w, img_small.h, IMAGE_JPEG);
+    image_create(img_jpeg, img_small->w, img_small->h, IMAGE_JPEG);
   }
 
 #if VIEWVIDEO_USE_NETCAT
@@ -140,13 +139,12 @@ static struct image_t *viewvideo_function(struct UdpSocket *viewvideo_socket, st
 #endif
 
   if (viewvideo.is_streaming) {
-
     // Only resize when needed
     if (viewvideo.downsize_factor != 1) {
-      image_yuv422_downsample(img, &img_small, viewvideo.downsize_factor);
-      jpeg_encode_image(&img_small, &img_jpeg, VIEWVIDEO_QUALITY_FACTOR, VIEWVIDEO_USE_NETCAT);
+      image_yuv422_downsample(img, img_small, viewvideo.downsize_factor);
+      jpeg_encode_image(img_small, img_jpeg, VIEWVIDEO_QUALITY_FACTOR, VIEWVIDEO_USE_NETCAT);
     } else {
-      jpeg_encode_image(img, &img_jpeg, VIEWVIDEO_QUALITY_FACTOR, VIEWVIDEO_USE_NETCAT);
+      jpeg_encode_image(img, img_jpeg, VIEWVIDEO_QUALITY_FACTOR, VIEWVIDEO_USE_NETCAT);
     }
 
 #if VIEWVIDEO_USE_NETCAT
@@ -159,7 +157,7 @@ static struct image_t *viewvideo_function(struct UdpSocket *viewvideo_socket, st
       // We are the child and want to send the image
       FILE *netcat = popen(nc_cmd, "w");
       if (netcat != NULL) {
-        fwrite(img_jpeg.buf, sizeof(uint8_t), img_jpeg.buf_size, netcat);
+        fwrite(img_jpeg->buf, sizeof(uint8_t), img_jpeg->buf_size, netcat);
         pclose(netcat); // Ignore output, because it is too much when not connected
       } else {
         printf("[viewvideo] Failed to open netcat process.\n");
@@ -176,7 +174,7 @@ static struct image_t *viewvideo_function(struct UdpSocket *viewvideo_socket, st
       // Send image with RTP
       rtp_frame_send(
         viewvideo_socket,         // UDP socket
-        &img_jpeg,
+        img_jpeg,
         0,                        // Format 422
         VIEWVIDEO_QUALITY_FACTOR, // Jpeg-Quality
         0,                        // DRI Header
@@ -197,7 +195,9 @@ static struct image_t *viewvideo_function1(struct image_t *img)
 {
   static uint16_t rtp_packet_nr = 0;
   static uint32_t rtp_frame_time = 0;
-  return viewvideo_function(&video_sock1, img, &rtp_packet_nr, &rtp_frame_time);
+  static struct image_t img_small = {.buf=NULL, .buf_size=0};
+  static struct image_t img_jpeg = {.buf=NULL, .buf_size=0};
+  return viewvideo_function(&video_sock1, img, &rtp_packet_nr, &rtp_frame_time, &img_small, &img_jpeg);
 }
 #endif
 
@@ -206,7 +206,9 @@ static struct image_t *viewvideo_function2(struct image_t *img)
 {
   static uint16_t rtp_packet_nr = 0;
   static uint32_t rtp_frame_time = 0;
-  return viewvideo_function(&video_sock2, img, &rtp_packet_nr, &rtp_frame_time);
+  static struct image_t img_small = {.buf=NULL, .buf_size=0};
+  static struct image_t img_jpeg = {.buf=NULL, .buf_size=0};
+  return viewvideo_function(&video_sock2, img, &rtp_packet_nr, &rtp_frame_time, &img_small, &img_jpeg);
 }
 #endif
 
