@@ -482,7 +482,8 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
   }
 
   float rotation_threshold = M_PI / 180.0f;
-  if (fabs(opticflow->img_gray.eulers.phi - opticflow->prev_img_gray.eulers.phi) > rotation_threshold) {
+  if (fabs(opticflow->img_gray.eulers.phi - opticflow->prev_img_gray.eulers.phi) > rotation_threshold
+      || fabs(opticflow->img_gray.eulers.theta - opticflow->prev_img_gray.eulers.theta) > rotation_threshold) {
     result->flow_der_x = 0.0f;
     result->flow_der_y = 0.0f;
   } else {
