@@ -59,6 +59,7 @@
       <arg flag="--ac" constant="@AC_ID"/>
     </program>
     <program name="SVInfo" command="sw/ground_segment/python/svinfo/svinfo.py"/>
+    <program name="EnergyManager" command="sw/ground_segment/python/energy_mon/energy_mon.py"/>
     <program name="IridiumDialer" command="sw/tools/iridium/iridium_link.py"/>
     <program name="PayloadForward" command="sw/ground_segment/python/payload_forward/payload.py"/>
   </section>
