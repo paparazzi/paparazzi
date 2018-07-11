@@ -65,10 +65,10 @@ class initTable:
 
             msg_clean_a = PprzMessage("datalink", "DCF_REG_TABLE")
             msg_clean_a['ac_id'] = int(self.list_ids[i[0]])
-            msg_clean_a['nei_id'] = 0
+            msg_clean_a['nei_id'] = -1
             msg_clean_b = PprzMessage("datalink", "DCF_REG_TABLE")
             msg_clean_b['ac_id'] = int(self.list_ids[i[1]])
-            msg_clean_b['nei_id'] = 0
+            msg_clean_b['nei_id'] = -1
 
             self._interface.send(msg_clean_a)
             self._interface.send(msg_clean_b)
