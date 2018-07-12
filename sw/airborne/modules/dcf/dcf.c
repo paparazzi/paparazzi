@@ -93,8 +93,17 @@ bool distributed_circular(uint8_t wp)
       } else {
         dcf_tables.tableNei[i][3] = (uint16_t)timeout;
 
-        float e = dcf_control.theta - (dcf_tables.tableNei[i][1] + (dcf_tables.tableNei[i][2])) * M_PI / 1800.0;
-        NormRadAngle(e);
+        float t1 = dcf_control.theta;
+        float t2 = dcf_tables.tableNei[i][1] * M_PI / 1800.0;
+        float td = dcf_tables.tableNei[i][2] * M_PI / 1800.0;
+
+        float c1 = cosf(t1);
+        float s1 = sinf(t1);
+        float c2 = cosf(t2);
+        float s2 = sinf(t2);
+
+        float e = atan2f(c2 * s1 - s2 * c1, c1 * c2 + s1 * s2) - gvf_control.s * td;
+
         u += e;
         dcf_tables.error_sigma[i] = (uint16_t)(e * 1800.0 / M_PI);
       }

@@ -63,6 +63,7 @@ class initTable:
             index = np.nonzero(column)
             i = index[0]
 
+            # nei_id = 0, special msg to clean the table onboard
             msg_clean_a = PprzMessage("datalink", "DCF_REG_TABLE")
             msg_clean_a['ac_id'] = int(self.list_ids[i[0]])
             msg_clean_a['nei_id'] = 0
@@ -85,18 +86,18 @@ class initTable:
             msga['ac_id'] = int(self.list_ids[i[0]])
             msga['nei_id'] = int(self.list_ids[i[1]])
             if len(self.list_ids) == 2:
-                msga['desired_sigma'] = int(self.Zdesired)
+                msga['desired_sigma'] = (column[index])[0]*int(self.Zdesired)
             else:
-                msga['desired_sigma'] = int(self.Zdesired[count])
+                msga['desired_sigma'] = (column[index])[0]*int(self.Zdesired[count])
             self._interface.send(msga)
 
             msgb = PprzMessage("datalink", "DCF_REG_TABLE")
             msgb['ac_id'] = int(self.list_ids[i[1]])
             msgb['nei_id'] = int(self.list_ids[i[0]])
             if len(self.list_ids) == 2:
-                msgb['desired_sigma'] = int(self.Zdesired)
+                msgb['desired_sigma'] = (column[index])[1]*int(self.Zdesired)
             else:
-                msgb['desired_sigma'] = int(self.Zdesired[count])
+                msgb['desired_sigma'] = (column[index])[1]*int(self.Zdesired[count])
             self._interface.send(msgb)
 
             if self.verbose:
