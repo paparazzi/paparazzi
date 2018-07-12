@@ -102,7 +102,7 @@ bool distributed_circular(uint8_t wp)
         float c2 = cosf(t2);
         float s2 = sinf(t2);
 
-        float e = atan2f(c2*s1 - s2*c1, c1*c2 + s1*s2) - gvf_control.s*td;
+        float e = atan2f(c2 * s1 - s2 * c1, c1 * c2 + s1 * s2) - gvf_control.s * td;
 
         u += e;
         dcf_tables.error_sigma[i] = (uint16_t)(e * 1800.0 / M_PI);
