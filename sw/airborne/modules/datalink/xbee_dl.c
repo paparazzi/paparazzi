@@ -44,10 +44,10 @@ void xbee_dl_init(void)
 #if USE_HARD_FAULT_RECOVERY
   if (recovering_from_hard_fault)
     // in case of hardfault recovery, we want to skip xbee init which as an active wait
-    xbee_transport_init(&xbee_tp, &((XBEE_UART).device), AC_ID, XBEE_TYPE, XBEE_BAUD, XBEE_CHANNEL, NULL, XBEE_INIT);
+    xbee_transport_init(&xbee_tp, &((XBEE_UART).device), AC_ID, XBEE_TYPE, XBEE_BAUD, NULL, XBEE_INIT);
   else
 #endif
-    xbee_transport_init(&xbee_tp, &((XBEE_UART).device), AC_ID, XBEE_TYPE, XBEE_BAUD, XBEE_CHANNEL, sys_time_usleep, XBEE_INIT);
+    xbee_transport_init(&xbee_tp, &((XBEE_UART).device), AC_ID, XBEE_TYPE, XBEE_BAUD, sys_time_usleep, XBEE_INIT);
 }
 
 void xbee_dl_event(void)
