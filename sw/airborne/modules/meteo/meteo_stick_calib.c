@@ -141,8 +141,8 @@ static bool mtostk_populate_float_array_from_buffer(float *ar,
 
   float **eeprom_buffer_float = (float **) eeprom_buffer;
 
-  _Static_assert(sizeof(uint32_t) == sizeof(time_t),
-                 "sizeof (uint32_t) differ from sizeof (time_t)");
+  _Static_assert(sizeof(uint32_t) == sizeof(mtostk_time_t),
+                 "sizeof (uint32_t) differ from sizeof (mtostk_time_t)");
   _Static_assert(sizeof(uint32_t) == sizeof(float),
                  "sizeof (uint32_t) differ from sizeof (float)");
 

@@ -255,6 +255,7 @@ static void handle_spi_thd(struct spi_periph *p)
   p->status = SPIRunning;
 
   SPIConfig spi_cfg = {
+    false, // no circular buffer
     NULL, // no callback
     spi_resolve_slave_port(t->slave_idx),
     spi_resolve_slave_pin(t->slave_idx),

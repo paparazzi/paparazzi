@@ -48,20 +48,32 @@ typedef enum {
   MTOSTK_NUM_SENSORS
 } Mtostk_sensors ;
 
+
+
+/**
+ * @typedef  mtostk_time_t
+ * @brief  time in seconds since 01/01/1970
+ *
+ * @notes we don't use libc time_t because it can be a 64 bits type to avoid Y2038 bug
+ *  we instead keep a 32 bits type but unsigned. We don't care date before 1970, and 4e9 seconds
+ *  since 1/1/70 make us bug free until 2100
+ */
+typedef uint32_t mtostk_time_t;
+
 /**
  * @struct Sensors_params
  * @brief  Calibration_params structure initialized with calibvration data read from meteostick eeprom
  *
  * @var  coeffs     two dimensions array for polynomial coefficient for each calibration temperature (one or more)
  * @var  temps      one dimension array for temperature of calibration
- * @var  timestamp  date of calibration in time_t unix time
+ * @var  timestamp  date of calibration in mtostk_time_t unix time
  * @var  num_temp   number of temerature of calibration, at least 1
  * @var  num_coeff  number of coefficient for the polynom. the polynom order is num_coeff-1
  */
 typedef struct {
   float  coeffs[MTOSTK_MAX_TEMP_ARRAY_SIZE][MTOSTK_MAX_POLY_ARRAY_SIZE];
   float  temps[MTOSTK_MAX_TEMP_ARRAY_SIZE];
-  time_t timestamp;
+  mtostk_time_t timestamp;
   uint16_t num_temp;
   uint16_t num_coeff;
 } Sensors_params;
