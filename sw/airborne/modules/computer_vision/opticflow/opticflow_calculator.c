@@ -790,7 +790,7 @@ bool calc_edgeflow_tot(struct opticflow_t *opticflow, struct image_t *img,
   // Calculate velocity
   result->vel_cam.x = edgeflow.flow_x * fps_x * agl_dist_value_filtered * OPTICFLOW_FX / RES;
   result->vel_cam.y = edgeflow.flow_y * fps_y * agl_dist_value_filtered * OPTICFLOW_FY / RES;
-  result->vel_cam.z = 0.0f; // result->divergence * fps_x * agl_dist_value_filtered;
+  result->vel_cam.z = result->divergence * fps_x * agl_dist_value_filtered;
 
   //Apply a  median filter to the velocity if wanted
   if (opticflow->median_filter == true) {
