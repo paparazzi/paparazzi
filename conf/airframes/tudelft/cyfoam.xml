@@ -59,7 +59,7 @@
   <section name="AUTOPILOT">
     <define name="MODE_MANUAL"  value="AP_MODE_ATTITUDE_DIRECT"/>
     <define name="MODE_AUTO1" value="AP_MODE_FORWARD"/>
-    <define name="MODE_AUTO2"  value="AP_MODE_FORWARD"/>
+    <define name="MODE_AUTO2"  value="AP_MODE_NAV"/>
     <define name="MODE_STARTUP"  value="AP_MODE_NAV"/>
   </section>
 
@@ -142,9 +142,9 @@
 
   <section name="INS" prefix="INS_">
     <!-- Delft -->
-    <define name="H_X" value="0.3892503"/>
-    <define name="H_Y" value="0.0017972"/>
-    <define name="H_Z" value="0.9211303"/>
+    <define name="H_X" value="0.3928"/>
+    <define name="H_Y" value="-0.0140"/>
+    <define name="H_Z" value="0.9195"/>
   </section>
 
   <!-- Gains for horizontal navigation-->
@@ -216,8 +216,8 @@
         <define name="PITCH_EFF_AT_60" value="4.0"/>
         <define name="YAW_EFF_AT_60" value="8.0"/>
         <!--function of the form: A + B*airspeed^2-->
-        <define name="CE_PITCH_A" value="2.4169"/>
-        <define name="CE_PITCH_B" value="0.0307"/>
+        <define name="CE_PITCH_A" value="4.5"/>
+        <define name="CE_PITCH_B" value="0.01"/>
         <define name="CE_YAW_A" value="5.631"/>
         <define name="CE_YAW_B" value="0.0515"/>
       </module>
@@ -290,7 +290,7 @@
       <define name="GUIDANCE_INDI_PITCH_LIFT_EFF" value="0.12"/>
       <define name="GUIDANCE_INDI_PITCH_EFF_SCALING" value="1.0"/>
       <define name="GUIDANCE_H_REF_MAX_SPEED" value="18.0"/> <!--not used-->
-      <define name="GUIDANCE_INDI_MIN_THROTTLE" value="4000"/>
+      <define name="GUIDANCE_INDI_MIN_THROTTLE" value="3000"/>
       <define name="GUIDANCE_INDI_MIN_THROTTLE_FWD" value="1500"/>
       <define name="GUIDANCE_INDI_MAX_AIRSPEED" value="16.0"/>
       <define name="GUIDANCE_HEADING_IS_FREE" value="FALSE"/> <!--heading can not be set by navigation-->
@@ -304,10 +304,9 @@
 
     <module name="ahrs"          type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="TRUE"/>
-      <!--[>[>[>Use external magnetometer<]<]<]-->
-      <!--<define name="AHRS_ICQ_MAG_ID" value="MAG_HMC58XX_SENDER_ID"/>-->
-      <!--[>[>[><define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN" value="TRUE"/><]<]<]-->
-      <!--[>[>[><define name="AHRS_GPS_SPEED_IN_NEGATIVE_Z_DIRECTION" value="TRUE"/><]<]<]-->
+      <define name="AHRS_ICQ_MAG_ID" value="MAG_HMC58XX_SENDER_ID"/>
+      <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN" value="TRUE"/>
+      <define name="AHRS_GPS_SPEED_IN_NEGATIVE_Z_DIRECTION" value="TRUE"/>
     </module>
 
     <module name="ins"/>
