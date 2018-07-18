@@ -38,6 +38,8 @@ extern void ctrl_eff_scheduling_init(void);
  * Periodic function that interpolates between gain sets depending on the scheduling variable.
  */
 extern void ctrl_eff_scheduling_periodic(void);
+extern void ctrl_eff_scheduling_periodic_a(void);
+extern void ctrl_eff_scheduling_periodic_b(void);
 
 #endif  /* CTRL_EFFECTIVENESS_SCHEDULING_H */
 

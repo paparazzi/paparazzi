@@ -151,7 +151,7 @@ void guidance_indi_enter(void)
  *
  * main indi guidance function
  */
-void guidance_indi_run(float heading_sp)
+void guidance_indi_run(float *heading_sp)
 {
   struct FloatEulers eulers_yxz;
   struct FloatQuat * statequat = stateGetNedToBodyQuat_f();
@@ -236,7 +236,7 @@ void guidance_indi_run(float heading_sp)
 
   guidance_euler_cmd.theta = pitch_filt.o[0] + control_increment.x;
   guidance_euler_cmd.phi = roll_filt.o[0] + control_increment.y;
-  guidance_euler_cmd.psi = heading_sp;
+  guidance_euler_cmd.psi = *heading_sp;
 
 #ifdef GUIDANCE_INDI_SPECIFIC_FORCE_GAIN
   guidance_indi_filter_thrust();

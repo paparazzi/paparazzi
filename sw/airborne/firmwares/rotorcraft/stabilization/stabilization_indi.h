@@ -36,6 +36,8 @@ extern float actuator_state_filt_vect[INDI_NUM_ACT];
 
 extern bool indi_use_adaptive;
 
+extern float *Bwls[INDI_OUTPUTS];
+
 struct ReferenceSystem {
   float err_p;
   float err_q;

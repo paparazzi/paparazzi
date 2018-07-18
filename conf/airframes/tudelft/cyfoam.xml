@@ -205,6 +205,7 @@
 
   <firmware name="rotorcraft">
     <target name="ap" board="chimera_1.0">
+      <configure name="PERIODIC_FREQUENCY" value="500"/>
       <module name="radio_control" type="sbus">
         <!--[> Put the mode on channel AUX1<]-->
         <define name="RADIO_KILL_SWITCH" value="5"/>
@@ -277,7 +278,9 @@
     <module name="gps"           type="ublox">
       <configure name="GPS_BAUD" value="B115200"/>
     </module>
-    <module name="stabilization" type="indi"/>
+    <module name="stabilization" type="indi">
+      <define name="INDI_THRUST_ON_PITCH_EFF" value="23.0"/>
+    </module>
     <module name="guidance"      type="indi_hybrid">
       <define name="GUIDANCE_INDI_RC_DEBUG" value="FALSE"/>
       <define name="GUIDANCE_INDI_POS_GAIN" value="0.2"/>
