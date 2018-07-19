@@ -94,11 +94,11 @@ int32_t   msgqueue_send_timeout(MsgQueue *que, void *msg, const uint16_t msgLen,
 #endif
 
   if (urgency == MsgQueue_REGULAR) {
-    if (chMBPost(&que->mb, mpl.msg_ptr_len, timout) != MSG_OK) {
+    if (chMBPostTimeout(&que->mb, mpl.msg_ptr_len, timout) != MSG_OK) {
       goto fail;
     }
   } else {
-    if (chMBPostAhead(&que->mb, mpl.msg_ptr_len, timout) != MSG_OK) {
+    if (chMBPostAheadTimeout(&que->mb, mpl.msg_ptr_len, timout) != MSG_OK) {
       goto fail;
     }
   }
@@ -142,7 +142,7 @@ int32_t msgqueue_pop_timeout(MsgQueue *que, void **msgPtr, const systime_t timou
 
   msg_t status;
   do  {
-    status = chMBFetch(&que->mb, (msg_t *) &mpl.msg_ptr_len, timout);
+    status = chMBFetchTimeout(&que->mb, (msg_t *) &mpl.msg_ptr_len, timout);
   } while (status == MSG_RESET);
 
   if (status != MSG_OK) {

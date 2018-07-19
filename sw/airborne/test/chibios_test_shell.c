@@ -154,7 +154,7 @@ int main(void)
       chThdRelease(shelltp);    /* Recovers memory of the previous shell.   */
       shelltp = NULL;           /* Triggers spawning of a new shell.        */
     }
-    chThdSleep(MS2ST(10));
+    chThdSleep(TIME_MS2I(10));
   }
   return 0;
 }

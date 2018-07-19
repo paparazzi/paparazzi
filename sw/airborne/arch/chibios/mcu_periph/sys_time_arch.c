@@ -113,7 +113,7 @@ void sys_time_msleep(uint16_t ms)
 
 void sys_time_ssleep(uint8_t s)
 {
-  chThdSleep(S2ST(s));
+  chThdSleep(TIME_S2I(s));
 }
 
 /*

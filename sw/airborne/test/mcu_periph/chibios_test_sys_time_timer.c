@@ -62,7 +62,7 @@ static __attribute__((noreturn)) void thd_main_periodic_02(void *arg)
   systime_t time = chVTGetSystemTime();
   while (TRUE)
   {
-    time += MS2ST(200);
+    time += TIME_MS2I(200);
 #ifdef LED_GREEN
       LED_TOGGLE(LED_GREEN);
 #endif
@@ -83,7 +83,7 @@ static __attribute__((noreturn)) void thd_main_periodic_03(void *arg)
   systime_t time = chVTGetSystemTime();
   while (TRUE)
   {
-    time += MS2ST(300);
+    time += TIME_MS2I(300);
 #ifdef SYS_TIME_LED
       LED_TOGGLE(SYS_TIME_LED);
 #endif
@@ -104,7 +104,7 @@ static __attribute__((noreturn)) void thd_main_periodic_05(void *arg)
   systime_t time = chVTGetSystemTime();
   while (TRUE)
   {
-    time += MS2ST(500);
+    time += TIME_MS2I(500);
 #ifdef LED_RED
       LED_TOGGLE(LED_RED);
 #endif

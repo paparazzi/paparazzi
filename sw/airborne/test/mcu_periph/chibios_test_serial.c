@@ -64,7 +64,7 @@ static __attribute__((noreturn)) void thd_main_periodic_05(void *arg)
   systime_t time = chVTGetSystemTime();
   while (TRUE)
   {
-    time += MS2ST(500);
+    time += TIME_MS2I(500);
 #ifdef SYS_TIME_LED
       LED_TOGGLE(SYS_TIME_LED);
 #endif

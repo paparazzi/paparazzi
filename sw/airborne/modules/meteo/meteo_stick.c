@@ -351,11 +351,11 @@ void meteo_stick_periodic(void)
       }
 #else
       sdLogWriteLog(pprzLogFile,
-                    "P(adc) T(adc) H(ticks) P_diff(adc) P(hPa) T(C) H(\%) CAS(m/s) FIX TOW(ms) WEEK Lat(1e7rad) Lon(1e7rad) HMSL(mm) GS(cm/s) course(1e7rad) VZ(cm/s)\n");
+                    "P(adc) T(adc) H(ticks) P_diff(adc) P(hPa) T(C) H(%%) CAS(m/s) FIX TOW(ms) WEEK Lat(1e7rad) Lon(1e7rad) HMSL(mm) GS(cm/s) course(1e7rad) VZ(cm/s)\n");
       log_ptu_started = true;
 #endif
     } else {
-      sdLogWriteLog(pprzLogFile, "%d %d %d %d %.2f %.2f %.2f %.2f %d %d %d %d %d %d %d %d %d\n",
+      sdLogWriteLog(pprzLogFile, "%lu %lu %lu %lu %.2f %.2f %.2f %.2f %d %lu %d %lu %lu %lu %d %lu %lu\n",
                     meteo_stick.pressure.data, meteo_stick.temperature.data,
                     meteo_stick.humidity_period, meteo_stick.diff_pressure.data,
                     meteo_stick.current_pressure, meteo_stick.current_temperature,

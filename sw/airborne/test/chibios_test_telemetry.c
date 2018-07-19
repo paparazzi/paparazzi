@@ -83,7 +83,7 @@ int main(void)
   chThdCreateStatic(waThdTx, sizeof(waThdTx), NORMALPRIO, ThdTx, NULL);
 
   while (TRUE) {
-    chThdSleep(S2ST(1));
+    chThdSleep(TIME_S2I(1));
   }
 
   return 0;
