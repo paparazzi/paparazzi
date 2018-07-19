@@ -23,6 +23,7 @@
     <define name="DC_AUTOSHOOT_DISTANCE_INTERVAL" value="50" description="distance interval for DC_AUTOSHOOT_DISTANCE in meters"/>
     <define name="DC_AUTOSHOOT_SURVEY_INTERVAL" value="50" description="distance interval for DC_AUTOSHOOT_SURVEY in meters"/>
     <define name="DC_SHOT_SYNC_SEND" value="TRUE|FALSE" description="send DC_SHOT message when photo was taken (default: TRUE)"/>
+    <define name="DC_SHOT_EXTRA_DL" value="TRUE|FALSE" description="send DC_SHOT message other extra datalink like companion CPU (default: FALSE, requires DC_SHOT_SYNC_SEND)"/>
   </doc>
   <settings>
     <dl_settings name="control">
