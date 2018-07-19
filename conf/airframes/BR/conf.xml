@@ -119,6 +119,6 @@
    settings="settings/rotorcraft_basic.xml"
    settings_modules="modules/ahrs_int_cmpl_quat.xml modules/guidance_hybrid.xml modules/stabilization_indi_simple.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml modules/gps_ubx_ucenter.xml"
    gui_color="blue"
-   release="499b9d117c56ad553cbd28597081ff5cc3ba7583"
+   release="93a9608c3bc34eca6a0dcde4123d55dac7d7b448"
   />
 </conf>
