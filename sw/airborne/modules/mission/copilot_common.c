@@ -76,35 +76,26 @@ void copilot_init(void)
 void copilot_periodic(void)
 {
   PPRZ_MUTEX_LOCK(copilot_cam_snapshot_mtx);
-  if (send_cam_snapshot)
-  {
+  if (send_cam_snapshot) {
     // send down to GCS
     DOWNLINK_SEND_CAMERA_SNAPSHOT(DefaultChannel, DefaultDevice,
-        &cam_snapshot.cam_id,
-        &cam_snapshot.cam_state,
-        &cam_snapshot.snapshot_num,
-        &cam_snapshot.snapshot_valid,
-        &cam_snapshot.lens_temp,
-        &cam_snapshot.array_temp);
+        &cam_snapshot.cam_id, &cam_snapshot.cam_state,
+        &cam_snapshot.snapshot_num, &cam_snapshot.snapshot_valid,
+        &cam_snapshot.lens_temp, &cam_snapshot.array_temp);
 
     send_cam_snapshot = false;
   }
   PPRZ_MUTEX_UNLOCK(copilot_cam_snapshot_mtx);
 
-
   PPRZ_MUTEX_LOCK(copilot_cam_payload_mtx);
-  if (send_cam_payload)
-  {
+  if (send_cam_payload) {
     // NOTE: to send the message over the EXTRA_DL port
     // use "DOWNLINK_SEND_CAMERA_PAYLOAD(extra_pprz_tp, EXTRA_DOWNLINK_DEVICE,"
 
     // send down to GCS
     DOWNLINK_SEND_CAMERA_PAYLOAD(DefaultChannel, DefaultDevice,
-        &cam_payload.timestamp,
-        &cam_payload.used_mem,
-        &cam_payload.used_disk,
-        &cam_payload.door_status,
-        &cam_payload.error_code);
+        &cam_payload.timestamp, &cam_payload.used_mem, &cam_payload.used_disk,
+        &cam_payload.door_status, &cam_payload.error_code);
 
     send_cam_payload = false;
   }
@@ -112,13 +103,10 @@ void copilot_periodic(void)
 
   PPRZ_MUTEX_LOCK(copilot_status_mtx);
   // send down to GCS
-  if (send_copilot_status)
-  {
+  if (send_copilot_status) {
     DOWNLINK_SEND_COPILOT_STATUS(DefaultChannel, DefaultDevice,
-        &copilot_status.timestamp,
-        &copilot_status.used_mem,
-        &copilot_status.used_disk,
-        &copilot_status.status,
+        &copilot_status.timestamp, &copilot_status.used_mem,
+        &copilot_status.used_disk, &copilot_status.status,
         &copilot_status.error_code);
 
     send_copilot_status = false;
@@ -187,4 +175,31 @@ void copilot_parse_copilot_status_dl(uint8_t *buf)
   send_copilot_status = true;
 
   PPRZ_MUTEX_UNLOCK(copilot_status_mtx);
+}
+
+/**
+ * Pass through PAYLOAD_COMMAND message
+ * and send it as PAYLOAD msg over telemetry
+ */
+void copilot_parse_payload_command_dl(uint8_t *buf __attribute__((unused)))
+{
+#if FORWARD_PAYLOAD
+MESSAGE("Forwarding PAYLOAD_COMMAND messages.")
+  // Check if message was for us
+  if (DL_PAYLOAD_COMMAND_ac_id(buf) == AC_ID) {
+    uint8_t len = DL_PAYLOAD_COMMAND_command_length(buf);
+
+    if (buf == extra_dl_buffer) {
+       // Message came from extra_dl, forward to GCS via telemetry
+      DOWNLINK_SEND_PAYLOAD(DefaultChannel, DefaultDevice,
+            len, DL_PAYLOAD_COMMAND_command(buf));
+    }
+
+    if (buf == dl_buffer) {
+      // Message came from GCS/Telemetry, forward to extra_dl
+      DOWNLINK_SEND_PAYLOAD(extra_pprz_tp, EXTRA_DOWNLINK_DEVICE,
+            len, DL_PAYLOAD_COMMAND_command(buf));
+    }
+  }
+#endif /* FORWARD_PAYLOAD */
 }

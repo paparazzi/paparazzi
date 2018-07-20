@@ -34,6 +34,7 @@
   <datalink message="CAMERA_PAYLOAD_DL" fun="copilot_parse_cam_payload_dl(buf)"/>
   <datalink message="COPILOT_STATUS_DL" fun="copilot_parse_copilot_status_dl(buf)"/>
   <datalink message="MOVE_WP" fun="copilot_parse_move_wp_dl(buf)"/>
+  <datalink message="PAYLOAD_COMMAND" fun="copilot_parse_payload_command_dl(buf)"/>
   <makefile target="ap">
     <file name="copilot_common.c"/>
   </makefile>
