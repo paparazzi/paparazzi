@@ -139,8 +139,10 @@ int32_t nav_circle_radius, nav_circle_qdr, nav_circle_radians;
 /* nav_route variables */
 struct EnuCoor_i nav_segment_start, nav_segment_end;
 
+#ifdef GUIDANCE_INDI_MAX_AIRSPEED
 #define NAV_MAX_SPEED (GUIDANCE_INDI_MAX_AIRSPEED + 10.0)
 float nav_max_speed = NAV_MAX_SPEED;
+#endif
 #ifndef MAX_DECELERATION
 #define MAX_DECELERATION 1.
 #endif
