@@ -282,7 +282,7 @@
   </section>
 
   <section name="MISC">
-    <define name="RADIO_CONTROL_SPEKTRUM_SIGNS" value="{1,1,1,1,1,1,1,1,1,1,1,1}"/>
+    <!--<define name="RADIO_CONTROL_SPEKTRUM_SIGNS" value="{1,1,1,1,1,1,1,1,1,1,1,1}"/>-->
     <!--The Quadshot uses a slightly different axis system for the setpoint, to make both hovering and flying forward intuitive-->
     <define name="USE_EARTH_BOUND_RC_SETPOINT" value="TRUE"/>
     <!-- This is the pitch angle that the Quadshot will have in forward flight, where 0 degrees is hover-->
