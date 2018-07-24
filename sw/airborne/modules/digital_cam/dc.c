@@ -92,6 +92,9 @@ uint16_t dc_photo_nr = 0;
 #include "subsystems/datalink/downlink.h"
 #include "state.h"
 #include "subsystems/gps.h"
+#if DC_SHOT_EXTRA_DL
+#include "modules/datalink/extra_pprz_dl.h"
+#endif
 
 void dc_send_shot_position(void)
 {
@@ -110,6 +113,22 @@ void dc_send_shot_position(void)
     photo_nr = dc_photo_nr;
   }
 
+#if DC_SHOT_EXTRA_DL
+  // send a message on second datalink first
+  // (for instance an embedded CPU)
+  DOWNLINK_SEND_DC_SHOT(extra_pprz_tp, EXTRA_DOWNLINK_DEVICE,
+                        &photo_nr,
+                        &stateGetPositionLla_i()->lat,
+                        &stateGetPositionLla_i()->lon,
+                        &stateGetPositionLla_i()->alt,
+                        &gps.hmsl,
+                        &phi,
+                        &theta,
+                        &psi,
+                        &course,
+                        &speed,
+                        &gps.tow);
+#endif
   DOWNLINK_SEND_DC_SHOT(DefaultChannel, DefaultDevice,
                         &photo_nr,
                         &stateGetPositionLla_i()->lat,
