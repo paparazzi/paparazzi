@@ -280,7 +280,7 @@
   </section>
 
   <section name="NAV">
-    <define name="ARRIVED_AT_WAYPOINT" value="5" unit="m"/>
+    <define name="ARRIVED_AT_WAYPOINT" value="10" unit="m"/>
   </section>
 
   <section name="MISC">

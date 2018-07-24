@@ -76,5 +76,6 @@ extern void guidance_hybrid_reset_heading(struct Int32Eulers *sp_cmd);
  */
 extern void guidance_hybrid_vertical(void);
 
+extern bool force_forward_flight;
 
 #endif /* GUIDANCE_HYBRID_H */

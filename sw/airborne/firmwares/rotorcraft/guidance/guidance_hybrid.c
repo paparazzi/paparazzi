@@ -69,7 +69,7 @@ static int32_t omega_disp;
 static int32_t high_res_psi;
 static int32_t airspeed_sp_heading_disp;
 static bool guidance_hovering;
-static bool force_forward_flight;
+bool force_forward_flight;
 static int32_t v_control_pitch;
 
 #if PERIODIC_TELEMETRY
