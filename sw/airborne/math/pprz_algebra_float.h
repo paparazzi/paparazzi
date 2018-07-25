@@ -101,6 +101,20 @@ struct FloatRates {
     while (_a < -M_PI) _a += (2.*M_PI);             \
   }
 
+/*
+ * Returns the log of v in base of n
+ */
+static inline float float_log_n(float v, float n) 
+{
+  if ( v == 0.0 ) {
+   return - 1.0E+30;
+  } 
+  else {
+    return log ( fabs ( v ) ) / log ( n );
+  }
+}
+
+
 //
 //
 // Vector algebra
@@ -623,6 +637,8 @@ static inline float float_vect_dot_product(const float *a, const float *b, const
   }
 
 extern void float_mat_invert(float **o, float **mat, int n);
+extern void float_mat_exp(float **a, float **o, int n);
+extern float float_mat_norm_li(float **o, int m, int n);
 
 /** a = 0 */
 static inline void float_mat_zero(float **a, int m, int n)
@@ -641,6 +657,8 @@ static inline void float_mat_copy(float **a, float **b, int m, int n)
     for (j = 0; j < n; j++) { a[i][j] = b[i][j]; }
   }
 }
+
+
 
 /** o = a + b */
 static inline void float_mat_sum(float **o, float **a, float **b, int m, int n)
@@ -707,6 +725,34 @@ static inline void float_mat_mul(float **o, float **a, float **b, int m, int n, 
 /** o = a * b
  *
  * a: [m x n]
+ * b: [n x l]
+ * o: [m x l]
+ *
+ * Multiply two matrices with eachother.
+ * By using a temporary array to store result. The resulting matrix can be stored in one 
+ * of the input matrices when this function is used, which is useful for consecutive multiplications
+ * (e.g. when doing matrix exponentiation), at the cost of some copy overhead.
+ */
+static inline void float_mat_mul_copy(float **o, float **a, float **b, int m, int n, int l) {
+  float temp[m][l];
+  int i, j, k;
+  for (i = 0; i < m; i++) {
+    for (j = 0; j < l; j++) {
+      o[i][j] = 0.;
+      for (k = 0; k < n; k++) {
+        o[i][j] += a[i][k] * b[k][j];
+      }
+    }
+  }
+  MAKE_MATRIX_PTR(_o,  o,  m);
+  MAKE_MATRIX_PTR(_temp,  temp,  m);
+  float_mat_copy(_o, _temp, m, l);
+}
+
+
+/** o = a * b
+ *
+ * a: [m x n]
  * b: [n x 1]
  * o: [m x 1]
  */
@@ -721,19 +767,35 @@ static inline void float_mat_vect_mul(float *o, float **a, float *b, int m, int 
   }
 }
 
-/** o = a * k, where b is a scalar value
+/** a *= k, where k is a scalar value
  *
  * a: [m x n]
  * k: [1 x 1]
- * o: [m x n]
  */
-static inline void float_mat_scale(float **o, float **a, float k, int m, int n)
+static inline void float_mat_scale(float **a, float k, int m, int n)
 {  
   int i, j;
   for (i = 0; i < m; i++) {
     for (j = 0; j < n; j++) {
       if (a[i][j] != 0.0)
-        o[i][j] *= k;
+        a[i][j] *= k;
+    }
+  }
+}
+
+/** a += k*b, where k is a scalar value
+ *
+ * a: [m x n]
+ * b: [m x n]
+ * k: [1 x 1]
+ */
+static inline void float_mat_sum_scaled(float **a, float **b, float k, int m, int n)
+{
+  int i, j;
+  for (i = 0; i < m; i++) {
+    for (j = 0; j < n; j++) {
+      if (a[i][j] != 0.0)
+        a[i][j] += k * b[i][j];
     }
   }
 }
@@ -793,7 +855,7 @@ static inline void float_mat_diagonal_scal(float **o, float v, int n)
       }
     }
   }
-};
+}
 
 extern bool float_mat_inv_2d(float inv_out[4], float mat_in[4]);
 extern void float_mat2_mult(struct FloatVect2 *vect_out, float mat[4], struct FloatVect2 vect_in);

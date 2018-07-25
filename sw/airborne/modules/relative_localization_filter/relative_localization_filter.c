@@ -37,10 +37,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "discrete_ekf.h"
 
 #ifndef RL_NUAVS
 #define RL_NUAVS 4 // Maximum expected number of other UAVs
+#endif
+
+#ifndef NO_NORTH
+#define NO_NORTH 0
+#endif
+
+#if NO_NORTH
+#include "discrete_ekf_no_north.h"
+#else
+#include "discrete_ekf.h"
 #endif
 
 int32_t id_array[RL_NUAVS]; // array of UWB IDs of all drones
@@ -51,8 +60,9 @@ float range_array[RL_NUAVS]; // an array to store the ranges at which the other 
 uint8_t pprzmsg_cnt; // a counter to send paparazzi messages, which are sent in rotation
 
 static abi_event range_communication_event;
-static void range_msg_callback(uint8_t sender_id __attribute__((unused)),
-                               uint8_t ac_id, float range, float tracked_v_north, float tracked_v_east, float tracked_h)
+static void range_msg_callback(uint8_t sender_id __attribute__((unused)), uint8_t ac_id,
+                               float range, float trackedVx, float trackedVy, float tracked_h,
+                               float trackedAx, float trackedAy, float trackedYawr)
 {
   int idx = -1; // Initialize the index of all tracked drones (-1 for null assumption of no drone found)
 
@@ -66,17 +76,23 @@ static void range_msg_callback(uint8_t sender_id __attribute__((unused)),
     range_array[idx] = range;
     ekf_rl[idx].dt = (get_sys_time_usec() - latest_update_time[idx]) / pow(10, 6); // Update the time between messages
 
-
-    #ifdef NO_NORTH
+    float ownVx = stateGetSpeedNed_f()->x;
+    float ownVy = stateGetSpeedNed_f()->y;
+    float ownh  = stateGetPositionEnu_f()->z;
+    #if NO_NORTH
+    float ownAx = stateGetAccelNed_f()->x;
+    float ownAy = stateGetAccelNed_f()->y;
+    float ownYawr = stateGetBodyRates_f()->r;
     float U[EKF_L] = {ownAx,ownAy,trackedAx,trackedAy,ownYawr,trackedYawr};
     float Z[EKF_M] = {range,ownh,trackedh,ownVx,ownVy,trackedVx,trackedVy};
     discrete_ekf_no_north_predict(&ekf_rl[idx],U);
+    discrete_ekf_no_north_update(&ekf_rl[idx], Z);
     #else
     // Measurement Vector Z = [range owvVx(NED) ownVy(NED) tracked_v_north(NED) tracked_v_east(NED) dh]
-    float Z[EKF_M] = {range, stateGetSpeedEnu_f()->y, stateGetSpeedEnu_f()->x, tracked_v_north, tracked_v_east, tracked_h - stateGetPositionEnu_f()->z};
+    float Z[EKF_M] = {range, ownVx, ownVy, trackedVx, trackedVy, tracked_h - ownh};
     discrete_ekf_predict(&ekf_rl[idx]);
-    #endif
     discrete_ekf_update(&ekf_rl[idx], Z);
+    #endif
 
   }
 

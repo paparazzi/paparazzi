@@ -8,10 +8,17 @@
   </doc>
   <header>
     <file name="relative_localization_filter.h"/>
+<!--     <file name="discrete_ekf.h"/>
+    <file name="discrete_ekf_no_north.h"/> -->
   </header>
   <init fun="relative_localization_filter_init()"/>
   <makefile>
     <file name="relative_localization_filter.c"/>
     <file name="discrete_ekf.c"/>
+    <file name="discrete_ekf_no_north.c"/>
+    <configure name="EKF_XZERO" default="1"/>
+    <configure name="EKF_YZERO" default="1"/>
+    <define name="EKF_XZERO" value="$(EKF_XZERO)"/>
+    <define name="EKF_YZERO" value="$(EKF_YZERO)"/>
   </makefile>
 </module>

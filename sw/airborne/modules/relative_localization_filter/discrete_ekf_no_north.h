@@ -21,10 +21,13 @@
  * @file "modules/relativelocalizationfilter/discrete_ekf_no_north.h"
  * @author Steven van der Helm, Mario Coppola
  * Discrete Extended Kalman Filter for Relative Localization
+ * This implementation is was used in 
+ * van der Helm et al. "On-board Range-based Relative Localization for Micro Aerial Vehicles in indoor Leader-Follower Flight." (2018).
+ * Available at https://arxiv.org/pdf/1805.07171.pdf
  */
 
-#ifndef DISCRETE_EKF_H
-#define DISCRETE_EKF_H
+#ifndef DISCRETE_EKF_NO_NORTH_H
+#define DISCRETE_EKF_NO_NORTH_H
 
 #include "stdlib.h"
 #include "string.h"
@@ -34,7 +37,7 @@
 #define EKF_M 7
 #define EKF_L 6
 
-struct discrete_ekf {
+struct discrete_ekf_no_north {
   float X[EKF_N];  // state X
   float Xp[EKF_N]; // state prediction
   float Zp[EKF_M]; // measurement prediction
@@ -42,11 +45,10 @@ struct discrete_ekf {
   float Q[EKF_N][EKF_N]; // proces covariance noise
   float R[EKF_M][EKF_M]; // measurement covariance noise
   float H[EKF_M][EKF_N]; // jacobian of the measure wrt X
+  float G[EKF_N][EKF_L]; // Noise input 
   float Ht[EKF_N][EKF_M]; // transpose of H
-
   float Phi[EKF_N][EKF_N]; // Jacobian
-  float Gamma[EKF_N][EKF_L]; // Noise input 
-  float *Zm_in;
+  float Gamma[EKF_N][EKF_L]; // Noise input
   float Fx[EKF_N][EKF_N]; // Jacobian of state
 
   float tmp1[EKF_N][EKF_N];
@@ -57,8 +59,18 @@ struct discrete_ekf {
   float dt;
 };
 
-extern void discrete_ekf_no_north_new(struct discrete_ekf *filter);
-extern void discrete_ekf_no_north_predict(struct discrete_ekf *filter);
-extern void discrete_ekf_update(struct discrete_ekf *filter, float *y);
 
-#endif /* DISCRETE_EKF_H */
+void extractPhiGamma(float **inmat, float **phi, float **gamma, int m, int n_a, int n_b);
+void float_mat_combine(float **a, float **b, float **o, int m, int n_a, int n_b);
+void c2d(int m, int nA, int nB, float **Fx, float **G, float dt, float **phi, float **gamma);
+void discrete_ekf_no_north_fsym(float *statein, float *input, float *output);
+void discrete_ekf_no_north_hsym(float *statein,float *output);
+void discrete_ekf_no_north_Fx(float *statein,float *input,float **output);
+void discrete_ekf_no_north_G(float *statein, float **output);
+void discrete_ekf_no_north_Hx(float *statein, float **output);
+
+extern void discrete_ekf_no_north_new(struct discrete_ekf_no_north *filter);
+extern void discrete_ekf_no_north_predict(struct discrete_ekf_no_north *filter, float *U);
+extern void discrete_ekf_no_north_update(struct discrete_ekf_no_north *filter, float *y);
+
+#endif /* DISCRETE_EKF_NO_NORTH_H */
