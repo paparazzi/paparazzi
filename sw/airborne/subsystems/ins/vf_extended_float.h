@@ -30,7 +30,7 @@
 #ifndef VF_EXTENDED_FLOAT_H
 #define VF_EXTENDED_FLOAT_H
 
-#define VFF_STATE_SIZE 4
+#define VFF_STATE_SIZE 5
 
 struct VffExtended {
   /* state vector */
@@ -38,6 +38,7 @@ struct VffExtended {
   float zdot;        ///< z-velocity estimate in m/s (NED, z-down)
   float bias;        ///< accel bias estimate in m/s^2
   float offset;      ///< baro offset estimate
+  float obs_height;  ///< estimate of height of obstacles under the vehicle
 
   float zdotdot;     ///< z-acceleration in m/s^2 (NED, z-down)
   float z_meas;      ///< last z measurement in m
@@ -48,20 +49,20 @@ struct VffExtended {
   float accel_noise;
   float r_baro;
   float r_alt;
-  float r_offset;
+  float r_obs_height;
 };
 
 extern struct VffExtended vff;
 
 extern void vff_init_zero(void);
-extern void vff_init(float z, float zdot, float accel_bias, float baro_offset);
+extern void vff_init(float z, float zdot, float accel_bias, float baro_offset, float obstacle_hieght);
 extern void vff_propagate(float accel, float dt);
 extern void vff_update_baro(float z_meas);
 extern void vff_update_z(float z_meas);
-extern void vff_update_offset(float offset);
 extern void vff_update_baro_conf(float z_meas, float conf);
 extern void vff_update_z_conf(float z_meas, float conf);
 extern void vff_update_vz_conf(float vz_meas, float conf);
 extern void vff_realign(float z_meas);
+extern void vff_update_agl(float z_meas, float conf);
 
 #endif /* VF_EXTENDED_FLOAT_H */

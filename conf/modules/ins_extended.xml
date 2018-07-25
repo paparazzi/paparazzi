@@ -6,7 +6,7 @@
       extended INS with vertical filter using sonar.
     </description>
     <define name="USE_INS_NAV_INIT" value="TRUE|FALSE" description="Initialize the origin of the local coordinate system from flight plan. (Default: TRUE)"/>
-    <define name="INS_INT_SONAR_ID" value="ABI_BROADCAST" description="The ABI sender id of the sonar to use"/>
+    <define name="INS_INT_AGL_ID" value="ABI_BROADCAST" description="The ABI sender id of the sonar to use"/>
     <define name="INS_INT_BARO_ID" value="BARO_BOARD_SENDER_ID" description="The ABI sender id of the baro to use"/>
     <define name="INS_INT_GPS_ID" value="GPS_MULTI_ID" description="The ABI sender id of the GPS to use"/>
     <define name="INS_INT_IMU_ID" value="ABI_BROADCAST" description="The ABI sender id of the IMU to use"/>
@@ -14,6 +14,12 @@
     <define name="INS_SONAR_MIN_RANGE" value="0.001" description="min sonar range in meters"/>
     <define name="INS_SONAR_MAX_RANGE" value="4.0" description="max sonar range in meters"/>
     <define name="INS_SONAR_UPDATE_ON_AGL" value="FALSE" description="assume flat ground and use sonar for height"/>
+    
+    <define name="DEBUG_VFF_EXTENDED" value="0|1|2" description="If set > 0, this will send the vff message. If > 1 then it will also print the P matrix"/>
+    <define name="VFF_EXTENDED_INIT_PXX" value="1." description="Initial value of the diagonal of the P matrix"/>
+    <define name="VFF_EXTENDED_ACCEL_NOISE" value="0.5" description="Accelerometer noise setting"/>
+    <define name="VFF_EXTENDED_R_BARO" value="2." description="Barometer noise setting"/>
+    <define name="VFF_EXTENDED_NON_FLAT_GROUND" value="FALSE" description="VFF_EXTENDED_NON_FLAT_GROUND removes the assumption of a flat ground and tries to estimate the height of the obstacles under the vehicle."/>
   </doc>
 
   <settings>
@@ -22,7 +28,7 @@
         <dl_setting MAX="10" MIN="0" STEP="0.1" VAR="vff.accel_noise" shortname="accel_noise" module="subsystems/ins/vf_extended_float"/>
         <dl_setting MAX="10" MIN="0" STEP="0.1" VAR="vff.r_baro" shortname="r_baro"/>
         <dl_setting MAX="10" MIN="0" STEP="0.1" VAR="vff.r_alt" shortname="r_alt"/>
-        <dl_setting MAX="10" MIN="0" STEP="0.1" VAR="vff.r_offset" shortname="r_offset"/>
+        <dl_setting MAX="10" MIN="0" STEP="0.1" VAR="vff.r_obs_height" shortname="r_obs_height"/>
       </dl_settings>
     </dl_settings>
   </settings>

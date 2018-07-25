@@ -232,7 +232,6 @@ else ifeq ($(BOARD), apogee)
   BARO_BOARD_CFLAGS += -DUSE_I2C1
   BARO_BOARD_SRCS += peripherals/mpl3115.c
   BARO_BOARD_SRCS += $(SRC_BOARD)/baro_board.c
-  BARO_PERIODIC_FREQUENCY ?= 50
 
 # Umarim
 else ifeq ($(BOARD), umarim)
@@ -313,9 +312,8 @@ BARO_BOARD_CFLAGS += -DBARO_LED=$(BARO_LED)
 endif
 
 # make sure you can also use <configure name="BARO_PERIODIC_FREQUENCY" value="x"/> instead of define
-ifdef BARO_PERIODIC_FREQUENCY
+BARO_PERIODIC_FREQUENCY ?= 50
 BARO_BOARD_CFLAGS += -DBARO_PERIODIC_FREQUENCY=$(BARO_PERIODIC_FREQUENCY)
-endif
 
 ap.CFLAGS += $(BARO_BOARD_CFLAGS)
 ap.srcs += $(BARO_BOARD_SRCS)

@@ -53,19 +53,16 @@
 
 #include "math/pprz_geodetic_int.h"
 #include "math/pprz_isa.h"
+#include "math/pprz_stat.h"
 
+#ifndef VFF_R_AGL
+#define VFF_R_AGL 0.2
+#endif
 
 #if USE_SONAR
 #if !USE_VFF_EXTENDED
 #error USE_SONAR needs USE_VFF_EXTENDED
 #endif
-
-/** default sonar to use in INS */
-#ifndef INS_INT_SONAR_ID
-#define INS_INT_SONAR_ID ABI_BROADCAST
-#endif
-abi_event sonar_ev;
-static void sonar_cb(uint8_t sender_id, float distance);
 
 #ifdef INS_SONAR_THROTTLE_THRESHOLD
 #include "firmwares/rotorcraft/stabilization.h"
@@ -77,7 +74,7 @@ static void sonar_cb(uint8_t sender_id, float distance);
 #ifndef INS_SONAR_MAX_RANGE
 #define INS_SONAR_MAX_RANGE 4.0
 #endif
-#define VFF_R_SONAR_0 0.1
+#define VFF_R_SONAR_0 0.2
 #ifndef VFF_R_SONAR_OF_M
 #define VFF_R_SONAR_OF_M 0.2
 #endif
@@ -110,6 +107,7 @@ PRINT_CONFIG_MSG("USE_INS_NAV_INIT defaulting to TRUE")
 #endif
 
 /** default barometer to use in INS */
+#define INS_BARO_MAX_INIT_VAR 1.f  // variance threshold to set initial baro measurement
 #ifndef INS_INT_BARO_ID
 #if USE_BARO_BOARD
 #define INS_INT_BARO_ID BARO_BOARD_SENDER_ID
@@ -155,6 +153,15 @@ static void pos_est_cb(uint8_t sender_id,
                        uint32_t stamp,
                        float x, float y, float z,
                        float noise_x, float noise_y, float noise_z);
+
+/** ABI binding for AGL.
+ * Usually this is comes from sonar or gps.
+ */
+#ifndef INS_INT_AGL_ID
+#define INS_INT_AGL_ID ABI_BROADCAST
+#endif
+static abi_event agl_ev;                 ///< The agl ABI event
+static void agl_cb(uint8_t sender_id, float distance);
 
 struct InsInt ins_int;
 
@@ -212,8 +219,6 @@ void ins_int_init(void)
 
 #if USE_SONAR
   ins_int.update_on_agl = INS_SONAR_UPDATE_ON_AGL;
-  // Bind to AGL message
-  AbiBindMsgAGL(INS_INT_SONAR_ID, &sonar_ev, sonar_cb);
 #endif
 
   ins_int.vf_reset = false;
@@ -242,6 +247,7 @@ void ins_int_init(void)
   AbiBindMsgGPS(INS_INT_GPS_ID, &gps_ev, gps_cb);
   AbiBindMsgVELOCITY_ESTIMATE(INS_INT_VEL_ID, &vel_est_ev, vel_est_cb);
   AbiBindMsgPOSITION_ESTIMATE(INS_INT_POS_ID, &pos_est_ev, pos_est_cb);
+  AbiBindMsgAGL(INS_INT_AGL_ID, &agl_ev, agl_cb); // ABI to the altitude above ground level
 }
 
 void ins_reset_local_origin(void)
@@ -330,39 +336,56 @@ void ins_int_propagate(struct Int32Vect3 *accel, float dt)
 
 static void baro_cb(uint8_t __attribute__((unused)) sender_id, float pressure)
 {
-  if (!ins_int.baro_initialized && pressure > 1e-7) {
-    // wait for a first positive value
-    ins_int.qfe = pressure;
-    ins_int.baro_initialized = true;
+  if (pressure < 1.f)
+  {
+    // bad baro pressure, don't use
+    return;
+  }
+
+  if (!ins_int.baro_initialized) {
+#define press_hist_len 10
+    static float press_hist[press_hist_len];
+    static uint8_t idx = 0;
+
+    press_hist[idx] = pressure;
+    idx = (idx + 1) % press_hist_len;
+    float var = variance_f(press_hist, press_hist_len);
+    if (var < INS_BARO_MAX_INIT_VAR){
+      // wait for a first positive value
+      ins_int.vf_reset = true;
+      ins_int.baro_initialized = true;
+    }
   }
 
   if (ins_int.baro_initialized) {
-    if (ins_int.vf_reset) {
-      ins_int.vf_reset = false;
-      ins_int.qfe = pressure;
-      vff_realign(0.);
-      ins_update_from_vff();
-    } else {
-      float baro_up = pprz_isa_height_of_pressure(pressure, ins_int.qfe);
-
+    float height_correction = 0.f;
+    if(ins_int.ltp_initialized){
       // Calculate the distance to the origin
       struct EnuCoor_f *enu = stateGetPositionEnu_f();
       double dist2_to_origin = enu->x * enu->x + enu->y * enu->y;
 
       // correction for the earth's curvature
       const double earth_radius = 6378137.0;
-      float height_correction = (float)(sqrt(earth_radius * earth_radius + dist2_to_origin) - earth_radius);
+      height_correction = (float)(sqrt(earth_radius * earth_radius + dist2_to_origin) - earth_radius);
+    }
 
-      // The VFF will update in the NED frame
-      ins_int.baro_z = -(baro_up - height_correction);
+    if (ins_int.vf_reset) {
+      ins_int.vf_reset = false;
+      ins_int.qfe = pressure;
+      vff_realign(height_correction);
+      ins_update_from_vff();
+    }
+
+    float baro_up = pprz_isa_height_of_pressure(pressure, ins_int.qfe);
+
+    // The VFF will update in the NED frame
+    ins_int.baro_z = -(baro_up - height_correction);
 
 #if USE_VFF_EXTENDED
-      vff_update_baro(ins_int.baro_z);
+    vff_update_baro(ins_int.baro_z);
 #else
-      vff_update(ins_int.baro_z);
+    vff_update(ins_int.baro_z);
 #endif
-    }
-    ins_ned_to_state();
 
     /* reset the counter to indicate we just had a measurement update */
     ins_int.propagation_cnt = 0;
@@ -448,33 +471,44 @@ void ins_int_update_gps(struct GpsState *gps_s)
 void ins_int_update_gps(struct GpsState *gps_s __attribute__((unused))) {}
 #endif /* USE_GPS */
 
-
-#if USE_SONAR
-static void sonar_cb(uint8_t __attribute__((unused)) sender_id, float distance)
-{
-  static float last_offset = 0.;
-
-  /* update filter assuming a flat ground */
-  if (distance < INS_SONAR_MAX_RANGE && distance > INS_SONAR_MIN_RANGE
-#ifdef INS_SONAR_THROTTLE_THRESHOLD
-      && stabilization_cmd[COMMAND_THRUST] < INS_SONAR_THROTTLE_THRESHOLD
-#endif
-#ifdef INS_SONAR_BARO_THRESHOLD
-      && ins_int.baro_z > -INS_SONAR_BARO_THRESHOLD /* z down */
-#endif
-      && ins_int.update_on_agl
-      && ins_int.baro_initialized) {
-    vff_update_z_conf(-(distance), VFF_R_SONAR_0 + VFF_R_SONAR_OF_M * fabsf(distance));
-    last_offset = vff.offset;
-  } else {
-    /* update offset with last value to avoid divergence */
-    vff_update_offset(last_offset);
+/** agl_cb
+ * This callback handles all estimates of the height of the vehicle above the ground under it
+ * This is only used with the extended version of the vertical float filter
+ */
+#if USE_VFF_EXTENDED
+static void agl_cb(uint8_t sender_id, float distance) {
+  if (distance <= 0 || !(ins_int.baro_initialized)) {
+    return;
   }
 
-  /* reset the counter to indicate we just had a measurement update */
-  ins_int.propagation_cnt = 0;
+#if USE_SONAR
+  if (distance > INS_SONAR_MAX_RANGE || distance < INS_SONAR_MIN_RANGE){
+    return;
+  }
+#endif
+#ifdef INS_AGL_THROTTLE_THRESHOLD
+   if(stabilization_cmd[COMMAND_THRUST] < INS_AGL_THROTTLE_THRESHOLD){
+     return;
+   }
+#endif
+#ifdef INS_AGL_BARO_THRESHOLD
+  if(ins_int.baro_z < -INS_SONAR_BARO_THRESHOLD){ /* z down */
+    return;
+  }
+#endif
+
+#if USE_SONAR
+  vff_update_agl(-distance, VFF_R_SONAR_0 + VFF_R_SONAR_OF_M * fabsf(distance));
+#else
+  // TODO: this assumes that you will either have sonar or other agl sensor never both
+  vff_update_agl(-distance, VFF_R_AGL);
+#endif
+    /* reset the counter to indicate we just had a measurement update */
+    ins_int.propagation_cnt = 0;
 }
-#endif // USE_SONAR
+#else
+static void agl_cb(uint8_t __attribute__((unused)) sender_id, __attribute__((unused)) float distance) {}
+#endif
 
 /** copy position and speed to state interface */
 static void ins_ned_to_state(void)

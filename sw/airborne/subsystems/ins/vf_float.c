@@ -255,5 +255,6 @@ void vff_update_vz_conf(float vz_meas, float conf)
 
 void vff_realign(float z_meas)
 {
-  vff_init(z_meas, 0., 0.);
+  vff.z    = z_meas;
+  vff.zdot = 0.;
 }

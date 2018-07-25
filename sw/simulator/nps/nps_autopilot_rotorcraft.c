@@ -134,7 +134,9 @@ void nps_autopilot_run_step(double time)
     AbiSendMsgAGL(AGL_SONAR_NPS_ID, dist);
 
     uint16_t foo = 0;
+#ifdef SENSOR_SYNC_SEND_SONAR
     DOWNLINK_SEND_SONAR(DefaultChannel, DefaultDevice, &foo, &dist);
+#endif
 
     main_event();
   }

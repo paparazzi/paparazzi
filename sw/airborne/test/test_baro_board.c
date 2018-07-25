@@ -65,10 +65,8 @@ __attribute__((weak)) void test_baro_board_imu_event_task(void)
   /* Optionally, to be overriden by board specific code */
 }
 
+/* BARO_PERIODIC_FREQUENCY is defined in the shared/baro_board.makefile and defaults to 50Hz */
 
-#ifndef BARO_PERIODIC_FREQUENCY
-#define BARO_PERIODIC_FREQUENCY 50
-#endif
 PRINT_CONFIG_VAR(BARO_PERIODIC_FREQUENCY)
 
 #ifdef BARO_LED
