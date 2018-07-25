@@ -14,6 +14,12 @@
     <define name="INS_SONAR_MIN_RANGE" value="0.001" description="min sonar range in meters"/>
     <define name="INS_SONAR_MAX_RANGE" value="4.0" description="max sonar range in meters"/>
     <define name="INS_SONAR_UPDATE_ON_AGL" value="FALSE" description="assume flat ground and use sonar for height"/>
+    
+    <define name="DEBUG_VFF_EXTENDED" value="0|1|2" description="If set > 0, this will send the vff message. If > 1 then it will also print the P matrix"/>
+    <define name="VFF_EXTENDED_INIT_PXX" value="1." description="Initial value of the diagonal of the P matrix"/>
+    <define name="VFF_EXTENDED_ACCEL_NOISE" value="0.5" description="Accelerometer noise setting"/>
+    <define name="VFF_EXTENDED_R_BARO" value="2." description="Barometer noise setting"/>
+    <define name="VFF_EXTENDED_NON_FLAT_GROUND" value="FALSE" description="VFF_EXTENDED_NON_FLAT_GROUND removes the assumption of a flat ground and tries to estimate the height of the obstacles under the vehicle."/>
   </doc>
 
   <settings>

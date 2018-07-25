@@ -98,7 +98,9 @@ static void send_vffe(struct transport_tx *trans, struct link_device *dev)
   pprz_msg_send_VFF_EXTENDED(trans, dev, AC_ID,
                              &vff.z_meas_baro, &vff.z_meas,
                              &vff.z, &vff.zdot, &vff.zdotdot,
-                             &vff.bias, &vff.offset);//, &vff.obs_height);
+                             &vff.bias, &vff.offset, &vff.obs_height,
+                             &vff.P[0][0], &vff.P[1][1], &vff.P[2][2],
+                             &vff.P[3][3], &vff.P[4][4]);
 }
 #endif
 
@@ -106,6 +108,21 @@ void vff_init_zero(void)
 {
   vff_init(0.f, 0.f, 0.f, 0.f, 0.f);
 }
+
+#if DEBUG_VFF_EXTENDED > 1
+#include "stdio.h"
+static void print_vff(void)
+{
+  int i, j;
+  for (i = 0; i < VFF_STATE_SIZE; i++) {
+    for (j = 0; j < VFF_STATE_SIZE; j++) {
+      printf("%f ", vff.P[i][j]);
+    }
+    printf("\n");
+  }
+  printf("\n");
+}
+#endif
 
 void vff_init(float init_z, float init_zdot, float init_accel_bias, float init_offset, float init_obs_height)
 {
@@ -196,6 +213,9 @@ void vff_propagate(float accel, float dt)
 #if DEBUG_VFF_EXTENDED
   RunOnceEvery(10, send_vffe(&(DefaultChannel).trans_tx, &(DefaultDevice).device));
 #endif
+#if DEBUG_VFF_EXTENDED > 1
+  RunOnceEvery(100, print_vff());
+#endif
 }
 
 /**
@@ -240,9 +260,8 @@ static void update_biased_z_conf(float z_meas, float conf)
       vff.P[i][j] -= K[i] * P[j];
     }
   }
-#ifdef VFF_EXTENDED_NON_FLAT_GROUND
+
   vff_update_obs_height(0.f);
-#endif
 }
 
 /**
