@@ -2,19 +2,52 @@
 
 <module name="bebop_ae_awb" dir="computer_vision">
   <doc>
-    <description>Auto exposure and Auto white balancing for the Bebop 1 and 2</description>
-    
+    <description>Auto Exposure and Auto White Balancing for the Bebop 1 and 2</description>
     <section name="bebop_ae_awb">
+      <define  name="BEBOP_AE_AWB_NICE" value="5" description="Nice setting for async thread"/>
       <define name="BEBOP_AUTO_EXPOSURE" value="true" description="perform auto exposure (Default: true)"/>
+      <define name="BEBOP_AE_AWB_CAMERA" value="front_camera|bottom_camera" description="which camera to run the AWB and AE"/>
+      <define name="BEBOP_AE_AWB_VERBOSE" value="TRUE|FALSE" description="Whether or not to print debug information to the terminal"/>
+      <define name="BEBOP_AE_EXPOSURE_GAIN" value="0.75" description="Gain to apply to autoexposure change"/>
+      <define name="BEBOP_AE_MIDDLE_INDEX" value="110" description="Bin index to be considered as the center of the brightness bins"/>
+      <define name="BEBOP_AE_DARK_IGNORE" value="0.2" description="Proportion of dark bins to ignore in the computation of the autoexposure"/>
+      <define name="BEBOP_AE_BRIGHT_IGNORE" value="0.6" description="Proportion of bright bins to ignore in the computation of the autoexposure"/>
+      <define name="BEBOP_AE_DARK_BINS" value="73" description="Number of dark bins to consider as dark in the autoexposure"/>
+      <define name="BEBOP_AE_BRIGHT_BINS" value="73" description="Number of bright bins to consider as bright in autoexposure"/>
       <define name="BEBOP_AUTO_WHITE_BALANCE" value="true" description="Perform auto white balance (Default: true)"/>
+      <define name="BEBOP_AWB_GAIN" value="0.5" description="Gain to apply to AWB changes"/>
+      <define name="BEBOP_AWB_MIN_GAINS" value="1" description="Minimum gain for AWB"/>
+      <define name="BEBOP_AWB_MAX_GAINS" value="63.5" description="Maximum gain for AWB"/>
+      <define name="BEBOP_AWB_GAIN_SCHEDULING" value="TRUE|FALSE" description="Activates gain scheduling for the AWB, helps to handle fast changes in brightness"/>
+      <define name="BEBOP_AWB_GAIN_SCHEDULING_TARGET" value="10" description="Target white balance"/>
+      <define name="BEBOP_AWB_GAIN_SCHEDULING_TOLERANCE" value="7.5" description="Tolerance around the target exposure outside of which gain scheduling is activated"/>
+      <define name="BEBOP_AWB_GAIN_SCHEDULING_STEP" value="0.02" description="Step size of the AWB gain scheduling correction"/>
+      <define name="BEBOP_AWB_MIN_GREY_PIXELS" value="1000" description="Minimum number of grey pixels in image, when lower, the AWB is reset"/>
     </section>
   </doc>
-  
+  <settings>
+  <dl_settings>
+    <dl_settings NAME="AE/AWB">
+      <dl_setting var="ae_set.active" values="OFF|ON" min="0" step="1" max="1" module="computer_vision/bebop_ae_awb" shortname="AE active"/>
+      <dl_setting var="ae_set.exposure_gain" min="0" step="0.02" max="2" module="computer_vision/bebop_ae_awb" shortname="AE gain"/>
+      <dl_setting var="ae_set.middle_index" min="6" step="1" max="249" module="computer_vision/bebop_ae_awb" shortname="AE center bin"/>
+      <dl_setting var="ae_set.dark_bins" min="0" step="1" max="127" module="computer_vision/bebop_ae_awb" shortname="AE dark bins"/>
+      <dl_setting var="ae_set.bright_bins" min="0" step="1" max="127" module="computer_vision/bebop_ae_awb" shortname="AE bright bins"/>
+      <dl_setting var="ae_set.dark_ignore" min="0" step="0.01" max="1" module="computer_vision/bebop_ae_awb" shortname="AE ignore dark (%)"/>
+      <dl_setting var="ae_set.bright_ignore" min="0" step="0.01" max="1" module="computer_vision/bebop_ae_awb" shortname="AE ignore bright (%)"/>
+      <dl_setting var="awb_set.active" values="OFF|ON" min="0" step="1" max="1" module="computer_vision/bebop_ae_awb" shortname="AWB Active"/>
+      <dl_setting var="awb_set.gain" min="0" step="0.02" max="2" module="computer_vision/bebop_ae_awb" shortname="AWB gain"/>
+      <dl_setting var="awb_set.gain_scheduling" values="OFF|ON" min="0" step="1" max="1" module="computer_vision/bebop_ae_awb" shortname="AE gain sched"/>
+      <dl_setting var="awb_set.gain_scheduling_target" min="1" step="0.5" max="20" module="computer_vision/bebop_ae_awb" shortname="sched target"/>
+      <dl_setting var="awb_set.gain_scheduling_tolerance" min="1" step="0.5" max="20" module="computer_vision/bebop_ae_awb" shortname="sched tolerance"/>
+      <dl_setting var="awb_set.gain_scheduling_step" min="0.005" step="0.005" max="0.1" module="computer_vision/bebop_ae_awb" shortname="sched step"/>
+    </dl_settings>
+  </dl_settings>
+</settings>
   <header>
     <file name="bebop_ae_awb.h"/>
   </header>
   <init fun="bebop_ae_awb_init()"/>
-  <periodic fun="bebop_ae_awb_periodic()" freq="5" autorun="TRUE"/>
   <makefile target="ap">
     <file name="bebop_ae_awb.c"/>
   </makefile>

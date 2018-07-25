@@ -51,8 +51,7 @@
 
     <!-- Video/Camera modules -->
     <module name="video_thread" />
-    <!--module name="cv_ae_awb">
-      <define name="CV_AE_AWB_AV" value="1" />
+    <!--module name="bebop_ae_awb">
       <define name="CV_AE_AWB_VERBOSE" value="0" />
     </module-->
     <module name="cv_colorfilter">
