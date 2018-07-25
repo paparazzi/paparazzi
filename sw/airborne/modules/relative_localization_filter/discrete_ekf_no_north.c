@@ -28,6 +28,91 @@
 #include <math.h>
 #include <stdio.h> // needed for the printf statements
 
+void extractPhiGamma(int n_row, int n_colA, int n_colB, float *inmat, float *phi, float *gamma){
+  int totalsize = n_row+n_colB;
+  for(int row = 0; row<totalsize;row++){
+    for (int col = 0; col<totalsize;col++){
+      if(row<n_row && col<n_colA){
+        phi[col+row*n_colA] = *inmat;
+      }
+      else if(row<n_row && col>=n_colA){
+        gamma[(col-n_colA)+row*n_colB] = *inmat;
+      }
+      inmat++;
+    }
+  }
+}
+
+void combineMatrices(int n_row, int n_colA, int n_colB, float *A, float *B, float *combmat){
+  int totalsize = n_row+n_colB;
+  for (int row =0; row<totalsize; row++){
+    for (int col = 0; col<totalsize;col++){
+      if ((row<n_row) && col<n_colA){
+        combmat[col+row*totalsize]=*A;
+        A++;
+      }
+      else if ((row<n_row) && (col>=n_colA) ){
+        combmat[col+row*totalsize]= *B;
+        B++;
+      }
+      else{
+        combmat[col+row*totalsize]=0.0;
+      }
+    }
+  }
+}
+
+void fmat_expm(int n, float *a, float *expa){
+  float a_norm, c, t;
+  const int q = 6;
+  float d[n*n];
+  float x[n*n];
+  float a2[n*n];
+  int ee, k, s;
+  bool p;
+
+  fmat_copy ( n, n, a, a2 );
+  a_norm = fmat_norm_li ( n, n, a2 );
+  ee = ( int ) ( fmat_log_2 ( a_norm ) ) + 1;
+  s = fmat_max_i( 0, ee + 1 );
+  t = 1.0 / pow ( 2.0, s );
+  fmat_scal_mult( n, n, a2, t, a2 );
+  fmat_copy ( n, n, a2, x );
+  c = 0.5;
+  fmat_make_identity ( expa, n);
+  fmat_add_scal_mult ( n, n, expa, expa, c, a2);
+  fmat_make_identity ( d, n);
+  fmat_add_scal_mult ( n, n, d, d, -c, a2);
+  
+  p = true;
+  for ( k = 2; k <= q; k++ ) {
+    c = c * ( float ) ( q - k + 1 ) / ( float ) ( k * ( 2 * q - k + 1 ) );
+    fmat_mult_cop(n, n, n, x, x, a2);
+    fmat_add_scal_mult(n,n,expa,expa,c,x);
+
+    if (p) {
+      fmat_add_scal_mult(n,n,d,d,c,x);
+    }
+    else {
+      fmat_add_scal_mult(n,n,d,d,-c,x);
+    }
+    p = !p;
+  }
+
+  /*
+    E -> inverse(D) * E
+  */
+  fmat_invmult(n,n,d,expa,expa);
+
+  /*
+    E -> E^(2*S)
+  */
+  for ( k = 1; k <= s; k++ ) {
+    fmat_mult_cop(n,n,n,expa,expa,expa);
+  }
+
+}
+
 enum ekf_statein{x12,y12,z1,z2,u1,v1,u2,v2,gam};
 enum ekf_input{u1dm,v1dm,u2dm,v2dm,r1m,r2m};
 
@@ -35,8 +120,12 @@ void c2d(int n_row, int n_colA, int n_colB, float *A, float *B, float dt, float 
   int totalsize = n_row + n_colB;
   float combmat[totalsize][totalsize];
   float expm[totalsize][totalsize];
-  fmat_scal_mult(n_row,n_colA,A,dt,A);
-  fmat_scal_mult(n_row,n_colB,B,dt,B);
+
+  float_mat_scale();
+  float_mat_scale();
+
+  // fmat_scal_mult(n_row,n_colA,A,dt,A);
+  // fmat_scal_mult(n_row,n_colB,B,dt,B);
   combineMatrices(n_row, n_colA, n_colB, A, B, combmat);
   fmat_expm(totalsize, combmat, expm);
   extractPhiGamma(n_row, n_colA, n_colB, expm, phi, gamma);
@@ -119,8 +208,6 @@ void discrete_ekf_no_north_Hx(float *statein, float **output){
   output[6][7] = 1;
 }
 
-
-// Weights are based on: Coppola et al, "On-board Communication-based Relative Localization for Collision Avoidance in Micro Air Vehicle teams", 2017
 void discrete_ekf_no_north_new(struct discrete_ekf *filter)
 {
   MAKE_MATRIX_PTR(_P, filter->P, EKF_N);
@@ -166,16 +253,19 @@ void discrete_ekf_no_north_predict(struct discrete_ekf *filter, float *U, float 
   MAKE_MATRIX_PTR(_tmp1, filter->tmp1, EKF_N);
   MAKE_MATRIX_PTR(_tmp2, filter->tmp2, EKF_N);
   MAKE_MATRIX_PTR(_tmp3, filter->tmp3, EKF_N);
+  MAKE_MATRIX_PTR(_tmp4, filter->tmp4, EKF_N);
   MAKE_MATRIX_PTR(_H,    filter->H,    EKF_N);
   MAKE_MATRIX_PTR(_P,    filter->P,    EKF_N);
   MAKE_MATRIX_PTR(_Q,    filter->Q,    EKF_N);
+  MAKE_MATRIX_PTR(_Gamma,filter->Gamma,EKF_N);
+  MAKE_MATRIX_PTR(_Phi,  filter->Phi,  EKF_N);
 
-  discrete_ekf_no_north_fsym(filter->X,U,filter->dX); 
+  discrete_ekf_no_north_fsym(filter->X,U,dX); 
   discrete_ekf_no_north_Fx(filter->X,U,filter->Fx); // state transition matrix
   discrete_ekf_no_north_G(filter->X,U,filter->G); // input transition matrix
   
-  float_vect_scale(filter->dX,filter->dt,EKF_N)
-  float_vect_sum(filter->Xp,filter->X,filter->dX,EKF_N);
+  float_vect_scale(dX,filter->dt,EKF_N)
+  float_vect_sum(filter->Xp,filter->X,dX,EKF_N);
 
   c2d(EKF_N,EKF_N,EKF_L,filter->Fx,filter->G,filter->dt,filter->Phi,filter->Gamma);
 

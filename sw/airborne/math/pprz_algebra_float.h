@@ -721,6 +721,23 @@ static inline void float_mat_vect_mul(float *o, float **a, float *b, int m, int 
   }
 }
 
+/** o = a * k, where b is a scalar value
+ *
+ * a: [m x n]
+ * k: [1 x 1]
+ * o: [m x n]
+ */
+static inline void float_mat_scale(float **o, float **a, float k, int m, int n)
+{  
+  int i, j;
+  for (i = 0; i < m; i++) {
+    for (j = 0; j < n; j++) {
+      if (a[i][j] != 0.0)
+        o[i][j] *= k;
+    }
+  }
+}
+
 
 /** matrix minor
  *

@@ -50,12 +50,6 @@ struct discrete_ekf ekf_rl[RL_NUAVS];
 float range_array[RL_NUAVS]; // an array to store the ranges at which the other MAVs are
 uint8_t pprzmsg_cnt; // a counter to send paparazzi messages, which are sent in rotation
 
-
-
-void initNewEkfFilter(ekf_filter *filter){
-
-}
-
 static abi_event range_communication_event;
 static void range_msg_callback(uint8_t sender_id __attribute__((unused)),
                                uint8_t ac_id, float range, float tracked_v_north, float tracked_v_east, float tracked_h)
