@@ -1,23 +1,21 @@
 <!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
 
-<!-- Valkenburg -->
-<!-- <flight_plan alt="40" ground_alt="0" lat0="52.170867" lon0="4.412194" max_dist_from_home="1000" name="Transitioning test" security_height="2"> -->
-<!-- Delft -->
-<flight_plan alt="40" ground_alt="0" lat0="51.979438" lon0="4.390148" max_dist_from_home="1000" name="Transitioning test" security_height="2">
+<flight_plan alt="40" ground_alt="0" lat0="52.170867" lon0="4.412194" max_dist_from_home="1000" name="Transitioning test" security_height="2">
   <header>
     #include "autopilot.h"
     #include "subsystems/radio_control.h"
     #include "subsystems/electrical.h"
     #include "subsystems/actuators.h"
     #include "firmwares/rotorcraft/guidance/guidance_h.h"
+    #include "firmwares/rotorcraft/guidance/guidance_hybrid.h"
 </header>
   <waypoints>
     <waypoint name="HOME" x="0.0" y="0.0"/>
-    <waypoint name="STDBY" x="-2.0" y="-5.0"/>
-    <waypoint name="p1" x="53.9" y="9.6"/>
-    <waypoint name="p2" x="-64.4" y="31.4"/>
-    <waypoint name="p3" x="-50.7" y="66.2"/>
-    <waypoint name="p4" x="60.0" y="41.3"/>
+    <waypoint name="STDBY" x="11.2" y="15.5"/>
+    <waypoint name="p1" x="98.2" y="-123.9"/>
+    <waypoint name="p2" x="18.8" y="104.2"/>
+    <waypoint name="p3" x="103.2" y="145.7"/>
+    <waypoint name="p4" x="216.8" y="-82.9"/>
   </waypoints>
   <blocks>
     <block name="Wait GPS">
