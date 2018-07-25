@@ -18,8 +18,8 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/relativelocalizationfilter/discrete_ekf.h"
- * @author Mario Coppola
+ * @file "modules/relativelocalizationfilter/discrete_ekf_no_north.h"
+ * @author Steven van der Helm, Mario Coppola
  * Discrete Extended Kalman Filter for Relative Localization
  */
 
@@ -30,8 +30,9 @@
 #include "string.h"
 #include "math.h"
 
-#define EKF_N 7
-#define EKF_M 6
+#define EKF_N 9
+#define EKF_M 7
+#define EKF_L 6
 
 struct discrete_ekf {
   float X[EKF_N];  // state X
@@ -43,18 +44,21 @@ struct discrete_ekf {
   float H[EKF_M][EKF_N]; // jacobian of the measure wrt X
   float Ht[EKF_N][EKF_M]; // transpose of H
 
+  float Phi[EKF_N][EKF_N]; // Jacobian
+  float Gamma[EKF_N][EKF_L]; // Noise input 
+  float *Zm_in;
+  float Fx[EKF_N][EKF_N]; // Jacobian of state
+
   float tmp1[EKF_N][EKF_N];
   float tmp2[EKF_N][EKF_N];
   float tmp3[EKF_N][EKF_N];
+  float tmp4[EKF_N][EKF_N];
 
   float dt;
 };
 
-extern void linear_filter(float *X, float dt, float *dX, float **A);
-extern void linear_measure(float *X, float *Y, float **H);
-
-extern void discrete_ekf_new(struct discrete_ekf *filter);
-extern void discrete_ekf_predict(struct discrete_ekf *filter);
+extern void discrete_ekf_no_north_new(struct discrete_ekf *filter);
+extern void discrete_ekf_no_north_predict(struct discrete_ekf *filter);
 extern void discrete_ekf_update(struct discrete_ekf *filter, float *y);
 
 #endif /* DISCRETE_EKF_H */

@@ -50,6 +50,12 @@ struct discrete_ekf ekf_rl[RL_NUAVS];
 float range_array[RL_NUAVS]; // an array to store the ranges at which the other MAVs are
 uint8_t pprzmsg_cnt; // a counter to send paparazzi messages, which are sent in rotation
 
+
+
+void initNewEkfFilter(ekf_filter *filter){
+
+}
+
 static abi_event range_communication_event;
 static void range_msg_callback(uint8_t sender_id __attribute__((unused)),
                                uint8_t ac_id, float range, float tracked_v_north, float tracked_v_east, float tracked_h)
@@ -66,11 +72,18 @@ static void range_msg_callback(uint8_t sender_id __attribute__((unused)),
     range_array[idx] = range;
     ekf_rl[idx].dt = (get_sys_time_usec() - latest_update_time[idx]) / pow(10, 6); // Update the time between messages
 
+
+    #ifdef NO_NORTH
+    float U[EKF_L] = {ownAx,ownAy,trackedAx,trackedAy,ownYawr,trackedYawr};
+    float Z[EKF_M] = {range,ownh,trackedh,ownVx,ownVy,trackedVx,trackedVy};
+    discrete_ekf_no_north_predict(&ekf_rl[idx],U);
+    #else
     // Measurement Vector Z = [range owvVx(NED) ownVy(NED) tracked_v_north(NED) tracked_v_east(NED) dh]
     float Z[EKF_M] = {range, stateGetSpeedEnu_f()->y, stateGetSpeedEnu_f()->x, tracked_v_north, tracked_v_east, tracked_h - stateGetPositionEnu_f()->z};
-
     discrete_ekf_predict(&ekf_rl[idx]);
+    #endif
     discrete_ekf_update(&ekf_rl[idx], Z);
+
   }
 
   latest_update_time[idx] = get_sys_time_usec();
