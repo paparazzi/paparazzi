@@ -4,6 +4,7 @@
 
   <firmware name="rotorcraft">
     <target name="ap" board="bebop2"/>
+
     <define name="USE_SONAR"/>
 
     <module name="telemetry" type="transparent_udp"/>
@@ -107,8 +108,8 @@
     <define name="VFF_R_GPS" value="0.01"/> 
     <define name="VFF_VZ_R_GPS" value="0.01"/>     
     <define name="SONAR_MIN_RANGE" value="0.0"/>
-    <define name="SONAR_MAX_RANGE" value="2.2"/>
-    <define name="SONAR_UPDATE_ON_AGL" value="FALSE"/>
+    <define name="SONAR_MAX_RANGE" value="3.5"/>
+    <define name="SONAR_UPDATE_ON_AGL" value="TRUE"/>
 
   </section>
 
@@ -207,8 +208,8 @@
   </section>
 
   <section name="NAVIGATION" prefix="NAV_">
-    <define name="CLIMB_VSPEED" value="1.0"/>
-    <define name="DESCEND_VSPEED" value="-0.75"/>
+    <define name="CLIMB_VSPEED" value="0.5"/>
+    <define name="DESCEND_VSPEED" value="-0.5"/>
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
@@ -218,10 +219,10 @@
   </section>
 
   <section name="AUTOPILOT">
-    <define name="MODE_STARTUP" value="AP_MODE_NAV"/>
-    <define name="MODE_MANUAL" value="AP_MODE_MODULE"/>
-    <define name="MODE_AUTO1" value="AP_MODE_MODULE"/>
-    <define name="MODE_AUTO2" value="AP_MODE_NAV"/>
+    <define name="MODE_STARTUP" value="AP_MODE_ATTITUDE_DIRECT"/>
+    <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
+    <define name="MODE_AUTO1" value="AP_MODE_HOVER_Z_HOLD"/>
+    <define name="MODE_AUTO2" value="AP_MODE_HOVER_Z_HOLD"/>
 
     <!--
     <define name="MODE_STARTUP" value="AP_MODE_ATTITUDE_DIRECT"/>

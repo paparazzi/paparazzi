@@ -63,7 +63,6 @@ uint16_t n_agents = 25;
 #define LINEAR_FIT 1
 
 #ifndef OPTICFLOW_CORNER_METHOD
-// This can be estimated by total possible image height / total Field of view
 #define OPTICFLOW_CORNER_METHOD ACT_FAST
 #endif
 PRINT_CONFIG_VAR(OPTICFLOW_CORNER_METHOD)
