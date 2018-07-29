@@ -26,8 +26,10 @@
 
 #include "std.h"
 #include "peripherals/video_device.h"
-// reuse bebop video driver
+// re-use the Parrot Bebop video drivers
+#include "boards/bebop/mt9v117.h"
 #include "boards/bebop/mt9f002.h"
+
 
 /** uart connected to GPS internally */
 #define UART1_DEV /dev/ttyPA1
@@ -68,6 +70,21 @@ struct mt9f002_t mt9f002;
 #define SPI0_MODE           0
 #define SPI0_BITS_PER_WORD  8
 #define SPI0_MAX_SPEED_HZ   320000
+#endif
+
+/* Configuration values of airspeed sensor onboard the Parrot Disco C.H.U.C.K */
+#define MS45XX_I2C_DEV i2c1
+#define MS45XX_PRESSURE_RANGE 4
+#define MS45XX_PRESSURE_TYPE 1
+#define MS45XX_OUTPUT_TYPE 1
+#define MS45XX_PRESSURE_OUTPUT_TYPE_InH2O 1
+#define MS45XX_LOWPASS_TAU 0.15
+#define MS45XX_AIRSPEED_SCALE 1.6327
+
+/* To be flexible and be able to disable use of airspeed in state this could have been in the airframe file ofcourse
+ * but most users just want to have perfectly flying Disco, so enable per default... */
+#ifndef USE_AIRSPEED
+#define USE_AIRSPEED 1
 #endif
 
 #endif /* CONFIG_DISCO */

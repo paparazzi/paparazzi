@@ -20,7 +20,7 @@
  *
  */
 
-#include "max1167.h"
+#include "max1167_hw.h"
 
 #include "subsystems/imu.h"
 

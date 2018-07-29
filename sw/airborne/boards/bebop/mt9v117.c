@@ -442,6 +442,7 @@ void mt9v117_init(struct mt9v117_t *mt)
       }
 
       // Successfully configured!
+      //printf("[MT9V117] Switching config OK\r\n");
       return;
     }
   }

@@ -22,9 +22,9 @@
 
 /**
  * @file boards/disco/actuators.c
- * Actuator driver for the disco
+ * Actuator driver for the Parrot Disco
  *
- * Disco plane is using the same ESC (I2C) than bebop for its motor
+ * Disco plane is using the same ESC (I2C) as a Parrot Bebop for its motor
  * and Pwm_sysfs linux driver for the PWM outputs
  *
  * Some part of this code is coming from the APM Disco and Bebop drivers
@@ -114,7 +114,7 @@ void actuators_disco_commit(void)
 
   // Receive the status
   actuators_disco.i2c_trans.buf[0] = ACTUATORS_DISCO_GET_OBS_DATA;
-  i2c_transceive(&i2c1, &actuators_disco.i2c_trans, actuators_disco.i2c_trans.slave_addr, 1, sizeof(obs_data));
+  i2c_blocking_transceive(&i2c1, &actuators_disco.i2c_trans, actuators_disco.i2c_trans.slave_addr, 1, sizeof(obs_data));
   // copy data from buffer
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-qual"
@@ -135,26 +135,26 @@ void actuators_disco_commit(void)
   // When detected a suicide
   uint8_t bldc_status = obs_data.status & 0x07;
   if (obs_data.error == 2 && bldc_status != DISCO_BLDC_STATUS_STOPPED) {
-    autopilot_set_kill_throttle(true);
+    autopilot_set_kill_throttle(true); //FIXME: make behaviour definable low flying should not stop it
   }
 
   // Start the motors
   if (bldc_status != DISCO_BLDC_STATUS_RUNNING &&
-      bldc_status != DISCO_BLDC_STATUS_RAMPUP &&
+      bldc_status != DISCO_BLDC_STATUS_RAMPUP && //FIXME also on rampdown?
       actuators_disco.motor_rpm > DISCO_BLDC_START_MOTOR_THRESHOLD) {
     // Reset the error
     actuators_disco.i2c_trans.buf[0] = ACTUATORS_DISCO_CLEAR_ERROR;
-    i2c_transmit(&i2c1, &actuators_disco.i2c_trans, actuators_disco.i2c_trans.slave_addr, 1);
+    i2c_blocking_transmit(&i2c1, &actuators_disco.i2c_trans, actuators_disco.i2c_trans.slave_addr, 1);
 
     // Start the motors
     actuators_disco.i2c_trans.buf[0] = ACTUATORS_DISCO_START_PROP;
-    i2c_transmit(&i2c1, &actuators_disco.i2c_trans, actuators_disco.i2c_trans.slave_addr, 1);
+    i2c_blocking_transmit(&i2c1, &actuators_disco.i2c_trans, actuators_disco.i2c_trans.slave_addr, 1);
   }
   // Stop the motors
   else if ((bldc_status == DISCO_BLDC_STATUS_RUNNING || bldc_status == DISCO_BLDC_STATUS_RAMPUP) &&
       actuators_disco.motor_rpm < DISCO_BLDC_START_MOTOR_THRESHOLD) {
     actuators_disco.i2c_trans.buf[0] = ACTUATORS_DISCO_STOP_PROP;
-    i2c_transmit(&i2c1, &actuators_disco.i2c_trans, actuators_disco.i2c_trans.slave_addr, 1);
+    i2c_blocking_transmit(&i2c1, &actuators_disco.i2c_trans, actuators_disco.i2c_trans.slave_addr, 1);
   } else if (bldc_status == DISCO_BLDC_STATUS_RUNNING) {
     // Send the commands
     actuators_disco.i2c_trans.buf[0] = ACTUATORS_DISCO_SET_REF_SPEED;
@@ -165,11 +165,11 @@ void actuators_disco_commit(void)
 #pragma GCC diagnostic ignored "-Wcast-qual"
     actuators_disco.i2c_trans.buf[4] = actuators_disco_checksum((uint8_t *)actuators_disco.i2c_trans.buf, 3);
 #pragma GCC diagnostic pop
-    i2c_transmit(&i2c1, &actuators_disco.i2c_trans, actuators_disco.i2c_trans.slave_addr, 11);
+    i2c_blocking_transmit(&i2c1, &actuators_disco.i2c_trans, actuators_disco.i2c_trans.slave_addr, 11);
   }
 
   // Send ABI message
-  AbiSendMsgRPM(RPM_SENSOR_ID, &actuators_disco.rpm_obs, 1);
+  AbiSendMsgRPM(RPM_SENSOR_ID, &actuators_disco.rpm_obs, 1);//FIXME & or not
 }
 
 static uint8_t actuators_disco_checksum(uint8_t *bytes, uint8_t size)
@@ -178,6 +178,6 @@ static uint8_t actuators_disco_checksum(uint8_t *bytes, uint8_t size)
   for (int i = 0; i < size; i++) {
     checksum = checksum ^ bytes[i];
   }
+
   return checksum;
 }
-

@@ -103,7 +103,7 @@ let check_altitude_srtm = fun a x wgs84 ->
 
 let check_altitude = fun a x ->
   if a < !ground_alt +. !security_height then begin
-    fprintf stderr "\nNOTICE: low altitude (%.0f<%.0f+%.0f) in %s\n\n" a !ground_alt !security_height (Xml.to_string x)
+    fprintf stderr "NOTICE: low altitude (%.0f<%.0f+%.0f) in %s\n" a !ground_alt !security_height (Xml.to_string x)
   end
 
 
@@ -275,7 +275,7 @@ let output_hmode x wp last_wp =
       match hmode with
           "route" ->
             if last_wp = "last_wp" then
-              fprintf stderr "Warning: Deprecated use of 'route' using last waypoint in %s\n"(Xml.to_string x);
+              fprintf stderr "NOTICE: Deprecated use of 'route' using last waypoint in %s\n"(Xml.to_string x);
             lprintf "NavSegment(%s, %s);\n" last_wp wp
         | "direct" -> lprintf "NavGotoWaypoint(%s);\n" wp
         | x -> failwith (sprintf "Unknown hmode '%s'" x)
@@ -1102,7 +1102,7 @@ let () =
           _ -> ()
       end;
 
-      begin 
+      begin
         try
           let geofence_max_height = get_float "geofence_max_height" in
           if geofence_max_height < !security_height then
