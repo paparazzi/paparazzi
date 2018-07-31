@@ -27,6 +27,7 @@
 #include "image.h"
 #include <stdlib.h>
 #include <string.h>
+#include "lucas_kanade.h"
 
 /**
  * Create a new image
@@ -610,6 +611,7 @@ void image_show_points_color(struct image_t *img, struct point_t *points, uint16
 void image_show_flow(struct image_t *img, struct flow_t *vectors, uint16_t points_cnt, uint8_t subpixel_factor)
 {
   static uint8_t color[4] = {255, 255, 255, 255};
+  static uint8_t bad_color[4] = {0, 0, 0, 0};
   static int size_crosshair = 5;
 
   // Go through all the points
@@ -623,8 +625,15 @@ void image_show_flow(struct image_t *img, struct flow_t *vectors, uint16_t point
       (vectors[i].pos.x + vectors[i].flow_x) / subpixel_factor,
       (vectors[i].pos.y + vectors[i].flow_y) / subpixel_factor
     };
-    image_draw_line(img, &from, &to);
-    image_draw_crosshair(img, &to, color, size_crosshair);
+
+    if(vectors[i].error >= LARGE_FLOW_ERROR) {
+      image_draw_crosshair(img, &to, bad_color, size_crosshair);
+      image_draw_line_color(img, &from, &to, bad_color);
+    }
+    else {
+      image_draw_crosshair(img, &to, color, size_crosshair);
+      image_draw_line_color(img, &from, &to, color);
+    }
   }
 }
 /**

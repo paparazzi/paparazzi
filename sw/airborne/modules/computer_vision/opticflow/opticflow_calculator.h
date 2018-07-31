@@ -53,6 +53,9 @@ struct opticflow_t {
   float derotation_correction_factor_x;     ///< Correction factor for derotation in x axis, determined from a fit from the gyros and flow rotation. (wrong FOV, camera not in center)
   float derotation_correction_factor_y;     ///< Correction factor for derotation in Y axis, determined from a fit from the gyros and flow rotation. (wrong FOV, camera not in center)
 
+  bool track_back;                    ///< Whether to track flow vectors back to the previous image, in order to check if the back-tracked flow leads to the original corner position.
+  bool show_flow;                     ///< Whether to draw the flow vectors on the image. Watch out! This changes the image as will be received by subsequent processing steps.
+
   uint16_t subpixel_factor;                 ///< The amount of subpixels per pixel
   uint16_t resolution_factor;                 ///< The resolution in EdgeFlow to determine the Divergence
   uint8_t max_iterations;               ///< The maximum amount of iterations the Lucas Kanade algorithm should do

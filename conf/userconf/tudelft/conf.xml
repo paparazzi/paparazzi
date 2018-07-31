@@ -517,7 +517,6 @@
    settings="settings/rotorcraft_basic.xml"
    settings_modules="modules/video_rtp_stream.xml modules/optical_flow_landing.xml modules/cv_opticflow.xml modules/video_capture.xml modules/air_data.xml modules/geo_mag.xml modules/ins_extended.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_indi_simple.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
    gui_color="#ffffbf17bf17"
-   release=""
   />
   <aircraft
    name="bebop_OF_Hover"
