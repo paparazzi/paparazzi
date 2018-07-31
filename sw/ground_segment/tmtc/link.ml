@@ -223,9 +223,11 @@ module XB = struct (** XBee module *)
     let o = Unix.out_channel_of_descr device.fd in
     Debug.trace 'x' "config xbee";
     fprintf o "%s%!" (Xbee_transport.at_set_my !my_addr);
-    match device.channel with
-        None -> ()
-      | Some ch ->  fprintf o "%s%!" (Xbee_transport.at_set_channel ch);
+    begin
+      match device.channel with
+          None -> ()
+        | Some ch ->  fprintf o "%s%!" (Xbee_transport.at_set_channel ch);
+    end;
     fprintf o "%s%!" Xbee_transport.at_api_enable;
     fprintf o "%s%!" Xbee_transport.at_exit;
     Debug.trace 'x' "end init xbee"
