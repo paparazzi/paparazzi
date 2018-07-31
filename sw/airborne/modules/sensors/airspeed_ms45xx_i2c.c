@@ -74,14 +74,12 @@ PRINT_CONFIG_MSG("USE_AIRSPEED_MS45XX set to TRUE since this is set USE_AIRSPEED
  * and what this range represents
  */
 #ifndef MS45XX_PRESSURE_RANGE
-#define MS45XX_PRESSURE_RANGE 4
+#define MS45XX_PRESSURE_RANGE 1
 #endif
 
-/* Pressure Type 0 = Differential, 1 = Gauge */
+/* Pressure Type 0 = Differential, 1 = Gauge , note there are theoretical more types than 2, e.g. Absolute not implemented */
 #ifndef MS45XX_PRESSURE_TYPE
 #define MS45XX_PRESSURE_TYPE 0
-#else
-#define MS45XX_PRESSURE_TYPE 1 //Note there are theoretical more types than 2, e.g. Absolute, it is not implemented since rare we force it to 1
 #endif
 
 /** MS45xx output Type.
@@ -90,8 +88,6 @@ PRINT_CONFIG_MSG("USE_AIRSPEED_MS45XX set to TRUE since this is set USE_AIRSPEED
  */
 #ifndef MS45XX_OUTPUT_TYPE
 #define MS45XX_OUTPUT_TYPE 0
-#else
-#define MS45XX_OUTPUT_TYPE 1
 #endif
 
 /** Conversion factor from InH2O to Pa */
@@ -139,7 +135,7 @@ PRINT_CONFIG_MSG("USE_AIRSPEED_MS45XX set to TRUE since this is set USE_AIRSPEED
  * Mainly for debugging, use with caution, sends message at ~100Hz.
  */
 #ifndef MS45XX_SYNC_SEND
- #define MS45XX_SYNC_SEND FALSE
+#define MS45XX_SYNC_SEND FALSE
 #endif
 
 /** Quadratic scale factor for indicated airspeed.
@@ -183,10 +179,10 @@ void ms45xx_i2c_init(void)
 
   ms45xx_trans.status = I2CTransDone;
   // setup low pass filter with time constant and 100Hz sampling freq
-  //#ifdef USE_AIRSPEED_LOWPASS_FILTER
+  #ifdef USE_AIRSPEED_LOWPASS_FILTER
   init_butterworth_2_low_pass(&ms45xx_filter, MS45XX_LOWPASS_TAU,
                               MS45XX_I2C_PERIODIC_PERIOD, 0);
-  //#endif
+  #endif
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AIRSPEED_MS45XX, ms45xx_downlink);
@@ -222,11 +218,11 @@ void ms45xx_i2c_event(void)
        */
 
       float p_out = (p_raw * ms45xx.pressure_scale) - ms45xx.pressure_offset;
-      //#ifdef USE_AIRSPEED_LOWPASS_FILTER
+      #ifdef USE_AIRSPEED_LOWPASS_FILTER
       ms45xx.pressure = update_butterworth_2_low_pass(&ms45xx_filter, p_out);
-      //#else
-      //ms45xx.pressure = p_out;
-      //#endif
+      #else
+      ms45xx.pressure = p_out;
+      #endif
 
       /* 11bit raw temperature, 5 LSB bits not used */
       uint16_t temp_raw = 0xFFE0 & (((uint16_t)(ms45xx_trans.buf[2]) << 8) |

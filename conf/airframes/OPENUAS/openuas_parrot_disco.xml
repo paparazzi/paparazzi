@@ -104,6 +104,7 @@
 
       <module name="actuators" type="disco"/>
       <!-- This GPS is a REAL ublox M8N, so setting can be saved, no need for ubx_ucenter one has can set it oneself since we have all kinds of nift Galilleio setting we rather keep that -->
+
       <module name="gps" type="ubx_ucenter"/> <!-- Enabled for time being, we are lazy... -->
 
       <module name="sonar_bebop">
@@ -157,6 +158,8 @@
 
     </target>
 
+    <module name="gps" type="ublox"/>
+
 <!-- *********************** For simulation of the flight ****************************-->
     <target name="sim" board="pc">
       <!--  <define name="RADIO_CONTROL_NB_CHANNEL" value="9"/> -->
@@ -165,13 +168,13 @@
 
       <module name="radio_control" type="ppm">
       </module>
-      <!--  module name="telemetry"     type="transparent"/>-->
+      <module name="telemetry"     type="transparent"/>
       <!--<module name="imu" type="aspirin_v2.2"/>-->
-      <!--<module name="baro_sim"/>-->
+      <module name="baro_sim"/>
 
       <!-- For various parameter info here  https://wiki.paparazziuav.org/wiki/Subsystem/ahrs -->
-      <!--<module name="ahrs" type="int_cmpl_quat">
-      </module>-->
+      <module name="ahrs" type="int_cmpl_quat">
+      </module>
       <!--<module name="uart"/>--><!-- TODO: Exteral HITL PC debugging e.g a photocam trigger etc -->
     </target>
 
@@ -223,7 +226,6 @@
     <define name="autopilot_motors_on" value="TRUE"/>
     <!-- temp fix for geomag, normally only used for rotorcraft -->
     <define name="SENSOR_SYNC_SEND"/> <!-- Temp for debugging Baro -->
-
     <configure name="USE_BARO_BOARD" value="TRUE"/> <!-- WIP -->
 
     <!-- amount of time it take for the bat to trigger check -->
@@ -240,6 +242,7 @@
 
     <configure name="USE_MAGNETOMETER" value="FALSE"/> <!-- First autoflight set to false better make sure it works and is callibrated if set to TRUE -->
 
+<!-- ************************* MODULES ************************* -->
     <module name="ahrs" type="float_cmpl_quat"> <!-- Compare e.g. float_dcm -->
         <configure name="AHRS_ALIGNER_LED" value="2"/><!-- Which color you want sir? ;) -->
         <define name="AHRS_MAG_UPDATE_ALL_AXES" value="FALSE"/> <!-- if TRUE with those high roll n pith angles magneto should be calibrated well -->
@@ -257,12 +260,7 @@
     <module name="ins" type="alt_float"/>  <!--Does not work in SIM: extended thus use alt_float"/> -->
     <module name="control" type="new"/> <!-- type="energyadaptive"/>--> <!-- ETECS Disabled for first senseor calib and base tuning testflight -->
     <module name="navigation"/>
-    <module name="gps" type="ublox"/>
 
-  </firmware>
-
-<!-- ************************* MODULES ************************* -->
-   <modules>
     <!-- <module name="imu_quality_assessment"/> -->
     <!-- <module name="extra_pprz_dl"/>--> <!-- e.g. WiFi and LangRangeModem module: -->
     <!-- <module name="telemetry" type="transparent_udp"/> -->
@@ -314,7 +312,6 @@
     </module>
     -->
 
-
     <!-- Steam it life in e.g. VLC via:
       vlc ./sw/tools/rtp_viewer/rtp_5000.sdp
 
@@ -341,7 +338,7 @@
       <define name="DC_AUTOSHOOT_DISTANCE_INTERVAL" value="5.0" unit="s"/>
     </module>
 
-  </modules>
+  </firmware>
 
 <!-- ************************* ACTUATORS ************************* -->
   <servos>
@@ -671,7 +668,7 @@ The most crucial part for the magnetometer calibration:
 <!-- **************************** BAT ****************************** -->
   <section name="BAT">
     <!-- <define name="MAX_BAT_CAPACITY" value="2700" unit="mAh"/> --> <!-- The Default Parrot Disco 2700mAh battery -->
-    <define name="MAX_BAT_CAPACITY" value="5200" unit="mAh"/> <!-- 3rd party battery -->
+    <define name="MAX_BAT_CAPACITY" value="5200" unit="mAh"/> <!-- 3rd party battery, needs enlarged battery bay -->
     <define name="MilliAmpereOfAdc(_adc)" value="(_adc-632)*4.14"/> <!-- TODO: calibrate even better -->
     <!-- tested at V 11.7 the avg -->  <!-- 1idel RPM then 1.0A half throttle 4A-->
     <define name="MILLIAMP_AT_IDLE_THROTTLE" value="600" unit="mA"/>  <!-- 500mA, with additional RC receiver ~600mA -->
@@ -712,7 +709,7 @@ The most crucial part for the magnetometer calibration:
     <!-- MIN_CIRCLE_RADIUS used and needed for spiral navigation function and panic autolanding turns-->
     <define name="MIN_CIRCLE_RADIUS" value="50." unit="m"/> <!-- TODO: determine -->
 
-    <define name="CARROT" value="5." unit="s"/> <!-- TODO: maye ~?s -->
+    <define name="CARROT" value="5." unit="s"/> <!-- TODO: maybe ~?s -->
 
     <!--UNLOCKED_HOME_MODE if set to TRUE means that HOME mode does not get stuck.
     If not set before when you would enter home mode you had to flip a bit via the GCS to get out. -->
