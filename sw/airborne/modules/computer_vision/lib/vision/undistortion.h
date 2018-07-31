@@ -44,6 +44,8 @@
 #ifndef UNDISTORTION_H
 #define UNDISTORTION_H
 
+#include "std.h"
+
 // TODO: add other distortion models than just the Dhane one:
 bool Dhane_distortion(float x_n, float y_n, float* x_nd, float* y_nd, float k);
 bool Dhane_undistortion(float x_nd, float y_nd, float* x_n, float* y_n, float k);

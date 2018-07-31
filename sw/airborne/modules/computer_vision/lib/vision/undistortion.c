@@ -77,7 +77,7 @@ bool Dhane_undistortion(float x_nd, float y_nd, float* x_n, float* y_n, float k)
   float r = sqrtf( x_nd*x_nd + y_nd*y_nd );
   float inner_part = sinf( atanf( r ) ) * k;
   // we will take the asine of the inner part. It can happen that it is outside of [-1, 1], in which case, it would lead to an error.
-  if(absf(inner_part) > 0.9999) {
+  if(fabs(inner_part) > 0.9999) {
     return false;
   }
 
