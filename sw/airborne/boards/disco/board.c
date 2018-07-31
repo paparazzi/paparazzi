@@ -73,10 +73,10 @@ struct mt9f002_t mt9f002 = {
 
 static int kill_gracefull(char *process_name)
 {
-  /* "pidof" always in /bin on Bebop firmware tested 1.98, 2.0.57, no need for "which" */
+  /* TODO: "pidof" always in /bin on Disco firmware tested 1.4.1, no need for "which" */
   char pidof_commandline[200] = "/bin/pidof ";
   strcat(pidof_commandline, process_name);
-  /* Bebop Busybox a
+  /* On Disco Busybox a
      $ cat /proc/sys/kernel/pid_max
      Gives max 32768, makes sure it never kills existing other process
   */
@@ -126,14 +126,15 @@ void board_init(void)
 
 void board_init2(void)
 {
-  /* Initialize MT9V117 chipset (Bottom camera) */
-  //struct mt9v117_t mt9v117 = {
-  //  // Initial values
+	  /* Initialize MT9V117 chipset (Bottom camera) */
+	  struct mt9v117_t mt9v117 = {
+	    // Initial values
 
-  //  // I2C connection port
-  //  .i2c_periph = &i2c0
-  //};
-  //mt9v117_init(&mt9v117);
+	    // I2C connection port
+	    .i2c_periph = &i2c0
+	  };
+	  mt9v117_init(&mt9v117);
 
-  //mt9f002_init(&mt9f002);
+	  /* Initialize Front camera) */
+	  //WIP mt9f002_init(&mt9f002);
 }

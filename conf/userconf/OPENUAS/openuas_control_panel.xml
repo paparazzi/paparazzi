@@ -15,7 +15,6 @@
     <program name="Link Combiner" command="sw/ground_segment/python/redundant_link/link_combiner.py"/>
     <program name="GCS" command="sw/ground_segment/cockpit/gcs">
       <arg flag="-speech"/>
-      <arg flag="-b" variable="ivy_bus"/>
     </program>
     <program name="Flight Plan Editor" command="sw/ground_segment/cockpit/gcs">
       <arg flag="-edit"/>
@@ -638,6 +637,40 @@
         <arg flag="-track_size" constant="100"/>
         <arg flag="-zoom" constant="1"/>
       </program>
+    </session>
+    <session name="DiscoLongRangeXbee">
+      <program name="Server"/>
+      <program name="GCS">
+        <arg flag="-speech"/>
+        <arg flag="-maps_fill"/>
+        <arg flag="-mercator"/>
+        <arg flag="-maps_no_http"/>
+        <arg flag="-track_size" constant="300"/>
+        <arg flag="-zoom" constant="0.5"/>
+      </program>
+      <program name="Messages"/>
+      <program name="Real-time Plotter"/>
+      <program name="Data Link">
+        <arg flag="-d" constant="/dev/ttyUSB0"/>
+        <arg flag="-transport" constant="xbee"/>
+        <arg flag="-s" constant="57600"/>
+      </program>
+    </session>
+    <session name="Disco Test Flight WiFi">
+      <program name="Server"/>
+      <program name="GCS">
+        <arg flag="-speech"/>
+        <arg flag="-maps_fill"/>
+        <arg flag="-mercator"/>
+        <arg flag="-maps_no_http"/>
+        <arg flag="-track_size" constant="200"/>
+        <arg flag="-zoom" constant="0.5"/>
+      </program>
+      <program name="Messages"/>
+      <program name="Data Link">
+        <arg flag="-udp"/>
+      </program>
+      <program name="Real-time Plotter"/>
     </session>
   </section>
 </control_panel>

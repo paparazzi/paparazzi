@@ -22,7 +22,7 @@
 
 /** @file modules/sensors/airspeed_ms45xx_i2c.c
  * Airspeed sensor module using the MS45xxDO digital pressure sensor via I2C.
- * Needs one of the differential versions with 14bit pressure and 11bit temperature.
+ * Needs to be one of the versions with 14bit pressure and 11bit temperature.
  */
 
 #include "std.h"
@@ -42,7 +42,7 @@
 #ifndef USE_AIRSPEED_MS45XX
 #if USE_AIRSPEED
 #define USE_AIRSPEED_MS45XX TRUE
-PRINT_CONFIG_MSG("USE_AIRSPEED_MS45XX automatically set to TRUE")
+PRINT_CONFIG_MSG("USE_AIRSPEED_MS45XX set to TRUE since this is set USE_AIRSPEED")
 #endif
 #endif
 
@@ -56,17 +56,30 @@ PRINT_CONFIG_MSG("USE_AIRSPEED_MS45XX automatically set to TRUE")
 #define MS45XX_I2C_DEV i2c2
 #endif
 
-/** Sensor I2C slave address (defaults 0x50, 0x6C and 0x8C) */
+/** Sensor I2C slave address (existing defaults 0x50, 0x6C and 0x8C)
+ */
 #ifndef MS45XX_I2C_ADDR
 #define MS45XX_I2C_ADDR 0x50
 #endif
 
-/** MS45xx pressure range in psi.
- * The sensor is available in 1, 2, 5, 15, 30, 50, 100, 150 psi ranges.
- * 1 psi max range should be ~100m/s max airspeed.
+/** MS45xx sensors pressure output type can be in PSI or InH2O, as defined in the datasheet
+ *  if not defined to be MS45XX_PRESSURE_OUTPUT_TYPE_InH2O then PSI is used
+ * */
+#ifndef MS45XX_PRESSURE_OUTPUT_TYPE_InH2O
+#define MS45XX_PRESSURE_OUTPUT_TYPE_InH2O 1
+#endif
+
+/** MS45xx pressure range in PSI or InH2O
+ * The sensor is available in many ranges, the datasheet of your pressure sensor will tell which one
+ * and what this range represents
  */
 #ifndef MS45XX_PRESSURE_RANGE
 #define MS45XX_PRESSURE_RANGE 1
+#endif
+
+/* Pressure Type 0 = Differential, 1 = Gauge , note there are theoretical more types than 2, e.g. Absolute not implemented */
+#ifndef MS45XX_PRESSURE_TYPE
+#define MS45XX_PRESSURE_TYPE 0
 #endif
 
 /** MS45xx output Type.
@@ -77,8 +90,17 @@ PRINT_CONFIG_MSG("USE_AIRSPEED_MS45XX automatically set to TRUE")
 #define MS45XX_OUTPUT_TYPE 0
 #endif
 
+/** Conversion factor from InH2O to Pa */
+#define InH2O_TO_PA 249.08891
+
 /** Conversion factor from psi to Pa */
 #define PSI_TO_PA 6894.75729
+
+#ifdef MS45XX_PRESSURE_OUTPUT_TYPE_InH2O
+#define OutputPressureToPa InH2O_TO_PA
+#else
+#define OutputPressureToPa PSI_TO_PA
+#endif
 
 #if MS45XX_OUTPUT_TYPE == 0
 /* Offset and scaling for OUTPUT TYPE A:
@@ -92,31 +114,31 @@ PRINT_CONFIG_MSG("USE_AIRSPEED_MS45XX automatically set to TRUE")
  * then convert to Pascal
  */
 #ifndef MS45XX_PRESSURE_SCALE
-#define MS45XX_PRESSURE_SCALE (2 * MS45XX_PRESSURE_RANGE / (0.8 * 16383) * PSI_TO_PA)
+#define MS45XX_PRESSURE_SCALE (2 * MS45XX_PRESSURE_RANGE / (0.8 * 16383) * OutputPressureToPa)
 #endif
 #ifndef MS45XX_PRESSURE_OFFSET
-#define MS45XX_PRESSURE_OFFSET (1.25 * MS45XX_PRESSURE_RANGE * PSI_TO_PA)
+#define MS45XX_PRESSURE_OFFSET (1.25 * MS45XX_PRESSURE_RANGE * OutputPressureToPa)
 #endif
-#else
+#else /* Can still be improved using another if statment with MS45XX_PRESSURE_TYPE etc. */
 /* Offset and scaling for OUTPUT TYPE B:
  * p_raw = (0.9*16383)/ (Pmax - Pmin) * (pressure - Pmin) + 0.05*16383
  */
 #ifndef MS45XX_PRESSURE_SCALE
-#define MS45XX_PRESSURE_SCALE (2 * MS45XX_PRESSURE_RANGE / (0.9 * 16383) * PSI_TO_PA)
+#define MS45XX_PRESSURE_SCALE (MS45XX_PRESSURE_RANGE/(0.9*16383)*OutputPressureToPa)
 #endif
 #ifndef MS45XX_PRESSURE_OFFSET
-#define MS45XX_PRESSURE_OFFSET ((1.0 + 0.1 / 0.9) * MS45XX_PRESSURE_RANGE  * PSI_TO_PA)
+#define MS45XX_PRESSURE_OFFSET (((MS45XX_PRESSURE_RANGE*0.05*16383)/(0.9*16383))*OutputPressureToPa)
 #endif
 #endif
 
 /** Send a AIRSPEED_MS45XX message with every new measurement.
- * Mainly for debug, use with caution, sends message at ~100Hz.
+ * Mainly for debugging, use with caution, sends message at ~100Hz.
  */
 #ifndef MS45XX_SYNC_SEND
 #define MS45XX_SYNC_SEND FALSE
 #endif
 
-/** Quadratic scale factor for airspeed.
+/** Quadratic scale factor for indicated airspeed.
  * airspeed = sqrt(2*p_diff/density)
  * With p_diff in Pa and standard air density of 1.225 kg/m^3,
  * default airspeed scale is 2/1.225
@@ -136,19 +158,20 @@ struct AirspeedMs45xx ms45xx;
 static struct i2c_transaction ms45xx_trans;
 static Butterworth2LowPass ms45xx_filter;
 
-
 static void ms45xx_downlink(struct transport_tx *trans, struct link_device *dev)
 {
-  pprz_msg_send_AIRSPEED_MS45XX(trans, dev, AC_ID,
-                                &ms45xx.diff_pressure,
-                                &ms45xx.temperature, &ms45xx.airspeed);
+  pprz_msg_send_AIRSPEED_MS45XX(trans,dev,AC_ID,
+                                &ms45xx.pressure,
+                                &ms45xx.temperature,
+                                &ms45xx.airspeed);
 }
 
 void ms45xx_i2c_init(void)
 {
-  ms45xx.diff_pressure = 0;
+  ms45xx.pressure = 0.;
   ms45xx.temperature = 0;
   ms45xx.airspeed = 0.;
+  ms45xx.pressure_type = MS45XX_PRESSURE_TYPE;
   ms45xx.pressure_scale = MS45XX_PRESSURE_SCALE;
   ms45xx.pressure_offset = MS45XX_PRESSURE_OFFSET;
   ms45xx.airspeed_scale = MS45XX_AIRSPEED_SCALE;
@@ -156,8 +179,10 @@ void ms45xx_i2c_init(void)
 
   ms45xx_trans.status = I2CTransDone;
   // setup low pass filter with time constant and 100Hz sampling freq
+  #ifdef USE_AIRSPEED_LOWPASS_FILTER
   init_butterworth_2_low_pass(&ms45xx_filter, MS45XX_LOWPASS_TAU,
                               MS45XX_I2C_PERIODIC_PERIOD, 0);
+  #endif
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AIRSPEED_MS45XX, ms45xx_downlink);
@@ -182,15 +207,22 @@ void ms45xx_i2c_event(void)
 
     if (status == 0) {
       /* 14bit raw pressure */
-      uint16_t p_raw = 0x3FFF & (((uint16_t)(ms45xx_trans.buf[0]) << 8) |
-                                 (uint16_t)(ms45xx_trans.buf[1]));
-      /* Output is proportional to the difference between Port 1 and Port 2. Output
+      uint16_t p_raw = 0x3FFF & (((uint16_t)(ms45xx_trans.buf[0]) << 8) | (uint16_t)(ms45xx_trans.buf[1]));
+
+      /* For type Diff
+       * Output is proportional to the difference between Port 1 and Port 2. Output
        * swings positive when Port 1> Port 2. Output is 50% of total counts
        * when Port 1=Port 2.
-       * p_diff = p_raw * scale - offset
+       * For type Gauge
+       * p_out = p_raw * scale - offset
        */
-      float p_diff = p_raw * ms45xx.pressure_scale - ms45xx.pressure_offset;
-      ms45xx.diff_pressure = update_butterworth_2_low_pass(&ms45xx_filter, p_diff);
+
+      float p_out = (p_raw * ms45xx.pressure_scale) - ms45xx.pressure_offset;
+      #ifdef USE_AIRSPEED_LOWPASS_FILTER
+      ms45xx.pressure = update_butterworth_2_low_pass(&ms45xx_filter, p_out);
+      #else
+      ms45xx.pressure = p_out;
+      #endif
 
       /* 11bit raw temperature, 5 LSB bits not used */
       uint16_t temp_raw = 0xFFE0 & (((uint16_t)(ms45xx_trans.buf[2]) << 8) |
@@ -201,14 +233,14 @@ void ms45xx_i2c_event(void)
        */
       ms45xx.temperature = ((uint32_t)temp_raw * 2000) / 2047 - 500;
 
-      // Send differential pressure via ABI
-      AbiSendMsgBARO_DIFF(MS45XX_SENDER_ID, ms45xx.diff_pressure);
+      // Send (differential) pressure via ABI
+      AbiSendMsgBARO_DIFF(MS45XX_SENDER_ID, ms45xx.pressure);
       // Send temperature as float in deg Celcius via ABI
       float temp = ms45xx.temperature / 10.0f;
       AbiSendMsgTEMPERATURE(MS45XX_SENDER_ID, temp);
-
       // Compute airspeed
-      ms45xx.airspeed = sqrtf(Max(ms45xx.diff_pressure * ms45xx.airspeed_scale, 0));
+      ms45xx.airspeed = sqrtf(Max(ms45xx.pressure * ms45xx.airspeed_scale, 0));
+
 #if USE_AIRSPEED_MS45XX
       stateSetAirspeed_f(ms45xx.airspeed);
 #endif

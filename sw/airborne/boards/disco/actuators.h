@@ -52,7 +52,7 @@
 #define ACTUATORS_DISCO_MOTOR_IDX     0       ///< Index for motor BLDC
 
 struct ActuatorsDisco {
-  struct i2c_transaction i2c_trans; ///< I2C transaction for communicating with the bebop BLDC driver
+  struct i2c_transaction i2c_trans; ///< I2C transaction for communicating with the Disco BLDC driver
   uint16_t motor_rpm;               ///< Motor RPM setpoint
   uint16_t rpm_obs;                 ///< Measured RPM
   struct PWM_Sysfs pwm[ACTUATORS_DISCO_PWM_NB]; ///< Array of PWM outputs

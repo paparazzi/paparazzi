@@ -20,7 +20,7 @@
  */
 
 /** @file modules/sensors/airspeed_ms45xx_i2c.h
- *  Airspeed driver for the MS45xx via I2C.
+ *  Airspeed driver for the MS45xx pressure sensor via I2C.
  */
 
 #ifndef AIRSPEED_MS45XX_I2C_H
@@ -29,13 +29,14 @@
 #include "std.h"
 
 struct AirspeedMs45xx {
-  float diff_pressure;   ///< differential pressure in Pascal
-  int16_t temperature;   ///< temperature in 0.1 deg Celcius
-  float airspeed;        ///< Airspeed in m/s estimated from differential pressure.
-  float airspeed_scale;  ///< quadratic scale factor to convert differential pressure to airspeed
-  float pressure_scale;  ///< scaling factor from raw measurement to Pascal
-  float pressure_offset; ///< offset in Pascal
-  bool sync_send;      ///< flag to enable sending every new measurement via telemetry
+  float pressure;              ///< (differential) pressure in Pascal
+  int16_t temperature;         ///< Temperature in 0.1 deg Celcius
+  float airspeed;              ///< Airspeed in m/s estimated from (differential) pressure.
+  bool  pressure_type;         ///< Pressure type Differential of Gauge
+  float airspeed_scale;        ///< Quadratic scale factor to convert (differential) pressure to airspeed
+  float pressure_scale;        ///< Scaling factor from raw measurement to Pascal
+  float pressure_offset;       ///< Offset in Pascal
+  bool sync_send;              ///< Flag to enable sending every new measurement via telemetry for debugging purpose
 };
 
 extern struct AirspeedMs45xx ms45xx;

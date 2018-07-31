@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2014 Freek van Tienen <freek.v.tienen@gmail.com>
- * Copyright (C) 2017 Gautier Hattenberger <gautier.hattenberger@enac.fr>
+ * Copyright (C) 2018 OpenUAS <info@openuas.org>
  *
  * This file is part of Paparazzi.
  *
