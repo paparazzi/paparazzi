@@ -35,19 +35,41 @@ PRINT_CONFIG_VAR(UNDISTORT_DHANE_K)
 #endif
 PRINT_CONFIG_VAR(UNDISTORT_CENTER_RATIO)
 
+#ifndef UNDISTORT_FOCAL_X
+#define UNDISTORT_FOCAL_X 189.69f  ///< Focal length in pixels for x-axis. Default value for Bebop 2.
+#endif
+PRINT_CONFIG_VAR(UNDISTORT_FOCAL_X)
+
+#ifndef UNDISTORT_CENTER_X
+#define UNDISTORT_CENTER_X 165.04f  ///< Pixel x-coordinate of the optical center. Default value for Bebop 2.
+#endif
+PRINT_CONFIG_VAR(UNDISTORT_CENTER_X)
+
+#ifndef UNDISTORT_FOCAL_Y
+#define UNDISTORT_FOCAL_Y 188.60f  ///< Focal length in pixels for y-axis. Default value for Bebop 2.
+#endif
+PRINT_CONFIG_VAR(UNDISTORT_FOCAL_Y)
+
+#ifndef UNDISTORT_CENTER_Y
+#define UNDISTORT_CENTER_Y 118.44f  ///< Pixel y-coordinate of the optical center. Default value for Bebop 2.
+#endif
+PRINT_CONFIG_VAR(UNDISTORT_CENTER_Y)
+
 float min_x_normalized;
 float max_x_normalized;
 float dhane_k;
 float center_ratio;
+float focal_x;
+float center_x;
+float focal_y;
+float center_y;
 
 struct video_listener *listener = NULL;
 
-// Camera calibration matrix (of the Bebop2 for a specific part of the visual sensor):
-static float K[9] = {189.69f, 0.0f, 165.04f,
-                     0.0f, 188.60f, 118.44f,
+// Camera calibration matrix - will be filled in the init function and can be set in GUI:
+static float K[9] = {0.0f, 0.0f, 0.0f,
+                     0.0f, 0.0f, 0.0f,
                      0.0f, 0.0f, 1.0f};
-
-//static float k;
 
 // Function
 struct image_t *undistort_image_func(struct image_t *img);
@@ -58,20 +80,18 @@ struct image_t *undistort_image_func(struct image_t *img)
   float h_w_ratio = img->h / (float) img->w;
   float min_y_normalized = h_w_ratio * min_x_normalized;
   float max_y_normalized = h_w_ratio * max_x_normalized;
+  K[0] = focal_x;
+  K[2] = center_x;
+  K[4] = focal_y;
+  K[5] = center_y;
 
   // create an image of the same size:
   struct image_t img_distorted;
   image_create(&img_distorted, img->w, img->h, img->type);
-  // this info is not created in image_create, but is necessary for streaming...:
-  //img_distorted.ts = img->ts;
-  //img_distorted.eulers = img->eulers;
-  //img_distorted.pprz_ts = img->pprz_ts;
 
   uint8_t pixel_width = (img->type == IMAGE_YUV422) ? 2 : 1;
 
   image_copy(img, &img_distorted);
-
-  // do the copy first, and then put the undistorted image directly in the img.
 
   uint8_t *dest = (uint8_t *)img->buf;
   uint8_t *source = (uint8_t *)img_distorted.buf;
@@ -93,7 +113,6 @@ struct image_t *undistort_image_func(struct image_t *img)
   for(float x_n = min_x_normalized; x_n < max_x_normalized; x_n += normalized_step, x++) {
     uint32_t y = 0;
     for(float y_n = min_y_normalized; y_n < max_y_normalized; y_n += normalized_step, y++) {
-      // for faster execution but smaller FOV, uncomment the next line:
       if(center_ratio == 1.0f ||
           (x_n > center_ratio * min_x_normalized && x_n < center_ratio * max_x_normalized && y_n > center_ratio * min_y_normalized && y_n < center_ratio * max_y_normalized)
           ) {
@@ -119,6 +138,15 @@ struct image_t *undistort_image_func(struct image_t *img)
 
 void undistort_image_init(void)
 {
+  // set the calibration matrix
+  focal_x = UNDISTORT_FOCAL_X;
+  center_x = UNDISTORT_CENTER_X;
+  focal_y = UNDISTORT_FOCAL_Y;
+  center_y = UNDISTORT_CENTER_Y;
+  K[0] = focal_x;
+  K[2] = center_x;
+  K[4] = focal_y;
+  K[5] = center_y;
 
   min_x_normalized = UNDISTORT_MIN_X_NORMALIZED;
   max_x_normalized = UNDISTORT_MAX_X_NORMALIZED;
