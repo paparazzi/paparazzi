@@ -14,4 +14,10 @@
 extern void undistort_image_init(void);
 extern struct video_listener *listener;
 
+// settings:
+extern float min_x_normalized;
+extern float max_x_normalized;
+extern float dhane_k;
+extern float center_ratio;
+
 #endif /* UNDISTORT_MODULE_H */
