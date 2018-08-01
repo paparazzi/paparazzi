@@ -60,7 +60,6 @@ static float k;
 struct image_t *undistort_image_func(struct image_t *img);
 struct image_t *undistort_image_func(struct image_t *img)
 {
-
   // TODO: These commands could actually only be run when the parameters or image size are changed
   float normalized_step = (UNDISTORT_MAX_X_NORMALIZED - UNDISTORT_MIN_X_NORMALIZED) / img->w;
   float h_w_ratio = img->h / (float) img->w;
@@ -68,35 +67,59 @@ struct image_t *undistort_image_func(struct image_t *img)
   float max_y_normalized = h_w_ratio * UNDISTORT_MAX_X_NORMALIZED;
 
   // create an image of the same size:
-  struct image_t *img_undistorted;
-  image_create(img_undistorted, img->w, img->h, img->type);
+  struct image_t img_distorted;
+  image_create(&img_distorted, img->w, img->h, img->type);
+  // this info is not created in image_create, but is necessary for streaming...:
+  //img_distorted.ts = img->ts;
+  //img_distorted.eulers = img->eulers;
+  //img_distorted.pprz_ts = img->pprz_ts;
 
-  uint8_t *source = (uint8_t *)img->buf;
-  uint8_t *dest = (uint8_t *)img_undistorted->buf;
+  uint8_t pixel_width = (img->type == IMAGE_YUV422) ? 2 : 1;
 
-  float x_pd, y_pd;
-  uint16_t x_pd_ind, y_pd_ind;
-  uint16_t x = 0;
-  for(float x_n = UNDISTORT_MIN_X_NORMALIZED; x_n < UNDISTORT_MAX_X_NORMALIZED; x_n += normalized_step, x++) {
-    uint16_t y = 0;
-    for(float y_n = min_y_normalized; y_n < max_y_normalized; y_n += normalized_step, y++) {
-      normalized_coords_to_distorted_pixels(x_n, y_n, &x_pd, &y_pd, k, K);
-      if(x_pd > 0.0f && y_pd > 0.0f) {
-        x_pd_ind = (uint16_t) x_pd;
-        y_pd_ind = (uint16_t) y_pd;
-        if(x_pd_ind < img->w && y_pd_ind < img->h) {
-          // Assuming UY VY (2 bytes per pixel, and U for even indices, V for odd indices)
-          dest[y*img_undistorted->w*2+x*2] = 128; // source[y_pd_ind*img->w*2+x_pd_ind*2]; // Colors will be a pain for undistortion...
-          dest[y*img_undistorted->w*2+x*2+1] = source[y_pd_ind*img->w*2+x_pd_ind*2+1]; // no interpolation or anything, just the basics for now.
-        }
+  image_copy(img, &img_distorted);
+
+  // do the copy first, and then put the undistorted image directly in the img.
+
+  uint8_t *dest = (uint8_t *)img->buf;
+  uint8_t *source = (uint8_t *)img_distorted.buf;
+  uint32_t index_dest, index_src;
+
+  // set all pixels to black:
+  for(uint32_t x = 0; x < img->w; x++) {
+      for(uint32_t y = 0; y < img->h; y++) {
+        index_dest = pixel_width*(y*img->w+x);
+        dest[index_dest] = 128; // grey
+        dest[index_dest+1] = 0; // black
       }
+  }
+
+  // fill the image again, now with the undistorted image:
+  float x_pd, y_pd;
+  uint32_t x_pd_ind, y_pd_ind;
+  uint32_t x = 0;
+  for(float x_n = UNDISTORT_MIN_X_NORMALIZED; x_n < UNDISTORT_MAX_X_NORMALIZED; x_n += normalized_step, x++) {
+    uint32_t y = 0;
+    for(float y_n = min_y_normalized; y_n < max_y_normalized; y_n += normalized_step, y++) {
+      // for faster execution but smaller FOV, uncomment the next line:
+      //if(x_n > -0.5 && x_n < 0.5 && y_n > -0.5 && y_n < 0.5) {
+        normalized_coords_to_distorted_pixels(x_n, y_n, &x_pd, &y_pd, k, K);
+        if(x_pd > 0.0f && y_pd > 0.0f) {
+          x_pd_ind = (uint32_t) x_pd;
+          y_pd_ind = (uint32_t) y_pd;
+          if(x_pd_ind < img->w && y_pd_ind < img->h) {
+            // Assuming UY VY (2 bytes per pixel, and U for even indices, V for odd indices)
+            index_dest = pixel_width*(y*img->w+x);
+            index_src = pixel_width*(y_pd_ind*img_distorted.w+x_pd_ind);
+            dest[index_dest] = 128; // source[index_src]; // Colors will be a pain for undistortion...
+            dest[index_dest+1] = source[index_src+1]; // no interpolation or anything, just the basics for now.
+          }
+        }
+      //}
     }
   }
 
-  image_copy(img_undistorted, img);
-  image_free(img_undistorted);
-
-  return img; // Colorfilter did not make a new image
+  image_free(&img_distorted);
+  return img;
 }
 
 void undistort_image_init(void)

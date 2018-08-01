@@ -63,7 +63,7 @@
       <define name="VIEWVIDEO_CAMERA" value="front_camera"/>
       <!-- <define name="VIEWVIDEO_CAMERA2" value="bottom_camera"/> -->
       <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
-      <define name="VIEWVIDEO_QUALITY_FACTOR" value="40"/>
+      <define name="VIEWVIDEO_QUALITY_FACTOR" value="90"/>
     </module>
 
     <!--<module name="bebop_ae_awb"/>-->
