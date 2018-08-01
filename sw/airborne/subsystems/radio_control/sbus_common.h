@@ -77,12 +77,14 @@
  * SBUS structure
  */
 struct Sbus {
-  uint16_t pulses[SBUS_NB_CHANNEL]; ///< decoded values
-  uint16_t ppm[SBUS_NB_CHANNEL];    ///< decoded and converted values
-  bool frame_available;           ///< new frame available
-  uint8_t buffer[SBUS_BUF_LENGTH];  ///< input buffer
-  uint8_t idx;                      ///< input index
-  uint8_t status;                   ///< decoder state machine status
+  uint16_t pulses[SBUS_NB_CHANNEL]; ///< Decoded values
+  uint16_t ppm[SBUS_NB_CHANNEL];    ///< Decoded and converted to ppm values
+  bool frame_available;             ///< A data frame is available
+  bool rc_failsafe;                 ///< Receiver set to in failsafe mode
+  bool rc_lost;                     ///< RC reception is lost
+  uint8_t buffer[SBUS_BUF_LENGTH];  ///< Input buffer
+  uint8_t idx;                      ///< Input index
+  uint8_t status;                   ///< Decoder state-machine status
 };
 
 /**
