@@ -2,7 +2,14 @@
 
 <module name="cv_undistort_image" dir="computer_vision">
   <doc>
-    <description>ColorFilter</description>
+    <description>
+      Undistortion a fisheyelens distortion of a whole image. 
+      Note that this is quite a slow process, so it is not really advisable to use this in a vision pipeline leading to control. 
+      However, it can be used to find the right undistortion parameter k, and shows that the undistortion functions work.
+
+      The code also can be used to convert image coordinates from distorted fisheye lenses to undistorted coordinates and back.
+      It takes into account the camera calibration matrix and the distortion of the specific lens.
+    </description>
     <define name="UNDISTORT_MIN_X_NORMALIZED" value="-2.0" description="Minimal normalized x-coordinate to be used for the undistortion"/>
     <define name="UNDISTORT_MAX_X_NORMALIZED" value="2.0" description="Maximal normalized x-coordinate to be used for the undistortion"/>
     <define name="UNDISTORT_DHANE_K" value="1.25" description="The single parameter of the Dhane invertible (un)distortion model."/>
