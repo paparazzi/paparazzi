@@ -27,6 +27,7 @@
 #include "subsystems/radio_control/sbus_common.h"
 #include BOARD_CONFIG
 #include <string.h>
+#include <stdbool.h>
 
 /*
  * SBUS protocol and state machine status
@@ -42,9 +43,11 @@
 #define SBUS_BIT_PER_BYTE 8
 #define SBUS_FLAGS_BYTE 22
 #define SBUS_FRAME_LOST_BIT 2
+#define SBUS_RC_FAILSAFE_BIT 4
+#define SBUS_RC_LOST_BIT 5
 
-#define SBUS_STATUS_UNINIT      0
-#define SBUS_STATUS_GOT_START   1
+#define SBUS_STATUS_UNINIT 0
+#define SBUS_STATUS_GOT_START 1
 
 /** Set polarity using RC_POLARITY_GPIO.
  * SBUS signal has a reversed polarity compared to normal UART
@@ -57,14 +60,16 @@
 #define RC_SET_POLARITY gpio_set
 #endif
 
-
 void sbus_common_init(struct Sbus *sbus_p, struct uart_periph *dev,
                       gpio_port_t gpio_polarity_port, uint16_t gpio_polarity_pin)
 {
+  //Assume the worst ;)
   sbus_p->frame_available = false;
+  sbus_p->rc_failsafe = true;
+  sbus_p->rc_lost = true;
   sbus_p->status = SBUS_STATUS_UNINIT;
 
-  // Set UART parameters (100K, 8 bits, 2 stops, even parity)
+  // Set UART parameter, SBUS used a baud rate of 100000, 8 data bits, even parity bit, and 2 stop bits
   uart_periph_set_baudrate(dev, B100000);
   uart_periph_set_bits_stop_parity(dev, UBITS_8, USTOP_2, UPARITY_EVEN);
   // Try to invert RX data logic when available in hardware periph
@@ -78,9 +83,9 @@ void sbus_common_init(struct Sbus *sbus_p, struct uart_periph *dev,
 
 }
 
-
 /** Decode the raw buffer */
-static void decode_sbus_buffer(const uint8_t *src, uint16_t *dst, bool *available,
+static void decode_sbus_buffer(const uint8_t *src, uint16_t *dst,
+		                       bool *is_frame_available, bool *is_rc_failsafe, bool *is_rc_lost,
                                uint16_t *dstppm __attribute__((unused)))
 {
   // decode sbus data, unrolling the loop for efficiency
@@ -101,15 +106,20 @@ static void decode_sbus_buffer(const uint8_t *src, uint16_t *dst, bool *availabl
   dst[14] = ((src[19] >> 2) | (src[20] << 6))                 & 0x07FF;
   dst[15] = ((src[20] >> 5) | (src[21] << 3))                 & 0x07FF;
 
-  // convert sbus to ppm
+  // Convert sbus to ppm
 #if PERIODIC_TELEMETRY
   for (int channel = 0; channel < SBUS_NB_CHANNEL; channel++) {
     dstppm[channel] = USEC_OF_RC_PPM_TICKS(dst[channel]);
   }
 #endif
 
-  // test frame lost flag
-  *available = !bit_is_set(src[SBUS_FLAGS_BYTE], SBUS_FRAME_LOST_BIT);
+  // Test frame loss flag
+  *is_frame_available = !bit_is_set(src[SBUS_FLAGS_BYTE], SBUS_FRAME_LOST_BIT);
+  // Check if receiver is in Failsafe mode
+  *is_rc_failsafe = bit_is_set(src[SBUS_FLAGS_BYTE], SBUS_RC_FAILSAFE_BIT);
+  // Also check if the RC link is lost
+  *is_rc_lost = bit_is_set(src[SBUS_FLAGS_BYTE], SBUS_RC_LOST_BIT);
+
 }
 
 // Decoding event function
@@ -140,7 +150,7 @@ void sbus_common_decode_event(struct Sbus *sbus_p, struct uart_periph *dev)
                 rbyte == SBUS_END_BYTE_3 ||
                 rbyte == SBUS_END_BYTE_4 ||
                 rbyte == SBUS_END_BYTE_5) {
-              decode_sbus_buffer(sbus_p->buffer, sbus_p->pulses, &sbus_p->frame_available, sbus_p->ppm);
+              decode_sbus_buffer(sbus_p->buffer, sbus_p->pulses, &sbus_p->frame_available, &sbus_p->rc_failsafe, &sbus_p->rc_lost, sbus_p->ppm);
             }
             sbus_p->status = SBUS_STATUS_UNINIT;
           }

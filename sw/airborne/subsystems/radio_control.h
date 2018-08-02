@@ -39,11 +39,19 @@
 extern void radio_control_impl_init(void);
 
 /* timeouts - for now assumes 60Hz periodic */
+#ifndef RC_AVG_PERIOD
 #define RC_AVG_PERIOD 8  /* TODO remove if IIR filter is used */
+#endif
+#ifndef RC_LOST_TIME
 #define RC_LOST_TIME 30  /* 500ms with a 60Hz timer */
+#endif
+#ifndef RC_REALLY_LOST_TIME
 #define RC_REALLY_LOST_TIME 60 /* ~1s */
+#endif
 /* Number of valid frames before going back to RC OK */
+#ifndef RC_OK_CPT
 #define RC_OK_CPT 15
+#endif
 
 #define RC_OK          0
 #define RC_LOST        1
