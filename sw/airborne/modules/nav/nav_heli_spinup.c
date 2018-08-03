@@ -45,7 +45,7 @@ void nav_heli_spinup_setup(uint16_t duration, float throttle)
   nav_cmd_roll = 0;
   nav_cmd_pitch = 0;
   nav_cmd_yaw = 0;
-  horizontal_mode = HORIZONTAL_MODE_MANUAL;
+  horizontal_mode = HORIZONTAL_MODE_ATTITUDE;
   vertical_mode = VERTICAL_MODE_MANUAL;
 }
 
