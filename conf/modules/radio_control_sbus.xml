@@ -21,6 +21,7 @@
     <define name="RADIO_CONTROL"/>
     <define name="RADIO_CONTROL_TYPE_SBUS"/>
     <define name="USE_$(SBUS_UART_UPPER)"/>
+    <define name="USE_$(SBUS_UART_UPPER)_TX" value="FALSE"/>
     <define name="$(SBUS_UART_UPPER)_BAUD" value="B100000"/>
     <define name="SBUS_UART_DEV" value="$(SBUS_UART_LOWER)"/>
     <file name="radio_control.c" dir="subsystems"/>
@@ -31,6 +32,7 @@
     <define name="RADIO_CONTROL"/>
     <define name="RADIO_CONTROL_TYPE_SBUS"/>
     <define name="USE_$(SBUS_UART_UPPER)"/>
+    <define name="USE_$(SBUS_UART_UPPER)_TX" value="FALSE"/>
     <define name="$(SBUS_UART_UPPER)_BAUD" value="B100000"/>
     <define name="SBUS_UART_DEV" value="$(SBUS_UART_LOWER)"/>
     <file name="radio_control.c" dir="subsystems"/>
