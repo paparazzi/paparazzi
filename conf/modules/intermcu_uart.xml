@@ -53,7 +53,7 @@
     <define name="RADIO_CONTROL"/>
     <define name="RADIO_CONTROL_LED" value="$(RADIO_CONTROL_LED)" cond="ifneq ($(RADIO_CONTROL_LED),none)"/>
     <define name="GPS_SECONDARY_TYPE_H" value="subsystems/intermcu/intermcu_ap.h" type="string" cond="ifneq (,$(findstring $(SECONDARY_GPS), imcu))"/>
-    <define name="GPS_SECONDARY_GPS" value="GPS_IMU" cond="ifneq (,$(findstring $(SECONDARY_GPS), imcu))"/>
+    <define name="SECONDARY_GPS" value="GPS_IMU" cond="ifneq (,$(findstring $(SECONDARY_GPS), imcu))"/>
     <define name="IMCU_GPS" cond="ifneq (,$(findstring $(SECONDARY_GPS), imcu))"/>
     <file name="intermcu_ap.c" dir="subsystems/intermcu"/>
     <file name="radio_control.c" dir="subsystems"/>
