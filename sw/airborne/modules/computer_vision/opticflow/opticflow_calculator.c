@@ -432,50 +432,49 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
                                        opticflow->threshold_vec, opticflow->max_track_corners, opticflow->pyramid_level, keep_bad_points);
 
 
-  if(opticflow->track_back) {
+  if (opticflow->track_back) {
     // TODO: Watch out!
     // We track the flow back and give badly back-tracked vectors a high error,
     // but we do not yet remove these vectors, nor use the errors in any other function than showing the flow.
 
     // initialize corners at the tracked positions:
-    for(int i = 0; i < result->tracked_cnt; i++) {
-      opticflow->fast9_ret_corners[i].x = (uint32_t) (vectors[i].pos.x + vectors[i].flow_x) / opticflow->subpixel_factor;
-      opticflow->fast9_ret_corners[i].y = (uint32_t) (vectors[i].pos.y + vectors[i].flow_y) / opticflow->subpixel_factor;
+    for (int i = 0; i < result->tracked_cnt; i++) {
+      opticflow->fast9_ret_corners[i].x = (uint32_t)(vectors[i].pos.x + vectors[i].flow_x) / opticflow->subpixel_factor;
+      opticflow->fast9_ret_corners[i].y = (uint32_t)(vectors[i].pos.y + vectors[i].flow_y) / opticflow->subpixel_factor;
     }
 
     // present the images in the opposite order:
     keep_bad_points = 1;
     uint16_t back_track_cnt = result->tracked_cnt;
     struct flow_t *back_vectors = opticFlowLK(&opticflow->prev_img_gray, &opticflow->img_gray, opticflow->fast9_ret_corners,
-                                          &back_track_cnt,
-                                          opticflow->window_size / 2, opticflow->subpixel_factor, opticflow->max_iterations,
-                                          opticflow->threshold_vec, opticflow->max_track_corners, opticflow->pyramid_level, keep_bad_points);
+                                  &back_track_cnt,
+                                  opticflow->window_size / 2, opticflow->subpixel_factor, opticflow->max_iterations,
+                                  opticflow->threshold_vec, opticflow->max_track_corners, opticflow->pyramid_level, keep_bad_points);
 
     // printf("Tracked %d points back.\n", back_track_cnt);
     int32_t back_x, back_y, diff_x, diff_y, dist_squared;
     int32_t back_track_threshold = 200;
 
-    for(int i = 0; i < result->tracked_cnt; i++) {
-     if(back_vectors[i].error < LARGE_FLOW_ERROR) {
-       back_x = (int32_t) (back_vectors[i].pos.x + back_vectors[i].flow_x);
-       back_y = (int32_t) (back_vectors[i].pos.y + back_vectors[i].flow_y);
-       diff_x = back_x - vectors[i].pos.x;
-       diff_y = back_y - vectors[i].pos.y;
-       dist_squared = diff_x*diff_x + diff_y*diff_y;
-       // printf("Vector %d: x,y = %d, %d, back x, y = %d, %d, back tracking error %d\n", i, vectors[i].pos.x, vectors[i].pos.y, back_x, back_y, dist_squared);
-       if(dist_squared > back_track_threshold) {
-         vectors[i].error = LARGE_FLOW_ERROR;
-       }
-     }
-     else {
-       vectors[i].error = LARGE_FLOW_ERROR;
-     }
+    for (int i = 0; i < result->tracked_cnt; i++) {
+      if (back_vectors[i].error < LARGE_FLOW_ERROR) {
+        back_x = (int32_t)(back_vectors[i].pos.x + back_vectors[i].flow_x);
+        back_y = (int32_t)(back_vectors[i].pos.y + back_vectors[i].flow_y);
+        diff_x = back_x - vectors[i].pos.x;
+        diff_y = back_y - vectors[i].pos.y;
+        dist_squared = diff_x * diff_x + diff_y * diff_y;
+        // printf("Vector %d: x,y = %d, %d, back x, y = %d, %d, back tracking error %d\n", i, vectors[i].pos.x, vectors[i].pos.y, back_x, back_y, dist_squared);
+        if (dist_squared > back_track_threshold) {
+          vectors[i].error = LARGE_FLOW_ERROR;
+        }
+      } else {
+        vectors[i].error = LARGE_FLOW_ERROR;
+      }
     }
 
     free(back_vectors);
   }
 
-  if(opticflow->show_flow) {
+  if (opticflow->show_flow) {
     image_show_flow(img, vectors, result->tracked_cnt, opticflow->subpixel_factor);
   }
 
@@ -648,7 +647,7 @@ static void manage_flow_features(struct image_t *img, struct opticflow_t *opticf
     int region_index;
     for (uint16_t i = 0; i < result->corner_cnt; i++) {
       region_index = (opticflow->fast9_ret_corners[i].x * root_regions / img->w
-               + root_regions * (opticflow->fast9_ret_corners[i].y * root_regions / img->h));
+                      + root_regions * (opticflow->fast9_ret_corners[i].y * root_regions / img->h));
       region_index = (region_index < opticflow->fast9_num_regions) ? region_index : opticflow->fast9_num_regions - 1;
       region_count[region_index][0]++;
     }

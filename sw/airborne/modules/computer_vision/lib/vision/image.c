@@ -626,11 +626,10 @@ void image_show_flow(struct image_t *img, struct flow_t *vectors, uint16_t point
       (vectors[i].pos.y + vectors[i].flow_y) / subpixel_factor
     };
 
-    if(vectors[i].error >= LARGE_FLOW_ERROR) {
+    if (vectors[i].error >= LARGE_FLOW_ERROR) {
       image_draw_crosshair(img, &to, bad_color, size_crosshair);
       image_draw_line_color(img, &from, &to, bad_color);
-    }
-    else {
+    } else {
       image_draw_crosshair(img, &to, color, size_crosshair);
       image_draw_line_color(img, &from, &to, color);
     }
