@@ -37,6 +37,8 @@
       <define name="MEDIAN_FILTER" value="0" description="A median filter on the resulting velocities to be turned on or off (last 5 measurements)"/>
       <define name="FEATURE_MANAGEMENT" value="1" description="Whether to keep already tracked corners in memory for the next frame or re-detect new ones every time"/>
       <define name="FPS" value="0" description="The (maximum) frequency to run the calculations at. If zero, it will max out at the camera frame rate"/>
+      <define name="TRACK_BACK" value="TRUE" description="Whether flow vectors are tracked back to the previous image and only kept if they end up close to the original point."/>
+      <define name="SHOW_FLOW" value="TRUE" description="Whether to draw the flow vectors in the image."/>
 
       <!-- Lucas Kanade optical flow calculation parameters -->
       <define name="MAX_TRACK_CORNERS" value="25" description="The maximum amount of corners the Lucas Kanade algorithm is tracking between two frames"/>
@@ -75,12 +77,14 @@
         <dl_setting var="opticflow.derotation" min="0" step="1" max="1" module="computer_vision/opticflow_module" values="OFF|ON" shortname="derotation" param="OPTICFLOW_DEROTATION"/>
         <dl_setting var="opticflow.median_filter" module="computer_vision/opticflow_module" min="0" step="1" max="1" values="OFF|ON" shortname="median_filter" param="OPTICFLOW_MEDIAN_FILTER"/>
         <dl_setting var="opticflow.feature_management" module="computer_vision/opticflow_module" min="0" step="1" max="1" values="OFF|ON" shortname="feature_management" param="OPTICFLOW_FEATURE_MANAGEMENT"/>
+        <dl_setting var="opticflow.track_back" module="computer_vision/opticflow_module" min="0" step="1" max="1" values="FALSE|TRUE" shortname="track_back" param="OPTICFLOW_TRACK_BACK"/>
+        <dl_setting var="opticflow.show_flow" module="computer_vision/opticflow_module" min="0" step="1" max="1" values="FALSE|TRUE" shortname="show_flow" param="OPTICFLOW_SHOW_FLOW"/>
+
 
         <!-- Specifically for Lucas Kanade and FAST9 -->
         <dl_setting var="opticflow.max_track_corners" module="computer_vision/opticflow_module" min="0" step="1" max="500" shortname="max_trck_corners" param="OPTICFLOW_MAX_TRACK_CORNERS"/>
         <dl_setting var="opticflow.max_iterations" module="computer_vision/opticflow_module" min="0" step="1" max="100" shortname="max_iterations" param="OPTICFLOW_MAX_ITERATIONS"/>
         <dl_setting var="opticflow.threshold_vec" module="computer_vision/opticflow_module" min="0" step="1" max="100" shortname="threshold_vec" param="OPTICFLOW_THRESHOLD_VEC"/>
-
         <dl_setting var="opticflow.fast9_adaptive" module="computer_vision/opticflow_module" min="0" step="1" max="1" values="FALSE|TRUE" shortname="fast9_adaptive" param="OPTICFLOW_FAST9_ADAPTIVE"/>
         <dl_setting var="opticflow.fast9_threshold" module="computer_vision/opticflow_module" min="0" step="1" max="255" shortname="fast9_threshold" param="OPTICFLOW_FAST9_THRESHOLD"/>
         <dl_setting var="opticflow.fast9_min_distance" module="computer_vision/opticflow_module" min="0" step="1" max="500" shortname="fast9_min_distance" param="OPTICFLOW_FAST9_MIN_DISTANCE"/>

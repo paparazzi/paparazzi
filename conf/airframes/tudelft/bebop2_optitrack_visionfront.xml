@@ -64,6 +64,8 @@
       <define name="OPTICFLOW_DEROTATION_CORRECTION_FACTOR_X" value="0.8"/> <!--Obtained from a linefit--> 
       <define name="OPTICFLOW_DEROTATION_CORRECTION_FACTOR_Y" value="0.85"/> <!--Obtained from a linefit--> 
       <define name="OPTICFLOW_FEATURE_MANAGEMENT" value="0"/> <!-- feature  management still sucks -->
+      <define name="OPTICFLOW_TRACK_BACK" value="1"/> 
+      <define name="OPTICFLOW_SHOW_FLOW" value="1"/> 
     </module>
 
     <module name="optical_flow_landing">
@@ -74,7 +76,7 @@
 
     <module name="video_rtp_stream">
       <define name="VIEWVIDEO_CAMERA" value="front_camera"/>
-      <define name="VIEWVIDEO_CAMERA2" value="bottom_camera"/>
+      <!-- <define name="VIEWVIDEO_CAMERA2" value="bottom_camera"/> -->
       <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
       <define name="VIEWVIDEO_QUALITY_FACTOR" value="40"/>
     </module>

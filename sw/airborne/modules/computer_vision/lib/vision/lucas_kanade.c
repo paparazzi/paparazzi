@@ -72,13 +72,15 @@
  */
 struct flow_t *opticFlowLK(struct image_t *new_img, struct image_t *old_img, struct point_t *points,
                            uint16_t *points_cnt, uint16_t half_window_size,
-                           uint16_t subpixel_factor, uint8_t max_iterations, uint8_t step_threshold, uint8_t max_points, uint8_t pyramid_level)
+                           uint16_t subpixel_factor, uint8_t max_iterations, uint8_t step_threshold, uint8_t max_points, uint8_t pyramid_level,
+                           uint8_t keep_bad_points)
 {
 
   // if no pyramids, use the old code:
   if (pyramid_level == 0) {
     // use the old code in this case:
-    return opticFlowLK_flat(new_img, old_img, points, points_cnt, half_window_size, subpixel_factor, max_iterations, step_threshold, max_points);
+    return opticFlowLK_flat(new_img, old_img, points, points_cnt, half_window_size, subpixel_factor, max_iterations,
+                            step_threshold, max_points, keep_bad_points);
   }
 
   // Allocate some memory for returning the vectors
@@ -137,9 +139,11 @@ struct flow_t *opticFlowLK(struct image_t *new_img, struct image_t *old_img, str
 
       // If the pixel is outside original image, do not track it
       if ((((int32_t) vectors[new_p].pos.x + vectors[new_p].flow_x) < 0)
-          || ((vectors[new_p].pos.x + vectors[new_p].flow_x) > (uint32_t)((pyramid_new[LVL].w - 1 - 2 * border_size)* subpixel_factor))
+          || ((vectors[new_p].pos.x + vectors[new_p].flow_x) > (uint32_t)((pyramid_new[LVL].w - 1 - 2 * border_size)*
+              subpixel_factor))
           || (((int32_t) vectors[new_p].pos.y + vectors[new_p].flow_y) < 0)
-          || ((vectors[new_p].pos.y + vectors[new_p].flow_y) > (uint32_t)((pyramid_new[LVL].h - 1 - 2 * border_size)* subpixel_factor))) {
+          || ((vectors[new_p].pos.y + vectors[new_p].flow_y) > (uint32_t)((pyramid_new[LVL].h - 1 - 2 * border_size)*
+              subpixel_factor))) {
         continue;
       }
 
@@ -167,9 +171,9 @@ struct flow_t *opticFlowLK(struct image_t *new_img, struct image_t *old_img, str
 
       for (uint8_t it = max_iterations; it--;) {
         struct point_t new_point = { vectors[new_p].pos.x  + vectors[new_p].flow_x,
-                                     vectors[new_p].pos.y + vectors[new_p].flow_y,
-                                     0, 0, 0
-                                    };
+                 vectors[new_p].pos.y + vectors[new_p].flow_y,
+                 0, 0, 0
+        };
 
         // If the pixel is outside original image, do not track it
         if ((((int32_t)vectors[new_p].pos.x  + vectors[new_p].flow_x) < 0)
@@ -201,6 +205,7 @@ struct flow_t *opticFlowLK(struct image_t *new_img, struct image_t *old_img, str
 
         vectors[new_p].flow_x = vectors[new_p].flow_x + step_x;
         vectors[new_p].flow_y = vectors[new_p].flow_y + step_y;
+        vectors[new_p].error = error;
 
         // Check if we exceeded the treshold CHANGED made this better for 0.03
         if ((abs(step_x) + abs(step_y)) < step_threshold) {
@@ -210,6 +215,14 @@ struct flow_t *opticFlowLK(struct image_t *new_img, struct image_t *old_img, str
 
       // If we tracked the point we update the index and the count
       if (tracked) {
+        new_p++;
+        (*points_cnt)++;
+      } else if (keep_bad_points) {
+        vectors[new_p].pos.x = 0;
+        vectors[new_p].pos.y = 0;
+        vectors[new_p].flow_x = 0;
+        vectors[new_p].flow_y = 0;
+        vectors[new_p].error = LARGE_FLOW_ERROR;
         new_p++;
         (*points_cnt)++;
       }
@@ -250,8 +263,10 @@ struct flow_t *opticFlowLK(struct image_t *new_img, struct image_t *old_img, str
  * @param[in] max_point The maximum amount of points to track, we skip x points and then take a point.
  * @return The vectors from the original *points in subpixels
  */
-struct flow_t *opticFlowLK_flat(struct image_t *new_img, struct image_t *old_img, struct point_t *points, uint16_t *points_cnt,
-                                uint16_t half_window_size, uint16_t subpixel_factor, uint8_t max_iterations, uint8_t step_threshold, uint16_t max_points)
+struct flow_t *opticFlowLK_flat(struct image_t *new_img, struct image_t *old_img, struct point_t *points,
+                                uint16_t *points_cnt,
+                                uint16_t half_window_size, uint16_t subpixel_factor, uint8_t max_iterations, uint8_t step_threshold,
+                                uint16_t max_points, uint8_t keep_bad_points)
 {
   // A straightforward one-level implementation of Lucas-Kanade.
   // For all points:
@@ -330,7 +345,7 @@ struct flow_t *opticFlowLK_flat(struct image_t *new_img, struct image_t *old_img
       struct point_t new_point =  {
         vectors[new_p].pos.x + vectors[new_p].flow_x,
         vectors[new_p].pos.y + vectors[new_p].flow_y,
-        0,0,0
+        0, 0, 0
       };
       // If the pixel is outside ROI, do not track it
       if (new_point.x / subpixel_factor < half_window_size || (old_img->w - new_point.x / subpixel_factor) <= half_window_size
@@ -359,6 +374,7 @@ struct flow_t *opticFlowLK_flat(struct image_t *new_img, struct image_t *old_img
       int16_t step_y = (G[0] * b_y - G[2] * b_x) / Det;
       vectors[new_p].flow_x += step_x;
       vectors[new_p].flow_y += step_y;
+      vectors[new_p].error = error;
 
       // Check if we exceeded the treshold
       if ((abs(step_x) + abs(step_y)) < step_threshold) {
@@ -368,6 +384,14 @@ struct flow_t *opticFlowLK_flat(struct image_t *new_img, struct image_t *old_img
 
     // If we tracked the point we update the index and the count
     if (tracked) {
+      new_p++;
+      (*points_cnt)++;
+    } else if (keep_bad_points) {
+      vectors[new_p].pos.x = 0;
+      vectors[new_p].pos.y = 0;
+      vectors[new_p].flow_x = 0;
+      vectors[new_p].flow_y = 0;
+      vectors[new_p].error = LARGE_FLOW_ERROR;
       new_p++;
       (*points_cnt)++;
     }
