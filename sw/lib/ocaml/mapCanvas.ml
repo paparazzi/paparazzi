@@ -391,10 +391,11 @@ object (self)
     canvas#scroll_to (truncate xc) (truncate yc)
 
   method center = fun wgs84 ->
-    self#moveto wgs84;
-    let sx_w, sy_w = Gdk.Drawable.get_size canvas#misc#window
-    and (x, y) = canvas#get_scroll_offsets in
-    canvas#scroll_to (x-sx_w/2) (y-sy_w/2)
+    let (xw, yw) = self#world_of wgs84 in
+    let (xc, yc) = canvas#world_to_window xw yw in
+    let (xt, yt) = ((truncate xc), (truncate yc)) in
+    let sx_w, sy_w = Gdk.Drawable.get_size canvas#misc#window in
+    canvas#scroll_to (xt-sx_w/2) (yt-sy_w/2)
 
   method get_center = fun () ->
     let (x, y) = canvas#get_scroll_offsets
