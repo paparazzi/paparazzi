@@ -1159,7 +1159,7 @@ end (* module GCS_icon *)
 
 
 (******************************** FLIGHT_PARAMS ******************************)
-let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
+let listen_flight_params = fun geomap auto_center_new_ac auto_center_ac alert alt_graph ->
   let get_fp = fun _sender vs ->
     let ac_id = PprzLink.string_assoc "ac_id" vs in
     if ac_id = gcs_id then
@@ -1190,6 +1190,9 @@ let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
       if auto_center_new_ac && ac.first_pos then begin
         center geomap ac.track ();
         ac.first_pos <- false
+      end;
+      if auto_center_ac = ac_id then begin
+        center geomap ac.track ();
       end;
 
       let set_label = fun lbl_name value ->
@@ -1545,7 +1548,7 @@ let get_shapes = fun (geomap:G.widget)_sender vs ->
 let listen_shapes = fun (geomap:G.widget) ->
   safe_bind "SHAPE" (get_shapes geomap)
 
-let listen_acs_and_msgs = fun geomap ac_notebook strips confirm_kill my_alert auto_center_new_ac alt_graph timestamp ->
+let listen_acs_and_msgs = fun geomap ac_notebook strips confirm_kill my_alert auto_center_new_ac auto_center_ac alt_graph timestamp ->
   (** Probe live A/Cs *)
   let probe = fun () ->
     ignore(message_request "gcs" "AIRCRAFTS" [] (fun _sender vs -> _req_aircrafts := false; aircrafts_msg confirm_kill my_alert geomap ac_notebook strips vs)) in
@@ -1555,7 +1558,7 @@ let listen_acs_and_msgs = fun geomap ac_notebook strips confirm_kill my_alert au
   safe_bind "NEW_AIRCRAFT" (fun _sender vs -> one_new_ac confirm_kill my_alert geomap ac_notebook  strips (PprzLink.string_assoc "ac_id" vs));
 
   (** Listen for all messages on ivy *)
-  listen_flight_params geomap auto_center_new_ac my_alert alt_graph;
+  listen_flight_params geomap auto_center_new_ac auto_center_ac my_alert alt_graph;
   listen_wind_msg geomap;
   listen_fbw_msg my_alert;
   listen_engine_status_msg ();
