@@ -40,6 +40,14 @@ struct video_thread_t {
   struct v4l2_device *dev;        ///< The V4L2 device that is used for the video stream
 };
 
+struct camera_intrinsics_t {
+  float focal_x;
+  float focal_y;
+  float center_x;
+  float center_y;
+  float Dhane_k;
+};
+
 /** V4L2 device settings */
 struct video_config_t {
   struct img_size_t output_size;    ///< Output image size
@@ -54,8 +62,8 @@ struct video_config_t {
   struct video_thread_t thread; ///< Information about the thread this camera is running on
   struct video_listener *cv_listener; ///< The first computer vision listener in the linked list for this video device
   int fps;                  ///< Target FPS
+  struct camera_intrinsics_t camera_intrinsics; ///< Intrinsics of the camera; camera calibration parameters and distortion parameter(s)
 };
 extern struct video_config_t dummy_camera;
-
 
 #endif

@@ -103,6 +103,23 @@
 #define MT9F002_Y_ODD_INC_VAL 1
 #endif
 
+// parameters for undistortion
+#ifndef MT9F002_FOCAL_X
+#define MT9F002_FOCAL_X 311.59304538f
+#endif
+#ifndef MT9F002_FOCAL_Y
+#define MT9F002_FOCAL_Y 313.01338397f
+#endif
+#ifndef MT9F002_CENTER_X
+#define MT9F002_CENTER_X 158.37457814f
+#endif
+#ifndef MT9F002_CENTER_Y
+#define MT9F002_CENTER_Y 326.49375925f
+#endif
+#ifndef MT9F002_DHANE_K
+#define MT9F002_DHANE_K 1.25f
+#endif
+
 /* Interface types for the MT9F002 connection */
 enum mt9f002_interface {
   MT9F002_MIPI,     ///< MIPI type connection
