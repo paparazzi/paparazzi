@@ -67,12 +67,12 @@ struct video_config_t front_camera = {
   .cv_listener = NULL,
   .fps = MT9F002_TARGET_FPS,
   .camera_intrinsics = {
-        .focal_x = MT9F002_FOCAL_X;
-        .focal_y = MT9F002_FOCAL_Y;
-        .center_x = MT9F002_CENTER_X;
-        .center_y = MT9F002_CENTER_Y;
-        .Dhane_k = MT9F002_DHANE_K;
-    }
+    .focal_x = MT9F002_FOCAL_X;
+    .focal_y = MT9F002_FOCAL_Y;
+    .center_x = MT9F002_CENTER_X;
+    .center_y = MT9F002_CENTER_Y;
+    .Dhane_k = MT9F002_DHANE_K;
+  }
 };
 
 /**

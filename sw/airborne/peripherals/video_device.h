@@ -62,7 +62,8 @@ struct video_config_t {
   struct video_thread_t thread; ///< Information about the thread this camera is running on
   struct video_listener *cv_listener; ///< The first computer vision listener in the linked list for this video device
   int fps;                  ///< Target FPS
-  struct camera_intrinsics_t camera_intrinsics; ///< Intrinsics of the camera; camera calibration parameters and distortion parameter(s)
+  struct camera_intrinsics_t
+    camera_intrinsics; ///< Intrinsics of the camera; camera calibration parameters and distortion parameter(s)
 };
 extern struct video_config_t dummy_camera;
 

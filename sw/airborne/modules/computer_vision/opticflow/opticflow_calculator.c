@@ -548,14 +548,13 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
     float theta_diff = opticflow->img_gray.eulers.theta - opticflow->prev_img_gray.eulers.theta;
     float psi_diff = opticflow->img_gray.eulers.psi - opticflow->prev_img_gray.eulers.psi;
 
-    if(strcmp(OPTICFLOW_CAMERA.dev_name, "/dev/video0") == 0) {
+    if (strcmp(OPTICFLOW_CAMERA.dev_name, "/dev/video0") == 0) {
       // bottom cam: just subtract a scaled version of the roll and pitch difference from the global flow vector:
       diff_flow_x = phi_diff * OPTICFLOW_FX;
       diff_flow_y = theta_diff * OPTICFLOW_FY;
       //diff_flow_x = (cam_state->rates.p)  / result->fps * img->w / OPTICFLOW_FOV_W;// * img->w / OPTICFLOW_FOV_W;
       //diff_flow_y = (cam_state->rates.q) / result->fps * img->h / OPTICFLOW_FOV_H;// * img->h / OPTICFLOW_FOV_H;
-    }
-    else {
+    } else {
       // for frontal cam, predict individual flow vectors:
       struct flow_t *predicted_flow_vectors = predict_flow_vectors(vectors, result->tracked_cnt, phi_diff, theta_diff,
                                               psi_diff, opticflow);
@@ -584,14 +583,13 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
 
   } else {
 
-    if(strcmp(OPTICFLOW_CAMERA.dev_name, "/dev/video0") == 0) {
+    if (strcmp(OPTICFLOW_CAMERA.dev_name, "/dev/video0") == 0) {
       // bottom cam:
       result->flow_der_x = result->flow_x - diff_flow_x * opticflow->subpixel_factor *
                            opticflow->derotation_correction_factor_x;
       result->flow_der_y = result->flow_y - diff_flow_y * opticflow->subpixel_factor *
                            opticflow->derotation_correction_factor_y;
-    }
-    else {
+    } else {
       // vectors have to be re-sorted after derotation:
       qsort(vectors, result->tracked_cnt, sizeof(struct flow_t), cmp_flow);
 
@@ -667,7 +665,7 @@ static struct flow_t *predict_flow_vectors(struct flow_t *flow_vectors, uint16_t
 
   float A, B, C; // as in Longuet-Higgins
 
-  if(strcmp(OPTICFLOW_CAMERA.dev_name, "/dev/video1") == 0) {
+  if (strcmp(OPTICFLOW_CAMERA.dev_name, "/dev/video1") == 0) {
     // specific for the x,y swapped Bebop 2 images:
     A = -psi_diff;
     B = theta_diff;
