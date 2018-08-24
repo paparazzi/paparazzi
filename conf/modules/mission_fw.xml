@@ -22,11 +22,13 @@
   <datalink message="MISSION_SEGMENT_LLA" fun="mission_parse_SEGMENT_LLA()"/>
   <datalink message="MISSION_PATH" fun="mission_parse_PATH()"/>
   <datalink message="MISSION_PATH_LLA" fun="mission_parse_PATH_LLA()"/>
+  <datalink message="MISSION_CUSTOM" fun="mission_parse_CUSTOM()"/>
   <datalink message="GOTO_MISSION" fun="mission_parse_GOTO_MISSION()"/>
   <datalink message="NEXT_MISSION" fun="mission_parse_NEXT_MISSION()"/>
   <datalink message="END_MISSION" fun="mission_parse_END_MISSION()"/>
 
   <makefile>
+    <define name="USE_MISSION"/>
     <file name="mission_common.c"/>
     <file name="mission_fw_nav.c"/>
   </makefile>

@@ -29,6 +29,7 @@
 
 #include "std.h"
 
+extern void nav_flower_init(void);
 extern bool nav_flower_run(void);
 extern void nav_flower_setup(uint8_t CenterWP, uint8_t EdgeWP);
 

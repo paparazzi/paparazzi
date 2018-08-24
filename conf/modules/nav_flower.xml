@@ -9,6 +9,7 @@
   <header>
     <file name="nav_flower.h"/>
   </header>
+  <init fun="nav_flower_init()"/>
   <makefile target="ap|sim|nps|hitl">
     <file name="nav_flower.c"/>
   </makefile>

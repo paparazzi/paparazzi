@@ -138,6 +138,12 @@ static inline bool mission_nav_path(struct _mission_path *path)
   return true;
 }
 
+/** Call custom navigation function
+ */
+static inline bool mission_nav_custom(struct _mission_custom *custom, bool init)
+{
+  return custom->reg->cb(custom->nb, custom->params, init);
+}
 
 int mission_run()
 {
@@ -161,6 +167,9 @@ int mission_run()
       break;
     case MissionPath:
       el_running = mission_nav_path(&(el->element.mission_path));
+      break;
+    case MissionCustom:
+      el_running = mission_nav_custom(&(el->element.mission_custom), mission.element_time < dt_navigation);
       break;
     default:
       // invalid type or pattern not yet handled

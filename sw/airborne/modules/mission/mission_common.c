@@ -39,6 +39,14 @@ void mission_init(void)
   mission.insert_idx = 0;
   mission.current_idx = 0;
   mission.element_time = 0.;
+
+  // FIXME
+  // we have no guarantee that nav modules init are called after mission_init
+  // this would erase the already registered elements
+  //for (int i = 0; i < MISSION_REGISTER_NB; i++) {
+  //  mission.registered[i].cb = NULL;
+  //  memset(mission.registered[i].type, '\0', MISSION_TYPE_SIZE);
+  //}
 }
 
 
@@ -77,6 +85,7 @@ bool mission_insert(enum MissionInsertMode insert, struct _mission_element *elem
       tmp = (mission.current_idx + 1) % MISSION_ELEMENT_NB;
       mission.elements[tmp] = *element;
       mission.insert_idx = (mission.current_idx + 2) % MISSION_ELEMENT_NB;
+      break;
     default:
       // unknown insertion mode
       return false;
@@ -85,6 +94,32 @@ bool mission_insert(enum MissionInsertMode insert, struct _mission_element *elem
 
 }
 
+// Register new callback
+bool mission_register(mission_custom_cb cb, char *type)
+{
+  for (int i = 0; i < MISSION_REGISTER_NB; i++) {
+    if (str_equal(mission.registered[i].type, type)) {
+      return false; // identifier already registered
+    }
+    if (mission.registered[i].cb == NULL) {
+      strncpy(mission.registered[i].type, type, MISSION_TYPE_SIZE-1);
+      mission.registered[i].cb = cb;
+      return true;
+    }
+  }
+  return false; // no more room to register callbacks
+}
+
+// Returns a pointer to a register struct with matching types, NULL if not found
+static struct _mission_registered *mission_get_registered(char *type)
+{
+  for (int i = 0; i < MISSION_REGISTER_NB; i++) {
+    if (str_equal(mission.registered[i].type, type)) {
+      return &(mission.registered[i]);
+    }
+  }
+  return NULL; // not found
+}
 
 // Weak implementation of mission_element_convert (leave element unchanged)
 bool __attribute__((weak)) mission_element_convert(struct _mission_element *el __attribute__((unused))) { return true; }
@@ -316,6 +351,28 @@ int mission_parse_PATH_LLA(void)
   me.index = DL_MISSION_PATH_LLA_index(dl_buffer);
 
   enum MissionInsertMode insert = (enum MissionInsertMode)(DL_MISSION_PATH_LLA_insert(dl_buffer));
+
+  return mission_insert(insert, &me);
+}
+
+int mission_parse_CUSTOM(void)
+{
+  if (DL_MISSION_CUSTOM_ac_id(dl_buffer) != AC_ID) { return false; } // not for this aircraft
+
+  struct _mission_element me;
+  me.type = MissionCustom;
+  me.element.mission_custom.reg = mission_get_registered(DL_MISSION_CUSTOM_type(dl_buffer));
+  if (me.element.mission_custom.reg == NULL) {
+    return false; // unknown type
+  }
+  me.element.mission_custom.nb = DL_MISSION_CUSTOM_params_length(dl_buffer);
+  for (int i = 0; i < me.element.mission_custom.nb; i++) {
+    me.element.mission_custom.params[i] = DL_MISSION_CUSTOM_params(dl_buffer)[i];
+  }
+  me.duration = DL_MISSION_CUSTOM_duration(dl_buffer);
+  me.index = DL_MISSION_CUSTOM_index(dl_buffer);
+
+  enum MissionInsertMode insert = (enum MissionInsertMode)(DL_MISSION_CUSTOM_insert(dl_buffer));
 
   return mission_insert(insert, &me);
 }
