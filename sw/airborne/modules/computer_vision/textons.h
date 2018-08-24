@@ -37,9 +37,14 @@
 
 // outputs
 extern float *texton_distribution; // main outcome of the image processing: the distribution of textons in the image
+float *TD_0; // temporary array meant for internal use
+float *TD_1; // temporary array meant for internal use
+uint8_t TD_ID; // indicates which array to take 
 
 // settings
+extern uint8_t running;
 extern uint8_t load_dictionary;
+extern uint8_t reinitialize_dictionary;
 extern uint8_t alpha_uint;
 extern uint8_t n_textons;
 extern uint8_t patch_size; // Should be even
@@ -49,6 +54,7 @@ extern uint8_t FULL_SAMPLING;
 extern uint32_t border_width;
 extern uint32_t border_height;
 extern uint8_t dictionary_number;
+extern uint8_t execution_period;
 
 // status variables
 extern uint8_t dictionary_ready;
@@ -66,5 +72,8 @@ void load_texton_dictionary(void);
 // Module functions
 extern void textons_init(void);
 extern void textons_stop(void);
+
+// helper functions (potentially should go elsewhere):
+float get_entropy(float* p_dist, int D);
 
 #endif /* TEXTONS_H */
