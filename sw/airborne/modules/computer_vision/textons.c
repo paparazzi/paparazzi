@@ -31,10 +31,13 @@
 
 // TODO: Read https://stackoverflow.com/questions/10879420/using-of-shared-variable-by-10-pthreads
 
+#include <pthread.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include "modules/computer_vision/cv.h"
 #include "modules/computer_vision/textons.h"
+
+static pthread_mutex_t textons_mutex; ///< Mutex lock fo thread safety
 
 float ** **dictionary;
 uint32_t learned_samples = 0;
@@ -44,6 +47,11 @@ float *texton_distribution;
 #define MAX_N_TEXTONS 255
 
 // initial settings:
+#ifndef TEXTONS_FPS
+#define TEXTONS_FPS 0       ///< Default FPS (zero means run at camera fps)
+#endif
+PRINT_CONFIG_VAR(TEXTONS_FPS)
+
 #ifndef TEXTONS_RUN
 #define TEXTONS_RUN 1
 #endif
@@ -148,11 +156,9 @@ struct image_t *texton_func(struct image_t *img)
   // whether to execute the function:
   if(!running) return img;
 
-  printf("textons:");
   // only execute the texton function once every execution_period times:
   cycle = (cycle+1) % execution_period;
   if(cycle > 0) return img;
-  printf("executing\n");
 
   if (img->buf_size == 0) { return img; }
 
@@ -313,6 +319,7 @@ void DictionaryTrainingYUV(uint8_t *frame, uint16_t width, uint16_t height)
 
     // make sure that the other threads have access to the normalized distribution
     // and not the one we are going to fill / change.
+    pthread_mutex_lock(&textons_mutex);
     if(TD_ID == 0) {
       // we are going to fill TD_0:
       TD = TD_0;
@@ -325,7 +332,7 @@ void DictionaryTrainingYUV(uint8_t *frame, uint16_t width, uint16_t height)
       texton_distribution = TD_0;
     }
     TD_ID = (TD_ID+1) % 2;
-
+    pthread_mutex_unlock(&textons_mutex);
 
     for(i = 0; i < n_textons; i++) {
       TD[i] = 0.0f;
@@ -451,6 +458,7 @@ void DistributionExtraction(uint8_t *frame, uint16_t width, uint16_t height)
     }
   }
 
+  pthread_mutex_lock(&textons_mutex);
   if(TD_ID == 0) {
     // we are going to fill TD_0:
     TD = TD_0;
@@ -463,6 +471,7 @@ void DistributionExtraction(uint8_t *frame, uint16_t width, uint16_t height)
     texton_distribution = TD_0;
   }
   TD_ID = (TD_ID+1) % 2;
+  pthread_mutex_unlock(&textons_mutex);
 
   for(i = 0; i < n_textons; i++) {
     TD[i] = 0.0f;
