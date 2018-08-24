@@ -57,6 +57,7 @@ CFLAGS += -g
 CFLAGS += -std=gnu99
 CFLAGS += $(shell pkg-config --cflags-only-I ivy-glib)
 CFLAGS += -D_GNU_SOURCE
+CFLAGS += -DPPRZLINK_UNALIGNED_ACCESS=1
 
 LDFLAGS	 =	-lm
 LDFLAGS += $(BOARD_LDFLAGS)

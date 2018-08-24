@@ -39,9 +39,7 @@ enum MissionType {
   MissionCircle = 2,
   MissionSegment = 3,
   MissionPath = 4,
-  MissionSurvey = 5,
-  MissionEight = 6,
-  MissionOval = 7
+  MissionCustom = 5
 };
 
 enum MissionInsertMode {
@@ -91,6 +89,28 @@ struct _mission_path {
   uint8_t nb;
 };
 
+#define MISSION_CUSTOM_MAX 12 // maximum number of parameters
+#define MISSION_TYPE_SIZE 6
+
+/** custom mission element callback
+ * @param[in] nb number of params
+ * @param[in] params array of params with a maximum of 12
+ * @param[in] init true if the function is called for the first time
+ * @return true until the function ends
+ */
+typedef bool (*mission_custom_cb)(uint8_t nb, float *params, bool init);
+
+struct _mission_registered {
+  mission_custom_cb cb;         ///< navigation/action function callback
+  char type[MISSION_TYPE_SIZE]; ///< mission element identifier (5 char max + 1 \0)
+};
+
+struct _mission_custom {
+  struct _mission_registered *reg;  ///< pointer to a registered custom mission element
+  float params[MISSION_CUSTOM_MAX]; ///< list of parameters
+  uint8_t nb;                       ///< number of parameters
+};
+
 struct _mission_element {
   enum MissionType type;
   union {
@@ -98,6 +118,7 @@ struct _mission_element {
     struct _mission_circle mission_circle;
     struct _mission_segment mission_segment;
     struct _mission_path mission_path;
+    struct _mission_custom mission_custom;
   } element;
 
   float duration; ///< time to spend in the element (<= 0 to disable)
@@ -111,8 +132,16 @@ struct _mission_element {
 #define MISSION_ELEMENT_NB 20
 #endif
 
+/** Max number of registered nav/action callbacks
+ *  can be redefined
+ */
+#ifndef MISSION_REGISTER_NB
+#define MISSION_REGISTER_NB 6
+#endif
+
 struct _mission {
   struct _mission_element elements[MISSION_ELEMENT_NB];
+  struct _mission_registered registered[MISSION_REGISTER_NB];
   float element_time;   ///< time in second spend in the current element
   uint8_t insert_idx;   ///< inserstion index
   uint8_t current_idx;  ///< current mission element index
@@ -130,6 +159,13 @@ extern void mission_init(void);
  * @return return TRUE if insertion is succesful, FALSE otherwise
  */
 extern bool mission_insert(enum MissionInsertMode insert, struct _mission_element *element);
+
+/** Register a new navigation or action callback function
+ * @param cb callback f(nb, param array)
+ * @param type string identifier with 5 characters max (+ 1 '\0' char)
+ * @return return TRUE if register is succesful, FALSE otherwise
+ */
+extern bool mission_register(mission_custom_cb cb, char *type);
 
 /** Convert mission element's points format if needed
  * @param el pointer to the mission element
@@ -177,8 +213,7 @@ extern int mission_parse_SEGMENT(void);
 extern int mission_parse_SEGMENT_LLA(void);
 extern int mission_parse_PATH(void);
 extern int mission_parse_PATH_LLA(void);
-extern int mission_parse_SURVEY(void);
-extern int mission_parse_SURVEY_LLA(void);
+extern int mission_parse_CUSTOM(void);
 extern int mission_parse_GOTO_MISSION(void);
 extern int mission_parse_NEXT_MISSION(void);
 extern int mission_parse_END_MISSION(void);
