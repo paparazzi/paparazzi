@@ -32,7 +32,7 @@
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/datalink/downlink.h"
 
-struct _mission mission;
+struct _mission mission = { 0 };
 
 void mission_init(void)
 {
@@ -43,6 +43,7 @@ void mission_init(void)
   // FIXME
   // we have no guarantee that nav modules init are called after mission_init
   // this would erase the already registered elements
+  // for now, rely on the static initialization
   //for (int i = 0; i < MISSION_REGISTER_NB; i++) {
   //  mission.registered[i].cb = NULL;
   //  memset(mission.registered[i].type, '\0', MISSION_TYPE_SIZE);
