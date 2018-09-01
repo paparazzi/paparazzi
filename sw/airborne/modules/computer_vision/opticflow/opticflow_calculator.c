@@ -47,6 +47,10 @@
 #include "modules/sonar/agl_dist.h"
 
 
+// to get the definition of front_camera / bottom_camera
+#include "cv.h"
+
+
 // whether to show the flow and corners:
 #define OPTICFLOW_SHOW_CORNERS 0
 
@@ -538,8 +542,8 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
       if (strcmp(OPTICFLOW_CAMERA.dev_name, "/dev/video0") == 0) {
 
         // bottom cam: just subtract a scaled version of the roll and pitch difference from the global flow vector:
-        diff_flow_x = phi_diff * OPTICFLOW_CAMERA.focal_x; // phi_diff works better than (cam_state->rates.p)
-        diff_flow_y = theta_diff * OPTICFLOW_CAMERA.focal_y;
+        diff_flow_x = phi_diff * OPTICFLOW_CAMERA.camera_intrinsics.focal_x; // phi_diff works better than (cam_state->rates.p)
+        diff_flow_y = theta_diff * OPTICFLOW_CAMERA.camera_intrinsics.focal_y;
         result->flow_der_x = result->flow_x - diff_flow_x * opticflow->subpixel_factor *
                              opticflow->derotation_correction_factor_x;
         result->flow_der_y = result->flow_y - diff_flow_y * opticflow->subpixel_factor *
@@ -582,9 +586,9 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
   // TODO: Calculate the velocity more sophisticated, taking into account the drone's angle and the slope of the ground plane.
   // TODO: This is actually only correct for the bottom camera:
   result->vel_cam.x = (float)result->flow_der_x * result->fps * agl_dist_value_filtered /
-                      (opticflow->subpixel_factor * OPTICFLOW_CAMERA.focal_x);
+                      (opticflow->subpixel_factor * OPTICFLOW_CAMERA.camera_intrinsics.focal_x);
   result->vel_cam.y = (float)result->flow_der_y * result->fps * agl_dist_value_filtered /
-                      (opticflow->subpixel_factor * OPTICFLOW_CAMERA.focal_y);
+                      (opticflow->subpixel_factor * OPTICFLOW_CAMERA.camera_intrinsics.focal_y);
   result->vel_cam.z = result->divergence * result->fps * agl_dist_value_filtered;
 
   //Apply a  median filter to the velocity if wanted
@@ -629,18 +633,23 @@ static struct flow_t *predict_flow_vectors(struct flow_t *flow_vectors, uint16_t
   // reserve memory for the predicted flow vectors:
   struct flow_t *predicted_flow_vectors = malloc(sizeof(struct flow_t) * n_points);
 
-  float K[9] = {OPTICFLOW_CAMERA.focal_x, 0.0f, OPTICFLOW_CAMERA.center_x,
-                0.0f, OPTICFLOW_CAMERA.focal_y, OPTICFLOW_CAMERA.center_y,
+  float K[9] = {OPTICFLOW_CAMERA.camera_intrinsics.focal_x, 0.0f, OPTICFLOW_CAMERA.camera_intrinsics.center_x,
+                0.0f, OPTICFLOW_CAMERA.camera_intrinsics.focal_y, OPTICFLOW_CAMERA.camera_intrinsics.center_y,
                 0.0f, 0.0f, 1.0f
                };
   // TODO: make an option to not do distortion / undistortion (Dhane_k = 1)
-  float k = OPTICFLOW_CAMERA.Dhane_k;
+  float k = OPTICFLOW_CAMERA.camera_intrinsics.Dhane_k;
 
   float A, B, C; // as in Longuet-Higgins
 
   if (strcmp(OPTICFLOW_CAMERA.dev_name, "/dev/video1") == 0) {
     // specific for the x,y swapped Bebop 2 images:
     A = -psi_diff;
+    B = theta_diff;
+    C = phi_diff;
+  } else {
+    // TODO: verify:
+    A = psi_diff;
     B = theta_diff;
     C = phi_diff;
   }
@@ -872,9 +881,9 @@ bool calc_edgeflow_tot(struct opticflow_t *opticflow, struct image_t *img,
 
   if (opticflow->derotation) {
     der_shift_x = (int16_t)((edge_hist[current_frame_nr].eulers.phi - edge_hist[previous_frame_nr[0]].eulers.phi) *
-                            OPTICFLOW_CAMERA.focal_x * opticflow->derotation_correction_factor_x);
+                            OPTICFLOW_CAMERA.camera_intrinsics.focal_x * opticflow->derotation_correction_factor_x);
     der_shift_y = (int16_t)((edge_hist[current_frame_nr].eulers.theta - edge_hist[previous_frame_nr[1]].eulers.theta) *
-                            OPTICFLOW_CAMERA.focal_y * opticflow->derotation_correction_factor_y);
+                            OPTICFLOW_CAMERA.camera_intrinsics.focal_y * opticflow->derotation_correction_factor_y);
   }
 
   // Estimate pixel wise displacement of the edge histograms for x and y direction
@@ -939,8 +948,10 @@ bool calc_edgeflow_tot(struct opticflow_t *opticflow, struct image_t *img,
   // TODO scale flow to rad/s here
 
   // Calculate velocity
-  result->vel_cam.x = edgeflow.flow_x * fps_x * agl_dist_value_filtered * OPTICFLOW_CAMERA.focal_x / RES;
-  result->vel_cam.y = edgeflow.flow_y * fps_y * agl_dist_value_filtered * OPTICFLOW_CAMERA.focal_y / RES;
+  result->vel_cam.x = edgeflow.flow_x * fps_x * agl_dist_value_filtered * OPTICFLOW_CAMERA.camera_intrinsics.focal_x /
+                      RES;
+  result->vel_cam.y = edgeflow.flow_y * fps_y * agl_dist_value_filtered * OPTICFLOW_CAMERA.camera_intrinsics.focal_y /
+                      RES;
   result->vel_cam.z = result->divergence * fps_x * agl_dist_value_filtered;
 
   //Apply a  median filter to the velocity if wanted

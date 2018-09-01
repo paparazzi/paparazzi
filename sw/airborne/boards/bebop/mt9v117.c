@@ -60,13 +60,13 @@ struct video_config_t bottom_camera = {
   .buf_cnt = 5,
   .filters = 0,
   .cv_listener = NULL,
-  .fps = MT9V117_TARGET_FPS
+  .fps = MT9V117_TARGET_FPS,
   .camera_intrinsics = {
-    .focal_x = MT9V117_FOCAL_X;
-    .focal_y = MT9V117_FOCAL_Y;
-    .center_x = MT9V117_CENTER_X;
-    .center_y = MT9V117_CENTER_Y;
-    .Dhane_k = MT9V117_DHANE_K;
+    .focal_x = MT9V117_FOCAL_X,
+    .focal_y = MT9V117_FOCAL_Y,
+    .center_x = MT9V117_CENTER_X,
+    .center_y = MT9V117_CENTER_Y,
+    .Dhane_k = MT9V117_DHANE_K
   }
 };
 
