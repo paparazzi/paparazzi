@@ -17,10 +17,6 @@
       <define name="CAMERA" value="bottom_camera|front_camera" description="The V4L2 camera device that is used for the calculations"/>
 
       <!-- Camera parameters -->
-      <define name="FOV_W" value="0.89360857702" description="The field of view width of the bottom camera (Defaults are from an ARDrone 2)"/>
-      <define name="FOV_H" value="0.67020643276" description="The field of view height of the bottom camera (Defaults are from an ARDrone 2)"/>
-      <define name="FX" value="343.1211" description="Field in the x direction of the camera (Defaults are from an ARDrone 2)"/>
-      <define name="FY" value="348.5053" description="Field in the y direction of the camera (Defaults are from an ARDrone 2)"/>
       <define name="DEROTATION_CORRECTION_FACTOR_X" value="1.0" description="Correction factor for derotation (in x direction), estimated from a fit between the gyro's rates and the resulting flow (caused by the camera not being exactly in the middle (Defaults are from an ARDrone 2)"/>
       <define name="DEROTATION_CORRECTION_FACTOR_Y" value="1.0" description="Correction factor for derotation (in y direction), estimated from a fit between the gyro's rates and the resulting flow (caused by the camera not being exactly in the middle (Defaults are from an ARDrone 2)"/>
       <configure name="BODY_TO_CAM_PHI" value="0" description="Rotation from body frame to camera frame around x axis"/>
