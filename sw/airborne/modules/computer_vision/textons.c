@@ -154,11 +154,11 @@ struct image_t *texton_func(struct image_t *img)
 {
 
   // whether to execute the function:
-  if(!running) return img;
+  if (!running) { return img; }
 
   // only execute the texton function once every execution_period times:
-  cycle = (cycle+1) % execution_period;
-  if(cycle > 0) return img;
+  cycle = (cycle + 1) % execution_period;
+  if (cycle > 0) { return img; }
 
   if (img->buf_size == 0) { return img; }
 
@@ -169,7 +169,7 @@ struct image_t *texton_func(struct image_t *img)
   if (patch_size % 2 == 1) { patch_size++; }
 
   // check whether we have to reinitialize the dictionary:
-  if(reinitialize_dictionary) {
+  if (reinitialize_dictionary) {
     // set all vars to trigger a reinitialization and learning phase of the dictionary:
     dictionary_ready = 0;
     dictionary_initialized = 0;
@@ -208,20 +208,19 @@ struct image_t *texton_func(struct image_t *img)
     }
   } else {
 
-    if(alpha_uint > 0){
+    if (alpha_uint > 0) {
 
       //printf("Learning, frame time = %d\n", img->ts.tv_sec * 1000 + img->ts.tv_usec / 1000);
       printf("Learning, nr of samples: %d\n", n_learning_samples);
       DictionaryTrainingYUV(frame, img->w, img->h);
-      
+
       if (learned_samples >= n_learning_samples) {
         // Save the dictionary:
         save_texton_dictionary();
         // reset learned_samples:
         learned_samples = 0;
       }
-    }
-    else {    
+    } else {
       // Extract distributions
       DistributionExtraction(frame, img->w, img->h);
     }
@@ -236,7 +235,7 @@ struct image_t *texton_func(struct image_t *img)
     printf("%f]\n", texton_distribution[n_textons-1]);
     */
     /*
-    float sum = 0;    
+    float sum = 0;
     for (i = 0; i < n_textons; i++) {
       sum += texton_distribution[i];
     }
@@ -257,7 +256,7 @@ struct image_t *texton_func(struct image_t *img)
  */
 void DictionaryTrainingYUV(uint8_t *frame, uint16_t width, uint16_t height)
 {
-  int i, j, w, s, texton, c; // iterators
+  unsigned int i, j, w, s, texton, c; // iterators
   int x, y; // image coordinates
   float error_texton; // distance between an image patch and a texton
   float *TD;
@@ -320,21 +319,19 @@ void DictionaryTrainingYUV(uint8_t *frame, uint16_t width, uint16_t height)
     // make sure that the other threads have access to the normalized distribution
     // and not the one we are going to fill / change.
     pthread_mutex_lock(&textons_mutex);
-    if(TD_ID == 0) {
+    if (TD_ID == 0) {
       // we are going to fill TD_0:
       TD = TD_0;
       texton_distribution = TD_1;
-    }
-    else
-    {
+    } else {
       // we are going to fill TD_1:
       TD = TD_1;
       texton_distribution = TD_0;
     }
-    TD_ID = (TD_ID+1) % 2;
+    TD_ID = (TD_ID + 1) % 2;
     pthread_mutex_unlock(&textons_mutex);
 
-    for(i = 0; i < n_textons; i++) {
+    for (i = 0; i < n_textons; i++) {
       TD[i] = 0.0f;
     }
 
@@ -432,15 +429,15 @@ void DictionaryTrainingYUV(uint8_t *frame, uint16_t width, uint16_t height)
 void DistributionExtraction(uint8_t *frame, uint16_t width, uint16_t height)
 {
   int i, j, texton, c; // iterators
-  int x, y, max_addition_x, max_addition_y, stride; // coordinates
-  int n_extracted_textons = 0;
+  int x, y, max_addition_x, max_addition_y; //, stride; // coordinates
+  unsigned int n_extracted_textons = 0;
   float *TD;
   uint8_t *buf;
   float pixel_diff;
 
   max_addition_x = width - patch_size - 2 * border_width;
   max_addition_y = height - patch_size - 2 * border_height;
-  stride = 2 * width;
+  // stride = 2 * width;
 
   // ************************
   //       EXECUTION
@@ -459,21 +456,19 @@ void DistributionExtraction(uint8_t *frame, uint16_t width, uint16_t height)
   }
 
   pthread_mutex_lock(&textons_mutex);
-  if(TD_ID == 0) {
+  if (TD_ID == 0) {
     // we are going to fill TD_0:
     TD = TD_0;
     texton_distribution = TD_1;
-  }
-  else
-  {
+  } else {
     // we are going to fill TD_1:
     TD = TD_1;
     texton_distribution = TD_0;
   }
-  TD_ID = (TD_ID+1) % 2;
+  TD_ID = (TD_ID + 1) % 2;
   pthread_mutex_unlock(&textons_mutex);
 
-  for(i = 0; i < n_textons; i++) {
+  for (i = 0; i < n_textons; i++) {
     TD[i] = 0.0f;
   }
 
@@ -597,7 +592,7 @@ void save_texton_dictionary(void)
   dictionary_logger = fopen(filename, "w");
 
   if (dictionary_logger == NULL) {
-      printf("Filename: %s\n", filename);
+    printf("Filename: %s\n", filename);
     perror("Error while opening the file.\n");
   } else {
     // (over-)write dictionary
@@ -652,7 +647,7 @@ void textons_init(void)
   TD_ID = 0;
   TD_0 = (float *)calloc(MAX_N_TEXTONS, sizeof(float));
   TD_1 = (float *)calloc(MAX_N_TEXTONS, sizeof(float));
-  for(int i = 0; i < MAX_N_TEXTONS; i++) {
+  for (int i = 0; i < MAX_N_TEXTONS; i++) {
     TD_0[i] = 0.0f;
     TD_1[i] = 0.0f;
   }
@@ -687,11 +682,12 @@ void textons_stop(void)
  * @param[in] p_dist The probability distribution array
  * @param[in] D Size of the array
  */
-float get_entropy(float* p_dist, int D) {
+float get_entropy(float *p_dist, int D)
+{
   float entropy = 0.0f;
   int i;
-  for(i = 0; i < D; i++) {
-    if(p_dist[i] > 0) {
+  for (i = 0; i < D; i++) {
+    if (p_dist[i] > 0) {
       entropy -= p_dist[i] * log2(p_dist[i]);
     }
   }
