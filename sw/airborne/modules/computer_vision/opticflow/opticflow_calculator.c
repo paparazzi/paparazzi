@@ -48,8 +48,7 @@
 
 
 // to get the definition of front_camera / bottom_camera
-#include "cv.h"
-
+#include BOARD_CONFIG
 
 // whether to show the flow and corners:
 #define OPTICFLOW_SHOW_CORNERS 0
@@ -648,10 +647,9 @@ static struct flow_t *predict_flow_vectors(struct flow_t *flow_vectors, uint16_t
     B = theta_diff;
     C = phi_diff;
   } else {
-    // TODO: verify:
-    A = psi_diff;
-    B = theta_diff;
-    C = phi_diff;
+    A = theta_diff;
+    B = phi_diff;
+    C = psi_diff;
   }
 
   float x_n, y_n;
@@ -672,7 +670,7 @@ static struct flow_t *predict_flow_vectors(struct flow_t *flow_vectors, uint16_t
       x_n_new = x_n + predicted_flow_x;
       y_n_new = y_n + predicted_flow_y;
 
-      bool success = normalized_coords_to_distorted_pixels(x_n_new, y_n_new, &x_pix_new, &y_pix_new, k, K);
+      success = normalized_coords_to_distorted_pixels(x_n_new, y_n_new, &x_pix_new, &y_pix_new, k, K);
 
       if (success) {
         predicted_flow_vectors[i].flow_x = (int16_t)(x_pix_new * opticflow->subpixel_factor - (float)flow_vectors[i].pos.x);
