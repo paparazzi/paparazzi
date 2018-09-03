@@ -30,6 +30,15 @@
 
 #include "firmwares/fixedwing/guidance/guidance_common.h"
 
+//To be unified with control NEW, these can be used in a unified flightplan
+//but ETECS has no use of it ofcourse, speed mode always V_CTL_SPEED_AIRSPEED
+//FIXME An idea to move it to guidance_common
+#define V_CTL_SPEED_THROTTLE    0
+#define V_CTL_SPEED_AIRSPEED    1
+#define V_CTL_SPEED_GROUNDSPEED 2
+
+extern uint8_t v_ctl_speed_mode;
+
 /* outer loop */
 // extern float v_ctl_altitude_error;    ///< in meters, (setpoint - alt) -> positive = too low
 extern float v_ctl_altitude_setpoint; ///< in meters above MSL

@@ -1,0 +1,61 @@
+<!DOCTYPE module SYSTEM "./module.dtd">
+<module name="dc_ctrl_parrot_mykonos" dir="digital_cam">
+  <doc>
+    <description>
+    Control the Parrot Bebop, Bebop2 and Disco cameras via native Parrot IMaging Process(PIMP).
+    It can trigger photos based on distance, time or circle radius in both fixedwings and rotorcraft.
+    One can start to record onboard videos and start and stop streaming of live video.
+    Show it in your GCS via mplayer plugin or e.g. 
+     gst-launch-1.0 udpsrc port=55004 ! "application/x-rtp, payload=96" ! rtph264depay ! avdec_h264 ! autovideosink
+    </description>
+    <define name="DC_AUTOSHOOT_PERIOD" value="3.0" description="Period for DC_AUTOSHOOT_PERIODIC in seconds"/>
+    <define name="DC_AUTOSHOOT_DISTANCE_INTERVAL" value="50" description="Photo distance in meters"/>
+    <define name="DC_CTRL_PARROT_MYKONOS_SYNC_SEND" value="TRUE|FALSE" description="Enable telemetry report on camera position"/>
+    <define name="DC_CTRL_PARROT_MYKONOS_LOG" value="TRUE|FALSE" description="Enable embedding of camera shot orientation and position in image exif"/>
+  </doc>
+  <settings>
+    <dl_settings name="control">
+      <dl_settings name="ParrotCam">
+
+        <dl_setting max="7" min="0" step="1" module="digital_cam/dc_ctrl_parrot_mykonos" var="dc_ctrl_parrot_mykonos.status" handler="SendCmd" shortname="ParrotCam" values="None|StartRecord|StopRecord|Shoot|StartStream|StopStream|StartPeriodic|StopAutoshoot">
+          <strip_button name="Start Record" icon="lookfore.png" value="1" group="parrot"/>
+          <strip_button name="Stop Record" icon="kill.png" value="2" group="parrot"/>
+          <strip_button name="Take Picture" icon="digital-camera.png" value="3" group="parrot"/>
+          <strip_button name="Start Stream" icon="lookfore.png" value="4" group="parrot"/>
+          <strip_button name="Stop Stream" icon="kill.png" value="5" group="parrot"/>
+          <strip_button name="Start Autoshoot Periodic" icon="dcstart.png" value="6" group="parrot"/>
+          <strip_button name="Stop Autoshoot" icon="dcstop.png" value="7" group="parrot"/>
+        </dl_setting>
+        
+        <dl_setting max="3" min="0" step="1" var="dc_autoshoot" values="STOP|PERIODIC|DISTANCE|EXT_TRIG">
+          <strip_button name="Start Autoshoot" icon="dcstart.png" value="1" group="parrot"/>
+          <strip_button name="Stop Autoshoot" icon="dcstop.png" value="0" group="parrot"/>
+        </dl_setting>
+        
+        <dl_setting max="60" min="0.1" step="0.5" var="dc_autoshoot_period" shortname="Periodic" param="DC_AUTOSHOOT_PERIOD" unit="sec"/>
+        <dl_setting max="255" min="0" step="1" var="dc_distance_interval" shortname="dist" param="DC_AUTOSHOOT_DISTANCE_INTERVAL" unit="meter"/>
+
+        <dl_setting max="250" min="0" step="5" module="digital_cam/dc" var="dc_survey_interval" handler="Survey" shortname="Survey-Interval"/>
+        <dl_setting max="90" min="5" step="5" module="digital_cam/dc" var="dc_circle_interval" handler="Circle" shortname="Circle-Interval"/>
+        <dl_setting max="1" min="0" step="1" var="dc_cam_tracing" shortname="Cam-Tracing"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <conflicts>digital_cam,digital_cam_servo,digital_cam_i2co,digital_cam_i2c,digital_cam_video</conflicts>
+  <header>
+    <file name="dc_ctrl_parrot_mykonos.h"/>
+    <file name="dc.h"/>
+  </header>
+  
+  <init fun="dc_ctrl_parrot_mykonos_init()"/>
+  
+  <periodic fun="dc_ctrl_parrot_mykonos_periodic()" freq="10"/>
+  <periodic fun="dc_ctrl_parrot_mykonos_autoshoot()" freq="10" start="dc_ctrl_parrot_mykonos_autoshoot_start()" autorun="FALSE"/>
+  <makefile target="sim|nps">
+  </makefile>
+  <makefile target="ap|sim"><!-- Add nps -->
+    <define name="DIGITAL_CAM" />
+    <file name="dc.c"/>
+    <file name="dc_ctrl_parrot_mykonos.c"/>
+  </makefile>
+</module>

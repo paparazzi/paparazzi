@@ -1,13 +1,14 @@
 <!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
 <flight_plan alt="300" ground_alt="200" lat0="50.123456"  lon0="7.123456" max_dist_from_home="11400" name="OpenUAS Versatile" qfu="270" security_height="70" home_mode_height="70">
 
-<!-- Varous speed modes for use in flightplanvwith control=new
+<!-- Varous speed modes for use in flightplan
 V_CTL_SPEED_THROTTLE
 V_CTL_SPEED_AIRSPEED
 V_CTL_SPEED_GROUNDSPEED
 use v_ctl_auto_airspeed_setpoint in meters per second
 
-Fix it for ETECS still
+WIP should work well for both THROTTLE and airspeed modes for a fixedwing
+Should be unified for Hybrid, FW and rotorcraft
 -->
 <!-- ******************************** HEADERS ****************************** -->
 <header>
@@ -29,10 +30,10 @@ Fix it for ETECS still
     #define PHOTOGRAMMETRY_SIDELAP 20       // 1-99 Procent
     #define PHOTOGRAMMETRY_RESOLUTION 50    // mm pixel projection size
 
-// Incluse airframe.h To be able to use specific variables
+// Include airframe.h To be able to use specific variables
     #include "generated/airframe.h"
 
-// Completly replace with onboard recon copmpter interface
+// Extras for Photoscan
     #ifdef DC_AUTOSHOOT_PERIOD
     //TODO make shooting distance not periodic
     #define LINE_START_FUNCTION dc_autoshoot = DC_AUTOSHOOT_PERIODIC;
@@ -52,17 +53,17 @@ Fix it for ETECS still
     <waypoint name="S2" x="162." y="237."/>
     <waypoint name="AF" x="-21." y="66." alt="215."/>
     <waypoint name="TD" x="-127." y="0." alt="185."/>
-    <waypoint name="CLIMB" x="53." y="146." height="70."/>
-
-    <!-- For a payload release. Need to connect external servo -->
+    <waypoint name="_CLIMB" x="53." y="146." height="70."/>
+    <waypoint name="FLARE" x="-100." y="400." height="-40."/>
+    <!-- For a payload release one needs to add external release connected to servo output -->
     <waypoint name="WAIT" x="-70." y="-70." height="115."/>
-    <waypoint name="BASELEG" x="56." y="367."/>
+    <waypoint name="_BASELEG" x="56." y="367."/>
     <waypoint name="START" x="60." y="-120." height="65."/>
     <!-- Note that 80m is the release height, and if e.g. one is not allowed to go below 60 meters, one needs at least 5m GPS height fluctuation into account
     Also if we steeply move UP from START to RELEASE the release will be more accurate possibly -->
     <waypoint name="RELEASE" x="20." y="-45." height="80."/> <!-- along line start to release this is the end point -->
 <!-- Position where target would be located.  -->
-<!-- Note that 0m is the target height and allowed -->
+<!-- Note that 0m is the target height, on the ground, and allowed -->
     <waypoint name="TARGET" x="200." y="200." height="0."/>
     <!-- Used for out of missionboundary tests -->
     <waypoint name="TESTTOOFAR" x="-48." y="537."/>
@@ -89,6 +90,7 @@ Fix it for ETECS still
   </waypoints>
   <sectors>
     <!-- ***** -->
+    <!-- since hidden corners cannot be accidentaly changed -->
     <sector color="yellow" name="MissionBoundary" type="dynamic">
       <corner name="_MB1"/>
       <corner name="_MB2"/>
@@ -119,11 +121,14 @@ Fix it for ETECS still
   <exceptions>
     <exception cond="And((datalink_time) > 300, autopilot.launch > 0) " deroute="Standby"/>
     <exception cond="LOW_BAT_LEVEL > PowerVoltage()" deroute="Standby"/>
-    <exception cond="Or(! InsideMissionBoundary(GetPosX(), GetPosY()), GetPosAlt() > GetAltRef() + 600) && !(nav_block == IndexOfBlock('Wait GPS')) && !(nav_block == IndexOfBlock('Geo init')) && !(nav_block == IndexOfBlock('Waiting for RC Transmitter')) && !(nav_block == IndexOfBlock('Takeoff')) && !(nav_block == IndexOfBlock('land')) && !(nav_block == IndexOfBlock('final')) && !(nav_block == IndexOfBlock('flare'))" deroute="Standby"/>
+    <exception cond="Or(! InsideMissionBoundary(GetPosX(), GetPosY()), GetPosAlt() > GetAltRef() + 600) && !(nav_block == IndexOfBlock('Wait GPS')) && !(nav_block == IndexOfBlock('Geo init')) && !(nav_block == IndexOfBlock('Waiting for RC Transmitter')) && !(nav_block == IndexOfBlock('Takeoff')) && !(nav_block == IndexOfBlock('land')) && !(nav_block == IndexOfBlock('Final')) && !(nav_block == IndexOfBlock('Flare'))" deroute="Standby"/>
   </exceptions>
   <blocks>
-    <block name="Wait GPS">
+    <block name="Wait GPS" pre_call="NavKillThrottle()">
+      <!-- Do Not Kill -->
+      <!-- <call fun="Fly()"/>-->
       <!-- if no valid fix or gps accuracy> 15m or no AHRS , it a no-go wait-->
+      <!--<while cond="!GpsFixValid() || gps.pacc > 1500 || stateIsAttitudeValid()"/>-->
       <while cond="!GpsFixValid()"/>
       <!-- Wiggle Wiggle when we have GPS , time to fly...-->
       <!--<set var="ap_state->commands[COMMAND_YAW]" value="-MAX_PPRZ"/>
@@ -132,6 +137,10 @@ Fix it for ETECS still
       <while cond="LessThan(NavBlockTime(), 3)"/>
       <set var="ap_state->commands[COMMAND_YAW]" value="-MAX_PPRZ"/>-->
     </block>
+
+<!-- *********** Set the ground reference height and the home position *********** -->
+<!-- a second init will follow since the plane thrower will still walk to launchpoint Which can be higher different etc. -->
+
     <block name="Geo init">
       <while cond="LessThan(NavBlockTime(), 10)"/>
       <call_once fun="NavSetGroundReferenceHere()"/>
@@ -143,17 +152,46 @@ Fix it for ETECS still
       <!-- If you have an RC transmitter backup, one must have the TX at least switched on once. This check can be disabled if everything works 100% in Auto2 and you have no TX -->
       <while cond="RCLost()"/> <!-- To make sure we do not hop to AUTO2 and motor could starts running, at least switch on then maybe off if you want to -->
     </block>
-    <block key="t" name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png" group="Ops">
-      <set var="v_ctl_speed_mode" value="V_CTL_SPEED_AIRSPEED" />
-      <exception cond="GetPosAlt() > GetAltRef()+15" deroute="Standby"/>
-      <while cond="1 > autopilot.launch"/> <!-- Setting of launch performed with takeoff_detect module disable -->
-      <set var="autopilot.kill_throttle" value="0"/>
-      <!--<set var="autopilot.launch" value="1"/>--><!--If takeoff_detect module not used enable launch here -->
-      <set var="autopilot.flight_time" value="0"/>
-      <set var="v_ctl_auto_airspeed_setpoint" value="RACE_AIRSPEED" />
-      <!--<heading course="QFU" vmode="throttle" throttle="0.8" pitch="15" until="(GetPosAlt() > ground_alt+30)"/>--><!-- enable Magnetometer on ground-->
-      <go  wp="CLIMB" throttle="1.0" vmode="throttle" pitch="TAKEOFF_PITCH_ANGLE"/> <!-- better just first straight on (if there is not to much sidewind ;0)-->
+
+    <!-- A Choice...
+    <block name="Landing Position Stored" pre_call="NavKillThrottle()" strip_button="Store" strip_icon="recenter.png">
+      <call_once fun="NavSetWaypointPosAndAltHere(WP_TD)"/>
+      <call_once fun="DownlinkSendWpNr(WP_TD)"/>
+      <call_once fun="nav_compute_final_from_glide(WP_AF, WP_TD, V_CTL_GLIDE_RATIO)"/>
+      <call_once fun="DownlinkSendWpNr(WP_AF)"/>
+      <call_once fun="DownlinkSendWpNr(WP_FLARE)"/>
+      <deroute block="ReadyForDeparture"/>
     </block>
+    -->
+
+    <block name="ReadyForDeparture" >
+      <!-- <set value="0" var="ap_state->commands[COMMAND_CAMBER]"/> -->
+      <!-- <set value="0" var="ap_state->commands[COMMAND_BRAKE]"/> -->
+      <set var="v_ctl_speed_mode" value="V_CTL_SPEED_AIRSPEED" /><!-- set the preferred flight mode -->
+      <!-- Must have an RC for this flightplan and on at least for the start, we wait till the throttle is high -->
+      <exception cond="ThrottleHigh()" deroute="Takeoff"/>
+      <!-- The nav_takeoff_pitch_setting makes it visible for we are ready for it-->
+    </block>
+
+    <block key="t" name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png" group="Ops">
+      <!-- <set var="ap_state->commands[COMMAND_LIGHT]" value="PPRZ_MAX"/> -->
+      <set var="autopilot.kill_throttle" value="0"/>
+      <!--<var="autopilot.launch" set value="1"  />-->
+      <while cond="1 > autopilot.launch"/> <!-- Setting of launch performed with takeoff_detect module disable -->
+      <set var="autopilot.flight_time" value="0"/>
+      <!--<call_once fun="AirbrakesOff()"/>-->
+      <set var="v_ctl_auto_airspeed_setpoint" value="nav_airspeed_nominal_setting" /><!--or RACE_AIRSPEED? -->
+      <attitude pitch="nav_takeoff_pitch_setting" roll="0" throttle="1.0" until="MoreThan(NavBlockTime(), 3)" vmode="throttle"/>
+    </block>
+
+    <block name="Climb-Out">
+      <set var="v_ctl_speed_mode" value="V_CTL_SPEED_AIRSPEED"/>
+      <!--<exception cond="rc_status==RC_REALLY_LOST" after 3 seconds and no IMU deroute="softlydown">if using RC still on with a Auto2 mode switch-->
+      <attitude pitch="nav_takeoff_pitch_setting" roll="0" throttle="1.0" until="GetPosAlt() > ground_alt+15" vmode="throttle"/>
+      <set var="v_ctl_auto_throttle_nominal_cruise_throttle" value="1.0" />
+      <set var="v_ctl_auto_throttle_nominal_cruise_pitch" value="nav_takeoff_pitch_setting" />
+    </block>
+
     <block key="s" name="Standby" strip_button="Standby" strip_icon="home.png" group="Ops">
       <set var="v_ctl_auto_throttle_cruise_throttle" value="V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" />
       <set var="v_ctl_auto_airspeed_setpoint" value="NOMINAL_AIRSPEED" />
@@ -165,11 +203,11 @@ Fix it for ETECS still
       <for from="0" to="10" var="i">
         <go from="SA1" hmode="route" wp="SA2"/>
         <!-- dash -->
-        <!--<set var="v_ctl_auto_throttle_cruise_throttle" value="V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE"/>-->
+        <!--<set value="V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE" var="v_ctl_auto_throttle_cruise_throttle"/>-->
         <go hmode="route" wp="SA3"/>
         <go hmode="route" wp="SA4"/>
         <!-- nominal again -->
-        <!--<set var="v_ctl_auto_throttle_cruise_throttle" value="V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE"/>-->
+        <!--<set value="V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" var="v_ctl_auto_throttle_cruise_throttle"/>-->
         <go hmode="route" wp="SA5"/>
       </for>
       <deroute block="Standby"/>
@@ -183,7 +221,7 @@ Fix it for ETECS still
       <call_once fun="nav_line_setup()"/>
       <call fun="nav_line_run(WP_1, WP_2, nav_radius)"/>
     </block>
-    <block key="F8" name="Figure 8 around wp 1" strip_button="Figure 8 (wp 1-2)" strip_icon="eight.png" group="Ops">
+    <block key="8" name="Figure 8 around wp 1" strip_button="Figure 8 (wp 1-2)" strip_icon="eight.png" group="Ops">
       <eight center="1" radius="nav_radius" turn_around="2"/>
     </block>
     <block name="Oval 1-2" strip_button="Oval (wp 1-2)" strip_icon="oval.png" group="Ops">
@@ -252,20 +290,53 @@ Fix it for ETECS still
       <set value="-DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
       <deroute block="land"/>
     </block>
+    <!-- ALT
     <block key="<control>l" name="land">
       <call_once fun="nav_compute_baseleg(WP_AF, WP_TD, WP_BASELEG, nav_radius)"/>
       <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="BASELEG"/>
       <set var="v_ctl_auto_throttle_cruise_throttle" value="V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE" />
       <set var="v_ctl_auto_airspeed_setpoint" value="MINIMUM_AIRSPEED"/>
       <circle radius="nav_radius" until="NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10) && 10 > fabs(GetPosAlt() - WaypointAlt(WP_BASELEG))" wp="BASELEG"/>
+    </block>-->
+
+ <!-- *********** Land *********** -->
+
+    <block key="r" name="ConstantSlopeLandRightAFTD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png"  group="Land">
+      <set var="nav_radius" value="LANDING_CIRCLE_RADIUS"/>
+      <deroute block="ComputeLandingApproach"/>
     </block>
-    <block name="final">
-      <exception cond="GetAltRef() + 10 > GetPosAlt()" deroute="flare"/>
-      <go from="AF" hmode="route" vmode="glide" wp="TD"/>
+
+    <block key="l" name="ConstantSlopeLandLeftAFTD" strip_button="Land left (wp AF-TD)" strip_icon="land-left.png"  group="Land">
+      <set var="nav_radius" value="-LANDING_CIRCLE_RADIUS"/>
+      <deroute block="ComputeLandingApproach"/>
     </block>
-    <block name="flare">
-      <go approaching_time="0" from="AF" hmode="route" throttle="0.0" vmode="throttle" wp="TD"/>
-      <attitude roll="0.0" throttle="0.0" until="FALSE" vmode="throttle"/>
+
+    <block name="ComputeLandingApproach" >
+      <call_once fun="nav_compute_final_from_glide(WP_AF, WP_TD, V_CTL_GLIDE_RATIO)"/>
+      <!-- CDW call_once fun="nav_compute_flare_from_aftd(WP_AF, WP_TD, WP_FLARE)"/-->
+      <call_once fun="DownlinkSendWpNr(WP_AF)"/>
+      <call_once fun="DownlinkSendWpNr(WP_FLARE)"/>
+      </block>
+
+    <block name="land">
+      <set value="nav_airspeed_nominal_setting" var="v_ctl_auto_airspeed_setpoint"/>
+      <call_once fun="nav_compute_baseleg(WP_AF, WP_TD, WP__BASELEG, nav_radius)"/>
+      <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="_BASELEG"/>
+      <set value="nav_airspeed_landing_setting" var="v_ctl_auto_airspeed_setpoint"/>
+      <circle radius="nav_radius" until="NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10) && 15 > fabs(GetPosAlt() - WaypointAlt(WP__BASELEG))" wp="_BASELEG"/>
+    </block>
+
+    <block name="Final">
+      <!--<call_once fun="AirbrakesOn()"/>-->
+      <go approaching_time="6" from="AF" hmode="route" wp="TD"/>
+    </block>
+
+    <block name="Flare">
+      <call_once fun="NavKillThrottle()" />
+      <set value="nav_airspeed_landing_setting*0.8" var="v_ctl_auto_airspeed_setpoint"/>
+      <go approaching_time="0" from="TD" hmode="route" wp="FLARE"/>
+      <!-- TODO: retract brake just before landed is true (with +?3 seconds margin) or better sensing IsAircraftAlmostOnSolidGround
+      To avoid ripped of brake used control surfaces if AC has no landing gear -->
     </block>
 
     <!-- Extras -->

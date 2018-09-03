@@ -109,7 +109,9 @@ class ParrotUtils:
             print('Could not connect to the ' + self.uav_name + ' (address: ' + self.address + ')')
             print('Check if the ' + self.uav_name + ' is turned on and the computer is connected over wifi or bluetooth.')
             if self.address == '192.168.42.1':
-                print("If you are using Bebop 1 or 2, don't forget pressing the power button 4 times after the Bebop has booted!")
+                print("If you are using Bebop 1 or 2, don't forget pressing the power button 4 times after the Bebop has booted!\n")
+                print("And if using Disco pressing the power button 2 times after aircraft powerup.")
+                print("Or run the buttonpress script to get rid of this buttonpress annoyance.")
             exit(2)
 
     # Close the telnet and ftp
@@ -274,7 +276,7 @@ class ParrotUtils:
             if ((not v == ParrotVersion('0.0.0.0')) and ((v < ParrotVersion(min_ver)) or (v > ParrotVersion(max_ver)))):
                 print("Error: please upgrade your " + self.uav_name + " firmware to version between " + min_ver + " and " + max_ver + "!")
                 return
-            
+
         f = self.split_into_path_and_file(name)
 
         # Upload the file

@@ -36,12 +36,14 @@
 
 struct AhrsAligner ahrs_aligner;
 
-#define SAMPLES_NB 100
+#ifndef AHRS_ALIGNER_SAMPLES_NB
+#define AHRS_ALIGNER_SAMPLES_NB 100
+#endif
 
 static struct Int32Rates gyro_sum;
 static struct Int32Vect3 accel_sum;
 static struct Int32Vect3 mag_sum;
-static int32_t ref_sensor_samples[SAMPLES_NB];
+static int32_t ref_sensor_samples[AHRS_ALIGNER_SAMPLES_NB];
 static uint32_t samples_idx;
 
 #ifndef AHRS_ALIGNER_IMU_ID
@@ -117,25 +119,25 @@ void ahrs_aligner_run(void)
   RunOnceEvery(50, {LED_TOGGLE(AHRS_ALIGNER_LED);});
 #endif
 
-  if (samples_idx >= SAMPLES_NB) {
+  if (samples_idx >= AHRS_ALIGNER_SAMPLES_NB) {
     int32_t avg_ref_sensor = accel_sum.z;
     if (avg_ref_sensor >= 0) {
-      avg_ref_sensor += SAMPLES_NB / 2;
+      avg_ref_sensor += AHRS_ALIGNER_SAMPLES_NB / 2;
     } else {
-      avg_ref_sensor -= SAMPLES_NB / 2;
+      avg_ref_sensor -= AHRS_ALIGNER_SAMPLES_NB / 2;
     }
-    avg_ref_sensor /= SAMPLES_NB;
+    avg_ref_sensor /= AHRS_ALIGNER_SAMPLES_NB;
 
     ahrs_aligner.noise = 0;
     int i;
-    for (i = 0; i < SAMPLES_NB; i++) {
+    for (i = 0; i < AHRS_ALIGNER_SAMPLES_NB; i++) {
       int32_t diff = ref_sensor_samples[i] - avg_ref_sensor;
       ahrs_aligner.noise += abs(diff);
     }
 
-    RATES_SDIV(ahrs_aligner.lp_gyro,  gyro_sum,  SAMPLES_NB);
-    VECT3_SDIV(ahrs_aligner.lp_accel, accel_sum, SAMPLES_NB);
-    VECT3_SDIV(ahrs_aligner.lp_mag,   mag_sum,   SAMPLES_NB);
+    RATES_SDIV(ahrs_aligner.lp_gyro,  gyro_sum,  AHRS_ALIGNER_SAMPLES_NB);
+    VECT3_SDIV(ahrs_aligner.lp_accel, accel_sum, AHRS_ALIGNER_SAMPLES_NB);
+    VECT3_SDIV(ahrs_aligner.lp_mag,   mag_sum,   AHRS_ALIGNER_SAMPLES_NB);
 
     INT_RATES_ZERO(gyro_sum);
     INT_VECT3_ZERO(accel_sum);

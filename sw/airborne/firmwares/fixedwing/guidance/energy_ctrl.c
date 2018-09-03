@@ -132,6 +132,7 @@ pprz_t v_ctl_throttle_setpoint;
 pprz_t v_ctl_throttle_slewed;
 float v_ctl_pitch_setpoint;
 
+uint8_t v_ctl_speed_mode; //To be compatible with universal flightplan, not used for etecs
 
 static struct FloatQuat imu_to_body_quat;
 static struct Int32Vect3 accel_imu_meas;
@@ -143,7 +144,7 @@ static abi_event body_to_imu_ev;
 ///////////// DEFAULT SETTINGS ////////////////
 #ifndef V_CTL_ALTITUDE_MAX_CLIMB
 #define V_CTL_ALTITUDE_MAX_CLIMB 2;
-INFO("V_CTL_ALTITUDE_MAX_CLIMB not defined - default is 2m/s")
+INFO("V_CTL_ALTITUDE_MAX_CLIMB not defined - default is 2 , indicating 2 m/s")
 #endif
 #ifndef STALL_AIRSPEED
 INFO("No STALL_AIRSPEED defined. Using NOMINAL_AIRSPEED")
@@ -157,7 +158,7 @@ INFO("V_CTL_GLIDE_RATIO not defined - default is 8.")
 #define AIRSPEED_SETPOINT_SLEW 1
 #endif
 #ifndef V_CTL_MAX_ACCELERATION
-#define V_CTL_MAX_ACCELERATION 0.5
+#define V_CTL_MAX_ACCELERATION 0.5 //G
 #endif
 
 #ifndef V_CTL_ENERGY_IMU_ID
@@ -217,6 +218,7 @@ void v_ctl_init(void)
 {
   /* mode */
   v_ctl_mode = V_CTL_MODE_MANUAL;
+  v_ctl_speed_mode = V_CTL_SPEED_THROTTLE; //There is only one, added here to be universal in flightplan for different control modes
 
   /* outer loop */
   v_ctl_altitude_setpoint = 0.;
