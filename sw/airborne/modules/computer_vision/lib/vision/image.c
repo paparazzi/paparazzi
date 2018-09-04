@@ -601,17 +601,26 @@ void image_show_points_color(struct image_t *img, struct point_t *points, uint16
   }
 }
 
+void image_show_flow(struct image_t *img, struct flow_t *vectors, uint16_t points_cnt, uint8_t subpixel_factor)
+{
+  static uint8_t color[4] = {255, 255, 255, 255};
+  static uint8_t bad_color[4] = {0, 0, 0, 0};
+  image_show_flow_color(img, vectors, points_cnt, subpixel_factor, color, bad_color);
+}
+
 /**
  * Shows the flow from a specific point to a new point
  * This works on YUV422 and Grayscale images
  * @param[in,out] *img The image to show the flow on
  * @param[in] *vectors The flow vectors to show
  * @param[in] *points_cnt The amount of points and vectors to show
+ * @param[in] subpixel_factor
+ * @param[in] color: color for good vectors
+ * @param[in] bad_color:  color for bad vectors
  */
-void image_show_flow(struct image_t *img, struct flow_t *vectors, uint16_t points_cnt, uint8_t subpixel_factor)
+void image_show_flow_color(struct image_t *img, struct flow_t *vectors, uint16_t points_cnt, uint8_t subpixel_factor,
+                           const uint8_t *color, const uint8_t *bad_color)
 {
-  static uint8_t color[4] = {255, 255, 255, 255};
-  static uint8_t bad_color[4] = {0, 0, 0, 0};
   static int size_crosshair = 5;
 
   // Go through all the points

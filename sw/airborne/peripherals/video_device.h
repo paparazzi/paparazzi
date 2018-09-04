@@ -40,6 +40,17 @@ struct video_thread_t {
   struct v4l2_device *dev;        ///< The V4L2 device that is used for the video stream
 };
 
+// camera intrinsics: capture lens properties that determine how world points are projected to image points
+// These properties can be obtained with a camera calibration (as done in openCV)
+// The Dhane (un)distortion parameter is normally tuned by hand, for example with the undistortion module in Paparazzi
+struct camera_intrinsics_t {
+  float focal_x;  ///< focal length in the x-direction in pixels
+  float focal_y;  ///< focal length in the y-direction in pixels
+  float center_x; ///< center image coordinate in the x-direction
+  float center_y; ///< center image coordinate in the y-direction
+  float Dhane_k; //< (un)distortion parameter for a fish-eye lens
+};
+
 /** V4L2 device settings */
 struct video_config_t {
   struct img_size_t output_size;    ///< Output image size
@@ -54,8 +65,9 @@ struct video_config_t {
   struct video_thread_t thread; ///< Information about the thread this camera is running on
   struct video_listener *cv_listener; ///< The first computer vision listener in the linked list for this video device
   int fps;                  ///< Target FPS
+  struct camera_intrinsics_t
+    camera_intrinsics; ///< Intrinsics of the camera; camera calibration parameters and distortion parameter(s)
 };
 extern struct video_config_t dummy_camera;
-
 
 #endif
