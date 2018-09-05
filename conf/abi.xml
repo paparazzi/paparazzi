@@ -166,6 +166,12 @@
       <field name="vz" type="float" unit="m/s"/>
     </message>
 
+    <message name="INCIDENCE" id="25">
+      <field name="flag" type="uint8_t">bit 1: AoA is updated, bit 2: sideslip is updated</field>
+      <field name="aoa" type="float" unit="rad">Angle of attack</field>
+      <field name="sideslip" type="float" unit="rad">Sideslip angle</field>
+    </message>
+
   </msg_class>
 
 </protocol>

@@ -89,6 +89,32 @@
 #endif
 
 /*
+ * IDs of airspeed sensors (message 14)
+ */
+#ifndef AIRSPEED_NPS_ID
+#define AIRSPEED_NPS_ID 1
+#endif
+
+#ifndef AIRSPEED_ADC_ID
+#define AIRSPEED_ADC_ID 2
+#endif
+
+/*
+ * IDs of Incidence angles (message 24)
+ */
+#ifndef AOA_ADC_ID
+#define AOA_ADC_ID 1
+#endif
+
+#ifndef AOA_PWM_ID
+#define AOA_PWM_ID 2
+#endif
+
+#ifndef INCIDENCE_NPS_ID
+#define INCIDENCE_NPS_ID 20
+#endif
+
+/*
  * IDs of AGL measurment modules that can be loaded (sonars,...) (message 2)
  */
 #ifndef AGL_SONAR_ADC_ID
@@ -130,6 +156,7 @@
 #ifndef AGL_RAY_SENSOR_GAZEBO_ID
 #define AGL_RAY_SENSOR_GAZEBO_ID 10
 #endif
+
 /*
  * IDs of magnetometer sensors (including IMUs with mag)
  */
@@ -281,7 +308,7 @@
 #endif
 
 /*
- * IDs of OPTICFLOW estimates (message 12)
+ * IDs of OPTICFLOW estimates (message 11)
  */
 #ifndef FLOW_OPTICFLOW_ID
 #define FLOW_OPTICFLOW_ID 1
