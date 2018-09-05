@@ -66,7 +66,7 @@ PRINT_CONFIG_MSG("USE_AIRSPEED_MS45XX set to TRUE since this is set USE_AIRSPEED
  *  if not defined to be MS45XX_PRESSURE_OUTPUT_TYPE_InH2O then PSI is used
  * */
 #ifndef MS45XX_PRESSURE_OUTPUT_TYPE_InH2O
-#define MS45XX_PRESSURE_OUTPUT_TYPE_InH2O 1
+#define MS45XX_PRESSURE_OUTPUT_TYPE_InH2O 0
 #endif
 
 /** MS45xx pressure range in PSI or InH2O
@@ -77,9 +77,16 @@ PRINT_CONFIG_MSG("USE_AIRSPEED_MS45XX set to TRUE since this is set USE_AIRSPEED
 #define MS45XX_PRESSURE_RANGE 1
 #endif
 
-/* Pressure Type 0 = Differential, 1 = Gauge , note there are theoretical more types than 2, e.g. Absolute not implemented */
+/** Pressure Type 0 = Differential, 1 = Gauge
+ * note there are theoretical more types than 2, e.g. Absolute not implemented */
 #ifndef MS45XX_PRESSURE_TYPE
 #define MS45XX_PRESSURE_TYPE 0
+#endif
+
+/** Use low pass filter on pressure values
+ */
+#ifndef USE_AIRSPEED_LOWPASS_FILTER
+#define USE_AIRSPEED_LOWPASS_FILTER TRUE
 #endif
 
 /** MS45xx output Type.
@@ -96,7 +103,7 @@ PRINT_CONFIG_MSG("USE_AIRSPEED_MS45XX set to TRUE since this is set USE_AIRSPEED
 /** Conversion factor from psi to Pa */
 #define PSI_TO_PA 6894.75729
 
-#ifdef MS45XX_PRESSURE_OUTPUT_TYPE_InH2O
+#if MS45XX_PRESSURE_OUTPUT_TYPE_InH2O
 #define OutputPressureToPa InH2O_TO_PA
 #else
 #define OutputPressureToPa PSI_TO_PA
@@ -131,6 +138,12 @@ PRINT_CONFIG_MSG("USE_AIRSPEED_MS45XX set to TRUE since this is set USE_AIRSPEED
 #endif
 #endif
 
+PRINT_CONFIG_VAR(MS45XX_OUTPUT_TYPE)
+PRINT_CONFIG_VAR(MS45XX_PRESSURE_TYPE)
+PRINT_CONFIG_VAR(MS45XX_PRESSURE_RANGE)
+PRINT_CONFIG_VAR(MS45XX_PRESSURE_SCALE)
+PRINT_CONFIG_VAR(MS45XX_PRESSURE_OFFSET)
+
 /** Send a AIRSPEED_MS45XX message with every new measurement.
  * Mainly for debugging, use with caution, sends message at ~100Hz.
  */
@@ -156,7 +169,9 @@ PRINT_CONFIG_MSG("USE_AIRSPEED_MS45XX set to TRUE since this is set USE_AIRSPEED
 
 struct AirspeedMs45xx ms45xx;
 static struct i2c_transaction ms45xx_trans;
+#ifdef USE_AIRSPEED_LOWPASS_FILTER
 static Butterworth2LowPass ms45xx_filter;
+#endif
 
 static void ms45xx_downlink(struct transport_tx *trans, struct link_device *dev)
 {
@@ -179,10 +194,10 @@ void ms45xx_i2c_init(void)
 
   ms45xx_trans.status = I2CTransDone;
   // setup low pass filter with time constant and 100Hz sampling freq
-  #ifdef USE_AIRSPEED_LOWPASS_FILTER
+#ifdef USE_AIRSPEED_LOWPASS_FILTER
   init_butterworth_2_low_pass(&ms45xx_filter, MS45XX_LOWPASS_TAU,
                               MS45XX_I2C_PERIODIC_PERIOD, 0);
-  #endif
+#endif
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AIRSPEED_MS45XX, ms45xx_downlink);
@@ -197,8 +212,13 @@ void ms45xx_i2c_periodic(void)
   }
 }
 
+#define AUTOSET_NB_MAX 20
+
 void ms45xx_i2c_event(void)
 {
+  static int autoset_nb = 0;
+  static float autoset_offset = 0.f;
+
   /* Check if transaction is succesfull */
   if (ms45xx_trans.status == I2CTransSuccess) {
 
@@ -218,11 +238,23 @@ void ms45xx_i2c_event(void)
        */
 
       float p_out = (p_raw * ms45xx.pressure_scale) - ms45xx.pressure_offset;
-      #ifdef USE_AIRSPEED_LOWPASS_FILTER
+#ifdef USE_AIRSPEED_LOWPASS_FILTER
       ms45xx.pressure = update_butterworth_2_low_pass(&ms45xx_filter, p_out);
-      #else
+#else
       ms45xx.pressure = p_out;
-      #endif
+#endif
+
+      if (ms45xx.autoset_offset) {
+        if (autoset_nb < AUTOSET_NB_MAX) {
+          autoset_offset += p_raw * ms45xx.pressure_scale;
+          autoset_nb++;
+        } else {
+          ms45xx.pressure_offset = autoset_offset / (float)autoset_nb;
+          autoset_offset = 0.f;
+          autoset_nb = 0;
+          ms45xx.autoset_offset = false;
+        }
+      }
 
       /* 11bit raw temperature, 5 LSB bits not used */
       uint16_t temp_raw = 0xFFE0 & (((uint16_t)(ms45xx_trans.buf[2]) << 8) |
