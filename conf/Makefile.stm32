@@ -48,6 +48,7 @@ DEBUG_FLAGS ?= -ggdb3
 
 CSTANDARD   ?= -std=gnu99
 CXXSTANDARD ?= -std=c++98
+CINCS = $(INCLUDES) -I$(PAPARAZZI_SRC)/sw/include
 
 # input files
 SRCS = $($(TARGET).srcs)
@@ -107,6 +108,9 @@ CXXFLAGS += $(FLOAT_ABI)
 CXXFLAGS += $(ARCH_FLAGS)
 CXXFLAGS += $(USER_CFLAGS)
 CXXFLAGS += $(WARN_FLAGS)
+CXXFLAGS += $(CINCS)
+CXXFLAGS += $($(TARGET).CFLAGS)
+CXXFLAGS += $(BOARD_CFLAGS)
 
 
 CFLAGS += -I. -I./$(ARCH) -I../ext/libopencm3/include $(INCLUDES)
@@ -128,9 +132,11 @@ CFLAGS += $(BOARD_CFLAGS)
 ifneq ($(ARCH_L), )
 ifeq ($(ARCH_L),f4)
 CFLAGS += -DSTM32F4
+CXXFLAGS += -DSTM32F4
 endif
 else
 CFLAGS += -DSTM32F1
+CXXFLAGS += -DSTM32F1
 endif
 
 # with cortex-m3 and m4 unaligned data can still be read
@@ -227,7 +233,7 @@ sym: $(OBJDIR)/$(TARGET).sym
 .PRECIOUS : $(OBJS) $(AOBJ)
 %.elf: $(OBJS) $(AOBJ) | $(OBJDIR)
 	@echo LD $@
-	$(Q)$(LD) $(LDFLAGS) $($(TARGET).LDFLAGS) -o $@ $(COBJ) $(AOBJ) $(LDLIBS)
+	$(Q)$(LD) $(LDFLAGS) $($(TARGET).LDFLAGS) -o $@ $(OBJS) $(AOBJ) $(LDLIBS)
 
 # Compile: create object files from C source files.
 $(OBJDIR)/%.o : %.c $(OBJDIR)/../Makefile.ac
