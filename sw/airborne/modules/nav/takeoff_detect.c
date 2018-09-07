@@ -87,11 +87,19 @@ void takeoff_detect_periodic(void)
   // Run detection state machine here
   switch (takeoff_detect.state) {
     case TO_DETECT_ARMED:
-      // test for "nose up" + AP in AUTO2 (+ GPS OK ? FIXME)
-      if (stateGetNedToBodyEulers_f()->theta > TAKEOFF_DETECT_LAUNCH_PITCH
-          && autopilot_get_mode() == AP_MODE_AUTO2) {
+      // test for "nose up" + AP in AUTO2, optionally AUTO1 not default since risky if one does not know what it does
+      if (stateGetNedToBodyEulers_f()->theta > TAKEOFF_DETECT_LAUNCH_PITCH)
+      {
+#ifndef TAKEOFF_DETECT_ALSO_IN_AUTO1
+      if (autopilot_get_mode() != AP_MODE_AUTO2)
+#else
+      if ((autopilot_get_mode() != AP_MODE_AUTO2) || (autopilot_get_mode() != AP_MODE_AUTO1))
+#endif
+        {
         takeoff_detect.timer++;
-      } else {
+    	}
+      }
+      else {
         // else reset timer
         takeoff_detect.timer = 0;
       }
@@ -102,13 +110,21 @@ void takeoff_detect_periodic(void)
         takeoff_detect.timer = 0;
       }
       break;
+
     case TO_DETECT_LAUNCHING:
       // abort if pitch goes below threshold while launching
-      if (stateGetNedToBodyEulers_f()->theta < TAKEOFF_DETECT_ABORT_PITCH
-          || autopilot_get_mode() != AP_MODE_AUTO2) {
-        // back to ARMED state
-        autopilot.launch = false;
-        takeoff_detect.state = TO_DETECT_ARMED;
+      if (stateGetNedToBodyEulers_f()->theta < TAKEOFF_DETECT_ABORT_PITCH)
+      {
+#ifndef TAKEOFF_DETECT_ALSO_IN_AUTO1
+      if (autopilot_get_mode() != AP_MODE_AUTO2)
+#else
+      if ((autopilot_get_mode() != AP_MODE_AUTO2) || (autopilot_get_mode() != AP_MODE_AUTO1))
+#endif
+        {
+          // back to ARMED state
+          autopilot.launch = false;
+          takeoff_detect.state = TO_DETECT_ARMED;
+        }
       }
       // increment timer and disable detection after some time
       takeoff_detect.timer++;
@@ -116,10 +132,12 @@ void takeoff_detect_periodic(void)
         takeoff_detect.state = TO_DETECT_DISABLED;
       }
       break;
+
     case TO_DETECT_DISABLED:
       // stop periodic call
       takeoff_detect_takeoff_detect_periodic_status = MODULES_STOP;
       break;
+
     default:
       // No kidding ?!
       takeoff_detect.state = TO_DETECT_DISABLED;

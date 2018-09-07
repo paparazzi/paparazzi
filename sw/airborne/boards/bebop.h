@@ -31,9 +31,24 @@
 
 /** uart connected to GPS internally */
 #define UART1_DEV /dev/ttyPA1
+
 #define GPS_UBX_ENABLE_NMEA_DATA_MASK 0xff
-/** FTDI cable for stereoboard or external GPS */
+
+/** For using serial devices via USB to serial converter electronics
+ *  E.g. a XBee modem, a 3DR radio modem, Serial Stereocam etc. etc.
+ */
+#ifndef UART2_DEV
 #define UART2_DEV /dev/ttyUSB0
+#endif
+#ifndef UART4_DEV
+#define UART4_DEV /dev/ttyUSB1
+#endif
+#ifndef UART5_DEV
+#define UART5_DEV /dev/ttyACM0
+#endif
+#ifndef UART6_DEV
+#define UART6_DEV /dev/ttyACM1
+#endif
 
 /* Default actuators driver */
 #define DEFAULT_ACTUATORS "boards/bebop/actuators.h"

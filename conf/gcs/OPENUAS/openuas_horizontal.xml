@@ -1,0 +1,18 @@
+<layout width="1855" height="1056">
+  <rows>
+    <widget NAME="map2d" size="500">
+      <papget type="video_plugin" display="plugin" x="30" y="50">
+        <property name="command" value="gst-launch-1.0 'application\/x-rtp, payload=96' ! videorate ! rtph264depay config-interval=1 ! avdec_h264 ! autovideosink ! videoscale ! udpsink host=192.168.42.1 port=55004"/>"
+        <property NAME="width" VALUE="640"/>
+        <property NAME="height" VALUE="360"/>
+      </papget>
+    <widget>
+    <columns>
+      <rows SIZE="375">
+        <widget NAME="strips" size="548"/>
+      </rows>
+      <widget NAME="aircraft" size="1002"/>
+      <widget NAME="alarms" size="464"/>
+    </columns>
+  </rows>
+</layout>

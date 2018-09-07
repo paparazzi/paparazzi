@@ -18,8 +18,6 @@
 
 // For Downlink
 
-
-
 float SquareSumErr_airspeed;
 float SquareSumErr_altitude;
 float SquareSumErr_position;
@@ -29,10 +27,7 @@ float TolerancePosition;
 bool benchm_reset;
 bool benchm_go;
 
-
 //uint8_t numOfCount;
-
-
 
 void flight_benchmark_init(void)
 {

@@ -34,25 +34,55 @@
 #endif
 
 #if RADIO_CONTROL_NB_CHANNEL > 14
-#error "RADIO_CONTROL_NB_CHANNEL mustn't be higher than 14."
+#error "RADIO_CONTROL_NB_CHANNEL mustn't be higher than 14. X-Plus channel expansion is not (yet) usable"
 #endif
 
-/* The channel ordering is always the same for DSM2 and DSMX */
+/* Default channel assignments */
+#ifndef RADIO_THROTTLE
 #define RADIO_THROTTLE   0
+#endif
+#ifndef RADIO_ROLL
 #define RADIO_ROLL       1
+#endif
+#ifndef RADIO_PITCH
 #define RADIO_PITCH      2
+#endif
+#ifndef RADIO_YAW
 #define RADIO_YAW        3
+#endif
+#ifndef RADIO_GEAR
 #define RADIO_GEAR       4
+#endif
+#ifndef RADIO_FLAP
 #define RADIO_FLAP       5
+#endif
+#ifndef RADIO_AUX1
 #define RADIO_AUX1       5
+#endif
+#ifndef RADIO_AUX2
 #define RADIO_AUX2       6
+#endif
+#ifndef RADIO_AUX3
 #define RADIO_AUX3       7
+#endif
+#ifndef RADIO_AUX4
 #define RADIO_AUX4       8
+#endif
+#ifndef RADIO_AUX5
 #define RADIO_AUX5       9
+#endif
+#ifndef RADIO_AUX6
 #define RADIO_AUX6       10
+#endif
+#ifndef RADIO_AUX7
 #define RADIO_AUX7       11
+#endif
+#ifndef RADIO_AUX8
 #define RADIO_AUX8       12
+#endif
+#ifndef RADIO_AUX9
 #define RADIO_AUX9       13
+#endif
 
 /* Map the MODE default to the gear switch */
 #ifndef RADIO_MODE
