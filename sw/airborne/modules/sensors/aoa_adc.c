@@ -30,6 +30,7 @@
 
 #include "modules/sensors/aoa_adc.h"
 #include "generated/airframe.h"
+#include "subsystems/abi.h"
 #include "state.h"
 
 // Messages
@@ -84,6 +85,9 @@ void aoa_adc_update(void)
   prev_aoa = aoa_adc.angle;
 
 #ifdef USE_AOA
+  uint8_t flag = 1;
+  float foo = 0.f;
+  AbiSendMsgINCIDENCE(AOA_ADC_ID, flag, aoa_adc.angle, foo);
   stateSetAngleOfAttack_f(aoa_adc.angle);
 #endif
 

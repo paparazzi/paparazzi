@@ -1,0 +1,93 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ins_mekf_wind" dir="ins">
+  <doc>
+    <description>
+      MEKF-Wind INS estimator.
+      Estimates attitude, velocity, position, (gyro, accel, baro) biases and wind velocity.
+      Using Eigen for math operations.
+      Only for fixed-wing firmware.
+    </description>
+    <configure name="USE_MAGNETOMETER" value="TRUE|FALSE" description="use magnetometer"/>
+    <configure name="AHRS_ALIGNER_LED" value="2" description="LED number to indicate if AHRS/INS is aligned"/>
+    <define name="LOG_MEKF_WIND" value="FALSE|TRUE" description="enable logging on SD card (default: FALSE)"/>
+    <section name="MEKF_WIND" prefix="INS_MEKF_WIND_">
+      <define name="DISABLE_WIND" value="FALSE|TRUE" description="Disable wind estimation (true by default)"/>
+      <define name="P0_QUAT" value="0.007615" description="Initial covariance on quaternion"/>
+      <define name="P0_SPEED" value="1E+2" description="Initial covariance on speed"/>
+      <define name="P0_POS" value="1E+1" description="Initial covariance on position"/>
+      <define name="P0_RATES_BIAS" value="1E-5" description="Initial covariance on gyrometers bias"/>
+      <define name="P0_ACCEL_BIAS" value="1E-5" description="Initial covariance on accelerometers bias"/>
+      <define name="P0_WIND" value="1." description="Initial covariance on wind estimate"/>
+      <define name="Q_GYRO" value="1E-2" description="Process noise on gyrometers"/>
+      <define name="Q_ACCEL" value="1E-2" description="Process noise on accelerometers"/>
+      <define name="Q_RATES_BIAS" value="1E-6" description="Process noise on gyrometers bias"/>
+      <define name="Q_ACCEL_BIAS" value="1E-6" description="Process noise on accelerometers bias"/>
+      <define name="Q_BARO_BIAS" value="1E-3" description="Process noise on baro bias"/>
+      <define name="Q_WIND" value="1." description="Process nois on wind estimate"/>
+      <define name="R_SPEED" value="0.1" description="Measurement noise on speed"/>
+      <define name="R_SPEED_Z" value="0.2" description="Measurement noise on vertical speed"/>
+      <define name="R_POS" value="2." description="Measurement noise on position"/>
+      <define name="R_POS_Z" value="4." description="Measurement noise on vertical position"/>
+      <define name="R_MAG" value="1." description="Measurement noise on magnetometers"/>
+      <define name="R_BARO" value="2." description="Measurement noise on barometer"/>
+      <define name="R_AIRSPEED" value="0.1" description="Measurement noise en airspeed"/>
+      <define name="R_AOA" value="0.1" description="Measurement noise on angle of attack"/>
+      <define name="R_AOS" value="0.1" description="Measurement noise on sideslip angle"/>
+    </section>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings name="MEKF_Wind">
+        <dl_setting min="0" max="1" step="1" var="ins_mekf_wind_params.disable_wind" module="ins/ins_mekf_wind" shortname="wind estimation" values="ENABLED|DISABLED"/>
+        <dl_setting min="1E-3" max="1E-1" step="0.001" var="ins_mekf_wind_params.Q_gyro" module="ins/ins_mekf_wind" shortname="Q gyro" handler="update_Q_gyro"/>
+        <dl_setting min="1E-3" max="1E-1" step="0.001" var="ins_mekf_wind_params.Q_accel" module="ins/ins_mekf_wind" shortname="Q accel" handler="update_Q_accel"/>
+        <dl_setting min="1E-6" max="1E-5" step="0.00000001" var="ins_mekf_wind_params.Q_rates_bias" module="ins/ins_mekf_wind" shortname="Q rates bias" handler="update_Q_rates_bias"/>
+        <dl_setting min="1E-6" max="1E-5" step="0.00000001" var="ins_mekf_wind_params.Q_accel_bias" module="ins/ins_mekf_wind" shortname="Q accel bias" handler="update_Q_accel_bias"/>
+        <dl_setting min="1E-7" max="1E-5" step="0.00000001" var="ins_mekf_wind_params.Q_baro_bias" module="ins/ins_mekf_wind" shortname="Q baro bias" handler="update_Q_baro_bias"/>
+        <dl_setting min="1E-1" max="1E+1" step="0.01" var="ins_mekf_wind_params.Q_wind" module="ins/ins_mekf_wind" shortname="Q wind" handler="update_Q_wind"/>
+        <dl_setting min="1E-1" max="1E+1" step="0.01" var="ins_mekf_wind_params.R_speed" module="ins/ins_mekf_wind" shortname="R speed" handler="update_R_speed"/>
+        <dl_setting min="1E-1" max="1E+1" step="0.01" var="ins_mekf_wind_params.R_speed_z" module="ins/ins_mekf_wind" shortname="R speed_z" handler="update_R_speed_z"/>
+        <dl_setting min="1E-1" max="1E+1" step="0.01" var="ins_mekf_wind_params.R_pos" module="ins/ins_mekf_wind" shortname="R pos" handler="update_R_pos"/>
+        <dl_setting min="1E-1" max="1E+1" step="0.01" var="ins_mekf_wind_params.R_pos_z" module="ins/ins_mekf_wind" shortname="R pos_z" handler="update_R_pos_z"/>
+        <dl_setting min="1E-1" max="1E+1" step="0.01" var="ins_mekf_wind_params.R_mag" module="ins/ins_mekf_wind" shortname="R mag" handler="update_R_mag"/>
+        <dl_setting min="1E-1" max="1E+2" step="0.01" var="ins_mekf_wind_params.R_baro" module="ins/ins_mekf_wind" shortname="R baro" handler="update_R_baro"/>
+        <dl_setting min="1E-1" max="1E+1" step="0.01" var="ins_mekf_wind_params.R_airspeed" module="ins/ins_mekf_wind" shortname="R airpeed" handler="update_R_airspeed"/>
+        <dl_setting min="1E-1" max="1E+1" step="0.01" var="ins_mekf_wind_params.R_aoa" module="ins/ins_mekf_wind" shortname="R aoa" handler="update_R_aoa"/>
+        <dl_setting min="1E-1" max="1E+1" step="0.01" var="ins_mekf_wind_params.R_aos" module="ins/ins_mekf_wind" shortname="R aos" handler="update_R_aos"/>
+        <dl_setting min="0" max="1" step="1" var="ins_mekf_wind.reset" module="ins/ins_mekf_wind_wrapper" shortname="reset" handler="Reset"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="ins_mekf_wind_wrapper.h"/>
+  </header>
+  <init fun="ins_mekf_wind_wrapper_init()"/>
+  <makefile target="ap|nps" firmware="fixedwing">
+    <configure name="CXXSTANDARD" value="-std=c++14"/>
+    <configure name="USE_MAGNETOMETER" default="TRUE"/>
+    <define name="USE_MAGNETOMETER" cond="ifeq (,$(findstring $(USE_MAGNETOMETER),0 FALSE))"/>
+    <include name="$(PAPARAZZI_SRC)/sw/ext/eigen"/>
+    <file name="ahrs_aligner.c" dir="subsystems/ahrs"/>
+    <file name="ins.c" dir="subsystems"/>
+    <file name="ins_mekf_wind.cpp"/>
+    <file name="ins_mekf_wind_wrapper.c"/>
+    <flag name="LDFLAGS" value="lstdc++" />
+    <define name="EIGEN_NO_MALLOC"/>
+    <define name="EIGEN_NO_AUTOMATIC_RESIZING"/>
+    <define name="USE_AHRS_ALIGNER"/>
+    <define name="INS_TYPE_H" value="modules/ins/ins_mekf_wind_wrapper.h" type="string"/>
+  </makefile>
+  <makefile target="ap" firmware="fixedwing">
+    <define name="EIGEN_NO_DEBUG"/>
+    <flag name="CXXFLAGS" value="Wno-bool-compare"/>
+    <flag name="CXXFLAGS" value="Wno-logical-not-parentheses"/>
+    <file name="pprz_syscalls.c" dir="."/>
+  </makefile>
+  <makefile target="sim" firmware="fixedwing">
+    <define name="AHRS_TYPE_H" value="subsystems/ahrs/ahrs_sim.h" type="string"/>
+    <define name="USE_AHRS"/>
+    <file name="ahrs.c" dir="subsystems"/>
+    <file name="ahrs_sim.c" dir="subsystems/ahrs"/>
+  </makefile>
+</module>

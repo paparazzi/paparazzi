@@ -42,3 +42,6 @@
 	path = sw/ext/tudelft_gazebo_models
 	url = https://github.com/tudelft/gazebo_models.git
 	shallow = true
+[submodule "sw/ext/eigen"]
+	path = sw/ext/eigen
+	url = https://github.com/eigenteam/eigen-git-mirror.git
