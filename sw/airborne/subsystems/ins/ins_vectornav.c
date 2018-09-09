@@ -335,7 +335,6 @@ void ins_vectornav_propagate()
     gps.last_3dfix_ticks = sys_time.nb_sec_rem;
   }
 
-
   // update internal states for telemetry purposes
   // TODO: directly convert vectornav output instead of using state interface
   // to support multiple INS running at the same time
