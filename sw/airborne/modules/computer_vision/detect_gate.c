@@ -6,8 +6,10 @@
 
 // Own header
 #include <stdio.h>
+#include "detect_gate.h"
 #include "modules/computer_vision/lib/vision/image.h"
 #include "modules/computer_vision/snake_gate_detection.h"
+
 
 /*#ifndef UNDISTORT_FPS
 #define UNDISTORT_FPS 0       ///< Default FPS (zero means run at camera fps)
@@ -25,7 +27,8 @@ struct image_t *detect_gate_func(struct image_t *img);
 struct image_t *detect_gate_func(struct image_t *img)
 {
     // detect the gate and draw it in the image:
-    int success = snake_gate_detection(img);
+    snake_gate_detection(img);
+
     return img;
 }
 

@@ -814,7 +814,7 @@ void image_draw_rectangle(struct image_t *img, int x_min, int x_max, int y_min, 
  *                   Example colors: white = {127, 255, 127, 255}, green = {0, 127, 0, 127};
  * @param[in] size_crosshair Actually the half size of the cross hair
  */
-void image_draw_crosshair(struct image_t *img, struct point_t *loc, uint8_t *color, int size_crosshair)
+void image_draw_crosshair(struct image_t *img, struct point_t *loc, const uint8_t *color, int size_crosshair)
 {
   struct point_t from, to;
 
@@ -855,7 +855,7 @@ void image_draw_line(struct image_t *img, struct point_t *from, struct point_t *
  * @param[in] *color The line color as a [U, Y1, V, Y2] uint8_t array, or a uint8_t value pointer for grayscale images.
  *                   Example colors: white = {127, 255, 127, 255}, green = {0, 127, 0, 127};
  */
-void image_draw_line_color(struct image_t *img, struct point_t *from, struct point_t *to, uint8_t *color)
+void image_draw_line_color(struct image_t *img, struct point_t *from, struct point_t *to, const uint8_t *color)
 {
   int xerr = 0, yerr = 0;
   uint8_t *img_buf = (uint8_t *)img->buf;

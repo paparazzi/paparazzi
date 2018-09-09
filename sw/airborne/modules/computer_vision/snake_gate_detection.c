@@ -27,9 +27,8 @@
 // Own header
 #include "modules/computer_vision/snake_gate_detection.h"
 #include <stdio.h>
-#include "modules/computer_vision/lib/vision/image.h"
 #include <stdlib.h>
-
+#include "modules/computer_vision/lib/vision/image.h"
 
 // #define DEBUG_SNAKE_GATE
 #define SUCCESS_DETECT 1
@@ -57,17 +56,6 @@ uint8_t color_V_max  = 230;//255;
 uint8_t green_color[4] = {255, 128, 255, 128}; //{0,250,0,250};
 uint8_t blue_color[4] = {0, 128, 0, 128}; //{250,250,0,250};
 
-// TODO: do these need to be global?
-// variables for snake gate detection:
-int y_low = 0;
-int y_high = 0;
-int x_low1 = 0;
-int x_high1 = 0;
-int x_low2 = 0;
-int x_high2 = 0;
-int sz = 0;
-int szx1 = 0;
-int szx2 = 0;
 
 // Result
 #define MAX_GATES 50
@@ -95,16 +83,19 @@ float x_center, y_center, radius; // TODO: radius is still from the period in wh
 
 
 // Support functions for sorting:
+int cmpfunc(const void *a, const void *b);
+int cmp_i(const void *a, const void *b);
+
 int cmpfunc(const void *a, const void *b)
 {
-  return (*(int *)a - * (int *)b);
+  return (*(const int *)a - * (const int *)b);
 }
 int *array;
 //return indexes
 int cmp_i(const void *a, const void *b)
 {
-  int ia = *(int *)a;
-  int ib = *(int *)b;
+  int ia = *(const int *)a;
+  int ib = *(const int *)b;
   return array[ia] < array[ib] ? -1 : array[ia] > array[ib];
 }
 
@@ -131,13 +122,22 @@ int cmp_i(const void *a, const void *b)
 
 int snake_gate_detection(struct image_t *img)
 {
-  int filter = 0;
-  int gate_graphics = 0;
   int x, y;
   float quality;
   best_quality = 0;
   best_gate.gate_q = 0;
   n_gates = 0;
+
+  // variables for snake gate detection:
+  int y_low = 0;
+  int y_high = 0;
+  int x_low1 = 0;
+  int x_high1 = 0;
+  int x_low2 = 0;
+  int x_high2 = 0;
+  int sz = 0;
+  int szx1 = 0;
+  int szx2 = 0;
 
   //histogram for final approach gate detection
   int histogram[315] = {0};
@@ -148,7 +148,7 @@ int snake_gate_detection(struct image_t *img)
     y = rand() % img->w;
 
     // check if it has the right color
-    if (check_color(img, x, y)) {
+    if (check_color_sgd(img, x, y)) {
 
       //fill histogram
       histogram[x]++;
@@ -225,10 +225,6 @@ int snake_gate_detection(struct image_t *img)
   }
 #endif
 
-
-  // prepare the Region of Interest (ROI), which is larger than the gate:
-  float size_factor = 1.5;
-
   //init best gate
   best_gate.gate_q = 0;
   best_gate.n_sides = 0;
@@ -248,36 +244,17 @@ int snake_gate_detection(struct image_t *img)
 
     for (int gate_nr = initial_gate; gate_nr < n_gates; gate_nr += 1) {
 
-      // Determine the ROI:
-      int16_t ROI_size = (int16_t)(((float) gates_c[gate_nr].sz) * size_factor);
-      int16_t min_x = gates_c[gate_nr].x - ROI_size;
-      min_x = (min_x < 0) ? 0 : min_x;
-      int16_t max_x = gates_c[gate_nr].x + ROI_size;
-      max_x = (max_x < img->h) ? max_x : img->h;
-      int16_t min_y = gates_c[gate_nr].y - ROI_size;
-      min_y = (min_y < 0) ? 0 : min_y;
-      int16_t max_y = gates_c[gate_nr].y + ROI_size;
-      max_y = (max_y < img->w) ? max_y : img->w;
-
       // get gate information:
-      gates_sz = gates_c[gate_nr].sz;
-      x_center = gates_c[gate_nr].x;
-      y_center = gates_c[gate_nr].y;
-      radius   = gates_sz;
+      set_gate_points(&gates_c[gate_nr]);
+      gate_refine_corners(img, gates_c[gate_nr].x_corners, gates_c[gate_nr].y_corners, gates_c[gate_nr].sz*2);
 
-      // refine the detection of the gate:
-      int x_center_p = x_center;
-      int y_center_p = y_center;
-      int radius_p   = radius;
-      gate_corner_ref(img, points_x, points_y, &x_center_p, &y_center_p, &radius_p, (uint16_t) min_x, (uint16_t) min_y,
-                      (uint16_t) max_x, (uint16_t) max_y);
-
+      // TODO: I think we can remove the temporary gate here, and just use gates_c[gate_nr]
       // store the temporary information in the gate:
-      temp_check_gate.x = (int) x_center;
-      temp_check_gate.y = (int) y_center;
-      temp_check_gate.sz = (int) radius;
-      memcpy(&(temp_check_gate.x_corners[0]), points_x, sizeof(int) * 4);
-      memcpy(&(temp_check_gate.y_corners[0]), points_y, sizeof(int) * 4);
+      temp_check_gate.x = gates_c[gate_nr].x;
+      temp_check_gate.y = gates_c[gate_nr].y;
+      temp_check_gate.sz = gates_c[gate_nr].sz;
+      memcpy(&(temp_check_gate.x_corners[0]), gates_c[gate_nr].x_corners, sizeof(int) * 4);
+      memcpy(&(temp_check_gate.y_corners[0]), gates_c[gate_nr].y_corners, sizeof(int) * 4);
 
       // also get the color fitness
       check_gate_outline(img, temp_check_gate, &temp_check_gate.gate_q, &temp_check_gate.n_sides);
@@ -300,18 +277,17 @@ int snake_gate_detection(struct image_t *img)
     // if the best gate is not good enough, but we did have a detection in the previous image:
     if ((best_gate.gate_q == 0 && best_gate.n_sides == 0) && last_frame_detection == 1) {
 
+      // TODO: is it really important to do this sorting here to get the maximum size? Is the sz property not accurate enough?
       int x_values[4];
       int y_values[4];
       memcpy(x_values, &(last_gate.x_corners[0]), sizeof(int) * 4);
       memcpy(y_values, &(last_gate.y_corners[0]), sizeof(int) * 4);
-
       //sort small to large
       qsort(x_values, 4, sizeof(int), cmpfunc);
       qsort(y_values, 4, sizeof(int), cmpfunc);
-
       //check x size, maybe use y also later?
       int radius_p   = x_values[3] - x_values[0];
-      gate_corner_ref_2(img, last_gate.x_corners, last_gate.y_corners, &radius_p);
+      gate_refine_corners(img, last_gate.x_corners, last_gate.y_corners, 2*radius_p);
 
       // also get the color fitness
       check_gate_outline(img, last_gate, &last_gate.gate_q, &last_gate.n_sides);
@@ -336,14 +312,12 @@ int snake_gate_detection(struct image_t *img)
   previous_best_gate.sz_right = best_gate.sz_right;
   previous_best_gate.gate_q = best_gate.gate_q;
   previous_best_gate.n_sides = best_gate.n_sides;
+  memcpy(&(previous_best_gate.x_corners[0]), &(best_gate.x_corners[0]), sizeof(int) * 4);
+  memcpy(&(previous_best_gate.y_corners[0]), &(best_gate.y_corners[0]), sizeof(int) * 4);
 
   //color filtered version of image for overlay and debugging
   if (FILTER_IMAGE) { //filter) {
-    int num_color = image_yuv422_colorfilt(img, img,
-                                           color_lum_min, color_lum_max,
-                                           color_cb_min, color_cb_max,
-                                           color_cr_min, color_cr_max
-                                          );
+    image_yuv422_colorfilt(img, img, color_Y_min, color_Y_max, color_U_min, color_U_max, color_V_min, color_V_max );
   }
 
   if (best_gate.gate_q > (min_gate_quality * 2) && best_gate.n_sides > 3) {
@@ -359,7 +333,7 @@ int snake_gate_detection(struct image_t *img)
       } else if (repeat_gate == 1) {
         draw_gate_color(img, best_gate, green_color);
         for (int i = 0; i < 3; i++) {
-          point_t loc = { .x = last_gate.x_corners[i], .y = last_gate.y_corners[i] };
+          struct point_t loc = { .x = last_gate.x_corners[i], .y = last_gate.y_corners[i] };
           image_draw_crosshair(img, &loc, blue_color, size_crosshair);
         }
       }
@@ -636,7 +610,7 @@ extern void check_gate_initial(struct image_t *im, struct gate_img gate, float *
     int y_in = gate.y + (rand() % gate.sz) - (0.5 * gate.sz);
 
     // check if it has the right color
-    if (check_color(im, x_in, y_in)) {
+    if (check_color_sgd(im, x_in, y_in)) {
       num_color_center ++;
     }
   }
@@ -689,7 +663,7 @@ void check_line(struct image_t *im, struct point_t Q1, struct point_t Q2, int *n
       // augment number of checked points:
       (*n_points)++;
 
-      if (check_color(im, x, y)) {
+      if (check_color_sgd(im, x, y)) {
         // the point is of the right color:
         (*n_colored_points)++;
       }
@@ -715,13 +689,13 @@ void snake_up_and_down(struct image_t *im, int x, int y, int *y_low, int *y_high
 
   // snake towards negative y
   while ((*y_low) > 0 && !done) {
-    if (check_color(im, x, (*y_low) - 1)) {
+    if (check_color_sgd(im, x, (*y_low) - 1)) {
       (*y_low)--;
 
-    } else if (x + 1 < im->h && check_color(im, x + 1, (*y_low) - 1)) {
+    } else if (x + 1 < im->h && check_color_sgd(im, x + 1, (*y_low) - 1)) {
       x++;
       (*y_low)--;
-    } else if (x - 1 >= 0 && check_color(im, x - 1, (*y_low) - 1)) {
+    } else if (x - 1 >= 0 && check_color_sgd(im, x - 1, (*y_low) - 1)) {
       x--;
       (*y_low)--;
     } else {
@@ -735,12 +709,12 @@ void snake_up_and_down(struct image_t *im, int x, int y, int *y_low, int *y_high
   done = 0;
   while ((*y_high) < im->w - 1 && !done) {
 
-    if (check_color(im, x, (*y_high) + 1)) {
+    if (check_color_sgd(im, x, (*y_high) + 1)) {
       (*y_high)++;
-    } else if (x < im->h - 1 && check_color(im, x + 1, (*y_high) + 1)) {
+    } else if (x < im->h - 1 && check_color_sgd(im, x + 1, (*y_high) + 1)) {
       x++;
       (*y_high)++;
-    } else if (x > 0 && check_color(im, x - 1, (*y_high) + 1)) {
+    } else if (x > 0 && check_color_sgd(im, x - 1, (*y_high) + 1)) {
       x--;
       (*y_high)++;
     } else {
@@ -768,13 +742,13 @@ void snake_left_and_right(struct image_t *im, int x, int y, int *x_low, int *x_h
 
   // snake towards negative x (left)
   while ((*x_low) > 0 && !done) {
-    if (check_color(im, (*x_low) - 1, y)) {
+    if (check_color_sgd(im, (*x_low) - 1, y)) {
       (*x_low)--;
-      // } else if (y < im->h - 1 && check_color(im, (*x_low) - 1, y + 1)) {
-    } else if (y < im->w - 1 && check_color(im, (*x_low) - 1, y + 1)) {
+      // } else if (y < im->h - 1 && check_color_sgd(im, (*x_low) - 1, y + 1)) {
+    } else if (y < im->w - 1 && check_color_sgd(im, (*x_low) - 1, y + 1)) {
       y++;
       (*x_low)--;
-    } else if (y > 0 && check_color(im, (*x_low) - 1, y - 1)) {
+    } else if (y > 0 && check_color_sgd(im, (*x_low) - 1, y - 1)) {
       y--;
       (*x_low)--;
     } else {
@@ -788,13 +762,13 @@ void snake_left_and_right(struct image_t *im, int x, int y, int *x_low, int *x_h
   // snake towards positive x (right)
   while ((*x_high) < im->h - 1 && !done) {
 
-    if (check_color(im, (*x_high) + 1, y)) {
+    if (check_color_sgd(im, (*x_high) + 1, y)) {
       (*x_high)++;
-      // } else if (y < im->h - 1 && check_color(im, (*x_high) + 1, y++)) {
-    } else if (y < im->w - 1 && check_color(im, (*x_high) + 1, y++)) {
+      // } else if (y < im->h - 1 && check_color_sgd(im, (*x_high) + 1, y++)) {
+    } else if (y < im->w - 1 && check_color_sgd(im, (*x_high) + 1, y++)) {
       y++;
       (*x_high)++;
-    } else if (y > 0 && check_color(im, (*x_high) + 1, y - 1)) {
+    } else if (y > 0 && check_color_sgd(im, (*x_high) + 1, y - 1)) {
       y--;
       (*x_high)++;
     } else {
@@ -836,10 +810,30 @@ void gate_refine_corners(struct image_t *color_image, int *x_points, int *y_poin
 
   // TODO: make parameter?
   float corner_area = 0.4f;
-  refine_corner(color_image, x_points, y_points, size, corner_area);
-  refine_corner(color_image, x_points + 1, y_points + 1, size, corner_area);
-  refine_corner(color_image, x_points + 2, y_points + 2, size, corner_area);
-  refine_corner(color_image, x_points + 3, y_points + 3, size, corner_area);
+  refine_single_corner(color_image, x_points, y_points, size, corner_area);
+  refine_single_corner(color_image, x_points + 1, y_points + 1, size, corner_area);
+  refine_single_corner(color_image, x_points + 2, y_points + 2, size, corner_area);
+  refine_single_corner(color_image, x_points + 3, y_points + 3, size, corner_area);
+}
+
+// TODO: there is a bound function in ctrlstick.c, but I did not want to include such files. Perhaps there is a better place than here.
+/**
+ * Bound function.
+ *
+ * @param[in] input The value to be bounded.
+ * @param[in] min The minimum allowed value.
+ * @param[in] max The maximum allowed value.
+ */
+int bound_value_int(int input, int min, int max){
+  if(input < min){
+    return min;
+  }
+  else if(input > max){
+    return max;
+  }
+  else{
+    return input;
+  }
 }
 
 /**
@@ -851,7 +845,7 @@ void gate_refine_corners(struct image_t *color_image, int *x_points, int *y_poin
  * @param[in] size Full size of the gate.
  * @param[in] size_factor The ratio of the size in which we will look for a better corner location.
  */
-void refine_single_corner(struct image_t *im, int corner_x, int corner_y, int size, float size_factor)
+void refine_single_corner(struct image_t *im, int* corner_x, int* corner_y, int size, float size_factor)
 {
 
   float x_corner_f = (float)(*corner_x);
@@ -867,16 +861,6 @@ void refine_single_corner(struct image_t *im, int corner_x, int corner_y, int si
   y_h = bound_value_int(y_h, 0, im->w);
   int y_l = (int)(y_corner_f - size_f * size_factor);
   y_l = bound_value_int(y_l, 0, im->w);
-
-
-  int c1_x = x_l;
-  int c1_y = y_h;
-  int c2_x = x_r;
-  int c2_y = y_h;
-  int c3_x = x_r;
-  int c3_y = y_l;
-  int c4_x = x_l;
-  int c4_y = y_l;
 
   int x_size = x_r - x_l + 1;
   int y_size = y_h - y_l + 1;
@@ -897,7 +881,7 @@ void refine_single_corner(struct image_t *im, int corner_x, int corner_y, int si
 
   for (int y_pix = y_l; y_pix < y_h; y_pix++) {
     for (int x_pix = x_l; x_pix < x_r; x_pix++) {
-      if (check_color(im, x_pix, y_pix) > 0) {
+      if (check_color_sgd(im, x_pix, y_pix) > 0) {
 
         int cur_x = x_hist[x_pix - x_l];
         int cur_y = y_hist[y_pix - y_l];
@@ -922,12 +906,14 @@ void refine_single_corner(struct image_t *im, int corner_x, int corner_y, int si
       }
     }
   }
+
+  // Update the corner location:
   *corner_x = best_x_loc;
   *corner_y = best_y_loc;
 }
 
 
-int check_color(struct image_t *im, int x, int y) {
+int check_color_sgd(struct image_t *im, int x, int y) {
   // Call the function in image.c with the color thresholds:
   // Please note that we have to switch x and y around here, due to the strange sensor mounting in the Bebop:
   return check_color(im, y, x, color_Y_min, color_Y_max, color_U_min, color_U_max, color_V_min, color_V_max);
