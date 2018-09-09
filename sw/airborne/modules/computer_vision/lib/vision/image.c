@@ -200,6 +200,54 @@ uint16_t image_yuv422_colorfilt(struct image_t *input, struct image_t *output, u
 }
 
 /**
+ * Checks the color of a single pixel in a YUV422 image.
+ * 1 means that it passes the filter, 0 that it does not.
+ *
+ * @param[in] im The input image to filter
+ * @param[in] x The x-coordinate of the pixel
+ * @param[in] y The y-coordinate of the pixel
+ * @param[in] y_m The Y minimum value
+ * @param[in] y_M The Y maximum value
+ * @param[in] u_m The U minimum value
+ * @param[in] u_M The U maximum value
+ * @param[in] v_m The V minimum value
+ * @param[in] v_M The V maximum value
+ * @return The amount of filtered pixels
+ */
+
+int check_color(struct image_t *im, int x, int y, uint8_t y_m, uint8_t y_M, uint8_t u_m, uint8_t u_M, uint8_t v_m, uint8_t v_M)
+{
+  // odd pixels are uy
+  // even pixels are vy
+  // adapt x, so that we always have u-channel in index 0:
+  if (x % 2 == 1) { x--; }
+
+  // Is the pixel inside the image?
+  if (x < 0 || x >= im->w || y < 0 || y >= im->h) {
+    return 0;
+  }
+
+  // Take the right place in the buffer:
+  uint8_t *buf = im->buf;
+  buf += 2 * (y * (im->w) + x); // each pixel has two bytes
+
+  if (
+    (buf[1] >= y_m)
+    && (buf[1] <= y_M)
+    && (buf[0] >= u_m)
+    && (buf[0] <= u_M)
+    && (buf[2] >= v_m)
+    && (buf[2] <= v_M)
+  ) {
+    // the pixel passes:
+    return 1;
+  } else {
+    // the pixel does not:
+    return 0;
+  }
+}
+
+/**
 * Simplified high-speed low CPU downsample function without averaging
 *  downsample factor must be 1, 2, 4, 8 ... 2^X
 *  image of type UYVY expected. Only one color UV per 2 pixels

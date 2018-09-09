@@ -30,12 +30,28 @@
 #include "modules/computer_vision/lib/vision/image.h"
 #include <stdlib.h>
 
+
+// #define DEBUG_SNAKE_GATE
+#define SUCCESS_DETECT 1
+#define FAIL_DETECT 0
+#define FILTER_IMAGE 1
+#define DRAW_GATE 1
+
+// TODO: make a struct with all relevant parameters that can be passed from the relevant calling module.
 // Gate detection settings:
 int n_samples = 10000;
 int min_pixel_size = 30;
 float min_gate_quality = 0.15;
 float gate_thickness = 0;
 float gate_size = 34;
+// Filter Settings
+uint8_t color_Y_min = 20;//105;
+uint8_t color_Y_max = 228;//205;
+uint8_t color_U_min  = 66;//52;
+uint8_t color_U_max  = 194;//140;
+uint8_t color_V_min  = 134;//138;//146;//was 180
+uint8_t color_V_max  = 230;//255;
+
 
 // Standard colors in UYVY:
 uint8_t green_color[4] = {255, 128, 255, 128}; //{0,250,0,250};
@@ -53,11 +69,6 @@ int sz = 0;
 int szx1 = 0;
 int szx2 = 0;
 
-#define SUCCESS_DETECT 1
-#define FAIL_DETECT 0
-#define FILTER_IMAGE 1
-#define DRAW_GATE 1
-
 // Result
 #define MAX_GATES 50
 struct gate_img gates_c[MAX_GATES];
@@ -70,23 +81,16 @@ float current_quality = 0;
 float best_fitness = 100000;
 float size_left = 0;
 float size_right = 0;
-
 int last_frame_detection = 0;
 int repeat_gate = 0;
-
 // previous best gate:
 struct gate_img previous_best_gate = {0};
 struct gate_img last_gate;
-
-
 float gate_quality = 0;
-
 //free polygon points
 int points_x[4];
 int points_y[4];
-
 int gates_sz = 0;
-
 float x_center, y_center, radius; // TODO: radius is still from the period in which circular gates were used
 
 
@@ -920,4 +924,11 @@ void refine_single_corner(struct image_t *im, int corner_x, int corner_y, int si
   }
   *corner_x = best_x_loc;
   *corner_y = best_y_loc;
+}
+
+
+int check_color(struct image_t *im, int x, int y) {
+  // Call the function in image.c with the color thresholds:
+  // Please note that we have to switch x and y around here, due to the strange sensor mounting in the Bebop:
+  return check_color(im, y, x, color_Y_min, color_Y_max, color_U_min, color_U_max, color_V_min, color_V_max);
 }
