@@ -30,7 +30,8 @@
 #include <stdlib.h>
 #include "modules/computer_vision/lib/vision/image.h"
 
-// #define DEBUG_SNAKE_GATE
+#define DEBUG_SNAKE_GATE
+
 #define SUCCESS_DETECT 1
 #define FAIL_DETECT 0
 #define FILTER_IMAGE 1
@@ -38,18 +39,18 @@
 
 // TODO: make a struct with all relevant parameters that can be passed from the relevant calling module.
 // Gate detection settings:
-int n_samples = 10000;
+int n_samples = 1000;
 int min_pixel_size = 30;
 float min_gate_quality = 0.15;
 float gate_thickness = 0;
 float gate_size = 34;
 // Filter Settings
-uint8_t color_Y_min = 20;//105;
-uint8_t color_Y_max = 228;//205;
-uint8_t color_U_min  = 66;//52;
-uint8_t color_U_max  = 194;//140;
-uint8_t color_V_min  = 134;//138;//146;//was 180
-uint8_t color_V_max  = 230;//255;
+uint8_t color_Y_min = 55;//20;
+uint8_t color_Y_max = 103;//228;
+uint8_t color_U_min  = 66;
+uint8_t color_U_max  = 121; //194;
+uint8_t color_V_min  = 134;
+uint8_t color_V_max  = 230;
 
 
 // Standard colors in UYVY:
@@ -216,7 +217,7 @@ int snake_gate_detection(struct image_t *img)
     }
   }
 
-
+/*
 #ifdef DEBUG_SNAKE_GATE
   // draw all candidates:
   printf("n_gates:%d\n", n_gates);
@@ -224,7 +225,7 @@ int snake_gate_detection(struct image_t *img)
     draw_gate(img, gates_c[i]);
   }
 #endif
-
+*/
   //init best gate
   best_gate.gate_q = 0;
   best_gate.n_sides = 0;
@@ -301,6 +302,11 @@ int snake_gate_detection(struct image_t *img)
         memcpy(&(best_gate.y_corners[0]), &(last_gate.y_corners[0]), sizeof(int) * 4);
       }
     }
+
+    #ifdef DEBUG_SNAKE_GATE
+      // draw the best gate:
+      draw_gate(img, best_gate);
+    #endif
 
   }
 
@@ -386,60 +392,59 @@ void draw_gate(struct image_t *im, struct gate_img gate)
  */
 void draw_gate_color(struct image_t *im, struct gate_img gate, uint8_t *color)
 {
-  // draw four lines on the image:
+  // Please note that here we use functions in image.h, so we have to inverse the coordinates:
+  // draw four lines and a crosshair on the image:
   struct point_t from, to;
+
+  from.x = gate.y;
+  from.y = gate.x;
+  image_draw_crosshair(im, &from, color, 10);
+
   if (gate.sz_left == gate.sz_right) {
     // square
-    from.x = (gate.x - gate.sz);
-    from.y = gate.y - gate.sz;
-    to.x = (gate.x - gate.sz);
-    to.y = gate.y + gate.sz;
+    from.x = gate.y - gate.sz;
+    from.y = gate.x - gate.sz;
+    to.x = gate.y + gate.sz;
+    to.y = gate.x - gate.sz;
     image_draw_line_color(im, &from, &to, color);
-    //draw_line_segment(im, from, to, color);
-    from.x = (gate.x - gate.sz);
-    from.y = gate.y + gate.sz;
-    to.x = (gate.x + gate.sz);
-    to.y = gate.y + gate.sz;
+    from.x = gate.y + gate.sz;
+    from.y = gate.x - gate.sz;
+    to.x = gate.y + gate.sz;
+    to.y = gate.x + gate.sz;
     image_draw_line_color(im, &from, &to, color);
-    //draw_line_segment(im, from, to, color);
-    from.x = (gate.x + gate.sz);
-    from.y = gate.y + gate.sz;
-    to.x = (gate.x + gate.sz);
-    to.y = gate.y - gate.sz;
+    from.x = gate.y + gate.sz;
+    from.y = gate.x + gate.sz;
+    to.x = gate.y - gate.sz;
+    to.y = gate.x + gate.sz;
     image_draw_line_color(im, &from, &to, color);
-    // draw_line_segment(im, from, to, color);
-    from.x = (gate.x + gate.sz);
-    from.y = gate.y - gate.sz;
-    to.x = (gate.x - gate.sz);
-    to.y = gate.y - gate.sz;
+    from.x = gate.y - gate.sz;
+    from.y = gate.x + gate.sz;
+    to.x = gate.y - gate.sz;
+    to.y = gate.x - gate.sz;
     image_draw_line_color(im, &from, &to, color);
-    //draw_line_segment(im, from, to, color);
   } else {
     // polygon
-    from.x = (gate.x - gate.sz);
-    from.y = gate.y - gate.sz_left;
-    to.x = (gate.x - gate.sz);
-    to.y = gate.y + gate.sz_left;
+    // TODO: draw the actual corners! This will always give a straight gate.
+    from.x = gate.y - gate.sz_left;
+    from.y = gate.x - gate.sz;
+    to.x = gate.y + gate.sz_left;
+    to.y = gate.x - gate.sz;
     image_draw_line_color(im, &from, &to, color);
-    //draw_line_segment(im, from, to, color);
-    from.x = (gate.x - gate.sz);
-    from.y = gate.y + gate.sz_left;
-    to.x = (gate.x + gate.sz);
-    to.y = gate.y + gate.sz_right;
+    from.x = gate.y + gate.sz_left;
+    from.y = gate.x - gate.sz;
+    to.x = gate.y + gate.sz_right;
+    to.y = gate.x + gate.sz;
     image_draw_line_color(im, &from, &to, color);
-    //draw_line_segment(im, from, to, color);
-    from.x = (gate.x + gate.sz);
-    from.y = gate.y + gate.sz_right;
-    to.x = (gate.x + gate.sz);
-    to.y = gate.y - gate.sz_right;
+    from.x = gate.y + gate.sz_right;
+    from.y = gate.x + gate.sz;
+    to.x = gate.y - gate.sz_right;
+    to.y = gate.x + gate.sz;
     image_draw_line_color(im, &from, &to, color);
-    //draw_line_segment(im, from, to, color);
-    from.x = (gate.x + gate.sz);
-    from.y = gate.y - gate.sz_right;
-    to.x = (gate.x - gate.sz);
-    to.y = gate.y - gate.sz_left;
+    from.x = gate.y - gate.sz_right;
+    from.y = gate.x + gate.sz;
+    to.x = gate.y - gate.sz_left;
+    to.y = gate.x - gate.sz;
     image_draw_line_color(im, &from, &to, color);
-    //draw_line_segment(im, from, to, color);
   }
 }
 
@@ -914,7 +919,18 @@ void refine_single_corner(struct image_t *im, int* corner_x, int* corner_y, int 
 
 
 int check_color_sgd(struct image_t *im, int x, int y) {
+
   // Call the function in image.c with the color thresholds:
   // Please note that we have to switch x and y around here, due to the strange sensor mounting in the Bebop:
-  return check_color(im, y, x, color_Y_min, color_Y_max, color_U_min, color_U_max, color_V_min, color_V_max);
+  int success = check_color(im, y, x, color_Y_min, color_Y_max, color_U_min, color_U_max, color_V_min, color_V_max);
+
+  /*
+  #ifdef DEBUG_SNAKE_GATE
+    if(success) {
+      set_color(im, y, x, 0, 0, 0);
+    }
+  #endif
+  */
+
+  return success;
 }

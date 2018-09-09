@@ -94,6 +94,7 @@ void image_to_grayscale(struct image_t *input, struct image_t *output);
 uint16_t image_yuv422_colorfilt(struct image_t *input, struct image_t *output, uint8_t y_m, uint8_t y_M, uint8_t u_m,
                                 uint8_t u_M, uint8_t v_m, uint8_t v_M);
 int check_color(struct image_t *im, int x, int y, uint8_t y_m, uint8_t y_M, uint8_t u_m, uint8_t u_M, uint8_t v_m, uint8_t v_M);
+void set_color(struct image_t *im, int x, int y, uint8_t Y, uint8_t U, uint8_t V);
 void image_yuv422_downsample(struct image_t *input, struct image_t *output, uint16_t downsample);
 void image_subpixel_window(struct image_t *input, struct image_t *output, struct point_t *center,
                            uint32_t subpixel_factor, uint8_t border_size);

@@ -26,10 +26,11 @@ struct video_listener *listener = NULL;
 struct image_t *detect_gate_func(struct image_t *img);
 struct image_t *detect_gate_func(struct image_t *img)
 {
-    // detect the gate and draw it in the image:
-    snake_gate_detection(img);
-
-    return img;
+  // detect the gate and draw it in the image:
+  printf("Before\n");
+  snake_gate_detection(img);
+  printf("After\n");
+  return img;
 }
 
 void detect_gate_init(void)

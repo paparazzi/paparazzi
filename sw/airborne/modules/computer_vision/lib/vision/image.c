@@ -212,7 +212,7 @@ uint16_t image_yuv422_colorfilt(struct image_t *input, struct image_t *output, u
  * @param[in] u_M The U maximum value
  * @param[in] v_m The V minimum value
  * @param[in] v_M The V maximum value
- * @return The amount of filtered pixels
+ * @return The success of the filter.
  */
 
 int check_color(struct image_t *im, int x, int y, uint8_t y_m, uint8_t y_M, uint8_t u_m, uint8_t u_M, uint8_t v_m, uint8_t v_M)
@@ -246,6 +246,39 @@ int check_color(struct image_t *im, int x, int y, uint8_t y_m, uint8_t y_M, uint
     return 0;
   }
 }
+
+/**
+ * Sets Y,U,V for a single pixel.
+ *
+ * @param[in] im The input image to filter
+ * @param[in] x The x-coordinate of the pixel
+ * @param[in] y The y-coordinate of the pixel
+ * @param[in] Y The Y-value.
+ * @param[in] U The U-value.
+ * @param[in] V The V value
+ */
+void set_color(struct image_t *im, int x, int y, uint8_t Y, uint8_t U, uint8_t V) {
+
+  // odd pixels are uy
+  // even pixels are vy
+  // adapt x, so that we always have u-channel in index 0:
+  if (x % 2 == 1) { x--; }
+
+  // Is the pixel inside the image?
+  if (x < 0 || x >= im->w || y < 0 || y >= im->h) {
+    return;
+  }
+
+  // Take the right place in the buffer:
+  uint8_t *buf = im->buf;
+  buf += 2 * (y * (im->w) + x); // each pixel has two bytes
+
+  buf[0] = U;
+  buf[1] = Y;
+  buf[2] = V;
+  buf[3] = Y;
+}
+
 
 /**
 * Simplified high-speed low CPU downsample function without averaging
