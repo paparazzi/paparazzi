@@ -1,3 +1,29 @@
+
+/*
+ * Copyright (C) 2018, Guido de Croon and Michael Ozo
+ *
+ * This file is part of Paparazzi.
+ *
+ * Paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * Paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Paparazzi; see the file COPYING.  If not, write to
+ * the Free Software Foundation, 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+
+/**
+ * @file modules/computer_vision/snake_gate_detection.c
+ */
+
 // Own header
 #include "modules/computer_vision/snake_gate_detection.h"
 #include <stdio.h>
@@ -12,8 +38,8 @@ float gate_thickness = 0;
 float gate_size = 34;
 
 // Standard colors in UYVY:
-uint8_t green_color[4] = {255,128,255,128}; //{0,250,0,250};
-uint8_t blue_color[4] = {0,128,0,128};//{250,250,0,250};
+uint8_t green_color[4] = {255, 128, 255, 128}; //{0,250,0,250};
+uint8_t blue_color[4] = {0, 128, 0, 128}; //{250,250,0,250};
 
 // TODO: do these need to be global?
 // variables for snake gate detection:
@@ -153,15 +179,14 @@ int snake_gate_detection(struct image_t *img)
           x = (x_high1 + x_low1) / 2;
           // set the size to the largest line found:
           sz = (sz > szx1) ? sz : szx1;
-        }
-        else {
+        } else {
           // determine the center x based on the top part:
           x = (x_high2 + x_low2) / 2;
           // set the size to the largest line found:
           sz = (sz > szx2) ? sz : szx2;
         }
 
-        if(sz > min_pixel_size) {
+        if (sz > min_pixel_size) {
           // create the gate:
           gates_c[n_gates].x = x;
           gates_c[n_gates].y = y;
@@ -190,7 +215,7 @@ int snake_gate_detection(struct image_t *img)
 
 #ifdef DEBUG_SNAKE_GATE
   // draw all candidates:
-  printf("n_gates:%d\n",n_gates);
+  printf("n_gates:%d\n", n_gates);
   for (int i = 0; i < n_gates; i++) {
     draw_gate(img, gates_c[i]);
   }
@@ -217,7 +242,7 @@ int snake_gate_detection(struct image_t *img)
     int initial_gate = n_gates - max_candidate_gates;
     initial_gate = (initial_gate < 0) ? 0 : initial_gate;
 
-    for (int gate_nr = inital_gate; gate_nr < n_gates; gate_nr += 1) {
+    for (int gate_nr = initial_gate; gate_nr < n_gates; gate_nr += 1) {
 
       // Determine the ROI:
       int16_t ROI_size = (int16_t)(((float) gates_c[gate_nr].sz) * size_factor);
@@ -240,7 +265,8 @@ int snake_gate_detection(struct image_t *img)
       int x_center_p = x_center;
       int y_center_p = y_center;
       int radius_p   = radius;
-      gate_corner_ref(img, points_x, points_y, &x_center_p, &y_center_p, &radius_p, (uint16_t) min_x, (uint16_t) min_y, (uint16_t) max_x, (uint16_t) max_y);
+      gate_corner_ref(img, points_x, points_y, &x_center_p, &y_center_p, &radius_p, (uint16_t) min_x, (uint16_t) min_y,
+                      (uint16_t) max_x, (uint16_t) max_y);
 
       // store the temporary information in the gate:
       temp_check_gate.x = (int) x_center;
@@ -773,3 +799,125 @@ void snake_left_and_right(struct image_t *im, int x, int y, int *x_low, int *x_h
   }
 }
 
+/**
+ * Determine and set the corner locations in gate.x_corners, g.y_corners, based
+ * on the center of the gate and its size, assuming a square window.
+ *
+ * @param[in] gate The gate struct with the relevant information.
+ */
+void set_gate_points(struct gate_img *gate)
+{
+
+  gate->x_corners[0] = gate->x - gate->sz;
+  gate->y_corners[0] = gate->y + gate->sz;
+  gate->x_corners[1] = gate->x + gate->sz;
+  gate->y_corners[1] = gate->y + gate->sz;
+  gate->x_corners[2] = gate->x + gate->sz;
+  gate->y_corners[2] = gate->y - gate->sz;
+  gate->x_corners[3] = gate->x - gate->sz;
+  gate->y_corners[3] = gate->y - gate->sz;
+
+}
+
+/**
+ * Refine the four corners of the gate, based on the color around the supposed corner locations.
+ *
+ * @param[in] color_image The color image.
+ * @param[in] x_points The x-coordinates of the gate. These will be updated.
+ * @param[in] y_points The y-coordinates of the gate. These will be updated.
+ * @param[in] size Full size of the gate.
+ */
+void gate_refine_corners(struct image_t *color_image, int *x_points, int *y_points, int size)
+{
+
+  // TODO: make parameter?
+  float corner_area = 0.4f;
+  refine_corner(color_image, x_points, y_points, size, corner_area);
+  refine_corner(color_image, x_points + 1, y_points + 1, size, corner_area);
+  refine_corner(color_image, x_points + 2, y_points + 2, size, corner_area);
+  refine_corner(color_image, x_points + 3, y_points + 3, size, corner_area);
+}
+
+/**
+ * Refine a single corner, based on the color around the coordinate.
+ *
+ * @param[in] im The color image.
+ * @param[in] corner_x The corner's initial x-coordinate
+ * @param[in] corner_y The corner's initial y-coordinate
+ * @param[in] size Full size of the gate.
+ * @param[in] size_factor The ratio of the size in which we will look for a better corner location.
+ */
+void refine_single_corner(struct image_t *im, int corner_x, int corner_y, int size, float size_factor)
+{
+
+  float x_corner_f = (float)(*corner_x);
+  float y_corner_f = (float)(*corner_y);
+  float size_f     = (float)size;
+  size_factor = 0.4f;
+
+  int x_l = (int)(x_corner_f - size_f * size_factor);
+  x_l = bound_value_int(x_l, 0, im->h);
+  int x_r = (int)(x_corner_f + size_f * size_factor);
+  x_r = bound_value_int(x_r, 0, im->h);
+  int y_h = (int)(y_corner_f + size_f * size_factor);
+  y_h = bound_value_int(y_h, 0, im->w);
+  int y_l = (int)(y_corner_f - size_f * size_factor);
+  y_l = bound_value_int(y_l, 0, im->w);
+
+
+  int c1_x = x_l;
+  int c1_y = y_h;
+  int c2_x = x_r;
+  int c2_y = y_h;
+  int c3_x = x_r;
+  int c3_y = y_l;
+  int c4_x = x_l;
+  int c4_y = y_l;
+
+  int x_size = x_r - x_l + 1;
+  int y_size = y_h - y_l + 1;
+
+  int x_hist[x_size];
+  int y_hist[y_size];
+  memset(x_hist, 0, sizeof(int)*x_size);
+  memset(y_hist, 0, sizeof(int)*y_size);
+
+
+  int best_x = 0;
+  int best_x_loc = x_l;
+  int x_best_start = x_l;
+  int best_y = 0;
+  int best_y_loc = y_l;
+  int y_best_start = y_l;
+
+
+  for (int y_pix = y_l; y_pix < y_h; y_pix++) {
+    for (int x_pix = x_l; x_pix < x_r; x_pix++) {
+      if (check_color(im, x_pix, y_pix) > 0) {
+
+        int cur_x = x_hist[x_pix - x_l];
+        int cur_y = y_hist[y_pix - y_l];
+        x_hist[x_pix - x_l] = cur_x + 1;
+        y_hist[y_pix - y_l] = cur_y + 1;
+
+        if (x_hist[x_pix - x_l] > best_x) {
+          best_x = x_hist[x_pix - x_l];
+          best_x_loc = x_pix;
+          x_best_start = x_pix;
+        } else if (cur_x == best_x) {
+          best_x_loc = (x_pix + x_best_start) / 2;
+        }
+        if (y_hist[y_pix - y_l] > best_y) {
+          best_y = y_hist[y_pix - y_l];
+          best_y_loc = y_pix;
+          y_best_start = y_pix;
+        } else if (cur_y == best_y) {
+          best_y_loc = (y_pix + y_best_start) / 2;
+        }
+
+      }
+    }
+  }
+  *corner_x = best_x_loc;
+  *corner_y = best_y_loc;
+}

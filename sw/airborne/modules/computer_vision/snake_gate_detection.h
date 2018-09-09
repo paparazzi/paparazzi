@@ -1,6 +1,6 @@
 
 /*
- * Copyright (C) 2016
+ * Copyright (C) 2018, Guido de Croon and Michael Ozo
  *
  * This file is part of Paparazzi.
  *
@@ -21,7 +21,7 @@
  */
 
 /**
- * @file modules/computer_vision/lib/vision/closed_gate_processing.h
+ * @file modules/computer_vision/snake_gate_detection.h
  */
 
 #include <stdint.h>
@@ -52,3 +52,7 @@ void draw_gate_color(struct image_t *im, struct gate_img gate, uint8_t *color);
 void check_line(struct image_t *im, struct point_t Q1, struct point_t Q2, int *n_points, int *n_colored_points);
 void check_gate_initial(struct image_t *im, struct gate_img gate, float *quality, int *sides);
 void check_gate_outline(struct image_t *im, struct gate_img gate, float *quality, int *n_sides);
+void set_gate_points(struct gate_img *gate);
+void gate_refine_corners(struct image_t *color_image, int *x_points, int *y_points, int size);
+void refine_single_corner(struct image_t *im, int corner_x, int corner_y, int size, float size_factor);
+
