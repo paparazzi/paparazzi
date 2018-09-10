@@ -24,6 +24,9 @@
  * @file modules/computer_vision/snake_gate_detection.h
  */
 
+#ifndef SNAKE_GATE_DETECTION_H
+#define SNAKE_GATE_DETECTION_H
+
 #include <stdint.h>
 #include "modules/computer_vision/cv.h"
 #include "math/pprz_algebra.h"
@@ -60,3 +63,4 @@ void set_gate_points(struct gate_img *gate);
 void gate_refine_corners(struct image_t *color_image, int *x_points, int *y_points, int size);
 void refine_single_corner(struct image_t *im, int* corner_x, int* corner_y, int size, float size_factor);
 
+#endif /* SNAKE_GATE_DETECTION_H */

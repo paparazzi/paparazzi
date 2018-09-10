@@ -35,11 +35,6 @@
 
 // Own Header
 #include "PnP_AHRS.h"
-#include <math.h>
-#include "math/pprz_algebra.h"
-#include "math/pprz_algebra_float.h"
-#include "math/pprz_simple_matrix.h"
-#include "peripherals/video_device.h"
 #include "state.h"
 #include "modules/computer_vision/lib/vision/undistortion.h"
 

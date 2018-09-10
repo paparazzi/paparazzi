@@ -265,7 +265,7 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
       check_gate_outline(img, temp_check_gate, &temp_check_gate.gate_q, &temp_check_gate.n_sides);
 
       // If the gate is good enough:
-      if (temp_check_gate.n_sides > min_n_sides && temp_check_gate.gate_q > best_gate.gate_q) {
+      if (temp_check_gate.n_sides >= min_n_sides && temp_check_gate.gate_q > best_gate.gate_q) {
         // store the information in the gate:
         best_gate.x = temp_check_gate.x;
         best_gate.y = temp_check_gate.y;
@@ -298,7 +298,7 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
       check_gate_outline(img, last_gate, &last_gate.gate_q, &last_gate.n_sides);
 
       // if the refined detection is good enough:
-      if (last_gate.n_sides > min_n_sides && last_gate.gate_q > best_gate.gate_q) {
+      if (last_gate.n_sides >= min_n_sides && last_gate.gate_q > best_gate.gate_q) {
         repeat_gate = 1;
         best_gate.gate_q = last_gate.gate_q;
         best_gate.n_sides = last_gate.n_sides;

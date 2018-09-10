@@ -9,6 +9,7 @@
 
 #include <stdint.h>
 #include "modules/computer_vision/cv.h"
+#include "modules/computer_vision/snake_gate_detection.h"
 
 // Module functions
 extern void detect_gate_init(void);
