@@ -94,6 +94,19 @@ int cmp_i(const void *a, const void *b)
 // TODO: NOT FOR A FIRST PULL REQUEST: Since coordinates matter here, we have to deal with the strange sensor mounting in the Parrot Bebop.
 //       This leads to checks such as x < im->h... This is a quite fundamental problem, with not a clear solution. However, if a normally
 //       mounted sensor is used, the functions here will fail on this exact point...
+//
+// AXIS system
+// (0,0)   im->w
+//       Y
+// -|----->
+//  |
+//  |
+//  |
+//  |
+//  \/
+// X
+// im->h
+
 
 /**
  * Run snake gate detection on an image. It assumes that it gets images over time, and remembers previous detections.

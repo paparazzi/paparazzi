@@ -136,6 +136,7 @@ struct image_t *detect_gate_func(struct image_t *img)
     printf("\n");
 
     drone_position = get_world_position_from_image_points(best_gate.x_corners, best_gate.y_corners, world_corners, 3, DETECT_GATE_CAMERA.camera_intrinsics, cam_body);
+    drone_position.x -= gate_dist_x;
 
     // debugging the drone position:
     printf("Position drone: (%f, %f, %f)\n", drone_position.x, drone_position.y, drone_position.z);
@@ -160,6 +161,8 @@ void detect_gate_init(void)
   color_Vm = DETECT_GATE_V_MIN;
   color_VM = DETECT_GATE_V_MAX;
 
+  // World coordinates: X positive towards the gate, Z positive down, Y positive right:
+  // Should become top-left, clockwise:
   VECT3_ASSIGN(world_corners[0],
                 gate_dist_x, -(gate_size_m/2), gate_center_height-(gate_size_m/2));
   VECT3_ASSIGN(world_corners[1],

@@ -133,7 +133,9 @@ struct FloatVect3 get_world_position_from_image_points(int* x_corners, int* y_co
     // undistort the image coordinate and put it in a world vector:
     float x_n, y_n;
     // TODO: use the boolean that is returned to take action if undistortion is not possible.
-    distorted_pixels_to_normalized_coords((float) x_corners[i], (float) y_corners[i], &x_n, &y_n, cam_intrinsics.Dhane_k, K);
+    // Please note that x and y are inverted here due to the Parrot Bebop sensor mounting:
+    distorted_pixels_to_normalized_coords((float) y_corners[i], (float) x_corners[i], &y_n, &x_n, cam_intrinsics.Dhane_k, K);
+
     gate_vectors[i].x = 1.0;
     gate_vectors[i].y = x_n;
     gate_vectors[i].z = y_n;
