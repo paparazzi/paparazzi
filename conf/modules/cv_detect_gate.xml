@@ -52,6 +52,7 @@
   <makefile target="ap|nps">
     <file name="detect_gate.c"/>
     <file name="image.c" dir="modules/computer_vision/lib/vision"/>
+    <file name="PnP_AHRS.c" dir="modules/computer_vision/lib/vision"/>
     <file name="snake_gate_detection.c" dir="modules/computer_vision"/>    
   </makefile>
 </module>

@@ -59,7 +59,6 @@ int min_pixel_size;
 // Result
 #define MAX_GATES 50
 struct gate_img gates_c[MAX_GATES];
-struct gate_img best_gate;
 struct gate_img temp_check_gate;
 struct image_t img_result;
 int n_gates = 0;
@@ -117,10 +116,11 @@ int cmp_i(const void *a, const void *b)
  * @param[in] color_uM The U maximum value
  * @param[in] color_vm The V minimum value
  * @param[in] color_vM The V maximum value
+ * @param[in] *best_gate This gate_img struct will be filled with the data of the best detected gate.
  */
 
 int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, float min_gate_quality, float gate_thickness, int min_n_sides,
-                         uint8_t color_Ym, uint8_t color_YM, uint8_t color_Um, uint8_t color_UM, uint8_t color_Vm, uint8_t color_VM)
+                         uint8_t color_Ym, uint8_t color_YM, uint8_t color_Um, uint8_t color_UM, uint8_t color_Vm, uint8_t color_VM, struct gate_img* best_gate)
 {
 
   color_Y_min = color_Ym;

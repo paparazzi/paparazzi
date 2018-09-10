@@ -76,6 +76,8 @@ struct FloatVect3 get_world_position_from_image_points(int* x_corners, int* y_co
   // B = body
   // C = camera
 
+  struct FloatVect3 pos_drone_E_vec;
+
   static struct FloatRMat Q_mat;
   MAT33_ELMT(Q_mat, 0, 0) = 0;//(row,column)
   MAT33_ELMT(Q_mat, 0, 1) = 0;
@@ -108,13 +110,16 @@ struct FloatVect3 get_world_position_from_image_points(int* x_corners, int* y_co
                  };
 
   // vectors in world coordinates, that will be "attached" to the world coordinates for the PnP:
-  struct FloatVect3 gate_vectors[4], vec_B;
+  struct FloatVect3 gate_vectors[4], vec_B, p_vec, temp_vec;
+  p_vec.x = 0;
+  p_vec.y = 0;
+  p_vec.z = 0;
 
   // Equivalent MATLAB code:
   //
   // for i = 1:4
-  //    R = R + (eye(3,3)-n(:,i)*n(:,i)');
-  //    q = q + (eye(3,3)-n(:,i)*n(:,i)')*a(:,i);
+  //    Q = Q + (eye(3,3)-n(:,i)*n(:,i)');
+  //    p = p + (eye(3,3)-n(:,i)*n(:,i)')*a(:,i);
   //
   // where n is the normalized vector, and a is the world coordinate
 
@@ -137,133 +142,25 @@ struct FloatVect3 get_world_position_from_image_points(int* x_corners, int* y_co
 
     // TODO: check this - should we not do this in a nicer way?
     // to ned
-    vec_e.z = -vec_e.z;
+    vec_E.z = -vec_E.z;
 
     struct FloatRMat temp_mat;
     VECT3_VECT3_TRANS_MUL(temp_mat, vec_E, vec_E); // n(:,i)*n(:,i)'
-    RMAT_DIFF(temp_mat, I_mat, temp_mat); // MAT33_MAT33_DIFF(temp_mat, I_mat, temp_mat);
+    MAT33_MAT33_DIFF(temp_mat, I_mat, temp_mat); // (eye(3,3)-n(:,i)*n(:,i)')
     MAT33_COPY(temp_mat_2, Q_mat);
-    MAT33_MAT33_SUM(Q_mat, temp_mat_2, temp_mat);
-    MAT33_VECT3_MUL(temp_vec, temp_mat, world_corners[i]);
-    VECT3_SUM(p_vec, p_vec, temp_vec);
-
-
-
+    MAT33_MAT33_SUM(Q_mat, temp_mat_2, temp_mat); // Q + (eye(3,3)-n(:,i)*n(:,i)')
+    MAT33_VECT3_MUL(temp_vec, temp_mat, world_corners[i]); // (eye(3,3)-n(:,i)*n(:,i)')*a(:,i)
+    VECT3_SUM(p_vec, p_vec, temp_vec); // p + (eye(3,3)-n(:,i)*n(:,i)')*a(:,i);
   }
 
-}
-
-
-struct FloatVect3 vec_point_1, vec_point_2, vec_point_3, vec_point_4, vec_temp1, vec_temp2, vec_temp3, vec_temp4,
-vec_ver_1, vec_ver_2, vec_ver_3, vec_ver_4;
-struct FloatVect3 gate_vectors[4];
-struct FloatVect3 world_corners[4];
-struct FloatVect3 p3p_pos_solution;
-
-gate_center_height = -3.5;//
-
-    // Construct the real gate coordinates:
-          VECT3_ASSIGN(world_corners[0], gate_dist_x,-(gate_size_m/2), gate_center_height-(gate_size_m/2));
-    VECT3_ASSIGN(world_corners[1], gate_dist_x, (gate_size_m/2), gate_center_height-(gate_size_m/2));
-    VECT3_ASSIGN(world_corners[2], gate_dist_x, (gate_size_m/2), gate_center_height+(gate_size_m/2));
-    VECT3_ASSIGN(world_corners[3], gate_dist_x,-(gate_size_m/2), gate_center_height+(gate_size_m/2));
-
-
-  //Undistort fisheye points
-  float k_fisheye = 1.085;
-  float x_gate_corners[4];
-  float y_gate_corners[4];
-
-  struct FloatRMat R,R_C_B,R_trans,Q_mat,I_mat, temp_mat, temp_mat_2;
-  struct FloatEulers attitude, cam_body;
-  struct FloatVect3 vec_20, p_vec,pos_vec,temp_vec,vec_e;
-
-  p_vec.x = 0;
-  p_vec.y = 0;
-  p_vec.z = 0;
-
-
-  // Empty Q(?) matrix:
-
-
-  p_vec.x = 0;
-  p_vec.y = 0;
-  p_vec.z = 0;
-
-  // get a rotation matrix for the attitude:
-  float_rmat_of_eulers_321(&R,&attitude);
-
-  //for(int i = 0;i<4;i++)
-  for(int i = 1;i<4;i++) // Only three points? In principle enough for P3P... but does it not help to use 4 points?
-  {
-    float undist_x, undist_y;
-    //debug_1 = (float)best_gate.x_corners[i];// best_gate.y_corners[i]
-    //debug_2 = (float)best_gate.y_corners[i];//
-    //undist_y = 5;//(float)best_gate.y_corners[i];
-    float princ_x = 157.0;
-    float princ_y = 32.0;
-    undistort_fisheye_point(best_gate.x_corners[i] ,best_gate.y_corners[i],&undist_x,&undist_y,f_fisheye,k_fisheye,princ_x,princ_y);
-
-    x_gate_corners[i] = undist_x+157.0;
-    y_gate_corners[i] = undist_y+32.0;
-
-    if(gate_graphics)draw_cross(img,((int)x_gate_corners[i]),((int)y_gate_corners[i]),green_color);
-    //if(gate_graphics)draw_cross(img,((int)x_trail[i])+157,((int)y_trail[i])+32,green_color);
-    vec_from_point_ned(undist_x, undist_y, f_fisheye,&gate_vectors[i]);
-
-    //Least squares stuff here:
-    vec_from_point_2(undist_x,undist_y,168,&temp_vec);
-    //vec_from_point_2(x_trail[i],y_trail[i],168,&temp_vec);
-
-    //camera to body rotation
-    cam_body.phi = 0;
-    cam_body.theta = -25*(3.14/180);
-    cam_body.psi = 0;
-    float_rmat_of_eulers_321(&R_C_B,&cam_body);
-    MAT33_VECT3_MUL(vec_20, R_C_B,temp_vec);
-
-
-    MAT33_TRANS(R_trans,R);
-    MAT33_VECT3_MUL(vec_e, R_trans, vec_20);
-    //print_vector(vec_e);
-
-    //to ned
-    vec_e.z = -vec_e.z;
-
-    double vec_norm = sqrt(VECT3_NORM2(vec_e));
-    VECT3_SDIV(vec_e, vec_e, vec_norm);
-    VECT3_VECT3_TRANS_MUL(temp_mat, vec_e,vec_e);
-    MAT33_MAT33_DIFF(temp_mat,I_mat,temp_mat);
-    MAT33_COPY(temp_mat_2,Q_mat);
-    MAT33_MAT33_SUM(Q_mat,temp_mat_2,temp_mat);
-    MAT33_VECT3_MUL(temp_vec, temp_mat, world_corners[i]);
-    VECT3_SUM(p_vec,p_vec,temp_vec);
-
-//    for i = 1:4
-//    R = R + (eye(3,3)-n(:,i)*n(:,i)');
-//    q = q + (eye(3,3)-n(:,i)*n(:,i)')*a(:,i);
-//
-//    p = R\q;
-//    or q = Rp
-//        hence p = R_inv*q
-
-
-  }
-
-
-  MAT33_INV(temp_mat,Q_mat);
-
-  MAT33_VECT3_MUL(pos_vec, temp_mat,p_vec);
-
-  ls_pos_x = pos_vec.x;
+  // Solve the linear system:
+  MAT33_INV(temp_mat, Q_mat);
+  MAT33_VECT3_MUL(pos_drone_E_vec, temp_mat,p_vec); // position = inv(Q) * p
 
   //bound y to remove outliers
-  float y_threshold = 4;//2.5;
-  if(pos_vec.y > y_threshold)pos_vec.y = y_threshold;
-  if(pos_vec.y < -y_threshold)pos_vec.y = -y_threshold;
+  float y_threshold = 4;
+  if(pos_drone_E_vec.y > y_threshold) pos_drone_E_vec.y = y_threshold;
+  else if(pos_drone_E_vec.y < -y_threshold) pos_drone_E_vec.y = -y_threshold;
 
-
-  ls_pos_y = pos_vec.y;//// minus for simulating open gate ! ---------------------------------------------------------------------
-  //if(stateGetNedToBodyEulers_f()->psi > 1.6 || stateGetNedToBodyEulers_f()->psi < -1.6)ls_pos_y-=0.25;
-
-  ls_pos_z = pos_vec.z;
+  return pos_drone_E_vec;
+}
