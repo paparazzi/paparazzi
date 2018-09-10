@@ -516,6 +516,41 @@ extern "C" {
     MAT33_ELMT((_mat), _row, 2) = (_vin).z * (_s);           \
   }
 
+#define VECT3_VECT3_TRANS_MUL(_mat, _v_a,_v_b) {  \
+    MAT33_ELMT((_mat),0,0) = (_v_a).x*(_v_b).x;   \
+    MAT33_ELMT((_mat),0,1) = (_v_a).x*(_v_b).y;   \
+    MAT33_ELMT((_mat),0,2) = (_v_a).x*(_v_b).z;   \
+    MAT33_ELMT((_mat),1,0) = (_v_a).y*(_v_b).x;   \
+    MAT33_ELMT((_mat),1,1) = (_v_a).y*(_v_b).y;   \
+    MAT33_ELMT((_mat),1,2) = (_v_a).y*(_v_b).z;   \
+    MAT33_ELMT((_mat),2,0) = (_v_a).z*(_v_b).x;   \
+    MAT33_ELMT((_mat),2,1) = (_v_a).z*(_v_b).y;   \
+    MAT33_ELMT((_mat),2,2) = (_v_a).z*(_v_b).z;   \
+  }
+
+#define MAT33_MAT33_DIFF(_mat1,_mat2,_mat3) {                                   \
+    MAT33_ELMT((_mat1),0,0) = MAT33_ELMT((_mat2),0,0)-MAT33_ELMT((_mat3),0,0);  \
+    MAT33_ELMT((_mat1),0,1) = MAT33_ELMT((_mat2),0,1)-MAT33_ELMT((_mat3),0,1);  \
+    MAT33_ELMT((_mat1),0,2) = MAT33_ELMT((_mat2),0,2)-MAT33_ELMT((_mat3),0,2);  \
+    MAT33_ELMT((_mat1),1,0) = MAT33_ELMT((_mat2),1,0)-MAT33_ELMT((_mat3),1,0);  \
+    MAT33_ELMT((_mat1),1,1) = MAT33_ELMT((_mat2),1,1)-MAT33_ELMT((_mat3),1,1);  \
+    MAT33_ELMT((_mat1),1,2) = MAT33_ELMT((_mat2),1,2)-MAT33_ELMT((_mat3),1,2);  \
+    MAT33_ELMT((_mat1),2,0) = MAT33_ELMT((_mat2),2,0)-MAT33_ELMT((_mat3),2,0);  \
+    MAT33_ELMT((_mat1),2,1) = MAT33_ELMT((_mat2),2,1)-MAT33_ELMT((_mat3),2,1);  \
+    MAT33_ELMT((_mat1),2,2) = MAT33_ELMT((_mat2),2,2)-MAT33_ELMT((_mat3),2,2);  \
+  }
+
+#define MAT33_MAT33_SUM(_mat1,_mat2,_mat3) {                                    \
+    MAT33_ELMT((_mat1),0,0) = MAT33_ELMT((_mat2),0,0)+MAT33_ELMT((_mat3),0,0);  \
+    MAT33_ELMT((_mat1),0,1) = MAT33_ELMT((_mat2),0,1)+MAT33_ELMT((_mat3),0,1);  \
+    MAT33_ELMT((_mat1),0,2) = MAT33_ELMT((_mat2),0,2)+MAT33_ELMT((_mat3),0,2);  \
+    MAT33_ELMT((_mat1),1,0) = MAT33_ELMT((_mat2),1,0)+MAT33_ELMT((_mat3),1,0);  \
+    MAT33_ELMT((_mat1),1,1) = MAT33_ELMT((_mat2),1,1)+MAT33_ELMT((_mat3),1,1);  \
+    MAT33_ELMT((_mat1),1,2) = MAT33_ELMT((_mat2),1,2)+MAT33_ELMT((_mat3),1,2);  \
+    MAT33_ELMT((_mat1),2,0) = MAT33_ELMT((_mat2),2,0)+MAT33_ELMT((_mat3),2,0);  \
+    MAT33_ELMT((_mat1),2,1) = MAT33_ELMT((_mat2),2,1)+MAT33_ELMT((_mat3),2,1);  \
+    MAT33_ELMT((_mat1),2,2) = MAT33_ELMT((_mat2),2,2)+MAT33_ELMT((_mat3),2,2);  \
+  }
 
 //
 //
