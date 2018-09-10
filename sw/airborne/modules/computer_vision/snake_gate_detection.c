@@ -30,33 +30,30 @@
 #include <stdlib.h>
 #include "modules/computer_vision/lib/vision/image.h"
 
+// to debug the algorithm, uncomment the define:
 #define DEBUG_SNAKE_GATE
 
+// the return values of the main detection function:
 #define SUCCESS_DETECT 1
 #define FAIL_DETECT 0
+
+// whether to filter the image and show the best gate(s):
 #define FILTER_IMAGE 1
 #define DRAW_GATE 1
-
-// TODO: make a struct with all relevant parameters that can be passed from the relevant calling module.
-// Gate detection settings:
-int n_samples = 1000;
-int min_pixel_size = 30;
-float min_gate_quality = 0.15;
-float gate_thickness = 0;
-float gate_size = 34;
-// Filter Settings
-uint8_t color_Y_min = 55;//20;
-uint8_t color_Y_max = 103;//228;
-uint8_t color_U_min  = 66;
-uint8_t color_U_max  = 121; //194;
-uint8_t color_V_min  = 134;
-uint8_t color_V_max  = 230;
-
 
 // Standard colors in UYVY:
 uint8_t green_color[4] = {255, 128, 255, 128}; //{0,250,0,250};
 uint8_t blue_color[4] = {0, 128, 0, 128}; //{250,250,0,250};
 
+// Filter Settings
+uint8_t color_Y_min;
+uint8_t color_Y_max;
+uint8_t color_U_min;
+uint8_t color_U_max;
+uint8_t color_V_min;
+uint8_t color_V_max;
+// Other settings:
+int min_pixel_size;
 
 // Result
 #define MAX_GATES 50
@@ -119,15 +116,37 @@ int cmp_i(const void *a, const void *b)
  *
  * @param[out] success Whether a gate was detected
  * @param[in] img The input image. We will draw in it.
+ * @param[in] n_samples The number of samples taken to find a gate - proportional to the computational effort and detection performance.
+ * @param[in] min_px_size The minimum pixel size an initial, purely square detection should have
+ * @param[in] min_gate_quality How much percentage of the initial square outline needs to have the target color.
+ * @param[in] gate_thickness After snaking, how much the extreme coordinates have to be adjusted.
+ * @param[in] color_ym The Y minimum value
+ * @param[in] color_yM The Y maximum value
+ * @param[in] color_um The U minimum value
+ * @param[in] color_uM The U maximum value
+ * @param[in] color_vm The V minimum value
+ * @param[in] color_vM The V maximum value
  */
 
-int snake_gate_detection(struct image_t *img)
+int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, float min_gate_quality, float gate_thickness,
+                         uint8_t color_Ym, uint8_t color_YM, uint8_t color_Um, uint8_t color_UM, uint8_t color_Vm, uint8_t color_VM)
 {
+
+  color_Y_min = color_Ym;
+  color_Y_max = color_YM;
+  color_U_min  = color_Um;
+  color_U_max  = color_UM;
+  color_V_min  = color_Vm;
+  color_V_max  = color_VM;
+  min_pixel_size = min_px_size;
+
   int x, y;
   float quality;
   best_quality = 0;
   best_gate.gate_q = 0;
   n_gates = 0;
+
+
 
   // variables for snake gate detection:
   int y_low = 0;

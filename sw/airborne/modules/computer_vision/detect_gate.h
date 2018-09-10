@@ -15,6 +15,18 @@ extern void detect_gate_init(void);
 extern struct video_listener *listener;
 
 // settings:
-// extern float min_x_normalized;
+extern int just_filtering;
+extern int n_samples;
+extern int min_px_size;
+extern float min_gate_quality;
+extern float gate_thickness;
+extern uint8_t color_Ym;
+extern uint8_t color_YM;
+extern uint8_t color_Um;
+extern uint8_t color_UM;
+extern uint8_t color_Vm;
+extern uint8_t color_VM;
+
+
 
 #endif /* DETECT_GATE_MODULE_H */

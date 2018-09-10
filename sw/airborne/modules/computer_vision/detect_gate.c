@@ -11,15 +11,85 @@
 #include "modules/computer_vision/snake_gate_detection.h"
 
 
-/*#ifndef UNDISTORT_FPS
-#define UNDISTORT_FPS 0       ///< Default FPS (zero means run at camera fps)
+#ifndef DETECT_GATE_JUST_FILTER
+#define DETECT_GATE_JUST_FILTER 0
 #endif
-PRINT_CONFIG_VAR(UNDISTORT_FPS)
-*/
+PRINT_CONFIG_VAR(DETECT_GATE_JUST_FILTER)
+
+#ifndef DETECT_GATE_FPS
+#define DETECT_GATE_FPS 0       ///< Default FPS (zero means run at camera fps)
+#endif
+PRINT_CONFIG_VAR(DETECT_GATE_FPS)
+
+#ifndef DETECT_GATE_CAMERA
+#define DETECT_GATE_CAMERA "front"
+#endif
+PRINT_CONFIG_VAR(DETECT_GATE_CAMERA)
+
+#ifndef DETECT_GATE_N_SAMPLES
+#define DETECT_GATE_N_SAMPLES 10000
+#endif
+PRINT_CONFIG_VAR(DETECT_GATE_N_SAMPLES)
+
+#ifndef DETECT_GATE_MIN_PIX_SIZE
+#define DETECT_GATE_MIN_PIX_SIZE 30
+#endif
+PRINT_CONFIG_VAR(DETECT_GATE_MIN_PIX_SIZE)
+
+#ifndef DETECT_GATE_MIN_GATE_QUALITY
+#define DETECT_GATE_MIN_GATE_QUALITY 0.15
+#endif
+PRINT_CONFIG_VAR(DETECT_GATE_MIN_GATE_QUALITY)
+
+#ifndef DETECT_GATE_GATE_THICKNESS
+#define DETECT_GATE_GATE_THICKNESS 0.0f
+#endif
+PRINT_CONFIG_VAR(DETECT_GATE_GATE_THICKNESS)
+
+#ifndef DETECT_GATE_Y_MIN
+#define DETECT_GATE_Y_MIN 20
+#endif
+PRINT_CONFIG_VAR(DETECT_GATE_Y_MIN)
+
+#ifndef DETECT_GATE_Y_MAX
+#define DETECT_GATE_Y_MAX 228
+#endif
+PRINT_CONFIG_VAR(DETECT_GATE_Y_MAX)
+
+#ifndef DETECT_GATE_U_MIN
+#define DETECT_GATE_U_MIN 66
+#endif
+PRINT_CONFIG_VAR(DETECT_GATE_U_MIN)
+
+#ifndef DETECT_GATE_U_MAX
+#define DETECT_GATE_U_MAX 121
+#endif
+PRINT_CONFIG_VAR(DETECT_GATE_U_MAX)
+
+#ifndef DETECT_GATE_V_MIN
+#define DETECT_GATE_V_MIN 134
+#endif
+PRINT_CONFIG_VAR(DETECT_GATE_V_MIN)
+
+#ifndef DETECT_GATE_V_MAX
+#define DETECT_GATE_V_MAX 230
+#endif
+PRINT_CONFIG_VAR(DETECT_GATE_V_MAX)
 
 // settings:
-// float min_x_normalized;
+int just_filtering;
+int n_samples;
+int min_px_size;
+float min_gate_quality;
+float gate_thickness;
+uint8_t color_Ym;
+uint8_t color_YM;
+uint8_t color_Um;
+uint8_t color_UM;
+uint8_t color_Vm;
+uint8_t color_VM;
 
+// video listener:
 struct video_listener *listener = NULL;
 
 // Function
@@ -27,15 +97,31 @@ struct image_t *detect_gate_func(struct image_t *img);
 struct image_t *detect_gate_func(struct image_t *img)
 {
   // detect the gate and draw it in the image:
-  printf("Before\n");
-  snake_gate_detection(img);
-  printf("After\n");
+  if(just_filtering) {
+    // just color filter the image, so that the user can tune the thresholds:
+    image_yuv422_colorfilt(img, img, color_Ym, color_YM, color_Um, color_UM, color_Vm, color_VM);
+  }
+  else {
+    // perform snake gate detection:
+    snake_gate_detection(img, n_samples, min_px_size, min_gate_quality, gate_thickness, color_Ym, color_YM, color_Um, color_UM, color_Vm, color_VM);
+  }
   return img;
 }
 
 void detect_gate_init(void)
 {
-  // set the calibration matrix
-  //  min_x_normalized = UNDISTORT_MIN_X_NORMALIZED;
+  // settings:
+  just_filtering = DETECT_GATE_JUST_FILTER;
+  n_samples = DETECT_GATE_N_SAMPLES;
+  min_px_size = DETECT_GATE_MIN_PIX_SIZE;
+  min_gate_quality = DETECT_GATE_MIN_GATE_QUALITY;
+  gate_thickness = DETECT_GATE_GATE_THICKNESS;
+  color_Ym = DETECT_GATE_Y_MIN;
+  color_YM = DETECT_GATE_Y_MAX;
+  color_Um = DETECT_GATE_U_MIN;
+  color_UM = DETECT_GATE_U_MAX;
+  color_Vm = DETECT_GATE_V_MIN;
+  color_VM = DETECT_GATE_V_MAX;
+
   listener = cv_add_to_device(&DETECT_GATE_CAMERA, detect_gate_func, DETECT_GATE_FPS);
 }

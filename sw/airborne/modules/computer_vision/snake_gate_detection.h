@@ -43,7 +43,10 @@ struct gate_img {
 };
 
 // snake-gate:
-int snake_gate_detection(struct image_t *img); // main function to be called externally.
+int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, float min_gate_quality, float gate_thickness,
+                         uint8_t color_Ym, uint8_t color_YM, uint8_t color_Um, uint8_t color_UM, uint8_t color_Vm, uint8_t color_VM); // main function to be called externally.
+
+// helper functions:
 int check_color_sgd(struct image_t *im, int x, int y);
 void snake_up_and_down(struct image_t *im, int x, int y, int *y_low, int *y_high);
 void snake_left_and_right(struct image_t *im, int x, int y, int *x_low, int *x_high);
