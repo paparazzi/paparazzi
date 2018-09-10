@@ -19,14 +19,14 @@
  */
 
 /**
- * @file modules/ctrl/ctrl_module_demo.c
+ * @file modules/ctrl/ctrl_module_innerloop_demo.c
  * @brief example empty controller
  *
  * Implements an example simple rate controller in a module.
  */
 
-#ifndef CTRL_MODULE_DEMO_H_
-#define CTRL_MODULE_DEMO_H_
+#ifndef CTRL_MODULE_INNERLOOP_DEMO_H_
+#define CTRL_MODULE_INNERLOOP_DEMO_H_
 
 #include <std.h>
 

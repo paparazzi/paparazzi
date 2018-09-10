@@ -1,0 +1,28 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ctrl_module_outerloop_demo" dir="ctrl">
+  <doc>
+    <description>
+        Demo Control Module.
+        Only for rotorcraft firmware.
+        Simple rate controler as example on how to integrate write and call your own controller in a module.
+    </description>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="CtrlModDemo">
+        <dl_setting var="comode_time" min="0" step="0.01" max="3" module="ctrl/ctrl_module_outerloop_demo" shortname="time"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <header>
+    <file name="ctrl_module_outerloop_demo.h"/>
+  </header>
+
+  <makefile>
+    <file name="ctrl_module_outerloop_demo.c"/>
+  </makefile>
+
+</module>
+
