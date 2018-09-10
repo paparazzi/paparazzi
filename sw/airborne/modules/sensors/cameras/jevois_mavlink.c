@@ -87,9 +87,9 @@ void jevois_mavlink_filter_periodic(void)
 void jevois_mavlink_filter_init(void);
 void jevois_mavlink_filter_init(void)
 {
-  init_butterworth_2_low_pass_int(&ax_filtered, 20.0, 1.0 / 512.0, imu.accel_unscaled.x);
-  init_butterworth_2_low_pass_int(&ay_filtered, 20.0, 1.0 / 512.0, imu.accel_unscaled.y);
-  init_butterworth_2_low_pass_int(&az_filtered, 20.0, 1.0 / 512.0, imu.accel_unscaled.z);
+  init_butterworth_2_low_pass_int(&ax_filtered, 20.0, 1.0 / ((float)MODULES_FREQUENCY), imu.accel_unscaled.x);
+  init_butterworth_2_low_pass_int(&ay_filtered, 20.0, 1.0 / ((float)MODULES_FREQUENCY), imu.accel_unscaled.y);
+  init_butterworth_2_low_pass_int(&az_filtered, 20.0, 1.0 / ((float)MODULES_FREQUENCY), imu.accel_unscaled.z);
 }
 
 
@@ -146,7 +146,7 @@ void jevois_mavlink_event(void)
         case MAVLINK_MSG_ID_ALTITUDE: {
           mavlink_msg_altitude_decode(&msg, &jevois_mavlink_altitude);
 
-          DEBUG_PRINT("[jevois mavlink] desired altitude is %f", jevois_mavlink_altitude);
+          DEBUG_PRINT("[jevois mavlink] desired altitude is %f", jevois_mavlink_altitude.altitude_relative);
         }
         break;
 
