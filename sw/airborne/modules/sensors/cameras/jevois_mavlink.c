@@ -18,12 +18,12 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/sensors/jevois_mavlink.c"
+ * @file "modules/sensors/cameras/jevois_mavlink.c"
  * @author MAVLab
  * Send sensor data to jevois and read commands from jevois
  */
 
-#include "modules/sensors/jevois_mavlink.h"
+#include "modules/sensors/cameras/jevois_mavlink.h"
 
 
 #define DEBUG_PRINT printf

@@ -34,12 +34,11 @@
       <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN" value="TRUE"/>
     </module>
     <module name="ins" type="extended"/>
+
     <!--module name="guidance" type="indi">
       <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-500.0"/>
     </module-->
-  </firmware>
 
-  <modules main_freq="512">
     <module name="geo_mag"/>
     <module name="air_data"/>
     <module name="send_imu_mag_current"/>
@@ -47,9 +46,11 @@
     <module name="logger_file">
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
     </module>
-    <module name="jevois_mavlink"/>
     <module name="sonar_bebop"/>
-  </modules>
+
+    <module name="jevois_mavlink"/>
+
+  </firmware>
 
   <commands>
     <axis name="PITCH" failsafe_value="0"/>
