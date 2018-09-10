@@ -31,6 +31,11 @@ PRINT_CONFIG_VAR(DETECT_GATE_CAMERA)
 #endif
 PRINT_CONFIG_VAR(DETECT_GATE_N_SAMPLES)
 
+#ifndef DETECT_GATE_MIN_N_SIDES
+#define DETECT_GATE_MIN_N_SIDES 3
+#endif
+PRINT_CONFIG_VAR(DETECT_GATE_MIN_N_SIDES)
+
 #ifndef DETECT_GATE_MIN_PIX_SIZE
 #define DETECT_GATE_MIN_PIX_SIZE 30
 #endif
@@ -79,6 +84,7 @@ PRINT_CONFIG_VAR(DETECT_GATE_V_MAX)
 // settings:
 int just_filtering;
 int n_samples;
+int min_n_sides;
 int min_px_size;
 float min_gate_quality;
 float gate_thickness;
@@ -103,7 +109,7 @@ struct image_t *detect_gate_func(struct image_t *img)
   }
   else {
     // perform snake gate detection:
-    snake_gate_detection(img, n_samples, min_px_size, min_gate_quality, gate_thickness, color_Ym, color_YM, color_Um, color_UM, color_Vm, color_VM);
+    snake_gate_detection(img, n_samples, min_px_size, min_gate_quality, gate_thickness, min_n_sides, color_Ym, color_YM, color_Um, color_UM, color_Vm, color_VM);
   }
   return img;
 }
@@ -115,6 +121,7 @@ void detect_gate_init(void)
   n_samples = DETECT_GATE_N_SAMPLES;
   min_px_size = DETECT_GATE_MIN_PIX_SIZE;
   min_gate_quality = DETECT_GATE_MIN_GATE_QUALITY;
+  min_n_sides = DETECT_GATE_MIN_N_SIDES;
   gate_thickness = DETECT_GATE_GATE_THICKNESS;
   color_Ym = DETECT_GATE_Y_MIN;
   color_YM = DETECT_GATE_Y_MAX;

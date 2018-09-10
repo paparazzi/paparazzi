@@ -19,6 +19,7 @@ extern int just_filtering;
 extern int n_samples;
 extern int min_px_size;
 extern float min_gate_quality;
+extern int min_n_sides;
 extern float gate_thickness;
 extern uint8_t color_Ym;
 extern uint8_t color_YM;

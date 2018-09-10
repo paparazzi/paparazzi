@@ -43,7 +43,7 @@ struct gate_img {
 };
 
 // snake-gate:
-int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, float min_gate_quality, float gate_thickness,
+int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, float min_gate_quality, float gate_thickness, int min_n_sides,
                          uint8_t color_Ym, uint8_t color_YM, uint8_t color_Um, uint8_t color_UM, uint8_t color_Vm, uint8_t color_VM); // main function to be called externally.
 
 // helper functions:
@@ -51,12 +51,12 @@ int check_color_sgd(struct image_t *im, int x, int y);
 void snake_up_and_down(struct image_t *im, int x, int y, int *y_low, int *y_high);
 void snake_left_and_right(struct image_t *im, int x, int y, int *x_low, int *x_high);
 void draw_gate(struct image_t *im, struct gate_img gate);
-void draw_gate_color(struct image_t *im, struct gate_img gate, uint8_t *color);
+void draw_gate_color_square(struct image_t *im, struct gate_img gate, uint8_t *color);
+void draw_gate_color_polygon(struct image_t *im, struct gate_img gate, uint8_t *color);
 void check_line(struct image_t *im, struct point_t Q1, struct point_t Q2, int *n_points, int *n_colored_points);
 void check_gate_initial(struct image_t *im, struct gate_img gate, float *quality, int *sides);
 void check_gate_outline(struct image_t *im, struct gate_img gate, float *quality, int *n_sides);
 void set_gate_points(struct gate_img *gate);
 void gate_refine_corners(struct image_t *color_image, int *x_points, int *y_points, int size);
 void refine_single_corner(struct image_t *im, int* corner_x, int* corner_y, int size, float size_factor);
-float segment_length(struct point_t Q1, struct point_t Q2);
-int bound_value_int(int input, int min, int max);
+

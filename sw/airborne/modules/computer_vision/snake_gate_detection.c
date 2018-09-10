@@ -31,7 +31,7 @@
 #include "modules/computer_vision/lib/vision/image.h"
 
 // to debug the algorithm, uncomment the define:
-#define DEBUG_SNAKE_GATE
+// #define DEBUG_SNAKE_GATE
 
 // the return values of the main detection function:
 #define SUCCESS_DETECT 1
@@ -42,8 +42,9 @@
 #define DRAW_GATE 1
 
 // Standard colors in UYVY:
-uint8_t green_color[4] = {255, 128, 255, 128}; //{0,250,0,250};
-uint8_t blue_color[4] = {0, 128, 0, 128}; //{250,250,0,250};
+uint8_t green_color[4] = {255, 128, 255, 128};
+uint8_t blue_color[4] = {0, 128, 0, 128};
+uint8_t white_color[4] = {255, 255, 255, 255};
 
 // Filter Settings
 uint8_t color_Y_min;
@@ -65,24 +66,18 @@ int n_gates = 0;
 float best_quality = 0;
 float current_quality = 0;
 float best_fitness = 100000;
-float size_left = 0;
-float size_right = 0;
 int last_frame_detection = 0;
 int repeat_gate = 0;
 // previous best gate:
 struct gate_img previous_best_gate = {0};
 struct gate_img last_gate;
-float gate_quality = 0;
-//free polygon points
-int points_x[4];
-int points_y[4];
-int gates_sz = 0;
-float x_center, y_center, radius; // TODO: radius is still from the period in which circular gates were used
 
 
-// Support functions for sorting:
+// Support functions:
 int cmpfunc(const void *a, const void *b);
 int cmp_i(const void *a, const void *b);
+float segment_length(struct point_t Q1, struct point_t Q2);
+int bound_value_int(int input, int min, int max);
 
 int cmpfunc(const void *a, const void *b)
 {
@@ -97,13 +92,9 @@ int cmp_i(const void *a, const void *b)
   return array[ia] < array[ib] ? -1 : array[ia] > array[ib];
 }
 
-
-// TODO: return all relevant variables in a struct instead of making many individual variables external.
-// TODO: reduce the number of global variables.
 // TODO: NOT FOR A FIRST PULL REQUEST: Since coordinates matter here, we have to deal with the strange sensor mounting in the Parrot Bebop.
 //       This leads to checks such as x < im->h... This is a quite fundamental problem, with not a clear solution. However, if a normally
 //       mounted sensor is used, the functions here will fail on this exact point...
-// TODO: add refine functions
 
 /**
  * Run snake gate detection on an image. It assumes that it gets images over time, and remembers previous detections.
@@ -128,7 +119,7 @@ int cmp_i(const void *a, const void *b)
  * @param[in] color_vM The V maximum value
  */
 
-int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, float min_gate_quality, float gate_thickness,
+int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, float min_gate_quality, float gate_thickness, int min_n_sides,
                          uint8_t color_Ym, uint8_t color_YM, uint8_t color_Um, uint8_t color_UM, uint8_t color_Vm, uint8_t color_VM)
 {
 
@@ -146,8 +137,6 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
   best_gate.gate_q = 0;
   n_gates = 0;
 
-
-
   // variables for snake gate detection:
   int y_low = 0;
   int y_high = 0;
@@ -159,9 +148,6 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
   int szx1 = 0;
   int szx2 = 0;
 
-  //histogram for final approach gate detection
-  int histogram[315] = {0};
-
   for (int i = 0; i < n_samples; i++) {
     // get a random coordinate:
     x = rand() % img->h;
@@ -170,8 +156,8 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
     // check if it has the right color
     if (check_color_sgd(img, x, y)) {
 
-      //fill histogram
-      histogram[x]++;
+      // fill histogram (TODO: for a next pull request, in which we add the close-by histogram-detection)
+      // histogram[x]++;
 
       // snake up and down:
       snake_up_and_down(img, x, y, &y_low, &y_high);
@@ -241,7 +227,7 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
   // draw all candidates:
   printf("n_gates:%d\n", n_gates);
   for (int i = 0; i < n_gates; i++) {
-    draw_gate(img, gates_c[i]);
+    draw_gate_color_square(img, gates_c[i], white_color);
   }
 #endif
 */
@@ -256,7 +242,6 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
   if ((best_quality > min_gate_quality && n_gates > 0) || last_frame_detection) {
 
     int max_candidate_gates = 10;
-
     best_fitness = 100;
 
     int initial_gate = n_gates - max_candidate_gates;
@@ -280,7 +265,7 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
       check_gate_outline(img, temp_check_gate, &temp_check_gate.gate_q, &temp_check_gate.n_sides);
 
       // If the gate is good enough:
-      if (temp_check_gate.n_sides > 3 && temp_check_gate.gate_q > best_gate.gate_q) {
+      if (temp_check_gate.n_sides > min_n_sides && temp_check_gate.gate_q > best_gate.gate_q) {
         // store the information in the gate:
         best_gate.x = temp_check_gate.x;
         best_gate.y = temp_check_gate.y;
@@ -313,7 +298,7 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
       check_gate_outline(img, last_gate, &last_gate.gate_q, &last_gate.n_sides);
 
       // if the refined detection is good enough:
-      if (last_gate.n_sides > 3 && last_gate.gate_q > best_gate.gate_q) {
+      if (last_gate.n_sides > min_n_sides && last_gate.gate_q > best_gate.gate_q) {
         repeat_gate = 1;
         best_gate.gate_q = last_gate.gate_q;
         best_gate.n_sides = last_gate.n_sides;
@@ -345,7 +330,7 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
     image_yuv422_colorfilt(img, img, color_Y_min, color_Y_max, color_U_min, color_U_max, color_V_min, color_V_max );
   }
 
-  if (best_gate.gate_q > (min_gate_quality * 2) && best_gate.n_sides > 3) {
+  if (best_gate.gate_q > (min_gate_quality * 2) && best_gate.n_sides > min_n_sides) {
 
     // successful detection
     last_frame_detection = 1;
@@ -354,9 +339,9 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
     if (DRAW_GATE) {
       int size_crosshair = 10;
       if (repeat_gate == 0) {
-        draw_gate_color(img, best_gate, blue_color);
+        draw_gate_color_polygon(img, best_gate, blue_color);
       } else if (repeat_gate == 1) {
-        draw_gate_color(img, best_gate, green_color);
+        draw_gate_color_polygon(img, best_gate, green_color);
         for (int i = 0; i < 3; i++) {
           struct point_t loc = { .x = last_gate.x_corners[i], .y = last_gate.y_corners[i] };
           image_draw_crosshair(img, &loc, blue_color, size_crosshair);
@@ -370,12 +355,7 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
     last_gate.x = best_gate.x;
     last_gate.y = best_gate.y;
     last_gate.sz = best_gate.sz;
-
     current_quality = best_quality;
-    size_left = best_gate.sz_left;
-    size_right = best_gate.sz_right;
-
-    gate_quality = best_gate.gate_q;
 
     //SIGNAL NEW DETECTION AVAILABLE
     return SUCCESS_DETECT;
@@ -384,7 +364,6 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
     //no detection
     last_frame_detection = 0;
     current_quality = 0;
-
     return FAIL_DETECT;
   }
 }
@@ -398,18 +377,65 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
  */
 void draw_gate(struct image_t *im, struct gate_img gate)
 {
-  static uint8_t color[4] = {255, 255, 255, 255};
-  draw_gate_color(im, gate, color);
+  draw_gate_color_polygon(im, gate, white_color);
 }
 
+
 /**
- * Draw the gate on an image.
+ * Draw the gate on an image, using the corner points, possibly resulting in a polygon.
  *
  * @param[in] img The output image.
  * @param[in] gate The gate to be drawn.
  * @param[in] color The color of the lines, in UYVY format.
  */
-void draw_gate_color(struct image_t *im, struct gate_img gate, uint8_t *color)
+void draw_gate_color_polygon(struct image_t *im, struct gate_img gate, uint8_t *color)
+{
+  // Please note that here we use functions in image.h, so we have to inverse the coordinates:
+  // draw four lines and a crosshair on the image:
+  struct point_t from, to;
+
+  // a cross at the center
+  from.x = gate.y;
+  from.y = gate.x;
+  image_draw_crosshair(im, &from, color, 10);
+
+  // the four lines:
+  from.x = gate.y_corners[0];
+  from.y = gate.x_corners[0];
+  to.x = gate.y_corners[1];
+  to.y = gate.x_corners[1];
+  image_draw_line_color(im, &from, &to, color);
+
+  from.x = gate.y_corners[1];
+  from.y = gate.x_corners[1];
+  to.x = gate.y_corners[2];
+  to.y = gate.x_corners[2];
+  image_draw_line_color(im, &from, &to, color);
+
+  from.x = gate.y_corners[2];
+  from.y = gate.x_corners[2];
+  to.x = gate.y_corners[3];
+  to.y = gate.x_corners[3];
+  image_draw_line_color(im, &from, &to, color);
+
+  from.x = gate.y_corners[3];
+  from.y = gate.x_corners[3];
+  to.x = gate.y_corners[0];
+  to.y = gate.x_corners[0];
+  image_draw_line_color(im, &from, &to, color);
+
+}
+
+
+
+/**
+ * Draw the gate on an image, using only the center coordinate and sizes - resulting in a square gate.
+ *
+ * @param[in] img The output image.
+ * @param[in] gate The gate to be drawn.
+ * @param[in] color The color of the lines, in UYVY format.
+ */
+void draw_gate_color_square(struct image_t *im, struct gate_img gate, uint8_t *color)
 {
   // Please note that here we use functions in image.h, so we have to inverse the coordinates:
   // draw four lines and a crosshair on the image:
@@ -418,6 +444,8 @@ void draw_gate_color(struct image_t *im, struct gate_img gate, uint8_t *color)
   from.x = gate.y;
   from.y = gate.x;
   image_draw_crosshair(im, &from, color, 10);
+
+
 
   if (gate.sz_left == gate.sz_right) {
     // square
@@ -442,8 +470,6 @@ void draw_gate_color(struct image_t *im, struct gate_img gate, uint8_t *color)
     to.y = gate.x - gate.sz;
     image_draw_line_color(im, &from, &to, color);
   } else {
-    // polygon
-    // TODO: draw the actual corners! This will always give a straight gate.
     from.x = gate.y - gate.sz_left;
     from.y = gate.x - gate.sz;
     to.x = gate.y + gate.sz_left;
