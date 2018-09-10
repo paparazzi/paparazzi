@@ -44,6 +44,7 @@
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_simple_matrix.h"
 #include "peripherals/video_device.h"
+#include "modules/computer_vision/lib/vision/undistortion.h"
 
 // Get the world position of the camera, given image coordinates and corresponding world corners.
 struct FloatVect3 get_world_position_from_image_points(int* x_corners, int* y_corners, struct FloatVect3* world_corners, int n_corners,

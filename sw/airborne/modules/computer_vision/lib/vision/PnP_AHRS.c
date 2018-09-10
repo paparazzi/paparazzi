@@ -36,20 +36,6 @@
 // Own Header
 #include "PnP_AHRS.h"
 #include "state.h"
-#include "modules/computer_vision/lib/vision/undistortion.h"
-
-// Make an identity matrix:
-static struct FloatRMat I_mat;
-MAT33_ELMT(I_mat, 0, 0) = 1;//(row,column)
-MAT33_ELMT(I_mat, 0, 1) = 0;
-MAT33_ELMT(I_mat, 0, 2) = 0;
-MAT33_ELMT(I_mat, 1, 0) = 0;//(row,column)
-MAT33_ELMT(I_mat, 1, 1) = 1;
-MAT33_ELMT(I_mat, 1, 2) = 0;
-MAT33_ELMT(I_mat, 2, 0) = 0;//(row,column)
-MAT33_ELMT(I_mat, 2, 1) = 0;
-MAT33_ELMT(I_mat, 2, 2) = 1;
-
 
 // TODO: in snake_gate_detection.c: add a function that sorts the corners, so that they will always correspond to, e.g., top-left CW
 /**
@@ -73,6 +59,18 @@ struct FloatVect3 get_world_position_from_image_points(int* x_corners, int* y_co
 
   struct FloatVect3 pos_drone_E_vec;
 
+  // Make an identity matrix:
+  static struct FloatRMat I_mat;
+  MAT33_ELMT(I_mat, 0, 0) = 1;//(row,column)
+  MAT33_ELMT(I_mat, 0, 1) = 0;
+  MAT33_ELMT(I_mat, 0, 2) = 0;
+  MAT33_ELMT(I_mat, 1, 0) = 0;//(row,column)
+  MAT33_ELMT(I_mat, 1, 1) = 1;
+  MAT33_ELMT(I_mat, 1, 2) = 0;
+  MAT33_ELMT(I_mat, 2, 0) = 0;//(row,column)
+  MAT33_ELMT(I_mat, 2, 1) = 0;
+  MAT33_ELMT(I_mat, 2, 2) = 1;
+
   static struct FloatRMat Q_mat;
   MAT33_ELMT(Q_mat, 0, 0) = 0;//(row,column)
   MAT33_ELMT(Q_mat, 0, 1) = 0;
@@ -85,6 +83,7 @@ struct FloatVect3 get_world_position_from_image_points(int* x_corners, int* y_co
   MAT33_ELMT(Q_mat, 2, 2) = 0;
 
   //camera to body rotation
+  struct FloatRMat R_E_B, R_B_E, R_C_B;
   float_rmat_of_eulers_321(&R_C_B,&cam_body);
 
   // Use the AHRS roll and pitch from the filter to get the attitude in a rotation matrix R_E_B:
@@ -94,7 +93,6 @@ struct FloatVect3 get_world_position_from_image_points(int* x_corners, int* y_co
   // local_psi typically assumed 0.0f (meaning you are straight in front of the object):
   float local_psi = 0.0f;
   attitude.psi = local_psi;
-  struct FloatRMat R_E_B, R_B_E;
   float_rmat_of_eulers_321(&R_E_B,&attitude);
   MAT33_TRANS(R_B_E, R_E_B);
 
@@ -105,7 +103,7 @@ struct FloatVect3 get_world_position_from_image_points(int* x_corners, int* y_co
                  };
 
   // vectors in world coordinates, that will be "attached" to the world coordinates for the PnP:
-  struct FloatVect3 gate_vectors[4], vec_B, p_vec, temp_vec;
+  struct FloatVect3 gate_vectors[4], vec_B, vec_E, p_vec, temp_vec;
   p_vec.x = 0;
   p_vec.y = 0;
   p_vec.z = 0;
@@ -118,13 +116,24 @@ struct FloatVect3 get_world_position_from_image_points(int* x_corners, int* y_co
   //
   // where n is the normalized vector, and a is the world coordinate
 
+  struct FloatRMat temp_mat, temp_mat_2;
+  MAT33_ELMT(temp_mat, 0, 0) = 0;//(row,column)
+  MAT33_ELMT(temp_mat, 0, 1) = 0;
+  MAT33_ELMT(temp_mat, 0, 2) = 0;
+  MAT33_ELMT(temp_mat, 1, 0) = 0;//(row,column)
+  MAT33_ELMT(temp_mat, 1, 1) = 0;
+  MAT33_ELMT(temp_mat, 1, 2) = 0;
+  MAT33_ELMT(temp_mat, 2, 0) = 0;//(row,column)
+  MAT33_ELMT(temp_mat, 2, 1) = 0;
+  MAT33_ELMT(temp_mat, 2, 2) = 0;
 
   // Construct the matrix for linear least squares:
   for(int i = 0; i < n_corners; i++) {
 
     // undistort the image coordinate and put it in a world vector:
     float x_n, y_n;
-    bool success = distorted_pixels_to_normalized_coords((float) x_corners[i], (float) y_corners[i], &x_n, &y_n, cam_intrinsics.k, K);
+    // TODO: use the boolean that is returned to take action if undistortion is not possible.
+    distorted_pixels_to_normalized_coords((float) x_corners[i], (float) y_corners[i], &x_n, &y_n, cam_intrinsics.Dhane_k, K);
     gate_vectors[i].x = 1.0;
     gate_vectors[i].y = x_n;
     gate_vectors[i].z = y_n;
@@ -139,7 +148,6 @@ struct FloatVect3 get_world_position_from_image_points(int* x_corners, int* y_co
     // to ned
     vec_E.z = -vec_E.z;
 
-    struct FloatRMat temp_mat;
     VECT3_VECT3_TRANS_MUL(temp_mat, vec_E, vec_E); // n(:,i)*n(:,i)'
     MAT33_MAT33_DIFF(temp_mat, I_mat, temp_mat); // (eye(3,3)-n(:,i)*n(:,i)')
     MAT33_COPY(temp_mat_2, Q_mat);

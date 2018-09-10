@@ -30,8 +30,8 @@ extern uint8_t color_Vm;
 extern uint8_t color_VM;
 
 // External variables that have the results:
-struct FloatVect3 drone_position;
-struct gate_img best_gate;
+extern struct FloatVect3 drone_position;
+extern struct gate_img best_gate;
 
 
 

@@ -101,26 +101,16 @@ uint8_t color_VM;
 
 // External variables that have the results:
 struct FloatVect3 drone_position;
+struct gate_img best_gate;
 
 // Structure of the gate:
 struct FloatVect3 world_corners[4];
 float gate_dist_x = 3.5; //distance from filter init point to gate
 float gate_size_m = 1.4; //size of gate edges in meters
 float gate_center_height = -1.7; //height of gate in meters ned wrt ground
-VECT3_ASSIGN(world_corners[0],
-              gate_dist_x, -(gate_size_m/2), gate_center_height-(gate_size_m/2));
-VECT3_ASSIGN(world_corners[1],
-              gate_dist_x, (gate_size_m/2), gate_center_height-(gate_size_m/2));
-VECT3_ASSIGN(world_corners[2],
-              gate_dist_x, (gate_size_m/2), gate_center_height+(gate_size_m/2));
-VECT3_ASSIGN(world_corners[3],
-              gate_dist_x,-(gate_size_m/2), gate_center_height+(gate_size_m/2));
 
 // camera to body:
 struct FloatEulers cam_body;
-cam_body.phi = 0;
-cam_body.theta = 0;
-cam_body.psi = 0;
 
 // video listener:
 struct video_listener *listener = NULL;
@@ -136,7 +126,6 @@ struct image_t *detect_gate_func(struct image_t *img)
   }
   else {
     // perform snake gate detection:
-    struct gate_img best_gate;
     snake_gate_detection(img, n_samples, min_px_size, min_gate_quality, gate_thickness, min_n_sides, color_Ym, color_YM, color_Um, color_UM, color_Vm, color_VM, &best_gate);
     drone_position = get_world_position_from_image_points(best_gate.x_corners, best_gate.y_corners, world_corners, 3, DETECT_GATE_CAMERA.camera_intrinsics, cam_body);
   }
@@ -158,6 +147,20 @@ void detect_gate_init(void)
   color_UM = DETECT_GATE_U_MAX;
   color_Vm = DETECT_GATE_V_MIN;
   color_VM = DETECT_GATE_V_MAX;
+
+  VECT3_ASSIGN(world_corners[0],
+                gate_dist_x, -(gate_size_m/2), gate_center_height-(gate_size_m/2));
+  VECT3_ASSIGN(world_corners[1],
+                gate_dist_x, (gate_size_m/2), gate_center_height-(gate_size_m/2));
+  VECT3_ASSIGN(world_corners[2],
+                gate_dist_x, (gate_size_m/2), gate_center_height+(gate_size_m/2));
+  VECT3_ASSIGN(world_corners[3],
+                gate_dist_x,-(gate_size_m/2), gate_center_height+(gate_size_m/2));
+
+  cam_body.phi = 0;
+  cam_body.theta = 0;
+  cam_body.psi = 0;
+
 
   listener = cv_add_to_device(&DETECT_GATE_CAMERA, detect_gate_func, DETECT_GATE_FPS);
 }
