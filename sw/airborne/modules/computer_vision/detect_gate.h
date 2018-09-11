@@ -13,6 +13,8 @@
 
 // Module functions
 extern void detect_gate_init(void);
+extern void detect_gate_event(void);
+
 extern struct video_listener *listener;
 
 // settings:

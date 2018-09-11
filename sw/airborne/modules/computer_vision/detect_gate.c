@@ -15,6 +15,12 @@
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_simple_matrix.h"
 
+#include "subsystems/abi.h"
+
+#ifndef DETECT_GATE_ABI_ID
+#define DETECT_GATE_ABI_ID ABI_BROADCAST
+#endif
+
 #ifndef DETECT_GATE_JUST_FILTER
 #define DETECT_GATE_JUST_FILTER 0
 #endif
@@ -115,9 +121,17 @@ struct FloatEulers cam_body;
 // video listener:
 struct video_listener *listener = NULL;
 
+// Shared data between thread and main
+volatile int detect_gate_has_new_data;
+volatile float detect_gate_x;
+volatile float detect_gate_y;
+volatile float detect_gate_z;
+
+static pthread_mutex_t gate_detect_mutex;            ///< Mutex lock fo thread safety
+
+
 // Function
-struct image_t *detect_gate_func(struct image_t *img);
-struct image_t *detect_gate_func(struct image_t *img)
+static struct image_t *detect_gate_func(struct image_t *img)
 {
   // detect the gate and draw it in the image:
   if(just_filtering) {
@@ -141,8 +155,33 @@ struct image_t *detect_gate_func(struct image_t *img)
     // debugging the drone position:
     printf("Position drone: (%f, %f, %f)\n", drone_position.x, drone_position.y, drone_position.z);
 
+    // send from thread to module
+    pthread_mutex_lock(&gate_detect_mutex);
+    detect_gate_x = drone_position.x;
+    detect_gate_x = drone_position.y;
+    detect_gate_x = drone_position.z;
+    detect_gate_has_new_data = true;
+    pthread_mutex_unlock(&gate_detect_mutex);
   }
   return img;
+}
+
+void detect_gate_event(void)
+{
+  static int32_t cnt = 0;
+  pthread_mutex_lock(&gate_detect_mutex);
+  if (detect_gate_has_new_data)
+  {
+    detect_gate_has_new_data = false;
+    AbiSendMsgRELATIVE_LOCALIZATION(DETECT_GATE_ABI_ID, cnt++,
+      detect_gate_x,
+      detect_gate_y,
+      detect_gate_z,
+      0,
+      0,
+      0);
+  }
+  pthread_mutex_unlock(&gate_detect_mutex);
 }
 
 void detect_gate_init(void)
@@ -176,6 +215,12 @@ void detect_gate_init(void)
   cam_body.theta = 0;
   cam_body.psi = 0;
 
+  // Shared variables to copy data from thread to module
+  pthread_mutex_init(&gate_detect_mutex, NULL);
+  detect_gate_has_new_data = false;
+  detect_gate_x = 0;
+  detect_gate_y = 0;
+  detect_gate_z = 0;
 
   listener = cv_add_to_device(&DETECT_GATE_CAMERA, detect_gate_func, DETECT_GATE_FPS);
 }
