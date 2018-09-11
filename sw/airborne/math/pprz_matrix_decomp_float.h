@@ -114,7 +114,8 @@ void pprz_svd_solve_float(float **x, float **u, float *w, float **v, float **b, 
  * @param[out] parameters* Parameters of the linear fit
  * @param[out] fit_error* Total error of the fit
  */
-void fit_linear_model(float* targets, int D, float (*samples)[D], uint16_t count, bool use_bias, float* params, float* fit_error);
+void fit_linear_model(float *targets, int D, float (*samples)[D], uint16_t count, bool use_bias, float *params,
+                      float *fit_error);
 
 
 

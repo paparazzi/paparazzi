@@ -478,7 +478,8 @@ void pprz_svd_solve_float(float **x, float **u, float *w, float **v, float **b, 
  * @param[out] parameters* Parameters of the linear fit
  * @param[out] fit_error* Total error of the fit
  */
-void fit_linear_model(float* targets, int D, float (*samples)[D], uint16_t count, bool use_bias, float* params, float* fit_error)
+void fit_linear_model(float *targets, int D, float (*samples)[D], uint16_t count, bool use_bias, float *params,
+                      float *fit_error)
 {
 
   // We will solve systems of the form A x = b,
@@ -489,7 +490,7 @@ void fit_linear_model(float* targets, int D, float (*samples)[D], uint16_t count
   // local vars for iterating, random numbers:
   int sam, d;
   uint16_t n_samples = count;
-  uint8_t D_1 = D+1;
+  uint8_t D_1 = D + 1;
   // ensure that n_samples is high enough to ensure a result for a single fit:
   n_samples = (n_samples < D_1) ? D_1 : n_samples;
   // n_samples should not be higher than count:
@@ -503,13 +504,12 @@ void fit_linear_model(float* targets, int D, float (*samples)[D], uint16_t count
   MAKE_MATRIX_PTR(targets_all, _targets_all, count);
 
   for (sam = 0; sam < count; sam++) {
-     for(d = 0; d < D; d++) {
+    for (d = 0; d < D; d++) {
       AA[sam][d] = samples[sam][d];
     }
-    if(use_bias) {
+    if (use_bias) {
       AA[sam][D] = 1.0f;
-    }
-    else {
+    } else {
       AA[sam][D] = 0.0f;
     }
     targets_all[sam][0] = targets[sam];
@@ -545,7 +545,7 @@ void fit_linear_model(float* targets, int D, float (*samples)[D], uint16_t count
   *fit_error /= count;
 
 
-  for(d = 0; d < D_1; d++) {
-      params[d] = parameters[d][0];
+  for (d = 0; d < D_1; d++) {
+    params[d] = parameters[d][0];
   }
 }

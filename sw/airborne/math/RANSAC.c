@@ -48,9 +48,11 @@
  * @param[out] fit_error* Total error of the fit
  *
  */
-void RANSAC_linear_model(int n_samples, int n_iterations, float error_threshold, float* targets, int D, float (*samples)[D], uint16_t count, float* params, float* fit_error) {
+void RANSAC_linear_model(int n_samples, int n_iterations, float error_threshold, float *targets, int D,
+                         float (*samples)[D], uint16_t count, float *params, float *fit_error)
+{
 
-  uint8_t D_1 = D+1;
+  uint8_t D_1 = D + 1;
   float err;
   float errors[n_iterations];
   int indices_subset[n_samples];
@@ -65,15 +67,15 @@ void RANSAC_linear_model(int n_samples, int n_iterations, float error_threshold,
   n_samples = (n_samples < count) ? n_samples : count;
 
   // do the RANSAC iterations:
-  for(int i = 0; i < n_iterations; i++) {
+  for (int i = 0; i < n_iterations; i++) {
 
     // get a subset of indices
     get_indices_without_replacement(indices_subset, n_samples, count);
 
     // get the corresponding samples and targets:
-    for(int j = 0; j < n_samples; j++) {
+    for (int j = 0; j < n_samples; j++) {
       subset_targets[j] = targets[indices_subset[j]];
-      for(int k = 0; k < D; k++) {
+      for (int k = 0; k < D; k++) {
         subset_samples[j][k] = samples[indices_subset[j]][k];
       }
     }
@@ -84,7 +86,7 @@ void RANSAC_linear_model(int n_samples, int n_iterations, float error_threshold,
     // determine the error on the whole set:
     float err_sum = 0.0f;
     float prediction;
-    for(int j = 0; j < count; j++) {
+    for (int j = 0; j < count; j++) {
       // predict the sample's value and determine the absolute error:
       prediction = predict_value(samples[j], subset_params[i], D, use_bias);
       err = fabsf(prediction - targets[j]);
@@ -98,15 +100,15 @@ void RANSAC_linear_model(int n_samples, int n_iterations, float error_threshold,
   // determine the minimal error:
   float min_err = errors[0];
   int min_ind = 0;
-  for(int i = 1; i < n_iterations; i++) {
-    if(errors[i] < min_err) {
+  for (int i = 1; i < n_iterations; i++) {
+    if (errors[i] < min_err) {
       min_err = errors[i];
       min_ind = i;
     }
   }
 
   // copy the parameters:
-  for(int d = 0; d < D_1; d++) {
+  for (int d = 0; d < D_1; d++) {
     params[d] = subset_params[min_ind][d];
   }
 
@@ -118,15 +120,15 @@ void RANSAC_linear_model(int n_samples, int n_iterations, float error_threshold,
  * @param[in] weights The weight vector of size D+1
  * @param[in] D The dimension of the sample.
  */
-float predict_value(float* sample, float* weights, int D, bool use_bias) {
+float predict_value(float *sample, float *weights, int D, bool use_bias)
+{
 
   float sum = 0.0f;
 
-  for(int w = 0; w < D; w++)
-  {
-   sum += weights[w] * sample[w];
+  for (int w = 0; w < D; w++) {
+    sum += weights[w] * sample[w];
   }
-  if(use_bias) {
+  if (use_bias) {
     sum += weights[D];
   }
 
@@ -142,22 +144,23 @@ float predict_value(float* sample, float* weights, int D, bool use_bias) {
  * @param[in] count The function will sample n_sample numbers from the range 1, 2, 3,..., count
  */
 
-void get_indices_without_replacement(int* indices_subset, int n_samples, int count) {
+void get_indices_without_replacement(int *indices_subset, int n_samples, int count)
+{
 
   int index;
 
-  for(int j = 0; j < n_samples; j++) {
+  for (int j = 0; j < n_samples; j++) {
     bool picked_number = false;
-    while(!picked_number) {
+    while (!picked_number) {
       index = rand() % count;
       bool new_val = true;
       for (int k = 0; k < j; k++) {
-        if(indices_subset[k] == index) {
+        if (indices_subset[k] == index) {
           new_val = false;
           break;
         }
       }
-      if(new_val) {
+      if (new_val) {
         indices_subset[j] = index;
         picked_number = true;
       }

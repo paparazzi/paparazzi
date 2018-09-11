@@ -48,7 +48,8 @@ extern "C" {
  * @param[out] parameters* Parameters of the linear fit
  * @param[out] fit_error* Total error of the fit
  */
-void RANSAC_linear_model(int n_samples, int n_iterations, float error_threshold, float* targets, int D, float (*samples)[D], uint16_t count, float* params, float* fit_error);
+void RANSAC_linear_model(int n_samples, int n_iterations, float error_threshold, float *targets, int D,
+                         float (*samples)[D], uint16_t count, float *params, float *fit_error);
 
 /** Get indices without replacement.
  *
@@ -56,7 +57,7 @@ void RANSAC_linear_model(int n_samples, int n_iterations, float error_threshold,
  * @param[in] n_samples The number of samples / indices.
  * @param[in] count The function will sample n_sample numbers from the range 1, 2, 3,..., count
  */
-void get_indices_without_replacement(int* indices_subset, int n_samples, int count);
+void get_indices_without_replacement(int *indices_subset, int n_samples, int count);
 
 /** Predict the value of a sample with linear weights.
  *
@@ -64,7 +65,7 @@ void get_indices_without_replacement(int* indices_subset, int n_samples, int cou
  * @param[in] weights The weight vector of size D+1
  * @param[in] D The dimension of the sample.
  */
-float predict_value(float* sample, float* weights, int D, bool use_bias);
+float predict_value(float *sample, float *weights, int D, bool use_bias);
 
 #ifdef __cplusplus
 } /* extern "C" */
