@@ -515,7 +515,6 @@ void fit_linear_model(float* targets, int D, float (*samples)[D], uint16_t count
     targets_all[sam][0] = targets[sam];
   }
 
-
   // decompose A in u, w, v with singular value decomposition A = u * w * vT.
   // u replaces A as output:
   float _parameters[D_1][1];
@@ -524,6 +523,7 @@ void fit_linear_model(float* targets, int D, float (*samples)[D], uint16_t count
   MAKE_MATRIX_PTR(v, _v, D_1);
 
   // solve the system:
+
   pprz_svd_float(AA, w, v, count, D_1);
   pprz_svd_solve_float(parameters, AA, w, v, targets_all, count, D_1, 1);
 
@@ -543,6 +543,7 @@ void fit_linear_model(float* targets, int D, float (*samples)[D], uint16_t count
     *fit_error += fabsf(C[sam][0]);
   }
   *fit_error /= count;
+
 
   for(d = 0; d < D_1; d++) {
       params[d] = parameters[d][0];

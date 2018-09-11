@@ -48,7 +48,7 @@
  * @param[out] fit_error* Total error of the fit
  *
  */
-void RANSAC_linear_model(int n_samples, int n_iterations, float error_threshold, float* targets, float** samples, uint8_t D, uint16_t count, float* params, float* fit_error) {
+void RANSAC_linear_model(int n_samples, int n_iterations, float error_threshold, float* targets, int D, float (*samples)[D], uint16_t count, float* params, float* fit_error) {
 
   uint8_t D_1 = D+1;
   float err;
