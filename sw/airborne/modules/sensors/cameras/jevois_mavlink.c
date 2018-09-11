@@ -39,6 +39,7 @@
 
 #include "subsystems/imu.h"
 #include "autopilot.h"
+#include "generated/modules.h"
 
 mavlink_system_t mavlink_system;
 
