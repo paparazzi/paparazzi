@@ -158,8 +158,8 @@ static struct image_t *detect_gate_func(struct image_t *img)
     // send from thread to module
     pthread_mutex_lock(&gate_detect_mutex);
     detect_gate_x = drone_position.x;
-    detect_gate_x = drone_position.y;
-    detect_gate_x = drone_position.z;
+    detect_gate_y = drone_position.y;
+    detect_gate_z = drone_position.z;
     detect_gate_has_new_data = true;
     pthread_mutex_unlock(&gate_detect_mutex);
   }
