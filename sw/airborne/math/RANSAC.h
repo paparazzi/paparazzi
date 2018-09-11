@@ -58,6 +58,14 @@ void RANSAC_linear_model(int n_samples, int n_iterations, float error_threshold,
  */
 void get_indices_without_replacement(int* indices_subset, int n_samples, int count);
 
+/** Predict the value of a sample with linear weights.
+ *
+ * @param[in] sample The sample vector of size D
+ * @param[in] weights The weight vector of size D+1
+ * @param[in] D The dimension of the sample.
+ */
+float predict_value(float* sample, float* weights, int D, bool use_bias);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

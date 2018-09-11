@@ -24,6 +24,7 @@
  *
  */
 
+#include "math/pprz_simple_matrix.h"
 #include "math/pprz_matrix_decomp_float.h"
 #include "math/pprz_algebra_float.h"
 #include <math.h>
@@ -473,10 +474,11 @@ void pprz_svd_solve_float(float **x, float **u, float *w, float **v, float **b, 
  * @param[in] samples The samples / feature vectors
  * @param[in] D The dimensionality of the samples
  * @param[in] count The number of samples
+ * @param[in] use_bias Whether to use the bias. Please note that params should always be of size D+1, but in case of no bias, the bias value is set to 0.
  * @param[out] parameters* Parameters of the linear fit
  * @param[out] fit_error* Total error of the fit
  */
-void fit_linear_model(float* targets, float** samples, uint8_t D, uint16_t count, float* params, float* fit_error)
+void fit_linear_model(float* targets, int D, float (*samples)[D], uint16_t count, bool use_bias, float* params, float* fit_error)
 {
 
   // We will solve systems of the form A x = b,
@@ -504,7 +506,7 @@ void fit_linear_model(float* targets, float** samples, uint8_t D, uint16_t count
      for(d = 0; d < D; d++) {
       AA[sam][d] = samples[sam][d];
     }
-    if(of_landing_ctrl.use_bias) {
+    if(use_bias) {
       AA[sam][D] = 1.0f;
     }
     else {
@@ -538,7 +540,7 @@ void fit_linear_model(float* targets, float** samples, uint8_t D, uint16_t count
   MAT_SUB(count, 1, C, bb, targets_all);
   *fit_error = 0;
   for (sam = 0; sam < count; sam++) {
-    *fit_error += abs(C[sam][0]);
+    *fit_error += fabsf(C[sam][0]);
   }
   *fit_error /= count;
 

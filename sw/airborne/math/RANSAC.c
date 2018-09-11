@@ -57,6 +57,7 @@ void RANSAC_linear_model(int n_samples, int n_iterations, float error_threshold,
   float subset_targets[n_samples];
   float subset_samples[n_samples][D];
   float subset_params[n_iterations][D_1];
+  bool use_bias = true;
 
   // ensure that n_samples is high enough to ensure a result for a single fit:
   n_samples = (n_samples < D_1) ? D_1 : n_samples;
@@ -78,15 +79,15 @@ void RANSAC_linear_model(int n_samples, int n_iterations, float error_threshold,
     }
 
     // fit a linear model on the small system:
-    fit_linear_model(subset_targets, subset_samples, D, n_samples, subset_params[i], &err);
+    fit_linear_model(subset_targets, D, subset_samples, n_samples, use_bias, subset_params[i], &err);
 
     // determine the error on the whole set:
     float err_sum = 0.0f;
     float prediction;
     for(int j = 0; j < count; j++) {
       // predict the sample's value and determine the absolute error:
-      prediction = predict_value(samples[j], subset_params[i], D);
-      err = absf(prediction - targets[j]);
+      prediction = predict_value(samples[j], subset_params[i], D, use_bias);
+      err = fabsf(prediction - targets[j]);
       // cap the error with the threshold:
       err = (err > error_threshold) ? error_threshold : err;
       err_sum += err;
@@ -96,7 +97,7 @@ void RANSAC_linear_model(int n_samples, int n_iterations, float error_threshold,
 
   // determine the minimal error:
   float min_err = errors[0];
-  float min_ind = 0;
+  int min_ind = 0;
   for(int i = 1; i < n_iterations; i++) {
     if(errors[i] < min_err) {
       min_err = errors[i];
@@ -106,7 +107,7 @@ void RANSAC_linear_model(int n_samples, int n_iterations, float error_threshold,
 
   // copy the parameters:
   for(int d = 0; d < D_1; d++) {
-    params[d] = subset_params[i][d];
+    params[d] = subset_params[min_ind][d];
   }
 
 }
@@ -117,15 +118,17 @@ void RANSAC_linear_model(int n_samples, int n_iterations, float error_threshold,
  * @param[in] weights The weight vector of size D+1
  * @param[in] D The dimension of the sample.
  */
-float predict_value(float* sample, float* weights, int D) {
+float predict_value(float* sample, float* weights, int D, bool use_bias) {
 
   float sum = 0.0f;
 
-  for(i = 0; i < D; i++)
+  for(int w = 0; w < D; w++)
   {
-   sum += weights[i] * sample[i];
+   sum += weights[w] * sample[w];
   }
-  sum += weights[D];
+  if(use_bias) {
+    sum += weights[D];
+  }
 
   // printf("Prediction = %f\n", sum);
 

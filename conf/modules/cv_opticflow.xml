@@ -133,6 +133,6 @@
     <file name="lucas_kanade.c" dir="modules/computer_vision/lib/vision"/>
     <file name="edge_flow.c" dir="modules/computer_vision/lib/vision"/>
     <file name="undistortion.c" dir="modules/computer_vision/lib/vision"/>
-
+    <file name="RANSAC.c" dir="math/"/>
   </makefile>
 </module>
