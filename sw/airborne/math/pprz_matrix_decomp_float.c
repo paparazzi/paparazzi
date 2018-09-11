@@ -521,6 +521,7 @@ void fit_linear_model(float* targets, float** samples, uint8_t D, uint16_t count
   float w[n_samples], _v[D_1][D_1];
   MAKE_MATRIX_PTR(v, _v, D_1);
 
+  // solve the system:
   pprz_svd_float(AA, w, v, count, D_1);
   pprz_svd_solve_float(parameters, AA, w, v, targets_all, count, D_1, 1);
 
