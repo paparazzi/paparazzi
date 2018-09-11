@@ -1,0 +1,27 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="jevois_mavlink" dir="sensors/cameras">
+  <doc>
+    <description>Send sensor data to jevois and read commands from jevois using MAVLINK messages.</description>
+  </doc>
+
+  <header>
+    <file name="jevois_mavlink.h"/>
+  </header>
+
+  <init     fun="jevois_mavlink_init()"/>
+  <periodic fun="jevois_mavlink_periodic()" freq="60"/>
+  <periodic fun="jevois_mavlink_filter_periodic()"/>
+  <event    fun="jevois_mavlink_event()"/>
+
+  <makefile target="!sim|nps">
+    <file   name="jevois_mavlink.c"/>
+
+    <configure name="JEVOIS_UART" default="uart2" case="upper|lower"/>
+    <configure name="JEVOIS_BAUD" default="B115200" />
+    <define name="USE_$(JEVOIS_UART_UPPER)"/>
+    <define name="JEVOIS_DEV" value="$(JEVOIS_UART_LOWER)"/>
+    <define name="$(JEVOIS_UART_UPPER)_BAUD" value="$(JEVOIS_BAUD)"/>
+  </makefile>
+</module>
+
