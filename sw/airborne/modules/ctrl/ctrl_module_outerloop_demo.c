@@ -19,7 +19,7 @@
  */
 
 /**
- * @file modules/ctrl/ctrl_module_demo.h
+ * @file modules/ctrl/ctrl_module_outerloop_demo.h
  * @brief example empty controller
  *
  */
@@ -30,25 +30,21 @@
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
 
-// Own Settings
-float comode_time = 1.0;
-
 
 // Own Variables
 
 struct ctrl_module_demo_struct {
-// Settings
-
 // RC Inputs
-  pprz_t rc_x;
-  pprz_t rc_y;
-  pprz_t rc_z;
-  pprz_t rc_t;
+  struct Int32Eulers rc_sp;
 
 // Output command
   struct Int32Eulers cmd;
+
 } ctrl;
 
+
+// Settings
+float comode_time = 0;
 
 
 ////////////////////////////////////////////////////////////////////
@@ -60,41 +56,32 @@ void guidance_h_module_init(void)
 
 void guidance_h_module_enter(void)
 {
+  // Store current heading
   ctrl.cmd.psi = stateGetNedToBodyEulers_i()->psi;
 
-  ctrl.rc_x = 0;
-  ctrl.rc_y = 0;
+  // Convert RC to setpoint
+  stabilization_attitude_read_rc_setpoint_eulers(&rc_sp, in_flight, false, false);
 }
 
 void guidance_h_module_read_rc(void)
 {
-  // -MAX_PPRZ to MAX_PPRZ
-  //ctrl.rc_t = radio_control.values[RADIO_THROTTLE];
-  ctrl.rc_x = radio_control.values[RADIO_ROLL];
-  ctrl.rc_y = radio_control.values[RADIO_PITCH];
-  //ctrl.rc_z = radio_control.values[RADIO_YAW];
+  stabilization_attitude_read_rc_setpoint_eulers(&rc_sp, in_flight, false, false);
 }
+
 
 void guidance_h_module_run(bool in_flight)
 {
-  // Demo which copies the sticks into pitch and roll
-  float roll = ctrl.rc_x;
-  roll /= (float) MAX_PPRZ;
-  roll *= RadOfDeg(10);
-
-  float pitch = ctrl.rc_y;
-  pitch /= (float) MAX_PPRZ;
-  pitch *= RadOfDeg(10);
-
   // YOUR NEW HORIZONTAL OUTERLOOP CONTROLLER GOES HERE
   // ctrl.cmd = CallMyNewHorizontalOuterloopControl(ctrl);
+  float roll = 0.0;
+  float pitch = 0.0;
 
-  ctrl.cmd.phi = roll;
-  ctrl.cmd.theta = pitch;
+  ctrl.cmd.phi = ANGLE_BFP_OF_REAL(roll);
+  ctrl.cmd.theta = ANGLE_BFP_OF_REAL(pitch);
 
-  //int32_quat_of_eulers(&stab_att_sp_quat, &stab_att_sp_euler);
   stabilization_attitude_set_rpy_setpoint_i(&(ctrl.cmd));
-
   stabilization_attitude_run(in_flight);
+
+  // Alternatively, use the indi_guidance and send AbiMsgACCEL_SP to it instead of setting pitch and roll
 }
 

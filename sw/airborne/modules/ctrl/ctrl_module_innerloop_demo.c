@@ -19,7 +19,7 @@
  */
 
 /**
- * @file modules/ctrl/ctrl_module_demo.h
+ * @file modules/ctrl/ctrl_module_innerloop_demo.h
  * @brief example empty controller
  *
  */
