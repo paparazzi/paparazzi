@@ -7,7 +7,7 @@ Q=@
 PAPARAZZI_SRC ?= ../../..
 
 CC= gcc
-CFLAGS= -fpic
+CFLAGS= -fpic -std=gnu99
 INCLUDES= -I$(PAPARAZZI_SRC)/sw/include -I$(PAPARAZZI_SRC)/sw/airborne
 
 PAPARAZZI_HOME ?= $(PAPARAZZI_SRC)
@@ -32,7 +32,7 @@ all:
 
 shared_lib: $(OBJ)
 	@echo CREATE shared $(LIBNAME)
-	$(Q)$(CC) -shared -o $(BUILDDIR)/$(LIBNAME).so $(OBJ) -lm
+	$(Q)$(CC) $(CFLAGS) -shared -o $(BUILDDIR)/$(LIBNAME).so $(OBJ) -lm
 
 install_shared_lib: shared_lib
 	test -d $(LIB_INSTALLDIR) || mkdir -p $(LIB_INSTALLDIR)
