@@ -103,6 +103,22 @@ int pprz_svd_float(float **a, float *w, float **v, int m, int n);
  */
 void pprz_svd_solve_float(float **x, float **u, float *w, float **v, float **b, int m, int n, int l);
 
+/**
+ * Fit a linear model from samples to target values.
+ * Effectively a wrapper for the pprz_svd_float and pprz_svd_solve_float functions.
+ *
+ * @param[in] targets The target values
+ * @param[in] samples The samples / feature vectors
+ * @param[in] D The dimensionality of the samples
+ * @param[in] count The number of samples
+ * @param[out] parameters* Parameters of the linear fit
+ * @param[out] fit_error* Total error of the fit
+ */
+void fit_linear_model(float *targets, int D, float (*samples)[D], uint16_t count, bool use_bias, float *params,
+                      float *fit_error);
+
+
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
