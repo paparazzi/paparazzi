@@ -52,9 +52,11 @@
 		  <define name="POSE_HISTORY_SIZE" value="128" />
 	  </module>
 
-    <module name="cv_detect_gate">
-	<!-- <define name="UNDISTORT_MIN_X_NORMALIZED" value="-2.0"/> -->
-	<define name="DETECT_GATE_CAMERA" value="front_camera"/>
+    <module name="cv_undistort_image">
+	<define name="UNDISTORT_MIN_X_NORMALIZED" value="-2.0"/>
+	<define name="UNDISTORT_MAX_X_NORMALIZED" value="2.0"/>
+	<define name="UNDISTORT_DHANE_K" value="1.25"/>
+	<define name="UNDISTORT_CAMERA" value="front_camera"/>
     </module>
 
     <module name="video_rtp_stream">

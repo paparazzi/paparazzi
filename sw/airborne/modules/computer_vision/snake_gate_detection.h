@@ -22,6 +22,20 @@
 
 /**
  * @file modules/computer_vision/snake_gate_detection.h
+ *
+ *  Detects gates as used in the IROS drone races, i.e., square colored gates. It does so with snake gate detection, a computationally efficient method that works
+ *  onboard of the computationally constrained Parrot Bebop 1/2 drones.
+ *
+ *  An initial version of this algorithm ran in the drone race 2016. The algorithm was first described in:
+ *  First autonomous multi-room exploration with an insect-inspired flapping wing vehicle, May 2018,
+ *  IEEE International Conference on Robotics and Automation (ICRA 2018), Brisbane, Australia
+ *  by Kirk Scheper, Matej Karasek, Christophe De Wagter, Bart Remes, and Guido de Croon
+ *  https://www.researchgate.net/publication/327228053_First_autonomous_multi-room_exploration_with_an_insect-inspired_flapping_wing_vehicle
+ *
+ *  For the drone race, the algorithm and performance are described and analyzed in more detail in:
+ *  Autonomous drone race: A novel vision-based navigation and control strategy,
+ *  S.Li, M.M.O.I. Ozo, C. De Wagter, G.C.H.E. de Croon.
+ *  Submitted.
  */
 
 #include <stdint.h>
