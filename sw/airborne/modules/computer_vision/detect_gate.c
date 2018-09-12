@@ -22,7 +22,7 @@ PRINT_CONFIG_VAR(DETECT_GATE_JUST_FILTER)
 PRINT_CONFIG_VAR(DETECT_GATE_FPS)
 
 #ifndef DETECT_GATE_CAMERA
-#define DETECT_GATE_CAMERA "front"
+#define DETECT_GATE_CAMERA "front_camera"
 #endif
 PRINT_CONFIG_VAR(DETECT_GATE_CAMERA)
 
@@ -103,13 +103,13 @@ struct image_t *detect_gate_func(struct image_t *img);
 struct image_t *detect_gate_func(struct image_t *img)
 {
   // detect the gate and draw it in the image:
-  if(just_filtering) {
+  if (just_filtering) {
     // just color filter the image, so that the user can tune the thresholds:
     image_yuv422_colorfilt(img, img, color_Ym, color_YM, color_Um, color_UM, color_Vm, color_VM);
-  }
-  else {
+  } else {
     // perform snake gate detection:
-    snake_gate_detection(img, n_samples, min_px_size, min_gate_quality, gate_thickness, min_n_sides, color_Ym, color_YM, color_Um, color_UM, color_Vm, color_VM);
+    snake_gate_detection(img, n_samples, min_px_size, min_gate_quality, gate_thickness, min_n_sides, color_Ym, color_YM,
+                         color_Um, color_UM, color_Vm, color_VM);
   }
   return img;
 }
