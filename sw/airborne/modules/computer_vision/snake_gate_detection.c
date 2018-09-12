@@ -99,26 +99,6 @@ int cmp_i(const void *a, const void *b)
   return array[ia] < array[ib] ? -1 : array[ia] > array[ib];
 }
 
-int bound_value_int(int input, int min, int max);
-
-/**
- * Bound function.
- *
- * @param[in] input The value to be bounded.
- * @param[in] min The minimum allowed value.
- * @param[in] max The maximum allowed value.
- */
-int bound_value_int(int input, int min, int max)
-{
-  if (input < min) {
-    return min;
-  } else if (input > max) {
-    return max;
-  } else {
-    return input;
-  }
-}
-
 
 // TODO: NOT FOR A FIRST PULL REQUEST: Since coordinates matter here, we have to deal with the strange sensor mounting in the Parrot Bebop.
 //       This leads to checks such as x < im->h... This is a quite fundamental problem, with not a clear solution. However, if a normally
@@ -912,13 +892,13 @@ void refine_single_corner(struct image_t *im, int *corner_x, int *corner_y, int 
   size_factor = 0.4f;
 
   int x_l = (int)(x_corner_f - size_f * size_factor);
-  x_l = bound_value_int(x_l, 0, im->h);
+  Bound(x_l, 0, im->h);
   int x_r = (int)(x_corner_f + size_f * size_factor);
-  x_r = bound_value_int(x_r, 0, im->h);
+  Bound(x_r, 0, im->h);
   int y_h = (int)(y_corner_f + size_f * size_factor);
-  y_h = bound_value_int(y_h, 0, im->w);
+  Bound(y_h, 0, im->w);
   int y_l = (int)(y_corner_f - size_f * size_factor);
-  y_l = bound_value_int(y_l, 0, im->w);
+  Bound(y_l, 0, im->w);
 
   int x_size = x_r - x_l + 1;
   int y_size = y_h - y_l + 1;
