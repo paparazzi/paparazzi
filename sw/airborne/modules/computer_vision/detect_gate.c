@@ -130,5 +130,5 @@ void detect_gate_init(void)
   color_Vm = DETECT_GATE_V_MIN;
   color_VM = DETECT_GATE_V_MAX;
 
-  listener = cv_add_to_device(&DETECT_GATE_CAMERA, detect_gate_func, DETECT_GATE_FPS);
+  cv_add_to_device(&DETECT_GATE_CAMERA, detect_gate_func, DETECT_GATE_FPS);
 }

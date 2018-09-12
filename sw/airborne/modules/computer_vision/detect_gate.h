@@ -12,7 +12,6 @@
 
 // Module functions
 extern void detect_gate_init(void);
-extern struct video_listener *listener;
 
 // settings:
 extern int just_filtering;
