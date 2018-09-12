@@ -118,9 +118,6 @@ float gate_center_height = -1.7; //height of gate in meters ned wrt ground
 // camera to body:
 struct FloatEulers cam_body;
 
-// video listener:
-struct video_listener *listener = NULL;
-
 // Shared data between thread and main
 volatile int detect_gate_has_new_data;
 volatile float detect_gate_x;
@@ -134,11 +131,10 @@ static pthread_mutex_t gate_detect_mutex;            ///< Mutex lock fo thread s
 static struct image_t *detect_gate_func(struct image_t *img)
 {
   // detect the gate and draw it in the image:
-  if(just_filtering) {
+  if (just_filtering) {
     // just color filter the image, so that the user can tune the thresholds:
     image_yuv422_colorfilt(img, img, color_Ym, color_YM, color_Um, color_UM, color_Vm, color_VM);
-  }
-  else {
+  } else {
     // perform snake gate detection:
     snake_gate_detection(img, n_samples, min_px_size, min_gate_quality, gate_thickness, min_n_sides, color_Ym, color_YM, color_Um, color_UM, color_Vm, color_VM, &best_gate);
 
@@ -222,5 +218,5 @@ void detect_gate_init(void)
   detect_gate_y = 0;
   detect_gate_z = 0;
 
-  listener = cv_add_to_device(&DETECT_GATE_CAMERA, detect_gate_func, DETECT_GATE_FPS);
+  cv_add_to_device(&DETECT_GATE_CAMERA, detect_gate_func, DETECT_GATE_FPS);
 }
