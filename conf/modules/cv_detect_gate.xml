@@ -1,0 +1,71 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="cv_detect_gate" dir="computer_vision">
+  <doc>
+    <description>
+	Detects gates as used in the IROS drone races, i.e., square colored gates. It does so with snake gate detection, a computationally efficient method that works 
+	onboard of the computationally constrained Parrot Bebop 1/2 drones.
+
+	An initial version of this algorithm ran in the drone race 2016. The algorithm was first described in:
+	
+	First autonomous multi-room exploration with an insect-inspired flapping wing vehicle, May 2018, 
+	IEEE International Conference on Robotics and Automation (ICRA 2018), Brisbane, Australia
+	by Kirk Scheper, Matej Karasek, Christophe De Wagter, Bart Remes, and Guido de Croon
+	https://www.researchgate.net/publication/327228053_First_autonomous_multi-room_exploration_with_an_insect-inspired_flapping_wing_vehicle
+
+	For the drone race, the algorithm and performance are described in more detail in:
+	Autonomous drone race: A novel vision-based navigation and control strategy,
+	S.Li, M.M.O.I. Ozo, C. De Wagter, G.C.H.E. de Croon.
+	Submitted.
+
+    </description>
+    <!-- <define name="UNDISTORT_MIN_X_NORMALIZED" value="-2.0" description="Minimal normalized x-coordinate to be used for the undistortion"/> --> 
+    <define name="DETECT_GATE_FPS" value="0" description="The (maximum) frequency to run the calculations at. If zero, it will max out at the camera frame rate."/>
+    <define name="DETECT_GATE_CAMERA" value="bottom_camera|front_camera" description="The V4L2 camera device that is used for the calculations."/>
+    <define name="DETECT_GATE_JUST_FILTER" value="FALSE|TRUE" description="Just run a color filter."/>
+    <define name="DETECT_GATE_N_SAMPLES" value="10000" description="The number of samples taken in an image for snake gate detection. This number is proportional to the computatinoal effort (more = slower) and the performance (more = better)."/>
+    <define name="DETECT_GATE_MIN_PIX_SIZE" value="30" description="The minimal size the sides of an initial (square) detection should have for further processing."/>
+    <define name="DETECT_GATE_MIN_GATE_QUALITY" value="0.15" description="Gate quality is checked by verifying the proportion of colored pixels on the gate outline. This is the minimal proportion of colored pixels in order to accept a gate candidate."/>
+    <define name="DETECT_GATE_MIN_N_SIDES" value="3" description="How many sides of the gate should have the minimal line quality (min = 0, max = 4)."/>
+    <define name="DETECT_GATE_GATE_THICKNESS" value="0.0" description="Snaking goes up and down, and then left and right from the extreme points. If the gate is thick, it is better to start a little bit before the end point. This value is how thick the gate border is as a proportion of the total size."/>
+    <define name="DETECT_GATE_Y_MIN" value="20" description="Minimal Y of the color filter."/>
+    <define name="DETECT_GATE_Y_MAX" value="228" description="Maximal Y of the color filter."/>
+    <define name="DETECT_GATE_U_MIN" value="66" description="Minimal U of the color filter."/>
+    <define name="DETECT_GATE_U_MAX" value="121" description="Maximal U of the color filter."/>
+    <define name="DETECT_GATE_V_MIN" value="134" description="Minimal V of the color filter."/>
+    <define name="DETECT_GATE_V_MAX" value="230" description="Maximal V of the color filter."/>
+  </doc>
+
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="Detect gate">
+	 <dl_setting var="just_filtering" min="0" step="1" max="1" values="FALSE|TRUE" shortname="just_filter" param="DETECT_GATE_JUST_FILTER"/>
+	 <dl_setting var="n_samples"  min="0" step="10" max="10000" shortname="n_samples" param="DETECT_GATE_N_SAMPLES"/> 
+	 <dl_setting var="min_px_size"  min="10" step="5" max="500" shortname="min_px" param="DETECT_GATE_MIN_PIX_SIZE"/> 
+	 <dl_setting var="min_gate_quality"  min="0.0" step="0.01" max="1.0" shortname="min_qual" param="DETECT_GATE_MIN_GATE_QUALITY"/>
+	 <dl_setting var="min_n_sides"  min="0" step="1" max="4" shortname="min_sides" param="DETECT_GATE_MIN_N_SIDES"/> 
+	 <dl_setting var="gate_thickness"  min="0.0" step="0.01" max="0.2" shortname="thickness" param="DETECT_GATE_GATE_THICKNESS"/> 
+	 <dl_setting var="color_Ym"  min="0" step="1" max="255" shortname="Y_min" param="DETECT_GATE_Y_MIN"/> 
+	 <dl_setting var="color_YM"  min="0" step="1" max="255" shortname="Y_max" param="DETECT_GATE_Y_MAX"/> 
+	 <dl_setting var="color_Um"  min="0" step="1" max="255" shortname="U_min" param="DETECT_GATE_U_MIN"/> 
+	 <dl_setting var="color_UM"  min="0" step="1" max="255" shortname="U_max" param="DETECT_GATE_U_MAX"/> 
+	 <dl_setting var="color_Vm"  min="0" step="1" max="255" shortname="V_min" param="DETECT_GATE_V_MIN"/> 
+	 <dl_setting var="color_VM"  min="0" step="1" max="255" shortname="V_max" param="DETECT_GATE_V_MAX"/> 
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <depends>video_thread</depends>
+
+  <header>
+    <file name="detect_gate.h"/>
+  </header>
+
+  <init fun="detect_gate_init()"/>
+  <makefile target="ap|nps">
+    <file name="detect_gate.c"/>
+    <file name="image.c" dir="modules/computer_vision/lib/vision"/>
+    <file name="snake_gate_detection.c" dir="modules/computer_vision"/>    
+  </makefile>
+</module>
+
