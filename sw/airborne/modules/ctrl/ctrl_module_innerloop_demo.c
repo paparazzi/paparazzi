@@ -19,12 +19,12 @@
  */
 
 /**
- * @file modules/ctrl/ctrl_module_demo.h
+ * @file modules/ctrl/ctrl_module_innerloop_demo.h
  * @brief example empty controller
  *
  */
 
-#include "modules/ctrl/ctrl_module_demo.h"
+#include "modules/ctrl/ctrl_module_innerloop_demo.h"
 #include "state.h"
 #include "subsystems/radio_control.h"
 #include "firmwares/rotorcraft/stabilization.h"
