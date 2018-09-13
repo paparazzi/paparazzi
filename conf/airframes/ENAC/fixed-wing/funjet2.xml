@@ -58,7 +58,6 @@
       <define name="LIGHT_LED_STROBE" value="5"/>
       <define name="LIGHT_LED_NAV" value="3"/>
     </module-->
-    <!--module name="pbn"/-->
   </firmware>
 
 <!-- commands section -->

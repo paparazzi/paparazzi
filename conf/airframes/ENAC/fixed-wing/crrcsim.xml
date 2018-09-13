@@ -8,24 +8,16 @@
      Digital camera
 -->
 
-<airframe name="Funjet II">
+<airframe name="CRRCSIM demo">
 
   <firmware name="fixedwing">
-    <define name="USE_I2C0"/>
-    <define name="USE_I2C1"/>
     <define name="AGR_CLIMB"/>
     <define name="LOITER_TRIM"/>
     <define name="USE_AIRSPEED"/>
 
-    <target name="sim" board="pc">
-      <module name="imu"     type="umarim"/>
-    </target>
     <target name="nps" board="pc">
       <module name="fdm" type="crrcsim"/>
       <module name="imu"     type="nps"/>
-    </target>
-    <target name="ap" board="umarim_lite_2.0">
-      <module name="imu"     type="umarim"/>
     </target>
 
     <module name="radio_control" type="ppm"/>
@@ -47,15 +39,6 @@
     </module>
 
     <module name="navigation"/>
-
-    <!--module name="light">
-      <define name="LIGHT_LED_STROBE" value="5"/>
-      <define name="LIGHT_LED_NAV" value="3"/>
-    </module-->
-    <!--module name="baro_board">
-      <define name="BARO_ABS_EVENT" value="BaroPbnUpdate"/>
-    </module-->
-    <module name="pbn"/>
   </firmware>
 
   <servos>
