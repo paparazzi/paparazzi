@@ -11,6 +11,8 @@
     <configure name="RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT" value="uartX" description="UART for primary spektrum receiver"/>
     <configure name="RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT" value="uartX" description="UART for optional secondary spektrum receiver"/>
     <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="0|1" description="enable secondary receiver (default: disabled)"/>
+    <define name="USE_DSMX" value="FALSE|TRUE" description="activate DSMX binding mode for compatible receivers (default: FALSE, DSM2 is used)"/>
+    <define name="SPEKTRUM_SYS_TYPE" value="0" description="force system type (default: 0 for auto detect)"/>
   </doc>
   <header>
     <file name="spektrum.h" dir="subsystems/radio_control"/>
