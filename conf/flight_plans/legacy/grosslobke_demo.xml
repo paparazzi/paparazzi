@@ -1,4 +1,4 @@
-<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
 
 <flight_plan alt="170" ground_alt="68" lat0="52.26483" lon0="9.99394" max_dist_from_home="1500" name="Gross Lobke Demo" qfu="270" security_height="60">
   <header>

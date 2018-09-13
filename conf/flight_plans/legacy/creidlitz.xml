@@ -1,4 +1,4 @@
-<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
 
 <flight_plan alt="420" ground_alt="360" lat0="50.230060" lon0="10.990449" max_dist_from_home="1500" name="Flugplatz Steinruecken" security_height="25"  QFU="210">
   <header>

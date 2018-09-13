@@ -1,4 +1,4 @@
-<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
 
 <flight_plan alt="150" ground_alt="10" lat0="78.202961" lon0="15.8310" max_dist_from_home="3000" name="Nordlysstasjonen" qfu="270" security_height="60">
   <header>

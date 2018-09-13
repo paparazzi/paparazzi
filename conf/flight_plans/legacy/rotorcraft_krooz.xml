@@ -1,4 +1,4 @@
-<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
 
 <flight_plan alt="35" ground_alt="0" lat0="54.117477" lon0="12.184862" max_dist_from_home="100" name="Krooz Test" security_height="10">
   <header>
