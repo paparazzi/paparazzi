@@ -1,27 +1,5 @@
 <conf>
   <aircraft
-   name="Ark_Quad"
-   ac_id="41"
-   airframe="airframes/AGGIEAIR/aggieair_ark_quad_lisa_mx.xml"
-   radio="radios/AGGIEAIR/aggieair_taranis.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml settings/nps.xml"
-   settings_modules="modules/lidar_lite.xml modules/gps.xml modules/stabilization_int_quat.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml"
-   gui_color="#ffff954c0000"
-  />
-  <aircraft
-   name="BOOZ2"
-   ac_id="1"
-   airframe="airframes/examples/booz2.xml"
-   radio="radios/cockpitSX.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/dummy.xml"
-   settings="settings/rotorcraft_basic.xml"
-   settings_modules="modules/ahrs_int_cmpl_euler.xml modules/stabilization_int_euler.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
-   gui_color="white"
-  />
-  <aircraft
    name="Bixler"
    ac_id="2"
    airframe="airframes/examples/bixler_lisa_m_2.xml"
@@ -42,17 +20,6 @@
    settings="settings/rotorcraft_basic.xml settings/nps.xml"
    settings_modules="modules/gps_ubx_ucenter.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_int_quat.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
    gui_color="white"
-  />
-  <aircraft
-   name="EasyStar_ETS"
-   ac_id="4"
-   airframe="airframes/examples/easystar_ets.xml"
-   radio="radios/cockpitSX.xml"
-   telemetry="telemetry/default_fixedwing_imu.xml"
-   flight_plan="flight_plans/basic.xml"
-   settings="settings/fixedwing_basic.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml modules/ahrs_int_cmpl_quat.xml modules/nav_basic_fw.xml modules/gps.xml modules/imu_common.xml modules/guidance_basic_fw.xml modules/stabilization_attitude_fw.xml"
-   gui_color="red"
   />
   <aircraft
    name="Hexa_LisaL"
@@ -99,17 +66,6 @@
    gui_color="#6293ba"
   />
   <aircraft
-   name="Microjet_LisaM"
-   ac_id="15"
-   airframe="airframes/examples/microjet_lisa_m.xml"
-   radio="radios/cockpitSX.xml"
-   telemetry="telemetry/default_fixedwing_imu.xml"
-   flight_plan="flight_plans/nav_modules.xml"
-   settings="settings/fixedwing_basic.xml settings/control/ctl_dash_loiter_trim.xml settings/nps.xml"
-   settings_modules="modules/nav_survey_poly_osam.xml modules/nav_smooth.xml modules/air_data.xml modules/nav_basic_fw.xml modules/guidance_basic_fw.xml modules/stabilization_attitude_fw.xml modules/ahrs_int_cmpl_quat.xml modules/gps.xml modules/imu_common.xml"
-   gui_color="blue"
-  />
-  <aircraft
    name="Minion_Lia"
    ac_id="42"
    airframe="airframes/AGGIEAIR/aggieair_minion_rp3_lia.xml"
@@ -154,28 +110,6 @@
    gui_color="white"
   />
   <aircraft
-   name="Quad_LisaS"
-   ac_id="163"
-   airframe="airframes/examples/quadrotor_lisa_s.xml"
-   radio="radios/cockpitSX.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml settings/superbitrf.xml settings/nps.xml"
-   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/stabilization_int_quat.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml modules/radio_control_superbitrf_rc.xml modules/gps_ubx_ucenter.xml"
-   gui_color="white"
-  />
-  <aircraft
-   name="Quad_NavGo"
-   ac_id="23"
-   airframe="airframes/examples/quadrotor_navgo.xml"
-   radio="radios/cockpitSX.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml settings/nps.xml"
-   settings_modules="modules/ahrs_int_cmpl_quat.xml modules/stabilization_int_euler.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml modules/nav_survey_rectangle_rotorcraft.xml modules/digital_cam.xml modules/rotorcraft_cam.xml modules/switch_servo.xml"
-   gui_color="white"
-  />
-  <aircraft
    name="Quad_Navstik"
    ac_id="24"
    airframe="airframes/examples/quadrotor_navstik.xml"
@@ -187,17 +121,6 @@
    gui_color="#710080"
   />
   <aircraft
-   name="Twinjet"
-   ac_id="25"
-   airframe="airframes/examples/twinjet.xml"
-   radio="radios/cockpitMM.xml"
-   telemetry="telemetry/default_fixedwing.xml"
-   flight_plan="flight_plans/versatile.xml"
-   settings="settings/fixedwing_basic.xml"
-   settings_modules="modules/infrared_adc.xml modules/nav_basic_fw.xml modules/gps.xml modules/imu_common.xml modules/guidance_basic_fw.xml modules/stabilization_attitude_fw.xml"
-   gui_color="#ba6293"
-  />
-  <aircraft
    name="Twinstar_energyadaptive"
    ac_id="26"
    airframe="airframes/examples/Twinstar_energyadaptive.xml"
@@ -206,17 +129,6 @@
    flight_plan="flight_plans/basic.xml"
    settings="settings/fixedwing_basic.xml"
    settings_modules="modules/digital_cam.xml modules/air_data.xml modules/nav_basic_fw.xml modules/guidance_energy.xml modules/stabilization_adaptive_fw.xml modules/ahrs_int_cmpl_quat.xml modules/imu_common.xml modules/gps.xml"
-   gui_color="blue"
-  />
-  <aircraft
-   name="Twog_IMU"
-   ac_id="27"
-   airframe="airframes/examples/twog_analogimu.xml"
-   radio="radios/cockpitSX.xml"
-   telemetry="telemetry/default_fixedwing_imu.xml"
-   flight_plan="flight_plans/versatile.xml"
-   settings="settings/fixedwing_basic.xml"
-   settings_modules="modules/nav_basic_fw.xml modules/gps.xml modules/ahrs_float_dcm.xml modules/imu_common.xml modules/guidance_basic_fw.xml modules/stabilization_attitude_fw.xml"
    gui_color="blue"
   />
   <aircraft
@@ -239,39 +151,6 @@
    flight_plan="flight_plans/rotorcraft_basic.xml"
    settings="settings/rotorcraft_basic.xml settings/nps.xml"
    settings_modules="modules/video_rtp_stream.xml modules/geo_mag.xml modules/air_data.xml modules/gps_ubx_ucenter.xml modules/ins_extended.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_int_quat.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
-   gui_color="red"
-  />
-  <aircraft
-   name="ardrone2_flightplan_guided_gazebo"
-   ac_id="35"
-   airframe="airframes/examples/ardrone2_gazebo.xml"
-   radio="radios/dummy.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/rotorcraft_guided_flightplan.xml"
-   settings="settings/rotorcraft_basic.xml settings/nps.xml"
-   settings_modules="modules/video_rtp_stream.xml modules/cv_colorfilter.xml modules/geo_mag.xml modules/air_data.xml modules/gps_ubx_ucenter.xml modules/ins_extended.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_int_quat.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
-   gui_color="red"
-  />
-  <aircraft
-   name="ardrone2_gazebo"
-   ac_id="32"
-   airframe="airframes/examples/ardrone2_gazebo.xml"
-   radio="radios/dummy.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/rotorcraft_optitrack.xml"
-   settings="settings/rotorcraft_basic.xml settings/nps.xml"
-   settings_modules="modules/video_rtp_stream.xml modules/cv_colorfilter.xml modules/cv_opticflow.xml modules/geo_mag.xml modules/air_data.xml modules/ins_extended.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_int_quat.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
-   gui_color="red"
-  />
-  <aircraft
-   name="bebop"
-   ac_id="33"
-   airframe="airframes/examples/bebop.xml"
-   radio="radios/dummy.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml settings/nps.xml"
-   settings_modules="modules/video_rtp_stream.xml modules/air_data.xml modules/geo_mag.xml modules/ins_extended.xml modules/ahrs_float_mlkf.xml modules/stabilization_int_quat.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
    gui_color="red"
   />
   <aircraft
@@ -316,28 +195,6 @@
    flight_plan="flight_plans/rotorcraft_basic.xml"
    settings="settings/rotorcraft_basic.xml"
    settings_modules="modules/ahrs_int_cmpl_quat.xml modules/guidance_hybrid.xml modules/stabilization_indi_simple.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml modules/gps_ubx_ucenter.xml"
-   gui_color="blue"
-  />
-  <aircraft
-   name="setup_elle0"
-   ac_id="17"
-   airframe="airframes/examples/setup_elle0.xml"
-   radio="radios/cockpitSX.xml"
-   telemetry="telemetry/dummy.xml"
-   flight_plan="flight_plans/dummy.xml"
-   settings="settings/setup_actuators.xml"
-   settings_modules=""
-   gui_color="blue"
-  />
-  <aircraft
-   name="setup_lisam2"
-   ac_id="38"
-   airframe="airframes/examples/setup_lisam2.xml"
-   radio="radios/cockpitSX.xml"
-   telemetry="telemetry/dummy.xml"
-   flight_plan="flight_plans/dummy.xml"
-   settings="settings/setup_actuators.xml"
-   settings_modules=""
    gui_color="blue"
   />
 </conf>
