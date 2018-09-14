@@ -397,7 +397,7 @@
   />
   <aircraft
    name="setup_elle0"
-   ac_id="17"
+   ac_id="41"
    airframe="airframes/examples/setup_elle0.xml"
    radio="radios/cockpitSX.xml"
    telemetry="telemetry/dummy.xml"
