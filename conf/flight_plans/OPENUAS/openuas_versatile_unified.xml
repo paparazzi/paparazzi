@@ -1,0 +1,402 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+<flight_plan alt="300" ground_alt="200" lat0="50.123456"  lon0="7.123456" max_dist_from_home="11400" name="OpenUAS Versatile" qfu="270" security_height="70" home_mode_height="70">
+
+<!-- Varous speed modes for use in flightplan
+V_CTL_SPEED_THROTTLE
+V_CTL_SPEED_AIRSPEED
+V_CTL_SPEED_GROUNDSPEED
+use v_ctl_auto_airspeed_setpoint in meters per second
+
+WIP should work well for both THROTTLE and airspeed modes for a fixedwing
+Should be unified for Hybrid, FW and rotorcraft
+-->
+<!-- ******************************** HEADERS ****************************** -->
+<header>
+
+#ifndef FLIGHTPLAN_HEADER_DEFINES
+#define FLIGHTPLAN_HEADER_DEFINES
+
+//Set Generic options
+    #include "autopilot.h"
+//Enable AHRS Health test functions
+    #include "subsystems/ahrs/ahrs_aligner.h"
+//Enable advanced electrical power functions
+    #include "subsystems/electrical.h"
+//Enable datalink tests
+    #include "subsystems/datalink/datalink.h"
+
+// PHOTOGRAMMETRY settings
+    #define PHOTOGRAMMETRY_OVERLAP 30       // 1-99 Procent
+    #define PHOTOGRAMMETRY_SIDELAP 20       // 1-99 Procent
+    #define PHOTOGRAMMETRY_RESOLUTION 50    // mm pixel projection size
+
+// Include airframe.h To be able to use specific variables
+    #include "generated/airframe.h"
+
+// Extras for Photoscan
+    #ifdef DC_AUTOSHOOT_PERIOD
+    //TODO make shooting distance not periodic
+    #define LINE_START_FUNCTION dc_autoshoot = DC_AUTOSHOOT_PERIODIC;
+    #define LINE_STOP_FUNCTION dc_autoshoot = DC_AUTOSHOOT_STOP;
+    #endif
+
+#endif
+
+</header>
+  <waypoints>
+    <waypoint name="HOME" x="0" y="0"/>
+    <waypoint name="STDBY" x="20." y="80." height="70."/>
+    <waypoint name="1" x="-20." y="114."/>
+    <waypoint name="2" x="203." y="112."/>
+    <waypoint name="MOB" x="-11." y="-21."/>
+    <waypoint name="S1" x="-151." y="80."/>
+    <waypoint name="S2" x="162." y="237."/>
+    <waypoint name="AF" x="-21." y="66." alt="215."/>
+    <waypoint name="TD" x="-127." y="0." alt="185."/>
+    <waypoint name="_CLIMB" x="53." y="146." height="70."/>
+    <waypoint name="FLARE" x="-100." y="400." height="-40."/>
+    <!-- For a payload release one needs to add external release connected to servo output -->
+    <waypoint name="WAIT" x="-70." y="-70." height="115."/>
+    <waypoint name="_BASELEG" x="56." y="367."/>
+    <waypoint name="START" x="60." y="-120." height="65."/>
+    <!-- Note that 80m is the release height, and if e.g. one is not allowed to go below 60 meters, one needs at least 5m GPS height fluctuation into account
+    Also if we steeply move UP from START to RELEASE the release will be more accurate possibly -->
+    <waypoint name="RELEASE" x="20." y="-45." height="80."/> <!-- along line start to release this is the end point -->
+<!-- Position where target would be located.  -->
+<!-- Note that 0m is the target height, on the ground, and allowed -->
+    <waypoint name="TARGET" x="200." y="200." height="0."/>
+    <!-- Used for out of missionboundary tests -->
+    <waypoint name="TESTTOOFAR" x="-48." y="537."/>
+    <!-- Square -->
+    <waypoint name="Q1" x="5.9" y="65.9"/>
+    <waypoint name="Q2" x="67.5" y="301.1"/>
+    <waypoint name="Q3" x="309.2" y="250.8"/>
+    <waypoint name="Q4" x="245.3" y="18.6"/>
+     <!-- bounding box -->
+    <waypoint alt="515.0" name="_MB1" x="-345.9" y="82.7"/>
+    <waypoint alt="515.0" name="_MB2" x="-118.2" y="101.9"/>
+    <waypoint alt="515.0" name="_MB3" x="-20." y="553."/>
+    <waypoint alt="515.0" name="_MB4" x="527.7" y="545.1"/>
+    <waypoint alt="515.0" name="_MB5" x="840.7" y="433.7"/>
+    <waypoint alt="515.0" name="_MB6" x="922.2" y="-123.0"/>
+    <waypoint alt="515.0" name="_MB7" x="351.5" y="-43.5"/>
+    <waypoint alt="515.0" name="_MB8" x="-312.3" y="-118.9"/>
+     <!--  SearchArea -->
+    <waypoint name="SA1" x="115.6" y="388.8"/>
+    <waypoint name="SA2" x="268.4" y="426.8"/>
+    <waypoint name="SA3" x="478.4" y="355.2"/>
+    <waypoint name="SA4" x="392.0" y="63.0"/>
+    <waypoint name="SA5" x="-20.9" y="44.6"/>
+  </waypoints>
+  <sectors>
+    <!-- ***** -->
+    <!-- since hidden corners cannot be accidentaly changed -->
+    <sector color="yellow" name="MissionBoundary" type="dynamic">
+      <corner name="_MB1"/>
+      <corner name="_MB2"/>
+      <corner name="_MB3"/>
+      <corner name="_MB4"/>
+      <corner name="_MB5"/>
+      <corner name="_MB6"/>
+      <corner name="_MB7"/>
+      <corner name="_MB8"/>
+    </sector>
+    <sector color="purple" name="SearchArea" type="dynamic">
+      <corner name="SA1"/>
+      <corner name="SA2"/>
+      <corner name="SA3"/>
+      <corner name="SA4"/>
+      <corner name="SA5"/>
+    </sector>
+    <sector color="lightblue" name="Square" type="dynamic">
+      <corner name="Q1"/>
+      <corner name="Q2"/>
+      <corner name="Q3"/>
+      <corner name="Q4"/>
+    </sector>
+  </sectors>
+  <variables>
+    <variable var="roll_step" init="15." min="0." max="50." step="1.0"/>
+  </variables>
+  <exceptions>
+    <exception cond="And((datalink_time) > 300, autopilot.launch > 0) " deroute="Standby"/>
+    <exception cond="LOW_BAT_LEVEL > PowerVoltage()" deroute="Standby"/>
+    <exception cond="Or(! InsideMissionBoundary(GetPosX(), GetPosY()), GetPosAlt() > GetAltRef() + 600) && !(nav_block == IndexOfBlock('Wait GPS')) && !(nav_block == IndexOfBlock('Geo init')) && !(nav_block == IndexOfBlock('Waiting for RC Transmitter')) && !(nav_block == IndexOfBlock('Takeoff')) && !(nav_block == IndexOfBlock('land')) && !(nav_block == IndexOfBlock('Final')) && !(nav_block == IndexOfBlock('Flare'))" deroute="Standby"/>
+  </exceptions>
+  <blocks>
+    <block name="Wait GPS" pre_call="NavKillThrottle()">
+      <!-- Do Not Kill -->
+      <!-- <call fun="Fly()"/>-->
+      <!-- if no valid fix or gps accuracy> 15m or no AHRS , it a no-go wait-->
+      <!--<while cond="!GpsFixValid() || gps.pacc > 1500 || stateIsAttitudeValid()"/>-->
+      <while cond="!GpsFixValid()"/>
+      <!-- Wiggle Wiggle when we have GPS , time to fly...-->
+      <!--<set var="ap_state->commands[COMMAND_YAW]" value="-MAX_PPRZ"/>
+      <while cond="LessThan(NavBlockTime(), 2)"/>
+      <set var="ap_state->commands[COMMAND_YAW]" value="MAX_PPRZ"/>
+      <while cond="LessThan(NavBlockTime(), 3)"/>
+      <set var="ap_state->commands[COMMAND_YAW]" value="-MAX_PPRZ"/>-->
+    </block>
+
+<!-- *********** Set the ground reference height and the home position *********** -->
+<!-- a second init will follow since the plane thrower will still walk to launchpoint Which can be higher different etc. -->
+
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+      <call_once fun="NavSetGroundReferenceHere()"/>
+      <!--call_once fun="NavSetAltitudeReferenceHere()"/-->
+      <set var="air_data.calc_qnh_once" value="TRUE"/>
+    </block>
+    <block name="Waiting for RC Transmitter">
+     <!-- <attitude roll="0" throttle="0" vmode="throttle"/>--> <!-- To disable wriggly Actuators in Auto2, and throttle to 0 just in case -->
+      <!-- If you have an RC transmitter backup, one must have the TX at least switched on once. This check can be disabled if everything works 100% in Auto2 and you have no TX -->
+      <while cond="RCLost()"/> <!-- To make sure we do not hop to AUTO2 and motor could starts running, at least switch on then maybe off if you want to -->
+    </block>
+
+    <!-- A Choice...
+    <block name="Landing Position Stored" pre_call="NavKillThrottle()" strip_button="Store" strip_icon="recenter.png">
+      <call_once fun="NavSetWaypointPosAndAltHere(WP_TD)"/>
+      <call_once fun="DownlinkSendWpNr(WP_TD)"/>
+      <call_once fun="nav_compute_final_from_glide(WP_AF, WP_TD, V_CTL_GLIDE_RATIO)"/>
+      <call_once fun="DownlinkSendWpNr(WP_AF)"/>
+      <call_once fun="DownlinkSendWpNr(WP_FLARE)"/>
+      <deroute block="ReadyForDeparture"/>
+    </block>
+    -->
+
+    <block name="ReadyForDeparture" >
+      <!-- <set value="0" var="ap_state->commands[COMMAND_CAMBER]"/> -->
+      <!-- <set value="0" var="ap_state->commands[COMMAND_BRAKE]"/> -->
+      <set var="v_ctl_speed_mode" value="V_CTL_SPEED_AIRSPEED" /><!-- set the preferred flight mode -->
+      <!-- Must have an RC for this flightplan and on at least for the start, we wait till the throttle is high -->
+      <exception cond="ThrottleHigh()" deroute="Takeoff"/>
+      <!-- The nav_takeoff_pitch_setting makes it visible for we are ready for it-->
+    </block>
+
+    <block key="t" name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png" group="Ops">
+      <!-- <set var="ap_state->commands[COMMAND_LIGHT]" value="PPRZ_MAX"/> -->
+      <set var="autopilot.kill_throttle" value="0"/>
+      <!--<var="autopilot.launch" set value="1"  />-->
+      <while cond="1 > autopilot.launch"/> <!-- Setting of launch performed with takeoff_detect module disable -->
+      <set var="autopilot.flight_time" value="0"/>
+      <!--<call_once fun="AirbrakesOff()"/>-->
+      <set var="v_ctl_auto_airspeed_setpoint" value="nav_airspeed_nominal_setting" /><!--or RACE_AIRSPEED? -->
+      <attitude pitch="nav_takeoff_pitch_setting" roll="0" throttle="1.0" until="MoreThan(NavBlockTime(), 3)" vmode="throttle"/>
+    </block>
+
+    <block name="Climb-Out">
+      <set var="v_ctl_speed_mode" value="V_CTL_SPEED_AIRSPEED"/>
+      <!--<exception cond="rc_status==RC_REALLY_LOST" after 3 seconds and no IMU deroute="softlydown">if using RC still on with a Auto2 mode switch-->
+      <attitude pitch="nav_takeoff_pitch_setting" roll="0" throttle="1.0" until="GetPosAlt() > ground_alt+15" vmode="throttle"/>
+      <set var="v_ctl_auto_throttle_nominal_cruise_throttle" value="1.0" />
+      <set var="v_ctl_auto_throttle_nominal_cruise_pitch" value="nav_takeoff_pitch_setting" />
+    </block>
+
+    <block key="s" name="Standby" strip_button="Standby" strip_icon="home.png" group="Ops">
+      <set var="v_ctl_auto_throttle_cruise_throttle" value="V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" />
+      <set var="v_ctl_auto_airspeed_setpoint" value="NOMINAL_AIRSPEED" />
+      <set var="v_ctl_speed_mode" value="V_CTL_SPEED_AIRSPEED" />
+      <circle radius="nav_radius" wp="STDBY"/>
+    </block>
+    <block key="i" name="SimpleSquareRoute">
+      <go from="STDBY" hmode="route" wp="SA1"/>
+      <for from="0" to="10" var="i">
+        <go from="SA1" hmode="route" wp="SA2"/>
+        <!-- dash -->
+        <!--<set value="V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE" var="v_ctl_auto_throttle_cruise_throttle"/>-->
+        <go hmode="route" wp="SA3"/>
+        <go hmode="route" wp="SA4"/>
+        <!-- nominal again -->
+        <!--<set value="V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE" var="v_ctl_auto_throttle_cruise_throttle"/>-->
+        <go hmode="route" wp="SA5"/>
+      </for>
+      <deroute block="Standby"/>
+    </block>
+    <block name="SearchForTarget" strip_button="Searchtarget" strip_icon="survey.png" group="Scan">
+      <exception cond="block_time > 300" deroute="Standby"/> <!-- No patience, five minutes is enough for now... -->
+      <call_once fun="nav_survey_polygon_setup(WP_SA1, 5, 45 , POLYSURVEY_DEFAULT_DISTANCE, 25, MIN_CIRCLE_RADIUS, GetAltRef()+40)"/>
+      <call fun="nav_survey_polygon_run()"/>
+    </block>
+    <block name="Line 1-2" strip_button="Line (wp 1-2)" strip_icon="line.png" group="extra_pattern" group="Ops">
+      <call_once fun="nav_line_setup()"/>
+      <call fun="nav_line_run(WP_1, WP_2, nav_radius)"/>
+    </block>
+    <block key="8" name="Figure 8 around wp 1" strip_button="Figure 8 (wp 1-2)" strip_icon="eight.png" group="Ops">
+      <eight center="1" radius="nav_radius" turn_around="2"/>
+    </block>
+    <block name="Oval 1-2" strip_button="Oval (wp 1-2)" strip_icon="oval.png" group="Ops">
+      <oval p1="1" p2="2" radius="nav_radius"/>
+    </block>
+    <block name="Race Oval 1-2 for 3 minutes">
+      <go wp="1"/>
+      <set var="v_ctl_auto_throttle_cruise_throttle" value="V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE"/>
+      <set var="v_ctl_auto_airspeed_setpoint" value="RACE_AIRSPEED"/>
+      <oval p1="1" p2="2" radius="nav_radius*1.2" until="block_time > 180"/>
+      <set var="v_ctl_auto_throttle_cruise_throttle" value="V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE"/>
+      <set var="v_ctl_auto_airspeed_setpoint" value="NOMINAL_AIRSPEED"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="MOB" strip_button="Circle around here" strip_icon="mob.png" group="Scan">
+      <call_once fun="NavSetWaypointHere(WP_MOB)"/>
+      <circle radius="100" wp="MOB"/>
+    </block>
+    <block name="Auto pitch (circle wp 1)">
+      <circle pitch="auto" radius="75" throttle="0.7" wp="1"/>
+    </block>
+    <block name="Climb 75% throttle">
+      <circle pitch="10" radius="50+(GetPosAlt()-GetAltRef())/2" throttle="0.75" until="(LOW_BAT_LEVEL > PowerVoltage()) || (GetPosAlt() > GetAltRef()+ 600)" vmode="throttle" wp="1"/>
+    </block>
+    <block name="Climb 0m/s">
+      <circle climb="0" radius="nav_radius" until="LOW_BAT_LEVEL > PowerVoltage()" vmode="climb" wp="1"/>
+    </block>
+    <block name="Climb 1m/s">
+      <circle climb="1" pitch="5" radius="50+(GetPosAlt()-GetAltRef())/2" until="LOW_BAT_LEVEL > PowerVoltage()" vmode="climb" wp="1"/>
+    </block>
+    <block name="Climb nav_climb m/s">
+      <circle climb="nav_climb" radius="nav_radius" until="(LOW_BAT_LEVEL > PowerVoltage()) || (GetPosAlt() > GetAltRef()+ 600)" vmode="climb" wp="1"/>
+    </block>
+    <block name="Circle 0% throttle">
+      <circle pitch="fp_pitch" radius="nav_radius" throttle="0.0" until="GetAltRef()+50 > GetPosAlt()" vmode="throttle" wp="1"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Oval 0% throttle">
+      <oval p1="1" p2="2" pitch="fp_pitch" radius="nav_radius" throttle="0.0" until="GetAltRef()+50 > GetPosAlt()" vmode="throttle"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Route 1-2">
+      <go approaching_time="0" from="1" hmode="route" wp="2"/>
+    </block>
+    <block name="Stack wp 2">
+      <circle radius="75" wp="2"/>
+    </block>
+    <block name="Route 2-1">
+      <go approaching_time="0" from="2" hmode="route" wp="1"/>
+    </block>
+    <block name="Stack wp 1">
+      <circle radius="75" wp="1"/>
+    </block>
+    <block name="Glide 1-2">
+      <go from="1" hmode="route" vmode="glide" wp="2"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Survey S1-S2" strip_button="Survey (wp S1-S2)" strip_icon="survey.png" group="Scan">
+      <survey_rectangle grid="150" wp1="S1" wp2="S2"/>
+    </block>
+    <block key="r" name="Land Right AF-TD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png" group="Land">
+      <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
+      <deroute block="land"/>
+    </block>
+    <block key="l" name="Land Left AF-TD" strip_button="Land left (wp AF-TD)" strip_icon="land-left.png" group="Land">
+      <set value="-DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
+      <deroute block="land"/>
+    </block>
+    <!-- ALT
+    <block key="<control>l" name="land">
+      <call_once fun="nav_compute_baseleg(WP_AF, WP_TD, WP_BASELEG, nav_radius)"/>
+      <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="BASELEG"/>
+      <set var="v_ctl_auto_throttle_cruise_throttle" value="V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE" />
+      <set var="v_ctl_auto_airspeed_setpoint" value="MINIMUM_AIRSPEED"/>
+      <circle radius="nav_radius" until="NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10) && 10 > fabs(GetPosAlt() - WaypointAlt(WP_BASELEG))" wp="BASELEG"/>
+    </block>-->
+
+ <!-- *********** Land *********** -->
+
+    <block key="r" name="ConstantSlopeLandRightAFTD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png"  group="Land">
+      <set var="nav_radius" value="LANDING_CIRCLE_RADIUS"/>
+      <deroute block="ComputeLandingApproach"/>
+    </block>
+
+    <block key="l" name="ConstantSlopeLandLeftAFTD" strip_button="Land left (wp AF-TD)" strip_icon="land-left.png"  group="Land">
+      <set var="nav_radius" value="-LANDING_CIRCLE_RADIUS"/>
+      <deroute block="ComputeLandingApproach"/>
+    </block>
+
+    <block name="ComputeLandingApproach" >
+      <call_once fun="nav_compute_final_from_glide(WP_AF, WP_TD, V_CTL_GLIDE_RATIO)"/>
+      <!-- CDW call_once fun="nav_compute_flare_from_aftd(WP_AF, WP_TD, WP_FLARE)"/-->
+      <call_once fun="DownlinkSendWpNr(WP_AF)"/>
+      <call_once fun="DownlinkSendWpNr(WP_FLARE)"/>
+      </block>
+
+    <block name="land">
+      <set value="nav_airspeed_nominal_setting" var="v_ctl_auto_airspeed_setpoint"/>
+      <call_once fun="nav_compute_baseleg(WP_AF, WP_TD, WP__BASELEG, nav_radius)"/>
+      <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="_BASELEG"/>
+      <set value="nav_airspeed_landing_setting" var="v_ctl_auto_airspeed_setpoint"/>
+      <circle radius="nav_radius" until="NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10) && 15 > fabs(GetPosAlt() - WaypointAlt(WP__BASELEG))" wp="_BASELEG"/>
+    </block>
+
+    <block name="Final">
+      <!--<call_once fun="AirbrakesOn()"/>-->
+      <go approaching_time="6" from="AF" hmode="route" wp="TD"/>
+    </block>
+
+    <block name="Flare">
+      <call_once fun="NavKillThrottle()" />
+      <set value="nav_airspeed_landing_setting*0.8" var="v_ctl_auto_airspeed_setpoint"/>
+      <go approaching_time="0" from="TD" hmode="route" wp="FLARE"/>
+      <!-- TODO: retract brake just before landed is true (with +?3 seconds margin) or better sensing IsAircraftAlmostOnSolidGround
+      To avoid ripped of brake used control surfaces if AC has no landing gear -->
+    </block>
+
+    <!-- Extras -->
+    <block name="Steps roll -10, +10">
+      <while cond="TRUE">
+        <attitude alt="GetPosAlt()" roll="10.0" until=" stage_time > 6" vmode="alt"/>
+        <attitude alt="GetPosAlt()" roll="-10.0" until="stage_time > 6" vmode="alt"/>
+      </while>
+    </block>
+    <block name="Steps roll -20, +20">
+      <while cond="TRUE">
+        <attitude alt="GetPosAlt()" roll="20.0" until=" stage_time > 3" vmode="alt"/>
+        <attitude alt="GetPosAlt()" roll="-20.0" until="stage_time > 3" vmode="alt"/>
+      </while>
+    </block>
+    <block name="Steps roll from var">
+      <while cond="TRUE">
+        <attitude alt="GetPosAlt()" roll="roll_step" until=" stage_time > 3" vmode="alt"/>
+        <attitude alt="GetPosAlt()" roll="-roll_step" until="stage_time > 3" vmode="alt"/>
+      </while>
+    </block>
+    <block name="Steps pitch -10, +10">
+      <while cond="TRUE">
+        <attitude alt="GetPosAlt()" pitch="10" roll="0.0" until=" stage_time > 2" vmode="alt"/>
+        <attitude alt="GetPosAlt()" pitch="-10" roll="0.0" until=" stage_time > 2" vmode="alt"/>
+      </while>
+    </block>
+    <block name="Heading 30">
+      <heading alt="GetAltRef()+80" course="30" until="FALSE"/><!-- better test your missionboundary first ;)-->
+    </block>
+    <block name="For loop (circles wp 1)">
+      <for from="0" to="3" var="i">
+        <circle radius="DEFAULT_CIRCLE_RADIUS+ $i*10" wp="1" until="NavCircleCount() > 1"/>
+      </for>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Flower (wp 1-2)" strip_button="Flower" strip_icon="observe.png" group="Scan">
+      <call_once fun="nav_flower_setup(WP_1, WP_2)"/>
+      <call fun="nav_flower_run()"/>
+    </block>
+    <block name="Test datalink (go to wp 2)">
+      <exception cond="datalink_time > 22" deroute="Standby"/>
+      <go from="STDBY" hmode="route" wp="2"/>
+      <go from="2" hmode="route" wp="STDBY"/>
+    </block>
+    <block name="Fly in Square">
+      <exception cond="!InsideSquare(GetPosX(), GetPosY())" deroute="Come back wp 1"/>
+      <attitude alt="GetAltRef()+75" roll="0" vmode="alt"/>
+    </block>
+    <block name="Come back wp 1">
+      <exception cond="InsideSquare(GetPosX(), GetPosY())" deroute="Fly in Square"/>
+      <go wp="1"/>
+      <deroute block="Fly in Square"/>
+    </block>
+    <block name="Vertical Raster">
+      <call_once fun="nav_vertical_raster_setup()"/>
+      <call fun="nav_vertical_raster_run(WP_S1, WP_S2, nav_radius, 50)"/>
+    </block>
+    <block key="<Control>f" name="TestToFar">
+      <go wp="TESTTOOFAR"/>
+    </block>
+  </blocks>
+</flight_plan>

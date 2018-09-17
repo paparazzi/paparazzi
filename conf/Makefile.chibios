@@ -100,7 +100,7 @@ ifeq (,$(findstring $(RTOS_DEBUG),0 FALSE))
 else
   CH_OPT ?= 2 -ggdb
 endif
-  USE_OPT = -std=gnu99 -O$(CH_OPT) \
+  USE_OPT = -O$(CH_OPT) \
 	-falign-functions=16 -fomit-frame-pointer \
 	-W -Wall \
 	$(PPRZ_DEFINITION)
@@ -108,7 +108,7 @@ endif
 
 # C specific options here (added to USE_OPT).
 ifeq ($(USE_COPT),)
-  USE_COPT =
+  USE_COPT = -std=gnu99 
 endif
 
 # C++ specific options here (added to USE_OPT).
@@ -224,7 +224,8 @@ CSRC = $(STARTUPSRC) \
        $(FATFSSRC) \
        $(CHIBIOS_BOARD_MAIN)
 
-ECSRC = $($(TARGET).srcs)
+ECSRC = $(filter %.c, $($(TARGET).srcs))
+ECPPSRC = $(filter %.cpp, $($(TARGET).srcs))
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -275,8 +276,11 @@ CPPC = $(TRGT)g++
 # Enable loading with g++ only if you need C++ runtime support.
 # NOTE: You can use C++ even without C++ support if you are careful. C++
 #       runtime support makes code size explode.
+ifeq ($(ECPPSRC),)
 LD   = $(TRGT)gcc
-#LD   = $(TRGT)g++
+else
+LD   = $(TRGT)g++
+endif
 CP   = $(TRGT)objcopy
 AS   = $(TRGT)gcc -x assembler-with-cpp
 AR   = $(TRGT)ar

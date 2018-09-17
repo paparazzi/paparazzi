@@ -54,17 +54,31 @@
 #endif
 
 /*
+ * Default autopilot thread stack size
+ */
+#ifndef AP_THREAD_STACK_SIZE
+#define AP_THREAD_STACK_SIZE 8192
+#endif
+
+/*
  * PPRZ/AP thread
  */
 static void thd_ap(void *arg);
-static THD_WORKING_AREA(wa_thd_ap, 8192);
+static THD_WORKING_AREA(wa_thd_ap, AP_THREAD_STACK_SIZE);
 static thread_t *apThdPtr = NULL;
+
+/*
+ * Default FBW thread stack size
+ */
+#ifndef FBW_THREAD_STACK_SIZE
+#define FBW_THREAD_STACK_SIZE 1024
+#endif
 
 /*
  * PPRZ/FBW thread
  */
 static void thd_fbw(void *arg);
-static THD_WORKING_AREA(wa_thd_fbw, 1024);
+static THD_WORKING_AREA(wa_thd_fbw, FBW_THREAD_STACK_SIZE);
 static thread_t *fbwThdPtr = NULL;
 
 /**

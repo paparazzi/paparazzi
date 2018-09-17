@@ -21,6 +21,8 @@
 #define DETECT_GATE_ABI_ID ABI_BROADCAST
 #endif
 
+#include "modules/computer_vision/snake_gate_detection.h"
+
 #ifndef DETECT_GATE_JUST_FILTER
 #define DETECT_GATE_JUST_FILTER 0
 #endif
@@ -105,6 +107,7 @@ uint8_t color_UM;
 uint8_t color_Vm;
 uint8_t color_VM;
 
+<<<<<<< HEAD
 // External variables that have the results:
 struct FloatVect3 drone_position;
 struct gate_img best_gate;
@@ -126,9 +129,9 @@ volatile float detect_gate_z;
 
 static pthread_mutex_t gate_detect_mutex;            ///< Mutex lock fo thread safety
 
-
 // Function
-static struct image_t *detect_gate_func(struct image_t *img)
+struct image_t *detect_gate_func(struct image_t *img);
+struct image_t *detect_gate_func(struct image_t *img)
 {
   // detect the gate and draw it in the image:
   if (just_filtering) {

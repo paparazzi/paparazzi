@@ -81,7 +81,7 @@ void imu_disco_init(void)
 
 /**
  * Handle all the periodic tasks of the Disco IMU components.
- * Read the MPU60x0 every periodic call and the HMC58XX every 10th call.
+ * Read the MPU60x0 every periodic call and the AKM8963 every 10th call.
  */
 void imu_disco_periodic(void)
 {

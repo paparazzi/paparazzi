@@ -36,6 +36,7 @@
 #include "mcu_periph/pwm_input.h"
 #include "pprzlink/messages.h"
 #include "subsystems/datalink/downlink.h"
+#include "subsystems/abi.h"
 #include "generated/airframe.h"
 
 #if LOG_AOA
@@ -164,6 +165,9 @@ void aoa_pwm_init(void)
 
 /* update, log and send */
 void aoa_pwm_update(void) {
+#if USE_AOA || USE_SIDESLIP
+  uint8_t flag = 0;
+#endif
   static float prev_aoa = 0.0f;
   // raw duty cycle in usec
   uint32_t aoa_duty_raw = get_pwm_input_duty_in_usec(AOA_PWM_CHANNEL);
@@ -178,7 +182,7 @@ void aoa_pwm_update(void) {
   prev_aoa = aoa_pwm.angle;
 
 #if USE_AOA
-  stateSetAngleOfAttack_f(aoa_pwm.angle);
+  SetBit(flag, 0);
 #endif
 
 #if USE_SIDESLIP
@@ -195,7 +199,11 @@ void aoa_pwm_update(void) {
   ssa_pwm.angle = ssa_pwm.filter * prev_ssa + (1.0f - ssa_pwm.filter) * ssa_pwm.angle;
   prev_ssa = ssa_pwm.angle;
 
-  stateSetSideslip_f(ssa_pwm.angle);
+  SetBit(flag, 1);
+#endif
+
+#if USE_AOA || USE_SIDESLIP
+  AbiSendMsgINCIDENCE(AOA_PWM_ID, flag, aoa_pwm.angle, ssa_pwm.angle);
 #endif
 
 #if SEND_SYNC_AOA

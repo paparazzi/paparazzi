@@ -24,6 +24,7 @@
  *
  */
 
+#include "math/pprz_simple_matrix.h"
 #include "math/pprz_matrix_decomp_float.h"
 #include "math/pprz_algebra_float.h"
 #include <math.h>
@@ -465,3 +466,86 @@ void pprz_svd_solve_float(float **x, float **u, float *w, float **v, float **b, 
   }
 }
 
+/**
+ * Fit a linear model from samples to target values.
+ * Effectively a wrapper for the pprz_svd_float and pprz_svd_solve_float functions.
+ *
+ * @param[in] targets The target values
+ * @param[in] samples The samples / feature vectors
+ * @param[in] D The dimensionality of the samples
+ * @param[in] count The number of samples
+ * @param[in] use_bias Whether to use the bias. Please note that params should always be of size D+1, but in case of no bias, the bias value is set to 0.
+ * @param[out] parameters* Parameters of the linear fit
+ * @param[out] fit_error* Total error of the fit
+ */
+void fit_linear_model(float *targets, int D, float (*samples)[D], uint16_t count, bool use_bias, float *params,
+                      float *fit_error)
+{
+
+  // We will solve systems of the form A x = b,
+  // where A = [nx(D+1)] matrix with entries [s1, ..., sD, 1] for each sample (1 is the bias)
+  // and b = [nx1] vector with the target values.
+  // x in the system are the parameters for the linear regression function.
+
+  // local vars for iterating, random numbers:
+  int sam, d;
+  uint16_t n_samples = count;
+  uint8_t D_1 = D + 1;
+  // ensure that n_samples is high enough to ensure a result for a single fit:
+  n_samples = (n_samples < D_1) ? D_1 : n_samples;
+  // n_samples should not be higher than count:
+  n_samples = (n_samples < count) ? n_samples : count;
+
+  // initialize matrices and vectors for the full point set problem:
+  // this is used for determining inliers
+  float _AA[count][D_1];
+  MAKE_MATRIX_PTR(AA, _AA, count);
+  float _targets_all[count][1];
+  MAKE_MATRIX_PTR(targets_all, _targets_all, count);
+
+  for (sam = 0; sam < count; sam++) {
+    for (d = 0; d < D; d++) {
+      AA[sam][d] = samples[sam][d];
+    }
+    if (use_bias) {
+      AA[sam][D] = 1.0f;
+    } else {
+      AA[sam][D] = 0.0f;
+    }
+    targets_all[sam][0] = targets[sam];
+  }
+
+  // decompose A in u, w, v with singular value decomposition A = u * w * vT.
+  // u replaces A as output:
+  float _parameters[D_1][1];
+  MAKE_MATRIX_PTR(parameters, _parameters, D_1);
+  float w[n_samples], _v[D_1][D_1];
+  MAKE_MATRIX_PTR(v, _v, D_1);
+
+  // solve the system:
+
+  pprz_svd_float(AA, w, v, count, D_1);
+  pprz_svd_solve_float(parameters, AA, w, v, targets_all, count, D_1, 1);
+
+  // used to determine the error of a set of parameters on the whole set:
+  float _bb[count][1];
+  MAKE_MATRIX_PTR(bb, _bb, count);
+  float _C[count][1];
+  MAKE_MATRIX_PTR(C, _C, count);
+
+  // error is determined on the entire set
+  // bb = AA * parameters:
+  MAT_MUL(count, D_1, 1, bb, AA, parameters);
+  // subtract bu_all: C = 0 in case of perfect fit:
+  MAT_SUB(count, 1, C, bb, targets_all);
+  *fit_error = 0;
+  for (sam = 0; sam < count; sam++) {
+    *fit_error += fabsf(C[sam][0]);
+  }
+  *fit_error /= count;
+
+
+  for (d = 0; d < D_1; d++) {
+    params[d] = parameters[d][0];
+  }
+}

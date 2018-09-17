@@ -51,10 +51,4 @@
       endif
     </raw>
   </makefile>
-
-  <!-- TODO: make this dynamically loadable - will hopefully work better
-  once nps and HITL are separate targets -->
-  <!--makefile target="hitl">
-    <file name="nps_ins_vectornav.c" dir="nps"/>
-  </makefile-->
 </module>

@@ -60,6 +60,11 @@
         <property name="size" value="100."/>
         <property name="text" value="Throttle(%)"/>
       </papget>
+      <papget type="video_plugin" display="plugin" x="30" y="50">
+        <property name="command" value="'gst-launch-1.0 udpsrc port=55004 ! 'application/x-rtp, payload=96' ! rtph264depay ! avdec_h264 ! autovideosink'"/>"
+        <property NAME="width" VALUE="320"/>
+        <property NAME="height" VALUE="240"/>
+        </papget>
     </widget>
     <columns>
       <rows SIZE="275">

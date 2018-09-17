@@ -3,16 +3,16 @@
 <module name="flight_benchmark" dir="benchmark">
   <doc>
     <description>
-Flight benchmark.
-This module allows a quantitative assessment of the flight. It calculates the sum of squared error of the two-dimensional course (x / y), the altitude and true airspeed. The sum of squared error of the course and altitude were separated, because they are regulated separately, and so they dependent on various parameters. The module was written to optimize the control parameters and has already been used successfully.
+Flight benchmark for fixedwing.
+This module allows a quantitative assessment of a flight. It calculates the sum of squared error of the two-dimensional course (x / y), the altitude and true airspeed. The sum of squared error of the course and altitude were separated, because they are regulated separately, and so they dependent on various parameters. The module was written to optimize the control parameters and has already been used successfully.
 
-The measurement is not started until about the variable benchm_go is set to 1.
+The measurement is not started until about the variable benchm_go is set to 1. Could also be set from within a flightplan for automated Becnhmarking.
 
-The sum of squared error can by reseted by changing the boolean variable benchm_reset to zero (will turn back to 1 automatically after it has done the reset). This can also be used in a flight plan, which allows a flight plan with auto-reset. So it is possible to fly an oval or a eight figure with a sum of squared error that will be reseted at the very same point of the figure.
+The sum of squared error can by reseted by changing the boolean variable benchm_reset to zero. It will turn back to 1 automatically after it has done the reset). This can also be used in a flight plan, which allows a flight plan with auto-reset. So it is possible to fly an oval or a eight figure with a sum of squared error that will be reseted at the very same point of the figure.
     </description>
-    <define name="BENCHMARK_AIRSPEED" description="enable airspeed benchmarking (only with airspeed module)"/>
-    <define name="BENCHMARK_ALTITUDE" description="enable altitude benchmarking"/>
-    <define name="BENCHMARK_POSITION" description="enable position (x/y) benchmarking. (shortest error to the path)"/>
+    <define name="BENCHMARK_AIRSPEED" description="Add to enable airspeed benchmarking (only with airspeed module)"/>
+    <define name="BENCHMARK_ALTITUDE" description="Add to enable altitude benchmarking"/>
+    <define name="BENCHMARK_POSITION" description="Add to enable position (x/y) benchmarking. (shortest error to the path)"/>
     <define name="BENCHMARK_TOLERANCE_AIRSPEED" value="0." description="define the tolerated value where the sum of squared error won't change. Set to zero to have no tolerance."/>
     <define name="BENCHMARK_TOLERANCE_ALTITUDE" value="0." description="define the tolerated value where the sum of squared error won't change. Set to zero to have no tolerance."/>
     <define name="BENCHMARK_TOLERANCE_POSITION" value="0." description="define the tolerated value where the sum of squared error won't change. Set to zero to have no tolerance."/>

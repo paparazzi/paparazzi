@@ -65,6 +65,11 @@ extern "C" {
 
 static const float PPRZ_ISA_M_OF_P_CONST = (PPRZ_ISA_AIR_GAS_CONSTANT *PPRZ_ISA_SEA_LEVEL_TEMP / PPRZ_ISA_GRAVITY);
 
+/** Convert temperature from Kelvin to Celsius */
+#define CelsiusOfKelvin(_t) (_t - 274.15f)
+/** Convert temperature from Celsius to Kelvin */
+#define KelvinOfCelsius(_t) (_t + 274.15f)
+
 /**
  * Get absolute altitude from pressure (using simplified equation).
  * Referrence pressure is standard pressure at sea level
@@ -163,6 +168,17 @@ static inline float pprz_isa_ref_pressure_of_height_full(float pressure, float h
   const float expo = PPRZ_ISA_GRAVITY * PPRZ_ISA_MOLAR_MASS / PPRZ_ISA_GAS_CONSTANT /
                      PPRZ_ISA_TEMP_LAPS_RATE;
   return pressure / pow(Trel, expo);
+}
+
+/**
+ * Get ISA temperature from a MSL altitude
+ *
+ * @param alt AMSL altitude
+ * @return temperature in ISA condition
+ */
+static inline float pprz_isa_temperature_of_altitude(float alt)
+{
+  return PPRZ_ISA_SEA_LEVEL_TEMP - PPRZ_ISA_TEMP_LAPS_RATE * alt;
 }
 
 #ifdef __cplusplus

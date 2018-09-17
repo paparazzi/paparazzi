@@ -140,7 +140,7 @@ void nps_autopilot_run_step(double time)
 
 #if USE_AIRSPEED || USE_NPS_AIRSPEED
   if (nps_sensors_airspeed_available()) {
-    stateSetAirspeed_f((float)sensors.airspeed.value);
+    AbiSendMsgAIRSPEED(AIRSPEED_NPS_ID, (float)sensors.airspeed.value);
     Fbw(event_task);
     Ap(event_task);
   }
@@ -157,8 +157,8 @@ void nps_autopilot_run_step(double time)
     float dist = (float) sensors.sonar.value;
     AbiSendMsgAGL(AGL_SONAR_NPS_ID, dist);
 
-    uint16_t foo = 0;
 #ifdef SENSOR_SYNC_SEND_SONAR
+    uint16_t foo = 0;
     DOWNLINK_SEND_SONAR(DefaultChannel, DefaultDevice, &foo, &dist);
 #endif
 
@@ -167,21 +167,43 @@ void nps_autopilot_run_step(double time)
   }
 #endif
 
-#if USE_NPS_AOA
+  // standalone angle of attack
+#if USE_NPS_AOA && !NPS_SYNC_INCIDENCE
   if (nps_sensors_aoa_available()) {
-    stateSetAngleOfAttack_f((float)sensors.aoa.value);
+    AbiSendMsgINCIDENCE(INCIDENCE_NPS_ID, 1, (float)sensors.aoa.value, 0.f);
     Fbw(event_task);
     Ap(event_task);
   }
 #endif
 
-#if USE_NPS_SIDESLIP
+  // standalone sideslip
+#if USE_NPS_SIDESLIP && !NPS_SYNC_INCIDENCE
   if (nps_sensors_sideslip_available()) {
-    stateSetSideslip_f((float)sensors.sideslip.value);
+    AbiSendMsgINCIDENCE(INCIDENCE_NPS_ID, 2, 0.f, (float)sensors.sideslip.value);
     Fbw(event_task);
     Ap(event_task);
   }
 #endif
+
+  // synchronized angle of attack and sideslip
+#if NPS_SYNC_INCIDENCE && USE_NPS_AOA && USE_NPS_SIDESLIP
+  static uint8_t flag = 0;
+  if (nps_sensors_aoa_available()) {
+    SetBit(flag, 0);
+  }
+  if (nps_sensors_sideslip_available()) {
+    SetBit(flag, 1);
+  }
+  if (flag == 3) {
+    // both sensors are updated
+    AbiSendMsgINCIDENCE(INCIDENCE_NPS_ID, 3, (float)sensors.aoa.value, (float)sensors.sideslip.value);
+    Fbw(event_task);
+    Ap(event_task);
+    flag = 0;
+  }
+#endif
+
+
 
   if (nps_bypass_ahrs) {
     sim_overwrite_ahrs();

@@ -103,7 +103,11 @@ void autopilot_init(void)
   autopilot.power_switch = false;
 #ifdef POWER_SWITCH_GPIO
   gpio_setup_output(POWER_SWITCH_GPIO);
-  gpio_clear(POWER_SWITCH_GPIO); // POWER OFF
+#ifdef POWER_SWITCH_ENABLE
+  autopilot_set_power_switch(POWER_SWITCH_ENABLE); // set initial status
+#else
+  gpio_clear(POWER_SWITCH_GPIO); // by default POWER OFF
+#endif
 #endif
 
   // call firmware specific init
