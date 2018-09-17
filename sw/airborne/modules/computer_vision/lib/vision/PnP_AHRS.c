@@ -37,7 +37,6 @@
 #include "PnP_AHRS.h"
 #include "state.h"
 
-// TODO: in snake_gate_detection.c: add a function that sorts the corners, so that they will always correspond to, e.g., top-left CW
 /**
  * Get the world position of the camera, given image coordinates and corresponding world coordinates.
  *
@@ -49,8 +48,10 @@
  * @param[in] cam_body The rotation from camera to body.
  * @param[out] A single struct FloatVect3 representing the camera world position.
  */
-struct FloatVect3 get_world_position_from_image_points(int* x_corners, int* y_corners, struct FloatVect3* world_corners, int n_corners,
-                                          struct camera_intrinsics_t cam_intrinsics, struct FloatEulers cam_body) {
+struct FloatVect3 get_world_position_from_image_points(int *x_corners, int *y_corners, struct FloatVect3 *world_corners,
+    int n_corners,
+    struct camera_intrinsics_t cam_intrinsics, struct FloatEulers cam_body)
+{
 
   // legend:
   // E = Earth
@@ -84,7 +85,7 @@ struct FloatVect3 get_world_position_from_image_points(int* x_corners, int* y_co
 
   //camera to body rotation
   struct FloatRMat R_E_B, R_B_E, R_C_B;
-  float_rmat_of_eulers_321(&R_C_B,&cam_body);
+  float_rmat_of_eulers_321(&R_C_B, &cam_body);
 
   // Use the AHRS roll and pitch from the filter to get the attitude in a rotation matrix R_E_B:
   struct FloatEulers attitude;
@@ -93,14 +94,14 @@ struct FloatVect3 get_world_position_from_image_points(int* x_corners, int* y_co
   // local_psi typically assumed 0.0f (meaning you are straight in front of the object):
   float local_psi = 0.0f;
   attitude.psi = local_psi;
-  float_rmat_of_eulers_321(&R_E_B,&attitude);
+  float_rmat_of_eulers_321(&R_E_B, &attitude);
   MAT33_TRANS(R_B_E, R_E_B);
 
   // Camera calibration matrix:
   float K[9] = {cam_intrinsics.focal_x, 0.0f, cam_intrinsics.center_x,
-                  0.0f, cam_intrinsics.focal_y, cam_intrinsics.center_y,
-                  0.0f, 0.0f, 1.0f
-                 };
+                0.0f, cam_intrinsics.focal_y, cam_intrinsics.center_y,
+                0.0f, 0.0f, 1.0f
+               };
 
   // vectors in world coordinates, that will be "attached" to the world coordinates for the PnP:
   struct FloatVect3 gate_vectors[4], vec_B, vec_E, p_vec, temp_vec;
@@ -128,13 +129,14 @@ struct FloatVect3 get_world_position_from_image_points(int* x_corners, int* y_co
   MAT33_ELMT(temp_mat, 2, 2) = 0;
 
   // Construct the matrix for linear least squares:
-  for(int i = 0; i < n_corners; i++) {
+  for (int i = 0; i < n_corners; i++) {
 
     // undistort the image coordinate and put it in a world vector:
     float x_n, y_n;
     // TODO: use the boolean that is returned to take action if undistortion is not possible.
     // Please note that x and y are inverted here due to the Parrot Bebop sensor mounting:
-    distorted_pixels_to_normalized_coords((float) y_corners[i], (float) x_corners[i], &y_n, &x_n, cam_intrinsics.Dhane_k, K);
+    distorted_pixels_to_normalized_coords((float) y_corners[i], (float) x_corners[i], &y_n, &x_n, cam_intrinsics.Dhane_k,
+                                          K);
 
     gate_vectors[i].x = 1.0;
     gate_vectors[i].y = x_n;
@@ -146,7 +148,6 @@ struct FloatVect3 get_world_position_from_image_points(int* x_corners, int* y_co
     double vec_norm = sqrt(VECT3_NORM2(vec_E));
     VECT3_SDIV(vec_E, vec_E, vec_norm);
 
-    // TODO: check this - should we not do this in a nicer way?
     // to ned
     vec_E.z = -vec_E.z;
 
@@ -160,12 +161,12 @@ struct FloatVect3 get_world_position_from_image_points(int* x_corners, int* y_co
 
   // Solve the linear system:
   MAT33_INV(temp_mat, Q_mat);
-  MAT33_VECT3_MUL(pos_drone_E_vec, temp_mat,p_vec); // position = inv(Q) * p
+  MAT33_VECT3_MUL(pos_drone_E_vec, temp_mat, p_vec); // position = inv(Q) * p
 
   //bound y to remove outliers
   float y_threshold = 4;
-  if(pos_drone_E_vec.y > y_threshold) pos_drone_E_vec.y = y_threshold;
-  else if(pos_drone_E_vec.y < -y_threshold) pos_drone_E_vec.y = -y_threshold;
+  if (pos_drone_E_vec.y > y_threshold) { pos_drone_E_vec.y = y_threshold; }
+  else if (pos_drone_E_vec.y < -y_threshold) { pos_drone_E_vec.y = -y_threshold; }
 
   return pos_drone_E_vec;
 }

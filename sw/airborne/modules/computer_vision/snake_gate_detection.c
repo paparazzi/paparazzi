@@ -127,8 +127,10 @@ int cmp_i(const void *a, const void *b)
  * @param[in] *best_gate This gate_img struct will be filled with the data of the best detected gate.
  */
 
-int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, float min_gate_quality, float gate_thickness, int min_n_sides,
-                         uint8_t color_Ym, uint8_t color_YM, uint8_t color_Um, uint8_t color_UM, uint8_t color_Vm, uint8_t color_VM, struct gate_img* best_gate)
+int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, float min_gate_quality,
+                         float gate_thickness, int min_n_sides,
+                         uint8_t color_Ym, uint8_t color_YM, uint8_t color_Um, uint8_t color_UM, uint8_t color_Vm, uint8_t color_VM,
+                         struct gate_img *best_gate)
 {
 
   static int last_frame_detection = 0;
@@ -317,10 +319,10 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
       }
     }
 
-    #ifdef DEBUG_SNAKE_GATE
-      // draw the best gate:
-      draw_gate(img, (*best_gate));
-    #endif
+#ifdef DEBUG_SNAKE_GATE
+    // draw the best gate:
+    draw_gate(img, (*best_gate));
+#endif
 
   }
 

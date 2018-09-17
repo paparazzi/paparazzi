@@ -9,7 +9,7 @@
 #include "detect_gate.h"
 #include "modules/computer_vision/lib/vision/image.h"
 
-// For the PnP stuff:
+// For solving the Persepctive n Point problem (PnP):
 #include "modules/computer_vision/lib/vision/PnP_AHRS.h"
 #include "math/pprz_algebra.h"
 #include "math/pprz_algebra_float.h"
@@ -107,7 +107,6 @@ uint8_t color_UM;
 uint8_t color_Vm;
 uint8_t color_VM;
 
-<<<<<<< HEAD
 // External variables that have the results:
 struct FloatVect3 drone_position;
 struct gate_img best_gate;
@@ -139,20 +138,24 @@ struct image_t *detect_gate_func(struct image_t *img)
     image_yuv422_colorfilt(img, img, color_Ym, color_YM, color_Um, color_UM, color_Vm, color_VM);
   } else {
     // perform snake gate detection:
-    snake_gate_detection(img, n_samples, min_px_size, min_gate_quality, gate_thickness, min_n_sides, color_Ym, color_YM, color_Um, color_UM, color_Vm, color_VM, &best_gate);
+    snake_gate_detection(img, n_samples, min_px_size, min_gate_quality, gate_thickness, min_n_sides, color_Ym, color_YM,
+                         color_Um, color_UM, color_Vm, color_VM, &best_gate);
 
+    /*
     // debugging snake gate:
     printf("Detected gate: ");
     for(int i = 0; i < 4; i++) {
       printf("(%d,%d) ", best_gate.x_corners[i], best_gate.y_corners[i]);
     }
     printf("\n");
+    */
 
-    drone_position = get_world_position_from_image_points(best_gate.x_corners, best_gate.y_corners, world_corners, 3, DETECT_GATE_CAMERA.camera_intrinsics, cam_body);
+    drone_position = get_world_position_from_image_points(best_gate.x_corners, best_gate.y_corners, world_corners, 3,
+                     DETECT_GATE_CAMERA.camera_intrinsics, cam_body);
     drone_position.x -= gate_dist_x;
 
     // debugging the drone position:
-    printf("Position drone: (%f, %f, %f)\n", drone_position.x, drone_position.y, drone_position.z);
+    // printf("Position drone: (%f, %f, %f)\n", drone_position.x, drone_position.y, drone_position.z);
 
     // send from thread to module
     pthread_mutex_lock(&gate_detect_mutex);
@@ -169,16 +172,15 @@ void detect_gate_event(void)
 {
   static int32_t cnt = 0;
   pthread_mutex_lock(&gate_detect_mutex);
-  if (detect_gate_has_new_data)
-  {
+  if (detect_gate_has_new_data) {
     detect_gate_has_new_data = false;
     AbiSendMsgRELATIVE_LOCALIZATION(DETECT_GATE_ABI_ID, cnt++,
-      detect_gate_x,
-      detect_gate_y,
-      detect_gate_z,
-      0,
-      0,
-      0);
+                                    detect_gate_x,
+                                    detect_gate_y,
+                                    detect_gate_z,
+                                    0,
+                                    0,
+                                    0);
   }
   pthread_mutex_unlock(&gate_detect_mutex);
 }
@@ -202,13 +204,13 @@ void detect_gate_init(void)
   // World coordinates: X positive towards the gate, Z positive down, Y positive right:
   // Should become top-left, clockwise:
   VECT3_ASSIGN(world_corners[0],
-                gate_dist_x, -(gate_size_m/2), gate_center_height-(gate_size_m/2));
+               gate_dist_x, -(gate_size_m / 2), gate_center_height - (gate_size_m / 2));
   VECT3_ASSIGN(world_corners[1],
-                gate_dist_x, (gate_size_m/2), gate_center_height-(gate_size_m/2));
+               gate_dist_x, (gate_size_m / 2), gate_center_height - (gate_size_m / 2));
   VECT3_ASSIGN(world_corners[2],
-                gate_dist_x, (gate_size_m/2), gate_center_height+(gate_size_m/2));
+               gate_dist_x, (gate_size_m / 2), gate_center_height + (gate_size_m / 2));
   VECT3_ASSIGN(world_corners[3],
-                gate_dist_x,-(gate_size_m/2), gate_center_height+(gate_size_m/2));
+               gate_dist_x, -(gate_size_m / 2), gate_center_height + (gate_size_m / 2));
 
   cam_body.phi = 0;
   cam_body.theta = 0;
