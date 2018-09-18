@@ -144,6 +144,7 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
   static struct gate_img last_gate;
 
   bool check_initial_square = false;
+  float iou_threshold = 0.7; // when bigger than this, gates are assumed to represent the same gate
 
   // For a new image, set the total number of samples to 0:
   // This number is augmented when checking the color of a pixel.
@@ -260,12 +261,44 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
             check_gate_outline(img, gates_c[n_gates], &gates_c[n_gates].quality, &gates_c[n_gates].n_sides);
           }
 
+          // set the corners to make a square gate for now:
+          set_gate_points(&gates_c[n_gates]);
+
+          // TODO: for multiple gates we need to use intersection of union and fitness here.
+          bool add_gate = true;
+          float iou;
+          for(int g = 0; g < n_gates; g++) {
+            iou = intersection_over_union(gates_c[g].x_corners, gates_c[g].y_corners, gates_c[n_gates].x_corners, gates_c[n_gates].y_corners);
+            if(iou > iou_threshold) {
+              // we are looking at an existing gate:
+              add_gate = false;
+
+              if(gates_c[g].quality > gates_c[n_gates].quality) {
+                // throw the current gate away:
+                break;
+              }
+              else {
+                // throw the old gate away:
+                // TODO: consider making a function for doing this "deep" copy
+                gates_c[g].x = gates_c[n_gates].x;
+                gates_c[g].y = gates_c[n_gates].y;
+                gates_c[g].sz = gates_c[n_gates].sz;
+                gates_c[g].quality = gates_c[n_gates].quality;
+                memcpy(gates_c[g].x_corners, gates_c[n_gates].x_corners, sizeof(int) * 4);
+                memcpy(gates_c[g].y_corners, gates_c[n_gates].y_corners, sizeof(int) * 4);
+              }
+            }
+          }
+          if(add_gate) {
+              n_gates++;
+          }
+          /*
           // only increment the number of gates if the quality is better
           // else it will be overwritten by the next one
           if (gates_c[n_gates].quality > best_quality) {
             best_quality = gates_c[n_gates].quality;
             n_gates++;
-          }
+          }*/
         }
 
         if (n_gates >= MAX_GATES) {
@@ -275,16 +308,16 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
     }
   }
 
-  /*
-  #ifdef DEBUG_SNAKE_GATE
-    // draw all candidates:
-    printf("n_gates:%d\n", n_gates);
-    for (int i = 0; i < n_gates; i++) {
-      draw_gate_color_square(img, gates_c[i], white_color);
-    }
-  #endif
-  */
-  //init best gate
+
+#ifdef DEBUG_SNAKE_GATE
+  // draw all candidates:
+  printf("n_gates:%d\n", n_gates);
+  for (int i = 0; i < n_gates; i++) {
+    draw_gate_color_square(img, gates_c[i], white_color);
+  }
+#endif
+
+    //init best gate
   (*best_gate).quality = 0;
   (*best_gate).n_sides = 0;
   repeat_gate = 0;
@@ -303,6 +336,8 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
       // get gate information:
       set_gate_points(&gates_c[gate_nr]);
       gate_refine_corners(img, gates_c[gate_nr].x_corners, gates_c[gate_nr].y_corners, gates_c[gate_nr].sz * 2);
+
+      // TODO: for multiple gates, we do not need to select a best gate here - unless we want to select the closest gate
 
       // TODO: I think we can remove the temporary gate here, and just use gates_c[gate_nr]
       // store the temporary information in the gate:
@@ -334,6 +369,7 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
     if (((*best_gate).quality == 0 && (*best_gate).n_sides == 0) && last_frame_detection == 1) {
 
       // TODO: is it really important to do this sorting here to get the maximum size? Is the sz property not accurate enough?
+      // Or can we not assume the standard arrangement of the corners?
       int x_values[4];
       int y_values[4];
       memcpy(x_values, last_gate.x_corners, sizeof(int) * 4);
@@ -343,13 +379,13 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
       qsort(y_values, 4, sizeof(int), cmpfunc);
       //check x size, maybe use y also later?
       int radius_p   = x_values[3] - x_values[0];
+      // TODO: is 2*radius_p not huge?
       gate_refine_corners(img, last_gate.x_corners, last_gate.y_corners, 2 * radius_p);
 
       // also get the color fitness
       check_gate_outline(img, last_gate, &last_gate.quality, &last_gate.n_sides);
 
       // if the refined detection is good enough:
-
       if (last_gate.n_sides >= min_n_sides && last_gate.quality > (*best_gate).quality) {
         repeat_gate = 1;
         (*best_gate).quality = last_gate.quality;
@@ -1049,6 +1085,8 @@ int check_color_snake_gate_detection(struct image_t *im, int x, int y)
  */
 float intersection_over_union(int x_box_1[4], int y_box_1[4], int x_box_2[4], int y_box_2[4]) {
 
+  // TODO: please note that the order of the indices here depends on the set_gate_points function.
+  // A future pull request might adapt the indexing automatically to the chosen order in that function.
   float iou;
 
   // intersection:
@@ -1057,9 +1095,9 @@ float intersection_over_union(int x_box_1[4], int y_box_1[4], int x_box_2[4], in
   // union:
   int w1,h1,w2,h2,un;
   w1 = x_box_1[1] - x_box_1[0];
-  h1 = y_box_1[2] - y_box_1[0];
+  h1 = y_box_1[0] - y_box_1[2];
   w2 = x_box_2[1] - x_box_2[0];
-  h2 = y_box_2[2] - y_box_2[0];
+  h2 = y_box_2[0] - y_box_2[2];
   un = w1 * h1 + w2 * h2 - intersection;
 
   // ratio of intersection over union:
@@ -1084,7 +1122,7 @@ float intersection_over_union(int x_box_1[4], int y_box_1[4], int x_box_2[4], in
 int intersection_boxes(int x_box_1[4], int y_box_1[4], int x_box_2[4], int y_box_2[4]) {
 
   int width = overlap_intervals(x_box_1[0], x_box_1[1], x_box_2[0], x_box_2[1]);
-  int height = overlap_intervals(y_box_1[0], y_box_1[2], y_box_2[0], y_box_2[2]);
+  int height = overlap_intervals(y_box_1[2], y_box_1[0], y_box_2[2], y_box_2[0]);
 
   return width * height;
 }
