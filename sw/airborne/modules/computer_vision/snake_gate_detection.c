@@ -990,6 +990,12 @@ void refine_single_corner(struct image_t *im, int *corner_x, int *corner_y, int 
 }
 
 
+/* Check the color of a pixel, within the snake gate detection scheme
+ * @param[in] *im The YUV422 color image
+ * @param[in] x The image x-coordinate of the pixel
+ * @param[in] y The image y-coordinate of the pixel
+ * @param[out] success Whether the pixel is the right color (1) or not (0)
+ */
 int check_color_snake_gate_detection(struct image_t *im, int x, int y)
 {
 
@@ -1007,4 +1013,89 @@ int check_color_snake_gate_detection(struct image_t *im, int x, int y)
   */
 
   return success;
+}
+
+
+/* Calculate the intersection over union of two boxes. The boxes are organized as the locations of the gate's corners.
+ * So, from top left clock-wise.
+ *
+ * @param[in] x_box_1 The x-coordinates of the first box's corners
+ * @param[in] y_box_1 The y-coordinates of the first box's corners
+ * @param[in] x_box_2 The x-coordinates of the second box's corners
+ * @param[in] y_box_2 The y-coordinates of the second box's corners
+ * @param[out] The ratio of the intersection of the two boxes divided by their union.
+ */
+float intersection_over_union(int x_box_1[4], int y_box_1[4], int x_box_2[4], int y_box_2[4]) {
+
+  float iou;
+
+  // intersection:
+  int intersection = intersection_boxes(x_box_1, y_box_1, x_box_2, y_box_2);
+
+  // union:
+  int w1,h1,w2,h2,un;
+  w1 = x_box_1[1] - x_box_1[0];
+  h1 = y_box_1[2] - y_box_1[0];
+  w2 = x_box_2[1] - x_box_2[0];
+  h2 = y_box_2[2] - y_box_2[0];
+  un = w1 * h1 + w2 * h2 - intersection;
+
+  // ratio of intersection over union:
+  if(un == 0) {
+    iou = 1.0f;
+  }
+  else {
+    iou = (float) intersection / (float) un;
+  }
+
+  return iou;
+}
+
+/* Calculate the intersection of two boxes.
+ *
+ * @param[in] x_box_1 The x-coordinates of the first box's corners
+ * @param[in] y_box_1 The y-coordinates of the first box's corners
+ * @param[in] x_box_2 The x-coordinates of the second box's corners
+ * @param[in] y_box_2 The y-coordinates of the second box's corners
+ * @param[out] The number of pixels in the intersection area.
+ */
+int intersection_boxes(int x_box_1[4], int y_box_1[4], int x_box_2[4], int y_box_2[4]) {
+
+  int width = overlap_intervals(x_box_1[0], x_box_1[1], x_box_2[0], x_box_2[1]);
+  int height = overlap_intervals(y_box_1[0], y_box_1[2], y_box_2[0], y_box_2[2]);
+
+  return width * height;
+}
+
+/* Calculate the overlap of two 1-dimensional intervals.
+ * @param[in] val_low_1 The low value of the first interval.
+ * @param[in] val_high_1 The high value of the first interval.
+ * @param[in] val_low_2 The low value of the second interval.
+ * @param[in] val_high_2 The low value of the second interval.
+ * @param[out] int Number of overlapping units (pixels).
+ */
+int overlap_intervals(int val_low_1, int val_high_1, int val_low_2, int val_high_2) {
+
+  int overlap;
+  int min_val;
+  if(val_low_2 < val_low_1) {
+    if(val_high_2 < val_low_1) {
+      overlap = 0;
+    }
+    else {
+      min_val = (val_high_1 > val_high_2) ? val_high_2 : val_high_1;
+      overlap = min_val - val_low_1;
+    }
+  }
+  else {
+    if(val_high_1 < val_low_2) {
+      overlap = 0;
+    }
+    else {
+      min_val = (val_high_1 > val_high_2) ? val_high_2 : val_high_1;
+      overlap = min_val - val_low_2;
+    }
+  }
+
+  return overlap;
 }
