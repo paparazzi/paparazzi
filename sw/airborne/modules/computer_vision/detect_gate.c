@@ -16,10 +16,7 @@
 #include "math/pprz_simple_matrix.h"
 
 #include "subsystems/abi.h"
-
-#ifndef DETECT_GATE_ABI_ID
-#define DETECT_GATE_ABI_ID ABI_BROADCAST
-#endif
+#include "subsystems/abi_sender_ids.h"
 
 #include "modules/computer_vision/snake_gate_detection.h"
 
