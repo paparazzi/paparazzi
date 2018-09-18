@@ -143,6 +143,8 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
   static struct gate_img previous_best_gate = {0};
   static struct gate_img last_gate;
 
+  bool check_initial_square = false;
+
   // For a new image, set the total number of samples to 0:
   // This number is augmented when checking the color of a pixel.
   n_total_samples = 0;
@@ -235,8 +237,28 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
           // store the half gate size:
           gates_c[n_gates].sz = sz / 2;
 
-          // check the gate quality:
-          check_gate_initial(img, gates_c[n_gates], &gates_c[n_gates].quality, &gates_c[n_gates].n_sides);
+          if(check_initial_square) {
+
+            // check the gate quality:
+            check_gate_initial(img, gates_c[n_gates], &gates_c[n_gates].quality, &gates_c[n_gates].n_sides);
+          }
+          else {
+
+            // The first two corners have a high y:
+            gates_c[n_gates].x_corners[0] = x_low2;
+            gates_c[n_gates].y_corners[0] = y_l2;
+            gates_c[n_gates].x_corners[1] = x_high2;
+            gates_c[n_gates].y_corners[1] = y_h2;
+
+            // The third and fourth corner have a low y:
+            gates_c[n_gates].x_corners[2] = x_high1;
+            gates_c[n_gates].y_corners[2] = y_h1;
+            gates_c[n_gates].x_corners[3] = x_low1;
+            gates_c[n_gates].y_corners[3] = y_l1;
+
+            // check the polygon:
+            check_gate_outline(img, gates_c[n_gates], &gates_c[n_gates].quality, &gates_c[n_gates].n_sides);
+          }
 
           // only increment the number of gates if the quality is better
           // else it will be overwritten by the next one
@@ -882,7 +904,7 @@ void snake_left_and_right(struct image_t *im, int x, int y, int* x_low, int *y_l
  */
 void set_gate_points(struct gate_img *gate)
 {
-
+  // In Parrot Bebop coordinates, this goes from bottom-right CCW:
   gate->x_corners[0] = gate->x - gate->sz;
   gate->y_corners[0] = gate->y + gate->sz;
   gate->x_corners[1] = gate->x + gate->sz;

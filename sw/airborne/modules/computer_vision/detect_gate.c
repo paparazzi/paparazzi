@@ -202,13 +202,24 @@ void detect_gate_init(void)
   color_VM = DETECT_GATE_V_MAX;
 
   // World coordinates: X positive towards the gate, Z positive down, Y positive right:
-  // Should be top-left, clockwise:
-  VECT3_ASSIGN(world_corners[0],
+  // Top-left, clockwise:
+  /*VECT3_ASSIGN(world_corners[0],
                gate_dist_x, -(gate_size_m / 2), gate_center_height - (gate_size_m / 2));
   VECT3_ASSIGN(world_corners[1],
                gate_dist_x, (gate_size_m / 2), gate_center_height - (gate_size_m / 2));
   VECT3_ASSIGN(world_corners[2],
                gate_dist_x, (gate_size_m / 2), gate_center_height + (gate_size_m / 2));
+  VECT3_ASSIGN(world_corners[3],
+               gate_dist_x, -(gate_size_m / 2), gate_center_height + (gate_size_m / 2));
+*/
+
+  // Bottom-right, CCW:
+  VECT3_ASSIGN(world_corners[0],
+               gate_dist_x, (gate_size_m / 2), gate_center_height + (gate_size_m / 2));
+  VECT3_ASSIGN(world_corners[1],
+               gate_dist_x, (gate_size_m / 2), gate_center_height - (gate_size_m / 2));
+  VECT3_ASSIGN(world_corners[2],
+               gate_dist_x, -(gate_size_m / 2), gate_center_height - (gate_size_m / 2));
   VECT3_ASSIGN(world_corners[3],
                gate_dist_x, -(gate_size_m / 2), gate_center_height + (gate_size_m / 2));
 
