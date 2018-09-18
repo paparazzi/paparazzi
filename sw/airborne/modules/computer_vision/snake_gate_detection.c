@@ -68,8 +68,13 @@ uint8_t color_U_min;
 uint8_t color_U_max;
 uint8_t color_V_min;
 uint8_t color_V_max;
+
 // Other settings:
 int min_pixel_size;
+
+// variable used to count the number of color checks,
+// so that we can better restrain the total number of samples taken:
+int n_total_samples;
 
 // Result
 #define MAX_GATES 50
@@ -138,6 +143,10 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
   static struct gate_img previous_best_gate = {0};
   static struct gate_img last_gate;
 
+  // For a new image, set the total number of samples to 0:
+  // This number is augmented when checking the color of a pixel.
+  n_total_samples = 0;
+
   color_Y_min = color_Ym;
   color_Y_max = color_YM;
   color_U_min  = color_Um;
@@ -153,16 +162,25 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
 
   // variables for snake gate detection:
   int y_low = 0;
+  int x_l = 0;
   int y_high = 0;
+  int x_h = 0;
   int x_low1 = 0;
+  int y_l1 = 0;
   int x_high1 = 0;
+  int y_h1 = 0;
   int x_low2 = 0;
+  int y_l2 = 0;
   int x_high2 = 0;
+  int y_h2 = 0;
   int sz = 0;
   int szx1 = 0;
   int szx2 = 0;
 
-  for (int i = 0; i < n_samples; i++) {
+  //for (int i = 0; i < n_samples; i++) {
+  while(n_total_samples < n_samples) {
+
+    // TODO: would it work better to scan different lines in the image?
     // get a random coordinate:
     x = rand() % img->h;
     y = rand() % img->w;
@@ -174,7 +192,7 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
       // histogram[x]++;
 
       // snake up and down:
-      snake_up_and_down(img, x, y, &y_low, &y_high);
+      snake_up_and_down(img, x, y, &x_l, &y_low, &x_h, &y_high);
 
       // This assumes the gate to be square:
       sz = y_high - y_low;
@@ -186,8 +204,8 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
       if (sz > min_pixel_size) {
 
         // snake left and right, both for the top and bottom part of the gate:
-        snake_left_and_right(img, x, y_low, &x_low1, &x_high1);
-        snake_left_and_right(img, x, y_high, &x_low2, &x_high2);
+        snake_left_and_right(img, x_l, y_low, &x_low1, &y_l1,  &x_high1, &y_h1);
+        snake_left_and_right(img, x_h, y_high, &x_low2, &y_l2, &x_high2, &y_h2);
         x_low1 = x_low1 + (sz * gate_thickness);
         x_high1 = x_high1 - (sz * gate_thickness);
         x_low2 = x_low2 + (sz * gate_thickness);
@@ -737,21 +755,27 @@ void check_line(struct image_t *im, struct point_t Q1, struct point_t Q2, int *n
  * @param[in] im The input image.
  * @param[in] x The initial x-coordinate
  * @param[in] y The initial y-coordinate
+ * @param[in] x_low The x-coordinate that corresponds to the current y_low.
  * @param[in] y_low The current lowest y-estimate
+ * @param[in] x_high The x-coordinate that corresponds to the current y_high
  * @param[in] y_high The current highest y-estimate
  */
-void snake_up_and_down(struct image_t *im, int x, int y, int *y_low, int *y_high)
+void snake_up_and_down(struct image_t *im, int x, int y, int* x_low, int *y_low, int* x_high, int *y_high)
 {
   int done = 0;
   int x_initial = x;
   (*y_low) = y;
 
+  // TODO: perhaps it is better to put the big steps first, as to reduce computation.
   // snake towards negative y
   while ((*y_low) > 0 && !done) {
     if (check_color_snake_gate_detection(im, x, (*y_low) - 1)) {
       (*y_low)--;
-
-    } else if (x + 1 < im->h && check_color_snake_gate_detection(im, x + 1, (*y_low) - 1)) {
+    }
+    else if ((*y_low) - 2 >= 0 && check_color_snake_gate_detection(im, x, (*y_low) - 2)) {
+      (*y_low) -= 2;
+    }
+    else if (x + 1 < im->h && check_color_snake_gate_detection(im, x + 1, (*y_low) - 1)) {
       x++;
       (*y_low)--;
     } else if (x - 1 >= 0 && check_color_snake_gate_detection(im, x - 1, (*y_low) - 1)) {
@@ -759,6 +783,7 @@ void snake_up_and_down(struct image_t *im, int x, int y, int *y_low, int *y_high
       (*y_low)--;
     } else {
       done = 1;
+      (*x_low) = x;
     }
   }
 
@@ -767,10 +792,13 @@ void snake_up_and_down(struct image_t *im, int x, int y, int *y_low, int *y_high
   (*y_high) = y;
   done = 0;
   while ((*y_high) < im->w - 1 && !done) {
-
     if (check_color_snake_gate_detection(im, x, (*y_high) + 1)) {
       (*y_high)++;
-    } else if (x < im->h - 1 && check_color_snake_gate_detection(im, x + 1, (*y_high) + 1)) {
+    }
+    else if ((*y_high) < im->w - 2 && check_color_snake_gate_detection(im, x, (*y_high) + 2)) {
+      (*y_high) += 2;
+    }
+    else if (x < im->h - 1 && check_color_snake_gate_detection(im, x + 1, (*y_high) + 1)) {
       x++;
       (*y_high)++;
     } else if (x > 0 && check_color_snake_gate_detection(im, x - 1, (*y_high) + 1)) {
@@ -778,6 +806,7 @@ void snake_up_and_down(struct image_t *im, int x, int y, int *y_low, int *y_high
       (*y_high)++;
     } else {
       done = 1;
+      (*x_high) = x;
     }
   }
 }
@@ -791,9 +820,11 @@ void snake_up_and_down(struct image_t *im, int x, int y, int *y_low, int *y_high
  * @param[in] x The initial x-coordinate
  * @param[in] y The initial y-coordinate
  * @param[in] x_low The current lowest x-estimate
+ * @param[in] y_low The y-coordinate that corresponds to the current x_low
  * @param[in] x_high The current highest x-estimate
+ * @param[in] y_high The y-coordinate that corresponds to the current x_high
  */
-void snake_left_and_right(struct image_t *im, int x, int y, int *x_low, int *x_high)
+void snake_left_and_right(struct image_t *im, int x, int y, int* x_low, int *y_low, int* x_high, int *y_high)
 {
   int done = 0;
   int y_initial = y;
@@ -803,8 +834,11 @@ void snake_left_and_right(struct image_t *im, int x, int y, int *x_low, int *x_h
   while ((*x_low) > 0 && !done) {
     if (check_color_snake_gate_detection(im, (*x_low) - 1, y)) {
       (*x_low)--;
-      // } else if (y < im->h - 1 && check_color_snake_gate_detection(im, (*x_low) - 1, y + 1)) {
-    } else if (y < im->w - 1 && check_color_snake_gate_detection(im, (*x_low) - 1, y + 1)) {
+    }
+    else if ( (*x_low) > 1 && check_color_snake_gate_detection(im, (*x_low) - 2, y)) {
+      (*x_low) -= 2;
+    }
+    else if (y < im->w - 1 && check_color_snake_gate_detection(im, (*x_low) - 1, y + 1)) {
       y++;
       (*x_low)--;
     } else if (y > 0 && check_color_snake_gate_detection(im, (*x_low) - 1, y - 1)) {
@@ -812,6 +846,7 @@ void snake_left_and_right(struct image_t *im, int x, int y, int *x_low, int *x_h
       (*x_low)--;
     } else {
       done = 1;
+      (*y_low) = y;
     }
   }
 
@@ -820,11 +855,13 @@ void snake_left_and_right(struct image_t *im, int x, int y, int *x_low, int *x_h
   done = 0;
   // snake towards positive x (right)
   while ((*x_high) < im->h - 1 && !done) {
-
     if (check_color_snake_gate_detection(im, (*x_high) + 1, y)) {
       (*x_high)++;
-      // } else if (y < im->h - 1 && check_color_snake_gate_detection(im, (*x_high) + 1, y++)) {
-    } else if (y < im->w - 1 && check_color_snake_gate_detection(im, (*x_high) + 1, y++)) {
+    }
+    else if( (*x_high) < im->h - 2 && check_color_snake_gate_detection(im, (*x_high) + 2, y)) {
+      (*x_high) += 2;
+    }
+    else if (y < im->w - 1 && check_color_snake_gate_detection(im, (*x_high) + 1, y++)) {
       y++;
       (*x_high)++;
     } else if (y > 0 && check_color_snake_gate_detection(im, (*x_high) + 1, y - 1)) {
@@ -832,6 +869,7 @@ void snake_left_and_right(struct image_t *im, int x, int y, int *x_low, int *x_h
       (*x_high)++;
     } else {
       done = 1;
+      (*y_high) = y;
     }
   }
 }
@@ -959,7 +997,7 @@ int check_color_snake_gate_detection(struct image_t *im, int x, int y)
   // Please note that we have to switch x and y around here, due to the strange sensor mounting in the Bebop:
   int success = check_color_yuv422(im, y, x, color_Y_min, color_Y_max, color_U_min, color_U_max, color_V_min,
                                    color_V_max);
-
+  n_total_samples++;
   /*
   #ifdef DEBUG_SNAKE_GATE
     if(success) {
