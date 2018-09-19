@@ -154,7 +154,7 @@ struct image_t *detect_gate_func(struct image_t *img)
     drone_position.x -= gate_dist_x;
 
     // debugging the drone position:
-    // printf("Position drone: (%f, %f, %f)\n", drone_position.x, drone_position.y, drone_position.z);
+    printf("Position drone: (%f, %f, %f)\n", drone_position.x, drone_position.y, drone_position.z);
 
     // send from thread to module
     pthread_mutex_lock(&gate_detect_mutex);

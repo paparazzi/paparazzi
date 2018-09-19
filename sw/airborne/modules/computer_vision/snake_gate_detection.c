@@ -143,7 +143,7 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
   static struct gate_img previous_best_gate = {0};
   static struct gate_img last_gate;
 
-  bool check_initial_square = false;
+  bool check_initial_square = true;
   float iou_threshold = 0.7; // when bigger than this, gates are assumed to represent the same gate
 
   // For a new image, set the total number of samples to 0:
@@ -160,7 +160,7 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
 
   int x, y;
   best_quality = 0;
-  (*best_gate).quality = 0;
+  best_gate->quality = 0;
   n_gates = 0;
 
   // variables for snake gate detection:
@@ -261,6 +261,10 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
             check_gate_outline(img, gates_c[n_gates], &gates_c[n_gates].quality, &gates_c[n_gates].n_sides);
           }
 
+          if (gates_c[n_gates].quality > best_quality) {
+            best_quality = gates_c[n_gates].quality;
+          }
+
           // set the corners to make a square gate for now:
           set_gate_points(&gates_c[n_gates]);
 
@@ -319,55 +323,41 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
 #endif
 
     //init best gate
-  (*best_gate).quality = 0;
-  (*best_gate).n_sides = 0;
+  best_gate->quality = 0;
+  best_gate->n_sides = 0;
   repeat_gate = 0;
 
   // do an additional fit to improve the gate detection:
   if ((best_quality > min_gate_quality && n_gates > 0) || last_frame_detection) {
 
-    int max_candidate_gates = 10;
-    best_fitness = 100;
-
-    int initial_gate = n_gates - max_candidate_gates;
-    initial_gate = (initial_gate < 0) ? 0 : initial_gate;
-
-    for (int gate_nr = initial_gate; gate_nr < n_gates; gate_nr += 1) {
+    // go over all remaining gates:
+    for (int gate_nr = 0; gate_nr < n_gates; gate_nr++) {
 
       // get gate information:
-      set_gate_points(&gates_c[gate_nr]);
-      gate_refine_corners(img, gates_c[gate_nr].x_corners, gates_c[gate_nr].y_corners, gates_c[gate_nr].sz * 2);
+      // set_gate_points(&gates_c[gate_nr]);
 
-      // TODO: for multiple gates, we do not need to select a best gate here - unless we want to select the closest gate
-
-      // TODO: I think we can remove the temporary gate here, and just use gates_c[gate_nr]
-      // store the temporary information in the gate:
-      temp_check_gate.x = gates_c[gate_nr].x;
-      temp_check_gate.y = gates_c[gate_nr].y;
-      temp_check_gate.sz = gates_c[gate_nr].sz;
-      memcpy(temp_check_gate.x_corners, gates_c[gate_nr].x_corners, sizeof(int) * 4);
-      memcpy(temp_check_gate.y_corners, gates_c[gate_nr].y_corners, sizeof(int) * 4);
+      gate_refine_corners(img, gates_c[gate_nr].x_corners, gates_c[gate_nr].y_corners, gates_c[gate_nr].sz);
 
       // also get the color fitness
-      check_gate_outline(img, temp_check_gate, &temp_check_gate.quality, &temp_check_gate.n_sides);
+      check_gate_outline(img, gates_c[gate_nr], &gates_c[gate_nr].quality, &gates_c[gate_nr].n_sides);
 
       // If the gate is good enough:
-      if (temp_check_gate.n_sides >= min_n_sides && temp_check_gate.quality > (*best_gate).quality) {
+      if (gates_c[gate_nr].n_sides >= min_n_sides && gates_c[gate_nr].quality > best_gate->quality) {
         // store the information in the gate:
-        (*best_gate).x = temp_check_gate.x;
-        (*best_gate).y = temp_check_gate.y;
-        (*best_gate).sz = temp_check_gate.sz;
-        (*best_gate).sz_left = temp_check_gate.sz_left;
-        (*best_gate).sz_right = temp_check_gate.sz_right;
-        (*best_gate).quality = temp_check_gate.quality;
-        (*best_gate).n_sides = temp_check_gate.n_sides;
-        memcpy(&((*best_gate).x_corners[0]), &(temp_check_gate.x_corners[0]), sizeof(int) * 4);
-        memcpy(&((*best_gate).y_corners[0]), &(temp_check_gate.y_corners[0]), sizeof(int) * 4);
+        best_gate->x = gates_c[gate_nr].x;
+        best_gate->y = gates_c[gate_nr].y;
+        best_gate->sz = gates_c[gate_nr].sz;
+        best_gate->sz_left = gates_c[gate_nr].sz_left;
+        best_gate->sz_right = gates_c[gate_nr].sz_right;
+        best_gate->quality = gates_c[gate_nr].quality;
+        best_gate->n_sides = gates_c[gate_nr].n_sides;
+        memcpy(&(best_gate->x_corners[0]), gates_c[gate_nr].x_corners, sizeof(int) * 4);
+        memcpy(&(best_gate->y_corners[0]), gates_c[gate_nr].y_corners, sizeof(int) * 4);
       }
     }
 
     // if the best gate is not good enough, but we did have a detection in the previous image:
-    if (((*best_gate).quality == 0 && (*best_gate).n_sides == 0) && last_frame_detection == 1) {
+    if ((best_gate->quality == 0 && best_gate->n_sides == 0) && last_frame_detection == 1) {
 
       // TODO: is it really important to do this sorting here to get the maximum size? Is the sz property not accurate enough?
       // Or can we not assume the standard arrangement of the corners?
@@ -387,44 +377,48 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
       check_gate_outline(img, last_gate, &last_gate.quality, &last_gate.n_sides);
 
       // if the refined detection is good enough:
-      if (last_gate.n_sides >= min_n_sides && last_gate.quality > (*best_gate).quality) {
+      if (last_gate.n_sides >= min_n_sides && last_gate.quality > best_gate->quality) {
         repeat_gate = 1;
-        (*best_gate).quality = last_gate.quality;
-        (*best_gate).n_sides = last_gate.n_sides;
-        memcpy((*best_gate).x_corners, last_gate.x_corners, sizeof(int) * 4);
-        memcpy((*best_gate).y_corners, last_gate.y_corners, sizeof(int) * 4);
+        best_gate->quality = last_gate.quality;
+        best_gate->n_sides = last_gate.n_sides;
+        memcpy(best_gate->x_corners, last_gate.x_corners, sizeof(int) * 4);
+        memcpy(best_gate->y_corners, last_gate.y_corners, sizeof(int) * 4);
       }
     }
-
-#ifdef DEBUG_SNAKE_GATE
-    // draw the best gate:
-    draw_gate(img, (*best_gate));
-#endif
-
   }
 
   // prepare for the next time:
-  previous_best_gate.x = (*best_gate).x;
-  previous_best_gate.y = (*best_gate).y;
-  previous_best_gate.sz = (*best_gate).sz;
-  previous_best_gate.sz_left = (*best_gate).sz_left;
-  previous_best_gate.sz_right = (*best_gate).sz_right;
-  previous_best_gate.quality = (*best_gate).quality;
-  previous_best_gate.n_sides = (*best_gate).n_sides;
-  memcpy(previous_best_gate.x_corners, (*best_gate).x_corners, sizeof(int) * 4);
-  memcpy(previous_best_gate.y_corners, (*best_gate).y_corners, sizeof(int) * 4);
+  previous_best_gate.x = best_gate->x;
+  previous_best_gate.y = best_gate->y;
+  previous_best_gate.sz = best_gate->sz;
+  previous_best_gate.sz_left = best_gate->sz_left;
+  previous_best_gate.sz_right = best_gate->sz_right;
+  previous_best_gate.quality = best_gate->quality;
+  previous_best_gate.n_sides = best_gate->n_sides;
+  memcpy(previous_best_gate.x_corners, best_gate->x_corners, sizeof(int) * 4);
+  memcpy(previous_best_gate.y_corners, best_gate->y_corners, sizeof(int) * 4);
 
   //color filtered version of image for overlay and debugging
   if (FILTER_IMAGE) { //filter) {
     image_yuv422_colorfilt(img, img, color_Y_min, color_Y_max, color_U_min, color_U_max, color_V_min, color_V_max);
   }
 
-  if ((*best_gate).quality > (min_gate_quality * 2) && (*best_gate).n_sides >= min_n_sides) {
+  if (best_gate->quality > (min_gate_quality * 2) && best_gate->n_sides >= min_n_sides) {
     // successful detection
     last_frame_detection = 1;
 
     //draw_gate_color(img, best_gate, blue_color);
-    if (DRAW_GATE) {
+    if(DRAW_GATE) {
+      for(int gate_nr = 0; gate_nr < n_gates; gate_nr++) {
+        if(gates_c[gate_nr].n_sides >= min_n_sides && gates_c[gate_nr].quality > 2 * min_gate_quality) {
+          // draw the best gate:
+          // draw_gate(img, gates_c[gate_nr]);
+          draw_gate_color_polygon(img, gates_c[gate_nr], green_color);
+        }
+      }
+    }
+
+    /*if (DRAW_GATE) {
       int size_crosshair = 10;
       if (repeat_gate == 0) {
         draw_gate_color_polygon(img, (*best_gate), blue_color);
@@ -435,14 +429,14 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
           image_draw_crosshair(img, &loc, blue_color, size_crosshair);
         }
       }
-    }
+    }*/
     //save for next iteration
-    memcpy(last_gate.x_corners, (*best_gate).x_corners, sizeof(int) * 4);
-    memcpy(last_gate.y_corners, (*best_gate).y_corners, sizeof(int) * 4);
+    memcpy(last_gate.x_corners, best_gate->x_corners, sizeof(int) * 4);
+    memcpy(last_gate.y_corners, best_gate->y_corners, sizeof(int) * 4);
     //previous best snake gate
-    last_gate.x = (*best_gate).x;
-    last_gate.y = (*best_gate).y;
-    last_gate.sz = (*best_gate).sz;
+    last_gate.x = best_gate->x;
+    last_gate.y = best_gate->y;
+    last_gate.sz = best_gate->sz;
 
     //SIGNAL NEW DETECTION AVAILABLE
     return SUCCESS_DETECT;
