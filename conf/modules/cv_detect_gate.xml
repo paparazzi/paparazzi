@@ -45,12 +45,12 @@
 	 <dl_setting var="min_gate_quality"  min="0.0" step="0.01" max="1.0" shortname="min_qual" param="DETECT_GATE_MIN_GATE_QUALITY"/>
 	 <dl_setting var="min_n_sides"  min="0" step="1" max="4" shortname="min_sides" param="DETECT_GATE_MIN_N_SIDES"/> 
 	 <dl_setting var="gate_thickness"  min="0.0" step="0.01" max="0.2" shortname="thickness" param="DETECT_GATE_GATE_THICKNESS"/> 
-	 <dl_setting var="color_Ym"  min="0" step="1" max="255" shortname="Y_min" param="DETECT_GATE_Y_MIN"/> 
-	 <dl_setting var="color_YM"  min="0" step="1" max="255" shortname="Y_max" param="DETECT_GATE_Y_MAX"/> 
-	 <dl_setting var="color_Um"  min="0" step="1" max="255" shortname="U_min" param="DETECT_GATE_U_MIN"/> 
-	 <dl_setting var="color_UM"  min="0" step="1" max="255" shortname="U_max" param="DETECT_GATE_U_MAX"/> 
-	 <dl_setting var="color_Vm"  min="0" step="1" max="255" shortname="V_min" param="DETECT_GATE_V_MIN"/> 
-	 <dl_setting var="color_VM"  min="0" step="1" max="255" shortname="V_max" param="DETECT_GATE_V_MAX"/> 
+	 <dl_setting var="color_Ym"  min="0" step="1" max="255" shortname="Y_min" param="DETECT_GATE_Y_MIN"/>
+	 <dl_setting var="color_YM"  min="0" step="1" max="255" shortname="Y_max" param="DETECT_GATE_Y_MAX"/>
+	 <dl_setting var="color_Um"  min="0" step="1" max="255" shortname="U_min" param="DETECT_GATE_U_MIN"/>
+	 <dl_setting var="color_UM"  min="0" step="1" max="255" shortname="U_max" param="DETECT_GATE_U_MAX"/>
+	 <dl_setting var="color_Vm"  min="0" step="1" max="255" shortname="V_min" param="DETECT_GATE_V_MIN"/>
+	 <dl_setting var="color_VM"  min="0" step="1" max="255" shortname="V_max" param="DETECT_GATE_V_MAX"/>
       </dl_settings>
     </dl_settings>
   </settings>
@@ -62,9 +62,12 @@
   </header>
 
   <init fun="detect_gate_init()"/>
+  <event fun="detect_gate_event()"/>
   <makefile target="ap|nps">
     <file name="detect_gate.c"/>
+    <file name="undistortion.c" dir="modules/computer_vision/lib/vision"/>
     <file name="image.c" dir="modules/computer_vision/lib/vision"/>
+    <file name="PnP_AHRS.c" dir="modules/computer_vision/lib/vision"/>
     <file name="snake_gate_detection.c" dir="modules/computer_vision"/>    
   </makefile>
 </module>

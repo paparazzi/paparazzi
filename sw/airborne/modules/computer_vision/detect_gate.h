@@ -12,6 +12,7 @@
 
 // Module functions
 extern void detect_gate_init(void);
+extern void detect_gate_event(void);
 
 // settings:
 extern int just_filtering;
@@ -27,6 +28,9 @@ extern uint8_t color_UM;
 extern uint8_t color_Vm;
 extern uint8_t color_VM;
 
+// External variables that have the results:
+extern struct FloatVect3 drone_position;
+extern struct gate_img best_gate;
 
 
 #endif /* DETECT_GATE_MODULE_H */
