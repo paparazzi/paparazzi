@@ -46,7 +46,7 @@
 #include "paparazzi.h"
 
 // to debug the algorithm, uncomment the define:
-// #define DEBUG_SNAKE_GATE
+#define DEBUG_SNAKE_GATE
 
 // the return values of the main detection function:
 #define SUCCESS_DETECT 1
@@ -313,7 +313,8 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
   // draw all candidates:
   printf("n_gates:%d\n", n_gates);
   for (int i = 0; i < n_gates; i++) {
-    draw_gate_color_square(img, gates_c[i], white_color);
+    //draw_gate_color_square(img, gates_c[i], white_color);
+    draw_gate_color_polygon(img, gates_c[i], white_color);
   }
 #endif
 
