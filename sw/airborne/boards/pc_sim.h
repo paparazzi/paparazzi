@@ -18,6 +18,9 @@
 #define USE_BARO_BOARD 0
 #endif
 #endif
+
+#include "peripherals/video_device.h"
+
 extern struct video_config_t webcam;
 
 // Simulated cameras, see modules/computer_vision/video_thread_nps.c
