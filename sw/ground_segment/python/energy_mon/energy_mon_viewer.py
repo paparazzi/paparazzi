@@ -39,18 +39,6 @@ WIDTH = 600
 BARH = 140
 
 
-def QIColour(qi):
-    return {
-        0: wx.Colour(64, 64, 64),  # This channel is idle
-        1: wx.Colour(128, 128, 128),  # Searching
-        2: wx.Colour(0, 128, 128),  # Signal aquired
-        3: wx.Colour(255, 0, 0),  # Signal detected but unusable
-        4: wx.Colour(0, 0, 255),  # Code Lock on Signal
-        5: wx.Colour(0, 255, 0),  # Code and Carrier locked
-        6: wx.Colour(0, 255, 0),  # Code and Carrier locked
-        7: wx.Colour(0, 255, 0),  # Code and Carrier locked
-    }[qi]
-
 
 class EnergyMessage(object):
     def __init__(self, msg):
@@ -102,7 +90,7 @@ class BatteryCell(object):
         return (self.temperature / 60);
 
     def get_volt_color(self):
-        if self.voltage < 3.4:
+        if self.voltage < 3.2:
             return 0.1
         elif self.voltage < 3.6:
             return 0.5
@@ -125,9 +113,9 @@ class BatteryCell(object):
     def get_temp_color(self):
         if (self.temperature > 20) & (self.temperature < 40):
             return 1
-        elif (self.temperature > 10) & (self.temperature < 50):
-            return 0.1
-        return 0
+        elif (self.temperature > 10) & (self.temperature < 55):
+            return 0.5
+        return 0.1
 
 class EnergyMonFrame(wx.Frame):
     def message_recv(self, ac_id, msg):

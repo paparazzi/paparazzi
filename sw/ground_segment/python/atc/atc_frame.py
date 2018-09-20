@@ -27,9 +27,11 @@ import pynotify
 import array
 from cStringIO import StringIO
 
-
 PPRZ_HOME = os.getenv("PAPARAZZI_HOME", os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                                      '../../../..')))
+                                                                    '../../../..')))
+
+PPRZ_SRC = os.getenv("PAPARAZZI_SRC", os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                                    '../../../..')))
 
 sys.path.append(PPRZ_HOME + "/var/lib/python")
 
@@ -60,23 +62,63 @@ class AtcFrame(wx.Frame):
     def update(self):
         self.Refresh()
 
+    def OnSize(self, event):
+        self.w = event.GetSize()[0]
+        self.h = event.GetSize()[1]
+        self.Refresh()
+
+    def StatusBox(self, dc, nr, txt, percent, color):
+        if percent < 0:
+            percent = 0
+        if percent > 1:
+            percent = 1
+        boxw = self.stat
+        tdx = int(boxw * 10.0 / 300.0)
+        tdy = int(boxw * 6.0 / 300.0)
+        boxh = int(boxw * 40.0 / 300.0)
+        boxw = self.stat - 2*tdx
+        spacing = boxh+10
+
+        dc.SetPen(wx.Pen(wx.Colour(0,0,0)))
+	dc.SetBrush(wx.Brush(wx.Colour(220,220,220)))
+        dc.DrawRectangle(tdx, int(nr*spacing+tdx), int(boxw), boxh)
+        if color < 0.2
+            dc.SetBrush(wx.Brush(wx.Colour(250,0,0)))
+        elif color < 0.6:
+            dc.SetBrush(wx.Brush(wx.Colour(250,180,0)))
+        else:
+            dc.SetBrush(wx.Brush(wx.Colour(0,250,0)))
+#        dc.DrawLine(200,50,350,50)
+        dc.DrawRectangle(tdx, int(nr*spacing+tdx), int(boxw * percent), boxh)
+        dc.DrawText(txt,18,int(nr*spacing+tdy+tdx))
+
+
     def OnPaint(self, e):
-        tdx = 10
-        tdy = 80
 
         w = self.w
-        h = self.w
+        h = self.h
 
+        if (float(w)/float(h)) > (7.0/5.0):
+          w = int(h * 7.0/5.0)
+        else:
+          h = int(w * 5.0/7.0)
+
+	tdy = int(w * 75.0 / 700.0)
+        tdx = int(w * 15.0 / 700.0)
 
         dc = wx.PaintDC(self)
         #brush = wx.Brush("white")
         #dc.SetBackground(brush)
         #dc.Clear()
 
+	fontscale = int(w * 40.0 / 700.0)
+        if fontscale < 6:
+            fontscale = 6
+
         # Background
         dc.SetBrush(wx.Brush(wx.Colour(0,0,0), wx.TRANSPARENT))
         #dc.DrawCircle(w/2,w/2,w/2-1)
-        font = wx.Font(40, wx.ROMAN, wx.BOLD, wx.NORMAL)
+        font = wx.Font(fontscale, wx.FONTFAMILY_ROMAN, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
         dc.SetFont(font)
         dc.DrawText("Airspeed: " + str(self.airspeed) + " kt",tdx,tdx)
         dc.DrawText("Ground Speed: " + str(self.gspeed) + " kt",tdx,tdx+tdy*1)
@@ -97,8 +139,8 @@ class AtcFrame(wx.Frame):
 
     def __init__(self):
 
-        self.w = 900
-        self.h = 700
+        self.w = 700
+        self.h = 500
 
         self.airspeed = 0;
 
@@ -116,6 +158,7 @@ class AtcFrame(wx.Frame):
 
 
         self.Bind(wx.EVT_PAINT, self.OnPaint)
+        self.Bind(wx.EVT_SIZE, self.OnSize)
         self.Bind(wx.EVT_CLOSE, self.OnClose)
 
         ico = wx.Icon(PPRZ_SRC + "/sw/ground_segment/python/atc/atc.ico", wx.BITMAP_TYPE_ICO)
