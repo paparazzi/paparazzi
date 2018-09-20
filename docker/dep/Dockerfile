@@ -32,7 +32,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
     paparazzi-jsbsim \
     x11-apps \
     gedit \
-    gazebo7-dev
+    libgazebo7-dev
 
 # Clean up APT when done.
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
