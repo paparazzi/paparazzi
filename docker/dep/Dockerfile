@@ -19,6 +19,8 @@ ENV LANG C.UTF-8
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y software-properties-common
 RUN add-apt-repository ppa:paparazzi-uav/ppa
 RUN add-apt-repository ppa:team-gcc-arm-embedded/ppa
+RUN sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
+RUN wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
 
 # install paparazzi-dev which pull in the dependencies
 # also install cross compiler and some stuff for X
@@ -29,7 +31,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
     paparazzi-dev \
     paparazzi-jsbsim \
     x11-apps \
-    gedit
+    gedit \
+    gazebo7
 
 # Clean up APT when done.
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

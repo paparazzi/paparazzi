@@ -408,7 +408,7 @@
   />
   <aircraft
    name="ardrone2_gazebo"
-   ac_id="32"
+   ac_id="44"
    airframe="airframes/examples/ardrone2_gazebo.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
