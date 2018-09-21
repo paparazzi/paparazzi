@@ -418,18 +418,18 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
       }
     }
 
-    /*if (DRAW_GATE) {
+    if (DRAW_GATE) {
       int size_crosshair = 10;
       if (repeat_gate == 0) {
-        draw_gate_color_polygon(img, (*best_gate), blue_color);
-      } else if (repeat_gate == 1) {
         draw_gate_color_polygon(img, (*best_gate), green_color);
+      } else if (repeat_gate == 1) {
+        draw_gate_color_polygon(img, (*best_gate), blue_color);
         for (int i = 0; i < 3; i++) {
           struct point_t loc = { .x = last_gate.x_corners[i], .y = last_gate.y_corners[i] };
           image_draw_crosshair(img, &loc, blue_color, size_crosshair);
         }
       }
-    }*/
+    }
     //save for next iteration
     memcpy(last_gate.x_corners, best_gate->x_corners, sizeof(int) * 4);
     memcpy(last_gate.y_corners, best_gate->y_corners, sizeof(int) * 4);
@@ -550,6 +550,10 @@ void draw_gate_color_square(struct image_t *im, struct gate_img gate, uint8_t *c
       to.y = gate.x - gate.sz;
       image_draw_line_color(im, &from, &to, color);
     } else { */
+
+  if(gate.sz_left == 0) gate.sz_left = gate.sz;
+  if(gate.sz_right == 0) gate.sz_right = gate.sz;
+
   from.x = gate.y - gate.sz_left;
   from.y = gate.x - gate.sz;
   to.x = gate.y + gate.sz_left;
@@ -991,6 +995,20 @@ void refine_single_corner(struct image_t *im, int *corner_x, int *corner_y, int 
   Bound(y_h, 0, im->w);
   int y_l = (int)(y_corner_f - size_f * size_factor);
   Bound(y_l, 0, im->w);
+
+#ifdef DEBUG_SNAKE_GATE
+  // draw the box of refinement:
+  struct gate_img box;
+  box.x_corners[0] = x_l;
+  box.y_corners[0] = y_l;
+  box.x_corners[1] = x_l;
+  box.y_corners[1] = y_h;
+  box.x_corners[2] = x_r;
+  box.y_corners[2] = y_h;
+  box.x_corners[3] = x_r;
+  box.y_corners[3] = y_l;
+  draw_gate_color_polygon(im, box, green_color);
+#endif
 
   int x_size = x_r - x_l + 1;
   int y_size = y_h - y_l + 1;
