@@ -1,17 +1,12 @@
-#From inside this folder
-# docker build -t flixr/pprz-dev .
-# docker run -t -i flixr/pprz-dev /bin/bash
-# run with X11 forwarding:
-# sudo docker run -t -i -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix flixr/pprz-dev /bin/bash
-
-FROM flixr/pprz-dep
-MAINTAINER Felix Ruess <felix.ruess@gmail.com>
+FROM paparazziuav/pprz-dep
+LABEL maintainer="felix.ruess@gmail.com"
 
 # install some extra convenience packages
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
     light-themes \
     terminator \
-    vim
+    vim \
+    && rm -rf /var/lib/apt/lists/*
 
 # Clean up APT when done.
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
