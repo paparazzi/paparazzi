@@ -308,55 +308,55 @@ void guidance_indi_run(float *heading_sp) {
   //Invert this matrix
   MAT33_INV(Ga_inv, Ga);
 
-  // Calculate acceleration compensated for flap-lift effect
-  /*accel_ned_comp = filt_accel_ned - rot_to_ned*flap_lift_eff*flap_deflection;*/
-  float flap_effectiveness;
-  if(airspeed < 8) {
-    float pitch_interp = DegOfRad(eulers_zxy.theta);
-    Bound(pitch_interp, -70.0, -20.0);
-    float ratio = (pitch_interp + 20.0)/(-50.);
-    flap_effectiveness = FE_LIFT_A_PITCH + FE_LIFT_B_PITCH*ratio;
-  } else {
-    flap_effectiveness = FE_LIFT_A_AS + (airspeed - 8.0)*FE_LIFT_B_AS;
-  }
-  double flap_deflection = -actuator_state_filt_vect[0] + actuator_state_filt_vect[1];
-
-  if(update_hp_freq_and_reset > 0) {
-    double *coef_a;
-    double *coef_b;
-    switch(update_hp_freq_and_reset) {
-      case 1:
-        coef_b = coef_b1;
-        coef_a = coef_a1;
-        break;
-      case 2:
-        coef_b = coef_b2;
-        coef_a = coef_a2;
-        break;
-      case 3:
-        coef_b = coef_b3;
-        coef_a = coef_a3;
-        break;
-      case 4:
-        coef_b = coef_b4;
-        coef_a = coef_a4;
-        break;
-      default:
-        coef_b = coef_b2;
-        coef_a = coef_a2;
-        break;
-    }
-    init_fourth_order_high_pass(&flap_accel_hp, coef_a, coef_b, 0);
-    update_hp_freq_and_reset = 0;
-  }
-
-  // propagate high pass filter, because we don't want steady state offsets in the acceleration
-  update_fourth_order_high_pass(&flap_accel_hp, flap_deflection);
-
-  float flap_accel_body_x = (float) flap_accel_hp.o[0] * flap_effectiveness;
-
   float accel_x, accel_y, accel_z;
-  if(radio_control.values[5] > 0) {
+  if(radio_control.values[INDI_FUNCTIONS_RC_CHANNEL] > 0) {
+    // Calculate acceleration compensated for flap-lift effect
+    /*accel_ned_comp = filt_accel_ned - rot_to_ned*flap_lift_eff*flap_deflection;*/
+    float flap_effectiveness;
+    if(airspeed < 8) {
+      float pitch_interp = DegOfRad(eulers_zxy.theta);
+      Bound(pitch_interp, -70.0, -20.0);
+      float ratio = (pitch_interp + 20.0)/(-50.);
+      flap_effectiveness = FE_LIFT_A_PITCH + FE_LIFT_B_PITCH*ratio;
+    } else {
+      flap_effectiveness = FE_LIFT_A_AS + (airspeed - 8.0)*FE_LIFT_B_AS;
+    }
+    double flap_deflection = -actuator_state_filt_vect[0] + actuator_state_filt_vect[1];
+
+    if(update_hp_freq_and_reset > 0) {
+      double *coef_a;
+      double *coef_b;
+      switch(update_hp_freq_and_reset) {
+        case 1:
+          coef_b = coef_b1;
+          coef_a = coef_a1;
+          break;
+        case 2:
+          coef_b = coef_b2;
+          coef_a = coef_a2;
+          break;
+        case 3:
+          coef_b = coef_b3;
+          coef_a = coef_a3;
+          break;
+        case 4:
+          coef_b = coef_b4;
+          coef_a = coef_a4;
+          break;
+        default:
+          coef_b = coef_b2;
+          coef_a = coef_a2;
+          break;
+      }
+      init_fourth_order_high_pass(&flap_accel_hp, coef_a, coef_b, 0);
+      update_hp_freq_and_reset = 0;
+    }
+
+    // propagate high pass filter, because we don't want steady state offsets in the acceleration
+    update_fourth_order_high_pass(&flap_accel_hp, flap_deflection);
+
+    float flap_accel_body_x = (float) flap_accel_hp.o[0] * flap_effectiveness;
+
     struct FloatRMat rot_mat;
     float_rmat_of_quat(&rot_mat, stateGetNedToBodyQuat_f());
     accel_x = filt_accel_ned[0].o[0] - RMAT_ELMT(rot_mat, 0,0) * flap_accel_body_x;

@@ -34,6 +34,9 @@
 #error "You need to use WLS control allocation for this module"
 #endif
 
+#ifndef INDI_FUNCTIONS_RC_CHANNEL
+#error "You need to define an RC channel to switch between simple and advanced scheduling"
+#endif
 
 static float g1g2_forward[INDI_OUTPUTS][INDI_NUM_ACT] = {FWD_G1_ROLL,
                                                   FWD_G1_PITCH, FWD_G1_YAW, FWD_G1_THRUST
@@ -66,7 +69,7 @@ void ctrl_eff_scheduling_init(void)
 
 void ctrl_eff_scheduling_periodic(void)
 {
-  if(radio_control.values[6] > 0) {
+  if(radio_control.values[INDI_FUNCTIONS_RC_CHANNEL] > 0) {
     ctrl_eff_scheduling_periodic_b();
   } else {
     ctrl_eff_scheduling_periodic_a();
@@ -74,10 +77,10 @@ void ctrl_eff_scheduling_periodic(void)
 
 #ifdef INDI_THRUST_ON_PITCH_EFF
   //State prioritization {W Roll, W pitch, W yaw, TOTAL THRUST}
-  if(radio_control.values[6] > 0 && (actuator_state_filt_vect[0] < -7000) && (actuator_state_filt_vect[1] > 7000)) {
+  if(radio_control.values[INDI_FUNCTIONS_RC_CHANNEL] > 0 && (actuator_state_filt_vect[0] < -7000) && (actuator_state_filt_vect[1] > 7000)) {
     Bwls[1][2] = INDI_THRUST_ON_PITCH_EFF/INDI_G_SCALING;
     Bwls[1][3] = INDI_THRUST_ON_PITCH_EFF/INDI_G_SCALING;
-  } else if(radio_control.values[6] > 0 && (actuator_state_filt_vect[0] > 7000) && (actuator_state_filt_vect[1] < -7000)) {
+  } else if(radio_control.values[INDI_FUNCTIONS_RC_CHANNEL] > 0 && (actuator_state_filt_vect[0] > 7000) && (actuator_state_filt_vect[1] < -7000)) {
     Bwls[1][2] = -INDI_THRUST_ON_PITCH_EFF/INDI_G_SCALING;
     Bwls[1][3] = -INDI_THRUST_ON_PITCH_EFF/INDI_G_SCALING;
   } else {
