@@ -148,7 +148,7 @@
    name="CYFOAM"
    ac_id="94"
    airframe="airframes/tudelft/cyfoam.xml"
-   radio="radios/T10CG_SBUS.xml"
+   radio="radios/sbus_delft.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/tudelft/cyclone_valkenburg.xml"
    settings="settings/rotorcraft_basic.xml"
