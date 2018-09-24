@@ -77,11 +77,8 @@ int min_pixel_size;
 int n_total_samples;
 
 // Result
-#define MAX_GATES 50
-struct gate_img gates_c[MAX_GATES];
 struct gate_img temp_check_gate;
 struct image_t img_result;
-int n_gates = 0;
 float best_quality = 0;
 float best_fitness = 100000;
 
@@ -129,13 +126,14 @@ int cmp_i(const void *a, const void *b)
  * @param[in] color_uM The U maximum value
  * @param[in] color_vm The V minimum value
  * @param[in] color_vM The V maximum value
- * @param[in] *best_gate This gate_img struct will be filled with the data of the best detected gate.
+ * @param[out] *best_gate This gate_img struct will be filled with the data of the best detected gate.
+ * @param[out] *gates_c Array of gates with size MAX_GATES
  */
 
 int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, float min_gate_quality,
                          float gate_thickness, int min_n_sides,
                          uint8_t color_Ym, uint8_t color_YM, uint8_t color_Um, uint8_t color_UM, uint8_t color_Vm, uint8_t color_VM,
-                         struct gate_img *best_gate)
+                         struct gate_img *best_gate, struct gate_img *gates_c, int *n_gates)
 {
 
   static int last_frame_detection = 0;
@@ -146,6 +144,8 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
   bool check_initial_square = true;
   float iou_threshold = 0.7; // when bigger than this, gates are assumed to represent the same gate
 
+
+  (*n_gates) = 0;
   // For a new image, set the total number of samples to 0:
   // This number is augmented when checking the color of a pixel.
   n_total_samples = 0;
@@ -161,7 +161,7 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
   int x, y;
   best_quality = 0;
   best_gate->quality = 0;
-  n_gates = 0;
+  (*n_gates) = 0;
 
   // variables for snake gate detection:
   int y_low = 0;
@@ -233,79 +233,79 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
 
         if (sz > min_pixel_size) {
           // create the gate:
-          gates_c[n_gates].x = x;
-          gates_c[n_gates].y = y;
+          gates_c[(*n_gates)].x = x;
+          gates_c[(*n_gates)].y = y;
           // store the half gate size:
-          gates_c[n_gates].sz = sz / 2;
+          gates_c[(*n_gates)].sz = sz / 2;
 
           if(check_initial_square) {
 
             // check the gate quality:
-            check_gate_initial(img, gates_c[n_gates], &gates_c[n_gates].quality, &gates_c[n_gates].n_sides);
+            check_gate_initial(img, gates_c[(*n_gates)], &gates_c[(*n_gates)].quality, &gates_c[(*n_gates)].n_sides);
           }
           else {
 
             // The first two corners have a high y:
-            gates_c[n_gates].x_corners[0] = x_low2;
-            gates_c[n_gates].y_corners[0] = y_l2;
-            gates_c[n_gates].x_corners[1] = x_high2;
-            gates_c[n_gates].y_corners[1] = y_h2;
+            gates_c[(*n_gates)].x_corners[0] = x_low2;
+            gates_c[(*n_gates)].y_corners[0] = y_l2;
+            gates_c[(*n_gates)].x_corners[1] = x_high2;
+            gates_c[(*n_gates)].y_corners[1] = y_h2;
 
             // The third and fourth corner have a low y:
-            gates_c[n_gates].x_corners[2] = x_high1;
-            gates_c[n_gates].y_corners[2] = y_h1;
-            gates_c[n_gates].x_corners[3] = x_low1;
-            gates_c[n_gates].y_corners[3] = y_l1;
+            gates_c[(*n_gates)].x_corners[2] = x_high1;
+            gates_c[(*n_gates)].y_corners[2] = y_h1;
+            gates_c[(*n_gates)].x_corners[3] = x_low1;
+            gates_c[(*n_gates)].y_corners[3] = y_l1;
 
             // check the polygon:
-            check_gate_outline(img, gates_c[n_gates], &gates_c[n_gates].quality, &gates_c[n_gates].n_sides);
+            check_gate_outline(img, gates_c[(*n_gates)], &gates_c[(*n_gates)].quality, &gates_c[(*n_gates)].n_sides);
           }
 
-          if (gates_c[n_gates].quality > best_quality) {
-            best_quality = gates_c[n_gates].quality;
+          if (gates_c[(*n_gates)].quality > best_quality) {
+            best_quality = gates_c[(*n_gates)].quality;
           }
 
           // set the corners to make a square gate for now:
-          set_gate_points(&gates_c[n_gates]);
+          set_gate_points(&gates_c[(*n_gates)]);
 
           // TODO: for multiple gates we need to use intersection of union and fitness here.
           bool add_gate = true;
           float iou;
-          for(int g = 0; g < n_gates; g++) {
-            iou = intersection_over_union(gates_c[g].x_corners, gates_c[g].y_corners, gates_c[n_gates].x_corners, gates_c[n_gates].y_corners);
+          for(int g = 0; g < (*n_gates); g++) {
+            iou = intersection_over_union(gates_c[g].x_corners, gates_c[g].y_corners, gates_c[(*n_gates)].x_corners, gates_c[(*n_gates)].y_corners);
             if(iou > iou_threshold) {
               // we are looking at an existing gate:
               add_gate = false;
 
-              if(gates_c[g].quality > gates_c[n_gates].quality) {
+              if(gates_c[g].quality > gates_c[(*n_gates)].quality) {
                 // throw the current gate away:
                 break;
               }
               else {
                 // throw the old gate away:
                 // TODO: consider making a function for doing this "deep" copy
-                gates_c[g].x = gates_c[n_gates].x;
-                gates_c[g].y = gates_c[n_gates].y;
-                gates_c[g].sz = gates_c[n_gates].sz;
-                gates_c[g].quality = gates_c[n_gates].quality;
-                memcpy(gates_c[g].x_corners, gates_c[n_gates].x_corners, sizeof(int) * 4);
-                memcpy(gates_c[g].y_corners, gates_c[n_gates].y_corners, sizeof(int) * 4);
+                gates_c[g].x = gates_c[(*n_gates)].x;
+                gates_c[g].y = gates_c[(*n_gates)].y;
+                gates_c[g].sz = gates_c[(*n_gates)].sz;
+                gates_c[g].quality = gates_c[(*n_gates)].quality;
+                memcpy(gates_c[g].x_corners, gates_c[(*n_gates)].x_corners, sizeof(int) * 4);
+                memcpy(gates_c[g].y_corners, gates_c[(*n_gates)].y_corners, sizeof(int) * 4);
               }
             }
           }
           if(add_gate) {
-              n_gates++;
+              (*n_gates)++;
           }
           /*
           // only increment the number of gates if the quality is better
           // else it will be overwritten by the next one
-          if (gates_c[n_gates].quality > best_quality) {
-            best_quality = gates_c[n_gates].quality;
-            n_gates++;
+          if (gates_c[(*n_gates)].quality > best_quality) {
+            best_quality = gates_c[(*n_gates)].quality;
+            (*n_gates)++;
           }*/
         }
 
-        if (n_gates >= MAX_GATES) {
+        if ((*n_gates) >= MAX_GATES) {
           break;
         }
       }
@@ -314,8 +314,8 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
 
 #ifdef DEBUG_SNAKE_GATE
   // draw all candidates:
-  // printf("n_gates:%d\n", n_gates);
-  for (int i = 0; i < n_gates; i++) {
+  // printf("(*n_gates):%d\n", (*n_gates));
+  for (int i = 0; i < (*n_gates); i++) {
     //draw_gate_color_square(img, gates_c[i], white_color);
     draw_gate_color_polygon(img, gates_c[i], white_color);
   }
@@ -327,10 +327,10 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
   repeat_gate = 0;
 
   // do an additional fit to improve the gate detection:
-  if ((best_quality > min_gate_quality && n_gates > 0) || last_frame_detection) {
+  if ((best_quality > min_gate_quality && (*n_gates) > 0) || last_frame_detection) {
 
     // go over all remaining gates:
-    for (int gate_nr = 0; gate_nr < n_gates; gate_nr++) {
+    for (int gate_nr = 0; gate_nr < (*n_gates); gate_nr++) {
 
       // get gate information:
       // set_gate_points(&gates_c[gate_nr]);
@@ -413,7 +413,7 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
 
     //draw_gate_color(img, best_gate, blue_color);
     if(DRAW_GATE) {
-      for(int gate_nr = 0; gate_nr < n_gates; gate_nr++) {
+      for(int gate_nr = 0; gate_nr < (*n_gates); gate_nr++) {
         if(gates_c[gate_nr].n_sides >= min_n_sides && gates_c[gate_nr].quality > 2 * min_gate_quality) {
           // draw the best gate:
           // draw_gate(img, gates_c[gate_nr]);

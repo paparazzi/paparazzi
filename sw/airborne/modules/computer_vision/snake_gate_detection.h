@@ -44,6 +44,8 @@
 #include "math/pprz_algebra.h"
 #include "math/pprz_algebra_float.h"
 
+#define MAX_GATES 50
+
 /* Gate structure */
 struct gate_img {
   int x;             ///< The image x coordinate of the gate center
@@ -61,8 +63,7 @@ struct gate_img {
 int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, float min_gate_quality,
                          float gate_thickness, int min_n_sides,
                          uint8_t color_Ym, uint8_t color_YM, uint8_t color_Um, uint8_t color_UM, uint8_t color_Vm, uint8_t color_VM,
-                         struct gate_img *best_gate);
-
+                         struct gate_img *best_gate, struct gate_img *gates_c, int *n_gates);
 
 // helper functions:
 int check_color_snake_gate_detection(struct image_t *im, int x, int y);

@@ -38,6 +38,8 @@
 #include "state.h"
 #include <stdio.h>
 
+// #define DEBUG_PNP
+
 /**
  * Get the world position of the camera, given image coordinates and corresponding world coordinates.
  *
@@ -50,8 +52,7 @@
  * @param[out] A single struct FloatVect3 representing the camera world position.
  */
 struct FloatVect3 get_world_position_from_image_points(int *x_corners, int *y_corners, struct FloatVect3 *world_corners,
-    int n_corners,
-    struct camera_intrinsics_t cam_intrinsics, struct FloatEulers cam_body)
+    int n_corners, struct camera_intrinsics_t cam_intrinsics, struct FloatEulers cam_body)
 {
 
   // legend:
@@ -77,7 +78,7 @@ struct FloatVect3 get_world_position_from_image_points(int *x_corners, int *y_co
   attitude.phi =    stateGetNedToBodyEulers_f()->phi;//positive ccw
   attitude.theta = stateGetNedToBodyEulers_f()->theta;//negative downward
   // local_psi typically assumed 0.0f (meaning you are straight in front of the object):
-  float local_psi = 0.0f;
+  float local_psi = stateGetNedToBodyEulers_f()->psi;//0.0f;
   attitude.psi = local_psi;
   float_rmat_of_eulers_321(&R_E_B, &attitude);
   MAT33_TRANS(R_B_E, R_E_B);
@@ -117,25 +118,22 @@ struct FloatVect3 get_world_position_from_image_points(int *x_corners, int *y_co
 
     // transform the vector to the gate corner to earth coordinates:
     MAT33_VECT3_MUL(vec_B, R_C_B, gate_vectors[i]); // TODO: is R_C_B correct?
+    double vec_norm = sqrt(VECT3_NORM2(vec_B));
+    VECT3_SDIV(vec_B, vec_B, vec_norm);
     MAT33_VECT3_MUL(vec_E, R_B_E, vec_B);
-    double vec_norm = sqrt(VECT3_NORM2(vec_E));
-    VECT3_SDIV(vec_E, vec_E, vec_norm);
+    //double vec_norm = sqrt(VECT3_NORM2(vec_E));
+    //VECT3_SDIV(vec_E, vec_E, vec_norm);
 
-    /*
+#ifdef DEBUG_PNP
     printf("Determine world vector for corner %d\n", i);
     printf("Distorted coordinates: (x,y) = (%d, %d)\n", x_corners[i], y_corners[i]);
     printf("Normalized coordinates: (x_n, y_n) = (%f, %f)\n", x_n, y_n);
     printf("Gate vector: (%f,%f,%f)\n", gate_vectors[i].x, gate_vectors[i].y, gate_vectors[i].z);
     printf("Gate vector to Body: (%f,%f,%f)\n", vec_B.x, vec_B.y, vec_B.z);
     printf("Gate vector to World: (%f,%f,%f)\n", vec_E.x, vec_E.y, vec_E.z);
-    printf("Euler angles body: (pitch, roll, yaw) = (%f, %f, %f)\n", cam_body.theta, cam_body.phi, cam_body.psi);
-    // printf("R_B_E:\n");
-    // MAT_PRINT(3, 3, R_B_E);
+    printf("Euler angles body: (pitch, roll, yaw) = (%f, %f, %f)\n", attitude.theta, attitude.phi, attitude.psi);
     printf("World corner %d: (%f, %f, %f)\n", i, world_corners[i].x, world_corners[i].y, world_corners[i].z);
-    */
-
-    // to ned
-    // vec_E.z = -vec_E.z;
+#endif
 
     VECT3_VECT3_TRANS_MUL(temp_mat, vec_E, vec_E); // n(:,i)*n(:,i)'
     MAT33_MAT33_DIFF(temp_mat, I_mat, temp_mat); // (eye(3,3)-n(:,i)*n(:,i)')
@@ -149,7 +147,7 @@ struct FloatVect3 get_world_position_from_image_points(int *x_corners, int *y_co
   MAT33_INV(temp_mat, Q_mat);
   MAT33_VECT3_MUL(pos_drone_E_vec, temp_mat, p_vec); // position = inv(Q) * p
 
-  // transformation of coordinates - TODO: find out why these are different than one would expect.
+  // transformation of coordinates
   float temp = pos_drone_E_vec.y;
   pos_drone_E_vec.y = -pos_drone_E_vec.z;
   pos_drone_E_vec.z = -temp;
