@@ -74,9 +74,11 @@ void draw_gate_color_polygon(struct image_t *im, struct gate_img gate, uint8_t *
 void check_line(struct image_t *im, struct point_t Q1, struct point_t Q2, int *n_points, int *n_colored_points);
 void check_gate_initial(struct image_t *im, struct gate_img gate, float *quality, int *sides);
 void check_gate_outline(struct image_t *im, struct gate_img gate, float *quality, int *n_sides);
+float check_inside(struct image_t *im, int x, int y, int sz, int n_samples_in);
 void set_gate_points(struct gate_img *gate);
 void gate_refine_corners(struct image_t *color_image, int *x_points, int *y_points, int size);
 void refine_single_corner(struct image_t *im, int *corner_x, int *corner_y, int size, float size_factor);
 int overlap_intervals(int val_low_1, int val_high_1, int val_low_2, int val_high_2);
 int intersection_boxes(int x_box_1[4], int y_box_1[4], int x_box_2[4], int y_box_2[4]);
 float intersection_over_union(int x_box_1[4], int y_box_1[4], int x_box_2[4], int y_box_2[4]);
+

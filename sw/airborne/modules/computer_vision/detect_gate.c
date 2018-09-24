@@ -145,12 +145,12 @@ struct image_t *detect_gate_func(struct image_t *img)
     }
     printf("\n");
 
-    drone_position = get_world_position_from_image_points(best_gate.x_corners, best_gate.y_corners, world_corners, 3,
-                     DETECT_GATE_CAMERA.camera_intrinsics, cam_body);
-    drone_position.x -= gate_dist_x;
-
-    // debugging the drone position:
-    printf("Position drone: (%f, %f, %f)\n", drone_position.x, drone_position.y, drone_position.z);
+    if(best_gate.quality > min_gate_quality*2) {
+      drone_position = get_world_position_from_image_points(best_gate.x_corners, best_gate.y_corners, world_corners, 3,
+                                                            DETECT_GATE_CAMERA.camera_intrinsics, cam_body);
+      // debugging the drone position:
+      printf("Position drone: (%f, %f, %f)\n", drone_position.x, drone_position.y, drone_position.z);
+    }
 
     // send from thread to module
     pthread_mutex_lock(&gate_detect_mutex);

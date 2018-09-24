@@ -53,7 +53,7 @@
 #define FAIL_DETECT 0
 
 // whether to filter the image and show the best gate(s):
-#define FILTER_IMAGE 1
+#define FILTER_IMAGE 0
 #define DRAW_GATE 1
 
 // Standard colors in UYVY:
@@ -657,6 +657,16 @@ void check_gate_outline(struct image_t *im, struct gate_img gate, float *quality
   } else {
     (*quality) = ((float) n_colored_points) / ((float) n_points);
   }
+
+
+  // Check the inside of the gate - again:
+  int n_samples_in = 100;
+  float center_discard_threshold = 0.25;
+  gate.sz = gate.x_corners[1] - gate.x_corners[0];
+  float center_factor = check_inside(im, gate.x, gate.y, gate.sz, n_samples_in);
+  if (center_factor > center_discard_threshold) {
+    (*quality) = 0;
+  }
 }
 
 
@@ -738,24 +748,62 @@ extern void check_gate_initial(struct image_t *im, struct gate_img gate, float *
     (*quality) = ((float) n_colored_points) / ((float) n_points);
   }
 
+
   // check that the inside of the gate is not of the target color as well:
-  int n_samples_in = 20;
-  float num_color_center = 0;
+  int n_samples_in = 100;
   float center_discard_threshold = 0.25;
+  float center_factor = check_inside(im, gate.x, gate.y, gate.sz, n_samples_in);
+  if (center_factor > center_discard_threshold) {
+    (*quality) = 0;
+  }
+
+
+}
+
+/* Check inside of a gate, in order to exclude solid areas.
+ *
+ * @param[out] center_factor The ratio of pixels inside the box that are of the right color.
+ * @param[in] im The YUV422 image.
+ * @param[in] x The center x-coordinate of the gate
+ * @param[in] y The center y-coordinate of the gate
+ * @param[in] sz The size of the gate - when approximated as square.
+ * @param[in] n_samples_in The number of samples used to determine the ratio.
+ */
+
+float check_inside(struct image_t *im, int x, int y, int sz, int n_samples_in) {
+  int num_color_center = 0;
+  int n_samples = 0;
+
+  if(sz == 0) {
+    printf("sz = 0 actually happens...\n");
+    return 1.0f;
+  }
+
   for (int i = 0; i < n_samples_in; i++) {
     // get a random coordinate:
-    int x_in = gate.x + (rand() % gate.sz) - (0.5 * gate.sz);
-    int y_in = gate.y + (rand() % gate.sz) - (0.5 * gate.sz);
+    int x_in = x + (rand() % sz) - (0.5 * sz);
+    int y_in = y + (rand() % sz) - (0.5 * sz);
 
-    // check if it has the right color
-    if (check_color_snake_gate_detection(im, x_in, y_in)) {
-      num_color_center ++;
+    if(y_in >= 0 && y_in < im->w && x_in >= 0 && x_in < im->h) {
+      n_samples++;
+      // check if it has the right color
+      if (check_color_snake_gate_detection(im, x_in, y_in)) {
+        num_color_center ++;
+      }
     }
   }
   //how much center pixels colored?
-  float center_factor = num_color_center / (float)n_samples_in;
-  if (center_factor > center_discard_threshold) { (*quality) = 0; }
 
+  if(n_samples == 0) {
+    printf("n_samples = 0 actually happens... x,y,sz = %d, %d, %d\n", x, y, sz);
+    return 1.0f;
+  }
+
+  float center_factor = 0;
+  if(n_samples != 0) {
+    center_factor = num_color_center / (float)n_samples;
+  }
+  return center_factor;
 }
 
 /**
@@ -1000,6 +1048,7 @@ void refine_single_corner(struct image_t *im, int *corner_x, int *corner_y, int 
   int y_l = (int)(y_corner_f - size_f * size_factor);
   Bound(y_l, 0, im->w);
 
+/*
 #ifdef DEBUG_SNAKE_GATE
   // draw the box of refinement:
   struct gate_img box;
@@ -1011,9 +1060,9 @@ void refine_single_corner(struct image_t *im, int *corner_x, int *corner_y, int 
   box.y_corners[2] = y_h;
   box.x_corners[3] = x_r;
   box.y_corners[3] = y_l;
-  draw_gate_color_polygon(im, box, green_color);
+  draw_gate_color_polygon(im, box, green_color); // becomes grey, since it is called before the filtering...
 #endif
-
+*/
   int x_size = x_r - x_l + 1;
   int y_size = y_h - y_l + 1;
 
