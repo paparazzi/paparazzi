@@ -36,6 +36,7 @@
 // Own Header
 #include "PnP_AHRS.h"
 #include "state.h"
+#include <stdio.h>
 
 /**
  * Get the world position of the camera, given image coordinates and corresponding world coordinates.
@@ -108,22 +109,33 @@ struct FloatVect3 get_world_position_from_image_points(int *x_corners, int *y_co
     // undistort the image coordinate and put it in a world vector:
     float x_n, y_n;
     // TODO: use the boolean that is returned to take action if undistortion is not possible.
-    // Please note that x and y are inverted here due to the Parrot Bebop sensor mounting:
-    // TODO: should we indeed invert them?
-    distorted_pixels_to_normalized_coords((float) y_corners[i], (float) x_corners[i], &y_n, &x_n, cam_intrinsics.Dhane_k, K);
+    distorted_pixels_to_normalized_coords((float) x_corners[i], (float) y_corners[i], &x_n, &y_n, cam_intrinsics.Dhane_k, K);
 
-    gate_vectors[i].x = 1.0;
-    gate_vectors[i].y = x_n; // TODO: should this not be the other way around?
-    gate_vectors[i].z = y_n;
+    gate_vectors[i].x = 1.0; // positive to the front
+    gate_vectors[i].y = y_n; // positive to the right
+    gate_vectors[i].z = -x_n; // positive down
 
     // transform the vector to the gate corner to earth coordinates:
-    MAT33_VECT3_MUL(vec_B, R_C_B, gate_vectors[i]);
+    MAT33_VECT3_MUL(vec_B, R_C_B, gate_vectors[i]); // TODO: is R_C_B correct?
     MAT33_VECT3_MUL(vec_E, R_B_E, vec_B);
     double vec_norm = sqrt(VECT3_NORM2(vec_E));
     VECT3_SDIV(vec_E, vec_E, vec_norm);
 
+    /*
+    printf("Determine world vector for corner %d\n", i);
+    printf("Distorted coordinates: (x,y) = (%d, %d)\n", x_corners[i], y_corners[i]);
+    printf("Normalized coordinates: (x_n, y_n) = (%f, %f)\n", x_n, y_n);
+    printf("Gate vector: (%f,%f,%f)\n", gate_vectors[i].x, gate_vectors[i].y, gate_vectors[i].z);
+    printf("Gate vector to Body: (%f,%f,%f)\n", vec_B.x, vec_B.y, vec_B.z);
+    printf("Gate vector to World: (%f,%f,%f)\n", vec_E.x, vec_E.y, vec_E.z);
+    printf("Euler angles body: (pitch, roll, yaw) = (%f, %f, %f)\n", cam_body.theta, cam_body.phi, cam_body.psi);
+    // printf("R_B_E:\n");
+    // MAT_PRINT(3, 3, R_B_E);
+    printf("World corner %d: (%f, %f, %f)\n", i, world_corners[i].x, world_corners[i].y, world_corners[i].z);
+    */
+
     // to ned
-    vec_E.z = -vec_E.z;
+    // vec_E.z = -vec_E.z;
 
     VECT3_VECT3_TRANS_MUL(temp_mat, vec_E, vec_E); // n(:,i)*n(:,i)'
     MAT33_MAT33_DIFF(temp_mat, I_mat, temp_mat); // (eye(3,3)-n(:,i)*n(:,i)')
@@ -136,6 +148,11 @@ struct FloatVect3 get_world_position_from_image_points(int *x_corners, int *y_co
   // Solve the linear system:
   MAT33_INV(temp_mat, Q_mat);
   MAT33_VECT3_MUL(pos_drone_E_vec, temp_mat, p_vec); // position = inv(Q) * p
+
+  // transformation of coordinates - TODO: find out why these are different than one would expect.
+  float temp = pos_drone_E_vec.y;
+  pos_drone_E_vec.y = -pos_drone_E_vec.z;
+  pos_drone_E_vec.z = -temp;
 
   //bound y to remove outliers
   float y_threshold = 4;

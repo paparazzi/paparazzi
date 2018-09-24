@@ -314,7 +314,7 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
 
 #ifdef DEBUG_SNAKE_GATE
   // draw all candidates:
-  printf("n_gates:%d\n", n_gates);
+  // printf("n_gates:%d\n", n_gates);
   for (int i = 0; i < n_gates; i++) {
     //draw_gate_color_square(img, gates_c[i], white_color);
     draw_gate_color_polygon(img, gates_c[i], white_color);
@@ -775,7 +775,7 @@ float check_inside(struct image_t *im, int x, int y, int sz, int n_samples_in) {
   int n_samples = 0;
 
   if(sz == 0) {
-    printf("sz = 0 actually happens...\n");
+    // printf("sz = 0 actually happens...\n");
     return 1.0f;
   }
 
@@ -795,7 +795,7 @@ float check_inside(struct image_t *im, int x, int y, int sz, int n_samples_in) {
   //how much center pixels colored?
 
   if(n_samples == 0) {
-    printf("n_samples = 0 actually happens... x,y,sz = %d, %d, %d\n", x, y, sz);
+    // printf("n_samples = 0 actually happens... x,y,sz = %d, %d, %d\n", x, y, sz);
     return 1.0f;
   }
 

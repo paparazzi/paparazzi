@@ -138,14 +138,16 @@ struct image_t *detect_gate_func(struct image_t *img)
     snake_gate_detection(img, n_samples, min_px_size, min_gate_quality, gate_thickness, min_n_sides, color_Ym, color_YM,
                          color_Um, color_UM, color_Vm, color_VM, &best_gate);
 
-    // debugging snake gate:
-    printf("Detected gate: ");
-    for(int i = 0; i < 4; i++) {
-      printf("(%d,%d) ", best_gate.x_corners[i], best_gate.y_corners[i]);
-    }
-    printf("\n");
 
     if(best_gate.quality > min_gate_quality*2) {
+
+      // debugging snake gate:
+      /*printf("Detected gate: ");
+      for(int i = 0; i < 4; i++) {
+        printf("(%d,%d) ", best_gate.x_corners[i], best_gate.y_corners[i]);
+      }
+      printf("\n");
+      */
       drone_position = get_world_position_from_image_points(best_gate.x_corners, best_gate.y_corners, world_corners, 3,
                                                             DETECT_GATE_CAMERA.camera_intrinsics, cam_body);
       // debugging the drone position:
@@ -211,13 +213,13 @@ void detect_gate_init(void)
 
   // Bottom-right, CCW:
   VECT3_ASSIGN(world_corners[0],
-               gate_dist_x, (gate_size_m / 2), gate_center_height + (gate_size_m / 2));
+               0.0f, (gate_size_m / 2), gate_center_height + (gate_size_m / 2));
   VECT3_ASSIGN(world_corners[1],
-               gate_dist_x, (gate_size_m / 2), gate_center_height - (gate_size_m / 2));
+               0.0f, (gate_size_m / 2), gate_center_height - (gate_size_m / 2));
   VECT3_ASSIGN(world_corners[2],
-               gate_dist_x, -(gate_size_m / 2), gate_center_height - (gate_size_m / 2));
+               0.0f, -(gate_size_m / 2), gate_center_height - (gate_size_m / 2));
   VECT3_ASSIGN(world_corners[3],
-               gate_dist_x, -(gate_size_m / 2), gate_center_height + (gate_size_m / 2));
+               0.0f, -(gate_size_m / 2), gate_center_height + (gate_size_m / 2));
 
   cam_body.phi = 0;
   cam_body.theta = 0;
