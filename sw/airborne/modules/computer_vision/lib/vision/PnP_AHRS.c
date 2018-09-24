@@ -62,26 +62,10 @@ struct FloatVect3 get_world_position_from_image_points(int *x_corners, int *y_co
 
   // Make an identity matrix:
   static struct FloatRMat I_mat;
-  MAT33_ELMT(I_mat, 0, 0) = 1;//(row,column)
-  MAT33_ELMT(I_mat, 0, 1) = 0;
-  MAT33_ELMT(I_mat, 0, 2) = 0;
-  MAT33_ELMT(I_mat, 1, 0) = 0;//(row,column)
-  MAT33_ELMT(I_mat, 1, 1) = 1;
-  MAT33_ELMT(I_mat, 1, 2) = 0;
-  MAT33_ELMT(I_mat, 2, 0) = 0;//(row,column)
-  MAT33_ELMT(I_mat, 2, 1) = 0;
-  MAT33_ELMT(I_mat, 2, 2) = 1;
+  FLOAT_MAT33_DIAG(I_mat, 1., 1., 1.);
 
   static struct FloatRMat Q_mat;
-  MAT33_ELMT(Q_mat, 0, 0) = 0;//(row,column)
-  MAT33_ELMT(Q_mat, 0, 1) = 0;
-  MAT33_ELMT(Q_mat, 0, 2) = 0;
-  MAT33_ELMT(Q_mat, 1, 0) = 0;//(row,column)
-  MAT33_ELMT(Q_mat, 1, 1) = 0;
-  MAT33_ELMT(Q_mat, 1, 2) = 0;
-  MAT33_ELMT(Q_mat, 2, 0) = 0;//(row,column)
-  MAT33_ELMT(Q_mat, 2, 1) = 0;
-  MAT33_ELMT(Q_mat, 2, 2) = 0;
+  FLOAT_MAT33_ZERO(Q_mat);
 
   //camera to body rotation
   struct FloatRMat R_E_B, R_B_E, R_C_B;
@@ -105,9 +89,7 @@ struct FloatVect3 get_world_position_from_image_points(int *x_corners, int *y_co
 
   // vectors in world coordinates, that will be "attached" to the world coordinates for the PnP:
   struct FloatVect3 gate_vectors[4], vec_B, vec_E, p_vec, temp_vec;
-  p_vec.x = 0;
-  p_vec.y = 0;
-  p_vec.z = 0;
+  FLOAT_VECT3_ZERO(p_vec);
 
   // Equivalent MATLAB code:
   //
@@ -118,15 +100,7 @@ struct FloatVect3 get_world_position_from_image_points(int *x_corners, int *y_co
   // where n is the normalized vector, and a is the world coordinate
 
   struct FloatRMat temp_mat, temp_mat_2;
-  MAT33_ELMT(temp_mat, 0, 0) = 0;//(row,column)
-  MAT33_ELMT(temp_mat, 0, 1) = 0;
-  MAT33_ELMT(temp_mat, 0, 2) = 0;
-  MAT33_ELMT(temp_mat, 1, 0) = 0;//(row,column)
-  MAT33_ELMT(temp_mat, 1, 1) = 0;
-  MAT33_ELMT(temp_mat, 1, 2) = 0;
-  MAT33_ELMT(temp_mat, 2, 0) = 0;//(row,column)
-  MAT33_ELMT(temp_mat, 2, 1) = 0;
-  MAT33_ELMT(temp_mat, 2, 2) = 0;
+  FLOAT_MAT33_ZERO(temp_mat);
 
   // Construct the matrix for linear least squares:
   for (int i = 0; i < n_corners; i++) {

@@ -4,7 +4,7 @@
 
 # if no arguments given, start with interactive terminal
 if test $# -lt 1; then
-    args="-t -i flixr/pprz-dev"
+    args="-t -i paparazziuav/pprz-dev"
 else
     # Use this script with derived images, and pass your 'docker run' args
     args="$@"
@@ -75,7 +75,7 @@ fi
 # use it if ENABLE_USB variable is non-empty/zero
 if [ -n "$PRIVILEGED_USB" ]; then
     echo "WARNING: running as priviliged container to enable complete USB access!"
-    echo "Better pass devices explicitly: ./run.sh -i -t --device=/dev/ttyUSB0 flixr/pprz-dev bash"
+    echo "Better pass devices explicitly: ./run.sh -i -t --device=/dev/ttyUSB0 paparazziuav/pprz-dev bash"
     USB_OPTS="--privileged --volume=/dev/bus/usb:/dev/bus/usb"
 fi
 

@@ -16,10 +16,7 @@
 #include "math/pprz_simple_matrix.h"
 
 #include "subsystems/abi.h"
-
-#ifndef DETECT_GATE_ABI_ID
-#define DETECT_GATE_ABI_ID ABI_BROADCAST
-#endif
+#include "subsystems/abi_sender_ids.h"
 
 #include "modules/computer_vision/snake_gate_detection.h"
 
@@ -141,7 +138,6 @@ struct image_t *detect_gate_func(struct image_t *img)
     snake_gate_detection(img, n_samples, min_px_size, min_gate_quality, gate_thickness, min_n_sides, color_Ym, color_YM,
                          color_Um, color_UM, color_Vm, color_VM, &best_gate);
 
-
     // debugging snake gate:
     printf("Detected gate: ");
     for(int i = 0; i < 4; i++) {
@@ -203,6 +199,7 @@ void detect_gate_init(void)
   // World coordinates: X positive towards the gate, Z positive down, Y positive right:
   // Top-left, clockwise:
   /*VECT3_ASSIGN(world_corners[0],
+
                gate_dist_x, -(gate_size_m / 2), gate_center_height - (gate_size_m / 2));
   VECT3_ASSIGN(world_corners[1],
                gate_dist_x, (gate_size_m / 2), gate_center_height - (gate_size_m / 2));

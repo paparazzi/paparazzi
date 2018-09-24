@@ -312,7 +312,6 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
     }
   }
 
-
 #ifdef DEBUG_SNAKE_GATE
   // draw all candidates:
   printf("n_gates:%d\n", n_gates);
@@ -322,7 +321,7 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
   }
 #endif
 
-    //init best gate
+  //init best gate
   best_gate->quality = 0;
   best_gate->n_sides = 0;
   repeat_gate = 0;
@@ -351,8 +350,8 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
         best_gate->sz_right = gates_c[gate_nr].sz_right;
         best_gate->quality = gates_c[gate_nr].quality;
         best_gate->n_sides = gates_c[gate_nr].n_sides;
-        memcpy(&(best_gate->x_corners[0]), gates_c[gate_nr].x_corners, sizeof(int) * 4);
-        memcpy(&(best_gate->y_corners[0]), gates_c[gate_nr].y_corners, sizeof(int) * 4);
+        memcpy(best_gate->x_corners, gates_c[gate_nr].x_corners, sizeof(best_gate->x_corners));
+        memcpy(best_gate->y_corners, gates_c[gate_nr].y_corners, sizeof(best_gate->y_corners));
       }
     }
 
@@ -363,8 +362,8 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
       // Or can we not assume the standard arrangement of the corners?
       int x_values[4];
       int y_values[4];
-      memcpy(x_values, last_gate.x_corners, sizeof(int) * 4);
-      memcpy(y_values, last_gate.y_corners, sizeof(int) * 4);
+      memcpy(x_values, last_gate.x_corners, sizeof(x_values));
+      memcpy(y_values, last_gate.y_corners, sizeof(y_values));
       //sort small to large
       qsort(x_values, 4, sizeof(int), cmpfunc);
       qsort(y_values, 4, sizeof(int), cmpfunc);
@@ -381,10 +380,15 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
         repeat_gate = 1;
         best_gate->quality = last_gate.quality;
         best_gate->n_sides = last_gate.n_sides;
-        memcpy(best_gate->x_corners, last_gate.x_corners, sizeof(int) * 4);
-        memcpy(best_gate->y_corners, last_gate.y_corners, sizeof(int) * 4);
+        memcpy(best_gate->x_corners, last_gate.x_corners, sizeof(best_gate->x_corners));
+        memcpy(best_gate->y_corners, last_gate.y_corners, sizeof(best_gate->y_corners));
       }
     }
+
+#ifdef DEBUG_SNAKE_GATE
+    // draw the best gate:
+    draw_gate(img, (*best_gate));
+#endif
   }
 
   // prepare for the next time:
@@ -395,8 +399,8 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
   previous_best_gate.sz_right = best_gate->sz_right;
   previous_best_gate.quality = best_gate->quality;
   previous_best_gate.n_sides = best_gate->n_sides;
-  memcpy(previous_best_gate.x_corners, best_gate->x_corners, sizeof(int) * 4);
-  memcpy(previous_best_gate.y_corners, best_gate->y_corners, sizeof(int) * 4);
+  memcpy(previous_best_gate.x_corners, best_gate->x_corners, sizeof(best_gate->x_corners));
+  memcpy(previous_best_gate.y_corners, best_gate->y_corners, sizeof(best_gate->y_corners));
 
   //color filtered version of image for overlay and debugging
   if (FILTER_IMAGE) { //filter) {
@@ -421,9 +425,9 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
     if (DRAW_GATE) {
       int size_crosshair = 10;
       if (repeat_gate == 0) {
-        draw_gate_color_polygon(img, (*best_gate), green_color);
-      } else if (repeat_gate == 1) {
         draw_gate_color_polygon(img, (*best_gate), blue_color);
+      } else if (repeat_gate == 1) {
+        draw_gate_color_polygon(img, (*best_gate), green_color);
         for (int i = 0; i < 3; i++) {
           struct point_t loc = { .x = last_gate.x_corners[i], .y = last_gate.y_corners[i] };
           image_draw_crosshair(img, &loc, blue_color, size_crosshair);
@@ -431,8 +435,8 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
       }
     }
     //save for next iteration
-    memcpy(last_gate.x_corners, best_gate->x_corners, sizeof(int) * 4);
-    memcpy(last_gate.y_corners, best_gate->y_corners, sizeof(int) * 4);
+    memcpy(last_gate.x_corners, best_gate->x_corners, sizeof(best_gate->x_corners));
+    memcpy(last_gate.y_corners, best_gate->y_corners, sizeof(best_gate->y_corners));
     //previous best snake gate
     last_gate.x = best_gate->x;
     last_gate.y = best_gate->y;

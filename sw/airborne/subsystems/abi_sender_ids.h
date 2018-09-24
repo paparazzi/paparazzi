@@ -412,4 +412,9 @@
 #define RELATIVE_LOCALIZATION_ID 1
 #endif
 
+
+#ifndef DETECT_GATE_ABI_ID
+#define DETECT_GATE_ABI_ID 33
+#endif
+
 #endif /* ABI_SENDER_IDS_H */
