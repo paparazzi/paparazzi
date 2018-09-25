@@ -14,7 +14,6 @@
 #include "math/pprz_algebra.h"
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_simple_matrix.h"
-#include "state.h"
 #include "subsystems/abi.h"
 #include "subsystems/abi_sender_ids.h"
 
@@ -137,42 +136,42 @@ struct image_t *detect_gate_func(struct image_t *img)
   if (just_filtering) {
     // just color filter the image, so that the user can tune the thresholds:
     image_yuv422_colorfilt(img, img, color_Ym, color_YM, color_Um, color_UM, color_Vm, color_VM);
-  }
-  else {
+  } else {
     // perform snake gate detection:
     int n_gates;
     snake_gate_detection(img, n_samples, min_px_size, min_gate_quality, gate_thickness, min_n_sides, color_Ym, color_YM,
                          color_Um, color_UM, color_Vm, color_VM, &best_gate, gates_c, &n_gates);
 
 #ifdef DEBUG_GATE
-    if(n_gates > 1) {
-      for(int i = 0; i < n_gates; i++) {
-        if(gates_c[i].quality > min_gate_quality*2 && gates_c[i].n_sides >= 3) {
-          drone_position = get_world_position_from_image_points(gates_c[i].x_corners, gates_c[i].y_corners, world_corners, n_corners,
-                                                                DETECT_GATE_CAMERA.camera_intrinsics, cam_body);
+    if (n_gates > 1) {
+      for (int i = 0; i < n_gates; i++) {
+        if (gates_c[i].quality > min_gate_quality * 2 && gates_c[i].n_sides >= 3) {
+          drone_position = get_world_position_from_image_points(gates_c[i].x_corners, gates_c[i].y_corners, world_corners,
+                           n_corners,
+                           DETECT_GATE_CAMERA.camera_intrinsics, cam_body);
           // debugging the drone position:
-          printf("Position drone - gate %d, quality = %f: (%f, %f, %f)\n", i, gates_c[i].quality, drone_position.x, drone_position.y, drone_position.z);
+          printf("Position drone - gate %d, quality = %f: (%f, %f, %f)\n", i, gates_c[i].quality, drone_position.x,
+                 drone_position.y, drone_position.z);
         }
       }
     }
 #endif
 
-    if(best_gate.quality > min_gate_quality*2) {
+    if (best_gate.quality > min_gate_quality * 2) {
 
 #ifdef DEBUG_GATE
-/*
       // debugging snake gate:
       printf("Detected gate: ");
-      for(int i = 0; i < 4; i++) {
+      for (int i = 0; i < 4; i++) {
         printf("(%d,%d) ", best_gate.x_corners[i], best_gate.y_corners[i]);
       }
       printf("\n");
-      */
 #endif
 
       // TODO: try out RANSAC with all combinations of 3 corners out of 4 corners.
-      drone_position = get_world_position_from_image_points(best_gate.x_corners, best_gate.y_corners, world_corners, n_corners,
-                                                            DETECT_GATE_CAMERA.camera_intrinsics, cam_body);
+      drone_position = get_world_position_from_image_points(best_gate.x_corners, best_gate.y_corners, world_corners,
+                       n_corners,
+                       DETECT_GATE_CAMERA.camera_intrinsics, cam_body);
 
 #ifdef DEBUG_GATE
       // debugging the drone position:

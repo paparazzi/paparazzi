@@ -78,7 +78,7 @@ struct FloatVect3 get_world_position_from_image_points(int *x_corners, int *y_co
   attitude.phi =    stateGetNedToBodyEulers_f()->phi;//positive ccw
   attitude.theta = stateGetNedToBodyEulers_f()->theta;//negative downward
   // local_psi typically assumed 0.0f (meaning you are straight in front of the object):
-  float local_psi = stateGetNedToBodyEulers_f()->psi;//0.0f;
+  float local_psi = stateGetNedToBodyEulers_f()->psi; // 0.0f;
   attitude.psi = local_psi;
   float_rmat_of_eulers_321(&R_E_B, &attitude);
   MAT33_TRANS(R_B_E, R_E_B);
@@ -110,19 +110,18 @@ struct FloatVect3 get_world_position_from_image_points(int *x_corners, int *y_co
     // undistort the image coordinate and put it in a world vector:
     float x_n, y_n;
     // TODO: use the boolean that is returned to take action if undistortion is not possible.
-    distorted_pixels_to_normalized_coords((float) x_corners[i], (float) y_corners[i], &x_n, &y_n, cam_intrinsics.Dhane_k, K);
+    distorted_pixels_to_normalized_coords((float) x_corners[i], (float) y_corners[i], &x_n, &y_n, cam_intrinsics.Dhane_k,
+                                          K);
 
     gate_vectors[i].x = 1.0; // positive to the front
     gate_vectors[i].y = y_n; // positive to the right
     gate_vectors[i].z = -x_n; // positive down
 
     // transform the vector to the gate corner to earth coordinates:
-    MAT33_VECT3_MUL(vec_B, R_C_B, gate_vectors[i]); // TODO: is R_C_B correct?
+    MAT33_VECT3_MUL(vec_B, R_C_B, gate_vectors[i]);
     double vec_norm = sqrt(VECT3_NORM2(vec_B));
     VECT3_SDIV(vec_B, vec_B, vec_norm);
     MAT33_VECT3_MUL(vec_E, R_B_E, vec_B);
-    //double vec_norm = sqrt(VECT3_NORM2(vec_E));
-    //VECT3_SDIV(vec_E, vec_E, vec_norm);
 
 #ifdef DEBUG_PNP
     printf("Determine world vector for corner %d\n", i);

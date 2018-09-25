@@ -34,7 +34,6 @@
     <define name="DETECT_GATE_U_MAX" value="121" description="Maximal U of the color filter."/>
     <define name="DETECT_GATE_V_MIN" value="134" description="Minimal V of the color filter."/>
     <define name="DETECT_GATE_V_MAX" value="230" description="Maximal V of the color filter."/>
-    <define name="DETECT_GATE_ABI_ID" value="ABI_BROADCAST" description="ID of the RELATIVE_LOCALIZATION message sent"/>
   </doc>
 
   <settings>

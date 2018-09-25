@@ -67,8 +67,8 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
 
 // helper functions:
 int check_color_snake_gate_detection(struct image_t *im, int x, int y);
-void snake_up_and_down(struct image_t *im, int x, int y, int* x_low, int *y_low, int* x_high, int *y_high);
-void snake_left_and_right(struct image_t *im, int x, int y, int* x_low, int *y_low, int* x_high, int *y_high);
+void snake_up_and_down(struct image_t *im, int x, int y, int *x_low, int *y_low, int *x_high, int *y_high);
+void snake_left_and_right(struct image_t *im, int x, int y, int *x_low, int *y_low, int *x_high, int *y_high);
 void draw_gate(struct image_t *im, struct gate_img gate);
 void draw_gate_color_square(struct image_t *im, struct gate_img gate, uint8_t *color);
 void draw_gate_color_polygon(struct image_t *im, struct gate_img gate, uint8_t *color);
