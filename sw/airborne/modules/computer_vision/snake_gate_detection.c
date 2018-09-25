@@ -46,7 +46,7 @@
 #include "paparazzi.h"
 
 // to debug the algorithm, uncomment the define:
-#define DEBUG_SNAKE_GATE
+// #define DEBUG_SNAKE_GATE
 
 // the return values of the main detection function:
 #define SUCCESS_DETECT 1
@@ -295,13 +295,6 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
           if (add_gate) {
             (*n_gates)++;
           }
-          /*
-          // only increment the number of gates if the quality is better
-          // else it will be overwritten by the next one
-          if (gates_c[(*n_gates)].quality > best_quality) {
-            best_quality = gates_c[(*n_gates)].quality;
-            (*n_gates)++;
-          }*/
         }
 
         if ((*n_gates) >= MAX_GATES) {
@@ -313,7 +306,7 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
 
 #ifdef DEBUG_SNAKE_GATE
   // draw all candidates:
-  // printf("(*n_gates):%d\n", (*n_gates));
+  printf("(*n_gates):%d\n", (*n_gates));
   for (int i = 0; i < (*n_gates); i++) {
     //draw_gate_color_square(img, gates_c[i], white_color);
     draw_gate_color_polygon(img, gates_c[i], white_color);
@@ -332,8 +325,6 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
     for (int gate_nr = 0; gate_nr < (*n_gates); gate_nr++) {
 
       // get gate information:
-      // set_gate_points(&gates_c[gate_nr]);
-
       gate_refine_corners(img, gates_c[gate_nr].x_corners, gates_c[gate_nr].y_corners, gates_c[gate_nr].sz);
 
       // also get the color fitness
@@ -526,32 +517,6 @@ void draw_gate_color_square(struct image_t *im, struct gate_img gate, uint8_t *c
   from.y = gate.x;
   image_draw_crosshair(im, &from, color, 10);
 
-
-  /*
-    if (gate.sz_left == gate.sz_right) {
-      // square
-      from.x = gate.y - gate.sz;
-      from.y = gate.x - gate.sz;
-      to.x = gate.y + gate.sz;
-      to.y = gate.x - gate.sz;
-      image_draw_line_color(im, &from, &to, color);
-      from.x = gate.y + gate.sz;
-      from.y = gate.x - gate.sz;
-      to.x = gate.y + gate.sz;
-      to.y = gate.x + gate.sz;
-      image_draw_line_color(im, &from, &to, color);
-      from.x = gate.y + gate.sz;
-      from.y = gate.x + gate.sz;
-      to.x = gate.y - gate.sz;
-      to.y = gate.x + gate.sz;
-      image_draw_line_color(im, &from, &to, color);
-      from.x = gate.y - gate.sz;
-      from.y = gate.x + gate.sz;
-      to.x = gate.y - gate.sz;
-      to.y = gate.x - gate.sz;
-      image_draw_line_color(im, &from, &to, color);
-    } else { */
-
   if (gate.sz_left == 0) { gate.sz_left = gate.sz; }
   if (gate.sz_right == 0) { gate.sz_right = gate.sz; }
 
@@ -575,7 +540,6 @@ void draw_gate_color_square(struct image_t *im, struct gate_img gate, uint8_t *c
   to.x = gate.y - gate.sz_left;
   to.y = gate.x - gate.sz;
   image_draw_line_color(im, &from, &to, color);
-  //}
 }
 
 /**
@@ -745,7 +709,6 @@ extern void check_gate_initial(struct image_t *im, struct gate_img gate, float *
     (*quality) = ((float) n_colored_points) / ((float) n_points);
   }
 
-
   // check that the inside of the gate is not of the target color as well:
   int n_samples_in = 100;
   float center_discard_threshold = 0.25;
@@ -773,7 +736,6 @@ float check_inside(struct image_t *im, int x, int y, int sz, int n_samples_in)
   int n_samples = 0;
 
   if (sz == 0) {
-    // printf("sz = 0 actually happens...\n");
     return 1.0f;
   }
 
@@ -790,10 +752,9 @@ float check_inside(struct image_t *im, int x, int y, int sz, int n_samples_in)
       }
     }
   }
-  //how much center pixels colored?
 
+  //how much center pixels colored?
   if (n_samples == 0) {
-    // printf("n_samples = 0 actually happens... x,y,sz = %d, %d, %d\n", x, y, sz);
     return 1.0f;
   }
 
