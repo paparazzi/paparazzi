@@ -1,11 +1,5 @@
-#From inside this folder
-# docker build -t flixr/pprz-dep .
-# docker run -t -i flixr/pprz-dep /bin/bash
-# docker export pprz-dep | gzip -c > pprz-dep.tgz
-# docker import pprz-dep < pprz-dep.tgz
-
 FROM ubuntu:16.04
-MAINTAINER Felix Ruess <felix.ruess@gmail.com>
+LABEL maintainer="felix.ruess@gmail.com"
 
 # Add Tini
 ENV TINI_VERSION v0.8.4
@@ -32,10 +26,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
     paparazzi-jsbsim \
     x11-apps \
     gedit \
-    libgazebo7-dev
-
-# Clean up APT when done.
-RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    && rm -rf /var/lib/apt/lists/*
 
 ENTRYPOINT ["/tini", "--"]
 CMD ["bash"]

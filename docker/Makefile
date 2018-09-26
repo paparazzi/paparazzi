@@ -15,27 +15,30 @@ help:
 	@echo ""
 
 build:
-	docker build --tag=flixr/pprz-dep dep/.
-	docker build --tag=flixr/pprz-dev dev/.
+	docker build --tag=paparazziuav/pprz-dep dep/.
+	docker build --tag=paparazziuav/pprz-dev dev/.
+	docker build --tag=paparazziuav/pprz-ci ci/.
 
 pull:
-	docker pull flixr/pprz-dep
-	docker pull flixr/pprz-dev
+	docker pull paparazziuav/pprz-dep
+	docker pull paparazziuav/pprz-dev
+	docker pull paparazziuav/pprz-ci
 
 remove_images:
-	docker rmi -f flixr/pprz-dep
-	docker rmi -f flixr/pprz-dev
+	docker rmi -f paparazziuav/pprz-dep
+	docker rmi -f paparazziuav/pprz-dev
+	docker rmi -f paparazziuav/pprz-ci
 
 bash terminator:
-	@bash run.sh -i -t flixr/pprz-dev $@
+	@bash run.sh -i -t paparazziuav/pprz-dev $@
 
 paparazzi:
-	@bash run.sh -i -t flixr/pprz-dev ./paparazzi
+	@bash run.sh -i -t paparazziuav/pprz-dev ./paparazzi
 
 start:
-	@bash run.sh -i -t flixr/pprz-dev ./start.py
+	@bash run.sh -i -t paparazziuav/pprz-dev ./start.py
 
 test:
-	@bash run.sh -i -t flixr/pprz-dev make test
+	@bash run.sh -i -t paparazziuav/pprz-dev make test
 
 .PHONY: all help build pull remove_images bash terminator paparazzi start test

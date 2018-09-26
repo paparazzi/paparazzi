@@ -516,6 +516,58 @@ extern "C" {
     MAT33_ELMT((_mat), _row, 2) = (_vin).z * (_s);           \
   }
 
+/* outer product of _v_a and _v_b, resulting in a 3x3 matrix */
+#define VECT3_VECT3_TRANS_MUL(_mat, _v_a, _v_b) { \
+    MAT33_ELMT((_mat),0,0) = (_v_a).x*(_v_b).x;   \
+    MAT33_ELMT((_mat),0,1) = (_v_a).x*(_v_b).y;   \
+    MAT33_ELMT((_mat),0,2) = (_v_a).x*(_v_b).z;   \
+    MAT33_ELMT((_mat),1,0) = (_v_a).y*(_v_b).x;   \
+    MAT33_ELMT((_mat),1,1) = (_v_a).y*(_v_b).y;   \
+    MAT33_ELMT((_mat),1,2) = (_v_a).y*(_v_b).z;   \
+    MAT33_ELMT((_mat),2,0) = (_v_a).z*(_v_b).x;   \
+    MAT33_ELMT((_mat),2,1) = (_v_a).z*(_v_b).y;   \
+    MAT33_ELMT((_mat),2,2) = (_v_a).z*(_v_b).z;   \
+  }
+
+/* elementwise subtraction of two 3x3 matrices */
+#define MAT33_MAT33_DIFF(_mat1, _mat2, _mat3) {                                 \
+    MAT33_ELMT((_mat1),0,0) = MAT33_ELMT((_mat2),0,0)-MAT33_ELMT((_mat3),0,0);  \
+    MAT33_ELMT((_mat1),0,1) = MAT33_ELMT((_mat2),0,1)-MAT33_ELMT((_mat3),0,1);  \
+    MAT33_ELMT((_mat1),0,2) = MAT33_ELMT((_mat2),0,2)-MAT33_ELMT((_mat3),0,2);  \
+    MAT33_ELMT((_mat1),1,0) = MAT33_ELMT((_mat2),1,0)-MAT33_ELMT((_mat3),1,0);  \
+    MAT33_ELMT((_mat1),1,1) = MAT33_ELMT((_mat2),1,1)-MAT33_ELMT((_mat3),1,1);  \
+    MAT33_ELMT((_mat1),1,2) = MAT33_ELMT((_mat2),1,2)-MAT33_ELMT((_mat3),1,2);  \
+    MAT33_ELMT((_mat1),2,0) = MAT33_ELMT((_mat2),2,0)-MAT33_ELMT((_mat3),2,0);  \
+    MAT33_ELMT((_mat1),2,1) = MAT33_ELMT((_mat2),2,1)-MAT33_ELMT((_mat3),2,1);  \
+    MAT33_ELMT((_mat1),2,2) = MAT33_ELMT((_mat2),2,2)-MAT33_ELMT((_mat3),2,2);  \
+  }
+
+/* elementwise addition of two 3x3 matrices */
+#define MAT33_MAT33_SUM(_mat1, _mat2, _mat3) {                                  \
+    MAT33_ELMT((_mat1),0,0) = MAT33_ELMT((_mat2),0,0)+MAT33_ELMT((_mat3),0,0);  \
+    MAT33_ELMT((_mat1),0,1) = MAT33_ELMT((_mat2),0,1)+MAT33_ELMT((_mat3),0,1);  \
+    MAT33_ELMT((_mat1),0,2) = MAT33_ELMT((_mat2),0,2)+MAT33_ELMT((_mat3),0,2);  \
+    MAT33_ELMT((_mat1),1,0) = MAT33_ELMT((_mat2),1,0)+MAT33_ELMT((_mat3),1,0);  \
+    MAT33_ELMT((_mat1),1,1) = MAT33_ELMT((_mat2),1,1)+MAT33_ELMT((_mat3),1,1);  \
+    MAT33_ELMT((_mat1),1,2) = MAT33_ELMT((_mat2),1,2)+MAT33_ELMT((_mat3),1,2);  \
+    MAT33_ELMT((_mat1),2,0) = MAT33_ELMT((_mat2),2,0)+MAT33_ELMT((_mat3),2,0);  \
+    MAT33_ELMT((_mat1),2,1) = MAT33_ELMT((_mat2),2,1)+MAT33_ELMT((_mat3),2,1);  \
+    MAT33_ELMT((_mat1),2,2) = MAT33_ELMT((_mat2),2,2)+MAT33_ELMT((_mat3),2,2);  \
+  }
+
+/* transpose of a 3x3 matrix */
+#define MAT33_TRANS(_mat1,_mat2) {                      \
+    MAT33_ELMT((_mat1),0,0) = MAT33_ELMT((_mat2),0,0);  \
+    MAT33_ELMT((_mat1),0,1) = MAT33_ELMT((_mat2),1,0);  \
+    MAT33_ELMT((_mat1),0,2) = MAT33_ELMT((_mat2),2,0);  \
+    MAT33_ELMT((_mat1),1,0) = MAT33_ELMT((_mat2),0,1);  \
+    MAT33_ELMT((_mat1),1,1) = MAT33_ELMT((_mat2),1,1);  \
+    MAT33_ELMT((_mat1),1,2) = MAT33_ELMT((_mat2),2,1);  \
+    MAT33_ELMT((_mat1),2,0) = MAT33_ELMT((_mat2),0,2);  \
+    MAT33_ELMT((_mat1),2,1) = MAT33_ELMT((_mat2),1,2);  \
+    MAT33_ELMT((_mat1),2,2) = MAT33_ELMT((_mat2),2,2);  \
+  }
+
 
 //
 //

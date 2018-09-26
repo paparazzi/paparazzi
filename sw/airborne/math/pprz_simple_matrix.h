@@ -86,12 +86,12 @@ extern "C" {
 #define MAT_MUL_VECT(_n, o, a, b) {             \
     int l,m;                                    \
     for (l = 0; l < _n; l++) {                  \
-        o[l] = 0;                               \
-        for (m = 0; m < _n; m++) {              \
-          o[l] += a[l][m] * b[m];               \
-        }                                       \
-      }                                         \
-    }
+      o[l] = 0;                               \
+      for (m = 0; m < _n; m++) {              \
+        o[l] += a[l][m] * b[m];               \
+      }                                       \
+    }                                         \
+  }
 
 //
 // invS = 1/det(S) com(S)'
@@ -121,6 +121,59 @@ extern "C" {
     _invS[0][2] =  m20 / det;                                           \
     _invS[1][2] = -m21 / det;                                           \
     _invS[2][2] =  m22 / det;                                           \
+  }
+
+//
+// C = A+B
+//
+#define MAT_SUM(_i, _j, C, A, B) {              \
+    int l,c;                                    \
+    for (l=0; l<_i; l++)                        \
+      for (c=0; c<_j; c++)                      \
+        C[l][c] = A[l][c] + B[l][c];            \
+  }
+
+
+//
+// C = A+(B*k)
+//
+#define MAT_SUM_c(_i, _j, C, A, B,k_) {         \
+    int l,c;                                    \
+    for (l=0; l<_i; l++)                        \
+      for (c=0; c<_j; c++)                      \
+        C[l][c] = A[l][c] + B[l][c]*k_;         \
+  }
+
+//
+// C = c*A*B   A:(i,k) B:(k,j) C:(i,j)
+//
+#define MAT_MUL_c(_i, _k, _j, C, A, B,c_) {     \
+    int l,c,m;                                  \
+    for (l=0; l<_i; l++)                        \
+      for (c=0; c<_j; c++) {                    \
+        C[l][c] = 0.;                           \
+        for (m=0; m<_k; m++)                    \
+          C[l][c] += c_*A[l][m]*B[m][c];        \
+      }                                         \
+  }
+
+
+#define MAT_PRINT(_i, _j,A) {                  \
+    int l,c;                                   \
+    printf("float ");                          \
+    printf(#A);                                \
+    printf(" = {\n");                          \
+    for (l=0; l<_i; l++){                      \
+      printf("{");                             \
+      for (c=0; c<_j; c++){                    \
+        if(c<(_j-1)){printf("%f,",A[l][c]);}   \
+        else{printf("%f",A[l][c]);}            \
+      }                                        \
+      if(l<(_i-1)){                            \
+        printf("} ,\n");}                      \
+      else{printf("}\n");}                     \
+    }                                          \
+    printf("}\n");                             \
   }
 
 #ifdef __cplusplus

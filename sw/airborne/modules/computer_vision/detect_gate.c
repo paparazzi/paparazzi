@@ -8,8 +8,17 @@
 #include <stdio.h>
 #include "detect_gate.h"
 #include "modules/computer_vision/lib/vision/image.h"
-#include "modules/computer_vision/snake_gate_detection.h"
 
+// For solving the Persepctive n Point problem (PnP):
+#include "modules/computer_vision/lib/vision/PnP_AHRS.h"
+#include "math/pprz_algebra.h"
+#include "math/pprz_algebra_float.h"
+#include "math/pprz_simple_matrix.h"
+
+#include "subsystems/abi.h"
+#include "subsystems/abi_sender_ids.h"
+
+#include "modules/computer_vision/snake_gate_detection.h"
 
 #ifndef DETECT_GATE_JUST_FILTER
 #define DETECT_GATE_JUST_FILTER 0
@@ -95,8 +104,26 @@ uint8_t color_UM;
 uint8_t color_Vm;
 uint8_t color_VM;
 
-// video listener:
-struct video_listener *listener = NULL;
+// External variables that have the results:
+struct FloatVect3 drone_position;
+struct gate_img best_gate;
+
+// Structure of the gate:
+struct FloatVect3 world_corners[4];
+float gate_dist_x = 3.5; //distance from filter init point to gate
+float gate_size_m = 1.4; //size of gate edges in meters
+float gate_center_height = -1.7; //height of gate in meters ned wrt ground
+
+// camera to body:
+struct FloatEulers cam_body;
+
+// Shared data between thread and main
+volatile int detect_gate_has_new_data;
+volatile float detect_gate_x;
+volatile float detect_gate_y;
+volatile float detect_gate_z;
+
+static pthread_mutex_t gate_detect_mutex;            ///< Mutex lock fo thread safety
 
 // Function
 struct image_t *detect_gate_func(struct image_t *img);
@@ -109,9 +136,50 @@ struct image_t *detect_gate_func(struct image_t *img)
   } else {
     // perform snake gate detection:
     snake_gate_detection(img, n_samples, min_px_size, min_gate_quality, gate_thickness, min_n_sides, color_Ym, color_YM,
-                         color_Um, color_UM, color_Vm, color_VM);
+                         color_Um, color_UM, color_Vm, color_VM, &best_gate);
+
+    /*
+    // debugging snake gate:
+    printf("Detected gate: ");
+    for(int i = 0; i < 4; i++) {
+      printf("(%d,%d) ", best_gate.x_corners[i], best_gate.y_corners[i]);
+    }
+    printf("\n");
+    */
+
+    drone_position = get_world_position_from_image_points(best_gate.x_corners, best_gate.y_corners, world_corners, 3,
+                     DETECT_GATE_CAMERA.camera_intrinsics, cam_body);
+    drone_position.x -= gate_dist_x;
+
+    // debugging the drone position:
+    // printf("Position drone: (%f, %f, %f)\n", drone_position.x, drone_position.y, drone_position.z);
+
+    // send from thread to module
+    pthread_mutex_lock(&gate_detect_mutex);
+    detect_gate_x = drone_position.x;
+    detect_gate_y = drone_position.y;
+    detect_gate_z = drone_position.z;
+    detect_gate_has_new_data = true;
+    pthread_mutex_unlock(&gate_detect_mutex);
   }
   return img;
+}
+
+void detect_gate_event(void)
+{
+  static int32_t cnt = 0;
+  pthread_mutex_lock(&gate_detect_mutex);
+  if (detect_gate_has_new_data) {
+    detect_gate_has_new_data = false;
+    AbiSendMsgRELATIVE_LOCALIZATION(DETECT_GATE_ABI_ID, cnt++,
+                                    detect_gate_x,
+                                    detect_gate_y,
+                                    detect_gate_z,
+                                    0,
+                                    0,
+                                    0);
+  }
+  pthread_mutex_unlock(&gate_detect_mutex);
 }
 
 void detect_gate_init(void)
@@ -129,6 +197,28 @@ void detect_gate_init(void)
   color_UM = DETECT_GATE_U_MAX;
   color_Vm = DETECT_GATE_V_MIN;
   color_VM = DETECT_GATE_V_MAX;
+
+  // World coordinates: X positive towards the gate, Z positive down, Y positive right:
+  // Should become top-left, clockwise:
+  VECT3_ASSIGN(world_corners[0],
+               gate_dist_x, -(gate_size_m / 2), gate_center_height - (gate_size_m / 2));
+  VECT3_ASSIGN(world_corners[1],
+               gate_dist_x, (gate_size_m / 2), gate_center_height - (gate_size_m / 2));
+  VECT3_ASSIGN(world_corners[2],
+               gate_dist_x, (gate_size_m / 2), gate_center_height + (gate_size_m / 2));
+  VECT3_ASSIGN(world_corners[3],
+               gate_dist_x, -(gate_size_m / 2), gate_center_height + (gate_size_m / 2));
+
+  cam_body.phi = 0;
+  cam_body.theta = 0;
+  cam_body.psi = 0;
+
+  // Shared variables to copy data from thread to module
+  pthread_mutex_init(&gate_detect_mutex, NULL);
+  detect_gate_has_new_data = false;
+  detect_gate_x = 0;
+  detect_gate_y = 0;
+  detect_gate_z = 0;
 
   cv_add_to_device(&DETECT_GATE_CAMERA, detect_gate_func, DETECT_GATE_FPS);
 }
