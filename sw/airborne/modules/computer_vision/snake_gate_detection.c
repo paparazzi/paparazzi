@@ -53,7 +53,7 @@
 #define FAIL_DETECT 0
 
 // whether to filter the image and show the best gate(s):
-#define FILTER_IMAGE 1
+#define FILTER_IMAGE 0
 #define DRAW_GATE 1
 
 // Standard colors in UYVY:
@@ -68,15 +68,17 @@ uint8_t color_U_min;
 uint8_t color_U_max;
 uint8_t color_V_min;
 uint8_t color_V_max;
+
 // Other settings:
 int min_pixel_size;
 
+// variable used to count the number of color checks,
+// so that we can better restrain the total number of samples taken:
+int n_total_samples;
+
 // Result
-#define MAX_GATES 50
-struct gate_img gates_c[MAX_GATES];
 struct gate_img temp_check_gate;
 struct image_t img_result;
-int n_gates = 0;
 float best_quality = 0;
 float best_fitness = 100000;
 
@@ -124,19 +126,29 @@ int cmp_i(const void *a, const void *b)
  * @param[in] color_uM The U maximum value
  * @param[in] color_vm The V minimum value
  * @param[in] color_vM The V maximum value
- * @param[in] *best_gate This gate_img struct will be filled with the data of the best detected gate.
+ * @param[out] *best_gate This gate_img struct will be filled with the data of the best detected gate.
+ * @param[out] *gates_c Array of gates with size MAX_GATES
  */
 
 int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, float min_gate_quality,
                          float gate_thickness, int min_n_sides,
                          uint8_t color_Ym, uint8_t color_YM, uint8_t color_Um, uint8_t color_UM, uint8_t color_Vm, uint8_t color_VM,
-                         struct gate_img *best_gate)
+                         struct gate_img *best_gate, struct gate_img *gates_c, int *n_gates)
 {
 
   static int last_frame_detection = 0;
   static int repeat_gate = 0;
   static struct gate_img previous_best_gate = {0};
   static struct gate_img last_gate;
+
+  bool check_initial_square = true;
+  float iou_threshold = 0.7; // when bigger than this, gates are assumed to represent the same gate
+
+
+  (*n_gates) = 0;
+  // For a new image, set the total number of samples to 0:
+  // This number is augmented when checking the color of a pixel.
+  n_total_samples = 0;
 
   color_Y_min = color_Ym;
   color_Y_max = color_YM;
@@ -149,20 +161,29 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
   int x, y;
   best_quality = 0;
   best_gate->quality = 0;
-  n_gates = 0;
+  (*n_gates) = 0;
 
   // variables for snake gate detection:
   int y_low = 0;
+  int x_l = 0;
   int y_high = 0;
+  int x_h = 0;
   int x_low1 = 0;
+  int y_l1 = 0;
   int x_high1 = 0;
+  int y_h1 = 0;
   int x_low2 = 0;
+  int y_l2 = 0;
   int x_high2 = 0;
+  int y_h2 = 0;
   int sz = 0;
   int szx1 = 0;
   int szx2 = 0;
 
-  for (int i = 0; i < n_samples; i++) {
+  //for (int i = 0; i < n_samples; i++) {
+  while (n_total_samples < n_samples) {
+
+    // TODO: would it work better to scan different lines in the image?
     // get a random coordinate:
     x = rand() % img->h;
     y = rand() % img->w;
@@ -174,7 +195,7 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
       // histogram[x]++;
 
       // snake up and down:
-      snake_up_and_down(img, x, y, &y_low, &y_high);
+      snake_up_and_down(img, x, y, &x_l, &y_low, &x_h, &y_high);
 
       // This assumes the gate to be square:
       sz = y_high - y_low;
@@ -186,8 +207,8 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
       if (sz > min_pixel_size) {
 
         // snake left and right, both for the top and bottom part of the gate:
-        snake_left_and_right(img, x, y_low, &x_low1, &x_high1);
-        snake_left_and_right(img, x, y_high, &x_low2, &x_high2);
+        snake_left_and_right(img, x_l, y_low, &x_low1, &y_l1,  &x_high1, &y_h1);
+        snake_left_and_right(img, x_h, y_high, &x_low2, &y_l2, &x_high2, &y_h2);
         x_low1 = x_low1 + (sz * gate_thickness);
         x_high1 = x_high1 - (sz * gate_thickness);
         x_low2 = x_low2 + (sz * gate_thickness);
@@ -212,81 +233,115 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
 
         if (sz > min_pixel_size) {
           // create the gate:
-          gates_c[n_gates].x = x;
-          gates_c[n_gates].y = y;
+          gates_c[(*n_gates)].x = x;
+          gates_c[(*n_gates)].y = y;
           // store the half gate size:
-          gates_c[n_gates].sz = sz / 2;
+          gates_c[(*n_gates)].sz = sz / 2;
 
-          // check the gate quality:
-          check_gate_initial(img, gates_c[n_gates], &gates_c[n_gates].quality, &gates_c[n_gates].n_sides);
+          if (check_initial_square) {
 
-          // only increment the number of gates if the quality is better
-          // else it will be overwritten by the next one
-          if (gates_c[n_gates].quality > best_quality) {
-            best_quality = gates_c[n_gates].quality;
-            n_gates++;
+            // check the gate quality:
+            check_gate_initial(img, gates_c[(*n_gates)], &gates_c[(*n_gates)].quality, &gates_c[(*n_gates)].n_sides);
+          } else {
+
+            // The first two corners have a high y:
+            gates_c[(*n_gates)].x_corners[0] = x_low2;
+            gates_c[(*n_gates)].y_corners[0] = y_l2;
+            gates_c[(*n_gates)].x_corners[1] = x_high2;
+            gates_c[(*n_gates)].y_corners[1] = y_h2;
+
+            // The third and fourth corner have a low y:
+            gates_c[(*n_gates)].x_corners[2] = x_high1;
+            gates_c[(*n_gates)].y_corners[2] = y_h1;
+            gates_c[(*n_gates)].x_corners[3] = x_low1;
+            gates_c[(*n_gates)].y_corners[3] = y_l1;
+
+            // check the polygon:
+            check_gate_outline(img, gates_c[(*n_gates)], &gates_c[(*n_gates)].quality, &gates_c[(*n_gates)].n_sides);
+          }
+
+          if (gates_c[(*n_gates)].quality > best_quality) {
+            best_quality = gates_c[(*n_gates)].quality;
+          }
+
+          // set the corners to make a square gate for now:
+          set_gate_points(&gates_c[(*n_gates)]);
+
+          // TODO: for multiple gates we need to use intersection of union and fitness here.
+          bool add_gate = true;
+          float iou;
+          for (int g = 0; g < (*n_gates); g++) {
+            iou = intersection_over_union(gates_c[g].x_corners, gates_c[g].y_corners, gates_c[(*n_gates)].x_corners,
+                                          gates_c[(*n_gates)].y_corners);
+            if (iou > iou_threshold) {
+              // we are looking at an existing gate:
+              add_gate = false;
+
+              if (gates_c[g].quality > gates_c[(*n_gates)].quality) {
+                // throw the current gate away:
+                break;
+              } else {
+                // throw the old gate away:
+                // TODO: consider making a function for doing this "deep" copy
+                gates_c[g].x = gates_c[(*n_gates)].x;
+                gates_c[g].y = gates_c[(*n_gates)].y;
+                gates_c[g].sz = gates_c[(*n_gates)].sz;
+                gates_c[g].quality = gates_c[(*n_gates)].quality;
+                memcpy(gates_c[g].x_corners, gates_c[(*n_gates)].x_corners, sizeof(int) * 4);
+                memcpy(gates_c[g].y_corners, gates_c[(*n_gates)].y_corners, sizeof(int) * 4);
+              }
+            }
+          }
+          if (add_gate) {
+            (*n_gates)++;
           }
         }
 
-        if (n_gates >= MAX_GATES) {
+        if ((*n_gates) >= MAX_GATES) {
           break;
         }
       }
     }
   }
 
-  /*
-  #ifdef DEBUG_SNAKE_GATE
-    // draw all candidates:
-    printf("n_gates:%d\n", n_gates);
-    for (int i = 0; i < n_gates; i++) {
-      draw_gate_color_square(img, gates_c[i], white_color);
-    }
-  #endif
-  */
+#ifdef DEBUG_SNAKE_GATE
+  // draw all candidates:
+  printf("(*n_gates):%d\n", (*n_gates));
+  for (int i = 0; i < (*n_gates); i++) {
+    //draw_gate_color_square(img, gates_c[i], white_color);
+    draw_gate_color_polygon(img, gates_c[i], white_color);
+  }
+#endif
+
   //init best gate
   best_gate->quality = 0;
   best_gate->n_sides = 0;
   repeat_gate = 0;
 
   // do an additional fit to improve the gate detection:
-  if ((best_quality > min_gate_quality && n_gates > 0) || last_frame_detection) {
+  if ((best_quality > min_gate_quality && (*n_gates) > 0) || last_frame_detection) {
 
-    int max_candidate_gates = 10;
-    best_fitness = 100;
-
-    int initial_gate = n_gates - max_candidate_gates;
-    initial_gate = (initial_gate < 0) ? 0 : initial_gate;
-
-    for (int gate_nr = initial_gate; gate_nr < n_gates; gate_nr += 1) {
+    // go over all remaining gates:
+    for (int gate_nr = 0; gate_nr < (*n_gates); gate_nr++) {
 
       // get gate information:
-      set_gate_points(&gates_c[gate_nr]);
-      gate_refine_corners(img, gates_c[gate_nr].x_corners, gates_c[gate_nr].y_corners, gates_c[gate_nr].sz * 2);
-
-      // TODO: I think we can remove the temporary gate here, and just use gates_c[gate_nr]
-      // store the temporary information in the gate:
-      temp_check_gate.x = gates_c[gate_nr].x;
-      temp_check_gate.y = gates_c[gate_nr].y;
-      temp_check_gate.sz = gates_c[gate_nr].sz;
-      memcpy(temp_check_gate.x_corners, gates_c[gate_nr].x_corners, sizeof(temp_check_gate.x_corners));
-      memcpy(temp_check_gate.y_corners, gates_c[gate_nr].y_corners, sizeof(temp_check_gate.y_corners));
+      gate_refine_corners(img, gates_c[gate_nr].x_corners, gates_c[gate_nr].y_corners, gates_c[gate_nr].sz);
 
       // also get the color fitness
-      check_gate_outline(img, temp_check_gate, &temp_check_gate.quality, &temp_check_gate.n_sides);
+      check_gate_outline(img, gates_c[gate_nr], &gates_c[gate_nr].quality, &gates_c[gate_nr].n_sides);
 
       // If the gate is good enough:
-      if (temp_check_gate.n_sides >= min_n_sides && temp_check_gate.quality > best_gate->quality) {
+      if (gates_c[gate_nr].n_sides >= min_n_sides && gates_c[gate_nr].quality > best_gate->quality) {
         // store the information in the gate:
-        best_gate->x = temp_check_gate.x;
-        best_gate->y = temp_check_gate.y;
-        best_gate->sz = temp_check_gate.sz;
-        best_gate->sz_left = temp_check_gate.sz_left;
-        best_gate->sz_right = temp_check_gate.sz_right;
-        best_gate->quality = temp_check_gate.quality;
-        best_gate->n_sides = temp_check_gate.n_sides;
-        memcpy(best_gate->x_corners, temp_check_gate.x_corners, sizeof(best_gate->x_corners));
-        memcpy(best_gate->y_corners, temp_check_gate.y_corners, sizeof(best_gate->y_corners));
+        best_gate->x = gates_c[gate_nr].x;
+        best_gate->y = gates_c[gate_nr].y;
+        best_gate->sz = gates_c[gate_nr].sz;
+        best_gate->sz_left = gates_c[gate_nr].sz_left;
+        best_gate->sz_right = gates_c[gate_nr].sz_right;
+        best_gate->quality = gates_c[gate_nr].quality;
+        best_gate->n_sides = gates_c[gate_nr].n_sides;
+        memcpy(best_gate->x_corners, gates_c[gate_nr].x_corners, sizeof(best_gate->x_corners));
+        memcpy(best_gate->y_corners, gates_c[gate_nr].y_corners, sizeof(best_gate->y_corners));
       }
     }
 
@@ -294,6 +349,7 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
     if ((best_gate->quality == 0 && best_gate->n_sides == 0) && last_frame_detection == 1) {
 
       // TODO: is it really important to do this sorting here to get the maximum size? Is the sz property not accurate enough?
+      // Or can we not assume the standard arrangement of the corners?
       int x_values[4];
       int y_values[4];
       memcpy(x_values, last_gate.x_corners, sizeof(x_values));
@@ -303,13 +359,13 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
       qsort(y_values, 4, sizeof(int), cmpfunc);
       //check x size, maybe use y also later?
       int radius_p   = x_values[3] - x_values[0];
+      // TODO: is 2*radius_p not huge?
       gate_refine_corners(img, last_gate.x_corners, last_gate.y_corners, 2 * radius_p);
 
       // also get the color fitness
       check_gate_outline(img, last_gate, &last_gate.quality, &last_gate.n_sides);
 
       // if the refined detection is good enough:
-
       if (last_gate.n_sides >= min_n_sides && last_gate.quality > best_gate->quality) {
         repeat_gate = 1;
         best_gate->quality = last_gate.quality;
@@ -323,7 +379,6 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
     // draw the best gate:
     draw_gate(img, (*best_gate));
 #endif
-
   }
 
   // prepare for the next time:
@@ -348,6 +403,14 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
 
     //draw_gate_color(img, best_gate, blue_color);
     if (DRAW_GATE) {
+      for (int gate_nr = 0; gate_nr < (*n_gates); gate_nr++) {
+        if (gates_c[gate_nr].n_sides >= min_n_sides && gates_c[gate_nr].quality > 2 * min_gate_quality) {
+          // draw the best gate:
+          // draw_gate(img, gates_c[gate_nr]);
+          draw_gate_color_polygon(img, gates_c[gate_nr], green_color);
+        }
+      }
+
       int size_crosshair = 10;
       if (repeat_gate == 0) {
         draw_gate_color_polygon(img, (*best_gate), blue_color);
@@ -454,31 +517,9 @@ void draw_gate_color_square(struct image_t *im, struct gate_img gate, uint8_t *c
   from.y = gate.x;
   image_draw_crosshair(im, &from, color, 10);
 
+  if (gate.sz_left == 0) { gate.sz_left = gate.sz; }
+  if (gate.sz_right == 0) { gate.sz_right = gate.sz; }
 
-  /*
-    if (gate.sz_left == gate.sz_right) {
-      // square
-      from.x = gate.y - gate.sz;
-      from.y = gate.x - gate.sz;
-      to.x = gate.y + gate.sz;
-      to.y = gate.x - gate.sz;
-      image_draw_line_color(im, &from, &to, color);
-      from.x = gate.y + gate.sz;
-      from.y = gate.x - gate.sz;
-      to.x = gate.y + gate.sz;
-      to.y = gate.x + gate.sz;
-      image_draw_line_color(im, &from, &to, color);
-      from.x = gate.y + gate.sz;
-      from.y = gate.x + gate.sz;
-      to.x = gate.y - gate.sz;
-      to.y = gate.x + gate.sz;
-      image_draw_line_color(im, &from, &to, color);
-      from.x = gate.y - gate.sz;
-      from.y = gate.x + gate.sz;
-      to.x = gate.y - gate.sz;
-      to.y = gate.x - gate.sz;
-      image_draw_line_color(im, &from, &to, color);
-    } else { */
   from.x = gate.y - gate.sz_left;
   from.y = gate.x - gate.sz;
   to.x = gate.y + gate.sz_left;
@@ -499,7 +540,6 @@ void draw_gate_color_square(struct image_t *im, struct gate_img gate, uint8_t *c
   to.x = gate.y - gate.sz_left;
   to.y = gate.x - gate.sz;
   image_draw_line_color(im, &from, &to, color);
-  //}
 }
 
 /**
@@ -577,6 +617,16 @@ void check_gate_outline(struct image_t *im, struct gate_img gate, float *quality
     (*quality) = 0;
   } else {
     (*quality) = ((float) n_colored_points) / ((float) n_points);
+  }
+
+
+  // Check the inside of the gate - again:
+  static int n_samples_in = 100;
+  static float center_discard_threshold = 0.25;
+  gate.sz = gate.x_corners[1] - gate.x_corners[0];
+  float center_factor = check_inside(im, gate.x, gate.y, gate.sz, n_samples_in);
+  if (center_factor > center_discard_threshold) {
+    (*quality) = 0;
   }
 }
 
@@ -660,23 +710,59 @@ extern void check_gate_initial(struct image_t *im, struct gate_img gate, float *
   }
 
   // check that the inside of the gate is not of the target color as well:
-  int n_samples_in = 20;
-  float num_color_center = 0;
+  int n_samples_in = 100;
   float center_discard_threshold = 0.25;
+  float center_factor = check_inside(im, gate.x, gate.y, gate.sz, n_samples_in);
+  if (center_factor > center_discard_threshold) {
+    (*quality) = 0;
+  }
+
+
+}
+
+/* Check inside of a gate, in order to exclude solid areas.
+ *
+ * @param[out] center_factor The ratio of pixels inside the box that are of the right color.
+ * @param[in] im The YUV422 image.
+ * @param[in] x The center x-coordinate of the gate
+ * @param[in] y The center y-coordinate of the gate
+ * @param[in] sz The size of the gate - when approximated as square.
+ * @param[in] n_samples_in The number of samples used to determine the ratio.
+ */
+
+float check_inside(struct image_t *im, int x, int y, int sz, int n_samples_in)
+{
+  int num_color_center = 0;
+  int n_samples = 0;
+
+  if (sz == 0) {
+    return 1.0f;
+  }
+
   for (int i = 0; i < n_samples_in; i++) {
     // get a random coordinate:
-    int x_in = gate.x + (rand() % gate.sz) - (0.5 * gate.sz);
-    int y_in = gate.y + (rand() % gate.sz) - (0.5 * gate.sz);
+    int x_in = x + (rand() % sz) - (0.5 * sz);
+    int y_in = y + (rand() % sz) - (0.5 * sz);
 
-    // check if it has the right color
-    if (check_color_snake_gate_detection(im, x_in, y_in)) {
-      num_color_center ++;
+    if (y_in >= 0 && y_in < im->w && x_in >= 0 && x_in < im->h) {
+      n_samples++;
+      // check if it has the right color
+      if (check_color_snake_gate_detection(im, x_in, y_in)) {
+        num_color_center ++;
+      }
     }
   }
-  //how much center pixels colored?
-  float center_factor = num_color_center / (float)n_samples_in;
-  if (center_factor > center_discard_threshold) { (*quality) = 0; }
 
+  //how much center pixels colored?
+  if (n_samples == 0) {
+    return 1.0f;
+  }
+
+  float center_factor = 0;
+  if (n_samples != 0) {
+    center_factor = num_color_center / (float)n_samples;
+  }
+  return center_factor;
 }
 
 /**
@@ -737,20 +823,24 @@ void check_line(struct image_t *im, struct point_t Q1, struct point_t Q2, int *n
  * @param[in] im The input image.
  * @param[in] x The initial x-coordinate
  * @param[in] y The initial y-coordinate
+ * @param[in] x_low The x-coordinate that corresponds to the current y_low.
  * @param[in] y_low The current lowest y-estimate
+ * @param[in] x_high The x-coordinate that corresponds to the current y_high
  * @param[in] y_high The current highest y-estimate
  */
-void snake_up_and_down(struct image_t *im, int x, int y, int *y_low, int *y_high)
+void snake_up_and_down(struct image_t *im, int x, int y, int *x_low, int *y_low, int *x_high, int *y_high)
 {
   int done = 0;
   int x_initial = x;
   (*y_low) = y;
 
+  // TODO: perhaps it is better to put the big steps first, as to reduce computation.
   // snake towards negative y
   while ((*y_low) > 0 && !done) {
     if (check_color_snake_gate_detection(im, x, (*y_low) - 1)) {
       (*y_low)--;
-
+    } else if ((*y_low) - 2 >= 0 && check_color_snake_gate_detection(im, x, (*y_low) - 2)) {
+      (*y_low) -= 2;
     } else if (x + 1 < im->h && check_color_snake_gate_detection(im, x + 1, (*y_low) - 1)) {
       x++;
       (*y_low)--;
@@ -759,6 +849,7 @@ void snake_up_and_down(struct image_t *im, int x, int y, int *y_low, int *y_high
       (*y_low)--;
     } else {
       done = 1;
+      (*x_low) = x;
     }
   }
 
@@ -767,9 +858,10 @@ void snake_up_and_down(struct image_t *im, int x, int y, int *y_low, int *y_high
   (*y_high) = y;
   done = 0;
   while ((*y_high) < im->w - 1 && !done) {
-
     if (check_color_snake_gate_detection(im, x, (*y_high) + 1)) {
       (*y_high)++;
+    } else if ((*y_high) < im->w - 2 && check_color_snake_gate_detection(im, x, (*y_high) + 2)) {
+      (*y_high) += 2;
     } else if (x < im->h - 1 && check_color_snake_gate_detection(im, x + 1, (*y_high) + 1)) {
       x++;
       (*y_high)++;
@@ -778,6 +870,7 @@ void snake_up_and_down(struct image_t *im, int x, int y, int *y_low, int *y_high
       (*y_high)++;
     } else {
       done = 1;
+      (*x_high) = x;
     }
   }
 }
@@ -791,9 +884,11 @@ void snake_up_and_down(struct image_t *im, int x, int y, int *y_low, int *y_high
  * @param[in] x The initial x-coordinate
  * @param[in] y The initial y-coordinate
  * @param[in] x_low The current lowest x-estimate
+ * @param[in] y_low The y-coordinate that corresponds to the current x_low
  * @param[in] x_high The current highest x-estimate
+ * @param[in] y_high The y-coordinate that corresponds to the current x_high
  */
-void snake_left_and_right(struct image_t *im, int x, int y, int *x_low, int *x_high)
+void snake_left_and_right(struct image_t *im, int x, int y, int *x_low, int *y_low, int *x_high, int *y_high)
 {
   int done = 0;
   int y_initial = y;
@@ -803,7 +898,8 @@ void snake_left_and_right(struct image_t *im, int x, int y, int *x_low, int *x_h
   while ((*x_low) > 0 && !done) {
     if (check_color_snake_gate_detection(im, (*x_low) - 1, y)) {
       (*x_low)--;
-      // } else if (y < im->h - 1 && check_color_snake_gate_detection(im, (*x_low) - 1, y + 1)) {
+    } else if ((*x_low) > 1 && check_color_snake_gate_detection(im, (*x_low) - 2, y)) {
+      (*x_low) -= 2;
     } else if (y < im->w - 1 && check_color_snake_gate_detection(im, (*x_low) - 1, y + 1)) {
       y++;
       (*x_low)--;
@@ -812,6 +908,7 @@ void snake_left_and_right(struct image_t *im, int x, int y, int *x_low, int *x_h
       (*x_low)--;
     } else {
       done = 1;
+      (*y_low) = y;
     }
   }
 
@@ -820,10 +917,10 @@ void snake_left_and_right(struct image_t *im, int x, int y, int *x_low, int *x_h
   done = 0;
   // snake towards positive x (right)
   while ((*x_high) < im->h - 1 && !done) {
-
     if (check_color_snake_gate_detection(im, (*x_high) + 1, y)) {
       (*x_high)++;
-      // } else if (y < im->h - 1 && check_color_snake_gate_detection(im, (*x_high) + 1, y++)) {
+    } else if ((*x_high) < im->h - 2 && check_color_snake_gate_detection(im, (*x_high) + 2, y)) {
+      (*x_high) += 2;
     } else if (y < im->w - 1 && check_color_snake_gate_detection(im, (*x_high) + 1, y++)) {
       y++;
       (*x_high)++;
@@ -832,6 +929,7 @@ void snake_left_and_right(struct image_t *im, int x, int y, int *x_low, int *x_h
       (*x_high)++;
     } else {
       done = 1;
+      (*y_high) = y;
     }
   }
 }
@@ -844,7 +942,7 @@ void snake_left_and_right(struct image_t *im, int x, int y, int *x_low, int *x_h
  */
 void set_gate_points(struct gate_img *gate)
 {
-
+  // In Parrot Bebop coordinates, this goes from bottom-right CCW:
   gate->x_corners[0] = gate->x - gate->sz;
   gate->y_corners[0] = gate->y + gate->sz;
   gate->x_corners[1] = gate->x + gate->sz;
@@ -901,6 +999,21 @@ void refine_single_corner(struct image_t *im, int *corner_x, int *corner_y, int 
   int y_l = (int)(y_corner_f - size_f * size_factor);
   Bound(y_l, 0, im->w);
 
+
+#ifdef DEBUG_SNAKE_GATE
+  // draw the box of refinement:
+  struct gate_img box;
+  box.x_corners[0] = x_l;
+  box.y_corners[0] = y_l;
+  box.x_corners[1] = x_l;
+  box.y_corners[1] = y_h;
+  box.x_corners[2] = x_r;
+  box.y_corners[2] = y_h;
+  box.x_corners[3] = x_r;
+  box.y_corners[3] = y_l;
+  draw_gate_color_polygon(im, box, green_color); // becomes grey, since it is called before the filtering...
+#endif
+
   int x_size = x_r - x_l + 1;
   int y_size = y_h - y_l + 1;
 
@@ -952,6 +1065,12 @@ void refine_single_corner(struct image_t *im, int *corner_x, int *corner_y, int 
 }
 
 
+/* Check the color of a pixel, within the snake gate detection scheme
+ * @param[in] *im The YUV422 color image
+ * @param[in] x The image x-coordinate of the pixel
+ * @param[in] y The image y-coordinate of the pixel
+ * @param[out] success Whether the pixel is the right color (1) or not (0)
+ */
 int check_color_snake_gate_detection(struct image_t *im, int x, int y)
 {
 
@@ -959,7 +1078,7 @@ int check_color_snake_gate_detection(struct image_t *im, int x, int y)
   // Please note that we have to switch x and y around here, due to the strange sensor mounting in the Bebop:
   int success = check_color_yuv422(im, y, x, color_Y_min, color_Y_max, color_U_min, color_U_max, color_V_min,
                                    color_V_max);
-
+  n_total_samples++;
   /*
   #ifdef DEBUG_SNAKE_GATE
     if(success) {
@@ -969,4 +1088,90 @@ int check_color_snake_gate_detection(struct image_t *im, int x, int y)
   */
 
   return success;
+}
+
+
+/* Calculate the intersection over union of two boxes. The boxes are organized as the locations of the gate's corners.
+ * So, from top left clock-wise.
+ *
+ * @param[in] x_box_1 The x-coordinates of the first box's corners
+ * @param[in] y_box_1 The y-coordinates of the first box's corners
+ * @param[in] x_box_2 The x-coordinates of the second box's corners
+ * @param[in] y_box_2 The y-coordinates of the second box's corners
+ * @param[out] The ratio of the intersection of the two boxes divided by their union.
+ */
+float intersection_over_union(int x_box_1[4], int y_box_1[4], int x_box_2[4], int y_box_2[4])
+{
+
+  // TODO: please note that the order of the indices here depends on the set_gate_points function.
+  // A future pull request might adapt the indexing automatically to the chosen order in that function.
+  float iou;
+
+  // intersection:
+  int intersection = intersection_boxes(x_box_1, y_box_1, x_box_2, y_box_2);
+
+  // union:
+  int w1, h1, w2, h2, un;
+  w1 = x_box_1[1] - x_box_1[0];
+  h1 = y_box_1[0] - y_box_1[2];
+  w2 = x_box_2[1] - x_box_2[0];
+  h2 = y_box_2[0] - y_box_2[2];
+  un = w1 * h1 + w2 * h2 - intersection;
+
+  // ratio of intersection over union:
+  if (un == 0) {
+    iou = 1.0f;
+  } else {
+    iou = (float) intersection / (float) un;
+  }
+
+  return iou;
+}
+
+/* Calculate the intersection of two boxes.
+ *
+ * @param[in] x_box_1 The x-coordinates of the first box's corners
+ * @param[in] y_box_1 The y-coordinates of the first box's corners
+ * @param[in] x_box_2 The x-coordinates of the second box's corners
+ * @param[in] y_box_2 The y-coordinates of the second box's corners
+ * @param[out] The number of pixels in the intersection area.
+ */
+int intersection_boxes(int x_box_1[4], int y_box_1[4], int x_box_2[4], int y_box_2[4])
+{
+
+  int width = overlap_intervals(x_box_1[0], x_box_1[1], x_box_2[0], x_box_2[1]);
+  int height = overlap_intervals(y_box_1[2], y_box_1[0], y_box_2[2], y_box_2[0]);
+
+  return width * height;
+}
+
+/* Calculate the overlap of two 1-dimensional intervals.
+ * @param[in] val_low_1 The low value of the first interval.
+ * @param[in] val_high_1 The high value of the first interval.
+ * @param[in] val_low_2 The low value of the second interval.
+ * @param[in] val_high_2 The low value of the second interval.
+ * @param[out] int Number of overlapping units (pixels).
+ */
+int overlap_intervals(int val_low_1, int val_high_1, int val_low_2, int val_high_2)
+{
+
+  int overlap;
+  int min_val;
+  if (val_low_2 < val_low_1) {
+    if (val_high_2 < val_low_1) {
+      overlap = 0;
+    } else {
+      min_val = (val_high_1 > val_high_2) ? val_high_2 : val_high_1;
+      overlap = min_val - val_low_1;
+    }
+  } else {
+    if (val_high_1 < val_low_2) {
+      overlap = 0;
+    } else {
+      min_val = (val_high_1 > val_high_2) ? val_high_2 : val_high_1;
+      overlap = min_val - val_low_2;
+    }
+  }
+
+  return overlap;
 }

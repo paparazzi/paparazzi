@@ -44,6 +44,8 @@
 #include "math/pprz_algebra.h"
 #include "math/pprz_algebra_float.h"
 
+#define MAX_GATES 50
+
 /* Gate structure */
 struct gate_img {
   int x;             ///< The image x coordinate of the gate center
@@ -61,19 +63,23 @@ struct gate_img {
 int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, float min_gate_quality,
                          float gate_thickness, int min_n_sides,
                          uint8_t color_Ym, uint8_t color_YM, uint8_t color_Um, uint8_t color_UM, uint8_t color_Vm, uint8_t color_VM,
-                         struct gate_img *best_gate);
-
+                         struct gate_img *best_gate, struct gate_img *gates_c, int *n_gates);
 
 // helper functions:
 int check_color_snake_gate_detection(struct image_t *im, int x, int y);
-void snake_up_and_down(struct image_t *im, int x, int y, int *y_low, int *y_high);
-void snake_left_and_right(struct image_t *im, int x, int y, int *x_low, int *x_high);
+void snake_up_and_down(struct image_t *im, int x, int y, int *x_low, int *y_low, int *x_high, int *y_high);
+void snake_left_and_right(struct image_t *im, int x, int y, int *x_low, int *y_low, int *x_high, int *y_high);
 void draw_gate(struct image_t *im, struct gate_img gate);
 void draw_gate_color_square(struct image_t *im, struct gate_img gate, uint8_t *color);
 void draw_gate_color_polygon(struct image_t *im, struct gate_img gate, uint8_t *color);
 void check_line(struct image_t *im, struct point_t Q1, struct point_t Q2, int *n_points, int *n_colored_points);
 void check_gate_initial(struct image_t *im, struct gate_img gate, float *quality, int *sides);
 void check_gate_outline(struct image_t *im, struct gate_img gate, float *quality, int *n_sides);
+float check_inside(struct image_t *im, int x, int y, int sz, int n_samples_in);
 void set_gate_points(struct gate_img *gate);
 void gate_refine_corners(struct image_t *color_image, int *x_points, int *y_points, int size);
 void refine_single_corner(struct image_t *im, int *corner_x, int *corner_y, int size, float size_factor);
+int overlap_intervals(int val_low_1, int val_high_1, int val_low_2, int val_high_2);
+int intersection_boxes(int x_box_1[4], int y_box_1[4], int x_box_2[4], int y_box_2[4]);
+float intersection_over_union(int x_box_1[4], int y_box_1[4], int x_box_2[4], int y_box_2[4]);
+

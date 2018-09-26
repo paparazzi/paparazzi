@@ -14,11 +14,12 @@
 #include "math/pprz_algebra.h"
 #include "math/pprz_algebra_float.h"
 #include "math/pprz_simple_matrix.h"
-
 #include "subsystems/abi.h"
 #include "subsystems/abi_sender_ids.h"
 
 #include "modules/computer_vision/snake_gate_detection.h"
+
+// #define DEBUG_GATE
 
 #ifndef DETECT_GATE_JUST_FILTER
 #define DETECT_GATE_JUST_FILTER 0
@@ -107,12 +108,14 @@ uint8_t color_VM;
 // External variables that have the results:
 struct FloatVect3 drone_position;
 struct gate_img best_gate;
+// container for all detected gates:
+struct gate_img gates_c[MAX_GATES];
 
 // Structure of the gate:
 struct FloatVect3 world_corners[4];
-float gate_dist_x = 3.5; //distance from filter init point to gate
 float gate_size_m = 1.4; //size of gate edges in meters
 float gate_center_height = -1.7; //height of gate in meters ned wrt ground
+int n_corners = 3;
 
 // camera to body:
 struct FloatEulers cam_body;
@@ -135,24 +138,46 @@ struct image_t *detect_gate_func(struct image_t *img)
     image_yuv422_colorfilt(img, img, color_Ym, color_YM, color_Um, color_UM, color_Vm, color_VM);
   } else {
     // perform snake gate detection:
+    int n_gates;
     snake_gate_detection(img, n_samples, min_px_size, min_gate_quality, gate_thickness, min_n_sides, color_Ym, color_YM,
-                         color_Um, color_UM, color_Vm, color_VM, &best_gate);
+                         color_Um, color_UM, color_Vm, color_VM, &best_gate, gates_c, &n_gates);
 
-    /*
-    // debugging snake gate:
-    printf("Detected gate: ");
-    for(int i = 0; i < 4; i++) {
-      printf("(%d,%d) ", best_gate.x_corners[i], best_gate.y_corners[i]);
+#ifdef DEBUG_GATE
+    if (n_gates > 1) {
+      for (int i = 0; i < n_gates; i++) {
+        if (gates_c[i].quality > min_gate_quality * 2 && gates_c[i].n_sides >= 3) {
+          drone_position = get_world_position_from_image_points(gates_c[i].x_corners, gates_c[i].y_corners, world_corners,
+                           n_corners,
+                           DETECT_GATE_CAMERA.camera_intrinsics, cam_body);
+          // debugging the drone position:
+          printf("Position drone - gate %d, quality = %f: (%f, %f, %f)\n", i, gates_c[i].quality, drone_position.x,
+                 drone_position.y, drone_position.z);
+        }
+      }
     }
-    printf("\n");
-    */
+#endif
 
-    drone_position = get_world_position_from_image_points(best_gate.x_corners, best_gate.y_corners, world_corners, 3,
-                     DETECT_GATE_CAMERA.camera_intrinsics, cam_body);
-    drone_position.x -= gate_dist_x;
+    if (best_gate.quality > min_gate_quality * 2) {
 
-    // debugging the drone position:
-    // printf("Position drone: (%f, %f, %f)\n", drone_position.x, drone_position.y, drone_position.z);
+#ifdef DEBUG_GATE
+      // debugging snake gate:
+      printf("Detected gate: ");
+      for (int i = 0; i < 4; i++) {
+        printf("(%d,%d) ", best_gate.x_corners[i], best_gate.y_corners[i]);
+      }
+      printf("\n");
+#endif
+
+      // TODO: try out RANSAC with all combinations of 3 corners out of 4 corners.
+      drone_position = get_world_position_from_image_points(best_gate.x_corners, best_gate.y_corners, world_corners,
+                       n_corners,
+                       DETECT_GATE_CAMERA.camera_intrinsics, cam_body);
+
+#ifdef DEBUG_GATE
+      // debugging the drone position:
+      printf("Position drone: (%f, %f, %f)\n", drone_position.x, drone_position.y, drone_position.z);
+#endif
+    }
 
     // send from thread to module
     pthread_mutex_lock(&gate_detect_mutex);
@@ -199,15 +224,15 @@ void detect_gate_init(void)
   color_VM = DETECT_GATE_V_MAX;
 
   // World coordinates: X positive towards the gate, Z positive down, Y positive right:
-  // Should become top-left, clockwise:
+  // Bottom-right, CCW:
   VECT3_ASSIGN(world_corners[0],
-               gate_dist_x, -(gate_size_m / 2), gate_center_height - (gate_size_m / 2));
+               0.0f, (gate_size_m / 2), gate_center_height + (gate_size_m / 2));
   VECT3_ASSIGN(world_corners[1],
-               gate_dist_x, (gate_size_m / 2), gate_center_height - (gate_size_m / 2));
+               0.0f, (gate_size_m / 2), gate_center_height - (gate_size_m / 2));
   VECT3_ASSIGN(world_corners[2],
-               gate_dist_x, (gate_size_m / 2), gate_center_height + (gate_size_m / 2));
+               0.0f, -(gate_size_m / 2), gate_center_height - (gate_size_m / 2));
   VECT3_ASSIGN(world_corners[3],
-               gate_dist_x, -(gate_size_m / 2), gate_center_height + (gate_size_m / 2));
+               0.0f, -(gate_size_m / 2), gate_center_height + (gate_size_m / 2));
 
   cam_body.phi = 0;
   cam_body.theta = 0;
