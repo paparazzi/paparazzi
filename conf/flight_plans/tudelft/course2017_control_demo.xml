@@ -14,7 +14,6 @@
   <waypoints>
     <waypoint lat="51.990631" lon="4.376796" name="HOME"/>
     <waypoint name="CLIMB" x="1.9" y="1.0"/>
-    <waypoint name="STDBY" x="1.9" y="1.0"/>
     <waypoint name="TD" x="0.8" y="-1.7"/>
     <waypoint name="CENTER" lat="51.990635" lon="4.376789"/>
     <waypoint lat="51.9905836" lon="4.3767729" name="_CZ1"/>
@@ -81,9 +80,7 @@
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="alt" alt="1.0"/>
     </block>
     <block key="l" name="Land here" strip_button="Land Here" strip_icon="land-right.png">
-      <deroute block="Flare"/>
-    </block>
-    <block name="Land">
+      <call_once fun="NavSetWaypointHere(WP_TD)"/>
       <deroute block="Flare"/>
     </block>
     <block name="Flare">
