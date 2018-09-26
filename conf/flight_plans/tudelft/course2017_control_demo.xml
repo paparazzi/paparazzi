@@ -53,9 +53,6 @@
     <exception cond="((GetPosAlt() > 3.5) &&
       !(nav_block >= IndexOfBlock('Land here')) &&
       (autopilot_in_flight() == true) )" deroute="Land here"/>
-    <!-- Geofencing Z 4.5 (constant RPM descent)-->
-    <exception cond="((GetPosAlt() > 4.5) &&
-      (autopilot_in_flight() == true) )" deroute="Landed"/>
     <!-- Bat low -->  
     <exception cond="(electrical.bat_low &&
       !(nav_block >= IndexOfBlock('Land here')) &&
