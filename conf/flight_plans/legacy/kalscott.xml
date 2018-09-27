@@ -1,4 +1,4 @@
-<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
 
 <flight_plan alt="100" ground_alt="0" lat0="38.9159" lon0="-95.3207" max_dist_from_home="1500" name="KalScott" security_height="25">
   <header>

@@ -1,4 +1,4 @@
-<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
 
 <flight_plan alt="250" ground_alt="185" lat0="43.46223" lon0="1.27289" max_dist_from_home="400" name="test laas" qfu="270" security_height="25">
   <waypoints>
