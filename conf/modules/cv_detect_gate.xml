@@ -30,10 +30,12 @@
     <define name="DETECT_GATE_GATE_THICKNESS" value="0.0" description="Snaking goes up and down, and then left and right from the extreme points. If the gate is thick, it is better to start a little bit before the end point. This value is how thick the gate border is as a proportion of the total size."/>
     <define name="DETECT_GATE_Y_MIN" value="20" description="Minimal Y of the color filter."/>
     <define name="DETECT_GATE_Y_MAX" value="228" description="Maximal Y of the color filter."/>
-    <define name="DETECT_GATE_U_MIN" value="66" description="Minimal U of the color filter."/>
+    <define name="DETECT_GATE_U_MIN" value="42" description="Minimal U of the color filter."/>
     <define name="DETECT_GATE_U_MAX" value="121" description="Maximal U of the color filter."/>
     <define name="DETECT_GATE_V_MIN" value="134" description="Minimal V of the color filter."/>
     <define name="DETECT_GATE_V_MAX" value="230" description="Maximal V of the color filter."/>
+    <define name="DETECT_GATE_EXCLUDE_PIXELS_TOP" value="0" description="Band on top of the image in which we do not take snake gate samples."/>
+    <define name="DETECT_GATE_EXCLUDE_PIXELS_BOTTOM" value="0" description="Band at the bottom of the image in which we do not take snake gate samples."/>
   </doc>
 
   <settings>
@@ -51,6 +53,8 @@
 	 <dl_setting var="color_UM"  min="0" step="1" max="255" shortname="U_max" param="DETECT_GATE_U_MAX"/>
 	 <dl_setting var="color_Vm"  min="0" step="1" max="255" shortname="V_min" param="DETECT_GATE_V_MIN"/>
 	 <dl_setting var="color_VM"  min="0" step="1" max="255" shortname="V_max" param="DETECT_GATE_V_MAX"/>
+	 <dl_setting var="exclude_top"  min="0" step="1" max="320" shortname="exclude_top" param="DETECT_GATE_EXCLUDE_PIXELS_TOP"/>
+	 <dl_setting var="exclude_bottom"  min="0" step="1" max="320" shortname="exclude_bottom" param="DETECT_GATE_EXCCLUDE_PIXELS_BOTTOM"/>
       </dl_settings>
     </dl_settings>
   </settings>
