@@ -697,7 +697,6 @@ static void init_gazebo_video(void)
     cameras[i]->camera_intrinsics.center_x = cameras[i]->output_size.w/2.0f;
     cameras[i]->camera_intrinsics.focal_y = cameras[i]->output_size.h/2.0f;
     cameras[i]->camera_intrinsics.center_y = cameras[i]->output_size.h/2.0f;
-    cameras[i]->fps = cam->UpdateRate();
 #if NPS_SIMULATE_MT9F002
     // See boards/bebop/mt9f002.c
     if(cam->Name() == "front_camera") {
@@ -716,6 +715,7 @@ static void init_gazebo_video(void)
         };
     }
 #endif
+    cameras[i]->fps = cam->UpdateRate();
     cout << "ok" << endl;
   }
 }
