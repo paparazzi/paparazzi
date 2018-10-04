@@ -168,13 +168,14 @@ static void jevois_parse(struct jevois_t *jv, char c)
       break;
     case JV_ID:
       if (JEVOIS_CHECK_DELIM(c)) {
-        jv->buf[jv->idx] = '\0'; // end string
+        jv->msg.id[jv->idx] = '\0'; // end string
         if (jv->msg.type == JEVOIS_MSG_F2 ||
             jv->msg.type == JEVOIS_MSG_F3) {
           jv->state = JV_SIZE; // parse n before coordinates
         } else {
           jv->state = JV_COORD; // parse directly coordinates
         }
+        jv->idx = 0;
         break;
       }
       else {
@@ -199,7 +200,7 @@ static void jevois_parse(struct jevois_t *jv, char c)
       if (JEVOIS_CHECK_DELIM(c)) {
         jv->buf[jv->idx] = '\0'; // end string
         jv->msg.coord[jv->n++] = (int16_t)atoi(jv->buf); // store value
-        if (jv->n == jv->msg.nb) {
+        if (jv->n == 2 * jv->msg.nb) {
           // got all coordinates, go to next state
           jv->n = 0; // reset number of received elements
           jv->idx = 0; // reset index
@@ -286,11 +287,12 @@ static void jevois_parse(struct jevois_t *jv, char c)
       break;
     case JV_EXTRA:
       if (JEVOIS_CHECK_DELIM(c)) {
-        jv->buf[jv->idx] = '\0'; // end string
+        jv->msg.extra[jv->idx] = '\0'; // end string
         jv->state = JV_SEND_MSG;
+        jv->idx = 0; // reset index
       }
       else {
-        jv->msg.id[jv->idx++] = c; // store extra string
+        jv->msg.extra[jv->idx++] = c; // store extra string
         if (jv->idx > JEVOIS_MAX_LEN - 1) {
           jv->state = JV_SYNC; // too long, return to sync
         }
@@ -354,7 +356,9 @@ void jevois_setmapping(int number)
   jevois_stream(false);
   send_string("setmapping ");
   char s[4];
+#ifndef SITL
   itoa(number, s, 10);
+#endif
   send_string(s);
   send_string("\r\n");
   jevois_stream(true);
