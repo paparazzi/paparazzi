@@ -17,6 +17,31 @@
     <define name="SONAR_BEBOP_FILTER_NARROW_OBSTACLES_JUMP" value="0.4" />
     <define name="SONAR_BEBOP_FILTER_NARROW_OBSTACLES_TIME" value="1.0" />
 
+    <define name="DETECT_GATE_N_SAMPLES" value="1000" />
+
+    <define name="MT9F002_OUTPUT_HEIGHT" value="300" />   <!-- Size -->
+    <define name="MT9F002_OUTPUT_WIDTH" value="300" />
+    <define name="MT9F002_OUTPUT_SCALER" value="0.25"/>
+    <define name="MT9F002_X_ODD_INC_VAL" value="2"/>
+    <define name="MT9F002_Y_ODD_INC_VAL" value="2"/>
+
+    <define name="MT9F002_TARGET_EXPOSURE" value="30" />
+    <define name="MT9F002_GAIN_GREEN1" value="4"/>
+    <define name="MT9F002_GAIN_GREEN2" value="4"/>
+    <define name="MT9F002_GAIN_RED" value="5"/>
+    <define name="MT9F002_GAIN_BLUE" value="5"/>
+
+    <define name="MT9F002_INITIAL_OFFSET_X" value="0.15"/><!-- look up percentage -->
+
+    <define name="MT9F002_FOCAL_X" value="150"/>          <!-- lens parameter -->
+    <define name="MT9F002_FOCAL_Y" value="150"/>
+    <define name="MT9F002_CENTER_X" value="80"/>
+    <define name="MT9F002_CENTER_Y" value="150"/>
+
+
+    <define name="PREDICTION_BIAS_PHI" value="0.8" />
+    <define name="PREDICTION_BIAS_THETA" value="0.0" />
+
 	<!-- Subsystem section -->
     <module name="telemetry" type="transparent_udp"/>
     <module name="radio_control" type="datalink"/>
@@ -30,9 +55,9 @@
     <module name="ahrs" type="int_cmpl_quat">
        <configure name="USE_MAGNETOMETER" value="FALSE"/> <!--TRUE-->
 
-      <configure name="USE_GPS" value="TRUE"/>
+      <configure name="USE_GPS" value="FALSE"/>
 
-      <define name="AHRS_USE_GPS_HEADING" value="TRUE"/><!--TRUE-->
+      <define name="AHRS_USE_GPS_HEADING" value="FALSE"/><!--TRUE-->
 
       <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN" value="TRUE"/>
     </module>
@@ -53,7 +78,28 @@
     <module name="ctrl_module_outerloop_demo"/>
     <module name="sonar_bebop"/>
 
+    <module name="dronerace"/>
+
+    <!-- either external detection -->
     <module name="jevois_mavlink"/>
+
+    <!-- or internal detection -->
+    <!--module name="video_thread"/>
+
+    <module name="cv_detect_gate">
+      <define name="DETECT_GATE_CAMERA" value="front_camera"/>
+    </module>
+
+    <module name="video_rtp_stream">
+      <define name="VIEWVIDEO_CAMERA" value="front_camera"/>
+      <define name="VIEWVIDEO_CAMERA2" value="bottom_camera"/>
+      <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="2"/>
+      <define name="VIEWVIDEO_QUALITY_FACTOR" value="40"/>
+    </module>
+
+    <module name="bebop_ae_awb"/-->
+      <!--<define name="UNDISTORT_MIN_X_NORMALIZED" value="-2.0"/> -->
+
 
   </firmware>
 
@@ -177,11 +223,11 @@
   </section>
 
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
-    <define name="HOVER_KP" value="283"/>
-    <define name="HOVER_KD" value="82"/>
+    <define name="HOVER_KP" value="1200"/>
+    <define name="HOVER_KD" value="360"/>
     <define name="HOVER_KI" value="20"/>
-    <define name="NOMINAL_HOVER_THROTTLE" value="0.655"/>
-    <define name="ADAPT_THROTTLE_ENABLED" value="TRUE"/>
+    <define name="NOMINAL_HOVER_THROTTLE" value="0.52"/>
+    <define name="ADAPT_THROTTLE_ENABLED" value="FALSE"/>
   </section>
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">

@@ -55,6 +55,8 @@ void guidance_h_module_init(void)
 {
 }
 
+#include "./dronerace/dronerace.h"
+
 void guidance_h_module_enter(void)
 {
   // Store current heading
@@ -62,6 +64,8 @@ void guidance_h_module_enter(void)
 
   // Convert RC to setpoint
   stabilization_attitude_read_rc_setpoint_eulers(&ctrl.rc_sp, autopilot.in_flight, false, false);
+
+  dronerace_enter();
 }
 
 void guidance_h_module_read_rc(void)
@@ -74,11 +78,17 @@ void guidance_h_module_run(bool in_flight)
 {
   // YOUR NEW HORIZONTAL OUTERLOOP CONTROLLER GOES HERE
   // ctrl.cmd = CallMyNewHorizontalOuterloopControl(ctrl);
+  float alt = 0.0;
   float roll = 0.0;
   float pitch = 0.0;
+  float yaw = 0.0;
+
+  dronerace_get_cmd(&alt, &roll, &pitch, &yaw);
 
   ctrl.cmd.phi = ANGLE_BFP_OF_REAL(roll);
   ctrl.cmd.theta = ANGLE_BFP_OF_REAL(pitch);
+  ctrl.cmd.psi = ANGLE_BFP_OF_REAL(yaw);
+
 
   stabilization_attitude_set_rpy_setpoint_i(&(ctrl.cmd));
   stabilization_attitude_run(in_flight);

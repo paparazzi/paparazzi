@@ -1,0 +1,23 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="dronerace" dir="ctrl/dronerace">
+  <doc>
+    <description>Autonomous Drone Race</description>
+  </doc>
+  <header>
+    <file name="dronerace.h"/>
+  </header>
+  <init fun="dronerace_init()"/>
+  <periodic fun="dronerace_periodic()"/>
+  <makefile target="ap|nps">
+    <file name="dronerace.c"/>
+    <file name="flightplan.c"/>
+    <file name="filter.c"/>
+    <file name="control.c"/>
+    <file name="ransac.c"/>
+    <file name="fifo.c"/>
+    <file name="RANSAC.c" dir="math"/>
+    <file name="pprz_matrix_decomp_float.c" dir="math"/>
+  </makefile>
+</module>
+

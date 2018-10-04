@@ -1,16 +1,12 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <airframe name="bebop2_optitrack_visionfront">
-  <description>Bebop2: Detects Autonomous-Drone-Race-Gates</description>
 
   <firmware name="rotorcraft">
-    <target name="ap" board="bebop2">
-	<define name="SIMULATE" value="FALSE"/>
-        <define name="CAMERA_ROTATED_90DEG_RIGHT" value="TRUE" />
-    </target>
+    <target name="ap" board="bebop2"/>
     <target name="nps" board="pc">
       <module name="fdm" type="gazebo"/>
-        <define name="CAMERA_ROTATED_90DEG_RIGHT" value="FALSE" />
+      <define name="SIMULATE" value="TRUE"/>
     </target>
 
     <module name="telemetry" type="transparent_udp"/>
@@ -22,13 +18,26 @@
     <module name="stabilization" type="indi_simple"/>
     <module name="ahrs" type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="FALSE"/>
-      <!-- <define name="AHRS_USE_GPS_HEADING" value="TRUE"/> -->
     </module>
     <define name="USE_SONAR" value="TRUE"/>
+
+    <define name="DETECT_GATE_N_SAMPLES" value="5000" />
+
     <module name="ins" type="extended"/>
+    <configure name="USE_GPS" value="FALSE"/>
+    <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
+    <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN" value="TRUE"/>
+
 
     <define name="MT9F002_OUTPUT_HEIGHT" value="640" />
     <define name="MT9F002_OUTPUT_WIDTH" value="640" />
+
+    <define name="MT9F002_FOCAL_X" value="340"/>          <!-- lens parameter -->
+    <define name="MT9F002_FOCAL_Y" value="340"/>
+    <define name="MT9F002_CENTER_X" value="320"/>
+    <define name="MT9F002_CENTER_Y" value="320"/>
+    <define name="MT9F002_DHANE_K" value="1.31"/>
+
     <define name="MT9F002_INITIAL_OFFSET_X" value="0.15" />
     <define name="MT9F002_INITIAL_OFFSET_Y" value="0.0" />
     <define name="MT9F002_TARGET_EXPOSURE" value="30" />
@@ -38,13 +47,16 @@
     <define name="MT9F002_GAIN_BLUE" value="5"/>
     <define name="MT9F002_OUTPUT_SCALER" value="0.25"/>
     <define name="MT9F002_X_ODD_INC_VAL" value="1"/>
-    <define name="MT9F002_Y_ODD_INC_VAL" value="1"/>
+    <define name="MT9F002_Y_ODD_INC_VAL" value="1"/>   	
 
+  </firmware>
+
+  <modules main_freq="512">
     <module name="geo_mag"/>
     <module name="air_data"/>
     <module name="send_imu_mag_current"/>
     <module name="logger_file">
-      <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
+      <define name="FILE_LOGGER_PATH" value="."/>
     </module>
 
     <module name="video_thread"/>
@@ -55,41 +67,32 @@
     </module>
 
     <module name="pose_history">
-		  <define name="POSE_HISTORY_SIZE" value="128" />
-	  </module>
-
-    <!-- For tuning the color filter: -->
-    <!--
-    <module name="cv_colorfilter">
-	<define name="COLORFILTER_CAMERA" value="front_camera"/>
-	<define name="COLORFILTER_FPS" value="0"/>
+        <define name="POSE_HISTORY_SIZE" value="128" />
     </module>
-    -->
 
-    <module name="dronerace"/> 
-    <module name="ctrl_module_outerloop_demo"/> 
+    <module name="sonar_bebop"/>
 
+    <!-- module for gate detection for drone racing -->
     <module name="cv_detect_gate">
 	<define name="DETECT_GATE_CAMERA" value="front_camera"/>
 	<define name="DETECT_GATE_FPS" value="0"/>
-    <define name="DETECT_GATE_Y_MIN" value="31"/>
-    <define name="DETECT_GATE_Y_MAX" value="130"/>
-    <define name="DETECT_GATE_U_MIN" value="62"/>
-    <define name="DETECT_GATE_U_MAX" value="138"/>
-    <define name="DETECT_GATE_V_MIN" value="148"/>
-    <define name="DETECT_GATE_V_MAX" value="221"/>
-
+	<define name="DETECT_GATE_EXCLUDE_PIXELS_TOP" value="80"/>
+	<define name="DETECT_GATE_EXCLUDE_PIXELS_BOTTOM" value="160"/>
     </module>
+
+    <!-- modules for drone racing control -->
+    <module name="dronerace"/> 
+    <module name="ctrl_module_outerloop_demo"/> 
 
     <module name="video_rtp_stream">
       <define name="VIEWVIDEO_CAMERA" value="front_camera"/>
       <!-- <define name="VIEWVIDEO_CAMERA2" value="bottom_camera"/> -->
-      <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="4"/>
-      <define name="VIEWVIDEO_QUALITY_FACTOR" value="50"/>
+      <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
+      <define name="VIEWVIDEO_QUALITY_FACTOR" value="90"/>
     </module>
 
-    <!--<module name="bebop_ae_awb"/>-->
-  </firmware>
+  </modules>
+
 
   <commands>
     <axis name="PITCH" failsafe_value="0"/>
@@ -145,17 +148,15 @@
     <define name="H_X" value="0.3892503"/>
     <define name="H_Y" value="0.0017972"/>
     <define name="H_Z" value="0.9211303"/>
-    <!-- Use GPS heading instead of magneto -->
-    <define name="USE_GPS_HEADING" value="FALSE"/>
     <define name="HEADING_UPDATE_GPS_MIN_SPEED" value="0"/>
   </section>
 
   <section name="INS" prefix="INS_">
-    <define name="SONAR_MAX_RANGE" value="2.2"/>
-    <define name="SONAR_UPDATE_ON_AGL" value="TRUE"/>
+    <!--<define name="SONAR_MAX_RANGE" value="2.2"/>
+    <define name="SONAR_UPDATE_ON_AGL" value="TRUE"/> -->
     <!-- Use GPS altitude measurments and set the R gain -->
-    <define name="USE_GPS_ALT" value="0"/>
-    <!-- <define name="VFF_R_GPS" value="0.01"/> -->
+    <define name="USE_GPS_ALT" value="1"/>
+    <define name="VFF_R_GPS" value="0.01"/>
   </section>
 
 
@@ -189,9 +190,9 @@
 
  <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
     <!-- control effectiveness -->
-    <define name="G1_P" value="0.0397"/>
-    <define name="G1_Q" value="0.0299"/>
-    <define name="G1_R" value="0.0014"/>
+    <define name="G1_P" value="0.03"/>
+    <define name="G1_Q" value="0.023"/>
+    <define name="G1_R" value="0.0027"/>
     <define name="G2_R" value="0.1219"/>
 
     <!-- reference acceleration for attitude control -->
@@ -225,7 +226,7 @@
     <define name="HOVER_KD" value="85"/>
     <define name="HOVER_KI" value="20"/>
     <define name="NOMINAL_HOVER_THROTTLE" value="0.655"/>
-    <define name="ADAPT_THROTTLE_ENABLED" value="FALSE"/>
+    <define name="ADAPT_THROTTLE_ENABLED" value="TRUE"/>
   </section>
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
