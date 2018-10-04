@@ -59,10 +59,14 @@ void qr_code_spi_link_periodic(void)
 {
   if (qr_code_spi_data_available) {
     qr_code_spi_data_available = false;
-    uint16_t x, y;
+    int16_t x, y;
+    int16_t w=0, h=0;
+    uint16_t source = 1;
+    static uint16_t cnt = 0;
+    cnt++;
     memcpy(&x, qr_code_spi_link_transaction.input_buf, 2);
     memcpy(&y, qr_code_spi_link_transaction.input_buf + 2, 2);
-    DOWNLINK_SEND_VISUALTARGET(DefaultChannel, DefaultDevice, &x, &y);
+    DOWNLINK_SEND_VISUALTARGET(DefaultChannel, DefaultDevice, &cnt, &x, &y, &w,&h, &source);
     spi_slave_register(&spi1, &qr_code_spi_link_transaction);
   }
 }
