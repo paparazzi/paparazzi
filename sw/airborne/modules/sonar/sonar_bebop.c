@@ -38,6 +38,7 @@
 #include "mcu_periph/spi.h"
 #include "subsystems/abi.h"
 #include <pthread.h>
+#include <unistd.h>
 #include "subsystems/datalink/downlink.h"//FIXME, include only when link need
 
 #include "filters/median_filter.h"
@@ -200,7 +201,9 @@ void *sonar_bebop_read(void *data __attribute__((unused)))
       // Send Telemetry report
       DOWNLINK_SEND_SONAR(DefaultChannel, DefaultDevice, &sonar_bebop.meas, &sonar_bebop.distance);
 #endif
+#ifndef SITL
     }
+#endif
     usleep(10000); //100Hz
   }
   return NULL;

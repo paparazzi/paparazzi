@@ -149,7 +149,7 @@
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_s_1.0">
-      <module name="radio_control" type="spektrum">
+      <module name="radio_control" type="superbitrf_rc">
         <define name="RADIO_MODE" value="RADIO_FLAP"/>
         <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
         <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="0"/>

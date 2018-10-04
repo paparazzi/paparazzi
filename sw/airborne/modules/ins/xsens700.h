@@ -34,7 +34,6 @@
 
 #include "xsens_parser.h"
 
-
 #if USE_GPS_XSENS
 #include "subsystems/gps.h"
 #endif

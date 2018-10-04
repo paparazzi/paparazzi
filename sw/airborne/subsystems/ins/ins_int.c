@@ -476,7 +476,7 @@ void ins_int_update_gps(struct GpsState *gps_s __attribute__((unused))) {}
  * This is only used with the extended version of the vertical float filter
  */
 #if USE_VFF_EXTENDED
-static void agl_cb(uint8_t sender_id, float distance) {
+static void agl_cb(uint8_t __attribute__((unused)) sender_id, float distance) {
   if (distance <= 0 || !(ins_int.baro_initialized)) {
     return;
   }

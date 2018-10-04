@@ -133,8 +133,8 @@ void nps_autopilot_run_step(double time)
     float dist = (float) sensors.sonar.value;
     AbiSendMsgAGL(AGL_SONAR_NPS_ID, dist);
 
-    uint16_t foo = 0;
 #ifdef SENSOR_SYNC_SEND_SONAR
+    uint16_t foo = 0;
     DOWNLINK_SEND_SONAR(DefaultChannel, DefaultDevice, &foo, &dist);
 #endif
 

@@ -31,14 +31,20 @@
 #include "subsystems/radio_control.h"
 #include "mcu_periph/sys_time_arch.h"
 
+#include "mcu_periph/uart.h"
 #include "mcu_periph/gpio.h"
 
-void spektrum_soft_bind_init(void) {    
+void spektrum_soft_bind_init(void)
+{
 
 }
 
+#define _UART_INIT(i) i ## _init()
+#define UART_INIT(i) _UART_INIT(i)
+
 bool bind_soft_value;
-void spektrum_soft_bind_click(bool val ) {
+void spektrum_soft_bind_click(bool val)
+{
 #ifndef INTER_MCU_AP
   send_spektrum_bind();
 #else
@@ -49,7 +55,8 @@ void spektrum_soft_bind_click(bool val ) {
 }
 
 #ifndef INTER_MCU_AP
-void send_spektrum_bind(void) {
+void send_spektrum_bind(void)
+{
   //power cycle the spektrum
 #if defined(RADIO_CONTROL_LED)
   LED_OFF(RADIO_CONTROL_LED);
@@ -65,7 +72,11 @@ void send_spektrum_bind(void) {
   //put to bind mode
   RADIO_CONTROL_BIND_IMPL_FUNC();    //basically  = radio_control_spektrum_try_bind()
 
-  SpektrumUartInit();
+  // init uart peripherals
+  UART_INIT(SPEKTRUM_PRIMARY_UART);
+#ifdef SPEKTRUM_SECONDARY_UART
+  UART_INIT(SPEKTRUM_SECONDARY_UART);
+#endif
 
 }
 #endif

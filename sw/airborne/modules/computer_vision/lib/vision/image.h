@@ -107,7 +107,7 @@ void image_show_points_color(struct image_t *img, struct point_t *points, uint16
 void image_show_flow_color(struct image_t *img, struct flow_t *vectors, uint16_t points_cnt, uint8_t subpixel_factor,
                            const uint8_t *color, const uint8_t *bad_color);
 void image_show_flow(struct image_t *img, struct flow_t *vectors, uint16_t points_cnt, uint8_t subpixel_factor);
-void image_draw_crosshair(struct image_t *img, struct point_t *loc, const uint8_t *color, int size_crosshair);
+void image_draw_crosshair(struct image_t *img, struct point_t *loc, const uint8_t *color, uint32_t size_crosshair);
 void image_draw_rectangle(struct image_t *img, int x_min, int x_max, int y_min, int y_max, uint8_t *color);
 void image_draw_line(struct image_t *img, struct point_t *from, struct point_t *to);
 void image_draw_line_color(struct image_t *img, struct point_t *from, struct point_t *to, const uint8_t *color);
