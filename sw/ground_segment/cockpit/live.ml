@@ -903,6 +903,10 @@ let get_fbw_msg = fun alarm _sender vs ->
   let mode = PprzLink.string_assoc "rc_mode" vs in
   if mode = "FAILSAFE" then begin
     log_and_say alarm ac.ac_name (sprintf "%s, mayday, AP Failure. Switch to manual." ac.ac_speech_name)
+  end;
+  let rc = PprzLink.string_assoc "rc_status" vs in
+  if (rc = "LOST") || (rc = "REALLY_LOST") then begin
+    log_and_say alarm ac.ac_name (sprintf "%s, RC lost." ac.ac_speech_name)
   end
 
 let get_telemetry_status = fun alarm _sender vs ->
