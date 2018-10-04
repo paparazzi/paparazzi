@@ -128,12 +128,14 @@ int cmp_i(const void *a, const void *b)
  * @param[in] color_vM The V maximum value
  * @param[out] *best_gate This gate_img struct will be filled with the data of the best detected gate.
  * @param[out] *gates_c Array of gates with size MAX_GATES
+ * @param[in] exclude_top The number of pixels excluded for sampling at the top of the image.
+ * @param[in] exclude_bottom The number of pixels excluded for sampling at the bottom of the image.
  */
 
 int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, float min_gate_quality,
                          float gate_thickness, int min_n_sides,
                          uint8_t color_Ym, uint8_t color_YM, uint8_t color_Um, uint8_t color_UM, uint8_t color_Vm, uint8_t color_VM,
-                         struct gate_img *best_gate, struct gate_img *gates_c, int *n_gates)
+                         struct gate_img *best_gate, struct gate_img *gates_c, int *n_gates, int exclude_top, int exclude_bottom)
 {
 
   static int last_frame_detection = 0;
@@ -141,7 +143,7 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
   static struct gate_img previous_best_gate = {0};
   static struct gate_img last_gate;
 
-  bool check_initial_square = true;
+  bool check_initial_square = false;
   float iou_threshold = 0.7; // when bigger than this, gates are assumed to represent the same gate
 
 
@@ -186,7 +188,7 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
     // TODO: would it work better to scan different lines in the image?
     // get a random coordinate:
     x = rand() % img->h;
-    y = rand() % img->w;
+    y = exclude_top + rand() % (img->w - exclude_top - exclude_bottom);
 
     // check if it has the right color
     if (check_color_snake_gate_detection(img, x, y)) {
@@ -242,6 +244,7 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
 
             // check the gate quality:
             check_gate_initial(img, gates_c[(*n_gates)], &gates_c[(*n_gates)].quality, &gates_c[(*n_gates)].n_sides);
+
           } else {
 
             // The first two corners have a high y:
@@ -267,7 +270,7 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
           // set the corners to make a square gate for now:
           set_gate_points(&gates_c[(*n_gates)]);
 
-          // TODO: for multiple gates we need to use intersection of union and fitness here.
+
           bool add_gate = true;
           float iou;
           for (int g = 0; g < (*n_gates); g++) {
@@ -283,6 +286,7 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
               } else {
                 // throw the old gate away:
                 // TODO: consider making a function for doing this "deep" copy
+                add_gate = true;
                 gates_c[g].x = gates_c[(*n_gates)].x;
                 gates_c[g].y = gates_c[(*n_gates)].y;
                 gates_c[g].sz = gates_c[(*n_gates)].sz;
@@ -292,6 +296,7 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
               }
             }
           }
+
           if (add_gate) {
             (*n_gates)++;
           }
@@ -317,6 +322,8 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
   best_gate->quality = 0;
   best_gate->n_sides = 0;
   repeat_gate = 0;
+  float sz1 =0;
+  float sz2 = 0;
 
   // do an additional fit to improve the gate detection:
   if ((best_quality > min_gate_quality && (*n_gates) > 0) || last_frame_detection) {
@@ -331,7 +338,25 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
       check_gate_outline(img, gates_c[gate_nr], &gates_c[gate_nr].quality, &gates_c[gate_nr].n_sides);
 
       // If the gate is good enough:
-      if (gates_c[gate_nr].n_sides >= min_n_sides && gates_c[gate_nr].quality > best_gate->quality) {
+      float sz1g, sz2g;
+      sz1g = (float) (gates_c[gate_nr].x_corners[1] - gates_c[gate_nr].x_corners[0]);
+      sz2g = (float) (gates_c[gate_nr].y_corners[1] - gates_c[gate_nr].y_corners[2]);
+
+      // Don't accept gates that look too rectangular (not square enough)
+      float ratio;
+      static float limit_ratio = 1.5;
+      if(sz1g > 0.1 && sz2g > 0.1) {
+        ratio = (sz1g >= sz2g) ? sz1g / sz2g : sz2g / sz1g;
+      }
+      else {
+        ratio = limit_ratio + 0.1;
+      }
+
+      //printf("Gate with surface area: %f, quality %f, n_sides %d, and ratio %f\n", sz1g*sz2g, gates_c[gate_nr].quality, gates_c[gate_nr].n_sides, ratio);
+
+      // if (gates_c[gate_nr].n_sides >= min_n_sides && gates_c[gate_nr].quality > best_gate->quality) {
+      if (sz1g*sz2g > sz1*sz2 && gates_c[gate_nr].quality > min_gate_quality * 2 && gates_c[gate_nr].n_sides >= min_n_sides && ratio <= limit_ratio) {
+        //printf("Becomes the best gate!\n");
         // store the information in the gate:
         best_gate->x = gates_c[gate_nr].x;
         best_gate->y = gates_c[gate_nr].y;
@@ -342,6 +367,9 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
         best_gate->n_sides = gates_c[gate_nr].n_sides;
         memcpy(best_gate->x_corners, gates_c[gate_nr].x_corners, sizeof(best_gate->x_corners));
         memcpy(best_gate->y_corners, gates_c[gate_nr].y_corners, sizeof(best_gate->y_corners));
+        sz1 = (float) (best_gate->x_corners[1] - best_gate->x_corners[0]);
+        sz2 = (float) (best_gate->y_corners[1] - best_gate->y_corners[2]);
+
       }
     }
 
@@ -966,7 +994,7 @@ void gate_refine_corners(struct image_t *color_image, int *x_points, int *y_poin
 {
 
   // TODO: make parameter?
-  float corner_area = 0.4f;
+  float corner_area = 0.3f;
   refine_single_corner(color_image, x_points, y_points, size, corner_area);
   refine_single_corner(color_image, &(x_points[1]), &(y_points[1]), size, corner_area);
   refine_single_corner(color_image, &(x_points[2]), &(y_points[2]), size, corner_area);

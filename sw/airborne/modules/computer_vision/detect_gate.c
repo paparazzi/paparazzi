@@ -19,7 +19,10 @@
 
 #include "modules/computer_vision/snake_gate_detection.h"
 
-// #define DEBUG_GATE
+// To know if we are simulating or not the camera of the Bebop:
+#include "generated/airframe.h"
+
+//#define DEBUG_GATE
 
 #ifndef DETECT_GATE_JUST_FILTER
 #define DETECT_GATE_JUST_FILTER 0
@@ -37,7 +40,7 @@ PRINT_CONFIG_VAR(DETECT_GATE_FPS)
 PRINT_CONFIG_VAR(DETECT_GATE_CAMERA)
 
 #ifndef DETECT_GATE_N_SAMPLES
-#define DETECT_GATE_N_SAMPLES 10000
+#define DETECT_GATE_N_SAMPLES 2000
 #endif
 PRINT_CONFIG_VAR(DETECT_GATE_N_SAMPLES)
 
@@ -71,8 +74,9 @@ PRINT_CONFIG_VAR(DETECT_GATE_Y_MIN)
 #endif
 PRINT_CONFIG_VAR(DETECT_GATE_Y_MAX)
 
+// now 42 in sim, 66 before
 #ifndef DETECT_GATE_U_MIN
-#define DETECT_GATE_U_MIN 66
+#define DETECT_GATE_U_MIN 42
 #endif
 PRINT_CONFIG_VAR(DETECT_GATE_U_MIN)
 
@@ -91,6 +95,17 @@ PRINT_CONFIG_VAR(DETECT_GATE_V_MIN)
 #endif
 PRINT_CONFIG_VAR(DETECT_GATE_V_MAX)
 
+#ifndef DETECT_GATE_EXCLUDE_PIXELS_TOP
+#define DETECT_GATE_EXCLUDE_PIXELS_TOP 0
+#endif
+PRINT_CONFIG_VAR(DETECT_GATE_EXCLUDE_PIXELS_TOP)
+
+#ifndef DETECT_GATE_EXCLUDE_PIXELS_BOTTOM
+#define DETECT_GATE_EXCLUDE_PIXELS_BOTTOM 0
+#endif
+PRINT_CONFIG_VAR(DETECT_GATE_EXCLUDE_PIXELS_BOTTOM)
+
+
 // settings:
 int just_filtering;
 int n_samples;
@@ -104,6 +119,8 @@ uint8_t color_Um;
 uint8_t color_UM;
 uint8_t color_Vm;
 uint8_t color_VM;
+int exclude_top;
+int exclude_bottom;
 
 // External variables that have the results:
 struct FloatVect3 drone_position;
@@ -114,7 +131,7 @@ struct gate_img gates_c[MAX_GATES];
 // Structure of the gate:
 struct FloatVect3 world_corners[4];
 float gate_size_m = 1.4; //size of gate edges in meters
-float gate_center_height = -1.7; //height of gate in meters ned wrt ground
+float gate_center_height = 0.0; //height of gate in meters ned wrt ground
 int n_corners = 3;
 
 // camera to body:
@@ -128,9 +145,9 @@ volatile float detect_gate_z;
 
 static pthread_mutex_t gate_detect_mutex;            ///< Mutex lock fo thread safety
 
+
 // Function
-struct image_t *detect_gate_func(struct image_t *img);
-struct image_t *detect_gate_func(struct image_t *img)
+static struct image_t *detect_gate_func(struct image_t *img)
 {
   // detect the gate and draw it in the image:
   if (just_filtering) {
@@ -140,12 +157,26 @@ struct image_t *detect_gate_func(struct image_t *img)
     // perform snake gate detection:
     int n_gates;
     snake_gate_detection(img, n_samples, min_px_size, min_gate_quality, gate_thickness, min_n_sides, color_Ym, color_YM,
-                         color_Um, color_UM, color_Vm, color_VM, &best_gate, gates_c, &n_gates);
+                         color_Um, color_UM, color_Vm, color_VM, &best_gate, gates_c, &n_gates, exclude_top, exclude_bottom);
+
+//#if SIMULATE
+    int temp[4];
+//#endif
 
 #ifdef DEBUG_GATE
+    printf("\n**** START DEBUG DETECT GATE ****\n");
     if (n_gates > 1) {
       for (int i = 0; i < n_gates; i++) {
+        //printf("Gate %d out of %d\n", i, n_gates-1);
         if (gates_c[i].quality > min_gate_quality * 2 && gates_c[i].n_sides >= 3) {
+
+//#if SIMULATE
+          // swap x and y coordinates:
+          memcpy(temp, gates_c[i].x_corners, sizeof(gates_c[i].x_corners));
+          memcpy(gates_c[i].x_corners, gates_c[i].y_corners, sizeof(gates_c[i].x_corners));
+          memcpy(gates_c[i].y_corners, temp, sizeof(gates_c[i].y_corners));
+//#endif
+
           drone_position = get_world_position_from_image_points(gates_c[i].x_corners, gates_c[i].y_corners, world_corners,
                            n_corners,
                            DETECT_GATE_CAMERA.camera_intrinsics, cam_body);
@@ -157,7 +188,16 @@ struct image_t *detect_gate_func(struct image_t *img)
     }
 #endif
 
+
+    //printf("ratio = %f\n", ratio);
     if (best_gate.quality > min_gate_quality * 2) {
+
+//#if SIMULATE
+      // swap x and y coordinates:
+      memcpy(temp, best_gate.x_corners, sizeof(best_gate.x_corners));
+      memcpy(best_gate.x_corners, best_gate.y_corners, sizeof(best_gate.x_corners));
+      memcpy(best_gate.y_corners, temp, sizeof(best_gate.y_corners));
+//#endif
 
 #ifdef DEBUG_GATE
       // debugging snake gate:
@@ -168,24 +208,67 @@ struct image_t *detect_gate_func(struct image_t *img)
       printf("\n");
 #endif
 
-      // TODO: try out RANSAC with all combinations of 3 corners out of 4 corners.
-      drone_position = get_world_position_from_image_points(best_gate.x_corners, best_gate.y_corners, world_corners,
-                       n_corners,
-                       DETECT_GATE_CAMERA.camera_intrinsics, cam_body);
+      static bool simple_position = false;
+
+      if(simple_position) {
+        float sz1_best, sz2_best;
+        sz1_best = (float) (best_gate.x_corners[2] - best_gate.x_corners[0]);
+        sz2_best = (float) (best_gate.y_corners[1] - best_gate.y_corners[0]);
+        float size = (sz1_best > sz2_best) ? sz1_best : sz2_best;
+
+        //float width, height;
+  //#if SIMULATE
+        //width = (float) img->w;
+        //height = (float) img->h;
+        float pix_x = (best_gate.x_corners[2] + best_gate.x_corners[0]) / 2.0f;
+        float pix_y = (best_gate.y_corners[1] + best_gate.y_corners[0]) / 2.0f;
+        float angle_x = (pix_x-DETECT_GATE_CAMERA.camera_intrinsics.center_x) / DETECT_GATE_CAMERA.camera_intrinsics.focal_x;
+        float angle_y = (pix_y-DETECT_GATE_CAMERA.camera_intrinsics.center_y) / DETECT_GATE_CAMERA.camera_intrinsics.focal_y;
+        float dist = gate_size_m * (DETECT_GATE_CAMERA.camera_intrinsics.focal_x / size);
+        drone_position.x = -dist;
+        drone_position.y = -angle_y*dist;
+        drone_position.z = angle_x*dist;
+/*  #else
+        //width = (float) img->h;
+        //height = (float) img->w;
+        float pix_y = (best_gate.x_corners[1] + best_gate.x_corners[0]) / 2.0f;
+        float pix_x = (best_gate.y_corners[2] + best_gate.y_corners[1]) / 2.0f;
+        printf("Not simulating, pix_x = %f, pix_y = %f\n", pix_x, pix_y);
+        float angle_x = (pix_x-DETECT_GATE_CAMERA.camera_intrinsics.center_y) / DETECT_GATE_CAMERA.camera_intrinsics.focal_y;
+        float angle_y = (pix_y-DETECT_GATE_CAMERA.camera_intrinsics.center_x) / DETECT_GATE_CAMERA.camera_intrinsics.focal_x;
+        float dist = gate_size_m * (DETECT_GATE_CAMERA.camera_intrinsics.focal_x / size);
+        drone_position.x = -dist;
+        drone_position.y = -angle_x*dist;
+        drone_position.z = -angle_y*dist;
+  #endif */
+        printf("angle_x = %f, angle_y = %f, dist = %f\n", angle_x, angle_y, dist);
+        printf("pix_x = %f, pix_y = %f\n", pix_x, pix_y);
+        printf("size = %f, focal = %f, %f, center = %f, %f\n", size, DETECT_GATE_CAMERA.camera_intrinsics.focal_x, DETECT_GATE_CAMERA.camera_intrinsics.focal_y,
+                                                                     DETECT_GATE_CAMERA.camera_intrinsics.center_x, DETECT_GATE_CAMERA.camera_intrinsics.center_y);
+      }
+      else {
+        // TODO: try out RANSAC with all combinations of 3 corners out of 4 corners.
+        drone_position = get_world_position_from_image_points(best_gate.x_corners, best_gate.y_corners, world_corners,
+                               n_corners, DETECT_GATE_CAMERA.camera_intrinsics, cam_body);
+      }
+      printf("Position drone: (%f, %f, %f)\n", drone_position.x, drone_position.y, drone_position.z);
 
 #ifdef DEBUG_GATE
       // debugging the drone position:
       printf("Position drone: (%f, %f, %f)\n", drone_position.x, drone_position.y, drone_position.z);
+      printf("**** END DEBUG DETECT GATE ****\n");
 #endif
+
+      // send from thread to module - only when there is a best gate:
+      pthread_mutex_lock(&gate_detect_mutex);
+      detect_gate_x = drone_position.x;
+      detect_gate_y = drone_position.y;
+      detect_gate_z = drone_position.z;
+      //printf("new measurement!!\n");
+      detect_gate_has_new_data = true;
+      pthread_mutex_unlock(&gate_detect_mutex);
     }
 
-    // send from thread to module
-    pthread_mutex_lock(&gate_detect_mutex);
-    detect_gate_x = drone_position.x;
-    detect_gate_y = drone_position.y;
-    detect_gate_z = drone_position.z;
-    detect_gate_has_new_data = true;
-    pthread_mutex_unlock(&gate_detect_mutex);
   }
   return img;
 }
@@ -195,6 +278,7 @@ void detect_gate_event(void)
   static int32_t cnt = 0;
   pthread_mutex_lock(&gate_detect_mutex);
   if (detect_gate_has_new_data) {
+    //printf("Sending data!\n");
     detect_gate_has_new_data = false;
     AbiSendMsgRELATIVE_LOCALIZATION(DETECT_GATE_ABI_ID, cnt++,
                                     detect_gate_x,
@@ -222,8 +306,22 @@ void detect_gate_init(void)
   color_UM = DETECT_GATE_U_MAX;
   color_Vm = DETECT_GATE_V_MIN;
   color_VM = DETECT_GATE_V_MAX;
+  exclude_top = DETECT_GATE_EXCLUDE_PIXELS_TOP;
+  exclude_bottom = DETECT_GATE_EXCLUDE_PIXELS_BOTTOM;
 
   // World coordinates: X positive towards the gate, Z positive down, Y positive right:
+//#if SIMULATE
+  // Top-left, CW:
+  VECT3_ASSIGN(world_corners[0],
+               0.0f, -(gate_size_m / 2), gate_center_height - (gate_size_m / 2));
+  VECT3_ASSIGN(world_corners[1],
+               0.0f, (gate_size_m / 2), gate_center_height - (gate_size_m / 2));
+  VECT3_ASSIGN(world_corners[2],
+               0.0f, (gate_size_m / 2), gate_center_height + (gate_size_m / 2));
+  VECT3_ASSIGN(world_corners[3],
+               0.0f, -(gate_size_m / 2), gate_center_height + (gate_size_m / 2));
+
+/*#else
   // Bottom-right, CCW:
   VECT3_ASSIGN(world_corners[0],
                0.0f, (gate_size_m / 2), gate_center_height + (gate_size_m / 2));
@@ -233,7 +331,7 @@ void detect_gate_init(void)
                0.0f, -(gate_size_m / 2), gate_center_height - (gate_size_m / 2));
   VECT3_ASSIGN(world_corners[3],
                0.0f, -(gate_size_m / 2), gate_center_height + (gate_size_m / 2));
-
+#endif */
   cam_body.phi = 0;
   cam_body.theta = 0;
   cam_body.psi = 0;

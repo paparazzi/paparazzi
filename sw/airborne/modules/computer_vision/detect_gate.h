@@ -27,6 +27,8 @@ extern uint8_t color_Um;
 extern uint8_t color_UM;
 extern uint8_t color_Vm;
 extern uint8_t color_VM;
+extern int exclude_top;
+extern int exclude_bottom;
 
 // External variables that have the results:
 extern struct FloatVect3 drone_position;
