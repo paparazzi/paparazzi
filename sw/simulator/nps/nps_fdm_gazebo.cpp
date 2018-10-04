@@ -693,6 +693,10 @@ static void init_gazebo_video(void)
     cameras[i]->sensor_size.h = cam->ImageHeight();
     cameras[i]->crop.w = cam->ImageWidth();
     cameras[i]->crop.h = cam->ImageHeight();
+    cameras[i]->camera_intrinsics.focal_x = cameras[i]->output_size.w/2.0f;
+    cameras[i]->camera_intrinsics.center_x = cameras[i]->output_size.w/2.0f;
+    cameras[i]->camera_intrinsics.focal_y = cameras[i]->output_size.h/2.0f;
+    cameras[i]->camera_intrinsics.center_y = cameras[i]->output_size.h/2.0f;
 #if NPS_SIMULATE_MT9F002
     // See boards/bebop/mt9f002.c
     if(cam->Name() == "front_camera") {
@@ -702,6 +706,13 @@ static void init_gazebo_video(void)
       cameras[i]->sensor_size.h = MT9F002_OUTPUT_HEIGHT;
       cameras[i]->crop.w = MT9F002_OUTPUT_WIDTH;
       cameras[i]->crop.h = MT9F002_OUTPUT_HEIGHT;
+      cameras[i]->camera_intrinsics = {
+          .focal_x = MT9F002_FOCAL_X,
+          .focal_y = MT9F002_FOCAL_Y,
+          .center_x = MT9F002_CENTER_X,
+          .center_y = MT9F002_CENTER_Y,
+          .Dhane_k = MT9F002_DHANE_K
+        };
     }
 #endif
     cameras[i]->fps = cam->UpdateRate();
