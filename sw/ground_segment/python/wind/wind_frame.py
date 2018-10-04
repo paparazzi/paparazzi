@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016 TUDelft
+# Copyright (C) 2018 TUDelft
 #
 # This file is part of paparazzi.
 #
@@ -115,6 +115,7 @@ class WindFrame(wx.Frame):
         # Background
         dc.SetBrush(wx.Brush(wx.Colour(0, 0, 0), wx.TRANSPARENT))
 
+        # Speed circles
         for v in range(0,40,5):
             dc.DrawCircle(self.mid, self.mid, diameter * v / MAX_AIRSPEED )
 
@@ -126,23 +127,23 @@ class WindFrame(wx.Frame):
         dc.DrawText("E", w - 15, w / 2 + tdy)
         dc.DrawText("W", 2, w / 2 + tdy)
 
+        # Ground Speed
         dc.SetBrush(wx.Brush(wx.Colour(0, 0, 255), wx.SOLID))
         for i in range(0,MSG_BUFFER_SIZE):
             gx = self.ground_gs_x[i]
             gy = self.ground_gs_y[i]
 
-            #dc.DrawLine(gx,gy,gx,gy)
             dc.DrawCircle(int(gx * diameter / MAX_AIRSPEED + self.mid + self.click_x), int(gy * diameter / MAX_AIRSPEED + self.mid + self.click_y), 2)
 
+        # Airspeed in function of heading
         dc.SetBrush(wx.Brush(wx.Colour(255, 0, 0), wx.SOLID))
         for i in range(0,MSG_BUFFER_SIZE):
             gx = self.airspeed[i] * math.cos(self.heading[i])
             gy = self.airspeed[i] * math.sin(self.heading[i])
 
-            #dc.DrawLine(gx,gy,gx,gy)
             dc.DrawCircle(int(gx * diameter / MAX_AIRSPEED + self.mid), int(gy * diameter / MAX_AIRSPEED + self.mid), 2)
 
-
+        # Result
         font = wx.Font(8, wx.ROMAN, wx.NORMAL, wx.NORMAL)
         dc.SetFont(font)
         dc.DrawText("#" + str(self.count_gs) + ", " + str(self.count_as) + " | " + str(self.click_x) + "-" + str(self.click_y), 0, h - 14)
@@ -154,22 +155,6 @@ class WindFrame(wx.Frame):
         font = wx.Font(fontsize, wx.ROMAN, wx.NORMAL, wx.NORMAL)
         dc.SetFont(font)
         dc.DrawText("Wind = " + str(round(windspeed,1)) + " m/s from " + str(round(windheading, 0)), 0, w )
-
-        # SV
-#            y = float(w) / 2.0 - math.cos(az) * el
-#            x = float(w) / 2.0 + math.sin(az) * el
-
-#            dc.SetBrush(wx.Brush(c, wx.SOLID))
-#            dc.DrawCircle(int(x), int(y), s)
-
-#            font = wx.Font(8, wx.ROMAN, wx.NORMAL, wx.NORMAL)
-#            dc.SetFont(font)
-#            dc.DrawText(str(sv.SVID), x + tdx, y + tdy)
-
-#            bh = float(bar - th - th) * float(sv.CNO) / 55.0
-#            dc.DrawRectangle(w / CHANNEL * chn + 5 * (1 - used), self.h - th - bh, w / CHANNEL - 2 - 10 * (1 - used), bh)
-#            dc.DrawText(str(chn), w / CHANNEL * chn, self.h - th)
-#            dc.DrawText(str(sv.CNO), w / CHANNEL * chn, self.h - bar)
 
     def __init__(self):
         # own data
@@ -187,7 +172,7 @@ class WindFrame(wx.Frame):
         self.click_y = 0
         self.click_on = 0
 
-        # window
+        # Window
         self.w = WIDTH
         self.h = WIDTH + BARH
 
@@ -210,11 +195,9 @@ class WindFrame(wx.Frame):
         self.Bind(wx.EVT_SIZE, self.OnSize)
         self.Bind(wx.EVT_MOVE, self.OnMove)
         self.Bind(wx.EVT_CLOSE, self.OnClose)
-        self.Bind(wx.EVT_LEFT_DOWN, self.OnClickD) #EVT_LEFT_DOWN
-        self.Bind(wx.EVT_MOTION, self.OnClickM) #EVT_LEFT_DOWN
-        self.Bind(wx.EVT_LEFT_UP, self.OnClickU) #EVT_LEFT_DOWN
-
-        #self.Bind( wx.EVT_BUTTON, self.OnButton, btn1 )
+        self.Bind(wx.EVT_LEFT_DOWN, self.OnClickD)
+        self.Bind(wx.EVT_MOTION, self.OnClickM)
+        self.Bind(wx.EVT_LEFT_UP, self.OnClickU)
 
         ico = wx.Icon(PPRZ_SRC + "/sw/ground_segment/python/wind/wind.png", wx.BITMAP_TYPE_PNG)
         self.SetIcon(ico)

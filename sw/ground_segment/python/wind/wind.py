@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2016 TUDelft
+# Copyright (C) 2018 TUDelft
 #
 # This file is part of paparazzi.
 #
