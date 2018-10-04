@@ -1,7 +1,7 @@
 <?xml version='1.0'?>
 <sdf version='1.4'>
   <model name="bebop">
-    <pose>0 0 .1 0 0 0</pose>
+    <pose>0 0 .1 0 0 1.57</pose>
 
     <link name="chassis">
       <velocity_decay>
