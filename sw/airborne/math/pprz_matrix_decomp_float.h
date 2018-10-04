@@ -119,6 +119,22 @@ void fit_linear_model(float *targets, int D, float (*samples)[D], uint16_t count
 
 
 
+/**
+ * Fit a linear model from samples to target values with a prior.
+ * Effectively a wrapper for the pprz_svd_float and pprz_svd_solve_float functions.
+ *
+ * @param[in] targets The target values
+ * @param[in] samples The samples / feature vectors
+ * @param[in] D The dimensionality of the samples
+ * @param[in] count The number of samples
+ * @param[in] use_bias Whether to use the bias. Please note that params should always be of size D+1, but in case of no bias, the bias value is set to 0.
+ * @param[in] prior Prior probability of the parameter.
+ * @param[out] parameters* Parameters of the linear fit
+ * @param[out] fit_error* Total error of the fit
+ */
+void fit_linear_model_prior(float *targets, int D, float (*samples)[D], uint16_t count, bool use_bias, float *params, float *fit_error);
+
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
