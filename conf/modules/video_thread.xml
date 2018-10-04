@@ -28,6 +28,7 @@
     <include name="modules/computer_vision"/>
     <file name="image.c" dir="modules/computer_vision/lib/vision"/>
     <file name="v4l2.c" dir="modules/computer_vision/lib/v4l"/>
+    <file name="virt2phys.c" dir="modules/computer_vision/lib/v4l"/>
     <file name="jpeg.c" dir="modules/computer_vision/lib/encoding"/>
 
     <!-- Random flags -->
@@ -35,6 +36,10 @@
     <define name="__USE_GNU"/>
     <flag name="LDFLAGS" value="lrt"/>
     <flag name="LDFLAGS" value="static-libgcc"/>
+	<include name="$(PAPARAZZI_SRC)/sw/ext/libopengles/inc"/>
+    <file name="opengl.c" dir="modules/computer_vision/lib/opengl"/>
+	<flag name="LDFLAGS" value="Wl,-Bdynamic -L../ext/libopengles/lib/arm -lGLESv2 -lEGL -Wl,-Bstatic"/>
+
   </makefile>
   <makefile target="nps">
     <file name="video_thread_nps.c"/>

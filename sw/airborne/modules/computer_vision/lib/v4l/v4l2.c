@@ -38,6 +38,7 @@
 #include <pthread.h>
 
 #include "v4l2.h"
+#include "virt2phys.h"
 
 #include <sys/time.h>
 #include "mcu_periph/sys_time.h"
@@ -189,6 +190,7 @@ struct v4l2_device *v4l2_init(char *device_name, struct img_size_t size, struct 
   struct v4l2_requestbuffers req;
   struct v4l2_fmtdesc fmtdesc;
   struct v4l2_crop crp;
+  struct physmem pmem;
   CLEAR(cap);
   CLEAR(fmt);
   CLEAR(req);
@@ -307,6 +309,18 @@ struct v4l2_device *v4l2_init(char *device_name, struct img_size_t size, struct 
       close(fd);
       return NULL;
     }
+
+    if(checkcontiguity((unsigned long)buffers[i].buf,
+                        getpid(),
+                        &pmem,
+                        buf.length)) {
+      printf("[v4l2] Physical memory %d is not contiguous with length %d from %s\n", i, buf.length, device_name);
+      free(buffers);
+      close(fd);
+      return NULL;
+    }
+
+    buffers[i].physp = pmem.paddr;
   }
 
   // Create the device only when everything succeeded
