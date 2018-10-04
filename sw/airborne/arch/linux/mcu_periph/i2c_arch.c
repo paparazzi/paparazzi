@@ -50,7 +50,7 @@ struct i2c_thread_t {
   pthread_cond_t condition;
 };
 
-static void i2c_arch_init(struct i2c_periph *p)
+static void UNUSED i2c_arch_init(struct i2c_periph *p)
 {
   pthread_t tid;
   if (pthread_create(&tid, NULL, i2c_thread, (void *)p) != 0) {

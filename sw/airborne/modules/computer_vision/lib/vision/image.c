@@ -708,12 +708,12 @@ void image_show_flow_color(struct image_t *img, struct flow_t *vectors, uint16_t
   for (uint16_t i = 0; i < points_cnt; i++) {
     // Draw a line from the original position with the flow vector
     struct point_t from = {
-      vectors[i].pos.x / subpixel_factor,
-      vectors[i].pos.y / subpixel_factor
+      .x = vectors[i].pos.x / subpixel_factor,
+      .y = vectors[i].pos.y / subpixel_factor
     };
     struct point_t to = {
-      (vectors[i].pos.x + vectors[i].flow_x) / subpixel_factor,
-      (vectors[i].pos.y + vectors[i].flow_y) / subpixel_factor
+      .x = (vectors[i].pos.x + vectors[i].flow_x) / subpixel_factor,
+      .y = (vectors[i].pos.y + vectors[i].flow_y) / subpixel_factor
     };
 
     if (vectors[i].error >= LARGE_FLOW_ERROR) {
@@ -847,7 +847,7 @@ void image_draw_rectangle(struct image_t *img, int x_min, int x_max, int y_min, 
  *                   Example colors: white = {127, 255, 127, 255}, green = {0, 127, 0, 127};
  * @param[in] size_crosshair Actually the half size of the cross hair
  */
-void image_draw_crosshair(struct image_t *img, struct point_t *loc, const uint8_t *color, int size_crosshair)
+void image_draw_crosshair(struct image_t *img, struct point_t *loc, const uint8_t *color, uint32_t size_crosshair)
 {
   struct point_t from, to;
 

@@ -5,10 +5,10 @@
   <firmware name="rotorcraft">
     <target name="ap" board="bebop"/>
 
-    <target name="nps" board="pc">
+    <!--target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
       <module name="udp"/>
-    </target>
+    </target-->
 
     <!--define name="USE_SONAR" value="TRUE"/-->
 

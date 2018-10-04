@@ -27,18 +27,22 @@
 #define RES 100
 #define N_WINDOW_SIZES 1
 
+#include "cv.h"
+#include "detect_window.h"
+#include <stdio.h>
+
 #ifndef DETECT_WINDOW_FPS
 #define DETECT_WINDOW_FPS 0       ///< Default FPS (zero means run at camera fps)
 #endif
 PRINT_CONFIG_VAR(DETECT_WINDOW_FPS)
 
-#include "cv.h"
-#include "detect_window.h"
-#include <stdio.h>
-
 void detect_window_init(void)
 {
+#ifdef DETECT_WINDOW_CAMERA
   cv_add_to_device(&DETECT_WINDOW_CAMERA, detect_window, DETECT_WINDOW_FPS);
+#else
+#warning "DETECT_WINDOW_CAMERA not defined, CV callback not added to device"
+#endif
 }
 
 struct image_t *detect_window(struct image_t *img)

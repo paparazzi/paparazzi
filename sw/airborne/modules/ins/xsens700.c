@@ -27,7 +27,9 @@
 
 #include "xsens700.h"
 
+#include "led.h"
 #include "generated/airframe.h"
+#include "mcu_periph/uart.h"
 
 #if USE_GPS_XSENS
 #include "math/pprz_geodetic_wgs84.h"
@@ -50,7 +52,7 @@ volatile int xsens_configured = 0;
 
 void xsens700_init(void)
 {
-  xsens.parser.status = UNINIT;
+  xsens700.parser.status = UNINIT;
   xsens_configured = 30;
 
   xsens_msg_statusword = 0;
@@ -139,17 +141,17 @@ void xsens700_periodic(void)
 void parse_xsens700_msg(void)
 {
   uint8_t offset = 0;
-  if (xsens.parser.id == XSENS_ReqLeverArmGpsAck_ID) {
-    xsens_gps_arm_x = XSENS_ReqLeverArmGpsAck_x(xsens.parser.msg_buf);
-    xsens_gps_arm_y = XSENS_ReqLeverArmGpsAck_y(xsens.parser.msg_buf);
-    xsens_gps_arm_z = XSENS_ReqLeverArmGpsAck_z(xsens.parser.msg_buf);
-  } else if (xsens.parser.id == XSENS_Error_ID) {
-    xsens_errorcode = XSENS_Error_errorcode(xsens.parser.msg_buf);
-  } else if (xsens.parser.id == XSENS_MTData2_ID) {
-    for (offset = 0; offset < xsens.parser.len;) {
-      uint8_t code1 = xsens.parser.msg_buf[offset];
-      uint8_t code2 = xsens.parser.msg_buf[offset + 1];
-      int subpacklen = (int)xsens.parser.msg_buf[offset + 2];
+  if (xsens700.parser.id == XSENS_ReqLeverArmGpsAck_ID) {
+    xsens_gps_arm_x = XSENS_ReqLeverArmGpsAck_x(xsens700.parser.msg_buf);
+    xsens_gps_arm_y = XSENS_ReqLeverArmGpsAck_y(xsens700.parser.msg_buf);
+    xsens_gps_arm_z = XSENS_ReqLeverArmGpsAck_z(xsens700.parser.msg_buf);
+  } else if (xsens700.parser.id == XSENS_Error_ID) {
+    xsens_errorcode = XSENS_Error_errorcode(xsens700.parser.msg_buf);
+  } else if (xsens700.parser.id == XSENS_MTData2_ID) {
+    for (offset = 0; offset < xsens700.parser.len;) {
+      uint8_t code1 = xsens700.parser.msg_buf[offset];
+      uint8_t code2 = xsens700.parser.msg_buf[offset + 1];
+      int subpacklen = (int)xsens700.parser.msg_buf[offset + 2];
       offset += 3;
 
       if (code1 == 0x10) {
@@ -164,25 +166,25 @@ void parse_xsens700_msg(void)
       } else if (code1 == 0x20) {
         if (code2 == 0x30) {
           // Attitude Euler
-          xsens700.euler.phi   = XSENS_DATA_Euler_roll(xsens.parser.msg_buf, offset) * M_PI / 180;
-          xsens700.euler.theta = XSENS_DATA_Euler_pitch(xsens.parser.msg_buf, offset) * M_PI / 180;
-          xsens700.euler.psi   = XSENS_DATA_Euler_yaw(xsens.parser.msg_buf, offset) * M_PI / 180;
+          xsens700.euler.phi   = XSENS_DATA_Euler_roll(xsens700.parser.msg_buf, offset) * M_PI / 180;
+          xsens700.euler.theta = XSENS_DATA_Euler_pitch(xsens700.parser.msg_buf, offset) * M_PI / 180;
+          xsens700.euler.psi   = XSENS_DATA_Euler_yaw(xsens700.parser.msg_buf, offset) * M_PI / 180;
 
           xsens700.new_attitude = TRUE;
         }
       } else if (code1 == 0x40) {
         if (code2 == 0x10) {
           // Delta-V
-          xsens700.accel.x = XSENS_DATA_Acceleration_x(xsens.parser.msg_buf, offset) * 100.0f;
-          xsens700.accel.y = XSENS_DATA_Acceleration_y(xsens.parser.msg_buf, offset) * 100.0f;
-          xsens700.accel.z = XSENS_DATA_Acceleration_z(xsens.parser.msg_buf, offset) * 100.0f;
+          xsens700.accel.x = XSENS_DATA_Acceleration_x(xsens700.parser.msg_buf, offset) * 100.0f;
+          xsens700.accel.y = XSENS_DATA_Acceleration_y(xsens700.parser.msg_buf, offset) * 100.0f;
+          xsens700.accel.z = XSENS_DATA_Acceleration_z(xsens700.parser.msg_buf, offset) * 100.0f;
         }
       } else if (code1 == 0x80) {
         if (code2 == 0x20) {
           // Rate Of Turn
-          xsens700.gyro.p = XSENS_DATA_RateOfTurn_x(xsens.parser.msg_buf, offset) * M_PI / 180;
-          xsens700.gyro.q = XSENS_DATA_RateOfTurn_y(xsens.parser.msg_buf, offset) * M_PI / 180;
-          xsens700.gyro.r = XSENS_DATA_RateOfTurn_z(xsens.parser.msg_buf, offset) * M_PI / 180;
+          xsens700.gyro.p = XSENS_DATA_RateOfTurn_x(xsens700.parser.msg_buf, offset) * M_PI / 180;
+          xsens700.gyro.q = XSENS_DATA_RateOfTurn_y(xsens700.parser.msg_buf, offset) * M_PI / 180;
+          xsens700.gyro.r = XSENS_DATA_RateOfTurn_z(xsens700.parser.msg_buf, offset) * M_PI / 180;
         }
       } else if (code1 == 0x30) {
         if (code2 == 0x10) {
@@ -191,7 +193,7 @@ void parse_xsens700_msg(void)
       } else if (code1 == 0xE0) {
         if (code2 == 0x20) {
           // Status Word
-          xsens_msg_statusword = XSENS_DATA_StatusWord_status(xsens.parser.msg_buf, offset);
+          xsens_msg_statusword = XSENS_DATA_StatusWord_status(xsens700.parser.msg_buf, offset);
           //xsens700.gps.tow = xsens_msg_statusword;
 #if USE_GPS_XSENS
           if (bit_is_set(xsens_msg_statusword, 2) && bit_is_set(xsens_msg_statusword, 1)) {
@@ -205,17 +207,17 @@ void parse_xsens700_msg(void)
         }
       } else if (code1 == 0x88) {
         if (code2 == 0x40) {
-          xsens700.gps.week = XSENS_DATA_GpsSol_week(xsens.parser.msg_buf, offset);
-          xsens700.gps.num_sv = XSENS_DATA_GpsSol_numSv(xsens.parser.msg_buf, offset);
-          xsens700.gps.pacc = XSENS_DATA_GpsSol_pAcc(xsens.parser.msg_buf, offset);
-          xsens700.gps.sacc = XSENS_DATA_GpsSol_sAcc(xsens.parser.msg_buf, offset);
-          xsens700.gps.pdop = XSENS_DATA_GpsSol_pDop(xsens.parser.msg_buf, offset);
+          xsens700.gps.week = XSENS_DATA_GpsSol_week(xsens700.parser.msg_buf, offset);
+          xsens700.gps.num_sv = XSENS_DATA_GpsSol_numSv(xsens700.parser.msg_buf, offset);
+          xsens700.gps.pacc = XSENS_DATA_GpsSol_pAcc(xsens700.parser.msg_buf, offset);
+          xsens700.gps.sacc = XSENS_DATA_GpsSol_sAcc(xsens700.parser.msg_buf, offset);
+          xsens700.gps.pdop = XSENS_DATA_GpsSol_pDop(xsens700.parser.msg_buf, offset);
         } else if (code2 == 0xA0) {
           // SVINFO
-          xsens700.gps.tow = XSENS_XDI_GpsSvInfo_iTOW(xsens.parser.msg_buf + offset);
+          xsens700.gps.tow = XSENS_XDI_GpsSvInfo_iTOW(xsens700.parser.msg_buf + offset);
 
 #if USE_GPS_XSENS
-          xsens700.gps.nb_channels = XSENS_XDI_GpsSvInfo_nch(xsens.parser.msg_buf + offset);
+          xsens700.gps.nb_channels = XSENS_XDI_GpsSvInfo_nch(xsens700.parser.msg_buf + offset);
 
           xsens700.gps.last_3dfix_ticks = sys_time.nb_sec_rem;
           xsens700.gps.last_3dfix_time = sys_time.nb_sec;
@@ -223,21 +225,21 @@ void parse_xsens700_msg(void)
           uint8_t i;
           // Do not write outside buffer
           for (i = 0; i < Min(xsens700.gps.nb_channels, GPS_NB_CHANNELS); i++) {
-            uint8_t ch = XSENS_XDI_GpsSvInfo_chn(xsens.parser.msg_buf + offset, i);
+            uint8_t ch = XSENS_XDI_GpsSvInfo_chn(xsens700.parser.msg_buf + offset, i);
             if (ch > xsens700.gps.nb_channels) { continue; }
-            xsens700.gps.svinfos[ch].svid = XSENS_XDI_GpsSvInfo_svid(xsens.parser.msg_buf + offset, i);
-            xsens700.gps.svinfos[ch].flags = XSENS_XDI_GpsSvInfo_bitmask(xsens.parser.msg_buf + offset, i);
-            xsens700.gps.svinfos[ch].qi = XSENS_XDI_GpsSvInfo_qi(xsens.parser.msg_buf + offset, i);
-            xsens700.gps.svinfos[ch].cno = XSENS_XDI_GpsSvInfo_cnr(xsens.parser.msg_buf + offset, i);
+            xsens700.gps.svinfos[ch].svid = XSENS_XDI_GpsSvInfo_svid(xsens700.parser.msg_buf + offset, i);
+            xsens700.gps.svinfos[ch].flags = XSENS_XDI_GpsSvInfo_bitmask(xsens700.parser.msg_buf + offset, i);
+            xsens700.gps.svinfos[ch].qi = XSENS_XDI_GpsSvInfo_qi(xsens700.parser.msg_buf + offset, i);
+            xsens700.gps.svinfos[ch].cno = XSENS_XDI_GpsSvInfo_cnr(xsens700.parser.msg_buf + offset, i);
           }
 #endif
         }
       } else if (code1 == 0x50) {
         if (code2 == 0x10) {
-          //xsens700.gps.hmsl = XSENS_DATA_Altitude_h(xsens.parser.msg_buf,offset)* 1000.0f;
+          //xsens700.gps.hmsl = XSENS_DATA_Altitude_h(xsens700.parser.msg_buf,offset)* 1000.0f;
         } else if (code2 == 0x20) {
           // Altitude Elipsoid
-          xsens700.gps.lla_pos.alt = XSENS_DATA_Altitude_h(xsens.parser.msg_buf, offset) * 1000.0f;
+          xsens700.gps.lla_pos.alt = XSENS_DATA_Altitude_h(xsens700.parser.msg_buf, offset) * 1000.0f;
 
           // Compute geoid (MSL) height
           float geoid_h = wgs84_ellipsoid_to_geoid_f(xsens700.lla_f.lat, xsens700.lla_f.lon);
@@ -254,15 +256,15 @@ void parse_xsens700_msg(void)
           xsens700.gps.last_3dfix_time = sys_time.nb_sec;
           xsens700.gps.week = 0; // FIXME
 
-          xsens700.lla_f.lat = RadOfDeg(XSENS_DATA_LatLon_lat(xsens.parser.msg_buf, offset));
-          xsens700.lla_f.lon = RadOfDeg(XSENS_DATA_LatLon_lon(xsens.parser.msg_buf, offset));
+          xsens700.lla_f.lat = RadOfDeg(XSENS_DATA_LatLon_lat(xsens700.parser.msg_buf, offset));
+          xsens700.lla_f.lon = RadOfDeg(XSENS_DATA_LatLon_lon(xsens700.parser.msg_buf, offset));
         }
       } else if (code1 == 0xD0) {
         if (code2 == 0x10) {
           // Velocity
-          xsens700.vel.x = XSENS_DATA_VelocityXYZ_x(xsens.parser.msg_buf, offset);
-          xsens700.vel.y = XSENS_DATA_VelocityXYZ_y(xsens.parser.msg_buf, offset);
-          xsens700.vel.z = XSENS_DATA_VelocityXYZ_z(xsens.parser.msg_buf, offset);
+          xsens700.vel.x = XSENS_DATA_VelocityXYZ_x(xsens700.parser.msg_buf, offset);
+          xsens700.vel.y = XSENS_DATA_VelocityXYZ_y(xsens700.parser.msg_buf, offset);
+          xsens700.vel.z = XSENS_DATA_VelocityXYZ_z(xsens700.parser.msg_buf, offset);
           xsens700.gps.ned_vel.x = xsens700.vel.x;
           xsens700.gps.ned_vel.y = xsens700.vel.y;
           xsens700.gps.ned_vel.z = xsens700.vel.x;

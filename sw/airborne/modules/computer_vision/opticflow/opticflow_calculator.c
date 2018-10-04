@@ -1050,7 +1050,7 @@ static int cmp_flow(const void *a, const void *b)
  */
 static int cmp_array(const void *a, const void *b)
 {
-  uint16_t *pa = *(uint16_t **)a;
-  uint16_t *pb = *(uint16_t **)b;
+  const uint16_t *pa = (const uint16_t *)a;
+  const uint16_t *pb = (const uint16_t *)b;
   return pa[0] - pb[0];
 }

@@ -112,7 +112,7 @@ void act_fast(struct image_t *img, uint8_t fast_threshold, uint16_t *num_corners
           break;
         } else {
           // make a step:
-          struct point_t loc = {agents[a].x, agents[a].y};
+          struct point_t loc = { .x = agents[a].x, .y = agents[a].y};
           image_gradient_pixel(img, &loc, gradient_method, &dx, &dy);
           int gradient = (abs(dx) + abs(dy)) / 2;
           if (abs(gradient) >= min_gradient) {
