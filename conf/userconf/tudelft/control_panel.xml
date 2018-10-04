@@ -45,6 +45,7 @@
       <arg flag="--port" constant="/dev/ttyUSB1"/>
       <arg flag="--id" constant="1"/>
     </program>
+    <program name="Gazebo" command="sw/tools/gzclient_launcher.sh"/>
     <program name="BluegigaUsbDongleScanner" command="sw/tools/bluegiga_usb_dongle/bluegiga_usb_driver">
       <arg flag="/dev/ttyACM2"/>
       <arg flag="scan"/>
@@ -273,6 +274,55 @@
         <arg flag="-ac" constant="@AIRCRAFT"/>
         <arg flag="extreme_3d_pro.xml"/>
       </program>
+    </session>
+  <session name="Simulation - Gazebo">
+      <program name="Simulator">
+        <arg flag="-a" constant="@AIRCRAFT"/>
+        <arg flag="-t" constant="nps"/>
+      </program>
+      <program name="Data Link">
+        <arg flag="-udp"/>
+      </program>
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="GCS">
+        <arg flag="-speech"/>
+        <arg flag="-maximize"/>
+        <arg flag="-center_ac"/>
+        <arg flag="-mercator"/>
+        <arg flag="-maps_no_http"/>
+        <arg flag="-track_size" constant="200"/>
+        <arg flag="-zoom" constant="40."/>
+      </program>
+      <program name="Gazebo"/>
+    </session>
+    <session name="Simulation - Gazebo + Joystick">
+      <program name="Simulator">
+        <arg flag="-a" constant="@AIRCRAFT"/>
+        <arg flag="-t" constant="nps"/>
+      </program>
+      <program name="Data Link">
+        <arg flag="-udp"/>
+      </program>
+      <program name="Server">
+        <arg flag="-n"/>
+      </program>
+      <program name="GCS">
+        <arg flag="-speech"/>
+        <arg flag="-maximize"/>
+        <arg flag="-center_ac"/>
+        <arg flag="-mercator"/>
+        <arg flag="-maps_no_http"/>
+        <arg flag="-track_size" constant="200"/>
+        <arg flag="-zoom" constant="40."/>
+      </program>
+      <program name="Joystick" command="sw/ground_segment/joystick/input2ivy">
+        <arg flag="-ac" constant="@AIRCRAFT"/>
+        <arg flag="hobbyking.xml"/>
+        <arg flag="-d 0"/>
+      </program>
+      <program name="Gazebo"/>
     </session>
   </section>
 </control_panel>
