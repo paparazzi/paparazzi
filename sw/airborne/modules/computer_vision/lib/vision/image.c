@@ -709,11 +709,13 @@ void image_show_flow_color(struct image_t *img, struct flow_t *vectors, uint16_t
     // Draw a line from the original position with the flow vector
     struct point_t from = {
       vectors[i].pos.x / subpixel_factor,
-      vectors[i].pos.y / subpixel_factor
+      vectors[i].pos.y / subpixel_factor,
+	  0, 0, 0
     };
     struct point_t to = {
       (vectors[i].pos.x + vectors[i].flow_x) / subpixel_factor,
-      (vectors[i].pos.y + vectors[i].flow_y) / subpixel_factor
+      (vectors[i].pos.y + vectors[i].flow_y) / subpixel_factor,
+	  0, 0, 0
     };
 
     if (vectors[i].error >= LARGE_FLOW_ERROR) {
@@ -851,8 +853,8 @@ void image_draw_crosshair(struct image_t *img, struct point_t *loc, const uint8_
 {
   struct point_t from, to;
 
-  if (loc->x >= size_crosshair && loc->x < img->w - size_crosshair
-      && loc->y >= size_crosshair && loc->y < img->h - size_crosshair) {
+  if (loc->x >= ((uint32_t)size_crosshair) && loc->x < img->w - ((uint32_t)size_crosshair)
+      && loc->y >= ((uint32_t)size_crosshair) && loc->y < img->h - ((uint32_t)size_crosshair)) {
     // draw the lines:
     from.x = loc->x - size_crosshair;
     from.y = loc->y;
