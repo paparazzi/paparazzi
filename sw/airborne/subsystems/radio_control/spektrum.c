@@ -336,7 +336,7 @@ void spektrum_event(void (*frame_handler)(void))
 /** This function puts the satellite in binding mode.
  * The requirement of this are that this needs to be done while powering up.
  */
-static void spektrum_bind(void)
+static void UNUSED spektrum_bind(void)
 {
 
   /* Master receiver Rx push-pull */
