@@ -69,6 +69,8 @@
     <program name="SVInfo" command="sw/ground_segment/python/svinfo/svinfo.py"/>
     <program name="IridiumDialer" command="sw/tools/iridium/iridium_link.py"/>
     <program name="PayloadForward" command="sw/ground_segment/python/payload_forward/payload.py"/>
+    <program name="Wind" command="sw/ground_segment/python/wind/wind.py"/>
+    <program name="EnergyManager" command="sw/ground_segment/python/energy_mon/energy_mon.py"/>
     <program name="AeronauticalInfo" command="sw/ground_segment/python/atc/atc.py"/>
     <program name="RtpViewer" command="sw/tools/rtp_viewer/rtp_viewer.py">
       <arg flag="-p" constant="5000"/>

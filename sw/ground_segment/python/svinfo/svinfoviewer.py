@@ -25,7 +25,6 @@ import math
 
 PPRZ_HOME = os.getenv("PAPARAZZI_HOME", os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                                                     '../../../..')))
-
 PPRZ_SRC = os.getenv("PAPARAZZI_SRC", os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                                                     '../../../..')))
 
@@ -73,9 +72,18 @@ class SVInfoFrame(wx.Frame):
         self.Refresh()
 
     def OnSize(self, event):
-        self.w = event.GetSize()[0]
-        self.h = event.GetSize()[1]
+        self.w = event.GetSize().x
+        self.h = event.GetSize().y
+        self.cfg.Write("width", str(self.w));
+        self.cfg.Write("height", str(self.h));
         self.Refresh()
+
+    def OnMove(self, event):
+        self.x = event.GetPosition().x
+        self.y = event.GetPosition().y
+        self.cfg.Write("left", str(self.x));
+        self.cfg.Write("top", str(self.y));
+
 
     def OnPaint(self, e):
         tdx = -5
@@ -137,10 +145,23 @@ class SVInfoFrame(wx.Frame):
         self.w = WIDTH
         self.h = WIDTH + BARH
 
+        self.cfg = wx.Config('svinfo_conf')
+        if self.cfg.Exists('width'):
+            self.w = int(self.cfg.Read('width'))
+            self.h = int(self.cfg.Read('height'))
+
+
         wx.Frame.__init__(self, id=-1, parent=None, name=u'SVInfoFrame',
                           size=wx.Size(self.w, self.h), title=u'SV Info')
+
+        if self.cfg.Exists('left'):
+            self.x = int(self.cfg.Read('left'))
+            self.y = int(self.cfg.Read('top'))
+            self.SetPosition(wx.Point(self.x,self.y), wx.SIZE_USE_EXISTING)
+
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_SIZE, self.OnSize)
+        self.Bind(wx.EVT_MOVE, self.OnMove)
         self.Bind(wx.EVT_CLOSE, self.OnClose)
 
         ico = wx.Icon(PPRZ_SRC + "/sw/ground_segment/python/svinfo/svinfo.ico", wx.BITMAP_TYPE_ICO)

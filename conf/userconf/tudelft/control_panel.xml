@@ -59,6 +59,8 @@
     <program name="ADS-B Intruders receiver" command="sw/ground_segment/misc/sbs2ivy">
       <arg flag="--ac" constant="@AC_ID"/>
     </program>
+    <program name="ATC" command="sw/ground_segment/python/atc/atc.py"/>
+    <program name="Wind" command="sw/ground_segment/python/wind/wind.py"/>
     <program name="SVInfo" command="sw/ground_segment/python/svinfo/svinfo.py"/>
     <program name="EnergyManager" command="sw/ground_segment/python/energy_mon/energy_mon.py"/>
     <program name="IridiumDialer" command="sw/tools/iridium/iridium_link.py"/>
