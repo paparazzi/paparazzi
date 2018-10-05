@@ -41,6 +41,13 @@
 #include "autopilot.h"
 #include "generated/modules.h"
 
+#include "subsystems/abi.h"
+#include "subsystems/abi_sender_ids.h"
+
+#include "std.h"
+#include "subsystems/datalink/telemetry.h"
+
+
 mavlink_system_t mavlink_system;
 
 #ifndef MAVLINK_SYSID
@@ -60,13 +67,24 @@ static void mavlink_send_set_mode(void);
  */
 
 
-mavlink_manual_setpoint_t jevois_mavlink_manual_setpoint;
-mavlink_debug_t jevois_mavlink_debug;
-mavlink_altitude_t jevois_mavlink_altitude;
-mavlink_attitude_t jevois_mavlink_attitude;
-mavlink_local_position_ned_t jevois_mavlink_local_position;
+struct visual_target_struct {
+  int received;
+  int count;
+  int x;
+  int y;
+  int w;
+  int h;
+  int quality;
+  int source;
+} jevois_visual_target = {false, 0, 0, 0, 0, 0, 0};
 
-
+struct vision_relative_position_struct {
+  int received;
+  int cnt;
+  float x;
+  float y;
+  float z;
+} jevois_vision_position = {false, 0, 0.0f, 0.0f, 0.0f};
 
 /*
  * Paparazzi Module functions : filter functions
@@ -93,6 +111,41 @@ void jevois_mavlink_filter_init(void)
   init_butterworth_2_low_pass_int(&az_filtered, 20.0, 1.0 / ((float)MODULES_FREQUENCY), imu.accel_unscaled.z);
 }
 
+/*
+ * Paparazzi Module functions : forward to telemetry
+ */
+
+// Send Manual Setpoint over telemetry using ROTORCRAFT_RADIO_CONTROL message
+
+static void send_jevois_mavlink_visual_target(struct transport_tx *trans, struct link_device *dev)
+{
+  if (jevois_visual_target.received) {
+    jevois_visual_target.received = false;
+    uint16_t cnt = jevois_visual_target.count;
+    int16_t tx = jevois_visual_target.x;
+    int16_t ty = jevois_visual_target.y;
+    int16_t w = jevois_visual_target.w;
+    int16_t h = jevois_visual_target.h;
+    uint16_t s = jevois_visual_target.source;
+    pprz_msg_send_VISUALTARGET(trans, dev, AC_ID, &cnt,
+                               &tx, &ty, &w, &h, &s);
+  }
+}
+
+static void send_jevois_mavlink_visual_position(struct transport_tx *trans, struct link_device *dev)
+{
+  if (jevois_vision_position.received) {
+    jevois_vision_position.received = false;
+    uint16_t cnt = jevois_vision_position.cnt;
+    float foo = 0;
+    pprz_msg_send_VISION_POSITION_ESTIMATE(trans, dev, AC_ID,
+                               &cnt,
+                               &jevois_vision_position.x,
+                               &jevois_vision_position.y,
+                               &jevois_vision_position.z,
+                               &foo, &foo );
+  }
+}
 
 /*
  * Paparazzi Module functions : communications
@@ -100,10 +153,16 @@ void jevois_mavlink_filter_init(void)
 
 void jevois_mavlink_init(void)
 {
+  // Initialize Mavlink parser
   mavlink_system.sysid = MAVLINK_SYSID; // System ID, 1-255
   mavlink_system.compid = 0; // Component/Subsystem ID, 1-255
 
+  // Initialize Anti-Aliasing Sensor Filter
   jevois_mavlink_filter_init();
+
+  // Send telemetry
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_VISUALTARGET, send_jevois_mavlink_visual_target);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_VISION_POSITION_ESTIMATE, send_jevois_mavlink_visual_position);
 }
 
 void jevois_mavlink_periodic(void)
@@ -113,6 +172,11 @@ void jevois_mavlink_periodic(void)
   RunOnceEvery(1, mavlink_send_highres_imu());
   RunOnceEvery(1, mavlink_send_set_mode());
 }
+
+#ifndef JEVOIS_MAVLINK_ABI_ID
+#define JEVOIS_MAVLINK_ABI_ID 34
+#endif
+
 
 
 void jevois_mavlink_event(void)
@@ -130,50 +194,89 @@ void jevois_mavlink_event(void)
           mavlink_heartbeat_t heartbeat;
           mavlink_msg_heartbeat_decode(&msg, &heartbeat);
           // do something with heartbeat variable
-        }
-        break;
-
-        case MAVLINK_MSG_ID_ATTITUDE: {
-
-          // read attitude command from Jevois
-          mavlink_msg_attitude_decode(&msg, &jevois_mavlink_attitude);
-
-          DEBUG_PRINT("[jevois mavlink] phi_cmd = %f\n", DegOfRad(jevois_mavlink_attitude.roll));
-          DEBUG_PRINT("[jevois mavlink] theta_cmd = %f\n", DegOfRad(jevois_mavlink_attitude.pitch));
-          DEBUG_PRINT("[jevois mavlink] psi_cmd = %f\n", DegOfRad(jevois_mavlink_attitude.yaw));
-        }
-        break;
-
-        case MAVLINK_MSG_ID_ALTITUDE: {
-          mavlink_msg_altitude_decode(&msg, &jevois_mavlink_altitude);
-
-          DEBUG_PRINT("[jevois mavlink] desired altitude is %f", jevois_mavlink_altitude.altitude_relative);
+          DEBUG_PRINT("[jevois mavlink] heartbeat\n");
         }
         break;
 
         case MAVLINK_MSG_ID_DEBUG: {
+          mavlink_debug_t jevois_mavlink_debug;
           mavlink_msg_debug_decode(&msg, &jevois_mavlink_debug);
 
-          DEBUG_PRINT("[jevois mavlink] debug value is %f", jevois_mavlink_debug.value);
-          DEBUG_PRINT("[jevois mavlink] debug ind is %d", jevois_mavlink_debug.ind);
+          DEBUG_PRINT("[jevois mavlink] debug value is %f\n", jevois_mavlink_debug.value);
+          DEBUG_PRINT("[jevois mavlink] debug ind is %d\n", jevois_mavlink_debug.ind);
+        }
+        break;
+        case MAVLINK_MSG_ID_HIGHRES_IMU: {
+          mavlink_highres_imu_t jevois_mavlink_visual_target;
+          mavlink_msg_highres_imu_decode(&msg, &jevois_mavlink_visual_target);
+
+          jevois_visual_target.received = true;
+          jevois_visual_target.count ++;
+          jevois_visual_target.x = jevois_mavlink_visual_target.xacc;
+          jevois_visual_target.y = jevois_mavlink_visual_target.yacc;
+          jevois_visual_target.w = jevois_mavlink_visual_target.xmag;
+          jevois_visual_target.h = jevois_mavlink_visual_target.ymag;
+          jevois_visual_target.quality = jevois_mavlink_visual_target.abs_pressure;
+          jevois_visual_target.source = jevois_mavlink_visual_target.diff_pressure;
+
+
+          AbiSendMsgVISUAL_DETECTION(JEVOIS_MAVLINK_ABI_ID,
+                                     jevois_visual_target.x,     // pixel-x
+                                     jevois_visual_target.y,     // pixel-y
+                                     jevois_visual_target.w,     // size
+                                     jevois_visual_target.h,     // size
+                                     jevois_visual_target.quality,    // quality
+                                     jevois_visual_target.source);
+
+          DEBUG_PRINT("[jevois mavlink] VISUAL_DETECTION %f,%f\n", jevois_mavlink_visual_target.xacc,
+                      jevois_mavlink_visual_target.yacc);
+
         }
         break;
 
         case MAVLINK_MSG_ID_MANUAL_SETPOINT: {
+          mavlink_manual_setpoint_t jevois_mavlink_manual_setpoint;
           mavlink_msg_manual_setpoint_decode(&msg, &jevois_mavlink_manual_setpoint);
+
+          AbiSendMsgMANUAL_SETPOINT(JEVOIS_MAVLINK_ABI_ID, jevois_mavlink_manual_setpoint.thrust,
+                                    jevois_mavlink_manual_setpoint.roll,
+                                    jevois_mavlink_manual_setpoint.pitch,
+                                    jevois_mavlink_manual_setpoint.yaw);
 
           DEBUG_PRINT("[jevois mavlink] phi_cmd = %f\n", DegOfRad(jevois_mavlink_manual_setpoint.roll));
           DEBUG_PRINT("[jevois mavlink] theta_cmd = %f\n", DegOfRad(jevois_mavlink_manual_setpoint.pitch));
           DEBUG_PRINT("[jevois mavlink] psi_cmd = %f\n", DegOfRad(jevois_mavlink_manual_setpoint.yaw));
           DEBUG_PRINT("[jevois mavlink] alt_cmd = %f\n", jevois_mavlink_manual_setpoint.thrust);
+
         }
         break;
 
 
-        case MAVLINK_MSG_ID_LOCAL_POSITION_NED: {
-          mavlink_msg_local_position_ned_decode(&msg, &jevois_mavlink_local_position);
+        case MAVLINK_MSG_ID_VISION_POSITION_ESTIMATE: {
+          mavlink_vision_position_estimate_t jevois_mavlink_vision_position_estimate;
+          mavlink_msg_vision_position_estimate_decode(&msg, &jevois_mavlink_vision_position_estimate);
+
+          jevois_vision_position.received = true;
+          jevois_vision_position.cnt++;
+          jevois_vision_position.x = jevois_mavlink_vision_position_estimate.x;
+          jevois_vision_position.y = jevois_mavlink_vision_position_estimate.y;
+          jevois_vision_position.z = jevois_mavlink_vision_position_estimate.z;
+
+          AbiSendMsgRELATIVE_LOCALIZATION(JEVOIS_MAVLINK_ABI_ID,
+                                          jevois_vision_position.cnt,
+                                          jevois_vision_position.x,
+                                          jevois_vision_position.y,
+                                          jevois_vision_position.z,
+                                          0.0f,
+                                          0.0f,
+                                          0.0f);
+
+          DEBUG_PRINT("[jevois mavlink] VISION_POSITION_ESTIMATE %f,%f,%f \n", jevois_vision_position.x,
+              jevois_vision_position.y, jevois_vision_position.z);
+
         }
         break;
+
       }
     }
   }
