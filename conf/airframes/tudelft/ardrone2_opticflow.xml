@@ -4,7 +4,6 @@
   <description>ARDrone2, Opticflow hover
   </description>
 
-
   <firmware name="rotorcraft">
     <target name="ap" board="ardrone2"/>
 
@@ -14,7 +13,7 @@
 
     <define name="USE_SONAR" value="TRUE"/>
 
-	<!-- Subsystem section -->
+    <!-- Subsystem section -->
     <module name="telemetry" type="transparent_udp"/>
     <module name="radio_control" type="datalink"/>
     <module name="motor_mixing"/>
@@ -117,14 +116,10 @@
   <!-- local magnetic field -->
   <!-- http://wiki.paparazziuav.org/wiki/Subsystem/ahrs#Local_Magnetic_Field -->
   <section name="AHRS" prefix="AHRS_">
-    <!-- Toulouse -->
-    <define name="H_X" value="0.513081"/>
-    <define name="H_Y" value="-0.00242783"/>
-    <define name="H_Z" value="0.858336"/>
     <!-- Delft -->
-    <!--define name="H_X" value="0.3892503"/>
+    <define name="H_X" value="0.3892503"/>
     <define name="H_Y" value="0.0017972"/>
-    <define name="H_Z" value="0.9211303"/ -->
+    <define name="H_Z" value="0.9211303"/>
   </section>
 
   <section name="INS" prefix="INS_">

@@ -1,6 +1,8 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <airframe name="ardrone2_opticflow">
+  <description>ARDrone2, Opticflow hover
+  </description>
 
   <firmware name="rotorcraft">
     <target name="ap" board="ardrone2"/>
@@ -11,7 +13,7 @@
 
     <define name="USE_SONAR" value="TRUE"/>
 
-	<!-- Subsystem section -->
+    <!-- Subsystem section -->
     <module name="telemetry" type="transparent_udp"/>
     <module name="radio_control" type="datalink"/>
     <module name="motor_mixing"/>
@@ -21,9 +23,7 @@
     <module name="stabilization" type="int_quat"/>
     <module name="ahrs" type="int_cmpl_quat"/>
     <module name="ins" type="extended"/>
-  </firmware>
 
-  <modules main_freq="512">
     <module name="bat_voltage_ardrone2"/>
     <module name="gps" type="ubx_ucenter"/>
     <module name="send_imu_mag_current"/>
@@ -40,7 +40,7 @@
     </module>
 
     <module name="opticflow_hover"/>
-  </modules>
+  </firmware>
 
   <commands>
     <axis name="PITCH" failsafe_value="0"/>
