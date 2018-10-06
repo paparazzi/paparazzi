@@ -35,12 +35,11 @@
     </module>
     <module name="ins"           type="hff"/>
     <module name="guidance"      type="indi"/>
-  </firmware>
 
-  <modules>
+
     <module name="geo_mag"/>
     <module name="air_data"/>
-  </modules>
+  </firmware>
 
   <servos driver="Pwm">
     <servo name="MOTOR_0" no="0" min="1148" neutral="1200" max="1832"/>

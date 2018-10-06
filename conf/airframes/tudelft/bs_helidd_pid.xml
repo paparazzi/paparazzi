@@ -35,15 +35,14 @@
     <module name="stabilization" type="heli_indi"/>
     <module name="rpm_sensor" type="eagletree"/>
     <module name="ahrs" type="int_cmpl_quat_notch"/>-->
-  </firmware>
 
- <modules main_freq="512">
+
     <!--<load name="geo_mag.xml"/>-->
     <load name="air_data.xml"/>
     <load name="gps_ubx_ucenter.xml"/>
     <load name="heli_swashplate_mixing.xml"/>
     <load name="heli_throttle_curve.xml"/>
-  </modules>
+  </firmware>
 
   <servos driver="Pwm">
     <servo name="THROTTLE" no="1" min="1890" neutral="1890" max="1430"/>

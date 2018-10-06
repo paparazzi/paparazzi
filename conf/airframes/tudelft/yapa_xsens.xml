@@ -29,11 +29,8 @@ YAPA + XSens + XBee
       <configure name="XSENS_PORT" value="uart0"/>
       <configure name="XSENS_BAUD" value="B230400"/>
     </module>
-  </firmware>
 
-  <!-- ************************* MODULES ************************* -->
 
-  <modules>
     <module name="light">
       <define name="LIGHT_LED_STROBE" value="2"/>
       <!--      <define name="LIGHT_LED_NAV" value="2"/> -->
@@ -46,7 +43,7 @@ YAPA + XSens + XBee
       <define name="DC_SHUTTER_GPIO" value="GPIOB,GPIO23"/>
     </module>
     <module name="nav" type="line"/>
-  </modules>
+  </firmware>
 
   <!-- ************************* ACTUATORS ************************* -->
 

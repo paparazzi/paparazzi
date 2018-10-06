@@ -26,8 +26,8 @@
     <!-- <module name="guidance" type="indi"> <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" 
         value="-500.0"/> <define name="GUIDANCE_INDI_THRUST_DYNAMICS" value="0.1"/> 
         <define name="GUIDANCE_INDI_RC_DEBUG" value="TRUE"/> </module> -->
-  </firmware>
-  <modules main_freq="512">
+
+
     <module name="video_thread"/>
     <module name="pose_history"/>
     <module name="cv_opticflow">
@@ -62,7 +62,7 @@
       <define name="OFH_HOR_X_SLOPE_A" value = "0.003" />
       <define name="OFH_HOR_X_SLOPE_B" value = "0.005" />
     </module>
-  </modules>
+  </firmware>
 
   <commands>
     <axis name="PITCH" failsafe_value="0"/>

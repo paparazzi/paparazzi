@@ -24,9 +24,8 @@
     <module name="stabilization" type="int_quat"/>
     <module name="ahrs"          type="float_mlkf"/>
     <module name="ins" type="extended"/>
-  </firmware>
 
-  <modules main_freq="512">
+
     <module name="geo_mag"/>
     <module name="air_data"/>
     <module name="send_imu_mag_current"/>
@@ -47,7 +46,7 @@
       <define name="VIEWVIDEO_QUALITY_FACTOR" value="60"/>
     </module>
 
-  </modules>
+  </firmware>
 
   <commands>
     <axis name="PITCH" failsafe_value="0"/>

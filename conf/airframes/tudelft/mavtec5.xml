@@ -34,9 +34,8 @@
     <module name="stabilization" type="indi_simple"/>
     <module name="ahrs"          type="int_cmpl_quat"/>
     <module name="ins" type="hff"/>
-  </firmware>
 
-  <modules>
+
     <module name="geo_mag"/>
     <module name="air_data"/>
     <module name="switch" type="servo"/>
@@ -45,7 +44,7 @@
       <configure name="HS_LOG_SPI_DEV" value="SPI1"/>
       <configure name="HS_LOG_SPI_SLAVE_IDX" value="SPI_SLAVE1"/>
     </module>
-  </modules>
+  </firmware>
 
   <servos driver="Asctec_v2">
     <servo name="FRONT"   no="0" min="0" neutral="3" max="200"/>
