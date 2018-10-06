@@ -54,15 +54,14 @@
       <define name="USE_KILL_SWITCH_FOR_MOTOR_ARMING" value="0" />
       <define name="RADIO_KILL_SWITCH" value="5" />
     </module>
-  </firmware>
 
-  <modules main_freq="512">
+
     <module name="px4_flash"/>
     <module name="geo_mag" />
     <module name="air_data" />
     <module name="send_imu_mag_current" />
     <module name="spektrum_soft_bind"/>
-  </modules>
+  </firmware>
 
   <section name="MISC">
     <define name="MilliAmpereOfAdc(adc)" value="((float)adc) * (3.3f / 4096.0f) * (90.0f / 5.0f)" />

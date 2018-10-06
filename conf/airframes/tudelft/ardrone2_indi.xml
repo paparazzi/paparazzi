@@ -28,15 +28,14 @@
       <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
     </module>
     <module name="ins" type="extended"/>
-  </firmware>
 
-  <modules main_freq="512">
+
     <module name="bat_voltage_ardrone2"/>
     <module name="gps" type="ubx_ucenter"/>
     <module name="send_imu_mag_current"/>
     <module name="air_data"/>
     <module name="logger_file"/>
-  </modules>
+  </firmware>
 
   <commands>
     <axis name="PITCH" failsafe_value="0"/>

@@ -178,11 +178,6 @@
   </section>
 
 
- <modules main_freq="512">
-   <module name="gps" type="ubx_ucenter"/>
-   <module name="send_imu_mag_current"/>
- </modules>
-
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_mxs_1.0">
 
@@ -229,5 +224,8 @@
     <module name="air_data">
       <define name="AIR_DATA_CALC_AMSL_BARO" value="TRUE"/>
     </module>
+
+    <module name="gps" type="ubx_ucenter"/>
+    <module name="send_imu_mag_current"/>
   </firmware>
 </airframe>

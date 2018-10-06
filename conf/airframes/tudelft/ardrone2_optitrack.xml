@@ -27,11 +27,10 @@
     <module name="stabilization" type="indi_simple"/>
     <module name="ahrs" type="int_cmpl_quat"/>
     <module name="ins" type="extended"/>
-  </firmware>
 
-  <modules main_freq="512">
+
     <module name="bat_voltage_ardrone2"/>
-  </modules>
+  </firmware>
 
   <commands>
     <axis name="PITCH" failsafe_value="0"/>

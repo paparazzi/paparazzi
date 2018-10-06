@@ -77,16 +77,15 @@ Lisa/S v1.0 board (http://wiki.paparazziuav.org/wiki/Lisa/S)
     <module name="navigation"/>
 
     <module name="ins" type="alt_float"/>
-  </firmware>
 
-  <modules main_freq="512"> <!-- NEW (512hz) -->
+
     <module name="baro_sim"/>
     <module name="gps" type="ubx_ucenter"/>
     <module name="nav" type="line"/>
     <!--<module name="nav" type="catapult"/>-->
     <!--<module name="send_imu_mag_current"/>-->
     <!--<load name="geo_init"/>-->
-  </modules>
+  </firmware>
 
 
   <!--<section name="CATAPULT" prefix="NAV_CATAPULT_" >

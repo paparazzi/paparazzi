@@ -28,9 +28,7 @@ ARDrone2 with optical_flow landing.
     <module name="stabilization" type="indi_simple"/>
     <module name="ahrs" type="int_cmpl_quat"/>
     <module name="ins" type="extended"/>
-  </firmware>
 
-  <modules main_freq="512">
     <module name="bat_voltage_ardrone2"/>
     <module name="video_thread"/>
     <module name="pose_history"/>
@@ -38,7 +36,7 @@ ARDrone2 with optical_flow landing.
       <define name="OPTICFLOW_CAMERA" value="bottom_camera"/>
     </module>
     <module name="optical_flow_landing"/>
-  </modules>
+  </firmware>
 
   <commands>
     <axis name="PITCH" failsafe_value="0"/>

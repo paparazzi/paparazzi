@@ -31,16 +31,16 @@
     <module name="guidance" type="indi">
       <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-500.0"/>
     </module>
-  </firmware>
 
-  <modules main_freq="512">
+
     <module name="geo_mag"/>
     <module name="air_data"/>
     <module name="send_imu_mag_current"/>
     <module name="logger_file">
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
     </module>
-  </modules>
+  </firmware>
+
 
   <commands>
     <axis name="PITCH" failsafe_value="0"/>

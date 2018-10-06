@@ -31,9 +31,8 @@
       <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
     </module>
     <module name="ins" type="extended"/>
-  </firmware>
 
-  <modules main_freq="512">
+
     <module name="geo_mag"/>
     <module name="air_data"/>
     <module name="send_imu_mag_current"/>
@@ -72,7 +71,8 @@
       <configure name="MAVLINK_PORT" value="UDP1"/>
       <define name="MAVLINK_SYSID" value="1"/>
     </module>
-  </modules>
+  </firmware>
+
 
   <commands>
     <axis name="PITCH" failsafe_value="0"/>

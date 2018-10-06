@@ -42,6 +42,10 @@ The xml in master currently configures the LOGO600 as a pure model aircraft: mea
       <define name="REMAP_UART3" value="TRUE"/>
     </module>
     <module name="heli" type="throttle_curve"/>
+
+    <module name="geo_mag"/>
+    <module name="air_data"/>
+    <module name="logger_spi_link"/>
   </firmware>
 
   <firmware name="rotorcraft">
@@ -64,12 +68,6 @@ The xml in master currently configures the LOGO600 as a pure model aircraft: mea
       <define name="REMAP_UART3" value="TRUE"/>
     </module>
   </firmware>
-
-  <modules>
-    <module name="geo_mag"/>
-    <module name="air_data"/>
-    <module name="logger_spi_link"/>
-  </modules>
 
   <servos driver="Spektrum">
      <servo name="THROTTLE"     no="0" min="340" neutral="340"  max="1708"/>

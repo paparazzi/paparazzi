@@ -36,6 +36,14 @@
         <configure name="XSENS_PORT" value="uart1"/>
         <configure name="XSENS_BAUD" value="B230400"/>
       </module>
+      <module name="light">
+        <define name="LIGHT_LED_STROBE" value="6"/>
+        <!--      <define name="LIGHT_LED_NAV" value="2"/> -->
+        <define name="STROBE_LIGHT_MODE_DEFAULT" value="6"/>
+        <define name="NAV_LIGHT_MODE_DEFAULT" value="4"/>
+      </module>
+      <module name="nav" type="line"/>
+      <!--module name="gas_engine_idle"/-->
     </target>
     <target name="fbw" board="lisa_m_2.0">
       <configure name="SEPARATE_FBW" value="1"/>
@@ -70,6 +78,7 @@
         <configure name="XSENS_PORT" value="uart1"/>
         <configure name="XSENS_BAUD" value="B230400"/>
       </module>
+      <module name="nav" type="line"/>
     </target>
     <define name="AGR_CLIMB"/>
     <define name="LOITER_TRIM"/>
@@ -79,19 +88,6 @@
     <define name="WIND_INFO_RET"/>
     <define name="RADIO_CONTROL_AUTO1"/>
   </firmware>
-
-  <!-- ************************* MODULES ************************* -->
-
-  <modules>
-    <module name="light">
-      <define name="LIGHT_LED_STROBE" value="6"/>
-      <!--      <define name="LIGHT_LED_NAV" value="2"/> -->
-      <define name="STROBE_LIGHT_MODE_DEFAULT" value="6"/>
-      <define name="NAV_LIGHT_MODE_DEFAULT" value="4"/>
-    </module>
-    <module name="nav" type="line"/>
-    <!--module name="gas_engine_idle"/-->
-  </modules>
 
   <!-- ************************* ACTUATORS ************************* -->
 

@@ -25,16 +25,15 @@
     <module name="stabilization" type="int_quat"/>
     <module name="ahrs" type="int_cmpl_quat"/>
     <module name="ins" type="extended"/>
-  </firmware>
 
-  <modules main_freq="512">
+
     <module name="bat_voltage_ardrone2"/>
     <module name="stereocam">
       <configure name="STEREO_UART" value="UART1"/>
       <configure name="STEREO_BAUD" value="B115200"/>
     </module>
     <module name="stereocam_follow_me"/>
-  </modules>
+  </firmware>
 
   <commands>
     <axis name="PITCH" failsafe_value="0"/>
