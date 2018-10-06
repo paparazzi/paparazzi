@@ -45,11 +45,20 @@
 INFO("Radio-Control now follows PPRZ sign convention: this means you might need to reverese some channels in your transmitter: RollRight / PitchUp / YawRight / FullThrottle / Auto2 are positive deflections")
 
 /* Number of low pulses sent during binding to the satellite receivers
- * As recommended, master and slave receivers are in DSMX 11ms mode,
- * other modes (DSM2, 22ms) will be automatically supported
+ * Spektrum documentation recommend that master and slave receivers
+ * should be configured in DSMX 11ms mode, other modes (DSM2, 22ms) will be
+ * automatically supported if transmitter is not compatible.
+ * But this this is only if receiver can handle DSMX. If it is not the case,
+ * DSM2 must be used, otherwise the system filed will be wrong.
+ * So DSM2 is used by default and DSMX can be enable with USE_DSMX flag.
  */
+#if USE_DSMX
 #define SPEKTRUM_MASTER_RECEIVER_PULSES 9 // only one receiver should be in master mode
 #define SPEKTRUM_SLAVE_RECEIVER_PULSES 10
+#else
+#define SPEKTRUM_MASTER_RECEIVER_PULSES 5 // only one receiver should be in master mode
+#define SPEKTRUM_SLAVE_RECEIVER_PULSES 6
+#endif
 
 /* Set polarity using RC_POLARITY_GPIO. */
 #ifndef RC_SET_POLARITY
@@ -63,13 +72,20 @@ INFO("Radio-Control now follows PPRZ sign convention: this means you might need 
 #define SPEKTRUM_BIND_WAIT 60000
 #endif
 
+/* Spektrum system type can be force (see list below)
+ * by default it is unknown type and will be determined from incoming frames
+ */
+#ifndef SPEKTRUM_SYS_TYPE
+#define SPEKTRUM_SYS_TYPE 0 // unknown type, determined from incoming frame
+#endif
+
 // in case the number of channel is less than maximum
 const int8_t spektrum_signs[] = RADIO_CONTROL_SPEKTRUM_SIGNS;
 
 /* Default spektrum values */
 static struct spektrum_t spektrum = {
   .valid = false,
-  .tx_type = 0, // unknown type
+  .tx_type = SPEKTRUM_SYS_TYPE, // unknown type by default
 };
 
 /** Allowed system field valaues.
