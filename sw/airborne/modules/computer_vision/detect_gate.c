@@ -22,6 +22,9 @@
 // To know if we are simulating or not the camera of the Bebop:
 #include "generated/airframe.h"
 
+#include "subsystems/datalink/telemetry.h"
+
+
 //#define DEBUG_GATE
 
 #ifndef DETECT_GATE_JUST_FILTER
@@ -144,6 +147,16 @@ volatile float detect_gate_y;
 volatile float detect_gate_z;
 
 static pthread_mutex_t gate_detect_mutex;            ///< Mutex lock fo thread safety
+
+// Module variables
+struct vision_relative_position_struct {
+  int received;
+  int cnt;
+  float x;
+  float y;
+  float z;
+} detectgate_vision_position = {false, 0, 0.0f, 0.0f, 0.0f};
+
 
 
 // Function
@@ -275,21 +288,45 @@ static struct image_t *detect_gate_func(struct image_t *img)
 
 void detect_gate_event(void)
 {
-  static int32_t cnt = 0;
   pthread_mutex_lock(&gate_detect_mutex);
   if (detect_gate_has_new_data) {
     //printf("Sending data!\n");
     detect_gate_has_new_data = false;
-    AbiSendMsgRELATIVE_LOCALIZATION(DETECT_GATE_ABI_ID, cnt++,
-                                    detect_gate_x,
-                                    detect_gate_y,
-                                    detect_gate_z,
+
+    detectgate_vision_position.cnt++;
+    detectgate_vision_position.x = detect_gate_x;
+    detectgate_vision_position.y = detect_gate_y;
+    detectgate_vision_position.z = detect_gate_z;
+    detectgate_vision_position.received = 1;
+
+    AbiSendMsgRELATIVE_LOCALIZATION(DETECT_GATE_ABI_ID, detectgate_vision_position.cnt,
+                                    detectgate_vision_position.x,
+                                    detectgate_vision_position.y,
+                                    detectgate_vision_position.z,
                                     0,
                                     0,
                                     0);
   }
   pthread_mutex_unlock(&gate_detect_mutex);
 }
+
+
+static void send_detect_gate_visual_position(struct transport_tx *trans, struct link_device *dev)
+{
+  if (detectgate_vision_position.received) {
+    detectgate_vision_position.received = false;
+    uint16_t cnt = detectgate_vision_position.cnt;
+    float foo = 0;
+    pprz_msg_send_VISION_POSITION_ESTIMATE(trans, dev, AC_ID,
+                               &cnt,
+                               &detectgate_vision_position.x,
+                               &detectgate_vision_position.y,
+                               &detectgate_vision_position.z,
+                               &foo, &foo );
+  }
+}
+
+
 
 void detect_gate_init(void)
 {
@@ -344,4 +381,6 @@ void detect_gate_init(void)
   detect_gate_z = 0;
 
   cv_add_to_device(&DETECT_GATE_CAMERA, detect_gate_func, DETECT_GATE_FPS);
+
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_VISION_POSITION_ESTIMATE, send_detect_gate_visual_position);
 }
