@@ -151,6 +151,7 @@ void actuators_asctec_v2_set(void)
 
           i2c_transmit(&ACTUATORS_ASCTEC_V2_I2C_DEV, &actuators_asctec_v2.i2c_trans, ACTUATORS_ASCTEC_V2_SLAVE_ADDR, 4);
           set_addr++;
+          /* Falls through. */
         default:
           set_addr = 0;
           actuators_asctec_v2.cmd = NONE;

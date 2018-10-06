@@ -23,14 +23,14 @@
  *
  */
 
+#include "modules/computer_vision/cv.h"
+#include "modules/computer_vision/detect_contour.h"
+#include "modules/computer_vision/opencv_contour.h"
+
 #ifndef DETECT_CONTOUR_FPS
 #define DETECT_CONTOUR_FPS 0       ///< Default FPS (zero means run at camera fps)
 #endif
 PRINT_CONFIG_VAR(DETECT_CONTOUR_FPS)
-
-#include "modules/computer_vision/cv.h"
-#include "modules/computer_vision/detect_contour.h"
-#include "modules/computer_vision/opencv_contour.h"
 
 // Function
 struct image_t *contour_func(struct image_t *img);
