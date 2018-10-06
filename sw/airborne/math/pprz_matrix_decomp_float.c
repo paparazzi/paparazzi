@@ -502,6 +502,7 @@ void pprz_svd_solve_float(float **x, float **u, float *w, float **v, float **b, 
   }
 }
 
+
 /**
  * Fit a linear model from samples to target values.
  * Effectively a wrapper for the pprz_svd_float and pprz_svd_solve_float functions.
@@ -571,6 +572,7 @@ void fit_linear_model(float *targets, int D, float (*samples)[D], uint16_t count
 
   // error is determined on the entire set
   // bb = AA * parameters:
+  // TODO: error: AA has been replaced in the pprz_svd_float procedure by U!!!
   MAT_MUL(count, D_1, 1, bb, AA, parameters);
   // subtract bu_all: C = 0 in case of perfect fit:
   MAT_SUB(count, 1, C, bb, targets_all);
@@ -581,7 +583,6 @@ void fit_linear_model(float *targets, int D, float (*samples)[D], uint16_t count
   if (count > 0) {
     *fit_error /= count;
   }
-
 
   for (d = 0; d < D_1; d++) {
     params[d] = parameters[d][0];
@@ -598,11 +599,12 @@ void fit_linear_model(float *targets, int D, float (*samples)[D], uint16_t count
  * @param[in] D The dimensionality of the samples
  * @param[in] count The number of samples
  * @param[in] use_bias Whether to use the bias. Please note that params should always be of size D+1, but in case of no bias, the bias value is set to 0.
+ * @param[in] priors Prior per dimension. If use_bias, also for the dimension D+1.
  * @param[out] parameters* Parameters of the linear fit
  * @param[out] fit_error* Total error of the fit
  */
-void fit_linear_model_prior(float *targets, int D, float (*samples)[D], uint16_t count, bool use_bias, float *params,
-                            float *fit_error)
+void fit_linear_model_prior(float *targets, int D, float (*samples)[D], uint16_t count, bool use_bias, float *priors,
+                            float *params, float *fit_error)
 {
 
   static int DEBUG = 0;
@@ -646,10 +648,15 @@ void fit_linear_model_prior(float *targets, int D, float (*samples)[D], uint16_t
   MAKE_MATRIX_PTR(AATAA, _AATAA, D_1);
   float _PRIOR[D_1][D_1];
   MAKE_MATRIX_PTR(PRIOR, _PRIOR, D_1);
-  PRIOR[0][0]  = 10.0f;
-  PRIOR[1][0]  = 0.0f;
-  PRIOR[0][1]  = 0.0f;
-  PRIOR[1][1]  = 1.0f;
+  for(int d = 0; d < D; d++) {
+    PRIOR[d][d] = priors[d];
+  }
+  if(use_bias) {
+    PRIOR[D][D] = priors[D];
+  }
+  else {
+    PRIOR[D][D] = 1.0f;
+  }
 
   float _targets_all[count][1];
   MAKE_MATRIX_PTR(targets_all, _targets_all, count);
@@ -685,6 +692,7 @@ void fit_linear_model_prior(float *targets, int D, float (*samples)[D], uint16_t
     MAT_PRINT(D_1, D_1, AATAA);
   }
 
+  // TODO: here, AATAA is used as float** - should be ok right?
   // add the prior to AATAA:
   float_mat_sum(AATAA, AATAA, PRIOR, D_1, D_1);
 
@@ -695,10 +703,13 @@ void fit_linear_model_prior(float *targets, int D, float (*samples)[D], uint16_t
 
   float _INV_AATAA[D_1][D_1];
   MAKE_MATRIX_PTR(INV_AATAA, _INV_AATAA, D_1);
+
+  /*
+  // 2-dimensional:
   float det = AATAA[0][0] * AATAA[1][1] - AATAA[0][1] * AATAA[1][0];
   if (fabsf(det) < 1e-4) {
     printf("Not invertible\n");
-    return;
+    return; // does this return go well?
   } //not invertible
 
   INV_AATAA[0][0] =  AATAA[1][1] / det;
@@ -707,7 +718,16 @@ void fit_linear_model_prior(float *targets, int D, float (*samples)[D], uint16_t
   INV_AATAA[1][1] =  AATAA[0][0] / det;
 
   if (DEBUG) {
-    printf("INV:\n");
+    printf("INV assuming D_1 = 2:\n");
+    MAT_PRINT(D_1, D_1, INV_AATAA);
+  }
+  */
+
+  // the AATAA matrix is square, so:
+  float_mat_invert(INV_AATAA, AATAA, D_1);
+
+  if (DEBUG) {
+    printf("GENERIC INV:\n");
     MAT_PRINT(D_1, D_1, INV_AATAA);
   }
 
@@ -715,6 +735,7 @@ void fit_linear_model_prior(float *targets, int D, float (*samples)[D], uint16_t
   //float_mat_inv_2d(INV_AATAA, _INV_AATAA);
   float _PINV[D_1][count];
   MAKE_MATRIX_PTR(PINV, _PINV, D_1);
+  // TODO: what is the difference with float_mat_mul used above? Only that this is a matrix expansion?
   MAT_MUL(D_1, D_1, count, PINV, INV_AATAA, AAT);
 
   if (DEBUG) {
@@ -724,21 +745,19 @@ void fit_linear_model_prior(float *targets, int D, float (*samples)[D], uint16_t
 
   float _parameters[D_1][1];
   MAKE_MATRIX_PTR(parameters, _parameters, D_1);
-  MAT_MUL(D_1, 1, count, parameters, PINV, targets_all);
+  MAT_MUL(D_1, count, 1, parameters, PINV, targets_all);
 
   if (DEBUG) {
     printf("parameters:\n");
     MAT_PRINT(D_1, 1, parameters);
   }
 
-  /*
   // used to determine the error of a set of parameters on the whole set:
   float _bb[count][1];
   MAKE_MATRIX_PTR(bb, _bb, count);
   float _C[count][1];
   MAKE_MATRIX_PTR(C, _C, count);
 
-  printf("A\n");
 
   if(DEBUG) {
       printf("A:\n");
@@ -749,12 +768,8 @@ void fit_linear_model_prior(float *targets, int D, float (*samples)[D], uint16_t
   // bb = AA * parameters:
   MAT_MUL(count, D_1, 1, bb, AA, parameters);
 
-  printf("B\n");
-
   // subtract bu_all: C = 0 in case of perfect fit:
   MAT_SUB(count, 1, C, bb, targets_all);
-
-  printf("C\n");
 
   *fit_error = 0;
   for (sam = 0; sam < count; sam++) {
@@ -765,9 +780,6 @@ void fit_linear_model_prior(float *targets, int D, float (*samples)[D], uint16_t
   if(DEBUG) {
     printf("Fit error = %f\n", *fit_error);
   }
-  */
-  // TODO: uncomment the above again and remove this:
-  *fit_error = 0.0;
 
   for (d = 0; d < D_1; d++) {
     params[d] = parameters[d][0];

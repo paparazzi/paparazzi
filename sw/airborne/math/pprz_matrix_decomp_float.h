@@ -128,11 +128,11 @@ void fit_linear_model(float *targets, int D, float (*samples)[D], uint16_t count
  * @param[in] D The dimensionality of the samples
  * @param[in] count The number of samples
  * @param[in] use_bias Whether to use the bias. Please note that params should always be of size D+1, but in case of no bias, the bias value is set to 0.
- * @param[in] prior Prior probability of the parameter.
+ * @param[in] priors Prior per dimension. If use_bias, also for the dimension D+1.
  * @param[out] parameters* Parameters of the linear fit
  * @param[out] fit_error* Total error of the fit
  */
-void fit_linear_model_prior(float *targets, int D, float (*samples)[D], uint16_t count, bool use_bias, float *params, float *fit_error);
+void fit_linear_model_prior(float *targets, int D, float (*samples)[D], uint16_t count, bool use_bias, float *priors, float *params, float *fit_error);
 
 
 #ifdef __cplusplus
