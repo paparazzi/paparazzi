@@ -1,0 +1,99 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+
+<flight_plan alt="2.0" ground_alt="0" lat0="51.990634" lon0="4.376789" max_dist_from_home="25" name="Rotorcraft Optitrack (Delft)" security_height="0.3" qfu="270">
+  <header>
+    // Note: use 'git submodule update --init -- sw/ext/tudelft_gazebo_models/'
+    // to download the required models.
+    #define NPS_GAZEBO_WORLD "drone_race_track_2018_actual_with_gate_papers.world"
+</header>
+
+  <waypoints>
+    <waypoint name="HOME" x="0.0" y="0.0"/>
+    <waypoint name="CLIMB" x="20" y="0"/>
+    <waypoint name="STDBY" x="0" y="0"/>
+    <waypoint name="TD" x="20" y="6"/>
+
+    <waypoint y="-4" x="0" name="G1"/>
+    <waypoint y="-4" x="0" name="G2"/>
+    <waypoint y="-4" x="0" name="G3"/>
+    <waypoint y="-4" x="0" name="G4"/> 
+    <waypoint y="-4" x="0" name="G5"/>
+    <waypoint y="-4" x="0" name="G6"/>
+    <waypoint y="-4" x="0" name="G7"/>
+    <waypoint y="-4" x="0" name="G8"/>
+    <waypoint y="-4" x="0" name="G9"/>
+    <waypoint y="-4" x="0" name="G10"/>
+    <waypoint y="-4" x="0" name="G11"/>
+    <waypoint y="-4" x="0" name="G12"/>
+
+    <waypoint y="-6" x="0" name="p1"/>
+    <waypoint y="-6" x="0" name="p2"/>
+    <waypoint y="-6" x="0" name="p3"/>
+    <waypoint y="-6" x="0" name="p4"/>
+    <waypoint y="-6" x="0" name="p5"/>
+    <waypoint y="-6" x="0" name="p6"/>
+    <waypoint y="-6" x="0" name="p7"/>
+    <waypoint y="-6" x="0" name="p8"/>
+    <waypoint y="-6" x="0" name="p9"/>
+    <waypoint y="-6" x="0" name="p10"/>
+    <waypoint y="-6" x="0" name="p11"/>
+    <waypoint y="-6" x="0" name="p12"/>
+
+    <waypoint y="-5" x="-2" name="FA1"/>
+    <waypoint y="15" x="-2" name="FA2"/>
+    <waypoint y="15" x="12" name="FA3"/>
+    <waypoint y="-5" x="12" name="FA4"/>
+  </waypoints>
+  <sectors>
+    <sector color="red" name="Flight_Area_1">
+      <corner name="FA4"/>
+      <corner name="FA3"/>
+      <corner name="FA2"/>
+      <corner name="FA1"/>
+    </sector>
+  </sectors>
+  <blocks>
+    <block name="Holding point">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Start Engine">
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
+      <exception cond="stateGetPositionEnu_f()->z > 1.0" deroute="Standby"/>
+      <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
+      <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <stay wp="STDBY"/>
+    </block>
+    <block name="route">
+      <go from="p1" hmode="route" wp="p2"/>
+      <go from="p2" hmode="route" wp="p3"/>
+      <go from="p3" hmode="route" wp="p4"/>
+      <go from="p4" hmode="route" wp="p5"/>
+      <go from="p5" hmode="route" wp="p6"/>
+      <go from="p6" hmode="route" wp="p7"/>
+      <go from="p7" hmode="route" wp="p8"/>
+      <go from="p8" hmode="route" wp="p9"/>
+    </block>
+    <block name="land here" strip_button="Land Here" strip_icon="land-right.png">
+      <call_once fun="NavSetWaypointHere(WP_TD)"/>
+    </block>
+    <block name="land">
+      <go wp="TD"/>
+    </block>
+    <block name="flare">
+      <exception cond="NavDetectGround()" deroute="Holding point"/>
+      <exception cond="!nav_is_in_flight()" deroute="landed"/>
+      <call_once fun="NavStartDetectGround()"/>
+      <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
+    </block>
+    <block name="landed">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+  </blocks>
+</flight_plan>
