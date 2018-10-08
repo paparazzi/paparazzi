@@ -38,5 +38,4 @@ struct SonarBebop {
 extern struct SonarBebop sonar_bebop;
 
 extern void sonar_bebop_init(void);
-extern void sonar_bebop_clock(void);
 #endif /* SONAR_BEBOP_H */

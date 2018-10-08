@@ -7,6 +7,9 @@
      Reads an anlog sonar sensor and outputs sonar distance in [m]
     </description>
     <define name="USE_SONAR" value="" description="activate use of sonar in INS extended filter (only rotorcraft)"/>
+    <define name="SONAR_BEBOP_FILTER_NARROW_OBSTACLES" value="" description="Do not return obstacles that are shorter than a given value"/>
+    <define name="SONAR_BEBOP_FILTER_NARROW_OBSTACLES_JUMP" value="0.4" description="Sudden changes in sonar height larger than this value are neglected [unit: meters]"/>
+    <define name="SONAR_BEBOP_FILTER_NARROW_OBSTACLES_TIME" value="1.0" description="Sudden changes in sonar height shorter than this value are neglected [unit: seconds]"/>
   </doc>
 
   <header>
@@ -14,7 +17,6 @@
   </header>
 
   <init fun="sonar_bebop_init()"/>
-  <periodic fun="sonar_bebop_clock()" freq="200"/>
 
   <makefile target="ap|sim">
     <file name="sonar_bebop.c"/>

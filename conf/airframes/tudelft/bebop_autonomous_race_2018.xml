@@ -13,6 +13,9 @@
     </target>
 
     <define name="USE_SONAR" value="TRUE"/>
+    <define name="SONAR_BEBOP_FILTER_NARROW_OBSTACLES" value="TRUE" />
+    <define name="SONAR_BEBOP_FILTER_NARROW_OBSTACLES_JUMP" value="0.4" />
+    <define name="SONAR_BEBOP_FILTER_NARROW_OBSTACLES_TIME" value="1.0" />
 
 	<!-- Subsystem section -->
     <module name="telemetry" type="transparent_udp"/>
