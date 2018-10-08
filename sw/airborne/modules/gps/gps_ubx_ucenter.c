@@ -188,6 +188,8 @@ void gps_ubx_ucenter_event(void)
 
         DEBUG_PRINT("ublox sw_ver: %u.%u\n", gps_ubx_ucenter.sw_ver_h, gps_ubx_ucenter.sw_ver_l);
         DEBUG_PRINT("ublox hw_ver: %u.%u\n", gps_ubx_ucenter.hw_ver_h, gps_ubx_ucenter.hw_ver_l);
+      } else if (gps_ubx.msg_id == UBX_MON_GNSS_ID) {
+        gps_ubx_ucenter.gnss_in_use = UBX_MON_GNSS_enabled(gps_ubx.msg_buf);
       }
       break;
     case UBX_CFG_ID:
@@ -461,7 +463,7 @@ static inline void gps_ubx_ucenter_config_port(void)
 #define GPS_SBAS_CORRECTIONS   0x02
 #define GPS_SBAS_INTEGRITY     0x04
 
-#define GPS_SBAS_MAX_SBAS    1 // Default ublox setting uses 3 SBAS channels(?)
+#define GPS_SBAS_MAX_SBAS    3 // Default ublox setting uses 3 SBAS channels(?)
 
 #define GPS_SBAS_AUTOSCAN    0x00
 
@@ -513,16 +515,6 @@ static bool gps_ubx_ucenter_configure(uint8_t nr)
       // Version info is important for proper configuration as different firmwares have different settings
       break;
     case 6:
-      // Send some debugging info: detected baudrate, software version etc...
-      gps_ubx_ucenter.replies[0] = (gps_ubx_ucenter.baud_init / 1000);
-      gps_ubx_ucenter.replies[1] = (gps_ubx_ucenter.baud_init - 1000 * gps_ubx_ucenter.replies[0]) / 100;
-      gps_ubx_ucenter.replies[2] = gps_ubx_ucenter.sw_ver_h;
-      gps_ubx_ucenter.replies[3] = gps_ubx_ucenter.sw_ver_l;
-      gps_ubx_ucenter.replies[4] = gps_ubx_ucenter.hw_ver_h;
-      gps_ubx_ucenter.replies[5] = gps_ubx_ucenter.hw_ver_l;
-#if DEBUG_GPS_UBX_UCENTER
-      DOWNLINK_SEND_DEBUG(DefaultChannel, DefaultDevice, 6, gps_ubx_ucenter.replies);
-#endif
       // Configure CFG-NAV(5) message
       gps_ubx_ucenter_config_nav();
       break;
@@ -599,12 +591,24 @@ static bool gps_ubx_ucenter_configure(uint8_t nr)
       UbxSend_CFG_CFG(gps_ubx_ucenter.dev, 0x00000000, 0xffffffff, 0x00000000);
       break;
     case 22:
+      UbxSend_MON_GET_GNSS(gps_ubx_ucenter.dev);
+      break;
+    case 23:
+      break;
+    case 24:
 #if DEBUG_GPS_UBX_UCENTER
       // Debug Downlink the result of all configuration steps: see messages
       // To view, enable DEBUG message in your telemetry configuration .xml
       DOWNLINK_SEND_DEBUG(DefaultChannel, DefaultDevice, GPS_UBX_UCENTER_CONFIG_STEPS, gps_ubx_ucenter.replies);
       for (int i = 0; i < GPS_UBX_UCENTER_CONFIG_STEPS; i++) {
         DEBUG_PRINT("%u\n", gps_ubx_ucenter.replies[i]);
+      }
+#endif
+#ifdef DOWNLINK_TRANSPORT
+      {
+        uint8_t sbas = GPS_SBAS_RANGING | GPS_SBAS_CORRECTIONS | GPS_SBAS_INTEGRITY;
+        uint8_t gnss = gps_ubx_ucenter.gnss_in_use ;
+        DOWNLINK_SEND_UBLOX_INFO(DefaultChannel, DefaultDevice, &gps_ubx_ucenter.baud_run, &gps_ubx_ucenter.sw_ver_h, &gps_ubx_ucenter.sw_ver_l, &gps_ubx_ucenter.hw_ver_h, &gps_ubx_ucenter.hw_ver_l, &sbas, &gnss);
       }
 #endif
       return false;
