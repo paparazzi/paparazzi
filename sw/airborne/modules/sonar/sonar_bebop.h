@@ -38,4 +38,5 @@ struct SonarBebop {
 extern struct SonarBebop sonar_bebop;
 
 extern void sonar_bebop_init(void);
+
 #endif /* SONAR_BEBOP_H */

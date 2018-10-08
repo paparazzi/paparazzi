@@ -124,7 +124,7 @@ void sonar_bebop_init(void)
 #endif
 
   init_median_filter_f(&sonar_filt, 5);
-  sonar_bebop_spike_timer = 0;
+  SysTimeTimerStart(sonar_bebop_spike_timer);
 }
 
 uint16_t adc_buffer[SONAR_BEBOP_ADC_BUFFER_SIZE];
