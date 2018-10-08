@@ -286,6 +286,20 @@
       <field name="res3" format="U1"/>
     </message>
 
+    <message name="GNSS" ID="0x3E" length="12">
+      <field name="version" format="U1"/>
+      <field name="numTrkChHw" format="U1"/>
+      <field name="numTrkChUse" format="U1"/>
+      <field name="numConfigBlocks" format="U1"/>
+      <block length="8">
+        <field name="gnssId" format="U1"/>
+        <field name="resTrckCh" format="U1"/>
+        <field name="maxTrckCh" format="U1"/>
+        <field name="reserved" format="U1"/>
+        <field name="flags" format="U4"/>
+     </block>
+    </message>
+
     <message name="DGNSS" ID="0x70" length="4">
       <field name="dgnssMode" format="U1"/>
       <field name="RES1" format="U2"/>
@@ -386,6 +400,20 @@ supported.
       <block length="1">
         <field name="c" format="U1"/>
       </block>
+    </message>
+
+    <message name="GET_GNSS" ID="0x28" length="0">
+    </message>
+
+    <message name="GNSS" ID="0x28" length="8">
+      <field name="version" format="U1"/>
+      <field name="supported" format="U1"/>
+      <field name="defaultGnss" format="U1"/>
+      <field name="enabled" format="U1"/>
+      <field name="simultaneous" format="U1"/>
+      <field name="reserved1" format="U1"/>
+      <field name="reserved2" format="U1"/>
+      <field name="reserved3" format="U1"/>
     </message>
 
   </msg_class>
