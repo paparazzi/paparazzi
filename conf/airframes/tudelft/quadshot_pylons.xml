@@ -90,7 +90,7 @@
     <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
   </section>
 
-  <section name="AUTOPI  </modules>LOT">
+  <section name="AUTOPILOT">
     <define name="MODE_MANUAL"  value="AP_MODE_ATTITUDE_DIRECT"/>
     <define name="MODE_AUTO1" value="AP_MODE_FORWARD"/>
     <define name="MODE_AUTO2"  value="AP_MODE_RATE_DIRECT"/>
