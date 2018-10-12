@@ -39,6 +39,7 @@
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
+#include "stdio.h"
 
 /** Perform RANSAC to fit a linear model.
  *
@@ -54,7 +55,7 @@
  *
  */
 void RANSAC_linear_model(int n_samples, int n_iterations, float error_threshold, float *targets, int D,
-                         float (*samples)[D], uint16_t count, float *params, float *fit_error)
+                         float (*samples)[D], uint16_t count, float *params, float *fit_error __attribute__((unused)))
 {
 
   uint8_t D_1 = D + 1;
@@ -87,6 +88,12 @@ void RANSAC_linear_model(int n_samples, int n_iterations, float error_threshold,
 
     // fit a linear model on the small system:
     fit_linear_model(subset_targets, D, subset_samples, n_samples, use_bias, subset_params[i], &err);
+    printf("params normal: %f, %f\n", subset_params[i][0], subset_params[i][1]);
+    float priors[2];
+    priors[0] = 1.0f;
+    priors[1] = 10.0f;
+    fit_linear_model_prior(subset_targets, D, subset_samples, n_samples, use_bias, priors, subset_params[i], &err);
+    printf("params prior: %f, %f\n", subset_params[i][0], subset_params[i][1]);
 
     // determine the error on the whole set:
     float err_sum = 0.0f;
