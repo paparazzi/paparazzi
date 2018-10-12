@@ -151,13 +151,12 @@ struct FloatVect3 get_world_position_from_image_points(int *x_corners, int *y_co
   MAT33_INV(temp_mat, Q_mat);
   MAT33_VECT3_MUL(pos_drone_E_vec, temp_mat, p_vec); // position = inv(Q) * p
 
+#if CAMERA_ROTATED_90DEG_RIGHT
   // transformation of coordinates
-  // TODO: only comment in simulation:
-  /*
   float temp = pos_drone_E_vec.y;
   pos_drone_E_vec.y = -pos_drone_E_vec.z;
   pos_drone_E_vec.z = -temp;
-  */
+#endif
 
   //bound y to remove outliers
   float y_threshold = 4;
