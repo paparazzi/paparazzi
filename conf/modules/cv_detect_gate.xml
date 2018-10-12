@@ -36,6 +36,7 @@
     <define name="DETECT_GATE_V_MAX" value="230" description="Maximal V of the color filter."/>
     <define name="DETECT_GATE_EXCLUDE_PIXELS_TOP" value="0" description="Band on top of the image in which we do not take snake gate samples."/>
     <define name="DETECT_GATE_EXCLUDE_PIXELS_BOTTOM" value="0" description="Band at the bottom of the image in which we do not take snake gate samples."/>
+    <define name="DETECT_GATE_SIMPLIFIED_PNP" value="0" description="When set to 0, the full PnP will fit all corners. When set to 1, a simple camera model will be used." />
   </doc>
 
   <settings>
