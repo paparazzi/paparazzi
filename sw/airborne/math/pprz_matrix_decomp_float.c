@@ -29,7 +29,15 @@
 #include "math/pprz_algebra_float.h"
 #include <math.h>
 #include <string.h>
+
+#if DEBUG_RANSAC
 #include "stdio.h"
+#define DEBUG_PRINT  printf
+#define DEBUG_MAT_PRINT MAT_PRINT
+#else
+#define DEBUG_PRINT(X)  {}
+#define DEBUG_MAT_PRINT(X) {}
+#endif
 
 /** Cholesky decomposition
  *
@@ -607,8 +615,6 @@ void fit_linear_model_prior(float *targets, int D, float (*samples)[D], uint16_t
                             float *params, float *fit_error)
 {
 
-  static int DEBUG = 0;
-
   // We will solve systems of the form A x = b,
   // where A = [nx(D+1)] matrix with entries [s1, ..., sD, 1] for each sample (1 is the bias)
   // and b = [nx1] vector with the target values.
@@ -624,9 +630,7 @@ void fit_linear_model_prior(float *targets, int D, float (*samples)[D], uint16_t
     return;
   }
 
-  if (DEBUG) {
-    printf("n_samples = %d\n", n_samples);
-  }
+  DEBUG_PRINT("n_samples = %d\n", n_samples);
 
   // ensure that n_samples is high enough to ensure a result for a single fit:
   n_samples = (n_samples < D_1) ? D_1 : n_samples;
@@ -634,9 +638,7 @@ void fit_linear_model_prior(float *targets, int D, float (*samples)[D], uint16_t
   n_samples = (n_samples < count) ? n_samples : count;
   count = n_samples;
 
-  if (DEBUG) {
-    printf("n_samples = %d\n", n_samples);
-  }
+  DEBUG_PRINT("n_samples = %d\n", n_samples);
 
   // initialize matrices and vectors for the full point set problem:
   // this is used for determining inliers
@@ -673,33 +675,26 @@ void fit_linear_model_prior(float *targets, int D, float (*samples)[D], uint16_t
     targets_all[sam][0] = targets[sam];
   }
 
-  if (DEBUG) {
-    printf("A:\n");
-    MAT_PRINT(count, D_1, AA);
-  }
+  DEBUG_PRINT("A:\n");
+  DEBUG_MAT_PRINT(count, D_1, AA);
+
   // make the pseudo-inverse matrix:
   float_mat_transpose(AAT, AA, count, D_1);
 
-  if (DEBUG) {
-    printf("AT:\n");
-    MAT_PRINT(D_1, count, AAT);
-  }
+  DEBUG_PRINT("AT:\n");
+  DEBUG_MAT_PRINT(D_1, count, AAT);
 
   float_mat_mul(AATAA, AAT, AA, D_1, count, D_1);
 
-  if (DEBUG) {
-    printf("ATA:\n");
-    MAT_PRINT(D_1, D_1, AATAA);
-  }
+  DEBUG_PRINT("ATA:\n");
+  DEBUG_MAT_PRINT(D_1, D_1, AATAA);
 
   // TODO: here, AATAA is used as float** - should be ok right?
   // add the prior to AATAA:
   float_mat_sum(AATAA, AATAA, PRIOR, D_1, D_1);
 
-  if (DEBUG) {
-    printf("ATA+prior*I:\n");
-    MAT_PRINT(D_1, D_1, AATAA);
-  }
+  DEBUG_PRINT("ATA+prior*I:\n");
+  DEBUG_MAT_PRINT(D_1, D_1, AATAA);
 
   float _INV_AATAA[D_1][D_1];
   MAKE_MATRIX_PTR(INV_AATAA, _INV_AATAA, D_1);
@@ -717,19 +712,15 @@ void fit_linear_model_prior(float *targets, int D, float (*samples)[D], uint16_t
   INV_AATAA[1][0] = -AATAA[1][0] / det;
   INV_AATAA[1][1] =  AATAA[0][0] / det;
 
-  if (DEBUG) {
-    printf("INV assuming D_1 = 2:\n");
-    MAT_PRINT(D_1, D_1, INV_AATAA);
-  }
+  DEBUG_PRINT("INV assuming D_1 = 2:\n");
+  DEBUG_MAT_PRINT(D_1, D_1, INV_AATAA);
   */
 
   // the AATAA matrix is square, so:
   float_mat_invert(INV_AATAA, AATAA, D_1);
 
-  if (DEBUG) {
-    printf("GENERIC INV:\n");
-    MAT_PRINT(D_1, D_1, INV_AATAA);
-  }
+  DEBUG_PRINT("GENERIC INV:\n");
+  DEBUG_MAT_PRINT(D_1, D_1, INV_AATAA);
 
 
   //float_mat_inv_2d(INV_AATAA, _INV_AATAA);
@@ -738,19 +729,15 @@ void fit_linear_model_prior(float *targets, int D, float (*samples)[D], uint16_t
   // TODO: what is the difference with float_mat_mul used above? Only that this is a matrix expansion?
   MAT_MUL(D_1, D_1, count, PINV, INV_AATAA, AAT);
 
-  if (DEBUG) {
-    printf("PINV:\n");
-    MAT_PRINT(D_1, count, PINV);
-  }
+  DEBUG_PRINT("PINV:\n");
+  DEBUG_MAT_PRINT(D_1, count, PINV);
 
   float _parameters[D_1][1];
   MAKE_MATRIX_PTR(parameters, _parameters, D_1);
   MAT_MUL(D_1, count, 1, parameters, PINV, targets_all);
 
-  if (DEBUG) {
-    printf("parameters:\n");
-    MAT_PRINT(D_1, 1, parameters);
-  }
+  DEBUG_PRINT("parameters:\n");
+  DEBUG_MAT_PRINT(D_1, 1, parameters);
 
   // used to determine the error of a set of parameters on the whole set:
   float _bb[count][1];
@@ -759,10 +746,8 @@ void fit_linear_model_prior(float *targets, int D, float (*samples)[D], uint16_t
   MAKE_MATRIX_PTR(C, _C, count);
 
 
-  if(DEBUG) {
-      printf("A:\n");
-      MAT_PRINT(count, D_1, AA);
-    }
+  DEBUG_PRINT("A:\n");
+  DEBUG_MAT_PRINT(count, D_1, AA);
 
   // error is determined on the entire set
   // bb = AA * parameters:
@@ -777,14 +762,10 @@ void fit_linear_model_prior(float *targets, int D, float (*samples)[D], uint16_t
   }
   *fit_error /= count;
 
-  if(DEBUG) {
-    printf("Fit error = %f\n", *fit_error);
-  }
+  DEBUG_PRINT("Fit error = %f\n", *fit_error);
 
   for (d = 0; d < D_1; d++) {
     params[d] = parameters[d][0];
   }
-  if (DEBUG) {
-    printf("End of the function\n");
-  }
+  DEBUG_PRINT("End of the function\n");
 }
