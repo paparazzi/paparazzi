@@ -19,9 +19,6 @@
 
 #include "modules/computer_vision/snake_gate_detection.h"
 
-// To know if we are simulating or not the camera of the Bebop:
-#include "generated/airframe.h"
-
 #include "subsystems/datalink/telemetry.h"
 
 
@@ -172,9 +169,9 @@ static struct image_t *detect_gate_func(struct image_t *img)
     snake_gate_detection(img, n_samples, min_px_size, min_gate_quality, gate_thickness, min_n_sides, color_Ym, color_YM,
                          color_Um, color_UM, color_Vm, color_VM, &best_gate, gates_c, &n_gates, exclude_top, exclude_bottom);
 
-//#if SIMULATE
+#if !CAMERA_ROTATED_90DEG_RIGHT
     int temp[4];
-//#endif
+#endif
 
 #ifdef DEBUG_GATE
     printf("\n**** START DEBUG DETECT GATE ****\n");
@@ -183,12 +180,12 @@ static struct image_t *detect_gate_func(struct image_t *img)
         //printf("Gate %d out of %d\n", i, n_gates-1);
         if (gates_c[i].quality > min_gate_quality * 2 && gates_c[i].n_sides >= 3) {
 
-//#if SIMULATE
+#if !CAMERA_ROTATED_90DEG_RIGHT
           // swap x and y coordinates:
           memcpy(temp, gates_c[i].x_corners, sizeof(gates_c[i].x_corners));
           memcpy(gates_c[i].x_corners, gates_c[i].y_corners, sizeof(gates_c[i].x_corners));
           memcpy(gates_c[i].y_corners, temp, sizeof(gates_c[i].y_corners));
-//#endif
+#endif
 
           drone_position = get_world_position_from_image_points(gates_c[i].x_corners, gates_c[i].y_corners, world_corners,
                            n_corners,
@@ -202,15 +199,17 @@ static struct image_t *detect_gate_func(struct image_t *img)
 #endif
 
 
-    //printf("ratio = %f\n", ratio);
+#ifdef DEBUG_GATE
+    printf("ratio = %f\n", ratio);
+#endif
     if (best_gate.quality > min_gate_quality * 2) {
 
-//#if SIMULATE
+#if !CAMERA_ROTATED_90DEG_RIGHT
       // swap x and y coordinates:
       memcpy(temp, best_gate.x_corners, sizeof(best_gate.x_corners));
       memcpy(best_gate.x_corners, best_gate.y_corners, sizeof(best_gate.x_corners));
       memcpy(best_gate.y_corners, temp, sizeof(best_gate.y_corners));
-//#endif
+#endif
 
 #ifdef DEBUG_GATE
       // debugging snake gate:
@@ -230,7 +229,7 @@ static struct image_t *detect_gate_func(struct image_t *img)
         float size = (sz1_best > sz2_best) ? sz1_best : sz2_best;
 
         //float width, height;
-  //#if SIMULATE
+#if !CAMERA_ROTATED_90DEG_RIGHT
         //width = (float) img->w;
         //height = (float) img->h;
         float pix_x = (best_gate.x_corners[2] + best_gate.x_corners[0]) / 2.0f;
@@ -241,7 +240,7 @@ static struct image_t *detect_gate_func(struct image_t *img)
         drone_position.x = -dist;
         drone_position.y = -angle_y*dist;
         drone_position.z = angle_x*dist;
-/*  #else
+#else
         //width = (float) img->h;
         //height = (float) img->w;
         float pix_y = (best_gate.x_corners[1] + best_gate.x_corners[0]) / 2.0f;
@@ -253,11 +252,14 @@ static struct image_t *detect_gate_func(struct image_t *img)
         drone_position.x = -dist;
         drone_position.y = -angle_x*dist;
         drone_position.z = -angle_y*dist;
-  #endif */
+#endif
+
+#ifdef DEBUG_GATE
         printf("angle_x = %f, angle_y = %f, dist = %f\n", angle_x, angle_y, dist);
         printf("pix_x = %f, pix_y = %f\n", pix_x, pix_y);
         printf("size = %f, focal = %f, %f, center = %f, %f\n", size, DETECT_GATE_CAMERA.camera_intrinsics.focal_x, DETECT_GATE_CAMERA.camera_intrinsics.focal_y,
                                                                      DETECT_GATE_CAMERA.camera_intrinsics.center_x, DETECT_GATE_CAMERA.camera_intrinsics.center_y);
+#endif
       }
       else {
         // TODO: try out RANSAC with all combinations of 3 corners out of 4 corners.
@@ -347,7 +349,7 @@ void detect_gate_init(void)
   exclude_bottom = DETECT_GATE_EXCLUDE_PIXELS_BOTTOM;
 
   // World coordinates: X positive towards the gate, Z positive down, Y positive right:
-//#if SIMULATE
+#if !CAMERA_ROTATED_90DEG_RIGHT
   // Top-left, CW:
   VECT3_ASSIGN(world_corners[0],
                0.0f, -(gate_size_m / 2), gate_center_height - (gate_size_m / 2));
@@ -358,7 +360,7 @@ void detect_gate_init(void)
   VECT3_ASSIGN(world_corners[3],
                0.0f, -(gate_size_m / 2), gate_center_height + (gate_size_m / 2));
 
-/*#else
+#else
   // Bottom-right, CCW:
   VECT3_ASSIGN(world_corners[0],
                0.0f, (gate_size_m / 2), gate_center_height + (gate_size_m / 2));
@@ -368,7 +370,7 @@ void detect_gate_init(void)
                0.0f, -(gate_size_m / 2), gate_center_height - (gate_size_m / 2));
   VECT3_ASSIGN(world_corners[3],
                0.0f, -(gate_size_m / 2), gate_center_height + (gate_size_m / 2));
-#endif */
+#endif
   cam_body.phi = 0;
   cam_body.theta = 0;
   cam_body.psi = 0;

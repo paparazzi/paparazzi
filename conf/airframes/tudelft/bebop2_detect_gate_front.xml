@@ -6,9 +6,11 @@
   <firmware name="rotorcraft">
     <target name="ap" board="bebop2">
 	<define name="SIMULATE" value="FALSE"/>
+        <define name="CAMERA_ROTATED_90DEG_RIGHT" value="TRUE" />
     </target>
     <target name="nps" board="pc">
       <module name="fdm" type="gazebo"/>
+        <define name="CAMERA_ROTATED_90DEG_RIGHT" value="FALSE" />
     </target>
 
     <module name="telemetry" type="transparent_udp"/>
