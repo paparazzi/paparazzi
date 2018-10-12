@@ -61,6 +61,7 @@ struct FloatVect3 get_world_position_from_image_points(int *x_corners, int *y_co
   // C = camera
 
   struct FloatVect3 pos_drone_E_vec;
+  FLOAT_VECT3_ZERO(pos_drone_E_vec);
 
   // Make an identity matrix:
   static struct FloatRMat I_mat;
@@ -78,7 +79,8 @@ struct FloatVect3 get_world_position_from_image_points(int *x_corners, int *y_co
   attitude.phi =    stateGetNedToBodyEulers_f()->phi;//positive ccw
   attitude.theta = stateGetNedToBodyEulers_f()->theta;//negative downward
   // local_psi typically assumed 0.0f (meaning you are straight in front of the object):
-  float local_psi = stateGetNedToBodyEulers_f()->psi; // 0.0f;
+  // If you want to use the estimate of psi, stateGetNedToBodyEulers_f()->psi, then you still need to take the psi of the gate into account.
+  float local_psi = 0.0f; // stateGetNedToBodyEulers_f()->psi; // 0.0f;
   attitude.psi = local_psi;
   float_rmat_of_eulers_321(&R_E_B, &attitude);
   MAT33_TRANS(R_B_E, R_E_B);
@@ -93,6 +95,7 @@ struct FloatVect3 get_world_position_from_image_points(int *x_corners, int *y_co
   struct FloatVect3 gate_vectors[4], vec_B, vec_E, p_vec, temp_vec;
   FLOAT_VECT3_ZERO(p_vec);
 
+  // Solution from: http://cal.cs.illinois.edu/~johannes/research/LS_line_intersect.pdf
   // Equivalent MATLAB code:
   //
   // for i = 1:4
@@ -109,9 +112,11 @@ struct FloatVect3 get_world_position_from_image_points(int *x_corners, int *y_co
 
     // undistort the image coordinate and put it in a world vector:
     float x_n, y_n;
-    // TODO: use the boolean that is returned to take action if undistortion is not possible.
-    distorted_pixels_to_normalized_coords((float) x_corners[i], (float) y_corners[i], &x_n, &y_n, cam_intrinsics.Dhane_k,
-                                          K);
+    bool success = distorted_pixels_to_normalized_coords((float) x_corners[i], (float) y_corners[i], &x_n, &y_n, cam_intrinsics.Dhane_k, K);
+    if(!success) {
+      printf("Undistortion not possible in PnPAHRS.c... why?\n");
+      return pos_drone_E_vec;
+    }
 
     gate_vectors[i].x = 1.0; // positive to the front
     gate_vectors[i].y = y_n; // positive to the right
@@ -146,10 +151,12 @@ struct FloatVect3 get_world_position_from_image_points(int *x_corners, int *y_co
   MAT33_INV(temp_mat, Q_mat);
   MAT33_VECT3_MUL(pos_drone_E_vec, temp_mat, p_vec); // position = inv(Q) * p
 
+#if CAMERA_ROTATED_90DEG_RIGHT
   // transformation of coordinates
   float temp = pos_drone_E_vec.y;
   pos_drone_E_vec.y = -pos_drone_E_vec.z;
   pos_drone_E_vec.z = -temp;
+#endif
 
   //bound y to remove outliers
   float y_threshold = 4;
