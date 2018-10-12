@@ -105,6 +105,11 @@ PRINT_CONFIG_VAR(DETECT_GATE_EXCLUDE_PIXELS_TOP)
 #endif
 PRINT_CONFIG_VAR(DETECT_GATE_EXCLUDE_PIXELS_BOTTOM)
 
+#ifndef DETECT_GATE_SIMPLIFIED_PNP
+#define DETECT_GATE_SIMPLIFIED_PNP 0
+#endif
+PRINT_CONFIG_VAR(DETECT_GATE_SIMPLIFIED_PNP)
+
 
 // settings:
 int just_filtering;
@@ -220,7 +225,7 @@ static struct image_t *detect_gate_func(struct image_t *img)
       printf("\n");
 #endif
 
-      static bool simple_position = false;
+      static bool simple_position = DETECT_GATE_SIMPLIFIED_PNP;
 
       if(simple_position) {
         float sz1_best, sz2_best;
