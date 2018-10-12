@@ -35,8 +35,8 @@
 #define DEBUG_PRINT  printf
 #define DEBUG_MAT_PRINT MAT_PRINT
 #else
-#define DEBUG_PRINT(X)  {}
-#define DEBUG_MAT_PRINT(X) {}
+#define DEBUG_PRINT(...)
+#define DEBUG_MAT_PRINT(...)
 #endif
 
 /** Cholesky decomposition
@@ -626,7 +626,7 @@ void fit_linear_model_prior(float *targets, int D, float (*samples)[D], uint16_t
   uint8_t D_1 = D + 1;
 
   if (D_1 != 2) {
-    printf("not yet implemented!!\n");
+    DEBUG_PRINT("not yet implemented!!\n");
     return;
   }
 
