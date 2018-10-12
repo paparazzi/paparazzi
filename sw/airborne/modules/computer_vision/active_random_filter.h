@@ -27,40 +27,40 @@
 #define AR_FILTER_MAX_OBJECTS   19  // Maximum nr of objects
 
 typedef struct _trackResults {
-    uint16_t     x_p;
-    uint16_t     y_p;
-    uint32_t  area_p;
-    double 	x_c;
-    double 	y_c;
-    double 	r_c;
-    double  x_b;
-    double  y_b;
-    double  z_b;
-    double  x_w;
-    double  y_w;
-    double  z_w;
+  uint16_t     x_p;
+  uint16_t     y_p;
+  uint32_t  area_p;
+  double  x_c;
+  double  y_c;
+  double  r_c;
+  double  x_b;
+  double  y_b;
+  double  z_b;
+  double  x_w;
+  double  y_w;
+  double  z_w;
 } trackResults;
 
 typedef struct _memBlock {
-	uint32_t lastSeen;
-	uint16_t id;
-	uint16_t x_p;
-	uint16_t y_p;
-	uint32_t area_p;
-	double r_c;
-	double x_w;
-	double y_w;
-	double z_w;
+  uint32_t lastSeen;
+  uint16_t id;
+  uint16_t x_p;
+  uint16_t y_p;
+  uint32_t area_p;
+  double r_c;
+  double x_w;
+  double y_w;
+  double z_w;
 } memoryBlock;
 
 
-extern double 		AR_FILTER_IMAGE_CROP_FOVY;
-extern uint8_t 		AR_FILTER_Y_MIN;
-extern uint8_t 		AR_FILTER_Y_MAX;
-extern uint8_t 		AR_FILTER_U_MIN;
-extern uint8_t 		AR_FILTER_U_MAX;
-extern uint8_t 		AR_FILTER_V_MIN;
-extern uint8_t 		AR_FILTER_V_MAX;
+extern double     AR_FILTER_IMAGE_CROP_FOVY;
+extern uint8_t    AR_FILTER_Y_MIN;
+extern uint8_t    AR_FILTER_Y_MAX;
+extern uint8_t    AR_FILTER_U_MIN;
+extern uint8_t    AR_FILTER_U_MAX;
+extern uint8_t    AR_FILTER_V_MIN;
+extern uint8_t    AR_FILTER_V_MAX;
 extern uint16_t     AR_FILTER_RND_PIX_SAMPLE;
 extern uint16_t     AR_FILTER_MIN_CROP_AREA;
 extern uint16_t     AR_FILTER_MAX_LAYERS;
@@ -108,7 +108,7 @@ extern "C" {
 #endif
 
 void active_random_filter_init(void);
-void active_random_filter(char* buff, uint16_t width, uint16_t height, struct FloatEulers* eulerAngles);
+void active_random_filter(char *buff, uint16_t width, uint16_t height, struct FloatEulers *eulerAngles);
 
 #ifdef __cplusplus
 }

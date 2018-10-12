@@ -31,14 +31,15 @@
 #include "modules/computer_vision/cv_active_random_filter.h"
 #include "modules/computer_vision/active_random_filter.h"
 
-struct image_t* cv_ar_filter_func(struct image_t* img);
-struct image_t* cv_ar_filter_func(struct image_t* img)
+struct image_t *cv_ar_filter_func(struct image_t *img);
+struct image_t *cv_ar_filter_func(struct image_t *img)
 {
-	active_random_filter((char*) img->buf, (uint16_t) img->w, (uint16_t) img->h, img->eulerAngles);
-	return img;
+  active_random_filter((char *) img->buf, (uint16_t) img->w, (uint16_t) img->h, img->eulerAngles);
+  return img;
 }
 
-void cv_ar_filter_init() {
-    active_random_filter_init();
-    cv_add_to_device(&AR_FILTER_CAMERA, cv_ar_filter_func);
+void cv_ar_filter_init()
+{
+  active_random_filter_init();
+  cv_add_to_device(&AR_FILTER_CAMERA, cv_ar_filter_func);
 }
