@@ -234,21 +234,21 @@ static float sonar_filter_narrow_obstacles(float distance_sonar)
 {
   static float previous_distance = 0;
   static float z0 = 0;
-  bool through_gate_green_light;
+  bool obstacle_is_in_view = false;
   float diff_pre_cur = distance_sonar - previous_distance;
   if (diff_pre_cur < -SONAR_BEBOP_FILTER_NARROW_OBSTACLES_JUMP) {
     z0 = previous_distance;
-    through_gate_green_light = 1;
+    obstacle_is_in_view = true;
     SysTimeTimerStart(sonar_bebop_spike_timer);
   }
   previous_distance = distance_sonar;
   float time_since_reset = SysTimeTimer(sonar_bebop_spike_timer);
   if ((diff_pre_cur > SONAR_BEBOP_FILTER_NARROW_OBSTACLES_JUMP) || (time_since_reset > USEC_OF_SEC(SONAR_BEBOP_FILTER_NARROW_OBSTACLES_TIME)) ) {
 
-    through_gate_green_light = 0;
+    obstacle_is_in_view = false;
   }
 
-  if (through_gate_green_light == 1) {
+  if (obstacle_is_in_view) {
     return z0;
   } else {
     return distance_sonar;
