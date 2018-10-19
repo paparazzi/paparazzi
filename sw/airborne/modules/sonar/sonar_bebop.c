@@ -36,6 +36,7 @@
 #include "generated/airframe.h"
 #include "mcu_periph/adc.h"
 #include "mcu_periph/spi.h"
+#include "mcu_periph/sys_time.h"
 #include "subsystems/abi.h"
 #include <pthread.h>
 #include <unistd.h>
@@ -44,6 +45,7 @@
 #include "filters/median_filter.h"
 
 struct MedianFilterFloat sonar_filt;
+uint32_t sonar_bebop_spike_timer;
 
 #ifdef SITL
 #include "state.h"
@@ -97,6 +99,7 @@ struct SonarBebop sonar_bebop;
 
 static struct spi_transaction sonar_bebop_spi_t;
 void *sonar_bebop_read(void *data);
+static float sonar_filter_narrow_obstacles(float distance_sonar);
 
 void sonar_bebop_init(void)
 {
@@ -121,6 +124,7 @@ void sonar_bebop_init(void)
 #endif
 
   init_median_filter_f(&sonar_filt, 5);
+  SysTimeTimerStart(sonar_bebop_spike_timer);
 }
 
 uint16_t adc_buffer[SONAR_BEBOP_ADC_BUFFER_SIZE];
@@ -174,6 +178,10 @@ void *sonar_bebop_read(void *data __attribute__((unused)))
       sonar_bebop.meas = first_peak - (stop_send - diff / 2);
       sonar_bebop.distance = update_median_filter_f(&sonar_filt, (float)sonar_bebop.meas * SONAR_BEBOP_INX_DIFF_TO_DIST);
 
+#if SONAR_BEBOP_FILTER_NARROW_OBSTACLES
+      sonar_bebop.distance = sonar_filter_narrow_obstacles(sonar_bebop.distance);
+#endif
+
       // set sonar pulse mode for next pulse based on altitude
       if (mode == 0 && sonar_bebop.distance > SONAR_BEBOP_TRANSITION_LOW_TO_HIGH) {
         if (++pulse_transition_counter > SONAR_BEBOP_TRANSITION_COUNT) {
@@ -208,3 +216,43 @@ void *sonar_bebop_read(void *data __attribute__((unused)))
   }
   return NULL;
 }
+
+
+#if SONAR_BEBOP_FILTER_NARROW_OBSTACLES
+
+#ifndef SONAR_BEBOP_FILTER_NARROW_OBSTACLES_JUMP
+#define SONAR_BEBOP_FILTER_NARROW_OBSTACLES_JUMP 0.4f
+#endif
+PRINT_CONFIG_VAR(SONAR_BEBOP_FILTER_NARROW_OBSTACLES_JUMP)
+
+#ifndef SONAR_BEBOP_FILTER_NARROW_OBSTACLES_TIME
+#define SONAR_BEBOP_FILTER_NARROW_OBSTACLES_TIME 1.0f
+#endif
+PRINT_CONFIG_VAR(SONAR_BEBOP_FILTER_NARROW_OBSTACLES_TIME)
+
+static float sonar_filter_narrow_obstacles(float distance_sonar)
+{
+  static float previous_distance = 0;
+  static float z0 = 0;
+  bool obstacle_is_in_view = false;
+  float diff_pre_cur = distance_sonar - previous_distance;
+  if (diff_pre_cur < -SONAR_BEBOP_FILTER_NARROW_OBSTACLES_JUMP) {
+    z0 = previous_distance;
+    obstacle_is_in_view = true;
+    SysTimeTimerStart(sonar_bebop_spike_timer);
+  }
+  previous_distance = distance_sonar;
+  float time_since_reset = SysTimeTimer(sonar_bebop_spike_timer);
+  if ((diff_pre_cur > SONAR_BEBOP_FILTER_NARROW_OBSTACLES_JUMP) || (time_since_reset > USEC_OF_SEC(SONAR_BEBOP_FILTER_NARROW_OBSTACLES_TIME)) ) {
+
+    obstacle_is_in_view = false;
+  }
+
+  if (obstacle_is_in_view) {
+    return z0;
+  } else {
+    return distance_sonar;
+  }
+}
+#endif
+
