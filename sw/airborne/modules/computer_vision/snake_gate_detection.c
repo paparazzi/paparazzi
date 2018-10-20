@@ -352,11 +352,11 @@ int snake_gate_detection(struct image_t *img, int n_samples, int min_px_size, fl
         ratio = limit_ratio + 0.1;
       }
 
-      //printf("Gate with surface area: %f, quality %f, n_sides %d, and ratio %f\n", sz1g*sz2g, gates_c[gate_nr].quality, gates_c[gate_nr].n_sides, ratio);
-
+      // Old way: prefer the highest quality gate (most orange one):
       // if (gates_c[gate_nr].n_sides >= min_n_sides && gates_c[gate_nr].quality > best_gate->quality) {
+
+      // Prefer a bigger gate as best gate:
       if (sz1g*sz2g > sz1*sz2 && gates_c[gate_nr].quality > min_gate_quality * 2 && gates_c[gate_nr].n_sides >= min_n_sides && ratio <= limit_ratio) {
-        //printf("Becomes the best gate!\n");
         // store the information in the gate:
         best_gate->x = gates_c[gate_nr].x;
         best_gate->y = gates_c[gate_nr].y;
