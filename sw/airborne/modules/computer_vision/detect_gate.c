@@ -240,7 +240,6 @@ static struct image_t *detect_gate_func(struct image_t *img)
         drone_position = get_world_position_from_image_points(best_gate.x_corners, best_gate.y_corners, world_corners,
                                n_corners, DETECT_GATE_CAMERA.camera_intrinsics, cam_body);
       }
-      printf("Position drone: (%f, %f, %f)\n", drone_position.x, drone_position.y, drone_position.z);
 
 #ifdef DEBUG_GATE
       // debugging the drone position:
@@ -266,7 +265,6 @@ void detect_gate_event(void)
 {
   pthread_mutex_lock(&gate_detect_mutex);
   if (detect_gate_has_new_data) {
-    //printf("Sending data!\n");
     detect_gate_has_new_data = false;
 
     detectgate_vision_position.cnt++;
