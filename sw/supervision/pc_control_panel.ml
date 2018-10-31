@@ -28,14 +28,32 @@ module Utils = Pc_common
 
 let (//) = Filename.concat
 
+(*Search recursively files in a directory*)
+let dir_contents dir =
+  let rec loop result = function
+    | f::fs when Sys.is_directory f ->
+          Sys.readdir f
+          |> Array.to_list
+          |> List.map (Filename.concat f)
+          |> List.append fs
+          |> loop result
+    | f::fs -> loop (f::result) fs
+    | []    -> result
+  in
+loop [] [dir]
+
 let control_panel_xml_file = Utils.conf_dir // "control_panel.xml"
 let control_panel_xml = ExtXml.parse_file control_panel_xml_file
+let xml_regex = Str.regexp ".*xml"
+let tool_files = List.filter (fun s -> Str.string_match xml_regex s 0) (dir_contents (Utils.conf_dir // "tools")) (*List all xml files in conf/tools/*)
+let tools_xml = List.map (fun f -> ExtXml.parse_file f) tool_files 
+
 let programs =
   let h = Hashtbl.create 7 in
   let s = ExtXml.child ~select:(fun x -> Xml.attrib x "name" = "programs") control_panel_xml "section" in
   List.iter
     (fun p -> Hashtbl.add h (ExtXml.attrib p "name") p)
-    (Xml.children s);
+    tools_xml;
   h
 
 let program_command = fun x ->
