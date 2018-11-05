@@ -44,14 +44,13 @@ loop [] [dir]
 
 let control_panel_xml_file = Utils.conf_dir // "control_panel.xml"
 let control_panel_xml = ExtXml.parse_file control_panel_xml_file
-let xml_regex = Str.regexp ".*xml"
-let tool_files = List.filter (fun s -> Str.string_match xml_regex s 0) (dir_contents (Utils.conf_dir // "tools")) (*List all xml files in conf/tools/*)
+let tool_files = List.filter (fun s -> Filename.check_suffix ".xml" s) (dir_contents (Utils.conf_dir // "tools")) (*List all xml files in conf/tools/*)
 let tools_xml = List.map (fun f -> ExtXml.parse_file f) tool_files 
 
 let programs =
   let h = Hashtbl.create 7 in
   let s = ExtXml.child ~select:(fun x -> Xml.attrib x "name" = "programs") control_panel_xml "section" in
-  let b = List.filter (fun p -> String.equal (ExtXml.attrib_or_default p "blacklisted" "false") "true") (Xml.children s) in (*List blacklisted programs*)
+  let b = List.filter (fun p -> String.compare (ExtXml.attrib_or_default p "blacklisted" "false") "true" == 0) (Xml.children s) in (*List blacklisted programs*)
   (*Adds tools to h*)
   List.iter
     (fun p -> Hashtbl.add h (ExtXml.attrib p "name") p)
