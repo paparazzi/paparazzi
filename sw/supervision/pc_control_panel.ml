@@ -51,14 +51,19 @@ let tools_xml = List.map (fun f -> ExtXml.parse_file f) tool_files
 let programs =
   let h = Hashtbl.create 7 in
   let s = ExtXml.child ~select:(fun x -> Xml.attrib x "name" = "programs") control_panel_xml "section" in
+  let b = List.filter (fun p -> String.equal (ExtXml.attrib_or_default p "blacklisted" "false") "true") (Xml.children s) in (*List blacklisted programs*)
   (*Adds tools to h*)
   List.iter
     (fun p -> Hashtbl.add h (ExtXml.attrib p "name") p)
     tools_xml;
-    (*Overwrite tools in h by the custom configuration from control_panel.xml*)
+  (*Overwrite tools in h by the custom configuration from control_panel.xml*)
   List.iter
     (fun p -> Hashtbl.replace h (ExtXml.attrib p "name") p)
     (Xml.children s);
+  (*Remove blacklisted programs*)
+  List.iter
+    (fun p -> Hashtbl.remove h (ExtXml.attrib p "name"))
+    b;
   h
 
 let program_command = fun x ->
