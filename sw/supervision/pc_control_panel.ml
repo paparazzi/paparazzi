@@ -29,22 +29,30 @@ module Utils = Pc_common
 let (//) = Filename.concat
 
 (*Search recursively files in a directory*)
-let dir_contents dir =
-  let rec loop result = function
-    | f::fs when Sys.is_directory f ->
-          Sys.readdir f
-          |> Array.to_list
-          |> List.map (Filename.concat f)
-          |> List.append fs
-          |> loop result
-    | f::fs -> loop (f::result) fs
-    | []    -> result
+let walk_directory_tree dir pattern =
+  let re = Str.regexp pattern in (* pre-compile the regexp *)
+  let select str = Str.string_match re str 0 in
+  let rec walk acc = function
+  | [] -> (acc)
+  | dir::tail ->
+      let contents = Array.to_list (Sys.readdir dir) in
+      let contents = List.rev_map (Filename.concat dir) contents in
+      let dirs, files =
+        List.fold_left (fun (dirs,files) f ->
+             match (Unix.stat f).st_kind with
+             | S_REG -> (dirs, f::files)  (* Regular file *)
+             | S_DIR -> (f::dirs, files)  (* Directory *)
+             | _ -> (dirs, files)
+          ) ([],[]) contents
+      in
+      let matched = List.filter (select) files in
+      walk (matched @ acc) (dirs @ tail)
   in
-loop [] [dir]
+  walk [] [dir]
 
 let control_panel_xml_file = Utils.conf_dir // "control_panel.xml"
 let control_panel_xml = ExtXml.parse_file control_panel_xml_file
-let tool_files = List.filter (fun s -> Filename.check_suffix ".xml" s) (dir_contents (Utils.conf_dir // "tools")) (*List all xml files in conf/tools/*)
+let tool_files = walk_directory_tree (Utils.conf_dir // "tools") ".*\\.xml"
 let tools_xml = List.map (fun f -> ExtXml.parse_file f) tool_files 
 
 let programs =
