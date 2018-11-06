@@ -1,0 +1,5 @@
+<program command="sw/ground_segment/tmtc/ivy2nmea" name="Ivy2Nmea">
+  <arg constant="/dev/ttyUSB1" flag="--port" />
+  <arg constant="1" flag="--id" />
+</program>
+

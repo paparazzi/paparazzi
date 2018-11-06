@@ -1,0 +1,5 @@
+<program command="sw/tools/bluegiga_usb_dongle/bluegiga_usb_driver" name="BluegigaUsbDongleScanner">
+  <arg flag="/dev/ttyACM2" />
+  <arg flag="scan" />
+</program>
+

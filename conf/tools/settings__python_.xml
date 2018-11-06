@@ -1,0 +1,4 @@
+<program command="sw/ground_segment/python/settings_app/settingsapp.py" name="Settings (Python)">
+  <arg constant="@AC_ID" flag="--ac_id" />
+</program>
+
