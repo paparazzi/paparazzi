@@ -52,8 +52,9 @@ let walk_directory_tree dir pattern =
 
 let control_panel_xml_file = Utils.conf_dir // "control_panel.xml"
 let control_panel_xml = ExtXml.parse_file control_panel_xml_file
-let tool_files = walk_directory_tree (Utils.conf_dir // "tools") ".*\\.xml"
-let tools_xml = List.map (fun f -> ExtXml.parse_file f) tool_files 
+let tools_directory = (Utils.conf_dir // "tools")
+let tool_files = if (Sys.file_exists tools_directory) then (walk_directory_tree tools_directory ".*\\.xml") else []
+let tools_xml = List.map (fun f -> ExtXml.parse_file f) tool_files
 
 let programs =
   let h = Hashtbl.create 7 in
