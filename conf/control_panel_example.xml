@@ -10,12 +10,7 @@
     <program name="GCS" command="sw/ground_segment/cockpit/gcs">
       <arg flag="-layout" constant="large_left_col.xml"/>
       <arg flag="-osm"/>
-    </program>
-    <program name="BluegigaUsbDongleScanner" command="sw/tools/bluegiga_usb_dongle/bluegiga_usb_driver" blacklisted="true">
-      <arg flag="/dev/ttyACM2"/>
-      <arg flag="scan" />
-    </program>
-    <program name="IridiumDialer" blacklisted="true"/-->
+    </program-->
  </section>
 
   <section name="sessions">
