@@ -58,9 +58,9 @@ let tools_xml = List.map (fun f -> ExtXml.parse_file f) tool_files
 let blacklist_file = tools_directory // "blacklisted"
 
 let rec build_list l channel =
-    match input_line channel with
-    | line -> build_list (line :: l) channel
-    | exception End_of_file -> close_in channel; List.rev l
+    try
+      build_list ((input_line channel) :: l) channel
+    with End_of_file -> close_in channel; List.rev l
 
 let programs =
   let h = Hashtbl.create 7 in
