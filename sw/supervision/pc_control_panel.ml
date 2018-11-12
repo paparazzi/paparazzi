@@ -55,11 +55,20 @@ let control_panel_xml = ExtXml.parse_file control_panel_xml_file
 let tools_directory = (Utils.conf_dir // "tools")
 let tool_files = if (Sys.file_exists tools_directory) then (walk_directory_tree tools_directory ".*\\.xml") else []
 let tools_xml = List.map (fun f -> ExtXml.parse_file f) tool_files
+let blacklist_file = tools_directory // "blacklisted"
+
+let rec build_list l channel =
+    match input_line channel with
+    | line -> build_list (line :: l) channel
+    | exception End_of_file -> close_in channel; List.rev l
 
 let programs =
   let h = Hashtbl.create 7 in
   let s = ExtXml.child ~select:(fun x -> Xml.attrib x "name" = "programs") control_panel_xml "section" in
-  let b = List.filter (fun p -> String.compare (ExtXml.attrib_or_default p "blacklisted" "false") "true" == 0) (Xml.children s) in (*List blacklisted programs*)
+  (*List blacklisted programs*)
+  let b = if Sys.file_exists blacklist_file
+            then (List.filter (fun s -> ((String.length s) > 0 && (String.get s 0) != '#')) (build_list [] (open_in blacklist_file)))
+            else [] in
   (*Adds tools to h*)
   List.iter
     (fun p -> Hashtbl.add h (ExtXml.attrib p "name") p)
@@ -70,7 +79,7 @@ let programs =
     (Xml.children s);
   (*Remove blacklisted programs*)
   List.iter
-    (fun p -> Hashtbl.remove h (ExtXml.attrib p "name"))
+    (fun p -> Hashtbl.remove h p)
     b;
   h
 
