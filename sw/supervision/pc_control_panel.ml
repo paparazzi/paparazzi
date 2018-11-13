@@ -39,9 +39,9 @@ let walk_directory_tree dir pattern =
       let contents = List.rev_map (Filename.concat dir) contents in
       let dirs, files =
         List.fold_left (fun (dirs,files) f ->
-             match (Unix.stat f).st_kind with
-             | S_REG -> (dirs, f::files)  (* Regular file *)
-             | S_DIR -> (f::dirs, files)  (* Directory *)
+             match (Unix.stat f).Unix.st_kind with
+             | Unix.S_REG -> (dirs, f::files)  (* Regular file *)
+             | Unix.S_DIR -> (f::dirs, files)  (* Directory *)
              | _ -> (dirs, files)
           ) ([],[]) contents
       in
