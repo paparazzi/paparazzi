@@ -874,7 +874,6 @@ void float_mat_invert(float **o, float **mat, int n)
   }
 }
 
-
 /*
  * o[n][n] = e^a[n][n]
  * Replicates expm(a) in Matlab
@@ -892,7 +891,7 @@ void float_mat_exp(float **a, float **o, int n) {
   float x[n][n];
   float a_copy[n][n];
   int ee, k, s;
-  bool p;
+  int p;
 
   MAKE_MATRIX_PTR(_a,  a,  n);
   MAKE_MATRIX_PTR(_o,  o,  n);
@@ -908,31 +907,34 @@ void float_mat_exp(float **a, float **o, int n) {
   float_mat_scale(_a_copy, t, n, n);
   float_mat_copy (_x, _a_copy, n, n); // x = a_copy
   c = 0.5;
+
   float_mat_diagonal_scal(_o, 1.0, n ); // make identiy
-  float_mat_sum_scaled(_o, _a_copy, c, n, n );
+  float_mat_add_scal_mult(_o, _a_copy, c, n, n );
+
   float_mat_diagonal_scal(_d, 1.0, n );
-  float_mat_sum_scaled( _d, _a_copy, -c, n, n );
-  
-  p = true;
+  float_mat_add_scal_mult( _d, _a_copy, -c, n, n );
+
+  p = 1;
   for ( k = 2; k <= q; k++ ) {
     c = c * (float)(q - k+1) / (float)( k*( 2*q-k+1 ));
     float_mat_mul_copy(_x, _x, _a_copy, n, n, n);
-    float_mat_sum_scaled(_o, _x, c, n, n);
+
+    float_mat_add_scal_mult(_o, _x, c, n, n);
 
     if (p) {
-      float_mat_sum_scaled(_d, _x, c, n, n);
+      float_mat_add_scal_mult(_d, _x, c, n, n);
     }
     else {
-      float_mat_sum_scaled(_d, _x, -c, n, n );
+      float_mat_add_scal_mult(_d, _x, -c, n, n );
     }
     p = !p;
   }
-   
+
   // E -> inverse(D) * E
   float temp[n][n];
   MAKE_MATRIX_PTR(_temp, temp, n);
   float_mat_invert(_temp, _d, n);
-  float_mat_mul_copy(_o, _temp, _o, n, n, n);
+  float_mat_mul_copy(_o, _temp, _o, n, n, n );
 
  // E -> E^(2*S)
   for ( k = 1; k <= s; k++ ) {

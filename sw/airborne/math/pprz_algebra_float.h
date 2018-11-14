@@ -738,9 +738,9 @@ static inline void float_mat_mul_copy(float **o, float **a, float **b, int m, in
   int i, j, k;
   for (i = 0; i < m; i++) {
     for (j = 0; j < l; j++) {
-      o[i][j] = 0.;
+      temp[i][j] = 0.;
       for (k = 0; k < n; k++) {
-        o[i][j] += a[i][k] * b[k][j];
+        temp[i][j] += a[i][k] * b[k][j];
       }
     }
   }
@@ -795,6 +795,23 @@ static inline void float_mat_sum_scaled(float **a, float **b, float k, int m, in
   for (i = 0; i < m; i++) {
     for (j = 0; j < n; j++) {
       if (a[i][j] != 0.0)
+        a[i][j] += k * b[i][j];
+    }
+  }
+}
+
+
+/** a += k*b, where k is a scalar value
+ *
+ * a: [m x n]
+ * b: [m x n]
+ * k: [1 x 1]
+ */
+static inline void float_mat_add_scal_mult(float **a, float **b, float k, int m, int n)
+{
+  int i, j;
+  for (i = 0; i < m; i++) {
+    for (j = 0; j < n; j++) {
         a[i][j] += k * b[i][j];
     }
   }

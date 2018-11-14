@@ -39,12 +39,11 @@ void extractPhiGamma(float **inmat, float **phi, float **gamma, int m, int n_a, 
   for(int i = 0; i < totalsize; i++) {
     for (int j = 0; j < totalsize; j++) {
       if( i<m && j<n_a ) {
-        phi[j][i] = **inmat;
+        phi[i][j] = inmat[i][j];
       }
       else if( i<m && j>=n_a ){
-        gamma[j-n_a][i] = **inmat;
+        gamma[i][j-n_a] = inmat[i][j];
       }
-      inmat++;
     }
   }
 }
@@ -56,16 +55,14 @@ void extractPhiGamma(float **inmat, float **phi, float **gamma, int m, int n_a, 
  */
 void float_mat_combine(float **a, float **b, float **o, int m, int n_a, int n_b)
 {
-  int totalsize = n_a + n_b;
+  int totalsize = m + n_b;
   for (int i = 0; i < totalsize; i++) {
     for (int j = 0; j < totalsize; j++) {
       if ( i < m && j < n_a) {
-        o[i][j] = **a;
-        a++;
+        o[i][j] = a[i][j];
       }
       else if ( i < m && j >= n_a ) {
-        o[i][j] = **b;
-        b++;
+        o[i][j] = b[i][j-n_a];
       }
       else {
         o[i][j] = 0.0;
@@ -73,6 +70,7 @@ void float_mat_combine(float **a, float **b, float **o, int m, int n_a, int n_b)
     }
   }
 }
+
 
 /*
  * Continuous to discrete transition matrix
@@ -85,10 +83,10 @@ void c2d(int m, int nA, int nB, float **Fx, float **G, float dt, float **phi, fl
 
   MAKE_MATRIX_PTR(_Fx, Fx, EKF_N);
   MAKE_MATRIX_PTR(_G, G, EKF_M);
-  MAKE_MATRIX_PTR(_phi, phi, EKF_N);
-  MAKE_MATRIX_PTR(_gamma, gamma, EKF_N);
-  MAKE_MATRIX_PTR(_combmat, combmat, EKF_N);
-  MAKE_MATRIX_PTR(_expm, expm, EKF_N);
+  MAKE_MATRIX_PTR(_phi, phi, m);
+  MAKE_MATRIX_PTR(_gamma, gamma, m);
+  MAKE_MATRIX_PTR(_combmat, combmat, totalsize);
+  MAKE_MATRIX_PTR(_expm, expm, totalsize);
 
   float_mat_scale(_Fx, dt, m, nA);
   float_mat_scale(_G,  dt, m, nB);

@@ -2,9 +2,6 @@
 /doc/generated
 /doc/manual/generated
 
-conf/airframes/imav2017_uwb/
-conf/flight_plans/imav2017_uwb/
-
 *.so
 *.[oa]
 *.out

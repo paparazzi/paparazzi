@@ -43,7 +43,7 @@
 #endif
 
 #ifndef NO_NORTH
-#define NO_NORTH 0
+#define NO_NORTH 1
 #endif
 
 #if NO_NORTH
@@ -55,13 +55,18 @@
 int32_t id_array[RL_NUAVS]; // array of UWB IDs of all drones
 uint32_t latest_update_time[RL_NUAVS];
 uint8_t number_filters; // the number of filters running in parallel
-struct discrete_ekf ekf_rl[RL_NUAVS]; 
+#if NO_NORTH
+struct discrete_ekf_no_north ekf_rl[RL_NUAVS];
+#else
+struct discrete_ekf ekf_rl[RL_NUAVS];
+#endif
+
 float range_array[RL_NUAVS]; // an array to store the ranges at which the other MAVs are
 uint8_t pprzmsg_cnt; // a counter to send paparazzi messages, which are sent in rotation
 
 static abi_event range_communication_event;
 static void range_msg_callback(uint8_t sender_id __attribute__((unused)), uint8_t ac_id,
-                               float range, float trackedVx, float trackedVy, float tracked_h,
+                               float range, float trackedVx, float trackedVy, float trackedh,
                                float trackedAx, float trackedAy, float trackedYawr)
 {
   int idx = -1; // Initialize the index of all tracked drones (-1 for null assumption of no drone found)
@@ -70,7 +75,11 @@ static void range_msg_callback(uint8_t sender_id __attribute__((unused)), uint8_
   if (!int32_vect_find(id_array, ac_id, &idx, RL_NUAVS) &&
       (number_filters < RL_NUAVS)) {
     id_array[number_filters] = ac_id;
+#if NO_NORTH
+    discrete_ekf_no_north_new(&ekf_rl[number_filters]);
+#else
     discrete_ekf_new(&ekf_rl[number_filters]);
+#endif
     number_filters++;
   } else if (idx != -1) {
     range_array[idx] = range;
@@ -79,7 +88,7 @@ static void range_msg_callback(uint8_t sender_id __attribute__((unused)), uint8_
     float ownVx = stateGetSpeedNed_f()->x;
     float ownVy = stateGetSpeedNed_f()->y;
     float ownh  = stateGetPositionEnu_f()->z;
-    #if NO_NORTH
+#if NO_NORTH
     float ownAx = stateGetAccelNed_f()->x;
     float ownAy = stateGetAccelNed_f()->y;
     float ownYawr = stateGetBodyRates_f()->r;
@@ -87,12 +96,12 @@ static void range_msg_callback(uint8_t sender_id __attribute__((unused)), uint8_
     float Z[EKF_M] = {range,ownh,trackedh,ownVx,ownVy,trackedVx,trackedVy};
     discrete_ekf_no_north_predict(&ekf_rl[idx],U);
     discrete_ekf_no_north_update(&ekf_rl[idx], Z);
-    #else
+#else
     // Measurement Vector Z = [range owvVx(NED) ownVy(NED) tracked_v_north(NED) tracked_v_east(NED) dh]
-    float Z[EKF_M] = {range, ownVx, ownVy, trackedVx, trackedVy, tracked_h - ownh};
+    float Z[EKF_M] = {range, ownVx, ownVy, trackedVx, trackedVy, trackedh - ownh};
     discrete_ekf_predict(&ekf_rl[idx]);
     discrete_ekf_update(&ekf_rl[idx], Z);
-    #endif
+#endif
 
   }
 
