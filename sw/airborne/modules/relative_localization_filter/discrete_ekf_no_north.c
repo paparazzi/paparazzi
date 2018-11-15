@@ -49,9 +49,8 @@ void extractPhiGamma(float **inmat, float **phi, float **gamma, int m, int n_a, 
 }
 
 /*
- * 
- * Creates a matrix o[m+n_b*m+n_b] = [ a[m][n_a] b[m][n_b] ;
- *                                     0[m][n_a] 0[m][n_b] ]
+ * Creates a combined matrix o = [ a[m][n_a] b[m][n_b] ;
+ *                                 0[m][n_a] 0[m][n_b] ]
  */
 void float_mat_combine(float **a, float **b, float **o, int m, int n_a, int n_b)
 {

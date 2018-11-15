@@ -42,6 +42,10 @@
 #define RL_NUAVS 4 // Maximum expected number of other UAVs
 #endif
 
+/*
+ * NO_NORTH = 1 : The filter runs without a heading reference.
+ * NO_NORTH = 0 : The filter runs while using a shared reference heading.
+ */
 #ifndef NO_NORTH
 #define NO_NORTH 1
 #endif
