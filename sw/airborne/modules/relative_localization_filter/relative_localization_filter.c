@@ -18,7 +18,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/relativelocalizationfilter/relativelocalizationfilter.c"
+ * @file "modules/relative_localization_filter/relative_localization_filter.c"
  * @author Mario Coppola
  * Relative Localization Filter for collision avoidance between drones
  */
@@ -38,34 +38,30 @@
 #include <stdlib.h>
 
 
-#ifndef RL_NUAVS
-#define RL_NUAVS 4 // Maximum expected number of other UAVs
+#ifndef RELATIVE_LOCALIZATION_N_UAVS
+#define RELATIVE_LOCALIZATION_N_UAVS 4 // Maximum expected number of other UAVs
 #endif
 
 /*
- * NO_NORTH = 1 : The filter runs without a heading reference.
- * NO_NORTH = 0 : The filter runs while using a shared reference heading.
+ * RELATIVE_LOCALIZATION_NO_NORTH = 1 : The filter runs without a heading reference.
+ * RELATIVE_LOCALIZATION_NO_NORTH = 0 : The filter runs while using a shared reference heading.
  */
-#ifndef NO_NORTH
-#define NO_NORTH 1
+#ifndef RELATIVE_LOCALIZATION_NO_NORTH
+#define RELATIVE_LOCALIZATION_NO_NORTH 1
 #endif
 
-#if NO_NORTH
+#if RELATIVE_LOCALIZATION_NO_NORTH
 #include "discrete_ekf_no_north.h"
+struct discrete_ekf_no_north ekf_rl[RELATIVE_LOCALIZATION_N_UAVS];
 #else
 #include "discrete_ekf.h"
+struct discrete_ekf ekf_rl[RELATIVE_LOCALIZATION_N_UAVS];
 #endif
 
-int32_t id_array[RL_NUAVS]; // array of UWB IDs of all drones
-uint32_t latest_update_time[RL_NUAVS];
+int32_t id_array[RELATIVE_LOCALIZATION_N_UAVS]; // array of UWB IDs of all drones
+uint32_t latest_update_time[RELATIVE_LOCALIZATION_N_UAVS];
 uint8_t number_filters; // the number of filters running in parallel
-#if NO_NORTH
-struct discrete_ekf_no_north ekf_rl[RL_NUAVS];
-#else
-struct discrete_ekf ekf_rl[RL_NUAVS];
-#endif
-
-float range_array[RL_NUAVS]; // an array to store the ranges at which the other MAVs are
+float range_array[RELATIVE_LOCALIZATION_N_UAVS]; // an array to store the ranges at which the other MAVs are
 uint8_t pprzmsg_cnt; // a counter to send paparazzi messages, which are sent in rotation
 
 static abi_event range_communication_event;
@@ -76,10 +72,10 @@ static void range_msg_callback(uint8_t sender_id __attribute__((unused)), uint8_
   int idx = -1; // Initialize the index of all tracked drones (-1 for null assumption of no drone found)
 
   // Check if a new aircraft ID is present, if it's a new ID we start a new EKF for it.
-  if (!int32_vect_find(id_array, ac_id, &idx, RL_NUAVS) &&
-      (number_filters < RL_NUAVS)) {
+  if (!int32_vect_find(id_array, ac_id, &idx, RELATIVE_LOCALIZATION_N_UAVS) &&
+      (number_filters < RELATIVE_LOCALIZATION_N_UAVS)) {
     id_array[number_filters] = ac_id;
-#if NO_NORTH
+#if RELATIVE_LOCALIZATION_NO_NORTH
     discrete_ekf_no_north_new(&ekf_rl[number_filters]);
 #else
     discrete_ekf_new(&ekf_rl[number_filters]);
@@ -92,7 +88,7 @@ static void range_msg_callback(uint8_t sender_id __attribute__((unused)), uint8_
     float ownVx = stateGetSpeedNed_f()->x;
     float ownVy = stateGetSpeedNed_f()->y;
     float ownh  = stateGetPositionEnu_f()->z;
-#if NO_NORTH
+#if RELATIVE_LOCALIZATION_NO_NORTH
     float ownAx = stateGetAccelNed_f()->x;
     float ownAy = stateGetAccelNed_f()->y;
     float ownYawr = stateGetBodyRates_f()->r;
@@ -132,8 +128,8 @@ static void send_relative_localization_data(struct transport_tx *trans, struct l
 
 void relative_localization_filter_init(void)
 {
-  int32_vect_set_value(id_array, RL_NUAVS + 1,
-                       RL_NUAVS); // The id_array is initialized with non-existant IDs (assuming UWB IDs are 0,1,2...)
+  int32_vect_set_value(id_array, RELATIVE_LOCALIZATION_N_UAVS + 1,
+                       RELATIVE_LOCALIZATION_N_UAVS); // The id_array is initialized with non-existant IDs (assuming UWB IDs are 0,1,2...)
   number_filters = 0;
   pprzmsg_cnt = 0;
 

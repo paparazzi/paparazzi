@@ -18,7 +18,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/relativelocalizationfilter/discrete_ekf_no_north.h"
+ * @file "modules/relative_localization_filter/discrete_ekf_no_north.h"
  * @author Steven van der Helm, Mario Coppola
  * Discrete Extended Kalman Filter for Relative Localization
  * This implementation is was used in

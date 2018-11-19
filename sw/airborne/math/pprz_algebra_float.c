@@ -903,29 +903,29 @@ void float_mat_exp(float **a, float **o, int n)
   float_mat_copy(_a_copy, _a, n, n); // Make a copy of a to compute on
   a_norm = float_mat_norm_li(_a_copy, n, n);  // Compute the infinity norm of the matrix
   ee = (int)(float_log_n(a_norm, 2)) + 1;
-  s = MAXIMUM_VALUE(0, ee + 1);
-  t = 1.0 / pow(2.0, s);
+  s = Max(0, ee + 1);
+  t = 1.0 / powf(2.0, s);
   float_mat_scale(_a_copy, t, n, n);
   float_mat_copy(_x, _a_copy, n, n);  // x = a_copy
   c = 0.5;
 
   float_mat_diagonal_scal(_o, 1.0, n);  // make identiy
-  float_mat_add_scal_mult(_o, _a_copy, c, n, n);
+  float_mat_sum_scaled(_o, _a_copy, c, n, n);
 
   float_mat_diagonal_scal(_d, 1.0, n);
-  float_mat_add_scal_mult(_d, _a_copy, -c, n, n);
+  float_mat_sum_scaled(_d, _a_copy, -c, n, n);
 
   p = 1;
   for (k = 2; k <= q; k++) {
     c = c * (float)(q - k + 1) / (float)(k * (2 * q - k + 1));
     float_mat_mul_copy(_x, _x, _a_copy, n, n, n);
 
-    float_mat_add_scal_mult(_o, _x, c, n, n);
+    float_mat_sum_scaled(_o, _x, c, n, n);
 
     if (p) {
-      float_mat_add_scal_mult(_d, _x, c, n, n);
+      float_mat_sum_scaled(_d, _x, c, n, n);
     } else {
-      float_mat_add_scal_mult(_d, _x, -c, n, n);
+      float_mat_sum_scaled(_d, _x, -c, n, n);
     }
     p = !p;
   }
@@ -953,9 +953,9 @@ float float_mat_norm_li(float **a, int m, int n)
   for (int i = 0; i < m; i++) {
     row_sum = 0.0;
     for (int j = 0; j < n; j++) {
-      row_sum = row_sum + fabs(a[i][j]);
+      row_sum = row_sum + fabsf(a[i][j]);
     }
-    value = MAXIMUM_VALUE(value, row_sum);
+    value = Max(value, row_sum);
   }
   return value;
 }

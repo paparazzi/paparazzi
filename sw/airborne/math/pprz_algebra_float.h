@@ -109,7 +109,7 @@ static inline float float_log_n(float v, float n)
   if (v == 0.0) {
     return - 1.0E+30;
   } else {
-    return log(fabs(v)) / log(n);
+    return logf(fabsf(v)) / logf(n);
   }
 }
 
@@ -777,9 +777,7 @@ static inline void float_mat_scale(float **a, float k, int m, int n)
   int i, j;
   for (i = 0; i < m; i++) {
     for (j = 0; j < n; j++) {
-      if (a[i][j] != 0.0) {
-        a[i][j] *= k;
-      }
+      a[i][j] *= k;
     }
   }
 }
@@ -791,25 +789,6 @@ static inline void float_mat_scale(float **a, float k, int m, int n)
  * k: [1 x 1]
  */
 static inline void float_mat_sum_scaled(float **a, float **b, float k, int m, int n)
-{
-  int i, j;
-  for (i = 0; i < m; i++) {
-    for (j = 0; j < n; j++) {
-      if (a[i][j] != 0.0) {
-        a[i][j] += k * b[i][j];
-      }
-    }
-  }
-}
-
-
-/** a += k*b, where k is a scalar value
- *
- * a: [m x n]
- * b: [m x n]
- * k: [1 x 1]
- */
-static inline void float_mat_add_scal_mult(float **a, float **b, float k, int m, int n)
 {
   int i, j;
   for (i = 0; i < m; i++) {

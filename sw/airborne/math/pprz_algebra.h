@@ -47,8 +47,6 @@ extern "C" {
 
 #define SQUARE(_a) ((_a)*(_a))
 
-#define MAXIMUM_VALUE(_a,_b) (_a) < (_b) ? (_b) : (_a)
-
 //
 //
 // Vector algebra

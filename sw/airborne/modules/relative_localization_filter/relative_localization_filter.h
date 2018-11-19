@@ -18,7 +18,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/relativelocalizationfilter/relativelocalizationfilter.h"
+ * @file "modules/relative_localization_filter/relative_localization_filter.h"
  * @author Mario Coppola
  * Relative Localization Filter for collision avoidance between drones
  */

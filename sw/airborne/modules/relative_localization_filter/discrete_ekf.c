@@ -18,12 +18,12 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/relativelocalizationfilter/discrete_ekf.c"
+ * @file "modules/relative_localization_filter/discrete_ekf.c"
  * @author Mario Coppola
  * Discrete Extended Kalman Filter for Relative Localization
  */
 
-#include "discrete_ekf.h"
+#include "modules/relative_localization_filter/discrete_ekf.h"
 #include "math/pprz_algebra_float.h"
 #include <math.h>
 #include <stdio.h> // needed for the printf statements
@@ -42,12 +42,12 @@ void discrete_ekf_new(struct discrete_ekf *filter)
 
   // Q Matrix
   MAKE_MATRIX_PTR(_Q, filter->Q, EKF_N);
-  float_mat_diagonal_scal(_Q, pow(0.3, 2.f), EKF_N);
+  float_mat_diagonal_scal(_Q, powf(0.3, 2.f), EKF_N);
   filter->Q[0][0] = 0.01;
   filter->Q[1][1] = 0.01;
 
   MAKE_MATRIX_PTR(_R, filter->R, EKF_M);
-  float_mat_diagonal_scal(_R, pow(0.1, 2.f), EKF_M);
+  float_mat_diagonal_scal(_R, powf(0.1, 2.f), EKF_M);
   filter->R[0][0] = 0.2;
 
   // Initial assumptions

@@ -8,8 +8,6 @@
   </doc>
   <header>
     <file name="relative_localization_filter.h"/>
-<!--     <file name="discrete_ekf.h"/>
-    <file name="discrete_ekf_no_north.h"/> -->
   </header>
   <init fun="relative_localization_filter_init()"/>
   <makefile>
