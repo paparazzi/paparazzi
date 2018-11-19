@@ -21,7 +21,7 @@
  * @file "modules/relativelocalizationfilter/discrete_ekf_no_north.h"
  * @author Steven van der Helm, Mario Coppola
  * Discrete Extended Kalman Filter for Relative Localization
- * This implementation is was used in 
+ * This implementation is was used in
  * van der Helm et al. "On-board Range-based Relative Localization for Micro Aerial Vehicles in indoor Leader-Follower Flight." (2018).
  * Available at https://arxiv.org/pdf/1805.07171.pdf
  */
@@ -45,7 +45,7 @@ struct discrete_ekf_no_north {
   float Q[EKF_N][EKF_N]; // proces covariance noise
   float R[EKF_M][EKF_M]; // measurement covariance noise
   float H[EKF_M][EKF_N]; // jacobian of the measure wrt X
-  float G[EKF_N][EKF_L]; // Noise input 
+  float G[EKF_N][EKF_L]; // Noise input
   float Ht[EKF_N][EKF_M]; // transpose of H
   float Phi[EKF_N][EKF_N]; // Jacobian
   float Gamma[EKF_N][EKF_L]; // Noise input
@@ -64,8 +64,8 @@ void extractPhiGamma(float **inmat, float **phi, float **gamma, int m, int n_a, 
 void float_mat_combine(float **a, float **b, float **o, int m, int n_a, int n_b);
 void c2d(int m, int nA, int nB, float **Fx, float **G, float dt, float **phi, float **gamma);
 void discrete_ekf_no_north_fsym(float *statein, float *input, float *output);
-void discrete_ekf_no_north_hsym(float *statein,float *output);
-void discrete_ekf_no_north_Fx(float *statein,float *input,float **output);
+void discrete_ekf_no_north_hsym(float *statein, float *output);
+void discrete_ekf_no_north_Fx(float *statein, float *input, float **output);
 void discrete_ekf_no_north_G(float *statein, float **output);
 void discrete_ekf_no_north_Hx(float *statein, float **output);
 

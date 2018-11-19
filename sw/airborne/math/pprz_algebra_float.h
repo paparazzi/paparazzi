@@ -104,13 +104,12 @@ struct FloatRates {
 /*
  * Returns the log of v in base of n
  */
-static inline float float_log_n(float v, float n) 
+static inline float float_log_n(float v, float n)
 {
-  if ( v == 0.0 ) {
-   return - 1.0E+30;
-  } 
-  else {
-    return log ( fabs ( v ) ) / log ( n );
+  if (v == 0.0) {
+    return - 1.0E+30;
+  } else {
+    return log(fabs(v)) / log(n);
   }
 }
 
@@ -729,11 +728,12 @@ static inline void float_mat_mul(float **o, float **a, float **b, int m, int n, 
  * o: [m x l]
  *
  * Multiply two matrices with eachother.
- * By using a temporary array to store result. The resulting matrix can be stored in one 
+ * By using a temporary array to store result. The resulting matrix can be stored in one
  * of the input matrices when this function is used, which is useful for consecutive multiplications
  * (e.g. when doing matrix exponentiation), at the cost of some copy overhead.
  */
-static inline void float_mat_mul_copy(float **o, float **a, float **b, int m, int n, int l) {
+static inline void float_mat_mul_copy(float **o, float **a, float **b, int m, int n, int l)
+{
   float temp[m][l];
   int i, j, k;
   for (i = 0; i < m; i++) {
@@ -773,12 +773,13 @@ static inline void float_mat_vect_mul(float *o, float **a, float *b, int m, int 
  * k: [1 x 1]
  */
 static inline void float_mat_scale(float **a, float k, int m, int n)
-{  
+{
   int i, j;
   for (i = 0; i < m; i++) {
     for (j = 0; j < n; j++) {
-      if (a[i][j] != 0.0)
+      if (a[i][j] != 0.0) {
         a[i][j] *= k;
+      }
     }
   }
 }
@@ -794,8 +795,9 @@ static inline void float_mat_sum_scaled(float **a, float **b, float k, int m, in
   int i, j;
   for (i = 0; i < m; i++) {
     for (j = 0; j < n; j++) {
-      if (a[i][j] != 0.0)
+      if (a[i][j] != 0.0) {
         a[i][j] += k * b[i][j];
+      }
     }
   }
 }
@@ -812,7 +814,7 @@ static inline void float_mat_add_scal_mult(float **a, float **b, float k, int m,
   int i, j;
   for (i = 0; i < m; i++) {
     for (j = 0; j < n; j++) {
-        a[i][j] += k * b[i][j];
+      a[i][j] += k * b[i][j];
     }
   }
 }

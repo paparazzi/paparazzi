@@ -96,9 +96,9 @@ static void range_msg_callback(uint8_t sender_id __attribute__((unused)), uint8_
     float ownAx = stateGetAccelNed_f()->x;
     float ownAy = stateGetAccelNed_f()->y;
     float ownYawr = stateGetBodyRates_f()->r;
-    float U[EKF_L] = {ownAx,ownAy,trackedAx,trackedAy,ownYawr,trackedYawr};
-    float Z[EKF_M] = {range,ownh,trackedh,ownVx,ownVy,trackedVx,trackedVy};
-    discrete_ekf_no_north_predict(&ekf_rl[idx],U);
+    float U[EKF_L] = {ownAx, ownAy, trackedAx, trackedAy, ownYawr, trackedYawr};
+    float Z[EKF_M] = {range, ownh, trackedh, ownVx, ownVy, trackedVx, trackedVy};
+    discrete_ekf_no_north_predict(&ekf_rl[idx], U);
     discrete_ekf_no_north_update(&ekf_rl[idx], Z);
 #else
     // Measurement Vector Z = [range owvVx(NED) ownVy(NED) tracked_v_north(NED) tracked_v_east(NED) dh]
@@ -132,7 +132,8 @@ static void send_relative_localization_data(struct transport_tx *trans, struct l
 
 void relative_localization_filter_init(void)
 {
-  int32_vect_set_value(id_array, RL_NUAVS+1, RL_NUAVS); // The id_array is initialized with non-existant IDs (assuming UWB IDs are 0,1,2...)
+  int32_vect_set_value(id_array, RL_NUAVS + 1,
+                       RL_NUAVS); // The id_array is initialized with non-existant IDs (assuming UWB IDs are 0,1,2...)
   number_filters = 0;
   pprzmsg_cnt = 0;
 
@@ -144,6 +145,7 @@ void relative_localization_filter_periodic(void)
 {
   for (int i = 0; i < number_filters; i++) {
     // send id, x, y, z, vx, vy, vz(=0)
-    AbiSendMsgRELATIVE_LOCALIZATION(RELATIVE_LOCALIZATION_ID, id_array[i], ekf_rl[i].X[0], ekf_rl[i].X[1], ekf_rl[i].X[6], ekf_rl[i].X[4], ekf_rl[i].X[5], 0.f);
+    AbiSendMsgRELATIVE_LOCALIZATION(RELATIVE_LOCALIZATION_ID, id_array[i], ekf_rl[i].X[0], ekf_rl[i].X[1], ekf_rl[i].X[6],
+                                    ekf_rl[i].X[4], ekf_rl[i].X[5], 0.f);
   }
 };

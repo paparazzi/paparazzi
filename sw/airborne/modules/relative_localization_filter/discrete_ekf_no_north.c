@@ -21,7 +21,7 @@
  * @file "modules/relativelocalizationfilter/discrete_ekf_no_north.c"
  * @author Steven van der Helm, Mario Coppola
  * Discrete Extended Kalman Filter for Relative Localization without requiring knowledge of North
- * This implementation is from 
+ * This implementation is from
  * van der Helm et al. "On-board Range-based Relative Localization for Micro Aerial Vehicles in indoor Leader-Follower Flight." (2018).
  * Available at https://arxiv.org/pdf/1805.07171.pdf
  */
@@ -31,18 +31,18 @@
 #include <math.h>
 #include <stdio.h> // needed for the printf statements
 
-enum ekf_statein{x12,y12,z1,z2,u1,v1,u2,v2,gam};
-enum ekf_input{u1dm,v1dm,u2dm,v2dm,r1m,r2m};
+enum ekf_statein {x12, y12, z1, z2, u1, v1, u2, v2, gam};
+enum ekf_input {u1dm, v1dm, u2dm, v2dm, r1m, r2m};
 
-void extractPhiGamma(float **inmat, float **phi, float **gamma, int m, int n_a, int n_b){
+void extractPhiGamma(float **inmat, float **phi, float **gamma, int m, int n_a, int n_b)
+{
   int totalsize = m + n_b;
-  for(int i = 0; i < totalsize; i++) {
+  for (int i = 0; i < totalsize; i++) {
     for (int j = 0; j < totalsize; j++) {
-      if( i<m && j<n_a ) {
+      if (i < m && j < n_a) {
         phi[i][j] = inmat[i][j];
-      }
-      else if( i<m && j>=n_a ){
-        gamma[i][j-n_a] = inmat[i][j];
+      } else if (i < m && j >= n_a) {
+        gamma[i][j - n_a] = inmat[i][j];
       }
     }
   }
@@ -57,13 +57,11 @@ void float_mat_combine(float **a, float **b, float **o, int m, int n_a, int n_b)
   int totalsize = m + n_b;
   for (int i = 0; i < totalsize; i++) {
     for (int j = 0; j < totalsize; j++) {
-      if ( i < m && j < n_a) {
+      if (i < m && j < n_a) {
         o[i][j] = a[i][j];
-      }
-      else if ( i < m && j >= n_a ) {
-        o[i][j] = b[i][j-n_a];
-      }
-      else {
+      } else if (i < m && j >= n_a) {
+        o[i][j] = b[i][j - n_a];
+      } else {
         o[i][j] = 0.0;
       }
     }
@@ -74,7 +72,8 @@ void float_mat_combine(float **a, float **b, float **o, int m, int n_a, int n_b)
 /*
  * Continuous to discrete transition matrix
  */
-void c2d(int m, int nA, int nB, float **Fx, float **G, float dt, float **phi, float **gamma){
+void c2d(int m, int nA, int nB, float **Fx, float **G, float dt, float **phi, float **gamma)
+{
 
   int totalsize = m + nB;
   float combmat[totalsize][totalsize];
@@ -100,9 +99,12 @@ void c2d(int m, int nA, int nB, float **Fx, float **G, float dt, float **phi, fl
  * state is: {x_rel,y_rel,h1,h2,u1,v1,u2,v2,gamma}
  */
 
-void discrete_ekf_no_north_fsym(float *statein, float *input, float *output) {
-  output[0] =  input[r1m]*statein[y12] - statein[u1] + statein[u2] * cos(statein[gam]) - statein[v2] * sin(statein[gam]);
-  output[1] = -input[r1m]*statein[x12] - statein[v1] + statein[u2] * sin(statein[gam]) + statein[v2] * cos(statein[gam]);
+void discrete_ekf_no_north_fsym(float *statein, float *input, float *output)
+{
+  output[0] =  input[r1m] * statein[y12] - statein[u1] + statein[u2] * cos(statein[gam]) - statein[v2] * sin(
+                 statein[gam]);
+  output[1] = -input[r1m] * statein[x12] - statein[v1] + statein[u2] * sin(statein[gam]) + statein[v2] * cos(
+                statein[gam]);
   output[2] = 0;
   output[3] = 0;
   output[4] = input[u1dm] + input[r1m] * statein[v1];
@@ -115,8 +117,9 @@ void discrete_ekf_no_north_fsym(float *statein, float *input, float *output) {
 /*
  * Measurement equation, measures range, height1, height2, u1, v1, u2, v2
  */
-void discrete_ekf_no_north_hsym(float *statein,float *output) {
-  output[0] = pow(pow((statein[z1]-statein[z2]),2.0)+pow(statein[x12],2.0)+pow(statein[y12],2.0),0.5);
+void discrete_ekf_no_north_hsym(float *statein, float *output)
+{
+  output[0] = pow(pow((statein[z1] - statein[z2]), 2.0) + pow(statein[x12], 2.0) + pow(statein[y12], 2.0), 0.5);
   output[1] = statein[z1];
   output[2] = statein[z2];
   output[3] = statein[u1];
@@ -125,9 +128,10 @@ void discrete_ekf_no_north_hsym(float *statein,float *output) {
   output[6] = statein[v2];
 }
 
-void discrete_ekf_no_north_Fx(float *statein,float *input,float **output){
+void discrete_ekf_no_north_Fx(float *statein, float *input, float **output)
+{
   MAKE_MATRIX_PTR(_output, output, EKF_N);
-  float_mat_zero(_output,EKF_N,EKF_N);
+  float_mat_zero(_output, EKF_N, EKF_N);
   output[0][1] = input[r1m];
   output[0][4] = -1;
   output[0][6] = cos(statein[gam]);
@@ -137,16 +141,17 @@ void discrete_ekf_no_north_Fx(float *statein,float *input,float **output){
   output[1][5] = -1;
   output[1][6] = sin(statein[gam]);
   output[1][7] = cos(statein[gam]);
-  output[1][8] = statein[u2]*cos(statein[gam]) - statein[v2] * sin(statein[gam]);
+  output[1][8] = statein[u2] * cos(statein[gam]) - statein[v2] * sin(statein[gam]);
   output[4][5] = input[r1m];
   output[5][4] = -input[r1m];
   output[6][7] = input[r2m];
   output[7][6] = -input[r2m];
 }
 
-void discrete_ekf_no_north_G(float *statein, float **output){
+void discrete_ekf_no_north_G(float *statein, float **output)
+{
   MAKE_MATRIX_PTR(_output, output, EKF_N);
-  float_mat_zero(_output,EKF_N,EKF_L);
+  float_mat_zero(_output, EKF_N, EKF_L);
   output[0][4] = statein[y12];
   output[1][4] = -statein[x12];
   output[4][0] = 1;
@@ -161,13 +166,18 @@ void discrete_ekf_no_north_G(float *statein, float **output){
   output[8][5] = 1;
 }
 
-void discrete_ekf_no_north_Hx(float *statein, float **output){
+void discrete_ekf_no_north_Hx(float *statein, float **output)
+{
   MAKE_MATRIX_PTR(_output, output, EKF_N);
-  float_mat_zero(_output,EKF_M,EKF_N);
-  output[0][0] = statein[x12]/(pow(pow(statein[z1]-statein[z2],2.0)+pow(statein[x12],2.0)+pow(statein[y12],2.0),0.5));
-  output[0][1] = statein[y12]/(pow(pow(statein[z1]-statein[z2],2.0)+pow(statein[x12],2.0)+pow(statein[y12],2.0),0.5));
-  output[0][2] = (2*statein[z1]-2*statein[z2])/(2*pow(pow(statein[z1]-statein[z2],2.0)+pow(statein[x12],2.0)+pow(statein[y12],2.0),0.5));
-  output[0][3] = -(2*statein[z1]-2*statein[z2])/(2*pow(pow(statein[z1]-statein[z2],2.0)+pow(statein[x12],2.0)+pow(statein[y12],2.0),0.5));
+  float_mat_zero(_output, EKF_M, EKF_N);
+  output[0][0] = statein[x12] / (pow(pow(statein[z1] - statein[z2], 2.0) + pow(statein[x12], 2.0) + pow(statein[y12],
+                                     2.0), 0.5));
+  output[0][1] = statein[y12] / (pow(pow(statein[z1] - statein[z2], 2.0) + pow(statein[x12], 2.0) + pow(statein[y12],
+                                     2.0), 0.5));
+  output[0][2] = (2 * statein[z1] - 2 * statein[z2]) / (2 * pow(pow(statein[z1] - statein[z2], 2.0) + pow(statein[x12],
+                 2.0) + pow(statein[y12], 2.0), 0.5));
+  output[0][3] = -(2 * statein[z1] - 2 * statein[z2]) / (2 * pow(pow(statein[z1] - statein[z2], 2.0) + pow(statein[x12],
+                 2.0) + pow(statein[y12], 2.0), 0.5));
   output[1][2] = 1;
   output[2][3] = 1;
   output[3][4] = 1;
@@ -179,20 +189,21 @@ void discrete_ekf_no_north_Hx(float *statein, float **output){
 /*
  * Initialize the filter
  */
-void discrete_ekf_no_north_new(struct discrete_ekf_no_north *filter) {
+void discrete_ekf_no_north_new(struct discrete_ekf_no_north *filter)
+{
   MAKE_MATRIX_PTR(_P, filter->P, EKF_N);
   MAKE_MATRIX_PTR(_Q, filter->Q, EKF_N);
   MAKE_MATRIX_PTR(_R, filter->R, EKF_M);
-  
+
   float_mat_diagonal_scal(_P, 16, EKF_N); // P Matrix
-  float_mat_diagonal_scal(_Q, pow(2,2), EKF_N); // Q Matrix [inputs: a1x, a1y, a2x, a2y, r1, r2]
-  filter->Q[4][4] = pow(0.2,2);
-  filter->Q[5][5] = pow(0.2,2);
-   
+  float_mat_diagonal_scal(_Q, pow(2, 2), EKF_N); // Q Matrix [inputs: a1x, a1y, a2x, a2y, r1, r2]
+  filter->Q[4][4] = pow(0.2, 2);
+  filter->Q[5][5] = pow(0.2, 2);
+
   float_mat_diagonal_scal(_R, 0.7, EKF_M); // R Matrix [range, h1, h2, u1, v1, u2, v2]
-  filter->R[0][0] = pow(0.5,2);
-  filter->R[1][1] = pow(0.2,2);
-  filter->R[2][2] = pow(0.2,2);
+  filter->R[0][0] = pow(0.5, 2);
+  filter->R[1][1] = pow(0.2, 2);
+  filter->R[2][2] = pow(0.2, 2);
 
   float_vect_zero(filter->X, EKF_N); // Initial state
   filter->X[0] = EKF_XZERO;
@@ -202,12 +213,13 @@ void discrete_ekf_no_north_new(struct discrete_ekf_no_north *filter) {
   filter->dt = 0.1; // Est. time difference
 }
 
-/* 
- * Perform the prediction step 
+/*
+ * Perform the prediction step
  */
-void discrete_ekf_no_north_predict(struct discrete_ekf_no_north *filter, float *U) {
+void discrete_ekf_no_north_predict(struct discrete_ekf_no_north *filter, float *U)
+{
   float dX[EKF_N];
-  
+
   MAKE_MATRIX_PTR(_tmp1, filter->tmp1, EKF_N);
   MAKE_MATRIX_PTR(_tmp2, filter->tmp2, EKF_N);
   MAKE_MATRIX_PTR(_tmp3, filter->tmp3, EKF_N);
@@ -216,18 +228,18 @@ void discrete_ekf_no_north_predict(struct discrete_ekf_no_north *filter, float *
   MAKE_MATRIX_PTR(_Q,    filter->Q,    EKF_N);
   MAKE_MATRIX_PTR(_H,    filter->H,    EKF_N);
   MAKE_MATRIX_PTR(_G,    filter->G,    EKF_N);
-  MAKE_MATRIX_PTR(_Gamma,filter->Gamma,EKF_N);
+  MAKE_MATRIX_PTR(_Gamma, filter->Gamma, EKF_N);
   MAKE_MATRIX_PTR(_Phi,  filter->Phi,  EKF_N);
   MAKE_MATRIX_PTR(_Fx,   filter->Fx,   EKF_N);
 
-  discrete_ekf_no_north_fsym(filter->X, U, dX); 
-  discrete_ekf_no_north_Fx  (filter->X, U, _Fx); // State transition matrix
-  discrete_ekf_no_north_G   (filter->X, _G);     // Input transition matrix
-  
-  float_vect_scale(dX,filter->dt,EKF_N);
-  float_vect_sum(filter->Xp,filter->X,dX,EKF_N);
+  discrete_ekf_no_north_fsym(filter->X, U, dX);
+  discrete_ekf_no_north_Fx(filter->X, U, _Fx);   // State transition matrix
+  discrete_ekf_no_north_G(filter->X, _G);        // Input transition matrix
 
-  c2d( EKF_N, EKF_N, EKF_L, _Fx, _G, filter->dt, _Phi, _Gamma);
+  float_vect_scale(dX, filter->dt, EKF_N);
+  float_vect_sum(filter->Xp, filter->X, dX, EKF_N);
+
+  c2d(EKF_N, EKF_N, EKF_L, _Fx, _G, filter->dt, _Phi, _Gamma);
 
   float_mat_mul(_tmp1, _Phi, _P, EKF_N, EKF_N, EKF_N);      // tmp1 <- Phi*P
   float_mat_transpose_square(_Phi, EKF_N);                  // tmp2 <- Phi'
@@ -235,12 +247,12 @@ void discrete_ekf_no_north_predict(struct discrete_ekf_no_north *filter, float *
 
   float_mat_mul(_tmp1, _Gamma, _Q, EKF_N, EKF_L, EKF_L);    // tmp1 <- Gamma*Q
   float_mat_transpose(_tmp2, _Gamma, EKF_N, EKF_L);         // tmp2 <- Gamma'
-  float_mat_mul(_tmp4, _tmp1, _tmp2, EKF_N, EKF_L, EKF_N);  // tmp4 <- Gamma*Q*Gamma  
-  
+  float_mat_mul(_tmp4, _tmp1, _tmp2, EKF_N, EKF_L, EKF_N);  // tmp4 <- Gamma*Q*Gamma
+
   float_mat_sum(_P, _tmp3, _tmp4, EKF_N, EKF_N);            // P <- Phi*P*Phi' + Gamma*Q*Gamma'
 
-  discrete_ekf_no_north_hsym (filter->Xp,filter->Zp);
-  discrete_ekf_no_north_Hx (filter->Xp,_H);
+  discrete_ekf_no_north_hsym(filter->Xp, filter->Zp);
+  discrete_ekf_no_north_Hx(filter->Xp, _H);
 }
 
 /* Perform the update step
