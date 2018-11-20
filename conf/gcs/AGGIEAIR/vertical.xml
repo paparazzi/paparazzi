@@ -1,56 +1,21 @@
 <!DOCTYPE layout SYSTEM "../layout.dtd">
 
-<layout width="1600" height="939">
+<layout width="1855" height="1056">
   <columns>
     <rows SIZE="600">
       <widget NAME="strips" size="225"/>
       <widget NAME="aircraft" size="350"/>
-      <widget NAME="alarms" size="350"/>
+      <widget NAME="alarms" size="467"/>
     </rows>
     <rows>
-      <widget NAME="map2d" size="937">
-        <papget type="message_field" display="text" x="145" y="11">
+      <widget NAME="map2d" size="1054">
+        <papget type="expression" display="gauge" x="66" y="680">
           <property name="scale" value="1"/>
-          <property name="field" value="CAMERA_SNAPSHOT:array_temp"/>
-          <property name="format" value="FPA Temp: %.2f"/>
-          <property name="size" value="15."/>
-          <property name="color" value="green"/>
-        </papget>
-        <papget type="message_field" display="gauge" x="60" y="176">
-          <property name="scale" value="1"/>
-          <property name="field" value="CAMERA_PAYLOAD:used_disk"/>
-          <property name="min" value="0."/>
-          <property name="max" value="100."/>
+          <property name="expr" value="(RSSI_COMBINED.remote_rssi-RSSI_COMBINED.remote_noise)"/>
+          <property name="min" value="100"/>
+          <property name="max" value="250"/>
           <property name="size" value="50."/>
-          <property name="text" value="Payload disk(%)"/>
-        </papget>
-        <papget type="message_field" display="led" x="465" y="22">
-          <property name="scale" value="1"/>
-          <property name="field" value="CAMERA_PAYLOAD:error_code"/>
-          <property name="size" value="15."/>
-          <property name="text" value="Payload status:"/>
-        </papget>
-        <papget type="message_field" display="text" x="144" y="57">
-          <property name="scale" value="1"/>
-          <property name="field" value="CAMERA_SNAPSHOT:snapshot_image_number"/>
-          <property name="format" value="Capture number: %.0f"/>
-          <property name="size" value="15."/>
-          <property name="color" value="green"/>
-        </papget>
-        <papget type="message_field" display="text" x="478" y="11">
-          <property name="scale" value="1"/>
-          <property name="field" value="CAMERA_PAYLOAD:error_code"/>
-          <property name="format" value="code: %.0f"/>
-          <property name="size" value="15."/>
-          <property name="color" value="green"/>
-        </papget>
-        <papget type="message_field" display="gauge" x="66" y="464">
-          <property name="scale" value="1."/>
-          <property name="field" value="COPILOT_STATUS:used_memory"/>
-          <property name="min" value="0."/>
-          <property name="max" value="100."/>
-          <property name="size" value="50."/>
-          <property name="text" value="Copilot mem(%)"/>
+          <property name="text" value="RSSI Remote(dB)"/>
         </papget>
         <papget type="message_field" display="gauge" x="64" y="367">
           <property name="scale" value="1."/>
@@ -65,6 +30,21 @@
           <property name="field" value="CAMERA_PAYLOAD:door_status"/>
           <property name="size" value="15."/>
           <property name="text" value="Door status:"/>
+          <property name="test_invert" value="true"/>
+        </papget>
+        <papget type="message_field" display="text" x="144" y="57">
+          <property name="scale" value="1"/>
+          <property name="field" value="CAMERA_SNAPSHOT:snapshot_image_number"/>
+          <property name="format" value="Capture number: %.0f"/>
+          <property name="size" value="15."/>
+        </papget>
+        <papget type="message_field" display="gauge" x="66" y="464">
+          <property name="scale" value="1."/>
+          <property name="field" value="COPILOT_STATUS:used_memory"/>
+          <property name="min" value="0."/>
+          <property name="max" value="100."/>
+          <property name="size" value="50."/>
+          <property name="text" value="Copilot mem(%)"/>
         </papget>
         <papget type="message_field" display="gauge" x="64" y="272">
           <property name="scale" value="1.0"/>
@@ -73,6 +53,43 @@
           <property name="max" value="100."/>
           <property name="size" value="50."/>
           <property name="text" value="Payload mem(%)"/>
+        </papget>
+        <papget type="expression" display="gauge" x="187" y="681">
+          <property name="scale" value="1"/>
+          <property name="expr" value="(RSSI_COMBINED.local_rssi-RSSI_COMBINED.local_noise)"/>
+          <property name="min" value="100"/>
+          <property name="max" value="250"/>
+          <property name="size" value="50."/>
+          <property name="text" value="RSSI Local(dB)"/>
+        </papget>
+        <papget type="message_field" display="gauge" x="60" y="176">
+          <property name="scale" value="1"/>
+          <property name="field" value="CAMERA_PAYLOAD:used_disk"/>
+          <property name="min" value="0."/>
+          <property name="max" value="100."/>
+          <property name="size" value="50."/>
+          <property name="text" value="Payload disk(%)"/>
+        </papget>
+        <papget type="message_field" display="led" x="465" y="22">
+          <property name="scale" value="1"/>
+          <property name="field" value="CAMERA_PAYLOAD:error_code"/>
+          <property name="size" value="15."/>
+          <property name="text" value="Payload status:"/>
+	  <property name="test_invert" value="true"/>
+        </papget>
+        <papget type="message_field" display="text" x="478" y="11">
+          <property name="scale" value="1"/>
+          <property name="field" value="CAMERA_PAYLOAD:error_code"/>
+          <property name="format" value="code: %.0f"/>
+          <property name="size" value="15."/>
+          <property name="color" value="green"/>
+        </papget>
+        <papget type="message_field" display="text" x="145" y="11">
+          <property name="scale" value="1"/>
+          <property name="field" value="CAMERA_SNAPSHOT:array_temp"/>
+          <property name="format" value="FPA Temp: %.2f"/>
+          <property name="size" value="15."/>
+          <property name="color" value="blue"/>
         </papget>
       </widget>
     </rows>

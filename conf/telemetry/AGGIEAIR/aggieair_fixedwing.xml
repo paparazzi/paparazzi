@@ -7,6 +7,7 @@
       <message name="AUTOPILOT_VERSION"   period="11.1"/>
       <message name="ALIVE"               period="5.1"/>
       <message name="GPS_LLA"             period="0.25"/>
+      <message name="GPS_INT"             period="0.25"/>
       <message name="NAVIGATION"          period="1."/>
       <message name="ATTITUDE"            period="0.5"/>
       <message name="ESTIMATOR"           period="0.5"/>
@@ -24,7 +25,9 @@
       <message name="SECURE_LINK_STATUS"  period="2.1"/>
       <message name="COMMANDS"            period="1"/>
       <message name="FBW_STATUS"          period="2"/>
+      <message name="BATTERY_MONITOR"     period="2"/>
       <message name="VECTORNAV_INFO"      period="1.0"/>
+      <message name="I2C_ERRORS"          period="5.0"/>
     </mode>
     <mode name="minimal">
       <message name="ALIVE"               period="5"/>
@@ -108,9 +111,32 @@
   </process>
   <process name="Extra">
     <mode name="default">
-      <message name="COMMANDS"            period="0.01"/>
-      <message name="GPS_LLA"             period="1.25"/>
-      <message name="ATTITUDE"            period="1.1"/>
+      <message name="ACTUATORS"           period="0.01"/> <!-- For trimming & HITL, important! Do not change! The period must match CONTROL_FREQUENCY-->
+      <message name="AUTOPILOT_VERSION"   period="5.0"/>
+      <message name="ALIVE"               period="1.0"/>
+      <message name="NAVIGATION"          period="0.1"/>
+      <message name="GPS_LLA"             period="0.01"/>
+      <message name="GPS_INT"             period="0.01"/>
+      <message name="ATTITUDE"            period="0.01"/>
+      <message name="ESTIMATOR"           period="0.1"/>
+      <message name="WP_MOVED"            period="1.0"/>
+      <message name="CIRCLE"              period="1.0"/>
+      <message name="IMU_ACCEL"           period="0.01"/>
+      <message name="INS"             	  period="0.1"/>
+      <message name="INS_REF"             period="0.1"/>
+      <message name="DESIRED"             period="0.1"/>
+      <message name="BAT"                 period="1.0"/>
+      <message name="SEGMENT"             period="1.0"/> 
+      <message name="NAVIGATION_REF"      period="0.5"/>
+      <message name="PPRZ_MODE"           period="1.0"/>
+      <message name="SETTINGS"            period="1.0"/>
+      <message name="DATALINK_REPORT"     period="1.0"/>
+      <message name="DL_VALUE"            period="1.0"/>
+      <message name="IR_SENSORS"          period="1.0"/>
+      <message name="SECURE_LINK_STATUS"  period="1.0"/>
+      <message name="COMMANDS"            period="0.01"/> <!-- For HITL, important! Do not change! The period must match CONTROL_FREQUENCY -->
+      <message name="FBW_STATUS"          period="1.0"/>
+      <message name="BATTERY_MONITOR"     period="2"/>
       <message name="VECTORNAV_INFO"      period="1.0"/>
     </mode>
   </process>
