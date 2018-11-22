@@ -46,9 +46,11 @@ void rtos_mon_init_arch(void)
 void rtos_mon_periodic_arch(void)
 {
   int i;
+  size_t heap_total_free_size;
+  chHeapStatus(NULL, &heap_total_free_size, NULL);
 
   rtos_mon.core_free_memory = chCoreGetStatusX();
-  rtos_mon.heap_free_memory = 0;
+  rtos_mon.heap_free_memory = heap_total_free_size;
   rtos_mon.thread_counter = 0;
 
   // loop threads to find idle thread
