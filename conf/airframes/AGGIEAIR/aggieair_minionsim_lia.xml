@@ -6,7 +6,7 @@ AggieAir Minion Sim
 
 <airframe name="AggieAir Minion Sim">
   <firmware name="fixedwing">
-    <target name="ap" board="lisa_mx_2.1">
+    <target name="ap" board="lisa_mx_2.1_chibios">
       <module name="radio_control" type="sbus">
         <configure name="SBUS_PORT" value="UART5"/>
       </module>
