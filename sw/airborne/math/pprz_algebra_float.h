@@ -102,7 +102,7 @@ struct FloatRates {
   }
 
 /*
- * Returns the log of v in base of n
+ * Returns the real part of the log of v in base of n
  */
 static inline float float_log_n(float v, float n)
 {
