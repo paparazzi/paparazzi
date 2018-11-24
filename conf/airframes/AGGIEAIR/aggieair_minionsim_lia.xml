@@ -6,7 +6,7 @@ AggieAir Minion Sim
 
 <airframe name="AggieAir Minion Sim">
   <firmware name="fixedwing">
-    <target name="ap" board="lisa_mx_2.1">
+    <target name="ap" board="lisa_mx_2.1_chibios">
       <module name="radio_control" type="sbus">
         <configure name="SBUS_PORT" value="UART5"/>
       </module>
@@ -53,9 +53,7 @@ AggieAir Minion Sim
     <define name="AGR_CLIMB" />
     <define name="POLY_OSAM_HALF_SWEEP_ENABLED" value="FALSE"/>
     <define name="GEOFENCE_DATALINK_LOST_TIME" value="45"/>
-  </firmware>
 
-  <modules>
     <module name="nav" type="line"/>
     <module name="nav" type="line_osam"/>
     <module name="nav" type="flower"/>
@@ -82,7 +80,7 @@ AggieAir Minion Sim
       <define name="BATMON_TEMP_SENSITIVITY" value="10"/>
     </module>
     <module name="air_data"/>
-  </modules>
+  </firmware>
 
   <!-- commands section -->
   <!-- Servo Configuration -->
