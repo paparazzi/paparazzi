@@ -37,6 +37,7 @@
       RUST_MODULES contains all Rust modules that should be built.
       RUST_DIRS are paths to the module libraries, used by ChibiOS makefile.
       RUST_LIBS are the actual libraries to be linked, used by ChibiOS makefile.
+      RUST_ARCH is board dependent.
       Note - nothing is preventing name clashes, so make sure you name your
       library appropriately.
     </description>
