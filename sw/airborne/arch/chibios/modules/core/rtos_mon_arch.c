@@ -46,11 +46,13 @@ void rtos_mon_init_arch(void)
 void rtos_mon_periodic_arch(void)
 {
   int i;
-  size_t heap_total_free_size;
-  chHeapStatus(NULL, &heap_total_free_size, NULL);
+  size_t total_fragments, total_fragmented_free_space, largest_free_block;
+  total_fragments = chHeapStatus(NULL, &total_fragmented_free_space, &largest_free_block);
 
   rtos_mon.core_free_memory = chCoreGetStatusX();
-  rtos_mon.heap_free_memory = heap_total_free_size;
+  rtos_mon.heap_fragments = total_fragments;
+  rtos_mon.heap_largest = largest_free_block;
+  rtos_mon.heap_free_memory = total_fragmented_free_space;
   rtos_mon.thread_counter = 0;
 
   // loop threads to find idle thread

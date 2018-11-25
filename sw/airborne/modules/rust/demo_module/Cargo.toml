@@ -1,0 +1,13 @@
+[package]
+name = "demo_module"
+version = "0.1.0"
+authors = ["Michal Podhradsky <mpodhradsky@galois.com>"]
+edition = "2018"
+
+[lib]
+name = "rust_module"
+path = "src/lib.rs"
+crate-type = ["staticlib"]
+
+[dependencies]
+rust_alloc_chibios = {path = "../rust_alloc_chibios"}

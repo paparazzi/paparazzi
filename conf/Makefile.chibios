@@ -320,10 +320,10 @@ UADEFS = $($(TARGET).CFLAGS) $(USER_CFLAGS) $(BOARD_CFLAGS)
 UINCDIR = $(CHIBIOS)/os/license $(patsubst -I%,%,$(INCLUDES))
 
 # List the user directory to look for the libraries here
-ULIBDIR =
+ULIBDIR = $(RUST_DIRS)
 
 # List all user libraries here
-ULIBS = -lm $(BOARD_LDFLAGS)
+ULIBS = -lm $(BOARD_LDFLAGS) $(RUST_LIBS)
 
 #
 # End of user defines

@@ -53,6 +53,8 @@ AggieAir Minion Sim
     <define name="AGR_CLIMB" />
     <define name="POLY_OSAM_HALF_SWEEP_ENABLED" value="FALSE"/>
     <define name="GEOFENCE_DATALINK_LOST_TIME" value="45"/>
+
+    <module name="rust_demo_module"/>
   </firmware>
 
   <modules>

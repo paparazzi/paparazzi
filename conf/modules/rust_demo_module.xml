@@ -1,0 +1,35 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="rust_demo_module" dir="rust/demo_module">
+  <doc>
+    <description>
+      Simple rust module. 
+      TODO:
+      - how to cleanly call Xargo from the makefile? raw makefile tag perhaps?
+      - how to link the resulting library cleanly into chibios?
+      - how to specify dependency on ChibiOS?
+    </description>
+  </doc>
+
+  <header>
+    <file name="rust_demo_module.h" />
+  </header>
+
+  <init fun="rust_function()"/>
+  <periodic fun="rust_periodic()" freq="1." autorun="TRUE"/>
+
+  <makefile target="ap">
+    <!-- Additional defines needed by Rust's `alloc` crate -->
+    <file name="pprz_syscalls.c" dir="."/>
+    <raw>
+      RUST_PATH = $(PAPARAZZI_SRC)/sw/airborne/modules/rust/demo_module
+      #cd $(RUST_PATH)
+      # xargo build --target thumbv7em-none-eabi
+      # 
+      RUST_DIRS += $(RUST_PATH)/target/thumbv7em-none-eabi/debug
+      RUST_LIBS += -lrust_module
+    </raw>
+  </makefile>
+
+</module>
+

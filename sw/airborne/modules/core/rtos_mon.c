@@ -54,6 +54,8 @@ void periodic_report_sysmon(void)
       &rtos_mon.cpu_load,
       &rtos_mon.core_free_memory,
       &rtos_mon.heap_free_memory,
+      &rtos_mon.heap_fragments,
+      &rtos_mon.heap_largest,
       &rtos_mon.cpu_time);
 
 }
