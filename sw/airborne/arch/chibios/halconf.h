@@ -77,6 +77,17 @@
 
 
 /**
+ * @brief   Enables the cryptographic subsystem.
+ */
+#if !defined(HAL_USE_CRY) || defined(__DOXYGEN__)
+#if USE_RNG
+#define HAL_USE_CRY                 TRUE
+#else
+#define HAL_USE_CRY                 FALSE
+#endif
+#endif
+
+/**
  * @brief   Enables the DAC subsystem.
  */
 #if !defined(HAL_USE_DAC) || defined(__DOXYGEN__)
@@ -256,6 +267,48 @@
  */
 #if !defined(CAN_USE_SLEEP_MODE) || defined(__DOXYGEN__)
 #define CAN_USE_SLEEP_MODE          TRUE
+#endif
+
+/*===========================================================================*/
+/* CRY driver related settings.                                              */
+/*===========================================================================*/
+
+/**
+ * @brief   Enables the SW fall-back of the cryptographic driver.
+ * @details When enabled, this option, activates a fall-back software
+ *          implementation for algorithms not supported by the underlying
+ *          hardware.
+ * @note    Fall-back implementations may not be present for all algorithms.
+ */
+#if !defined(HAL_CRY_USE_FALLBACK) || defined(__DOXYGEN__)
+#define HAL_CRY_USE_FALLBACK                FALSE
+#endif
+
+/**
+ * @brief   Makes the driver forcibly use the fall-back implementations.
+ */
+#if !defined(HAL_CRY_ENFORCE_FALLBACK) || defined(__DOXYGEN__)
+#define HAL_CRY_ENFORCE_FALLBACK            FALSE
+#endif
+
+/*===========================================================================*/
+/* DAC driver related settings.                                              */
+/*===========================================================================*/
+
+/**
+ * @brief   Enables synchronous APIs.
+ * @note    Disabling this option saves both code and data space.
+ */
+#if !defined(DAC_USE_WAIT) || defined(__DOXYGEN__)
+#define DAC_USE_WAIT                        TRUE
+#endif
+
+/**
+ * @brief   Enables the @p dacAcquireBus() and @p dacReleaseBus() APIs.
+ * @note    Disabling this option saves both code and data space.
+ */
+#if !defined(DAC_USE_MUTUAL_EXCLUSION) || defined(__DOXYGEN__)
+#define DAC_USE_MUTUAL_EXCLUSION            TRUE
 #endif
 
 /*===========================================================================*/
