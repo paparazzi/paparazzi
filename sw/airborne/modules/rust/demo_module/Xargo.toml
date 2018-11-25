@@ -1,14 +1,19 @@
 # Alternatively you can use [build.dependencies]
 # the syntax is the same as Cargo.toml's; you don't need to specify path or git
-#[target.thumbv6m-none-eabi]
-# the flags below have zero effect
-#rustflags = [
-#    "-C", "link-arg=-nostartfiles",
-#    "-C", "link-arg=-lnosys",
-#    "-C", "link-arg=-nostdlib",
-#]
 
+# Bare Cortex-M0, M0+, M1
+[target.thumbv6m-none-eabi.dependencies]
+alloc = {}
+
+# Bare Cortex-M3
+[target.thumbv7m-none-eabi.dependencies]
+alloc = {}
+
+# Bare Cortex-M4, M7
 [target.thumbv7em-none-eabi.dependencies]
 alloc = {}
 
-# Build with xargo build --target thumbv7em-none-eabi --verbose
+# Bare Cortex-M4F, M7F, FPU, hardfloat
+[target.thumbv7em-none-eabihf.dependencies]
+alloc = {}
+

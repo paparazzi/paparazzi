@@ -153,7 +153,7 @@ print_version:
 	@echo "Paparazzi version" $(GIT_DESC)$(VERSION_MATCH)
 	@echo "-----------------------------------------------------------------------"
 
-all_ac_h: $(SRCS_LIST) qt_project generate_keys
+all_ac_h: $(SRCS_LIST) qt_project run_cargo_manifests build_rust_modules
 
 $(SRCS_LIST) : $(CONF_XML) $(AIRFRAME_H) $(MODULES_H) $(SETTINGS_H) $(MAKEFILE_AC) $(PERIODIC_H)
 	@echo "TARGET: " $(TARGET) > $(SRCS_LIST)
@@ -180,15 +180,48 @@ endif
 endif
 
 CARGO=$(shell which cargo)
-generate_keys:
-ifeq ($(GENERATE_KEYS),1)
+XARGO=$(shell which xargo)
+build_rust_modules:
+ifneq	($(XARGO),)
+ifneq	($(RUST_ARCH),)
+	@echo PROCESSING RUST MODULES
+	@echo $(RUST_MODULES)
+	@$(foreach module_path, $(RUST_MODULES),\
+	echo Building $(module_path);\
+	cd $(module_path) && \
+	xargo build --target $(RUST_ARCH) --verbose --release;)
+else
+	@echo "Error: RUST_ARCH not specified, this board is likely not supported."
+endif
+else
+	@echo "Error: Xargo (Rust) is not found, keys are not generated. Please install xargo."
+endif
+
+run_cargo_manifests:
 ifneq	($(CARGO),)
-	@echo GENERATE KEYS
-	$(Q)cargo run --manifest-path $(PAPARAZZI_SRC)/sw/ext/key_generator/Cargo.toml --release $(AC_GENERATED)
+	@echo PROCESSING CARGO RUN MANIFESTS
+	@$(foreach manifest,$(CARGO_RUN_MANIFESTS),\
+	echo Running $(manifest), output goes to $(AC_GENERATED);\
+	cargo run --manifest-path $(manifest) --release $(AC_GENERATED);)
 else
 	@echo "Error: Cargo (Rust) is not found, keys are not generated. Please install cargo."
 endif
-endif
+
+
+#generate_keys:
+#	@echo PROCESSING MANIFESTS
+#	@$(foreach manifest,$(CARGO_MANIFESTS),\
+#	cargo run --manifest-path $(manifest) --release $(AC_GENERATED);)
+
+#generate_keys:
+#ifeq ($(GENERATE_KEYS),1)
+#ifneq	($(CARGO),)
+#	@echo GENERATE KEYS
+#	$(Q)cargo run --manifest-path $(PAPARAZZI_SRC)/sw/ext/key_generator/Cargo.toml --release $(AC_GENERATED)
+#else
+#	@echo "Error: Cargo (Rust) is not found, keys are not generated. Please install cargo."
+#endif
+#endif
 
 qt_project : $(SRCS_LIST)
 ifneq ($(PAPARAZZI_QT_GEN),)
