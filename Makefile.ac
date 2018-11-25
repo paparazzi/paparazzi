@@ -194,7 +194,7 @@ else
 	@echo "Error: RUST_ARCH not specified, this board is likely not supported."
 endif
 else
-	@echo "Error: Xargo (Rust) is not found, keys are not generated. Please install xargo."
+	@echo "Error: Xargo (Rust) not found, cannot build Rust modules. Please install xargo."
 endif
 
 run_cargo_manifests:
@@ -204,7 +204,7 @@ ifneq	($(CARGO),)
 	echo Running $(manifest), output goes to $(AC_GENERATED);\
 	cargo run --manifest-path $(manifest) --release $(AC_GENERATED);)
 else
-	@echo "Error: Cargo (Rust) is not found, keys are not generated. Please install cargo."
+	@echo "Error: Cargo (Rust) not found, cannot build Rust modules. Please install cargo."
 endif
 
 
