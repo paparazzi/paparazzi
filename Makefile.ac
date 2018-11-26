@@ -209,6 +209,18 @@ else
 	@echo "Error: Xargo (Rust) not found, cannot build Rust modules. Please install xargo."
 endif
 
+build_cargo_manifests:
+#ifneq	($(CARGO),)
+#	@echo PROCESSING CARGO RUN MANIFESTS
+#	@$(foreach manifest,$(CARGO_RUN_MANIFESTS),\
+#	echo Running $(manifest), OUT_DIR is $(AC_GENERATED);\
+#	CARGO_TARGET_DIR=$(AC_GENERATED) cargo build --manifest-path $(manifest) --release;)
+#else
+#	@echo "Error: Cargo (Rust) not found, cannot build Rust modules. Please install cargo."
+#endif
+
+# Note this should eventually be changed so the module produces results when
+# it is built, not run. 
 run_cargo_manifests:
 ifneq	($(CARGO),)
 	@echo PROCESSING CARGO RUN MANIFESTS
