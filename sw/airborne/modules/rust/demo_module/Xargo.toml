@@ -17,3 +17,16 @@ alloc = {}
 [target.thumbv7em-none-eabihf.dependencies]
 alloc = {}
 
+# Simulation targets are below
+[target.x86_64-unknown-linux-gnu.dependencies]
+alloc = {}
+alloc_system = {}
+
+[target.i686-apple-darwin.dependencies]
+alloc = {}
+alloc_system = {}
+
+[target.i686-unknown-linux-gnu.dependencies]
+alloc = {}
+alloc_system = {}
+

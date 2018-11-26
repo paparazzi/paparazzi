@@ -1,0 +1,131 @@
+<!DOCTYPE autopilot SYSTEM "autopilot.dtd">
+
+<autopilot name="Corroded Fixed Wing Autopilot">
+
+  <state_machine name="ap" freq="CONTROL_FREQUENCY" gcs_mode="true" settings_mode="true">
+
+    <!-- Modules doesn't seem to work -->
+    <!--modules>
+      <load name="rust_demo_module"/>
+    </modules-->
+
+    <includes>
+      <include name="generated/airframe.h"/>
+      <include name="autopilot.h"/>
+      <include name="autopilot_rc_helpers.h"/>
+      <include name="inter_mcu.h"/>
+      <include name="nav.h"/>
+      <include name="guidance/guidance_common.h"/>
+      <include name="guidance/guidance_h.h"/>
+      <include name="stabilization/stabilization_attitude.h"/>
+      <include name="subsystems/gps.h"/>
+
+      <!-- We have to manually include the module's header files, so 
+      we can use the provided functions -->
+      <include name ="modules/rust/demo_module/rust_demo_module.h"/>
+    </includes>
+
+    <control_block name="actuators_ap">
+      <call fun="PPRZ_MUTEX_LOCK(ap_state_mtx)"/>
+      <call fun="AP_COMMAND_SET_THROTTLE(v_ctl_throttle_slewed)"/>
+      <call fun="AP_COMMAND_SET_ROLL(-h_ctl_aileron_setpoint)"/>
+      <call fun="AP_COMMAND_SET_PITCH(h_ctl_elevator_setpoint)"/>
+      <call fun="AP_COMMAND_SET_YAW(h_ctl_rudder_setpoint)"/>
+      <call fun="AP_COMMAND_SET_CL(h_ctl_flaps_setpoint)"/>
+      <call fun="PPRZ_MUTEX_UNLOCK(ap_state_mtx)"/>
+    </control_block>
+
+    <control_block name="set_attitude_from_rc">
+      <call fun="PPRZ_MUTEX_LOCK(fbw_state_mtx)"/>
+      <call fun="AP_SETPOINT_ROLL(h_ctl_roll_setpoint, AUTO1_MAX_ROLL)"/>
+      <call fun="AP_SETPOINT_PITCH(h_ctl_pitch_setpoint, AUTO1_MAX_PITCH)"/>
+      <call fun="AP_SETPOINT_YAW_RATE(h_ctl_yaw_rate_setpoint, AUTO1_MAX_YAW_RATE)"/>
+      <call fun="AP_SETPOINT_THROTTLE(v_ctl_throttle_setpoint)"/>
+      <call fun="PPRZ_MUTEX_UNLOCK(fbw_state_mtx)"/>
+    </control_block>
+
+    <control_block name="attitude">
+      <call fun="h_ctl_attitude_loop()"/>
+      <call fun="v_ctl_throttle_slew()"/>
+    </control_block>
+
+    <control_block name="guidance">
+      <call fun="h_ctl_guidance_loop()"/>
+      <call fun="v_ctl_guidance_loop()"/>
+    </control_block>
+
+    <exceptions>
+      <exception cond="too_far_from_home && autopilot_in_flight()" deroute="HOME"/>
+    </exceptions>
+
+    <mode name="MANUAL" gcs_name="MANU">
+      <select cond="RCMode0()"/>
+      <control freq="4"> <!-- only for display -->
+        <call fun="common_nav_periodic_task_4Hz()"/>
+        <call fun="nav_periodic_task()"/>
+      </control>
+      <control> <!-- only for display -->
+        <call fun="v_ctl_throttle_slewed = imcu_get_radio(RADIO_THROTTLE)"/>
+      </control>
+      <exception cond="RCLost() && autopilot_in_flight()" deroute="HOME"/>
+    </mode>
+
+    <mode name="AUTO1">
+      <select cond="RCMode1()"/>
+      <control freq="4"> <!-- only for display -->
+        <call fun="common_nav_periodic_task_4Hz()"/>
+        <call fun="nav_periodic_task()"/>
+        <call fun="rust_periodic()"/>
+      </control>
+      <control>
+        <call_block name="set_attitude_from_rc"/>
+        <call_block name="attitude"/>
+        <call_block name="actuators_ap"/>
+      </control>
+      <exception cond="RCLost() && autopilot_in_flight()" deroute="HOME"/>
+    </mode>
+
+    <mode name="AUTO2">
+      <select cond="$DEFAULT_MODE"/>
+      <select cond="RCMode2()" exception="HOME"/>
+      <control freq="4">
+        <call fun="common_nav_periodic_task_4Hz()"/>
+        <call fun="nav_periodic_task()"/>
+      </control>
+      <control>
+        <call_block name="guidance"/>
+        <call_block name="attitude"/>
+        <call_block name="actuators_ap"/>
+      </control>
+      <exception cond="GpsIsLost() && autopilot_in_flight()" deroute="GPS_LOST"/>
+    </mode>
+
+    <mode name="HOME" settings="hide">
+      <control freq="4">
+        <call fun="common_nav_periodic_task_4Hz()"/>
+        <call fun="nav_home()"/>
+      </control>
+      <control>
+        <call_block name="guidance"/>
+        <call_block name="attitude"/>
+        <call_block name="actuators_ap"/>
+      </control>
+      <exception cond="GpsIsLost() && autopilot_in_flight()" deroute="GPS_LOST"/>
+    </mode>
+
+    <mode name="GPS_LOST" gcs_name="NOGPS" settings="hide">
+      <control freq="4">
+        <call fun="common_nav_periodic_task_4Hz()"/>
+        <call fun="nav_without_gps()"/>
+      </control>
+      <control>
+        <call_block name="guidance"/>
+        <call_block name="attitude"/>
+        <call_block name="actuators_ap"/>
+      </control>
+      <exception cond="!GpsIsLost()" deroute="$LAST_MODE"/>
+    </mode>
+
+  </state_machine>
+
+</autopilot>

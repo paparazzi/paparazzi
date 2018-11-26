@@ -11,28 +11,30 @@
     </description>
   </doc>
 
-  <description> 
+  <!-- 
     We need a header file declaring the rust provided functions.
     For simple cases, this can be done manually, but should eventually be
     a part of the cargo/xargo build, preferably via `cbindgen` https://github.com/eqrion/cbindgen/
-  </description>
+  -->
   <header>
     <file name="rust_demo_module.h" />
   </header>
 
-  <description>
+  <!--
     Typical module functions. They are all void.
-  </description>
+  -->
   <init fun="rust_function()"/>
   <periodic fun="rust_periodic()" freq="1." autorun="TRUE"/>
 
   <makefile target="ap">
-    <description>
+    <!-->
       Additional defines needed by Rust's `alloc` crate
-    </description>
+    -->
     <file name="pprz_syscalls.c" dir="."/>
+  </makefile>
 
-    <description>
+  <makefile target="ap|nps">
+    <!--
       MODULE_PATH is where the module lives.
       RUST_MODULES contains all Rust modules that should be built.
       RUST_DIRS are paths to the module libraries, used by ChibiOS makefile.
@@ -40,7 +42,7 @@
       RUST_ARCH is board dependent.
       Note - nothing is preventing name clashes, so make sure you name your
       library appropriately.
-    </description>
+    -->
     <raw>
       MODULE_PATH = $(PAPARAZZI_SRC)/sw/airborne/modules/rust/demo_module
       RUST_MODULES += $(MODULE_PATH)

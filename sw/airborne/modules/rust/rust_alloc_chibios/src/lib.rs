@@ -2,12 +2,17 @@
 #![feature(alloc)]
 #![feature(extern_crate_item_prelude)]
 #![feature(alloc_error_handler)]
+#![feature(lang_items)] 
 
 extern crate alloc;
 
 use core::panic::PanicInfo;
 use core::alloc::{GlobalAlloc, Layout};
 use core::ptr;
+
+#[lang = "eh_personality"]
+#[no_mangle]
+pub extern "C" fn rust_eh_personality() {}
 
 #[panic_handler]
 #[no_mangle]
@@ -20,6 +25,7 @@ pub extern fn panic(_info: &PanicInfo) -> ! {
 fn foo(_: core::alloc::Layout) -> ! {
     loop {}
 }
+
 
 extern "C" {
 	pub fn chHeapFree(p: *mut u8);

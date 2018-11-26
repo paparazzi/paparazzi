@@ -9,5 +9,17 @@ name = "rust_module"
 path = "src/lib.rs"
 crate-type = ["staticlib"]
 
+[features]
+"use_std" = ["rust_alloc_sim"]
+"not_std" = ["rust_alloc_chibios"]
+default = []
+
 [dependencies]
-rust_alloc_chibios = {path = "../rust_alloc_chibios"}
+
+[dependencies.rust_alloc_chibios]
+path = "../rust_alloc_chibios"
+optional = true
+
+[dependencies.rust_alloc_sim]
+path = "../rust_alloc_sim"
+optional = true

@@ -181,15 +181,27 @@ endif
 
 CARGO=$(shell which cargo)
 XARGO=$(shell which xargo)
+# guard for simulation (NPS) target
+ifneq (,$(findstring thumb, $(RUST_ARCH)))
+	# thumbv6 or 7
+	RUST_FEATURES+="not_std"
+else
+	# using host architecture
+	RUST_FEATURES+="use_std"
+endif
+
+
 build_rust_modules:
+	@echo RUSTARCH = $(RUST_ARCH)
 ifneq	($(XARGO),)
 ifneq	($(RUST_ARCH),)
 	@echo PROCESSING RUST MODULES
 	@echo $(RUST_MODULES)
+	@echo RUST_FEATURES = $(RUST_FEATURES)
 	@$(foreach module_path, $(RUST_MODULES),\
 	echo Building $(module_path);\
 	cd $(module_path) && \
-	xargo build --target $(RUST_ARCH) --verbose --release;)
+	xargo build --target $(RUST_ARCH) --verbose --release --features $(RUST_FEATURES);)
 else
 	@echo "Error: RUST_ARCH not specified, this board is likely not supported."
 endif
