@@ -165,7 +165,7 @@ void natnet_parse(uint8_t *in)
       // Markerset name
       char szName[256];
       int nDataBytes = (int)strlen(ptr);
-      if (nDataBytes < 255){
+      if (nDataBytes < 255) {
         strcpy(szName, ptr);
       } else {
         memcpy(szName, ptr, 255);
@@ -535,7 +535,7 @@ gboolean timeout_transmit_callback(gpointer data)
     pos.z = rigidBodies[i].z;
 
     // Convert the position to ecef and lla based on the Optitrack LTP
-    ecef_of_enu_point_d(&ecef_pos , &tracking_ltp , &pos);
+    ecef_of_enu_point_d(&ecef_pos, &tracking_ltp, &pos);
     lla_of_ecef_d(&lla_pos, &ecef_pos);
 
     // Check if we have enough samples to estimate the velocity
@@ -554,7 +554,7 @@ gboolean timeout_transmit_callback(gpointer data)
       speed.z = rigidBodies[i].vel_z;
 
       // Conver the speed to ecef based on the Optitrack LTP
-      ecef_of_enu_vect_d(&rigidBodies[i].ecef_vel , &tracking_ltp , &speed);
+      ecef_of_enu_vect_d(&rigidBodies[i].ecef_vel, &tracking_ltp, &speed);
     }
 
     // Copy the quaternions and convert to euler angles for the heading
@@ -728,14 +728,14 @@ static gboolean sample_data(GIOChannel *chan, GIOCondition cond, gpointer data)
 
   // Keep on reading until we have the whole packet
   bytes_recv = udp_socket_recv(&natnet_data, buffer_data, MAX_PACKETSIZE);
-  if (bytes_recv > 0){
+  if (bytes_recv > 0) {
     bytes_data += bytes_recv;
   }
 
   // Parse NatNet data
   if (bytes_data >= 2) {
-    uint16_t packet_size = ((uint16_t)buffer_data[3])<<8 | (uint16_t)buffer_data[2];
-    if( bytes_data - 4 >= packet_size) {  // 4 bytes for message id and packet size
+    uint16_t packet_size = ((uint16_t)buffer_data[3]) << 8 | (uint16_t)buffer_data[2];
+    if (bytes_data - 4 >= packet_size) {  // 4 bytes for message id and packet size
       natnet_parse(buffer_data);
     }
     bytes_data = 0;
@@ -943,15 +943,15 @@ int main(int argc, char **argv)
   // Create the network connections
   printf_debug("Starting NatNet listening (multicast address: %s, data port: %d, version: %d.%d)\n",
                natnet_multicast_addr, natnet_data_port, natnet_major, natnet_minor);
-  if (udp_socket_create(&natnet_data, "", -1, natnet_data_port, 0)){ // Only receiving
-    return(-1);
+  if (udp_socket_create(&natnet_data, "", -1, natnet_data_port, 0)) { // Only receiving
+    return (-1);
   }
   udp_socket_subscribe_multicast(&natnet_data, natnet_multicast_addr);
   udp_socket_set_recvbuf(&natnet_data, 0x100000); // 1MB
 
   printf_debug("Starting NatNet command socket (server address: %s, command port: %d)\n", natnet_addr, natnet_cmd_port);
-  if(udp_socket_create(&natnet_cmd, natnet_addr, natnet_cmd_port, 0, 1)){
-    return(-1);
+  if (udp_socket_create(&natnet_cmd, natnet_addr, natnet_cmd_port, 0, 1)) {
+    return (-1);
   }
   udp_socket_set_recvbuf(&natnet_cmd, 0x100000); // 1MB
 

@@ -49,7 +49,7 @@ bool rng_get(uint32_t *rand_nr)
   uint8_t res = read(fd, rand_nr, len);
   if (res != len) {
     printf("Error on reading, expected %u bytes, got %u bytes\n",
-        len, res);
+           len, res);
     close(fd);
     return false;
   }
@@ -60,7 +60,8 @@ bool rng_get(uint32_t *rand_nr)
 // Wait until we get a new number that is different
 // from the previous one. We can wait forever here if
 // the clocks are not setup properly.
-uint32_t rng_wait_and_get(void) {
+uint32_t rng_wait_and_get(void)
+{
   uint32_t tmp = 0;
   while (!rng_get(&tmp)) {};
   return tmp;

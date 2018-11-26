@@ -224,12 +224,13 @@ struct v4l2_device *v4l2_init(char *device_name, struct img_size_t size, struct 
   fmtdesc.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   while (ioctl(fd, VIDIOC_ENUM_FMT, &fmtdesc) == 0) {
     fmtdesc.index++;
-    if(fmtdesc.pixelformat == _pixelformat)
+    if (fmtdesc.pixelformat == _pixelformat) {
       break;
+    }
   }
 
   // Accept if no format can be get
-  if(fmtdesc.index != 0 && fmtdesc.pixelformat != _pixelformat) {
+  if (fmtdesc.index != 0 && fmtdesc.pixelformat != _pixelformat) {
     printf("[v4l2] Pixelformat not available on device %s (wanted: %4X)\r\n", device_name, _pixelformat);
     close(fd);
     return NULL;
@@ -243,7 +244,7 @@ struct v4l2_device *v4l2_init(char *device_name, struct img_size_t size, struct 
   crp.c.height = crop.h;
 
   // Only crop when needed
-  if(crop.x != 0 || crop.y != 0 || crop.w != size.w || crop.h != size.h) {
+  if (crop.x != 0 || crop.y != 0 || crop.w != size.w || crop.h != size.h) {
     if (ioctl(fd, VIDIOC_S_CROP, &crp) < 0) {
       printf("[v4l2] Could not set crop window of %s\n", device_name);
       close(fd);

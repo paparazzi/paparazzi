@@ -112,7 +112,8 @@ void close_logfile(void)
 /* For ctrl+c */
 static volatile int keep_running = 1;
 static volatile int searching = 1;
-void intHandler(int dummy) {
+void intHandler(int dummy)
+{
   printf("\n");
   keep_running = 0;
 }
@@ -120,8 +121,7 @@ void intHandler(int dummy) {
 unsigned int get_baud(unsigned int baud_rate)
 {
   unsigned int BAUD = 0;
-  switch (baud_rate)
-  {
+  switch (baud_rate) {
 #ifdef B921600
     case 921600:
       BAUD = B921600;
@@ -140,7 +140,7 @@ unsigned int get_baud(unsigned int baud_rate)
       break;
     default:
       printf("Baud rate not recognized, using default B57600\n");
-      // no break
+    // no break
     case 57600:
       BAUD = B57600;
       break;
@@ -243,7 +243,8 @@ int serial_init(char *port_name, unsigned int baud)
   return 0;
 }
 
-void open_port(const char* device) {
+void open_port(const char *device)
+{
   fd = open(device, O_RDWR | O_NOCTTY | O_NONBLOCK);
   if (fd == -1) {
     fprintf(stderr, "open_port: unable to open device %s - ", device);
@@ -276,7 +277,7 @@ void write_command(float value)
   unsigned char crc_b = 0;
   unsigned char length = 12;
   unsigned char *pc;
-  pc = (unsigned char*)&value;
+  pc = (unsigned char *)&value;
 
   msg[0]  = PPRZ_STX;
   msg[1]  = length;
@@ -361,7 +362,7 @@ void parse_single_byte(unsigned char byte)
       break;
 
     case ParsingMsgPayload:
-      parser.payload[parser.counter-4] = byte;
+      parser.payload[parser.counter - 4] = byte;
       parser.crc_a += byte;
       parser.crc_b += parser.crc_a;
       parser.counter++;
@@ -374,8 +375,7 @@ void parse_single_byte(unsigned char byte)
       //printf("CRCA: %d vs %d\n", byte, parser.crc_a);
       if (byte == parser.crc_a) {
         parser.state = CheckingCRCB;
-      }
-      else {
+      } else {
         parser.state = SearchingPPRZ_STX;
       }
       break;
@@ -419,7 +419,7 @@ void parse_single_byte(unsigned char byte)
 void parse_index_byte(unsigned char byte)
 {
   unsigned char *pc;
-  pc = (unsigned char*)&log_index;
+  pc = (unsigned char *)&log_index;
   pc[index_cnt] = byte;
   index_cnt++;
   if (index_cnt >= 512) {
@@ -428,9 +428,9 @@ void parse_index_byte(unsigned char byte)
     printf("Log number \t Address \t Length [bytes]\n");
     for (uint8_t i = 0; i < log_index.last_completed_log; i++) {
       printf("%u \t\t 0x%08x \t %u \n",
-             i+1,
+             i + 1,
              be32toh(log_index.logs[i].address),
-             be32toh(log_index.logs[i].length)*512);
+             be32toh(log_index.logs[i].length) * 512);
     }
     searching = false;
     global_state = GotIndex;
@@ -451,13 +451,13 @@ void parse_download_byte(unsigned char byte)
   }
 
   /* Show progress every 10% */
-  if ( dcnt % (be32toh(log_index.logs[current_download-1].length)*512/10) == 0 ){
-    int percent = (dcnt+1)*100/(be32toh(log_index.logs[current_download-1].length)*512);
+  if (dcnt % (be32toh(log_index.logs[current_download - 1].length) * 512 / 10) == 0) {
+    int percent = (dcnt + 1) * 100 / (be32toh(log_index.logs[current_download - 1].length) * 512);
     printf("%i%%", percent);
     fflush(stdout);
   }
 
-  if (dcnt >= be32toh(log_index.logs[current_download-1].length)*512){
+  if (dcnt >= be32toh(log_index.logs[current_download - 1].length) * 512) {
     /* Download finished */
     printf("\nDownloaded log %u\n", current_download);
     /* Close temp file */
@@ -530,16 +530,13 @@ void process_command(char *command)
       write_command(download_id);
       current_download = download_id;
       global_state = GotIndex;
-    }
-    else {
+    } else {
       printf("Log ID %i outside available range\n", download_id);
       need_input = true;
     }
-  }
-  else if (strcmp(token, "exit") == 0) {
+  } else if (strcmp(token, "exit") == 0) {
     keep_running = false;
-  }
-  else {
+  } else {
     printf("Possible commands:\n"
            "  download <lognumber>\n"
            "  help\n"
@@ -549,7 +546,7 @@ void process_command(char *command)
 }
 
 /* Main function */
-int main ( int argc, char** argv)
+int main(int argc, char **argv)
 {
 
   /* Default settings for serial connection */
@@ -562,9 +559,8 @@ int main ( int argc, char** argv)
 
   /* Parse arguments */
   int c;
-  while ((c = getopt (argc, argv, "a:p:b:h")) != -1) {
-    switch (c)
-    {
+  while ((c = getopt(argc, argv, "a:p:b:h")) != -1) {
+    switch (c) {
       case 'a':
         ac_id = atoi(optarg);
         break;
@@ -588,7 +584,7 @@ int main ( int argc, char** argv)
 
   /* Obtain sd2log directory */
   char *pprz_home;
-  pprz_home = getenv( "PAPARAZZI_HOME" );
+  pprz_home = getenv("PAPARAZZI_HOME");
 
   char *sd2log_home = "/sw/logalizer/sd2log temp.tlm";
 
@@ -596,8 +592,7 @@ int main ( int argc, char** argv)
   if (strlen(pprz_home) < (sizeof(sd2log) - strlen(sd2log_home))) {
     strcat(sd2log, pprz_home);
     strcat(sd2log, sd2log_home);
-  }
-  else {
+  } else {
     // pprz_home path too long for the buffer
     // exit to prevent buffer overflow
     printf("PPRZ_HOME path too long for the buffer, exiting...\n");
@@ -634,7 +629,7 @@ int main ( int argc, char** argv)
 
   /* Open serial port */
   printf("Opening port %s with baudrate B%i\n", port, baud);
-  if(serial_init(port, baud) < 0){
+  if (serial_init(port, baud) < 0) {
     return -1;
   }
 
@@ -649,9 +644,8 @@ int main ( int argc, char** argv)
       write_command(255);
       global_state = WaitingForIndexRequestConfirmation;
       counter = time(0);
-    }
-    else {
-      bytes = read(fd, (unsigned char*) buff, 32);
+    } else {
+      bytes = read(fd, (unsigned char *) buff, 32);
       parse_bytes(buff, bytes);
       usleep(5000);
     }
@@ -672,9 +666,8 @@ int main ( int argc, char** argv)
       if (fgets(command, 128, stdin) != NULL) {
         process_command(command);
       }
-    }
-    else {
-      bytes = read(fd, (unsigned char*) buff, 32);
+    } else {
+      bytes = read(fd, (unsigned char *) buff, 32);
       parse_bytes(buff, bytes);
     }
   }

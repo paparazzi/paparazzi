@@ -46,7 +46,7 @@ void UpdateSensorLatency_Single(double time, gpointer cur_reading, GSList **hist
 
   /* update sensor        */
   //g_memmove((gpointer)sensor_reading, (gpointer)((struct BoozDatedSensor*)last->data)->value, sizeof(struct DoubleVect3));
-  if(last) {
+  if (last) {
     *((double *)sensor_reading) = *(((struct BoozDatedSensor_Single *)last->data)->value);
   }
 }

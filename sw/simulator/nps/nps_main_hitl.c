@@ -93,7 +93,7 @@ void nps_radio_and_autopilot_init(void)
 void nps_update_launch_from_dl(uint8_t value)
 {
   nps_autopilot.launch = value;
-  printf("Launch value=%u\n",nps_autopilot.launch);
+  printf("Launch value=%u\n", nps_autopilot.launch);
 }
 
 void nps_main_run_sim_step(void)
@@ -119,7 +119,7 @@ void *nps_ins_data_loop(void *data __attribute__((unused)))
   int fd = open(INS_DEV, O_WRONLY | O_NOCTTY | O_SYNC);//open(INS_DEV, O_RDWR | O_NOCTTY);
   if (fd < 0) {
     printf("INS THREAD: data loop error opening port %i\n", fd);
-    return(NULL);
+    return (NULL);
   }
 
   struct termios new_settings;
@@ -180,7 +180,7 @@ void *nps_ins_data_loop(void *data __attribute__((unused)))
 #endif
     }
   }
-  return(NULL);
+  return (NULL);
 }
 
 
@@ -191,7 +191,7 @@ void *nps_ap_data_loop(void *data __attribute__((unused)))
   int fd = open(AP_DEV, O_RDONLY | O_NOCTTY);
   if (fd < 0) {
     printf("AP data loop error opening port %i\n", fd);
-    return(NULL);
+    return (NULL);
   }
 
   struct termios new_settings;
@@ -281,7 +281,7 @@ void *nps_ap_data_loop(void *data __attribute__((unused)))
       }
     }
   }
-  return(NULL);
+  return (NULL);
 }
 
 
@@ -345,7 +345,7 @@ void *nps_main_loop(void *data __attribute__((unused)))
 #endif
     }
   }
-  return(NULL);
+  return (NULL);
 }
 
 

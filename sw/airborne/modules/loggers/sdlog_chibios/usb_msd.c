@@ -467,7 +467,7 @@ bool msd_scsi_process_start_read_write_10(USBMassStorageDriver *msdp)
 
   uint32_t rw_block_address = swap_uint32(*(DWORD *)&cbw->scsi_cmd_data[2]);
   uint16_t total = swap_uint16(*(WORD *)&cbw->scsi_cmd_data[7]);
-  if (total > RW_BUF_SIZE){
+  if (total > RW_BUF_SIZE) {
     total = RW_BUF_SIZE;
   }
   uint16_t i = 0;
@@ -895,7 +895,8 @@ void msdStart(USBMassStorageDriver *msdp, const USBMassStorageConfig *config)
   config->usbp->out_params[config->bulk_ep] = (void *)msdp;
 
   /* run the thread */
-  msdp->thread = chThdCreateStatic(mass_storage_thread_wa, sizeof(mass_storage_thread_wa), NORMALPRIO, mass_storage_thread, msdp);
+  msdp->thread = chThdCreateStatic(mass_storage_thread_wa, sizeof(mass_storage_thread_wa), NORMALPRIO,
+                                   mass_storage_thread, msdp);
 }
 
 /**

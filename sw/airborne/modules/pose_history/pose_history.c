@@ -70,9 +70,9 @@ struct pose_t get_rotation_at_timestamp(uint32_t timestamp)
 
   // Save the pose closest to the given timestamp and return this
   struct pose_t closest_pose = {
-      .timestamp = location_history.ring_data[closestIndex].timestamp,
-      .eulers = location_history.ring_data[closestIndex].eulers,
-      .rates = location_history.ring_data[closestIndex].rates
+    .timestamp = location_history.ring_data[closestIndex].timestamp,
+    .eulers = location_history.ring_data[closestIndex].eulers,
+    .rates = location_history.ring_data[closestIndex].rates
   };
 
 #ifdef __linux__

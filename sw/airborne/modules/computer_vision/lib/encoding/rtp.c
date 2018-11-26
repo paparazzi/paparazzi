@@ -125,13 +125,14 @@ void rtp_frame_test(struct UdpSocket *udp)
  * @param[out] rtp_time_counter The frame time counter of the rtp stream
  */
 void rtp_frame_send(struct UdpSocket *udp, struct image_t *img, uint8_t format_code,
-                    uint8_t quality_code, uint8_t has_dri_header, float average_frame_rate, uint16_t *packet_number, uint32_t *rtp_time_counter)
+                    uint8_t quality_code, uint8_t has_dri_header, float average_frame_rate, uint16_t *packet_number,
+                    uint32_t *rtp_time_counter)
 {
   uint32_t offset = 0;
   uint32_t jpeg_size = img->buf_size;
   uint8_t *jpeg_ptr = img->buf;
 
-  *rtp_time_counter += ((uint32_t) (90000.0f / average_frame_rate));
+  *rtp_time_counter += ((uint32_t)(90000.0f / average_frame_rate));
 
 #define MAX_PACKET_SIZE 1400
 

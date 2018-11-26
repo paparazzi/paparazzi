@@ -76,29 +76,25 @@ int udp_socket_create(struct UdpSocket *sock, char *host, int port_out, int port
 
   // Create the socket with the correct protocl
   sock->sockfd = socket(PF_INET, SOCK_DGRAM, 0);
-  if (sock->sockfd < 0)
-  {
+  if (sock->sockfd < 0) {
     return -1;
   }
 
   int one = 1;
   // Enable reusing of address
-  if(setsockopt(sock->sockfd, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one)))
-  {
+  if (setsockopt(sock->sockfd, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one))) {
     return -1;
   }
 #ifdef SO_REUSEPORT
   // needed for OSX
-  if(setsockopt(sock->sockfd, SOL_SOCKET, SO_REUSEPORT, &one, sizeof(one)))
-  {
+  if (setsockopt(sock->sockfd, SOL_SOCKET, SO_REUSEPORT, &one, sizeof(one))) {
     return -1;
   }
 #endif
 
   // Enable broadcasting
   if (broadcast) {
-    if(setsockopt(sock->sockfd, SOL_SOCKET, SO_BROADCAST, &one, sizeof(one)))
-    {
+    if (setsockopt(sock->sockfd, SOL_SOCKET, SO_BROADCAST, &one, sizeof(one))) {
       return -1;
     }
   }
@@ -110,8 +106,7 @@ int udp_socket_create(struct UdpSocket *sock, char *host, int port_out, int port
     sock->addr_in.sin_port = htons(port_in);
     sock->addr_in.sin_addr.s_addr = htonl(INADDR_ANY);
 
-    if(bind(sock->sockfd, (struct sockaddr *)&sock->addr_in, sizeof(sock->addr_in)))
-    {
+    if (bind(sock->sockfd, (struct sockaddr *)&sock->addr_in, sizeof(sock->addr_in))) {
       return -1;
     }
   }

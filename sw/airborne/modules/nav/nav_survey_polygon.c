@@ -132,7 +132,8 @@ static bool get_two_intersects(struct FloatVect2 *x, struct FloatVect2 *y, struc
  *  @param min_rad       minimal radius when navigating
  *  @param altitude      the altitude that must be reached before the flyover starts
  **/
-void nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, float sweep_width, float shot_dist, float min_rad, float altitude)
+void nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, float sweep_width, float shot_dist,
+                              float min_rad, float altitude)
 {
   int i;
   struct FloatVect2 small, sweep;

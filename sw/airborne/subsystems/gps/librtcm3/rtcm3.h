@@ -132,7 +132,7 @@ void                        msg_state_init(msg_state_t *s);
 s8                          rtcm3_process(msg_state_t *s, unsigned char buff);
 s8              ubx_process(msg_state_t *s, unsigned char buff);
 unsigned int                RTCMgetbitu(unsigned char *, int, int);
-int                         RTCMgetbits(unsigned char *, int , int);
+int                         RTCMgetbits(unsigned char *, int, int);
 static double               RTCMgetbits_38(unsigned char *, int);
 
 

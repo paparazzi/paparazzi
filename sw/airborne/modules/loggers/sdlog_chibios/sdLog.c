@@ -186,7 +186,7 @@ static SdioError  getNextFIL(FileDes *fd);
 static void removeFromQueue(const size_t nbMsgToRFemov);
 static void cleanQueue(const bool allQueue);
 static SdioError sdLogExpandLogFile(const FileDes fileObject, const size_t sizeInMo,
-				    const bool preallocate);
+                                    const bool preallocate);
 
 #if (CH_KERNEL_MAJOR > 2)
 static void thdSdLog(void *arg) ;
@@ -282,7 +282,7 @@ SdioError sdLogFinish(void)
 #ifdef SDLOG_NEED_QUEUE
 SdioError sdLogOpenLog(FileDes *fd, const char *directoryName, const char *prefix,
                        const uint32_t autoFlushPeriod, const bool appendTagAtClose,
-		       const size_t sizeInMo, const bool preallocate)
+                       const size_t sizeInMo, const bool preallocate)
 {
   FRESULT rc; /* fatfs result code */
   SdioError sde = SDLOG_OK; /* sdio result code */
@@ -319,7 +319,7 @@ SdioError sdLogOpenLog(FileDes *fd, const char *directoryName, const char *prefi
     fileDes[ldf].lastFlushTs = 0;
     sde = sdLogExpandLogFile(ldf, sizeInMo, preallocate);
   }
-  
+
   *fd = ldf;
   return storageStatus = sde;
 }
@@ -327,7 +327,7 @@ SdioError sdLogOpenLog(FileDes *fd, const char *directoryName, const char *prefi
 SdioError sdLogCloseAllLogs(bool flush)
 {
   FRESULT rc = 0; /* Result code */
-  
+
   //    do not flush what is in ram, close as soon as possible
   if (flush == false) {
     UINT bw;
@@ -411,7 +411,7 @@ SdioError sdLogFlushAllLogs(void)
 
 #define FD_CHECK(fd)  if ((fd < 0) || (fd >= SDLOG_NUM_FILES) \
                           || (fileDes[fd].inUse == false))    \
-                        return SDLOG_FATFS_ERROR
+  return SDLOG_FATFS_ERROR
 
 
 SdioError sdLogExpandLogFile(const FileDes fd, const size_t sizeInMo,
@@ -672,15 +672,15 @@ SdioError sdLogWriteByte(const FileDes fd, const uint8_t value)
 #define WA_LOG_BASE_SIZE 1024
 #if _USE_LFN == 2
 #if _FS_EXFAT
-static THD_WORKING_AREA(waThdSdLog, WA_LOG_BASE_SIZE+((_MAX_LFN+1)*2)+(19*32));
+static THD_WORKING_AREA(waThdSdLog, WA_LOG_BASE_SIZE + ((_MAX_LFN + 1) * 2) + (19 * 32));
 #else
-static THD_WORKING_AREA(waThdSdLog, WA_LOG_BASE_SIZE+((_MAX_LFN+1)*2));
+static THD_WORKING_AREA(waThdSdLog, WA_LOG_BASE_SIZE + ((_MAX_LFN + 1) * 2));
 #endif
 #else
 static THD_WORKING_AREA(waThdSdLog, WA_LOG_BASE_SIZE);
 #endif
 
-SdioError sdLoglaunchThread ()
+SdioError sdLoglaunchThread()
 {
   chThdSleepMilliseconds(100);
 
@@ -1007,7 +1007,7 @@ static msg_t thdSdLog(void *arg)
               }
               if (rc) {
                 //chThdExit(storageStatus = SDLOG_FATFS_ERROR);
-		storageStatus = SDLOG_FATFS_ERROR;
+                storageStatus = SDLOG_FATFS_ERROR;
               } else if (bw != SDLOG_WRITE_BUFFER_SIZE) {
                 chThdExit(storageStatus = SDLOG_FSFULL);
               }
