@@ -7,7 +7,7 @@
       NPS doc: http://wiki.paparazziuav.org/wiki/NPS
 
       Usage:
-      1. Make sure gazebo 7 or 8 is installed. (sudo apt-get install gazebo8 libgazebo8-dev)
+      1. Make sure gazebo 9 is installed. (sudo apt-get install gazebo9 libgazebo9-dev)
       2. Prepare the Gazebo world and model:
         1. Prepare the UAV model (see conf/simulator/gazebo/models/ardrone/):
           - Place the aircraft model in the conf/simulator/gazebo/models/
@@ -134,7 +134,7 @@
   </doc>
   <header/>
   <makefile target="nps">
-  	<raw>
+    <raw>
       nps.CXXFLAGS += $(shell pkg-config gazebo --cflags)
       nps.LDFLAGS  += $(shell pkg-config gazebo --libs)
 
@@ -145,7 +145,7 @@
         nps.CXXFLAGS += $(shell pkg-config opencv)
         nps.LDFLAGS  += -lopencv_imgproc -lopencv_highgui -lopencv_core
       endif
-  	</raw>
+    </raw>
     <file name="nps_fdm_gazebo.cpp" dir="nps"/>
   </makefile>
 </module>
