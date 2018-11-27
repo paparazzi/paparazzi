@@ -90,7 +90,7 @@ Flapping wing frame equiped with
     <define name="MilliAmpereOfAdc(adc)" value="((float)adc) * (3.3f / 4096.0f) * (90.0f / 5.0f)" />
     <!-- 100Amp = 2Volt -> 2482,42 tick/100Amp"(0.0402832*adc)" -->
 
-    <define name="DefaultVoltageOfAdc(adc)" value="(0.00384*adc)"/>
+    <define name="VoltageOfAdc(adc)" value="(0.00384*adc)"/>
   </section>
   <section name="IMU" prefix="IMU_">
     <!-- replace this with your own calibration -->

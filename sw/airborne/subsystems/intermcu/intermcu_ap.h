@@ -29,6 +29,7 @@
 
 #include "subsystems/intermcu.h"
 #include "generated/airframe.h"
+#include "subsystems/electrical.h"
 
 void intermcu_set_actuators(pprz_t *command_values, uint8_t ap_mode);
 void RadioControlEvent(void (*frame_handler)(void));
@@ -52,8 +53,7 @@ struct fbw_status_t {
   uint8_t rc_status;
   uint8_t frame_rate;
   uint8_t mode;
-  uint16_t vsupply;
-  int32_t current;
+  struct Electrical electrical;
 };
 
 #endif /* INTERMCU_AP_ROTORCRAFT_H */

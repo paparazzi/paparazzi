@@ -171,7 +171,7 @@ void autopilot_static_on_rc_frame(void)
 #endif // RADIO_CONTROL
 
   // update electrical from FBW
-  imcu_get_electrical(&vsupply, &current, &energy);
+  imcu_get_electrical(&ap_electrical);
 
 #ifdef RADIO_CONTROL
   /* the SITL check is a hack to prevent "automatic" launch in NPS */
@@ -299,8 +299,8 @@ void attitude_loop(void)
 #endif
 
 #ifdef V_CTL_POWER_CTL_BAT_NOMINAL
-    if (vsupply > 0.) {
-      v_ctl_throttle_setpoint *= 10. * V_CTL_POWER_CTL_BAT_NOMINAL / (float)vsupply;
+    if (ap_electrical.vsupply > 0.) {
+      v_ctl_throttle_setpoint *= V_CTL_POWER_CTL_BAT_NOMINAL / ap_electrical.vsupply;
       v_ctl_throttle_setpoint = TRIM_UPPRZ(v_ctl_throttle_setpoint);
     }
 #endif

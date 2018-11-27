@@ -271,21 +271,6 @@ void send_ivy(void)
 //  IvySendMsg("%d NAVIGATION %d 0 0 0 0 0 0 0 \n", remote_uav.ac_id, remote_uav.block);
 
 /*
-   <message name="BAT" id="12">
-     <field name="throttle" type="int16" unit="pprz"/>
-     <field name="voltage" type="uint16" unit="1e-1V" alt_unit="V" alt_unit_coef="0.1"/>
-     <field name="amps" type="int16" unit="A" alt_unit="A" />
-     <field name="flight_time" type="uint16" unit="s"/>
-     <field name="kill_auto_throttle" type="uint8" unit="bool"/>
-     <field name="block_time" type="uint16" unit="s"/>
-     <field name="stage_time" type="uint16" unit="s"/>
-     <field name="energy" type="int16" unit="mAh"/>
-   </message>
-*/
-
-  // IvySendMsg("%d BAT 0 81 0 %ld 0 0 0 0\n", remote_uav.ac_id, count_serial);
-
-/*
    <message name="PPRZ_MODE" id="11">
      <field name="ap_mode" type="uint8" values="MANUAL|AUTO1|AUTO2|HOME|NOGPS|FAILSAFE"/>
      <field name="ap_gaz" type="uint8" values="MANUAL|AUTO_THROTTLE|AUTO_CLIMB|AUTO_ALT"/>
@@ -313,9 +298,6 @@ void send_ivy(void)
 //    IvySendMsg("%d NAVIGATION_REF %d %d %d\n", remote_uav.ac_id, remote_uav.utm_east, remote_uav.utm_north, remote_uav.utm_zone);
     delayer = 0;
   }
-
-
-
 
   count_serial++;
 

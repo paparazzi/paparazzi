@@ -3,32 +3,32 @@
 <telemetry>
   <process name="Ap">
     <mode name="default">
-      <message name="ESTIMATOR"      period="3."	phase="0."/>
-      <message name="NAVIGATION"     period="3."	phase="0."/>
-      <message name="GPS"	     period="3."	phase="0."/>
+      <message name="ESTIMATOR"       period="3."    phase="0."/>
+      <message name="NAVIGATION"      period="3."    phase="0."/>
+      <message name="GPS"             period="3."    phase="0."/>
 
-      <message name="ATTITUDE"       period="6."	phase="0"/>
-      <message name="DL_VALUE"       period="3."	phase="0"/>
-      <message name="WP_MOVED"       period="6."	phase="3"/>
+      <message name="ATTITUDE"        period="6."    phase="0"/>
+      <message name="DL_VALUE"        period="3."    phase="0"/>
+      <message name="WP_MOVED"        period="6."    phase="3"/>
 
-      <message name="DESIRED"        period="6."	phase="0"/>
-      <message name="SEGMENT"        period="6."	phase="0"/>
-      <message name="CIRCLE"         period="6."	phase="0"/>
-      <message name="SURVEY"         period="6."	phase="0"/>
+      <message name="DESIRED"         period="6."    phase="0"/>
+      <message name="SEGMENT"         period="6."    phase="0"/>
+      <message name="CIRCLE"          period="6."    phase="0"/>
+      <message name="SURVEY"          period="6."    phase="0"/>
 
-      <message name="PPRZ_MODE"      period="12."	phase="0"/>
-      <message name="BAT"            period="12."	phase="0"/>
+      <message name="PPRZ_MODE"       period="12."   phase="0"/>
+      <message name="ENERGY"          period="12."   phase="0"/>
 
-      <message name="ALIVE"          period="18."	phase="0"/>
-      <message name="CALIBRATION"    period="18."	phase="0"/>
-      <message name="DATALINK_REPORT"       period="18."	phase="0"/>
-      <message name="GPS_SOL"        period="18."	phase="0"/>
-      <message name="NAVIGATION_REF" period="18."	phase="0"/>
+      <message name="ALIVE"           period="18."   phase="0"/>
+      <message name="CALIBRATION"     period="18."   phase="0"/>
+      <message name="DATALINK_REPORT" period="18."   phase="0"/>
+      <message name="GPS_SOL"         period="18."   phase="0"/>
+      <message name="NAVIGATION_REF"  period="18."   phase="0"/>
     </mode>
   </process>
   <process name="Fbw">
     <mode name="default">
-      <message name="FBW_STATUS"     period="18."	phase="0"/>
+      <message name="FBW_STATUS"      period="18."   phase="0"/>
     </mode>
   </process>
 </telemetry>

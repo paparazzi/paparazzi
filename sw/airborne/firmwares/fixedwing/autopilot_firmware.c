@@ -32,9 +32,8 @@
 #include "firmwares/fixedwing/nav.h"
 #include <stdint.h>
 
-uint16_t vsupply;
-int32_t current;
-float energy;
+// ap copy of fbw readings
+struct Electrical ap_electrical;
 
 uint8_t lateral_mode;
 uint8_t  mcu1_status;
@@ -67,30 +66,12 @@ static void send_estimator(struct transport_tx *trans, struct link_device *dev)
                           &(stateGetPositionUtm_f()->alt), &(stateGetSpeedEnu_f()->z));
 }
 
-static void send_bat(struct transport_tx *trans, struct link_device *dev)
-{
-  int16_t amps = (int16_t)(current / 10);
-  int16_t e = energy;
-  // prevent overflow
-  if (fabs(energy) >= INT16_MAX) {
-    e = INT16_MAX;
-  }
-  pprz_msg_send_BAT(trans, dev, AC_ID,
-                    &v_ctl_throttle_slewed, &vsupply, &amps,
-                    &autopilot.flight_time, (uint8_t *)(&autopilot.kill_throttle),
-                    &block_time, &stage_time, &e);
-}
-
 static void send_energy(struct transport_tx *trans, struct link_device *dev)
 {
-  uint16_t e = energy;
-  if (fabs(energy) >= INT16_MAX) {
-    e = INT16_MAX;
-  }
-  float vsup = ((float)vsupply) / 10.0f;
-  float curs = ((float)current) / 1000.0f;
-  float power = vsup * curs;
-  pprz_msg_send_ENERGY(trans, dev, AC_ID, &vsup, &curs, &e, &power);
+  uint8_t throttle = 100 * v_ctl_throttle_slewed / MAX_PPRZ;
+  float power = ap_electrical.vsupply * ap_electrical.current;
+  pprz_msg_send_ENERGY(trans, dev, AC_ID, 
+                       &throttle, &ap_electrical.vsupply, &ap_electrical.current, &power, &ap_electrical.charge, &ap_electrical.energy);
 }
 
 // FIXME not the best place
@@ -132,16 +113,19 @@ void autopilot_send_mode(void)
 
 void autopilot_firmware_init(void)
 {
-  vsupply = 0;
-  current = 0;
-  energy = 0.f;
+  ap_electrical.vsupply = 0.f;
+  ap_electrical.current = 0.f;
+  ap_electrical.charge  = 0.f;
+  ap_electrical.energy  = 0.f;
+
+  ap_electrical.bat_critical = false;
+  ap_electrical.bat_low = false;
 
 #if PERIODIC_TELEMETRY
   /* register some periodic message */
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_PPRZ_MODE, send_mode);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ESTIMATOR, send_estimator);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AIRSPEED, send_airspeed);
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_BAT, send_bat);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_ENERGY, send_energy);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DESIRED, send_desired);
 #if defined RADIO_CALIB && defined RADIO_CONTROL_SETTINGS

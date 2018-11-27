@@ -64,19 +64,15 @@ static void send_status(struct transport_tx *trans, struct link_device *dev)
   pprz_msg_send_ROVER_STATUS(trans, dev, AC_ID,
       &radio_control.status, &radio_control.frame_rate,
       &fix, &autopilot.mode, &motors_on,
-      &electrical.vsupply, &time_sec);
+      &time_sec, &electrical.vsupply);
 }
 
 static void send_energy(struct transport_tx *trans, struct link_device *dev)
 {
-  uint16_t e = electrical.energy;
-  if (fabs(electrical.energy) >= INT16_MAX) {
-    e = INT16_MAX;
-  }
-  float vsup = ((float)electrical.vsupply) / 10.0f;
-  float curs = ((float)electrical.current) / 1000.0f;
-  float power = vsup * curs;
-  pprz_msg_send_ENERGY(trans, dev, AC_ID, &vsup, &curs, &e, &power);
+  uint8_t throttle = 100 * cmd / MAX_PPRZ;
+  float power = electrical.vsupply * electrical.current;
+  pprz_msg_send_ENERGY(trans, dev, AC_ID, 
+                       &throttle, &electrical.vsupply, &electrical.current, &power, &electrical.charge, &electrical.energy);
 }
 
 static void send_fp(struct transport_tx *trans, struct link_device *dev)

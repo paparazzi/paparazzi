@@ -15,7 +15,7 @@
       <message name="INS"                    period="0.25"/>
       <message name="I2C_ERRORS"             period="4.1"/>
       <message name="UART_ERRORS"            period="3.1"/>
-      <message name="IMU_ACCEL_RAW"     		 period="0.05"/>
+      <message name="IMU_ACCEL_RAW"          period="0.05"/>
       <message name="IMU_GYRO_RAW"           period="0.05"/>
       <message name="IMU_MAG_RAW"            period="0.25"/>
       <message name="BARO_RAW"               period="0.1"/>
@@ -27,22 +27,22 @@
       <message name="FILTER"                 period="0.7"/>
       <message name="AHRS_GYRO_BIAS_INT"     period="0.08"/>
       <message name="AHRS_QUAT_INT"          period="0.26"/>
-	    <message name="AHRS_ARDRONE2"          period="0.11"/>
+      <message name="AHRS_ARDRONE2"          period="0.11"/>
       <message name="VFF"                    period="0.06"/>
       <message name="VERT_LOOP"              period="0.07"/>
       <message name="INS"                    period="0.08"/>
       <message name="INS_REF"                period="5.1"/>
       <message name="HOVER_LOOP"             period="0.062"/>
-      <message name="GUIDANCE_H_REF_INT"         period="0.062"/>
-      <message name="STAB_ATTITUDE_INT"          period="0.4"/>
-      <message name="STAB_ATTITUDE_REF_INT"      period="2.1"/>
+      <message name="GUIDANCE_H_REF_INT"     period="0.062"/>
+      <message name="STAB_ATTITUDE_INT"      period="0.4"/>
+      <message name="STAB_ATTITUDE_REF_INT"  period="2.1"/>
       <message name="ROTORCRAFT_FP"          period="0.8"/>
       <message name="ROTORCRAFT_STATUS"      period="1.2"/>
       <message name="ROTORCRAFT_NAV_STATUS"  period="1.6"/>
       <message name="INS_REF"                period="5.1"/>
       <!-- HFF messages are only sent if USE_HFF -->
       <message name="HFF"                    period=".05"/>
-	    <message name="HFF_GPS"                period=".03"/>
+      <message name="HFF_GPS"                period=".03"/>
       <message name="HFF_DBG"                period=".2"/>
     </mode>
 

@@ -341,7 +341,7 @@ void monitor_task(void)
 #endif
 
   static uint8_t t = 0;
-  if (vsupply < CATASTROPHIC_BAT_LEVEL * 10) {
+  if (ap_electrical.vsupply < CATASTROPHIC_BAT_LEVEL) {
     t++;
   } else {
     t = 0;

@@ -102,8 +102,8 @@ void link_mcu_on_can_msg(uint32_t id, uint8_t *data, int len)
     fbw_state->ppm_cpt = data[0];
     fbw_state->status = data[1];
     fbw_state->nb_err = data[2];
-    fbw_state->vsupply = data[3] + (data[4] << 8);
-    fbw_state->current = 0;
+    fbw_state->electrical.vsupply = (float)(data[3] + (data[4] << 8))/10.f;
+    fbw_state->electrical.current = 0;
 
 #ifdef LINK_MCU_LED
     LED_TOGGLE(LINK_MCU_LED);
@@ -147,8 +147,9 @@ void link_mcu_periodic_task(void)
   intermcu_tx_buff[0] = fbw_state->ppm_cpt;
   intermcu_tx_buff[1] = fbw_state->status;
   intermcu_tx_buff[2] = fbw_state->nb_err;
-  intermcu_tx_buff[3] = (uint8_t) fbw_state->vsupply;
-  intermcu_tx_buff[4] = (uint8_t)((fbw_state->vsupply & 0xff00) >> 8);
+  uint16_t vsupply = fbw_state->electrical.vsupply * 10;
+  intermcu_tx_buff[3] = (uint8_t) vsupply;
+  intermcu_tx_buff[4] = (uint8_t)(vsupply & 0xff00) >> 8);
   ppz_can_transmit(MSG_INTERMCU_FBW_STATUS_ID, intermcu_tx_buff, 5);
 
 #if defined RADIO_CONTROL || RADIO_CONTROL_AUTO1
@@ -207,7 +208,8 @@ static void send_fbw_status(struct transport_tx *trans, struct link_device *dev)
     rc_status = RC_LOST;
   }
   pprz_msg_send_FBW_STATUS(trans, dev, AC_ID,
-                           &(rc_status), &(fbw_state->ppm_cpt), &(fbw_status), &(fbw_state->vsupply), &(fbw_state->current));
+                           &(rc_status), &(fbw_state->ppm_cpt), &(fbw_status),
+                           &(fbw_state->electrical.vsupply), &(fbw_state->electrical.current));
 }
 #endif
 

@@ -20,8 +20,8 @@
         <property name="icon" value="openuas_home.png"/>
       </papget>
       <papget type="message_field" display="gauge" x="172" y="145">
-        <property name="field" value="BAT:voltage"/>
-        <property name="scale" value="0.1"/>
+        <property name="field" value="ENERGY:voltage"/>
+        <property name="scale" value="1."/>
         <property name="min" value="0."/>
         <property name="max" value="8.7"/>
         <property name="size" value="100."/>
@@ -37,8 +37,8 @@
         <property name="scale" value="10"/>
       </papget>
       <papget type="message_field" display="gauge" x="170" y="268">
-        <property name="field" value="BAT:throttle"/>
-        <property name="scale" value="0.0104167"/>
+        <property name="field" value="ENERGY:throttle"/>
+        <property name="scale" value="1."/>
         <property name="min" value="0."/>
         <property name="max" value="100."/>
         <property name="size" value="100."/>

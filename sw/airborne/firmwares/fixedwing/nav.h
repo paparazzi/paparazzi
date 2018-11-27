@@ -45,7 +45,7 @@
 #define Square(_x) ((_x)*(_x))
 #define DistanceSquare(p1_x, p1_y, p2_x, p2_y) (Square(p1_x-p2_x)+Square(p1_y-p2_y))
 
-#define PowerVoltage() (vsupply/10.)
+#define PowerVoltage() (ap_electrical.vsupply)
 #define RcRoll(travel) (imcu_get_radio(RADIO_ROLL) * (float)travel /(float)MAX_PPRZ)
 
 

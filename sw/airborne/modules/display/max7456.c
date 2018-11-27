@@ -156,9 +156,8 @@ void max7456_periodic(void)
         step = 10;
         break;
       case (10):
-        temp = ((float)electrical.vsupply) / 10;
-        osd_sprintf(osd_string, "%.1fV", temp);
-        if (temp > LOW_BAT_LEVEL) {
+        osd_sprintf(osd_string, "%.2fV", electrical.vsupply);
+        if (electrical.vsupply > LOW_BAT_LEVEL) {
           osd_put_s(osd_string, FALSE, 8, 0, 2);
         } else {
           osd_put_s(osd_string, BLINK | INVERT, 8, 0, 2);
