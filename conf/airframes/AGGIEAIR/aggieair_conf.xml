@@ -1,5 +1,16 @@
 <conf>
   <aircraft
+   name="AAMinionSim"
+   ac_id="11"
+   airframe="airframes/AGGIEAIR/aggieair_minionsim_lia.xml"
+   radio="radios/AGGIEAIR/aggieair_taranis.xml"
+   telemetry="telemetry/AGGIEAIR/aggieair_fixedwing.xml"
+   flight_plan="flight_plans/AGGIEAIR/CachJct_Gallo_temp_rect_survey.xml"
+   settings="settings/fixedwing_basic.xml [settings/nps.xml]"
+   settings_modules="modules/air_data.xml modules/battery_monitor.xml modules/lidar_sf11.xml modules/nav_skid_landing.xml modules/nav_survey_poly_osam.xml modules/gps.xml modules/nav_basic_fw.xml modules/guidance_basic_fw.xml modules/stabilization_attitude_fw.xml"
+   gui_color="#0000c5caffff"
+  />
+  <aircraft
    name="Ark_Hexa_1.8"
    ac_id="4"
    airframe="airframes/AGGIEAIR/aggieair_ark_hexa_1-8.xml"
@@ -27,9 +38,9 @@
    airframe="airframes/AGGIEAIR/aggieair_atomic_lia.xml"
    radio="radios/AGGIEAIR/aggieair_taranis.xml"
    telemetry="telemetry/AGGIEAIR/aggieair_fixedwing.xml"
-   flight_plan="flight_plans/AGGIEAIR/BasicTuning_BlueRoom2.xml"
+   flight_plan="flight_plans/AGGIEAIR/BasicTuning_Launcher.xml"
    settings="settings/fixedwing_basic.xml settings/nps.xml"
-   settings_modules="modules/battery_monitor.xml modules/lidar_sf11.xml modules/nav_skid_landing.xml modules/nav_survey_poly_osam.xml modules/gps.xml modules/nav_basic_fw.xml modules/guidance_basic_fw.xml modules/stabilization_attitude_fw.xml"
+   settings_modules="modules/air_data.xml modules/battery_monitor.xml modules/lidar_sf11.xml modules/nav_skid_landing.xml modules/nav_survey_poly_osam.xml modules/gps.xml modules/nav_basic_fw.xml modules/guidance_basic_fw.xml modules/stabilization_attitude_fw.xml"
    gui_color="#ffff42870000"
   />
   <aircraft
@@ -68,13 +79,13 @@
   <aircraft
    name="El_Captain"
    ac_id="8"
-   airframe="airframes/AGGIEAIR/El_Captain.xml"
-   radio="radios/AGGIEAIR/AggieAir_Specktrum_PPM_MeekPE.xml"
+   airframe="airframes/AGGIEAIR/aggieair_el_captitan_lia.xml"
+   radio="radios/AGGIEAIR/aggieair_taranis.xml"
    telemetry="telemetry/AGGIEAIR/aggieair_fixedwing.xml"
-   flight_plan="flight_plans/AGGIEAIR/CachJct_Gallo_temp_rect_survey.xml"
-   settings="settings/fixedwing_basic.xml settings/control/tune_agr_climb.xml settings/control/ctl_basic.xml settings/nps.xml"
-   settings_modules="modules/AOA_adc.xml modules/airspeed_adc.xml modules/nav_skid_landing.xml modules/nav_survey_poly_osam.xml modules/gps.xml modules/nav_basic_fw.xml modules/guidance_basic_fw.xml modules/stabilization_attitude_fw.xml"
-   gui_color="blue"
+   flight_plan="flight_plans/AGGIEAIR/BasicTuning_BlueRoom2.xml"
+   settings="settings/fixedwing_basic.xml settings/nps.xml"
+   settings_modules="modules/air_data.xml modules/battery_monitor.xml modules/lidar_sf11.xml modules/nav_skid_landing.xml modules/nav_survey_poly_osam.xml modules/gps.xml modules/nav_basic_fw.xml modules/guidance_basic_fw.xml modules/stabilization_attitude_fw.xml"
+   gui_color="#d37d000004fc"
   />
   <aircraft
    name="Iris"
@@ -97,5 +108,16 @@
    settings="settings/fixedwing_basic.xml settings/nps.xml"
    settings_modules="modules/battery_monitor.xml modules/lidar_sf11.xml modules/nav_skid_landing.xml modules/nav_survey_poly_osam.xml modules/gps.xml modules/nav_basic_fw.xml modules/guidance_basic_fw.xml modules/stabilization_attitude_fw.xml"
    gui_color="#00009e93ffff"
+  />
+  <aircraft
+   name="Minty"
+   ac_id="10"
+   airframe="airframes/AGGIEAIR/aggieair_minty_lia.xml"
+   radio="radios/AGGIEAIR/aggieair_taranis.xml"
+   telemetry="telemetry/AGGIEAIR/aggieair_fixedwing.xml"
+   flight_plan="flight_plans/AGGIEAIR/CachJct_Gallo_temp_rect_survey.xml"
+   settings="settings/fixedwing_basic.xml settings/nps.xml"
+   settings_modules="modules/air_data.xml modules/battery_monitor.xml modules/lidar_sf11.xml modules/nav_skid_landing.xml modules/nav_survey_poly_osam.xml modules/gps.xml modules/nav_basic_fw.xml modules/guidance_basic_fw.xml modules/stabilization_attitude_fw.xml"
+   gui_color="#0113b8510000"
   />
 </conf>

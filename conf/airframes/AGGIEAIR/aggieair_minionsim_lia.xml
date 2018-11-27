@@ -1,12 +1,12 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <!--
-AggieAir Atomic Tangerine
+AggieAir Minion Sim
 -->
 
-<airframe name="AggieAir Atomic Tangerine">
+<airframe name="AggieAir Minion Sim">
   <firmware name="fixedwing">
-    <target name="ap" board="lisa_mx_2.1">
+    <target name="ap" board="lisa_mx_2.1_chibios">
       <module name="radio_control" type="sbus">
         <configure name="SBUS_PORT" value="UART5"/>
       </module>
@@ -55,15 +55,14 @@ AggieAir Atomic Tangerine
     <define name="GEOFENCE_DATALINK_LOST_TIME" value="45"/>
 
     <module name="nav" type="line"/>
+    <module name="nav" type="line_osam"/>
     <module name="nav" type="flower"/>
     <module name="nav" type="survey_poly_osam"/>
     <module name="nav" type="launcher"/>
     <module name="nav" type="skid_landing"/>
-    <module name="nav" type="line_osam"/>
+
     <module name="sys_mon"/>
-    <module name="copilot">
-      <define name="FORWARD_PAYLOAD" value="TRUE"/>
-    </module>
+    <module name="copilot"/>
     <module name="extra_dl">
       <!-- in order to use uart1 without chibios we need to remap the peripheral-->
       <define name="REMAP_UART1" value="TRUE"/>
@@ -81,7 +80,6 @@ AggieAir Atomic Tangerine
       <define name="BATMON_TEMP_SENSITIVITY" value="10"/>
     </module>
     <module name="air_data"/>
-
   </firmware>
 
   <!-- commands section -->
@@ -90,12 +88,12 @@ AggieAir Atomic Tangerine
     <servo name="THROTTLE"	no="5" min="1100" neutral="1100" max="1900"/>
     <servo name="AILERON_RIGHT" no="1" min="900" neutral="1500" max="2100"/>
     <servo name="AILERON_LEFT"	no="2" min="2100" neutral="1500" max="900"/>
-    <servo name="ELEVATOR"      no="3" min="1900" neutral="1500" max="1100"/>
+    <servo name="ELEVATOR"      no="3" min="975" neutral="1500" max="2100"/>
     <servo name="RUDDER"        no="4" min="2100" neutral="1500" max="900"/>
     <servo name="FLAP"		no="0" min="990" neutral="1945" max="1945"/>
   </servos>
 
-  <!-- Servo Command Structure  -->
+  <!-- Servo Command Structure -->
   <commands>
     <axis name="THROTTLE"   failsafe_value="0"/>
     <axis name="ROLL"       failsafe_value="0"/>
@@ -161,7 +159,7 @@ AggieAir Atomic Tangerine
   </section>
 
 
-  <!-- Define current estimator and Battery Level Warnings  -->
+  <!-- Define current estimator and Battery Level Warnings -->
   <section name="BAT">
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="50000"/>
     <define name="CURRENT_ESTIMATION_NONLINEARITY" value="1.3"/>
@@ -235,11 +233,12 @@ AggieAir Atomic Tangerine
     <define name="PITCH_MAX_SETPOINT" value="0.35" unit="rad"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.2" unit="rad"/>
     <define name="PITCH_PGAIN" value="12900."/>
+
     <!-- ORIGINAL GAIN     -->
-    <define name="PITCH_DGAIN" value="1.5"/>
+    <!--define name="PITCH_DGAIN" value="1.5"/-->
 
     <!-- SIMULATOR GAIN-->
-    <!--define name="PITCH_DGAIN" value="151.5"/-->
+    <define name="PITCH_DGAIN" value="151.5"/>
      
     <define name="ELEVATOR_OF_ROLL" value="1250"/>
     <define name="ROLL_ATTITUDE_GAIN" value="9000"/>

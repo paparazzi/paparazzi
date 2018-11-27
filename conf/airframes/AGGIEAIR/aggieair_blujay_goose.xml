@@ -11,7 +11,7 @@ AggieAir Blujayujay
       <module name="radio_control" type="sbus">
         <configure name="SBUS_PORT" value="UART5"/>
       </module>
-      <configure name="HAS_LUFTBOOT" value="0"/>
+      <configure name="HAS_LUFTBOOT" value="1"/>
       <configure name="FLASH_MODE" value="DFU"/>
     </target>
 
@@ -42,20 +42,18 @@ AggieAir Blujayujay
 
     <module name="telemetry"   type="transparent">
       <configure name="MODEM_PORT"        value="UART3"/>
-      <configure name="MODEM_BAUD"        value="B115200"/>
+      <configure name="MODEM_BAUD"        value="B57600"/>
     </module>
 
     <module name="ins"       type="vectornav">
       <configure name="VN_PORT" value="UART2"/>
-      <configure name="VN_BAUD" value="B921600"/>
+      <configure name="VN_BAUD" value="B230400"/>
     </module>
 
     <define name="AGR_CLIMB" />
     <define name="POLY_OSAM_HALF_SWEEP_ENABLED" value="FALSE"/>
     <define name="GEOFENCE_DATALINK_LOST_TIME" value="45"/>
-  </firmware>
 
-  <modules>
     <module name="nav" type="line"/>
     <module name="nav" type="flower"/>
     <module name="nav" type="survey_poly_osam"/>
@@ -79,16 +77,17 @@ AggieAir Blujayujay
       <define name="BATMON_TEMP_OFFSET" value="250"/>
       <define name="BATMON_TEMP_SENSITIVITY" value="10"/>
     </module>
-  </modules>
+
+  </firmware>
 
   <!-- commands section -->
   <!-- Servo Configuration -->
   <servos>
-    <servo name="FLAP" no="0" min="900" neutral="1500" max="2100"/>
+    <servo name="FLAP" no="0" min="2000" neutral="900" max="900"/>
     <servo name="AILERON_RIGHT" no="1" min="900" neutral="1500" max="2100"/>
     <servo name="AILERON_LEFT" no="2" min="2100" neutral="1500" max="900"/>
     <servo name="ELEVATOR" no="3" min="2100" neutral="1500" max="900"/>
-    <servo name="RUDDER" no="4" min="2100" neutral="1500" max="900"/>
+    <servo name="RUDDER" no="4" min="900" neutral="1500" max="2100"/>
     <servo name="THROTTLE" no="5" min="1100" neutral="1100" max="1900"/>
   </servos>
 
@@ -162,7 +161,7 @@ AggieAir Blujayujay
     <define name="NOMINAL_AIRSPEED"   value="16."     unit="m/s"/> <!-- GCS only -->
     <define name="CARROT"             value="5."  unit="s"/>   <!-- GCS only -->
     <define name="KILL_MODE_DISTANCE"   value="(1.5*MAX_DIST_FROM_HOME)"/>
-    <define name="DEFAULT_CIRCLE_RADIUS" value="120."/>
+    <define name="DEFAULT_CIRCLE_RADIUS" value="200."/>
   </section>
 
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
@@ -241,7 +240,7 @@ AggieAir Blujayujay
     <define name="DEFAULT_THROTTLE" value="0" unit="%"/>
     <define name="DEFAULT_ROLL" value="0.3" unit="rad"/>
     <define name="DEFAULT_PITCH" value="0.5" unit="rad"/>
-    <define name="HOME_RADIUS" value="100" unit="m"/>
+    <define name="HOME_RADIUS" value="200" unit="m"/>
   </section>
 
   <!-- Launcher Takeoff Configuration -->

@@ -296,10 +296,8 @@
     <define name="TUNE_AGRESSIVE_CLIMB"/>
     <define name="WIND_INFO"/>
     <define name="WIND_INFO_RET"/>
-  </firmware>
 
 <!-- Modules -->
-  <modules>
     <module name="nav" type="line"/>
     <module name="nav" type="flower"/>
     <module name="nav" type="survey_poly_osam"/>
@@ -337,6 +335,7 @@
 
     <!-- System Monitor -->
     <module name="sys_mon"/>
-  </modules>
+
+  </firmware>
 
 </airframe>
