@@ -37,7 +37,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
 #ifndef RELATIVE_LOCALIZATION_N_UAVS
 #define RELATIVE_LOCALIZATION_N_UAVS 4 // Maximum expected number of other UAVs
 #endif

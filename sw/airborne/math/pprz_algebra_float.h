@@ -106,9 +106,13 @@ struct FloatRates {
  */
 static inline float float_log_n(float v, float n)
 {
-  if (v == 0.0) {
+  if (fabsf(v) < 1e-4) { // avoid inf
     return - 1.0E+30;
-  } else {
+  }
+  else if (fabsf(n) < 1e-4) { // avoid nan
+    return 0;
+  }
+  else {
     return logf(fabsf(v)) / logf(n);
   }
 }

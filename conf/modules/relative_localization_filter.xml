@@ -14,9 +14,5 @@
     <file name="relative_localization_filter.c"/>
     <file name="discrete_ekf.c"/>
     <file name="discrete_ekf_no_north.c"/>
-    <configure name="EKF_XZERO" default="1"/>
-    <configure name="EKF_YZERO" default="1"/>
-    <define name="EKF_XZERO" value="$(EKF_XZERO)"/>
-    <define name="EKF_YZERO" value="$(EKF_YZERO)"/>
   </makefile>
 </module>

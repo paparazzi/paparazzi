@@ -206,11 +206,11 @@ void discrete_ekf_no_north_new(struct discrete_ekf_no_north *filter)
   filter->R[2][2] = powf(0.2, 2);
 
   float_vect_zero(filter->X, EKF_N); // Initial state
-  filter->X[0] = EKF_XZERO;
-  filter->X[1] = EKF_YZERO;
-  filter->X[2] = -1;
-  filter->X[3] = -1;
-  filter->dt = 0.1; // Est. time difference
+  filter->X[0] =  1.0; // Initial X estimate
+  filter->X[1] =  1.0; // Initial Y estimate
+  filter->X[2] = -1.0; 
+  filter->X[3] = -1.0;
+  filter->dt = 0.1;  // Initial Est. time difference
 }
 
 /*

@@ -52,7 +52,8 @@ void discrete_ekf_new(struct discrete_ekf *filter)
 
   // Initial assumptions
   float_vect_zero(filter->X, EKF_N);
-  filter->X[0] = 2.5; // filter->X[0] and/or filter->[1] cannot be = 0
+  filter->X[0] = 1.0; // filter->X[0] and/or filter->[1] cannot be = 0
+  filter->X[1] = 1.0; // filter->X[0] and/or filter->[1] cannot be = 0 
   filter->dt = 0.1;
 }
 
