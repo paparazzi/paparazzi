@@ -13,5 +13,6 @@
   <makefile>
     <file name="relative_localization_filter.c"/>
     <file name="discrete_ekf.c"/>
+    <file name="discrete_ekf_no_north.c"/>
   </makefile>
 </module>

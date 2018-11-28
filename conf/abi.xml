@@ -116,6 +116,9 @@
       <field name="vx" type="float" unit="m/s"/>
       <field name="vy" type="float" unit="m/s"/>
       <field name="h" type="float" unit="m"/>
+      <field name="ax" type="float" unit="m/s^2"/>
+      <field name="ay" type="float" unit="m/s^2"/>
+      <field name="yawr" type="float" unit="deg/s"/>
     </message>
 
     <message name="RANGE_FORCEFIELD" id="20">

@@ -18,7 +18,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/relativelocalizationfilter/discreteekf.h"
+ * @file "modules/relative_localization_filter/discrete_ekf.h"
  * @author Mario Coppola
  * Discrete Extended Kalman Filter for Relative Localization
  */

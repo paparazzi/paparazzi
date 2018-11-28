@@ -42,7 +42,8 @@ extern "C" {
 
 #include <float.h>  /* for FLT_EPSILON */
 #include <string.h> /* for memcpy      */
-#include "std.h" /* for ABS */
+#include "std.h"  /* for ABS */
+#include "math.h" /* for log and fabs */
 
 #define SQUARE(_a) ((_a)*(_a))
 
