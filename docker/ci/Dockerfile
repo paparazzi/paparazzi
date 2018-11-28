@@ -5,6 +5,7 @@ RUN sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb
 RUN wget http://packages.osrfoundation.org/gazebo.key -O - | apt-key add -
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
-    libgazebo7-dev \
+    g++-arm-linux-gnueabi \
+    libgazebo8-dev \
     rustc cargo \
     && rm -rf /var/lib/apt/lists/*
