@@ -109,14 +109,11 @@ static inline float float_log_n(float v, float n)
   if (fabsf(v) < 1e-4) { // avoid inf
     return - 1.0E+30;
   }
-  else if (fabsf(n) < 1e-4) { // avoid nan
+  if (fabsf(n) < 1e-4) { // avoid nan
     return 0;
   }
-  else {
-    return logf(fabsf(v)) / logf(n);
-  }
+  return logf(fabsf(v)) / logf(n);
 }
-
 
 //
 //
