@@ -1,0 +1,4 @@
+<program command="sw/ground_segment/misc/sbs2ivy" name="ADS-B Intruders receiver">
+  <arg constant="@AC_ID" flag="--ac" />
+</program>
+

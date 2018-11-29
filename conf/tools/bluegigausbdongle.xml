@@ -1,0 +1,7 @@
+<program command="sw/tools/bluegiga_usb_dongle/bluegiga_usb_driver" name="BluegigaUsbDongle">
+  <arg flag="/dev/ttyACM2" />
+  <arg flag="00:07:00:2d:d6:bb" />
+  <arg flag="4242" />
+  <arg flag="4252" />
+</program>
+

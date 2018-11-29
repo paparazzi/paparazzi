@@ -3,82 +3,14 @@
 <control_panel name="paparazzi control panel">
 
   <section name="programs">
-    <program name="Server" command="sw/ground_segment/tmtc/server"/>
-    <program name="Data Link" command="sw/ground_segment/tmtc/link">
-      <arg flag="-d" constant="/dev/ttyUSB0"/>
+    <!-- Examples of custom configuration. -->
+    <!--program name="Server" command="sw/ground_segment/tmtc/server">
+      <arg flag="-b" constant="192.168.1.255:2010"/>
     </program>
-    <program name="Link Combiner" command="sw/ground_segment/python/redundant_link/link_combiner.py"/>
     <program name="GCS" command="sw/ground_segment/cockpit/gcs">
       <arg flag="-layout" constant="large_left_col.xml"/>
-    </program>
-    <program name="Flight Plan Editor" command="sw/ground_segment/cockpit/gcs">
-      <arg flag="-edit"/>
-    </program>
-    <program name="Messages" command="sw/ground_segment/tmtc/messages"/>
-    <program name="Messages (Python)" command="sw/ground_segment/python/messages_app/messagesapp.py"/>
-    <program name="Settings" command="sw/ground_segment/tmtc/settings">
-      <arg flag="-ac" constant="@AIRCRAFT"/>
-    </program>
-    <program name="Settings (Python)" command="sw/ground_segment/python/settings_app/settingsapp.py">
-      <arg flag="--ac_id" constant="@AC_ID"/>
-    </program>
-    <program name="GPSd position display" command="sw/ground_segment/tmtc/gpsd2ivy"/>
-    <program name="Log Plotter" command="sw/logalizer/logplotter"/>
-    <program name="Real-time Plotter" command="sw/logalizer/plotter"/>
-    <program name="Real-time Plotter (Python)" command="sw/ground_segment/python/real_time_plot/realtimeplotapp.py"/>
-    <program name="Log File Player" command="sw/logalizer/play"/>
-    <program name="Simulator" command="sw/simulator/pprzsim-launch">
-      <arg flag="-a" constant="@AIRCRAFT"/>
-    </program>
-    <program name="Video Synchronizer" command="sw/ground_segment/misc/video_synchronizer"/>
-    <program name="Joystick" command="sw/ground_segment/joystick/input2ivy">
-      <arg flag="-ac" constant="@AIRCRAFT"/>
-      <arg flag="xbox_gamepad.xml"/>
-    </program>
-    <program name="Environment Simulator" command="sw/simulator/gaia"/>
-    <program name="Http Server" command="$python">
-      <arg flag="-m" constant="SimpleHTTPServer"/>
-      <arg flag="8889"/>
-    </program>
-    <program name="Plot Meteo Profile" command="sw/logalizer/plotprofile"/>
-    <program name="Weather Station" command="sw/ground_segment/misc/davis2ivy">
-      <arg flag="-d" constant="/dev/ttyUSB1"/>
-    </program>
-    <program name="Attitude Visualizer" command="sw/tools/attitude_viz.py"/>
-    <program name="App Server" command="sw/ground_segment/tmtc/app_server"/>
-    <program name="NatNet" command="sw/ground_segment/misc/natnet2ivy"/>
-    <program name="NatNet3" command="sw/ground_segment/python/natnet3.x/natnet2ivy.py"/>
-    <program name="Ivy2Nmea" command="sw/ground_segment/tmtc/ivy2nmea">
-      <arg flag="--port" constant="/dev/ttyUSB1"/>
-      <arg flag="--id" constant="1"/>
-    </program>
-    <program name="BluegigaUsbDongleScanner" command="sw/tools/bluegiga_usb_dongle/bluegiga_usb_driver">
-      <arg flag="/dev/ttyACM2"/>
-      <arg flag="scan" />
-    </program>
-    <program name="BluegigaUsbDongle" command="sw/tools/bluegiga_usb_dongle/bluegiga_usb_driver">
-      <arg flag="/dev/ttyACM2"/>
-      <arg flag="00:07:00:2d:d6:bb" />
-      <arg flag="4242" />
-      <arg flag="4252" />
-    </program>
-    <program name="ADS-B Intruders receiver" command="sw/ground_segment/misc/sbs2ivy">
-      <arg flag="--ac" constant="@AC_ID"/>
-    </program>
-    <program name="OpenSky-Network Intruders" command="sw/ground_segment/python/opensky-network/opensky.py"/>
-    <program name="SVInfo" command="sw/ground_segment/python/svinfo/svinfo.py"/>
-    <program name="IridiumDialer" command="sw/tools/iridium/iridium_link.py"/>
-    <program name="PayloadForward" command="sw/ground_segment/python/payload_forward/payload.py"/>
-    <program name="Wind" command="sw/ground_segment/python/wind/wind.py"/>
-    <program name="EnergyManager" command="sw/ground_segment/python/energy_mon/energy_mon.py"/>
-    <program name="AeronauticalInfo" command="sw/ground_segment/python/atc/atc.py"/>
-    <program name="RtpViewer" command="sw/tools/rtp_viewer/rtp_viewer.py">
-      <arg flag="-p" constant="5000"/>
-      <arg flag="-s" constant="0.75"/>
-      <arg flag="-r" constant="3"/>
-    </program>
-    <program name="rtcm2ivy" command="sw/ground_segment/misc/rtcm2ivy"/>
-    <program name="Gazebo" command="sw/tools/gzclient_launcher.sh"/>
+      <arg flag="-osm"/>
+    </program-->
  </section>
 
   <section name="sessions">
