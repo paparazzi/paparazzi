@@ -41,6 +41,9 @@
 void dc_send_command(uint8_t cmd)
 {
   atmega_i2c_cam_ctrl_send(cmd);
+
+  // call command send_command function
+  dc_send_command_common(cmd);
 }
 
 static struct i2c_transaction atmega_i2c_cam_ctrl_trans;

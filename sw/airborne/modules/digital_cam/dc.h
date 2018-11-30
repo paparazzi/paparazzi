@@ -120,6 +120,9 @@ typedef enum {
 /** Send Command To Camera */
 extern void dc_send_command(uint8_t cmd);
 
+/** Command sending function */
+extern void dc_send_command_common(uint8_t cmd);
+
 /** Auotmatic Digital Camera Photo Triggering modes */
 typedef enum {
   DC_AUTOSHOOT_STOP = 0,

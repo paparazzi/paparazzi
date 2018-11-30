@@ -174,4 +174,7 @@ void dc_send_command(uint8_t cmd)
     default:
       break;
   }
+
+  // call command send_command function
+  dc_send_command_common(cmd);
 }
