@@ -53,6 +53,11 @@
 #define DC_AUTOSHOOT_DISTANCE_INTERVAL 50
 #endif
 
+/** default distance of the first shoot: 0m (start immediately) */
+#ifndef DC_AUTOSHOOT_DISTANCE_INIT
+#define DC_AUTOSHOOT_DISTANCE_INIT 0
+#endif
+
 /** default distance interval for survey mode: 50m */
 #ifndef DC_AUTOSHOOT_SURVEY_INTERVAL
 #define DC_AUTOSHOOT_SURVEY_INTERVAL 50
@@ -181,6 +186,15 @@ uint8_t dc_info(void)
   return 0;
 }
 
+void dc_send_command_common(uint8_t cmd __attribute__((unused)))
+{
+#if DC_SHOT_EXTRA_DL
+  uint8_t tab[] = { cmd };
+  DOWNLINK_SEND_PAYLOAD_COMMAND(extra_pprz_tp, EXTRA_DOWNLINK_DEVICE, 0, 1, tab);
+#endif
+}
+
+
 /* shoot on distance */
 uint8_t dc_distance(float interval)
 {
@@ -234,7 +248,7 @@ uint8_t dc_survey(float interval, float x, float y)
     dc_gps_x = x;
     dc_gps_y = y;
   }
-  dc_gps_next_dist = 0;
+  dc_gps_next_dist = DC_AUTOSHOOT_DISTANCE_INIT;
   dc_info();
   return 0;
 }
