@@ -117,8 +117,8 @@ typedef uint8_t unit_t;
         BoundInverted(_x, _min, _max)             \
       }
 #define BoundAbs(_x, _max) Bound(_x, -(_max), (_max))
-#define Chop(_x, _min, _max) ( (_x) < (_min) ? (_min) : (_x) > (_max) ? (_max) : (_x) )
-#define ChopAbs(x, max) Chop(x, -(max), (max))
+#define Clip(_x, _min, _max) ( (_x) < (_min) ? (_min) : (_x) > (_max) ? (_max) : (_x) )
+#define ClipAbs(x, max) Clip(x, -(max), (max))
 
 #define DeadBand(_x, _v) {            \
     if (_x > (_v))                    \

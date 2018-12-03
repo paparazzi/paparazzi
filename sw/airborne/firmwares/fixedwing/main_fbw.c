@@ -161,15 +161,15 @@ void update_actuators(void)
     for (i = 0; i < COMMANDS_NB; i++) {trimmed_commands[i] = commands[i];}
 
 #ifdef COMMAND_ROLL
-    trimmed_commands[COMMAND_ROLL] += ChopAbs(command_roll_trim, MAX_PPRZ / 10);
+    trimmed_commands[COMMAND_ROLL] += ClipAbs(command_roll_trim, MAX_PPRZ / 10);
 #endif /* COMMAND_ROLL */
 
 #ifdef COMMAND_PITCH
-    trimmed_commands[COMMAND_PITCH] += ChopAbs(command_pitch_trim, MAX_PPRZ / 10);
+    trimmed_commands[COMMAND_PITCH] += ClipAbs(command_pitch_trim, MAX_PPRZ / 10);
 #endif /* COMMAND_PITCH */
 
 #ifdef COMMAND_YAW
-    trimmed_commands[COMMAND_YAW] += ChopAbs(command_yaw_trim, MAX_PPRZ);
+    trimmed_commands[COMMAND_YAW] += ClipAbs(command_yaw_trim, MAX_PPRZ);
 #endif /* COMMAND_YAW */
 
     SetActuatorsFromCommands(trimmed_commands, autopilot_get_mode());

@@ -92,7 +92,7 @@ YAPA + XSens + XBee
 
   <command_laws>
     <!-- Brake Rate Limiter -->
-    <let var="brake_value_nofilt" value="Chop(-@BRAKE, 0, MAX_PPRZ)"/>
+    <let var="brake_value_nofilt" value="Clip(-@BRAKE, 0, MAX_PPRZ)"/>
     <ratelimit var="brake_value" value="$brake_value_nofilt" rate_min="-MAX_BRAKE_RATE" rate_max="MAX_BRAKE_RATE"/>
     <!-- Differential Aileron Depending on Brake Value -->
     <let var="aileron_up_rate" value="(AILERON_RATE_UP   * (MAX_PPRZ - $brake_value)) + (AILERON_RATE_UP_BRAKE   * $brake_value)"/>
