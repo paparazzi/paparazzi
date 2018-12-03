@@ -17,12 +17,7 @@ extern struct video_listener *listener;
 // settings:
 extern float min_x_normalized;
 extern float max_x_normalized;
-extern float dhane_k;
 extern float center_ratio;
-extern float focal_x;
-extern float center_x;
-extern float focal_y;
-extern float center_y;
-
+extern struct camera_intrinsics_t camera_intrinsics;
 
 #endif /* UNDISTORT_MODULE_H */
