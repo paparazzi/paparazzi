@@ -48,7 +48,7 @@ struct camera_intrinsics_t {
   float focal_y;  ///< focal length in the y-direction in pixels
   float center_x; ///< center image coordinate in the x-direction
   float center_y; ///< center image coordinate in the y-direction
-  float Dhane_k; //< (un)distortion parameter for a fish-eye lens
+  float Dhane_k;  ///< (un)distortion parameter for a fish-eye lens
 };
 
 /** V4L2 device settings */

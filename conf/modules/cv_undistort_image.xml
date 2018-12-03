@@ -12,15 +12,9 @@
     </description>
     <define name="UNDISTORT_MIN_X_NORMALIZED" value="-2.0" description="Minimal normalized x-coordinate to be used for the undistortion"/>
     <define name="UNDISTORT_MAX_X_NORMALIZED" value="2.0" description="Maximal normalized x-coordinate to be used for the undistortion"/>
-    <define name="UNDISTORT_DHANE_K" value="1.25" description="The single parameter of the Dhane invertible (un)distortion model."/>
     <define name="UNDISTORT_FPS" value="0" description="The (maximum) frequency to run the calculations at. If zero, it will max out at the camera frame rate"/>
     <define name="UNDISTORT_CAMERA" value="bottom_camera|front_camera" description="The V4L2 camera device that is used for the calculations"/>
     <define name="UNDISTORT_CENTER_RATIO" value="1.0" description="If smaller than 1 only generate pixels for the center_ratio times the min_x to max_x interval. This makes undistortion quicker, but for a smaller FOV."/>
-    <define name="UNDISTORT_FOCAL_X" value="189.69" description="Focal length x-axis in pixels."/>
-    <define name="UNDISTORT_FOCAL_Y" value="188.60" description="Focal length y-axis in pixels."/>
-    <define name="UNDISTORT_CENTER_X" value="165.04" description="Image x-coordinate of the camera principal axis."/>
-    <define name="UNDISTORT_CENTER_Y" value="118.44" description="Image y-coordinate of the camera principal axis."/>
-
   </doc>
 
   <settings>
@@ -28,13 +22,12 @@
       <dl_settings NAME="Undistort">
 	<dl_setting var="min_x_normalized"  min="-4.0" step="0.1" max="0.0" shortname="min_x_n" param="UNDISTORT_MIN_X_NORMALIZED"/>
 	<dl_setting var="max_x_normalized"  min="0.1" step="0.1" max="4.0" shortname="max_x_n" param="UNDISTORT_MAX_X_NORMALIZED"/>
-	<dl_setting var="dhane_k"  min="1.0" step="0.01" max="2.5" shortname="dhane_k" param="UNDISTORT_DHANE_K"/>
+	<dl_setting var="camera_intrinsics.Dhane_k"  min="1.0" step="0.01" max="2.5" shortname="dhane_k" param="UNDISTORT_DHANE_K"/>
 	<dl_setting var="center_ratio"  min="0.05" step="0.01" max="1.0" shortname="center_ratio" param="UNDISTORT_CENTER_RATIO"/>
-	<dl_setting var="focal_x"  min="0.0" step="0.05" max="1024.0" shortname="focal_x" param="UNDISTORT_FOCAL_X"/>
-	<dl_setting var="center_x"  min="0.0" step="0.05" max="1024.0" shortname="center_x" param="UNDISTORT_CENTER_X"/>
-	<dl_setting var="focal_y"  min="0.0" step="0.05" max="1024.0" shortname="focal_y" param="UNDISTORT_FOCAL_Y"/>
-	<dl_setting var="center_y"  min="0.0" step="0.05" max="1024.0" shortname="center_y" param="UNDISTORT_CENTER_Y"/>
-
+	<dl_setting var="camera_intrinsics.focal_x"  min="0.0" step="0.05" max="1024.0" shortname="focal_x" param="UNDISTORT_FOCAL_X"/>
+	<dl_setting var="camera_intrinsics.center_x"  min="0.0" step="0.05" max="1024.0" shortname="center_x" param="UNDISTORT_CENTER_X"/>
+	<dl_setting var="camera_intrinsics.focal_y"  min="0.0" step="0.05" max="1024.0" shortname="focal_y" param="UNDISTORT_FOCAL_Y"/>
+	<dl_setting var="camera_intrinsics.center_y"  min="0.0" step="0.05" max="1024.0" shortname="center_y" param="UNDISTORT_CENTER_Y"/>
       </dl_settings>
     </dl_settings>
   </settings>
