@@ -36,7 +36,7 @@
 #include BOARD_CONFIG
 
 #define SERVOS_TICS_OF_USEC(s) cpu_ticks_of_usec(s)
-#define ChopServo(x,a,b) Chop(x, a, b)
+#define ClipServo(x,a,b) Clip(x, a, b)
 
 #define _4015_NB_CHANNELS 8
 extern uint16_t servos_values[_4015_NB_CHANNELS];

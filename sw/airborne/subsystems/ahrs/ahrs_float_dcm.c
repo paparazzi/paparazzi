@@ -304,7 +304,7 @@ void Normalize(void)
   if (renorm < 1.5625f && renorm > 0.64f) {
     renorm = .5 * (3 - renorm);                                       //eq.21
   } else if (renorm < 100.0f && renorm > 0.01f) {
-    renorm = 1. / sqrt(renorm);
+    renorm = 1. / sqrtf(renorm);
 #if PERFORMANCE_REPORTING == 1
     renorm_sqrt_count++;
 #endif
@@ -321,7 +321,7 @@ void Normalize(void)
   if (renorm < 1.5625f && renorm > 0.64f) {
     renorm = .5 * (3 - renorm);                                              //eq.21
   } else if (renorm < 100.0f && renorm > 0.01f) {
-    renorm = 1. / sqrt(renorm);
+    renorm = 1. / sqrtf(renorm);
 #if PERFORMANCE_REPORTING == 1
     renorm_sqrt_count++;
 #endif
@@ -338,7 +338,7 @@ void Normalize(void)
   if (renorm < 1.5625f && renorm > 0.64f) {
     renorm = .5 * (3 - renorm);                                              //eq.21
   } else if (renorm < 100.0f && renorm > 0.01f) {
-    renorm = 1. / sqrt(renorm);
+    renorm = 1. / sqrtf(renorm);
 #if PERFORMANCE_REPORTING == 1
     renorm_sqrt_count++;
 #endif
@@ -379,7 +379,7 @@ void Drift_correction()
   Accel_magnitude = Accel_magnitude / GRAVITY; // Scale to gravity.
   // Dynamic weighting of accelerometer info (reliability filter)
   // Weight for accelerometer info (<0.5G = 0.0, 1G = 1.0 , >1.5G = 0.0)
-  Accel_weight = Chop(1 - 2 * fabs(1 - Accel_magnitude), 0, 1); //
+  Accel_weight = Clip(1 - 2 * fabsf(1 - Accel_magnitude), 0, 1); //
 
 
 #if PERFORMANCE_REPORTING == 1
@@ -450,7 +450,7 @@ void Drift_correction()
 #endif
 
   //  Here we will place a limit on the integrator so that the integrator cannot ever exceed half the saturation limit of the gyros
-  Integrator_magnitude = sqrt(Vector_Dot_Product(Omega_I, Omega_I));
+  Integrator_magnitude = sqrtf(Vector_Dot_Product(Omega_I, Omega_I));
   if (Integrator_magnitude > RadOfDeg(300)) {
     Vector_Scale(Omega_I, Omega_I, 0.5f * RadOfDeg(300) / Integrator_magnitude);
   }
