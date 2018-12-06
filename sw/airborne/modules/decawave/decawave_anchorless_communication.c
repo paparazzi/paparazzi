@@ -224,7 +224,7 @@ static void checkStatesUpdated(void)
       checkbool = checkbool && states[i].state_updated[j];
     }
     if (checkbool) {
-      AbiSendMsgUWB_COMMUNICATION(UWB_COMM_ID, i, states[i].r, states[i].vx, states[i].vy, states[i].z);
+      AbiSendMsgUWB_COMMUNICATION(UWB_COMM_ID, i, states[i].r, states[i].vx, states[i].vy, states[i].z, states[i].ax, states[i].ay, states[i].yawr);
       setNodeStatesFalse(i);
     }
   }

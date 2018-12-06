@@ -53,9 +53,7 @@ Aggie Air ARK
       <configure name="VN_PORT" value="UART2"/>
       <configure name="VN_BAUD" value="B921600"/>
     </module>
-  </firmware>
 
-  <modules>
     <module name="sys_mon"/>
     <module name="copilot"/>
     <module name="extra_dl">
@@ -71,7 +69,7 @@ Aggie Air ARK
       <define name="BATMON_TEMP_OFFSET" value="250"/>
       <define name="BATMON_TEMP_SENSITIVITY" value="10"/>
     </module>
-  </modules>
+  </firmware>
 
   <!--These values are set for the Castle Creations HV Lite 60A ESCs-->
   <servos driver="Pwm">

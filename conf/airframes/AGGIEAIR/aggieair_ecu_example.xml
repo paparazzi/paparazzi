@@ -29,12 +29,11 @@ Viking Motorsports ECU example
     <module name="ins"/>
     <module name="control"/>
     <module name="navigation"/>
-  </firmware>
 
-  <modules>
     <module name="sys_mon"/>
     <module name="vms_ecu_demo"/>
-  </modules>
+
+  </firmware>
 
   <!-- commands section -->
   <!-- Servo Configuration -->

@@ -1,0 +1,4 @@
+<program command="sw/ground_segment/tmtc/link" name="Data Link">
+  <arg constant="/dev/ttyUSB0" flag="-d" />
+</program>
+

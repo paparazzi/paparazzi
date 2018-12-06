@@ -18,7 +18,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/relativelocalizationfilter/relativelocalizationfilter.c"
+ * @file "modules/relative_localization_filter/relative_localization_filter.c"
  * @author Mario Coppola
  * Relative Localization Filter for collision avoidance between drones
  */
@@ -37,40 +37,71 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "discrete_ekf.h"
-
-#ifndef RL_NUAVS
-#define RL_NUAVS 4 // Maximum expected number of other UAVs
+#ifndef RELATIVE_LOCALIZATION_N_UAVS
+#define RELATIVE_LOCALIZATION_N_UAVS 4 // Maximum expected number of other UAVs
 #endif
 
-int32_t id_array[RL_NUAVS]; // array of UWB IDs of all drones
-uint32_t latest_update_time[RL_NUAVS];
+/*
+ * RELATIVE_LOCALIZATION_NO_NORTH = 1 : The filter runs without a heading reference.
+ * RELATIVE_LOCALIZATION_NO_NORTH = 0 : The filter runs while using a shared reference heading.
+ */
+#ifndef RELATIVE_LOCALIZATION_NO_NORTH
+#define RELATIVE_LOCALIZATION_NO_NORTH 1
+#endif
+
+#if RELATIVE_LOCALIZATION_NO_NORTH
+#include "discrete_ekf_no_north.h"
+struct discrete_ekf_no_north ekf_rl[RELATIVE_LOCALIZATION_N_UAVS];
+#else
+#include "discrete_ekf.h"
+struct discrete_ekf ekf_rl[RELATIVE_LOCALIZATION_N_UAVS];
+#endif
+
+int32_t id_array[RELATIVE_LOCALIZATION_N_UAVS]; // array of UWB IDs of all drones
+uint32_t latest_update_time[RELATIVE_LOCALIZATION_N_UAVS];
 uint8_t number_filters; // the number of filters running in parallel
-struct discrete_ekf ekf_rl[RL_NUAVS]; 
-float range_array[RL_NUAVS]; // an array to store the ranges at which the other MAVs are
+float range_array[RELATIVE_LOCALIZATION_N_UAVS]; // an array to store the ranges at which the other MAVs are
 uint8_t pprzmsg_cnt; // a counter to send paparazzi messages, which are sent in rotation
 
 static abi_event range_communication_event;
-static void range_msg_callback(uint8_t sender_id __attribute__((unused)),
-                               uint8_t ac_id, float range, float tracked_v_north, float tracked_v_east, float tracked_h)
+static void range_msg_callback(uint8_t sender_id __attribute__((unused)), uint8_t ac_id,
+                               float range, float trackedVx, float trackedVy, float trackedh,
+                               float trackedAx, float trackedAy, float trackedYawr)
 {
   int idx = -1; // Initialize the index of all tracked drones (-1 for null assumption of no drone found)
 
   // Check if a new aircraft ID is present, if it's a new ID we start a new EKF for it.
-  if (!int32_vect_find(id_array, ac_id, &idx, RL_NUAVS) &&
-      (number_filters < RL_NUAVS)) {
+  if (!int32_vect_find(id_array, ac_id, &idx, RELATIVE_LOCALIZATION_N_UAVS) &&
+      (number_filters < RELATIVE_LOCALIZATION_N_UAVS)) {
     id_array[number_filters] = ac_id;
+#if RELATIVE_LOCALIZATION_NO_NORTH
+    discrete_ekf_no_north_new(&ekf_rl[number_filters]);
+#else
     discrete_ekf_new(&ekf_rl[number_filters]);
+#endif
     number_filters++;
   } else if (idx != -1) {
     range_array[idx] = range;
     ekf_rl[idx].dt = (get_sys_time_usec() - latest_update_time[idx]) / pow(10, 6); // Update the time between messages
 
+    float ownVx = stateGetSpeedNed_f()->x;
+    float ownVy = stateGetSpeedNed_f()->y;
+    float ownh  = stateGetPositionEnu_f()->z;
+#if RELATIVE_LOCALIZATION_NO_NORTH
+    float ownAx = stateGetAccelNed_f()->x;
+    float ownAy = stateGetAccelNed_f()->y;
+    float ownYawr = stateGetBodyRates_f()->r;
+    float U[EKF_L] = {ownAx, ownAy, trackedAx, trackedAy, ownYawr, trackedYawr};
+    float Z[EKF_M] = {range, ownh, trackedh, ownVx, ownVy, trackedVx, trackedVy};
+    discrete_ekf_no_north_predict(&ekf_rl[idx], U);
+    discrete_ekf_no_north_update(&ekf_rl[idx], Z);
+#else
     // Measurement Vector Z = [range owvVx(NED) ownVy(NED) tracked_v_north(NED) tracked_v_east(NED) dh]
-    float Z[EKF_M] = {range, stateGetSpeedEnu_f()->y, stateGetSpeedEnu_f()->x, tracked_v_north, tracked_v_east, tracked_h - stateGetPositionEnu_f()->z};
-
+    float Z[EKF_M] = {range, ownVx, ownVy, trackedVx, trackedVy, trackedh - ownh};
     discrete_ekf_predict(&ekf_rl[idx]);
     discrete_ekf_update(&ekf_rl[idx], Z);
+#endif
+
   }
 
   latest_update_time[idx] = get_sys_time_usec();
@@ -96,7 +127,8 @@ static void send_relative_localization_data(struct transport_tx *trans, struct l
 
 void relative_localization_filter_init(void)
 {
-  int32_vect_set_value(id_array, RL_NUAVS+1, RL_NUAVS); // The id_array is initialized with non-existant IDs (assuming UWB IDs are 0,1,2...)
+  int32_vect_set_value(id_array, RELATIVE_LOCALIZATION_N_UAVS + 1,
+                       RELATIVE_LOCALIZATION_N_UAVS); // The id_array is initialized with non-existant IDs (assuming UWB IDs are 0,1,2...)
   number_filters = 0;
   pprzmsg_cnt = 0;
 
@@ -108,6 +140,7 @@ void relative_localization_filter_periodic(void)
 {
   for (int i = 0; i < number_filters; i++) {
     // send id, x, y, z, vx, vy, vz(=0)
-    AbiSendMsgRELATIVE_LOCALIZATION(RELATIVE_LOCALIZATION_ID, id_array[i], ekf_rl[i].X[0], ekf_rl[i].X[1], ekf_rl[i].X[6], ekf_rl[i].X[4], ekf_rl[i].X[5], 0.f);
+    AbiSendMsgRELATIVE_LOCALIZATION(RELATIVE_LOCALIZATION_ID, id_array[i], ekf_rl[i].X[0], ekf_rl[i].X[1], ekf_rl[i].X[6],
+                                    ekf_rl[i].X[4], ekf_rl[i].X[5], 0.f);
   }
 };

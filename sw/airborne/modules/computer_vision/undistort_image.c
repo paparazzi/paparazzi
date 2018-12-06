@@ -25,44 +25,15 @@ PRINT_CONFIG_VAR(UNDISTORT_MIN_X_NORMALIZED)
 #endif
 PRINT_CONFIG_VAR(UNDISTORT_MAX_X_NORMALIZED)
 
-#ifndef UNDISTORT_DHANE_K
-#define UNDISTORT_DHANE_K 1.25f  ///< Maximal normalized coordinate that will be shown in the undistorted image
-#endif
-PRINT_CONFIG_VAR(UNDISTORT_DHANE_K)
-
 #ifndef UNDISTORT_CENTER_RATIO
 #define UNDISTORT_CENTER_RATIO 1.00f  ///< Maximal normalized coordinate that will be shown in the undistorted image
 #endif
 PRINT_CONFIG_VAR(UNDISTORT_CENTER_RATIO)
 
-#ifndef UNDISTORT_FOCAL_X
-#define UNDISTORT_FOCAL_X 189.69f  ///< Focal length in pixels for x-axis. Default value for Bebop 2.
-#endif
-PRINT_CONFIG_VAR(UNDISTORT_FOCAL_X)
-
-#ifndef UNDISTORT_CENTER_X
-#define UNDISTORT_CENTER_X 165.04f  ///< Pixel x-coordinate of the optical center. Default value for Bebop 2.
-#endif
-PRINT_CONFIG_VAR(UNDISTORT_CENTER_X)
-
-#ifndef UNDISTORT_FOCAL_Y
-#define UNDISTORT_FOCAL_Y 188.60f  ///< Focal length in pixels for y-axis. Default value for Bebop 2.
-#endif
-PRINT_CONFIG_VAR(UNDISTORT_FOCAL_Y)
-
-#ifndef UNDISTORT_CENTER_Y
-#define UNDISTORT_CENTER_Y 118.44f  ///< Pixel y-coordinate of the optical center. Default value for Bebop 2.
-#endif
-PRINT_CONFIG_VAR(UNDISTORT_CENTER_Y)
-
 float min_x_normalized;
 float max_x_normalized;
-float dhane_k;
 float center_ratio;
-float focal_x;
-float center_x;
-float focal_y;
-float center_y;
+struct camera_intrinsics_t camera_intrinsics;
 
 struct video_listener *listener = NULL;
 
@@ -72,18 +43,17 @@ static float K[9] = {0.0f, 0.0f, 0.0f,
                      0.0f, 0.0f, 1.0f};
 
 // Function
-struct image_t *undistort_image_func(struct image_t *img);
-struct image_t *undistort_image_func(struct image_t *img)
+static struct image_t *undistort_image_func(struct image_t *img)
 {
   // TODO: These commands could actually only be run when the parameters or image size are changed
   float normalized_step = (max_x_normalized - min_x_normalized) / img->w;
   float h_w_ratio = img->h / (float) img->w;
   float min_y_normalized = h_w_ratio * min_x_normalized;
   float max_y_normalized = h_w_ratio * max_x_normalized;
-  K[0] = focal_x;
-  K[2] = center_x;
-  K[4] = focal_y;
-  K[5] = center_y;
+  K[0] = camera_intrinsics.focal_x;
+  K[2] = camera_intrinsics.center_x;
+  K[4] = camera_intrinsics.focal_y;
+  K[5] = camera_intrinsics.center_y;
 
   // create an image of the same size:
   struct image_t img_distorted;
@@ -116,7 +86,7 @@ struct image_t *undistort_image_func(struct image_t *img)
       if(center_ratio == 1.0f ||
           (x_n > center_ratio * min_x_normalized && x_n < center_ratio * max_x_normalized && y_n > center_ratio * min_y_normalized && y_n < center_ratio * max_y_normalized)
           ) {
-        normalized_coords_to_distorted_pixels(x_n, y_n, &x_pd, &y_pd, dhane_k, K);
+        normalized_coords_to_distorted_pixels(x_n, y_n, &x_pd, &y_pd, camera_intrinsics.Dhane_k, K);
         if(x_pd > 0.0f && y_pd > 0.0f) {
           x_pd_ind = (uint32_t) x_pd;
           y_pd_ind = (uint32_t) y_pd;
@@ -139,18 +109,14 @@ struct image_t *undistort_image_func(struct image_t *img)
 void undistort_image_init(void)
 {
   // set the calibration matrix
-  focal_x = UNDISTORT_FOCAL_X;
-  center_x = UNDISTORT_CENTER_X;
-  focal_y = UNDISTORT_FOCAL_Y;
-  center_y = UNDISTORT_CENTER_Y;
-  K[0] = focal_x;
-  K[2] = center_x;
-  K[4] = focal_y;
-  K[5] = center_y;
+  camera_intrinsics = UNDISTORT_CAMERA.camera_intrinsics;
+  K[0] = camera_intrinsics.focal_x;
+  K[2] = camera_intrinsics.center_x;
+  K[4] = camera_intrinsics.focal_y;
+  K[5] = camera_intrinsics.center_y;
 
   min_x_normalized = UNDISTORT_MIN_X_NORMALIZED;
   max_x_normalized = UNDISTORT_MAX_X_NORMALIZED;
   center_ratio = UNDISTORT_CENTER_RATIO;
-  dhane_k = UNDISTORT_DHANE_K;
   listener = cv_add_to_device(&UNDISTORT_CAMERA, undistort_image_func, UNDISTORT_FPS);
 }

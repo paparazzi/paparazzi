@@ -104,6 +104,10 @@ let flag_xml2mk = fun f ?(target="$(TARGET)") xml ->
 let define_xml2mk = fun f ?(target="$(TARGET)") xml ->
   let name = Xml.attrib xml "name"
   and value = try Some (Xml.attrib xml "value") with _ -> None in
+  let _ = try
+    ignore(Xml.attrib xml "unit");
+    prerr_endline ("Warning: 'unit' attribute for '"^name^"' in firmware section is not handled") with _ -> ()
+  in
   let flag_type = fun s ->
     match ExtXml.attrib_or_default xml "type" "raw", value with
     | "string", Some v -> "=\\\""^v^"\\\""

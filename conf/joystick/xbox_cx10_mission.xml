@@ -1,0 +1,81 @@
+<!--
+X-Box gamepad for CX10DS mission mode
+
+This config is for Xinput mode. Make sure slider switch on back of controller is on X (not D)
+Also make sure controller not in sports mode (mode light should be off)
+
+  Has six axes:
+  axis 0: LTS_H (left thumb stick horizontal) (or DPad horizontal in sports mode)
+  axis 1: LTS_V (left thumb stick vertical) (or DPad vertical in sports mode)
+  axis 2: LT (left trigger)
+  axis 3: RTS_H (right thumb stick horizontal)
+  axis 4: RTS_V (right thumb stick vertical)
+  axis 5: RT (right trigger)
+
+It has 10 buttons.
+ b0  - A (green)
+ b1  - B (red)
+ b2  - RB (right shoulder button)
+ b3  - X (blue)
+ b4  - Y (yellow)
+ b5  - LB (left shoulder button)
+ b6  - back
+ b7  - start
+ b8  - press left stick
+ b9  - press right stick
+
+and the DPad as a hat (in normal mode)
+You can use the Hat<Position>(<hat_name>) function to trigger events,
+where <Position> is one of
+Centered/Up/Right/Down/Left/RightUp/RightDown/LeftUp/LeftDown
+so e.g. HatDown(dpad)
+
+-->
+
+<joystick>
+  <input>
+    <axis index="0" name="roll" limit="1.00" exponent="0.7" trim="0" deadband="10"/>
+    <axis index="1" name="pitch" limit="1.00" exponent="0.7" trim="0" deadband="10"/>
+    <axis index="2" name="LT" limit="1.00" trim="127"/>
+    <axis index="3" name="yaw" limit="1.00" exponent="0.7" trim="0" deadband="10"/>
+    <axis index="4" name="throttle" deadband="10"/>
+    <axis index="5" name="RT" limit="1.00" trim="127"/>
+    <button index="0" name="A"/>
+    <button index="1" name="B"/>
+    <button index="2" name="RB"/>
+    <button index="3" name="X"/>
+    <button index="4" name="Y"/>
+    <button index="5" name="LB"/>
+    <button index="6" name="back"/>
+    <button index="7" name="start"/>
+    <hat index="0" name="dpad"/>
+  </input>
+
+  <variables>
+    <var name="auto" default="0"/>
+    <var name="mode" default="0"/>
+    <set var="auto" value="0" on_event="back"/>
+    <set var="auto" value="1" on_event="start"/>
+    <set var="mode" value="0" on_event="B"/>
+    <set var="mode" value="1" on_event="RB"/>
+    <set var="mode" value="2" on_event="A"/>
+    <set var="mode" value="64" on_event="X"/>
+    <set var="mode" value="128" on_event="Y"/>
+  </variables>
+
+  <messages period="0.05">
+
+    <message class="ground" name="JOYSTICK" send_always="true">
+      <field name="id"      value="JoystickID()"/>
+      <field name="axis1"   value="Fit(yaw,-128,127,0,255)"/>
+      <field name="axis2"   value="Fit(-throttle,-128,127,0,255)"/>
+      <field name="axis3"   value="Fit(roll,-128,127,0,255)"/>
+      <field name="axis4"   value="Fit(-pitch,-128,127,0,255)"/>
+      <field name="button1" value="255"/>
+      <field name="button2" value="mode"/>
+      <field name="button3" value="auto"/>
+      <field name="button4" value="LB"/>
+    </message>
+
+  </messages>
+</joystick>

@@ -31,7 +31,7 @@
 #define PWM_TICS_OF_USEC(us)   (uint32_t)((us) *1e-6 * PCLK / PWM_PRESCALER + 0.5)
 
 #define SERVOS_TICS_OF_USEC(s) PWM_TICS_OF_USEC(s)
-#define ChopServo(x,a,b) Chop(x, a, b)
+#define ClipServo(x,a,b) Clip(x, a, b)
 
 #define _4015_NB_CHANNELS 8
 extern uint16_t servos_values[_4015_NB_CHANNELS];

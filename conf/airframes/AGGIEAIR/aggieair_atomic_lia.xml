@@ -53,9 +53,7 @@ AggieAir Atomic Tangerine
     <define name="AGR_CLIMB" />
     <define name="POLY_OSAM_HALF_SWEEP_ENABLED" value="FALSE"/>
     <define name="GEOFENCE_DATALINK_LOST_TIME" value="45"/>
-  </firmware>
 
-  <modules>
     <module name="nav" type="line"/>
     <module name="nav" type="flower"/>
     <module name="nav" type="survey_poly_osam"/>
@@ -83,7 +81,7 @@ AggieAir Atomic Tangerine
       <define name="BATMON_TEMP_SENSITIVITY" value="10"/>
     </module>
     <module name="air_data"/>
-  </modules>
+  </firmware>
 
   <!-- commands section -->
   <!-- Servo Configuration -->

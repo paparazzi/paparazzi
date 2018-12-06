@@ -47,10 +47,6 @@
     </module>
 
     <define name="GEOFENCE_DATALINK_LOST_TIME" value="45"/>
-  </firmware>
-
-
-  <modules>
     <module name="sys_mon"/>
     <module name="extra_dl">
       <!-- in order to use uart1 without chibios we need to remap the peripheral-->
@@ -67,7 +63,7 @@
       <define name="BATMON_TEMP_OFFSET" value="250"/>
       <define name="BATMON_TEMP_SENSITIVITY" value="10"/>
     </module>
-  </modules>
+  </firmware>
 
     <servos driver="Pwm">
     <servo name="FL" no="0" min="1000" neutral="1100" max="1900"/>

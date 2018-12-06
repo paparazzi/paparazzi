@@ -365,7 +365,7 @@
   <!-- ************************** COMMAND-LAWS ******************************* -->
   <command_laws>
     <!-- Brake Slowdown -->
-    <let var="brake_value_nofilt" value="Chop(-@BRAKE, 0, MAX_PPRZ)"/>
+    <let var="brake_value_nofilt" value="Clip(-@BRAKE, 0, MAX_PPRZ)"/>
     <ratelimit var="brake_value" value="$brake_value_nofilt" rate_min="-BRAKE_ENABLED_SLOWDOWN_FACTOR_RETRACT" rate_max="BRAKE_ENABLED_SLOWDOWN_FACTOR_EXTEND"/>
     <let var="aileron" value="@ROLL  * ELEVON_ROLL_FACTOR"/>
     <let var="elevator" value="@PITCH * ELEVON_PITCH_FACTOR"/>

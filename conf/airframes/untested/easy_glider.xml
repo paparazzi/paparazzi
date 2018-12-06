@@ -38,7 +38,7 @@
   </section>
 
   <command_laws>
-    <ratelimit var="brake_value" value="Chop(@BRAKE, 0, MAX_PPRZ)" rate_min="-MAX_BRAKE_RATE" rate_max="MAX_BRAKE_RATE" />
+    <ratelimit var="brake_value" value="Clip(@BRAKE, 0, MAX_PPRZ)" rate_min="-MAX_BRAKE_RATE" rate_max="MAX_BRAKE_RATE" />
 
     <set servo="THROTTLE" value="@THROTTLE"/>
     <set servo="ELEVATOR" value="@PITCH + BRAKE_PITCH * $brake_value"/>

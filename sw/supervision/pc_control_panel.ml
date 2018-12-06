@@ -28,14 +28,59 @@ module Utils = Pc_common
 
 let (//) = Filename.concat
 
+(*Search recursively files in a directory*)
+let walk_directory_tree dir pattern =
+  let re = Str.regexp pattern in (* pre-compile the regexp *)
+  let select str = Str.string_match re str 0 in
+  let rec walk acc = function
+  | [] -> (acc)
+  | dir::tail ->
+      let contents = Array.to_list (Sys.readdir dir) in
+      let contents = List.rev_map (Filename.concat dir) contents in
+      let dirs, files =
+        List.fold_left (fun (dirs,files) f ->
+             match (Unix.stat f).Unix.st_kind with
+             | Unix.S_REG -> (dirs, f::files)  (* Regular file *)
+             | Unix.S_DIR -> (f::dirs, files)  (* Directory *)
+             | _ -> (dirs, files)
+          ) ([],[]) contents
+      in
+      let matched = List.filter (select) files in
+      walk (matched @ acc) (dirs @ tail)
+  in
+  walk [] [dir]
+
 let control_panel_xml_file = Utils.conf_dir // "control_panel.xml"
 let control_panel_xml = ExtXml.parse_file control_panel_xml_file
+let tools_directory = (Utils.conf_dir // "tools")
+let tool_files = if (Sys.file_exists tools_directory) then (walk_directory_tree tools_directory ".*\\.xml") else []
+let tools_xml = List.map (fun f -> ExtXml.parse_file f) tool_files
+let blacklist_file = tools_directory // "blacklisted"
+
+let rec build_list l channel =
+    try
+      build_list ((input_line channel) :: l) channel
+    with End_of_file -> close_in channel; List.rev l
+
 let programs =
   let h = Hashtbl.create 7 in
   let s = ExtXml.child ~select:(fun x -> Xml.attrib x "name" = "programs") control_panel_xml "section" in
+  (*List blacklisted programs*)
+  let b = if Sys.file_exists blacklist_file
+            then (List.filter (fun s -> ((String.length s) > 0 && (String.get s 0) != '#')) (build_list [] (open_in blacklist_file)))
+            else [] in
+  (*Adds tools to h*)
   List.iter
     (fun p -> Hashtbl.add h (ExtXml.attrib p "name") p)
+    tools_xml;
+  (*Overwrite tools in h by the custom configuration from control_panel.xml*)
+  List.iter
+    (fun p -> Hashtbl.replace h (ExtXml.attrib p "name") p)
     (Xml.children s);
+  (*Remove blacklisted programs*)
+  List.iter
+    (fun p -> Hashtbl.remove h p)
+    b;
   h
 
 let program_command = fun x ->
