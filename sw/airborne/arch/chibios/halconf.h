@@ -78,25 +78,12 @@
 
 /**
  * @brief   Enables the cryptographic subsystem.
- * 
- * NOTE: we have to differentiate between newer STM32F7 boards
- * that are supported directly by HAL, and older STM32F4 boards
- * that need ChibiOS-Contrib drivers to support random number gen
  */
 #if !defined(HAL_USE_CRY) || defined(__DOXYGEN__)
 #if USE_RNG
-#if defined(__STM32F7xx_H)
 #define HAL_USE_CRY                 TRUE
-#define HAL_USE_RNG                 FALSE
-#else 
-#if defined(__STM32F4xx_H)
-#define HAL_USE_CRY                 FALSE
-#define HAL_USE_RNG                 TRUE
-#endif
-#endif
 #else
 #define HAL_USE_CRY                 FALSE
-#define HAL_USE_RNG                 FALSE
 #endif
 #endif
 
