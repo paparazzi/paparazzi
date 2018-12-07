@@ -4,9 +4,11 @@
 #![feature(alloc_error_handler)]
 #![feature(lang_items)] 
 
+#[allow(unused_extern_crates)] // NOTE(allow) bug rust-lang/rust#53964
+extern crate panic_halt; // panic handler
+
 extern crate alloc;
 
-use core::panic::PanicInfo;
 use core::alloc::{GlobalAlloc, Layout};
 use core::ptr;
 
@@ -14,11 +16,6 @@ use core::ptr;
 #[no_mangle]
 pub extern "C" fn rust_eh_personality() {}
 
-#[panic_handler]
-#[no_mangle]
-pub extern fn panic(_info: &PanicInfo) -> ! {
-	loop{}
-}
 
 // See https://github.com/rust-lang/rust/issues/51540
 #[alloc_error_handler]
