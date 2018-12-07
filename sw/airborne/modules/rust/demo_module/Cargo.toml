@@ -14,6 +14,9 @@ crate-type = ["staticlib"]
 "not_std" = ["rust_alloc_chibios"]
 default = []
 
+[build-dependencies]
+bindgen = "0.42.2"
+
 [dependencies]
 
 [dependencies.rust_alloc_chibios]

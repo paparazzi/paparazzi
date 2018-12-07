@@ -20,7 +20,7 @@
     <define name="KRML_NOUINT128"/>    <define name="HAL_USE_CRY" value="TRUE"/>
     <raw>
       # tell Makefile.ac to generate keys
-      CARGO_RUN_MANIFESTS += $(PAPARAZZI_SRC)/sw/ext/key_generator/Cargo.toml
+      GENERATE_KEYS = 1
     </raw>
   </makefile>
 </module>
