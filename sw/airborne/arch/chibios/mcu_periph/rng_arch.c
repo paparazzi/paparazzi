@@ -26,7 +26,11 @@
  */
 #include "hal.h"
 #include <string.h>
+#include "std.h"
 
+#if defined(__STM32F4xx_H) || defined(__STM32F7xx_H)
+
+#if defined(__STM32F7xx_H)
 struct CRYDriver cryp;
 const CRYConfig *config;
 
@@ -56,3 +60,12 @@ uint32_t rng_wait_and_get(void) {
   memcpy(&rnd, crypto_buf, sizeof(rnd));
   return rnd;
 }
+#endif /* defined(__STM32F7xx_H) */
+
+#if defined(__STM32F4xx_H)
+WARNING("ChibiOS does not provide random number generator for STM32F4 board. Use ChibiOs-contrib.");
+#endif /* defined(__STM32F4xx_H) */
+
+#else
+WARNING("Random number generator is not implemented for this architecture.");
+#endif /*  defined(__STM32F4xx_H) || defined(__STM32F7xx_H)  */

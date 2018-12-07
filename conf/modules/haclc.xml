@@ -17,7 +17,7 @@
     <file name="Hacl_Curve25519.c" dir="../ext/hacl-c"/>
     <file name="Hacl_Ed25519.c" dir="../ext/hacl-c"/>
     <file name="Hacl_SHA2_512.c" dir="../ext/hacl-c"/>
-    <define name="KRML_NOUINT128"/>    <define name="HAL_USE_CRY" value="TRUE"/>
+    <define name="KRML_NOUINT128"/>
     <raw>
       # tell Makefile.ac to generate keys
       GENERATE_KEYS = 1
