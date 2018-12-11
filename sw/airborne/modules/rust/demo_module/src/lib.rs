@@ -7,9 +7,14 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 include!(concat!(env!("OUT_DIR"), "/airframe.rs"));
-//include!(concat!(env!("OUT_DIR"), "/state.rs"));
 
 extern crate alloc;
+
+extern crate pprz_compat;
+
+// Example of linking State and Actuators interfaces
+use pprz_compat::actuators::actuators;
+use pprz_compat::state::State;
 
 #[cfg(feature = "use_std")]
 extern crate rust_alloc_sim;

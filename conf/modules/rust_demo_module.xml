@@ -47,7 +47,7 @@
       MODULE_PATH = $(PAPARAZZI_SRC)/sw/airborne/modules/rust/demo_module
       RUST_MODULES += $(MODULE_PATH)
       RUST_DIRS += $(MODULE_PATH)/target/$(RUST_ARCH)/release
-      RUST_LIBS += -lrust_module
+      RUST_LIBS += -lrust_demo_module
     </raw>
   </makefile>
 

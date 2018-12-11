@@ -1,5 +1,5 @@
-extern crate pprz_compat;
+extern crate pprz_compat_build;
 
 fn main() {
-    pprz_compat::generate_bindings();
+    pprz_compat_build::generate_bindings();
 }

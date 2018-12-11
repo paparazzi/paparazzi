@@ -15,7 +15,10 @@ default = []
 
 [build-dependencies]
 
-[build-dependencies.pprz_compat]
+[build-dependencies.pprz_compat_build]
+path = "../pprz_compat_build"
+
+[dependencies.pprz_compat]
 path = "../pprz_compat"
 
 [dependencies.rust_alloc_chibios]

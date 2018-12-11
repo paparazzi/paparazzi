@@ -1,0 +1,9 @@
+[package]
+name = "pprz_compat_build"
+version = "0.1.0"
+authors = ["Michal Podhradsky <mpodhradsky@galois.com>"]
+edition = "2018"
+
+[dependencies]
+bindgen = "0.42.2"
+cbindgen = "0.6.7"
