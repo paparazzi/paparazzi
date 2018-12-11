@@ -199,7 +199,7 @@ ifneq	($(RUST_ARCH),)
 	@$(foreach module_path, $(RUST_MODULES),\
 	echo Building $(module_path);\
 	cd $(module_path) && \
-	cargo build --target $(RUST_ARCH) --verbose --release --features $(RUST_FEATURES);)
+	AC_GENERATED=$(AC_GENERATED) cargo build --target $(RUST_ARCH) --verbose --release --features $(RUST_FEATURES);)
 else
 	@echo "Error: RUST_ARCH not specified, this board is likely not supported."
 endif # Check Rust Arch

@@ -1,11 +1,10 @@
 [package]
-name = "demo_module"
+name = "rust_demo_module"
 version = "0.1.0"
 authors = ["Michal Podhradsky <mpodhradsky@galois.com>"]
 edition = "2018"
 
 [lib]
-name = "rust_module"
 path = "src/lib.rs"
 crate-type = ["staticlib"]
 
@@ -15,9 +14,9 @@ crate-type = ["staticlib"]
 default = []
 
 [build-dependencies]
-bindgen = "0.42.2"
 
-[dependencies]
+[build-dependencies.pprz_compat]
+path = "../pprz_compat"
 
 [dependencies.rust_alloc_chibios]
 path = "../rust_alloc_chibios"
