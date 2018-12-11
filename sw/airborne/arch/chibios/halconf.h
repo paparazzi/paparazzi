@@ -75,18 +75,6 @@
 #endif
 #endif
 
-
-/**
- * @brief   Enables the cryptographic subsystem.
- */
-#if !defined(HAL_USE_CRY) || defined(__DOXYGEN__)
-#if USE_RNG
-#define HAL_USE_CRY                 TRUE
-#else
-#define HAL_USE_CRY                 FALSE
-#endif
-#endif
-
 /**
  * @brief   Enables the DAC subsystem.
  */
