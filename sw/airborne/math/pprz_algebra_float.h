@@ -467,7 +467,10 @@ extern void float_quat_of_eulers(struct FloatQuat *q, struct FloatEulers *e);
 extern void float_quat_of_eulers_zxy(struct FloatQuat *q, struct FloatEulers *e);
 extern void float_quat_of_eulers_yxz(struct FloatQuat *q, struct FloatEulers *e);
 
-/// Quaternion from unit vector and angle.
+/** Quaternion from unit vector and angle.
+ * Output quaternion is not normalized.
+ * It will be a unit quaternion only if the input vector is also unitary.
+ */
 extern void float_quat_of_axis_angle(struct FloatQuat *q, const struct FloatVect3 *uv, float angle);
 
 /** Quaternion from orientation vector.

@@ -550,8 +550,8 @@ void float_quat_of_eulers_yxz(struct FloatQuat *q, struct FloatEulers *e)
 
 void float_quat_of_axis_angle(struct FloatQuat *q, const struct FloatVect3 *uv, float angle)
 {
-  const float san = sinf(angle / 2.);
-  q->qi = cosf(angle / 2.);
+  const float san = sinf(angle / 2.f);
+  q->qi = cosf(angle / 2.f);
   q->qx = san * uv->x;
   q->qy = san * uv->y;
   q->qz = san * uv->z;

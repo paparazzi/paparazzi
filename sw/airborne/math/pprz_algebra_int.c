@@ -412,10 +412,10 @@ void int32_quat_of_axis_angle(struct Int32Quat *q, struct Int32Vect3 *uv, int32_
   PPRZ_ITRIG_SIN(san2, (angle / 2));
   int32_t can2;
   PPRZ_ITRIG_COS(can2, (angle / 2));
-  q->qi = can2;
-  q->qx = san2 * uv->x;
-  q->qy = san2 * uv->y;
-  q->qz = san2 * uv->z;
+  q->qi = (can2 << (INT32_QUAT_FRAC-INT32_TRIG_FRAC));
+  q->qx = (san2 << (INT32_QUAT_FRAC-INT32_TRIG_FRAC)) * uv->x;
+  q->qy = (san2 << (INT32_QUAT_FRAC-INT32_TRIG_FRAC)) * uv->y;
+  q->qz = (san2 << (INT32_QUAT_FRAC-INT32_TRIG_FRAC)) * uv->z;
 }
 
 void int32_quat_of_rmat(struct Int32Quat *q, struct Int32RMat *r)
