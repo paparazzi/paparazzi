@@ -408,18 +408,6 @@
    gui_color="red"
   />
   <aircraft
-   name="autonomous_race_2017"
-   ac_id="8"
-   airframe="airframes/tudelft/bebop_autonomous_race_2017.xml"
-   radio="radios/dummy.xml"
-   telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/rotorcraft_basic.xml"
-   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_speed.xml"
-   settings_modules="modules/video_rtp_stream.xml modules/cv_opticflow.xml modules/air_data.xml modules/geo_mag.xml modules/ins_extended.xml modules/ahrs_float_mlkf.xml modules/stabilization_int_quat.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
-   gui_color="#ffffbc3bce5b"
-   release="3fc18944dc13632f0ace7c7035dfc8286be88668"
-  />
-  <aircraft
    name="autonomous_race_2018"
    ac_id="121"
    airframe="airframes/tudelft/bebop_autonomous_race_2018.xml"

@@ -23,18 +23,6 @@
    gui_color="#ffffffffffff"
   />
   <aircraft
-   name="EFlite-UMX_Sbach_342"
-   ac_id="231"
-   airframe="airframes/OPENUAS/openuas_eflite_umx_sbach_342.xml"
-   radio="radios/OPENUAS/openuas_mx22_cppm_7.xml"
-   telemetry="telemetry/OPENUAS/openuas_fixedwing_imu_rc.xml"
-   flight_plan="flight_plans/versatile.xml"
-   settings="settings/fixedwing_basic.xml [settings/estimation/ac_char.xml] [settings/control/ctl_energy.xml] settings/rc_settings_ins.xml settings/control/tune_agr_climb.xml [settings/control/ctl_energyadaptive.xml] [settings/OPENUAS/openuas_tuning_rc.xml]"
-   settings_modules="modules/nav_smooth.xml modules/nav_survey_poly_osam.xml modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/air_data.xml modules/gps.xml modules/nav_basic_fw.xml modules/guidance_basic_fw.xml modules/stabilization_attitude_fw.xml modules/ahrs_int_cmpl_quat.xml modules/imu_common.xml"
-   gui_color="#ffffffffffff"
-   release="0f08b3acd3b4c08c91d3597e357735682d70cb47"
-  />
-  <aircraft
    name="Itsy-Bitsy"
    ac_id="229"
    airframe="airframes/OPENUAS/openuas_itsybitsy.xml"
