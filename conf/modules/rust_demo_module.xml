@@ -33,7 +33,7 @@
     <file name="pprz_syscalls.c" dir="."/>
   </makefile>
 
-  <makefile target="ap|nps">
+  <makefile target="ap|nps|hitl">
     <!--
       MODULE_PATH is where the module lives.
       RUST_MODULES contains all Rust modules that should be built.
