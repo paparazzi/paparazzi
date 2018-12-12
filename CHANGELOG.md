@@ -1,3 +1,137 @@
+Paparazzi v5.13.0_testing
+========================
+
+First release candidate for v5.14
+
+General
+-------
+- split tools description into individual files
+  [#2350] (https://github.com/paparazzi/paparazzi/pull/2350)
+- add ROVER firmware
+  [#2276] (https://github.com/paparazzi/paparazzi/pull/2276)
+- Ocaml 4.05 compat
+  [#2221] (https://github.com/paparazzi/paparazzi/pull/2221)
+- Python pprz center improvements
+  [#2236] (https://github.com/paparazzi/paparazzi/pull/2236)
+  [#2210] (https://github.com/paparazzi/paparazzi/pull/2210)
+  [#2093] (https://github.com/paparazzi/paparazzi/pull/2093)
+- fix compilations for GCC7
+  [#2233] (https://github.com/paparazzi/paparazzi/pull/2233)
+  [#2208] (https://github.com/paparazzi/paparazzi/pull/2208)
+- support for NatNet3
+  [#2198] (https://github.com/paparazzi/paparazzi/pull/2198)
+- use PPRZLINK v2.0 by default
+  [#2191] (https://github.com/paparazzi/paparazzi/pull/2191)
+- store SHA in aircraft conf
+  [#1921] (https://github.com/paparazzi/paparazzi/pull/1921)
+- improve Gazebo support
+  [#2357] (https://github.com/paparazzi/paparazzi/pull/2357)
+  [#2338] (https://github.com/paparazzi/paparazzi/pull/2338)
+  [#2335] (https://github.com/paparazzi/paparazzi/pull/2335)
+  [#2230] (https://github.com/paparazzi/paparazzi/pull/2230)
+  [#2225] (https://github.com/paparazzi/paparazzi/pull/2225)
+  [#2219] (https://github.com/paparazzi/paparazzi/pull/2219)
+  [#2172] (https://github.com/paparazzi/paparazzi/pull/2172)
+  [#2149] (https://github.com/paparazzi/paparazzi/pull/2149)
+  [#2120] (https://github.com/paparazzi/paparazzi/pull/2120)
+  [#2128] (https://github.com/paparazzi/paparazzi/pull/2128)
+  [#2135] (https://github.com/paparazzi/paparazzi/pull/2135)
+- start Sphinx doc
+  [#2247] (https://github.com/paparazzi/paparazzi/pull/2247)
+- set xbee channel option
+  [#2290] (https://github.com/paparazzi/paparazzi/pull/2290)
+  [#2288] (https://github.com/paparazzi/paparazzi/pull/2288)
+- fix Docker image and dependencies
+- conf cleaning
+
+GCS
+---
+- display air traffic from Opensky network
+  [#2259] (https://github.com/paparazzi/paparazzi/pull/2259)
+- configuration
+  [#2131] (https://github.com/paparazzi/paparazzi/pull/2131)
+- improve cam footprint
+  [#2103] (https://github.com/paparazzi/paparazzi/pull/2103)
+- A/C on top
+  [#2274] (https://github.com/paparazzi/paparazzi/pull/2274)
+
+Airborne
+--------
+- update RC lost behavior
+  [#2287] (https://github.com/paparazzi/paparazzi/pull/2287)
+  [#2286] (https://github.com/paparazzi/paparazzi/pull/2286)
+- update to ChibiOS 18.2.2
+  [#2296] (https://github.com/paparazzi/paparazzi/pull/2296)
+- fix intermcu
+  [#2275] (https://github.com/paparazzi/paparazzi/pull/2275)
+- throttle curve
+  [#1878] (https://github.com/paparazzi/paparazzi/pull/1878)
+- INDI control improvements
+  [#2200] (https://github.com/paparazzi/paparazzi/pull/2200)
+  [#2145] (https://github.com/paparazzi/paparazzi/pull/2145)
+- Estimation filters (drag, wind)
+  [#2351] (https://github.com/paparazzi/paparazzi/pull/2351)
+  [#2320] (https://github.com/paparazzi/paparazzi/pull/2320)
+  [#1910] (https://github.com/paparazzi/paparazzi/pull/1910)
+  [#2262] (https://github.com/paparazzi/paparazzi/pull/2262)
+  [#2161] (https://github.com/paparazzi/paparazzi/pull/2161)
+  [#2132] (https://github.com/paparazzi/paparazzi/pull/2132)
+- range sensor
+  [#2158] (https://github.com/paparazzi/paparazzi/pull/2158)
+- HACL-C, secure telemetry, RNG support
+  [#2245] (https://github.com/paparazzi/paparazzi/pull/2245)
+  [#2235] (https://github.com/paparazzi/paparazzi/pull/2235)
+  [#2205] (https://github.com/paparazzi/paparazzi/pull/2205)
+  [#2199] (https://github.com/paparazzi/paparazzi/pull/2199)
+  [#2192] (https://github.com/paparazzi/paparazzi/pull/2192)
+  [#2150] (https://github.com/paparazzi/paparazzi/pull/2150)
+  [#2163] (https://github.com/paparazzi/paparazzi/pull/2163)
+  [#2164] (https://github.com/paparazzi/paparazzi/pull/2164)
+- math and filter lib
+  [#2226] (https://github.com/paparazzi/paparazzi/pull/2226)
+  [#2160] (https://github.com/paparazzi/paparazzi/pull/2160)
+  [#2156] (https://github.com/paparazzi/paparazzi/pull/2156)
+  [#2142] (https://github.com/paparazzi/paparazzi/pull/2142)
+- bebop wifi tools
+  [#2234] (https://github.com/paparazzi/paparazzi/pull/2234)
+  [#2146] (https://github.com/paparazzi/paparazzi/pull/2146)
+- preliminary F3 and X-Vert support
+  [#2113] (https://github.com/paparazzi/paparazzi/pull/2113)
+- computer vision fixes and improvements
+  [#2363] (https://github.com/paparazzi/paparazzi/pull/2363)
+  [#2334] (https://github.com/paparazzi/paparazzi/pull/2334)
+  [#2330] (https://github.com/paparazzi/paparazzi/pull/2330)
+  [#2324] (https://github.com/paparazzi/paparazzi/pull/2324)
+  [#2325] (https://github.com/paparazzi/paparazzi/pull/2325)
+  [#2315] (https://github.com/paparazzi/paparazzi/pull/2315)
+  [#2308] (https://github.com/paparazzi/paparazzi/pull/2308)
+  [#2305] (https://github.com/paparazzi/paparazzi/pull/2305)
+  [#2297] (https://github.com/paparazzi/paparazzi/pull/2297)
+  [#2173] (https://github.com/paparazzi/paparazzi/pull/2173)
+  [#2269] (https://github.com/paparazzi/paparazzi/pull/2269)
+  [#2239] (https://github.com/paparazzi/paparazzi/pull/2239)
+  [#2215] (https://github.com/paparazzi/paparazzi/pull/2215)
+  [#2195] (https://github.com/paparazzi/paparazzi/pull/2195)
+  [#2159] (https://github.com/paparazzi/paparazzi/pull/2159)
+  [#2150] (https://github.com/paparazzi/paparazzi/pull/2150)
+  [#2096] (https://github.com/paparazzi/paparazzi/pull/2096)
+- Decawave UWB modules
+  [#2154] (https://github.com/paparazzi/paparazzi/pull/2154)
+- formation control
+  [#2293] (https://github.com/paparazzi/paparazzi/pull/2293)
+  [#2246] (https://github.com/paparazzi/paparazzi/pull/2246)
+  [#2206] (https://github.com/paparazzi/paparazzi/pull/2206)
+- fix mission control
+  [#2211] (https://github.com/paparazzi/paparazzi/pull/2211)
+- Jevois smart camera support
+  [#2342] (https://github.com/paparazzi/paparazzi/pull/2342)
+  [#2343] (https://github.com/paparazzi/paparazzi/pull/2343)
+  [#2322] (https://github.com/paparazzi/paparazzi/pull/2322)
+- better arming status messages
+- rewrite Spektrum driver
+  [#2250] (https://github.com/paparazzi/paparazzi/pull/2250)
+
+
 Paparazzi v5.12_stable
 ======================
 
