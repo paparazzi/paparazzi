@@ -37,9 +37,6 @@
 
 // outputs
 extern float *texton_distribution; // main outcome of the image processing: the distribution of textons in the image
-float *TD_0; // temporary array meant for internal use
-float *TD_1; // temporary array meant for internal use
-uint8_t TD_ID; // indicates which array to take
 
 // settings
 extern uint8_t running;
@@ -68,10 +65,12 @@ void DictionaryTrainingYUV(uint8_t *frame, uint16_t width, uint16_t height);
 void DistributionExtraction(uint8_t *frame, uint16_t width, uint16_t height);
 void save_texton_dictionary(void);
 void load_texton_dictionary(void);
+float* get_texton_distribution();
 
 // Module functions
 extern void textons_init(void);
 extern void textons_stop(void);
+
 
 // helper functions (potentially should go elsewhere):
 float get_entropy(float *p_dist, int D);

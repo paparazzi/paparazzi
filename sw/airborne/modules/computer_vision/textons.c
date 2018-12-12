@@ -29,15 +29,16 @@
  * augmenting the corresponding bin in the texton histogram.
  */
 
-// TODO: Read https://stackoverflow.com/questions/10879420/using-of-shared-variable-by-10-pthreads
-
 #include <pthread.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include "modules/computer_vision/cv.h"
 #include "modules/computer_vision/textons.h"
 
-static pthread_mutex_t textons_mutex; ///< Mutex lock fo thread safety
+static pthread_mutex_t textons_mutex; ///< Mutex lock for thread safety
+float *TD_0; // temporary array meant for internal use
+float *TD_1; // temporary array meant for internal use
+uint8_t TD_ID; // indicates which array to take
 
 float ** **dictionary;
 uint32_t learned_samples = 0;
@@ -420,6 +421,12 @@ void DictionaryTrainingYUV(uint8_t *frame, uint16_t width, uint16_t height)
   free(buf);
 }
 
+float* get_texton_distribution() {
+	float* texton_distr = (float *)malloc(n_textons * sizeof(float));
+	memcpy(texton_distr, texton_distribution, n_textons * sizeof(float));
+	return texton_distr;
+}
+
 /**
  * Function that extracts a texton histogram from an image.
  * @param[in] frame* The YUV image data
@@ -647,10 +654,6 @@ void textons_init(void)
   TD_ID = 0;
   TD_0 = (float *)calloc(MAX_N_TEXTONS, sizeof(float));
   TD_1 = (float *)calloc(MAX_N_TEXTONS, sizeof(float));
-  for (int i = 0; i < MAX_N_TEXTONS; i++) {
-    TD_0[i] = 0.0f;
-    TD_1[i] = 0.0f;
-  }
 
   dictionary_initialized = 0;
   learned_samples = 0;
