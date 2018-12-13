@@ -17,6 +17,9 @@ RTOS=chibios
 ## FPU on F4
 USE_FPU=hard
 
+# See list of supported Tier 3 architectures at: https://forge.rust-lang.org/platform-support.html
+RUST_ARCH = thumbv7em-none-eabihf
+
 $(TARGET).CFLAGS += -DSTM32F4 -DPPRZLINK_ENABLE_FD
 
 ##############################################################################

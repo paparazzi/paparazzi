@@ -1,0 +1,30 @@
+[package]
+name = "rust_demo_module"
+version = "0.1.0"
+authors = ["Michal Podhradsky <mpodhradsky@galois.com>"]
+edition = "2018"
+
+[lib]
+path = "src/lib.rs"
+crate-type = ["staticlib"]
+
+[features]
+"use_std" = ["rust_alloc_sim"]
+"not_std" = ["rust_alloc_chibios"]
+default = []
+
+[build-dependencies]
+
+[build-dependencies.pprz_compat_build]
+path = "../pprz_compat_build"
+
+[dependencies.pprz_compat]
+path = "../pprz_compat"
+
+[dependencies.rust_alloc_chibios]
+path = "../rust_alloc_chibios"
+optional = true
+
+[dependencies.rust_alloc_sim]
+path = "../rust_alloc_sim"
+optional = true

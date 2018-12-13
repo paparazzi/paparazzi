@@ -6,6 +6,7 @@ AggieAir Minion Sim
 
 <airframe name="AggieAir Minion Sim">
   <firmware name="fixedwing">
+    <autopilot name="fixedwing_rusty.xml"/>
     <target name="ap" board="lisa_mx_2.1_chibios">
       <module name="radio_control" type="sbus">
         <configure name="SBUS_PORT" value="UART5"/>
@@ -54,6 +55,8 @@ AggieAir Minion Sim
     <define name="POLY_OSAM_HALF_SWEEP_ENABLED" value="FALSE"/>
     <define name="GEOFENCE_DATALINK_LOST_TIME" value="45"/>
 
+    <module name="rust_demo_module"/>
+  
     <module name="nav" type="line"/>
     <module name="nav" type="line_osam"/>
     <module name="nav" type="flower"/>

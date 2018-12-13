@@ -1,0 +1,55 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="rust_demo_module" dir="rust/demo_module">
+  <doc>
+    <description>
+      Simple rust module. It doesn't do much besides allocating a vector
+      and immediately freeying it afterwards.
+      Meant only as an example.
+
+      More info on Paparazzi wiki: https://wiki.paparazziuav.org/wiki/Rust
+    </description>
+  </doc>
+
+  <!-- 
+    We need a header file declaring the rust provided functions.
+    For simple cases, this can be done manually, but should eventually be
+    a part of the cargo/xargo build, preferably via `cbindgen` https://github.com/eqrion/cbindgen/
+  -->
+  <header>
+    <file name="rust_demo_module.h" />
+  </header>
+
+  <!--
+    Typical module functions. They are all void.
+  -->
+  <init fun="rust_function()"/>
+  <periodic fun="rust_periodic()" freq="1." autorun="TRUE"/>
+
+  <makefile target="ap">
+    <!-->
+      Additional defines needed by Rust's `alloc` crate
+    -->
+    <file name="pprz_syscalls.c" dir="."/>
+  </makefile>
+
+  <makefile target="ap|nps|hitl">
+    <!--
+      MODULE_PATH is where the module lives.
+      RUST_MODULES contains all Rust modules that should be built.
+      RUST_DIRS are paths to the module libraries, used by ChibiOS makefile.
+      RUST_LIBS are the actual libraries to be linked, used by ChibiOS makefile.
+      RUST_ARCH is board dependent.
+      Note - nothing is preventing name clashes, so make sure you name your
+      library appropriately.
+    -->
+    <raw>
+      MODULE_PATH = $(PAPARAZZI_SRC)/sw/airborne/modules/rust/demo_module
+      RUST_MODULES += $(MODULE_PATH)
+      RUST_DIRS += $(MODULE_PATH)/target/$(RUST_ARCH)/release
+      RUST_LIBS += -lrust_demo_module
+    </raw>
+  </makefile>
+
+</module>
+

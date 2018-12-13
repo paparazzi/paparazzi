@@ -1,0 +1,13 @@
+[package]
+name = "rust_alloc_chibios"
+version = "0.1.0"
+authors = ["Michal Podhradsky <mpodhradsky@galois.com>"]
+edition = "2018"
+
+[dependencies]
+panic-halt = "0.2.0"
+
+[features]
+"arch32" = []
+"arch16" = []
+default = ["arch32"]

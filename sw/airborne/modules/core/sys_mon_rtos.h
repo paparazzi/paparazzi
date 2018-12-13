@@ -45,7 +45,9 @@
 // RTOS structure
 struct rtos_monitoring {
   uint32_t core_free_memory;                        ///< core free memory in bytes
-  uint32_t heap_free_memory;                        ///< heap free memory in bytes
+  uint32_t heap_free_memory;                        ///< Total fragmented free memory in the heap
+  uint32_t heap_fragments;                          ///< Number of fragments in the heap
+  uint32_t heap_largest;                            ///< Largest free block in the heap
   uint8_t cpu_load;                                 ///< global CPU/MCU load in %
   uint8_t thread_counter;                           ///< number of threads
   uint16_t thread_load[RTOS_MON_MAX_THREADS];       ///< individual thread load in centi-percent (10*%)

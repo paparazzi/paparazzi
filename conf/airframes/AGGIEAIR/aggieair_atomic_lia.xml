@@ -81,7 +81,6 @@ AggieAir Atomic Tangerine
       <define name="BATMON_TEMP_SENSITIVITY" value="10"/>
     </module>
     <module name="air_data"/>
-
   </firmware>
 
   <!-- commands section -->

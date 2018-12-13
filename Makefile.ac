@@ -153,7 +153,7 @@ print_version:
 	@echo "Paparazzi version" $(GIT_DESC)$(VERSION_MATCH)
 	@echo "-----------------------------------------------------------------------"
 
-all_ac_h: $(SRCS_LIST) qt_project generate_keys
+all_ac_h: $(SRCS_LIST) qt_project generate_keys build_rust_modules
 
 $(SRCS_LIST) : $(CONF_XML) $(AIRFRAME_H) $(MODULES_H) $(SETTINGS_H) $(MAKEFILE_AC) $(PERIODIC_H)
 	@echo "TARGET: " $(TARGET) > $(SRCS_LIST)
@@ -180,6 +180,34 @@ endif
 endif
 
 CARGO=$(shell which cargo)
+# guard for simulation (NPS) target
+ifneq (,$(findstring thumb, $(RUST_ARCH)))
+	# thumbv6 or 7
+	RUST_FEATURES+="not_std"
+else
+	# using host architecture
+	RUST_FEATURES+="use_std"
+endif
+
+build_rust_modules:
+ifneq	($(CARGO),)
+ifneq ($(strip $(RUST_MODULES)),)
+ifneq	($(RUST_ARCH),)
+	@echo PROCESSING RUST MODULES
+	@echo $(RUST_MODULES)
+	@echo RUST_FEATURES = $(RUST_FEATURES)
+	@$(foreach module_path, $(RUST_MODULES),\
+	echo Building $(module_path);\
+	cd $(module_path) && \
+	AC_GENERATED=$(AC_GENERATED) cargo build --target $(RUST_ARCH) --verbose --release --features $(RUST_FEATURES);)
+else
+	@echo "Error: RUST_ARCH not specified, this board is likely not supported."
+endif # Check Rust Arch
+endif # No rust modules to process
+else
+	@echo "Error: Cargo (Rust) not found, cannot build Rust modules. Please install xargo."
+endif # Check if Cargo is present
+
 generate_keys:
 ifeq ($(GENERATE_KEYS),1)
 ifneq	($(CARGO),)
