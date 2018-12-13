@@ -7,7 +7,7 @@ AggieAir RP3 Minion
 <airframe name="Minion PR3">
 
   <firmware name="fixedwing">
-    <target name="ap" board="lisa_mx_2.1">
+    <target name="ap" board="lisa_mx_2.1_chibios">
       <module name="radio_control" type="sbus">
         <configure name="SBUS_PORT" value="UART5"/>
       </module>
@@ -58,6 +58,8 @@ AggieAir RP3 Minion
     <module name="nav" type="survey_poly_osam"/>
     <module name="nav" type="launcher"/>
     <module name="nav" type="skid_landing"/>
+
+    <module name="rust_demo_module"/>
 
     <module name="sys_mon"/>
     <module name="copilot"/>
