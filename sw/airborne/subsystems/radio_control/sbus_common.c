@@ -25,6 +25,7 @@
 
 #include "subsystems/radio_control.h"
 #include "subsystems/radio_control/sbus_common.h"
+#include "mcu_periph/sys_time.h"
 #include BOARD_CONFIG
 #include <string.h>
 #include <stdbool.h>
@@ -49,6 +50,12 @@
 #define SBUS_STATUS_UNINIT 0
 #define SBUS_STATUS_GOT_START 1
 
+/**
+ * Time before timeout when receiving
+ * a full SBUS frame
+ */
+#define SBUS_TIMEOUT_MS 4
+
 /** Set polarity using RC_POLARITY_GPIO.
  * SBUS signal has a reversed polarity compared to normal UART
  * this allows to using hardware UART peripheral by changing
@@ -68,6 +75,7 @@ void sbus_common_init(struct Sbus *sbus_p, struct uart_periph *dev,
   sbus_p->rc_failsafe = true;
   sbus_p->rc_lost = true;
   sbus_p->status = SBUS_STATUS_UNINIT;
+  sbus_p->start_time = 0;
 
   // Set UART parameter, SBUS used a baud rate of 100000, 8 data bits, even parity bit, and 2 stop bits
   uart_periph_set_baudrate(dev, B100000);
@@ -128,6 +136,11 @@ void sbus_common_decode_event(struct Sbus *sbus_p, struct uart_periph *dev)
 {
   uint8_t rbyte;
   if (uart_char_available(dev)) {
+    // Took too long to receive a full SBUS frame (usually during boot to synchronize)
+    if(get_sys_time_msec() > (sbus_p->start_time+SBUS_TIMEOUT_MS)) {
+      sbus_p->status = SBUS_STATUS_UNINIT;
+    }
+
     do {
       rbyte = uart_getch(dev);
       switch (sbus_p->status) {
@@ -136,6 +149,7 @@ void sbus_common_decode_event(struct Sbus *sbus_p, struct uart_periph *dev)
           if (rbyte == SBUS_START_BYTE) {
             sbus_p->status++;
             sbus_p->idx = 0;
+            sbus_p->start_time = get_sys_time_msec();
           }
           break;
         case SBUS_STATUS_GOT_START:
