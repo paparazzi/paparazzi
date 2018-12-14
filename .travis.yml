@@ -14,6 +14,8 @@ install:
   - sudo apt-get install -y --force-yes paparazzi-dev paparazzi-jsbsim gcc-arm-embedded gcc-arm-linux-gnueabi g++-arm-linux-gnueabi libipc-run-perl rustc cargo libgazebo9-dev
 before_script:
   - curl https://sh.rustup.rs -sSf > tmp.sh && sudo sh tmp.sh -y --default-toolchain nightly
+  - echo $PWD
+  - ls $HOME
   - export PATH="$HOME/.cargo/bin:$PATH"
   - sudo rustup target add thumbv7em-none-eabihf
 script:
