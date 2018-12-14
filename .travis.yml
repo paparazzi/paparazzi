@@ -15,7 +15,10 @@ install:
 before_script:
   - curl https://sh.rustup.rs -sSf > tmp.sh && sudo sh tmp.sh -y --default-toolchain nightly
   - echo $PWD
-  - ls $HOME
+  - echo $HOME
+  - ls -a $HOME
+  - echo $PATH
+  - ls $HOME/.cargo/bin
   - export PATH="$HOME/.cargo/bin:$PATH"
   - sudo rustup target add thumbv7em-none-eabihf
 script:
