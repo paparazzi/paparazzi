@@ -12,8 +12,7 @@ before_install:
   - sudo apt-get update -q
 install:
   - sudo apt-get install -y --force-yes paparazzi-dev paparazzi-jsbsim gcc-arm-embedded gcc-arm-linux-gnueabi g++-arm-linux-gnueabi libipc-run-perl rustc cargo libgazebo9-dev
-  - curl https://sh.rustup.rs -sSf > tmp.sh && sudo sh tmp.sh -y --default-toolchain nightly && source $HOME/.cargo/env
-  - sudo rustup target add thumbv7em-none-eabihf
+  - curl https://sh.rustup.rs -sSf > tmp.sh && sudo sh tmp.sh -y --default-toolchain nightly && source $HOME/.cargo/env && sudo rustup target add thumbv7em-none-eabihf
 script:
   - arm-none-eabi-gcc --version
   - if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then if [ "${TRAVIS_EVENT_TYPE}" == "cron" ]; then make test_all_confs; else make test; fi; fi
