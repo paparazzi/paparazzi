@@ -12,7 +12,7 @@ before_install:
   - sudo apt-get update -q
 install:
   - sudo apt-get install -y --force-yes paparazzi-dev paparazzi-jsbsim gcc-arm-embedded gcc-arm-linux-gnueabi g++-arm-linux-gnueabi libipc-run-perl rustc cargo libgazebo9-dev
-  - curl https://sh.rustup.rs -sSf | sudo sh -y
+  - curl https://sh.rustup.rs -sSf | sudo -y sh
   - rustup install nightly
   - rustup default nightly
   - rustup target add thumbv7em-none-eabihf
