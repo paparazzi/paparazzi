@@ -1,6 +1,5 @@
 #![no_std]
 #![feature(alloc)]
-#![feature(extern_crate_item_prelude)]
 #![feature(alloc_error_handler)]
 #![feature(lang_items)] 
 

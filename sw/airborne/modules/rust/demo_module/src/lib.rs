@@ -1,6 +1,5 @@
 #![no_std]
 #![feature(alloc)]
-#![feature(extern_crate_item_prelude)]
 #![feature(lang_items)]
 
 #![allow(non_upper_case_globals)]

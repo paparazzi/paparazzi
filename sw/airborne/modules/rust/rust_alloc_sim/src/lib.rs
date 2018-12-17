@@ -3,7 +3,7 @@
 #![feature(alloc)]
 #![feature(alloc_system)]
 #![feature(allocator_api)]
-#![feature(extern_crate_item_prelude)] 
+#![feature(global_allocator)]
 #![feature(alloc_error_handler)]
  
 #![no_std]
