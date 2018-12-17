@@ -190,8 +190,8 @@ else
 endif
 
 build_rust_modules:
-ifneq	($(CARGO),)
 ifneq ($(strip $(RUST_MODULES)),)
+ifneq	($(CARGO),)
 ifneq	($(RUST_ARCH),)
 	@echo PROCESSING RUST MODULES
 	@echo $(RUST_MODULES)
@@ -203,10 +203,10 @@ ifneq	($(RUST_ARCH),)
 else
 	@echo "Error: RUST_ARCH not specified, this board is likely not supported."
 endif # Check Rust Arch
-endif # No rust modules to process
 else
 	@echo "Error: Cargo (Rust) not found, cannot build Rust modules. Please install xargo."
 endif # Check if Cargo is present
+endif # No rust modules to process
 
 generate_keys:
 ifeq ($(GENERATE_KEYS),1)
