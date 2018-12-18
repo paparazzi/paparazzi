@@ -1,0 +1,66 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="sys_id_chirp" dir="system_identification">
+  <doc>
+    <description>Chirp maneuver for system itentification.
+    The chirp is a sine wave with frequency increasing constantly in time. It's a good candidate as input for system identification
+    since it covers a broad frequency spectrum. This module automates performance of the chirp and exposes an easy interface
+    for tailoring the maneuver to your specific aircraft.
+    
+    The module is used by including the module in the airframe file and adding the following line to the &lt;command_laws&gt; section:
+    
+    &lt;call fun="sys_id_chirp_add_values(autopilot_get_motors_on(),FALSE,values)"/&gt;
+
+    You can pick the axes to apply chirps to by setting the CHIRP_AXES variable with the COMMAND_XXX variables where XXX are the actuators defined in 
+    the &lt;commands&gt; section of your airframe.
+
+    Then, the GCS exposes the settings for the chirp.
+      - The Chirp axis settings is the index (0-based) of the axis to choose within the CHIRP_AXES variable specified. In the default, this means i.e. 0 means roll chirp.
+      - Amplitude is the amplitude of the chirp
+      - On-axis noise is the fraction of the chirp amplitude to add as noise to the chirp axis (see pprz_chirp.h for more details)
+      - On-axis noise is the absolute value for off-axis noise (see pprz_chirp.h for more details)
+      - Fstart_hz and Fend_hz are the frequencies in hertz at the start and end of the chirp. Make sure to cover all relevant dynamics frequencies
+      - Length_s is the length in seconds of the chirp
+
+    Start the chirp by pressing the "Chirp start" button in the strip. Pressing "Chirp stop" will instantly stop both chirp and noise.
+
+    Add the message "CHIRP" to your telemetry to see chirp progress, and to your logger to automatically filter chirps in post-processing.
+    </description>
+    <define name="CHIRP_AXES"        value="{COMMAND_ROLL,COMMAND_PITCH,COMMAND_YAW}" description="Which axes the chirp is applied to (specify as array with {})"/>
+    <define name="CHIRP_ENABLED"     value="TRUE|FALSE"  description="If false, the chirp does not run and values are not added"/>
+    <define name="CHIRP_USE_NOISE"   value="TRUE|FALSE"  description="If true, add noise to all axes (also the axes where no chirp is active)"/>
+    <define name="CHIRP_EXPONENTIAL" value="TRUE|FALSE"  description="If true, exponential-time chirp. Else, linear-time chirp"/>
+    <define name="CHIRP_FADEIN"      value="TRUE|FALSE"  description="If true, start the chirp with two wavelengths of the lowest frequency"/>
+  </doc>
+
+  <settings>
+    <dl_settings name="System identification">
+      <dl_settings name="System chirp">
+        <dl_setting min="0" max="1"    step="1" values="Inactive|Active" shortname="Activate chirp" var="chirp_active" type="uint8_t" module="system_identification/sys_id_chirp" handler="activate_handler">
+          <strip_button name="Chirp start" value="1" group="System identification"/>
+          <strip_button name="Chirp stop"  value="0" group="System identification"/>
+        </dl_setting>
+        <dl_setting min="0"    max="5"    step="1"    shortname="Chirp axis"     var="chirp_axis"                    type="uint8_t" module="system_identification/sys_id_chirp" handler="axis_handler"/>
+        <dl_setting min="0"    max="9600" step="100"  shortname="Amplitude"      var="chirp_amplitude"               type="int32_t" module="system_identification/sys_id_chirp"/>
+        <dl_setting min="0"    max="0.5"    step="0.01" shortname="on-axis noise"  var="chirp_noise_stdv_onaxis_ratio" type="float"   module="system_identification/sys_id_chirp"/>
+        <dl_setting min="0"    max="9600" step="50"   shortname="off-axis noise" var="chirp_noise_stdv_offaxis"      type="float"   module="system_identification/sys_id_chirp"/>
+        <dl_setting min="0.05" max="20"    step="0.05" shortname="Fstart_hz"      var="chirp_fstart_hz"                   type="float"   module="system_identification/sys_id_chirp" handler="fstart_handler"/>
+        <dl_setting min="0.1"  max="20"   step="0.1"  shortname="Fend_hz"        var="chirp_fstop_hz"                   type="float"   module="system_identification/sys_id_chirp" handler="fstop_handler"/>
+        <dl_setting min="0"    max="100"  step="0.5"  shortname="Length_s"       var="chirp_length_s"                type="float"   module="system_identification/sys_id_chirp"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <header>
+    <file name="sys_id_chirp.h"/>
+  </header>
+
+  <init fun="sys_id_chirp_init()"/>
+  <periodic fun="sys_id_chirp_run()" freq="60" autorun="TRUE"/>
+
+  <makefile>
+    <file name="random.c"/>
+    <file name="pprz_chirp.c"/>
+    <file name="sys_id_chirp.c"/>
+  </makefile>
+</module>
