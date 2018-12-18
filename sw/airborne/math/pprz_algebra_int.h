@@ -512,7 +512,11 @@ extern void int32_quat_vmult(struct Int32Vect3 *v_out, struct Int32Quat *q, stru
 /// Quaternion from Euler angles.
 extern void int32_quat_of_eulers(struct Int32Quat *q, struct Int32Eulers *e);
 
-/// Quaternion from unit vector and angle.
+/** Quaternion from unit vector and angle.
+ * Output quaternion is not normalized.
+ * The output resolution depends on the resolution of the resolution of the unit vector.
+ * If the unit vector has no fractional part (ex: [0, 0, 1]), the quaternion is unitary.
+ */
 extern void int32_quat_of_axis_angle(struct Int32Quat *q, struct Int32Vect3 *uv, int32_t angle);
 
 /// Quaternion from rotation matrix.
