@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+
+from __future__ import print_function
 import os
 import sys
 import serial
@@ -8,8 +10,8 @@ import time
 target = sys.argv[1]
 firmware_file = sys.argv[2]
 
-print "Target: " + target
-print "Firmware file: " + firmware_file
+print("Target: " + target)
+print("Firmware file: " + firmware_file)
 
 # test if pprz cdm is connected
 mode = -1
@@ -21,7 +23,7 @@ try:
     port = glob.glob(port)[0]
     ser = serial.Serial(port, timeout=0.5)
     mode = 1
-    print ("Paparazzi CDC device found at port: " + port)
+    print("Paparazzi CDC device found at port: " + port)
 except (serial.serialutil.SerialException, IndexError):
     print("No Paparazzi CDC device found, looking further.")
 
@@ -38,14 +40,12 @@ if mode == 1:
     if target == "fbw":
         try:
             c = ser.read(7)
-            print ("AP responded with: " + c)
+            print("AP responded with: " + c)
             if c == "TIMEOUT":
-                print(
-                    "Error: FBW bootloader TIMEOUT. Power cycle the board and wait between 10 seconds to 20 seconds to retry.")
+                print("Error: FBW bootloader TIMEOUT. Power cycle the board and wait between 10 seconds to 20 seconds to retry.")
                 sys.exit(1)
             elif c != "FBWOKOK":
-                print(
-                    "Error: unknown error. Power cycle the board and wait between 10 seconds to 20 seconds to retry.")
+                print("Error: unknown error. Power cycle the board and wait between 10 seconds to 20 seconds to retry.")
                 sys.exit(1)
         except serial.serialutil.SerialException:
             pass
@@ -64,7 +64,7 @@ if mode == -1:  # no pprz cdc was found, look for PX4
                 ser = serial.Serial(p, timeout=0.5)
                 port = p
                 mode = 2
-                print ("Original PX4 firmware CDC device found at port: " + port)
+                print("Original PX4 firmware CDC device found at port: " + port)
             except serial.serialutil.SerialException:
                 print("Non working PX4 port found, continuing...")
 

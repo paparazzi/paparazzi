@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+from __future__ import print_function
 from arduino_dangerboard import arduino_dangerboard
 from ivy.std_api import *
 import logging
@@ -63,7 +64,7 @@ where
 \t-s S1:S2:S3 | --sliders=S1:S2:S3 where S1, S2, S3 are the names of the slider settings to send
 \t-p PORT | --port=PORT where PORT is the name of the serial port for the slider box
 '''
-  print fmt   %  lpathitem[-1]
+  print(fmt   %  lpathitem[-1])
 
 def GetOptions():
   # Map dangerboard sliders to these settings from aircraft settings

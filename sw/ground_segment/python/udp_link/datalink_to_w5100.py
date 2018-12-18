@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+from __future__ import print_function
 import os
 import sys
 import socket
@@ -33,11 +34,11 @@ while( 1 ):
       format = 'B' * (len(data))
       strdata = struct.unpack( format, data )
 
-      print len( strdata ), ":", strdata
+      print(len( strdata ), ":", strdata)
 
       # send the command
       destsock.sendto( data, (options.dest_addr, options.dest_port) )
 
-    except socket.error, e:
-      print 'Exception', e
+    except socket.error as e:
+      print('Exception', e)
 
