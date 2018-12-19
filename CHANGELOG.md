@@ -1,5 +1,17 @@
-Paparazzi v5.13.0_testing
+Paparazzi v5.14.0_stable
 ========================
+
+Stable version release
+
+- experimental integration of Rust module to the airborne code
+  [#2355] (https://github.com/paparazzi/paparazzi/pull/2355)
+- document quat to axis conversion
+  [#2367] (https://github.com/paparazzi/paparazzi/pull/2367)
+- fix synchro on SBUS radio control
+  [#2370] (https://github.com/paparazzi/paparazzi/pull/2370)
+
+Paparazzi v5.13.0_testing
+=========================
 
 First release candidate for v5.14
 
