@@ -85,6 +85,7 @@ struct Sbus {
   uint8_t buffer[SBUS_BUF_LENGTH];  ///< Input buffer
   uint8_t idx;                      ///< Input index
   uint8_t status;                   ///< Decoder state-machine status
+  uint32_t start_time;              ///< Decoder start time
 };
 
 /**
