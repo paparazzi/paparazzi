@@ -6,9 +6,12 @@
 
 
   <firmware name="rotorcraft">
-    <target name="ap" board="bebop"/>
+    <target name="ap" board="bebop">
+      <define name="VIDEO_CAPTURE_PATH" value="/data/ftp/internal_000/images"/>
+    </target>
     <target name="nps" board="pc">
       <module name="fdm" type="gazebo"/>
+      <define name="VIDEO_CAPTURE_PATH" value="/tmp/paparazzi_images"/>
     </target>
 
     <!-- Front Camera parameters -->
@@ -68,6 +71,10 @@
       
       <!-- <define name="VIEWVIDEO_WRITE_VIDEO" value="FALSE" />
       <define name="VIEWVIDEO_VIDEO_FILE" value="orangeAvoider" /> -->
+    </module>
+    <module name="video_capture">
+      <define name="VIDEO_CAPTURE_CAMERA" value="front_camera"/>
+      <define name="VIDEO_CAPTURE_FPS" value="1"/>
     </module>
   </firmware>
 
