@@ -94,12 +94,13 @@ static uint8_t pulse_transition_counter;
  */
 static uint8_t sonar_bebop_spi_d[2][16] = {{ 0xF0, 0xF0, 0xF0, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 },
                                            { 0xF0, 0xF0, 0xF0, 0xF0, 0xF0, 0xF0, 0xF0, 0xF0, 0xF0, 0xF0, 0xF0, 0xF0, 0x00, 0x00, 0x00, 0x00 }};
-
 struct SonarBebop sonar_bebop;
 
 static struct spi_transaction sonar_bebop_spi_t;
 void *sonar_bebop_read(void *data);
+#if SONAR_BEBOP_FILTER_NARROW_OBSTACLES
 static float sonar_filter_narrow_obstacles(float distance_sonar);
+#endif
 
 void sonar_bebop_init(void)
 {
@@ -109,6 +110,7 @@ void sonar_bebop_init(void)
   sonar_bebop.meas = 0;
   sonar_bebop.offset = 0;
 
+  /* configure spi transaction */
   sonar_bebop_spi_t.status        = SPITransDone;
   sonar_bebop_spi_t.select        = SPISelectUnselect;
   sonar_bebop_spi_t.dss           = SPIDss8bit;
@@ -117,14 +119,18 @@ void sonar_bebop_init(void)
   sonar_bebop_spi_t.input_buf     = NULL;
   sonar_bebop_spi_t.input_length  = 0;
 
+  init_median_filter_f(&sonar_filt, 5);
+#if SONAR_BEBOP_FILTER_NARROW_OBSTACLES
+  SysTimeTimerStart(sonar_bebop_spike_timer);
+#endif
+
 #if USE_SONAR
   pthread_t tid;
   pthread_create(&tid, NULL, sonar_bebop_read, NULL);
-  pthread_setname_np(tid, "pprz_sonar_thread");
+#ifndef __APPLE__
+  pthread_setname_np(tid, "sonar");
 #endif
-
-  init_median_filter_f(&sonar_filt, 5);
-  SysTimeTimerStart(sonar_bebop_spike_timer);
+#endif
 }
 
 uint16_t adc_buffer[SONAR_BEBOP_ADC_BUFFER_SIZE];
