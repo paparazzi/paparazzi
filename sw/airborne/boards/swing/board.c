@@ -53,9 +53,8 @@ static void *bat_read(void *data __attribute__((unused)))
       /* Read the output a line at a time - output it. */
       while (fgets(path, sizeof(path) - 1, fp) != NULL) {
         int raw_bat = atoi(path);
-        // convert to decivolt
         // from /bin/mcu_vbat.sh: MILLIVOLTS_VALUE=$(( ($RAW_VALUE * 4250) / 1023 ))
-        electrical.vsupply = ((raw_bat * 4250) / 1023) / 100;
+        electrical.vsupply = (float)((raw_bat * 4250) / 1023) / 1000.f;
       }
       /* close */
       pclose(fp);

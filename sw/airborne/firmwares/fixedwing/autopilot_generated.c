@@ -104,7 +104,7 @@ void autopilot_generated_on_rc_frame(void)
 {
 
   // update electrical from FBW
-  imcu_get_electrical(&vsupply, &current, &energy);
+  imcu_get_electrical(&ap_electrical);
 
   // FIXME what to do here ?
   copy_from_to_fbw();

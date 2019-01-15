@@ -55,9 +55,7 @@ struct fbw_state {
 #endif
   uint8_t status;
   uint8_t nb_err;
-  uint16_t vsupply; ///< 1e-1 V
-  int32_t current;  ///< milliAmps
-  float energy;     ///< mAh
+  struct Electrical electrical;
 };
 
 struct ap_state {
@@ -243,30 +241,22 @@ static inline void imcu_set_status(uint8_t status)
 }
 
 /** get electrical parameters
- * @param vsupply pointer to return voltage
- * @param current pointer to return current
- * @param energy pointer to return cumulated energy
+ * @param _electrical pointer to electrical data to fill
  */
-static inline void imcu_get_electrical(uint16_t *_vsupply, int32_t *_current, float *_energy)
+static inline void imcu_get_electrical(struct Electrical *_electrical)
 {
   PPRZ_MUTEX_LOCK(fbw_state_mtx);
-  *_vsupply = fbw_state->vsupply;
-  *_current = fbw_state->current;
-  *_energy = fbw_state->energy;
+  *_electrical = fbw_state->electrical;
   PPRZ_MUTEX_UNLOCK(fbw_state_mtx);
 }
 
 /** set electrical parameters
- * @param vsupply new voltage (1e-1 V)
- * @param current new current (mA)
- * @param energy new cumulated energy (mAh)
+ * @param _electrical pointer to electrical data to use
  */
-static inline void imcu_set_electrical(uint16_t _vsupply, int32_t _current, float _energy)
+static inline void imcu_set_electrical(struct Electrical *_electrical)
 {
   PPRZ_MUTEX_LOCK(fbw_state_mtx);
-  fbw_state->vsupply = _vsupply;
-  fbw_state->current = _current;
-  fbw_state->energy = _energy;
+  fbw_state->electrical = *_electrical;
   PPRZ_MUTEX_UNLOCK(fbw_state_mtx);
 }
 
@@ -314,9 +304,7 @@ static inline void inter_mcu_fill_fbw_state(void)
   status |= (fbw_mode == FBW_MODE_FAILSAFE ? _BV(STATUS_MODE_FAILSAFE) : 0);
   fbw_state->status  = status;
 
-  fbw_state->vsupply = electrical.vsupply;
-  fbw_state->current = electrical.current;
-  fbw_state->energy = electrical.energy;
+  fbw_state->electrical = electrical;
 #if defined SINGLE_MCU
   /**Directly set the flag indicating to AP that shared buffer is available*/
   inter_mcu_received_fbw = true;

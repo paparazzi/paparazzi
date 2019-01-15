@@ -14,25 +14,26 @@
 	<property name="locked" value="true"/>
       </papget>
       <papget type="message_field" display="gauge" x="47" y="414">
-        <property name="field" value="BAT:voltage"/>
-        <property name="scale" value="0.1"/>
+        <property name="field" value="ENERGY:voltage"/>
+        <property name="scale" value="1."/>
         <property name="min" value="0."/>
         <property name="max" value="15."/>
         <property name="size" value="50."/>
         <property name="text" value="Bat(V)"/>
       </papget>
-      <papget type="message_field" display="gauge" x="120" y="414">
-        <property name="field" value="BAT:throttle"/>
-        <property name="scale" value="0.0104167"/>
+      <papget type="message_field" display="gauge" x="140" y="414">
+        <property name="field" value="ENERGY:throttle"/>
+        <property name="scale" value="1."/>
         <property name="min" value="0."/>
         <property name="max" value="100."/>
         <property name="size" value="50."/>
         <property name="text" value="Throttle(%)"/>
       </papget>
-      <papget type="expression" display="gauge" x="200" y="414">
-        <property name="expr" value="ENERGY.bat*ENERGY.amp"/>
+      <papget type="expression" display="gauge" x="240" y="414">
+        <property name="expr" value="ENERGY.power"/>
+        <property name="scale" value="1."/>
         <property name="min" value="0."/>
-        <property name="max" value="25."/>
+        <property name="max" value="100."/>
         <property name="size" value="50."/>
         <property name="text" value="Power(W)"/>
       </papget>
@@ -48,9 +49,9 @@
         <property name="color" value="pink"/>
       </papget>
 
-      <papget type="expression" display="text" x="250" y="414">
+      <papget type="expression" display="text" x="310" y="422">
         <property name="expr" value="BlockName(NAVIGATION.cur_block)"/>
-        <property name="size" value="20."/>
+        <property name="size" value="15."/>
         <property name="color" value="white"/>
       </papget>
 

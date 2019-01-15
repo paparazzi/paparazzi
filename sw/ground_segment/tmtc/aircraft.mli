@@ -120,7 +120,9 @@ type aircraft = {
     mutable temp : float;
     mutable bat : float;
     mutable amp : float;
-    mutable energy : int;
+    mutable power  : float;
+    mutable charge : float;
+    mutable energy : float;
     mutable ap_mode : int;
     mutable gaz_mode : int;
     mutable lateral_mode : int;

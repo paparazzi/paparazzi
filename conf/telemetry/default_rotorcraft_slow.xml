@@ -124,7 +124,7 @@
       <message name="INS_REF"               period="5.1"/>
       <!-- HFF messages are only sent if USE_HFF -->
       <message name="HFF"                   period=".05"/>
-	  <message name="HFF_GPS"               period=".03"/>
+      <message name="HFF_GPS"               period=".03"/>
       <message name="HFF_DBG"               period=".2"/>
     </mode>
 

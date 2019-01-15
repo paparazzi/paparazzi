@@ -62,28 +62,6 @@ static const char usage_str[] =
 "options:\n"
 "  -s <server address>\n";
 
-unsigned char gps_mode;
-unsigned short gps_week;
-unsigned int gps_itow;
-unsigned int gps_alt;
-unsigned short gps_gspeed;
-short gps_climb;
-short gps_course;
-int gps_utm_east, gps_utm_north;
-unsigned char gps_utm_zone;
-int gps_lat, gps_lon; /* 1e7 deg */
-int gps_hmsl;
-short estimator_airspeed;
-unsigned short electrical_vsupply;
-unsigned char nav_block;
-unsigned short energy;
-unsigned char throttle;
-unsigned short autopilot_flight_time;
-unsigned char nav_utm_zone0;
-float latlong_utm_x, latlong_utm_y;
-unsigned char pprz_mode;
-
-
 GMainLoop *ml;
 int sock, length;
 struct sockaddr_in addr;
@@ -104,11 +82,23 @@ unsigned short buf2ushort(char* dat)
 }
 
 static gboolean read_data(GIOChannel *chan, GIOCondition cond, gpointer data) {
-  int count;
+  uint8_t  active;
+  int32_t  gps_lat, gps_lon; // 1e7 deg
+  int16_t  gps_alt;  // m
+  uint16_t gps_gspeed;  // cm/s
+  int16_t  gps_course; // decideg
+  uint16_t airspeed; // cm/s
+  uint8_t  vsupply; // deciV
+  uint8_t  charge; //deciA
+  uint8_t  throttle; // %
+  uint8_t  nav_block;
+  uint8_t  pprz_mode;
+  uint8_t  autopilot_flight_time;
+
   char buf[BUFSIZE];
 
   /* receive data packet containing formatted data */
-  count = recv(sock, buf, sizeof(buf), 0);
+  int count = recv(sock, buf, sizeof(buf), 0);
   if (count > 0) {
     if (count == 23) {
       //    FillBufWith32bit(com_trans.buf, 1, gps_lat);
@@ -122,12 +112,11 @@ static gboolean read_data(GIOChannel *chan, GIOCondition cond, gpointer data) {
       //    FillBufWith16bit(com_trans.buf, 13, gps_course); // course
       gps_course = buf2ushort(&buf[12]);
       //    FillBufWith16bit(com_trans.buf, 15, (uint16_t)(estimator_airspeed*100)); // TAS (cm/s)
-      estimator_airspeed = buf2ushort(&buf[14]);
-      //    com_trans.buf[17] = electrical.vsupply; // decivolt
-      //FIXME: electrical.vsupply is now a uint16
-      electrical_vsupply = buf[16];
-      //    com_trans.buf[18] = (uint8_t)(energy / 100); // deciAh
-      energy = buf[17];
+      airspeed = buf2ushort(&buf[14]);
+      //    com_trans.buf[17] = (uint8_t)(electrical.vsupply * 10.f); // deciVolt
+      vsupply = buf[16];
+      //    com_trans.buf[18] = (uint8_t)(electrical.charge * 10.f); // deciAh
+      charge = buf[17];
       //    com_trans.buf[19] = (uint8_t)(ap_state->commands[COMMAND_THROTTLE]*100/MAX_PPRZ);
       throttle = buf[18];
       //    com_trans.buf[20] = pprz_mode;
@@ -137,30 +126,15 @@ static gboolean read_data(GIOChannel *chan, GIOCondition cond, gpointer data) {
       //    FillBufWith16bit(com_trans.buf, 22, autopilot_flight_time);
       autopilot_flight_time = buf2ushort(&buf[21]);
 
-#if 0
-      gps_lat = 52.2648312 * 1e7;
-      gps_lon =  9.9939456 * 1e7;
-      gps_alt = 169 * 1000;
-      gps_gspeed = 13 * 100;
-      gps_course = 60 * 10;
-      estimator_airspeed = 15 * 100;
-      electrical_vsupply = 126;
-      energy = 9;
-      throttle = 51;
-      pprz_mode = 2;
-      nav_block = 1;
-      autopilot_flight_time = 123;
-#endif
-
       printf("**** message received from iridium module ****\n");
       printf("gps_lat %f\n", DegOfRad(gps_lat/1e7));
       printf("gps_lon %f\n", DegOfRad(gps_lon/1e7));
       printf("gps_alt %d\n", gps_alt);
       printf("gps_gspeed %d\n", gps_gspeed);
       printf("gps_course %d\n", gps_course);
-      printf("estimator_airspeed %d\n", estimator_airspeed);
-      printf("electrical_vsupply %d\n", electrical_vsupply);
-      printf("energy %d\n", energy);
+      printf("estimator_airspeed %d\n", airspeed);
+      printf("electrical_vsupply %d\n", vsupply);
+      printf("charge %d\n", charge);
       printf("throttle %d\n", throttle);
       printf("pprz_mode %d\n", pprz_mode);
       printf("nav_block %d\n", nav_block);
@@ -174,16 +148,14 @@ static gboolean read_data(GIOChannel *chan, GIOCondition cond, gpointer data) {
           gps_alt,
           gps_gspeed,
           gps_course,
-          estimator_airspeed,
-          electrical_vsupply,
-          energy,
+          airspeed,
+          vsupply,
+          charge,
           throttle,
           pprz_mode,
           nav_block,
           autopilot_flight_time);
-
-    }
-    else {
+    } else {
       int i = 0;
       // Raw print
       printf("**** Raw message ****\n");
@@ -193,8 +165,7 @@ static gboolean read_data(GIOChannel *chan, GIOCondition cond, gpointer data) {
       for (i = 0; i < count; i++) printf("%x ",buf[i]);
       printf("\n");
     }
-  }
-  else {
+  } else {
     printf("disconnect\n");
     close(sock);
     g_main_loop_quit(ml);

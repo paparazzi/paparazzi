@@ -22,7 +22,7 @@
     </mode>
 
     <mode name="ppm">
-      <message name="ALIVE"             	   period="2.1"/>
+      <message name="ALIVE"                    period="2.1"/>
       <message name="ROTORCRAFT_CMD"           period=".05"/>
       <message name="PPM"                      period="0.5"/>
       <message name="RC"                       period="0.5"/>

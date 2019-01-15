@@ -44,5 +44,5 @@ void nps_electrical_init(void)
 void nps_electrical_run_step(double time __attribute__((unused)))
 {
   // todo: auto-decrease bat voltage
-  electrical.vsupply = nps_electrical.supply_voltage * 10;
+  electrical.vsupply = nps_electrical.supply_voltage;
 }

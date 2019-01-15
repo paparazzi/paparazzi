@@ -302,17 +302,15 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       a.cur_stage <- ivalue "cur_stage";
       a.horizontal_mode <- check_index (ivalue "horizontal_mode") horiz_modes "AP_HORIZ";
       a.dist_to_wp <- (try fvalue "dist_wp" with _ -> 0.);
-    | "BAT" ->
-      a.throttle <- fvalue "throttle" /. 9600. *. 100.;
-      a.kill_mode <- ivalue "kill_auto_throttle" <> 0;
-      a.flight_time <- ivalue "flight_time";
-      a.rpm <- a.throttle *. 100.;
-      a.bat <- fvalue "voltage" /. 10.;
-      a.stage_time <- ivalue "stage_time";
-      a.block_time <- ivalue "block_time";
-      a.energy <- ivalue "energy"
+    | "ENERGY" ->
+      a.throttle <- fvalue "throttle";
+      a.bat <- fvalue "voltage";
+      a.amp <- fvalue "current";
+      a.power <- fvalue "power";
+      a.charge <- fvalue "charge";
+      a.energy <- fvalue "energy";
     | "FBW_STATUS" ->
-      a.fbw.fbw_bat <- fvalue "vsupply" /. 10.;
+      a.fbw.fbw_bat <- fvalue "vsupply";
       a.fbw.pprz_mode_msgs_since_last_fbw_status_msg <- 0;
       a.fbw.rc_rate <- ivalue "frame_rate";
       let fbw_rc_mode = ivalue "rc_status" in
@@ -363,7 +361,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       a.gps_mode      <- check_index (ivalue "gps_status") gps_modes "GPS_MODE";
       a.ap_mode       <- check_index (ivalue "ap_mode") (modes_of_aircraft a) "ROTORCRAFT_AP_MODE";
       a.kill_mode     <- ivalue "ap_motors_on" == 0;
-      a.bat           <- fvalue "vsupply" /. 10.
+      a.bat           <- fvalue "vsupply"
     | "ROVER_STATUS" ->
       a.vehicle_type  <- Rover;
       a.fbw.rc_status <- get_rc_status (ivalue "rc_status");
@@ -371,7 +369,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       a.gps_mode      <- check_index (ivalue "gps_status") gps_modes "GPS_MODE";
       a.ap_mode       <- check_index (ivalue "ap_mode") (modes_of_aircraft a) "ROVER_AP_MODE";
       a.kill_mode     <- ivalue "ap_motors_on" == 0;
-      a.bat           <- fvalue "vsupply" /. 10.
+      a.bat           <- fvalue "vsupply"
     | "STATE_FILTER_STATUS" ->
       a.state_filter_mode <- check_index (ivalue "state_filter_mode") state_filter_modes "STATE_FILTER_MODES"
     | "DATALINK_REPORT" ->
@@ -478,7 +476,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
           a.heading <- a.course;
         a.agl <- a.alt -. (try float (Srtm.of_wgs84 a.pos) with _ -> a.ground_alt);
         a.bat <- fvalue "vsupply" /. 10.;
-        a.energy <- ivalue "energy" * 100;
+        a.charge <- fvalue "charge" /. 10.;
         a.throttle <- fvalue "throttle";
         a.ap_mode <- check_index (ivalue "ap_mode") (modes_of_aircraft a) "AP_MODE";
         a.cur_block <- ivalue "nav_block";

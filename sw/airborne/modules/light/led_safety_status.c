@@ -67,9 +67,9 @@ void led_safety_status_periodic(void)
     RunXTimesEvery(0, 240, 40, 5, {LED_OFF(SAFETY_WARNING_LED);});
   }
 #ifdef LOW_BAT_LEVEL
-  else if (electrical.vsupply < (LOW_BAT_LEVEL * 10)) {
+  else if (electrical.vsupply < LOW_BAT_LEVEL) {
     RunOnceEvery(20, {LED_TOGGLE(SAFETY_WARNING_LED);});
-  } else if (electrical.vsupply < ((LOW_BAT_LEVEL + 0.5) * 10)) {
+  } else if (electrical.vsupply < (LOW_BAT_LEVEL + 0.5)) {
     RunXTimesEvery(0, 300, 10, 10, {LED_TOGGLE(SAFETY_WARNING_LED);});
   }
 #endif

@@ -355,9 +355,6 @@ let send_moved_waypoints = fun a ->
     a.waypoints
 
 
-
-
-
 let send_aircraft_msg = fun ac ->
   try
     let a = Hashtbl.find aircrafts ac in
@@ -438,7 +435,7 @@ let send_aircraft_msg = fun ac ->
                   "temp", f a.temp;
                   "bat", f a.bat;
                   "amp", f a.amp;
-                  "energy", PprzLink.Int a.energy] in
+                  "charge", f a.charge] in
     Ground_Pprz.message_send my_id "ENGINE_STATUS" values;
 
     let ap_mode = get_indexed_value ~text:(if a.ap_mode = -2 then "FAIL" else "UNK") (modes_of_aircraft a) a.ap_mode in
