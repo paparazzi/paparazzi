@@ -327,6 +327,8 @@
    ADC3 PC1/ADC11
    ADC4 PC5/ADC15
    ADC6 PC2/ADC12
+   ADC7 PA3/ADC03
+   ADC8 PA0/ADC00
    BATT PC4/ADC14
 */
 
@@ -380,6 +382,20 @@
 #define ADC_6_GPIO_PIN GPIO2
 #endif
 
+#if USE_ADC_7
+#define AD2_3_CHANNEL 3
+#define ADC_4 AD2_3
+#define ADC_4_GPIO_PORT GPIOA
+#define ADC_4_GPIO_PIN GPIO3
+#endif
+
+#if USE_ADC_8
+#define AD2_4_CHANNEL 0
+#define ADC_8 AD2_4
+#define ADC_8_GPIO_PORT GPIOA
+#define ADC_8_GPIO_PIN GPIO0
+#endif
+
 /* allow to define ADC_CHANNEL_VSUPPLY in the airframe file*/
 #ifndef ADC_CHANNEL_VSUPPLY
 #define ADC_CHANNEL_VSUPPLY ADC_5
@@ -399,7 +415,11 @@
 #define USE_PWM2 1
 #define USE_PWM3 1
 #define USE_PWM4 1
+
+#ifndef USE_PWM5 // this allows to disable servo 5 on Lisa MXS
 #define USE_PWM5 1
+#endif
+
 #define USE_PWM6 1
 
 #if USE_SERVOS_7AND8
