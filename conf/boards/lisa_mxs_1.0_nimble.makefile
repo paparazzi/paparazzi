@@ -43,6 +43,7 @@ LOGGER_LED         ?= 2
 
 FLASH_MODE ?= SWD_NOPWR
 
+# disabling PWM to prevent interference when PA3 remapped to ADC
 $(TARGET).CFLAGS+=-DUSE_PWM5=0
 
 include $(PAPARAZZI_SRC)/conf/boards/lisa_mx_defaults.makefile
