@@ -97,7 +97,7 @@ PRINT_CONFIG_VAR(GUIDANCE_V_ADAPT_THROTTLE_ENABLED)
 #endif
 
 #ifndef GUIDANCE_V_MAX_CMD
-#define GUIDANCE_V_MAX_CMD 8640
+#define GUIDANCE_V_MAX_CMD 0.9*MAX_PPRZ
 #endif
 
 uint8_t guidance_v_mode;
