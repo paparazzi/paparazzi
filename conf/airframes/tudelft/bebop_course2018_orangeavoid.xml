@@ -8,10 +8,12 @@
   <firmware name="rotorcraft">
     <target name="ap" board="bebop">
       <define name="VIDEO_CAPTURE_PATH" value="/data/ftp/internal_000/images"/>
+      <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000/log"/>
     </target>
     <target name="nps" board="pc">
       <module name="fdm" type="gazebo"/>
-      <define name="VIDEO_CAPTURE_PATH" value="/tmp/paparazzi_images"/>
+      <define name="VIDEO_CAPTURE_PATH" value="/tmp/paparazzi/images"/>
+      <define name="FILE_LOGGER_PATH" value="/tmp/paparazzi/log"/>
     </target>
 
     <!-- Front Camera parameters -->
@@ -48,9 +50,7 @@
     <!--module name="geo_mag"/-->
     <module name="air_data"/>
     <!--module name="send_imu_mag_current"/-->
-    <module name="logger_file">
-      <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
-    </module>
+    <module name="logger_file"/>
 
     <!-- Video/Camera modules -->
     <module name="video_thread" />
@@ -74,7 +74,7 @@
     </module>
     <module name="video_capture">
       <define name="VIDEO_CAPTURE_CAMERA" value="front_camera"/>
-      <define name="VIDEO_CAPTURE_FPS" value="1"/>
+      <define name="VIDEO_CAPTURE_FPS" value="10"/>
     </module>
   </firmware>
 
