@@ -15,6 +15,8 @@
       <define name="VIDEO_CAPTURE_PATH" value="/tmp/paparazzi/images"/>
       <define name="FILE_LOGGER_PATH" value="/tmp/paparazzi/log"/>
     </target>
+    
+    <define name="ARRIVED_AT_WAYPOINT" value="0.5"/><!-- Detect arrival at waypoint when within 0.5m -->
 
     <!-- Front Camera parameters -->
     <define name="MT9F002_INITIAL_OFFSET_X" value="0.09" /> <!-- Offset from center position [-0.5..0.5]. Set to 0.09 to center horizon. -->
@@ -57,24 +59,14 @@
     <!--module name="bebop_ae_awb">
       <define name="CV_AE_AWB_VERBOSE" value="0" />
     </module-->
-    <module name="cv_colorfilter">
-      <define name="COLORFILTER_CAMERA" value="front_camera" />
-    </module>
-    <module name="orange_avoider" />
-    <module name="video_rtp_stream">
-      <define name="VIEWVIDEO_CAMERA" value="front_camera" />
-      <define name="VIEWVIDEO_FPS" value="18" />
-      <define name="VIEWVIDEO_STREAM_VIDEO" value="TRUE" />
-      <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1" />
-      
-      <define name="VIEWVIDEO_SHOT_PATH" value="/data/ftp/internal_000" />
-      
-      <!-- <define name="VIEWVIDEO_WRITE_VIDEO" value="FALSE" />
-      <define name="VIEWVIDEO_VIDEO_FILE" value="orangeAvoider" /> -->
-    </module>
     <module name="video_capture">
       <define name="VIDEO_CAPTURE_CAMERA" value="front_camera"/>
       <define name="VIDEO_CAPTURE_FPS" value="10"/>
+    </module>
+    <module name="video_rtp_stream">
+      <define name="VIEWVIDEO_CAMERA" value="front_camera"/>
+      <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
+      <define name="VIEWVIDEO_QUALITY_FACTOR" value="60"/>
     </module>
   </firmware>
 
@@ -232,7 +224,7 @@
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
     <!-- Good weather -->
     <define name="MAX_BANK" value="20" unit="deg"/>
-    <define name="REF_MAX_SPEED" value="2" unit="m/s"/>
+    <define name="REF_MAX_SPEED" value="0.5" unit="m/s"/>
     <!-- Bad weather -->
     <!-- define name="MAX_BANK" value="32" unit="deg"/ -->
     <define name="PGAIN" value="120"/>
