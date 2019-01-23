@@ -96,6 +96,10 @@ PRINT_CONFIG_VAR(GUIDANCE_V_ADAPT_THROTTLE_ENABLED)
 #define GUIDANCE_V_MAX_SUM_ERR 2000000
 #endif
 
+#ifndef GUIDANCE_V_MAX_CMD
+#define GUIDANCE_V_MAX_CMD 0.9*MAX_PPRZ
+#endif
+
 uint8_t guidance_v_mode;
 int32_t guidance_v_ff_cmd;
 int32_t guidance_v_fb_cmd;
@@ -449,8 +453,8 @@ void run_hover_loop(bool in_flight)
   guidance_v_ff_cmd = guidance_v_nominal_throttle * MAX_PPRZ;
 #endif
 
-  /* bound the nominal command to 0.9*MAX_PPRZ */
-  Bound(guidance_v_ff_cmd, 0, 8640);
+  /* bound the nominal command to GUIDANCE_V_MAX_CMD */
+  Bound(guidance_v_ff_cmd, 0, GUIDANCE_V_MAX_CMD);
 
 
   /* our error feed back command                   */

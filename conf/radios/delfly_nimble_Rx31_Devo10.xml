@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<!DOCTYPE radio SYSTEM "radio.dtd">
+<radio name="DelFly Nimble Rx31 with Devo 10" data_min="900" data_max="2050" sync_min ="5000" sync_max ="15000" pulse_type="NEGATIVE">
+ <channel ctl="A" function="THROTTLE" min="1110" neutral="1110" max="1900" average="0"/>
+ <channel ctl="D" function="ROLL"     max="1900" neutral="1500" min="1110" average="0"/>
+ <channel ctl="C" function="PITCH"    max="1900" neutral="1500" min="1110" average="0"/>
+ <channel ctl="B" function="YAW"     max="1110" neutral="1500" min="1900" average="0"/>
+ <channel ctl="G" function="MODE"     min="1110" neutral="1500" max="1900" average="1"/>
+ <channel ctl="E" function="FLAP"     min="1110" neutral="1500" max="1900" average="1"/>
+ <channel ctl="F" function="GEAR"  min="1110" neutral="1500" max="1900" average="1"/>
+</radio>
