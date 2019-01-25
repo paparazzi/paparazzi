@@ -77,8 +77,8 @@ void act_fast(struct image_t *img, uint8_t fast_threshold, uint16_t *num_corners
       // px, py represent the preferred direction of the agent when there is no texture
       // here we initialize it differently for each agent:
       // TODO: don't we have a randf function in Paparazzi?
-      px = ((float)(rand() % 10000)) / 10000.0f;
-      py = ((float)(rand() % 10000)) / 10000.0f;
+      px = ((float)(rand() % 10000) + 1) / 10000.0f;
+      py = ((float)(rand() % 10000) + 1) / 10000.0f;
       pnorm = sqrtf(px * px + py * py);
       struct agent_t ag = { (border + c * step_size_x), (border + r * step_size_y), 1, px / pnorm, py / pnorm};
       agents[a] = ag;
