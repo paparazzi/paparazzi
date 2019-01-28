@@ -20,22 +20,17 @@
 /**
  * @file "modules/computer_vision/bebop_ae_awb.c"
  * @author Freek van Tienen, Kirk Scheper
- * Auto exposure and Auto white balancing for the Bebop 1 and 2
+ * Auto exposure and Auto white balancing for the front camera on the Parrot Bebop 1 and 2 and the Disco
  */
 
 #include "bebop_ae_awb.h"
 #include "boards/bebop.h"
 #include "boards/bebop/mt9f002.h"
-#include "lib/isp/libisp.h"
+#include "boards/bebop/isp/libisp.h"
 #include "modules/computer_vision/cv.h"
 
 #define MAX_HIST_Y 255
 #define MIN_HIST_Y 1
-
-#ifndef BEBOP_AE_AWB_CAMERA
-#define BEBOP_AE_AWB_CAMERA front_camera
-#endif
-PRINT_CONFIG_VAR(BEBOP_AE_AWB_CAMERA)
 
 #ifndef BEBOP_AE_AWB_VERBOSE
 #define BEBOP_AE_AWB_VERBOSE 0
@@ -68,7 +63,7 @@ PRINT_CONFIG_VAR(BEBOP_AE_EXPOSURE_GAIN)
 
 // Bin index to be considered as the center of the brightness bins
 #ifndef BEBOP_AE_MIDDLE_INDEX
-#define BEBOP_AE_MIDDLE_INDEX 180
+#define BEBOP_AE_MIDDLE_INDEX 160
 #endif
 PRINT_CONFIG_VAR(BEBOP_AE_MIDDLE_INDEX)
 
@@ -114,7 +109,7 @@ PRINT_CONFIG_VAR(BEBOP_AWB_MAX_GAINS)
 
 //Gain to apply to AWB changes
 #ifndef BEBOP_AWB_GAIN
-#define BEBOP_AWB_GAIN 0.25
+#define BEBOP_AWB_GAIN 0.5
 #endif
 PRINT_CONFIG_VAR(BEBOP_AWB_GAIN)
 
@@ -151,22 +146,6 @@ PRINT_CONFIG_VAR(BEBOP_AWB_MIN_GREY_PIXELS)
 struct ae_setting_t ae_set;
 struct awb_setting_t awb_set;
 
-static void bebop_awb_reset(void)
-{
-  mt9f002.gain_red    = MT9F002_GAIN_RED;
-  mt9f002.gain_blue   = MT9F002_GAIN_BLUE;
-  mt9f002.gain_green1 = MT9F002_GAIN_GREEN1;
-  mt9f002.gain_green2 = MT9F002_GAIN_GREEN2;
-  // Set gains
-  mt9f002_set_gains(&mt9f002);
-}
-
-static void bebop_ae_reset(void)
-{
-  mt9f002.target_exposure = MT9F002_TARGET_EXPOSURE;
-  mt9f002_set_exposure(&mt9f002);
-}
-
 static struct image_t *update_ae_awb(struct image_t *img)
 {
   static struct isp_yuv_stats_t yuv_stats;
@@ -180,12 +159,12 @@ static struct image_t *update_ae_awb(struct image_t *img)
 
     // handle any change in active setting
     if (ae_set.prev_active != ae_set.active) {
-      bebop_ae_reset();
+      mt9f002_reset_exposure(&mt9f002);
       ae_set.prev_active = ae_set.active;
     }
 
     if (awb_set.prev_active != awb_set.active) {
-      bebop_awb_reset();
+      mt9f002_reset_color(&mt9f002);
       awb_set.prev_active = awb_set.active;
     }
 
@@ -303,15 +282,15 @@ static struct image_t *update_ae_awb(struct image_t *img)
       float blue_adj = ((float)(yuv_stats.awb_sum_Y)) / ((float)(yuv_stats.awb_sum_Y + yuv_stats.awb_sum_U - 128.f *
                        yuv_stats.awb_nb_grey_pixels)) - 1.f;
       mt9f002.gain_blue *= 1 + awb_set.gain * blue_adj * dt;
-      if (mt9f002.gain_blue < mt9f002.gain_green1) {
-        mt9f002.gain_blue = mt9f002.gain_green1;
+      if (mt9f002.gain_blue < mt9f002.gain_green1/2) {
+        mt9f002.gain_blue = mt9f002.gain_green1/2;
       }
 
       float red_adj = ((float)(yuv_stats.awb_sum_Y)) / ((float)(yuv_stats.awb_sum_Y + yuv_stats.awb_sum_V - 128.f *
                       yuv_stats.awb_nb_grey_pixels)) - 1.f;
       mt9f002.gain_red *= 1 + awb_set.gain * red_adj * dt;
-      if (mt9f002.gain_red < mt9f002.gain_green1) {
-        mt9f002.gain_red = mt9f002.gain_green1;
+      if (mt9f002.gain_red < mt9f002.gain_green1/2) {
+        mt9f002.gain_red = mt9f002.gain_green1/2;
       }
 
       /*
@@ -341,7 +320,7 @@ static struct image_t *update_ae_awb(struct image_t *img)
       if ((mt9f002.gain_blue > 4 * mt9f002.gain_red || mt9f002.gain_blue > 4 * mt9f002.gain_green1) ||
           (mt9f002.gain_red > 4 * mt9f002.gain_blue || mt9f002.gain_red > 4 * mt9f002.gain_green1) ||
           yuv_stats.awb_nb_grey_pixels < BEBOP_AWB_MIN_GREY_PIXELS) {
-        bebop_awb_reset();
+        mt9f002_reset_color(&mt9f002);
       } else {
         VERBOSE_PRINT("blue %f, red %f, green 1 %f green 2 %f\n", mt9f002.gain_blue, mt9f002.gain_red, mt9f002.gain_green1,
                       mt9f002.gain_green2);
@@ -373,8 +352,5 @@ void bebop_ae_awb_init(void)
   awb_set.gain_scheduling_tolerance = BEBOP_AWB_GAIN_SCHEDULING_TOLERANCE;
   awb_set.gain_scheduling_step      = BEBOP_AWB_GAIN_SCHEDULING_STEP;
 
-  cv_add_to_device_async(&BEBOP_AE_AWB_CAMERA, update_ae_awb, BEBOP_AE_AWB_NICE, 0);
-
-  bebop_ae_reset();
-  bebop_awb_reset();
+  cv_add_to_device_async(&front_camera, update_ae_awb, BEBOP_AE_AWB_NICE, 0);
 }

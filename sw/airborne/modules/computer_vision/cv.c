@@ -79,7 +79,8 @@ struct video_listener *cv_add_to_device(struct video_config_t *device, cv_functi
 }
 
 
-struct video_listener *cv_add_to_device_async(struct video_config_t *device, cv_function func, int nice_level, uint16_t fps)
+struct video_listener *cv_add_to_device_async(struct video_config_t *device, cv_function func, int nice_level,
+    uint16_t fps)
 {
   // Create a normal listener
   struct video_listener *listener = cv_add_to_device(device, func, fps);
@@ -116,7 +117,7 @@ int8_t cv_async_function(struct cv_async *async, struct image_t *img)
 
   // update image copy if input image size changed or not yet initialised
   if (async->img_copy.buf_size != img->buf_size) {
-    if(async->img_copy.buf !=  NULL){
+    if (async->img_copy.buf !=  NULL) {
       image_free(&async->img_copy);
     }
     image_create(&async->img_copy, img->w, img->h, img->type);
@@ -130,7 +131,6 @@ int8_t cv_async_function(struct cv_async *async, struct image_t *img)
 #endif
 
   // Copy image
-  // TODO:this takes time causing some thread lag, should be replaced with gpu operation
   image_copy(img, &async->img_copy);
 
   // Inform thread of new image

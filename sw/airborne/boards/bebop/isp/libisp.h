@@ -4,9 +4,6 @@
 #include "reg_avi.h"
 #include "modules/computer_vision/lib/v4l/v4l2.h"
 
-#define BAYERSTATS_STATX 64
-#define BAYERSTATS_STATY 48
-
 #define AVI_DEFINE_NODE(EXPANDER) \
   EXPANDER(chain_bayer_inter)         \
   EXPANDER(vlformat_32to40)         \
@@ -100,10 +97,10 @@ struct isp_yuv_stats_t {
   uint32_t ae_histogram_Y[256];
 };
 
-extern struct libisp_config isp_config;
-
-int configure_isp(struct v4l2_device *dev);
-int isp_get_statistics_yuv(struct isp_yuv_stats_t *yuv_stats);
+extern int configure_isp(struct v4l2_device *dev);
+extern int isp_get_statistics_yuv(struct isp_yuv_stats_t *yuv_stats);
+extern int isp_request_statistics_yuv_window(uint16_t x_start, uint16_t x_end, uint16_t y_start, uint16_t y_end,
+                                      uint16_t x_odd_inc, uint16_t y_odd_inc);
 
 /* Registers access */
 #define EXPAND_AS_PROTOTYPE(_node)                                        \

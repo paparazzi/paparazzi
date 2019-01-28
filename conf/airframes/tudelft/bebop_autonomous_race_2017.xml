@@ -33,13 +33,13 @@
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
     </module-->
 
-    <module name="video_thread">
+    <module name="bebop_cam">
     </module>
 
     <module name="pose_history"/>
 
     <module name="cv_detect_contour">
-	<define name="DETECT_CONTOUR_CAMERA" value="front_camera"/>
+	  <define name="DETECT_CONTOUR_CAMERA" value="front_camera"/>
 	</module>
     <module name="cv_opticflow">
        <define name="OPTICFLOW_METHOD" value="1"/>

@@ -114,7 +114,7 @@ static struct image_t *viewvideo_function(struct UdpSocket *viewvideo_socket, st
     struct image_t *img_small, struct image_t *img_jpeg)
 {
   // Resize small image if needed
-  if(img_small->buf_size != img->buf_size/(viewvideo.downsize_factor*viewvideo.downsize_factor)){
+  if(img_small->buf_size < img->buf_size/(viewvideo.downsize_factor*viewvideo.downsize_factor)){
     if(img_small->buf != NULL){
       image_free(img_small);
     }
@@ -140,7 +140,7 @@ static struct image_t *viewvideo_function(struct UdpSocket *viewvideo_socket, st
 
   if (viewvideo.is_streaming) {
     // Only resize when needed
-    if (viewvideo.downsize_factor != 1) {
+    if (viewvideo.downsize_factor > 1) {
       image_yuv422_downsample(img, img_small, viewvideo.downsize_factor);
       jpeg_encode_image(img_small, img_jpeg, VIEWVIDEO_QUALITY_FACTOR, VIEWVIDEO_USE_NETCAT);
     } else {

@@ -9,6 +9,15 @@
 #include <sys/ioctl.h>
 
 #include "libisp.h"
+#include "libisp_config.h"
+
+#define PRINT(string,...) fprintf(stderr, "[libisp->%s()] " string,__FUNCTION__ , ##__VA_ARGS__)
+
+#if MT9F002_VERBOSE
+#define VERBOSE_PRINT PRINT
+#else
+#define VERBOSE_PRINT(...)
+#endif
 
 #define AVI_BASE 0x400000
 #define AVI_SIZE 0x100000
@@ -22,6 +31,9 @@ struct avi_isp_offsets {
   uint32_t chain_yuv;
 };
 
+#define AVI_ISP_STAT_YUV_MAX_WAIT 3
+uint8_t curWait = 0;
+
 /* IOCTL implemented in AVI drivers */
 #define AVI_ISP_IOGET_OFFSETS _IOR('F', 0x33, struct avi_isp_offsets)
 
@@ -33,6 +45,8 @@ struct avi_isp_offsets {
 static struct libisp_context isp_ctx = {
   .devmem = -1
 };
+
+uint16_t requestWindow[6] = {0};
 
 static const unsigned isp_bases[] = {
   AVI_ISP_CHAIN_BAYER_INTER,
@@ -76,7 +90,7 @@ static const unsigned isp_bases[] = {
 static int avi_isp_get_offsets_fd(int fd, struct avi_isp_offsets *off)
 {
   if (ioctl(fd, AVI_ISP_IOGET_OFFSETS, off) < 0) {
-    printf("sizeof: %d, %X\n", sizeof(struct avi_isp_offsets), AVI_ISP_IOGET_OFFSETS);
+    VERBOSE_PRINT("sizeof: %d, %X\n", sizeof(struct avi_isp_offsets), AVI_ISP_IOGET_OFFSETS);
     perror("ioctl(AVI_ISP_IOGET_OFFSETS) failed");
     return -1;
   }
@@ -197,18 +211,88 @@ int configure_isp(struct v4l2_device *dev)
   return 0;
 }
 
+int isp_request_statistics_yuv_window(uint16_t x_start, uint16_t x_end, uint16_t y_start, uint16_t y_end,
+                                      uint16_t x_odd_inc, uint16_t y_odd_inc)
+{
+  requestWindow[0] = x_start;
+  requestWindow[1] = x_end;
+  requestWindow[2] = y_start;
+  requestWindow[3] = y_end;
+  requestWindow[4] = x_odd_inc;
+  requestWindow[5] = y_odd_inc;
+
+  VERBOSE_PRINT("[YUV-STAT] Requesting window: [%d %d],[%d %d], [%d %d]\n",
+      requestWindow[0], requestWindow[1], requestWindow[2], requestWindow[3], requestWindow[4], requestWindow[5]);
+
+  return 0;
+}
+
+static int isp_set_statistics_yuv_window(void)
+{
+  VERBOSE_PRINT("[YUV-STAT] Setting window: [%d %d],[%d %d]\n",
+      requestWindow[0], requestWindow[1], requestWindow[2], requestWindow[3]);
+
+  isp_config.statistics_yuv.window_pos_x.window_x_start   = requestWindow[0];
+  isp_config.statistics_yuv.window_pos_x.window_x_end     = requestWindow[1];
+  isp_config.statistics_yuv.window_pos_y.window_y_start   = requestWindow[2];
+  isp_config.statistics_yuv.window_pos_y.window_y_end     = requestWindow[3];
+  isp_config.statistics_yuv.increments_log2.x_log2_inc    = requestWindow[4];
+  isp_config.statistics_yuv.increments_log2.y_log2_inc    = requestWindow[5];
+
+  VERBOSE_PRINT("[YUV-STAT] Current settings: [%d %d] [%d %d] [%d %d] [%d %d] [%d] [%d %d] [%d]\n",
+          isp_config.statistics_yuv.window_pos_x.window_x_start,
+          isp_config.statistics_yuv.window_pos_x.window_x_end,
+          isp_config.statistics_yuv.window_pos_y.window_y_start,
+          isp_config.statistics_yuv.window_pos_y.window_y_end,
+          isp_config.statistics_yuv.circle_pos_x_center.x_center,
+          isp_config.statistics_yuv.circle_pos_x_squared.x_squared,
+          isp_config.statistics_yuv.circle_pos_y_center.y_center,
+          isp_config.statistics_yuv.circle_pos_y_squared.y_squared,
+          isp_config.statistics_yuv.circle_radius_squared.radius_squared,
+          isp_config.statistics_yuv.increments_log2.x_log2_inc,
+          isp_config.statistics_yuv.increments_log2.y_log2_inc,
+          isp_config.statistics_yuv.awb_threshold.awb_threshold
+  );
+
+  return 0;
+}
+
 /* Get YUV statistics */
 int isp_get_statistics_yuv(struct isp_yuv_stats_t *yuv_stats)
 {
   uint16_t i;
 
   if (isp_ctx.devmem < 0) {
+    fprintf(stderr, "[YUV-STAT] Error isp_ctx.devmem < 0\n");
     return -1;
   }
 
   struct avi_isp_statistics_yuv_regs stats_yuv;
   avi_isp_statistics_yuv_get_registers(&isp_ctx, &stats_yuv);
 
+  if (!stats_yuv.measure_status.done) {
+    VERBOSE_PRINT("[YUV-STAT] Waiting for YUV stats\n");
+    curWait++;
+    if (curWait <= AVI_ISP_STAT_YUV_MAX_WAIT) {
+      isp_config.statistics_yuv.measure_req.clear = 0; // Clear current results
+    } else {
+      isp_config.statistics_yuv.measure_req.clear = 1; // Clear current results
+      isp_set_statistics_yuv_window();
+      curWait = 0;
+    }
+    avi_isp_statistics_yuv_set_registers(&isp_ctx, &isp_config.statistics_yuv);
+    return -1;
+  } else if (stats_yuv.measure_status.error) {
+    fprintf(stderr, "[YUV-STAT] Error requesting YUV stats\n");
+    isp_config.statistics_yuv.measure_req.clear = 1; // Clear current results?
+    curWait = 0;
+    isp_set_statistics_yuv_window();
+    avi_isp_statistics_yuv_set_registers(&isp_ctx, &isp_config.statistics_yuv);
+    return -1;
+  } else {
+    isp_config.statistics_yuv.measure_req.clear = 1; // Clear current results?
+  }
+  curWait = 0;
   yuv_stats->awb_sum_Y = stats_yuv.awb_sum_y.awb_sum_y;
   yuv_stats->awb_sum_U = stats_yuv.awb_sum_u.awb_sum_u;
   yuv_stats->awb_sum_V = stats_yuv.awb_sum_v.awb_sum_v;
@@ -222,6 +306,7 @@ int isp_get_statistics_yuv(struct isp_yuv_stats_t *yuv_stats)
   for (i = 0; i < 256; ++i) {
     yuv_stats->ae_histogram_Y[i] = histogram.ae_histogram_y[i].histogram_y;
   }
+  isp_set_statistics_yuv_window();
 
   avi_isp_statistics_yuv_set_registers(&isp_ctx, &isp_config.statistics_yuv);
   return 0;
