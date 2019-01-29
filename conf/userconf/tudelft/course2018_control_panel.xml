@@ -37,6 +37,7 @@
       </program>
       <program name="Data Link">
         <arg flag="-udp"/>
+        <arg flag="-ping_period" constant="100"/>
       </program>
       <program name="Server">
         <arg flag="-n"/>
@@ -59,6 +60,7 @@
       </program>
       <program name="Data Link">
         <arg flag="-udp"/>
+        <arg flag="-ping_period" constant="100"/>
       </program>
       <program name="Server">
         <arg flag="-n"/>
