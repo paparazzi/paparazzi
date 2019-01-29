@@ -4,7 +4,7 @@
     [ 1],
     [-1]
   ],
-  "desired_intervehicle_angles": [0],
+  "desired_intervehicle_angles_degrees": [0],
   "gain": 10,
-  "desired_stationary_radius": 80
+  "desired_stationary_radius_meters": 80
 }
