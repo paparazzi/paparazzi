@@ -61,9 +61,9 @@ class FormationControl:
         self.verbose = verbose
         self.ids = self.config['ids']
         self.B = np.array(self.config['topology'])
-        self.Zdesired = np.array(self.config['desired_intervehicle_angles'])
+        self.Zdesired = np.array(self.config['desired_intervehicle_angles_degrees'])*np.pi/180
         self.k = np.array(self.config['gain'])
-        self.radius = np.array(self.config['desired_stationary_radius'])
+        self.radius = np.array(self.config['desired_stationary_radius_meters'])
         self.aircraft = [Aircraft(i) for i in self.ids]
         self.sigmas = np.zeros(len(self.aircraft))
 
