@@ -27,7 +27,6 @@
 
 #include "std.h"
 #include "peripherals/video_device.h"
-#include "boards/bebop/mt9f002.h"
 
 /** uart connected to GPS internally */
 #define UART1_DEV /dev/ttyPA1

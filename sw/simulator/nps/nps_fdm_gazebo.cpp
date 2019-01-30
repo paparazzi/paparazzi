@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Tom van Dijk, Kirk Scheeper
+ * Copyright (C) 2017 Tom van Dijk, Kirk Scheper
  *
  * This file is part of paparazzi.
  *
@@ -95,9 +95,10 @@ struct gazebocam_t {
 };
 static struct gazebocam_t gazebo_cams[VIDEO_THREAD_MAX_CAMERAS] =
 { { NULL, 0 } };
-#if NPS_SIMULATE_MT9F002
+
 #include "boards/bebop/mt9f002.h"
-#endif
+#include "boards/bebop/mt9v117.h"
+
 #endif // NPS_SIMULATE_VIDEO
 
 struct gazebo_actuators_t {
@@ -359,6 +360,41 @@ static void init_gazebo(void)
   }
 
   // add or set up sensors before the vehicle gets loaded
+#if NPS_SIMULATE_VIDEO
+  // Cameras
+  sdf::ElementPtr link = vehicle_sdf->Root()->GetFirstElement()->GetElement("link");
+  while (link) {
+    if (link->Get<string>("name") == "front_camera" && link->GetElement("sensor")->Get<string>("name") == "mt9f002") {
+      float hfov = link->GetElement("sensor")->GetElement("camera")->GetElement("horizontal_fov")->Get<float>();
+      int w = link->GetElement("sensor")->GetElement("camera")->GetElement("image")->GetElement("width")->Get<int>();
+      int h = link->GetElement("sensor")->GetElement("camera")->GetElement("image")->GetElement("height")->Get<int>();
+
+      ignition::math::Pose3d pose = link->GetElement("pose")->Get<ignition::math::Pose3d>();
+      pose += ignition::math::Pose3d(0,0,0,0,-MT9F002_OFFSET_X * hfov,-MT9F002_OFFSET_Y * hfov * h / w);
+      link->GetElement("pose")->Set(pose);
+
+      link->GetElement("sensor")->GetElement("camera")->GetElement("horizontal_fov")->Set(hfov * MT9F002_OUTPUT_WIDTH / MT9F002_OUTPUT_HEIGHT / MT9F002_ZOOM);
+
+      int env = link->GetElement("sensor")->GetElement("camera")->GetElement("lens")->GetElement("env_texture_size")->Get<int>();
+      link->GetElement("sensor")->GetElement("camera")->GetElement("lens")->GetElement("env_texture_size")->Set(env / MT9F002_ZOOM);
+
+      link->GetElement("sensor")->GetElement("camera")->GetElement("image")->GetElement("width")->Set(MT9F002_OUTPUT_WIDTH);
+      link->GetElement("sensor")->GetElement("camera")->GetElement("image")->GetElement("height")->Set(MT9F002_OUTPUT_HEIGHT);
+
+      if (MT9F002_TARGET_FPS){
+        int fps = Min(MT9F002_TARGET_FPS, link->GetElement("sensor")->GetElement("update_rate")->Get<int>());
+        link->GetElement("sensor")->GetElement("update_rate")->Set(fps);
+      }
+    } else if  (link->Get<string>("name") == "front_camera" && link->GetElement("sensor")->Get<string>("name") == "mt9v117") {
+      if (MT9V117_TARGET_FPS){
+        int fps = Min(MT9V117_TARGET_FPS, link->GetElement("sensor")->GetElement("update_rate")->Get<int>());
+        link->GetElement("sensor")->GetElement("update_rate")->Set(fps);
+      }
+    }
+    link = link->GetNextElement("link");
+  }
+#endif
+
   // laser range array
 #if NPS_SIMULATE_LASER_RANGE_ARRAY
   vehicle_sdf->Root()->GetFirstElement()->AddElement("include")->GetElement("uri")->Set("model://range_sensors");
@@ -368,28 +404,6 @@ static void init_gazebo(void)
   range_joint->GetElement("parent")->Set("chassis");
   range_joint->GetElement("child")->Set("range_sensors::base");
 #endif
-  // bebop front camera
-#ifdef NPS_SIMULATE_MT9F002
-  sdf::ElementPtr link = vehicle_sdf->Root()->GetFirstElement()->GetElement("link");
-  while (link) {
-    if (link->Get<string>("name") == "front_camera") {
-      int w = link->GetElement("sensor")->GetElement("camera")->GetElement("image")->GetElement("width")->Get<int>();
-      link->GetElement("sensor")->GetElement("camera")->GetElement("image")->GetElement("width")->Set(
-        w * MT9F002_OUTPUT_SCALER);
-      int h = link->GetElement("sensor")->GetElement("camera")->GetElement("image")->GetElement("height")->Get<int>();
-      link->GetElement("sensor")->GetElement("camera")->GetElement("image")->GetElement("height")->Set(
-        h * MT9F002_OUTPUT_SCALER);
-      int env = link->GetElement("sensor")->GetElement("camera")->GetElement("lens")->GetElement("env_texture_size")->Get<int>();
-      link->GetElement("sensor")->GetElement("camera")->GetElement("lens")->GetElement("env_texture_size")->Set(
-        env * MT9F002_OUTPUT_SCALER);
-      cout << "Applied MT9F002_OUTPUT_SCALER (=" << MT9F002_OUTPUT_SCALER << ") to " << link->Get<string>("name") << endl;
-      link->GetElement("sensor")->GetElement("update_rate")->Set(MT9F002_TARGET_FPS);
-      cout << "Applied MT9F002_TARGET_FPS (=" << MT9F002_TARGET_FPS << ") to " << link->Get<string>("name") << endl;
-    }
-    link = link->GetNextElement("link");
-  }
-#endif // NPS_SIMULATE_MT9F002
-
 
   // get world
   string world_uri = "world://" + string(NPS_GAZEBO_WORLD);
@@ -628,8 +642,7 @@ static void gazebo_write(double act_commands[], int commands_nb)
  */
 static void init_gazebo_video(void)
 {
-  gazebo::sensors::SensorManager *mgr =
-    gazebo::sensors::SensorManager::Instance();
+  gazebo::sensors::SensorManager *mgr = gazebo::sensors::SensorManager::Instance();
 
   cout << "Initializing cameras..." << endl;
   // Loop over cameras registered in video_thread_nps
@@ -658,9 +671,12 @@ static void init_gazebo_video(void)
     }
     // Activate sensor
     cam->SetActive(true);
+
     // Add to list of cameras
     gazebo_cams[i].cam = cam;
     gazebo_cams[i].last_measurement_time = cam->LastMeasurementTime();
+
+    // set default camera settings
     // Copy video_config settings from Gazebo's camera
     cameras[i]->output_size.w = cam->ImageWidth();
     cameras[i]->output_size.h = cam->ImageHeight();
@@ -668,19 +684,15 @@ static void init_gazebo_video(void)
     cameras[i]->sensor_size.h = cam->ImageHeight();
     cameras[i]->crop.w = cam->ImageWidth();
     cameras[i]->crop.h = cam->ImageHeight();
+    cameras[i]->fps = 0;
     cameras[i]->camera_intrinsics.focal_x = cameras[i]->output_size.w / 2.0f;
     cameras[i]->camera_intrinsics.center_x = cameras[i]->output_size.w / 2.0f;
     cameras[i]->camera_intrinsics.focal_y = cameras[i]->output_size.h / 2.0f;
     cameras[i]->camera_intrinsics.center_y = cameras[i]->output_size.h / 2.0f;
-#if NPS_SIMULATE_MT9F002
-    // See boards/bebop/mt9f002.c
-    if (cam->Name() == "front_camera") {
-      cameras[i]->output_size.w = MT9F002_OUTPUT_WIDTH;
-      cameras[i]->output_size.h = MT9F002_OUTPUT_HEIGHT;
-      cameras[i]->sensor_size.w = MT9F002_OUTPUT_WIDTH;
-      cameras[i]->sensor_size.h = MT9F002_OUTPUT_HEIGHT;
-      cameras[i]->crop.w = MT9F002_OUTPUT_WIDTH;
-      cameras[i]->crop.h = MT9F002_OUTPUT_HEIGHT;
+
+    if (cam->Name() == "mt9f002") {
+      // See boards/bebop/mt9f002.h
+      cameras[i]->fps = MT9F002_TARGET_FPS;
       cameras[i]->camera_intrinsics = {
         .focal_x = MT9F002_FOCAL_X,
         .focal_y = MT9F002_FOCAL_Y,
@@ -688,9 +700,17 @@ static void init_gazebo_video(void)
         .center_y = MT9F002_CENTER_Y,
         .Dhane_k = MT9F002_DHANE_K
       };
+    } else if (cam->Name() == "mt9v117") {
+      // See boards/bebop/mt9v117.h
+      cameras[i]->fps = MT9V117_TARGET_FPS;
+      cameras[i]->camera_intrinsics = {
+        .focal_x = MT9V117_FOCAL_X,
+        .focal_y = MT9V117_FOCAL_Y,
+        .center_x = MT9V117_CENTER_X,
+        .center_y = MT9V117_CENTER_Y,
+        .Dhane_k = MT9V117_DHANE_K
+      };
     }
-#endif
-    cameras[i]->fps = cam->UpdateRate();
     cout << "ok" << endl;
   }
 }
@@ -743,29 +763,16 @@ static void gazebo_read_video(void)
  * @param img
  * @param cam
  */
-static void read_image(
-  struct image_t *img,
-  gazebo::sensors::CameraSensorPtr cam)
+static void read_image(struct image_t *img, gazebo::sensors::CameraSensorPtr cam)
 {
-  int xstart = 0;
-  int ystart = 0;
-#if NPS_SIMULATE_MT9F002
-  if (cam->Name() == "front_camera") {
-    image_create(img, MT9F002_OUTPUT_WIDTH, MT9F002_OUTPUT_HEIGHT, IMAGE_YUV422);
-    xstart = cam->ImageWidth() * (0.5 + MT9F002_INITIAL_OFFSET_X) - MT9F002_OUTPUT_WIDTH / 2;
-    ystart = cam->ImageHeight() * (0.5 + MT9F002_INITIAL_OFFSET_Y) - MT9F002_OUTPUT_HEIGHT / 2;
-  } else {
-    image_create(img, cam->ImageWidth(), cam->ImageHeight(), IMAGE_YUV422);
-  }
-#else
   image_create(img, cam->ImageWidth(), cam->ImageHeight(), IMAGE_YUV422);
-#endif
+
   // Convert Gazebo's *RGB888* image to Paparazzi's YUV422
   const uint8_t *data_rgb = cam->ImageData();
   uint8_t *data_yuv = (uint8_t *)(img->buf);
   for (int x = 0; x < img->w; ++x) {
     for (int y = 0; y < img->h; ++y) {
-      int idx_rgb = 3 * (cam->ImageWidth() * (y + ystart) + (x + xstart));
+      int idx_rgb = 3 * (cam->ImageWidth() * y + x);
       int idx_yuv = 2 * (img->w * y + x);
       int idx_px = img->w * y + x;
       if (idx_px % 2 == 0) { // Pick U or V
@@ -789,7 +796,7 @@ static void read_image(
   img->pprz_ts = ts.Double() * 1e6;
   img->buf_idx = 0; // unused
 }
-#endif  // NPS_SIMULATE_VIDEO
+#endif
 
 #if NPS_SIMULATE_LASER_RANGE_ARRAY
 /*
