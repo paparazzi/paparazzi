@@ -51,7 +51,7 @@ uint8_t color_cr_min  = 180;
 uint8_t color_cr_max  = 255;
 
 // Result
-int color_count = 0;
+volatile int color_count = 0;
 
 #include "subsystems/abi.h"
 

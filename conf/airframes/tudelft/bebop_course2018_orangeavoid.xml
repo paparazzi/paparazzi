@@ -59,6 +59,10 @@
     <!--module name="bebop_ae_awb">
       <define name="CV_AE_AWB_VERBOSE" value="0" />
     </module-->
+    <module name="cv_colorfilter">
+      <define name="COLORFILTER_CAMERA" value="front_camera" />
+    </module>
+    <module name="orange_avoider" />
     <module name="video_capture">
       <define name="VIDEO_CAPTURE_CAMERA" value="front_camera"/>
       <define name="VIDEO_CAPTURE_FPS" value="10"/>
