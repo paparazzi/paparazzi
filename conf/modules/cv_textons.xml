@@ -17,7 +17,7 @@
       <define name="N_LEARNING_SAMPLES" value="5000" description="Number of samples used for learning the dictionary."/>
       <define name="BORDER_WIDTH" value="0" description="Width of the image border from which no samples are taken."/>
       <define name="BORDER_HEIGHT" value="0" description="Height of the border from which no samples are taken."/>
-      <define name="EXECUTION_PERIOD" value="5" description="The texton function is only executed once every execution_period times."/>
+      <define name="EXECUTION_PERIOD" value="5" description="The texton function is only executed once every execution_period times. "/>
     </section>
 
   </doc>
