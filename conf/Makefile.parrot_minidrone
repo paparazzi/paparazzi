@@ -26,7 +26,7 @@
 
 include $(PAPARAZZI_SRC)/conf/Makefile.arm-linux
 
-DRONE = $(PAPARAZZI_SRC)/sw/tools/parrot/swing.py
+DRONE = $(PAPARAZZI_SRC)/sw/tools/parrot/parrot_minidrone.py
 
 # Program the device and start it.
 upload program: $(OBJDIR)/$(TARGET).elf

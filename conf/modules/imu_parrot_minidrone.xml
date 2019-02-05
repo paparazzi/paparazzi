@@ -1,0 +1,25 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="imu_parrot_minidrone" dir="imu">
+  <doc>
+    <description>
+      Driver for the IMU of a Parrot Minidrones.
+    </description>
+  </doc>
+  <autoload name="imu_common"/>
+  <autoload name="imu_nps"/>
+  <autoload name="sonar_parrot_minidrone"/>
+  <header>
+    <file name="imu_parrot_minidrone.h" dir="subsystems/imu"/>
+  </header>
+  <init fun="imu_parrot_minidrone_init()"/>
+  <periodic fun="imu_parrot_minidrone_periodic()"/>
+  <event fun="imu_parrot_minidrone_event()"/>
+  <makefile target="!sim|nps|fbw">
+    <define name="USE_I2C0"/>
+    <define name="IMU_TYPE_H" value="subsystems/imu/imu_parrot_minidrone.h" type="string"/>
+    <file name="mpu60x0.c" dir="peripherals"/>
+    <file name="mpu60x0_i2c.c" dir="peripherals"/>
+    <file name="imu_parrot_minidrone.c" dir="subsystems/imu"/>
+  </makefile>
+</module>

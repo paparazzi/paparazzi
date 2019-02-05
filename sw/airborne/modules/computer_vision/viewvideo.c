@@ -139,6 +139,7 @@ static struct image_t *viewvideo_function(struct UdpSocket *viewvideo_socket, st
 #endif
 
   if (viewvideo.is_streaming) {
+
     // Only resize when needed
     if (viewvideo.downsize_factor > 1) {
       image_yuv422_downsample(img, img_small, viewvideo.downsize_factor);
@@ -187,6 +188,9 @@ static struct image_t *viewvideo_function(struct UdpSocket *viewvideo_socket, st
 #endif
   }
 
+  // Free all buffers
+  image_free(&img_jpeg);
+  image_free(&img_small);
   return NULL; // No new images were created
 }
 

@@ -1,35 +1,36 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# swing.makefile
+# parrot_minidrone.makefile
 #
-# http://wiki.paparazziuav.org/wiki/Swing
+# https://wiki.paparazziuav.org/wiki/Ap.parrot_minidrone
 #
 
-BOARD=swing
+BOARD=parrot_minidrone
+BOARD_VERSION=
 BOARD_CFG=\"boards/$(BOARD).h\"
 
 ARCH=linux
 $(TARGET).ARCHDIR = $(ARCH)
-# include conf/Makefile.swing (with specific upload rules) instead of only Makefile.linux:
-ap.MAKEFILE = swing
+# include conf/Makefile.parrot_minidrone (with specific upload rules) instead of only Makefile.linux:
+ap.MAKEFILE = parrot_minidrone
 
 FLOAT_ABI =
 ARCH_CFLAGS = -march=armv5
 
 # -----------------------------------------------------------------------
 USER=foobar
-HOST?=192.168.4.1
+HOST?=192.168.3.1
 SUB_DIR=paparazzi
 FTP_DIR=/data/edu
 TARGET_DIR=$(FTP_DIR)/$(SUB_DIR)
 # -----------------------------------------------------------------------
 
 # The datalink default uses UDP
-MODEM_HOST         ?= 192.168.4.255
+MODEM_HOST         ?= 192.168.3.255
 
-# The GPS sensor is connected internally
-GPS_PORT           ?= UART1
-GPS_BAUD           ?= B230400
+# If an external GPS sensor is used via USB to serial interface
+GPS_PORT           ?= UART2
+GPS_BAUD           ?= B38400
 
 # handle linux signals by hand
 $(TARGET).CFLAGS += -DUSE_LINUX_SIGNAL -D_GNU_SOURCE

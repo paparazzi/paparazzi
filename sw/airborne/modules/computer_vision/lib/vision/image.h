@@ -33,7 +33,7 @@
 
 /* The different type of images we currently support */
 enum image_type {
-  IMAGE_YUV422,     ///< UYVY format (uint16 per pixel)
+  IMAGE_YUV422,     ///< UYVY format (uint16 = 2 bytes per pixel)
   IMAGE_GRAYSCALE,  ///< Grayscale image with only the Y part (uint8 per pixel)
   IMAGE_JPEG,       ///< An JPEG encoded image (not per pixel encoded)
   IMAGE_GRADIENT    ///< An image gradient (int16 per pixel)
@@ -114,5 +114,8 @@ void image_draw_line_color(struct image_t *img, struct point_t *from, struct poi
 void pyramid_next_level(struct image_t *input, struct image_t *output, uint8_t border_size);
 void pyramid_build(struct image_t *input, struct image_t *output_array, uint8_t pyr_level, uint16_t border_size);
 void image_gradient_pixel(struct image_t *img, struct point_t *loc, int method, int *dx, int *dy);
+
+/* for minidrone */
+void image_yuyv_swap_uyvy(struct image_t *input);
 
 #endif

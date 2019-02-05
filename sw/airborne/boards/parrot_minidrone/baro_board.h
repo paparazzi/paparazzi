@@ -19,15 +19,15 @@
  */
 
 /**
- * @file boards/swing/baro_board.h
- * Paparazzi Swing Baro Sensor implementation.
+ * @file boards/parrot_minidrones/baro_board.h
+ * Paparazzi Parrot minidrone Baro Sensor implementation.
  * Sensor is LPS22HB (I2C) from ST but is accessed through sysfs interface
  */
 
 #ifndef BOARDS_SWING_BARO_H
 #define BOARDS_SWING_BARO_H
 
-// only for printing the baro type during compilation
+// Only for printing the baro type during compilation
 #ifndef BARO_BOARD
 #define BARO_BOARD BARO_SWING
 #endif
@@ -35,4 +35,4 @@
 extern void baro_event(void);
 #define BaroEvent baro_event
 
-#endif /* BOARDS_SWING_BARO_H */
+#endif /* BOARDS_PARROT_MINIDRONE_BARO_H */

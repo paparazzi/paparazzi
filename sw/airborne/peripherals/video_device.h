@@ -31,7 +31,10 @@
 #include "modules/computer_vision/lib/vision/image.h"
 
 /* Different video filters */
+#ifndef VIDEO_FILTER_DEBAYER ///<To be able to switch it off
 #define VIDEO_FILTER_DEBAYER  (0x1 << 0)  ///<Enable software debayer
+#endif
+
 #define VIDEO_FILTER_ISP      (0x1 << 1)  ///<Enable ISP
 
 // Main video_thread structure

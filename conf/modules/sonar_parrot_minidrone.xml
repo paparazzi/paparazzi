@@ -1,0 +1,31 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="sonar">
+  <doc>
+    <description>
+      Driver for use in Parrot Minidrones build in ultra sound sensor
+      Reads the ultra sound sensor and outputs a distance in [m]
+    </description>
+    <define name="USE_SONAR" value="" description="If set does activate use of the ranging device in INS extended filter (only rotorcraft)"/>
+    <configure name="PARROT_MINIDRONE_BARO_THRESHOLD" value="3" description="Altitude in meters above which the ranging is not used"/>
+  </doc>
+
+  <header>
+    <file name="sonar_parrot_minidrone.h"/>
+  </header>
+  <init fun="sonar_parrot_minidrone_init()"/>
+  <periodic fun="sonar_parrot_minidrone_downlink()" freq="10" autorun="TRUE"/>
+  <makefile target="ap|sim">
+    <file name="sonar_parrot_minidrone.c"/>
+  </makefile>
+  <makefile target="ap">
+    <!--  <define name="USE_SPI0" value="1"/>
+    <define name="USE_ADC0" value="1"/>-->
+    <configure name="PARROT_MINIDRONE_SONAR_BARO_THRESHOLD" default="3"/>
+    <define name="INS_SONAR_BARO_THRESHOLD" value="$(PARROT_MINIDRONE_SONAR_BARO_THRESHOLD)"/>
+    <raw>
+      include $(CFG_SHARED)/spi_master.makefile
+    </raw>
+  </makefile>
+
+</module>

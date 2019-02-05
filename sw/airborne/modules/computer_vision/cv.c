@@ -191,12 +191,33 @@ void cv_run_device(struct video_config_t *device, struct image_t *img)
     }
 
     if (listener->async != NULL) {
+
+#ifdef BOARD_PARROT_MINIDRONE
+//The camera of a Parrot Minidrone can only be set (AFAIK) to output YUYV not the image routine used default UYVY
+//So we convert the full buffer first
+
+uint8_t ctmp;
+uint8_t *dest = img->buf;
+
+for (uint32_t i = 0; i < ((img->buf_size/2)-2); i += 2)
+{
+    ctmp=dest[i];
+	dest[i] = dest[i+1];
+	dest[i+1] =ctmp;
+    ctmp=dest[i+2];
+	dest[i+2] = dest[i+3];
+	dest[i+3] =ctmp;
+	dest += 2;
+}
+
+#endif
       // Send image to asynchronous thread, only update listener if successful
       if (!cv_async_function(listener->async, img)) {
         // Store timestamp
         listener->ts = img->ts;
       }
     } else {
+
       // Execute the cvFunction and catch result
       result = listener->func(img);
 

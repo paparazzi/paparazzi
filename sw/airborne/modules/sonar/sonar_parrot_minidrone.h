@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2014 Freek van Tienen <freek.v.tienen@gmail.com>
- * Copyright (C) 2017 Gautier Hattenberger <gautier.hattenberger@enac.fr>
+ * Copyright (C) 2017 Paparazzi Team
  *
  * This file is part of paparazzi.
  *
@@ -18,29 +17,28 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ *
  */
 
-/**
- * @file boards/swing/actuators.h
- * Actuator driver for the swing
+/** @file modules/sonar/sonar_parrot_minidrone.h
+ *  @brief Driver for a Parrot Minidrone to be able to read build in ultrasonic ranging sensor
  */
 
-#ifndef ACTUATORS_SWING_H_
-#define ACTUATORS_SWING_H_
+#ifndef SONAR_PARROT_MINIDRONE_H
+#define SONAR_PARROT_MINIDRONE_H
 
 #include <stdint.h>
 
-struct ActuatorsSwing {
-  uint16_t rpm_ref[4];  ///< Reference RPM
+// To be parameter compatible with the Bebop Sonar we added this struct
+struct SonarParrotMinidrone {
+  uint16_t meas;          ///< Raw ADC value
+  uint16_t offset;        ///< Sonar offset in ADC units
+  float distance;         ///< Distance measured in meters
 };
 
-#define ActuatorsSwingSet(_i, _v) { actuators_swing.rpm_ref[_i] = _v; }
-#define ActuatorsSwingCommit() actuators_swing_commit();
-#define ActuatorsSwingInit() actuators_swing_init();
+extern struct SonarParrotMinidrone sonar_parrot_minidrone;
 
-extern struct ActuatorsSwing actuators_swing;
-extern void actuators_swing_commit(void);
-extern void actuators_swing_init(void);
+extern void sonar_parrot_minidrone_init(void);
+extern void sonar_parrot_minidrone_downlink(void);//Handy for debugging
 
-#endif /* ACTUATORS_SWING_H_ */
-
+#endif /* SONAR_PARROT_MINIDRONE_H */

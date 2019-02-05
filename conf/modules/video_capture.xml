@@ -6,7 +6,7 @@
       Capture images from video device on the internal memory (JPEG, full size, best quality). Images can be saved by
       pressing the strip button, using the GCS settings panel or with the 'video_capture_shoot' function.
 
-      Additional data (GPS location) can be included in the Exif header by including the video_exif module.
+      Additional data, e.g. Photo location data, can be included in the EXIF header by including the video_exif module.
     </description>
 
     <define name="VIDEO_CAPTURE_CAMERA" value="front_camera|bottom_camera" description="Video device to use"/>

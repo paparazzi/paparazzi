@@ -21,8 +21,8 @@
  */
 
 /**
- * @file boards/swing/actuators.c
- * Actuator driver for the swing
+ * @file boards/parrot_minidrone/actuators.c
+ * Actuator driver for Parrot minidrones in all it's incarnations
  */
 
 
@@ -50,9 +50,9 @@ typedef struct { unsigned int val[4]; } __attribute__ ((packed)) pwm_delos_quadr
 #include "subsystems/actuators.h"
 #include "subsystems/actuators/motor_mixing.h"
 #include "actuators.h"
-#include "autopilot.h"
+#include "autopilot.h"//TODO: CHECK
 
-struct ActuatorsSwing actuators_swing;
+struct ActuatorsParrotMinidrone actuators_parrot_minidrone;
 static int actuators_fd;
 
 // Start/stop PWM
@@ -63,45 +63,45 @@ enum {
   SiP6_PWM3_START = (1<<3),
 };
 
-void actuators_swing_init(void)
+void actuators_parrot_minidrone_init(void)
 {
   actuators_fd = open("/dev/pwm", O_RDWR);
 
   pwm_delos_quadruplet m = {{ 1, 1, 1, 1 }};
   int ret __attribute__((unused)) = ioctl(actuators_fd, PWM_DELOS_SET_SPEEDS, &m);
-#if ACTUATORS_SWING_DEBUG
+#if ACTUATORS_PARROT_MINIDRONE_DEBUG
   printf("Return Speeds: %d\n", ret);
 #endif
 
-  actuators_swing_commit();
+  actuators_parrot_minidrone_commit();
 
   unsigned int control_reg = (SiP6_PWM0_START|SiP6_PWM1_START|SiP6_PWM2_START|SiP6_PWM3_START);
 
   ret = ioctl(actuators_fd, PWM_DELOS_SET_CTRL, &control_reg);
-#if ACTUATORS_SWING_DEBUG
+#if ACTUATORS_PARROT_MINIDRONE_DEBUG
   printf("Return control: %d\n", ret);
 #endif
 }
 
-void actuators_swing_commit(void)
+void actuators_parrot_minidrone_commit(void)
 {
   pwm_delos_quadruplet m;
 
-  m.val[0] = actuators_swing.rpm_ref[0] & 0xffff;
-  m.val[1] = actuators_swing.rpm_ref[1] & 0xffff;
-  m.val[2] = actuators_swing.rpm_ref[2] & 0xffff;
-  m.val[3] = actuators_swing.rpm_ref[3] & 0xffff;
+  m.val[0] = actuators_parrot_minidrone.rpm_ref[0] & 0xffff;
+  m.val[1] = actuators_parrot_minidrone.rpm_ref[1] & 0xffff;
+  m.val[2] = actuators_parrot_minidrone.rpm_ref[2] & 0xffff;
+  m.val[3] = actuators_parrot_minidrone.rpm_ref[3] & 0xffff;
 
 
-  if( actuators_swing.rpm_ref[0] > (PWM_TOTAL_RANGE) ) { m.val[0] = PWM_REG_SATURATION; }
-  if( actuators_swing.rpm_ref[1] > (PWM_TOTAL_RANGE) ) { m.val[1] = PWM_REG_SATURATION; }
-  if( actuators_swing.rpm_ref[2] > (PWM_TOTAL_RANGE) ) { m.val[2] = PWM_REG_SATURATION; }
-  if( actuators_swing.rpm_ref[3] > (PWM_TOTAL_RANGE) ) { m.val[3] = PWM_REG_SATURATION; }
+  if( actuators_parrot_minidrone.rpm_ref[0] > (PWM_TOTAL_RANGE) ) { m.val[0] = PWM_REG_SATURATION; }
+  if( actuators_parrot_minidrone.rpm_ref[1] > (PWM_TOTAL_RANGE) ) { m.val[1] = PWM_REG_SATURATION; }
+  if( actuators_parrot_minidrone.rpm_ref[2] > (PWM_TOTAL_RANGE) ) { m.val[2] = PWM_REG_SATURATION; }
+  if( actuators_parrot_minidrone.rpm_ref[3] > (PWM_TOTAL_RANGE) ) { m.val[3] = PWM_REG_SATURATION; }
 
-  if( actuators_swing.rpm_ref[0] < 0 ) { m.val[0] = 0; }
-  if( actuators_swing.rpm_ref[1] < 0 ) { m.val[1] = 0; }
-  if( actuators_swing.rpm_ref[2] < 0 ) { m.val[2] = 0; }
-  if( actuators_swing.rpm_ref[3] < 0 ) { m.val[3] = 0; }
+  if( actuators_parrot_minidrone.rpm_ref[0] < 0 ) { m.val[0] = 0; }
+  if( actuators_parrot_minidrone.rpm_ref[1] < 0 ) { m.val[1] = 0; }
+  if( actuators_parrot_minidrone.rpm_ref[2] < 0 ) { m.val[2] = 0; }
+  if( actuators_parrot_minidrone.rpm_ref[3] < 0 ) { m.val[3] = 0; }
 
   /* The upper 16-bit word of the ratio register contains the number
    * of bits used to code the ratio command  */
@@ -112,14 +112,14 @@ void actuators_swing_commit(void)
 
   int ret __attribute__((unused)) = ioctl(actuators_fd, PWM_DELOS_SET_RATIOS, &m);
 
-#if ACTUATORS_SWING_DEBUG
+#if ACTUATORS_PARROT_MINIDRONE_DEBUG
   RunOnceEvery(512, printf("Return ratios: %d (ratios: %d %d %d %d, pwm: %d %d %d %d\n",
        ret,
        m.val[0], m.val[1], m.val[2], m.val[3],
-       actuators_swing.rpm_ref[0],
-       actuators_swing.rpm_ref[1],
-       actuators_swing.rpm_ref[2],
-       actuators_swing.rpm_ref[3])
+	   actuators_parrot_minidrone.rpm_ref[0],
+	   actuators_parrot_minidrone.rpm_ref[1],
+	   actuators_parrot_minidrone.rpm_ref[2],
+	   actuators_parrot_minidrone.rpm_ref[3])
       );
 #endif
 }

@@ -726,6 +726,7 @@ void image_show_flow(struct image_t *img, struct flow_t *vectors, uint16_t point
 void image_show_flow_color(struct image_t *img, struct flow_t *vectors, uint16_t points_cnt, uint8_t subpixel_factor,
                            const uint8_t *color, const uint8_t *bad_color)
 {
+  static uint8_t color[4] = {255, 255, 255, 255};
   static int size_crosshair = 5;
 
   // Go through all the points

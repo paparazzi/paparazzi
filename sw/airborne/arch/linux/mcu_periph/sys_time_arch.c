@@ -82,7 +82,7 @@ void *sys_time_thread_main(void *data)
       perror("Couldn't read timer!");
     }
     if (missed > 1) {
-      fprintf(stderr, "Missed %lld timer events!\n", missed);
+      fprintf(stderr, "Shitty, missed %lld timer events!\n", missed);
     }
     /* set current sys_time */
     sys_tick_handler();

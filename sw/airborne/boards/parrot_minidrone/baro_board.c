@@ -24,16 +24,18 @@
  * Sensor is LPS22HB (I2C) from ST but is accessed through sysfs interface
  */
 
-#include "subsystems/sensors/baro.h"
-#include "subsystems/abi.h"
-#include "baro_board.h"
+
 #include <stdlib.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <pthread.h>
 #include <linux/input.h>
+#include "subsystems/sensors/baro.h"
+#include "subsystems/abi.h"
+#include "baro_board.h"
 
 static bool baro_swing_available;
 static int32_t baro_swing_raw;
@@ -48,24 +50,28 @@ static void *baro_read(void *data __attribute__((unused)))
   struct input_event ev;
   ssize_t n;
 
-  int fd_sonar = open("/dev/input/baro_event", O_RDONLY);
-  if (fd_sonar == -1) {
+  int fd_baro = open("/dev/input/baro_event", O_RDONLY);
+  printf("fd_baro value: %d\n", fd_baro);
+  if (fd_baro == -1) {
     printf("Unable to open baro event to read pressure\n");
     return NULL;
+  } else {
+	printf("Open baro event fd succes\n");
   }
 
   while (TRUE) {
     /* Check new pressure */
-    n = read(fd_sonar, &ev, sizeof(ev));
+    n = read(fd_baro, &ev, sizeof(ev));
     if (n == sizeof(ev) && ev.type == EV_ABS && ev.code == ABS_PRESSURE) {
       pthread_mutex_lock(&baro_swing_mutex);
-      baro_swing_available = true;
+      baro_swing_available = True;
       baro_swing_raw = ev.value;
+
       pthread_mutex_unlock(&baro_swing_mutex);
     }
 
     // Wait 100ms
-    //usleep(100000);
+    usleep(10000); //100Hz
   }
 
   return NULL;
@@ -73,12 +79,13 @@ static void *baro_read(void *data __attribute__((unused)))
 
 void baro_init(void)
 {
-  baro_swing_available = false;
+  printf("[swing_board] Enter baro_init...\n");
+  baro_swing_available = False;
   baro_swing_raw = 0;
 
   /* Start baro reading thread */
   pthread_t baro_thread;
-  if (pthread_create(&baro_thread, NULL, baro_read, NULL) != 0) {
+  if (pthread_create(&baro_thread, NULL, baro_read, NULL) != NULL) {
     printf("[swing_board] Could not create baro reading thread!\n");
   }
   pthread_setname_np(baro_thread, "pprz_baro_thread");
@@ -96,7 +103,7 @@ void baro_event(void)
     // send data in Pa
     float pressure = 100.f * ((float)baro_swing_raw) / 4096.f;
     AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, pressure);
-    baro_swing_available = false;
+    baro_swing_available = False;
   }
   pthread_mutex_unlock(&baro_swing_mutex);
 }

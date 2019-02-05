@@ -45,6 +45,17 @@
    gui_color="#ffffe8b36503"
   />
   <aircraft
+   name="Mambo"
+   ac_id="233"
+   airframe="airframes/examples/examples_parrot_mambo.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/dummy.xml"
+   settings="settings/rotorcraft_basic.xml"
+   settings_modules=""
+   gui_color="#ffffffffffff"
+  />
+  <aircraft
    name="Mentor"
    ac_id="227"
    airframe="airframes/OPENUAS/openuas_mentor.xml"

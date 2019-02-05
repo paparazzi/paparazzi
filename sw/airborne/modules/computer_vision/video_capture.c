@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015
+ * Copyright (C) 2015 Paparazzi Team
  *
  * This file is part of Paparazzi.
  *
@@ -43,7 +43,7 @@
 #endif
 
 #ifndef VIDEO_CAPTURE_JPEG_QUALITY
-#define VIDEO_CAPTURE_JPEG_QUALITY 99
+#define VIDEO_CAPTURE_JPEG_QUALITY 99  ///<Default to minimum compression
 #endif
 
 #ifndef VIDEO_CAPTURE_FPS
@@ -94,14 +94,13 @@ void video_capture_shoot(void)
   video_capture_take_shot = true;
 }
 
-
 void video_capture_save(struct image_t *img)
 {
   // Declare storage for image location
   char save_name[128];
 
   // Simple shot counter to find first available image location
-  for (/* no init */; video_capture_index < 9999; ++video_capture_index) {
+  for (/* no init */; video_capture_index < 9999; ++video_capture_index) { //why 9999 evil? int fits more ;)
     // Generate image location
     sprintf(save_name, "%s/img_%05d.jpg", STRINGIFY(VIDEO_CAPTURE_PATH), video_capture_index);
 

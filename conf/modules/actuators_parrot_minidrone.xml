@@ -1,13 +1,13 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="actuators_swing" dir="actuators" task="actuators">
+<module name="actuators_parrot_minidrone" dir="actuators" task="actuators">
   <doc>
     <description>
-      Actuators Driver for Swing
+      Actuators Driver for a Parrot Minidrone
     </description>
   </doc>
   <header>
-    <file name="actuators.h" dir="boards/swing"/>
+    <file name="actuators.h" dir="boards/parrot_minidrone"/>
   </header>
   <makefile target="ap">
     <define name="ACTUATORS"/>
