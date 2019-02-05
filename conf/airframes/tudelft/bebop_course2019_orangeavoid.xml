@@ -1,7 +1,7 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
 <airframe name="bebop_avoider">
-  <description>Vision Course TUDelft V2018
+  <description>Vision Course TUDelft V2019
   </description>
 
 
@@ -9,11 +9,27 @@
     <target name="ap" board="bebop">
       <define name="VIDEO_CAPTURE_PATH" value="/data/ftp/internal_000/images"/>
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000/log"/>
+      
+      <!-- Detect orange -->
+      <define name="COLOR_OBJECT_DETECTOR_LUM_MIN1" value="40"/>
+      <define name="COLOR_OBJECT_DETECTOR_LUM_MAX1" value="145"/>
+      <define name="COLOR_OBJECT_DETECTOR_CB_MIN1" value="65"/>
+      <define name="COLOR_OBJECT_DETECTOR_CB_MAX1" value="140"/>
+      <define name="COLOR_OBJECT_DETECTOR_CR_MIN1" value="160"/>
+      <define name="COLOR_OBJECT_DETECTOR_CR_MAX1" value="225"/>
     </target>
     <target name="nps" board="pc">
       <module name="fdm" type="gazebo"/>
       <define name="VIDEO_CAPTURE_PATH" value="/tmp/paparazzi/images"/>
       <define name="FILE_LOGGER_PATH" value="/tmp/paparazzi/log"/>
+      
+      <!-- Detect orange -->
+      <define name="COLOR_OBJECT_DETECTOR_LUM_MIN1" value="41"/>
+      <define name="COLOR_OBJECT_DETECTOR_LUM_MAX1" value="183"/>
+      <define name="COLOR_OBJECT_DETECTOR_CB_MIN1" value="53"/>
+      <define name="COLOR_OBJECT_DETECTOR_CB_MAX1" value="121"/>
+      <define name="COLOR_OBJECT_DETECTOR_CR_MIN1" value="134"/>
+      <define name="COLOR_OBJECT_DETECTOR_CR_MAX1" value="249"/>
     </target>
     
     <define name="ARRIVED_AT_WAYPOINT" value="0.5"/><!-- Detect arrival at waypoint when within 0.5m -->
@@ -45,32 +61,34 @@
       <define name="AHRS_USE_GPS_HEADING" value="TRUE"/>
     </module>
     <module name="ins" type="extended"/>
-    <!-- <module name="guidance" type="indi"> <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" 
-			value="-500.0"/> <define name="GUIDANCE_INDI_THRUST_DYNAMICS" value="0.1"/> 
-			<define name="GUIDANCE_INDI_RC_DEBUG" value="TRUE"/> </module> -->
-    
-    <!--module name="geo_mag"/-->
-    <module name="air_data"/>
-    <!--module name="send_imu_mag_current"/-->
+
     <module name="logger_file"/>
 
     <!-- Video/Camera modules -->
     <module name="video_thread" />
-    <!--module name="bebop_ae_awb">
+    <!--module name="cv_ae_awb">
+      <define name="CV_AE_AWB_AV" value="1" />
       <define name="CV_AE_AWB_VERBOSE" value="0" />
     </module-->
-    <module name="cv_colorfilter">
-      <define name="COLORFILTER_CAMERA" value="front_camera" />
+    <module name="cv_detect_color_object">
+      <define name="COLOR_OBJECT_DETECTOR_CAMERA1" value="front_camera"/>
+      <define name="COLOR_OBJECT_DETECTOR_FPS1" value="0"/>
+      <define name="COLOR_OBJECT_DETECTOR_DRAW1" value="1"/>
     </module>
-    <module name="orange_avoider" />
-    <module name="video_capture">
+    
+    <module name="orange_avoider">
+      <define name="ORANGE_AVOIDER_VISUAL_DETECTION_ID" value="COLOR_OBJECT_DETECTION1_ID"/>
+    </module>
+    
+    <!--module name="video_capture">
       <define name="VIDEO_CAPTURE_CAMERA" value="front_camera"/>
       <define name="VIDEO_CAPTURE_FPS" value="10"/>
-    </module>
+    </module-->
     <module name="video_rtp_stream">
       <define name="VIEWVIDEO_CAMERA" value="front_camera"/>
+      <define name="VIEWVIDEO_CAMERA2" value="bottom_camera"/>
       <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
-      <define name="VIEWVIDEO_QUALITY_FACTOR" value="60"/>
+      <define name="VIEWVIDEO_QUALITY_FACTOR" value="40"/>
     </module>
   </firmware>
 
@@ -92,7 +110,6 @@
     <define name="TRIM_ROLL" value="0"/>
     <define name="TRIM_PITCH" value="0"/>
     <define name="TRIM_YAW" value="0"/>
-    <!--define name="REVERSE" value="TRUE"/-->
     <define name="TYPE" value="QUAD_X"/>
   </section>
 
@@ -103,16 +120,6 @@
     <set servo="BOTTOM_RIGHT" value="motor_mixing.commands[MOTOR_BACK_RIGHT]"/>
     <set servo="BOTTOM_LEFT" value="motor_mixing.commands[MOTOR_BACK_LEFT]"/>
   </command_laws>
-
-  <!-- Cyberzoo bebop1 values -->
-  <section name="COLORFILTER" prefix="ORANGE_AVOIDER_">
-    <define name="LUM_MIN" value="20"/>
-    <define name="LUM_MAX" value="180"/>
-    <define name="CB_MIN" value="75"/>
-    <define name="CB_MAX" value="145"/>
-    <define name="CR_MIN" value="167"/>
-    <define name="CR_MAX" value="255"/>
-  </section>
 
   <section name="AIR_DATA" prefix="AIR_DATA_">
     <define name="CALC_AIRSPEED" value="FALSE"/>
@@ -174,10 +181,10 @@
     <define name="REF_MAX_Q" value="600." unit="deg/s"/>
     <define name="REF_MAX_QDOT" value="RadOfDeg(8000.)"/>
 
-    <define name="REF_OMEGA_R" value="450" unit="deg/s"/>
+    <define name="REF_OMEGA_R" value="200" unit="deg/s"/>
     <define name="REF_ZETA_R" value="0.9"/>
-    <define name="REF_MAX_R" value="600." unit="deg/s"/>
-    <define name="REF_MAX_RDOT" value="RadOfDeg(8000.)"/>
+    <define name="REF_MAX_R" value="300." unit="deg/s"/>
+    <define name="REF_MAX_RDOT" value="RadOfDeg(4000.)"/>
   </section>
 
   <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
@@ -243,7 +250,7 @@
 
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES" value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
-    <define name="JSBSIM_MODEL" value="simple_x_quad_ccw" type="string"/>
+    <define name="JSBSIM_MODEL" value="bebop" type="string"/>
     <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
   </section>
   <include href="conf/simulator/gazebo/airframes/bebop.xml"/>

@@ -43,6 +43,4 @@ extern uint8_t color_cr_max;
 
 extern volatile int color_count;
 
-extern struct video_listener *listener;
-
 #endif /* COLORFILTER_CV_PLUGIN_H */
