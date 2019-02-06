@@ -40,6 +40,7 @@
 #include "subsystems/navigation/nav_survey_rectangle.h"
 #include "subsystems/navigation/common_flight_plan.h"
 #include "subsystems/navigation/common_nav.h"
+#include "autopilot.h"
 
 #define NAV_GRAVITY 9.806
 #define Square(_x) ((_x)*(_x))
@@ -239,7 +240,8 @@ bool nav_approaching_xy(float x, float y, float from_x, float from_y, float appr
     struct EnuCoor_f* pos = stateGetPositionEnu_f(); \
     float dist_wp = sqrtf(dist2_to_wp); \
     float dist_home = sqrtf(dist2_to_home); \
-    pprz_msg_send_NAVIGATION(_trans, _dev, AC_ID, &nav_block, &nav_stage, &(pos->x), &(pos->y), &dist_wp, &dist_home, &_circle_count, &nav_oval_count); \
+    uint8_t kill = (uint8_t)autopilot.kill_throttle; \
+    pprz_msg_send_NAVIGATION(_trans, _dev, AC_ID, &nav_block, &nav_stage, &(pos->x), &(pos->y), &dist_wp, &dist_home, &autopilot.flight_time, &block_time, &stage_time, &kill, &_circle_count, &nav_oval_count); \
   }
 
 extern void DownlinkSendWpNr(uint8_t _wp);
