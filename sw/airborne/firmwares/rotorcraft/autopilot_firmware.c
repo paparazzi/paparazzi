@@ -108,7 +108,7 @@ static void send_status(struct transport_tx *trans, struct link_device *dev)
 
 static void send_energy(struct transport_tx *trans, struct link_device *dev)
 {
-  uint8_t throttle = 100 * stabilization_cmd[COMMAND_THRUST] / MAX_PPRZ;
+  uint8_t throttle = 100 * autopilot.throttle / MAX_PPRZ;
   float power = electrical.vsupply * electrical.current;
   pprz_msg_send_ENERGY(trans, dev, AC_ID,
                        &throttle, &electrical.vsupply, &electrical.current, &power, &electrical.charge, &electrical.energy);
@@ -118,6 +118,7 @@ static void send_fp(struct transport_tx *trans, struct link_device *dev)
 {
   int32_t carrot_up = -guidance_v_z_sp;
   int32_t carrot_heading = ANGLE_BFP_OF_REAL(guidance_h.sp.heading);
+  int32_t thrust = (int32_t)autopilot.throttle;
   pprz_msg_send_ROTORCRAFT_FP(trans, dev, AC_ID,
                               &(stateGetPositionEnu_i()->x),
                               &(stateGetPositionEnu_i()->y),
@@ -132,7 +133,7 @@ static void send_fp(struct transport_tx *trans, struct link_device *dev)
                               &guidance_h.sp.pos.x,
                               &carrot_up,
                               &carrot_heading,
-                              &stabilization_cmd[COMMAND_THRUST],
+                              &thrust,
                               &autopilot.flight_time);
 }
 

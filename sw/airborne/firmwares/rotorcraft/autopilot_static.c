@@ -176,6 +176,7 @@ void autopilot_static_periodic(void)
     guidance_h_run(autopilot_in_flight());
     SetRotorcraftCommands(stabilization_cmd, autopilot.in_flight, autopilot.motors_on);
   }
+  autopilot.throttle = commands[COMMAND_THRUST];
 
 }
 
