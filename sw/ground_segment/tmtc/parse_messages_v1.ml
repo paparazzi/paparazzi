@@ -292,9 +292,13 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
         a.heading  <- norm_course (fvalue "psi")
       end
     | "NAVIGATION" ->
+      a.flight_time <- ivalue "flight_time";
+      a.block_time <- ivalue "block_time";
+      a.stage_time <- ivalue "stage_time";
       a.cur_block <- ivalue "cur_block";
       a.cur_stage <- ivalue "cur_stage";
       a.dist_to_wp <- (try sqrt (fvalue "dist2_wp") with _ -> fvalue "dist_wp");
+      a.kill_mode <- ivalue "kill_auto_throttle" <> 0;
     | "ROTORCRAFT_NAV_STATUS" ->
       a.block_time <- ivalue "block_time";
       a.stage_time <- ivalue "stage_time";
