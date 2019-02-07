@@ -27,23 +27,55 @@
 #include "mcu_periph/uart.h"
 #include "generated/airframe.h"
 
+#define SPEED_NEUTRAL 500
+#define SPEED_FACTOR 1.0
+#define TURN_NEUTRAL 500
+#define TURN_FACTOR 0.5
+
 #define SPEED_OF_CMD(_s) ((_s-SPEED_NEUTRAL)*SPEED_FACTOR)
 #define TURN_OF_CMD(_w) ((_w-TURN_NEUTRAL)*TURN_FACTOR)
 
-struct uart_periph *dev;
 struct ActuatorsOstrich actuators_ostrich;
 
-uint16_t speed_cmd_to_msg(uint16_t speed_cmd)
+#define START_BYTE 0x7F
+
+struct SpeedMessagePayload {
+  uint16_t vx;
+  uint16_t vy;
+  uint16_t vtheta;
+} __attribute__((packed)) ;
+
+union rawData {
+  struct SpeedMessagePayload data;
+  uint8_t bytes[6];
+} __attribute__((packed)) ;
+
+struct SpeedMessage  {
+  uint8_t start_byte;
+  uint8_t msg_type;
+  uint8_t checksum;
+  union rawData raw_data;
+} __attribute__((packed)) ;
+
+union RawMessage {
+  struct SpeedMessage speed_message;
+  uint8_t bytes[9];
+} __attribute__((packed)) ;
+
+// uart periph
+static struct uart_periph *ostrich_dev;
+
+static uint16_t speed_cmd_to_msg(uint16_t speed_cmd)
 {
   return ((SPEED_OF_CMD(speed_cmd) + 3200.0) * 10.0);
 }
 
-uint16_t turn_cmd_to_msg(uint16_t turn_cmd)
+static uint16_t turn_cmd_to_msg(uint16_t turn_cmd)
 {
   return ((TURN_OF_CMD(turn_cmd) + 500.0) * 50);
 }
 
-uint8_t compute_checksum(uint8_t bytes[], int len)
+static uint8_t compute_checksum(uint8_t bytes[], int len)
 {
   uint8_t checksum = 0;
   for (int i = 0; i < len; i++) {
@@ -55,7 +87,7 @@ uint8_t compute_checksum(uint8_t bytes[], int len)
 
 void actuators_ostrich_init()
 {
-  dev = &(ACTUATORS_OSTRICH_DEV);
+  ostrich_dev = &(ACTUATORS_OSTRICH_DEV);
   actuators_ostrich.cmds[0] = SPEED_NEUTRAL;
   actuators_ostrich.cmds[1] = SPEED_NEUTRAL;
   actuators_ostrich.cmds[2] = TURN_NEUTRAL;
@@ -77,8 +109,7 @@ void actuators_ostrich_periodic()
 
   raw_message.speed_message.checksum = compute_checksum(raw_message.speed_message.raw_data.bytes, 6);
 
-  uart_put_buffer(dev, 0, raw_message.bytes, 9);
+  uart_put_buffer(ostrich_dev, 0, raw_message.bytes, 9);
 }
 
-void actuators_ostrich_event() {}
 

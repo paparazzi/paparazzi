@@ -79,7 +79,7 @@ extern void rover_guidance_holonomic_set_turn_igain(float igain);
 
 // helper macro to set AP throttle value
 #define SetAPThrottleFromCommands(_cmd_x, _cmd_y) { \
-    autopilot.throttle = sqrtf((_cmd_x * _cmd_x) + (_cmd_y * _cmd_y)) / 1.4142f; /* sqrt(2) */ \
+    autopilot.throttle = sqrtf(((_cmd_x * _cmd_x) + (_cmd_y * _cmd_y)) / 2.f); \
   }
 
 #endif /* ROVER_GUIDANCE_HOLONOMIC_H */

@@ -10,7 +10,6 @@
     <file name="actuators_ostrich.h"/>
   </header>
   <periodic fun="actuators_ostrich_periodic()" freq="10"/>
-  <event fun="actuators_ostrich_event()"/>
   <makefile target="ap">
     <configure name="ACTUATORS_OSTRICH_PORT" case="upper|lower" default="UART6"/>
     <configure name="ACTUATORS_OSTRICH_BAUD" default="B115200"/>
