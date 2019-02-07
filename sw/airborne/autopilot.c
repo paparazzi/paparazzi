@@ -94,6 +94,7 @@ void autopilot_init(void)
   autopilot.mode_auto2 = MODE_AUTO2; // FIXME
 #endif
   autopilot.flight_time = 0;
+  autopilot.throttle = 0;
   autopilot.motors_on = false;
   autopilot.kill_throttle = true;
   autopilot.in_flight = false;

@@ -74,7 +74,10 @@
 #endif
 
 // COMMAND_THROTTLE
-#define AP_COMMAND_SET_THROTTLE(_throttle) { ap_state->commands[COMMAND_THROTTLE] = _throttle; }
+#define AP_COMMAND_SET_THROTTLE(_throttle) { \
+  ap_state->commands[COMMAND_THROTTLE] = _throttle; \
+  autopilot.throttle = _throttle; \
+}
 
 // COMMAND_CL
 #if H_CTL_CL_LOOP && defined COMMAND_CL

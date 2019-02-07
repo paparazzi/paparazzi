@@ -68,9 +68,9 @@ static void send_estimator(struct transport_tx *trans, struct link_device *dev)
 
 static void send_energy(struct transport_tx *trans, struct link_device *dev)
 {
-  uint8_t throttle = 100 * v_ctl_throttle_slewed / MAX_PPRZ;
+  uint8_t throttle = 100 * autopilot.throttle / MAX_PPRZ;
   float power = ap_electrical.vsupply * ap_electrical.current;
-  pprz_msg_send_ENERGY(trans, dev, AC_ID, 
+  pprz_msg_send_ENERGY(trans, dev, AC_ID,
                        &throttle, &ap_electrical.vsupply, &ap_electrical.current, &power, &ap_electrical.charge, &ap_electrical.energy);
 }
 
