@@ -56,13 +56,12 @@ static FILE *file_logger = NULL;
  * @param file Log file pointer
  */
 static void file_logger_write_header(FILE *file) {
-  fprintf(file,
-      "time,"
-      "pos_x,pos_y,pos_z,"
-      "vel_x,vel_y,vel_z,"
-      "att_phi,att_theta,att_psi,"
-      "rate_p,rate_q,rate_r,"
-      "cmd_thrust,cmd_roll,cmd_pitch,cmd_yaw\n");
+  fprintf(file, "time,");
+  fprintf(file, "pos_x,pos_y,pos_z,");
+  fprintf(file, "vel_x,vel_y,vel_z,");
+  fprintf(file, "att_phi,att_theta,att_psi,");
+  fprintf(file, "rate_p,rate_q,rate_r,");
+  fprintf(file, "cmd_thrust,cmd_roll,cmd_pitch,cmd_yaw\n");
 }
 
 /** Write CSV row
