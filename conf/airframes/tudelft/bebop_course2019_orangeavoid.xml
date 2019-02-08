@@ -70,20 +70,18 @@
       <define name="CV_AE_AWB_AV" value="1" />
       <define name="CV_AE_AWB_VERBOSE" value="0" />
     </module-->
+    <module name="video_capture">
+      <define name="VIDEO_CAPTURE_CAMERA" value="front_camera"/>
+      <define name="VIDEO_CAPTURE_FPS" value="10"/>
+    </module>
     <module name="cv_detect_color_object">
       <define name="COLOR_OBJECT_DETECTOR_CAMERA1" value="front_camera"/>
       <define name="COLOR_OBJECT_DETECTOR_FPS1" value="0"/>
       <define name="COLOR_OBJECT_DETECTOR_DRAW1" value="1"/>
     </module>
-    
     <module name="orange_avoider">
       <define name="ORANGE_AVOIDER_VISUAL_DETECTION_ID" value="COLOR_OBJECT_DETECTION1_ID"/>
     </module>
-    
-    <!--module name="video_capture">
-      <define name="VIDEO_CAPTURE_CAMERA" value="front_camera"/>
-      <define name="VIDEO_CAPTURE_FPS" value="10"/>
-    </module-->
     <module name="video_rtp_stream">
       <define name="VIEWVIDEO_CAMERA" value="front_camera"/>
       <define name="VIEWVIDEO_CAMERA2" value="bottom_camera"/>
