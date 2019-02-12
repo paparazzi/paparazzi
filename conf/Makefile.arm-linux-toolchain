@@ -23,6 +23,11 @@ ifndef HARD_FLOAT
   ifneq ($(TOOLCHAIN),)
     PREFIX=$(shell dirname $(TOOLCHAIN))/bin/arm-none-linux-gnueabi
   endif
+else
+  TOOLCHAIN=$(shell find -L /opt/arm-2016.02-linaro -maxdepth 2 -type d -name arm-linux-gnueabihf 2>/dev/null | head -n 1)
+  ifneq ($(TOOLCHAIN),)
+    PREFIX=$(shell dirname $(TOOLCHAIN))/bin/arm-linux-gnueabihf
+  endif
 endif
 endif
 

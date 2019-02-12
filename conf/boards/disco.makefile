@@ -13,6 +13,8 @@ $(TARGET).ARCHDIR = $(ARCH)
 # reuse conf/Makefile.bebop (with specific upload rules) instead of only Makefile.linux:
 ap.MAKEFILE = disco
 
+HARD_FLOAT=yes
+
 # -----------------------------------------------------------------------
 USER=foobar
 HOST?=192.168.42.1
