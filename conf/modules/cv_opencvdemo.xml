@@ -19,30 +19,42 @@
     <file name="cv_opencvdemo.c"/>
     <file name="opencv_example.cpp"/>
     <file name="opencv_image_functions.cpp"/>
-    <flag name="CXXFLAGS" value="I$(PAPARAZZI_SRC)/sw/ext/opencv_bebop/install/include"/>
-
-	<flag name="LDFLAGS" value="L$(PAPARAZZI_HOME)/sw/ext/opencv_bebop/install/lib" />
+    <flag name="CXXFLAGS" value="I$(PAPARAZZI_SRC)/sw/ext/opencv_bebop/install_arm/include"/>
+    
+	<flag name="LDFLAGS" value="L$(PAPARAZZI_HOME)/sw/ext/opencv_bebop/install_arm/lib" />
 	<flag name="LDFLAGS" value="lopencv_world" />
-	<flag name="LDFLAGS" value="L$(PAPARAZZI_HOME)/sw/ext/opencv_bebop/install/share/OpenCV/3rdparty/lib" />
-	<flag name="LDFLAGS" value="ltegra_hal" />
-	<flag name="LDFLAGS" value="lzlib" />
-	<flag name="LDFLAGS" value="llibjpeg" />
+	<flag name="LDFLAGS" value="L$(PAPARAZZI_HOME)/sw/ext/opencv_bebop/install_arm/share/OpenCV/3rdparty/lib" />
+	<flag name="LDFLAGS" value="llibprotobuf" />
+	<flag name="LDFLAGS" value="llibjpeg-turbo" />
 	<flag name="LDFLAGS" value="llibpng" />
 	<flag name="LDFLAGS" value="llibtiff" />
-	<flag name="LDFLAGS" value="lstdc++" />
+	<flag name="LDFLAGS" value="lzlib" />
+	<flag name="LDFLAGS" value="ltegra_hal" />
+	<flag name="LDFLAGS" value="lquirc" />
 	<flag name="LDFLAGS" value="ldl" />
 	<flag name="LDFLAGS" value="lm" />
 	<flag name="LDFLAGS" value="lpthread" />
 	<flag name="LDFLAGS" value="lrt" />
-
   </makefile>
   <makefile target="nps">
     <file name="cv_opencvdemo.c"/>
     <file name="opencv_example.cpp"/>
     <file name="opencv_image_functions.cpp"/>
-    <raw>
-      nps.CXXFLAGS += $(shell pkg-config opencv --cflags)
-      nps.LDFLAGS  += -lopencv_imgproc -lopencv_highgui -lopencv_core
-    </raw>
+    
+    <flag name="CXXFLAGS" value="I$(PAPARAZZI_SRC)/sw/ext/opencv_bebop/install_pc/include"/>
+    
+    <flag name="LDFLAGS" value="L$(PAPARAZZI_HOME)/sw/ext/opencv_bebop/install_pc/lib" />
+    <flag name="LDFLAGS" value="lopencv_world" />
+    <flag name="LDFLAGS" value="L$(PAPARAZZI_HOME)/sw/ext/opencv_bebop/install_pc/share/OpenCV/3rdparty/lib" />
+    <flag name="LDFLAGS" value="lprotobuf" />
+    <flag name="LDFLAGS" value="ljpeg"/>
+    <flag name="LDFLAGS" value="lpng"/>
+    <flag name="LDFLAGS" value="ltiff"/>
+    <flag name="LDFLAGS" value="ldc1394"/>
+    <flag name="LDFLAGS" value="lz"/>
+    <flag name="LDFLAGS" value="ldl"/>
+    <flag name="LDFLAGS" value="lm"/>
+    <flag name="LDFLAGS" value="lpthread"/>
+    <flag name="LDFLAGS" value="lrt"/>
   </makefile>
 </module>

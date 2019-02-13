@@ -42,31 +42,21 @@ void coloryuv_opencv_to_yuv422(Mat image, char *img, int width, int height)
   int nRows = image.rows;
   int nCols = image.cols;
 
-  // If the image is one block in memory we can iterate over it all at once!
-  if (image.isContinuous()) {
-    nCols *= nRows;
-    nRows = 1;
-  }
-
-  // Iterate over the image, setting only the Y value
-  // and setting U and V to 127
-  int i, j;
-  uchar *p;
-  int index_img = 0;
-  for (i = 0; i < nRows; ++i) {
-    p = image.ptr<uchar>(i);
-    for (j = 0; j < nCols; j += 6) {
-      img[index_img++] = p[j + 1]; //U
-      img[index_img++] = p[j];//Y
-      img[index_img++] = p[j + 2]; //V
-      img[index_img++] = p[j + 3]; //Y
-
-
+  int byte_index = 0;
+  for(int r = 0; r < nRows; ++r) {
+    for(int c = 0; c < nCols; ++c) {
+      Vec3b yvu = image.at<Vec3b>(r, c);
+      if((byte_index % 4) == 0) {
+        img[byte_index++] = yvu.val[1]; // U
+      } else {
+        img[byte_index++] = yvu.val[2]; // V
+      }
+      img[byte_index++] = yvu.val[0]; // Y
     }
   }
 }
 
-void colorrgb_opencv_to_yuv422(Mat image, char *img, int width, int height)
+void colorbgr_opencv_to_yuv422(Mat image, char *img, int width, int height)
 {
   // Convert to YUV color space
   cvtColor(image, image, COLOR_BGR2YUV);

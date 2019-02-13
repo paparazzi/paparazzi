@@ -36,7 +36,7 @@
  * Note that the rgb function first converts to YUV, and then to YUV422 making
  * this function slower than coloryuv_opencv_to_yuv422.
  */
-void colorrgb_opencv_to_yuv422(cv::Mat image, char *img, int width, int height);
+void colorbgr_opencv_to_yuv422(cv::Mat image, char *img, int width, int height);
 
 /**
  * Converts cv::Mat with three channels YUV to a YUV422 image.
