@@ -30,6 +30,7 @@
  */
 #include "mcu_periph/spi.h"
 #include "mcu_periph/gpio.h"
+#include BOARD_CONFIG
 
 #include <string.h>
 #include "mcu_periph/ram_arch.h"

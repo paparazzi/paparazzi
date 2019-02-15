@@ -29,6 +29,7 @@
 #include "std.h"
 
 #ifdef PERIPHERALS_AUTO_INIT
+#include "mcu_periph/gpio.h"
 #include "mcu_periph/sys_time.h"
 #ifdef USE_LED
 #include "led.h"
