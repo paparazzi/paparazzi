@@ -1,0 +1,32 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="follow_me" dir="ctrl">
+  <doc>
+    <description>
+      Follow a ground based object which is transmitting the GROUND_GPS datalink message.
+      This can be done using gpsd2ivy.
+    </description>
+    <section name="FOLLOW_ME" prefix="FOLLOW_ME_">
+      <define name="TIMEOUT" value="10." description="timeout of the ground GPS"/>
+      <define name="DISTANCE" value="5." description="distance to hover from the ground GPS"/>
+    </section>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="FollowMe">
+        <dl_setting var="follow_me_distance" min="0." max="50." step="0.1" shortname="distance" unit="m"/>
+        <dl_setting var="follow_me_heading" min="0." max="360." step="1.0" shortname="heading"/>
+        <dl_setting var="follow_me_min_speed" min="0." max="100." step="0.1" shortname="min_speed"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="follow_me.h"/>
+  </header>
+  <init fun="follow_me_init()"/>
+  <datalink message="GROUND_GPS" fun="follow_me_parse_ground_gps(buf)"/>
+  <makefile>
+    <file name="follow_me.c"/>
+  </makefile>
+</module>
+

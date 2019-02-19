@@ -38,7 +38,7 @@ SERVERCMO = server_globals.cmo aircraft.cmo wind.cmo airprox.cmo kml.cmo parse_m
 SERVERCMX = $(SERVERCMO:.cmo=.cmx)
 
 
-all: link server messages settings ivy_tcp_aircraft ivy_tcp_controller broadcaster ivy2udp ivy2serial ivy_serial_bridge app_server ivy2nmea
+all: link server messages settings ivy_tcp_aircraft ivy_tcp_controller broadcaster ivy2udp ivy2serial ivy_serial_bridge app_server ivy2nmea gpsd2ivy
 
 opt: server.opt
 

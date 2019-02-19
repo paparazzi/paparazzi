@@ -1,0 +1,112 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+
+<flight_plan alt="10" ground_alt="0" home_mode_height="10" lat0="52.168141" lon0="4.412520" max_dist_from_home="100000" name="VALK2018" qfu="20" security_height="3">
+  <header>
+#include "autopilot.h"
+  </header>
+  <waypoints>
+    <waypoint name="HOME" x="0.0" y="0.0"/>
+    <waypoint name="SHIP" x="53" y="11"/>
+    <waypoint name="FOLLOW" x="60.5" y="13.5"/>
+    <waypoint name="CLIMB" x="49" y="-2.5"/>
+    <waypoint name="STDBY" x="50" y="14.5"/>
+    <!--waypoint name="p1" x="49" y="24"/>
+    <waypoint name="p2" x="56.5" y="6"/>
+    <waypoint name="p3" x="62" y="28"/>
+    <waypoint name="p4" x="69.5" y="11"/-->
+    <waypoint name="TD" x="47.5" y="7.5"/>
+  </waypoints>
+  <modules>
+    <module name="follow_me"/>
+  </modules>
+  <blocks>
+    <block name="Wait GPS">
+      <call_once fun="NavKillThrottle()"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+      <call_once fun="NavSetGroundReferenceHere()"/>
+      <call_once fun="NavSetAltitudeReferenceHere()"/>
+    </block>
+    <block name="Holding point">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+    </block>
+    <block name="Start Engine">
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+    </block>
+    <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
+      <exception cond="stateGetPositionEnu_f()->z > 2.0" deroute="Standby"/>
+      <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
+      <stay vmode="climb" climb="nav_climb_vspeed" wp="CLIMB"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <stay wp="STDBY"/>
+    </block>
+
+    <block name="stay_follow">
+      <stay pre_call="waypoint_set_xy_i(WP_FOLLOW, POS_BFP_OF_REAL(WaypointX(WP_SHIP)), POS_BFP_OF_REAL(WaypointY(WP_SHIP)+3))" wp="FOLLOW"/>
+    </block>
+    <block name="descend_follow">
+      <!--exception cond="NavDetectGround()" deroute="Holding point"/-->
+      <!--exception cond="!nav_is_in_flight()" deroute="landed"/-->
+      <!--call_once fun="NavStartDetectGround()"/-->
+      <stay pre_call="waypoint_set_xy_i(WP_FOLLOW, POS_BFP_OF_REAL(WaypointX(WP_SHIP)), POS_BFP_OF_REAL(WaypointY(WP_SHIP)+3))" climb="nav_descend_vspeed" vmode="climb" wp="FOLLOW"/>
+    </block>
+
+    <block name="follow_module">
+      <stay pre_call="follow_me_set_wp(WP_FOLLOW)" wp="FOLLOW"/>
+    </block>
+    <block name="follow_module_land">
+      <stay pre_call="follow_me_set_wp(WP_FOLLOW)" climb="nav_descend_vspeed" vmode="climb" wp="FOLLOW"/>
+    </block>
+
+    <!--block name="stay_p1">
+      <stay wp="p1"/>
+    </block>
+    <block name="go_p2">
+      <call_once fun="nav_set_heading_deg(90)"/>
+      <go wp="p2"/>
+      <deroute block="stay_p1"/>
+    </block>
+    <block name="line_p1_p2">
+      <go from="p1" hmode="route" wp="p2"/>
+      <stay wp="p2" until="stage_time>10"/>
+      <go from="p2" hmode="route" wp="p1"/>
+      <deroute block="stay_p1"/>
+    </block>
+    <block name="route">
+      <go from="p1" hmode="route" wp="p3"/>
+      <go from="p3" hmode="route" wp="p4"/>
+      <go from="p4" hmode="route" wp="p1"/>
+      <deroute block="stay_p1"/>
+    </block>
+    <block name="Oval">
+      <oval p1="p1" p2="p2" radius="-1"/>
+    </block>
+    <block name="test yaw">
+      <go wp="p1"/>
+      <for var="i" from="1" to="16">
+        <heading alt="WaypointAlt(WP_p1)" course="90 * $i" until="stage_time > 3"/>
+      </for>
+      <deroute block="Standby"/>
+    </block-->
+    <block name="land here" strip_button="Land Here" strip_icon="land-right.png">
+      <call_once fun="NavSetWaypointHere(WP_TD)"/>
+    </block>
+    <block name="land">
+      <go wp="TD"/>
+    </block>
+    <block name="flare">
+      <!--exception cond="NavDetectGround()" deroute="Holding point"/-->
+      <!--exception cond="!nav_is_in_flight()" deroute="landed"/-->
+      <!--call_once fun="NavStartDetectGround()"/-->
+      <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
+    </block>
+    <block name="landed">
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+    </block>
+  </blocks>
+</flight_plan>
