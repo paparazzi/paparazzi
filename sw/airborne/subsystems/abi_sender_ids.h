@@ -157,6 +157,10 @@
 #define AGL_RAY_SENSOR_GAZEBO_ID 10
 #endif
 
+#ifndef AGL_LIDAR_TFMINI_ID
+#define AGL_LIDAR_TFMINI_ID 11
+#endif
+
 /*
  * IDs of magnetometer sensors (including IMUs with mag)
  */
