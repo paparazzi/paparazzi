@@ -84,6 +84,10 @@
 #define MS45XX_SENDER_ID 40
 #endif
 
+#ifndef SDP3X_SENDER_ID
+#define SDP3X_SENDER_ID 41
+#endif
+
 /*
  * IDs of airspeed sensors (message 14)
  */
