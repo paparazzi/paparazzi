@@ -425,4 +425,11 @@
 #define DETECT_GATE_ABI_ID 33
 #endif
 
+/*
+ * JOYSTICK message (used for payload or control, but not as a RC)
+ */
+#ifndef JOYSTICK_ID
+#define JOYSTICK_ID 1
+#endif
+
 #endif /* ABI_SENDER_IDS_H */
