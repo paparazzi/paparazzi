@@ -88,9 +88,14 @@
 #define ADC_CHANNEL_VSUPPLY ADC_1
 #endif
 
+/* allow to define ADC_CHANNEL_CURRENT in the airframe file*/
+#ifndef ADC_CHANNEL_CURRENT
+#define ADC_CHANNEL_CURRENT ADC_2
+#endif
+
 /* Default powerbrick values */
-#define DefaultVoltageOfAdc(adc) ((3.3f/4096.0f) * 13.653333333f * adc)
-#define MilliAmpereOfAdc(adc) ((3.3f/4096.0f) * 36.367515152f * adc)
+#define DefaultVoltageOfAdc(adc) ((3.3f/4096.0f) * 10.27708149f * adc)
+#define MilliAmpereOfAdc(adc) ((3.3f/4096.0f) * 36367.51556f * adc)
 
 /*
  * PWM defines TODO
