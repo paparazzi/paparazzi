@@ -191,6 +191,13 @@
       <field name="extra"        type="int16_t">Extra field for options like detector source etc</field>
     </message>
 
+    <message name="JOYSTICK" id="28">
+      <field name="roll"      type="int16_t"/>
+      <field name="pitch"     type="int16_t"/>
+      <field name="yaw"       type="int16_t"/>
+      <field name="throttle"  type="int16_t"/>
+    </message>
+
   </msg_class>
 
 </protocol>

@@ -1,0 +1,22 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="joystick">
+  <doc>
+    <description>
+      Handle JOYSTICK_RAW messages
+
+      Each new message is parsed and stored into the joystick structure.
+      An ABI message JOYSTICK is sent and can be used for control or payload
+      depending on the application.
+    </description>
+  </doc>
+  <header>
+    <file name="joystick.h"/>
+  </header>
+  <init fun="joystick_init()"/>
+  <datalink message="JOYSTICK_RAW" fun="joystick_parse()"/>
+  <makefile>
+    <file name="joystick.c"/>
+  </makefile>
+</module>
+
