@@ -11,7 +11,7 @@
       <configure name="GPS_PORT" value="UART2"/>
       <!--      <define name="ACTUATORS_START_DELAY" value="1"/> -->
       <module name="radio_control" type="ppm"/>
-      <define name="RADIO_KILL_SWITCH" value="RADIO_EXTRA1"/>
+      <define name="RADIO_KILL_SWITCH" value="RADIO_FLAPS"/>
       <define name="USE_KILL_SWITCH_FOR_MOTOR_ARMING" value="1"/>
       <define name="USE_I2C_ACTUATORS_REBOOT_HACK"/>
     </target>

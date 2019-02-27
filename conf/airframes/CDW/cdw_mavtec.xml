@@ -7,6 +7,8 @@
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_mx_2.1">
+      <configure name="FLASH_MODE"   value="SWD"/>
+
       <module name="radio_control" type="ppm"/>
       <define name="RADIO_KILL_SWITCH" value="RADIO_FLAPS"/>
       <define name="USE_KILL_SWITCH_FOR_MOTOR_ARMING" value="1"/>
