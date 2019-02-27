@@ -341,10 +341,6 @@
 #define VEL_STEREOCAM_ID 4
 #endif
 
-#ifndef VEL_PERCEVITE_ID
-#define VEL_PERCEVITE_ID 5
-#endif
-
 /*
  * IDs of RSSI measurements (message 13)
  */
