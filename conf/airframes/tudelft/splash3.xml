@@ -59,6 +59,7 @@
     <module name="logger" type="sd_chibios"/>
     <module name="flight_recorder"/>
 
+    <module name="lidar" type="tfmini"/>
     <module name="air_data"/>
     <module name="send_imu_mag_current"/>
   </firmware>

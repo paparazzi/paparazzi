@@ -1,0 +1,49 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="lidar_tfmini" dir="lidar">
+  <doc>
+    <description>
+      TFMini Lidar using a single UART for communication
+    </description>
+    <configure name="TFMINI_PORT" value="UART3" description="UART device to use for lidar"/>
+    <configure name="TFMINI_BAUD" value="B115200" description="baudrate of the TFMini UART port"/>
+    <configure name="USE_TFMINI_AGL" value="0" description="use this lidar for AGL measurements"/>
+    <configure name="TFMINI_COMPENSATE_ROTATION" value="1" description="compensate AGL measurements for body rotation"/>
+  </doc>
+
+  <settings>
+    <dl_settings NAME="Lidar TFMini">
+      <dl_settings NAME="Lidar">
+        <dl_setting MAX="1" MIN="0" STEP="1" VAR="tfmini.compensate_rotation" shortname="derotate_agl"/>
+        <dl_setting MAX="1" MIN="0" STEP="1" VAR="tfmini.update_agl" shortname="update_agl"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <header>
+    <file name="tfmini.h"/>
+  </header>
+  <init fun="tfmini_init()"/>
+  <event fun="tfmini_event()"/>
+  <makefile>
+    <!-- Configure default UART port and baudrate -->
+    <configure name="TFMINI_PORT" default="UART3" case="upper|lower"/>
+    <configure name="TFMINI_BAUD" default="B115200"/>
+
+    <!-- Enable UART and set baudrate -->
+    <define name="USE_$(TFMINI_PORT_UPPER)"/>
+    <define name="$(TFMINI_PORT_UPPER)_BAUD" value="$(TFMINI_BAUD)"/>
+    <define name="TFMINI_PORT" value="$(TFMINI_PORT_LOWER)"/>
+
+    <configure name="USE_TFMINI_AGL" default="0"/>
+    <configure name="TFMINI_COMPENSATE_ROTATION" default="0"/>
+    <define name="USE_TFMINI_AGL" value="$(USE_TFMINI_AGL)"/>
+    <define name="TFMINI_COMPENSATE_ROTATION" value="$(TFMINI_COMPENSATE_ROTATION)"/>
+    <file name="tfmini.c"/>
+  </makefile>
+  <makefile target="nps">
+    <define name="USE_SONAR" value="1"/><!-- in NPS use a virtual sonar to simulate lidar measurements -->
+  </makefile>
+</module>
+
+
