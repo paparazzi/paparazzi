@@ -1,0 +1,134 @@
+<?xml version='1.0'?>
+<sdf version='1.4'>
+  <model name="slamdunk">
+    <link name="slamdunk_link">
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.12 0.06 0.025</size>
+          </box>
+        </geometry>
+        <material>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
+          <ambient>0.1 0.1 0.1 1</ambient>
+        </material>
+      </visual>
+      <visual name="visual2">
+        <pose>0.04 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.005 0.2 0.025</size>
+          </box>
+        </geometry>
+        <material>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
+          <ambient>0.1 0.1 0.1 1</ambient>
+        </material>
+      </visual>
+      <inertial>
+        <mass>0.135</mass>
+        <inertia>
+          <ixx> 0.00010 </ixx>
+          <iyy> 0.00020 </iyy>
+          <izz> 0.00020 </izz>
+        </inertia>
+      </inertial>
+      <collision name="slamdunk_collision">
+        <geometry>
+          <box>
+            <size>0.12 0.06 0.025</size>
+          </box>
+        </geometry>
+      </collision>
+      <!-- <sensor type="depth" name="depth_camera">
+        <pose>0.05 0.1 0 0 0 0</pose>
+        <update_rate>30.0</update_rate>
+        <camera name="depth_cam">
+          <horizontal_fov>1.19</horizontal_fov>
+          <image>
+            <width>96</width>
+            <height>96</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.02</near>
+            <far>1000</far>
+          </clip>
+        </camera>
+        <plugin name="depth_controller" filename="libgazebo_ros_depth_camera.so">
+          <alwaysOn>true</alwaysOn>
+          <updateRate>0.0</updateRate>
+          <cameraName>slamdunk_camera</cameraName>
+          <imageTopicName>rgb/image_rect_color</imageTopicName>
+          <cameraInfoTopicName>rgb/camera_info</cameraInfoTopicName>
+          <depthImageTopicName>/depth_map/image</depthImageTopicName>
+          <depthImageCameraInfoTopicName>/depth_map/camera_info</depthImageCameraInfoTopicName>
+          <pointCloudTopicName>points</pointCloudTopicName>
+          <frameName>cam_optical_frame</frameName>
+          <pointCloudCutoff>0.02</pointCloudCutoff>
+        </plugin>
+      </sensor> -->
+      <sensor type="camera" name="left_rgb_rect">
+        <pose>0.05 0.1 0 0 0 0</pose>
+        <update_rate>30.0</update_rate>
+        <camera name="left_rgb_rect_cam">
+          <horizontal_fov>1.19</horizontal_fov>
+          <image>
+            <width>576</width>
+            <height>576</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.02</near>
+            <far>1000</far>
+          </clip>
+        </camera>
+        <plugin name="left_cam_controller" filename="libgazebo_ros_camera.so">
+          <alwaysOn>true</alwaysOn>
+          <updateRate>30.0</updateRate>
+          <cameraName>left_rgb_rect</cameraName>
+          <imageTopicName>image_rect_color</imageTopicName>
+          <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+          <frameName>cam_optical_frame2</frameName>
+        </plugin>
+      </sensor>
+      <sensor type="camera" name="right_rgb_rect">
+        <pose>0.05 -0.1 0 0 0 0</pose>
+        <update_rate>30.0</update_rate>
+        <camera name="right_rgb_rect_cam">
+          <horizontal_fov>1.19</horizontal_fov>
+          <image>
+            <width>576</width>
+            <height>576</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.02</near>
+            <far>1000</far>
+          </clip>
+        </camera>
+        <plugin name="right_cam_controller" filename="libgazebo_ros_camera.so">
+          <alwaysOn>true</alwaysOn>
+          <updateRate>30.0</updateRate>
+          <cameraName>right_rgb_rect</cameraName>
+          <imageTopicName>image_rect_color</imageTopicName>
+          <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+          <frameName>cam_optical_frame3</frameName>
+        </plugin>
+      </sensor>
+      <sensor type="imu" name="imu_sensor">
+        <update_rate>200</update_rate>
+        <imu>
+        </imu>
+        <plugin name="imu_controller" filename="libgazebo_ros_imu_sensor.so">
+          <alwaysOn>true</alwaysOn>
+          <updateRateHZ>0.0</updateRateHZ>
+          <robotNamespace></robotNamespace>
+          <topicName>imu</topicName>
+          <bodyName>slamdunk_link</bodyName>
+          <frameName>slamdunk_link</frameName>
+        </plugin>
+      </sensor>
+    </link>
+  </model>
+</sdf>

@@ -69,24 +69,42 @@ uint32_t sonar_bebop_spike_timer;
 static uint8_t mode;
 
 /** SONAR_BEBOP_TRANSITION_HIGH_TO_LOW below this altitude we should use mode 0 */
+#ifndef SONAR_BEBOP_TRANSITION_HIGH_TO_LOW
 #define SONAR_BEBOP_TRANSITION_HIGH_TO_LOW 0.8
+#endif
+PRINT_CONFIG_VAR(SONAR_BEBOP_TRANSITION_HIGH_TO_LOW)
 
 /** SONAR_BEBOP_TRANSITION_LOW_TO_HIGH above this altitude we should use mode 1 */
+#ifndef SONAR_BEBOP_TRANSITION_LOW_TO_HIGH
 #define SONAR_BEBOP_TRANSITION_LOW_TO_HIGH 1.2
+#endif
+PRINT_CONFIG_VAR(SONAR_BEBOP_TRANSITION_LOW_TO_HIGH)
 
 /** SONAR_BEBOP_TRANSITION_COUNT number of samples before switching mode */
+#ifndef SONAR_BEBOP_TRANSITION_COUNT
 #define SONAR_BEBOP_TRANSITION_COUNT 7
+#endif
+PRINT_CONFIG_VAR(SONAR_BEBOP_TRANSITION_COUNT)
 
 static uint8_t pulse_transition_counter;
 
 /** SONAR_BEBOP_PEAK_THRESHOLD minimum samples from broadcast stop */
+#ifndef SONAR_BEBOP_PEAK_THRESHOLD
 #define SONAR_BEBOP_PEAK_THRESHOLD 100
+#endif
+PRINT_CONFIG_VAR(SONAR_BEBOP_PEAK_THRESHOLD)
 
 /** SONAR_BEBOP_MIN_PEAK_VAL minimum adc value of reflected peak that will be cosidered */
+#ifndef SONAR_BEBOP_MIN_PEAK_VAL
 #define SONAR_BEBOP_MIN_PEAK_VAL 1024 // max value is 4096
+#endif
+PRINT_CONFIG_VAR(SONAR_BEBOP_MIN_PEAK_VAL)
 
 /** SONAR_BEBOP_MAX_TRANS_TIME maximum time for a reflection to travel and return in the adc measurement window */
+#ifndef SONAR_BEBOP_MAX_TRANS_TIME
 #define SONAR_BEBOP_MAX_TRANS_TIME 270
+#endif
+PRINT_CONFIG_VAR(SONAR_BEBOP_MAX_TRANS_TIME)
 
 /** sonar_bebop_spi_d the waveforms emitted by the sonar
  * waveform 0 is long pulse used at high altitude
