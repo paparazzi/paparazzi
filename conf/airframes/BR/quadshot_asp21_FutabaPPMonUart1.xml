@@ -349,7 +349,7 @@
 
 <!--      <define name="RADIO_KILL_SWITCH" value="5"/>-->
       <!-- Put the mode on channel AUX1-->
-      <define name="RADIO_MODE" value="5"/>
+      <!--<define name="RADIO_MODE" value="5"/>-->
       <define name="RADIO_CAMERA" value="RADIO_EXTRA1"/>
 <!--       <configure name="USE_SECONDARY_SPEKTRUM_RECEIVER" value="1"/> -->
     </module>
