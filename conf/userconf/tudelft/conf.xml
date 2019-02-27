@@ -258,7 +258,7 @@
    settings="settings/rotorcraft_basic.xml settings/modules/config_asctec_v2.xml"
    settings_modules="modules/geo_mag.xml modules/nav_survey_poly_rotorcraft.xml modules/nav_survey_rectangle_rotorcraft.xml modules/gps_ubx_ucenter.xml modules/switch_servo.xml modules/ahrs_float_mlkf.xml modules/stabilization_int_quat.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
    gui_color="blue"
-   release="46b814ea46496cfc3f6a874bb5013db1a350bfcf"
+   release="33e02c9f1e831cb30ba9dc442e055b6e28c72a52"
   />
   <aircraft
    name="MAVTec4_Bart"
@@ -281,6 +281,7 @@
    settings="settings/rotorcraft_basic.xml settings/modules/config_asctec_v2.xml"
    settings_modules="modules/gps_ubx_ucenter.xml modules/switch_servo.xml [modules/air_data.xml] [modules/geo_mag.xml] modules/ahrs_int_cmpl_quat.xml modules/stabilization_indi_simple.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
    gui_color="#8c63ffff8e00"
+   release="33e02c9f1e831cb30ba9dc442e055b6e28c72a52"
   />
   <aircraft
    name="MavRick_LisaS"
