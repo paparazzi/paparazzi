@@ -95,7 +95,7 @@
     </sector>
   </sectors>
   <includes>
-    <include name="Mission" procedure="rotorcraft_survey_mission.xml"/>
+    <include name="Mission" procedure="include_rotorcraft_survey_mission.xml"/>
   </includes>
   <blocks>
     <block name="Dummy"/>

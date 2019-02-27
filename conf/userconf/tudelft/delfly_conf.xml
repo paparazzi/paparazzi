@@ -20,5 +20,6 @@
    settings="settings/rotorcraft_basic.xml settings/control/stabilization_att_int.xml"
    settings_modules="modules/logger_sd_spi_direct.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_int_euler.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
    gui_color="blue"
+   release="bd49f8763f106f69dc87ad735c8bd6ff277a3f62"
   />
 </conf>

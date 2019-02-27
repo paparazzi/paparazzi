@@ -9,6 +9,6 @@
    settings="settings/rotorcraft_basic.xml"
    settings_modules="modules/video_rtp_stream.xml modules/cv_colorfilter.xml modules/air_data.xml modules/ins_extended.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_indi_simple.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
    gui_color="white"
-   release="593ed974ecf1a78f2eb2b0168a6fa0c93fad8259"
+   release="5e3b6247cc7e2770162bf215b8f427eac58fbdaf"
   />
 </conf>
