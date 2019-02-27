@@ -47,7 +47,7 @@ from pprzlink.message import PprzMessage
 
 # parse args
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument('-ac', action='append', nargs=4,
+parser.add_argument('-ac', action='append', nargs=3,
                     metavar=('rigid_id','ac_id','udp_out'), help='tuple of rigid body, A/C id and UDP output port to Simulink (multiple possible)')
 parser.add_argument('-b', '--ivy_bus', dest='ivy_bus', help="Ivy bus address and port")
 parser.add_argument('-ns', '--natnet_server', dest='natnet_server', default="127.0.0.1", help="NatNet server IP address")
