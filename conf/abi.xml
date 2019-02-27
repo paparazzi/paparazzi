@@ -192,10 +192,14 @@
     </message>
 
     <message name="JOYSTICK" id="28">
-      <field name="roll"      type="int16_t"/>
-      <field name="pitch"     type="int16_t"/>
-      <field name="yaw"       type="int16_t"/>
-      <field name="throttle"  type="int16_t"/>
+      <!-- 
+           This message can be used to send command inputs from a joystick or equivalent
+           either for the control of the airframe or the control of the payload
+      -->
+      <field name="roll"      type="int16_t">Roll input in pprz_t [-9600;9600]</field>
+      <field name="pitch"     type="int16_t">Pitch input in pprz_t [-9600;9600]</field>
+      <field name="yaw"       type="int16_t">Yaw input in pprz_t [-9600;9600]</field>
+      <field name="throttle"  type="int16_t">Throttle input in pprz_t [0;9600] or [-9600;9600] (for vertical speed control for instance)</field>
     </message>
 
   </msg_class>
