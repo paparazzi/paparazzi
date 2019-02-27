@@ -7,11 +7,11 @@
 #ifdef NAV_C
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
 #include "autopilot.h"
-void joystick_handler(void) {
+static inline void joystick_handler(uint8_t sender_id __attribute__((unused)), int16_t roll, int16_t pitch, int16_t yaw __attribute__((unused)), int16_t throttle) {
   if (And(autopilot_get_mode() == AP_MODE_AUTO2, nav_block == joystick_block)) {
-    h_ctl_roll_setpoint = AUTO1_MAX_ROLL * joystick.roll / MAX_PPRZ;
-    h_ctl_pitch_setpoint = AUTO1_MAX_PITCH * joystick.pitch / MAX_PPRZ;
-    v_ctl_throttle_setpoint = joystick.throttle;
+    h_ctl_roll_setpoint = AUTO1_MAX_ROLL * roll / MAX_PPRZ;
+    h_ctl_pitch_setpoint = AUTO1_MAX_PITCH * pitch / MAX_PPRZ;
+    v_ctl_throttle_setpoint = throttle;
   }
 }
 #endif
@@ -31,6 +31,7 @@ void joystick_handler(void) {
   </waypoints>
   <variables>
     <variable var="joystick_block" type="uint8_t" init="255"/>
+    <abi_binding name="JOYSTICK" handler="joystick_handler"/>
   </variables>
   <modules>
     <module name="joystick"/>
