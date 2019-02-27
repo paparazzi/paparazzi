@@ -1,0 +1,205 @@
+<!-- this is a 3D foam frame equiped with Lisa/S 1.0 -->
+<!-- The frame comes with 1pwm ESC and 3pwm servos. -->
+
+<!--
+use DSM2 for supperbit RF
+After flashing remove USB devises for 10 sevonds before plugging supperbitRF USB dongle.
+use in session for 
+Datalink /home/microuav/paparazzi/sw/ground_segment/tmtc/link  -d /dev/ttyACM0 -s 57600
+server /home/microuav/paparazzi/sw/ground_segment/tmtc/server 
+GCS /home/microuav/paparazzi/sw/ground_segment/cockpit/gcs  -speech 
+messages /home/microuav/paparazzi/sw/ground_segment/tmtc/messages 
+-->
+
+<!--
+     Applicable configuration:
+     airframe="airframes/examples/ladybird_lisa_s.xml"
+     radio="radios/cockpitSX.xml"
+     telemetry="telemetry/default_rotorcraft.xml"
+     flight_plan="flight_plans/rotorcraft_basic.xml"
+     settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_guidance.xml settings/control/stabilization_att_int.xml"
+
+Pin 3 on lisa/s is number 0 in airframefile = AILERON
+Pin 4 on lisa/s is number 1 in airframefile = MOTOR
+Pin 5 on lisa/s is number 2 in airframefile = RUDDER
+Pin 6 on lisa/s is number 3 in airframefile = ELEVATOR
+-->
+ 
+<airframe name="3Dplane_lisa_s">
+
+  <servos driver="Pwm">
+    <servo name="AILERON" no="0" min="1900" neutral="1500" max="1100"/>
+    <servo name="MOTOR" no="1" min="1000" neutral="1000" max="1900"/>
+    <servo name="RUDDER" no="2" min="1100" neutral="1500" max="1900"/>
+    <servo name="ELEVATOR" no="3" min="1900" neutral="1500" max="1100"/>
+  </servos>
+
+  <commands>
+    <axis name="PITCH" failsafe_value="0"/>
+    <axis name="ROLL" failsafe_value="0"/>
+    <axis name="YAW" failsafe_value="0"/>
+    <axis name="THRUST" failsafe_value="0"/>
+  </commands>
+
+  <command_laws>
+    <set servo="MOTOR" value="@THRUST"/>
+    <set servo="AILERON" value="@ROLL"/>
+    <set servo="RUDDER" value="@YAW"/>
+    <set servo="ELEVATOR" value="@PITCH"/>
+  </command_laws>
+
+  <include href="conf/airframes/tudelft/calibrations/ladybird18.xml" />
+
+  <section name="IMU" prefix="IMU_">
+    <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
+    <define name="BODY_TO_IMU_PSI"   value="0." unit="deg"/>
+  </section>
+
+ <section name="AUTOPILOT">
+   <define name="MODE_STARTUP" value="AP_MODE_NAV"/>
+   <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
+   <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_Z_HOLD"/>
+   <define name="MODE_AUTO2" value="AP_MODE_RC_DIRECT"/>
+
+    <define name="USE_THROTTLE_FOR_MOTOR_ARMING" value="TRUE"/>
+    <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
+ </section>
+
+ <section name="BAT">
+   <define name="MILLIAMP_AT_FULL_THROTTLE" value="14000"/>
+   <define name="CATASTROPHIC_BAT_LEVEL" value="2.8" unit="V"/>
+   <define name="CRITIC_BAT_LEVEL" value="3.0" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="3.2" unit="V"/>
+    <define name="MAX_BAT_LEVEL" value="4.1" unit="V"/>
+ </section>
+
+
+  <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
+
+    <!-- setpoints -->
+    <define name="SP_MAX_PHI" value="45." unit="deg"/>
+    <define name="SP_MAX_THETA" value="45." unit="deg"/>
+    <define name="SP_MAX_PSI" value="45." unit="deg"/>
+    <define name="SP_MAX_R" value="90." unit="deg/s"/>
+    <define name="SP_MAX_P" value="90." unit="deg/s"/>
+    <define name="DEADBAND_R" value="250"/>
+    <define name="DEADBAND_A" value="250"/>
+
+    <!-- reference -->
+    <define name="REF_OMEGA_P" value="800" unit="deg/s"/>
+    <define name="REF_ZETA_P" value="0.85"/>
+    <define name="REF_MAX_P" value="400." unit="deg/s"/>
+    <define name="REF_MAX_PDOT" value="RadOfDeg(8000.)"/>
+
+    <define name="REF_OMEGA_Q" value="800" unit="deg/s"/>
+    <define name="REF_ZETA_Q" value="0.85"/>
+    <define name="REF_MAX_Q" value="400." unit="deg/s"/>
+    <define name="REF_MAX_QDOT" value="RadOfDeg(8000.)"/>
+
+    <define name="REF_OMEGA_R" value="500" unit="deg/s"/>
+    <define name="REF_ZETA_R" value="0.85"/>
+    <define name="REF_MAX_R" value="90." unit="deg/s"/>
+    <define name="REF_MAX_RDOT" value="RadOfDeg(900.)"/>
+
+    <!-- feedback -->
+    <define name="PHI_PGAIN" value="400"/>
+    <define name="PHI_DGAIN" value="200"/>
+    <define name="PHI_IGAIN" value="100"/>
+
+    <define name="THETA_PGAIN" value="400"/>
+    <define name="THETA_DGAIN" value="200"/>
+    <define name="THETA_IGAIN" value="100"/>
+
+    <define name="PSI_PGAIN" value="500"/>
+    <define name="PSI_DGAIN" value="300"/>
+    <define name="PSI_IGAIN" value="10"/>
+
+    <!-- feedforward -->
+    <define name="PHI_DDGAIN" value="0"/>
+    <define name="THETA_DDGAIN" value="0"/>
+    <define name="PSI_DDGAIN" value=" 300"/>
+
+    <define name="PHI_AGAIN" value="0"/>
+    <define name="THETA_AGAIN" value="0"/>
+    <define name="PSI_AGAIN" value="0"/>
+  </section>
+
+  <section name="INS" prefix="INS_">
+  </section>
+
+ <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
+   <define name="HOVER_KP" value="276"/>
+   <define name="HOVER_KD" value="455"/>
+   <define name="HOVER_KI" value="100"/>
+   <define name="GUIDANCE_V_NOMINAL_HOVER_THROTTLE" value="0.5"/>
+   <define name="ADAPT_THROTTLE_ENABLED" value="TRUE"/>
+  </section>
+
+  <section name="AHRS" prefix="AHRS_">
+    <!--     Delft magnetic field -->
+    <define name="H_X" value="0.39049610"/>
+    <define name="H_Y" value="0.00278894"/>
+    <define name="H_Z" value="0.92060036"/>
+  </section>
+
+ <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
+   <define name="PGAIN" value="90"/>
+   <define name="DGAIN" value="50"/>
+   <define name="IGAIN" value="24"/>
+ </section>
+
+  <section name="NAVIGATION" prefix="NAV_">
+    <define  name="CLIMB_VSPEED" value="1.0" />
+    <define  name="DESCEND_VSPEED" value="-0.5" />
+  </section>
+
+ <section name="SIMULATOR" prefix="NPS_">
+   <define name="ACTUATOR_NAMES" value="ne_motor, se_motor, sw_motor, nw_motor" type="string[]"/>
+   <define name="JSBSIM_MODEL" value="simple_x_quad_ccw" type="string"/>
+   <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
+ </section>
+
+ <modules main_freq="512">
+   <module name="gps" type="ubx_ucenter"/>
+   <module name="send_imu_mag_current"/>
+ </modules>
+
+  <firmware name="rotorcraft">
+    <target name="ap" board="lisa_s_1.0">
+      <module name="radio_control" type="superbitrf_rc">
+        <define name="RADIO_MODE" value="RADIO_GEAR"/>
+        <!--<define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>-->
+        <define name="USE_PERSISTENT_SETTINGS" value="TRUE"/>
+      </module>
+
+      <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
+    </target>
+
+    <target name="nps" board="pc">
+      <module name="fdm" type="jsbsim"/>
+      <module name="radio_control" type="ppm"/>
+    </target>
+
+    <module name="actuators" type="pwm">
+      <!-- Setting the PWM interval to 400Hz -->
+      <define name="SERVO_HZ" value="400"/>
+            <!-- <define name="USE_SERVOS_1AND2"/> -->
+    </module>
+
+    <!--<module name="telemetry" type="superbitrf"/>-->
+    <!-- Comment the previous line and uncomment the following one if you need
+         to use the debug serial interface for telemetry. -->
+    <module name="telemetry" type="superbitrf"/>
+    <module name="imu" type="lisa_s_v1.0">
+    <!--  <define name="LISA_S_UPSIDE_DOWN"/>  Upside down is a relative term. :) -->
+    </module>
+    <module name="gps" type="ublox"/>
+    <module name="stabilization" type="int_quat"/>
+    <module name="ahrs" type="int_cmpl_quat">
+      <configure name="USE_MAGNETOMETER" value="1"/>
+      <define name="AHRS_USE_GPS_HEADING" value="0"/>
+    </module>
+    <module name="ins"/>
+  </firmware>
+</airframe>
