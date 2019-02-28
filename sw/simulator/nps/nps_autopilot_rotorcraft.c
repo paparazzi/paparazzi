@@ -131,7 +131,9 @@ void nps_autopilot_run_step(double time)
 #if USE_SONAR
   if (nps_sensors_sonar_available()) {
     float dist = (float) sensors.sonar.value;
-    AbiSendMsgAGL(AGL_SONAR_NPS_ID, dist);
+    if (dist >= 0.0) {
+      AbiSendMsgAGL(AGL_SONAR_NPS_ID, dist);
+    }
 
 #ifdef SENSOR_SYNC_SEND_SONAR
     uint16_t foo = 0;

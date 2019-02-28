@@ -121,6 +121,8 @@ static void gazebo_read_range_sensors(void);
 
 #endif
 
+std::shared_ptr<gazebo::sensors::SonarSensor> sonar = NULL;
+
 /// Holds all necessary NPS FDM state information
 struct NpsFdm fdm;
 
@@ -328,6 +330,14 @@ static void init_gazebo(void)
   string gazebodir = pprz_home + gazebo_home;
   cout << "Gazebo directory: " << gazebodir << endl;
 
+  if (getenv("ROS_MASTER_URI")) {
+    // Launch with ROS support
+    cout << "Add ROS plugins... ";
+    gazebo::addPlugin("libgazebo_ros_paths_plugin.so");
+    gazebo::addPlugin("libgazebo_ros_api_plugin.so");
+    cout << "ok" << endl;
+  }
+
   if (!gazebo::setupServer(0, NULL)) {
     cout << "Failed to start Gazebo, exiting." << endl;
     std::exit(-1);
@@ -431,10 +441,34 @@ static void init_gazebo(void)
   gazebo::runWorld(world, 1);
   cout << "Sensors initialized..." << endl;
 
-  // activate collision sensor
+  // Find sensors
+  // Contact sensor
   gazebo::sensors::SensorManager *mgr = gazebo::sensors::SensorManager::Instance();
   ct = static_pointer_cast < gazebo::sensors::ContactSensor > (mgr->GetSensor("contactsensor"));
   ct->SetActive(true);
+  // Sonar
+  sonar = static_pointer_cast<gazebo::sensors::SonarSensor>(mgr->GetSensor("sonarsensor"));
+  if(sonar) {
+    cout << "Found sonar" << endl;
+  }
+
+  gazebo::physics::LinkPtr link = model->GetLink("sonar");
+  if (link) {
+    // Get a pointer to the sensor using its full name
+    if (link->GetSensorCount() != 1) {
+      cout << "ERROR: Link '" << link->GetName()
+           << "' should only contain 1 sensor!" << endl;
+    } else {
+      string name = link->GetSensorName(0);
+      sonar = static_pointer_cast< gazebo::sensors::SonarSensor > (mgr->GetSensor(name));
+      if (!sonar) {
+        cout << "ERROR: Could not get pointer to '" << name << "'!" << endl;
+      } else {
+        // Activate sensor
+        sonar->SetActive(true);
+      }
+    }
+  }
 
   // Overwrite motor directions as defined by motor_mixing
 #ifdef MOTOR_MIXING_YAW_COEF
@@ -498,7 +532,14 @@ static void gazebo_read(void)
   fdm.lla_pos_pprz = fdm.lla_pos; // Don't really care...
   fdm.lla_pos_geod = fdm.lla_pos;
   fdm.lla_pos_geoc = fdm.lla_pos;
-  fdm.agl = pose.Pos().Z(); // TODO Measure with sensor
+
+  if(sonar) {
+    double agl = sonar->Range();
+    if (agl > sonar->RangeMax()) agl = -1.0;
+    fdm.agl = agl;
+  } else {
+    fdm.agl = pose.Pos().Z(); // TODO Measure with sensor
+  }
 
   /* velocity */
   fdm.ecef_ecef_vel = to_pprz_ecef(sphere->VelocityTransform(vel, gazebo::common::SphericalCoordinates::LOCAL,
