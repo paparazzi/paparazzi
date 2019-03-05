@@ -56,6 +56,7 @@ CXXFLAGS += $($(TARGET).CXXFLAGS)
 CXXFLAGS += $(USER_CFLAGS) $(BOARD_CFLAGS)
 CXXFLAGS += -O$(OPT)
 CXXFLAGS += $(DEBUG_FLAGS)
+CXXFLAGS += -std=c++0x
 CXXFLAGS += $(shell pkg-config --cflags-only-I ivy-glib)
 CXXFLAGS += -D_GNU_SOURCE
 
