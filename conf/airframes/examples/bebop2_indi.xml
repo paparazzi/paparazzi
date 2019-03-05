@@ -4,7 +4,7 @@
 
   <firmware name="rotorcraft">
     <target name="ap" board="bebop2">
-      <define name="STABILIZATION_INDI_G2_R" value="0.20"/>
+      <define name="STABILIZATION_INDI_G2_R" value="0.2784"/>
     </target>
 
     <target name="nps" board="pc">
@@ -19,16 +19,16 @@
     <module name="radio_control" type="datalink"/>
     <module name="motor_mixing"/>
     <module name="actuators" type="bebop"/>
-    <module name="imu" type="bebop"/>
+    <module name="imu" type="bebop">
+      <define name="BEBOP_LOWPASS_FILTER" value="MPU60X0_DLPF_42HZ"/>
+      <define name="BEBOP_SMPLRT_DIV" value="0"/>
+      <define name="BEBOP_GYRO_RANGE" value="MPU60X0_GYRO_RANGE_2000"/>
+      <define name="BEBOP_ACCEL_RANGE" value="MPU60X0_ACCEL_RANGE_16G"/>
+    </module>
     <module name="gps" type="ublox"/>
     <module name="stabilization" type="indi_simple"/>
-    <module name="ahrs" type="int_cmpl_quat">
-      <configure name="USE_MAGNETOMETER" value="TRUE"/>
-      <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
-    </module>
-    <module name="ins" type="extended"/>
+    <module name="ins" type="ekf2"/>
     
-    <module name="geo_mag"/>
     <module name="air_data"/>
     <module name="send_imu_mag_current"/>
     <module name="gps" type="ubx_ucenter"/>
@@ -75,31 +75,24 @@
 
   <section name="IMU" prefix="IMU_">
     <!-- Magneto calibration -->
-    <define name="MAG_X_NEUTRAL" value="18"/>
-    <define name="MAG_Y_NEUTRAL" value="46"/>
-    <define name="MAG_Z_NEUTRAL" value="202"/>
-    <define name="MAG_X_SENS" value="8.32441255621" integer="16"/>
-    <define name="MAG_Y_SENS" value="8.25720085664" integer="16"/>
-    <define name="MAG_Z_SENS" value="8.60009819293" integer="16"/>
-  </section>
+    <define name="MAG_X_NEUTRAL" value="286"/>
+    <define name="MAG_Y_NEUTRAL" value="-156"/>
+    <define name="MAG_Z_NEUTRAL" value="-275"/>
+    <define name="MAG_X_SENS" value="7.074334106912319" integer="16"/>
+    <define name="MAG_Y_SENS" value="7.069181442728008" integer="16"/>
+    <define name="MAG_Z_SENS" value="7.411815536475566" integer="16"/>
 
-  <!-- local magnetic field -->
-  <!-- http://wiki.paparazziuav.org/wiki/Subsystem/ahrs#Local_Magnetic_Field -->
-  <section name="AHRS" prefix="AHRS_">
-    <!-- values used if no GPS fix, on 3D fix is update by geo_mag module -->
-    <!-- Toulouse -->
-    <!--define name="H_X" value="0.513081"/>
-    <define name="H_Y" value="-0.00242783"/>
-    <define name="H_Z" value="0.858336"/-->
-    <!-- Delft -->
-    <define name="H_X" value="0.3892503"/>
-    <define name="H_Y" value="0.0017972"/>
-    <define name="H_Z" value="0.9211303"/>
+    <!--define name="ACCEL_X_NEUTRAL" value="11"/>
+    <define name="ACCEL_Y_NEUTRAL" value="-43"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-124"/>
+    <define name="ACCEL_X_SENS" value="2.4523434144387464" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="2.428429001527193" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="2.423519834802844" integer="16"/-->
   </section>
 
   <section name="INS" prefix="INS_">
     <define name="SONAR_MAX_RANGE" value="2.2"/>
-    <define name="SONAR_UPDATE_ON_AGL" value="TRUE"/>
+    <!--define name="SONAR_UPDATE_ON_AGL" value="TRUE"/-->
   </section>
 
 
@@ -133,9 +126,9 @@
 
   <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
     <!-- control effectiveness -->
-    <define name="G1_P" value="0.05"/>
-    <define name="G1_Q" value="0.025"/>
-    <define name="G1_R" value="0.0022"/>
+    <define name="G1_P" value="0.0390"/>
+    <define name="G1_Q" value="0.0473"/>
+    <define name="G1_R" value="0.00122"/>
 
     <!-- For the bebop2 we need to filter the roll rate due to the dampers -->
     <define name="FILTER_ROLL_RATE" value="FALSE"/><!-- Set to TRUE when flying without locked dampers -->

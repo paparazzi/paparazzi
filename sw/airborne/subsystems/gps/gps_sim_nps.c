@@ -76,8 +76,10 @@ void gps_feed_value(void)
   SetBit(gps_nps.valid_fields, GPS_VALID_COURSE_BIT);
 
   if (gps_has_fix) {
+    gps_nps.num_sv = 11;
     gps_nps.fix = GPS_FIX_3D;
   } else {
+    gps_nps.num_sv = 1;
     gps_nps.fix = GPS_FIX_NONE;
   }
 

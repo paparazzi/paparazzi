@@ -29,6 +29,10 @@
 #ifndef TELEMETRY_COMMON_H
 #define TELEMETRY_COMMON_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <inttypes.h>
 #include "std.h"
 #include "pprzlink/pprzlink_device.h"
@@ -81,6 +85,10 @@ static inline int8_t register_periodic_telemetry(struct periodic_telemetry *_pt 
  * @param _id id of the message
  */
 extern void periodic_telemetry_err_report(uint8_t _process, uint8_t _mode, uint8_t _id);
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif /* TELEMETRY_COMMON_H */

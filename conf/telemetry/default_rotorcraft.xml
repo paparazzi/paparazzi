@@ -34,6 +34,7 @@
       <message name="DRAGSPEED"                period="0.02"/>
       <message name="LOGGER_STATUS"            period="5.1"/>
       <message name="LIDAR"                    period="1.2"/>
+      <message name="INS_EKF2"                 period=".25"/>
     </mode>
 
     <mode name="ppm">

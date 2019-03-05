@@ -44,3 +44,9 @@
 [submodule "sw/ext/eigen"]
 	path = sw/ext/eigen
 	url = https://github.com/eigenteam/eigen-git-mirror.git
+[submodule "sw/ext/ecl"]
+	path = sw/ext/ecl
+	url = https://github.com/PX4/ecl.git
+[submodule "sw/ext/matrix"]
+	path = sw/ext/matrix
+	url = https://github.com/PX4/Matrix.git
