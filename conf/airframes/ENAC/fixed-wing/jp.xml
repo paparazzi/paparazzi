@@ -4,9 +4,9 @@
 
   <firmware name="fixedwing">
     <define name="USE_I2C1"/>
-    <configure name="PERIODIC_FREQUENCY" value="125"/>
 
     <target name="ap" board="apogee_1.0_chibios">
+      <configure name="PERIODIC_FREQUENCY" value="125"/>
       <module name="ins" type="float_invariant">
         <configure name="AHRS_PROPAGATE_FREQUENCY" value="125"/>
         <configure name="AHRS_CORRECT_FREQUENCY" value="125"/>
@@ -19,6 +19,7 @@
       <module name="ins" type="alt_float"/>
     </target>
     <target name="nps" board="pc">
+      <configure name="PERIODIC_FREQUENCY" value="125"/>
       <!-- Note NPS needs the ppm type radio_control module -->
       <module name="fdm" type="jsbsim"/>
       <module name="ins" type="float_invariant">
