@@ -137,8 +137,9 @@ void lidar_lite_periodic(void)
         }
       }
       break;
-    case LIDAR_LITE_PARSE:
+    case LIDAR_LITE_PARSE: {
       // filter data
+      uint32_t now_ts = get_sys_time_usec();
       lidar_lite.distance_raw = update_median_filter_i(
                                   &lidar_lite_filter,
                                   (uint32_t)((lidar_lite.trans.buf[0] << 8) | lidar_lite.trans.buf[1]));
@@ -154,12 +155,13 @@ void lidar_lite_periodic(void)
 
       // send message (if requested)
       if (lidar_lite.update_agl) {
-        AbiSendMsgAGL(AGL_LIDAR_LITE_ID, lidar_lite.distance);
+        AbiSendMsgAGL(AGL_LIDAR_LITE_ID, now_ts, lidar_lite.distance);
       }
 
       // increment status
       lidar_lite.status = LIDAR_LITE_INIT_RANGING;
       break;
+    }
     default:
       break;
   }

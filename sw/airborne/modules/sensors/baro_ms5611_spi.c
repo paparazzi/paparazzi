@@ -93,8 +93,9 @@ void baro_ms5611_event(void)
   ms5611_spi_event(&baro_ms5611);
 
   if (baro_ms5611.data_available) {
+    uint32_t now_ts = get_sys_time_usec();
     float pressure = (float)baro_ms5611.data.pressure;
-    AbiSendMsgBARO_ABS(BARO_MS5611_SENDER_ID, pressure);
+    AbiSendMsgBARO_ABS(BARO_MS5611_SENDER_ID, now_ts, pressure);
     float temp = baro_ms5611.data.temperature / 100.0f;
     AbiSendMsgTEMPERATURE(BARO_MS5611_SENDER_ID, temp);
     baro_ms5611.data_available = false;

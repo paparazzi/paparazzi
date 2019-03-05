@@ -396,9 +396,10 @@ void meteo_stick_event(void)
 #ifdef MS_PRESSURE_SLAVE_IDX
   // send absolute pressure data over ABI as soon as available
   if (meteo_stick.pressure.data_available) {
+    uint32_t now_ts = get_sys_time_usec();
     meteo_stick.current_pressure = get_pressure(meteo_stick.pressure.data);
 #if USE_MS_PRESSURE
-    AbiSendMsgBARO_ABS(METEO_STICK_SENDER_ID, meteo_stick.current_pressure);
+    AbiSendMsgBARO_ABS(METEO_STICK_SENDER_ID, now_ts, meteo_stick.current_pressure);
 #endif
     meteo_stick.pressure.data_available = false;
   }

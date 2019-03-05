@@ -5,6 +5,7 @@
   <msg_class name="airborne">
 
     <message name="BARO_ABS" id="0">
+      <field name="stamp" type="uint32_t" unit="us"/>
       <field name="pressure" type="float" unit="Pa"/>
     </message>
 
@@ -13,6 +14,7 @@
     </message>
 
     <message name="AGL" id="2">
+      <field name="stamp" type="uint32_t" unit="us"/>
       <field name="distance" type="float" unit="m"/>
     </message>
 

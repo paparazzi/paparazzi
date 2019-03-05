@@ -83,6 +83,7 @@ static void laser_range_array_parse_msg(void)
   // Get Time of Flight laser range sensor ring  messages
   switch (msg_id) {
     case DL_IMCU_REMOTE_GROUND: {
+      uint32_t now_ts = get_sys_time_usec();
       uint8_t id = DL_IMCU_REMOTE_GROUND_id(lra_msg_buf);
 
       if (id < LASER_RANGE_ARRAY_NUM_SENSORS) {
@@ -92,7 +93,7 @@ static void laser_range_array_parse_msg(void)
             laser_range_array_orientations[id*2 + 1]);
 
         if (id == agl_id && range > 1e-5 && range < VL53L0_MAX_VAL) {
-          AbiSendMsgAGL(AGL_VL53L0_LASER_ARRAY_ID, range);
+          AbiSendMsgAGL(AGL_VL53L0_LASER_ARRAY_ID, now_ts, range);
         }
       }
       break;

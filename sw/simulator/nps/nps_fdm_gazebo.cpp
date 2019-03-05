@@ -949,10 +949,11 @@ static void gazebo_read_range_sensors(void)
                                  range_orientation[i * 2 + 1]);
 
     if (i == ray_sensor_agl_index) {
+      uint32_t now_ts = get_sys_time_usec();
       float agl = rays[i].sensor->Range(0);
       // Down range sensor as agl
       if (agl > 1e-5 && !isinf(agl)) {
-        AbiSendMsgAGL(AGL_RAY_SENSOR_GAZEBO_ID, agl);
+        AbiSendMsgAGL(AGL_RAY_SENSOR_GAZEBO_ID, now_ts, agl);
       }
     }
     rays[i].last_measurement_time = rays[i].sensor->LastMeasurementTime();

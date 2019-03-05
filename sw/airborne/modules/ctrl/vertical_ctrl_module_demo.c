@@ -48,7 +48,7 @@ PRINT_CONFIG_VAR(VERTICAL_CTRL_MODULE_AGL_ID)
 static abi_event agl_ev; ///< The altitude ABI event
 
 /// Callback function of the ground altitude
-static void vertical_ctrl_agl_cb(uint8_t sender_id __attribute__((unused)), float distance);
+static void vertical_ctrl_agl_cb(uint8_t sender_id, uint32_t stamp, float distance);
 
 struct VerticalCtrlDemo v_ctrl;
 
@@ -85,7 +85,7 @@ void vertical_ctrl_module_run(bool in_flight)
   }
 }
 
-static void vertical_ctrl_agl_cb(uint8_t sender_id, float distance)
+static void vertical_ctrl_agl_cb(__attribute__((unused)) uint8_t sender_id, __attribute__((unused)) uint32_t stamp, float distance)
 {
   v_ctrl.agl = distance;
 }

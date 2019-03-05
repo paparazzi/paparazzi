@@ -113,8 +113,9 @@ void nps_autopilot_run_step(double time)
   }
 
   if (nps_sensors_baro_available()) {
+    uint32_t now_ts = get_sys_time_usec();
     float pressure = (float) sensors.baro.value;
-    AbiSendMsgBARO_ABS(BARO_SIM_SENDER_ID, pressure);
+    AbiSendMsgBARO_ABS(BARO_SIM_SENDER_ID, now_ts, pressure);
     main_event();
   }
 
@@ -130,9 +131,10 @@ void nps_autopilot_run_step(double time)
 
 #if USE_SONAR
   if (nps_sensors_sonar_available()) {
+    uint32_t now_ts = get_sys_time_usec();
     float dist = (float) sensors.sonar.value;
     if (dist >= 0.0) {
-      AbiSendMsgAGL(AGL_SONAR_NPS_ID, dist);
+      AbiSendMsgAGL(AGL_SONAR_NPS_ID, now_ts, dist);
     }
 
 #ifdef SENSOR_SYNC_SEND_SONAR

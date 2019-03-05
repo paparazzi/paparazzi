@@ -145,6 +145,7 @@ static void tfmini_parse(uint8_t byte)
     case TFMINI_PARSE_CHECKSUM:
       // When the CRC matches
       if (tfmini.parse_crc == byte) {
+        uint32_t now_ts = get_sys_time_usec();
         tfmini.distance = tfmini.raw_dist / 100.f;
         tfmini.strength = tfmini.raw_strength;
         tfmini.mode = tfmini.raw_mode;
@@ -161,7 +162,7 @@ static void tfmini_parse(uint8_t byte)
 
           // send message (if requested)
           if (tfmini.update_agl) {
-            AbiSendMsgAGL(AGL_LIDAR_TFMINI_ID, tfmini.distance);
+            AbiSendMsgAGL(AGL_LIDAR_TFMINI_ID, now_ts, tfmini.distance);
           }
         }
       }

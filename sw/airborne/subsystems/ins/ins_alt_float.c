@@ -69,7 +69,7 @@ PRINT_CONFIG_MSG("USE_BAROMETER is TRUE: Using baro for altitude estimation.")
 PRINT_CONFIG_VAR(INS_ALT_BARO_ID)
 
 abi_event baro_ev;
-static void baro_cb(uint8_t sender_id, float pressure);
+static void baro_cb(uint8_t sender_id, uint32_t stamp, float pressure);
 #endif /* USE_BAROMETER */
 
 /** ABI binding for gps data.
@@ -355,7 +355,7 @@ static void alt_kalman(float z_meas, float dt)
 }
 
 #if USE_BAROMETER
-static void baro_cb(uint8_t __attribute__((unused)) sender_id, float pressure)
+static void baro_cb(uint8_t __attribute__((unused)) sender_id, __attribute__((unused)) uint32_t stamp, float pressure)
 {
   ins_alt_float_update_baro(pressure);
 }
