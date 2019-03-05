@@ -321,6 +321,8 @@ void gps_init(void)
   gps.week = 0;
   gps.tow = 0;
   gps.cacc = 0;
+  gps.hacc = 0;
+  gps.vacc = 0;
 
   gps.last_3dfix_ticks = 0;
   gps.last_3dfix_time = 0;

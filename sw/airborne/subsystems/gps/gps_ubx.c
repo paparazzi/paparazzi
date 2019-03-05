@@ -155,6 +155,8 @@ void gps_ubx_read_message(void)
       gps_ubx.state.lla_pos.lat = UBX_NAV_POSLLH_LAT(gps_ubx.msg_buf);
       gps_ubx.state.lla_pos.lon = UBX_NAV_POSLLH_LON(gps_ubx.msg_buf);
       gps_ubx.state.lla_pos.alt = UBX_NAV_POSLLH_HEIGHT(gps_ubx.msg_buf);
+      gps_ubx.state.hacc = UBX_NAV_POSLLH_Hacc(gps_ubx.msg_buf);
+      gps_ubx.state.vacc = UBX_NAV_POSLLH_Vacc(gps_ubx.msg_buf);
       SetBit(gps_ubx.state.valid_fields, GPS_VALID_POS_LLA_BIT);
       gps_ubx.state.hmsl        = UBX_NAV_POSLLH_HMSL(gps_ubx.msg_buf);
       SetBit(gps_ubx.state.valid_fields, GPS_VALID_HMSL_BIT);
