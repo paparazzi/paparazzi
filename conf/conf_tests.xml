@@ -341,6 +341,17 @@
    gui_color="blue"
   />
   <aircraft
+   name="bebop2"
+   ac_id="35"
+   airframe="airframes/examples/bebop2_indi.xml"
+   radio="radios/dummy.xml"
+   telemetry="telemetry/default_rotorcraft.xml"
+   flight_plan="flight_plans/rotorcraft_basic.xml"
+   settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_speed.xml"
+   settings_modules="modules/gps_ubx_ucenter.xml modules/air_data.xml modules/stabilization_indi_simple.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
+   gui_color="red"
+  />
+  <aircraft
    name="quad_mavlink"
    ac_id="36"
    airframe="airframes/examples/quadrotor_lisa_mx_mavlink.xml"
