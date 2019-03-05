@@ -62,6 +62,8 @@ extern "C" {
 #define PPRZ_ISA_AIR_GAS_CONSTANT (PPRZ_ISA_GAS_CONSTANT/PPRZ_ISA_MOLAR_MASS)
 /** standard air density in kg/m^3 */
 #define PPRZ_ISA_AIR_DENSITY 1.225
+/** absolute null in celcius */
+#define PPRZ_ISA_ABS_NULL -273.15
 
 static const float PPRZ_ISA_M_OF_P_CONST = (PPRZ_ISA_AIR_GAS_CONSTANT *PPRZ_ISA_SEA_LEVEL_TEMP / PPRZ_ISA_GRAVITY);
 
@@ -179,6 +181,18 @@ static inline float pprz_isa_ref_pressure_of_height_full(float pressure, float h
 static inline float pprz_isa_temperature_of_altitude(float alt)
 {
   return PPRZ_ISA_SEA_LEVEL_TEMP - PPRZ_ISA_TEMP_LAPS_RATE * alt;
+}
+
+/**
+ * Get the air density (rho) from a given pressure and temperature
+ * 
+ * @param pressure current pressure in Pascal (Pa)
+ * @param temp temperature in celcius
+ * @return air density rho
+ */
+static inline float pprz_isa_density_of_pressure(float pressure, float temp)
+{
+  return pressure * (1.0f / (PPRZ_ISA_AIR_GAS_CONSTANT * (temp - PPRZ_ISA_ABS_NULL)));
 }
 
 #ifdef __cplusplus
