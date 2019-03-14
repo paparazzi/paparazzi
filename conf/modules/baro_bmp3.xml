@@ -1,0 +1,27 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="baro_bmp3" dir="sensors">
+  <doc>
+    <description>
+      Bosch-Sensortech BMP3xx pressure sensor
+    </description>
+    <configure name="BMP3_I2C_DEV" value="i2cX" description="select which i2c peripheral to use (default i2c1)"/>
+    <define name="BMP3_SLAVE_ADDR" value="BMP3_I2C_ADDR|BMP3_I2C_ADDR_ALT" description="i2c slave address (default BMP3_I2C_ADDR)"/>
+    <define name="BMP3_SYNC_SEND" description="flag to transmit the data as it is acquired"/>
+    <define name="BMP3_COMPENSATION" value="BMP3_SINGLE_PRECISION_COMPENSATION" description="select precision for compensation (single precision, double precision, or integer)"/>
+  </doc>
+  <header>
+    <file name="baro_bmp3.h"/>
+  </header>
+  <init fun="baro_bmp3_init()"/>
+  <periodic fun="baro_bmp3_periodic()" freq="50"/>
+  <event fun="baro_bmp3_event()"/>
+  <makefile target="ap">
+    <configure name="BMP3_I2C_DEV" default="i2c1" case="upper|lower"/>
+    <define name="USE_$(BMP3_I2C_DEV_UPPER)"/>
+    <define name="BMP3_I2C_DEV" value="$(BMP3_I2C_DEV_LOWER)"/>
+    <file name="baro_bmp3.c"/>
+    <file name="bmp3_i2c.c" dir="peripherals"/>
+  </makefile>
+</module>
+
