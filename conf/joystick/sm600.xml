@@ -6,7 +6,7 @@ numbers have to be re-arranged, the rest will be exactly the same.
 
 This RC TX joystick has four axes,1 button, one dial, which are labeled on the RC TX joystick
 
-NOTE: The in TX Simtype (Reflex,G3,APD,Phoenix) needs to be set to ** Reflex XTR **
+NOTE: The in TX Simtype (Reflex,G3,APD,Phoenix) needs to be set to ** G3-G4.5 **
 
 * The dial gives output on an **axis** type not button type
 * The switch is as a button, only has 2 positions, not three :(
@@ -27,16 +27,16 @@ The basis of steering is the standard signs of aerospace convention
 <joystick>
   <input>
     <axis index="4" name="LeftStickHorizontal"/>
-    <axis index="1" name="LeftStickVertical"/>
-    <axis index="3" name="RightStickHorizontal"/>
-    <axis index="0" name="RightStickVertical"/>
-    <axis index="5" name="VRB"/>
+    <axis index="2" name="LeftStickVertical"/>
+    <axis index="0" name="RightStickHorizontal"/>
+    <axis index="1" name="RightStickVertical"/>
+    <axis index="3" name="VRB"/>
     <button index="0" name="VRA"/>
   </input>
 
   <messages period="0.05">
     <message class="datalink" name="RC_4CH" send_always="true">
-      <field name="throttle" value="LeftStickVertical"/>
+      <field name="throttle" value="Fit(LeftStickVertical,-90,127,0,127)"/>
       <field name="roll" value="RightStickHorizontal"/>
       <field name="pitch" value="-RightStickVertical"/>
       <field name="yaw" value="LeftStickHorizontal"/>
