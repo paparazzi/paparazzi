@@ -180,6 +180,10 @@ void nps_fdm_init(double dt)
 
   FDMExec->RunIC();
 
+  // Fix getting initial incorrect accel measurements
+  for(uint16_t i = 0; i < 1500; i++)
+    FDMExec->Run();
+
   init_ltp();
 
 #if DEBUG_NPS_JSBSIM
@@ -679,7 +683,7 @@ static void init_ltp(void)
 
   /* Current date in decimal year, for example 2012.68 */
   /** @FIXME properly get current time */
-  double sdate = 2014.5;
+  double sdate = 2019.0;
 
   llh_from_jsbsim(&fdm.lla_pos, propagate);
   /* LLA Position in decimal degrees and altitude in km */
