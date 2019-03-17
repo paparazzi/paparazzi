@@ -381,17 +381,10 @@ static inline void gps_ubx_ucenter_config_nav(void)
         0x3C, 0x14, 0x03E8 , 0x0000, 0x0, 0x17, 0x00FA, 0x00FA,
         0x0064, 0x012C, 0x000F, 0x00, 0x00);
   } else {
-#if USE_GPS_UBX_RTCM
-    UbxSend_CFG_NAV5_HPG(gps_ubx_ucenter.dev,
-        NAV5_MASK, GPS_UBX_NAV5_DYNAMICS, NAV5_3D_ONLY, IGNORED, IGNORED, NAV5_DEFAULT_MIN_ELEV, RESERVED,
-        NAV5_DEFAULT_PDOP_MASK, NAV5_DEFAULT_TDOP_MASK, NAV5_DEFAULT_P_ACC, NAV5_DEFAULT_T_ACC,
-        NAV5_DEFAULT_STATIC_HOLD_THRES, 125, 0, 0, RESERVED, 0, 0, RESERVED, RESERVED);
-#else
     UbxSend_CFG_NAV5(gps_ubx_ucenter.dev,
         NAV5_MASK, GPS_UBX_NAV5_DYNAMICS, NAV5_3D_ONLY, IGNORED, IGNORED, NAV5_DEFAULT_MIN_ELEV, RESERVED,
         NAV5_DEFAULT_PDOP_MASK, NAV5_DEFAULT_TDOP_MASK, NAV5_DEFAULT_P_ACC, NAV5_DEFAULT_T_ACC,
-        NAV5_DEFAULT_STATIC_HOLD_THRES, RESERVED, RESERVED, RESERVED, RESERVED);
-#endif
+        NAV5_DEFAULT_STATIC_HOLD_THRES, 125, 0, 0, RESERVED, 0, 0, RESERVED, RESERVED);
   }
 }
 
@@ -472,7 +465,6 @@ static inline void gps_ubx_ucenter_config_sbas(void)
   // Since March 2nd 2011 EGNOS is released for aviation purposes
   UbxSend_CFG_SBAS(gps_ubx_ucenter.dev, GPS_SBAS_ENABLED, GPS_SBAS_RANGING | GPS_SBAS_CORRECTIONS | GPS_SBAS_INTEGRITY, GPS_SBAS_MAX_SBAS,
                    GPS_SBAS_AUTOSCAN, GPS_SBAS_AUTOSCAN);
-  //UbxSend_CFG_SBAS(0x00, 0x00, 0x00, 0x00, 0x00);
 }
 
 // Text Telemetry for Debugging
@@ -532,35 +524,27 @@ static bool gps_ubx_ucenter_configure(uint8_t nr)
       break;
     case 10:
       // Space Vehicle Information
-      gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_SVINFO_ID, 4);
+      gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_SVINFO_ID, 10);
       break;
     case 11:
       // Navigation Solution Information
-#if GPS_UBX_UCENTER_SLOW_NAV_SOL
-      gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_SOL_ID, 8);
-#else
       gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_SOL_ID, 1);
-#endif
       break;
     case 12:
-#if ! USE_GPS_UBX_RXM_RAW
       // Disable UTM on old Lea4P
       gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_POSUTM_ID, 0);
-#endif
       break;
     case 13:
+      // Enable Position Velocity time solution
+      gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_PVT_ID, 1);
+      break;
+    case 14:
       // SBAS Configuration
       gps_ubx_ucenter_config_sbas();
       break;
-    case 14:
+    case 15:
       // Poll Navigation/Measurement Rate Settings
       UbxSend_CFG_RATE(gps_ubx_ucenter.dev, GPS_UBX_UCENTER_RATE, 0x0001, 0x0000);
-      break;
-    case 15:
-      // Raw Measurement Data
-#if USE_GPS_UBX_RXM_RAW
-      gps_ubx_ucenter_enable_msg(UBX_RXM_ID, UBX_RXM_RAW_ID, 1);
-#endif
       break;
     case 16:
       // Subframe Buffer
@@ -568,24 +552,19 @@ static bool gps_ubx_ucenter_configure(uint8_t nr)
       gps_ubx_ucenter_enable_msg(UBX_RXM_ID, UBX_RXM_SFRB_ID, 1);
 #endif
       break;
-#if USE_GPS_UBX_RTCM
     case 17:
-      DEBUG_PRINT("CFG_DGNSS\n");
+      // Configure RTK fixed (not float)
       UbxSend_CFG_DGNSS(gps_ubx_ucenter.dev, 0x03, RESERVED, RESERVED);
       break;
     case 18:
-      DEBUG_PRINT("Enable RELPOSNED\n");
       gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_RELPOSNED_ID, 1);
       break;
     case 19:
-      DEBUG_PRINT("Enable HPPPOSLLH\n");
       gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_HPPOSLLH_ID, 1);
       break;
     case 20:
-      DEBUG_PRINT("Enable RXM_RTCM\n");
       gps_ubx_ucenter_enable_msg(UBX_RXM_ID, UBX_RXM_RTCM_ID, 1);
       break;
-#endif
     case 21:
       // Try to save on non-ROM devices...
       UbxSend_CFG_CFG(gps_ubx_ucenter.dev, 0x00000000, 0xffffffff, 0x00000000);

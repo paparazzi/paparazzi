@@ -17,9 +17,13 @@
 #define READ_CHECKSUM   4
 
 #define RTCM3_PREAMBLE 0xD3
+#define RTCM3_MSG_4072 0x72
 #define RTCM3_MSG_1005 0x69
 #define RTCM3_MSG_1077 0xB1
 #define RTCM3_MSG_1087 0xBB
+#define RTCM3_MSG_1097 0xC5
+#define RTCM3_MSG_1127 0x7F
+#define RTCM3_MSG_1230 0xE6
 
 /* Macros for UBX message processing */
 
@@ -49,29 +53,9 @@
 #define RTCM_CLASS 1
 #define UBX_CLASS  2
 
-
-#define UBX_NAV_SVIN_VERSION(_ubx_payload) (uint8_t)(*((uint8_t*)_ubx_payload+0))
-#define UBX_NAV_SVIN_RES1(_ubx_payload) (uint8_t)(*((uint8_t*)_ubx_payload+1))
-#define UBX_NAV_SVIN_RES2(_ubx_payload) (uint16_t)(*((uint8_t*)_ubx_payload+2)|*((uint8_t*)_ubx_payload+1+2)<<8)
-#define UBX_NAV_SVIN_ITOW(_ubx_payload) (uint32_t)(*((uint8_t*)_ubx_payload+4)|*((uint8_t*)_ubx_payload+1+4)<<8|((uint32_t)*((uint8_t*)_ubx_payload+2+4))<<16|((uint32_t)*((uint8_t*)_ubx_payload+3+4))<<24)
-#define UBX_NAV_SVIN_dur(_ubx_payload) (uint32_t)(*((uint8_t*)_ubx_payload+8)|*((uint8_t*)_ubx_payload+1+8)<<8|((uint32_t)*((uint8_t*)_ubx_payload+2+8))<<16|((uint32_t)*((uint8_t*)_ubx_payload+3+8))<<24)
-#define UBX_NAV_SVIN_meanX(_ubx_payload) (int32_t)(*((uint8_t*)_ubx_payload+12)|*((uint8_t*)_ubx_payload+1+12)<<8|((int32_t)*((uint8_t*)_ubx_payload+2+12))<<16|((int32_t)*((uint8_t*)_ubx_payload+3+12))<<24)
-#define UBX_NAV_SVIN_meanY(_ubx_payload) (int32_t)(*((uint8_t*)_ubx_payload+16)|*((uint8_t*)_ubx_payload+1+16)<<8|((int32_t)*((uint8_t*)_ubx_payload+2+16))<<16|((int32_t)*((uint8_t*)_ubx_payload+3+16))<<24)
-#define UBX_NAV_SVIN_meanZ(_ubx_payload) (int32_t)(*((uint8_t*)_ubx_payload+20)|*((uint8_t*)_ubx_payload+1+20)<<8|((int32_t)*((uint8_t*)_ubx_payload+2+20))<<16|((int32_t)*((uint8_t*)_ubx_payload+3+20))<<24)
-#define UBX_NAV_SVIN_meanXHP(_ubx_payload) (int8_t)(*((uint8_t*)_ubx_payload+24))
-#define UBX_NAV_SVIN_meanYHP(_ubx_payload) (int8_t)(*((uint8_t*)_ubx_payload+25))
-#define UBX_NAV_SVIN_meanZHP(_ubx_payload) (int8_t)(*((uint8_t*)_ubx_payload+26))
-#define UBX_NAV_SVIN_RES3(_ubx_payload) (uint8_t)(*((uint8_t*)_ubx_payload+27))
-#define UBX_NAV_SVIN_meanACC(_ubx_payload) (uint32_t)(*((uint8_t*)_ubx_payload+28)|*((uint8_t*)_ubx_payload+1+28)<<8|((uint32_t)*((uint8_t*)_ubx_payload+2+28))<<16|((uint32_t)*((uint8_t*)_ubx_payload+3+28))<<24)
-#define UBX_NAV_SVIN_OBS(_ubx_payload) (uint32_t)(*((uint8_t*)_ubx_payload+32)|*((uint8_t*)_ubx_payload+1+32)<<8|((uint32_t)*((uint8_t*)_ubx_payload+2+32))<<16|((uint32_t)*((uint8_t*)_ubx_payload+3+32))<<24)
-#define UBX_NAV_SVIN_Valid(_ubx_payload) (uint8_t)(*((uint8_t*)_ubx_payload+36))
-#define UBX_NAV_SVIN_Active(_ubx_payload) (uint8_t)(*((uint8_t*)_ubx_payload+37))
-#define UBX_NAV_SVIN_RES4(_ubx_payload) (uint16_t)(*((uint8_t*)_ubx_payload+38)|*((uint8_t*)_ubx_payload+1+38)<<8)
-
-
 #include <errno.h>
 #include "common.h"
-//#include "ubx_protocol.h"
+#include "CRC24Q.h"
 
 /** Return value indicating success. */
 #define RTCM_OK              0
@@ -350,7 +334,7 @@ s8 rtcm3_process(msg_state_t *s, unsigned char buff)
       s->state    = READ_MESSAGE;
       break;
     case READ_MESSAGE:
-      if (byteIndex == (rd_msg_len - 1)) { s->state = READ_CHECKSUM; }
+      if (byteIndex >= (rd_msg_len - 1)) { s->state = READ_CHECKSUM; }
       byteIndex++;
       break;
     case READ_CHECKSUM:
@@ -360,16 +344,25 @@ s8 rtcm3_process(msg_state_t *s, unsigned char buff)
         printf("\n\n");
 #endif
         s->state = UNINIT;
-        // Check what message type it is
-        switch (RTCMgetbitu(s->msg_buff, 24 + 0, 12)) {
-          case 1005: s->msg_type = RTCM3_MSG_1005; break;
-          case 1077: s->msg_type = RTCM3_MSG_1077; break;
-          case 1087: s->msg_type = RTCM3_MSG_1087; break;
-          default  : printf("Unknown message type\n"); return RTCM_OK_CALLBACK_UNDEFINED;
-        }
         s->n_read++;
         s->msg_len   = s->n_read;
         s->msg_class = NO_CLASS;
+
+        // Check the checksum
+        if(crc24q(s->msg_buff, s->n_read - 3) != RTCMgetbitu(s->msg_buff, (s->n_read - 3) * 8, 24))
+          return RTCM_OK_CALLBACK_UNDEFINED;
+        
+        // Check what message type it is
+        switch (RTCMgetbitu(s->msg_buff, 24 + 0, 12)) {
+          case 4072: s->msg_type = RTCM3_MSG_4072; break;
+          case 1005: s->msg_type = RTCM3_MSG_1005; break;
+          case 1077: s->msg_type = RTCM3_MSG_1077; break;
+          case 1087: s->msg_type = RTCM3_MSG_1087; break;
+          case 1097: s->msg_type = RTCM3_MSG_1097; break;
+          case 1127: s->msg_type = RTCM3_MSG_1127; break;
+          case 1230: s->msg_type = RTCM3_MSG_1230; break;
+          default  : printf("Unknown message type %d\n", RTCMgetbitu(s->msg_buff, 24 + 0, 12)); return RTCM_OK_CALLBACK_UNDEFINED;
+        }
 #ifdef NO_CALLBACK
         return RTCM_OK_CALLBACK_EXECUTED;
 #else

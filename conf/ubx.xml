@@ -7,143 +7,217 @@
 
   <msg_class name="NAV" ID="0x01">
 
+    <message name="POSECEF" ID="0x01" length="20">
+      <field name="iTOW" format="U4" unit="ms"/>
+      <field name="ecefX" format="I4" unit="cm"/>
+      <field name="ecefY" format="I4" unit="cm"/>
+      <field name="ecefZ" format="I4" unit="cm"/>
+      <field name="pAcc" format="U4" unit="cm"/>
+    </message>
+
     <message name="POSLLH" ID="0x02" length="28">
-      <field name="ITOW" format="U4" unit="ms"/>
-      <field name="LON" format="I4" scaling="1e-7" unit="deg"/>
-      <field name="LAT" format="I4" scaling="1e-7" unit="deg"/>
-      <field name="HEIGHT" format="I4" unit="mm"/>
-      <field name="HMSL" format="I4" unit="mm"/>
-      <field name="Hacc" format="U4" unit="mm"/>
-      <field name="Vacc" format="U4" unit="mm"/>
-    </message>
-
-    <message name="DOP" ID="0x04" length="18">
-      <field name="ITOW" format="U4" unit="ms"/>
-      <field name="GDOP" format="U2"/>
-      <field name="PDOP" format="U2"/>
-      <field name="TDOP" format="U2"/>
-      <field name="VDOP" format="U2"/>
-      <field name="HDOP" format="U2"/>
-      <field name="NDOP" format="U2"/>
-      <field name="EDOP" format="U2"/>
-    </message>
-
-    <message name="SOL" ID="0x06" length="52">
-      <field name="ITOW" format="U4" unit="ms"/>
-      <field name="Frac" format="I4" unit="ns"/>
-      <field name="week" format="I2"/>
-      <field name="GPSfix" format="U1"/>
-      <field name="Flags" format="U1"/>
-      <field name="ECEF_X" format="I4" unit="cm"/>
-      <field name="ECEF_Y" format="I4" unit="cm"/>
-      <field name="ECEF_Z" format="I4" unit="cm"/>
-      <field name="Pacc" format="U4"/>
-      <field name="ECEFVX" format="I4" unit="cm/s"/>
-      <field name="ECEFVY" format="I4" unit="cm/s"/>
-      <field name="ECEFVZ" format="I4" unit="cm/s"/>
-      <field name="Sacc" format="U4"/>
-      <field name="PDOP" format="U2"/>
-      <field name="res1" format="U1"/>
-      <field name="numSV" format="U1"/>
-      <field name="res2" format="U4"/>
-    </message>
-
-    <message name="POSUTM" ID="0x08" length="18">
-      <field name="ITOW" format="U4" unit="ms"/>
-      <field name="EAST" format="I4" unit="cm"/>
-      <field name="NORTH" format="I4" unit="cm"/>
-      <field name="ALT" format="I4" unit="cm"/>
-      <field name="ZONE" format="I1"/>
-      <field name="HEM" format="I1"/>
+      <field name="iTOW" format="U4" unit="ms"/>
+      <field name="lon" format="I4" scaling="1e-7" unit="deg"/>
+      <field name="lat" format="I4" scaling="1e-7" unit="deg"/>
+      <field name="height" format="I4" unit="mm"/>
+      <field name="hMSL" format="I4" unit="mm"/>
+      <field name="hAcc" format="U4" unit="mm"/>
+      <field name="vAcc" format="U4" unit="mm"/>
     </message>
 
     <message name="STATUS" ID="0x03" length="16">
-      <field name="ITOW" format="U4" unit="ms"/>
-      <field name="GPSfix" format="U1"/>
-      <field name="Flags" format="U1"/>
-      <field name="DiffS" format="U1"/>
-      <field name="res" format="U1"/>
-      <field name="TTFF" format="U4"/>
-      <field name="MSSS" format="U4"/>
+      <field name="iTOW" format="U4" unit="ms"/>
+      <field name="gpsFix" format="U1"/>
+      <field name="flags" format="U1"/>
+      <field name="fixStat" format="U1"/>
+      <field name="flags2" format="U1"/>
+      <field name="ttff" format="U4" unit="ms"/>
+      <field name="msss" format="U4" unit="ms"/>
+    </message>
+
+    <message name="DOP" ID="0x04" length="18">
+      <field name="iTOW" format="U4" unit="ms"/>
+      <field name="gDOP" format="U2"/>
+      <field name="pDOP" format="U2"/>
+      <field name="tDOP" format="U2"/>
+      <field name="vDOP" format="U2"/>
+      <field name="hDOP" format="U2"/>
+      <field name="nDOP" format="U2"/>
+      <field name="eDOP" format="U2"/>
+    </message>
+
+    <message name="SOL" ID="0x06" length="52">
+      <field name="iTOW" format="U4" unit="ms"/>
+      <field name="fTOW" format="I4" unit="ns"/>
+      <field name="week" format="I2" unit="weeks"/>
+      <field name="gpsFix" format="U1"/>
+      <field name="flags" format="U1"/>
+      <field name="ecefX" format="I4" unit="cm"/>
+      <field name="ecefY" format="I4" unit="cm"/>
+      <field name="ecefZ" format="I4" unit="cm"/>
+      <field name="pAcc" format="U4"/>
+      <field name="ecefVX" format="I4" unit="cm/s"/>
+      <field name="ecefVY" format="I4" unit="cm/s"/>
+      <field name="ecefVZ" format="I4" unit="cm/s"/>
+      <field name="sAcc" format="U4" unit="cm/s"/>
+      <field name="pDOP" format="U2" scaling="1e-2"/>
+      <field name="reserved1" format="U1"/>
+      <field name="numSV" format="U1"/>
+      <field name="reserved2" format="U4"/>
+    </message>
+
+    <message name="PVT" ID="0x07" length="92">
+      <field name="iTOW" format="U4" unit="ms"/>
+      <field name="year" format="U2" unit="y"/>
+      <field name="month" format="U1" unit="month"/>
+      <field name="day" format="U1" unit="d"/>
+      <field name="hour" format="U1" unit="h"/>
+      <field name="min" format="U1" unit="m"/>
+      <field name="sec" format="U1" unit="s"/>
+      <field name="valid" format="U1"/>
+      <field name="tAcc" format="U4" unit="ns"/>
+      <field name="nano" format="I4" unit="ns"/>
+      <field name="fixType" format="U1"/>
+      <field name="flags" format="U1"/>
+      <field name="flags2" format="U1"/>
+      <field name="numSV" format="U1"/>
+      <field name="lon" format="I4" scaling="1e-7" unit="deg"/>
+      <field name="lat" format="I4" scaling="1e-7" unit="deg"/>
+      <field name="height" format="I4" unit="mm"/>
+      <field name="hMSL" format="I4" unit="mm"/>
+      <field name="hAcc" format="U4" unit="mm"/>
+      <field name="vAcc" format="U4" unit="mm"/>
+      <field name="velN" format="I4" unit="mm/s"/>
+      <field name="velE" format="I4" unit="mm/s"/>
+      <field name="velD" format="I4" unit="mm/s"/>
+      <field name="gSpeed" format="I4" unit="mm/s"/>
+      <field name="headMot" format="I4" scaling="1e-5" unit="deg"/>
+      <field name="sAcc" format="U4" unit="mm/s"/>
+      <field name="headAcc" format="U4" unit="deg"/>
+      <field name="pDOP" format="U2" scaling="1e-2"/>
+      <field name="reserved1a" format="U4"/>
+      <field name="reserved1b" format="U2"/>
+      <field name="headVeh" format="I4" scaling="1e-5" unit="deg"/>
+      <field name="magDec" format="I2" scaling="1e-2" unit="deg"/>
+      <field name="magAcc" format="U2" scaling="1e-2" unit="deg"/>
+    </message>
+
+    <message name="POSUTM" ID="0x08" length="18">
+      <field name="iTOW" format="U4" unit="ms"/>
+      <field name="east" format="I4" unit="cm"/>
+      <field name="north" format="I4" unit="cm"/>
+      <field name="alt" format="I4" unit="cm"/>
+      <field name="zone" format="I1"/>
+      <field name="hem" format="I1"/>
+    </message>
+
+    <message name="VELECEF" ID="0x11" length="20">
+      <field name="iTOW" format="U4" unit="ms"/>
+      <field name="ecefVX" format="I4" unit="cm/s"/>
+      <field name="ecefVY" format="I4" unit="cm/s"/>
+      <field name="ecefVZ" format="I4" unit="cm/s"/>
+      <field name="sAcc" format="U4" unit="cm/s"/>
     </message>
 
     <message name="VELNED" ID="0x12" length="36">
-      <field name="ITOW" format="U4" unit="ms"/>
-      <field name="VEL_N" format="I4" unit="cm/s"/>
-      <field name="VEL_E" format="I4" unit="cm/s"/>
-      <field name="VEL_D" format="I4" unit="cm/s"/>
-      <field name="Speed" format="U4" unit="cm/s"/>
-      <field name="GSpeed" format="U4" unit="cm/s"/>
-      <field name="Heading" format="I4" scaling="1e-5" unit="deg"/>
-      <field name="SAcc" format="U4" unit="cm/s"/>
-      <field name="CAcc" format="U4" scaling="1e-5" unit="deg"/>
-    </message>
-
-    <message name="SVINFO" ID="0x30">
-      <field name="ITOW" format="U4" unit="ms"/>
-      <field name="NCH" format="U1"/>
-      <field name="RES1" format="U1"/>
-      <field name="RES2" format="U2"/>
-      <block times="NCH" length="12">
-        <field name="chn" format="U1"/>
-        <field name="SVID" format="U1"/>
-        <field name="Flags" format="U1"/>
-        <field name="QI" format="I1"/>
-        <field name="CNO" format="U1" unit="dbHz"/>
-        <field name="Elev" format="I1" unit="deg"/>
-        <field name="Azim" format="I2" unit="deg"/>
-        <field name="PRRes" format="I4" unit="cm"/>
-      </block>
+      <field name="iTOW" format="U4" unit="ms"/>
+      <field name="velN" format="I4" unit="cm/s"/>
+      <field name="velE" format="I4" unit="cm/s"/>
+      <field name="velD" format="I4" unit="cm/s"/>
+      <field name="speed" format="U4" unit="cm/s"/>
+      <field name="gSpeed" format="U4" unit="cm/s"/>
+      <field name="heading" format="I4" scaling="1e-5" unit="deg"/>
+      <field name="sAcc" format="U4" unit="cm/s"/>
+      <field name="cAcc" format="U4" scaling="1e-5" unit="deg"/>
     </message>
 
     <message name="HPPOSECEF" ID="0x13" length="28">
-      <field name="VERSION" format="U1"/>
-      <field name="RES1" format="U2"/>
-      <field name="RES2" format="U1"/>
-      <field name="ITOW" format="U4" unit="ms"/>
-      <field name="ECEF_X" format="I4" unit="cm"/>
-      <field name="ECEF_Y" format="I4" unit="cm"/>
-      <field name="ECEF_Z" format="I4" unit="cm"/>
-      <field name="ECEF_XHP" format="I1" scaling="1e-1" unit="mm"/>
-      <field name="ECEF_YHP" format="I1" scaling="1e-1" unit="mm"/>
-      <field name="ECEF_ZHP" format="I1" scaling="1e-1" unit="mm"/>
-      <field name="RES3" format="U1"/>
-      <field name="Pacc" format="U4" scaling="1e-1" unit="mm"/>
+      <field name="version" format="U1"/>
+      <field name="reserved1a" format="U2"/>
+      <field name="reserved1b" format="U1"/>
+      <field name="iTOW" format="U4" unit="ms"/>
+      <field name="ecefX" format="I4" unit="cm"/>
+      <field name="ecefY" format="I4" unit="cm"/>
+      <field name="ecefZ" format="I4" unit="cm"/>
+      <field name="ecefXHp" format="I1" scaling="1e-1" unit="mm"/>
+      <field name="ecefYHp" format="I1" scaling="1e-1" unit="mm"/>
+      <field name="ecefZHp" format="I1" scaling="1e-1" unit="mm"/>
+      <field name="reserved2" format="U1"/>
+      <field name="pAcc" format="U4" scaling="1e-1" unit="mm"/>
     </message>
 
     <message name="HPPOSLLH" ID="0x14" length="36">
-      <field name="VERSION" format="U1"/>
-      <field name="RES1" format="U2"/>
-      <field name="RES2" format="U1"/>
-      <field name="ITOW" format="U4" unit="ms"/>
-      <field name="LON" format="I4" scaling="1e-7" unit="deg"/>
-      <field name="LAT" format="I4" scaling="1e-7" unit="deg"/>
-      <field name="HEIGHT" format="I4" unit="mm"/>
-      <field name="HMSL" format="I4" unit="mm"/>
-      <field name="LONHP" format="I1" scaling="1e-9" unit="deg"/>
-      <field name="LATHP" format="I1" scaling="1e-9" unit="deg"/>
-      <field name="HEIGHTHP" format="I1" scaling="1e-1" unit="mm"/>
-      <field name="HMSLHP" format="I1" scaling="1e-1" unit="mm"/>
-      <field name="Hacc" format="U4" scaling="1e-1" unit="mm"/>
-      <field name="Vacc" format="U4" scaling="1e-1" unit="mm"/>
+      <field name="version" format="U1"/>
+      <field name="reserved1a" format="U2"/>
+      <field name="reserved1b" format="U1"/>
+      <field name="iTOW" format="U4" unit="ms"/>
+      <field name="lon" format="I4" scaling="1e-7" unit="deg"/>
+      <field name="lat" format="I4" scaling="1e-7" unit="deg"/>
+      <field name="height" format="I4" unit="mm"/>
+      <field name="hMSL" format="I4" unit="mm"/>
+      <field name="lonHp" format="I1" scaling="1e-9" unit="deg"/>
+      <field name="latHp" format="I1" scaling="1e-9" unit="deg"/>
+      <field name="heightHp" format="I1" scaling="1e-1" unit="mm"/>
+      <field name="hMSLHp" format="I1" scaling="1e-1" unit="mm"/>
+      <field name="hAcc" format="U4" scaling="1e-1" unit="mm"/>
+      <field name="vAcc" format="U4" scaling="1e-1" unit="mm"/>
     </message>
 
-    <message name="RELPOSNED" ID="0x3C" length="40">
-      <field name="VERSION" format="U1"/>
-      <field name="RES1" format="U1"/>
+    <message name="SVINFO" ID="0x30">
+      <field name="iTOW" format="U4" unit="ms"/>
+      <field name="numCh" format="U1"/>
+      <field name="globalFlags" format="U1"/>
+      <field name="reserved1" format="U2"/>
+      <block times="numCh" length="12">
+        <field name="chn" format="U1"/>
+        <field name="svid" format="U1"/>
+        <field name="flags" format="U1"/>
+        <field name="quality" format="I1"/>
+        <field name="cno" format="U1" unit="dbHz"/>
+        <field name="elev" format="I1" unit="deg"/>
+        <field name="azim" format="I2" unit="deg"/>
+        <field name="prRes" format="I4" unit="cm"/>
+      </block>
+    </message>
+
+    <message name="SAT" ID="0x35">
+      <field name="iTOW" format="U4" unit="ms"/>
+      <field name="version" format="U1"/>
+      <field name="numSvs" format="U1"/>
+      <field name="reserved1" format="U2"/>
+      <block times="numSvs" length="12">
+        <field name="gnssId" format="U1"/>
+        <field name="svId" format="U1"/>
+        <field name="cno" format="U1" unit="dbHz"/>
+        <field name="elev" format="I1" unit="deg"/>
+        <field name="azim" format="I2" unit="deg"/>
+        <field name="prRes" format="I2" scaling="1e-1" unit="m"/>
+        <field name="flags" format="U4"/>
+      </block>
+    </message>
+
+    <message name="RELPOSNED" ID="0x3C" length="64">
+      <field name="version" format="U1"/>
+      <field name="reserved1" format="U1"/>
       <field name="refStationId" format="U2"/>
-      <field name="ITOW" format="U4" unit="ms"/>
-      <field name="RELPOSN" format="I4" unit="cm"/>
-      <field name="RELPOSE" format="I4" unit="cm"/>
-      <field name="RELPOSD" format="I4" unit="cm"/>
-      <field name="RELPOSNHP" format="I1" scaling="1e-1" unit="mm"/>
-      <field name="RELPOSEHP" format="I1" scaling="1e-1" unit="mm"/>
-      <field name="RELPOSDHP" format="I1" scaling="1e-1" unit="mm"/>
-      <field name="RES2" format="U1"/>
-      <field name="Nacc" format="U4" scaling="1e-1" unit="mm"/>
-      <field name="Eacc" format="U4" scaling="1e-1" unit="mm"/>
-      <field name="Dacc" format="U4" scaling="1e-1" unit="mm"/>
-      <field name="Flags" format="U4"/>
+      <field name="iTOW" format="U4" unit="ms"/>
+      <field name="relPosN" format="I4" unit="cm"/>
+      <field name="relPosE" format="I4" unit="cm"/>
+      <field name="relPosD" format="I4" unit="cm"/>
+      <field name="relPosLength" format="I4" unit="cm"/>
+      <field name="relPosHeading" format="I4" scaling="1e-5" unit="deg"/>
+      <field name="reserved2" format="U4"/>
+      <field name="relPosHPN" format="I1" scaling="1e-1" unit="mm"/>
+      <field name="relPosHPE" format="I1" scaling="1e-1" unit="mm"/>
+      <field name="relPosHPD" format="I1" scaling="1e-1" unit="mm"/>
+      <field name="relPosHPLength" format="I1" scaling="1e-1" unit="mm"/>
+      <field name="accN" format="U4" scaling="1e-1" unit="mm"/>
+      <field name="accE" format="U4" scaling="1e-1" unit="mm"/>
+      <field name="accD" format="U4" scaling="1e-1" unit="mm"/>
+      <field name="accLength" format="U4" scaling="1e-1" unit="mm"/>
+      <field name="accHeading" format="U4" scaling="1e-5" unit="deg"/>
+      <field name="reserved3" format="U4"/>
+      <field name="flags" format="U4"/>
     </message>
 
     <message name="SVIN" ID="0x3B" length="40">
@@ -247,43 +321,24 @@
     <message name="NAV5" ID="0x24" length="36">
       <field name="mask"   format="U2"/>
       <field name="dynModel" format="U1"/>
-      <field name="fixModel" format="U1"/>
-      <field name="fixedAlt" format="I4"/>
-      <field name="fixedAltVar" format="U4"/>
-      <field name="minElev" format="I1"/>
-      <field name="drLimit" format="U1"/>
-      <field name="dDop" format="U2"/>
-      <field name="tDop" format="U2"/>
-      <field name="pAcc" format="U2"/>
-      <field name="tAcc" format="U2"/>
-      <field name="staticHoldThresh" format="U1"/>
-      <field name="res1" format="U1"/>
-      <field name="res2" format="U4"/>
-      <field name="res3" format="U4"/>
-      <field name="res4" format="U4"/>
-    </message>
-
-    <message name="NAV5_HPG" ID="0x24" length="36">
-      <field name="mask"   format="U2"/>
-      <field name="dynModel" format="U1"/>
-      <field name="fixModel" format="U1"/>
-      <field name="fixedAlt" format="I4"/>
-      <field name="fixedAltVar" format="U4"/>
-      <field name="minElev" format="I1"/>
-      <field name="drLimit" format="U1"/>
-      <field name="dDop" format="U2"/>
-      <field name="tDop" format="U2"/>
-      <field name="pAcc" format="U2"/>
-      <field name="tAcc" format="U2"/>
-      <field name="staticHoldThresh" format="U1"/>
+      <field name="fixMode" format="U1"/>
+      <field name="fixedAlt" format="I4" scaling="1e-2" unit="m"/>
+      <field name="fixedAltVar" format="U4" scaling="1e-4" unit="m^2"/>
+      <field name="minElev" format="I1" unit="deg"/>
+      <field name="drLimit" format="U1" unit="s"/>
+      <field name="pDop" format="U2" scaling="1e-2"/>
+      <field name="tDop" format="U2" scaling="1e-2"/>
+      <field name="pAcc" format="U2" unit="m"/>
+      <field name="tAcc" format="U2" unit="m"/>
+      <field name="staticHoldThresh" format="U1" unit="cm/s"/>
       <field name="dgnssTimeout" format="U1" unit="s"/>
       <field name="cnoThreshNumSVs" format="U1"/>
       <field name="cnoThresh" format="U1" unit="dBHz"/>
-      <field name="res1" format="U2"/>
+      <field name="reserved1" format="U2"/>
       <field name="staticHoldMaxDist" format="U2" unit="m"/>
       <field name="utcStandard" format="U1"/>
-      <field name="res2" format="U4"/>
-      <field name="res3" format="U1"/>
+      <field name="reserved2a" format="U4"/>
+      <field name="reserved2b" format="U1"/>
     </message>
 
     <message name="GNSS" ID="0x3E" length="12">

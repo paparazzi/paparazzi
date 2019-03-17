@@ -54,7 +54,7 @@
 #define GPS_VALID_COURSE_BIT   6
 
 #ifndef GPS_NB_CHANNELS
-#define GPS_NB_CHANNELS 16
+#define GPS_NB_CHANNELS 40
 #endif
 
 #define GPS_MODE_AUTO 0
@@ -134,17 +134,6 @@ struct GpsRelposNED {
   uint8_t relPosValid;
   uint8_t diffSoln;
   uint8_t gnssFixOK;
-};
-
-struct RtcmMan {
-  uint16_t RefStation;
-  uint16_t MsgType; // Counter variables to count the number of Rtcm msgs in the input stream(for each msg type)
-  uint32_t Cnt105;
-  uint32_t Cnt177;
-  uint32_t Cnt187; // Counter variables to count the number of messages that failed Crc Check
-  uint32_t Crc105;
-  uint32_t Crc177;
-  uint32_t Crc187;
 };
 
 /** global GPS state */

@@ -1,3 +1,6 @@
+#ifndef _CRC24Q
+#define _CRC24Q
+
 static const unsigned int tbl_CRC24Q[] = {
   0x000000, 0x864CFB, 0x8AD50D, 0x0C99F6, 0x93E6E1, 0x15AA1A, 0x1933EC, 0x9F7F17,
   0xA18139, 0x27CDC2, 0x2B5434, 0xAD18CF, 0x3267D8, 0xB42B23, 0xB8B2D5, 0x3EFE2E,
@@ -58,4 +61,6 @@ unsigned int RTCMgetbitu(unsigned char *buff, int pos, int lenb)
   for (i = pos; i < pos + lenb; i++) { bits = (bits << 1) + ((buff[i / 8] >> (7 - i % 8)) & 1u); }
   return bits;
 }
+#endif
+
 #endif

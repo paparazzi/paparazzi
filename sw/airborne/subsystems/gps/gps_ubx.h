@@ -35,9 +35,9 @@
 
 #ifdef GPS_I2C
 #include "modules/gps/gps_ubx_i2c.h"
-#endif
-
+#else
 #include "mcu_periph/uart.h"
+#endif
 
 #ifndef PRIMARY_GPS
 #define PRIMARY_GPS GPS_UBX
@@ -48,9 +48,7 @@ extern void gps_ubx_event(void);
 
 #define gps_ubx_periodic_check() gps_periodic_check(&gps_ubx.state)
 
-#define GPS_UBX_NB_CHANNELS 16
-
-#define GPS_UBX_MAX_PAYLOAD 255
+#define GPS_UBX_MAX_PAYLOAD 512
 struct GpsUbx {
   bool msg_available;
   uint8_t msg_buf[GPS_UBX_MAX_PAYLOAD] __attribute__((aligned));
@@ -59,7 +57,7 @@ struct GpsUbx {
 
   uint8_t status;
   uint16_t len;
-  uint8_t msg_idx;
+  uint16_t msg_idx;
   uint8_t ck_a, ck_b;
   uint8_t send_ck_a, send_ck_b;
   uint8_t error_cnt;
@@ -72,27 +70,6 @@ struct GpsUbx {
 };
 
 extern struct GpsUbx gps_ubx;
-
-#if USE_GPS_UBX_RXM_RAW
-struct GpsUbxRawMes {
-  double cpMes;
-  double prMes;
-  float doMes;
-  uint8_t sv;
-  int8_t mesQI;
-  int8_t cno;
-  uint8_t lli;
-};
-
-struct GpsUbxRaw {
-  int32_t iTOW;
-  int16_t week;
-  uint8_t numSV;
-  struct GpsUbxRawMes measures[GPS_UBX_NB_CHANNELS];
-};
-
-extern struct GpsUbxRaw gps_ubx_raw;
-#endif
 
 /*
  * This part is used by the autopilot to read data from a uart
