@@ -129,11 +129,13 @@ update_google_version:
 init:
 	@[ -d $(PAPARAZZI_HOME) ] || (echo "Copying config example in your $(PAPARAZZI_HOME) directory"; mkdir -p $(PAPARAZZI_HOME); cp -a conf $(PAPARAZZI_HOME); cp -a data $(PAPARAZZI_HOME); mkdir -p $(PAPARAZZI_HOME)/var/maps; mkdir -p $(PAPARAZZI_HOME)/var/include)
 
-conf: conf/conf.xml conf/control_panel.xml conf/maps.xml
+conf: conf/conf.xml conf/control_panel.xml conf/maps.xml conf/tools/blacklisted
 
 conf/%.xml :conf/%_example.xml
 	[ -L $@ ] || [ -f $@ ] || cp $< $@
 
+conf/tools/blacklisted: conf/tools/blacklisted_example
+	cp conf/tools/blacklisted_example conf/tools/blacklisted
 
 ground_segment: _print_building update_google_version conf libpprz subdirs commands static
 ground_segment.opt: ground_segment cockpit.opt tmtc.opt
