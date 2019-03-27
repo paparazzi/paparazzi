@@ -82,6 +82,7 @@ struct opticflow_t {
 
 };
 
+#define FAST9_MAX_CORNERS 512
 
 void opticflow_calc_init(struct opticflow_t *opticflow);
 bool opticflow_calc_frame(struct opticflow_t *opticflow, struct image_t *img,
