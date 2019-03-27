@@ -135,6 +135,7 @@ PRINT_CONFIG_VAR(OPTICFLOW_FAST9_PADDING)
 #define FAST9_LOW_THRESHOLD 5
 #define FAST9_HIGH_THRESHOLD 60
 
+
 #ifndef OPTICFLOW_METHOD
 #define OPTICFLOW_METHOD 0
 #endif
@@ -273,7 +274,7 @@ void opticflow_calc_init(struct opticflow_t *opticflow)
   opticflow->fast9_threshold = OPTICFLOW_FAST9_THRESHOLD;
   opticflow->fast9_min_distance = OPTICFLOW_FAST9_MIN_DISTANCE;
   opticflow->fast9_padding = OPTICFLOW_FAST9_PADDING;
-  opticflow->fast9_rsize = 512;
+  opticflow->fast9_rsize = FAST9_MAX_CORNERS;
   opticflow->fast9_ret_corners = calloc(opticflow->fast9_rsize, sizeof(struct point_t));
 
   opticflow->corner_method = OPTICFLOW_CORNER_METHOD;
@@ -371,13 +372,17 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
           opticflow->fast9_threshold--;
         }
 
-        if (opticflow->corner_method == ACT_FAST) {
+        if (opticflow->corner_method == ACT_FAST && n_agents < opticflow->fast9_rsize) {
           n_time_steps++;
           n_agents++;
         }
 
-      } else if (result->corner_cnt > OPTICFLOW_MAX_TRACK_CORNERS * 2 && opticflow->fast9_threshold < FAST9_HIGH_THRESHOLD) {
-        opticflow->fast9_threshold++;
+      } else if (result->corner_cnt > OPTICFLOW_MAX_TRACK_CORNERS * 2) {
+
+        if (opticflow->fast9_threshold < FAST9_HIGH_THRESHOLD) {
+          opticflow->fast9_threshold++;
+        }
+
         if (opticflow->corner_method == ACT_FAST && n_time_steps > 5 && n_agents > 10) {
           n_time_steps--;
           n_agents--;
@@ -918,8 +923,8 @@ bool calc_edgeflow_tot(struct opticflow_t *opticflow, struct image_t *img,
   //Fill up the results optic flow to be on par with LK_fast9
   result->flow_der_x =  result->flow_x;
   result->flow_der_y =  result->flow_y;
-  result->corner_cnt = getAmountPeaks(edge_hist_x, 500 , img->w);
-  result->tracked_cnt = getAmountPeaks(edge_hist_x, 500 , img->w);
+  result->corner_cnt = getAmountPeaks(edge_hist_x, 500, img->w);
+  result->tracked_cnt = getAmountPeaks(edge_hist_x, 500, img->w);
   result->divergence = -1.0 * (float)edgeflow.div_x /
                        RES; // Also multiply the divergence with -1.0 to make it on par with the LK algorithm of
   result->div_size =
