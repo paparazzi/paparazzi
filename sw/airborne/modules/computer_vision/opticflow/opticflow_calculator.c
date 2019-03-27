@@ -379,9 +379,9 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
 
       } else if (result->corner_cnt > OPTICFLOW_MAX_TRACK_CORNERS * 2) {
 
-	if(opticflow->fast9_threshold < FAST9_HIGH_THRESHOLD) {
-	    opticflow->fast9_threshold++;
-	}
+        if (opticflow->fast9_threshold < FAST9_HIGH_THRESHOLD) {
+          opticflow->fast9_threshold++;
+        }
 
         if (opticflow->corner_method == ACT_FAST && n_time_steps > 5 && n_agents > 10) {
           n_time_steps--;
@@ -923,8 +923,8 @@ bool calc_edgeflow_tot(struct opticflow_t *opticflow, struct image_t *img,
   //Fill up the results optic flow to be on par with LK_fast9
   result->flow_der_x =  result->flow_x;
   result->flow_der_y =  result->flow_y;
-  result->corner_cnt = getAmountPeaks(edge_hist_x, 500 , img->w);
-  result->tracked_cnt = getAmountPeaks(edge_hist_x, 500 , img->w);
+  result->corner_cnt = getAmountPeaks(edge_hist_x, 500, img->w);
+  result->tracked_cnt = getAmountPeaks(edge_hist_x, 500, img->w);
   result->divergence = -1.0 * (float)edgeflow.div_x /
                        RES; // Also multiply the divergence with -1.0 to make it on par with the LK algorithm of
   result->div_size =
