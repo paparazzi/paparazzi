@@ -1,0 +1,51 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="filter_1euro_imu" dir="imu">
+  <doc>
+    <description>
+      Prefiltering for IMU data using 1euro filter.
+
+      The 1 Euro filter is an first order low pass filter with an adaptive cutoff frequency.
+      It is able to efficiently remove high frequency noise when the average signal is stable
+      with very small lag by increasing the bandwith to capture faster movements.
+
+      Only two parameters are required to tune the filter:
+      - mincutoff that defines the minimum bandwith: reduce it if noise at low speed is a problem
+      - beta that is the adaptation coefficient: increase it if lag at high speed is a problem
+
+      In order to use this filter for your IMU (on Gyro and Acell data, Mag passthrough), you only
+      need to redefine the source of data in the ABI bindings of the AHRS/INS filter being used.
+      For instance, if the 'ahrs_int_cmpl_quat' AHRS is used, this module should be loaded with
+      the following options:
+        define name="AHRS_ICQ_IMU_ID" value="F1E_IMU_ID"     
+        define name="AHRS_ALIGNER_IMU_ID" value="F1E_IMU_ID"     
+    </description>
+    <section name="FILTER_1EURO" prefix="FILTER_1EURO_">
+      <define name="ENABLED" value="FALSE|TRUE" description="activate or not the filter by default"/>
+      <define name="GYRO_MINCUTOFF" value="10." description="minimum cutoff freq for gyro signal"/>
+      <define name="GYRO_BETA" value="0.1" description="adaptation coefficient for gyro signal"/>
+      <define name="ACCEL_MINCUTOFF" value="0.1" description="minimum cutoff freq for accel signal"/>
+      <define name="ACCEL_BETA" value="0.01" description="adaptation coefficient for accel signal"/>
+      <define name="FREQ" value="512" description="set fixed frequency, if not defined but INS/AHRS_PROPAGATE_FREQUENCY is defined it is used, otherwise autofreq is used"/>
+    </section>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings name="1e_imu">
+        <dl_setting min="0" max="1" step="1" var="filter_1e_imu.enabled" module="imu/filter_1euro_imu" shortname="enable" values="DISABLED|ENABLED" handler="reset"/>
+        <dl_setting min="0.1" max="50." step="0.1" var="filter_1e_imu.gyro_mincutoff" module="imu/filter_1euro_imu" shortname="gyro mincutoff" handler="update_gyro_mincutoff"/>
+        <dl_setting min="0.0001" max="1." step="0.001" var="filter_1e_imu.gyro_beta" module="imu/filter_1euro_imu" shortname="gyro beta" handler="update_gyro_beta"/>
+        <dl_setting min="0.01" max="10." step="0.001" var="filter_1e_imu.accel_mincutoff" module="imu/filter_1euro_imu" shortname="accel mincutoff" handler="update_accel_mincutoff"/>
+        <dl_setting min="0.0001" max=".1" step="0.001" var="filter_1e_imu.accel_beta" module="imu/filter_1euro_imu" shortname="accel beta" handler="update_accel_beta"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="filter_1euro_imu.h"/>
+  </header>
+  <init fun="filter_1euro_imu_init()"/>
+  <makefile>
+    <file name="filter_1euro_imu.c"/>
+  </makefile>
+</module>
+
