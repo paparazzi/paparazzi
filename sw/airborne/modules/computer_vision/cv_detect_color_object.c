@@ -190,11 +190,21 @@ void color_object_detector_init(void)
 
 /*
  * find_object_centroid
- * @param img - input image to process
+ *
+ * Finds the centroid of pixels in an image within filter bounds.
+ * Also returns the amount of pixels that satisfy these filter bounds.
+ *
+ * @param img - input image to process formatted as YUV422.
  * @param p_xc - x coordinate of the centroid of color object
  * @param p_yc - y coordinate of the centroid of color object
+ * @param lum_min - minimum y value for the filter in YCbCr colorspace
+ * @param lum_max - maximum y value for the filter in YCbCr colorspace
+ * @param cb_min - minimum cb value for the filter in YCbCr colorspace
+ * @param cb_max - maximum cb value for the filter in YCbCr colorspace
+ * @param cr_min - minimum cr value for the filter in YCbCr colorspace
+ * @param cr_max - maximum cr value for the filter in YCbCr colorspace
  * @param draw - whether or not to draw on image
- * @return number of pixels found
+ * @return number of pixels of image within the filter bounds.
  */
 uint32_t find_object_centroid(struct image_t *img, int32_t* p_xc, int32_t* p_yc, bool draw,
                               uint8_t lum_min, uint8_t lum_max,
