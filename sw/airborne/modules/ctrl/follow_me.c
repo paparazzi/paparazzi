@@ -30,7 +30,7 @@
 
 // Distance to the target to hover from is by default 5 meters
 #ifndef FOLLOW_ME_DISTANCE
-#define FOLLOW_ME_DISTANCE 5
+#define FOLLOW_ME_DISTANCE 5.0f
 #endif
 
 // Minimum speed in m/s which the ground needs to have in order to update the heading
