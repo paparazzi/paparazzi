@@ -15,14 +15,15 @@
     <waypoint name="TD" x="0.8" y="-1.7"/>
     <waypoint name="GOAL" x="1.9" y="1.0"/>
     <waypoint name="TRAJECTORY" x="1.9" y="1.0"/>
-    <waypoint lat="51.9905874" lon="4.3767766" name="_CZ1"/>
-    <waypoint lat="51.990644" lon="4.376721" name="_CZ2"/>
-    <waypoint lat="51.990676" lon="4.376805" name="_CZ3"/>
-    <waypoint lat="51.9906213" lon="4.3768628" name="_CZ4"/>
-    <waypoint lat="51.990595" lon="4.376779" name="_OZ1"/>
-    <waypoint lat="51.990640" lon="4.376734" name="_OZ2"/>
-    <waypoint lat="51.990667" lon="4.376804" name="_OZ3"/>
-    <waypoint lat="51.990623" lon="4.376850" name="_OZ4"/>
+    <waypoint lat="51.9905834" lon="4.3767710" name="_CZ1"/>
+    <waypoint lat="51.9906465" lon="4.3767025" name="_CZ2"/>
+    <waypoint lat="51.9906882" lon="4.376805" name="_CZ3"/>
+    <waypoint lat="51.9906238" lon="4.3768729" name="_CZ4"/>
+
+    <waypoint lat="51.9905860" lon="4.3767712" name="_OZ1"/>
+    <waypoint lat="51.9906456" lon="4.3767088" name="_OZ2"/>
+    <waypoint lat="51.9906830" lon="4.3768048" name="_OZ3"/>
+    <waypoint lat="51.9906239" lon="4.3768684" name="_OZ4"/>
   </waypoints>
   <sectors>
     <sector color="red" name="CyberZoo">
