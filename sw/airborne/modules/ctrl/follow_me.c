@@ -78,7 +78,7 @@ void follow_me_set_wp(uint8_t wp_id)
 {
   // Only if we have a valid ground position
   if(ground_set) {
-    // Claculate x and y offset
+    // Calculate x and y offset
     int32_t x = POS_BFP_OF_REAL(follow_me_distance*sinf(follow_me_heading/180.*M_PI));
     int32_t y = POS_BFP_OF_REAL(follow_me_distance*cosf(follow_me_heading/180.*M_PI));
 
