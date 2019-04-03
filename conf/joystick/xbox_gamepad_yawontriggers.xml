@@ -1,6 +1,10 @@
 <!-- Generic X-Box gamepad
   e.g. Logitech wireless gamepad F710
 
+This xbox controller is setup for an easier control experience
+The triggers control the yaw and the left stick only controls the throttle
+
+
 This config is for Xinput mode. Make sure slider switch on back of controller is on X (not D)
 Also make sure controller not in sports mode (mode light should be off)
 
@@ -66,10 +70,10 @@ so e.g. HatDown(dpad)
 
     <message class="datalink" name="RC_4CH" send_always="true">
       <field name="mode" value="mode"/>
-      <field name="throttle" value="Fit(-throttle,-127,127,0,127)"/>
+      <field name="throttle" value="Fit(-throttle,-127,127,0,127)"/> <!--To trimm for Parot Bebop set 0 to 47-->
       <field name="roll" value="roll"/>
       <field name="pitch" value="pitch"/>
-      <field name="yaw" value="yaw"/>
+      <field name="yaw" value="Fit(RT-LT,-127,127,-127,127)"/>
     </message>
 
     <!-- go to "Start Engine" block if in AUTO2 and pressing start button -->
@@ -82,9 +86,14 @@ so e.g. HatDown(dpad)
       <field name="block_id" value="IndexOfBlock('Takeoff')"/>
     </message>
 
-    <!-- go to "land here" block if in AUTO2 and pressing down on dpad -->
+    <!-- go to "Land here" block if in AUTO2 and pressing down on dpad -->
     <message class="ground" name="JUMP_TO_BLOCK" on_event="(mode > 1) && HatDown(dpad)">
       <field name="block_id" value="IndexOfBlock('Land here')"/>
+    </message>
+ 
+    <!-- go to "Standby" block if in AUTO2 and pressing down on dpad -->
+    <message class="ground" name="JUMP_TO_BLOCK" on_event="(mode > 1) && Y">
+      <field name="block_id" value="IndexOfBlock('Standby')"/>
     </message>
 
   </messages>
