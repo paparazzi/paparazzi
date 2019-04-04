@@ -17,8 +17,8 @@
       need to redefine the source of data in the ABI bindings of the AHRS/INS filter being used.
       For instance, if the 'ahrs_int_cmpl_quat' AHRS is used, this module should be loaded with
       the following options:
-        define name="AHRS_ICQ_IMU_ID" value="F1E_IMU_ID"     
-        define name="AHRS_ALIGNER_IMU_ID" value="F1E_IMU_ID"     
+        define name="AHRS_ICQ_IMU_ID" value="IMU_F1E_ID"     
+        define name="AHRS_ALIGNER_IMU_ID" value="IMU_F1E_ID"     
     </description>
     <section name="FILTER_1EURO" prefix="FILTER_1EURO_">
       <define name="ENABLED" value="FALSE|TRUE" description="activate or not the filter by default"/>
