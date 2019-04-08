@@ -57,7 +57,7 @@ clean:
 	-$(RM) $(OBJS) $(DEPS) $(TARGET).elf
 
 #include $(PAPARAZZI_SRC)/conf/Makefile.linux
-DRONE = $(PAPARAZZI_HOME)/sw/tools/parrot/ardrone2.py
+DRONE ?= $(PAPARAZZI_HOME)/sw/tools/parrot/ardrone2.py
 
 SUB_DIR = paparazzi
 
