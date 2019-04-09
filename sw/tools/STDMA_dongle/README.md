@@ -31,7 +31,7 @@ If you want the program to actually run on the ARDrones, then you have to build 
 To build and run for the drone:
 	make clean && make EMBED=1
 
-To upload to the drones:
+To upload to the drones, select your **DRONE** type in the Makefile or add the option **DRONE=...** to the command (tested with ARDrone):
 	make upload_program EMBED=1 HOST=192.168.40.200
 Note the last numbers may change depending on the IP address of your drones.
 Make sure to check that you are connected to the drones when doing this step!
