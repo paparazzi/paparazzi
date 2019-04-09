@@ -3,6 +3,7 @@
 Paparazzi UAS
 =============
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/811c4398588f435fa8bc926f53d40e9f)](https://app.codacy.com/app/gautierhattenberger/paparazzi?utm_source=github.com&utm_medium=referral&utm_content=paparazzi/paparazzi&utm_campaign=Badge_Grade_Dashboard)
 [![Build Status](https://travis-ci.org/paparazzi/paparazzi.png?branch=master)](https://travis-ci.org/paparazzi/paparazzi) [![Gitter chat](https://badges.gitter.im/paparazzi/discuss.svg)](https://gitter.im/paparazzi/discuss)
 <a href="https://scan.coverity.com/projects/paparazzi-paparazzi">
   <img alt="Coverity Scan Build Status"
