@@ -1,0 +1,25 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="light_scheduler" dir="light">
+  <doc>
+    <description>
+      Basic light scheduler using WS2812 driver
+
+      WS2812 are small RGB leds controlled with a 1-wire protocol.
+      This module is an example of controlling several leds with the color changing continuously.
+      Implementation for ChibiOS using DMA.
+    </description>
+    <define name="WS2812_NB_LEDS" value="8" description="Number of leds"/>
+  </doc>
+  <header>
+    <file name="light_scheduler.h"/>
+  </header>
+  <init fun="light_scheduler_init()"/>
+  <periodic fun="light_scheduler_periodic()" freq="8"/>
+  <makefile target="ap">
+    <file name="light_scheduler.c"/>
+    <file_arch name="light_ws2812_arch.c"/>
+    <file_arch name="hal_stm32_dma.c" dir="mcu_periph" cond="ifeq ($(RTOS),chibios)"/>
+    <define name="STM32_PWM_USE_TIM1" value="TRUE" cond="ifeq ($(RTOS),chibios)"/>
+  </makefile>
+</module>
