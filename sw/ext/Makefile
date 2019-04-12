@@ -79,7 +79,7 @@ fatfs: fatfs.update
 
 ecl: ecl.update
 
-matric: matrix.update
+matrix: matrix.update
 
 mavlink: mavlink.update mavlink.build
 
