@@ -59,8 +59,9 @@ void baro_event(void)
   bmp085_event(&baro_bmp085);
 
   if (baro_bmp085.data_available) {
+    uint32_t now_ts = get_sys_time_usec();
     float pressure = (float)baro_bmp085.pressure;
-    AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, pressure);
+    AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, now_ts, pressure);
     float temp = baro_bmp085.temperature / 10.0f;
     AbiSendMsgTEMPERATURE(BARO_BOARD_SENDER_ID, temp);
     baro_bmp085.data_available = false;

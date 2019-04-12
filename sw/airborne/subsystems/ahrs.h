@@ -41,6 +41,7 @@
 #define AHRS_COMP_ID_GX3        9
 #define AHRS_COMP_ID_CHIMU     10
 #define AHRS_COMP_ID_VECTORNAV 11
+#define AHRS_COMP_ID_EKF2      12
 
 /* include actual (primary) implementation header */
 #ifdef AHRS_TYPE_H

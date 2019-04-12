@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Felix Ruess <felix.ruess@gmail.com>
+ * Copyright (C) 2016 Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -20,25 +20,27 @@
  */
 
 /**
- * @file baro_sim.c
+ * @file subsystems/ins/ins_ekf2.h
  *
- * Simulate barometer pressure measurement using gps.hmsl
+ * INS based in the EKF2 of PX4
+ *
  */
 
-#include "math/pprz_isa.h"
-#include "subsystems/gps.h"
-#include "subsystems/abi.h"
+#ifndef INS_EKF2_H
+#define INS_EKF2_H
 
-PRINT_CONFIG_VAR(BARO_SIM_SENDER_ID)
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-void baro_sim_init(void)
-{
+#include "subsystems/ahrs.h"
+#include "subsystems/ins.h"
 
+extern void ins_ekf2_init(void);
+extern void ins_ekf2_update(void);
+
+#ifdef __cplusplus
 }
+#endif
 
-void baro_sim_periodic(void)
-{
-  uint32_t now_ts = get_sys_time_usec();
-  float pressure = pprz_isa_pressure_of_altitude(gps.hmsl / 1000.0);
-  AbiSendMsgBARO_ABS(BARO_SIM_SENDER_ID, now_ts, pressure);
-}
+#endif /* INS_EKF2_H */

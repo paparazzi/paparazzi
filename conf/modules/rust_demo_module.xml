@@ -26,13 +26,6 @@
   <init fun="rust_function()"/>
   <periodic fun="rust_periodic()" freq="1." autorun="TRUE"/>
 
-  <makefile target="ap">
-    <!-->
-      Additional defines needed by Rust's `alloc` crate
-    -->
-    <file name="pprz_syscalls.c" dir="."/>
-  </makefile>
-
   <makefile target="ap|nps|hitl">
     <!--
       MODULE_PATH is where the module lives.

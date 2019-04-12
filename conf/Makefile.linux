@@ -37,6 +37,7 @@ OPT ?= 3
 # Slightly bigger .elf files but gains the ability to decode macros
 DEBUG_FLAGS ?= -ggdb3
 CSTANDARD ?= -std=gnu99
+CXXSTANDARD ?= -std=c++0x
 CINCS = $(INCLUDES) -I$(PAPARAZZI_SRC)/sw/include
 
 #
@@ -65,10 +66,11 @@ CFLAGS += $(USER_CFLAGS) $(BOARD_CFLAGS)
 CXXFLAGS += $(CINCS)
 CXXFLAGS += -O$(OPT) -fPIC
 CXXFLAGS += $(DEBUG_FLAGS)
+CXXFLAGS += $(CXXSTANDARD)
 CXXFLAGS += -pipe -fshow-column -ffast-math
 CXXFLAGS += -g -ffunction-sections -fdata-sections
 CXXFLAGS += -Wall -Wextra
-#CXXFLAGS += $($(TARGET).CFLAGS)
+CXXFLAGS += $($(TARGET).CFLAGS)
 CXXFLAGS += $($(TARGET).CXXFLAGS)
 CXXFLAGS += $(USER_CFLAGS) $(BOARD_CFLAGS)
 

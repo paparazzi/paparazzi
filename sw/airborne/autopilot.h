@@ -32,6 +32,10 @@
 #ifndef AUTOPILOT_H
 #define AUTOPILOT_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "std.h"
 #include "paparazzi.h"
 #include "generated/airframe.h"
@@ -195,6 +199,10 @@ extern void autopilot_send_version(void);
 /** Report autopilot mode on default downlink channel
  */
 extern void autopilot_send_mode(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* AUTOPILOT_H */
 

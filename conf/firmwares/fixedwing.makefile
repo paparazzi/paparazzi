@@ -21,6 +21,7 @@ SRC_MODULES=modules
 FIXEDWING_INC = -I$(SRC_FIRMWARE) -I$(SRC_FIXEDWING) -I$(SRC_BOARD)
 
 VPATH += $(PAPARAZZI_HOME)/var/share
+VPATH += $(PAPARAZZI_HOME)/sw/ext
 
 # Standard Fixed Wing Code
 include $(CFG_FIXEDWING)/autopilot.makefile

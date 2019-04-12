@@ -109,7 +109,7 @@ PRINT_CONFIG_MSG("USE_AIRSPEED_AIR_DATA automatically set to TRUE")
 static uint8_t baro_health_counter;
 
 
-static void pressure_abs_cb(uint8_t __attribute__((unused)) sender_id, float pressure)
+static void pressure_abs_cb(uint8_t __attribute__((unused)) sender_id, uint32_t __attribute__((unused)) stamp, float pressure)
 {
   air_data.pressure = pressure;
 

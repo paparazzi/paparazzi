@@ -75,6 +75,12 @@ $(TARGET).CFLAGS += -DCH_DBG_THREADS_PROFILING=TRUE
 endif
 
 #
+# Add syscalls and c++ new/delete operators
+#
+$(TARGET).srcs += c++.cpp pprz_syscalls.c
+$(TARGET).CXXFLAGS += -fno-sized-deallocation
+
+#
 # General rules
 #
 $(TARGET).srcsnd = $(notdir $($(TARGET).srcs))
@@ -311,6 +317,9 @@ CPPWARN = -Wall -Wextra
 
 # List all user C define here, like -D_DEBUG=1
 UDEFS = $($(TARGET).CFLAGS) $(USER_CFLAGS) $(BOARD_CFLAGS)
+
+# List all extra user CPP define here
+UPDEFS = $($(TARGET).CXXFLAGS)
 
 # Define ASM defines here
 UADEFS = $($(TARGET).CFLAGS) $(USER_CFLAGS) $(BOARD_CFLAGS)
