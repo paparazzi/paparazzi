@@ -75,6 +75,8 @@ PRINT_CONFIG_VAR(FILTER_1EURO_FREQ)
 PRINT_CONFIG_VAR(FILTER_1EURO_FREQ)
 #else
 PRINT_CONFIG_MSG("FILTER_1EURO_FREQ not defined, using timestamp")
+// init freq at periodic frequency, value can't be zero
+#define FILTER_1EURO_FREQ PERIODIC_FREQUENCY
 #endif
 #endif
 
