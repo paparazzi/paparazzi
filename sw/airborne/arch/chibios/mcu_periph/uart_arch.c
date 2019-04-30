@@ -40,6 +40,11 @@
 #include "mcu_periph/gpio.h"
 #include BOARD_CONFIG
 
+// Default stack size
+#ifndef UART_THREAD_STACK_SIZE
+#define UART_THREAD_STACK_SIZE 512
+#endif
+
 struct SerialInit {
   SerialConfig *conf;
   semaphore_t *rx_sem;
@@ -128,7 +133,7 @@ static __attribute__((noreturn)) void thd_uart1_rx(void *arg)
   }
 }
 
-static THD_WORKING_AREA(wa_thd_uart1_rx, 256);
+static THD_WORKING_AREA(wa_thd_uart1_rx, UART_THREAD_STACK_SIZE);
 #endif
 
 #if USE_UART1_TX
@@ -144,7 +149,7 @@ static __attribute__((noreturn)) void thd_uart1_tx(void *arg)
     handle_uart_tx(&uart1);
   }
 }
-static THD_WORKING_AREA(wa_thd_uart1_tx, 256);
+static THD_WORKING_AREA(wa_thd_uart1_tx, UART_THREAD_STACK_SIZE);
 #endif
 
 void uart1_init(void)
@@ -230,7 +235,7 @@ static __attribute__((noreturn)) void thd_uart2_rx(void *arg)
   }
 }
 
-static THD_WORKING_AREA(wa_thd_uart2_rx, 256);
+static THD_WORKING_AREA(wa_thd_uart2_rx, UART_THREAD_STACK_SIZE);
 #endif
 
 #if USE_UART2_TX
@@ -246,7 +251,7 @@ static __attribute__((noreturn)) void thd_uart2_tx(void *arg)
     handle_uart_tx(&uart2);
   }
 }
-static THD_WORKING_AREA(wa_thd_uart2_tx, 256);
+static THD_WORKING_AREA(wa_thd_uart2_tx, UART_THREAD_STACK_SIZE);
 #endif
 
 void uart2_init(void)
@@ -322,7 +327,7 @@ static __attribute__((noreturn)) void thd_uart3_rx(void *arg)
   }
 }
 
-static THD_WORKING_AREA(wa_thd_uart3_rx, 256);
+static THD_WORKING_AREA(wa_thd_uart3_rx, UART_THREAD_STACK_SIZE);
 #endif
 
 #if USE_UART3_TX
@@ -338,7 +343,7 @@ static __attribute__((noreturn)) void thd_uart3_tx(void *arg)
     handle_uart_tx(&uart3);
   }
 }
-static THD_WORKING_AREA(wa_thd_uart3_tx, 256);
+static THD_WORKING_AREA(wa_thd_uart3_tx, UART_THREAD_STACK_SIZE);
 #endif
 
 void uart3_init(void)
@@ -414,7 +419,7 @@ static __attribute__((noreturn)) void thd_uart4_rx(void *arg)
   }
 }
 
-static THD_WORKING_AREA(wa_thd_uart4_rx, 256);
+static THD_WORKING_AREA(wa_thd_uart4_rx, UART_THREAD_STACK_SIZE);
 #endif
 
 #if USE_UART4_TX
@@ -430,7 +435,7 @@ static __attribute__((noreturn)) void thd_uart4_tx(void *arg)
     handle_uart_tx(&uart4);
   }
 }
-static THD_WORKING_AREA(wa_thd_uart4_tx, 256);
+static THD_WORKING_AREA(wa_thd_uart4_tx, UART_THREAD_STACK_SIZE);
 #endif
 
 void uart4_init(void)
@@ -506,7 +511,7 @@ static __attribute__((noreturn)) void thd_uart5_rx(void *arg)
   }
 }
 
-static THD_WORKING_AREA(wa_thd_uart5_rx, 256);
+static THD_WORKING_AREA(wa_thd_uart5_rx, UART_THREAD_STACK_SIZE);
 #endif
 
 #if USE_UART5_TX
@@ -522,7 +527,7 @@ static __attribute__((noreturn)) void thd_uart5_tx(void *arg)
     handle_uart_tx(&uart5);
   }
 }
-static THD_WORKING_AREA(wa_thd_uart5_tx, 256);
+static THD_WORKING_AREA(wa_thd_uart5_tx, UART_THREAD_STACK_SIZE);
 #endif
 
 void uart5_init(void)
@@ -598,7 +603,7 @@ static __attribute__((noreturn)) void thd_uart6_rx(void *arg)
   }
 }
 
-static THD_WORKING_AREA(wa_thd_uart6_rx, 1024);
+static THD_WORKING_AREA(wa_thd_uart6_rx, UART_THREAD_STACK_SIZE);
 #endif
 
 #if USE_UART6_TX
@@ -614,7 +619,7 @@ static __attribute__((noreturn)) void thd_uart6_tx(void *arg)
     handle_uart_tx(&uart6);
   }
 }
-static THD_WORKING_AREA(wa_thd_uart6_tx, 1024);
+static THD_WORKING_AREA(wa_thd_uart6_tx, UART_THREAD_STACK_SIZE);
 #endif
 
 void uart6_init(void)
@@ -690,7 +695,7 @@ static __attribute__((noreturn)) void thd_uart7_rx(void *arg)
   }
 }
 
-static THD_WORKING_AREA(wa_thd_uart7_rx, 1024);
+static THD_WORKING_AREA(wa_thd_uart7_rx, UART_THREAD_STACK_SIZE);
 #endif
 
 #if USE_UART7_TX
@@ -706,7 +711,7 @@ static __attribute__((noreturn)) void thd_uart7_tx(void *arg)
     handle_uart_tx(&uart7);
   }
 }
-static THD_WORKING_AREA(wa_thd_uart7_tx, 1024);
+static THD_WORKING_AREA(wa_thd_uart7_tx, UART_THREAD_STACK_SIZE);
 #endif
 
 void uart7_init(void)
@@ -782,7 +787,7 @@ static __attribute__((noreturn)) void thd_uart8_rx(void *arg)
   }
 }
 
-static THD_WORKING_AREA(wa_thd_uart8_rx, 1024);
+static THD_WORKING_AREA(wa_thd_uart8_rx, UART_THREAD_STACK_SIZE);
 #endif
 
 #if USE_UART8_TX
@@ -798,7 +803,7 @@ static __attribute__((noreturn)) void thd_uart8_tx(void *arg)
     handle_uart_tx(&uart8);
   }
 }
-static THD_WORKING_AREA(wa_thd_uart8_tx, 1024);
+static THD_WORKING_AREA(wa_thd_uart8_tx, UART_THREAD_STACK_SIZE);
 #endif
 
 void uart8_init(void)
