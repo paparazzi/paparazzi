@@ -560,9 +560,6 @@ bool guidance_v_set_guided_z(float z)
     /* reset speed setting */
     guidance_v_zd_sp = 0;
 
-    /* reset guidance reference */
-    guidance_v_z_sum_err = 0;
-    GuidanceVSetRef(stateGetPositionNed_i()->z, stateGetSpeedNed_i()->z, 0);
     return true;
   }
   return false;
@@ -577,8 +574,6 @@ bool guidance_v_set_guided_vz(float vz)
     /* set speed setting */
     guidance_v_zd_sp = SPEED_BFP_OF_REAL(vz);
 
-    /* reset guidance reference */
-    GuidanceVSetRef(stateGetPositionNed_i()->z, stateGetSpeedNed_i()->z, 0);
     return true;
   }
   return false;
