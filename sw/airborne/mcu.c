@@ -43,7 +43,7 @@
 #define USING_UART 1
 #include "mcu_periph/uart.h"
 #endif
-#if USE_I2C0 || USE_I2C1 || USE_I2C2 || USE_I2C3
+#if USE_I2C0 || USE_I2C1 || USE_I2C2 || USE_I2C3 || USE_I2C4
 #define USING_I2C 1
 #include "mcu_periph/i2c.h"
 #endif
@@ -173,6 +173,9 @@ void mcu_init(void)
 #ifdef USE_I2C3
   i2c3_init();
 #endif
+#ifdef USE_I2C4
+  i2c4_init();
+#endif
 #if USE_ADC
   adc_init();
 #endif
@@ -194,6 +197,9 @@ void mcu_init(void)
 #endif
 #if USE_SPI3
   spi3_init();
+#endif
+#if USE_SPI4
+  spi4_init();
 #endif
   spi_init_slaves();
 #endif // SPI_MASTER
