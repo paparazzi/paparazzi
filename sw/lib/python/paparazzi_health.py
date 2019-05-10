@@ -33,6 +33,7 @@ class AirframeFile:
     boards = []
     xml = ""
     includes = []
+    last_commit = ""
     def __init__(self):
         name = ""
         description = ""
@@ -71,6 +72,10 @@ class PaparazziOverview(object):
         stdoutput, stderroutput = process.communicate()
         return stdoutput
 
+    def get_last_commit_date(self, file):
+        process = subprocess.Popen(['git', 'log', '-1', '--format=%cd ', file], stdout=PIPE, stderr=PIPE)
+        stdoutput, stderroutput = process.communicate()
+        return stdoutput
 
     def find_xml_files(self, folder):
         airframe_files = []
@@ -221,14 +226,18 @@ class PaparazziOverview(object):
                             f.write('<p>Includes: ' + ", ".join(af.includes) + '</p>')
                     f.write('</div>\n\n')
                 f.write('</div>\n')
-            f.write('<hr><div class="conf"><h1>Airframe xml that are not tested by any conf:</h1>')
+            #Generate table with airframe files that are not in any config
+            f.write('<div class="conf"><h1>Airframe xml that are not tested by any conf:</h1>')
+            f.write('<table><tr><th> Filename </th><th> Last commit date </th></tr>')
             for af in afs:
-                f.write('<li>' + af)
+                f.write('<tr><td><li>' + af + '</td><td>' + self.get_last_commit_date(paparazzi.conf_dir + af) + '</td></tr>')
+            f.write('</table>')
+            #Generate table with flightplan files that are not in any config
             f.write('</div><div class="conf"><h1>Flight_plan xml that are not tested by any conf:</h1>')
+            f.write('<table><tr><th> Filename </th><th> Last commit date </th></tr>')
             for af in fps:
-                f.write('<li>' + af)
-
-            f.write('</div></body>\n</html>\n')
+                f.write('<tr><td><li>' + af + '</td><td>' + self.get_last_commit_date(paparazzi.conf_dir + af) + '</td></tr>')
+            f.write('</table>')
             webbrowser.open('file://' + os.path.realpath('./var/paparazzi.html'))
 
 if __name__ == "__main__":
