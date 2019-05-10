@@ -34,6 +34,7 @@ class AirframeFile:
     xml = ""
     includes = []
     last_commit = ""
+    modules = []
     def __init__(self):
         name = ""
         description = ""
@@ -129,6 +130,7 @@ class PaparazziOverview(object):
         airframe.firmware = []
         airframe.includes = []
         airframe.board = []
+        airframe.modules = []
         if xml is None:
             return airframe
         afile = os.path.join(paparazzi.conf_dir, xmlname)
@@ -136,20 +138,36 @@ class PaparazziOverview(object):
             try:
                 e = xml.etree.ElementTree.parse(afile).getroot()
                 for atype in e.findall('firmware'):
+                    for ctype in atype.findall('module'):
+                        module_name_type = self.get_module_name_type(ctype)
+                        airframe.modules.append(module_name_type)
                     if (not atype.get('name') is None) & (not atype.get('name') == "") & (not atype.get('name') in airframe.firmware):
                         airframe.firmware.append(atype.get('name'))
                     for btype in atype.findall('target'):
                         if (not btype.get('board') is None) & (not btype.get('board') == "") & (not btype.get('board') in airframe.board):
                             airframe.board.append( btype.get('board') )
+                        for ctype in btype.findall('module'):
+                            module_name_type = self.get_module_name_type(ctype)
+                            airframe.modules.append(module_name_type)
                 for atype in e.findall('include'):
                     if (not atype.get('href') is None) & (not atype.get('href') == ""):
                         airframe.includes.append( atype.get('href') )
                 for atype in e.findall('description'):
                     airframe.description = atype.text
+
             except xml.etree.ElementTree.ParseError as e:
                 print("Could not parse {}: {}".format(afile, e))
             
         return airframe
+
+    def get_module_name_type(self, ctype):
+        modulestr = ctype.get('name')
+        if (not ctype.get('type') is None) & (not ctype.get('type') == ""):
+            modulestr = modulestr + "_"
+            modulestr = modulestr + ctype.get('type')
+        if modulestr[-4:] == ".xml":
+            modulestr = modulestr[:-4]
+        return modulestr
 
     def flightplan_includes(self, xmlname):
         includes = []        
@@ -171,9 +189,21 @@ class PaparazziOverview(object):
         self.verbose = verbose
 
     def run(self):
-        # find all airframe XML's
+        # find all airframe, flightplan and module  XML's
         afs = self.find_airframe_files()
         fps = self.find_flightplan_files()
+        mods = paparazzi.get_list_of_modules()
+
+        #Create usage dictionary for modules
+        mods_usage = dict.fromkeys(mods, 0)
+        for ac in afs:
+            af = self.airframe_details(ac)
+            for af_mod in af.modules:
+                try:
+                    mods_usage[af_mod] = mods_usage[af_mod] + 1
+                except KeyError:
+                    print(af_mod + " in " + af.xml + ": Does not seem to have an xml file associated with it")
+
         #brds = self.find_boards()
         # write all confs
         with open('var/paparazzi.html','w') as f:
@@ -226,19 +256,29 @@ class PaparazziOverview(object):
                             f.write('<p>Includes: ' + ", ".join(af.includes) + '</p>')
                     f.write('</div>\n\n')
                 f.write('</div>\n')
+
             #Generate table with airframe files that are not in any config
             f.write('<div class="conf"><h1>Airframe xml that are not tested by any conf:</h1>')
             f.write('<table><tr><th> Filename </th><th> Last commit date </th></tr>')
             for af in afs:
                 f.write('<tr><td><li>' + af + '</td><td>' + self.get_last_commit_date(paparazzi.conf_dir + af) + '</td></tr>')
             f.write('</table>')
+
             #Generate table with flightplan files that are not in any config
             f.write('</div><div class="conf"><h1>Flight_plan xml that are not tested by any conf:</h1>')
             f.write('<table><tr><th> Filename </th><th> Last commit date </th></tr>')
             for af in fps:
                 f.write('<tr><td><li>' + af + '</td><td>' + self.get_last_commit_date(paparazzi.conf_dir + af) + '</td></tr>')
             f.write('</table>')
+
+            #Generate table with all modules and module usage
+            f.write('</div><div class="conf"><h1>Module xml::</h1>')
+            f.write('<table><tr><th> Filename </th><th> Number of airframes used in </th></tr>')
+            for mod in mods:
+                f.write('<tr><td><li>' + mod + '</td><td>' + str(mods_usage[mod]) + '</td></tr>')
+            f.write('</table>')
             webbrowser.open('file://' + os.path.realpath('./var/paparazzi.html'))
+
 
 if __name__ == "__main__":
     import sys
