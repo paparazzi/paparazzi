@@ -97,11 +97,27 @@ class PaparazziOverview(object):
         airframe_files.sort()
         return airframe_files
 
+    def find_makefiles(self, folder):
+        board_files = []
+        pattern = "*.makefile"
+
+        for path, subdirs, files in os.walk(os.path.join(paparazzi.conf_dir,folder)):
+            for name in files:
+                if fnmatch(name, pattern):
+                    filepath = os.path.join(path, name)
+                    entry = os.path.relpath(filepath, paparazzi.conf_dir)
+                    board_files.append(entry)
+        board_files.sort()
+        return board_files
+
     def find_airframe_files(self):
         return self.find_xml_files('airframes/')
 
     def find_flightplan_files(self):
         return self.find_xml_files('flight_plans/')
+
+    def find_board_files(self):
+        return self.find_makefiles('boards/')
 
     def list_airframes_in_conf(self, conf):
         if conf is None:
@@ -129,7 +145,7 @@ class PaparazziOverview(object):
         airframe.xml = xmlname
         airframe.firmware = []
         airframe.includes = []
-        airframe.board = []
+        airframe.boards = []
         airframe.modules = []
         if xml is None:
             return airframe
@@ -144,8 +160,8 @@ class PaparazziOverview(object):
                     if (not atype.get('name') is None) & (not atype.get('name') == "") & (not atype.get('name') in airframe.firmware):
                         airframe.firmware.append(atype.get('name'))
                     for btype in atype.findall('target'):
-                        if (not btype.get('board') is None) & (not btype.get('board') == "") & (not btype.get('board') in airframe.board):
-                            airframe.board.append( btype.get('board') )
+                        if (not btype.get('board') is None) & (not btype.get('board') == "") & (not btype.get('board') in airframe.boards):
+                            airframe.boards.append( btype.get('board') )
                         for ctype in btype.findall('module'):
                             module_name_type = self.get_module_name_type(ctype)
                             airframe.modules.append(module_name_type)
@@ -192,9 +208,10 @@ class PaparazziOverview(object):
         # find all airframe, flightplan and module  XML's
         afs = self.find_airframe_files()
         fps = self.find_flightplan_files()
+        bs  = self.find_board_files()
         mods = paparazzi.get_list_of_modules()
 
-        #Create usage dictionary for modules
+        # Create usage dictionary for modules
         mods_usage = dict.fromkeys(mods, 0)
         for ac in afs:
             af = self.airframe_details(ac)
@@ -240,7 +257,11 @@ class PaparazziOverview(object):
                         if outside > 0:
                             f.write( '<p><font color="red">Using <b>' + str(outside) + '</b> commits not in master</font></p>')
                     af = self.airframe_details(xml)
-                    f.write('<p>' + ", ".join(af.firmware) + ' on ' + ", ".join(af.board) + ' <a href="file:////' + os.path.realpath('./conf/'+ac.xml) + '">[E]</a></p>')
+                    for board in af.boards:
+                        pattern = 'boards/' + board + '.makefile'
+                        if pattern in bs:
+                            bs.remove(pattern)
+                    f.write('<p>' + ", ".join(af.firmware) + ' on ' + ", ".join(af.boards) + ' <a href="file:////' + os.path.realpath('./conf/'+ac.xml) + '">[E]</a></p>')
                     f.write('<p><font color="gray"><i>' + self.maximize_text_size(af.description) + '</i></font></p>')
                     if self.verbose:
                         f.write('<p><a href="https://github.com/paparazzi/paparazzi/blob/master/conf/' + ac.xml + '"/>' + ac.xml + '</a></p>')
@@ -257,26 +278,35 @@ class PaparazziOverview(object):
                     f.write('</div>\n\n')
                 f.write('</div>\n')
 
-            #Generate table with airframe files that are not in any config
-            f.write('<div class="conf"><h1>Airframe xml that are not tested by any conf:</h1>')
+            # Generate table with airframe files that are not in any config
+            f.write('</div><div class="conf"><h1>Airframe xml that are not tested by any conf:</h1>')
             f.write('<table><tr><th> Filename </th><th> Last commit date </th></tr>')
             for af in afs:
                 f.write('<tr><td><li>' + af + '</td><td>' + self.get_last_commit_date(paparazzi.conf_dir + af) + '</td></tr>')
             f.write('</table>')
 
-            #Generate table with flightplan files that are not in any config
+            # Generate table with flightplan files that are not in any config
             f.write('</div><div class="conf"><h1>Flight_plan xml that are not tested by any conf:</h1>')
             f.write('<table><tr><th> Filename </th><th> Last commit date </th></tr>')
             for af in fps:
                 f.write('<tr><td><li>' + af + '</td><td>' + self.get_last_commit_date(paparazzi.conf_dir + af) + '</td></tr>')
             f.write('</table>')
 
-            #Generate table with all modules and module usage
+            # Generate table with board files that are not in any config
+            f.write('</div><div class="conf"><h1>Board makefiles that are not tested by any conf:</h1>')
+            f.write('<table><tr><th> Filename </th><th> Last commit date </th></tr>')
+            for b in bs:
+                f.write('<tr><td><li>' + b + '</td><td>' + self.get_last_commit_date(paparazzi.conf_dir + b) + '</td></tr>')
+            f.write('</table>')
+
+            # Generate table with all modules and module usage
             f.write('</div><div class="conf"><h1>Module xml::</h1>')
             f.write('<table><tr><th> Filename </th><th> Number of airframes used in </th></tr>')
             for mod in mods:
                 f.write('<tr><td><li>' + mod + '</td><td>' + str(mods_usage[mod]) + '</td></tr>')
             f.write('</table>')
+
+            f.write('</div></body>\n</html>\n')
             webbrowser.open('file://' + os.path.realpath('./var/paparazzi.html'))
 
 
