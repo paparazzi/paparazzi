@@ -74,7 +74,7 @@ class PaparazziOverview(object):
         return stdoutput
 
     def get_last_commit_date(self, file):
-        process = subprocess.Popen(['git', 'log', '-1', '--format=%cd ', file], stdout=PIPE, stderr=PIPE)
+        process = subprocess.Popen(['git', 'log', '-1', '--date=format:%d-%m-%Y', '--format=%cd ', file], bufsize=-1, stdout=PIPE, stderr=PIPE)
         stdoutput, stderroutput = process.communicate()
         return stdoutput
 
@@ -198,6 +198,12 @@ class PaparazziOverview(object):
                      includes.append( atype.get('procedure') )
         return includes
 
+    def generate_sorted_list(self, lst):
+        # [:-2] needed to remove \n from output of get_last_commit_date
+        commit_dates = [self.get_last_commit_date(paparazzi.conf_dir + elm)[:-2] for elm in lst]
+        file_date_lst = sorted(zip(lst, commit_dates), key=lambda x: datetime.datetime.strptime(x[1], '%d-%m-%Y'), reverse=True)
+        return file_date_lst
+
 
     # Constructor Functions
     def __init__(self, verbose):
@@ -225,7 +231,7 @@ class PaparazziOverview(object):
         # write all confs
         with open('var/paparazzi.html','w') as f:
             f.write('<!DOCTYPE html>\n<html lang="en">\n<head>\n<title>Paparazzi</title>\n<meta charset="utf-8"/>\n<meta http-equiv="Cache-Control" content="no-cache" />\n')
-            f.write('<style>\n.conf {\n\tfloat: left;\n\tmargin: 10px;\n\tpadding: 5px;\n}\n\n.uav {\n\tfloat: left;\n\tmargin: 10px;\n\tpadding: 5px;\n\twidth: 250px;\n\tborder: 1px solid black;\n\tbackground-color:#fef9e7;\n}\n</style>\n\n</head>\n')
+            f.write('<style>\n.conf {\n\tfloat: left;\n\tmargin: 10px;\n\tpadding: 5px;\n}\n\n.uav {\n\tfloat: left;\n\tmargin: 10px;\n\tpadding: 5px;\n\twidth: 250px;\n\tborder: 1px solid black;\n\tbackground-color:#fef9e7;\n}\nth {\n\ttext-align:left;\n}\n</style>\n\n</head>\n')
             f.write('<body>\n')
             conf_files = paparazzi.get_list_of_conf_files()
             for conf in conf_files:
@@ -281,26 +287,29 @@ class PaparazziOverview(object):
             # Generate table with airframe files that are not in any config
             f.write('</div><div class="conf"><h1>Airframe xml that are not tested by any conf:</h1>')
             f.write('<table><tr><th> Filename </th><th> Last commit date </th></tr>')
-            for af in afs:
-                f.write('<tr><td><li>' + af + '</td><td>' + self.get_last_commit_date(paparazzi.conf_dir + af) + '</td></tr>')
+            afs_sorted = self.generate_sorted_list(afs)
+            for af in afs_sorted:
+                f.write('<tr><td><li>' + af[0] + '</td><td>' + af[1] + '</td></tr>')
             f.write('</table>')
 
             # Generate table with flightplan files that are not in any config
             f.write('</div><div class="conf"><h1>Flight_plan xml that are not tested by any conf:</h1>')
             f.write('<table><tr><th> Filename </th><th> Last commit date </th></tr>')
-            for af in fps:
-                f.write('<tr><td><li>' + af + '</td><td>' + self.get_last_commit_date(paparazzi.conf_dir + af) + '</td></tr>')
+            fps_sorted = self.generate_sorted_list(fps)
+            for af in fps_sorted:
+                f.write('<tr><td><li>' + af[0] + '</td><td>' + af[1] + '</td></tr>')
             f.write('</table>')
 
             # Generate table with board files that are not in any config
             f.write('</div><div class="conf"><h1>Board makefiles that are not tested by any conf:</h1>')
             f.write('<table><tr><th> Filename </th><th> Last commit date </th></tr>')
-            for b in bs:
-                f.write('<tr><td><li>' + b + '</td><td>' + self.get_last_commit_date(paparazzi.conf_dir + b) + '</td></tr>')
+            bs_sorted = self.generate_sorted_list(bs)
+            for b in bs_sorted:
+                f.write('<tr><td><li>' + b[0] + '</td><td>' + b[1] + '</td></tr>')
             f.write('</table>')
 
             # Generate table with all modules and module usage
-            f.write('</div><div class="conf"><h1>Module xml::</h1>')
+            f.write('</div><div class="conf"><h1>Module xml:</h1>')
             f.write('<table><tr><th> Filename </th><th> Number of airframes used in </th></tr>')
             for mod in mods:
                 f.write('<tr><td><li>' + mod + '</td><td>' + str(mods_usage[mod]) + '</td></tr>')
