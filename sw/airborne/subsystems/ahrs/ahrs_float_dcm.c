@@ -357,12 +357,18 @@ void Normalize(void)
   }
 }
 
+// strong structural vibrations can prevent to perform the drift correction
+// so accel magnitude is filtered before computing the weighting heuristic
+#ifndef ACCEL_WEIGHT_FILTER
+#define ACCEL_WEIGHT_FILTER 8
+#endif
 
 void Drift_correction()
 {
   //Compensation the Roll, Pitch and Yaw drift.
   static float Scaled_Omega_P[3];
   static float Scaled_Omega_I[3];
+  static float Accel_filtered = 0.f;
   float Accel_magnitude;
   float Accel_weight;
   float Integrator_magnitude;
@@ -377,9 +383,14 @@ void Drift_correction()
   // Calculate the magnitude of the accelerometer vector
   Accel_magnitude = sqrtf(accel_float.x * accel_float.x + accel_float.y * accel_float.y + accel_float.z * accel_float.z);
   Accel_magnitude = Accel_magnitude / GRAVITY; // Scale to gravity.
+#if ACCEL_WEIGHT_FILTER
+  Accel_filtered = (Accel_magnitude + (ACCEL_WEIGHT_FILTER - 1) * Accel_filtered) / ACCEL_WEIGHT_FILTER;
+#else // set ACCEL_WEIGHT_FILTER to 0 to disable filter
+  Accel_filtered = Accel_magnitude;
+#endif
   // Dynamic weighting of accelerometer info (reliability filter)
   // Weight for accelerometer info (<0.5G = 0.0, 1G = 1.0 , >1.5G = 0.0)
-  Accel_weight = Clip(1 - 2 * fabsf(1 - Accel_magnitude), 0, 1); //
+  Accel_weight = Clip(1.f - 2.f * fabsf(1.f - Accel_filtered), 0.f, 1.f);
 
 
 #if PERFORMANCE_REPORTING == 1
