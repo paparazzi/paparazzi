@@ -1,0 +1,40 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="rl_obstacle_avoidance">
+  <doc>
+    <description>Obstacle avoidance method using RL and the aerodynamic interaction between obstacle and quadrotor</description>
+  </doc>
+
+  <settings>
+    <dl_settings>
+      <dl_settings name="RL settings">
+        <dl_setting min="0.0" max="1.0" step="0.01" var="rl_obstacle_avoidance_termination_dist"
+                    shortname="Termination height" module="rl_obstacle_avoidance/rl_obstacle_avoidance"/>
+        <dl_setting min="-1.0" max="0.0" step="0.01" var="rl_obstacle_avoidance_descend_speed"
+                    shortname="Descend speed" module="rl_obstacle_avoidance/rl_obstacle_avoidance"/>
+        <dl_setting min="0.0" max="1.0" step="0.0001" var="rl_exploration_rate"
+                    shortname="Exploration rate" module="rl_obstacle_avoidance/rl_obstacle_avoidance"/>
+        <dl_setting type="uint8" values="FALSE|TRUE" min="0" step="1" max="1" var="rl_autostart"
+                    shortname="Autostart episodes" module="rl_obstacle_avoidance/rl_obstacle_avoidance"/>
+        <dl_setting type="uint8" values="FALSE|TRUE" min="0" step="1" max="1" var="rl_exploring_starts"
+                    shortname="Exploring starts" module="rl_obstacle_avoidance/rl_obstacle_avoidance"/>
+      </dl_settings>
+      <dl_settings name="Wall measurements">
+        <dl_setting min="0.0" max="360" step="0.5" var="rl_wall_heading"
+                    shortname="Heading" module="rl_obstacle_avoidance/rl_obstacle_avoidance"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <header>
+    <file name="rl_obstacle_avoidance.h"/>
+  </header>
+  <init fun="rl_obstacle_avoidance_init()"/>
+  <periodic fun="rl_obstacle_avoidance_periodic()" freq="512" start="rl_obstacle_avoidance_start()" stop="rl_obstacle_avoidance_stop()" autorun="FALSE"/>
+  <datalink message="RL_TRAINING_UP" fun="rl_obstacle_avoidance_parse_uplink()"/>
+  <makefile>
+    <file name="rl_obstacle_avoidance.c"/>
+    <file name="log_to_file.c"/>
+  </makefile>
+</module>
+
