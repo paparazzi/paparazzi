@@ -6,6 +6,7 @@ import webbrowser
 import os
 import datetime
 from fnmatch import fnmatch
+import re
 import subprocess
 PIPE = subprocess.PIPE
 
@@ -177,13 +178,13 @@ class PaparazziOverview(object):
         return airframe
 
     def get_module_name_type(self, ctype):
-        modulestr = ctype.get('name')
-        if (not ctype.get('type') is None) & (not ctype.get('type') == ""):
-            modulestr = modulestr + "_"
-            modulestr = modulestr + ctype.get('type')
-        if modulestr[-4:] == ".xml":
-            modulestr = modulestr[:-4]
-        return modulestr
+        module_name = re.sub(r'(\.xml)$', "", ctype.get('name'))
+        if ctype.get('type') is not None:
+            module_type = re.sub(r'(\.xml)$', "", ctype.get('type'))
+        else:
+            module_type = ""
+        module = (module_name, module_type)
+        return module
 
     def flightplan_includes(self, xmlname):
         includes = []        
@@ -222,10 +223,14 @@ class PaparazziOverview(object):
         for ac in afs:
             af = self.airframe_details(ac)
             for af_mod in af.modules:
+                if af_mod[1] == "":
+                    mod_str = af_mod[0]
+                else:
+                    mod_str = af_mod[0] + "_" + af_mod[1]
                 try:
-                    mods_usage[af_mod] = mods_usage[af_mod] + 1
+                    mods_usage[mod_str] = mods_usage[mod_str] + 1
                 except KeyError:
-                    print(af_mod + " in " + af.xml + ": Does not seem to have an xml file associated with it")
+                    print(mod_str + " in " + af.xml + ": Does not seem to have an xml file associated with it")
 
         #brds = self.find_boards()
         # write all confs
