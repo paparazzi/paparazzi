@@ -12,6 +12,7 @@ PIPE = subprocess.PIPE
 import paparazzi
 
 import xml.etree.ElementTree
+from lxml import etree
 
 class Airframe:
     name = ""
@@ -119,6 +120,9 @@ class PaparazziOverview(object):
     def find_board_files(self):
         return self.find_makefiles('boards/')
 
+    def list_includes_in_flightplan(self, fp):
+        afile = os.path.join(paparazzi.conf_dir, fp)
+
     def list_airframes_in_conf(self, conf):
         if conf is None:
             return []
@@ -187,15 +191,30 @@ class PaparazziOverview(object):
 
     def flightplan_includes(self, xmlname):
         includes = []        
-        print(xmlname)
+        #print(xmlname)
         if xml is None:
             return includes
         afile = os.path.join(paparazzi.conf_dir, xmlname)
+        parser = etree.XMLParser(recover=True)
         if os.path.exists(afile):
-            e = xml.etree.ElementTree.parse(afile).getroot()
-            for atype in e.findall('include'):
-                if (not atype.get('procedure') is None) & (not atype.get('procedure') == ""):
-                     includes.append( atype.get('procedure') )
+            try:
+                e = etree.parse(afile, parser).getroot()
+                for atype in e.findall('include'):
+                    if (not atype.get('procedure') is None) & (not atype.get('procedure') == ""):
+                        if atype.get('procedure')[0:7] == "include_":
+                            includes.append(atype.get('procedure')[8:])  # .lstrip('include_') )
+                        else:
+                            includes.append(atype.get('procedure'))
+                for btype in e.findall('includes'):
+                    for atype in btype.findall('include'):
+                        if (not atype.get('procedure') is None) & (not atype.get('procedure') == ""):
+                            if atype.get('procedure')[0:7] == "include_":
+                                includes.append(atype.get('procedure')[8:])#.lstrip('include_') )
+                            else:
+                                includes.append(atype.get('procedure'))
+                            print(str(includes))
+            except etree.ParseError as e:
+                print("Could not parse {}: {}".format(afile, e))
         return includes
 
     def generate_sorted_list(self, lst):
@@ -216,6 +235,20 @@ class PaparazziOverview(object):
         fps = self.find_flightplan_files()
         bs  = self.find_board_files()
         mods = paparazzi.get_list_of_modules()
+
+        #check if flight plans are included in other flight plans
+        fps_usage = dict()
+        for fp in fps:
+            fps_usage[os.path.split(fp)[1]] = ""
+        for fp in fps:
+            #print(fp)
+            includes = self.flightplan_includes(fp)
+            #print(str(includes))
+            for include in includes:
+                try:
+                    fps_usage[include] = fps_usage[include] + str(os.path.split(fp)[1]) + ". "
+                except KeyError:
+                    print(include + " in " + fp + ": Does not seem to have an xml file associated with it")
 
         # Create usage dictionary for modules
         mods_usage = dict.fromkeys(mods, 0)
@@ -294,10 +327,12 @@ class PaparazziOverview(object):
 
             # Generate table with flightplan files that are not in any config
             f.write('</div><div class="conf"><h1>Flight_plan xml that are not tested by any conf:</h1>')
-            f.write('<table><tr><th> Filename </th><th> Last commit date </th></tr>')
+            f.write('<table><tr><th> Filename </th><th> Last commit date </th><th> Included in: </th></tr>')
             fps_sorted = self.generate_sorted_list(fps)
+            print(str(fps_usage))
             for af in fps_sorted:
-                f.write('<tr><td><li>' + af[0] + '</td><td>' + af[1] + '</td></tr>')
+                name = os.path.split(af[0])[1]
+                f.write('<tr><td><li>' + af[0] + '</td><td>' + af[1] + '</td><td>' + fps_usage[name] + '</td></tr>')
             f.write('</table>')
 
             # Generate table with board files that are not in any config
