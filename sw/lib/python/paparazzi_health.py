@@ -192,7 +192,6 @@ class PaparazziOverview(object):
 
     def flightplan_includes(self, xmlname):
         includes = []        
-        #print(xmlname)
         if xml is None:
             return includes
         afile = os.path.join(paparazzi.conf_dir, xmlname)
@@ -213,7 +212,6 @@ class PaparazziOverview(object):
                                 includes.append(atype.get('procedure')[8:])#.lstrip('include_') )
                             else:
                                 includes.append(atype.get('procedure'))
-                            print(str(includes))
             except etree.ParseError as e:
                 print("Could not parse {}: {}".format(afile, e))
         return includes
@@ -242,9 +240,7 @@ class PaparazziOverview(object):
         for fp in fps:
             fps_usage[os.path.split(fp)[1]] = ""
         for fp in fps:
-            #print(fp)
             includes = self.flightplan_includes(fp)
-            #print(str(includes))
             for include in includes:
                 try:
                     fps_usage[include] = fps_usage[include] + str(os.path.split(fp)[1]) + ". "
@@ -334,7 +330,6 @@ class PaparazziOverview(object):
             f.write('</div><div class="conf"><h1>Flight_plan xml that are not tested by any conf:</h1>')
             f.write('<table><tr><th> Filename </th><th> Last commit date </th><th> Included in: </th></tr>')
             fps_sorted = self.generate_sorted_list(fps)
-            print(str(fps_usage))
             for af in fps_sorted:
                 name = os.path.split(af[0])[1]
                 f.write('<tr><td><li>' + af[0] + '</td><td>' + af[1] + '</td><td>' + fps_usage[name] + '</td></tr>')
