@@ -251,7 +251,7 @@ class PaparazziOverview(object):
         # print(unique_mods_ctr)
         ac_mod_table = np.zeros((len(afs_mods.keys()) + 1, len(unique_mods_ctr.keys()) + 1), dtype=object)
         ac_mod_table[0, 0] = "Name \\ Modules"
-        ac_mod_table[1:, 0] = afs_mods.keys()
+        ac_mod_table[1:, 0] = sorted(afs_mods.keys())
         ac_mod_table[0, 1:] = [i for i, _ in unique_mods_ctr.most_common()]
 
         for i in range(1, len(ac_mod_table[:, 0])):
@@ -272,7 +272,8 @@ class PaparazziOverview(object):
             f.write('<!DOCTYPE html>\n<html lang="en">\n<head>\n<title>Module usage overview</title>\n \
                     <meta charset="utf-8"/>\n<meta http-equiv="Cache-Control" content="no-cache" />\n')
             f.write('<style>\ntable, th, td {\n\tborder: 1px solid black;\n\tborder-collapse: collapse;\n\t \
-                    padding:5px;\n}\nth {\n\ttext-align:left;\n}\n</style>\n\n</head>\n')
+                    padding:5px;\n}\ntr:nth-child(even) {\n\tbackground: #CCC;\n}\ntr:nth-child(odd) {\n\t \
+                    background: #FFF;\n}\nth {\n\ttext-align:left;\n}\n</style>\n\n</head>\n')
             f.write('<body>\n')
 
             f.write('<table><tr>\n\t')
