@@ -19,7 +19,7 @@
 # <http://www.gnu.org/licenses/>.
 #
 
-'''
+"""
 Connect to paparazzi server to get the aircraft list and configurations
 
 See http://wiki.paparazziuav.org/wiki/DevGuide/Server_GCS_com for more details
@@ -45,7 +45,7 @@ See http://wiki.paparazziuav.org/wiki/DevGuide/Server_GCS_com for more details
     # close before leaving
     connect.shutdown()
 
-'''
+"""
 
 from __future__ import print_function
 import sys
@@ -185,7 +185,7 @@ class PprzConnect(object):
         Getter function for the ivy interface
         """
         return self._ivy
-    
+
     def _get_req_id(self):
         req_id = '{}_{}'.format(getpid(), self._req_idx)
         self._req_idx += 1
@@ -249,9 +249,9 @@ class PprzConnect(object):
 
 
 if __name__ == '__main__':
-    '''
+    """
     test program
-    '''
+    """
     try:
         connect = PprzConnect(verbose=True)
         while True:
