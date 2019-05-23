@@ -225,16 +225,17 @@ class PaparazziOverview(object):
         file_date_lst = sorted(zip(lst, commit_dates), key=lambda x: datetime.datetime.strptime(x[1], '%d-%m-%Y'), reverse=True)
         return file_date_lst
 
-    def airframe_module_overview(self, active_conf):
-        airframes = self.list_airframes_in_conf(active_conf)
-        # af_names = []
-        # af_xml = []
-        # module_names = set()
-        # module_types = set()
+    def airframe_module_overview(self, selected_conf):
+        """
+        Creates a nested dictionary of the airframe names and the modules they use to generate an html table
+        that provides an overview of module usage of the airframes of interest
+        """
+        # Looks at airframes in selected conf (not the currently active conf)
+        airframes = self.list_airframes_in_conf(selected_conf)
+
+        # Structure of nested dictionary: {af name: {module name: module type}}
         afs_mods = {}
         for ac in airframes:
-            # af_names.append(ac.name)
-            # af_xml.append(ac.xml)
             afs_mods[ac.name] = {'xml': [ac.xml]}
             af = self.airframe_details(ac.xml)
             for mod in af.modules:
@@ -243,15 +244,16 @@ class PaparazziOverview(object):
                 else:
                     afs_mods[ac.name][mod[0]] = [mod[1]]
 
+        # Generates Counter object of all module names used by airframes in conf
         unique_mods_ctr = Counter()
         for mods in afs_mods.values():
             unique_mods_ctr.update(mods.keys())
         del unique_mods_ctr['xml']
-        # print(len(afs_mods.keys()))
-        # print(unique_mods_ctr)
+
+        # Table initialization, airframe names are ordered alphabetically, module names by most used
         ac_mod_table = np.zeros((len(afs_mods.keys()) + 1, len(unique_mods_ctr.keys()) + 1), dtype=object)
         ac_mod_table[0, 0] = "Name \\ Modules"
-        ac_mod_table[1:, 0] = sorted(afs_mods.keys())
+        ac_mod_table[1:, 0] = sorted(afs_mods.keys(), key=lambda s: s.lower())
         ac_mod_table[0, 1:] = [i for i, _ in unique_mods_ctr.most_common()]
 
         for i in range(1, len(ac_mod_table[:, 0])):

@@ -128,9 +128,9 @@ class ConfChooser(object):
         obj.run()
 
     def module_usage(self, widget):
-        active_conf = self.conf_file_combo.get_active_text()
+        selected_conf = self.conf_file_combo.get_active_text()
         obj = PaparazziOverview(0)
-        obj.airframe_module_overview(active_conf)
+        obj.airframe_module_overview(selected_conf)
 
 
     def launch(self, widget):
