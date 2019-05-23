@@ -49,6 +49,9 @@ class AirframeFile:
         includes = []
 
 class Module:
+    """ Stores data related to single module
+    Data class for storage of information related to a single module xml file.
+    """
     module_airborne_dir = paparazzi.PAPARAZZI_HOME + "/sw/airborne/"
     name = ""
     last_commit = ""
@@ -63,11 +66,13 @@ class Module:
         self.name = name
         self.xml = paparazzi.modules_dir + name + ".xml"
         self.find_files(file_list)
-        self.commit_processes = self.calc_commits()
         self.last_commit = ""
         self.calc_last_commit()
 
     def find_files(self, file_dict):
+        """ Finds files mentioned in xml
+        Finds all files mentioned in the xml and looks them up in the files in the sw folder
+        """
         parser = etree.XMLParser(recover=True)
         e = etree.parse(self.xml, parser)
         for atype in e.findall('.//file'):
@@ -85,30 +90,29 @@ class Module:
                     self.missing_files.remove(mod_file)
         return
 
-    def calc_commits(self):
-        last_commit_processes = [self.get_last_commit_date(self.xml)]
-        last_commit_list = []
-        for key, value in self.files.iteritems():
-            last_commit_processes.append(self.get_last_commit_date(value))
-        return last_commit_processes
-
     def calc_last_commit(self):
+        """ Calculates the most recent commit from any of the files related to this module."""
+        commit_processes = [self.open_commit_log_process(self.xml)]
         commit_list = []
-        if not self.last_commit:
-            for process in self.commit_processes:
-                out = process.communicate()
-                if out[0][:-2]:
-                    commit_list.append(out[0][:-2])
-            commit_list = sorted(commit_list, key=lambda x: datetime.datetime.strptime(x, '%d-%m-%Y'), reverse=True)
-            self.last_commit = commit_list[0]
+        for key, value in self.files.iteritems():
+            commit_processes.append(self.open_commit_log_process(value))
+        for process in commit_processes:
+            out = process.communicate()
+            if out[0][:-2]:
+                commit_list.append(out[0][:-2])
+        commit_list = sorted(commit_list, key=lambda x: datetime.datetime.strptime(x, '%d-%m-%Y'), reverse=True)
+        self.last_commit = commit_list[0]
         return
 
-    def get_last_commit_date(self, file):
+    def open_commit_log_process(self, file):
+        """ Opens subprocess to retrieve last commit date"""
         process = subprocess.Popen(['git', 'log', '-1', '--date=format:%d-%m-%Y', '--format=%cd ', file], stdout=PIPE, stderr=PIPE)
-        #stdoutput, stderroutput = process.communicate()
         return process
 
     def get_comments(self):
+        """
+        Formats the comment field which gets printed to the html file.
+        """
         output = "Last commit: " + self.last_commit + " <br />"
         if len(self.missing_files):
             output = output + "The following files could not be found: "
@@ -370,6 +374,7 @@ class PaparazziOverview(object):
         fps = self.find_flightplan_files()
         bs  = self.find_board_files()
 
+        # Generation of list of all files in the sw directory, for checking with the modules.
         module_sw_dir = paparazzi.PAPARAZZI_HOME + "/sw/"
         file_dict = dict()
         for root, dirs, dir_files in os.walk(module_sw_dir):
