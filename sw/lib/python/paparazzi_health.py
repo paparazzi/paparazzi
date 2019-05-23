@@ -45,6 +45,66 @@ class AirframeFile:
         xml = ""
         includes = []
 
+class Module:
+    module_airborne_dir = paparazzi.PAPARAZZI_HOME + "/sw/airborne/"
+    name = ""
+    last_commit = ""
+    xml = ""
+    usage = 0
+    files = []
+    missing_files = []
+
+    def __init__(self, name, file_list):
+        self.files = dict()
+        self.missing_files = []
+        self.name = name
+        self.xml = paparazzi.modules_dir + name + ".xml"
+        self.find_files(file_list)
+        self.last_commit = self.calc_last_commit()
+
+    def find_files(self, file_dict):
+        parser = etree.XMLParser(recover=True)
+        e = etree.parse(self.xml, parser)
+        for atype in e.findall('.//file'):
+            if (not atype.get('name') is None) & (not atype.get('name') == ""):
+                self.files[atype.get('name')] = ""
+
+        self.missing_files = list(self.files.iterkeys())
+        for mod_file in self.files.iterkeys():
+            if mod_file in file_dict:
+                self.files[mod_file] = file_dict[mod_file]
+                if mod_file in self.missing_files:
+                    self.missing_files.remove(mod_file)
+        return
+
+    def calc_last_commit(self):
+        #last_commit_list = [self.get_last_commit_date(self.xml)]
+        last_commit_list = ["01-01-2000"]
+        for key, value in self.files.iteritems():
+            date = "01-01-2000"
+            #date = self.get_last_commit_date(value)
+            if date:
+                last_commit_list.append(date)
+            else:
+                print("For " + value + " no commit was found")
+        last_commit_list = sorted(last_commit_list, key=lambda x: datetime.datetime.strptime(x, '%d-%m-%Y'), reverse=True)
+        return str(last_commit_list[0])
+
+    def get_last_commit_date(self, file):
+        process = subprocess.Popen(['git', 'log', '-1', '--date=format:%d-%m-%Y', '--format=%cd ', file], bufsize=-1, stdout=PIPE, stderr=PIPE)
+        stdoutput, stderroutput = process.communicate()
+        return stdoutput[:-2]
+
+    def get_comments(self):
+        output = ""
+        if len(self.missing_files):
+            output = output + "The following files could not be found: "
+            for missing_file in self.missing_files:
+                output = output + missing_file + "   "
+
+        output = output + "Last commit: " + self.calc_last_commit()
+        return output
+
 class PaparazziOverview(object):
 
     def RepresentsInt(self, s):
@@ -233,7 +293,14 @@ class PaparazziOverview(object):
         afs = self.find_airframe_files()
         fps = self.find_flightplan_files()
         bs  = self.find_board_files()
-        mods = paparazzi.get_list_of_modules()
+
+        module_sw_dir = paparazzi.PAPARAZZI_HOME + "/sw/"
+        file_dict = dict()
+        for root, dirs, dir_files in os.walk(module_sw_dir):
+            for dir_file in dir_files:
+                file_dict[dir_file] = os.path.join(root, dir_file)
+
+        mods = {name: Module(name, file_dict) for name in paparazzi.get_list_of_modules()}
 
         #check if flight plans are included in other flight plans
         fps_usage = dict()
@@ -248,7 +315,6 @@ class PaparazziOverview(object):
                     print(include + " in " + fp + ": Does not seem to have an xml file associated with it")
 
         # Create usage dictionary for modules
-        mods_usage = dict.fromkeys(mods, 0)
         for ac in afs:
             af = self.airframe_details(ac)
             for af_mod in af.modules:
@@ -257,7 +323,7 @@ class PaparazziOverview(object):
                 else:
                     mod_str = af_mod[0] + "_" + af_mod[1]
                 try:
-                    mods_usage[mod_str] = mods_usage[mod_str] + 1
+                    mods[mod_str].usage = mods[mod_str].usage + 1
                 except KeyError:
                     print(mod_str + " in " + af.xml + ": Does not seem to have an xml file associated with it")
 
@@ -345,9 +411,9 @@ class PaparazziOverview(object):
 
             # Generate table with all modules and module usage
             f.write('</div><div class="conf"><h1>Module xml:</h1>')
-            f.write('<table><tr><th> Filename </th><th> Number of airframes used in </th></tr>')
-            for mod in mods:
-                f.write('<tr><td><li>' + mod + '</td><td>' + str(mods_usage[mod]) + '</td></tr>')
+            f.write('<table><tr><th> Filename </th><th> Number of airframes used in </th><th> Comments </th></tr>')
+            for name, mod in mods.iteritems():
+                f.write('<tr><td><li>' + mod.name + '</td><td>' + str(mod.usage) + '</td><td>' + mod.get_comments() + '</td></tr>')
             f.write('</table>')
 
             f.write('</div></body>\n</html>\n')
