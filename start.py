@@ -125,7 +125,7 @@ class ConfChooser(object):
 
     def more_info(self, widget):
         obj = PaparazziOverview(0)
-        obj.run()
+        obj.run(self.btnAfDetails.get_active(), self.btnUntested.get_active())
 
     def module_usage(self, widget):
         selected_conf = self.conf_file_combo.get_active_text()
@@ -353,6 +353,11 @@ class ConfChooser(object):
         self.conf_airframes.set_size_request(650,180)
         self.conf_airframes.set_line_wrap(True)
 
+        self.btnAfDetails = gtk.CheckButton("Show airframe details")
+        self.btnAfDetails.set_active(True)
+
+        self.btnUntested = gtk.CheckButton("Show untested files")
+
         self.btnInfo = gtk.Button(None, "More\nInfo")
         self.btnInfo.connect("clicked", self.more_info)
         self.btnInfo.set_tooltip_text("More information on airframe files")
@@ -361,11 +366,18 @@ class ConfChooser(object):
         self.btnModule.connect("clicked", self.module_usage)
         self.btnModule.set_tooltip_text("More information on the modules used by these airframes")
 
+        self.separator1 = gtk.HSeparator()
+        self.separator2 = gtk.HSeparator()
+
         self.caexbar = gtk.HBox()
         self.caexbar.pack_start(self.conf_airframes)
         self.caexbar_btns = gtk.VBox()
         self.caexbar.pack_start(self.caexbar_btns)
+        self.caexbar_btns.pack_start(self.separator1)
+        self.caexbar_btns.pack_start(self.btnAfDetails)
+        self.caexbar_btns.pack_start(self.btnUntested)
         self.caexbar_btns.pack_start(self.btnInfo)
+        self.caexbar_btns.pack_start(self.separator2)
         self.caexbar_btns.pack_start(self.btnModule)
 
         self.my_vbox.pack_start(self.caexbar, False)
