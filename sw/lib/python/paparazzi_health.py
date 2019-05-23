@@ -7,6 +7,8 @@ import os
 import datetime
 from fnmatch import fnmatch
 import re
+import numpy as np
+from collections import Counter
 import subprocess
 PIPE = subprocess.PIPE
 
@@ -277,11 +279,75 @@ class PaparazziOverview(object):
         return includes
 
     def generate_sorted_list(self, lst):
-        # [:-2] needed to remove \n from output of get_last_commit_date
-        commit_dates = [self.get_last_commit_date(paparazzi.conf_dir + elm)[:-2] for elm in lst]
+        commit_dates = [re.sub(r"( \n)$", "", self.get_last_commit_date(paparazzi.conf_dir + elm)) for elm in lst]
         file_date_lst = sorted(zip(lst, commit_dates), key=lambda x: datetime.datetime.strptime(x[1], '%d-%m-%Y'), reverse=True)
         return file_date_lst
 
+    def airframe_module_overview(self, selected_conf):
+        """
+        Creates a nested dictionary of the airframe names and the modules they use to generate an html table
+        that provides an overview of module usage of the airframes of interest
+        """
+        # Looks at airframes in selected conf (not the currently active conf)
+        airframes = self.list_airframes_in_conf(selected_conf)
+
+        # Structure of nested dictionary: {af name: {module name: module type}}
+        afs_mods = {}
+        for ac in airframes:
+            afs_mods[ac.name] = {'xml': [ac.xml]}
+            af = self.airframe_details(ac.xml)
+            for mod in af.modules:
+                if mod[0] in afs_mods[ac.name]:
+                    afs_mods[ac.name][mod[0]].append(mod[1])
+                else:
+                    afs_mods[ac.name][mod[0]] = [mod[1]]
+
+        # Generates Counter object of all module names used by airframes in conf
+        unique_mods_ctr = Counter()
+        for mods in afs_mods.values():
+            unique_mods_ctr.update(mods.keys())
+        del unique_mods_ctr['xml']
+
+        # Table initialization, airframe names are ordered alphabetically, module names by most used
+        ac_mod_table = np.zeros((len(afs_mods.keys()) + 1, len(unique_mods_ctr.keys()) + 1), dtype=object)
+        ac_mod_table[0, 0] = "Name \\ Modules"
+        ac_mod_table[1:, 0] = sorted(afs_mods.keys(), key=lambda s: s.lower())
+        ac_mod_table[0, 1:] = [i for i, _ in unique_mods_ctr.most_common()]
+
+        for i in range(1, len(ac_mod_table[:, 0])):
+            for j in range(1, len(ac_mod_table[0, :])):
+                ac_name = ac_mod_table[i, 0]
+                module_name = ac_mod_table[0, j]
+                if ac_mod_table[0, j] not in afs_mods[ac_name]:
+                    ac_mod_table[i, j] = "\\"
+                else:
+                    ac_mod_table[i, j] = ""
+                    for module_type in afs_mods[ac_name][module_name]:
+                        if module_type == "":
+                            ac_mod_table[i, j] = "default"
+                        else:
+                            ac_mod_table[i, j] += module_type + "\n"
+
+        with open('var/airframe_module_overview.html', 'w') as f:
+            f.write('<!DOCTYPE html>\n<html lang="en">\n<head>\n<title>Module usage overview</title>\n \
+                    <meta charset="utf-8"/>\n<meta http-equiv="Cache-Control" content="no-cache" />\n')
+            f.write('<style>\ntable, th, td {\n\tborder: 1px solid black;\n\tborder-collapse: collapse;\n\t \
+                    padding:5px;\n}\ntr:nth-child(even) {\n\tbackground: #CCC;\n}\ntr:nth-child(odd) {\n\t \
+                    background: #FFF;\n}\nth {\n\ttext-align:left;\n}\n</style>\n\n</head>\n')
+            f.write('<body>\n')
+
+            f.write('<table><tr>\n\t')
+            for column_header in ac_mod_table[0, :]:
+                f.write('<th>{}</th>\n\t'.format(column_header))
+            f.write('</tr>\n')
+            for row in ac_mod_table[1:, :]:
+                f.write('<tr>\n\t')
+                for element in row:
+                    f.write('<td>{}</td>\n\t'.format(element))
+                f.write('</tr>\n')
+            f.write('</table>\n</body>\n</html>\n')
+
+            webbrowser.open('file://' + os.path.realpath('./var/airframe_module_overview.html'))
 
     # Constructor Functions
     def __init__(self, verbose):

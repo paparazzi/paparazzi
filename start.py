@@ -127,6 +127,11 @@ class ConfChooser(object):
         obj = PaparazziOverview(0)
         obj.run()
 
+    def module_usage(self, widget):
+        selected_conf = self.conf_file_combo.get_active_text()
+        obj = PaparazziOverview(0)
+        obj.airframe_module_overview(selected_conf)
+
 
     def launch(self, widget):
         self.accept(widget)
@@ -352,9 +357,16 @@ class ConfChooser(object):
         self.btnInfo.connect("clicked", self.more_info)
         self.btnInfo.set_tooltip_text("More information on airframe files")
 
+        self.btnModule = gtk.Button(None, "Module\nUsage")
+        self.btnModule.connect("clicked", self.module_usage)
+        self.btnModule.set_tooltip_text("More information on the modules used by these airframes")
+
         self.caexbar = gtk.HBox()
         self.caexbar.pack_start(self.conf_airframes)
-        self.caexbar.pack_start(self.btnInfo)
+        self.caexbar_btns = gtk.VBox()
+        self.caexbar.pack_start(self.caexbar_btns)
+        self.caexbar_btns.pack_start(self.btnInfo)
+        self.caexbar_btns.pack_start(self.btnModule)
 
         self.my_vbox.pack_start(self.caexbar, False)
 
