@@ -19,7 +19,7 @@ from lxml import etree
 
 class Airframe:
     name = ""
-    id = ""
+    ac_id = ""
     xml = ""
     flight_plan = ""
     release = ""
@@ -287,6 +287,8 @@ class PaparazziOverview(object):
         """
         Creates a nested dictionary of the airframe names and the modules they use to generate an html table
         that provides an overview of module usage of the airframes of interest
+
+        :param selected_conf: str of the name of conf file
         """
         # Looks at airframes in selected conf (not the currently active conf)
         airframes = self.list_airframes_in_conf(selected_conf)
@@ -349,12 +351,7 @@ class PaparazziOverview(object):
 
             webbrowser.open('file://' + os.path.realpath('./var/airframe_module_overview.html'))
 
-    # Constructor Functions
-    def __init__(self, verbose):
-        self.exclude_backups = 1
-        self.verbose = verbose
-
-    def run(self):
+    def find_not_tested_by_conf(self):
         # find all airframe, flightplan and module  XML's
         afs = self.find_airframe_files()
         fps = self.find_flightplan_files()
@@ -393,62 +390,36 @@ class PaparazziOverview(object):
                 except KeyError:
                     print(mod_str + " in " + af.xml + ": Does not seem to have an xml file associated with it")
 
-        #brds = self.find_boards()
-        # write all confs
-        with open('var/paparazzi.html','w') as f:
-            f.write('<!DOCTYPE html>\n<html lang="en">\n<head>\n<title>Paparazzi</title>\n<meta charset="utf-8"/>\n<meta http-equiv="Cache-Control" content="no-cache" />\n')
+        conf_files = paparazzi.get_list_of_conf_files()
+        for conf in conf_files:
+            airframes = self.list_airframes_in_conf(conf)
+            for ac in airframes:
+                xml = ac.xml
+                name = ac.name
+                flight_plan = ac.flight_plan
+                if xml in afs:
+                    afs.remove(xml)
+                if flight_plan in fps:
+                    fps.remove(flight_plan)
+                af = self.airframe_details(xml)
+                for board in af.boards:
+                    pattern = 'boards/' + board + '.makefile'
+                    if pattern in bs:
+                        bs.remove(pattern)
+                if len(af.includes) > 0:
+                    for i in af.includes:
+                        inc_name = i[5:].replace('$AC_ID', ac.ac_id)
+                        if inc_name in afs:
+                            afs.remove(inc_name)
+
+        return afs, fps, bs, mods, fps_usage
+
+    def not_tested_html(self):
+        afs, fps, bs, mods, fps_usage = self.find_not_tested_by_conf()
+        with open('var/not_tested_by_conf.html','w') as f:
+            f.write('<!DOCTYPE html>\n<html lang="en">\n<head>\n<title>Untested Airframes, Boards, Flight Plans and Modules Overview</title>\n<meta charset="utf-8"/>\n<meta http-equiv="Cache-Control" content="no-cache" />\n')
             f.write('<style>\n.conf {\n\tfloat: left;\n\tmargin: 10px;\n\tpadding: 5px;\n}\n\n.uav {\n\tfloat: left;\n\tmargin: 10px;\n\tpadding: 5px;\n\twidth: 250px;\n\tborder: 1px solid black;\n\tbackground-color:#fef9e7;\n}\nth {\n\ttext-align:left;\n}\n</style>\n\n</head>\n')
             f.write('<body>\n')
-            conf_files = paparazzi.get_list_of_conf_files()
-            for conf in conf_files:
-                airframes = self.list_airframes_in_conf(conf)
-                f.write('<div class="conf"><h2>' + conf + '</h2>')
-                for ac in airframes:
-                    f.write('<div class="uav" title="'+ ac.name + ': ' + ac.xml +'"><h4>' + ac.name + ' (' + ac.ac_id + ')</h4	>')
-                    sha = ac.release
-                    xml = ac.xml
-                    name = ac.name
-                    # remove airframe xml from list
-                    if xml in afs:
-                        afs.remove(xml)
-                    if ac.flight_plan in fps:
-                        fps.remove(ac.flight_plan)
-                    if (not sha is None) and (not sha == ""):
-                        f.write('<p>Last flown with <a href="https://github.com/paparazzi/paparazzi/commit/' + sha + '">' + sha[:6] + '...</a></p>')
-                        behind = self.git_behind(sha)
-                        color = 'orange'
-                        if behind < 200:
-                            color = 'green'
-                        if behind > 2000:
-                            color = 'red'
-                        if behind > 0:
-                            f.write( '<p><font color="' + color + '">Is <b>' + str(behind) + '</b> commits behind</font></p>')
-                        else:
-                            f.write( '<p><font color="red">Is <b>not available</b> on this machine</font></p>')
-                        outside = self.git_ahead(sha)
-                        if outside > 0:
-                            f.write( '<p><font color="red">Using <b>' + str(outside) + '</b> commits not in master</font></p>')
-                    af = self.airframe_details(xml)
-                    for board in af.boards:
-                        pattern = 'boards/' + board + '.makefile'
-                        if pattern in bs:
-                            bs.remove(pattern)
-                    f.write('<p>' + ", ".join(af.firmware) + ' on ' + ", ".join(af.boards) + ' <a href="file:////' + os.path.realpath('./conf/'+ac.xml) + '">[E]</a></p>')
-                    f.write('<p><font color="gray"><i>' + self.maximize_text_size(af.description) + '</i></font></p>')
-                    if self.verbose:
-                        f.write('<p><a href="https://github.com/paparazzi/paparazzi/blob/master/conf/' + ac.xml + '"/>' + ac.xml + '</a></p>')
-                    if self.verbose:
-                        f.write('<p><a href="https://github.com/paparazzi/paparazzi/blob/master/conf/' + ac.flight_plan + '"/>' + ac.flight_plan + '</a></p>')
-                        #fp_inc = self.flightplan_includes(ac.flight_plan)
-                    if len(af.includes) > 0:
-                        for i in af.includes:
-                            inc_name = i[5:].replace('$AC_ID',ac.ac_id)
-                            if inc_name in afs:
-                                afs.remove(inc_name)
-                        if self.verbose:
-                            f.write('<p>Includes: ' + ", ".join(af.includes) + '</p>')
-                    f.write('</div>\n\n')
-                f.write('</div>\n')
 
             # Generate table with airframe files that are not in any config
             f.write('</div><div class="conf"><h1>Airframe xml that are not tested by any conf:</h1>')
@@ -481,6 +452,57 @@ class PaparazziOverview(object):
             for name, mod in mods.iteritems():
                 f.write('<tr><td><li>' + mod.name + '</td><td>' + str(mod.usage) + '</td><td>' + mod.get_comments() + '</td></tr>')
             f.write('</table>')
+
+            f.write('</div></body>\n</html>\n')
+            webbrowser.open('file://' + os.path.realpath('./var/not_tested_by_conf.html'))
+
+    # Constructor Functions
+    def __init__(self, verbose):
+        self.exclude_backups = 1
+        self.verbose = verbose
+
+    def run(self):
+        with open('var/paparazzi.html','w') as f:
+            f.write('<!DOCTYPE html>\n<html lang="en">\n<head>\n<title>Paparazzi</title>\n<meta charset="utf-8"/>\n<meta http-equiv="Cache-Control" content="no-cache" />\n')
+            f.write('<style>\n.conf {\n\tfloat: left;\n\tmargin: 10px;\n\tpadding: 5px;\n}\n\n.uav {\n\tfloat: left;\n\tmargin: 10px;\n\tpadding: 5px;\n\twidth: 250px;\n\tborder: 1px solid black;\n\tbackground-color:#fef9e7;\n}\nth {\n\ttext-align:left;\n}\n</style>\n\n</head>\n')
+            f.write('<body>\n')
+            conf_files = paparazzi.get_list_of_conf_files()
+            for conf in conf_files:
+                airframes = self.list_airframes_in_conf(conf)
+                f.write('<div class="conf"><h2>' + conf + '</h2>')
+                for ac in airframes:
+                    f.write('<div class="uav" title="'+ ac.name + ': ' + ac.xml +'"><h4>' + ac.name + ' (' + ac.ac_id + ')</h4	>')
+                    sha = ac.release
+                    xml = ac.xml
+                    name = ac.name
+                    if (not sha is None) and (not sha == ""):
+                        f.write('<p>Last flown with <a href="https://github.com/paparazzi/paparazzi/commit/' + sha + '">' + sha[:6] + '...</a></p>')
+                        behind = self.git_behind(sha)
+                        color = 'orange'
+                        if behind < 200:
+                            color = 'green'
+                        if behind > 2000:
+                            color = 'red'
+                        if behind > 0:
+                            f.write( '<p><font color="' + color + '">Is <b>' + str(behind) + '</b> commits behind</font></p>')
+                        else:
+                            f.write( '<p><font color="red">Is <b>not available</b> on this machine</font></p>')
+                        outside = self.git_ahead(sha)
+                        if outside > 0:
+                            f.write( '<p><font color="red">Using <b>' + str(outside) + '</b> commits not in master</font></p>')
+                    af = self.airframe_details(xml)
+                    f.write('<p>' + ", ".join(af.firmware) + ' on ' + ", ".join(af.boards) + ' <a href="file:////' + os.path.realpath('./conf/'+ac.xml) + '">[E]</a></p>')
+                    f.write('<p><font color="gray"><i>' + self.maximize_text_size(af.description) + '</i></font></p>')
+                    if self.verbose:
+                        f.write('<p><a href="https://github.com/paparazzi/paparazzi/blob/master/conf/' + ac.xml + '"/>' + ac.xml + '</a></p>')
+                    if self.verbose:
+                        f.write('<p><a href="https://github.com/paparazzi/paparazzi/blob/master/conf/' + ac.flight_plan + '"/>' + ac.flight_plan + '</a></p>')
+                        #fp_inc = self.flightplan_includes(ac.flight_plan)
+                    if len(af.includes) > 0:
+                        if self.verbose:
+                            f.write('<p>Includes: ' + ", ".join(af.includes) + '</p>')
+                    f.write('</div>\n\n')
+                f.write('</div>\n')
 
             f.write('</div></body>\n</html>\n')
             webbrowser.open('file://' + os.path.realpath('./var/paparazzi.html'))
