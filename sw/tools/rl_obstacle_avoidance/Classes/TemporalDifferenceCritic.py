@@ -1,6 +1,3 @@
-import numpy as np
-import random
-
 from Classes.TemporalDifferenceAgent import TemporalDifferenceAgent
 
 class TemporalDifferenceCritic(TemporalDifferenceAgent):
@@ -38,6 +35,6 @@ class TemporalDifferenceCritic(TemporalDifferenceAgent):
             self.policy, self.exploratory_state_actions = super().get_policy(self.exploration_in_policy)
             return self.policy
 
-    def get_policy(self):
+    def get_policy(self, exploration_in_policy=None):
         return self.policy
 

@@ -1,6 +1,4 @@
-import numpy as np
 import random
-import math
 
 from Classes.ReinforcementLearningAgent import ReinforcementLearningAgent
 
@@ -66,10 +64,10 @@ class RLActor(ReinforcementLearningAgent):
         self.policy = self.critic.update_policy()
         return
 
-    def get_state_visits(self, filter=None):
-        return self.critic.get_state_visits(filter)
+    def get_state_visits(self, filter_apl=None):
+        return self.critic.get_state_visits(filter_apl)
 
-    def get_policy(self):
+    def get_policy(self, exploration_in_policy=None):
         """Function that gets the current policy from the actor"""
         return self.policy
 

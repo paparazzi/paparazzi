@@ -3,7 +3,7 @@ import math
 import pandas as pd
 import random
 import seaborn as sns
-import timeit
+# import timeit
 import bisect
 import matplotlib.pyplot as plt
 import time
@@ -68,7 +68,7 @@ class ReinforcementLearningTraining:
                                'number_of_episodes':number_of_episodes}
 
         # Check if the agent settings contain an epsilon that should be decreasing
-        if 'epsilon' in self.agent_settings and type(self.agent_settings['epsilon']) is tuple:
+        if 'epsilon' in self.agent_settings and isinstance(self.agent_settings['epsilon'], tuple):
             # Save the epsilon settings tuple (start value, end value, number of episodes)
             self.epsilon_decrease = self.agent_settings['epsilon']
 
@@ -76,7 +76,7 @@ class ReinforcementLearningTraining:
             self.agent_settings['epsilon'] = self.epsilon_decrease[0]
 
         # Check if the agent settings contain an alpha that should be decreasing
-        if 'alpha' in self.agent_settings and type(self.agent_settings['alpha']) is tuple:
+        if 'alpha' in self.agent_settings and isinstance(self.agent_settings['alpha'], tuple):
             # Save the epsilon settings tuple (start value, end value, number of episodes)
             self.alpha_decrease = self.agent_settings['alpha']
 
@@ -85,7 +85,7 @@ class ReinforcementLearningTraining:
 
         # Check if the critic contains an epsilon that should be decreasing
         if 'critic_settings' in self.agent_settings and 'epsilon' in self.agent_settings['critic_settings']:
-            if type(self.agent_settings['critic_settings']['epsilon']) is tuple:
+            if isinstance(self.agent_settings['critic_settings']['epsilon'], tuple):
                 # Save the epsilon settings tuple (start value, end value, number of episodes)
                 self.epsilon_critic_decrease = self.agent_settings['critic_settings']['epsilon']
 
@@ -94,7 +94,7 @@ class ReinforcementLearningTraining:
 
         # Check if the critic contains an alpha that should be decreasing
         if 'critic_settings' in self.agent_settings and 'alpha' in self.agent_settings['critic_settings']:
-            if type(self.agent_settings['critic_settings']['alpha']) is tuple:
+            if isinstance(self.agent_settings['critic_settings']['alpha'], tuple):
                 # Save the alpha settings tuple (start value, end value, number of episodes)
                 self.alpha_critic_decrease = self.agent_settings['critic_settings']['alpha']
 
@@ -374,8 +374,8 @@ class ReinforcementLearningTraining:
             # Save some basic statistics about Q
             self.Q_statistics[episode] = {
                 'mean': agent.get_Q().mean(),
-                'net_delta': sum(filter(None, delta_Q_history)),
-                'abs_delta': sum([abs(Q) for Q in filter(None, delta_Q_history)]),
+                'net_delta': sum(filter_apl(None, delta_Q_history)),
+                'abs_delta': sum([abs(Q) for Q in filter_apl(None, delta_Q_history)]),
                 'policy_change': policy_change,
                 'episode_reward': episode_reward,
             }
@@ -673,13 +673,13 @@ class ReinforcementLearningTraining:
         for episode_number in episode_numbers:
             for value in self.state_space[loop_over]:
                 # Create policy heatmap
-                filter = {loop_over: value}
-                fig, ax = self.show_policy(agent=agent, flip=flip, minimum_visits=minimum_visits, filter=filter,
+                filter_apl = {loop_over: value}
+                fig, ax = self.show_policy(agent=agent, flip=flip, minimum_visits=minimum_visits, filter_apl=filter_apl,
                                            action=action)
                 figures.append((episode_number,value,fig,ax))
 
                 # get episode history and filter
-                state_variables = [variable for variable in self.state_space_variables if variable not in filter]
+                state_variables = [variable for variable in self.state_space_variables if variable not in filter_apl]
                 episode_history = history.xs(episode_number, level='episode').copy()
                 episode_history = episode_history[episode_history[loop_over] == value]
 
@@ -700,16 +700,16 @@ class ReinforcementLearningTraining:
 
     def visualize_states_visited_loop(self, agent, loop_over):
         for value in self.state_space[loop_over]:
-            filter = {loop_over: value}
-            fig, ax = self.visualize_states_visited(agent, filter)
+            filter_apl = {loop_over: value}
+            fig, ax = self.visualize_states_visited(agent, filter_apl)
             ax.set_title("Number of state visits (summed over all actions) for {}={}.".format(loop_over, value))
         return fig,ax
 
-    def visualize_states_visited(self, agent, filter=None):
+    def visualize_states_visited(self, agent, filter_apl=None):
         """Create a plot to show whether all states have been visited"""
 
         # Get the (s,a) visits matrix and sum over all actions
-        states_visited, state_variables = agent.get_state_visits(filter)
+        states_visited, state_variables = agent.get_state_visits(filter_apl)
 
         # Determine ticks
         ticks = [self.state_space[state_variable] for state_variable in state_variables]
@@ -747,17 +747,17 @@ class ReinforcementLearningTraining:
 
             for idx, value in enumerate(self.state_space[loop_over]):
                 ax = axarr[idx // cols][idx % cols]
-                filter = {loop_over: value}
-                _, ax = self.show_policy(agent=agent, flip=flip, minimum_visits=minimum_visits, filter=filter, action=action, ax=ax)
+                filter_apl = {loop_over: value}
+                _, ax = self.show_policy(agent=agent, flip=flip, minimum_visits=minimum_visits, filter_apl=filter_apl, action=action, ax=ax)
                 ax.set_title("Final agent policy for {} = {}".format(loop_over, value))
 
             fig.tight_layout()
         else:
-            fig, ax = self.show_policy(agent=agent, flip=flip, minimum_visits=minimum_visits, filter=None,
+            fig, ax = self.show_policy(agent=agent, flip=flip, minimum_visits=minimum_visits, filter_apl=None,
                                        action=action)
         return fig, ax
 
-    def show_policy(self, agent,flip=False, minimum_visits=0, filter=None, action=None, ax=None, cbar=False):
+    def show_policy(self, agent,flip=False, minimum_visits=0, filter_apl=None, action=None, ax=None, cbar=False):
         # Get state variables
         state_variables = self.state_space_variables
 
@@ -774,13 +774,13 @@ class ReinforcementLearningTraining:
             policy = agent.get_policy()
 
         # Filter policy
-        if filter is not None:
-            for key, value in filter.items():
+        if filter_apl is not None:
+            for key, value in filter_apl.items():
                 state_variable_id = self.state_space_variables.index(key)
                 state_index = agent.states[key]['value_to_index'][value]
                 policy = np.take(policy, state_index, axis=state_variable_id)
 
-            state_variables = [variable for variable in self.state_space_variables if variable not in filter]
+            state_variables = [variable for variable in self.state_space_variables if variable not in filter_apl]
 
         # If dimensions of policy are greater then 2, try to squeeze it
         for l in policy.shape:
@@ -790,7 +790,7 @@ class ReinforcementLearningTraining:
         # Set states to None for which the minimum state visits has not been reached (no real policy determined here)
         minimum_visits = float(minimum_visits)
         try:
-            states_visited, _ = agent.get_state_visits(filter)
+            states_visited, _ = agent.get_state_visits(filter_apl)
             policy = np.where(states_visited >= minimum_visits, policy, None)
         except AttributeError:
             print('Could not determine state visits')
@@ -1004,7 +1004,7 @@ class ReinforcementLearningTraining:
             state_filter = {
                 'prev_action': 1.0
             }
-            self.show_Q_as_bar_graph(agent, label_dict=label_dict, filter=state_filter, ax=ax_q_1)
+            self.show_Q_as_bar_graph(agent, label_dict=label_dict, filter_apl=state_filter, ax=ax_q_1)
 
         # Create second subfigure showing the q value for different actions at prev_action = 3.0
         if agent is not None:
@@ -1012,7 +1012,7 @@ class ReinforcementLearningTraining:
             state_filter = {
                 'prev_action': 3.0
             }
-            self.show_Q_as_bar_graph(agent, label_dict=label_dict, filter=state_filter, ax=ax_q_2)
+            self.show_Q_as_bar_graph(agent, label_dict=label_dict, filter_apl=state_filter, ax=ax_q_2)
 
         # Update log lines
         log_last_episode = log_lines[0]
@@ -1095,7 +1095,7 @@ class ReinforcementLearningTraining:
 
         return ax
 
-    def show_Q_for_1D_state_space(self, agent, label_dict=None, filter=None):
+    def show_Q_for_1D_state_space(self, agent, label_dict=None, filter_apl=None):
         """Create a lineplot comparing the Q values for different actions at different states"""
         # Get the Q-matrix
         Q = agent.Q
@@ -1125,7 +1125,7 @@ class ReinforcementLearningTraining:
 
         return ax
 
-    def show_Q_as_bar_graph(self, agent, label_dict=None, filter=None, ax=None):
+    def show_Q_as_bar_graph(self, agent, label_dict=None, filter_apl=None, ax=None):
         """Create a bar plot comparing the Q values for different actions at different states"""
         # Get the Q-matrix
         Q = agent.get_Q()
@@ -1143,9 +1143,9 @@ class ReinforcementLearningTraining:
         action_dimension = self.action_space_variables[0]
         action_axis_Q = agent.actions[action_dimension]['axis']
 
-        # Apply filter
-        if filter is not None:
-            for key, value in filter.items():
+        # filter_apl filter
+        if filter_apl is not None:
+            for key, value in filter_apl.items():
                 state_variable_id = self.state_space_variables.index(key)
                 state_index = agent.states[key]['value_to_index'][value]
                 Q = np.take(Q, state_index, axis=state_variable_id)

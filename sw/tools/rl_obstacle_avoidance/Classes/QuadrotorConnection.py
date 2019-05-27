@@ -1,5 +1,4 @@
 import sys
-import os
 sys.path.append("../../ext/pprzlink/lib/v2.0/python")
 from ivy.std_api import *
 import pprzlink.ivy

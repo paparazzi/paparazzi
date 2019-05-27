@@ -59,8 +59,8 @@ void log_to_file_start(char csv_header_line[])
     while ((file_logger = fopen(filename, "rb"))) {
         fclose(file_logger);
 
-        sprintf(filename, "%s/%s_%05d.csv", STRINGIFY(RL_OBSTACLE_AVOIDANCE_LOG_PATH), date_time, counter);
-        sprintf(rl_obstacle_avoidance_run_filename, "%s_%05d.csv", date_time, counter);
+        sprintf(filename, "%s/%s_%05u.csv", STRINGIFY(RL_OBSTACLE_AVOIDANCE_LOG_PATH), date_time, counter);
+        sprintf(rl_obstacle_avoidance_run_filename, "%s_%05u.csv", date_time, counter);
         counter++;
     }
     printf("File: %s \n", filename);

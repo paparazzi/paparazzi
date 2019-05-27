@@ -1,9 +1,5 @@
 import numpy as np
 import math
-import pandas as pd
-import bisect
-import random
-import matplotlib
 import matplotlib.pyplot as plt
 from collections import Counter
 from scipy.signal import butter, lfilter, lfilter_zi, lfiltic
@@ -289,8 +285,8 @@ class GroundEnvironment:
         rotor_speeds = [rpm*2*math.pi/60 for rpm in rpm_actual]
         k = [k*self.quadrotor_mass for k in self.k_over_m]
         F_thrust = 0.0
-        for id, omega in enumerate(rotor_speeds):
-            F_thrust += k[id]*(omega**2)
+        for idx, omega in enumerate(rotor_speeds):
+            F_thrust += k[idx]*(omega**2)
 
         # Calculate net force (downward is positive)
         F_gravity = 9.81*self.quadrotor_mass
@@ -500,11 +496,12 @@ class GroundEnvironment:
 
         return F_ext_theory
 
-    def start_episode(self, state=None):
-        if state is not None and self.env_statistics['init_state'] is None:
-            self.env_statistics['init_state'] = {i:state[i] for i in state if i!='F_ext_hist'}
 
+    def start_episode(self, state=None):
         """"This function is invoked by the training environment at the start of an episode"""
+        if state is not None and self.env_statistics['init_state'] is None:
+                self.env_statistics['init_state'] = {i:state[i] for i in state if i!='F_ext_hist'}
+
         return True
 
     def is_terminal(self):

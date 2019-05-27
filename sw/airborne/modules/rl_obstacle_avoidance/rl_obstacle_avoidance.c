@@ -490,15 +490,16 @@ int rl_obstacle_avoidance_est_accel_bias(void){
 
 void rl_obstacle_avoidance_est_k_over_m(void){
 #ifndef USE_NPS
-    int number_of_samples = 1000;
-    double current_k_over_m;
-    float sum_omega_squared;
-    float F_drag;
 
     // Counter starts at 0
     estimate_k_over_m_counter++;
 
     if(estimate_k_over_m_counter <= number_of_samples){
+        int number_of_samples = 1000;
+        double current_k_over_m;
+        float sum_omega_squared;
+        float F_drag;
+
         sum_omega_squared = 0.0;
         // Calculate sum omega squared
         for (int8_t i = 0; i < 4; i++) {
@@ -914,7 +915,7 @@ float randn (float mu, float sigma)
 
   if (call == 1)
     {
-      call = !call;
+      call = 0;
       return (mu + sigma * (float) X2);
     }
 

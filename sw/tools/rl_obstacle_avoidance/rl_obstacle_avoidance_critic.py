@@ -2,14 +2,11 @@
 import sys
 import os
 import numpy as np
-import time
 import pickle
-import pandas as pd
 import collections
 import math
 import copy
 import datetime
-from matplotlib import pyplot as plt
 
 from Classes.TemporalDifferenceCritic import TemporalDifferenceCritic
 from Classes.ReinforcementLearningToolbox import ReinforcementLearningTraining as Training
@@ -95,7 +92,7 @@ def prepare_critic(agent_settings):
     # Set the learning rate alpha
     if 'critic_settings' in agent_settings and 'alpha' in agent_settings['critic_settings']:
         # Allow for decreasing alpha in the critic
-        if type(agent_settings['critic_settings']['alpha']) is tuple:
+        if isinstance(agent_settings['critic_settings']['alpha'], tuple):
             # Save the alpha settings tuple (start value, end value, number of episodes)
             critic_alpha_decrease = agent_settings['critic_settings']['alpha']
 
@@ -118,7 +115,7 @@ def prepare_critic(agent_settings):
 
     # Check if the critic settings contain an epsilon that should be decreasing
     if 'critic_settings' in agent_settings and 'epsilon' in agent_settings['critic_settings']:
-        if type(agent_settings['critic_settings']['epsilon']) is tuple:
+        if isinstance(agent_settings['critic_settings']['epsilon'], tuple):
             # Save the alpha settings tuple (start value, end value, number of episodes)
             critic_epsilon_decrease = agent_settings['critic_settings']['epsilon']
 
@@ -135,7 +132,7 @@ def prepare_agent(agent_settings):
 
     # Check if the agent settings contain an epsilon that should be decreasing
     if 'epsilon' in agent_settings:
-        if type(agent_settings['epsilon']) is tuple:
+        if isinstance(agent_settings['epsilon'], tuple):
             # Save the epsilon settings tuple (start value, end value, number of episodes)
             agent_epsilon_decrease = agent_settings['epsilon']
 
@@ -147,23 +144,23 @@ def prepare_agent(agent_settings):
 
 def update_learning_parameters():
     global critic, critic_alpha_decrease, critic_epsilon_decrease, agent_epsilon, agent_epsilon_decrease, total_episode_counter
-    str = ''
+    str_tmp = ''
     # Decrease agent epsilon if applicable
     if agent_epsilon_decrease is not False and 0 < total_episode_counter <= agent_epsilon_decrease[2]:
         decrease = (agent_epsilon_decrease[0] - agent_epsilon_decrease[1]) / agent_epsilon_decrease[2]
         agent_epsilon = max(agent_epsilon - decrease, 0.0)
-        str += 'Agent epsilon: {0}, '.format(agent_epsilon)
+        str_tmp += 'Agent epsilon: {0}, '.format(agent_epsilon)
     # Decrease critic epsilon if applicable:
     if critic_epsilon_decrease is not False and 0 < total_episode_counter <= critic_epsilon_decrease[2]:
         decrease = (critic_epsilon_decrease[0] - critic_epsilon_decrease[1]) / critic_epsilon_decrease[2]
         critic.epsilon = max(critic.epsilon - decrease, 0.0)
-        str += 'Critic epsilon: {0}, '.format(critic.epsilon)
+        str_tmp += 'Critic epsilon: {0}, '.format(critic.epsilon)
     # Decrease critic alpha if applicable
     if critic_alpha_decrease is not False:
         critic.alpha = max(critic_alpha_decrease[0] * (critic_alpha_decrease[1] / (critic_alpha_decrease[1] + total_episode_counter)),0.0)
-        str += 'Critic alpha: {0}, '.format(critic.alpha)
+        str_tmp += 'Critic alpha: {0}, '.format(critic.alpha)
 
-    print(str)
+    print(str_tmp)
     return True
 
 

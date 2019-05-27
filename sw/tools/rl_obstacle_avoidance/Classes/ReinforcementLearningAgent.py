@@ -168,7 +168,7 @@ class ReinforcementLearningAgent():
         size = self.data_structure['states_actions_shape']
 
         # Create a Q matrix filled with zeros
-        if type(init) is float or type(init) is int:
+        if isinstance(init, float) or isinstance(init, int):
             Q = np.full(size,init, dtype=np.float64)
         elif init is None:
             Q = np.zeros(size)
@@ -191,7 +191,7 @@ class ReinforcementLearningAgent():
         if initialization == 'random':
             for action_dim_index, (action_name, action_prop) in enumerate(self.actions.items()):
                 policy[..., action_dim_index] = np.random.choice(action_prop['values'], policy_size).squeeze()
-        elif type(initialization) is list:
+        elif isinstance(initialization, list):
             for action_dim_index, (action_name, action_prop) in enumerate(self.actions.items()):
                 policy[..., action_dim_index] = initialization[action_dim_index]
 
@@ -217,11 +217,11 @@ class ReinforcementLearningAgent():
     def get_all_actions_with_Q(self, s_index):
         """This function returns of a list of all actions (ID not value) and their Q value for this specific state"""
         # The list contains the following tuples (action_id, Q_value)
-        list = []
+        list_tmp = []
         for Q_index, Q_value in np.ndenumerate(self.Q[s_index]):
-            list.append((Q_index, Q_value))
+            list_tmp.append((Q_index, Q_value))
 
-        return list
+        return list_tmp
 
     def process_step(self, old_state_rl, action, reward, new_state_rl):
         """Function that is executed after each step, should be overwritten by child class"""
@@ -264,19 +264,19 @@ class ReinforcementLearningAgent():
 
         return fig, ax
 
-    def get_state_visits(self, filter=None):
+    def get_state_visits(self, filter_apl=None):
         """Get a matrix cointaining the state visits (summed over all actions)"""
         # Get the (s,a) visits matrix and sum over all actions
         action_axis = self.get_action_axis()
         states_visited = np.sum(self.s_a_visits,axis=action_axis)
 
-        if filter is not None:
-            for key, value in filter.items():
+        if filter_apl is not None:
+            for key, value in filter_apl.items():
                 state_variable_axis = self.states[key]['axis']
                 state_variable_index = self.states[key]['value_to_index'][value]
                 states_visited = np.take(states_visited, state_variable_index, axis=state_variable_axis)
 
-            state_variables = [variable for variable in self.state_space_variables if variable not in filter]
+            state_variables = [variable for variable in self.state_space_variables if variable not in filter_apl]
         else:
             state_variables = self.state_space_variables
 
