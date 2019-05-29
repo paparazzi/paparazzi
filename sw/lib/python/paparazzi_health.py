@@ -9,13 +9,13 @@ from fnmatch import fnmatch
 import re
 import numpy as np
 from collections import Counter
-import subprocess
-PIPE = subprocess.PIPE
-
 import paparazzi
-
 import xml.etree.ElementTree
 from lxml import etree
+import subprocess
+
+PIPE = subprocess.PIPE
+
 
 class Airframe:
     name = ""
@@ -23,12 +23,14 @@ class Airframe:
     xml = ""
     flight_plan = ""
     release = ""
+
     def __init__(self):
         name = ""
         ac_id = ""
         xml = ""
         flight_plan = ""
         release = ""
+
 
 class AirframeFile:
     name = ""
@@ -40,6 +42,7 @@ class AirframeFile:
     last_commit = ""
     commit_processes = []
     modules = []
+
     def __init__(self):
         name = ""
         description = ""
@@ -47,6 +50,7 @@ class AirframeFile:
         boards = []
         xml = ""
         includes = []
+
 
 class Module:
     """ Stores data related to single module
@@ -77,7 +81,7 @@ class Module:
         e = etree.parse(self.xml, parser)
         for atype in e.findall('.//file'):
             file_name = atype.get('name')
-            if (not file_name is None) & (not file_name == ""):
+            if (file_name is not None) & (not file_name == ""):
                 if file_name.rfind('/') != -1:
                     file_name = file_name[file_name.rfind('/')+1:]
                 self.files[file_name] = ""
@@ -100,19 +104,19 @@ class Module:
             out = process.communicate()
             if out[0][:-2]:
                 commit_list.append(out[0][:-2])
-        commit_list = sorted(commit_list, key=lambda x: datetime.datetime.strptime(x, '%d-%m-%Y'), reverse=True)
+        commit_list = sorted(commit_list, key=lambda x: datetime.datetime.strptime(x, '%d-%m-%Y'),
+                             reverse=True)
         self.last_commit = commit_list[0]
         return
 
-    def open_commit_log_process(self, file):
-        """ Opens subprocess to retrieve last commit date"""
-        process = subprocess.Popen(['git', 'log', '-1', '--date=format:%d-%m-%Y', '--format=%cd ', file], stdout=PIPE, stderr=PIPE)
+    def open_commit_log_process(self, filename):
+        """ Opens subprocess to retrieve last commit date."""
+        process = subprocess.Popen(['git', 'log', '-1', '--date=format:%d-%m-%Y', '--format=%cd ', filename],
+                                   stdout=PIPE, stderr=PIPE)
         return process
 
     def get_comments(self):
-        """
-        Formats the comment field which gets printed to the html file.
-        """
+        """ Formats the comment field which gets printed to the html file."""
         output = "Last commit: " + self.last_commit + " <br />"
         if len(self.missing_files):
             output = output + "The following files could not be found: "
@@ -121,11 +125,12 @@ class Module:
 
         return output
 
+
 class PaparazziOverview(object):
 
-    def RepresentsInt(self, s):
+    def represents_int(self, s):
         try: 
-            v=int(s)
+            v = int(s)
             return v
         except ValueError:
             return -1
@@ -137,22 +142,20 @@ class PaparazziOverview(object):
             return txt
 
     def git_behind(self, sha):
-        process = subprocess.Popen(['git', 'rev-list', sha+"..HEAD", '--count'], stdout=PIPE, stderr=PIPE)
+        process = subprocess.Popen(['git', 'rev-list', sha+"..HEAD", '--count'],
+                                   stdout=PIPE, stderr=PIPE)
         stdoutput, stderroutput = process.communicate()
-        return self.RepresentsInt(stdoutput)
+        return self.represents_int(stdoutput)
 
     def git_ahead(self, sha):
-        process = subprocess.Popen(['git', 'rev-list', "HEAD.."+sha, '--count'], stdout=PIPE, stderr=PIPE)
+        process = subprocess.Popen(['git', 'rev-list', "HEAD.."+sha, '--count'],
+                                   stdout=PIPE, stderr=PIPE)
         stdoutput, stderroutput = process.communicate()
-        return self.RepresentsInt(stdoutput)
+        return self.represents_int(stdoutput)
 
-    def get_last_commit_sha(self, file):
-        process = subprocess.Popen(['git', 'log', '-n', 1, '--pretty=format:%H', '--', sha+"..HEAD"], stdout=PIPE, stderr=PIPE)
-        stdoutput, stderroutput = process.communicate()
-        return stdoutput
-
-    def get_last_commit_date(self, file):
-        process = subprocess.Popen(['git', 'log', '-1', '--date=format:%d-%m-%Y', '--format=%cd ', file], bufsize=-1, stdout=PIPE, stderr=PIPE)
+    def get_last_commit_date(self, filename):
+        process = subprocess.Popen(['git', 'log', '-1', '--date=format:%d-%m-%Y', '--format=%cd ', filename], bufsize=-1,
+                                   stdout=PIPE, stderr=PIPE)
         stdoutput, stderroutput = process.communicate()
         return stdoutput
 
@@ -162,7 +165,7 @@ class PaparazziOverview(object):
         confn = "*conf[._-]*xml"
         controlpanel = "*control_panel[._-]*xml"
 
-        for path, subdirs, files in os.walk(os.path.join(paparazzi.conf_dir,folder)):
+        for path, subdirs, files in os.walk(os.path.join(paparazzi.conf_dir, folder)):
             for name in files:
                 if fnmatch(name, confn):
                     continue
@@ -179,7 +182,7 @@ class PaparazziOverview(object):
         board_files = []
         pattern = "*.makefile"
 
-        for path, subdirs, files in os.walk(os.path.join(paparazzi.conf_dir,folder)):
+        for path, subdirs, files in os.walk(os.path.join(paparazzi.conf_dir, folder)):
             for name in files:
                 if fnmatch(name, pattern):
                     filepath = os.path.join(path, name)
@@ -197,9 +200,6 @@ class PaparazziOverview(object):
     def find_board_files(self):
         return self.find_makefiles('boards/')
 
-    def list_includes_in_flightplan(self, fp):
-        afile = os.path.join(paparazzi.conf_dir, fp)
-
     def list_airframes_in_conf(self, conf):
         if conf is None:
             return []
@@ -211,7 +211,7 @@ class PaparazziOverview(object):
             for atype in e.findall('aircraft'):
                 release = ""
                 if (not atype.get('release') is None) & (not atype.get('release') == ""):
-                     release = atype.get('release')
+                    release = atype.get('release')
                 af = Airframe()
                 af.name = atype.get('name')
                 af.ac_id = atype.get('ac_id')
@@ -238,17 +238,19 @@ class PaparazziOverview(object):
                     for ctype in atype.findall('module'):
                         module_name_type = self.get_module_name_type(ctype)
                         airframe.modules.append(module_name_type)
-                    if (not atype.get('name') is None) & (not atype.get('name') == "") & (not atype.get('name') in airframe.firmware):
+                    if (not atype.get('name') is None) & (not atype.get('name') == "") \
+                            & (not atype.get('name') in airframe.firmware):
                         airframe.firmware.append(atype.get('name'))
                     for btype in atype.findall('target'):
-                        if (not btype.get('board') is None) & (not btype.get('board') == "") & (not btype.get('board') in airframe.boards):
-                            airframe.boards.append( btype.get('board') )
+                        if (not btype.get('board') is None) & (not btype.get('board') == "") \
+                                & (not btype.get('board') in airframe.boards):
+                            airframe.boards.append(btype.get('board'))
                         for ctype in btype.findall('module'):
                             module_name_type = self.get_module_name_type(ctype)
                             airframe.modules.append(module_name_type)
                 for atype in e.findall('include'):
                     if (not atype.get('href') is None) & (not atype.get('href') == ""):
-                        airframe.includes.append( atype.get('href') )
+                        airframe.includes.append(atype.get('href'))
                 for atype in e.findall('description'):
                     airframe.description = atype.text
 
@@ -278,14 +280,14 @@ class PaparazziOverview(object):
                 for atype in e.findall('include'):
                     if (not atype.get('procedure') is None) & (not atype.get('procedure') == ""):
                         if atype.get('procedure')[0:7] == "include_":
-                            includes.append(atype.get('procedure')[8:])  # .lstrip('include_') )
+                            includes.append(atype.get('procedure')[8:])
                         else:
                             includes.append(atype.get('procedure'))
                 for btype in e.findall('includes'):
                     for atype in btype.findall('include'):
                         if (not atype.get('procedure') is None) & (not atype.get('procedure') == ""):
                             if atype.get('procedure')[0:7] == "include_":
-                                includes.append(atype.get('procedure')[8:])#.lstrip('include_') )
+                                includes.append(atype.get('procedure')[8:])
                             else:
                                 includes.append(atype.get('procedure'))
             except etree.ParseError as e:
@@ -294,7 +296,8 @@ class PaparazziOverview(object):
 
     def generate_sorted_list(self, lst):
         commit_dates = [re.sub(r"( \n)$", "", self.get_last_commit_date(paparazzi.conf_dir + elm)) for elm in lst]
-        file_date_lst = sorted(zip(lst, commit_dates), key=lambda x: datetime.datetime.strptime(x[1], '%d-%m-%Y'), reverse=True)
+        file_date_lst = sorted(zip(lst, commit_dates), key=lambda x: datetime.datetime.strptime(x[1], '%d-%m-%Y'),
+                               reverse=True)
         return file_date_lst
 
     def airframe_module_overview(self, selected_conf):
@@ -366,10 +369,10 @@ class PaparazziOverview(object):
             webbrowser.open('file://' + os.path.realpath('./var/airframe_module_overview.html'))
 
     def find_not_tested_by_conf(self):
-        # find all airframe, flightplan and module  XML's
+        # Find all airframe, flightplan and module  XML's
         afs = self.find_airframe_files()
         fps = self.find_flightplan_files()
-        bs  = self.find_board_files()
+        bs = self.find_board_files()
 
         # Generation of list of all files in the sw directory, for checking with the modules.
         module_sw_dir = paparazzi.PAPARAZZI_HOME + "/sw/"
@@ -380,7 +383,7 @@ class PaparazziOverview(object):
 
         mods = {name: Module(name, file_dict) for name in paparazzi.get_list_of_modules()}
 
-        #check if flight plans are included in other flight plans
+        # Check if flight plans are included in other flight plans
         fps_usage = dict()
         for fp in fps:
             fps_usage[os.path.split(fp)[1]] = ""
@@ -410,7 +413,6 @@ class PaparazziOverview(object):
             airframes = self.list_airframes_in_conf(conf)
             for ac in airframes:
                 xml = ac.xml
-                name = ac.name
                 flight_plan = ac.flight_plan
                 if xml in afs:
                     afs.remove(xml)
@@ -429,11 +431,17 @@ class PaparazziOverview(object):
 
         return afs, fps, bs, mods, fps_usage
 
-    def not_tested_html(self, file):
+    def not_tested_html(self, output_html):
         afs, fps, bs, mods, fps_usage = self.find_not_tested_by_conf()
-        f = file
-        f.write('<!DOCTYPE html>\n<html lang="en">\n<head>\n<title>Untested Airframes, Boards, Flight Plans and Modules Overview</title>\n<meta charset="utf-8"/>\n<meta http-equiv="Cache-Control" content="no-cache" />\n')
-        f.write('<style>\n.conf {\n\tfloat: left;\n\tmargin: 10px;\n\tpadding: 5px;\n}\n\n.uav {\n\tfloat: left;\n\tmargin: 10px;\n\tpadding: 5px;\n\twidth: 250px;\n\tborder: 1px solid black;\n\tbackground-color:#fef9e7;\n}\nth {\n\ttext-align:left;\n}\n</style>\n\n</head>\n')
+        f = output_html
+        f.write('<!DOCTYPE html>\n<html lang="en">\n<head>\n'
+                '<title>Untested Airframes, Boards, Flight Plans and Modules Overview</title>\n'
+                '<meta charset="utf-8"/>\n'
+                '<meta http-equiv="Cache-Control" content="no-cache" />\n')
+        f.write('<style>\n.conf {\n\tfloat: left;\n\tmargin: 10px;\n\tpadding: 5px;\n}\n'
+                '\n.uav {\n\tfloat: left;\n\tmargin: 10px;\n\tpadding: 5px;\n\twidth: 250px;\n\t'
+                'border: 1px solid black;\n\tbackground-color:#fef9e7;\n}\nth '
+                '{\n\ttext-align:left;\n}\n</style>\n\n</head>\n')
         f.write('<body>\n')
 
         # Generate table with airframe files that are not in any config
@@ -465,7 +473,9 @@ class PaparazziOverview(object):
         f.write('</div><div class="conf"><h1>Module xml:</h1>')
         f.write('<table><tr><th> Filename </th><th> Number of airframes used in </th><th> Comments </th></tr>')
         for name, mod in mods.iteritems():
-            f.write('<tr><td><li>' + mod.name + '</td><td>' + str(mod.usage) + '</td><td>' + mod.get_comments() + '</td></tr>')
+            f.write('<tr><td><li>' + mod.name + '</td><td>'
+                    + str(mod.usage) + '</td><td>'
+                    + mod.get_comments() + '</td></tr>')
         f.write('</table>')
 
     # Constructor Functions
@@ -474,9 +484,15 @@ class PaparazziOverview(object):
         self.verbose = verbose
 
     def run(self, show_af_detail=True, show_untested=False):
-        with open('var/paparazzi.html','w') as f:
-            f.write('<!DOCTYPE html>\n<html lang="en">\n<head>\n<title>Paparazzi</title>\n<meta charset="utf-8"/>\n<meta http-equiv="Cache-Control" content="no-cache" />\n')
-            f.write('<style>\n.conf {\n\tfloat: left;\n\tmargin: 10px;\n\tpadding: 5px;\n}\n\n.uav {\n\tfloat: left;\n\tmargin: 10px;\n\tpadding: 5px;\n\twidth: 250px;\n\tborder: 1px solid black;\n\tbackground-color:#fef9e7;\n}\nth {\n\ttext-align:left;\n}\n</style>\n\n</head>\n')
+        with open('var/paparazzi.html', 'w') as f:
+            f.write('<!DOCTYPE html>\n<html lang="en">\n<head>\n'
+                    '<title>Paparazzi</title>\n'
+                    '<meta charset="utf-8"/>\n'
+                    '<meta http-equiv="Cache-Control" content="no-cache" />\n')
+            f.write('<style>\n.conf {\n\tfloat: left;\n\tmargin: 10px;\n\tpadding: 5px;\n}\n'
+                    '\n.uav {\n\tfloat: left;\n\tmargin: 10px;\n\tpadding: 5px;\n\twidth: 250px;\n\t'
+                    'border: 1px solid black;\n\tbackground-color:#fef9e7;\n}\nth '
+                    '{\n\ttext-align:left;\n}\n</style>\n\n</head>\n')
             f.write('<body>\n')
             if show_af_detail:
                 conf_files = paparazzi.get_list_of_conf_files()
@@ -484,12 +500,13 @@ class PaparazziOverview(object):
                     airframes = self.list_airframes_in_conf(conf)
                     f.write('<div class="conf"><h2>' + conf + '</h2>')
                     for ac in airframes:
-                        f.write('<div class="uav" title="'+ ac.name + ': ' + ac.xml +'"><h4>' + ac.name + ' (' + ac.ac_id + ')</h4	>')
+                        f.write('<div class="uav" title="' + ac.name + ': '
+                                + ac.xml + '"><h4>' + ac.name + ' (' + ac.ac_id + ')</h4	>')
                         sha = ac.release
                         xml = ac.xml
-                        name = ac.name
-                        if (not sha is None) and (not sha == ""):
-                            f.write('<p>Last flown with <a href="https://github.com/paparazzi/paparazzi/commit/' + sha + '">' + sha[:6] + '...</a></p>')
+                        if (sha is not None) and (not sha == ""):
+                            f.write('<p>Last flown with <a href="https://github.com/paparazzi/paparazzi/commit/'
+                                    + sha + '">' + sha[:6] + '...</a></p>')
                             behind = self.git_behind(sha)
                             color = 'orange'
                             if behind < 200:
@@ -497,20 +514,25 @@ class PaparazziOverview(object):
                             if behind > 2000:
                                 color = 'red'
                             if behind > 0:
-                                f.write( '<p><font color="' + color + '">Is <b>' + str(behind) + '</b> commits behind</font></p>')
+                                f.write('<p><font color="' + color + '">Is <b>' + str(behind)
+                                        + '</b> commits behind</font></p>')
                             else:
-                                f.write( '<p><font color="red">Is <b>not available</b> on this machine</font></p>')
+                                f.write('<p><font color="red">Is <b>not available</b> on this machine</font></p>')
                             outside = self.git_ahead(sha)
                             if outside > 0:
-                                f.write( '<p><font color="red">Using <b>' + str(outside) + '</b> commits not in master</font></p>')
+                                f.write('<p><font color="red">Using <b>' + str(outside)
+                                        + '</b> commits not in master</font></p>')
                         af = self.airframe_details(xml)
-                        f.write('<p>' + ", ".join(af.firmware) + ' on ' + ", ".join(af.boards) + ' <a href="file:////' + os.path.realpath('./conf/'+ac.xml) + '">[E]</a></p>')
-                        f.write('<p><font color="gray"><i>' + self.maximize_text_size(af.description) + '</i></font></p>')
+                        f.write('<p>' + ", ".join(af.firmware) + ' on ' + ", ".join(af.boards)
+                                + ' <a href="file:////' + os.path.realpath('./conf/'+ac.xml) + '">[E]</a></p>')
+                        f.write('<p><font color="gray"><i>'
+                                + self.maximize_text_size(af.description) + '</i></font></p>')
                         if self.verbose:
-                            f.write('<p><a href="https://github.com/paparazzi/paparazzi/blob/master/conf/' + ac.xml + '"/>' + ac.xml + '</a></p>')
+                            f.write('<p><a href="https://github.com/paparazzi/paparazzi/blob/master/conf/'
+                                    + ac.xml + '"/>' + ac.xml + '</a></p>')
                         if self.verbose:
-                            f.write('<p><a href="https://github.com/paparazzi/paparazzi/blob/master/conf/' + ac.flight_plan + '"/>' + ac.flight_plan + '</a></p>')
-                            #fp_inc = self.flightplan_includes(ac.flight_plan)
+                            f.write('<p><a href="https://github.com/paparazzi/paparazzi/blob/master/conf/'
+                                    + ac.flight_plan + '"/>' + ac.flight_plan + '</a></p>')
                         if len(af.includes) > 0:
                             if self.verbose:
                                 f.write('<p>Includes: ' + ", ".join(af.includes) + '</p>')
@@ -532,4 +554,3 @@ if __name__ == "__main__":
     
     obj = PaparazziOverview(brief)
     obj.run()
-
