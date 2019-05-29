@@ -23,6 +23,7 @@ class Airframe:
     xml = ""
     flight_plan = ""
     release = ""
+    modules = []
 
     def __init__(self):
         name = ""
@@ -30,7 +31,7 @@ class Airframe:
         xml = ""
         flight_plan = ""
         release = ""
-
+        modules = []
 
 class AirframeFile:
     name = ""
@@ -218,6 +219,9 @@ class PaparazziOverview(object):
                 af.xml = atype.get('airframe')
                 af.flight_plan = atype.get('flight_plan')
                 af.release = release
+                if (not atype.get('settings_modules') is None) & (not atype.get('settings_modules') == ""):
+                    modules = atype.get('settings_modules').translate(None, '[]').split()
+                af.modules = modules
                 list_of_airframes.append(af)
         return list_of_airframes
 
@@ -293,6 +297,12 @@ class PaparazziOverview(object):
             except etree.ParseError as e:
                 print("Could not parse {}: {}".format(afile, e))
         return includes
+
+    def remove_path_and_xml(self, filename):
+        if filename[-4:] == ".xml":
+            return os.path.splitext(os.path.split(filename)[1])[0]
+        else:
+            return os.path.split(filename)[1]
 
     def generate_sorted_list(self, lst):
         commit_dates = [re.sub(r"( \n)$", "", self.get_last_commit_date(paparazzi.conf_dir + elm)) for elm in lst]
@@ -375,6 +385,8 @@ class PaparazziOverview(object):
         bs = []
         mods = dict()
         fps_usage = dict()
+        conf_files = paparazzi.get_list_of_conf_files()
+
         if show_boards:
             bs = self.find_board_files()
 
@@ -402,6 +414,15 @@ class PaparazziOverview(object):
 
         # Create usage dictionary for modules
         if show_modules:
+            for conf in conf_files:
+                airframes = self.list_airframes_in_conf(conf)
+                for ac in airframes:
+                    for ac_mod in ac.modules:
+                        mod_str = self.remove_path_and_xml(ac_mod)
+                        try:
+                            mods[mod_str].usage = mods[mod_str].usage + 1
+                        except KeyError:
+                            print(mod_str + " in " + str(conf) + ": Does not seem to have an xml file associated with it")
             for ac in afs:
                 af = self.airframe_details(ac)
                 for af_mod in af.modules:
@@ -409,12 +430,13 @@ class PaparazziOverview(object):
                         mod_str = af_mod[0]
                     else:
                         mod_str = af_mod[0] + "_" + af_mod[1]
+                    mod_str = self.remove_path_and_xml(mod_str)
                     try:
                         mods[mod_str].usage = mods[mod_str].usage + 1
                     except KeyError:
                         print(mod_str + " in " + af.xml + ": Does not seem to have an xml file associated with it")
+
         if show_airframes:
-            conf_files = paparazzi.get_list_of_conf_files()
             for conf in conf_files:
                 airframes = self.list_airframes_in_conf(conf)
                 for ac in airframes:
