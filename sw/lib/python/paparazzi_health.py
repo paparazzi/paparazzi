@@ -368,71 +368,78 @@ class PaparazziOverview(object):
 
             webbrowser.open('file://' + os.path.realpath('./var/airframe_module_overview.html'))
 
-    def find_not_tested_by_conf(self):
+    def find_not_tested_by_conf(self, show_airframes, show_flightplans, show_boards, show_modules):
         # Find all airframe, flightplan and module  XML's
         afs = self.find_airframe_files()
         fps = self.find_flightplan_files()
-        bs = self.find_board_files()
+        bs = []
+        mods = dict()
+        fps_usage = dict()
+        if show_boards:
+            bs = self.find_board_files()
 
         # Generation of list of all files in the sw directory, for checking with the modules.
-        module_sw_dir = paparazzi.PAPARAZZI_HOME + "/sw/"
-        file_dict = dict()
-        for root, dirs, dir_files in os.walk(module_sw_dir):
-            for dir_file in dir_files:
-                file_dict[dir_file] = os.path.join(root, dir_file)
+        if show_modules:
+            module_sw_dir = paparazzi.PAPARAZZI_HOME + "/sw/"
+            file_dict = dict()
+            for root, dirs, dir_files in os.walk(module_sw_dir):
+                for dir_file in dir_files:
+                    file_dict[dir_file] = os.path.join(root, dir_file)
 
-        mods = {name: Module(name, file_dict) for name in paparazzi.get_list_of_modules()}
+            mods = {name: Module(name, file_dict) for name in paparazzi.get_list_of_modules()}
 
         # Check if flight plans are included in other flight plans
-        fps_usage = dict()
-        for fp in fps:
-            fps_usage[os.path.split(fp)[1]] = ""
-        for fp in fps:
-            includes = self.flightplan_includes(fp)
-            for include in includes:
-                try:
-                    fps_usage[include] = fps_usage[include] + str(os.path.split(fp)[1]) + ". "
-                except KeyError:
-                    print(include + " in " + fp + ": Does not seem to have an xml file associated with it")
+        if show_flightplans:
+            for fp in fps:
+                fps_usage[os.path.split(fp)[1]] = ""
+            for fp in fps:
+                includes = self.flightplan_includes(fp)
+                for include in includes:
+                    try:
+                        fps_usage[include] = fps_usage[include] + str(os.path.split(fp)[1]) + ". "
+                    except KeyError:
+                        print(include + " in " + fp + ": Does not seem to have an xml file associated with it")
 
         # Create usage dictionary for modules
-        for ac in afs:
-            af = self.airframe_details(ac)
-            for af_mod in af.modules:
-                if af_mod[1] == "":
-                    mod_str = af_mod[0]
-                else:
-                    mod_str = af_mod[0] + "_" + af_mod[1]
-                try:
-                    mods[mod_str].usage = mods[mod_str].usage + 1
-                except KeyError:
-                    print(mod_str + " in " + af.xml + ": Does not seem to have an xml file associated with it")
-
-        conf_files = paparazzi.get_list_of_conf_files()
-        for conf in conf_files:
-            airframes = self.list_airframes_in_conf(conf)
-            for ac in airframes:
-                xml = ac.xml
-                flight_plan = ac.flight_plan
-                if xml in afs:
-                    afs.remove(xml)
-                if flight_plan in fps:
-                    fps.remove(flight_plan)
-                af = self.airframe_details(xml)
-                for board in af.boards:
-                    pattern = 'boards/' + board + '.makefile'
-                    if pattern in bs:
-                        bs.remove(pattern)
-                if len(af.includes) > 0:
-                    for i in af.includes:
-                        inc_name = i[5:].replace('$AC_ID', ac.ac_id)
-                        if inc_name in afs:
-                            afs.remove(inc_name)
+        if show_modules:
+            for ac in afs:
+                af = self.airframe_details(ac)
+                for af_mod in af.modules:
+                    if af_mod[1] == "":
+                        mod_str = af_mod[0]
+                    else:
+                        mod_str = af_mod[0] + "_" + af_mod[1]
+                    try:
+                        mods[mod_str].usage = mods[mod_str].usage + 1
+                    except KeyError:
+                        print(mod_str + " in " + af.xml + ": Does not seem to have an xml file associated with it")
+        if show_airframes:
+            conf_files = paparazzi.get_list_of_conf_files()
+            for conf in conf_files:
+                airframes = self.list_airframes_in_conf(conf)
+                for ac in airframes:
+                    xml = ac.xml
+                    flight_plan = ac.flight_plan
+                    if xml in afs:
+                        afs.remove(xml)
+                    if flight_plan in fps:
+                        fps.remove(flight_plan)
+                    af = self.airframe_details(xml)
+                    for board in af.boards:
+                        pattern = 'boards/' + board + '.makefile'
+                        if pattern in bs:
+                            bs.remove(pattern)
+                    if len(af.includes) > 0:
+                        for i in af.includes:
+                            inc_name = i[5:].replace('$AC_ID', ac.ac_id)
+                            if inc_name in afs:
+                                afs.remove(inc_name)
 
         return afs, fps, bs, mods, fps_usage
 
-    def not_tested_html(self, output_html):
-        afs, fps, bs, mods, fps_usage = self.find_not_tested_by_conf()
+    def not_tested_html(self, output_html, show_airframes, show_flightplans, show_boards, show_modules):
+        afs, fps, bs, mods, fps_usage = self.find_not_tested_by_conf(show_airframes, show_flightplans,
+                                                                     show_boards, show_modules)
         f = output_html
         f.write('<!DOCTYPE html>\n<html lang="en">\n<head>\n'
                 '<title>Untested Airframes, Boards, Flight Plans and Modules Overview</title>\n'
@@ -445,49 +452,54 @@ class PaparazziOverview(object):
         f.write('<body>\n')
 
         # Generate table with airframe files that are not in any config
-        f.write('</div><div class="conf"><h1>Airframe xml that are not tested by any conf:</h1>')
-        f.write('<table><tr><th> Filename </th><th> Last commit date </th></tr>')
-        afs_sorted = self.generate_sorted_list(afs)
-        for af in afs_sorted:
-            f.write('<tr><td><li>' + af[0] + '</td><td>' + af[1] + '</td></tr>')
-        f.write('</table>')
+        if show_airframes:
+            f.write('</div><div class="conf"><h1>Airframe xml that are not tested by any conf:</h1>')
+            f.write('<table><tr><th> Filename </th><th> Last commit date </th></tr>')
+            afs_sorted = self.generate_sorted_list(afs)
+            for af in afs_sorted:
+                f.write('<tr><td><li>' + af[0] + '</td><td>' + af[1] + '</td></tr>')
+            f.write('</table>')
 
         # Generate table with flightplan files that are not in any config
-        f.write('</div><div class="conf"><h1>Flight_plan xml that are not tested by any conf:</h1>')
-        f.write('<table><tr><th> Filename </th><th> Last commit date </th><th> Included in: </th></tr>')
-        fps_sorted = self.generate_sorted_list(fps)
-        for af in fps_sorted:
-            name = os.path.split(af[0])[1]
-            f.write('<tr><td><li>' + af[0] + '</td><td>' + af[1] + '</td><td>' + fps_usage[name] + '</td></tr>')
-        f.write('</table>')
+        if show_flightplans:
+            f.write('</div><div class="conf"><h1>Flight_plan xml that are not tested by any conf:</h1>')
+            f.write('<table><tr><th> Filename </th><th> Last commit date </th><th> Included in: </th></tr>')
+            fps_sorted = self.generate_sorted_list(fps)
+            for af in fps_sorted:
+                name = os.path.split(af[0])[1]
+                f.write('<tr><td><li>' + af[0] + '</td><td>' + af[1] + '</td><td>' + fps_usage[name] + '</td></tr>')
+            f.write('</table>')
 
         # Generate table with board files that are not in any config
-        f.write('</div><div class="conf"><h1>Board makefiles that are not tested by any conf:</h1>')
-        f.write('<table><tr><th> Filename </th><th> Last commit date </th></tr>')
-        bs_sorted = self.generate_sorted_list(bs)
-        for b in bs_sorted:
-            f.write('<tr><td><li>' + b[0] + '</td><td>' + b[1] + '</td></tr>')
-        f.write('</table>')
+        if show_boards:
+            f.write('</div><div class="conf"><h1>Board makefiles that are not tested by any conf:</h1>')
+            f.write('<table><tr><th> Filename </th><th> Last commit date </th></tr>')
+            bs_sorted = self.generate_sorted_list(bs)
+            for b in bs_sorted:
+                f.write('<tr><td><li>' + b[0] + '</td><td>' + b[1] + '</td></tr>')
+            f.write('</table>')
 
         # Generate table with all modules and module usage
-        f.write('</div><div class="conf"><h1>Module xml:</h1>')
-        f.write('This section lists all module xml files (first column),<br>'
-                'checks how often they are mentioned in airframe xml files (second column)<br> '
-                'and checks if all files mentioned in the module xml exist in the sw directory '
-                'and when they have been modified (third column)')
-        f.write('<table><tr><th> Filename </th><th> Number of airframes used in </th><th> Comments </th></tr>')
-        for name, mod in mods.iteritems():
-            f.write('<tr><td><li>' + mod.name + '</td><td>'
-                    + str(mod.usage) + '</td><td>'
-                    + mod.get_comments() + '</td></tr>')
-        f.write('</table>')
+        if show_modules:
+            f.write('</div><div class="conf"><h1>Module xml:</h1>')
+            f.write('This section lists all module xml files (first column),<br>'
+                    'checks how often they are mentioned in airframe xml files (second column)<br> '
+                    'and checks if all files mentioned in the module xml exist in the sw directory '
+                    'and when they have been modified (third column)')
+            f.write('<table><tr><th> Filename </th><th> Number of airframes used in </th><th> Comments </th></tr>')
+            for name, mod in mods.iteritems():
+                f.write('<tr><td><li>' + mod.name + '</td><td>'
+                        + str(mod.usage) + '</td><td>'
+                        + mod.get_comments() + '</td></tr>')
+            f.write('</table>')
 
     # Constructor Functions
     def __init__(self, verbose):
         self.exclude_backups = 1
         self.verbose = verbose
 
-    def run(self, show_af_detail=True, show_untested=False):
+    def run(self, show_af_detail=True, show_untested=False,
+            show_airframes=False, show_flightplans=False, show_boards=False, show_modules=False):
         with open('var/paparazzi.html', 'w') as f:
             f.write('<!DOCTYPE html>\n<html lang="en">\n<head>\n'
                     '<title>Paparazzi</title>\n'
@@ -544,7 +556,7 @@ class PaparazziOverview(object):
                     f.write('</div>\n')
 
             if show_untested:
-                self.not_tested_html(f)
+                self.not_tested_html(f, show_airframes, show_flightplans, show_boards, show_modules)
 
             f.write('</div></body>\n</html>\n')
             webbrowser.open('file://' + os.path.realpath('./var/paparazzi.html'))
