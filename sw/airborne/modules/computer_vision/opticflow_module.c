@@ -154,7 +154,7 @@ struct image_t *opticflow_module_calc(struct image_t *img)
   if(opticflow_calc_frame(&opticflow, img, &temp_result)){
     // Copy the result if finished
     pthread_mutex_lock(&opticflow_mutex);
-    memcpy(&opticflow_result, &temp_result, sizeof(struct opticflow_result_t));
+    opticflow_result = temp_result;
     opticflow_got_result = true;
     pthread_mutex_unlock(&opticflow_mutex);
   }
