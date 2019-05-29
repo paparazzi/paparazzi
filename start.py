@@ -66,9 +66,9 @@ class ConfChooser(object):
 
     # CallBack Functions
 
-    def find_conf_files(self):
+    def find_conf_files(self, combo):
         conf_files = paparazzi.get_list_of_conf_files(self.exclude_backups)
-        self.update_combo(self.conf_file_combo, conf_files, self.conf_xml)
+        self.update_combo(combo, conf_files, self.conf_xml)
 
     def find_controlpanel_files(self):
         controlpanel_files = paparazzi.get_list_of_controlpanel_files(self.exclude_backups)
@@ -120,18 +120,22 @@ class ConfChooser(object):
 
     def set_backups(self, widget):
         self.exclude_backups = not widget.get_active()
-        self.find_conf_files()
+        self.find_conf_files(self.conf_file_combo)
         self.find_controlpanel_files()
 
     def more_info(self, widget):
-        obj = PaparazziOverview(0)
-        obj.run(self.btnAfDetails.get_active(), self.btnUntested.get_active())
+        self.obj.run()
 
-    def module_usage(self, widget):
-        selected_conf = self.conf_file_combo.get_active_text()
-        obj = PaparazziOverview(0)
-        obj.airframe_module_overview(selected_conf)
+    def show_untested(self, widget, data):
+        self.obj.run(show_af_detail=False, show_untested=True,
+                     show_airframes=data["Airframes"].get_active(),
+                     show_flightplans=data["Flightplans"].get_active(),
+                     show_boards=data["Boards"].get_active(),
+                     show_modules=data["Modules"].get_active())
 
+    def module_usage(self, widget, data):
+        selected_conf = data.get_active_text()
+        self.obj.airframe_module_overview(selected_conf)
 
     def launch(self, widget):
         self.accept(widget)
@@ -190,7 +194,7 @@ class ConfChooser(object):
                 os.remove(filename)
             self.update_conf_label()
             self.count_airframes_in_conf()
-            self.find_conf_files()
+            self.find_conf_files(self.conf_file_combo)
             self.print_status("Deleted: " + filename)
 
     def delete_controlpanel(self, widget):
@@ -214,7 +218,7 @@ class ConfChooser(object):
             os.symlink(selected, self.conf_xml)
             self.update_conf_label()
             self.count_airframes_in_conf()
-            self.find_conf_files()
+            self.find_conf_files(self.conf_file_combo)
 
         selected = self.controlpanel_file_combo.get_active_text()
         if selected == "control_panel.xml":
@@ -238,7 +242,7 @@ class ConfChooser(object):
             os.symlink(self.conf_personal_name, self.conf_xml)
             self.update_conf_label()
             self.count_airframes_in_conf()
-            self.find_conf_files()
+            self.find_conf_files(self.conf_file_combo)
 
     def personal_controlpanel(self, widget):
         if os.path.exists(self.controlpanel_personal):
@@ -258,8 +262,79 @@ class ConfChooser(object):
     def changed_cb(self, entry):
         self.count_airframes_in_conf()
 
+    def maintenance_window(self, widget):
+        mtn_window = gtk.Window()
+        mtn_window.set_position(gtk.WIN_POS_CENTER)
+        mtn_window.set_size_request(700, 250)
+        mtn_window.set_title("Maintenance Tools")
+
+        my_vbox = gtk.VBox()
+
+        conf_label = gtk.Label("Conf:")
+        conf_label.set_size_request(100, 30)
+        conf_file_combo = gtk.combo_box_new_text()
+        self.find_conf_files(conf_file_combo)
+        conf_file_combo.connect("changed", self.changed_cb)
+        conf_file_combo.set_size_request(500, 30)
+
+        btnModule = gtk.Button("Module\nUsage")
+        btnModule.connect("clicked", self.module_usage, conf_file_combo)
+        btnModule.set_tooltip_text("More information on the modules used by these airframes")
+
+        confbar = gtk.HBox()
+        confbar.pack_start(conf_label)
+        confbar.pack_start(conf_file_combo)
+        confbar.pack_start(btnModule)
+        my_vbox.pack_start(confbar, False)
+
+        separator = gtk.HSeparator()
+        my_vbox.pack_start(separator)
+
+        cbtnAirframes = gtk.CheckButton()
+        cbtnAirframes.set_label("Airframes")
+        cbtnAirframes.set_active(True)
+
+        cbtnFlightplans = gtk.CheckButton()
+        cbtnFlightplans.set_label("Flight plans")
+        cbtnFlightplans.set_active(True)
+
+        cbtnBoards = gtk.CheckButton()
+        cbtnBoards.set_label("Boards")
+        cbtnBoards.set_active(True)
+
+        cbtnModules = gtk.CheckButton()
+        cbtnModules.set_label("Modules")
+        cbtnModules.set_active(False)
+
+        selectedOptions = {"Airframes": cbtnAirframes, "Flightplans": cbtnFlightplans,
+                           "Boards": cbtnBoards, "Modules": cbtnModules}
+
+        btnUntested = gtk.Button(None, "Untested\nfiles")
+        btnUntested.connect("clicked", self.show_untested, selectedOptions)
+
+        untestedHBox = gtk.HBox()
+        cbtnVBox = gtk.VBox()
+        cbRowUpper = gtk.HBox()
+        cbRowLower = gtk.HBox()
+
+        cbRowUpper.pack_start(cbtnAirframes)
+        cbRowUpper.pack_start(cbtnBoards)
+        cbRowLower.pack_start(cbtnFlightplans)
+        cbRowLower.pack_start(cbtnModules)
+        cbtnVBox.pack_start(cbRowUpper)
+        cbtnVBox.pack_start(cbRowLower)
+        untestedHBox.pack_start(cbtnVBox)
+        untestedHBox.pack_start(btnUntested)
+
+        my_vbox.pack_start(untestedHBox)
+
+        mtn_window.add(my_vbox)
+        mtn_window.show_all()
+
     # Constructor Functions
     def __init__(self):
+        self.obj = PaparazziOverview(0)
+
         # paparazzi process
         self.pp = None
 
@@ -316,7 +391,7 @@ class ConfChooser(object):
         self.conf_label.set_size_request(100, 30)
 
         self.conf_file_combo = gtk.combo_box_new_text()
-        self.find_conf_files()
+        self.find_conf_files(self.conf_file_combo)
         self.conf_file_combo.connect("changed", self.changed_cb)
         self.conf_file_combo.set_size_request(550, 30)
 
@@ -353,32 +428,20 @@ class ConfChooser(object):
         self.conf_airframes.set_size_request(650,180)
         self.conf_airframes.set_line_wrap(True)
 
-        self.btnAfDetails = gtk.CheckButton("Show airframe details")
-        self.btnAfDetails.set_active(True)
-
-        self.btnUntested = gtk.CheckButton("Show untested files")
-
         self.btnInfo = gtk.Button(None, "More\nInfo")
         self.btnInfo.connect("clicked", self.more_info)
         self.btnInfo.set_tooltip_text("More information on airframe files")
 
-        self.btnModule = gtk.Button(None, "Module\nUsage")
-        self.btnModule.connect("clicked", self.module_usage)
-        self.btnModule.set_tooltip_text("More information on the modules used by these airframes")
-
-        self.separator1 = gtk.HSeparator()
-        self.separator2 = gtk.HSeparator()
+        self.btnMaintenance = gtk.Button(None, "Maintenance\nTools")
+        self.btnMaintenance.connect("clicked", self.maintenance_window)
+        self.btnMaintenance.set_tooltip_text("Show maintenance tools")
 
         self.caexbar = gtk.HBox()
         self.caexbar.pack_start(self.conf_airframes)
         self.caexbar_btns = gtk.VBox()
         self.caexbar.pack_start(self.caexbar_btns)
-        self.caexbar_btns.pack_start(self.separator1)
-        self.caexbar_btns.pack_start(self.btnAfDetails)
-        self.caexbar_btns.pack_start(self.btnUntested)
         self.caexbar_btns.pack_start(self.btnInfo)
-        self.caexbar_btns.pack_start(self.separator2)
-        self.caexbar_btns.pack_start(self.btnModule)
+        self.caexbar_btns.pack_start(self.btnMaintenance)
 
         self.my_vbox.pack_start(self.caexbar, False)
 
