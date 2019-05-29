@@ -53,25 +53,6 @@
 // Horizontal Mirror
 // Vertical Flip
 
-/** Our output is only OUTPUT_SCALER of the pixels we take of the sensor
- * It is programmable in 1/16 steps determined by ScaleFactor = 16/scale_m.
- * Legal values for scale_m are 16 through 128, giving you the ability to scale from
- * 1:1 to 1:8 (with m=128).
- *  Example:
- *  output_width = 512
- *  output_height = 830
- *  output_scaler = 0.25
- *  We now get an image of 512 by 830 which contains a "compressed version"
- *  of what would normally be an image of 2048 by 3320.
- *  Be warned: set your offset x appropriately.
- *  Example of what could go wrong:
- *  output_width = 512
- *  output_height = 830
- *  output_scaler = 0.25
- *  offset_x = 1500
- *  We now ask for pixels outside the 4608H x 2592V sensor or the 3320H x 2048W of the ISP.
- */
-
 /** Exposure of the front camera of the bebop. Experimental values:
  * Outside: 15
  * Inside well lit: 30
