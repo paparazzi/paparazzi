@@ -385,7 +385,7 @@ static void init_gazebo(void)
         int fps = Min(MT9F002_TARGET_FPS, link->GetElement("sensor")->GetElement("update_rate")->Get<int>());
         link->GetElement("sensor")->GetElement("update_rate")->Set(fps);
       }
-    } else if  (link->Get<string>("name") == "front_camera" && link->GetElement("sensor")->Get<string>("name") == "mt9v117") {
+    } else if  (link->Get<string>("name") == "bottom_camera" && link->GetElement("sensor")->Get<string>("name") == "mt9v117") {
       if (MT9V117_TARGET_FPS){
         int fps = Min(MT9V117_TARGET_FPS, link->GetElement("sensor")->GetElement("update_rate")->Get<int>());
         link->GetElement("sensor")->GetElement("update_rate")->Set(fps);
