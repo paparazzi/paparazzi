@@ -471,6 +471,10 @@ class PaparazziOverview(object):
 
         # Generate table with all modules and module usage
         f.write('</div><div class="conf"><h1>Module xml:</h1>')
+        f.write('This section lists all module xml files (first column),<br>'
+                'checks how often they are mentioned in airframe xml files (second column)<br> '
+                'and checks if all files mentioned in the module xml exist in the sw directory '
+                'and when they have been modified (third column)')
         f.write('<table><tr><th> Filename </th><th> Number of airframes used in </th><th> Comments </th></tr>')
         for name, mod in mods.iteritems():
             f.write('<tr><td><li>' + mod.name + '</td><td>'
