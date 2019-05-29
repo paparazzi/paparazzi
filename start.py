@@ -74,13 +74,13 @@ class ConfChooser(object):
         controlpanel_files = paparazzi.get_list_of_controlpanel_files(self.exclude_backups)
         self.update_combo(self.controlpanel_file_combo, controlpanel_files, self.controlpanel_xml)
 
-    def count_airframes_in_conf(self):
+    def count_airframes_in_conf(self, combo, conf_airframes):
         airframes = 0
         releases = 0
-        if self.conf_file_combo.get_active_text() is None:
+        if combo.get_active_text() is None:
             return
         desc = ""
-        afile = os.path.join(paparazzi.conf_dir, self.conf_file_combo.get_active_text())
+        afile = os.path.join(paparazzi.conf_dir, combo.get_active_text())
         if os.path.exists(afile):
             e = xml.etree.ElementTree.parse(afile).getroot()
             for atype in e.findall('aircraft'):
@@ -94,7 +94,7 @@ class ConfChooser(object):
                 else:
                     desc += atype.get('name')
         desc = "<b>" + str(airframes) + " airframes:</b> " + desc
-        self.conf_airframes.set_markup(desc)
+        conf_airframes.set_markup(desc)
         return
 
     def about(self, widget):
@@ -193,7 +193,7 @@ class ConfChooser(object):
             if os.path.exists(filename):
                 os.remove(filename)
             self.update_conf_label()
-            self.count_airframes_in_conf()
+            self.count_airframes_in_conf(self.conf_file_combo, self.conf_airframes)
             self.find_conf_files(self.conf_file_combo)
             self.print_status("Deleted: " + filename)
 
@@ -217,7 +217,7 @@ class ConfChooser(object):
                 os.remove(self.conf_xml)
             os.symlink(selected, self.conf_xml)
             self.update_conf_label()
-            self.count_airframes_in_conf()
+            self.count_airframes_in_conf(self.conf_file_combo, self.conf_airframes)
             self.find_conf_files(self.conf_file_combo)
 
         selected = self.controlpanel_file_combo.get_active_text()
@@ -241,7 +241,7 @@ class ConfChooser(object):
             os.remove(self.conf_xml)
             os.symlink(self.conf_personal_name, self.conf_xml)
             self.update_conf_label()
-            self.count_airframes_in_conf()
+            self.count_airframes_in_conf(self.conf_file_combo, self.conf_airframes)
             self.find_conf_files(self.conf_file_combo)
 
     def personal_controlpanel(self, widget):
@@ -259,13 +259,13 @@ class ConfChooser(object):
     def print_status(self, text):
         self.statusbar.push(self.context_id, text)
 
-    def changed_cb(self, entry):
-        self.count_airframes_in_conf()
+    def changed_cb(self, widget, data):
+        self.count_airframes_in_conf(data["combo"], data["list"])
 
     def maintenance_window(self, widget):
         mtn_window = gtk.Window()
         mtn_window.set_position(gtk.WIN_POS_CENTER)
-        mtn_window.set_size_request(700, 250)
+        mtn_window.set_size_request(750, 300)
         mtn_window.set_title("Maintenance Tools")
 
         my_vbox = gtk.VBox()
@@ -274,18 +274,29 @@ class ConfChooser(object):
         conf_label.set_size_request(100, 30)
         conf_file_combo = gtk.combo_box_new_text()
         self.find_conf_files(conf_file_combo)
-        conf_file_combo.connect("changed", self.changed_cb)
         conf_file_combo.set_size_request(500, 30)
+
+        conf_airframes = gtk.Label("")
+        self.count_airframes_in_conf(conf_file_combo, conf_airframes)
+        conf_airframes.set_size_request(650, 180)
+        conf_airframes.set_line_wrap(True)
+
+        combo_list = {"combo": conf_file_combo, "list": conf_airframes}
+        conf_file_combo.connect("changed", self.changed_cb, combo_list)
+
+        confbar = gtk.HBox()
+        confbar.pack_start(conf_label)
+        confbar.pack_start(conf_file_combo)
+        my_vbox.pack_start(confbar, False)
 
         btnModule = gtk.Button("Module\nUsage")
         btnModule.connect("clicked", self.module_usage, conf_file_combo)
         btnModule.set_tooltip_text("More information on the modules used by these airframes")
 
-        confbar = gtk.HBox()
-        confbar.pack_start(conf_label)
-        confbar.pack_start(conf_file_combo)
-        confbar.pack_start(btnModule)
-        my_vbox.pack_start(confbar, False)
+        caexbar = gtk.HBox()
+        caexbar.pack_start(conf_airframes)
+        caexbar.pack_start(btnModule)
+        my_vbox.pack_start(caexbar)
 
         separator = gtk.HSeparator()
         my_vbox.pack_start(separator)
@@ -309,7 +320,7 @@ class ConfChooser(object):
         selectedOptions = {"Airframes": cbtnAirframes, "Flightplans": cbtnFlightplans,
                            "Boards": cbtnBoards, "Modules": cbtnModules}
 
-        btnUntested = gtk.Button(None, "Untested\nfiles")
+        btnUntested = gtk.Button(None, "Show untested files")
         btnUntested.connect("clicked", self.show_untested, selectedOptions)
 
         untestedHBox = gtk.HBox()
@@ -392,7 +403,6 @@ class ConfChooser(object):
 
         self.conf_file_combo = gtk.combo_box_new_text()
         self.find_conf_files(self.conf_file_combo)
-        self.conf_file_combo.connect("changed", self.changed_cb)
         self.conf_file_combo.set_size_request(550, 30)
 
         self.btnDeleteConf = gtk.Button(None, gtk.STOCK_DELETE)
@@ -424,9 +434,12 @@ class ConfChooser(object):
 
         # Count Airframes
         self.conf_airframes = gtk.Label("")
-        self.count_airframes_in_conf()
-        self.conf_airframes.set_size_request(650,180)
+        self.count_airframes_in_conf(self.conf_file_combo, self.conf_airframes)
+        self.conf_airframes.set_size_request(650, 180)
         self.conf_airframes.set_line_wrap(True)
+
+        self.combo_list = {"combo": self.conf_file_combo, "list": self.conf_airframes}
+        self.conf_file_combo.connect("changed", self.changed_cb, self.combo_list)
 
         self.btnInfo = gtk.Button(None, "More\nInfo")
         self.btnInfo.connect("clicked", self.more_info)
