@@ -268,38 +268,38 @@ class ConfChooser(object):
         mtn_window.set_size_request(750, 300)
         mtn_window.set_title("Maintenance Tools")
 
-        my_vbox = gtk.VBox()
+        mnt_vbox = gtk.VBox()
 
-        conf_label = gtk.Label("Conf:")
-        conf_label.set_size_request(100, 30)
-        conf_file_combo = gtk.combo_box_new_text()
-        self.find_conf_files(conf_file_combo)
-        conf_file_combo.set_size_request(500, 30)
+        mnt_conf_label = gtk.Label("Conf:")
+        mnt_conf_label.set_size_request(100, 30)
+        mnt_conf_file_combo = gtk.combo_box_new_text()
+        self.find_conf_files(mnt_conf_file_combo)
+        mnt_conf_file_combo.set_size_request(500, 30)
 
-        conf_airframes = gtk.Label("")
-        self.count_airframes_in_conf(conf_file_combo, conf_airframes)
-        conf_airframes.set_size_request(650, 180)
-        conf_airframes.set_line_wrap(True)
+        mnt_conf_airframes = gtk.Label("")
+        self.count_airframes_in_conf(mnt_conf_file_combo, mnt_conf_airframes)
+        mnt_conf_airframes.set_size_request(650, 180)
+        mnt_conf_airframes.set_line_wrap(True)
 
-        combo_list = {"combo": conf_file_combo, "list": conf_airframes}
-        conf_file_combo.connect("changed", self.changed_cb, combo_list)
+        combo_list = {"combo": mnt_conf_file_combo, "list": mnt_conf_airframes}
+        mnt_conf_file_combo.connect("changed", self.changed_cb, combo_list)
 
-        confbar = gtk.HBox()
-        confbar.pack_start(conf_label)
-        confbar.pack_start(conf_file_combo)
-        my_vbox.pack_start(confbar, False)
+        mnt_confbar = gtk.HBox()
+        mnt_confbar.pack_start(mnt_conf_label)
+        mnt_confbar.pack_start(mnt_conf_file_combo)
+        mnt_vbox.pack_start(mnt_confbar, False)
 
         btnModule = gtk.Button("Module\nUsage")
-        btnModule.connect("clicked", self.module_usage, conf_file_combo)
+        btnModule.connect("clicked", self.module_usage, mnt_conf_file_combo)
         btnModule.set_tooltip_text("More information on the modules used by these airframes")
 
-        caexbar = gtk.HBox()
-        caexbar.pack_start(conf_airframes)
-        caexbar.pack_start(btnModule)
-        my_vbox.pack_start(caexbar)
+        mnt_caexbar = gtk.HBox()
+        mnt_caexbar.pack_start(mnt_conf_airframes)
+        mnt_caexbar.pack_start(btnModule)
+        mnt_vbox.pack_start(mnt_caexbar)
 
         separator = gtk.HSeparator()
-        my_vbox.pack_start(separator)
+        mnt_vbox.pack_start(separator)
 
         cbtnAirframes = gtk.CheckButton()
         cbtnAirframes.set_label("Airframes")
@@ -320,8 +320,9 @@ class ConfChooser(object):
         selectedOptions = {"Airframes": cbtnAirframes, "Flightplans": cbtnFlightplans,
                            "Boards": cbtnBoards, "Modules": cbtnModules}
 
-        btnUntested = gtk.Button(None, "Show untested files")
+        btnUntested = gtk.Button(None, "Untested Files")
         btnUntested.connect("clicked", self.show_untested, selectedOptions)
+        btnUntested.set_tooltip_text("For the selected options show the files not tested by any conf")
 
         untestedHBox = gtk.HBox()
         cbtnVBox = gtk.VBox()
@@ -337,9 +338,9 @@ class ConfChooser(object):
         untestedHBox.pack_start(cbtnVBox)
         untestedHBox.pack_start(btnUntested)
 
-        my_vbox.pack_start(untestedHBox)
+        mnt_vbox.pack_start(untestedHBox)
 
-        mtn_window.add(my_vbox)
+        mtn_window.add(mnt_vbox)
         mtn_window.show_all()
 
     # Constructor Functions
@@ -445,7 +446,7 @@ class ConfChooser(object):
         self.btnInfo.connect("clicked", self.more_info)
         self.btnInfo.set_tooltip_text("More information on airframe files")
 
-        self.btnMaintenance = gtk.Button(None, "Maintenance\nTools")
+        self.btnMaintenance = gtk.Button(None, "Maintenance\n\tTools")
         self.btnMaintenance.connect("clicked", self.maintenance_window)
         self.btnMaintenance.set_tooltip_text("Show maintenance tools")
 
