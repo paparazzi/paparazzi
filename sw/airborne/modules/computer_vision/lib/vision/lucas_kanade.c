@@ -53,6 +53,7 @@
  * @param[in] step_threshold The threshold of additional subpixel flow at which the iterations should stop
  * @param[in] max_points The maximum amount of points to track, we skip x points and then take a point.
  * @param[in] pyramid_level Level of pyramid used in computation (0 == no pyramids used)
+ * @param[in] keep_bad_points Do not filter out bad points. The error field will be set accordingly.
  * @return The vectors from the original *points in subpixels
  *
  * Pyramidal implementation of Lucas-Kanade feature tracker.
