@@ -320,7 +320,7 @@ class ConfChooser(object):
         selectedOptions = {"Airframes": cbtnAirframes, "Flightplans": cbtnFlightplans,
                            "Boards": cbtnBoards, "Modules": cbtnModules}
 
-        btnUntested = gtk.Button(None, "Untested Files")
+        btnUntested = gtk.Button(None, "Show Untested Files")
         btnUntested.connect("clicked", self.show_untested, selectedOptions)
         btnUntested.set_tooltip_text("For the selected options show the files not tested by any conf")
 
