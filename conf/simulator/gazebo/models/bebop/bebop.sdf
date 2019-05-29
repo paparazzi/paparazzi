@@ -200,11 +200,11 @@
             <height>3288</height>
             <format>R8G8B8</format>
           </image>
-          <horizontal_fov>3.4</horizontal_fov>
+          <horizontal_fov>3.0</horizontal_fov>
           <lens>
             <type>equisolid_angle</type>
             <scale_to_hfov>true</scale_to_hfov>
-            <cutoff_angle>3.4</cutoff_angle>
+            <cutoff_angle>3.0</cutoff_angle>
             <env_texture_size>2048</env_texture_size><!-- with MT9F002_ZOOM = 1.00, will be scaled by NPS -->
           </lens>
           <clip>
