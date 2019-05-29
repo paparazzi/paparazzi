@@ -375,9 +375,6 @@ static void init_gazebo(void)
 
       link->GetElement("sensor")->GetElement("camera")->GetElement("horizontal_fov")->Set(hfov * MT9F002_OUTPUT_WIDTH / MT9F002_OUTPUT_HEIGHT / MT9F002_ZOOM);
 
-      int env = link->GetElement("sensor")->GetElement("camera")->GetElement("lens")->GetElement("env_texture_size")->Get<int>();
-      link->GetElement("sensor")->GetElement("camera")->GetElement("lens")->GetElement("env_texture_size")->Set(env / MT9F002_ZOOM);
-
       link->GetElement("sensor")->GetElement("camera")->GetElement("image")->GetElement("width")->Set(MT9F002_OUTPUT_WIDTH);
       link->GetElement("sensor")->GetElement("camera")->GetElement("image")->GetElement("height")->Set(MT9F002_OUTPUT_HEIGHT);
 
