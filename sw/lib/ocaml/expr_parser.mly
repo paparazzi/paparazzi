@@ -28,12 +28,12 @@ open Expr_syntax
 %token <string> IDENT
 %token EOF
 %token DOT COMMA SEMICOLON LP RP LC RC LB RB DEREF AND COLON OR
-%token EQ GT ASSIGN GEQ NOT
+%token EQ GT LT ASSIGN GEQ LEQ NOT
 %token PLUS MINUS
 %token MULT DIV MOD EXPO
 
 %left AND OR	/* lowest precedence */
-%left EQ GT ASSIGN GEQ
+%left EQ GT LT ASSIGN GEQ LEQ
 %left PLUS MINUS
 %left MULT DIV MOD EXPO
 %nonassoc NOT
@@ -48,6 +48,8 @@ open Expr_syntax
 expression:
     expression GT expression { CallOperator (">",[$1;$3]) }
   | expression GEQ expression { CallOperator (">=",[$1;$3]) }
+  | expression LT expression { CallOperator ("<",[$1;$3]) }
+  | expression LEQ expression { CallOperator ("<=",[$1;$3]) }
   | expression EQ expression { CallOperator ("==",[$1;$3]) }
   | expression AND expression { CallOperator ("&&",[$1;$3]) }
   | expression OR expression { CallOperator ("||",[$1;$3]) }
