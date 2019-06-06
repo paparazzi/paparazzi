@@ -31,7 +31,7 @@ class Airframe:
         xml = ""
         flight_plan = ""
         release = ""
-        modules = []
+
 
 class AirframeFile:
     name = ""
@@ -57,7 +57,7 @@ class Module:
     """ Stores data related to single module
     Data class for storage of information related to a single module xml file.
     """
-    module_airborne_dir = paparazzi.PAPARAZZI_HOME + "/sw/airborne/"
+    module_airborne_dir = paparazzi.PAPARAZZI_SRC + "/sw/airborne/"
     name = ""
     last_commit = ""
     xml = ""
@@ -87,8 +87,8 @@ class Module:
                     file_name = file_name[file_name.rfind('/')+1:]
                 self.files[file_name] = ""
 
-        self.missing_files = list(self.files.iterkeys())
-        for mod_file in self.files.iterkeys():
+        self.missing_files = list(self.files.viewkeys())
+        for mod_file in self.files.viewkeys():
             if mod_file in file_dict:
                 self.files[mod_file] = file_dict[mod_file]
                 if mod_file in self.missing_files:
@@ -99,7 +99,7 @@ class Module:
         """ Calculates the most recent commit from any of the files related to this module."""
         commit_processes = [self.open_commit_log_process(self.xml)]
         commit_list = []
-        for key, value in self.files.iteritems():
+        for _, value in self.files.items():
             commit_processes.append(self.open_commit_log_process(value))
         for process in commit_processes:
             out = process.communicate()
@@ -110,7 +110,8 @@ class Module:
         self.last_commit = commit_list[0]
         return
 
-    def open_commit_log_process(self, filename):
+    @staticmethod
+    def open_commit_log_process(filename):
         """ Opens subprocess to retrieve last commit date."""
         process = subprocess.Popen(['git', 'log', '-1', '--date=format:%d-%m-%Y', '--format=%cd ', filename],
                                    stdout=PIPE, stderr=PIPE)
@@ -129,14 +130,16 @@ class Module:
 
 class PaparazziOverview(object):
 
-    def represents_int(self, s):
+    @staticmethod
+    def represents_int(s):
         try: 
             v = int(s)
             return v
         except ValueError:
             return -1
 
-    def maximize_text_size(self, txt):
+    @staticmethod
+    def maximize_text_size(txt):
         if len(txt) > 500:
             return txt[:500] + '...'
         else:
@@ -154,13 +157,17 @@ class PaparazziOverview(object):
         stdoutput, stderroutput = process.communicate()
         return self.represents_int(stdoutput)
 
-    def get_last_commit_date(self, filename):
+    @staticmethod
+    def get_last_commit_date(filename):
         process = subprocess.Popen(['git', 'log', '-1', '--date=format:%d-%m-%Y', '--format=%cd ', filename], bufsize=-1,
                                    stdout=PIPE, stderr=PIPE)
         stdoutput, stderroutput = process.communicate()
+        if stdoutput == "":
+            stdoutput = "00-00-0000"
         return stdoutput
 
-    def find_xml_files(self, folder):
+    @staticmethod
+    def find_xml_files(folder):
         airframe_files = []
         pattern = "*.xml"
         confn = "*conf[._-]*xml"
@@ -179,8 +186,9 @@ class PaparazziOverview(object):
         airframe_files.sort()
         return airframe_files
 
-    def find_makefiles(self, folder):
-        board_files = []
+    @staticmethod
+    def find_makefiles(folder):
+        makefiles = []
         pattern = "*.makefile"
 
         for path, subdirs, files in os.walk(os.path.join(paparazzi.conf_dir, folder)):
@@ -188,9 +196,9 @@ class PaparazziOverview(object):
                 if fnmatch(name, pattern):
                     filepath = os.path.join(path, name)
                     entry = os.path.relpath(filepath, paparazzi.conf_dir)
-                    board_files.append(entry)
-        board_files.sort()
-        return board_files
+                    makefiles.append(entry)
+        makefiles.sort()
+        return makefiles
 
     def find_airframe_files(self):
         return self.find_xml_files('airframes/')
@@ -201,7 +209,8 @@ class PaparazziOverview(object):
     def find_board_files(self):
         return self.find_makefiles('boards/')
 
-    def list_airframes_in_conf(self, conf):
+    @staticmethod
+    def list_airframes_in_conf(conf):
         if conf is None:
             return []
         list_of_airframes = []
@@ -263,7 +272,8 @@ class PaparazziOverview(object):
             
         return airframe
 
-    def get_module_name_type(self, ctype):
+    @staticmethod
+    def get_module_name_type(ctype):
         module_name = re.sub(r'(\.xml)$', "", ctype.get('name'))
         if ctype.get('type') is not None:
             module_type = re.sub(r'(\.xml)$', "", ctype.get('type'))
@@ -272,7 +282,8 @@ class PaparazziOverview(object):
         module = (module_name, module_type)
         return module
 
-    def flightplan_includes(self, xmlname):
+    @staticmethod
+    def flightplan_includes(xmlname):
         includes = []        
         if xml is None:
             return includes
@@ -298,7 +309,8 @@ class PaparazziOverview(object):
                 print("Could not parse {}: {}".format(afile, e))
         return includes
 
-    def remove_path_and_xml(self, filename):
+    @staticmethod
+    def remove_path_and_xml(filename):
         if filename[-4:] == ".xml":
             return os.path.splitext(os.path.split(filename)[1])[0]
         else:
@@ -382,23 +394,54 @@ class PaparazziOverview(object):
         # Find all airframe, flightplan and module  XML's
         afs = self.find_airframe_files()
         fps = self.find_flightplan_files()
-        bs = []
+        bs = self.find_board_files()
         mods = dict()
         fps_usage = dict()
         conf_files = paparazzi.get_list_of_conf_files()
 
-        if show_boards:
-            bs = self.find_board_files()
-
         # Generation of list of all files in the sw directory, for checking with the modules.
         if show_modules:
-            module_sw_dir = paparazzi.PAPARAZZI_HOME + "/sw/"
+            module_sw_dir = paparazzi.PAPARAZZI_SRC + "/sw/"
             file_dict = dict()
             for root, dirs, dir_files in os.walk(module_sw_dir):
                 for dir_file in dir_files:
                     file_dict[dir_file] = os.path.join(root, dir_file)
 
             mods = {name: Module(name, file_dict) for name in paparazzi.get_list_of_modules()}
+
+        for conf in conf_files:
+            airframes = self.list_airframes_in_conf(conf)
+            for ac in airframes:
+                xml = ac.xml
+                flight_plan = ac.flight_plan
+                af = self.airframe_details(xml)
+                if show_airframes:
+                    if xml in afs:
+                        afs.remove(xml)
+                    if len(af.includes) > 0:
+                        for i in af.includes:
+                            inc_name = i[5:].replace('$AC_ID', ac.ac_id)
+                            if inc_name in afs:
+                                afs.remove(inc_name)
+                if show_flightplans and flight_plan in fps:
+                    fps.remove(flight_plan)
+                if show_boards:
+                    for board in af.boards:
+                        pattern = 'boards/' + board + '.makefile'
+                        if pattern in bs:
+                            bs.remove(pattern)
+                if show_airframes and len(af.includes) > 0:
+                    for i in af.includes:
+                        inc_name = i[5:].replace('$AC_ID', ac.ac_id)
+                        if inc_name in afs:
+                            afs.remove(inc_name)
+                if show_modules:
+                    for ac_mod in ac.modules:
+                        mod_str = self.remove_path_and_xml(ac_mod)
+                        try:
+                            mods[mod_str].usage = mods[mod_str].usage + 1
+                        except KeyError:
+                            print(mod_str + " in " + str(conf) + ": Does not seem to have an xml file associated with it")
 
         # Check if flight plans are included in other flight plans
         if show_flightplans:
@@ -414,15 +457,6 @@ class PaparazziOverview(object):
 
         # Create usage dictionary for modules
         if show_modules:
-            for conf in conf_files:
-                airframes = self.list_airframes_in_conf(conf)
-                for ac in airframes:
-                    for ac_mod in ac.modules:
-                        mod_str = self.remove_path_and_xml(ac_mod)
-                        try:
-                            mods[mod_str].usage = mods[mod_str].usage + 1
-                        except KeyError:
-                            print(mod_str + " in " + str(conf) + ": Does not seem to have an xml file associated with it")
             for ac in afs:
                 af = self.airframe_details(ac)
                 for af_mod in af.modules:
@@ -435,27 +469,6 @@ class PaparazziOverview(object):
                         mods[mod_str].usage = mods[mod_str].usage + 1
                     except KeyError:
                         print(mod_str + " in " + af.xml + ": Does not seem to have an xml file associated with it")
-
-        if show_airframes:
-            for conf in conf_files:
-                airframes = self.list_airframes_in_conf(conf)
-                for ac in airframes:
-                    xml = ac.xml
-                    flight_plan = ac.flight_plan
-                    if xml in afs:
-                        afs.remove(xml)
-                    if flight_plan in fps:
-                        fps.remove(flight_plan)
-                    af = self.airframe_details(xml)
-                    for board in af.boards:
-                        pattern = 'boards/' + board + '.makefile'
-                        if pattern in bs:
-                            bs.remove(pattern)
-                    if len(af.includes) > 0:
-                        for i in af.includes:
-                            inc_name = i[5:].replace('$AC_ID', ac.ac_id)
-                            if inc_name in afs:
-                                afs.remove(inc_name)
 
         return afs, fps, bs, mods, fps_usage
 
@@ -511,7 +524,7 @@ class PaparazziOverview(object):
                     'and checks if all files mentioned in the module xml exist in the sw directory '
                     'and when they were last modified (third column)')
             f.write('<table><tr><th> Filename </th><th> Number of airframes used in </th><th> Comments </th></tr>')
-            for name, mod in mods.iteritems():
+            for name, mod in mods.items():
                 f.write('<tr><td><li>' + mod.name + '</td><td>'
                         + str(mod.usage) + '</td><td>'
                         + mod.get_comments() + '</td></tr>')

@@ -74,7 +74,8 @@ class ConfChooser(object):
         controlpanel_files = paparazzi.get_list_of_controlpanel_files(self.exclude_backups)
         self.update_combo(self.controlpanel_file_combo, controlpanel_files, self.controlpanel_xml)
 
-    def count_airframes_in_conf(self, combo, conf_airframes):
+    @staticmethod
+    def count_airframes_in_conf(combo, conf_airframes):
         airframes = 0
         releases = 0
         if combo.get_active_text() is None:
