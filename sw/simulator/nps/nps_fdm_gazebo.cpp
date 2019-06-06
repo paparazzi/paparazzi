@@ -365,16 +365,6 @@ static void init_gazebo(void)
   sdf::ElementPtr link = vehicle_sdf->Root()->GetFirstElement()->GetElement("link");
   while (link) {
     if (link->Get<string>("name") == "front_camera" && link->GetElement("sensor")->Get<string>("name") == "mt9f002") {
-      // In this section we only change the sensor resolution to emulate the
-      // ZOOM factor without having to implement/link an image scaling algorithm.
-      // The image cropping is performed in read_image.
-      // Rendering the entire sensor is more computationally expensive but
-      // ensures that the camera distortions remain correct.
-      int w = link->GetElement("sensor")->GetElement("camera")->GetElement("image")->GetElement("width")->Get<int>();
-      int h = link->GetElement("sensor")->GetElement("camera")->GetElement("image")->GetElement("height")->Get<int>();
-      link->GetElement("sensor")->GetElement("camera")->GetElement("image")->GetElement("width")->Set((int)(w * MT9F002_ZOOM));
-      link->GetElement("sensor")->GetElement("camera")->GetElement("image")->GetElement("height")->Set((int)(h * MT9F002_ZOOM));
-
       if (MT9F002_TARGET_FPS){
         int fps = Min(MT9F002_TARGET_FPS, link->GetElement("sensor")->GetElement("update_rate")->Get<int>());
         link->GetElement("sensor")->GetElement("update_rate")->Set(fps);
