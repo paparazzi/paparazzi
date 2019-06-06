@@ -372,8 +372,8 @@ static void init_gazebo(void)
       // ensures that the camera distortions remain correct.
       int w = link->GetElement("sensor")->GetElement("camera")->GetElement("image")->GetElement("width")->Get<int>();
       int h = link->GetElement("sensor")->GetElement("camera")->GetElement("image")->GetElement("height")->Get<int>();
-      link->GetElement("sensor")->GetElement("camera")->GetElement("image")->GetElement("width")->Set<int>(w * MT9F002_ZOOM);
-      link->GetElement("sensor")->GetElement("camera")->GetElement("image")->GetElement("height")->Set<int>(h * MT9F002_ZOOM);
+      link->GetElement("sensor")->GetElement("camera")->GetElement("image")->GetElement("width")->Set((int)(w * MT9F002_ZOOM));
+      link->GetElement("sensor")->GetElement("camera")->GetElement("image")->GetElement("height")->Set((int)(h * MT9F002_ZOOM));
 
       if (MT9F002_TARGET_FPS){
         int fps = Min(MT9F002_TARGET_FPS, link->GetElement("sensor")->GetElement("update_rate")->Get<int>());
@@ -771,7 +771,11 @@ static void read_image(struct image_t *img, gazebo::sensors::CameraSensorPtr cam
     image_create(img, MT9F002_OUTPUT_WIDTH, MT9F002_OUTPUT_HEIGHT, IMAGE_YUV422);
     xstart = cam->ImageWidth() * (0.5 + MT9F002_OFFSET_X) - MT9F002_OUTPUT_WIDTH / 2;
     ystart = cam->ImageHeight() * (0.5 + MT9F002_OFFSET_Y) - MT9F002_OUTPUT_HEIGHT / 2;
-    // Note: assumes camera is tuned such that crop remains within sensor...
+    // Sanity check
+    if (xstart < 0 || (xstart + MT9F002_OUTPUT_WIDTH) > (int)cam->ImageWidth() ||
+        ystart < 0 || (ystart + MT9F002_OUTPUT_HEIGHT) > (int)cam->ImageHeight()) {
+      cout << "ERROR: mt9f002 sampling outside sensor range!" << endl;
+    }
   } else {
     image_create(img, cam->ImageWidth(), cam->ImageHeight(), IMAGE_YUV422);
   }
