@@ -246,7 +246,7 @@
     <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_Z_HOLD"/>
     <define name="MODE_AUTO2" value="AP_MODE_NAV"/>
 
-    <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
+
   </section>
 
   <section name="BAT">
