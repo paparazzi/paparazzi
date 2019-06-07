@@ -79,13 +79,31 @@ void mpu60x0_spi_start_configure(struct Mpu60x0_Spi *mpu)
   if (mpu->config.init_status == MPU60X0_CONF_UNINIT) {
 
     // First check if we found the chip (succesfull WHO_AM_I response)
-    if(mpu->spi_trans.status == SPITransSuccess && mpu->rx_buf[1] == MPU60X0_WHOAMI_REPLY) {
+    if (mpu->spi_trans.status == SPITransSuccess &&
+        (mpu->rx_buf[1] == MPU60X0_WHOAMI_REPLY ||
+         mpu->rx_buf[1] == ICM20600_WHOAMI_REPLY ||
+         mpu->rx_buf[1] == ICM20608_WHOAMI_REPLY ||
+         mpu->rx_buf[1] == ICM20602_WHOAMI_REPLY ||
+         mpu->rx_buf[1] == ICM20689_WHOAMI_REPLY)) {
+
+      if (mpu->rx_buf[1] == MPU60X0_WHOAMI_REPLY) {
+        mpu->config.type = MPU60X0;
+      } else if (mpu->rx_buf[1] == ICM20600_WHOAMI_REPLY) {
+        mpu->config.type = ICM20600;
+      } else if (mpu->rx_buf[1] == ICM20608_WHOAMI_REPLY) {
+        mpu->config.type = ICM20608;
+      } else if (mpu->rx_buf[1] == ICM20602_WHOAMI_REPLY) {
+        mpu->config.type = ICM20602;
+      } else if (mpu->rx_buf[1] == ICM20689_WHOAMI_REPLY) {
+        mpu->config.type = ICM20689;
+      }
+
       mpu->config.init_status++;
       mpu->spi_trans.status = SPITransDone;
       mpu60x0_send_config(mpu60x0_spi_write_to_reg, (void *)mpu, &(mpu->config));
     }
     // Send WHO_AM_I to check if chip is there
-    else if(mpu->spi_trans.status != SPITransRunning && mpu->spi_trans.status != SPITransPending) {
+    else if (mpu->spi_trans.status != SPITransRunning && mpu->spi_trans.status != SPITransPending) {
       mpu->spi_trans.output_length = 1;
       mpu->spi_trans.input_length = 2;
       mpu->tx_buf[0] = MPU60X0_REG_WHO_AM_I | MPU60X0_SPI_READ;
@@ -124,11 +142,11 @@ void mpu60x0_spi_event(struct Mpu60x0_Spi *mpu)
         mpu->data_rates.rates.r = Int16FromBuf(mpu->rx_buf, 14);
 
         int16_t temp_raw = Int16FromBuf(mpu->rx_buf, 8);
-#if ICM20608
-        mpu->temp = (float)temp_raw / 326.8f + 25.0f;
-#else
-        mpu->temp = (float)temp_raw / 340.0f + 36.53f;
-#endif
+        if (mpu->config.type == MPU60X0) {
+          mpu->temp = (float)temp_raw / 361.0f + 35.0f;
+        } else {
+          mpu->temp = (float)temp_raw / 326.8f + 25.0f;
+        }
 
         // if we are reading slaves, copy the ext_sens_data
         if (mpu->config.nb_slaves > 0) {

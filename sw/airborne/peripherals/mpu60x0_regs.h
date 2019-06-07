@@ -43,14 +43,16 @@
 // FIFO
 #define MPU60X0_REG_FIFO_EN         0x23
 #define MPU60X0_REG_FIFO_COUNT_H    0x72
-#define MPU60X0_REG_FIFO_COUNT_L  0x73
-#define MPU60X0_REG_FIFO_R_W    0x74
+#define MPU60X0_REG_FIFO_COUNT_L    0x73
+#define MPU60X0_REG_FIFO_R_W        0x74
 
 // Measurement Settings
 #define MPU60X0_REG_SMPLRT_DIV      0x19
 #define MPU60X0_REG_CONFIG          0x1A
 #define MPU60X0_REG_GYRO_CONFIG     0x1B
 #define MPU60X0_REG_ACCEL_CONFIG    0x1C
+#define MPU60X0_REG_ACCEL_CONFIG2   0x1D
+#define MPU60X0_REG_UNDOC1          0x11
 
 // I2C Slave settings
 #define MPU60X0_REG_I2C_MST_CTRL    0x24
@@ -112,13 +114,13 @@
 #define MPU60X0_EXT_SENS_DATA       0x49
 #define MPU60X0_EXT_SENS_DATA_SIZE  24
 
-
+// Different sensor WHOAMI replies
 #define MPU60X0_REG_WHO_AM_I        0x75
-#ifdef ICM20608
-#define MPU60X0_WHOAMI_REPLY      0xAF
-#else
-#define MPU60X0_WHOAMI_REPLY      0x68
-#endif
+#define MPU60X0_WHOAMI_REPLY        0x68
+#define ICM20600_WHOAMI_REPLY       0x11
+#define ICM20608_WHOAMI_REPLY       0xAF
+#define ICM20602_WHOAMI_REPLY       0x12
+#define ICM20689_WHOAMI_REPLY       0x98
 
 // Bit positions
 #define MPU60X0_I2C_BYPASS_EN       1
@@ -128,14 +130,14 @@
 #define MPU60X0_I2C_MST_RESET       1
 #define MPU60X0_FIFO_RESET          2
 #define MPU60X0_I2C_IF_DIS          4
-#define MPU60X0_I2C_MST_EN        5
+#define MPU60X0_I2C_MST_EN          5
 #define MPU60X0_FIFO_EN             6
 
 // in MPU60X0_REG_I2C_MST_STATUS
 #define MPU60X0_I2C_SLV4_DONE       6
 
 /** Digital Low Pass Filter Options
- *  DLFP is affecting both gyro and accels,
+ *  DLFP is affecting both gyro and accels (on MPU not ICM),
  *  with slightly different bandwidth
  */
 enum Mpu60x0DLPF {
@@ -146,6 +148,20 @@ enum Mpu60x0DLPF {
   MPU60X0_DLPF_20HZ  = 0x4,
   MPU60X0_DLPF_10HZ  = 0x5,
   MPU60X0_DLPF_05HZ  = 0x6
+};
+
+/** Digital Low Pass Filter Options
+ *  DLFP specifically for the ICM device accelerometer
+ */
+enum Mpu60x0ACCDLPF {
+  MPU60X0_DLPF_ACC_1046HZ = 0x0, // internal sampling rate 4kHz
+  MPU60X0_DLPF_ACC_218HZ  = 0x1, // internal sampling rate 1kHz
+  MPU60X0_DLPF_ACC_99HZ   = 0x2,
+  MPU60X0_DLPF_ACC_44HZ   = 0x3,
+  MPU60X0_DLPF_ACC_21HZ   = 0x4,
+  MPU60X0_DLPF_ACC_10HZ   = 0x5,
+  MPU60X0_DLPF_ACC_05HZ   = 0x6,
+  MPU60X0_DLPF_ACC_420HZ  = 0x7
 };
 
 /**
