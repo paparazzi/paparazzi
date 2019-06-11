@@ -753,8 +753,10 @@ static void gazebo_read_video(void)
  */
 static void read_image(struct image_t *img, gazebo::sensors::CameraSensorPtr cam)
 {
+  bool is_mt9f002 = false;
   if (cam->Name() == "mt9f002") {
     image_create(img, MT9F002_OUTPUT_WIDTH, MT9F002_OUTPUT_HEIGHT, IMAGE_YUV422);
+    is_mt9f002 = true;
   } else {
     image_create(img, cam->ImageWidth(), cam->ImageHeight(), IMAGE_YUV422);
   }
@@ -766,7 +768,7 @@ static void read_image(struct image_t *img, gazebo::sensors::CameraSensorPtr cam
     for (int y_yuv = 0; y_yuv < img->h; ++y_yuv) {
       int x_rgb = x_yuv;
       int y_rgb = y_yuv;
-      if (cam->Name() == "mt9f002") {
+      if (is_mt9f002) {
         // Change sampling points for zoomed and/or cropped image.
         // Use nearest-neighbour sampling for now.
         x_rgb = mt9f002.offset_x + ((float)x_yuv / img->w) * mt9f002.sensor_width;
