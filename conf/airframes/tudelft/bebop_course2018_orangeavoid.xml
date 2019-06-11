@@ -37,9 +37,7 @@
     </module>
 
     <!-- Video/Camera modules -->
-    <module name="bebop_cam">
-      <define name="MT9F002_ZOOM" value="0.5"/>
-    </module>
+    <module name="bebop_cam"/>
     <!--module name="bebop_ae_awb">
       <define name="CV_AE_AWB_VERBOSE" value="0" />
     </module-->
