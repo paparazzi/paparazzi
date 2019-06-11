@@ -753,12 +753,8 @@ static void gazebo_read_video(void)
  */
 static void read_image(struct image_t *img, gazebo::sensors::CameraSensorPtr cam)
 {
-  int xstart = 0;
-  int ystart = 0;
   if (cam->Name() == "mt9f002") {
     image_create(img, MT9F002_OUTPUT_WIDTH, MT9F002_OUTPUT_HEIGHT, IMAGE_YUV422);
-    xstart = cam->ImageWidth() * (0.5 + mt9f002.set_offset_x) - MT9F002_OUTPUT_WIDTH / 2; // ERROR: mt9f002.c only compiled for ap target (for obvious reasons...)
-    ystart = cam->ImageHeight() * (0.5 + mt9f002.set_offset_y) - MT9F002_OUTPUT_HEIGHT / 2;
   } else {
     image_create(img, cam->ImageWidth(), cam->ImageHeight(), IMAGE_YUV422);
   }
@@ -766,11 +762,19 @@ static void read_image(struct image_t *img, gazebo::sensors::CameraSensorPtr cam
   // Convert Gazebo's *RGB888* image to Paparazzi's YUV422
   const uint8_t *data_rgb = cam->ImageData();
   uint8_t *data_yuv = (uint8_t *)(img->buf);
-  for (int x = 0; x < img->w; ++x) {
-    for (int y = 0; y < img->h; ++y) {
-      int idx_rgb = 3 * (cam->ImageWidth() * (y + ystart) + (x + xstart));
-      int idx_yuv = 2 * (img->w * y + x);
-      int idx_px = img->w * y + x;
+  for (int x_yuv = 0; x_yuv < img->w; ++x_yuv) {
+    for (int y_yuv = 0; y_yuv < img->h; ++y_yuv) {
+      int x_rgb = x_yuv;
+      int y_rgb = y_yuv;
+      if (cam->Name() == "mt9f002") {
+        // Change sampling points for zoomed and/or cropped image.
+        // Use nearest-neighbour sampling for now.
+        x_rgb = mt9f002.offset_x + ((float)x_yuv / img->w) * mt9f002.sensor_width;
+        y_rgb = mt9f002.offset_y + ((float)y_yuv / img->h) * mt9f002.sensor_height;
+      }
+      int idx_rgb = 3 * (cam->ImageWidth() * y_rgb + x_rgb);
+      int idx_yuv = 2 * (img->w * y_yuv + x_yuv);
+      int idx_px = img->w * y_yuv + x_yuv;
       if (idx_px % 2 == 0) { // Pick U or V
         data_yuv[idx_yuv] = - 0.148 * data_rgb[idx_rgb]
                             - 0.291 * data_rgb[idx_rgb + 1]

@@ -1,0 +1,34 @@
+mt9f002.c:
+
+Not available:
+write_reg (169):	not req'd	i2c_blocking_transmit() not available
+read_reg (196): 	nor req'd	i2c_blocking_transceive() not available
+
+Dependencies:
+mt9f002_mipi_stage1 (215):	not req'd	write_reg()
+mt9f002_mipi_stage2 (471):	not req'd	write_reg()
+mt9f002_mipi_stage3 (479):	not req'd	write_reg()
+mt9f002_parallel_stage1 (490):	not req'd	write_reg()
+mt9f002_parallel_stage2 (587):	not req'd	write_reg()
+mt9f002_set_pll (625):		not req'd	write_reg(), read_reg() OK
+mt9f002_set_blanking (652): 	not req'd	read_reg() NOT OK?, write_reg()
+mt9f002_set_exposure (792):	not req'd	read_reg() OK?, write_reg()
+mt9f002_set_gains (899):	not req'd	write_reg()
+mt9f002_set_resolution (993):	not req'd	write_reg()
+mt9f002_init (1029):		?		most of the above...
+mt9f002_reset_color (1086):	not req'd	mt9f002_set_gains()
+mt9f002_reset_exposure (1095):	not req'd	mt9f002_set_exposure()
+
+mt9f002_setting_update_resolution (1104):	REQ'D		mt9f002_set_resolution(), mt9f002_set_blanking(), isp_request_statistics_yuv_window()
+mt9f002_settings_update_color (1126):		not req'd	mt9f002_set_gains()
+mt9f002_setting_update_exposure (1131):		not req'd	mt9f002_set_exposure()
+
+Ok:
+mt9f002_calc_gain (853):	not req'd
+mt9f002_calc_resolution (907):	REQ'D
+
+-----------------------------
+
+
+Required:
+
