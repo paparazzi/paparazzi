@@ -84,6 +84,7 @@ extern "C" {
 #include "mcu_periph/sys_time.h"
 #include "boards/bebop/mt9f002.h"
 #include "boards/bebop/mt9v117.h"
+struct mt9f002_t mt9f002 __attribute__((weak)); // Prevent undefined reference errors when Bebop code is not linked.
 }
 
 static void init_gazebo_video(void);
