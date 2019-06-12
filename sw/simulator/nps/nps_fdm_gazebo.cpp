@@ -449,14 +449,14 @@ static void init_gazebo(void)
     cout << "Found sonar" << endl;
   }
 
-  gazebo::physics::LinkPtr link = model->GetLink("sonar");
-  if (link) {
+  gazebo::physics::LinkPtr sonar_link = model->GetLink("sonar");
+  if (sonar_link) {
     // Get a pointer to the sensor using its full name
-    if (link->GetSensorCount() != 1) {
-      cout << "ERROR: Link '" << link->GetName()
+    if (sonar_link->GetSensorCount() != 1) {
+      cout << "ERROR: Link '" << sonar_link->GetName()
            << "' should only contain 1 sensor!" << endl;
     } else {
-      string name = link->GetSensorName(0);
+      string name = sonar_link->GetSensorName(0);
       sonar = static_pointer_cast< gazebo::sensors::SonarSensor > (mgr->GetSensor(name));
       if (!sonar) {
         cout << "ERROR: Could not get pointer to '" << name << "'!" << endl;
