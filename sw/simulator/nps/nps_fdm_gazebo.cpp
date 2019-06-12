@@ -98,6 +98,13 @@ struct gazebocam_t {
 };
 static struct gazebocam_t gazebo_cams[VIDEO_THREAD_MAX_CAMERAS] =
 { { NULL, 0 } };
+
+// Reduce resolution of the simulated MT9F002 sensor (Bebop) to improve runtime
+// performance at the cost of image resolution.
+// Recommended values: 1 (realistic), 2, 4 (fast but slightly blurry)
+#ifndef NPS_MT9F002_SENSOR_RES_DIVIDER
+#define NPS_MT9F002_SENSOR_RES_DIVIDER 1
+#endif
 #endif // NPS_SIMULATE_VIDEO
 
 struct gazebo_actuators_t {
@@ -374,6 +381,14 @@ static void init_gazebo(void)
   sdf::ElementPtr link = vehicle_sdf->Root()->GetFirstElement()->GetElement("link");
   while (link) {
     if (link->Get<string>("name") == "front_camera" && link->GetElement("sensor")->Get<string>("name") == "mt9f002") {
+      if (NPS_MT9F002_SENSOR_RES_DIVIDER != 1) {
+        int w = link->GetElement("sensor")->GetElement("camera")->GetElement("image")->GetElement("width")->Get<int>();
+        int h = link->GetElement("sensor")->GetElement("camera")->GetElement("image")->GetElement("height")->Get<int>();
+        int env = link->GetElement("sensor")->GetElement("camera")->GetElement("lens")->GetElement("env_texture_size")->Get<int>();
+        link->GetElement("sensor")->GetElement("camera")->GetElement("image")->GetElement("width")->Set(w / NPS_MT9F002_SENSOR_RES_DIVIDER);
+        link->GetElement("sensor")->GetElement("camera")->GetElement("image")->GetElement("height")->Set(h / NPS_MT9F002_SENSOR_RES_DIVIDER);
+        link->GetElement("sensor")->GetElement("camera")->GetElement("lens")->GetElement("env_texture_size")->Set(env / NPS_MT9F002_SENSOR_RES_DIVIDER);
+      }
       if (MT9F002_TARGET_FPS){
         int fps = Min(MT9F002_TARGET_FPS, link->GetElement("sensor")->GetElement("update_rate")->Get<int>());
         link->GetElement("sensor")->GetElement("update_rate")->Set(fps);
@@ -813,8 +828,10 @@ static void read_image(struct image_t *img, gazebo::sensors::CameraSensorPtr cam
       if (is_mt9f002) {
         // Change sampling points for zoomed and/or cropped image.
         // Use nearest-neighbour sampling for now.
-        x_rgb = mt9f002.offset_x + ((float)x_yuv / img->w) * mt9f002.sensor_width;
-        y_rgb = mt9f002.offset_y + ((float)y_yuv / img->h) * mt9f002.sensor_height;
+        x_rgb = (mt9f002.offset_x + ((float)x_yuv / img->w) * mt9f002.sensor_width)
+            / CFG_MT9F002_PIXEL_ARRAY_WIDTH * cam->ImageWidth();
+        y_rgb = (mt9f002.offset_y + ((float)y_yuv / img->h) * mt9f002.sensor_height)
+            / CFG_MT9F002_PIXEL_ARRAY_HEIGHT * cam->ImageHeight();
       }
       int idx_rgb = 3 * (cam->ImageWidth() * y_rgb + x_rgb);
       int idx_yuv = 2 * (img->w * y_yuv + x_yuv);
