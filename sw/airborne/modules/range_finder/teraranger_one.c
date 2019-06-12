@@ -125,7 +125,8 @@ void teraranger_event(void)
         teraranger.dist = (float)teraranger.raw / 1000.f + teraranger.offset;
         teraranger.data_available = true;
 #if USE_TERARANGER_ONE_AGL
-        AbiSendMsgAGL(AGL_TERARANGER_ONE_ID, teraranger.dist);
+        uint32_t now_ts = get_sys_time_usec();
+        AbiSendMsgAGL(AGL_TERARANGER_ONE_ID, now_ts, teraranger.dist);
 #endif
       } else {
         // data are not valid any more

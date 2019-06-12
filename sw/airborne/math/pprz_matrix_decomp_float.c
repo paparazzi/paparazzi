@@ -650,7 +650,7 @@ void fit_linear_model_prior(float *targets, int D, float (*samples)[D], uint16_t
   MAKE_MATRIX_PTR(AATAA, _AATAA, D_1);
   float _PRIOR[D_1][D_1];
   MAKE_MATRIX_PTR(PRIOR, _PRIOR, D_1);
-  for(int d = 0; d < D; d++) {
+  for(d = 0; d < D; d++) {
     PRIOR[d][d] = priors[d];
   }
   if(use_bias) {

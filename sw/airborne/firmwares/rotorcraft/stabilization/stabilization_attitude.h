@@ -27,6 +27,10 @@
 #ifndef STABILIZATION_ATTITUDE_H
 #define STABILIZATION_ATTITUDE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "firmwares/rotorcraft/stabilization.h"
 #include "math/pprz_algebra_int.h"
 #include STABILIZATION_ATTITUDE_TYPE_H
@@ -39,5 +43,8 @@ extern void stabilization_attitude_set_rpy_setpoint_i(struct Int32Eulers *rpy);
 extern void stabilization_attitude_set_earth_cmd_i(struct Int32Vect2 *cmd, int32_t heading);
 extern void stabilization_attitude_run(bool in_flight);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* STABILIZATION_ATTITUDE_H */

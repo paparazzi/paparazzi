@@ -27,6 +27,9 @@
 #ifndef GUIDANCE_H_H
 #define GUIDANCE_H_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "math/pprz_algebra_int.h"
 #include "math/pprz_algebra_float.h"
@@ -190,5 +193,9 @@ static inline void guidance_h_SetTau(float tau)
 {
   gh_set_tau(tau);
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* GUIDANCE_H_H */

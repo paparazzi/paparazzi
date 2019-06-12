@@ -1,0 +1,116 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="148" ground_alt="146" lat0="43.5640917" lon0="1.4829201" max_dist_from_home="20" name="Rotorcraft Optitrack (ENAC)" security_height="0.3">
+  <header>
+#ifdef NAV_C
+#include "firmwares/rotorcraft/stabilization/stabilization_attitude.h"
+#include "autopilot.h"
+static inline void joystick_handler(uint8_t sender_id __attribute__((unused)), int16_t roll, int16_t pitch, int16_t yaw, int16_t throttle) {
+  if (And(autopilot_get_mode() == AP_MODE_NAV, nav_block == joystick_block)) {
+    nav_roll = ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_PHI * roll / MAX_PPRZ);
+    nav_pitch = ANGLE_BFP_OF_REAL(STABILIZATION_ATTITUDE_SP_MAX_THETA * pitch / MAX_PPRZ);
+    nav_heading = ANGLE_BFP_OF_REAL(3.1416f * yaw / MAX_PPRZ);
+    nav_throttle = throttle;
+  }
+}
+#endif
+</header>
+  <waypoints>
+    <waypoint name="HOME" x="0.0" y="0.0"/>
+    <waypoint name="GOAL" x="2.0" y="2.0"/>
+    <waypoint name="STDBY" x="-0.7" y="-0.8"/>
+    <waypoint name="TD" x="0.8" y="-1.7"/>
+    <waypoint name="S1" x="3" y="4"/>
+    <waypoint name="S2" x="3" y="-4"/>
+    <waypoint name="S3" x="-3" y="-4"/>
+    <waypoint name="S4" x="-3" y="4"/>
+    <waypoint name="_N1" x="4.5" y="5.2"/>
+    <waypoint name="_N2" x="4.5" y="-5.2"/>
+    <waypoint name="_N3" x="-4.5" y="-5.2"/>
+    <waypoint name="_N4" x="-4.5" y="5.2"/>
+  </waypoints>
+  <sectors>
+    <sector name="Net" color="red">
+      <corner name="_N1"/>
+      <corner name="_N2"/>
+      <corner name="_N3"/>
+      <corner name="_N4"/>
+    </sector>
+    <sector name="Survey" color="green" type="dynamic">
+      <corner name="S1"/>
+      <corner name="S2"/>
+      <corner name="S3"/>
+      <corner name="S4"/>
+    </sector>
+  </sectors>
+  <variables>
+    <variable var="joystick_block" type="uint8_t" init="255"/>
+    <abi_binding name="JOYSTICK" handler="joystick_handler"/>
+  </variables>
+  <modules>
+    <module name="nav" type="survey_rectangle_rotorcraft"/>
+    <module name="joystick"/>
+  </modules>
+  <blocks>
+    <block name="Wait GPS">
+      <call_once fun="NavKillThrottle()"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Holding point">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Start Engine">
+      <call_once fun="NavResurrect()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
+      <exception cond="stateGetPositionEnu_f()->z > 1.0" deroute="Standby"/>
+      <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
+      <stay climb="nav_climb_vspeed" vmode="climb" wp="STDBY"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <stay wp="STDBY"/>
+    </block>
+    <block name="START" strip_button="Go" strip_icon="lookfore.png">
+      <call_once fun="NavSetWaypointHere(WP_GOAL)"/>
+    </block>
+    <block name="StayGoal">
+      <stay wp="GOAL"/>
+    </block>
+    <block name="Joystick" strip_button="J">
+      <set var="horizontal_mode" value="HORIZONTAL_MODE_ATTITUDE"/>
+      <set var="vertical_mode" value="VERTICAL_MODE_MANUAL"/>
+      <set var="joystick_block" value="nav_block"/>
+      <while cond="TRUE"/>
+    </block>
+    <block group="extra_pattern" name="Survey S1-S2 Sweep NS SET" strip_button="SvySweep-NS" strip_icon="survey_rect_ns.png">
+      <call_once fun="nav_survey_rectangle_rotorcraft_setup(WP_S1, WP_S3, 1, NS)"/>
+      <deroute block="Survey RECTANGLE RUN"/>
+    </block>
+    <block group="extra_pattern" name="Survey S1-S2 Sweep WE SET" strip_button="SvySweep-WE" strip_icon="survey_rect_we.png">
+      <call_once fun="nav_survey_rectangle_rotorcraft_setup(WP_S1, WP_S3, 1, WE)"/>
+      <deroute block="Survey RECTANGLE RUN"/>
+    </block>
+    <block group="extra_pattern" name="Survey RECTANGLE RUN" strip_button="SvySweep CONT" strip_icon="survey_rect_run.png">
+      <exception cond="rectangle_survey_sweep_num == 1" deroute="Standby"/>
+      <call fun="nav_survey_rectangle_rotorcraft_run(WP_S1, WP_S3)"/>
+    </block>
+    <block name="land here" strip_button="Land Here" strip_icon="land-right.png">
+      <call_once fun="NavSetWaypointHere(WP_TD)"/>
+    </block>
+    <block name="land">
+      <go wp="TD"/>
+    </block>
+    <block name="flare">
+      <exception cond="NavDetectGround()" deroute="Holding point"/>
+      <exception cond="!nav_is_in_flight()" deroute="landed"/>
+      <call_once fun="NavStartDetectGround()"/>
+      <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
+    </block>
+    <block name="landed">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+  </blocks>
+</flight_plan>

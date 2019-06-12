@@ -1,0 +1,41 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="airspeed_sdp3x" dir="sensors">
+  <doc>
+    <description>
+      SDP3X differential pressure sensor for e.g measuring airspeed.
+    </description>
+    <define name="SDP3X_I2C_DEV" value="i2cX" description="set i2c peripheral (default: i2c2)"/>
+    <define name="SDP3X_I2C_ADDR" value="0x50" description="i2c slave address (default: 0x50)"/>
+    <define name="SDP3X_SYNC_SEND" value="TRUE|FALSE" description="flag to enable sending every new measurement via telemetry (default:FALSE)"/>
+    <define name="SDP3X_PRESSURE_SCALE" value="1.0" description="pressure scaling factor to convert raw output to Pa (default: set according to pressure range according to datasheet)"/>
+    <define name="SDP3X_PRESSURE_OFFSET" value="0." description="pressure offset in Pa (default: set according to pressure range  according to datasheet)"/>
+    <define name="SDP3X_AIRSPEED_SCALE" value="1.6327" description="quadratic scale factor to convert differential pressure to airspeed"/>
+  </doc>
+
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="SDP3X">
+        <dl_setting min="0" max="1" step="1" values="FALSE|TRUE" var="sdp3x.sync_send" type="bool" shortname="sync_send" module="modules/sensors/airspeed_sdp3x" param="SDP3X_SYNC_SEND" persistent="true"/>
+        <dl_setting min="1.0" max="300." step="1." var="sdp3x.pressure_scale" type="float" shortname="PressScale" module="modules/sensors/airspeed_sdp3x" param="SDP3X_PRESSURE_SCALE" persistent="true"/>
+        <dl_setting min="-100." max="100.0" step="0.1" var="sdp3x.pressure_offset" type="float" shortname="PressOffset" module="modules/sensors/airspeed_sdp3x" param="SDP3X_PRESSURE_OFFSET" persistent="true"/>
+        <dl_setting min="1.0" max="2.0" step="0.01" var="sdp3x.airspeed_scale" type="float" shortname="AirScale" module="modules/sensors/airspeed_sdp3x" param="SDP3X_AIRSPEED_SCALE" persistent="true"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <header>
+    <file name="airspeed_sdp3x.h"/>
+  </header>
+
+  <init fun="sdp3x_init()"/>
+  <periodic fun="sdp3x_periodic()" freq="100."/>
+  <event fun="sdp3x_event()"/>
+
+  <makefile target="ap">
+    <configure name="SDP3X_I2C_DEV" default="i2c2" case="upper|lower"/>
+    <define name="USE_$(SDP3X_I2C_DEV_UPPER)"/>
+    <define name="SDP3X_I2C_DEV" value="$(SDP3X_I2C_DEV_LOWER)"/>
+    <file name="airspeed_sdp3x.c"/>
+  </makefile>
+</module>

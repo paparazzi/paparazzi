@@ -30,6 +30,7 @@
  */
 #include "mcu_periph/spi.h"
 #include "mcu_periph/gpio.h"
+#include BOARD_CONFIG
 
 #include <string.h>
 #include "mcu_periph/ram_arch.h"
@@ -40,6 +41,11 @@
 
 #if USE_SPI0
 #error "ChibiOS architectures don't have SPI0"
+#endif
+
+// Default stack size
+#ifndef SPI_THREAD_STACK_SIZE
+#define SPI_THREAD_STACK_SIZE 512
 #endif
 
 // private SPI init structure
@@ -347,7 +353,7 @@ static __attribute__((noreturn)) void thd_spi1(void *arg)
   }
 }
 
-static THD_WORKING_AREA(wa_thd_spi1, 256);
+static THD_WORKING_AREA(wa_thd_spi1, SPI_THREAD_STACK_SIZE);
 
 void spi1_arch_init(void)
 {
@@ -386,7 +392,7 @@ static __attribute__((noreturn)) void thd_spi2(void *arg)
   }
 }
 
-static THD_WORKING_AREA(wa_thd_spi2, 256);
+static THD_WORKING_AREA(wa_thd_spi2, SPI_THREAD_STACK_SIZE);
 
 void spi2_arch_init(void)
 {
@@ -425,7 +431,7 @@ static __attribute__((noreturn)) void thd_spi3(void *arg)
   }
 }
 
-static THD_WORKING_AREA(wa_thd_spi3, 1024);
+static THD_WORKING_AREA(wa_thd_spi3, SPI_THREAD_STACK_SIZE);
 
 void spi3_arch_init(void)
 {

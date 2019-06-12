@@ -4,6 +4,7 @@ Paparazzi UAS
 =============
 
 [![Build Status](https://travis-ci.org/paparazzi/paparazzi.png?branch=master)](https://travis-ci.org/paparazzi/paparazzi) [![Gitter chat](https://badges.gitter.im/paparazzi/discuss.svg)](https://gitter.im/paparazzi/discuss)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/811c4398588f435fa8bc926f53d40e9f)](https://app.codacy.com/app/gautierhattenberger/paparazzi?utm_source=github.com&utm_medium=referral&utm_content=paparazzi/paparazzi&utm_campaign=Badge_Grade_Dashboard)
 <a href="https://scan.coverity.com/projects/paparazzi-paparazzi">
   <img alt="Coverity Scan Build Status"
        src="https://scan.coverity.com/projects/4928/badge.svg"/>

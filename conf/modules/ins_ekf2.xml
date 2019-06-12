@@ -1,0 +1,46 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ekf2" dir="ins">
+  <doc>
+    <description>
+      simple INS and AHRS using EKF2 from PX4
+    </description>
+  </doc>
+  <header>
+    <file name="ins_ekf2.h" dir="subsystems/ins"/>
+  </header>
+  <init fun="ins_ekf2_init()"/>
+  <periodic fun="ins_ekf2_update()" autorun="TRUE"/>
+  <makefile target="ap|nps">
+    <!-- EKF2 files -->
+    <define name="INS_TYPE_H" value="subsystems/ins/ins_ekf2.h" type="string"/>
+    <file name="ins.c" dir="subsystems"/>
+    <file name="ins_ekf2.cpp" dir="subsystems/ins"/>
+
+    <!-- Include the ecl and matrix libraries from ext -->
+    <include name="$(PAPARAZZI_SRC)/sw/ext/ecl/"/>
+    <include name="$(PAPARAZZI_SRC)/sw/ext/matrix/"/>
+    <define name="__PAPARAZZI" value="true"/>
+    <define name="ECL_STANDALONE" value="true"/>
+    <define name="USE_MAGNETOMETER" value="true"/> <!-- Needed for IMU to get scaled version -->
+
+    <!-- Compile needed ecl files -->
+    <file name="mathlib.cpp" dir="ecl/mathlib"/>
+    <file name="geo.cpp" dir="ecl/geo"/>
+    <file name="geo_mag_declination.cpp" dir="ecl/geo_lookup"/>
+    <file name="airspeed_fusion.cpp" dir="ecl/EKF"/>
+    <file name="control.cpp" dir="ecl/EKF"/>
+    <file name="covariance.cpp" dir="ecl/EKF"/>
+    <file name="drag_fusion.cpp" dir="ecl/EKF"/>
+    <file name="ekf.cpp" dir="ecl/EKF"/>
+    <file name="ekf_helper.cpp" dir="ecl/EKF"/>
+    <file name="estimator_interface.cpp" dir="ecl/EKF"/>
+    <file name="gps_checks.cpp" dir="ecl/EKF"/>
+    <file name="mag_fusion.cpp" dir="ecl/EKF"/>
+    <file name="optflow_fusion.cpp" dir="ecl/EKF"/>
+    <file name="sideslip_fusion.cpp" dir="ecl/EKF"/>
+    <file name="terrain_estimator.cpp" dir="ecl/EKF"/>
+    <file name="vel_pos_fusion.cpp" dir="ecl/EKF"/>
+    <file name="gps_yaw_fusion.cpp" dir="ecl/EKF"/>
+  </makefile>
+</module>

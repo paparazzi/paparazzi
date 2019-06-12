@@ -84,13 +84,13 @@ void baro_bmp_event(void)
   bmp085_event(&baro_bmp);
 
   if (baro_bmp.data_available) {
-
+    uint32_t now_ts = get_sys_time_usec();
     float tmp = baro_bmp.pressure / 101325.0; // pressure at sea level
     tmp = pow(tmp, 0.190295);
     baro_bmp_alt = 44330 * (1.0 - tmp);
 
     float pressure = (float)baro_bmp.pressure;
-    AbiSendMsgBARO_ABS(BARO_BMP_SENDER_ID, pressure);
+    AbiSendMsgBARO_ABS(BARO_BMP_SENDER_ID, now_ts, pressure);
     float temp = baro_bmp.temperature / 10.0f;
     AbiSendMsgTEMPERATURE(BARO_BOARD_SENDER_ID, temp);
     baro_bmp.data_available = false;

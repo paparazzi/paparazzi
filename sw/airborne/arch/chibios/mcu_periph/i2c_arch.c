@@ -41,6 +41,10 @@
 #include "mcu_periph/ram_arch.h"
 #include "string.h"
 
+// Default stack size
+#ifndef I2C_THREAD_STACK_SIZE
+#define I2C_THREAD_STACK_SIZE 512
+#endif
 
 #if USE_I2C1 || USE_I2C2 || USE_I2C3
 
@@ -198,7 +202,7 @@ static struct i2c_init i2c1_init_s = {
 struct i2c_errors i2c1_errors;
 // Thread
 static __attribute__((noreturn)) void thd_i2c1(void *arg);
-static THD_WORKING_AREA(wa_thd_i2c1, 128);
+static THD_WORKING_AREA(wa_thd_i2c1, I2C_THREAD_STACK_SIZE);
 
 /*
  * I2C1 init
@@ -252,7 +256,7 @@ static struct i2c_init i2c2_init_s = {
 struct i2c_errors i2c2_errors;
 // Thread
 static __attribute__((noreturn)) void thd_i2c2(void *arg);
-static THD_WORKING_AREA(wa_thd_i2c2, 128);
+static THD_WORKING_AREA(wa_thd_i2c2, I2C_THREAD_STACK_SIZE);
 
 /*
  * I2C2 init
@@ -306,7 +310,7 @@ static struct i2c_init i2c3_init_s = {
 struct i2c_errors i2c3_errors;
 // Thread
 static __attribute__((noreturn)) void thd_i2c3(void *arg);
-static THD_WORKING_AREA(wa_thd_i2c3, 128);
+static THD_WORKING_AREA(wa_thd_i2c3, I2C_THREAD_STACK_SIZE);
 
 /*
  * I2C3 init

@@ -79,6 +79,7 @@ static void decode_optical_flow_msg(struct mavlink_message *msg __attribute__((u
 {
   static float quality = 0;
   static float noise = 0;
+  uint32_t now_ts = get_sys_time_usec();
   quality = ((float)optical_flow.quality) / 255.0;
   noise = px4flow_stddev + (1 - quality) * px4flow_stddev * 10;
   noise = noise * noise; // square the noise to get variance of the measurement
@@ -107,7 +108,7 @@ static void decode_optical_flow_msg(struct mavlink_message *msg __attribute__((u
   if (px4flow_update_agl) {
     // positive distance means it's known/valid
     if (optical_flow.ground_distance > 0) {
-      AbiSendMsgAGL(AGL_SONAR_PX4FLOW_ID, optical_flow.ground_distance);
+      AbiSendMsgAGL(AGL_SONAR_PX4FLOW_ID, now_ts, optical_flow.ground_distance);
     }
   }
 }

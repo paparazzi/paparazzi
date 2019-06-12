@@ -210,7 +210,7 @@ static abi_event geo_mag_ev;
 static abi_event gps_ev;
 
 
-static void baro_cb(uint8_t __attribute__((unused)) sender_id, float pressure)
+static void baro_cb(uint8_t __attribute__((unused)) sender_id, __attribute__((unused)) uint32_t stamp, float pressure)
 {
   static float ins_qfe = PPRZ_ISA_SEA_LEVEL_PRESSURE;
   static float alpha = 10.0f;

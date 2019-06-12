@@ -201,7 +201,7 @@ if __name__ == '__main__':
     try:
         proxy = Proxy(gcs_conf, acs, args.verbose)
         proxy.run()
-    except ValueError, e:
+    except ValueError as e:
         print(e)
 
 

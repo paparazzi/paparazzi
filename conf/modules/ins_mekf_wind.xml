@@ -82,7 +82,6 @@
     <define name="EIGEN_NO_DEBUG"/>
     <flag name="CXXFLAGS" value="Wno-bool-compare"/>
     <flag name="CXXFLAGS" value="Wno-logical-not-parentheses"/>
-    <file name="pprz_syscalls.c" dir="."/>
   </makefile>
   <makefile target="sim" firmware="fixedwing">
     <define name="AHRS_TYPE_H" value="subsystems/ahrs/ahrs_sim.h" type="string"/>

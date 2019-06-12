@@ -1,0 +1,23 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="actuators_ostrich" dir="actuators">
+  <doc>
+    <description>Driver for the Ostrich rover controller board</description>
+    <configure name="ACTUATORS_OSTRICH_PORT" value="UARTx" description="UART port (default UART6)"/>
+    <configure name="ACTUATORS_OSTRICH_BAUD" value="B115200" description="UART baudrate (default 115200)"/>
+  </doc>
+  <header>
+    <file name="actuators_ostrich.h"/>
+  </header>
+  <periodic fun="actuators_ostrich_periodic()" freq="10"/>
+  <makefile target="ap">
+    <configure name="ACTUATORS_OSTRICH_PORT" case="upper|lower" default="UART6"/>
+    <configure name="ACTUATORS_OSTRICH_BAUD" default="B115200"/>
+    <define name="USE_$(ACTUATORS_OSTRICH_PORT_UPPER)"/>
+    <define name="ACTUATORS_OSTRICH_DEV" value="$(ACTUATORS_OSTRICH_PORT_LOWER)"/>
+    <define name="$(ACTUATORS_OSTRICH_PORT_UPPER)_BAUD" value="$(ACTUATORS_OSTRICH_BAUD)"/>  
+    
+    <file name="actuators_ostrich.c"/>
+  </makefile>
+</module>
+

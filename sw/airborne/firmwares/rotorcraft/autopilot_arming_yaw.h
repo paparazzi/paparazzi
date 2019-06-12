@@ -160,8 +160,8 @@ static inline void autopilot_arming_check_motors_on(void)
       case STATUS_START_MOTORS:
         autopilot.motors_on = true;
         autopilot_motors_on_counter = MOTOR_ARMING_DELAY;
-        autopilot_set_in_flight(false);   // stop fc from starting control till arm process is complete
-        if (autopilot_arming_check_valid(YAW_MUST_BE_CENTERED)) { // wait until stick released
+        autopilot_set_in_flight(false);   // stop fc from starting control (integration and yaw) till arm process is complete
+        if (YAW_STICK_CENTERED()) { // wait until stick released
           autopilot_check_motor_status = STATUS_MOTORS_ON;
         }
         break;

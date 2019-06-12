@@ -77,8 +77,9 @@ void umarim_baro_event(void)
   Ads1114Event();
   if (BARO_ABS_ADS.data_available) {
     if (startup_cnt == 0) {
+      uint32_t now_ts = get_sys_time_usec();
       float pressure = UMARIM_BARO_SENS * Ads1114GetValue(BARO_ABS_ADS);
-      AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, pressure);
+      AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, now_ts, pressure);
     }
     BARO_ABS_ADS.data_available = false;
   }

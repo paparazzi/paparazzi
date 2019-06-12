@@ -113,8 +113,9 @@ void apogee_baro_event(void)
 {
   mpl3115_event(&apogee_baro);
   if (apogee_baro.data_available && startup_cnt == 0) {
+    uint32_t now_ts = get_sys_time_usec();
     float pressure = ((float)apogee_baro.pressure / (1 << 2));
-    AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, pressure);
+    AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, now_ts, pressure);
     float temp = apogee_baro.temperature / 16.0f;
     AbiSendMsgTEMPERATURE(BARO_BOARD_SENDER_ID, temp);
     apogee_baro.data_available = false;

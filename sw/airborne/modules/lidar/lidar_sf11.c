@@ -97,9 +97,10 @@ void lidar_sf11_periodic(void)
       lidar_sf11.trans.buf[0] = 0; // set tx to zero
       i2c_transceive(&LIDAR_SF11_I2C_DEV, &lidar_sf11.trans, lidar_sf11.addr, 1, 2);
       break;
-    case LIDAR_SF11_READ_OK:
+    case LIDAR_SF11_READ_OK: {
       // process results
       // filter data
+      uint32_t now_ts = get_sys_time_usec();
       lidar_sf11.distance_raw = update_median_filter_i(
                                   &lidar_sf11_filter,
                                   (uint32_t)((lidar_sf11.trans.buf[0] << 8) | lidar_sf11.trans.buf[1]));
@@ -115,12 +116,13 @@ void lidar_sf11_periodic(void)
 
       // send message (if requested)
       if (lidar_sf11.update_agl) {
-        AbiSendMsgAGL(AGL_LIDAR_SF11_ID, lidar_sf11.distance);
+        AbiSendMsgAGL(AGL_LIDAR_SF11_ID, now_ts, lidar_sf11.distance);
       }
 
       // reset status
       lidar_sf11.status = LIDAR_SF11_REQ_READ;
       break;
+    }
     default:
       break;
   }

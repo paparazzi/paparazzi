@@ -27,9 +27,10 @@ All rights reserved.
 #include "act_fast.h"
 #include "math.h"
 #include "image.h"
+#include "../../opticflow/opticflow_calculator.h"
 
-
-#define MAX_AGENTS 1000
+// equal to the maximal number of corners defined by fast9_rsize in opticflow_calculator.c
+#define MAX_AGENTS FAST9_MAX_CORNERS
 struct agent_t agents[MAX_AGENTS];
 
 /**
@@ -57,6 +58,8 @@ void act_fast(struct image_t *img, uint8_t fast_threshold, uint16_t *num_corners
 
   // ensure that n_agents is never bigger than MAX_AGENTS
   n_agents = (n_agents < MAX_AGENTS) ? n_agents : MAX_AGENTS;
+  // min_gradient should be bigger than 0:
+  min_gradient = (min_gradient == 0) ? 1 : min_gradient;
 
   int border = 4;
 
@@ -109,7 +112,7 @@ void act_fast(struct image_t *img, uint8_t fast_threshold, uint16_t *num_corners
         if (fast9_detect_pixel(img, fast_threshold, x, y)) {
           // we arrived at a corner, yeah!!!
           agents[a].active = 0;
-          break;
+          continue;
         } else {
           // make a step:
           struct point_t loc = { .x = agents[a].x, .y = agents[a].y};
