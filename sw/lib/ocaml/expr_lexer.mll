@@ -44,10 +44,16 @@ rule token = parse
   | "->" { DEREF }
   | "==" { EQ }
   | "&&" { AND }
+  | "@AND" { AND }
   | "||" { OR }
+  | "@OR" { OR }
   | ">" { GT }
+  | "@GT" { GT }
+  | "@LT" { LT }
   | "%" { MOD }
   | ">=" { GEQ }
+  | "@GEQ" { GEQ }
+  | "@LEQ" { LEQ }
   | "+" { PLUS }
   | "=" { ASSIGN }
   | "-" { MINUS }

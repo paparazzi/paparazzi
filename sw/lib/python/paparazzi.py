@@ -14,7 +14,8 @@ import lxml.etree as ET
 
 # if PAPARAZZI_HOME not set, then assume the tree containing this
 # file is a reasonable substitute
-PAPARAZZI_HOME  = getenv("PAPARAZZI_HOME", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../')))
+PAPARAZZI_SRC   = getenv("PAPARAZZI_HOME", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../')))
+PAPARAZZI_HOME  = getenv("PAPARAZZI_HOME", PAPARAZZI_SRC)
 
 # Directories
 conf_dir        = path.join(PAPARAZZI_HOME, "conf/")
