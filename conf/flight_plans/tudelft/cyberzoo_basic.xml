@@ -66,6 +66,15 @@
     <block name="stay_p1">
       <stay wp="p1"/>
     </block>
+    <block name="stay_p2">
+      <stay wp="p2"/>
+    </block>
+    <block name="stay_p3">
+      <stay wp="p3"/>
+    </block>
+    <block name="stay_p4">
+      <stay wp="p4"/>
+    </block>
     <block name="go_p2">
       <call_once fun="nav_set_heading_deg(90)"/>
       <go wp="p2"/>
@@ -95,6 +104,9 @@
     </block>
     <block name="circle CAM" pre_call="nav_set_heading_towards_waypoint(WP_CAM)">
       <circle radius="nav_radius" wp="CAM"/>
+    </block>
+    <block name="circle CAM 1m" pre_call="nav_set_heading_towards_waypoint(WP_CAM)">
+      <circle radius="1" wp="CAM"/>
     </block>
     <block name="land here" strip_button="Land Here" strip_icon="land-right.png">
       <call_once fun="NavSetWaypointHere(WP_TD)"/>
