@@ -8,6 +8,7 @@ import datetime
 from fnmatch import fnmatch
 import re
 import numpy as np
+from functools import wraps
 from collections import Counter
 import paparazzi
 import xml.etree.ElementTree
@@ -15,6 +16,34 @@ from lxml import etree
 import subprocess
 
 PIPE = subprocess.PIPE
+
+
+def conf_board_decorator(module_overview_func):
+    """
+    This decorator extends the function PaparazziOverview.airframe_module_overview to generate the html
+    table either for airframes in a conf file or all airframes with a specific board
+    """
+    @wraps(module_overview_func)
+    def wrapper(self, selected_file):
+
+        if selected_file[-3:] == "xml":
+            airframes = self.list_airframes_in_conf(selected_file)
+            module_overview_func(self, iter(airframes))
+        elif selected_file[-8:] == "makefile":
+            board = selected_file[:-9]
+            conf_files = iter(paparazzi.get_list_of_conf_files())
+            airframes = []
+            for conf in conf_files:
+                afs_in_conf = iter(self.list_airframes_in_conf(conf))
+                for af in afs_in_conf:
+                    ac = self.airframe_details(af.xml)
+                    if board in ac.boards:
+                        airframes.append(af)
+            module_overview_func(self, iter(airframes))
+        else:
+            raise ValueError("selected file is neither a conf.xml or board.makefile")
+
+    return wrapper
 
 
 class Airframe:
@@ -322,15 +351,14 @@ class PaparazziOverview(object):
                                reverse=True)
         return file_date_lst
 
-    def airframe_module_overview(self, selected_conf):
+    @conf_board_decorator
+    def airframe_module_overview(self, airframes):
         """
         Creates a nested dictionary of the airframe names and the modules they use to generate an html table
         that provides an overview of module usage of the airframes of interest
 
-        :param selected_conf: str of the name of conf file
+        :param airframes: list or iterator of airframes to be analyzed
         """
-        # Looks at airframes in selected conf (not the currently active conf)
-        airframes = self.list_airframes_in_conf(selected_conf)
 
         # Structure of nested dictionary: {af name: {module name: module type}}
         afs_mods = {}
