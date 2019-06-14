@@ -378,14 +378,16 @@ class PaparazziOverview(object):
         del unique_mods_ctr['xml']
 
         # Table initialization, airframe names are ordered alphabetically, module names by most used
-        ac_mod_table = np.zeros((len(afs_mods.keys()) + 1, len(unique_mods_ctr.keys()) + 1), dtype=object)
+        ac_mod_table = np.zeros((len(afs_mods.keys()) + 1, len(unique_mods_ctr.keys()) + 2), dtype=object)
         ac_mod_table[0, 0] = "Name \\ Modules"
+        ac_mod_table[0, 1] = "XML File"
         ac_mod_table[1:, 0] = sorted(afs_mods.keys(), key=lambda s: s.lower())
-        ac_mod_table[0, 1:] = [i for i, _ in unique_mods_ctr.most_common()]
+        ac_mod_table[0, 2:] = [i for i, _ in unique_mods_ctr.most_common()]
 
         for i in range(1, len(ac_mod_table[:, 0])):
-            for j in range(1, len(ac_mod_table[0, :])):
-                ac_name = ac_mod_table[i, 0]
+            ac_name = ac_mod_table[i, 0]
+            ac_mod_table[i, 1] = afs_mods[ac_name]["xml"][0]
+            for j in range(2, len(ac_mod_table[0, :])):
                 module_name = ac_mod_table[0, j]
                 if ac_mod_table[0, j] not in afs_mods[ac_name]:
                     ac_mod_table[i, j] = "\\"
