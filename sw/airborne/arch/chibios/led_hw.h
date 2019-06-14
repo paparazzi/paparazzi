@@ -34,23 +34,24 @@
  * hal.h is needed for palXXX functions
  */
 #include <hal.h>
-#include "mcu_periph/gpio_def.h"
+#include "mcu_periph/gpio.h"
 #include BOARD_CONFIG
 
 /*
  * Regular GPIO driven LEDs
  */
-#define _LED_GPIO(i)  i
-#define _LED_GPIO_PIN(i) i
+#define _LED_EVAL(i) i
 
-#define LED_GPIO(i) _LED_GPIO(LED_ ## i ## _GPIO)
-#define LED_GPIO_PIN(i) _LED_GPIO_PIN(LED_ ## i ## _GPIO_PIN)
+#define LED_GPIO(i) _LED_EVAL(LED_ ## i ## _GPIO)
+#define LED_GPIO_PIN(i) _LED_EVAL(LED_ ## i ## _GPIO_PIN)
+#define LED_GPIO_ON(i) _LED_EVAL(LED_ ## i ## _GPIO_ON)
+#define LED_GPIO_OFF(i) _LED_EVAL(LED_ ## i ## _GPIO_OFF)
 
-#define LED_INIT(i) palSetPadMode(LED_GPIO(i), LED_GPIO_PIN(i), PAL_MODE_OUTPUT_PUSHPULL)
-#define LED_ON(i) palClearPad(LED_GPIO(i), LED_GPIO_PIN(i))
-#define LED_OFF(i) palSetPad(LED_GPIO(i), LED_GPIO_PIN(i))
-#define LED_TOGGLE(i) palTogglePad(LED_GPIO(i), LED_GPIO_PIN(i))
-#define LED_DISABLE(i) palSetPadMode(LED_GPIO(i), LED_GPIO_PIN(i), PAL_MODE_INPUT)
+#define LED_INIT(i) gpio_setup_output(LED_GPIO(i), LED_GPIO_PIN(i))
+#define LED_ON(i) LED_GPIO_ON(i)(LED_GPIO(i), LED_GPIO_PIN(i))
+#define LED_OFF(i) LED_GPIO_OFF(i)(LED_GPIO(i), LED_GPIO_PIN(i))
+#define LED_TOGGLE(i) gpio_toggle(LED_GPIO(i), LED_GPIO_PIN(i))
+#define LED_DISABLE(i) gpio_setup_input(LED_GPIO(i), LED_GPIO_PIN(i))
 #define LED_PERIODIC() {}
 
 #endif /* LED_HW_H */
