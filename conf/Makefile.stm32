@@ -51,7 +51,7 @@ CINCS = $(INCLUDES) -I$(PAPARAZZI_SRC)/sw/include
 
 # add syscalls and c++ new/delete operators
 $(TARGET).srcs += c++.cpp pprz_syscalls.c
-$(TARGET).CXXFLAGS += -fno-sized-deallocation
+#$(TARGET).CXXFLAGS += -wfno-sized-deallocation
 
 # input files
 SRCS = $($(TARGET).srcs)

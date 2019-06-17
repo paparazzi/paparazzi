@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<!DOCTYPE radio SYSTEM "../radio.dtd">
+<radio name="OpenUAS X9D SE" data_min="980" data_max="2020" sync_min="6000" sync_max="18000" pulse_type="NEGATIVE">
+  <channel ctl="LeftStickVertical"    function="THROTTLE"      min="988" neutral="1004" max="2012" average="0"/>
+  <channel ctl="RightStickHorizontal" function="ROLL"          min="988" neutral="1500" max="2012" average="0"/>
+  <channel ctl="RightStickVertical"   function="PITCH"         min="2012" neutral="1500" max="988" average="0"/>
+  <channel ctl="LeftStickHorizontal"  function="YAW"           min="988" neutral="1500" max="2012" average="0"/>
+  <channel ctl="CONTROL8"             function="MODE"          min="2012" neutral="1500" max="988" average="0"/>
+  <channel ctl="SW8"                  function="AUX1"          min="2012" neutral="1500" max="988" average="0"/>
+  <channel ctl="CONTROL5"             function="AUX2"          min="2012" neutral="1500" max="988" average="0"/>
+  <channel ctl="CONTROL6"             function="AUX3"          min="2012" neutral="1500" max="988" average="0"/>
+</radio>
