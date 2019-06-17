@@ -3,7 +3,7 @@
 
 #define ISP_CFA 2
 
-#include "boards/bebop.h"
+#include "boards/bebop/mt9f002.h"
 
 #define MT9F002_BAYERSTATS_STATX 64
 #define MT9F002_BAYERSTATS_STATY 48

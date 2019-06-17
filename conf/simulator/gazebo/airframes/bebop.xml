@@ -9,6 +9,5 @@
     <define name="GAZEBO_AC_NAME" value="bebop" type="string"/>
     <define name="BYPASS_AHRS" value="1"/>
     <define name="BYPASS_INS" value="1"/>
-    <define name="SIMULATE_MT9F002" value="1"/>
   </section>
 </airframe>

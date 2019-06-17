@@ -218,19 +218,20 @@
           <ixz>0</ixz>
         </inertia>
       </inertial>
-      <sensor type="wideanglecamera" name="front_camera">
+      <sensor type="wideanglecamera" name="mt9f002">
         <update_rate>15.0</update_rate><!-- adjust with MT9F002_TARGET_FPS -->
-        <camera name="front_camera">
+        <camera>
           <image>
-            <width>3746</width><!-- with MT9F002_OUTPUT_SCALER = 1.00, will be scaled by NPS --><!-- Reduced to 3 rad FoV for Gazebo 7 compatibility -->
-            <height>3288</height>
+            <width>4608</width><!-- Full sensor resolution -->
+            <height>3288</height><!-- Full sensor resolution -->
             <format>R8G8B8</format>
           </image>
-          <horizontal_fov>3.00</horizontal_fov>
+          <horizontal_fov>3.7</horizontal_fov>
           <lens>
             <type>equisolid_angle</type>
             <scale_to_hfov>true</scale_to_hfov>
-            <env_texture_size>2048</env_texture_size><!-- with MT9F002_OUTPUT_SCALER = 1.00, will be scaled by NPS -->
+            <cutoff_angle>1.8</cutoff_angle>
+            <env_texture_size>2048</env_texture_size><!-- with MT9F002_ZOOM = 1.00, will be scaled by NPS -->
           </lens>
           <clip>
             <near>0.01</near>
@@ -266,9 +267,9 @@
           <ixz>0</ixz>
         </inertia>
       </inertial>
-      <sensor type="camera" name="bottom_camera">
-        <update_rate>30.0</update_rate>
-        <camera name="bottom_camera">
+      <sensor type="camera" name="mt9v117">
+        <update_rate>90.0</update_rate>
+        <camera>
           <horizontal_fov>0.7175</horizontal_fov>
           <image>
             <width>240</width>

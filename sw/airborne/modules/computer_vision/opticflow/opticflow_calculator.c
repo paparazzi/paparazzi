@@ -542,8 +542,7 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
       float theta_diff = opticflow->img_gray.eulers.theta - opticflow->prev_img_gray.eulers.theta;
       float psi_diff = opticflow->img_gray.eulers.psi - opticflow->prev_img_gray.eulers.psi;
 
-      if (strcmp(OPTICFLOW_CAMERA.dev_name, "/dev/video0") == 0) {
-
+      if (strcmp(OPTICFLOW_CAMERA.dev_name, bottom_camera.dev_name) == 0) {
         // bottom cam: just subtract a scaled version of the roll and pitch difference from the global flow vector:
         diff_flow_x = phi_diff * OPTICFLOW_CAMERA.camera_intrinsics.focal_x; // phi_diff works better than (cam_state->rates.p)
         diff_flow_y = theta_diff * OPTICFLOW_CAMERA.camera_intrinsics.focal_y;
@@ -552,7 +551,6 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
         result->flow_der_y = result->flow_y - diff_flow_y * opticflow->subpixel_factor *
                              opticflow->derotation_correction_factor_y;
       } else {
-
         // frontal cam, predict individual flow vectors:
         struct flow_t *predicted_flow_vectors = predict_flow_vectors(vectors, result->tracked_cnt, phi_diff, theta_diff,
                                                 psi_diff, opticflow);
@@ -645,7 +643,7 @@ static struct flow_t *predict_flow_vectors(struct flow_t *flow_vectors, uint16_t
 
   float A, B, C; // as in Longuet-Higgins
 
-  if (strcmp(OPTICFLOW_CAMERA.dev_name, "/dev/video1") == 0) {
+  if (strcmp(OPTICFLOW_CAMERA.dev_name, front_camera.dev_name) == 0) {
     // specific for the x,y swapped Bebop 2 images:
     A = -psi_diff;
     B = theta_diff;

@@ -27,8 +27,7 @@
 #include "std.h"
 #include "mt9v117.h"
 #include "mt9v117_regs.h"
-#include "boards/bebop.h"
-#include "generated/airframe.h"
+#include "peripherals/video_device.h"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -37,27 +36,6 @@
 #include <linux/i2c-dev.h>
 #include <linux/videodev2.h>
 #include <linux/v4l2-mediabus.h>
-
-#ifndef MT9V117_TARGET_FPS
-#define MT9V117_TARGET_FPS 0
-#endif
-
-// parameters for undistortion
-#ifndef MT9V117_FOCAL_X
-#define MT9V117_FOCAL_X 347.22f
-#endif
-#ifndef MT9V117_FOCAL_Y
-#define MT9V117_FOCAL_Y 347.22f
-#endif
-#ifndef MT9V117_CENTER_X
-#define MT9V117_CENTER_X 120.0f
-#endif
-#ifndef MT9V117_CENTER_Y
-#define MT9V117_CENTER_Y 120.0f
-#endif
-#ifndef MT9V117_DHANE_K
-#define MT9V117_DHANE_K 1.0f
-#endif
 
 /* Camera structure */
 struct video_config_t bottom_camera = {
@@ -458,6 +436,9 @@ void mt9v117_init(struct mt9v117_t *mt)
   write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_OUTPUT_FORMAT_OFFSET,
             read_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_OUTPUT_FORMAT_OFFSET, 2) |
             MT9V117_CAM_OUTPUT_FORMAT_BT656_ENABLE, 2);
+
+  /* Set autoexposure luma */
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_AE_LUMA, MT9V117_TARGET_LUMA, 2);
 
   /* Apply the configuration */
   write_var(mt, MT9V117_SYSMGR_VAR, MT9V117_SYSMGR_NEXT_STATE_OFFSET, MT9V117_SYS_STATE_ENTER_CONFIG_CHANGE, 1);

@@ -62,13 +62,13 @@ struct opticflow_t {
   uint8_t threshold_vec;                ///< The threshold in x, y subpixels which the algorithm should stop
   uint8_t pyramid_level;              ///< Number of pyramid levels used in Lucas Kanade algorithm (0 == no pyramids used)
 
-  uint8_t max_track_corners;            ///< Maximum amount of corners Lucas Kanade should track
+  uint16_t max_track_corners;            ///< Maximum amount of corners Lucas Kanade should track
   bool fast9_adaptive;                  ///< Whether the FAST9 threshold should be adaptive
   uint8_t fast9_threshold;              ///< FAST9 corner detection threshold
   uint16_t fast9_min_distance;          ///< Minimum distance in pixels between corners
   uint16_t fast9_padding;               ///< Padding used in FAST9 detector
 
-  uint16_t fast9_rsize;             ///< Amount of corners allocated
+  uint16_t fast9_rsize;                 ///< Amount of corners allocated
   struct point_t *fast9_ret_corners;    ///< Corners
   bool feature_management;        ///< Decides whether to keep track corners in memory for the next frame instead of re-detecting every time
   bool fast9_region_detect;       ///< Decides whether to detect fast9 corners in specific regions of interest or the whole image (only for feature management)
@@ -84,16 +84,16 @@ struct opticflow_t {
 
 #define FAST9_MAX_CORNERS 512
 
-void opticflow_calc_init(struct opticflow_t *opticflow);
-bool opticflow_calc_frame(struct opticflow_t *opticflow, struct image_t *img,
+extern void opticflow_calc_init(struct opticflow_t *opticflow);
+extern bool opticflow_calc_frame(struct opticflow_t *opticflow, struct image_t *img,
                           struct opticflow_result_t *result);
 
-bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
+extern bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
                              struct opticflow_result_t *result);
-bool calc_edgeflow_tot(struct opticflow_t *opticflow, struct image_t *img,
+extern bool calc_edgeflow_tot(struct opticflow_t *opticflow, struct image_t *img,
                        struct opticflow_result_t *result);
 
-void kalman_filter_opticflow_velocity(float *velocity_x, float *velocity_y, float *acceleration_measurement, float fps,
+extern void kalman_filter_opticflow_velocity(float *velocity_x, float *velocity_y, float *acceleration_measurement, float fps,
                                       float *measurement_noise, float process_noise, bool reinitialize_kalman);
 
 #endif /* OPTICFLOW_CALCULATOR_H */
