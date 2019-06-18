@@ -50,7 +50,8 @@ CXXSTANDARD ?= -std=c++0x
 CINCS = $(INCLUDES) -I$(PAPARAZZI_SRC)/sw/include
 
 # add syscalls and c++ new/delete operators
-$(TARGET).srcs += c++.cpp pprz_syscalls.c
+# .cc since older compilers
+$(TARGET).srcs += c++.cc pprz_syscalls.c
 $(TARGET).CXXFLAGS += -fno-sized-deallocation
 
 # input files
@@ -96,6 +97,7 @@ WARN_FLAGS += -Wpointer-arith
 WARN_FLAGS += -Wswitch-default
 WARN_FLAGS += -Wredundant-decls -Wmissing-declarations
 WARN_FLAGS += -Wshadow
+WARN_FLAGS += -Wno-unknown-warning
 
 
 # common flags
