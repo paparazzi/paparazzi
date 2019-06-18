@@ -32,7 +32,7 @@
     <file_arch name="sdio_arch.c" dir="mcu_periph"/>
     <configure name="SDLOG_USE_RTC" default="TRUE"/>
     <configure name="USE_FATFS" value="TRUE"/>
-    <define name="HAL_USE_RTC" value="TRUE" cond="ifneq (,$(findstring $(SDLOG_USE_RTC),0 FALSE))"/>
+    <define name="HAL_USE_RTC" value="TRUE" cond="ifeq (,$(findstring $(SDLOG_USE_RTC),0 FALSE))"/>
     <define name="HAL_USE_SDC" value="TRUE"/>
     <define name="HAL_USE_USB" value="TRUE"/>
   </makefile>
