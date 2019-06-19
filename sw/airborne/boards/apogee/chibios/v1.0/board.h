@@ -576,6 +576,16 @@
 #define SDLOG_USB_VBUS_PIN GPIO9
 
 
+/**
+ * For WS2812
+ */
+#define WS2812D1_CFG_DEF { \
+  .dma_stream = STM32_PWM1_UP_DMA_STREAM, \
+  .dma_channel = STM32_PWM1_UP_DMA_CHANNEL, \
+  .dma_priority = STM32_PWM1_UP_DMA_PRIORITY, \
+  .pwm_channel = 0, \
+  .pwmp = &PWMD1 \
+}
 
 
 /*
