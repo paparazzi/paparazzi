@@ -363,6 +363,13 @@ void Normalize(void)
 #define ACCEL_WEIGHT_FILTER 8
 #endif
 
+// the weigthing is function of the length of a band of 1G by default
+// so <0.5G = 0.0, 1G = 1.0 , >1.5G = 0.0
+// adjust the band size if needed, the value should be >0
+#ifndef ACCEL_WEIGHT_BAND
+#define ACCEL_WEIGHT_BAND 1.f
+#endif
+
 void Drift_correction()
 {
   //Compensation the Roll, Pitch and Yaw drift.
@@ -389,8 +396,8 @@ void Drift_correction()
   Accel_filtered = Accel_magnitude;
 #endif
   // Dynamic weighting of accelerometer info (reliability filter)
-  // Weight for accelerometer info (<0.5G = 0.0, 1G = 1.0 , >1.5G = 0.0)
-  Accel_weight = Clip(1.f - 2.f * fabsf(1.f - Accel_filtered), 0.f, 1.f);
+  // Weight for accelerometer info according to band size (min value is 0.1 to prevent division by zero)
+  Accel_weight = Clip(1.f - (2.f / Max(0.1f,ACCEL_WEIGHT_BAND)) * fabsf(1.f - Accel_filtered), 0.f, 1.f);
 
 
 #if PERFORMANCE_REPORTING == 1
