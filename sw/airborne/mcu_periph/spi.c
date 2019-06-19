@@ -75,6 +75,17 @@ void spi3_init(void)
 #endif // USE_SPI3
 
 
+#if USE_SPI4
+struct spi_periph spi4;
+
+void spi4_init(void)
+{
+  spi_init(&spi4);
+  spi4_arch_init();
+}
+#endif // USE_SPI4
+
+
 void spi_init(struct spi_periph *p)
 {
   p->trans_insert_idx = 0;
