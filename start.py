@@ -30,13 +30,11 @@ class ConfChooser(object):
         combo.set_sensitive(False)
         combo.get_model().clear()
         current_index = 0
+        combo.append_text("------None Selected------")
         for (i, text) in enumerate(clist):
             combo.append_text(text)
             if active is not None and os.path.join(paparazzi.conf_dir, text) == os.path.realpath(active):
-                current_index = i
-        combo.prepend_text("------None Selected------")
-        if active is None:
-            current_index = 0
+                current_index = i + 1  # Add one due to ---None Selected---
         combo.set_active(current_index)
         combo.set_sensitive(True)
 
@@ -282,10 +280,17 @@ class ConfChooser(object):
     def maintenance_window(self, widget):
         mtn_window = gtk.Window()
         mtn_window.set_position(gtk.WIN_POS_CENTER)
-        mtn_window.set_size_request(750, 300)
+        mtn_window.set_size_request(750, 360)
         mtn_window.set_title("Maintenance Tools")
 
         mnt_vbox = gtk.VBox()
+
+        mnt_desc_label = gtk.Label("")
+        desc_text = "Show module usage of all airframes in a selected conf file <b>or</b> all airframes " \
+                    "with a specific board across all conf files."
+        mnt_desc_label.set_markup(desc_text)
+        mnt_desc_label.set_size_request(720, 40)
+        mnt_desc_label.set_line_wrap(True)
 
         mnt_conf_label = gtk.Label("Conf:")
         mnt_conf_label.set_size_request(100, 30)
@@ -310,7 +315,7 @@ class ConfChooser(object):
 
         mnt_board_file_combo.connect("changed", self.deactivate_cb, mnt_conf_file_combo)
 
-        mnt_combos = {"Conf" : mnt_conf_file_combo, "Board" : mnt_board_file_combo}
+        mnt_combos = {"Conf": mnt_conf_file_combo, "Board": mnt_board_file_combo}
 
         mnt_confbar = gtk.HBox()
         mnt_confbar.pack_start(mnt_conf_label)
@@ -318,6 +323,7 @@ class ConfChooser(object):
         mnt_boardbar = gtk.HBox()
         mnt_boardbar.pack_start(mnt_board_label)
         mnt_boardbar.pack_start(mnt_board_file_combo)
+        mnt_vbox.pack_start(mnt_desc_label)
         mnt_vbox.pack_start(mnt_confbar, False)
         mnt_vbox.pack_start(mnt_boardbar, False)
 

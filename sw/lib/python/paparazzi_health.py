@@ -347,7 +347,14 @@ class PaparazziOverview(object):
 
     def generate_sorted_list(self, lst):
         commit_dates = [re.sub(r"( \n)$", "", self.get_last_commit_date(paparazzi.conf_dir + elm)) for elm in lst]
-        file_date_lst = sorted(zip(lst, commit_dates), key=lambda x: datetime.datetime.strptime(x[1], '%d-%m-%Y'),
+        untracked_zip = []
+        tracked_zip = []
+        for z in zip(lst, commit_dates):
+            if z[1] != "00-00-0000":
+                tracked_zip.append(z)
+            else:
+                untracked_zip.append((z[0], "Untracked file"))
+        file_date_lst = untracked_zip + sorted(tracked_zip, key=lambda x: datetime.datetime.strptime(x[1], '%d-%m-%Y'),
                                reverse=True)
         return file_date_lst
 
