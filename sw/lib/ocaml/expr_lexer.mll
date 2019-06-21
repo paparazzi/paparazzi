@@ -42,6 +42,7 @@ rule token = parse
   | '[' { LB }
   | ']' { RB }
   | "->" { DEREF }
+  | "@DEREF" {DEREF}
   | "==" { EQ }
   | "&&" { AND }
   | "@AND" { AND }
