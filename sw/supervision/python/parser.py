@@ -38,7 +38,7 @@ import shutil
 ###############################################################################
 # [Constants]
 
-STRINGS_FALSE = ["False", "false", None, "0", "nope", "nada"]
+STRINGS_FALSE = ["False", "false", None, "0"]
 
 LOGGER = logging.getLogger("[PARSER]")
 
@@ -52,7 +52,6 @@ CONSTANT_REF = "constant"
 VARIABLE_REF = "variable"
 MODE_REF = "mode"
 FAVORITE_REF = "favorite"
-BLACKLISTED_REF = "blacklisted"
 
 # REFERENCES AND STRUCTURES OF CONF XML FILES :
 # CONF_STRUCTURE = [(node_name, [node_attributes],
@@ -653,6 +652,14 @@ def parse_tools(tools_path):
     -> Except an incorrect XML format and raise ERROR.
     """
     tools = {}
+    blacklisted_tools = []
+    blacklist = tools_path + "/" + "blacklisted"
+    if os.path.exists(blacklist):
+        with open(blacklist, 'r') as blacklist_fic:
+            for line in blacklist_fic:
+                line = line.strip()
+                if line != "" and line[0] != "#":
+                    blacklisted_tools.append(line)
 
     for file in os.listdir(tools_path):
         if file.endswith(".xml"):
@@ -666,13 +673,12 @@ def parse_tools(tools_path):
                     icon = tool_tag.get(ICON_REF)
                     fav = tool_tag.get(FAVORITE_REF)
                     favorite = fav if fav is None else (fav not in STRINGS_FALSE)
-                    blackli = tool_tag.get(BLACKLISTED_REF)
-                    blacklisted = blackli if blackli is None else (blackli not in STRINGS_FALSE)
 
                     options = []
                     for option_tag in tool_tag:
                         option = parse_arg_option(option_tag)
                         options.append(option)
+                    blacklisted = True if tool_name in blacklisted_tools else False
                     tool_object = db.Program(tool_name, tool_command, options, icon, favorite=favorite, blacklisted=blacklisted)
                     tools[tool_name] = tool_object
 
