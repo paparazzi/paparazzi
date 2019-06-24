@@ -8,6 +8,7 @@ import datetime
 from fnmatch import fnmatch
 import re
 import numpy as np
+from functools import wraps
 from collections import Counter
 import paparazzi
 import xml.etree.ElementTree
@@ -15,6 +16,34 @@ from lxml import etree
 import subprocess
 
 PIPE = subprocess.PIPE
+
+
+def conf_board_decorator(module_overview_func):
+    """
+    This decorator extends the function PaparazziOverview.airframe_module_overview to generate the html
+    table either for airframes in a conf file or all airframes with a specific board
+    """
+    @wraps(module_overview_func)
+    def wrapper(self, selected_file):
+
+        if selected_file[-3:] == "xml":
+            airframes = self.list_airframes_in_conf(selected_file)
+            module_overview_func(self, iter(airframes))
+        elif selected_file[-8:] == "makefile":
+            board = selected_file[:-9]
+            conf_files = iter(paparazzi.get_list_of_conf_files())
+            airframes = []
+            for conf in conf_files:
+                afs_in_conf = iter(self.list_airframes_in_conf(conf))
+                for af in afs_in_conf:
+                    ac = self.airframe_details(af.xml)
+                    if board in ac.boards:
+                        airframes.append(af)
+            module_overview_func(self, iter(airframes))
+        else:
+            raise ValueError("selected file is neither a conf.xml or board.makefile")
+
+    return wrapper
 
 
 class Airframe:
@@ -318,19 +347,25 @@ class PaparazziOverview(object):
 
     def generate_sorted_list(self, lst):
         commit_dates = [re.sub(r"( \n)$", "", self.get_last_commit_date(paparazzi.conf_dir + elm)) for elm in lst]
-        file_date_lst = sorted(zip(lst, commit_dates), key=lambda x: datetime.datetime.strptime(x[1], '%d-%m-%Y'),
+        untracked_zip = []
+        tracked_zip = []
+        for z in zip(lst, commit_dates):
+            if z[1] != "00-00-0000":
+                tracked_zip.append(z)
+            else:
+                untracked_zip.append((z[0], "Untracked file"))
+        file_date_lst = untracked_zip + sorted(tracked_zip, key=lambda x: datetime.datetime.strptime(x[1], '%d-%m-%Y'),
                                reverse=True)
         return file_date_lst
 
-    def airframe_module_overview(self, selected_conf):
+    @conf_board_decorator
+    def airframe_module_overview(self, airframes):
         """
         Creates a nested dictionary of the airframe names and the modules they use to generate an html table
         that provides an overview of module usage of the airframes of interest
 
-        :param selected_conf: str of the name of conf file
+        :param airframes: list or iterator of airframes to be analyzed
         """
-        # Looks at airframes in selected conf (not the currently active conf)
-        airframes = self.list_airframes_in_conf(selected_conf)
 
         # Structure of nested dictionary: {af name: {module name: module type}}
         afs_mods = {}
@@ -350,14 +385,16 @@ class PaparazziOverview(object):
         del unique_mods_ctr['xml']
 
         # Table initialization, airframe names are ordered alphabetically, module names by most used
-        ac_mod_table = np.zeros((len(afs_mods.keys()) + 1, len(unique_mods_ctr.keys()) + 1), dtype=object)
+        ac_mod_table = np.zeros((len(afs_mods.keys()) + 1, len(unique_mods_ctr.keys()) + 2), dtype=object)
         ac_mod_table[0, 0] = "Name \\ Modules"
+        ac_mod_table[0, 1] = "XML File"
         ac_mod_table[1:, 0] = sorted(afs_mods.keys(), key=lambda s: s.lower())
-        ac_mod_table[0, 1:] = [i for i, _ in unique_mods_ctr.most_common()]
+        ac_mod_table[0, 2:] = [i for i, _ in unique_mods_ctr.most_common()]
 
         for i in range(1, len(ac_mod_table[:, 0])):
-            for j in range(1, len(ac_mod_table[0, :])):
-                ac_name = ac_mod_table[i, 0]
+            ac_name = ac_mod_table[i, 0]
+            ac_mod_table[i, 1] = afs_mods[ac_name]["xml"][0]
+            for j in range(2, len(ac_mod_table[0, :])):
                 module_name = ac_mod_table[0, j]
                 if ac_mod_table[0, j] not in afs_mods[ac_name]:
                     ac_mod_table[i, j] = "\\"
