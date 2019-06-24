@@ -1,2 +1,2 @@
-<program command="sw/logalizer/logplotter" name="Log Plotter" />
+<program command="sw/logalizer/logplotter" name="Log Plotter" icon="plotter.svg"/>
 

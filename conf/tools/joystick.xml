@@ -1,4 +1,4 @@
-<program command="sw/ground_segment/joystick/input2ivy" name="Joystick">
+<program command="sw/ground_segment/joystick/input2ivy" name="Joystick" icon="joystick.svg">
   <arg constant="@AIRCRAFT" flag="-ac" />
   <arg flag="xbox_gamepad.xml" />
 </program>
