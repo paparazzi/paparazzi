@@ -11,6 +11,8 @@
     </description>
     <configure name="DW1000_ARDUINO_UART" value="UARTX" description="UART on which arduino and its DW1000 module is connected"/>
     <configure name="DW1000_ARDUINO_BAUD" value="B115200" description="UART Baudrate, default to 115200"/>
+    <configure name="DW1000_USE_AS_LOCAL_POS" value="FALSE|TRUE" description="use as a local positioning system (default: TRUE)"/>
+    <configure name="DW1000_USE_AS_GPS" value="FALSE|TRUE" description="use as a fake GPS positioning system (default: FALSE)"/>
     <section name="DW1000" prefix="DW1000_">
       <define name="ANCHORS_IDS" value="1, 2, 3" type="int[]" description="Comma separated list of anchors ID"/>
       <define name="ANCHORS_POS_X" value="0., 0., 5." type="float[]" description="Comma separated list of anchors ID over X axis"/>
@@ -20,8 +22,24 @@
       <define name="SCALE" value="1., 1., 1." type="float[]" description="Position scale factor other X, Y and Z axis"/>
       <define name="INITIAL_HEADING" value="0." description="Initial heading correction between anchors frame and global frame"/>
       <define name="NB_ANCHORS" value="3" description="Set number of anchors, only 3 are required/supported at the moment"/>
+      <define name="USE_EKF" value="FALSE|TRUE" description="Enable EKF filtering, required to estimate speed"/>
+      <define name="EKF_Q" value="1.0" description="EKF process noise"/>
+      <define name="EKF_R_DIST" value="0.1" description="EKF noise on distance measurements"/>
+      <define name="EKF_R_SPEED" value="0.1" description="EKF noise on speed measurements (if available)"/>
+      <define name="NOISE_X|Y|Z" value="0.1" description="Noise level reported by the POSITION_ESTIMATE message when USE_AS_LOCAL_POS is activated"/>
+      <define name="VEL_NOISE_X|Y|Z" value="0.1" description="Noise level reported by the VELOCITY_ESTIMATE message when USE_AS_LOCAL_POS is activated"/>
     </section>
   </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings name="dw1000">
+        <dl_setting max="1" min="0" step="1" module="decawave/dw1000_arduino" var="dw1000_use_ekf" shortname="use_ekf" values="FALSE|TRUE"/>
+        <dl_setting max="5.0" min="0.01" step="0.01" module="decawave/dw1000_arduino" var="dw1000_ekf_q" shortname="q_noise" handler="update_ekf_q"/>
+        <dl_setting max="1.0" min="0.01" step="0.01" module="decawave/dw1000_arduino" var="dw1000_ekf_r_dist" shortname="r_dist" handler="update_ekf_r_dist"/>
+        <dl_setting max="1.0" min="0.01" step="0.01" module="decawave/dw1000_arduino" var="dw1000_ekf_r_speed" shortname="r_speed" handler="update_ekf_r_speed"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
   <header>
     <file name="dw1000_arduino.h"/>
   </header>
@@ -33,8 +51,32 @@
   <makefile>
     <configure name="DW1000_ARDUINO_UART" case="upper|lower"/>
     <configure name="DW1000_ARDUINO_BAUD" default="B115200"/>
+    <configure name="DW1000_USE_AS_LOCAL_POS" default="TRUE"/>
+    <configure name="DW1000_USE_AS_GPS" default="FALSE"/>
     <file name="dw1000_arduino.c"/>
     <file name="trilateration.c"/>
+    <file name="ekf_range.c"/>
+    <define name="DW1000_USE_AS_LOCAL_POS" value="$(DW1000_USE_AS_LOCAL_POS)"/>
+    <define name="DW1000_USE_AS_GPS" value="$(DW1000_USE_AS_GPS)"/>
+    <raw>
+      ifeq (,$(findstring $(DW1000_USE_AS_GPS),0 FALSE))
+        ifdef SECONDARY_GPS
+          ifneq (,$(findstring $(SECONDARY_GPS), dw1000))
+            # this is the secondary GPS
+            $(TARGET).CFLAGS += -DGPS_SECONDARY_TYPE_H=\"modules/decawave/dw1000_arduino.h\"
+            $(TARGET).CFLAGS += -DSECONDARY_GPS=GPS_DW1000
+          else
+            $(TARGET).CFLAGS += -DGPS_TYPE_H=\"modules/decawave/dw1000_arduino.h\"
+            $(TARGET).CFLAGS += -DPRIMARY_GPS=GPS_DW1000
+          endif
+        else
+          # plain old single GPS usage
+          $(TARGET).CFLAGS += -DGPS_TYPE_H=\"modules/decawave/dw1000_arduino.h\"
+        endif
+      endif
+    </raw>
+  </makefile>
+  <makefile target="ap">
     <define name="USE_$(DW1000_ARDUINO_UART_UPPER)"/>
     <define name="DW1000_ARDUINO_DEV" value="$(DW1000_ARDUINO_UART_LOWER)"/>
     <define name="$(DW1000_ARDUINO_UART_UPPER)_BAUD" value="$(DW1000_ARDUINO_BAUD)"/>
