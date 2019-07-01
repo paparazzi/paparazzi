@@ -1,0 +1,41 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="shift_tracking" dir="ctrl">
+  <doc>
+    <description>
+      Pilot nav shift variable to track an offset in navigation
+
+      Typical use is to Control a fixed-wing to use both GPS and
+      local position (from Decawave modules for instance) to land it
+      with precision or in a net.
+
+      Data are coming from POSITION_ESTIMATE ABI message.
+    </description>
+    <section name="SHIFT_TRACKING" prefix="SHIFT_TRACKING_">
+      <define name="ID" value="ABI_BROADCAST" description="ABI binding ID"/>
+      <define name="DIR" value="1.0, 0., 0." type="float[]" description="direction to track expressed in the local pos frame"/>
+      <define name="KP" value="1.5" description="proportional gain"/>
+      <define name="KI" value="0.5" description="integral gain"/>
+      <define name="KD" value="1.0" description="derivative gain"/>
+      <define name="MAXSHIFT" value="30." description="maximum offset control"/>
+      <define name="MAXSUM" value="30." description="maximum integral part"/>
+    </section>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="shift tracking">
+        <dl_setting MAX="5." MIN="0." STEP="0.05" VAR="shift_tracking.kp" module="modules/ctrl/shift_tracking" handler="SetKp"/>
+        <dl_setting MAX="5." MIN="0." STEP="0.05" VAR="shift_tracking.ki" module="modules/ctrl/shift_tracking" handler="SetKi"/>
+        <dl_setting MAX="5." MIN="0." STEP="0.05" VAR="shift_tracking.kd" module="modules/ctrl/shift_tracking" handler="SetKd"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="shift_tracking.h"/>
+  </header>
+  <init fun="shift_tracking_init()"/>
+  <makefile>
+    <file name="shift_tracking.c"/>
+  </makefile>
+</module>
+
