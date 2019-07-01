@@ -105,6 +105,14 @@
     <set servo="BOTTOM_LEFT" value="motor_mixing.commands[MOTOR_BACK_LEFT]"/>
   </command_laws>
 
+  <section name="BEBOP_FRONT_CAMERA" prefix="MT9F002_">
+    <define name="OUTPUT_HEIGHT" value="520" />
+    <define name="OUTPUT_WIDTH" value="240" />
+    <define name="OFFSET_X" value="0.09" />
+    <define name="TARGET_EXPOSURE" value="20" />
+    <define name="ZOOM" value="1.25"/>
+  </section>
+
   <section name="AIR_DATA" prefix="AIR_DATA_">
     <define name="CALC_AIRSPEED" value="FALSE"/>
     <define name="CALC_TAS_FACTOR" value="FALSE"/>
