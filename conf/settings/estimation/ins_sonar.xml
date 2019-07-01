@@ -3,7 +3,7 @@
 <settings>
   <dl_settings>
     <dl_settings NAME="sonar">
-      <dl_setting MAX="1" MIN="0" STEP="1" VAR="ins_impl.update_on_agl" shortname="use_sonar" values="FALSE|TRUE" module="subsystems/ins/vf_extended_float"/>
+      <dl_setting MAX="1" MIN="0" STEP="1" VAR="ins_int.update_on_agl" shortname="use_sonar" values="FALSE|TRUE" module="subsystems/ins/vf_extended_float"/>
     </dl_settings>
   </dl_settings>
 </settings>

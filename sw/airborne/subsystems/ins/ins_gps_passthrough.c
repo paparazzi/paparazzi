@@ -203,6 +203,7 @@ static void accel_cb(uint8_t sender_id __attribute__((unused)),
   struct Int32Vect3 accel_body, accel_ned;
   struct Int32RMat *body_to_imu_rmat = orientationGetRMat_i(&body_to_imu);
   int32_rmat_transp_vmult(&accel_body, body_to_imu_rmat, accel);
+  stateSetAccelBody_i(&accel_body);
   struct Int32RMat *ned_to_body_rmat = stateGetNedToBodyRMat_i();
   int32_rmat_transp_vmult(&accel_ned, ned_to_body_rmat, &accel_body);
   accel_ned.z += ACCEL_BFP_OF_REAL(9.81);
