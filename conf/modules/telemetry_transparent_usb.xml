@@ -45,5 +45,9 @@
     <file name="rotorcraft_datalink.c" dir="$(SRC_FIRMWARE)"/>
     <file name="rotorcraft_telemetry.c" dir="$(SRC_FIRMWARE)"/>
   </makefile>
+  <makefile target="ap" firmware="rover">
+    <file name="rover_datalink.c" dir="$(SRC_FIRMWARE)"/>
+    <file name="rover_telemetry.c" dir="$(SRC_FIRMWARE)"/>
+  </makefile>
 </module>
 
