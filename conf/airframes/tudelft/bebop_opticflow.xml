@@ -32,7 +32,7 @@
     <module name="air_data"/>
     <module name="send_imu_mag_current"/>
     <module name="pose_history"/>
-    <module name="video_thread"/>
+    <module name="bebop_cam"/>
 
     <module name="cv_opticflow">
       <define name="OPTICFLOW_CAMERA" value="bottom_camera"/>

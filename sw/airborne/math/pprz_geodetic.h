@@ -44,6 +44,11 @@ extern "C" {
     (_po).z = -(_pi).z;       \
   }
 
+#define VECT2_ENU_OF_TO_NED(_po, _pi) {   \
+    (_po).x =  (_pi).y;       \
+    (_po).y =  (_pi).x;       \
+  }
+
 #define LLA_ASSIGN(_pos,_lat,_lon,_alt){  \
     (_pos).lat = (_lat);      \
     (_pos).lon = (_lon);      \

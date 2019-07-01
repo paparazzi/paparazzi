@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+
+from __future__ import print_function
 import sys
 from os import path, getenv
 
@@ -12,4 +14,4 @@ if __name__ == '__main__':
     ac_id = int(sys.argv[1])
     command_name = sys.argv[2]
     settings = PaparazziACSettings(ac_id)
-    print settings.name_lookup[command_name].index
+    print(settings.name_lookup[command_name].index)

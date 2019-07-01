@@ -160,6 +160,8 @@ void baro_amsys_read_event(void)
   // Continue only if a new altimeter value was received
   //if (baro_amsys_valid && GpsFixValid()) {
   if (baro_amsys_valid) {
+    uint32_t now_ts = get_sys_time_usec();
+
     //Cut RAW Min and Max
     if (pBaroRaw < BARO_AMSYS_OFFSET_MIN) {
       pBaroRaw = BARO_AMSYS_OFFSET_MIN;
@@ -172,7 +174,7 @@ void baro_amsys_read_event(void)
     baro_amsys_p = (float)(pBaroRaw - BARO_AMSYS_OFFSET_MIN) * BARO_AMSYS_MAX_PRESSURE / (float)(
                      BARO_AMSYS_OFFSET_MAX - BARO_AMSYS_OFFSET_MIN);
     // Send pressure over ABI
-    AbiSendMsgBARO_ABS(BARO_AMSYS_SENDER_ID, baro_amsys_p);
+    AbiSendMsgBARO_ABS(BARO_AMSYS_SENDER_ID, now_ts, baro_amsys_p);
     // compute altitude localy
     if (!baro_amsys_offset_init) {
       --baro_amsys_cnt;

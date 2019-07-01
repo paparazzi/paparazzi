@@ -50,20 +50,34 @@ struct video_config_t front_camera = {
   .buf_cnt = 10,
   .filters = 0,
   .cv_listener = NULL,
-  .fps = 0
+  .fps = 0,
+  .camera_intrinsics = {
+    .focal_x = 300,
+    .focal_y = 300,
+    .center_x = 1280 / 2,
+    .center_y = 720 / 2,
+    .Dhane_k = 1
+  }
 };
 
 struct video_config_t bottom_camera = {
-  .output_size = { .w = 320, .h = 240 },
+  .output_size = { .w = 240, .h = 240 },
   .sensor_size = { .w = 320, .h = 240 },
-  .crop = { .x = 0, .y = 0, .w = 320, .h = 240 },
+  .crop = { .x = 40, .y = 0, .w = 240, .h = 240 },
   .dev_name = "bottom_camera",
   .subdev_name = NULL,
   .format = V4L2_PIX_FMT_UYVY,
   .buf_cnt = 10,
   .filters = 0,
   .cv_listener = NULL,
-  .fps = 0
+  .fps = 0,
+  .camera_intrinsics = {
+    .focal_x = 350,
+    .focal_y = 350,
+    .center_x = 240 / 2,
+    .center_y = 240 / 2,
+    .Dhane_k = 1
+  }
 };
 
 // Keep track of added devices.

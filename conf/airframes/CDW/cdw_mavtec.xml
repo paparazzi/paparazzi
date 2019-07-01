@@ -7,6 +7,8 @@
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_mx_2.1">
+      <configure name="FLASH_MODE"   value="SWD"/>
+
       <module name="radio_control" type="ppm"/>
       <define name="RADIO_KILL_SWITCH" value="RADIO_FLAPS"/>
       <define name="USE_KILL_SWITCH_FOR_MOTOR_ARMING" value="1"/>
@@ -138,12 +140,12 @@
     <define name="SP_MAX_R" value="250." unit="deg/s"/>
     <define name="DEADBAND_R" value="200"/>
     <!-- reference -->
-    <define name="REF_OMEGA_P" value="800" unit="deg/s"/>
-    <define name="REF_ZETA_P" value="0.85"/>
+    <define name="REF_OMEGA_P" value="600" unit="deg/s"/>
+    <define name="REF_ZETA_P" value="0.87"/>
     <define name="REF_MAX_P" value="300." unit="deg/s"/>
     <define name="REF_MAX_PDOT" value="RadOfDeg(7000.)"/>
-    <define name="REF_OMEGA_Q" value="800" unit="deg/s"/>
-    <define name="REF_ZETA_Q" value="0.85"/>
+    <define name="REF_OMEGA_Q" value="600" unit="deg/s"/>
+    <define name="REF_ZETA_Q" value="0.87"/>
     <define name="REF_MAX_Q" value="300." unit="deg/s"/>
     <define name="REF_MAX_QDOT" value="RadOfDeg(7000.)"/>
     <define name="REF_OMEGA_R" value="500" unit="deg/s"/>
@@ -151,18 +153,18 @@
     <define name="REF_MAX_R" value="180." unit="deg/s"/>
     <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
     <!-- feedback -->
-    <define name="PHI_PGAIN" value="500"/>
-    <define name="PHI_DGAIN" value="130"/>
-    <define name="PHI_IGAIN" value="20"/>
-    <define name="THETA_PGAIN" value="500"/>
-    <define name="THETA_DGAIN" value="130"/>
-    <define name="THETA_IGAIN" value="20"/>
+    <define name="PHI_PGAIN" value="400"/>
+    <define name="PHI_DGAIN" value="100"/>
+    <define name="PHI_IGAIN" value="10"/>
+    <define name="THETA_PGAIN" value="400"/>
+    <define name="THETA_DGAIN" value="100"/>
+    <define name="THETA_IGAIN" value="10"/>
     <define name="PSI_PGAIN" value="500"/>
     <define name="PSI_DGAIN" value="90"/>
     <define name="PSI_IGAIN" value="10"/>
     <!-- feedforward -->
-    <define name="PHI_DDGAIN" value="150"/>
-    <define name="THETA_DDGAIN" value="150"/>
+    <define name="PHI_DDGAIN" value="100"/>
+    <define name="THETA_DDGAIN" value="100"/>
     <define name="PSI_DDGAIN" value="200"/>
   </section>
 

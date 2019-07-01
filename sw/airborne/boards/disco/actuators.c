@@ -122,7 +122,7 @@ void actuators_disco_commit(void)
 #pragma GCC diagnostic pop
 
   // Update status
-  electrical.vsupply = be16toh(obs_data.batt_mv) / 100;
+  electrical.vsupply = (float)(be16toh(obs_data.batt_mv)) / 1000.f;
   // extract 'rpm saturation bit'
   actuators_disco.rpm_saturated = (obs_data.rpm & (1 << 7)) ? true : false;
   // clear 'rpm saturation bit' and fix endianess

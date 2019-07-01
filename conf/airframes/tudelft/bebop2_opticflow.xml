@@ -33,7 +33,7 @@
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
     </module>
 
-    <module name="video_thread"/>
+    <module name="bebop_cam"/>
     <module name="pose_history"/>
 
     <module name="cv_opticflow">

@@ -230,8 +230,8 @@ void battery_monitor_read_bus(void){
         // convert to [A]
         batmonbus.bus_current = ((float)batmonbus.bus_current_mvolts +
             (float)batmon_current_offset) / batmon_current_sensitivity;
-        //update electrical subsystem, current in mAs
-        electrical.current = (int32_t)(batmonbus.bus_current*1000);
+        //update electrical subsystem
+        electrical.current = batmonbus.bus_current;
 
         // increment status
         batmonbus.bus_status = BATTERY_MONITOR_BUS_VOLTAGE_REQ;
@@ -271,12 +271,12 @@ void battery_monitor_read_bus(void){
         batmonbus.bus_voltage_mvolts = (uint16_t)(
             (float)batmonbus.bus_voltage_mvolts * BatmonVbusGain);
 
-        //update electrical subsystem, voltage in decivolts
+        //update electrical subsystem
         if (batmonbus.bus_voltage_mvolts != 0) {
-          electrical.vsupply = (uint16_t)(batmonbus.bus_voltage_mvolts/100);
+          electrical.vsupply = (float)(batmonbus.bus_voltage_mvolts) / 1000.f;
         }
         else {
-          electrical.vsupply = 0;
+          electrical.vsupply = 0.f;
         }
 
         // update status

@@ -109,7 +109,7 @@ value sim_init(value unit)
 
 value update_bat(value bat)
 {
-  electrical.vsupply = Int_val(bat);
+  electrical.vsupply = (float)Int_val(bat) / 10.;
   return Val_unit;
 }
 

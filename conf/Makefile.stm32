@@ -36,7 +36,6 @@ Q=@
 #
 include $(PAPARAZZI_SRC)/conf/Makefile.arm-embedded-toolchain
 
-
 ifeq ($(ARCH_L),f4)
 MCU   = cortex-m4
 else
@@ -47,8 +46,12 @@ OPT ?= s
 DEBUG_FLAGS ?= -ggdb3
 
 CSTANDARD   ?= -std=gnu99
-CXXSTANDARD ?= -std=c++98
+CXXSTANDARD ?= -std=c++0x
 CINCS = $(INCLUDES) -I$(PAPARAZZI_SRC)/sw/include
+
+# add syscalls and c++ new/delete operators
+$(TARGET).srcs += c++.cpp pprz_syscalls.c
+$(TARGET).CXXFLAGS += -fno-sized-deallocation
 
 # input files
 SRCS = $($(TARGET).srcs)
@@ -145,6 +148,7 @@ CFLAGS += -DPPRZLINK_UNALIGNED_ACCESS=1
 
 # C++ only flags
 CXXFLAGS += $(CXXSTANDARD)
+CXXFLAGS += -I. -I./$(ARCH) -I../ext/libopencm3/include $(INCLUDES)
 CXXFLAGS += -pipe -fshow-column -ffast-math
 CXXFLAGS += -ffunction-sections -fdata-sections
 CXXFLAGS += $($(TARGET).CXXFLAGS)

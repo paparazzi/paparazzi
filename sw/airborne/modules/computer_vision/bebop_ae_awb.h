@@ -20,7 +20,7 @@
 /**
  * @file "modules/computer_vision/bebop_ae_awb.h"
  * @author Freek van Tienen, Kirk Scheper
- * Auto exposure and Auto white balancing for the Bebop 1 and 2
+ * Auto exposure and Auto white balancing for the front camera on the Parrot Bebop 1 and 2 and the Disco
  */
 
 #ifndef BEBOP_AE_AWB_H

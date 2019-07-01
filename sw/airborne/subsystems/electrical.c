@@ -53,6 +53,7 @@
 #endif
 
 #define ELECTRICAL_PERIODIC_FREQ 10
+static float period_to_hour = 1 / 3600.f / ELECTRICAL_PERIODIC_FREQ;
 
 #ifndef MIN_BAT_LEVEL
 #define MIN_BAT_LEVEL 3
@@ -98,9 +99,10 @@ PRINT_CONFIG_VAR(MILLIAMP_AT_IDLE_THROTTLE)
 
 void electrical_init(void)
 {
-  electrical.vsupply = 0;
-  electrical.current = 0;
-  electrical.energy = 0;
+  electrical.vsupply = 0.f;
+  electrical.current = 0.f;
+  electrical.charge  = 0.f;
+  electrical.energy  = 0.f;
 
   electrical.bat_low = false;
   electrical.bat_critical = false;
@@ -125,16 +127,14 @@ void electrical_periodic(void)
   static bool vsupply_check_started = false;
 
 #if defined(ADC_CHANNEL_VSUPPLY) && !defined(SITL) && !USE_BATTERY_MONITOR
-  electrical.vsupply = 10 * VoltageOfAdc((electrical_priv.vsupply_adc_buf.sum /
+  electrical.vsupply = VoltageOfAdc((electrical_priv.vsupply_adc_buf.sum /
                                           electrical_priv.vsupply_adc_buf.av_nb_sample));
 #endif
 
 #ifdef ADC_CHANNEL_CURRENT
 #ifndef SITL
   int32_t current_adc = electrical_priv.current_adc_buf.sum / electrical_priv.current_adc_buf.av_nb_sample;
-  electrical.current = MilliAmpereOfAdc(current_adc);
-  /* Prevent an overflow on high current spikes when using the motor brake */
-  BoundAbs(electrical.current, 65000);
+  electrical.current = MilliAmpereOfAdc(current_adc) / 1000.f;
 #endif
 #elif defined MILLIAMP_AT_FULL_THROTTLE && defined COMMAND_CURRENT_ESTIMATION
   /*
@@ -147,18 +147,14 @@ void electrical_periodic(void)
    *
    * define CURRENT_ESTIMATION_NONLINEARITY in your airframe file to change the default nonlinearity factor of 1.2
    */
-  float full_current = (float)MILLIAMP_AT_FULL_THROTTLE;
-  float idle_current = (float)MILLIAMP_AT_IDLE_THROTTLE;
+  static float full_current = (float)MILLIAMP_AT_FULL_THROTTLE / 1000.f;
+  static float idle_current = (float)MILLIAMP_AT_IDLE_THROTTLE / 1000.f;
 
   float x = ((float)commands[COMMAND_CURRENT_ESTIMATION]) / ((float)MAX_PPRZ);
 
   /* Boundary check for x to prevent math errors due to negative numbers in
    * pow() */
-  if(x > 1.0f) {
-    x = 1.0f;
-  } else if(x < 0.0f) {
-    x = 0.0f;
-  }
+  Bound(x, 0.f, 1.f);
 
   /* electrical.current y = ( b^n - (b* x/a)^n )^1/n
    * a=1, n = electrical_priv.nonlin_factor
@@ -170,24 +166,26 @@ void electrical_periodic(void)
   } else {
 #endif
     electrical.current = full_current -
-                         pow((pow(full_current - idle_current, electrical_priv.nonlin_factor) -
-                              pow(((full_current - idle_current) * x), electrical_priv.nonlin_factor)),
-                           (1. / electrical_priv.nonlin_factor));
+                         powf((powf(full_current - idle_current, electrical_priv.nonlin_factor) -
+                              powf(((full_current - idle_current) * x), electrical_priv.nonlin_factor)),
+                           (1.f / electrical_priv.nonlin_factor));
 #ifndef FBW
   }
 #endif
 #endif /* ADC_CHANNEL_CURRENT */
 
-  // mAh = mA * dt (10Hz -> hours)
-  electrical.energy += ((float)electrical.current) / 3600.0f / ELECTRICAL_PERIODIC_FREQ;
+  float consumed_since_last = electrical.current * period_to_hour;
+
+  electrical.charge += consumed_since_last;
+  electrical.energy += consumed_since_last * electrical.vsupply;
 
   /*if valid voltage is seen then start checking. Set min level to 0 to always start*/
-  if (electrical.vsupply >= MIN_BAT_LEVEL * 10) {
+  if (electrical.vsupply >= MIN_BAT_LEVEL) {
     vsupply_check_started = true;
   }
 
   if (vsupply_check_started) {
-    if (electrical.vsupply < LOW_BAT_LEVEL * 10) {
+    if (electrical.vsupply < LOW_BAT_LEVEL) {
       if (bat_low_counter > 0) {
         bat_low_counter--;
       }
@@ -200,7 +198,7 @@ void electrical_periodic(void)
       electrical.bat_low = false;
     }
 
-    if (electrical.vsupply < CRITIC_BAT_LEVEL * 10) {
+    if (electrical.vsupply < CRITIC_BAT_LEVEL) {
       if (bat_critical_counter > 0) {
         bat_critical_counter--;
       }

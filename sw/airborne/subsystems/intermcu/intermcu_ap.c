@@ -62,8 +62,8 @@ static struct GpsState gps_imcu;
 static void send_status(struct transport_tx *trans, struct link_device *dev)
 {
   pprz_msg_send_FBW_STATUS(trans, dev, AC_ID,
-                           &fbw_status.rc_status, &fbw_status.frame_rate, &fbw_status.mode, &fbw_status.vsupply,
-                           &fbw_status.current);
+                           &fbw_status.rc_status, &fbw_status.frame_rate, &fbw_status.mode,
+                           &fbw_status.electrical.vsupply, &fbw_status.electrical.current);
 }
 #endif
 
@@ -163,8 +163,8 @@ static inline void intermcu_parse_msg(void (*rc_frame_handler)(void))
         fbw_status.rc_status = DL_IMCU_FBW_STATUS_rc_status(imcu_msg_buf);
         fbw_status.frame_rate = DL_IMCU_FBW_STATUS_frame_rate(imcu_msg_buf);
         fbw_status.mode = DL_IMCU_FBW_STATUS_mode(imcu_msg_buf);
-        fbw_status.vsupply = DL_IMCU_FBW_STATUS_vsupply(imcu_msg_buf);
-        fbw_status.current = DL_IMCU_FBW_STATUS_current(imcu_msg_buf);
+        fbw_status.electrical.vsupply = DL_IMCU_FBW_STATUS_vsupply(imcu_msg_buf);
+        fbw_status.electrical.current = DL_IMCU_FBW_STATUS_current(imcu_msg_buf);
         break;
       }
 

@@ -24,7 +24,7 @@
     <!--    <define name="INS_INT_GPS_ID" value="ABI_DISABLE"/>
     </module> -->
 
-    <module name="video_thread"/>
+    <module name="bebop_cam"/>
 
     <module name="cv_opticflow">
       <define name="OPTICFLOW_CAMERA" value="bottom_camera"/>

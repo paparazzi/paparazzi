@@ -1,0 +1,101 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+
+<flight_plan alt="1.0" ground_alt="0" lat0="51.990634" lon0="4.376789"
+  max_dist_from_home="8" name="Test flight plan" security_height="0.4">
+  <header>
+    #include "autopilot.h"
+    #include "subsystems/radio_control.h"
+    #include "subsystems/ahrs.h"
+    #include "subsystems/electrical.h"
+    #include "subsystems/datalink/datalink.h"
+  </header>
+  <waypoints>
+    <waypoint height="0" name="HOME" x="0.0" y="0.0" />
+    <waypoint name="CIRCLEWP" x="0.0" y="0.0"/>
+    <waypoint height="2" name="CLIMB" x="1.2" y="-0.6" />
+    <waypoint height="1.0" name="STDBY" x="0" y="0" />
+    <waypoint name="HOVER" x="1.0" y="1.0"/>
+    <waypoint name="TD" x="0.8" y="-1.7" />
+    <waypoint name="t0" lat="51.9906059" lon="4.3767772" />
+    <waypoint name="t1" lat="51.9906269" lon="4.3767829" />
+    <waypoint name="t2" lat="51.9906216" lon="4.3768187" />
+    <waypoint name="t3" lat="51.9906388" lon="4.3768251" />
+    <waypoint name="t4" lat="51.9906637" lon="4.3768005" />
+    <waypoint name="t5" lat="51.9906425" lon="4.3767879" />
+    <waypoint name="t6" lat="51.9906470" lon="4.3767547" />
+    <waypoint name="t7" lat="51.9906290" lon="4.3767502" />
+    <waypoint lat="51.9906213" lon="4.3768628" name="_CZ1" />
+    <waypoint lat="51.9905874" lon="4.3767766" name="_CZ2" />
+    <waypoint lat="51.9906409" lon="4.3767226" name="_CZ3" />
+    <waypoint lat="51.990667" lon="4.376806" name="_CZ4" />
+    <waypoint lat="51.9906831" lon="4.3768073" name="_DZ1" />
+    <waypoint lat="51.9906472" lon="4.3767093" name="_DZ2" />
+    <waypoint lat="51.9905876" lon="4.3767679" name="_DZ3" />
+    <waypoint lat="51.9906254" lon="4.3768677" name="_DZ4" />
+  </waypoints>
+  <sectors>
+    <sector color="orange" name="DangerZone">
+      <corner name="_DZ1" />
+      <corner name="_DZ2" />
+      <corner name="_DZ3" />
+      <corner name="_DZ4" />
+    </sector>
+  </sectors>
+  <exceptions>
+      <exception cond="datalink_time>=2" deroute="Force Kill Engines"/>
+      <exception cond="radio_control.status == RC_REALLY_LOST" deroute="Force Kill Engines"/>
+  </exceptions>
+  <blocks>
+    <block name="Wait GPS">
+      <call_once fun="NavKillThrottle()" />
+      <while cond="!GpsFixValid()" />
+    </block>
+    <block name="Holding point">
+      <call_once fun="NavKillThrottle()" />
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" />
+    </block>
+    <block name="Start Engine">
+      <call_once fun="NavResurrect()" />
+      <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" />
+    </block>
+    <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
+      <exception cond="stateGetPositionEnu_f()->z > 0.5" deroute="Standby" />
+      <call_once fun="NavSetWaypointHere(WP_CLIMB)" />
+      <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <stay wp="STDBY" />
+    </block>
+    <block name="Fly Trajectory">
+      <while cond="TRUE">
+          <go wp="t0"/>
+          <go wp="t1"/>
+          <go wp="t2"/>
+          <go wp="t3"/>
+          <go wp="t7"/>
+      </while>
+    </block>
+    <block name="land here" strip_button="land Here" strip_icon="land-right.png">
+      <call_once fun="NavSetWaypointHere(WP_TD)" />
+    </block>
+    <block name="land">
+      <go wp="TD" />
+    </block>
+    <block name="flare">
+      <exception cond="NavDetectGround()" deroute="Holding point" />
+      <exception cond="!nav_is_in_flight()" deroute="landed" />
+      <call_once fun="NavStartDetectGround()" />
+      <stay climb="nav_descend_vspeed" vmode="climb" wp="TD" />
+    </block>
+    <block name="landed">
+      <call_once fun="NavKillThrottle()" />
+      <attitude pitch="0" roll="0" throttle="0" until="FALSE"
+        vmode="throttle" />
+    </block>
+    <block name="Force Kill Engines">
+      <call_once fun="autopilot_set_motors_on(FALSE)"/>
+      <while cond="1"/>
+    </block>
+  </blocks>
+</flight_plan>

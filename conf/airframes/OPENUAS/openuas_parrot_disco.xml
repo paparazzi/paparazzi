@@ -75,19 +75,11 @@
       <!--<configure name="FLASH_MODE" value="USB"/>--><!-- TODO: WIFI or USB-->
       <!-- WIP: Front Camera parameters -->
       <define name="H264_ROTATE" value="TRUE"/>
-      <define name="MT9F002_INITIAL_OFFSET_X" value="416+2704-480"/> <!-- 480 / 960 / 1920 / 3840 (horion for theta = 0 -> 2704) -->
-      <define name="MT9F002_INITIAL_OFFSET_Y" value="1680-1040"/> <!-- 420 / 840 / 1680 / 3360 -->
-      <define name="MT9F002_SENSOR_WIDTH" value="2*480"/> <!-- 480 / 960 / 1920 / 3840 -->
-      <define name="MT9F002_SENSOR_HEIGHT" value="2*1040"/> <!-- 420 / 840 / 1680 / 3360 -->
-      <define name="MT9F002_OUTPUT_WIDTH" value="240"/> <!-- 480 / 960 / 1920 / 3840 -->
-      <define name="MT9F002_OUTPUT_HEIGHT" value="520"/> <!-- 420 / 840 / 1680 / 3360 -->
-      <define name="MT9F002_TARGET_FPS" value="30"/>
-      <define name="MT9F002_TARGET_EXPOSURE" value="4"/>
-      <define name="MT9F002_GAIN_GREEN1" value="8.0"/>
-      <define name="MT9F002_GAIN_GREEN2" value="8.0"/>
-      <define name="MT9F002_GAIN_RED" value="8.0"/>
-      <define name="MT9F002_GAIN_BLUE" value="8.0"/>
-      <define name="MT9F002_OUTPUT_SCALER" value="0.25"/>
+      <define name="MT9F002_OUTPUT_HEIGHT" value="520" />
+      <define name="MT9F002_OUTPUT_WIDTH" value="240" />
+      <define name="MT9F002_OFFSET_X" value="0.072" />
+      <define name="MT9F002_TARGET_EXPOSURE" value="4" />
+      <define name="MT9F002_ZOOM" value="1.25"/>
 
       <!-- <configure name="CPU_LED" value="1"/>--> <!-- Change to whatever you like -->
 
@@ -327,7 +319,7 @@
 
     <module name="photogrammetry_calculator"/>
 
-    <module name="video_thread"/>
+    <module name="bebop_cam"/>
 
     <module name="video_capture">
       <define name="VIDEO_CAPTURE_CAMERA" value="bottom_camera"/>

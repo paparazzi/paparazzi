@@ -1,0 +1,81 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="bebop_cam" dir="../boards/bebop">
+  <doc>
+    <description>
+      Compile and control the settings of the Bebop front and bottom cameras.
+    </description>
+    <section name="Front camera" prefix="MT9F002_">
+      <define name="RESOLUTION" value="0" description="Preset image resolutions, 0 = VGA, 1 = 720p, 2 = 720p 4:3 aspect ratio, 3 = 1080p, 4 = 1080p 4:3 aspect ratio, 5 = 2048*2048, this is the max dimention allowable with isp"/>
+      <define name="OUTPUT_WIDTH" value="640" description="Image horizontal resolution used if MT9F002_RESOLUTION not defined"/>
+      <define name="OUTPUT_HEIGHT" value="640" description="Image vertical resolution used if MT9F002_RESOLUTION not defined"/>
+      <define name="OFFSET_X" value="0" description="Signed fractional offset from centre of image of original sensor [-0.5,0.5]"/>
+      <define name="OFFSET_Y" value="0" description="Signed fractional offset from centre of image of original sensor [-0.5,0.5]"/>
+      <define name="ZOOM" value="1" description="Zoom factor of image"/>
+      <define name="TARGET_EXPOSURE" value="30" description="Exposure of the front camera of the bebop. Experimental values: Outside: 15; Inside well lit: 30; Inside poorly lit: 60"/>
+      <define name="TARGET_FPS" value="30" description="Desired frame rate"/>
+      <define name="GAIN_GREEN1" value="2" description="Green gain"/>
+      <define name="GAIN_GREEN2" value="2" description="Green gain"/>
+      <define name="GAIN_RED" value="1.4" description="Red gain"/>
+      <define name="GAIN_BLUE" value="2.7" description="Blue gain"/>
+      <define name="FOCAL_X" value="0.48686" description="Focal length in the x-direction in pixels"/>
+      <define name="OFFSET_X" value="0.48908" description="Focal length in the y-direction in pixels"/>
+      <define name="CENTER_X" value="0.51015" description="Center image coordinate in the x-direction"/>
+      <define name="CENTER_Y" value="0.51015" description="Center image coordinate in the y-direction"/>
+      <define name="DHANE_K" value="1.25" description="(Un)Distortion parameter for a fish-eye lens"/>
+    </section>
+    
+    <section name="Bottom camera" prefix="MT9V117_">
+      <define name="TARGET_FPS" value="30" description="Desired frame rate"/>
+      <define name="FOCAL_X" value="0.48686" description="Focal length in the x-direction in pixels"/>
+      <define name="OFFSET_X" value="0.48908" description="Focal length in the y-direction in pixels"/>
+      <define name="CENTER_X" value="0.51015" description="Center image coordinate in the x-direction"/>
+      <define name="CENTER_Y" value="0.51015" description="Center image coordinate in the y-direction"/>
+      <define name="DHANE_K" value="1.25" description="(Un)Distortion parameter for a fish-eye lens"/>
+    </section>
+  </doc>
+  
+  <settings>
+	  <dl_settings NAME="Bebop camera control">
+	    <dl_settings name="Front camera">
+	      <dl_setting var="mt9f002.set_zoom" min="1." step="0.05" max="2.5" shortname="zoom" param="MT9F002_ZOOM"/>
+	      <dl_setting var="mt9f002.set_offset_x" min="-0.5" step="0.05" max="0.5" shortname="offset_x" param="MT9F002_OFFSET_X"/>
+	      <dl_setting var="mt9f002.set_offset_y" min="-0.5" step="0.05" max="0.5" shortname="offset_y" param="MT9F002_OFFSET_Y"/>
+	      <dl_setting var="mt9f002_send_resolution" min="1" step="1" max="1" values="SEND" shortname="update_resolution" module="boards/bebop/mt9f002" handler="setting_update_resolution"/>
+	      <dl_setting var="mt9f002.gain_green1" min="1" step="0.1" max="60" shortname="green_1" param="MT9F002_GAIN_GREEN1"/>
+	      <dl_setting var="mt9f002.gain_green2" min="1" step="0.1" max="60" shortname="green_2" param="MT9F002_GAIN_GREEN2"/>
+	      <dl_setting var="mt9f002.gain_blue" min="1" step="0.1" max="60" shortname="blue" param="MT9F002_GAIN_BLUE"/>
+	      <dl_setting var="mt9f002.gain_red" min="1" step="0.1" max="60" shortname="red" param="MT9F002_GAIN_RED"/>
+	      <dl_setting var="mt9f002_send_color" min="1" step="1" max="1" values="SEND" shortname="update_color" module="boards/bebop/mt9f002" handler="setting_update_color"/>
+	      <dl_setting var="mt9f002.target_exposure " min="0.1" step="0.1" max="80" shortname="exposure" param="MT9F002_TARGET_EXPOSURE"/>
+	      <dl_setting var="mt9f002_send_exposure" min="1" step="1" max="1" values="SEND" shortname="update_exposure" module="boards/bebop/mt9f002" handler="setting_update_exposure"/>
+  	  </dl_settings> 
+    </dl_settings>
+  </settings>
+  
+  <autoload name="video_thread"/>
+  
+  <header>
+    <file name="mt9v117.h"/>
+    <file name="mt9f002.h"/>
+  </header>
+
+  <init fun="mt9v117_init(&mt9v117)"/>
+  <init fun="mt9f002_init(&mt9f002)"/>
+  <makefile target="ap">
+    <file name="mt9v117.c"/>
+    <file name="mt9f002.c"/>
+    <file name="libisp.c" dir="boards/bebop/isp"/>
+
+    <define name="I2C_BUF_LEN" value="56"/>
+    <define name="USE_I2C0"/>
+  </makefile>
+  <makefile target="nps">
+    <file name="mt9v117_nps.c"/>
+    <file name="mt9f002_nps.c"/>
+    <file name="libisp.c" dir="boards/bebop/isp"/>
+
+    <define name="I2C_BUF_LEN" value="56"/>
+    <define name="USE_I2C0"/>
+  </makefile>
+</module>

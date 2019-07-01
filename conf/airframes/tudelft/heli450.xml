@@ -10,6 +10,7 @@
     <module name="radio_control" type="spektrum">
       <define name="RADIO_KILL_SWITCH" value="RADIO_AUX1"/>
       <define name="RADIO_MODE" value="RADIO_GEAR"/>
+      <define name="RADIO_FMODE" value="RADIO_AUX2"/>
     </module>
 
     <module name="actuators"     type="pwm"/>
@@ -39,6 +40,7 @@
 
   <commands>
     <axis name="THRUST"      failsafe_value="0"/>
+    <axis name="COLLECTIVE"      failsafe_value="0"/>
     <axis name="ROLL"        failsafe_value="0"/>
     <axis name="PITCH"       failsafe_value="0"/>
     <axis name="YAW"         failsafe_value="0"/>

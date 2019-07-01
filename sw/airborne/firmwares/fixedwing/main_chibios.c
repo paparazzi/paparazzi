@@ -115,9 +115,7 @@ int main(void)
 #endif
 
   // Main loop, do nothing
-  while (TRUE) {
-    chThdSleepMilliseconds(1000);
-  }
+  chThdSleep(TIME_INFINITE);
   return 0;
 }
 
@@ -134,7 +132,14 @@ static void thd_ap(void *arg)
   while (!chThdShouldTerminateX()) {
     Ap(handle_periodic_tasks);
     Ap(event_task);
-    chThdSleepMicroseconds(500);
+    // In tick mode, the minimum step is 1e6 / CH_CFG_ST_FREQUENCY
+    // which means that whatever happens, if we do a sleep of this
+    // time step, the next wakeup will be "aligned" and we won't see
+    // jitter. The polling on event will also be as fast as possible
+    // Be careful that in tick-less mode, it will be required to use
+    // the chThdSleepUntil function with a correct computation of the
+    // wakeup time, in particular roll-over should be check.
+    chThdSleepMicroseconds(1000000 / CH_CFG_ST_FREQUENCY);
   }
 
   chThdExit(0);
@@ -153,7 +158,14 @@ static void thd_fbw(void *arg)
   while (!chThdShouldTerminateX()) {
     Fbw(handle_periodic_tasks);
     Fbw(event_task);
-    chThdSleepMicroseconds(500);
+    // In tick mode, the minimum step is 1e6 / CH_CFG_ST_FREQUENCY
+    // which means that whatever happens, if we do a sleep of this
+    // time step, the next wakeup will be "aligned" and we won't see
+    // jitter. The polling on event will also be as fast as possible
+    // Be careful that in tick-less mode, it will be required to use
+    // the chThdSleepUntil function with a correct computation of the
+    // wakeup time, in particular roll-over should be check.
+    chThdSleepMicroseconds(1000000 / CH_CFG_ST_FREQUENCY);
   }
 
   chThdExit(0);

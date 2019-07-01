@@ -5,7 +5,9 @@
   </description>
 
   <firmware name="rotorcraft">
-    <target name="ap" board="bebop"/>
+    <target name="ap" board="bebop">
+      <define name="STABILIZATION_INDI_G2_R" value="0.1450"/>
+    </target>
 
     <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
@@ -136,7 +138,6 @@
     <define name="G1_P" value="0.0639"/>
     <define name="G1_Q" value="0.0361"/>
     <define name="G1_R" value="0.0022"/>
-    <define name="G2_R" value="0.1450"/>
 
     <!-- reference acceleration for attitude control -->
     <define name="REF_ERR_P" value="600.0"/>

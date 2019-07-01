@@ -37,6 +37,7 @@ ap.ARCHDIR = $(ARCH)
 
 
 VPATH += $(PAPARAZZI_HOME)/var/share
+VPATH += $(PAPARAZZI_HOME)/sw/ext
 
 ######################################################################
 ##

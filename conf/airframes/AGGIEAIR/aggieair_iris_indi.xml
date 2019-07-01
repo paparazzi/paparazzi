@@ -11,114 +11,115 @@
 
   <firmware name="rotorcraft">
 
-    <target name="ap" board="px4fmu_2.4" />
+    <!-- Main autopilot MCU -->
+    <target name="ap" board="px4fmu_2.4">
       <configure name="PERIODIC_FREQUENCY" value="200"/>
       <configure name="TELEMETRY_FREQUENCY" value="60"/>
 
-    <comment>
-      amount of time it take for the bat to check
-      to avoid bat low spike detection when strong pullup withch draws short sudden power
-    </comment>
-    <define name="BAT_CHECKER_DELAY" value="80" /><!-- in seconds-->
-    <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="80" /><!-- in seconds-->
-
-    <module name="telemetry" type="transparent_gec">
-      <configure name="MODEM_PORT" value="UART2"/>
-      <configure name="MODEM_BAUD" value="B57600"/>
-    </module>
-
-    <module name="imu" type="px4fmu_v2.4"/>
-
-    <!--module name="stabilization" type="indi_simple"/-->
-    <module name="stabilization" type="float_euler"/>
-
-    <!--module name="guidance" type="indi">
-      <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-500.0"/>
-    </module-->
-
-
-
-    <!--module name="ahrs" type="int_cmpl_quat">
-      <define name="AHRS_ICQ_IMU_ID" value="IMU_PX4_ID" />
-      <define name="AHRS_ICQ_MAG_ID" value="MAG_HMC58XX_SENDER_ID" />
-      <configure name="USE_MAGNETOMETER" value="TRUE"/>
-      <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
-    </module-->
-
-    <module name="ahrs" type="float_mlkf">
-      <configure name="SECONDARY_AHRS" value="float_mlkf"/>
-      <define name="AHRS_MLKF_IMU_ID" value="IMU_PX4_ID"/>
       <comment>
-        use external mag
+        amount of time it take for the bat to check
+        to avoid bat low spike detection when strong pullup withch draws short sudden power
       </comment>
-      <define name="AHRS_MLKF_MAG_ID" value="MAG_HMC58XX_SENDER_ID" />
-      <configure name="USE_MAGNETOMETER" value="TRUE"/>
-    </module>
+      <define name="BAT_CHECKER_DELAY" value="80" /><!-- in seconds-->
+      <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="80" /><!-- in seconds-->
+
+      <module name="telemetry" type="transparent_gec">
+        <configure name="MODEM_PORT" value="UART2"/>
+        <configure name="MODEM_BAUD" value="B57600"/>
+      </module>
+
+      <module name="imu" type="px4fmu_v2.4"/>
+
+      <!--module name="stabilization" type="indi_simple"/-->
+      <module name="stabilization" type="float_euler"/>
+
+      <!--module name="guidance" type="indi">
+        <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-500.0"/>
+      </module-->
 
 
 
-    <module name="ahrs" type="vectornav">
-      <configure name="VN_PORT" value="UART3"/>
-      <configure name="VN_BAUD" value="B921600"/>
-      <!--configure name="SECONDARY_AHRS" value="vectornav"/-->
-    </module>
+      <!--module name="ahrs" type="int_cmpl_quat">
+        <define name="AHRS_ICQ_IMU_ID" value="IMU_PX4_ID" />
+        <define name="AHRS_ICQ_MAG_ID" value="MAG_HMC58XX_SENDER_ID" />
+        <configure name="USE_MAGNETOMETER" value="TRUE"/>
+        <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
+      </module-->
 
-    <!--module name="ins" type="float_invariant">
-      <define name="INS_FINV_IMU_ID" value="IMU_PX4_ID" />
-      <define name="INS_FINV_MAG_ID" value="MAG_HMC58XX_SENDER_ID" />
-      <define name="INS_FINV_GPS_ID" value="GPS_UBX_ID" />
-      <define name="SEND_INVARIANT_FILTER"/>
-    </module-->
+      <module name="ahrs" type="float_mlkf">
+        <configure name="SECONDARY_AHRS" value="float_mlkf"/>
+        <define name="AHRS_MLKF_IMU_ID" value="IMU_PX4_ID"/>
+        <comment>
+          use external mag
+        </comment>
+        <define name="AHRS_MLKF_MAG_ID" value="MAG_HMC58XX_SENDER_ID" />
+        <configure name="USE_MAGNETOMETER" value="TRUE"/>
+      </module>
 
-    <!-- extended INS uses sonar for vertical estimates -->
-    <module name="ins" type="extended"/>
-    <!-- Horizontal Filter Float  (HFF) INS uses simple Kalman filters to horizontal estimate,
-         No sonar/lidar updates though -->
-    <!--module name="ins" type="hff"/-->
 
-    <module name="current_sensor">
-      <configure name="ADC_CURRENT_SENSOR" value="ADC_3" />
-    </module>
 
-    <module name="intermcu" type="uart">
-      <configure name="INTERMCU_PORT" value="UART6" />
-      <configure name="INTERMCU_BAUD" value="B1500000" /> <!-- This is only during first 10s start up, afterwards it is set to 230400-->
-    </module>
+      <module name="ahrs" type="vectornav">
+        <configure name="VN_PORT" value="UART3"/>
+        <configure name="VN_BAUD" value="B921600"/>
+        <!--configure name="SECONDARY_AHRS" value="vectornav"/-->
+      </module>
 
-    <module name="actuators" type="pwm">
-      <define name="SERVO_HZ" value="200" />
-    </module>
+      <!--module name="ins" type="float_invariant">
+        <define name="INS_FINV_IMU_ID" value="IMU_PX4_ID" />
+        <define name="INS_FINV_MAG_ID" value="MAG_HMC58XX_SENDER_ID" />
+        <define name="INS_FINV_GPS_ID" value="GPS_UBX_ID" />
+        <define name="SEND_INVARIANT_FILTER"/>
+      </module-->
+
+      <!-- extended INS uses sonar for vertical estimates -->
+      <module name="ins" type="extended"/>
+      <!-- Horizontal Filter Float  (HFF) INS uses simple Kalman filters to horizontal estimate,
+          No sonar/lidar updates though -->
+      <!--module name="ins" type="hff"/-->
+
+      <module name="current_sensor">
+        <configure name="ADC_CURRENT_SENSOR" value="ADC_3" />
+      </module>
+
+      <module name="intermcu" type="uart">
+        <configure name="INTERMCU_PORT" value="UART6" />
+        <configure name="INTERMCU_BAUD" value="B1500000" /> <!-- This is only during first 10s start up, afterwards it is set to 230400-->
+      </module>
+
+      <module name="actuators" type="pwm">
+        <define name="SERVO_HZ" value="200" />
+      </module>
 
 <!--
-    <module name="tlsf"/>
-    <module name="pprzlog"/>
-    <module name="logger" type="sd_chibios"/>
-    <module name="flight_recorder"/>
+      <module name="tlsf"/>
+      <module name="pprzlog"/>
+      <module name="logger" type="sd_chibios"/>
+      <module name="flight_recorder"/>
 -->
-  </firmware>
+    </target>
 
-
-  <firmware name="rotorcraft">
-    <target name="fbw" board="px4io_2.4" />
-    <configure name="PERIODIC_FREQUENCY" value="200"/>
-    <module name="motor_mixing" />
-    <module name="radio_control" type="ppm">
-      <define name="USE_KILL_SWITCH_FOR_MOTOR_ARMING" value="1" />
-      <define name="RADIO_KILL_SWITCH" value="RADIO_KILL" />
-    </module>
-    <module name="actuators" type="pwm">
-      <define name="SERVO_HZ" value="200" />
-    </module>
-    <define name="RC_LOST_FBW_MODE" value="FBW_MODE_FAILSAFE" />
-    <!-- Switch to Failsafe or to Autopilot on RC loss? -->
-    <define name="RC_LOST_IN_AUTO_FBW_MODE" value="FBW_MODE_AUTO" />
-    <define name="AP_LOST_FBW_MODE" value="FBW_MODE_FAILSAFE" />
-    <!-- Switch to Failsafe or to Manual on AP loss? -->
-    <define name="INTERMCU_LOST_CNT" value="100" />
-    <module name="intermcu" type="uart">
-      <configure name="INTERMCU_PORT" value="UART2" />
-      <configure name="INTERMCU_BAUD" value="B1500000" />
-    </module>
+    <!-- IO board / FBW MCU -->
+    <target name="fbw" board="px4io_2.4">
+      <configure name="PERIODIC_FREQUENCY" value="200"/>
+      <module name="motor_mixing" />
+      <module name="radio_control" type="ppm">
+        <define name="USE_KILL_SWITCH_FOR_MOTOR_ARMING" value="1" />
+        <define name="RADIO_KILL_SWITCH" value="RADIO_KILL" />
+      </module>
+      <module name="actuators" type="pwm">
+        <define name="SERVO_HZ" value="200" />
+      </module>
+      <define name="RC_LOST_FBW_MODE" value="FBW_MODE_FAILSAFE" />
+      <!-- Switch to Failsafe or to Autopilot on RC loss? -->
+      <define name="RC_LOST_IN_AUTO_FBW_MODE" value="FBW_MODE_AUTO" />
+      <define name="AP_LOST_FBW_MODE" value="FBW_MODE_FAILSAFE" />
+      <!-- Switch to Failsafe or to Manual on AP loss? -->
+      <define name="INTERMCU_LOST_CNT" value="100" />
+      <module name="intermcu" type="uart">
+        <configure name="INTERMCU_PORT" value="UART2" />
+        <configure name="INTERMCU_BAUD" value="B1500000" />
+      </module>
+    </target>
   </firmware>
 
   <modules main_freq="PERIODIC_FREQUENCY">

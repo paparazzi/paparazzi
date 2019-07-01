@@ -30,6 +30,7 @@
 
 #include "std.h"
 #include "autopilot.h"
+#include "subsystems/electrical.h"
 
 // FIXME, move to control
 #define LATERAL_MODE_MANUAL    0
@@ -39,23 +40,8 @@
 #define LATERAL_MODE_NB        4
 extern uint8_t lateral_mode;
 
-/** Supply voltage in deciVolt.
- * This the ap copy of the measurement from fbw
- * FIXME use electrical module ?
- */
-extern uint16_t vsupply;
-
-/** Supply current in milliAmpere.
- * This the ap copy of the measurement from fbw
- * FIXME use electrical module ?
- */
-extern int32_t current; // milliAmpere
-
-/** Energy consumption (mAh)
- * This is the ap copy of the measurement from fbw
- * FIXME use electrical module ?
- */
-extern float energy;
+// ap copy of fbw readings
+extern struct Electrical ap_electrical;
 
 /** Second MCU status (FBW part)
  */

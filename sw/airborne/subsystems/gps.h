@@ -92,6 +92,8 @@ struct GpsState {
   uint16_t speed_3d;             ///< norm of 3d speed in cm/s
   int32_t course;                ///< GPS course over ground in rad*1e7, [0, 2*Pi]*1e7 (CW/north)
   uint32_t pacc;                 ///< position accuracy in cm
+  uint32_t hacc;                 ///< horizontal accuracy in cm
+  uint32_t vacc;                 ///< vertical accuracy in cm
   uint32_t sacc;                 ///< speed accuracy in cm/s
   uint32_t cacc;                 ///< course accuracy in rad*1e7
   uint16_t pdop;                 ///< position dilution of precision scaled by 100

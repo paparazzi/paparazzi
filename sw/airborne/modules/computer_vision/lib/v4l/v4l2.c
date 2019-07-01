@@ -38,6 +38,7 @@
 #include <pthread.h>
 
 #include "v4l2.h"
+#include "virt2phys.h"
 
 #include <sys/time.h>
 #include "mcu_periph/sys_time.h"
@@ -50,7 +51,7 @@ static void *v4l2_capture_thread(void *data);
  * This thread handles the queue and dequeue of buffers, to make sure only the latest
  * image buffer is preserved for image processing.
  * @param[in] *data The Video 4 Linux 2 device pointer
- * @return 0 on succes, -1 if it isn able to fetch an image,
+ * @return 0 on success, -1 if it isn't able to fetch an image,
  * -2 on timeout of taking an image, -3 on failing buffer dequeue
  */
 static void *v4l2_capture_thread(void *data)
@@ -189,6 +190,7 @@ struct v4l2_device *v4l2_init(char *device_name, struct img_size_t size, struct 
   struct v4l2_requestbuffers req;
   struct v4l2_fmtdesc fmtdesc;
   struct v4l2_crop crp;
+  struct physmem pmem;
   CLEAR(cap);
   CLEAR(fmt);
   CLEAR(req);
@@ -215,6 +217,7 @@ struct v4l2_device *v4l2_init(char *device_name, struct img_size_t size, struct 
     close(fd);
     return NULL;
   }
+
   if (!(cap.capabilities & V4L2_CAP_STREAMING)) {
     printf("[v4l2] %s isn't capable of streaming (TODO: support reading)\n", device_name);
     close(fd);
@@ -307,6 +310,15 @@ struct v4l2_device *v4l2_init(char *device_name, struct img_size_t size, struct 
       close(fd);
       return NULL;
     }
+
+    if(check_contiguity((unsigned long)buffers[i].buf, getpid(), &pmem, buf.length)) {
+      printf("[v4l2] Physical memory %d is not contiguous with length %d from %s\n", i, buf.length, device_name);
+      free(buffers);
+      close(fd);
+      return NULL;
+    }
+
+    buffers[i].physp = pmem.paddr;
   }
 
   // Create the device only when everything succeeded
@@ -383,18 +395,18 @@ bool v4l2_image_get_nonblock(struct v4l2_device *dev, struct image_t *img)
   // Check if we really got an image
   if (img_idx == V4L2_IMG_NONE) {
     return false;
-  } else {
-    // Set the image
-    img->type = IMAGE_YUV422;
-    img->w = dev->w;
-    img->h = dev->h;
-    img->buf_idx = img_idx;
-    img->buf_size = dev->buffers[img_idx].length;
-    img->buf = dev->buffers[img_idx].buf;
-    img->ts = dev->buffers[img_idx].timestamp;
-    img->pprz_ts = dev->buffers[img_idx].pprz_timestamp;
-    return true;
   }
+
+  // Set the image
+  img->type = IMAGE_YUV422;
+  img->w = dev->w;
+  img->h = dev->h;
+  img->buf_idx = img_idx;
+  img->buf_size = dev->buffers[img_idx].length;
+  img->buf = dev->buffers[img_idx].buf;
+  img->ts = dev->buffers[img_idx].timestamp;
+  img->pprz_ts = dev->buffers[img_idx].pprz_timestamp;
+  return true;
 }
 
 /**

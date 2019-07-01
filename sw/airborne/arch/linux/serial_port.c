@@ -132,6 +132,9 @@ int  serial_port_open_raw(struct SerialPort *me, const char *device, speed_t spe
   me->cur_termios.c_lflag |= NOFLSH;
   /* output modes */
   me->cur_termios.c_oflag &=~(OPOST|ONLCR|OCRNL|ONOCR|ONLRET);
+  /* no buffering */
+  me->cur_termios.c_cc[VTIME] = 0;
+  me->cur_termios.c_cc[VMIN] = 0;
 
   if (cfsetispeed(&me->cur_termios, speed)) {
     TRACE(TRACE_ERROR, "%s, set term speed failed: %s (%d)\n", device, strerror(errno), errno);
@@ -311,6 +314,9 @@ int  serial_port_open_raw(struct SerialPort *me, const char *device, speed_t spe
   me->cur_termios.c_lflag |= NOFLSH;
   /* output modes */
   me->cur_termios.c_oflag &=~(OPOST|ONLCR|OCRNL|ONOCR|ONLRET);
+  /* no buffering */
+  me->cur_termios.c_cc[VTIME] = 0;
+  me->cur_termios.c_cc[VMIN] = 0;
 
   me->cur_termios.c_cflag &= ~CBAUD;
   me->cur_termios.c_cflag |= BOTHER;

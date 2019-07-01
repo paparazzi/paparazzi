@@ -139,14 +139,13 @@ static void hott_init_eam_msg(struct HOTT_EAM_MSG *hott_eam_msg)
 
 static void hott_update_eam_msg(struct HOTT_EAM_MSG *hott_eam_msg)
 {
-
-  hott_eam_msg->batt1_voltage = electrical.vsupply;
-  hott_eam_msg->batt2_voltage = electrical.vsupply;
+  hott_eam_msg->batt1_voltage = electrical.vsupply * 5;  // convert from V to steps of 0.2V
+  hott_eam_msg->batt2_voltage = electrical.vsupply * 5;  // convert from V to steps of 0.2V
   //hott_eam_msg->temp1 = 20 + imu.temperature / 10;
   //hott_eam_msg->temp2 = 20 + imu.temperature / 10;
   hott_eam_msg->altitude = (uint16_t)(500 + (stateGetPositionEnu_i()->z) / (1 << INT32_POS_FRAC));
-  hott_eam_msg->current = electrical.current / 100;
-  hott_eam_msg->main_voltage = electrical.vsupply;
+  hott_eam_msg->current = electrical.current * 10;  // convert to deciA
+  hott_eam_msg->main_voltage = electrical.vsupply * 10;  // convert to deciV
   hott_eam_msg->batt_cap = 0;
   uint16_t speed_buf = (uint16_t)(stateGetHorizontalSpeedNorm_i() * 36 / 10 / (1 << INT32_SPEED_FRAC));
   hott_eam_msg->speed_L = speed_buf & 0xFF;

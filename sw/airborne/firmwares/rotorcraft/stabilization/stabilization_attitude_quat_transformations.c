@@ -76,12 +76,12 @@ void quat_from_earth_cmd_f(struct FloatQuat *quat, struct FloatVect2 *cmd, float
   /* as rotation matrix */
   struct FloatRMat R_rp;
   float_rmat_of_quat(&R_rp, &q_rp);
-  /* body x-axis (before heading command) is first column */
+  /* body x-axis (before heading command) is first row */
   struct FloatVect3 b_x;
-  VECT3_ASSIGN(b_x, R_rp.m[0], R_rp.m[3], R_rp.m[6]);
-  /* body z-axis (thrust vect) is last column */
+  VECT3_ASSIGN(b_x, R_rp.m[0], R_rp.m[1], R_rp.m[2]);
+  /* body z-axis (thrust vect) is last row */
   struct FloatVect3 thrust_vect;
-  VECT3_ASSIGN(thrust_vect, R_rp.m[2], R_rp.m[5], R_rp.m[8]);
+  VECT3_ASSIGN(thrust_vect, R_rp.m[6], R_rp.m[7], R_rp.m[8]);
 
   /// @todo optimize yaw angle calculation
 
@@ -99,15 +99,13 @@ void quat_from_earth_cmd_f(struct FloatQuat *quat, struct FloatVect2 *cmd, float
   const struct FloatVect3 psi_vect = {cosf(heading), sinf(heading), 0.0};
 
   /* projection of desired heading onto body x-y plane
-   * b = v - dot(v,n)*n
+   * dot(b,n) = 0
    */
   float dot = VECT3_DOT_PRODUCT(psi_vect, thrust_vect);
-  struct FloatVect3 dotn;
-  VECT3_SMUL(dotn, thrust_vect, dot);
-
-  // b = v - dot(v,n)*n
+  
   struct FloatVect3 b;
-  VECT3_DIFF(b, psi_vect, dotn);
+  VECT3_ASSIGN(b, psi_vect.x, psi_vect.y, -dot/thrust_vect.z);
+  
   dot = VECT3_DOT_PRODUCT(b_x, b);
   struct FloatVect3 cross;
   VECT3_CROSS_PRODUCT(cross, b_x, b);

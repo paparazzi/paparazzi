@@ -114,15 +114,15 @@ def compute_velocity(ac_id):
                 dt = t2 - t1
                 if dt < 1e-5:
                     continue
-                vel[0] = (p2[0] - p1[0]) / dt
-                vel[1] = (p2[1] - p1[1]) / dt
-                vel[2] = (p2[2] - p1[2]) / dt
+                vel[0] += (p2[0] - p1[0]) / dt
+                vel[1] += (p2[1] - p1[1]) / dt
+                vel[2] += (p2[2] - p1[2]) / dt
                 p1 = p2
                 t1 = t2
         if nb > 0:
-            vel[0] / nb
-            vel[1] / nb
-            vel[2] / nb
+            vel[0] /= nb
+            vel[1] /= nb
+            vel[2] /= nb
     return vel
 
 def receiveRigidBodyList( rigidBodyList, stamp ):

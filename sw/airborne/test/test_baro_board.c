@@ -99,7 +99,7 @@ int main(void)
   return 0;
 }
 
-static void pressure_abs_cb(uint8_t __attribute__((unused)) sender_id, float pressure)
+static void pressure_abs_cb(uint8_t __attribute__((unused)) sender_id, __attribute__((unused)) uint32_t stamp, float pressure)
 {
   float p = pressure;
   float foo = 42.;

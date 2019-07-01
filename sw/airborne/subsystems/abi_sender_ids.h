@@ -72,6 +72,10 @@
 #define BARO_SIM_SENDER_ID 19
 #endif
 
+#ifndef BARO_BMP3_SENDER_ID
+#define BARO_BMP3_SENDER_ID 20
+#endif
+
 #ifndef METEO_STICK_SENDER_ID
 #define METEO_STICK_SENDER_ID 30
 #endif
@@ -82,6 +86,10 @@
  */
 #ifndef MS45XX_SENDER_ID
 #define MS45XX_SENDER_ID 40
+#endif
+
+#ifndef SDP3X_SENDER_ID
+#define SDP3X_SENDER_ID 41
 #endif
 
 /*
@@ -153,12 +161,20 @@
 #define AGL_RAY_SENSOR_GAZEBO_ID 10
 #endif
 
+#ifndef AGL_LIDAR_TFMINI_ID
+#define AGL_LIDAR_TFMINI_ID 11
+#endif
+
 /*
  * IDs of magnetometer sensors (including IMUs with mag)
  */
 
 #ifndef MAG_HMC58XX_SENDER_ID
 #define MAG_HMC58XX_SENDER_ID 2
+#endif
+
+#ifndef MAG_LIS3MDL_SENDER_ID
+#define MAG_LIS3MDL_SENDER_ID 3
 #endif
 
 #ifndef IMU_MAG_PITOT_ID
@@ -303,6 +319,11 @@
 #define IMU_VECTORNAV_ID 18
 #endif
 
+// prefiltering with OneEuro filter
+#ifndef IMU_F1E_ID
+#define IMU_F1E_ID 30
+#endif
+
 /*
  * IDs of OPTICFLOW estimates (message 11)
  */
@@ -421,6 +442,12 @@
 
 #ifndef COLOR_OBJECT_DETECTION2_ID
 #define COLOR_OBJECT_DETECTION2_ID 2
+
+/*
+ * JOYSTICK message (used for payload or control, but not as a RC)
+ */
+#ifndef JOYSTICK_ID
+#define JOYSTICK_ID 1
 #endif
 
 #endif /* ABI_SENDER_IDS_H */

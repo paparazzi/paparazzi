@@ -517,8 +517,8 @@ static void mavlink_send_sys_status(struct transport_tx *trans, struct link_devi
                               UAV_SENSORS,   // On-board sensors: active   (bitmap)
                               UAV_SENSORS,   // On-board sensors: state    (bitmap)
                               -1,//10*sys_mon.cpu_load, // System loadof main-loop time   (0=0% to 1000=100%)
-                              100 * electrical.vsupply, // Battery voltage      (milivolts)
-                              electrical.current / 10, // Battery current      (10x miliampere)
+                              electrical.vsupply * 1000.f, // Battery voltage (milivolts)
+                              electrical.current * 100.f,  // Battery current (10x miliampere)
                               -1,     // Battery remaining      (0-100 in %)
                               0,      // Communication packet drops     (0=0% to 10000=100%)
                               0,      // Communication error(per packet)  (0=0% to 10000=100%)
@@ -771,7 +771,7 @@ static void mavlink_send_battery_status(struct transport_tx *trans, struct link_
 {
   static uint16_t voltages[10];
   // we simply only set one cell for now
-  voltages[0] = electrical.vsupply * 100;
+  voltages[0] = electrical.vsupply * 1000.f;  // convert to mV
   /// TODO: check what all these fields are supposed to represent
   mavlink_msg_battery_status_send(MAVLINK_COMM_0,
                                   0, // id
@@ -779,9 +779,9 @@ static void mavlink_send_battery_status(struct transport_tx *trans, struct link_
                                   0, // type
                                   INT16_MAX, // unknown temperature
                                   voltages, // cell voltages
-                                  electrical.current / 10,
-                                  electrical.consumed,
-                                  electrical.energy, // check scaling
+                                  electrical.current * 100.f, // convert to deciA
+                                  electrical.charge * 1000.f, // convert to mAh
+                                  electrical.energy * 36, // convert to hecto Joule
                                   -1); // remaining percentage not estimated
   MAVLinkSendMessage();
 }

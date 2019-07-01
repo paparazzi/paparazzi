@@ -11,7 +11,7 @@
       <message name="WP_MOVED"       period="0.5"/>
       <message name="CIRCLE"         period="1.05"/>
       <message name="DESIRED"        period="0.2"/>
-      <message name="BAT"            period="1.1"/>
+      <message name="ENERGY"         period="1.1"/>
       <message name="SEGMENT"        period="1.2"/>
       <message name="CALIBRATION"    period="2.1"/>
       <message name="NAVIGATION_REF" period="9."/>

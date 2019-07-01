@@ -2,8 +2,8 @@
   <rows>
     <widget NAME="map2d" SIZE="500">
       <papget type="message_field" display="text" x="5" y="125">
-        <property name="field" value="BAT:energy"/>
-        <property name="scale" value="1"/>
+        <property name="field" value="ENERGY:charge"/>
+        <property name="scale" value="1000."/>
         <property name="format" value="Bat: %.0fmAh"/>
         <property name="size" value="20."/>
         <property name="color" value="green"/>

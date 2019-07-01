@@ -41,22 +41,25 @@
 
 #include "subsystems/electrical.h"
 
-
-
 void electrical_ardrone2_setup(void);
 
-int fd;
+static int fd;
 
 void bat_voltage_ardrone2_init(void)
 {
   // Initialize 12c device for power
   fd = open("/dev/i2c-1", O_RDWR);
+  if (fd < 0){
+    fprintf(stderr, "Failed to open i2c-1: %m\n");
+    return;
+  }
+
   if (ioctl(fd, I2C_SLAVE_FORCE, 0x4a) < 0) {
     fprintf(stderr, "Failed to set slave address: %m\n");
+    return;
   }
 
   electrical_ardrone2_setup();
-
 }
 
 void electrical_ardrone2_setup(void)
@@ -85,7 +88,6 @@ void electrical_ardrone2_setup(void)
 
 void bat_voltage_ardrone2_periodic(void)
 {
-
   electrical_ardrone2_setup();
 
   unsigned char lsb, msb;
@@ -96,11 +98,9 @@ void bat_voltage_ardrone2_periodic(void)
 
   // we know from spec sheet that ADCIN0 has no prescaler
   // so that the max voltage range is 1.5 volt
-  // multiply by ten to get decivolts
 
-  //from raw measurement we got quite a lineair response
+  //from raw measurement we got quite a linear response
   //9.0V=662, 9.5V=698, 10.0V=737,10.5V=774, 11.0V=811, 11.5V=848, 12.0V=886, 12.5V=923
-  //leading to our 0.13595166 magic number for decivolts conversion
-  electrical.vsupply = raw_voltage * 0.13595166;
-
+  //leading to our 0.013595166 magic number for volts conversion
+  electrical.vsupply = raw_voltage * 0.013595166f;
 }

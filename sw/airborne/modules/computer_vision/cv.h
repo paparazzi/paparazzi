@@ -62,7 +62,8 @@ struct video_listener {
 extern bool add_video_device(struct video_config_t *device);
 
 extern struct video_listener *cv_add_to_device(struct video_config_t *device, cv_function func, uint16_t fps);
-extern struct video_listener *cv_add_to_device_async(struct video_config_t *device, cv_function func, int nice_level, uint16_t fps);
+extern struct video_listener *cv_add_to_device_async(struct video_config_t *device, cv_function func, int nice_level,
+    uint16_t fps);
 
 extern void cv_run_device(struct video_config_t *device, struct image_t *img);
 

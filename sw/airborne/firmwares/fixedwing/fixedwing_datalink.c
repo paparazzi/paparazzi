@@ -47,19 +47,6 @@
 
 #define MOfMM(_x) (((float)(_x))/1000.)
 
-#if USE_JOYSTICK
-#include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
-#include "autopilot.h"
-uint8_t joystick_block;
-#define JoystickHandeDatalink(_roll_int8, _pitch_int8, _throttle_int8) { \
-    if (autopilot_get_mode() == AP_MODE_AUTO2 && nav_block == joystick_block) {  \
-      h_ctl_roll_setpoint = _roll_int8 * (AUTO1_MAX_ROLL / 0x7f);       \
-      h_ctl_pitch_setpoint = _pitch_int8 * (AUTO1_MAX_PITCH / 0x7f);    \
-      v_ctl_throttle_setpoint = (MAX_PPRZ/0x7f) * _throttle_int8;       \
-    }                                                                   \
-  }
-#endif
-
 void firmware_parse_msg(struct link_device *dev __attribute__((unused)), struct transport_tx *trans __attribute__((unused)), uint8_t *buf)
 {
   uint8_t msg_id = IdOfPprzMsg(buf);
@@ -152,16 +139,6 @@ void firmware_parse_msg(struct link_device *dev __attribute__((unused)), struct 
     break;
 #endif /* HITL */
 
-#if USE_JOYSTICK
-    case DL_JOYSTICK_RAW: {
-      if (DL_JOYSTICK_RAW_ac_id(buf) == AC_ID) {
-        JoystickHandeDatalink(DL_JOYSTICK_RAW_roll(buf),
-                              DL_JOYSTICK_RAW_pitch(buf),
-                              DL_JOYSTICK_RAW_throttle(buf));
-      }
-    }
-    break;
-#endif // USE_JOYSTICK
     default:
       break;
   }

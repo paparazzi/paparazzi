@@ -36,22 +36,18 @@
 #define LOW_BAT_LEVEL 10.5
 #endif
 
-
 /** critical battery level in Volts (for 3S LiPo) */
 #ifndef CRITIC_BAT_LEVEL
 #define CRITIC_BAT_LEVEL 9.8
 #endif
 
-
 struct Electrical {
-
-  uint16_t vsupply;       ///< supply voltage in decivolts
-  int32_t  current;       ///< current in milliamps
-  int32_t  consumed;      ///< consumption in mAh
-  float    energy;        ///< consumed energy in mAh
-  bool   bat_low;       ///< battery low status
-  bool   bat_critical;  ///< battery critical status
-
+  float vsupply;       ///< supply voltage in V
+  float current;       ///< current in A
+  float charge;        ///< consumed electric charge in Ah
+  float energy;        ///< consumed energy in Wh
+  bool  bat_low;       ///< battery low status
+  bool  bat_critical;  ///< battery critical status
 };
 
 extern struct Electrical electrical;

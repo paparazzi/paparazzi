@@ -138,9 +138,10 @@ void lisa_l_baro_event(void)
       baro_trans.status != I2CTransPending) {
     baro_board.status = LBS_READ_ABS;
     if (baro_trans.status == I2CTransSuccess) {
+      uint32_t now_ts = get_sys_time_usec();
       int16_t tmp = baro_trans.buf[0] << 8 | baro_trans.buf[1];
       float pressure = LISA_L_BARO_SENS * (float)tmp;
-      AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, pressure);
+      AbiSendMsgBARO_ABS(BARO_BOARD_SENDER_ID, now_ts, pressure);
     }
   } else if (baro_board.status == LBS_READING_DIFF &&
              baro_trans.status != I2CTransPending) {

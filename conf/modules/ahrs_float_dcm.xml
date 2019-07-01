@@ -18,6 +18,8 @@
     <configure name="AHRS_ALIGNER_LED" value="1" description="LED number to indicate AHRS alignment, none to disable (default is board dependent)"/>
     <define name="USE_MAGNETOMETER_ONGROUND" description="use magnetic compensation before takeoff only while GPS course not good"/>
     <define name="USE_AHRS_GPS_ACCELERATIONS" description="enable forward acceleration compensation from GPS speed"/>
+    <define name="ACCEL_WEIGHT_FILTER" value="8" description="adjust accel drift heuristic filter (default 8, 0 to disable filter)"/>
+    <define name="ACCEL_WEIGHT_BAND" value="1." description="band size of accel filter: 1. means that there is no correction when accel magnitude exceeds +/- 0.5G around 1G (normal flight)"/>
   </doc>
 
   <settings>

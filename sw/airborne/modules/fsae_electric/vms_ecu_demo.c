@@ -121,11 +121,11 @@ static const struct can_instance can2 = {&CAND2, 12};
  * from abort mode.
  * See section 22.7.7 on the STM32 reference manual.
  */
-static const CANConfig cancfg_lb = {
-    CAN_MCR_ABOM | CAN_MCR_AWUM | CAN_MCR_TXFP,
-    CAN_BTR_LBKM | CAN_BTR_SJW(0) | CAN_BTR_TS2(1) |
-    CAN_BTR_TS1(8) | CAN_BTR_BRP(6)
-};
+// static const CANConfig cancfg_lb = {
+//     CAN_MCR_ABOM | CAN_MCR_AWUM | CAN_MCR_TXFP,
+//     CAN_BTR_LBKM | CAN_BTR_SJW(0) | CAN_BTR_TS2(1) |
+//     CAN_BTR_TS1(8) | CAN_BTR_BRP(6)
+// };
 
 /*
  * Normal mode, see if we can ping each other

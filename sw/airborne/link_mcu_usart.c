@@ -276,7 +276,7 @@ static void send_fbw_status(struct transport_tx *trans, struct link_device *dev)
     rc_status = RC_LOST;
   }
   pprz_msg_send_FBW_STATUS(trans, dev, AC_ID,
-                           &(rc_status), &(fbw_state->ppm_cpt), &(fbw_status), &(fbw_state->vsupply), &(fbw_state->current));
+                           &(rc_status), &(fbw_state->ppm_cpt), &(fbw_status), &(fbw_state->electrical.vsupply), &(fbw_state->electrical.current));
 }
 #endif
 
@@ -325,8 +325,8 @@ void parse_mavpilot_msg(void)
       fbw_state->ppm_cpt = MSG_INTERMCU_FBW_MOD(intermcu_data.msg_buf);
       fbw_state->status = MSG_INTERMCU_FBW_STAT(intermcu_data.msg_buf);
       fbw_state->nb_err = MSG_INTERMCU_FBW_ERR(intermcu_data.msg_buf);
-      fbw_state->vsupply = MSG_INTERMCU_FBW_VOLT(intermcu_data.msg_buf);
-      fbw_state->current = MSG_INTERMCU_FBW_CURRENT(intermcu_data.msg_buf);
+      fbw_state->electrical.vsupply = (float)(MSG_INTERMCU_FBW_VOLT(intermcu_data.msg_buf)) / 10.f;
+      fbw_state->electrical.current = (float)(MSG_INTERMCU_FBW_CURRENT(intermcu_data.msg_buf)) / 10.f;
 
 #ifdef LINK_MCU_LED
       LED_TOGGLE(LINK_MCU_LED);
@@ -361,8 +361,8 @@ void link_mcu_periodic_task(void)
       fbw_state->ppm_cpt,
       fbw_state->status,
       fbw_state->nb_err,
-      fbw_state->vsupply,
-      fbw_state->current);
+      fbw_state->electrical.vsupply * 10.f,
+      fbw_state->electrical.current * 10.f);
 #if defined RADIO_CONTROL || RADIO_CONTROL_AUTO1
     InterMcuSend_INTERMCU_RADIO(fbw_state->channels);
 #endif

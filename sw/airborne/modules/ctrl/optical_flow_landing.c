@@ -166,7 +166,7 @@ static void send_divergence(struct transport_tx *trans, struct link_device *dev)
 
 /// Function definitions
 /// Callback function of the ground altitude
-void vertical_ctrl_agl_cb(uint8_t sender_id, float distance);
+void vertical_ctrl_agl_cb(uint8_t sender_id, uint32_t stamp, float distance);
 // Callback function of the optical flow estimate:
 void vertical_ctrl_optical_flow_cb(uint8_t sender_id, uint32_t stamp, int16_t flow_x,
                                    int16_t flow_y, int16_t flow_der_x, int16_t flow_der_y, float quality, float size_divergence);
@@ -592,7 +592,7 @@ void update_errors(float err, float dt)
 }
 
 // Reading from "sensors":
-void vertical_ctrl_agl_cb(uint8_t sender_id UNUSED, float distance)
+void vertical_ctrl_agl_cb(uint8_t sender_id UNUSED, __attribute__((unused)) uint32_t stamp, float distance)
 {
   of_landing_ctrl.agl = distance;
 }

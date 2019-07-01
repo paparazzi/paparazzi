@@ -101,8 +101,9 @@ void baro_scp_event(void)
       baro_scp_pressure |= scp_trans.buf[1];
       baro_scp_pressure *= 25;
 
+      uint32_t now_ts = get_sys_time_usec();
       float pressure = (float) baro_scp_pressure;
-      AbiSendMsgBARO_ABS(BARO_SCP_SENDER_ID, pressure);
+      AbiSendMsgBARO_ABS(BARO_SCP_SENDER_ID, now_ts, pressure);
 #ifdef SENSOR_SYNC_SEND
       DOWNLINK_SEND_SCP_STATUS(DefaultChannel, DefaultDevice, &baro_scp_pressure, &baro_scp_temperature);
 #endif

@@ -79,14 +79,15 @@ void generic_com_periodic(void)
   FillBufWith16bit(com_trans.buf, 11, gps.gspeed); // ground speed (cm/s)
   FillBufWith16bit(com_trans.buf, 13, (int16_t)(gps.course / 1e4)); // course (1e3rad)
   FillBufWith16bit(com_trans.buf, 15, (uint16_t)(stateGetAirspeed_f() * 100)); // TAS (cm/s)
-  com_trans.buf[17] = electrical.vsupply; // decivolts
-  com_trans.buf[18] = (uint8_t)(energy / 100); // deciAh
+  uint8_t vsupply = Min(electrical.vsupply * 10.f, 255); // deciVolt
+  uint8_t charge  = Min(electrical.vsupply * 10.f, 255); // deciAh
+  com_trans.buf[17] = vsupply;
+  com_trans.buf[18] = charge;
   com_trans.buf[19] = (uint8_t)(imcu_get_command(COMMAND_THROTTLE) * 100 / MAX_PPRZ);
   com_trans.buf[20] = autopilot_get_mode();
   com_trans.buf[21] = nav_block;
   FillBufWith16bit(com_trans.buf, 22, autopilot.flight_time);
   i2c_transmit(&GENERIC_COM_I2C_DEV, &com_trans, GENERIC_COM_SLAVE_ADDR, NB_DATA);
-
 }
 
 void generic_com_event(void)

@@ -1,0 +1,300 @@
+<?xml version='1.0'?>
+<sdf version='1.4'>
+  <model name="bebop2">
+    <pose>0 0 .1 0 0 0</pose>
+
+    <link name="chassis">
+      <velocity_decay>
+        <linear>0.001</linear>
+      </velocity_decay>
+      
+      <inertial>
+        <mass>0.536</mass>
+        <inertia>
+          <ixx> 0.000906 </ixx>
+          <iyy> 0.002225 </iyy>
+          <izz> 0.002500 </izz>
+          <ixy> 0. </ixy>
+          <ixz> 0. </ixz>
+          <iyz> 0. </iyz>
+        </inertia>
+      </inertial>
+
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.4 0.4 0.05</size>
+          </box>
+        </geometry>
+      </collision>
+
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.15 0.05 0.05</size>
+          </box>
+        </geometry>
+        <material>
+          <diffuse>0.82 0.82 0.82 1</diffuse>
+          <ambient>0.82 0.82 0.82 1</ambient>
+        </material>
+      </visual>
+      
+      <sensor name="contactsensor" type="contact">
+        <contact>
+          <collision>collision</collision>
+        </contact>
+      </sensor>
+    </link>
+
+    <!-- MOTORS -->
+    <link name="nw_motor">
+      <pose>0.0875 0.1125 0 0 0 0</pose>
+      <inertial>
+        <mass>0.01</mass>
+        <inertia>
+          <ixx>0.0001</ixx>
+          <iyy>0.0001</iyy>
+          <izz>0.0001</izz>
+          <ixy>0</ixy>
+          <iyz>0</iyz>
+          <ixz>0</ixz>
+        </inertia>
+      </inertial>
+      <visual name="visual">
+        <geometry>
+          <cylinder>
+            <radius>0.05</radius>
+            <length>0.02</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <diffuse>0.82 0.82 0.82 1</diffuse>
+          <ambient>0.82 0.82 0.82 1</ambient>
+        </material>
+      </visual>
+    </link>
+
+    <joint type="fixed" name="nw_motor_joint">
+      <parent>chassis</parent>
+      <child>nw_motor</child>
+    </joint>
+
+    <link name="se_motor">
+      <pose>-0.0875 -0.1125 0 0 0 0</pose>
+      <inertial>
+        <mass>0.01</mass>
+        <inertia>
+          <ixx>0.0001</ixx>
+          <iyy>0.0001</iyy>
+          <izz>0.0001</izz>
+          <ixy>0</ixy>
+          <iyz>0</iyz>
+          <ixz>0</ixz>
+        </inertia>
+      </inertial>
+      <visual name="visual">
+        <geometry>
+          <cylinder>
+            <radius>0.05</radius>
+            <length>0.02</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
+          <ambient>0.1 0.1 0.1 1</ambient>
+        </material>
+      </visual>
+    </link>
+
+    <joint type="fixed" name="se_motor_joint">
+      <parent>chassis</parent>
+      <child>se_motor</child>
+    </joint>
+
+    <link name="ne_motor">
+      <pose>0.0875 -0.1125 0 0 0 0</pose>
+      <inertial>
+        <mass>0.01</mass>
+        <inertia>
+          <ixx>0.0001</ixx>
+          <iyy>0.0001</iyy>
+          <izz>0.0001</izz>
+          <ixy>0</ixy>
+          <iyz>0</iyz>
+          <ixz>0</ixz>
+        </inertia>
+      </inertial>
+      <visual name="visual">
+        <geometry>
+          <cylinder>
+            <radius>0.05</radius>
+            <length>0.02</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <diffuse>0.82 0.82 0.82 1</diffuse>
+          <ambient>0.82 0.82 0.82 1</ambient>
+        </material>
+      </visual>
+    </link>
+
+    <joint type="fixed" name="ne_motor_joint">
+      <parent>chassis</parent>
+      <child>ne_motor</child>
+    </joint>
+
+    <link name="sw_motor">
+      <pose>-0.0875 0.1125 0 0 0 0</pose>
+      <inertial>
+        <mass>0.01</mass>
+        <inertia>
+          <ixx>0.0001</ixx>
+          <iyy>0.0001</iyy>
+          <izz>0.0001</izz>
+          <ixy>0</ixy>
+          <iyz>0</iyz>
+          <ixz>0</ixz>
+        </inertia>
+      </inertial>
+      <visual name="visual">
+        <geometry>
+          <cylinder>
+            <radius>0.05</radius>
+            <length>0.02</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
+          <ambient>0.1 0.1 0.1 1</ambient>
+        </material>
+      </visual>
+    </link>
+
+    <joint type="fixed" name="sw_motor_joint">
+      <parent>chassis</parent>
+      <child>sw_motor</child>
+    </joint>
+
+    <link name="sonar">
+      <pose>0 0 0 0 0 0</pose>
+      <inertial>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>0.0001</ixx>
+          <iyy>0.0001</iyy>
+          <izz>0.0001</izz>
+          <ixy>0</ixy>
+          <iyz>0</iyz>
+          <ixz>0</ixz>
+        </inertia>
+      </inertial>
+      <sensor name="sonarsensor" type="sonar">
+        <sonar>
+          <min>0.20</min>
+          <max>5.0</max>
+          <radius>0.50</radius>
+        </sonar>
+      </sensor>
+    </link>
+    
+    <joint name="sonar_joint" type="fixed">
+      <parent>chassis</parent>
+      <child>sonar</child>
+    </joint>
+
+    <!-- CAMERAS -->
+
+    <link name="front_camera">
+      <pose>0.15 0 0 -1.57 0.33 0</pose><!-- Bebop camera output is rotated 90 degrees and pitched slightly downwards -->
+      <inertial>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>0.0001</ixx>
+          <iyy>0.0001</iyy>
+          <izz>0.0001</izz>
+          <ixy>0</ixy>
+          <iyz>0</iyz>
+          <ixz>0</ixz>
+        </inertia>
+      </inertial>
+      <sensor type="wideanglecamera" name="mt9f002">
+        <update_rate>15.0</update_rate><!-- adjust with MT9F002_TARGET_FPS -->
+        <camera>
+          <image>
+            <width>4608</width><!-- Full sensor resolution -->
+            <height>3288</height><!-- Full sensor resolution -->
+            <format>R8G8B8</format>
+          </image>
+          <horizontal_fov>3.7</horizontal_fov>
+          <lens>
+            <type>equisolid_angle</type>
+            <scale_to_hfov>true</scale_to_hfov>
+            <cutoff_angle>1.8</cutoff_angle>
+            <env_texture_size>2048</env_texture_size><!-- with MT9F002_ZOOM = 1.00, will be scaled by NPS -->
+          </lens>
+          <clip>
+            <near>0.01</near>
+            <far>300</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <!-- Noise is sampled independently per pixel on each frame. That pixel's 
+              noise value is added to each of its color channels, which at that point lie 
+              in the range [0,1]. -->
+            <mean>0.0</mean>
+            <stddev>0.007</stddev>
+          </noise>
+        </camera>
+      </sensor>
+    </link>
+    
+    <joint name="front_camera_joint" type="fixed">
+      <parent>chassis</parent>
+      <child>front_camera</child>
+    </joint>
+    
+    <link name="bottom_camera">
+      <pose>0 0 0 0 1.57 0</pose>
+      <inertial>
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>0.0001</ixx>
+          <iyy>0.0001</iyy>
+          <izz>0.0001</izz>
+          <ixy>0</ixy>
+          <iyz>0</iyz>
+          <ixz>0</ixz>
+        </inertia>
+      </inertial>
+      <sensor type="camera" name="mt9v117">
+        <update_rate>90.0</update_rate>
+        <camera>
+          <horizontal_fov>0.7175</horizontal_fov>
+          <image>
+            <width>240</width>
+            <height>240</height>
+            <format>R8G8B8</format>
+          </image>
+          <clip>
+            <near>0.02</near>
+            <far>300</far>
+          </clip>
+          <noise>
+            <type>gaussian</type>
+            <!-- Noise is sampled independently per pixel on each frame. That pixel's 
+              noise value is added to each of its color channels, which at that point lie 
+              in the range [0,1]. -->
+            <mean>0.0</mean>
+            <stddev>0.007</stddev>
+          </noise>
+        </camera>
+      </sensor>
+    </link>
+    
+    <joint name="bottom_camera_joint" type="fixed">
+      <parent>chassis</parent>
+      <child>bottom_camera</child>
+    </joint>
+  </model>
+</sdf>

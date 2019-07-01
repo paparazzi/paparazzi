@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+from __future__ import print_function
 import os
 import socket
 import struct
@@ -39,6 +40,6 @@ while( 1 ):
       # send the command
       destsock.sendto( data, (options.dest_addr, options.dest_port) )
 
-    except socket.error, e:
-      print 'Exception', e
+    except socket.error as e:
+      print('Exception', e)
 

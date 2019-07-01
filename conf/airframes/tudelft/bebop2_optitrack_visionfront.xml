@@ -19,28 +19,13 @@
     <define name="USE_SONAR" value="0"/>
     <module name="ins" type="extended"/>
 
-    <define name="MT9F002_OUTPUT_HEIGHT" value="640" />
-    <define name="MT9F002_OUTPUT_WIDTH" value="640" />
-    <define name="MT9F002_INITIAL_OFFSET_X" value="0.15" />
-    <define name="MT9F002_INITIAL_OFFSET_Y" value="0.0" />
-    <define name="MT9F002_TARGET_EXPOSURE" value="30" />
-    <define name="MT9F002_GAIN_GREEN1" value="4"/>
-    <define name="MT9F002_GAIN_GREEN2" value="4"/>
-    <define name="MT9F002_GAIN_RED" value="5"/>
-    <define name="MT9F002_GAIN_BLUE" value="5"/>
-    <define name="MT9F002_OUTPUT_SCALER" value="0.25"/>
-    <define name="MT9F002_X_ODD_INC_VAL" value="1"/>
-    <define name="MT9F002_Y_ODD_INC_VAL" value="1"/>
-
-
     <module name="geo_mag"/>
     <module name="air_data"/>
     <module name="send_imu_mag_current"/>
     <module name="logger_file">
       <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
     </module>
-
-    <module name="video_thread"/>
+    <module name="bebop_cam"/>
 
     <module name="video_capture">
       <define name="VIDEO_CAPTURE_CAMERA" value="front_camera"/>
@@ -54,6 +39,7 @@
 <!--    <define name="INS_INT_VEL_ID" value="ABI_DISABLE"/> -->
     <module name="cv_opticflow">
       <define name="OPTICFLOW_CAMERA" value="front_camera"/>
+      <define name="OPTICFLOW_FPS" value="10"/>
       <define name="MAX_HORIZON" value="10"/>
       <define name="OPTICFLOW_DEROTATION" value="1"/>
       <define name="OPTICFLOW_DEROTATION_CORRECTION_FACTOR_X" value="0.8"/> <!--Obtained from a linefit--> 
@@ -66,7 +52,6 @@
     <module name="optical_flow_landing">
       <define name="OFL_PGAIN" value="0.05"/>
       <define name="OFL_IGAIN" value="0.0"/>
-
     </module>
 
     <module name="video_rtp_stream">
@@ -108,6 +93,14 @@
     <set servo="BOTTOM_RIGHT" value="motor_mixing.commands[MOTOR_BACK_RIGHT]"/>
     <set servo="BOTTOM_LEFT" value="motor_mixing.commands[MOTOR_BACK_LEFT]"/>
   </command_laws>
+
+  <section name="BEBOP_FRONT_CAMERA" prefix="MT9F002_">
+    <define name="OUTPUT_HEIGHT" value="640"/>
+    <define name="OUTPUT_WIDTH" value="640"/>
+    <define name="OFFSET_X" value="0.15"/>
+    <define name="TARGET_EXPOSURE" value="30"/>
+    <define name="ZOOM" value="1.25"/>
+  </section>
 
   <section name="AIR_DATA" prefix="AIR_DATA_">
     <define name="CALC_AIRSPEED" value="FALSE"/>

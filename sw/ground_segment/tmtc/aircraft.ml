@@ -179,7 +179,9 @@ type aircraft = {
   mutable temp : float;
   mutable bat  : float;
   mutable amp : float;
-  mutable energy  : int;
+  mutable power  : float;
+  mutable charge  : float;
+  mutable energy  : float;
   mutable ap_mode : int;
   mutable gaz_mode : int;
   mutable lateral_mode : int;
@@ -223,7 +225,7 @@ let new_aircraft = fun id name fp airframe ->
     desired_course = 0.; desired_altitude = 0.; desired_climb = 0.;
     cur_block=0; cur_stage=0;
     flight_time = 0; stage_time = 0; block_time = 0;
-    throttle = 0.; throttle_accu = 0.; rpm = 0.; temp = 0.; bat = 0.; amp = 0.; energy = 0; ap_mode= -1;
+    throttle = 0.; throttle_accu = 0.; rpm = 0.; temp = 0.; bat = 0.; amp = 0.; power = 0.; charge = 0.; energy = 0.; ap_mode= -1;
     kill_mode = false;
     gaz_mode= -1; lateral_mode= -1;
     gps_mode = 0; gps_Pacc = 0; periodic_callbacks = [];

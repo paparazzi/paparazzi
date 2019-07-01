@@ -171,7 +171,7 @@ void autopilot_static_on_rc_frame(void)
 #endif // RADIO_CONTROL
 
   // update electrical from FBW
-  imcu_get_electrical(&vsupply, &current, &energy);
+  imcu_get_electrical(&ap_electrical);
 
 #ifdef RADIO_CONTROL
   /* the SITL check is a hack to prevent "automatic" launch in NPS */
@@ -299,8 +299,8 @@ void attitude_loop(void)
 #endif
 
 #ifdef V_CTL_POWER_CTL_BAT_NOMINAL
-    if (vsupply > 0.) {
-      v_ctl_throttle_setpoint *= 10. * V_CTL_POWER_CTL_BAT_NOMINAL / (float)vsupply;
+    if (ap_electrical.vsupply > 0.) {
+      v_ctl_throttle_setpoint *= V_CTL_POWER_CTL_BAT_NOMINAL / ap_electrical.vsupply;
       v_ctl_throttle_setpoint = TRIM_UPPRZ(v_ctl_throttle_setpoint);
     }
 #endif
@@ -316,15 +316,11 @@ void attitude_loop(void)
   h_ctl_attitude_loop(); /* Set  h_ctl_aileron_setpoint & h_ctl_elevator_setpoint */
   v_ctl_throttle_slew();
   PPRZ_MUTEX_LOCK(ap_state_mtx);
-  ap_state->commands[COMMAND_THROTTLE] = v_ctl_throttle_slewed;
-  ap_state->commands[COMMAND_ROLL] = -h_ctl_aileron_setpoint;
-  ap_state->commands[COMMAND_PITCH] = h_ctl_elevator_setpoint;
-#if H_CTL_YAW_LOOP && defined COMMAND_YAW
-  ap_state->commands[COMMAND_YAW] = h_ctl_rudder_setpoint;
-#endif
-#if H_CTL_CL_LOOP && defined COMMAND_CL
-  ap_state->commands[COMMAND_CL] = h_ctl_flaps_setpoint;
-#endif
+  AP_COMMAND_SET_THROTTLE(v_ctl_throttle_slewed);
+  AP_COMMAND_SET_ROLL(-h_ctl_aileron_setpoint);
+  AP_COMMAND_SET_PITCH(h_ctl_elevator_setpoint);
+  AP_COMMAND_SET_YAW(h_ctl_rudder_setpoint);
+  AP_COMMAND_SET_CL(h_ctl_flaps_setpoint);
   PPRZ_MUTEX_UNLOCK(ap_state_mtx);
 
 #if defined MCU_SPI_LINK || defined MCU_UART_LINK || defined MCU_CAN_LINK

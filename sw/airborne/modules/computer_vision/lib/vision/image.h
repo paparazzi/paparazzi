@@ -64,10 +64,10 @@ struct point_t {
 
 /* Vector structure for point differences */
 struct flow_t {
-  struct point_t pos;         ///< The original position the flow comes from
-  int16_t flow_x;             ///< The x direction flow in subpixels
-  int16_t flow_y;             ///< The y direction flow in subpixels
-  uint32_t error;             ///< The matching error in the tracking process
+  struct point_t pos;         ///< The original position the flow comes from in subpixels
+  int32_t flow_x;             ///< The x direction flow in subpixels
+  int32_t flow_y;             ///< The y direction flow in subpixels
+  uint32_t error;             ///< The matching error in the tracking process in subpixels
 };
 
 /* Image size structure */
@@ -95,7 +95,7 @@ uint16_t image_yuv422_colorfilt(struct image_t *input, struct image_t *output, u
                                 uint8_t u_M, uint8_t v_m, uint8_t v_M);
 int check_color_yuv422(struct image_t *im, int x, int y, uint8_t y_m, uint8_t y_M, uint8_t u_m, uint8_t u_M, uint8_t v_m, uint8_t v_M);
 void set_color_yuv422(struct image_t *im, int x, int y, uint8_t Y, uint8_t U, uint8_t V);
-void image_yuv422_downsample(struct image_t *input, struct image_t *output, uint16_t downsample);
+void image_yuv422_downsample(struct image_t *input, struct image_t *output, uint8_t downsample);
 void image_subpixel_window(struct image_t *input, struct image_t *output, struct point_t *center,
                            uint32_t subpixel_factor, uint8_t border_size);
 void image_gradients(struct image_t *input, struct image_t *dx, struct image_t *dy);

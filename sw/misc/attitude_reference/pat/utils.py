@@ -20,6 +20,7 @@
 """
 Utility functions
 """
+from __future__ import print_function
 import math
 import numpy as np
 import numpy.linalg as linalg
@@ -216,7 +217,7 @@ def num_jacobian(X, U, P, dyn):
         dx = dX[i, :]
         delta_f = dyn(X + dx / 2, 0, U, P) - dyn(X - dx / 2, 0, U, P)
         delta_f = delta_f / dx[i]
-        #        print delta_f
+        #        print(delta_f)
         A[:, i] = delta_f
 
     epsilonU = (0.1 * np.ones(i_size)).tolist()
@@ -243,12 +244,12 @@ def saturate(V, Sats):
 
 def print_lti_dynamics(A, B, txt=None, print_original_form=False, print_modal_form=False):
     if txt:
-        print txt
+        print(txt)
     if print_original_form:
-        print "A\n", A
-        print "B\n", B
+        print("A\n", A)
+        print("B\n", B)
     w, M = np.linalg.eig(A)
-    print "modes \n", w
+    print("modes \n", w)
     if print_modal_form:
         #        print "eigen vectors\n", M
         #        invM = np.linalg.inv(M)
@@ -256,4 +257,4 @@ def print_lti_dynamics(A, B, txt=None, print_original_form=False, print_modal_fo
         #        Amod = np.dot(np.dot(invM, A), M)
         #        print "Amod\n", Amod
         for i in range(len(w)):
-            print w[i], "->", M[:, i]
+            print(w[i], "->", M[:, i])

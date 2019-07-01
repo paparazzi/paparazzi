@@ -30,6 +30,7 @@
  */
 #include "mcu_periph/spi.h"
 #include "mcu_periph/gpio.h"
+#include BOARD_CONFIG
 
 #include <string.h>
 #include "mcu_periph/ram_arch.h"
@@ -40,6 +41,11 @@
 
 #if USE_SPI0
 #error "ChibiOS architectures don't have SPI0"
+#endif
+
+// Default stack size
+#ifndef SPI_THREAD_STACK_SIZE
+#define SPI_THREAD_STACK_SIZE 512
 #endif
 
 // private SPI init structure
@@ -161,10 +167,12 @@ static inline uint16_t spi_resolve_slave_pin(uint8_t slave)
 static inline uint16_t spi_resolve_CR1(struct spi_transaction *t __attribute__((unused)))
 {
   uint16_t CR1 = 0;
-#if defined(STM32F1) || defined(STM32F4) || defined(STM32F7)
+#if defined(STM32F1) || defined(STM32F4)
   if (t->dss == SPIDss16bit) {
-    CR1 |= SPI_CR1_DFF;
+    CR1 |= SPI_CR1_DFF; // FIXME for F7
   }
+#endif
+#if defined(STM32F1) || defined(STM32F4) || defined(STM32F7)
   if (t->bitorder == SPILSBFirst) {
     CR1 |= SPI_CR1_LSBFIRST;
   }
@@ -347,7 +355,7 @@ static __attribute__((noreturn)) void thd_spi1(void *arg)
   }
 }
 
-static THD_WORKING_AREA(wa_thd_spi1, 256);
+static THD_WORKING_AREA(wa_thd_spi1, SPI_THREAD_STACK_SIZE);
 
 void spi1_arch_init(void)
 {
@@ -386,7 +394,7 @@ static __attribute__((noreturn)) void thd_spi2(void *arg)
   }
 }
 
-static THD_WORKING_AREA(wa_thd_spi2, 256);
+static THD_WORKING_AREA(wa_thd_spi2, SPI_THREAD_STACK_SIZE);
 
 void spi2_arch_init(void)
 {
@@ -425,7 +433,7 @@ static __attribute__((noreturn)) void thd_spi3(void *arg)
   }
 }
 
-static THD_WORKING_AREA(wa_thd_spi3, 1024);
+static THD_WORKING_AREA(wa_thd_spi3, SPI_THREAD_STACK_SIZE);
 
 void spi3_arch_init(void)
 {
@@ -434,6 +442,45 @@ void spi3_arch_init(void)
   // Create thread
   chThdCreateStatic(wa_thd_spi3, sizeof(wa_thd_spi3),
                     NORMALPRIO + 1, thd_spi3, NULL);
+}
+#endif
+
+#if USE_SPI4
+static SEMAPHORE_DECL(spi4_sem, 0);
+#if defined STM32F7
+// We need a special buffer for DMA operations
+static IN_DMA_SECTION(uint8_t spi4_dma_buf_out[SPI_DMA_BUF_LEN]);
+static IN_DMA_SECTION(uint8_t spi4_dma_buf_in[SPI_DMA_BUF_LEN]);
+static struct spi_init spi4_init_s = {
+  .sem = &spi4_sem,
+  .dma_buf_out = spi4_dma_buf_out,
+  .dma_buf_in = spi4_dma_buf_in
+};
+#else
+static struct spi_init spi4_init_s = {
+  .sem = &spi4_sem,
+};
+#endif
+
+static __attribute__((noreturn)) void thd_spi4(void *arg)
+{
+  (void) arg;
+  chRegSetThreadName("spi4");
+
+  while (TRUE) {
+    handle_spi_thd(&spi4);
+  }
+}
+
+static THD_WORKING_AREA(wa_thd_spi4, 256);
+
+void spi4_arch_init(void)
+{
+  spi4.reg_addr = &SPID4;
+  spi4.init_struct = &spi4_init_s;
+  // Create thread
+  chThdCreateStatic(wa_thd_spi4, sizeof(wa_thd_spi4),
+                    NORMALPRIO + 1, thd_spi4, NULL);
 }
 #endif
 

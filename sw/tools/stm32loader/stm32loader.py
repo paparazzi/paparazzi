@@ -22,6 +22,7 @@
 # along with stm32loader; see the file COPYING3.  If not see
 # <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
 import sys, getopt
 import serial
 import time
@@ -37,7 +38,7 @@ QUIET = 20
 
 def mdebug(level, message):
     if(QUIET >= level):
-        print >> sys.stderr , message
+        print(message, file=sys.stderr)
 
 
 class CmdException(Exception):
@@ -300,12 +301,12 @@ class CommandInterface:
 
 
 
-	def __init__(self) :
+    def __init__(self) :
         pass
 
 
 def usage():
-    print """Usage: %s [-hqVewvr] [-l length] [-p port] [-b baud] [-a addr] [file.bin]
+    print("""Usage: %s [-hqVewvr] [-l length] [-p port] [-b baud] [-a addr] [file.bin]
     -h          This help
     -q          Quiet
     -V          Verbose
@@ -320,7 +321,7 @@ def usage():
 
     ./stm32loader.py -e -w -v example/main.bin
 
-    """ % sys.argv[0]
+    """ % sys.argv[0])
 
 
 if __name__ == "__main__":
@@ -329,7 +330,7 @@ if __name__ == "__main__":
     try:
         import psyco
         psyco.full()
-        print "Using Psyco..."
+        print("Using Psyco...")
     except ImportError:
         pass
 
@@ -347,9 +348,9 @@ if __name__ == "__main__":
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hqVewvrp:b:a:l:")
-    except getopt.GetoptError, err:
+    except getopt.GetoptError as err:
         # print help information and exit:
-        print str(err) # will print something like "option -a not recognized"
+        print(str(err)) # will print something like "option -a not recognized"
         usage()
         sys.exit(2)
 
@@ -389,7 +390,7 @@ if __name__ == "__main__":
         try:
             cmd.initChip()
         except:
-            print "Can't init. Ensure that BOOT0 is enabled and reset device"
+            print("Can't init. Ensure that BOOT0 is enabled and reset device")
 
 
         bootversion = cmd.cmdGet()
@@ -413,13 +414,13 @@ if __name__ == "__main__":
         if conf['verify']:
             verify = cmd.readMemory(conf['address'], len(data))
             if(data == verify):
-                print "Verification OK"
+                print("Verification OK")
             else:
-                print "Verification FAILED"
-                print str(len(data)) + ' vs ' + str(len(verify))
+                print("Verification FAILED")
+                print(str(len(data)) + ' vs ' + str(len(verify)))
                 for i in xrange(0, len(data)):
                     if data[i] != verify[i]:
-                        print hex(i) + ': ' + hex(data[i]) + ' vs ' + hex(verify[i])
+                        print(hex(i) + ': ' + hex(data[i]) + ' vs ' + hex(verify[i]))
 
         if not conf['write'] and conf['read']:
             rdata = cmd.readMemory(conf['address'], conf['len'])

@@ -49,9 +49,6 @@ struct i2c_transaction ezcurrent_i2c_trans;
 
 void ezcurrent_init(void)
 {
-  electrical.vsupply = 0;
-  electrical.current = 0;
-
   ezcurrent_i2c_trans.status = I2CTransDone;
   ezcurrent_i2c_trans.slave_addr = EZCURRENT_ADDR;
 }
@@ -69,12 +66,12 @@ void ezcurrent_read_periodic(void)
 void ezcurrent_read_event(void)
 {
   if (ezcurrent_i2c_trans.status == I2CTransSuccess) {
-    /* voltage of EzOSD sensor is provided in mV, convert to deciVolt */
-    electrical.vsupply = Uint16FromBuf(ezcurrent_i2c_trans.buf, 2) / 100;
-    /* consumed ? in mAh */
-    electrical.consumed = Int16FromBuf(ezcurrent_i2c_trans.buf, 6);
-    /* sensor provides current in 1e-1 Ampere, convert to mA */
-    electrical.current = Int16FromBuf(ezcurrent_i2c_trans.buf, 8) * 100;
+    /* voltage of EzOSD sensor is provided in mV */
+    electrical.vsupply = (float)(Uint16FromBuf(ezcurrent_i2c_trans.buf, 2)) / 1000.f;
+    /* consumed electric charge in mAh */
+    electrical.charge = (float)(Int16FromBuf(ezcurrent_i2c_trans.buf, 6)) / 1000.f;
+    /* sensor provides current in 1e-1 Ampere */
+    electrical.current = (float)(Int16FromBuf(ezcurrent_i2c_trans.buf, 8)) / 10.f;
 
     // Transaction has been read
     ezcurrent_i2c_trans.status = I2CTransDone;

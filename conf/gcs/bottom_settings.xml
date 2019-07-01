@@ -31,9 +31,9 @@
           <property name="color" value="#00ff00"/>
         </papget>
         <papget type="message_field" display="text" x="130" y="3">
-          <property name="scale" value="0.1"/>
-          <property name="field" value="ROTORCRAFT_STATUS:vsupply"/>
-          <property name="format" value="Bat %.1f V"/>
+          <property name="scale" value="1."/>
+          <property name="field" value="ENERGY:voltage"/>
+          <property name="format" value="Bat %.2f V"/>
           <property name="size" value="15."/>
           <property name="color" value="#00ff00"/>
         </papget>
@@ -53,9 +53,9 @@
           <property name="color" value="#00ff00"/>
         </papget>
         <papget type="message_field" display="text" x="374" y="3">
-          <property name="scale" value="0.1"/>
+          <property name="scale" value="1."/>
           <property name="field" value="FBW_STATUS:vsupply"/>
-          <property name="format" value="FTD %.1f V"/>
+          <property name="format" value="FTD %.2f V"/>
           <property name="size" value="15."/>
           <property name="color" value="#00ff00"/>
         </papget>
@@ -97,8 +97,8 @@
           <property name="color" value="#00ff00"/>
         </papget>
         <papget type="message_field" display="text" x="252" y="3">
-          <property name="scale" value="0.001"/>
-          <property name="field" value="MOTOR:current"/>
+          <property name="scale" value="1."/>
+          <property name="field" value="ENERGY:current"/>
           <property name="format" value="Mot %.2f A"/>
           <property name="size" value="15."/>
           <property name="color" value="#00ff00"/>

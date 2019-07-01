@@ -27,7 +27,7 @@
 #include "std.h"
 #include "mt9v117.h"
 #include "mt9v117_regs.h"
-#include "boards/bebop.h"
+#include "peripherals/video_device.h"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -70,6 +70,9 @@ struct video_config_t bottom_camera = {
   }
 };
 
+struct mt9v117_t mt9v117 = {
+  .i2c_periph = &i2c0
+};
 
 /* Patch lines */
 //I2C_BUF_LEN must be higher then size of these patch lines
@@ -350,15 +353,17 @@ static inline void mt9v117_config(struct mt9v117_t *mt)
   write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_CROP_WINDOW_YOFFSET_OFFSET, 0, 2);
   write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_CROP_WINDOW_WIDTH_OFFSET, 640, 2);
   write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_CROP_WINDOW_HEIGHT_OFFSET, 240, 2);
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_CROP_MODE_OFFSET, 3, 1);
 
   /* Enable auto-stats mode */
-  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_CROP_MODE_OFFSET, 3, 1);
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_STAT_AWB_HG_WINDOW_XSTART_OFFSET, 0, 2);
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_STAT_AWB_HG_WINDOW_YSTART_OFFSET, 0, 2);
   write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_STAT_AWB_HG_WINDOW_XEND_OFFSET, 319, 2);
   write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_STAT_AWB_HG_WINDOW_YEND_OFFSET, 239, 2);
   write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_STAT_AE_INITIAL_WINDOW_XSTART_OFFSET, 2, 2);
   write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_STAT_AE_INITIAL_WINDOW_YSTART_OFFSET, 2, 2);
-  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_STAT_AE_INITIAL_WINDOW_XEND_OFFSET, 65, 2);
-  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_STAT_AE_INITIAL_WINDOW_YEND_OFFSET, 49, 2);
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_STAT_AE_INITIAL_WINDOW_XEND_OFFSET, 63, 2);
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_STAT_AE_INITIAL_WINDOW_YEND_OFFSET, 47, 2);
 }
 
 /**
@@ -431,6 +436,9 @@ void mt9v117_init(struct mt9v117_t *mt)
   write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_OUTPUT_FORMAT_OFFSET,
             read_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_CAM_OUTPUT_FORMAT_OFFSET, 2) |
             MT9V117_CAM_OUTPUT_FORMAT_BT656_ENABLE, 2);
+
+  /* Set autoexposure luma */
+  write_var(mt, MT9V117_CAM_CTRL_VAR, MT9V117_AE_LUMA, MT9V117_TARGET_LUMA, 2);
 
   /* Apply the configuration */
   write_var(mt, MT9V117_SYSMGR_VAR, MT9V117_SYSMGR_NEXT_STATE_OFFSET, MT9V117_SYS_STATE_ENTER_CONFIG_CHANGE, 1);

@@ -51,7 +51,7 @@ float agl_measurement_time;
 
 abi_event agl_ev;
 
-static void agl_cb(uint8_t sender_id, float distance);
+static void agl_cb(uint8_t sender_id, uint32_t stamp, float distance);
 
 void agl_dist_init(void)
 {
@@ -64,7 +64,7 @@ void agl_dist_init(void)
   AbiBindMsgAGL(AGL_DIST_ID, &agl_ev, agl_cb);
 }
 
-static void agl_cb(uint8_t __attribute__((unused)) sender_id, float distance)
+static void agl_cb(uint8_t __attribute__((unused)) sender_id, uint32_t __attribute__((unused)) stamp, float distance)
 {
   if (distance < AGL_DIST_MAX_RANGE && distance > AGL_DIST_MIN_RANGE) {
     agl_dist_value = distance;

@@ -103,7 +103,7 @@ static inline void mag_pitot_parse_msg(void)
     float pitot_stat = DL_IMCU_REMOTE_BARO_pitot_stat(mp_msg_buf);
     float pitot_temp = DL_IMCU_REMOTE_BARO_pitot_temp(mp_msg_buf);
 
-    AbiSendMsgBARO_ABS(IMU_MAG_PITOT_ID, pitot_stat);
+    AbiSendMsgBARO_ABS(IMU_MAG_PITOT_ID, now_ts, pitot_stat);
     AbiSendMsgTEMPERATURE(IMU_MAG_PITOT_ID, pitot_temp);
     break;
   }

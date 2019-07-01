@@ -32,6 +32,10 @@
 #ifndef AUTOPILOT_H
 #define AUTOPILOT_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "std.h"
 #include "paparazzi.h"
 #include "generated/airframe.h"
@@ -59,7 +63,8 @@ struct pprz_autopilot {
   uint8_t mode;             ///< current autopilot mode
   uint8_t mode_auto2;       ///< FIXME hide this in a private part ?
   uint16_t flight_time;     ///< flight time in seconds
-  uint8_t arming_status;   ///  arming status
+  pprz_t throttle;          ///< throttle level as will be displayed in GCS
+  uint8_t arming_status;    ///< arming status
   bool motors_on;           ///< motor status
   bool kill_throttle;       ///< allow autopilot to use throttle
   bool in_flight;           ///< in flight status
@@ -194,6 +199,10 @@ extern void autopilot_send_version(void);
 /** Report autopilot mode on default downlink channel
  */
 extern void autopilot_send_mode(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* AUTOPILOT_H */
 
