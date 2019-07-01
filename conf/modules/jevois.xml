@@ -9,6 +9,7 @@
     </description>
     <configure name="JEVOIS_UART" value="UARTX" description="UART on which Jevois camera is connected"/>
     <configure name="JEVOIS_BAUD" value="B115200" description="UART Baudrate, default to 115200"/>
+    <define name="JEVOIS_SEND_MSG" value="FALSE|TRUE" description="Send synchronized jevois message over telemetry link, use periodic report function otherwise"/>
   </doc>
   <settings>
     <dl_settings>
@@ -22,6 +23,7 @@
     <file name="jevois.h"/>
   </header>
   <init fun="jevois_init()"/>
+  <periodic fun="jevois_report()" freq="5" autorun="FALSE"/>
   <event fun="jevois_event()"/>
   <makefile>
     <configure name="JEVOIS_UART" case="upper|lower"/>
