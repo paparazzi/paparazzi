@@ -1,8 +1,8 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<airframe name="bebop">
+<airframe name="bebop_optitrack">
   <description>
-    Airframe file to fly a Bebop drone, in stable smooth flight, through waypoints using an optitrack system, such as the Cyberzoo of TUDelft. The values are tuned so that the flight speed is limited and the drone does not over-shoot the waypoints as it would in outdoor settings.
+    Airframe file to fly a Bebop1 drone, in stable smooth flight, through waypoints using an optitrack system, such as the Cyberzoo of TUDelft. The values are tuned so that the flight speed is limited and the drone does not over-shoot the waypoints as it would in outdoor settings.
   </description>
   <firmware name="rotorcraft">
     <target name="ap" board="bebop"/>
