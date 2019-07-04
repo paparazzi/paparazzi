@@ -21,6 +21,7 @@
       <define name="INDI_RPM_FEEDBACK" value="TRUE"/>
     </module>
     <module name="ahrs" type="int_cmpl_quat">
+      <!-- Use the optitrack heading instead of magnetometer -->
       <configure name="USE_MAGNETOMETER" value="FALSE"/>
       <define name="AHRS_USE_GPS_HEADING" value="TRUE"/>
     </module>
@@ -58,6 +59,7 @@
   </section>
 
   <section name="AHRS" prefix="AHRS_">
+    <!-- Needed to use optitrack heading at any speed -->
     <define name="HEADING_UPDATE_GPS_MIN_SPEED" value="0"/>
   </section>
 
@@ -96,7 +98,7 @@
   </section>
 
   <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
-    <!-- Control effectiveness, determined by flying with adaptive turned on./-->
+    <!-- Control effectiveness, have been determined by flying test flights with adaptive turned on./-->
     <define name="G1_ROLL" value="{11.0, -11.0, -11.0 , 11.0 }"/>
     <define name="G1_PITCH" value="{8.5 , 8.5, -8.5 , -8.5}"/>
     <define name="G1_YAW" value="{-0.50, 0.50, -0.50, 0.50}"/>
@@ -147,6 +149,7 @@
     <define name="ARRIVED_AT_WAYPOINT" value="0.2" unit="m"/> <!-- how far away it declares that the waypoint is reached -->
     <define name="THRESHOLD_GROUND_DETECT" value="40.0"/> <!-- to prevent false ground detections-->
   </section>
+
   <section name="NAVIGATION" prefix="NAV_">
     <define  name="CLIMB_VSPEED" value="0.5" />
     <define  name="DESCEND_VSPEED" value="-1.0" />
