@@ -14,23 +14,19 @@
     <!-- Subsystem section -->
     <module name="telemetry" type="transparent_udp"/>
     <module name="radio_control" type="datalink"/>
-    <!--module name="motor_mixing"/-->
     <module name="actuators" type="bebop"/>
     <module name="imu" type="bebop"/>
     <module name="gps" type="datalink"/>
     <module name="stabilization" type="indi">
       <define name="INDI_RPM_FEEDBACK" value="TRUE"/>
     </module>
-    <module name="stabilization" type="rate_indi"/>
     <module name="ahrs" type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="FALSE"/>
       <define name="AHRS_USE_GPS_HEADING" value="TRUE"/>
     </module>
     <module name="ins" type="extended"/>
-    <module name="guidance" type="indi">
-      <define name="GUIDANCE_INDI_SPECIFIC_FORCE_GAIN" value="-500.0"/>
-      <define name="GUIDANCE_INDI_THRUST_DYNAMICS" value="0.1"/>
-      <define name="GUIDANCE_INDI_RC_DEBUG" value="FALSE"/>
+    <module name="logger_file">
+      <define name="FILE_LOGGER_PATH" value="/data/ftp/internal_000"/>
     </module>
   </firmware>
 
@@ -42,10 +38,10 @@
   </commands>
 
   <servos driver="Default">
-    <servo name="TOP_LEFT" no="0" min="3000" neutral="3000" max="9800"/>
-    <servo name="TOP_RIGHT" no="1" min="3000" neutral="3000" max="9800"/>
-    <servo name="BOTTOM_RIGHT" no="2" min="3000" neutral="3000" max="9800"/>
-    <servo name="BOTTOM_LEFT" no="3" min="3000" neutral="3000" max="9800"/>
+    <servo name="TOP_LEFT" no="0" min="1000" neutral="1000" max="9800"/>
+    <servo name="TOP_RIGHT" no="1" min="1000" neutral="1000" max="9800"/>
+    <servo name="BOTTOM_RIGHT" no="2" min="1000" neutral="1000" max="9800"/>
+    <servo name="BOTTOM_LEFT" no="3" min="1000" neutral="1000" max="9800"/>
   </servos>
 
   <command_laws>
@@ -100,13 +96,13 @@
   </section>
 
   <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
-    <!-- control effectiveness -->
-    <define name="G1_ROLL" value="{20 , -20, -20 , 20 }"/>
-    <define name="G1_PITCH" value="{14 , 14, -14 , -14 }"/>
-    <define name="G1_YAW" value="{-1, 1, -1, 1}"/>
-    <define name="G1_THRUST" value="{-.4, -.4, -.4, -.4}"/>
+    <!-- Control effectiveness, determined by flying with adaptive turned on./-->
+    <define name="G1_ROLL" value="{11.0, -11.0, -11.0 , 11.0 }"/>
+    <define name="G1_PITCH" value="{8.5 , 8.5, -8.5 , -8.5}"/>
+    <define name="G1_YAW" value="{-0.50, 0.50, -0.50, 0.50}"/>
+    <define name="G1_THRUST" value="{-.40, -.40, -.40, -.40}"/>
     <!--Counter torque effect of spinning up a rotor-->
-    <define name="G2" value="{-61.2093,   65.3670,  -65.7419,   65.4516}"/>
+    <define name="G2" value="{-48.0,   48.0,  -48.0,   48.0}"/>
 
     <!-- reference acceleration for attitude control -->
     <define name="REF_ERR_P" value="600.0"/>
@@ -124,7 +120,7 @@
 
     <!-- Adaptive Learning Rate -->
     <define name="USE_ADAPTIVE" value="FALSE"/>
-    <define name="ADAPTIVE_MU" value="0.0001"/>
+    <define name="ADAPTIVE_MU" value="0.00001"/>
 
     <!--Priority for each axis (roll, pitch, yaw and thrust)-->
     <define name="WLS_PRIORITIES" value="{1000, 1000, 1, 100}"/>
@@ -172,9 +168,9 @@
 
   <section name="BAT">
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="8700"/>
-    <define name="CATASTROPHIC_BAT_LEVEL" value="9.3" unit="V"/>
-    <define name="CRITIC_BAT_LEVEL" value="9.6" unit="V"/>
-    <define name="LOW_BAT_LEVEL" value="10.6" unit="V"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="9.6" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="9.9" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="10.4" unit="V"/>
     <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
   </section>
   
