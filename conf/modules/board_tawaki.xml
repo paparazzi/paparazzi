@@ -20,14 +20,15 @@
     <define name="IMU_MPU_ACCEL_RANGE" value="MPU60X0_ACCEL_RANGE_8G"/>
     <configure name="IMU_MPU_SPI_DEV" value="spi4" case="upper|lower"/>
     <configure name="IMU_MPU_SPI_SLAVE_IDX" value="SPI_SLAVE5"/>
-    <define name="IMU_MPU_CHAN_X" value="1" cond="ifneq (,$(findstring $(BOARD_TAWAKI_ROTATED),0 FALSE))"/>
-    <define name="IMU_MPU_CHAN_Y" value="0" cond="ifneq (,$(findstring $(BOARD_TAWAKI_ROTATED),0 FALSE))"/>
-    <define name="IMU_MPU_Y_SIGN" value="-1" cond="ifneq (,$(findstring $(BOARD_TAWAKI_ROTATED),0 FALSE))"/>
+    <define name="IMU_MPU_CHAN_X" value="1" cond="ifeq (,$(findstring $(BOARD_TAWAKI_ROTATED),1 TRUE))"/>
+    <define name="IMU_MPU_CHAN_Y" value="0" cond="ifeq (,$(findstring $(BOARD_TAWAKI_ROTATED),1 TRUE))"/>
+    <define name="IMU_MPU_Y_SIGN" value="-1" cond="ifeq (,$(findstring $(BOARD_TAWAKI_ROTATED),1 TRUE))"/>
     <configure name="BMP3_I2C_DEV" value="i2c4" case="upper|lower"/>
     <define name="BMP3_SLAVE_ADDR" value="BMP3_I2C_ADDR_ALT"/>
     <configure name="MAG_LIS3MDL_I2C_DEV" value="i2c4" case="upper|lower"/>
-    <define name="LIS3MDL_CHAN_X" value="1" cond="ifneq (,$(findstring $(BOARD_TAWAKI_ROTATED),0 FALSE))"/>
-    <define name="LIS3MDL_CHAN_Y" value="0" cond="ifneq (,$(findstring $(BOARD_TAWAKI_ROTATED),0 FALSE))"/>
-    <define name="LIS3MDL_CHAN_X_SIGN" value="-" cond="ifneq (,$(findstring $(BOARD_TAWAKI_ROTATED),0 FALSE))"/>
+    <define name="MODULE_LIS3MDL_UPDATE_AHRS"/>
+    <define name="LIS3MDL_CHAN_X" value="1" cond="ifeq (,$(findstring $(BOARD_TAWAKI_ROTATED),1 TRUE))"/>
+    <define name="LIS3MDL_CHAN_Y" value="0" cond="ifeq (,$(findstring $(BOARD_TAWAKI_ROTATED),1 TRUE))"/>
+    <define name="LIS3MDL_CHAN_X_SIGN" value="-" cond="ifeq (,$(findstring $(BOARD_TAWAKI_ROTATED),1 TRUE))"/>
   </makefile>
 </module>
