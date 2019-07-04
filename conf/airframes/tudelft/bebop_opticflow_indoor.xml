@@ -1,6 +1,6 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
 
-<airframe name="bebop_opticflow">
+<airframe name="bebop_opticflow_indoor">
   <description>Bebop, hover with optical flow from bottom camera
   </description>
 
@@ -8,7 +8,7 @@
     <target name="ap" board="bebop"/>
 
     <target name="nps" board="pc">
-      <module name="fdm" type="jsbsim"/>
+      <module name="fdm" type="gazebo"/>
       <module name="udp"/>
     </target>
 
@@ -23,14 +23,14 @@
     <module name="gps" type="datalink"/> <!-- Optitrack -->
     <module name="stabilization" type="indi_simple"/>
     <module name="ahrs" type="int_cmpl_quat">
-      <configure name="USE_MAGNETOMETER" value="TRUE"/>
-      <define name="AHRS_USE_GPS_HEADING" value="FALSE"/>
+      <configure name="USE_MAGNETOMETER" value="FALSE"/>
+      <define name="AHRS_USE_GPS_HEADING" value="TRUE"/>
     </module>
-    <module name="ins" type="hff_extended"/>
+    <module name="ins" type="extended"/>
     
-    <module name="geo_mag"/>
-    <module name="air_data"/>
-    <module name="send_imu_mag_current"/>
+    <!--module name="geo_mag"/-->
+    <!--module name="air_data"/-->
+    <!--module name="send_imu_mag_current"/-->
     <module name="pose_history"/>
     <module name="bebop_cam"/>
 
@@ -46,11 +46,11 @@
       <define name="VIDEO_CAPTURE_PATH" value="/data/ftp/internal_000/images"/>
     </module>
 
-    <!--module name="video_rtp_stream">
+    <module name="video_rtp_stream">
       <define name="VIEWVIDEO_CAMERA" value="bottom_camera"/>
       <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
-      <define name="VIEWVIDEO_QUALITY_FACTOR" value="60"/>
-    </module-->
+      <define name="VIEWVIDEO_QUALITY_FACTOR" value="40"/>
+    </module>
   </firmware>
 
   <commands>
@@ -61,14 +61,17 @@
   </commands>
 
   <servos driver="Default">
-    <servo name="TOP_LEFT" no="0" min="3000" neutral="3000" max="12000"/>
-    <servo name="TOP_RIGHT" no="1" min="3000" neutral="3000" max="12000"/>
-    <servo name="BOTTOM_RIGHT" no="2" min="3000" neutral="3000" max="12000"/>
-    <servo name="BOTTOM_LEFT" no="3" min="3000" neutral="3000" max="12000"/>
+    <servo name="TOP_LEFT" no="0" min="3000" neutral="3000" max="9800"/>
+    <servo name="TOP_RIGHT" no="1" min="3000" neutral="3000" max="9800"/>
+    <servo name="BOTTOM_RIGHT" no="2" min="3000" neutral="3000" max="9800"/>
+    <servo name="BOTTOM_LEFT" no="3" min="3000" neutral="3000" max="9800"/>
   </servos>
 
   <section name="MIXING" prefix="MOTOR_MIXING_">
     <!-- Time cross layout (X), with order NW (CW), NE (CCW), SE (CW), SW (CCW) -->
+    <define name="TRIM_ROLL" value="0"/>
+    <define name="TRIM_PITCH" value="0"/>
+    <define name="TRIM_YAW" value="0"/>
     <define name="TYPE" value="QUAD_X"/>
   </section>
 
@@ -80,13 +83,13 @@
     <set servo="BOTTOM_LEFT" value="motor_mixing.commands[MOTOR_BACK_LEFT]"/>
   </command_laws>
 
-  <section name="AIR_DATA" prefix="AIR_DATA_">
+  <!--section name="AIR_DATA" prefix="AIR_DATA_">
     <define name="CALC_AIRSPEED" value="FALSE"/>
     <define name="CALC_TAS_FACTOR" value="FALSE"/>
     <define name="CALC_AMSL_BARO" value="TRUE"/>
-  </section>
+  </section-->
 
-  <include href="conf/airframes/tudelft/calibrations/bebopTUBB17.xml"/>
+  <!--include href="conf/airframes/tudelft/calibrations/bebopTUBB17.xml"/-->
 
   <section name="IMU" prefix="IMU_">
     <define name="BODY_TO_IMU_PHI" value="0." unit="deg"/>
@@ -102,19 +105,26 @@
     <define name="H_X" value="0.3892503"/>
     <define name="H_Y" value="0.0017972"/>
     <define name="H_Z" value="0.9211303"/>
+
+    <define name="HEADING_UPDATE_GPS_MIN_SPEED" value="0"/>
+    <define name="GRAVITY_HEURISTIC_FACTOR" value="0" />
   </section>
 
   <section name="INS" prefix="INS_">
     <define name="SONAR_MAX_RANGE" value="2.2"/>
     <define name="SONAR_UPDATE_ON_AGL" value="TRUE"/>
     <!--define name="USE_HFF"/-->
+    
+    <!-- Use GPS altitude measurments and set the R gain -->
+    <define name="USE_GPS_ALT" value="1"/>
+    <define name="VFF_R_GPS" value="0.01"/>
   </section>
 
   <section name="RC_SETPOINT" prefix="STABILIZATION_ATTITUDE_">
     <!-- setpoint limits for attitude stabilization rc flight -->
     <define name="SP_MAX_PHI" value="45" unit="deg"/>
     <define name="SP_MAX_THETA" value="45" unit="deg"/>
-    <define name="SP_MAX_R" value="100" unit="deg/s"/>
+    <define name="SP_MAX_R" value="120" unit="deg/s"/>
     <define name="DEADBAND_A" value="0"/>
     <define name="DEADBAND_E" value="0"/>
     <define name="DEADBAND_R" value="50"/>
@@ -140,10 +150,10 @@
 
   <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
     <!-- control effectiveness -->
-    <define name="G1_P" value="0.052669"/>
-    <define name="G1_Q" value="0.03326"/>
-    <define name="G1_R" value="0.002377"/>
-    <define name="G2_R" value="0.136936"/>
+    <define name="G1_P" value="0.0397"/>
+    <define name="G1_Q" value="0.0299"/>
+    <define name="G1_R" value="0.0014"/>
+    <define name="G2_R" value="0.1219"/>
 
     <!-- reference acceleration for attitude control -->
     <define name="REF_ERR_P" value="600.0"/>
@@ -153,9 +163,12 @@
     <define name="REF_RATE_Q" value="28.0"/>
     <define name="REF_RATE_R" value="28.0"/>
 
+    <!--Maxium yaw rate, to avoid instability-->
+    <define name="MAX_R" value="120.0" unit="deg/s"/>
+
     <!-- second order filter parameters -->
     <define name="FILT_CUTOFF" value="8.0"/>
-    <define name="FILT_CUTOFF_R" value="8.0"/>
+    <define name="ESTIMATION_FILT_CUTOFF" value="8.0"/>
 
     <!-- first order actuator dynamics -->
     <define name="ACT_DYN_P" value="0.1"/>
@@ -170,9 +183,13 @@
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
     <define name="HOVER_KP" value="283"/>
     <define name="HOVER_KD" value="82"/>
-    <define name="HOVER_KI" value="70"/>
-    <define name="NOMINAL_HOVER_THROTTLE" value="0.55"/>
-    <define name="ADAPT_THROTTLE_ENABLED" value="FALSE"/>
+    <define name="HOVER_KI" value="20"/>
+    <define name="NOMINAL_HOVER_THROTTLE" value="0.68"/>
+    <define name="ADAPT_THROTTLE_ENABLED" value="TRUE"/>
+
+    <define name="ADAPT_INITIAL_HOVER_THROTTLE" value="0.68" />
+    <define name="ADAPT_MIN_HOVER_THROTTLE" value="0.55" />
+    <define name="ADAPT_MAX_HOVER_THROTTLE" value="0.72" />
   </section>
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
@@ -191,7 +208,7 @@
 
   <section name="NAVIGATION" prefix="NAV_">
     <define name="CLIMB_VSPEED" value="1.0" />
-    <define name="DESCEND_VSPEED" value="-1.0" />
+    <define name="DESCEND_VSPEED" value="-0.75" />
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">
@@ -199,6 +216,7 @@
     <define name="JSBSIM_MODEL" value="simple_x_quad_ccw" type="string"/>
     <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
   </section>
+  <include href="conf/simulator/gazebo/airframes/bebop.xml"/>
 
   <section name="AUTOPILOT">
     <define name="MODE_STARTUP" value="AP_MODE_NAV"/>
@@ -211,8 +229,8 @@
   <section name="BAT">
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="8700"/>
     <define name="CATASTROPHIC_BAT_LEVEL" value="9.9" unit="V"/>
-    <define name="CRITIC_BAT_LEVEL" value="11.0" unit="V"/>
-    <define name="LOW_BAT_LEVEL" value="11.3" unit="V"/>
+    <define name="CRITIC_BAT_LEVEL" value="10.8" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="11.1" unit="V"/>
     <define name="MAX_BAT_LEVEL" value="12.4" unit="V"/>
   </section>
 </airframe>
