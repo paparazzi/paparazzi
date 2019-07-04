@@ -1,0 +1,30 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="e_identification_fr">
+  <doc>
+    <description>Format and send via UART tracking data according to French regulation.</description>
+    <configure name="E_ID_PORT" value="UARTx" description="UART where the e-id device is connected to (UART1, UART2, etc"/>
+    <configure name="E_ID_BAUD" value="B115200" description="UART baud rate"/>
+  </doc>
+  <header>
+    <file name="e_identification_fr.h"/>
+  </header>
+  <init fun="e_identification_fr_init()"/>
+  <periodic fun="e_identification_fr_periodic()" freq="4" autorun="FALSE"/>
+  <makefile target="ap">
+    <configure name="E_ID_PORT"  case="upper|lower"/>
+    <configure name="E_ID_BAUD" default="B115200"/>
+    <define name="USE_$(E_ID_PORT_UPPER)"/>
+    <define name="E_ID_DEV" value="$(E_ID_PORT_LOWER)"/>
+    <define name="$(E_ID_PORT_UPPER)_BAUD" value="$(E_ID_BAUD)"/>
+    <file name="e_identification_fr.c"/>
+  </makefile>
+  
+  <makefile target="ap" firmware="rotorcraft">
+    <define name="ROTORCRAFT_FIRMWARE" />
+  </makefile>
+  <makefile target="ap" firmware="fixedwing">
+    <define name="FIXEDWING_FIRMWARE" />
+  </makefile>
+</module>
+
