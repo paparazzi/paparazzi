@@ -131,7 +131,7 @@
    settings="settings/rotorcraft_basic.xml settings/control/rotorcraft_speed.xml"
    settings_modules="modules/ins_extended.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_indi.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
    gui_color="#ffffbc3bce5b"
-   release="18c4c2ebf61dca1ebb0ee3a90421269a41646ee9"
+   release="934f0e14c09da0a3bfe199b7685abd2f4b6badbe"
   />
   <aircraft
    name="CX10"
