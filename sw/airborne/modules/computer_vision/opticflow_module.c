@@ -151,14 +151,12 @@ struct image_t *opticflow_module_calc(struct image_t *img)
 
   // Do the optical flow calculation
   static struct opticflow_result_t temp_result; // static so that the number of corners is kept between frames
-  bool flow_successful = opticflow_calc_frame(&opticflow, img, &temp_result);
-
-  // Copy the result if finished
-  pthread_mutex_lock(&opticflow_mutex);
-  opticflow_result = temp_result;
-  opticflow_got_result = flow_successful;
-
-  // release the mutex as we are done with editing the opticflow result
-  pthread_mutex_unlock(&opticflow_mutex);
+  if(opticflow_calc_frame(&opticflow, img, &temp_result)){
+    // Copy the result if finished
+    pthread_mutex_lock(&opticflow_mutex);
+    opticflow_result = temp_result;
+    opticflow_got_result = true;
+    pthread_mutex_unlock(&opticflow_mutex);
+  }
   return img;
 }

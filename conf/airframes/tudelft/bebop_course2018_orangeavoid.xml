@@ -37,7 +37,7 @@
     </module>
 
     <!-- Video/Camera modules -->
-    <module name="bebop_cam" />
+    <module name="bebop_cam"/>
     <!--module name="bebop_ae_awb">
       <define name="CV_AE_AWB_VERBOSE" value="0" />
     </module-->
@@ -235,8 +235,9 @@
 
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES" value="nw_motor, ne_motor, se_motor, sw_motor" type="string[]"/>
-    <define name="JSBSIM_MODEL" value="simple_x_quad_ccw" type="string"/>
+    <define name="JSBSIM_MODEL" value="bebop" type="string"/>
     <define name="SENSORS_PARAMS" value="nps_sensors_params_default.h" type="string"/>
+    <define name="MT9F002_SENSOR_RES_DIVIDER" value="4"/>
   </section>
   <include href="conf/simulator/gazebo/airframes/bebop.xml"/>
 

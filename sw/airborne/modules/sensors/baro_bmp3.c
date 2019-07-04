@@ -56,8 +56,9 @@ void baro_bmp3_event(void)
   bmp3_i2c_event(&baro_bmp3);
 
   if (baro_bmp3.data_available) {
+    uint32_t now_ts = get_sys_time_usec();
     // send ABI message
-    AbiSendMsgBARO_ABS(BARO_BMP3_SENDER_ID, baro_bmp3.pressure);
+    AbiSendMsgBARO_ABS(BARO_BMP3_SENDER_ID, now_ts, baro_bmp3.pressure);
     AbiSendMsgTEMPERATURE(BARO_BMP3_SENDER_ID, baro_bmp3.temperature);
     baro_bmp3.data_available = false;
 

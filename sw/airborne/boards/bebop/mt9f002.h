@@ -29,6 +29,7 @@
 
 #include "std.h"
 #include "mcu_periph/i2c.h"
+#include "generated/airframe.h"
 
 #define CFG_SCALER_M_MIN 16
 #define CFG_SCALER_M_MAX 128
@@ -40,6 +41,86 @@
 #define CFG_MT9F002_X_ADDR_MAX 4647
 #define CFG_MT9F002_Y_ADDR_MIN 0
 #define CFG_MT9F002_Y_ADDR_MAX CFG_MT9F002_PIXEL_ARRAY_HEIGHT
+
+#define RES_VGA        0
+#define RES_720p       1
+#define RES_720p_4_3   2
+#define RES_1080p      3
+#define RES_1080p_4_3  4
+#define RES_FULL       5
+
+#ifdef MT9F002_RESOLUTION
+#if MT9F002_RESOLUTION == RES_VGA
+#define MT9F002_OUTPUT_WIDTH 640
+#define MT9F002_OUTPUT_HEIGHT 480
+#elif MT9F002_RESOLUTION == RES_720p
+#define MT9F002_OUTPUT_WIDTH 1280
+#define MT9F002_OUTPUT_HEIGHT 720
+#elif MT9F002_RESOLUTION == RES_720p_4_3
+#define MT9F002_OUTPUT_WIDTH 960
+#define MT9F002_OUTPUT_HEIGHT 720
+#elif MT9F002_RESOLUTION == RES_1080p
+#define MT9F002_OUTPUT_WIDTH 1920
+#define MT9F002_OUTPUT_HEIGHT 1080
+#elif MT9F002_RESOLUTION == RES_1080p_4_3
+#define MT9F002_OUTPUT_WIDTH 1440
+#define MT9F002_OUTPUT_HEIGHT 1080
+#elif MT9F002_RESOLUTION == RES_FULL
+// Doesn't work with isp
+//#define MT9F002_OUTPUT_WIDTH 4384
+//#define MT9F002_OUTPUT_HEIGHT 3288
+#define MT9F002_OUTPUT_WIDTH 2048
+#define MT9F002_OUTPUT_HEIGHT 2048
+#else // default MT9F002_RESOLUTION
+#define MT9F002_OUTPUT_WIDTH 640
+#define MT9F002_OUTPUT_HEIGHT 640
+#endif
+
+#else // MT9F002_RESOLUTION
+
+#ifndef MT9F002_OUTPUT_WIDTH
+#define MT9F002_OUTPUT_WIDTH 640
+#endif
+#ifndef MT9F002_OUTPUT_HEIGHT
+#define MT9F002_OUTPUT_HEIGHT 640
+#endif
+#endif
+
+// Signed fractional offset from centre of image of original sensor [-0.5,0.5]
+#ifndef MT9F002_OFFSET_X
+#define MT9F002_OFFSET_X 0.
+#endif
+
+// Signed fractional offset from centre of image of original sensor [-0.5,0.5]
+#ifndef MT9F002_OFFSET_Y
+#define MT9F002_OFFSET_Y 0.
+#endif
+
+// Zoom factor of image
+#ifndef MT9F002_ZOOM
+#define MT9F002_ZOOM 1.
+#endif
+
+#ifndef MT9F002_TARGET_FPS
+#define MT9F002_TARGET_FPS 30
+#endif
+
+// parameters for undistortion, defaults are rough estimates
+#ifndef MT9F002_FOCAL_X
+#define MT9F002_FOCAL_X (MT9F002_ZOOM * MT9F002_OUTPUT_WIDTH / 2.f)
+#endif
+#ifndef MT9F002_FOCAL_Y
+#define MT9F002_FOCAL_Y (MT9F002_ZOOM * MT9F002_OUTPUT_HEIGHT / 2.f)
+#endif
+#ifndef MT9F002_CENTER_X
+#define MT9F002_CENTER_X (MT9F002_OUTPUT_WIDTH * (.5f - MT9F002_ZOOM * MT9F002_OFFSET_X))
+#endif
+#ifndef MT9F002_CENTER_Y
+#define MT9F002_CENTER_Y (MT9F002_OUTPUT_HEIGHT * (.5f - MT9F002_ZOOM * MT9F002_OFFSET_Y))
+#endif
+#ifndef MT9F002_DHANE_K
+#define MT9F002_DHANE_K 1.25f
+#endif
 
 /* Interface types for the MT9F002 connection */
 enum mt9f002_interface {

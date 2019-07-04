@@ -65,6 +65,12 @@
 #define MULTI_GPS_MODE GPS_MODE_AUTO
 #endif
 
+/* expand GpsId(PRIMARY_GPS) to e.g. GPS_UBX_ID */
+#define __GpsId(_x) _x ## _ID
+#define _GpsId(_x) __GpsId(_x)
+#define GpsId(_x) _GpsId(_x)
+
+
 extern uint8_t multi_gps_mode;
 
 /** data structure for Space Vehicle Information of a single satellite */

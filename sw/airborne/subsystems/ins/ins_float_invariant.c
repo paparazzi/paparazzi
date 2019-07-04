@@ -149,6 +149,11 @@ bool ins_baro_initialized;
 /* gps */
 bool ins_gps_fix_once;
 
+/* min speed to update heading from GPS when mag are not used */
+#ifndef INS_INV_HEADING_UPDATE_GPS_MIN_SPEED
+#define INS_INV_HEADING_UPDATE_GPS_MIN_SPEED 5.f
+#endif
+
 /* error computation */
 static inline void error_output(struct InsFloatInv *_ins);
 
@@ -237,9 +242,15 @@ void ins_float_invariant_init(void)
   stateSetLocalOrigin_i(&ltp_def);
 #endif
 
+#if USE_MAGNETOMETER
   B.x = INS_H_X;
   B.y = INS_H_Y;
   B.z = INS_H_Z;
+#else
+  B.x = 1.f; // when using GPS as magnetometer, mag field is true north
+  B.y = 0.f;
+  B.z = 0.f;
+#endif
 
   // init state and measurements
   init_invariant_state();
@@ -303,10 +314,15 @@ void ins_reset_altitude_ref(void)
 
 void ins_float_invariant_align(struct FloatRates *lp_gyro,
                                struct FloatVect3 *lp_accel,
-                               struct FloatVect3 *lp_mag)
+                               struct FloatVect3 *lp_mag __attribute__((unused)))
 {
+#if USE_MAGNETOMETER
   /* Compute an initial orientation from accel and mag directly as quaternion */
   ahrs_float_get_quat_from_accel_mag(&ins_float_inv.state.quat, lp_accel, lp_mag);
+#else
+  /* Compute an initial orientation from accel only directly as quaternion */
+  ahrs_float_get_quat_from_accel(&ins_float_inv.state.quat, lp_accel);
+#endif
 
   /* use average gyro as initial value for bias */
   ins_float_inv.state.bias = *lp_gyro;
@@ -451,12 +467,30 @@ void ins_float_invariant_update_gps(struct GpsState *gps_s)
 #endif
   }
 
+#if !USE_MAGNETOMETER
+  // Use pseudo-mag rebuilt from GPS horizontal velocity
+  struct FloatVect2 vel = { ins_float_inv.meas.speed_gps.x, ins_float_inv.meas.speed_gps.y };
+  float vel_norm = float_vect2_norm(&vel);
+  if (vel_norm > INS_INV_HEADING_UPDATE_GPS_MIN_SPEED) {
+    struct FloatVect3 pseudo_mag = {
+      vel.x / vel_norm,
+      -vel.y / vel_norm,
+      0.f
+    };
+    ins_float_invariant_update_mag(&pseudo_mag);
+  }
+  else {
+    // if speed is tool low, better set measurements to zero
+    FLOAT_VECT3_ZERO(ins_float_inv.meas.mag);
+  }
+#endif
+
 }
 
 
 void ins_float_invariant_update_baro(float pressure)
 {
-  static float ins_qfe = 101325.0f;
+  static float ins_qfe = PPRZ_ISA_SEA_LEVEL_PRESSURE;
   static float alpha = 10.0f;
   static int32_t i = 1;
   static float baro_moy = 0.0f;
@@ -473,7 +507,7 @@ void ins_float_invariant_update_baro(float pressure)
     alpha = (10.*alpha + (baro_moy - baro_prev)) / (11.0f);
     baro_prev = baro_moy;
     // test stop condition
-    if (fabs(alpha) < 0.005f) {
+    if (fabs(alpha) < 0.1f) {
       ins_qfe = baro_moy;
       ins_baro_initialized = true;
     }
@@ -532,14 +566,6 @@ static inline void invariant_model(float *o, const float *x, const int n, const 
   struct FloatVect3 tmp_vect;
   struct FloatQuat tmp_quat;
 
-  // test accel sensitivity
-  if (fabs(s->as) < 0.1) {
-    // too small, return x_dot = 0 to avoid division by 0
-    float_vect_zero(o, n);
-    // TODO set ins state to error
-    return;
-  }
-
   /* dot_q = 0.5 * q * (x_rates - x_bias) + LE * q + (1 - ||q||^2) * q */
   RATES_DIFF(rates_unbiased, c->rates, s->bias);
   /* qd = 0.5 * q * rates_unbiased = -0.5 * rates_unbiased * q */
@@ -569,6 +595,10 @@ static inline void invariant_model(float *o, const float *x, const int n, const 
 
   /* as_dot = as * RE */
   s_dot.as = (s->as) * (ins_float_inv.corr.RE);
+  // keep as in a reasonable range, so 50% around the nominal value
+  if (s->as < 0.5f || s->as > 1.5f) {
+    s_dot.as = 0.f;
+  }
 
   /* hb_dot = SE */
   s_dot.hb = ins_float_inv.corr.SE;
@@ -587,12 +617,6 @@ static inline void error_output(struct InsFloatInv *_ins)
   struct FloatVect3 YBt, I, Ev, Eb, Ex, Itemp, Ebtemp, Evtemp;
   float Eh;
   float temp;
-
-  // test accel sensitivity
-  if (fabs(_ins->state.as) < 0.1) {
-    // too small, don't do anything to avoid division by 0
-    return;
-  }
 
   /* YBt = q * yB * q-1  */
   struct FloatQuat q_b2n;

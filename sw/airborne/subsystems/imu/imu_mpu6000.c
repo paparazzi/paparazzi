@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2015 Felix Ruess <felix.ruess@gmail.com>
+ * Copyright (C) 2019 Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *
  * This file is part of paparazzi.
  *
@@ -35,29 +36,71 @@ PRINT_CONFIG_VAR(IMU_MPU_SPI_DEV)
 
 /* MPU60x0 gyro/accel internal lowpass frequency */
 #if !defined IMU_MPU_LOWPASS_FILTER && !defined  IMU_MPU_SMPLRT_DIV
-#if (PERIODIC_FREQUENCY == 60) || (PERIODIC_FREQUENCY == 120)
+#if (PERIODIC_FREQUENCY >= 60) && (PERIODIC_FREQUENCY <= 120)
 /* Accelerometer: Bandwidth 44Hz, Delay 4.9ms
  * Gyroscope: Bandwidth 42Hz, Delay 4.8ms sampling 1kHz
  */
 #define IMU_MPU_LOWPASS_FILTER MPU60X0_DLPF_42HZ
 #define IMU_MPU_SMPLRT_DIV 9
 PRINT_CONFIG_MSG("Gyro/Accel output rate is 100Hz at 1kHz internal sampling")
-#elif PERIODIC_FREQUENCY == 512
+#ifndef IMU_MPU_ACCEL_LOWPASS_FILTER
+#define IMU_MPU_ACCEL_LOWPASS_FILTER MPU60X0_DLPF_ACC_44HZ // for ICM sensors
+#endif
+#elif (PERIODIC_FREQUENCY == 512) || (PERIODIC_FREQUENCY == 500)
 /* Accelerometer: Bandwidth 260Hz, Delay 0ms
  * Gyroscope: Bandwidth 256Hz, Delay 0.98ms sampling 8kHz
  */
 #define IMU_MPU_LOWPASS_FILTER MPU60X0_DLPF_256HZ
 #define IMU_MPU_SMPLRT_DIV 3
 PRINT_CONFIG_MSG("Gyro/Accel output rate is 2kHz at 8kHz internal sampling")
+#ifndef IMU_MPU_ACCEL_LOWPASS_FILTER
+#define IMU_MPU_ACCEL_LOWPASS_FILTER MPU60X0_DLPF_ACC_218HZ // for ICM sensors
+#endif
 #else
-#error Non-default PERIODIC_FREQUENCY: please define IMU_MPU_LOWPASS_FILTER and IMU_MPU_SMPLRT_DIV.
+/* By default, don't go too fast */
+#define IMU_MPU_LOWPASS_FILTER MPU60X0_DLPF_42HZ
+#define IMU_MPU_SMPLRT_DIV 9
+PRINT_CONFIG_MSG("Gyro/Accel output rate is 100Hz at 1kHz internal sampling")
+#ifndef IMU_MPU_ACCEL_LOWPASS_FILTER
+#define IMU_MPU_ACCEL_LOWPASS_FILTER MPU60X0_DLPF_ACC_44HZ // for ICM sensors
+#endif
+INFO("Non-default PERIODIC_FREQUENCY: using default IMU_MPU_LOWPASS_FILTER and IMU_MPU_SMPLRT_DIV.")
 #endif
 #endif
 PRINT_CONFIG_VAR(IMU_MPU_LOWPASS_FILTER)
+PRINT_CONFIG_VAR(IMU_MPU_ACCEL_LOWPASS_FILTER)
 PRINT_CONFIG_VAR(IMU_MPU_SMPLRT_DIV)
 
 PRINT_CONFIG_VAR(IMU_MPU_GYRO_RANGE)
 PRINT_CONFIG_VAR(IMU_MPU_ACCEL_RANGE)
+
+// Default channels order
+#ifndef IMU_MPU_CHAN_X
+#define IMU_MPU_CHAN_X 0
+#endif
+PRINT_CONFIG_VAR(IMU_MPU_CHAN_X)
+#ifndef IMU_MPU_CHAN_Y
+#define IMU_MPU_CHAN_Y 1
+#endif
+PRINT_CONFIG_VAR(IMU_MPU_CHAN_Y)
+#ifndef IMU_MPU_CHAN_Z
+#define IMU_MPU_CHAN_Z 2
+#endif
+PRINT_CONFIG_VAR(IMU_MPU_CHAN_Z)
+
+// Default channel signs
+#ifndef IMU_MPU_X_SIGN
+#define IMU_MPU_X_SIGN 1
+#endif
+PRINT_CONFIG_VAR(IMU_MPU_X_SIGN)
+#ifndef IMU_MPU_Y_SIGN
+#define IMU_MPU_Y_SIGN 1
+#endif
+PRINT_CONFIG_VAR(IMU_MPU_Y_SIGN)
+#ifndef IMU_MPU_Z_SIGN
+#define IMU_MPU_Z_SIGN 1
+#endif
+PRINT_CONFIG_VAR(IMU_MPU_Z_SIGN)
 
 
 struct ImuMpu6000 imu_mpu_spi;
@@ -68,6 +111,7 @@ void imu_mpu_spi_init(void)
   // change the default configuration
   imu_mpu_spi.mpu.config.smplrt_div = IMU_MPU_SMPLRT_DIV;
   imu_mpu_spi.mpu.config.dlpf_cfg = IMU_MPU_LOWPASS_FILTER;
+  imu_mpu_spi.mpu.config.dlpf_cfg_acc = IMU_MPU_ACCEL_LOWPASS_FILTER; // only for ICM sensors
   imu_mpu_spi.mpu.config.gyro_range = IMU_MPU_GYRO_RANGE;
   imu_mpu_spi.mpu.config.accel_range = IMU_MPU_ACCEL_RANGE;
 }
@@ -83,11 +127,29 @@ void imu_mpu_spi_event(void)
   mpu60x0_spi_event(&imu_mpu_spi.mpu);
   if (imu_mpu_spi.mpu.data_available) {
     uint32_t now_ts = get_sys_time_usec();
-    RATES_COPY(imu.gyro_unscaled, imu_mpu_spi.mpu.data_rates.rates);
-    VECT3_COPY(imu.accel_unscaled, imu_mpu_spi.mpu.data_accel.vect);
+
+    // set channel order
+    struct Int32Vect3 accel = {
+      IMU_MPU_X_SIGN * (int32_t)(imu_mpu_spi.mpu.data_accel.value[IMU_MPU_CHAN_X]),
+      IMU_MPU_Y_SIGN * (int32_t)(imu_mpu_spi.mpu.data_accel.value[IMU_MPU_CHAN_Y]),
+      IMU_MPU_Z_SIGN * (int32_t)(imu_mpu_spi.mpu.data_accel.value[IMU_MPU_CHAN_Z])
+    };
+    struct Int32Rates rates = {
+      IMU_MPU_X_SIGN * (int32_t)(imu_mpu_spi.mpu.data_rates.value[IMU_MPU_CHAN_X]),
+      IMU_MPU_Y_SIGN * (int32_t)(imu_mpu_spi.mpu.data_rates.value[IMU_MPU_CHAN_Y]),
+      IMU_MPU_Z_SIGN * (int32_t)(imu_mpu_spi.mpu.data_rates.value[IMU_MPU_CHAN_Z])
+    };
+    // unscaled vector
+    VECT3_COPY(imu.accel_unscaled, accel);
+    RATES_COPY(imu.gyro_unscaled, rates);
+
     imu_mpu_spi.mpu.data_available = false;
+
+    // Scale the gyro and accelerometer
     imu_scale_gyro(&imu);
     imu_scale_accel(&imu);
+
+    // Send the scaled values over ABI
     AbiSendMsgIMU_GYRO_INT32(IMU_MPU6000_ID, now_ts, &imu.gyro);
     AbiSendMsgIMU_ACCEL_INT32(IMU_MPU6000_ID, now_ts, &imu.accel);
   }

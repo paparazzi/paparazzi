@@ -20,6 +20,7 @@
 #define MT9V117_LOGICAL_ADDRESS_ACCESS        0x098E
 #define MT9V117_AE_TRACK_JUMP_DIVISOR         0xA812
 #define MT9V117_CAM_AET_SKIP_FRAMES           0xC868
+#define MT9V117_AE_LUMA                       0x0069
 
 /* Variables */
 #define MT9V117_AE_RULE_VAR                              9
