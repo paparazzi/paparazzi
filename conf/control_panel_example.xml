@@ -7,7 +7,7 @@
     <!--program name="Server" command="sw/ground_segment/tmtc/server">
       <arg flag="-b" constant="192.168.1.255:2010"/>
     </program>
-    <program name="GCS" command="sw/ground_segment/cockpit/gcs">
+    <program name="GCS" command="sw/ground_segment/cockpit/gcs" icon="gcs.svg" favorite="True">
       <arg flag="-layout" constant="large_left_col.xml"/>
       <arg flag="-osm"/>
     </program-->

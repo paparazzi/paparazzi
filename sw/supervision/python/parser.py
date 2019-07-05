@@ -30,11 +30,15 @@ import os
 import re
 import logging
 import time
+
+from typing import  List, Dict
 import shutil
 
 
 ###############################################################################
 # [Constants]
+
+STRINGS_FALSE = ["False", "false", None, "0"]
 
 LOGGER = logging.getLogger("[PARSER]")
 
@@ -47,6 +51,7 @@ VALUE_REF = "value"
 CONSTANT_REF = "constant"
 VARIABLE_REF = "variable"
 MODE_REF = "mode"
+FAVORITE_REF = "favorite"
 
 # REFERENCES AND STRUCTURES OF CONF XML FILES :
 # CONF_STRUCTURE = [(node_name, [node_attributes],
@@ -128,6 +133,9 @@ DEVICE_STRUCTURE = [(DEVICE, [],
 DEFAULT_DEVICE_NAME = " __Default__ "
 DEFAULT_DEVICE = db.Device(DEFAULT_DEVICE_NAME)
 
+# TOOLS
+TOOLS = "tools"
+
 # CONTROL_PANEL :
 CONTROL_PANEL = "control_panel"
 CONTROL_PANEL_FILE = CONTROL_PANEL + XML_EXT
@@ -136,10 +144,10 @@ SECTION_REF = "section"
 PROGRAM_REF = "program"
 SESSION_REF = "session"
 COMMAND_REF = "command"
+ICON_REF = "icon"
 FLAG_REF = "flag"
 OPTION_REF = "arg"
 
-PROGRAM_TAG_REF = "/".join((SECTION_REF, PROGRAM_REF))
 SESSION_TAG_REF = "/".join((SECTION_REF, SESSION_REF))
 
 CONTROL_PANEL_STRUCTURE = [(CONTROL_PANEL, [NAME_REF],
@@ -389,6 +397,10 @@ def load_init_files(conf_path):
         cp_file = cp_path
     else:
         raise Exception("%s not found!"% conf_path)
+
+    tools_path = conf_path + "/" + TOOLS
+    if not os.path.exists(tools_path):
+        raise Exception("%s not found!" % tools_path)
     
     for root, dirs, files in os.walk(conf_path):
         for file in files:
@@ -417,7 +429,7 @@ def load_init_files(conf_path):
             LOGGER.debug(file)
         LOGGER.debug("'control_panel' file(s) :")
         LOGGER.debug(cp_file)
-    return conf_files, cp_file, devices_files, info
+    return conf_files, cp_file, tools_path, devices_files, info
 
 
 ###############################################################################
@@ -633,29 +645,46 @@ def parse_arg_option(option_tag):
     return option
 
 
-def parse_tools(cp_file):
+def parse_tools(tools_path):
     """
-    :param cp_file:
-    -> Parse all tools in the 'control_panel' file given.
+    :param tools_path:
+    -> Parse all tools files in the 'tools_path' directory.
     -> Except an incorrect XML format and raise ERROR.
     """
     tools = {}
-    try:
-        cp_tree = Et.parse(cp_file)
-        tools_tags = cp_tree.findall(PROGRAM_TAG_REF)
-        for tool_tag in tools_tags:
-            tool_name = tool_tag.get(NAME_REF)
-            tool_command = tool_tag.get(COMMAND_REF)
-            options = []
-            for option_tag in tool_tag:
-                option = parse_arg_option(option_tag)
-                options.append(option)
-            tool_object = db.Program(tool_name, tool_command, options)
-            tools[tool_name] = tool_object
+    blacklisted_tools = []
+    blacklist = tools_path + "/" + "blacklisted"
+    if os.path.exists(blacklist):
+        with open(blacklist, 'r') as blacklist_fic:
+            for line in blacklist_fic:
+                line = line.strip()
+                if line != "" and line[0] != "#":
+                    blacklisted_tools.append(line)
 
-    except Et.ParseError as msg:
-            LOGGER.error("ERROR in syntax of XML file : '%s'. "
-                         "Original message : '%s'.", cp_file, msg)
+    for file in os.listdir(tools_path):
+        if file.endswith(".xml"):
+            file_path = tools_path + "/" + file
+            try:
+                tree = Et.parse(file_path)
+                tool_tag = tree.getroot()
+                if tool_tag.tag == PROGRAM_REF:
+                    tool_name = tool_tag.get(NAME_REF)
+                    tool_command = tool_tag.get(COMMAND_REF)
+                    icon = tool_tag.get(ICON_REF)
+                    fav = tool_tag.get(FAVORITE_REF)
+                    favorite = fav if fav is None else (fav not in STRINGS_FALSE)
+
+                    options = []
+                    for option_tag in tool_tag:
+                        option = parse_arg_option(option_tag)
+                        options.append(option)
+                    blacklisted = True if tool_name in blacklisted_tools else False
+                    tool_object = db.Program(tool_name, tool_command, options, icon, favorite=favorite, blacklisted=blacklisted)
+                    tools[tool_name] = tool_object
+
+            except Et.ParseError as msg:
+                    LOGGER.error("ERROR in syntax of XML file : '%s'. "
+                                 "Original message : '%s'.", file, msg)
     return tools
 
 
@@ -691,14 +720,15 @@ def parse_sessions(cp_file, tools):
     return sessions
 
 
-def load_sessions_and_programs(cp_file):
+def load_sessions_and_programs(cp_file, tools_path):
     """
     :param cp_file:
-    -> Parse the tools and sessions from the 'control_panel.xml' file.
+    :param tools_path:
+    -> Parse the tools and sessions from the 'tools:*xml' files.
     -> Add the default sessions 'simulation' & replay.
     -> Show the result of scan if DEBUG mode is on (main.py)
     """
-    tools = parse_tools(cp_file)
+    tools = parse_tools(tools_path)
     sessions = parse_sessions(cp_file, tools)
 
     sessions[SIMULATION_SESSION.name] = SIMULATION_SESSION
@@ -764,6 +794,7 @@ class Data(object):
         self.conf_files = []
         self.devices_file = None
         self.cp_file = None
+        self.tools_path = None
 
         self.cache = {}
         self.configurations = {}
@@ -796,7 +827,7 @@ class Data(object):
 
     def load_conf_files(self):
         LOGGER.info("Scanning current directory...")
-        self.conf_files, self.cp_file, self.devices_file, load_info = \
+        self.conf_files, self.cp_file, self.tools_path, self.devices_file, load_info = \
             load_init_files(self.conf_path)
         LOGGER.debug(load_info)
         LOGGER.info("End of scan.\n")
@@ -819,10 +850,10 @@ class Data(object):
 
     def load_sessions_and_programs(self):
         LOGGER.info("Loading programs and sessions...")
-        if self.cp_file is not None:
+        if self.cp_file is not None and self.tools_path is not None:
             self.tools, self.sessions, \
-                load_info = load_sessions_and_programs(self.cp_file)
+                load_info = load_sessions_and_programs(self.cp_file, self.tools_path)
             LOGGER.debug(load_info)
             LOGGER.info("Programs and sessions loaded.\n")
         else:
-            LOGGER.error("ERROR : control_panel.xml not found!")
+            LOGGER.error("ERROR : control_panel.xml or tools.xml not found!")

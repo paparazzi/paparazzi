@@ -1,2 +1,2 @@
-<program command="sw/ground_segment/misc/natnet2ivy" name="NatNet" />
+<program command="sw/ground_segment/misc/natnet2ivy" name="NatNet" icon="natnet.svg"/>
 

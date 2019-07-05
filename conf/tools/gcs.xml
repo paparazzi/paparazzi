@@ -1,4 +1,4 @@
-<program command="sw/ground_segment/cockpit/gcs" name="GCS">
+<program command="sw/ground_segment/cockpit/gcs" name="GCS" icon="gcs.svg" favorite="true">
   <arg constant="large_left_col.xml" flag="-layout" />
 </program>
 
