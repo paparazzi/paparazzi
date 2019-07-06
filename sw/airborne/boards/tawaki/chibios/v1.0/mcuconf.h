@@ -215,7 +215,7 @@
 //#define STM32_I2C_I2C3_RX_DMA_STREAM        STM32_DMA_STREAM_ID(1, 2)
 //#define STM32_I2C_I2C3_TX_DMA_STREAM        STM32_DMA_STREAM_ID(1, 4)
 #define STM32_I2C_I2C4_RX_DMA_STREAM        STM32_DMA_STREAM_ID(1, 1)
-#define STM32_I2C_I2C4_TX_DMA_STREAM        STM32_DMA_STREAM_ID(1, 6) // FIXME check if 5 is really not possible
+#define STM32_I2C_I2C4_TX_DMA_STREAM        STM32_DMA_STREAM_ID(1, 5)
 #define STM32_I2C_I2C1_IRQ_PRIORITY         5
 #define STM32_I2C_I2C2_IRQ_PRIORITY         5
 #define STM32_I2C_I2C3_IRQ_PRIORITY         5
@@ -296,6 +296,11 @@
 #define STM32_PWM1_UP_DMA_CHANNEL           6
 #define STM32_PWM1_UP_DMA_IRQ_PRIORITY      6
 #define STM32_PWM1_UP_DMA_PRIORITY          2
+
+#define STM32_PWM4_UP_DMA_STREAM            STM32_DMA_STREAM_ID(1, 6)
+#define STM32_PWM4_UP_DMA_CHANNEL           2
+#define STM32_PWM4_UP_DMA_IRQ_PRIORITY      6
+#define STM32_PWM4_UP_DMA_PRIORITY          2
 
 /*
  * SERIAL driver system settings.
