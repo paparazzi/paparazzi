@@ -29,6 +29,8 @@
 #include "mcu_periph/uart.h"
 #include "subsystems/abi.h"
 #include "math/pprz_algebra_float.h"
+#include "subsystems/datalink/downlink.h"
+#include <string.h>
 #include <stdio.h>
 
 int jevois_mapping_setting;
@@ -72,9 +74,41 @@ struct jevois_t {
   uint8_t idx; // temp buffer index
   uint8_t n; // temp coordinates/dimension index
   struct jevois_msg_t msg; // last decoded message
+  bool data_available; // new data to report
 };
 
 struct jevois_t jevois;
+
+// reporting function, send telemetry message
+void jevois_report(void)
+{
+  if (jevois.data_available == false) {
+    // no new data, return
+    return;
+  }
+
+  float quat[4] = {
+    jevois.msg.quat.qi,
+    jevois.msg.quat.qx,
+    jevois.msg.quat.qy,
+    jevois.msg.quat.qz
+  };
+  uint8_t len = strlen(jevois.msg.id);
+  char none[] = "None";
+  char *id = jevois.msg.id;
+  if (len == 0) {
+    id = none;
+    len = 4;
+  }
+  DOWNLINK_SEND_JEVOIS(DefaultChannel, DefaultDevice,
+      &jevois.msg.type,
+      len, id,
+      &jevois.msg.nb,
+      Max(jevois.msg.nb,1), jevois.msg.coord,
+      jevois.msg.dim,
+      quat);
+  jevois.data_available = false;
+}
 
 // initialization
 void jevois_init(void)
@@ -86,12 +120,17 @@ void jevois_init(void)
   jevois.state = JV_SYNC;
   jevois.idx = 0;
   jevois.n = 0;
+  jevois.data_available = false;
   memset(jevois.buf, 0, JEVOIS_MAX_LEN);
 }
 
 // send specific message if requested
 static void jevois_send_message(void)
 {
+#if JEVOIS_SEND_MSG
+  // send pprzlink JEVOIS message
+  jevois_report();
+#endif
 #if JEVOIS_SEND_FOLLOW_TARGET
   float cam_heading = (JEVOIS_HFOV / (2.f * JEVOIS_NORM)) * (float)(jevois.msg.coord[0]);
   float cam_height = (JEVOIS_VFOV / (2.f * JEVOIS_NORM)) * (float)(jevois.msg.coord[1]);
@@ -200,7 +239,7 @@ static void jevois_parse(struct jevois_t *jv, char c)
       if (JEVOIS_CHECK_DELIM(c)) {
         jv->buf[jv->idx] = '\0'; // end string
         jv->msg.coord[jv->n++] = (int16_t)atoi(jv->buf); // store value
-        if (jv->n == 2 * jv->msg.nb) {
+        if (jv->n == jv->msg.nb) {
           // got all coordinates, go to next state
           jv->n = 0; // reset number of received elements
           jv->idx = 0; // reset index
@@ -257,10 +296,10 @@ static void jevois_parse(struct jevois_t *jv, char c)
     case JV_QUAT:
       if (JEVOIS_CHECK_DELIM(c)) {
         jv->buf[jv->idx] = '\0';
-        float q = 0.f;//(float) atof(jv->buf);
+        float q = (float)atof(jv->buf);
         switch (jv->n) {
           case 0:
-            jv->msg.quat.qi = q; // TODO check quaternion order
+            jv->msg.quat.qi = q;
             break;
           case 1:
             jv->msg.quat.qx = q;
@@ -310,6 +349,7 @@ static void jevois_parse(struct jevois_t *jv, char c)
           jv->msg.extra);
       // also send specific messages if needed
       jevois_send_message();
+      jv->data_available = true;
       jv->state = JV_SYNC;
       break;
     default:
@@ -331,7 +371,7 @@ void jevois_event(void)
 }
 
 // utility function to send a string
-static void send_string(char *s)
+void jevois_send_string(char *s)
 {
   uint8_t i = 0;
   while (s[i]) {
@@ -344,9 +384,9 @@ void jevois_stream(bool activate)
 {
   jevois_stream_setting = activate;
   if (activate) {
-    send_string("streamon\r\n");
+    jevois_send_string("streamon\r\n");
   } else {
-    send_string("streamoff\r\n");
+    jevois_send_string("streamoff\r\n");
   }
 }
 
@@ -354,13 +394,13 @@ void jevois_setmapping(int number)
 {
   jevois_mapping_setting = number;
   jevois_stream(false);
-  send_string("setmapping ");
+  jevois_send_string("setmapping ");
   char s[4];
 #ifndef SITL
   itoa(number, s, 10);
 #endif
-  send_string(s);
-  send_string("\r\n");
+  jevois_send_string(s);
+  jevois_send_string("\r\n");
   jevois_stream(true);
 }
 

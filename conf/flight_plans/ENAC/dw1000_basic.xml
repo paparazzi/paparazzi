@@ -1,0 +1,97 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+
+<flight_plan alt="260" ground_alt="185" lat0="43.46223" lon0="1.27289" max_dist_from_home="1500" name="Basic" security_height="25">
+  <header>
+#include "subsystems/datalink/datalink.h"
+</header>
+  <waypoints>
+    <waypoint name="HOME" x="0" y="0"/>
+    <waypoint name="STDBY" x="49.5" y="100.1"/>
+    <waypoint name="1" x="10.1" y="189.9"/>
+    <waypoint name="2" x="132.3" y="139.1"/>
+    <waypoint name="MOB" x="137.0" y="-11.6"/>
+    <waypoint alt="215.0" name="AF" x="177.4" y="45.1"/>
+    <waypoint alt="185.0" name="TD" x="-22.6" y="45.1"/>
+    <waypoint name="_BASELEG" x="168.8" y="-13.8"/>
+    <waypoint name="CLIMB" x="-114.5" y="162.3"/>
+    <waypoint name="ANCHOR_1" x="-15" y="37.5"/>
+    <waypoint name="ANCHOR_2" x="-20" y="40."/>
+    <waypoint name="ANCHOR_3" x="-20" y="35."/>
+  </waypoints>
+  <modules>
+    <module name="shift_tracking"/>
+  </modules>
+  <exceptions/>
+  <blocks>
+    <block name="Wait GPS">
+      <call_once fun="dw1000_use_ekf = false"/>
+      <set value="1" var="autopilot.kill_throttle"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+      <call_once fun="NavSetGroundReferenceHere()"/>
+    </block>
+    <block name="Holding point">
+      <set value="1" var="autopilot.kill_throttle"/>
+      <attitude roll="0" throttle="0" vmode="throttle"/>
+    </block>
+    <block group="home" key="t" name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png" group="home">
+      <exception cond="GetPosAlt() > GetAltRef()+25" deroute="Standby"/>
+      <set value="0" var="autopilot.kill_throttle"/>
+      <set value="0" var="autopilot.flight_time"/>
+      <go from="HOME" pitch="15" throttle="1.0" vmode="throttle" wp="CLIMB"/>
+    </block>
+    <block group="home" key="Ctrl+a" name="Standby" strip_button="Standby" strip_icon="home.png" group="home">
+      <circle radius="nav_radius" wp="STDBY"/>
+    </block>
+    <block name="Oval 1-2" strip_button="Oval (wp 1-2)" strip_icon="oval.png" group="base_pattern">
+      <oval p1="1" p2="2" radius="nav_radius"/>
+    </block>
+    <block name="Start Shift Tracking">
+      <call_once fun="nav_compute_baseleg(WP_AF, WP_TD, WP__BASELEG, nav_radius)"/>
+      <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="_BASELEG"/>
+      <circle radius="nav_radius" until="And(NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10), 10 > fabs(GetPosAlt() - WaypointAlt(WP__BASELEG)))" wp="_BASELEG"/>
+    </block>
+    <block name="Run Shift Tracking" pre_call="shift_tracking_run(&nav_shift)">
+      <call_once fun="shift_tracking_reset()"/>
+      <call_once fun="dw1000_use_ekf = true"/>
+      <go approaching_time="0" from="AF" hmode="route" wp="TD" alt="WaypointAlt(WP_AF)"/>
+      <call_once fun="dw1000_use_ekf = false"/>
+      <deroute block="Start Shift Tracking"/>
+    </block>
+    <block group="land" name="Land Right AF-TD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png">
+      <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
+      <deroute block="land"/>
+    </block>
+    <block group="land" name="Land Left AF-TD" strip_button="Land left (wp AF-TD)" strip_icon="land-left.png">
+      <set value="-DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
+      <deroute block="land"/>
+    </block>
+    <block name="land">
+      <call_once fun="nav_compute_baseleg(WP_AF, WP_TD, WP__BASELEG, nav_radius)"/>
+      <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="_BASELEG"/>
+      <circle radius="nav_radius" until="And(NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10), 10 > fabs(GetPosAlt() - WaypointAlt(WP__BASELEG)))" wp="_BASELEG"/>
+    </block>
+    <block name="final">
+      <exception cond="GetAltRef() + 10 > GetPosAlt()" deroute="flare"/>
+      <go from="AF" hmode="route" vmode="glide" wp="TD"/>
+    </block>
+    <block name="flare">
+      <go approaching_time="0" from="AF" hmode="route" throttle="0.0" vmode="throttle" wp="TD"/>
+      <attitude roll="0.0" throttle="0.0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Set Anchor 1">
+      <call_once fun="NavSetWaypointHere(WP_ANCHOR_1)"/>
+      <deroute block="Holding point"/>
+    </block>
+    <block name="Set Anchor 2">
+      <call_once fun="NavSetWaypointHere(WP_ANCHOR_2)"/>
+      <deroute block="Holding point"/>
+    </block>
+    <block name="Set Anchor 3">
+      <call_once fun="NavSetWaypointHere(WP_ANCHOR_3)"/>
+      <deroute block="Holding point"/>
+    </block>
+  </blocks>
+</flight_plan>

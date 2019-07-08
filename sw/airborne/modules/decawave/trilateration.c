@@ -110,6 +110,7 @@ int trilateration_compute(struct Anchor *anchors, struct EnuCoor_f *pos)
   pos->x = P[0][0] + tmp[0] * Ex[0] + tmp[1] * Ey[0] + tmp[2] * Ez[0];
   pos->y = P[0][1] + tmp[0] * Ex[1] + tmp[1] * Ey[1] + tmp[2] * Ez[1];
   pos->z = P[0][2] + tmp[0] * Ex[2] + tmp[1] * Ey[2] + tmp[2] * Ez[2];
+  pos->z = fabsf(pos->z); // in case the base is not matching, keep positive z
   return 0;
 }
 
