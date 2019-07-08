@@ -17,6 +17,7 @@
     <define name="USE_$(E_ID_PORT_UPPER)"/>
     <define name="E_ID_DEV" value="$(E_ID_PORT_LOWER)"/>
     <define name="$(E_ID_PORT_UPPER)_BAUD" value="$(E_ID_BAUD)"/>
+    <define name="USE_$(E_ID_PORT_UPPER)_RX" value="FALSE"/>
     <file name="e_identification_fr.c"/>
   </makefile>
   

@@ -39,8 +39,8 @@
 #define LEN_ID_FR 30
 #define LEN_ID_SERIAL 24
 
-struct uart_periph *dev;
-char id_fr[LEN_ID_FR];
+static struct uart_periph *dev = &(E_ID_DEV);
+static char id_fr[LEN_ID_FR];
 
 static int put_ID(uint8_t* buf) {
   buf[0] = E_ID_ID_FR;
@@ -136,7 +136,6 @@ static int put_lat_lon_home(uint8_t* buf) {
 }
 
 void e_identification_fr_init() {
-  dev = &(E_ID_DEV);
   for(int i=0; i<LEN_ID_FR; i++) {
     id_fr[i] = '0';
   }
