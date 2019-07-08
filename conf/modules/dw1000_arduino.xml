@@ -8,6 +8,8 @@
       Decawave DW1000 modules (http://www.decawave.com/products/dwm1000-module) are Ultra-Wide-Band devices that can be used for communication and ranging.
       Especially, using 3 modules as anchors can provide data for a localization system based on trilateration.
       The DW1000 is using a SPI connection, but an arduino-compatible board can be used with the library https://github.com/thotro/arduino-dw1000 to hyde the low level drivers and provide direct ranging informations.
+
+      See https://hal-enac.archives-ouvertes.fr/hal-01936955 for more information on the EKF filtering.
     </description>
     <configure name="DW1000_ARDUINO_UART" value="UARTX" description="UART on which arduino and its DW1000 module is connected"/>
     <configure name="DW1000_ARDUINO_BAUD" value="B115200" description="UART Baudrate, default to 115200"/>

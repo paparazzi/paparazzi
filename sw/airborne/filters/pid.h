@@ -117,6 +117,27 @@ static inline void set_gains_pid_f(struct PID_f *pid, float Kp, float Kd, float 
   pid->g[2] = Ki;
 }
 
+/** Set integral part, can be used to reset.
+ *  The new sum of errors is calculated from current gains and bounds.
+ *
+ * @param pid pointer to PID structure
+ * @param value integral part of the PID control, 0. will reset it
+ */
+static inline void set_integral_pid_f(struct PID_f *pid, float value)
+{
+  float integral = value;
+  if (integral < -pid->max_sum) {
+    integral = -pid->max_sum;
+  } else if (integral > pid->max_sum) {
+    integral = pid->max_sum;
+  }
+  if (fabsf(pid->g[2]) < 1e-6) {
+    pid->sum = 0.f; // integral gain is too low, prevent division by zero, just reset sum
+  } else {
+    pid->sum = integral / pid->g[2];
+  }
+}
+
 
 
 /** Distcrete time PID structure.

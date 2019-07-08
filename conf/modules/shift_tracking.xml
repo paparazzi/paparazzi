@@ -10,6 +10,8 @@
       with precision or in a net.
 
       Data are coming from POSITION_ESTIMATE ABI message.
+
+      See https://hal-enac.archives-ouvertes.fr/hal-01936955 for more information on UAV landing in a net.
     </description>
     <section name="SHIFT_TRACKING" prefix="SHIFT_TRACKING_">
       <define name="ID" value="ABI_BROADCAST" description="ABI binding ID"/>
