@@ -3,8 +3,8 @@
 BLDC_Test_Bench -n -M 1
 if [ $(bcmwl ap) -eq 1 ]
 then
-	if [ -r /data/ftp/internal_000/scripts/connect2hub ]; then
-		/data/ftp/internal_000/scripts/connect2hub
+	if [ -r /data/ftp/internal_000/scripts/pprzstarter ]; then
+		/data/ftp/internal_000/scripts/pprzstarter
 	else
 		echo "Button activating..." | ulogger -t "ShortPressDebug" -p I
 		/bin/usbnetwork.sh                                         

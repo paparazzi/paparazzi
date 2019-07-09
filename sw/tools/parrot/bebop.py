@@ -23,18 +23,113 @@
 
 from __future__ import print_function
 from parrot_utils import ParrotUtils
+import re
+import argparse
+from time import sleep
 
 class Bebop(ParrotUtils):
     uav_name = 'Bebop'
     address = '192.168.42.1'
     version_file = '/version.txt'
     upload_path = '/data/ftp/'
+    scripts_path = 'internal_000/scripts/'
+    config_file = upload_path + scripts_path + 'pprz.conf'
     check_version_before_run = True
     update_time_before_run = True
 
+    # Read from config file
+    def read_from_config(self, name):
+        self.config_content = self.execute_command('cat ' + self.config_file)
+
+        # Search for the name
+        search = re.search(name + '=([^\r\n\t ]+)',self.config_content)
+        if search is None:
+            return 'Unknown'
+        else:
+            return search.group(1)
+
+    # Write to config
+    def write_to_config(self, name, value):
+        if self.read_from_config(name) == 'Unknown':
+            self.execute_command('echo "' + name + '=' + value + '\" >> ' + self.config_file)
+        else:
+            self.execute_command('sed -i "s/\(' + name + ' *= *\).*/\\1' + value + '/g" ' + self.config_file)
+
     def uav_status(self):
         print('Parrot version:\t\t' + str(self.check_version()))
+        join = {'Unknown': 'No', '0': 'No', '1': 'Yes'}
+        print('Join Wifi:\t\t' + self.read_from_config('JOIN_WIFI'))
+        print('Network id:\t\t' + self.read_from_config('WIFI_SSID'))
+        mode = {'0': 'Master', '1': 'Managed'}
+        print('Wifi Amode:\t\t' + self.read_from_config('WIFI_AMODE'))
+        print('Currently running:\t' + self.check_running())
+        autorun = {'Unknown': 'Native (autorun not installed)', '0': 'Native', '1': 'Paparazzi'}
+        print('Autorun at start:\t'+autorun[self.read_from_config('START_PPRZ')])
 
+    def bebop_install_scripts(self):
+        print('Installing Paparazzi scripts')
+        self.upload_file('bebop/pprz.conf', self.scripts_path, kill_prog=False)
+        self.upload_file('bebop/config_network.script', self.scripts_path, kill_prog=False)
+        self.upload_file('bebop/button_switch', self.scripts_path, kill_prog=False)
+        self.upload_file('bebop/pprzstarter', self.scripts_path, kill_prog=False)
+        self.execute_command("mount -o remount,rw /")
+        self.execute_command("sed -i 's|^exit 0|/data/ftp/internal_000/scripts/pprzstarter \& exit 0|' /etc/init.d/rcS")
+        self.execute_command("chmod a+x /etc/init.d/rcS")
+        self.execute_command("chmod a+x /data/ftp/internal_000/scripts/pprzstarter")
+        self.execute_command("chmod a+x /data/ftp/internal_000/scripts/button_switch")
+        self.execute_command("chmod a+x /data/ftp/internal_000/scripts/config_network.script")
+        self.execute_command("dos2unix /data/ftp/internal_000/scripts/pprzstarter")
+        self.execute_command("dos2unix /data/ftp/internal_000/scripts/button_switch")
+        self.execute_command("dos2unix /data/ftp/internal_000/scripts/pprz.conf")
+        self.execute_command("cp /bin/onoffbutton/shortpress_3.sh /bin/onoffbutton/shortpress_3.sh.backup")
+        self.execute_command("echo '#!/bin/sh' > /bin/onoffbutton/shortpress_3.sh")
+        self.execute_command("echo '' >> /bin/onoffbutton/shortpress_3.sh")
+        self.execute_command("echo '/data/ftp/internal_000/scripts/button_switch' >> /bin/onoffbutton/shortpress_3.sh")
+
+    def bebop_uninstall_scripts(self):
+        print('Uninstalling Paparazzi scripts')
+        self.execute_command("mount -o remount,rw /")
+        self.execute_command("sed -i 's|^/data/ftp/internal_000/scripts/pprzstarter \& exit 0|exit 0|' /etc/init.d/rcS")
+        self.execute_command("chmod a+x /etc/init.d/rcS")
+        self.execute_command("mv /bin/onoffbutton/shortpress_3.sh.backup /bin/onoffbutton/shortpress_3.sh")
+        self.execute_command("rm -rf /data/ftp/internal_000/scripts/*")
+
+    def check_autoboot(self):
+        pprzstarter = self.execute_command('grep "pprzstarter" /etc/init.d/rcS')
+        if "pprzstarter" in pprzstarter:
+            return True
+        else:
+            return False
+
+    def bebop_set_ssid(self, name):
+        '''
+        Set network SSID (of the router to join, not the Bebop SSID in master mode)
+        '''
+        self.write_to_config('WIFI_SSID', name)
+        print('The network ID (SSID) to be joined is changed to ' + name)
+
+    def bebop_set_wifi_mode(self, mode):
+        '''
+        Set Wifi mode, master or managed
+        '''
+        mode_id = { 'master': '0', 'managed': '1' }
+        self.write_to_config('JOIN_WIFI', mode_id[mode])
+        print('The Wifi mode is now ' + mode)
+
+    def bebop_shutdown(self):
+        '''
+        Proper bebop shutdown
+        '''
+        print("Shuting down Bebop (restart by hand if needed)")
+        self.execute_command('/bin/ardrone3_shutdown.sh', timeout=1)
+
+    def reboot(self):
+        '''
+        Custom reboot, in fact a proper shutdown as simple reboot seems too brutal
+        Restart has to be done by hand
+        '''
+        self.bebop_shutdown()
+    
     def init_extra_parser(self):
 
         # Parse the extra arguments
@@ -43,10 +138,94 @@ class Bebop(ParrotUtils):
         self.parser.add_argument('--max_version', metavar='MAX', default='4.4.2',
                 help='force maximum version allowed')
 
-    def parse_extra_args(self, args):
-        # nothing here
-        pass
+        ss = self.subparsers.add_parser('networkid', help='Set the network ID (SSID) to join in managed mode')
+        ss.add_argument('name', help='The new network ID (SSID)')
 
+        ss = self.subparsers.add_parser('wifimode', help='Set the Wifi mode the Bebop 1 or 2')
+        ss.add_argument('mode', help='The new Wifi mode', choices=['master', 'managed'])
+
+        ss = self.subparsers.add_parser('configure_network', help='Configure the network on the Bebop 1 or 2')
+        ss.add_argument('name', help='The network ID (SSID) to join in managed mode')
+        ss.add_argument('mode', help='The new Wifi mode', choices=['master', 'managed'])
+
+        ss = self.subparsers.add_parser('install_autostart', help='Install custom autostart script and set what to start on boot for the Bebop 1 or 2')
+        ss.add_argument('type', choices=['native', 'paparazzi'],
+                help='what to start on boot')
+
+        ss = self.subparsers.add_parser('autostart', help='Set what to start on boot for the Bebop 1 or 2')
+        ss.add_argument('type', choices=['native', 'paparazzi'],
+                help='what to start on boot')
+
+        ss = self.subparsers.add_parser('uninstall_autostart', help='Remove custom autostart scripts')
+
+    def parse_extra_args(self, args):
+
+        # Change the network ID
+        if args.command == 'networkid':
+            self.bebop_set_ssid(args.name)
+            if raw_input("Shall I restart the Bebop? (y/N) ").lower() == 'y':
+                self.reboot()
+
+        # Change the wifi mode
+        elif args.command == 'wifimode':
+            self.bebop_set_wifi_mode(args.mode)
+            if raw_input("Shall I restart the Bebop? (y/N) ").lower() == 'y':
+                self.reboot()
+
+        # Install and configure network
+        elif args.command == 'configure_network':
+            print('=== Current network setup ===')
+            self.uav_status()
+            print('=============================')
+            if self.check_autoboot():
+                print('Custom autostart (and network) script already installed')
+                if raw_input("Shall I reinstall the autostart (and network) script (y/N) ").lower() == 'y':
+                    self.bebop_install_scripts()
+            else:
+                print('Custom autostart (and network) script is required but is not installed')
+                if raw_input("Shall I reinstall the autostart (and network) script (y/N) ").lower() == 'y':
+                    self.bebop_install_scripts()
+                else:
+                    print('Scripts not installed, Leaving.')
+                    return
+            sleep(0.5)
+            self.bebop_set_ssid(args.name)
+            self.bebop_set_wifi_mode(args.mode)
+            sleep(0.5)
+            print('== New network setup after boot ==')
+            self.uav_status()
+            print('==================================')
+
+            if raw_input("Shall I restart the Bebop? (y/N) ").lower() == 'y':
+                self.reboot()
+
+        # Install and configure autostart
+        elif args.command == 'install_autostart':
+            if self.check_autoboot():
+                print('Custom autostart script already installed')
+                if raw_input("Shall I reinstall the autostart script (y/N) ").lower() == 'y':
+                    self.bebop_install_scripts()
+            else:
+                self.bebop_install_scripts()
+            autorun = {'native': '0', 'paparazzi': '1'}
+            self.write_to_config('START_PPRZ', autorun[args.type])
+            print('The autostart on boot is changed to ' + args.type)
+
+            if raw_input("Shall I restart the ARDrone 2? (y/N) ").lower() == 'y':
+                self.reboot()
+
+        # Change the autostart
+        elif args.command == 'autostart':
+            autorun = {'native': '0', 'paparazzi': '1'}
+            self.write_to_config('START_PPRZ', autorun[args.type])
+            print('The autostart on boot is changed to ' + args.type)
+
+        # Uninstall autostart
+        elif args.command == 'uninstall_autostart':
+            if self.check_autoboot():
+                self.bebop_uninstall_scripts()
+            else:
+                print("Autostart script not found")
 
 if __name__ == "__main__":
     bebop = Bebop()

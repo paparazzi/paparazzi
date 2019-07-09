@@ -122,9 +122,9 @@ class ParrotUtils:
         self.ftp.close()
 
     # Execute a command
-    def execute_command(self, command):
+    def execute_command(self, command, timeout=5):
         self.tn.write(bytes(command + '\n', 'utf-8'))
-        s = self.tn.read_until(bytes(self.prompt, 'utf-8'))
+        s = self.tn.read_until(bytes(self.prompt, 'utf-8'), timeout)
         if s.endswith(b'[JS] $ '):
             s = s[len(command) + 2:-8]
         elif s.endswith(b'[RS.edu] $ '):
@@ -229,7 +229,7 @@ class ParrotUtils:
 
     # Reboot the drone
     def reboot(self):
-        self.execute_command('reboot')
+        self.execute_command('reboot', timeout=1)
         print('The ' + self.uav_name + ' is now rebooting')
 
     # Kill a running program
@@ -254,12 +254,13 @@ class ParrotUtils:
         print('Removed directory "' + name + '"')
 
     # Upload a new file
-    def upload_file(self, name, folder=""):
+    def upload_file(self, name, folder="", kill_prog=True):
         f = self.split_into_path_and_file(name)
 
-        # First kill the running program
-        self.kill_program(f[1])
-        sleep(1)
+        if kill_prog:
+            # First kill the running program
+            self.kill_program(f[1])
+            sleep(1)
 
         # Make the upload directory and upload the file
         self.create_directory(self.upload_path + folder)
