@@ -21,9 +21,9 @@
       <define name="COLOR_OBJECT_DETECTOR_LUM_MIN2" value="60"/>
       <define name="COLOR_OBJECT_DETECTOR_LUM_MAX2" value="130"/>
       <define name="COLOR_OBJECT_DETECTOR_CB_MIN2" value="75"/>
-      <define name="COLOR_OBJECT_DETECTOR_CB_MAX2" value="125"/>
+      <define name="COLOR_OBJECT_DETECTOR_CB_MAX2" value="110"/>
       <define name="COLOR_OBJECT_DETECTOR_CR_MIN2" value="120"/>
-      <define name="COLOR_OBJECT_DETECTOR_CR_MAX2" value="150"/>
+      <define name="COLOR_OBJECT_DETECTOR_CR_MAX2" value="140"/>
     </target>
     <target name="nps" board="pc">
       <module name="fdm" type="gazebo"/>
