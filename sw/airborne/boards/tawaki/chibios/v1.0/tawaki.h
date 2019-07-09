@@ -152,6 +152,9 @@
 /*
  * PWM defines
  */
+
+// SRVa connectors, activated in PWM mode by default
+
 #ifndef USE_PWM1
 #define USE_PWM1 1
 #endif
@@ -212,8 +215,10 @@
 #define PWM_SERVO_4_ACTIVE PWM_OUTPUT_DISABLED
 #endif
 
+// SRVb connector, PWM mode disabled by default (DShot is enabled by default)
+
 #ifndef USE_PWM5
-#define USE_PWM5 1
+#define USE_PWM5 0
 #endif
 #if USE_PWM5
 #define PWM_SERVO_5 5
@@ -228,7 +233,7 @@
 #endif
 
 #ifndef USE_PWM6
-#define USE_PWM6 1
+#define USE_PWM6 0
 #endif
 #if USE_PWM6
 #define PWM_SERVO_6 6
@@ -242,8 +247,8 @@
 #define PWM_SERVO_6_ACTIVE PWM_OUTPUT_DISABLED
 #endif
 
-#ifndef USE_PWM6
-#define USE_PWM6 1
+#ifndef USE_PWM7
+#define USE_PWM7 0
 #endif
 #if USE_PWM7
 #define PWM_SERVO_7 7
@@ -258,7 +263,7 @@
 #endif
 
 #ifndef USE_PWM8
-#define USE_PWM8 1
+#define USE_PWM8 0
 #endif
 #if USE_PWM8
 #define PWM_SERVO_8 8
@@ -323,6 +328,12 @@
 #define DSHOT_TELEMETRY_DEV NULL
 #endif
 
+#ifndef USE_DSHOT_TIM4
+#define USE_DSHOT_TIM4 1 // use SRVb for DShot by default
+#endif
+
+#if USE_DSHOT_TIM4 // Servo B1, B2, B3, B4 on TIM4
+
 // Servo B1, B2, B3, B4 on TM4 are primary DSHOT connector
 #define DSHOT_SERVO_1 1
 #define DSHOT_SERVO_1_GPIO GPIOB
@@ -360,6 +371,7 @@
   .tlm_sd = DSHOT_TELEMETRY_DEV             \
 }
 
+#endif
 
 #if USE_DSHOT_TIM1 // Servo A1, A2, A3, A4 on TIM1 only activated if needed
 
