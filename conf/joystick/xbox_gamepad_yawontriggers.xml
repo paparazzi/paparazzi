@@ -86,9 +86,9 @@ so e.g. HatDown(dpad)
       <field name="block_id" value="IndexOfBlock('Takeoff')"/>
     </message>
 
-    <!-- go to "Land here" block if in AUTO2 and pressing down on dpad -->
+    <!-- go to "land here" block if in AUTO2 and pressing down on dpad -->
     <message class="ground" name="JUMP_TO_BLOCK" on_event="(mode > 1) && HatDown(dpad)">
-      <field name="block_id" value="IndexOfBlock('Land here')"/>
+      <field name="block_id" value="IndexOfBlock('land here')"/>
     </message>
  
     <!-- go to "Standby" block if in AUTO2 and pressing down on dpad -->

@@ -51,23 +51,23 @@ inline void setGuided(void){
     <!-- RC lost -->
     <!--exception cond="((radio_control.status == RC_REALLY_LOST) &&
       !(IndexOfBlock('Holding point') > nav_block) &&
-      !(nav_block >= IndexOfBlock('Land here')) &&
+      !(nav_block >= IndexOfBlock('land here')) &&
       (autopilot_in_flight() == true) )" deroute="Standby"/-->
     <!-- Datalink lost (constant RPM descent) -->
     <exception cond="((datalink_time > 5) &&
       !(IndexOfBlock('Holding point') > nav_block) &&
-      !(nav_block >= IndexOfBlock('Land here')) &&
-      (autopilot_in_flight() == true) )" deroute="Land here"/>
+      !(nav_block >= IndexOfBlock('land here')) &&
+      (autopilot_in_flight() == true) )" deroute="land here"/>
     <!-- Geofencing XY -->
     <exception cond="(!InsideCyberZoo(GetPosX(), GetPosY()) &&
       !(IndexOfBlock('Holding point') > nav_block) &&
-      !(nav_block >= IndexOfBlock('Land here')) &&
-      (autopilot_in_flight() == true) )" deroute="Land here"/>
+      !(nav_block >= IndexOfBlock('land here')) &&
+      (autopilot_in_flight() == true) )" deroute="land here"/>
     <!-- Geofencing Z 2.5 -->
     <exception cond="((GetPosAlt() > 3.5) &&
       !(IndexOfBlock('Holding point') > nav_block) &&
-      !(nav_block >= IndexOfBlock('Land here')) &&
-      (autopilot_in_flight() == true) )" deroute="Land here"/>
+      !(nav_block >= IndexOfBlock('land here')) &&
+      (autopilot_in_flight() == true) )" deroute="land here"/>
     <!-- Geofencing Z 4.5 (constant RPM descent)-->
     <exception cond="((GetPosAlt() > 4.5) &&
       !(IndexOfBlock('Holding point') > nav_block) &&
@@ -75,13 +75,13 @@ inline void setGuided(void){
     <!-- Bat low -->
     <exception cond="(electrical.bat_low &&
       !(IndexOfBlock('Holding point') > nav_block) &&
-      !(nav_block >= IndexOfBlock('Land here')) &&
-      (autopilot_in_flight() == true) )" deroute="Land here"/>
+      !(nav_block >= IndexOfBlock('land here')) &&
+      (autopilot_in_flight() == true) )" deroute="land here"/>
     <!-- Bat critical (constant RPM no stabilization)-->
     <exception cond="(electrical.bat_critical &&
       !(IndexOfBlock('Holding point') > nav_block) &&
-      !(nav_block >= IndexOfBlock('Land here')) &&
-      (autopilot_in_flight() == true) )" deroute="Land here"/>
+      !(nav_block >= IndexOfBlock('land here')) &&
+      (autopilot_in_flight() == true) )" deroute="land here"/>
   </exceptions>
   <blocks>
     <block name="Wait GPS">
@@ -119,7 +119,7 @@ inline void setGuided(void){
       <call_once fun="setNav()"/>
       <stay wp="STDBY"/>
     </block>
-    <block key="l" name="Land here" strip_button="Land Here" strip_icon="land-right.png">
+    <block key="l" name="land here" strip_button="Land Here" strip_icon="land-right.png">
       <call_once fun="setNav()"/>
       <call_once fun="NavSetWaypointHere(WP_TD)"/>
       <go wp="TD"/>
