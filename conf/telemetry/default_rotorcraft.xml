@@ -13,7 +13,7 @@
       <message name="ALIVE"                    period="2.1"/>
       <message name="INS_REF"                  period="5.1"/>
       <message name="ROTORCRAFT_NAV_STATUS"    period="1.6"/>
-      <message name="WP_MOVED"                 period="0.05"/>
+      <message name="WP_MOVED"                 period="1.3"/>
       <message name="ROTORCRAFT_CAM"           period="1."/>
       <message name="GPS_INT"                  period=".25"/>
       <message name="INS"                      period=".25"/>
