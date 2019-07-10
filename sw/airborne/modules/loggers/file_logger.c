@@ -95,7 +95,7 @@ void file_logger_start(void)
     char save_dir_cmd[256];
     sprintf(save_dir_cmd, "mkdir -p %s", STRINGIFY(FILE_LOGGER_PATH));
     if (system(save_dir_cmd) != 0) {
-      printf("[video_capture] Could not create images directory %s.\n", STRINGIFY(FILE_LOGGER_PATH));
+      printf("[file_logger] Could not create log file directory %s.\n", STRINGIFY(FILE_LOGGER_PATH));
       return;
     }
   }
