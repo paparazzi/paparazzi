@@ -194,16 +194,12 @@
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
     <define name="USE_SPEED_REF" value="TRUE"/>
-    <define name="REF_MAX_SPEED" value="0.5" unit="m/s"/>
-
-    <!-- Good weather -->
     <define name="MAX_BANK" value="20" unit="deg"/>
-    <!-- Bad weather -->
-    <!-- define name="MAX_BANK" value="32" unit="deg"/ -->
-
-    <define name="PGAIN" value="0"/>
-    <define name="DGAIN" value="80"/>
-    <define name="IGAIN" value="20"/>
+    <define name="REF_MAX_SPEED" value="1.0" unit="m/s"/>
+    <define name="PGAIN" value="120"/>
+    <define name="DGAIN" value="100"/>
+    <define name="IGAIN" value="30"/>
+    <define name="REF_ZETA" value="1.0"/>
   </section>
 
   <section name="NAVIGATION" prefix="NAV_">

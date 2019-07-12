@@ -32,7 +32,7 @@
 #include "subsystems/radio_control.h"
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/navigation.h"
-
+#include <stdio.h>
 #include "state.h"
 
 #include "math/pprz_algebra_int.h"
