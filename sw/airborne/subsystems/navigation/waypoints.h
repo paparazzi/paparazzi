@@ -108,11 +108,11 @@ extern void waypoint_position_copy(uint8_t wp_dest, uint8_t wp_src);
 
 /*
  * Move waypoints.
- * Basically sets the coordinats and sends the WP_MOVED telemetry message as ack.
- * @todo keep this here?
+ * Basically sets the coordinates and sends the WP_MOVED telemetry message as ack.
  */
-
+extern void waypoint_move_here_2d(uint8_t wp_id);
 extern void waypoint_move_enu_i(uint8_t wp_id, struct EnuCoor_i *new_pos);
+extern void waypoint_move_xy_i(uint8_t wp_id, int32_t x, int32_t y);
 extern void waypoint_move_lla(uint8_t wp_id, struct LlaCoor_i *lla);
 
 

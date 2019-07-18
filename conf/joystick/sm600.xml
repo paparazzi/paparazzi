@@ -1,0 +1,47 @@
+<!--
+SM600 6CH RC Transmitter shaped USB HID joystick Mode 2
+
+If you want to use this file for the same product but mode 1 the axis index
+numbers have to be re-arranged, the rest will be exactly the same.
+
+This RC TX joystick has four axes,1 button, one dial, which are labeled on the RC TX joystick
+
+NOTE: The in TX Simtype (Reflex,G3,APD,Phoenix) needs to be set to ** G3-G4.5 **
+
+* The dial gives output on an **axis** type not button type
+* The switch is as a button, only has 2 positions, not three :(
+  We will use it as mode switch none the less
+  switching between, MANUAL (or ATT for stabilized AC) and NAV
+
+So it is a real 6CH USB joystick that just looks like a RC transmitter
+
+If you want to fly your UAS via the joystick add this to your session:
+
+ /home/username/paparazzi/sw/ground_segment/joystick/input2ivy  -d 0 -ac yourarfamename sm600.xml
+
+Where -d 0 must be -d 1 if you have a laptop with accelometer installed
+
+The basis of steering is the standard signs of aerospace convention
+-->
+
+<joystick>
+  <input>
+    <axis index="4" name="LeftStickHorizontal"/>
+    <axis index="2" name="LeftStickVertical"/>
+    <axis index="0" name="RightStickHorizontal"/>
+    <axis index="1" name="RightStickVertical"/>
+    <axis index="3" name="VRB"/>
+    <button index="0" name="VRA"/>
+  </input>
+
+  <messages period="0.05">
+    <message class="datalink" name="RC_4CH" send_always="true">
+      <field name="throttle" value="Fit(LeftStickVertical,-90,127,0,127)"/>
+      <field name="roll" value="RightStickHorizontal"/>
+      <field name="pitch" value="-RightStickVertical"/>
+      <field name="yaw" value="LeftStickHorizontal"/>
+      <field name="mode" value="2-2*VRA"/>
+    </message>
+  </messages>
+
+</joystick>

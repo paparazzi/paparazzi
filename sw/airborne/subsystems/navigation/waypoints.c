@@ -147,6 +147,15 @@ void waypoint_set_xy_i(uint8_t wp_id, int32_t x, int32_t y)
   }
 }
 
+void waypoint_move_xy_i(uint8_t wp_id, int32_t x, int32_t y)
+{
+  if (wp_id < nb_waypoint) {
+    waypoint_set_xy_i(wp_id, x, y);
+    DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp_id, &x, &y,
+        &(waypoints[wp_id].enu_i.z));
+  }
+}
+
 void waypoint_set_alt_i(uint8_t wp_id, int32_t alt)
 {
   if (wp_id < nb_waypoint) {
@@ -231,6 +240,25 @@ void waypoint_set_here_2d(uint8_t wp_id)
     waypoint_set_latlon(wp_id, stateGetPositionLla_i());
   } else {
     waypoint_set_xy_i(wp_id, stateGetPositionEnu_i()->x, stateGetPositionEnu_i()->y);
+  }
+}
+
+void waypoint_move_here_2d(uint8_t wp_id)
+{
+  if (wp_id >= nb_waypoint) {
+    return;
+  }
+  if (waypoint_is_global(wp_id)) {
+    /* lla->alt is above ellipsoid, WP_MOVED_LLA has hmsl alt */
+    struct LlaCoor_i *lla = &(waypoints[wp_id].lla);
+    int32_t hmsl = lla->alt - state.ned_origin_i.lla.alt + state.ned_origin_i.hmsl;
+    DOWNLINK_SEND_WP_MOVED_LLA(DefaultChannel, DefaultDevice, &wp_id,
+                               &lla->lat, &lla->lon, &hmsl);
+  } else {
+    DOWNLINK_SEND_WP_MOVED_ENU(DefaultChannel, DefaultDevice, &wp_id,
+                                   &waypoints[wp_id].enu_i.x,
+                                   &waypoints[wp_id].enu_i.y,
+                                   &waypoints[wp_id].enu_i.z);
   }
 }
 

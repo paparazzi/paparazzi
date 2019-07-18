@@ -23,7 +23,7 @@
     <program name="Simulator" command="sw/simulator/pprzsim-launch"/>
     <program name="Joystick" command="sw/ground_segment/joystick/input2ivy">
       <arg flag="-ac" constant="@AIRCRAFT"/>
-      <arg flag="hobbyking.xml"/>
+      <arg flag="sm600.xml"/>
     </program>
     <program name="Environment Simulator" command="sw/simulator/gaia"/>
     <program name="NatNet" command="sw/ground_segment/misc/natnet2ivy"/>
@@ -37,6 +37,7 @@
       </program>
       <program name="Data Link">
         <arg flag="-udp"/>
+        <arg flag="-ping_period" constant="100"/>
       </program>
       <program name="Server">
         <arg flag="-n"/>
@@ -59,6 +60,7 @@
       </program>
       <program name="Data Link">
         <arg flag="-udp"/>
+        <arg flag="-ping_period" constant="100"/>
       </program>
       <program name="Server">
         <arg flag="-n"/>
@@ -74,7 +76,7 @@
       </program>
       <program name="Joystick" command="sw/ground_segment/joystick/input2ivy">
         <arg flag="-ac" constant="@AIRCRAFT"/>
-        <arg flag="hobbyking.xml"/>
+        <arg flag="sm600.xml"/>
         <arg flag="-d 0"/>
       </program>
       <program name="Gazebo"/>
@@ -89,7 +91,7 @@
       </program>
       <program name="Joystick" command="sw/ground_segment/joystick/input2ivy">
         <arg flag="-ac" constant="@AIRCRAFT"/>
-        <arg flag="hobbyking.xml"/>
+        <arg flag="sm600.xml"/>
         <arg flag="-d 0"/>
       </program>
       <program name="NatNet" command="sw/ground_segment/misc/natnet2ivy">
