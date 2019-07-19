@@ -36,6 +36,7 @@ struct Anchor {
   float time;           ///< time of the last received data
   struct EnuCoor_f pos; ///< position of the anchor
   uint16_t id;          ///< anchor ID
+  bool updated;         ///< new data available
 };
 
 /** Init internal trilateration structures

@@ -3,25 +3,31 @@
 <module name="orange_avoider">
   <doc>
     <description>
-	Avoid all objects that are orange!
-	This example module shows how you can use the camera stream and colorfilter to detect orange objects.
-	By adding this module to your flightplan and flying in the cyberzoo with the flightplan tudelft/course2017_avoid_orange_cyberzoo.xml you will avoid every obstacle that is orange.
+This module is an example module for the course AE4317 Autonomous Flight of Micro Air Vehicles at the TU Delft.
+This module is used in combination with a color filter (cv_detect_color_object) and the navigation mode of the autopilot.
+The avoidance strategy is to simply count the total number of orange pixels. When above a certain percentage threshold,
+(given by color_count_frac) we assume that there is an obstacle and we turn.
+
+The color filter settings are set using the cv_detect_color_object. This module can run multiple filters simultaneously
+so you have to define which filter to use with the ORANGE_AVOIDER_VISUAL_DETECTION_ID setting.
     </description>
-    <define name="ORANGE_AVOIDER_LUM_MIN" value="0-255" description="Minimum Luminance To select pixel as object"/>
-    <define name="ORANGE_AVOIDER_LUM_MAX" value="0-255" description="Minimum Luminance To select pixel as object"/>
-    <define name="ORANGE_AVOIDER_CR_MIN" value="0-255" description="Minimum CR To select pixel as object"/>
-    <define name="ORANGE_AVOIDER_CR_MAX" value="0-255" description="Minimum CR To select pixel as object"/>
-    <define name="ORANGE_AVOIDER_CB_MIN" value="0-255" description="Minimum CB To select pixel as object"/>
-    <define name="ORANGE_AVOIDER_CB_MAX" value="0-255" description="Minimum CB To select pixel as object"/>
+    <define name="ORANGE_AVOIDER_VISUAL_DETECTION_ID" value="ABI_BROADCAST" description="which VISUAL_DETECTION message to recieve for orange pole detection."/>
   </doc>
-  <depends>cv_colorfilter.xml</depends>
+    <settings>
+    <dl_settings>
+      <dl_settings name="OrangeAvoider">
+         <dl_setting var="oa_color_count_frac" min="0" step="0.01" max="0.5"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  
+  <depends>cv_detect_color_object</depends>
   <header>
     <file name="orange_avoider.h"/>
   </header>
   <init fun="orange_avoider_init()"/>
   <periodic fun="orange_avoider_periodic()" freq="4"/>
-  <makefile >
+  <makefile target="ap|nps">
     <file name="orange_avoider.c"/>
   </makefile>
 </module>
-

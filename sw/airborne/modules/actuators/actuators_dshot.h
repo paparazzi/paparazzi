@@ -39,10 +39,11 @@
 #endif
 
 /** Maxnum number of DSHOT commands
- *  This should be large enough for max applications
+ *  This should be large enough for max applications:
+ *  8 motors +1 in case motor count starts at 1 and not 0
  */
 #ifndef ACTUATORS_DSHOT_NB
-#define ACTUATORS_DSHOT_NB 8
+#define ACTUATORS_DSHOT_NB (8+1)
 #endif
 
 extern uint16_t actuators_dshot_values[ACTUATORS_DSHOT_NB];

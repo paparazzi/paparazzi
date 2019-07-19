@@ -736,8 +736,8 @@ void image_show_flow_color(struct image_t *img, struct flow_t *vectors, uint16_t
       .y = vectors[i].pos.y / subpixel_factor
     };
     struct point_t to = {
-      .x = (vectors[i].pos.x + vectors[i].flow_x) / subpixel_factor,
-      .y = (vectors[i].pos.y + vectors[i].flow_y) / subpixel_factor
+      .x = (uint32_t)roundf(((float)vectors[i].pos.x + vectors[i].flow_x) / subpixel_factor),
+      .y = (uint32_t)roundf(((float)vectors[i].pos.y + vectors[i].flow_y) / subpixel_factor)
     };
 
     if (vectors[i].error >= LARGE_FLOW_ERROR) {

@@ -46,7 +46,7 @@
 #define I2C_THREAD_STACK_SIZE 512
 #endif
 
-#if USE_I2C1 || USE_I2C2 || USE_I2C3
+#if USE_I2C1 || USE_I2C2 || USE_I2C3 || USE_I2C4
 
 // private I2C init structure
 struct i2c_init {
@@ -177,7 +177,7 @@ static void handle_i2c_thd(struct i2c_periph *p)
       break;
   }
 }
-#endif /* USE_I2C1 || USE_I2C2 || USE_I2C3 */
+#endif /* USE_I2C1 || USE_I2C2 || USE_I2C3 || USE_I2C4 */
 
 #if USE_I2C1
 // I2C1 config
@@ -342,6 +342,61 @@ static void thd_i2c3(void *arg)
 }
 #endif /* USE_I2C3 */
 
+#if USE_I2C4
+// I2C4 config
+PRINT_CONFIG_VAR(I2C4_CLOCK_SPEED)
+static SEMAPHORE_DECL(i2c4_sem, 0);
+static I2CConfig i2cfg4 = I2C4_CFG_DEF;
+#if defined STM32F7
+// We need a special buffer for DMA operations
+static IN_DMA_SECTION(uint8_t i2c4_dma_buf[I2C_BUF_LEN]);
+static struct i2c_init i2c4_init_s = {
+  .sem = &i2c4_sem,
+  .cfg = &i2cfg4,
+  .dma_buf = i2c4_dma_buf
+};
+#else
+static struct i2c_init i2c4_init_s = {
+  .sem = &i2c4_sem,
+  .cfg = &i2cfg4
+};
+#endif
+// Errors
+struct i2c_errors i2c4_errors;
+// Thread
+static __attribute__((noreturn)) void thd_i2c4(void *arg);
+static THD_WORKING_AREA(wa_thd_i2c4, 128);
+
+/*
+ * I2C4 init
+ */
+void i2c4_hw_init(void)
+{
+  i2cStart(&I2CD4, &i2cfg4);
+  i2c4.reg_addr = &I2CD4;
+  i2c4.init_struct = NULL;
+  i2c4.errors = &i2c4_errors;
+  i2c4.init_struct = &i2c4_init_s;
+  // Create thread
+  chThdCreateStatic(wa_thd_i2c4, sizeof(wa_thd_i2c4),
+                    NORMALPRIO + 1, thd_i2c4, NULL);
+}
+
+/*
+ * I2C4 thread
+ *
+ */
+static void thd_i2c4(void *arg)
+{
+  (void) arg;
+  chRegSetThreadName("i2c4");
+
+  while (TRUE) {
+    handle_i2c_thd(&i2c4);
+  }
+}
+#endif /* USE_I2C4 */
+
 
 /**
  * i2c_event() function
@@ -377,7 +432,7 @@ void i2c_setbitrate(struct i2c_periph *p __attribute__((unused)), int bitrate __
  */
 bool i2c_submit(struct i2c_periph *p, struct i2c_transaction *t)
 {
-#if USE_I2C1 || USE_I2C2 || USE_I2C3
+#if USE_I2C1 || USE_I2C2 || USE_I2C3 || USE_I2C4
   // sys lock
   chSysLock();
   uint8_t temp;
@@ -406,7 +461,7 @@ bool i2c_submit(struct i2c_periph *p, struct i2c_transaction *t)
   (void)p;
   (void)t;
   return FALSE;
-#endif /* USE_I2C1 || USE_I2C2 || USE_I2C3 */
+#endif /* USE_I2C1 || USE_I2C2 || USE_I2C3 || USE_I2C4 */
 }
 
 /**

@@ -29,6 +29,9 @@
 #include "subsystems/abi.h"
 #include "mcu_periph/sys_time.h"
 #include "message_pragmas.h"
+#if USE_AHRS_ALIGNER
+#include "subsystems/ahrs/ahrs_aligner.h"
+#endif
 
 #ifndef INS_FINV_FILTER_ID
 #define INS_FINV_FILTER_ID 2
@@ -89,10 +92,14 @@ PRINT_CONFIG_VAR(INS_FINV_BARO_ID)
 PRINT_CONFIG_VAR(INS_FINV_IMU_ID)
 
 /** magnetometer */
+#if USE_MAGNETOMETER
 #ifndef INS_FINV_MAG_ID
 #define INS_FINV_MAG_ID ABI_BROADCAST
 #endif
 PRINT_CONFIG_VAR(INS_FINV_MAG_ID)
+#else
+PRINT_CONFIG_MSG("INS invariant use GPS heading as magnetometer")
+#endif
 
 /** ABI binding for gps data.
  * Used for GPS ABI messages.
@@ -103,12 +110,14 @@ PRINT_CONFIG_VAR(INS_FINV_MAG_ID)
 PRINT_CONFIG_VAR(INS_FINV_GPS_ID)
 
 static abi_event baro_ev;
-static abi_event mag_ev;
 static abi_event gyro_ev;
 static abi_event accel_ev;
 static abi_event aligner_ev;
 static abi_event body_to_imu_ev;
+#if USE_MAGNETOMETER
+static abi_event mag_ev;
 static abi_event geo_mag_ev;
+#endif
 static abi_event gps_ev;
 
 static void baro_cb(uint8_t __attribute__((unused)) sender_id, __attribute__((unused)) uint32_t stamp, float pressure)
@@ -154,17 +163,6 @@ static void accel_cb(uint8_t sender_id __attribute__((unused)),
   ACCELS_FLOAT_OF_BFP(ins_finv_accel, *accel);
 }
 
-static void mag_cb(uint8_t sender_id __attribute__((unused)),
-                   uint32_t stamp __attribute__((unused)),
-                   struct Int32Vect3 *mag)
-{
-  if (ins_float_inv.is_aligned) {
-    struct FloatVect3 mag_f;
-    MAGS_FLOAT_OF_BFP(mag_f, *mag);
-    ins_float_invariant_update_mag(&mag_f);
-  }
-}
-
 static void aligner_cb(uint8_t __attribute__((unused)) sender_id,
                        uint32_t stamp __attribute__((unused)),
                        struct Int32Rates *lp_gyro, struct Int32Vect3 *lp_accel,
@@ -188,10 +186,23 @@ static void body_to_imu_cb(uint8_t sender_id __attribute__((unused)),
   ins_float_inv_set_body_to_imu_quat(q_b2i_f);
 }
 
+#if USE_MAGNETOMETER
+static void mag_cb(uint8_t sender_id __attribute__((unused)),
+                   uint32_t stamp __attribute__((unused)),
+                   struct Int32Vect3 *mag)
+{
+  if (ins_float_inv.is_aligned) {
+    struct FloatVect3 mag_f;
+    MAGS_FLOAT_OF_BFP(mag_f, *mag);
+    ins_float_invariant_update_mag(&mag_f);
+  }
+}
+
 static void geo_mag_cb(uint8_t sender_id __attribute__((unused)), struct FloatVect3 *h)
 {
   ins_float_inv.mag_h = *h;
 }
+#endif
 
 static void gps_cb(uint8_t sender_id __attribute__((unused)),
                    uint32_t stamp __attribute__((unused)),
@@ -203,16 +214,23 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
 
 void ins_float_invariant_wrapper_init(void)
 {
+  // aligner
+#if USE_AHRS_ALIGNER
+  ahrs_aligner_init();
+#endif
+
   ins_float_invariant_init();
 
  // Bind to ABI messages
   AbiBindMsgBARO_ABS(INS_FINV_BARO_ID, &baro_ev, baro_cb);
-  AbiBindMsgIMU_MAG_INT32(INS_FINV_MAG_ID, &mag_ev, mag_cb);
   AbiBindMsgIMU_GYRO_INT32(INS_FINV_IMU_ID, &gyro_ev, gyro_cb);
   AbiBindMsgIMU_ACCEL_INT32(INS_FINV_IMU_ID, &accel_ev, accel_cb);
   AbiBindMsgIMU_LOWPASSED(INS_FINV_IMU_ID, &aligner_ev, aligner_cb);
   AbiBindMsgBODY_TO_IMU_QUAT(INS_FINV_IMU_ID, &body_to_imu_ev, body_to_imu_cb);
+#if USE_MAGNETOMETER
+  AbiBindMsgIMU_MAG_INT32(INS_FINV_MAG_ID, &mag_ev, mag_cb);
   AbiBindMsgGEO_MAG(ABI_BROADCAST, &geo_mag_ev, geo_mag_cb);
+#endif
   AbiBindMsgGPS(INS_FINV_GPS_ID, &gps_ev, gps_cb);
 
 #if PERIODIC_TELEMETRY && !INS_FINV_USE_UTM

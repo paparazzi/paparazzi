@@ -64,6 +64,7 @@ COMMON_TEST_CFLAGS += -DPERIODIC_FREQUENCY=$(PERIODIC_FREQUENCY)
 COMMON_TEST_SRCS   += mcu_periph/sys_time.c $(SRC_ARCH)/mcu_periph/sys_time_arch.c
 
 COMMON_TEST_CFLAGS += -DUSE_LED
+COMMON_TEST_SRCS += $(SRC_ARCH)/mcu_periph/gpio_arch.c
 
 # pprz downlink/datalink
 COMMON_TELEMETRY_CFLAGS = -DDOWNLINK -DDOWNLINK_TRANSPORT=pprz_tp -DDATALINK=PPRZ

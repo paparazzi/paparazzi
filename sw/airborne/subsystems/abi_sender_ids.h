@@ -429,9 +429,19 @@
 #define RELATIVE_LOCALIZATION_ID 1
 #endif
 
-
 #ifndef DETECT_GATE_ABI_ID
 #define DETECT_GATE_ABI_ID 33
+#endif
+
+/*
+ * VISUAL_DETECTION communication (message 27)
+*/
+#ifndef COLOR_OBJECT_DETECTION1_ID
+#define COLOR_OBJECT_DETECTION1_ID 1
+#endif
+
+#ifndef COLOR_OBJECT_DETECTION2_ID
+#define COLOR_OBJECT_DETECTION2_ID 2
 #endif
 
 /*

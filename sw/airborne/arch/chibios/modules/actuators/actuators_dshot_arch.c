@@ -28,6 +28,7 @@
 #include "modules/actuators/actuators_dshot.h"
 #include "modules/actuators/esc_dshot.h"
 #include "mcu_periph/gpio.h"
+#include BOARD_CONFIG
 
 uint16_t actuators_dshot_values[ACTUATORS_DSHOT_NB];
 

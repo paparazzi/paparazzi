@@ -43,6 +43,8 @@ import shutil
 ###############################################################################
 # [Constants]
 
+DEFAULT_TOOL_ICON = "default_tool_icon.svg"
+
 LOGGER = logging.getLogger("[HMI]")
 
 CONF_PATH = env.PAPARAZZI_CONF
@@ -54,6 +56,7 @@ ERROR_QPIXMAP = "icons/dialog-error.svg"
 START_ICON = "icons/media-playback-start.svg"
 STOP_ICON = "icons/process-stop.svg"
 CHANGED_ICON = "icons/dialog-warning-symbolic.svg"
+ICONS_TOOLS_PATH = "data/pictures/tools_icons/"
 
 UNKNOWN_VALUE = "---"
 
@@ -545,14 +548,13 @@ class Hmi(Widgets.QMainWindow):
         -> Fill the 'Tools' menu with the names found in 'control_panel.xml'
         -> Connect each action to the corresponding tool process.
         """
-        self.ui.menuTools.clear()
-        sorted_names = parser.sorted_tools_names(self.data.tools)
-        for name in sorted_names:
-            action = Widgets.QAction(name, self)
-            self.ui.menuTools.addAction(action)
-        for action in self.ui.menuTools.actions():
-            action.triggered.connect(functools.partial(
-                self.add_program_to_session, self.data.tools[action.text()]))
+        # The tools are sorted first by whether they are favorite or not, then by their names
+        for tool in sorted(self.data.tools.values(), key=lambda tool: (not tool.favorite, tool.name)):
+            if not tool.blacklisted:
+                command = functools.partial(self.add_program_to_session, tool)
+                icon_name = tool.icon if tool.icon is not None else DEFAULT_TOOL_ICON
+                icon_path = "/".join([env.PAPARAZZI_HOME, ICONS_TOOLS_PATH, icon_name])
+                self.ui.tools_menu.add_item(tool.name, icon_path, command)
 
     def fullscreen_view(self):
         if self.isMaximized():

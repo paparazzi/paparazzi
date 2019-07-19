@@ -1,0 +1,34 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="board_tawaki" dir="boards">
+  <doc>
+    <description>
+      Autoload several onboard sensors for the Tawaki board with proper configuration
+      - IMU (icm206xx) (auto-detected from MPU6000 driver)
+      - Baro (BMP3)
+      - Mag (LIS3MDL)
+      Normal front of the board is on USB connector side
+      Normal up of the board is on the Molex connector side
+    </description>
+    <configure name="BOARD_TAWAKI_ROTATED" value="FALSE|TRUE" description="if TRUE, the board is not using is default orientation and axis can be redefined by hand"/>
+  </doc>
+  <autoload name="imu" type="mpu6000"/>
+  <autoload name="baro" type="bmp3"/>
+  <autoload name="mag" type="lis3mdl"/>
+  <makefile target="!sim|nps|fbw">
+    <define name="IMU_MPU_GYRO_RANGE" value="MPU60X0_GYRO_RANGE_1000"/>
+    <define name="IMU_MPU_ACCEL_RANGE" value="MPU60X0_ACCEL_RANGE_8G"/>
+    <configure name="IMU_MPU_SPI_DEV" value="spi4" case="upper|lower"/>
+    <configure name="IMU_MPU_SPI_SLAVE_IDX" value="SPI_SLAVE5"/>
+    <define name="IMU_MPU_CHAN_X" value="1" cond="ifeq (,$(findstring $(BOARD_TAWAKI_ROTATED),1 TRUE))"/>
+    <define name="IMU_MPU_CHAN_Y" value="0" cond="ifeq (,$(findstring $(BOARD_TAWAKI_ROTATED),1 TRUE))"/>
+    <define name="IMU_MPU_Y_SIGN" value="-1" cond="ifeq (,$(findstring $(BOARD_TAWAKI_ROTATED),1 TRUE))"/>
+    <configure name="BMP3_I2C_DEV" value="i2c4" case="upper|lower"/>
+    <define name="BMP3_SLAVE_ADDR" value="BMP3_I2C_ADDR_ALT"/>
+    <configure name="MAG_LIS3MDL_I2C_DEV" value="i2c4" case="upper|lower"/>
+    <define name="MODULE_LIS3MDL_UPDATE_AHRS"/>
+    <define name="LIS3MDL_CHAN_X" value="1" cond="ifeq (,$(findstring $(BOARD_TAWAKI_ROTATED),1 TRUE))"/>
+    <define name="LIS3MDL_CHAN_Y" value="0" cond="ifeq (,$(findstring $(BOARD_TAWAKI_ROTATED),1 TRUE))"/>
+    <define name="LIS3MDL_CHAN_X_SIGN" value="-" cond="ifeq (,$(findstring $(BOARD_TAWAKI_ROTATED),1 TRUE))"/>
+  </makefile>
+</module>

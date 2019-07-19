@@ -70,4 +70,12 @@
     <define name="I2C_BUF_LEN" value="56"/>
     <define name="USE_I2C0"/>
   </makefile>
+  <makefile target="nps">
+    <file name="mt9v117_nps.c"/>
+    <file name="mt9f002_nps.c"/>
+    <file name="libisp.c" dir="boards/bebop/isp"/>
+
+    <define name="I2C_BUF_LEN" value="56"/>
+    <define name="USE_I2C0"/>
+  </makefile>
 </module>

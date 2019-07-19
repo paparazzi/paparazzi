@@ -3,7 +3,6 @@
 <airframe name="JP">
 
   <firmware name="fixedwing">
-    <define name="USE_I2C1"/>
 
     <target name="ap" board="apogee_1.0_chibios">
       <configure name="PERIODIC_FREQUENCY" value="125"/>
@@ -22,6 +21,8 @@
       <configure name="PERIODIC_FREQUENCY" value="125"/>
       <!-- Note NPS needs the ppm type radio_control module -->
       <module name="fdm" type="jsbsim"/>
+      <!--module name="ahrs" type="float_dcm"/>
+      <module name="ins" type="alt_float"/-->
       <module name="ins" type="float_invariant">
         <configure name="AHRS_PROPAGATE_FREQUENCY" value="125"/>
         <configure name="AHRS_CORRECT_FREQUENCY" value="125"/>
@@ -38,7 +39,7 @@
 
     <!-- Actuators are automatically chosen according to board-->
     <module name="imu" type="apogee">
-      <define name="USE_MAGNETOMETER"/>
+      <configure name="USE_MAGNETOMETER" value="FALSE"/>
       <define name="APOGEE_LOWPASS_FILTER" value="MPU60X0_DLPF_20HZ"/>
       <define name="APOGEE_SMPLRT_DIV" value="7"/>
     </module>

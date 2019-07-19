@@ -223,7 +223,9 @@
  * PWM driver system settings.
  */
 #define STM32_PWM_USE_ADVANCED              FALSE
-#define STM32_PWM_USE_TIM1                  FALSE
+#ifndef STM32_PWM_USE_TIM1
+#define STM32_PWM_USE_TIM1                  FALSE  // enable for WS2812
+#endif
 #ifndef STM32_PWM_USE_TIM2
 #define STM32_PWM_USE_TIM2                  TRUE
 #endif
@@ -241,6 +243,11 @@
 #define STM32_PWM_TIM5_IRQ_PRIORITY         7
 #define STM32_PWM_TIM8_IRQ_PRIORITY         7
 #define STM32_PWM_TIM9_IRQ_PRIORITY         7
+
+#define STM32_PWM1_UP_DMA_STREAM            STM32_DMA_STREAM_ID(2, 5) // incompatible with SPI1_TX
+#define STM32_PWM1_UP_DMA_CHANNEL           6
+#define STM32_PWM1_UP_DMA_IRQ_PRIORITY      6
+#define STM32_PWM1_UP_DMA_PRIORITY          2
 
 #define STM32_PWM2_UP_DMA_STREAM            STM32_DMA_STREAM_ID(1, 1)
 #define STM32_PWM2_UP_DMA_CHANNEL           3

@@ -21,6 +21,7 @@ from paparazzi_health import PaparazziOverview
 
 import xml.etree.ElementTree
 
+
 class ConfChooser(object):
 
     # General Functions
@@ -29,10 +30,11 @@ class ConfChooser(object):
         combo.set_sensitive(False)
         combo.get_model().clear()
         current_index = 0
+        combo.append_text("------None Selected------")
         for (i, text) in enumerate(clist):
             combo.append_text(text)
-            if os.path.join(paparazzi.conf_dir, text) == os.path.realpath(active):
-                current_index = i
+            if active is not None and os.path.join(paparazzi.conf_dir, text) == os.path.realpath(active):
+                current_index = i + 1  # Add one due to ---None Selected---
         combo.set_active(current_index)
         combo.set_sensitive(True)
 
@@ -69,6 +71,10 @@ class ConfChooser(object):
     def find_conf_files(self, combo):
         conf_files = paparazzi.get_list_of_conf_files(self.exclude_backups)
         self.update_combo(combo, conf_files, self.conf_xml)
+
+    def find_board_files(self, combo):
+        board_files = paparazzi.get_list_of_boards()
+        self.update_combo(combo, board_files, None)
 
     def find_controlpanel_files(self):
         controlpanel_files = paparazzi.get_list_of_controlpanel_files(self.exclude_backups)
@@ -135,8 +141,10 @@ class ConfChooser(object):
                      show_modules=data["Modules"].get_active())
 
     def module_usage(self, widget, data):
-        selected_conf = data.get_active_text()
-        self.obj.airframe_module_overview(selected_conf)
+        if data["Conf"].get_active() is not 0:
+            self.obj.airframe_module_overview(data["Conf"].get_active_text())
+        elif data["Board"].get_active() is not 0:
+            self.obj.airframe_module_overview(data["Board"].get_active_text() + ".makefile")
 
     def launch(self, widget):
         self.accept(widget)
@@ -263,19 +271,38 @@ class ConfChooser(object):
     def changed_cb(self, widget, data):
         self.count_airframes_in_conf(data["combo"], data["list"])
 
+    @staticmethod
+    def deactivate_cb(widget, combo):
+        current_selection = widget.get_active()
+        combo.set_active(0)
+        widget.set_active(current_selection)
+
     def maintenance_window(self, widget):
         mtn_window = gtk.Window()
         mtn_window.set_position(gtk.WIN_POS_CENTER)
-        mtn_window.set_size_request(750, 300)
+        mtn_window.set_size_request(750, 360)
         mtn_window.set_title("Maintenance Tools")
 
         mnt_vbox = gtk.VBox()
+
+        mnt_desc_label = gtk.Label("")
+        desc_text = "Show module usage of all airframes in a selected conf file <b>or</b> all airframes " \
+                    "with a specific board across all conf files."
+        mnt_desc_label.set_markup(desc_text)
+        mnt_desc_label.set_size_request(720, 40)
+        mnt_desc_label.set_line_wrap(True)
 
         mnt_conf_label = gtk.Label("Conf:")
         mnt_conf_label.set_size_request(100, 30)
         mnt_conf_file_combo = gtk.combo_box_new_text()
         self.find_conf_files(mnt_conf_file_combo)
         mnt_conf_file_combo.set_size_request(500, 30)
+
+        mnt_board_label = gtk.Label("Board:")
+        mnt_board_label.set_size_request(100, 30)
+        mnt_board_file_combo = gtk.combo_box_new_text()
+        self.find_board_files(mnt_board_file_combo)
+        mnt_board_file_combo.set_size_request(500, 30)
 
         mnt_conf_airframes = gtk.Label("")
         self.count_airframes_in_conf(mnt_conf_file_combo, mnt_conf_airframes)
@@ -284,14 +311,24 @@ class ConfChooser(object):
 
         combo_list = {"combo": mnt_conf_file_combo, "list": mnt_conf_airframes}
         mnt_conf_file_combo.connect("changed", self.changed_cb, combo_list)
+        mnt_conf_file_combo.connect("changed", self.deactivate_cb, mnt_board_file_combo)
+
+        mnt_board_file_combo.connect("changed", self.deactivate_cb, mnt_conf_file_combo)
+
+        mnt_combos = {"Conf": mnt_conf_file_combo, "Board": mnt_board_file_combo}
 
         mnt_confbar = gtk.HBox()
         mnt_confbar.pack_start(mnt_conf_label)
         mnt_confbar.pack_start(mnt_conf_file_combo)
+        mnt_boardbar = gtk.HBox()
+        mnt_boardbar.pack_start(mnt_board_label)
+        mnt_boardbar.pack_start(mnt_board_file_combo)
+        mnt_vbox.pack_start(mnt_desc_label)
         mnt_vbox.pack_start(mnt_confbar, False)
+        mnt_vbox.pack_start(mnt_boardbar, False)
 
         btnModule = gtk.Button("Module\nUsage")
-        btnModule.connect("clicked", self.module_usage, mnt_conf_file_combo)
+        btnModule.connect("clicked", self.module_usage, mnt_combos)
         btnModule.set_tooltip_text("More information on the modules used by these airframes")
 
         mnt_caexbar = gtk.HBox()

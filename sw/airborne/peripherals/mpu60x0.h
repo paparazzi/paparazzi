@@ -39,8 +39,10 @@
 #define MPU60X0_DEFAULT_FS_SEL MPU60X0_GYRO_RANGE_2000
 /// Default accel full scale range +- 16g
 #define MPU60X0_DEFAULT_AFS_SEL MPU60X0_ACCEL_RANGE_16G
-/// Default internal sampling (1kHz, 42Hz LP Bandwidth)
-#define MPU60X0_DEFAULT_DLPF_CFG MPU60X0_DLPF_42HZ
+/// Default internal sampling (1kHz, 98Hz LP Bandwidth)
+#define MPU60X0_DEFAULT_DLPF_CFG MPU60X0_DLPF_98HZ
+/// Default internal sampling for accelerometer ICM devices only (1kHz, 99Hz LP Bandwidth)
+#define MPU60X0_DEFAULT_DLPF_CFG_ACC MPU60X0_DLPF_ACC_99HZ
 /// Default interrupt config: DATA_RDY_EN
 #define MPU60X0_DEFAULT_INT_CFG 1
 /// Default clock: PLL with X gyro reference
@@ -97,6 +99,16 @@ extern const float MPU60X0_ACCEL_SENS[4];
 // Get default sensitivity numerator and denominator from a table
 extern const int32_t MPU60X0_ACCEL_SENS_FRAC[4][2];
 
+/** MPU60x0 sensor type
+ */
+enum Mpu60x0Type {
+  MPU60X0,
+  ICM20600,
+  ICM20608,
+  ICM20602,
+  ICM20689
+};
+
 enum Mpu60x0ConfStatus {
   MPU60X0_CONF_UNINIT,
   MPU60X0_CONF_RESET,
@@ -106,8 +118,10 @@ enum Mpu60x0ConfStatus {
   MPU60X0_CONF_DLPF,
   MPU60X0_CONF_GYRO,
   MPU60X0_CONF_ACCEL,
+  MPU60X0_CONF_ACCEL2,
   MPU60X0_CONF_I2C_SLAVES,
   MPU60X0_CONF_INT_ENABLE,
+  MPU60X0_CONF_UNDOC1,
   MPU60X0_CONF_DONE
 };
 
@@ -122,8 +136,10 @@ struct Mpu60x0I2cSlave {
 };
 
 struct Mpu60x0Config {
+  enum Mpu60x0Type type;                ///< The type of sensor (MPU60x0, ICM20608, ...)
   uint8_t smplrt_div;                   ///< Sample rate divider
   enum Mpu60x0DLPF dlpf_cfg;            ///< Digital Low Pass Filter
+  enum Mpu60x0ACCDLPF dlpf_cfg_acc;     ///< Digital Low Pass Filter for acceleremoter (ICM devices only)
   enum Mpu60x0GyroRanges gyro_range;    ///< deg/s Range
   enum Mpu60x0AccelRanges accel_range;  ///< g Range
   bool drdy_int_enable;               ///< Enable Data Ready Interrupt

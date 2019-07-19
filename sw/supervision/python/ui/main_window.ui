@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>833</width>
-    <height>481</height>
+    <height>568</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -278,7 +278,7 @@
        <enum>QTabWidget::Triangular</enum>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>2</number>
       </property>
       <property name="elideMode">
        <enum>Qt::ElideNone</enum>
@@ -579,7 +579,7 @@
              <x>0</x>
              <y>0</y>
              <width>162</width>
-             <height>622</height>
+             <height>607</height>
             </rect>
            </property>
            <layout class="QGridLayout" name="gridLayout_4">
@@ -1537,7 +1537,14 @@
         <string>Tab to launch and customize the current session</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_2">
-        <item row="1" column="2" rowspan="3">
+        <item row="5" column="0" colspan="2">
+         <widget class="QLabel" name="label_7">
+          <property name="text">
+           <string>Options :</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2" rowspan="3">
          <widget class="QListWidget" name="programs">
           <property name="minimumSize">
            <size>
@@ -1568,14 +1575,14 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="0" colspan="2">
+        <item row="2" column="0" colspan="2">
          <widget class="QLabel" name="label_8">
           <property name="text">
            <string>Programs :</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="3">
+        <item row="3" column="3">
          <spacer name="verticalSpacer_3">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -1588,49 +1595,7 @@
           </property>
          </spacer>
         </item>
-        <item row="1" column="3">
-         <widget class="QPushButton" name="play_stop_program">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>50</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>50</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Start / stop the selected program</string>
-          </property>
-          <property name="text">
-           <string>Start</string>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>icons/media-playback-start.svg</normaloff>icons/media-playback-start.svg</iconset>
-          </property>
-          <property name="autoDefault">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0" colspan="2">
-         <widget class="QLabel" name="label_7">
-          <property name="text">
-           <string>Options :</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="3">
+        <item row="5" column="3">
          <widget class="QPushButton" name="start_all_button">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -1672,7 +1637,7 @@
           </property>
          </widget>
         </item>
-        <item row="6" column="2">
+        <item row="7" column="2">
          <spacer name="verticalSpacer_7">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -1685,7 +1650,103 @@
           </property>
          </spacer>
         </item>
-        <item row="3" column="3">
+        <item row="2" column="3">
+         <widget class="QPushButton" name="play_stop_program">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Start / stop the selected program</string>
+          </property>
+          <property name="text">
+           <string>Start</string>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>icons/media-playback-start.svg</normaloff>icons/media-playback-start.svg</iconset>
+          </property>
+          <property name="autoDefault">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="2" rowspan="2">
+         <widget class="QListWidget" name="options">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Options of the selected program</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QPushButton" name="remove_program">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>30</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>30</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Remove a programs from the session</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>icons/list-remove.svg</normaloff>icons/list-remove.svg</iconset>
+          </property>
+          <property name="autoDefault">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QComboBox" name="session">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="toolTip">
+           <string>Current session</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="3">
          <widget class="QPushButton" name="kill_all_button">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -1730,75 +1791,14 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="2">
-         <widget class="QComboBox" name="session">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="toolTip">
-           <string>Current session</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="2" rowspan="2">
-         <widget class="QListWidget" name="options">
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Options of the selected program</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0" colspan="2">
+        <item row="1" column="0" colspan="2">
          <widget class="QLabel" name="label_4">
           <property name="text">
            <string>Session :</string>
           </property>
          </widget>
         </item>
-        <item row="3" column="0">
-         <widget class="QPushButton" name="remove_program">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>30</width>
-            <height>30</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>30</width>
-            <height>30</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Remove a programs from the session</string>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="icon">
-           <iconset>
-            <normaloff>icons/list-remove.svg</normaloff>icons/list-remove.svg</iconset>
-          </property>
-          <property name="autoDefault">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
+        <item row="4" column="1">
          <widget class="QPushButton" name="add_program">
           <property name="enabled">
            <bool>false</bool>
@@ -1836,7 +1836,7 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="0">
+        <item row="6" column="0">
          <widget class="QPushButton" name="remove_option">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -1871,7 +1871,7 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="1">
+        <item row="6" column="1">
          <widget class="QPushButton" name="add_option">
           <property name="enabled">
            <bool>true</bool>
@@ -1906,6 +1906,28 @@
           </property>
           <property name="autoDefault">
            <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="ToolsMenu" name="tools_menu">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="baseSize">
+           <size>
+            <width>200</width>
+            <height>140</height>
+           </size>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
           </property>
          </widget>
         </item>
@@ -2467,11 +2489,6 @@ p, li { white-space: pre-wrap; }
     <addaction name="separator"/>
     <addaction name="actionQuit_Paparazzi_UAV"/>
    </widget>
-   <widget class="QMenu" name="menuTools">
-    <property name="title">
-     <string>Tools</string>
-    </property>
-   </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
      <string>View</string>
@@ -2499,7 +2516,6 @@ p, li { white-space: pre-wrap; }
    <addaction name="menuSet"/>
    <addaction name="menuConfiguration"/>
    <addaction name="menuSession"/>
-   <addaction name="menuTools"/>
    <addaction name="menuView"/>
    <addaction name="menuHelp"/>
   </widget>
@@ -2699,8 +2715,8 @@ p, li { white-space: pre-wrap; }
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>162</width>
-              <height>598</height>
+              <width>151</width>
+              <height>583</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="gridLayout_13">
@@ -3090,8 +3106,8 @@ p, li { white-space: pre-wrap; }
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>162</width>
-              <height>598</height>
+              <width>151</width>
+              <height>583</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="gridLayout_15">
@@ -3822,6 +3838,14 @@ p, li { white-space: pre-wrap; }
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ToolsMenu</class>
+   <extends>QFrame</extends>
+   <header>tools_menu.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>

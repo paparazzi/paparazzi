@@ -1,0 +1,72 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="148" ground_alt="146" lat0="43.5640917" lon0="1.4829201" max_dist_from_home="20" name="Rover Optitrack (ENAC)" security_height="0.3">
+  <header>
+
+</header>
+  <waypoints>
+    <waypoint name="HOME" x="0.0" y="0.0"/>
+    <waypoint name="GOAL" x="2.0" y="2.0"/>
+    <waypoint name="STDBY" x="-0.7" y="-0.8"/>
+    <waypoint name="TD" x="0.8" y="-1.7"/>
+    <waypoint name="P1" x="-1" y="-4"/>
+    <waypoint name="P2" x="-1" y="4"/>
+    <waypoint name="_S1" x="3" y="4"/>
+    <waypoint name="_S2" x="3" y="-4"/>
+    <waypoint name="_S3" x="-3" y="-4"/>
+    <waypoint name="_S4" x="-3" y="4"/>
+    <waypoint name="_N1" x="4.5" y="5.2"/>
+    <waypoint name="_N2" x="4.5" y="-5.2"/>
+    <waypoint name="_N3" x="-4.5" y="-5.2"/>
+    <waypoint name="_N4" x="-4.5" y="5.2"/>
+  </waypoints>
+  <sectors>
+    <sector name="Net" color="red">
+      <corner name="_N1"/>
+      <corner name="_N2"/>
+      <corner name="_N3"/>
+      <corner name="_N4"/>
+    </sector>
+    <sector name="Survey" color="green" type="dynamic">
+      <corner name="_S1"/>
+      <corner name="_S2"/>
+      <corner name="_S3"/>
+      <corner name="_S4"/>
+    </sector>
+  </sectors>
+  <variables>
+    <variable var="turn_rate" init="10." min="0." max="50." step="1.0"/>
+  </variables>
+  <blocks>
+    <block name="Wait GPS">
+      <call_once fun="NavKillThrottle()"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Holding point">
+      <call_once fun="NavKillThrottle()"/>
+      <attitude roll="0" throttle="0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <stay wp="STDBY"/>
+    </block>
+    <block name="line_P1_P2">
+      <go wp="P1" approaching_time="0"/>
+      <while cond="TRUE">
+        <go from="P1" hmode="route" wp="P2" approaching_time="0"/>
+        <stay wp="P2" until="stage_time>10"/>
+        <go from="P2" hmode="route" wp="P1" approaching_time="0"/>
+      </while>
+    </block>
+    <block name="circle">
+      <circle radius="nav.radius" wp="STDBY"/>
+    </block>
+    <block name="line_P1_P2_turn">
+      <go wp="P1" approaching_time="0"/>
+      <while cond="TRUE">
+        <go from="P1" hmode="route" wp="P2" approaching_time="0" pre_call="nav_set_heading_deg(turn_rate*block_time)"/>
+        <stay wp="P2" until="stage_time>10" pre_call="nav_set_heading_deg(turn_rate*block_time)"/>
+        <go from="P2" hmode="route" wp="P1" approaching_time="0" pre_call="nav_set_heading_deg(turn_rate*block_time)"/>
+      </while>
+    </block>
+  </blocks>
+</flight_plan>

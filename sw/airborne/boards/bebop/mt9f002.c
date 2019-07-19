@@ -29,8 +29,7 @@
 #include "mt9f002_regs.h"
 #include "isp/libisp.h"
 #include "math/pprz_algebra_int.h"
-#include "boards/bebop.h"
-#include "generated/airframe.h"
+#include "peripherals/video_device.h"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -47,90 +46,12 @@
 #define VERBOSE_PRINT(...)
 #endif
 
-#define RES_VGA        0
-#define RES_720p       1
-#define RES_720p_4_3   2
-#define RES_1080p      3
-#define RES_1080p_4_3  4
-#define RES_FULL       5
-
-#ifdef MT9F002_RESOLUTION
-#if MT9F002_RESOLUTION == RES_VGA
-#define MT9F002_OUTPUT_WIDTH 640
-#define MT9F002_OUTPUT_HEIGHT 480
-#elif MT9F002_RESOLUTION == RES_720p
-#define MT9F002_OUTPUT_WIDTH 1280
-#define MT9F002_OUTPUT_HEIGHT 720
-#elif MT9F002_RESOLUTION == RES_720p_4_3
-#define MT9F002_OUTPUT_WIDTH 960
-#define MT9F002_OUTPUT_HEIGHT 720
-#elif MT9F002_RESOLUTION == RES_1080p
-#define MT9F002_OUTPUT_WIDTH 1920
-#define MT9F002_OUTPUT_HEIGHT 1080
-#elif MT9F002_RESOLUTION == RES_1080p_4_3
-#define MT9F002_OUTPUT_WIDTH 1440
-#define MT9F002_OUTPUT_HEIGHT 1080
-#elif MT9F002_RESOLUTION == RES_FULL
-// Doesn't work with isp
-//#define MT9F002_OUTPUT_WIDTH 4384
-//#define MT9F002_OUTPUT_HEIGHT 3288
-#define MT9F002_OUTPUT_WIDTH 2048
-#define MT9F002_OUTPUT_HEIGHT 2048
-#else // default MT9F002_RESOLUTION
-#define MT9F002_OUTPUT_WIDTH 640
-#define MT9F002_OUTPUT_HEIGHT 640
-#endif
-
-#else // MT9F002_RESOLUTION
-
-#ifndef MT9F002_OUTPUT_WIDTH
-#define MT9F002_OUTPUT_WIDTH 640
-#endif
-#ifndef MT9F002_OUTPUT_HEIGHT
-#define MT9F002_OUTPUT_HEIGHT 640
-#endif
-#endif
-
 // The sequencing of the pixel array is controlled by the x_addr_start, y_addr_start,
 // x_addr_end, and y_addr_end registers. For both parallel and serial HiSPi interfaces, the
 // output image size is controlled by the x_output_size and y_output_size registers.
 
 // Horizontal Mirror
 // Vertical Flip
-
-// Signed fractional offset from centre of image of original sensor [-0.5,0.5]
-#ifndef MT9F002_OFFSET_X
-#define MT9F002_OFFSET_X 0.
-#endif
-
-// Signed fractional offset from centre of image of original sensor [-0.5,0.5]
-#ifndef MT9F002_OFFSET_Y
-#define MT9F002_OFFSET_Y 0.
-#endif
-
-// Zoom factor of image
-#ifndef MT9F002_ZOOM
-#define MT9F002_ZOOM 1.
-#endif
-
-/** Our output is only OUTPUT_SCALER of the pixels we take of the sensor
- * It is programmable in 1/16 steps determined by ScaleFactor = 16/scale_m.
- * Legal values for scale_m are 16 through 128, giving you the ability to scale from
- * 1:1 to 1:8 (with m=128).
- *  Example:
- *  output_width = 512
- *  output_height = 830
- *  output_scaler = 0.25
- *  We now get an image of 512 by 830 which contains a "compressed version"
- *  of what would normally be an image of 2048 by 3320.
- *  Be warned: set your offset x appropriately.
- *  Example of what could go wrong:
- *  output_width = 512
- *  output_height = 830
- *  output_scaler = 0.25
- *  offset_x = 1500
- *  We now ask for pixels outside the 4608H x 2592V sensor or the 3320H x 2048W of the ISP.
- */
 
 /** Exposure of the front camera of the bebop. Experimental values:
  * Outside: 15
@@ -139,10 +60,6 @@
  */
 #ifndef MT9F002_TARGET_EXPOSURE
 #define MT9F002_TARGET_EXPOSURE 30
-#endif
-
-#ifndef MT9F002_TARGET_FPS
-#define MT9F002_TARGET_FPS 30
 #endif
 
 /* Set the colour balance gains */
@@ -160,23 +77,6 @@
 
 #ifndef MT9F002_GAIN_BLUE
 #define MT9F002_GAIN_BLUE 2.7
-#endif
-
-// parameters for undistortion, defaults are rough estimates
-#ifndef MT9F002_FOCAL_X
-#define MT9F002_FOCAL_X (MT9F002_ZOOM * MT9F002_OUTPUT_WIDTH / 2.f)
-#endif
-#ifndef MT9F002_FOCAL_Y
-#define MT9F002_FOCAL_Y (MT9F002_ZOOM * MT9F002_OUTPUT_HEIGHT / 2.f)
-#endif
-#ifndef MT9F002_CENTER_X
-#define MT9F002_CENTER_X (MT9F002_OUTPUT_WIDTH * (.5f - MT9F002_ZOOM * MT9F002_OFFSET_X))
-#endif
-#ifndef MT9F002_CENTER_Y
-#define MT9F002_CENTER_Y (MT9F002_OUTPUT_HEIGHT * (.5f - MT9F002_ZOOM * MT9F002_OFFSET_Y))
-#endif
-#ifndef MT9F002_DHANE_K
-#define MT9F002_DHANE_K 1.25f
 #endif
 
 /* Camera structure */

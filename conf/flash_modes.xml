@@ -60,6 +60,7 @@
       <board name="elle*"/>
       <board name="openpilot_revo.*"/>
       <board name="chimera_.*"/>
+      <board name="tawaki_.*"/>
     </boards>
   </mode>
   <mode name="STLink (SWD)">
@@ -73,6 +74,7 @@
       <board name="naze32*"/>
       <board name="openpilot_revo.*"/>
       <board name="chimera_.*"/>
+      <board name="tawaki_.*"/>
     </boards>
   </mode>
   <mode name="BlackMagic Probe (SWD)">
@@ -91,6 +93,7 @@
       <board name="openpilot_revo.*"/>
       <board name="lia_.*"/>
       <board name="chimera_.*"/>
+      <board name="tawaki_.*"/>
       <board name="vms_ecu_.*"/>
     </boards>
   </mode>
