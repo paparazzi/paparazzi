@@ -24,7 +24,6 @@
 from __future__ import print_function
 from parrot_utils import ParrotUtils
 import re
-import argparse
 from time import sleep
 
 class Bebop(ParrotUtils):
@@ -57,10 +56,9 @@ class Bebop(ParrotUtils):
 
     def uav_status(self):
         print('Parrot version:\t\t' + str(self.check_version()))
-        join = {'Unknown': 'No', '0': 'No', '1': 'Yes'}
-        print('Join Wifi:\t\t' + self.read_from_config('JOIN_WIFI'))
+        join = {'Unknown': 'No (Master)', '0': 'No (Master)', '1': 'Yes (Managed)'}
+        print('Join Wifi:\t\t' + join[self.read_from_config('JOIN_WIFI')])
         print('Network id:\t\t' + self.read_from_config('WIFI_SSID'))
-        mode = {'0': 'Master', '1': 'Managed'}
         print('Wifi Amode:\t\t' + self.read_from_config('WIFI_AMODE'))
         print('Currently running:\t' + self.check_running())
         autorun = {'Unknown': 'Native (autorun not installed)', '0': 'Native', '1': 'Paparazzi'}
@@ -129,7 +127,7 @@ class Bebop(ParrotUtils):
         Restart has to be done by hand
         '''
         self.bebop_shutdown()
-    
+
     def init_extra_parser(self):
 
         # Parse the extra arguments
