@@ -2,12 +2,11 @@
 
 <airframe name="bebop_optitrack">
   <description>
-    Airframe file to fly a Bebop1 drone, in stable smooth flight, through waypoints using an optitrack system, such as the Cyberzoo of TUDelft. The values are tuned so that the flight speed is limited and the drone does not over-shoot the waypoints as it would in outdoor settings.
+    Airframe file to fly a Bebop1 drone, in stable smooth flight, through waypoints using opticflow. As this airframe does not use a magnetometer nor GPS for heading determination, all positions and angles are relative to its starting position. Therefore; the drone should be facing north when started. The values are tuned so that the flight speed is limited and the drone does not over-shoot the waypoints as it would in outdoor settings.
   </description>
   <firmware name="rotorcraft">
     <target name="ap" board="bebop"/>
       <define name="USE_SONAR"/>
-      <define name="USE_GPS" value="FALSE"/>
     <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
       <module name="udp"/>
@@ -18,21 +17,21 @@
     <module name="radio_control" type="datalink"/>
     <module name="actuators" type="bebop"/>
     <module name="imu" type="bebop"/>
-    <module name="gps" type="datalink"/>
     <module name="stabilization" type="indi">
       <define name="INDI_RPM_FEEDBACK" value="TRUE"/>
     </module>
     <module name="ahrs" type="int_cmpl_quat">
-      <!-- Use the optitrack heading instead of magnetometer -->
       <configure name="USE_MAGNETOMETER" value="FALSE"/>
     </module>
     <module name="ins" type="hff_extended"/>
+
     <module name="pose_history"/>
     <module name="bebop_cam"/>
     <module name="cv_opticflow">
       <define name="OPTICFLOW_CAMERA" value="bottom_camera"/>
       <define name="MAX_HORIZON" value="10"/>
       <define name="OPTICFLOW_MAX_TRACK_CORNERS" value="10"/>
+      <define name="OPTICFLOW_SUBPIXEL_FACTOR" value = "200"/> <!-- due to high framerate of the bebop bottom camera, a high subpixel factor is needed-->
       <define name="OPTICFLOW_CORNER_METHOD" value="0"/>
       <define name="OPTICFLOW_DEROTATION_CORRECTION_FACTOR_X" value="0.8"/> <!--Obtained from a linefit-->
       <define name="OPTICFLOW_DEROTATION_CORRECTION_FACTOR_Y" value="0.85"/> <!--Obtained from a linefit-->
@@ -78,17 +77,9 @@
     <define name="BODY_TO_IMU_PSI" value="0." unit="deg"/>
   </section>
 
-  <section name="AHRS" prefix="AHRS_">
-    <!-- Needed to use optitrack heading at any speed -->
-    <define name="HEADING_UPDATE_GPS_MIN_SPEED" value="0"/>
-  </section>
-
   <section name="INS" prefix="INS_">
     <define name="SONAR_MAX_RANGE" value="2.2"/>
     <define name="SONAR_UPDATE_ON_AGL" value="TRUE"/>
-    <!-- Use GPS altitude measurments and set the R gain -->
-    <!--define name="USE_GPS_ALT" value="1"/-->
-    <!--define name="VFF_R_GPS" value="0.01"/-->
   </section>
 
   <section name="RC_SETPOINT" prefix="STABILIZATION_ATTITUDE_">
@@ -129,12 +120,12 @@
     <define name="G2" value="{-48.0,   48.0,  -48.0,   48.0}"/>
 
     <!-- reference acceleration for attitude control -->
-    <define name="REF_ERR_P" value="600.0"/>
-    <define name="REF_ERR_Q" value="600.0"/>
-    <define name="REF_ERR_R" value="600.0"/>
-    <define name="REF_RATE_P" value="28.0"/>
-    <define name="REF_RATE_Q" value="28.0"/>
-    <define name="REF_RATE_R" value="28.0"/>
+    <define name="REF_ERR_P" value="400.0"/>
+    <define name="REF_ERR_Q" value="400.0"/>
+    <define name="REF_ERR_R" value="400.0"/>
+    <define name="REF_RATE_P" value="20.0"/>
+    <define name="REF_RATE_Q" value="20.0"/>
+    <define name="REF_RATE_R" value="20.0"/>
 
     <define name="ESTIMATION_FILT_CUTOFF" value="4.0"/>
     <define name="FILT_CUTOFF" value="5.0"/>
@@ -160,7 +151,7 @@
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
     <define name="MAX_BANK" value="20" unit="deg"/>
-    <define name="REF_MAX_SPEED" value="1.0" unit="m/s"/>
+    <define name="REF_MAX_SPEED" value="0.7" unit="m/s"/>
     <define name="PGAIN" value="120"/>
     <define name="DGAIN" value="100"/>
     <define name="IGAIN" value="30"/>
@@ -168,7 +159,7 @@
   </section>
 
   <section name="MISC">
-    <define name="ARRIVED_AT_WAYPOINT" value="0.2" unit="m"/> <!-- how far away it declares that the waypoint is reached -->
+    <define name="ARRIVED_AT_WAYPOINT" value="0.4" unit="m"/> <!-- how far away it declares that the waypoint is reached -->
     <define name="THRESHOLD_GROUND_DETECT" value="40.0"/> <!-- to prevent false ground detections-->
   </section>
 
@@ -185,12 +176,10 @@
   <include href="conf/simulator/gazebo/airframes/bebop.xml"/>
 
   <section name="AUTOPILOT">
-    <define name="NO_GPS_NEEDED_FOR_NAV" value="TRUE"/>
-
+    <define name="NO_GPS_NEEDED_FOR_NAV" value="TRUE"/> <!-- needed to be able to fly the drone in NAV mode without a GPS fix -->
     <define name="MODE_STARTUP" value="AP_MODE_NAV"/>
     <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
     <define name="MODE_AUTO1" value="AP_MODE_ATTITUDE_Z_HOLD"/>
-    <define name="MODE_AUTO2" value="AP_MODE_HOVER_Z_HOLD"/>
     <define name="MODE_AUTO2" value="AP_MODE_NAV"/>
   </section>
 
