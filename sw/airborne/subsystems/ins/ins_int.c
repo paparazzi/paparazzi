@@ -51,8 +51,6 @@
 #include <stdio.h>
 #endif
 
-#include <stdio.h>
-
 #include "math/pprz_geodetic_int.h"
 #include "math/pprz_isa.h"
 #include "math/pprz_stat.h"
@@ -235,7 +233,6 @@ void ins_int_init(void)
   INT32_VECT3_ZERO(ins_int.ltp_pos);
   INT32_VECT3_ZERO(ins_int.ltp_speed);
   INT32_VECT3_ZERO(ins_int.ltp_accel);
-  FLOAT_VECT3_ZERO(ins_int.ltp_pos_rel);
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS, send_ins);
@@ -590,7 +587,6 @@ static void vel_est_cb(uint8_t sender_id __attribute__((unused)),
 #if USE_HFF
   struct FloatVect2 vel = {vel_ned.x, vel_ned.y};
   struct FloatVect2 Rvel = {noise_x, noise_y};
-  //fprintf(stderr, "HFF\n");
 
   hff_update_vel(vel,  Rvel);
   ins_update_from_hff();
@@ -609,11 +605,7 @@ static void vel_est_cb(uint8_t sender_id __attribute__((unused)),
     if (last_stamp_x > 0)
     {
       float dt = (float)(stamp - last_stamp_x) * 1e-6;
-      fprintf(stderr, "old x: %d\n", ins_int.ltp_pos.x);
-      fprintf(stderr, "dt: %f , vel: %f\n", dt, vel_ned.x);
-      fprintf(stderr, "POS_BFP: %f\n", POS_BFP_OF_REAL(dt * vel_ned.x));
-      ins_int.ltp_pos.x += (int32_t) POS_BFP_OF_REAL(dt * vel_ned.x);
-      fprintf(stderr, "new x: %d\n\n\n", ins_int.ltp_pos.x);
+      ins_int.ltp_pos.x += lround(POS_BFP_OF_REAL(dt * vel_ned.x));
     }
     last_stamp_x = stamp;
   }
@@ -623,7 +615,7 @@ static void vel_est_cb(uint8_t sender_id __attribute__((unused)),
     if (last_stamp_y > 0)
     {
       float dt = (float)(stamp - last_stamp_y) * 1e-6;
-      ins_int.ltp_pos.y += POS_BFP_OF_REAL(dt * vel_ned.y);
+      ins_int.ltp_pos.y += lround(POS_BFP_OF_REAL(dt * vel_ned.y));
     }
     last_stamp_y = stamp;
   }
