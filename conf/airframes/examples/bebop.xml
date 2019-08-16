@@ -18,13 +18,9 @@
     <module name="motor_mixing"/>
     <module name="actuators" type="bebop"/>
     <module name="imu" type="bebop"/>
-    <module name="gps" type="datalink"/>
+    <module name="gps" type="furuno"/>
     <module name="stabilization" type="int_quat"/>
-    <!--module name="ahrs"          type="float_mlkf"/-->
-    <module name="ahrs" type="int_cmpl_quat">
-      <configure name="USE_MAGNETOMETER" value="FALSE"/>
-      <define name="AHRS_USE_GPS_HEADING" value="TRUE"/>
-    </module>
+    <module name="ahrs"          type="float_mlkf"/>
     <module name="ins" type="extended"/>
     
     <module name="geo_mag"/>
@@ -176,18 +172,17 @@
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
     <!-- Good weather -->
-    <define name="MAX_BANK" value="10" unit="deg"/>
-    <define name="REF_MAX_SPEED" value="2" unit="m/s"/>
+    <define name="MAX_BANK" value="20" unit="deg"/>
     <!-- Bad weather -->
     <!-- define name="MAX_BANK" value="32" unit="deg"/ -->
-    <define name="PGAIN" value="100"/>
-    <define name="DGAIN" value="230"/>
-    <define name="IGAIN" value="40"/>
+    <define name="PGAIN" value="79"/>
+    <define name="DGAIN" value="100"/>
+    <define name="IGAIN" value="30"/>
   </section>
 
   <section name="NAVIGATION" prefix="NAV_">
-    <define  name="CLIMB_VSPEED" value="0.5" />
-    <define  name="DESCEND_VSPEED" value="-0.5" />
+    <define  name="CLIMB_VSPEED" value="2.5" />
+    <define  name="DESCEND_VSPEED" value="-1.0" />
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">

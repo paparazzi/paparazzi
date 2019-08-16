@@ -328,7 +328,6 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
   float dt = timeval_diff(&(opticflow->prev_img_gray.ts), &(img->ts));
   if (dt > 1e-5) {
     result->fps = 1000.f / dt;
-    fprintf(stderr, "dt: %f\n", dt);
   } else {
     return false;
   }
@@ -402,7 +401,7 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
     VECT3_ASSIGN(result->vel_cam, 0, 0, 0);
     VECT3_ASSIGN(result->vel_body, 0, 0, 0);
     result->div_size = 0; result->divergence = 0;
-    result->noise_measurement = 20.0;//5.0;
+    result->noise_measurement = 5.0;
 
     image_switch(&opticflow->img_gray, &opticflow->prev_img_gray);
     return false;
@@ -547,7 +546,6 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
         // bottom cam: just subtract a scaled version of the roll and pitch difference from the global flow vector:
         diff_flow_x = phi_diff * OPTICFLOW_CAMERA.camera_intrinsics.focal_x; // phi_diff works better than (cam_state->rates.p)
         diff_flow_y = theta_diff * OPTICFLOW_CAMERA.camera_intrinsics.focal_y;
-        fprintf(stderr, "derot: %f\n", opticflow->derotation_correction_factor_x);
         result->flow_der_x = result->flow_x - diff_flow_x * opticflow->subpixel_factor *
                              opticflow->derotation_correction_factor_x;
         result->flow_der_y = result->flow_y - diff_flow_y * opticflow->subpixel_factor *
@@ -602,7 +600,7 @@ bool calc_fast9_lukas_kanade(struct opticflow_t *opticflow, struct image_t *img,
   // Determine quality of noise measurement for state filter
   //TODO develop a noise model based on groundtruth
   //result->noise_measurement = 1 - (float)result->tracked_cnt / ((float)opticflow->max_track_corners * 1.25f);
-  result->noise_measurement = 10.0;//0.25;
+  result->noise_measurement = 0.25;
 
   // *************************************************************************************
   // Next Loop Preparation
