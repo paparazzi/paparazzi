@@ -34,7 +34,7 @@
 #include <stdlib.h>
 #include "filters/low_pass_filter.h"
 #include "generated/airframe.h"
-
+#include <stdio.h>
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 #endif
@@ -206,7 +206,7 @@ static int past_save_counter;
 #define SAVING -1
 #define SAVE_DONE -2
 
-#define HFF_LOST_LIMIT 1000
+#define HFF_LOST_LIMIT 10000000000000
 static uint16_t hff_lost_limit;
 static uint16_t hff_lost_counter, hff_speed_lost_counter;
 
@@ -641,6 +641,9 @@ static void hff_propagate_x(struct HfilterFloat *filt, float dt)
   filt->xdotdot = hff_xdd_meas - filt->xbias;
   filt->x = filt->x + filt->xdot * dt;// + filt->xdotdot * dt * dt / 2;
   filt->xdot = filt->xdot + dt * filt->xdotdot;
+
+  //fprintf(stderr, "x: %f , xdot: %f, xdotdot: %f \n", filt->x, filt->xdot, filt->xdotdot);
+
   /* update covariance */
   const float FPF00 = filt->xP[0][0] + dt * (filt->xP[1][0] + filt->xP[0][1] + dt * filt->xP[1][1]);
   const float FPF01 = filt->xP[0][1] + dt * (filt->xP[1][1] - filt->xP[0][2] - dt * filt->xP[1][2]);

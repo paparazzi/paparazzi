@@ -38,10 +38,10 @@
     </sector>
 </sectors>
   <blocks>
-    <block name="Wait GPS">
+    <!--block name="Wait GPS">
       <call_once fun="NavKillThrottle()"/>
       <while cond="!GpsFixValid()"/>
-    </block>
+    </block-->
     <block name="Geo init">
       <while cond="LessThan(NavBlockTime(), 10)"/>
       <call_once fun="NavSetGroundReferenceHere()"/>

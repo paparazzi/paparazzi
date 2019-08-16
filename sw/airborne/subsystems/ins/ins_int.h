@@ -56,6 +56,7 @@ struct InsInt {
   struct NedCoor_i ltp_pos;
   struct NedCoor_i ltp_speed;
   struct NedCoor_i ltp_accel;
+  struct NedCoor_f ltp_pos_rel;
 
   /* baro */
   float baro_z;  ///< z-position calculated from baro in meters (z-down)

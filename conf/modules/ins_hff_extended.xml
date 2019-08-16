@@ -19,10 +19,10 @@
   <settings>
     <dl_settings NAME="Ins Extended">
       <dl_settings NAME="INS">
-        <dl_setting MAX="10" MIN="0" STEP="0.1" VAR="vff.accel_noise" shortname="accel_noise" module="subsystems/ins/vf_extended_float"/>
-        <dl_setting MAX="10" MIN="0" STEP="0.1" VAR="vff.r_baro" shortname="r_baro"/>
-        <dl_setting MAX="10" MIN="0" STEP="0.1" VAR="vff.r_alt" shortname="r_alt"/>
-        <dl_setting MAX="10" MIN="0" STEP="0.1" VAR="vff.r_obs_height" shortname="r_obs_height"/>
+        <dl_setting MAX="100" MIN="0" STEP="0.1" VAR="vff.accel_noise" shortname="accel_noise" module="subsystems/ins/vf_extended_float"/>
+        <dl_setting MAX="100" MIN="0" STEP="0.1" VAR="vff.r_baro" shortname="r_baro"/>
+        <dl_setting MAX="100" MIN="0" STEP="0.1" VAR="vff.r_alt" shortname="r_alt"/>
+        <dl_setting MAX="100" MIN="0" STEP="0.1" VAR="vff.r_obs_height" shortname="r_obs_height"/>
       </dl_settings>
     </dl_settings>
   </settings>

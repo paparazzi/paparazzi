@@ -469,7 +469,7 @@ static void guidance_h_traj_run(bool in_flight)
 
   /* compute position error    */
   VECT2_DIFF(guidance_h_pos_err, guidance_h.ref.pos, *stateGetPositionNed_i());
-  fprintf(stderr, "HPOS error: %d Y: %d\n", guidance_h_pos_err.x, guidance_h_pos_err.y);
+  //fprintf(stderr, "HPOS error: %d Y: %d\n", guidance_h_pos_err.x, guidance_h_pos_err.y);
   /* saturate it               */
   VECT2_STRIM(guidance_h_pos_err, -MAX_POS_ERR, MAX_POS_ERR);
 

@@ -36,7 +36,7 @@
 #include "std.h"
 
 #ifndef DEBUG_VFF_EXTENDED
-#define DEBUG_VFF_EXTENDED 0
+#define DEBUG_VFF_EXTENDED 1
 #else
 PRINT_CONFIG_VAR(DEBUG_VFF_EXTENDED)
 #endif
