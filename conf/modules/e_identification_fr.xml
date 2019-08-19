@@ -20,12 +20,5 @@
     <define name="USE_$(E_ID_PORT_UPPER)_RX" value="FALSE"/>
     <file name="e_identification_fr.c"/>
   </makefile>
-  
-  <makefile target="ap" firmware="rotorcraft">
-    <define name="ROTORCRAFT_FIRMWARE" />
-  </makefile>
-  <makefile target="ap" firmware="fixedwing">
-    <define name="FIXEDWING_FIRMWARE" />
-  </makefile>
 </module>
 
