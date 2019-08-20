@@ -116,8 +116,6 @@ PRINT_CONFIG_VAR(SDP3X_PRESSURE_OFFSET)
 #define SDP3X_LOWPASS_TAU 0.15
 #endif
 
-#define SDP3X_SENDER_ID 42 //FIXME
-
 struct AirspeedSdp3x sdp3x;
 static struct i2c_transaction sdp3x_trans;
 
@@ -159,7 +157,7 @@ static void sdp3x_downlink(struct transport_tx *trans, struct link_device *dev)
 void sdp3x_init(void)
 {
   sdp3x.pressure = 0.;
-  sdp3x.temperature = 0;
+  sdp3x.temperature = 0.;
   sdp3x.airspeed = 0.;
   sdp3x.pressure_scale = SDP3X_PRESSURE_SCALE;
   sdp3x.pressure_offset = SDP3X_PRESSURE_OFFSET;
@@ -231,8 +229,6 @@ void sdp3x_event(void)
       sdp3x.pressure = p_out;
 #endif
 
-      //sdp3x.pressure = ((float)p_raw / sdp3x.pressure_scale) - sdp3x.pressure_offset;
-
       if (sdp3x.autoset_offset) {
         if (autoset_nb < AUTOSET_NB_MAX) {
           autoset_offset += p_raw * sdp3x.pressure_scale;
@@ -256,7 +252,7 @@ void sdp3x_event(void)
       sdp3x.airspeed = sqrtf(Max(sdp3x.pressure * sdp3x.airspeed_scale, 0));
 
 #if USE_AIRSPEED_SDP3X
-      stateSetAirspeed_f(sdp3x.airspeed);
+      AbiSendMsgAIRSPEED(AIRSPEED_SDP3X_ID, sdp3x.airspeed);
 #endif
       if (sdp3x.sync_send) {
         sdp3x_downlink(&(DefaultChannel).trans_tx, &(DefaultDevice).device);
