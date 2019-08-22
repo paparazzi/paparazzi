@@ -43,10 +43,6 @@ PRINT_CONFIG_MSG("USE_AIRSPEED_SDP3X set to TRUE since this is set USE_AIRSPEED"
 #endif
 #endif
 
-#if USE_AIRSPEED_SDP3X
-#include "state.h"
-#endif
-
 /** Use low pass filter on pressure values
  */
 #ifndef USE_AIRSPEED_LOWPASS_FILTER
@@ -200,13 +196,12 @@ void sdp3x_periodic(void)
 
 void sdp3x_event(void)
 {
-  static int autoset_nb = 0;
-  static float autoset_offset = 0.f;
-
   /* Check if transaction is succesfull */
   if (sdp3x_trans.status == I2CTransSuccess) {
 
     if (sdp3x.initialized) {
+      static int autoset_nb = 0;
+      static float autoset_offset = 0.f;
       uint8_t buf[6];
       for (uint8_t i = 0; i < 6; i++) {
         buf[i] = sdp3x_trans.buf[i];
