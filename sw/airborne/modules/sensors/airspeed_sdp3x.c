@@ -152,12 +152,13 @@ static void sdp3x_downlink(struct transport_tx *trans, struct link_device *dev)
 
 void sdp3x_init(void)
 {
-  sdp3x.pressure = 0.;
-  sdp3x.temperature = 0.;
-  sdp3x.airspeed = 0.;
+  sdp3x.pressure = 0.f;
+  sdp3x.temperature = 0.f;
+  sdp3x.airspeed = 0.f;
   sdp3x.pressure_scale = SDP3X_PRESSURE_SCALE;
   sdp3x.pressure_offset = SDP3X_PRESSURE_OFFSET;
   sdp3x.airspeed_scale = SDP3X_AIRSPEED_SCALE;
+  sdp3x.autoset_offset = false;
   sdp3x.sync_send = SDP3X_SYNC_SEND;
   sdp3x.initialized = false;
 
