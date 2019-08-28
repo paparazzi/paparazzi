@@ -103,6 +103,10 @@
 #define AIRSPEED_ADC_ID 2
 #endif
 
+#ifndef AIRSPEED_SDP3X_ID
+#define AIRSPEED_SDP3X_ID 3
+#endif
+
 /*
  * IDs of Incidence angles (message 24)
  */
