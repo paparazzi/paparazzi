@@ -605,7 +605,7 @@ static void vel_est_cb(uint8_t sender_id __attribute__((unused)),
     if (last_stamp_x > 0)
     {
       float dt = (float)(stamp - last_stamp_x) * 1e-6;
-      ins_int.ltp_pos.x += POS_BFP_OF_REAL(dt * vel_ned.x);
+      ins_int.ltp_pos.x += lround(POS_BFP_OF_REAL(dt * vel_ned.x));
     }
     last_stamp_x = stamp;
   }
@@ -615,7 +615,7 @@ static void vel_est_cb(uint8_t sender_id __attribute__((unused)),
     if (last_stamp_y > 0)
     {
       float dt = (float)(stamp - last_stamp_y) * 1e-6;
-      ins_int.ltp_pos.y += POS_BFP_OF_REAL(dt * vel_ned.y);
+      ins_int.ltp_pos.y += lround(POS_BFP_OF_REAL(dt * vel_ned.y));
     }
     last_stamp_y = stamp;
   }

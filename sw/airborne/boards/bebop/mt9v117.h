@@ -37,10 +37,10 @@
 
 // parameters for undistortion, defaults are rough estimates
 #ifndef MT9V117_FOCAL_X
-#define MT9V117_FOCAL_X 349.f
+#define MT9V117_FOCAL_X 307.f
 #endif
 #ifndef MT9V117_FOCAL_Y
-#define MT9V117_FOCAL_Y 349.f
+#define MT9V117_FOCAL_Y 307.f
 #endif
 #ifndef MT9V117_CENTER_X
 #define MT9V117_CENTER_X 120.f
