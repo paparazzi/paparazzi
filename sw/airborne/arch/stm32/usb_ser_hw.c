@@ -547,6 +547,7 @@ void VCOM_init(void)
 
   /* set up GPIO pins */
 #if defined STM32F4
+  rcc_periph_clock_enable(RCC_GPIOA);
   gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE,
                   GPIO11 | GPIO12);
   gpio_set_af(GPIOA, GPIO_AF10, GPIO11 | GPIO12);
