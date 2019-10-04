@@ -7,7 +7,7 @@
    telemetry="telemetry/OPENUAS/openuas_fixedwing_imu.xml"
    flight_plan="flight_plans/OPENUAS/openuas_versatile_unified.xml"
    settings="settings/fixedwing_basic.xml settings/control/ctl_energyadaptive.xml settings/estimation/ac_char.xml settings/control/ctl_adaptive_h_ff.xml"
-   settings_modules="modules/digital_cam_video.xml modules/dc_ctrl_parrot_mykonos.xml modules/video_capture.xml modules/photogrammetry_calculator.xml modules/nav_smooth.xml modules/nav_survey_poly_osam.xml modules/geo_mag.xml modules/air_data.xml modules/nav_basic_fw.xml modules/guidance_energy.xml modules/stabilization_adaptive_fw.xml modules/ahrs_float_cmpl_quat.xml modules/tune_airspeed.xml modules/ahrs_int_cmpl_quat.xml modules/gps.xml modules/airspeed_ms45xx_i2c.xml modules/gps_ubx_ucenter.xml modules/imu_common.xml"
+   settings_modules="modules/digital_cam_video.xml modules/dc_ctrl_parrot_mykonos.xml modules/video_capture.xml modules/bebop_cam.xml modules/photogrammetry_calculator.xml modules/nav_smooth.xml modules/nav_survey_poly_osam.xml modules/geo_mag.xml modules/air_data.xml modules/nav_basic_fw.xml modules/guidance_energy.xml modules/stabilization_adaptive_fw.xml modules/ahrs_float_cmpl_quat.xml modules/tune_airspeed.xml modules/ahrs_int_cmpl_quat.xml modules/gps.xml modules/airspeed_ms45xx_i2c.xml modules/gps_ubx_ucenter.xml modules/imu_common.xml"
    gui_color="#f39cf39cf39c"
    release="8e50f043b163f2b838dadaf1740a3e17b292505b"
   />

@@ -40,6 +40,7 @@
 
              <!-- set Gyro/Accel output rate to 2kHz at 8kHz internal sampling -->
             <define name="IMU_MPU_LOWPASS_FILTER" value="MPU60X0_DLPF_256HZ"/><!--This sets the internal sample rate to 8KHz. -->
+            <define name="IMU_MPU_ACCEL_LOWPASS_FILTER" value="MPU60X0_DLPF_ACC_44HZ"/><!-- FIXME check value -->
             <define name="IMU_MPU_SMPLRT_DIV" value="3"/> <!-- for 1khz periodic IMU_MPU_SMPLRT_DIV=7 sr = gr(8) /1+IMU_MPU_SMPLRT_DIV (1+7/8=1khz-->
 
             <configure name="NAVIGATION_FREQUENCY" value="16"/>
