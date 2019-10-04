@@ -22,7 +22,7 @@ HARD_FLOAT=yes
 # Theoreticlly possible are also SWD and JTAG_BMP
 # But no simple physical connectors to the board...
 # So... DFU it will be ...
-FLASH_MODE=DFU-UTIL
+FLASH_MODE?=DFU-UTIL
 
 #idVendor=0483, idProduct=5740
 #USB device strings: Mfr=1, Product=2, SerialNumber=3
