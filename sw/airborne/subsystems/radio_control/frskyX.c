@@ -18,7 +18,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#include "cc2500_frskyX.h"
+#include <subsystems/radio_control/frskyX.h>
 #include "subsystems/radio_control.h"
 
 void radio_control_impl_init(void) {

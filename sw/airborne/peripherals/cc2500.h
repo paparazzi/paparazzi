@@ -1,0 +1,4 @@
+#ifndef PERIPHERALS_CC2500_H
+#define PERIPHERALS_CC2500_H
+
+#endif

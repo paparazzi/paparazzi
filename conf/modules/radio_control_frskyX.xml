@@ -1,0 +1,30 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="radio_control_frskyX" dir="radio_control">
+  <doc>
+    <description>
+      Radio control with Frsky X software receiver.
+    </description>
+  </doc>
+  <header>
+    <file name="frskyX.h" dir="subsystems/radio_control"/>
+  </header>
+  <makefile target="ap|fbw|sim|nps">
+    <define name="RADIO_CONTROL_TYPE_H" value="subsystems/radio_control/frskyX.h" type="string"/>
+    <configure name="FRSKYX_IMPL" default="cc2500"/>
+  </makefile>
+    <makefile target="fbw">
+    <define name="RADIO_CONTROL"/>
+    <file name="radio_control.c" dir="subsystems"/>
+    <file name="frskyX.c" dir="subsystems/radio_control"/>
+    <file name="frskyX_$(FRSKYX_IMPL).c" dir="subsystems/radio_control"/>
+    <file name="$(FRSKYX_IMPL).c" dir="peripherals"/>
+  </makefile>
+  <makefile target="ap" cond="ifeq (,$(findstring $(SEPARATE_FBW),1 TRUE))">
+    <define name="RADIO_CONTROL"/>
+    <file name="radio_control.c" dir="subsystems"/>
+    <file name="frskyX.c" dir="subsystems/radio_control"/>
+    <file name="frskyX_$(FRSKYX_IMPL).c" dir="subsystems/radio_control"/>
+    <file name="$(FRSKYX_IMPL).c" dir="peripherals"/>
+  </makefile>
+</module>

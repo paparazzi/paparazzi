@@ -19,12 +19,12 @@
  */
 
 /**
- * @file subsystems/radio_control/cc2500_frskyX.h
- * CC2500 SPI Frsky X radio control implementation.
+ * @file subsystems/radio_control/frskyX.h
+ * Platform-independent Frsky X handler.
  */
 
-#ifndef RADIO_CONTROL_CC2500_FRSKYX_H
-#define RADIO_CONTROL_CC2500_FRSKYX_H
+#ifndef RADIO_CONTROL_FRSKYX_H
+#define RADIO_CONTROL_FRSKYX_H
 
 #ifndef RADIO_CONTROL_NB_CHANNEL
 #define RADIO_CONTROL_NB_CHANNEL 16
@@ -81,12 +81,13 @@
 #define RADIO_AUX10      15
 #endif
 
-/**
- * RC event function with handler callback.
- */
+/* RC event function with handler callback. */
 extern void radio_control_impl_event(void (* _received_frame_handler)(void));
 
 /* The radio control event handler */
 #define RadioControlEvent(_received_frame_handler) radio_control_impl_event(_received_frame_handler)
+
+/* FrskyX implementation interface */
+extern void frskyx_init(void);
 
 #endif
