@@ -53,16 +53,7 @@
             <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="90"/> <!-- in 10/s seconds-->
         </target>
 
-        <module name="radio_control" type="ppm"> <!--datalink(e.g. wifi) or ppm  or sbus-->
-            <define name="RADIO_CONTROL_NB_CHANNEL" value="8"/>
-            <!--<define name="SBUS_PORT" value="UART1"/>-->
-
-            <!-- for debugging PPM value the one below -->
-            <!--<define name="TELEMETRY_MODE_FBW" value="1"/>-->
-
-            <!-- <define name="RADIO_MODE" value="RADIO_FLAP"/> -->
-            <define name="RADIO_KILL_SWITCH" value="RADIO_AUX1"/>
-        </module>
+        <module name="radio_control" type="cc2500_frskyX"/>
 
         <module name="motor_mixing"/>
 

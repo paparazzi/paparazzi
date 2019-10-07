@@ -1,0 +1,31 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="radio_control_cc2500_frskyX" dir="radio_control">
+  <doc>
+    <description>
+      Radio control with CC2500 (SPI) as Frsky X receiver.
+    </description>
+  </doc>
+  <header>
+    <file name="cc2500_frskyX.h" dir="subsystems/radio_control"/>
+  </header>
+  <makefile target="ap|fbw|sim|nps">
+    <configure name="CC2500_FRSKYX_SPI_DEV" default="SPI3"/>
+    <configure name="CC2500_FRSKYX_SPI_SLAVE_IDX" default="0"/><!-- TODO -->
+    <define name="RADIO_CONTROL_TYPE_H" value="subsystems/radio_control/cc2500_frskyX.h" type="string"/>
+  </makefile>
+    <makefile target="fbw">
+    <define name="RADIO_CONTROL"/>
+    <define name="USE_$(CC2500_FRSKYX_SPI_DEV)"/>
+    <define name="USE_SPI_SLAVE$(CC2500_FRSKYX_SPI_SLAVE_IDX)"/>
+    <file name="radio_control.c" dir="subsystems"/>
+    <file name="cc2500_frskyX.c" dir="subsystems/radio_control"/>
+  </makefile>
+  <makefile target="ap" cond="ifeq (,$(findstring $(SEPARATE_FBW),1 TRUE))">
+    <define name="RADIO_CONTROL"/>
+    <define name="USE_$(CC2500_FRSKYX_SPI_DEV)"/>
+    <define name="USE_SPI_SLAVE$(CC2500_FRSKYX_SPI_SLAVE_IDX)"/>
+    <file name="radio_control.c" dir="subsystems"/>
+    <file name="cc2500_frskyX.c" dir="subsystems/radio_control"/>
+  </makefile>
+</module>
