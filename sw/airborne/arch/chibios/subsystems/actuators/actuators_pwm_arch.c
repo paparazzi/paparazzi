@@ -124,6 +124,21 @@ void actuators_pwm_arch_init(void)
 #ifdef PWM_SERVO_11
   gpio_setup_pin_af(PWM_SERVO_11_GPIO, PWM_SERVO_11_PIN, PWM_SERVO_11_AF, true);
 #endif
+#ifdef PWM_SERVO_12
+  gpio_setup_pin_af(PWM_SERVO_12_GPIO, PWM_SERVO_12_PIN, PWM_SERVO_12_AF, true);
+#endif
+#ifdef PWM_SERVO_13
+  gpio_setup_pin_af(PWM_SERVO_13_GPIO, PWM_SERVO_13_PIN, PWM_SERVO_13_AF, true);
+#endif
+#ifdef PWM_SERVO_14
+  gpio_setup_pin_af(PWM_SERVO_14_GPIO, PWM_SERVO_14_PIN, PWM_SERVO_14_AF, true);
+#endif
+#ifdef PWM_SERVO_15
+  gpio_setup_pin_af(PWM_SERVO_15_GPIO, PWM_SERVO_15_PIN, PWM_SERVO_15_AF, true);
+#endif
+#ifdef PWM_SERVO_16
+  gpio_setup_pin_af(PWM_SERVO_16_GPIO, PWM_SERVO_16_PIN, PWM_SERVO_16_AF, true);
+#endif
 
   /*---------------
    * Configure PWM
@@ -189,5 +204,20 @@ void actuators_pwm_commit(void)
 #endif
 #ifdef PWM_SERVO_11
   pwmEnableChannel(&PWM_SERVO_11_DRIVER, PWM_SERVO_11_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[PWM_SERVO_11]));
+#endif
+#ifdef PWM_SERVO_12
+  pwmEnableChannel(&PWM_SERVO_12_DRIVER, PWM_SERVO_12_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[PWM_SERVO_12]));
+#endif
+#ifdef PWM_SERVO_13
+  pwmEnableChannel(&PWM_SERVO_13_DRIVER, PWM_SERVO_13_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[PWM_SERVO_13]));
+#endif
+#ifdef PWM_SERVO_14
+  pwmEnableChannel(&PWM_SERVO_14_DRIVER, PWM_SERVO_14_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[PWM_SERVO_14]));
+#endif
+#ifdef PWM_SERVO_15
+  pwmEnableChannel(&PWM_SERVO_15_DRIVER, PWM_SERVO_15_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[PWM_SERVO_15]));
+#endif
+#ifdef PWM_SERVO_16
+  pwmEnableChannel(&PWM_SERVO_16_DRIVER, PWM_SERVO_16_CHANNEL, PWM_CMD_TO_US(actuators_pwm_values[PWM_SERVO_16]));
 #endif
 }

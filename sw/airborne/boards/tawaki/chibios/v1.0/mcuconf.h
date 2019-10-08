@@ -277,11 +277,15 @@
 #ifndef STM32_PWM_USE_TIM2
 #define STM32_PWM_USE_TIM2                  FALSE // keep free if in tickless mode, can be used in systick mode
 #endif
-#define STM32_PWM_USE_TIM3                  FALSE
+#ifndef STM32_PWM_USE_TIM3
+#define STM32_PWM_USE_TIM3                  FALSE // enable for servo 12, 14, 15, 16 on AUX connectors
+#endif
 #ifndef STM32_PWM_USE_TIM4
 #define STM32_PWM_USE_TIM4                  TRUE
 #endif
-#define STM32_PWM_USE_TIM5                  FALSE
+#ifndef STM32_PWM_USE_TIM5
+#define STM32_PWM_USE_TIM5                  FALSE // enable for servo 9, 10, 11, 13 on AUX connectors
+#endif
 #define STM32_PWM_USE_TIM8                  FALSE
 #define STM32_PWM_USE_TIM9                  FALSE
 #define STM32_PWM_TIM1_IRQ_PRIORITY         7

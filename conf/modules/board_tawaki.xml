@@ -25,7 +25,7 @@
     <define name="IMU_MPU_Y_SIGN" value="-1" cond="ifeq (,$(findstring $(BOARD_TAWAKI_ROTATED),1 TRUE))"/>
     <configure name="BMP3_I2C_DEV" value="i2c4" case="upper|lower"/>
     <define name="BMP3_SLAVE_ADDR" value="BMP3_I2C_ADDR_ALT"/>
-    <configure name="MAG_LIS3MDL_I2C_DEV" value="i2c4" case="upper|lower"/>
+    <configure name="MAG_LIS3MDL_I2C_DEV" default="i2c4" case="upper|lower"/>
     <define name="MODULE_LIS3MDL_UPDATE_AHRS"/>
     <define name="LIS3MDL_CHAN_X" value="1" cond="ifeq (,$(findstring $(BOARD_TAWAKI_ROTATED),1 TRUE))"/>
     <define name="LIS3MDL_CHAN_Y" value="0" cond="ifeq (,$(findstring $(BOARD_TAWAKI_ROTATED),1 TRUE))"/>
