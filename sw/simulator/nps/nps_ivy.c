@@ -182,10 +182,11 @@ static void on_DL_SETTING(IvyClientPtr app __attribute__((unused)),
    */
   uint8_t index = atoi(argv[2]);
   float value = atof(argv[3]);
-  DlSetting(index, value);
-  DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &index, &value);
+  if (!datalink_enabled) {
+    DlSetting(index, value);
+    DOWNLINK_SEND_DL_VALUE(DefaultChannel, DefaultDevice, &index, &value);
+  }
   printf("setting %d %f\n", index, value);
-
 
   /*
    * In case of HITL, update nps_autopilot.launch from DL_SETTINGS

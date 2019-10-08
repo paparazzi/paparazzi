@@ -153,7 +153,6 @@ class PprzConnect(object):
             self._ivy.shutdown()
             self._ivy = None
 
-    @property
     def conf_by_name(self, ac_name=None):
         """
         Get a conf by its name
@@ -166,7 +165,6 @@ class PprzConnect(object):
         else:
             return self._conf_list_by_name
 
-    @property
     def conf_by_id(self, ac_id=None):
         """
         Get a conf by its ID
