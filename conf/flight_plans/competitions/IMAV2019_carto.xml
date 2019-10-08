@@ -1,0 +1,172 @@
+<!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
+
+<flight_plan alt="805" ground_alt="775" home_mode_height="18" lat0="40.1579607" lon0="-3.3813882" max_dist_from_home="400" name="IMAV2019 Carto" qfu="250." security_height="10">
+  <header>
+#include "subsystems/datalink/datalink.h"
+static inline bool delay_test_rc(bool test, int delay) {
+  static int nb = 0;
+  if (test) {
+    nb++;
+    if (nb == delay) {
+      nb = 0;
+      return true;
+    }
+    return false;
+  } else {
+    nb = 0;
+    return false;
+  }
+}
+static inline bool delay_test_gf(bool test, int delay) {
+  static int nb = 0;
+  if (test) {
+    nb++;
+    if (nb == delay) {
+      nb = 0;
+      return true;
+    }
+    return false;
+  } else {
+    nb = 0;
+    return false;
+  }
+}
+
+#if DIGITAL_CAM
+#ifndef SITL
+static inline void set_expo(float e) {
+  uint8_t tab[2];
+  tab[0] = 'e';
+  tab[1] = (uint8_t)(e * 10.f);
+  DOWNLINK_SEND_PAYLOAD_COMMAND(extra_pprz_tp, EXTRA_DOWNLINK_DEVICE, 0, 2, tab);
+}
+#else
+#include "stdio.h"
+#define set_expo(_e) { printf("setting expo %f",_e); fflush(stdout); }
+#endif
+#define LINE_START_FUNCTION dc_Survey(20);
+#define LINE_STOP_FUNCTION dc_autoshoot = DC_AUTOSHOOT_STOP;
+#endif
+
+#define NavQdrCloseToAxis(_from, _to) NavQdrCloseTo(DegOfRad(-atan2f(WaypointY(_to) - WaypointY(_from), WaypointX(_to) - WaypointX(_from))))
+  </header>
+  <waypoints>
+    <waypoint name="HOME" x="0" y="0"/>
+    <waypoint name="STDBY" x="92.5" y="-42.2"/>
+    <waypoint alt="775.0" name="TD" x="25.7" y="0.4"/>
+    <waypoint alt="790.0" name="AF" x="127.6" y="20.3"/>
+    <waypoint name="_BASELEG" x="168.8" y="-13.8"/>
+    <waypoint name="CLIMB" x="-49.6" y="-15.9"/>
+    <waypoint name="_NFZ1" x="238.6" y="74.6"/>
+    <waypoint name="_NFZ2" x="259.1" y="-43.6"/>
+    <waypoint name="_NFZ3" x="57.2" y="-204.1"/>
+    <waypoint name="_NFZ4" x="-138.0" y="-237.3"/>
+    <waypoint name="_NFZ5" x="-202.5" y="-133.7"/>
+    <waypoint name="_NFZ6" x="-127.3" y="10.6"/>
+    <waypoint name="_MAP1" x="9.9" y="-4.5"/>
+    <waypoint name="_MAP2" x="42.1" y="-172.3"/>
+    <waypoint name="_MAP3" x="-107.7" y="-201.1"/>
+    <waypoint name="_MAP4" x="-105.9" y="-22.2"/>
+    <waypoint name="ZBC" x="-36.3" y="-99.1"/>
+    <waypoint name="ZBDIR" x="-83.3" y="-105.3"/>
+  </waypoints>
+  <sectors>
+    <sector color="red" name="FlyZone" type="dynamic">
+      <corner name="_NFZ1"/>
+      <corner name="_NFZ2"/>
+      <corner name="_NFZ3"/>
+      <corner name="_NFZ4"/>
+      <corner name="_NFZ5"/>
+      <corner name="_NFZ5"/>
+      <corner name="_NFZ6"/>
+    </sector>
+    <sector color="green" name="MAP" type="dynamic">
+      <corner name="_MAP1"/>
+      <corner name="_MAP2"/>
+      <corner name="_MAP3"/>
+      <corner name="_MAP4"/>
+    </sector>
+  </sectors>
+  <variables>
+    <variable init="2." max="20." min="0.1" step="0.1" var="exposure"/>
+    <variable init="30." max="60." min="10." step="1." var="map_alt"/>
+  </variables>
+  <modules>
+    <module name="nav" type="survey_zamboni"/>
+  </modules>
+  <!--exceptions>
+    <exception cond="(delay_test_rc(RCLost(),20) &&
+      !(IndexOfBlock('Takeoff') > nav_block) &&
+      !(nav_block >= IndexOfBlock('Land Right AF-TD')) &&
+      (autopilot.launch == true) )" deroute="EmergencyLanding"/>
+    <exception cond="(datalink_time > 10 &&
+      !(IndexOfBlock('Takeoff') > nav_block) &&
+      !(nav_block >= IndexOfBlock('Land Right AF-TD')) &&
+      (autopilot.launch == true) )" deroute="EmergencyLanding"/>
+    <exception cond="(delay_test_gf(!InsideFlyZone(GetPosX(), GetPosY()),10) &&
+      !(IndexOfBlock('Takeoff') > nav_block) &&
+      !(nav_block >= IndexOfBlock('Land Right AF-TD')) &&
+      (autopilot.launch == true) )" deroute="EmergencyLanding"/>
+  </exceptions-->
+  <blocks>
+    <block name="Wait GPS">
+      <set value="1" var="autopilot.kill_throttle"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+    </block>
+    <block name="Holding point">
+      <set value="1" var="autopilot.kill_throttle"/>
+      <attitude roll="0" throttle="0" vmode="throttle"/>
+    </block>
+    <block group="home" key="t" name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
+      <exception cond="GetPosAlt() > GetAltRef()+20" deroute="Align Zamboni"/>
+      <set value="0" var="autopilot.kill_throttle"/>
+      <set value="0" var="autopilot.flight_time"/>
+      <go from="HOME" pitch="30" throttle="0.8" vmode="throttle" wp="CLIMB"/>
+      <deroute block="Align Zamboni"/>
+    </block>
+    <block group="home" key="Ctrl+a" name="Standby" strip_button="Standby" strip_icon="home.png">
+      <circle radius="nav_radius" wp="STDBY"/>
+    </block>
+    <block name="Align Zamboni">
+      <circle radius="nav_radius" until="NavQdrCloseToAxis(WP_STDBY,WP_ZBC) @AND fabsf(GetPosAlt() - WaypointAlt(WP_ZBC)) @LT 10." wp="STDBY"/>
+    </block>
+    <block group="map" name="ZamboniSurvey" strip_button="Zamboni">
+      <call_once fun="nav_survey_zamboni_setup(WP_ZBC, WP_ZBDIR, 140, 13, 13, GetAltRef()+map_alt)"/>
+      <call fun="nav_survey_zamboni_run()"/>
+      <!--deroute block="Standby"/-->
+      <deroute block="Land Left AF-TD"/>
+    </block>
+    <block group="land" name="Land Right AF-TD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png">
+      <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
+      <deroute block="land"/>
+    </block>
+    <block group="land" name="Land Left AF-TD" strip_button="Land left (wp AF-TD)" strip_icon="land-left.png">
+      <set value="-DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
+      <deroute block="land"/>
+    </block>
+    <block name="land">
+      <call_once fun="nav_compute_baseleg(WP_AF, WP_TD, WP__BASELEG, nav_radius)"/>
+      <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="_BASELEG"/>
+      <circle radius="nav_radius" until="And(NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10), 10 > fabs(GetPosAlt() - WaypointAlt(WP__BASELEG)))" wp="_BASELEG"/>
+    </block>
+    <block name="final">
+      <exception cond="GetAltRef() + 3 > GetPosAlt()" deroute="flare"/>
+      <go from="AF" hmode="route" vmode="glide" wp="TD"/>
+    </block>
+    <block name="flare">
+      <go exceeding_time="10" from="AF" hmode="route" throttle="0.0" vmode="throttle" wp="TD"/>
+      <attitude roll="0.0" throttle="0.0" until="FALSE" vmode="throttle"/>
+    </block>
+    <block name="EmergencyLanding">
+      <go throttle="0." vmode="throttle" wp="HOME"/>
+      <attitude roll="0" throttle="0" vmode="throttle"/>
+    </block>
+    <block name="SetExpo">
+      <call_once fun="set_expo(exposure)"/>
+      <return/>
+    </block>
+  </blocks>
+</flight_plan>

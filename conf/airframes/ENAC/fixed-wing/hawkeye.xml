@@ -10,7 +10,9 @@
     <configure name="PERIODIC_FREQUENCY" value="125"/>
 
     <target name="ap" board="apogee_1.0_chibios">
-      <module name="radio_control" type="sbus"/>
+      <module name="radio_control" type="sbus">
+        <define name="RADIO_KILL_SWITCH" value="RADIO_GAIN1"/>
+      </module>
       <!--module name="ins" type="float_invariant">
         <define name="USE_MAGNETOMETER"/>
         <configure name="AHRS_PROPAGATE_FREQUENCY" value="125"/>
@@ -57,7 +59,7 @@
       <define name="DC_AUTOSHOOT_DISTANCE_INIT" value="4"/>
     </module>
 
-    <module name="takeoff_detect.xml"/>
+    <module name="takeoff_detect"/>
   </firmware>
 
 <!-- commands section -->
@@ -253,6 +255,7 @@
 
   <section name="SIMU">
     <define name="ROLL_RESPONSE_FACTOR" value="20"/>
+    <define name="YAW_RESPONSE_FACTOR" value="0.75"/>
     <define name="JSBSIM_MODEL" value="easystar" type="string"/>
     <define name="JSBSIM_LAUNCHSPEED" value="15.0"/>
   </section>
