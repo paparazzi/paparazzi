@@ -91,13 +91,13 @@ void takeoff_detect_periodic(void)
       if (stateGetNedToBodyEulers_f()->theta > TAKEOFF_DETECT_LAUNCH_PITCH)
       {
 #ifndef TAKEOFF_DETECT_ALSO_IN_AUTO1
-      if (autopilot_get_mode() != AP_MODE_AUTO2)
+        if (autopilot_get_mode() == AP_MODE_AUTO2)
 #else
-      if ((autopilot_get_mode() != AP_MODE_AUTO2) || (autopilot_get_mode() != AP_MODE_AUTO1))
+        if ((autopilot_get_mode() == AP_MODE_AUTO2) || (autopilot_get_mode() == AP_MODE_AUTO1))
 #endif
         {
-        takeoff_detect.timer++;
-    	}
+          takeoff_detect.timer++;
+        }
       }
       else {
         // else reset timer
@@ -116,9 +116,9 @@ void takeoff_detect_periodic(void)
       if (stateGetNedToBodyEulers_f()->theta < TAKEOFF_DETECT_ABORT_PITCH)
       {
 #ifndef TAKEOFF_DETECT_ALSO_IN_AUTO1
-      if (autopilot_get_mode() != AP_MODE_AUTO2)
+        if (autopilot_get_mode() == AP_MODE_AUTO2)
 #else
-      if ((autopilot_get_mode() != AP_MODE_AUTO2) || (autopilot_get_mode() != AP_MODE_AUTO1))
+        if ((autopilot_get_mode() == AP_MODE_AUTO2) || (autopilot_get_mode() == AP_MODE_AUTO1))
 #endif
         {
           // back to ARMED state
