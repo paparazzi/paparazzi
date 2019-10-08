@@ -1,0 +1,49 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="cv_target_localization" dir="computer_vision">
+  <doc>
+    <description>
+      Find georeferenced position of a target from visual detection.
+      Targets position are reported using the MARK telemetry message to the ground.
+      It is also possible to update the position of a waypoint based on the latest detection.
+
+      Based on the VISUAL_DETECTION ABI message.
+    </description>
+    <section name="TARGET_LOC" prefix="TARGET_LOC_">
+      <define name="BODY_TO_CAM_PHI" value="0." description="rotation between camera and body frame (phi angle)"/>
+      <define name="BODY_TO_CAM_THETA" value="0." description="rotation between camera and body frame (theta angle)"/>
+      <define name="BODY_TO_CAM_PSI" value="M_PI_2" description="rotation between camera and body frame (psi angle), by default the camera is placed in front and pointing down"/>
+      <define name="CAM_POS_X" value="0." unit="m" description="position of the camera in body frame"/>
+      <define name="CAM_POS_Y" value="0." unit="m" description="position of the camera in body frame"/>
+      <define name="CAM_POS_Z" value="0." unit="m" description="position of the camera in body frame"/>
+      <define name="PIXEL_TO_IMAGE_X" value="0.001" description="conversion from pixel unit to m in image plane"/>
+      <define name="PIXEL_TO_IMAGE_Y" value="0.001" description="conversion from pixel unit to m in image plane"/>
+      <define name="WP_T1" value="WP_XXXX" description="associate waypoint XXXX to target 1 when using direct WP update from latest visual detection"/>
+      <define name="WP_T2" value="WP_XXXX" description="associate waypoint XXXX to target 2 when using direct WP update from latest visual detection"/>
+      <define name="WP_T3" value="WP_XXXX" description="associate waypoint XXXX to target 3 when using direct WP update from latest visual detection"/>
+      <define name="WP_T1_ID" value="1" description="target 1 ID reported by ABI message"/>
+      <define name="WP_T2_ID" value="2" description="target 2 ID reported by ABI message"/>
+      <define name="WP_T3_ID" value="3" description="target 3 ID reported by ABI message"/>
+      <define name="ID" value="ABI_BROADCAST" description="select ABI message source"/>
+      <define name="JEVOIS_ALT" value="FALSE|TRUE" description="when used with Jevois smart camera, send current altitude to improve detection of object of known size"/>
+    </section>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="Target Loc">
+        <dl_setting MAX="1" MIN="0" STEP="1" VAR="target_localization_update_wp" shortname="update_wp" module="modules/computer_vision/cv_target_localization" values="FALSE|TRUE"/>
+        <dl_setting MAX="5" MIN="1" STEP="1" VAR="target_localization_mark" shortname="mark" module="modules/computer_vision/cv_target_localization" handler="report_mark"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="cv_target_localization.h"/>
+  </header>
+  <init fun="target_localization_init()"/>
+  <periodic fun="target_localization_send_pos_to_cam()" freq="1"/>
+  <periodic fun="target_localization_report()" freq="4." autorun="TRUE"/>
+  <makefile>
+    <file name="cv_target_localization.c"/>
+  </makefile>
+</module>
+
