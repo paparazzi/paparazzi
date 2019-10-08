@@ -137,6 +137,15 @@ static void jevois_send_message(void)
   // send a FOLLOW_TARGET message in camera frame
   AbiSendMsgFOLLOW_TARGET(CAM_JEVOIS_ID, 0, 0, cam_heading, cam_height, 0.f);
 #endif
+#if JEVOIS_SEND_VISUAL_DETECTION
+  AbiSendMsgVISUAL_DETECTION(CAM_JEVOIS_ID,
+      jevois.msg.coord[0],
+      jevois.msg.coord[1],
+      jevois.msg.dim[0],
+      jevois.msg.dim[1],
+      0,
+      (int16_t)atoi(jevois.msg.id));
+#endif
 }
 
 // raw message parsing function
