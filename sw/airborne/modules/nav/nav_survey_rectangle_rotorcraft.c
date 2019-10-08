@@ -51,6 +51,14 @@
 #include "modules/nav/nav_survey_rectangle_rotorcraft.h"
 #include "state.h"
 
+#ifndef RECTANGLE_SURVEY_HEADING_NS
+#define RECTANGLE_SURVEY_HEADING_NS 0.f
+#endif
+
+#ifndef RECTANGLE_SURVEY_HEADING_WE
+#define RECTANGLE_SURVEY_HEADING_WE 90.f
+#endif
+
 float sweep = RECTANGLE_SURVEY_DEFAULT_SWEEP;
 static bool nav_survey_rectangle_active = false;
 uint16_t rectangle_survey_sweep_num;
@@ -147,9 +155,9 @@ void nav_survey_rectangle_rotorcraft_setup(uint8_t wp1, uint8_t wp2, float grid,
   LINE_STOP_FUNCTION;
   NavVerticalAltitudeMode(waypoints[wp1].enu_f.z, 0.);
   if (survey_orientation == NS) {
-    nav_set_heading_deg(0);
+    nav_set_heading_deg(RECTANGLE_SURVEY_HEADING_NS);
   } else {
-    nav_set_heading_deg(90);
+    nav_set_heading_deg(RECTANGLE_SURVEY_HEADING_WE);
   }
 }
 
