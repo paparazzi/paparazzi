@@ -196,6 +196,7 @@ bool nav_bungee_takeoff_run(void)
       //Follow Launch Line
       NavVerticalAutoThrottleMode(BUNGEE_TAKEOFF_PITCH);
       NavVerticalThrottleMode(MAX_PPRZ * (BUNGEE_TAKEOFF_THROTTLE));
+      autopilot.launch = true; // turn on motor
       nav_route_xy(init_point.x, init_point.y, throttle_point.x, throttle_point.y);
       autopilot_set_kill_throttle(false);
 
