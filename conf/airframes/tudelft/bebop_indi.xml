@@ -10,6 +10,7 @@
     </target>
 
     <target name="nps" board="pc">
+      <define name="STABILIZATION_INDI_G2_R" value="0.0"/>
       <module name="fdm" type="jsbsim"/>
       <module name="udp"/>
     </target>
