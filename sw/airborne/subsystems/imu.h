@@ -92,6 +92,12 @@ extern void imu_scale_mag(struct Imu *_imu);
 #define IMU_ACCEL_Z_NEUTRAL 0
 #endif
 
+#if !defined IMU_MAG_X_NEUTRAL && !defined IMU_MAG_Y_NEUTRAL && !defined IMU_MAG_Z_NEUTRAL
+#define IMU_MAG_X_NEUTRAL 0
+#define IMU_MAG_Y_NEUTRAL 0
+#define IMU_MAG_Z_NEUTRAL 0
+#endif
+
 #if !defined IMU_GYRO_P_SIGN & !defined IMU_GYRO_Q_SIGN & !defined IMU_GYRO_R_SIGN
 #define IMU_GYRO_P_SIGN   1
 #define IMU_GYRO_Q_SIGN   1
