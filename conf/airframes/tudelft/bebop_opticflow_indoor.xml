@@ -7,10 +7,10 @@
   <firmware name="rotorcraft">
     <target name="ap" board="bebop"/>
       <define name="USE_SONAR"/>
-    <target name="nps" board="pc">
+    <!--target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
       <module name="udp"/>
-    </target>
+    </target-->
 
     <!-- Subsystem section -->
     <module name="telemetry" type="transparent_udp"/>

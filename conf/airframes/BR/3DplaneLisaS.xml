@@ -176,10 +176,10 @@ Pin 6 on lisa/s is number 3 in airframefile = ELEVATOR
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="500"/>
     </target>
 
-    <target name="nps" board="pc">
+    <!--target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
       <module name="radio_control" type="ppm"/>
-    </target>
+    </target-->
 
     <module name="actuators" type="pwm">
       <!-- Setting the PWM interval to 400Hz -->
