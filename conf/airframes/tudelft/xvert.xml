@@ -23,6 +23,8 @@ E-flite X-VERT VTOL
     <!--<define name="PPRZ_TRIG_INT_USE_FLOAT"/>-->
     <define name="PPRZ_TRIG_CONST" value="const"/>
     <define name="THD_WORKING_AREA_MAIN" value="1024"/>
+    <define name="UART_THREAD_STACK_SIZE" value="256"/>
+    <define name="I2C_THREAD_STACK_SIZE" value="256"/>
 
     <configure name="USE_MAGNETOMETER" value="FALSE"/>
 
