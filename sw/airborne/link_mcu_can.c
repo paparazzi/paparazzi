@@ -149,7 +149,7 @@ void link_mcu_periodic_task(void)
   intermcu_tx_buff[2] = fbw_state->nb_err;
   uint16_t vsupply = fbw_state->electrical.vsupply * 10;
   intermcu_tx_buff[3] = (uint8_t) vsupply;
-  intermcu_tx_buff[4] = (uint8_t)(vsupply & 0xff00) >> 8);
+  intermcu_tx_buff[4] = (uint8_t)((vsupply & 0xff00) >> 8);
   ppz_can_transmit(MSG_INTERMCU_FBW_STATUS_ID, intermcu_tx_buff, 5);
 
 #if defined RADIO_CONTROL || RADIO_CONTROL_AUTO1
