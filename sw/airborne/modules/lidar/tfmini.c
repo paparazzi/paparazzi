@@ -170,5 +170,10 @@ static void tfmini_parse(uint8_t byte)
       // Start reading again
       tfmini.parse_status = TFMINI_PARSE_HEAD;
       break;
+
+    default:
+      // Error, return to start
+      tfmini.parse_status = TFMINI_PARSE_HEAD;
+      break;
   }
 }
