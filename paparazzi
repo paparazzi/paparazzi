@@ -1,0 +1,21 @@
+#!/usr/bin/env /usr/bin/python3
+
+import os
+import sys
+
+dirname = os.path.dirname(os.path.abspath(__file__))
+PAPARAZZI_HOME = os.getenv("PAPARAZZI_HOME",dirname)
+PAPARAZZI_SRC = os.getenv("PAPARAZZI_SRC",PAPARAZZI_HOME)
+env = os.environ
+env['PAPARAZZI_HOME'] = PAPARAZZI_HOME
+env['PAPARAZZI_SRC'] = PAPARAZZI_SRC
+
+if len(sys.argv) > 1 and sys.argv[1] == "-python":
+    path = os.path.normpath(os.path.join(dirname, 'sw', 'supervision', 'python', 'main.py'))
+    args = sys.argv[2:]
+    os.execve(path, args, env)
+else:
+    path = os.path.normpath(os.path.join(dirname, 'sw', 'supervision', 'paparazzicenter'))
+    args = sys.argv[1:]
+    os.execve(path, args, env)
+

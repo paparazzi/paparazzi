@@ -54,8 +54,6 @@ paparazzi.sublime-workspace
 /var
 /dox
 
-/paparazzi
-
 # /conf/
 /conf/conf.xml
 /conf/conf.xml.20*
