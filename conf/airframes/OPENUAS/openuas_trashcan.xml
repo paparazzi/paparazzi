@@ -53,7 +53,9 @@
             <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="90"/> <!-- in 10/s seconds-->
         </target>
 
-        <module name="radio_control" type="frskyX"/>
+        <module name="radio_control" type="frskyX">
+        	<define name="PERIPHERALS_CC2500_VERBOSE" value="TRUE"/>
+        </module>
 
         <module name="motor_mixing"/>
 
