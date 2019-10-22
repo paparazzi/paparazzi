@@ -59,5 +59,11 @@ for i in list_ids:
     interface.send(msg)
     print(msg)
 
+for i in list_ids:
+    msg_block = PprzMessage("datalink", "BLOCK")
+    msg_block['block_id'] = 4
+    msg_block['ac_id'] = int(i)
+    interface.send(msg_block)
+
 time.sleep(2)
 interface.shutdown()

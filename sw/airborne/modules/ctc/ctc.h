@@ -35,6 +35,10 @@ typedef struct {
   float k2;
   float alpha;
   uint16_t timeout;
+  float p_centroid_x;
+  float p_centroid_y;
+  float v_centroid_x;
+  float v_centroid_y;
   float target_px;
   float target_py;
   float target_vx;

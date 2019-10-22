@@ -41,15 +41,22 @@ static void send_ctc(struct transport_tx *trans, struct link_device *dev)
 {
    pprz_msg_send_CTC(trans, dev, AC_ID, 6*CTC_MAX_AC, &(tableNei[0][0]));
 }
+
+static void send_ctc_control(struct transport_tx *trans, struct link_device *dev)
+{
+   pprz_msg_send_CTC_CONTROL(trans, dev, AC_ID, &ctc_control.v_centroid_x, &ctc_control.v_centroid_y,
+           &ctc_control.target_vx, &ctc_control.target_vy, &ctc_control.target_px, &ctc_control.target_py,
+           &ctc_control.ref_px, &ctc_control.ref_py);
+}
 #endif // PERIODIC TELEMETRY
 
 // Control
 /*! Default gains for the algorithm */
 #ifndef CTC_GAIN_K1
-#define CTC_GAIN_K1 0.005
+#define CTC_GAIN_K1 0.01
 #endif
 #ifndef CTC_GAIN_K2
-#define CTC_GAIN_K2 0.0005
+#define CTC_GAIN_K2 0.001
 #endif
 #ifndef CTC_GAIN_ALPHA
 #define CTC_GAIN_ALPHA 0.1
@@ -60,21 +67,24 @@ static void send_ctc(struct transport_tx *trans, struct link_device *dev)
 #endif
 /*! Default angular velocity around target in rad/sec */
 #ifndef CTC_OMEGA
-#define CTC_OMEGA 0.5
+#define CTC_OMEGA 0.6
 #endif
 /*! Default time in ms for broadcasting information */
 #ifndef CTC_TIME_BROAD
 #define CTC_TIME_BROAD 100
 #endif
 
-ctc_con ctc_control = {CTC_GAIN_K1, CTC_GAIN_K2, CTC_GAIN_ALPHA, CTC_TIMEOUT, 
-                       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CTC_OMEGA, CTC_TIME_BROAD};
+ctc_con ctc_control = {CTC_GAIN_K1, CTC_GAIN_K2, CTC_GAIN_ALPHA, CTC_TIMEOUT,
+                       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CTC_OMEGA, CTC_TIME_BROAD};
 
 int16_t tableNei[CTC_MAX_AC][6];
 uint32_t last_info[CTC_MAX_AC];
 uint32_t last_transmision = 0;
 uint32_t before = 0;
 float ctc_error_to_target = 0;
+
+uint32_t time_init_table;
+bool gogogo = false;
 
 void ctc_init(void)
 {
@@ -83,7 +93,8 @@ void ctc_init(void)
   }
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_DCF, send_ctc);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_CTC, send_ctc);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_CTC_CONTROL, send_ctc_control);
 #endif
 }
 
@@ -102,10 +113,10 @@ bool collective_tracking_control()
   ctc_control.px = px;
   ctc_control.py = py;
 
-  float v_centroid_x = vx;
-  float v_centroid_y = vy;
-  float p_centroid_x = px;
-  float p_centroid_y = py;
+  ctc_control.v_centroid_x = vx;
+  ctc_control.v_centroid_y = vy;
+  ctc_control.p_centroid_x = px;
+  ctc_control.p_centroid_y = py;
 
 
   float u_vel = 0;
@@ -114,6 +125,12 @@ bool collective_tracking_control()
   uint32_t now = get_sys_time_msec();
   float dt = (now - before)/1000.0;
   before = now;
+
+  if(!gogogo){
+    if(now - time_init_table > 2000)
+        gogogo = true;
+  }else
+  {
 
   int num_neighbors = 0;
 
@@ -132,34 +149,35 @@ bool collective_tracking_control()
         float px_nei = tableNei[i][3] / 100.0;
         float py_nei = tableNei[i][4] / 100.0;
 
-        v_centroid_x += vx_nei;
-        v_centroid_y += vy_nei;
-        p_centroid_x += px_nei;
-        p_centroid_y += py_nei;
+        ctc_control.v_centroid_x += vx_nei;
+        ctc_control.v_centroid_y += vy_nei;
+        ctc_control.p_centroid_x += px_nei;
+        ctc_control.p_centroid_y += py_nei;
       }
     }
   }
 
   if(num_neighbors != 0){
-      v_centroid_x /= num_neighbors;
-      v_centroid_y /= num_neighbors;
-      p_centroid_x /= num_neighbors;
-      p_centroid_y /= num_neighbors;
+      ctc_control.v_centroid_x /= num_neighbors;
+      ctc_control.v_centroid_y /= num_neighbors;
+      ctc_control.p_centroid_x /= num_neighbors;
+      ctc_control.p_centroid_y /= num_neighbors;
 
-      float error_target_x = ctc_control.target_px - p_centroid_x;
-      float error_target_y = ctc_control.target_py - p_centroid_y;
+      float error_target_x = ctc_control.target_px - ctc_control.p_centroid_x;
+      float error_target_y = ctc_control.target_py - ctc_control.p_centroid_y;
       ctc_error_to_target = sqrtf(error_target_x*error_target_x + error_target_y*error_target_y);
       if(ctc_error_to_target < 0.1)
           ctc_error_to_target = 0.1;
       float aux = (1-expf(-ctc_control.alpha*ctc_error_to_target)) / ctc_error_to_target;
+      aux = 1e-2;
       float v_ref_x = ctc_control.target_vx + aux*error_target_x;
       float v_ref_y = ctc_control.target_vy + aux*error_target_y;
 
       ctc_control.ref_px += v_ref_x*dt;
       ctc_control.ref_py += v_ref_y*dt;
 
-      float error_v_x = v_centroid_x - v_ref_x;
-      float error_v_y = v_centroid_y - v_ref_y;
+      float error_v_x = ctc_control.v_centroid_x - v_ref_x;
+      float error_v_y = ctc_control.v_centroid_y - v_ref_y;
       u_vel = -ctc_control.k1*(-error_v_y*vx + error_v_x*vy);
 
 
@@ -182,6 +200,8 @@ bool collective_tracking_control()
     BoundAbs(h_ctl_roll_setpoint, h_ctl_roll_max_setpoint);
 
     lateral_mode = LATERAL_MODE_ROLL;
+  }
+
   }
 
   if (((now - last_transmision) > ctc_control.time_broad) && (autopilot_get_mode() == AP_MODE_AUTO2)) {
@@ -209,6 +229,8 @@ void ctc_send_info_to_nei(void)
 
 void parse_ctc_RegTable(void)
 {
+  time_init_table = get_sys_time_msec();
+
   uint8_t ac_id = DL_CTC_REG_TABLE_ac_id(dl_buffer);
   if (ac_id == AC_ID) {
     uint8_t nei_id = DL_CTC_REG_TABLE_nei_id(dl_buffer);
