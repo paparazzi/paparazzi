@@ -146,8 +146,8 @@ bool collective_tracking_control()
       p_centroid_x /= num_neighbors;
       p_centroid_y /= num_neighbors;
 
-      float error_target_x = ctc_control.target_px - ctc_control.ref_px;
-      float error_target_y = ctc_control.target_py - ctc_control.ref_py;
+      float error_target_x = ctc_control.target_px - p_centroid_x;
+      float error_target_y = ctc_control.target_py - p_centroid_y;
       ctc_error_to_target = sqrtf(error_target_x*error_target_x + error_target_y*error_target_y);
       if(ctc_error_to_target < 0.1)
           ctc_error_to_target = 0.1;
