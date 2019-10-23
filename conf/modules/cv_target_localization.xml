@@ -40,7 +40,6 @@
     <file name="cv_target_localization.h"/>
   </header>
   <init fun="target_localization_init()"/>
-  <periodic fun="target_localization_send_pos_to_cam()" freq="1"/>
   <periodic fun="target_localization_report()" freq="4." autorun="TRUE"/>
   <makefile>
     <file name="cv_target_localization.c"/>

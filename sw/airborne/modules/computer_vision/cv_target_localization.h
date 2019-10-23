@@ -39,8 +39,5 @@ extern uint8_t target_localization_mark;
 extern void cv_target_localization_report_mark(uint8_t mark);
 extern bool target_localization_update_wp;
 
-// TODO move functionality to the camera driver
-extern void target_localization_send_pos_to_cam(void);
-
 #endif
 

@@ -85,5 +85,9 @@ extern void jevois_setmapping(int number);
 // dummy variable to change mapping from setting
 extern int jevois_mapping_setting;
 
+/** Send state to camera
+ */
+extern void jevois_send_state(void);
+
 #endif
 
