@@ -99,6 +99,10 @@ extern "C" {
 #define SDLOG_NEED_QUEUE
 #endif
 
+#define LOG_PREALLOCATION_ENABLED true
+#define LOG_PREALLOCATION_DISABLED false
+#define LOG_APPEND_TAG_AT_CLOSE_ENABLED true
+#define LOG_APPEND_TAG_AT_CLOSE_DISABLED false
 
 #ifdef SDLOG_NEED_QUEUE
 typedef struct LogMessage LogMessage;

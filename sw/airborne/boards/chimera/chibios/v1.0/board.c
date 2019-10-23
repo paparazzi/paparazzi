@@ -261,3 +261,23 @@ bool mmc_lld_is_write_protected(MMCDriver *mmcp) {
 void boardInit(void) {
 
 }
+
+/** Energy saving procedure for SD log closing
+ */
+void mcu_periph_energy_save(void)
+{
+  palSetLineMode(LINE_LED1, PAL_MODE_INPUT);
+  palSetLineMode(LINE_LED2, PAL_MODE_INPUT);
+  palSetLineMode(LINE_LED3, PAL_MODE_INPUT);
+  palSetLineMode(LINE_LED4, PAL_MODE_INPUT);
+  palSetLineMode(LINE_SPI1_CS, PAL_MODE_INPUT);
+  palSetLineMode(LINE_AUX0, PAL_MODE_INPUT);
+  palSetLineMode(LINE_AUX1, PAL_MODE_INPUT);
+  palSetLineMode(LINE_AUX2, PAL_MODE_INPUT);
+  palSetLineMode(LINE_AUX3, PAL_MODE_INPUT);
+  palSetLineMode(LINE_AUX4, PAL_MODE_INPUT);
+  palSetLineMode(LINE_AUX5, PAL_MODE_INPUT);
+  palSetLineMode(LINE_AUX6, PAL_MODE_INPUT);
+  palSetLineMode(LINE_AUX7, PAL_MODE_INPUT);
+}
+

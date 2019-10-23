@@ -151,3 +151,9 @@ void mcu_arch_init(void)
 
 }
 
+void WEAK mcu_periph_energy_save(void)
+{
+  // Default empty implementation
+  // see board.c file
+}
+
