@@ -53,13 +53,13 @@ static void send_ctc_control(struct transport_tx *trans, struct link_device *dev
 // Control
 /*! Default gains for the algorithm */
 #ifndef CTC_GAIN_K1
-#define CTC_GAIN_K1 0.01
+#define CTC_GAIN_K1 0.001
 #endif
 #ifndef CTC_GAIN_K2
 #define CTC_GAIN_K2 0.001
 #endif
 #ifndef CTC_GAIN_ALPHA
-#define CTC_GAIN_ALPHA 0.1
+#define CTC_GAIN_ALPHA 0.01
 #endif
 /*! Default timeout in ms for the neighbors' information */
 #ifndef CTC_TIMEOUT
@@ -67,7 +67,7 @@ static void send_ctc_control(struct transport_tx *trans, struct link_device *dev
 #endif
 /*! Default angular velocity around target in rad/sec */
 #ifndef CTC_OMEGA
-#define CTC_OMEGA 0.6
+#define CTC_OMEGA 0.25
 #endif
 /*! Default time in ms for broadcasting information */
 #ifndef CTC_TIME_BROAD
@@ -81,7 +81,6 @@ int16_t tableNei[CTC_MAX_AC][6];
 uint32_t last_info[CTC_MAX_AC];
 uint32_t last_transmision = 0;
 uint32_t before = 0;
-float ctc_error_to_target = 0;
 
 uint32_t time_init_table;
 bool gogogo = false;
@@ -126,6 +125,8 @@ bool collective_tracking_control()
   float dt = (now - before)/1000.0;
   before = now;
 
+  // We wait for everybody has information about their neighbors
+  // so p_ref is synhcronized at each vehicle
   if(!gogogo){
     if(now - time_init_table > 2000)
         gogogo = true;
@@ -158,42 +159,38 @@ bool collective_tracking_control()
   }
 
   if(num_neighbors != 0){
-      ctc_control.v_centroid_x /= num_neighbors;
-      ctc_control.v_centroid_y /= num_neighbors;
-      ctc_control.p_centroid_x /= num_neighbors;
-      ctc_control.p_centroid_y /= num_neighbors;
+      ctc_control.v_centroid_x /= (num_neighbors + 1);
+      ctc_control.v_centroid_y /= (num_neighbors + 1);
+      ctc_control.p_centroid_x /= (num_neighbors + 1);
+      ctc_control.p_centroid_y /= (num_neighbors + 1);
 
       float error_target_x = ctc_control.target_px - ctc_control.p_centroid_x;
       float error_target_y = ctc_control.target_py - ctc_control.p_centroid_y;
-      ctc_error_to_target = sqrtf(error_target_x*error_target_x + error_target_y*error_target_y);
-      if(ctc_error_to_target < 0.1)
-          ctc_error_to_target = 0.1;
-      float aux = (1-expf(-ctc_control.alpha*ctc_error_to_target)) / ctc_error_to_target;
-      aux = 1e-2;
-      float v_ref_x = ctc_control.target_vx + aux*error_target_x;
-      float v_ref_y = ctc_control.target_vy + aux*error_target_y;
+      float error_target_ref_x = ctc_control.target_px - ctc_control.ref_px;
+      float error_target_ref_y = ctc_control.target_py - ctc_control.ref_py;
+
+      float distance_target_ref = sqrtf(error_target_ref_x*error_target_ref_x + error_target_ref_y*error_target_ref_y);
+      if(distance_target_ref < 0.1)
+          distance_target_ref = 0.1;
+      float aux = (1-expf(-ctc_control.alpha*distance_target_ref)) / distance_target_ref;
+      float v_ref_x = ctc_control.target_vx + aux*(error_target_x);
+      float v_ref_y = ctc_control.target_vy + aux*(error_target_y);
 
       ctc_control.ref_px += v_ref_x*dt;
       ctc_control.ref_py += v_ref_y*dt;
 
       float error_v_x = ctc_control.v_centroid_x - v_ref_x;
       float error_v_y = ctc_control.v_centroid_y - v_ref_y;
-      u_vel = -ctc_control.k1*(-error_v_y*vx + error_v_x*vy);
+      u_vel = -ctc_control.k1*(-error_v_x*vy + error_v_y*vx);
 
 
       float error_ref_x = px - ctc_control.ref_px;
       float error_ref_y = py - ctc_control.ref_py;
       u_spa = ctc_control.omega*(1 + ctc_control.k2*(error_ref_x*vx + error_ref_y*vy));
-
-      //printf("err_v %i %f \n", AC_ID, sqrtf(error_v_x*error_v_x + error_v_y*error_v_y));
-      //printf("err_ref %i %f \n", AC_ID, sqrtf(error_ref_x*error_ref_x + error_ref_y*error_ref_y));
-
   }
 
   float u = u_vel + u_spa;
   
-  //printf("u %i %f \n", AC_ID, u_spa);
-
   if (autopilot_get_mode() == AP_MODE_AUTO2) {
     h_ctl_roll_setpoint =
       -atanf(u * (sqrtf(vx*vx+vy*vy)) / 9.8 / cosf(att->theta));
