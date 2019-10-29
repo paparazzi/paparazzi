@@ -32,7 +32,6 @@
       <message name="AIR_DATA"            period="1.3"/>
       <message name="VECTORNAV_INFO"      period="0.5"/>
       <message name="GVF"                 period="1"/>
-      <message name="CTC_CONTROL"         period="0.5"/>
     </mode>
     <mode name="minimal">
       <message name="ALIVE"               period="5"/>

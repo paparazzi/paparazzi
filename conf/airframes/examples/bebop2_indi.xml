@@ -12,8 +12,6 @@
       <module name="udp"/>
       <define name="STABILIZATION_INDI_G2_R" value="0.0"/><!-- for jsbsim (rotor inertia is not modelled) -->
       <!-- <define name="STABILIZATION_INDI_G2_R" value="0.20"/> --><!-- for gazebo -->
-      <configure name="MODEM_PORT_OUT" value="4250"/>
-      <configure name="MODEM_PORT_IN" value="4251"/>
     </target>
 
 	  <!-- Subsystem section -->
