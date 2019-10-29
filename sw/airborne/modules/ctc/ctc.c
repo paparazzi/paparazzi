@@ -39,14 +39,14 @@
 #if PERIODIC_TELEMETRY
 static void send_ctc(struct transport_tx *trans, struct link_device *dev)
 {
-   pprz_msg_send_CTC(trans, dev, AC_ID, 6*CTC_MAX_AC, &(tableNei[0][0]));
+  pprz_msg_send_CTC(trans, dev, AC_ID, 6 * CTC_MAX_AC, &(tableNei[0][0]));
 }
 
 static void send_ctc_control(struct transport_tx *trans, struct link_device *dev)
 {
-   pprz_msg_send_CTC_CONTROL(trans, dev, AC_ID, &ctc_control.v_centroid_x, &ctc_control.v_centroid_y,
-           &ctc_control.target_vx, &ctc_control.target_vy, &ctc_control.target_px, &ctc_control.target_py,
-           &ctc_control.ref_px, &ctc_control.ref_py);
+  pprz_msg_send_CTC_CONTROL(trans, dev, AC_ID, &ctc_control.v_centroid_x, &ctc_control.v_centroid_y,
+                            &ctc_control.target_vx, &ctc_control.target_vy, &ctc_control.target_px, &ctc_control.target_py,
+                            &ctc_control.ref_px, &ctc_control.ref_py);
 }
 #endif // PERIODIC TELEMETRY
 
@@ -75,7 +75,8 @@ static void send_ctc_control(struct transport_tx *trans, struct link_device *dev
 #endif
 
 ctc_con ctc_control = {CTC_GAIN_K1, CTC_GAIN_K2, CTC_GAIN_ALPHA, CTC_TIMEOUT,
-                       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CTC_OMEGA, CTC_TIME_BROAD};
+                       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CTC_OMEGA, CTC_TIME_BROAD
+                      };
 
 int16_t tableNei[CTC_MAX_AC][6];
 uint32_t last_info[CTC_MAX_AC];
@@ -83,7 +84,6 @@ uint32_t last_transmision = 0;
 uint32_t before = 0;
 
 uint32_t time_init_table;
-bool gogogo = false;
 
 void ctc_init(void)
 {
@@ -122,16 +122,8 @@ bool collective_tracking_control()
   float u_spa = 0;
 
   uint32_t now = get_sys_time_msec();
-  float dt = (now - before)/1000.0;
+  float dt = (now - before) / 1000.0;
   before = now;
-
-  // We wait for everybody has information about their neighbors
-  // so p_ref is synhcronized at each vehicle
-  if(!gogogo){
-    if(now - time_init_table > 2000)
-        gogogo = true;
-  }else
-  {
 
   int num_neighbors = 0;
 
@@ -193,12 +185,10 @@ bool collective_tracking_control()
   
   if (autopilot_get_mode() == AP_MODE_AUTO2) {
     h_ctl_roll_setpoint =
-      -atanf(u * (sqrtf(vx*vx+vy*vy)) / 9.8 / cosf(att->theta));
+      -atanf(u * (sqrtf(vx * vx + vy * vy)) / 9.8 / cosf(att->theta));
     BoundAbs(h_ctl_roll_setpoint, h_ctl_roll_max_setpoint);
 
     lateral_mode = LATERAL_MODE_ROLL;
-  }
-
   }
 
   if (((now - last_transmision) > ctc_control.time_broad) && (autopilot_get_mode() == AP_MODE_AUTO2)) {
@@ -226,8 +216,6 @@ void ctc_send_info_to_nei(void)
 
 void parse_ctc_RegTable(void)
 {
-  time_init_table = get_sys_time_msec();
-
   uint8_t ac_id = DL_CTC_REG_TABLE_ac_id(dl_buffer);
   if (ac_id == AC_ID) {
     uint8_t nei_id = DL_CTC_REG_TABLE_nei_id(dl_buffer);
@@ -243,8 +231,9 @@ void parse_ctc_CleanTable(void)
 {
   uint8_t ac_id = DL_CTC_REG_TABLE_ac_id(dl_buffer);
   if (ac_id == AC_ID)
-    for (int i = 0; i < CTC_MAX_AC; i++)
+    for (int i = 0; i < CTC_MAX_AC; i++) {
       tableNei[i][0] = -1;
+    }
 }
 
 void parse_ctc_NeiInfoTable(void)
@@ -253,10 +242,10 @@ void parse_ctc_NeiInfoTable(void)
   for (int i = 0; i < CTC_MAX_AC; i++)
     if (tableNei[i][0] == sender_id) {
       last_info[i] = get_sys_time_msec();
-      tableNei[i][1] = (int16_t)(DL_CTC_INFO_TO_NEI_vx(dl_buffer)*100);
-      tableNei[i][2] = (int16_t)(DL_CTC_INFO_TO_NEI_vy(dl_buffer)*100);
-      tableNei[i][3] = (int16_t)(DL_CTC_INFO_TO_NEI_px(dl_buffer)*100);
-      tableNei[i][4] = (int16_t)(DL_CTC_INFO_TO_NEI_py(dl_buffer)*100);
+      tableNei[i][1] = (int16_t)(DL_CTC_INFO_TO_NEI_vx(dl_buffer) * 100);
+      tableNei[i][2] = (int16_t)(DL_CTC_INFO_TO_NEI_vy(dl_buffer) * 100);
+      tableNei[i][3] = (int16_t)(DL_CTC_INFO_TO_NEI_px(dl_buffer) * 100);
+      tableNei[i][4] = (int16_t)(DL_CTC_INFO_TO_NEI_py(dl_buffer) * 100);
       break;
     }
 }

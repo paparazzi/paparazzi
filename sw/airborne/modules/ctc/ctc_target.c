@@ -84,7 +84,8 @@ void parse_ctc_target_CleanTable(void)
 {
   uint8_t ac_id = DL_CTC_REG_TABLE_ac_id(dl_buffer);
   if (ac_id == AC_ID)
-    for (int i = 0; i < CTC_MAX_AC; i++)
+    for (int i = 0; i < CTC_MAX_AC; i++) {
       tableNei[i][0] = -1;
+    }
 }
 
