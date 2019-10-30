@@ -65,7 +65,7 @@ def xfunc(x, t, gammas, target_vel, omegas, vels):
 
     dX3 = vels[1]*np.exp(theta_2*1j)
     dX4 = u_2
-    
+
     dX5 = vels[2]*np.exp(theta_3*1j)
     dX6 = u_3
 
