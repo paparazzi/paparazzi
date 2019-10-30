@@ -3,9 +3,7 @@ from __future__ import print_function
 
 import time
 import sys
-import wx
 import numpy as np
-import sys
 from os import path, getenv
 PPRZ_HOME = getenv("PAPARAZZI_HOME", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../../')))
             PPRZ_SRC = getenv("PAPARAZZI_SRC", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../../')))

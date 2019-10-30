@@ -84,7 +84,7 @@ if __name__ == "__main__":
     target_vel = 0.0 + 0.0j
     X0 = np.array([100+21j, 0, 100+25j, 0.3, 120+40j, 0.1, 0+0j, 0+140j])
     t = np.linspace(0, 450, 1500)
-    
+
     X, infodict = odeintz(xfunc, X0, t, args=(gammas,target_vel,omegas,vels), full_output=True)
 
     import matplotlib.pyplot as plt
