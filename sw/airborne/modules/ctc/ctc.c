@@ -85,6 +85,11 @@ uint32_t before = 0;
 
 uint32_t time_init_table;
 
+float moving_target_px = 0;
+float moving_target_py = 0;
+float moving_target_vx = 0;
+float moving_target_vy = 0;
+
 void ctc_init(void)
 {
   for (int i = 0; i < CTC_MAX_AC; i++) {
@@ -97,7 +102,33 @@ void ctc_init(void)
 #endif
 }
 
-bool collective_tracking_control()
+bool collective_tracking_vehicle()
+{
+    ctc_control.target_px = moving_target_px;
+    ctc_control.target_py = moving_target_py;
+    ctc_control.target_vx = moving_target_vx;
+    ctc_control.target_vy = moving_target_vy;
+
+    collective_tracking_control();
+
+    return true;
+}
+
+bool collective_tracking_waypoint(uint8_t wp)
+{
+    collective_tracking_control();
+
+    return true;
+}
+
+bool collective_tracking_point(float x, float y)
+{
+    collective_tracking_control();
+
+    return true;
+}
+
+void collective_tracking_control()
 {
   struct FloatEulers *att = stateGetNedToBodyEulers_f();
   struct EnuCoor_f *v = stateGetSpeedEnu_f();
@@ -195,8 +226,6 @@ bool collective_tracking_control()
     ctc_send_info_to_nei();
     last_transmision = now;
   }
-
-  return true;
 }
 
 void ctc_send_info_to_nei(void)
@@ -252,8 +281,8 @@ void parse_ctc_NeiInfoTable(void)
 
 void parse_ctc_TargetInfo(void)
 {
-  ctc_control.target_px = DL_CTC_INFO_FROM_TARGET_px(dl_buffer);
-  ctc_control.target_py = DL_CTC_INFO_FROM_TARGET_py(dl_buffer);
-  ctc_control.target_vx = DL_CTC_INFO_FROM_TARGET_vx(dl_buffer);
-  ctc_control.target_vy = DL_CTC_INFO_FROM_TARGET_vy(dl_buffer);
+  float moving_target_px = DL_CTC_INFO_FROM_TARGET_px(dl_buffer);
+  float moving_target_py = DL_CTC_INFO_FROM_TARGET_py(dl_buffer);
+  float moving_target_vx = DL_CTC_INFO_FROM_TARGET_vx(dl_buffer);
+  float moving_target_vy = DL_CTC_INFO_FROM_TARGET_vy(dl_buffer);
 }

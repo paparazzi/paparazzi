@@ -58,7 +58,10 @@ extern int16_t tableNei[][6];
 extern float ctc_error_to_target;
 
 extern void ctc_init(void);
-extern bool collective_tracking_control(void);
+extern bool collective_tracking_vehicle(void);
+extern bool collective_tracking_waypoint(uint8_t wp);
+extern bool collective_tracking_point(float x, float y);
+extern void collective_tracking_control(void);
 extern void ctc_send_info_to_nei(void);
 
 extern void parse_ctc_RegTable(void);
