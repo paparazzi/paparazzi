@@ -116,6 +116,11 @@ bool collective_tracking_vehicle()
 
 bool collective_tracking_waypoint(uint8_t wp)
 {
+    ctc_control.target_px = waypoints[wp].x;
+    ctc_control.target_py = waypoints[wp].y;
+    ctc_control.target_vx = 0;
+    ctc_control.target_vy = 0;
+
     collective_tracking_control();
 
     return true;
@@ -123,6 +128,11 @@ bool collective_tracking_waypoint(uint8_t wp)
 
 bool collective_tracking_point(float x, float y)
 {
+    ctc_control.target_px = x;
+    ctc_control.target_py = y;
+    ctc_control.target_vx = 0;
+    ctc_control.target_vy = 0;
+
     collective_tracking_control();
 
     return true;
@@ -281,8 +291,8 @@ void parse_ctc_NeiInfoTable(void)
 
 void parse_ctc_TargetInfo(void)
 {
-  float moving_target_px = DL_CTC_INFO_FROM_TARGET_px(dl_buffer);
-  float moving_target_py = DL_CTC_INFO_FROM_TARGET_py(dl_buffer);
-  float moving_target_vx = DL_CTC_INFO_FROM_TARGET_vx(dl_buffer);
-  float moving_target_vy = DL_CTC_INFO_FROM_TARGET_vy(dl_buffer);
+  moving_target_px = DL_CTC_INFO_FROM_TARGET_px(dl_buffer);
+  moving_target_py = DL_CTC_INFO_FROM_TARGET_py(dl_buffer);
+  moving_target_vx = DL_CTC_INFO_FROM_TARGET_vx(dl_buffer);
+  moving_target_vy = DL_CTC_INFO_FROM_TARGET_vy(dl_buffer);
 }
