@@ -30,9 +30,9 @@ list_ids = np.ndarray.tolist(ids)
 time.sleep(2)
 
 for i in list_ids:
-    msg = PprzMessage("datalink", "JUMP_TO_BLOCK")
+    msg = PprzMessage("ground", "JUMP_TO_BLOCK")
     msg['ac_id'] = int(i)
-    msg['block_id]'] = idNavBlock
+    msg['block_id'] = idNavBlock
     interface.send(msg)
     print(msg)
 

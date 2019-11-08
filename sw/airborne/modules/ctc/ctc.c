@@ -90,6 +90,10 @@ float moving_target_py = 0;
 float moving_target_vx = 0;
 float moving_target_vy = 0;
 
+bool ctc_gogo = false;
+bool ctc_first_time = true;
+uint32_t starting_time;
+
 void ctc_init(void)
 {
   for (int i = 0; i < CTC_MAX_AC; i++) {
@@ -162,6 +166,11 @@ void collective_tracking_control()
   float u_vel = 0;
   float u_spa = 0;
 
+  if(ctc_first_time){
+      starting_time = get_sys_time_msec();
+      ctc_first_time = false;
+  }
+
   uint32_t now = get_sys_time_msec();
   float dt = (now - before) / 1000.0;
   before = now;
@@ -190,6 +199,30 @@ void collective_tracking_control()
       }
     }
   }
+  else{
+
+      int num_neighbors = 0;
+
+      for (int i = 0; i < CTC_MAX_AC; i++) {
+          if (tableNei[i][0] != -1) {
+              uint32_t timeout = now - last_info[i];
+              if (timeout > ctc_control.timeout) {
+                  tableNei[i][5] = ctc_control.timeout;
+              } else {
+                  tableNei[i][5] = (uint16_t)timeout;
+                  num_neighbors++;
+                  float vx_nei = tableNei[i][1] / 100.0;
+                  float vy_nei = tableNei[i][2] / 100.0;
+                  float px_nei = tableNei[i][3] / 100.0;
+                  float py_nei = tableNei[i][4] / 100.0;
+
+                  ctc_control.v_centroid_x += vx_nei;
+                  ctc_control.v_centroid_y += vy_nei;
+                  ctc_control.p_centroid_x += px_nei;
+                  ctc_control.p_centroid_y += py_nei;
+              }
+          }
+      }
 
   if(num_neighbors != 0){
       ctc_control.v_centroid_x /= (num_neighbors + 1);
