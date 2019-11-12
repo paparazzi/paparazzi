@@ -27,6 +27,7 @@
 #include "subsystems/radio_control.h"
 #include "peripherals/cc2500.h"
 
+#include <string.h>
 #include "subsystems/datalink/downlink.h"
 
 static uint32_t reset_value = 0;
@@ -42,5 +43,9 @@ void radio_control_impl_event(void (* _received_frame_handler)(void)) {
   if((counter % 10000) == 0) {
     DOWNLINK_SEND_CC2500(DefaultChannel, DefaultDevice,
         &reset_value, &counter, &counter, &counter);
+  }
+  if((counter % 100000) == 0) {
+    static char text[] = "Hello GCS!";
+    DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, strlen(text), text);
   }
 }
