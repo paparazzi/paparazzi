@@ -108,38 +108,38 @@ void ctc_init(void)
 
 bool collective_tracking_vehicle()
 {
-    ctc_control.target_px = moving_target_px;
-    ctc_control.target_py = moving_target_py;
-    ctc_control.target_vx = moving_target_vx;
-    ctc_control.target_vy = moving_target_vy;
+  ctc_control.target_px = moving_target_px;
+  ctc_control.target_py = moving_target_py;
+  ctc_control.target_vx = moving_target_vx;
+  ctc_control.target_vy = moving_target_vy;
 
-    collective_tracking_control();
+  collective_tracking_control();
 
-    return true;
+  return true;
 }
 
 bool collective_tracking_waypoint(uint8_t wp)
 {
-    ctc_control.target_px = waypoints[wp].x;
-    ctc_control.target_py = waypoints[wp].y;
-    ctc_control.target_vx = 0;
-    ctc_control.target_vy = 0;
+  ctc_control.target_px = waypoints[wp].x;
+  ctc_control.target_py = waypoints[wp].y;
+  ctc_control.target_vx = 0;
+  ctc_control.target_vy = 0;
 
-    collective_tracking_control();
+  collective_tracking_control();
 
-    return true;
+  return true;
 }
 
 bool collective_tracking_point(float x, float y)
 {
-    ctc_control.target_px = x;
-    ctc_control.target_py = y;
-    ctc_control.target_vx = 0;
-    ctc_control.target_vy = 0;
+  ctc_control.target_px = x;
+  ctc_control.target_py = y;
+  ctc_control.target_vx = 0;
+  ctc_control.target_vy = 0;
 
-    collective_tracking_control();
+  collective_tracking_control();
 
-    return true;
+  return true;
 }
 
 void collective_tracking_control()
@@ -166,9 +166,9 @@ void collective_tracking_control()
   float u_vel = 0;
   float u_spa = 0;
 
-  if(ctc_first_time){
-      starting_time = get_sys_time_msec();
-      ctc_first_time = false;
+  if (ctc_first_time) {
+    starting_time = get_sys_time_msec();
+    ctc_first_time = false;
   }
 
   uint32_t now = get_sys_time_msec();
@@ -223,6 +223,18 @@ void collective_tracking_control()
               }
           }
       }
+    }
+
+    if (num_neighbors != 0) {
+      ctc_control.v_centroid_x /= (num_neighbors + 1);
+      ctc_control.v_centroid_y /= (num_neighbors + 1);
+      ctc_control.p_centroid_x /= (num_neighbors + 1);
+      ctc_control.p_centroid_y /= (num_neighbors + 1);
+
+      float error_target_x = ctc_control.target_px - ctc_control.p_centroid_x;
+      float error_target_y = ctc_control.target_py - ctc_control.p_centroid_y;
+      float error_target_ref_x = ctc_control.target_px - ctc_control.ref_px;
+      float error_target_ref_y = ctc_control.target_py - ctc_control.ref_py;
 
   if(num_neighbors != 0){
       ctc_control.v_centroid_x /= (num_neighbors + 1);
@@ -324,7 +336,7 @@ void parse_ctc_CleanTable(void)
   ctc_control.ref_py = 0;
 
   // We force again 2 seconds of waiting before the algorithm starts, so all the aircraft have transmitted the necessary information to their neighbors
-  ctc_gogo = false; 
+  ctc_gogo = false;
 }
 
 void parse_ctc_NeiInfoTable(void)
