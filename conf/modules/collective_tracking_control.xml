@@ -2,7 +2,9 @@
 
 <module name="collective_tracking_control" dir="ctc">
   <doc>
-  <description>Distributed algorithm for tracking a velocity/position reference signal. This module needs of custom messages in messages.xml. Please, check the wiki https://wiki.paparazziuav.org/wiki/Module/collective_tracking_control for more information about the messages and how to tune the gains.
+  <description>Algorithm that makes the centroid of a team of aircraft (with different speeds) to track a (possibly moving) target/waypoint.
+
+This module needs of custom messages in messages.xml. Please, check the wiki https://wiki.paparazziuav.org/wiki/Module/collective_tracking_control for more information about the messages and how to tune the gains.
   </description>
     <section name="Parameters" prefix="CTC_">
       <define name="MAX_AC" value="4" description="Maximum number of expected aircraft"/>
