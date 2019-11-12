@@ -27,10 +27,20 @@
 #include "subsystems/radio_control.h"
 #include "peripherals/cc2500.h"
 
+#include "subsystems/datalink/downlink.h"
+
+static uint32_t reset_value = 0;
+static uint32_t counter = 0;
+
 void radio_control_impl_init(void) {
   cc2500_init();
+  reset_value = cc2500Reset();
 }
 
 void radio_control_impl_event(void (* _received_frame_handler)(void)) {
-
+  counter++;
+  if((counter % 10000) == 0) {
+    DOWNLINK_SEND_CC2500(DefaultChannel, DefaultDevice,
+        &reset_value, &counter, &counter, &counter);
+  }
 }

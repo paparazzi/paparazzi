@@ -30,13 +30,6 @@
 
 #include <assert.h>
 
-#define PRINT(string,...) fprintf(stderr, "[peripherals/cc2500.c->%s()] " string,__FUNCTION__ , ##__VA_ARGS__)
-#if PERIPHERALS_CC2500_VERBOSE
-#define VERBOSE_PRINT PRINT
-#else
-#define VERBOSE_PRINT(...)
-#endif
-
 #define USE_RX_CC2500
 
 static struct spi_periph *cc2500_spi_p;
@@ -75,7 +68,7 @@ static void rxSpiReadCommandMulti(uint8_t command, uint8_t commandData, uint8_t 
   assert(cc2500_spi_t.status == SPITransDone);
   // Set up the transaction
   cc2500_spi_t.output_length = 2; // command + commandData
-  cc2500_spi_t.input_length = length;
+  cc2500_spi_t.input_length = length + 1; // TODO verify. Assumes read starts during transmission of command byte
   cc2500_spi_t.output_buf[0] = command;
   cc2500_spi_t.output_buf[1] = commandData;
   // Submit the transaction
@@ -84,15 +77,15 @@ static void rxSpiReadCommandMulti(uint8_t command, uint8_t commandData, uint8_t 
   while(cc2500_spi_t.status != SPITransSuccess) ; // TODO not ideal in event function...
   cc2500_spi_t.status = SPITransDone;
   // Copy the input buffer
-  for (uint8_t i = 0; i < length; ++i) {
+  for (uint8_t i = 0; i < length; ++i) { // TODO check in betaflight code if this includes the status byte
     retData[i] = cc2500_spi_t.input_buf[i];
   }
 }
 
 static uint8_t rxSpiReadCommand(uint8_t command, uint8_t commandData) {
-  uint8_t retData;
-  rxSpiReadCommandMulti(command, commandData, &retData, 1);
-  return retData;
+  uint8_t retData[2]; // STATE, DATA
+  rxSpiReadCommandMulti(command, commandData, retData, 2);
+  return retData[1];
 }
 
 
