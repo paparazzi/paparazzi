@@ -306,6 +306,25 @@ void parse_ctc_CleanTable(void)
     for (int i = 0; i < CTC_MAX_AC; i++) {
       tableNei[i][0] = -1;
     }
+
+  // Reset the control variables as well
+  ctc_control.p_centroid_x = 0;
+  ctc_control.p_centroid_y = 0;
+  ctc_control.v_centroid_x = 0;
+  ctc_control.v_centroid_y = 0;
+  ctc_control.target_px = 0;
+  ctc_control.target_py = 0;
+  ctc_control.target_vx = 0;
+  ctc_control.target_vy = 0;
+  ctc_control.vx = 0;
+  ctc_control.vy = 0;
+  ctc_control.px = 0;
+  ctc_control.py = 0;
+  ctc_control.ref_px = 0;
+  ctc_control.ref_py = 0;
+
+  // We force again 2 seconds of waiting before the algorithm starts, so all the aircraft have transmitted the necessary information to their neighbors
+  ctc_gogo = false; 
 }
 
 void parse_ctc_NeiInfoTable(void)
