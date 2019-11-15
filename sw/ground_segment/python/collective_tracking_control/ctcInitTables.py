@@ -6,26 +6,24 @@ import sys
 import numpy as np
 from os import path, getenv
 PPRZ_HOME = getenv("PAPARAZZI_HOME", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../../')))
-            PPRZ_SRC = getenv("PAPARAZZI_SRC", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../../')))
-                       sys.path.append(PPRZ_SRC + "/sw/lib/python")
-                       sys.path.append(PPRZ_HOME + "/var/lib/python")
-                       from pprzlink.ivy import IvyMessagesInterface
-                       from pprzlink.message import PprzMessage
-                       from settings_xml_parse import PaparazziACSettings
+PPRZ_SRC = getenv("PAPARAZZI_SRC", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../../')))
+sys.path.append(PPRZ_SRC + "/sw/lib/python")
+sys.path.append(PPRZ_HOME + "/var/lib/python")
+from pprzlink.ivy import IvyMessagesInterface
+from pprzlink.message import PprzMessage
+from settings_xml_parse import PaparazziACSettings
 
-                       list_ids = []
-                                  interface = IvyMessagesInterface("CTC")
+list_ids = []
+interface = IvyMessagesInterface("CTC")
 
-                                      if len(sys.argv) != 3:
-                                        print("Usage: dcfInitTables target_id aircraft_ids.txt")
-                                        interface.shutdown()
-                                        exit()
+if len(sys.argv) != 3:
+    print("Usage: dcfInitTables target_id aircraft_ids.txt")
+    interface.shutdown()
+    exit()
 
-                                        target_id = int(sys.argv[1])
-                                            ids = np.loadtxt(sys.argv[2])
-                                                list_ids = np.ndarray.tolist(ids)
-
-                                                    time.sleep(2)
+target_id = int(sys.argv[1])
+ids = np.loadtxt(sys.argv[2])
+list_ids = np.ndarray.tolist(ids)
 
 time.sleep(2)
 
@@ -33,36 +31,17 @@ for i in list_ids:
     msg_clean = PprzMessage("datalink", "CTC_CLEAN_TABLE")
     msg_clean['ac_id'] = int(i)
 
-                                                              print(msg_clean)
-                                                              interface.send(msg_clean)
+    print(msg_clean)
+    interface.send(msg_clean)
 
-                                                          for i in list_ids :
-                                                              msg = PprzMessage("datalink", "CTC_REG_TABLE")
-                                                                    msg['ac_id'] = int(i)
-                                                                  for ii in list_ids :
-                                                                        if (i != ii):
-                                                                              msg['nei_id'] = int(ii)
-                                                                                  interface.send(msg)
-                                                                                  print(msg)
+for i in list_ids :
+    msg = PprzMessage("datalink", "CTC_REG_TABLE")
+    msg['ac_id'] = int(i)
+    for ii in list_ids:
+        if (i != ii):
+            msg['nei_id'] = int(ii)
+            interface.send(msg)
+            print(msg)
 
-                                                                                  msg_clean = PprzMessage("datalink", "CTC_CLEAN_TABLE")
-                                                                                      msg_clean['ac_id'] = target_id
-                                                                                          print(msg_clean)
-                                                                                          interface.send(msg_clean)
-
-                                                                                          msg = PprzMessage("datalink", "CTC_REG_TABLE")
-                                                                                              msg['ac_id'] = target_id
-                                                                                      for i in list_ids :
-                                                                                                  msg['nei_id'] = int(i)
-                                                                                                        interface.send(msg)
-                                                                                                        print(msg)
-
-# Convinient if you want to start the algorithm synchronizedly. Note that the block_id is corresponds to the navigation block where you call "collective_tracking_control()"
-#for i in list_ids:
-#    msg_block = PprzMessage("datalink", "BLOCK")
-#    msg_block['block_id'] = 4
-#    msg_block['ac_id'] = int(i)
-#    interface.send(msg_block)
-
-                                                                                                        time.sleep(2)
-                                                                                                        interface.shutdown()
+time.sleep(2)
+interface.shutdown()
