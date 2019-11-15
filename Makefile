@@ -184,7 +184,7 @@ subdirs: $(SUBDIRS)
 
 $(MISC): ext
 
-$(SUBDIRS):
+$(SUBDIRS): libpprz
 	$(MAKE) -C $@
 
 $(PPRZCENTER): libpprz
