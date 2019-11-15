@@ -1,0 +1,45 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="collective_tracking_control" dir="ctc">
+  <doc>
+  <description>Algorithm that makes the centroid of a team of aircraft (with different speeds) to track a (possibly moving) target/waypoint.
+
+This module needs of custom messages in messages.xml. Please, check the wiki https://wiki.paparazziuav.org/wiki/Module/collective_tracking_control for more information about the messages and how to tune the gains.
+  </description>
+    <section name="Parameters" prefix="CTC_">
+      <define name="MAX_AC" value="4" description="Maximum number of expected aircraft"/>
+    </section>
+  </doc>
+
+  <settings name="CTC">
+    <dl_settings>
+      <dl_settings NAME="CTC">
+        <dl_settings NAME="Control">
+          <dl_setting MAX="0.1" MIN="0" STEP="0.0005" VAR="ctc_control.k1" shortname = "Gain K1" param="CTC_GAIN_K1"/>
+          <dl_setting MAX="0.01" MIN="0" STEP="0.00005" VAR="ctc_control.k2" shortname = "Gain K2" param="CTC_GAIN_K2"/>
+          <dl_setting MAX="0.5" MIN="0" STEP="0.001" VAR="ctc_control.alpha" shortname = "Gain Alpha" param="CTC_GAIN_ALPHA"/>
+          <dl_setting MAX="3" MIN="0" STEP="0.01" VAR="ctc_control.omega" shortname = "Omega" param="CTC_OMEGA"/>
+          <dl_setting MAX="5000" MIN="0" STEP="1" VAR="ctc_control.timeout" shortname = "Timeout" param="CTC_TIMEOUT"/>
+          <dl_setting MAX="1000" MIN="0" STEP="1" VAR="ctc_control.time_broad" shortname = "Broadcasting time" param="CTC_TIME_BROAD"/>
+        </dl_settings>
+       </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <header>
+    <file name="ctc.h"/>
+  </header>
+
+  <init fun="ctc_init()"/>
+
+  <datalink message="CTC_REG_TABLE" fun="parse_ctc_RegTable()"/>
+  <datalink message="CTC_CLEAN_TABLE" fun="parse_ctc_CleanTable()"/>
+  <datalink message="CTC_INFO_TO_NEI" fun="parse_ctc_NeiInfoTable()"/>
+  <datalink message="CTC_INFO_FROM_TARGET" fun="parse_ctc_TargetInfo()"/>
+
+  <makefile firmware="fixedwing">
+    <file name="ctc.c"/>
+  </makefile>
+
+</module>
+

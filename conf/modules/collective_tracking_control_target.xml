@@ -1,0 +1,27 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="collective_tracking_control_target" dir="ctc">
+  <doc>
+	  <description>Distributed algorithm for tracking a velocity/position reference signal. Module only for the target to broadcast its position and velocity to the pursuers.
+    </description>
+    <section name="Parameters" prefix="CTC_">
+      <define name="MAX_AC" value="4" description="Maximum number of expected aircraft"/>
+    </section>
+  </doc>
+
+  <header>
+    <file name="ctc_target.h"/>
+  </header>
+
+  <init fun="ctc_target_init()"/>
+
+  <periodic fun="ctc_target_send_info_to_nei()" freq="10"/>
+
+  <datalink message="CTC_REG_TABLE" fun="parse_ctc_target_RegTable()"/>
+  <datalink message="CTC_CLEAN_TABLE" fun="parse_ctc_target_CleanTable()"/>
+
+  <makefile>
+    <file name="ctc_target.c"/>
+  </makefile>
+
+</module>
