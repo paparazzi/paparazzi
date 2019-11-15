@@ -11,7 +11,6 @@ sys.path.append(PPRZ_SRC + "/sw/lib/python")
 sys.path.append(PPRZ_HOME + "/var/lib/python")
 from pprzlink.ivy import IvyMessagesInterface
 from pprzlink.message import PprzMessage
-from settings_xml_parse import PaparazziACSettings
 
 list_ids = []
 interface = IvyMessagesInterface("CTC")
