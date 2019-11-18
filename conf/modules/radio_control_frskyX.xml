@@ -12,7 +12,7 @@
   </doc>
   <header>
     <file name="cc2500.h" dir="peripherals"/>
-    <file name="cc2500_common.h" dir="subsystems/radio_control"/>
+    <file name="cc2500_paparazzi.h" dir="subsystems/radio_control"/>
   </header>
   <init fun="cc2500_init()"/>
   <makefile target="ap|fbw|sim|nps">
@@ -31,9 +31,11 @@
     <define name="CC2500_GDO0_GPIO_PORT" value="$(CC2500_GDO0_GPIO_PORT)"/>
     <define name="CC2500_GDO0_GPIO" value="$(CC2500_GDO0_GPIO)"/>
     <file name="radio_control.c" dir="subsystems"/>
-    <!-- <file name="frskyX.c" dir="subsystems/radio_control"/> -->
-    <!-- <file name="frskyX_$(FRSKYX_IMPL).c" dir="subsystems/radio_control"/> -->
     <file name="cc2500.c" dir="peripherals"/>
+    <file name="cc2500_paparazzi.c" dir="subsystems/radio_control"/>
+    <file name="cc2500_settings.c" dir="subsystems/radio_control"/>
+    <file name="cc2500_compat.c" dir="subsystems/radio_control"/>
     <file name="cc2500_common.c" dir="subsystems/radio_control"/>
+    <!-- <file name="cc2500_frsky_shared.c" dir="subsystems/radio_control"/> -->
   </makefile>
 </module>

@@ -24,6 +24,9 @@
 
 #include "cc2500_common.h"
 
+#include "cc2500_compat.h"
+#include "cc2500_settings.h"
+
 #include "subsystems/radio_control.h"
 #include "mcu_periph/gpio.h"
 #include "peripherals/cc2500.h"
@@ -33,110 +36,9 @@
 #include "subsystems/datalink/downlink.h"
 
 
-// Compatibility code
-
-#define USE_RX_FRSKY_SPI
-
-#define OWNER_RX_SPI_EXTI 0
-static uint16_t rssiSource;
-
-struct gpio_t {
-  uint32_t port;
-  uint16_t pin;
-};
-typedef struct gpio_t *IO_t;
-
-static void IOInit(IO_t io, uint8_t owner, uint8_t index);
-static void IOInit(IO_t io, uint8_t owner, uint8_t index) {
-  (void) io;
-  (void) owner;
-  (void) index;
-}
-
-#define IOCFG_IN_FLOATING 0
-static void IOConfigGPIO(IO_t io, uint8_t cfg) {
-  assert(cfg == IOCFG_IN_FLOATING);
-  gpio_setup_input(io->port, io->pin);
-}
-
-static bool IORead(IO_t gpio) {
-  return gpio_get(gpio->port, gpio->pin);
-}
-
-
-typedef enum {
-    RSSI_SOURCE_NONE = 0,
-    RSSI_SOURCE_ADC,
-    RSSI_SOURCE_RX_CHANNEL,
-    RSSI_SOURCE_RX_PROTOCOL,
-    RSSI_SOURCE_MSP,
-    RSSI_SOURCE_FRAME_ERRORS,
-    RSSI_SOURCE_RX_PROTOCOL_CRSF,
-} rssiSource_e;
-
-static void setRssi(uint16_t rssiValue, rssiSource_e source) {
-  (void) rssiValue;
-  (void) source;
-}
-
-
-struct cc2500_settings_t {
-  bool chipDetectEnabled;
-};
-static struct cc2500_settings_t cc2500_settings;
-
-static struct cc2500_settings_t* rxCc2500SpiConfig(void);
-static struct cc2500_settings_t* rxCc2500SpiConfig(void) {
-  return &cc2500_settings;
-}
-
-
-struct cc2500_spiconfig_t {
-  struct gpio_t extiIoTag_gpio;
-  IO_t extiIoTag;
-};
-static struct cc2500_spiconfig_t cc2500_spiconfig;
-
-static struct cc2500_spiconfig_t* rxSpiConfig(void);
-static struct cc2500_spiconfig_t* rxSpiConfig(void) {
-  return &cc2500_spiconfig;
-}
-
-static IO_t IOGetByTag(IO_t io) {
-  return io;
-}
-
-
-
 // Paparazzi code
 
-static uint32_t reset_value = 0;
-static uint32_t spiinit_result = 0;
-static uint32_t counter = 0;
 
-void radio_control_impl_init(void) {
-  cc2500_settings.chipDetectEnabled = TRUE;
-  cc2500_spiconfig.extiIoTag_gpio.port = CC2500_GDO0_GPIO_PORT;
-  cc2500_spiconfig.extiIoTag_gpio.pin = CC2500_GDO0_GPIO;
-  cc2500_spiconfig.extiIoTag = &(cc2500_spiconfig.extiIoTag_gpio);
-
-  cc2500_init();
-  reset_value = cc2500Reset();
-  spiinit_result = cc2500SpiInit();
-}
-
-void radio_control_impl_event(void (* _received_frame_handler)(void)) {
-  (void) _received_frame_handler;
-  counter++;
-  if((counter % 10000) == 0) {
-    DOWNLINK_SEND_CC2500(DefaultChannel, DefaultDevice,
-        &reset_value, &spiinit_result, &counter, &counter);
-  }
-  if((counter % 100000) == 0) {
-    static char text[] = "Hello GCS!";
-    DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, strlen(text), text);
-  }
-}
 
 
 // betaflight/src/main/rx/cc2500_common.c  @ 4a79046

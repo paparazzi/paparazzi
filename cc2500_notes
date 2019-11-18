@@ -24,8 +24,9 @@ main/rx/cc2500_frsky_x.c        --  FrSkyX implementation
 New proposal:
 sw/airborne/peripherals/rx_cc2500.ch
 sw/airborne/subsystems/radio_control/cc2500_xxxx.ch
-Copy files as directly as possible. Add compatibility macros/functions at top
-of file. Add comment where betaflight code starts.
+sw/airborne/subsystems/radio_control/cc2500_compat.ch <-- Compatibility code
+sw/airborne/subsystems/radio_control/cc2500_paparazzi.ch <-- Paparazzi-specific code
+sw/airborne/subsystems/radio_control/cc2500_settings.ch  <-- Settings structs
 
 
 
