@@ -11,8 +11,8 @@ sw/airborne/subsystems/radio_control/frskyX_cc2500.h
 betaflight files:
 DONE main/drivers/rx/rx_cc2500.h     --  Register defines, etc
 DONE main/drivers/rx/rx_cc2500.c     --  Read, write, reset functions
-main/rx/cc2500_common.h         --  Init, Rssi, Tx enable/disable
-main/rx/cc2500_common.c         --  Init, Rssi, Tx enable/disable
+DONE main/rx/cc2500_common.h         --  Init, Rssi, Tx enable/disable
+DONE main/rx/cc2500_common.c         --  Init, Rssi, Tx enable/disable
 main/rx/cc2500_frsky_common.h   --  FrSky init, receive, process
 main/rx/cc2500_frsky_shared.h   --  FrSky enum and defines
 main/rx/cc2500_frsky_shared.c   --  Init, tune, bind functions

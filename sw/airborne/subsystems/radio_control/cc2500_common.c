@@ -111,6 +111,7 @@ static IO_t IOGetByTag(IO_t io) {
 // Paparazzi code
 
 static uint32_t reset_value = 0;
+static uint32_t spiinit_result = 0;
 static uint32_t counter = 0;
 
 void radio_control_impl_init(void) {
@@ -121,6 +122,7 @@ void radio_control_impl_init(void) {
 
   cc2500_init();
   reset_value = cc2500Reset();
+  spiinit_result = cc2500SpiInit();
 }
 
 void radio_control_impl_event(void (* _received_frame_handler)(void)) {
@@ -128,7 +130,7 @@ void radio_control_impl_event(void (* _received_frame_handler)(void)) {
   counter++;
   if((counter % 10000) == 0) {
     DOWNLINK_SEND_CC2500(DefaultChannel, DefaultDevice,
-        &reset_value, &counter, &counter, &counter);
+        &reset_value, &spiinit_result, &counter, &counter);
   }
   if((counter % 100000) == 0) {
     static char text[] = "Hello GCS!";
