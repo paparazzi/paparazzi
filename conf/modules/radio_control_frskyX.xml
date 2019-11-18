@@ -7,6 +7,8 @@
     </description>
     <configure name="CC2500_SPI_DEV" value="SPIx" description="SPI device"/>
     <configure name="CC2500_SPI_SLAVE_IDX" value="2" description="SPI slave index"/>
+    <configure name="CC2500_GDO0_GPIO_PORT" value="GPIOC" description="GDO0 GPIO port"/>
+    <configure name="CC2500_GDO0_GPIO" value="GPIO14" description="GDO0 GPIO pin"/>
   </doc>
   <header>
     <file name="cc2500.h" dir="peripherals"/>
@@ -16,7 +18,9 @@
   <makefile target="ap|fbw|sim|nps">
     <define name="RADIO_CONTROL_TYPE_H" value="subsystems/radio_control/frskyX.h" type="string"/>
     <configure name="CC2500_SPI_DEV" default="SPI3" case="upper|lower"/>
-    <configure name="CC2500_SPI_SLAVE_IDX" value="2"/>
+    <configure name="CC2500_SPI_SLAVE_IDX" default="2"/>
+    <configure name="CC2500_GDO0_GPIO_PORT" default="GPIOC"/>
+    <configure name="CC2500_GDO0_GPIO" default="GPIO14"/>
   </makefile>
   <makefile target="ap" cond="ifeq (,$(findstring $(SEPARATE_FBW),1 TRUE))">
     <define name="RADIO_CONTROL"/>
@@ -24,6 +28,8 @@
     <define name="USE_SPI_SLAVE$(CC2500_SPI_SLAVE_IDX)"/>
     <define name="CC2500_SPI_DEV" value="$(CC2500_SPI_DEV_LOWER)"/>
     <define name="CC2500_SPI_SLAVE_IDX" value="$(CC2500_SPI_SLAVE_IDX)"/>
+    <define name="CC2500_GDO0_GPIO_PORT" value="$(CC2500_GDO0_GPIO_PORT)"/>
+    <define name="CC2500_GDO0_GPIO" value="$(CC2500_GDO0_GPIO)"/>
     <file name="radio_control.c" dir="subsystems"/>
     <!-- <file name="frskyX.c" dir="subsystems/radio_control"/> -->
     <!-- <file name="frskyX_$(FRSKYX_IMPL).c" dir="subsystems/radio_control"/> -->

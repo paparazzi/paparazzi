@@ -96,9 +96,6 @@ static void rxSpiWriteCommandMulti(uint8_t command, uint8_t *data, uint8_t lengt
   cc2500_spi_t.output_length = length + 1; // command + data[length]
   cc2500_spi_t.input_length = 0;
   cc2500_spi_t.output_buf[0] = command;
-//  if (length > 1) {
-//    command |= CC2500_WRITE_BURST;
-//  }
   // Copy the data to the output buffer
   for (uint8_t i = 0; i < length; ++i) {
     cc2500_spi_t.output_buf[i + 1] = data[i];

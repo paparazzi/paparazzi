@@ -9,8 +9,8 @@ sw/airborne/subsystems/radio_control/frskyX_cc2500.h
 
 
 betaflight files:
-main/drivers/rx/rx_cc2500.h     --  Register defines, etc
-main/drivers/rx/rx_cc2500.c     --  Read, write, reset functions
+DONE main/drivers/rx/rx_cc2500.h     --  Register defines, etc
+DONE main/drivers/rx/rx_cc2500.c     --  Read, write, reset functions
 main/rx/cc2500_common.h         --  Init, Rssi, Tx enable/disable
 main/rx/cc2500_common.c         --  Init, Rssi, Tx enable/disable
 main/rx/cc2500_frsky_common.h   --  FrSky init, receive, process
@@ -18,7 +18,7 @@ main/rx/cc2500_frsky_shared.h   --  FrSky enum and defines
 main/rx/cc2500_frsky_shared.c   --  Init, tune, bind functions
 main/rx/cc2500_frsky_x.h        --  FrSkyX init, handle, process
 main/rx/cc2500_frsky_x.c        --  FrSkyX implementation
-main/pg/rx_spi_cc2500.c         --  "Settings"
+(main/pg/rx_spi_cc2500.c)         --  "Settings"
 
 
 New proposal:
@@ -26,3 +26,7 @@ sw/airborne/peripherals/rx_cc2500.ch
 sw/airborne/subsystems/radio_control/cc2500_xxxx.ch
 Copy files as directly as possible. Add compatibility macros/functions at top
 of file. Add comment where betaflight code starts.
+
+
+
+https://github.com/betaflight/betaflight/blob/master/docs/boards/Board%20-%20CrazyBeeF4FRPro.md
