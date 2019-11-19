@@ -123,7 +123,11 @@ xlib-pprz.cmxa dllxlib-pprz.so: $(XCMX)
 
 # trying to set correct dependencies for parallel build
 # these are order only depedencies
+lib-pprz.cma: | liblib-pprz.a dlllib-pprz.so
+
 lib-pprz.cmxa: | liblib-pprz.a dlllib-pprz.so
+
+xlib-pprz.cma: | libxlib-pprz.a dllxlib-pprz.so
 
 xlib-pprz.cmxa: | libxlib-pprz.a dllxlib-pprz.so
 
