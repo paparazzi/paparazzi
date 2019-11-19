@@ -88,4 +88,9 @@ static inline void mcu_reset(void)
   NVIC_SystemReset();
 }
 
+/** Call board specific energy saving
+ *  Can be necessary for closing on power off
+ */
+extern void mcu_periph_energy_save(void);
+
 #endif /* CHIBIOS_MCU_ARCH_H */

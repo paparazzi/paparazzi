@@ -182,10 +182,23 @@ void sdlog_chibios_init(void)
 void sdlog_chibios_finish(const bool flush)
 {
   if (pprzLogFile != -1) {
-    // disable all the LEDs to save energy and maximize chance to flush files
+    // disable all required periph to save energy and maximize chance to flush files
     // to mass storage and avoid infamous dirty bit on filesystem
-    led_disable();
+    mcu_periph_energy_save();
+
+    // if a FF_FS_REENTRANT is true, we can umount fs without closing
+    // file, fatfs lock will assure that umount is done after a write,
+    // and umount will close all open files cleanly. Thats the fatest
+    // way to umount cleanly filesystem.
+    //
+    // if FF_FS_REENTRANT is false,
+    // we have to flush and close files before unmounting filesystem
+#if FF_FS_REENTRANT == 0
     sdLogCloseAllLogs(flush);
+#else
+    (void) flush;
+#endif
+
     sdLogFinish();
     pprzLogFile = 0;
 #if FLIGHTRECORDER_SDLOG
@@ -218,15 +231,15 @@ static void thd_startlog(void *arg)
   } else {
     removeEmptyLogs(PPRZ_LOG_DIR, PPRZ_LOG_NAME, 50);
     if (sdLogOpenLog(&pprzLogFile, PPRZ_LOG_DIR,
-		     PPRZ_LOG_NAME, SDLOG_AUTO_FLUSH_PERIOD, true,
-		     SDLOG_CONTIGUOUS_STORAGE_MEM, false) != SDLOG_OK) {
+		     PPRZ_LOG_NAME, SDLOG_AUTO_FLUSH_PERIOD, LOG_APPEND_TAG_AT_CLOSE_DISABLED,
+		     SDLOG_CONTIGUOUS_STORAGE_MEM, LOG_PREALLOCATION_DISABLED) != SDLOG_OK) {
       sdOk = false;
     }
 #if FLIGHTRECORDER_SDLOG
     removeEmptyLogs(FR_LOG_DIR, FLIGHTRECORDER_LOG_NAME, 50);
     if (sdLogOpenLog(&flightRecorderLogFile, FR_LOG_DIR, FLIGHTRECORDER_LOG_NAME,
-		     SDLOG_AUTO_FLUSH_PERIOD, false,
-		      SDLOG_CONTIGUOUS_STORAGE_MEM, false) != SDLOG_OK) {
+		     SDLOG_AUTO_FLUSH_PERIOD, LOG_APPEND_TAG_AT_CLOSE_DISABLED,
+		      SDLOG_CONTIGUOUS_STORAGE_MEM, LOG_PREALLOCATION_DISABLED) != SDLOG_OK) {
       sdOk = false;
     }
 #endif

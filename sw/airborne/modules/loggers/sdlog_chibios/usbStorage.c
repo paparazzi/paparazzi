@@ -98,25 +98,21 @@ static void thdUsbStorage(void *arg)
   (void) arg;
 
   chRegSetThreadName("UsbStorage:polling");
-  uint antiBounce = 5;
   event_listener_t connected;
 
-  while (!chThdShouldTerminateX() && antiBounce) {
-    const bool usbConnected = palReadPad(SDLOG_USB_VBUS_PORT, SDLOG_USB_VBUS_PIN);
-    if (usbConnected) {
-      antiBounce--;
-    } else {
-      antiBounce = 5;
-    }
+  palEnablePadEvent(SDLOG_USB_VBUS_PORT, SDLOG_USB_VBUS_PIN, PAL_EVENT_MODE_BOTH_EDGES);
+  // wait transition to HIGH with rebound management
+  do {
+    palWaitPadTimeout(SDLOG_USB_VBUS_PORT, SDLOG_USB_VBUS_PIN, TIME_INFINITE);
+    chThdSleepMilliseconds(10);
+  } while (palReadPad(SDLOG_USB_VBUS_PORT, SDLOG_USB_VBUS_PIN) == PAL_LOW);
 
-    chThdSleepMilliseconds(20);
-  }
   isRunning = true;
   chRegSetThreadName("UsbStorage:connected");
 
   /* Stop the logs*/
   // it's not a powerloss, wa have time to flush the ram buffer
-  sdlog_chibios_finish(true);
+  sdlog_chibios_finish(false);
 
 
   /* connect sdcard sdc interface sdio */
