@@ -34,11 +34,15 @@ void cc2500_settings_init(void);
 
 
 /* betaflight settings API */
+// main/config/config.h:
+void bf_writeEEPROM(void);
+#define writeEEPROM() bf_writeEEPROM()
+
 
 // main/pg/rx_spi.h:
 typedef struct rxSpiConfig_s {
     // RX protocol
-//    uint8_t rx_spi_protocol;                // type of SPI RX protocol
+    uint8_t rx_spi_protocol;                // type of SPI RX protocol
 //                                            // nrf24: 0 = v202 250kbps. (Must be enabled by FEATURE_RX_NRF24 first.)
 //    uint32_t rx_spi_id;
 //    uint8_t rx_spi_rf_channel_count;
@@ -47,23 +51,23 @@ typedef struct rxSpiConfig_s {
 //    ioTag_t csnTag;
 //    uint8_t spibus;
 //
-//    ioTag_t bindIoTag;
-//    ioTag_t ledIoTag;
-//    uint8_t ledInversion;
+    ioTag_t bindIoTag;
+    ioTag_t ledIoTag;
+    uint8_t ledInversion;
 
     ioTag_t extiIoTag;
 } rxSpiConfig_t;
 
-rxSpiConfig_t* rxSpiConfig(void);
+const rxSpiConfig_t* rxSpiConfig(void);
 
 
 // main/pg/rx_spi_cc2500.h:
 typedef struct rxCc2500SpiConfig_s {
-//    uint8_t autoBind;
-//    uint8_t bindTxId[2];
-//    int8_t  bindOffset;
-//    uint8_t bindHopData[50];
-//    uint8_t rxNum;
+    uint8_t autoBind;
+    uint8_t bindTxId[2];
+    int8_t  bindOffset;
+    uint8_t bindHopData[50];
+    uint8_t rxNum;
 //    uint8_t a1Source;
     uint8_t chipDetectEnabled;
 //    ioTag_t txEnIoTag;
@@ -71,7 +75,8 @@ typedef struct rxCc2500SpiConfig_s {
 //    ioTag_t antSelIoTag;
 } rxCc2500SpiConfig_t;
 
-rxCc2500SpiConfig_t* rxCc2500SpiConfig(void);
+const rxCc2500SpiConfig_t* rxCc2500SpiConfig(void);
+rxCc2500SpiConfig_t* rxCc2500SpiConfigMutable(void);
 
 
 #endif // RADIO_CONTROL_CC2500_SETTINGS_H

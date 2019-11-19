@@ -1,4 +1,7 @@
-// betaflight/src/main/rx/cc2500_frsky_shared.h  @ cb66ee0
+#include "cc2500_compat.h"
+#include "cc2500_settings.h"
+
+// betaflight/src/main/rx/rx_spi_common.h @ c88a5a3
 /*
  * This file is part of Cleanflight and Betaflight.
  *
@@ -23,35 +26,18 @@
 
 //#include "rx/rx_spi.h"
 
-#define MAX_MISSING_PKT 100
+#define INTERVAL_RX_LOSS_MS 1000
+#define INTERVAL_RX_BIND_MS 250
+#define RX_LOSS_COUNT 1000
 
-#define DEBUG_DATA_ERROR_COUNT 0
-#define DEBUG_DATA_MISSING_PACKETS 1
-#define DEBUG_DATA_BAD_FRAME 2
+void rxSpiCommonIOInit(const rxSpiConfig_t *rxSpiConfig);
 
+void rxSpiLedOn(void);
+void rxSpiLedOff(void);
+void rxSpiLedToggle(void);
+void rxSpiLedBlink(timeMs_t blinkMs);
+void rxSpiLedBlinkRxLoss(rx_spi_received_e result);
+void rxSpiLedBlinkBind(void);
 
-#define SYNC_DELAY_MAX 9000
-
-#define MAX_MISSING_PKT 100
-
-enum {
-    STATE_INIT = 0,
-    STATE_BIND,
-    STATE_BIND_TUNING,
-    STATE_BIND_BINDING1,
-    STATE_BIND_BINDING2,
-    STATE_BIND_COMPLETE,
-    STATE_STARTING,
-    STATE_UPDATE,
-    STATE_DATA,
-    STATE_TELEMETRY,
-    STATE_RESUME,
-};
-
-extern uint8_t listLength;
-extern uint32_t missingPackets;
-extern timeDelta_t timeoutUs;
-
-void initialiseData(bool inBindState);
-
-void nextChannel(uint8_t skip);
+void rxSpiBind(void);
+bool rxSpiCheckBindRequested(bool reset);

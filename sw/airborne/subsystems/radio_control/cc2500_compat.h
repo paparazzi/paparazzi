@@ -35,12 +35,51 @@
 #ifndef RADIO_CONTROL_CC2500_COMPAT_H
 #define RADIO_CONTROL_CC2500_COMPAT_H
 
+
+#pragma GCC diagnostic ignored "-Wmissing-prototypes"
+#pragma GCC diagnostic ignored "-Wstrict-prototypes"
+
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
+#define USE_RX_SPI
 #define USE_RX_FRSKY_SPI
 
+
+// main/common/time.h:
+typedef int32_t timeDelta_t;
+typedef uint32_t timeMs_t ;
+typedef uint64_t timeUs_t;
+#define TIMEUS_MAX UINT64_MAX
+
+
+// main/drivers/time.h:
+void bf_delayMicroseconds(timeUs_t us);
+#define delayMicroseconds(us) bf_delayMicroseconds(us)
+
+void bf_delay(timeMs_t ms);
+#define delay(ms) bf_delay(ms)
+
+timeMs_t bf_millis(void);
+#define millis() bf_millis()
+
+
 // main/rx/rx.h:
+typedef struct rxRuntimeState_s {
+//    rxProvider_t        rxProvider;
+//    SerialRXType        serialrxProvider;
+    uint8_t             channelCount; // number of RC channels as reported by current input driver
+//    uint16_t            rxRefreshRate;
+//    rcReadRawDataFnPtr  rcReadRawFn;
+//    rcFrameStatusFnPtr  rcFrameStatusFn;
+//    rcProcessFrameFnPtr rcProcessFrameFn;
+//    uint16_t            *channelData;
+//    void                *frameData;
+} rxRuntimeState_t;
+
+rxRuntimeState_t* rxRuntimeState(void);
+
 typedef enum {
     RSSI_SOURCE_NONE = 0,
     RSSI_SOURCE_ADC,
@@ -56,6 +95,22 @@ void bf_setRssi(uint16_t rssiValue, rssiSource_e source);
 #define setRssi(rssiValue, source) bf_setRssi(rssiValue, source)
 
 
+// main/rx/rx_spi.h:
+typedef enum {
+    RX_SPI_FRSKY_D,
+    RX_SPI_FRSKY_X,
+    RX_SPI_FRSKY_X_LBT,
+    RX_SPI_PROTOCOL_COUNT
+} rx_spi_protocol_e;
+
+typedef enum {
+    RX_SPI_RECEIVED_NONE = 0,
+    RX_SPI_RECEIVED_BIND = (1 << 0),
+    RX_SPI_RECEIVED_DATA = (1 << 1),
+    RX_SPI_ROCESSING_REQUIRED = (1 << 2),
+} rx_spi_received_e;
+
+
 // main/drivers/io.h:
 struct gpio_t {
   uint32_t port;
@@ -63,6 +118,7 @@ struct gpio_t {
 };
 typedef struct gpio_t *IO_t;
 typedef IO_t ioTag_t;
+#define IO_NONE NULL
 
 IO_t bf_IOGetByTag(ioTag_t io);
 #define IOGetByTag(io) bf_IOGetByTag(io)
@@ -70,17 +126,30 @@ IO_t bf_IOGetByTag(ioTag_t io);
 void bf_IOInit(IO_t io, uint8_t owner, uint8_t index);
 #define IOInit(io, owner, index) bf_IOInit(io, owner, index)
 
-#define IOCFG_IN_FLOATING 0
-void bf_IOConfigGPIO(IO_t io, uint8_t cfg);
+enum ioconfig_t {
+  IOCFG_OUT_PP,
+  IOCFG_IN_FLOATING,
+  IOCFG_IPU,
+};
+void bf_IOConfigGPIO(IO_t io, enum ioconfig_t cfg);
 #define IOConfigGPIO(io, cfg) bf_IOConfigGPIO(io, cfg)
 
 bool bf_IORead(IO_t gpio);
 #define IORead(gpio) bf_IORead(gpio)
 
+void bf_IOHi(IO_t io);
+#define IOHi(io) bf_IOHi(io)
+void bf_IOLo(IO_t io);
+#define IOLo(io) bf_IOLo(io)
+void bf_IOToggle(IO_t io);
+#define IOToggle(io) bf_IOToggle(io)
+
 
 // main/drivers/resources.h:
 typedef enum {
     OWNER_RX_SPI_EXTI,
+    OWNER_RX_SPI_BIND,
+    OWNER_LED,
 } resourceOwner_e;
 
 #endif // RADIO_CONTROL_CC2500_COMPAT_H

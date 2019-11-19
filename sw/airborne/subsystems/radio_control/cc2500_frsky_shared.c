@@ -1,5 +1,14 @@
 #include "cc2500_compat.h"
 
+#include "peripherals/cc2500.h"
+#include "cc2500_settings.h"
+#include "cc2500_rx_spi_common.h"
+#include "cc2500_common.h"
+#include "cc2500_frsky_common.h"
+#include "cc2500_frsky_d.h"
+#include "cc2500_frsky_x.h"
+#include "cc2500_frsky_shared.h"
+
 // betaflight/src/main/rx/cc2500_frsky_shared.c  @ 4a79046
 /*
  * This file is part of Cleanflight and Betaflight.

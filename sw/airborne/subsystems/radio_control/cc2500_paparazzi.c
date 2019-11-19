@@ -27,29 +27,38 @@
 #include "subsystems/radio_control.h"
 #include "peripherals/cc2500.h"
 #include "subsystems/radio_control/cc2500_common.h"
+#include "subsystems/radio_control/cc2500_frsky_common.h"
 #include "subsystems/radio_control/cc2500_settings.h"
 
 #include "subsystems/datalink/downlink.h"
 
 #include <stdint.h>
 
+#define RX_SPI_MAX_PAYLOAD_SIZE 35
+static uint8_t rxSpiPayload[RX_SPI_MAX_PAYLOAD_SIZE];
+
 static uint32_t reset_value = 0;
 static uint32_t spiinit_result = 0;
+static uint32_t status = 0;
 static uint32_t counter = 0;
 
 void radio_control_impl_init(void) {
   cc2500_settings_init();
   cc2500_init();
   reset_value = cc2500Reset();
-  spiinit_result = cc2500SpiInit();
+//  spiinit_result = cc2500SpiInit();
+  spiinit_result = frSkySpiInit(rxSpiConfig(), rxRuntimeState());
 }
 
 void radio_control_impl_event(void (* _received_frame_handler)(void)) {
   (void) _received_frame_handler;
+
+  status = frSkySpiDataReceived(rxSpiPayload);
+
   counter++;
   if((counter % 10000) == 0) {
     DOWNLINK_SEND_CC2500(DefaultChannel, DefaultDevice,
-        &reset_value, &spiinit_result, &counter, &counter);
+        &reset_value, &spiinit_result, &status, &counter);
   }
   if((counter % 100000) == 0) {
     static char text[] = "Hello GCS!";
