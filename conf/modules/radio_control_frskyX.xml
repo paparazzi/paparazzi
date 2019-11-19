@@ -30,7 +30,7 @@
     <configure name="CC2500_GDO0_GPIO" default="GPIO14"/>
     <configure name="CC2500_RX_LED_GPIO_PORT" default="GPIOB"/>
     <configure name="CC2500_RX_LED_GPIO" default="GPIO9"/>
-    <configure name="CC2500_RX_LED_INVERT" default="TRUE"/>
+    <configure name="CC2500_RX_LED_INVERT" default="FALSE"/><!-- TODO should be TRUE, but annoying while debugging -->
     <configure name="CC2500_BIND_BTN_GPIO_PORT" default="GPIOB"/>
     <configure name="CC2500_BIND_BTN_GPIO" default="GPIO2"/>
     <configure name="CC2500_RX_SPI_PROTOCOL" default="RX_SPI_FRSKY_X_LBT"/>
