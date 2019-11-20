@@ -74,5 +74,6 @@ void cc2500_settings_init(void) {
   cc2500spiconfig.bindOffset = 0;
   memset(cc2500spiconfig.bindHopData, 0, sizeof(cc2500spiconfig.bindHopData));
   cc2500spiconfig.rxNum = 0;
+  cc2500spiconfig.a1Source = FRSKY_SPI_A1_SOURCE_VBAT;
   cc2500spiconfig.chipDetectEnabled = TRUE;
 }

@@ -38,6 +38,8 @@
 
 #pragma GCC diagnostic ignored "-Wmissing-prototypes"
 #pragma GCC diagnostic ignored "-Wstrict-prototypes"
+#pragma GCC diagnostic ignored "-Wswitch-default"
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -45,6 +47,25 @@
 
 #define USE_RX_SPI
 #define USE_RX_FRSKY_SPI
+#define USE_RX_FRSKY_SPI_TELEMETRY
+#define USE_TELEMETRY_SMARTPORT // TODO verify also for FRSKY_D
+
+#if (CC2500_RX_SPI_PROTOCOL == RX_SPI_FRSKY_X_LBT) || (CC2500_RX_SPI_PROTOCOL == RX_SPI_FRSKY_X)
+#define USE_RX_FRSKY_SPI_X
+#endif
+#if (CC2500_RX_SPI_PROTOCOL == RX_SPI_FRSKY_D)
+#define USE_RX_FRSKY_SPI_D
+#endif
+
+#define DEBUG_SET(...) /* Do nothing */
+
+
+// main/common/utils.h:
+#if __GNUC__ > 6
+#define FALLTHROUGH __attribute__ ((fallthrough))
+#else
+#define FALLTHROUGH do {} while(0)
+#endif
 
 
 // main/common/time.h:
@@ -52,6 +73,40 @@ typedef int32_t timeDelta_t;
 typedef uint32_t timeMs_t ;
 typedef uint64_t timeUs_t;
 #define TIMEUS_MAX UINT64_MAX
+
+static inline timeDelta_t cmpTimeUs(timeUs_t a, timeUs_t b) { return (timeDelta_t)(a - b); }
+
+
+// main/config/feature.h:
+typedef enum {
+//    FEATURE_RX_PPM = 1 << 0,
+//    FEATURE_INFLIGHT_ACC_CAL = 1 << 2,
+//    FEATURE_RX_SERIAL = 1 << 3,
+//    FEATURE_MOTOR_STOP = 1 << 4,
+//    FEATURE_SERVO_TILT = 1 << 5,
+//    FEATURE_SOFTSERIAL = 1 << 6,
+//    FEATURE_GPS = 1 << 7,
+//    FEATURE_RANGEFINDER = 1 << 9,
+    FEATURE_TELEMETRY = 1 << 10,
+//    FEATURE_3D = 1 << 12,
+//    FEATURE_RX_PARALLEL_PWM = 1 << 13,
+//    FEATURE_RX_MSP = 1 << 14,
+//    FEATURE_RSSI_ADC = 1 << 15,
+//    FEATURE_LED_STRIP = 1 << 16,
+//    FEATURE_DASHBOARD = 1 << 17,
+//    FEATURE_OSD = 1 << 18,
+//    FEATURE_CHANNEL_FORWARDING = 1 << 20,
+//    FEATURE_TRANSPONDER = 1 << 21,
+//    FEATURE_AIRMODE = 1 << 22,
+//    FEATURE_RX_SPI = 1 << 25,
+//    //FEATURE_SOFTSPI = 1 << 26, (removed)
+//    FEATURE_ESC_SENSOR = 1 << 27,
+//    FEATURE_ANTI_GRAVITY = 1 << 28,
+//    FEATURE_DYNAMIC_FILTER = 1 << 29,
+} features_e;
+
+bool bf_featureIsEnabled(const uint32_t mask);
+#define featureIsEnabled(mask) bf_featureIsEnabled(mask)
 
 
 // main/drivers/time.h:
@@ -61,8 +116,16 @@ void bf_delayMicroseconds(timeUs_t us);
 void bf_delay(timeMs_t ms);
 #define delay(ms) bf_delay(ms)
 
+timeUs_t bf_micros(void);
+#define micros() bf_micros()
 timeMs_t bf_millis(void);
 #define millis() bf_millis()
+
+
+// main/drivers/adc.h:
+#define ADC_EXTERNAL1 1
+uint16_t bf_adcGetChannel(uint8_t channel);
+#define adcGetChannel(channel) bf_adcGetChannel(channel)
 
 
 // main/rx/rx.h:
@@ -93,6 +156,9 @@ extern rssiSource_e rssiSource;
 
 void bf_setRssi(uint16_t rssiValue, rssiSource_e source);
 #define setRssi(rssiValue, source) bf_setRssi(rssiValue, source)
+
+void bf_setRssiDirect(uint16_t newRssi, rssiSource_e source);
+#define setRssiDirect(newRssi, source) bf_setRssiDirect(newRssi, source)
 
 
 // main/rx/rx_spi.h:
@@ -145,11 +211,54 @@ void bf_IOToggle(IO_t io);
 #define IOToggle(io) bf_IOToggle(io)
 
 
+// main/telemetry/smartport.h:
+// TODO actually port smartport code? For downlink (and possibly uplink)
+enum
+{
+    FSSP_START_STOP = 0x7E,
+
+    FSSP_DLE        = 0x7D,
+    FSSP_DLE_XOR    = 0x20,
+
+    FSSP_DATA_FRAME = 0x10,
+    FSSP_MSPC_FRAME_SMARTPORT = 0x30, // MSP client frame
+    FSSP_MSPC_FRAME_FPORT = 0x31, // MSP client frame
+    FSSP_MSPS_FRAME = 0x32, // MSP server frame
+
+    // ID of sensor. Must be something that is polled by FrSky RX
+    FSSP_SENSOR_ID1 = 0x1B,
+    FSSP_SENSOR_ID2 = 0x0D,
+    FSSP_SENSOR_ID3 = 0x34,
+    FSSP_SENSOR_ID4 = 0x67
+    // there are 32 ID's polled by smartport master
+    // remaining 3 bits are crc (according to comments in openTx code)
+};
+
+typedef struct smartPortPayload_s {
+    uint8_t  frameId;
+    uint16_t valueId;
+    uint32_t data;
+} __attribute__((packed)) smartPortPayload_t;
+
+typedef void smartPortWriteFrameFn(const smartPortPayload_t *payload);
+typedef bool smartPortReadyToSendFn(void);
+
+bool initSmartPortTelemetryExternal(smartPortWriteFrameFn *smartPortWriteFrameExternal);
+
+smartPortPayload_t *smartPortDataReceive(uint16_t c, bool *clearToSend, smartPortReadyToSendFn *checkQueueEmpty, bool withChecksum);
+void processSmartPortTelemetry(smartPortPayload_t *payload, volatile bool *hasRequest, const uint32_t *requestTimeout);
+
+
 // main/drivers/resources.h:
 typedef enum {
     OWNER_RX_SPI_EXTI,
     OWNER_RX_SPI_BIND,
     OWNER_LED,
 } resourceOwner_e;
+
+
+// main/sensors/battery.h
+uint16_t bf_getLegacyBatteryVoltage(void);
+#define getLegacyBatteryVoltage() bf_getLegacyBatteryVoltage()
 
 #endif // RADIO_CONTROL_CC2500_COMPAT_H

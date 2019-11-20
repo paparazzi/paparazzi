@@ -24,26 +24,45 @@
 
 #include "subsystems/radio_control/cc2500_compat.h"
 
+#include "mcu_periph/adc.h"
 #include "mcu_periph/gpio.h"
 #include "mcu_periph/sys_time.h"
+#include "subsystems/electrical.h"
 
 #include <stdbool.h>
 #include <assert.h>
+
+// main/config/feature.h:
+bool bf_featureIsEnabled(const uint32_t mask) {
+  uint32_t features = 0;
+  return features & mask;
+}
+
 
 // main/drivers/time.h:
 void bf_delayMicroseconds(timeUs_t us) {
   assert(us <= UINT32_MAX);
   sys_time_usleep((uint32_t)us);
-//  float start = get_sys_time_float();
-//  while(get_sys_time_float() < start + (us / 1.0e6)) ;
 }
 
 void bf_delay(timeMs_t ms) {
   bf_delayMicroseconds((uint64_t)ms * 1000);
 }
 
+timeUs_t bf_micros(void) {
+  return get_sys_time_usec();
+}
+
 timeMs_t bf_millis(void) {
   return get_sys_time_msec();
+}
+
+
+// main/drivers/adc.h:
+uint16_t bf_adcGetChannel(uint8_t channel) {
+  (void) channel;
+  // Return current, as voltage is already reported by getLegacyBatteryVoltage
+  return (uint16_t)(electrical.current * 10000.0); // Assumed in 0.1mA
 }
 
 
@@ -58,6 +77,11 @@ rssiSource_e rssiSource;
 
 void bf_setRssi(uint16_t rssiValue, rssiSource_e source) {
   (void) rssiValue;
+  (void) source;
+}
+
+void bf_setRssiDirect(uint16_t newRssi, rssiSource_e source) {
+  (void) newRssi;
   (void) source;
 }
 
@@ -109,5 +133,32 @@ void bf_IOLo(IO_t io) {
 void bf_IOToggle(IO_t io) {
   if (!io) return;
   gpio_toggle(io->port, io->pin);
+}
+
+
+// main/telemetry/smartport.h:
+bool initSmartPortTelemetryExternal(smartPortWriteFrameFn *smartPortWriteFrameExternal) {
+  (void) smartPortWriteFrameExternal;
+  return FALSE;
+}
+
+smartPortPayload_t *smartPortDataReceive(uint16_t c, bool *clearToSend, smartPortReadyToSendFn *checkQueueEmpty, bool withChecksum) {
+  (void) c;
+  (void) clearToSend;
+  (void) checkQueueEmpty;
+  (void) withChecksum;
+  return NULL;
+}
+
+void processSmartPortTelemetry(smartPortPayload_t *payload, volatile bool *hasRequest, const uint32_t *requestTimeout) {
+  (void) payload;
+  (void) hasRequest;
+  (void) requestTimeout;
+}
+
+
+// main/sensors/battery.h
+uint16_t bf_getLegacyBatteryVoltage(void) {
+  return (uint16_t)(electrical.vsupply * 100.0); // 0.01V
 }
 

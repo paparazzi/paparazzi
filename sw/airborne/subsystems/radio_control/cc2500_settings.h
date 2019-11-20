@@ -62,13 +62,19 @@ const rxSpiConfig_t* rxSpiConfig(void);
 
 
 // main/pg/rx_spi_cc2500.h:
+typedef enum {
+  FRSKY_SPI_A1_SOURCE_VBAT = 0,
+  FRSKY_SPI_A1_SOURCE_EXTADC,
+  FRSKY_SPI_A1_SOURCE_CONST
+} frSkySpiA1Source_e;
+
 typedef struct rxCc2500SpiConfig_s {
     uint8_t autoBind;
     uint8_t bindTxId[2];
     int8_t  bindOffset;
     uint8_t bindHopData[50];
     uint8_t rxNum;
-//    uint8_t a1Source;
+    uint8_t a1Source;
     uint8_t chipDetectEnabled;
 //    ioTag_t txEnIoTag;
 //    ioTag_t lnaEnIoTag;
