@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="distributed_circular_formation" dir="dcf">
+<module name="distributed_circular_formation" dir="multi/dcf">
   <doc>
     <description>Distributed algorithm for circular formations with air-to-air communications.
 		For more details we refer to https://wiki.paparazziuav.org/wiki/Module/guidance_vector_field 

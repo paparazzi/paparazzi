@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="collective_tracking_control" dir="ctc">
+<module name="collective_tracking_control" dir="multi/ctc">
   <doc>
   <description>Algorithm that makes the centroid of a team of aircraft (with different speeds) to track a (possibly moving) target/waypoint.
 
