@@ -22,7 +22,7 @@
 #include "subsystems/abi.h"
 #include "subsystems/datalink/datalink.h" // dl_buffer
 #include "autopilot.h"
-#include "modules/fc_rotor/fc_rotor.h"
+#include "modules/multi/fc_rotor/fc_rotor.h"
 #include "firmwares/rotorcraft/navigation.h"
 
 void fc_rotor_init(void)

@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="fc_rotor" dir="fc_rotor">
+<module name="fc_rotor" dir="multi/fc_rotor">
   <doc>
     <description>
       Algorithm for the formation control of a team of rotorcrafts.

@@ -24,7 +24,7 @@
 #include <std.h>
 #include <stdio.h>
 
-#include "modules/ctc/ctc_target.h"
+#include "modules/multi/ctc/ctc_target.h"
 #include "subsystems/datalink/datalink.h" // dl_buffer
 #include "subsystems/datalink/telemetry.h"
 #include "firmwares/rotorcraft/navigation.h"
