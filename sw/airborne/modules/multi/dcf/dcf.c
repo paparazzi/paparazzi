@@ -22,7 +22,7 @@
 #include <math.h>
 #include <std.h>
 
-#include "modules/dcf/dcf.h"
+#include "modules/muti/dcf/dcf.h"
 #include "subsystems/datalink/datalink.h" // dl_buffer
 #include "subsystems/datalink/telemetry.h"
 #include "subsystems/navigation/common_nav.h"

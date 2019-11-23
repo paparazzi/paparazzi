@@ -24,7 +24,7 @@
 #include <std.h>
 #include <stdio.h>
 
-#include "modules/ctc/ctc.h"
+#include "modules/multi/ctc/ctc.h"
 #include "subsystems/datalink/datalink.h" // dl_buffer
 #include "subsystems/datalink/telemetry.h"
 #include "subsystems/navigation/common_nav.h"
