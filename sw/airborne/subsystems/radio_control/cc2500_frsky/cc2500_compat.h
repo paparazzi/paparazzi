@@ -40,6 +40,8 @@
 #pragma GCC diagnostic ignored "-Wstrict-prototypes"
 #pragma GCC diagnostic ignored "-Wswitch-default"
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#pragma GCC diagnostic ignored "-Wshadow"
+
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -77,6 +79,18 @@ typedef uint64_t timeUs_t;
 #define TIMEUS_MAX UINT64_MAX
 
 static inline timeDelta_t cmpTimeUs(timeUs_t a, timeUs_t b) { return (timeDelta_t)(a - b); }
+
+
+// main/common/filter.h:
+typedef struct pt1Filter_s {
+    float state;
+    float k;
+} pt1Filter_t;
+
+float pt1FilterGain(float f_cut, float dT);
+void pt1FilterInit(pt1Filter_t *filter, float k);
+void pt1FilterUpdateCutoff(pt1Filter_t *filter, float k);
+float pt1FilterApply(pt1Filter_t *filter, float input);
 
 
 // main/config/feature.h:
@@ -135,55 +149,6 @@ uint16_t bf_adcGetChannel(uint8_t channel);
 
 bool bf_rxSpiDeviceInit(void);
 #define rxSpiDeviceInit(rxSpiConfig) bf_rxSpiDeviceInit()
-
-
-// main/rx/rx.h:
-#define MAX_SUPPORTED_RC_CHANNEL_COUNT 18
-
-struct rxRuntimeState_s;
-
-typedef uint16_t (*rcReadRawDataFnPtr)(const struct rxRuntimeState_s *rxRuntimeState, uint8_t chan); // used by receiver driver to return channel data
-typedef uint8_t (*rcFrameStatusFnPtr)(struct rxRuntimeState_s *rxRuntimeState);
-typedef bool (*rcProcessFrameFnPtr)(const struct rxRuntimeState_s *rxRuntimeState);
-
-typedef enum {
-    RX_FRAME_PENDING = 0,
-    RX_FRAME_COMPLETE = (1 << 0),
-    RX_FRAME_FAILSAFE = (1 << 1),
-    RX_FRAME_PROCESSING_REQUIRED = (1 << 2),
-    RX_FRAME_DROPPED = (1 << 3)
-} rxFrameState_e;
-
-typedef struct rxRuntimeState_s {
-//    rxProvider_t        rxProvider;
-//    SerialRXType        serialrxProvider;
-    uint8_t             channelCount; // number of RC channels as reported by current input driver
-    uint16_t            rxRefreshRate;
-    rcReadRawDataFnPtr  rcReadRawFn;
-    rcFrameStatusFnPtr  rcFrameStatusFn;
-    rcProcessFrameFnPtr rcProcessFrameFn;
-//    uint16_t            *channelData;
-//    void                *frameData;
-} rxRuntimeState_t;
-
-rxRuntimeState_t* rxRuntimeState(void);
-
-typedef enum {
-    RSSI_SOURCE_NONE = 0,
-    RSSI_SOURCE_ADC,
-    RSSI_SOURCE_RX_CHANNEL,
-    RSSI_SOURCE_RX_PROTOCOL,
-    RSSI_SOURCE_MSP,
-    RSSI_SOURCE_FRAME_ERRORS,
-    RSSI_SOURCE_RX_PROTOCOL_CRSF,
-} rssiSource_e;
-extern rssiSource_e rssiSource;
-
-void bf_setRssi(uint16_t rssiValue, rssiSource_e source);
-#define setRssi(rssiValue, source) bf_setRssi(rssiValue, source)
-
-void bf_setRssiDirect(uint16_t newRssi, rssiSource_e source);
-#define setRssiDirect(newRssi, source) bf_setRssiDirect(newRssi, source)
 
 
 // main/drivers/io.h:

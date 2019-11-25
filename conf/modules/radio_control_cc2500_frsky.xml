@@ -57,6 +57,7 @@
     <file name="cc2500_settings.c" dir="subsystems/radio_control/cc2500_frsky"/>
     <file name="cc2500_compat.c" dir="subsystems/radio_control/cc2500_frsky"/>
     <file name="cc2500_common.c" dir="subsystems/radio_control/cc2500_frsky"/>
+    <file name="cc2500_rx.c" dir="subsystems/radio_control/cc2500_frsky"/>
     <file name="cc2500_rx_spi.c" dir="subsystems/radio_control/cc2500_frsky"/>
     <file name="cc2500_rx_spi_common.c" dir="subsystems/radio_control/cc2500_frsky"/>
     <file name="cc2500_frsky_shared.c" dir="subsystems/radio_control/cc2500_frsky"/>

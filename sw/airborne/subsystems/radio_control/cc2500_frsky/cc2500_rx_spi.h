@@ -1,6 +1,7 @@
 #include "cc2500_compat.h"
 
 #include "cc2500_settings.h"
+#include "cc2500_rx.h"
 
 // betaflight/src/main/rx/rx_spi.h @ 0a0d363
 /*

@@ -49,7 +49,7 @@ void radio_control_impl_init(void) {
   reset_value = cc2500Reset();
 //  spiinit_result = cc2500SpiInit();
 //  spiinit_result = frSkySpiInit(rxSpiConfig(), rxRuntimeState());
-  spiinit_result = rxSpiInit(rxSpiConfig(), rxRuntimeState());
+  spiinit_result = rxSpiInit(rxSpiConfig(), &rxRuntimeState);
 }
 
 void radio_control_impl_event(void (* _received_frame_handler)(void)) {

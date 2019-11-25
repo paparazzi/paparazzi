@@ -31,11 +31,35 @@
 
 #include <stdbool.h>
 #include <assert.h>
+#include <math.h>
 
 // main/config/feature.h:
 bool bf_featureIsEnabled(const uint32_t mask) {
   uint32_t features = 0;
   return features & mask;
+}
+
+
+// main/common/filters.h:
+#define M_PI_FLOAT  3.14159265358979323846f
+float pt1FilterGain(float f_cut, float dT)
+{
+    float RC = 1 / ( 2 * M_PI_FLOAT * f_cut);
+    return dT / (RC + dT);
+}
+
+void pt1FilterInit(pt1Filter_t *filter, float k) {
+    filter->state = 0.0f;
+    filter->k = k;
+}
+
+void pt1FilterUpdateCutoff(pt1Filter_t *filter, float k) {
+    filter->k = k;
+}
+
+float pt1FilterApply(pt1Filter_t *filter, float input) {
+    filter->state = filter->state + filter->k * (input - filter->state);
+    return filter->state;
 }
 
 
@@ -69,26 +93,6 @@ uint16_t bf_adcGetChannel(uint8_t channel) {
 // main/drivers/rx_spi.h:
 bool bf_rxSpiDeviceInit(void) {
   return TRUE;
-}
-
-
-// main/rx/rx.h:
-static rxRuntimeState_t runtimeState;
-
-rxRuntimeState_t* rxRuntimeState(void) {
-  return &runtimeState;
-}
-
-rssiSource_e rssiSource;
-
-void bf_setRssi(uint16_t rssiValue, rssiSource_e source) {
-  (void) rssiValue;
-  (void) source;
-}
-
-void bf_setRssiDirect(uint16_t newRssi, rssiSource_e source) {
-  (void) newRssi;
-  (void) source;
 }
 
 
