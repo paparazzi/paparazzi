@@ -35,7 +35,7 @@
 
 // main/config/feature.h:
 bool bf_featureIsEnabled(const uint32_t mask) {
-  uint32_t features = 0;
+  uint32_t features = FEATURE_RX_SPI;
   return features & mask;
 }
 

@@ -29,7 +29,7 @@
 #include "cc2500_common.h"
 #include "cc2500_frsky_common.h"
 #include "cc2500_settings.h"
-#include "cc2500_rx_spi.h"
+#include "cc2500_rx.h"
 
 #include "subsystems/datalink/downlink.h"
 
@@ -49,7 +49,9 @@ void radio_control_impl_init(void) {
   reset_value = cc2500Reset();
 //  spiinit_result = cc2500SpiInit();
 //  spiinit_result = frSkySpiInit(rxSpiConfig(), rxRuntimeState());
-  spiinit_result = rxSpiInit(rxSpiConfig(), &rxRuntimeState);
+//  spiinit_result = rxSpiInit(rxSpiConfig(), &rxRuntimeState);
+  rxInit();
+  spiinit_result = 255;
 }
 
 void radio_control_impl_event(void (* _received_frame_handler)(void)) {

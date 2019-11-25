@@ -81,6 +81,13 @@ typedef uint64_t timeUs_t;
 static inline timeDelta_t cmpTimeUs(timeUs_t a, timeUs_t b) { return (timeDelta_t)(a - b); }
 
 
+// main/common/maths.h:
+#define MIN(a,b) \
+  __extension__ ({ __typeof__ (a) _a = (a); \
+  __typeof__ (b) _b = (b); \
+  _a < _b ? _a : _b; })
+
+
 // main/common/filter.h:
 typedef struct pt1Filter_s {
     float state;
@@ -95,9 +102,9 @@ float pt1FilterApply(pt1Filter_t *filter, float input);
 
 // main/config/feature.h:
 typedef enum {
-//    FEATURE_RX_PPM = 1 << 0,
+    FEATURE_RX_PPM = 1 << 0,
 //    FEATURE_INFLIGHT_ACC_CAL = 1 << 2,
-//    FEATURE_RX_SERIAL = 1 << 3,
+    FEATURE_RX_SERIAL = 1 << 3,
 //    FEATURE_MOTOR_STOP = 1 << 4,
 //    FEATURE_SERVO_TILT = 1 << 5,
 //    FEATURE_SOFTSERIAL = 1 << 6,
@@ -105,16 +112,16 @@ typedef enum {
 //    FEATURE_RANGEFINDER = 1 << 9,
     FEATURE_TELEMETRY = 1 << 10,
 //    FEATURE_3D = 1 << 12,
-//    FEATURE_RX_PARALLEL_PWM = 1 << 13,
-//    FEATURE_RX_MSP = 1 << 14,
-//    FEATURE_RSSI_ADC = 1 << 15,
+    FEATURE_RX_PARALLEL_PWM = 1 << 13,
+    FEATURE_RX_MSP = 1 << 14,
+    FEATURE_RSSI_ADC = 1 << 15,
 //    FEATURE_LED_STRIP = 1 << 16,
 //    FEATURE_DASHBOARD = 1 << 17,
 //    FEATURE_OSD = 1 << 18,
 //    FEATURE_CHANNEL_FORWARDING = 1 << 20,
 //    FEATURE_TRANSPONDER = 1 << 21,
 //    FEATURE_AIRMODE = 1 << 22,
-//    FEATURE_RX_SPI = 1 << 25,
+    FEATURE_RX_SPI = 1 << 25,
 //    //FEATURE_SOFTSPI = 1 << 26, (removed)
 //    FEATURE_ESC_SENSOR = 1 << 27,
 //    FEATURE_ANTI_GRAVITY = 1 << 28,
@@ -149,6 +156,10 @@ uint16_t bf_adcGetChannel(uint8_t channel);
 
 bool bf_rxSpiDeviceInit(void);
 #define rxSpiDeviceInit(rxSpiConfig) bf_rxSpiDeviceInit()
+
+
+// main/drivers/rx/rx_pwm.h:
+#define PPM_RCVR_TIMEOUT 0
 
 
 // main/drivers/io.h:
@@ -234,5 +245,6 @@ typedef enum {
 // main/sensors/battery.h
 uint16_t bf_getLegacyBatteryVoltage(void);
 #define getLegacyBatteryVoltage() bf_getLegacyBatteryVoltage()
+
 
 #endif // RADIO_CONTROL_CC2500_COMPAT_H

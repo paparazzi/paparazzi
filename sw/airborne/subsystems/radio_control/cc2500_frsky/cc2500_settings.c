@@ -35,6 +35,13 @@
 void bf_writeEEPROM(void) { } // TODO Handled by Paparazzi's persistent settings mechanism.
 
 
+// main/pg/rx.h:
+static rxConfig_t rxconfig;
+const rxConfig_t* rxConfig(void) {
+  return &rxconfig;
+}
+
+
 // main/pg/rx_spi.h:
 static struct gpio_t extiIo;
 static struct gpio_t ledIo;
@@ -56,6 +63,12 @@ rxCc2500SpiConfig_t* rxCc2500SpiConfigMutable(void) {
 
 
 void cc2500_settings_init(void) {
+  // rxConfig
+  rxconfig.rssi_channel = 0;
+  rxconfig.midrc = 1500;
+  rxconfig.max_aux_channel = 0; // TODO
+  rxconfig.rssi_src_frame_lpf_period = 30;
+
   // rxSpiConfig
   spiconfig.rx_spi_protocol = CC2500_RX_SPI_PROTOCOL;
   extiIo.port = CC2500_GDO0_GPIO_PORT;
