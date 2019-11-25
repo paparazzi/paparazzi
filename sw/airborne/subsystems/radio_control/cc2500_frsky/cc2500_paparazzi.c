@@ -22,13 +22,13 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "subsystems/radio_control/cc2500_paparazzi.h"
+#include "cc2500_paparazzi.h"
 
 #include "subsystems/radio_control.h"
 #include "peripherals/cc2500.h"
-#include "subsystems/radio_control/cc2500_common.h"
-#include "subsystems/radio_control/cc2500_frsky_common.h"
-#include "subsystems/radio_control/cc2500_settings.h"
+#include "cc2500_common.h"
+#include "cc2500_frsky_common.h"
+#include "cc2500_settings.h"
 
 #include "subsystems/datalink/downlink.h"
 

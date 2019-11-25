@@ -22,7 +22,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "subsystems/radio_control/cc2500_compat.h"
+#include "cc2500_compat.h"
 
 #include "mcu_periph/adc.h"
 #include "mcu_periph/gpio.h"

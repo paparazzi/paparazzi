@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="radio_control_frskyX" dir="radio_control">
+<module name="radio_control_cc2500_frsky" dir="radio_control/cc2500_frsky">
   <doc>
     <description>
       Software implementation of Frsky X radio control protocol.
@@ -19,7 +19,7 @@
   </doc>
   <header>
     <file name="cc2500.h" dir="peripherals"/>
-    <file name="cc2500_paparazzi.h" dir="subsystems/radio_control"/>
+    <file name="cc2500_paparazzi.h" dir="subsystems/radio_control/cc2500_frsky"/>
   </header>
   <init fun="cc2500_init()"/>
   <makefile target="ap|fbw|sim|nps">
@@ -53,12 +53,12 @@
     <define name="CC2500_AUTOBIND" value="$(CC2500_AUTOBIND)"/>
     <file name="radio_control.c" dir="subsystems"/>
     <file name="cc2500.c" dir="peripherals"/>
-    <file name="cc2500_paparazzi.c" dir="subsystems/radio_control"/>
-    <file name="cc2500_settings.c" dir="subsystems/radio_control"/>
-    <file name="cc2500_compat.c" dir="subsystems/radio_control"/>
-    <file name="cc2500_common.c" dir="subsystems/radio_control"/>
-    <file name="cc2500_rx_spi_common.c" dir="subsystems/radio_control"/>
-    <file name="cc2500_frsky_shared.c" dir="subsystems/radio_control"/>
-    <file name="cc2500_frsky_x.c" dir="subsystems/radio_control"/>
+    <file name="cc2500_paparazzi.c" dir="subsystems/radio_control/cc2500_frsky"/>
+    <file name="cc2500_settings.c" dir="subsystems/radio_control/cc2500_frsky"/>
+    <file name="cc2500_compat.c" dir="subsystems/radio_control/cc2500_frsky"/>
+    <file name="cc2500_common.c" dir="subsystems/radio_control/cc2500_frsky"/>
+    <file name="cc2500_rx_spi_common.c" dir="subsystems/radio_control/cc2500_frsky"/>
+    <file name="cc2500_frsky_shared.c" dir="subsystems/radio_control/cc2500_frsky"/>
+    <file name="cc2500_frsky_x.c" dir="subsystems/radio_control/cc2500_frsky"/>
   </makefile>
 </module>
