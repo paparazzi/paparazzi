@@ -1,5 +1,7 @@
 #include "cc2500_compat.h"
 
+#include "cc2500_rx_spi.h"
+
 // betaflight/src/main/rx/cc2500_common.h  @ 50bbe0b on Jul 1
 /*
  * This file is part of Cleanflight and Betaflight.

@@ -66,6 +66,12 @@ uint16_t bf_adcGetChannel(uint8_t channel) {
 }
 
 
+// main/drivers/rx_spi.h:
+bool bf_rxSpiDeviceInit(void) {
+  return TRUE;
+}
+
+
 // main/rx/rx.h:
 static rxRuntimeState_t runtimeState;
 

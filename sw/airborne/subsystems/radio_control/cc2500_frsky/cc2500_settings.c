@@ -24,6 +24,8 @@
 
 #include "cc2500_settings.h"
 
+#include "cc2500_rx_spi.h"
+
 #include "mcu_periph/gpio.h"
 
 #include <string.h>

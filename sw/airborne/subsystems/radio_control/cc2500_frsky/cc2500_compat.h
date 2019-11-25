@@ -58,6 +58,8 @@
 #endif
 
 #define DEBUG_SET(...) /* Do nothing */
+#define STATIC_ASSERT(...) /* Do nothing */
+#define STATIC_UNIT_TESTED static
 
 
 // main/common/utils.h:
@@ -128,15 +130,38 @@ uint16_t bf_adcGetChannel(uint8_t channel);
 #define adcGetChannel(channel) bf_adcGetChannel(channel)
 
 
+// main/drivers/rx/rx_spi.h:
+#define RX_SPI_MAX_PAYLOAD_SIZE 35
+
+bool bf_rxSpiDeviceInit(void);
+#define rxSpiDeviceInit(rxSpiConfig) bf_rxSpiDeviceInit()
+
+
 // main/rx/rx.h:
+#define MAX_SUPPORTED_RC_CHANNEL_COUNT 18
+
+struct rxRuntimeState_s;
+
+typedef uint16_t (*rcReadRawDataFnPtr)(const struct rxRuntimeState_s *rxRuntimeState, uint8_t chan); // used by receiver driver to return channel data
+typedef uint8_t (*rcFrameStatusFnPtr)(struct rxRuntimeState_s *rxRuntimeState);
+typedef bool (*rcProcessFrameFnPtr)(const struct rxRuntimeState_s *rxRuntimeState);
+
+typedef enum {
+    RX_FRAME_PENDING = 0,
+    RX_FRAME_COMPLETE = (1 << 0),
+    RX_FRAME_FAILSAFE = (1 << 1),
+    RX_FRAME_PROCESSING_REQUIRED = (1 << 2),
+    RX_FRAME_DROPPED = (1 << 3)
+} rxFrameState_e;
+
 typedef struct rxRuntimeState_s {
 //    rxProvider_t        rxProvider;
 //    SerialRXType        serialrxProvider;
     uint8_t             channelCount; // number of RC channels as reported by current input driver
-//    uint16_t            rxRefreshRate;
-//    rcReadRawDataFnPtr  rcReadRawFn;
-//    rcFrameStatusFnPtr  rcFrameStatusFn;
-//    rcProcessFrameFnPtr rcProcessFrameFn;
+    uint16_t            rxRefreshRate;
+    rcReadRawDataFnPtr  rcReadRawFn;
+    rcFrameStatusFnPtr  rcFrameStatusFn;
+    rcProcessFrameFnPtr rcProcessFrameFn;
 //    uint16_t            *channelData;
 //    void                *frameData;
 } rxRuntimeState_t;
@@ -159,22 +184,6 @@ void bf_setRssi(uint16_t rssiValue, rssiSource_e source);
 
 void bf_setRssiDirect(uint16_t newRssi, rssiSource_e source);
 #define setRssiDirect(newRssi, source) bf_setRssiDirect(newRssi, source)
-
-
-// main/rx/rx_spi.h:
-typedef enum {
-    RX_SPI_FRSKY_D,
-    RX_SPI_FRSKY_X,
-    RX_SPI_FRSKY_X_LBT,
-    RX_SPI_PROTOCOL_COUNT
-} rx_spi_protocol_e;
-
-typedef enum {
-    RX_SPI_RECEIVED_NONE = 0,
-    RX_SPI_RECEIVED_BIND = (1 << 0),
-    RX_SPI_RECEIVED_DATA = (1 << 1),
-    RX_SPI_ROCESSING_REQUIRED = (1 << 2),
-} rx_spi_received_e;
 
 
 // main/drivers/io.h:
