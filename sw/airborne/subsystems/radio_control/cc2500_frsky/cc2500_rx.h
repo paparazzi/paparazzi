@@ -175,7 +175,7 @@ extern rssiSource_e rssiSource;
 extern rxRuntimeState_t rxRuntimeState; //!!TODO remove this extern, only needed once for channelCount
 
 void rxInit(void);
-//bool rxUpdateCheck(timeUs_t currentTimeUs, timeDelta_t currentDeltaTimeUs);
+bool rxUpdateCheck(timeUs_t currentTimeUs, timeDelta_t currentDeltaTimeUs);
 //bool rxIsReceivingSignal(void);
 //bool rxAreFlightChannelsValid(void);
 //bool calculateRxChannelsAndUpdateFailsafe(timeUs_t currentTimeUs);
@@ -183,8 +183,8 @@ void rxInit(void);
 //struct rxConfig_s;
 //
 //void parseRcChannels(const char *input, struct rxConfig_s *rxConfig);
-//
-//#define RSSI_MAX_VALUE 1023
+
+#define RSSI_MAX_VALUE 1023
 
 void setRssiDirect(uint16_t newRssi, rssiSource_e source);
 void setRssi(uint16_t rssiValue, rssiSource_e source);

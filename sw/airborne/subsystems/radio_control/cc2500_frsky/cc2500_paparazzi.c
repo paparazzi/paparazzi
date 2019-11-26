@@ -35,8 +35,8 @@
 
 #include <stdint.h>
 
-#define RX_SPI_MAX_PAYLOAD_SIZE 35
-static uint8_t rxSpiPayload[RX_SPI_MAX_PAYLOAD_SIZE];
+//#define RX_SPI_MAX_PAYLOAD_SIZE 35
+//static uint8_t rxSpiPayload[RX_SPI_MAX_PAYLOAD_SIZE];
 
 static uint32_t reset_value = 0;
 static uint32_t spiinit_result = 0;
@@ -57,10 +57,16 @@ void radio_control_impl_init(void) {
 void radio_control_impl_event(void (* _received_frame_handler)(void)) {
   (void) _received_frame_handler;
 
-  status = frSkySpiDataReceived(rxSpiPayload);
-  if (status) {
-    frSkySpiProcessFrame(rxSpiPayload); // ???
-  }
+  timeUs_t now = micros();
+  static timeUs_t previous = 0;
+  if (previous == 0) { previous = now; }
+  status = rxUpdateCheck(now, now - previous);
+  previous = now;
+
+//  status = frSkySpiDataReceived(rxSpiPayload);
+//  if (status) {
+//    frSkySpiProcessFrame(rxSpiPayload); // ???
+//  }
 
   counter++;
   if((counter % 10000) == 0) {

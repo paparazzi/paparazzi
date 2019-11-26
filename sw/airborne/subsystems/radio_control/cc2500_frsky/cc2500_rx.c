@@ -99,17 +99,17 @@ static pt1Filter_t frameErrFilter;
 
 rssiSource_e rssiSource;
 //linkQualitySource_e linkQualitySource;
-//
-//static bool rxDataProcessingRequired = false;
-//static bool auxiliaryProcessingRequired = false;
-//
-//static bool rxSignalReceived = false;
+
+static bool rxDataProcessingRequired = false;
+static bool auxiliaryProcessingRequired = false;
+
+static bool rxSignalReceived = false;
 //static bool rxFlightChannelsValid = false;
-//static bool rxIsInFailsafeMode = true;
+static bool rxIsInFailsafeMode = true;
 static uint8_t rxChannelCount;
 
-//static timeUs_t rxNextUpdateAtUs = 0;
-//static uint32_t needRxSignalBefore = 0;
+static timeUs_t rxNextUpdateAtUs = 0;
+static uint32_t needRxSignalBefore = 0;
 static uint32_t needRxSignalMaxDelayUs;
 //static uint32_t suspendRxSignalUntil = 0;
 //static uint8_t  skipRxSamples = 0;
@@ -415,34 +415,34 @@ void rxInit(void)
 //    return sum / LINK_QUALITY_SAMPLE_COUNT;
 //}
 //#endif
-//
-//static void setLinkQuality(bool validFrame, timeDelta_t currentDeltaTime)
-//{
-//#ifdef USE_RX_LINK_QUALITY_INFO
-//    if (linkQualitySource != LQ_SOURCE_RX_PROTOCOL_CRSF) {
-//        // calculate new sample mean
-//        linkQuality = updateLinkQualitySamples(validFrame ? LINK_QUALITY_MAX_VALUE : 0);
-//    }
-//#endif
-//
-//    if (rssiSource == RSSI_SOURCE_FRAME_ERRORS) {
-//        static uint16_t tot_rssi = 0;
-//        static uint16_t cnt_rssi = 0;
-//        static timeDelta_t resample_time = 0;
-//
-//        resample_time += currentDeltaTime;
-//        tot_rssi += validFrame ? RSSI_MAX_VALUE : 0;
-//        cnt_rssi++;
-//
-//        if (resample_time >= FRAME_ERR_RESAMPLE_US) {
-//            setRssi(tot_rssi / cnt_rssi, rssiSource);
-//            tot_rssi = 0;
-//            cnt_rssi = 0;
-//            resample_time -= FRAME_ERR_RESAMPLE_US;
-//        }
-//    }
-//}
-//
+
+static void setLinkQuality(bool validFrame, timeDelta_t currentDeltaTime)
+{
+#ifdef USE_RX_LINK_QUALITY_INFO
+    if (linkQualitySource != LQ_SOURCE_RX_PROTOCOL_CRSF) {
+        // calculate new sample mean
+        linkQuality = updateLinkQualitySamples(validFrame ? LINK_QUALITY_MAX_VALUE : 0);
+    }
+#endif
+
+    if (rssiSource == RSSI_SOURCE_FRAME_ERRORS) {
+        static uint16_t tot_rssi = 0;
+        static uint16_t cnt_rssi = 0;
+        static timeDelta_t resample_time = 0;
+
+        resample_time += currentDeltaTime;
+        tot_rssi += validFrame ? RSSI_MAX_VALUE : 0;
+        cnt_rssi++;
+
+        if (resample_time >= FRAME_ERR_RESAMPLE_US) {
+            setRssi(tot_rssi / cnt_rssi, rssiSource);
+            tot_rssi = 0;
+            cnt_rssi = 0;
+            resample_time -= FRAME_ERR_RESAMPLE_US;
+        }
+    }
+}
+
 //void setLinkQualityDirect(uint16_t linkqualityValue)
 //{
 //#ifdef USE_RX_LINK_QUALITY_INFO
@@ -451,73 +451,73 @@ void rxInit(void)
 //    UNUSED(linkqualityValue);
 //#endif
 //}
-//
-//bool rxUpdateCheck(timeUs_t currentTimeUs, timeDelta_t currentDeltaTime)
-//{
-//    bool signalReceived = false;
-//    bool useDataDrivenProcessing = true;
-//
-//    switch (rxRuntimeState.rxProvider) {
-//    default:
-//
-//        break;
-//#if defined(USE_PWM) || defined(USE_PPM)
-//    case RX_PROVIDER_PPM:
-//        if (isPPMDataBeingReceived()) {
-//            signalReceived = true;
-//            rxIsInFailsafeMode = false;
-//            needRxSignalBefore = currentTimeUs + needRxSignalMaxDelayUs;
-//            resetPPMDataReceivedState();
-//        }
-//
-//        break;
-//    case RX_PROVIDER_PARALLEL_PWM:
-//        if (isPWMDataBeingReceived()) {
-//            signalReceived = true;
-//            rxIsInFailsafeMode = false;
-//            needRxSignalBefore = currentTimeUs + needRxSignalMaxDelayUs;
-//            useDataDrivenProcessing = false;
-//        }
-//
-//        break;
-//#endif
-//    case RX_PROVIDER_SERIAL:
-//    case RX_PROVIDER_MSP:
-//    case RX_PROVIDER_SPI:
-//        {
-//            const uint8_t frameStatus = rxRuntimeState.rcFrameStatusFn(&rxRuntimeState);
-//            if (frameStatus & RX_FRAME_COMPLETE) {
-//                rxIsInFailsafeMode = (frameStatus & RX_FRAME_FAILSAFE) != 0;
-//                bool rxFrameDropped = (frameStatus & RX_FRAME_DROPPED) != 0;
-//                signalReceived = !(rxIsInFailsafeMode || rxFrameDropped);
-//                if (signalReceived) {
-//                    needRxSignalBefore = currentTimeUs + needRxSignalMaxDelayUs;
-//                }
-//
-//                setLinkQuality(signalReceived, currentDeltaTime);
-//            }
-//
-//            if (frameStatus & RX_FRAME_PROCESSING_REQUIRED) {
-//                auxiliaryProcessingRequired = true;
-//            }
-//        }
-//
-//        break;
-//    }
-//
-//    if (signalReceived) {
-//        rxSignalReceived = true;
-//    } else if (currentTimeUs >= needRxSignalBefore) {
-//        rxSignalReceived = false;
-//    }
-//
-//    if ((signalReceived && useDataDrivenProcessing) || cmpTimeUs(currentTimeUs, rxNextUpdateAtUs) > 0) {
-//        rxDataProcessingRequired = true;
-//    }
-//
-//    return rxDataProcessingRequired || auxiliaryProcessingRequired; // data driven or 50Hz
-//}
-//
+
+bool rxUpdateCheck(timeUs_t currentTimeUs, timeDelta_t currentDeltaTime)
+{
+    bool signalReceived = false;
+    bool useDataDrivenProcessing = true;
+
+    switch (rxRuntimeState.rxProvider) {
+    default:
+
+        break;
+#if defined(USE_PWM) || defined(USE_PPM)
+    case RX_PROVIDER_PPM:
+        if (isPPMDataBeingReceived()) {
+            signalReceived = true;
+            rxIsInFailsafeMode = false;
+            needRxSignalBefore = currentTimeUs + needRxSignalMaxDelayUs;
+            resetPPMDataReceivedState();
+        }
+
+        break;
+    case RX_PROVIDER_PARALLEL_PWM:
+        if (isPWMDataBeingReceived()) {
+            signalReceived = true;
+            rxIsInFailsafeMode = false;
+            needRxSignalBefore = currentTimeUs + needRxSignalMaxDelayUs;
+            useDataDrivenProcessing = false;
+        }
+
+        break;
+#endif
+    case RX_PROVIDER_SERIAL:
+    case RX_PROVIDER_MSP:
+    case RX_PROVIDER_SPI:
+        {
+            const uint8_t frameStatus = rxRuntimeState.rcFrameStatusFn(&rxRuntimeState);
+            if (frameStatus & RX_FRAME_COMPLETE) {
+                rxIsInFailsafeMode = (frameStatus & RX_FRAME_FAILSAFE) != 0;
+                bool rxFrameDropped = (frameStatus & RX_FRAME_DROPPED) != 0;
+                signalReceived = !(rxIsInFailsafeMode || rxFrameDropped);
+                if (signalReceived) {
+                    needRxSignalBefore = currentTimeUs + needRxSignalMaxDelayUs;
+                }
+
+                setLinkQuality(signalReceived, currentDeltaTime);
+            }
+
+            if (frameStatus & RX_FRAME_PROCESSING_REQUIRED) {
+                auxiliaryProcessingRequired = true;
+            }
+        }
+
+        break;
+    }
+
+    if (signalReceived) {
+        rxSignalReceived = true;
+    } else if (currentTimeUs >= needRxSignalBefore) {
+        rxSignalReceived = false;
+    }
+
+    if ((signalReceived && useDataDrivenProcessing) || cmpTimeUs(currentTimeUs, rxNextUpdateAtUs) > 0) {
+        rxDataProcessingRequired = true;
+    }
+
+    return rxDataProcessingRequired || auxiliaryProcessingRequired; // data driven or 50Hz
+}
+
 //#if defined(USE_PWM) || defined(USE_PPM)
 //static uint16_t calculateChannelMovingAverage(uint8_t chan, uint16_t sample)
 //{
