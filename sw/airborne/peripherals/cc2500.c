@@ -22,6 +22,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
+#include "subsystems/datalink/downlink.h"
+
 #include "cc2500.h"
 
 #include "generated/modules.h"
@@ -34,8 +36,8 @@
 
 static struct spi_periph *cc2500_spi_p;
 static struct spi_transaction cc2500_spi_t;
-static uint8_t cc2500_input_buf[17];
-static uint8_t cc2500_output_buf[17];
+static uint8_t cc2500_input_buf[512];
+static uint8_t cc2500_output_buf[512];
 
 
 void cc2500_init(void) {
@@ -51,7 +53,7 @@ void cc2500_init(void) {
   cc2500_spi_t.cpha = SPICphaEdge1;
   cc2500_spi_t.dss = SPIDss8bit;
   cc2500_spi_t.bitorder = SPIMSBFirst;
-  cc2500_spi_t.cdiv = SPIDiv16; // TODO verify
+  cc2500_spi_t.cdiv = SPIDiv256; // TODO verify
   cc2500_spi_t.status = SPITransDone;
   cc2500_spi_t.slave_idx = CC2500_SPI_SLAVE_IDX;
 }
@@ -68,7 +70,7 @@ static void rxSpiReadCommandMulti(uint8_t command, uint8_t commandData, uint8_t 
   assert(cc2500_spi_t.status == SPITransDone);
   // Set up the transaction
   cc2500_spi_t.output_length = 2; // command + commandData
-  cc2500_spi_t.input_length = length + 1; // TODO verify. Assumes read starts during transmission of command byte
+  cc2500_spi_t.input_length = length + 1; // STATUS BYTE + RETURN DATA
   cc2500_spi_t.output_buf[0] = command;
   cc2500_spi_t.output_buf[1] = commandData;
   // Submit the transaction
@@ -77,15 +79,15 @@ static void rxSpiReadCommandMulti(uint8_t command, uint8_t commandData, uint8_t 
   while(cc2500_spi_t.status != SPITransSuccess) ; // TODO not ideal in event function...
   cc2500_spi_t.status = SPITransDone;
   // Copy the input buffer
-  for (uint8_t i = 0; i < length; ++i) { // TODO check in betaflight code if this includes the status byte
-    retData[i] = cc2500_spi_t.input_buf[i];
+  for (uint8_t i = 0; i < length; ++i) {
+    retData[i] = cc2500_spi_t.input_buf[i + 1]; // Skips status byte, betaflight code does not work when this byte is included.
   }
 }
 
 static uint8_t rxSpiReadCommand(uint8_t command, uint8_t commandData) {
-  uint8_t retData[2]; // STATE, DATA
-  rxSpiReadCommandMulti(command, commandData, retData, 2);
-  return retData[1];
+  uint8_t retData; // DATA
+  rxSpiReadCommandMulti(command, commandData, &retData, 1);
+  return retData;
 }
 
 
@@ -167,6 +169,9 @@ static void rxSpiWriteByte(uint8_t data) {
 void cc2500ReadFifo(uint8_t *dpbuffer, uint8_t len)
 {
     rxSpiReadCommandMulti(CC2500_3F_RXFIFO | CC2500_READ_BURST, NOP, dpbuffer, len);
+    uint8_t cond1 = 0;
+    uint8_t cond2 = 0;
+    DOWNLINK_SEND_CC2500_PACKET(DefaultChannel, DefaultDevice,len, dpbuffer, &cond1, &cond2);
 }
 
 void cc2500WriteFifo(uint8_t *dpbuffer, uint8_t len)
