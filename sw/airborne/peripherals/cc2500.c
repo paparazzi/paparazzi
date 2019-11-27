@@ -22,7 +22,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "subsystems/datalink/downlink.h"
+#include "subsystems/datalink/downlink.h" // TODO remove before PR
 
 #include "cc2500.h"
 
@@ -36,8 +36,8 @@
 
 static struct spi_periph *cc2500_spi_p;
 static struct spi_transaction cc2500_spi_t;
-static uint8_t cc2500_input_buf[512];
-static uint8_t cc2500_output_buf[512];
+static uint8_t cc2500_input_buf[64];
+static uint8_t cc2500_output_buf[64];
 
 
 void cc2500_init(void) {
@@ -169,9 +169,7 @@ static void rxSpiWriteByte(uint8_t data) {
 void cc2500ReadFifo(uint8_t *dpbuffer, uint8_t len)
 {
     rxSpiReadCommandMulti(CC2500_3F_RXFIFO | CC2500_READ_BURST, NOP, dpbuffer, len);
-    uint8_t cond1 = 0;
-    uint8_t cond2 = 0;
-    DOWNLINK_SEND_CC2500_PACKET(DefaultChannel, DefaultDevice,len, dpbuffer, &cond1, &cond2);
+    DOWNLINK_SEND_CC2500_PACKET(DefaultChannel, DefaultDevice,len, dpbuffer); // TODO remove before PR
 }
 
 void cc2500WriteFifo(uint8_t *dpbuffer, uint8_t len)

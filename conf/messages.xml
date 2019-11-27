@@ -319,7 +319,6 @@
       <field name="uint32_1" type="uint32"/>
       <field name="uint32_2" type="uint32"/>
       <field name="uint32_3" type="uint32"/>
-      <field name="packet" type="uint8[]"/>
     </message>
 
     <message name="DRAGSPEED" id="38">
@@ -450,8 +449,6 @@
 
     <message name="CC2500_PACKET" id="55">
       <field name="packet" type="uint8[]"/>
-      <field name="cond1" type="uint8"/>
-      <field name="cond2" type="uint8"/>
     </message>
 
     <message name="BARO_ETS" id="56">

@@ -9,14 +9,6 @@
 #include "cc2500_frsky_x.h"
 #include "cc2500_frsky_shared.h"
 
-#include <string.h>
-extern uint32_t trace;
-extern uint32_t cclen_debug;
-extern uint32_t cclen_byte;
-extern uint8_t *packet_debug;
-
-#include "subsystems/datalink/downlink.h"
-
 // betaflight/src/main/rx/cc2500_frsky_shared.c  @ 4a79046
 /*
  * This file is part of Cleanflight and Betaflight.
@@ -70,7 +62,7 @@ extern uint8_t *packet_debug;
 static rx_spi_protocol_e spiProtocol;
 
 static timeMs_t start_time;
-uint8_t protocolState;
+static uint8_t protocolState;
 
 uint32_t missingPackets;
 timeDelta_t timeoutUs;
@@ -208,32 +200,22 @@ static void initTuneRx(void)
 static bool tuneRx(uint8_t *packet)
 {
     if (bindOffset >= 126) {
-        trace |= 0x01;
         bindOffset = -126;
     }
     if ((millis() - timeTunedMs) > 50) {
-        trace |= 0x02;
         timeTunedMs = millis();
         bindOffset += 5;
         cc2500WriteReg(CC2500_0C_FSCTRL0, (uint8_t)bindOffset);
     }
     if (cc2500getGdo()) {
-        trace |= 0x04;
         uint8_t ccLen = cc2500ReadReg(CC2500_3B_RXBYTES | CC2500_READ_BURST) & 0x7F;
         if (ccLen) {
-            trace |= 0x08;
             cc2500ReadFifo(packet, ccLen);
-            cclen_debug = ccLen;
-            cclen_byte = packet[ccLen - 1];
-            memcpy(packet_debug, packet, ccLen);
             if (packet[ccLen - 1] & 0x80) {
-                trace |= 0x0F;
                 if (packet[2] == 0x01) {
-                    trace |= 0x10;
                     uint8_t Lqi = packet[ccLen - 1] & 0x7F;
                     // higher lqi represent better link quality
                     if (Lqi > 50) {
-                        trace |= 0x20;
                         rxCc2500SpiConfigMutable()->bindOffset = bindOffset;
                         return true;
                     }

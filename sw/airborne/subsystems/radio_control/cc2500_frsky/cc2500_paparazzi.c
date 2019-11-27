@@ -43,13 +43,6 @@ static uint32_t spiinit_result = 0;
 static uint32_t status = 0;
 static uint32_t counter = 0;
 
-extern uint8_t protocolState;
-
-uint32_t trace = 0;
-uint32_t cclen_debug = 0;
-uint32_t cclen_byte = 0;
-uint8_t packet_debug[18];
-
 void radio_control_impl_init(void) {
   cc2500_settings_init();
   cc2500_init();
@@ -70,22 +63,10 @@ void radio_control_impl_event(void (* _received_frame_handler)(void)) {
   status = rxUpdateCheck(now, now - previous);
   previous = now;
 
-  status = protocolState;
-
-//  status = frSkySpiDataReceived(rxSpiPayload);
-//  if (status) {
-//    frSkySpiProcessFrame(rxSpiPayload); // ???
-//  }
-
-  if (cclen_debug == 0) {
-    cclen_debug = 1;
-    packet_debug[0] = 0;
-  }
-
   counter++;
   if((counter % 10000) == 0) {
     DOWNLINK_SEND_CC2500(DefaultChannel, DefaultDevice,
-        &status, &trace, &cclen_debug, &counter, (uint8_t)cclen_debug, packet_debug);
+        &reset_value, &spiinit_result, &status, &counter);
   }
   if((counter % 100000) == 0) {
     static char text[] = "Hello GCS!";
