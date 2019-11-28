@@ -1,9 +1,6 @@
 /*
  * Copyright (C) 2019 Tom van Dijk <tomvand@users.noreply.github.com>
  *
- * This code is based on the betaflight cc2500 and FrskyX implementation.
- * https://github.com/betaflight/betaflight
- *
  * This file is part of paparazzi.
  *
  * paparazzi is free software; you can redistribute it and/or modify
