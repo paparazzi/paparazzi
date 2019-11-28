@@ -66,9 +66,11 @@ void radio_control_impl_event(void (* _received_frame_handler)(void)) {
 //  previous = now;
 
   status = rxRuntimeState.rcFrameStatusFn(&rxRuntimeState);
-  rxRuntimeState.rcProcessFrameFn(&rxRuntimeState);
-  for (int rawChannel = 0; rawChannel < 4; ++rawChannel) {
-    rc_raw[rawChannel] = rxRuntimeState.rcReadRawFn(&rxRuntimeState, rawChannel);
+  if (status & RX_FRAME_COMPLETE) {
+    rxRuntimeState.rcProcessFrameFn(&rxRuntimeState);
+    for (int rawChannel = 0; rawChannel < 4; ++rawChannel) {
+      rc_raw[rawChannel] = rxRuntimeState.rcReadRawFn(&rxRuntimeState, rawChannel);
+    }
   }
 
   counter++;

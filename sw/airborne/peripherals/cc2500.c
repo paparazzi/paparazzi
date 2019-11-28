@@ -169,7 +169,7 @@ static void rxSpiWriteByte(uint8_t data) {
 void cc2500ReadFifo(uint8_t *dpbuffer, uint8_t len)
 {
     rxSpiReadCommandMulti(CC2500_3F_RXFIFO | CC2500_READ_BURST, NOP, dpbuffer, len);
-    DOWNLINK_SEND_CC2500_PACKET(DefaultChannel, DefaultDevice,len, dpbuffer); // TODO remove before PR
+//    DOWNLINK_SEND_CC2500_PACKET(DefaultChannel, DefaultDevice,len, dpbuffer);
 }
 
 void cc2500WriteFifo(uint8_t *dpbuffer, uint8_t len)
