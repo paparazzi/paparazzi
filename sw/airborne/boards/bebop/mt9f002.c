@@ -38,6 +38,13 @@
 #include <linux/i2c-dev.h>
 #include <linux/videodev2.h>
 
+#include "generated/airframe.h"
+#ifdef BOARD_DISCO
+#include "boards/disco.h"
+#else
+#include "boards/bebop.h"
+#endif
+
 #define PRINT(string,...) fprintf(stderr, "[MT9F002->%s()] " string,__FUNCTION__ , ##__VA_ARGS__)
 
 #if MT9F002_VERBOSE

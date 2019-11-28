@@ -37,6 +37,14 @@
 #include <linux/videodev2.h>
 #include <linux/v4l2-mediabus.h>
 
+#include "generated/airframe.h"
+#ifdef BOARD_DISCO
+#include "boards/disco.h"
+#else
+#include "boards/bebop.h"
+#endif
+
+
 /* Camera structure */
 struct video_config_t bottom_camera = {
   .output_size = {

@@ -53,7 +53,7 @@
   <periodic fun="dc_ctrl_parrot_mykonos_autoshoot()" freq="10" start="dc_ctrl_parrot_mykonos_autoshoot_start()" autorun="FALSE"/>
   <makefile target="sim|nps">
   </makefile>
-  <makefile target="ap|sim"><!-- Add nps -->
+  <makefile target="ap|sim|nps">
     <define name="DIGITAL_CAM" />
     <file name="dc.c"/>
     <file name="dc_ctrl_parrot_mykonos.c"/>

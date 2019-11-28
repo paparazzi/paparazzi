@@ -50,10 +50,12 @@
 #endif
 
 /* Default actuators driver */
+#ifdef BOARD_BEBOP
 #define DEFAULT_ACTUATORS "boards/bebop/actuators.h"
 #define ActuatorDefaultSet(_x,_y) ActuatorsBebopSet(_x,_y)
 #define ActuatorsDefaultInit() ActuatorsBebopInit()
 #define ActuatorsDefaultCommit() ActuatorsBebopCommit()
+#endif
 
 /* Cameras */
 extern struct video_config_t bottom_camera;

@@ -53,10 +53,12 @@
 #endif
 
 /* Default actuators driver */
+//#ifdef BOARD_DISCO
 #define DEFAULT_ACTUATORS "boards/disco/actuators.h"
 #define ActuatorDefaultSet(_x,_y) ActuatorsDiscoSet(_x,_y)
 #define ActuatorsDefaultInit() ActuatorsDiscoInit()
 #define ActuatorsDefaultCommit() ActuatorsDiscoCommit()
+//#endif
 
 /* Cameras */
 #include "peripherals/video_device.h"
@@ -66,6 +68,9 @@
 
 extern struct video_config_t bottom_camera;
 extern struct video_config_t front_camera;
+
+/* ISP */
+//struct mt9f002_t mt9f002;
 
 /* by default activate onboard baro */
 #ifndef USE_BARO_BOARD
@@ -97,7 +102,7 @@ extern struct video_config_t front_camera;
 #ifndef USE_AIRSPEED_LOWPASS_FILTER
 #define USE_AIRSPEED_LOWPASS_FILTER 1
 #endif
-//#if USE_AIRSPEED_LOWPASS_FILTER
+//#if USE_AIRSPEED_LOWPASS_FILTER /* Always used now */
 #ifndef MS45XX_LOWPASS_TAU
 #define MS45XX_LOWPASS_TAU 0.15
 #endif
@@ -108,5 +113,11 @@ extern struct video_config_t front_camera;
 #ifndef USE_AIRSPEED
 #define USE_AIRSPEED 1
 #endif
+
+/* These are the default Disco values for sonar */
+#define SONAR_BEBOP_TRANSITION_HIGH_TO_LOW 0.75 //m
+#define SONAR_BEBOP_TRANSITION_LOW_TO_HIGH 1.5  //m
+#define SONAR_BEBOP_TRANSITION_COUNT 50
+#define SONAR_BEBOP_PEAK_THRESHOLD 50
 
 #endif /* CONFIG_DISCO */

@@ -34,7 +34,7 @@
       <message name="COMMANDS"            period="4.0"/>
       <message name="FBW_STATUS"          period="2.0"/>
       <message name="AIR_DATA"            period="0.5"/>
-      <message name="SONAR"               period="0.3"/>
+      <message name="SONAR"               period="0.1"/>
     </mode>
     <mode name="minimal">
       <message name="ALIVE"               period="5"/>

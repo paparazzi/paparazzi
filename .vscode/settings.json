@@ -8,4 +8,7 @@
     "[python]": {
         "editor.tabSize": 4,
     },
+    "files.associations": {
+        "pprz_geodetic_float.h": "c"
+    },
 }

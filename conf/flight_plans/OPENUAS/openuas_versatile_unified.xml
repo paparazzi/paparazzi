@@ -189,7 +189,8 @@ Should be unified for Hybrid, FW and rotorcraft
       <!--<exception cond="rc_status==RC_REALLY_LOST" after 3 seconds and no IMU deroute="softlydown">if using RC still on with a Auto2 mode switch-->
       <attitude pitch="nav_takeoff_pitch_setting" roll="0" throttle="1.0" until="GetPosAlt() > ground_alt+15" vmode="throttle"/>
       <set var="v_ctl_auto_throttle_nominal_cruise_throttle" value="1.0" />
-      <set var="v_ctl_auto_throttle_nominal_cruise_pitch" value="nav_takeoff_pitch_setting" />
+
+      <!-- Only for ETECS <set var="v_ctl_auto_throttle_nominal_cruise_pitch" value="nav_takeoff_pitch_setting" />-->
     </block>
 
     <block key="s" name="Standby" strip_button="Standby" strip_icon="home.png" group="Ops">
@@ -329,6 +330,7 @@ Should be unified for Hybrid, FW and rotorcraft
     <block name="Final">
       <!--<call_once fun="AirbrakesOn()"/>-->
       <go approaching_time="6" from="AF" hmode="route" wp="TD"/>
+      <!--TODO: until="1.0 > agl_dist_value_filtered"/>-->
     </block>
 
     <block name="Flare">
@@ -336,7 +338,7 @@ Should be unified for Hybrid, FW and rotorcraft
       <set value="nav_airspeed_landing_setting*0.8" var="v_ctl_auto_airspeed_setpoint"/>
       <go approaching_time="0" from="TD" hmode="route" wp="FLARE"/>
       <!-- TODO: retract brake just before landed is true (with +?3 seconds margin) or better sensing IsAircraftAlmostOnSolidGround
-      To avoid ripped of brake used control surfaces if AC has no landing gear -->
+      This to avoid that the control surfaces used for breaking rip -off the wing if AC has no landing gear ... -->
     </block>
 
     <!-- Extras -->
@@ -397,6 +399,11 @@ Should be unified for Hybrid, FW and rotorcraft
     </block>
     <block key="<Control>f" name="TestToFar">
       <go wp="TESTTOOFAR"/>
+    </block>
+    <block name="Terrain hugging">
+      <oval p1="1" p2="2" radius="nav_radius"/>
+      <!--set var="nav_flight_altitude" value="stateGetPositionEnu_i()->z"/>
+      <!--TODO: until="7.0 > agl_dist_value_filtered"/>-->
     </block>
   </blocks>
 </flight_plan>
