@@ -23,7 +23,7 @@
   </header>
   <init fun="cc2500_init()"/>
   <makefile target="ap|fbw|sim|nps">
-    <define name="RADIO_CONTROL_TYPE_H" value="subsystems/radio_control/frskyX.h" type="string"/>
+    <define name="RADIO_CONTROL_TYPE_H" value="subsystems/radio_control/cc2500_frsky/cc2500_paparazzi.h" type="string"/>
     <configure name="CC2500_SPI_DEV" default="SPI3" case="upper|lower"/>
     <configure name="CC2500_SPI_SLAVE_IDX" default="2"/>
     <configure name="CC2500_GDO0_GPIO_PORT" default="GPIOC"/>

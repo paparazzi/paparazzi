@@ -42,6 +42,8 @@ static uint32_t counter = 0;
 
 static uint32_t rc_raw[4];
 
+static uint16_t frsky_raw[RADIO_CTL_NB];
+
 void radio_control_impl_init(void) {
   cc2500_settings_init();
   cc2500_init();
@@ -54,7 +56,25 @@ void radio_control_impl_init(void) {
 }
 
 void radio_control_impl_event(void (* _received_frame_handler)(void)) {
-  (void) _received_frame_handler;
+  if (rxRuntimeState.rcFrameStatusFn(&rxRuntimeState) & RX_FRAME_COMPLETE) {
+    rxRuntimeState.rcProcessFrameFn(&rxRuntimeState);
+    radio_control.frame_cpt++;
+    radio_control.time_since_last_frame = 0;
+    if (radio_control.radio_ok_cpt > 0) {
+      radio_control.radio_ok_cpt--;
+    } else {
+      radio_control.status = RC_OK;
+      for (int i = 0; i < RADIO_CONTROL_NB_CHANNEL; ++i) {
+        frsky_raw[i] = rxRuntimeState.rcReadRawFn(&rxRuntimeState, i);
+      }
+      NormalizePpmIIR(frsky_raw, radio_control);
+      _received_frame_handler();
+    }
+
+  }
+
+
+//  (void) _received_frame_handler;
 
 //  timeUs_t now = micros();
 //  static timeUs_t previous = 0;
@@ -62,18 +82,18 @@ void radio_control_impl_event(void (* _received_frame_handler)(void)) {
 //  status = rxUpdateCheck(now, now - previous);
 //  previous = now;
 
-  status = rxRuntimeState.rcFrameStatusFn(&rxRuntimeState);
-  if (status & RX_FRAME_COMPLETE) {
-    rxRuntimeState.rcProcessFrameFn(&rxRuntimeState);
-    for (int rawChannel = 0; rawChannel < 4; ++rawChannel) {
-      rc_raw[rawChannel] = rxRuntimeState.rcReadRawFn(&rxRuntimeState, rawChannel);
-    }
-  }
+//  status = rxRuntimeState.rcFrameStatusFn(&rxRuntimeState);
+//  if (status & RX_FRAME_COMPLETE) {
+//    rxRuntimeState.rcProcessFrameFn(&rxRuntimeState);
+//    for (int rawChannel = 0; rawChannel < 4; ++rawChannel) {
+//      rc_raw[rawChannel] = rxRuntimeState.rcReadRawFn(&rxRuntimeState, rawChannel);
+//    }
+//  }
 
-  counter++;
-//  if((counter % 100) == 0) {
-    DOWNLINK_SEND_CC2500(DefaultChannel, DefaultDevice,
-        &(rc_raw[0]), &(rc_raw[1]), &(rc_raw[2]), &(rc_raw[3]));
+//  counter++;
+////  if((counter % 100) == 0) {
+//    DOWNLINK_SEND_CC2500(DefaultChannel, DefaultDevice,
+//        &(rc_raw[0]), &(rc_raw[1]), &(rc_raw[2]), &(rc_raw[3]));
 //  }
 //  if((counter % 100000) == 0) {
 //    static char text[] = "Hello GCS!";

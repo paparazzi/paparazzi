@@ -22,5 +22,19 @@
 #ifndef RADIO_CONTROL_CC2500_PAPARAZZI_H
 #define RADIO_CONTROL_CC2500_PAPARAZZI_H
 
+#define RC_PPM_TICKS_OF_USEC(_x) (_x)
+#define RC_PPM_SIGNED_TICKS_OF_USEC(_x) (_x)
+#define USEC_OF_RC_PPM_TICKS(_x) (_x)
+
+#include "generated/airframe.h"
+#include "generated/radio.h"
+
+#ifndef RADIO_CONTROL_NB_CHANNEL
+#define RADIO_CONTROL_NB_CHANNEL RADIO_CTL_NB
+#endif
+
+extern void radio_control_impl_event(void (* _received_frame_handler)(void));
+#define RadioControlEvent(_received_frame_handler) radio_control_impl_event(_received_frame_handler)
+
 
 #endif // RADIO_CONTROL_CC2500_PAPARAZZI_H
