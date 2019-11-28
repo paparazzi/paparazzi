@@ -43,6 +43,8 @@ static uint32_t spiinit_result = 0;
 static uint32_t status = 0;
 static uint32_t counter = 0;
 
+static uint32_t rc_raw[4];
+
 void radio_control_impl_init(void) {
   cc2500_settings_init();
   cc2500_init();
@@ -57,19 +59,25 @@ void radio_control_impl_init(void) {
 void radio_control_impl_event(void (* _received_frame_handler)(void)) {
   (void) _received_frame_handler;
 
-  timeUs_t now = micros();
-  static timeUs_t previous = 0;
-  if (previous == 0) { previous = now; }
-  status = rxUpdateCheck(now, now - previous);
-  previous = now;
+//  timeUs_t now = micros();
+//  static timeUs_t previous = 0;
+//  if (previous == 0) { previous = now; }
+//  status = rxUpdateCheck(now, now - previous);
+//  previous = now;
+
+  status = rxRuntimeState.rcFrameStatusFn(&rxRuntimeState);
+  rxRuntimeState.rcProcessFrameFn(&rxRuntimeState);
+  for (int rawChannel = 0; rawChannel < 4; ++rawChannel) {
+    rc_raw[rawChannel] = rxRuntimeState.rcReadRawFn(&rxRuntimeState, rawChannel);
+  }
 
   counter++;
-  if((counter % 10000) == 0) {
+//  if((counter % 100) == 0) {
     DOWNLINK_SEND_CC2500(DefaultChannel, DefaultDevice,
-        &reset_value, &spiinit_result, &status, &counter);
-  }
-  if((counter % 100000) == 0) {
-    static char text[] = "Hello GCS!";
-    DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, strlen(text), text);
-  }
+        &(rc_raw[0]), &(rc_raw[1]), &(rc_raw[2]), &(rc_raw[3]));
+//  }
+//  if((counter % 100000) == 0) {
+//    static char text[] = "Hello GCS!";
+//    DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, strlen(text), text);
+//  }
 }
