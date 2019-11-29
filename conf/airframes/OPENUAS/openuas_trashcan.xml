@@ -455,6 +455,7 @@
         <define name="MODE_AUTO2" value="AP_MODE_GUIDED"/> <!-- for dronerrace -->
        <!-- <define name="MODE_AUTO2"  value="AP_MODE_NAV"/>--> <!-- If GNSS device is added for autonomous flight -->
         <!--<define name="USE_THROTTLE_FOR_MOTOR_ARMING" value="TRUE"/>-->
+        <define name="USE_KILL_SWITCH_FOR_MOTOR_ARMING" value="TRUE"/>
         <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
     </section>
 
