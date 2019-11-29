@@ -10,7 +10,6 @@
     <define name="CC2500_GDO0_GPIO" value="GPIOC" description="GDO0 GPIO port (suggest setting this in board header)"/>
     <define name="CC2500_GDO0_PIN" value="GPIO14" description="GDO0 GPIO pin (suggest setting this in board header)"/>
     <define name="CC2500_RX_LED" value="LED_2|(undefined)" description="FrSky RX LED"/>
-    <define name="CC2500_RX_LED_INVERT" value="TRUE" description="Invert Frsky RX LED signal"/>
     
     <!-- <configure name="CC2500_RX_LED_GPIO_PORT" value="GPIOB" description="RX LED GPIO port"/> -->
     <!-- <configure name="CC2500_RX_LED_GPIO" value="GPIO9" description="RX LED GPIO pin"/> -->

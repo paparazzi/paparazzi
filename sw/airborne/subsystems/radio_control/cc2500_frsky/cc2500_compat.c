@@ -132,12 +132,12 @@ bool bf_IORead(IO_t gpio) {
 
 void bf_IOHi(IO_t io) {
   if (!io) return;
-  gpio_set(io->port, io->pin);
+  io->hi(io->port, io->pin);
 }
 
 void bf_IOLo(IO_t io) {
   if (!io) return;
-  gpio_clear(io->port, io->pin);
+  io->lo(io->port, io->pin);
 }
 
 void bf_IOToggle(IO_t io) {

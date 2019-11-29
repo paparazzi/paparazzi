@@ -32,15 +32,16 @@
 
 #include <string.h>
 
-#ifndef CC2500_RX_LED_INVERT
-#define CC2500_RX_LED_INVERT TRUE
-#endif
 
 #define _LED_GPIO(l) l ## _GPIO
 #define LED_GPIO(l) _LED_GPIO(l)
-
 #define _LED_GPIO_PIN(l) l ## _GPIO_PIN
 #define LED_GPIO_PIN(l) _LED_GPIO_PIN(l)
+#define _LED_GPIO_ON(l) l ## _GPIO_ON
+#define LED_GPIO_ON(l) _LED_GPIO_ON(l)
+#define _LED_GPIO_OFF(l) l ## _GPIO_OFF
+#define LED_GPIO_OFF(l) _LED_GPIO_OFF(l)
+
 
 
 // main/config/config.h:
@@ -89,11 +90,13 @@ void cc2500_settings_init(void) {
 #ifdef CC2500_RX_LED
   ledIo.port = LED_GPIO(CC2500_RX_LED);
   ledIo.pin = LED_GPIO_PIN(CC2500_RX_LED);
+  ledIo.hi = LED_GPIO_ON(CC2500_RX_LED);
+  ledIo.lo = LED_GPIO_OFF(CC2500_RX_LED);
   spiconfig.ledIoTag = &ledIo;
 #else
   spiconfig.ledIoTag = NULL;
 #endif
-  spiconfig.ledInversion = CC2500_RX_LED_INVERT;
+  spiconfig.ledInversion = TRUE; // Handled by paparazzi LED_X_GPIO_ON|_OFF
   bindIo.port = CC2500_BIND_BTN_GPIO_PORT;
   bindIo.pin = CC2500_BIND_BTN_GPIO;
   spiconfig.bindIoTag = &bindIo;

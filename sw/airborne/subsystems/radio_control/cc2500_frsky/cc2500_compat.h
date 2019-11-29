@@ -163,9 +163,13 @@ bool bf_rxSpiDeviceInit(void);
 
 
 // main/drivers/io.h:
+typedef void(*gpiofnptr_t)(uint32_t port, uint16_t pin);
+
 struct gpio_t {
   uint32_t port;
   uint16_t pin;
+  gpiofnptr_t hi;
+  gpiofnptr_t lo;
 };
 typedef struct gpio_t *IO_t;
 typedef IO_t ioTag_t;
