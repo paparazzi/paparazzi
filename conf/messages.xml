@@ -315,10 +315,7 @@
     </message>
 
     <message name="CC2500" id="37">
-      <field name="uint32_0" type="uint32"/>
-      <field name="uint32_1" type="uint32"/>
-      <field name="uint32_2" type="uint32"/>
-      <field name="uint32_3" type="uint32"/>
+      <field name="raw_channels" type="uint16[]"/>
     </message>
 
     <message name="DRAGSPEED" id="38">

@@ -28,9 +28,11 @@
 #include "cc2500_settings.h"
 #include "cc2500_rx.h"
 
-#include "subsystems/datalink/downlink.h"
-
 #include <stdint.h>
+
+#if PERIODIC_TELEMETRY
+#include "subsystems/datalink/downlink.h"
+#endif
 
 //#define RX_SPI_MAX_PAYLOAD_SIZE 35
 //static uint8_t rxSpiPayload[RX_SPI_MAX_PAYLOAD_SIZE];
@@ -70,7 +72,11 @@ void radio_control_impl_event(void (* _received_frame_handler)(void)) {
       NormalizePpmIIR(frsky_raw, radio_control);
       _received_frame_handler();
     }
-
+#if PERIODIC_TELEMETRY
+    DOWNLINK_SEND_CC2500(DefaultChannel, DefaultDevice,
+        (sizeof(frsky_raw) / sizeof(frsky_raw[0])),
+        frsky_raw);
+#endif
   }
 
 

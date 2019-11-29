@@ -103,7 +103,7 @@
    name="Trashcan"
    ac_id="233"
    airframe="airframes/OPENUAS/openuas_trashcan.xml"
-   radio="radios/OPENUAS/openuas_frsky_X9D_cppm_8ch_out.xml"
+   radio="radios/FrSky_Taranis_X9Dplus_TAERMK.xml"
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/dummy.xml"
    settings="settings/rotorcraft_basic.xml [settings/control/stabilization_rate.xml] [settings/control/stabilization_indi.xml] [settings/control/stabilization_att_float_quat.xml] settings/control/stabilization_att_int_quat.xml"

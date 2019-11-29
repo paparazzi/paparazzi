@@ -454,7 +454,7 @@
         <define name="MODE_AUTO1" value="AP_MODE_RATE_DIRECT"/><!-- for now...-->
         <define name="MODE_AUTO2" value="AP_MODE_GUIDED"/> <!-- for dronerrace -->
        <!-- <define name="MODE_AUTO2"  value="AP_MODE_NAV"/>--> <!-- If GNSS device is added for autonomous flight -->
-        <define name="USE_THROTTLE_FOR_MOTOR_ARMING" value="TRUE"/>
+        <!--<define name="USE_THROTTLE_FOR_MOTOR_ARMING" value="TRUE"/>-->
         <define name="NO_RC_THRUST_LIMIT" value="TRUE"/>
     </section>
 
