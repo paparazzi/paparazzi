@@ -26,9 +26,21 @@
 
 #include "cc2500_rx_spi.h"
 
+#include BOARD_CONFIG
 #include "mcu_periph/gpio.h"
+#include "generated/airframe.h"
 
 #include <string.h>
+
+#ifndef CC2500_RX_LED_INVERT
+#define CC2500_RX_LED_INVERT TRUE
+#endif
+
+#define _LED_GPIO(l) l ## _GPIO
+#define LED_GPIO(l) _LED_GPIO(l)
+
+#define _LED_GPIO_PIN(l) l ## _GPIO_PIN
+#define LED_GPIO_PIN(l) _LED_GPIO_PIN(l)
 
 
 // main/config/config.h:
@@ -71,12 +83,16 @@ void cc2500_settings_init(void) {
 
   // rxSpiConfig
   spiconfig.rx_spi_protocol = CC2500_RX_SPI_PROTOCOL;
-  extiIo.port = CC2500_GDO0_GPIO_PORT;
-  extiIo.pin = CC2500_GDO0_GPIO;
+  extiIo.port = CC2500_GDO0_GPIO;
+  extiIo.pin = CC2500_GDO0_PIN;
   spiconfig.extiIoTag = &extiIo;
-  ledIo.port = CC2500_RX_LED_GPIO_PORT;
-  ledIo.pin = CC2500_RX_LED_GPIO;
+#ifdef CC2500_RX_LED
+  ledIo.port = LED_GPIO(CC2500_RX_LED);
+  ledIo.pin = LED_GPIO_PIN(CC2500_RX_LED);
   spiconfig.ledIoTag = &ledIo;
+#else
+  spiconfig.ledIoTag = NULL;
+#endif
   spiconfig.ledInversion = CC2500_RX_LED_INVERT;
   bindIo.port = CC2500_BIND_BTN_GPIO_PORT;
   bindIo.pin = CC2500_BIND_BTN_GPIO;

@@ -55,6 +55,7 @@
 
         <module name="radio_control" type="cc2500_frsky">
         	<define name="PERIPHERALS_CC2500_VERBOSE" value="TRUE"/>
+        	<define name="CC2500_RX_LED" value="LED_2"/>
         </module>
 
         <module name="motor_mixing"/>

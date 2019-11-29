@@ -3,15 +3,18 @@
 <module name="radio_control_cc2500_frsky" dir="radio_control/cc2500_frsky">
   <doc>
     <description>
-      Software implementation of Frsky X radio control protocol.
+      Software implementation of Frsky radio control protocol for onboard CC2500 receiver.
     </description>
     <configure name="CC2500_SPI_DEV" value="SPIx" description="SPI device"/>
     <configure name="CC2500_SPI_SLAVE_IDX" value="2" description="SPI slave index"/>
-    <configure name="CC2500_GDO0_GPIO_PORT" value="GPIOC" description="GDO0 GPIO port"/>
-    <configure name="CC2500_GDO0_GPIO" value="GPIO14" description="GDO0 GPIO pin"/>
-    <configure name="CC2500_RX_LED_GPIO_PORT" value="GPIOB" description="RX LED GPIO port"/>
-    <configure name="CC2500_RX_LED_GPIO" value="GPIO9" description="RX LED GPIO pin"/>
-    <configure name="CC2500_RX_LED_INVERT" value="TRUE" description="RX LED invert signal"/>
+    <define name="CC2500_GDO0_GPIO" value="GPIOC" description="GDO0 GPIO port (suggest setting this in board header)"/>
+    <define name="CC2500_GDO0_PIN" value="GPIO14" description="GDO0 GPIO pin (suggest setting this in board header)"/>
+    <define name="CC2500_RX_LED" value="LED_2|(undefined)" description="FrSky RX LED"/>
+    <define name="CC2500_RX_LED_INVERT" value="TRUE" description="Invert Frsky RX LED signal"/>
+    
+    <!-- <configure name="CC2500_RX_LED_GPIO_PORT" value="GPIOB" description="RX LED GPIO port"/> -->
+    <!-- <configure name="CC2500_RX_LED_GPIO" value="GPIO9" description="RX LED GPIO pin"/> -->
+    <!-- <configure name="CC2500_RX_LED_INVERT" value="TRUE" description="RX LED invert signal"/> -->
     <configure name="CC2500_BIND_BTN_GPIO_PORT" value="GPIOB" description="Bind button GPIO port"/>
     <configure name="CC2500_BIND_BTN_GPIO" value="GPIO2" description="Bind button GPIO pin"/>
     <configure name="CC2500_RX_SPI_PROTOCOL" value="RX_SPI_FRSKY_X_LBT (default)|RX_SPI_FRSKY_X|RX_SPI_FRSKY_D" description="RX protocol"/>
@@ -26,11 +29,9 @@
     <define name="RADIO_CONTROL_TYPE_H" value="subsystems/radio_control/cc2500_frsky/cc2500_paparazzi.h" type="string"/>
     <configure name="CC2500_SPI_DEV" default="SPI3" case="upper|lower"/>
     <configure name="CC2500_SPI_SLAVE_IDX" default="2"/>
-    <configure name="CC2500_GDO0_GPIO_PORT" default="GPIOC"/>
-    <configure name="CC2500_GDO0_GPIO" default="GPIO14"/>
-    <configure name="CC2500_RX_LED_GPIO_PORT" default="GPIOB"/>
-    <configure name="CC2500_RX_LED_GPIO" default="GPIO9"/>
-    <configure name="CC2500_RX_LED_INVERT" default="FALSE"/><!-- TODO should be TRUE, but annoying while debugging -->
+    <!-- <configure name="CC2500_RX_LED_GPIO_PORT" default="GPIOB"/> -->
+    <!-- <configure name="CC2500_RX_LED_GPIO" default="GPIO9"/> -->
+    <!-- <configure name="CC2500_RX_LED_INVERT" default="FALSE"/> -->
     <configure name="CC2500_BIND_BTN_GPIO_PORT" default="GPIOB"/>
     <configure name="CC2500_BIND_BTN_GPIO" default="GPIO2"/>
     <configure name="CC2500_RX_SPI_PROTOCOL" default="RX_SPI_FRSKY_X_LBT"/>
@@ -42,11 +43,9 @@
     <define name="USE_SPI_SLAVE$(CC2500_SPI_SLAVE_IDX)"/>
     <define name="CC2500_SPI_DEV" value="$(CC2500_SPI_DEV_LOWER)"/><!-- TODO Replace with regular ifndef,def,endif pattern! -->
     <define name="CC2500_SPI_SLAVE_IDX" value="$(CC2500_SPI_SLAVE_IDX)"/>
-    <define name="CC2500_GDO0_GPIO_PORT" value="$(CC2500_GDO0_GPIO_PORT)"/>
-    <define name="CC2500_GDO0_GPIO" value="$(CC2500_GDO0_GPIO)"/>
-    <define name="CC2500_RX_LED_GPIO_PORT" value="$(CC2500_RX_LED_GPIO_PORT)"/>
-    <define name="CC2500_RX_LED_GPIO" value="$(CC2500_RX_LED_GPIO)"/>
-    <define name="CC2500_RX_LED_INVERT" value="$(CC2500_RX_LED_INVERT)"/>
+    <!-- <define name="CC2500_RX_LED_GPIO_PORT" value="$(CC2500_RX_LED_GPIO_PORT)"/> -->
+    <!-- <define name="CC2500_RX_LED_GPIO" value="$(CC2500_RX_LED_GPIO)"/> -->
+    <!-- <define name="CC2500_RX_LED_INVERT" value="$(CC2500_RX_LED_INVERT)"/> -->
     <define name="CC2500_BIND_BTN_GPIO_PORT" value="$(CC2500_BIND_BTN_GPIO_PORT)"/>
     <define name="CC2500_BIND_BTN_GPIO" value="$(CC2500_BIND_BTN_GPIO)"/>
     <define name="CC2500_RX_SPI_PROTOCOL" value="$(CC2500_RX_SPI_PROTOCOL)"/>

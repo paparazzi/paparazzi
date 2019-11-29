@@ -24,7 +24,16 @@
 #define LED_1_GPIO_OFF gpio_set
 #define LED_1_AFIO_REMAP ((void)0)
 
-/* FIXME: Add Red and White Power LEDs */
+/* Red/white RX LEDs */
+/* Note: all LEDs are connected to a single pin */
+#ifndef USE_LED_2
+#define USE_LED_2 1
+#endif
+#define LED_2_GPIO GPIOB
+#define LED_2_GPIO_PIN GPIO9
+#define LED_2_GPIO_ON gpio_clear
+#define LED_2_GPIO_OFF gpio_set
+#define LED_2_AFIO_REMAP ((void)0)
 
 /** UART's **/
 /* UART1 */
@@ -164,6 +173,10 @@
 /* SPI slave pin declaration for Receiver */
 #define SPI_SELECT_SLAVE2_PORT GPIOA
 #define SPI_SELECT_SLAVE2_PIN GPIO15
+
+/* GDO0 pin for receiver */
+#define CC2500_GDO0_GPIO GPIOC
+#define CC2500_GDO0_PIN  GPIO14
 
 /** Onboard ADCs **/
 
