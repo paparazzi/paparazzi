@@ -28,7 +28,7 @@
     <define name="RADIO_CONTROL"/>
     <define name="USE_$(CC2500_SPI_DEV)"/>
     <define name="USE_SPI_SLAVE$(CC2500_SPI_SLAVE_IDX)"/>
-    <define name="CC2500_SPI_DEV" value="$(CC2500_SPI_DEV_LOWER)"/><!-- TODO Replace with regular ifndef,def,endif pattern! -->
+    <define name="CC2500_SPI_DEV" value="$(CC2500_SPI_DEV_LOWER)"/>
     <define name="CC2500_SPI_SLAVE_IDX" value="$(CC2500_SPI_SLAVE_IDX)"/>
     <file name="radio_control.c" dir="subsystems"/>
     <file name="cc2500.c" dir="peripherals"/>
