@@ -31,8 +31,8 @@
 #endif
 #define LED_2_GPIO GPIOB
 #define LED_2_GPIO_PIN GPIO9
-#define LED_2_GPIO_ON gpio_clear
-#define LED_2_GPIO_OFF gpio_set
+#define LED_2_GPIO_ON gpio_set
+#define LED_2_GPIO_OFF gpio_clear
 #define LED_2_AFIO_REMAP ((void)0)
 
 /** UART's **/

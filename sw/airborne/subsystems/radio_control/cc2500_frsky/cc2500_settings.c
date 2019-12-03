@@ -96,7 +96,7 @@ void cc2500_settings_init(void) {
 #else
   spiconfig.ledIoTag = NULL;
 #endif
-  spiconfig.ledInversion = TRUE; // Handled by paparazzi LED_X_GPIO_ON|_OFF
+  spiconfig.ledInversion = FALSE; // Handled by paparazzi LED_X_GPIO_ON|_OFF
   bindIo.port = CC2500_BIND_BTN_GPIO_PORT;
   bindIo.pin = CC2500_BIND_BTN_GPIO;
   spiconfig.bindIoTag = &bindIo;
