@@ -11,8 +11,8 @@
     <define name="CC2500_GDO0_PIN" value="GPIO14" description="GDO0 GPIO pin"/>
     <define name="CC2500_RX_LED" value="LED_2|(undefined)" description="FrSky RX LED"/>
     <define name="CC2500_BIND_BUTTON" value="BIND_BUTTON|(undefined)" description="GPIO button used to enter bind mode"/>
+    <define name="CC2500_RX_SPI_PROTOCOL" value="RX_SPI_FRSKY_X_LBT (default)|RX_SPI_FRSKY_X|RX_SPI_FRSKY_D" description="RX protocol"/>
     
-    <configure name="CC2500_RX_SPI_PROTOCOL" value="RX_SPI_FRSKY_X_LBT (default)|RX_SPI_FRSKY_X|RX_SPI_FRSKY_D" description="RX protocol"/>
     <configure name="CC2500_AUTOBIND" value="FALSE" description="Enter BIND mode at startup"/>
   </doc>
   <header>
@@ -25,7 +25,6 @@
     <configure name="CC2500_SPI_DEV" default="SPI3" case="upper|lower"/>
     <configure name="CC2500_SPI_SLAVE_IDX" default="2"/>
     
-    <configure name="CC2500_RX_SPI_PROTOCOL" default="RX_SPI_FRSKY_X_LBT"/>
     <configure name="CC2500_AUTOBIND" default="FALSE"/>
   </makefile>
   <makefile target="ap" cond="ifeq (,$(findstring $(SEPARATE_FBW),1 TRUE))">
@@ -35,7 +34,6 @@
     <define name="CC2500_SPI_DEV" value="$(CC2500_SPI_DEV_LOWER)"/><!-- TODO Replace with regular ifndef,def,endif pattern! -->
     <define name="CC2500_SPI_SLAVE_IDX" value="$(CC2500_SPI_SLAVE_IDX)"/>
     
-    <define name="CC2500_RX_SPI_PROTOCOL" value="$(CC2500_RX_SPI_PROTOCOL)"/>
     <define name="CC2500_AUTOBIND" value="$(CC2500_AUTOBIND)"/>
     <file name="radio_control.c" dir="subsystems"/>
     <file name="cc2500.c" dir="peripherals"/>
