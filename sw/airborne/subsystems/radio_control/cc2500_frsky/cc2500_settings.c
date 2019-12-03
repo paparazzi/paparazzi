@@ -52,6 +52,10 @@
 #define CC2500_RX_SPI_PROTOCOL RX_SPI_FRSKY_X_LBT
 #endif
 
+#ifndef CC2500_AUTOBIND
+#define CC2500_AUTOBIND FALSE
+#endif
+
 
 // main/config/config.h:
 void bf_writeEEPROM(void) { } // TODO Handled by Paparazzi's persistent settings mechanism.
