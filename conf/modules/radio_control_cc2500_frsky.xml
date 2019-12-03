@@ -7,11 +7,11 @@
     </description>
     <configure name="CC2500_SPI_DEV" value="SPIx" description="SPI device"/>
     <configure name="CC2500_SPI_SLAVE_IDX" value="2" description="SPI slave index"/>
-    <define name="CC2500_GDO0_GPIO" value="GPIOC" description="GDO0 GPIO port (suggest setting this in board header)"/>
-    <define name="CC2500_GDO0_PIN" value="GPIO14" description="GDO0 GPIO pin (suggest setting this in board header)"/>
+    <define name="CC2500_GDO0_GPIO" value="GPIOC" description="GDO0 GPIO port"/>
+    <define name="CC2500_GDO0_PIN" value="GPIO14" description="GDO0 GPIO pin"/>
     <define name="CC2500_RX_LED" value="LED_2|(undefined)" description="FrSky RX LED"/>
-    <configure name="CC2500_BIND_BTN_GPIO_PORT" value="GPIOB" description="Bind button GPIO port"/>
-    <configure name="CC2500_BIND_BTN_GPIO" value="GPIO2" description="Bind button GPIO pin"/>
+    <define name="CC2500_BIND_BUTTON" value="BIND_BUTTON|(undefined)" description="GPIO button used to enter bind mode"/>
+    
     <configure name="CC2500_RX_SPI_PROTOCOL" value="RX_SPI_FRSKY_X_LBT (default)|RX_SPI_FRSKY_X|RX_SPI_FRSKY_D" description="RX protocol"/>
     <configure name="CC2500_AUTOBIND" value="FALSE" description="Enter BIND mode at startup"/>
   </doc>
@@ -24,8 +24,7 @@
     <define name="RADIO_CONTROL_TYPE_H" value="subsystems/radio_control/cc2500_frsky/cc2500_paparazzi.h" type="string"/>
     <configure name="CC2500_SPI_DEV" default="SPI3" case="upper|lower"/>
     <configure name="CC2500_SPI_SLAVE_IDX" default="2"/>
-    <configure name="CC2500_BIND_BTN_GPIO_PORT" default="GPIOB"/>
-    <configure name="CC2500_BIND_BTN_GPIO" default="GPIO2"/>
+    
     <configure name="CC2500_RX_SPI_PROTOCOL" default="RX_SPI_FRSKY_X_LBT"/>
     <configure name="CC2500_AUTOBIND" default="FALSE"/>
   </makefile>
@@ -35,8 +34,7 @@
     <define name="USE_SPI_SLAVE$(CC2500_SPI_SLAVE_IDX)"/>
     <define name="CC2500_SPI_DEV" value="$(CC2500_SPI_DEV_LOWER)"/><!-- TODO Replace with regular ifndef,def,endif pattern! -->
     <define name="CC2500_SPI_SLAVE_IDX" value="$(CC2500_SPI_SLAVE_IDX)"/>
-    <define name="CC2500_BIND_BTN_GPIO_PORT" value="$(CC2500_BIND_BTN_GPIO_PORT)"/>
-    <define name="CC2500_BIND_BTN_GPIO" value="$(CC2500_BIND_BTN_GPIO)"/>
+    
     <define name="CC2500_RX_SPI_PROTOCOL" value="$(CC2500_RX_SPI_PROTOCOL)"/>
     <define name="CC2500_AUTOBIND" value="$(CC2500_AUTOBIND)"/>
     <file name="radio_control.c" dir="subsystems"/>

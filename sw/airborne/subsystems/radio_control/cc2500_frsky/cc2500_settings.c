@@ -42,6 +42,10 @@
 #define _LED_GPIO_OFF(l) l ## _GPIO_OFF
 #define LED_GPIO_OFF(l) _LED_GPIO_OFF(l)
 
+#define _BUTTON_GPIO(b) b ## _GPIO
+#define BUTTON_GPIO(b) _BUTTON_GPIO(b)
+#define _BUTTON_PIN(b) b ## _PIN
+#define BUTTON_PIN(b) _BUTTON_PIN(b)
 
 
 // main/config/config.h:
@@ -87,6 +91,7 @@ void cc2500_settings_init(void) {
   extiIo.port = CC2500_GDO0_GPIO;
   extiIo.pin = CC2500_GDO0_PIN;
   spiconfig.extiIoTag = &extiIo;
+
 #ifdef CC2500_RX_LED
   ledIo.port = LED_GPIO(CC2500_RX_LED);
   ledIo.pin = LED_GPIO_PIN(CC2500_RX_LED);
@@ -94,12 +99,19 @@ void cc2500_settings_init(void) {
   ledIo.lo = LED_GPIO_OFF(CC2500_RX_LED);
   spiconfig.ledIoTag = &ledIo;
 #else
+  (void) ledIo;
   spiconfig.ledIoTag = NULL;
 #endif
   spiconfig.ledInversion = FALSE; // Handled by paparazzi LED_X_GPIO_ON|_OFF
-  bindIo.port = CC2500_BIND_BTN_GPIO_PORT;
-  bindIo.pin = CC2500_BIND_BTN_GPIO;
+
+#ifdef CC2500_BIND_BUTTON
+  bindIo.port = BUTTON_GPIO(CC2500_BIND_BUTTON);
+  bindIo.pin = BUTTON_PIN(CC2500_BIND_BUTTON);
   spiconfig.bindIoTag = &bindIo;
+#else
+  (void) bindIo;
+  spiconfig.bindIoTag = NULL;
+#endif
 
   // rxCc2500SpiConfig
   cc2500spiconfig.autoBind = CC2500_AUTOBIND;

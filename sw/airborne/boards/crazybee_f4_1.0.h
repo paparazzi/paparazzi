@@ -178,6 +178,10 @@
 #define CC2500_GDO0_GPIO GPIOC
 #define CC2500_GDO0_PIN  GPIO14
 
+/* Bind button */
+#define BIND_BUTTON_GPIO GPIOB
+#define BIND_BUTTON_PIN  GPIO2
+
 /** Onboard ADCs **/
 
 #define USE_AD_TIM1 1
