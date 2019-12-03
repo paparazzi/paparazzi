@@ -53,7 +53,7 @@
 #endif
 
 #ifndef CC2500_AUTOBIND
-#define CC2500_AUTOBIND FALSE
+#define CC2500_AUTOBIND TRUE
 #endif
 
 
