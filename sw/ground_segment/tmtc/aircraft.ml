@@ -38,7 +38,7 @@ type fbw = {
   mutable pprz_mode_msgs_since_last_fbw_status_msg : int;
 }
 
-let gps_nb_channels = 16
+let gps_nb_channels = 40
 type svinfo = {
   svid : int;
   flags : int;

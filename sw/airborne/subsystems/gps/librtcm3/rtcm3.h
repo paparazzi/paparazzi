@@ -18,8 +18,10 @@
 
 #define RTCM3_PREAMBLE 0xD3
 #define RTCM3_MSG_1005 0x69
+#define RTCM3_MSG_4072 0x72
 #define RTCM3_MSG_1077 0xB1
 #define RTCM3_MSG_1087 0xBB
+#define RTCM3_MSG_1230 0xE6
 
 /* Macros for UBX message processing */
 
@@ -350,7 +352,7 @@ s8 rtcm3_process(msg_state_t *s, unsigned char buff)
       s->state    = READ_MESSAGE;
       break;
     case READ_MESSAGE:
-      if (byteIndex == (rd_msg_len - 1)) { s->state = READ_CHECKSUM; }
+      if (byteIndex >= (rd_msg_len - 1)) { s->state = READ_CHECKSUM; }
       byteIndex++;
       break;
     case READ_CHECKSUM:
@@ -363,9 +365,15 @@ s8 rtcm3_process(msg_state_t *s, unsigned char buff)
         // Check what message type it is
         switch (RTCMgetbitu(s->msg_buff, 24 + 0, 12)) {
           case 1005: s->msg_type = RTCM3_MSG_1005; break;
+          case 4072: s->msg_type = RTCM3_MSG_4072; break;
           case 1077: s->msg_type = RTCM3_MSG_1077; break;
           case 1087: s->msg_type = RTCM3_MSG_1087; break;
-          default  : printf("Unknown message type\n"); return RTCM_OK_CALLBACK_UNDEFINED;
+          case 1230: s->msg_type = RTCM3_MSG_1230; break;
+          default:
+#ifdef DEBUG_PRINT_PACKAGE
+          printf("Unknown message type %u\n", RTCMgetbitu(s->msg_buff, 24 + 0, 12));
+#endif
+          return RTCM_OK_CALLBACK_UNDEFINED;
         }
         s->n_read++;
         s->msg_len   = s->n_read;

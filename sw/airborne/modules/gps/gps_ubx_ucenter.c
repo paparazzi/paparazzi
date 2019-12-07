@@ -532,7 +532,7 @@ static bool gps_ubx_ucenter_configure(uint8_t nr)
       break;
     case 10:
       // Space Vehicle Information
-      gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_SVINFO_ID, 4);
+      gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_SVINFO_ID, 10);
       break;
     case 11:
       // Navigation Solution Information
