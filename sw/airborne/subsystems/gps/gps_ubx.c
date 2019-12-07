@@ -34,6 +34,8 @@
 #define RTCM3_PREAMBLE 0xD3
 #define RTCM3_MSG_1005 0x69
 #define RTCM3_MSG_1077 0xB1
+#define RTCM3_MSG_4072 0x72
+#define RTCM3_MSG_1230 0xE6
 #define RTCM3_MSG_1087 0xBB
 #endif
 
@@ -520,6 +522,8 @@ void gps_inject_data(uint8_t packet_id, uint8_t length, uint8_t *data)
                 case RTCM3_MSG_1005 : break;
                 case RTCM3_MSG_1077 : break;
                 case RTCM3_MSG_1087 : break;
+                case RTCM3_MSG_4072 : break;
+                case RTCM3_MSG_1230 : break;
                 default: DEBUG_PRINT("Unknown type: %i", packet_id); break;
               }
             } else {

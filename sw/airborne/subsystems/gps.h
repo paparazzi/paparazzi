@@ -54,7 +54,7 @@
 #define GPS_VALID_COURSE_BIT   6
 
 #ifndef GPS_NB_CHANNELS
-#define GPS_NB_CHANNELS 16
+#define GPS_NB_CHANNELS 40
 #endif
 
 #define GPS_MODE_AUTO 0

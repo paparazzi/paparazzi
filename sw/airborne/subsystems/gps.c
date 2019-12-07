@@ -97,7 +97,7 @@ static void send_svinfo_id(struct transport_tx *trans, struct link_device *dev,
 static void send_svinfo(struct transport_tx *trans, struct link_device *dev)
 {
   static uint8_t i = 0;
-  if (i == gps.nb_channels) { i = 0; }
+  if (i >= gps.nb_channels) { i = 0; }
   send_svinfo_id(trans, dev, i);
   i++;
 }
