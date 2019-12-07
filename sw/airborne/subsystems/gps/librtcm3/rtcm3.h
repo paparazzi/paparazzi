@@ -333,7 +333,6 @@ s8 rtcm3_process(msg_state_t *s, unsigned char buff)
   if (s->state != UNINIT && s->msg_class == RTCM_CLASS) { s->msg_buff[s->n_read] = buff; }
   switch (s->state) {
     case UNINIT:
-
       s->n_read = 0;
       if (((int) buff) == RTCM3_PREAMBLE) {
         s->msg_class = RTCM_CLASS;
@@ -345,7 +344,6 @@ s8 rtcm3_process(msg_state_t *s, unsigned char buff)
       }
       break;
     case READ_RESERVED:
-
       rd_msg_len1 = ((int) buff) & 0b00000011;
       s->state    = READ_LENGTH;
       break;
@@ -358,7 +356,6 @@ s8 rtcm3_process(msg_state_t *s, unsigned char buff)
       byteIndex++;
       break;
     case READ_CHECKSUM:
-
       checksumCounter++;
       if (checksumCounter == 3) {
 #ifdef DEBUG_PRINT_PACKAGE
@@ -429,7 +426,6 @@ s8 ubx_process(msg_state_t *s, unsigned char buff)
       break;
     case GOT_CLASS:
       s->msg_type = buff;
-      printf("Got msg_type %d\n", s->msg_type);
       s->state++;
       break;
     case GOT_ID:
