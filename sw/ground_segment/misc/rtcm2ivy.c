@@ -143,7 +143,7 @@ struct LlaCoor_f  posLla;
 static void rtcm3_1005_callback(uint8_t len, uint8_t msg[])
 {
   if (len > 0) {
-  if (crc24q(msg, len - 3) == RTCMgetbitu(msg, (len - 3) * 8, 24)) {
+    if (crc24q(msg, len - 3) == RTCMgetbitu(msg, (len - 3) * 8, 24)) {
       ivy_send_message(RTCM3_MSG_1005, len, msg);
       msg_cnt++;
       u16 StaId      = RTCMgetbitu(msg, 24 + 12, 12);
@@ -163,9 +163,9 @@ static void rtcm3_1005_callback(uint8_t len, uint8_t msg[])
       // Send UBX_RTK_GROUNDSTATION message to GCS for RTK info
       IvySendMsg("%s %s %s %i %i %i %i %i %i %f %f %f", "ground", "UBX_RTK_GROUNDSTATION", "GCS", StaId, ItRef, indGPS,
                  indGlonass, indGalileo, indRefS, posLla.lat / (2 * M_PI) * 360, posLla.lon / (2 * M_PI) * 360, posLla.alt);
-  } else {
-   printf("Skipping 1005 message (CRC check failed)\n");
-  }
+    } else {
+      printf("Skipping 1005 message (CRC check failed)\n");
+    }
   }
   printf_debug("Parsed 1005 callback\n");
 }
@@ -176,13 +176,13 @@ static void rtcm3_1005_callback(uint8_t len, uint8_t msg[])
 static void rtcm3_1077_callback(uint8_t len, uint8_t msg[])
 {
   if (len > 0) {
-      if (crc24q(msg, len - 3) == RTCMgetbitu(msg, (len - 3) * 8, 24)) {
+    if (crc24q(msg, len - 3) == RTCMgetbitu(msg, (len - 3) * 8, 24)) {
       ivy_send_message(RTCM3_MSG_1077, len, msg);
       msg_cnt++;
     } else {
       ivy_send_message(RTCM3_MSG_1077, len, msg);
       printf("Skipping 1077 message (CRC check failed)\n");
-   }
+    }
   }
   printf_debug("Parsed 1077 callback\n");
 }
@@ -193,12 +193,12 @@ static void rtcm3_1077_callback(uint8_t len, uint8_t msg[])
 static void rtcm3_1087_callback(uint8_t len, uint8_t msg[])
 {
   if (len > 0) {
-   if (crc24q(msg, len - 3) == RTCMgetbitu(msg, (len - 3) * 8, 24)) {
+    if (crc24q(msg, len - 3) == RTCMgetbitu(msg, (len - 3) * 8, 24)) {
       ivy_send_message(RTCM3_MSG_1087, len, msg);
       msg_cnt++;
-   } else {
+    } else {
      printf("Skipping 1087 message (CRC check failed)\n");
-   }
+    }
   }
   printf_debug("Parsed 1087 callback\n");
 }
