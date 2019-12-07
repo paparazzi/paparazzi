@@ -93,7 +93,7 @@
     <define name="DEBUG_GPS_UBX_UCENTER" value="TRUE"/>
     <define name="USE_GPS_UBX_RTCM" value="TRUE"/> <!--  required so that RTCM messages are decoded in /subsystems/gps/gps_ubx.c -->
     <module name="gps" type="ublox"/>
-    <module name="gps" type="ubx_ucenter"/> 
+  <!--  <module name="gps" type="ubx_ucenter"/> -->
     <module name="navigation"/>
     
     
