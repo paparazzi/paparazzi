@@ -30,18 +30,32 @@
 
 #include <stdint.h>
 
-#if PERIODIC_TELEMETRY
-#include "subsystems/datalink/downlink.h"
-#endif
 
 static uint16_t frsky_raw[RADIO_CTL_NB];
+
+
+#if PERIODIC_TELEMETRY
+#include "subsystems/datalink/telemetry.h"
+
+static void send_cc2500(struct transport_tx *trans, struct link_device *dev)
+{
+  pprz_msg_send_CC2500(trans, dev, AC_ID,
+      (sizeof(frsky_raw) / sizeof(frsky_raw[0])),
+      frsky_raw);
+}
+#endif
+
 
 void radio_control_impl_init(void) {
   cc2500_settings_init();
   cc2500_init();
   cc2500Reset();
   rxInit();
+#if PERIODIC_TELEMETRY
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_CC2500, send_cc2500);
+#endif
 }
+
 
 void radio_control_impl_event(void (* _received_frame_handler)(void)) {
   if (rxRuntimeState.rcFrameStatusFn(&rxRuntimeState) & RX_FRAME_COMPLETE) {
@@ -58,10 +72,5 @@ void radio_control_impl_event(void (* _received_frame_handler)(void)) {
       NormalizePpmIIR(frsky_raw, radio_control);
       _received_frame_handler();
     }
-#if PERIODIC_TELEMETRY
-    DOWNLINK_SEND_CC2500(DefaultChannel, DefaultDevice,
-        (sizeof(frsky_raw) / sizeof(frsky_raw[0])),
-        frsky_raw);
-#endif
   }
 }
