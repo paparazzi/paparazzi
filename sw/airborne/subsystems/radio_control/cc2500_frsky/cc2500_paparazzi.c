@@ -34,27 +34,13 @@
 #include "subsystems/datalink/downlink.h"
 #endif
 
-//#define RX_SPI_MAX_PAYLOAD_SIZE 35
-//static uint8_t rxSpiPayload[RX_SPI_MAX_PAYLOAD_SIZE];
-
-static uint32_t reset_value = 0;
-static uint32_t spiinit_result = 0;
-static uint32_t status = 0;
-static uint32_t counter = 0;
-
-static uint32_t rc_raw[4];
-
 static uint16_t frsky_raw[RADIO_CTL_NB];
 
 void radio_control_impl_init(void) {
   cc2500_settings_init();
   cc2500_init();
-  reset_value = cc2500Reset();
-//  spiinit_result = cc2500SpiInit();
-//  spiinit_result = frSkySpiInit(rxSpiConfig(), rxRuntimeState());
-//  spiinit_result = rxSpiInit(rxSpiConfig(), &rxRuntimeState);
+  cc2500Reset();
   rxInit();
-  spiinit_result = 255;
 }
 
 void radio_control_impl_event(void (* _received_frame_handler)(void)) {
@@ -78,31 +64,4 @@ void radio_control_impl_event(void (* _received_frame_handler)(void)) {
         frsky_raw);
 #endif
   }
-
-
-//  (void) _received_frame_handler;
-
-//  timeUs_t now = micros();
-//  static timeUs_t previous = 0;
-//  if (previous == 0) { previous = now; }
-//  status = rxUpdateCheck(now, now - previous);
-//  previous = now;
-
-//  status = rxRuntimeState.rcFrameStatusFn(&rxRuntimeState);
-//  if (status & RX_FRAME_COMPLETE) {
-//    rxRuntimeState.rcProcessFrameFn(&rxRuntimeState);
-//    for (int rawChannel = 0; rawChannel < 4; ++rawChannel) {
-//      rc_raw[rawChannel] = rxRuntimeState.rcReadRawFn(&rxRuntimeState, rawChannel);
-//    }
-//  }
-
-//  counter++;
-////  if((counter % 100) == 0) {
-//    DOWNLINK_SEND_CC2500(DefaultChannel, DefaultDevice,
-//        &(rc_raw[0]), &(rc_raw[1]), &(rc_raw[2]), &(rc_raw[3]));
-//  }
-//  if((counter % 100000) == 0) {
-//    static char text[] = "Hello GCS!";
-//    DOWNLINK_SEND_INFO_MSG(DefaultChannel, DefaultDevice, strlen(text), text);
-//  }
 }
