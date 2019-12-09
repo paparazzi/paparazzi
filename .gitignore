@@ -192,5 +192,3 @@ tests/results/*
 
 # K-develop
 *.kate-swp
-
-conf/tools/blacklisted
