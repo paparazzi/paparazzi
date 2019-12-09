@@ -24,7 +24,7 @@
     <configure name="CC2500_SPI_DEV" default="SPI3" case="upper|lower"/>
     <configure name="CC2500_SPI_SLAVE_IDX" default="2"/>
   </makefile>
-  <makefile target="ap" cond="ifeq (,$(findstring $(SEPARATE_FBW),1 TRUE))">
+  <makefile target="ap|fbw">
     <define name="RADIO_CONTROL"/>
     <define name="USE_$(CC2500_SPI_DEV)"/>
     <define name="USE_SPI_SLAVE$(CC2500_SPI_SLAVE_IDX)"/>
