@@ -1,14 +1,36 @@
 <conf>
   <aircraft
-   name="Disco"
-   ac_id="241"
+   name="Disco_A"
+   ac_id="206"
+   airframe="airframes/OPENUAS/openuas_parrot_disco.xml"
+   radio="radios/OPENUAS/openuas_sbus_out.xml"
+   telemetry="telemetry/OPENUAS/openuas_fixedwing_imu.xml"
+   flight_plan="flight_plans/OPENUAS/openuas_versatile_unified.xml"
+   settings="settings/fixedwing_basic.xml [settings/control/ctl_energyadaptive.xml] [settings/estimation/ac_char.xml] settings/control/ctl_adaptive_h_ff.xml"
+   settings_modules="modules/digital_cam_video.xml modules/dc_ctrl_parrot_mykonos.xml modules/video_rtp_stream.xml modules/video_capture.xml modules/bebop_cam.xml modules/photogrammetry_calculator.xml modules/nav_smooth.xml modules/nav_survey_poly_osam.xml modules/geo_mag.xml modules/air_data.xml modules/nav_basic_fw.xml modules/guidance_energy.xml modules/stabilization_adaptive_fw.xml modules/ahrs_float_cmpl_quat.xml modules/tune_airspeed.xml modules/gps.xml modules/airspeed_ms45xx_i2c.xml modules/gps_ubx_ucenter.xml modules/imu_common.xml"
+   gui_color="#fffff2dd04af"
+  />
+  <aircraft
+   name="Disco_B"
+   ac_id="207"
    airframe="airframes/OPENUAS/openuas_parrot_disco.xml"
    radio="radios/OPENUAS/openuas_sbus_out.xml"
    telemetry="telemetry/OPENUAS/openuas_fixedwing_imu.xml"
    flight_plan="flight_plans/OPENUAS/openuas_versatile_unified.xml"
    settings="settings/fixedwing_basic.xml settings/control/ctl_energyadaptive.xml settings/estimation/ac_char.xml settings/control/ctl_adaptive_h_ff.xml"
-   settings_modules="modules/digital_cam_video.xml modules/dc_ctrl_parrot_mykonos.xml modules/video_capture.xml modules/photogrammetry_calculator.xml modules/nav_smooth.xml modules/nav_survey_poly_osam.xml modules/geo_mag.xml modules/air_data.xml modules/nav_basic_fw.xml modules/guidance_energy.xml modules/stabilization_adaptive_fw.xml modules/ahrs_float_cmpl_quat.xml modules/tune_airspeed.xml modules/ahrs_int_cmpl_quat.xml modules/gps.xml modules/airspeed_ms45xx_i2c.xml modules/gps_ubx_ucenter.xml modules/imu_common.xml"
-   gui_color="#f39cf39cf39c"
+   settings_modules="modules/digital_cam_video.xml modules/dc_ctrl_parrot_mykonos.xml modules/video_rtp_stream.xml modules/video_capture.xml modules/bebop_cam.xml modules/photogrammetry_calculator.xml modules/nav_smooth.xml modules/nav_survey_poly_osam.xml modules/geo_mag.xml modules/air_data.xml modules/nav_basic_fw.xml modules/guidance_energy.xml modules/stabilization_adaptive_fw.xml modules/ahrs_float_cmpl_quat.xml modules/tune_airspeed.xml modules/gps.xml modules/airspeed_ms45xx_i2c.xml modules/gps_ubx_ucenter.xml modules/imu_common.xml"
+   gui_color="#ffff0000e91e"
+  />
+  <aircraft
+   name="Disco_C"
+   ac_id="208"
+   airframe="airframes/OPENUAS/openuas_parrot_disco.xml"
+   radio="radios/OPENUAS/openuas_sbus_out.xml"
+   telemetry="telemetry/OPENUAS/openuas_fixedwing_imu.xml"
+   flight_plan="flight_plans/OPENUAS/openuas_versatile_unified.xml"
+   settings="settings/fixedwing_basic.xml settings/control/ctl_energyadaptive.xml settings/estimation/ac_char.xml settings/control/ctl_adaptive_h_ff.xml"
+   settings_modules="modules/digital_cam_video.xml modules/dc_ctrl_parrot_mykonos.xml modules/video_rtp_stream.xml modules/video_capture.xml modules/bebop_cam.xml modules/photogrammetry_calculator.xml modules/nav_smooth.xml modules/nav_survey_poly_osam.xml modules/geo_mag.xml modules/air_data.xml modules/nav_basic_fw.xml modules/guidance_energy.xml modules/stabilization_adaptive_fw.xml modules/ahrs_float_cmpl_quat.xml modules/tune_airspeed.xml modules/gps.xml modules/airspeed_ms45xx_i2c.xml modules/gps_ubx_ucenter.xml modules/imu_common.xml"
+   gui_color="#0000ffffffff"
    release="8e50f043b163f2b838dadaf1740a3e17b292505b"
   />
   <aircraft
@@ -41,19 +63,8 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/rotorcraft_survey.xml"
    settings="settings/rotorcraft_basic.xml settings/estimation/ahrs_secondary.xml"
-   settings_modules="modules/digital_cam_video.xml modules/video_capture.xml modules/nav_survey_poly_rotorcraft.xml modules/nav_survey_rectangle_rotorcraft.xml modules/video_rtp_stream.xml modules/cv_blob_locator.xml modules/air_data.xml modules/geo_mag.xml modules/guidance_indi.xml modules/ins_extended.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_indi_simple.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
+   settings_modules="modules/digital_cam_video.xml modules/video_capture.xml modules/nav_survey_poly_rotorcraft.xml modules/nav_survey_rectangle_rotorcraft.xml modules/video_rtp_stream.xml modules/cv_blob_locator.xml modules/bebop_cam.xml modules/air_data.xml modules/geo_mag.xml modules/guidance_indi.xml modules/ins_extended.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_indi_simple.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
    gui_color="#ffffe8b36503"
-  />
-  <aircraft
-   name="Mentor"
-   ac_id="227"
-   airframe="airframes/OPENUAS/openuas_mentor.xml"
-   radio="radios/R6107SP_7ch.xml"
-   telemetry="telemetry/default_fixedwing_imu_9k6.xml"
-   flight_plan="flight_plans/versatile_airspeed.xml"
-   settings="settings/fixedwing_basic.xml settings/estimation/ac_char.xml"
-   settings_modules="modules/digital_cam.xml modules/light.xml modules/gps_ubx_ucenter.xml modules/geo_mag.xml modules/gps.xml modules/nav_basic_fw.xml modules/guidance_energy.xml modules/stabilization_attitude_fw.xml modules/ahrs_int_cmpl_quat.xml modules/imu_common.xml"
-   gui_color="#ffffffffffff"
   />
   <aircraft
    name="Moksha"
@@ -74,8 +85,8 @@
    telemetry="telemetry/default_rotorcraft.xml"
    flight_plan="flight_plans/OPENUAS/openuas_rotorcraft_simple.xml"
    settings="settings/rotorcraft_basic.xml"
-   gui_color="#fffffe72b9fd"
    settings_modules="modules/air_data.xml modules/gps_ubx_ucenter.xml modules/ins_extended.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_indi_simple.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
+   gui_color="#fffffe72b9fd"
   />
   <aircraft
    name="Quadyshoty"
