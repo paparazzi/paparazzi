@@ -37,7 +37,6 @@ void ak8963_init(struct Ak8963 *ak, struct i2c_periph *i2c_p, uint8_t addr)
   ak->i2c_p = i2c_p;
   /* set i2c address */
   ak->i2c_trans.slave_addr = addr;
-  ak->i2c_trans.status = I2CTransFailed;
   ak->data_available = false;
   ak->initialized = false;
   ak->init_status = AK_CONF_UNINIT;
@@ -52,7 +51,7 @@ void ak8963_configure(struct Ak8963 *ak)
     return;
   }
 
-  // Only when succesfull continue with next
+  // Only when succesfully continue with next
   if (ak->i2c_trans.status == I2CTransSuccess) {
     ak->init_status++;
   }

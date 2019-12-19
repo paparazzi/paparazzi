@@ -122,19 +122,19 @@
       <module name="imu" type="disco">
       </module>
 
+      <module name="sonar_bebop"><!-- already in IMU as autoload but we need to set a few things-->
+        <define name="SONAR_BEBOP_FILTER_NARROW_OBSTACLES" value="FALSE"/><!-- activate later if all works and test GLS autoland with it -->
+        <define name="SONAR_BEBOP_FILTER_NARROW_OBSTACLES_JUMP" value="0.4"/> <!-- in M -->
+        <define name="SONAR_BEBOP_FILTER_NARROW_OBSTACLES_TIME" value="1.0"/> <!-- in s -->
+        <define name="USE_SONAR" value="TRUE"/>
+        <define name="SENSOR_SYNC_SEND_SONAR"/>  <!-- Disable after testflights -->
+      </module>
+
       <module name="actuators" type="disco"/>
       <!-- This GPS is a real ublox M8N, so setting can be saved, no need
       for ubx_ucenter one has can set it oneself since we have all kinds
       of nifty Galilleio setting we rather keep that, but for now, lazyness -->
       <module name="gps" type="ubx_ucenter"/>
-
-      <module name="sonar_bebop">
-        <define name="SONAR_BEBOP_FILTER_NARROW_OBSTACLES" value="FALSE"/><!-- activate later if all works and test GLS autoland with it -->
-        <define name="SONAR_BEBOP_FILTER_NARROW_OBSTACLES_JUMP" value="0.4"/> <!-- in M -->
-        <define name="SONAR_BEBOP_FILTER_NARROW_OBSTACLES_TIME" value="1.0"/> <!-- in s -->
-        <define name="USE_SONAR"/>
-        <define name="SENSOR_SYNC_SEND_SONAR"/>  <!-- Disable after testflights -->
-      </module>
 
       <module name="airspeed" type="ms45xx_i2c">
         <!--Gives cut-off freq of 1/(2*pi*tau) in 1Hz -->
@@ -150,6 +150,7 @@
       <!--<module name="radio_control" type="datalink"/>-->
 
       <!-- Those modules not so much use in simulation, therefore only in this target section real HW -->
+      <define name="RADIO_CONTROL_NB_CHANNEL" value="8"/>
       <!--<module name="flight_benchmark">
         <define name="BENCHMARK_AIRSPEED value="TRUE"/>
         <define name="BENCHMARK_ALTITUDE value="TRUE"/>
@@ -288,7 +289,7 @@
     <define name="USE_AHRS_GPS_ACCELERATIONS" value="TRUE"/> <!-- forward acceleration compensation from GPS speed -->
     <define name="USE_MAGNETOMETER_ONGROUND" value="TRUE"/> <!--DEFINE only used if float_dcm Use magnetic compensation before takeoff only while GPS course not good -->
    <!-- If AHRS_MAG_CORRECT_FREQUENCY is set outside of target no need USE_MAGNETOMETER it is assumed TRUE -->
-    <configure name="USE_MAGNETOMETER" value="TRUE"/><!-- should be as in USE the device
+    <configure name="USE_MAGNETOMETER" value="TRUE"/><!-- should be as in USE the device-->
 
 <!-- ************************* MODULES ************************* -->
 <!-- Warning: unit conversion does not work in this section of airframe, so use the native units, or you'll have trouble...-->
