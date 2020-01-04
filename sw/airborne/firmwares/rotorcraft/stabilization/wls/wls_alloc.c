@@ -170,7 +170,7 @@ int wls_alloc(float* u, float* v, float* umin, float* umax, float** B,
   for (int i = n_v; i < n_c; i++) {
     memset(A[i], 0, n_u * sizeof(float));
     A[i][i - n_v] = Wu ? Wu[i - n_v] : 1.0;
-    b[i] = up ? (Wu ? Wu[i] * up[i] : up[i]) : 0;
+    b[i] = up ? (Wu ? Wu[i-n_v] * up[i-n_v] : up[i-n_v]) : 0;
     d[i] = b[i] - A[i][i - n_v] * u[i - n_v];
   }
 
