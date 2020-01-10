@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import sys
-from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5 import QtWidgets
 from create_module_ui import Ui_CreateModule_Window
 import components
 import files_create
@@ -24,11 +24,12 @@ class CreateModGUI(Ui_CreateModule_Window):
         self.create_button.clicked.connect(self.create_mod)
         self.component_add_button.clicked.connect(self.add_component)
         self.directory_combo.addItem("")
-        for dir in sorted([f.name for f in os.scandir(PPRZ_HOME + "/sw/airborne/modules") if f.is_dir()]):
-            self.directory_combo.addItem(dir)
+        for directory in sorted([f.name for f in os.scandir(PPRZ_HOME + "/sw/airborne/modules") if f.is_dir()]):
+            self.directory_combo.addItem(directory)
         self.get_messages()
 
-    def get_messages(self):
+    @staticmethod
+    def get_messages():
         messages_xml = PPRZ_HOME + "/var/messages.xml"
         root = etree.parse(messages_xml).getroot()
         classes = root.findall("msg_class")
@@ -57,7 +58,7 @@ class CreateModGUI(Ui_CreateModule_Window):
     def create_mod(self):
         fc = files_create.FilesCreate()
         name = self.name_edit.text()
-        dir = self.directory_combo.currentText()
+        directory = self.directory_combo.currentText()
         author = self.author_edit.text()
         email = self.email_edit.text()
         description = unidecode.unidecode(self.description_edit.toPlainText())
@@ -67,7 +68,7 @@ class CreateModGUI(Ui_CreateModule_Window):
             self.statusbar.setStyleSheet("background-color:rgb(255,148,148);")
             return
         fc.name = name
-        fc.directory = dir
+        fc.directory = directory
         fc.description = description
         fc.author = author
         fc.email = email

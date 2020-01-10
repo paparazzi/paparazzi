@@ -109,7 +109,7 @@ class FilesCreate:
         fun = fun.strip("()")
         self.events.append(Event(fun=fun))
 
-    def add_datalink(self, fun: str, message):
+    def add_datalink(self, fun, message):
         splits = fun.split("(", maxsplit=1)
         if len(splits) > 1:
             name, args = splits
@@ -175,7 +175,7 @@ class FilesCreate:
         self.xml.append(makefile)
 
     def build_src(self, licence="GPLv2"):
-        copyright = "/*\n * Copyright (C) {author} {email}\n{licence}\n */".format(
+        cop = "/*\n * Copyright (C) {author} {email}\n{licence}\n */".format(
                 author=self.author, email=self.email, licence=LICENCES[licence])
         description = "/** @file \"modules/{dir}/{name}.h\"\n * @author {author} {email}\n * {description}\n */".format(
                 dir=self.directory, name=self.name, author=self.author, email=self.email, description=self.description)
@@ -196,10 +196,10 @@ class FilesCreate:
             declarations += "void {}(){{\n  // your event code here\n}}\n\n".format(event.fun)
         for datalink in self.datalinks:
             declarations += "void {}{{\n  // {}\n  // your datalink code here\n}}\n\n".format(datalink.fun_c, datalink.message)
-        self.src = "{}\n{}\n{}\n{}\n".format(copyright, description, include, declarations)
+        self.src = "{}\n{}\n{}\n{}\n".format(cop, description, include, declarations)
 
     def build_header(self, licence="GPLv2"):
-        copyright = "/*\n * Copyright (C) {author} {email}\n{licence}\n */".format(author=self.author, email=self.email, licence=LICENCES[licence])
+        cop = "/*\n * Copyright (C) {author} {email}\n{licence}\n */".format(author=self.author, email=self.email, licence=LICENCES[licence])
         description = "/** @file \"modules/{dir}/{name}.h\"\n * @author {author} {email}\n * {description}\n */".format(
                 dir=self.directory, name=self.name, author=self.author, email=self.email, description=self.description)
         includes = ""
@@ -218,7 +218,8 @@ class FilesCreate:
             declarations += "extern void {}(void);\n".format(event.fun)
         for datalink in self.datalinks:
             declarations += "extern void {};\t// {}\n".format(datalink.fun_c, datalink.message)
-        self.header = "{cop}\n{des}\n#ifndef {guard}_H\n#define {guard}_H\n{includes}{decl}\n#endif  // {guard}_H\n".format(cop=copyright, des=description, guard=self.name.upper(), includes=includes, decl=declarations)
+        self.header = "{cop}\n{des}\n#ifndef {guard}_H\n#define {guard}_H\n{includes}{decl}\n#endif  // {guard}_H\n".format(
+            cop=cop, des=description, guard=self.name.upper(), includes=includes, decl=declarations)
 
     def build_files(self, licence="GPLv2"):
         self.build_xml()
