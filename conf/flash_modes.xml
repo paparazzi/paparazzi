@@ -61,6 +61,7 @@
       <board name="openpilot_revo.*"/>
       <board name="chimera_.*"/>
       <board name="tawaki_.*"/>
+      <board name="crazyflie_.*"/>
     </boards>
   </mode>
   <mode name="STLink (SWD)">
@@ -75,6 +76,7 @@
       <board name="openpilot_revo.*"/>
       <board name="chimera_.*"/>
       <board name="tawaki_.*"/>
+      <board name="crazyflie_.*"/>
     </boards>
   </mode>
   <mode name="BlackMagic Probe (SWD)">
@@ -95,6 +97,7 @@
       <board name="chimera_.*"/>
       <board name="tawaki_.*"/>
       <board name="vms_ecu_.*"/>
+      <board name="crazyflie_.*"/>
     </boards>
   </mode>
   <mode name="BlackMagic Probe (SWD_NOPWR)">
