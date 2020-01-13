@@ -51,7 +51,11 @@ struct SerialInit {
   semaphore_t *tx_sem;
   mutex_t *rx_mtx;
   mutex_t *tx_mtx;
+  ioportid_t cts_port;
+  uint16_t cts_pin;
 };
+
+#define SERIAL_INIT_NULL { NULL, NULL, NULL, NULL, NULL, 0, 0 }
 
 /**
  * RX handler
@@ -80,19 +84,32 @@ static void handle_uart_rx(struct uart_periph *p)
 static void handle_uart_tx(struct uart_periph *p)
 {
   // check if more data to send
+  // TODO send by block with sdWrite (be careful with circular buffer)
+  // not compatible with soft flow control
   struct SerialInit *init_struct = (struct SerialInit *)(p->init_struct);
   chSemWait(init_struct->tx_sem);
+  p->tx_running = true;
   while (p->tx_insert_idx != p->tx_extract_idx) {
+#if USE_UART_SOFT_FLOW_CONTROL
+    if (init_struct->cts_port != 0) {
+      // wait for CTS line to be set to send next byte
+      while (gpio_get(init_struct->cts_port, init_struct->cts_pin) == 1) ;
+    }
+#endif
     uint8_t data = p->tx_buf[p->tx_extract_idx];
-    p->tx_running = true;
-    sdWrite((SerialDriver *)p->reg_addr, &data, sizeof(data));
-    p->tx_running = false;
-    // TODO send by block (be careful with circular buffer)
+    sdPut((SerialDriver *)p->reg_addr, data);
     chMtxLock(init_struct->tx_mtx);
     p->tx_extract_idx++;
     p->tx_extract_idx %= UART_TX_BUFFER_SIZE;
     chMtxUnlock(init_struct->tx_mtx);
+#if USE_UART_SOFT_FLOW_CONTROL
+    if (init_struct->cts_port != 0) {
+      // wait for physical transfer to be completed
+      while ((((SerialDriver *)p->reg_addr)->usart->SR & USART_SR_TC) == 0) ;
+    }
+#endif
   }
+  p->tx_running = false;
 }
 
 #if USE_UART1
@@ -116,7 +133,7 @@ static SerialConfig usart1_config = {
   0                                                       /*    USART CR3   */
 };
 
-static struct SerialInit uart1_init_struct = { NULL, NULL, NULL, NULL, NULL };
+static struct SerialInit uart1_init_struct = SERIAL_INIT_NULL;
 
 // Threads RX and TX
 #if USE_UART1_RX
@@ -218,7 +235,7 @@ static SerialConfig usart2_config = {
 #endif
 };
 
-static struct SerialInit uart2_init_struct = { NULL, NULL, NULL, NULL, NULL };
+static struct SerialInit uart2_init_struct = SERIAL_INIT_NULL;
 
 // Threads RX and TX
 #if USE_UART2_RX
@@ -277,13 +294,13 @@ void uart2_init(void)
   uart2_init_struct.rx_mtx = &uart2_rx_mtx;
   uart2_init_struct.rx_sem = &uart2_rx_sem;
   chThdCreateStatic(wa_thd_uart2_rx, sizeof(wa_thd_uart2_rx),
-                    NORMALPRIO, thd_uart2_rx, NULL);
+                    NORMALPRIO + 1, thd_uart2_rx, NULL);
 #endif
 #if USE_UART2_TX
   uart2_init_struct.tx_mtx = &uart2_tx_mtx;
   uart2_init_struct.tx_sem = &uart2_tx_sem;
   chThdCreateStatic(wa_thd_uart2_tx, sizeof(wa_thd_uart2_tx),
-                    NORMALPRIO, thd_uart2_tx, NULL);
+                    NORMALPRIO + 1, thd_uart2_tx, NULL);
 #endif
 }
 
@@ -310,7 +327,7 @@ static SerialConfig usart3_config = {
   0                                                       /*    USART CR3   */
 };
 
-static struct SerialInit uart3_init_struct = { NULL, NULL, NULL, NULL, NULL };
+static struct SerialInit uart3_init_struct = SERIAL_INIT_NULL;
 
 // Threads RX and TX
 #if USE_UART3_RX
@@ -369,13 +386,13 @@ void uart3_init(void)
   uart3_init_struct.rx_mtx = &uart3_rx_mtx;
   uart3_init_struct.rx_sem = &uart3_rx_sem;
   chThdCreateStatic(wa_thd_uart3_rx, sizeof(wa_thd_uart3_rx),
-                    NORMALPRIO, thd_uart3_rx, NULL);
+                    NORMALPRIO + 1, thd_uart3_rx, NULL);
 #endif
 #if USE_UART3_TX
   uart3_init_struct.tx_mtx = &uart3_tx_mtx;
   uart3_init_struct.tx_sem = &uart3_tx_sem;
   chThdCreateStatic(wa_thd_uart3_tx, sizeof(wa_thd_uart3_tx),
-                    NORMALPRIO, thd_uart3_tx, NULL);
+                    NORMALPRIO + 1, thd_uart3_tx, NULL);
 #endif
 }
 
@@ -402,7 +419,7 @@ static SerialConfig usart4_config = {
   0                                                       /*    USART CR3   */
 };
 
-static struct SerialInit uart4_init_struct = { NULL, NULL, NULL, NULL, NULL };
+static struct SerialInit uart4_init_struct = SERIAL_INIT_NULL;
 
 // Threads RX and TX
 #if USE_UART4_RX
@@ -461,13 +478,13 @@ void uart4_init(void)
   uart4_init_struct.rx_mtx = &uart4_rx_mtx;
   uart4_init_struct.rx_sem = &uart4_rx_sem;
   chThdCreateStatic(wa_thd_uart4_rx, sizeof(wa_thd_uart4_rx),
-                    NORMALPRIO, thd_uart4_rx, NULL);
+                    NORMALPRIO + 1, thd_uart4_rx, NULL);
 #endif
 #if USE_UART4_TX
   uart4_init_struct.tx_mtx = &uart4_tx_mtx;
   uart4_init_struct.tx_sem = &uart4_tx_sem;
   chThdCreateStatic(wa_thd_uart4_tx, sizeof(wa_thd_uart4_tx),
-                    NORMALPRIO, thd_uart4_tx, NULL);
+                    NORMALPRIO + 1, thd_uart4_tx, NULL);
 #endif
 }
 
@@ -494,7 +511,7 @@ static SerialConfig usart5_config = {
   0                                                       /*    USART CR3   */
 };
 
-static struct SerialInit uart5_init_struct = { NULL, NULL, NULL, NULL, NULL };
+static struct SerialInit uart5_init_struct = SERIAL_INIT_NULL;
 
 // Threads RX and TX
 #if USE_UART5_RX
@@ -553,13 +570,13 @@ void uart5_init(void)
   uart5_init_struct.rx_mtx = &uart5_rx_mtx;
   uart5_init_struct.rx_sem = &uart5_rx_sem;
   chThdCreateStatic(wa_thd_uart5_rx, sizeof(wa_thd_uart5_rx),
-                    NORMALPRIO, thd_uart5_rx, NULL);
+                    NORMALPRIO + 1, thd_uart5_rx, NULL);
 #endif
 #if USE_UART5_TX
   uart5_init_struct.tx_mtx = &uart5_tx_mtx;
   uart5_init_struct.tx_sem = &uart5_tx_sem;
   chThdCreateStatic(wa_thd_uart5_tx, sizeof(wa_thd_uart5_tx),
-                    NORMALPRIO, thd_uart5_tx, NULL);
+                    NORMALPRIO + 1, thd_uart5_tx, NULL);
 #endif
 }
 
@@ -586,7 +603,7 @@ static SerialConfig usart6_config = {
   0                                                       /*    USART CR3   */
 };
 
-static struct SerialInit uart6_init_struct = { NULL, NULL, NULL, NULL, NULL };
+static struct SerialInit uart6_init_struct = SERIAL_INIT_NULL;
 
 // Threads RX and TX
 #if USE_UART6_RX
@@ -645,13 +662,18 @@ void uart6_init(void)
   uart6_init_struct.rx_mtx = &uart6_rx_mtx;
   uart6_init_struct.rx_sem = &uart6_rx_sem;
   chThdCreateStatic(wa_thd_uart6_rx, sizeof(wa_thd_uart6_rx),
-                    NORMALPRIO, thd_uart6_rx, NULL);
+                    NORMALPRIO + 1, thd_uart6_rx, NULL);
 #endif
 #if USE_UART6_TX
   uart6_init_struct.tx_mtx = &uart6_tx_mtx;
   uart6_init_struct.tx_sem = &uart6_tx_sem;
   chThdCreateStatic(wa_thd_uart6_tx, sizeof(wa_thd_uart6_tx),
-                    NORMALPRIO, thd_uart6_tx, NULL);
+                    NORMALPRIO + 1, thd_uart6_tx, NULL);
+#endif
+
+#if defined UART6_GPIO_CTS && defined UART6_GPIO_PORT_CTS
+  uart6_init_struct.cts_pin = UART6_GPIO_CTS;
+  uart6_init_struct.cts_port = UART6_GPIO_PORT_CTS;
 #endif
 }
 
@@ -678,7 +700,7 @@ static SerialConfig usart7_config = {
   0                                                       /*    USART CR3   */
 };
 
-static struct SerialInit uart7_init_struct = { NULL, NULL, NULL, NULL, NULL };
+static struct SerialInit uart7_init_struct = SERIAL_INIT_NULL;
 
 // Threads RX and TX
 #if USE_UART7_RX
@@ -737,13 +759,13 @@ void uart7_init(void)
   uart7_init_struct.rx_mtx = &uart7_rx_mtx;
   uart7_init_struct.rx_sem = &uart7_rx_sem;
   chThdCreateStatic(wa_thd_uart7_rx, sizeof(wa_thd_uart7_rx),
-                    NORMALPRIO, thd_uart7_rx, NULL);
+                    NORMALPRIO + 1, thd_uart7_rx, NULL);
 #endif
 #if USE_UART7_TX
   uart7_init_struct.tx_mtx = &uart7_tx_mtx;
   uart7_init_struct.tx_sem = &uart7_tx_sem;
   chThdCreateStatic(wa_thd_uart7_tx, sizeof(wa_thd_uart7_tx),
-                    NORMALPRIO, thd_uart7_tx, NULL);
+                    NORMALPRIO + 1, thd_uart7_tx, NULL);
 #endif
 }
 
@@ -770,7 +792,7 @@ static SerialConfig usart8_config = {
   0                                                       /*    USART CR3   */
 };
 
-static struct SerialInit uart8_init_struct = { NULL, NULL, NULL, NULL, NULL };
+static struct SerialInit uart8_init_struct = SERIAL_INIT_NULL;
 
 // Threads RX and TX
 #if USE_UART8_RX
@@ -829,13 +851,13 @@ void uart8_init(void)
   uart8_init_struct.rx_mtx = &uart8_rx_mtx;
   uart8_init_struct.rx_sem = &uart8_rx_sem;
   chThdCreateStatic(wa_thd_uart8_rx, sizeof(wa_thd_uart8_rx),
-                    NORMALPRIO, thd_uart8_rx, NULL);
+                    NORMALPRIO + 1, thd_uart8_rx, NULL);
 #endif
 #if USE_UART8_TX
   uart8_init_struct.tx_mtx = &uart8_tx_mtx;
   uart8_init_struct.tx_sem = &uart8_tx_sem;
   chThdCreateStatic(wa_thd_uart8_tx, sizeof(wa_thd_uart8_tx),
-                    NORMALPRIO, thd_uart8_tx, NULL);
+                    NORMALPRIO + 1, thd_uart8_tx, NULL);
 #endif
 }
 
