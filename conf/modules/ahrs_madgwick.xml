@@ -1,0 +1,54 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ahrs_madgwick" dir="ahrs">
+  <doc>
+    <description>
+      AHRS using IMU (accel, gyro) only with Madwick implementation.
+    </description>
+    <configure name="AHRS_ALIGNER_LED" value="1" description="LED number to indicate AHRS alignment, none to disable (default is board dependent)"/>
+    <define name="AHRS_MADWICK_IMU_ID" value="ABI_BROADCAST" description="ABI sender id of IMU to use"/>
+  </doc>
+
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="madwick">
+        <dl_setting MAX="1" MIN="1" STEP="1" VAR="ahrs_madgwick.reset" shortname="reset"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <header>
+    <file name="ahrs.h" dir="subsystems"/>
+  </header>
+
+  <makefile target="!sim|fbw">
+    <configure name="USE_MAGNETOMETER" default="0"/>
+
+    <define name="USE_MAGNETOMETER" cond="ifeq (,$(findstring $(USE_MAGNETOMETER),0 FALSE))"/>
+    <define name="AHRS_ALIGNER_LED" value="$(AHRS_ALIGNER_LED)" cond="ifneq ($(AHRS_ALIGNER_LED),none)"/>
+    <define name="USE_AHRS"/>
+    <define name="USE_AHRS_ALIGNER"/>
+
+    <file name="ahrs.c" dir="subsystems"/>
+    <file name="ahrs_aligner.c" dir="subsystems/ahrs"/>
+    <file name="ahrs_madgwick.c"/>
+    <file name="ahrs_madgwick_wrapper.c"/>
+    <raw>
+ifdef SECONDARY_AHRS
+ifneq (,$(findstring $(SECONDARY_AHRS), madwick))
+# this is the secondary AHRS
+$(TARGET).CFLAGS += -DAHRS_SECONDARY_TYPE_H=\"modules/ahrs/ahrs_madgwick_wrapper.h\"
+$(TARGET).CFLAGS += -DSECONDARY_AHRS=ahrs_madgwick
+else
+# this is the primary AHRS
+$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"modules/ahrs/ahrs_madgwick_wrapper.h\"
+$(TARGET).CFLAGS += -DPRIMARY_AHRS=ahrs_madgwick
+endif
+else
+# plain old single AHRS usage
+$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"modules/ahrs/ahrs_madgwick_wrapper.h\"
+endif
+    </raw>
+  </makefile>
+</module>
+
