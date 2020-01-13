@@ -1,0 +1,41 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="imu_bmi088_i2c" dir="imu">
+  <doc>
+    <description>
+      IMU with BMI088 via I2C.
+    </description>
+    <configure name="IMU_BMI088_I2C_DEV" value="i2c3" description="I2C device to use for BMI088"/>
+    <define name="IMU_BMI088_GYRO_RANGE" value="BMI088_GYRO_RANGE_1000" description="gyroscope range setting"/>
+    <define name="IMU_BMI088_GYRO_ODR" value="BMI088_GYRO_ODR_400_BW_47" description="gyroscope output data rate"/>
+    <define name="IMU_BMI088_GYRO_I2C_ADDR" value="BMI088_GYRO_ADDR|BMI088_GYRO_ADDR_ALT" description="I2C address of the gyro"/>
+    <define name="IMU_BMI088_ACCEL_RANGE" value="BMI088_ACCEL_RANGE_6G" description="accelerometer range setting"/>
+    <define name="IMU_BMI088_ACCEL_ODR" value="BMI088_ACCEL_ODR_400" description="accelerometer output data rate"/>
+    <define name="IMU_BMI088_ACCEL_I2C_ADDR" value="BMI088_ACCEL_ADDR|BMI088_ACCEL_ADDR_ALT" description="I2C address of the accelerometer"/>
+    <define name="IMU_BMI088_CHAN_X" value="0" description="channel index"/>
+    <define name="IMU_BMI088_CHAN_Y" value="1" description="channel index"/>
+    <define name="IMU_BMI088_CHAN_Z" value="2" description="channel index"/>
+  </doc>
+  <autoload name="imu_common"/>
+  <autoload name="imu_nps"/>
+  <header>
+    <file name="imu_bmi088_i2c.h"/>
+  </header>
+
+  <init fun="imu_bmi088_init()"/>
+  <periodic fun="imu_bmi088_periodic()"/>
+  <event fun="imu_bmi088_event()"/>
+
+  <makefile target="!sim|nps|fbw">
+    <configure name="IMU_BMI088_I2C_DEV" default="i2c3" case="lower|upper"/>
+
+    <define name="IMU_BMI088_I2C_DEV" value="$(IMU_BMI088_I2C_DEV_LOWER)"/>
+    <define name="USE_$(IMU_BMI088_I2C_DEV_UPPER)"/>
+
+    <define name="IMU_TYPE_H" value="modules/imu/imu_bmi088_i2c.h" type="string"/>
+
+    <file name="bmi088.c" dir="peripherals"/>
+    <file name="bmi088_i2c.c" dir="peripherals"/>
+    <file name="imu_bmi088_i2c.c"/>
+  </makefile>
+</module>
