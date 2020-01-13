@@ -4,10 +4,13 @@ from lxml import etree
 from collections import namedtuple
 
 
+PPRZ_SRC = os.getenv("PAPARAZZI_SRC")
 PPRZ_HOME = os.getenv("PAPARAZZI_HOME")
+if PPRZ_SRC is None:
+    PPRZ_SRC = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + "/../../..")
+    print("PAPARAZZI_SRC not set. Use {} as paparazzi home.".format(PPRZ_SRC))
 if PPRZ_HOME is None:
-    PPRZ_HOME = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + "/../../..")
-    print("PAPARAZZI_HOME not set. Use {} as paparazzi home.".format(PPRZ_HOME))
+    PPRZ_HOME = PPRZ_SRC
 
 GPLv2 = """
  *
@@ -227,7 +230,7 @@ class FilesCreate:
         self.build_header(licence)
 
     def get_filenames(self):
-        dir_path = "{}/sw/airborne/modules/{}".format(PPRZ_HOME, self.directory)
+        dir_path = "{}/sw/airborne/modules/{}".format(PPRZ_SRC, self.directory)
         xml_filename = "{}/conf/modules/{}.xml".format(PPRZ_HOME, self.name)
         h_filename = "{}/{}.h".format(dir_path, self.name)
         c_filename = "{}/{}.c".format(dir_path, self.name)

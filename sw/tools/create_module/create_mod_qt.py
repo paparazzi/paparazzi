@@ -8,10 +8,13 @@ import unidecode
 import os
 from lxml import etree
 
+PPRZ_SRC = os.getenv("PAPARAZZI_SRC")
 PPRZ_HOME = os.getenv("PAPARAZZI_HOME")
+if PPRZ_SRC is None:
+    PPRZ_SRC = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + "/../../..")
+    print("PAPARAZZI_SRC not set. Use {} as paparazzi home.".format(PPRZ_SRC))
 if PPRZ_HOME is None:
-    PPRZ_HOME = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + "/../../..")
-    print("PAPARAZZI_HOME not set. Use {} as paparazzi home.".format(PPRZ_HOME))
+    PPRZ_HOME = PPRZ_SRC
 
 
 class CreateModGUI(Ui_CreateModule_Window):
@@ -24,7 +27,7 @@ class CreateModGUI(Ui_CreateModule_Window):
         self.create_button.clicked.connect(self.create_mod)
         self.component_add_button.clicked.connect(self.add_component)
         self.directory_combo.addItem("")
-        for directory in sorted([f.name for f in os.scandir(PPRZ_HOME + "/sw/airborne/modules") if f.is_dir()]):
+        for directory in sorted([f.name for f in os.scandir(PPRZ_SRC + "/sw/airborne/modules") if f.is_dir()]):
             self.directory_combo.addItem(directory)
         self.get_messages()
 
