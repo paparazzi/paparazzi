@@ -126,7 +126,6 @@
         <define name="SONAR_BEBOP_FILTER_NARROW_OBSTACLES" value="FALSE"/><!-- activate later if all works and test GLS autoland with it -->
         <define name="SONAR_BEBOP_FILTER_NARROW_OBSTACLES_JUMP" value="0.4"/> <!-- in M -->
         <define name="SONAR_BEBOP_FILTER_NARROW_OBSTACLES_TIME" value="1.0"/> <!-- in s -->
-        <define name="USE_SONAR" value="TRUE"/>
         <define name="SENSOR_SYNC_SEND_SONAR"/>  <!-- Disable after testflights -->
       </module>
 

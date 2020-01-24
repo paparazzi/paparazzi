@@ -118,7 +118,6 @@ void ak8963_event(struct Ak8963 *ak)
         // Read second status register to be ready for reading again
         ak->i2c_trans.buf[0] = AK8963_REG_ST2; // Data overflow bit 3 and data read error status bit 2
         i2c_transceive(ak->i2c_p, &(ak->i2c_trans), ak->i2c_trans.slave_addr, 1, 1);
-        ak->data_available = true;
         ak->status++;
         break;
       }
