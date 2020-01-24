@@ -59,7 +59,7 @@ nps.srcs +=                                      \
        $(NPSDIR)/nps_main_common.c
 
 # for geo mag calculation
-nps.srcs += math/pprz_geodetic_wmm2015.c
+nps.srcs += math/pprz_geodetic_wmm2020.c
 
 BARO_PERIODIC_FREQUENCY ?= 50
 BARO_BOARD_CFLAGS += -DBARO_PERIODIC_FREQUENCY=$(BARO_PERIODIC_FREQUENCY)
