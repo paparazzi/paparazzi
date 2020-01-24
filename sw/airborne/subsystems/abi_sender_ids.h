@@ -323,6 +323,10 @@
 #define IMU_VECTORNAV_ID 18
 #endif
 
+#ifndef IMU_BMI088_ID
+#define IMU_BMI088_ID 19
+#endif
+
 // prefiltering with OneEuro filter
 #ifndef IMU_F1E_ID
 #define IMU_F1E_ID 30

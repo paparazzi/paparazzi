@@ -124,6 +124,26 @@ void jevois_init(void)
   memset(jevois.buf, 0, JEVOIS_MAX_LEN);
 }
 
+// extrat a number (int) from an idea string
+// this might be needed as jevois ID can start with a letter
+// this will extract the first substring with a number
+// and return the result of atoi function
+static int jevois_extract_nb(char *in) {
+  unsigned int i, j = 0;
+  bool first = false;
+  char out[JEVOIS_MAX_LEN];
+  for (i = 0; i < strlen(in)+1; i++) {
+    if ((in[i] > '0' && in[i] < '9') || in[i] == '-') {
+      out[j++] = in[i];
+      first = true;
+    } else if (first || in[i] == '\0') {
+      out[j] = '\0';
+      break;
+    }
+  }
+  return atoi(out);
+}
+
 // send specific message if requested
 static void jevois_send_message(void)
 {
@@ -144,7 +164,7 @@ static void jevois_send_message(void)
       jevois.msg.dim[0],
       jevois.msg.dim[1],
       0,
-      (int16_t)atoi(jevois.msg.id));
+      (int16_t)jevois_extract_nb(jevois.msg.id));
 #endif
 }
 
@@ -413,3 +433,40 @@ void jevois_setmapping(int number)
   jevois_stream(true);
 }
 
+void jevois_send_state(void)
+{
+  char str[32] __attribute__((unused));
+#if JEVOIS_SEND_ALT
+  // send current altitude in millimeter
+  int alt_mm = (int)(stateGetPositionEnu_f()->z * 1000.f);
+  Bound(alt_mm, -999999, 999999);
+  sprintf(str, "alt %d\r\n", alt_mm);
+  jevois_send_string(str);
+#endif
+#if JEVOIS_SEND_POS
+  // send current position in millimeter
+  struct EnuCoor_f pos = *stateGetPositionEnu_f();
+  int x_mm = (int)(pos.x * 1000.f);
+  int y_mm = (int)(pos.y * 1000.f);
+  int z_mm = (int)(pos.z * 1000.f);
+  Bound(x_mm, -999999, 999999);
+  Bound(y_mm, -999999, 999999);
+  Bound(z_mm, -999999, 999999);
+  sprintf(str, "pos %d %d %d\r\n", x_mm, y_mm, z_mm);
+  jevois_send_string(str);
+#endif
+#if JEVOIS_SEND_QUAT
+  // send quaternion
+  struct FloatQuat quat = *stateGetNedToBodyQuat_f();
+  int qi = (int)(quat.qi * 1000.f);
+  int qx = (int)(quat.qx * 1000.f);
+  int qy = (int)(quat.qy * 1000.f);
+  int qz = (int)(quat.qz * 1000.f);
+  Bound(qi, -9999, 9999);
+  Bound(qx, -9999, 9999);
+  Bound(qy, -9999, 9999);
+  Bound(qz, -9999, 9999);
+  sprintf(str, "quat %d %d %d %d\r\n", qi, qx, qy, qz);
+  jevois_send_string(str);
+#endif
+}

@@ -1,0 +1,32 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="syslink" dir="datalink/bitcraze" task="datalink">
+  <doc>
+    <description>
+      Bitcraze syslink module
+    </description>
+    <configure name="SYSLINK_PORT" value="UARTX" description="Select syslink port"/>
+    <configure name="SYSLINK_BAUD" value="B1000000" description="Syslink baudrate"/>
+  </doc>
+  <autoload name="telemetry" type="nps"/>
+  <autoload name="telemetry" type="sim"/>
+  <header>
+    <file name="syslink_dl.h"/>
+  </header>
+  <init fun="syslink_dl_init()"/>
+  <periodic fun="syslink_dl_periodic()" freq="2"/>
+  <event fun="syslink_dl_event()"/>
+
+  <makefile target="!fbw|sim|nps|hitl">
+    <configure name="SYSLINK_PORT" default="uart6" case="upper|lower"/>
+    <configure name="SYSLINK_BAUD" default="B1000000" case="upper|lower"/>
+    <define name="SYSLINK_DEV" value="$(SYSLINK_PORT_LOWER)"/>
+    <define name="USE_$(SYSLINK_PORT_UPPER)"/>
+    <define name="$(SYSLINK_PORT_UPPER)_BAUD" value="$(SYSLINK_BAUD)"/>
+    <define name="USE_UART_SOFT_FLOW_CONTROL"/>
+    <define name="USE_SYSLINK"/>
+    <define name="CHARGING_LED" value="$(CHARGING_LED)" cond="ifneq ($(CHARGING_LED),none)"/>
+    <file name="syslink_dl.c"/>
+    <file name="syslink.c"/>
+  </makefile>
+</module>
