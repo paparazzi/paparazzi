@@ -54,7 +54,7 @@
    settings_modules="modules/ahrs_int_cmpl_euler.xml modules/stabilization_int_euler.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
    gui_color="white"
   />
-  <aircraft
+  <!--aircraft
    name="Iris_chibios"
    ac_id="45"
    airframe="airframes/AGGIEAIR/aggieair_iris_indi.xml"
@@ -64,7 +64,7 @@
    settings="settings/rotorcraft_basic.xml [settings/test_actuators_pwm.xml]"
    settings_modules="modules/air_data.xml modules/lidar_sf11.xml modules/lidar_lite.xml modules/px4flow_i2c.xml modules/ins_extended.xml modules/ahrs_float_mlkf.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_indi_simple.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/imu_common.xml"
    gui_color="#337e387bffff"
-  />
+  /-->
   <aircraft
    name="JP"
    ac_id="6"
