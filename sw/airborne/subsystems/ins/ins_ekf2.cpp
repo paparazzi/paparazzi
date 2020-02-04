@@ -345,7 +345,8 @@ static void ins_ekf2_publish_attitude(uint32_t stamp)
     uint8_t quat_reset_counter;
     ekf.get_quat_reset(delta_q_reset, &quat_reset_counter);
 
-    // If reset update the setpoint heading
+#ifndef NO_RESET_UPDATE_SETPOINT_HEADING
+
     if (ekf2.quat_reset_counter < quat_reset_counter) {
       float psi = matrix::Eulerf(matrix::Quatf(delta_q_reset)).psi();
 #if defined STABILIZATION_ATTITUDE_TYPE_INT
@@ -360,6 +361,7 @@ static void ins_ekf2_publish_attitude(uint32_t stamp)
       stabilization_attitude_enter();
       ekf2.quat_reset_counter = quat_reset_counter;
     }
+#endif
 
     /* Get in-run gyro bias */
     struct FloatRates body_rates;

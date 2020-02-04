@@ -175,7 +175,7 @@ void ahrs_dcm_update_gps(struct GpsState *gps_s)
     ahrs_dcm.gps_age = 0;
     ahrs_dcm.gps_speed = gps_s->speed_3d / 100.;
 
-    if (gps_s->gspeed >= 500) { //got a 3d fix and ground speed is more than 5.0 m/s
+    if (gps_s->gspeed >= 500) { //got a 3d fix and ground speed is more than 5.0 m/s //FIXME: Should be settable
       ahrs_dcm.gps_course = ((float)gps_s->course) / 1.e7;
       ahrs_dcm.gps_course_valid = true;
     } else {

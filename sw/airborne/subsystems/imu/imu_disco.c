@@ -35,6 +35,9 @@ PRINT_CONFIG_VAR(DISCO_MAG_I2C_DEV)
 #define DISCO_MPU_I2C_DEV i2c2
 PRINT_CONFIG_VAR(DISCO_MPU_I2C_DEV)
 
+#if !defined AK8963_HZ
+#define AK8963_HZ 50
+#endif
 
 #if !defined DISCO_LOWPASS_FILTER && !defined  DISCO_SMPLRT_DIV
 #if (PERIODIC_FREQUENCY == 60) || (PERIODIC_FREQUENCY == 120)
@@ -85,11 +88,17 @@ void imu_disco_init(void)
  */
 void imu_disco_periodic(void)
 {
+  static uint32_t cntr = 0;
+
   // Start reading the latest gyroscope data
   mpu60x0_i2c_periodic(&imu_disco.mpu);
 
-  // AKM8963
-  ak8963_periodic(&imu_disco.ak);
+  // AKM8963 if read faster thant datasheet 100Hz over I2C crashes it once in a while
+  if (cntr%((uint32_t)(PERIODIC_FREQUENCY/AK8963_HZ))==0) {
+    ak8963_periodic(&imu_disco.ak);
+    cntr=0;
+  }
+  cntr++;
 }
 
 /**
