@@ -46,5 +46,6 @@ extern bool nav_survey_rectangle_rotorcraft_run(uint8_t wp1, uint8_t wp2);
 
 #define NavSurveyRectangleInit(_wp1, _wp2, _grid, _orientation) nav_survey_rectangle_rotorcraft_setup(_wp1, _wp2, _grid, _orientation)
 #define NavSurveyRectangle(_wp1, _wp2) nav_survey_rectangle_rotorcraft_run(_wp1, _wp2)
+#define NavSurveyRectangleDynamic(_wp1, _wp2, _grid) nav_survey_rectangle_rotorcraft_run_dynamic(_wp1, _wp2, _grid)
 
 #endif // NAV_SURVEY_RECTANGLE_ROTORCRAFT_H
