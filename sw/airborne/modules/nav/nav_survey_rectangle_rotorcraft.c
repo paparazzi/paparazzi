@@ -163,7 +163,7 @@ void nav_survey_rectangle_rotorcraft_setup(uint8_t wp1, uint8_t wp2, float grid,
 
 bool nav_survey_rectangle_rotorcraft_run(uint8_t wp1, uint8_t wp2)
 {
-  return nav_survey_rectangle_rotorcraft_run_dynamic(uint8_t wp1, uint8_t wp2, -1);
+  return nav_survey_rectangle_rotorcraft_run_dynamic(wp1, wp2, -1);
 }
 
 bool nav_survey_rectangle_rotorcraft_run_dynamic(uint8_t wp1, uint8_t wp2, float grid)
