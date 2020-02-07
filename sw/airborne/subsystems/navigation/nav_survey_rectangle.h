@@ -39,7 +39,7 @@ extern void nav_survey_rectangle(uint8_t wp1, uint8_t wp2);
 extern void nav_survey_rectangle_dynamic(uint8_t wp1, uint8_t wp2, float grid);
 
 #define NavSurveyRectangleInit(_wp1, _wp2, _grid, _orientation) nav_survey_rectangle_init(_wp1, _wp2, _grid, _orientation)
-#define NavSurveyRectangle(_wp1, _wp2) nav_survey_rectangle(_wp1, _wp2);
+#define NavSurveyRectangle(_wp1, _wp2) nav_survey_rectangle(_wp1, _wp2)
 #define NavSurveyRectangleDynamic(_wp1, _wp2, _grid) nav_survey_rectangle_dynamic(_wp1, _wp2, _grid)
 
 
