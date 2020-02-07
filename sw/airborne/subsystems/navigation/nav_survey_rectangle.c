@@ -88,7 +88,7 @@ void nav_survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid, survey_orie
 
 void nav_survey_rectangle(uint8_t wp1, uint8_t wp2)
 {
-  nav_survey_rectangle_dynamic(uint8_t wp1, uint8_t wp2, -1);
+  nav_survey_rectangle_dynamic(wp1, wp2, -1);
 }
 
 void nav_survey_rectangle_dynamic(uint8_t wp1, uint8_t wp2, float grid)
