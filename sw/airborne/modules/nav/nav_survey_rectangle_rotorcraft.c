@@ -161,9 +161,18 @@ void nav_survey_rectangle_rotorcraft_setup(uint8_t wp1, uint8_t wp2, float grid,
   }
 }
 
-
 bool nav_survey_rectangle_rotorcraft_run(uint8_t wp1, uint8_t wp2)
 {
+  return nav_survey_rectangle_rotorcraft_run_dynamic(uint8_t wp1, uint8_t wp2, -1);
+}
+
+bool nav_survey_rectangle_rotorcraft_run_dynamic(uint8_t wp1, uint8_t wp2, float grid)
+{
+  if (grid > 0) {
+    if (nav_survey_shift > 0) nav_survey_shift = grid;
+    else nav_survey_shift = -grid;
+  }
+
   static bool is_last_half = false;
   static float survey_radius;
   nav_survey_active = true;
@@ -379,4 +388,3 @@ bool nav_survey_rectangle_rotorcraft_run(uint8_t wp1, uint8_t wp2)
   return true;
 
 }// /* END survey_retangle */
-
