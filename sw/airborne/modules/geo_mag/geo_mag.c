@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2012  Sergey Krukowski <softsr@yahoo.de>
- * Copyright (C) 2015  OpenUAS <info@openuas.org>
+ * Copyright (C) 2020  OpenUAS <info@openuas.org>
  *
  * This file is part of paparazzi.
  *
@@ -23,11 +23,11 @@
 /**
  * @file modules/geo_mag/geo_mag.c
  * @brief Calculation of the Geomagnetic field vector from current location.
- * This module is based on the WMM2015 model (http://www.ngdc.noaa.gov/geomag/WMM/DoDWMM.shtml).
+ * This module is based on the world magnetic model from (http://www.ngdc.noaa.gov/geomag/WMM/DoDWMM.shtml).
  */
 
 #include "modules/geo_mag/geo_mag.h"
-#include "math/pprz_geodetic_wmm2015.h"
+#include "math/pprz_geodetic_wmm2020.h"
 #include "math/pprz_algebra_double.h"
 #include "subsystems/gps.h"
 #include "subsystems/abi.h"
