@@ -86,9 +86,18 @@ void nav_survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid, survey_orie
   LINE_START_FUNCTION;
 }
 
-
 void nav_survey_rectangle(uint8_t wp1, uint8_t wp2)
 {
+  nav_survey_rectangle_dynamic(uint8_t wp1, uint8_t wp2, -1)
+}
+
+void nav_survey_rectangle_dynamic(uint8_t wp1, uint8_t wp2, float grid)
+{
+  if (grid > 0) {
+    if (nav_survey_shift > 0) nav_survey_shift = grid;
+    else nav_survey_shift = -grid;
+  }
+
   static float survey_radius;
 
   nav_survey_active = true;
