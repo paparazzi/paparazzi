@@ -164,7 +164,7 @@ void nav_survey_rectangle_rotorcraft_setup(uint8_t wp1, uint8_t wp2, float grid,
 
 bool nav_survey_rectangle_rotorcraft_run(uint8_t wp1, uint8_t wp2)
 {
-  /* Update sweep_width if "extern float sweep" has been updated */
+  /* Update nav_survey_shift if "extern float sweep" has been updated */
   if (sweep != nav_survey_shift && sweep != -nav_survey_shift) 
   {
     nav_survey_shift = (nav_survey_shift > 0 ? sweep : -sweep);
