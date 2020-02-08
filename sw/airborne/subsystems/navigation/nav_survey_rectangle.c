@@ -90,7 +90,7 @@ void nav_survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid, survey_orie
 
 void nav_survey_rectangle(uint8_t wp1, uint8_t wp2)
 {
-  /* Update sweep_width if "extern float sweep" has been updated */
+  /* Update sweep_var if "extern float sweep" has been updated */
   if (sweep != nav_survey_shift && sweep != -nav_survey_shift)
   {
     nav_survey_shift = (nav_survey_shift > 0 ? sweep_var : -sweep_var);
