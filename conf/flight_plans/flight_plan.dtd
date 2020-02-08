@@ -28,14 +28,14 @@
 <!ELEMENT exceptions (exception*)>
 
 <!ELEMENT blocks (block+)>
-<!ELEMENT block (exception|while|heading|attitude|manual|go|xyz|set|call|call_once|circle|deroute|stay|follow|survey_rectangle|survey_rectangle_dynamic|for|return|eight|oval|home|path)*>
+<!ELEMENT block (exception|while|heading|attitude|manual|go|xyz|set|call|call_once|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|home|path)*>
 
 <!ELEMENT include (arg|with)*>
 <!ELEMENT arg EMPTY>
 <!ELEMENT with EMPTY>
 
-<!ELEMENT while (exception|while|heading|attitude|manual|go|xyz|set|call|call_once|circle|deroute|stay|follow|survey_rectangle|survey_rectangle_dynamic|for|return|eight|oval|path)*>
-<!ELEMENT for (exception|while|heading|attitude|manual|go|xyz|set|call|call_once|circle|deroute|stay|follow|survey_rectangle|survey_rectangle_dynamic|for|return|eight|oval|path)*>
+<!ELEMENT while (exception|while|heading|attitude|manual|go|xyz|set|call|call_once|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|path)*>
+<!ELEMENT for (exception|while|heading|attitude|manual|go|xyz|set|call|call_once|circle|deroute|stay|follow|survey_rectangle|for|return|eight|oval|path)*>
 <!ELEMENT exception EMPTY>
 <!ELEMENT heading EMPTY>
 <!ELEMENT attitude EMPTY>
@@ -50,7 +50,6 @@
 <!ELEMENT eight EMPTY>
 <!ELEMENT oval EMPTY>
 <!ELEMENT survey_rectangle EMPTY>
-<!ELEMENT survey_rectangle_dynamic EMPTY>
 <!ELEMENT deroute EMPTY>
 <!ELEMENT stay EMPTY>
 <!ELEMENT follow EMPTY>
@@ -295,15 +294,6 @@ post_call CDATA #IMPLIED
 until CDATA #IMPLIED>
 
 <!ATTLIST survey_rectangle
-grid CDATA #REQUIRED
-orientation CDATA #IMPLIED
-wp1 CDATA #REQUIRED
-wp2 CDATA #REQUIRED
-pre_call CDATA #IMPLIED
-post_call CDATA #IMPLIED
-until CDATA #IMPLIED>
-
-<!ATTLIST survey_rectangle_dynamic
 grid CDATA #REQUIRED
 orientation CDATA #IMPLIED
 wp1 CDATA #REQUIRED

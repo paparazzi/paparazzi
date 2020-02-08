@@ -607,23 +607,6 @@ let rec print_stage = fun index_of_waypoints x ->
         stage_until x;
         fp_post_call x;
         lprintf "break;\n"
-      | "survey_rectangle_dynamic" ->
-        let grid = parsed_attrib x "grid"
-        and wp1 = get_index_waypoint (ExtXml.attrib x "wp1") index_of_waypoints
-        and wp2 = get_index_waypoint (ExtXml.attrib x "wp2") index_of_waypoints
-        and orientation = ExtXml.attrib_or_default x "orientation" "NS" in
-        stage ();
-        if orientation <> "NS" && orientation <> "WE" then
-          failwith (sprintf "Unknown survey orientation (NS or WE): %s" orientation);
-        lprintf "NavSurveyRectangleInit(%s, %s, %s, %s);\n" wp1 wp2 grid orientation;
-        lprintf "NextStageAndBreak();\n";
-        left ();
-        stage ();
-        fp_pre_call x;
-        lprintf "NavSurveyRectangleDynamic(%s, %s, %s);\n" wp1 wp2 grid;
-        stage_until x;
-        fp_post_call x;
-        lprintf "break;\n"
       | _s -> failwith "Unreachable"
   end;
   left ()

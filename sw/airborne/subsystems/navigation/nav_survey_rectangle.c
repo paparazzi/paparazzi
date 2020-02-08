@@ -34,6 +34,7 @@ static struct point survey_from;
 static struct point survey_to;
 static bool survey_uturn __attribute__((unused)) = false;
 static survey_orientation_t survey_orientation = NS;
+float sweep_var;
 
 #define SurveyGoingNorth() ((survey_orientation == NS) && (survey_to.y > survey_from.y))
 #define SurveyGoingSouth() ((survey_orientation == NS) && (survey_to.y < survey_from.y))
@@ -82,20 +83,17 @@ void nav_survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid, survey_orie
     }
   }
   nav_survey_shift = grid;
+  sweep_var = grid;
   survey_uturn = false;
   LINE_START_FUNCTION;
 }
 
 void nav_survey_rectangle(uint8_t wp1, uint8_t wp2)
 {
-  nav_survey_rectangle_dynamic(wp1, wp2, -1);
-}
-
-void nav_survey_rectangle_dynamic(uint8_t wp1, uint8_t wp2, float grid)
-{
-  if (grid > 0) {
-    if (nav_survey_shift > 0) nav_survey_shift = grid;
-    else nav_survey_shift = -grid;
+  /* Update sweep_width if "extern float sweep" has been updated */
+  if (sweep != nav_survey_shift && sweep != -nav_survey_shift)
+  {
+    nav_survey_shift = (nav_survey_shift > 0 ? sweep_var : -sweep_var);
   }
 
   static float survey_radius;
