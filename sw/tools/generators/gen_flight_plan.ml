@@ -307,7 +307,7 @@ let rec index_stage = fun x ->
       | "heading" | "attitude" | "manual" | "go" | "stay" | "xyz" | "set" | "circle" ->
         incr stage;
         Xml.Element (Xml.tag x, Xml.attribs x@["no", soi !stage], Xml.children x)
-      | "survey_rectangle" | "survey_rectangle_dynamic" | "eight" | "oval"->
+      | "survey_rectangle" | "eight" | "oval"->
         incr stage; incr stage;
         Xml.Element (Xml.tag x, Xml.attribs x@["no", soi !stage], Xml.children x)
       | "exception" ->
