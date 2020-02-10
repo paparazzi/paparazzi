@@ -28,7 +28,7 @@ or using flightplan primitive
 -->
     </description>
     <define name="RECTANGLE_SURVEY_DEFAULT_SWEEP" value="25" description="default sweep distance when using dinamic setup"/>
-    <define name="NAV_SURVEY_RECTANGLE_DYNAMIC" value="FALSE|TRUE" default="FALSE" description="Set to true to allow changing sweep distance mid survey"/>
+    <define name="NAV_SURVEY_RECTANGLE_DYNAMIC" value="FALSE|TRUE" description="Set to true to allow changing sweep distance mid survey"/>
   </doc>
 
     <settings>
