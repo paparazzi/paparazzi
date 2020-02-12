@@ -34,7 +34,6 @@ static struct point survey_from;
 static struct point survey_to;
 static bool survey_uturn __attribute__((unused)) = false;
 static survey_orientation_t survey_orientation = NS;
-//float sweep_var;
 
 #define SurveyGoingNorth() ((survey_orientation == NS) && (survey_to.y > survey_from.y))
 #define SurveyGoingSouth() ((survey_orientation == NS) && (survey_to.y < survey_from.y))
