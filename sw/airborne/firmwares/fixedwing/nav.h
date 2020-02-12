@@ -107,6 +107,7 @@ extern float nav_radius; /* m */
 extern float nav_course; /* degrees, clockwise, 0.0 = N */
 extern float nav_climb; /* m/s */
 extern float nav_shift; /* Lateral shift along a route. In meters */
+extern float sweep_var; //added to allow dynamic sweep width in surveys
 
 extern float nav_ground_speed_pgain, nav_ground_speed_setpoint;
 

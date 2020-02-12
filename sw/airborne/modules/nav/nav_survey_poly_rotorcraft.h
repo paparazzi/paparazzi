@@ -31,6 +31,7 @@
 
 extern uint8_t Poly_Size;
 extern float Poly_Distance;
+extern float sweep_var;
 extern uint16_t PolySurveySweepNum;
 extern uint16_t PolySurveySweepBackNum;
 extern bool Half_Sweep_Enabled;
