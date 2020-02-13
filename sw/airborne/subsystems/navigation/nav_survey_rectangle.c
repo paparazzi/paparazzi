@@ -87,7 +87,6 @@ void nav_survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid, survey_orie
   LINE_START_FUNCTION;
 }
 
-
 void nav_survey_rectangle(uint8_t wp1, uint8_t wp2)
 {
   #ifdef NAV_SURVEY_RECTANGLE_DYNAMIC

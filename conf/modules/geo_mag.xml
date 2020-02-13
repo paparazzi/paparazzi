@@ -29,7 +29,7 @@
   <event fun="geo_mag_event()"/>
   <makefile target="ap|nps">
     <file name="geo_mag.c"/>
-    <file name="pprz_geodetic_wmm2015.c" dir="math"/>
+    <file name="pprz_geodetic_wmm2020.c" dir="math"/>
   </makefile>
   <makefile target="nps">
     <define name="NPS_CALC_GEO_MAG"/>

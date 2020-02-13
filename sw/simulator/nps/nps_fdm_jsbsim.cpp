@@ -61,7 +61,7 @@
 #include "math/pprz_algebra.h"
 #include "math/pprz_algebra_float.h"
 
-#include "math/pprz_geodetic_wmm2015.h"
+#include "math/pprz_geodetic_wmm2020.h"
 
 #include "generated/airframe.h"
 #include "generated/flight_plan.h"
