@@ -246,6 +246,10 @@ void gvf_nav_direction_circle(float rad)
 
 bool gvf_nav_survey_polygon_run(void)
 {
+  #ifdef NAV_SURVEY_POLY_GVF_DYNAMIC
+  sweep_width = (nav_survey_shift > 0 ? sweep_var : -sweep_var);
+  #endif
+
   NavVerticalAutoThrottleMode(0.0);
   NavVerticalAltitudeMode(gvf_survey.psa_altitude, 0.0);
 
