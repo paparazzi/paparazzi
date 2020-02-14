@@ -41,5 +41,6 @@
     <file name="cc2500_rx_spi_common.c" dir="subsystems/radio_control/cc2500_frsky"/>
     <file name="cc2500_frsky_shared.c" dir="subsystems/radio_control/cc2500_frsky"/>
     <file name="cc2500_frsky_x.c" dir="subsystems/radio_control/cc2500_frsky"/>
+    <file name="cc2500_smartport.c" dir="subsystems/radio_control/cc2500_frsky"/>
   </makefile>
 </module>

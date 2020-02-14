@@ -88,6 +88,15 @@ rxCc2500SpiConfig_t* rxCc2500SpiConfigMutable(void) {
 }
 
 
+// main/telemetry/telemetry.h:
+static telemetryConfig_t telemetryconfig;
+
+const telemetryConfig_t* telemetryConfig(void) {
+  return &telemetryconfig;
+}
+
+
+
 void cc2500_settings_init(void) {
   // rxConfig
   rxconfig.rssi_channel = 0;
@@ -131,4 +140,8 @@ void cc2500_settings_init(void) {
   cc2500spiconfig.rxNum = 0;
   cc2500spiconfig.a1Source = FRSKY_SPI_A1_SOURCE_VBAT;
   cc2500spiconfig.chipDetectEnabled = TRUE;
+
+  // telemetryConfig
+  telemetryconfig.pidValuesAsTelemetry = FALSE;
+  telemetryconfig.report_cell_voltage = FALSE;
 }

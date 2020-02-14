@@ -3,7 +3,7 @@
 #include "cc2500_settings.h"
 #include "cc2500_rx.h"
 
-// betaflight/src/main/rx/rx_spi.h @ 0a0d363
+// betaflight/src/main/rx/rx_spi.h @ 766c90b
 /*
  * This file is part of Cleanflight and Betaflight.
  *
@@ -88,4 +88,4 @@ typedef enum {
 #define RC_CHANNEL_HEADLESS    RC_SPI_AUX5
 #define RC_CHANNEL_RTH         RC_SPI_AUX6 // return to home
 
-bool rxSpiInit(const rxSpiConfig_t *rxSpiConfig, rxRuntimeState_t *rxRuntimeState);
+bool rxSpiInit(const rxSpiConfig_t *rxSpiConfig, rxRuntimeConfig_t *rxRuntimeConfig);

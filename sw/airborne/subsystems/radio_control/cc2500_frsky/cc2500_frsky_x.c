@@ -7,10 +7,11 @@
 #include "cc2500_frsky_common.h"
 #include "cc2500_frsky_shared.h"
 #include "cc2500_frsky_x.h"
+#include "cc2500_smartport.h"
 
 #define UNUSED(x) (void)(x)
 
-// betaflight/src/main/rx/cc2500_frsky_x.c @ 4a79046
+// betaflight/src/main/rx/cc2500_frsky_x.c @ e78f976
 /*
  * This file is part of Cleanflight and Betaflight.
  *
@@ -54,7 +55,7 @@
 //#include "drivers/system.h"
 //#include "drivers/time.h"
 //
-//#include "config/config.h"
+//#include "fc/config.h"
 //
 //#include "pg/rx.h"
 //#include "pg/rx_spi.h"
@@ -267,7 +268,7 @@ static void buildTelemetryFrame(uint8_t *packet)
     frame[14]=lcrc;
 }
 
-static bool frSkyXReadyToSend(void)
+static bool frSkyXCheckQueueEmpty(void)
 {
     return true;
 }
@@ -566,7 +567,7 @@ rx_spi_received_e frSkyXProcessFrame(uint8_t * const packet)
             }
 
             while (remoteToProcessIndex < telemetryRxBuffer[remoteToProcessId].data.dataLength && !payload) {
-                payload = smartPortDataReceive(telemetryRxBuffer[remoteToProcessId].data.data[remoteToProcessIndex], &clearToSend, frSkyXReadyToSend, false);
+                payload = smartPortDataReceive(telemetryRxBuffer[remoteToProcessId].data.data[remoteToProcessIndex], &clearToSend, frSkyXCheckQueueEmpty, false);
                 remoteToProcessIndex = remoteToProcessIndex + 1;
             }
         }

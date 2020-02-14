@@ -50,10 +50,10 @@
 #define USE_RX_SPI
 #define USE_RX_FRSKY_SPI
 #define USE_RX_FRSKY_SPI_TELEMETRY
-#define USE_TELEMETRY_SMARTPORT // TODO verify also for FRSKY_D
 
 #if (CC2500_RX_SPI_PROTOCOL == RX_SPI_FRSKY_X_LBT) || (CC2500_RX_SPI_PROTOCOL == RX_SPI_FRSKY_X)
 #define USE_RX_FRSKY_SPI_X
+#define USE_TELEMETRY_SMARTPORT
 #endif
 #if (CC2500_RX_SPI_PROTOCOL == RX_SPI_FRSKY_D)
 #define USE_RX_FRSKY_SPI_D
@@ -62,6 +62,21 @@
 #define DEBUG_SET(...) /* Do nothing */
 #define STATIC_ASSERT(...) /* Do nothing */
 #define STATIC_UNIT_TESTED static
+
+
+// (unknown):
+#define sensors(...) 1
+
+struct attitude_values_t {
+  int8_t roll;
+  int8_t pitch;
+  int8_t yaw;
+};
+struct attitude_t {
+  struct attitude_values_t values;
+};
+extern struct attitude_t bf_attitude;
+#define attitude bf_attitude
 
 
 // main/common/utils.h:
@@ -75,8 +90,8 @@
 // main/common/time.h:
 typedef int32_t timeDelta_t;
 typedef uint32_t timeMs_t ;
-typedef uint64_t timeUs_t;
-#define TIMEUS_MAX UINT64_MAX
+typedef uint32_t timeUs_t;
+#define TIMEUS_MAX UINT32_MAX
 
 static inline timeDelta_t cmpTimeUs(timeUs_t a, timeUs_t b) { return (timeDelta_t)(a - b); }
 
@@ -98,6 +113,22 @@ float pt1FilterGain(float f_cut, float dT);
 void pt1FilterInit(pt1Filter_t *filter, float k);
 void pt1FilterUpdateCutoff(pt1Filter_t *filter, float k);
 float pt1FilterApply(pt1Filter_t *filter, float input);
+
+
+// main/config/config.h:
+#define PID_ROLL 0
+#define PID_PITCH 0
+#define PID_YAW 0
+
+struct pidGains_s {
+  uint8_t P;
+  uint8_t I;
+  uint8_t D;
+};
+struct pidProfile_s {
+  struct pidGains_s pid[1];
+};
+extern struct pidProfile_s *currentPidProfile;
 
 
 // main/config/feature.h:
@@ -200,42 +231,60 @@ void bf_IOToggle(IO_t io);
 #define IOToggle(io) bf_IOToggle(io)
 
 
-// main/telemetry/smartport.h:
-// TODO actually port smartport code? For downlink (and possibly uplink)
-enum
-{
-    FSSP_START_STOP = 0x7E,
+// main/fc/runtime_config.h:
+#define isArmingDisabled() 0
+#define ARMING_FLAG(...) 1
+#define FLIGHT_MODE(...) 0
 
-    FSSP_DLE        = 0x7D,
-    FSSP_DLE_XOR    = 0x20,
 
-    FSSP_DATA_FRAME = 0x10,
-    FSSP_MSPC_FRAME_SMARTPORT = 0x30, // MSP client frame
-    FSSP_MSPC_FRAME_FPORT = 0x31, // MSP client frame
-    FSSP_MSPS_FRAME = 0x32, // MSP server frame
+// main/fc/controlrate_profile.h:
+#define FD_ROLL 0
+#define FD_PITCH 0
+#define FD_YAW 0
+typedef struct {
+  uint8_t rates[1];
+} controlRateConfig_t;
+extern controlRateConfig_t *currentControlRateProfile;
 
-    // ID of sensor. Must be something that is polled by FrSky RX
-    FSSP_SENSOR_ID1 = 0x1B,
-    FSSP_SENSOR_ID2 = 0x0D,
-    FSSP_SENSOR_ID3 = 0x34,
-    FSSP_SENSOR_ID4 = 0x67
-    // there are 32 ID's polled by smartport master
-    // remaining 3 bits are crc (according to comments in openTx code)
-};
 
-typedef struct smartPortPayload_s {
-    uint8_t  frameId;
-    uint16_t valueId;
-    uint32_t data;
-} __attribute__((packed)) smartPortPayload_t;
+// main/flight/position.h:
+int32_t bf_getEstimatedAltitudeCm(void);
+#define getEstimatedAltitudeCm() bf_getEstimatedAltitudeCm()
 
-typedef void smartPortWriteFrameFn(const smartPortPayload_t *payload);
-typedef bool smartPortReadyToSendFn(void);
+int16_t bf_getEstimatedVario(void);
+#define getEstimatedVario() bf_getEstimatedVario()
 
-bool initSmartPortTelemetryExternal(smartPortWriteFrameFn *smartPortWriteFrameExternal);
 
-smartPortPayload_t *smartPortDataReceive(uint16_t c, bool *clearToSend, smartPortReadyToSendFn *checkQueueEmpty, bool withChecksum);
-void processSmartPortTelemetry(smartPortPayload_t *payload, volatile bool *hasRequest, const uint32_t *requestTimeout);
+// main/telemetry/telemetry.h:
+typedef enum {
+    SENSOR_VOLTAGE         = 1 << 0,
+    SENSOR_CURRENT         = 1 << 1,
+    SENSOR_FUEL            = 1 << 2,
+    SENSOR_MODE            = 1 << 3,
+    SENSOR_ACC_X           = 1 << 4,
+    SENSOR_ACC_Y           = 1 << 5,
+    SENSOR_ACC_Z           = 1 << 6,
+    SENSOR_PITCH           = 1 << 7,
+    SENSOR_ROLL            = 1 << 8,
+    SENSOR_HEADING         = 1 << 9,
+    SENSOR_ALTITUDE        = 1 << 10,
+    SENSOR_VARIO           = 1 << 11,
+    SENSOR_LAT_LONG        = 1 << 12,
+    SENSOR_GROUND_SPEED    = 1 << 13,
+    SENSOR_DISTANCE        = 1 << 14,
+    ESC_SENSOR_CURRENT     = 1 << 15,
+    ESC_SENSOR_VOLTAGE     = 1 << 16,
+    ESC_SENSOR_RPM         = 1 << 17,
+    ESC_SENSOR_TEMPERATURE = 1 << 18,
+    ESC_SENSOR_ALL         = ESC_SENSOR_CURRENT \
+                            | ESC_SENSOR_VOLTAGE \
+                            | ESC_SENSOR_RPM \
+                            | ESC_SENSOR_TEMPERATURE,
+    SENSOR_TEMPERATURE     = 1 << 19,
+    SENSOR_ALL             = (1 << 20) - 1,
+} sensor_e;
+
+bool telemetryIsSensorEnabled(sensor_e sensor);
 
 
 // main/drivers/resources.h:
@@ -247,8 +296,23 @@ typedef enum {
 
 
 // main/sensors/battery.h
+bool bf_isBatteryVoltageConfigured(void);
+#define isBatteryVoltageConfigured() bf_isBatteryVoltageConfigured()
+
 uint16_t bf_getLegacyBatteryVoltage(void);
 #define getLegacyBatteryVoltage() bf_getLegacyBatteryVoltage()
+uint16_t bf_getBatteryVoltage(void);
+#define getBatteryVoltage() bf_getBatteryVoltage()
+
+uint8_t bf_getBatteryCellCount(void);
+#define getBatteryCellCount() bf_getBatteryCellCount()
+
+bool bf_isAmperageConfigured(void);
+#define isAmperageConfigured() bf_isAmperageConfigured()
+int32_t bf_getAmperage(void);
+#define getAmperage() bf_getAmperage()
+int32_t bf_getMAhDrawn(void);
+#define getMAhDrawn() bf_getMAhDrawn()
 
 
 #endif // RADIO_CONTROL_CC2500_COMPAT_H

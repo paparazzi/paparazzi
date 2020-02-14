@@ -58,8 +58,8 @@ void radio_control_impl_init(void) {
 
 
 void radio_control_impl_event(void (* _received_frame_handler)(void)) {
-  if (rxRuntimeState.rcFrameStatusFn(&rxRuntimeState) & RX_FRAME_COMPLETE) {
-    rxRuntimeState.rcProcessFrameFn(&rxRuntimeState);
+  if (rxRuntimeConfig.rcFrameStatusFn(&rxRuntimeConfig) & RX_FRAME_COMPLETE) {
+    rxRuntimeConfig.rcProcessFrameFn(&rxRuntimeConfig);
     radio_control.frame_cpt++;
     radio_control.time_since_last_frame = 0;
     if (radio_control.radio_ok_cpt > 0) {
@@ -67,7 +67,7 @@ void radio_control_impl_event(void (* _received_frame_handler)(void)) {
     } else {
       radio_control.status = RC_OK;
       for (int i = 0; i < RADIO_CONTROL_NB_CHANNEL; ++i) {
-        frsky_raw[i] = rxRuntimeState.rcReadRawFn(&rxRuntimeState, i);
+        frsky_raw[i] = rxRuntimeConfig.rcReadRawFn(&rxRuntimeConfig, i);
       }
       NormalizePpmIIR(frsky_raw, radio_control);
       _received_frame_handler();

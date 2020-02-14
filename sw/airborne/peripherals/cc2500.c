@@ -53,7 +53,7 @@ void cc2500_init(void) {
   cc2500_spi_t.cpha = SPICphaEdge1;
   cc2500_spi_t.dss = SPIDss8bit;
   cc2500_spi_t.bitorder = SPIMSBFirst;
-  cc2500_spi_t.cdiv = SPIDiv2; // TODO verify
+  cc2500_spi_t.cdiv = SPIDiv32; // Found experimentally
   cc2500_spi_t.status = SPITransDone;
   cc2500_spi_t.slave_idx = CC2500_SPI_SLAVE_IDX;
 }

@@ -24,6 +24,7 @@
 
 #include "cc2500_compat.h"
 
+#include "state.h"
 #include "mcu_periph/adc.h"
 #include "mcu_periph/gpio.h"
 #include "mcu_periph/sys_time.h"
@@ -33,9 +34,18 @@
 #include <assert.h>
 #include <math.h>
 
+
+// (unknown):
+struct attitude_t bf_attitude = { { 0, 0, 0 } }; // Dummy values
+
+
+// main/config/config.h:
+struct pidProfile_s *currentPidProfile; // Dummy values
+
+
 // main/config/feature.h:
 bool bf_featureIsEnabled(const uint32_t mask) {
-  uint32_t features = FEATURE_RX_SPI;
+  uint32_t features = FEATURE_RX_SPI | FEATURE_TELEMETRY;
   return features & mask;
 }
 
@@ -65,12 +75,11 @@ float pt1FilterApply(pt1Filter_t *filter, float input) {
 
 // main/drivers/time.h:
 void bf_delayMicroseconds(timeUs_t us) {
-  assert(us <= UINT32_MAX);
-  sys_time_usleep((uint32_t)us);
+  sys_time_usleep(us);
 }
 
 void bf_delay(timeMs_t ms) {
-  bf_delayMicroseconds((uint64_t)ms * 1000);
+  bf_delayMicroseconds(ms * 1000);
 }
 
 timeUs_t bf_micros(void) {
@@ -146,29 +155,57 @@ void bf_IOToggle(IO_t io) {
 }
 
 
-// main/telemetry/smartport.h:
-bool initSmartPortTelemetryExternal(smartPortWriteFrameFn *smartPortWriteFrameExternal) {
-  (void) smartPortWriteFrameExternal;
-  return FALSE;
+// main/fc/controlrate_profile.h:
+controlRateConfig_t *currentControlRateProfile; // Dummy values
+
+
+// main/flight/position.h:
+int32_t bf_getEstimatedAltitudeCm(void) {
+  return (int32_t)(stateGetPositionEnu_f()->z * 100.0);
 }
 
-smartPortPayload_t *smartPortDataReceive(uint16_t c, bool *clearToSend, smartPortReadyToSendFn *checkQueueEmpty, bool withChecksum) {
-  (void) c;
-  (void) clearToSend;
-  (void) checkQueueEmpty;
-  (void) withChecksum;
-  return NULL;
+int16_t bf_getEstimatedVario(void) {
+  return (int16_t)(stateGetSpeedEnu_f()->z * 100.0);
 }
 
-void processSmartPortTelemetry(smartPortPayload_t *payload, volatile bool *hasRequest, const uint32_t *requestTimeout) {
-  (void) payload;
-  (void) hasRequest;
-  (void) requestTimeout;
+
+// main/telemetry/telemetry.h:
+bool telemetryIsSensorEnabled(sensor_e sensor) {
+  sensor_e enabled_sensors =
+      SENSOR_VOLTAGE |
+      SENSOR_CURRENT |
+      SENSOR_FUEL |
+      SENSOR_ALTITUDE |
+      SENSOR_VARIO;
+  return sensor & enabled_sensors;
 }
 
 
 // main/sensors/battery.h
+bool bf_isBatteryVoltageConfigured(void) {
+  return TRUE;
+}
+
 uint16_t bf_getLegacyBatteryVoltage(void) {
+  return (uint16_t)((electrical.vsupply * 100.0 + 5) / 10.0); // ???
+}
+
+uint16_t bf_getBatteryVoltage(void) {
   return (uint16_t)(electrical.vsupply * 100.0); // 0.01V
 }
 
+uint8_t bf_getBatteryCellCount(void) {
+  return 0;
+}
+
+bool bf_isAmperageConfigured(void) {
+  return TRUE;
+}
+
+int32_t bf_getAmperage(void) {
+  return (int32_t)(electrical.current * 100.0);
+}
+
+int32_t bf_getMAhDrawn(void) {
+  return (int32_t)(electrical.charge * 1000.0);
+}

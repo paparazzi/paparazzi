@@ -1,7 +1,7 @@
 #include "cc2500_compat.h"
 #include "cc2500_settings.h"
 
-// betaflight/src/main/rx/cc2500_frsky_common.h  @ 0a0d363
+// betaflight/src/main/rx/cc2500_frsky_common.h  @ 766c90b
 /*
  * This file is part of Cleanflight and Betaflight.
  *
@@ -26,7 +26,7 @@
 
 //#include "rx/rx_spi.h"
 
-bool frSkySpiInit(const rxSpiConfig_t *rxSpiConfig, rxRuntimeState_t *rxRuntimeState);
+bool frSkySpiInit(const rxSpiConfig_t *rxSpiConfig, rxRuntimeConfig_t *rxRuntimeConfig);
 rx_spi_received_e frSkySpiDataReceived(uint8_t *packet);
 rx_spi_received_e frSkySpiProcessFrame(uint8_t *packet);
 void frSkySpiSetRcData(uint16_t *rcData, const uint8_t *payload);
