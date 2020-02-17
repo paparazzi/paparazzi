@@ -23,7 +23,11 @@
 
 #include "subsystems/radio_control/cc2500_frsky/cc2500_smartport.h"
 
+#include <string.h>
+
 static uint32_t counter = 0;
+
+struct frsky_x_serial_periph frsky_x_serial;
 
 static bool smartPortDownlink_cb(uint32_t *data) {
   ++counter;
@@ -32,5 +36,13 @@ static bool smartPortDownlink_cb(uint32_t *data) {
 }
 
 void datalink_frsky_x_init(void) {
+  frsky_x_serial.device.periph = (void *)(&frsky_x_serial);
+  frsky_x_serial.device.check_free_space = NULL;
+  frsky_x_serial.device.put_byte = NULL;
+  frsky_x_serial.device.put_buffer = NULL;
+  frsky_x_serial.device.send_message = NULL;
+  frsky_x_serial.device.char_available = NULL;
+  frsky_x_serial.device.get_byte = NULL;
+
   smartPortDownlink = smartPortDownlink_cb;
 }

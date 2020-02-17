@@ -22,6 +22,17 @@
 #ifndef DATALINK_FRSKY_X_H
 #define DATALINK_FRSKY_X_H
 
+#include "pprzlink/pprzlink_device.h"
+
+#define DOWNLINK_BUFFER_SIZE 512
+#define UPLINK_BUFFER_SIZE 512
+
+struct frsky_x_serial_periph {
+  /** Generic device interface */
+  struct link_device device;
+};
+extern struct frsky_x_serial_periph frsky_x_serial;
+
 void datalink_frsky_x_init(void);
 
 #endif // DATALINK_FRSKY_X_H
