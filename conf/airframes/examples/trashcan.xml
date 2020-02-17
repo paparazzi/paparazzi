@@ -56,6 +56,7 @@
         <module name="radio_control" type="cc2500_frsky">
         	<define name="CC2500_RX_LED" value="LED_2"/>
         	<define name="CC2500_BIND_BUTTON" value="BIND_BUTTON"/>
+        	<define name="CC2500_TELEMETRY_SENSORS" value="SENSOR_NONE"/>
         </module>
 
         <module name="motor_mixing"/>

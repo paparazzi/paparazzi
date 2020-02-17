@@ -169,18 +169,6 @@ int16_t bf_getEstimatedVario(void) {
 }
 
 
-// main/telemetry/telemetry.h:
-bool telemetryIsSensorEnabled(sensor_e sensor) {
-  sensor_e enabled_sensors =
-      SENSOR_VOLTAGE |
-      SENSOR_CURRENT |
-      SENSOR_FUEL |
-      SENSOR_ALTITUDE |
-      SENSOR_VARIO;
-  return sensor & enabled_sensors;
-}
-
-
 // main/sensors/battery.h
 bool bf_isBatteryVoltageConfigured(void) {
   return TRUE;

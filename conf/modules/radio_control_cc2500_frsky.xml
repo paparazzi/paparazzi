@@ -13,6 +13,7 @@
     <define name="CC2500_BIND_BUTTON" value="BIND_BUTTON|(undefined)" description="GPIO button used to enter bind mode"/>
     <define name="CC2500_RX_SPI_PROTOCOL" value="RX_SPI_FRSKY_X_LBT (default)|RX_SPI_FRSKY_X|RX_SPI_FRSKY_D" description="RX protocol"/>
     <define name="CC2500_AUTOBIND" value="FALSE" description="Enter BIND mode at startup"/>
+    <define name="CC2500_TELEMETRY_SENSORS" value="(SENSOR_VOLTAGE | SENSOR_CURRENT | SENSOR_FUEL | SENSOR_ALTITUDE | SENSOR_VARIO)" description="List of sensors to send over FrSky telemetry (set to SENSOR_NONE) to disable."/>
   </doc>
   <header>
     <file name="cc2500.h" dir="peripherals"/>

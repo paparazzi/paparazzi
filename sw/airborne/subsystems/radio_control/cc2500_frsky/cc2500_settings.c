@@ -56,6 +56,10 @@
 #define CC2500_AUTOBIND TRUE
 #endif
 
+#ifndef CC2500_TELEMETRY_SENSORS
+#define CC2500_TELEMETRY_SENSORS (SENSOR_VOLTAGE | SENSOR_CURRENT | SENSOR_FUEL | SENSOR_ALTITUDE | SENSOR_VARIO)
+#endif
+
 
 // main/config/config.h:
 void bf_writeEEPROM(void) { } // TODO Handled by Paparazzi's persistent settings mechanism.
@@ -93,6 +97,12 @@ static telemetryConfig_t telemetryconfig;
 
 const telemetryConfig_t* telemetryConfig(void) {
   return &telemetryconfig;
+}
+
+
+// main/telemetry/telemetry.h:
+bool telemetryIsSensorEnabled(sensor_e sensor) {
+  return sensor & CC2500_TELEMETRY_SENSORS;
 }
 
 
