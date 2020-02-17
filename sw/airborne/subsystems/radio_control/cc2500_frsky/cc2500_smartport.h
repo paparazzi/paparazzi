@@ -1,5 +1,13 @@
 #include "cc2500_compat.h"
 
+/* SmartPort downlink hook
+ * Called from smartport telemetry loop.
+ * Write telemetry stream to 'data'.
+ * Return 'true' if data is written.
+ */
+typedef bool smartPortDownlinkFn(uint32_t *data);
+extern smartPortDownlinkFn *smartPortDownlink;
+
 // CAUTION: LARGE PARTS OF THIS FILE ARE COMMENTED OUT!
 // betaflight/src/main/telemetry/smartport.h @ 41492e1
 /*

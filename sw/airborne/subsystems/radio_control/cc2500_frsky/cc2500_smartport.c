@@ -12,6 +12,10 @@
 #undef USE_GPS
 #endif
 
+#define FSSP_DATAID_DOWNLINK 0x5015
+smartPortDownlinkFn *smartPortDownlink = NULL;
+
+// CAUTION: added DOWNLINK sensor to code below!
 // CAUTION: LARGE PARTS OF THIS FILE ARE COMMENTED OUT!
 // betaflight/src/main/telemetry/smartport.c @ 443869e
 /*
@@ -166,7 +170,7 @@ enum
 };
 
 // if adding more sensors then increase this value
-#define MAX_DATAIDS 17
+#define MAX_DATAIDS 18
 
 static uint16_t frSkyDataIdTable[MAX_DATAIDS];
 
@@ -418,6 +422,8 @@ static void initSmartPortSensors(void)
         }
     }
 #endif
+
+    ADD_SENSOR(FSSP_DATAID_DOWNLINK);
 
     frSkyDataIdTableInfo.size = frSkyDataIdTableInfo.index;
     frSkyDataIdTableInfo.index = 0;
@@ -873,6 +879,15 @@ void processSmartPortTelemetry(smartPortPayload_t *payload, volatile bool *clear
                 vfasVoltage = cellCount ? (getBatteryVoltage() / cellCount) : 0; // given in 0.01V, convert to volts
                 smartPortSendPackage(id, vfasVoltage);
                 *clearToSend = false;
+                break;
+            case FSSP_DATAID_DOWNLINK   :
+                if (smartPortDownlink) {
+                    uint32_t data;
+                    if (smartPortDownlink(&data)) {
+                        smartPortSendPackage(id, data);
+                        *clearToSend = false;
+                    }
+                }
                 break;
             default:
                 break;
