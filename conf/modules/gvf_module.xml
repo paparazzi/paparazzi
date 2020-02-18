@@ -28,7 +28,7 @@ For more details we refer to https://wiki.paparazziuav.org/wiki/Module/guidance_
       <define name="A" value="0" description="Amplitude for the sinusoidal y=Asin(Wx + OFF)" unit="m"/>
     </section>
   </doc>
-
+  <define name="NAV_SURVEY_POLY_GVF_DYNAMIC" value="FALSE|TRUE" description="Set to true to allow changing sweep distance mid polygon survey"/>
   <settings name="GVF">
     <dl_settings>
       <dl_settings NAME="GVF">
