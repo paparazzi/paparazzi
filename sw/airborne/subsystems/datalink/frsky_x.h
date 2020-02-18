@@ -27,9 +27,22 @@
 #define DOWNLINK_BUFFER_SIZE 512
 #define UPLINK_BUFFER_SIZE 512
 
+typedef struct {
+  int         head;
+  int         tail;
+  uint8_t     *buf;
+  size_t      size;
+} fifo_t;
+
 struct frsky_x_serial_periph {
   /** Generic device interface */
   struct link_device device;
+  /* Downlink fifo */
+  fifo_t downlink_fifo;
+  uint8_t downlink_buf[DOWNLINK_BUFFER_SIZE];
+  /* Uplink fifo */
+  fifo_t uplink_fifo;
+  uint8_t uplink_buf[UPLINK_BUFFER_SIZE];
 };
 extern struct frsky_x_serial_periph frsky_x_serial;
 
