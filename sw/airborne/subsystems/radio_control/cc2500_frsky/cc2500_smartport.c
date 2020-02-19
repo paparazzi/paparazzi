@@ -12,8 +12,8 @@
 #undef USE_GPS
 #endif
 
-//#define FSSP_DATAID_DOWNLINK 0x5015
-#define FSSP_DATAID_DOWNLINK 0x0B71 // DEBUG
+#define FSSP_DATAID_DOWNLINK 0x5015
+//#define FSSP_DATAID_DOWNLINK 0x0B71 // DEBUG
 smartPortDownlinkFn *smartPortDownlink = NULL;
 
 // CAUTION: added DOWNLINK sensor to code below!
