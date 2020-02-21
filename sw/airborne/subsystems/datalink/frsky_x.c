@@ -19,21 +19,14 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include "frsky_x.h"
-
 #include "subsystems/radio_control/cc2500_frsky/cc2500_smartport.h"
 
 #include <string.h>
+#include <subsystems/datalink/frsky_x.h>
 
 static uint32_t counter = 0;
 
 struct frsky_x_serial_periph frsky_x_serial;
-
-static bool smartPortDownlink_cb(uint32_t *data) {
-  ++counter;
-  *data = counter;
-  return true;
-}
 
 
 /* Serial device */
@@ -131,6 +124,20 @@ static uint8_t frsky_x_serial_get_byte(void *p) {
   uint8_t byte;
   fifo_get(&((struct frsky_x_serial_periph *)p)->uplink_fifo, &byte);
   return byte;
+}
+
+
+/* SmartPort sensor */
+static bool smartPortDownlink_cb(uint32_t *data) {
+  if (fifo_avail(&frsky_x_serial.downlink_fifo) >= 4) {
+    uint8_t *data_u8 = (uint8_t *)data;
+    fifo_get(&frsky_x_serial.downlink_fifo, data_u8 + 0);
+    fifo_get(&frsky_x_serial.downlink_fifo, data_u8 + 1);
+    fifo_get(&frsky_x_serial.downlink_fifo, data_u8 + 2);
+    fifo_get(&frsky_x_serial.downlink_fifo, data_u8 + 3);
+    return true;
+  }
+  return false;
 }
 
 
