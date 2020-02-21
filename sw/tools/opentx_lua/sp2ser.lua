@@ -1,5 +1,7 @@
 -- SmartPort to serial converter
 -- TELEMETRY SCRIPT
+--
+-- Requires -DLUA=YES -DUSB_SERIAL=YES
 
 local counter = -1
 
@@ -17,9 +19,13 @@ end
 
 local function run_func(event)
   local sensorId, frameId, dataId, value = sportTelemetryPop()
-  lcd.drawText(1, 1, "frameId: " .. frameId)
-  lcd.drawText(1, 11, "dataId: " .. dataId)
-  lcd.drawText(1, 21, "value: " .. value)
+  lcd.drawText(1, 1, "sp2ser")
+  if frameId then
+		lcd.drawText(1, 11, "frameId: " .. frameId)
+		lcd.drawText(1, 21, "dataId: " .. dataId)
+		lcd.drawText(1, 31, "value: " .. value)
+		serialWrite(value .. "\n")
+	end
 end
 
 return {run = run_func, background = bg_func, init = init_func}
