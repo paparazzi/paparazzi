@@ -1,0 +1,51 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="152" ground_alt="147" lat0="43 33 50.83" lon0="1 28 52.61" max_dist_from_home="150" name="Rotorcraft Basic (Enac)" security_height="2">
+  <header>
+#include "autopilot.h"
+#ifdef dc_Survey
+#define LINE_START_FUNCTION dc_Survey(dc_distance_interval);
+#define LINE_STOP_FUNCTION {dc_autoshoot = DC_AUTOSHOOT_STOP;}
+#endif
+  </header>
+  <waypoints>
+    <waypoint name="HOME" x="0.0" y="0.0"/>
+    <waypoint name="CLIMB" x="0.0" y="5.0"/>
+    <waypoint name="p1" x="0.0" y="50.0"/>
+    <waypoint name="p2" x="50.0" y="0.0"/>
+    <waypoint name="p3" x="43.0" y="7.0"/>
+    <waypoint name="p4" x="50.0" y="0.0"/>
+    <waypoint name="p5" x="0" y="0"/>
+    <waypoint name="p6" x="0" y="0"/>
+    <waypoint name="TD" x="5.6" y="-10.9"/>
+  </waypoints>
+  <blocks>
+    <block name="Wait GPS">
+      <call_once fun="NavKillThrottle()"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+      <call_once fun="NavSetGroundReferenceHere()"/>
+      <!--<call_once fun="NavSetAltitudeReferenceHere()"/>-->
+    </block>
+    <block name="Start Engine">
+      <call_once fun="NavResurrect()"/>
+    </block>
+    <block name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
+      <exception cond="stateGetPositionEnu_f()->z > 2.0" deroute="Survey Avoid"/>
+      <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
+      <stay vmode="climb" climb="nav_climb_vspeed" wp="CLIMB"/>
+    </block>
+    <block name="Survey Avoid">
+      <call_once fun="nav_survey_rectangle_avoid_rotorcraft_setup(WP_p1, WP_p2, WP_p3, WP_p4, WP_p5, WP_p6, 2.5 , NS)"/>
+      <call fun="nav_survey_rectangle_avoid_rotorcraft_run()"/>
+    </block>
+    <block name="land">
+      <go wp="TD"/>
+    </block>
+    <block name="landed">
+      <attitude pitch="0" roll="0" throttle="0" vmode="throttle" until="FALSE"/>
+    </block>
+  </blocks>
+</flight_plan>
