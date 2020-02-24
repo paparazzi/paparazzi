@@ -122,6 +122,10 @@ static bool get_two_intersects(struct FloatVect2 *x, struct FloatVect2 *y, struc
   return true;
 }
 
+//Define sruct FloatVect2 sweep; outside of setup to allow recalculating sweep width
+struct FloatVect2 sweep, small;
+//Define angle_rad
+
 /**
  *  initializes the variables needed for the survey to start
  *  @param first_wp      the first Waypoint of the polygon
@@ -135,7 +139,7 @@ static bool get_two_intersects(struct FloatVect2 *x, struct FloatVect2 *y, struc
 void nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, float sweep_width, float shot_dist, float min_rad, float altitude)
 {
   int i;
-  struct FloatVect2 small, sweep;
+  //struct FloatVect2 small;
   float divider, angle_rad = angle / 180.0 * M_PI;
 
   if (angle < 0.0) { angle += 360.0; }
@@ -224,6 +228,19 @@ void nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, float
   survey.stage = ENTRY;
 }
 
+
+
+void nav_survey_polygon_setup_dynamic()
+{
+  FLOAT_VECT2_NORMALIZE(sweep);
+  VECT2_SMUL(survey.sweep_vec, sweep, survey.psa_sweep_width);
+
+  survey.seg_start.x = small.x + 0.5 * survey.sweep_vec.x;
+  survey.seg_start.y = small.y + 0.5 * survey.sweep_vec.y;
+  VECT2_SUM(survey.seg_end, survey.seg_start, survey.dir_vec);
+}
+
+
 /**
  * main navigation routine. This is called periodically evaluates the current
  * Position and stage and navigates accordingly.
@@ -231,6 +248,10 @@ void nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, float
  */
 bool nav_survey_polygon_run(void)
 {
+  #ifdef NAV_SURVEY_POLYGON_DYNAMIC
+  if (!(sweep_var == survey.psa_sweep_width || sweep_var == -1 * survey.psa_sweep_width))
+    nav_survey_polygon_setup_dynamic();
+  #endif
   NavVerticalAutoThrottleMode(0.0);
   NavVerticalAltitudeMode(survey.psa_altitude, 0.0);
 
