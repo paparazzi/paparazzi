@@ -24,12 +24,11 @@ local function run_func(event)
 		lcd.drawText(1, 11, "frameId: " .. frameId)
 		lcd.drawText(1, 21, "dataId: " .. dataId)
 		lcd.drawText(1, 31, "value: " .. value)
-		
-		-- TODO check endianness
-		local value0 = math.floor(value / 16777216) % 255
-		local value1 = math.floor(value / 65536) % 255
-		local value2 = math.floor(value / 256) % 255
-		local value3 = value % 255
+
+		local value0 = math.floor(value / 16777216) % 256
+		local value1 = math.floor(value / 65536) % 256
+		local value2 = math.floor(value / 256) % 256
+		local value3 = value % 256
 		serialWrite(string.char(value0) .. string.char(value1) .. string.char(value2) .. string.char(value3))
 	end
 end

@@ -20,9 +20,9 @@
  */
 
 #include "subsystems/radio_control/cc2500_frsky/cc2500_smartport.h"
+#include "subsystems/datalink/frsky_x.h"
 
 #include <string.h>
-#include <subsystems/datalink/frsky_x.h>
 
 static uint32_t counter = 0;
 
@@ -129,12 +129,25 @@ static uint8_t frsky_x_serial_get_byte(void *p) {
 
 /* SmartPort sensor */
 static bool smartPortDownlink_cb(uint32_t *data) {
+  // TODO find out why only half data rate works
+  static int div = 1;
+  if (div < 2) {
+    ++div;
+    return false;
+  }
+  div = 1;
+
   if (fifo_avail(&frsky_x_serial.downlink_fifo) >= 4) {
-    uint8_t *data_u8 = (uint8_t *)data;
+    uint8_t data_u8[4];
     fifo_get(&frsky_x_serial.downlink_fifo, data_u8 + 0);
     fifo_get(&frsky_x_serial.downlink_fifo, data_u8 + 1);
     fifo_get(&frsky_x_serial.downlink_fifo, data_u8 + 2);
     fifo_get(&frsky_x_serial.downlink_fifo, data_u8 + 3);
+    *data =
+        (data_u8[0] << 24) |
+        (data_u8[1] << 16) |
+        (data_u8[2] << 8) |
+        (data_u8[3]);
     return true;
   }
   return false;
