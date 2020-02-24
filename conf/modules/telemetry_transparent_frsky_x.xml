@@ -3,7 +3,20 @@
 <module name="telemetry_transparent_usb" dir="datalink" task="datalink">
   <doc>
     <description>
-      Telemetry using PPRZ protocol over FrSky X SmartPort serial link
+      Telemetry using pprzlink protocol over FrSky X SmartPort serial link
+      
+      Downlink messages are sent on dataID 0x5015.
+      Uplink is not implemented yet.
+      
+      Use the sw/tools/opentx-lua/sp2ser.lua script to receive these messages
+      on the TX and forward them to the USB port. The 'datalink' script can
+      read the pprzlink stream as a regular serial port.
+      
+      The data rate is very limited (max ~160 bytes/s). The limitation comes
+      from the FrSky X protocol which can send at most 4 bytes of telemetry
+      every 9ms. Set CC2500_TELEMETRY_SENSORS (from radio_control_cc2500_frsky)
+      to SENSOR_NONE to maximize pprzlink throughput. Use a suitable telemetry
+      conf for this low data rate.
     </description>
   </doc>
   <autoload name="telemetry" type="nps"/>
