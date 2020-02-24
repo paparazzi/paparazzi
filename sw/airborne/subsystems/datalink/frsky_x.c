@@ -129,14 +129,6 @@ static uint8_t frsky_x_serial_get_byte(void *p) {
 
 /* SmartPort sensor */
 static bool smartPortDownlink_cb(uint32_t *data) {
-  // TODO find out why only half data rate works
-  static int div = 1;
-  if (div < 2) {
-    ++div;
-    return false;
-  }
-  div = 1;
-
   if (fifo_avail(&frsky_x_serial.downlink_fifo) >= 4) {
     uint8_t data_u8[4];
     fifo_get(&frsky_x_serial.downlink_fifo, data_u8 + 0);
