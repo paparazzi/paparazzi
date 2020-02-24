@@ -65,7 +65,7 @@
             <define name="SERVO_HZ" value="480"/>
         </module>
 
-        <module name="telemetry" type="transparent_usb"/>
+        <!--<module name="telemetry" type="transparent_usb"/>-->
         <module name="telemetry" type="transparent_frsky_x"/>
 
         <module name="imu" type="mpu6000">
