@@ -165,8 +165,29 @@ void rcc_clock_setup_in_hse_24mhz_out_24mhz_pprz(void)
 }
 #endif
 
+
+typedef void resetHandler_t(void);
+
+typedef struct isrVector_s {
+    volatile uint32_t    stackEnd;
+    resetHandler_t *resetHandler;
+} isrVector_t;
+
+static isrVector_t *system_isr_vector_table_base = (isrVector_t *) 0x1FFF0000;
+
 void mcu_arch_init(void)
 {
+//#if USB_TRIGGER_DFU
+  // XXX always trigger DFU on boot
+  // 1. Set MSP to system_isr_vector_table_base.stackEnd
+  // (betaflight system_stm32f4xx.c::75)
+  // (betaflight cmsis_armcc.h::226
+  register uint32_t __regMainStackPointer     __asm("msp");
+  __regMainStackPointer = system_isr_vector_table_base->stackEnd; // = topOfMainStack;
+  // 2. system_isr_vector_table_base.resetHandler() (betaflight system_stm32f4xx.c::76)
+  system_isr_vector_table_base->resetHandler();
+  while (1);
+//#endif
 #if LUFTBOOT
   PRINT_CONFIG_MSG("We are running luftboot, the interrupt vector is being relocated.")
 #if defined STM32F4
