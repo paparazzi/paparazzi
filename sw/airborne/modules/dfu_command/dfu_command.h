@@ -18,16 +18,17 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/usb_trigger_dfu/usb_trigger_dfu.h"
+ * @file "modules/dfu_command/dfu_command.h"
  * @author Tom van Dijk
- * Use USB voltage as trigger to reboot to DFU mode.
+ * Read USB serial for dfu command
  */
 
-#ifndef USB_TRIGGER_DFU_H
-#define USB_TRIGGER_DFU_H
+#ifndef DFU_COMMAND_H
+#define DFU_COMMAND_H
 
-void usb_trigger_dfu_init(void);
-void usb_trigger_dfu_periodic(void);
+#include "mcu_periph/usb_serial.h"
+
+void dfu_command_periodic(void);
 
 #endif
 

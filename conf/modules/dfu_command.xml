@@ -1,0 +1,17 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="dfu_command">
+  <doc>
+    <description>Read USB serial for dfu command</description>
+  </doc>
+  <header>
+    <file name="dfu_command.h"/>
+  </header>
+  <periodic fun="dfu_command_periodic()" freq="10"/>
+  <makefile target="!fbw|sim|nps|hitl">
+    <define name="USE_USB_SERIAL"/>
+    <file name="dfu_command.c"/>
+    <file_arch name="usb_ser_hw.c" dir="."/>
+  </makefile>
+</module>
+
