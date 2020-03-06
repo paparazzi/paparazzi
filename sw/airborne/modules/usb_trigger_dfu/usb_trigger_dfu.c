@@ -27,15 +27,25 @@
 
 #include "arch/stm32/mcu_arch.h"
 
+#include <libopencm3/stm32/rcc.h>
+#include <libopencm3/stm32/gpio.h>
+
 void usb_trigger_dfu_init(void) {
   // Enable USB VBUS pin
   // May conflict with other USB code, but they should not be combined anyway
   // for obvious reasons (i.e. resetting when USB is plugged in).
+#if defined STM32F4
+  rcc_periph_clock_enable(RCC_GPIOA);
+  gpio_mode_setup(GPIOA, GPIO_MODE_INPUT, GPIO_PUPD_PULLDOWN, GPIO9);
+//  gpio_set_af(GPIOA, GPIO_AF10, GPIO9);
+#endif
 }
 
 void usb_trigger_dfu_periodic(void) {
-  // XXX test, always reset to dfu
-  reset_to_dfu();
+  // Reset to DFU if VBUS present
+  if (gpio_get(GPIOA, GPIO9)) {
+    reset_to_dfu();
+  }
 }
 
 
