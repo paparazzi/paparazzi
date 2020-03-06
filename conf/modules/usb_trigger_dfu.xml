@@ -1,0 +1,16 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="usb_trigger_dfu">
+  <doc>
+    <description>Use USB voltage as trigger to reboot to DFU mode.</description>
+  </doc>
+  <header>
+    <file name="usb_trigger_dfu.h"/>
+  </header>
+  <init fun="usb_trigger_dfu_init()"/>
+  <periodic fun="usb_trigger_dfu_periodic()" freq="10" autorun="TRUE"/>
+  <makefile>
+    <file name="usb_trigger_dfu.c"/>
+  </makefile>
+</module>
+
