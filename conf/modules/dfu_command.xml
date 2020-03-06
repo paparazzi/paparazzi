@@ -4,7 +4,12 @@
   <doc>
     <description>
     THIS MODULE MUST BE PLACED ABOVE ANY USB SERIAL CONSUMERS IN THE AIRFRAME!
+    
     Read USB serial for dfu command. Send 'dfu\n' to reboot to DFU mode.
+    
+    The dfu command is automatically sent when uploading with DFU or DFU-UTIL
+    (see configure below). Override the command in the airframe file to disable
+    or change the serial device.
     </description>
   </doc>
   <header>
@@ -13,6 +18,7 @@
   <event fun="dfu_command_event()"/>
   <makefile target="!fbw|sim|nps|hitl">
     <configure name="DFU_PRE_UPLOAD_CMD" default="echo -e 'dfu\n' > /dev/ttyACM0 && sleep 1"/>
+    <configure name="DFU_UTIL_PRE_UPLOAD_CMD" default="echo -e 'dfu\n' > /dev/ttyACM0 && sleep 1"/>
     <define name="USE_USB_SERIAL"/>
     <file name="dfu_command.c"/>
     <file_arch name="usb_ser_hw.c" dir="."/>
