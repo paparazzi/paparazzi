@@ -169,6 +169,15 @@ void rcc_clock_setup_in_hse_24mhz_out_24mhz_pprz(void)
 #endif
 
 
+void reset_to_dfu(void) {
+  // Request DFU at boot (init_dfu)
+  pwr_disable_backup_domain_write_protect();
+  RTC_BKPXR(0) = 0xFF;
+  pwr_enable_backup_domain_write_protect();
+  // Reset
+  scb_reset_system();
+}
+
 typedef void resetHandler_t(void);
 
 typedef struct isrVector_s {
@@ -176,10 +185,9 @@ typedef struct isrVector_s {
     resetHandler_t *resetHandler;
 } isrVector_t;
 
-static isrVector_t *system_isr_vector_table_base = (isrVector_t *) 0x1FFF0000;
+static isrVector_t *system_isr_vector_table_base = (isrVector_t *) 0x1FFF0000; // Only tested for STM32F411
 
-void mcu_arch_init(void)
-{
+static void init_dfu(void) {
   /* Reset to DFU if requested */
   rcc_periph_clock_enable(RCC_RTC);
   rcc_periph_clock_enable(RCC_PWR);
@@ -198,6 +206,12 @@ void mcu_arch_init(void)
     system_isr_vector_table_base->resetHandler();
     while (1);
   }
+}
+
+
+void mcu_arch_init(void)
+{
+  init_dfu();
 
 #if LUFTBOOT
   PRINT_CONFIG_MSG("We are running luftboot, the interrupt vector is being relocated.")

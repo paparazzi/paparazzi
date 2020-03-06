@@ -33,6 +33,8 @@
 
 extern void mcu_arch_init(void);
 
+extern void reset_to_dfu(void);
+
 
 /* should probably not be here
  *   a couple of macros to use the rev instruction

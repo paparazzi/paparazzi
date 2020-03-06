@@ -30,10 +30,6 @@
 
 #define ABI_C
 
-#include <libopencm3/stm32/rtc.h>
-#include <libopencm3/cm3/scb.h>
-#include <libopencm3/stm32/pwr.h>
-
 #include <inttypes.h>
 #include "mcu.h"
 #include "mcu_periph/sys_time.h"
@@ -240,19 +236,6 @@ void handle_periodic_tasks(void)
 
 void main_periodic(void)
 {
-  /* HACK */
-  if (sys_time.nb_sec >= 5) {
-    // Trigger reset to DFU
-    pwr_disable_backup_domain_write_protect();
-    RTC_BKPXR(0) = 0xFF;
-    pwr_enable_backup_domain_write_protect();
-    sys_time_usleep(1000000);
-    // XXX reset
-    scb_reset_system();
-//    scb_reset_core();
-  }
-  /********/
-
 #if INTER_MCU_AP
   /* Inter-MCU watchdog */
   intermcu_periodic();
