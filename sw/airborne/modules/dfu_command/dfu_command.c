@@ -30,15 +30,23 @@
 static const char dfu_command_str[] = { 'd', 'f', 'u', '\n' };
 static int dfu_command_state = 0;
 
-void dfu_command_periodic(void) {
-  while (usb_serial.device.char_available(NULL)) {
-    if (usb_serial.device.get_byte(NULL) == dfu_command_str[dfu_command_state]) {
+void dfu_command_event(void) {
+  // Search fifo for 'dfu\n' command string
+  for (int i = 0; i < VCOM_check_available(); ++i) {
+    if (VCOM_peekchar(i) == dfu_command_str[dfu_command_state]) {
       dfu_command_state++;
       if (dfu_command_state == 4) {
         reset_to_dfu();
       }
     } else {
       dfu_command_state = 0;
+    }
+  }
+
+  // Prevent fifo blocking if bytes are not consumed by other process
+  if (!VCOM_check_free_space(1)) {
+    while (VCOM_check_available()) {
+      VCOM_getchar();
     }
   }
 }

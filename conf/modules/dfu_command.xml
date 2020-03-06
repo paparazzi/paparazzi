@@ -1,13 +1,16 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="dfu_command">
+<module name="dfu_command" task="datalink"><!-- task="datalink" to run before telemetry_transparent_usb -->
   <doc>
-    <description>Read USB serial for dfu command</description>
+    <description>
+    THIS MODULE MUST BE PLACED ABOVE ANY USB SERIAL CONSUMERS IN THE AIRFRAME!
+    Read USB serial for dfu command. Send 'dfu\n' to reboot to DFU mode.
+    </description>
   </doc>
   <header>
     <file name="dfu_command.h"/>
   </header>
-  <periodic fun="dfu_command_periodic()" freq="10"/>
+  <event fun="dfu_command_event()"/>
   <makefile target="!fbw|sim|nps|hitl">
     <define name="USE_USB_SERIAL"/>
     <file name="dfu_command.c"/>

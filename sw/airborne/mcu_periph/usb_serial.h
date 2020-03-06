@@ -42,6 +42,7 @@ extern struct usb_serial_periph usb_serial;
 void VCOM_init(void);
 int  VCOM_putchar(int c);
 int  VCOM_getchar(void);
+int VCOM_peekchar(int ofs);
 bool VCOM_check_free_space(uint16_t len);
 int VCOM_check_available(void);
 void VCOM_set_linecoding(uint8_t mode);

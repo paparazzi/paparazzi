@@ -28,7 +28,7 @@
 
 #include "mcu_periph/usb_serial.h"
 
-void dfu_command_periodic(void);
+void dfu_command_event(void);
 
 #endif
 

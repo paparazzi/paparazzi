@@ -65,10 +65,10 @@
             <define name="SERVO_HZ" value="480"/>
         </module>
 
-        <!--<module name="telemetry" type="transparent_usb"/>-->
-        <module name="telemetry" type="transparent_frsky_x"/>
-        <module name="dfu_command"/>
-
+				<module name="dfu_command"/>
+        <module name="telemetry" type="transparent_usb"/>
+        <!--<module name="telemetry" type="transparent_frsky_x"/>-->
+        
         <module name="imu" type="mpu6000">
             <configure name="IMU_MPU_SPI_DEV" value="spi1"/>
             <configure name="IMU_MPU_SPI_SLAVE_IDX" value="SPI_SLAVE0"/>
