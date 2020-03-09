@@ -27,15 +27,15 @@
 
 #include "arch/stm32/mcu_arch.h"
 
-static const char dfu_command_str[] = { 'd', 'f', 'u', '\n' };
+static const char dfu_command_str[] = "#\nbl\n"; // Note: same command resets betaflight to DFU
 static int dfu_command_state = 0;
 
 void dfu_command_event(void) {
-  // Search fifo for 'dfu\n' command string
+  // Search fifo for command string
   for (int i = 0; i < VCOM_check_available(); ++i) {
     if (VCOM_peekchar(i) == dfu_command_str[dfu_command_state]) {
       dfu_command_state++;
-      if (dfu_command_state == 4) {
+      if (dfu_command_str[dfu_command_state] == '\0') { // end of command string
         reset_to_dfu();
       }
     } else {

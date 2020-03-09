@@ -17,8 +17,9 @@
   </header>
   <event fun="dfu_command_event()"/>
   <makefile target="!fbw|sim|nps|hitl">
-    <configure name="DFU_PRE_UPLOAD_CMD" default="@(echo -e 'dfu\n' > /dev/ttyACM0 && sleep 1) || echo 'Warning: DFU command failed!'"/>
-    <configure name="DFU_UTIL_PRE_UPLOAD_CMD" default="@(echo -e 'dfu\n' > /dev/ttyACM0 && sleep 1) || echo 'Warning: DFU command failed!'"/>
+    <!-- Note for commands: sh echo behaves significantly differently than bash echo(!) -->
+    <configure name="DFU_PRE_UPLOAD_CMD" default="@(printf '\043\012' > /dev/ttyACM0 && sleep 1 && printf 'bl\012' > /dev/ttyACM0 && sleep 1) || echo 'Warning: DFU command failed!'"/>
+    <configure name="DFU_UTIL_PRE_UPLOAD_CMD" default="@(printf '\043\012' > /dev/ttyACM0 && sleep 1 && printf 'bl\012' > /dev/ttyACM0 && sleep 1) || echo 'Warning: DFU command failed!'"/>
     <define name="USE_USB_SERIAL"/>
     <file name="dfu_command.c"/>
     <file_arch name="usb_ser_hw.c" dir="."/>
