@@ -8,8 +8,7 @@
     Read USB serial for dfu command. Send 'dfu\n' to reboot to DFU mode.
     
     The dfu command is automatically sent when uploading with DFU or DFU-UTIL
-    (see configure below). Override the command in the airframe file to disable
-    or change the serial device.
+    (see configure below).
     </description>
   </doc>
   <header>
@@ -17,9 +16,9 @@
   </header>
   <event fun="dfu_command_event()"/>
   <makefile target="!fbw|sim|nps|hitl">
-    <!-- Note for commands: sh echo behaves significantly differently than bash echo(!) -->
-    <configure name="DFU_PRE_UPLOAD_CMD" default="@(printf '\043\012' > /dev/ttyACM0 && sleep 1 && printf 'bl\012' > /dev/ttyACM0 && sleep 1) || echo 'Warning: DFU command failed!'"/>
-    <configure name="DFU_UTIL_PRE_UPLOAD_CMD" default="@(printf '\043\012' > /dev/ttyACM0 && sleep 1 && printf 'bl\012' > /dev/ttyACM0 && sleep 1) || echo 'Warning: DFU command failed!'"/>
+    <configure name="SERIAL_TTY" default="/dev/ttyACM0"/>
+    <configure name="DFU_PRE_UPLOAD_CMD" default="@(printf '\043\012' > $(SERIAL_TTY) && sleep 1 && printf 'bl\012' > $(SERIAL_TTY) && sleep 1) || echo 'Warning: DFU command failed!'"/>
+    <configure name="DFU_UTIL_PRE_UPLOAD_CMD" default="@(printf '\043\012' > $(SERIAL_TTY) && sleep 1 && printf 'bl\012' > $(SERIAL_TTY) && sleep 1) || echo 'Warning: DFU command failed!'"/>
     <define name="USE_USB_SERIAL"/>
     <file name="dfu_command.c"/>
     <file_arch name="usb_ser_hw.c" dir="."/>
