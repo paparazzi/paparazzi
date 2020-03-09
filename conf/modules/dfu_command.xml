@@ -5,7 +5,9 @@
     <description>
     THIS MODULE MUST BE PLACED ABOVE ANY USB SERIAL CONSUMERS IN THE AIRFRAME!
     
-    Read USB serial for dfu command. Send 'dfu\n' to reboot to DFU mode.
+    Read USB serial for dfu command. Send '#\n', 'bl\n' to reset to DFU mode.
+    The same command works with betaflight (tested with 4.1.1), allowing
+    paparazzi to be uploaded directly to these boards.
     
     The dfu command is automatically sent when uploading with DFU or DFU-UTIL
     (see configure below).
