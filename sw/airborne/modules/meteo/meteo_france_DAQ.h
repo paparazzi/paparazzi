@@ -51,7 +51,7 @@ extern struct MF_DAQ mf_daq;
 extern void init_mf_daq(void);
 extern void mf_daq_send_state(void);
 extern void mf_daq_send_report(void);
-extern void parse_mf_daq_msg(void);
+extern void parse_mf_daq_msg(uint8_t *buf);
 
 #if (defined MF_DAQ_POWER_PORT) && (defined MF_DAQ_POWER_PIN)
 #define meteo_france_DAQ_SetPower(_x) { \

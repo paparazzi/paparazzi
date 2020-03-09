@@ -73,20 +73,20 @@ static void update_geoid_height(void) {
   } /* default is just keep last available height */
 }
 
-bool parse_acinfo_dl(void)
+bool parse_acinfo_dl(uint8_t *buf)
 {
-  uint8_t sender_id = SenderIdOfPprzMsg(dl_buffer);
-  uint8_t msg_id = IdOfPprzMsg(dl_buffer);
+  uint8_t sender_id = SenderIdOfPprzMsg(buf);
+  uint8_t msg_id = IdOfPprzMsg(buf);
 
   /* handle telemetry message */
 #if PPRZLINK_DEFAULT_VER == 2
-  if (pprzlink_get_msg_class_id(dl_buffer) == DL_telemetry_CLASS_ID) {
+  if (pprzlink_get_msg_class_id(buf) == DL_telemetry_CLASS_ID) {
 #else
   if (sender_id > 0) {
 #endif
     switch (msg_id) {
       case DL_GPS_SMALL: {
-        uint32_t multiplex_speed = DL_GPS_SMALL_multiplex_speed(dl_buffer);
+        uint32_t multiplex_speed = DL_GPS_SMALL_multiplex_speed(buf);
 
         // decode compressed values
         int16_t course = (int16_t)((multiplex_speed >> 21) & 0x7FF); // bits 31-21 course in decideg
@@ -104,9 +104,9 @@ bool parse_acinfo_dl(void)
         }
 
         set_ac_info_lla(sender_id,
-                        DL_GPS_SMALL_lat(dl_buffer),
-                        DL_GPS_SMALL_lon(dl_buffer),
-                        (int32_t)DL_GPS_SMALL_alt(dl_buffer) * 10,
+                        DL_GPS_SMALL_lat(buf),
+                        DL_GPS_SMALL_lon(buf),
+                        (int32_t)DL_GPS_SMALL_alt(buf) * 10,
                         course,
                         gspeed,
                         climb,
@@ -115,25 +115,25 @@ bool parse_acinfo_dl(void)
       break;
       case DL_GPS: {
         set_ac_info_utm(sender_id,
-                    DL_GPS_utm_east(dl_buffer),
-                    DL_GPS_utm_north(dl_buffer),
-                    DL_GPS_alt(dl_buffer),
-                    DL_GPS_utm_zone(dl_buffer),
-                    DL_GPS_course(dl_buffer),
-                    DL_GPS_speed(dl_buffer),
-                    DL_GPS_climb(dl_buffer),
-                    DL_GPS_itow(dl_buffer));
+                    DL_GPS_utm_east(buf),
+                    DL_GPS_utm_north(buf),
+                    DL_GPS_alt(buf),
+                    DL_GPS_utm_zone(buf),
+                    DL_GPS_course(buf),
+                    DL_GPS_speed(buf),
+                    DL_GPS_climb(buf),
+                    DL_GPS_itow(buf));
       }
       break;
       case DL_GPS_LLA: {
         set_ac_info_lla(sender_id,
-                        DL_GPS_LLA_lat(dl_buffer),
-                        DL_GPS_LLA_lon(dl_buffer),
-                        DL_GPS_LLA_alt(dl_buffer),
-                        DL_GPS_LLA_course(dl_buffer),
-                        DL_GPS_LLA_speed(dl_buffer),
-                        DL_GPS_LLA_climb(dl_buffer),
-                        DL_GPS_LLA_itow(dl_buffer));
+                        DL_GPS_LLA_lat(buf),
+                        DL_GPS_LLA_lon(buf),
+                        DL_GPS_LLA_alt(buf),
+                        DL_GPS_LLA_course(buf),
+                        DL_GPS_LLA_speed(buf),
+                        DL_GPS_LLA_climb(buf),
+                        DL_GPS_LLA_itow(buf));
       }
       break;
       default:
@@ -143,26 +143,26 @@ bool parse_acinfo_dl(void)
   } else {
     switch (msg_id) {
       case DL_ACINFO: {
-        set_ac_info_utm(DL_ACINFO_ac_id(dl_buffer),
-                        DL_ACINFO_utm_east(dl_buffer),
-                        DL_ACINFO_utm_north(dl_buffer),
-                        DL_ACINFO_alt(dl_buffer) * 10,
-                        DL_ACINFO_utm_zone(dl_buffer),
-                        DL_ACINFO_course(dl_buffer),
-                        DL_ACINFO_speed(dl_buffer),
-                        DL_ACINFO_climb(dl_buffer),
-                        DL_ACINFO_itow(dl_buffer));
+        set_ac_info_utm(DL_ACINFO_ac_id(buf),
+                        DL_ACINFO_utm_east(buf),
+                        DL_ACINFO_utm_north(buf),
+                        DL_ACINFO_alt(buf) * 10,
+                        DL_ACINFO_utm_zone(buf),
+                        DL_ACINFO_course(buf),
+                        DL_ACINFO_speed(buf),
+                        DL_ACINFO_climb(buf),
+                        DL_ACINFO_itow(buf));
       }
       break;
       case DL_ACINFO_LLA: {
-        set_ac_info_lla(DL_ACINFO_LLA_ac_id(dl_buffer),
-                  DL_ACINFO_LLA_lat(dl_buffer),
-                  DL_ACINFO_LLA_lon(dl_buffer),
-                  DL_ACINFO_LLA_alt(dl_buffer) * 10,
-                  DL_ACINFO_LLA_course(dl_buffer),
-                  DL_ACINFO_LLA_speed(dl_buffer),
-                  DL_ACINFO_LLA_climb(dl_buffer),
-                  DL_ACINFO_LLA_itow(dl_buffer));
+        set_ac_info_lla(DL_ACINFO_LLA_ac_id(buf),
+                  DL_ACINFO_LLA_lat(buf),
+                  DL_ACINFO_LLA_lon(buf),
+                  DL_ACINFO_LLA_alt(buf) * 10,
+                  DL_ACINFO_LLA_course(buf),
+                  DL_ACINFO_LLA_speed(buf),
+                  DL_ACINFO_LLA_climb(buf),
+                  DL_ACINFO_LLA_itow(buf));
       }
       break;
       default:

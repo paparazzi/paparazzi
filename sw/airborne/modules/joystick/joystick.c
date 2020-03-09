@@ -39,13 +39,13 @@ void joystick_init(void)
   joystick.throttle = 0;
 }
 
-void joystick_parse(void)
+void joystick_parse(uint8_t *buf)
 {
-  if (DL_JOYSTICK_RAW_ac_id(dl_buffer) == AC_ID) {
-    joystick.roll = DL_JOYSTICK_RAW_roll(dl_buffer);
-    joystick.pitch = DL_JOYSTICK_RAW_pitch(dl_buffer);
-    joystick.yaw = DL_JOYSTICK_RAW_yaw(dl_buffer);
-    joystick.throttle = DL_JOYSTICK_RAW_throttle(dl_buffer);
+  if (DL_JOYSTICK_RAW_ac_id(buf) == AC_ID) {
+    joystick.roll = DL_JOYSTICK_RAW_roll(buf);
+    joystick.pitch = DL_JOYSTICK_RAW_pitch(buf);
+    joystick.yaw = DL_JOYSTICK_RAW_yaw(buf);
+    joystick.throttle = DL_JOYSTICK_RAW_throttle(buf);
     AbiSendMsgJOYSTICK(JOYSTICK_ID, joystick.roll, joystick.pitch, joystick.yaw, joystick.throttle);
   }
 }

@@ -9,11 +9,11 @@
   </header>
   <init fun="traffic_info_init()"/>
 
-  <datalink message="ACINFO" 	fun="parse_acinfo_dl()"/>
-  <datalink message="ACINFO_LLA" 	fun="parse_acinfo_dl()"/>
-  <datalink message="GPS_SMALL" fun="parse_acinfo_dl()"/>
-  <datalink message="GPS" 		fun="parse_acinfo_dl()"/>
-  <datalink message="GPS_LLA" 	fun="parse_acinfo_dl()"/>
+  <datalink message="ACINFO" 		fun="parse_acinfo_dl(buf)"/>
+  <datalink message="ACINFO_LLA" 	fun="parse_acinfo_dl(buf)"/>
+  <datalink message="GPS_SMALL" 	fun="parse_acinfo_dl(buf)"/>
+  <datalink message="GPS" 		fun="parse_acinfo_dl(buf)"/>
+  <datalink message="GPS_LLA" 		fun="parse_acinfo_dl(buf)"/>
 
   <makefile>
     <file name="traffic_info.c"/>

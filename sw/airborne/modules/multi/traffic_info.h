@@ -131,7 +131,7 @@ extern void traffic_info_init(void);
  * Telemetry (vehicle -> ground or vehicle -> vehicle): GPS_SMALL, GPS, GPS_LLA
  * Datalink (ground -> vehicle): ACINFO, ACINFO_LLA
  */
-extern bool parse_acinfo_dl(void);
+extern bool parse_acinfo_dl(uint8_t *buf);
 
 /************************ Set functions ****************************/
 

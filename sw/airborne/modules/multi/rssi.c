@@ -62,15 +62,15 @@ void rssi_init()
   AbiBindMsgRSSI(ABI_BROADCAST, &ev, rssi_cb);
 }
 
-void parse_rssi_dl(void)
+void parse_rssi_dl(uint8_t *buf)
 {
-  uint8_t sender_id = SenderIdOfPprzMsg(dl_buffer);
-  uint8_t msg_id = IdOfPprzMsg(dl_buffer);
+  uint8_t sender_id = SenderIdOfPprzMsg(buf);
+  uint8_t msg_id = IdOfPprzMsg(buf);
 
   if (sender_id > 0 && msg_id == DL_RSSI) {
     set_rssi(sender_id,
-             DL_RSSI_tx_power(dl_buffer),
-             DL_RSSI_rssi(dl_buffer));
+             DL_RSSI_tx_power(buf),
+             DL_RSSI_rssi(buf));
   }
 }
 

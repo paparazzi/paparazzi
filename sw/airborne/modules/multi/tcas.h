@@ -29,7 +29,7 @@
 #define TCAS_H
 
 #include "std.h"
-#include "subsystems/datalink/datalink.h" // dl_buffer
+//#include "subsystems/datalink/datalink.h" // dl_buffer
 #include "pprzlink/messages.h"      // TCAS_RA
 #include "generated/airframe.h"     // AC_INFO
 #include "modules/multi/traffic_info.h"
@@ -59,7 +59,7 @@ extern void tcas_periodic_task_4Hz(void);
 
 extern void callTCAS(void);
 
-extern void parseTcasResolve(void);
-extern void parseTcasRA(void);
+extern void parseTcasResolve(uint8_t *buf);
+extern void parseTcasRA(uint8_t *buf);
 
 #endif /* TCAS_H */

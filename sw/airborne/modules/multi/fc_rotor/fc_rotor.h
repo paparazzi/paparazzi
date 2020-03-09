@@ -30,6 +30,6 @@
 #define FC_ROTOR_H
 
 extern void fc_rotor_init(void);
-extern void fc_read_msg(void);
+extern void fc_read_msg(uint8_t *buf);
 
 #endif // FC_ROTOR_H

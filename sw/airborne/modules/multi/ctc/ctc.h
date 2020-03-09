@@ -64,9 +64,9 @@ extern bool collective_tracking_point(float x, float y);
 extern void collective_tracking_control(void);
 extern void ctc_send_info_to_nei(void);
 
-extern void parse_ctc_RegTable(void);
-extern void parse_ctc_CleanTable(void);
-extern void parse_ctc_NeiInfoTable(void);
-extern void parse_ctc_TargetInfo(void);
+extern void parse_ctc_RegTable(uint8_t *buf);
+extern void parse_ctc_CleanTable(uint8_t *buf);
+extern void parse_ctc_NeiInfoTable(uint8_t *buf);
+extern void parse_ctc_TargetInfo(uint8_t *buf);
 
 #endif // CTC_H
