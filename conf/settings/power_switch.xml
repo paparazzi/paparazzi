@@ -4,8 +4,8 @@
     <dl_settings NAME="Power switch control">
        <dl_settings NAME="Power switch">
       <dl_setting MAX="1" MIN="0" STEP="1" VAR="autopilot.power_switch" module="autopilot" handler="SetPowerSwitch">
-        <strip_button name="Switch on" icon="on.png" value="1"/>
-        <strip_button name="Switch off" icon="off.png" value="0"/>
+        <strip_button name="Switch on" icon="on.png" value="1" group="power_switch"/>
+        <strip_button name="Switch off" icon="off.png" value="0" group="power_switch"/>
       </dl_setting>
     </dl_settings>
     </dl_settings>
