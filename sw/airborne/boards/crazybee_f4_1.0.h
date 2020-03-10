@@ -9,6 +9,9 @@
 
 #define BOARD_CRAZYBEE_F4_V1
 
+/** System memory base - for DFU bootloader */
+#define SYSTEM_MEMORY_BASE 0x1FFF0000
+
 /** Clock config - STM32F4 - STM32F411CEU6 in 48 pin package UFQFPN48 **/
 #define EXT_CLK 8000000  // 8mHz
 #define AHB_CLK 84000000

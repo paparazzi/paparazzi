@@ -36,7 +36,6 @@
 #include <libopencm3/stm32/timer.h>
 #include <libopencm3/stm32/flash.h>
 #include <libopencm3/cm3/scb.h>
-
 #include <libopencm3/stm32/rtc.h>
 #include <libopencm3/stm32/pwr.h>
 
@@ -169,6 +168,7 @@ void rcc_clock_setup_in_hse_24mhz_out_24mhz_pprz(void)
 #endif
 
 
+#ifdef SYSTEM_MEMORY_BASE
 void reset_to_dfu(void) {
   // Request DFU at boot (init_dfu)
   pwr_disable_backup_domain_write_protect();
@@ -185,7 +185,7 @@ typedef struct isrVector_s {
     resetHandler_t *resetHandler;
 } isrVector_t;
 
-static isrVector_t *system_isr_vector_table_base = (isrVector_t *) 0x1FFF0000; // Only tested for STM32F411
+static isrVector_t *system_isr_vector_table_base = (isrVector_t *) SYSTEM_MEMORY_BASE; // Find in ST AN2606. Defined in board header.
 
 static void init_dfu(void) {
   /* Reset to DFU if requested */
@@ -200,18 +200,21 @@ static void init_dfu(void) {
     // 1. Set MSP to system_isr_vector_table_base.stackEnd
     // (betaflight system_stm32f4xx.c::75)
     // (betaflight cmsis_armcc.h::226
-    register uint32_t __regMainStackPointer     __asm("msp");
+    register uint32_t __regMainStackPointer __asm("msp") __attribute__((unused)); // Note: declared unused to suppress gcc warning, not actually unused!
     __regMainStackPointer = system_isr_vector_table_base->stackEnd; // = topOfMainStack;
     // 2. system_isr_vector_table_base.resetHandler() (betaflight system_stm32f4xx.c::76)
     system_isr_vector_table_base->resetHandler();
     while (1);
   }
 }
+#endif // SYSTEM_MEMORY_BASE
 
 
 void mcu_arch_init(void)
 {
+#ifdef SYSTEM_MEMORY_BASE
   init_dfu();
+#endif
 
 #if LUFTBOOT
   PRINT_CONFIG_MSG("We are running luftboot, the interrupt vector is being relocated.")
