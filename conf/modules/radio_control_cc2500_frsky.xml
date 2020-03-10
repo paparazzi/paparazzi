@@ -15,9 +15,30 @@
     <define name="CC2500_AUTOBIND" value="FALSE" description="Enter BIND mode at startup"/>
     <define name="CC2500_TELEMETRY_SENSORS" value="(SENSOR_VOLTAGE | SENSOR_CURRENT | SENSOR_FUEL | SENSOR_ALTITUDE | SENSOR_VARIO)" description="List of sensors to send over FrSky telemetry (set to SENSOR_NONE) to disable."/>
   </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="cc2500_frsky">
+        <dl_setting var="cc2500_settings_persistent.bindVars" min="1" step="1" max="1" values="READ_ONLY" shortname="bindVars" persistent="true" type="uint32"/>
+        <dl_setting var="cc2500_settings_persistent.bindHopData[0]" min="1" step="1" max="1" values="READ_ONLY" shortname="bindHopData0" persistent="true" type="uint32"/>
+        <dl_setting var="cc2500_settings_persistent.bindHopData[1]" min="1" step="1" max="1" values="READ_ONLY" shortname="bindHopData1" persistent="true" type="uint32"/>
+        <dl_setting var="cc2500_settings_persistent.bindHopData[2]" min="1" step="1" max="1" values="READ_ONLY" shortname="bindHopData2" persistent="true" type="uint32"/>
+        <dl_setting var="cc2500_settings_persistent.bindHopData[3]" min="1" step="1" max="1" values="READ_ONLY" shortname="bindHopData3" persistent="true" type="uint32"/>
+        <dl_setting var="cc2500_settings_persistent.bindHopData[4]" min="1" step="1" max="1" values="READ_ONLY" shortname="bindHopData4" persistent="true" type="uint32"/>
+        <dl_setting var="cc2500_settings_persistent.bindHopData[5]" min="1" step="1" max="1" values="READ_ONLY" shortname="bindHopData5" persistent="true" type="uint32"/>
+        <dl_setting var="cc2500_settings_persistent.bindHopData[6]" min="1" step="1" max="1" values="READ_ONLY" shortname="bindHopData6" persistent="true" type="uint32"/>
+        <dl_setting var="cc2500_settings_persistent.bindHopData[7]" min="1" step="1" max="1" values="READ_ONLY" shortname="bindHopData7" persistent="true" type="uint32"/>
+        <dl_setting var="cc2500_settings_persistent.bindHopData[8]" min="1" step="1" max="1" values="READ_ONLY" shortname="bindHopData8" persistent="true" type="uint32"/>
+        <dl_setting var="cc2500_settings_persistent.bindHopData[9]" min="1" step="1" max="1" values="READ_ONLY" shortname="bindHopData9" persistent="true" type="uint32"/>
+        <dl_setting var="cc2500_settings_persistent.bindHopData[10]" min="1" step="1" max="1" values="READ_ONLY" shortname="bindHopData10" persistent="true" type="uint32"/>
+        <dl_setting var="cc2500_settings_persistent.bindHopData[11]" min="1" step="1" max="1" values="READ_ONLY" shortname="bindHopData11" persistent="true" type="uint32"/>
+        <dl_setting var="cc2500_settings_persistent.bindHopData[12]" min="1" step="1" max="1" values="READ_ONLY" shortname="bindHopData12" persistent="true" type="uint32"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
   <header>
     <file name="cc2500.h" dir="peripherals"/>
     <file name="cc2500_paparazzi.h" dir="subsystems/radio_control/cc2500_frsky"/>
+    <file name="cc2500_settings.h" dir="subsystems/radio_control/cc2500_frsky"/>
   </header>
   <init fun="cc2500_init()"/>
   <makefile target="ap|fbw|sim|nps">

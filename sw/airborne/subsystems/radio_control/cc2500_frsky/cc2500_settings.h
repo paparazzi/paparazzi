@@ -32,6 +32,12 @@
 /* Paparazzi settings */
 void cc2500_settings_init(void);
 
+struct cc2500_settings_persistent_s {
+  uint32_t bindVars;
+  uint32_t bindHopData[13];
+};
+extern struct cc2500_settings_persistent_s cc2500_settings_persistent;
+
 
 /* betaflight settings API */
 // main/config/config.h:

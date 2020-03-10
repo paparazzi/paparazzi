@@ -48,7 +48,7 @@
             <configure name="TELEMETRY_FREQUENCY" value="120"/>
             <configure name="MODULES_FREQUENCY" value="2048"/>
 
-            <!--<define name="USE_PERSISTENT_SETTINGS" value="TRUE"/> --><!-- handy with the short flight time between tuning sets, not tested if it works yet, this board we have 16kb reserved -->
+            <define name="USE_PERSISTENT_SETTINGS" value="TRUE"/><!-- handy with the short flight time between tuning sets, not tested if it works yet, this board we have 16kb reserved -->
             <define name="BAT_CHECKER_DELAY" value="70"/>  <!-- to avoid bat low spike detection when strong up movement withch draws short sudden power-->
             <define name="CATASTROPHIC_BATTERY_KILL_DELAY" value="90"/> <!-- in 10/s seconds-->
         </target>

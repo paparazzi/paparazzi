@@ -29,6 +29,7 @@
 #include BOARD_CONFIG
 #include "mcu_periph/gpio.h"
 #include "generated/airframe.h"
+#include "subsystems/settings.h"
 
 #include <string.h>
 
@@ -53,16 +54,22 @@
 #endif
 
 #ifndef CC2500_AUTOBIND
-#define CC2500_AUTOBIND TRUE
+#define CC2500_AUTOBIND FALSE
 #endif
 
 #ifndef CC2500_TELEMETRY_SENSORS
 #define CC2500_TELEMETRY_SENSORS (SENSOR_VOLTAGE | SENSOR_CURRENT | SENSOR_FUEL | SENSOR_ALTITUDE | SENSOR_VARIO)
 #endif
 
+static void cc2500_persistent_write(void);
+
 
 // main/config/config.h:
-void bf_writeEEPROM(void) { } // TODO Handled by Paparazzi's persistent settings mechanism.
+void bf_writeEEPROM(void) {
+  // Settings storage handled by paparazzi's persistent settings
+  cc2500_persistent_write();
+  settings_StoreSettings(1);
+}
 
 
 // main/pg/rx.h:
@@ -103,6 +110,48 @@ const telemetryConfig_t* telemetryConfig(void) {
 // main/telemetry/telemetry.h:
 bool telemetryIsSensorEnabled(sensor_e sensor) {
   return sensor & CC2500_TELEMETRY_SENSORS;
+}
+
+
+// Paparazzi code
+struct cc2500_settings_persistent_s cc2500_settings_persistent;
+
+static void cc2500_persistent_write(void) {
+  cc2500_settings_persistent.bindVars =
+      cc2500spiconfig.bindTxId[0] |
+      cc2500spiconfig.bindTxId[1] << 8 |
+      cc2500spiconfig.bindOffset << 16 |
+      cc2500spiconfig.rxNum << 24;
+  for (int i = 0; i < 48; i += 4) {
+    cc2500_settings_persistent.bindHopData[i / 4] =
+        cc2500spiconfig.bindHopData[i] |
+        cc2500spiconfig.bindHopData[i + 1] << 8 |
+        cc2500spiconfig.bindHopData[i + 2] << 16 |
+        cc2500spiconfig.bindHopData[i + 3] << 24;
+  }
+  cc2500_settings_persistent.bindHopData[12] =
+      cc2500spiconfig.bindHopData[48] |
+      cc2500spiconfig.bindHopData[49] << 8 |
+      0xFF << 24;
+}
+
+static void cc2500_persistent_read(void) {
+  // Check that persistent data is loaded
+  // highest bindHopData byte is initialized 0 at boot
+  if (cc2500_settings_persistent.bindHopData[12] >> 24) {
+    cc2500spiconfig.bindTxId[0] = cc2500_settings_persistent.bindVars & 0xFF;
+    cc2500spiconfig.bindTxId[1] = (cc2500_settings_persistent.bindVars >> 8) & 0xFF;
+    cc2500spiconfig.bindOffset = (cc2500_settings_persistent.bindVars >> 16) & 0xFF;
+    cc2500spiconfig.rxNum = (cc2500_settings_persistent.bindVars >> 24) & 0xFF;
+  }
+  for (int i = 0; i < 48; i += 4) {
+    cc2500spiconfig.bindHopData[i] = cc2500_settings_persistent.bindHopData[i / 4] & 0xFF;
+    cc2500spiconfig.bindHopData[i + 1] = (cc2500_settings_persistent.bindHopData[i / 4] >> 8) & 0xFF;
+    cc2500spiconfig.bindHopData[i + 2] = (cc2500_settings_persistent.bindHopData[i / 4] >> 16) & 0xFF;
+    cc2500spiconfig.bindHopData[i + 3] = (cc2500_settings_persistent.bindHopData[i / 4] >> 24) & 0xFF;
+  }
+  cc2500spiconfig.bindHopData[48] = cc2500_settings_persistent.bindHopData[12] & 0xFF;
+  cc2500spiconfig.bindHopData[49] = (cc2500_settings_persistent.bindHopData[12] >> 8) & 0xFF;
 }
 
 
@@ -150,6 +199,9 @@ void cc2500_settings_init(void) {
   cc2500spiconfig.rxNum = 0;
   cc2500spiconfig.a1Source = FRSKY_SPI_A1_SOURCE_VBAT;
   cc2500spiconfig.chipDetectEnabled = TRUE;
+
+  settings_init(); // XXX HACK
+  cc2500_persistent_read();
 
   // telemetryConfig
   telemetryconfig.pidValuesAsTelemetry = FALSE;

@@ -59,10 +59,15 @@ void cc2500_init(void) {
 }
 
 
-static void delayMicroseconds(uint32_t us) {
+static void cc2500_delayMicroseconds(uint32_t us) {
   float start = get_sys_time_float();
   while(get_sys_time_float() < start + (us / 1.0e6)) ;
 }
+// Fix naming conflict with subsystems/radio_control/cc2500_frsky delayMicroseconds
+#ifdef delayMicroseconds
+#undef delayMicroseconds
+#endif
+#define delayMicroseconds(us) cc2500_delayMicroseconds(us)
 
 
 static void rxSpiReadCommandMulti(uint8_t command, uint8_t commandData, uint8_t *retData, uint8_t length) {
