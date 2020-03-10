@@ -37,6 +37,10 @@
 #define W5100_TX_BUFFER_SIZE 80
 #define W5100_BUFFER_NUM 2
 
+#ifndef W5100_UPDATE_DL
+#define W5100_UPDATE_DL TRUE
+#endif
+
 enum W5100Status {
   W5100StatusUninit,
   W5100StatusIdle,
@@ -104,7 +108,7 @@ static inline void w5100_check_and_parse(struct link_device *dev, struct pprz_tr
 static inline w5100_event(void)
 {
   w5100_check_and_parse(&(W5100).device, &pprz_w5100_tp);
-  DlCheckAndParse(&(W5100).device, &pprz_w5100_tp.trans_tx, dl_buffer, &dl_msg_available);
+  DlCheckAndParse(&(W5100).device, &pprz_w5100_tp.trans_tx, dl_buffer, &dl_msg_available, W5100_UPDATE_DL);
 }
 
 #endif /* W5100_H */

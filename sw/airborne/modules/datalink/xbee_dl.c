@@ -49,6 +49,10 @@ INFO("XBEE channel configured : " XBEE_CHANNEL_CONF)
 
 #define CONCAT(a, b) a b
 
+#ifndef XBEE_UPDATE_DL
+#define XBEE_UPDATE_DL TRUE
+#endif
+
 struct xbee_transport xbee_tp;
 
 void xbee_dl_init(void)
@@ -65,6 +69,6 @@ void xbee_dl_init(void)
 void xbee_dl_event(void)
 {
   xbee_check_and_parse(&(XBEE_UART).device, &xbee_tp, dl_buffer, &dl_msg_available);
-  DlCheckAndParse(&(XBEE_UART).device, &xbee_tp.trans_tx, dl_buffer, &dl_msg_available);
+  DlCheckAndParse(&(XBEE_UART).device, &xbee_tp.trans_tx, dl_buffer, &dl_msg_available, XBEE_UPDATE_DL);
 }
 

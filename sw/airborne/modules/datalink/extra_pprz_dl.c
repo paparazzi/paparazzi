@@ -46,6 +46,11 @@
 #include "modules/datalink/extra_pprz_dl.h"
 #include "subsystems/datalink/telemetry.h"
 
+// By default don't update datalink_time when receiving messages from extra datalink
+#ifndef EXTRA_PPRZ_UPDATE_DL
+#define EXTRA_PPRZ_UPDATE_DL FALSE
+#endif
+
 bool extra_dl_msg_available;
 uint8_t extra_dl_buffer[MSG_SIZE]  __attribute__((aligned));
 
@@ -60,7 +65,7 @@ void extra_pprz_dl_init(void)
 void extra_pprz_dl_event(void)
 {
   pprz_check_and_parse(&EXTRA_DOWNLINK_DEVICE.device, &extra_pprz_tp, extra_dl_buffer, &extra_dl_msg_available);
-  DlCheckAndParse(&EXTRA_DOWNLINK_DEVICE.device, &extra_pprz_tp.trans_tx, extra_dl_buffer, &extra_dl_msg_available);
+  DlCheckAndParse(&EXTRA_DOWNLINK_DEVICE.device, &extra_pprz_tp.trans_tx, extra_dl_buffer, &extra_dl_msg_available, EXTRA_PPRZ_UPDATE_DL);
 }
 
 

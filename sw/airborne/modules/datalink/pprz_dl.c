@@ -26,6 +26,10 @@
 #include "modules/datalink/pprz_dl.h"
 #include "subsystems/datalink/datalink.h"
 
+#ifndef PPRZ_UPDATE_DL
+#define PPRZ_UPDATE_DL TRUE
+#endif
+
 struct pprz_transport pprz_tp;
 
 void pprz_dl_init(void)
@@ -36,6 +40,6 @@ void pprz_dl_init(void)
 void pprz_dl_event(void)
 {
   pprz_check_and_parse(&DOWNLINK_DEVICE.device, &pprz_tp, dl_buffer, &dl_msg_available);
-  DlCheckAndParse(&DOWNLINK_DEVICE.device, &pprz_tp.trans_tx, dl_buffer, &dl_msg_available);
+  DlCheckAndParse(&DOWNLINK_DEVICE.device, &pprz_tp.trans_tx, dl_buffer, &dl_msg_available, PPRZ_UPDATE_DL);
 }
 

@@ -63,6 +63,10 @@
 #include "led.h" // for LED indication
 #endif
 
+#ifndef GEC_UPDATE_DL
+#define GEC_UPDATE_DL TRUE
+#endif
+
 struct gec_transport gec_tp;
 
 #if PERIODIC_TELEMETRY
@@ -541,7 +545,7 @@ void gec_dl_event(void)
                                gec_tp.pprz_tp.trans_rx.payload_len);
           // pass to datalink
           DlCheckAndParse(&DOWNLINK_DEVICE.device, &gec_tp.trans_tx, dl_buffer,
-                          &dl_msg_available);
+                          &dl_msg_available, GEC_UPDATE_DL);
         }
         break;
       case WAIT_MSG1:
