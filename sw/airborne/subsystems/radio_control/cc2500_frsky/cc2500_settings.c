@@ -200,7 +200,7 @@ void cc2500_settings_init(void) {
   cc2500spiconfig.a1Source = FRSKY_SPI_A1_SOURCE_VBAT;
   cc2500spiconfig.chipDetectEnabled = TRUE;
 
-  settings_init(); // XXX HACK
+  settings_init();
   cc2500_persistent_read();
 
   // telemetryConfig
