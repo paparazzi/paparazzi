@@ -59,6 +59,41 @@ void compute_dist2_to_home(void)
 #endif
 }
 
+/** Compute time to home
+ * use wind and airspeed when available
+ */
+float get_time_to_home(void)
+{
+  struct FloatVect2 vect_to_home;
+  vect_to_home.x = waypoints[WP_HOME].x - stateGetPositionEnu_f()->x;
+  vect_to_home.y = waypoints[WP_HOME].y - stateGetPositionEnu_f()->y;
+  // get distance to home
+  float dist_to_home = float_vect2_norm(&vect_to_home);
+  if (dist_to_home > 1.f) {
+    // get windspeed or assume no wind
+    struct FloatVect2 wind = { 0.f, 0.f };
+    if (stateIsWindspeedValid()) {
+      wind = *stateGetHorizontalWindspeed_f();
+    }
+    // compute effective windspeed when flying to home point
+    float wind_to_home = (wind.x * vect_to_home.x + wind.y * vect_to_home.y) / dist_to_home;
+    // get airspeed or assume constant nominal airspeed
+    float airspeed = NOMINAL_AIRSPEED;
+    if (stateIsAirspeedValid()) {
+      airspeed = stateGetAirspeed_f();
+    }
+    // get estimated ground speed to home
+    float gspeed_to_home = wind_to_home + airspeed;
+    if (gspeed_to_home > 1.) {
+      return dist_to_home / gspeed_to_home; // estimated time to home in seconds
+    }
+    else {
+      return 999999.f; // this might take a long time to go back home
+    }
+  }
+  return 0.f; // too close to home point
+}
+
 
 static float previous_ground_alt;
 

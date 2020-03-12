@@ -231,6 +231,7 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) ac_id packing dl_
   ignore (commit_but#connect#clicked ~callback);
   tooltips#set_tip commit_but#coerce ~text:"Commit";
   tooltips#set_tip current_value#coerce ~text:"Current value, click to request update.";
+  tooltips#set_tip _l#coerce ~text:text;
 
   (* Undo button *)
   let undo_but = GButton.button ~packing:hbox#pack () in
