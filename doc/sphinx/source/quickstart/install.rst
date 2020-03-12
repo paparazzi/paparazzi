@@ -4,33 +4,51 @@
 Quick Install
 ======================
 
+Paparazzi runs best on **Ubuntu 16.04 or higher**, so this quick installation guide is for Ubuntu users. I you have an other OS or if you want more detailled installation, see the :doc:`../installation/index_installation` page.
 
-Paparazzi is very easily installed on any laptop or workstation running the `Ubuntu Linux OS`_ or virtually any `Debian`_ based `Linux`_ or Apple Macintosh running `Mac OS X`_. There is also work being done to port Paparazzi to Windows.
+Open a terminal and execute each lines below. If one fails, ask for help on gitter.
 
-Several steps are required to fully set up paparrazi but if you'r one of the one-line lovers, this part is for you.
-
-To get the latest Paparazzi up and running on your **Ubuntu 12.04 or higher OS**, make sure you have a working internet connection, then just copy and paste the text below into your terminal and press [enter] ... and wait a while...
+Add paparazzi repositories and install dependencies:
 
 .. code-block:: bash
 
-	sudo add-apt-repository -y ppa:paparazzi-uav/ppa && sudo add-apt-repository -y ppa:team-gcc-arm-embedded/ppa && sudo apt-get update && \
-	sudo apt-get -f -y install paparazzi-dev paparazzi-jsbsim gcc-arm-embedded && cd ~ && git clone --origin upstream https://github.com/paparazzi/paparazzi.git && \
-	cd ~/paparazzi && git remote update -p && \
-	git checkout -b v5.12 upstream/v5.12 && sudo cp conf/system/udev/rules/*.rules /etc/udev/rules.d/ && sudo udevadm control --reload-rules && \
-	make && ./paparazzi
+	sudo add-apt-repository -y ppa:paparazzi-uav/ppa
+	sudo add-apt-repository -y ppa:team-gcc-arm-embedded/ppa
+	sudo apt-get update
+	sudo apt-get -f -y install paparazzi-dev paparazzi-jsbsim gcc-arm-embedded
 
-If all went well the Paparazzi Center should now be running... **skip** the rest of this page and go fly!
+Clone the repository: 
 
-If you are new you'll need to do some more things before you go fly like configuring your XML definition file detailing your airframe configuration. There is help here for that: `Airframe_Configuration`_
+.. code-block:: bash
 
-In case you have no autopilot hardware yet, no problem, you can get hardware `here`_ or just buy a ready to fly aircraft that can run Paparazzi Software like the `Parrot Drones`_ and run Paparazzi on your Parrot `ARDRone2`_, `Bebop`_ and Bebop2 (soon the Disco drone).
+	cd ~
+	git clone --origin upstream https://github.com/paparazzi/paparazzi.git
+	cd ~/paparazzi
+	git remote update -p
+	sudo cp conf/system/udev/rules/*.rules /etc/udev/rules.d/
+	sudo udevadm control --reload-rules
+	
+*Optionnal:* checkout on a stable version:
 
-.. _`Ubuntu Linux OS`: https://www.ubuntu.com/
-.. _`Debian`: https://www.debian.org/
-.. _`Linux`: https://en.wikipedia.org/wiki/Linux
-.. _`Mac OS X`: https://en.wikipedia.org/wiki/MacOS
-.. _`Airframe_Configuration`: http://wiki.paparazziuav.org/wiki/Installation
-.. _`here`: http://wiki.paparazziuav.org/wiki/Get_Hardware
-.. _`Parrot Drones`: https://www.parrot.com/fr/drones
-.. _`ARDRone2`: http://wiki.paparazziuav.org/wiki/AR_Drone_2
-.. _`Bebop`: http://wiki.paparazziuav.org/wiki/Bebop
+.. code-block:: bash
+
+	git checkout -b v5.12 upstream/v5.12
+
+Get the submodules and build Paparazzi. This step might take a long time the first time you launch it:
+
+.. code-block:: bash
+
+	make
+	
+	
+Finally, launch Paparazzi with
+
+.. code-block:: bash
+
+    ./paparazzi
+    
+.. note::
+   If it doesn't work, the previous step might have failed. In that case, recompile with with ``make -j1``, then try again to launch Paparazzi.
+
+If all went well the Paparazzi Center should now be running. Please continue to the next page for a guided tour.
+
