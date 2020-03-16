@@ -29,6 +29,7 @@
 #include <hal.h>
 #include "modules/loggers/sdlog_chibios/sdLog.h"
 #include "modules/loggers/sdlog_chibios/usbStorage.h"
+#include "modules/loggers/sdlog_chibios/printf.h"
 #include "modules/loggers/sdlog_chibios.h"
 #include "modules/tlsf/tlsf_malloc.h"
 #include "mcu_periph/adc.h"
@@ -100,6 +101,10 @@ static enum {
   SDLOG_ERROR
 } chibios_sdlog_status;
 
+/** sdlog filenames
+ */
+static char chibios_sdlog_filenames[68];
+
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 static void send_sdlog_status(struct transport_tx *trans, struct link_device *dev)
@@ -107,7 +112,7 @@ static void send_sdlog_status(struct transport_tx *trans, struct link_device *de
   uint8_t status = (uint8_t) chibios_sdlog_status;
   uint8_t errno = (uint8_t) sdLogGetStorageStatus();
   uint32_t used = (uint32_t) sdLogGetNbBytesWrittenToStorage();
-  pprz_msg_send_LOGGER_STATUS(trans, dev, AC_ID, &status, &errno, &used);
+  pprz_msg_send_LOGGER_STATUS(trans, dev, AC_ID, &status, &errno, &used, strlen(chibios_sdlog_filenames), chibios_sdlog_filenames);
 }
 #endif
 
@@ -212,6 +217,7 @@ static void thd_startlog(void *arg)
 {
   (void) arg;
   chRegSetThreadName("start log");
+  char tmpFilename[32];
 
   // Wait before starting the log if needed
   chThdSleepSeconds(SDLOG_START_DELAY);
@@ -232,16 +238,18 @@ static void thd_startlog(void *arg)
     removeEmptyLogs(PPRZ_LOG_DIR, PPRZ_LOG_NAME, 50);
     if (sdLogOpenLog(&pprzLogFile, PPRZ_LOG_DIR,
 		     PPRZ_LOG_NAME, SDLOG_AUTO_FLUSH_PERIOD, LOG_APPEND_TAG_AT_CLOSE_DISABLED,
-		     SDLOG_CONTIGUOUS_STORAGE_MEM, LOG_PREALLOCATION_DISABLED) != SDLOG_OK) {
+		     SDLOG_CONTIGUOUS_STORAGE_MEM, LOG_PREALLOCATION_DISABLED, tmpFilename, sizeof(tmpFilename)) != SDLOG_OK) {
       sdOk = false;
     }
+    chsnprintf(chibios_sdlog_filenames, sizeof(chibios_sdlog_filenames), "%s", tmpFilename);
 #if FLIGHTRECORDER_SDLOG
     removeEmptyLogs(FR_LOG_DIR, FLIGHTRECORDER_LOG_NAME, 50);
     if (sdLogOpenLog(&flightRecorderLogFile, FR_LOG_DIR, FLIGHTRECORDER_LOG_NAME,
 		     SDLOG_AUTO_FLUSH_PERIOD, LOG_APPEND_TAG_AT_CLOSE_DISABLED,
-		      SDLOG_CONTIGUOUS_STORAGE_MEM, LOG_PREALLOCATION_DISABLED) != SDLOG_OK) {
+		      SDLOG_CONTIGUOUS_STORAGE_MEM, LOG_PREALLOCATION_DISABLED, tmpFilename, sizeof(tmpFilename)) != SDLOG_OK) {
       sdOk = false;
     }
+    chsnprintf(chibios_sdlog_filenames, sizeof(chibios_sdlog_filenames), ", %s", tmpFilename);
 #endif
   }
 
