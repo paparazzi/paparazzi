@@ -27,6 +27,10 @@
 #include "subsystems/datalink/datalink.h"
 #include "subsystems/datalink/bluegiga.h"
 
+#ifndef BLUEGIGA_UPDATE_DL
+#define BLUEGIGA_UPDATE_DL TRUE
+#endif
+
 struct pprz_transport pprz_bg_tp;
 
 void bluegiga_dl_init(void)
@@ -38,6 +42,6 @@ void bluegiga_dl_init(void)
 void bluegiga_dl_event(void)
 {
   pprz_check_and_parse(&DOWNLINK_DEVICE.device, &pprz_bg_tp, dl_buffer, &dl_msg_available);
-  DlCheckAndParse(&DOWNLINK_DEVICE.device, &pprz_bg_tp.trans_tx, dl_buffer, &dl_msg_available);
+  DlCheckAndParse(&DOWNLINK_DEVICE.device, &pprz_bg_tp.trans_tx, dl_buffer, &dl_msg_available, BLUEGIGA_UPDATE_DL);
 }
 

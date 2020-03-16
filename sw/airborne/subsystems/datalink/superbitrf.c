@@ -66,6 +66,10 @@ PRINT_CONFIG_VAR(SUPERBITRF_DRDY_PIN)
 #endif
 PRINT_CONFIG_VAR(SUPERBITRF_FORCE_DSM2)
 
+#ifndef SUPERBITRF_UPDATE_DL
+#define SUPERBITRF_UPDATE_DL TRUE
+#endif
+
 /* The superbitRF structure */
 struct SuperbitRF superbitrf;
 
@@ -288,7 +292,7 @@ void superbitrf_dl_init(void)
  */
 void superbitrf_dl_event(void)
 {
-  DlCheckAndParse(&DOWNLINK_DEVICE.device, &pprz_srf_tp.trans_tx, dl_buffer, &dl_msg_available);
+  DlCheckAndParse(&DOWNLINK_DEVICE.device, &pprz_srf_tp.trans_tx, dl_buffer, &dl_msg_available, SUPERBITRF_UPDATE_DL);
 }
 
 void superbitrf_set_mfg_id(uint32_t id)
