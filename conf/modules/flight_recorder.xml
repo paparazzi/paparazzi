@@ -15,7 +15,7 @@
     <file name="flight_recorder.h"/>
   </header>
   <init fun="flight_recorder_init()"/>
-  <periodic fun="flight_recorder_periodic()" freq="100" autorun="TRUE"/>
+  <periodic fun="flight_recorder_periodic()" autorun="TRUE"/>
   <makefile target="ap">
     <file name="flight_recorder.c"/>
     <define name="FLIGHTRECORDER_SDLOG" cond="ifneq (FALSE,$(findstring $(FLIGHTRECORDER_SDLOG),FALSE))"/>
