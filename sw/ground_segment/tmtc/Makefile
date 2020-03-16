@@ -38,7 +38,7 @@ SERVERCMO = server_globals.cmo aircraft.cmo wind.cmo airprox.cmo kml.cmo parse_m
 SERVERCMX = $(SERVERCMO:.cmo=.cmx)
 
 
-all: link server messages settings ivy_tcp_aircraft ivy_tcp_controller broadcaster ivy2udp ivy2serial ivy_serial_bridge app_server ivy2nmea
+all: link server messages settings ivy_tcp_aircraft ivy_tcp_controller broadcaster ivy2udp ivy2serial ivy_serial_bridge app_server ivy2nmea gpsd2ivy
 
 opt: server.opt
 
@@ -134,7 +134,11 @@ app_server: app_server.c
 	$(Q)$(CC) $(shell pkg-config libxml-2.0 gio-2.0 ivy-glib --cflags) -o $@ $^ -lm -lz $(shell pkg-config libxml-2.0 gio-2.0 ivy-glib libpcre --libs)
 
 gpsd2ivy: gpsd2ivy.c
+ifeq (, $(shell which gpsd))
+	$(info GPSD not installed)
+else
 	$(CC) $(GLIBIVY_CFLAGS) -o $@ $< $(GLIBIVY_LDFLAGS) -lgps
+endif
 
 ivy2nmea: ivy2nmea.c
 	@echo OL $@
