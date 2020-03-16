@@ -284,7 +284,7 @@ static void send_i2c_err(struct transport_tx *trans __attribute__((unused)),
       break;
   }
   _i2c_nb_cnt++;
-  if (_i2c_nb_cnt == 4) {
+  if (_i2c_nb_cnt == 5) {
     _i2c_nb_cnt = 0;
   }
 }
