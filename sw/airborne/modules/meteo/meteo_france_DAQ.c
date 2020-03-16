@@ -115,14 +115,14 @@ void mf_daq_send_report(void)
   }
 }
 
-void parse_mf_daq_msg(void)
+void parse_mf_daq_msg(uint8_t *buf)
 {
-  mf_daq.nb = dl_buffer[2];
+  mf_daq.nb = buf[2];
   if (mf_daq.nb > 0) {
     if (mf_daq.nb > MF_DAQ_SIZE) { mf_daq.nb = MF_DAQ_SIZE; }
     // Store data struct directly from dl_buffer
-    float *buf = (float*)(dl_buffer+3);
-    memcpy(mf_daq.values, buf, mf_daq.nb * sizeof(float));
+    float *bufloc = (float*)(buf+3);
+    memcpy(mf_daq.values, bufloc, mf_daq.nb * sizeof(float));
     // Log on SD card
     if (log_started) {
       DOWNLINK_SEND_PAYLOAD_FLOAT(pprzlog_tp, chibios_sdlog, mf_daq.nb, mf_daq.values);

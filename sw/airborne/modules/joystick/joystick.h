@@ -49,7 +49,7 @@ extern void joystick_init(void);
  * JOYSTICK_RAW message parser
  * if valid, send a JOYSTICK ABI message
  */
-extern void joystick_parse(void);
+extern void joystick_parse(uint8_t *buf);
 
 #endif
 

@@ -20,7 +20,7 @@
  */
 #include "math/pprz_algebra_float.h"
 #include "subsystems/abi.h"
-#include "subsystems/datalink/datalink.h" // dl_buffer
+//#include "subsystems/datalink/datalink.h" // dl_buffer
 #include "autopilot.h"
 #include "modules/multi/fc_rotor/fc_rotor.h"
 #include "firmwares/rotorcraft/navigation.h"
@@ -29,18 +29,18 @@ void fc_rotor_init(void)
 {
 }
 
-void fc_read_msg(void)
+void fc_read_msg(uint8_t *buf)
 {
   struct FloatVect3 u;
-  uint8_t ac_id = DL_DESIRED_SETPOINT_ac_id(dl_buffer);
+  uint8_t ac_id = DL_DESIRED_SETPOINT_ac_id();
 
   if (ac_id == AC_ID) {
     // 0: 2D control, 1: 3D control
-    uint8_t flag = DL_DESIRED_SETPOINT_flag(dl_buffer);
+    uint8_t flag = DL_DESIRED_SETPOINT_flag(buf);
 
-    u.x = DL_DESIRED_SETPOINT_ux(dl_buffer);
-    u.y = DL_DESIRED_SETPOINT_uy(dl_buffer);
-    u.z = DL_DESIRED_SETPOINT_uz(dl_buffer);
+    u.x = DL_DESIRED_SETPOINT_ux(buf);
+    u.y = DL_DESIRED_SETPOINT_uy(buf);
+    u.z = DL_DESIRED_SETPOINT_uz(buf);
 
     AbiSendMsgACCEL_SP(ACCEL_SP_FCR_ID, flag, &u);
 

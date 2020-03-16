@@ -162,227 +162,227 @@ void mission_status_report(void)
 // Parsing functions //
 ///////////////////////
 
-int mission_parse_GOTO_WP(void)
+int mission_parse_GOTO_WP(uint8_t *buf)
 {
-  if (DL_MISSION_GOTO_WP_ac_id(dl_buffer) != AC_ID) { return false; } // not for this aircraft
+  if (DL_MISSION_GOTO_WP_ac_id(buf) != AC_ID) { return false; } // not for this aircraft
 
   struct _mission_element me;
   me.type = MissionWP;
-  me.element.mission_wp.wp.wp_f.x = DL_MISSION_GOTO_WP_wp_east(dl_buffer);
-  me.element.mission_wp.wp.wp_f.y = DL_MISSION_GOTO_WP_wp_north(dl_buffer);
-  me.element.mission_wp.wp.wp_f.z = DL_MISSION_GOTO_WP_wp_alt(dl_buffer);
-  me.duration = DL_MISSION_GOTO_WP_duration(dl_buffer);
-  me.index = DL_MISSION_GOTO_WP_index(dl_buffer);
+  me.element.mission_wp.wp.wp_f.x = DL_MISSION_GOTO_WP_wp_east(buf);
+  me.element.mission_wp.wp.wp_f.y = DL_MISSION_GOTO_WP_wp_north(buf);
+  me.element.mission_wp.wp.wp_f.z = DL_MISSION_GOTO_WP_wp_alt(buf);
+  me.duration = DL_MISSION_GOTO_WP_duration(buf);
+  me.index = DL_MISSION_GOTO_WP_index(buf);
 
-  enum MissionInsertMode insert = (enum MissionInsertMode)(DL_MISSION_GOTO_WP_insert(dl_buffer));
+  enum MissionInsertMode insert = (enum MissionInsertMode)(DL_MISSION_GOTO_WP_insert(buf));
 
   return mission_insert(insert, &me);
 }
 
-int mission_parse_GOTO_WP_LLA(void)
+int mission_parse_GOTO_WP_LLA(uint8_t *buf)
 {
-  if (DL_MISSION_GOTO_WP_LLA_ac_id(dl_buffer) != AC_ID) { return false; } // not for this aircraft
+  if (DL_MISSION_GOTO_WP_LLA_ac_id(buf) != AC_ID) { return false; } // not for this aircraft
 
   struct LlaCoor_i lla;
-  lla.lat = DL_MISSION_GOTO_WP_LLA_wp_lat(dl_buffer);
-  lla.lon = DL_MISSION_GOTO_WP_LLA_wp_lon(dl_buffer);
-  lla.alt = DL_MISSION_GOTO_WP_LLA_wp_alt(dl_buffer);
+  lla.lat = DL_MISSION_GOTO_WP_LLA_wp_lat(buf);
+  lla.lon = DL_MISSION_GOTO_WP_LLA_wp_lon(buf);
+  lla.alt = DL_MISSION_GOTO_WP_LLA_wp_alt(buf);
 
   struct _mission_element me;
   me.type = MissionWP;
   // if there is no valid local coordinate, do not insert mission element
   if (!mission_point_of_lla(&me.element.mission_wp.wp.wp_f, &lla)) { return false; }
-  me.duration = DL_MISSION_GOTO_WP_LLA_duration(dl_buffer);
-  me.index = DL_MISSION_GOTO_WP_LLA_index(dl_buffer);
+  me.duration = DL_MISSION_GOTO_WP_LLA_duration(buf);
+  me.index = DL_MISSION_GOTO_WP_LLA_index(buf);
 
-  enum MissionInsertMode insert = (enum MissionInsertMode)(DL_MISSION_GOTO_WP_LLA_insert(dl_buffer));
+  enum MissionInsertMode insert = (enum MissionInsertMode)(DL_MISSION_GOTO_WP_LLA_insert(buf));
 
   return mission_insert(insert, &me);
 }
 
-int mission_parse_CIRCLE(void)
+int mission_parse_CIRCLE(uint8_t *buf)
 {
-  if (DL_MISSION_CIRCLE_ac_id(dl_buffer) != AC_ID) { return false; } // not for this aircraft
+  if (DL_MISSION_CIRCLE_ac_id(buf) != AC_ID) { return false; } // not for this aircraft
 
   struct _mission_element me;
   me.type = MissionCircle;
-  me.element.mission_circle.center.center_f.x = DL_MISSION_CIRCLE_center_east(dl_buffer);
-  me.element.mission_circle.center.center_f.y = DL_MISSION_CIRCLE_center_north(dl_buffer);
-  me.element.mission_circle.center.center_f.z = DL_MISSION_CIRCLE_center_alt(dl_buffer);
-  me.element.mission_circle.radius = DL_MISSION_CIRCLE_radius(dl_buffer);
-  me.duration = DL_MISSION_CIRCLE_duration(dl_buffer);
-  me.index = DL_MISSION_CIRCLE_index(dl_buffer);
+  me.element.mission_circle.center.center_f.x = DL_MISSION_CIRCLE_center_east(buf);
+  me.element.mission_circle.center.center_f.y = DL_MISSION_CIRCLE_center_north(buf);
+  me.element.mission_circle.center.center_f.z = DL_MISSION_CIRCLE_center_alt(buf);
+  me.element.mission_circle.radius = DL_MISSION_CIRCLE_radius(buf);
+  me.duration = DL_MISSION_CIRCLE_duration(buf);
+  me.index = DL_MISSION_CIRCLE_index(buf);
 
-  enum MissionInsertMode insert = (enum MissionInsertMode)(DL_MISSION_CIRCLE_insert(dl_buffer));
+  enum MissionInsertMode insert = (enum MissionInsertMode)(DL_MISSION_CIRCLE_insert(buf));
 
   return mission_insert(insert, &me);
 }
 
-int mission_parse_CIRCLE_LLA(void)
+int mission_parse_CIRCLE_LLA(uint8_t *buf)
 {
-  if (DL_MISSION_CIRCLE_LLA_ac_id(dl_buffer) != AC_ID) { return false; } // not for this aircraft
+  if (DL_MISSION_CIRCLE_LLA_ac_id(buf) != AC_ID) { return false; } // not for this aircraft
 
   struct LlaCoor_i lla;
-  lla.lat = DL_MISSION_CIRCLE_LLA_center_lat(dl_buffer);
-  lla.lon = DL_MISSION_CIRCLE_LLA_center_lon(dl_buffer);
-  lla.alt = DL_MISSION_CIRCLE_LLA_center_alt(dl_buffer);
+  lla.lat = DL_MISSION_CIRCLE_LLA_center_lat(buf);
+  lla.lon = DL_MISSION_CIRCLE_LLA_center_lon(buf);
+  lla.alt = DL_MISSION_CIRCLE_LLA_center_alt(buf);
 
   struct _mission_element me;
   me.type = MissionCircle;
   // if there is no valid local coordinate, do not insert mission element
   if (!mission_point_of_lla(&me.element.mission_circle.center.center_f, &lla)) { return false; }
-  me.element.mission_circle.radius = DL_MISSION_CIRCLE_LLA_radius(dl_buffer);
-  me.duration = DL_MISSION_CIRCLE_LLA_duration(dl_buffer);
-  me.index = DL_MISSION_CIRCLE_LLA_index(dl_buffer);
+  me.element.mission_circle.radius = DL_MISSION_CIRCLE_LLA_radius(buf);
+  me.duration = DL_MISSION_CIRCLE_LLA_duration(buf);
+  me.index = DL_MISSION_CIRCLE_LLA_index(buf);
 
-  enum MissionInsertMode insert = (enum MissionInsertMode)(DL_MISSION_CIRCLE_LLA_insert(dl_buffer));
+  enum MissionInsertMode insert = (enum MissionInsertMode)(DL_MISSION_CIRCLE_LLA_insert(buf));
 
   return mission_insert(insert, &me);
 }
 
-int mission_parse_SEGMENT(void)
+int mission_parse_SEGMENT(uint8_t *buf)
 {
-  if (DL_MISSION_SEGMENT_ac_id(dl_buffer) != AC_ID) { return false; } // not for this aircraft
+  if (DL_MISSION_SEGMENT_ac_id(buf) != AC_ID) { return false; } // not for this aircraft
 
   struct _mission_element me;
   me.type = MissionSegment;
-  me.element.mission_segment.from.from_f.x = DL_MISSION_SEGMENT_segment_east_1(dl_buffer);
-  me.element.mission_segment.from.from_f.y = DL_MISSION_SEGMENT_segment_north_1(dl_buffer);
-  me.element.mission_segment.from.from_f.z = DL_MISSION_SEGMENT_segment_alt(dl_buffer);
-  me.element.mission_segment.to.to_f.x = DL_MISSION_SEGMENT_segment_east_2(dl_buffer);
-  me.element.mission_segment.to.to_f.y = DL_MISSION_SEGMENT_segment_north_2(dl_buffer);
-  me.element.mission_segment.to.to_f.z = DL_MISSION_SEGMENT_segment_alt(dl_buffer);
-  me.duration = DL_MISSION_SEGMENT_duration(dl_buffer);
-  me.index = DL_MISSION_SEGMENT_index(dl_buffer);
+  me.element.mission_segment.from.from_f.x = DL_MISSION_SEGMENT_segment_east_1(buf);
+  me.element.mission_segment.from.from_f.y = DL_MISSION_SEGMENT_segment_north_1(buf);
+  me.element.mission_segment.from.from_f.z = DL_MISSION_SEGMENT_segment_alt(buf);
+  me.element.mission_segment.to.to_f.x = DL_MISSION_SEGMENT_segment_east_2(buf);
+  me.element.mission_segment.to.to_f.y = DL_MISSION_SEGMENT_segment_north_2(buf);
+  me.element.mission_segment.to.to_f.z = DL_MISSION_SEGMENT_segment_alt(buf);
+  me.duration = DL_MISSION_SEGMENT_duration(buf);
+  me.index = DL_MISSION_SEGMENT_index(buf);
 
-  enum MissionInsertMode insert = (enum MissionInsertMode)(DL_MISSION_SEGMENT_insert(dl_buffer));
+  enum MissionInsertMode insert = (enum MissionInsertMode)(DL_MISSION_SEGMENT_insert(buf));
 
   return mission_insert(insert, &me);
 }
 
-int mission_parse_SEGMENT_LLA(void)
+int mission_parse_SEGMENT_LLA(uint8_t *buf)
 {
-  if (DL_MISSION_SEGMENT_LLA_ac_id(dl_buffer) != AC_ID) { return false; } // not for this aircraft
+  if (DL_MISSION_SEGMENT_LLA_ac_id(buf) != AC_ID) { return false; } // not for this aircraft
 
   struct LlaCoor_i from_lla, to_lla;
-  from_lla.lat = DL_MISSION_SEGMENT_LLA_segment_lat_1(dl_buffer);
-  from_lla.lon = DL_MISSION_SEGMENT_LLA_segment_lon_1(dl_buffer);
-  from_lla.alt = DL_MISSION_SEGMENT_LLA_segment_alt(dl_buffer);
-  to_lla.lat = DL_MISSION_SEGMENT_LLA_segment_lat_2(dl_buffer);
-  to_lla.lon = DL_MISSION_SEGMENT_LLA_segment_lon_2(dl_buffer);
-  to_lla.alt = DL_MISSION_SEGMENT_LLA_segment_alt(dl_buffer);
+  from_lla.lat = DL_MISSION_SEGMENT_LLA_segment_lat_1(buf);
+  from_lla.lon = DL_MISSION_SEGMENT_LLA_segment_lon_1(buf);
+  from_lla.alt = DL_MISSION_SEGMENT_LLA_segment_alt(buf);
+  to_lla.lat = DL_MISSION_SEGMENT_LLA_segment_lat_2(buf);
+  to_lla.lon = DL_MISSION_SEGMENT_LLA_segment_lon_2(buf);
+  to_lla.alt = DL_MISSION_SEGMENT_LLA_segment_alt(buf);
 
   struct _mission_element me;
   me.type = MissionSegment;
   // if there is no valid local coordinate, do not insert mission element
   if (!mission_point_of_lla(&me.element.mission_segment.from.from_f, &from_lla)) { return false; }
   if (!mission_point_of_lla(&me.element.mission_segment.to.to_f, &to_lla)) { return false; }
-  me.duration = DL_MISSION_SEGMENT_LLA_duration(dl_buffer);
-  me.index = DL_MISSION_SEGMENT_LLA_index(dl_buffer);
+  me.duration = DL_MISSION_SEGMENT_LLA_duration(buf);
+  me.index = DL_MISSION_SEGMENT_LLA_index(buf);
 
-  enum MissionInsertMode insert = (enum MissionInsertMode)(DL_MISSION_SEGMENT_LLA_insert(dl_buffer));
+  enum MissionInsertMode insert = (enum MissionInsertMode)(DL_MISSION_SEGMENT_LLA_insert(buf));
 
   return mission_insert(insert, &me);
 }
 
-int mission_parse_PATH(void)
+int mission_parse_PATH(uint8_t *buf)
 {
-  if (DL_MISSION_PATH_ac_id(dl_buffer) != AC_ID) { return false; } // not for this aircraft
+  if (DL_MISSION_PATH_ac_id(buf) != AC_ID) { return false; } // not for this aircraft
 
   struct _mission_element me;
   me.type = MissionPath;
-  me.element.mission_path.path.path_f[0].x = DL_MISSION_PATH_point_east_1(dl_buffer);
-  me.element.mission_path.path.path_f[0].y = DL_MISSION_PATH_point_north_1(dl_buffer);
-  me.element.mission_path.path.path_f[0].z = DL_MISSION_PATH_path_alt(dl_buffer);
-  me.element.mission_path.path.path_f[1].x = DL_MISSION_PATH_point_east_2(dl_buffer);
-  me.element.mission_path.path.path_f[1].y = DL_MISSION_PATH_point_north_2(dl_buffer);
-  me.element.mission_path.path.path_f[1].z = DL_MISSION_PATH_path_alt(dl_buffer);
-  me.element.mission_path.path.path_f[2].x = DL_MISSION_PATH_point_east_3(dl_buffer);
-  me.element.mission_path.path.path_f[2].y = DL_MISSION_PATH_point_north_3(dl_buffer);
-  me.element.mission_path.path.path_f[2].z = DL_MISSION_PATH_path_alt(dl_buffer);
-  me.element.mission_path.path.path_f[3].x = DL_MISSION_PATH_point_east_4(dl_buffer);
-  me.element.mission_path.path.path_f[3].y = DL_MISSION_PATH_point_north_4(dl_buffer);
-  me.element.mission_path.path.path_f[3].z = DL_MISSION_PATH_path_alt(dl_buffer);
-  me.element.mission_path.path.path_f[4].x = DL_MISSION_PATH_point_east_5(dl_buffer);
-  me.element.mission_path.path.path_f[4].y = DL_MISSION_PATH_point_north_5(dl_buffer);
-  me.element.mission_path.path.path_f[4].z = DL_MISSION_PATH_path_alt(dl_buffer);
-  me.element.mission_path.nb = DL_MISSION_PATH_nb(dl_buffer);
+  me.element.mission_path.path.path_f[0].x = DL_MISSION_PATH_point_east_1(buf);
+  me.element.mission_path.path.path_f[0].y = DL_MISSION_PATH_point_north_1(buf);
+  me.element.mission_path.path.path_f[0].z = DL_MISSION_PATH_path_alt(buf);
+  me.element.mission_path.path.path_f[1].x = DL_MISSION_PATH_point_east_2(buf);
+  me.element.mission_path.path.path_f[1].y = DL_MISSION_PATH_point_north_2(buf);
+  me.element.mission_path.path.path_f[1].z = DL_MISSION_PATH_path_alt(buf);
+  me.element.mission_path.path.path_f[2].x = DL_MISSION_PATH_point_east_3(buf);
+  me.element.mission_path.path.path_f[2].y = DL_MISSION_PATH_point_north_3(buf);
+  me.element.mission_path.path.path_f[2].z = DL_MISSION_PATH_path_alt(buf);
+  me.element.mission_path.path.path_f[3].x = DL_MISSION_PATH_point_east_4(buf);
+  me.element.mission_path.path.path_f[3].y = DL_MISSION_PATH_point_north_4(buf);
+  me.element.mission_path.path.path_f[3].z = DL_MISSION_PATH_path_alt(buf);
+  me.element.mission_path.path.path_f[4].x = DL_MISSION_PATH_point_east_5(buf);
+  me.element.mission_path.path.path_f[4].y = DL_MISSION_PATH_point_north_5(buf);
+  me.element.mission_path.path.path_f[4].z = DL_MISSION_PATH_path_alt(buf);
+  me.element.mission_path.nb = DL_MISSION_PATH_nb(buf);
   if (me.element.mission_path.nb > MISSION_PATH_NB) { me.element.mission_path.nb = MISSION_PATH_NB; }
   me.element.mission_path.path_idx = 0;
-  me.duration = DL_MISSION_PATH_duration(dl_buffer);
-  me.index = DL_MISSION_PATH_index(dl_buffer);
+  me.duration = DL_MISSION_PATH_duration(buf);
+  me.index = DL_MISSION_PATH_index(buf);
 
-  enum MissionInsertMode insert = (enum MissionInsertMode)(DL_MISSION_PATH_insert(dl_buffer));
+  enum MissionInsertMode insert = (enum MissionInsertMode)(DL_MISSION_PATH_insert(buf));
 
   return mission_insert(insert, &me);
 }
 
-int mission_parse_PATH_LLA(void)
+int mission_parse_PATH_LLA(uint8_t *buf)
 {
-  if (DL_MISSION_PATH_LLA_ac_id(dl_buffer) != AC_ID) { return false; } // not for this aircraft
+  if (DL_MISSION_PATH_LLA_ac_id(buf) != AC_ID) { return false; } // not for this aircraft
 
   struct LlaCoor_i lla[MISSION_PATH_NB];
-  lla[0].lat = DL_MISSION_PATH_LLA_point_lat_1(dl_buffer);
-  lla[0].lon = DL_MISSION_PATH_LLA_point_lon_1(dl_buffer);
-  lla[0].alt = DL_MISSION_PATH_LLA_path_alt(dl_buffer);
-  lla[1].lat = DL_MISSION_PATH_LLA_point_lat_2(dl_buffer);
-  lla[1].lon = DL_MISSION_PATH_LLA_point_lon_2(dl_buffer);
-  lla[1].alt = DL_MISSION_PATH_LLA_path_alt(dl_buffer);
-  lla[2].lat = DL_MISSION_PATH_LLA_point_lat_3(dl_buffer);
-  lla[2].lon = DL_MISSION_PATH_LLA_point_lon_3(dl_buffer);
-  lla[2].alt = DL_MISSION_PATH_LLA_path_alt(dl_buffer);
-  lla[3].lat = DL_MISSION_PATH_LLA_point_lat_4(dl_buffer);
-  lla[3].lon = DL_MISSION_PATH_LLA_point_lon_4(dl_buffer);
-  lla[3].alt = DL_MISSION_PATH_LLA_path_alt(dl_buffer);
-  lla[4].lat = DL_MISSION_PATH_LLA_point_lat_5(dl_buffer);
-  lla[4].lon = DL_MISSION_PATH_LLA_point_lon_5(dl_buffer);
-  lla[4].alt = DL_MISSION_PATH_LLA_path_alt(dl_buffer);
+  lla[0].lat = DL_MISSION_PATH_LLA_point_lat_1(buf);
+  lla[0].lon = DL_MISSION_PATH_LLA_point_lon_1(buf);
+  lla[0].alt = DL_MISSION_PATH_LLA_path_alt(buf);
+  lla[1].lat = DL_MISSION_PATH_LLA_point_lat_2(buf);
+  lla[1].lon = DL_MISSION_PATH_LLA_point_lon_2(buf);
+  lla[1].alt = DL_MISSION_PATH_LLA_path_alt(buf);
+  lla[2].lat = DL_MISSION_PATH_LLA_point_lat_3(buf);
+  lla[2].lon = DL_MISSION_PATH_LLA_point_lon_3(buf);
+  lla[2].alt = DL_MISSION_PATH_LLA_path_alt(buf);
+  lla[3].lat = DL_MISSION_PATH_LLA_point_lat_4(buf);
+  lla[3].lon = DL_MISSION_PATH_LLA_point_lon_4(buf);
+  lla[3].alt = DL_MISSION_PATH_LLA_path_alt(buf);
+  lla[4].lat = DL_MISSION_PATH_LLA_point_lat_5(buf);
+  lla[4].lon = DL_MISSION_PATH_LLA_point_lon_5(buf);
+  lla[4].alt = DL_MISSION_PATH_LLA_path_alt(buf);
 
   struct _mission_element me;
   me.type = MissionPath;
   uint8_t i;
-  me.element.mission_path.nb = DL_MISSION_PATH_LLA_nb(dl_buffer);
+  me.element.mission_path.nb = DL_MISSION_PATH_LLA_nb(buf);
   if (me.element.mission_path.nb > MISSION_PATH_NB) { me.element.mission_path.nb = MISSION_PATH_NB; }
   for (i = 0; i < me.element.mission_path.nb; i++) {
     // if there is no valid local coordinate, do not insert mission element
     if (!mission_point_of_lla(&me.element.mission_path.path.path_f[i], &lla[i])) { return false; }
   }
   me.element.mission_path.path_idx = 0;
-  me.duration = DL_MISSION_PATH_LLA_duration(dl_buffer);
-  me.index = DL_MISSION_PATH_LLA_index(dl_buffer);
+  me.duration = DL_MISSION_PATH_LLA_duration(buf);
+  me.index = DL_MISSION_PATH_LLA_index(buf);
 
-  enum MissionInsertMode insert = (enum MissionInsertMode)(DL_MISSION_PATH_LLA_insert(dl_buffer));
+  enum MissionInsertMode insert = (enum MissionInsertMode)(DL_MISSION_PATH_LLA_insert(buf));
 
   return mission_insert(insert, &me);
 }
 
-int mission_parse_CUSTOM(void)
+int mission_parse_CUSTOM(uint8_t *buf)
 {
-  if (DL_MISSION_CUSTOM_ac_id(dl_buffer) != AC_ID) { return false; } // not for this aircraft
+  if (DL_MISSION_CUSTOM_ac_id(buf) != AC_ID) { return false; } // not for this aircraft
 
   struct _mission_element me;
   me.type = MissionCustom;
-  me.element.mission_custom.reg = mission_get_registered(DL_MISSION_CUSTOM_type(dl_buffer));
+  me.element.mission_custom.reg = mission_get_registered(DL_MISSION_CUSTOM_type(buf));
   if (me.element.mission_custom.reg == NULL) {
     return false; // unknown type
   }
-  me.element.mission_custom.nb = DL_MISSION_CUSTOM_params_length(dl_buffer);
+  me.element.mission_custom.nb = DL_MISSION_CUSTOM_params_length(buf);
   for (int i = 0; i < me.element.mission_custom.nb; i++) {
-    me.element.mission_custom.params[i] = DL_MISSION_CUSTOM_params(dl_buffer)[i];
+    me.element.mission_custom.params[i] = DL_MISSION_CUSTOM_params(buf)[i];
   }
-  me.duration = DL_MISSION_CUSTOM_duration(dl_buffer);
-  me.index = DL_MISSION_CUSTOM_index(dl_buffer);
+  me.duration = DL_MISSION_CUSTOM_duration(buf);
+  me.index = DL_MISSION_CUSTOM_index(buf);
 
-  enum MissionInsertMode insert = (enum MissionInsertMode)(DL_MISSION_CUSTOM_insert(dl_buffer));
+  enum MissionInsertMode insert = (enum MissionInsertMode)(DL_MISSION_CUSTOM_insert(buf));
 
   return mission_insert(insert, &me);
 }
 
-int mission_parse_GOTO_MISSION(void)
+int mission_parse_GOTO_MISSION(uint8_t *buf)
 {
-  if (DL_GOTO_MISSION_ac_id(dl_buffer) != AC_ID) { return false; } // not for this aircraft
+  if (DL_GOTO_MISSION_ac_id(buf) != AC_ID) { return false; } // not for this aircraft
 
-  uint8_t mission_id = DL_GOTO_MISSION_mission_id(dl_buffer);
+  uint8_t mission_id = DL_GOTO_MISSION_mission_id(buf);
   if (mission_id < MISSION_ELEMENT_NB) {
     mission.current_idx = mission_id;
   } else { return false; }
@@ -390,9 +390,9 @@ int mission_parse_GOTO_MISSION(void)
   return true;
 }
 
-int mission_parse_NEXT_MISSION(void)
+int mission_parse_NEXT_MISSION(uint8_t *buf)
 {
-  if (DL_NEXT_MISSION_ac_id(dl_buffer) != AC_ID) { return false; } // not for this aircraft
+  if (DL_NEXT_MISSION_ac_id(buf) != AC_ID) { return false; } // not for this aircraft
 
   if (mission.current_idx == mission.insert_idx) { return false; } // already at the last position
 
@@ -401,9 +401,9 @@ int mission_parse_NEXT_MISSION(void)
   return true;
 }
 
-int mission_parse_END_MISSION(void)
+int mission_parse_END_MISSION(uint8_t *buf)
 {
-  if (DL_END_MISSION_ac_id(dl_buffer) != AC_ID) { return false; } // not for this aircraft
+  if (DL_END_MISSION_ac_id(buf) != AC_ID) { return false; } // not for this aircraft
 
   // set current index to insert index (last position)
   mission.current_idx = mission.insert_idx;

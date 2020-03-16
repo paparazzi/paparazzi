@@ -19,8 +19,8 @@
   </header>
   <init fun="vi_init()"/>
   <periodic fun="vi_periodic()" freq="25"/>
-  <datalink message="BOOZ2_FMS_COMMAND" fun="VI_PARSE_DATALINK(dl_buffer)"/>
-  <datalink message="BOOZ_NAV_STICK" fun="VI_NAV_STICK_PARSE_DL(dl_buffer)"/>
+  <datalink message="BOOZ2_FMS_COMMAND" fun="VI_PARSE_DATALINK(buf)"/>
+  <datalink message="BOOZ_NAV_STICK" fun="VI_NAV_STICK_PARSE_DL(buf)"/>
   <makefile>
     <file name="vi.c"/>
     <file name="vi_datalink.c"/>

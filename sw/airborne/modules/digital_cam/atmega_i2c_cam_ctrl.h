@@ -35,8 +35,8 @@ void atmega_i2c_cam_ctrl_send(uint8_t cmd);
 // Allow commands to be set by datalink
 #define ParseCameraCommand() {                \
     {                     \
-      if ( DL_PAYLOAD_COMMAND_command_length(dl_buffer) == 1){        \
-        dc_send_command(DL_PAYLOAD_COMMAND_command(dl_buffer)[0]);      \
+      if ( DL_PAYLOAD_COMMAND_command_length(buf) == 1){        \
+        dc_send_command(DL_PAYLOAD_COMMAND_command(buf)[0]);      \
       }                     \
     }                       \
   }

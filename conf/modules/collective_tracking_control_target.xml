@@ -17,8 +17,8 @@
 
   <periodic fun="ctc_target_send_info_to_nei()" freq="10"/>
 
-  <datalink message="CTC_REG_TABLE" fun="parse_ctc_target_RegTable()"/>
-  <datalink message="CTC_CLEAN_TABLE" fun="parse_ctc_target_CleanTable()"/>
+  <datalink message="CTC_REG_TABLE" fun="parse_ctc_target_RegTable(buf)"/>
+  <datalink message="CTC_CLEAN_TABLE" fun="parse_ctc_target_CleanTable(buf)"/>
 
   <makefile>
     <file name="ctc_target.c"/>

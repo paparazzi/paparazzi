@@ -7,7 +7,7 @@
 #ifndef FORMATION_H
 #define FORMATION_H
 
-#include "subsystems/datalink/datalink.h" // dl_buffer
+//#include "subsystems/datalink/datalink.h" // dl_buffer
 #include "generated/airframe.h"           // AC_ID
 #include "modules/multi/traffic_info.h"
 
@@ -43,23 +43,23 @@ static inline void updateSlot(uint8_t id, float se, float sn, float sa)
 
 static inline void updateFormationStatus(uint8_t id, uint8_t status) { formation[ti_acs_id[id]].status = status; }
 
-static inline void parseFormationStatus(void)
+static inline void parseFormationStatus(uint8_t *buff)
 {
-  uint8_t ac_id = DL_FORMATION_STATUS_ac_id(dl_buffer);
-  uint8_t leader = DL_FORMATION_STATUS_leader_id(dl_buffer);
-  uint8_t status = DL_FORMATION_STATUS_status(dl_buffer);
+  uint8_t ac_id = DL_FORMATION_STATUS_ac_id(buf);
+  uint8_t leader = DL_FORMATION_STATUS_leader_id(buf);
+  uint8_t status = DL_FORMATION_STATUS_status(buf);
   if (ac_id == AC_ID) { leader_id = leader; }
   else if (leader == leader_id) { updateFormationStatus(ac_id, status); }
   else { updateFormationStatus(ac_id, UNSET); }
 }
 
-static inline void parseFormationSlot(void)
+static inline void parseFormationSlot(uint8_t *buf)
 {
-  uint8_t ac_id = DL_FORMATION_SLOT_ac_id(dl_buffer);
-  uint8_t mode = DL_FORMATION_SLOT_mode(dl_buffer);
-  float slot_east = DL_FORMATION_SLOT_slot_east(dl_buffer);
-  float slot_north = DL_FORMATION_SLOT_slot_north(dl_buffer);
-  float slot_alt = DL_FORMATION_SLOT_slot_alt(dl_buffer);
+  uint8_t ac_id = DL_FORMATION_SLOT_ac_id(buf);
+  uint8_t mode = DL_FORMATION_SLOT_mode(buf);
+  float slot_east = DL_FORMATION_SLOT_slot_east(buf);
+  float slot_north = DL_FORMATION_SLOT_slot_north(buf);
+  float slot_alt = DL_FORMATION_SLOT_slot_alt(buf);
   updateSlot(ac_id, slot_east, slot_north, slot_alt);
   if (ac_id == leader_id) { form_mode = mode; }
 }

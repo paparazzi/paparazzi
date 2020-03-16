@@ -25,7 +25,7 @@
 #include <stdio.h>
 
 #include "modules/multi/ctc/ctc.h"
-#include "subsystems/datalink/datalink.h" // dl_buffer
+//#include "subsystems/datalink/datalink.h" // dl_buffer
 #include "subsystems/datalink/telemetry.h"
 #include "subsystems/navigation/common_nav.h"
 #include "firmwares/fixedwing/stabilization/stabilization_attitude.h"
@@ -298,11 +298,11 @@ void ctc_send_info_to_nei(void)
     }
 }
 
-void parse_ctc_RegTable(void)
+void parse_ctc_RegTable(uint8_t *buf)
 {
-  uint8_t ac_id = DL_CTC_REG_TABLE_ac_id(dl_buffer);
+  uint8_t ac_id = DL_CTC_REG_TABLE_ac_id(buf);
   if (ac_id == AC_ID) {
-    uint8_t nei_id = DL_CTC_REG_TABLE_nei_id(dl_buffer);
+    uint8_t nei_id = DL_CTC_REG_TABLE_nei_id(buf);
     for (int i = 0; i < CTC_MAX_AC; i++)
       if (tableNei[i][0] == -1) {
         tableNei[i][0] = (int16_t)nei_id;
@@ -311,9 +311,9 @@ void parse_ctc_RegTable(void)
   }
 }
 
-void parse_ctc_CleanTable(void)
+void parse_ctc_CleanTable(uint8_t *buf)
 {
-  uint8_t ac_id = DL_CTC_REG_TABLE_ac_id(dl_buffer);
+  uint8_t ac_id = DL_CTC_REG_TABLE_ac_id(uint8_t *buf);
   if (ac_id == AC_ID)
     for (int i = 0; i < CTC_MAX_AC; i++) {
       tableNei[i][0] = -1;
@@ -339,24 +339,24 @@ void parse_ctc_CleanTable(void)
   ctc_gogo = false;
 }
 
-void parse_ctc_NeiInfoTable(void)
+void parse_ctc_NeiInfoTable(uint8_t *buf)
 {
-  int16_t sender_id = (int16_t)(SenderIdOfPprzMsg(dl_buffer));
+  int16_t sender_id = (int16_t)(SenderIdOfPprzMsg(buf));
   for (int i = 0; i < CTC_MAX_AC; i++)
     if (tableNei[i][0] == sender_id) {
       last_info[i] = get_sys_time_msec();
-      tableNei[i][1] = (int16_t)(DL_CTC_INFO_TO_NEI_vx(dl_buffer) * 100);
-      tableNei[i][2] = (int16_t)(DL_CTC_INFO_TO_NEI_vy(dl_buffer) * 100);
-      tableNei[i][3] = (int16_t)(DL_CTC_INFO_TO_NEI_px(dl_buffer) * 100);
-      tableNei[i][4] = (int16_t)(DL_CTC_INFO_TO_NEI_py(dl_buffer) * 100);
+      tableNei[i][1] = (int16_t)(DL_CTC_INFO_TO_NEI_vx(buf) * 100);
+      tableNei[i][2] = (int16_t)(DL_CTC_INFO_TO_NEI_vy(buf) * 100);
+      tableNei[i][3] = (int16_t)(DL_CTC_INFO_TO_NEI_px(buf) * 100);
+      tableNei[i][4] = (int16_t)(DL_CTC_INFO_TO_NEI_py(buf) * 100);
       break;
     }
 }
 
-void parse_ctc_TargetInfo(void)
+void parse_ctc_TargetInfo(uint8_t *buf)
 {
-  moving_target_px = DL_CTC_INFO_FROM_TARGET_px(dl_buffer);
-  moving_target_py = DL_CTC_INFO_FROM_TARGET_py(dl_buffer);
-  moving_target_vx = DL_CTC_INFO_FROM_TARGET_vx(dl_buffer);
-  moving_target_vy = DL_CTC_INFO_FROM_TARGET_vy(dl_buffer);
+  moving_target_px = DL_CTC_INFO_FROM_TARGET_px(buf);
+  moving_target_py = DL_CTC_INFO_FROM_TARGET_py(buf);
+  moving_target_vx = DL_CTC_INFO_FROM_TARGET_vx(buf);
+  moving_target_vy = DL_CTC_INFO_FROM_TARGET_vy(buf);
 }

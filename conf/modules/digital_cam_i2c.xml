@@ -24,7 +24,7 @@
   <periodic fun="atmega_i2c_cam_ctrl_periodic()"  autorun="TRUE" freq="10"/>
   <event fun="atmega_i2c_cam_ctrl_event()"/>
 
-  <datalink message="PAYLOAD_COMMAND" fun="ParseCameraCommand()"/>
+  <datalink message="PAYLOAD_COMMAND" fun="ParseCameraCommand(buf)"/>
 
   <makefile target="ap">
     <configure name="ATMEGA_I2C_DEV" default="i2c0" case="upper|lower"/>

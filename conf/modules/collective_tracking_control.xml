@@ -32,10 +32,10 @@ This module needs of custom messages in messages.xml. Please, check the wiki htt
 
   <init fun="ctc_init()"/>
 
-  <datalink message="CTC_REG_TABLE" fun="parse_ctc_RegTable()"/>
-  <datalink message="CTC_CLEAN_TABLE" fun="parse_ctc_CleanTable()"/>
-  <datalink message="CTC_INFO_TO_NEI" fun="parse_ctc_NeiInfoTable()"/>
-  <datalink message="CTC_INFO_FROM_TARGET" fun="parse_ctc_TargetInfo()"/>
+  <datalink message="CTC_REG_TABLE" fun="parse_ctc_RegTable(buf)"/>
+  <datalink message="CTC_CLEAN_TABLE" fun="parse_ctc_CleanTable(buf)"/>
+  <datalink message="CTC_INFO_TO_NEI" fun="parse_ctc_NeiInfoTable(buf)"/>
+  <datalink message="CTC_INFO_FROM_TARGET" fun="parse_ctc_TargetInfo(buf)"/>
 
   <makefile firmware="fixedwing">
     <file name="ctc.c"/>

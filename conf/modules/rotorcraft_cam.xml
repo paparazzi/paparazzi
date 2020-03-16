@@ -56,7 +56,7 @@ On boards with CAM_SWITCH, ROTORCRAFT_CAM_SWITCH_GPIO can be defined to CAM_SWIT
   </header>
   <init fun="rotorcraft_cam_init()"/>
   <periodic fun="rotorcraft_cam_periodic()" freq="10."/>
-  <datalink message="ROTORCRAFT_CAM_STICK" fun="ROTORCRAFT_CAM_STICK_PARSE(dl_buffer)"/>
+  <datalink message="ROTORCRAFT_CAM_STICK" fun="ROTORCRAFT_CAM_STICK_PARSE(buf)"/>
   <makefile>
     <file name="rotorcraft_cam.c"/>
   </makefile>
