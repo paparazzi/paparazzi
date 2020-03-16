@@ -1,0 +1,42 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="mag_ist8310" dir="sensors">
+  <doc>
+    <description>
+      ST IST8310 magnetometer.
+    </description>
+    <configure name="MAG_IST8310_I2C_DEV" value="i2cX" description="I2C device to use"/>
+    <define name="MODULE_IST8310_SYNC_SEND" value="TRUE|FALSE" description="Send IMU_RAW message with each new measurement (default: FALSE)"/>
+    <define name="MODULE_IST8310_UPDATE_AHRS" value="TRUE|FALSE" description="Copy measurements to imu and send as ABI message (default: FALSE)"/>
+    <define name="IST8310_CHAN_X_SIGN" value="+|-" description="Reverse polarity of x axis (default: +)"/>
+    <define name="IST8310_CHAN_Y_SIGN" value="+|-" description="Reverse polarity of y axis (default: +)"/>
+    <define name="IST8310_CHAN_Z_SIGN" value="+|-" description="Reverse polarity of z axis (default: +)"/>
+    <define name="IST8310_CHAN_X" value="0|1|2" description="Channel id of x axis (default: 0)"/>
+    <define name="IST8310_CHAN_Y" value="0|1|2" description="Channel id of y axis (default: 1)"/>
+    <define name="IST8310_CHAN_Z" value="0|1|2" description="Channel id of z axis (default: 2)"/>
+    <section name="MAG_IST8310" prefix="IST8310_">
+      <define name="MAG_TO_IMU_PHI" value="0.0" description="Rotation between sensor frame and IMU frame (phi angle)"/>
+      <define name="MAG_TO_IMU_THETA" value="0.0" description="Rotation between sensor frame and IMU frame (theta angle)"/>
+      <define name="MAG_TO_IMU_PSI" value="0.0" description="Rotation between sensor frame and IMU frame (psi angle)"/>
+    </section>
+  </doc>
+  <header>
+    <file name="mag_ist8310.h"/>
+  </header>
+  <init fun="mag_ist8310_module_init()"/>
+  <periodic fun="mag_ist8310_module_periodic()" freq="50"/>
+  <periodic fun="mag_ist8310_report()" freq="10" autorun="FALSE"/>
+  <event fun="mag_ist8310_module_event()"/>
+  <makefile target="ap">
+    <file name="mag_ist8310.c"/>
+    <file name="ist8310.c" dir="peripherals"/>
+    <raw>
+      ifeq ($(MAG_IST8310_I2C_DEV),)
+        $(error mag_ist8310 module error: please configure MAG_IST8310_I2C_DEV)
+      endif
+    </raw>
+    <configure name="MAG_IST8310_I2C_DEV" case="upper|lower"/>
+    <define name="USE_$(MAG_IST8310_I2C_DEV_UPPER)"/>
+    <define name="MAG_IST8310_I2C_DEV" value="$(MAG_IST8310_I2C_DEV_LOWER)"/>
+  </makefile>
+</module>
