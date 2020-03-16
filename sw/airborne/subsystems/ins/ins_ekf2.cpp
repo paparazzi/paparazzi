@@ -106,6 +106,7 @@ static abi_event accel_ev;
 static abi_event mag_ev;
 static abi_event gps_ev;
 static abi_event body_to_imu_ev;
+struct gps_message gps_msg = {};
 
 /* All ABI callbacks */
 static void agl_cb(uint8_t sender_id, uint32_t stamp, float distance);
@@ -141,10 +142,12 @@ static void ins_ekf2_publish_attitude(uint32_t stamp);
 
 /* Static local variables */
 static Ekf ekf;                                   ///< EKF class itself
-static parameters *ekf2_params;                   ///< The EKF parameters
-static struct ekf2_t ekf2;                        ///< Local EKF EKF status structure
+static parameters *ekf_params;                   ///< The EKF parameters
+struct ekf2_t ekf2;                               ///< Local EKF2 status structure
 static uint8_t ahrs_ekf2_id = AHRS_COMP_ID_EKF2;  ///< Component ID for EKF
 
+/* External paramters */
+struct ekf2_parameters_t ekf2_params;
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
@@ -169,11 +172,27 @@ static void send_ins_ekf2(struct transport_tx *trans, struct link_device *dev)
   ekf.get_ekf_soln_status(&soln_status);
 
   uint16_t innov_test_status;
-  float mag, vel, pos, hgt, tas, hagl, beta;
+  float mag, vel, pos, hgt, tas, hagl, beta, mag_decl;
   ekf.get_innovation_test_status(&innov_test_status, &mag, &vel, &pos, &hgt, &tas, &hagl, &beta);
+  ekf.get_mag_decl_deg(&mag_decl);
   pprz_msg_send_INS_EKF2(trans, dev, AC_ID,
                          &control_mode, &filter_fault_status, &gps_check_status, &soln_status,
-                         &innov_test_status, &mag, &vel, &pos, &hgt, &tas, &hagl, &beta);
+                         &innov_test_status, &mag, &vel, &pos, &hgt, &tas, &hagl, &beta,
+                         &mag_decl);
+}
+
+static void send_ins_ekf2_ext(struct transport_tx *trans, struct link_device *dev)
+{
+  float gps_drift[3], vibe[3];
+  bool gps_blocked;
+  uint8_t gps_blocked_b;
+  ekf.get_gps_drift_metrics(gps_drift, &gps_blocked);
+  ekf.get_imu_vibe_metrics(vibe);
+  gps_blocked_b = gps_blocked;
+
+  pprz_msg_send_INS_EKF2_EXT(trans, dev, AC_ID,
+                         &gps_drift[0], &gps_drift[1], &gps_drift[2], &gps_blocked_b,
+                         &vibe[0], &vibe[1], &vibe[2]);
 }
 
 static void send_filter_status(struct transport_tx *trans, struct link_device *dev)
@@ -200,14 +219,38 @@ static void send_filter_status(struct transport_tx *trans, struct link_device *d
 
   pprz_msg_send_STATE_FILTER_STATUS(trans, dev, AC_ID, &ahrs_ekf2_id, &mde, &filter_fault_status);
 }
+
+static void send_wind_info_ret(struct transport_tx *trans, struct link_device *dev)
+{
+  float velNE_wind[2], tas;
+  uint8_t flags = 0x5;
+  float f_zero = 0;
+
+  ekf.get_wind_velocity(velNE_wind);
+  ekf.get_true_airspeed(&tas);
+
+  pprz_msg_send_WIND_INFO_RET(trans, dev, AC_ID, &flags, &velNE_wind[1], &velNE_wind[0], &f_zero, &tas);
+}
+
+static void send_ahrs_bias(struct transport_tx *trans, struct link_device *dev)
+{
+  float accel_bias[3], gyro_bias[3], states[24];
+  ekf.get_accel_bias(accel_bias);
+  ekf.get_gyro_bias(gyro_bias);
+  ekf.get_state_delayed(states);
+
+  pprz_msg_send_AHRS_BIAS(trans, dev, AC_ID, &accel_bias[0], &accel_bias[1], &accel_bias[2], 
+                          &gyro_bias[0], &gyro_bias[1], &gyro_bias[2], &states[19], &states[20], &states[21]);
+}
 #endif
 
 /* Initialize the EKF */
 void ins_ekf2_init(void)
 {
   /* Get the ekf parameters */
-  ekf2_params = ekf.getParamHandle();
-  ekf2_params->mag_fusion_type = MAG_FUSE_TYPE_HEADING;
+  ekf_params = ekf.getParamHandle();
+  ekf_params->mag_fusion_type = MAG_FUSE_TYPE_HEADING;
+  ekf_params->is_moving_scaler = 0.8f;
 
   /* Initialize struct */
   ekf2.ltp_stamp = 0;
@@ -224,7 +267,10 @@ void ins_ekf2_init(void)
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS_REF, send_ins_ref);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS_EKF2, send_ins_ekf2);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_INS_EKF2_EXT, send_ins_ekf2_ext);
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_STATE_FILTER_STATUS, send_filter_status);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_WIND_INFO_RET, send_wind_info_ret);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_AHRS_BIAS, send_ahrs_bias);
 #endif
 
   /*
@@ -313,6 +359,10 @@ void ins_ekf2_update(void)
 #endif
 
   ekf2.got_imu_data = false;
+}
+
+void ins_ekf2_change_param(int32_t unk) {
+  ekf_params->mag_fusion_type = ekf2_params.mag_fusion_type = unk;
 }
 
 /** Publish the attitude and get the new state
@@ -495,7 +545,6 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
                    uint32_t stamp,
                    struct GpsState *gps_s)
 {
-  struct gps_message gps_msg = {};
   gps_msg.time_usec = stamp;
   gps_msg.lat = gps_s->lla_pos.lat;
   gps_msg.lon = gps_s->lla_pos.lon;
@@ -503,8 +552,8 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
   gps_msg.yaw = NAN;
   gps_msg.yaw_offset = NAN;
   gps_msg.fix_type = gps_s->fix;
-  gps_msg.eph = gps_s->hacc / 1000.0;
-  gps_msg.epv = gps_s->vacc / 1000.0;
+  gps_msg.eph = gps_s->hacc / 100.0;
+  gps_msg.epv = gps_s->vacc / 100.0;
   gps_msg.sacc = gps_s->sacc / 100.0;
   gps_msg.vel_m_s = gps_s->gspeed / 100.0;
   gps_msg.vel_ned[0] = (gps_s->ned_vel.x) / 100.0;
