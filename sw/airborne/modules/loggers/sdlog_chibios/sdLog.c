@@ -282,13 +282,12 @@ SdioError sdLogFinish(void)
 #ifdef SDLOG_NEED_QUEUE
 SdioError sdLogOpenLog(FileDes *fd, const char *directoryName, const char *prefix,
                        const uint32_t autoFlushPeriod, const bool appendTagAtClose,
-		       const size_t sizeInMo, const bool preallocate)
+		       const size_t sizeInMo, const bool preallocate, char *fileName, const size_t nameLength)
 {
   FRESULT rc; /* fatfs result code */
   SdioError sde = SDLOG_OK; /* sdio result code */
   //DIR dir; /* Directory object */
   //FILINFO fno; /* File information object */
-  char fileName[32];
 
   /* local file descriptor
      using fd is a bad idea since fd is set before fatfs objets are coherents
@@ -302,7 +301,7 @@ SdioError sdLogOpenLog(FileDes *fd, const char *directoryName, const char *prefi
     return storageStatus = sde;
   }
 
-  sde = getFileName(prefix, directoryName, fileName, sizeof(fileName), +1);
+  sde = getFileName(prefix, directoryName, fileName, nameLength, +1);
   if (sde != SDLOG_OK) {
     // sd card is not inserted, so logging task can be deleted
     return storageStatus = SDLOG_FATFS_ERROR;
