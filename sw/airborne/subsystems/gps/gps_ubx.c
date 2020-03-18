@@ -153,6 +153,65 @@ void gps_ubx_read_message(void)
         LED_TOGGLE(GPS_LED);
       }
 #endif
+    } else if (gps_ubx.msg_id == UBX_NAV_PVT_ID) {
+      uint8_t flags             = UBX_NAV_PVT_FLAGS(gps_ubx.msg_buf);
+      gps_ubx.state.lla_pos.lat = UBX_NAV_PVT_LAT(gps_ubx.msg_buf);
+      gps_ubx.state.lla_pos.lon = UBX_NAV_PVT_LON(gps_ubx.msg_buf);
+      gps_ubx.state.lla_pos.alt = UBX_NAV_PVT_HEIGHT(gps_ubx.msg_buf);
+      SetBit(gps_ubx.state.valid_fields, GPS_VALID_POS_LLA_BIT);
+      gps_ubx.state.hmsl        = UBX_NAV_PVT_HMSL(gps_ubx.msg_buf);
+      SetBit(gps_ubx.state.valid_fields, GPS_VALID_HMSL_BIT);
+      gps_ubx.state.gspeed      = UBX_NAV_PVT_GSPEED(gps_ubx.msg_buf);
+      gps_ubx.state.ned_vel.x   = UBX_NAV_PVT_VELN(gps_ubx.msg_buf);
+      gps_ubx.state.ned_vel.y   = UBX_NAV_PVT_VELE(gps_ubx.msg_buf);
+      gps_ubx.state.ned_vel.z   = UBX_NAV_PVT_VELD(gps_ubx.msg_buf);
+      SetBit(gps_ubx.state.valid_fields, GPS_VALID_VEL_NED_BIT);
+      uint8_t headVehValid      = bit_is_set(flags, 5);
+      if (headVehValid) {
+        // Ublox gives I4 heading in 1e-5 degrees, apparenty from 0 to 360 degrees (not -180 to 180)
+        // I4 max = 2^31 = 214 * 1e5 * 100 < 360 * 1e7: overflow on angles over 214 deg -> casted to -214 deg
+        // solution: First to radians, and then scale to 1e-7 radians
+        // First x 10 for loosing less resolution, then to radians, then multiply x 10 again
+        gps_ubx.state.course      = (RadOfDeg(UBX_NAV_PVT_HEADMOT(gps_ubx.msg_buf) * 10)) * 10;
+        SetBit(gps_ubx.state.valid_fields, GPS_VALID_COURSE_BIT);
+        gps_ubx.state.cacc        = (RadOfDeg(UBX_NAV_PVT_HEADACC(gps_ubx.msg_buf) * 10)) * 10;
+      }
+      gps_ubx.state.hacc        = UBX_NAV_PVT_HACC(gps_ubx.msg_buf);
+      gps_ubx.state.vacc        = UBX_NAV_PVT_VACC(gps_ubx.msg_buf);
+      gps_ubx.state.sacc        = UBX_NAV_PVT_SACC(gps_ubx.msg_buf);
+      gps_ubx.state.pdop        = UBX_NAV_PVT_PDOP(gps_ubx.msg_buf);
+      gps_ubx.state.num_sv      = UBX_NAV_PVT_NUMSV(gps_ubx.msg_buf);
+      gps_ubx_time_sync.t0_ticks    = sys_time.nb_tick;
+      gps_ubx_time_sync.t0_tow      = UBX_NAV_PVT_ITOW(gps_ubx.msg_buf);
+      gps_ubx_time_sync.t0_tow_frac = UBX_NAV_PVT_NANO(gps_ubx.msg_buf);
+      gps_ubx.state.tow         = UBX_NAV_PVT_ITOW(gps_ubx.msg_buf);
+      uint16_t year             = UBX_NAV_PVT_YEAR(gps_ubx.msg_buf);
+      uint8_t month             = UBX_NAV_PVT_MONTH(gps_ubx.msg_buf);
+      uint8_t day               = UBX_NAV_PVT_DAY(gps_ubx.msg_buf);
+      gps_ubx.state.week        = gps_week_number(year, month, day);
+      uint8_t gnssFixOK         = bit_is_set(flags, 0);
+      uint8_t diffSoln          = bit_is_set(flags, 1);
+      uint8_t carrSoln          = (flags & 0xC0) >> 6;
+      if (gnssFixOK > 0) {
+        if (diffSoln > 0) {
+          if (carrSoln == 2) {
+            gps_ubx.state.fix = 5; // rtk
+          } else {
+            gps_ubx.state.fix = 4; // dgnss
+          }
+        } else {
+          gps_ubx.state.fix = 3; // 3D
+        }
+      } else {
+        gps_ubx.state.fix = 0;
+      }
+#ifdef GPS_LED
+      if (gps_ubx.state.fix >= GPS_FIX_3D) {
+        LED_ON(GPS_LED);
+      } else {
+        LED_TOGGLE(GPS_LED);
+      }
+#endif
     } else if (gps_ubx.msg_id == UBX_NAV_POSLLH_ID) {
       gps_ubx.state.lla_pos.lat = UBX_NAV_POSLLH_LAT(gps_ubx.msg_buf);
       gps_ubx.state.lla_pos.lon = UBX_NAV_POSLLH_LON(gps_ubx.msg_buf);
@@ -448,6 +507,7 @@ void gps_ubx_msg(void)
   gps_ubx_ucenter_event();
   if (gps_ubx.msg_class == UBX_NAV_ID &&
       (gps_ubx.msg_id == UBX_NAV_VELNED_ID ||
+       gps_ubx.msg_id == UBX_NAV_PVT_ID ||
        (gps_ubx.msg_id == UBX_NAV_SOL_ID &&
         !bit_is_set(gps_ubx.state.valid_fields, GPS_VALID_VEL_NED_BIT)))) {
     if (gps_ubx.state.fix >= GPS_FIX_3D) {

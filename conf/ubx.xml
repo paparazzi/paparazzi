@@ -48,6 +48,46 @@
       <field name="res2" format="U4"/>
     </message>
 
+    <message name="PVT" ID="0x07" length="92">
+      <field name="ITOW" format="U4" unit="ms"/>
+      <field name="YEAR" format="U2" unit="y (UTC)"/>
+      <field name="MONTH" format="U1" unit="month (UTC)"/>
+      <field name="DAY" format="U1" unit="d (UTC)"/>
+      <field name="HOUR" format="U1" unit="h (UTC)"/>
+      <field name="MIN" format="U1" unit="m (UTC)"/>
+      <field name="SEC" format="U1" unit="s (UTC)"/>
+      <field name="VALID" format="U1"/>
+      <field name="TACC" format="U4" unit="ns"/>
+      <field name="NANO" format="I4" unit="ns"/>
+      <field name="FIXTYPE" format="U1"/>
+      <field name="FLAGS" format="U1"/>
+      <field name="FLAGS2" format="U1"/>
+      <field name="NUMSV" format="U1"/>
+      <field name="LON" format="I4" scaling="1e-7" unit="deg"/>
+      <field name="LAT" format="I4" scaling="1e-7" unit="deg"/>
+      <field name="HEIGHT" format="I4" unit="mm"/>
+      <field name="HMSL" format="I4" unit="mm"/>
+      <field name="HACC" format="U4" unit="mm"/>
+      <field name="VACC" format="U4" unit="mm"/>
+      <field name="VELN" format="I4" unit="mm/s"/>
+      <field name="VELE" format="I4" unit="mm/s"/>
+      <field name="VELD" format="I4" unit="mm/s"/>
+      <field name="GSPEED" format="I4" unit="mm/s"/>
+      <field name="HEADMOT" format="I4" scaling="1e-5" unit="deg"/>
+      <field name="SACC" format="U4" unit="mm/s"/>
+      <field name="HEADACC" format="U4" scaling="1e-5" unit="deg"/>
+      <field name="PDOP" format="U2" scaling="0.01"/>
+      <field name="RES1" format="U1"/>
+      <field name="RES2" format="U1"/>
+      <field name="RES3" format="U1"/>
+      <field name="RES4" format="U1"/>
+      <field name="RES5" format="U1"/>
+      <field name="RES6" format="U1"/>
+      <field name="HEADVEH" format="I4" scaling="1e-5" unit="deg"/>
+      <field name="MAGDEC" format="I2" scaling="1e-2" unit="deg"/>
+      <field name="MAGACC" format="U2" scaling="1e-2" unit="deg"/>
+    </message>
+
     <message name="POSUTM" ID="0x08" length="18">
       <field name="ITOW" format="U4" unit="ms"/>
       <field name="EAST" format="I4" unit="cm"/>

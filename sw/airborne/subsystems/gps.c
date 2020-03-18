@@ -434,3 +434,34 @@ struct UtmCoor_i utm_int_from_gps(struct GpsState *gps_s, uint8_t zone)
 
   return utm;
 }
+
+/**
+ * GPS week number roll-over workaround application note
+ */
+
+// known day_of_year for each month:
+// Major index 0 is for non-leap years, and 1 is for leap years
+// Minor index is for month number 1 .. 12, 0 at index 0 is number of days before January
+static const uint16_t month_days[2][13] = {
+  { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 },
+  { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366 }
+};
+
+// Count the days since start of 1980
+// Counts year * 356 days + leap days + month lengths + days in month
+// The leap days counting needs the "+ 1" because GPS year 0 (i.e. 1980) was a leap year
+uint16_t gps_day_number(uint16_t year, uint8_t month, uint8_t day)
+{
+  uint16_t gps_years = year - 1980;
+  uint16_t leap_year = (gps_years % 4 == 0) ? 1 : 0;
+  uint16_t day_of_year = month_days[leap_year][month - 1] + day;
+  if (gps_years == 0)
+    return day_of_year;
+  return gps_years * 365 + ((gps_years - 1) / 4) + 1 + day_of_year;
+}
+
+uint16_t gps_week_number(uint16_t year, uint8_t month, uint8_t day)
+{
+  return gps_day_number(year, month, day) / 7;
+}
+
