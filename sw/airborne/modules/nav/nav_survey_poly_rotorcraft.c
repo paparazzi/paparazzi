@@ -59,7 +59,6 @@
 
 uint8_t Poly_Size = POLYSURVEY_DEFAULT_SIZE;
 float Poly_Distance = POLYSURVEY_DEFAULT_DISTANCE;
-float sweep_var;
 
 void nav_survey_poly_setup_towards(uint8_t FirstWP, uint8_t Size, float Sweep, int SecondWP)
 {
@@ -149,7 +148,7 @@ void nav_survey_poly_setup(uint8_t EntryWP, uint8_t Size, float sw, float Orient
 
   SurveyEntryWP = EntryWP;
   SurveySize = Size;
-  sweep_var = sw;
+  Poly_Distance = sw;
 
   struct EnuCoor_f Corners[MaxPolygonSize];
 
@@ -309,8 +308,8 @@ bool nav_survey_poly_run(void)
 {
 
   #ifdef NAV_SURVEY_POLY_DYNAMIC
-  dSweep = (nav_survey_shift > 0 ? sweep_var : -sweep_var);
-  #endif 
+  dSweep = (nav_survey_shift > 0 ? Poly_Distance : -Poly_Distance);
+  #endif
 
   struct EnuCoor_f C;
   struct EnuCoor_f ToP;

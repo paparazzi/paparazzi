@@ -31,7 +31,6 @@
 
 extern uint8_t Poly_Size;
 extern float Poly_Distance;
-extern float sweep_var;
 extern uint16_t PolySurveySweepNum;
 extern uint16_t PolySurveySweepBackNum;
 extern bool Half_Sweep_Enabled;
@@ -49,7 +48,7 @@ extern void nav_survey_poly_setup(uint8_t FirstWP, uint8_t Size, float Sweep, fl
  * Setup "dynamic" polygon survey with sweep orientation towards a waypoint.
  * Computes the sweep orientation angle from the line FirstWP-SecondWP.
  * If you pass zero for Size and/or Sweep it will use the global Poly_Size and
- * Poly_Sweep variables respectively (which can be changed via telemetry/settings).
+ * Poly_Distance variables respectively (which can be changed via telemetry/settings).
  * @param FirstWP   first waypoint/corner of the polygon
  * @param Size      number of waypoints/corners used to define the polygon,
  *                  if zero uses Poly_Size
