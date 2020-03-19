@@ -35,6 +35,7 @@ For more details we refer to https://wiki.paparazziuav.org/wiki/Module/guidance_
       <dl_settings NAME="GVF">
         <dl_settings NAME="Control">
           <dl_setting MAX="1" MIN="-1" STEP="2" VAR="gvf_control.s" shortname = "direction"/>
+          <dl_setting min="0" max="500" step="1" var="gvf_nav_survey_sweep" type="float" shortname="sweep"/>
         </dl_settings>
         <dl_settings NAME="Ellipse">
           <dl_setting MAX="5" MIN="0.0" STEP="0.01" VAR="gvf_ellipse_par.ke" shortname="ell_ke" param="GVF_ELLIPSE_KE"/>

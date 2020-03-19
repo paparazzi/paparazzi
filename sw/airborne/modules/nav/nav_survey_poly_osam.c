@@ -178,7 +178,7 @@ void nav_survey_poly_osam_setup(uint8_t EntryWP, uint8_t Size, float sw, float O
 
   SurveyEntryWP = EntryWP;
   SurveySize = Size;
-  sweep_var = sw;
+  Poly_Sweep = sw;
 
   struct Point2D Corners[PolygonSize];
 
@@ -349,9 +349,9 @@ void nav_survey_poly_osam_setup(uint8_t EntryWP, uint8_t Size, float sw, float O
 bool nav_survey_poly_osam_run(void)
 {
   #ifdef NAV_SURVEY_POLY_OSAM_DYNAMIC
-  dSweep = (nav_survey_shift > 0 ? sweep_var : -sweep_var);
+  dSweep = (nav_survey_shift > 0 ? Poly_Sweep : -Poly_Sweep);
   #endif
-  
+
   struct Point2D C;
   struct Point2D ToP;
   struct Point2D FromP;

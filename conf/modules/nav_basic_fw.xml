@@ -21,7 +21,7 @@
         <dl_setting MAX="50" MIN="5" STEP="0.5" VAR="nav_ground_speed_setpoint" shortname="ground speed"/>
         <dl_setting MAX="0.2" MIN="0" STEP="0.01" VAR="nav_ground_speed_pgain" shortname="ground speed pgain"/>
         <dl_setting MAX="500" MIN="50" STEP="5" VAR="nav_survey_shift"/>
-	<dl_setting min="10" max="500" step="1" var="sweep_var" type="float" shortname="Distance" module="firmwares/fixedwing/nav"/>
+        <dl_setting min="10" max="500" step="1" var="nav_survey_sweep" type="float" shortname="Distance" module="subsystems/navigation/nav_survey_rectangle"/>
       </dl_settings>
     </dl_settings>
   </settings>
