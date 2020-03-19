@@ -35,9 +35,9 @@
 
 #ifdef GPS_I2C
 #include "modules/gps/gps_ubx_i2c.h"
-#endif
-
+#else
 #include "mcu_periph/uart.h"
+#endif
 
 #ifndef PRIMARY_GPS
 #define PRIMARY_GPS GPS_UBX

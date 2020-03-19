@@ -67,7 +67,6 @@ PRINT_CONFIG_VAR(SECONDARY_GPS)
 #define TIME_TO_SWITCH 5000 //ten s in ms
 
 struct GpsState gps;
-
 struct GpsTimeSync gps_time_sync;
 struct GpsRelposNED gps_relposned;
 struct RtcmMan rtcm_man;
@@ -232,19 +231,20 @@ static void send_gps_sol(struct transport_tx *trans, struct link_device *dev)
 
 
 #ifdef SECONDARY_GPS
-static uint8_t gps_multi_switch(struct GpsState *gps_s) {
+static uint8_t gps_multi_switch(struct GpsState *gps_s)
+{
   static uint32_t time_since_last_gps_switch = 0;
 
-  if (multi_gps_mode == GPS_MODE_PRIMARY){
+  if (multi_gps_mode == GPS_MODE_PRIMARY) {
     return GpsId(PRIMARY_GPS);
-  } else if (multi_gps_mode == GPS_MODE_SECONDARY){
+  } else if (multi_gps_mode == GPS_MODE_SECONDARY) {
     return GpsId(SECONDARY_GPS);
-  } else{
-    if (gps_s->fix > gps.fix){
+  } else {
+    if (gps_s->fix > gps.fix) {
       return gps_s->comp_id;
-    } else if (gps.fix > gps_s->fix){
+    } else if (gps.fix > gps_s->fix) {
       return gps.comp_id;
-    } else{
+    } else {
       if (get_sys_time_msec() - time_since_last_gps_switch > TIME_TO_SWITCH) {
         if (gps_s->num_sv > gps.num_sv) {
           current_gps_id = gps_s->comp_id;
@@ -298,8 +298,7 @@ static void gps_cb(uint8_t sender_id,
   gps = *gps_s;
   AbiSendMsgGPS(GPS_MULTI_ID, now_ts, gps_s);
 #endif
-  if (gps.tow != gps_time_sync.t0_tow)
-  {
+  if (gps.tow != gps_time_sync.t0_tow) {
     gps_time_sync.t0_ticks = sys_time.nb_tick;
     gps_time_sync.t0_tow = gps.tow;
   }
@@ -378,7 +377,9 @@ uint32_t gps_tow_from_sys_ticks(uint32_t sys_ticks)
 /**
  * Default parser for GPS injected data
  */
-void WEAK gps_inject_data(uint8_t packet_id __attribute__((unused)), uint8_t length __attribute__((unused)), uint8_t *data __attribute__((unused))){
+void WEAK gps_inject_data(uint8_t packet_id __attribute__((unused)), uint8_t length __attribute__((unused)),
+                          uint8_t *data __attribute__((unused)))
+{
 
 }
 
@@ -388,13 +389,12 @@ void WEAK gps_inject_data(uint8_t packet_id __attribute__((unused)), uint8_t len
 #include "state.h"
 struct UtmCoor_f utm_float_from_gps(struct GpsState *gps_s, uint8_t zone)
 {
-  struct UtmCoor_f utm = {.east = 0., .north=0., .alt=0., .zone=zone};
+  struct UtmCoor_f utm = {.east = 0., .north = 0., .alt = 0., .zone = zone};
 
   if (bit_is_set(gps_s->valid_fields, GPS_VALID_POS_UTM_BIT)) {
     /* A real UTM position is available, use the correct zone */
     UTM_FLOAT_OF_BFP(utm, gps_s->utm_pos);
-  } else if (bit_is_set(gps_s->valid_fields, GPS_VALID_POS_LLA_BIT))
-  {
+  } else if (bit_is_set(gps_s->valid_fields, GPS_VALID_POS_LLA_BIT)) {
     /* Recompute UTM coordinates in this zone */
     struct UtmCoor_i utm_i;
     utm_i.zone = zone;
@@ -403,9 +403,9 @@ struct UtmCoor_f utm_float_from_gps(struct GpsState *gps_s, uint8_t zone)
 
     /* set utm.alt in hsml */
     if (bit_is_set(gps_s->valid_fields, GPS_VALID_HMSL_BIT)) {
-      utm.alt = gps_s->hmsl/1000.;
+      utm.alt = gps_s->hmsl / 1000.;
     } else {
-      utm.alt = wgs84_ellipsoid_to_geoid_i(gps_s->lla_pos.lat, gps_s->lla_pos.lon)/1000.;
+      utm.alt = wgs84_ellipsoid_to_geoid_i(gps_s->lla_pos.lat, gps_s->lla_pos.lon) / 1000.;
     }
   }
 
@@ -414,13 +414,12 @@ struct UtmCoor_f utm_float_from_gps(struct GpsState *gps_s, uint8_t zone)
 
 struct UtmCoor_i utm_int_from_gps(struct GpsState *gps_s, uint8_t zone)
 {
-  struct UtmCoor_i utm = {.east = 0, .north=0, .alt=0, .zone=zone};
+  struct UtmCoor_i utm = {.east = 0, .north = 0, .alt = 0, .zone = zone};
 
   if (bit_is_set(gps_s->valid_fields, GPS_VALID_POS_UTM_BIT)) {
     // A real UTM position is available, use the correct zone
     UTM_COPY(utm, gps_s->utm_pos);
-  }
-  else if (bit_is_set(gps_s->valid_fields, GPS_VALID_POS_LLA_BIT)){
+  } else if (bit_is_set(gps_s->valid_fields, GPS_VALID_POS_LLA_BIT)) {
     /* Recompute UTM coordinates in zone */
     utm_of_lla_i(&utm, &gps_s->lla_pos);
 
