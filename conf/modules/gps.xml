@@ -29,7 +29,7 @@
   </header>
   <init fun="gps_init()"/>
 
-  <makefile>
+  <makefile target="fbw|ap|sim|nps|hitl">
     <configure name="GPS_LED" default="none"/>
     <file name="gps.c" dir="subsystems"/>
     <define name="USE_GPS"/>

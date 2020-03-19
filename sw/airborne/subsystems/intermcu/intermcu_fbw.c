@@ -249,12 +249,6 @@ static void gps_cb(uint8_t sender_id __attribute__((unused)),
     &gps_s->num_sv,
     &gps_s->fix);
 }
-
-void gps_periodic_check(struct GpsState *gps_s) {
-  if (sys_time.nb_sec - gps_s->last_msg_time > GPS_TIMEOUT) {
-    gps_s->fix = GPS_FIX_NONE;
-  }
-}
 #endif
 
 /* SOME STUFF FOR PX4IO BOOTLOADER (TODO: move this code) */
