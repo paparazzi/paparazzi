@@ -100,11 +100,11 @@ void gps_ubx_ucenter_init(void)
 void gps_ubx_ucenter_periodic(void)
 {
   switch (gps_ubx_ucenter.status) {
-      // Save processing time inflight
+    // Save processing time inflight
     case GPS_UBX_UCENTER_STATUS_STOPPED:
       return;
-    break;
-      // Automatically Determine Current Baudrate
+      break;
+    // Automatically Determine Current Baudrate
     case GPS_UBX_UCENTER_STATUS_AUTOBAUD:
 #ifdef GPS_I2C
       gps_ubx_ucenter.cnt = 0;
@@ -125,7 +125,7 @@ void gps_ubx_ucenter_periodic(void)
       }
 #endif /* GPS_I2C */
       break;
-      // Send Configuration
+    // Send Configuration
     case GPS_UBX_UCENTER_STATUS_CONFIG:
       if (gps_ubx_ucenter_configure(gps_ubx_ucenter.cnt) == FALSE) {
         gps_ubx_ucenter.status = GPS_UBX_UCENTER_STATUS_STOPPED;
@@ -140,12 +140,11 @@ void gps_ubx_ucenter_periodic(void)
       }
       break;
     case GPS_UBX_UCENTER_STATUS_WAITING:
-      if (gps_i2c_tx_is_ready())
-      {
+      if (gps_i2c_tx_is_ready()) {
         gps_ubx_ucenter.status = GPS_UBX_UCENTER_STATUS_CONFIG;
 #endif /*GPS_I2C*/
       }
-    break;
+      break;
     default:
       // stop this module now...
       // todo
@@ -298,7 +297,7 @@ static bool gps_ubx_ucenter_autobaud(uint8_t nr)
       uart_periph_set_baudrate(&(UBX_GPS_LINK), B115200); // Last possible option for ublox
       gps_ubx_ucenter_config_port_poll();
       break;
-     case 7:
+    case 7:
       if (gps_ubx_ucenter.reply == GPS_UBX_UCENTER_REPLY_ACK) {
         gps_ubx_ucenter.baud_init = gps_ubx_ucenter.baud_run;
         return false;
@@ -377,21 +376,14 @@ static inline void gps_ubx_ucenter_config_nav(void)
   if (gps_ubx_ucenter.sw_ver_h < 5 && gps_ubx_ucenter.hw_ver_h < 6 &&
       gps_ubx_ucenter.sw_ver_h != 0 && gps_ubx_ucenter.hw_ver_h != 0) {
     UbxSend_CFG_NAV(gps_ubx_ucenter.dev,
-        NAV_DYN_AIRBORNE_2G, 3, 16, 24, 20, 5, 0, 0x3C,
-        0x3C, 0x14, 0x03E8 , 0x0000, 0x0, 0x17, 0x00FA, 0x00FA,
-        0x0064, 0x012C, 0x000F, 0x00, 0x00);
+                    NAV_DYN_AIRBORNE_2G, 3, 16, 24, 20, 5, 0, 0x3C,
+                    0x3C, 0x14, 0x03E8 , 0x0000, 0x0, 0x17, 0x00FA, 0x00FA,
+                    0x0064, 0x012C, 0x000F, 0x00, 0x00);
   } else {
-#if USE_GPS_UBX_RTCM
-    UbxSend_CFG_NAV5_HPG(gps_ubx_ucenter.dev,
-        NAV5_MASK, GPS_UBX_NAV5_DYNAMICS, NAV5_3D_ONLY, IGNORED, IGNORED, NAV5_DEFAULT_MIN_ELEV, RESERVED,
-        NAV5_DEFAULT_PDOP_MASK, NAV5_DEFAULT_TDOP_MASK, NAV5_DEFAULT_P_ACC, NAV5_DEFAULT_T_ACC,
-        NAV5_DEFAULT_STATIC_HOLD_THRES, 125, 0, 0, RESERVED, 0, 0, RESERVED, RESERVED);
-#else
     UbxSend_CFG_NAV5(gps_ubx_ucenter.dev,
-        NAV5_MASK, GPS_UBX_NAV5_DYNAMICS, NAV5_3D_ONLY, IGNORED, IGNORED, NAV5_DEFAULT_MIN_ELEV, RESERVED,
-        NAV5_DEFAULT_PDOP_MASK, NAV5_DEFAULT_TDOP_MASK, NAV5_DEFAULT_P_ACC, NAV5_DEFAULT_T_ACC,
-        NAV5_DEFAULT_STATIC_HOLD_THRES, RESERVED, RESERVED, RESERVED, RESERVED);
-#endif
+                     NAV5_MASK, GPS_UBX_NAV5_DYNAMICS, NAV5_3D_ONLY, IGNORED, IGNORED, NAV5_DEFAULT_MIN_ELEV, RESERVED,
+                     NAV5_DEFAULT_PDOP_MASK, NAV5_DEFAULT_TDOP_MASK, NAV5_DEFAULT_P_ACC, NAV5_DEFAULT_T_ACC,
+                     NAV5_DEFAULT_STATIC_HOLD_THRES, 125, 0, 0, RESERVED, 0, 0, RESERVED, RESERVED);
   }
 }
 
@@ -426,27 +418,28 @@ static inline void gps_ubx_ucenter_config_nav(void)
 static inline void gps_ubx_ucenter_config_port(void)
 {
   switch (gps_ubx_ucenter.port_id) {
-      // I2C Interface
+    // I2C Interface
     case GPS_PORT_DDC:
 #ifdef GPS_I2C
-      UbxSend_CFG_PRT(gps_ubx_ucenter.dev, gps_ubx_ucenter.port_id, 0x0, 0x0, (0x42<<1), 0x0, UBX_PROTO_MASK, UBX_PROTO_MASK, 0x0, 0x0);
+      UbxSend_CFG_PRT(gps_ubx_ucenter.dev, gps_ubx_ucenter.port_id, 0x0, 0x0, (0x42 << 1), 0x0, UBX_PROTO_MASK,
+                      UBX_PROTO_MASK, 0x0, 0x0);
 #else
       DEBUG_PRINT("WARNING: Please include the gps_i2c module.\n");
 #endif
       break;
-      // UART Interface
+    // UART Interface
     case GPS_PORT_UART1:
     case GPS_PORT_UART2:
       UbxSend_CFG_PRT(gps_ubx_ucenter.dev,
-          gps_ubx_ucenter.port_id, RESERVED, RESERVED,
-          UBX_UART_MODE_MASK, UART_SPEED(gps_ubx_ucenter.baud_target), UBX_PROTO_MASK | NMEA_PROTO_MASK | RTCM3_PROTO_MASK,
-          UBX_PROTO_MASK | (NMEA_PROTO_MASK & GPS_UBX_ENABLE_NMEA_DATA_MASK), 0x0, 0x0);
+                      gps_ubx_ucenter.port_id, RESERVED, RESERVED,
+                      UBX_UART_MODE_MASK, UART_SPEED(gps_ubx_ucenter.baud_target), UBX_PROTO_MASK | NMEA_PROTO_MASK | RTCM3_PROTO_MASK,
+                      UBX_PROTO_MASK | (NMEA_PROTO_MASK & GPS_UBX_ENABLE_NMEA_DATA_MASK), 0x0, 0x0);
       break;
-      // USB Interface
+    // USB Interface
     case GPS_PORT_USB:
       UbxSend_CFG_PRT(gps_ubx_ucenter.dev,
-          gps_ubx_ucenter.port_id, 0x0, 0x0, 0x0, 0x0,
-          UBX_PROTO_MASK | NMEA_PROTO_MASK, UBX_PROTO_MASK| (NMEA_PROTO_MASK & GPS_UBX_ENABLE_NMEA_DATA_MASK), 0x0, 0x0);
+                      gps_ubx_ucenter.port_id, 0x0, 0x0, 0x0, 0x0,
+                      UBX_PROTO_MASK | NMEA_PROTO_MASK, UBX_PROTO_MASK | (NMEA_PROTO_MASK & GPS_UBX_ENABLE_NMEA_DATA_MASK), 0x0, 0x0);
       break;
     case GPS_PORT_SPI:
       DEBUG_PRINT("WARNING: ublox SPI port is currently not supported.\n");
@@ -470,9 +463,9 @@ static inline void gps_ubx_ucenter_config_port(void)
 static inline void gps_ubx_ucenter_config_sbas(void)
 {
   // Since March 2nd 2011 EGNOS is released for aviation purposes
-  UbxSend_CFG_SBAS(gps_ubx_ucenter.dev, GPS_SBAS_ENABLED, GPS_SBAS_RANGING | GPS_SBAS_CORRECTIONS | GPS_SBAS_INTEGRITY, GPS_SBAS_MAX_SBAS,
+  UbxSend_CFG_SBAS(gps_ubx_ucenter.dev, GPS_SBAS_ENABLED, GPS_SBAS_RANGING | GPS_SBAS_CORRECTIONS | GPS_SBAS_INTEGRITY,
+                   GPS_SBAS_MAX_SBAS,
                    GPS_SBAS_AUTOSCAN, GPS_SBAS_AUTOSCAN);
-  //UbxSend_CFG_SBAS(0x00, 0x00, 0x00, 0x00, 0x00);
 }
 
 // Text Telemetry for Debugging
@@ -543,59 +536,61 @@ static bool gps_ubx_ucenter_configure(uint8_t nr)
 #endif
       break;
     case 12:
-#if ! USE_GPS_UBX_RXM_RAW
       // Disable UTM on old Lea4P
       gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_POSUTM_ID, 0);
-#endif
       break;
     case 13:
+      // Enable Position Velocity time solution
+      gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_PVT_ID, 1);
+      break;
+    case 14:
       // SBAS Configuration
       gps_ubx_ucenter_config_sbas();
       break;
-    case 14:
+    case 15:
       // Poll Navigation/Measurement Rate Settings
       UbxSend_CFG_RATE(gps_ubx_ucenter.dev, GPS_UBX_UCENTER_RATE, 0x0001, 0x0000);
       break;
-    case 15:
+    case 16:
       // Raw Measurement Data
 #if USE_GPS_UBX_RXM_RAW
       gps_ubx_ucenter_enable_msg(UBX_RXM_ID, UBX_RXM_RAW_ID, 1);
 #endif
       break;
-    case 16:
+    case 17:
       // Subframe Buffer
 #if USE_GPS_UBX_RXM_SFRB
       gps_ubx_ucenter_enable_msg(UBX_RXM_ID, UBX_RXM_SFRB_ID, 1);
 #endif
       break;
 #if USE_GPS_UBX_RTCM
-    case 17:
+    case 18:
       DEBUG_PRINT("CFG_DGNSS\n");
       UbxSend_CFG_DGNSS(gps_ubx_ucenter.dev, 0x03, RESERVED, RESERVED);
       break;
-    case 18:
+    case 19:
       DEBUG_PRINT("Enable RELPOSNED\n");
       gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_RELPOSNED_ID, 1);
       break;
-    case 19:
+    case 20:
       DEBUG_PRINT("Enable HPPPOSLLH\n");
       gps_ubx_ucenter_enable_msg(UBX_NAV_ID, UBX_NAV_HPPOSLLH_ID, 1);
       break;
-    case 20:
+    case 21:
       DEBUG_PRINT("Enable RXM_RTCM\n");
       gps_ubx_ucenter_enable_msg(UBX_RXM_ID, UBX_RXM_RTCM_ID, 1);
       break;
 #endif
-    case 21:
+    case 22:
       // Try to save on non-ROM devices...
       UbxSend_CFG_CFG(gps_ubx_ucenter.dev, 0x00000000, 0xffffffff, 0x00000000);
       break;
-    case 22:
+    case 23:
       UbxSend_MON_GET_GNSS(gps_ubx_ucenter.dev);
       break;
-    case 23:
-      break;
     case 24:
+      break;
+    case 25:
 #if DEBUG_GPS_UBX_UCENTER
       // Debug Downlink the result of all configuration steps: see messages
       // To view, enable DEBUG message in your telemetry configuration .xml
@@ -608,7 +603,8 @@ static bool gps_ubx_ucenter_configure(uint8_t nr)
       {
         uint8_t sbas = GPS_SBAS_RANGING | GPS_SBAS_CORRECTIONS | GPS_SBAS_INTEGRITY;
         uint8_t gnss = gps_ubx_ucenter.gnss_in_use ;
-        DOWNLINK_SEND_UBLOX_INFO(DefaultChannel, DefaultDevice, &gps_ubx_ucenter.baud_run, &gps_ubx_ucenter.sw_ver_h, &gps_ubx_ucenter.sw_ver_l, &gps_ubx_ucenter.hw_ver_h, &gps_ubx_ucenter.hw_ver_l, &sbas, &gnss);
+        DOWNLINK_SEND_UBLOX_INFO(DefaultChannel, DefaultDevice, &gps_ubx_ucenter.baud_run, &gps_ubx_ucenter.sw_ver_h,
+                                 &gps_ubx_ucenter.sw_ver_l, &gps_ubx_ucenter.hw_ver_h, &gps_ubx_ucenter.hw_ver_l, &sbas, &gnss);
       }
 #endif
       return false;
