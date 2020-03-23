@@ -105,6 +105,8 @@
     <boards>
       <board name="li[s]?a_mxs_.*"/>
       <board name="li[s]?a_s_.*"/>
+      <board name="px4fmu_.*"/>
+      <board name="px4io_.*"/>
     </boards>
   </mode>
   <mode name="BlackMagic Probe (JTAG)">

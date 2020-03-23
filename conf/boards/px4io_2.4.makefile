@@ -29,12 +29,18 @@ BARO_LED           ?= none
 AHRS_ALIGNER_LED   ?= none
 GPS_LED            ?= none
 SYS_TIME_LED       ?= 2
-FBW_MODE_LED	     ?= 3
+FBW_MODE_LED       ?= 3
 
 #
 # default UART configuration (modem, gps, spektrum)
 #
 RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT   ?= UART1
+SBUS_PORT ?= UART3
+ACTUATORS_SBUS_DEV ?= UART3
+
+#InterMCU port connected to the FMU processor
+INTERMCU_PORT ?= UART2
+INTERMCU_BAUD ?= B230400
 
 #
 # default actuator configuration
