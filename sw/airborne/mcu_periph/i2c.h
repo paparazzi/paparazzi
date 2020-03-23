@@ -239,7 +239,7 @@ extern void   i2c_init(struct i2c_periph *p);
  * @param p i2c peripheral to be used
  * @return TRUE if idle
  */
-inline bool i2c_idle(struct i2c_periph *p) {
+static inline bool i2c_idle(struct i2c_periph *p) {
   return p->idle(p);
 }
 
@@ -249,7 +249,7 @@ inline bool i2c_idle(struct i2c_periph *p) {
  * @param t i2c transaction
  * @return TRUE if insertion to the transaction queue succeeded
  */
-inline bool i2c_submit(struct i2c_periph *p, struct i2c_transaction *t) {
+static inline bool i2c_submit(struct i2c_periph *p, struct i2c_transaction *t) {
   return p->submit(p, t);
 }
 
@@ -257,7 +257,7 @@ inline bool i2c_submit(struct i2c_periph *p, struct i2c_transaction *t) {
  * @param p i2c peripheral to be used
  * @param bitrate bitrate
  */
-inline void   i2c_setbitrate(struct i2c_periph *p, int bitrate) {
+static inline void   i2c_setbitrate(struct i2c_periph *p, int bitrate) {
   p->setbitrate(p, bitrate);
 }
 

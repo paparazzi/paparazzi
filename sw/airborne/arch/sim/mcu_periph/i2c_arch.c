@@ -27,6 +27,9 @@
 #include "mcu_periph/i2c.h"
 
 
+static bool i2c_sim_idle(struct i2c_periph *p __attribute__((unused))) __attribute__((unused));
+static bool i2c_sim_submit(struct i2c_periph *p __attribute__((unused)), struct i2c_transaction *t __attribute__((unused))) __attribute__((unused));
+static void i2c_sim_setbitrate(struct i2c_periph *p __attribute__((unused)), int bitrate __attribute__((unused))) __attribute__((unused));
 static bool i2c_sim_idle(struct i2c_periph *p __attribute__((unused))) { return true; }
 static bool i2c_sim_submit(struct i2c_periph *p __attribute__((unused)), struct i2c_transaction *t __attribute__((unused))) { return true;}
 static void i2c_sim_setbitrate(struct i2c_periph *p __attribute__((unused)), int bitrate __attribute__((unused))) { }

@@ -42,6 +42,12 @@
 #define I2C_THREAD_PRIO 10
 #endif
 
+
+static bool i2c_linux_idle(struct i2c_periph *p __attribute__((unused))) __attribute__((unused));
+static bool i2c_linux_submit(struct i2c_periph *p, struct i2c_transaction *t) __attribute__((unused));
+static void i2c_linux_setbitrate(struct i2c_periph *p  __attribute__((unused)), int bitrate __attribute__((unused))) __attribute__((unused));
+
+
 static void *i2c_thread(void *thread_data);
 
 // private I2C init structure
