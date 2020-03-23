@@ -181,6 +181,10 @@
 #define MAG_LIS3MDL_SENDER_ID 3
 #endif
 
+#ifndef MAG_IST8310_SENDER_ID
+#define MAG_IST8310_SENDER_ID 4
+#endif
+
 #ifndef IMU_MAG_PITOT_ID
 #define IMU_MAG_PITOT_ID 50
 #endif
