@@ -135,7 +135,16 @@ struct i2c_transaction {
 
 /** I2C peripheral structure.
  */
+struct i2c_periph;
+typedef bool i2c_idle_fn_t(struct i2c_periph *p);
+typedef bool i2c_submit_fn_t(struct i2c_periph *p, struct i2c_transaction *t);
+typedef void i2c_setbitrate_fn_t(struct i2c_periph *p, int bitrate);
+
 struct i2c_periph {
+  /* architecture-specific functions */
+  i2c_idle_fn_t *idle;
+  i2c_submit_fn_t *submit;
+  i2c_setbitrate_fn_t *setbitrate;
   /* circular buffer holding transactions */
   struct i2c_transaction *trans[I2C_TRANSACTION_QUEUE_LEN];
   uint8_t trans_insert_idx;
@@ -230,7 +239,9 @@ extern void   i2c_init(struct i2c_periph *p);
  * @param p i2c peripheral to be used
  * @return TRUE if idle
  */
-extern bool i2c_idle(struct i2c_periph *p);
+inline bool i2c_idle(struct i2c_periph *p) {
+  return p->idle(p);
+}
 
 /** Submit a I2C transaction.
  * Must be implemented by the underlying architecture
@@ -238,13 +249,18 @@ extern bool i2c_idle(struct i2c_periph *p);
  * @param t i2c transaction
  * @return TRUE if insertion to the transaction queue succeeded
  */
-extern bool i2c_submit(struct i2c_periph *p, struct i2c_transaction *t);
+inline bool i2c_submit(struct i2c_periph *p, struct i2c_transaction *t) {
+  return p->submit(p, t);
+}
 
 /** Set I2C bitrate.
  * @param p i2c peripheral to be used
  * @param bitrate bitrate
  */
-extern void   i2c_setbitrate(struct i2c_periph *p, int bitrate);
+inline void   i2c_setbitrate(struct i2c_periph *p, int bitrate) {
+  p->setbitrate(p, bitrate);
+}
+
 extern void   i2c_event(void);
 
 /*
