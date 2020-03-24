@@ -21,7 +21,7 @@
 /**
  * @file subsystems/actuators/actuators_uavcan.c
  * UAVCan actuators using RAWCOMMAND message and ESC_STATUS telemetry
- * 
+ *
  */
 
 #include "actuators_uavcan.h"
@@ -80,7 +80,8 @@ static void actuators_uavcan_send_esc(struct transport_tx *trans, struct link_de
 /**
  * Whevener an ESC_STATUS message from the EQUIPMENT group is received
  */
-static void actuators_uavcan_esc_status_cb(struct uavcan_iface_t *iface, CanardRxTransfer* transfer) {
+static void actuators_uavcan_esc_status_cb(struct uavcan_iface_t *iface, CanardRxTransfer *transfer)
+{
   /*uint8_t esc_idx;
   uint16_t tmp_float;
 
@@ -89,7 +90,6 @@ static void actuators_uavcan_esc_status_cb(struct uavcan_iface_t *iface, CanardR
     esc_idx += 10;
   if(esc_idx >= ACTUATORS_UAVCAN_NB)
     break;
-  
   canardDecodeScalar(transfer, 0, 32, false, (void*)&uavcan_telem[esc_idx].energy);
   canardDecodeScalar(transfer, 32, 16, true, (void*)&tmp_float);
   uavcan_telem[esc_idx].voltage = canardConvertFloat16ToNativeFloat(tmp_float);
@@ -108,13 +108,14 @@ static void actuators_uavcan_esc_status_cb(struct uavcan_iface_t *iface, CanardR
 /**
  * Initialize an uavcan interface
  */
-void actuators_uavcan_init(struct uavcan_iface_t* iface __attribute__((unused)))
+void actuators_uavcan_init(struct uavcan_iface_t *iface __attribute__((unused)))
 {
   // Check if not already initialized (for multiple interfaces, needs only 1)
-  if(actuators_uavcan_initialized) return;
+  if (actuators_uavcan_initialized) { return; }
 
   // Bind uavcan ESC_STATUS message from EQUIPMENT
-  uavcan_bind(UAVCAN_EQUIPMENT_ESC_STATUS_ID, UAVCAN_EQUIPMENT_ESC_STATUS_SIGNATURE, &esc_status_ev, &actuators_uavcan_esc_status_cb);
+  uavcan_bind(UAVCAN_EQUIPMENT_ESC_STATUS_ID, UAVCAN_EQUIPMENT_ESC_STATUS_SIGNATURE, &esc_status_ev,
+              &actuators_uavcan_esc_status_cb);
 
   // Configure telemetry
 #if PERIODIC_TELEMETRY
@@ -128,18 +129,18 @@ void actuators_uavcan_init(struct uavcan_iface_t* iface __attribute__((unused)))
 /**
  * Commit actuator values to the uavcan interface
  */
-void actuators_uavcan_commit(struct uavcan_iface_t* iface, int16_t *values, uint8_t nb)
-{ 
+void actuators_uavcan_commit(struct uavcan_iface_t *iface, int16_t *values, uint8_t nb)
+{
   uint8_t buffer[UAVCAN_EQUIPMENT_ESC_RAWCOMMAND_MAX_SIZE];
   uint32_t offset = 0;
 
   // Encode the values as 14-bit signed integers
-  for(uint8_t i = 0; i < nb; i++) {
+  for (uint8_t i = 0; i < nb; i++) {
     canardEncodeScalar(buffer, offset, 14, (void *)&values[i]);
     offset += 14;
   }
 
   // Broadcast the raw command message on the interface
   uavcan_broadcast(iface, UAVCAN_EQUIPMENT_ESC_RAWCOMMAND_SIGNATURE, UAVCAN_EQUIPMENT_ESC_RAWCOMMAND_ID,
-                      CANARD_TRANSFER_PRIORITY_HIGH, buffer, (offset+7)/8);
+                   CANARD_TRANSFER_PRIORITY_HIGH, buffer, (offset + 7) / 8);
 }

@@ -26,7 +26,7 @@
 #include BOARD_CONFIG
 
 /* External functions */
-extern void actuators_uavcan_init(struct uavcan_iface_t* iface);
-extern void actuators_uavcan_commit(struct uavcan_iface_t* iface, int16_t *values, uint8_t nb);
+extern void actuators_uavcan_init(struct uavcan_iface_t *iface);
+extern void actuators_uavcan_commit(struct uavcan_iface_t *iface, int16_t *values, uint8_t nb);
 
 #endif /* ACTUATORS_UAVCAN_H */

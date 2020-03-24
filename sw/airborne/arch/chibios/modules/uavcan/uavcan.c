@@ -21,7 +21,7 @@
 /**
  * @file arch/chibios/modules/uavcan/uavcan.c
  * Interface from actuators to ChibiOS CAN driver using UAVCan
- * 
+ *
  */
 
 #include "uavcan.h"
@@ -45,15 +45,15 @@ static uavcan_event *uavcan_event_hd = NULL;
 #define UAVCAN_CAN1_BAUDRATE UAVCAN_BAUDRATE
 #endif
 
-static THD_WORKING_AREA(uavcan1_rx_wa, 1024*2);
-static THD_WORKING_AREA(uavcan1_tx_wa, 1024*2);
+static THD_WORKING_AREA(uavcan1_rx_wa, 1024 * 2);
+static THD_WORKING_AREA(uavcan1_tx_wa, 1024 * 2);
 
 struct uavcan_iface_t uavcan1 = {
   .can_driver = &CAND1,
   .can_cfg = {
     CAN_MCR_ABOM | CAN_MCR_AWUM | CAN_MCR_TXFP,
     CAN_BTR_SJW(0) | CAN_BTR_TS2(1) |
-    CAN_BTR_TS1(14) | CAN_BTR_BRP((STM32_PCLK1/18)/UAVCAN_CAN1_BAUDRATE - 1)
+    CAN_BTR_TS1(14) | CAN_BTR_BRP((STM32_PCLK1 / 18) / UAVCAN_CAN1_BAUDRATE - 1)
   },
   .thread_rx_wa = uavcan1_rx_wa,
   .thread_rx_wa_size = sizeof(uavcan1_rx_wa),
@@ -74,15 +74,15 @@ struct uavcan_iface_t uavcan1 = {
 #define UAVCAN_CAN2_BAUDRATE UAVCAN_BAUDRATE
 #endif
 
-static THD_WORKING_AREA(uavcan2_rx_wa, 1024*2);
-static THD_WORKING_AREA(uavcan2_tx_wa, 1024*2);
+static THD_WORKING_AREA(uavcan2_rx_wa, 1024 * 2);
+static THD_WORKING_AREA(uavcan2_tx_wa, 1024 * 2);
 
 struct uavcan_iface_t uavcan2 = {
   .can_driver = &CAND2,
   .can_cfg = {
     CAN_MCR_ABOM | CAN_MCR_AWUM | CAN_MCR_TXFP,
     CAN_BTR_SJW(0) | CAN_BTR_TS2(1) |
-    CAN_BTR_TS1(14) | CAN_BTR_BRP((STM32_PCLK1/18)/UAVCAN_CAN2_BAUDRATE - 1)
+    CAN_BTR_TS1(14) | CAN_BTR_BRP((STM32_PCLK1 / 18) / UAVCAN_CAN2_BAUDRATE - 1)
   },
   .thread_rx_wa = uavcan2_rx_wa,
   .thread_rx_wa_size = sizeof(uavcan2_rx_wa),
@@ -97,7 +97,8 @@ struct uavcan_iface_t uavcan2 = {
 /*
  * Receiver thread.
  */
-static THD_FUNCTION(uavcan_rx, p) {
+static THD_FUNCTION(uavcan_rx, p)
+{
   event_listener_t el;
   CANRxFrame rx_msg;
   CanardCANFrame rx_frame;
@@ -106,8 +107,9 @@ static THD_FUNCTION(uavcan_rx, p) {
   chRegSetThreadName("uavcan_rx");
   chEvtRegister(&iface->can_driver->rxfull_event, &el, EVENT_MASK(0));
   while (true) {
-    if (chEvtWaitAnyTimeout(ALL_EVENTS, TIME_MS2I(100)) == 0)
+    if (chEvtWaitAnyTimeout(ALL_EVENTS, TIME_MS2I(100)) == 0) {
       continue;
+    }
     chMtxLock(&iface->mutex);
 
     // Wait until a CAN message is received
@@ -116,12 +118,11 @@ static THD_FUNCTION(uavcan_rx, p) {
       const uint32_t timestamp = TIME_I2US(chVTGetSystemTimeX());
       memcpy(rx_frame.data, rx_msg.data8, 8);
       rx_frame.data_len = rx_msg.DLC;
-      if(rx_msg.IDE) {
+      if (rx_msg.IDE) {
         rx_frame.id = CANARD_CAN_FRAME_EFF | rx_msg.EID;
       } else {
         rx_frame.id = rx_msg.SID;
       }
- 
       // Let canard handle the frame
       canardHandleRxFrame(&iface->canard, &rx_frame, timestamp);
     }
@@ -133,7 +134,8 @@ static THD_FUNCTION(uavcan_rx, p) {
 /*
  * Transmitter thread.
  */
-static THD_FUNCTION(uavcan_tx, p) {
+static THD_FUNCTION(uavcan_tx, p)
+{
   event_listener_t txc, txe, txr;
   struct uavcan_iface_t *iface = (struct uavcan_iface_t *)p;
   uint8_t err_cnt = 0;
@@ -146,40 +148,38 @@ static THD_FUNCTION(uavcan_tx, p) {
   while (true) {
     eventmask_t evts = chEvtWaitAnyTimeout(ALL_EVENTS, TIME_MS2I(100));
     // Succesfull transmit
-    if (evts == 0)
+    if (evts == 0) {
       continue;
+    }
 
     // Transmit error
-    if(evts & EVENT_MASK(1))
-    {
+    if (evts & EVENT_MASK(1)) {
       chEvtGetAndClearFlags(&txe);
       continue;
     }
 
     chMtxLock(&iface->mutex);
-    for (const CanardCANFrame* txf = NULL; (txf = canardPeekTxQueue(&iface->canard)) != NULL;) {
+    for (const CanardCANFrame *txf = NULL; (txf = canardPeekTxQueue(&iface->canard)) != NULL;) {
       CANTxFrame tx_msg;
       tx_msg.DLC = txf->data_len;
       memcpy(tx_msg.data8, txf->data, 8);
       tx_msg.EID = txf->id & CANARD_CAN_EXT_ID_MASK;
       tx_msg.IDE = CAN_IDE_EXT;
       tx_msg.RTR = CAN_RTR_DATA;
-      if (canTransmit(iface->can_driver, CAN_ANY_MAILBOX, &tx_msg, TIME_IMMEDIATE) == MSG_OK) {
+      if (!canTryTransmitI(iface->can_driver, CAN_ANY_MAILBOX, &tx_msg)) {
         err_cnt = 0;
         canardPopTxQueue(&iface->canard);
       } else {
-        // After 5 retries giveup
-        if(err_cnt >= 5) {
+        // After 5 retries giveup and clean full queue
+        if (err_cnt >= 5) {
           err_cnt = 0;
-          canardPopTxQueue(&iface->canard);
+          while (canardPeekTxQueue(&iface->canard)) { canardPopTxQueue(&iface->canard); }
           continue;
         }
 
         // Timeout - just exit and try again later
         chMtxUnlock(&iface->mutex);
-        err_cnt++;
-        canardPopTxQueue(&iface->canard); //FIXME (This needs to be here, don't know why)
-        chThdSleepMilliseconds(err_cnt * 5);
+        chThdSleepMilliseconds(++err_cnt);
         chMtxLock(&iface->mutex);
         continue;
       }
@@ -191,33 +191,35 @@ static THD_FUNCTION(uavcan_tx, p) {
 /**
  *  Whenever a valid and 'accepted' transfer is received
  */
-static void onTransferReceived(CanardInstance* ins, CanardRxTransfer* transfer) {
+static void onTransferReceived(CanardInstance *ins, CanardRxTransfer *transfer)
+{
   struct uavcan_iface_t *iface = (struct uavcan_iface_t *)ins->user_reference;
 
   // Go through all registered callbacks and call function callback if found
-  for(uavcan_event *ev = uavcan_event_hd; ev; ev = ev->next) {
-    if(transfer->data_type_id == ev->data_type_id)
+  for (uavcan_event *ev = uavcan_event_hd; ev; ev = ev->next) {
+    if (transfer->data_type_id == ev->data_type_id) {
       ev->cb(iface, transfer);
+    }
   }
 }
 
 /**
  * If we should accept this transfer
  */
-static bool shouldAcceptTransfer(const CanardInstance* ins __attribute__((unused)),
-                                 uint64_t* out_data_type_signature,
+static bool shouldAcceptTransfer(const CanardInstance *ins __attribute__((unused)),
+                                 uint64_t *out_data_type_signature,
                                  uint16_t data_type_id,
                                  CanardTransferType transfer_type __attribute__((unused)),
-                                 uint8_t source_node_id __attribute__((unused))) {
+                                 uint8_t source_node_id __attribute__((unused)))
+{
 
   // Go through all registered callbacks and return signature if found
-  for(uavcan_event *ev = uavcan_event_hd; ev; ev = ev->next) {
-    if(data_type_id == ev->data_type_id) {
+  for (uavcan_event *ev = uavcan_event_hd; ev; ev = ev->next) {
+    if (data_type_id == ev->data_type_id) {
       *out_data_type_signature = ev->data_type_signature;
       return true;
     }
   }
- 
   // No callback found return
   return false;
 }
@@ -225,14 +227,15 @@ static bool shouldAcceptTransfer(const CanardInstance* ins __attribute__((unused
 /**
  * Initialize uavcan interface
  */
-static void uavcanInitIface(struct uavcan_iface_t *iface) {
+static void uavcanInitIface(struct uavcan_iface_t *iface)
+{
   // Initialize mutexes/events for multithread locking
   chMtxObjectInit(&iface->mutex);
   chEvtObjectInit(&iface->tx_request);
 
   // Initialize canard
   canardInit(&iface->canard, iface->canard_memory_pool, sizeof(iface->canard_memory_pool),
-    onTransferReceived, shouldAcceptTransfer, iface);
+             onTransferReceived, shouldAcceptTransfer, iface);
   // Update the uavcan node ID
   canardSetLocalNodeID(&iface->canard, iface->node_id);
 
@@ -240,8 +243,8 @@ static void uavcanInitIface(struct uavcan_iface_t *iface) {
   canStart(iface->can_driver, &iface->can_cfg);
 
   // Start the receiver and transmitter thread
-  chThdCreateStatic(iface->thread_rx_wa, iface->thread_rx_wa_size, NORMALPRIO + 8, uavcan_rx, (void*)iface);
-  chThdCreateStatic(iface->thread_tx_wa, iface->thread_tx_wa_size, NORMALPRIO + 7, uavcan_tx, (void*)iface);
+  chThdCreateStatic(iface->thread_rx_wa, iface->thread_rx_wa_size, NORMALPRIO + 8, uavcan_rx, (void *)iface);
+  chThdCreateStatic(iface->thread_tx_wa, iface->thread_tx_wa_size, NORMALPRIO + 7, uavcan_tx, (void *)iface);
   iface->initialized = true;
 }
 
@@ -253,7 +256,7 @@ void uavcan_init(void)
 #if UAVCAN_USE_CAN1
   uavcanInitIface(&uavcan1);
 #endif
-#if UAVCAN_USE_CAN2 
+#if UAVCAN_USE_CAN2
   uavcanInitIface(&uavcan2);
 #endif
 }
@@ -264,9 +267,9 @@ void uavcan_init(void)
 void uavcan_bind(uint16_t data_type_id, uint64_t data_type_signature, uavcan_event *ev, uavcan_callback cb)
 {
   // Configure the event
-  ev->data_type_id = data_type_id,
-  ev->data_type_signature = data_type_signature,
-  ev->cb = cb,
+  ev->data_type_id = data_type_id;
+  ev->data_type_signature = data_type_signature;
+  ev->cb = cb;
   ev->next = uavcan_event_hd;
 
   // Switch the head
@@ -276,15 +279,17 @@ void uavcan_bind(uint16_t data_type_id, uint64_t data_type_signature, uavcan_eve
 /**
  * Broadcast an uavcan message to a specific interface
  */
-void uavcan_broadcast(struct uavcan_iface_t *iface, uint64_t data_type_signature, uint16_t data_type_id, uint8_t priority, const void* payload,
-                        uint16_t payload_len) {
-  if(!iface->initialized) return;
+void uavcan_broadcast(struct uavcan_iface_t *iface, uint64_t data_type_signature, uint16_t data_type_id,
+                      uint8_t priority, const void *payload,
+                      uint16_t payload_len)
+{
+  if (!iface->initialized) { return; }
 
   chMtxLock(&iface->mutex);
   canardBroadcast(&iface->canard,
-      data_type_signature,
-      data_type_id, &iface->transfer_id,
-      priority, payload, payload_len);
+                  data_type_signature,
+                  data_type_id, &iface->transfer_id,
+                  priority, payload, payload_len);
   chMtxUnlock(&iface->mutex);
   chEvtBroadcast(&iface->tx_request);
 }
