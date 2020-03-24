@@ -38,6 +38,18 @@
 #pragma message "SCHEDULING_VARIABLE_FRAC not specified!"
 #endif
 
+#ifndef PHI_FFD
+#define PHI_FFD {0}
+#endif
+
+#ifndef THETA_FFD
+#define THETA_FFD {0}
+#endif
+
+#ifndef PSI_FFD
+#define PSI_FFD {0}
+#endif
+
 #define INT32_RATIO_FRAC 12
 
 struct Int32AttitudeGains gainlibrary[NUMBER_OF_GAINSETS];
@@ -51,16 +63,19 @@ void gain_scheduling_init(void)
   int32_t phi_d[NUMBER_OF_GAINSETS] = PHI_D;
   int32_t phi_i[NUMBER_OF_GAINSETS] = PHI_I;
   int32_t phi_dd[NUMBER_OF_GAINSETS] = PHI_DD;
+  int32_t phi_ffd[NUMBER_OF_GAINSETS] = PHI_FFD;
 
   int32_t theta_p[NUMBER_OF_GAINSETS] = THETA_P;
   int32_t theta_d[NUMBER_OF_GAINSETS] = THETA_D;
   int32_t theta_i[NUMBER_OF_GAINSETS] = THETA_I;
   int32_t theta_dd[NUMBER_OF_GAINSETS] = THETA_DD;
+  int32_t theta_ffd[NUMBER_OF_GAINSETS] = THETA_FFD;
 
   int32_t psi_p[NUMBER_OF_GAINSETS] = PSI_P;
   int32_t psi_d[NUMBER_OF_GAINSETS] = PSI_D;
   int32_t psi_i[NUMBER_OF_GAINSETS] = PSI_I;
   int32_t psi_dd[NUMBER_OF_GAINSETS] = PSI_DD;
+  int32_t psi_ffd[NUMBER_OF_GAINSETS] = PSI_FFD;
 
   for (int i = 0; i < NUMBER_OF_GAINSETS; i++) {
 
@@ -68,7 +83,8 @@ void gain_scheduling_init(void)
       {phi_p[i], theta_p[i], psi_p[i] },
       {phi_d[i], theta_d[i], psi_d[i] },
       {phi_dd[i], theta_dd[i], psi_dd[i] },
-      {phi_i[i], theta_i[i], psi_i[i] }
+      {phi_i[i], theta_i[i], psi_i[i] },
+      {phi_ffd[i], theta_ffd[i], psi_ffd[i] }
     };
 
     gainlibrary[i] = swap;
