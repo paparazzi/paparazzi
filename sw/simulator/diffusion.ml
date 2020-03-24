@@ -68,10 +68,10 @@ let send_on_ivy = fun () ->
     ys := sprintf "%.6f" ((Rad>>Deg)wgs84.posn_long) :: !ys;
     vs := sprintf "%d" plume.value :: !vs)
     plumes ;
-  let ids = Compat.bytes_concat "," !ids
-  and xs = Compat.bytes_concat "," !xs
-  and ys = Compat.bytes_concat "," !ys
-  and vs = Compat.bytes_concat "," !vs in
+  let ids = Bytes.concat "," !ids
+  and xs = Bytes.concat "," !xs
+  and ys = Bytes.concat "," !ys
+  and vs = Bytes.concat "," !vs in
   Ground_Pprz.message_send my_id "PLUMES"
     [ "ids", PprzLink.String ids;
       "lats", PprzLink.String xs;

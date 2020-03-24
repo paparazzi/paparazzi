@@ -199,7 +199,7 @@ let fill_data = fun (model:GTree.tree_store) settings airframe_xml ->
 
   (* Warning if needed *)
   if !not_in_airframe_file <> [] then begin
-    GToolbox.message_box ~title:"Warning" (Printf.sprintf "Some parameters not writable in the airframe file:\n\n%s" (Compat.bytes_concat "\n" !not_in_airframe_file));
+    GToolbox.message_box ~title:"Warning" (Printf.sprintf "Some parameters not writable in the airframe file:\n\n%s" (String.concat "\n" !not_in_airframe_file));
   end
 
 

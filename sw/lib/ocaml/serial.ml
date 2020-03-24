@@ -94,11 +94,11 @@ type 'a closure = Closure of 'a
 (*let buffer_len = 256 *)
 let buffer_len = 2048
 let input = fun ?(read = Unix.read) f ->
-  let buffer = Compat.bytes_create buffer_len
+  let buffer = Bytes.create buffer_len
   and index = ref 0 in
 
   let wait = fun start n ->
-    Compat.bytes_blit buffer start buffer 0 n;
+    Bytes.blit buffer start buffer 0 n;
     index := n in
 
   Closure (fun fd ->
@@ -109,7 +109,7 @@ let input = fun ?(read = Unix.read) f ->
     Debug.call 'T' (fun f -> fprintf f "input: %d %d\n" !index n);
     let rec parse = fun start n ->
       Debug.call 'T' (fun f -> fprintf f "input parse: %d %d\n" start n);
-      let nb_used = f (Compat.bytes_sub buffer start n) in
+      let nb_used = f (Bytes.sub buffer start n) in
       (*  Printf.fprintf stderr "n'=%d\n" nb_used; flush stderr; *)
       if nb_used > 0 then
         parse (start + nb_used) (n - nb_used)

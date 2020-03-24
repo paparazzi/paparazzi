@@ -68,7 +68,7 @@ let modules_dir = paparazzi_conf // "modules"
 let autopilot_dir = paparazzi_conf // "autopilot"
 
 (** remove all duplicated elements of a list *)
-let singletonize = fun ?(compare = Pervasives.compare) l ->
+let singletonize = fun ?(compare = compare) l ->
   let rec loop = fun l ->
     match l with
     | [] | [_] -> l
@@ -93,8 +93,8 @@ let targets_of_field =
   let pipe = Str.regexp "|" in
   fun field default ->
     let f = ExtXml.attrib_or_default field "target" default in
-    if Compat.bytes_length f > 0 && Compat.bytes_get f 0 = '!' then
-      Not (expr_of_targets (fun x y -> Or(x,y)) (Str.split pipe (Compat.bytes_sub f 1 ((Compat.bytes_length f) - 1))))
+    if String.length f > 0 && String.get f 0 = '!' then
+      Not (expr_of_targets (fun x y -> Or(x,y)) (Str.split pipe (String.sub f 1 ((String.length f) - 1))))
     else
       expr_of_targets (fun x y -> Or(x,y)) (Str.split pipe f)
 

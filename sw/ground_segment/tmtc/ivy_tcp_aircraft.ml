@@ -41,13 +41,13 @@ let () =
 
   (* Forward a datalink command on the bus *)
   let buffer_size = 256 in
-  let buffer = Compat.bytes_create buffer_size in
+  let buffer = Bytes.create buffer_size in
   let get_datalink_message = fun _ ->
     begin
       try
         let n = input i buffer 0 buffer_size in
-        let b = Compat.bytes_sub buffer 0 n in
-        Debug.trace 'x' (Debug.xprint b);
+        let b = Bytes.sub buffer 0 n in
+        Debug.trace 'x' (Debug.xprint (Bytes.to_string b));
 
         let use_dl_message = fun payload ->
           Debug.trace 'x' (Debug.xprint (Protocol.string_of_payload payload));
@@ -55,7 +55,7 @@ let () =
           let msg = Dl_Pprz.message_of_id msg_id in
           Dl_Pprz.message_send "ground_dl" msg.PprzLink.name values in
 
-        assert (PprzTransport.parse use_dl_message b = n)
+        assert (PprzTransport.parse use_dl_message (Bytes.to_string b) = n)
       with
           exc ->
             prerr_endline (Printexc.to_string exc)

@@ -23,7 +23,7 @@
  *)
 
 
-let default_ivy_bus = Compat.bytes_copy (
+let default_ivy_bus = (
   try (Sys.getenv "IVY_BUS" )
   with  Not_found ->
     (if Os_calls.contains (Os_calls.os_name) "Darwin" then

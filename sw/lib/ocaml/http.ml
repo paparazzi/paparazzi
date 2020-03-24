@@ -2,17 +2,13 @@ exception Failure of string
 exception Not_Found of string
 exception Blocked of string
 
-IFDEF NETCLIENT_V_4 THEN
 module H = Nethttp_client
 let () =
   Nettls_gnutls.init()
-ELSE
-module H = Http_client
-END
 
 let file_of_url = fun ?dest url ->
-  if Compat.bytes_sub url 0 7 = "file://" then
-    Compat.bytes_sub url 7 (Compat.bytes_length url - 7)
+  if String.sub url 0 7 = "file://" then
+    String.sub url 7 (String.length url - 7)
   else
     let tmp_file =
       match dest with
@@ -21,11 +17,7 @@ let file_of_url = fun ?dest url ->
     let call = new H.get url in
     call#set_response_body_storage (`File (fun () -> tmp_file));
     let pipeline = new H.pipeline in
-    IFDEF NETCLIENT_V_404 THEN
-    pipeline # set_proxy_from_environment (~insecure:false) ()
-    ELSE
-    pipeline # set_proxy_from_environment ()
-    END;
+    pipeline # set_proxy_from_environment ~insecure:false ();
     pipeline # add call;
     pipeline # run ();
     match call#status with

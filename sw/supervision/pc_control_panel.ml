@@ -90,7 +90,7 @@ let program_command = fun x ->
     if cmd.[0] = '/' then
       cmd
     else if cmd.[0] = '$' then
-      Compat.bytes_sub cmd 1 ((Compat.bytes_length cmd) - 1)
+      String.sub cmd 1 ((String.length cmd) - 1)
     else
       Env.paparazzi_src // cmd
   with Not_found ->
@@ -122,7 +122,7 @@ let flash_modes =
     let options = List.map (fun o ->
       sprintf "%s=%s" (Xml.attrib o "name") (Xml.attrib o "value")
       ) (List.filter (fun t -> Xml.tag t = "variable") (Xml.children m)) in
-    let options = Compat.bytes_concat " " options in
+    let options = String.concat " " options in
     (* add to hash tables *)
     Hashtbl.add modes mode options;
     List.iter (fun b ->
@@ -161,37 +161,39 @@ let close_programs = fun gui ->
 let parse_process_args = fun (name, args) ->
   (* How to do it with a simple regexp split ??? *)
   (* Mark spaces into args *)
+  let args = Bytes.of_string args in
   let marked_space = Char.chr 0 in
   let in_quotes = ref false in
-  for i = 0 to Compat.bytes_length args - 1 do
-    match args.[i] with
-      ' ' when !in_quotes -> Compat.bytes_set args i marked_space
+  for i = 0 to Bytes.length args - 1 do
+    match Bytes.get args i with
+      ' ' when !in_quotes -> Bytes.set args i marked_space
     | '"' -> in_quotes := not !in_quotes
     | _ -> ()
   done;
   (* Split *)
-  let args = Str.split (Str.regexp "[ ]+") args in
+  let args = Str.split (Str.regexp "[ ]+") (Bytes.to_string args) in
+  let args = List.map Bytes.of_string args in
   (* Restore spaces and remove quotes *)
   let restore_spaces = fun s ->
-    let n = Compat.bytes_length s in
+    let n = Bytes.length s in
     for i = 0 to n - 1 do
-      if s.[i] = marked_space then Compat.bytes_set s i ' '
+      if Bytes.get s i = marked_space then Bytes.set s i ' '
     done;
-    if n >= 2 && s.[0] = '"' then
-      Compat.bytes_sub s 1 (n-2)
+    if n >= 2 && Bytes.get s 0 = '"' then
+      Bytes.sub s 1 (n-2)
     else
       s in
   let args = List.map restore_spaces args in
   (* Remove the first "arg" which is the command *)
   let args = List.tl args in
   (* Build the XML arg list *)
-  let is_option = fun s -> Compat.bytes_length s > 0 && s.[0] = '-' in
+  let is_option = fun s -> Bytes.length s > 0 && Bytes.get s 0 = '-' in
   let rec xml_args = function
       [] -> []
     | option::value::l when not (is_option value) ->
-	Xml.Element("arg", ["flag",option; "constant", value],[])::xml_args l
+	Xml.Element("arg", ["flag", Bytes.to_string option; "constant",  Bytes.to_string value],[])::xml_args l
     | option::l ->
-	Xml.Element("arg", ["flag",option],[])::xml_args l in
+	Xml.Element("arg", ["flag", Bytes.to_string option],[])::xml_args l in
   Xml.Element("program", ["name", name], xml_args args)
 
 let save_session = fun gui session_combo ->
@@ -219,7 +221,7 @@ let save_session = fun gui session_combo ->
       name
 
 let double_quote = fun s ->
-  if Compat.bytes_contains s ' ' then
+  if String.contains s ' ' then
     sprintf "\"%s\"" s
   else
     s
@@ -291,7 +293,7 @@ let supervision = fun ?file gui log (ac_combo : Gtk_tools.combo) (target_combo :
     Gtk_tools.add_to_combo session_combo Gtk_tools.combo_separator;
     let strings = ref [] in
     Hashtbl.iter (fun name _session -> strings := name :: !strings) sessions;
-    let ordered = List.sort Compat.bytes_compare !strings in
+    let ordered = List.sort String.compare !strings in
     List.iter (fun name -> Gtk_tools.add_to_combo session_combo name) ordered
   in
 

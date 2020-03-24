@@ -49,7 +49,7 @@ let char_of = function
 let mem_tile = fun tile_key ->
   let rec loop = fun i tree ->
     tree = Tile ||
-    i < Compat.bytes_length tile_key &&
+    i < String.length tile_key &&
     match tree with
         Empty -> false
       | Tile -> true
@@ -59,7 +59,7 @@ let mem_tile = fun tile_key ->
 (** Adding a tile to the store *)
 let add_tile = fun tile_key ->
   let rec loop = fun i tree j ->
-    if i < Compat.bytes_length tile_key then
+    if i < String.length tile_key then
       match tree.(j) with
           Empty ->
             let sons = Array.make 4 Empty in
@@ -104,7 +104,7 @@ let display_tile = fun (geomap:MapCanvas.widget) wgs84 level ->
   let key = desired_tile.Gm.key in
   if not (mem_tile key) then
     let (tile, jpg_file) = Gm.get_image key in
-    display_the_tile geomap tile jpg_file (Compat.bytes_length tile.Gm.key)
+    display_the_tile geomap tile jpg_file (String.length tile.Gm.key)
 
 
 exception New_displayed of int
@@ -139,16 +139,16 @@ let fill_window = fun (geomap:MapCanvas.widget) zoomlevel ->
           | Empty ->
             if zoom = 1 then
               let tile, image = Gm.get_image ~tbl key in
-              let level = Compat.bytes_length tile.Gm.key in
+              let level = String.length tile.Gm.key in
               display_the_tile geomap tile image level;
-              raise (New_displayed (zoomlevel+1-Compat.bytes_length tile.Gm.key))
+              raise (New_displayed (zoomlevel+1-String.length tile.Gm.key))
             else begin
               trees.(i) <- Node (Array.make 4 Empty);
               loop twest tsouth tsize trees i zoom key
             end
           | Node sons ->
             let continue = fun j tw ts ->
-              loop tw ts tsize2 sons j (zoom-1) (key^Compat.bytes_make 1 (char_of j)) in
+              loop tw ts tsize2 sons j (zoom-1) (key^String.make 1 (char_of j)) in
 
             continue 0 twest (tsouth+.tsize2);
             continue 1 (twest+.tsize2) (tsouth+.tsize2);
@@ -196,10 +196,10 @@ let pixbuf = fun sw ne zoomlevel->
         if zoom = 1
         then
           let tile, image = Gm.get_image key in
-          raise (To_copy (zoomlevel+1-Compat.bytes_length tile.Gm.key, image))
+          raise (To_copy (zoomlevel+1-String.length tile.Gm.key, image))
         else begin
           let continue = fun j tw ts ->
-            loop tw ts tsize2 (zoom-1) (key^Compat.bytes_make 1 (char_of j)) in
+            loop tw ts tsize2 (zoom-1) (key^String.make 1 (char_of j)) in
           continue 0 twest (tsouth+.tsize2);
           continue 1 (twest+.tsize2) (tsouth+.tsize2);
           continue 2 (twest+.tsize2) tsouth;

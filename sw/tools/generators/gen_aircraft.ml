@@ -65,7 +65,7 @@ let configure_xml2mk = fun ?(default_configure=false) f xml ->
   (* either print the default or the normal configure variable *)
   if default_configure then begin
     (* Only print variable if default is set but not value *)
-    if Compat.bytes_length default > 0 && Compat.bytes_length value = 0 then
+    if String.length default > 0 && String.length value = 0 then
       fprintf f "%s ?= %s\n" name default;
     (* also providing lower and upper case version on request *)
     if Str.string_match (Str.regexp ".*lower.*") case 0 then
@@ -75,10 +75,10 @@ let configure_xml2mk = fun ?(default_configure=false) f xml ->
   end
   else
     (* Only print variable if value is not empty *)
-    if Compat.bytes_length value > 0 then
+    if String.length value > 0 then
       fprintf f "%s = %s\n" name value;
     (* Or if only the name is given (unset a variable *)
-    if Compat.bytes_length value = 0 && Compat.bytes_length default = 0 && Compat.bytes_length case = 0 then
+    if String.length value = 0 && String.length default = 0 && String.length case = 0 then
       fprintf f "%s =\n" name
 
 let include_xml2mk = fun f ?(target="$(TARGET)") ?(vpath=None) xml ->
@@ -418,13 +418,13 @@ let () =
     (* remove settings if not supported for the current target *)
     let settings = List.fold_left (fun l s -> if Gen_common.is_element_unselected ~verbose:true target modules s then l else l @ [s]) [] (Str.split (Str.regexp " ") settings) in
     (* update aircraft_xml *)
-    let aircraft_xml = ExtXml.subst_attrib "settings" (Compat.bytes_concat " " settings) aircraft_xml in
+    let aircraft_xml = ExtXml.subst_attrib "settings" (String.concat " " settings) aircraft_xml in
     (* add modules settings *)
     let settings_modules = try Env.filter_settings (value "settings_modules") with _ -> "" in
     (* remove settings if not supported for the current target *)
     let settings_modules = List.fold_left (fun l s -> if Gen_common.is_element_unselected ~verbose:true target modules s then l else l @ [s]) [] (Str.split (Str.regexp " ") settings_modules) in
     (* update aircraft_xml *)
-    let aircraft_xml = ExtXml.subst_attrib "settings_modules" (Compat.bytes_concat " " settings_modules) aircraft_xml in
+    let aircraft_xml = ExtXml.subst_attrib "settings_modules" (String.concat " " settings_modules) aircraft_xml in
     (* finally, concat all settings *)
     let settings = settings @ settings_modules in
     let settings = if List.length settings = 0 then
@@ -432,7 +432,7 @@ let () =
         fprintf stderr "\nInfo: No 'settings' attribute specified for A/C '%s', using 'settings/dummy.xml'\n\n%!" aircraft;
         "settings/dummy.xml"
       end
-      else Compat.bytes_concat " " settings
+      else String.concat " " settings
     in
 
     (** Expands the configuration of the A/C into one single file *)

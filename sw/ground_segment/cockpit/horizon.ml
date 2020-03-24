@@ -47,16 +47,16 @@ let floats_of_points = fun ps ->
   done;
   a
 
-let ruler = fun ?(index_on_right=false) ~text_props ~max ~scale ~w ~index_width ~step ~h root ->
+let ruler = fun ?(index_on_right=false) ~text_props ~max_value ~scale ~w ~index_width ~step ~h root ->
   let r = GnoCanvas.group root in
-  let height = scale *. float max in
+  let height = scale *. float max_value in
 
   (* Grey background *)
   let _ = GnoCanvas.rect ~x1:0. ~y1:(-.height) ~x2:w ~y2:height ~fill_color:"#808080" r in
   let props = (text_props@[`ANCHOR `EAST]) in
 
   (* One step drawer *)
-  let tab = Array.make (max/step) false in
+  let tab = Array.make (max_value/step) false in
   let draw = fun i ->
     let i = i * step in
     let y = -. scale *. float i in
@@ -69,7 +69,7 @@ let ruler = fun ?(index_on_right=false) ~text_props ~max ~scale ~w ~index_width 
 
   let lazy_drawer = fun v ->
     let v = truncate v / step in
-    for i = Pervasives.max 0 (v - 5) to min (v + 5) (Array.length tab - 1) do (* FIXME *)
+    for i = max 0 (v - 5) to min (v + 5) (Array.length tab - 1) do (* FIXME *)
       if not tab.(i) then begin
         tab.(i) <- true;
         draw i
@@ -181,7 +181,7 @@ class h = fun ?packing size  ->
   (* Speedometer on the left side *)
   let speed, mi, mx, lazy_speed =
     let g = GnoCanvas.group ~x:left_margin ~y:yc canvas#root in
-    let r, lazy_ruler = ruler ~text_props ~index_on_right:true ~max:50 ~scale:speed_scale ~w:speed_width ~step:2 ~index_width ~h:(0.75*.size2) g in
+    let r, lazy_ruler = ruler ~text_props ~index_on_right:true ~max_value:50 ~scale:speed_scale ~w:speed_width ~step:2 ~index_width ~h:(0.75*.size2) g in
     let mx =
       GnoCanvas.text ~x:(speed_width/.2.) ~y:(-0.88*.size2) ~props:text_props g
     and mi =
@@ -194,7 +194,7 @@ class h = fun ?packing size  ->
   (* Altimeter on the right side *)
   and alt, lazy_alt =
     let g = GnoCanvas.group ~x:(xc+.size2) ~y:yc canvas#root in
-    ruler ~text_props ~max:3000 ~scale:alt_scale ~w:alt_width ~step:10 ~index_width ~h:(0.75*.size2) g
+    ruler ~text_props ~max_value:3000 ~scale:alt_scale ~w:alt_width ~step:10 ~index_width ~h:(0.75*.size2) g
   in
 
 object

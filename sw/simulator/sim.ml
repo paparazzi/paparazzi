@@ -76,7 +76,7 @@ module type AIRCRAFT_ITL =
   functor (A : Data.MISSION) -> functor (FM: FlightModel.SIG) -> AIRCRAFT
 
 external fg_sizeof : unit -> int = "fg_sizeof"
-external fg_msg : string -> float -> float -> float -> float -> float -> float -> unit = "fg_msg_bytecode" "fg_msg_native"
+external fg_msg : bytes -> float -> float -> float -> float -> float -> float -> unit = "fg_msg_bytecode" "fg_msg_native"
 
 let ac_name = ref "A/C not set"
 
@@ -240,9 +240,9 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
       (*    and theta_ = s.Gps.course *)
           and (phi, theta, psi) = FlightModel.get_attitude !state in
           fg_msg buffer lat lon alt phi theta psi;
-      (**       for i = 0 to Compat.bytes_length buffer - 1 do fprintf stderr "%x " (Char.code buffer.[i]) done; fprintf stderr "\n"; **)
+      (**       for i = 0 to Bytes.length buffer - 1 do fprintf stderr "%x " (Char.code buffer.[i]) done; fprintf stderr "\n"; **)
           try
-            ignore (Unix.sendto socket buffer 0 (Compat.bytes_length buffer) [] sockaddr)
+            ignore (Unix.sendto socket buffer 0 (Bytes.length buffer) [] sockaddr)
           with
               Unix.Unix_error (e,f,a) -> Printf.fprintf stderr "Error sending to FlightGear: %s (%s(%s))\n" (Unix.error_message e) f a; flush stderr
     in
@@ -275,7 +275,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
           let inet_addr = Unix.inet_addr_of_string !fg_client in
           let socket = Unix.socket Unix.PF_INET Unix.SOCK_DGRAM 0 in
           (* Unix.connect socket (Unix.ADDR_INET (inet_addr, 5501)); *)
-          let buffer = Compat.bytes_create (fg_sizeof ()) in
+          let buffer = Bytes.create (fg_sizeof ()) in
           let sockaddr = (Unix.ADDR_INET (inet_addr, 5501)) in
           Stdlib.timer ~scale:time_scale fg_period (fg_task socket buffer sockaddr);
           fprintf stdout "Sending to FlightGear at %s\n" !fg_client; flush stdout

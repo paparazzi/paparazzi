@@ -30,7 +30,7 @@ let open_compress file =
     Unix.open_process_in ("gunzip -c "^file)
   else if Filename.check_suffix file "bz2"  then
     Unix.open_process_in ("bunzip2 -c "^file)
-  else Pervasives.open_in file
+  else open_in file
 
 
 let extensions = ["";".gz";".Z";".bz2";".zip";".ZIP"]

@@ -34,7 +34,6 @@
 *)
 
 open Printf
-open Unix
 open Random
 
 
@@ -557,7 +556,7 @@ let execute_actions = fun actions ac_id ->
 (**   this capability is mostly for bench-time trimming when a joystick does not have adequate buttons *)
 (**   it is not a very complete capability  *)
 let execute_kb_action = fun actions conditions ->
-  let ch = input_byte Pervasives.stdin in
+  let ch = input_byte stdin in
   (** esdx for left stick
       ijkm for right  *)
 

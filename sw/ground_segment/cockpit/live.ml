@@ -172,7 +172,7 @@ let select_ac = fun acs_notebook ac_id ->
     if !active_ac <> "" then begin
       let ac' = find_ac !active_ac in
       ac'.strip#hide_buttons ();
-      ac'.notebook_label#set_width_chars (Compat.bytes_length ac'.notebook_label#text);
+      ac'.notebook_label#set_width_chars (String.length ac'.notebook_label#text);
       if !_auto_hide_fp then hide_fp ac'
     end;
 
@@ -353,7 +353,7 @@ let attributes_pretty_printer = fun attribs ->
     && a <> "post_call" && a <> "key" && a <> "group" in
 
   let sprint_opt = fun b s ->
-    if Compat.bytes_length b > 0 then
+    if String.length b > 0 then
       sprintf " %s%s%s" s b s
     else
       ""
@@ -651,7 +651,7 @@ let create_ac = fun ?(confirm_kill=true) alert (geomap:G.widget) (acs_notebook:G
   let settings_file = Http.file_of_url settings_url in
   let settings_xml =
     try
-      if Compat.bytes_compare "replay" settings_file <> 0 then
+      if String.compare "replay" settings_file <> 0 then
         ExtXml.parse_file ~noprovedtd:true settings_file
       else
         Xml.Element("empty", [], [])
@@ -755,7 +755,7 @@ let create_ac = fun ?(confirm_kill=true) alert (geomap:G.widget) (acs_notebook:G
 
         (* only horizontal wind and airspeed are updated, so bitmask is 0b0000101 = 5 *)
         let msg_items = ["WIND_INFO"; ac_id; "5"; wind_east; wind_north; "0.0"; airspeed] in
-        let value = Compat.bytes_concat ";" msg_items in
+        let value = String.concat ";" msg_items in
         let vs = ["ac_id", PprzLink.String ac_id; "message", PprzLink.String value] in
         Ground_Pprz.message_send "dl" "RAW_DATALINK" vs;
       with

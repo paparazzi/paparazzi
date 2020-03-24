@@ -25,11 +25,13 @@
 open Printf
 
 let (//) = Filename.concat
+let minimum = min
+let maximum = max
 
 (* Fixme: find something more basic than adjustment *)
 let set_float_value = fun (a:GData.adjustment) v ->
-  let lower = Pervasives.min a#lower v
-  and upper = Pervasives.max a#upper v +. a#step_increment in
+  let lower = minimum a#lower v
+  and upper = maximum a#upper v +. a#step_increment in
   a#set_bounds ~lower ~upper ();
   a#set_value v
 
@@ -136,7 +138,7 @@ class plot = fun ~size ~update_time ~width ~height ~packing () ->
       if new_size <> size && new_size > 0 then begin
         Hashtbl.iter (fun _ a ->
           let new_array = Array.make new_size None in
-          for i = 0 to Pervasives.min size new_size - 1 do
+          for i = 0 to minimum size new_size - 1 do
             new_array.(new_size - 1 - i) <- a.array.((a.index-i+size) mod size)
           done;
           a.array <- new_array;
@@ -166,8 +168,8 @@ class plot = fun ~size ~update_time ~width ~height ~packing () ->
         let a = Hashtbl.find curves name in
         a.array.(a.index) <- Some v;
         if auto_scale then begin
-          min <- Pervasives.min min v;
-          max <- Pervasives.max max v
+          min <- minimum min v;
+          max <- maximum max v
         end
 
     method reset_scale = fun () ->
@@ -179,8 +181,8 @@ class plot = fun ~size ~update_time ~width ~height ~packing () ->
             (function
         	None -> ()
               | Some v ->
-        	  min <- Pervasives.min min v;
-        	  max <- Pervasives.max max v)
+        	  min <- minimum min v;
+        	  max <- maximum max v)
             a.array)
         curves
 
@@ -203,7 +205,7 @@ class plot = fun ~size ~update_time ~width ~height ~packing () ->
             let dr = pm#get_pixmap () in
             dr#set_foreground (`NAME "white");
             dr#rectangle ~x:0 ~y:0 ~width ~height ~filled:true ();
-            let margin = Pervasives.min (height / 10) 20 in
+            let margin = minimum (height / 10) 20 in
 
             (* Time Graduations *)
             let context = da#misc#create_pango_context in
@@ -242,7 +244,7 @@ class plot = fun ~size ~update_time ~width ~height ~packing () ->
             let tick_min = min -. mod_float min u in
             for i = 0 to truncate (delta/.u) + 1 do
               let tick = tick_min +. float i *. u in
-              f 0 (y tick) (Printf.sprintf "%.*f" (Pervasives.max 0 (2-truncate scale)) tick)
+              f 0 (y tick) (Printf.sprintf "%.*f" (maximum 0 (2-truncate scale)) tick)
             done;
 
             (* Constants *)
