@@ -338,19 +338,26 @@ static bool softi2c_write_restart(struct softi2c_device *d) {
       return false;
     case 2:
       if (bit_time < T_R_MAX + T_SU_DAT_MIN) return false;
-      // After SDA rise time and data hold time
+      // After SDA rise time and data set-up time
       softi2c_gpio_highz(d->scl_port, d->scl_pin);
       d->bit_start_time = get_sys_time_float();
       d->bit_state++;
       return false;
     case 3:
-      if (bit_time < T_R_MAX + T_SU_STA_MIN) return false;
-      // After SCL rise time and restart set-up time
-      softi2c_gpio_drive_low(d->sda_port, d->sda_pin);
+      if (bit_time < T_R_MAX) return false;
+      if (!gpio_get(d->scl_port, d->scl_pin)) return false;
+      // After SCL rise time and confirmed high (clock stretching)
       d->bit_start_time = get_sys_time_float();
       d->bit_state++;
       return false;
     case 4:
+      if (bit_time < T_SU_STA_MIN) return false;
+      // After restart set-up time
+      softi2c_gpio_drive_low(d->sda_port, d->sda_pin);
+      d->bit_start_time = get_sys_time_float();
+      d->bit_state++;
+      return false;
+    case 5:
       if (bit_time < T_F_MAX + T_HD_STA_MIN) return false;
       // After SDA fall time and restart hold time
       d->bit_state = 0;
@@ -386,13 +393,20 @@ static bool softi2c_write_stop(struct softi2c_device *d) {
         d->bit_state++;
         return false;
       case 3:
-        if (bit_time < T_R_MAX + T_SU_STO_MIN) return false;
-        // After SCL rise time and stop set-up time
-        softi2c_gpio_highz(d->sda_port, d->sda_pin);
+        if (bit_time < T_R_MAX) return false;
+        if (!gpio_get(d->scl_port, d->scl_pin)) return false;
+        // After SCL rise time and confirmed high (clock stretching)
         d->bit_start_time = get_sys_time_float();
         d->bit_state++;
         return false;
       case 4:
+        if (bit_time < T_SU_STO_MIN) return false;
+        // After stop set-up time
+        softi2c_gpio_highz(d->sda_port, d->sda_pin);
+        d->bit_start_time = get_sys_time_float();
+        d->bit_state++;
+        return false;
+      case 5:
         if (bit_time < T_R_MAX + T_BUF_MIN) return false;
         // After SDA rise time and bus free time
         d->bit_state = 0;
