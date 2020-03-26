@@ -131,7 +131,7 @@ tests : lib-pprz.cma $(TESTS_CMO)
 $(XCMO) $(XCMX): PKGCOMMON=$(XPKGCOMMON)
 
 
-GTKCFLAGS := $(shell pkg-config --cflags gtk+-2.0)
+GTKCFLAGS := $(shell pkg-config --cflags gtk+-2.0) -DGTK_DISABLE_DEPRECATED
 ml_gtk_drag.o : ml_gtk_drag.c
 	@echo OC $<
 	$(Q)$(OCAMLC) $(INCLUDES) -package $(PKGCOMMON) -c -ccopt "$(GTKCFLAGS)" $<

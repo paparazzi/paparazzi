@@ -36,7 +36,7 @@ else
 endif
 
 CFLAGS += -Wall -fPIC -g
-GTK_CFLAGS  = $(shell pkg-config gtk+-2.0 --cflags)
+GTK_CFLAGS  = $(shell pkg-config gtk+-2.0 --cflags) -DGTK_DISABLE_DEPRECATED
 GTK_LDFLAGS = $(shell pkg-config gtk+-2.0 --libs) $(shell pkg-config --libs ivy-glib) $(shell pcre-config --libs) -fPIC
 
 GLIBIVY_CFLAGS = $(shell pkg-config --cflags ivy-glib)

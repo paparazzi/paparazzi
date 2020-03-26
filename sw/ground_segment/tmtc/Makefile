@@ -112,7 +112,7 @@ settings.cmo : ../cockpit/page_settings.cmi
 
 CC = gcc
 
-GTK_CFLAGS  = $(shell pkg-config gtk+-2.0 --cflags)
+GTK_CFLAGS  = $(shell pkg-config gtk+-2.0 --cflags) -DGTK_DISABLE_DEPRECATED
 GTK_LDFLAGS =  $(shell pkg-config gtk+-2.0 --libs) $(shell pcre-config --libs)
 
 GLIBIVY_CFLAGS = -Wall -fPIC $(shell pkg-config --cflags ivy-glib)

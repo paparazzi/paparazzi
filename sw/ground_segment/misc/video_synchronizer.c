@@ -217,7 +217,7 @@ static void on_quit(GtkWidget *object, gpointer   user_data) {
 
 static void on_video_sync_changed(GtkWidget *widget, gpointer data) {
 
-  startVideoAfter = gtk_spin_button_get_value_as_float((GtkSpinButton *)spinButton);
+  startVideoAfter = gtk_spin_button_get_value((GtkSpinButton *)spinButton);
 
   calcCurrentPlayingTime();
   sendCurrentPlayingTime();
@@ -225,7 +225,7 @@ static void on_video_sync_changed(GtkWidget *widget, gpointer data) {
 
 static void on_video_time_tag_changed(GtkWidget *widget, gpointer data) {
 
-  timeTagInVideo = gtk_spin_button_get_value_as_float((GtkSpinButton *)spinButtonVideo);
+  timeTagInVideo = gtk_spin_button_get_value((GtkSpinButton *)spinButtonVideo);
 
   calcCurrentPlayingTime();
   sendCurrentPlayingTime();
