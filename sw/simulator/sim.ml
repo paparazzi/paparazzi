@@ -24,7 +24,7 @@
 
 
 open Printf
-open Stdlib
+open Simlib
 open Latlong
 
 module Ground_Pprz = PprzLink.Messages(struct let name = "ground" end)
@@ -55,7 +55,7 @@ module type AIRCRAFT =
 sig
   val init : int -> GPack.box -> unit
     (** [init ac_id box] *)
-  val boot : Stdlib.value -> unit
+  val boot : Simlib.value -> unit
     (** [boot time_acceleration] *)
 
   val commands : pprz_t array -> unit
@@ -264,10 +264,10 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
 
     let boot = fun () ->
       Aircraft.boot (time_scale:>value);
-      Stdlib.timer ~scale:time_scale fm_period fm_task;
-      Stdlib.timer ~scale:time_scale ir_period ir_task;
-      Stdlib.timer ~scale:time_scale gps_period gps_task;
-      Stdlib.timer ~scale:time_scale ahrs_period ahrs_task;
+      Simlib.timer ~scale:time_scale fm_period fm_task;
+      Simlib.timer ~scale:time_scale ir_period ir_task;
+      Simlib.timer ~scale:time_scale gps_period gps_task;
+      Simlib.timer ~scale:time_scale ahrs_period ahrs_task;
 
       (** Connection to Flight Gear client *)
       if !fg_client <> "" then
@@ -277,7 +277,7 @@ module Make(AircraftItl : AIRCRAFT_ITL) = struct
           (* Unix.connect socket (Unix.ADDR_INET (inet_addr, 5501)); *)
           let buffer = Bytes.create (fg_sizeof ()) in
           let sockaddr = (Unix.ADDR_INET (inet_addr, 5501)) in
-          Stdlib.timer ~scale:time_scale fg_period (fg_task socket buffer sockaddr);
+          Simlib.timer ~scale:time_scale fg_period (fg_task socket buffer sockaddr);
           fprintf stdout "Sending to FlightGear at %s\n" !fg_client; flush stdout
         with
             e -> fprintf stderr "Error setting up FlightGear viz: %s\n" (Printexc.to_string e); flush stderr

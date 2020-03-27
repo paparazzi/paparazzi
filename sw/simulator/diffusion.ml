@@ -130,7 +130,7 @@ let _ =
 
   let time_scale = object val mutable v = 1. method value = v method set_value x = v <- x end in
 
-  Stdlib.timer ~scale:time_scale dt periodic;
+  Simlib.timer ~scale:time_scale dt periodic;
 
   safe_bind "FLIGHT_PARAM" flight_param_msg;
   safe_bind "WORLD_ENV" (gaia time_scale);

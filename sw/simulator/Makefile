@@ -31,7 +31,7 @@ INCLUDES =
 PKG = -package glibivy,pprz
 LINKPKG = $(PKG) -linkpkg -dllpath-pkg pprz,pprzlink
 
-SIMML = stdlib.ml data.ml flightModel.ml gps.ml
+SIMML = simlib.ml data.ml flightModel.ml gps.ml
 SIMHML = $(SIMML) hitl.ml sim.ml
 SIMHCMO=$(SIMHML:%.ml=%.cmo)
 SIMSML = $(SIMML) sitl.ml sim.ml
@@ -59,7 +59,7 @@ gaia : gaia.cmo $(LIBPPRZCMA) $(LIBPPRZLINKCMA)
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gtkInit.cmo $<
 
-diffusion : stdlib.cmo diffusion.cmo
+diffusion : simlib.cmo diffusion.cmo
 	@echo OL $@
 	$(Q)$(OCAMLC) $(INCLUDES) -o $@ $(LINKPKG) gtkInit.cmo $^
 

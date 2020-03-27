@@ -39,7 +39,7 @@ val get_air_speed : state -> meter_s
 module type SIG =
   sig
     val init : radian -> state
-    val do_commands : state -> Stdlib.pprz_t array -> unit
+    val do_commands : state -> Simlib.pprz_t array -> unit
     val nb_commands : int
     val nominal_airspeed : float (* m/s *)
     val max_bat_level : float (* V *)
