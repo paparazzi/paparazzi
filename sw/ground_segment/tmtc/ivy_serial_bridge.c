@@ -376,7 +376,7 @@ int handle_api(void)
   static int step = 0;
   int bytes;
   int i=0;
-  char buff[32];
+  char buff[48];
 
   // ATPL4 = power level 4
   // ATMT0 = zero retry on broadcast
