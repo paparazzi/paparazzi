@@ -129,31 +129,31 @@ ifeq ("$(UNAME)","Darwin")
 endif
 
 
-app_server: app_server.c
+app_server: app_server.c Makefile
 	@echo OL $@
-	$(Q)$(CC) $(shell pkg-config libxml-2.0 gio-2.0 ivy-glib --cflags) -o $@ $^ -lm -lz $(shell pkg-config libxml-2.0 gio-2.0 ivy-glib libpcre --libs)
+	$(Q)$(CC) $(shell pkg-config libxml-2.0 gio-2.0 ivy-glib --cflags) -o $@ $< -lm -lz $(shell pkg-config libxml-2.0 gio-2.0 ivy-glib libpcre --libs)
 
-gpsd2ivy: gpsd2ivy.c
+gpsd2ivy: gpsd2ivy.c Makefile
 ifeq (, $(shell which gpsd))
 	$(info GPSD not installed)
 else
-	$(CC) $(GLIBIVY_CFLAGS) -o $@ $< $(GLIBIVY_LDFLAGS) -lgps
+	$(Q)$(CC) $(GLIBIVY_CFLAGS) -o $@ $< $(GLIBIVY_LDFLAGS) -lgps
 endif
 
-ivy2nmea: ivy2nmea.c
+ivy2nmea: ivy2nmea.c Makefile
 	@echo OL $@
 	$(Q)$(CC) $(GLIBIVY_CFLAGS) -o $@ $< $(GLIBIVY_LDFLAGS)
 
-c_ivy_client_example_1: c_ivy_client_example_1.c
+c_ivy_client_example_1: c_ivy_client_example_1.c Makefile
 	$(CC) $(GLIBIVY_CFLAGS) -o $@ $< $(GLIBIVY_LDFLAGS)
 
-c_ivy_client_example_2: c_ivy_client_example_2.c
+c_ivy_client_example_2: c_ivy_client_example_2.c Makefile
 	$(CC) $(GLIBIVY_CFLAGS) -o $@ $< $(GLIBIVY_LDFLAGS)
 
-c_ivy_client_example_3: c_ivy_client_example_3.c
+c_ivy_client_example_3: c_ivy_client_example_3.c Makefile
 	$(CC) $(GLIBIVY_CFLAGS) $(GTK_CFLAGS) -o $@ $< $(GLIBIVY_LDFLAGS) $(GTK_LDFLAGS)
 
-ivy_serial_bridge: ivy_serial_bridge.c
+ivy_serial_bridge: ivy_serial_bridge.c Makefile
 	@echo OL $@
 	$(Q)$(CC) $(GLIBIVY_CFLAGS) $(GTK_CFLAGS) -o $@ $< $(GLIBIVY_LDFLAGS) $(GTK_LDFLAGS)
 
