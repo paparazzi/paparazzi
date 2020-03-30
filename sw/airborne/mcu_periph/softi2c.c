@@ -67,13 +67,18 @@ struct softi2c_device {
 
 struct highres_clock {
   // The SYS_TIME clock resolution is too coarse.
-  // Count the number of event calls for a finegrained time estimate.
+  // Counts the number of events and calls for a finegrained time estimate.
   double now;
-  float last_sys_time;
+  float sys_time;
   double time_per_event;
-  uint16_t event_cnt;
-  double time_per_call;
-  uint32_t call_cnt;
+  uint32_t time_per_call;
+  // Event time estimator
+  float event_est_sys_time;
+  uint32_t event_est_cnt;
+  // Call time estimator
+  float call_est_sys_time;
+  uint32_t call_est_call_cnt;
+  uint32_t call_est_tick_cnt;
 };
 static struct highres_clock time;
 
@@ -670,29 +675,42 @@ static void softi2c_device_event(struct softi2c_device *d) {
 
 // Timing function
 static void highres_clock_event(void) {
-  float sys_time_now = get_sys_time_float();
-  // Initialize clock if req'd
-  if (time.last_sys_time == 0.0) {
-    time.last_sys_time = sys_time_now;
-    time.time_per_event = 0.0;
-    time.time_per_call = 0.0;
+  float time_now = get_sys_time_float();
+  // Update clock
+  time.now += time.time_per_event;
+  if (time_now != time.sys_time) {
+    time.now = time_now;
   }
-  // Re-estimate clock rates
-  if (sys_time_now > time.last_sys_time + 1e-3) {
-    time.time_per_event = (sys_time_now - time.last_sys_time) / (double)time.event_cnt;
-    time.time_per_call = ((sys_time_now - time.last_sys_time) / 10) / (double)time.call_cnt; // Guess, assumes 10% of time is spent in softi2c.
-    time.last_sys_time = sys_time_now;
-    time.event_cnt = 0;
+
+  // Update estimators
+  time.event_est_cnt++;
+  float dt = time_now - time.event_est_sys_time;
+  if (dt > 10e-3) {
+    // Update event time estimator
+    time.time_per_event = dt / time.event_est_cnt;
+    time.event_est_cnt = 0;
+    time.event_est_sys_time = time_now;
   }
-  time.call_cnt = 0;
-  // Run clock
-  time.now = time.last_sys_time + time.time_per_event * time.event_cnt;
-  time.event_cnt++;
+  if (time.call_est_tick_cnt >= 5) {
+    // Update call time estimator
+    time.time_per_call = (time.call_est_tick_cnt * sys_time.resolution) / time.call_est_call_cnt;
+    time.call_est_call_cnt = 0;
+    time.call_est_tick_cnt = 0;
+  }
+  // Reset call time estimator clock
+  time.call_est_sys_time = time_now;
 }
 
 static void highres_clock_call(void) {
-  time.call_cnt++;
-  time.now = time.last_sys_time + time.time_per_event * time.event_cnt + time.time_per_call * time.call_cnt;
+  // Update clock
+  time.now += time.time_per_call;
+
+  // Update estimator
+  float time_now = get_sys_time_float();
+  time.call_est_call_cnt++;
+  if (time_now != time.call_est_sys_time) {
+    time.call_est_tick_cnt++;
+  }
 }
 
 
