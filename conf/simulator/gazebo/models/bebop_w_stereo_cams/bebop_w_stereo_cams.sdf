@@ -180,7 +180,7 @@
     <!-- CAMERAS -->
 
     <link name="front_camera">
-      <pose>0.15 0 0 0 0 0</pose>
+      <pose> 0.15 0.032 0 0 0 0</pose><!-- Bebop camera output is rotated 90 degrees and pitched slightly downwards -->
       <inertial>
         <mass>0.001</mass>
         <inertia>
@@ -192,15 +192,15 @@
           <ixz>0</ixz>
         </inertia>
       </inertial>
-      <sensor type="camera" name="mt9f002">
-        <update_rate>90.0</update_rate>
+      <sensor type="camera" name="mt9f0022">
+        <update_rate>15.0</update_rate><!-- adjust with MT9F002_TARGET_FPS -->
         <camera>
-          <horizontal_fov>0.7175</horizontal_fov>
           <image>
-            <width>480</width>
-            <height>480</height>
+            <width>240</width><!-- Full sensor resolution -->
+            <height>240</height><!-- Full sensor resolution -->
             <format>R8G8B8</format>
           </image>
+          <horizontal_fov>0.7175</horizontal_fov>
           <clip>
             <near>0.02</near>
             <far>300</far>
@@ -219,11 +219,13 @@
     
     <joint name="front_camera_joint" type="fixed">
       <parent>chassis</parent>
-      <child>front_camera</child>
+      <child>bottom_camera</child>
     </joint>
     
+    
+    
     <link name="bottom_camera">
-      <pose>0.15 0 0 0 0 0</pose>
+      <pose> 0.15 -0.032 0.0 0 0 0</pose>
       <inertial>
         <mass>0.001</mass>
         <inertia>
@@ -236,12 +238,12 @@
         </inertia>
       </inertial>
       <sensor type="camera" name="mt9v117">
-        <update_rate>90.0</update_rate>
+        <update_rate>15.0</update_rate>
         <camera>
           <horizontal_fov>0.7175</horizontal_fov>
           <image>
-            <width>480</width>
-            <height>480</height>
+            <width>240</width>
+            <height>240</height>
             <format>R8G8B8</format>
           </image>
           <clip>
@@ -262,7 +264,7 @@
     
     <joint name="bottom_camera_joint" type="fixed">
       <parent>chassis</parent>
-      <child>bottom_camera</child>
+      <child>front_camera</child>
     </joint>
   </model>
 </sdf>
