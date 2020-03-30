@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
 <sdf version='1.4'>
-  <model name="bebop">
+  <model name="bebop_w_stereo_cams">
     <pose>0 0 .1 0 0 1.57</pose>
 
     <link name="chassis">
