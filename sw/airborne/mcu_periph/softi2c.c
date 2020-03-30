@@ -68,10 +68,12 @@ struct softi2c_device {
 struct highres_clock {
   // The SYS_TIME clock resolution is too coarse.
   // Count the number of event calls for a finegrained time estimate.
-  float now;
+  double now;
   float last_sys_time;
-  float time_per_event;
+  double time_per_event;
   uint16_t event_cnt;
+  double time_per_call;
+  uint32_t call_cnt;
 };
 static struct highres_clock time;
 
@@ -667,22 +669,30 @@ static void softi2c_device_event(struct softi2c_device *d) {
 
 
 // Timing function
-static void update_highres_clock(void) {
+static void highres_clock_event(void) {
   float sys_time_now = get_sys_time_float();
   // Initialize clock if req'd
   if (time.last_sys_time == 0.0) {
     time.last_sys_time = sys_time_now;
-    time.time_per_event = 5e-6; // Initial guess
+    time.time_per_event = 0.0;
+    time.time_per_call = 0.0;
   }
-  // Re-estimate clock rate
-  if (sys_time_now > time.last_sys_time + 10e-3) {
-    time.time_per_event = (sys_time_now - time.last_sys_time) / (float)time.event_cnt;
+  // Re-estimate clock rates
+  if (sys_time_now > time.last_sys_time + 1e-3) {
+    time.time_per_event = (sys_time_now - time.last_sys_time) / (double)time.event_cnt;
+    time.time_per_call = ((sys_time_now - time.last_sys_time) / 10) / (double)time.call_cnt; // Guess, assumes 10% of time is spent in softi2c.
     time.last_sys_time = sys_time_now;
     time.event_cnt = 0;
   }
+  time.call_cnt = 0;
   // Run clock
-  time.now += time.time_per_event;
+  time.now = time.last_sys_time + time.time_per_event * time.event_cnt;
   time.event_cnt++;
+}
+
+static void highres_clock_call(void) {
+  time.call_cnt++;
+  time.now = time.last_sys_time + time.time_per_event * time.event_cnt + time.time_per_call * time.call_cnt;
 }
 
 
@@ -690,13 +700,15 @@ static void update_highres_clock(void) {
  * Paparazzi functions
  */
 void softi2c_event(void) {
-  update_highres_clock();
+  highres_clock_event();
   for (int i = 0; i < SOFTI2C_EVENT_MULTIPLIER; ++i) {
 #if USE_SOFTI2C0
   softi2c_device_event(&softi2c0_device);
+  highres_clock_call();
 #endif
 #if USE_SOFTI2C1
   softi2c_device_event(&softi2c1_device);
+  highres_clock_call();
 #endif
   }
 }
