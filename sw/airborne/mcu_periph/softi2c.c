@@ -690,7 +690,7 @@ static void highres_clock_event(void) {
   // Update estimators
   time.event_est_cnt++;
   float dt = time_now - time.event_est_sys_time;
-  if (dt > 10e-3) {
+  if (dt > 100e-3) {
     // Update event time estimator
     time.time_per_event = dt / time.event_est_cnt;
     time.event_est_cnt = 0;
