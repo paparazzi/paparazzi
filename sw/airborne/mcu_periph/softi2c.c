@@ -123,7 +123,7 @@ void softi2c0_hw_init(void) {
   softi2c0.setbitrate = softi2c_setbitrate;
   softi2c0.reg_addr = (void *) softi2c0_device;
 
-  softi2c0_device.periph = softi2c0;
+  softi2c0_device.periph = &softi2c0;
   softi2c0_device.sda_port = SOFTI2C0_SDA_GPIO;
   softi2c0_device.sda_pin = SOFTI2C0_SDA_PIN;
   softi2c0_device.scl_port = SOFTI2C0_SCL_GPIO;
@@ -151,7 +151,7 @@ void softi2c1_hw_init(void) {
   softi2c1.setbitrate = softi2c_setbitrate;
   softi2c1.reg_addr = (void *) softi2c1_device;
 
-  softi2c1_device.periph = softi2c1;
+  softi2c1_device.periph = &softi2c1;
   softi2c1_device.sda_port = SOFTI2C1_SDA_GPIO;
   softi2c1_device.sda_pin = SOFTI2C1_SDA_PIN;
   softi2c1_device.scl_port = SOFTI2C1_SCL_GPIO;
@@ -188,26 +188,29 @@ void softi2c1_hw_init(void) {
 #define T_VD_ACK_MAX (3.45e-6f)
 
 struct softi2c_device {
-  struct i2c_periph periph;
+  struct i2c_periph *periph;
   uint32_t sda_port;
   uint16_t sda_pin;
   uint32_t scl_port;
   uint16_t scl_pin;
   float t_scl;  // Clock period
-  // Bit-level state machine
+  /* Bit-level state machine */
   uint8_t bit_state;
   float bit_state_time;
   float bit_start_time;
-  // Byte-level state machine
+  /* Byte-level state machine */
   uint8_t byte_state;
+  /* Transaction-level state machine */
+  // periph->status
+  // periph->idx_buf
 };
 
 // Bit read/write functions
 // Should be called continuously from event function.
 // Return true upon completion.
 // Unless otherwise mentioned, the bit functions start at SCL <= low and end at
-// the earliest moment that SCL can be set low again. This includes the
-// configured bit rate!
+// the earliest moment that SCL can be set low again. This also takes the
+// configured bit rate into account!
 
 // write_start:
 // starts at SDA <= low
@@ -491,4 +494,118 @@ static bool softi2c_read_byte(struct softi2c_device *d, uint8_t *byte, bool ack)
   }
 }
 
+// Transaction handling
+// Should be called continously from event function.
+// Returns true upon completion.
+static bool softi2c_process_transaction(struct softi2c_device *d, struct i2c_transaction *t) {
+  uint8_t byte;
+  bool ack;
+  switch (d->periph->status) {
+    case I2CIdle:
+      // Start of transaction
+      t->status = I2CTransRunning;
+      d->periph->status = I2CStartRequested;
+      d->periph->idx_buf = 0;
+      return false;
+
+    case I2CStartRequested:
+      // Send start bit
+      if (!softi2c_write_start(d)) return false;
+      // Start bit sent
+      if (t->type == I2CTransRx) {
+        d->periph->status = I2CAddrRdSent;
+      } else {
+        d->periph->status = I2CAddrWrSent;
+      }
+      return false;
+
+    case I2CAddrWrSent:
+      // Send write address
+      if (!softi2c_write_byte(d, t->slave_addr, &ack)) return false;
+      // Write address sent
+      if (!ack) {
+        t->status = I2CTransFailed;
+        d->periph->status = I2CStopRequested;
+        return false;
+      }
+      d->periph->status = I2CSendingByte;
+      return false;
+
+    case I2CSendingByte:
+      // Check remaining bytes
+      if (d->periph->idx_buf >= t->len_w) {
+        d->periph->idx_buf = 0;
+        if (t->type == I2CTransTxRx) {
+          d->periph->status = I2CRestartRequested;
+        } else {
+          t->status = I2CTransSuccess;
+          d->periph->status = I2CStopRequested;
+        }
+        return false;
+      }
+      // Send byte
+      if (!softi2c_write_byte(d, t->buf[d->periph->idx_buf], &ack)) return false;
+      // Byte sent
+      if (!ack) {
+        t->status = I2CTransFailed;
+        d->periph->status = I2CStopRequested;
+        return true;
+      }
+      d->periph->idx_buf++;
+      return false;
+
+    case I2CRestartRequested:
+      // Send restart bit
+      if (!softi2c_write_restart(d)) return false;
+      // Restart bit sent
+      d->periph->status = I2CAddrRdSent;
+      return false;
+
+    case I2CAddrRdSent:
+      // Send read address
+      byte = t->slave_addr | 0x01;
+      if (!softi2c_write_byte(d, byte, &ack)) return false;
+      // Read address sent
+      if (!ack) {
+        t->status = I2CTransFailed;
+        d->periph->status = I2CStopRequested;
+        return true;
+      }
+      d->periph->status = I2CReadingByte;
+      return false;
+
+    case I2CReadingByte:
+      // Check remaining bytes
+      if (d->periph->idx_buf >= t->len_r - 1) {
+        d->periph->status = I2CReadingLastByte;
+        return false;
+      }
+      // Read byte
+      if (!softi2c_read_byte(d, &(t->buf[d->periph->idx_buf]), true)) return false;
+      // Byte read
+      d->periph->idx_buf++;
+      return false;
+
+    case I2CReadingLastByte:
+      // Check remaining bytes
+      if (d->periph->idx_buf >= t->len_r) {
+        t->status = I2CTransSuccess;
+        d->periph->idx_buf = 0;
+        d->periph->status = I2CStopRequested;
+        return false;
+      }
+      // Read last byte (no ACK!)
+      if (!softi2c_read_byte(d, &(t->buf[d->periph->idx_buf]), false)) return false;
+      // Byte read
+      d->periph->idx_buf++;
+      return false;
+
+    case I2CStopRequested:
+      // Send stop bit
+      if (!softi2c_write_stop(d)) return false;
+      // Stop bit sent
+      d->periph->status = I2CIdle;
+      return true;
+  }
+}
 
