@@ -33,6 +33,7 @@
 #include "std.h"
 
 #include "mcu_periph/i2c_arch.h"
+#include "mcu_periph/softi2c.h"
 
 /**
  * @addtogroup mcu_periph

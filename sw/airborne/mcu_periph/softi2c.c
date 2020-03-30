@@ -101,6 +101,10 @@ static void softi2c_gpio_drive_low(uint32_t port, uint16_t pin) {
 
 static void softi2c_setup_gpio(
     uint32_t sda_port, uint16_t sda_pin,
+    uint32_t scl_port, uint16_t scl_pin) __attribute__((unused));
+
+static void softi2c_setup_gpio(
+    uint32_t sda_port, uint16_t sda_pin,
     uint32_t scl_port, uint16_t scl_pin) {
 #ifdef STM32_MCU_ARCH_H
   gpio_enable_clock(sda_port);
@@ -117,11 +121,15 @@ static void softi2c_setup_gpio(
 #endif
 PRINT_CONFIG_VAR(SOFTI2C0_CLOCK_SPEED);
 
+struct i2c_errors softi2c0_errors;
+
 void softi2c0_hw_init(void) {
   softi2c0.idle = softi2c_idle;
   softi2c0.submit = softi2c_submit;
   softi2c0.setbitrate = softi2c_setbitrate;
   softi2c0.reg_addr = (void *) softi2c0_device;
+  softi2c0.errors = &softi2c0_errors;
+  ZEROS_ERR_COUNTER(softi2c0_errors);
 
   softi2c0_device.periph = &softi2c0;
   softi2c0_device.sda_port = SOFTI2C0_SDA_GPIO;
@@ -145,11 +153,15 @@ void softi2c0_hw_init(void) {
 #endif
 PRINT_CONFIG_VAR(SOFTI2C1_CLOCK_SPEED);
 
+struct i2c_errors softi2c1_errors;
+
 void softi2c1_hw_init(void) {
   softi2c1.idle = softi2c_idle;
   softi2c1.submit = softi2c_submit;
   softi2c1.setbitrate = softi2c_setbitrate;
   softi2c1.reg_addr = (void *) softi2c1_device;
+  softi2c1.errors = &softi2c1_errors;
+  ZEROS_ERR_COUNTER(softi2c1_errors);
 
   softi2c1_device.periph = &softi2c1;
   softi2c1_device.sda_port = SOFTI2C1_SDA_GPIO;
@@ -524,6 +536,7 @@ static bool softi2c_process_transaction(struct softi2c_device *d, struct i2c_tra
       if (!softi2c_write_byte(d, t->slave_addr, &ack)) return false;
       // Write address sent
       if (!ack) {
+        d->periph->errors->ack_fail_cnt++;
         t->status = I2CTransFailed;
         d->periph->status = I2CStopRequested;
         return false;
@@ -547,6 +560,7 @@ static bool softi2c_process_transaction(struct softi2c_device *d, struct i2c_tra
       if (!softi2c_write_byte(d, t->buf[d->periph->idx_buf], &ack)) return false;
       // Byte sent
       if (!ack) {
+        d->periph->errors->ack_fail_cnt++;
         t->status = I2CTransFailed;
         d->periph->status = I2CStopRequested;
         return true;
@@ -567,6 +581,7 @@ static bool softi2c_process_transaction(struct softi2c_device *d, struct i2c_tra
       if (!softi2c_write_byte(d, byte, &ack)) return false;
       // Read address sent
       if (!ack) {
+        d->periph->errors->ack_fail_cnt++;
         t->status = I2CTransFailed;
         d->periph->status = I2CStopRequested;
         return true;
@@ -581,7 +596,7 @@ static bool softi2c_process_transaction(struct softi2c_device *d, struct i2c_tra
         return false;
       }
       // Read byte
-      if (!softi2c_read_byte(d, &(t->buf[d->periph->idx_buf]), true)) return false;
+      if (!softi2c_read_byte(d, (uint8_t *) &(t->buf[d->periph->idx_buf]), true)) return false;
       // Byte read
       d->periph->idx_buf++;
       return false;
@@ -595,7 +610,7 @@ static bool softi2c_process_transaction(struct softi2c_device *d, struct i2c_tra
         return false;
       }
       // Read last byte (no ACK!)
-      if (!softi2c_read_byte(d, &(t->buf[d->periph->idx_buf]), false)) return false;
+      if (!softi2c_read_byte(d, (uint8_t *) &(t->buf[d->periph->idx_buf]), false)) return false;
       // Byte read
       d->periph->idx_buf++;
       return false;
@@ -606,6 +621,62 @@ static bool softi2c_process_transaction(struct softi2c_device *d, struct i2c_tra
       // Stop bit sent
       d->periph->status = I2CIdle;
       return true;
+
+    default:
+      // Should never happen, something went wrong
+      t->status = I2CTransFailed;
+      d->periph->status = I2CIdle;
+      return true;
   }
 }
 
+// Per-device event function
+static void softi2c_device_event(struct softi2c_device *d) __attribute__((unused));
+
+static void softi2c_device_event(struct softi2c_device *d) {
+  struct i2c_periph *p = d->periph;
+  if (p->trans_insert_idx != p->trans_extract_idx) {
+    // Transaction(s) in queue
+    struct i2c_transaction *t = p->trans[p->trans_extract_idx];
+    if (softi2c_process_transaction(d, t)) {
+      // Transaction finished
+      p->trans_extract_idx = (p->trans_extract_idx + 1) % I2C_TRANSACTION_QUEUE_LEN;
+    }
+  }
+}
+
+
+/*
+ * Paparazzi functions
+ */
+void softi2c_event(void) {
+#if USE_SOFTI2C0
+  softi2c_device_event(&softi2c0_device);
+#endif
+#if USE_SOFTI2C1
+  softi2c_device_event(&softi2c1_device);
+#endif
+}
+
+static bool softi2c_idle(struct i2c_periph *p) {
+  return (p->status == I2CIdle) && (p->trans_insert_idx == p->trans_extract_idx);
+}
+
+static bool softi2c_submit(struct i2c_periph *p, struct i2c_transaction *t) {
+  uint8_t next_idx = (p->trans_insert_idx + 1) % I2C_TRANSACTION_QUEUE_LEN;
+  if (next_idx == p->trans_extract_idx) {
+    // queue full
+    p->errors->queue_full_cnt++;
+    t->status = I2CTransFailed;
+    return false;
+  }
+  t->status = I2CTransPending;
+  /* put transaction in queue */
+  p->trans[p->trans_insert_idx] = t;
+  p->trans_insert_idx = next_idx;
+}
+
+static void softi2c_setbitrate(struct i2c_periph *p, int bitrate) {
+  struct softi2c_device *d = (struct softi2c_device *) p->reg_addr;
+  d->t_scl = 1.0 / (float) bitrate;
+}
