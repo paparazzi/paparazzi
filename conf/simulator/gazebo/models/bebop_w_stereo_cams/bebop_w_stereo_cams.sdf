@@ -180,7 +180,7 @@
     <!-- CAMERAS -->
 
     <link name="front_camera">
-      <pose>0.15 0 0 -1.57 0.33 0</pose><!-- Bebop camera output is rotated 90 degrees and pitched slightly downwards -->
+      <pose>0.15 0 0 0 0 0</pose>
       <inertial>
         <mass>0.001</mass>
         <inertia>
@@ -192,23 +192,17 @@
           <ixz>0</ixz>
         </inertia>
       </inertial>
-      <sensor type="wideanglecamera" name="mt9f002">
-        <update_rate>15.0</update_rate><!-- adjust with MT9F002_TARGET_FPS -->
+      <sensor type="camera" name="mt9f002">
+        <update_rate>90.0</update_rate>
         <camera>
+          <horizontal_fov>0.7175</horizontal_fov>
           <image>
-            <width>4608</width><!-- Full sensor resolution -->
-            <height>3288</height><!-- Full sensor resolution -->
+            <width>480</width>
+            <height>480</height>
             <format>R8G8B8</format>
           </image>
-          <horizontal_fov>3.7</horizontal_fov>
-          <lens>
-            <type>equisolid_angle</type>
-            <scale_to_hfov>true</scale_to_hfov>
-            <cutoff_angle>1.8</cutoff_angle>
-            <env_texture_size>2048</env_texture_size><!-- with MT9F002_ZOOM = 1.00, will be scaled by NPS -->
-          </lens>
           <clip>
-            <near>0.01</near>
+            <near>0.02</near>
             <far>300</far>
           </clip>
           <noise>
@@ -229,7 +223,7 @@
     </joint>
     
     <link name="bottom_camera">
-      <pose>0 0 0 0 1.57 0</pose>
+      <pose>0.15 0 0 0 0 0</pose>
       <inertial>
         <mass>0.001</mass>
         <inertia>
@@ -246,8 +240,8 @@
         <camera>
           <horizontal_fov>0.7175</horizontal_fov>
           <image>
-            <width>240</width>
-            <height>240</height>
+            <width>480</width>
+            <height>480</height>
             <format>R8G8B8</format>
           </image>
           <clip>
