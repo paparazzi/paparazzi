@@ -36,6 +36,20 @@
 
 #include <stdbool.h>
 
+// Note: the SYS_TIME_FREQUENCY should be set sufficiently high (~1MHz) for
+// accurate I2C timing. If the clock is set too slow, minimum timings are
+// not explicitly checked!
+
+// Number of times to update the softI2C devices per event call.
+// Increase for a higher bitrate at the cost of a longer runtime.
+// For reference (STM32F4, SYS_TIME_FREQUENCY = 204800Hz):
+// - a single device_event function call takes approx. 5 microseconds.
+// - with an event multiplier of 1, the maximum bitrate is ~10 kbps
+// - while spinning (very large multiplier), the maximum bitrate is ~45 kbps.
+#ifndef SOFTI2C_EVENT_MULTIPLIER
+#define SOFTI2C_EVENT_MULTIPLIER 1
+#endif
+
 
 struct softi2c_device {
   struct i2c_periph *periph;
@@ -228,7 +242,7 @@ void softi2c1_hw_init(void) {
 // starts at SDA <= low
 // ends at   SCL allowed low
 static bool softi2c_write_start(struct softi2c_device *d) {
-  float bit_time = get_sys_time_float() - d->bit_state_time;
+  float bit_time = get_sys_time_float() - d->bit_state_time + sys_time.resolution;
   switch (d->bit_state) {
     case 0:
       // Start of bit
@@ -250,8 +264,8 @@ static bool softi2c_write_start(struct softi2c_device *d) {
 // ends at   SCL allowed low
 // Note: write_bit may also be used to write the ACK bit (T_VD_ACK == T_VD_DAT)
 static bool softi2c_write_bit(struct softi2c_device *d, bool bit) {
-  float bit_time = get_sys_time_float() - d->bit_state_time;
-  float bit_total_time = get_sys_time_float() - d->bit_start_time;
+  float bit_time = get_sys_time_float() - d->bit_state_time + sys_time.resolution;
+  float bit_total_time = get_sys_time_float() - d->bit_start_time + sys_time.resolution;
   switch (d->bit_state) {
     case 0:
       // Start of bit
@@ -299,8 +313,8 @@ static bool softi2c_write_bit(struct softi2c_device *d, bool bit) {
 // ends at   SCL allowed low
 // Note: read_bit may also be used to read the ACK bit (T_VD_ACK == T_VD_DAT)
 static bool softi2c_read_bit(struct softi2c_device *d, bool *bit) {
-  float bit_time = get_sys_time_float() - d->bit_state_time;
-  float bit_total_time = get_sys_time_float() - d->bit_start_time;
+  float bit_time = get_sys_time_float() - d->bit_state_time + sys_time.resolution;
+  float bit_total_time = get_sys_time_float() - d->bit_start_time + sys_time.resolution;
   switch (d->bit_state) {
     case 0:
       // Start of bit
@@ -345,8 +359,8 @@ static bool softi2c_read_bit(struct softi2c_device *d, bool *bit) {
 // starts at SCL <= low
 // ends at   SCL allowed low
 static bool softi2c_write_restart(struct softi2c_device *d) {
-  float bit_time = get_sys_time_float() - d->bit_state_time;
-  float bit_total_time = get_sys_time_float() - d->bit_start_time;
+  float bit_time = get_sys_time_float() - d->bit_state_time + sys_time.resolution;
+  float bit_total_time = get_sys_time_float() - d->bit_start_time + sys_time.resolution;
   switch (d->bit_state) {
     case 0:
       // Start of bit
@@ -396,7 +410,7 @@ static bool softi2c_write_restart(struct softi2c_device *d) {
 // starts at SCL <= low
 // ends at   SCL allowed low
 static bool softi2c_write_stop(struct softi2c_device *d) {
-  float bit_time = get_sys_time_float() - d->bit_state_time;
+  float bit_time = get_sys_time_float() - d->bit_state_time + sys_time.resolution;
     switch (d->bit_state) {
       case 0:
         // Start of bit
@@ -650,12 +664,14 @@ static void softi2c_device_event(struct softi2c_device *d) {
  * Paparazzi functions
  */
 void softi2c_event(void) {
+  for (int i = 0; i < SOFTI2C_EVENT_MULTIPLIER; ++i) {
 #if USE_SOFTI2C0
   softi2c_device_event(&softi2c0_device);
 #endif
 #if USE_SOFTI2C1
   softi2c_device_event(&softi2c1_device);
 #endif
+  }
 }
 
 static bool softi2c_idle(struct i2c_periph *p) {
