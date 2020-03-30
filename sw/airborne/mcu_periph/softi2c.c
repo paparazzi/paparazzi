@@ -36,7 +36,25 @@
 
 #include <stdbool.h>
 
-struct softi2c_device;
+
+struct softi2c_device {
+  struct i2c_periph *periph;
+  uint32_t sda_port;
+  uint16_t sda_pin;
+  uint32_t scl_port;
+  uint16_t scl_pin;
+  float t_scl;  // Clock period
+  /* Bit-level state machine */
+  uint8_t bit_state;
+  float bit_state_time;
+  float bit_start_time;
+  /* Byte-level state machine */
+  uint8_t byte_state;
+  /* Transaction-level state machine */
+  // periph->status
+  // periph->idx_buf
+};
+
 
 static bool softi2c_idle(struct i2c_periph *periph) __attribute__((unused));
 static bool softi2c_submit(struct i2c_periph *periph, struct i2c_transaction *t) __attribute__((unused));
@@ -127,7 +145,7 @@ void softi2c0_hw_init(void) {
   softi2c0.idle = softi2c_idle;
   softi2c0.submit = softi2c_submit;
   softi2c0.setbitrate = softi2c_setbitrate;
-  softi2c0.reg_addr = (void *) softi2c0_device;
+  softi2c0.reg_addr = (void *) &softi2c0_device;
   softi2c0.errors = &softi2c0_errors;
   ZEROS_ERR_COUNTER(softi2c0_errors);
 
@@ -159,7 +177,7 @@ void softi2c1_hw_init(void) {
   softi2c1.idle = softi2c_idle;
   softi2c1.submit = softi2c_submit;
   softi2c1.setbitrate = softi2c_setbitrate;
-  softi2c1.reg_addr = (void *) softi2c1_device;
+  softi2c1.reg_addr = (void *) &softi2c1_device;
   softi2c1.errors = &softi2c1_errors;
   ZEROS_ERR_COUNTER(softi2c1_errors);
 
@@ -198,24 +216,6 @@ void softi2c1_hw_init(void) {
 #define T_BUF_MIN    (4.7e-6f)
 #define T_VD_DAT_MAX (3.45e-6f)
 #define T_VD_ACK_MAX (3.45e-6f)
-
-struct softi2c_device {
-  struct i2c_periph *periph;
-  uint32_t sda_port;
-  uint16_t sda_pin;
-  uint32_t scl_port;
-  uint16_t scl_pin;
-  float t_scl;  // Clock period
-  /* Bit-level state machine */
-  uint8_t bit_state;
-  float bit_state_time;
-  float bit_start_time;
-  /* Byte-level state machine */
-  uint8_t byte_state;
-  /* Transaction-level state machine */
-  // periph->status
-  // periph->idx_buf
-};
 
 // Bit read/write functions
 // Should be called continuously from event function.
@@ -674,6 +674,7 @@ static bool softi2c_submit(struct i2c_periph *p, struct i2c_transaction *t) {
   /* put transaction in queue */
   p->trans[p->trans_insert_idx] = t;
   p->trans_insert_idx = next_idx;
+  return true;
 }
 
 static void softi2c_setbitrate(struct i2c_periph *p, int bitrate) {
