@@ -37,6 +37,14 @@
 #include <stdbool.h>
 
 
+#ifndef SOFTI2C0_EVENT_DIVIDER
+#define SOFTI2C0_EVENT_DIVIDER 1
+#endif
+#ifndef SOFTI2C1_EVENT_DIVIDER
+#define SOFTI2C1_EVENT_DIVIDER 1
+#endif
+
+
 struct softi2c_device {
   struct i2c_periph *periph;
   uint32_t sda_port;
@@ -53,18 +61,6 @@ struct softi2c_device {
   // periph->status
   // periph->idx_buf
 };
-
-struct highres_clock {
-  // The SYS_TIME clock resolution is too coarse.
-  // Count the number of events for a finegrained time estimate.
-  double now;
-  float sys_time;
-  double time_per_event;
-  // Event time estimator
-  float event_est_sys_time;
-  uint32_t event_est_cnt;
-};
-static struct highres_clock time;
 
 
 static bool softi2c_idle(struct i2c_periph *periph) __attribute__((unused));
@@ -145,11 +141,6 @@ static void softi2c_setup_gpio(
 
 
 #if USE_SOFTI2C0
-#ifndef SOFTI2C0_CLOCK_SPEED
-#define SOFTI2C0_CLOCK_SPEED 1000
-#endif
-PRINT_CONFIG_VAR(SOFTI2C0_CLOCK_SPEED);
-
 struct i2c_errors softi2c0_errors;
 
 void softi2c0_hw_init(void) {
@@ -170,18 +161,10 @@ void softi2c0_hw_init(void) {
   softi2c_setup_gpio(
       SOFTI2C0_SDA_GPIO, SOFTI2C0_SDA_PIN,
       SOFTI2C0_SCL_GPIO, SOFTI2C0_SCL_PIN);
-
-  /* Set default bitrate */
-  i2c_setbitrate(&softi2c0, SOFTI2C0_CLOCK_SPEED);
 }
 #endif /* USE_SOFTI2C0 */
 
 #if USE_SOFTI2C1
-#ifndef SOFTI2C1_CLOCK_SPEED
-#define SOFTI2C1_CLOCK_SPEED 1000
-#endif
-PRINT_CONFIG_VAR(SOFTI2C1_CLOCK_SPEED);
-
 struct i2c_errors softi2c1_errors;
 
 void softi2c1_hw_init(void) {
@@ -202,9 +185,6 @@ void softi2c1_hw_init(void) {
   softi2c_setup_gpio(
       SOFTI2C1_SDA_GPIO, SOFTI2C1_SDA_PIN,
       SOFTI2C1_SCL_GPIO, SOFTI2C1_SCL_PIN);
-
-  /* Set default bitrate */
-  i2c_setbitrate(&softi2c1, SOFTI2C1_CLOCK_SPEED);
 }
 #endif /* USE_SOFTI2C1 */
 
@@ -232,27 +212,23 @@ void softi2c1_hw_init(void) {
 // is difficult to explicitly implement for two reasons:
 // - The event loop spins at a ~20 us period.
 // - The sys time clock has a resolution of ~200 us. (Can be set higher, but
-//   causes lockups when set to ~2us or lower.
+//   can cause lockups when set to ~2us or lower.)
 // The problem is solved by microsleeping in the event function. Per softI2C
-// device, the event function may block for ~20us max. For longer pauses,
-// the bit state machines will wait until the next time the event function is
-// called. To stay within the standard-mode timing, the event function should
-// not be called with a period smaller than 5us. This should not be a problem
-// during normal use.
+// device, the event function may block for ~10us. Longer pauses between bits
+// use the time between event calls as a delay. As a result, the bitrate is an
+// integer fraction of the event rate and cannot be set exactly. The bitrate
+// can be coarsely adjusted by setting SOFTI2C_EVENT_DIVIDER.
 
 
 // Bit read/write functions
 // Should be called continuously from event function.
 // Return true upon completion.
-// The bit functions will wait initially until SCL is allowed low (mainly
-// dependent on the chosen bitrate) and will run until SCL is high again. The
-// delay between event calls is used to ensure minimum I2C timing after SCL
-// high.
+// The bit functions start by setting SCL low and end at the last transition
+// before SCL is set low again. The time between event calls is used to space
+// this last transition and the new SCL low edge, thereby setting the bus
+// frequency.
 
 static bool softi2c_write_start(struct softi2c_device *d) {
-  float bit_time = time.now - d->bit_start_time;
-  if (bit_time + time.time_per_event < d->t_scl) return false;
-  if (bit_time < d->t_scl) sys_time_usleep(1.e6 * (d->t_scl - bit_time));
   softi2c_gpio_drive_low(d->sda_port, d->sda_pin);
   sys_time_usleep(T_HD_STA_MIN);
   return true;
@@ -260,13 +236,9 @@ static bool softi2c_write_start(struct softi2c_device *d) {
 
 // Note: write_bit may also be used to write the ACK bit (T_VD_ACK == T_VD_DAT)
 static bool softi2c_write_bit(struct softi2c_device *d, bool bit) {
-  float bit_time = time.now - d->bit_start_time;
   switch (d->bit_state) {
     case 0:
       // Start of bit
-      if (bit_time + time.time_per_event < d->t_scl) return false;
-      if (bit_time < d->t_scl) sys_time_usleep(1.e6 * (d->t_scl - bit_time));
-      d->bit_start_time = time.now;
       softi2c_gpio_drive_low(d->scl_port, d->scl_pin);
       sys_time_usleep(T_HD_DAT_MIN);
       // After SCL fall time and data hold time
@@ -291,27 +263,20 @@ static bool softi2c_write_bit(struct softi2c_device *d, bool bit) {
 
 // Note: read_bit may also be used to read the ACK bit (T_VD_ACK == T_VD_DAT)
 static bool softi2c_read_bit(struct softi2c_device *d, bool *bit) {
-  float bit_time = time.now - d->bit_start_time;
   switch (d->bit_state) {
     case 0:
       // Start of bit
-      if (bit_time + time.time_per_event < d->t_scl) return false;
-      if (bit_time < d->t_scl) sys_time_usleep(1.e6 * (d->t_scl - bit_time));
-      d->bit_start_time = time.now;
       softi2c_gpio_drive_low(d->scl_port, d->scl_pin);
       sys_time_usleep(T_HD_DAT_MIN);
       // After SCL fall time and data hold time
       softi2c_gpio_highz(d->sda_port, d->sda_pin);  // SDA may be driven low by slave.
-      sys_time_usleep(1);
-      // After SCL(!) fall time and minimum low time
+      // After SCL(!) fall time and minimum low time (== T_HD_DAT_MIN)
       softi2c_gpio_highz(d->scl_port, d->scl_pin);
       d->bit_state++;
       // no break
     case 1:
       if (!gpio_get(d->scl_port, d->scl_pin)) return false;
       // After SCL rise time and confirmed high (clock stretching)
-      sys_time_usleep(T_HIGH_MIN);
-      // After SCL minimum high time
       *bit = softi2c_gpio_read(d->sda_port, d->sda_pin);
       d->bit_state = 0;
       return true; // > T_HIGH_MIN
@@ -320,13 +285,9 @@ static bool softi2c_read_bit(struct softi2c_device *d, bool *bit) {
 }
 
 static bool softi2c_write_restart(struct softi2c_device *d) {
-  float bit_time = time.now - d->bit_start_time;
   switch (d->bit_state) {
     case 0:
       // Start of bit
-      if (bit_time + time.time_per_event < d->t_scl) return false;
-      if (bit_time < d->t_scl) sys_time_usleep(1.e6 * (d->t_scl - bit_time));
-      d->bit_start_time = time.now;
       softi2c_gpio_drive_low(d->scl_port, d->scl_pin);
       sys_time_usleep(T_HD_DAT_MIN);
       // After SCL fall time and data hold time
@@ -349,13 +310,9 @@ static bool softi2c_write_restart(struct softi2c_device *d) {
 }
 
 static bool softi2c_write_stop(struct softi2c_device *d) {
-  float bit_time = time.now - d->bit_start_time;
   switch (d->bit_state) {
     case 0:
       // Start of bit
-      if (bit_time + time.time_per_event < d->t_scl) return false;
-      if (bit_time < d->t_scl) sys_time_usleep(1.e6 * (d->t_scl - bit_time));
-      d->bit_start_time = time.now;
       softi2c_gpio_drive_low(d->scl_port, d->scl_pin);
       sys_time_usleep(T_HD_DAT_MIN);
       // After SCL fall time and data hold time
@@ -582,37 +539,27 @@ static void softi2c_device_event(struct softi2c_device *d) {
 }
 
 
-// Timing function
-static void highres_clock_event(void) {
-  float time_now = get_sys_time_float();
-  // Update clock
-  time.now += time.time_per_event;
-  if (time_now != time.sys_time) {
-    time.now = time_now;
-  }
-
-  // Update estimators
-  time.event_est_cnt++;
-  float dt = time_now - time.event_est_sys_time;
-  if (dt > 100e-3) {
-    // Update event time estimator
-    time.time_per_event = dt / time.event_est_cnt;
-    time.event_est_cnt = 0;
-    time.event_est_sys_time = time_now;
-  }
-}
-
-
 /*
  * Paparazzi functions
  */
 void softi2c_event(void) {
-  highres_clock_event();
 #if USE_SOFTI2C0
-  softi2c_device_event(&softi2c0_device);
+  static int softi2c0_cnt = 1;
+  if (softi2c0_cnt == SOFTI2C0_EVENT_DIVIDER) {
+    softi2c_device_event(&softi2c0_device);
+    softi2c0_cnt = 1;
+  } else {
+    softi2c0_cnt++;
+  }
 #endif
 #if USE_SOFTI2C1
-  softi2c_device_event(&softi2c1_device);
+  static int softi2c1_cnt = 1;
+  if (softi2c1_cnt == SOFTI2C1_EVENT_DIVIDER) {
+    softi2c_device_event(&softi2c1_device);
+    softi2c1_cnt = 1;
+  } else {
+    softi2c1_cnt++;
+  }
 #endif
 }
 
@@ -635,7 +582,6 @@ static bool softi2c_submit(struct i2c_periph *p, struct i2c_transaction *t) {
   return true;
 }
 
-static void softi2c_setbitrate(struct i2c_periph *p, int bitrate) {
-  struct softi2c_device *d = (struct softi2c_device *) p->reg_addr;
-  d->t_scl = 1.0 / (float) bitrate;
+static void softi2c_setbitrate(struct i2c_periph *p __attribute__((unused)), int bitrate __attribute__((unused))) {
+  /* Do nothing */
 }
