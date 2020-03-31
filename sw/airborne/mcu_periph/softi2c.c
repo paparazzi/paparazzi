@@ -214,19 +214,32 @@ void softi2c1_hw_init(void) {
  */
 // I2C Standard-mode timing
 // Refer to NXP UM10204 chapter 6.
-// All times in seconds
-#define T_HD_STA_MIN (4.0e-6f)
-#define T_LOW_MIN    (4.7e-6f)
-#define T_HIGH_MIN   (4.0e-6f)
-#define T_SU_STA_MIN (4.7e-6f)
-#define T_HD_DAT_MIN (5.0e-6f)
-#define T_SU_DAT_MIN (0.25e-6f)
-#define T_R_MAX      (1000.0e-9f)
-#define T_F_MAX      (300.0e-9f)
-#define T_SU_STO_MIN (4.0e-6f)
-#define T_BUF_MIN    (4.7e-6f)
-#define T_VD_DAT_MAX (3.45e-6f)
-#define T_VD_ACK_MAX (3.45e-6f)
+// All times in microseconds rounded up
+// Rise and fall time are too small to explicitly take into account.
+#define T_HD_STA_MIN 4
+#define T_LOW_MIN    5
+#define T_HIGH_MIN   4
+#define T_SU_STA_MIN 5
+#define T_HD_DAT_MIN 5
+#define T_SU_DAT_MIN 1
+#define T_SU_STO_MIN 4
+#define T_BUF_MIN    5
+#define T_VD_DAT_MAX 4
+#define T_VD_ACK_MAX 4
+
+// Some notes about timing:
+// The I2C standard lists timing requirements in the order of microseconds. This
+// is difficult to explicitly implement for two reasons:
+// - The event loop spins at a ~20 us period.
+// - The sys time clock has a resolution of ~200 us. (Can be set higher, but
+//   causes lockups when set to ~2us or lower.
+// The problem is solved by microsleeping in the event function. Per softI2C
+// device, the event function may block for ~20us max. For longer pauses,
+// the bit state machines will wait until the next time the event function is
+// called. To stay within the standard-mode timing, the event function should
+// not be called with a period smaller than 5us. This should not be a problem
+// during normal use.
+
 
 // Bit read/write functions
 // Should be called continuously from event function.
@@ -239,18 +252,9 @@ void softi2c1_hw_init(void) {
 // starts at SDA <= low
 // ends at   SCL allowed low
 static bool softi2c_write_start(struct softi2c_device *d) {
-  switch (d->bit_state) {
-    case 0:
-      // Start of bit
-      softi2c_gpio_drive_low(d->sda_port, d->sda_pin);
-      d->bit_state++;
-      return false;
-    case 1:
-      // After SDA fall time and start condition hold time
-      d->bit_state = 0;
-      return true;
-    default: return false;
-  }
+  softi2c_gpio_drive_low(d->sda_port, d->sda_pin);
+  sys_time_usleep(T_HD_STA_MIN);
+  return true;
 }
 
 // write_bit:
@@ -264,28 +268,24 @@ static bool softi2c_write_bit(struct softi2c_device *d, bool bit) {
       // Start of bit
       d->bit_start_time = time.now;
       softi2c_gpio_drive_low(d->scl_port, d->scl_pin);
-      d->bit_state++;
-      return false;
-    case 1:
+      sys_time_usleep(T_HD_DAT_MIN);
       // After SCL fall time and data hold time
       if (bit) {
         softi2c_gpio_highz(d->sda_port, d->sda_pin);
       } else {
         softi2c_gpio_drive_low(d->sda_port, d->sda_pin);
       }
-      d->bit_state++;
-      return false;
-    case 2:
+      sys_time_usleep(T_SU_DAT_MIN);
       // After SDA rise(/fall) and data set-up time
       softi2c_gpio_highz(d->scl_port, d->scl_pin);
       d->bit_state++;
-      return false;
-    case 3:
+      // no break
+    case 1:
       if (!gpio_get(d->scl_port, d->scl_pin)) return false;
       // After SCL rise time and confirmed high (clock stretching)
       d->bit_state++;
-      return false;
-    case 4:
+      return false; // > T_HIGH_MIN
+    case 2:
       if (bit_time < d->t_scl) return false;
       // After T_HIGH and after clock period
       d->bit_state = 0;
@@ -305,25 +305,20 @@ static bool softi2c_read_bit(struct softi2c_device *d, bool *bit) {
       // Start of bit
       d->bit_start_time = time.now;
       softi2c_gpio_drive_low(d->scl_port, d->scl_pin);
-      d->bit_state++;
-      return false;
-    case 1:
+      sys_time_usleep(T_HD_DAT_MIN);
       // After SCL fall time and data hold time
       softi2c_gpio_highz(d->sda_port, d->sda_pin);  // SDA may be driven low by slave.
-      // d->bit_step_time = time.now;  // Read timing based on SCL <= low.
-      d->bit_state++;
-      return false;
-    case 2:
+      sys_time_usleep(1);
       // After SCL(!) fall time and minimum low time
       softi2c_gpio_highz(d->scl_port, d->scl_pin);
       d->bit_state++;
-      return false;
-    case 3:
+      // no break
+    case 1:
       if (!gpio_get(d->scl_port, d->scl_pin)) return false;
       // After SCL rise time and confirmed high (clock stretching)
       d->bit_state++;
-      return false;
-    case 4:
+      return false; // > T_HIGH_MIN
+    case 2:
       if (bit_time < d->t_scl) return false;
       // After SCL minimum high time
       *bit = softi2c_gpio_read(d->sda_port, d->sda_pin);
@@ -344,29 +339,23 @@ static bool softi2c_write_restart(struct softi2c_device *d) {
       // Start of bit
       d->bit_start_time = time.now;
       softi2c_gpio_drive_low(d->scl_port, d->scl_pin);
-      d->bit_state++;
-      return false;
-    case 1:
+      sys_time_usleep(T_HD_DAT_MIN);
       // After SCL fall time and data hold time
       softi2c_gpio_highz(d->sda_port, d->sda_pin);
-      d->bit_state++;
-      return false;
-    case 2:
+      sys_time_usleep(T_SU_DAT_MIN);
       // After SDA rise time and data set-up time
       softi2c_gpio_highz(d->scl_port, d->scl_pin);
       d->bit_state++;
-      return false;
-    case 3:
+      // no break
+    case 1:
       if (!gpio_get(d->scl_port, d->scl_pin)) return false;
       // After SCL rise time and confirmed high (clock stretching)
-      d->bit_state++;
-      return false;
-    case 4:
+      sys_time_usleep(T_SU_STA_MIN);
       // After restart set-up time
       softi2c_gpio_drive_low(d->sda_port, d->sda_pin);
       d->bit_state++;
-      return false;
-    case 5:
+      return false; // > T_HD_STA_MIN
+    case 2:
       if (bit_time < d->t_scl) return false;
       // After SDA fall time and restart hold time
       d->bit_state = 0;
@@ -385,29 +374,23 @@ static bool softi2c_write_stop(struct softi2c_device *d) {
       // Start of bit
       d->bit_start_time = time.now;
       softi2c_gpio_drive_low(d->scl_port, d->scl_pin);
-      d->bit_state++;
-      return false;
-    case 1:
+      sys_time_usleep(T_HD_DAT_MIN);
       // After SCL fall time and data hold time
       softi2c_gpio_drive_low(d->sda_port, d->sda_pin);
-      d->bit_state++;
-      return false;
-    case 2:
+      sys_time_usleep(T_SU_DAT_MIN);
       // After SDA fall time and data set-up time
       softi2c_gpio_highz(d->scl_port, d->scl_pin);
       d->bit_state++;
-      return false;
-    case 3:
+      // no break
+    case 1:
       if (!gpio_get(d->scl_port, d->scl_pin)) return false;
       // After SCL rise time and confirmed high (clock stretching)
-      d->bit_state++;
-      return false;
-    case 4:
+      sys_time_usleep(T_SU_STO_MIN);
       // After stop set-up time
       softi2c_gpio_highz(d->sda_port, d->sda_pin);
       d->bit_state++;
-      return false;
-    case 5:
+      return false; // > T_BUF_MIN
+    case 2:
       if (bit_time < d->t_scl) return false;
       // After SDA rise time and bus free time and clock period
       d->bit_state = 0;
