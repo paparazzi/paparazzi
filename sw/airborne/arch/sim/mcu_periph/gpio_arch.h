@@ -77,5 +77,6 @@ static inline void gpio_setup_input(uint32_t port __attribute__((unused)), uint1
 static inline void gpio_set(uint32_t port __attribute__((unused)), uint16_t pin __attribute__((unused))) {}
 static inline void gpio_clear(uint32_t port __attribute__((unused)), uint16_t pin __attribute__((unused))) {}
 static inline void gpio_toggle(uint32_t port __attribute__((unused)), uint16_t pin __attribute__((unused))) {}
+static inline uint16_t gpio_get(uint32_t gpioport __attribute__((unused)), uint16_t gpios __attribute__((unused))) { return FALSE; }
 
 #endif /* GPIO_ARCH_H */
