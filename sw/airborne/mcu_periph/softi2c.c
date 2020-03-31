@@ -34,6 +34,10 @@
 #include "mcu_periph/gpio.h"
 #include "mcu_periph/sys_time.h"
 
+#if PERIODIC_TELEMETRY
+#include "subsystems/datalink/telemetry.h"
+#endif
+
 #include <stdbool.h>
 
 
@@ -51,10 +55,8 @@ struct softi2c_device {
   uint16_t sda_pin;
   uint32_t scl_port;
   uint16_t scl_pin;
-  float t_scl;  // Clock period
   /* Bit-level state machine */
   uint8_t bit_state;
-  float bit_start_time;
   /* Byte-level state machine */
   uint8_t byte_state;
   /* Transaction-level state machine */
@@ -88,6 +90,36 @@ void softi2c0_init(void) {
   i2c_init(&softi2c0);
   softi2c0_hw_init();
 }
+#if PERIODIC_TELEMETRY
+void send_softi2c0_err(struct transport_tx *trans, struct link_device *dev)
+{
+  uint16_t i2c0_wd_reset_cnt          = softi2c0.errors->wd_reset_cnt;
+  uint16_t i2c0_queue_full_cnt        = softi2c0.errors->queue_full_cnt;
+  uint16_t i2c0_ack_fail_cnt          = softi2c0.errors->ack_fail_cnt;
+  uint16_t i2c0_miss_start_stop_cnt   = softi2c0.errors->miss_start_stop_cnt;
+  uint16_t i2c0_arb_lost_cnt          = softi2c0.errors->arb_lost_cnt;
+  uint16_t i2c0_over_under_cnt        = softi2c0.errors->over_under_cnt;
+  uint16_t i2c0_pec_recep_cnt         = softi2c0.errors->pec_recep_cnt;
+  uint16_t i2c0_timeout_tlow_cnt      = softi2c0.errors->timeout_tlow_cnt;
+  uint16_t i2c0_smbus_alert_cnt       = softi2c0.errors->smbus_alert_cnt;
+  uint16_t i2c0_unexpected_event_cnt  = softi2c0.errors->unexpected_event_cnt;
+  uint32_t i2c0_last_unexpected_event = softi2c0.errors->last_unexpected_event;
+  uint8_t _bus0 = 10;
+  pprz_msg_send_I2C_ERRORS(trans, dev, AC_ID,
+                           &i2c0_wd_reset_cnt,
+                           &i2c0_queue_full_cnt,
+                           &i2c0_ack_fail_cnt,
+                           &i2c0_miss_start_stop_cnt,
+                           &i2c0_arb_lost_cnt,
+                           &i2c0_over_under_cnt,
+                           &i2c0_pec_recep_cnt,
+                           &i2c0_timeout_tlow_cnt,
+                           &i2c0_smbus_alert_cnt,
+                           &i2c0_unexpected_event_cnt,
+                           &i2c0_last_unexpected_event,
+                           &_bus0);
+}
+#endif
 #endif /* USE_SOFTI2C0 */
 
 #if USE_SOFTI2C1
@@ -97,6 +129,36 @@ void softi2c1_init(void) {
   i2c_init(&softi2c1);
   softi2c1_hw_init();
 }
+#if PERIODIC_TELEMETRY
+void send_softi2c1_err(struct transport_tx *trans, struct link_device *dev)
+{
+  uint16_t i2c1_wd_reset_cnt          = softi2c1.errors->wd_reset_cnt;
+  uint16_t i2c1_queue_full_cnt        = softi2c1.errors->queue_full_cnt;
+  uint16_t i2c1_ack_fail_cnt          = softi2c1.errors->ack_fail_cnt;
+  uint16_t i2c1_miss_start_stop_cnt   = softi2c1.errors->miss_start_stop_cnt;
+  uint16_t i2c1_arb_lost_cnt          = softi2c1.errors->arb_lost_cnt;
+  uint16_t i2c1_over_under_cnt        = softi2c1.errors->over_under_cnt;
+  uint16_t i2c1_pec_recep_cnt         = softi2c1.errors->pec_recep_cnt;
+  uint16_t i2c1_timeout_tlow_cnt      = softi2c1.errors->timeout_tlow_cnt;
+  uint16_t i2c1_smbus_alert_cnt       = softi2c1.errors->smbus_alert_cnt;
+  uint16_t i2c1_unexpected_event_cnt  = softi2c1.errors->unexpected_event_cnt;
+  uint32_t i2c1_last_unexpected_event = softi2c1.errors->last_unexpected_event;
+  uint8_t _bus1 = 11;
+  pprz_msg_send_I2C_ERRORS(trans, dev, AC_ID,
+                           &i2c1_wd_reset_cnt,
+                           &i2c1_queue_full_cnt,
+                           &i2c1_ack_fail_cnt,
+                           &i2c1_miss_start_stop_cnt,
+                           &i2c1_arb_lost_cnt,
+                           &i2c1_over_under_cnt,
+                           &i2c1_pec_recep_cnt,
+                           &i2c1_timeout_tlow_cnt,
+                           &i2c1_smbus_alert_cnt,
+                           &i2c1_unexpected_event_cnt,
+                           &i2c1_last_unexpected_event,
+                           &_bus1);
+}
+#endif
 #endif /* USE_SOFTI2C1 */
 
 
@@ -373,6 +435,7 @@ static bool softi2c_write_byte(struct softi2c_device *d, uint8_t byte, bool *ack
     case 8:
       // Read ACK
       if (!softi2c_read_bit(d, ack)) return false;  // Read bit in progress
+      *ack = !*ack; // Inverted, low = acknowledge
       d->byte_state = 0;
       return true;
     default: return false;
@@ -405,7 +468,8 @@ static bool softi2c_read_byte(struct softi2c_device *d, uint8_t *byte, bool ack)
       return false;
     case 8:
       // Write ACK
-      if (!softi2c_write_bit(d, ack)) return false;  // Write bit in progress
+      // Note: inverted logic, low = acknowledge.
+      if (!softi2c_write_bit(d, !ack)) return false;  // Write bit in progress
       d->byte_state = 0;
       return true;
     default: return false;
