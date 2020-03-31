@@ -230,7 +230,7 @@ void softi2c1_hw_init(void) {
 // device by setting SOFTI2CX_EVENT_DIVIDER.
 
 #if SOFTI2C_ALLOW_USLEEP
-#define SLEEP_OR_RETURN_FALSE(_us) sys_time_usleep((_us)); // no break
+#define SLEEP_OR_RETURN_FALSE(_us) sys_time_usleep((_us)); __attribute__ ((fallthrough));
 #else
 #define SLEEP_OR_RETURN_FALSE(_us) return false;
 #endif
@@ -270,6 +270,7 @@ static bool softi2c_write_bit(struct softi2c_device *d, bool bit) {
       // After SDA rise(/fall) and data set-up time
       softi2c_gpio_highz(d->scl_port, d->scl_pin);
       d->bit_state++;
+      __attribute__ ((fallthrough));
       // no break
     case 3:
       if (!gpio_get(d->scl_port, d->scl_pin)) return false;
@@ -294,6 +295,7 @@ static bool softi2c_read_bit(struct softi2c_device *d, bool *bit) {
       // After SCL(!) fall time and minimum low time (== T_HD_DAT_MIN)
       softi2c_gpio_highz(d->scl_port, d->scl_pin);
       d->bit_state++;
+      __attribute__ ((fallthrough));
       // no break
     case 2:
       if (!gpio_get(d->scl_port, d->scl_pin)) return false;
@@ -321,6 +323,7 @@ static bool softi2c_write_restart(struct softi2c_device *d) {
       // After SDA rise time and data set-up time
       softi2c_gpio_highz(d->scl_port, d->scl_pin);
       d->bit_state++;
+      __attribute__ ((fallthrough));
       // no break
     case 3:
       if (!gpio_get(d->scl_port, d->scl_pin)) return false;
@@ -352,6 +355,7 @@ static bool softi2c_write_stop(struct softi2c_device *d) {
       // After SDA fall time and data set-up time
       softi2c_gpio_highz(d->scl_port, d->scl_pin);
       d->bit_state++;
+      __attribute__ ((fallthrough));
       // no break
     case 3:
       if (!gpio_get(d->scl_port, d->scl_pin)) return false;
