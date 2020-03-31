@@ -37,15 +37,11 @@
 #include <stdbool.h>
 
 
-#ifndef SOFTI2C0_EVENT_DIVIDER
-#define SOFTI2C0_EVENT_DIVIDER 1
+#ifndef SOFTI2C0_DIVIDER
+#define SOFTI2C0_DIVIDER 1
 #endif
-#ifndef SOFTI2C1_EVENT_DIVIDER
-#define SOFTI2C1_EVENT_DIVIDER 1
-#endif
-
-#ifndef SOFTI2C_ALLOW_USLEEP
-#define SOFTI2C_ALLOW_USLEEP FALSE
+#ifndef SOFTI2C1_DIVIDER
+#define SOFTI2C1_DIVIDER 1
 #endif
 
 
@@ -196,44 +192,24 @@ void softi2c1_hw_init(void) {
 /*
  * I2C implementation
  */
-// I2C Standard-mode timing
-// Refer to NXP UM10204 chapter 6.
-// All times in microseconds rounded up
-// Rise and fall time are too small to explicitly take into account.
-#define T_HD_STA_MIN 4
-#define T_LOW_MIN    5
-#define T_HIGH_MIN   4
-#define T_SU_STA_MIN 5
-#define T_HD_DAT_MIN 5
-#define T_SU_DAT_MIN 1
-#define T_SU_STO_MIN 4
-#define T_BUF_MIN    5
-#define T_VD_DAT_MAX 4
-#define T_VD_ACK_MAX 4
-
 // Some notes about timing:
 // The I2C standard lists timing requirements in the order of microseconds. This
 // is difficult to explicitly implement for two reasons:
 // - The event loop spins at a ~20 us period.
 // - The sys time clock has a resolution of ~200 us. (Can be set higher, but
 //   can cause lockups when set to ~2us or lower.)
-// This module provides two solutions:
-// - Return to the event loop for every wait time. The event loop is slow enough
-//   to satisfy the I2C minimum timings, but this also limits the bitrate.
-// - Use usleep for the timing within bits. This gives a tighter control over
-//   bit timing, leading to a higher bitrate, but also increases to runtime of
-//   the softi2c event function to approx. 13us per active softi2c device.
-// Use the SOFTI2C_ALLOW_USLEEP define to switch between the two behaviors.
-// Longer pauses *between* bits always use the time between event calls as a
-// delay. As a result, the bitrate is an integer fraction of the event rate and
-// cannot be set exactly. The bitrate can be coarsely adjusted per softi2c
-// device by setting SOFTI2CX_EVENT_DIVIDER.
-
-#if SOFTI2C_ALLOW_USLEEP
-#define SLEEP_OR_RETURN_FALSE(_us) sys_time_usleep((_us)); __attribute__ ((fallthrough));
-#else
-#define SLEEP_OR_RETURN_FALSE(_us) return false;
-#endif
+// This module handles timing by returning to the event loop at every pause.
+// The event loop runs slow enough to satisfy all I2C standard mode minimum
+// timings. Because the event loop takes longer than the minimum timing, the
+// maximum bitrate is reduced. However, *software*-i2c should not be used for
+// high-bitrate applications anyway.
+// (Experimental code where usleep was used for in-bit timing had only little
+// performance benefit (~20kHz vs ~15kHz). Because sleeping in the event loop
+// can have other negative consequences, this option was removed.)
+// Pauses *between* bits also use the time between event calls as a delay. As a
+// result, the bitrate is an integer fraction of the event rate and cannot be
+// set exactly. The bitrate can be coarsely adjusted per softi2c device by
+// setting SOFTI2CX_DIVIDER.
 
 
 // Bit read/write functions
@@ -256,7 +232,7 @@ static bool softi2c_write_bit(struct softi2c_device *d, bool bit) {
       // Start of bit
       softi2c_gpio_drive_low(d->scl_port, d->scl_pin);
       d->bit_state++;
-      SLEEP_OR_RETURN_FALSE(T_HD_DAT_MIN)
+      return false;
     case 1:
       // After SCL fall time and data hold time
       if (bit) {
@@ -265,7 +241,7 @@ static bool softi2c_write_bit(struct softi2c_device *d, bool bit) {
         softi2c_gpio_drive_low(d->sda_port, d->sda_pin);
       }
       d->bit_state++;
-      SLEEP_OR_RETURN_FALSE(T_SU_DAT_MIN);
+      return false;
     case 2:
       // After SDA rise(/fall) and data set-up time
       softi2c_gpio_highz(d->scl_port, d->scl_pin);
@@ -288,7 +264,7 @@ static bool softi2c_read_bit(struct softi2c_device *d, bool *bit) {
       // Start of bit
       softi2c_gpio_drive_low(d->scl_port, d->scl_pin);
       d->bit_state++;
-      SLEEP_OR_RETURN_FALSE(T_HD_DAT_MIN);
+      return false;
     case 1:
       // After SCL fall time and data hold time
       softi2c_gpio_highz(d->sda_port, d->sda_pin);  // SDA may be driven low by slave.
@@ -313,12 +289,12 @@ static bool softi2c_write_restart(struct softi2c_device *d) {
       // Start of bit
       softi2c_gpio_drive_low(d->scl_port, d->scl_pin);
       d->bit_state++;
-      SLEEP_OR_RETURN_FALSE(T_HD_DAT_MIN);
+      return false;
     case 1:
       // After SCL fall time and data hold time
       softi2c_gpio_highz(d->sda_port, d->sda_pin);
       d->bit_state++;
-      SLEEP_OR_RETURN_FALSE(T_SU_DAT_MIN);
+      return false;
     case 2:
       // After SDA rise time and data set-up time
       softi2c_gpio_highz(d->scl_port, d->scl_pin);
@@ -329,7 +305,7 @@ static bool softi2c_write_restart(struct softi2c_device *d) {
       if (!gpio_get(d->scl_port, d->scl_pin)) return false;
       // After SCL rise time and confirmed high (clock stretching)
       d->bit_state++;
-      SLEEP_OR_RETURN_FALSE(T_SU_STA_MIN);
+      return false;
     case 4:
       // After restart set-up time
       softi2c_gpio_drive_low(d->sda_port, d->sda_pin);
@@ -345,12 +321,12 @@ static bool softi2c_write_stop(struct softi2c_device *d) {
       // Start of bit
       softi2c_gpio_drive_low(d->scl_port, d->scl_pin);
       d->bit_state++;
-      SLEEP_OR_RETURN_FALSE(T_HD_DAT_MIN);
+      return false;
     case 1:
       // After SCL fall time and data hold time
       softi2c_gpio_drive_low(d->sda_port, d->sda_pin);
       d->bit_state++;
-      SLEEP_OR_RETURN_FALSE(T_SU_DAT_MIN);
+      return false;
     case 2:
       // After SDA fall time and data set-up time
       softi2c_gpio_highz(d->scl_port, d->scl_pin);
@@ -361,7 +337,7 @@ static bool softi2c_write_stop(struct softi2c_device *d) {
       if (!gpio_get(d->scl_port, d->scl_pin)) return false;
       // After SCL rise time and confirmed high (clock stretching)
       d->bit_state++;
-      SLEEP_OR_RETURN_FALSE(T_SU_STO_MIN);
+      return false;
     case 4:
       // After stop set-up time
       softi2c_gpio_highz(d->sda_port, d->sda_pin);
@@ -582,7 +558,7 @@ static void softi2c_device_event(struct softi2c_device *d) {
 void softi2c_event(void) {
 #if USE_SOFTI2C0
   static int softi2c0_cnt = 1;
-  if (softi2c0_cnt == SOFTI2C0_EVENT_DIVIDER) {
+  if (softi2c0_cnt == SOFTI2C0_DIVIDER) {
     softi2c_device_event(&softi2c0_device);
     softi2c0_cnt = 1;
   } else {
@@ -591,7 +567,7 @@ void softi2c_event(void) {
 #endif
 #if USE_SOFTI2C1
   static int softi2c1_cnt = 1;
-  if (softi2c1_cnt == SOFTI2C1_EVENT_DIVIDER) {
+  if (softi2c1_cnt == SOFTI2C1_DIVIDER) {
     softi2c_device_event(&softi2c1_device);
     softi2c1_cnt = 1;
   } else {
