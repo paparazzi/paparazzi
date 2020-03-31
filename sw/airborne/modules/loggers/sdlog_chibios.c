@@ -152,6 +152,7 @@ static void sdlog_send(struct chibios_sdlog *p, long fd)
 }
 
 static int null_function(struct chibios_sdlog *p __attribute__((unused))) { return 0; }
+static uint8_t null_byte_function(struct chibios_sdlog *p __attribute__((unused))) { return 0; }
 
 void chibios_sdlog_init(struct chibios_sdlog *sdlog, FileDes *file)
 {
@@ -164,7 +165,7 @@ void chibios_sdlog_init(struct chibios_sdlog *sdlog, FileDes *file)
   sdlog->device.put_buffer = (put_buffer_t) sdlog_transmit_buffer;
   sdlog->device.send_message = (send_message_t) sdlog_send;
   sdlog->device.char_available = (char_available_t) null_function; // write only
-  sdlog->device.get_byte = (get_byte_t) null_function; // write only
+  sdlog->device.get_byte = (get_byte_t) null_byte_function; // write only
 
 }
 

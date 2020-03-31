@@ -973,19 +973,19 @@ void uart_periph_invert_data_logic(struct uart_periph *p, bool invert_rx, bool i
 
 // Check free space and set a positive value for fd if valid
 // and lock driver with mutex
-bool uart_check_free_space(struct uart_periph *p, long *fd, uint16_t len)
+int uart_check_free_space(struct uart_periph *p, long *fd, uint16_t len)
 {
   struct SerialInit *init_struct = (struct SerialInit *)(p->init_struct);
-  int16_t space = p->tx_extract_idx - p->tx_insert_idx;
-  if (space <= 0) {
+  int space = p->tx_extract_idx - p->tx_insert_idx - 1;
+  if (space < 0) {
     space += UART_TX_BUFFER_SIZE;
   }
-  if ((uint16_t)(space - 1) >= len) {
+  if (space >= len) {
     *fd = 1;
     chMtxLock(init_struct->tx_mtx);
-    return true;
+    return space;
   }
-  return false;
+  return 0;
 }
 
 /**

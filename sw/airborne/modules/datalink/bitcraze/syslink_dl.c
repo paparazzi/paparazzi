@@ -285,17 +285,18 @@ static void handle_new_msg(syslink_message_t *msg)
  */
 
 // check free space: nb of CRTP slots x space in a slot
-static bool syslink_check_free_space(struct syslink_dl *s, long *fd UNUSED, uint16_t len)
+static int syslink_check_free_space(struct syslink_dl *s, long *fd UNUSED, uint16_t len)
 {
-  int16_t slots = s->tx_extract_idx - s->tx_insert_idx;
+  int slots = s->tx_extract_idx - s->tx_insert_idx;
   if (slots <= 0) {
     slots += CRTP_BUF_LEN;
   }
-  uint16_t space = (uint16_t)(CRTP_MAX_DATA_SIZE * (slots - 1)) >= len;
-  if (space > 0) {
+  int space = CRTP_MAX_DATA_SIZE * (slots - 1);
+  if (space >= len) {
     PPRZ_MUTEX_LOCK(syslink_tx_mtx);
+    return space;
   }
-  return space;
+  return 0;
 }
 
 // implementation of put_buffer, fill CRTP slots
@@ -351,13 +352,13 @@ static uint8_t syslink_getch(struct syslink_dl *s)
   return ret;
 }
 
-static uint16_t syslink_char_available(struct syslink_dl *s)
+static int syslink_char_available(struct syslink_dl *s)
 {
-  int16_t available = s->rx_insert_idx - s->rx_extract_idx;
+  int available = s->rx_insert_idx - s->rx_extract_idx;
   if (available < 0) {
     available += SYSLINK_RX_BUF_LEN;
   }
-  return (uint16_t)available;
+  return available;
 }
 
 

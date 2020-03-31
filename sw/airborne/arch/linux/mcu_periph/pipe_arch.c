@@ -101,15 +101,15 @@ void pipe_arch_periph_init(struct pipe_periph *p, char *read_name, char* write_n
  * @param p pointer to PIPE peripheral
  * @return number of bytes available in receive buffer
  */
-uint16_t pipe_char_available(struct pipe_periph *p)
+int pipe_char_available(struct pipe_periph *p)
 {
   pthread_mutex_lock(&pipe_mutex);
-  int16_t available = p->rx_insert_idx - p->rx_extract_idx;
+  int available = p->rx_insert_idx - p->rx_extract_idx;
   if (available < 0) {
     available += PIPE_RX_BUFFER_SIZE;
   }
   pthread_mutex_unlock(&pipe_mutex);
-  return (uint16_t)available;
+  return available;
 }
 
 /**

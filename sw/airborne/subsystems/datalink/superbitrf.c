@@ -208,13 +208,13 @@ static void send_superbit(struct transport_tx *trans, struct link_device *dev)
 #endif
 
 // Functions for the generic device API
-static bool superbitrf_check_free_space(struct SuperbitRF *p, long *fd __attribute__((unused)), uint16_t len)
+static int superbitrf_check_free_space(struct SuperbitRF *p, long *fd __attribute__((unused)), uint16_t len)
 {
-  int16_t space = p->tx_extract_idx - p->tx_insert_idx;
-  if (space <= 0) {
+  int space = p->tx_extract_idx - p->tx_insert_idx - 1;
+  if (space < 0) {
     space += SUPERBITRF_TX_BUFFER_SIZE;
   }
-  return (uint16_t)(space - 1) >= len;
+  return space >= len ? space : 0;
 }
 
 static void superbitrf_transmit(struct SuperbitRF *p, long fd __attribute__((unused)), uint8_t byte)

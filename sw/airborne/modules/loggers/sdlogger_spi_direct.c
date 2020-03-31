@@ -362,15 +362,16 @@ void sdlogger_spi_direct_command(void)
   sdlogger_spi.command = 0;
 }
 
-bool sdlogger_spi_direct_check_free_space(struct sdlogger_spi_periph *p, long *fd __attribute__((unused)), uint16_t len)
+int sdlogger_spi_direct_check_free_space(struct sdlogger_spi_periph *p, long *fd __attribute__((unused)), uint16_t len)
 {
   if (p->status == SDLogger_Logging) {
     /* Calculating free space in both buffers */
-    if ( (513 - p->sdcard_buf_idx) + (SDLOGGER_BUFFER_SIZE - p->idx) >= len) {
-      return true;
+    int available = (513 - p->sdcard_buf_idx) + (SDLOGGER_BUFFER_SIZE - p->idx);
+    if (available >= len) {
+      return available;
     }
   }
-  return false;
+  return 0;
 }
 
 void sdlogger_spi_direct_put_byte(struct sdlogger_spi_periph *p, long fd __attribute__((unused)), uint8_t data)
