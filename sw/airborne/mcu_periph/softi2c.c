@@ -217,11 +217,17 @@ void softi2c1_hw_init(void) {
 // - The event loop spins at a ~20 us period.
 // - The sys time clock has a resolution of ~200 us. (Can be set higher, but
 //   can cause lockups when set to ~2us or lower.)
-// The problem is solved by microsleeping in the event function. Per softI2C
-// device, the event function may block for ~10us. Longer pauses between bits
-// use the time between event calls as a delay. As a result, the bitrate is an
-// integer fraction of the event rate and cannot be set exactly. The bitrate
-// can be coarsely adjusted by setting SOFTI2C_EVENT_DIVIDER.
+// This module provides two solutions:
+// - Return to the event loop for every wait time. The event loop is slow enough
+//   to satisfy the I2C minimum timings, but this also limits the bitrate.
+// - Use usleep for the timing within bits. This gives a tighter control over
+//   bit timing, leading to a higher bitrate, but also increases to runtime of
+//   the softi2c event function to approx. 13us per active softi2c device.
+// Use the SOFTI2C_ALLOW_USLEEP define to switch between the two behaviors.
+// Longer pauses *between* bits always use the time between event calls as a
+// delay. As a result, the bitrate is an integer fraction of the event rate and
+// cannot be set exactly. The bitrate can be coarsely adjusted per softi2c
+// device by setting SOFTI2CX_EVENT_DIVIDER.
 
 #if SOFTI2C_ALLOW_USLEEP
 #define SLEEP_OR_RETURN_FALSE(_us) sys_time_usleep((_us)); // no break
