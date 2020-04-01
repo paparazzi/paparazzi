@@ -348,16 +348,16 @@ static void gps_ubx_parse_nav_status(void)
 static void gps_ubx_parse_nav_relposned(void)
 {
 #if USE_GPS_UBX_RTCM
-  uint8_t version = UBX_NAV_RELPOSNED_VERSION(gps_ubx.msg_buf);
+  uint8_t version = UBX_NAV_RELPOSNED_version(gps_ubx.msg_buf);
   if (version == NAV_RELPOSNED_VERSION) {
     gps_relposned.iTOW          = UBX_NAV_RELPOSNED_iTOW(gps_ubx.msg_buf);
     gps_relposned.refStationId  = UBX_NAV_RELPOSNED_refStationId(gps_ubx.msg_buf);
     gps_relposned.relPosN     = UBX_NAV_RELPOSNED_relPosN(gps_ubx.msg_buf);
     gps_relposned.relPosE     = UBX_NAV_RELPOSNED_relPosE(gps_ubx.msg_buf);
     gps_relposned.relPosD     = UBX_NAV_RELPOSNED_relPosD(gps_ubx.msg_buf) ;
-    gps_relposned.relPosHPN   = UBX_NAV_RELPOSNED_relPosNHP(gps_ubx.msg_buf);
-    gps_relposned.relPosHPE   = UBX_NAV_RELPOSNED_relPosEHP(gps_ubx.msg_buf);
-    gps_relposned.relPosHPD   = UBX_NAV_RELPOSNED_relPosDHP(gps_ubx.msg_buf);
+    gps_relposned.relPosHPN   = UBX_NAV_RELPOSNED_relPosHPN(gps_ubx.msg_buf);
+    gps_relposned.relPosHPE   = UBX_NAV_RELPOSNED_relPosHPE(gps_ubx.msg_buf);
+    gps_relposned.relPosHPD   = UBX_NAV_RELPOSNED_relPosHPD(gps_ubx.msg_buf);
     gps_relposned.accN      = UBX_NAV_RELPOSNED_accN(gps_ubx.msg_buf);
     gps_relposned.accE      = UBX_NAV_RELPOSNED_accE(gps_ubx.msg_buf);
     gps_relposned.accD      = UBX_NAV_RELPOSNED_accD(gps_ubx.msg_buf);
