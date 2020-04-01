@@ -68,6 +68,7 @@ struct softi2c_device {
 static bool softi2c_idle(struct i2c_periph *periph) __attribute__((unused));
 static bool softi2c_submit(struct i2c_periph *periph, struct i2c_transaction *t) __attribute__((unused));
 static void softi2c_setbitrate(struct i2c_periph *periph, int bitrate) __attribute__((unused));
+static void softi2c_spin(struct i2c_periph *p) __attribute__((unused));
 
 
 #if USE_SOFTI2C0 && ( \
@@ -209,6 +210,7 @@ void softi2c0_hw_init(void) {
   softi2c0.idle = softi2c_idle;
   softi2c0.submit = softi2c_submit;
   softi2c0.setbitrate = softi2c_setbitrate;
+  softi2c0.spin = softi2c_spin;
   softi2c0.reg_addr = (void *) &softi2c0_device;
   softi2c0.errors = &softi2c0_errors;
   ZEROS_ERR_COUNTER(softi2c0_errors);
@@ -233,6 +235,7 @@ void softi2c1_hw_init(void) {
   softi2c1.idle = softi2c_idle;
   softi2c1.submit = softi2c_submit;
   softi2c1.setbitrate = softi2c_setbitrate;
+  softi2c1.spin = softi2c_spin;
   softi2c1.reg_addr = (void *) &softi2c1_device;
   softi2c1.errors = &softi2c1_errors;
   ZEROS_ERR_COUNTER(softi2c1_errors);
@@ -638,6 +641,11 @@ void softi2c_event(void) {
     softi2c1_cnt++;
   }
 #endif
+}
+
+static void softi2c_spin(struct i2c_periph *p) {
+  softi2c_device_event((struct softi2c_device *) p->reg_addr);
+  sys_time_usleep(5);  // For I2C timing.
 }
 
 static bool softi2c_idle(struct i2c_periph *p) {

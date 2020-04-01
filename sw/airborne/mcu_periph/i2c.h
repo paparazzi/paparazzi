@@ -140,12 +140,14 @@ struct i2c_periph;
 typedef bool i2c_idle_fn_t(struct i2c_periph *p);
 typedef bool i2c_submit_fn_t(struct i2c_periph *p, struct i2c_transaction *t);
 typedef void i2c_setbitrate_fn_t(struct i2c_periph *p, int bitrate);
+typedef void i2c_spin_fn_t(struct i2c_periph *p);  // To update peripherals within tight loops, e.g. the blocking functions. Leave NULL if not required.
 
 struct i2c_periph {
   /* architecture-specific functions */
   i2c_idle_fn_t *idle;
   i2c_submit_fn_t *submit;
   i2c_setbitrate_fn_t *setbitrate;
+  i2c_spin_fn_t *spin;
   /* circular buffer holding transactions */
   struct i2c_transaction *trans[I2C_TRANSACTION_QUEUE_LEN];
   uint8_t trans_insert_idx;
