@@ -164,8 +164,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>855</width>
-          <height>258</height>
+          <width>859</width>
+          <height>209</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="scroll_area_layout">
@@ -188,7 +188,7 @@
      </widget>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_7" stretch="0,0,0,0">
+     <layout class="QHBoxLayout" name="horizontalLayout_7" stretch="0,0,0,0,0,0">
       <item>
        <widget class="QLabel" name="label_6">
         <property name="text">
@@ -197,40 +197,30 @@
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="components_combo">
-        <item>
-         <property name="text">
-          <string>Init</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Periodic</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Event</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Datalink</string>
-         </property>
-        </item>
+       <widget class="QPushButton" name="init_button">
+        <property name="text">
+         <string>Init</string>
+        </property>
        </widget>
       </item>
       <item>
-       <widget class="QToolButton" name="component_add_button">
-        <property name="toolTip">
-         <string>Add component</string>
-        </property>
+       <widget class="QPushButton" name="periodic_button">
         <property name="text">
-         <string>Add</string>
+         <string>Periodic</string>
         </property>
-        <property name="icon">
-         <iconset>
-          <normaloff>add.svg</normaloff>add.svg</iconset>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="event_button">
+        <property name="text">
+         <string>Event</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="datalink_button">
+        <property name="text">
+         <string>Datalink</string>
         </property>
        </widget>
       </item>
@@ -264,7 +254,7 @@
      <x>0</x>
      <y>0</y>
      <width>875</width>
-     <height>22</height>
+     <height>30</height>
     </rect>
    </property>
   </widget>
