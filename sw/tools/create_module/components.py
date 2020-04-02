@@ -3,7 +3,7 @@ from init_ui import Ui_Init
 from periodic_ui import Ui_Periodic
 from event_ui import Ui_Event
 from datalink_ui import Ui_Datalink
-
+from abi_ui import Ui_Abi
 
 class ComponentWidget(QtWidgets.QFrame):
     def __init__(self, comp_type):
@@ -18,4 +18,6 @@ class ComponentWidget(QtWidgets.QFrame):
             self.ui = Ui_Periodic()
         if self.comp_type == "Datalink":
             self.ui = Ui_Datalink()
+        if self.comp_type == "Abi":
+            self.ui = Ui_Abi()
         self.ui.setupUi(self)

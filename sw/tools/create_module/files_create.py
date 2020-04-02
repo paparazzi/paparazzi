@@ -36,6 +36,7 @@ Periodic = namedtuple('Periodic', ['fun', 'freq', 'start', 'stop', 'autorun'])
 Event = namedtuple('Event', ['fun'])
 Init = namedtuple('Init', ['fun'])
 Datalink = namedtuple('Datalink', ['fun', 'message', 'fun_c'])
+Abi = namedtuple('Abi', ['base', 'message', 'params'])
 
 
 class FilesCreate:
@@ -52,6 +53,7 @@ class FilesCreate:
         self.periodics = []
         self.events = []
         self.datalinks = []
+        self.abi_bindings = []
 
     @property
     def name(self):
@@ -123,6 +125,11 @@ class FilesCreate:
             fun_c = fun + "(uint8_t* buf)"
         self.datalinks.append(Datalink(fun=fun_xml, message=message, fun_c=fun_c))
 
+    def add_abi(self, base, message, fields):
+        fields = [("sender_id", "uint8_t")] + fields
+        params = ", ".join(["{} {}".format(t, f) for (f, t) in fields])
+        self.abi_bindings.append(Abi(base=base, message=message, params=params))
+
     def build_xml(self):
         # set name
         self.xml.attrib["name"] = self.name
@@ -182,8 +189,17 @@ class FilesCreate:
                 dir=self.directory, name=self.name, author=self.author, email=self.email, description=self.description)
         include = "#include \"modules/{dir}/{name}.h\"".format(dir=self.directory, name=self.name)
         declarations = ""
+        for abi_binding in self.abi_bindings:
+            declarations += "#ifndef {}_ID\n#define {}_ID ABI_BROADCAST\n#endif\n\n".format(abi_binding.base.upper(), abi_binding.base.upper())
+            declarations += "static abi_event {}_ev;\n\n".format(abi_binding.base)
+            declarations += "static void {}_cb({})\n{{\n  // your abi callback code here\n}}\n\n".format(abi_binding.base, abi_binding.params)
         for init in self.inits:
-            declarations += "void {}(void)\n{{\n  // your init code here\n}}\n\n".format(init.fun)
+            declarations += "void {}(void)\n{{\n  // your init code here\n".format(init.fun)
+            if len(self.abi_bindings) > 0:
+                declarations += "\n  // Abi messages bindings\n"
+                for abi_binding in self.abi_bindings:
+                    declarations += "  AbiBindMsg{0}({1}_ID, &{2}_ev, {2}_cb);\n".format(abi_binding.message, abi_binding.base.upper(), abi_binding.base)
+            declarations += "}\n\n"
         for periodic in self.periodics:
             declarations += "void {}(void)\n{{\n  // your periodic code here.\n  // freq = {} Hz\n}}\n\n".format(
                 periodic.fun, periodic.freq)
