@@ -25,7 +25,10 @@ class CreateModGUI(Ui_CreateModule_Window):
     def build(self):
         self.scrollAreaWidgetContents.setStyleSheet("QFrame#Init, QFrame#Datalink, QFrame#Periodic,QFrame#Event { border: 2px solid grey}")
         self.create_button.clicked.connect(self.create_mod)
-        self.component_add_button.clicked.connect(self.add_component)
+        self.init_button.clicked.connect(lambda: self.add_component("Init"))
+        self.periodic_button.clicked.connect(lambda: self.add_component("Periodic"))
+        self.event_button.clicked.connect(lambda: self.add_component("Event"))
+        self.datalink_button.clicked.connect(lambda: self.add_component("Datalink"))
         self.directory_combo.addItem("")
         for directory in sorted([f.name for f in os.scandir(PPRZ_SRC + "/sw/airborne/modules") if f.is_dir()]):
             self.directory_combo.addItem(directory)
@@ -42,8 +45,7 @@ class CreateModGUI(Ui_CreateModule_Window):
                 return messages
         return []
 
-    def add_component(self):
-        comp_name = self.components_combo.currentText()
+    def add_component(self, comp_name):
         component = components.ComponentWidget(comp_name)
         if component.comp_type == "Datalink":
             messages = self.get_messages()
