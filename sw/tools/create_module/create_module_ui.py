@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_CreateModule_Window(object):
     def setupUi(self, CreateModule_Window):
         CreateModule_Window.setObjectName("CreateModule_Window")
-        CreateModule_Window.resize(875, 553)
+        CreateModule_Window.resize(875, 700)
         self.centralwidget = QtWidgets.QWidget(CreateModule_Window)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
@@ -99,7 +99,7 @@ class Ui_CreateModule_Window(object):
         self.components_area.setWidgetResizable(True)
         self.components_area.setObjectName("components_area")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 859, 209))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 859, 356))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.scroll_area_layout = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents)
         self.scroll_area_layout.setObjectName("scroll_area_layout")
@@ -124,6 +124,9 @@ class Ui_CreateModule_Window(object):
         self.datalink_button = QtWidgets.QPushButton(self.centralwidget)
         self.datalink_button.setObjectName("datalink_button")
         self.horizontalLayout_7.addWidget(self.datalink_button)
+        self.abi_button = QtWidgets.QPushButton(self.centralwidget)
+        self.abi_button.setObjectName("abi_button")
+        self.horizontalLayout_7.addWidget(self.abi_button)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_7.addItem(spacerItem1)
         self.verticalLayout.addLayout(self.horizontalLayout_7)
@@ -158,5 +161,6 @@ class Ui_CreateModule_Window(object):
         self.periodic_button.setText(_translate("CreateModule_Window", "Periodic"))
         self.event_button.setText(_translate("CreateModule_Window", "Event"))
         self.datalink_button.setText(_translate("CreateModule_Window", "Datalink"))
+        self.abi_button.setText(_translate("CreateModule_Window", "Abi Message"))
         self.create_button.setText(_translate("CreateModule_Window", "Create Module"))
 

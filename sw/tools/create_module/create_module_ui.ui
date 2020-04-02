@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>875</width>
-    <height>553</height>
+    <height>700</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -165,7 +165,7 @@
           <x>0</x>
           <y>0</y>
           <width>859</width>
-          <height>209</height>
+          <height>356</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="scroll_area_layout">
@@ -188,7 +188,7 @@
      </widget>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_7" stretch="0,0,0,0,0,0">
+     <layout class="QHBoxLayout" name="horizontalLayout_7" stretch="0,0,0,0,0,0,0">
       <item>
        <widget class="QLabel" name="label_6">
         <property name="text">
@@ -221,6 +221,13 @@
        <widget class="QPushButton" name="datalink_button">
         <property name="text">
          <string>Datalink</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="abi_button">
+        <property name="text">
+         <string>Abi Message</string>
         </property>
        </widget>
       </item>

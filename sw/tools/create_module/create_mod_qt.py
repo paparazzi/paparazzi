@@ -23,12 +23,13 @@ class CreateModGUI(Ui_CreateModule_Window):
         self.components = []
 
     def build(self):
-        self.scrollAreaWidgetContents.setStyleSheet("QFrame#Init, QFrame#Datalink, QFrame#Periodic,QFrame#Event { border: 2px solid grey}")
+        self.scrollAreaWidgetContents.setStyleSheet("QFrame#Init, QFrame#Datalink, QFrame#Periodic,QFrame#Event,QFrame#Abi { border: 2px solid grey}")
         self.create_button.clicked.connect(self.create_mod)
         self.init_button.clicked.connect(lambda: self.add_component("Init"))
         self.periodic_button.clicked.connect(lambda: self.add_component("Periodic"))
         self.event_button.clicked.connect(lambda: self.add_component("Event"))
         self.datalink_button.clicked.connect(lambda: self.add_component("Datalink"))
+        self.abi_button.clicked.connect(lambda: self.add_component("Abi"))
         self.directory_combo.addItem("")
         for directory in sorted([f.name for f in os.scandir(PPRZ_SRC + "/sw/airborne/modules") if f.is_dir()]):
             self.directory_combo.addItem(directory)
@@ -45,10 +46,33 @@ class CreateModGUI(Ui_CreateModule_Window):
                 return messages
         return []
 
+    @staticmethod
+    def get_abi_messages(msg_name=None):
+        abi_xml = PPRZ_HOME + "/conf/abi.xml"
+        root = etree.parse(abi_xml).getroot()
+        classes = root.findall("msg_class")
+        for c in classes:
+            if c.attrib["name"] == "airborne":
+                msgs = c.findall("message")
+                if msg_name is None:
+                    messages = [m.attrib["name"] for m in msgs]
+                    return messages
+                else:
+                    for m in msgs:
+                        if m.attrib["name"] == msg_name:
+                            fields = [(f.attrib["name"], f.attrib["type"]) for f in m.findall("field")]
+                            return fields
+        return []
+
     def add_component(self, comp_name):
         component = components.ComponentWidget(comp_name)
         if component.comp_type == "Datalink":
             messages = self.get_messages()
+            component.ui.message_combo.addItem("")
+            for m in messages:
+                component.ui.message_combo.addItem(m)
+        if component.comp_type == "Abi":
+            messages = self.get_abi_messages()
             component.ui.message_combo.addItem("")
             for m in messages:
                 component.ui.message_combo.addItem(m)
@@ -117,6 +141,14 @@ class CreateModGUI(Ui_CreateModule_Window):
                     self.statusbar.setStyleSheet("background-color:rgb(255,148,148);")
                     return
                 fc.add_datalink(datalink, msg)
+            if comp.comp_type == "Abi":
+                abi_base = comp.ui.abi_edit.text()
+                msg = comp.ui.message_combo.currentText()
+                if abi_base == "" or msg == "":
+                    self.statusbar.showMessage("Please fill the Abi Message base name and Message fields!")
+                    self.statusbar.setStyleSheet("background-color:rgb(255,148,148);")
+                    return
+                fc.add_abi(abi_base, msg, self.get_abi_messages(msg_name=msg))
         self.statusbar.setStyleSheet("background-color:rgb(155,232,155);")
         licence = self.licence_comboBox.currentText()
         files = fc.get_filenames()
