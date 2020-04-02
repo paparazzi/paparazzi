@@ -12,8 +12,7 @@ if PPRZ_SRC is None:
 if PPRZ_HOME is None:
     PPRZ_HOME = PPRZ_SRC
 
-GPLv2 = """
- *
+GPLv2 = """ *
  * This file is part of paparazzi
  *
  * paparazzi is free software; you can redistribute it and/or modify
@@ -28,8 +27,7 @@ GPLv2 = """
  *
  * You should have received a copy of the GNU General Public License
  * along with paparazzi; see the file COPYING.  If not, see
- * <http://www.gnu.org/licenses/>.
-"""
+ * <http://www.gnu.org/licenses/>."""
 
 LICENCES = {"GPLv2": GPLv2, None: "", "None": ""}
 
@@ -180,26 +178,26 @@ class FilesCreate:
     def build_src(self, licence="GPLv2"):
         cop = "/*\n * Copyright (C) {author} {email}\n{licence}\n */".format(
                 author=self.author, email=self.email, licence=LICENCES[licence])
-        description = "/** @file \"modules/{dir}/{name}.h\"\n * @author {author} {email}\n * {description}\n */".format(
+        description = "/** @file \"modules/{dir}/{name}.c\"\n * @author {author} {email}\n * {description}\n */".format(
                 dir=self.directory, name=self.name, author=self.author, email=self.email, description=self.description)
         include = "#include \"modules/{dir}/{name}.h\"".format(dir=self.directory, name=self.name)
         declarations = ""
         for init in self.inits:
-            declarations += "void {}(){{\n  // your init code here\n}}\n\n".format(init.fun)
+            declarations += "void {}(void)\n{{\n  // your init code here\n}}\n\n".format(init.fun)
         for periodic in self.periodics:
-            declarations += "void {}(){{\n  // your periodic code here.\n  // freq = {} Hz\n}}\n\n".format(
+            declarations += "void {}(void)\n{{\n  // your periodic code here.\n  // freq = {} Hz\n}}\n\n".format(
                 periodic.fun, periodic.freq)
             if not periodic.start == "":
-                declarations += "void {}(){{\n  // your periodic start code here.\n}}\n\n".format(
+                declarations += "void {}(void)\n{{\n  // your periodic start code here.\n}}\n\n".format(
                     periodic.start)
             if not periodic.stop == "":
-                declarations += "void {}(){{\n  // your periodic stop code here.\n}}\n\n".format(
+                declarations += "void {}(void)\n{{\n  // your periodic stop code here.\n}}\n\n".format(
                     periodic.stop)
         for event in self.events:
-            declarations += "void {}(){{\n  // your event code here\n}}\n\n".format(event.fun)
+            declarations += "void {}(void)\n{{\n  // your event code here\n}}\n\n".format(event.fun)
         for datalink in self.datalinks:
-            declarations += "void {}{{\n  // {}\n  // your datalink code here\n}}\n\n".format(datalink.fun_c, datalink.message)
-        self.src = "{}\n{}\n{}\n{}\n".format(cop, description, include, declarations)
+            declarations += "void {}\n{{\n  // {}\n  // your datalink code here\n}}\n\n".format(datalink.fun_c, datalink.message)
+        self.src = "{}\n\n{}\n\n{}\n\n{}\n".format(cop, description, include, declarations)
 
     def build_header(self, licence="GPLv2"):
         cop = "/*\n * Copyright (C) {author} {email}\n{licence}\n */".format(author=self.author, email=self.email, licence=LICENCES[licence])
@@ -221,7 +219,7 @@ class FilesCreate:
             declarations += "extern void {}(void);\n".format(event.fun)
         for datalink in self.datalinks:
             declarations += "extern void {};\t// {}\n".format(datalink.fun_c, datalink.message)
-        self.header = "{cop}\n{des}\n#ifndef {guard}_H\n#define {guard}_H\n{includes}{decl}\n#endif  // {guard}_H\n".format(
+        self.header = "{cop}\n\n{des}\n\n#ifndef {guard}_H\n#define {guard}_H\n\n{includes}{decl}\n#endif  // {guard}_H\n".format(
             cop=cop, des=description, guard=self.name.upper(), includes=includes, decl=declarations)
 
     def build_files(self, licence="GPLv2"):

@@ -129,7 +129,11 @@ class CreateModGUI(Ui_CreateModule_Window):
                 return
         fc.build_files(licence)
         fc.write_files()
-        self.statusbar.showMessage("Ok!")
+        files_formated = "\n".join(files)
+        message = "\n".join([x for x in files if os.path.isfile(x)])
+        buttonReply = QtWidgets.QMessageBox.question(None, 'Created files', message,
+                QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
+        self.statusbar.showMessage("Ok! Files created")
 
     def closing(self):
         pass
