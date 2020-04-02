@@ -2,9 +2,9 @@
 
 from __future__ import print_function
 
-import pygtk
-import gtk
-pygtk.require('2.0')
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk, GdkPixbuf
 
 
 import os
@@ -105,22 +105,22 @@ class ConfChooser(object):
         return
 
     def about(self, widget):
-        about_d = gtk.AboutDialog()
+        about_d = Gtk.AboutDialog()
         about_d.set_program_name("Paparazzi Configuration Selector")
         about_d.set_version("1.1")
         about_d.set_copyright("(c) GPL v2")
         about_d.set_comments("Select the active configuration")
         about_d.set_website("http://paparazzi.github.com")
-        about_d.set_logo(gtk.gdk.pixbuf_new_from_file(os.path.join(paparazzi.PAPARAZZI_HOME, "data/pictures/penguin_icon.png")))
+        about_d.set_logo(GdkPixbuf.Pixbuf.new_from_file(os.path.join(paparazzi.PAPARAZZI_HOME, "data/pictures/penguin_icon.png")))
         about_d.run()
         about_d.destroy()
 
     def sure(self, widget, filename):
-        dialog = gtk.MessageDialog(self.window, gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_QUESTION, gtk.BUTTONS_OK_CANCEL, "Are you sure you want to delete?")
+        dialog = Gtk.MessageDialog(self.window, Gtk.DIALOG_DESTROY_WITH_PARENT, Gtk.MESSAGE_QUESTION, Gtk.BUTTONS_OK_CANCEL, "Are you sure you want to delete?")
         dialog.format_secondary_text("File: " + filename)
         response = dialog.run()
         ret = False
-        if response == gtk.RESPONSE_OK:
+        if response == Gtk.RESPONSE_OK:
             ret = True
         dialog.destroy()
         return ret
@@ -278,33 +278,33 @@ class ConfChooser(object):
         widget.set_active(current_selection)
 
     def maintenance_window(self, widget):
-        mtn_window = gtk.Window()
-        mtn_window.set_position(gtk.WIN_POS_CENTER)
+        mtn_window = Gtk.Window()
+        mtn_window.set_position(Gtk.WindowPosition.CENTER)
         mtn_window.set_size_request(750, 360)
         mtn_window.set_title("Maintenance Tools")
 
-        mnt_vbox = gtk.VBox()
+        mnt_vbox = Gtk.VBox()
 
-        mnt_desc_label = gtk.Label("")
+        mnt_desc_label = Gtk.Label("")
         desc_text = "Show module usage of all airframes in a selected conf file <b>or</b> all airframes " \
                     "with a specific board across all conf files."
         mnt_desc_label.set_markup(desc_text)
         mnt_desc_label.set_size_request(720, 40)
         mnt_desc_label.set_line_wrap(True)
 
-        mnt_conf_label = gtk.Label("Conf:")
+        mnt_conf_label = Gtk.Label("Conf:")
         mnt_conf_label.set_size_request(100, 30)
-        mnt_conf_file_combo = gtk.combo_box_new_text()
+        mnt_conf_file_combo = Gtk.ComboBoxText.new()
         self.find_conf_files(mnt_conf_file_combo)
         mnt_conf_file_combo.set_size_request(500, 30)
 
-        mnt_board_label = gtk.Label("Board:")
+        mnt_board_label = Gtk.Label("Board:")
         mnt_board_label.set_size_request(100, 30)
-        mnt_board_file_combo = gtk.combo_box_new_text()
+        mnt_board_file_combo = Gtk.ComboBoxText.new()
         self.find_board_files(mnt_board_file_combo)
         mnt_board_file_combo.set_size_request(500, 30)
 
-        mnt_conf_airframes = gtk.Label("")
+        mnt_conf_airframes = Gtk.Label("")
         self.count_airframes_in_conf(mnt_conf_file_combo, mnt_conf_airframes)
         mnt_conf_airframes.set_size_request(650, 180)
         mnt_conf_airframes.set_line_wrap(True)
@@ -317,66 +317,67 @@ class ConfChooser(object):
 
         mnt_combos = {"Conf": mnt_conf_file_combo, "Board": mnt_board_file_combo}
 
-        mnt_confbar = gtk.HBox()
-        mnt_confbar.pack_start(mnt_conf_label)
-        mnt_confbar.pack_start(mnt_conf_file_combo)
-        mnt_boardbar = gtk.HBox()
-        mnt_boardbar.pack_start(mnt_board_label)
-        mnt_boardbar.pack_start(mnt_board_file_combo)
-        mnt_vbox.pack_start(mnt_desc_label)
-        mnt_vbox.pack_start(mnt_confbar, False)
-        mnt_vbox.pack_start(mnt_boardbar, False)
+        mnt_confbar = Gtk.HBox()
+        mnt_confbar.pack_start(mnt_conf_label, True, True, 0)
+        mnt_confbar.pack_start(mnt_conf_file_combo, True, True, 0)
+        mnt_boardbar = Gtk.HBox()
+        mnt_boardbar.pack_start(mnt_board_label, True, True, 0)
+        mnt_boardbar.pack_start(mnt_board_file_combo, True, True, 0)
+        mnt_vbox.pack_start(mnt_desc_label, True, True, 0)
+        mnt_vbox.pack_start(mnt_confbar, False, True, 0)
+        mnt_vbox.pack_start(mnt_boardbar, False, True, 0)
 
-        btnModule = gtk.Button("Module\nUsage")
+        btnModule = Gtk.Button("Module\nUsage")
+        plop = Gtk.Button()
         btnModule.connect("clicked", self.module_usage, mnt_combos)
         btnModule.set_tooltip_text("More information on the modules used by these airframes")
 
-        mnt_caexbar = gtk.HBox()
-        mnt_caexbar.pack_start(mnt_conf_airframes)
-        mnt_caexbar.pack_start(btnModule)
-        mnt_vbox.pack_start(mnt_caexbar)
+        mnt_caexbar = Gtk.HBox()
+        mnt_caexbar.pack_start(mnt_conf_airframes, True, True, 0)
+        mnt_caexbar.pack_start(btnModule, True, True, 0)
+        mnt_vbox.pack_start(mnt_caexbar, True, True, 0)
 
-        separator = gtk.HSeparator()
-        mnt_vbox.pack_start(separator)
+        separator = Gtk.HSeparator()
+        mnt_vbox.pack_start(separator, True, True, 0)
 
-        cbtnAirframes = gtk.CheckButton()
+        cbtnAirframes = Gtk.CheckButton()
         cbtnAirframes.set_label("Airframes")
         cbtnAirframes.set_active(True)
 
-        cbtnFlightplans = gtk.CheckButton()
+        cbtnFlightplans = Gtk.CheckButton()
         cbtnFlightplans.set_label("Flight plans")
         cbtnFlightplans.set_active(True)
 
-        cbtnBoards = gtk.CheckButton()
+        cbtnBoards = Gtk.CheckButton()
         cbtnBoards.set_label("Boards")
         cbtnBoards.set_active(True)
 
-        cbtnModules = gtk.CheckButton()
+        cbtnModules = Gtk.CheckButton()
         cbtnModules.set_label("Modules")
         cbtnModules.set_active(False)
 
         selectedOptions = {"Airframes": cbtnAirframes, "Flightplans": cbtnFlightplans,
                            "Boards": cbtnBoards, "Modules": cbtnModules}
 
-        btnUntested = gtk.Button(None, "Show Untested Files")
+        btnUntested = Gtk.Button("Show Untested Files")
         btnUntested.connect("clicked", self.show_untested, selectedOptions)
         btnUntested.set_tooltip_text("For the selected options show the files not tested by any conf")
 
-        untestedHBox = gtk.HBox()
-        cbtnVBox = gtk.VBox()
-        cbRowUpper = gtk.HBox()
-        cbRowLower = gtk.HBox()
+        untestedHBox = Gtk.HBox()
+        cbtnVBox = Gtk.VBox()
+        cbRowUpper = Gtk.HBox()
+        cbRowLower = Gtk.HBox()
 
-        cbRowUpper.pack_start(cbtnAirframes)
-        cbRowUpper.pack_start(cbtnBoards)
-        cbRowLower.pack_start(cbtnFlightplans)
-        cbRowLower.pack_start(cbtnModules)
-        cbtnVBox.pack_start(cbRowUpper)
-        cbtnVBox.pack_start(cbRowLower)
-        untestedHBox.pack_start(cbtnVBox)
-        untestedHBox.pack_start(btnUntested)
+        cbRowUpper.pack_start(cbtnAirframes, True, True, 0)
+        cbRowUpper.pack_start(cbtnBoards, True, True, 0)
+        cbRowLower.pack_start(cbtnFlightplans, True, True, 0)
+        cbRowLower.pack_start(cbtnModules, True, True, 0)
+        cbtnVBox.pack_start(cbRowUpper, True, True, 0)
+        cbtnVBox.pack_start(cbRowLower, True, True, 0)
+        untestedHBox.pack_start(cbtnVBox, True, True, 0)
+        untestedHBox.pack_start(btnUntested, True, True, 0)
 
-        mnt_vbox.pack_start(untestedHBox)
+        mnt_vbox.pack_start(untestedHBox, True, True, 0)
 
         mtn_window.add(mnt_vbox)
         mtn_window.show_all()
@@ -388,10 +389,10 @@ class ConfChooser(object):
         # paparazzi process
         self.pp = None
 
-        self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        self.window = Gtk.Window(Gtk.WindowType.TOPLEVEL)
         self.window.set_title("Paparazzi Configuration Chooser")
 
-        self.my_vbox = gtk.VBox()
+        self.my_vbox = Gtk.VBox()
 
         self.conf_xml = os.path.join(paparazzi.conf_dir, "conf.xml")
         self.conf_personal_name = "conf_personal.xml"
@@ -405,74 +406,74 @@ class ConfChooser(object):
         self.verbose = False
 
         # MenuBar
-        mb = gtk.MenuBar()
+        mb = Gtk.MenuBar()
 
         # File
-        filemenu = gtk.Menu()
+        filemenu = Gtk.Menu()
 
         # File Title
-        filem = gtk.MenuItem("File")
+        filem = Gtk.MenuItem("File")
         filem.set_submenu(filemenu)
 
-        exitm = gtk.MenuItem("Exit")
-        exitm.connect("activate", gtk.main_quit)
+        exitm = Gtk.MenuItem("Exit")
+        exitm.connect("activate", Gtk.main_quit)
         filemenu.append(exitm)
 
         mb.append(filem)
 
         # Help
-        helpmenu = gtk.Menu()
+        helpmenu = Gtk.Menu()
 
         # Help Title
-        helpm = gtk.MenuItem("Help")
+        helpm = Gtk.MenuItem("Help")
         helpm.set_submenu(helpmenu)
 
-        aboutm = gtk.MenuItem("About")
+        aboutm = Gtk.MenuItem("About")
         aboutm.connect("activate", self.about)
         helpmenu.append(aboutm)
 
         mb.append(helpm)
 
-        self.my_vbox.pack_start(mb, False)
+        self.my_vbox.pack_start(mb, False, True, 0)
 
         # Combo Bar
 
-        self.conf_label = gtk.Label("Conf:")
+        self.conf_label = Gtk.Label("Conf:")
         self.conf_label.set_size_request(100, 30)
 
-        self.conf_file_combo = gtk.combo_box_new_text()
+        self.conf_file_combo = Gtk.ComboBoxText.new()
         self.find_conf_files(self.conf_file_combo)
         self.conf_file_combo.set_size_request(550, 30)
 
-        self.btnDeleteConf = gtk.Button(None, gtk.STOCK_DELETE)
+        self.btnDeleteConf = Gtk.Button.new_from_stock(Gtk.STOCK_DELETE)
         self.btnDeleteConf.connect("clicked", self.delete_conf)
         self.btnDeleteConf.set_tooltip_text("Permanently Delete Conf")
 
-        self.btnPersonalConf = gtk.Button(None, gtk.STOCK_COPY)
+        self.btnPersonalConf = Gtk.Button.new_from_stock(Gtk.STOCK_COPY)
         self.btnPersonalConf.connect("clicked", self.personal_conf)
         self.btnPersonalConf.set_tooltip_text("Create Personal Conf Based on Selected and Activate")
 
-        self.confbar = gtk.HBox()
-        self.confbar.pack_start(self.conf_label)
-        self.confbar.pack_start(self.conf_file_combo)
-        self.confbar.pack_start(self.btnDeleteConf)
-        self.confbar.pack_start(self.btnPersonalConf)
-        self.my_vbox.pack_start(self.confbar, False)
+        self.confbar = Gtk.HBox()
+        self.confbar.pack_start(self.conf_label, True, True, 0)
+        self.confbar.pack_start(self.conf_file_combo, True, True, 0)
+        self.confbar.pack_start(self.btnDeleteConf, True, True, 0)
+        self.confbar.pack_start(self.btnPersonalConf, True, True, 0)
+        self.my_vbox.pack_start(self.confbar, False, True, 0)
 
 
         # Explain current conf config
 
-        self.conf_explain = gtk.Label("")
+        self.conf_explain = Gtk.Label("")
         self.update_conf_label()
         self.conf_explain.set_size_request(0, 45)
 
-        self.cfexbar = gtk.HBox()
-        self.cfexbar.pack_start(self.conf_explain)
+        self.cfexbar = Gtk.HBox()
+        self.cfexbar.pack_start(self.conf_explain, True, True, 0)
 
-        self.my_vbox.pack_start(self.cfexbar, False)
+        self.my_vbox.pack_start(self.cfexbar, False, True, 0)
 
         # Count Airframes
-        self.conf_airframes = gtk.Label("")
+        self.conf_airframes = Gtk.Label("")
         self.count_airframes_in_conf(self.conf_file_combo, self.conf_airframes)
         self.conf_airframes.set_size_request(650, 180)
         self.conf_airframes.set_line_wrap(True)
@@ -480,104 +481,104 @@ class ConfChooser(object):
         self.combo_list = {"combo": self.conf_file_combo, "list": self.conf_airframes}
         self.conf_file_combo.connect("changed", self.changed_cb, self.combo_list)
 
-        self.btnInfo = gtk.Button(None, "More\nInfo")
+        self.btnInfo = Gtk.Button("More\nInfo")
         self.btnInfo.connect("clicked", self.more_info)
         self.btnInfo.set_tooltip_text("More information on airframe files")
 
-        self.btnMaintenance = gtk.Button(None, "Maintenance\n\tTools")
+        self.btnMaintenance = Gtk.Button("Maintenance\n\tTools")
         self.btnMaintenance.connect("clicked", self.maintenance_window)
         self.btnMaintenance.set_tooltip_text("Show maintenance tools")
 
-        self.caexbar = gtk.HBox()
-        self.caexbar.pack_start(self.conf_airframes)
-        self.caexbar_btns = gtk.VBox()
-        self.caexbar.pack_start(self.caexbar_btns)
-        self.caexbar_btns.pack_start(self.btnInfo)
-        self.caexbar_btns.pack_start(self.btnMaintenance)
+        self.caexbar = Gtk.HBox()
+        self.caexbar.pack_start(self.conf_airframes, True, True, 0)
+        self.caexbar_btns = Gtk.VBox()
+        self.caexbar.pack_start(self.caexbar_btns, True, True, 0)
+        self.caexbar_btns.pack_start(self.btnInfo, True, True, 0)
+        self.caexbar_btns.pack_start(self.btnMaintenance, True, True, 0)
 
-        self.my_vbox.pack_start(self.caexbar, False)
+        self.my_vbox.pack_start(self.caexbar, False, True, 0)
 
         # Controlpanel
-        self.controlpanel_label = gtk.Label("Controlpanel:")
+        self.controlpanel_label = Gtk.Label("Controlpanel:")
         self.controlpanel_label.set_size_request(100, 30)
 
-        self.controlpanel_file_combo = gtk.combo_box_new_text()
+        self.controlpanel_file_combo = Gtk.ComboBoxText.new()
         self.find_controlpanel_files()
         self.controlpanel_file_combo.set_size_request(550, 30)
 
         # window
 
-        self.btnDeleteControl = gtk.Button(None, gtk.STOCK_DELETE)
+        self.btnDeleteControl = Gtk.Button.new_from_stock(Gtk.STOCK_DELETE)
         self.btnDeleteControl.connect("clicked", self.delete_controlpanel)
         self.btnDeleteControl.set_tooltip_text("Permanently Delete")
 
-        self.btnPersonalControl = gtk.Button(None, gtk.STOCK_COPY)
+        self.btnPersonalControl = Gtk.Button.new_from_stock(Gtk.STOCK_COPY)
         self.btnPersonalControl.connect("clicked", self.personal_controlpanel)
         self.btnPersonalControl.set_tooltip_text("Create Personal Controlpanel Based on Selected and Activate")
 
-        self.controlpanelbar = gtk.HBox(False)
-        self.controlpanelbar.pack_start(self.controlpanel_label)
-        self.controlpanelbar.pack_start(self.controlpanel_file_combo)
-        self.controlpanelbar.pack_start(self.btnDeleteControl)
-        self.controlpanelbar.pack_start(self.btnPersonalControl)
-        self.my_vbox.pack_start(self.controlpanelbar, False)
+        self.controlpanelbar = Gtk.HBox(False)
+        self.controlpanelbar.pack_start(self.controlpanel_label, True, True, 0)
+        self.controlpanelbar.pack_start(self.controlpanel_file_combo, True, True, 0)
+        self.controlpanelbar.pack_start(self.btnDeleteControl, True, True, 0)
+        self.controlpanelbar.pack_start(self.btnPersonalControl, True, True, 0)
+        self.my_vbox.pack_start(self.controlpanelbar, False, True, 0)
 
         # Explain current controlpanel config
 
-        self.controlpanel_explain = gtk.Label("")
+        self.controlpanel_explain = Gtk.Label("")
         self.update_controlpanel_label()
         self.controlpanel_explain.set_size_request(0, 45)
 
-        self.ctexbar = gtk.HBox()
-        self.ctexbar.pack_start(self.controlpanel_explain)
+        self.ctexbar = Gtk.HBox()
+        self.ctexbar.pack_start(self.controlpanel_explain, True, True, 0)
 
-        self.my_vbox.pack_start(self.ctexbar, False)
+        self.my_vbox.pack_start(self.ctexbar, False, True, 0)
 
         # show backups button
-        self.btnBackups = gtk.CheckButton("show backups")
+        self.btnBackups = Gtk.CheckButton("show backups")
         self.btnBackups.connect("toggled", self.set_backups)
-        self.my_vbox.pack_start(self.btnBackups, False)
+        self.my_vbox.pack_start(self.btnBackups, False, True, 0)
 
         # show gui button
-        self.btnPythonGUI = gtk.CheckButton("new python center (beta)")
-        self.my_vbox.pack_start(self.btnPythonGUI, False)
+        self.btnPythonGUI = Gtk.CheckButton("new python center (beta)")
+        self.my_vbox.pack_start(self.btnPythonGUI, False, True, 0)
 
         # Buttons
-        self.btnAccept = gtk.Button("Set Active")
+        self.btnAccept = Gtk.Button("Set Active")
         self.btnAccept.connect("clicked", self.accept)
         self.btnAccept.set_tooltip_text("Set selected Conf/Control_Panel as Active")
 
-        self.btnLaunch = gtk.Button("Launch Paparazzi with selected configuration")
+        self.btnLaunch = Gtk.Button("Launch Paparazzi with selected configuration")
         self.btnLaunch.connect("clicked", self.launch)
         self.btnLaunch.set_tooltip_text("Launch Paparazzi with current conf.xml and control_panel.xml")
 
-        self.btnExit = gtk.Button("Exit")
-        self.btnExit.connect("clicked", gtk.main_quit)
+        self.btnExit = Gtk.Button("Exit")
+        self.btnExit.connect("clicked", Gtk.main_quit)
         self.btnExit.set_tooltip_text("Close application")
 
-        self.toolbar = gtk.HBox()
+        self.toolbar = Gtk.HBox()
         self.toolbar.set_size_request(0, 60)
-        self.toolbar.pack_start(self.btnLaunch)
-        self.toolbar.pack_start(self.btnAccept)
-        self.toolbar.pack_start(self.btnExit)
+        self.toolbar.pack_start(self.btnLaunch, True, True, 0)
+        self.toolbar.pack_start(self.btnAccept, True, True, 0)
+        self.toolbar.pack_start(self.btnExit, True, True, 0)
 
-        self.my_vbox.pack_start(self.toolbar, False)
+        self.my_vbox.pack_start(self.toolbar, False, True, 0)
 
         # status bar
-        self.statusbar = gtk.Statusbar()
+        self.statusbar = Gtk.Statusbar()
         self.context_id = self.statusbar.get_context_id("info")
         #self.statusbar.push(self.context_id, "Waiting for you to do something...")
-        self.my_vbox.pack_end(self.statusbar, False)
+        self.my_vbox.pack_end(self.statusbar, False, True, 0)
 
         # Bottom
 
         self.window.add(self.my_vbox)
         self.window.show_all()
-        self.window.set_position(gtk.WIN_POS_CENTER_ALWAYS)
-        self.window.connect("destroy", gtk.main_quit)
+        self.window.set_position(Gtk.WindowPosition.CENTER_ALWAYS)
+        self.window.connect("destroy", Gtk.main_quit)
 
     def main(self):
-        gtk.main()
+        Gtk.main()
         if self.pp:
             self.pp.wait()
 
