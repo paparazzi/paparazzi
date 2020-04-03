@@ -311,8 +311,7 @@ static bool softi2c_write_bit(struct softi2c_device *d, bool bit) {
       // After SDA rise(/fall) and data set-up time
       softi2c_gpio_highz(d->scl_port, d->scl_pin);
       d->bit_state++;
-      __attribute__ ((fallthrough));
-      // no break
+      /* Falls through. */
     case 3:
       if (!gpio_get(d->scl_port, d->scl_pin)) return false;
       // After SCL rise time and confirmed high (clock stretching)
@@ -336,8 +335,7 @@ static bool softi2c_read_bit(struct softi2c_device *d, bool *bit) {
       // After SCL(!) fall time and minimum low time (== T_HD_DAT_MIN)
       softi2c_gpio_highz(d->scl_port, d->scl_pin);
       d->bit_state++;
-      __attribute__ ((fallthrough));
-      // no break
+      /* Falls through. */
     case 2:
       if (!gpio_get(d->scl_port, d->scl_pin)) return false;
       // After SCL rise time and confirmed high (clock stretching)
@@ -364,8 +362,7 @@ static bool softi2c_write_restart(struct softi2c_device *d) {
       // After SDA rise time and data set-up time
       softi2c_gpio_highz(d->scl_port, d->scl_pin);
       d->bit_state++;
-      __attribute__ ((fallthrough));
-      // no break
+      /* Falls through. */
     case 3:
       if (!gpio_get(d->scl_port, d->scl_pin)) return false;
       // After SCL rise time and confirmed high (clock stretching)
@@ -396,8 +393,7 @@ static bool softi2c_write_stop(struct softi2c_device *d) {
       // After SDA fall time and data set-up time
       softi2c_gpio_highz(d->scl_port, d->scl_pin);
       d->bit_state++;
-      __attribute__ ((fallthrough));
-      // no break
+      /* Falls through. */
     case 3:
       if (!gpio_get(d->scl_port, d->scl_pin)) return false;
       // After SCL rise time and confirmed high (clock stretching)
