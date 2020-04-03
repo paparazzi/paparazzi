@@ -148,6 +148,9 @@ class FilesCreate:
         header.append(h_file)
         self.xml.append(header)
         # set init
+        if len(self.inits) == 0 and len(self.abi_bindings) > 0:
+            # add an auto init for Abi bindings
+            self.inits.append(Init(fun="{}_abi_init".format(self.name)))
         for init in self.inits:
             init_el = etree.Element("init")
             init_el.attrib["fun"] = init.fun + "()"
