@@ -31,7 +31,6 @@
 
 #include "mcu_periph/i2c.h"
 
-struct i2c_periph;
 
 void softi2c_event(void);
 
