@@ -249,6 +249,14 @@ static void send_i2c4_err(struct transport_tx *trans, struct link_device *dev)
 
 #endif /* USE_I2C4 */
 
+#if USE_SOFTI2C0
+extern void send_softi2c0_err(struct transport_tx *trans, struct link_device *dev);
+#endif /* USE_SOFTI2C0 */
+
+#if USE_SOFTI2C1
+extern void send_softi2c1_err(struct transport_tx *trans, struct link_device *dev);
+#endif /* USE_SOFTI2C1 */
+
 #if PERIODIC_TELEMETRY
 static void send_i2c_err(struct transport_tx *trans __attribute__((unused)),
                          struct link_device *dev __attribute__((unused)))
@@ -279,12 +287,20 @@ static void send_i2c_err(struct transport_tx *trans __attribute__((unused)),
 #if USE_I2C4
       send_i2c4_err(trans, dev);
 #endif
+    case 5:
+#if USE_SOFTI2C0
+      send_softi2c0_err(trans, dev);
+#endif
+    case 6:
+#if USE_SOFTI2C1
+      send_softi2c1_err(trans, dev);
+#endif
       break;
     default:
       break;
   }
   _i2c_nb_cnt++;
-  if (_i2c_nb_cnt == 5) {
+  if (_i2c_nb_cnt == 7) {
     _i2c_nb_cnt = 0;
   }
 }
@@ -354,6 +370,7 @@ bool i2c_blocking_transmit(struct i2c_periph *p, struct i2c_transaction *t,
   // Wait for transaction to complete
   float start_t = get_sys_time_float();
   while (t->status == I2CTransPending || t->status == I2CTransRunning) {
+    if (p->spin) p->spin(p);
     if (get_sys_time_float() - start_t > I2C_BLOCKING_TIMEOUT) {
       break;  // timeout after 1 second
     }
@@ -375,6 +392,7 @@ bool i2c_blocking_receive(struct i2c_periph *p, struct i2c_transaction *t,
   // Wait for transaction to complete
   float start_t = get_sys_time_float();
   while (t->status == I2CTransPending || t->status == I2CTransRunning) {
+    if (p->spin) p->spin(p);
     if (get_sys_time_float() - start_t > I2C_BLOCKING_TIMEOUT) {
       break;  // timeout after 1 second
     }
@@ -396,6 +414,7 @@ bool i2c_blocking_transceive(struct i2c_periph *p, struct i2c_transaction *t,
   // Wait for transaction to complete
   float start_t = get_sys_time_float();
   while (t->status == I2CTransPending || t->status == I2CTransRunning) {
+    if (p->spin) p->spin(p);
     if (get_sys_time_float() - start_t > I2C_BLOCKING_TIMEOUT) {
       break;  // timeout after 1 second
     }

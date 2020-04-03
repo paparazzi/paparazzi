@@ -43,9 +43,13 @@
 #define USING_UART 1
 #include "mcu_periph/uart.h"
 #endif
-#if USE_I2C0 || USE_I2C1 || USE_I2C2 || USE_I2C3 || USE_I2C4
+#if USE_I2C0 || USE_I2C1 || USE_I2C2 || USE_I2C3 || USE_I2C4 || USE_SOFTI2C0 || USE_SOFTI2C1
 #define USING_I2C 1
 #include "mcu_periph/i2c.h"
+#endif
+#if USE_SOFTI2C0 || USE_SOFTI2C1
+#define USING_SOFTI2C 1
+#include "mcu_periph/softi2c.h"
 #endif
 #if USE_ADC
 #include "mcu_periph/adc.h"
@@ -176,6 +180,12 @@ void mcu_init(void)
 #ifdef USE_I2C4
   i2c4_init();
 #endif
+#ifdef USE_SOFTI2C0
+  softi2c0_init();
+#endif
+#ifdef USE_SOFTI2C1
+  softi2c1_init();
+#endif
 #if USE_ADC
   adc_init();
 #endif
@@ -249,6 +259,9 @@ void mcu_event(void)
 {
 #if USING_I2C
   i2c_event();
+#endif
+#if USING_SOFTI2C
+  softi2c_event();
 #endif
 
 #if USE_USB_SERIAL

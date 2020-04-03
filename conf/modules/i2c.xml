@@ -12,6 +12,7 @@
   </header>
   <makefile>
     <file name="i2c.c" dir="mcu_periph"/>
+    <file name="softi2c.c" dir="mcu_periph"/>
     <file_arch name="i2c_arch.c" dir="mcu_periph"/>
   </makefile>
 </module>

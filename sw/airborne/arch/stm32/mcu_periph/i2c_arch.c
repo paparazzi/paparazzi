@@ -38,6 +38,11 @@
 #include "mcu_periph/gpio.h"
 
 
+static bool i2c_stm32_idle(struct i2c_periph *periph) __attribute__((unused));
+static bool i2c_stm32_submit(struct i2c_periph *periph, struct i2c_transaction *t) __attribute__((unused));
+static void i2c_stm32_setbitrate(struct i2c_periph *periph, int bitrate) __attribute__((unused));
+
+
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -845,6 +850,9 @@ struct i2c_errors i2c1_errors;
 
 void i2c1_hw_init(void)
 {
+  i2c1.idle = i2c_stm32_idle;
+  i2c1.submit = i2c_stm32_submit;
+  i2c1.setbitrate = i2c_stm32_setbitrate;
 
   i2c1.reg_addr = (void *)I2C1;
   i2c1.init_struct = NULL;
@@ -916,6 +924,9 @@ struct i2c_errors i2c2_errors;
 
 void i2c2_hw_init(void)
 {
+  i2c2.idle = i2c_stm32_idle;
+  i2c2.submit = i2c_stm32_submit;
+  i2c2.setbitrate = i2c_stm32_setbitrate;
 
   i2c2.reg_addr = (void *)I2C2;
   i2c2.init_struct = NULL;
@@ -989,6 +1000,9 @@ struct i2c_errors i2c3_errors;
 
 void i2c3_hw_init(void)
 {
+  i2c3.idle = i2c_stm32_idle;
+  i2c3.submit = i2c_stm32_submit;
+  i2c3.setbitrate = i2c_stm32_setbitrate;
 
   i2c3.reg_addr = (void *)I2C3;
   i2c3.init_struct = NULL;
@@ -1054,7 +1068,7 @@ void i2c3_er_isr(void)
 // -short wires, low capacitance bus: IMU: high speed
 // -long wires with a lot of capacitance: motor controller: put speed as low as possible
 
-void i2c_setbitrate(struct i2c_periph *periph, int bitrate)
+static void i2c_stm32_setbitrate(struct i2c_periph *periph, int bitrate)
 {
   // If NOT Busy
   if (i2c_idle(periph)) {
@@ -1312,7 +1326,7 @@ void i2c_event(void)
 /////////////////////////////////////////////////////////
 // Implement Interface Functions
 
-bool i2c_submit(struct i2c_periph *periph, struct i2c_transaction *t)
+static bool i2c_stm32_submit(struct i2c_periph *periph, struct i2c_transaction *t)
 {
   if (periph->watchdog > WD_DELAY) {
     return false;
@@ -1349,7 +1363,7 @@ bool i2c_submit(struct i2c_periph *periph, struct i2c_transaction *t)
   return true;
 }
 
-bool i2c_idle(struct i2c_periph *periph)
+static bool i2c_stm32_idle(struct i2c_periph *periph)
 {
   // This is actually a difficult function:
   // -simply reading the status flags can clear bits and corrupt the transaction
