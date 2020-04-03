@@ -31,13 +31,7 @@
     </module>
 
     <module name="telemetry"     type="transparent"/>
-    <module name="imu"           type="mpu60x0_i2c">
-      <configure name="IMU_MPU60X0_I2C_DEV" value="softi2c0"/>
-      <define name="SOFTI2C0_SDA_GPIO" value="GPIOA"/>
-      <define name="SOFTI2C0_SDA_PIN" value="0"/>
-      <define name="SOFTI2C0_SCL_GPIO" value="GPIOA"/>
-      <define name="SOFTI2C0_SCL_PIN" value="1"/>
-    </module>
+    <module name="imu"           type="aspirin_v2.2"/>
     <module name="gps"           type="ublox"/>
     <module name="stabilization" type="int_quat"/>
     <module name="ahrs"          type="int_cmpl_quat">

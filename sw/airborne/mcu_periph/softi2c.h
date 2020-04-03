@@ -37,14 +37,10 @@ void softi2c_event(void);
 
 
 #if USE_SOFTI2C0
-extern struct i2c_periph softi2c0;
-extern void softi2c0_init(void);
 extern void softi2c0_hw_init(void);
 #endif /* USE_SOFTI2C0 */
 
 #if USE_SOFTI2C1
-extern struct i2c_periph softi2c1;
-extern void softi2c1_init(void);
 extern void softi2c1_hw_init(void);
 #endif /* USE_SOFTI2C1 */
 

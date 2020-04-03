@@ -33,7 +33,6 @@
 #include "std.h"
 
 #include "mcu_periph/i2c_arch.h"
-#include "mcu_periph/softi2c.h"
 
 /**
  * @addtogroup mcu_periph
@@ -233,6 +232,18 @@ extern struct i2c_periph i2c4;
 extern void i2c4_init(void);
 
 #endif /* USE_I2C4 */
+
+
+#if USE_SOFTI2C0
+extern struct i2c_periph softi2c0;
+extern void softi2c0_init(void);
+#endif /* USE_SOFTI2C0 */
+
+
+#if USE_SOFTI2C1
+extern struct i2c_periph softi2c1;
+extern void softi2c1_init(void);
+#endif /* USE_SOFTI2C1 */
 
 
 /** Initialize I2C peripheral */

@@ -49,6 +49,7 @@
 #endif
 #if USE_SOFTI2C0 || USE_SOFTI2C1
 #define USING_SOFTI2C 1
+#include "mcu_periph/softi2c.h"
 #endif
 #if USE_ADC
 #include "mcu_periph/adc.h"
