@@ -74,6 +74,16 @@
       <define name="VIEWVIDEO_DOWNSIZE_FACTOR" value="1"/>
       <define name="VIEWVIDEO_QUALITY_FACTOR" value="40"/>
     </module>
+    
+	<!-- Wedgebug modules -->
+    <module name="wedgebug"/>
+
+
+    
+
+    
+    
+
   </firmware>
 
   <commands>

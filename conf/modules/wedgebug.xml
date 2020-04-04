@@ -1,0 +1,16 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="wedgebug" dir="wedgebug">
+  <doc>
+    <description> An integration of the WegdeBug algorithm (Laubach 1999) for path finding, for drones with stereo vision. </description>
+  </doc>
+  <settings/>
+  <header>
+    <file name="wedgebug.h"/>
+  </header>
+  <init fun="wedgebug_init()"/>
+  <periodic fun="wedgebug_periodic()" freq="4"/>
+  <makefile target="ap|nps">
+    <file name="wedgebug.c"/>
+  </makefile>
+</module>
