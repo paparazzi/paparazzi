@@ -478,6 +478,8 @@ static bool softi2c_read_byte(struct softi2c_device *d, uint8_t *byte, bool ack)
 // Transaction handling
 // Should be called continously from event function.
 // Returns true upon completion.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-qual"
 static bool softi2c_process_transaction(struct softi2c_device *d, struct i2c_transaction *t) {
   uint8_t byte;
   bool ack;
@@ -598,6 +600,7 @@ static bool softi2c_process_transaction(struct softi2c_device *d, struct i2c_tra
       return true;
   }
 }
+#pragma GCC diagnostic pop
 
 // Per-device event function
 static void softi2c_device_event(struct softi2c_device *d) __attribute__((unused));
