@@ -30,6 +30,7 @@ MODEM_BAUD ?= B57600
 
 # handle linux signals by hand (CTRL-C twice to stop)
 #$(TARGET).CFLAGS += -DUSE_LINUX_SIGNAL
+$(TARGET).CFLAGS += -D_GNU_SOURCE
 
 # -----------------------------------------------------------------------
 
