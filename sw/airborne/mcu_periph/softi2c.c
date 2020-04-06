@@ -51,9 +51,9 @@
 
 struct softi2c_device {
   struct i2c_periph *periph;
-  uint32_t sda_port;
+  gpio_port_t sda_port;
   uint16_t sda_pin;
-  uint32_t scl_port;
+  gpio_port_t scl_port;
   uint16_t scl_pin;
   /* Bit-level state machine */
   uint8_t bit_state;
@@ -163,7 +163,7 @@ void send_softi2c1_err(struct transport_tx *trans, struct link_device *dev)
 #endif /* USE_SOFTI2C1 */
 
 
-static void softi2c_gpio_highz(uint32_t port, uint16_t pin) {
+static void softi2c_gpio_highz(gpio_port_t port, uint16_t pin) {
 #if defined(CHIBIOS_MCU_ARCH_H) || defined(STM32_MCU_ARCH_H)
   /* Arch's with input_pullup */
   gpio_setup_input_pullup(port, pin);
@@ -177,23 +177,23 @@ static void softi2c_gpio_highz(uint32_t port, uint16_t pin) {
 #endif /* arch with/without input_pullup */
 }
 
-static bool softi2c_gpio_read(uint32_t port, uint16_t pin) {
+static bool softi2c_gpio_read(gpio_port_t port, uint16_t pin) {
   softi2c_gpio_highz(port, pin);
   return gpio_get(port, pin);
 }
 
-static void softi2c_gpio_drive_low(uint32_t port, uint16_t pin) {
+static void softi2c_gpio_drive_low(gpio_port_t port, uint16_t pin) {
   gpio_setup_output(port, pin);
   gpio_clear(port, pin);
 }
 
 static void softi2c_setup_gpio(
-    uint32_t sda_port, uint16_t sda_pin,
-    uint32_t scl_port, uint16_t scl_pin) __attribute__((unused));
+    gpio_port_t sda_port, uint16_t sda_pin,
+    gpio_port_t scl_port, uint16_t scl_pin) __attribute__((unused));
 
 static void softi2c_setup_gpio(
-    uint32_t sda_port, uint16_t sda_pin,
-    uint32_t scl_port, uint16_t scl_pin) {
+    gpio_port_t sda_port, uint16_t sda_pin,
+    gpio_port_t scl_port, uint16_t scl_pin) {
 #ifdef STM32_MCU_ARCH_H
   gpio_enable_clock(sda_port);
   gpio_enable_clock(scl_port);
