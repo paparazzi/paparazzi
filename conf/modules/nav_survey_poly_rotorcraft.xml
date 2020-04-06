@@ -20,7 +20,6 @@ You can use:
       <dl_settings NAME="P_Survey">
         <dl_setting min="0" max="20" step="1" var="Poly_Size" type="uint8_t" shortname="Size" module="modules/nav/nav_survey_poly_rotorcraft"/>
         <dl_setting min="0" max="500" step="1" var="Poly_Distance" type="float" shortname="Sweep" module="modules/nav/nav_survey_poly_rotorcraft"/>
-        <dl_setting min="10" max="500" step="1" var="sweep_var" type="float" shortname="Distance" module="modules/nav/nav_survey_rectangle_rotorcraft"/>
       </dl_settings>
     </dl_settings>
   </settings>
