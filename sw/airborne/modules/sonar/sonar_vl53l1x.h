@@ -20,12 +20,8 @@
  *
  */
 
-/** @file sonar_adc.h
- *  @brief simple driver to deal with one sonar sensor on ADC
- */
-
-#ifndef SONAR_ADC_H
-#define SONAR_ADC_H
+#ifndef SONAR_VL53L1X_H
+#define SONAR_VL53L1X_H
 
 #include "peripherals/vl53l1x_api.h"
 

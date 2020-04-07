@@ -133,7 +133,9 @@ void sonar_vl53l1x_read(void) {
     default: return;
   }
 #else // SITL
-  sonar_adc.distance = stateGetPositionEnu_f()->z;
-  Bound(sonar_adc.distance, 0.0f, 5.0f);
+  float range_mm = stateGetPositionEnu_f()->z * 1.0e3f;
+  if (range_mm > 0.0f && range_mm < 5.0f) {
+    sonar_vl53l1x_publish(range_mm)
+  }
 #endif // SITL
 }
