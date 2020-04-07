@@ -64,5 +64,8 @@
     <file name="cc2500_frsky_shared.c" dir="subsystems/radio_control/cc2500_frsky"/>
     <file name="cc2500_frsky_x.c" dir="subsystems/radio_control/cc2500_frsky"/>
     <file name="cc2500_smartport.c" dir="subsystems/radio_control/cc2500_frsky"/>
+    <raw>
+      include $(CFG_SHARED)/spi_master.makefile
+    </raw>
   </makefile>
 </module>
