@@ -3,6 +3,9 @@
 <module name="wedgebug" dir="wedgebug">
   <doc>
     <description> An integration of the WegdeBug algorithm (Laubach 1999) for path finding, for drones with stereo vision. </description>
+    <define name="WEDGEBUG_CAMERA_RIGHT" value="front_camera|bottom_camera" description="Video device to use"/>
+    <define name="WEDGEBUG_CAMERA_RIGHT" value="front_camera|bottom_camera" description="Video device to use"/>
+
   </doc>
   <settings/>
   <header>

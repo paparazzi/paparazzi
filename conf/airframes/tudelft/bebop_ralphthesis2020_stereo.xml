@@ -76,7 +76,25 @@
     </module>
     
 	<!-- Wedgebug modules -->
-    <module name="wedgebug"/>
+    <module name="wedgebug">
+      
+      <define name="WEDGEBUG_CAMERA_LEFT" value = "front_camera"/>
+      <define name="WEDGEBUG_CAMERA_RIGHT" value = "bottom_camera"/>
+      
+      <define name="WEDGEBUG_CAMERA_LEFT_FPS" value = "30"/>
+      <define name="WEDGEBUG_CAMERA_RIGHT_FPS" value = "30"/>
+  
+      <define name="WEDGEBUG_CAMERA_LEFT_WIDTH" value = "240"/>
+      <define name="WEDGEBUG_CAMERA_RIGHT_WIDTH" value = "240"/>
+      <define name="WEDGEBUG_CAMERA_COMBINED_WIDTH" value = "240"/>
+      
+      <define name="WEDGEBUG_CAMERA_LEFT_HEIGHT" value = "240"/>
+      <define name="WEDGEBUG_CAMERA_RIGHT_HEIGHT" value = "240"/>
+      <define name="WEDGEBUG_CAMERA_COMBINED_HEIGHT" value = "240"/>
+      
+      <define name="WEDGEBUG_BUF_SIZE" value  = "115200"/>
+    </module>
+      
 
 
     

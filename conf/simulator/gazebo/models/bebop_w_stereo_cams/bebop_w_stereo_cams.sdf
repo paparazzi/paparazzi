@@ -179,7 +179,7 @@
 
     <!-- CAMERAS -->
 
-    <link name="front_camera">
+    <link name="front_camera"> <!-- left stereo camera -->
       <pose> 0.15 0.032 0 0 0 0</pose><!-- Bebop camera output is rotated 90 degrees and pitched slightly downwards -->
       <inertial>
         <mass>0.001</mass>
@@ -192,7 +192,7 @@
           <ixz>0</ixz>
         </inertia>
       </inertial>
-      <sensor type="camera" name="mt9f0022">
+      <sensor type="camera" name="mt9f0022"> <!-- adjust with MT9F002_TARGET_FPS -->
         <update_rate>15.0</update_rate><!-- adjust with MT9F002_TARGET_FPS -->
         <camera>
           <image>
@@ -224,7 +224,7 @@
     
     
     
-    <link name="bottom_camera">
+    <link name="bottom_camera"> <!-- right stereo camera -->
       <pose> 0.15 -0.032 0.0 0 0 0</pose>
       <inertial>
         <mass>0.001</mass>
