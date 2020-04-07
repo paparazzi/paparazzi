@@ -72,7 +72,8 @@
 struct sonar_vl53l1x_dev sonar_vl53l1x;
 
 
-static void sonar_vl53l1x_publish(uint16_t range_mm) {
+static void sonar_vl53l1x_publish(uint16_t range_mm)
+{
   float range_ofs_m = (range_mm + sonar_vl53l1x.offset_mm) * 1.0e-3f;
 
   // Send ABI message
@@ -86,7 +87,8 @@ static void sonar_vl53l1x_publish(uint16_t range_mm) {
 }
 
 
-void sonar_vl53l1x_init(void) {
+void sonar_vl53l1x_init(void)
+{
   // Set up structs
   sonar_vl53l1x.dev.i2c_p = &SONAR_VL53L1X_I2C_DEV;
   sonar_vl53l1x.dev.i2c_trans.slave_addr = SONAR_VL53L1X_I2C_ADDR;
@@ -97,7 +99,7 @@ void sonar_vl53l1x_init(void) {
   uint8_t state;
   do {
     VL53L1X_BootState(&sonar_vl53l1x.dev, &state);
-  } while(!state);
+  } while (!state);
   VL53L1X_SensorInit(&sonar_vl53l1x.dev);
   /* Configure sensor */
   VL53L1X_SetTimingBudgetInMs(&sonar_vl53l1x.dev, SONAR_VL53L1X_TIMINGBUDGET_MS);
@@ -109,25 +111,26 @@ void sonar_vl53l1x_init(void) {
 }
 
 
-void sonar_vl53l1x_read(void) {
+void sonar_vl53l1x_read(void)
+{
 #ifndef SITL
   uint8_t isDataReady;
   uint16_t range_mm;
   switch (sonar_vl53l1x.read_state) {
     case 0:
       // Wait for data ready
-      if (!VL53L1X_NonBlocking_CheckForDataReady(&sonar_vl53l1x.dev, &isDataReady)) return; // Check in progress
+      if (!VL53L1X_NonBlocking_CheckForDataReady(&sonar_vl53l1x.dev, &isDataReady)) { return; } // Check in progress
       sonar_vl53l1x.read_state++;
-      /* Falls through. */
+    /* Falls through. */
     case 1:
       // Get ranging data
-      if (!VL53L1X_NonBlocking_GetDistance(&sonar_vl53l1x.dev, &range_mm)) return; // Read in progress
+      if (!VL53L1X_NonBlocking_GetDistance(&sonar_vl53l1x.dev, &range_mm)) { return; } // Read in progress
       sonar_vl53l1x_publish(range_mm);
       sonar_vl53l1x.read_state++;
-      /* Falls through. */
+    /* Falls through. */
     case 2:
       // Clear interrupt
-      if (!VL53L1X_NonBlocking_ClearInterrupt(&sonar_vl53l1x.dev)) return; // Clear in progress
+      if (!VL53L1X_NonBlocking_ClearInterrupt(&sonar_vl53l1x.dev)) { return; } // Clear in progress
       sonar_vl53l1x.read_state = 0;
       break;
     default: return;

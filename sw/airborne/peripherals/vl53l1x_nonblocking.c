@@ -31,22 +31,23 @@
 #include <assert.h>
 
 // Returns true upon completion
-static bool VL53L1_NonBlocking_WriteMulti(VL53L1_DEV dev, uint16_t index, uint8_t *pdata, uint32_t count) {
+static bool VL53L1_NonBlocking_WriteMulti(VL53L1_DEV dev, uint16_t index, uint8_t *pdata, uint32_t count)
+{
   switch (dev->nonblocking.i2c_state) {
     case 0:
       assert(2 + count <= I2C_BUF_LEN);
       dev->i2c_trans.buf[0] = (index & 0xFF00) >> 8; // MSB first
       dev->i2c_trans.buf[1] = (index & 0x00FF);
-      for (uint8_t i = 0; i < count; ++i) dev->i2c_trans.buf[i + 2] = pdata[i];
+      for (uint8_t i = 0; i < count; ++i) { dev->i2c_trans.buf[i + 2] = pdata[i]; }
       i2c_transmit(dev->i2c_p, &dev->i2c_trans, dev->i2c_trans.slave_addr, 2 + count);
       dev->nonblocking.i2c_state++;
-      /* Falls through. */
+    /* Falls through. */
     case 1:
       if (dev->i2c_trans.status == I2CTransFailed) {
         dev->nonblocking.i2c_state = 0;  // Try again.
         return false;
       }
-      if (dev->i2c_trans.status != I2CTransSuccess) return false;  // Wait for transaction to complete.
+      if (dev->i2c_trans.status != I2CTransSuccess) { return false; }  // Wait for transaction to complete.
       // Transaction success
       dev->nonblocking.i2c_state = 0;
       return true;
@@ -55,7 +56,8 @@ static bool VL53L1_NonBlocking_WriteMulti(VL53L1_DEV dev, uint16_t index, uint8_
 }
 
 // Returns true upon completion
-static bool VL53L1_NonBlocking_ReadMulti(VL53L1_DEV dev, uint16_t index, uint8_t *pdata, uint32_t count) {
+static bool VL53L1_NonBlocking_ReadMulti(VL53L1_DEV dev, uint16_t index, uint8_t *pdata, uint32_t count)
+{
   switch (dev->nonblocking.i2c_state) {
     case 0:
       assert(count <= I2C_BUF_LEN);
@@ -63,35 +65,36 @@ static bool VL53L1_NonBlocking_ReadMulti(VL53L1_DEV dev, uint16_t index, uint8_t
       dev->i2c_trans.buf[1] = (index & 0x00FF);
       i2c_transceive(dev->i2c_p, &dev->i2c_trans, dev->i2c_trans.slave_addr, 2, count);
       dev->nonblocking.i2c_state++;
-      /* Falls through. */
+    /* Falls through. */
     case 1:
       if (dev->i2c_trans.status == I2CTransFailed) {
         dev->nonblocking.i2c_state = 0;  // Try again.
         return false;
       }
-      if (dev->i2c_trans.status != I2CTransSuccess) return false;  // Wait for transaction to complete.
+      if (dev->i2c_trans.status != I2CTransSuccess) { return false; }  // Wait for transaction to complete.
       // Transaction success
-      for (uint8_t i = 0; i < count; ++i) pdata[i] = dev->i2c_trans.buf[i];
+      for (uint8_t i = 0; i < count; ++i) { pdata[i] = dev->i2c_trans.buf[i]; }
       dev->nonblocking.i2c_state = 0;
       return true;
     default: return false;
   }
 }
 
-
-bool VL53L1X_NonBlocking_CheckForDataReady(VL53L1_DEV dev, uint8_t *isDataReady) {
+// Returns true upon completion
+bool VL53L1X_NonBlocking_CheckForDataReady(VL53L1_DEV dev, uint8_t *isDataReady)
+{
   uint8_t Temp;
   switch (dev->nonblocking.state) {
     case 0:
       // GetInterruptPolarity
-      if (!VL53L1_NonBlocking_ReadMulti(dev, GPIO_HV_MUX__CTRL, &Temp, 1)) return false;
+      if (!VL53L1_NonBlocking_ReadMulti(dev, GPIO_HV_MUX__CTRL, &Temp, 1)) { return false; }
       Temp = Temp & 0x10;
       dev->nonblocking.IntPol = !(Temp >> 4);
       dev->nonblocking.state++;
-      /* Falls through. */
+    /* Falls through. */
     case 1:
       /* Read in the register to check if a new value is available */
-      if (!VL53L1_NonBlocking_ReadMulti(dev, GPIO__TIO_HV_STATUS, &Temp, 1)) return false;
+      if (!VL53L1_NonBlocking_ReadMulti(dev, GPIO__TIO_HV_STATUS, &Temp, 1)) { return false; }
       if ((Temp & 1) == dev->nonblocking.IntPol) {
         *isDataReady = 1;
       } else {
@@ -103,17 +106,19 @@ bool VL53L1X_NonBlocking_CheckForDataReady(VL53L1_DEV dev, uint8_t *isDataReady)
   }
 }
 
-
-bool VL53L1X_NonBlocking_GetDistance(VL53L1_DEV dev, uint16_t *distance) {
+// Returns true upon completion
+bool VL53L1X_NonBlocking_GetDistance(VL53L1_DEV dev, uint16_t *distance)
+{
   uint8_t tmp[2];
   if (!VL53L1_NonBlocking_ReadMulti(dev, VL53L1_RESULT__FINAL_CROSSTALK_CORRECTED_RANGE_MM_SD0,
-      tmp, 2)) return false;
+                                    tmp, 2)) { return false; }
   *distance = (tmp[0] << 8) | tmp[1];
   return true;
 }
 
-
-bool VL53L1X_NonBlocking_ClearInterrupt(VL53L1_DEV dev) {
+// Returns true upon completion
+bool VL53L1X_NonBlocking_ClearInterrupt(VL53L1_DEV dev)
+{
   uint8_t data = 0x01;
   return VL53L1_NonBlocking_WriteMulti(dev, SYSTEM__INTERRUPT_CLEAR, &data, 1);
 }
