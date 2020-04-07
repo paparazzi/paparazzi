@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010  Gautier Hattenberger
+ * Copyright (C) 2020 Tom van Dijk <tomvand@users.noreply.github.com>
  *
  * This file is part of paparazzi.
  *
