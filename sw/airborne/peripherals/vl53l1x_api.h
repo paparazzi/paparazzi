@@ -65,8 +65,8 @@
  * @brief Functions definition
  */
 
-#ifndef _API_H_
-#define _API_H_
+#ifndef VL53L1X_API_H_
+#define VL53L1X_API_H_
 
 #include "vl53l1_platform.h"
 
