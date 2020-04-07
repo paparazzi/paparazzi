@@ -169,6 +169,10 @@
 #define AGL_LIDAR_TFMINI_ID 11
 #endif
 
+#ifndef AGL_VL53L1X_ID
+#define AGL_VL53L1X_ID 12
+#endif
+
 /*
  * IDs of magnetometer sensors (including IMUs with mag)
  */
