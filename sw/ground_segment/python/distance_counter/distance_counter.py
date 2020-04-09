@@ -17,18 +17,19 @@
 # along with paparazzi.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+# This is not the main script. Run dist.py to have a distance counter.
+
 import wx
 import sys
-import os
+import os   
 import threading
 import socket
 import array
 from cStringIO import StringIO
 import wx
 import array
-import Image
+from PIL import Image
 import math
-
 
 PPRZ_SRC = os.getenv("PAPARAZZI_SRC", os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../../..')))
 
@@ -53,7 +54,7 @@ class DistanceCounterFrame(wx.Frame):
             moved = ((newx - self.ins_msg_x) ** 2 + (newy - self.ins_msg_y) ** 2)
             if self.init == 0:
                 self.init = 1
-            else:
+            elif self.running:
                 self.distance = self.distance + math.sqrt(moved)
 
             self.ins_msg_x = newx
@@ -63,6 +64,12 @@ class DistanceCounterFrame(wx.Frame):
 
             # graphical update
             wx.CallAfter(self.update)
+        if msg.name == "ROTORCRAFT_STATUS":
+            self.msg_count_time = self.msg_count_time + 1
+            time_new = float(msg.get_field(12))
+            if time_new > self.time_old and self.time_old != 0 and self.running:
+                self.time_elapsed += time_new - self.time_old
+            self.time_old = time_new
 
     def update(self):
         self.Refresh()
@@ -86,11 +93,27 @@ class DistanceCounterFrame(wx.Frame):
         dc.DrawText("INS Packets:" + str(self.msg_count),2,2)
         dc.DrawText("Data: " + str(self.ins_msg_x) + ", " + str(self.ins_msg_y) + ", " + str(self.ins_msg_z) + ".",2,22)
         dc.DrawText("Distance: " + str(round(float(self.distance)/1.0,2)) + " m",2,22+20)
+        dc.DrawText("Time elapsed: " + str(self.time_elapsed) + "s",2,22+20+20)
+        print("jo")
+        if self.running:
+            dc.DrawText("Counter running", 150, 22+20)
+        else:
+            dc.DrawText("Counter paused", 150, 22+20)
 
+    def onStartStop(self, event):
+        print(self.running)
+        self.running = not self.running
+        self.Refresh()
 
+    def onReset(self, event):
+        self.time_old = 0
+        self.time_elapsed = 0
+        self.distance = 0
+        self.init = 0
+        self.Refresh()
+        return
 
     def __init__(self, _settings):
-
         # Command line arguments
         self.settings = _settings
 
@@ -104,6 +127,10 @@ class DistanceCounterFrame(wx.Frame):
         wx.Frame.__init__(self, id=-1, parent=None, name=u'Distance Counter',
                           size=wx.Size(self.w, self.h), title=u'Distance Counter')
 
+        start_stop_button = wx.Button(self, wx.ID_ANY, 'Start/Pause', (150, 58),size=(90, 25))
+        start_stop_button.Bind(wx.EVT_BUTTON, self.onStartStop)
+        reset_button = wx.Button(self, wx.ID_ANY, 'Reset', (245, 58), size=(50, 25))
+        reset_button.Bind(wx.EVT_BUTTON, self.onReset)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_SIZE, self.OnSize)
         self.Bind(wx.EVT_CLOSE, self.OnClose)
@@ -113,12 +140,19 @@ class DistanceCounterFrame(wx.Frame):
         self.interface.subscribe(self.message_recv)
 
         self.msg_count = 0
+        self.msg_count_time = 0
         self.distance = 0
+        self.time_old = 0
+        self.time_elapsed = 0
         self.ins_msg_x = 0
         self.ins_msg_y = 0
         self.ins_msg_z = 0
         self.init = 0
+        self.running = True
 
     def OnClose(self, event):
         self.interface.shutdown()
         self.Destroy()
+
+if __name__ == '__main__':
+    raise Exception('This is not the main script. Please run dist.py instead of distance_counter.py')

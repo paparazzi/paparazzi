@@ -28,6 +28,7 @@
     <program name="Environment Simulator" command="sw/simulator/gaia"/>
     <program name="NatNet" command="sw/ground_segment/misc/natnet2ivy"/>
     <program name="Gazebo" command="sw/tools/gzclient_launcher.sh"/>
+    <program name="Real-time Distance Counter" command="sw/ground_segment/python/distance_counter/dist.py"/>
   </section>
   <section name="sessions">
   <session name="Simulation - Gazebo">
@@ -97,6 +98,9 @@
       <program name="NatNet" command="sw/ground_segment/misc/natnet2ivy">
         <arg flag="-ac 9999" constant="@AC_ID"/>
       </program>
+    </session>
+    <session name="Distance Counter">
+      <program name="Real-time Distance Counter"/>
     </session>
   </section>
 </control_panel>

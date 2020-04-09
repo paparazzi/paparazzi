@@ -18,6 +18,9 @@
 # along with paparazzi.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+
+# Script that should be run to have a distance counter on screen. Works with both NPS and AP.
+
 import wx
 import sys
 import argparse
