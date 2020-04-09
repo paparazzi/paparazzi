@@ -57,6 +57,7 @@ static struct image_t *copy_left_img_func(struct image_t *img); // Function X: C
 static struct image_t *copy_right_img_func(struct image_t *img); // Function X: Copies left image into a buffer (buf_right)
 const char* get_img_type(enum image_type img_type); // Function X: Displays image type
 void show_image_data(struct image_t *img); // Function X: Displays image data
+void show_image_entry(struct image_t *img, int entry_position, const char *img_name);
 
 
 
@@ -84,42 +85,17 @@ void show_image_data(struct image_t *img)
 	printf("Image-Buf_Memory_Occupied: %lu\n", sizeof(img->buf));
 }
 
+void show_image_entry(struct image_t *img, int entry_position, const char *img_name)
+{
+	printf("Pixel %d value - %s: %d\n", entry_position, img_name ,((uint8_t*)img->buf)[entry_position]);
+}
 
 
 static struct image_t *copy_left_img_func(struct image_t *img)
 {
-	//show_image_data(img);
-	//enum image_type t = img->type;
-	//printf("copy_left_img_func was called: %s\n", get_img_type(t));
 	image_copy(img, &img_left);
-	//img_left.buf = img ->buf;
-	//int *int_array = (int*)img_left.buf;
-
-	uint8_t img_left_buf[img->buf_size];
-
-
-
-	for (uint32_t i = 0; i < img->buf_size; i++)
-	{
-		//printf("Value of i: %d\n", i);
-
-		img_left_buf[i] = ((uint8_t*) img->buf)[i];
-
-		//printf("Value of img.buf[%d]: %d\n",i, ((uint8_t*)img->buf)[i]);
-		//printf("Value of img_left_buf[%d]: %d\n",i, img_left_buf[i]);
-	}
-
-	//printf("Value of i: %d\n", i);
-
-	int j = ((int)img->buf_size) - 1;
-	printf("img.buffer_size: %d\n", img->buf_size);
-	printf("img.buffer_size: %d\n", img_left.buf_size);
-	printf("Pixel %d value - img: %d\n", j ,((uint8_t*)img->buf)[j]);
-	printf("Pixel %d value - img_left: %d\n", j ,((uint8_t*)img_left.buf)[j]);
-	printf("Pixel %d value - img_left: %d\n\n", j ,img_left_buf[j]); //img_left.buf_size
-	//pthread_mutex_lock (& mutex );
-	//pthread_mutex_unlock (& mutex );
-
+	//show_image_data(img);
+	//show_image_entry(&img_left, 10, "img_left");
 	return img;
 }
 
@@ -127,10 +103,9 @@ static struct image_t *copy_left_img_func(struct image_t *img)
 // Function x
 static struct image_t *copy_right_img_func(struct image_t *img)
 {
-	//printf("copy_right_img_func was called: %d\n", WEDGEBUG_BUF_SIZE);
-	//image_copy(img, &img_right);
-	//image_copy(img, &img_right);
 	image_copy(img, &img_right);
+	//show_image_data(img);
+	//show_image_entry(&img_right, 10, "img_right");
 	return img;
 }
 
@@ -138,14 +113,17 @@ static struct image_t *copy_right_img_func(struct image_t *img)
 
 // New section ----------------------------------------------------------------------------------------------------------------
 void wedgebug_init(){
-  printf("Wedgebug init function was called\n");
-  image_create(&img_left, WEDGEBUG_CAMERA_LEFT_WIDTH, WEDGEBUG_CAMERA_LEFT_HEIGHT, IMAGE_YUV422);
-  image_create(&img_right, WEDGEBUG_CAMERA_RIGHT_WIDTH, WEDGEBUG_CAMERA_RIGHT_HEIGHT, IMAGE_YUV422);
-  image_create(&img_combined, WEDGEBUG_CAMERA_COMBINED_WIDTH, WEDGEBUG_CAMERA_COMBINED_HEIGHT, IMAGE_YUV422);
+	//printf("Wedgebug init function was called\n");
 
-  //show_image_data(&img_left);
-  cv_add_to_device(&WEDGEBUG_CAMERA_LEFT, copy_left_img_func, WEDGEBUG_CAMERA_LEFT_FPS);
-  cv_add_to_device(&WEDGEBUG_CAMERA_RIGHT, copy_right_img_func, WEDGEBUG_CAMERA_RIGHT_FPS);
+	// Creating empty images
+	image_create(&img_left, WEDGEBUG_CAMERA_LEFT_WIDTH, WEDGEBUG_CAMERA_LEFT_HEIGHT, IMAGE_YUV422);
+	image_create(&img_right, WEDGEBUG_CAMERA_RIGHT_WIDTH, WEDGEBUG_CAMERA_RIGHT_HEIGHT, IMAGE_YUV422);
+	image_create(&img_combined, WEDGEBUG_CAMERA_COMBINED_WIDTH, WEDGEBUG_CAMERA_COMBINED_HEIGHT, IMAGE_YUV422);
+	//show_image_data(&img_left);
+
+	// Adding callback functions
+	cv_add_to_device(&WEDGEBUG_CAMERA_LEFT, copy_left_img_func, WEDGEBUG_CAMERA_LEFT_FPS);
+	cv_add_to_device(&WEDGEBUG_CAMERA_RIGHT, copy_right_img_func, WEDGEBUG_CAMERA_RIGHT_FPS);
 }
 
 void wedgebug_periodic(){
@@ -153,7 +131,29 @@ void wedgebug_periodic(){
   // freq = 4.0 Hz
 	//printf("Wedgebug periodic function was called\n");
 
+	// Creating YlYr image from left and right YUV422 image
 
+
+	for (uint32_t i = 0; i < (img_combined.buf_size - 1); (i+=2))
+	{
+		((uint8_t*)img_combined.buf)[i] = ((uint8_t*)img_left.buf)[i + 1];
+		((uint8_t*)img_combined.buf)[i+1] = ((uint8_t*)img_right.buf)[i + 1];
+	}
+
+
+	int gray_v_left = 0;
+	int gray_v_right = gray_v_left + 1; //11
+	int gray_f_images = gray_v_left + 1; //11
+
+
+	printf("Compare left gray value (position %d) from left image (position %d)\n", gray_v_left, gray_f_images);
+	show_image_entry(&img_combined, gray_v_left, "img_combined_from_left");
+	show_image_entry(&img_left, gray_f_images, "img_left");
+	printf("\n");
+	printf("Compare left gray value (position %d) from right image (position %d)\n", gray_v_right, gray_f_images);
+	show_image_entry(&img_combined, gray_v_right, "img_combined_from_right");
+	show_image_entry(&img_right, gray_f_images, "img_right");
+	printf("\n\n");
 
 }
 
