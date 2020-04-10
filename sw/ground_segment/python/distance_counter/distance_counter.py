@@ -101,7 +101,7 @@ class DistanceCounterFrame(wx.Frame):
             dc.DrawText("Counter paused", 150, 22+20)
 
     def onStartStop(self, event):
-        print(self.running)
+        # print(self.running)
         self.running = not self.running
         self.Refresh()
 
