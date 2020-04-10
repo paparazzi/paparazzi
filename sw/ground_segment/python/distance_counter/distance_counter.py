@@ -21,7 +21,7 @@
 
 import wx
 import sys
-import os   
+import os
 import threading
 import socket
 import array
