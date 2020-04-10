@@ -94,7 +94,7 @@ class DistanceCounterFrame(wx.Frame):
         dc.DrawText("Data: " + str(self.ins_msg_x) + ", " + str(self.ins_msg_y) + ", " + str(self.ins_msg_z) + ".",2,22)
         dc.DrawText("Distance: " + str(round(float(self.distance)/1.0,2)) + " m",2,22+20)
         dc.DrawText("Time elapsed: " + str(self.time_elapsed) + "s",2,22+20+20)
-        print("jo")
+        # print("jo")
         if self.running:
             dc.DrawText("Counter running", 150, 22+20)
         else:
