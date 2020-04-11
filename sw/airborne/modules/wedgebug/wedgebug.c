@@ -23,8 +23,9 @@
  * @author Ralph Rudi schmidt <ralph.r.schmidt@outlook.com>
  * An integration of the WegdeBug algorithm (Laubach 1999) for path finding, for drones with stereo vision.
  */
-#include "modules/wedgebug/wedgebug.h"
 #include <stdio.h>
+#include "modules/wedgebug/wedgebug.h"
+#include "modules/wedgebug/wedgebug_opencv.h"
 #include "modules/computer_vision/cv.h" // Required for the "cv_add_to_device" function
 #include "pthread.h"
 
@@ -140,6 +141,44 @@ void wedgebug_periodic(){
 		((uint8_t*)img_combined.buf)[i+1] = ((uint8_t*)img_right.buf)[i + 1];
 	}
 
+	//save_image_gray(img_combined.buf, 480, 240);
+	//save_image_color(img_combined.buf, img_combined.w, img_combined.h);
+
+	uint8_t buf_merged[240*240];
+
+	uint8_t max;
+	uint8_t min;
+	uint32_t j = 0;
+	for (uint32_t i = 1; i < ((240*240) - 1); (i+=1))
+	{
+		buf_merged[i] = ((uint8_t*)img_combined.buf)[j];
+		j +=2;
+
+		if (i ==1){max = buf_merged[i]; min = buf_merged[i];}
+		else {
+			if(buf_merged[i] > max){max = buf_merged[i];}
+			if(buf_merged[i] < min){min = buf_merged[i];}
+		}
+
+
+		//printf("buf_merged[%d]: %d\n", i, buf_merged[i]);
+
+	}
+	printf("Before C++ function: Min=%d; Max=%d\n", min, max);
+
+	save_image_gray(buf_merged, 240, 240);
+	save_image_color(img_combined.buf, img_combined.w, img_combined.h);
+	printf("\n");
+
+
+	/*
+
+	for (uint32_t i = 0; i < (img_combined.buf_size - 1); (i+=2))
+	{
+		((uint8_t*)img_combined.buf)[i] = ((uint8_t*)img_left.buf)[i + 1];
+		((uint8_t*)img_combined.buf)[i+1] = ((uint8_t*)img_right.buf)[i + 1];
+	}
+
 
 	int gray_v_left = 0;
 	int gray_v_right = gray_v_left + 1; //11
@@ -154,6 +193,7 @@ void wedgebug_periodic(){
 	show_image_entry(&img_combined, gray_v_right, "img_combined_from_right");
 	show_image_entry(&img_right, gray_f_images, "img_right");
 	printf("\n\n");
+	*/
 
 }
 

@@ -19,28 +19,24 @@
  * <http://www.gnu.org/licenses/>.
 
  */
-/** @file "modules/wedgebug/wedgebug.h"
+/** @file "modules/wedgebug/wedgebug_opencv.h"
  * @author Ralph Rudi schmidt <ralph.r.schmidt@outlook.com>
- * An integration of the WegdeBug algorithm (Laubach 1999) for path finding, for drones with stereo vision.
+ * OpenCV functions to be used for the wedebug.
  */
-#ifndef WEDGEBUG_H
-#define WEDGEBUG_H
+#ifndef WEDGEBUG_OPENCV_H
+#define WEDGEBUG_OPENCV_H
 
 
 //
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 int save_image_gray(void *img, int width, int height);
 int save_image_color(void *img, int width, int height);
 
+#ifdef __cplusplus
+}
+#endif
 
-
-
-extern void wedgebug_init(void);
-extern void wedgebug_periodic(void);
-
-
-
-
-
-#endif  // WEDGEBUG_H
+#endif  // WEDGEBUG_OPENCV_H
