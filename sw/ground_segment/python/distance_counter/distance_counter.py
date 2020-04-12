@@ -65,9 +65,8 @@ class DistanceCounterFrame(wx.Frame):
             # graphical update
             wx.CallAfter(self.update)
         if msg.name == "ROTORCRAFT_STATUS":
-            cpu_time_idx = msg.fieldnames.index("cpu_time")
             self.msg_count_time = self.msg_count_time + 1
-            time_new = float(msg.get_field(cpu_time_idx))
+            time_new = float(msg['cpu_time'])
             if time_new > self.time_old and self.time_old != 0 and self.running:
                 self.time_elapsed += time_new - self.time_old
             self.time_old = time_new
