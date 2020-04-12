@@ -65,11 +65,14 @@ class DistanceCounterFrame(wx.Frame):
             # graphical update
             wx.CallAfter(self.update)
         if msg.name == "ROTORCRAFT_STATUS":
+            cpu_time_idx = msg.fieldnames.index("cpu_time")
             self.msg_count_time = self.msg_count_time + 1
-            time_new = float(msg.get_field(12))
+            time_new = float(msg.get_field(cpu_time_idx))
             if time_new > self.time_old and self.time_old != 0 and self.running:
                 self.time_elapsed += time_new - self.time_old
             self.time_old = time_new
+            # graphical update
+            wx.CallAfter(self.update)
 
     def update(self):
         self.Refresh()
@@ -94,14 +97,12 @@ class DistanceCounterFrame(wx.Frame):
         dc.DrawText("Data: " + str(self.ins_msg_x) + ", " + str(self.ins_msg_y) + ", " + str(self.ins_msg_z) + ".",2,22)
         dc.DrawText("Distance: " + str(round(float(self.distance)/1.0,2)) + " m",2,22+20)
         dc.DrawText("Time elapsed: " + str(self.time_elapsed) + "s",2,22+20+20)
-        # print("jo")
         if self.running:
             dc.DrawText("Counter running", 150, 22+20)
         else:
             dc.DrawText("Counter paused", 150, 22+20)
 
     def onStartStop(self, event):
-        # print(self.running)
         self.running = not self.running
         self.Refresh()
 
