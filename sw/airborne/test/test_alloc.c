@@ -77,7 +77,7 @@ void test_four_by_four(void)
 
   // WLS Control Allocator
   int num_iter =
-    wls_alloc(indi_du, indi_v, u_min, u_max, Bwls, INDI_NUM_ACT, INDI_OUTPUTS, 0, 0, Wv, 0, 0, 10000, 10);
+    wls_alloc(indi_du, indi_v, u_min, u_max, Bwls, 0, 0, Wv, 0, 0, 10000, 10);
 
   printf("finished in %d iterations\n", num_iter);
   printf("du = %f, %f, %f, %f\n", indi_du[0], indi_du[1], indi_du[2], indi_du[3]);
@@ -138,14 +138,14 @@ void test_overdetermined(void)
 
   // WLS Control Allocator
   int num_iter =
-    wls_alloc(indi_du, indi_v, du_min, du_max, Bwls, INDI_NUM_ACT, INDI_OUTPUTS, 0, 0, Wv, 0, u_p, 0, 10);
+    wls_alloc(indi_du, indi_v, du_min, du_max, Bwls, 0, 0, Wv, 0, u_p, 0, 10);
 
   printf("finished in %d iterations\n", num_iter);
 
   float nu_out[4] = {0.0f};
   calc_nu_out(Bwls, indi_du, nu_out);
 
-  printf("du = %f, %f, %f, %f, %f, %f\n", indi_du[0], indi_du[1], indi_du[2], indi_du[3], indi_du[4], indi_du[5]);
+  printf("du                 = %f, %f, %f, %f, %f, %f\n", indi_du[0], indi_du[1], indi_du[2], indi_du[3], indi_du[4], indi_du[5]);
   // Precomputed solution' in Matlab for this problem using lsqlin:
   printf("du (matlab_lsqlin) = %f, %f, %f, %f, %f, %f\n", -4614.0, 426.064612091305, 5390.0, -4614.0, -4210.0, 5390.0);
   printf("u = %f, %f, %f, %f, %f, %f\n", indi_du[0]+u_c[0], indi_du[1]+u_c[1], indi_du[2]+u_c[2], indi_du[3]+u_c[3], indi_du[4]+u_c[4], indi_du[5]+u_c[5]);
