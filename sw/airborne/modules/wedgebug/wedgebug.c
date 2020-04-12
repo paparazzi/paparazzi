@@ -49,26 +49,26 @@ struct image_t img_right;
 struct image_t img_YY;
 struct image_t img_YY_left;
 struct image_t img_YY_right;
-
-uint8_t buf_left[WEDGEBUG_CAMERA_LEFT_HEIGHT * WEDGEBUG_CAMERA_LEFT_WIDTH];
-uint8_t buf_right[WEDGEBUG_CAMERA_RIGHT_HEIGHT * WEDGEBUG_CAMERA_RIGHT_WIDTH];
 //static pthread_mutex_t mutex;
 
 
 
 // New section ----------------------------------------------------------------------------------------------------------------
-// Functions - declaration
-static struct image_t *copy_left_img_func(struct image_t *img); // Function X: Copies left image into a buffer (buf_left)
-static struct image_t *copy_right_img_func(struct image_t *img); // Function X: Copies left image into a buffer (buf_right)
+//Function - Declaration
+//Supporting
 const char* get_img_type(enum image_type img_type); // Function 1: Displays image type
 void show_image_data(struct image_t *img); // Function 2: Displays image data
-void show_image_entry(struct image_t *img, int entry_position, const char *img_name);
-void split_YY_image(struct image_t *img_YY, struct image_t *img_gray_left_empty, struct image_t *img_gray_right_empty);
+void show_image_entry(struct image_t *img, int entry_position, const char *img_name); // Function 3: Displays pixel value of image
+//Core
+static struct image_t *copy_left_img_func(struct image_t *img); // Function 1: Copies left image into a buffer (buf_left)
+static struct image_t *copy_right_img_func(struct image_t *img); // Function 2: Copies left image into a buffer (buf_right)
+void stereo_UYVY_to_YY(struct image_t *YY, struct image_t *left, struct image_t *right); // Function 3: Copies gray pixel values of left and right UYVY images into merged YY image
 
 
 
 // New section ----------------------------------------------------------------------------------------------------------------
-// Function - definition
+// Function - Definition
+// Supporting:
 // Function 1
 const char* get_img_type(enum image_type img_type)
 {
@@ -83,7 +83,7 @@ const char* get_img_type(enum image_type img_type)
 }
 
 
-// Function x
+// Function 2
 void show_image_data(struct image_t *img)
 {
 	printf("Image-Type: %s\n", get_img_type(img->type));
@@ -94,13 +94,15 @@ void show_image_data(struct image_t *img)
 }
 
 
-// Function x
+// Function 3
 void show_image_entry(struct image_t *img, int entry_position, const char *img_name)
 {
 	printf("Pixel %d value - %s: %d\n", entry_position, img_name ,((uint8_t*)img->buf)[entry_position]);
 }
 
-// Function x
+
+// Core:
+// Function 1
 static struct image_t *copy_left_img_func(struct image_t *img)
 {
 	image_copy(img, &img_left);
@@ -110,7 +112,7 @@ static struct image_t *copy_left_img_func(struct image_t *img)
 }
 
 
-// Function x
+// Function 2
 static struct image_t *copy_right_img_func(struct image_t *img)
 {
 	image_copy(img, &img_right);
@@ -119,22 +121,45 @@ static struct image_t *copy_right_img_func(struct image_t *img)
 	return img;
 }
 
-// Function x
-void split_YY_image(struct image_t *img_YY, struct image_t *img_gray_left_empty, struct image_t *img_gray_right_empty)
+
+// Function 3
+void stereo_UYVY_to_YY(struct image_t *merged, struct image_t *left, struct image_t *right)
 {
-	if (img_gray_left_empty->w != (img_YY->w / 2) || img_gray_right_empty->w != (img_YY->w / 2)) {
-		printf("New images cannot be used to split YY image!\n");
-	    return;
-	  }
-
-	uint32_t j = 0;
-	for (uint32_t i = 0; i <  img_YY->buf_size; i +=2)
+	// Error messages
+	if (left->w != right->w || left->h != right->h)
 	{
-		((uint8_t*) img_gray_left_empty->buf)[j] = ((uint8_t*) img_YY->buf)[i];
-		((uint8_t*) img_gray_right_empty->buf)[j+1] = ((uint8_t*) img_YY->buf)[i];
+		printf("The dimensions of the left and right image to not match!");
+		return;
+	}
+	if ((merged->w * merged->h) != (2 * right->w) * right->w)
+	{
+		printf("The dimensions of the empty image template for merger are not sufficient to merge gray left and right pixel values.");
+		return;
+	}
+
+	uint8_t *UYVY_left = left->buf;
+	uint8_t *UYVY_right = right->buf;
+	uint8_t *YY = merged->buf;
+	uint32_t loop_length = left->w * right->h;
+
+	// Incrementing pointers to get to first gray value of the UYVY images
+	UYVY_left++;
+	UYVY_right++;
 
 
-		j++;
+	for (uint32_t i = 0; i < loop_length; i++)
+	{
+		*YY = *UYVY_left; // Copies left gray pixel (Y) to the merged image YY, in first position
+		YY++; // Moving to second position of merged image YY
+		*YY = *UYVY_right; // Copies right gray pixel (Y) to the merged image YY, in second position
+		YY++; // Moving to the next position, in preparation to copy left gray pixel (Y) to the merged image YY
+		UYVY_left+=2; // Moving pointer to next gray pixel (Y), in the left image
+		UYVY_right+=2; // Moving pointer to next gray pixel (Y), in the right image
+		/*
+		 * Note: Since the loop lenth is based on the UYVY image the size of the data should be (2 x w) x h.
+		 * This is also the same size as for the new merged YY image.
+		 * Thus incrementing the pointer for UYVY_left and right, in each iteration, does not lead to problems (same for YY image)
+		 */
 	}
 }
 
@@ -164,67 +189,22 @@ void wedgebug_periodic(){
   // freq = 4.0 Hz
 	//printf("Wedgebug periodic function was called\n");
 
-	// Creating YlYr image from left and right YUV422 image
+	stereo_UYVY_to_YY(&img_YY, &img_left, &img_right); // Creating YlYr image from left and right YUV422 image
+	image_to_grayscale(&img_left, &img_YY_left); // Converting left image from UYVY to gray scale for saving function
+	image_to_grayscale(&img_right, &img_YY_right); // Converting right image from UYVY to gray scale for saving function
 
-	uint32_t j = 0;
-	for (uint32_t i = 0; i < (img_YY.buf_size - 1); (i+=2))
-	{
-		((uint8_t*)img_YY.buf)[i] = ((uint8_t*)img_left.buf)[i + 1];
-		((uint8_t*)img_YY.buf)[i+1] = ((uint8_t*)img_right.buf)[i + 1];
-
-		//((uint8_t*)img_YY_left.buf)[j] = ((uint8_t*)img_left.buf)[i + 1];
-		//((uint8_t*)img_YY_right.buf)[j] = ((uint8_t*)img_right.buf)[i + 1];
-		j++;
-	}
-
-
-	image_to_grayscale(&img_left, &img_YY_left);
-	image_to_grayscale(&img_right, &img_YY_right);
-
-	save_image_gray(img_YY.buf, 480, 240, "/home/dureade/Documents/paparazzi_images/YY_stereo_image.bmp");
-	save_image_color(img_right.buf, img_right.w, img_right.h, "/home/dureade/Documents/paparazzi_images/color_image.bmp");
-
-	//split_YY_image(&img_YY, &img_YY_left, &img_YY_right);
-
+	save_image_gray(img_YY.buf, img_YY.w, img_YY.h, "/home/dureade/Documents/paparazzi_images/YY_stereo_image.bmp");
 	save_image_gray(img_YY_left.buf, img_YY_left.w, img_YY_left.h, "/home/dureade/Documents/paparazzi_images/YY_stereo_left_image.bmp");
 	save_image_gray(img_YY_right.buf, img_YY_right.w, img_YY_right.h, "/home/dureade/Documents/paparazzi_images/YY_stereo_right_image.bmp");
 
-	printf("img_left.buf_size: %d\n", img_left.buf_size);
-	printf("img_YY_left.buf_size: %d", img_YY_left.buf_size);
-
+	//printf("img_left.buf_size: %d\n", img_left.buf_size);
+	//printf("img_YY_left.buf_size: %d", img_YY_left.buf_size);
 	//show_image_entry(&img_YY_right, 0 , "img_YY_right");
 	//show_image_entry(&img_right, 1 , "img_right");
 	//show_image_entry(&img_YY_left, 0 , "img_YY_left");
 	//show_image_entry(&img_left, 1 , "img_left");
+	//printf("\n");
 
-
-	printf("\n");
-
-
-
-	/*
-
-	for (uint32_t i = 0; i < (img_combined.buf_size - 1); (i+=2))
-	{
-		((uint8_t*)img_combined.buf)[i] = ((uint8_t*)img_left.buf)[i + 1];
-		((uint8_t*)img_combined.buf)[i+1] = ((uint8_t*)img_right.buf)[i + 1];
-	}
-
-
-	int gray_v_left = 0;
-	int gray_v_right = gray_v_left + 1; //11
-	int gray_f_images = gray_v_left + 1; //11
-
-
-	printf("Compare left gray value (position %d) from left image (position %d)\n", gray_v_left, gray_f_images);
-	show_image_entry(&img_combined, gray_v_left, "img_combined_from_left");
-	show_image_entry(&img_left, gray_f_images, "img_left");
-	printf("\n");
-	printf("Compare left gray value (position %d) from right image (position %d)\n", gray_v_right, gray_f_images);
-	show_image_entry(&img_combined, gray_v_right, "img_combined_from_right");
-	show_image_entry(&img_right, gray_f_images, "img_right");
-	printf("\n\n");
-	*/
 
 }
 
