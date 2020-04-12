@@ -32,8 +32,8 @@
 extern "C" {
 #endif
 
-int save_image_gray(void *img, int width, int height);
-int save_image_color(void *img, int width, int height);
+int save_image_gray(void *img, int width, int height, char *myString);
+int save_image_color(void *img, int width, int height, char *myString);
 
 #ifdef __cplusplus
 }

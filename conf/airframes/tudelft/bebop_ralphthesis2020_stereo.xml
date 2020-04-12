@@ -86,7 +86,7 @@
   
       <define name="WEDGEBUG_CAMERA_LEFT_WIDTH" value = "240"/>
       <define name="WEDGEBUG_CAMERA_RIGHT_WIDTH" value = "240"/>
-      <define name="WEDGEBUG_CAMERA_COMBINED_WIDTH" value = "240"/>
+      <define name="WEDGEBUG_CAMERA_COMBINED_WIDTH" value = "480"/>
       
       <define name="WEDGEBUG_CAMERA_LEFT_HEIGHT" value = "240"/>
       <define name="WEDGEBUG_CAMERA_RIGHT_HEIGHT" value = "240"/>

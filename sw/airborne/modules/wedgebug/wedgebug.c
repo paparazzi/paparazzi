@@ -45,9 +45,13 @@
 // Define global variables
 struct image_t img_left;
 struct image_t img_right;
-struct image_t img_combined;
-uint8_t buf_left[WEDGEBUG_BUF_SIZE];
-uint8_t buf_right[WEDGEBUG_BUF_SIZE];
+
+struct image_t img_YY;
+struct image_t img_YY_left;
+struct image_t img_YY_right;
+
+uint8_t buf_left[WEDGEBUG_CAMERA_LEFT_HEIGHT * WEDGEBUG_CAMERA_LEFT_WIDTH];
+uint8_t buf_right[WEDGEBUG_CAMERA_RIGHT_HEIGHT * WEDGEBUG_CAMERA_RIGHT_WIDTH];
 //static pthread_mutex_t mutex;
 
 
@@ -56,15 +60,16 @@ uint8_t buf_right[WEDGEBUG_BUF_SIZE];
 // Functions - declaration
 static struct image_t *copy_left_img_func(struct image_t *img); // Function X: Copies left image into a buffer (buf_left)
 static struct image_t *copy_right_img_func(struct image_t *img); // Function X: Copies left image into a buffer (buf_right)
-const char* get_img_type(enum image_type img_type); // Function X: Displays image type
-void show_image_data(struct image_t *img); // Function X: Displays image data
+const char* get_img_type(enum image_type img_type); // Function 1: Displays image type
+void show_image_data(struct image_t *img); // Function 2: Displays image data
 void show_image_entry(struct image_t *img, int entry_position, const char *img_name);
+void split_YY_image(struct image_t *img_YY, struct image_t *img_gray_left_empty, struct image_t *img_gray_right_empty);
 
 
 
 // New section ----------------------------------------------------------------------------------------------------------------
 // Function - definition
-// Function x=
+// Function 1
 const char* get_img_type(enum image_type img_type)
 {
 	switch(img_type)
@@ -77,6 +82,8 @@ const char* get_img_type(enum image_type img_type)
 	}
 }
 
+
+// Function x
 void show_image_data(struct image_t *img)
 {
 	printf("Image-Type: %s\n", get_img_type(img->type));
@@ -86,12 +93,14 @@ void show_image_data(struct image_t *img)
 	printf("Image-Buf_Memory_Occupied: %lu\n", sizeof(img->buf));
 }
 
+
+// Function x
 void show_image_entry(struct image_t *img, int entry_position, const char *img_name)
 {
 	printf("Pixel %d value - %s: %d\n", entry_position, img_name ,((uint8_t*)img->buf)[entry_position]);
 }
 
-
+// Function x
 static struct image_t *copy_left_img_func(struct image_t *img)
 {
 	image_copy(img, &img_left);
@@ -110,6 +119,25 @@ static struct image_t *copy_right_img_func(struct image_t *img)
 	return img;
 }
 
+// Function x
+void split_YY_image(struct image_t *img_YY, struct image_t *img_gray_left_empty, struct image_t *img_gray_right_empty)
+{
+	if (img_gray_left_empty->w != (img_YY->w / 2) || img_gray_right_empty->w != (img_YY->w / 2)) {
+		printf("New images cannot be used to split YY image!\n");
+	    return;
+	  }
+
+	uint32_t j = 0;
+	for (uint32_t i = 0; i <  img_YY->buf_size; i +=2)
+	{
+		((uint8_t*) img_gray_left_empty->buf)[j] = ((uint8_t*) img_YY->buf)[i];
+		((uint8_t*) img_gray_right_empty->buf)[j+1] = ((uint8_t*) img_YY->buf)[i];
+
+
+		j++;
+	}
+}
+
 
 
 // New section ----------------------------------------------------------------------------------------------------------------
@@ -119,8 +147,12 @@ void wedgebug_init(){
 	// Creating empty images
 	image_create(&img_left, WEDGEBUG_CAMERA_LEFT_WIDTH, WEDGEBUG_CAMERA_LEFT_HEIGHT, IMAGE_YUV422);
 	image_create(&img_right, WEDGEBUG_CAMERA_RIGHT_WIDTH, WEDGEBUG_CAMERA_RIGHT_HEIGHT, IMAGE_YUV422);
-	image_create(&img_combined, WEDGEBUG_CAMERA_COMBINED_WIDTH, WEDGEBUG_CAMERA_COMBINED_HEIGHT, IMAGE_YUV422);
-	//show_image_data(&img_left);
+	image_create(&img_YY, WEDGEBUG_CAMERA_COMBINED_WIDTH, WEDGEBUG_CAMERA_COMBINED_HEIGHT, IMAGE_YUV422);
+
+	// Empty images below are created for tests
+	image_create(&img_YY_left, WEDGEBUG_CAMERA_LEFT_WIDTH, WEDGEBUG_CAMERA_LEFT_HEIGHT, IMAGE_GRAYSCALE);
+	image_create(&img_YY_right, WEDGEBUG_CAMERA_RIGHT_WIDTH, WEDGEBUG_CAMERA_RIGHT_HEIGHT, IMAGE_GRAYSCALE);
+
 
 	// Adding callback functions
 	cv_add_to_device(&WEDGEBUG_CAMERA_LEFT, copy_left_img_func, WEDGEBUG_CAMERA_LEFT_FPS);
@@ -134,41 +166,40 @@ void wedgebug_periodic(){
 
 	// Creating YlYr image from left and right YUV422 image
 
-
-	for (uint32_t i = 0; i < (img_combined.buf_size - 1); (i+=2))
-	{
-		((uint8_t*)img_combined.buf)[i] = ((uint8_t*)img_left.buf)[i + 1];
-		((uint8_t*)img_combined.buf)[i+1] = ((uint8_t*)img_right.buf)[i + 1];
-	}
-
-	//save_image_gray(img_combined.buf, 480, 240);
-	//save_image_color(img_combined.buf, img_combined.w, img_combined.h);
-
-	uint8_t buf_merged[240*240];
-
-	uint8_t max;
-	uint8_t min;
 	uint32_t j = 0;
-	for (uint32_t i = 1; i < ((240*240) - 1); (i+=1))
+	for (uint32_t i = 0; i < (img_YY.buf_size - 1); (i+=2))
 	{
-		buf_merged[i] = ((uint8_t*)img_combined.buf)[j];
-		j +=2;
+		((uint8_t*)img_YY.buf)[i] = ((uint8_t*)img_left.buf)[i + 1];
+		((uint8_t*)img_YY.buf)[i+1] = ((uint8_t*)img_right.buf)[i + 1];
 
-		if (i ==1){max = buf_merged[i]; min = buf_merged[i];}
-		else {
-			if(buf_merged[i] > max){max = buf_merged[i];}
-			if(buf_merged[i] < min){min = buf_merged[i];}
-		}
-
-
-		//printf("buf_merged[%d]: %d\n", i, buf_merged[i]);
-
+		//((uint8_t*)img_YY_left.buf)[j] = ((uint8_t*)img_left.buf)[i + 1];
+		//((uint8_t*)img_YY_right.buf)[j] = ((uint8_t*)img_right.buf)[i + 1];
+		j++;
 	}
-	printf("Before C++ function: Min=%d; Max=%d\n", min, max);
 
-	save_image_gray(buf_merged, 240, 240);
-	save_image_color(img_combined.buf, img_combined.w, img_combined.h);
+
+	image_to_grayscale(&img_left, &img_YY_left);
+	image_to_grayscale(&img_right, &img_YY_right);
+
+	save_image_gray(img_YY.buf, 480, 240, "/home/dureade/Documents/paparazzi_images/YY_stereo_image.bmp");
+	save_image_color(img_right.buf, img_right.w, img_right.h, "/home/dureade/Documents/paparazzi_images/color_image.bmp");
+
+	//split_YY_image(&img_YY, &img_YY_left, &img_YY_right);
+
+	save_image_gray(img_YY_left.buf, img_YY_left.w, img_YY_left.h, "/home/dureade/Documents/paparazzi_images/YY_stereo_left_image.bmp");
+	save_image_gray(img_YY_right.buf, img_YY_right.w, img_YY_right.h, "/home/dureade/Documents/paparazzi_images/YY_stereo_right_image.bmp");
+
+	printf("img_left.buf_size: %d\n", img_left.buf_size);
+	printf("img_YY_left.buf_size: %d", img_YY_left.buf_size);
+
+	//show_image_entry(&img_YY_right, 0 , "img_YY_right");
+	//show_image_entry(&img_right, 1 , "img_right");
+	//show_image_entry(&img_YY_left, 0 , "img_YY_left");
+	//show_image_entry(&img_left, 1 , "img_left");
+
+
 	printf("\n");
+
 
 
 	/*
