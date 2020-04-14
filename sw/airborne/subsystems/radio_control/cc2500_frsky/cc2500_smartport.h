@@ -8,6 +8,13 @@
 typedef bool smartPortDownlinkFn(uint32_t *data);
 extern smartPortDownlinkFn *smartPortDownlink;
 
+/* SmartPort uplink hook
+ * Called from processSmartPortTelemetry
+ */
+struct smartPortPayload_s;
+typedef void smartPortUplinkFn(struct smartPortPayload_s *payload);
+extern smartPortUplinkFn *smartPortUplink;
+
 // CAUTION: LARGE PARTS OF THIS FILE ARE COMMENTED OUT!
 // betaflight/src/main/telemetry/smartport.h @ 41492e1
 /*

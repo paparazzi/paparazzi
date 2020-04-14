@@ -12,11 +12,15 @@
 #undef USE_GPS
 #endif
 
-#define FSSP_DATAID_DOWNLINK 0x5015
 //#define FSSP_DATAID_DOWNLINK 0x0B71 // DEBUG
+#define FSSP_DATAID_DOWNLINK 0x5015
+#define FSSP_DATAID_UPLINK   0x5016
+
 smartPortDownlinkFn *smartPortDownlink = NULL;
+smartPortUplinkFn *smartPortUplink = NULL;
 
 // CAUTION: added DOWNLINK sensor to code below!
+// CAUTION: added payload handling to processSmartPortTelemetry
 // CAUTION: LARGE PARTS OF THIS FILE ARE COMMENTED OUT!
 // betaflight/src/main/telemetry/smartport.c @ 443869e
 /*
@@ -554,6 +558,10 @@ void processSmartPortTelemetry(smartPortPayload_t *payload, volatile bool *clear
 #else
     UNUSED(payload);
 #endif
+
+    if (smartPortUplink && payload && payload->valueId == FSSP_DATAID_UPLINK) {
+      smartPortUplink(payload);
+    }
 
     bool doRun = true;
     while (doRun && *clearToSend && !skipRequests) {

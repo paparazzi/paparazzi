@@ -21,29 +21,27 @@ local function downlink_bg()
       local value2 = math.floor(value / 256) % 256
       local value3 = value % 256
       serialWrite(string.char(value0) .. string.char(value1) .. string.char(value2) .. string.char(value3))
-      downlink_str = string.char(value0) .. string.char(value1) .. string.char(value2) .. string.char(value3)
+      downlink_str = string.format("0x %X %X %X %X", value0, value1, value2, value3)
     end
     sensorId, frameId, dataId, value = sportTelemetryPop()
   end
 end
 
-local uplink_buffer = ""
 local function uplink_bg()
--- Read bytes from serial
-  local free = 4 - string.len(uplink_buffer)
-  local in_str = serialRead(free)
-  if string.len(in_str) > 0 then
-    uplink_buffer = uplink_buffer .. in_str
-  end
-  -- Uplink if uplink buffer full
-  if string.len(uplink_buffer) == 4 then
+  local in_str = serialRead(4)
+  local len = string.len(in_str)
+  if len > 0 then
     local sensorId = 0
-    local frameId = 0
+    local frameId = len
     local dataId = 0x5016
-    local value = string.byte(uplink_buffer, 1) * 16777216 + string.byte(uplink_buffer, 2) * 65536 + string.byte(uplink_buffer, 3) * 256 + string.byte(uplink_buffer, 4)
+    local value = 0
+    local byte = 16777216
+    for i=1,len do
+      value = value + byte * string.byte(in_str, i)
+      byte = byte / 256
+    end
     sportTelemetryPush(sensorId, frameId, dataId, value)
-    uplink_str = uplink_buffer
-    uplink_buffer = ""
+    uplink_str = string.format("0x%X (%s)", value, frameId)
   end
 end
 

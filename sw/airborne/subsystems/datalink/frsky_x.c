@@ -145,6 +145,18 @@ static bool smartPortDownlink_cb(uint32_t *data) {
   return false;
 }
 
+#include "led.h"
+static void smartPortUplink_cb(smartPortPayload_t *payload) {
+  LED_TOGGLE(2);
+  uint32_t mask = 0xFF000000;
+  uint8_t shift = 24;
+  for (uint8_t i = 0; i < payload->frameId; ++i) {
+    fifo_put(&frsky_x_serial.uplink_fifo, (payload->data & mask) >> shift);
+    mask = mask >> 8;
+    shift -= 8;
+  }
+}
+
 
 void datalink_frsky_x_init(void) {
   /* Set up link device */
@@ -158,6 +170,7 @@ void datalink_frsky_x_init(void) {
   frsky_x_serial.device.char_available = frsky_x_serial_char_available;
   frsky_x_serial.device.get_byte = frsky_x_serial_get_byte;
 
-  /* Attach to SmartPort hook */
+  /* Attach to SmartPort hooks */
   smartPortDownlink = smartPortDownlink_cb;
+  smartPortUplink = smartPortUplink_cb;
 }
