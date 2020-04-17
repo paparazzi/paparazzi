@@ -527,7 +527,6 @@ bool initSmartPortTelemetryExternal(smartPortWriteFrameFn *smartPortWriteFrameEx
 //}
 //#endif
 
-#include "led.h"
 void processSmartPortTelemetry(smartPortPayload_t *payload, volatile bool *clearToSend, const timeUs_t *requestTimeout)
 {
     static uint8_t smartPortIdCycleCnt = 0;
