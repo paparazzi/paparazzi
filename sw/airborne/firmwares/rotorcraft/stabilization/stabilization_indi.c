@@ -421,7 +421,7 @@ static void stabilization_indi_calc_cmd(struct Int32Quat *att_err, bool rate_con
 
   // WLS Control Allocator
   num_iter =
-    wls_alloc(indi_du, indi_v, du_min, du_max, Bwls, INDI_NUM_ACT, INDI_OUTPUTS, 0, 0, Wv, 0, du_pref, 10000, 10);
+    wls_alloc(indi_du, indi_v, du_min, du_max, Bwls, 0, 0, Wv, 0, du_pref, 10000, 10);
 #endif
 
   // Add the increments to the actuators

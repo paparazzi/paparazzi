@@ -57,5 +57,5 @@ void qr_solve_wrapper(int m, int n, float** A, float* b, float* x);
  * @return Number of iterations, -1 upon failure
  */
 int wls_alloc(float* u, float* v, float* umin, float* umax, float** B,
-              int n_u, int n_w, float* u_guess, float* W_init, float* Wv,
-              float* Wu, float* ud, float gamma, int imax);
+              float* u_guess, float* W_init, float* Wv, float* Wu,
+              float* ud, float gamma, int imax);
