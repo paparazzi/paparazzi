@@ -27,21 +27,33 @@ local function downlink_bg()
   end
 end
 
+local uplink_buf = ""
 local function uplink_bg()
-  local in_str = serialRead(4)
-  local len = string.len(in_str)
-  if len > 0 then
-    local sensorId = 0
-    local frameId = len
+  if string.len(uplink_buf) == 0 then
+    -- Grab new data from the serial line
+    uplink_buf = serialRead(4)
+  end
+  if string.len(uplink_buf) > 0 then
+    -- Data ready to transmit
+    local sensorId = 0x0D  -- see smartport.c::smartPortDataReceive
+    local frameId = string.len(uplink_buf)
     local dataId = 0x5016
     local value = 0
     local byte = 16777216
-    for i=1,len do
-      value = value + byte * string.byte(in_str, i)
+    for i=1,string.len(uplink_buf) do
+      value = value + byte * string.byte(uplink_buf, i)
       byte = byte / 256
     end
-    sportTelemetryPush(sensorId, frameId, dataId, value)
-    uplink_str = string.format("0x%X (%s)", value, frameId)
+    -- DEBUG
+--    frameId = 2
+--    value = 0xABCDEF12
+    -- DEBUG
+    local ret = sportTelemetryPush(sensorId, frameId, dataId, value)
+    if ret then
+      -- Uplink successful, signal that new data can be read
+      uplink_buf = ""
+      uplink_str = string.format("0x%X (%s)", value, frameId)
+    end
   end
 end
 
@@ -55,6 +67,7 @@ local function run_func(event)
   lcd.drawText(1, 1, "sp2ser is running...")
   lcd.drawText(1, 11, "Downlink: '" .. downlink_str .. "'")
   lcd.drawText(1, 21, "Uplink: '" .. uplink_str .. "'")
+  lcd.drawText(1, 31, "Push err cnt: " .. tostring(push_err_cnt))
 end
 
 return {run = run_func, background = bg_func, init = init_func}

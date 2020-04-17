@@ -24,6 +24,8 @@
 
 #include <string.h>
 
+#include "led.h"
+
 static uint32_t counter = 0;
 
 struct frsky_x_serial_periph frsky_x_serial;
@@ -145,14 +147,11 @@ static bool smartPortDownlink_cb(uint32_t *data) {
   return false;
 }
 
-#include "led.h"
+
 static void smartPortUplink_cb(smartPortPayload_t *payload) {
-  LED_TOGGLE(2);
-  uint32_t mask = 0xFF000000;
   uint8_t shift = 24;
   for (uint8_t i = 0; i < payload->frameId; ++i) {
-    fifo_put(&frsky_x_serial.uplink_fifo, (payload->data & mask) >> shift);
-    mask = mask >> 8;
+    fifo_put(&frsky_x_serial.uplink_fifo, (uint8_t)((payload->data >> shift) & 0xFF));
     shift -= 8;
   }
 }

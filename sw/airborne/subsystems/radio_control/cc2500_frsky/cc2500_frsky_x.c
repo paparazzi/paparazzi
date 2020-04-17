@@ -9,6 +9,8 @@
 #include "cc2500_frsky_x.h"
 #include "cc2500_smartport.h"
 
+#include "led.h"
+
 #define UNUSED(x) (void)(x)
 
 // betaflight/src/main/rx/cc2500_frsky_x.c @ e78f976
