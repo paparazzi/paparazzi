@@ -29,9 +29,10 @@ end
 
 local uplink_buf = ""
 local function uplink_bg()
-  if string.len(uplink_buf) == 0 then
-    -- Grab new data from the serial line
-    uplink_buf = serialRead(4)
+  if string.len(uplink_buf) < 4 then
+    -- Grab new/more data from the serial line
+    local new_bytes = serialRead(4 - string.len(uplink_buf))
+    uplink_buf = uplink_buf .. new_bytes
   end
   if string.len(uplink_buf) > 0 then
     -- Data ready to transmit
@@ -67,7 +68,6 @@ local function run_func(event)
   lcd.drawText(1, 1, "sp2ser is running...")
   lcd.drawText(1, 11, "Downlink: '" .. downlink_str .. "'")
   lcd.drawText(1, 21, "Uplink: '" .. uplink_str .. "'")
-  lcd.drawText(1, 31, "Push err cnt: " .. tostring(push_err_cnt))
 end
 
 return {run = run_func, background = bg_func, init = init_func}
