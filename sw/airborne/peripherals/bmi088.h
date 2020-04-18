@@ -35,13 +35,13 @@
 /// Default gyro full scale range +- 1000°/s
 #define BMI088_DEFAULT_GYRO_RANGE BMI088_GYRO_RANGE_1000
 /// Default gyro output rate
-#define BMI088_DEFAULT_GYRO_ODR BMI088_GYRO_ODR_400_BW_47
+#define BMI088_DEFAULT_GYRO_ODR BMI088_GYRO_ODR_1000_BW_116
 /// Default accel full scale range +- 6g
-#define BMI088_DEFAULT_ACCEL_RANGE BMI088_ACCEL_RANGE_6G
+#define BMI088_DEFAULT_ACCEL_RANGE BMI088_ACCEL_RANGE_12G
 /// Default accel output rate
-#define BMI088_DEFAULT_ACCEL_ODR BMI088_ACCEL_ODR_400
+#define BMI088_DEFAULT_ACCEL_ODR BMI088_ACCEL_ODR_1600
 /// Default accel bandwidth
-#define BMI088_DEFAULT_ACCEL_BW BMI088_ACCEL_BW_NORMAL
+#define BMI088_DEFAULT_ACCEL_BW BMI088_ACCEL_BW_OSR4
 
 /** default gyro sensitivy from the datasheet
  * sens = 1/ [LSB/(deg/s)] * pi/180 * 2^INT32_RATE_FRAC
@@ -71,21 +71,21 @@ extern const int32_t BMI088_GYRO_SENS_FRAC[5][2];
 
 /** default accel sensitivy from the datasheet
  * sens = 9.81 [m/s^2] / [LSB/g] * 2^INT32_ACCEL_FRAC
- * ex: BMI with 8g has 4096 LSB/g
- *     sens = 9.81 [m/s^2] / 4096 [LSB/g] * 2^INT32_ACCEL_FRAC = 2.4525
+ * ex: BMI with 6g has 5460 LSB/g
+ *     sens = 9.81 [m/s^2] / 5460 [LSB/g] * 2^INT32_ACCEL_FRAC = 1.83982
  */
 // FIXME
-#define BMI088_ACCEL_SENS_3G 0.919687
-#define BMI088_ACCEL_SENS_3G_NUM 9197
+#define BMI088_ACCEL_SENS_3G 0.919912
+#define BMI088_ACCEL_SENS_3G_NUM 9199
 #define BMI088_ACCEL_SENS_3G_DEN 10000
-#define BMI088_ACCEL_SENS_6G 1.83937
-#define BMI088_ACCEL_SENS_6G_NUM 18394
+#define BMI088_ACCEL_SENS_6G 1.83982
+#define BMI088_ACCEL_SENS_6G_NUM 18398
 #define BMI088_ACCEL_SENS_6G_DEN 10000
-#define BMI088_ACCEL_SENS_12G 3.67875
-#define BMI088_ACCEL_SENS_12G_NUM 36787
+#define BMI088_ACCEL_SENS_12G 3.67965
+#define BMI088_ACCEL_SENS_12G_NUM 36797
 #define BMI088_ACCEL_SENS_12G_DEN 10000
-#define BMI088_ACCEL_SENS_24G 7.3575
-#define BMI088_ACCEL_SENS_24G_NUM 7357
+#define BMI088_ACCEL_SENS_24G 7.3593
+#define BMI088_ACCEL_SENS_24G_NUM 7359
 #define BMI088_ACCEL_SENS_24G_DEN 1000
 
 // Get default sensitivity from a table

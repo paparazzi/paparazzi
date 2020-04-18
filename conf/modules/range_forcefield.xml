@@ -23,7 +23,7 @@
     </dl_settings>
   </settings>
   
-  <depends>laser_range_array</depends>
+  <depends>laser_range_array|cf_deck_multi_ranger</depends>
 
   <header>
     <file name="range_forcefield.h"/>
