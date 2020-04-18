@@ -37,7 +37,15 @@ extern "C"
 {
 #endif
 
+#define VL53L1_DEFAULT_ADDRESS 0x52
 
+enum VL53L1_ReadStatus {
+  VL53L1_READ_IDLE,
+  VL53L1_READ_DATA_READY,
+  VL53L1_READ_STATUS,
+  VL53L1_READ_DISTANCE,
+  VL53L1_CLEAR_INT
+};
 
 typedef struct {
   struct i2c_periph *i2c_p;
@@ -49,6 +57,7 @@ typedef struct {
     uint8_t state;
     uint8_t IntPol;
   } nonblocking;
+  enum VL53L1_ReadStatus read_status;
 } VL53L1_Dev_t;
 
 typedef VL53L1_Dev_t *VL53L1_DEV;

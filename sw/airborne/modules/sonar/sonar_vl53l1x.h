@@ -34,5 +34,6 @@ extern struct sonar_vl53l1x_dev sonar_vl53l1x;
 
 extern void sonar_vl53l1x_init(void);
 extern void sonar_vl53l1x_read(void);
+extern void sonar_vl53l1x_event(void);
 
 #endif
