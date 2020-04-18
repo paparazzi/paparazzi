@@ -42,7 +42,7 @@ PPRZ_MUTEX(syslink_tx_mtx);
 static void send_message(syslink_message_t *msg)
 {
   syslink_compute_cksum(msg);
-  uint8_t buf[sizeof(syslink_message_t)];
+  uint8_t buf[sizeof(syslink_message_t)+2];
   buf[0] = syslink_stx[0];
   buf[1] = syslink_stx[1];
   buf[2] = msg->type;
