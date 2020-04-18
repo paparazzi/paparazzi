@@ -49,6 +49,7 @@ struct image_t img_right;
 struct image_t img_YY;
 struct image_t img_YY_left;
 struct image_t img_YY_right;
+struct image_t img_depth;
 //static pthread_mutex_t mutex;
 
 
@@ -62,7 +63,8 @@ void show_image_entry(struct image_t *img, int entry_position, const char *img_n
 //Core
 static struct image_t *copy_left_img_func(struct image_t *img); // Function 1: Copies left image into a buffer (buf_left)
 static struct image_t *copy_right_img_func(struct image_t *img); // Function 2: Copies left image into a buffer (buf_right)
-void stereo_UYVY_to_YY(struct image_t *YY, struct image_t *left, struct image_t *right); // Function 3: Copies gray pixel values of left and right UYVY images into merged YY image
+void UYVYs_interlacing_V(struct image_t *YY, struct image_t *left, struct image_t *right); // Function 3: Copies gray pixel values of left and right UYVY images into merged YY image
+void UYVYs_interlacing_H(struct image_t *merged, struct image_t *left, struct image_t *right);
 
 
 
@@ -123,7 +125,7 @@ static struct image_t *copy_right_img_func(struct image_t *img)
 
 
 // Function 3
-void stereo_UYVY_to_YY(struct image_t *merged, struct image_t *left, struct image_t *right)
+void UYVYs_interlacing_V(struct image_t *merged, struct image_t *left, struct image_t *right)
 {
 	// Error messages
 	if (left->w != right->w || left->h != right->h)
@@ -165,14 +167,60 @@ void stereo_UYVY_to_YY(struct image_t *merged, struct image_t *left, struct imag
 
 
 
+// Function 3
+void UYVYs_interlacing_H(struct image_t *merged, struct image_t *left, struct image_t *right)
+{
+	// Error messages
+	if (left->w != right->w || left->h != right->h)
+	{
+		printf("The dimensions of the left and right image to not match!");
+		return;
+	}
+	if ((merged->w * merged->h) != (2 * right->w) * right->w)
+	{
+		printf("The dimensions of the empty image template for merger are not sufficient to merge gray left and right pixel values.");
+		return;
+	}
+
+	uint8_t *UYVY_left = left->buf;
+	uint8_t *UYVY_right = right->buf;
+	uint8_t *YY1 = merged->buf; // points to first row for pixels of left image
+	uint8_t *YY2 = YY1 + merged->w; // points to second row for pixels of right image
+
+	// Incrementing pointers to get to first gray value of the UYVY images
+	UYVY_left++;
+	UYVY_right++;
+
+	for (uint32_t i = 0; i < left->h; i++)
+	{
+		//printf("Loop 1: %d\n", i);
+		for (uint32_t j = 0; j < left->w; j++)
+		{
+			//printf("Loop 1: %d\n", j);
+			*YY1 = *UYVY_left;
+			*YY2 = *UYVY_right;
+			YY1++;
+			YY2++;
+			UYVY_left+=2;
+			UYVY_right+=2;
+		}
+		YY1 += merged->w; // Jumping pointer to second next row (i.e. over row with pixels from right image)
+		YY2 += merged->w; // Jumping pointer to second next row (i.e. over row with pixels from left image)
+	}
+}
+
+
+
+
 // New section ----------------------------------------------------------------------------------------------------------------
 void wedgebug_init(){
 	//printf("Wedgebug init function was called\n");
 
 	// Creating empty images
-	image_create(&img_left, WEDGEBUG_CAMERA_LEFT_WIDTH, WEDGEBUG_CAMERA_LEFT_HEIGHT, IMAGE_YUV422);
-	image_create(&img_right, WEDGEBUG_CAMERA_RIGHT_WIDTH, WEDGEBUG_CAMERA_RIGHT_HEIGHT, IMAGE_YUV422);
-	image_create(&img_YY, WEDGEBUG_CAMERA_COMBINED_WIDTH, WEDGEBUG_CAMERA_COMBINED_HEIGHT, IMAGE_YUV422);
+	image_create(&img_left, WEDGEBUG_CAMERA_LEFT_WIDTH, WEDGEBUG_CAMERA_LEFT_HEIGHT, IMAGE_YUV422); // To store left camera image
+	image_create(&img_right,WEDGEBUG_CAMERA_RIGHT_WIDTH, WEDGEBUG_CAMERA_RIGHT_HEIGHT, IMAGE_YUV422);// To store right camera image
+	image_create(&img_YY,WEDGEBUG_CAMERA_INTERLACED_WIDTH, WEDGEBUG_CAMERA_INTERLACED_HEIGHT, IMAGE_GRAYSCALE);// To store interlaced image
+	image_create(&img_depth,240, 240, IMAGE_GRAYSCALE);// To store depth
 
 	// Empty images below are created for tests
 	image_create(&img_YY_left, WEDGEBUG_CAMERA_LEFT_WIDTH, WEDGEBUG_CAMERA_LEFT_HEIGHT, IMAGE_GRAYSCALE);
@@ -189,7 +237,8 @@ void wedgebug_periodic(){
   // freq = 4.0 Hz
 	//printf("Wedgebug periodic function was called\n");
 
-	stereo_UYVY_to_YY(&img_YY, &img_left, &img_right); // Creating YlYr image from left and right YUV422 image
+	//UYVYs_interlacing_V(&img_YY, &img_left, &img_right); // Creating YlYr image from left and right YUV422 image
+	UYVYs_interlacing_H(&img_YY, &img_left, &img_right);
 	image_to_grayscale(&img_left, &img_YY_left); // Converting left image from UYVY to gray scale for saving function
 	image_to_grayscale(&img_right, &img_YY_right); // Converting right image from UYVY to gray scale for saving function
 
@@ -197,7 +246,14 @@ void wedgebug_periodic(){
 	save_image_gray(img_YY_left.buf, img_YY_left.w, img_YY_left.h, "/home/dureade/Documents/paparazzi_images/YY_stereo_left_image.bmp");
 	save_image_gray(img_YY_right.buf, img_YY_right.w, img_YY_right.h, "/home/dureade/Documents/paparazzi_images/YY_stereo_right_image.bmp");
 
-	//printf("img_left.buf_size: %d\n", img_left.buf_size);
+	SBM(&img_YY_left, &img_YY_right ,&img_depth , 16, 25);
+
+	save_image_gray(img_depth.buf, img_depth.w, img_depth.h, "/home/dureade/Documents/paparazzi_images/image_disparity.bmp");
+
+	//printf("img_YY.buf_size: %d\n", img_YY.buf_size);
+	//printf("img_YY.buf_size: %d\n", img_YY.h);
+	//printf("img_YY.buf_size: %d\n", img_YY.w);
+	//printf("img_YY.buf_size: %d\n", img_left.buf_size);
 	//printf("img_YY_left.buf_size: %d", img_YY_left.buf_size);
 	//show_image_entry(&img_YY_right, 0 , "img_YY_right");
 	//show_image_entry(&img_right, 1 , "img_right");

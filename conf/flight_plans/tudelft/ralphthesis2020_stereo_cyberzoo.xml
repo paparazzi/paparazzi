@@ -6,7 +6,7 @@
     #include "subsystems/electrical.h"
     #include "subsystems/radio_control.h"
     #include "subsystems/ahrs.h"
-    #define NPS_GAZEBO_WORLD "cyberzoo_orange_poles.world"
+    #define NPS_GAZEBO_WORLD "cyberzoo2019_orange_poles_panels_mats.world" <!-- Used to be:cyberzoo_orange_poles.world" -->
 </header>
   <waypoints>
     <waypoint lat="51.990631" lon="4.376796" name="HOME"/>

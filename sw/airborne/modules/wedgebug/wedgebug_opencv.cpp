@@ -30,7 +30,12 @@ using namespace std;
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/imgcodecs/imgcodecs.hpp>
+#include <opencv2/calib3d/calib3d.hpp>
+#include <iostream>
 using namespace cv;
+
+
+
 
 
 int save_image_gray(void *img, int width, int height, char *myString)
@@ -70,14 +75,79 @@ int save_image_color(void *img, int width, int height,char *myString)
 
 	// Code below is for testing
 
-	/*
+
 	double minVal;
 	double maxVal;
 	Point minLoc;
 	Point maxLoc;
 	minMaxLoc(image ,&minVal, &maxVal, &minLoc, &maxLoc);
 	std::cout << "Left1: Min=" << minVal << "; Max=" << maxVal << std::endl;
-	*/
+
   return 0;
 }
+
+/*
+
+int BM(void *img_left,void *img_right, void *img_output, int width, int height)
+{
+	return0
+
+
+}
+*/
+
+int SBM(struct image_t *left, image_t *right, image_t *matched, int ndisparities, int SADWindowSize)
+{
+
+	Mat img_left(left->h, left->w, CV_8UC1, left->buf);
+	Mat img_right(right->h, right->w, CV_8UC1, right->buf);
+	Mat img_depth;
+	Mat img_depth_norm;
+	double minVal;
+	double maxVal;
+
+
+
+	Ptr<StereoBM> sbm = StereoBM::create(ndisparities, SADWindowSize);
+	//sbm->setMinDisparity(0);
+	sbm->compute(img_left, img_right, img_depth); //type of img_depth is CV_16U
+	img_depth.convertTo(img_depth_norm, CV_8UC1);
+	minMaxLoc(img_depth_norm ,&minVal, &maxVal);
+
+	int min = 255;
+	//int i = 0;
+
+	// Demonstrating depth calculation
+	// Get minimum value (which is not 0)
+	for (int i =0; i < img_depth_norm.rows * img_depth_norm.cols; i++)
+	{
+		if (img_depth_norm.data[i] < min && img_depth_norm.data[i] != 0)
+		{
+			min = img_depth_norm.data[i];
+
+		}
+	}
+	int depth = ((WEDGEBUG_CAMERA_BASELINE * WEDGEBUG_CAMERA_FOCAL_LENGTH) / min) / 10;
+	std::cout << "max depth in cm: " << depth << std::endl;
+
+
+	//img_depth.convertTo(img_depth_norm, CV_8UC1, 255/(maxVal - minVal));
+
+	//std::cout << minVal << ":" << maxVal << std::endl;
+	//std::cout << "Height : Width  - matched input: " << matched->h << " : " << matched->w << std::endl;
+	//std::cout << "Height Width  - opencCV CV_8UC1: " << img_depth_norm.rows << " : " << img_depth_norm.cols << std::endl;
+
+	for (int i = 0; i < (matched->w * matched->h); i++)
+	{
+		((uint8_t*)matched->buf)[i]  = img_depth_norm.data[i];
+	}
+
+
+
+
+	return 0;
+}
+
+
+
 
