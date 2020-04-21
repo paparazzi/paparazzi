@@ -1,0 +1,15 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="opticflow_pmw3901" dir="sensors">
+  <doc>
+    <description>Driver for PMW3901 optical flow sensor</description>
+  </doc>
+  <header>
+    <file name="opticflow_pmw3901.h"/>
+  </header>
+  <event fun="opticflow_pmw3901_event()"/>
+  <makefile>
+    <file name="opticflow_pmw3901.c"/>
+  </makefile>
+</module>
+
