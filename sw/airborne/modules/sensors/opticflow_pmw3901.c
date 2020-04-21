@@ -25,6 +25,14 @@
 
 #include "modules/sensors/opticflow_pmw3901.h"
 
+#include "peripherals/pmw3901.h"
+
+struct pmw3901_t pmw;
+
+extern void opticflow_pmw3901_init(void) {
+  pmw3901_init(&pmw, &OPTICFLOW_PMW3901_SPI_DEV, OPTICFLOW_PMW3901_SPI_SLAVE_IDX);
+}
+
 void opticflow_pmw3901_event(void) {
 
 }

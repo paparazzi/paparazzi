@@ -22,3 +22,47 @@
  * @author Tom van Dijk
  * Low-level driver for PMW3901 optical flow sensor
  */
+
+#ifndef PMW3901_H_
+#define PMW3901_H_
+
+#include "mcu_periph/spi.h"
+
+#include <stdbool.h>
+
+
+#define SPI_BUFFER_SIZE 5
+
+
+enum pmw3901_state {
+  PMW3901_IDLE,
+  PMW3901_SPI_SUBMIT,
+  PMW3901_SPI_READ,
+//  PMW3901_READ_DELTAXLOW,  // First try reading all values in 1 transaction
+//  PMW3901_READ_DELTAXHIGH,
+//  PMW3901_READ_DELTAYLOW,
+//  PMW3901_READ_DELTAYHIGH,
+};
+
+struct pmw3901_t {
+  struct spi_periph *periph;
+  struct spi_transaction trans;
+  volatile uint8_t spi_input_buf[SPI_BUFFER_SIZE];
+  volatile uint8_t spi_output_buf[SPI_BUFFER_SIZE];
+  enum pmw3901_state state;
+  int16_t delta_x;
+  int16_t delta_y;
+  bool data_available;
+};
+
+void pmw3901_init(struct pmw3901_t *pmw, struct spi_periph *periph, uint8_t slave_idx);
+
+void pmw3901_event(struct pmw3901_t *pmw);
+
+void pmw3901_start_read(struct pmw3901_t *pmw);
+bool pmw3901_data_available(struct pmw3901_t *pmw);
+void pmw3901_get_data(struct pmw3901_t *pmw, int16_t *delta_x, int16_t *delta_y);
+
+
+
+#endif // PMW3901_H_
