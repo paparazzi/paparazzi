@@ -59,9 +59,10 @@ void pmw3901_init(struct pmw3901_t *pmw, struct spi_periph *periph, uint8_t slav
 
 void pmw3901_event(struct pmw3901_t *pmw);
 
+bool pmw3901_is_idle(struct pmw3901_t *pmw);
 void pmw3901_start_read(struct pmw3901_t *pmw);
 bool pmw3901_data_available(struct pmw3901_t *pmw);
-void pmw3901_get_data(struct pmw3901_t *pmw, int16_t *delta_x, int16_t *delta_y);
+bool pmw3901_get_data(struct pmw3901_t *pmw, int16_t *delta_x, int16_t *delta_y);
 
 
 

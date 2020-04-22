@@ -27,6 +27,7 @@
 #define OPTICFLOW_PMW3901_H
 
 extern void opticflow_pmw3901_init(void);
+extern void opticflow_pmw3901_periodic(void);
 extern void opticflow_pmw3901_event(void);
 
 #endif

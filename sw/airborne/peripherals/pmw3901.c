@@ -31,6 +31,12 @@
 #include "mcu_periph/sys_time.h"
 
 
+#define PMW3901_REG_DELTA_X_L  0x03
+#define PMW3901_REG_DELTA_X_H  0x04
+#define PMW3901_REG_DELTA_Y_L  0x05
+#define PMW3901_REG_DELTA_Y_H  0x06
+
+
 // Blocking read/write functions
 static uint8_t readRegister_blocking(struct pmw3901_t *pmw, uint8_t addr) {
   pmw->trans.output_buf[0] = addr;
@@ -183,7 +189,7 @@ void pmw3901_init(struct pmw3901_t *pmw, struct spi_periph *periph, uint8_t slav
   pmw->trans.cpha = SPICphaEdge1;
   pmw->trans.dss = SPIDss8bit;
   pmw->trans.bitorder = SPIMSBFirst;
-  pmw->trans.cdiv = SPIDiv16;  // TODO verify
+  pmw->trans.cdiv = SPIDiv256;  // TODO verify
   pmw->trans.before_cb = NULL;
   pmw->trans.after_cb = NULL;
   pmw->trans.status = SPITransDone;
@@ -199,27 +205,50 @@ void pmw3901_init(struct pmw3901_t *pmw, struct spi_periph *periph, uint8_t slav
 void pmw3901_event(struct pmw3901_t *pmw) {
   switch (pmw->state) {
     case PMW3901_IDLE:
-      // Do nothing
-      break;
+      /* Do nothing */
+      return;
     case PMW3901_SPI_SUBMIT:
       // Submit SPI transaction
-      break;
+      pmw->trans.output_buf[0] = PMW3901_REG_DELTA_X_L;
+      pmw->trans.output_buf[1] = PMW3901_REG_DELTA_X_H;
+      pmw->trans.output_buf[2] = PMW3901_REG_DELTA_Y_L;
+      pmw->trans.output_buf[3] = PMW3901_REG_DELTA_Y_H;
+      pmw->trans.output_length = 4;
+      pmw->trans.input_length = 5;
+      spi_submit(pmw->periph, &pmw->trans);
+      pmw->state = PMW3901_SPI_READ;
+      /* Falls through. */
     case PMW3901_SPI_READ:
       // Wait for SPI transaction to complete
-      break;
+      if (pmw->trans.status == SPITransPending || pmw->trans.status == SPITransRunning) return;
+      // Read data
+      pmw->delta_x = (pmw->trans.input_buf[2] << 8) | pmw->trans.input_buf[1];
+      pmw->delta_y = (pmw->trans.input_buf[4] << 8) | pmw->trans.input_buf[3];
+      pmw->data_available = true;
+      pmw->state = PMW3901_IDLE;
+      return;
+    default: return;
   }
 }
 
-void pmw3901_start_read(struct pmw3901_t *pmw){
-  if (pmw->state == PMW3901_IDLE) {
+bool pmw3901_is_idle(struct pmw3901_t *pmw) {
+  return pmw->state == PMW3901_IDLE;
+}
+
+void pmw3901_start_read(struct pmw3901_t *pmw) {
+  if (pmw3901_is_idle(pmw)) {
     pmw->state = PMW3901_SPI_SUBMIT;
   }
 }
 
 bool pmw3901_data_available(struct pmw3901_t *pmw) {
-  return false;
+  return pmw->data_available;
 }
 
-void pmw3901_get_data(struct pmw3901_t *pmw, int16_t *delta_x, int16_t *delta_y) {
-
+bool pmw3901_get_data(struct pmw3901_t *pmw, int16_t *delta_x, int16_t *delta_y) {
+  if (!pmw->data_available) return false;
+  *delta_x = pmw->delta_x;
+  *delta_y = pmw->delta_y;
+  pmw->data_available = false;
+  return true;
 }

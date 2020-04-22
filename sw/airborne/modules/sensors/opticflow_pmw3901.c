@@ -27,14 +27,27 @@
 
 #include "peripherals/pmw3901.h"
 
+
 struct pmw3901_t pmw;
 
-extern void opticflow_pmw3901_init(void) {
+
+void opticflow_pmw3901_init(void) {
   pmw3901_init(&pmw, &OPTICFLOW_PMW3901_SPI_DEV, OPTICFLOW_PMW3901_SPI_SLAVE_IDX);
 }
 
-void opticflow_pmw3901_event(void) {
+void opticflow_pmw3901_periodic(void) {
+  if (pmw3901_is_idle(&pmw)) {
+    pmw3901_start_read(&pmw);
+  }
+}
 
+void opticflow_pmw3901_event(void) {
+  pmw3901_event(&pmw);
+  if (pmw3901_data_available(&pmw)) {
+    int16_t delta_x, delta_y;
+    pmw3901_get_data(&pmw, &delta_x, &delta_y);
+    // TODO publish
+  }
 }
 
 
