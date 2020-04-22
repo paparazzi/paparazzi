@@ -28,17 +28,24 @@
 
 
 
-//
-
+// Including library for types
+#include <stdint.h>
 
 int save_image_gray(void *img, int width, int height, char *myString);
 int save_image_color(void *img, int width, int height, char *myString);
 
-
-
-
+// Periodic-type functions
 extern void wedgebug_init(void);
 extern void wedgebug_periodic(void);
+
+// Global variables - Defines as settings
+extern int N_disparities;
+extern int block_size_disparities;
+extern int min_disparity;
+extern int max_disparity;
+
+// Global functions
+void post_disparity_crop_rect(uint16_t* height_start, uint16_t* height_offset, uint16_t* width_start, uint16_t* width_offset, const uint16_t height_old,const uint16_t width_old, const int disp_n, const int block_size);
 
 
 

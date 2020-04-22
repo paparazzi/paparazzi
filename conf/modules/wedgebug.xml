@@ -7,7 +7,15 @@
     <define name="WEDGEBUG_CAMERA_RIGHT" value="front_camera|bottom_camera" description="Video device to use"/>
 
   </doc>
-  <settings/>
+  <settings>
+    <dl_settings>
+      <dl_settings name="Dispariy">
+        <dl_setting var="N_disparities" min="0" step="16" max = "800" shortname="N_disparities"/>
+        <dl_setting var="block_size_disparities" min="9" step="2" max = "250" shortname="block_size"/>
+        <dl_setting var="min_disparity" min="-10" step="1" max = "30" shortname="min_disparity"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
   <header>
     <file name="wedgebug.h"/>
   </header>

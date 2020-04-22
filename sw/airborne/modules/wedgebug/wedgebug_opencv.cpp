@@ -26,12 +26,13 @@
 
 #include "wedgebug_opencv.h"
 
-using namespace std;
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/imgcodecs/imgcodecs.hpp>
 #include <opencv2/calib3d/calib3d.hpp>
 #include <iostream>
+#include <stdint.h>
+
 using namespace cv;
 
 
@@ -44,6 +45,35 @@ int save_image_gray(void *img, int width, int height, char *myString)
 	Mat M(height, width, CV_8UC1, img);
 	// Savin image to my documents
 	imwrite(myString, M);
+
+
+
+
+
+
+	int total = 0;
+	int j = 0;
+
+	for (int i = 0; i < (M.cols * M.rows); i++)
+	{
+		if (i % 10000 == 0)
+		{
+			std::cout << "Save:i position: " << i << std::endl;
+			std::cout << "Save: Entry in position i in new image: " << + M.data[i] << std::endl;
+			std::cout << "Save: Entry in position i in old image: " << +((uint8_t*)img)[i] << std::endl;
+
+		}
+		j++;
+		total = total + M.data[i];
+	}
+
+
+	std::cout << "*img dims: " << height << ":" << width << std::endl;
+	std::cout << "M: " << M.rows << ":" << M.cols << std::endl;
+	std::cout << "j: " << j << std::endl;
+	std::cout << "total: " << total << std::endl;
+
+
 
 	// Code below is for testing
 	/*
@@ -96,9 +126,10 @@ int BM(void *img_left,void *img_right, void *img_output, int width, int height)
 }
 */
 
-int SBM(struct image_t *left, image_t *right, image_t *matched, int ndisparities, int SADWindowSize)
+int SBM(struct image_t *left, struct image_t *right, struct image_t *matched, int ndisparities, int SADWindowSize, bool cropped)
 {
 
+	// Defining variables
 	Mat img_left(left->h, left->w, CV_8UC1, left->buf);
 	Mat img_right(right->h, right->w, CV_8UC1, right->buf);
 	Mat img_depth;
@@ -112,7 +143,9 @@ int SBM(struct image_t *left, image_t *right, image_t *matched, int ndisparities
 	//sbm->setMinDisparity(0);
 	sbm->compute(img_left, img_right, img_depth); //type of img_depth is CV_16U
 	img_depth.convertTo(img_depth_norm, CV_8UC1);
-	minMaxLoc(img_depth_norm ,&minVal, &maxVal);
+	minMaxLoc(img_depth ,&minVal, &maxVal);
+	//std::cout << "min: max disparity = " << minVal << ":" << maxVal << std::endl;
+
 
 	int min = 255;
 	//int i = 0;
@@ -127,8 +160,8 @@ int SBM(struct image_t *left, image_t *right, image_t *matched, int ndisparities
 
 		}
 	}
-	int depth = ((WEDGEBUG_CAMERA_BASELINE * WEDGEBUG_CAMERA_FOCAL_LENGTH) / min) / 10;
-	std::cout << "max depth in cm: " << depth << std::endl;
+	//int depth = ((WEDGEBUG_CAMERA_BASELINE * WEDGEBUG_CAMERA_FOCAL_LENGTH) / min) / 10;
+	//std::cout << "max depth in cm: " << depth << std::endl;
 
 
 	//img_depth.convertTo(img_depth_norm, CV_8UC1, 255/(maxVal - minVal));
@@ -137,13 +170,63 @@ int SBM(struct image_t *left, image_t *right, image_t *matched, int ndisparities
 	//std::cout << "Height : Width  - matched input: " << matched->h << " : " << matched->w << std::endl;
 	//std::cout << "Height Width  - opencCV CV_8UC1: " << img_depth_norm.rows << " : " << img_depth_norm.cols << std::endl;
 
-	for (int i = 0; i < (matched->w * matched->h); i++)
+	if (cropped == 0)
 	{
-		((uint8_t*)matched->buf)[i]  = img_depth_norm.data[i];
+		for (int i = 0; i < (matched->w * matched->h); i++)
+			{
+				((uint8_t*)matched->buf)[i]  = img_depth_norm.data[i];
+			}
 	}
+	else if (cropped == 1)
+	{
+		uint16_t rec_y;
+		uint16_t rec_height;
+		uint16_t rec_x;
+		uint16_t rec_width;
+
+		post_disparity_crop_rect(&rec_y, &rec_height,&rec_x, &rec_width, left->h, left->w,  ndisparities, SADWindowSize);
+
+		std::cout << "y: " << rec_y << std::endl;
+		std::cout << "height: " << rec_height << std::endl;
+		std::cout << "x: " << rec_x << std::endl;
+		std::cout << "width: " << rec_width << std::endl;
+
+
+		Rect crop_area = Rect(rec_x, rec_y, rec_width, rec_height);
+		Mat img_cropped = img_depth_norm(crop_area);
+
+		std::cout << "img_cropped height: " << img_cropped.rows << std::endl;
+		std::cout << "img_cropped width: " << img_cropped.cols << std::endl;
+		std::cout << "img_cropped type: " << img_cropped.type() << std::endl;
+
+		int total = 0;
+
+
+		for (int i = 0; i < (matched->w * matched->h); i++)
+		{
+			((uint8_t*)matched->buf)[i]  = img_cropped.at<uint8_t>(i);
 
 
 
+
+
+
+			if (i % 10000 == 0)
+			{
+				std::cout << "i position: " << i << std::endl;
+				std::cout << "Entry in position i in new image: " << +((uint8_t*)matched->buf)[i] << std::endl;
+				std::cout << "Entry in position i in old image: " << +img_cropped.at<uint8_t>(i) << std::endl;
+			}
+		total = total + img_cropped.at<uint8_t>(i);
+		}
+
+		std::cout << "Total: " << total << std::endl;
+
+
+		imwrite("/home/dureade/Documents/paparazzi_images/image_disparity2b.bmp", img_cropped);
+
+	}
+	else {return -1;}
 
 	return 0;
 }

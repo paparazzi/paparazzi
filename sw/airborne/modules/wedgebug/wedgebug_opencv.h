@@ -36,14 +36,18 @@
 extern "C" {
 #endif
 
-#include "modules/computer_vision/lib/vision/image.h"
-#include <stdint.h>
-int SBM(struct image_t *left, struct image_t *right, struct image_t *matched, int ndisparities, int SADWindowSize);
 
 
+// Custom C headers to include
+#include "modules/computer_vision/lib/vision/image.h" // Needed for imae_t struct type
+#include "modules/wedgebug/wedgebug.h" // needed for calculating crop dimensions
+
+
+// Global functions:
+int SBM(struct image_t *left, struct image_t *right, struct image_t *matched, int ndisparities, int SADWindowSize, bool cropped);
 int save_image_gray(void *img, int width, int height, char *myString);
 int save_image_color(void *img, int width, int height, char *myString);
-//int BM(void *img_left,void *img_right, void *img_output, int width, int height);
+
 
 #ifdef __cplusplus
 }

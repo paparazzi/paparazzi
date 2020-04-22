@@ -63,10 +63,13 @@
       <define name="WEDGEBUG_CAMERA_LEFT_WIDTH" value = "240"/>
       <define name="WEDGEBUG_CAMERA_RIGHT_WIDTH" value = "240"/>
       <define name="WEDGEBUG_CAMERA_INTERLACED_WIDTH" value = "240"/>
+      <define name="WEDGEBUG_CAMERA_DISPARITY_WIDTH" value = "240"/>
+      
       
       <define name="WEDGEBUG_CAMERA_LEFT_HEIGHT" value = "240"/>
       <define name="WEDGEBUG_CAMERA_RIGHT_HEIGHT" value = "240"/>
       <define name="WEDGEBUG_CAMERA_INTERLACED_HEIGHT" value = "480"/>
+            <define name="WEDGEBUG_CAMERA_DISPARITY_HEIGHT" value = "240"/>
       
       <define name="WEDGEBUG_BUF_SIZE" value  = "115200"/>
       <define name="WEDGEBUG_HFOV" value  = "115200"/>
