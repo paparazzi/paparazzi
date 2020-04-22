@@ -30,6 +30,11 @@
 
 #include <assert.h>
 
+// possible GetRangeStatus return value as in api.c GetRangeStatus
+static const uint8_t status_rtn[24] = { 255, 255, 255, 5, 2, 4, 1, 7, 3, 0,
+                                        255, 255, 9, 13, 255, 255, 255, 255, 10, 6,
+                                        255, 255, 11, 12
+                                      };
 // Returns true upon completion
 static bool VL53L1_NonBlocking_WriteMulti(VL53L1_DEV dev, uint16_t index, uint8_t *pdata, uint32_t count)
 {
@@ -107,6 +112,19 @@ bool VL53L1X_NonBlocking_CheckForDataReady(VL53L1_DEV dev, uint8_t *isDataReady)
 }
 
 // Returns true upon completion
+bool VL53L1X_NonBlocking_GetRangeStatus(VL53L1_DEV dev, uint8_t *rangeStatus)
+{
+  uint8_t RgSt;
+  *rangeStatus = 255;
+  if (!VL53L1_NonBlocking_ReadMulti(dev, VL53L1_RESULT__RANGE_STATUS, &RgSt, 1)) { return false; }
+  RgSt = RgSt & 0x1F;
+  if (RgSt < 24) {
+    *rangeStatus = status_rtn[RgSt];
+  }
+  return true;
+}
+
+// Returns true upon completion
 bool VL53L1X_NonBlocking_GetDistance(VL53L1_DEV dev, uint16_t *distance)
 {
   uint8_t tmp[2];
@@ -121,4 +139,61 @@ bool VL53L1X_NonBlocking_ClearInterrupt(VL53L1_DEV dev)
 {
   uint8_t data = 0x01;
   return VL53L1_NonBlocking_WriteMulti(dev, SYSTEM__INTERRUPT_CLEAR, &data, 1);
+}
+
+bool VL53L1X_NonBlocking_ReadDataEvent(VL53L1_DEV dev, uint16_t *distance_mm, bool *new_data)
+{
+  uint8_t isDataReady, rangeStatus;
+  *new_data = false;
+  switch (dev->read_status) {
+    case VL53L1_READ_IDLE:
+      // Idle, do nothing
+      return false;
+    case VL53L1_READ_DATA_READY:
+      // Wait for data ready
+      if (!VL53L1X_NonBlocking_CheckForDataReady(dev, &isDataReady)) {
+        return false; // Check in progress
+      }
+      dev->read_status++;
+      /* Falls through. */
+    case VL53L1_READ_STATUS:
+      // Get range status
+      if (!VL53L1X_NonBlocking_GetRangeStatus(dev, &rangeStatus)) {
+        return false; // Read status in progress
+      }
+      if (rangeStatus != 0) {
+        dev->read_status = VL53L1_CLEAR_INT; // wrong measurement, clear interrupt and back to idle
+        return true; // end cycle
+      }
+      dev->read_status++;
+      /* Falls through. */
+    case VL53L1_READ_DISTANCE:
+      // Get ranging data
+      if (!VL53L1X_NonBlocking_GetDistance(dev, distance_mm)) {
+        return false; // Read in progress
+      }
+      *new_data = true;
+      dev->read_status++;
+      /* Falls through. */
+    case VL53L1_CLEAR_INT:
+      // Clear interrupt
+      if (!VL53L1X_NonBlocking_ClearInterrupt(dev)) {
+        return false; // Clear in progress
+      }
+      dev->read_status = VL53L1_READ_IDLE;
+      return true; // Cycle is done
+    default:
+      return false;
+  }
+}
+
+bool VL53L1X_NonBlocking_IsIdle(VL53L1_DEV dev)
+{
+  return dev->read_status == VL53L1_READ_IDLE;
+}
+
+bool VL53L1X_NonBlocking_RequestData(VL53L1_DEV dev)
+{
+  dev->read_status = VL53L1_READ_DATA_READY;
+  return true;
 }

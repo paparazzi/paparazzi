@@ -27,7 +27,8 @@
   </header>
 
   <init fun="sonar_vl53l1x_init()"/>
-  <periodic fun="sonar_vl53l1x_read()" period="0.020"/>
+  <periodic fun="sonar_vl53l1x_read()" freq="50."/>
+  <event fun="sonar_vl53l1x_event()"/>
 
   <makefile target="ap|sim">
     <file name="sonar_vl53l1x.c"/>

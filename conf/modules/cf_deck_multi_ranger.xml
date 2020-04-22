@@ -1,0 +1,28 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="cf_deck_multi_ranger" dir="range_finder">
+  <doc>
+    <description>
+      Multi-ranger deck from Bitcraze for Crazyflie drones
+    </description>
+    <configure name="MULTI_RANGER_I2C_DEV" value="i2c1" description="I2C device to use for the multi_ranger deck"/>
+  </doc>
+  <header>
+    <file name="cf_deck_multi_ranger.h"/>
+  </header>
+  <init fun="multi_ranger_init()"/>
+  <periodic fun="multi_ranger_periodic()" freq="50.0" autorun="TRUE"/>
+  <periodic fun="multi_ranger_report()" freq="5.0" autorun="TRUE"/>
+  <event fun="multi_ranger_event()"/>
+  <makefile target="ap">
+    <configure name="MULTI_RANGER_I2C_DEV" default="i2c1" case="lower|upper"/>
+    <define name="MULTI_RANGER_I2C_DEV" value="$(MULTI_RANGER_I2C_DEV_LOWER)"/>
+    <define name="USE_$(MULTI_RANGER_I2C_DEV_UPPER)"/>
+    <define name="VL53L1X_AUTO_INCR_ADDR"/>
+    <file name="cf_deck_multi_ranger.c"/>
+    <file name="pca95x4.c" dir="peripherals"/>
+    <file name="vl53l1_platform.c" dir="peripherals"/>
+    <file name="vl53l1x_api.c" dir="peripherals"/>
+    <file name="vl53l1x_nonblocking.c" dir="peripherals"/>
+  </makefile>
+</module>

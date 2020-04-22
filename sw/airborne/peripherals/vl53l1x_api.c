@@ -203,6 +203,11 @@ static const uint8_t status_rtn[24] = { 255, 255, 255, 5, 2, 4, 1, 7, 3, 0,
                                         255, 255, 11, 12
                                       };
 
+#if VL53L1X_AUTO_INCR_ADDR
+// start after default address
+static uint8_t auto_incr_addr = VL53L1_DEFAULT_ADDRESS + 2;
+#endif
+
 VL53L1X_ERROR VL53L1X_GetSWVersion(VL53L1X_Version_t *pVersion)
 {
   VL53L1X_ERROR Status = 0;
@@ -240,8 +245,28 @@ VL53L1X_ERROR VL53L1X_SensorInit(VL53L1_DEV dev)
   status = VL53L1X_StopRanging(dev);
   status = VL53L1_WrByte(dev, VL53L1_VHV_CONFIG__TIMEOUT_MACROP_LOOP_BOUND, 0x09); /* two bounds VHV */
   status = VL53L1_WrByte(dev, 0x0B, 0); /* start VHV from the previous temperature */
+#if VL53L1X_AUTO_INCR_ADDR
+  status = VL53L1X_SetI2CAddress(dev, auto_incr_addr);
+  auto_incr_addr += 2; // auto increment by 2 (+1 on 7 bits address)
+#endif
   return status;
 }
+
+void VL53L1X_BootDevice(VL53L1_DEV dev, uint16_t TimingBudgetInMs, uint16_t DistanceMode, uint32_t InterMeasurementInMs)
+{
+  uint8_t state;
+  do {
+    VL53L1X_BootState(dev, &state);
+  } while (!state);
+  VL53L1X_SensorInit(dev);
+  /* Configure sensor */
+  VL53L1X_SetTimingBudgetInMs(dev, TimingBudgetInMs);
+  VL53L1X_SetDistanceMode(dev, DistanceMode);
+  VL53L1X_SetInterMeasurementInMs(dev, InterMeasurementInMs);
+  /* Start measurement */
+  VL53L1X_StartRanging(dev);
+}
+
 
 VL53L1X_ERROR VL53L1X_ClearInterrupt(VL53L1_DEV dev)
 {

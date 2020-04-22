@@ -9,7 +9,7 @@
     <configure name="RTOS_DEBUG" value="0"/>
 
     <target name="ap" board="crazyflie_2.1">
-      <module name="gps" type="datalink"/>
+      <!--module name="gps" type="datalink"/-->
     </target>
 
     <target name="nps" board="pc">
@@ -30,11 +30,12 @@
       <define name="IMU_BMI088_Z_SIGN" value="-1"/>
     </module>
     <module name="stabilization" type="int_quat"/>
+    <!--module name="stabilization" type="indi_simple"/-->
     <module name="ahrs"          type="madgwick">
       <configure name="AHRS_PROPAGATE_FREQUENCY" value="1000"/>
       <!--configure name="USE_MAGNETOMETER" value="FALSE"/-->
     </module>
-    <module name="ins"/>
+    <module name="ins" type="extended"/>
     <module name="sys_mon"/>
     <module name="air_data"/>
     <module name="baro_bmp3">
@@ -42,6 +43,14 @@
       <define name="AIR_DATA_BARO_ABS_ID" value="BARO_BMP3_SENDER_ID"/>
       <define name="BMP3_SLAVE_ADDR" value="BMP3_I2C_ADDR_ALT"/>
     </module>
+
+    <module name="cf_deck" type="multi_ranger"/>
+    <module name="range_forcefield">
+      <define name="RANGE_FORCEFIELD_MAX_VEL" value="0.1"/>
+    </module>
+    <module name="sonar" type="vl53l1x"/>
+    <define name="SENSOR_SYNC_SEND_SONAR"/>
+    <define name="NO_GPS_NEEDED_FOR_NAV" value="TRUE"/>
 
   </firmware>
 
@@ -181,12 +190,45 @@
     <define name="PSI_DDGAIN"   value="300"/>
   </section>
 
+  <section name="STABILIZATION_ATTITUDE_INDI" prefix="STABILIZATION_INDI_">
+    <!-- control effectiveness -->
+    <define name="G1_P" value="0.0034724f"/>
+    <define name="G1_Q" value="0.0052575f"/>
+    <define name="G1_R" value="-0.0015942f"/>
+    <define name="G2_R" value="-0.11281f"/>
+
+    <define name="FILTER_ROLL_RATE" value="FALSE"/>
+    <define name="FILTER_PITCH_RATE" value="FALSE"/>
+    <define name="FILTER_YAW_RATE" value="FALSE"/>
+
+    <!-- reference acceleration for attitude control -->
+    <define name="REF_ERR_P" value="3.57f"/>
+    <define name="REF_ERR_Q" value="3.57f"/>
+    <define name="REF_ERR_R" value="3.57f"/>
+    <define name="REF_RATE_P" value="14.0"/>
+    <define name="REF_RATE_Q" value="14.0"/>
+    <define name="REF_RATE_R" value="14.0"/>
+
+    <!-- second order filter parameters -->
+    <define name="FILT_CUTOFF" value="8.0f"/>
+    <define name="FILT_CUTOFF_R" value="8.0f"/>
+
+    <!-- first order actuator dynamics -->
+    <define name="ACT_DYN_P" value="0.03149f"/>
+    <define name="ACT_DYN_Q" value="0.03149f"/>
+    <define name="ACT_DYN_R" value="0.03149f"/>
+
+    <!-- Adaptive Learning Rate -->
+    <define name="USE_ADAPTIVE" value="FALSE"/>
+    <define name="ADAPTIVE_MU" value="0.0001"/>
+  </section>
+
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
     <define name="HOVER_KP"    value="150"/>
     <define name="HOVER_KD"    value="80"/>
     <define name="HOVER_KI"    value="20"/>
     <!-- NOMINAL_HOVER_THROTTLE sets a fixed value instead of the adaptive estimation -->
-    <!--define name="NOMINAL_HOVER_THROTTLE" value="0.5"/-->
+    <define name="NOMINAL_HOVER_THROTTLE" value="0.75"/>
   </section>
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
@@ -204,8 +246,9 @@
   </section>
 
   <section name="AUTOPILOT">
+    <define name="MODE_STARTUP" value="AP_MODE_NAV"/>
     <define name="MODE_MANUAL" value="AP_MODE_ATTITUDE_DIRECT"/>
-    <define name="MODE_AUTO1"  value="AP_MODE_HOVER_Z_HOLD"/>
+    <define name="MODE_AUTO1"  value="AP_MODE_ATTITUDE_Z_HOLD"/>
     <define name="MODE_AUTO2"  value="AP_MODE_NAV"/>
   </section>
 

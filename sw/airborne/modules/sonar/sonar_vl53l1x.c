@@ -34,7 +34,7 @@
 
 
 #ifndef SONAR_VL53L1X_I2C_ADDR
-#define SONAR_VL53L1X_I2C_ADDR 0x52
+#define SONAR_VL53L1X_I2C_ADDR VL53L1_DEFAULT_ADDRESS
 #endif
 
 // Signed distance offset in mm
@@ -96,17 +96,7 @@ void sonar_vl53l1x_init(void)
 
   /* Initialize sensor */
 #ifndef SITL
-  uint8_t state;
-  do {
-    VL53L1X_BootState(&sonar_vl53l1x.dev, &state);
-  } while (!state);
-  VL53L1X_SensorInit(&sonar_vl53l1x.dev);
-  /* Configure sensor */
-  VL53L1X_SetTimingBudgetInMs(&sonar_vl53l1x.dev, SONAR_VL53L1X_TIMINGBUDGET_MS);
-  VL53L1X_SetDistanceMode(&sonar_vl53l1x.dev, SONAR_VL53L1X_DISTANCEMODE);
-  VL53L1X_SetInterMeasurementInMs(&sonar_vl53l1x.dev, SONAR_VL53L1X_INTERMEASUREMENT_MS);
-  /* Start measurement */
-  VL53L1X_StartRanging(&sonar_vl53l1x.dev);
+  VL53L1X_BootDevice(&sonar_vl53l1x.dev, SONAR_VL53L1X_TIMINGBUDGET_MS, SONAR_VL53L1X_DISTANCEMODE, SONAR_VL53L1X_INTERMEASUREMENT_MS);
 #endif
 }
 
@@ -114,26 +104,8 @@ void sonar_vl53l1x_init(void)
 void sonar_vl53l1x_read(void)
 {
 #ifndef SITL
-  uint8_t isDataReady;
-  uint16_t range_mm;
-  switch (sonar_vl53l1x.read_state) {
-    case 0:
-      // Wait for data ready
-      if (!VL53L1X_NonBlocking_CheckForDataReady(&sonar_vl53l1x.dev, &isDataReady)) { return; } // Check in progress
-      sonar_vl53l1x.read_state++;
-    /* Falls through. */
-    case 1:
-      // Get ranging data
-      if (!VL53L1X_NonBlocking_GetDistance(&sonar_vl53l1x.dev, &range_mm)) { return; } // Read in progress
-      sonar_vl53l1x_publish(range_mm);
-      sonar_vl53l1x.read_state++;
-    /* Falls through. */
-    case 2:
-      // Clear interrupt
-      if (!VL53L1X_NonBlocking_ClearInterrupt(&sonar_vl53l1x.dev)) { return; } // Clear in progress
-      sonar_vl53l1x.read_state = 0;
-      break;
-    default: return;
+  if (VL53L1X_NonBlocking_IsIdle(&sonar_vl53l1x.dev)) {
+    VL53L1X_NonBlocking_RequestData(&sonar_vl53l1x.dev);
   }
 #else // SITL
   float range_mm = stateGetPositionEnu_f()->z * 1.0e3f;
@@ -141,4 +113,16 @@ void sonar_vl53l1x_read(void)
     sonar_vl53l1x_publish(range_mm)
   }
 #endif // SITL
+}
+
+void sonar_vl53l1x_event(void)
+{
+#ifndef SITL
+  uint16_t range_mm;
+  bool new_data = false;
+  VL53L1X_NonBlocking_ReadDataEvent(&sonar_vl53l1x.dev, &range_mm, &new_data);
+  if (new_data) {
+    sonar_vl53l1x_publish(range_mm);
+  }
+#endif
 }
