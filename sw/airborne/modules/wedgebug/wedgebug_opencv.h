@@ -44,9 +44,13 @@ extern "C" {
 
 
 // Global functions:
-int SBM(struct image_t *img_disp, const struct image_t *img_left, const struct image_t *img_right,  const int ndisparities, const int SADWindowSize, const bool cropped);
+
 int save_image_gray(struct image_t *img, char *myString);
 int save_image_color(void *img, int width, int height, char *myString);
+int SBM(struct image_t *img_disp, const struct image_t *img_left, const struct image_t *img_right,  const int ndisparities, const int SADWindowSize, const bool cropped);
+int opening(struct image_t *img_input, const struct image_t *img_output, const int SE_size, const int iteration);
+int closing(struct image_t *img_input, const struct image_t *img_output, const int SE_size, const int iteration);
+
 
 
 #ifdef __cplusplus

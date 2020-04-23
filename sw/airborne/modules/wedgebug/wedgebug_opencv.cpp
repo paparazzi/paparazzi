@@ -28,6 +28,7 @@
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/imgproc/types_c.h> // needed for CV_MOP_CLOSE
 #include <opencv2/imgcodecs/imgcodecs.hpp>
 #include <opencv2/calib3d/calib3d.hpp>
 #include <iostream>
@@ -35,10 +36,25 @@
 
 using namespace cv;
 
+// Local declarations
+int transfer(const Mat *from, const image_t *to);
+
+
+// Local functions
+int transfer(const Mat *from, const image_t *to)
+{
+	typedef uint8_t img_dip_type;
+	for (int i = 0; i < (from->rows * from->cols); i++)
+	{
+		((img_dip_type*)to->buf)[i]  = from->at<img_dip_type>(i); // Using ".at" here are accessing buffer is problematic with a cropped image as it maintains a connection to oriinal image
+	}
+	return 0;
+}
 
 
 
 
+// Global functions
 int save_image_gray(struct image_t *img, char *myString)
 {
 	// Create a new image, using the original bebop image.
@@ -124,23 +140,15 @@ int save_image_color(void *img, int width, int height,char *myString)
 int SBM(struct image_t *img_disp, const struct image_t *img_left, const struct image_t *img_right,  const int ndisparities, const int SADWindowSize, const bool cropped)
 {
 
-
-
 	// Defining variables
 	Mat img_left_OCV(img_left->h, img_left->w, CV_8UC1, img_left->buf);
 	Mat img_right_OCV(img_right->h, img_right->w, CV_8UC1, img_right->buf);
 	Mat img_disp_OCV;
 
 
-
 	// Block matching
 	Ptr<StereoBM> sbm = StereoBM::create(ndisparities, SADWindowSize);
-
-
-
-
 	sbm->compute(img_left_OCV, img_right_OCV, img_disp_OCV); //type of img_disp_OCV is CV_16S i.e. int16_t
-
 
 
 	// Determining type of supplied image
@@ -223,4 +231,35 @@ int SBM(struct image_t *img_disp, const struct image_t *img_left, const struct i
 
 	return 0;
 }
+
+
+int opening(struct image_t *img_input, const struct image_t *img_output, const int SE_size, const int iteration)
+{
+	Mat img_input_OCV(img_input->h, img_input->w, CV_8UC1, img_input->buf);
+	Mat img_output_OCV;
+	Mat kernel = getStructuringElement(MORPH_RECT, Size(SE_size, SE_size));
+
+	morphologyEx(img_input_OCV, img_output_OCV, CV_MOP_OPEN, kernel, Point(-1,-1), iteration);
+	//erode(img_input_OCV, img_output_OCV, kernel);
+	transfer(&img_output_OCV, img_output);
+
+	return 0;
+}
+
+
+
+
+int closing(struct image_t *img_input, const struct image_t *img_output, const int SE_size, const int iteration)
+{
+	Mat img_input_OCV(img_input->h, img_input->w, CV_8UC1, img_input->buf);
+	Mat img_output_OCV;
+	Mat kernel = getStructuringElement(MORPH_RECT, Size(SE_size, SE_size));
+
+	morphologyEx(img_input_OCV, img_output_OCV, CV_MOP_CLOSE, kernel, Point(-1,-1), iteration);
+	//erode(img_input_OCV, img_output_OCV, kernel);
+	transfer(&img_output_OCV, img_output);
+	return 0;
+}
+
+
 
