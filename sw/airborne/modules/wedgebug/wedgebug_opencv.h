@@ -44,8 +44,8 @@ extern "C" {
 
 
 // Global functions:
-int SBM(struct image_t *left, struct image_t *right, struct image_t *matched, int ndisparities, int SADWindowSize, bool cropped);
-int save_image_gray(void *img, int width, int height, char *myString);
+int SBM(struct image_t *img_disp, const struct image_t *img_left, const struct image_t *img_right,  const int ndisparities, const int SADWindowSize, const bool cropped);
+int save_image_gray(struct image_t *img, char *myString);
 int save_image_color(void *img, int width, int height, char *myString);
 
 

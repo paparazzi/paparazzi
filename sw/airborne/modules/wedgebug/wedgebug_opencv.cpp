@@ -39,18 +39,30 @@ using namespace cv;
 
 
 
-int save_image_gray(void *img, int width, int height, char *myString)
+int save_image_gray(struct image_t *img, char *myString)
 {
 	// Create a new image, using the original bebop image.
-	Mat M(height, width, CV_8UC1, img);
-	// Savin image to my documents
-	imwrite(myString, M);
+
+	if (img->type == IMAGE_OPENCV_DISP )
+	{
+		Mat M(img->h, img->w, CV_16SC1, img->buf);
+		imwrite(myString, M);
+	}
+	else if (img->type == IMAGE_GRAYSCALE)
+	{
+		Mat M(img->h, img->w, CV_8UC1, img->buf);
+		imwrite(myString, M);
+	}
+	else
+	{
+		std::cout << "This function only worked with images of type IMAGE_GRAYSCALE and IAMGE_OPENCV_DISP. Leaving function." << std::endl;
+		return -1;
+	}
 
 
 
-
-
-
+	// Code below is for testing
+	/*
 	int total = 0;
 	int j = 0;
 
@@ -72,15 +84,9 @@ int save_image_gray(void *img, int width, int height, char *myString)
 	std::cout << "M: " << M.rows << ":" << M.cols << std::endl;
 	std::cout << "j: " << j << std::endl;
 	std::cout << "total: " << total << std::endl;
-
-
-
-	// Code below is for testing
-	/*
 	std::cout << "Rows/height (240): " << M.size[0] << std::endl;
 	std::cout << "Columns/width (480): " << M.size[1] << "\n" << std::endl;
 	std::cout << M.at(5,5)[0] << std::endl;
-
 	double minVal;
 	double maxVal;
 	Point minLoc;
@@ -104,133 +110,117 @@ int save_image_color(void *img, int width, int height,char *myString)
 	imwrite(myString, image);
 
 	// Code below is for testing
-
-
-	double minVal;
-	double maxVal;
-	Point minLoc;
-	Point maxLoc;
-	minMaxLoc(image ,&minVal, &maxVal, &minLoc, &maxLoc);
-	std::cout << "Left1: Min=" << minVal << "; Max=" << maxVal << std::endl;
-
+	//double minVal;
+	//double maxVal;
+	//Point minLoc;
+	//Point maxLoc;
+	//minMaxLoc(image ,&minVal, &maxVal, &minLoc, &maxLoc);
+	//std::cout << "Left1: Min=" << minVal << "; Max=" << maxVal << std::endl;
   return 0;
 }
 
-/*
 
-int BM(void *img_left,void *img_right, void *img_output, int width, int height)
+
+int SBM(struct image_t *img_disp, const struct image_t *img_left, const struct image_t *img_right,  const int ndisparities, const int SADWindowSize, const bool cropped)
 {
-	return0
 
 
-}
-*/
-
-int SBM(struct image_t *left, struct image_t *right, struct image_t *matched, int ndisparities, int SADWindowSize, bool cropped)
-{
 
 	// Defining variables
-	Mat img_left(left->h, left->w, CV_8UC1, left->buf);
-	Mat img_right(right->h, right->w, CV_8UC1, right->buf);
-	Mat img_depth;
-	Mat img_depth_norm;
-	double minVal;
-	double maxVal;
+	Mat img_left_OCV(img_left->h, img_left->w, CV_8UC1, img_left->buf);
+	Mat img_right_OCV(img_right->h, img_right->w, CV_8UC1, img_right->buf);
+	Mat img_disp_OCV;
 
 
 
+	// Block matching
 	Ptr<StereoBM> sbm = StereoBM::create(ndisparities, SADWindowSize);
-	//sbm->setMinDisparity(0);
-	sbm->compute(img_left, img_right, img_depth); //type of img_depth is CV_16U
-	img_depth.convertTo(img_depth_norm, CV_8UC1);
-	minMaxLoc(img_depth ,&minVal, &maxVal);
-	//std::cout << "min: max disparity = " << minVal << ":" << maxVal << std::endl;
 
 
-	int min = 255;
-	//int i = 0;
 
-	// Demonstrating depth calculation
-	// Get minimum value (which is not 0)
-	for (int i =0; i < img_depth_norm.rows * img_depth_norm.cols; i++)
+
+	sbm->compute(img_left_OCV, img_right_OCV, img_disp_OCV); //type of img_disp_OCV is CV_16S i.e. int16_t
+
+
+
+	// Determining type of supplied image
+	// 1) If image is of type int16_t
+	if (img_disp->type == IMAGE_OPENCV_DISP)
 	{
-		if (img_depth_norm.data[i] < min && img_depth_norm.data[i] != 0)
+		//std::cout << "int16_t" << std::endl;
+		typedef int16_t img_dip_type;
+
+		// Cropping or not cropping:
+		if (cropped == 0) // If image should not be cropped
 		{
-			min = img_depth_norm.data[i];
-
-		}
-	}
-	//int depth = ((WEDGEBUG_CAMERA_BASELINE * WEDGEBUG_CAMERA_FOCAL_LENGTH) / min) / 10;
-	//std::cout << "max depth in cm: " << depth << std::endl;
-
-
-	//img_depth.convertTo(img_depth_norm, CV_8UC1, 255/(maxVal - minVal));
-
-	//std::cout << minVal << ":" << maxVal << std::endl;
-	//std::cout << "Height : Width  - matched input: " << matched->h << " : " << matched->w << std::endl;
-	//std::cout << "Height Width  - opencCV CV_8UC1: " << img_depth_norm.rows << " : " << img_depth_norm.cols << std::endl;
-
-	if (cropped == 0)
-	{
-		for (int i = 0; i < (matched->w * matched->h); i++)
+			for (int i = 0; i < (img_disp_OCV.rows * img_disp_OCV.cols); i++)
 			{
-				((uint8_t*)matched->buf)[i]  = img_depth_norm.data[i];
+				((img_dip_type*)img_disp->buf)[i]  = img_disp_OCV.at<img_dip_type>(i); // Using ".at" here are accessing buffer is problematic with a cropped image as it maintains a connection to oriinal image
 			}
-	}
-	else if (cropped == 1)
-	{
-		uint16_t rec_y;
-		uint16_t rec_height;
-		uint16_t rec_x;
-		uint16_t rec_width;
-
-		post_disparity_crop_rect(&rec_y, &rec_height,&rec_x, &rec_width, left->h, left->w,  ndisparities, SADWindowSize);
-
-		std::cout << "y: " << rec_y << std::endl;
-		std::cout << "height: " << rec_height << std::endl;
-		std::cout << "x: " << rec_x << std::endl;
-		std::cout << "width: " << rec_width << std::endl;
-
-
-		Rect crop_area = Rect(rec_x, rec_y, rec_width, rec_height);
-		Mat img_cropped = img_depth_norm(crop_area);
-
-		std::cout << "img_cropped height: " << img_cropped.rows << std::endl;
-		std::cout << "img_cropped width: " << img_cropped.cols << std::endl;
-		std::cout << "img_cropped type: " << img_cropped.type() << std::endl;
-
-		int total = 0;
-
-
-		for (int i = 0; i < (matched->w * matched->h); i++)
+		}
+		else if (cropped == 1) // If image should be cropped
 		{
-			((uint8_t*)matched->buf)[i]  = img_cropped.at<uint8_t>(i);
+			uint16_t rec_y;
+			uint16_t rec_height;
+			uint16_t rec_x;
+			uint16_t rec_width;
 
+			post_disparity_crop_rect(&rec_y, &rec_height,&rec_x, &rec_width, img_left->h, img_left->w,  ndisparities, SADWindowSize); // Function from wedebug.h
+			Rect crop_area = Rect(rec_x, rec_y, rec_width, rec_height);
+			Mat img_cropped = img_disp_OCV(crop_area);
 
-
-
-
-
-			if (i % 10000 == 0)
+			for (int i = 0; i < (img_cropped.rows * img_cropped.cols); i++)
 			{
-				std::cout << "i position: " << i << std::endl;
-				std::cout << "Entry in position i in new image: " << +((uint8_t*)matched->buf)[i] << std::endl;
-				std::cout << "Entry in position i in old image: " << +img_cropped.at<uint8_t>(i) << std::endl;
+				((img_dip_type*)img_disp->buf)[i]  = img_cropped.at<img_dip_type>(i); // Using ".at" here are accessing buffer is problematic with a cropped image as it maintains a connection to oriinal image
 			}
-		total = total + img_cropped.at<uint8_t>(i);
 		}
+		else {return -1;}
+	}
 
-		std::cout << "Total: " << total << std::endl;
 
+	// 2) If image is of type uint8_t
+	else if (img_disp->type == IMAGE_GRAYSCALE) // If image is of type uint8_t
+	{
+		//std::cout << "uint8_t" << std::endl;
+		typedef uint8_t img_dip_type;
+		img_disp_OCV.convertTo(img_disp_OCV, CV_8UC1);
 
-		imwrite("/home/dureade/Documents/paparazzi_images/image_disparity2b.bmp", img_cropped);
+		// Cropping or not cropping:
+		if (cropped == 0) // If image should not be cropped
+		{
+			for (int i = 0; i < (img_disp_OCV.rows * img_disp_OCV.cols); i++)
+				{
+					((img_dip_type*)img_disp->buf)[i]  = img_disp_OCV.data[i];
+				}
+		}
+		else if (cropped == 1) // If image should be cropped
+		{
+			uint16_t rec_y;
+			uint16_t rec_height;
+			uint16_t rec_x;
+			uint16_t rec_width;
+
+			post_disparity_crop_rect(&rec_y, &rec_height,&rec_x, &rec_width, img_left->h, img_left->w,  ndisparities, SADWindowSize); // Function from wedebug.h
+			Rect crop_area = Rect(rec_x, rec_y, rec_width, rec_height);
+			Mat img_cropped = img_disp_OCV(crop_area);
+
+			for (int i = 0; i < (img_cropped.rows * img_cropped.cols); i++)
+			{
+				((img_dip_type*)img_disp->buf)[i]  = img_cropped.at<img_dip_type>(i); // Using ".at" here are accessing buffer is problematic with a cropped image as it maintains a connection to oriinal image
+			}
+		}
+		else {return -1;}
 
 	}
-	else {return -1;}
+
+
+	// 3) If image is of unsupported type
+	else
+	{
+		std::cout << "This function only worked with images of type IMAGE_GRAYSCALE and IAMGE_OPENCV_DISP. Leaving function." << std::endl;
+		return -1;
+	}
 
 	return 0;
 }
-
-
-
 

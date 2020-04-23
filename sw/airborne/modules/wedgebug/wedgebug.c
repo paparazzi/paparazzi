@@ -47,12 +47,14 @@ struct image_t img_left;
 struct image_t img_right;
 
 struct image_t img_YY;
-struct image_t img_YY_left;
-struct image_t img_YY_right;
-struct image_t img_depth;
-struct image_t img_depth2;
+struct image_t img_left_int8;
+struct image_t img_right_int8;
+struct image_t img_depth_int8;
+struct image_t img_depth_int16;
+struct image_t img_depth_int8_cropped;
+struct image_t img_depth_int16_cropped;
 //static pthread_mutex_t mutex;
-int N_disparities = 32;
+int N_disparities = 64;
 int block_size_disparities = 25;
 int min_disparity = 0;
 uint16_t crop_y;
@@ -72,8 +74,6 @@ static struct image_t *copy_left_img_func(struct image_t *img); // Function 1: C
 static struct image_t *copy_right_img_func(struct image_t *img); // Function 2: Copies left image into a buffer (buf_right)
 void UYVYs_interlacing_V(struct image_t *YY, struct image_t *left, struct image_t *right); // Function 3: Copies gray pixel values of left and right UYVY images into merged YY image
 void UYVYs_interlacing_H(struct image_t *merged, struct image_t *left, struct image_t *right);
-
-void post_disparity_dims2(uint16_t* height_new, uint16_t* width_new, const uint16_t height_old, const uint16_t width_old, const int disp_n, const int block_size);
 void post_disparity_crop_rect(uint16_t* height_start, uint16_t* height_offset, uint16_t* width_start, uint16_t* width_offset, const uint16_t height_old,const uint16_t width_old, const int disp_n, const int block_size);
 
 
@@ -224,25 +224,8 @@ void UYVYs_interlacing_H(struct image_t *merged, struct image_t *left, struct im
 
 
 
-// Function 4
-void post_disparity_dims2(
-		uint16_t* height_new,
-		uint16_t* width_new,
-		const uint16_t height_old,
-		const uint16_t width_old,
-		const int disp_n,
-		const int block_size)
-{
-
-	uint16_t block_size_black = block_size / 2;
-	uint16_t left_black = disp_n + block_size_black;
-
-	*height_new = height_old - (2 * block_size_black);
-	*width_new = (width_old - block_size_black) - (left_black - 1);
-}
-
-
-
+// Function 4 - Return the upper left coordinates of a square (x and y coordinates) and the offset in terms of width and height,
+// given the number of disparity levels and the block size used by the block matching algorithm. This is need to crop an image
 void post_disparity_crop_rect(
 		uint16_t* height_start,
 		uint16_t* height_offset,
@@ -278,18 +261,18 @@ void wedgebug_init(){
 	image_create(&img_left, WEDGEBUG_CAMERA_LEFT_WIDTH, WEDGEBUG_CAMERA_LEFT_HEIGHT, IMAGE_YUV422); // To store left camera image
 	image_create(&img_right,WEDGEBUG_CAMERA_RIGHT_WIDTH, WEDGEBUG_CAMERA_RIGHT_HEIGHT, IMAGE_YUV422);// To store right camera image
 	image_create(&img_YY,WEDGEBUG_CAMERA_INTERLACED_WIDTH, WEDGEBUG_CAMERA_INTERLACED_HEIGHT, IMAGE_GRAYSCALE);// To store interlaced image
-	image_create(&img_depth,WEDGEBUG_CAMERA_DISPARITY_WIDTH, WEDGEBUG_CAMERA_DISPARITY_HEIGHT, IMAGE_GRAYSCALE);// To store depth
+
+	image_create(&img_depth_int8,WEDGEBUG_CAMERA_DISPARITY_WIDTH, WEDGEBUG_CAMERA_DISPARITY_HEIGHT, IMAGE_GRAYSCALE);// To store depth
+	image_create(&img_depth_int16,WEDGEBUG_CAMERA_DISPARITY_WIDTH, WEDGEBUG_CAMERA_DISPARITY_HEIGHT, IMAGE_OPENCV_DISP);// To store depth
 
 	post_disparity_crop_rect(&crop_y, &crop_height, &crop_x, &crop_width, img_right.h , img_right.w, N_disparities, block_size_disparities);
-
-	image_create(&img_depth2,crop_width, crop_height, IMAGE_GRAYSCALE);// To store depth
-
-
+	image_create(&img_depth_int8_cropped,crop_width, crop_height, IMAGE_GRAYSCALE);// To store cropped depth
+	image_create(&img_depth_int16_cropped, crop_width, crop_height, IMAGE_OPENCV_DISP);
 
 
 	// Empty images below are created for tests
-	image_create(&img_YY_left, WEDGEBUG_CAMERA_LEFT_WIDTH, WEDGEBUG_CAMERA_LEFT_HEIGHT, IMAGE_GRAYSCALE);
-	image_create(&img_YY_right, WEDGEBUG_CAMERA_RIGHT_WIDTH, WEDGEBUG_CAMERA_RIGHT_HEIGHT, IMAGE_GRAYSCALE);
+	image_create(&img_left_int8, WEDGEBUG_CAMERA_LEFT_WIDTH, WEDGEBUG_CAMERA_LEFT_HEIGHT, IMAGE_GRAYSCALE);
+	image_create(&img_right_int8, WEDGEBUG_CAMERA_RIGHT_WIDTH, WEDGEBUG_CAMERA_RIGHT_HEIGHT, IMAGE_GRAYSCALE);
 
 
 	// Adding callback functions
@@ -304,21 +287,40 @@ void wedgebug_periodic(){
 
 	//UYVYs_interlacing_V(&img_YY, &img_left, &img_right); // Creating YlYr image from left and right YUV422 image
 	//UYVYs_interlacing_H(&img_YY, &img_left, &img_right);
-	image_to_grayscale(&img_left, &img_YY_left); // Converting left image from UYVY to gray scale for saving function
-	image_to_grayscale(&img_right, &img_YY_right); // Converting right image from UYVY to gray scale for saving function
+	image_to_grayscale(&img_left, &img_left_int8); // Converting left image from UYVY to gray scale for saving function
+	image_to_grayscale(&img_right, &img_right_int8); // Converting right image from UYVY to gray scale for saving function
 
-	//save_image_gray(img_YY.buf, img_YY.w, img_YY.h, "/home/dureade/Documents/paparazzi_images/YY_stereo_image.bmp");
-	//save_image_gray(img_YY_left.buf, img_YY_left.w, img_YY_left.h, "/home/dureade/Documents/paparazzi_images/YY_stereo_left_image.bmp");
-	//save_image_gray(img_YY_right.buf, img_YY_right.w, img_YY_right.h, "/home/dureade/Documents/paparazzi_images/YY_stereo_right_image.bmp");
 
-	SBM(&img_YY_left, &img_YY_right ,&img_depth , N_disparities, block_size_disparities, 0);
-	SBM(&img_YY_left, &img_YY_right ,&img_depth2 , N_disparities, block_size_disparities, 1);
+	SBM(&img_depth_int8, &img_left_int8, &img_right_int8, N_disparities, block_size_disparities, 0);// Creating cropped disparity map image
+	SBM(&img_depth_int16, &img_left_int8, &img_right_int8, N_disparities, block_size_disparities, 0);// Creating cropped disparity map image
 
-	//save_image_gray(img_depth.buf, img_depth.w, img_depth.h, "/home/dureade/Documents/paparazzi_images/image_disparity.bmp");
-	save_image_gray(img_depth2.buf, img_depth2.w, img_depth2.h, "/home/dureade/Documents/paparazzi_images/image_disparity2.bmp");
+	SBM(&img_depth_int8_cropped, &img_left_int8, &img_right_int8, N_disparities, block_size_disparities, 1);// Creating cropped disparity map image
+	SBM(&img_depth_int16_cropped, &img_left_int8, &img_right_int8, N_disparities, block_size_disparities, 1);// Creating cropped disparity map image
+
+
+
+
+	//save_image_gray(&img_YY, "/home/dureade/Documents/paparazzi_images/img_YY.bmp");
+	save_image_gray(&img_left_int8, "/home/dureade/Documents/paparazzi_images/img_left_int8.bmp");
+	save_image_gray(&img_right_int8, "/home/dureade/Documents/paparazzi_images/img_right_int8.bmp");
+
+	save_image_gray(&img_depth_int8, "/home/dureade/Documents/paparazzi_images/img_depth_int8.bmp");
+	save_image_gray(&img_depth_int16, "/home/dureade/Documents/paparazzi_images/img_depth_int16.bmp");
+
+	save_image_gray(&img_depth_int8_cropped, "/home/dureade/Documents/paparazzi_images/img_depth_int8_cropped.bmp");
+	save_image_gray(&img_depth_int16_cropped, "/home/dureade/Documents/paparazzi_images/img_depth_int16_cropped.bmp");
+
+
 
 
 	/*
+	int i = 20000;
+
+	printf("index 0 value of img_depth_int16: %f\n", ((int16_t*)img_depth_int16.buf)[0]);
+	printf("index %d value of img_depth_int16: %d\n",i ,((int16_t*)img_depth_int16.buf)[i]);
+	printf("index %d value of img_depth_int16: %f\n",i ,((int16_t*)img_depth_int16.buf)[i]);
+
+
 	for (int i = 0; i < (img_depth2.w * img_depth2.h); i++)
 	{
 		if (i % 20000 == 0)
@@ -329,13 +331,12 @@ void wedgebug_periodic(){
 	}*/
 
 
+	//printf("Buf size  (bytes) of img_depth_uint16 (should be 66096): %d\n", img_depth_uint16.buf_size);
 	//post_disparity_dims(&new_height_min, &new_height_max, &new_width_min, &new_width_max, 240 , 240, N_disparities, block_size_disparities);
 	//post_disparity_dims2(&new_height, &new_width, 240 , 240, N_disparities, block_size_disparities);
 	//post_disparity_crop_rect(&new_height_min, &new_height_max, &new_width_min, &new_width_max, 240 , 240, N_disparities, block_size_disparities);
-
-
-	printf("img_depth2 h:w = %d:%d\n", img_depth2.h, img_depth2.w);
-	printf("\n\n\n\n\n");
+	//printf("img_depth2 h:w = %d:%d\n", img_depth2.h, img_depth2.w);
+	//printf("\n\n\n\n\n");
 	//printf("height min:max = %d:%d\n width min:max = %d:%d\n", new_height_min, new_height_max, new_width_min, new_width_max);
 	//printf("cropped image dims: [%d, %d]\n", new_height_max, new_width_max);
 	//printf("cropped image dims2: [%d, %d]", new_height, new_width);

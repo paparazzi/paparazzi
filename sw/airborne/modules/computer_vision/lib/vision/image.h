@@ -36,7 +36,8 @@ enum image_type {
   IMAGE_YUV422,     ///< UYVY format (uint16 per pixel)
   IMAGE_GRAYSCALE,  ///< Grayscale image with only the Y part (uint8 per pixel)
   IMAGE_JPEG,       ///< An JPEG encoded image (not per pixel encoded)
-  IMAGE_GRADIENT    ///< An image gradient (int16 per pixel)
+  IMAGE_GRADIENT,    ///< An image gradient (int16 per pixel)
+  IMAGE_OPENCV_DISP    ///< An image to hold disparity image data from openCV (int16 per pixel)
 };
 
 /* Main image structure */

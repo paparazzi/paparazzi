@@ -31,9 +31,6 @@
 // Including library for types
 #include <stdint.h>
 
-int save_image_gray(void *img, int width, int height, char *myString);
-int save_image_color(void *img, int width, int height, char *myString);
-
 // Periodic-type functions
 extern void wedgebug_init(void);
 extern void wedgebug_periodic(void);
