@@ -31,17 +31,16 @@
 #include <stdbool.h>
 
 
-#define SPI_BUFFER_SIZE 5
+#define SPI_BUFFER_SIZE 8
 
 
 enum pmw3901_state {
   PMW3901_IDLE,
-  PMW3901_SPI_SUBMIT,
-  PMW3901_SPI_READ,
-//  PMW3901_READ_DELTAXLOW,  // First try reading all values in 1 transaction
-//  PMW3901_READ_DELTAXHIGH,
-//  PMW3901_READ_DELTAYLOW,
-//  PMW3901_READ_DELTAYHIGH,
+  PMW3901_READ_MOTION,
+  PMW3901_READ_DELTAXLOW,
+  PMW3901_READ_DELTAXHIGH,
+  PMW3901_READ_DELTAYLOW,
+  PMW3901_READ_DELTAYHIGH,
 };
 
 struct pmw3901_t {
@@ -50,6 +49,8 @@ struct pmw3901_t {
   volatile uint8_t spi_input_buf[SPI_BUFFER_SIZE];
   volatile uint8_t spi_output_buf[SPI_BUFFER_SIZE];
   enum pmw3901_state state;
+  uint8_t readwrite_state;
+  float readwrite_time;
   int16_t delta_x;
   int16_t delta_y;
   bool data_available;

@@ -32,10 +32,50 @@
 #include "mcu_periph/gpio.h"  // DEBUG
 
 
+#define PMW3901_REG_MOTION     0x02
 #define PMW3901_REG_DELTA_X_L  0x03
 #define PMW3901_REG_DELTA_X_H  0x04
 #define PMW3901_REG_DELTA_Y_L  0x05
 #define PMW3901_REG_DELTA_Y_H  0x06
+
+
+// Non-blocking read function
+// returns true upon completion
+static bool readRegister_nonblocking(struct pmw3901_t *pmw, uint8_t addr, uint8_t *value) {
+  switch (pmw->readwrite_state) {
+    case 0:
+      pmw->trans.output_buf[0] = addr & 0x7F;  // MSB 0 => read
+      pmw->trans.output_length = 1;
+      pmw->trans.input_length = 0;
+      pmw->trans.select = SPISelect;
+      spi_submit(pmw->periph, &pmw->trans);
+      pmw->readwrite_state++;
+      /* Falls through. */
+    case 1:
+      if (pmw->trans.status == SPITransPending || pmw->trans.status == SPITransRunning) return false;
+      // Write addr complete
+      pmw->readwrite_time = get_sys_time_float();
+      pmw->readwrite_state++;
+      /* Falls through. */
+    case 2:
+      if (get_sys_time_float() < pmw->readwrite_time + 35e-6) return false;
+      // Write-read delay passed
+      pmw->trans.output_length = 0;
+      pmw->trans.input_length = 1;
+      pmw->trans.select = SPIUnselect;
+      spi_submit(pmw->periph, &pmw->trans);
+      pmw->readwrite_state++;
+      /* Falls through. */
+    case 3:
+      if (pmw->trans.status == SPITransPending || pmw->trans.status == SPITransRunning) return false;
+      // Read complete
+      pmw->trans.select = SPISelectUnselect;
+      *value = pmw->trans.input_buf[0];
+      pmw->readwrite_state = 0;
+      return true;
+    default: return false;
+  }
+}
 
 
 // Blocking read/write functions
@@ -218,27 +258,36 @@ void pmw3901_init(struct pmw3901_t *pmw, struct spi_periph *periph, uint8_t slav
 }
 
 void pmw3901_event(struct pmw3901_t *pmw) {
+  uint8_t temp;
   switch (pmw->state) {
     case PMW3901_IDLE:
       /* Do nothing */
       return;
-    case PMW3901_SPI_SUBMIT:
-      // Submit SPI transaction
-      pmw->trans.output_buf[0] = PMW3901_REG_DELTA_X_L;
-      pmw->trans.output_buf[1] = PMW3901_REG_DELTA_X_H;
-      pmw->trans.output_buf[2] = PMW3901_REG_DELTA_Y_L;
-      pmw->trans.output_buf[3] = PMW3901_REG_DELTA_Y_H;
-      pmw->trans.output_length = 4;
-      pmw->trans.input_length = 5;
-      spi_submit(pmw->periph, &pmw->trans);
-      pmw->state = PMW3901_SPI_READ;
+    case PMW3901_READ_MOTION:
+      if (!readRegister_nonblocking(pmw, PMW3901_REG_MOTION, &temp)) return;
+      if (!(temp & 0x80)) return;
+      pmw->delta_x = 0;
+      pmw->delta_y = 0;
+      pmw->state++;
       /* Falls through. */
-    case PMW3901_SPI_READ:
-      // Wait for SPI transaction to complete
-      if (pmw->trans.status == SPITransPending || pmw->trans.status == SPITransRunning) return;
-      // Read data
-      pmw->delta_x = (pmw->trans.input_buf[2] << 8) | pmw->trans.input_buf[1];
-      pmw->delta_y = (pmw->trans.input_buf[4] << 8) | pmw->trans.input_buf[3];
+    case PMW3901_READ_DELTAXLOW:
+      if (!readRegister_nonblocking(pmw, PMW3901_REG_DELTA_X_L, &temp)) return;
+      pmw->delta_x |= temp;
+      pmw->state++;
+      /* Falls through. */
+    case PMW3901_READ_DELTAXHIGH:
+      if (!readRegister_nonblocking(pmw, PMW3901_REG_DELTA_X_H, &temp)) return;
+      pmw->delta_x |= (temp << 8) & 0xFF00;
+      pmw->state++;
+      /* Falls through. */
+    case PMW3901_READ_DELTAYLOW:
+      if (!readRegister_nonblocking(pmw, PMW3901_REG_DELTA_Y_L, &temp)) return;
+      pmw->delta_y |= temp;
+      pmw->state++;
+          /* Falls through. */
+    case PMW3901_READ_DELTAYHIGH:
+      if (!readRegister_nonblocking(pmw, PMW3901_REG_DELTA_Y_H, &temp)) return;
+      pmw->delta_y |= (temp << 8) & 0xFF00;
       pmw->data_available = true;
       pmw->state = PMW3901_IDLE;
       return;
@@ -252,7 +301,8 @@ bool pmw3901_is_idle(struct pmw3901_t *pmw) {
 
 void pmw3901_start_read(struct pmw3901_t *pmw) {
   if (pmw3901_is_idle(pmw)) {
-    pmw->state = PMW3901_SPI_SUBMIT;
+    pmw->data_available = false;
+    pmw->state = PMW3901_READ_MOTION;
   }
 }
 
@@ -264,6 +314,5 @@ bool pmw3901_get_data(struct pmw3901_t *pmw, int16_t *delta_x, int16_t *delta_y)
   if (!pmw->data_available) return false;
   *delta_x = pmw->delta_x;
   *delta_y = pmw->delta_y;
-  pmw->data_available = false;
   return true;
 }
