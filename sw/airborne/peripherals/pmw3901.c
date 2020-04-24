@@ -39,15 +39,22 @@
 
 // Blocking read/write functions
 static uint8_t readRegister_blocking(struct pmw3901_t *pmw, uint8_t addr) {
-  pmw->trans.output_buf[0] = addr;
+  pmw->trans.output_buf[0] = addr & 0x7F;  // MSB 0 => read
   pmw->trans.output_length = 1;
-  pmw->trans.input_length = 2;
+  pmw->trans.input_length = 0;
+  pmw->trans.select = SPISelect;
   spi_blocking_transceive(pmw->periph, &pmw->trans);
+  sys_time_usleep(35);  // See ref firmware and datasheet
+  pmw->trans.output_length = 0;
+  pmw->trans.input_length = 1;
+  pmw->trans.select = SPIUnselect;
+  spi_blocking_transceive(pmw->periph, &pmw->trans);
+  pmw->trans.select = SPISelectUnselect;
   return pmw->trans.input_buf[1];
 }
 
 static void writeRegister_blocking(struct pmw3901_t *pmw, uint8_t addr, uint8_t data) {
-  pmw->trans.output_buf[0] = addr;
+  pmw->trans.output_buf[0] = addr | 0x80;  // MSB 1 => write
   pmw->trans.output_buf[1] = data;
   pmw->trans.output_length = 2;
   pmw->trans.input_length = 0;
