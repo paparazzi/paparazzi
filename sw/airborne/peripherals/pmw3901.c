@@ -29,7 +29,6 @@
 #include "pmw3901.h"
 
 #include "mcu_periph/sys_time.h"
-#include "mcu_periph/gpio.h"  // DEBUG
 
 
 #define PMW3901_REG_MOTION     0x02
@@ -301,7 +300,6 @@ bool pmw3901_is_idle(struct pmw3901_t *pmw) {
 
 void pmw3901_start_read(struct pmw3901_t *pmw) {
   if (pmw3901_is_idle(pmw)) {
-    pmw->data_available = false;
     pmw->state = PMW3901_READ_MOTION;
   }
 }
@@ -314,5 +312,6 @@ bool pmw3901_get_data(struct pmw3901_t *pmw, int16_t *delta_x, int16_t *delta_y)
   if (!pmw->data_available) return false;
   *delta_x = pmw->delta_x;
   *delta_y = pmw->delta_y;
+  pmw->data_available = false;
   return true;
 }

@@ -27,8 +27,43 @@
 
 #include "peripherals/pmw3901.h"
 
+#include "subsystems/abi.h"
+#include "subsystems/datalink/downlink.h"
+
 
 struct pmw3901_t pmw;
+
+
+static void opticflow_pmw3901_publish(int16_t delta_x, int16_t delta_y) {
+  uint32_t now_ts = get_sys_time_usec();
+  AbiSendMsgOPTICAL_FLOW(FLOW_OPTICFLOW_PMW3901_ID, now_ts,
+                         delta_x,  // TODO unit
+                         delta_y,
+                         0,  // TODO later
+                         0,
+                         0.f,
+                         0.f);
+#if SENSOR_SYNC_SEND_OPTICFLOW_PMW3901
+  float dummy_f = 0.f;
+  uint16_t dummy_u16 = 0;
+  int16_t dummy_i16 = 0;
+  DOWNLINK_SEND_OPTIC_FLOW_EST(DefaultChannel, DefaultDevice,
+      &dummy_f,     /* fps */
+      &dummy_u16,   /* corner_cnt */
+      &dummy_u16,   /* tracked_cnt */
+      &delta_x,     /* flow_x */      /* UNITS?? */
+      &delta_y,     /* flow_y */      /* UNITS?? */
+      &dummy_i16,   /* flow_der_x */  /* TODO */
+      &dummy_i16,   /* flow_der_y */  /* TODO */
+      &dummy_f,     /* vel_x */       /* TODO */
+      &dummy_f,     /* vel_y */       /* TODO */
+      &dummy_f,     /* vel_z */       /* TODO */
+      &dummy_f,     /* div_size */
+      &dummy_f,     /* surface_roughness */
+      &dummy_f      /* divergence */
+      );
+#endif
+}
 
 
 void opticflow_pmw3901_init(void) {
@@ -46,7 +81,7 @@ void opticflow_pmw3901_event(void) {
   if (pmw3901_data_available(&pmw)) {
     int16_t delta_x, delta_y;
     pmw3901_get_data(&pmw, &delta_x, &delta_y);
-    // TODO publish
+    opticflow_pmw3901_publish(delta_x, delta_y);
   }
 }
 

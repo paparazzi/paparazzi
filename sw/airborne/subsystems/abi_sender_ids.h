@@ -347,6 +347,10 @@
 #define FLOW_OPTICFLOW_ID 1
 #endif
 
+#ifndef FLOW_OPTICFLOW_PMW3901_ID
+#define FLOW_OPTICFLOW_PMW3901_ID 2
+#endif
+
 /*
  * IDs of VELOCITY estimates (message 12)
  */
