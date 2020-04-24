@@ -192,8 +192,8 @@ void pmw3901_init(struct pmw3901_t *pmw, struct spi_periph *periph, uint8_t slav
   pmw->trans.output_buf = pmw->spi_output_buf;
   pmw->trans.slave_idx = slave_idx;
   pmw->trans.select = SPISelectUnselect;
-  pmw->trans.cpol = SPICpolIdleLow;
-  pmw->trans.cpha = SPICphaEdge1;
+  pmw->trans.cpol = SPICpolIdleHigh;
+  pmw->trans.cpha = SPICphaEdge2;
   pmw->trans.dss = SPIDss8bit;
   pmw->trans.bitorder = SPIMSBFirst;
   pmw->trans.cdiv = SPIDiv256;  // TODO verify
