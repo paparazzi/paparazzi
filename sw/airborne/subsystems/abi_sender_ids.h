@@ -370,6 +370,10 @@
 #define VEL_STEREOCAM_ID 4
 #endif
 
+#ifndef VEL_OPTICFLOW_PMW3901_ID
+#define VEL_OPTICFLOW_PMW3901_ID 5
+#endif
+
 /*
  * IDs of RSSI measurements (message 13)
  */

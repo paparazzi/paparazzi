@@ -34,15 +34,26 @@
 struct pmw3901_t pmw;
 
 
-static void opticflow_pmw3901_publish(int16_t delta_x, int16_t delta_y) {
-  uint32_t now_ts = get_sys_time_usec();
-  AbiSendMsgOPTICAL_FLOW(FLOW_OPTICFLOW_PMW3901_ID, now_ts,
-                         delta_x,  // TODO unit
-                         delta_y,
-                         0,  // TODO later
-                         0,
-                         0.f,
-                         0.f);
+static void opticflow_pmw3901_publish(int16_t delta_x, int16_t delta_y, uint32_t ts) {
+  AbiSendMsgOPTICAL_FLOW(FLOW_OPTICFLOW_PMW3901_ID,
+      ts,       /* stamp [us] */
+      delta_x,  /* flow_x [subpixels] */ // TODO unit
+      delta_y,  /* flow_y [subpixels] */
+      0,        /* flow_der_x [subpixels] */ // TODO later
+      0,        /* flow_der_y [subpixels] */
+      0.f,      /* quality [???]*/
+      0.f       /* size_divergence [1/s] */
+      );
+  // TODO conditions
+  AbiSendMsgVELOCITY_ESTIMATE(VEL_OPTICFLOW_PMW3901_ID,
+      ts,       /* stamp [us] */
+      0.f,      /* x [m/s] */
+      0.f,      /* y [m/s] */
+      0.f,      /* z [m/s] */
+      0.2f,     /* noise_x [m/s] */
+      0.2f,     /* noise_y [m/s] */
+      -1.f      /* noise_z [disabled] */
+      );
 #if SENSOR_SYNC_SEND_OPTICFLOW_PMW3901
   float dummy_f = 0.f;
   uint16_t dummy_u16 = 0;
@@ -81,7 +92,7 @@ void opticflow_pmw3901_event(void) {
   if (pmw3901_data_available(&pmw)) {
     int16_t delta_x, delta_y;
     pmw3901_get_data(&pmw, &delta_x, &delta_y);
-    opticflow_pmw3901_publish(delta_x, delta_y);
+    opticflow_pmw3901_publish(delta_x, delta_y, get_sys_time_usec());
   }
 }
 
