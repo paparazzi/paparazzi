@@ -67,9 +67,9 @@ static void agl_cb(uint8_t sender_id, uint32_t stamp, float distance) {
   agl_ts = stamp;
 }
 
-static bool agl_valid(void) {
+static bool agl_valid(uint32_t at_ts) {
   return \
-      ((get_sys_time_usec() - agl_ts) < OPTICFLOW_PMW3901_AGL_TIMEOUT_US) &&
+      ((at_ts - agl_ts) < OPTICFLOW_PMW3901_AGL_TIMEOUT_US) &&
       (agl_dist > 0.080);
 }
 
@@ -97,17 +97,16 @@ static void opticflow_pmw3901_publish(int16_t delta_x, int16_t delta_y, uint32_t
   float flow_dy_p =  rates->p / PMW3901_RAD_PER_PX;
   float flow_dx_q = -rates->q / PMW3901_RAD_PER_PX;
   float flow_der_x = flow_x - flow_dx_q;
-  float flow_der_y  =flow_y - flow_dy_p;
+  float flow_der_y = flow_y - flow_dy_p;
   int16_t flow_der_x_subpix = (int16_t)(OPTICFLOW_PMW3901_SUBPIXEL_FACTOR * flow_der_x);
   int16_t flow_der_y_subpix = (int16_t)(OPTICFLOW_PMW3901_SUBPIXEL_FACTOR * flow_der_y);
   // Velocity
   static float vel_x = 0;  // static: keep last measurement for telemetry if agl not valid
   static float vel_y = 0;
-  if (agl_valid()) {
+  if (agl_valid(ts_usec)) {
     vel_x = flow_der_x * agl_dist;
     vel_y = flow_der_y * agl_dist;
   }
-
 
   /* Send ABI messages */
   // Note: INS only subscribes to VELOCITY_ESTIMATE. OPTICAL_FLOW is only used
@@ -123,7 +122,7 @@ static void opticflow_pmw3901_publish(int16_t delta_x, int16_t delta_y, uint32_t
       0.f,      /* quality [???] */
       0.f       /* size_divergence [1/s] */
       );
-  if (agl_valid()) {
+  if (agl_valid(ts_usec)) {
     AbiSendMsgVELOCITY_ESTIMATE(VEL_OPTICFLOW_PMW3901_ID,
         ts_usec,       /* stamp [us] */
         vel_x,      /* x [m/s] */
