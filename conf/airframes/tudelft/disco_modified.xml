@@ -1,10 +1,10 @@
 <!DOCTYPE airframe SYSTEM "../airframe.dtd">
-<airframe name="Disco_Inferno">
+<airframe name="Disco_FlatSpin">
   <description>
 
 * Parrot Disco Fixedwing Modiefied Hardware with added Pixracer board.
 + Airframe to validate all onboard functionally...
-  Own Disco Inferno
+  Disco FlatSpin
      + Autopilot:   Pixracer 1
      + Actuators:   Hitec HS5055 servos
      + GPS:         uBlox M8N GNSS
@@ -78,6 +78,8 @@
       <configure name="CONTROL_FREQUENCY" value="120"/> <!--  unit="Hz" -->
       <configure name="TELEMETRY_FREQUENCY" value="60"/> <!--  unit="Hz" -->
       <configure name="MODULES_FREQUENCY" value="512"/> <!--  unit="Hz" -->
+
+      <module name="radio_control" type="sbus"/>
 
       <module name="imu" type="mpu9250_spi">
         <configure name="IMU_MPU9250_SPI_DEV" value="spi1"/>
