@@ -169,7 +169,7 @@ static bool multi_ranger_read(struct SingleRanger *ranger UNUSED)
   bool ret = VL53L1X_NonBlocking_ReadDataEvent(&ranger->dev, &range_mm, &new_data);
   if (new_data) {
     ranger->distance = range_mm / 1000.f;
-    AbiSendMsgOBSTACLE_DETECTION(42, ranger->distance, ranger->azimuth, ranger->bearing);
+    AbiSendMsgOBSTACLE_DETECTION(OBS_DETECTION_MULTI_RANGER_DECK_ID, ranger->distance, ranger->azimuth, ranger->bearing);
   }
   return ret;
 #endif

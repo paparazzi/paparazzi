@@ -414,6 +414,10 @@
 #define OBS_DETECTION_RANGE_ARRAY_NPS_ID 3
 #endif
 
+#ifndef OBS_DETECTION_MULTI_RANGER_DECK_ID
+#define OBS_DETECTION_MULTI_RANGER_DECK_ID 4
+#endif
+
 /*
  * ID's of forcefield generating type functions
  */
