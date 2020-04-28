@@ -56,9 +56,16 @@ PRINT_CONFIG_VAR(OPTICFLOW_PMW3901_AGL_ID)
 
 struct pmw3901_t pmw;
 
+abi_event agl_ev;
 static float agl_dist;
 static uint32_t agl_ts;
 
+
+static void agl_cb(uint8_t sender_id, uint32_t stamp, float distance) {
+  (void) sender_id;
+  agl_dist = distance;
+  agl_ts = stamp;
+}
 
 static bool agl_valid(void) {
   return \
@@ -132,7 +139,6 @@ static void opticflow_pmw3901_publish(int16_t delta_x, int16_t delta_y, uint32_t
 #if SENSOR_SYNC_SEND_OPTICFLOW_PMW3901
   float dummy_f = 0.f;
   uint16_t dummy_u16 = 0;
-  int16_t dummy_i16 = 0;
   DOWNLINK_SEND_OPTIC_FLOW_EST(DefaultChannel, DefaultDevice,
       &fps,     /* fps */
       &dummy_u16,   /* corner_cnt */
@@ -154,6 +160,7 @@ static void opticflow_pmw3901_publish(int16_t delta_x, int16_t delta_y, uint32_t
 
 void opticflow_pmw3901_init(void) {
   pmw3901_init(&pmw, &OPTICFLOW_PMW3901_SPI_DEV, OPTICFLOW_PMW3901_SPI_SLAVE_IDX);
+  AbiBindMsgAGL(OPTICFLOW_PMW3901_AGL_ID, &agl_ev, agl_cb);
 }
 
 void opticflow_pmw3901_periodic(void) {
