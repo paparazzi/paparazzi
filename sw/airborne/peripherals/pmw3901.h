@@ -21,6 +21,19 @@
  * @file "modules/peripherals/pmw3901.h"
  * @author Tom van Dijk
  * Low-level driver for PMW3901 optical flow sensor
+ *
+ * Some notes about the sensor:
+ * - The sensor is extremely poorly documented:
+ *   - There are no units or delta_t's specified for the delta_x and _y registers.
+ *   - The datasheet does not specify whether delta_x and _y are rates [something/s]
+ *     or pixel counts. In the latter case, the datasheet does not specify when
+ *     delta_x and _y are reset to 0.
+ *   - The squal quality(?) register is not described.
+ *
+ * Based on crazyflie-firmware::kalman_core.c::512
+ * - delta_x, _y are pixel counts, not rates.
+ * - crazyflie uses scaling factor of thetapix/Npix = 0,002443389 rad/px,
+ *   corresponding to a focal length of ~409 px.
  */
 
 #ifndef PMW3901_H_
@@ -29,6 +42,13 @@
 #include "mcu_periph/spi.h"
 
 #include <stdbool.h>
+#include <math.h>
+
+
+// Based on crazyflie-firmware
+#ifndef PMW3901_RAD_PER_PX
+#define PMW3901_RAD_PER_PX 0.002443389
+#endif
 
 
 #define SPI_BUFFER_SIZE 8

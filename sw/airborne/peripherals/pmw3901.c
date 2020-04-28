@@ -24,6 +24,7 @@
  *
  * Code based on the PixArt reference firmware
  * https://os.mbed.com/teams/PixArt/code/3901_referenceFirmware//file/10365086d44e/commHeaders/SPIcommFunctions.h/
+ *
  */
 
 #include "pmw3901.h"

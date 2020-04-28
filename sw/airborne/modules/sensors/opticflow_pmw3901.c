@@ -31,17 +31,30 @@
 #include "subsystems/datalink/downlink.h"
 
 
+#define OPTICFLOW_PMW3901_SUBPIXEL_FACTOR 1  // Sensor does not use subpixels
+
+
 struct pmw3901_t pmw;
 
 
 static void opticflow_pmw3901_publish(int16_t delta_x, int16_t delta_y, uint32_t ts) {
+  /* Prepare message variables */
+  static uint32_t prev_ts = 0;
+  int16_t flow_x = delta_x * OPTICFLOW_PMW3901_SUBPIXEL_FACTOR;
+  int16_t flow_y = delta_y * OPTICFLOW_PMW3901_SUBPIXEL_FACTOR;
+
+  /* Send ABI messages */
+  // Note: INS only subscribes to VELOCITY_ESTIMATE. OPTICAL_FLOW is only used
+  // for niche applications(?) and therefore only uses (sub)pixels without any
+  // camera intrinsics?? On the bright side, the sensor datasheet does not
+  // provide any intrinsics either.....
   AbiSendMsgOPTICAL_FLOW(FLOW_OPTICFLOW_PMW3901_ID,
       ts,       /* stamp [us] */
-      delta_x,  /* flow_x [subpixels] */ // TODO unit
-      delta_y,  /* flow_y [subpixels] */
+      flow_x,   /* flow_x [subpixels] */ // TODO unit
+      flow_y,   /* flow_y [subpixels] */
       0,        /* flow_der_x [subpixels] */ // TODO later
       0,        /* flow_der_y [subpixels] */
-      0.f,      /* quality [???]*/
+      0.f,      /* quality [???] */
       0.f       /* size_divergence [1/s] */
       );
   // TODO conditions
@@ -54,6 +67,8 @@ static void opticflow_pmw3901_publish(int16_t delta_x, int16_t delta_y, uint32_t
       0.2f,     /* noise_y [m/s] */
       -1.f      /* noise_z [disabled] */
       );
+
+  /* Send telemetry */
 #if SENSOR_SYNC_SEND_OPTICFLOW_PMW3901
   float dummy_f = 0.f;
   uint16_t dummy_u16 = 0;
@@ -62,8 +77,8 @@ static void opticflow_pmw3901_publish(int16_t delta_x, int16_t delta_y, uint32_t
       &dummy_f,     /* fps */
       &dummy_u16,   /* corner_cnt */
       &dummy_u16,   /* tracked_cnt */
-      &delta_x,     /* flow_x */      /* UNITS?? */
-      &delta_y,     /* flow_y */      /* UNITS?? */
+      &flow_x,      /* flow_x */      /* UNITS?? */
+      &flow_y,      /* flow_y */      /* UNITS?? */
       &dummy_i16,   /* flow_der_x */  /* TODO */
       &dummy_i16,   /* flow_der_y */  /* TODO */
       &dummy_f,     /* vel_x */       /* TODO */
