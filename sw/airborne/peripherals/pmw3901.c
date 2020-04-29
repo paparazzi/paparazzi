@@ -44,6 +44,7 @@
 static bool readRegister_nonblocking(struct pmw3901_t *pmw, uint8_t addr, uint8_t *value) {
   switch (pmw->readwrite_state) {
     case 0:
+      if (get_sys_time_usec() < pmw->readwrite_timeout) return false;
       pmw->trans.output_buf[0] = addr & 0x7F;  // MSB 0 => read
       pmw->trans.output_length = 1;
       pmw->trans.input_length = 0;
@@ -54,12 +55,12 @@ static bool readRegister_nonblocking(struct pmw3901_t *pmw, uint8_t addr, uint8_
     case 1:
       if (pmw->trans.status == SPITransPending || pmw->trans.status == SPITransRunning) return false;
       // Write addr complete
-      pmw->readwrite_time = get_sys_time_float();
+      pmw->readwrite_timeout = get_sys_time_usec() + 35;
       pmw->readwrite_state++;
       /* Falls through. */
     case 2:
-      if (get_sys_time_float() < pmw->readwrite_time + 35e-6) return false;
-      // Write-read delay passed
+      if (get_sys_time_usec() < pmw->readwrite_timeout) return false;
+      // Addr-read delay passed
       pmw->trans.output_length = 0;
       pmw->trans.input_length = 1;
       pmw->trans.select = SPIUnselect;
@@ -71,6 +72,7 @@ static bool readRegister_nonblocking(struct pmw3901_t *pmw, uint8_t addr, uint8_
       // Read complete
       pmw->trans.select = SPISelectUnselect;
       *value = pmw->trans.input_buf[0];
+      pmw->readwrite_timeout = get_sys_time_usec() + 20;
       pmw->readwrite_state = 0;
       return true;
     default: return false;
