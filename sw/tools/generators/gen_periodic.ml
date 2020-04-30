@@ -140,17 +140,18 @@ let print_message_table = fun out_h xml ->
   ) telemetry_types
 
 let print_process_send = fun out_h xml ->
+  (** Print number of processes *)
+  fprintf out_h "\n/* Number of processes in telemetry file */\n";
+  Xml2h.define_out out_h "TELEMETRY_PROCESS_NB" (string_of_int (List.length (Xml.children xml)));
   (** For each process *)
-  List.iter
-    (fun process ->
+  List.iteri
+    (fun p_id process ->
       let process_name = ExtXml.attrib process "name" in
       let telem_type = Compat.uppercase_ascii (ExtXml.attrib_or_default process "type" "pprz") in
       let modes = Xml.children process in
 
       fprintf out_h "\n/* Periodic telemetry (type %s): %s process */\n" telem_type process_name;
-      let p_id = ref 0 in
-      Xml2h.define_out out_h (sprintf "TELEMETRY_PROCESS_%s" process_name) (string_of_int !p_id);
-      incr p_id;
+      Xml2h.define_out out_h (sprintf "TELEMETRY_PROCESS_%s" process_name) (string_of_int p_id);
 
       (** For each mode of this process *)
       let _ = List.fold_left (fun i mode ->
