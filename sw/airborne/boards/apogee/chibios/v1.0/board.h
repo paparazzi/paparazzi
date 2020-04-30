@@ -582,6 +582,10 @@
 /**
  * For WS2812
  */
+#define STM32_PWM_USE_TIM1 TRUE
+#define WS2812D1_GPIO GPIOA
+#define WS2812D1_PIN GPIO8
+#define WS2812D1_AF 1
 #define WS2812D1_CFG_DEF { \
   .dma_stream = STM32_PWM1_UP_DMA_STREAM, \
   .dma_channel = STM32_PWM1_UP_DMA_CHANNEL, \

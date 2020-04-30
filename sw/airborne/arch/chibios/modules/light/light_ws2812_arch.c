@@ -33,6 +33,9 @@ https://github.com/joewa/WS2812-LED-Driver_ChibiOS/
 #include <hal.h>
 #include "modules/light/light_ws2812_arch.h"
 #include "mcu_periph/hal_stm32_dma.h"
+#include "mcu_periph/gpio.h"
+
+#include BOARD_CONFIG
 
 #define WS2812_SERVO_HZ       800000
 #define WS2812_PWM_FREQUENCY  (STM32_SYSCLK/2)
@@ -46,7 +49,10 @@ https://github.com/joewa/WS2812-LED-Driver_ChibiOS/
 
 // Use driver 1 by default
 #ifndef WS2812_CFG_DEF
-#define WS2812_CFG_DEF WS2812D1_CFG_DEF
+#define WS2812_GPIO     WS2812D1_GPIO
+#define WS2812_PIN      WS2812D1_PIN
+#define WS2812_AF       WS2812D1_AF
+#define WS2812_CFG_DEF  WS2812D1_CFG_DEF
 #endif
 
 #define WS2812_DMA_IRQ_PRIORITY 6
@@ -81,6 +87,9 @@ static WS2812Driver WS2812D;
 
 void light_ws2812_arch_init(void)
 {
+
+  gpio_setup_pin_af(WS2812_GPIO, WS2812_PIN, WS2812_AF, true);
+
   uint32_t i;
   for (i = 0; i < WS2812_COLOR_BIT_N; i++) {
     WS2812D.buf[i] = WS2812_DUTYCYCLE_0;

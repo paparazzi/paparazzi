@@ -816,5 +816,20 @@
 #define ActuatorsDefaultInit() ActuatorsPwmInit()
 #define ActuatorsDefaultCommit() ActuatorsPwmCommit()
 
+/**
+ * For WS2812
+ */
+#define STM32_PWM_USE_TIM5 TRUE
+#define WS2812D1_GPIO GPIOA
+#define WS2812D1_PIN GPIO0
+#define WS2812D1_AF 2
+#define WS2812D1_CFG_DEF { \
+  .dma_stream = STM32_PWM5_UP_DMA_STREAM, \
+  .dma_channel = STM32_PWM5_UP_DMA_CHANNEL, \
+  .dma_priority = STM32_PWM5_UP_DMA_PRIORITY, \
+  .pwm_channel = 0, \
+  .pwmp = &PWMD5 \
+}
+
 #endif /* CONFIG_TAWAKI_1_00_H */
 
