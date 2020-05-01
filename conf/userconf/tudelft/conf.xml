@@ -424,13 +424,14 @@
   <aircraft
    name="bebop2_22"
    ac_id="22"
-   airframe="airframes/tudelft/bebop2_indi.xml"
+   airframe="airframes/examples/bebop2_indi.xml"
    radio="radios/dummy.xml"
    telemetry="telemetry/default_rotorcraft.xml"
-   flight_plan="flight_plans/tudelft/delft_basic.xml"
-   settings="settings/rotorcraft_basic.xml settings/estimation/ahrs_secondary.xml"
-   settings_modules="modules/gps_ubx_ucenter.xml modules/air_data.xml modules/geo_mag.xml modules/ins_extended.xml modules/ahrs_int_cmpl_quat.xml modules/stabilization_indi.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
+   flight_plan="flight_plans/tudelft/delft_bebop.xml"
+   settings="settings/rotorcraft_basic.xml [settings/estimation/ahrs_secondary.xml]"
+   settings_modules="modules/gps_ubx_ucenter.xml modules/air_data.xml modules/ins_ekf2.xml modules/stabilization_indi_simple.xml modules/nav_basic_rotorcraft.xml modules/guidance_rotorcraft.xml modules/gps.xml modules/imu_common.xml"
    gui_color="#baa3d698b729"
+   release="cde043338785efbaa7aac97e90cb272099a0c7ec"
   />
   <aircraft
    name="bebop2_detect_gate_front"
