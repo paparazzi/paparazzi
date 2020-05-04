@@ -180,6 +180,18 @@
    release="dfba3220f5b3500611231d02fca8799f9f045cb8"
   />
   <aircraft
+   name="Disco_FlatSpin"
+   ac_id="185"
+   airframe="airframes/tudelft/disco_modified.xml"
+   radio="radios/crossfire_sbus.xml"
+   telemetry="telemetry/fixedwing_flight_recorder.xml"
+   flight_plan="flight_plans/basic.xml"
+   settings="settings/fixedwing_basic.xml"
+   settings_modules="modules/geo_mag.xml modules/air_data.xml modules/nav_basic_fw.xml modules/guidance_full_pid_fw.xml modules/stabilization_adaptive_fw.xml modules/ahrs_float_cmpl_quat.xml modules/gps.xml modules/gps_ubx_ucenter.xml modules/imu_common.xml"
+   gui_color="blue"
+   release="57fa5506ad03c85215b0ff7659d9f2a26131db1f"
+  />
+  <aircraft
    name="Flappy"
    ac_id="231"
    airframe="airframes/tudelft/quadthopter.xml"
