@@ -320,7 +320,6 @@ def plot_mag_3d(measured, calibrated, p):
         ax = fig.add_subplot(1, 2, 1, position=rect_l, projection='3d')
     # plot measurements
     ax.scatter(mx, my, mz)
-    plt.hold(True)
     # plot line from center to ellipsoid center
     ax.plot([0.0, p[0]], [0.0, p[1]], [0.0, p[2]], color='black', marker='+', markersize=10)
     # plot ellipsoid
@@ -345,7 +344,6 @@ def plot_mag_3d(measured, calibrated, p):
     else:
         ax = fig.add_subplot(1, 2, 2, position=rect_r, projection='3d')
     ax.plot_wireframe(wx, wy, wz, color='grey', alpha=0.5)
-    plt.hold(True)
     ax.scatter(cx, cy, cz)
 
     ax.set_title('MAG calibrated on unit sphere')
