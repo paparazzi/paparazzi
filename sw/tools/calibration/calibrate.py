@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 #  Copyright (C) 2010 Antoine Drouin
 #
@@ -123,7 +123,7 @@ def main():
         print("remaining "+str(len(flt_meas))+" after filtering")
     if len(flt_meas) == 0:
         print("Error: found zero IMU_" + options.sensor + "_RAW measurements for aircraft with id " + options.ac_id +
-              " in log file after filtering with noise threshold of " + noise_threshold +
+              " in log file after filtering with noise threshold of " + str(noise_threshold) +
               "!\nMaybe try specifying manually with the --noise_threshold option.")
         if options.plot:
             calibration_utils.plot_measurements(options.sensor, measurements)
