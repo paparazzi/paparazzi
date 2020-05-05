@@ -46,7 +46,7 @@ def main():
                       action="store_true", dest="plot")
     parser.add_option("--noise_threshold",
                       help="specify noise threshold instead of automatically determining it",
-                      action="store", dest="noise_threshold", default=0)
+                      action="store", dest="noise_threshold", default=0, type="float")
     parser.add_option("-v", "--verbose",
                       action="store_true", dest="verbose")
     (options, args) = parser.parse_args()
