@@ -63,6 +63,17 @@ struct point_t {
   uint16_t y_sub;         ///< The y subpixel coordinate of the point
 };
 
+
+/* 3d Image point structure */
+struct point3d_t {
+  float X;             ///< The x coordinate of the point
+  float Y;             ///< The y coordinate of the point
+  float Z;             ///< The y coordinate of the point
+
+};
+
+
+
 /* Vector structure for point differences */
 struct flow_t {
   struct point_t pos;         ///< The original position the flow comes from in subpixels

@@ -63,6 +63,7 @@ int save_image_gray(struct image_t *img, char *myString)
 	{
 		Mat M(img->h, img->w, CV_16SC1, img->buf);
 		imwrite(myString, M);
+
 	}
 	else if (img->type == IMAGE_GRAYSCALE)
 	{
@@ -137,7 +138,7 @@ int save_image_color(void *img, int width, int height,char *myString)
 
 
 
-int SBM(struct image_t *img_disp, const struct image_t *img_left, const struct image_t *img_right,  const int ndisparities, const int SADWindowSize, const bool cropped)
+int SBM_OCV(struct image_t *img_disp, const struct image_t *img_left, const struct image_t *img_right,  const int ndisparities, const int SADWindowSize, const bool cropped)
 {
 
 	// Defining variables
@@ -233,7 +234,7 @@ int SBM(struct image_t *img_disp, const struct image_t *img_left, const struct i
 }
 
 
-int opening(struct image_t *img_input, const struct image_t *img_output, const int SE_size, const int iteration)
+int opening_OCV(struct image_t *img_input, const struct image_t *img_output, const int SE_size, const int iteration)
 {
 	Mat img_input_OCV(img_input->h, img_input->w, CV_8UC1, img_input->buf);
 	Mat img_output_OCV;
@@ -249,7 +250,7 @@ int opening(struct image_t *img_input, const struct image_t *img_output, const i
 
 
 
-int closing(struct image_t *img_input, const struct image_t *img_output, const int SE_size, const int iteration)
+int closing_OCV(struct image_t *img_input, const struct image_t *img_output, const int SE_size, const int iteration)
 {
 	Mat img_input_OCV(img_input->h, img_input->w, CV_8UC1, img_input->buf);
 	Mat img_output_OCV;
@@ -259,6 +260,83 @@ int closing(struct image_t *img_input, const struct image_t *img_output, const i
 	//erode(img_input_OCV, img_output_OCV, kernel);
 	transfer(&img_output_OCV, img_output);
 	return 0;
+}
+
+
+
+int dilation_OCV(struct image_t *img_input, const struct image_t *img_output, const int SE_size, const int iteration)
+{
+	Mat img_input_OCV(img_input->h, img_input->w, CV_8UC1, img_input->buf);
+	Mat img_output_OCV;
+	Mat kernel = getStructuringElement(MORPH_RECT, Size(SE_size, SE_size));
+
+	dilate(img_input_OCV, img_output_OCV, kernel, Point(-1,-1), iteration);
+	//erode(img_input_OCV, img_output_OCV, kernel);
+	transfer(&img_output_OCV, img_output);
+	return 0;
+}
+
+
+
+int sobel_OCV(struct image_t *img_input, const struct image_t *img_output, const int kernel_size)
+{
+
+	Mat img_input_OCV;
+	Mat img_grad_x, img_grad_y, img_grad_mag;
+	int ddepth = CV_32F;//CV_16S; // Format of gradient image output (CV_32F needed for normalization function)
+	int delta  = 0; // Value added to each gradient pixel
+	int scale = 1; // Factor by which gradient pixels is increased
+
+
+	if (img_input->type == IMAGE_OPENCV_DISP)
+	{
+		img_input_OCV = Mat(img_input->h, img_input->w, CV_16S, img_input->buf);
+
+	}
+	else if (img_input->type == IMAGE_GRAYSCALE)
+	{
+		img_input_OCV = Mat(img_input->h, img_input->w, CV_8UC1, img_input->buf);
+	}
+	else
+	{
+		std::cout << "This function only worked with images of type IMAGE_GRAYSCALE and IAMGE_OPENCV_DISP. Leaving function." << std::endl;
+		return -1;
+	}
+
+
+	Sobel(img_input_OCV, img_grad_x, ddepth, 1, 0, kernel_size, scale, delta, BORDER_DEFAULT ); // Horizontal gradient
+	Sobel(img_input_OCV, img_grad_y, ddepth, 0, 1, kernel_size, scale, delta, BORDER_DEFAULT ); // Vertical gradient
+
+	magnitude(img_grad_x, img_grad_y, img_grad_mag); // Calculating magnitude
+
+	normalize(img_grad_mag, img_grad_mag,  0, 255, NORM_MINMAX); // Normalizing magnitude between 0 and 255
+
+	img_grad_mag.convertTo(img_grad_mag, CV_8UC1); //Converting image to 8 bit image
+
+	transfer(&img_grad_mag, img_output); // Saving image into output images
+
+
+
+
+	/*
+	double minVal;
+	double maxVal;
+	Point minLoc;
+	Point maxLoc;
+	minMaxLoc(img_grad_mag ,&minVal, &maxVal, &minLoc, &maxLoc);
+	std::cout << "grad_x: Min=" << minVal << "; Max=" << maxVal << std::endl;
+
+
+	imwrite("/home/dureade/Documents/paparazzi_images/img_grad_mag.bmp", img_grad_mag);
+	//imwrite("/home/dureade/Documents/paparazzi_images/abs_grad_y.bmp", abs_grad_y);
+	//imwrite("/home/dureade/Documents/paparazzi_images/grad.bmp", grad);
+	//imwrite("/home/dureade/Documents/paparazzi_images/img_input_OCV.bmp", img_input_OCV);
+	 *
+	 */
+
+
+
+	return 1;
 }
 
 
