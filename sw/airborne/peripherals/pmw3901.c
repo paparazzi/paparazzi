@@ -32,6 +32,12 @@
 #include "mcu_periph/sys_time.h"
 
 
+// Based on crazyflie-firmware
+#ifndef PMW3901_RAD_PER_PX
+#define PMW3901_RAD_PER_PX 0.002443389
+#endif
+
+
 #define PMW3901_REG_MOTION     0x02
 #define PMW3901_REG_DELTA_X_L  0x03
 #define PMW3901_REG_DELTA_X_H  0x04
@@ -257,6 +263,7 @@ void pmw3901_init(struct pmw3901_t *pmw, struct spi_periph *periph, uint8_t slav
   pmw->delta_x = 0;
   pmw->delta_y = 0;
   pmw->data_available = false;
+  pmw->rad_per_px = PMW3901_RAD_PER_PX;
 }
 
 void pmw3901_event(struct pmw3901_t *pmw) {

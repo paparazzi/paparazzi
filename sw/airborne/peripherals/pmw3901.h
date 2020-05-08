@@ -45,12 +45,6 @@
 #include <math.h>
 
 
-// Based on crazyflie-firmware
-#ifndef PMW3901_RAD_PER_PX
-#define PMW3901_RAD_PER_PX 0.002443389
-#endif
-
-
 #define SPI_BUFFER_SIZE 8
 
 
@@ -74,6 +68,7 @@ struct pmw3901_t {
   int16_t delta_x;
   int16_t delta_y;
   bool data_available;
+  float rad_per_px;
 };
 
 void pmw3901_init(struct pmw3901_t *pmw, struct spi_periph *periph, uint8_t slave_idx);
