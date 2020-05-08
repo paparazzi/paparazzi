@@ -37,7 +37,7 @@
 
 
 #ifndef OPTICFLOW_PMW3901_SENSOR_ANGLE
-#define OPTICFLOW_PMW3901_SENSOR_ANGLE 0.f  // [rad] Sensor rotation around body z axis (down). 0 rad = x forward, y right.
+#define OPTICFLOW_PMW3901_SENSOR_ANGLE M_PI / 2.0  // [rad] Sensor rotation around body z axis (down). 0 rad = x forward, y right. M_PI can be used.
 #endif
 
 #ifndef OPTICFLOW_PMW3901_SUBPIXEL_FACTOR
