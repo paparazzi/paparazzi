@@ -81,9 +81,6 @@ static bool agl_valid(uint32_t at_ts) {
 
 static void opticflow_pmw3901_publish(int16_t delta_x, int16_t delta_y, uint32_t ts_usec) {
   /* Prepare message variables */
-  // Sensor orientation
-  float c = cosf(RAD(of_pmw.sensor_angle));
-  float s = sinf(RAD(of_pmw.sensor_angle));
   // Time
   static uint32_t prev_ts_usec = 0;
   float dt = (ts_usec - prev_ts_usec) / 1.0e6;
@@ -91,6 +88,9 @@ static void opticflow_pmw3901_publish(int16_t delta_x, int16_t delta_y, uint32_t
     dt = OPTICFLOW_PMW3901_PERIODIC_PERIOD;
   }
   prev_ts_usec = ts_usec;
+  // Sensor orientation
+  float c = cosf(RAD(of_pmw.sensor_angle));
+  float s = sinf(RAD(of_pmw.sensor_angle));
   // Flow [px/s] (body-frame)
   float flow_x = (c * delta_x - s * delta_y) / dt;
   float flow_y = (s * delta_x + c * delta_y) / dt;
@@ -120,22 +120,22 @@ static void opticflow_pmw3901_publish(int16_t delta_x, int16_t delta_y, uint32_t
   // camera intrinsics?? On the bright side, the sensor datasheet does not
   // provide any intrinsics either.....
   AbiSendMsgOPTICAL_FLOW(FLOW_OPTICFLOW_PMW3901_ID,
-      ts_usec,       /* stamp [us] */
-      flow_x_subpix,   /* flow_x [subpixels] */
-      flow_y_subpix,   /* flow_y [subpixels] */
-      flow_der_x_subpix,        /* flow_der_x [subpixels] */ // TODO later
-      flow_der_y_subpix,        /* flow_der_y [subpixels] */
-      0.f,      /* quality [???] */
-      0.f       /* size_divergence [1/s] */
+      ts_usec,            /* stamp [us] */
+      flow_x_subpix,      /* flow_x [subpixels] */
+      flow_y_subpix,      /* flow_y [subpixels] */
+      flow_der_x_subpix,  /* flow_der_x [subpixels] */
+      flow_der_y_subpix,  /* flow_der_y [subpixels] */
+      0.f,                /* quality [???] */
+      0.f                 /* size_divergence [1/s] */
       );
   if (agl_valid(ts_usec)) {
     AbiSendMsgVELOCITY_ESTIMATE(VEL_OPTICFLOW_PMW3901_ID,
-        ts_usec,       /* stamp [us] */
-        vel_x,      /* x [m/s] */
-        vel_y,      /* y [m/s] */
+        ts_usec,  /* stamp [us] */
+        vel_x,    /* x [m/s] */
+        vel_y,    /* y [m/s] */
         0.f,      /* z [m/s] */
-        noise,     /* noise_x [m/s] */
-        noise,     /* noise_y [m/s] */
+        noise,    /* noise_x [m/s] */
+        noise,    /* noise_y [m/s] */
         -1.f      /* noise_z [disabled] */
         );
   }
@@ -146,19 +146,19 @@ static void opticflow_pmw3901_publish(int16_t delta_x, int16_t delta_y, uint32_t
   uint16_t dummy_u16 = 0;
   float fps = 1.f / dt;
   DOWNLINK_SEND_OPTIC_FLOW_EST(DefaultChannel, DefaultDevice,
-      &fps,     /* fps */
-      &dummy_u16,   /* corner_cnt */
-      &dummy_u16,   /* tracked_cnt */
-      &flow_x_subpix,      /* flow_x */
-      &flow_y_subpix,      /* flow_y */
+      &fps,                 /* fps */
+      &dummy_u16,           /* corner_cnt */
+      &dummy_u16,           /* tracked_cnt */
+      &flow_x_subpix,       /* flow_x */
+      &flow_y_subpix,       /* flow_y */
       &flow_der_x_subpix,   /* flow_der_x */
       &flow_der_y_subpix,   /* flow_der_y */
-      &vel_x,     /* vel_x */
-      &vel_y,     /* vel_y */
-      &dummy_f,     /* vel_z */
-      &dummy_f,     /* div_size */
-      &dummy_f,     /* surface_roughness */
-      &dummy_f      /* divergence */
+      &vel_x,               /* vel_x */
+      &vel_y,               /* vel_y */
+      &dummy_f,             /* vel_z */
+      &dummy_f,             /* div_size */
+      &dummy_f,             /* surface_roughness */
+      &dummy_f              /* divergence */
       );
 #endif
 }
