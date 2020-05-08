@@ -3,6 +3,13 @@
 <module name="opticflow_pmw3901" dir="sensors">
   <doc>
     <description>Driver for PMW3901 optical flow sensor</description>
+    <configure name="OPTICFLOW_PMW3901_SPI_DEV" value="SPIx" description="SPI device"/>
+    <configure name="OPTICFLOW_PMW3901_SPI_SLAVE_IDX" value="2" description="SPI slave index"/>
+    <define name="OPTICFLOW_PMW3901_SENSOR_ANGLE" value="M_PI/2.0" description="Sensor mounting angle"/>
+    <define name="OPTICFLOW_PMW3901_SUBPIXEL_FACTOR" value="100" description="Subpixel factor"/>
+    <define name="OPTICFLOW_PMW3901_STD_PX" value="50" description="Standard deviation of flow measurement in px"/>
+    <define name="OPTICFLOW_PMW3901_AGL_ID" value="ABI_BROADCAST" description="AGL source to listen to for velocity estimation"/>
+    <define name="OPTICFLOW_PMW3901_AGL_TIMEOUT_US" value="500000" description="Lifetime of AGL measurements"/>
   </doc>
   <header>
     <file name="opticflow_pmw3901.h"/>
@@ -19,6 +26,9 @@
     <define name="OPTICFLOW_PMW3901_SPI_SLAVE_IDX" value="$(OPTICFLOW_PMW3901_SPI_SLAVE_IDX)"/>
     <file name="opticflow_pmw3901.c"/>
     <file name="pmw3901.c" dir="peripherals"/>
+    <raw>
+      include $(CFG_SHARED)/spi_master.makefile
+    </raw>
   </makefile>
 </module>
 
