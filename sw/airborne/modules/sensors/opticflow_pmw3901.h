@@ -30,7 +30,7 @@
 
 
 struct opticflow_pmw3901_settings_t {
-  float sensor_angle;
+  float sensor_angle;  // [deg!]
   int16_t subpixel_factor;
   float std_px;
   uint32_t agl_timeout;

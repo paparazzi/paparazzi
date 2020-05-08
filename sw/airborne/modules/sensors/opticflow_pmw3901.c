@@ -35,7 +35,7 @@
 
 
 #ifndef OPTICFLOW_PMW3901_SENSOR_ANGLE
-#define OPTICFLOW_PMW3901_SENSOR_ANGLE M_PI / 2.0  // [rad] Sensor rotation around body z axis (down). 0 rad = sensor x forward, y right.
+#define OPTICFLOW_PMW3901_SENSOR_ANGLE 90  // [deg] Sensor rotation around body z axis (down). 0 rad = sensor x forward, y right.
 #endif
 
 #ifndef OPTICFLOW_PMW3901_SUBPIXEL_FACTOR
@@ -54,6 +54,9 @@ PRINT_CONFIG_VAR(OPTICFLOW_PMW3901_AGL_ID)
 #ifndef OPTICFLOW_PMW3901_AGL_TIMEOUT_US
 #define OPTICFLOW_PMW3901_AGL_TIMEOUT_US 500000
 #endif
+
+
+#define RAD(_x) ((_x) / 180.0 * M_PI)
 
 
 struct pmw3901_t of_pmw;
@@ -80,8 +83,8 @@ static bool agl_valid(uint32_t at_ts) {
 static void opticflow_pmw3901_publish(int16_t delta_x, int16_t delta_y, uint32_t ts_usec) {
   /* Prepare message variables */
   // Sensor orientation
-  float c = cosf(of_pmw_set.sensor_angle);
-  float s = sinf(of_pmw_set.sensor_angle);
+  float c = cosf(RAD(of_pmw_set.sensor_angle));
+  float s = sinf(RAD(of_pmw_set.sensor_angle));
   // Time
   static uint32_t prev_ts_usec = 0;
   float dt = (ts_usec - prev_ts_usec) / 1.0e6;

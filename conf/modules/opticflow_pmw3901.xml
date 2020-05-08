@@ -5,7 +5,7 @@
     <description>Driver for PMW3901 optical flow sensor</description>
     <configure name="OPTICFLOW_PMW3901_SPI_DEV" value="SPIx" description="SPI device"/>
     <configure name="OPTICFLOW_PMW3901_SPI_SLAVE_IDX" value="2" description="SPI slave index"/>
-    <define name="OPTICFLOW_PMW3901_SENSOR_ANGLE" value="M_PI/2.0" description="Sensor mounting angle"/>
+    <define name="OPTICFLOW_PMW3901_SENSOR_ANGLE" value="90" description="Sensor mounting angle in degrees"/>
     <define name="OPTICFLOW_PMW3901_SUBPIXEL_FACTOR" value="100" description="Subpixel factor"/>
     <define name="OPTICFLOW_PMW3901_STD_PX" value="50" description="Standard deviation of flow measurement in px"/>
     <define name="OPTICFLOW_PMW3901_AGL_ID" value="ABI_BROADCAST" description="AGL source to listen to for velocity estimation"/>
@@ -14,7 +14,7 @@
   <settings>
     <dl_settings>
       <dl_settings name="OF_PMW3901">
-         <dl_setting shortname="sensor_angle" var="of_pmw_set.sensor_angle" min="0" step="M_PI/12" max="2*M_PI"/>
+         <dl_setting shortname="sensor_angle" var="of_pmw_set.sensor_angle" min="0" step="1" max="360"/>
          <dl_setting shortname="subpixel_factor" var="of_pmw_set.subpixel_factor" min="0" max="500"/>
          <dl_setting shortname="std_px" var="of_pmw_set.std_px" min="0.0" max="100.0" step="0.1"/>
          <dl_setting shortname="agl_timeout" var="of_pmw_set.agl_timeout" min="0" max="1000000"/>
