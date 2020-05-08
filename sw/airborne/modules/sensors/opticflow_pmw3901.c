@@ -35,7 +35,7 @@
 
 
 #ifndef OPTICFLOW_PMW3901_SENSOR_ANGLE
-#define OPTICFLOW_PMW3901_SENSOR_ANGLE 90  // [deg] Sensor rotation around body z axis (down). 0 rad = sensor x forward, y right.
+#define OPTICFLOW_PMW3901_SENSOR_ANGLE 270  // [deg] Sensor rotation around body z axis (down). 0 rad = sensor x forward, y right.
 #endif
 
 #ifndef OPTICFLOW_PMW3901_SUBPIXEL_FACTOR
@@ -109,8 +109,8 @@ static void opticflow_pmw3901_publish(int16_t delta_x, int16_t delta_y, uint32_t
   static float vel_y = 0;
   static float noise = 0;
   if (agl_valid(ts_usec)) {
-    vel_x = flow_der_x * of_pmw.pmw.rad_per_px * agl_dist;
-    vel_y = flow_der_y * of_pmw.pmw.rad_per_px * agl_dist;
+    vel_x = -flow_der_x * of_pmw.pmw.rad_per_px * agl_dist;
+    vel_y = -flow_der_y * of_pmw.pmw.rad_per_px * agl_dist;
     noise = of_pmw.std_px * of_pmw.pmw.rad_per_px * agl_dist;
   }
 
