@@ -28,14 +28,14 @@
 
 #include "peripherals/pmw3901.h"
 
-struct opticflow_pmw3901_settings_t {
+struct opticflow_pmw3901_t {
   struct pmw3901_t pmw;
   float sensor_angle;  // [deg!]
   int16_t subpixel_factor;
   float std_px;
   uint32_t agl_timeout;
 };
-extern struct opticflow_pmw3901_settings_t of_pmw;
+extern struct opticflow_pmw3901_t of_pmw;
 
 extern void opticflow_pmw3901_init(void);
 extern void opticflow_pmw3901_periodic(void);

@@ -59,7 +59,7 @@ PRINT_CONFIG_VAR(OPTICFLOW_PMW3901_AGL_ID)
 #define RAD(_x) ((_x) / 180.0 * M_PI)
 
 
-struct opticflow_pmw3901_settings_t of_pmw;
+struct opticflow_pmw3901_t of_pmw;
 
 abi_event agl_ev;
 static float agl_dist;
