@@ -37,11 +37,15 @@
 
 
 #ifndef OPTICFLOW_PMW3901_SENSOR_ANGLE
-#define OPTICFLOW_PMW3901_SENSOR_ANGLE M_PI / 2.0  // [rad] Sensor rotation around body z axis (down). 0 rad = x forward, y right. M_PI can be used.
+#define OPTICFLOW_PMW3901_SENSOR_ANGLE M_PI / 2.0  // [rad] Sensor rotation around body z axis (down). 0 rad = sensor x forward, y right.
 #endif
 
 #ifndef OPTICFLOW_PMW3901_SUBPIXEL_FACTOR
 #define OPTICFLOW_PMW3901_SUBPIXEL_FACTOR 100
+#endif
+
+#ifndef OPTICFLOW_PMW3901_STD_PX
+#define OPTICFLOW_PMW3901_STD_PX 50  // [px] standard deviation of flow measurement
 #endif
 
 #ifndef OPTICFLOW_PMW3901_AGL_ID
@@ -103,9 +107,11 @@ static void opticflow_pmw3901_publish(int16_t delta_x, int16_t delta_y, uint32_t
   // Velocity
   static float vel_x = 0;  // static: keep last measurement for telemetry if agl not valid
   static float vel_y = 0;
+  static float noise = 0;
   if (agl_valid(ts_usec)) {
-    vel_x = flow_der_x * agl_dist;
-    vel_y = flow_der_y * agl_dist;
+    vel_x = flow_der_x * PMW3901_RAD_PER_PX * agl_dist;
+    vel_y = flow_der_y * PMW3901_RAD_PER_PX * agl_dist;
+    noise = OPTICFLOW_PMW3901_STD_PX * PMW3901_RAD_PER_PX * agl_dist;
   }
 
   /* Send ABI messages */
@@ -128,8 +134,8 @@ static void opticflow_pmw3901_publish(int16_t delta_x, int16_t delta_y, uint32_t
         vel_x,      /* x [m/s] */
         vel_y,      /* y [m/s] */
         0.f,      /* z [m/s] */
-        0.2f,     /* noise_x [m/s] */
-        0.2f,     /* noise_y [m/s] */
+        noise,     /* noise_x [m/s] */
+        noise,     /* noise_y [m/s] */
         -1.f      /* noise_z [disabled] */
         );
   }
