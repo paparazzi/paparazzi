@@ -90,7 +90,6 @@ static void opticflow_pmw3901_publish(int16_t delta_x, int16_t delta_y, uint32_t
     dt = OPTICFLOW_PMW3901_PERIODIC_PERIOD;
   }
   prev_ts_usec = ts_usec;
-  float fps = 1.f / dt;
   // Flow [px/s] (body-frame)
   float flow_x = (c * delta_x - s * delta_y) / dt;
   float flow_y = (s * delta_x + c * delta_y) / dt;
@@ -144,6 +143,7 @@ static void opticflow_pmw3901_publish(int16_t delta_x, int16_t delta_y, uint32_t
 #if SENSOR_SYNC_SEND_OPTICFLOW_PMW3901
   float dummy_f = 0.f;
   uint16_t dummy_u16 = 0;
+  float fps = 1.f / dt;
   DOWNLINK_SEND_OPTIC_FLOW_EST(DefaultChannel, DefaultDevice,
       &fps,     /* fps */
       &dummy_u16,   /* corner_cnt */
