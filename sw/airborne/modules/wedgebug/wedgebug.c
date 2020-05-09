@@ -61,6 +61,9 @@ struct image_t img_edges_int8_cropped;
 
 struct crop_t img_cropped_info;
 
+//Drone starting point coordinates
+struct NedCoor_f OC;
+
 //static pthread_mutex_t mutex;
 int N_disparities = 64;
 int block_size_disparities = 25;
@@ -88,7 +91,7 @@ void post_disparity_crop_rect(uint16_t* height_start, uint16_t* height_offset, u
 uint32_t maximum_intensity(struct image_t *img);
 void thresholding_img(struct image_t *img, uint8_t threshold);
 void principal_points(const struct point_t *c_old, struct point_t *c , struct crop_t *img_cropped_info);
-void point_scene(struct point3d_t *scene_point, int32_t image_point_y, int32_t image_point_x , const uint8_t d, const float b, const uint16_t f);
+void Ci_to_Cc(struct FloatVect3 *scene_point, int32_t image_point_y, int32_t image_point_x , const uint8_t d, const float b, const uint16_t f);
 int32_t indx1d(const int32_t y, const int32_t x, const struct image_t *img_dimensions);
 
 
@@ -193,7 +196,6 @@ void UYVYs_interlacing_V(struct image_t *merged, struct image_t *left, struct im
 }
 
 
-
 // Function 4
 void UYVYs_interlacing_H(struct image_t *merged, struct image_t *left, struct image_t *right)
 {
@@ -280,6 +282,7 @@ uint32_t maximum_intensity(struct image_t *img)
 	return max;
 }
 
+
 // Function 7 - Thresholds 8bit images given and turns all values >= threshold to 255
 void thresholding_img(struct image_t *img, uint8_t threshold)
 {
@@ -297,6 +300,7 @@ void thresholding_img(struct image_t *img, uint8_t threshold)
 	}
 }
 
+
 // Function 8 - Calculates principal point coordinates for a cropped image, based on the x
 // and y coordinates of the cropped area (upper left-hand side: crop_y and crop_x).
 void principal_points(const struct point_t *c_old, struct point_t *c , struct crop_t *img_cropped_info)
@@ -306,21 +310,9 @@ void principal_points(const struct point_t *c_old, struct point_t *c , struct cr
 }
 
 
-
-/*
-void point_scene(const uint16_t y,
-		const uint16_t x,
-		const uint16_t d,
-		const float b,
-		const uint16_t f,
-		uint16_t* Y,
-		uint16_t* X,
-		uint16_t* Z);
-		*/
-
 // Function 9 - Calculates 3d points in a scene based on the 2d coordinates of the point in the
 // image plane and the depth.
-void point_scene(struct point3d_t *scene_point, int32_t image_point_y, int32_t image_point_x , const uint8_t d, const float b, const uint16_t f)
+void Ci_to_Cc(struct FloatVect3 *scene_point, int32_t image_point_y, int32_t image_point_x , const uint8_t d, const float b, const uint16_t f)
 {
 	// Calculating Z
 	// In case disparity is 0 Z will be very very small to avoid detection of algorithm that
@@ -332,29 +324,28 @@ void point_scene(struct point3d_t *scene_point, int32_t image_point_y, int32_t i
 
 	if (d==0)
 	{
-		scene_point->Z = 0.0001;
+		scene_point->z = 0.0001;
 	}
 	else
 	{
-		scene_point->Z = b * f / d;
+		scene_point->z = b * f / d;
 	}
 
 
 	//printf("Z=%f\n", scene_point->Z);
 
 	// Calculating Y
-	scene_point->Y = image_point_y * scene_point -> Z / f;
+	scene_point->y = image_point_y * scene_point -> z / f;
 
 	// Calculating X
-	scene_point->X = image_point_x * scene_point -> Z / f;
+	scene_point->x = image_point_x * scene_point -> z / f;
 	//printf("Y (y=%d) =  %f\n", image_point->y, scene_point->Y);
 	//printf("X (x=%d) =  %f\n", image_point->x, scene_point->X);
 	//printf("Z (d=%d) =  %f\n", d, scene_point->Z);
 
 }
 
-
-
+// Function 10 - Converts 2d coordinates into 1d coordinates (for 1d arrays)
 int32_t indx1d(const int32_t y, const int32_t x, const struct image_t *img_dimensions)
 {
 
@@ -375,6 +366,99 @@ int32_t indx1d(const int32_t y, const int32_t x, const struct image_t *img_dimen
 }
 
 
+// Function 11 - The CFw is in NED coordinates (x is depth, y is left and right, and z is altitude)
+// To use the coordinates they need to be in the camera system instead (x is left and right,
+// y is altitude and z is depth). This function does this.
+void CSned_to_CSc(struct FloatVect3 *C_in_CSc, struct FloatVect3 *C_in_CSned)
+{
+	// The temp variabel is created in case the same vector is used as input and output
+	struct FloatVect3 C_in_CSned_temp;
+	C_in_CSned_temp.x = C_in_CSned->x;
+	C_in_CSned_temp.y = C_in_CSned->y;
+	C_in_CSned_temp.z = C_in_CSned->z;
+
+	C_in_CSc->x = C_in_CSned_temp.y;
+	C_in_CSc->y = C_in_CSned_temp.z;
+	C_in_CSc->z = C_in_CSned_temp.x;
+}
+
+
+// Function 12 - To use the coordinates of the camera system they need to be converted to NED
+// coordinates. This function does this.
+void CSc_to_CSned(struct FloatVect3 *C_in_CSned, struct FloatVect3 *C_in_CSc)
+{
+	// The temp variable is created in case the same vector is used as input and output
+	struct FloatVect3 C_in_CSc_temp;
+	C_in_CSc_temp.x = C_in_CSc->x;
+	C_in_CSc_temp.y = C_in_CSc->y;
+	C_in_CSc_temp.z = C_in_CSc->z;
+
+	C_in_CSned->x = C_in_CSc_temp.z;
+	C_in_CSned->y = C_in_CSc_temp.x;
+	C_in_CSned->z = C_in_CSc_temp.y;
+}
+
+
+// Function 13 - Converts word coordinates (in CSned) into camera coordinate (in CSc)
+void Cw_to_Cc(struct FloatVect3 *Cc, struct FloatVect3 *Cw, struct FloatRMat *R, struct NedCoor_f *T)
+{
+	// The following function multiplies the extrinsic rotation matrix (R) by the world frame coordinates (Cw)
+	// The results is saved in Cc which represents the Cw oriented in the CFc.
+	float_rmat_vmult(Cc, R, Cw);
+
+	// The following adds the extrinsic transition vector to the Cw. The result represents the Cw oriented and
+	// moved into the CFc
+	Cc->x = Cc->x + T->x;
+	Cc->y = Cc->y + T->y;
+	Cc->z = Cc->z + T->z;
+
+	//The following converts the coordinates the CSned to CSc
+	CSned_to_CSc(Cc, Cc);
+}
+
+
+// Function 14 - Converts camera coordinate (in CSc) into word coordinates (in CSned) into
+void Cc_to_Cw(struct FloatVect3 *Cw, struct FloatVect3 *Cc, struct FloatRMat *R, struct NedCoor_f *T)
+{
+	// The following function multiplies the inverse extrinsic rotation matrix (R) by the camera frame coordinates (Cc)
+	// The results is saved in Cw which represents the Cc oriented in the CFw.
+
+
+	CSc_to_CSned(Cc, Cc);
+
+	Cc->x = Cc->x - T->x;
+	Cc->y = Cc->y - T->y;
+	Cc->z = Cc->z - T->z;
+
+
+	float_rmat_transp_vmult(Cw, R, Cc);
+
+	// The following subtracts the extrinsic transition vector of the Cw. The result represents the Cc oriented and
+	// moved into the CFw
+
+
+	//The following converts coordinates in the CSc to CSned
+	//CSc_to_CSned(Cw, Cw);
+}
+
+
+/*
+ * CFw: Coordinate frame - World (i.e. the world coordinate frame)
+ * CFc: Coordinate frame - Camera (i.e. the camera coordinate frame)
+ * CFi: Coordinate frame - Image(i.e. the image (plane) coordinate frame
+ * Cw: Coordinates - World (i.e. coordinates in the world coordinate frame)
+ * Cc: Coordinates - Camera (i.e. coordinates in the camera coordinate system)
+ * Ci: Coordinates - Image (i.e. coordinates in the image (plane) coordinate system)
+ * CSned: Coordinate system - NED (i.e. the NED coordinate system = x is depth, y is left and right, and z is altitude)
+ * CSc: Coordinate system - Camera (i.e. the Camera coordinate system = x is left and right, y is altitude and z is depth)
+ */
+
+// World coordinate frame
+//
+//Cc Coordinates  - Camera
+//Cw Coordinates - World
+//Cip Coordinates - Image plane
+//c - principal point
 
 
 // New section ----------------------------------------------------------------------------------------------------------------
@@ -406,11 +490,12 @@ void wedgebug_init(){
 	image_create(&img_edges_int8_cropped,crop_width, crop_height, IMAGE_GRAYSCALE);// To store edges image data from processing - 8 bit
 
 
-
-
 	// Adding callback functions
 	cv_add_to_device(&WEDGEBUG_CAMERA_LEFT, copy_left_img_func, WEDGEBUG_CAMERA_LEFT_FPS);
 	cv_add_to_device(&WEDGEBUG_CAMERA_RIGHT, copy_right_img_func, WEDGEBUG_CAMERA_RIGHT_FPS);
+
+
+
 }
 
 void wedgebug_periodic(){
@@ -421,6 +506,22 @@ void wedgebug_periodic(){
 
 	// No imaes are capturin during the first call of the periodic function
 	// So all processing must happen after the first cycle
+
+	if(cycle_counter == 1)
+	{
+
+		// Obtaining original coordinates (starting coordinates)
+		OC.x = stateGetPositionNed_f()->y;
+		OC.y = stateGetPositionNed_f()->z;
+		OC.z = stateGetPositionNed_f()->x;
+
+
+		OC.x = stateGetPositionNed_f()->x;
+		OC.y = stateGetPositionNed_f()->y;
+		OC.z = stateGetPositionNed_f()->z;
+
+	}
+
 	if (cycle_counter != 0)
 	{
 
@@ -462,64 +563,61 @@ void wedgebug_periodic(){
 
 		c_old.y = img_left_int8.h / 2;
 		c_old.x = img_left_int8.w / 2;
-		principal_points(&c_old, &c, &img_cropped_info);
+		principal_points(&c_old, &c, &img_cropped_info); // Calculates principal points for cropped image, considerring the original dimensions
 
 
+		//static inline struct FloatRMat *stateGetNedToBodyRMat_f(void);
+		//static inline struct NedCoor_f *stateGetPositionNed_f(void);
 
-		//static inline struct FloatRMat *stateGetNedToBodyRMat_f(void)
-		//static inline struct NedCoor_f *stateGetPositionNed_f(void)
+		struct FloatRMat *Ro = stateGetNedToBodyRMat_f();
+		struct NedCoor_f *Tr = stateGetPositionNed_f();
 
-		//struct FloatRMat *test = stateGetNedToBodyRMat_f();
+		struct FloatVect3 Cw;
+		Cw.x = 1;
+		Cw.y = 2;
+		Cw.z = 3;
 
-		//struct FloatRMat inverse;
-
-		//struct FloatRMat *inverse_ptr = &inverse;
-
-		//MAKE_MATRIX_PTR(rotation_M, stateGetNedToBodyRMat_f()->m, 3);
-		//MAKE_MATRIX_PTR(inverse_M, inverse.m, 3);
-
-
+		struct FloatVect3 Cc;
 
 
+		//struct FloatVect3 T;
+		//T.x = 1;
+		//T.y = 1;
+		//T.z = 1;
 
 
-		//void float_mat_invert(float **o, float **mat, int n);
+		// Rotation matrix
+		printf("R\n");
+		printf("%f, %f, %f,\n", Ro->m[0],Ro->m[1], Ro->m[2]);
+		printf("%f, %f, %f,\n", Ro->m[3],Ro->m[4], Ro->m[5]);
+		printf("%f, %f, %f\n\n", Ro->m[6],Ro->m[7], Ro->m[8]);
 
-		//float_mat_invert(inverse_M, rotation_M, 3);
-
-
-		//struct FloatRMat *display = &(stateGetNedToBodyRMat_f()->m);
-
-		//float_mat_transpose_square(float **a, int n)
-
-
-
-		//MAKE_MATRIX_PTR(_t, &t, 2);
-
-		//float *double_pointer = &(stateGetNedToBodyRMat_f()->m);
-
-		//float_mat_transpose_square(float **a, int n);
+		// Translation vector
+		printf("T\n");
+		printf(" %f\n %f\n %f\n\n", Tr->x, Tr->y, Tr->z);
 
 
+		// World coordinates
+		printf("Cw\n");
+		printf(" %f\n %f\n %f\n\n", Cw.x, Cw.y, Cw.z);
 
-		//printf("RT matrix\n %f, %f, %f,\n %f, %f, %f,\n %f, %f, %f,\n ", display->m[0], display->m[1], display->m[2], display->m[3], display->m[4], display->m[5], display->m[6], display->m[7], display->m[8]);
+		// Camera coordinates from world coordinates
+		Cw_to_Cc(&Cc, &Cw, Ro, Tr);
 
-		/*
-		 *
-		 *		int rows = 3;
-		int columns = 3;
-		printf("RT matrix\n");
-		for (int i = 0; i<rows; i++)
-		{
-			for (int j= 0; j<columns; j++)
-			{
-				if ((i==rows-1) & (j==columns-1))
-				{
-					print("%f\n", display->m[i+j]);
-				}
-			}
-		}*/
+		// Camera coordinates
+		printf("Cc\n");
+		printf(" %f\n %f\n %f\n\n", Cc.x, Cc.y, Cc.z);
 
+
+		// World coordinates from camera coordinates
+		Cc_to_Cw(&Cw, &Cc, Ro, Tr);
+
+
+		// BAck to world coordinates
+		printf("Cw2\n");
+		printf(" %f\n %f\n %f\n\n", Cw.x, Cw.y, Cw.z);
+
+		printf("----------------------------\n");
 
 
 
@@ -527,51 +625,35 @@ void wedgebug_periodic(){
 
 
 
-		// Calculating scene points
 
-		// example of how point in image is converted to a 3d point in the scene
-		// using a disparity value for depth (Z) <---- CONTINUE HERE WITH EXAMPLE OF TARGET!
-
-		//uint16_t disparity = 64;
-		//float b = WEDGEBUG_CAMERA_BASELINE / 1000.00;
-		//uint16_t f = WEDGEBUG_CAMERA_FOCAL_LENGTH;
-
-
-		// Calculates point in scene based on point in image and disparity value
-		//point_scene(&image_point, &scene_point, disparity, b, f);
-		//int32_t x_test = 1;
-		//int32_t y_test = 1;
-		//struct point3d_t scene_point;
-
-		//point_scene(&scene_point, y_test, x_test, disparity, b, f);
-
-		//printf("Y=%f\n", scene_point.Y);
-		//printf("X=%f\n", scene_point.X);
-		//printf("Z=%f\n\n", scene_point.Z);
-
-
-		//
+		//void float_rmat_transp_vmult(struct FloatVect3 *vb, struct FloatRMat *m_b2a, struct FloatVect3 *va)
+		//float_rmat_transp_vmult(struct FloatVect3 *vb, struct FloatRMat *m_b2a, struct FloatVect3 *va)
 
 
 
 
 
 
-		// Specifying hypothetical target point in the scene
-		struct point3d_t target_point;
-		target_point.Y = -0.251803;
-		target_point.X = 0.0671475;
-		target_point.Z = 6;
 
 
+
+
+
+
+
+
+		struct FloatVect3 target_point;
+		target_point.y = -0.251803;
+		target_point.x = 0.0671475;
+		target_point.z = 6;
 
 		// Loop to calculate position (in image) of point closes to hypothetical target - Start
 		float b = WEDGEBUG_CAMERA_BASELINE / 1000.00;
 		uint16_t f = WEDGEBUG_CAMERA_FOCAL_LENGTH;
-		struct point3d_t scene_point;
-		struct point3d_t target_scene_diff;
 		float distance = 255;
-		struct point_t closest_edge;
+		struct FloatVect3 scene_point;
+		struct FloatVect3 target_scene_diff;
+		struct FloatVect2 closest_edge;
 
 
 		for (uint32_t y = 0; y < img_depth_int8_cropped.h; y++)
@@ -591,18 +673,19 @@ void wedgebug_periodic(){
 					int32_t x_from_c = x - c.x;
 					// We save disparity and derive the 3d scene point using it
 					uint8_t disparity = ((uint8_t*) img_middle_int8_cropped.buf)[indx];
-					point_scene(&scene_point, y_from_c, x_from_c, disparity, b, f);
+					//Ci_to_Cc(&scene_point, y_from_c, x_from_c, disparity, b, f);
+					Ci_to_Cc(&scene_point, y_from_c, x_from_c, disparity, b, f);
 
 					// Calculating distance vector (needed to see which point is closest to goal)
-					target_scene_diff.X = target_point.X - scene_point.X;
-					target_scene_diff.Y = target_point.Y - scene_point.Y;
-					target_scene_diff.Z = target_point.Z - scene_point.Z;
+					target_scene_diff.x = target_point.x - scene_point.x;
+					target_scene_diff.y = target_point.y - scene_point.y;
+					target_scene_diff.z = target_point.z - scene_point.z;
 
 					// If current distance (using distance vector) is smaller than the previous minimum distanc
 					// measure then save new distance and point coordinates associated with it
-					if (((float)sqrt(pow(target_scene_diff.X ,2) + pow(target_scene_diff.Y ,2)+ pow(target_scene_diff.Z ,2))) < distance)
+					if (((float)sqrt(pow(target_scene_diff.x ,2) + pow(target_scene_diff.y ,2)+ pow(target_scene_diff.z ,2))) < distance)
 					{
-						distance = (float)sqrt(pow(target_scene_diff.X ,2) + pow(target_scene_diff.Y ,2)+ pow(target_scene_diff.Z ,2));
+						distance = (float)sqrt(pow(target_scene_diff.x ,2) + pow(target_scene_diff.y ,2)+ pow(target_scene_diff.z ,2));
 						closest_edge.y = y;
 						closest_edge.x = x;
 					}
@@ -617,7 +700,7 @@ void wedgebug_periodic(){
 					//printf("Y scene from c = %f\n", scene_point.Y);
 					//printf("Z scene from c = %f\n", scene_point.Z);
 
-					//printf("Closest edge [y,x] = [%d, %d]\n", closest_edge.y, closest_edge.x);
+					//printf("Closest edge [y,x] = [%d, %d]\n", (int)closest_edge.y, (int)closest_edge.x);
 					//printf("Distance to goal (m) = %f\n\n", distance);
 				}
 			}
