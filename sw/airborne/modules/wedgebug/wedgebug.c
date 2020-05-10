@@ -366,99 +366,94 @@ int32_t indx1d(const int32_t y, const int32_t x, const struct image_t *img_dimen
 }
 
 
-// Function 11 - The CFw is in NED coordinates (x is depth, y is left and right, and z is altitude)
-// To use the coordinates they need to be in the camera system instead (x is left and right,
-// y is altitude and z is depth). This function does this.
-void CSned_to_CSc(struct FloatVect3 *C_in_CSc, struct FloatVect3 *C_in_CSned)
-{
-	// The temp variabel is created in case the same vector is used as input and output
-	struct FloatVect3 C_in_CSned_temp;
-	C_in_CSned_temp.x = C_in_CSned->x;
-	C_in_CSned_temp.y = C_in_CSned->y;
-	C_in_CSned_temp.z = C_in_CSned->z;
 
-	C_in_CSc->x = C_in_CSned_temp.y;
-	C_in_CSc->y = C_in_CSned_temp.z;
-	C_in_CSc->z = C_in_CSned_temp.x;
+
+
+
+
+// Function xx
+void Vw_to_Va(struct FloatVect3 *Va, struct FloatVect3 *Vw, struct FloatRMat *Raw, struct NedCoor_f *VAw)
+{
+	// The following translates world vector coordinates into the agent coordinate system
+	Vw->x = Vw->x - VAw->x;
+	Vw->y = Vw->y - VAw->y;
+	Vw->z = Vw->z - VAw->z;
+
+	// In case the axes of the world coordinate system (w) and the agent coordinate system (a) do not
+	// coincide, they are adjusted with the rotation matrix R
+	float_rmat_vmult(Va, Raw, Vw);
 }
 
 
-// Function 12 - To use the coordinates of the camera system they need to be converted to NED
-// coordinates. This function does this.
-void CSc_to_CSned(struct FloatVect3 *C_in_CSned, struct FloatVect3 *C_in_CSc)
+// Function xx
+void Va_to_Vw(struct FloatVect3 *Vw, struct FloatVect3 *Va, struct FloatRMat *Raw, struct NedCoor_f *VAw)
 {
-	// The temp variable is created in case the same vector is used as input and output
-	struct FloatVect3 C_in_CSc_temp;
-	C_in_CSc_temp.x = C_in_CSc->x;
-	C_in_CSc_temp.y = C_in_CSc->y;
-	C_in_CSc_temp.z = C_in_CSc->z;
+	// In case the axes of the agent coordinate system (a) and the world coordinate system (w) do not
+	// coincide, they are adjusted with the inverse rotation matrix R
+	float_rmat_transp_vmult(Vw, Raw, Va);
 
-	C_in_CSned->x = C_in_CSc_temp.z;
-	C_in_CSned->y = C_in_CSc_temp.x;
-	C_in_CSned->z = C_in_CSc_temp.y;
+	// The following translates agent vector coordinates into the world coordinate system
+	Vw->x = Vw->x + VAw->x;
+	Vw->y = Vw->y + VAw->y;
+	Vw->z = Vw->z + VAw->z;
+
 }
 
 
-// Function 13 - Converts word coordinates (in CSned) into camera coordinate (in CSc)
-void Cw_to_Cc(struct FloatVect3 *Cc, struct FloatVect3 *Cw, struct FloatRMat *R, struct NedCoor_f *T)
+
+
+
+// Function xx
+void Va_to_Vc(struct FloatVect3 *Vc, struct FloatVect3 *Va, struct FloatRMat *Rca, struct FloatVect3 *VCa)
 {
-	// The following function multiplies the extrinsic rotation matrix (R) by the world frame coordinates (Cw)
-	// The results is saved in Cc which represents the Cw oriented in the CFc.
-	float_rmat_vmult(Cc, R, Cw);
+	// The following translates world vector coordinates into the agent coordinate system
+	Va->x = Va->x - VCa->x;
+	Va->y = Va->y - VCa->y;
+	Va->z = Va->z - VCa->z;
 
-	// The following adds the extrinsic transition vector to the Cw. The result represents the Cw oriented and
-	// moved into the CFc
-	Cc->x = Cc->x + T->x;
-	Cc->y = Cc->y + T->y;
-	Cc->z = Cc->z + T->z;
-
-	//The following converts the coordinates the CSned to CSc
-	CSned_to_CSc(Cc, Cc);
+	// In case the axes of the world coordinate system (w) and the agent coordinate system (a) do not
+	// coincide, they are adjusted with the rotation matrix R
+	float_rmat_vmult(Vc, Rca, Va);
 }
 
 
-// Function 14 - Converts camera coordinate (in CSc) into word coordinates (in CSned) into
-void Cc_to_Cw(struct FloatVect3 *Cw, struct FloatVect3 *Cc, struct FloatRMat *R, struct NedCoor_f *T)
+// Function xx
+void Vc_to_Va(struct FloatVect3 *Va, struct FloatVect3 *Vc, struct FloatRMat *Rca, struct FloatVect3 *VCa)
 {
-	// The following function multiplies the inverse extrinsic rotation matrix (R) by the camera frame coordinates (Cc)
-	// The results is saved in Cw which represents the Cc oriented in the CFw.
+	// In case the axes of the agent coordinate system (a) and the world coordinate system (w) do not
+	// coincide, they are adjusted with the inverse rotation matrix R
+	float_rmat_transp_vmult(Va, Rca, Vc);
 
+	// The following translates agent vector coordinates into the world coordinate system
+	Va->x = Va->x + VCa->x;
+	Va->y = Va->y + VCa->y;
+	Va->z = Va->z + VCa->z;
 
-	CSc_to_CSned(Cc, Cc);
-
-	Cc->x = Cc->x - T->x;
-	Cc->y = Cc->y - T->y;
-	Cc->z = Cc->z - T->z;
-
-
-	float_rmat_transp_vmult(Cw, R, Cc);
-
-	// The following subtracts the extrinsic transition vector of the Cw. The result represents the Cc oriented and
-	// moved into the CFw
-
-
-	//The following converts coordinates in the CSc to CSned
-	//CSc_to_CSned(Cw, Cw);
 }
+
+
+
 
 
 /*
- * CFw: Coordinate frame - World (i.e. the world coordinate frame)
- * CFc: Coordinate frame - Camera (i.e. the camera coordinate frame)
- * CFi: Coordinate frame - Image(i.e. the image (plane) coordinate frame
- * Cw: Coordinates - World (i.e. coordinates in the world coordinate frame)
- * Cc: Coordinates - Camera (i.e. coordinates in the camera coordinate system)
- * Ci: Coordinates - Image (i.e. coordinates in the image (plane) coordinate system)
+ * w: World coordinate system (i.e. the world coordinate frame = x is depth, y is left and right, and z is altitude))
+ * a: Agent coordinate system (i.e. the agent coordinate frame = x is depth, y is left and right, and z is altitude))
+ * c: Camera Coordinate system (i.e. the camera coordinate frame = x is left and right, y is altitude and z is depth)
+ * i: Image coordinate system  (i.e. the image (plane) coordinate frame)
+ * Vw: Vector coordinates, in the world coordinate system (i.e. a point in the world coordinate system)
+ * Va: Vector coordinates, in the agent coordinate system (i.e. a point in the world coordinate system)
+ * Vc: Vector coordinates, in the camera coordinate system (i.e. a point in the world coordinate system)
+ * Vi: Vector coordinates, in the image coordinate system (i.e. a point in the image [plane] coordinates system)
+ * R: Rotation matrix
+ * Raw: Rotation matrix of world coordinate system expressed in the agent coordinate system
+ * Rca: Rotation matrix of agent coordinate system expressed in the camera coordinate system
  * CSned: Coordinate system - NED (i.e. the NED coordinate system = x is depth, y is left and right, and z is altitude)
  * CSc: Coordinate system - Camera (i.e. the Camera coordinate system = x is left and right, y is altitude and z is depth)
+ * VAw: Vector coordinates of agent in the world coordinate system
+ * VCa: Vector coordinates of camera in the agent coordinate system
  */
 
-// World coordinate frame
-//
-//Cc Coordinates  - Camera
-//Cw Coordinates - World
-//Cip Coordinates - Image plane
-//c - principal point
+
 
 
 // New section ----------------------------------------------------------------------------------------------------------------
@@ -566,56 +561,103 @@ void wedgebug_periodic(){
 		principal_points(&c_old, &c, &img_cropped_info); // Calculates principal points for cropped image, considerring the original dimensions
 
 
-		//static inline struct FloatRMat *stateGetNedToBodyRMat_f(void);
-		//static inline struct NedCoor_f *stateGetPositionNed_f(void);
-
-		struct FloatRMat *Ro = stateGetNedToBodyRMat_f();
-		struct NedCoor_f *Tr = stateGetPositionNed_f();
-
-		struct FloatVect3 Cw;
-		Cw.x = 1;
-		Cw.y = 2;
-		Cw.z = 3;
-
-		struct FloatVect3 Cc;
 
 
-		//struct FloatVect3 T;
-		//T.x = 1;
-		//T.y = 1;
-		//T.z = 1;
+
+
+
+		struct FloatVect3 Vw;
+		Vw.x = 1;
+		Vw.y = 2;
+		Vw.z = 3;
+
+		struct FloatRMat *Raw = stateGetNedToBodyRMat_f();
+		struct NedCoor_f *VAw = stateGetPositionNed_f();
+		struct FloatVect3 Va;
+
+
+
+
+		struct FloatRMat Rca;
+		Rca.m[0] = 0; Rca.m[1] = 1;	Rca.m[2] = 0;
+		Rca.m[3] = 0; Rca.m[4] = 0; Rca.m[5] = 1;
+		Rca.m[6] = 1; Rca.m[7] = 0; Rca.m[8] = 0;
+
+		struct FloatVect3 VCa;
+		VCa.x = 0;
+		VCa.y = 0;
+		VCa.z = 0;
+		struct FloatVect3 Vc;
+
+
+
 
 
 		// Rotation matrix
-		printf("R\n");
-		printf("%f, %f, %f,\n", Ro->m[0],Ro->m[1], Ro->m[2]);
-		printf("%f, %f, %f,\n", Ro->m[3],Ro->m[4], Ro->m[5]);
-		printf("%f, %f, %f\n\n", Ro->m[6],Ro->m[7], Ro->m[8]);
+		printf("Raw\n");
+		printf("%f, %f, %f,\n", Raw->m[0],Raw->m[1], Raw->m[2]);
+		printf("%f, %f, %f,\n", Raw->m[3],Raw->m[4], Raw->m[5]);
+		printf("%f, %f, %f\n\n", Raw->m[6],Raw->m[7], Raw->m[8]);
 
 		// Translation vector
-		printf("T\n");
-		printf(" %f\n %f\n %f\n\n", Tr->x, Tr->y, Tr->z);
-
+		printf("VAw (drone location)\n");
+		printf(" %f\n %f\n %f\n\n", VAw->x, VAw->y, VAw->z);
 
 		// World coordinates
-		printf("Cw\n");
-		printf(" %f\n %f\n %f\n\n", Cw.x, Cw.y, Cw.z);
+		printf("Vw\n");
+		printf(" %f\n %f\n %f\n\n", Vw.x, Vw.y, Vw.z);
 
-		// Camera coordinates from world coordinates
-		Cw_to_Cc(&Cc, &Cw, Ro, Tr);
+		// Agent coordinates from world coordinates
+		Vw_to_Va(&Va, &Vw, Raw, VAw);
+
+		// Agent coordinates
+		printf("Va\n");
+		printf(" %f\n %f\n %f\n\n", Va.x, Va.y, Va.z);
+
+
+
+
+		// Rotation matrix
+		printf("Rca\n");
+		printf("%f, %f, %f,\n", Rca.m[0],Rca.m[1], Rca.m[2]);
+		printf("%f, %f, %f,\n", Rca.m[3],Rca.m[4], Rca.m[5]);
+		printf("%f, %f, %f\n\n", Rca.m[6],Rca.m[7], Rca.m[8]);
+
+		// Translation vector
+		printf("VCa (drone location)\n");
+		printf(" %f\n %f\n %f\n\n", VCa.x, VCa.y, VCa.z);
+
+
+
+
+
+
+
+		// Camera coordinates from agent coordinates
+		Va_to_Vc(&Vc, &Va, &Rca, &VCa);
+
 
 		// Camera coordinates
-		printf("Cc\n");
-		printf(" %f\n %f\n %f\n\n", Cc.x, Cc.y, Cc.z);
+		printf("Vc\n");
+		printf(" %f\n %f\n %f\n\n", Vc.x, Vc.y, Vc.z);
 
 
-		// World coordinates from camera coordinates
-		Cc_to_Cw(&Cw, &Cc, Ro, Tr);
+
+		// Agent coordinates from camera coordinates
+		Vc_to_Va(&Va, &Vc, &Rca, &VCa);
+
+		// Back to agent coordinates
+		printf("Va2\n");
+		printf(" %f\n %f\n %f\n\n", Va.x, Va.y, Va.z);
 
 
-		// BAck to world coordinates
-		printf("Cw2\n");
-		printf(" %f\n %f\n %f\n\n", Cw.x, Cw.y, Cw.z);
+		// World coordinates from a coordinates
+		Va_to_Vw(&Vw, &Va, Raw, VAw);
+
+
+		// Back to world coordinates
+		printf("Vw2\n");
+		printf(" %f\n %f\n %f\n\n", Vw.x, Vw.y, Vw.z);
 
 		printf("----------------------------\n");
 
