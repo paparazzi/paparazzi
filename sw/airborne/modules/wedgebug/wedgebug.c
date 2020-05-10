@@ -91,8 +91,13 @@ void post_disparity_crop_rect(uint16_t* height_start, uint16_t* height_offset, u
 uint32_t maximum_intensity(struct image_t *img);
 void thresholding_img(struct image_t *img, uint8_t threshold);
 void principal_points(const struct point_t *c_old, struct point_t *c , struct crop_t *img_cropped_info);
-void Ci_to_Cc(struct FloatVect3 *scene_point, int32_t image_point_y, int32_t image_point_x , const uint8_t d, const float b, const uint16_t f);
+void Vi_to_Vc(struct FloatVect3 *scene_point, int32_t image_point_y, int32_t image_point_x , const uint8_t d, const float b, const uint16_t f);
 int32_t indx1d(const int32_t y, const int32_t x, const struct image_t *img_dimensions);
+
+void Va_to_Vb(struct FloatVect3 *Vb, struct FloatVect3 *Va, struct FloatRMat *Rba, struct FloatVect3 *VOa);
+void Vb_to_Va(struct FloatVect3 *Va, struct FloatVect3 *Vb, struct FloatRMat *Rba, struct FloatVect3 *VOa);
+void Vw_to_Vc(struct FloatVect3 *Vc, struct FloatVect3 *Vw, struct FloatRMat *Rrw, struct FloatVect3 *VRw, struct FloatRMat *Rcr, struct FloatVect3 *VCr, const uint8_t verbose);
+void Vc_to_Vw(struct FloatVect3 *Vw, struct FloatVect3 *Vc, struct FloatRMat *Rrw, struct FloatVect3 *VRw, struct FloatRMat *Rcr, struct FloatVect3 *VCr ,const uint8_t verbose);
 
 
 
@@ -296,7 +301,6 @@ void thresholding_img(struct image_t *img, uint8_t threshold)
 		}
 		else
 			*intensity = 0;
-
 	}
 }
 
@@ -312,7 +316,7 @@ void principal_points(const struct point_t *c_old, struct point_t *c , struct cr
 
 // Function 9 - Calculates 3d points in a scene based on the 2d coordinates of the point in the
 // image plane and the depth.
-void Ci_to_Cc(struct FloatVect3 *scene_point, int32_t image_point_y, int32_t image_point_x , const uint8_t d, const float b, const uint16_t f)
+void Vi_to_Vc(struct FloatVect3 *scene_point, int32_t image_point_y, int32_t image_point_x , const uint8_t d, const float b, const uint16_t f)
 {
 	// Calculating Z
 	// In case disparity is 0 Z will be very very small to avoid detection of algorithm that
@@ -345,6 +349,7 @@ void Ci_to_Cc(struct FloatVect3 *scene_point, int32_t image_point_y, int32_t ima
 
 }
 
+
 // Function 10 - Converts 2d coordinates into 1d coordinates (for 1d arrays)
 int32_t indx1d(const int32_t y, const int32_t x, const struct image_t *img_dimensions)
 {
@@ -368,89 +373,145 @@ int32_t indx1d(const int32_t y, const int32_t x, const struct image_t *img_dimen
 
 
 
-
-
-
-// Function xx
-void Vw_to_Va(struct FloatVect3 *Va, struct FloatVect3 *Vw, struct FloatRMat *Raw, struct NedCoor_f *VAw)
+// Function 11 - Function to convert point in coordinate system a to a point in the coordinate system b
+void Va_to_Vb(struct FloatVect3 *Vb, struct FloatVect3 *Va, struct FloatRMat *Rba, struct FloatVect3 *VOa)
 {
 	// The following translates world vector coordinates into the agent coordinate system
-	Vw->x = Vw->x - VAw->x;
-	Vw->y = Vw->y - VAw->y;
-	Vw->z = Vw->z - VAw->z;
+	Va->x = Va->x - VOa->x;
+	Va->y = Va->y - VOa->y;
+	Va->z = Va->z - VOa->z;
 
 	// In case the axes of the world coordinate system (w) and the agent coordinate system (a) do not
 	// coincide, they are adjusted with the rotation matrix R
-	float_rmat_vmult(Va, Raw, Vw);
+	float_rmat_vmult(Vb, Rba, Va);
 }
 
 
-// Function xx
-void Va_to_Vw(struct FloatVect3 *Vw, struct FloatVect3 *Va, struct FloatRMat *Raw, struct NedCoor_f *VAw)
+// Function 12 - Function to convert point in coordinate system b back to a point in the coordinate system a
+void Vb_to_Va(struct FloatVect3 *Va, struct FloatVect3 *Vb, struct FloatRMat *Rba, struct FloatVect3 *VOa)
 {
 	// In case the axes of the agent coordinate system (a) and the world coordinate system (w) do not
 	// coincide, they are adjusted with the inverse rotation matrix R
-	float_rmat_transp_vmult(Vw, Raw, Va);
+	float_rmat_transp_vmult(Va, Rba, Vb);
 
 	// The following translates agent vector coordinates into the world coordinate system
-	Vw->x = Vw->x + VAw->x;
-	Vw->y = Vw->y + VAw->y;
-	Vw->z = Vw->z + VAw->z;
-
+	Va->x = Va->x + VOa->x;
+	Va->y = Va->y + VOa->y;
+	Va->z = Va->z + VOa->z;
 }
 
-
-
-
-
-// Function xx
-void Va_to_Vc(struct FloatVect3 *Vc, struct FloatVect3 *Va, struct FloatRMat *Rca, struct FloatVect3 *VCa)
+// Function 13 - Function wrapper to convert a point in the world coordinate system to a point in the camera coordinate system
+void Vw_to_Vc(struct FloatVect3 *Vc, struct FloatVect3 *Vw, struct FloatRMat *Rrw, struct FloatVect3 *VRw, struct FloatRMat *Rcr, struct FloatVect3 *VCr, const uint8_t verbose)
 {
-	// The following translates world vector coordinates into the agent coordinate system
-	Va->x = Va->x - VCa->x;
-	Va->y = Va->y - VCa->y;
-	Va->z = Va->z - VCa->z;
+	struct FloatVect3 Vr;
 
-	// In case the axes of the world coordinate system (w) and the agent coordinate system (a) do not
-	// coincide, they are adjusted with the rotation matrix R
-	float_rmat_vmult(Vc, Rca, Va);
+	// Print log only if enabled
+	if (verbose != 0)
+	{
+		// Rotation matrix - World coordinate system expressed in the robot coordinate system
+		printf("Rrw\n");
+		printf("%f, %f, %f,\n", Rrw->m[0],Rrw->m[1], Rrw->m[2]);
+		printf("%f, %f, %f,\n", Rrw->m[3],Rrw->m[4], Rrw->m[5]);
+		printf("%f, %f, %f\n\n", Rrw->m[6],Rrw->m[7], Rrw->m[8]);
+
+		// Vector coordinates - Robot in the world frame system
+		printf("VRw (drone location)\n");
+		printf(" %f\n %f\n %f\n\n", VRw->x, VRw->y, VRw->z);
+
+		// World coordinates
+		printf("Vw\n");
+		printf(" %f\n %f\n %f\n\n", Vw->x, Vw->y, Vw->z);
+	}
+
+
+	// Robot coordinates from world coordinates
+	Va_to_Vb(&Vr, Vw, Rrw, VRw);
+
+	// Print log only if enabled
+	if (verbose != 0)
+	{
+		// Robot coordinates
+		printf("Vr\n");
+		printf(" %f\n %f\n %f\n\n", Vr.x, Vr.y, Vr.z);
+
+		// Rotation matrix - Robot coordinate system expressed in the camera coordinate system
+		printf("Rcr\n");
+		printf("%f, %f, %f,\n", Rcr->m[0],Rcr->m[1], Rcr->m[2]);
+		printf("%f, %f, %f,\n", Rcr->m[3],Rcr->m[4], Rcr->m[5]);
+		printf("%f, %f, %f\n\n", Rcr->m[6],Rcr->m[7], Rcr->m[8]);
+
+		// Vector coordinates - Camera in the robot frame system
+		printf("VCa (camera location)\n");
+		printf(" %f\n %f\n %f\n\n", VCr->x, VCr->y, VCr->z);
+	}
+
+	// Camera coordinates from robot coordinates
+	Va_to_Vb(Vc, &Vr, Rcr, VCr);
+
+	// Print log only if enabled
+	if (verbose != 0)
+	{
+		// Camera coordinates
+		printf("Vc\n");
+		printf(" %f\n %f\n %f\n\n", Vc->x, Vc->y, Vc->z);
+	}
 }
 
-
-// Function xx
-void Vc_to_Va(struct FloatVect3 *Va, struct FloatVect3 *Vc, struct FloatRMat *Rca, struct FloatVect3 *VCa)
+// Function 14 - Function wrapper to convert a point in the camera coordinate system back to a point in the world coordinate system
+void Vc_to_Vw(struct FloatVect3 *Vw, struct FloatVect3 *Vc, struct FloatRMat *Rrw, struct FloatVect3 *VRw, struct FloatRMat *Rcr, struct FloatVect3 *VCr, const uint8_t verbose)
 {
-	// In case the axes of the agent coordinate system (a) and the world coordinate system (w) do not
-	// coincide, they are adjusted with the inverse rotation matrix R
-	float_rmat_transp_vmult(Va, Rca, Vc);
+	struct FloatVect3 Vr;
 
-	// The following translates agent vector coordinates into the world coordinate system
-	Va->x = Va->x + VCa->x;
-	Va->y = Va->y + VCa->y;
-	Va->z = Va->z + VCa->z;
+	// Agent coordinates from camera coordinates
+	Vb_to_Va(&Vr, Vc, Rcr, VCr);
 
+	// Print log only if enabled
+	if (verbose != 0)
+	{
+		// Back to robot coordinates
+		printf("Vr - back calculated\n");\
+		printf(" %f\n %f\n %f\n\n", Vr.x, Vr.y, Vr.z);
+	}
+
+
+	// World coordinates from a coordinates
+	Vb_to_Va(Vw, &Vr, Rrw, VRw);
+
+	// Print log only if enabled
+	if (verbose != 0)
+	{
+		// Back to world coordinates
+		printf("Vw - back calculated\n");
+		printf(" %f\n %f\n %f\n\n", Vw->x, Vw->y, Vw->z);
+	}
 }
-
-
 
 
 
 /*
+ * a: Coordinate system a (i.e. the coordinate frame a)
+ * b: Coordinate system b (i.e. the coordinate frame b)
  * w: World coordinate system (i.e. the world coordinate frame = x is depth, y is left and right, and z is altitude))
- * a: Agent coordinate system (i.e. the agent coordinate frame = x is depth, y is left and right, and z is altitude))
+ * r: Robot coordinate system (i.e. the robot coordinate frame = x is depth, y is left and right, and z is altitude))
  * c: Camera Coordinate system (i.e. the camera coordinate frame = x is left and right, y is altitude and z is depth)
  * i: Image coordinate system  (i.e. the image (plane) coordinate frame)
+ *
+ * Va: Vector coordinates, in the coordinate system a (i.e. a point in the coordinate system a)
+ * Vb: Vector coordinates, in the coordinate system b (i.e. a point in the coordinate system b)
  * Vw: Vector coordinates, in the world coordinate system (i.e. a point in the world coordinate system)
- * Va: Vector coordinates, in the agent coordinate system (i.e. a point in the world coordinate system)
+ * Vr: Vector coordinates, in the robot coordinate system (i.e. a point in the world coordinate system)
  * Vc: Vector coordinates, in the camera coordinate system (i.e. a point in the world coordinate system)
  * Vi: Vector coordinates, in the image coordinate system (i.e. a point in the image [plane] coordinates system)
+ *
  * R: Rotation matrix
- * Raw: Rotation matrix of world coordinate system expressed in the agent coordinate system
- * Rca: Rotation matrix of agent coordinate system expressed in the camera coordinate system
- * CSned: Coordinate system - NED (i.e. the NED coordinate system = x is depth, y is left and right, and z is altitude)
- * CSc: Coordinate system - Camera (i.e. the Camera coordinate system = x is left and right, y is altitude and z is depth)
- * VAw: Vector coordinates of agent in the world coordinate system
- * VCa: Vector coordinates of camera in the agent coordinate system
+ *
+ * Rba: Rotation matrix of coordinate system a expressed in the coordinate system b
+ * Rrw: Rotation matrix of world coordinate system expressed in the robot coordinate system
+ * Rcr: Rotation matrix of robot coordinate system expressed in the camera coordinate system
+ *
+ * VRw: Vector coordinates of robot in the world coordinate system
+ * VCr: Vector coordinates of camera in the robot coordinate system
+ * VOa: Vector coordinates of the object (has its own object frame) in the the coordinate system a *
  */
 
 
@@ -488,9 +549,6 @@ void wedgebug_init(){
 	// Adding callback functions
 	cv_add_to_device(&WEDGEBUG_CAMERA_LEFT, copy_left_img_func, WEDGEBUG_CAMERA_LEFT_FPS);
 	cv_add_to_device(&WEDGEBUG_CAMERA_RIGHT, copy_right_img_func, WEDGEBUG_CAMERA_RIGHT_FPS);
-
-
-
 }
 
 void wedgebug_periodic(){
@@ -502,20 +560,7 @@ void wedgebug_periodic(){
 	// No imaes are capturin during the first call of the periodic function
 	// So all processing must happen after the first cycle
 
-	if(cycle_counter == 1)
-	{
 
-		// Obtaining original coordinates (starting coordinates)
-		OC.x = stateGetPositionNed_f()->y;
-		OC.y = stateGetPositionNed_f()->z;
-		OC.z = stateGetPositionNed_f()->x;
-
-
-		OC.x = stateGetPositionNed_f()->x;
-		OC.y = stateGetPositionNed_f()->y;
-		OC.z = stateGetPositionNed_f()->z;
-
-	}
 
 	if (cycle_counter != 0)
 	{
@@ -533,7 +578,7 @@ void wedgebug_periodic(){
 		//SBM_OCV(&img_depth_int16_cropped, &img_left_int8, &img_right_int8, N_disparities, block_size_disparities, 1);// Creating cropped disparity map image
 
 		// Morphological operations 1
-		// Neeeded to smoove object boundaries and to remove noise removing noise
+		// Needed to smoove object boundaries and to remove noise removing noise
 		opening_OCV(&img_depth_int8_cropped, &img_middle_int8_cropped,13, 1);
 		closing_OCV(&img_middle_int8_cropped, &img_middle_int8_cropped,13, 1);
 		dilation_OCV(&img_middle_int8_cropped, &img_middle_int8_cropped,11, 1);
@@ -555,111 +600,41 @@ void wedgebug_periodic(){
 		// Calculating PP -
 		struct point_t c_old;
 		struct point_t c;
-
 		c_old.y = img_left_int8.h / 2;
 		c_old.x = img_left_int8.w / 2;
 		principal_points(&c_old, &c, &img_cropped_info); // Calculates principal points for cropped image, considerring the original dimensions
 
 
+		// Preparation of variables to convert between coordinate systems - start
+		// Declaration and initialization of rotation matrix and robot position in world coordinate system
+		struct FloatRMat *Rrw = stateGetNedToBodyRMat_f();
+		struct NedCoor_f *VRw_temp = stateGetPositionNed_f();
+		struct FloatVect3 VRw;
+		VRw.x = VRw_temp->x;
+		VRw.y = VRw_temp->y;
+		VRw.z = VRw_temp->z;
 
+		// Declaration and initialization of rotation matrix and camera position in robot coordinate system
+		struct FloatRMat Rcr;
+		Rcr.m[0] = 0; Rcr.m[1] = 1;	Rcr.m[2] = 0;
+		Rcr.m[3] = 0; Rcr.m[4] = 0; Rcr.m[5] = 1;
+		Rcr.m[6] = 1; Rcr.m[7] = 0; Rcr.m[8] = 0;
+		struct FloatVect3 VCr;
+		VCr.x = 0;
+		VCr.y = 0;
+		VCr.z = 0;
 
-
-
-
+		// Creation of point in the world coordinate system and an empty point in the camera coordinate system
 		struct FloatVect3 Vw;
 		Vw.x = 1;
 		Vw.y = 2;
 		Vw.z = 3;
-
-		struct FloatRMat *Raw = stateGetNedToBodyRMat_f();
-		struct NedCoor_f *VAw = stateGetPositionNed_f();
-		struct FloatVect3 Va;
-
-
-
-
-		struct FloatRMat Rca;
-		Rca.m[0] = 0; Rca.m[1] = 1;	Rca.m[2] = 0;
-		Rca.m[3] = 0; Rca.m[4] = 0; Rca.m[5] = 1;
-		Rca.m[6] = 1; Rca.m[7] = 0; Rca.m[8] = 0;
-
-		struct FloatVect3 VCa;
-		VCa.x = 0;
-		VCa.y = 0;
-		VCa.z = 0;
 		struct FloatVect3 Vc;
 
-
-
-
-
-		// Rotation matrix
-		printf("Raw\n");
-		printf("%f, %f, %f,\n", Raw->m[0],Raw->m[1], Raw->m[2]);
-		printf("%f, %f, %f,\n", Raw->m[3],Raw->m[4], Raw->m[5]);
-		printf("%f, %f, %f\n\n", Raw->m[6],Raw->m[7], Raw->m[8]);
-
-		// Translation vector
-		printf("VAw (drone location)\n");
-		printf(" %f\n %f\n %f\n\n", VAw->x, VAw->y, VAw->z);
-
-		// World coordinates
-		printf("Vw\n");
-		printf(" %f\n %f\n %f\n\n", Vw.x, Vw.y, Vw.z);
-
-		// Agent coordinates from world coordinates
-		Vw_to_Va(&Va, &Vw, Raw, VAw);
-
-		// Agent coordinates
-		printf("Va\n");
-		printf(" %f\n %f\n %f\n\n", Va.x, Va.y, Va.z);
-
-
-
-
-		// Rotation matrix
-		printf("Rca\n");
-		printf("%f, %f, %f,\n", Rca.m[0],Rca.m[1], Rca.m[2]);
-		printf("%f, %f, %f,\n", Rca.m[3],Rca.m[4], Rca.m[5]);
-		printf("%f, %f, %f\n\n", Rca.m[6],Rca.m[7], Rca.m[8]);
-
-		// Translation vector
-		printf("VCa (drone location)\n");
-		printf(" %f\n %f\n %f\n\n", VCa.x, VCa.y, VCa.z);
-
-
-
-
-
-
-
-		// Camera coordinates from agent coordinates
-		Va_to_Vc(&Vc, &Va, &Rca, &VCa);
-
-
-		// Camera coordinates
-		printf("Vc\n");
-		printf(" %f\n %f\n %f\n\n", Vc.x, Vc.y, Vc.z);
-
-
-
-		// Agent coordinates from camera coordinates
-		Vc_to_Va(&Va, &Vc, &Rca, &VCa);
-
-		// Back to agent coordinates
-		printf("Va2\n");
-		printf(" %f\n %f\n %f\n\n", Va.x, Va.y, Va.z);
-
-
-		// World coordinates from a coordinates
-		Va_to_Vw(&Vw, &Va, Raw, VAw);
-
-
-		// Back to world coordinates
-		printf("Vw2\n");
-		printf(" %f\n %f\n %f\n\n", Vw.x, Vw.y, Vw.z);
-
+		Vw_to_Vc(&Vc, &Vw, Rrw, &VRw, &Rcr, &VCr, 0); // 0 for no log, 1 for log
+		Vc_to_Vw(&Vw, &Vc, Rrw, &VRw, &Rcr, &VCr, 0); // 0 for no log, 1 for log
 		printf("----------------------------\n");
+		// Preparation of variables to convert between coordinate systems - end
 
 
 
@@ -667,23 +642,8 @@ void wedgebug_periodic(){
 
 
 
-
-		//void float_rmat_transp_vmult(struct FloatVect3 *vb, struct FloatRMat *m_b2a, struct FloatVect3 *va)
-		//float_rmat_transp_vmult(struct FloatVect3 *vb, struct FloatRMat *m_b2a, struct FloatVect3 *va)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		// Example for finding target point in camera coordinate system - start
+		// Creating target point in the camera coordinate system
 		struct FloatVect3 target_point;
 		target_point.y = -0.251803;
 		target_point.x = 0.0671475;
@@ -693,7 +653,7 @@ void wedgebug_periodic(){
 		float b = WEDGEBUG_CAMERA_BASELINE / 1000.00;
 		uint16_t f = WEDGEBUG_CAMERA_FOCAL_LENGTH;
 		float distance = 255;
-		struct FloatVect3 scene_point;
+		struct FloatVect3 Vc2;
 		struct FloatVect3 target_scene_diff;
 		struct FloatVect2 closest_edge;
 
@@ -715,13 +675,13 @@ void wedgebug_periodic(){
 					int32_t x_from_c = x - c.x;
 					// We save disparity and derive the 3d scene point using it
 					uint8_t disparity = ((uint8_t*) img_middle_int8_cropped.buf)[indx];
-					//Ci_to_Cc(&scene_point, y_from_c, x_from_c, disparity, b, f);
-					Ci_to_Cc(&scene_point, y_from_c, x_from_c, disparity, b, f);
+					//Ci_to_Cc(&Vc, y_from_c, x_from_c, disparity, b, f);
+					Vi_to_Vc(&Vc2, y_from_c, x_from_c, disparity, b, f);
 
 					// Calculating distance vector (needed to see which point is closest to goal)
-					target_scene_diff.x = target_point.x - scene_point.x;
-					target_scene_diff.y = target_point.y - scene_point.y;
-					target_scene_diff.z = target_point.z - scene_point.z;
+					target_scene_diff.x = target_point.x - Vc2.x;
+					target_scene_diff.y = target_point.y - Vc2.y;
+					target_scene_diff.z = target_point.z - Vc2.z;
 
 					// If current distance (using distance vector) is smaller than the previous minimum distanc
 					// measure then save new distance and point coordinates associated with it
@@ -752,6 +712,7 @@ void wedgebug_periodic(){
 		//printf("Closest edge [y,x] = [%d, %d]\n", closest_edge.y, closest_edge.x);
 	    //printf("Distance to goal (m) = %f\n\n", distance);
 	    // Loop to calculate position (in image) of point closes to hypothetical target - End
+		// Example for finding target point in camera coordinate system - End
 
 
 
