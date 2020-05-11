@@ -31,6 +31,8 @@
 
 #include "state.h"
 
+#include "std.h"
+
 #include <math.h>
 
 
@@ -54,9 +56,6 @@ PRINT_CONFIG_VAR(OPTICFLOW_PMW3901_AGL_ID)
 #ifndef OPTICFLOW_PMW3901_AGL_TIMEOUT_US
 #define OPTICFLOW_PMW3901_AGL_TIMEOUT_US 500000
 #endif
-
-
-#define RAD(_x) ((_x) / 180.0 * M_PI)
 
 
 struct opticflow_pmw3901_t of_pmw;
@@ -89,8 +88,8 @@ static void opticflow_pmw3901_publish(int16_t delta_x, int16_t delta_y, uint32_t
   }
   prev_ts_usec = ts_usec;
   // Sensor orientation
-  float c = cosf(RAD(of_pmw.sensor_angle));
-  float s = sinf(RAD(of_pmw.sensor_angle));
+  float c = cosf(RadOfDeg(of_pmw.sensor_angle));
+  float s = sinf(RadOfDeg(of_pmw.sensor_angle));
   // Flow [px/s] (body-frame)
   float flow_x = (c * delta_x - s * delta_y) / dt;
   float flow_y = (s * delta_x + c * delta_y) / dt;
