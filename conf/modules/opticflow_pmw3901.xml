@@ -33,7 +33,7 @@
   <makefile>
     <configure name="OPTICFLOW_PMW3901_SPI_DEV" default="SPI2" case="upper|lower"/>
     <configure name="OPTICFLOW_PMW3901_SPI_SLAVE_IDX" default="1"/>
-    <define name="USE_$(OPTICFLOW_PMW3901_SPI_DEV)"/>
+    <define name="USE_$(OPTICFLOW_PMW3901_SPI_DEV_UPPER)"/>
     <define name="USE_SPI_SLAVE$(OPTICFLOW_PMW3901_SPI_SLAVE_IDX)"/>
     <define name="OPTICFLOW_PMW3901_SPI_DEV" value="$(OPTICFLOW_PMW3901_SPI_DEV_LOWER)"/>
     <define name="OPTICFLOW_PMW3901_SPI_SLAVE_IDX" value="$(OPTICFLOW_PMW3901_SPI_SLAVE_IDX)"/>
