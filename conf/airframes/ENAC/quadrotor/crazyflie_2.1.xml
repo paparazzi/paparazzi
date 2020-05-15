@@ -48,8 +48,14 @@
     <module name="range_forcefield">
       <define name="RANGE_FORCEFIELD_MAX_VEL" value="0.1"/>
     </module>
-    <module name="sonar" type="vl53l1x"/>
-    <define name="SENSOR_SYNC_SEND_SONAR"/>
+    <module name="sonar" type="vl53l1x">
+      <define name="SENSOR_SYNC_SEND_SONAR"/>
+    </module>
+    <module name="opticflow" type="pmw3901">
+      <configure name="OPTICFLOW_PMW3901_SPI_DEV" value="spi1"/>
+      <define name="SENSOR_SYNC_SEND_OPTICFLOW_PMW3901"/>
+      <define name="PMW3901_SPI_CDIV" value="SPIDiv32"/>
+    </module>
     <define name="NO_GPS_NEEDED_FOR_NAV" value="TRUE"/>
 
   </firmware>
