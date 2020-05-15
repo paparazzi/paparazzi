@@ -9,6 +9,7 @@
       This module is an example of controlling several leds with the color changing continuously.
       Implementation for ChibiOS using DMA.
     </description>
+    <configure name="WS2812_TIM" value="TIM1" description="Select the timer used to control the LEDs"/>
     <define name="WS2812_NB_LEDS" value="8" description="Number of leds"/>
   </doc>
   <header>
@@ -17,6 +18,8 @@
   <init fun="light_scheduler_init()"/>
   <periodic fun="light_scheduler_periodic()" freq="8"/>
   <makefile target="ap">
+    <configure name="WS2812_TIM" default="TIM1" case="upper"/>
+    <define name="STM32_PWM_USE_$(WS2812_TIM)" cond="ifeq ($(RTOS),chibios)"/>
     <file name="light_scheduler.c"/>
     <file_arch name="light_ws2812_arch.c"/>
     <file_arch name="hal_stm32_dma.c" dir="mcu_periph" cond="ifeq ($(RTOS),chibios)"/>

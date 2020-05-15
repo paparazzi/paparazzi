@@ -582,7 +582,6 @@
 /**
  * For WS2812
  */
-#define STM32_PWM_USE_TIM1 TRUE
 #define WS2812D1_GPIO GPIOA
 #define WS2812D1_PIN GPIO8
 #define WS2812D1_AF 1
