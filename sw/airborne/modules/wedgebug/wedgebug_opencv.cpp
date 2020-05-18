@@ -36,6 +36,8 @@
 
 using namespace cv;
 
+
+
 // Local declarations
 int transfer(const Mat *from, const image_t *to);
 
@@ -75,42 +77,6 @@ int save_image_gray(struct image_t *img, char *myString)
 		std::cout << "This function only worked with images of type IMAGE_GRAYSCALE and IAMGE_OPENCV_DISP. Leaving function." << std::endl;
 		return -1;
 	}
-
-
-
-	// Code below is for testing
-	/*
-	int total = 0;
-	int j = 0;
-
-	for (int i = 0; i < (M.cols * M.rows); i++)
-	{
-		if (i % 10000 == 0)
-		{
-			std::cout << "Save:i position: " << i << std::endl;
-			std::cout << "Save: Entry in position i in new image: " << + M.data[i] << std::endl;
-			std::cout << "Save: Entry in position i in old image: " << +((uint8_t*)img)[i] << std::endl;
-
-		}
-		j++;
-		total = total + M.data[i];
-	}
-
-
-	std::cout << "*img dims: " << height << ":" << width << std::endl;
-	std::cout << "M: " << M.rows << ":" << M.cols << std::endl;
-	std::cout << "j: " << j << std::endl;
-	std::cout << "total: " << total << std::endl;
-	std::cout << "Rows/height (240): " << M.size[0] << std::endl;
-	std::cout << "Columns/width (480): " << M.size[1] << "\n" << std::endl;
-	std::cout << M.at(5,5)[0] << std::endl;
-	double minVal;
-	double maxVal;
-	Point minLoc;
-	Point maxLoc;
-	minMaxLoc(M ,&minVal, &maxVal, &minLoc, &maxLoc);
-	std::cout << "Merged: Min=" << minVal << "; Max=" << maxVal << std::endl;
-	 */
   return 0;
 }
 
@@ -145,6 +111,7 @@ int SBM_OCV(struct image_t *img_disp, const struct image_t *img_left, const stru
 	Mat img_left_OCV(img_left->h, img_left->w, CV_8UC1, img_left->buf);
 	Mat img_right_OCV(img_right->h, img_right->w, CV_8UC1, img_right->buf);
 	Mat img_disp_OCV;
+	Mat img_disp_2_OCV;
 
 
 	// Block matching
@@ -169,13 +136,12 @@ int SBM_OCV(struct image_t *img_disp, const struct image_t *img_left, const stru
 		}
 		else if (cropped == 1) // If image should be cropped
 		{
-			uint16_t rec_y;
-			uint16_t rec_height;
-			uint16_t rec_x;
-			uint16_t rec_width;
+			struct crop_t img_cropped_info;
+			struct img_size_t original_img_dims = {img_left->h, img_left->w};
 
-			post_disparity_crop_rect(&rec_y, &rec_height,&rec_x, &rec_width, img_left->h, img_left->w,  ndisparities, SADWindowSize); // Function from wedebug.h
-			Rect crop_area = Rect(rec_x, rec_y, rec_width, rec_height);
+			post_disparity_crop_rect(&img_cropped_info, &original_img_dims,  ndisparities, SADWindowSize); // Function from wedebug.h
+
+			Rect crop_area = Rect(img_cropped_info.x, img_cropped_info.y, img_cropped_info.w, img_cropped_info.h);
 			Mat img_cropped = img_disp_OCV(crop_area);
 
 			for (int i = 0; i < (img_cropped.rows * img_cropped.cols); i++)
@@ -192,7 +158,10 @@ int SBM_OCV(struct image_t *img_disp, const struct image_t *img_left, const stru
 	{
 		//std::cout << "uint8_t" << std::endl;
 		typedef uint8_t img_dip_type;
-		img_disp_OCV.convertTo(img_disp_OCV, CV_8UC1);
+
+		img_disp_OCV = img_disp_OCV / 16;
+
+		img_disp_OCV.convertTo(img_disp_OCV , CV_8UC1);
 
 		// Cropping or not cropping:
 		if (cropped == 0) // If image should not be cropped
@@ -204,13 +173,12 @@ int SBM_OCV(struct image_t *img_disp, const struct image_t *img_left, const stru
 		}
 		else if (cropped == 1) // If image should be cropped
 		{
-			uint16_t rec_y;
-			uint16_t rec_height;
-			uint16_t rec_x;
-			uint16_t rec_width;
+			struct crop_t img_cropped_info;
+			struct img_size_t original_img_dims = {img_left->h, img_left->w};
 
-			post_disparity_crop_rect(&rec_y, &rec_height,&rec_x, &rec_width, img_left->h, img_left->w,  ndisparities, SADWindowSize); // Function from wedebug.h
-			Rect crop_area = Rect(rec_x, rec_y, rec_width, rec_height);
+			post_disparity_crop_rect(&img_cropped_info, &original_img_dims,  ndisparities, SADWindowSize); // Function from wedebug.h
+
+			Rect crop_area = Rect(img_cropped_info.x, img_cropped_info.y, img_cropped_info.w, img_cropped_info.h);
 			Mat img_cropped = img_disp_OCV(crop_area);
 
 			for (int i = 0; i < (img_cropped.rows * img_cropped.cols); i++)
@@ -278,7 +246,7 @@ int dilation_OCV(struct image_t *img_input, const struct image_t *img_output, co
 
 
 
-int sobel_OCV(struct image_t *img_input, const struct image_t *img_output, const int kernel_size)
+int sobel_OCV(struct image_t *img_input, const struct image_t *img_output, const int kernel_size, const int thr)
 {
 
 	Mat img_input_OCV;
@@ -309,7 +277,10 @@ int sobel_OCV(struct image_t *img_input, const struct image_t *img_output, const
 
 	magnitude(img_grad_x, img_grad_y, img_grad_mag); // Calculating magnitude
 
-	normalize(img_grad_mag, img_grad_mag,  0, 255, NORM_MINMAX); // Normalizing magnitude between 0 and 255
+	threshold(img_grad_mag, img_grad_mag, thr,  127, THRESH_BINARY);
+
+
+	//normalize(img_grad_mag, img_grad_mag,  0, 255, NORM_MINMAX); // Normalizing magnitude between 0 and 255
 
 	img_grad_mag.convertTo(img_grad_mag, CV_8UC1); //Converting image to 8 bit image
 

@@ -27,10 +27,15 @@
 #include "modules/wedgebug/wedgebug.h"
 #include "modules/wedgebug/wedgebug_opencv.h"
 #include "modules/computer_vision/cv.h" // Required for the "cv_add_to_device" function
+#include "modules/computer_vision/lib/vision/image.h"// For image-related structures
 #include "pthread.h"
-#include <stdint.h> // Needed for types like uint8_t
-#include <math.h> // Need for sqaure root function for euclidean distance calculation
+#include <stdint.h> // Needed for common types like uint8_t
 #include "state.h"
+#include "math/pprz_algebra_float.h"// Needed for vector operations, Euclidean distance, FloatVect3 and FloatRMat
+#include "math/pprz_algebra.h"// Needed for vector operations (simple subtraction)
+#include "math/pprz_geodetic_float.h"// Needed for NedCoor_f
+#include "generated/flight_plan.h" // Needed for WP (waypoint) functions and WP IDs (as defined in "ralphthesis2020_stereo_cyberzoo.xml")
+#include "firmwares/rotorcraft/autopilot_guided.h" // Needed for guidance functions such as "autopilot_guided_goto_ned" and "guidance_h_set_guided_heading"
 
 
 // New section ----------------------------------------------------------------------------------------------------------------
@@ -60,50 +65,114 @@ struct image_t img_middle_int8_cropped;
 struct image_t img_edges_int8_cropped;
 
 struct crop_t img_cropped_info;
+struct img_size_t img_dims;
+struct img_size_t img_cropped_dims;
 
-//Drone starting point coordinates
-struct NedCoor_f OC;
+struct img_size_t kernel_median_dims;
+struct kernel_C1 median_kernel;
+
 
 //static pthread_mutex_t mutex;
 int N_disparities = 64;
 int block_size_disparities = 25;
 int min_disparity = 0;
-uint16_t crop_y;
-uint16_t crop_height;
-uint16_t crop_x;
-uint16_t crop_width;
-
 uint8_t cycle_counter = 0;
+struct FloatVect3 VGOALwenu;
+struct FloatVect3 VGOALwned;
+uint8_t is_goal_setpoint_set;
+
+uint8_t median_disparity_in_front; // Variable to hold the median disparity in front of the drone. Needed to see if obstacle is there.
+
+// Thresholds
+uint8_t threshold_median_disparity; // Above this median disparity, an obstacle is considered to block the way (i.e. the blocking obstacle need to be close)
+uint8_t threshold_disparity_of_edges; // Above this disparity edges are legible for WedgeBug algorithm (i.e. edges cannot be very far away)
+
+// Principal points
+struct point_t c_img;
+struct point_t c_img_cropped;
 
 
-// New section ----------------------------------------------------------------------------------------------------------------
-//Function - Declaration
-//Supporting
+// Declaring rotation matrices and transition vectors for frame to frame transformations
+// 1) Rotation matrix and transition vector to transform from world ENU frame to world NED frame
+struct FloatRMat Rwnedwenu;
+struct FloatVect3 VNEDwenu;
+// 2) Rotation matrix and transition vector to transform from world ned frame to robot frame
+struct FloatRMat Rrwned;
+struct FloatVect3 VRwned;
+// 3) Rotation matrix and transition vector to transform from robot frame to camera frame
+struct FloatRMat Rcr;
+struct FloatVect3 VCr;
+
+// Declaration and initialization of camera parameters
+float b = WEDGEBUG_CAMERA_BASELINE / 1000.00;
+uint16_t f = WEDGEBUG_CAMERA_FOCAL_LENGTH;
+
+
+
+// Define new structures + enums
+
+enum navigation_state {
+  POSITION_INITIAL = 1,
+  MOVE_TO_START = 2,
+  POSITION_START = 3,
+  MOVE_TO_GOAL = 4,
+  POSITION_GOAL = 5,
+  WEDGEBUG_START = 6,
+  MOVE_TO_EDGE = 7,
+  SCAN_EDGE = 8,
+
+};
+
+enum navigation_state current_state ;// Default state is 0 i.e. nothing
+
+
+// New section: Functions - Declaration ----------------------------------------------------------------------------------------------------------------
+
+// Supporting
 const char* get_img_type(enum image_type img_type); // Function 1: Displays image type
 void show_image_data(struct image_t *img); // Function 2: Displays image data
 void show_image_entry(struct image_t *img, int entry_position, const char *img_name); // Function 3: Displays pixel value of image
+
+// External
+void post_disparity_crop_rect(struct crop_t *img_cropped_info,struct img_size_t *original_img_dims, const int disp_n, const int block_size);
+void set_state(uint8_t state);
+void kernel_create(struct kernel_C1 *kernel, uint16_t width, uint16_t height);
+void kernel_free(struct kernel_C1 *kernel);
+uint8_t getMedian(uint8_t *a, uint32_t n);
+
 //Core
 static struct image_t *copy_left_img_func(struct image_t *img); // Function 1: Copies left image into a buffer (buf_left)
 static struct image_t *copy_right_img_func(struct image_t *img); // Function 2: Copies left image into a buffer (buf_right)
 void UYVYs_interlacing_V(struct image_t *YY, struct image_t *left, struct image_t *right); // Function 3: Copies gray pixel values of left and right UYVY images into merged YY image
 void UYVYs_interlacing_H(struct image_t *merged, struct image_t *left, struct image_t *right);
-void post_disparity_crop_rect(uint16_t* height_start, uint16_t* height_offset, uint16_t* width_start, uint16_t* width_offset, const uint16_t height_old,const uint16_t width_old, const int disp_n, const int block_size);
+
 uint32_t maximum_intensity(struct image_t *img);
 void thresholding_img(struct image_t *img, uint8_t threshold);
-void principal_points(const struct point_t *c_old, struct point_t *c , struct crop_t *img_cropped_info);
+void principal_points(struct point_t *c_output ,const struct point_t *c_old_input, struct crop_t *img_cropped_info);
+float disp_to_depth(const uint8_t d, const float b, const uint16_t f);
 void Vi_to_Vc(struct FloatVect3 *scene_point, int32_t image_point_y, int32_t image_point_x , const uint8_t d, const float b, const uint16_t f);
-int32_t indx1d(const int32_t y, const int32_t x, const struct image_t *img_dimensions);
+int32_t indx1d_a(const int32_t y, const int32_t x, const struct image_t *img);
+int32_t indx1d_b(const int32_t y, const int32_t x, const struct img_size_t *img_dims);
+int32_t indx1d_c(const int32_t y, const int32_t x, const uint16_t img_height, const uint16_t img_width);
 
 void Va_to_Vb(struct FloatVect3 *Vb, struct FloatVect3 *Va, struct FloatRMat *Rba, struct FloatVect3 *VOa);
 void Vb_to_Va(struct FloatVect3 *Va, struct FloatVect3 *Vb, struct FloatRMat *Rba, struct FloatVect3 *VOa);
 void Vw_to_Vc(struct FloatVect3 *Vc, struct FloatVect3 *Vw, struct FloatRMat *Rrw, struct FloatVect3 *VRw, struct FloatRMat *Rcr, struct FloatVect3 *VCr, const uint8_t verbose);
 void Vc_to_Vw(struct FloatVect3 *Vw, struct FloatVect3 *Vc, struct FloatRMat *Rrw, struct FloatVect3 *VRw, struct FloatRMat *Rcr, struct FloatVect3 *VCr ,const uint8_t verbose);
 
+float float_vect3_norm_two_points(struct FloatVect3 *V1, struct FloatVect3 *V2);
+float heading_towards_waypoint(uint8_t wp);
+uint8_t median_disparity_to_point(struct point_t *Vi, struct image_t *img, struct kernel_C1 *kernel_median);
 
 
-// New section ----------------------------------------------------------------------------------------------------------------
-// Function - Definition
+
+
+
+
+// New section: Functions - Definition ----------------------------------------------------------------------------------------------------------------
+
 // Supporting:
+
 // Function 1
 const char* get_img_type(enum image_type img_type)
 {
@@ -135,10 +204,94 @@ void show_image_entry(struct image_t *img, int entry_position, const char *img_n
 	printf("Pixel %d value - %s: %d\n", entry_position, img_name ,((uint8_t*)img->buf)[entry_position]);
 }
 
-// Function 4
+
+
+// External:
+
+// Function 1 - Returns the upper left coordinates of a square (x and y coordinates) and the offset in terms of width and height,
+// given the number of disparity levels and the block size used by the block matching algorithm. This is need to crop an image
+void post_disparity_crop_rect(struct crop_t *img_cropped_info,struct img_size_t *original_img_dims,const int disp_n,const int block_size)
+{
+
+	uint16_t block_size_black = block_size / 2;
+	uint16_t left_black = disp_n + block_size_black;
+
+
+	img_cropped_info->y = block_size_black;
+	img_cropped_info->h = original_img_dims->h - block_size_black;
+	img_cropped_info->h = img_cropped_info->h - img_cropped_info->y;
+
+	img_cropped_info->x = left_black - 1;
+	img_cropped_info->w = original_img_dims->w - block_size_black;
+	img_cropped_info->w  = img_cropped_info->w - img_cropped_info->x;
+}
+
+
+// Function 2 - Sets finite state machine state (useful for the flight path blocks)
+extern void set_state(uint8_t state)
+{
+	current_state = state;
+}
+
+
+// Function 3 - Creates empty 8bit kernel
+void kernel_create(struct kernel_C1 *kernel, uint16_t width, uint16_t height)
+{
+	kernel->h = height;
+	kernel->w = width;
+	kernel->buf_size = height * width;
+	kernel->buf_weights = malloc(kernel->buf_size);
+	kernel->buf_values = malloc(kernel->buf_size);
+}
+
+
+// Function 4 - Deletes 8bit kernel
+void kernel_free(struct kernel_C1 *kernel)
+{
+  if (kernel->buf_weights != NULL) {
+    free(kernel->buf_weights);
+    kernel->buf_weights = NULL;
+  }
+  if (kernel->buf_values != NULL) {
+    free(kernel->buf_values);
+    kernel->buf_values = NULL;
+  }
+}
+
+
+// Function 5 - Calculates median of a 8bit image
+uint8_t getMedian(uint8_t *a, uint32_t n)
+{
+  // Allocate an array of the same size and sort it.
+  uint32_t i, j;
+
+  uint8_t dpSorted[n];
+  for (i = 0; i < n; ++i) {
+    dpSorted[i] = a[i];
+  }
+  for (i = n - 1; i > 0; --i) {
+    for (j = 0; j < i; ++j) {
+      if (dpSorted[j] > dpSorted[j + 1]) {
+        uint8_t dTemp = dpSorted[j];
+        dpSorted[j] = dpSorted[j + 1];
+        dpSorted[j + 1] = dTemp;
+      }
+    }
+  }
+
+  // Middle or average of middle values in the sorted array.
+  uint8_t dMedian = 0;
+  if ((n % 2) == 0) {
+    dMedian = (dpSorted[n / 2] + dpSorted[(n / 2) - 1]) / 2.0;
+  } else {
+    dMedian = dpSorted[n / 2];
+  }
+  return dMedian;
+}
 
 
 // Core:
+
 // Function 1
 static struct image_t *copy_left_img_func(struct image_t *img)
 {
@@ -244,34 +397,7 @@ void UYVYs_interlacing_H(struct image_t *merged, struct image_t *left, struct im
 }
 
 
-// Function 5 - Return the upper left coordinates of a square (x and y coordinates) and the offset in terms of width and height,
-// given the number of disparity levels and the block size used by the block matching algorithm. This is need to crop an image
-void post_disparity_crop_rect(
-		uint16_t* height_start,
-		uint16_t* height_offset,
-		uint16_t* width_start,
-		uint16_t* width_offset,
-		const uint16_t height_old,
-		const uint16_t width_old,
-		const int disp_n,
-		const int block_size)
-{
-
-	uint16_t block_size_black = block_size / 2;
-	uint16_t left_black = disp_n + block_size_black;
-
-
-	*height_start = block_size_black;
-	*height_offset = height_old - block_size_black;
-	*height_offset = *height_offset - *height_start;
-
-	*width_start = left_black - 1;
-	*width_offset = width_old - block_size_black;
-	*width_offset = *width_offset - *width_start;
-}
-
-
-// Function 6 - Returns the maximum value in a uint8_t image
+// Function 5 - Returns the maximum value in a uint8_t image
 uint32_t maximum_intensity(struct image_t *img)
 {
 	uint32_t max = 0;
@@ -288,7 +414,7 @@ uint32_t maximum_intensity(struct image_t *img)
 }
 
 
-// Function 7 - Thresholds 8bit images given and turns all values >= threshold to 255
+// Function 6 - Thresholds 8bit images given and turns all values >= threshold to 255
 void thresholding_img(struct image_t *img, uint8_t threshold)
 {
 	for (uint32_t i = 0; i < img->buf_size; i++)
@@ -305,17 +431,24 @@ void thresholding_img(struct image_t *img, uint8_t threshold)
 }
 
 
-// Function 8 - Calculates principal point coordinates for a cropped image, based on the x
+// Function 7 - Calculates principal point coordinates for a cropped image, based on the x
 // and y coordinates of the cropped area (upper left-hand side: crop_y and crop_x).
-void principal_points(const struct point_t *c_old, struct point_t *c , struct crop_t *img_cropped_info)
+void principal_points(struct point_t *c_output ,const struct point_t *c_old_input, struct crop_t *img_cropped_info)
 {
-	c->y = c_old->y - img_cropped_info->y;
-	c->x = c_old->x - img_cropped_info->x;
+	c_output->y = c_old_input->y - img_cropped_info->y;
+	c_output->x = c_old_input->x - img_cropped_info->x;
+}
+
+
+// Function 8 - Converts disparity to depth using focal length (in pixels) and baseline distance (in meters)
+float disp_to_depth(const uint8_t d, const float b, const uint16_t f)
+{
+	return b * f / d;
 }
 
 
 // Function 9 - Calculates 3d points in a scene based on the 2d coordinates of the point in the
-// image plane and the depth.
+// image plane and the depth. d in in pixels, b is in meters and f is in pixels
 void Vi_to_Vc(struct FloatVect3 *scene_point, int32_t image_point_y, int32_t image_point_x , const uint8_t d, const float b, const uint16_t f)
 {
 	// Calculating Z
@@ -332,7 +465,7 @@ void Vi_to_Vc(struct FloatVect3 *scene_point, int32_t image_point_y, int32_t ima
 	}
 	else
 	{
-		scene_point->z = b * f / d;
+		scene_point->z = disp_to_depth(d, b, f);
 	}
 
 
@@ -350,27 +483,63 @@ void Vi_to_Vc(struct FloatVect3 *scene_point, int32_t image_point_y, int32_t ima
 }
 
 
-// Function 10 - Converts 2d coordinates into 1d coordinates (for 1d arrays)
-int32_t indx1d(const int32_t y, const int32_t x, const struct image_t *img_dimensions)
+// Function 10a - Converts 2d coordinates into 1d coordinates (for 1d arrays) - using struct image_t for dimensions
+int32_t indx1d_a(const int32_t y, const int32_t x, const struct image_t *img)
 {
-
-	if (x >= (img_dimensions->w) || x < 0)
+	if (x >= (img->w) || x < 0)
 	{
-		printf("Error: index %d is out of bounds for axis 0 with size %d. Returning -1\n", x, img_dimensions->w);
+		printf("Error: index x=%d is out of bounds for axis 0 with size %d. Returning -1\n", x, img->w);
 		return -1;
 	}
-	else if (y >= (img_dimensions->h) || y < 0)
+	else if (y >= (img->h) || y < 0)
 	{
-		printf("Error: index %d is out of bounds for axis 0 with size %d. Returning -1\n", y, img_dimensions->h);
+		printf("Error: index y=%d is out of bounds for axis 0 with size %d. Returning -1\n", y, img->h);
 		return -1;
 	}
 	else
 	{
-		return x + img_dimensions->w * y;
+		return x + img->w * y;
 	}
 }
 
 
+// Function 10b - Converts 2d coordinates into 1d coordinates (for 1d arrays) - using struct img_size_t for dimensions
+int32_t indx1d_b(const int32_t y, const int32_t x, const struct img_size_t *img_dims)
+{
+	if (x >= (img_dims->w) || x < 0)
+	{
+		printf("Error: index %d is out of bounds for axis 0 with size %d. Returning -1\n", x, img_dims->w);
+		return -1;
+	}
+	else if (y >= (img_dims->h) || y < 0)
+	{
+		printf("Error: index %d is out of bounds for axis 0 with size %d. Returning -1\n", y, img_dims->h);
+		return -1;
+	}
+	else
+	{
+		return x + img_dims->w * y;
+	}
+}
+
+// Function 10c - Converts 2d coordinates into 1d coordinates (for 1d arrays) - using two uint16_t values for dimensions
+int32_t indx1d_c(const int32_t y, const int32_t x, const uint16_t img_height, const uint16_t img_width)
+{
+	if (x >= (img_width) || x < 0)
+	{
+		printf("Error: index x=%d is out of bounds for axis 0 with size %d. Returning -1\n", x, img_width);
+		return -1;
+	}
+	else if (y >= (img_height) || y < 0)
+	{
+		printf("Error: index y=%d is out of bounds for axis 0 with size %d. Returning -1\n", y, img_height);
+		return -1;
+	}
+	else
+	{
+		return x + img_width * y;
+	}
+}
 
 
 // Function 11 - Function to convert point in coordinate system a to a point in the coordinate system b
@@ -399,6 +568,7 @@ void Vb_to_Va(struct FloatVect3 *Va, struct FloatVect3 *Vb, struct FloatRMat *Rb
 	Va->y = Va->y + VOa->y;
 	Va->z = Va->z + VOa->z;
 }
+
 
 // Function 13 - Function wrapper to convert a point in the world coordinate system to a point in the camera coordinate system
 void Vw_to_Vc(struct FloatVect3 *Vc, struct FloatVect3 *Vw, struct FloatRMat *Rrw, struct FloatVect3 *VRw, struct FloatRMat *Rcr, struct FloatVect3 *VCr, const uint8_t verbose)
@@ -457,6 +627,7 @@ void Vw_to_Vc(struct FloatVect3 *Vc, struct FloatVect3 *Vw, struct FloatRMat *Rr
 	}
 }
 
+
 // Function 14 - Function wrapper to convert a point in the camera coordinate system back to a point in the world coordinate system
 void Vc_to_Vw(struct FloatVect3 *Vw, struct FloatVect3 *Vc, struct FloatRMat *Rrw, struct FloatVect3 *VRw, struct FloatRMat *Rcr, struct FloatVect3 *VCr, const uint8_t verbose)
 {
@@ -486,6 +657,70 @@ void Vc_to_Vw(struct FloatVect3 *Vw, struct FloatVect3 *Vc, struct FloatRMat *Rr
 	}
 }
 
+// Function 15 - Function to obtain the Euclidean distance (in meters) between two 3d points
+float float_vect3_norm_two_points(struct FloatVect3 *V1, struct FloatVect3 *V2)
+{
+	struct FloatVect3 V_V1V2_diff;
+	VECT3_DIFF(V_V1V2_diff, *V1, *V2);
+	return float_vect3_norm(&V_V1V2_diff);
+}
+
+// Function 16 - function to calculate angle between robot and specific waypoint
+float heading_towards_waypoint(uint8_t wp)
+{
+  struct FloatVect2 VWPwt = {WaypointX(wp), WaypointY(wp)};
+  struct FloatVect2 VRwt_VWPwtVWRwt_diff;
+  float angle;
+
+  VECT2_DIFF(VRwt_VWPwtVWRwt_diff, VWPwt, *stateGetPositionEnu_f());
+  angle = atan2f(VRwt_VWPwtVWRwt_diff.x, VRwt_VWPwtVWRwt_diff.y);
+  return angle;
+}
+
+// Function 17 - Function to calculate median disparity to a point (Vi) in an image (img), using a kernel structure (kernel_median)
+uint8_t median_disparity_to_point(struct point_t *Vi, struct image_t *img, struct kernel_C1 *kernel_median)
+{
+	// Creating Start and stop coordinates of in the image coordinate system, based on kernel size
+	uint8_t VSTARTi_y = Vi->y  - (kernel_median->h / 2);
+	uint8_t VSTARTi_x = Vi->x - (kernel_median->w/ 2);
+	uint8_t VSTOPi_y = Vi->y + (kernel_median->h / 2);
+	uint8_t VSTOPi_x = Vi->x + (kernel_median->w / 2);
+
+	// Declaring kernel coordinates
+	uint16_t Vk_y;
+	uint16_t Vk_x;
+
+	// Declaring 1d indices (for result of transforming 2d coordinates into 1d coordinate)
+	int32_t index_img;
+	int32_t index_kernel;
+
+	// Declaring variable to store median in
+	uint8_t median;
+
+
+	// Here we get the median value of a block in the middle of an image using a kernel structure
+	for (uint8_t Vi_y = VSTARTi_y; Vi_y < (VSTOPi_y+1); Vi_y++)
+	{
+		for (uint8_t Vi_x = VSTARTi_x; Vi_x < (VSTOPi_x+1); Vi_x++)
+		{
+			// Calculating kernel coordinates
+			Vk_y = Vi_y - VSTARTi_y;
+			Vk_x = Vi_x - VSTARTi_x;
+
+			// Converting 2d indices to 1d indices
+			index_img = indx1d_a(Vi_y , Vi_x, img);
+			index_kernel = indx1d_c(Vk_y, Vk_x, median_kernel.h, median_kernel.w);
+
+			// Saving disparity values of image underneath the kernel, into the kernel buffer
+			((uint8_t*) median_kernel.buf_values)[index_kernel] = ((uint8_t*) img->buf)[index_img];
+		}
+	}
+
+	// Calculating median disparity value of values recoded by the kernel
+	median = getMedian(((uint8_t*) median_kernel.buf_values), (median_kernel.h * median_kernel.w)); //
+
+	return median;
+}
 
 
 /*
@@ -495,13 +730,16 @@ void Vc_to_Vw(struct FloatVect3 *Vw, struct FloatVect3 *Vc, struct FloatRMat *Rr
  * r: Robot coordinate system (i.e. the robot coordinate frame = x is depth, y is left and right, and z is altitude))
  * c: Camera Coordinate system (i.e. the camera coordinate frame = x is left and right, y is altitude and z is depth)
  * i: Image coordinate system  (i.e. the image (plane) coordinate frame)
+ * k: Kernel coordinate system (i.e. the kernel coordinate frame)
  *
  * Va: Vector coordinates, in the coordinate system a (i.e. a point in the coordinate system a)
  * Vb: Vector coordinates, in the coordinate system b (i.e. a point in the coordinate system b)
- * Vw: Vector coordinates, in the world coordinate system (i.e. a point in the world coordinate system)
+ * Vwned: Vector coordinates, in the world coordinate system (i.e. a point in the world coordinate system) -NED
+ * Vwenu: Vector coordinates, in the world coordinate system two (i.e. a point in the world coordinate system two) - ENU
  * Vr: Vector coordinates, in the robot coordinate system (i.e. a point in the world coordinate system)
  * Vc: Vector coordinates, in the camera coordinate system (i.e. a point in the world coordinate system)
  * Vi: Vector coordinates, in the image coordinate system (i.e. a point in the image [plane] coordinates system)
+ * Vk: Vector coordinates, in the kernel coordinate system (i.e. a point in the kernel coordinates system)
  *
  * R: Rotation matrix
  *
@@ -517,39 +755,82 @@ void Vc_to_Vw(struct FloatVect3 *Vw, struct FloatVect3 *Vc, struct FloatRMat *Rr
 
 
 
-// New section ----------------------------------------------------------------------------------------------------------------
+// New section: Init and periodic functions ----------------------------------------------------------------------------------------------------------------
 void wedgebug_init(){
 	//printf("Wedgebug init function was called\n");
 
-	// Creating empty images
-	image_create(&img_left, WEDGEBUG_CAMERA_LEFT_WIDTH, WEDGEBUG_CAMERA_LEFT_HEIGHT, IMAGE_YUV422); // To store left camera image
-	image_create(&img_right,WEDGEBUG_CAMERA_RIGHT_WIDTH, WEDGEBUG_CAMERA_RIGHT_HEIGHT, IMAGE_YUV422);// To store right camera image
-	image_create(&img_YY,WEDGEBUG_CAMERA_INTERLACED_WIDTH, WEDGEBUG_CAMERA_INTERLACED_HEIGHT, IMAGE_GRAYSCALE);// To store interlaced image
-	image_create(&img_left_int8, WEDGEBUG_CAMERA_LEFT_WIDTH, WEDGEBUG_CAMERA_LEFT_HEIGHT, IMAGE_GRAYSCALE); // To store gray scale version of left image
-	image_create(&img_right_int8, WEDGEBUG_CAMERA_RIGHT_WIDTH, WEDGEBUG_CAMERA_RIGHT_HEIGHT, IMAGE_GRAYSCALE); // To store gray scale version of left image
-	image_create(&img_depth_int8,WEDGEBUG_CAMERA_DISPARITY_WIDTH, WEDGEBUG_CAMERA_DISPARITY_HEIGHT, IMAGE_GRAYSCALE);// To store depth - 8bit
-	image_create(&img_depth_int16,WEDGEBUG_CAMERA_DISPARITY_WIDTH, WEDGEBUG_CAMERA_DISPARITY_HEIGHT, IMAGE_OPENCV_DISP);// To store depth - 16bit
+
+	// Images creation process:
+	// Creation of images
+	// Creating structure to hold dimensions of normal camera images
+	img_dims.w = WEDGEBUG_CAMERA_LEFT_WIDTH;img_dims.h = WEDGEBUG_CAMERA_LEFT_HEIGHT;
+	image_create(&img_left, img_dims.w , img_dims.h, IMAGE_YUV422); // To store left camera image
+	image_create(&img_right,img_dims.w , img_dims.h, IMAGE_YUV422);// To store right camera image
+	//image_create(&img_YY,WEDGEBUG_CAMERA_INTERLACED_WIDTH, WEDGEBUG_CAMERA_INTERLACED_HEIGHT, IMAGE_GRAYSCALE);// To store interlaced image
+	image_create(&img_left_int8, img_dims.w , img_dims.h, IMAGE_GRAYSCALE); // To store gray scale version of left image
+	image_create(&img_right_int8, img_dims.w , img_dims.h, IMAGE_GRAYSCALE); // To store gray scale version of left image
 
 
+	// Creation of images - Cropped:
+	// Calculating cropped image details (x, y, width and height)
+	post_disparity_crop_rect(&img_cropped_info, &img_dims, N_disparities, block_size_disparities);
+	// Creating structure to hold dimensions of cropped camera images
+	img_cropped_dims.w = img_cropped_info.w; img_cropped_dims.h = img_cropped_info.h;
+	// Creating empty images - cropped
+	image_create(&img_depth_int8_cropped, img_cropped_dims.w, img_cropped_dims.h, IMAGE_GRAYSCALE);// To store cropped depth - 8 bit
+	//image_create(&img_depth_int16_cropped, crop_width, crop_height, IMAGE_OPENCV_DISP);// To store cropped depth - 16 bit
+	image_create(&img_middle_int8_cropped,img_cropped_dims.w, img_cropped_dims.h, IMAGE_GRAYSCALE);// To store intermediate image data from processing - 8 bit
+	image_create(&img_edges_int8_cropped,img_cropped_dims.w, img_cropped_dims.h, IMAGE_GRAYSCALE);// To store edges image data from processing - 8 bit
 
-	post_disparity_crop_rect(&crop_y, &crop_height, &crop_x, &crop_width, img_right.h , img_right.w, N_disparities, block_size_disparities);
 
-	img_cropped_info.x = crop_x;
-	img_cropped_info.y = crop_y;
-	img_cropped_info.w = crop_width;
-	img_cropped_info.h = crop_height;
-
-
-	image_create(&img_depth_int8_cropped,crop_width, crop_height, IMAGE_GRAYSCALE);// To store cropped depth - 8 bit
-	image_create(&img_depth_int16_cropped, crop_width, crop_height, IMAGE_OPENCV_DISP);// To store cropped depth - 16 bit
-	image_create(&img_middle_int8_cropped,crop_width, crop_height, IMAGE_GRAYSCALE);// To store intermediate image data from processing - 8 bit
-	image_create(&img_edges_int8_cropped,crop_width, crop_height, IMAGE_GRAYSCALE);// To store edges image data from processing - 8 bit
+	// Creation of kernels:
+	// Creating structure to hold dimensions of kernels
+	kernel_median_dims.w = 5; kernel_median_dims.h = 5;
+	// Creating empty kernel:
+	kernel_create(&median_kernel, kernel_median_dims.w, kernel_median_dims.h);
 
 
 	// Adding callback functions
 	cv_add_to_device(&WEDGEBUG_CAMERA_LEFT, copy_left_img_func, WEDGEBUG_CAMERA_LEFT_FPS);
 	cv_add_to_device(&WEDGEBUG_CAMERA_RIGHT, copy_right_img_func, WEDGEBUG_CAMERA_RIGHT_FPS);
+
+
+	//Initialization of constant rotation matrices and transition vectors for frame to frame transformations
+	// 1) Rotation matrix and transition vector to transform from world ENU frame to world NED frame
+	Rwnedwenu.m[0] = 0; Rwnedwenu.m[1] = 1;	Rwnedwenu.m[2] = 0;
+	Rwnedwenu.m[3] = 1; Rwnedwenu.m[4] = 0; Rwnedwenu.m[5] = 0;
+	Rwnedwenu.m[6] = 0; Rwnedwenu.m[7] = 0; Rwnedwenu.m[8] = -1;
+	VNEDwenu.x = 0;
+	VNEDwenu.y = 0;
+	VNEDwenu.z = 0;
+	// 3) Rotation matrix and transition vector to transform from robot frame to camera frame
+	Rcr.m[0] = 0; Rcr.m[1] = 1;	Rcr.m[2] = 0;
+	Rcr.m[3] = 0; Rcr.m[4] = 0; Rcr.m[5] = 1;
+	Rcr.m[6] = 1; Rcr.m[7] = 0; Rcr.m[8] = 0;
+	VCr.x = 0;
+	VCr.y = 0;
+	VCr.z = 0;
+
+	// Initializing goal vector in the NEW coordinate system
+	VGOALwenu.x = WaypointX(WP_GOAL1);
+	VGOALwenu.y = WaypointY(WP_GOAL1);
+	VGOALwenu.z = WaypointAlt(WP_GOAL1);
+	Va_to_Vb(&VGOALwned, &VGOALwenu, &Rwnedwenu, &VNEDwenu);
+
+	// Calculating principal points of normal image and cropped image
+	c_img.y = img_dims.h / 2;
+	c_img.x = img_dims.w / 2;
+	principal_points(&c_img_cropped,&c_img, &img_cropped_info); // Calculates principal points for cropped image, considering the original dimensions
+
+	// Setting thresholds
+	threshold_median_disparity = 55; // Above this median disparity, an obstacle is considered to block the way. >60 = close than 35cm
+	threshold_disparity_of_edges= 10;
+
+
+
 }
+
+
 
 void wedgebug_periodic(){
   // your periodic code here.
@@ -561,30 +842,170 @@ void wedgebug_periodic(){
 	// So all processing must happen after the first cycle
 
 
+	//set_state(MOVE_TO_GOAL);
+	printf("Current state %d\n", current_state);
 
-	if (cycle_counter != 0)
+	//printf("Angle %f\n", heading_towards_waypoint(WP_GOAL1)); // Figure out how to deal with this waypoint
+
+
+	//Initialization of dynamic rotation matrices and transition vectors for frame to frame transformations
+	// 2) Rotation matrix and transition vector to transform from world ned frame to robot frame
+	float_vect_copy(Rrwned.m, stateGetNedToBodyRMat_f()->m, 9);
+	VRwned.x = stateGetPositionNed_f()->x;
+	VRwned.y = stateGetPositionNed_f()->y;
+	VRwned.z = stateGetPositionNed_f()->z;
+
+
+	/*
+	enum navigation_state {
+	  POSITION_INITIAL = 1,
+	  MOVE_TO_START = 2,
+	  POSITION_START = 3,
+	  MOVE_TO_GOAL = 4,
+	  POSITION_GOAL = 5,
+	  WEDGEBUG_START = 6,
+	  MOVE_TO_EDGE = 7,
+	  SCAN_EDGE = 8,
+
+	};*/
+
+
+
+	switch(current_state)
 	{
+	case POSITION_INITIAL: // 1
+	{
+		printf("POSITION_INITIAL = %d\n", POSITION_INITIAL);
+		// Nothing happens here
+	}break;
 
-		//UYVYs_interlacing_V(&img_YY, &img_left, &img_right); // Creating YlYr image from left and right YUV422 image
-		//UYVYs_interlacing_H(&img_YY, &img_left, &img_right);
+	case MOVE_TO_START: // 2
+	{
+		printf("MOVE_TO_START = %d\n", MOVE_TO_START);
+		// Nothing happens here
+	}break;
+
+	case POSITION_START: // 3
+	{
+		printf("POSITION_START = %d\n", POSITION_START);
+		// Nothing happens here
+	}break;
+
+	case MOVE_TO_GOAL: // 4
+	{
+		printf("MOVE_TO_GOAL = %d\n", MOVE_TO_GOAL);
+
+
+		// 1. Converting left and right image to 8bit grayscale for further processing
 		image_to_grayscale(&img_left, &img_left_int8); // Converting left image from UYVY to gray scale for saving function
 		image_to_grayscale(&img_right, &img_right_int8); // Converting right image from UYVY to gray scale for saving function
 
-
-		//SBM_OCV(&img_depth_int8, &img_left_int8, &img_right_int8, N_disparities, block_size_disparities, 0);// Creating cropped disparity map image
-		//SBM_OCV(&img_depth_int16, &img_left_int8, &img_right_int8, N_disparities, block_size_disparities, 0);// Creating cropped disparity map image
-
+		// 2. Deriving disparity map from block matching (left image is reference image)
 		SBM_OCV(&img_depth_int8_cropped, &img_left_int8, &img_right_int8, N_disparities, block_size_disparities, 1);// Creating cropped disparity map image
-		//SBM_OCV(&img_depth_int16_cropped, &img_left_int8, &img_right_int8, N_disparities, block_size_disparities, 1);// Creating cropped disparity map image
 
-		// Morphological operations 1
+		// 3. Morphological operations 1
 		// Needed to smoove object boundaries and to remove noise removing noise
 		opening_OCV(&img_depth_int8_cropped, &img_middle_int8_cropped,13, 1);
 		closing_OCV(&img_middle_int8_cropped, &img_middle_int8_cropped,13, 1);
 		dilation_OCV(&img_middle_int8_cropped, &img_middle_int8_cropped,11, 1);
 
+		// Checking threshold
+		// Calculating median disparity
+		median_disparity_in_front = median_disparity_to_point(&c_img_cropped, &img_depth_int8_cropped, &median_kernel);
+
+		// THis code is to see what depth the disparity value is
+		float depth;
+		//In case disparity is 0 (infinite distance or error we set it to one disparity
+		// above the threshold as the likelyhood that the object is too close is large (as opposed to it being infinitely far away)
+		if(median_disparity_in_front == 0 )
+		{
+			median_disparity_in_front = (threshold_median_disparity + 1);
+		}
+
+		depth = disp_to_depth(median_disparity_in_front, b, f);
+
+		printf("median_disparity_in_front = %d\n", median_disparity_in_front);
+		if (median_disparity_in_front > threshold_median_disparity)
+		{
+			printf("Object detected!!!!!!!!\n");
+		}
+		printf("depth function = %f\n", depth);
+
+		printf("\n");
+
+
+
+		// This statement is needed in order to make sure that the setpoint is only set if current_state is 4
+		// AND the current mode is guided mode (otherwise the setpoint might be set before guidance mode
+		// is activated and that simply leads to nothing)
+		if ((autopilot_get_mode() == AP_MODE_GUIDED))// && (is_goal_setpoint_set == 0))
+		{
+			// Sets setpoint to goal position and orientates drones towards the goal as well
+			autopilot_guided_goto_ned(VGOALwned.x, VGOALwned.y, VGOALwned.z, heading_towards_waypoint(WP_GOAL1));
+			is_goal_setpoint_set = 1; // Now the setpoint has been set
+		}
+
+		// The following ensures the drone will always face the goal
+		//guidance_h_set_guided_heading(heading_towards_waypoint(WP_GOAL1));
+
+		// If the drone is very close to the goal the setpoint is released (=0) and the state
+		// is changed to "POSITION_GOAL (5)"
+		if (float_vect3_norm_two_points(&VGOALwned, &VRwned) < 0.25)
+		{
+			is_goal_setpoint_set = 0;
+			set_state(POSITION_GOAL);
+		}
+	}break;
+
+	case POSITION_GOAL: // 5
+	{
+		printf("POSITION_GOAL = %d\n", POSITION_GOAL);
+		// Since the drone is at the goal we will swithc bach to the NAV mode
+		autopilot_mode_auto2 = AP_MODE_NAV;
+		autopilot_static_set_mode(AP_MODE_NAV);
+	}break;
+
+	case WEDGEBUG_START: // 6
+	{
+		printf("WEDGEBUG_START = %d\n", WEDGEBUG_START);
+	}break;
+
+	case MOVE_TO_EDGE: // 7
+	{
+		printf("MOVE_TO_EDGE = %d\n", MOVE_TO_EDGE);
+	}break;
+
+	case SCAN_EDGE: // 8
+	{
+		printf("SCAN_EDGE = %d\n", SCAN_EDGE);
+	}break;
+
+    default: // 0
+    {
+    	printf("default = %d\n", 0);
+    }
+    break;
+
+	}
+
+
+
+
+	if (cycle_counter != 0)
+	{
+		//image_to_grayscale(&img_left, &img_left_int8); // Converting left image from UYVY to gray scale for saving function
+		//image_to_grayscale(&img_right, &img_right_int8); // Converting right image from UYVY to gray scale for saving function
+
+		//SBM_OCV(&img_depth_int8_cropped, &img_left_int8, &img_right_int8, N_disparities, block_size_disparities, 1);// Creating cropped disparity map image
+
+		// Morphological operations 1
+		// Needed to smoove object boundaries and to remove noise removing noise
+		//opening_OCV(&img_depth_int8_cropped, &img_middle_int8_cropped,13, 1);
+		//closing_OCV(&img_middle_int8_cropped, &img_middle_int8_cropped,13, 1);
+		//dilation_OCV(&img_middle_int8_cropped, &img_middle_int8_cropped,11, 1);
+
 		// Edge detection
-		sobel_OCV(&img_middle_int8_cropped, &img_edges_int8_cropped, 5);
+		sobel_OCV(&img_middle_int8_cropped, &img_edges_int8_cropped, 5, 300);
 
 		// Morphological  operations 2
 		// This is needed so that when using the edges as filters (to work on disparity values
@@ -592,49 +1013,13 @@ void wedgebug_periodic(){
 		// and not the background
 		dilation_OCV(&img_middle_int8_cropped, &img_middle_int8_cropped,11, 1);
 
-		// Thresholding edges
-		uint8_t threshold = (maximum_intensity(&img_edges_int8_cropped) / 100.00 * 30);
-		//printf("Threshold = %d\n", threshold);
-		thresholding_img(&img_edges_int8_cropped, threshold);
-
-		// Calculating PP -
-		struct point_t c_old;
-		struct point_t c;
-		c_old.y = img_left_int8.h / 2;
-		c_old.x = img_left_int8.w / 2;
-		principal_points(&c_old, &c, &img_cropped_info); // Calculates principal points for cropped image, considerring the original dimensions
 
 
-		// Preparation of variables to convert between coordinate systems - start
-		// Declaration and initialization of rotation matrix and robot position in world coordinate system
-		struct FloatRMat *Rrw = stateGetNedToBodyRMat_f();
-		struct NedCoor_f *VRw_temp = stateGetPositionNed_f();
-		struct FloatVect3 VRw;
-		VRw.x = VRw_temp->x;
-		VRw.y = VRw_temp->y;
-		VRw.z = VRw_temp->z;
 
-		// Declaration and initialization of rotation matrix and camera position in robot coordinate system
-		struct FloatRMat Rcr;
-		Rcr.m[0] = 0; Rcr.m[1] = 1;	Rcr.m[2] = 0;
-		Rcr.m[3] = 0; Rcr.m[4] = 0; Rcr.m[5] = 1;
-		Rcr.m[6] = 1; Rcr.m[7] = 0; Rcr.m[8] = 0;
-		struct FloatVect3 VCr;
-		VCr.x = 0;
-		VCr.y = 0;
-		VCr.z = 0;
 
-		// Creation of point in the world coordinate system and an empty point in the camera coordinate system
-		struct FloatVect3 Vw;
-		Vw.x = 1;
-		Vw.y = 2;
-		Vw.z = 3;
-		struct FloatVect3 Vc;
 
-		Vw_to_Vc(&Vc, &Vw, Rrw, &VRw, &Rcr, &VCr, 0); // 0 for no log, 1 for log
-		Vc_to_Vw(&Vw, &Vc, Rrw, &VRw, &Rcr, &VCr, 0); // 0 for no log, 1 for log
-		printf("----------------------------\n");
-		// Preparation of variables to convert between coordinate systems - end
+		// Current work--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+		// ###################### NEXT --> Set depth threshold and see if medium is below it, if it is return true. Then put this in a function and include it in the "MOVE_TO_GOAL" state
 
 
 
@@ -649,49 +1034,69 @@ void wedgebug_periodic(){
 		target_point.x = 0.0671475;
 		target_point.z = 6;
 
+
 		// Loop to calculate position (in image) of point closes to hypothetical target - Start
-		float b = WEDGEBUG_CAMERA_BASELINE / 1000.00;
-		uint16_t f = WEDGEBUG_CAMERA_FOCAL_LENGTH;
-		float distance = 255;
-		struct FloatVect3 Vc2;
-		struct FloatVect3 target_scene_diff;
-		struct FloatVect2 closest_edge;
+		uint8_t threshold_disp = 10; //In the loop to determine the cl
+		struct crop_t edge_search_area;
+		edge_search_area.y = 0;
+		edge_search_area.h = img_depth_int8_cropped.h;
+		edge_search_area.x = 0;
+		edge_search_area.w = img_depth_int8_cropped.w;
+
+		uint32_t n_edges_found = 0;
+		uint32_t max_edge_intensity = maximum_intensity(&img_edges_int8_cropped);
 
 
-		for (uint32_t y = 0; y < img_depth_int8_cropped.h; y++)
+		float distance = 255; // This stores distance from edge to goal. Its initialized with 255 as basically any edge found will be closer than that and will replace 255 meters
+		struct FloatVect3 Vc2; // Just a vector to save the the current 3d point in the camera coordinate system.
+		struct FloatVect2 closest_edge;// A vector to save the closest edge to the goal identified
+		float f_distance_to_goal; // Saves distance from edge to goal NOTE: probably should add a vector to store distance from edge point to drone
+
+
+		for (uint16_t y = edge_search_area.y; y < (edge_search_area.y + edge_search_area.h ); y++)//for (uint32_t y = edge_search_area.y; y < (edge_search_area.y + edge_search_area.h); y++)
 		{
-			for (uint32_t x = 0; x < img_depth_int8_cropped.w; x++)
+			for (uint16_t x = edge_search_area.x; x < (edge_search_area.x + edge_search_area.w ); x++)
 			{
-
-				int32_t indx = indx1d(y, x, &img_depth_int8_cropped);
+				int32_t indx = indx1d_a(y, x, &img_depth_int8_cropped);
 				uint8_t edge_value = ((uint8_t*) img_edges_int8_cropped.buf)[indx];
+				// We save the disparity of the current point
+				uint8_t disparity = ((uint8_t*) img_middle_int8_cropped.buf)[indx];
 
-				// We only look for good edge points if the current point coincides with edges (from img_edges)
-				// i.e. where the value of the image is not zero (as all non-edges have been set to 0)
-				if (edge_value != 0)
+				// Three conditions must be met for an edge to be considered a viable route for the drone:
+				// 1) At least one edge pixels must have been found (maximum_intensity(&img_edges_int8_cropped) != 0)
+				//   a) This disparity of the current coordinate (x,y) must coincide with an edge pixel
+				//      (as all non-edge pixels have been set to 0) - (edge_value != 0)
+				//   b) The disparity of the current coordinate (x, y) must be above a certain threshold - (disparity > threshold_disp)
+				if ((max_edge_intensity != 0) && (edge_value != 0) && (disparity > threshold_disp))
 				{
+
+					// We increase the edge counter for every edge found
+					n_edges_found++;
+
 					// We determine the offset from the principle point
-					int32_t y_from_c = y - c.y;
-					int32_t x_from_c = x - c.x;
-					// We save disparity and derive the 3d scene point using it
-					uint8_t disparity = ((uint8_t*) img_middle_int8_cropped.buf)[indx];
+					int32_t y_from_c = y - c_img_cropped.y;
+					int32_t x_from_c = x - c_img_cropped.x;
+					// We derive the 3d scene point using from the disparity saved earlier
 					//Ci_to_Cc(&Vc, y_from_c, x_from_c, disparity, b, f);
 					Vi_to_Vc(&Vc2, y_from_c, x_from_c, disparity, b, f);
 
-					// Calculating distance vector (needed to see which point is closest to goal)
-					target_scene_diff.x = target_point.x - Vc2.x;
-					target_scene_diff.y = target_point.y - Vc2.y;
-					target_scene_diff.z = target_point.z - Vc2.z;
+					// Calculating Euclidean distance (N2)
+					f_distance_to_goal =  float_vect3_norm_two_points(&target_point, &Vc2);
 
-					// If current distance (using distance vector) is smaller than the previous minimum distanc
+					// If current distance (using distance vector) is smaller than the previous minimum distance
 					// measure then save new distance and point coordinates associated with it
-					if (((float)sqrt(pow(target_scene_diff.x ,2) + pow(target_scene_diff.y ,2)+ pow(target_scene_diff.z ,2))) < distance)
+					if (f_distance_to_goal < distance)
 					{
-						distance = (float)sqrt(pow(target_scene_diff.x ,2) + pow(target_scene_diff.y ,2)+ pow(target_scene_diff.z ,2));
-						closest_edge.y = y;
-						closest_edge.x = x;
-					}
+						distance = f_distance_to_goal;
+						closest_edge.y = (float)y;
+						closest_edge.x = (float)x;
+						//y_saved=y;
+						//x_saved=x;
+						//printf("saved: %d, %d\n", y_saved, x_saved);
+						//printf("y,x: %d, %d\n", y, x);
+						//printf("saved: %f, %f\n", closest_edge.y, closest_edge.x);
 
+					}
 
 					//printf("x image = %d\n", x);
 					//printf("y image = %d\n", y);
@@ -701,31 +1106,39 @@ void wedgebug_periodic(){
 					//printf("X scene from c = %f\n", scene_point.X);
 					//printf("Y scene from c = %f\n", scene_point.Y);
 					//printf("Z scene from c = %f\n", scene_point.Z);
-
 					//printf("Closest edge [y,x] = [%d, %d]\n", (int)closest_edge.y, (int)closest_edge.x);
 					//printf("Distance to goal (m) = %f\n\n", distance);
 				}
 			}
 		}
 
-		((uint8_t*) img_edges_int8_cropped.buf)[indx1d(closest_edge.y, closest_edge.x, &img_edges_int8_cropped)] = 255;
+		if (n_edges_found > 0)
+		{
+			((uint8_t*) img_edges_int8_cropped.buf)[indx1d_a(closest_edge.y, closest_edge.x, &img_depth_int8_cropped)] = 255;
+			//printf("Viable edge found\n");
+		}
+		else
+		{
+			//printf("No viable edges were found\n");
+			1+1;
+		}
+
+
+		//printf("\n");
+
+
+
+		//printf("median / disparity / depth = %d / %d / %f\n",median, disparity2 ,Vc3.z);
+
 		//printf("Closest edge [y,x] = [%d, %d]\n", closest_edge.y, closest_edge.x);
 	    //printf("Distance to goal (m) = %f\n\n", distance);
 	    // Loop to calculate position (in image) of point closes to hypothetical target - End
 		// Example for finding target point in camera coordinate system - End
-
-
-
-
 		//printf("Width/height = %d / %d\n", img_depth_int8_cropped.w, img_depth_int8_cropped.h);
 		//printf("Position of y coordinate %d and x coordinate %d in 1d array: %d\n", position_2d.y, position_2d.x, position_1d);
-
-
-
 		/*
 		uint16_t x = 0;
 		float depth;
-
 		if (x==0)
 		{
 			depth = 0.0001;

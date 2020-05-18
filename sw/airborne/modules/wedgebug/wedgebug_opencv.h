@@ -45,13 +45,14 @@ extern "C" {
 
 // Global functions:
 
-int save_image_gray(struct image_t *img, char *myString);
-int save_image_color(void *img, int width, int height, char *myString);
-int SBM_OCV(struct image_t *img_disp, const struct image_t *img_left, const struct image_t *img_right,  const int ndisparities, const int SADWindowSize, const bool cropped);
-int opening_OCV(struct image_t *img_input, const struct image_t *img_output, const int SE_size, const int iteration);
-int closing_OCV(struct image_t *img_input, const struct image_t *img_output, const int SE_size, const int iteration);
-int dilation_OCV(struct image_t *img_input, const struct image_t *img_output, const int SE_size, const int iteration);
-int sobel_OCV(struct image_t *img_input, const struct image_t *img_output, const int kernel_size);
+extern int save_image_gray(struct image_t *img, char *myString);
+extern int save_image_color(void *img, int width, int height, char *myString);
+extern int SBM_OCV(struct image_t *img_disp, const struct image_t *img_left, const struct image_t *img_right,  const int ndisparities, const int SADWindowSize, const bool cropped);
+extern int opening_OCV(struct image_t *img_input, const struct image_t *img_output, const int SE_size, const int iteration);
+extern int closing_OCV(struct image_t *img_input, const struct image_t *img_output, const int SE_size, const int iteration);
+extern int dilation_OCV(struct image_t *img_input, const struct image_t *img_output, const int SE_size, const int iteration);
+int sobel_OCV(struct image_t *img_input, const struct image_t *img_output, const int kernel_size, const int thr);
+
 
 
 

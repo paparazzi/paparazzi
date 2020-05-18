@@ -1,12 +1,25 @@
 <!DOCTYPE flight_plan SYSTEM "../flight_plan.dtd">
 
-<flight_plan alt="1.0" ground_alt="0" lat0="51.990634" lon0="4.376789" max_dist_from_home="8" name="Bebop avoid orange TU Delft Cyberzoo" security_height="0.4">
+<flight_plan alt="1.0" ground_alt ="0" lat0="51.990634" lon0="4.376789" max_dist_from_home="20" name="Bebop with stereo cam and Wedgebug TU Delft Cyberzoo" security_height="0.4">
   <header>
     #include "subsystems/datalink/datalink.h"
     #include "subsystems/electrical.h"
     #include "subsystems/radio_control.h"
     #include "subsystems/ahrs.h"
-    #define NPS_GAZEBO_WORLD "cyberzoo2019_orange_poles_panels_mats.world" <!-- Used to be:cyberzoo_orange_poles.world" -->
+    #define NPS_GAZEBO_WORLD "cyberzoo2019_ralphthesis2020.world" <!-- Current world is based on "cyberzoo2019_orange_poles_panels_mats.world" and replaced the original "cyberzoo_orange_poles.world" that was used here -->
+
+#include "autopilot.h"
+inline void setNav(void){
+  autopilot_mode_auto2 = AP_MODE_NAV;
+  autopilot_static_set_mode(AP_MODE_NAV);
+}
+inline void setGuided(void){
+  autopilot_mode_auto2 = AP_MODE_GUIDED;
+  autopilot_static_set_mode(AP_MODE_GUIDED);
+}
+
+
+
 </header>
   <waypoints>
     <waypoint lat="51.990631" lon="4.376796" name="HOME"/>
@@ -15,29 +28,46 @@
     <waypoint name="TD" x="0.8" y="-1.7"/>
     <waypoint name="GOAL" x="1.9" y="1.0"/>
     <waypoint name="TRAJECTORY" x="1.9" y="1.0"/>
-    <waypoint lat="51.9905834" lon="4.3767710" name="_CZ1"/>
-    <waypoint lat="51.9906465" lon="4.3767025" name="_CZ2"/>
-    <waypoint lat="51.9906882" lon="4.376805" name="_CZ3"/>
-    <waypoint lat="51.9906238" lon="4.3768729" name="_CZ4"/>
+    
 
-    <waypoint lat="51.9905860" lon="4.3767712" name="_OZ1"/>
-    <waypoint lat="51.9906456" lon="4.3767088" name="_OZ2"/>
-    <waypoint lat="51.9906830" lon="4.3768048" name="_OZ3"/>
-    <waypoint lat="51.9906239" lon="4.3768684" name="_OZ4"/>
+    
+    
+    <waypoint  name="START1" x="-2.0" y="1" alt= "1"/>
+    <waypoint  name="START2" x="2.0" y="1" alt= "1"/>
+    <waypoint  name="GOAL1" x="-2.0" y="8" alt= "1"/>
+    <waypoint  name="GOAL2" x="2.0" y="8" alt= "1"/>
+    
+    
+    <waypoint  x="-6.0" y="-2.0" name="CZ1"/>
+    <waypoint  x="-6.0" y="10.0" name="CZ2"/>
+    <waypoint  x="5.0" y="10.0" name="CZ3"/>
+    <waypoint  x="5.0" y="-2.0" name="CZ4"/>
+    
+    <waypoint  x="-5.0" y="-1.0" name="OZ1"/>
+    <waypoint  x="-5.0" y="9.0" name="OZ2"/>
+    <waypoint  x="4.0" y="9.0" name="OZ3"/>
+    <waypoint  x="4.0" y="-1.0" name="OZ4"/>
+    
+    
+    
+    
+    
   </waypoints>
   <sectors>
     <sector color="red" name="CyberZoo">
-      <corner name="_CZ1"/>
-      <corner name="_CZ2"/>
-      <corner name="_CZ3"/>
-      <corner name="_CZ4"/>
+      <corner name="CZ1"/>
+      <corner name="CZ2"/>
+      <corner name="CZ3"/>
+      <corner name="CZ4"/>
     </sector>
-    <sector color="#FF9922" name="ObstacleZone">
-      <corner name="_OZ1"/>
-      <corner name="_OZ2"/>
-      <corner name="_OZ3"/>
-      <corner name="_OZ4"/>
+    <sector color="green" name="ObstacleZone">
+      <corner name="OZ1"/>
+      <corner name="OZ2"/>
+      <corner name="OZ3"/>
+      <corner name="OZ4"/>
     </sector>
+    
+    
   </sectors>
   <exceptions>
     <!-- RC lost -->
@@ -84,32 +114,75 @@
       <while cond="LessThan(NavBlockTime(), 2)"/>
       <call_once fun="NavSetAltitudeReferenceHere()"/>
     </block>
+    
+    <!-- Mdfd: Same as "1: Initial position" --> 
     <block name="Holding point">
       <call_once fun="NavKillThrottle()"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
     </block>
+    
     <block key="r" name="Start Engine">
       <call_once fun="NavResurrect()"/>
       <attitude pitch="0" roll="0" throttle="0" until="FALSE" vmode="throttle"/>
       <call_once fun="NavResurrect()"/>
     </block>
+    
+    
     <block key="t" name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
       <exception cond="GetPosAlt() > 0.8" deroute="Standby"/>
       <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
       <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
     </block>
+    
     <block key="s" name="Standby" strip_button="Standby" strip_icon="home.png">
       <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
       <stay wp="STDBY"/>
     </block>
+    
+    
+        <!-- Mdfd: Same as "1: Initial position" --> 
+    <block name="Initial position">
+      <call_once fun = "set_state(1)"/>
+      <call_once fun="NavResurrect()"/>
+      <deroute block="Move to start"/> <!-- delete for more control --> 
+    </block>
+
+    
+    <!-- Mdfd: Same as "2: Move to start" --> 
+    <block name="Move to start">
+      
+      <call_once fun = "set_state(2)"/>
+      <go wp="START1"/>
+      <deroute block="Position start"/> 
+    </block>
+    
+        <!-- Mdfd: Same as "3: Position start" --> 
+    <block name="Position start">
+      <call_once fun = "set_state(3)"/>
+      <deroute block="Move to goal"/> <!-- delete for more control --> 
+    </block>
+    
+    
     <block key="g" name="START" strip_button="Go" strip_icon="lookfore.png">
-      <call_once fun="NavSetWaypointHere(WP_GOAL)"/>
-      <stay wp="GOAL"/>
+      <deroute block="Move to goal"/>
     </block>
-    <block name="STOP">
-      <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
-      <stay wp="STDBY"/>
+    
+    
+    <!-- Mdfd: Same as "4: Move to goal" --> 
+    <block name="Move to goal">
+      <call_once fun = "set_state(4)"/>    
+      <call_once fun="setGuided()"/>   
+      <deroute block="Position goal"/>
     </block>
+    
+    
+    <!-- Mdfd: Same as "5: Position goal" --> 
+    <block name="Position goal">
+      <stay wp="GOAL1"/>
+    </block>
+    
+    
+
     <block key="l" name="land here" strip_button="land here" strip_icon="land-right.png">
       <call_once fun="NavSetWaypointHere(WP_TD)"/>
       <go wp="TD"/>
