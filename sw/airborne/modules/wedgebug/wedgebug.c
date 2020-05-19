@@ -64,32 +64,43 @@ struct image_t img_depth_int16_cropped;
 struct image_t img_middle_int8_cropped;
 struct image_t img_edges_int8_cropped;
 
+// Declaring crop_t structure for information about the cropped image (after BM)
 struct crop_t img_cropped_info;
+
+// Declaring dimensions of images and kernels used
 struct img_size_t img_dims;
 struct img_size_t img_cropped_dims;
-
 struct img_size_t kernel_median_dims;
-struct kernel_C1 median_kernel;
 
+// Declaring empty kernel for obtaining median
+struct kernel_C1 median_kernel;
 
 //static pthread_mutex_t mutex;
 int N_disparities = 64;
 int block_size_disparities = 25;
 int min_disparity = 0;
 uint8_t cycle_counter = 0;
-struct FloatVect3 VGOALwenu;
-struct FloatVect3 VGOALwned;
+
+struct FloatVect3 VGOALwenu; // Declared vector of coordinates of goal in ENU world coordinate system
+struct FloatVect3 VGOALwned; // Declared vector of coordinates of goal in NED world coordinate system
+struct FloatVect3 VGOALr;    // Declared vector of coordinates of goal in robot coordinate system
+struct FloatVect3 VGOALc;    // Declared vector of coordinates of goal in camera coordinate system
+
 uint8_t is_goal_setpoint_set;
 
 uint8_t median_disparity_in_front; // Variable to hold the median disparity in front of the drone. Needed to see if obstacle is there.
 
+
 // Thresholds
 uint8_t threshold_median_disparity; // Above this median disparity, an obstacle is considered to block the way (i.e. the blocking obstacle need to be close)
-uint8_t threshold_disparity_of_edges; // Above this disparity edges are legible for WedgeBug algorithm (i.e. edges cannot be very far away)
+uint8_t threshold_disparity_of_edges; // Above this disparity edges are eligible for WedgeBug algorithm (i.e. edges cannot be very far away)
 
 // Principal points
 struct point_t c_img;
 struct point_t c_img_cropped;
+
+// Edge search area
+struct crop_t edge_search_area;
 
 
 // Declaring rotation matrices and transition vectors for frame to frame transformations
@@ -110,7 +121,6 @@ uint16_t f = WEDGEBUG_CAMERA_FOCAL_LENGTH;
 
 
 // Define new structures + enums
-
 enum navigation_state {
   POSITION_INITIAL = 1,
   MOVE_TO_START = 2,
@@ -122,12 +132,21 @@ enum navigation_state {
   SCAN_EDGE = 8,
 
 };
-
 enum navigation_state current_state ;// Default state is 0 i.e. nothing
+
+// Other
+// For debugging purpose. Allows for changing of state in simulation if 1. If 0, does not allow for state change. Useful if you want to execute only one state repeatedly
+uint8_t allow_state_change_1; // From within state "POSITION_INITIAL"
+uint8_t allow_state_change_2; // From within state "MOVE_TO_START"
+uint8_t allow_state_change_3; // From within state "POSITION_START "
+uint8_t allow_state_change_4; // From within state "MOVE_TO_GOAL"
+uint8_t allow_state_change_5; // From within state "POSITION_GOAL"
+uint8_t allow_state_change_6; // From within state "WEDGEBUG_START"
+uint8_t allow_state_change_7; // From within state "MOVE_TO_EDGE"
+uint8_t allow_state_change_8; // From within state "SCAN_EDGE"
 
 
 // New section: Functions - Declaration ----------------------------------------------------------------------------------------------------------------
-
 // Supporting
 const char* get_img_type(enum image_type img_type); // Function 1: Displays image type
 void show_image_data(struct image_t *img); // Function 2: Displays image data
@@ -135,7 +154,7 @@ void show_image_entry(struct image_t *img, int entry_position, const char *img_n
 
 // External
 void post_disparity_crop_rect(struct crop_t *img_cropped_info,struct img_size_t *original_img_dims, const int disp_n, const int block_size);
-void set_state(uint8_t state);
+void set_state(uint8_t state, uint8_t change_allowed);
 void kernel_create(struct kernel_C1 *kernel, uint16_t width, uint16_t height);
 void kernel_free(struct kernel_C1 *kernel);
 uint8_t getMedian(uint8_t *a, uint32_t n);
@@ -163,6 +182,8 @@ void Vc_to_Vw(struct FloatVect3 *Vw, struct FloatVect3 *Vc, struct FloatRMat *Rr
 float float_vect3_norm_two_points(struct FloatVect3 *V1, struct FloatVect3 *V2);
 float heading_towards_waypoint(uint8_t wp);
 uint8_t median_disparity_to_point(struct point_t *Vi, struct image_t *img, struct kernel_C1 *kernel_median);
+
+uint8_t find_best_edge_coordinates(struct FloatVect3 *VEDGECOORDINATESc, struct FloatVect3 *VTARGETc, struct image_t *img_edges, struct image_t *img_disparity, struct crop_t *edge_search_area, uint8_t threshold);
 
 
 
@@ -228,9 +249,9 @@ void post_disparity_crop_rect(struct crop_t *img_cropped_info,struct img_size_t 
 
 
 // Function 2 - Sets finite state machine state (useful for the flight path blocks)
-extern void set_state(uint8_t state)
+void set_state(uint8_t state, uint8_t change_allowed)
 {
-	current_state = state;
+	if (change_allowed == 1){current_state = state;}
 }
 
 
@@ -545,14 +566,21 @@ int32_t indx1d_c(const int32_t y, const int32_t x, const uint16_t img_height, co
 // Function 11 - Function to convert point in coordinate system a to a point in the coordinate system b
 void Va_to_Vb(struct FloatVect3 *Vb, struct FloatVect3 *Va, struct FloatRMat *Rba, struct FloatVect3 *VOa)
 {
+
+	struct FloatVect3 Va_temp;
+	Va_temp.x = Va->x;
+	Va_temp.y = Va->y;
+	Va_temp.z = Va->z;
+
+
 	// The following translates world vector coordinates into the agent coordinate system
-	Va->x = Va->x - VOa->x;
-	Va->y = Va->y - VOa->y;
-	Va->z = Va->z - VOa->z;
+	Va_temp.x = Va->x - VOa->x;
+	Va_temp.y = Va->y - VOa->y;
+	Va_temp.z = Va->z - VOa->z;
 
 	// In case the axes of the world coordinate system (w) and the agent coordinate system (a) do not
 	// coincide, they are adjusted with the rotation matrix R
-	float_rmat_vmult(Vb, Rba, Va);
+	float_rmat_vmult(Vb, Rba, &Va_temp);
 }
 
 
@@ -722,6 +750,105 @@ uint8_t median_disparity_to_point(struct point_t *Vi, struct image_t *img, struc
 	return median;
 }
 
+// Function 17 - Function to find "best" (vlosest ideal pathwat to goal from robot to edge to goal) edgef
+// Returns a 3d Vector to the best "edge" and 1 if any edge is found and 0 if no edge is found.
+uint8_t find_best_edge_coordinates(
+		struct FloatVect3 *VEDGECOORDINATESc,
+		struct FloatVect3 *VTARGETc,
+		struct image_t *img_edges,
+		struct image_t *img_disparity,
+		struct crop_t *edge_search_area,
+		uint8_t threshold)
+{
+
+	// Loop to calculate position (in image) of point closes to hypothetical target - Start
+
+
+	uint32_t n_edges_found = 0;
+
+	float distance = 255; // This stores distance from edge to goal. Its initialized with 255 as basically any edge found will be closer than that and will replace 255 meters
+	struct FloatVect3 VEDGEc; // A vector to save the point of an eligible detected edge point in the camera coordinate system.
+	struct FloatVect3 VROBOTCENTERc;// Declaring camera center coordinates vector
+	VROBOTCENTERc.x = 0.0;VROBOTCENTERc.y = 0.0;VROBOTCENTERc.z = 0.0; // Initializing camera center coordinates vector
+	struct point_t VCLOSESTEDGEi; // A vector to save the point of the "best" eligible detected edge point in the image coordinate system.
+	float f_distance_edge_to_goal;  // Saves distance from edge to goal
+	float f_distance_robot_to_edge; // Saves distance from robot to goal
+	int32_t indx; // Variable to store 1d index calculated from 2d index
+	uint8_t edge_value; // Variable to store the intensity value of a pixel in the img_edge
+	uint8_t disparity; // variable to store the disparity level of a pixel in the img_disparity
+
+
+	for (uint16_t y = edge_search_area->y; y < (edge_search_area->y + edge_search_area->h ); y++)//for (uint32_t y = edge_search_area.y; y < (edge_search_area.y + edge_search_area.h); y++)
+	{
+		for (uint16_t x = edge_search_area->x; x < (edge_search_area->x + edge_search_area->w ); x++)
+		{
+			indx = indx1d_a(y, x, img_edges); // We convert the 2d index [x,y] into a 1d index
+			edge_value = ((uint8_t*) img_edges->buf)[indx]; // We save the intensity of the current point
+			disparity = ((uint8_t*) img_disparity->buf)[indx]; // We save the disparity of the current point
+
+			// Two conditions must be met for an edge to be considered a viable route for the drone:
+			// 1) This disparity of the current coordinate (x,y) must coincide with an edge pixel
+			//    (as all non-edge pixels have been set to 0) - (edge_value != 0)
+			// 2) The disparity of the current coordinate (x, y) must be above a certain threshold. This simulates vision cone - (disparity > threshold_disparity_of_edges)
+			if ((edge_value != 0) && (disparity > threshold))
+			{
+				// We increase the edge counter for every edge found
+				n_edges_found++;
+				// We determine the offset from the principle point
+				int32_t y_from_c = y - c_img_cropped.y; // Note. The variable "c_img_cropped" is a global variable
+				int32_t x_from_c = x - c_img_cropped.x; // Note. The variable "c_img_cropped" is a global variable
+				// We derive the 3d scene point using from the disparity saved earlier
+				Vi_to_Vc(&VEDGEc, y_from_c, x_from_c, disparity, b, f); // Note. The variables "b" and "f" are a global variables
+				// Calculating Euclidean distance (N2) - Edge to goal
+				f_distance_edge_to_goal =  float_vect3_norm_two_points(VTARGETc, &VEDGEc);
+				// Calculating Euclidean distance (N2) - robot to edge
+				f_distance_robot_to_edge =  float_vect3_norm_two_points(&VEDGEc, &VROBOTCENTERc);
+
+
+				// If current distance (using distance vector) is smaller than the previous minimum distance
+				// measure then save new distance and point coordinates associated with it
+				if ((f_distance_robot_to_edge + f_distance_edge_to_goal) < distance)
+				{
+					// Saving closest edge point, in camera coordinate system
+					VEDGECOORDINATESc->x = VEDGEc.x;
+					VEDGECOORDINATESc->y = VEDGEc.y;
+					VEDGECOORDINATESc->z = VEDGEc.z;
+					// Saving smallest distance
+					distance = (f_distance_robot_to_edge + f_distance_edge_to_goal);
+					// Saving closest edge point, in image coordinate system
+					VCLOSESTEDGEi.y = y;
+					VCLOSESTEDGEi.x = x;
+				}
+
+				//printf("x image = %d\n", x);
+				//printf("y image = %d\n", y);
+				//printf("x image from c = %d\n", x_from_c);
+				//printf("y image from c = %d\n", y_from_c);
+				//printf("d  = %d\n", disparity);
+				//printf("X scene from c = %f\n", scene_point.X);
+				//printf("Y scene from c = %f\n", scene_point.Y);
+				//printf("Z scene from c = %f\n", scene_point.Z);
+				//printf("Closest edge [y,x] = [%d, %d]\n", (int)closest_edge.y, (int)closest_edge.x);
+				//printf("Robot center coordinates = [%f, %f, %f]\n", VROBOTCENTERc.x, VROBOTCENTERc.y, VROBOTCENTERc.z);
+				//printf("Edge coordinates = [%f, %f, %f]\n", VEDGEc.x, VEDGEc.y, VEDGEc.z);
+				//printf("Distance to goal (m) = %f\n", distance);
+				//printf("Distance to goal2 (m) = %f + %f\n\n", f_distance_robot_to_edge, f_distance_edge_to_goal);
+			}
+		}
+	}
+
+	if (n_edges_found > 0)
+	{
+		((uint8_t*) img_edges->buf)[indx1d_a(VCLOSESTEDGEi.y, VCLOSESTEDGEi.x, img_edges)] = 255;
+		printf("Viable closest edge found: [%d, %d]\n", VCLOSESTEDGEi.y , VCLOSESTEDGEi.x);
+		return 1;
+	}
+	else
+	{
+		printf("No viable edge found\n");
+		return 0;
+	}
+}
 
 /*
  * a: Coordinate system a (i.e. the coordinate frame a)
@@ -823,11 +950,25 @@ void wedgebug_init(){
 	principal_points(&c_img_cropped,&c_img, &img_cropped_info); // Calculates principal points for cropped image, considering the original dimensions
 
 	// Setting thresholds
-	threshold_median_disparity = 55; // Above this median disparity, an obstacle is considered to block the way. >60 = close than 35cm
-	threshold_disparity_of_edges= 10;
+	threshold_median_disparity = 20; // Above this median disparity, an obstacle is considered to block the way. >60 = close than 35cm
+	threshold_disparity_of_edges = 10;
 
 
+	// Initializing area over which edges are searched in
+	edge_search_area.y = 0;
+	edge_search_area.h = img_depth_int8_cropped.h;
+	edge_search_area.x = 0;
+	edge_search_area.w = img_depth_int8_cropped.w;
 
+	// Initializing debugging options
+	allow_state_change_1 = 1; // Allows state change from within state "POSITION_INITIAL"
+	allow_state_change_2 = 1; // Allows state change from within state "MOVE_TO_START"
+	allow_state_change_3 = 1; // Allows state change from within state "POSITION_START "
+	allow_state_change_4 = 0; // Allows state change from within state "MOVE_TO_GOAL"
+	allow_state_change_5 = 1; // Allows state change from within state "POSITION_GOAL"
+	allow_state_change_6 = 1; // Allows state change from within state "WEDGEBUG_START"
+	allow_state_change_7 = 1; // Allows state change from within state "MOVE_TO_EDGE"
+	allow_state_change_8 = 1; // Allows state change from within state "SCAN_EDGE"
 }
 
 
@@ -842,10 +983,9 @@ void wedgebug_periodic(){
 	// So all processing must happen after the first cycle
 
 
-	//set_state(MOVE_TO_GOAL);
+	set_state(MOVE_TO_GOAL ,1);
 	printf("Current state %d\n", current_state);
 
-	//printf("Angle %f\n", heading_towards_waypoint(WP_GOAL1)); // Figure out how to deal with this waypoint
 
 
 	//Initialization of dynamic rotation matrices and transition vectors for frame to frame transformations
@@ -854,6 +994,20 @@ void wedgebug_periodic(){
 	VRwned.x = stateGetPositionNed_f()->x;
 	VRwned.y = stateGetPositionNed_f()->y;
 	VRwned.z = stateGetPositionNed_f()->z;
+
+
+	// Current work--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	// ###################### NEXT --> Convert goal Need coordinates into camera coordinates, then include in function below
+	//Va_to_Vb(struct FloatVect3 *Vb, struct FloatVect3 *Va, struct FloatRMat *Rba, struct FloatVect3 *VOa)
+
+
+	Va_to_Vb(&VGOALr, &VGOALwned, &Rrwned, &VRwned);
+	Va_to_Vb(&VGOALc, &VGOALr, &Rcr, &VCr);
+
+	printf("World ENU coordinates of goal = [%f, %f, %f]\n", VGOALwenu.x, VGOALwenu.y, VGOALwenu.z);
+	printf("World NED coordinates of goal = [%f, %f, %f]\n", VGOALwned.x, VGOALwned.y, VGOALwned.z);
+	printf("Robot coordinates of goal = [%f, %f, %f]\n", VGOALr.x, VGOALr.y, VGOALr.z);
+	printf("Camera coordinates of goal = [%f, %f, %f]\n", VGOALc.x, VGOALc.y, VGOALc.z);
 
 
 	/*
@@ -909,52 +1063,73 @@ void wedgebug_periodic(){
 		closing_OCV(&img_middle_int8_cropped, &img_middle_int8_cropped,13, 1);
 		dilation_OCV(&img_middle_int8_cropped, &img_middle_int8_cropped,11, 1);
 
-		// Checking threshold
+		// 4. Checking threshold
 		// Calculating median disparity
 		median_disparity_in_front = median_disparity_to_point(&c_img_cropped, &img_depth_int8_cropped, &median_kernel);
 
-		// THis code is to see what depth the disparity value is
-		float depth;
+
 		//In case disparity is 0 (infinite distance or error we set it to one disparity
 		// above the threshold as the likelyhood that the object is too close is large (as opposed to it being infinitely far away)
 		if(median_disparity_in_front == 0 )
 		{
 			median_disparity_in_front = (threshold_median_disparity + 1);
 		}
-
-		depth = disp_to_depth(median_disparity_in_front, b, f);
-
 		printf("median_disparity_in_front = %d\n", median_disparity_in_front);
+
+		// If obstacle is detected
 		if (median_disparity_in_front > threshold_median_disparity)
 		{
 			printf("Object detected!!!!!!!!\n");
-		}
-		printf("depth function = %f\n", depth);
+			// 1. Seting setpoint to current location
+			guidance_h_hover_enter();
 
+
+			// 2. Setting state to 6 = Wedgebug Start
+			set_state(WEDGEBUG_START, allow_state_change_4);
+
+		}
+		// If no obstacle is detected
+		else
+		{
+			printf("No object detected\n");
+			// 1) Deactivates wedgebug procedure time
+			// <To be added>
+
+			// 3. Checking if goal is reached
+			// If goal is reached
+			if (float_vect3_norm_two_points(&VGOALwned, &VRwned) < 0.25)
+			{
+				// 1. Set state to 5
+				set_state(POSITION_GOAL , allow_state_change_4);
+			}
+			// Else, when goal i not reached
+			else
+			{
+				// 1. Set setpoint to goal
+				// This statement is needed in order to make sure that the setpoint is only set if current_state is 4
+				// AND the current mode is guided mode (otherwise the setpoint might be set before guidance mode
+				// is activated and that simply leads to nothing)
+				if ((autopilot_get_mode() == AP_MODE_GUIDED))// && (is_goal_setpoint_set == 0))
+				{
+					// Sets setpoint to goal position and orientates drones towards the goal as well
+					autopilot_guided_goto_ned(VGOALwned.x, VGOALwned.y, VGOALwned.z, heading_towards_waypoint(WP_GOAL1));
+				}
+
+				// 2. Break out of switch / case
+				//break;
+			}
+		}
+
+
+		// THis code is to see what depth the disparity value is
+		float depth;
+		depth = disp_to_depth(median_disparity_in_front, b, f);
+		printf("depth function = %f\n", depth);
 		printf("\n");
 
 
 
-		// This statement is needed in order to make sure that the setpoint is only set if current_state is 4
-		// AND the current mode is guided mode (otherwise the setpoint might be set before guidance mode
-		// is activated and that simply leads to nothing)
-		if ((autopilot_get_mode() == AP_MODE_GUIDED))// && (is_goal_setpoint_set == 0))
-		{
-			// Sets setpoint to goal position and orientates drones towards the goal as well
-			autopilot_guided_goto_ned(VGOALwned.x, VGOALwned.y, VGOALwned.z, heading_towards_waypoint(WP_GOAL1));
-			is_goal_setpoint_set = 1; // Now the setpoint has been set
-		}
 
-		// The following ensures the drone will always face the goal
-		//guidance_h_set_guided_heading(heading_towards_waypoint(WP_GOAL1));
-
-		// If the drone is very close to the goal the setpoint is released (=0) and the state
-		// is changed to "POSITION_GOAL (5)"
-		if (float_vect3_norm_two_points(&VGOALwned, &VRwned) < 0.25)
-		{
-			is_goal_setpoint_set = 0;
-			set_state(POSITION_GOAL);
-		}
 	}break;
 
 	case POSITION_GOAL: // 5
@@ -968,6 +1143,9 @@ void wedgebug_periodic(){
 	case WEDGEBUG_START: // 6
 	{
 		printf("WEDGEBUG_START = %d\n", WEDGEBUG_START);
+		guidance_h_hover_enter();
+
+
 	}break;
 
 	case MOVE_TO_EDGE: // 7
@@ -1016,115 +1194,32 @@ void wedgebug_periodic(){
 
 
 
-
-
-		// Current work--------------------------------------------------------------------------------------------------------------------------------------------------------------------
-		// ###################### NEXT --> Set depth threshold and see if medium is below it, if it is return true. Then put this in a function and include it in the "MOVE_TO_GOAL" state
-
-
-
-
-
-
-
 		// Example for finding target point in camera coordinate system - start
 		// Creating target point in the camera coordinate system
 		struct FloatVect3 target_point;
 		target_point.y = -0.251803;
-		target_point.x = 0.0671475;
-		target_point.z = 6;
+		target_point.x =  0.0671475;
+		target_point.z =  6;
 
 
-		// Loop to calculate position (in image) of point closes to hypothetical target - Start
-		uint8_t threshold_disp = 10; //In the loop to determine the cl
-		struct crop_t edge_search_area;
-		edge_search_area.y = 0;
-		edge_search_area.h = img_depth_int8_cropped.h;
-		edge_search_area.x = 0;
-		edge_search_area.w = img_depth_int8_cropped.w;
-
-		uint32_t n_edges_found = 0;
-		uint32_t max_edge_intensity = maximum_intensity(&img_edges_int8_cropped);
 
 
-		float distance = 255; // This stores distance from edge to goal. Its initialized with 255 as basically any edge found will be closer than that and will replace 255 meters
-		struct FloatVect3 Vc2; // Just a vector to save the the current 3d point in the camera coordinate system.
-		struct FloatVect2 closest_edge;// A vector to save the closest edge to the goal identified
-		float f_distance_to_goal; // Saves distance from edge to goal NOTE: probably should add a vector to store distance from edge point to drone
 
 
-		for (uint16_t y = edge_search_area.y; y < (edge_search_area.y + edge_search_area.h ); y++)//for (uint32_t y = edge_search_area.y; y < (edge_search_area.y + edge_search_area.h); y++)
-		{
-			for (uint16_t x = edge_search_area.x; x < (edge_search_area.x + edge_search_area.w ); x++)
-			{
-				int32_t indx = indx1d_a(y, x, &img_depth_int8_cropped);
-				uint8_t edge_value = ((uint8_t*) img_edges_int8_cropped.buf)[indx];
-				// We save the disparity of the current point
-				uint8_t disparity = ((uint8_t*) img_middle_int8_cropped.buf)[indx];
 
-				// Three conditions must be met for an edge to be considered a viable route for the drone:
-				// 1) At least one edge pixels must have been found (maximum_intensity(&img_edges_int8_cropped) != 0)
-				//   a) This disparity of the current coordinate (x,y) must coincide with an edge pixel
-				//      (as all non-edge pixels have been set to 0) - (edge_value != 0)
-				//   b) The disparity of the current coordinate (x, y) must be above a certain threshold - (disparity > threshold_disp)
-				if ((max_edge_intensity != 0) && (edge_value != 0) && (disparity > threshold_disp))
-				{
-
-					// We increase the edge counter for every edge found
-					n_edges_found++;
-
-					// We determine the offset from the principle point
-					int32_t y_from_c = y - c_img_cropped.y;
-					int32_t x_from_c = x - c_img_cropped.x;
-					// We derive the 3d scene point using from the disparity saved earlier
-					//Ci_to_Cc(&Vc, y_from_c, x_from_c, disparity, b, f);
-					Vi_to_Vc(&Vc2, y_from_c, x_from_c, disparity, b, f);
-
-					// Calculating Euclidean distance (N2)
-					f_distance_to_goal =  float_vect3_norm_two_points(&target_point, &Vc2);
-
-					// If current distance (using distance vector) is smaller than the previous minimum distance
-					// measure then save new distance and point coordinates associated with it
-					if (f_distance_to_goal < distance)
-					{
-						distance = f_distance_to_goal;
-						closest_edge.y = (float)y;
-						closest_edge.x = (float)x;
-						//y_saved=y;
-						//x_saved=x;
-						//printf("saved: %d, %d\n", y_saved, x_saved);
-						//printf("y,x: %d, %d\n", y, x);
-						//printf("saved: %f, %f\n", closest_edge.y, closest_edge.x);
-
-					}
-
-					//printf("x image = %d\n", x);
-					//printf("y image = %d\n", y);
-					//printf("x image from c = %d\n", x_from_c);
-					//printf("y image from c = %d\n", y_from_c);
-					//printf("d  = %d\n", disparity);
-					//printf("X scene from c = %f\n", scene_point.X);
-					//printf("Y scene from c = %f\n", scene_point.Y);
-					//printf("Z scene from c = %f\n", scene_point.Z);
-					//printf("Closest edge [y,x] = [%d, %d]\n", (int)closest_edge.y, (int)closest_edge.x);
-					//printf("Distance to goal (m) = %f\n\n", distance);
-				}
-			}
-		}
-
-		if (n_edges_found > 0)
-		{
-			((uint8_t*) img_edges_int8_cropped.buf)[indx1d_a(closest_edge.y, closest_edge.x, &img_depth_int8_cropped)] = 255;
-			//printf("Viable edge found\n");
-		}
-		else
-		{
-			//printf("No viable edges were found\n");
-			1+1;
-		}
+		struct FloatVect3 VEDGECOORDINATESc;
 
 
-		//printf("\n");
+
+		find_best_edge_coordinates(
+				&VEDGECOORDINATESc,
+				&target_point,
+				&img_edges_int8_cropped,
+				&img_middle_int8_cropped,
+				&edge_search_area,
+				threshold_disparity_of_edges);
+
+
 
 
 

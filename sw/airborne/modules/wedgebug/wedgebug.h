@@ -56,7 +56,7 @@ extern int max_disparity;
 
 // Global functions
 extern void post_disparity_crop_rect(struct crop_t *img_cropped_info,struct img_size_t *original_img_dims,const int disp_n,const int block_size);
-extern void set_state(uint8_t state);
+extern void set_state(uint8_t state, uint8_t change_allowed);
 extern void kernel_create(struct kernel_C1 *kernel, uint16_t width, uint16_t height);
 extern void kernel_free(struct kernel_C1 *kernel);
 extern uint8_t getMedian(uint8_t *a, uint32_t n);
