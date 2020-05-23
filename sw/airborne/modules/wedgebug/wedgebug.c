@@ -1052,7 +1052,7 @@ void wedgebug_init(){
 	// Setting thresholds
 	threshold_median_disparity = 11; // Above this median disparity, an obstacle is considered to block the way. >60 = close than 35cm
 	threshold_edge_magnitude = 300;  // Edges with a magnitude above this value are detected. Above this value, edges are given the value 127, otherwise they are given the value zero.
-	threshold_disparity_of_edges = 5; // Above this value, edges are considers eligible for detection
+	threshold_disparity_of_edges = 5; // Above this underlying disparity value, edges are considers eligible for detection
 	threshold_distance_to_goal = 0.25;
 	threshold_distance_to_angle = 0.0004;
 
@@ -1060,7 +1060,7 @@ void wedgebug_init(){
 	obstacle_confidence = 0;	// This is the confidence that an obstacle was spotted
 	position_confidence = 0;	// This is the confidence that the desired position was reached
 	heading_confidence = 0;		// This is the confidence that the desired heading is reached
-	max_obstacle_confidence = 10;// This is the max confidence that an obstacle was spotted
+	max_obstacle_confidence = 3;// This is the max confidence that an obstacle was spotted
 	max_position_confidence = 30;// This is the max confidence that a specific position was reached
 	max_heading_confidence = 5;	// This is the max confidence that a specific heading was reached
 
@@ -1089,7 +1089,7 @@ void wedgebug_init(){
 	allow_state_change_3 = 1; // Allows state change from within state "POSITION_START "
 	allow_state_change_4 = 1; // Allows state change from within state "MOVE_TO_GOAL"
 	allow_state_change_5 = 1; // Allows state change from within state "POSITION_GOAL"
-	allow_state_change_6 = 0; // Allows state change from within state "WEDGEBUG_START"
+	allow_state_change_6 = 1; // Allows state change from within state "WEDGEBUG_START"
 	allow_state_change_7 = 1; // Allows state change from within state "MOVE_TO_EDGE"
 	allow_state_change_8 = 1; // Allows state change from within state "EDGE_SCAN"
 
@@ -1107,7 +1107,7 @@ void wedgebug_init(){
 	};*/
 
 
-	set_state(0 ,1);
+	//set_state(0 ,1);
 
 
 }
@@ -1234,6 +1234,7 @@ void wedgebug_periodic(){
 
 
 
+	/*
 	// Code testing  - EDGE_SCAN
 	// Getting into testing position
 	// Activating drone if not already activated
@@ -1284,19 +1285,6 @@ void wedgebug_periodic(){
 	VSTARTwned.z = -1.0;
 
 
-	/*// Function to change heading
-	void increase_guidance_heading(float incrementDegrees)
-	{
-	  float new_heading = stateGetNedToBodyEulers_f()->psi + RadOfDeg(incrementDegrees);
-
-	  // normalize heading to [-pi, pi]
-	  FLOAT_ANGLE_NORMALIZE(new_heading);
-
-	  // set heading
-	  guidance_h_set_guided_heading(new_heading);
-
-	  printf("Increasing heading to %f\n", DegOfRad(new_heading));
-	}*/
 
 
 
@@ -1415,76 +1403,7 @@ void wedgebug_periodic(){
 	printf("right heading reached flag = %d\n", initial_state.is_right_reached_flag);
 	printf("position_confidence = %d\n", position_confidence);
 	printf("heading_confidence = %d\n", heading_confidence);
-
-
-	/*
-	// Checking if start position is reached
-	if (is_setpoint_reached(&VSTARTwned, &VRwned, threshold_distance_to_goal) || is_start_reached)
-	{
-		printf("Start position is reached\n");
-
-		is_start_reached = 1;
-
-		if(is_heading_reached(initial_state.heading_max_left, heading, threshold_distance_to_angle) || initial_state.is_left_reached_flag)
-		{
-			printf("Left has been reached\n");
-			initial_state.is_left_reached_flag = 1;
-
-			if(is_heading_reached(initial_state.heading_max_right, heading, threshold_distance_to_angle) || initial_state.is_right_reached_flag)
-			{
-
-				printf("Right has been reached\n");
-				initial_state.is_right_reached_flag = 1;
-
-				if ((initial_state.is_left_reached_flag = 1)&&(initial_state.is_right_reached_flag = 1))
-				{
-					printf("Scan complete\n");
-					initial_state.is_left_reached_flag = 0;
-					initial_state.is_right_reached_flag = 0;
-				}
-				else
-				{
-					printf("Something is wrong");
-				}
-
-
-			}
-			else
-			{
-				guidance_h_set_guided_heading(initial_state.heading_max_right);
-			}
-
-		}
-		else
-		{
-			guidance_h_set_guided_heading(initial_state.heading_max_left);
-		}
-
-		printf("initial_state.is_left_reached_flag = %d\n", initial_state.is_left_reached_flag);
-		printf("initial_state.is_right_reached_flag = %d\n", initial_state.is_right_reached_flag);
-
-	}
-
-	// Else, when goal is not reached
-	else
-	{
-		// 1. Set setpoint to goal
-		// This statement is needed in order to make sure that the setpoint is only set if current_state is 4
-		// AND the current mode is guided mode (otherwise the setpoint might be set before guidance mode
-		// is activated and that simply leads to nothing)
-		if ((autopilot_get_mode() == AP_MODE_GUIDED))// && (is_goal_setpoint_set == 0))
-		{
-			// Sets setpoint to goal position and orientates drones towards the goal as well
-			autopilot_guided_goto_ned(VSTARTwned.x, VSTARTwned.y, VSTARTwned.z, 0);
-			printf("Setting setpoint\n");
-		}
-	}*/
-
-
-
-
-
-
+	*/
 
 
 
@@ -1539,67 +1458,92 @@ void wedgebug_periodic(){
 		printf("MOVE_TO_GOAL = %d\n", MOVE_TO_GOAL);
 
 
-		// 1. Checking threshold
-		// Calculating median disparity
-		median_disparity_in_front = median_disparity_to_point(&c_img_cropped, &img_depth_int8_cropped, &median_kernel);
-
-
-		//In case disparity is 0 (infinite distance or error we set it to one disparity
-		// above the threshold as the likelyhood that the object is too close is large (as opposed to it being infinitely far away)
-		if(median_disparity_in_front == 0 )
+		if (is_setpoint_reached_flag)
 		{
-			median_disparity_in_front = (threshold_median_disparity + 1);
+			printf("Goal is reached\n");
+			is_setpoint_reached_flag = 0;
+			is_obstacle_detected_flag = 0;
+			set_state(POSITION_GOAL , allow_state_change_4);
 		}
-		printf("median_disparity_in_front = %d\n", median_disparity_in_front);
+		else
+		{
+			// 1. Set setpoint to goal
+			// This statement is needed in order to make sure that the setpoint is only set if
+			// the current mode is guided mode (otherwise the setpoint might be set before guidance mode
+			// is activated and that simply leads to nothing)
+			if ((autopilot_get_mode() == AP_MODE_GUIDED))
+			{
+				// Sets setpoint to goal position and orientates drones towards the goal as well
+				autopilot_guided_goto_ned(VGOALwned.x, VGOALwned.y, VGOALwned.z, heading_towards_waypoint(WP_GOAL1));
+			}
 
-		// If obstacle is detected
-		if ((median_disparity_in_front > threshold_median_disparity) && (float_vect3_norm_two_points(&VGOALwned, &VRwned) > 3)) // NOTE. The second logical operator was added for testing. Delete it after reducing object distance range and integrating the look for edge function
+			// If start appears to be reached increase confidence
+			if (is_setpoint_reached(&VGOALwned, &VRwned, threshold_distance_to_goal))
+			{
+				position_confidence++;
+				Bound(position_confidence, 0, max_position_confidence);
+			}
+
+			// If the position_confidence is high enough, set is_start_reached_flag to 1 and reset position_confidence
+			if (position_confidence == max_position_confidence)
+			{
+				is_setpoint_reached_flag = 1;
+				position_confidence = 0;
+			}
+		}
+
+
+
+		// Checking for obstacle
+		if (is_obstacle_detected_flag && !is_setpoint_reached_flag)
 		{
 			printf("Object detected!!!!!!!!\n");
 			// 1. Seting setpoint to current location
 			guidance_h_hover_enter();
-
-
-			// 2. Setting state to 6 = Wedgebug Start
-			set_state(WEDGEBUG_START, allow_state_change_4);
-
+			is_setpoint_reached_flag = 0;
+			is_obstacle_detected_flag = 0;
+			set_state(WEDGEBUG_START , allow_state_change_4);
 		}
-		// If no obstacle is detected
 		else
 		{
-			//printf("No object detected\n");
-			// 1) Deactivates wedgebug procedure time
-			// <To be added>
-
-			// 3. Checking if goal is reached
-			// If goal is reached
-			if (is_setpoint_reached(&VGOALwned, &VRwned, threshold_distance_to_goal))
+			// Calculate median disparity in front if guided mode is active
+			if ((autopilot_get_mode() == AP_MODE_GUIDED))
 			{
-				// 1. Set state to 5
-				set_state(POSITION_GOAL , allow_state_change_4);
+				median_disparity_in_front = median_disparity_to_point(&c_img_cropped, &img_depth_int8_cropped, &median_kernel);
 			}
-			// Else, when goal is not reached
-			else
-			{
-				// 1. Set setpoint to goal
-				// This statement is needed in order to make sure that the setpoint is only set if current_state is 4
-				// AND the current mode is guided mode (otherwise the setpoint might be set before guidance mode
-				// is activated and that simply leads to nothing)
-				if ((autopilot_get_mode() == AP_MODE_GUIDED))// && (is_goal_setpoint_set == 0))
-				{
-					// Sets setpoint to goal position and orientates drones towards the goal as well
-					autopilot_guided_goto_ned(VGOALwned.x, VGOALwned.y, VGOALwned.z, heading_towards_waypoint(WP_GOAL1));
-				}
 
-				// 2. Break out of switch / case
-				//break;
+			//In case disparity is 0 (infinite distance or error we set it to one disparity
+			// above the threshold as the likelyhood that the object is too close is large (as opposed to it being infinitely far away)
+			if(median_disparity_in_front == 0 )
+			{
+				median_disparity_in_front = (threshold_median_disparity + 1);
+			}
+			printf("median_disparity_in_front = %d\n", median_disparity_in_front);
+			// If obstacle is detected
+			if ((median_disparity_in_front > threshold_median_disparity) && (float_vect3_norm_two_points(&VGOALwned, &VRwned) > 3)) // NOTE. The second logical operator was added for testing. Delete it after reducing object distance range and integrating the look for edge function
+			{
+				obstacle_confidence++;
+				Bound(obstacle_confidence, 0, max_obstacle_confidence);
+			}
+			if (obstacle_confidence == max_obstacle_confidence)
+			{
+				is_obstacle_detected_flag = 1;
+				obstacle_confidence = 0;
 			}
 		}
+
 
 		// THis code is to see what depth the disparity value is
 		float depth;
 		depth = disp_to_depth(median_disparity_in_front, b, f);
 		printf("depth function = %f\n", depth);
+
+		printf("Setpoint reached flag = %d\n", is_setpoint_reached_flag);
+		printf("Obstacle detected flag = %d\n", is_obstacle_detected_flag);
+		printf("position_confidence = %d\n", position_confidence);
+		printf("obstacle_confidence = %d\n", obstacle_confidence);
+
+
 	}break;
 
 
@@ -1672,13 +1616,52 @@ void wedgebug_periodic(){
 
 
 
-		autopilot_guided_goto_ned(VEDGECOORDINATESwned.x, VEDGECOORDINATESwned.y, VEDGECOORDINATESwned.z, heading_towards_waypoint(WP_GOAL1));
 
-		if (is_setpoint_reached(&VEDGECOORDINATESwned, &VRwned, threshold_distance_to_goal) && is_heading_reached(heading_towards_waypoint(WP_GOAL1), heading, threshold_distance_to_angle))
+
+
+
+		if (is_setpoint_reached_flag)
 		{
-			printf("Ready for next step!\n");
-			set_state(MOVE_TO_GOAL , allow_state_change_7);
+			printf("Edge is reached\n");
 		}
+		else
+		{
+			// 1. Set setpoint to goal
+			// This statement is needed in order to make sure that the setpoint is only set if
+			// the current mode is guided mode (otherwise the setpoint might be set before guidance mode
+			// is activated and that simply leads to nothing)
+			if ((autopilot_get_mode() == AP_MODE_GUIDED))
+			{
+				// Sets setpoint to goal position and orientates drones towards the goal as well
+				autopilot_guided_goto_ned(VGOALwned.x, VGOALwned.y, VGOALwned.z, heading_towards_waypoint(WP_GOAL1));
+			}
+
+			// If start appears to be reached increase confidence
+			if (is_setpoint_reached(&VGOALwned, &VRwned, threshold_distance_to_goal) && !is_setpoint_reached_flag)
+			{
+				position_confidence++;
+				Bound(position_confidence, 0, max_position_confidence);
+			}
+
+			// If the position_confidence is high enough, set is_start_reached_flag to 1 and reset position_confidence
+			if (position_confidence == max_position_confidence)
+			{
+				is_setpoint_reached_flag = 1;
+				position_confidence = 0;
+			}
+		}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 	}break;

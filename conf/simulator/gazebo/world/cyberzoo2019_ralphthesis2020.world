@@ -66,7 +66,7 @@
     <include>
       <uri>model://metal_panel1</uri>
       <name>metal_panel1_1</name>
-      <pose>0 4 0 0 0 0</pose> <!-- choose -0.25 4 0 0 0 0 for demo-->
+      <pose>-0.25 4 0 0 0 0</pose> <!-- choose -0.25 4 0 0 0 0 for demo-->
     </include>
     
     <!--
