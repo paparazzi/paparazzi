@@ -1,0 +1,25 @@
+<?xml version='1.0'?>
+<sdf version='1.4'>
+  <model name="brick model">
+    <static>true</static>
+    <pose>0 0 0 0 0 0</pose>
+
+    <link name="brick model">
+      <visual name="panel">
+        <geometry>
+          <mesh>
+            <uri>model://brick_model1/brick_model.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <collision name="brick_model">
+        <geometry>
+          <mesh>
+            <uri>model://brick_model1/brick_model.dae</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+
+  </model>
+</sdf>

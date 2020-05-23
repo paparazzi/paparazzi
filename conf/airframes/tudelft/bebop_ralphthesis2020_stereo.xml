@@ -72,7 +72,7 @@
             <define name="WEDGEBUG_CAMERA_DISPARITY_HEIGHT" value = "240"/>
       
       <define name="WEDGEBUG_BUF_SIZE" value  = "115200"/>
-      <define name="WEDGEBUG_HFOV" value  = "115200"/>
+      <define name="WEDGEBUG_HFOV" value  = "0.7175"/>
       <define name="WEDGEBUG_CAMERA_FOCAL_LENGTH" value  = "320"/>
       <define name="WEDGEBUG_CAMERA_BASELINE" value  = "64"/>
     </module>

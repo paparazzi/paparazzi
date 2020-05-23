@@ -32,10 +32,10 @@ inline void setGuided(void){
 
     
     
-    <waypoint  name="START1" x="-2.0" y="1" alt= "1"/>
-    <waypoint  name="START2" x="2.0" y="1" alt= "1"/>
-    <waypoint  name="GOAL1" x="-2.0" y="8" alt= "1"/>
-    <waypoint  name="GOAL2" x="2.0" y="8" alt= "1"/>
+    <waypoint  name="START1" x="0.0" y="1" alt= "1"/>
+   <!-- <waypoint  name="START2" x="2.0" y="1" alt= "1"/>-->
+    <waypoint  name="GOAL1" x="0.0" y="8" alt= "1"/>
+    <!--  <waypoint  name="GOAL2" x="2.0" y="8" alt= "1"/>-->
     
     
     <waypoint  x="-6.0" y="-2.0" name="CZ1"/>
@@ -180,6 +180,12 @@ inline void setGuided(void){
       <stay wp="GOAL1"/>
     </block>
     
+    
+        <!-- Mdfd: Same as "5: Position goal" --> 
+    <block name="TESTING">
+      <call_once fun="NavResurrect()"/>
+      <call_once fun="setGuided()"/>  
+    </block>
     
 
     <block key="l" name="land here" strip_button="land here" strip_icon="land-right.png">
