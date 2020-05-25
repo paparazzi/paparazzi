@@ -22,7 +22,14 @@
 /** @file "modules/wedgebug/wedgebug.h"
  * @author Ralph Rudi schmidt <ralph.r.schmidt@outlook.com>
  * An integration of the WegdeBug algorithm (Laubach 1999) for path finding, for drones with stereo vision.
+ *
+ *Note.
+ *1. Information on different flight modes (such as AP_MODE_GUIDED) can be found here paparazzi/sw/airborne/firmwares/rotorcraft/autopilot_static.h
  */
+
+
+
+
 #include <stdio.h>
 #include "modules/wedgebug/wedgebug.h"
 #include "modules/wedgebug/wedgebug_opencv.h"
@@ -38,6 +45,7 @@
 #include "firmwares/rotorcraft/autopilot_guided.h" // Needed for guidance functions such as "autopilot_guided_goto_ned" and "guidance_h_set_guided_heading"
 #include <math.h> // needed for basic math functions
 #include "autopilot.h" // Needed to set states (GUIDED vs NAV)
+#include <time.h> // Needed to measure time
 
 
 // New section ----------------------------------------------------------------------------------------------------------------
@@ -53,9 +61,10 @@
 
 // New section ----------------------------------------------------------------------------------------------------------------
 // Define global variables
+
+// Declaring images
 struct image_t img_left;
 struct image_t img_right;
-
 struct image_t img_YY;
 struct image_t img_left_int8;
 struct image_t img_right_int8;
@@ -85,27 +94,19 @@ int SE_dilation_OCV_2; // SE size for the second dilation operation (see state 6
 int SE_sobel_OCV; // SE size for the sobel operation, to detect edges
 
 
-//static pthread_mutex_t mutex;
-int N_disparities = 64;
-int block_size_disparities = 25;
-int min_disparity = 0;
-uint8_t cycle_counter = 0;
-float heading; // Varibale for storing the heading of the drone (psi in radians)
-float max_edge_search_angle = M_PI/2;
-
-// Vectors to hold global 3d points
-struct FloatVect3 VGOALwenu; // Declared vector of coordinates of goal in ENU world coordinate system
-struct FloatVect3 VGOALwned; // Declared vector of coordinates of goal in NED world coordinate system
-struct FloatVect3 VGOALr;    // Declared vector of coordinates of goal in robot coordinate system
-struct FloatVect3 VGOALc;    // Declared vector of coordinates of goal in camera coordinate system
-struct FloatVect3 VEDGECOORDINATESc; // Declared vector of coordinates of "best" edge detected in camera coordinate system
-struct FloatVect3 VEDGECOORDINATESr; // Declared vector of coordinates of "best" edge detected in robot coordinate system
+// Declaring vectors to hold global 3d points
+struct FloatVect3 VSTARTwenu; 			// Declared vector of coordinates of start position in ENU world coordinate system
+struct FloatVect3 VSTARTwned; 			// Declared vector of coordinates of start position in NED world coordinate system
+struct FloatVect3 VGOALwenu; 			// Declared vector of coordinates of goal in ENU world coordinate system
+struct FloatVect3 VGOALwned; 			// Declared vector of coordinates of goal in NED world coordinate system
+struct FloatVect3 VGOALr;    			// Declared vector of coordinates of goal in robot coordinate system
+struct FloatVect3 VGOALc;    			// Declared vector of coordinates of goal in camera coordinate system
+struct FloatVect3 VEDGECOORDINATESc; 	// Declared vector of coordinates of "best" edge detected in camera coordinate system
+struct FloatVect3 VEDGECOORDINATESr; 	// Declared vector of coordinates of "best" edge detected in robot coordinate system
 struct FloatVect3 VEDGECOORDINATESwned; // Declared vector of coordinates of "best" edge detected in NED world coordinate system
-struct FloatVect3 VEDGECOORDINATESwenu; // Declared vector of coordinates of "best" edge detected in ENU world coordinate system
+struct FloatVect3 VEDGECOORDINATESwenu;	// Declared vector of coordinates of "best" edge detected in ENU world coordinate system
+struct FloatVect3 VDISTANCEPOSITIONwned;// Declared a vector to hold the current position, which is needed for calculating the distance traveled
 
-
-
-uint8_t median_disparity_in_front; // Variable to hold the median disparity in front of the drone. Needed to see if obstacle is there.
 
 
 // Thresholds
@@ -117,10 +118,12 @@ float threshold_distance_to_angle;		// Below this distance (in radians) it is co
 
 // Declaring confidence parameters
 int16_t obstacle_confidence;		// This is the confidence that an obstacle was spotted
+int16_t free_path_confidence;		// This is the confidence that no obstacle was spotted
 int16_t position_confidence;		// This is the confidence that the desired position was reached
 int16_t heading_confidence;			// This is the confidence that the desired heading is reached
 int16_t edge_found_confidence;		// This is the confidence that an edge was found
 int16_t max_obstacle_confidence;	// This is the max confidence that an obstacle was spotted
+int16_t max_free_path_confidence;	// This is the max confidence that an obstacle was not spotted
 int16_t max_position_confidence;	// This is the max confidence that a specific position was reached
 int16_t max_heading_confidence;		// This is the max confidence that a specific heading was reached
 int16_t max_edge_found_confidence; 	// This is the max confidence that edges were found
@@ -129,15 +132,17 @@ int16_t max_edge_found_confidence; 	// This is the max confidence that edges wer
 uint8_t is_start_reached_flag;		// Set to 1 if start position is reached, 0 otherwise.
 uint8_t is_setpoint_reached_flag;	// Set to 1 if setpoint is reached, 0 otherwise.
 uint8_t is_obstacle_detected_flag;	// Set to 1 if obstacle is detected, 0 otherwise.
+uint8_t is_path_free_flag;			// Set to 1 if no obstacle is detected, 0 otherwise.
 uint8_t is_heading_reached_flag;	// Set to 1 if heading is reached, 0 otherwise.
 uint8_t is_best_edge_found_flag;	// Set to 1 if best edge was identified, 0 otherwise
+uint8_t is_state_changed_flag; 		// Set to 1 if state was changed, 0 otherwise
 
-// Principal points
-struct point_t c_img;
-struct point_t c_img_cropped;
+// Declaring principal points
+struct point_t c_img;				// Principal point of normal camera images
+struct point_t c_img_cropped;		// Principal point of cropped camera images
 
-// Edge search area
-struct crop_t edge_search_area;
+// Declaring edge search area
+struct crop_t edge_search_area; // This structure holds information about the window in which edges are searched in
 
 
 // Declaring rotation matrices and transition vectors for frame to frame transformations
@@ -166,8 +171,8 @@ enum navigation_state {
   POSITION_GOAL = 5,
   WEDGEBUG_START = 6,
   MOVE_TO_EDGE = 7,
-  EDGE_SCAN = 8,
-
+  POSITION_EDGE = 8,
+  EDGE_SCAN = 9
 };
 enum navigation_state current_state ;// Default state is 0 i.e. nothing
 
@@ -181,12 +186,46 @@ struct ES_angles {
 	uint8_t is_right_reached_flag;	// This is a flag to check whether the right was scanned for an edge already
 };
 
+// This is a structure to save the initial position a drone is in at the beginning of a state
+struct initial_position{
+	float x;
+	float y;
+	float z;
+	uint8_t initiated; // This is a flag that can be set to check whether the structure is allowed to be overwritten (0=allowed, 1=forbidden)
+};
+
+
+struct initial_position IPwned_state_1; // Structure to save initial position of state 1 (POSITION_INITIAL)
+struct initial_position IPwned_state_2; // Structure to save initial position of state 2 (MOVE_TO_START)
+struct initial_position IPwned_state_3; // Structure to save initial position of state 3 (POSITION_START)
+struct initial_position IPwned_state_4; // Structure to save initial position of state 4 (MOVE_TO_GOAL)
+struct initial_position IPwned_state_5; // Structure to save initial position of state 5 (POSITION_GOAL)
+struct initial_position IPwned_state_6; // Structure to save initial position of state 6 (WEDGEBUG_START)
+struct initial_position IPwned_state_7; // Structure to save initial position of state 7 (MOVE_TO_EDGE)
+struct initial_position IPwned_state_8; // Structure to save initial position of state 8 (POSITION_EDGE)
+struct initial_position IPwned_state_9; // Structure to save initial position of state 9 (EDGE_SCAN)
 struct ES_angles initial_state;
 
-// Other
 
-// State related
-uint8_t previous_state; //variable that saves previous state the state machine was in, for some memory
+// Declaring variables for time measurement
+double time_state[NUMER_OF_STATES];	 	// Double array for saving total time (clock cycles) spent in the states (position 0 = state 0 and so on)
+double counter_state[NUMER_OF_STATES];//  A counter to measure the total cycles that each state in the FSM (within the periodic function) went through
+double counter_cycles; 				// A counter to measure the total cycles that the periodic function went through
+clock_t clock_total_time; 				// Clock to measure total time (clock cycles)) it took for the robot to fly from start to goal
+clock_t clock_total_time_current; 		// Clock to hold time measured at start of the current cycle of the periodic function
+clock_t clock_total_time_previous; 		// Clock to hold time measured at start of the previous cycle of the periodic function
+
+// Other declarations
+uint8_t previous_state; // Variable that saves previous state the state machine was in, for some memory
+//static pthread_mutex_t mutex;
+int N_disparities = 64;
+int block_size_disparities = 25;
+int min_disparity = 0;
+float heading; // Varibale for storing the heading of the drone (psi in radians)
+float max_edge_search_angle = M_PI/2;
+uint8_t median_disparity_in_front; // Variable to hold the median disparity in front of the drone. Needed to see if obstacle is there.
+float distance_traveled; // Variable to hold the distance traveled of the robot (since start and up to the goal)
+uint8_t number_of_states; // Variable to save the total number of states used in the finite state machine
 
 // For debugging purpose. Allows for changing of state in simulation if 1. If 0, does not allow for state change. Useful if you want to execute only one state repeatedly
 uint8_t allow_state_change_1; // From within state "POSITION_INITIAL"
@@ -196,7 +235,8 @@ uint8_t allow_state_change_4; // From within state "MOVE_TO_GOAL"
 uint8_t allow_state_change_5; // From within state "POSITION_GOAL"
 uint8_t allow_state_change_6; // From within state "WEDGEBUG_START"
 uint8_t allow_state_change_7; // From within state "MOVE_TO_EDGE"
-uint8_t allow_state_change_8; // From within state "EDGE_SCAN"
+uint8_t allow_state_change_8; // From within state "POSITION_EDGE"
+uint8_t allow_state_change_9; // From within state "EDGE_SCAN"
 
 
 // New section: Functions - Declaration ----------------------------------------------------------------------------------------------------------------
@@ -234,6 +274,7 @@ void Vc_to_Vw(struct FloatVect3 *Vw, struct FloatVect3 *Vc, struct FloatRMat *Rr
 
 float float_vect3_norm_two_points(struct FloatVect3 *V1, struct FloatVect3 *V2);
 float heading_towards_waypoint(uint8_t wp);
+float heading_towards_setpoint_WNED(struct FloatVect3 *VSETPOINTwned);
 uint8_t median_disparity_to_point(struct point_t *Vi, struct image_t *img, struct kernel_C1 *kernel_median);
 
 uint8_t find_best_edge_coordinates(struct FloatVect3 *VEDGECOORDINATESc, struct FloatVect3 *VTARGETc, struct image_t *img_edges, struct image_t *img_disparity, struct crop_t *edge_search_area, uint8_t threshold);
@@ -753,7 +794,7 @@ float float_vect3_norm_two_points(struct FloatVect3 *V1, struct FloatVect3 *V2)
 	return float_vect3_norm(&V_V1V2_diff);
 }
 
-// Function 16 - function to calculate angle between robot and specific waypoint
+// Function 16a - function to calculate angle between robot and specific waypoint
 float heading_towards_waypoint(uint8_t wp)
 {
   struct FloatVect2 VWPwt = {WaypointX(wp), WaypointY(wp)};
@@ -766,7 +807,7 @@ float heading_towards_waypoint(uint8_t wp)
 }
 
 
-// Function 16 - function to calculate angle between robot and specific waypoint
+// Function 16b - function to calculate angle between robot and specific setpoint
 float heading_towards_setpoint_WNED(struct FloatVect3 *VSETPOINTwned)
 {
   struct FloatVect2 VSETPOINTwned2d = {VSETPOINTwned->x, VSETPOINTwned->y};
@@ -787,6 +828,19 @@ uint8_t median_disparity_to_point(struct point_t *Vi, struct image_t *img, struc
 	uint8_t VSTARTi_x = Vi->x - (kernel_median->w/ 2);
 	uint8_t VSTOPi_y = Vi->y + (kernel_median->h / 2);
 	uint8_t VSTOPi_x = Vi->x + (kernel_median->w / 2);
+
+	// In case the upper bounds of the kernel are outside of the image area
+	// (lower bound not important because of uint8_t type converting everything below 0 to 0):
+	if (VSTOPi_y > img->h)
+	{
+		VSTOPi_y = (img->h - 1);
+	}
+	if (VSTOPi_x > img->w)
+	{
+		VSTOPi_x = (img->w - 1);
+	}
+
+
 
 	// Declaring kernel coordinates
 	uint16_t Vk_y;
@@ -957,12 +1011,23 @@ uint8_t is_heading_reached(float target_angle, float current_angle, float thresh
 	else 																{return 0;}
 }
 
+// Function 22
 uint8_t are_setpoint_and_angle_reached(
 		struct FloatVect3 *VGOAL, struct FloatVect3 *VCURRENTPOSITION, float threshold_setpoint,
 		float target_angle, float current_angle, float threshold_angle)
 {
 	if ((float_vect3_norm_two_points(VGOAL, VCURRENTPOSITION) < threshold_setpoint) &&(float_norm_two_angles(target_angle, current_angle) < threshold_angle))	{return 1;}
 	else 																																						{return 0;}
+}
+
+
+// Function 23
+void initial_state_create(struct initial_position *IPwned, struct FloatVect3 *Vwned)
+{
+	IPwned->x = Vwned->x;
+	IPwned->y = Vwned->y;
+	IPwned->z = Vwned->z;
+	IPwned->initiated = 1; // Initiated flag
 }
 
 
@@ -1046,7 +1111,7 @@ void wedgebug_init(){
 	VNEDwenu.x = 0;
 	VNEDwenu.y = 0;
 	VNEDwenu.z = 0;
-	// 3) Rotation matrix and transition vector to transform from robot frame to camera frame
+	// 2) Rotation matrix and transition vector to transform from robot frame to camera frame
 	Rcr.m[0] = 0; Rcr.m[1] = 1;	Rcr.m[2] = 0;
 	Rcr.m[3] = 0; Rcr.m[4] = 0; Rcr.m[5] = 1;
 	Rcr.m[6] = 1; Rcr.m[7] = 0; Rcr.m[8] = 0;
@@ -1054,11 +1119,19 @@ void wedgebug_init(){
 	VCr.y = 0;
 	VCr.z = 0;
 
-	// Initializing goal vector in the NEW coordinate system
+	// Initializing goal vector in the NED world coordinate system
 	VGOALwenu.x = WaypointX(WP_GOAL1);
 	VGOALwenu.y = WaypointY(WP_GOAL1);
 	VGOALwenu.z = WaypointAlt(WP_GOAL1);
 	Va_to_Vb(&VGOALwned, &VGOALwenu, &Rwnedwenu, &VNEDwenu);
+
+
+	// Initializing start vector in the NED world coordinate system
+	VSTARTwenu.x = WaypointX(WP_START1);
+	VSTARTwenu.y = WaypointY(WP_START1);
+	VSTARTwenu.z = WaypointAlt(WP_START1);
+	Va_to_Vb(&VSTARTwned, &VSTARTwenu, &Rwnedwenu, &VNEDwenu);
+
 
 	// Calculating principal points of normal image and cropped image
 	c_img.y = img_dims.h / 2;
@@ -1069,7 +1142,7 @@ void wedgebug_init(){
 	// Initializing structuring element sizes
 	SE_opening_OCV = 13; 	// SE size for the opening operation
 	SE_closing_OCV = 13; 	// SE size for the closing operation
-	SE_dilation_OCV_1 = 101;// SE size for the first dilation operation (Decides where edges are detected, increase to increase drone safety zone NOTE. This functionality should be replaced with c space expansion)
+	SE_dilation_OCV_1 = 201;// SE size for the first dilation operation (Decides where edges are detected, increase to increase drone safety zone NOTE. This functionality should be replaced with c space expansion)
 	SE_dilation_OCV_2 = 11; // SE size for the second dilation operation (see state 6 "WEDGEBUG_START" )
 	SE_sobel_OCV = 5; 		// SE size for the sobel operation, to detect edges
 
@@ -1083,20 +1156,24 @@ void wedgebug_init(){
 
 	// Initializing confidence parameters
 	obstacle_confidence = 0;		// This is the confidence that an obstacle was spotted
+	free_path_confidence = 0;		// This is the confidence that no obstacle was spotted
 	position_confidence = 0;		// This is the confidence that the desired position was reached
 	heading_confidence = 0;			// This is the confidence that the desired heading is reached
 	edge_found_confidence = 0;		// This is the confidence that an edge was found
 	max_obstacle_confidence = 3;	// This is the max confidence that an obstacle was spotted
+	max_free_path_confidence = 10;		// This is the max confidence that an obstacle was not spotted
 	max_position_confidence = 30;	// This is the max confidence that a specific position was reached
 	max_heading_confidence = 5;		// This is the max confidence that a specific heading was reached
 	max_edge_found_confidence = 10;	// This is the max confidence that edges were found
 
 	// Initializing boolean flags
-	is_start_reached_flag = 0;		// Set to 1 if start position is reached, 0 otherwise.
-	is_setpoint_reached_flag = 0;	// Set to 1 if setpoint is reached, 0 otherwise.
-	is_obstacle_detected_flag = 0;	// Set to 1 if obstacle is detected, 0 otherwise.
-	is_heading_reached_flag = 0;	// Set to 1 if heading is reached, 0 otherwise.
-	is_best_edge_found_flag = 0; 	// Set to 1 if best edge was found, 0 otherwise.
+	is_start_reached_flag = 0;		// Set to 1 if start position is reached, 0 otherwise
+	is_setpoint_reached_flag = 0;	// Set to 1 if setpoint is reached, 0 otherwise
+	is_obstacle_detected_flag = 0;	// Set to 1 if obstacle is detected, 0 otherwise
+	is_path_free_flag = 0;			// Set to 1 if no obstacle is detected, 0 otherwise
+	is_heading_reached_flag = 0;	// Set to 1 if heading is reached, 0 otherwise
+	is_best_edge_found_flag = 0; 	// Set to 1 if best edge was found, 0 otherwise
+	is_state_changed_flag = 0; 	// Set to 1 if state was changed, 0 otherwise
 
 
 	// Initializing area over which edges are searched in
@@ -1111,6 +1188,18 @@ void wedgebug_init(){
 	initial_state.is_right_reached_flag = 0;// The scan has not reached the right maximum angle yet
 
 
+	// Initializing  initial_position structures of states
+	IPwned_state_1.initiated = 0; // Structure to save initial position of state 1 (POSITION_INITIAL)
+	IPwned_state_2.initiated = 0; // Structure to save initial position of state 2 (MOVE_TO_START)
+	IPwned_state_3.initiated = 0; // Structure to save initial position of state 3 (POSITION_START)
+	IPwned_state_4.initiated = 0; // Structure to save initial position of state 4 (MOVE_TO_GOAL)
+	IPwned_state_5.initiated = 0; // Structure to save initial position of state 5 (POSITION_GOAL)
+	IPwned_state_6.initiated = 0; // Structure to save initial position of state 6 (WEDGEBUG_START)
+	IPwned_state_7.initiated = 0; // Structure to save initial position of state 7 (MOVE_TO_EDGE)
+	IPwned_state_8.initiated = 0; // Structure to save initial position of state 8 (POSITION_EDGE)
+	IPwned_state_9.initiated = 0; // Structure to save initial position of state 9 (EDGE_SCAN)
+
+
 	// Initializing debugging options
 	allow_state_change_1 = 1; // Allows state change from within state "POSITION_INITIAL"
 	allow_state_change_2 = 1; // Allows state change from within state "MOVE_TO_START"
@@ -1119,10 +1208,17 @@ void wedgebug_init(){
 	allow_state_change_5 = 1; // Allows state change from within state "POSITION_GOAL"
 	allow_state_change_6 = 1; // Allows state change from within state "WEDGEBUG_START"
 	allow_state_change_7 = 1; // Allows state change from within state "MOVE_TO_EDGE"
-	allow_state_change_8 = 1; // Allows state change from within state "EDGE_SCAN"
+	allow_state_change_8 = 1; // Allows state change from within state "POSITION_EDGE"
+	allow_state_change_9 = 1; // Allows state change from within state "EDGE_SCAN"
 
 	// Other initializations
-	uint8_t previous_state = 0; // variable for state machine memory
+	previous_state = 0;						// Variable for state machine memory
+	VDISTANCEPOSITIONwned.x = VSTARTwned.x;	// Initializing a vector to hold the current position, which is needed for calculating the distance traveled
+	VDISTANCEPOSITIONwned.y = VSTARTwned.y;
+	VDISTANCEPOSITIONwned.z = VSTARTwned.z;
+	clock_total_time_previous = 0;
+	distance_traveled = 0; 					// Variable to hold the distance traveled of the robot (since start and up to the goal)
+	number_of_states = NUMER_OF_STATES;     // Variable to save the total number of states used in the finite state machine
 
 	/*
 	enum navigation_state {
@@ -1133,7 +1229,8 @@ void wedgebug_init(){
 	  POSITION_GOAL = 5,
 	  WEDGEBUG_START = 6,
 	  MOVE_TO_EDGE = 7,
-	  EDGE_SCAN = 8,
+	  POSITION_EDGE = 8,
+  	  EDGE_SCAN = 9
 
 	};*/
 
@@ -1150,32 +1247,18 @@ void wedgebug_init(){
 
 
 
-
-
-
-
-
-
-
-
-
-
 void wedgebug_periodic(){
   // your periodic code here.
-  // freq = 4.0 Hz
+  // freq = 15.0 Hz
 	//printf("Wedgebug periodic function was called\n");
-
-
-	// No images are captured during the first call of the periodic function
-	// So all processing must happen after the first cycle
-
 
 	// Debugging - setting default state
 	//set_state(MOVE_TO_GOAL ,1);
 	printf("Current state %d\n", current_state);
 
 
-	// Initializations
+
+	// Cycle-dependent initializations
 	//Initialization of dynamic rotation matrices and transition vectors for frame to frame transformations
 	// Rotation matrix and transition vector to transform from world ned frame to robot frame
 	float_vect_copy(Rrwned.m, stateGetNedToBodyRMat_f()->m, 9);
@@ -1184,31 +1267,80 @@ void wedgebug_periodic(){
 	VRwned.z = stateGetPositionNed_f()->z;
 
 	// Initialization of robot heading
-	//struct FloatEulers
 	heading = stateGetNedToBodyEulers_f()->psi;
-
-
-	/*
-	float heading_dif;
-	printf("Heading towards goal = %f\n", heading_towards_waypoint(WP_GOAL1));
-	heading_dif = heading_towards_waypoint(WP_GOAL1) - heading;
-	printf("Heading to goal difference = %f\n", sqrt(pow(heading_dif, 2)));
-	printf("Threshold = %f\n", threshold_distance_to_angle);
-	printf("Is drone oeriented towards goal?: %d\n" , is_heading_reached(heading_towards_waypoint(WP_GOAL1), heading, threshold_distance_to_angle));
-	*/
-
 
 	// Initialization of robot location/orientation-dependent variables
 	// Converting goal world NED coordinates into Camera coordinates
 	Va_to_Vb(&VGOALr, &VGOALwned, &Rrwned, &VRwned);
 	Va_to_Vb(&VGOALc, &VGOALr, &Rcr, &VCr);
 
-	/*
-	printf("World ENU coordinates of goal = [%f, %f, %f]\n", VGOALwenu.x, VGOALwenu.y, VGOALwenu.z);
-	printf("World NED coordinates of goal = [%f, %f, %f]\n", VGOALwned.x, VGOALwned.y, VGOALwned.z);
-	printf("Robot coordinates of goal = [%f, %f, %f]\n", VGOALr.x, VGOALr.y, VGOALr.z);
-	printf("Camera coordinates of goal = [%f, %f, %f]\n", VGOALc.x, VGOALc.y, VGOALc.z);
-	*/
+
+
+	// Checking is state was changed, if yes then all glas are reset and the is_state_changed_flag
+	// is set to 1 for this cycle only. Else, the  is_state_changed_flag is set to 0 again;
+	if (current_state != previous_state)
+	{
+		// Setting flag signifying that the state was changed
+		is_state_changed_flag = 1;
+		// Reset flags
+		is_start_reached_flag = 0;				// Set to 1 if start position is reached, 0 otherwise
+		is_setpoint_reached_flag = 0;			// Set to 1 if setpoint is reached, 0 otherwise
+		is_obstacle_detected_flag = 0;			// Set to 1 if obstacle is detected, 0 otherwise
+		is_path_free_flag = 0;					// Set to 1 if no obstacle is detected, 0 otherwise
+		is_heading_reached_flag = 0;			// Set to 1 if heading is reached, 0 otherwise
+		is_best_edge_found_flag = 0; 			// Set to 1 if best edge was found, 0 otherwise
+		initial_state.initiated = 0; 			// 0 = it can be overwritten
+		initial_state.is_left_reached_flag = 0;	// The scan has not reached the left maximum angle yet
+		initial_state.is_right_reached_flag = 0;// The scan has not reached the right maximum angle yet
+	}
+	else if(is_state_changed_flag != 0)
+	{
+		is_state_changed_flag = 0;
+	}
+
+
+
+
+	// ############ Metric 1 - Runtime total
+	// If the current state is not 0 (default) and position initial and move to start and position goal, record time elapsed
+	if ((current_state != 0) && (current_state != POSITION_INITIAL) && (current_state != MOVE_TO_START) && (current_state != POSITION_START)&& (current_state != POSITION_GOAL))
+	{
+		// Recording current time
+		clock_total_time_current = clock();
+		// In case we are in the position start state and the state has changed, initialize clock_total_time_previous
+		if ((current_state == MOVE_TO_GOAL) && is_state_changed_flag && (previous_state == POSITION_START))
+		{
+			clock_total_time_previous = clock_total_time_current;
+		}
+		//Else check time difference to previous cycle and add to clock_total_time
+		else
+		{
+			clock_total_time = clock_total_time + (clock_total_time_current - clock_total_time_previous);
+			clock_total_time_previous = clock_total_time_current;
+		}
+	}
+
+	// Initializing previous_state variable for next cycle
+	// This happens here and not above as the metric above depends on the previous state
+	previous_state = current_state;
+
+
+	// ############ Metric 2 - Distance traveled (total)
+	// If the current state is not 0 (default) and position initial and move to start and position goal, record distance traveled
+	if ((current_state != 0) && (current_state != POSITION_INITIAL) && (current_state != MOVE_TO_START) && (current_state != POSITION_START) && (current_state != POSITION_GOAL))
+	{
+		//printf("\n\nSate change!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
+		distance_traveled = distance_traveled + float_vect3_norm_two_points(&VDISTANCEPOSITIONwned, &VRwned);
+
+		VDISTANCEPOSITIONwned.x = VRwned.x;
+		VDISTANCEPOSITIONwned.y = VRwned.y;
+		VDISTANCEPOSITIONwned.z = VRwned.z;
+	}
+
+	// ############ Metric 3 - Runtime average of background processes (see below) - Start:
+	clock_t clock_background_processes; // Creating variable to hold time (number of cycles)
+	clock_background_processes = clock(); // Saving current time, way below it is used to calculate time spent in a cycle
+	counter_cycles++; // Counting how many times a state was activated (needed for average calculation)
 
 
 	//Background processes
@@ -1245,188 +1377,14 @@ void wedgebug_periodic(){
 
 
 
+	// ############ Metric 3 - Runtime average of background processes (see below) - End:
+	clock_background_processes = clock_background_processes + (clock() - clock_background_processes);;
 
 
-	/*
-	// Code testing  - EDGE_SCAN
-	// Getting into testing position
-	// Activating drone if not already activated
-	printf("Current mode = %d\n", autopilot_get_mode());
-	// Modes are decribed in "autopilot_static.h"
-	// AP_MODE_ATTITUDE_DIRECT(4) is when you have full control (x on controller), AP_MODE_ATTITUDE_Z_HOLD (9) is when you only have direactional control (o on controller)
-	// So change to guided mode if these other modes of direct control are not selected.
-	if ((autopilot_get_mode() != AP_MODE_GUIDED) && (autopilot_get_mode() != AP_MODE_ATTITUDE_DIRECT) && (autopilot_get_mode() != AP_MODE_ATTITUDE_Z_HOLD))
-	{
-		NavResurrect();
-		setGuided();
-	}
-
-
-	if (initial_state.initiated == 0)
-	{
-		initial_state.heading_initial = heading;
-		initial_state.heading_max_left = (heading - max_edge_search_angle) + (WEDGEBUG_HFOV / 2) - threshold_distance_to_angle; // this way, when the the center of the drone is facing left, its fov does not exceed the maximum angle to the left
-		FLOAT_ANGLE_NORMALIZE(initial_state.heading_max_left);
-		initial_state.heading_max_right = (heading + max_edge_search_angle) - (WEDGEBUG_HFOV / 2) + threshold_distance_to_angle;  // this way, when the the center of the drone is facing right, its fov does not exceed the maximum angle to the right
-		FLOAT_ANGLE_NORMALIZE(initial_state.heading_max_right);
-		initial_state.initiated = 1;
-	}
-
-
-
-
-
-	printf("Heading of drone (center) = %f\n", heading);
-	//printf("Heading of drone (left) = %f\n", (heading - (WEDGEBUG_HFOV / 2)));
-	//printf("Heading of drone (right) = %f\n", (heading + (WEDGEBUG_HFOV / 2)));
-	//printf("Max search angle = %f\n", max_edge_search_angle);
-	printf("Max angle to the left = %f\n", initial_state.heading_max_left);
-	printf("Max angle to the right = %f\n", initial_state.heading_max_right);
-	//printf("Heading of drone in degrees (center) = %f\n",DegOfRad(heading));
-
-
-	median_disparity_in_front = median_disparity_to_point(&c_img_cropped, &img_depth_int8_cropped, &median_kernel);
-	//printf("median disparity = %d\n", median_disparity_in_front);
-	//printf("NED drone location = [%f , %f, %f]\n", VRwned.x, VRwned.y, VRwned.z);
-
-
-
-	// Setting start position for testing
-	struct FloatVect3 VSTARTwned;
-	VSTARTwned.x = 0.0; //3.5;
-	VSTARTwned.y = 0.0;
-	VSTARTwned.z = -1.0;
-
-
-
-
-
-
-
-	// If start is reached (confidence is strong enough or the flag is activated)
-	if (is_start_reached_flag)
-	{
-		printf("Start position is reached\n");
-	}
-	// Else, when goal is not reached
-	else
-	{
-		// 1. Set setpoint to goal
-		// This statement is needed in order to make sure that the setpoint is only set if
-		// the current mode is guided mode (otherwise the setpoint might be set before guidance mode
-		// is activated and that simply leads to nothing)
-		if ((autopilot_get_mode() == AP_MODE_GUIDED))
-		{
-			// Sets setpoint to goal position and orientates drones towards the goal as well
-			autopilot_guided_goto_ned(VSTARTwned.x, VSTARTwned.y, VSTARTwned.z, 0);
-			printf("Setting setpoint\n");
-		}
-
-		// If start appears to be reached increase confidence
-		if (is_setpoint_reached(&VSTARTwned, &VRwned, threshold_distance_to_goal))
-		{
-			position_confidence++;
-			Bound(position_confidence, 0, max_position_confidence);
-		}
-
-		// If the position_confidence is high enough, set is_start_reached_flag to 1 and reset position_confidence
-		if (position_confidence == max_position_confidence)
-		{
-			is_start_reached_flag = 1;
-			position_confidence = 0;
-		}
-	}
-
-
-
-
-
-	// If left angle reached (confidence is strong enough or the flag is activated)
-	if (initial_state.is_left_reached_flag)
-	{
-		printf("Left heading is reached\n");
-	}
-	// Else, when start is reached and left heading is not reached
-	else if(is_start_reached_flag)
-	{
-		// Set heading to maximum left heading (if guided mode is on)
-		if ((autopilot_get_mode() == AP_MODE_GUIDED))
-		{
-			guidance_h_set_guided_heading(initial_state.heading_max_left);
-		}
-		// If heading appears to be reached increase confidence
-		if (is_heading_reached(initial_state.heading_max_left, heading, threshold_distance_to_angle))
-		{
-			heading_confidence++;
-			Bound(heading_confidence, 0, max_heading_confidence);
-		}
-
-		// If the heading_confidence is high enough, set initial_state.is_left_reached_flag to 1 and reset heading_confidence
-		if (heading_confidence == max_heading_confidence)
-		{
-			initial_state.is_left_reached_flag = 1;
-			heading_confidence = 0;
-		}
-	}
-
-
-
-	// If right angle reached (confidence is strong enough or the flag is activated)
-	if (initial_state.is_right_reached_flag)
-	{
-		printf("Right heading is reached\n");
-
-		// REseting flags
-		if (is_start_reached_flag && initial_state.is_left_reached_flag && initial_state.is_right_reached_flag)
-		{
-			is_start_reached_flag = 0;
-			initial_state.is_left_reached_flag = 0;
-			initial_state.is_right_reached_flag = 0;
-		}
-	}
-	// Else, if left heading has been previously reached, look right
-	else if(initial_state.is_left_reached_flag == 1)
-	{
-		// Set heading to maximum left heading (if guided mode is on)
-		if ((autopilot_get_mode() == AP_MODE_GUIDED))
-		{
-			guidance_h_set_guided_heading(initial_state.heading_max_right);
-		}
-		// If heading appears to be reached increase confidence
-		if (is_heading_reached(initial_state.heading_max_right, heading, threshold_distance_to_angle))
-		{
-			heading_confidence++;
-			Bound(heading_confidence, 0, max_heading_confidence);
-		}
-
-		// If the heading_confidence is high enough, set initial_state.is_right_reached_flag to 1 and reset heading_confidence
-		if (heading_confidence == max_heading_confidence)
-		{
-			initial_state.is_right_reached_flag = 1;
-			heading_confidence = 0;
-		}
-
-	}
-
-
-	printf("Start reached flag = %d\n", is_start_reached_flag);
-	printf("Left heading reached flag = %d\n", initial_state.is_left_reached_flag);
-	printf("right heading reached flag = %d\n", initial_state.is_right_reached_flag);
-	printf("position_confidence = %d\n", position_confidence);
-	printf("heading_confidence = %d\n", heading_confidence);
-
-	*/
-
-
-
-
-
-
-
-
-
-
-
+	// ############ Metric 4 - Runtime average per state - Start:
+	clock_t clock_FSM; // Creating variable to hold time (number of cycles)
+	clock_FSM = clock(); // Saving current time, way below it is used to calculate time spent in a cycle
+    counter_state[current_state]++; // Counting how many times a state was activated (needed for average calculation). This is done here as state may change in FSM
 
 	/*
 	enum navigation_state {
@@ -1437,11 +1395,10 @@ void wedgebug_periodic(){
 	  POSITION_GOAL = 5,
 	  WEDGEBUG_START = 6,
 	  MOVE_TO_EDGE = 7,
-	  EDGE_SCAN = 8,
+	  POSITION_EDGE = 8,
+  	  EDGE_SCAN = 9
 
 	};*/
-
-
 	// Finite state machine
 	switch(current_state)
 	{
@@ -1475,11 +1432,11 @@ void wedgebug_periodic(){
 		if (is_setpoint_reached_flag)
 		{
 			printf("Goal is reached\n");
-			is_setpoint_reached_flag = 0;
-			is_obstacle_detected_flag = 0;
 			set_state(POSITION_GOAL , allow_state_change_4);
+
 		}
-		else
+		// Else, move to goal and check confidence that goal has been reached.
+		else // This happens continuously, as long as the state is active. It stops when the flag has been set below.
 		{
 			// 1. Set setpoint to goal
 			// This statement is needed in order to make sure that the setpoint is only set if
@@ -1514,12 +1471,11 @@ void wedgebug_periodic(){
 			printf("Object detected!!!!!!!!\n");
 			// 1. Seting setpoint to current location
 			guidance_h_hover_enter();
-			is_setpoint_reached_flag = 0;
-			is_obstacle_detected_flag = 0;
 			set_state(WEDGEBUG_START , allow_state_change_4);
-			previous_state = MOVE_TO_GOAL;
+
 		}
-		else
+		// Else, check confidence that obstacle is there
+		else // This happens continuously, as long as the state is active. It stops when the flag has been set below.
 		{
 			// Calculate median disparity in front if guided mode is active
 			if ((autopilot_get_mode() == AP_MODE_GUIDED))
@@ -1534,12 +1490,13 @@ void wedgebug_periodic(){
 				median_disparity_in_front = (threshold_median_disparity + 1);
 			}
 			printf("median_disparity_in_front = %d\n", median_disparity_in_front);
-			// If obstacle is detected
+			// If obstacle appears to be detected, increase confidence
 			if ((median_disparity_in_front > threshold_median_disparity) && (float_vect3_norm_two_points(&VGOALwned, &VRwned) > 3)) // NOTE. The second logical operator was added for testing. Delete it after reducing object distance range and integrating the look for edge function
 			{
 				obstacle_confidence++;
 				Bound(obstacle_confidence, 0, max_obstacle_confidence);
 			}
+			// If the obstacle_confidence is high enough, set is_obstacle_detected_flag to 1 and reset obstacle_confidence
 			if (obstacle_confidence == max_obstacle_confidence)
 			{
 				is_obstacle_detected_flag = 1;
@@ -1553,8 +1510,6 @@ void wedgebug_periodic(){
 		depth = disp_to_depth(median_disparity_in_front, b, f);
 		printf("depth function = %f\n", depth);
 
-		printf("Setpoint reached flag = %d\n", is_setpoint_reached_flag);
-		printf("Obstacle detected flag = %d\n", is_obstacle_detected_flag);
 		printf("position_confidence = %d\n", position_confidence);
 		printf("obstacle_confidence = %d\n", obstacle_confidence);
 
@@ -1566,8 +1521,23 @@ void wedgebug_periodic(){
 	{
 		printf("POSITION_GOAL = %d\n", POSITION_GOAL);
 		// Since the drone is at the goal we will swithc bach to the NAV mode
-		autopilot_mode_auto2 = AP_MODE_NAV;
-		autopilot_static_set_mode(AP_MODE_NAV);
+		if ((autopilot_get_mode() == AP_MODE_GUIDED))
+		{
+			autopilot_mode_auto2 = AP_MODE_NAV;
+			autopilot_static_set_mode(AP_MODE_NAV);
+		}
+		printf("Total time to reach goal = %f\n", ((double)clock_total_time) / CLOCKS_PER_SEC);
+		printf("Total distance_traveled = %f\n", distance_traveled);
+		printf("Average runtime of background processes = %f\n", (clock_background_processes / CLOCKS_PER_SEC / counter_cycles));
+
+		for (uint8_t i = 0; i < number_of_states; i++)
+		{
+			printf("Average runtime of state %d = %f\n", i, (time_state[i] / CLOCKS_PER_SEC / counter_state[i]));
+		}
+
+
+
+
 	}break;
 
 	case WEDGEBUG_START: // 6 ----------------------------------------------
@@ -1598,17 +1568,13 @@ void wedgebug_periodic(){
 		// If edge was found
 		if(was_edge_found)
 		{
-
 			Vb_to_Va(&VEDGECOORDINATESr, &VEDGECOORDINATESc, &Rcr, &VCr);
 			Vb_to_Va(&VEDGECOORDINATESwned, &VEDGECOORDINATESr, &Rrwned, &VRwned);
 			Va_to_Vb(&VEDGECOORDINATESwenu, &VEDGECOORDINATESwned, &Rwnedwenu, &VNEDwenu);
-
-
-
 			//printf("Optimal edge found\n");
 			//printf("Camera coordinates of edge: [%f, %f, %f]\n", VEDGECOORDINATESc.x, VEDGECOORDINATESc.y, VEDGECOORDINATESc.z);
 			set_state(MOVE_TO_EDGE , allow_state_change_6);
-			previous_state = WEDGEBUG_START;
+
 
 		}
 		// If no edge was found
@@ -1616,7 +1582,7 @@ void wedgebug_periodic(){
 		{
 			printf("Edge not found!!!!!!!!!!!!!!!!!\n");
 			set_state(EDGE_SCAN , allow_state_change_6);
-			previous_state = WEDGEBUG_START;
+
 		}
 	}break;
 
@@ -1631,48 +1597,13 @@ void wedgebug_periodic(){
 
 
 
-		// If edge is reached just hover (and wait until heading is also reached)
-		if (is_setpoint_reached_flag)
-		{
-			printf("Edge is reached\n");
-			guidance_h_hover_enter();
-		}
-		// If edge has not been reached, move towards it
-		else
-		{
-			// Set setpoint to edge
-			// This statement is needed in order to make sure that the setpoint is only set if
-			// the current mode is guided mode (otherwise the setpoint might be set before guidance mode
-			// is activated and that simply leads to nothing)
-			if ((autopilot_get_mode() == AP_MODE_GUIDED))
-			{
-				// Sets setpoint to goal position and orientates robot towards the goal as well
-				autopilot_guided_goto_ned(VEDGECOORDINATESwned.x, VEDGECOORDINATESwned.y, VEDGECOORDINATESwned.z, heading_towards_waypoint(WP_GOAL1));
-			}
-
-			// If edge appears to be reached increase confidence
-			if (is_setpoint_reached(&VEDGECOORDINATESwned, &VRwned, threshold_distance_to_goal))// && !is_setpoint_reached_flag)
-			{
-				position_confidence++;
-				Bound(position_confidence, 0, max_position_confidence);
-			}
-
-			// If the position_confidence is high enough, set is_setpoint_reached_flag to 1 and reset position_confidence
-			if (position_confidence == max_position_confidence)
-			{
-				is_setpoint_reached_flag = 1;
-				position_confidence = 0;
-			}
-		}
-
-
-		// If correct angle is reached nothing happens
+		// If correct angle is reached, nothing happens
 		if (is_heading_reached_flag)
 		{
 			printf("Heading is reached\n");
 		}
-		// Else, if heading is not reached, get closer to it
-		else
+		// Else, adjust heading and check confidence that heading is reached
+		else // This happens continuously, as long as the state is active. It stops when the flag has been set below
 		{
 			// Set desired heading (if guided mode is on)
 			if ((autopilot_get_mode() == AP_MODE_GUIDED))
@@ -1696,19 +1627,57 @@ void wedgebug_periodic(){
 		}
 
 
-		// If both edge is reached and the robot faces the correct angle, the state is changed to "MOVE_TO_GOAL"
+
+
+		// If edge setpoint is reached, just hover
 		if (is_setpoint_reached_flag && is_heading_reached_flag)
 		{
-			printf("Position and Heading are reached\n");
-			is_setpoint_reached_flag = 0;
-			is_heading_reached_flag = 0;
-			set_state(MOVE_TO_GOAL , allow_state_change_7);
-			previous_state = MOVE_TO_EDGE;
+			printf("Edge is reached\n");
+			//guidance_h_hover_enter();
+			autopilot_guided_goto_ned(VEDGECOORDINATESwned.x, VEDGECOORDINATESwned.y, VEDGECOORDINATESwned.z, heading_towards_waypoint(WP_GOAL1));
+		}
+		// Else, move to edge setpoint and check confidence that edge setpoint is reached
+		else if (is_heading_reached_flag) // This happens continuously, as long as the state is active. It stops when the flag has been set below.
+		{
+			// Set setpoint to edge
+			// This statement is needed in order to make sure that the setpoint is only set if
+			// the current mode is guided mode (otherwise the setpoint might be set before guidance mode
+			// is activated and that simply leads to nothing)
+			if ((autopilot_get_mode() == AP_MODE_GUIDED))
+			{
+				// Sets setpoint to goal position and orientates robot towards the goal as well
+				//autopilot_guided_goto_ned(VEDGECOORDINATESwned.x, VEDGECOORDINATESwned.y, VEDGECOORDINATESwned.z, heading_towards_setpoint_WNED(&VRwned));
+				guidance_h_set_guided_pos(VEDGECOORDINATESwned.x, VEDGECOORDINATESwned.y); guidance_v_set_guided_z(VEDGECOORDINATESwned.z);
+
+			}
+
+			// If edge appears to be reached increase confidence
+			if (is_setpoint_reached(&VEDGECOORDINATESwned, &VRwned, threshold_distance_to_goal))// && !is_setpoint_reached_flag)
+			{
+				position_confidence++;
+				Bound(position_confidence, 0, max_position_confidence);
+			}
+
+			// If the position_confidence is high enough, set is_setpoint_reached_flag to 1 and reset position_confidence
+			if (position_confidence == max_position_confidence)
+			{
+				is_setpoint_reached_flag = 1;
+				position_confidence = 0;
+			}
 		}
 
 
-		printf("Setpoint reached flag = %d\n", is_setpoint_reached_flag);
-		printf("Heading reached flag = %d\n", is_heading_reached_flag);
+
+
+
+
+		// If both edge is reached and the robot faces the correct angle, the state is changed to "MOVE_TO_GOAL"
+		if (is_heading_reached_flag && is_setpoint_reached_flag)
+		{
+			printf("Position and Heading are reached\n");
+			set_state(POSITION_EDGE , allow_state_change_7);
+
+		}
 		printf("position_confidence = %d\n", position_confidence);
 		printf("heading_confidence = %d\n", heading_confidence);
 
@@ -1716,7 +1685,112 @@ void wedgebug_periodic(){
 
 	}break;
 
-	case EDGE_SCAN: // 8 ----------------------------------------------
+
+	case POSITION_EDGE: // 8 ----------------------------------------------
+	{
+
+		printf("POSITION_EDGE = %d\n", POSITION_EDGE);
+
+		// THis ensures that the robot stay on edge a all times
+		guidance_h_set_guided_pos(VEDGECOORDINATESwned.x, VEDGECOORDINATESwned.y); guidance_v_set_guided_z(VEDGECOORDINATESwned.z);
+
+
+		// 1. We make the robot face the goal
+		// If robot faces goal, robot stay at current edge
+		if (is_heading_reached_flag)
+		{
+			printf("Heading is reached\n");
+			guidance_h_set_guided_heading(heading_towards_waypoint(WP_GOAL1));
+		}
+		// Else, adjust heading and check confidence that heading is reached
+		else // This happens continuously, as long as the state is active. It stops when the flag has been set.
+		{
+			// Set desired heading (if guided mode is on)
+			if ((autopilot_get_mode() == AP_MODE_GUIDED))
+			{
+				guidance_h_set_guided_heading(heading_towards_waypoint(WP_GOAL1));
+			}
+			// If heading appears to be reached increase confidence
+			if (is_heading_reached(heading_towards_waypoint(WP_GOAL1), heading, threshold_distance_to_angle))
+			{
+				heading_confidence++;
+				Bound(heading_confidence, 0, max_heading_confidence);
+			}
+
+			// If the heading_confidence is high enough, set is_heading_reached_flag to 1 and reset heading_confidence
+			if (heading_confidence == max_heading_confidence)
+			{
+				is_heading_reached_flag = 1;
+				heading_confidence = 0;
+			}
+		}
+
+		// 2. In this loop we check if an obstacle is blocking the path or not. If no obstacle is blocking the path the free_path_confidence is
+		// increased, whereas if an obstacle is blocking the path the obstacle_confidence is increased. If one of the confidences reaches the
+		// maximum the respective flag is turned on. These statements only execute if the robot faces the goal (see above)
+		// If obstacle is in way AND heading is reached
+		if (is_obstacle_detected_flag && is_heading_reached_flag)
+		{
+			printf("Object detected!!!!!!!!\n");
+			set_state(WEDGEBUG_START, allow_state_change_7);
+		}
+		// Else if the path is clear AND heading is reached
+		else if (is_path_free_flag && is_heading_reached_flag)
+		{
+			printf("Path is free\n");
+			set_state(MOVE_TO_GOAL, allow_state_change_7);
+		}
+		// Else (if heading is reached) check for obstacles and free path and check confidence that an obstacle is there or that the path is free
+		else if(is_heading_reached_flag) // This only runs if the robot faces the goal and neither an obstacle or a free path has been found
+			// Calculate median disparity in front if guided mode is active
+			{
+			if ((autopilot_get_mode() == AP_MODE_GUIDED))
+			{
+				median_disparity_in_front = median_disparity_to_point(&c_img_cropped, &img_depth_int8_cropped, &median_kernel);
+			}
+
+			//In case disparity is 0 (infinite distance or error we set it to one disparity
+			// above the threshold as the likelihood that the object is too close is large (as opposed to it being infinitely far away)
+			if(median_disparity_in_front == 0 )
+			{
+				median_disparity_in_front = (threshold_median_disparity + 1);
+			}
+			printf("median_disparity_in_front = %d\n", median_disparity_in_front);
+
+			// This if statement increase the confidence
+			// If obstacle is detected, increase obstacle_confidence
+			if ((median_disparity_in_front > threshold_median_disparity)) // NOTE. The second logical operator was added for testing. Delete it after reducing object distance range and integrating the look for edge function
+			{
+				obstacle_confidence++;
+				Bound(obstacle_confidence, 0, max_obstacle_confidence);
+			}
+			// If obstacle is not detected, increase free_path_confidence
+			else
+			{
+				free_path_confidence++;
+				Bound(free_path_confidence, 0, max_free_path_confidence);
+			}
+
+			// If the obstacle_confidence is high enough, set is_obstacle_detected_flag to 1 and reset obstacle_confidence and free_path_confidence
+			if (obstacle_confidence == max_obstacle_confidence)
+			{
+				is_obstacle_detected_flag = 1;
+				obstacle_confidence = 0;
+				free_path_confidence = 0;
+			}
+			// If the free_path_confidence is high enough, set is_path_free_flag to 1 and reset free_path_confidence and obstacle_confidence
+			if (free_path_confidence == max_obstacle_confidence)
+			{
+				is_path_free_flag = 1;
+				free_path_confidence = 0;
+				obstacle_confidence = 0;
+			}
+			}
+		printf("Obstacle confidence = %d\n", obstacle_confidence);
+		printf("Free path confidence = %d\n", free_path_confidence);
+	}break;
+
+	case EDGE_SCAN: // 9 ----------------------------------------------
 	{
 		printf("EDGE_SCAN = %d\n", EDGE_SCAN);
 
@@ -1725,7 +1799,6 @@ void wedgebug_periodic(){
 
 		// Making drone hover, so that it does not drift from its current position
 		guidance_h_hover_enter();
-
 
 
 		// Continuous scanning of edges (until this state is left)
@@ -1754,19 +1827,16 @@ void wedgebug_periodic(){
 		}
 
 
-
 		// Initializing current positional parameters (if they have not been initialized before)
 		if (initial_state.initiated == 0)
 		{
 			initial_state.heading_initial = heading;
-			initial_state.heading_max_left = (heading - max_edge_search_angle) + (WEDGEBUG_HFOV / 2) - threshold_distance_to_angle; // this way, when the the center of the drone is facing left, its fov does not exceed the maximum angle to the left
+			initial_state.heading_max_left = (heading - max_edge_search_angle) + (WEDGEBUG_HFOV / 2); // this way, when the the center of the drone is facing left, its fov does not exceed the maximum angle to the left
 			FLOAT_ANGLE_NORMALIZE(initial_state.heading_max_left);
-			initial_state.heading_max_right = (heading + max_edge_search_angle) - (WEDGEBUG_HFOV / 2) + threshold_distance_to_angle;  // this way, when the the center of the drone is facing right, its fov does not exceed the maximum angle to the right
+			initial_state.heading_max_right = (heading + max_edge_search_angle) - (WEDGEBUG_HFOV / 2);  // this way, when the the center of the drone is facing right, its fov does not exceed the maximum angle to the right
 			FLOAT_ANGLE_NORMALIZE(initial_state.heading_max_right);
 			initial_state.initiated = 1;
 		}
-
-
 
 
 		// Code for looking left
@@ -1775,8 +1845,8 @@ void wedgebug_periodic(){
 		{
 			printf("Left heading is reached\n");
 		}
-		// If left heading has not been reached previously, look left
-		else
+		// Else,  adjust angle to to face more left and check confidence that left heading has been reached
+		else // This happens continuously, as long as the state is active. It stops when the flag has been set below
 		{
 			// Set heading to maximum left heading (if guided mode is on)
 			if ((autopilot_get_mode() == AP_MODE_GUIDED))
@@ -1789,7 +1859,6 @@ void wedgebug_periodic(){
 				heading_confidence++;
 				Bound(heading_confidence, 0, max_heading_confidence);
 			}
-
 			// If the heading_confidence is high enough, set initial_state.is_left_reached_flag to 1 and reset heading_confidence
 			if (heading_confidence == max_heading_confidence)
 			{
@@ -1800,13 +1869,13 @@ void wedgebug_periodic(){
 
 
 
-		// Code for looking right
+		// Code for looking right - Only runs if robot has previously looked left (initial_state.heading_max_left = 1)
 		// If right heading has been reached (i.e. if the flag is activated)
 		if (initial_state.is_right_reached_flag)
 		{
 			printf("Right heading is reached\n");
 		}
-		// Else, if left heading has been previously reached, look right
+		// Else,  adjust angle to to face more right and check confidence that right heading has been reached
 		else if(initial_state.is_left_reached_flag)
 		{
 			// Set heading to maximum left heading (if guided mode is on)
@@ -1820,18 +1889,16 @@ void wedgebug_periodic(){
 				heading_confidence++;
 				Bound(heading_confidence, 0, max_heading_confidence);
 			}
-
-			// If the heading_confidence is high enough, set initial_state.is_right_reached_flag to 1 and reset heading_confidence
+			// If the heading_confidence is high enough, set initial_state.is_right_reached_flag to 1 and resets heading_confidence
 			if (heading_confidence == max_heading_confidence)
 			{
 				initial_state.is_right_reached_flag = 1;
 				heading_confidence = 0;
 			}
-
 		}
 
 
-		// Code for leaving state
+		// Code for leaving state - Only runs if robot has previously looked left and then right
 		// If the robot has looked left and right and found an edge, change state to "MOVE_TO_EDGE"
 		if (initial_state.is_left_reached_flag && initial_state.is_right_reached_flag)
 		{
@@ -1845,41 +1912,20 @@ void wedgebug_periodic(){
 			if(is_best_edge_found_flag)
 			{
 				printf("Edge has been found\n");
-				initial_state.initiated = 0;
-				initial_state.is_left_reached_flag = 0;
-				initial_state.is_right_reached_flag = 0;
-				is_best_edge_found_flag = 0;
-				edge_found_confidence = 0;
-				set_state(MOVE_TO_EDGE, allow_state_change_8);
-				previous_state = EDGE_SCAN;
+				set_state(MOVE_TO_EDGE, allow_state_change_9);
+
 			}
 			// If no edge has been found during the scan
 			else
 			{
 				printf("Minimum has been encountered\n");
 			}
-		// else if the robot has looked left and right and found no edge, a minimum is encountered
 		}else
 		{
 			printf("Scan not complete\n");
 		}
-
-
-
-
-		printf("Left heading reached flag = %d\n", initial_state.is_left_reached_flag);
-		printf("Right heading reached flag = %d\n", initial_state.is_right_reached_flag);
-		printf("is_best_edge_found_flag = %d\n", is_best_edge_found_flag);
 		printf("heading_confidence = %d\n", heading_confidence);
 		printf("edge_found_confidence = %d\n", edge_found_confidence);
-
-
-
-
-
-
-
-
 	}break;
 
     default: // 0 ----------------------------------------------
@@ -1889,204 +1935,43 @@ void wedgebug_periodic(){
     break;
 
 	}
+	// ############ Metric 4 - Runtime average per state - End:
+	clock_FSM = clock() - clock_FSM; // Calculating time it took for the FSM to finish running
+    time_state[current_state] += ((double)clock_FSM); // Adding calculated time to total time of current state
 
-	printf("\n");
 
 
+	printf("Time elapsed since start = %f\n", ((double)clock_total_time) / CLOCKS_PER_SEC);
+	printf("distance_traveled = %f\n", distance_traveled);
 
+	/*
+    // printing flags
+	printf("is_start_reached_flag = %d\n", is_start_reached_flag);
+	printf("is_setpoint_reached_flag = %d\n", is_setpoint_reached_flag);
+	printf("is_obstacle_detected_flag = %d\n", is_obstacle_detected_flag);
+	printf("is_path_free_flag = %d\n", is_path_free_flag);
+	printf("is_heading_reached_flag = %d\n", is_heading_reached_flag);
+	printf("is_best_edge_found_flag = %d\n", is_best_edge_found_flag);
+	printf("is_state_changed_flag = %d\n", is_state_changed_flag);
+	printf("initial_state.initiated = %d\n", initial_state.initiated);
+	printf("initial_state.is_left_reached_flag = %d\n", initial_state.is_left_reached_flag);
+	printf("initial_state.is_right_reached_flag = %d\n", initial_state.is_right_reached_flag);
 
-	if (cycle_counter != 0)
-	{
+	*/
+    printf("\n");
 
 
 
 
-		/*
 
-		// Code for state 6:
 
+	save_image_gray(&img_left_int8, "/home/dureade/Documents/paparazzi_images/img_left_int8.bmp");
+	save_image_gray(&img_right_int8, "/home/dureade/Documents/paparazzi_images/img_right_int8.bmp");
+	save_image_gray(&img_depth_int8_cropped, "/home/dureade/Documents/paparazzi_images/img_depth_int8_cropped.bmp");
+	save_image_gray(&img_middle_int8_cropped, "/home/dureade/Documents/paparazzi_images/img_middle_int8_cropped.bmp");
+	save_image_gray(&img_edges_int8_cropped, "/home/dureade/Documents/paparazzi_images/img_edges_int8_cropped.bmp");
 
-		// Morphological  operations 2
-		// This is needed so that when using the edges as filters (to work on disparity values
-		// only found on edges) the underlying disparity values are those of the foreground
-		// and not the background
-		dilation_OCV(&img_middle_int8_cropped, &img_middle_int8_cropped,11, 1);
 
-
-
-
-		// Example for finding target point in camera coordinate system - start
-		// Creating target point in the camera coordinate system
-		//struct FloatVect3 target_point;
-		//target_point.y = -0.251803;
-		//target_point.x =  0.0671475;
-		//target_point.z =  6;
-
-
-		// Declaring (and possible initialization) of sate 6-dependent parameters
-		uint8_t was_edge_found = 0; // A variable to store whether a "best" edge was found or not
-
-		// Running function to detect and save edge
-		was_edge_found = find_best_edge_coordinates(
-				&VEDGECOORDINATESc,
-				&VGOALc,//target_point,
-				&img_edges_int8_cropped,
-				&img_middle_int8_cropped,
-				&edge_search_area,
-				threshold_disparity_of_edges);
-
-		printf("was_edge_found?: %d\n", was_edge_found);
-
-
-		if(was_edge_found)
-		{
-			printf("Camera coordinates of edge: [%f, %f, %f]\n", VEDGECOORDINATESc.x, VEDGECOORDINATESc.y, VEDGECOORDINATESc.z);
-		}
-		printf("\n");
-
-		*/
-
-
-
-
-
-		//printf("median / disparity / depth = %d / %d / %f\n",median, disparity2 ,Vc3.z);
-
-		//printf("Closest edge [y,x] = [%d, %d]\n", closest_edge.y, closest_edge.x);
-	    //printf("Distance to goal (m) = %f\n\n", distance);
-	    // Loop to calculate position (in image) of point closes to hypothetical target - End
-		// Example for finding target point in camera coordinate system - End
-		//printf("Width/height = %d / %d\n", img_depth_int8_cropped.w, img_depth_int8_cropped.h);
-		//printf("Position of y coordinate %d and x coordinate %d in 1d array: %d\n", position_2d.y, position_2d.x, position_1d);
-		/*
-		uint16_t x = 0;
-		float depth;
-		if (x==0)
-		{
-			depth = 0.0001;
-		}
-		else
-		{
-			depth = b * f / x;
-		}
-		printf("depth of 64 disparity: %f\n", depth);
-
-
-		*/
-
-		//save_image_gray(&img_YY, "/home/dureade/Documents/paparazzi_images/img_YY.bmp");
-		save_image_gray(&img_left_int8, "/home/dureade/Documents/paparazzi_images/img_left_int8.bmp");
-		save_image_gray(&img_right_int8, "/home/dureade/Documents/paparazzi_images/img_right_int8.bmp");
-
-		//save_image_gray(&img_depth_int8, "/home/dureade/Documents/paparazzi_images/img_depth_int8.bmp");
-		//save_image_gray(&img_depth_int16, "/home/dureade/Documents/paparazzi_images/img_depth_int16.bmp");
-
-		save_image_gray(&img_depth_int8_cropped, "/home/dureade/Documents/paparazzi_images/img_depth_int8_cropped.bmp");
-		//save_image_gray(&img_depth_int16_cropped, "/home/dureade/Documents/paparazzi_images/img_depth_int16_cropped.bmp");
-
-		save_image_gray(&img_middle_int8_cropped, "/home/dureade/Documents/paparazzi_images/img_middle_int8_cropped.bmp");
-		save_image_gray(&img_edges_int8_cropped, "/home/dureade/Documents/paparazzi_images/img_edges_int8_cropped.bmp");
-
-
-
-		/*
-		//save_image_gray(&img_YY, "/home/dureade/Documents/paparazzi_images/img_YY.bmp");
-		save_image_gray(&img_left_int8, "/home/dureade/Documents/paparazzi_images/img_left_int8.bmp");
-		save_image_gray(&img_right_int8, "/home/dureade/Documents/paparazzi_images/img_right_int8.bmp");
-
-		//save_image_gray(&img_depth_int8, "/home/dureade/Documents/paparazzi_images/img_depth_int8.bmp");
-		//save_image_gray(&img_depth_int16, "/home/dureade/Documents/paparazzi_images/img_depth_int16.bmp");
-
-		save_image_gray(&img_depth_int8_cropped, "/home/dureade/Documents/paparazzi_images/img_depth_int8_cropped.bmp");
-		//save_image_gray(&img_depth_int16_cropped, "/home/dureade/Documents/paparazzi_images/img_depth_int16_cropped.bmp");
-
-		save_image_gray(&img_middle_int8_cropped, "/home/dureade/Documents/paparazzi_images/img_middle_int8_cropped.bmp");
-
-		save_image_gray(&img_edges_int8_cropped, "/home/dureade/Documents/paparazzi_images/img_edges_int8_cropped.bmp");
-
-		*/
-
-
-
-
-
-		/*
-
-			uint8_t min_8, max_8;
-		int16_t min_16, max_16;
-
-		for (int i = 0; i < (img_depth_int8.h * img_depth_int16.h); i++)
-		{
-			if  (i==0)
-			{
-				 min_8 = ((uint8_t*)img_depth_int8.buf)[i];
-				 max_8 = ((uint8_t*)img_depth_int8.buf)[i];
-				 min_16 = ((int16_t*)img_depth_int16.buf)[i];
-				 max_16 = ((int16_t*)img_depth_int16.buf)[i];
-
-
-
-				//max_8 = ((uint8_t)img_depth_int8).buf)[i];
-				//min_16 = ((int16_t)img_depth_int8.buf)[i];
-				//max_16 = ((int16_t)img_depth_int8.buf)[i];
-				printf("Stuff called: %d\n", img_depth_int8.buf_size);
-			}
-			else
-			{
-				if (min_8 > ((uint8_t*)img_depth_int8.buf)[i]){min_8 = ((uint8_t*)img_depth_int8.buf)[i];;}
-				if (max_8 < ((uint8_t*)img_depth_int8.buf)[i]){max_8 = ((uint8_t*)img_depth_int8.buf)[i];;}
-
-				if (min_16 > ((int16_t*)img_depth_int16.buf)[i]){min_16 = ((int16_t*)img_depth_int16.buf)[i];;}
-				if (max_16 < ((int16_t*)img_depth_int16.buf)[i]){max_16 = ((int16_t*)img_depth_int16.buf)[i];;}
-			}
-
-		}
-		printf("8bit depth - min:max: %d:%d\n", min_8, max_8);
-		printf("16bit depth - min:max: %d:%d\n", min_16, max_16);
-
-
-		int i = 20000;
-
-		printf("index 0 value of img_depth_int16: %f\n", ((int16_t*)img_depth_int16.buf)[0]);
-		printf("index %d value of img_depth_int16: %d\n",i ,((int16_t*)img_depth_int16.buf)[i]);
-		printf("index %d value of img_depth_int16: %f\n",i ,((int16_t*)img_depth_int16.buf)[i]);
-
-
-		for (int i = 0; i < (img_depth2.w * img_depth2.h); i++)
-		{
-			if (i % 20000 == 0)
-			{
-				printf("New image (after C++) position %d: %d\n",i, ((uint8_t*)img_depth2.buf)[i]);
-
-			}
-		}*/
-
-
-		//printf("Buf size  (bytes) of img_depth_uint16 (should be 66096): %d\n", img_depth_uint16.buf_size);
-		//post_disparity_dims(&new_height_min, &new_height_max, &new_width_min, &new_width_max, 240 , 240, N_disparities, block_size_disparities);
-		//post_disparity_dims2(&new_height, &new_width, 240 , 240, N_disparities, block_size_disparities);
-		//post_disparity_crop_rect(&new_height_min, &new_height_max, &new_width_min, &new_width_max, 240 , 240, N_disparities, block_size_disparities);
-		//printf("img_depth2 h:w = %d:%d\n", img_depth2.h, img_depth2.w);
-		//printf("\n\n\n\n\n");
-		//printf("height min:max = %d:%d\n width min:max = %d:%d\n", new_height_min, new_height_max, new_width_min, new_width_max);
-		//printf("cropped image dims: [%d, %d]\n", new_height_max, new_width_max);
-		//printf("cropped image dims2: [%d, %d]", new_height, new_width);
-		//printf("height min:offset = %d:%d\n width min:offset = %d:%d\n", new_height_min, new_height_max, new_width_min, new_width_max);
-		//printf("img_YY.buf_size: %d\n", img_YY.buf_size);
-		//printf("img_YY.buf_size: %d\n", img_YY.h);
-		//printf("img_YY.buf_size: %d\n", img_YY.w);
-		//printf("img_YY.buf_size: %d\n", img_left.buf_size);
-		//printf("img_YY_left.buf_size: %d", img_YY_left.buf_size);
-		//show_image_entry(&img_YY_right, 0 , "img_YY_right");
-		//show_image_entry(&img_right, 1 , "img_right");
-		//show_image_entry(&img_YY_left, 0 , "img_YY_left");
-		//show_image_entry(&img_left, 1 , "img_left");
-		//printf("\n");
-
-	}
-
-	// Since the counter is not infinite it is only increased in the first 10 cycles
-	if (cycle_counter < 10){cycle_counter++;}
 }
 
 
