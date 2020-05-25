@@ -199,8 +199,9 @@ bool snav_on_time(float nominal_radius)
   if (ground_speed_timer == 0) {
     ground_speed_timer = 40; /* every 10s, called at 40Hz */
     if (!compute_ground_speed(airspeed, stateGetHorizontalWindspeed_f()->y,
-                         stateGetHorizontalWindspeed_f()->x)) // Wind in NED frame
+                              stateGetHorizontalWindspeed_f()->x)) { // Wind in NED frame
       return false; /* return false if the computation of ground speeds fails */
+    }
   }
   ground_speed_timer--;
 
