@@ -27,15 +27,12 @@ For more details we refer to https://wiki.paparazziuav.org/wiki/Module/guidance_
       <define name="OFF" value="0" description="Offset for the sinusoidal y=Asin(Wx + OFF)" unit="rad"/>
       <define name="A" value="0" description="Amplitude for the sinusoidal y=Asin(Wx + OFF)" unit="m"/>
     </section>
-
-    <define name="NAV_SURVEY_POLY_GVF_DYNAMIC" value="FALSE|TRUE" description="Set to true to allow changing sweep distance mid polygon survey"/>
   </doc>
   <settings name="GVF">
     <dl_settings>
       <dl_settings NAME="GVF">
         <dl_settings NAME="Control">
           <dl_setting MAX="1" MIN="-1" STEP="2" VAR="gvf_control.s" shortname = "direction"/>
-          <dl_setting min="0" max="500" step="1" var="gvf_nav_survey_sweep" type="float" shortname="sweep"/>
         </dl_settings>
         <dl_settings NAME="Ellipse">
           <dl_setting MAX="5" MIN="0.0" STEP="0.01" VAR="gvf_ellipse_par.ke" shortname="ell_ke" param="GVF_ELLIPSE_KE"/>
