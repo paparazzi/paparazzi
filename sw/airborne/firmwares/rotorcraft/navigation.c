@@ -592,7 +592,7 @@ void nav_route(struct EnuCoor_i *wp_start, struct EnuCoor_i *wp_end)
   INT32_VECT2_RSHIFT(pos_diff, pos_diff, INT32_POS_FRAC);
   uint32_t leg_length2 = Max((wp_diff.x * wp_diff.x + wp_diff.y * wp_diff.y), 1);
   nav_leg_length = int32_sqrt(leg_length2);
-  nav_leg_progress = (pos_diff.x * wp_diff.x + pos_diff.y * wp_diff.y) / nav_leg_length;
+  nav_leg_progress = (pos_diff.x * wp_diff.x + pos_diff.y * wp_diff.y) / (int32_t)nav_leg_length;
   int32_t progress = Max((CARROT_DIST >> INT32_POS_FRAC), 0);
   nav_leg_progress += progress;
   int32_t prog_2 = nav_leg_length;
