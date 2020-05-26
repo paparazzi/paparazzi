@@ -27,8 +27,6 @@
  *
  */
 
-//#include "nav_survey_polygon_gvf.h"
-
 #include "firmwares/fixedwing/nav.h"
 #include "state.h"
 #include "autopilot.h"
