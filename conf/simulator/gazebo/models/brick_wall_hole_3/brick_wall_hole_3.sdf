@@ -1,21 +1,21 @@
 <?xml version='1.0'?>
 <sdf version='1.4'>
-  <model name="brick model">
+  <model name="brick_wall_hole_3">
     <static>true</static>
     <pose>0 0 0 0 0 0</pose>
 
-    <link name="brick model">
-      <visual name="panel">
+    <link name="brick_wall_hole_3">
+      <visual name="brick_wall_hole_3">
         <geometry>
           <mesh>
-            <uri>model://brick_model1/brick_model.dae</uri>
+            <uri>model://brick_wall_hole_3/brick_wall_hole_3.dae</uri>
           </mesh>
         </geometry>
       </visual>
-      <collision name="brick_model">
+      <collision name="brick_wall_hole_3">
         <geometry>
           <mesh>
-            <uri>model://brick_model1/brick_model.dae</uri>
+            <uri>model://brick_wall_hole_3/brick_wall_hole_3.dae</uri>
           </mesh>
         </geometry>
       </collision>

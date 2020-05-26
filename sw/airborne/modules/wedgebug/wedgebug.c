@@ -1812,6 +1812,9 @@ void wedgebug_periodic(){
         		if (is_obstacle_detected_flag)
         		{
         			printf("Object detected!!!!!!!!\n");
+    				VHOLDINGPOINTwned.x = VRwned.x;
+    				VHOLDINGPOINTwned.y = VRwned.y;
+    				VHOLDINGPOINTwned.z = VRwned.z;
         			set_state(WEDGEBUG_START, allow_state_change_7);
         		}
         		// Else if the path is clear

@@ -42,46 +42,115 @@
       <heading_deg>180</heading_deg><!-- Temporary fix for issue https://bitbucket.org/osrf/gazebo/issues/2022/default-sphericalcoordinates-frame-should -->
     </spherical_coordinates>
 
+    <!-- Arena objects -->
     <include>
       <uri>model://ground_plane</uri>
       <pose>0 4 0 0 0 0</pose>
     </include>
     
-
+    
     <include>
       <uri>model://cyberzoo</uri>
       <pose>0 4 0 0 0 0</pose>
     </include>
     
+
+    
+    <!-- Objects for experiment -->
+    
+    <!-- Brick_bar_1 - Acts as goal marker in simulation -->
+    <include>
+      <uri>model://brick_bar_1</uri>
+      <name>metal_panel1_1</name>
+      <pose>0 8 0 0 0 0</pose>
+    </include>
+    
+    
+    <!-- Brick_sphere_1 -->
+    <!--  <include>
+      <uri>model://brick_sphere_1</uri>
+      <name>brick sphere 1</name>
+      <pose>0 4 0 0 0 0</pose> 
+    </include>-->
+    
+    
+    <!-- Brick_wall_1 -->
+	<!-- 
+	<include>
+      <uri>model://brick_wall_1</uri>
+      <name>brick sphere 1</name>
+      <pose>0 4 0 0 0 1.57079632679</pose> 
+    </include>
+	 -->
+    
+    
+    <!-- Brick_wall_hole_1 - Hole large enough for drone -->
+	<!-- 
+    <include>
+      <uri>model://brick_wall_hole_1</uri>
+      <name>brick_wall_hole_1</name>
+      <pose>0 4 0 0 0 1.57079632679</pose>
+    </include> -->
+    
+    
+    <!-- Brick_wall_hole_2 - Hole too small for drone -->
+	 <!--  
+    <include>
+      <uri>model://brick_wall_hole_2</uri>
+      <name>brick_wall_hole_2</name>
+      <pose>0 4 0 0 0 1.57079632679</pose>
+    </include>
+    -->
+    
+  
+    <!-- Brick_wall_hole_3 - Small and large holes -->
+    <!--
+    <include>
+      <uri>model://brick_wall_hole_3</uri>
+      <name>brick_wall_hole_3</name>
+      <pose>0 4 0 0 0 1.57079632679</pose>
+    </include>
+    -->
+
+     
+    <!-- Brick_wall_lshaped_1 - l-shaped wall to test for local minimum -->
+    <!--
+    <include>
+      <uri>model://brick_wall_lshaped_1</uri>
+      <name>brick_wall_lshaped_1</name>
+      <pose>0 4 0 0 0 3.92699</pose>
+    </include>
+      -->
+    
+    
+
+    <!-- Stock object for testing: -->
+    
+    <!-- Orange_pole - Stock object for testing -->
     <!--  
     <include>
       <uri>model://orange_pole</uri>
       <name>orange_pole1</name>
-      <pose>2 4 0 0 0 0</pose>
-    </include>-->
+      <pose>0 4 0 0 0 0</pose>
+    </include>
+    -->
 
-    
-      
-    
-    <include>
+    <!-- Metal_panel1 - choose pose -0.30 4 0 0 0 0 for demo -->
+    <!-- 
+    <<include>
       <uri>model://metal_panel1</uri>
       <name>metal_panel1_1</name>
-      <pose>0 4 0 0 0 0</pose> <!-- choose -0.30 4 0 0 0 0 for demo-->
-    </include>
-    
-    <!--
-    <include>
-      <uri>model://brick_wall_hole_1</uri>
-      <name>brick_model_1</name>
       <pose>0 4 0 0 0 0</pose>
-    </include>-->
+    </include>
+    -->
     
-    
-
+    <!-- Dronerace_gate -->
+    <!-- 
     <include>
       <uri>model://dronerace_gate</uri>
       <pose>0 8 -1.5 0 0 0</pose>
     </include>
+     -->
  
   </world>
 </sdf>
