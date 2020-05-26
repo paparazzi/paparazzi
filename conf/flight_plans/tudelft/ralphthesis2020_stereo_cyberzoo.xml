@@ -38,15 +38,15 @@ inline void setGuided(void){
     <!--  <waypoint  name="GOAL2" x="2.0" y="8" alt= "1"/>-->
     
     
-    <waypoint  x="-6.0" y="-2.0" name="CZ1"/>
-    <waypoint  x="-6.0" y="10.0" name="CZ2"/>
-    <waypoint  x="5.0" y="10.0" name="CZ3"/>
-    <waypoint  x="5.0" y="-2.0" name="CZ4"/>
+    <waypoint  x="-6.0" y="-2.0" name="_CZ1"/>
+    <waypoint  x="-6.0" y="10.0" name="_CZ2"/>
+    <waypoint  x="5.0" y="10.0" name="_CZ3"/>
+    <waypoint  x="5.0" y="-2.0" name="_CZ4"/>
     
-    <waypoint  x="-5.0" y="-1.0" name="OZ1"/>
-    <waypoint  x="-5.0" y="9.0" name="OZ2"/>
-    <waypoint  x="4.0" y="9.0" name="OZ3"/>
-    <waypoint  x="4.0" y="-1.0" name="OZ4"/>
+    <waypoint  x="-5.0" y="-1.0" name="_OZ1"/>
+    <waypoint  x="-5.0" y="9.0" name="_OZ2"/>
+    <waypoint  x="4.0" y="9.0" name="_OZ3"/>
+    <waypoint  x="4.0" y="-1.0" name="_OZ4"/>
     
     
     
@@ -55,16 +55,16 @@ inline void setGuided(void){
   </waypoints>
   <sectors>
     <sector color="red" name="CyberZoo">
-      <corner name="CZ1"/>
-      <corner name="CZ2"/>
-      <corner name="CZ3"/>
-      <corner name="CZ4"/>
+      <corner name="_CZ1"/>
+      <corner name="_CZ2"/>
+      <corner name="_CZ3"/>
+      <corner name="_CZ4"/>
     </sector>
     <sector color="green" name="ObstacleZone">
-      <corner name="OZ1"/>
-      <corner name="OZ2"/>
-      <corner name="OZ3"/>
-      <corner name="OZ4"/>
+      <corner name="_OZ1"/>
+      <corner name="_OZ2"/>
+      <corner name="_OZ3"/>
+      <corner name="_OZ4"/>
     </sector>
     
     

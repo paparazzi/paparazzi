@@ -20,7 +20,7 @@
     <file name="wedgebug.h"/>
   </header>
   <init fun="wedgebug_init()"/>
-  <periodic fun="wedgebug_periodic()" freq="15"/>
+  <periodic fun="wedgebug_periodic()" freq="16"/> <!-- originally 4 -->
   <makefile target="ap|nps">
     <file name="wedgebug.c"/>
     <file name="wedgebug_opencv.cpp"/>
