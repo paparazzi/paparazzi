@@ -232,9 +232,9 @@ static void gvf_line(float a, float b, float heading)
 
 bool gvf_line_XY_heading(float a, float b, float heading)
 {
-    gvf_set_direction(1);
-    gvf_line(a, b, heading);
-    return true;
+  gvf_set_direction(1);
+  gvf_line(a, b, heading);
+  return true;
 }
 
 bool gvf_line_XY1_XY2(float x1, float y1, float x2, float y2)
@@ -312,8 +312,8 @@ bool gvf_segment_XY1_XY2(float x1, float y1, float x2, float y2)
   float zxr = zx * cosb - zy * sinb;
   float pxr = px * cosb - py * sinb;
 
-  if((zxr > 0 && pxr > zxr) || (zxr < 0 && pxr < zxr)) {
-      return false;
+  if ((zxr > 0 && pxr > zxr) || (zxr < 0 && pxr < zxr)) {
+    return false;
   }
 
   return gvf_line_XY1_XY2(x1, y1, x2, y2);
