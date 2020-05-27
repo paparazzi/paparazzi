@@ -8,7 +8,7 @@ from collections import namedtuple
 from os import path, getenv, walk
 from fnmatch import fnmatch
 #from subprocess import call
-import commands
+import subprocess
 
 import lxml.etree as ET
 
