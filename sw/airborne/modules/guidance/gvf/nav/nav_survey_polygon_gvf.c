@@ -27,8 +27,6 @@
  *
  */
 
-#include "nav_survey_polygon_gvf.h"
-
 #include "firmwares/fixedwing/nav.h"
 #include "state.h"
 #include "autopilot.h"
@@ -38,8 +36,6 @@
 #ifdef DIGITAL_CAM
 #include "modules/digital_cam/dc.h"
 #endif
-
-float gvf_nav_survey_sweep = 100.f; // dummy non-zero value, will be set at setup
 
 struct gvf_SurveyPolyAdv gvf_survey;
 
@@ -149,7 +145,6 @@ void gvf_nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, f
   gvf_survey.poly_first = first_wp;
   gvf_survey.poly_count = size;
 
-  gvf_nav_survey_sweep = sweep_width;
   gvf_survey.psa_sweep_width = sweep_width;
   gvf_survey.psa_min_rad = min_rad;
   gvf_survey.psa_shot_dist = shot_dist;
@@ -169,7 +164,7 @@ void gvf_nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, f
     //east
     gvf_survey.dir_vec.x = 1.0;
     gvf_survey.dir_vec.y = 1.0 / tanf(angle_rad);
-    sweep.y = - 1.0;
+    sweep.y = -1.0;
     sweep.x = gvf_survey.dir_vec.y / gvf_survey.dir_vec.x;
   } else if (angle <= 225.0) {
     //south
@@ -249,10 +244,6 @@ void gvf_nav_direction_circle(float rad)
 
 bool gvf_nav_survey_polygon_run(void)
 {
-  #ifdef NAV_SURVEY_POLY_GVF_DYNAMIC
-  sweep_width = (nav_survey_shift > 0 ? gvf_nav_survey_sweep : -gvf_nav_survey_sweep);
-  #endif
-
   NavVerticalAutoThrottleMode(0.0);
   NavVerticalAltitudeMode(gvf_survey.psa_altitude, 0.0);
 
