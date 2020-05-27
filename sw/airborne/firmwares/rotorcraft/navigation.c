@@ -353,7 +353,7 @@ struct FloatVect3 nav_get_speed_setpoint(float pos_gain) {
  * @brief follow a line.
  *
  * @param line_v_enu 2d vector from beginning (0) line to end in enu
- * @param to_end_v_enu 2d vector from curremtn position to end in enu
+ * @param to_end_v_enu 2d vector from current position to end in enu
  * @param target end waypoint in enu
  *
  * @return desired speed setpoint FloatVect3
