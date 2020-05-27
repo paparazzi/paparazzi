@@ -54,6 +54,24 @@ extern int block_size_disparities;
 extern int min_disparity;
 extern int max_disparity;
 
+
+
+extern int SE_opening_OCV; 	// SE size for the opening operation
+extern int SE_closing_OCV; 	// SE size for the closing operation
+extern int SE_dilation_OCV_1;// SE size for the first dilation operation (Decides where edges are detected, increase to increase drone safety zone NOTE. This functionality should be replaced with c space expansion)
+extern int SE_dilation_OCV_2; // SE size for the second dilation operation (see state 6 "WEDGEBUG_START" )
+
+
+// Setting thresholds
+extern uint8_t threshold_median_disparity; 		// Above this median disparity, an obstacle is considered to block the way. >60 = close than 35cm
+extern int threshold_edge_magnitude;  		// Edges with a magnitude above this value are detected. Above this value, edges are given the value 127, otherwise they are given the value zero.
+extern uint8_t threshold_disparity_of_edges; 		// Above this underlying disparity value, edges are considers eligible for detection
+extern float threshold_distance_to_goal; 		// Above this threshold, the goal is considered reached
+extern float threshold_distance_to_angle;	// Above this threshold, the angle/heading is considered reached
+extern float safety_distance_front;
+
+
+
 // Global functions
 extern void post_disparity_crop_rect(struct crop_t *img_cropped_info,struct img_size_t *original_img_dims,const int disp_n,const int block_size);
 extern void set_state(uint8_t state, uint8_t change_allowed);

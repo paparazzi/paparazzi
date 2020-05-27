@@ -1,0 +1,25 @@
+<?xml version='1.0'?>
+<sdf version='1.4'>
+  <model name="brick_wall_2">
+    <static>true</static>
+    <pose>0 0 0 0 0 0</pose>
+
+    <link name="brick _bar_2">
+      <visual name="brick_wall_2">
+        <geometry>
+          <mesh>
+            <uri>model://brick_wall_2/brick_wall_2.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <collision name="brick_wall_2">
+        <geometry>
+          <mesh>
+            <uri>model://brick_wall_2/brick_wall_2.dae</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+
+  </model>
+</sdf>

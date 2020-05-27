@@ -25,6 +25,9 @@
  *
  *Note.
  *1. Information on different flight modes (such as AP_MODE_GUIDED) can be found here paparazzi/sw/airborne/firmwares/rotorcraft/autopilot_static.h
+ *2. When starting paparazzi and joystick is selected, the autopilot will start in the mode AP_MODE_ATTITUDE_DIRECT   4 (but engines are off)
+ *3. When pressing circle on the dual shock 4 controller you activate the manual control mode AP_MODE_ATTITUDE_Z_HOLD   9
+ *4. When pressing x on the dual shock 4 controller you activate the manual control mode AP_MODE_ATTITUDE_DIRECT   4
  */
 
 
@@ -66,6 +69,7 @@
 struct image_t img_left;				// Image obtained from left camera (UYVY format)
 struct image_t img_right;				// Image obtained from right camera (UYVY format)
 struct image_t img_left_int8;			// Image obtained from left camera, converted into 8bit gray image
+struct image_t img_left_int8_cropped;			// Image obtained from left camera, converted into 8bit gray image
 struct image_t img_right_int8;			// Image obtained from right camera, converted into 8bit gray image
 struct image_t img_depth_int8;			// Image obtained from the external simple block matching function (SBM) = SBM_OCV
 struct image_t img_depth_int8_cropped;	// Image obtained after image is cropped, to remove the erroneous pixels due to the limitations of
@@ -220,6 +224,7 @@ uint8_t median_disparity_in_front;		// Variable to hold the median disparity in 
 float distance_traveled;				// Variable to hold the distance traveled of the robot (since start and up to the goal)
 uint8_t number_of_states;				// Variable to save the total number of states used in the finite state machine
 float distance_robot_edge_goal;			// Variable to hold distance from robot to edge to goal (used in EDGE_SCAN (9) state)
+float safety_distance_front;			// Safety distance in front of drone (meters), when flying to detected edge (this way the drone does not crash into objects)
 
 
 // For debugging purpose. Allows for changing of state in simulation if 1. If 0, does not allow for state change. Useful if you want to execute only one state repeatedly
@@ -318,7 +323,14 @@ void show_image_entry(struct image_t *img, int entry_position, const char *img_n
 	printf("Pixel %d value - %s: %d\n", entry_position, img_name ,((uint8_t*)img->buf)[entry_position]);
 }
 
+// Function 4
+void show_rotation_matrix(struct FloatRMat *R)
+{
+	printf("[[%f, %f, %f]\n", R->m[0], R->m[1], R->m[2]);
+	printf(" [%f, %f, %f]\n", R->m[3], R->m[4], R->m[5]);
+	printf(" [%f, %f, %f]]\n", R->m[6], R->m[7], R->m[8]);
 
+}
 
 // External:
 
@@ -1076,9 +1088,12 @@ void wedgebug_init(){
 	// Creating structure to hold dimensions of cropped camera images
 	img_cropped_dims.w = img_cropped_info.w; img_cropped_dims.h = img_cropped_info.h;
 	// Creating empty images - cropped
+	image_create(&img_left_int8_cropped, img_cropped_dims.w, img_cropped_dims.h, IMAGE_GRAYSCALE);// To store cropped depth - 8 bit
 	image_create(&img_depth_int8_cropped, img_cropped_dims.w, img_cropped_dims.h, IMAGE_GRAYSCALE);// To store cropped depth - 8 bit
 	image_create(&img_middle_int8_cropped,img_cropped_dims.w, img_cropped_dims.h, IMAGE_GRAYSCALE);// To store intermediate image data from processing - 8 bit
 	image_create(&img_edges_int8_cropped,img_cropped_dims.w, img_cropped_dims.h, IMAGE_GRAYSCALE);// To store edges image data from processing - 8 bit
+
+
 
 
 	// Creation of kernels:
@@ -1105,7 +1120,7 @@ void wedgebug_init(){
 	Rcr.m[0] = 0; Rcr.m[1] = 1;	Rcr.m[2] = 0;
 	Rcr.m[3] = 0; Rcr.m[4] = 0; Rcr.m[5] = 1;
 	Rcr.m[6] = 1; Rcr.m[7] = 0; Rcr.m[8] = 0;
-	VCr.x = 0; // i.e the camera is x meters away from robot center
+	VCr.x = 0;//-safety_distance_front; // i.e the camera is x meters away from robot center
 	VCr.y = 0;
 	VCr.z = 0;
 
@@ -1132,16 +1147,16 @@ void wedgebug_init(){
 	// Initializing structuring element sizes
 	SE_opening_OCV = 13; 	// SE size for the opening operation
 	SE_closing_OCV = 13; 	// SE size for the closing operation
-	SE_dilation_OCV_1 = 201;// SE size for the first dilation operation (Decides where edges are detected, increase to increase drone safety zone NOTE. This functionality should be replaced with c space expansion)
+	SE_dilation_OCV_1 = 151;//301;// SE size for the first dilation operation (Decides where edges are detected, increase to increase drone safety zone NOTE. This functionality should be replaced with c space expansion)
 	SE_dilation_OCV_2 = 11; // SE size for the second dilation operation (see state 6 "WEDGEBUG_START" )
 	SE_sobel_OCV = 5; 		// SE size for the sobel operation, to detect edges
 
 
 	// Setting thresholds
 	threshold_median_disparity = 11; 		// Above this median disparity, an obstacle is considered to block the way. >60 = close than 35cm
-	threshold_edge_magnitude = 300;  		// Edges with a magnitude above this value are detected. Above this value, edges are given the value 127, otherwise they are given the value zero.
+	threshold_edge_magnitude = 251;//300;  		// Edges with a magnitude above this value are detected. Above this value, edges are given the value 127, otherwise they are given the value zero.
 	threshold_disparity_of_edges = 5; 		// Above this underlying disparity value, edges are considers eligible for detection
-	threshold_distance_to_goal = 0.25; 		// Above this threshold, the goal is considered reached
+	threshold_distance_to_goal = 0.10; //0.25		// Above this threshold, the goal is considered reached
 	threshold_distance_to_angle = 0.0004;	// Above this threshold, the angle/heading is considered reached
 
 	// Initializing confidence parameters
@@ -1208,6 +1223,8 @@ void wedgebug_init(){
 	distance_traveled = 0; 					// Variable to hold the distance traveled of the robot (since start and up to the goal)
 	number_of_states = NUMER_OF_STATES;     // Variable to save the total number of states used in the finite state machine
 	distance_robot_edge_goal = 99999; 		// Variable to hold distance from robot to edge to goal (used in EDGE_SCAN (9) state) - initialized with unreasonably high number
+	safety_distance_front = 0.3;			// Safety distance in front of drone (meters), when flying to detected edge (this way the drone does not crash into objects) 0.4 = 2d dimensions of colision zone of robot
+
 
 
 	/*
@@ -1256,6 +1273,7 @@ void wedgebug_periodic(){
 	VRwned.y = stateGetPositionNed_f()->y;
 	VRwned.z = stateGetPositionNed_f()->z;
 
+
 	// Initialization of robot heading
 	heading = stateGetNedToBodyEulers_f()->psi;
 
@@ -1284,13 +1302,14 @@ void wedgebug_periodic(){
 		initial_heading.initiated = 0; 			// 0 = it can be overwritten
 		initial_heading.is_left_reached_flag = 0;	// The scan has not reached the left maximum angle yet
 		initial_heading.is_right_reached_flag = 0;// The scan has not reached the right maximum angle yet
+		distance_robot_edge_goal = 99999;
 	}
 	else if(is_state_changed_flag != 0)
 	{
 		is_state_changed_flag = 0;
 	}
 
-
+	printf("mode = %d\n", autopilot_get_mode());
 
 
 
@@ -1385,6 +1404,39 @@ void wedgebug_periodic(){
 	clock_t clock_FSM; // Creating variable to hold time (number of cycles)
 	clock_FSM = clock(); // Saving current time, way below it is used to calculate time spent in a cycle
     counter_state[current_state]++; // Counting how many times a state was activated (needed for average calculation). This is done here as state may change in FSM
+
+
+
+    // code to be executed when drone is in manual control modes
+    if ((autopilot_get_mode() == AP_MODE_ATTITUDE_Z_HOLD) || (autopilot_get_mode() == AP_MODE_ATTITUDE_DIRECT))
+    {
+
+    	printf("Direct control\n");
+    	median_disparity_in_front = median_disparity_to_point(&c_img_cropped, &img_depth_int8_cropped, &median_kernel);
+    	printf("Disparity in front = %d (threshold = %d)\n", median_disparity_in_front, threshold_median_disparity);
+
+    	// b. Morphological  operations 2
+		// This is needed so that when using the edges as filters (to work on disparity values
+		// only found on edges) the underlying disparity values are those of the foreground
+		// and not the background
+		dilation_OCV(&img_middle_int8_cropped, &img_middle_int8_cropped,SE_dilation_OCV_2, 1);
+
+
+
+		is_edge_found_micro_flag = find_best_edge_coordinates(
+				&VEDGECOORDINATESc,
+				&VGOALc,//target_point,
+				&img_edges_int8_cropped,
+				&img_middle_int8_cropped,
+				&edge_search_area,
+				threshold_disparity_of_edges,
+				edge_found_micro_confidence,
+				max_edge_found_micro_confidence);
+
+
+
+    }
+
 
 	/*
 	enum navigation_state {
@@ -1623,7 +1675,7 @@ void wedgebug_periodic(){
     						//printf("Camera coordinates of edge: [%f, %f, %f]\n", VEDGECOORDINATESc.x, VEDGECOORDINATESc.y, VEDGECOORDINATESc.z);
 
     						// Saving best edge in global variable. // Note. VPBESTEDGECOORDINATESwned is used in the MOVE_TO_EDGE (7) and POSITION_EDGE (8) states
-    						VPBESTEDGECOORDINATESwned.x = VEDGECOORDINATESwned.x;
+    						VPBESTEDGECOORDINATESwned.x = VEDGECOORDINATESwned.x - safety_distance_front;
     						VPBESTEDGECOORDINATESwned.y = VEDGECOORDINATESwned.y;
     						VPBESTEDGECOORDINATESwned.z = VEDGECOORDINATESwned.z;
 
@@ -1925,7 +1977,7 @@ void wedgebug_periodic(){
 				if (distance_robot_edge_goal > distance_total)
     			{
     				distance_robot_edge_goal = distance_total;
-    				VPBESTEDGECOORDINATESwned.x = VEDGECOORDINATESwned.x;
+    				VPBESTEDGECOORDINATESwned.x = VEDGECOORDINATESwned.x - safety_distance_front;
     				VPBESTEDGECOORDINATESwned.y = VEDGECOORDINATESwned.y;
     				VPBESTEDGECOORDINATESwned.z = VEDGECOORDINATESwned.z;
     			}
@@ -2090,8 +2142,10 @@ void wedgebug_periodic(){
 	save_image_gray(&img_left_int8, "/home/dureade/Documents/paparazzi_images/img_left_int8.bmp");
 	save_image_gray(&img_right_int8, "/home/dureade/Documents/paparazzi_images/img_right_int8.bmp");
 	save_image_gray(&img_depth_int8_cropped, "/home/dureade/Documents/paparazzi_images/img_depth_int8_cropped.bmp");
+	//save_image_gray(&img_left_int8_cropped, "/home/dureade/Documents/paparazzi_images/img_left_int8_cropped.bmp");
 	save_image_gray(&img_middle_int8_cropped, "/home/dureade/Documents/paparazzi_images/img_middle_int8_cropped.bmp");
 	save_image_gray(&img_edges_int8_cropped, "/home/dureade/Documents/paparazzi_images/img_edges_int8_cropped.bmp");
+
 
 
 }

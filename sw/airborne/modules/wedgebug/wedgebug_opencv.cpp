@@ -181,6 +181,10 @@ int SBM_OCV(struct image_t *img_disp, const struct image_t *img_left, const stru
 			Rect crop_area = Rect(img_cropped_info.x, img_cropped_info.y, img_cropped_info.w, img_cropped_info.h);
 			Mat img_cropped = img_disp_OCV(crop_area);
 
+			// Test code for saving cropped left image
+			Mat img_left_cropped =img_left_OCV(crop_area);
+			imwrite("/home/dureade/Documents/paparazzi_images/img_left_int8_cropped.bmp", img_left_cropped);
+
 			for (int i = 0; i < (img_cropped.rows * img_cropped.cols); i++)
 			{
 				((img_dip_type*)img_disp->buf)[i]  = img_cropped.at<img_dip_type>(i); // Using ".at" here are accessing buffer is problematic with a cropped image as it maintains a connection to oriinal image

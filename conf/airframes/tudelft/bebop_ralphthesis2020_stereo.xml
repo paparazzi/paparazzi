@@ -231,7 +231,7 @@
     <define name="REF_RATE_R" value="28.0"/>
 
     <!--Maxium yaw rate, to avoid instability-->
-    <define name="MAX_R" value="45.0" unit="deg/s"/>
+    <define name="MAX_R" value="30" unit="deg/s"/>
 
     <!-- second order filter parameters -->
     <define name="FILT_CUTOFF" value="8.0"/>
