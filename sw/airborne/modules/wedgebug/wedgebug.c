@@ -1076,6 +1076,8 @@ void wedgebug_init(){
 	// Creation of images
 	// Creating structure to hold dimensions of normal camera images
 	img_dims.w = WEDGEBUG_CAMERA_LEFT_WIDTH;img_dims.h = WEDGEBUG_CAMERA_LEFT_HEIGHT;
+
+
 	image_create(&img_left, img_dims.w , img_dims.h, IMAGE_YUV422); // To store left camera image
 	image_create(&img_right,img_dims.w , img_dims.h, IMAGE_YUV422);// To store right camera image
 	image_create(&img_left_int8, img_dims.w , img_dims.h, IMAGE_GRAYSCALE); // To store gray scale version of left image
@@ -1085,8 +1087,12 @@ void wedgebug_init(){
 	// Creation of images - Cropped:
 	// Calculating cropped image details (x, y, width and height)
 	post_disparity_crop_rect(&img_cropped_info, &img_dims, N_disparities, block_size_disparities);
+
 	// Creating structure to hold dimensions of cropped camera images
 	img_cropped_dims.w = img_cropped_info.w; img_cropped_dims.h = img_cropped_info.h;
+
+	printf("img_cropped_info [w, h, x, y] = [%d, %d, %d, %d]\n",img_cropped_info.w, img_cropped_info.h, img_cropped_info.x, img_cropped_info.y);
+
 	// Creating empty images - cropped
 	image_create(&img_left_int8_cropped, img_cropped_dims.w, img_cropped_dims.h, IMAGE_GRAYSCALE);// To store cropped depth - 8 bit
 	image_create(&img_depth_int8_cropped, img_cropped_dims.w, img_cropped_dims.h, IMAGE_GRAYSCALE);// To store cropped depth - 8 bit
@@ -1153,10 +1159,10 @@ void wedgebug_init(){
 
 
 	// Setting thresholds
-	threshold_median_disparity = 11; 		// Above this median disparity, an obstacle is considered to block the way. >60 = close than 35cm
-	threshold_edge_magnitude = 251;//300;  		// Edges with a magnitude above this value are detected. Above this value, edges are given the value 127, otherwise they are given the value zero.
-	threshold_disparity_of_edges = 5; 		// Above this underlying disparity value, edges are considers eligible for detection
-	threshold_distance_to_goal = 0.10; //0.25		// Above this threshold, the goal is considered reached
+	threshold_median_disparity = 10; //11		// Above this median disparity, an obstacle is considered to block the way. >60 = close than 35cm
+	threshold_edge_magnitude = 151;//301;  		// Edges with a magnitude above this value are detected. Above this value, edges are given the value 127, otherwise they are given the value zero.
+	threshold_disparity_of_edges = 5; //5		// Above this underlying disparity value, edges are considers eligible for detection
+	threshold_distance_to_goal = 0.25; //0.25		// Above this threshold, the goal is considered reached
 	threshold_distance_to_angle = 0.0004;	// Above this threshold, the angle/heading is considered reached
 
 	// Initializing confidence parameters
@@ -1223,7 +1229,7 @@ void wedgebug_init(){
 	distance_traveled = 0; 					// Variable to hold the distance traveled of the robot (since start and up to the goal)
 	number_of_states = NUMER_OF_STATES;     // Variable to save the total number of states used in the finite state machine
 	distance_robot_edge_goal = 99999; 		// Variable to hold distance from robot to edge to goal (used in EDGE_SCAN (9) state) - initialized with unreasonably high number
-	safety_distance_front = 0.3;			// Safety distance in front of drone (meters), when flying to detected edge (this way the drone does not crash into objects) 0.4 = 2d dimensions of colision zone of robot
+	safety_distance_front = 0.0;			// Safety distance in front of drone (meters), when flying to detected edge (this way the drone does not crash into objects) 0.4 = 2d dimensions of colision zone of robot
 
 
 
@@ -1309,6 +1315,9 @@ void wedgebug_periodic(){
 		is_state_changed_flag = 0;
 	}
 
+
+
+
 	printf("mode = %d\n", autopilot_get_mode());
 
 
@@ -1367,8 +1376,11 @@ void wedgebug_periodic(){
 	image_to_grayscale(&img_left, &img_left_int8); // Converting left image from UYVY to gray scale for saving function
 	image_to_grayscale(&img_right, &img_right_int8); // Converting right image from UYVY to gray scale for saving function
 
+
+
 	// 2. Deriving disparity map from block matching (left image is reference image)
 	SBM_OCV(&img_depth_int8_cropped, &img_left_int8, &img_right_int8, N_disparities, block_size_disparities, 1);// Creating cropped disparity map image
+
 
 	/*
 	// Optional thresholding of disparity map

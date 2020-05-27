@@ -106,7 +106,6 @@ int save_image_color(void *img, int width, int height,char *myString)
 
 int SBM_OCV(struct image_t *img_disp, const struct image_t *img_left, const struct image_t *img_right,  const int ndisparities, const int SADWindowSize, const bool cropped)
 {
-
 	// Defining variables
 	Mat img_left_OCV(img_left->h, img_left->w, CV_8UC1, img_left->buf);
 	Mat img_right_OCV(img_right->h, img_right->w, CV_8UC1, img_right->buf);
@@ -156,12 +155,15 @@ int SBM_OCV(struct image_t *img_disp, const struct image_t *img_left, const stru
 	// 2) If image is of type uint8_t
 	else if (img_disp->type == IMAGE_GRAYSCALE) // If image is of type uint8_t
 	{
+
 		//std::cout << "uint8_t" << std::endl;
 		typedef uint8_t img_dip_type;
 
 		img_disp_OCV = img_disp_OCV / 16;
 
 		img_disp_OCV.convertTo(img_disp_OCV , CV_8UC1);
+
+
 
 		// Cropping or not cropping:
 		if (cropped == 0) // If image should not be cropped
@@ -174,16 +176,18 @@ int SBM_OCV(struct image_t *img_disp, const struct image_t *img_left, const stru
 		else if (cropped == 1) // If image should be cropped
 		{
 			struct crop_t img_cropped_info;
-			struct img_size_t original_img_dims = {img_left->h, img_left->w};
+			struct img_size_t original_img_dims = {img_left->w, img_left->h};
+
 
 			post_disparity_crop_rect(&img_cropped_info, &original_img_dims,  ndisparities, SADWindowSize); // Function from wedebug.h
 
 			Rect crop_area = Rect(img_cropped_info.x, img_cropped_info.y, img_cropped_info.w, img_cropped_info.h);
-			Mat img_cropped = img_disp_OCV(crop_area);
+			Mat img_cropped = img_disp_OCV(crop_area); // Problem here
+
 
 			// Test code for saving cropped left image
 			Mat img_left_cropped =img_left_OCV(crop_area);
-			imwrite("/home/dureade/Documents/paparazzi_images/img_left_int8_cropped.bmp", img_left_cropped);
+			//imwrite("/home/dureade/Documents/paparazzi_images/img_left_int8_cropped.bmp", img_left_cropped);
 
 			for (int i = 0; i < (img_cropped.rows * img_cropped.cols); i++)
 			{
@@ -277,11 +281,23 @@ int sobel_OCV(struct image_t *img_input, const struct image_t *img_output, const
 
 
 	Sobel(img_input_OCV, img_grad_x, ddepth, 1, 0, kernel_size, scale, delta, BORDER_DEFAULT ); // Horizontal gradient
+
+
+	imwrite("/home/dureade/Documents/paparazzi_images/img_grad_x.bmp", img_grad_x*-1);
 	Sobel(img_input_OCV, img_grad_y, ddepth, 0, 1, kernel_size, scale, delta, BORDER_DEFAULT ); // Vertical gradient
+	imwrite("/home/dureade/Documents/paparazzi_images/img_grad_y.bmp", img_grad_y);
+
+
+
+
 
 	magnitude(img_grad_x, img_grad_y, img_grad_mag); // Calculating magnitude
 
+
+	imwrite("/home/dureade/Documents/paparazzi_images/img_grad_mag.bmp", img_grad_mag);
+
 	threshold(img_grad_mag, img_grad_mag, thr,  127, THRESH_BINARY);
+
 
 
 	//normalize(img_grad_mag, img_grad_mag,  0, 255, NORM_MINMAX); // Normalizing magnitude between 0 and 255

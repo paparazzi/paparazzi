@@ -50,6 +50,7 @@
     
     
 
+    <!--  -->
     <include>
       <uri>model://cyberzoo</uri>
       <pose>0 4 0 0 0 0</pose>
@@ -62,11 +63,12 @@
     
     <!-- Brick_bar_1 - Acts as goal marker in simulation -->
 
+    <!-- 
     <include>
       <uri>model://brick_bar_1</uri>
       <name>metal_panel1_1</name>
       <pose>0 8 0 0 0 0</pose>
-    </include>
+    </include> -->
     
    
    
@@ -89,21 +91,20 @@
     -->
     
     
-    <!-- Brick_wall_1 - l:1m, h:2m, t:0.25m -->
-	<!--
+    <!-- Brick_wall_1 - l:1m, h:2m, t:0.25m
 	<include>
       <uri>model://brick_wall_1</uri>
       <name>brick wall 1</name>
       <pose>0 4 0 0 0 1.57079632679</pose> 
-    </include>-->
+    </include> -->
 
     
-    <!-- Brick_wall_2 - l:2m, h:2m, t:0.25m 
+    <!-- Brick_wall_2 - l:2m, h:2m, t:0.25m
 	<include>
       <uri>model://brick_wall_2</uri>
       <name>brick wall 2</name>
       <pose>0 4 0 0 0 1.57079632679</pose> 
-    </include>-->
+    </include> -->
     
     <!-- Brick_wall_3 - l:4m, h:2m, t:0.25m -->
 	<!--
@@ -206,8 +207,8 @@
      <!-- Demo for Tom -->
      
     
+
 	<!-- 
-	
     <include>
       <uri>model://brick_cube_1</uri>
       <name>brick cube 1</name>
@@ -280,8 +281,8 @@
       <uri>model://brick_wall_lshaped_1</uri>
       <name>brick_wall_lshaped_1</name>
       <pose>0 16 0 0 0 3.92699</pose>
-    </include>
-    -->
+    </include> -->
+
  
   </world>
 </sdf>

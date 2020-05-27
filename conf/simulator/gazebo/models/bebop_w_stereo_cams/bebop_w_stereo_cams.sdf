@@ -193,14 +193,14 @@
         </inertia>
       </inertial>
       <sensor type="camera" name="mt9f0022"> <!-- adjust with MT9F002_TARGET_FPS -->
-        <update_rate>15.0</update_rate><!-- adjust with MT9F002_TARGET_FPS -->
+        <update_rate>25.0</update_rate><!-- was 15.0 adjust with MT9F002_TARGET_FPS -->
         <camera>
           <image>
-            <width>240</width><!-- Full sensor resolution -->
+            <width>320</width><!-- Full sensor resolution -->
             <height>240</height><!-- Full sensor resolution -->
             <format>R8G8B8</format>
           </image>
-          <horizontal_fov>0.7175</horizontal_fov>
+          <horizontal_fov>1.91986217719376</horizontal_fov> <!-- 0.7175 -->
           <clip>
             <near>0.02</near>
             <far>300</far>
@@ -238,11 +238,11 @@
         </inertia>
       </inertial>
       <sensor type="camera" name="mt9v117">
-        <update_rate>15.0</update_rate>
+        <update_rate>25.0</update_rate>
         <camera>
-          <horizontal_fov>0.7175</horizontal_fov>
+          <horizontal_fov>1.91986217719376</horizontal_fov>
           <image>
-            <width>240</width>
+            <width>320</width>
             <height>240</height>
             <format>R8G8B8</format>
           </image>
