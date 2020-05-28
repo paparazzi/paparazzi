@@ -107,12 +107,7 @@ void ctrl_eff_scheduling_periodic_a(void)
 
 void ctrl_eff_scheduling_periodic_b(void)
 {
-#ifdef SITL
-  struct NedCoor_f *speed_ned = stateGetSpeedNed_f();
-  float airspeed = sqrt(speed_ned->x*speed_ned->x+speed_ned->y*speed_ned->y);
-#else
   float airspeed = stateGetAirspeed_f();
-#endif
   struct FloatEulers eulers_zxy;
   if(airspeed < 6.0) {
     float_eulers_of_quat_zxy(&eulers_zxy, stateGetNedToBodyQuat_f());
