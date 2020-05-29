@@ -1432,13 +1432,11 @@ void wedgebug_periodic(){
     	if ((current_state != 0) && (current_state != POSITION_INITIAL) && (current_state != MOVE_TO_START) && (current_state != POSITION_START)&& (current_state != POSITION_GOAL))
     	{
 
-
-
     		// ############ Metric 1 - Recording current time
     		clock_total_time_current = clock();
     		//printf("clock_total_time_current = %f\n", (double)clock_total_time_current);
     		// In case we are in the position start state and the state has changed, initialize clock_total_time_previous
-    		if ((current_state == MOVE_TO_GOAL) && is_state_changed_flag && ((previous_state == POSITION_START) || (previous_state == MOVE_TO_START)))
+    		if ((current_state == MOVE_TO_GOAL) && is_mode_changed_flag)
     		{
     			printf("Metric 1 was started\n");
     			//printf("clock_total_time_current set = %f\n", (double)clock_total_time_current);
@@ -1464,12 +1462,6 @@ void wedgebug_periodic(){
     		VDISTANCEPOSITIONwned.x = VRwned.x;
     		VDISTANCEPOSITIONwned.y = VRwned.y;
     		VDISTANCEPOSITIONwned.z = VRwned.z;
-
-
-
-
-
-
 
 
         	// Initializing previous_state variable for next cycle

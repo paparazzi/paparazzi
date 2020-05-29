@@ -142,7 +142,7 @@ inline void setGuided(void){
     
         <!-- Mdfd: Same as "1: Initial position" --> 
     <block name="Initial position">
-      <call_once fun = "set_state(1 ,1)"/>
+
       <call_once fun="NavResurrect()"/>
       <deroute block="Move to start"/> <!-- delete for more control --> 
     </block>
@@ -150,14 +150,14 @@ inline void setGuided(void){
     
     <!-- Mdfd: Same as "2: Move to start" --> 
     <block name="Move to start">
-      <call_once fun = "set_state(2,1)"/>
+
       <go wp="START1"/>
       <deroute block="Position start"/> 
     </block>
     
         <!-- Mdfd: Same as "3: Position start" --> 
     <block name="Position start">
-      <call_once fun = "set_state(3,1)"/>
+
       <deroute block="Move to goal"/> <!-- delete for more control --> 
     </block>
     
