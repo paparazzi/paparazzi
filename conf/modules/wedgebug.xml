@@ -38,7 +38,7 @@
     <file name="wedgebug.c"/>
     <file name="wedgebug_opencv.cpp"/>
     
-    <flag name="CXXFLAGS" value="I$(PAPARAZZI_SRC)/sw/ext/opencv_bebop/install_pc/include"/> <!-- needed to include headders -->
+    <flag name="CXXFLAGS" value="I$(PAPARAZZI_SRC)/sw/ext/opencv_bebop/install_pc/include"/> <!-- needed to include headers -->
     
     <flag name="LDFLAGS" value="L$(PAPARAZZI_HOME)/sw/ext/opencv_bebop/install_pc/lib"/>
     <flag name="LDFLAGS" value="lopencv_world"/>
