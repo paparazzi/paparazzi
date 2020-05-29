@@ -1429,10 +1429,10 @@ void wedgebug_periodic(){
 
 
 
-    	if ((current_state != 0) && (current_state != POSITION_INITIAL) && (current_state != MOVE_TO_START) && (current_state != POSITION_START)&& (current_state != POSITION_GOAL))
-    	{
 
-    		// ############ Metric 1 - Recording current time
+    	if(current_state != POSITION_GOAL)
+    	{
+        	// ############ Metric 1 - Recording current time
     		clock_total_time_current = clock();
     		//printf("clock_total_time_current = %f\n", (double)clock_total_time_current);
     		// In case we are in the position start state and the state has changed, initialize clock_total_time_previous
@@ -1452,11 +1452,7 @@ void wedgebug_periodic(){
 
 
 
-        	// ############ Metric 2 - Distance traveled (total)
-        	// If the current state is not 0 (default) and position initial and move to start and position goal, record distance traveled
-
-
-    		//printf("\n\nSate change!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
+    		// ############ Metric 2 - Distance traveled (total)
     		distance_traveled = distance_traveled + float_vect3_norm_two_points(&VDISTANCEPOSITIONwned, &VRwned);
 
     		VDISTANCEPOSITIONwned.x = VRwned.x;
@@ -1464,67 +1460,63 @@ void wedgebug_periodic(){
     		VDISTANCEPOSITIONwned.z = VRwned.z;
 
 
-        	// Initializing previous_state variable for next cycle
-        	// This happens here and not above as the metric above depends on the previous state
-        	previous_state = current_state;
+    		// ############ Metric 3 - Runtime average of background processes (see below) - Start:
+    		clock_t time; // Creating variable to hold time (number of cycles)
+    		time = clock(); // Saving current time, way below it is used to calculate time spent in a cycle
+    		counter_cycles++; // Counting how many times a state was activated (needed for average calculation)
+
+
+    		//Background processes
+    		// 1. Converting left and right image to 8bit grayscale for further processing
+    		image_to_grayscale(&img_left, &img_left_int8); // Converting left image from UYVY to gray scale for saving function
+    		image_to_grayscale(&img_right, &img_right_int8); // Converting right image from UYVY to gray scale for saving function
+
+
+
+    		// 2. Deriving disparity map from block matching (left image is reference image)
+    		SBM_OCV(&img_depth_int8_cropped, &img_left_int8, &img_right_int8, N_disparities, block_size_disparities, 1);// Creating cropped disparity map image
+
+
+    		/*
+    		// Optional thresholding of disparity map
+    		uint8_t thresh = 1;
+    		for (int32_t i = 0; i < (img_depth_int8_cropped.h*img_depth_int8_cropped.w); i++)
+    		{
+    			uint8_t disparity = ((uint8_t*)img_depth_int8_cropped)[i];
+    			if(disparity < thresh)
+    			{
+    				((uint8_t*)img_depth_int8_cropped)[i] = 0; // if below disparity assume object is indefinately away
+    			}
+    		}*/
+
+
+    		// 3. Morphological operations 1
+    		// Needed to smoove object boundaries and to remove noise removing noise
+    		opening_OCV(&img_depth_int8_cropped, &img_middle_int8_cropped, SE_opening_OCV, 1);
+    		closing_OCV(&img_middle_int8_cropped, &img_middle_int8_cropped, SE_closing_OCV, 1);
+    		dilation_OCV(&img_middle_int8_cropped, &img_middle_int8_cropped,SE_dilation_OCV_1, 1);
+
+    		// 4. Sobel edge detection
+    		sobel_OCV(&img_middle_int8_cropped, &img_edges_int8_cropped, SE_sobel_OCV, threshold_edge_magnitude);
 
 
 
 
-
-        	// ############ Metric 3 - Runtime average of background processes (see below) - Start:
-        	clock_t time; // Creating variable to hold time (number of cycles)
-        	time = clock(); // Saving current time, way below it is used to calculate time spent in a cycle
-        	counter_cycles++; // Counting how many times a state was activated (needed for average calculation)
+    		// ############ Metric 3 - Runtime average of background processes (see below) - End:
+    		clock_background_processes = clock_background_processes + (clock() - time);;
 
 
-        	//Background processes
-        	// 1. Converting left and right image to 8bit grayscale for further processing
-        	image_to_grayscale(&img_left, &img_left_int8); // Converting left image from UYVY to gray scale for saving function
-        	image_to_grayscale(&img_right, &img_right_int8); // Converting right image from UYVY to gray scale for saving function
-
-
-
-        	// 2. Deriving disparity map from block matching (left image is reference image)
-        	SBM_OCV(&img_depth_int8_cropped, &img_left_int8, &img_right_int8, N_disparities, block_size_disparities, 1);// Creating cropped disparity map image
-
-
-        	/*
-        	// Optional thresholding of disparity map
-        	uint8_t thresh = 1;
-        	for (int32_t i = 0; i < (img_depth_int8_cropped.h*img_depth_int8_cropped.w); i++)
-        	{
-        		uint8_t disparity = ((uint8_t*)img_depth_int8_cropped)[i];
-        		if(disparity < thresh)
-        		{
-        			((uint8_t*)img_depth_int8_cropped)[i] = 0; // if below disparity assume object is indefinately away
-        		}
-        	}*/
-
-
-        	// 3. Morphological operations 1
-        	// Needed to smoove object boundaries and to remove noise removing noise
-        	opening_OCV(&img_depth_int8_cropped, &img_middle_int8_cropped, SE_opening_OCV, 1);
-        	closing_OCV(&img_middle_int8_cropped, &img_middle_int8_cropped, SE_closing_OCV, 1);
-        	dilation_OCV(&img_middle_int8_cropped, &img_middle_int8_cropped,SE_dilation_OCV_1, 1);
-
-        	// 4. Sobel edge detection
-        	sobel_OCV(&img_middle_int8_cropped, &img_edges_int8_cropped, SE_sobel_OCV, threshold_edge_magnitude);
-
-
-
-
-
-        	// ############ Metric 3 - Runtime average of background processes (see below) - End:
-        	clock_background_processes = clock_background_processes + (clock() - time);;
-
-
-        	// ############ Metric 4 - Runtime average per state - Start:
-        	clock_FSM = clock(); // Saving current time, way below it is used to calculate time spent in a cycle
-            counter_state[current_state]++; // Counting how many times a state was activated (needed for average calculation). This is done here as state may change in FSM
-
-
+    		// ############ Metric 4 - Runtime average per state - Start:
+    		clock_FSM = clock(); // Saving current time, way below it is used to calculate time spent in a cycle
+    		counter_state[current_state]++; // Counting how many times a state was activated (needed for average calculation). This is done here as state may change in FSM
     	}
+
+
+
+
+		// Initializing previous_state variable for next cycle
+		// This happens here and not above as the metric above depends on the previous state
+		previous_state = current_state;
 
 
 
