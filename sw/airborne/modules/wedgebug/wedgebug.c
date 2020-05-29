@@ -174,9 +174,6 @@ uint16_t f = WEDGEBUG_CAMERA_FOCAL_LENGTH;		// Camera focal length, in pixels (i
 
 // Define new structures + enums
 enum navigation_state {
-  POSITION_INITIAL = 1,
-  MOVE_TO_START = 2,
-  POSITION_START = 3,
   MOVE_TO_GOAL = 4,
   POSITION_GOAL = 5,
   WEDGEBUG_START = 6,
@@ -243,9 +240,8 @@ float safety_distance_front;			// Safety distance in front of drone (meters), wh
 
 
 // For debugging purpose. Allows for changing of state in simulation if 1. If 0, does not allow for state change. Useful if you want to execute only one state repeatedly
-uint8_t allow_state_change_1; // From within state "POSITION_INITIAL"
-uint8_t allow_state_change_2; // From within state "MOVE_TO_START"
-uint8_t allow_state_change_3; // From within state "POSITION_START "
+
+
 
 
 uint8_t allow_state_change_MOVE_TO_GOAL; // From within state "MOVE_TO_GOAL"
@@ -1236,9 +1232,7 @@ void wedgebug_init(){
 
 
 	// Initializing debugging options
-	allow_state_change_1 = 1; // Allows state change from within state "POSITION_INITIAL"
-	allow_state_change_2 = 1; // Allows state change from within state "MOVE_TO_START"
-	allow_state_change_3 = 1; // Allows state change from within state "POSITION_START "
+
 	allow_state_change_MOVE_TO_GOAL = 1; // Allows state change from within state "MOVE_TO_GOAL"
 	allow_state_change_POSITION_GOAL = 1; // Allows state change from within state "POSITION_GOAL"
 	allow_state_change_WEDGEBUG_START = 1; // Allows state change from within state "WEDGEBUG_START"
@@ -1265,9 +1259,8 @@ void wedgebug_init(){
 
 	/*
 	enum navigation_state {
-	  POSITION_INITIAL = 1,
-	  MOVE_TO_START = 2,
-	  POSITION_START = 3,
+
+
 	  MOVE_TO_GOAL = 4,
 	  POSITION_GOAL = 5,
 	  WEDGEBUG_START = 6,
@@ -1378,9 +1371,9 @@ void wedgebug_periodic(){
 
 	/*
 	enum navigation_state {
-	  POSITION_INITIAL = 1,
-	  MOVE_TO_START = 2,
-	  POSITION_START = 3,
+
+
+
 	  MOVE_TO_GOAL = 4,
 	  POSITION_GOAL = 5,
 	  WEDGEBUG_START = 6,
@@ -1432,6 +1425,7 @@ void wedgebug_periodic(){
 
 
 
+    	// Background processes only happens if the current state is not POSITION_GOAL
     	if(current_state != POSITION_GOAL)
     	{
         	// ############ Metric 1 - Recording current time
@@ -1521,37 +1515,8 @@ void wedgebug_periodic(){
 		previous_state = current_state;
 
 
-
-
-
-
-
-
-
-
     	switch(current_state)  // Finite state machine - Start
     	    	{
-    	    	case POSITION_INITIAL: // 1 ----------------------------------------------
-    	    	{
-    	    		printf("POSITION_INITIAL = %d\n", POSITION_INITIAL);
-    	    		// Nothing happens here
-    	    	}break;
-
-
-    	    	case MOVE_TO_START: // 2 ----------------------------------------------
-    	    	{
-    	    		printf("MOVE_TO_START = %d\n", MOVE_TO_START);
-    	    		// Nothing happens here
-    	    	}break;
-
-
-    	    	case POSITION_START: // 3 ----------------------------------------------
-    	    	{
-    	    		printf("POSITION_START = %d\n", POSITION_START);
-    	    		// Nothing happens here
-    	    	}break;
-
-
     	    	case MOVE_TO_GOAL: // 4 ----------------------------------------------
     	    	{
     	    		printf("MOVE_TO_GOAL = %d\n", MOVE_TO_GOAL);
