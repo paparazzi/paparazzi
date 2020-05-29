@@ -117,6 +117,7 @@ uint8_t threshold_median_disparity; 	// Above this median disparity, an obstacle
 uint8_t threshold_disparity_of_edges; 	// Above this disparity edges are eligible for WedgeBug algorithm (i.e. edges cannot be very far away)
 float threshold_distance_to_goal; 		// Below this distance (in meters) it is considered that the robot has reached the goal
 float threshold_distance_to_angle;		// Below this distance (in radians) it is considered that the robot has reached the target angle
+float threshold_distance_to_goal_direct; // Below this distance (in meters) it is considered that the robot has reached the goal, in DIRECT_CONTROL mode
 
 // Declaring confidence parameters
 int16_t obstacle_confidence;		// This is the confidence that an obstacle was spotted
@@ -174,12 +175,12 @@ uint16_t f = WEDGEBUG_CAMERA_FOCAL_LENGTH;		// Camera focal length, in pixels (i
 
 // Define new structures + enums
 enum navigation_state {
-  MOVE_TO_GOAL = 4,
-  POSITION_GOAL = 5,
-  WEDGEBUG_START = 6,
-  MOVE_TO_EDGE = 7,
-  POSITION_EDGE = 8,
-  EDGE_SCAN = 9
+  MOVE_TO_GOAL = 1,
+  POSITION_GOAL = 2,
+  WEDGEBUG_START = 3,
+  MOVE_TO_EDGE = 4,
+  POSITION_EDGE = 5,
+  EDGE_SCAN = 6
 };
 enum navigation_state current_state ;// Default state is 0 i.e. nothing
 
@@ -680,7 +681,7 @@ int32_t indx1d_c(const int32_t y, const int32_t x, const uint16_t img_height, co
 	}
 	else if (y >= (img_height) || y < 0)
 	{
-		printf("Error: index y=%d is out of bounds for axis 0 with size %d. Returning -1\n", y, img_height);
+		printf("Error: index y=%d is out of bounds for axis 1 with size %d. Returning -1\n", y, img_height);
 		return -1;
 	}
 	else
@@ -891,6 +892,7 @@ uint8_t median_disparity_to_point(struct point_t *Vi, struct image_t *img, struc
 			// Converting 2d indices to 1d indices
 			index_img = indx1d_a(Vi_y , Vi_x, img);
 			index_kernel = indx1d_c(Vk_y, Vk_x, median_kernel.h, median_kernel.w);
+
 
 			// Saving disparity values of image underneath the kernel, into the kernel buffer
 			((uint8_t*) median_kernel.buf_values)[index_kernel] = ((uint8_t*) img->buf)[index_img];
@@ -1123,7 +1125,7 @@ void wedgebug_init(){
 
 	// Creation of kernels:
 	// Creating structure to hold dimensions of kernels
-	kernel_median_dims.w = 5; kernel_median_dims.h = 5;
+	kernel_median_dims.w = 11; kernel_median_dims.h = 11;
 	// Creating empty kernel:
 	kernel_create(&median_kernel, kernel_median_dims.w, kernel_median_dims.h);
 
@@ -1178,10 +1180,11 @@ void wedgebug_init(){
 
 
 	// Setting thresholds
-	threshold_median_disparity = 10; //11		// Above this median disparity, an obstacle is considered to block the way. >60 = close than 35cm
+	threshold_median_disparity = 11; //11		// Above this median disparity, an obstacle is considered to block the way. >60 = close than 35cm
 	threshold_edge_magnitude = 151;//301;  		// Edges with a magnitude above this value are detected. Above this value, edges are given the value 127, otherwise they are given the value zero.
 	threshold_disparity_of_edges = 5; //5		// Above this underlying disparity value, edges are considers eligible for detection
 	threshold_distance_to_goal = 0.25; //0.25		// Above this threshold, the goal is considered reached
+	threshold_distance_to_goal_direct = 1.0; //0.25		// Above this threshold, the goal is considered reached in DIRECT_CONTROL mode
 	threshold_distance_to_angle = 0.0004;	// Above this threshold, the angle/heading is considered reached
 
 	// Initializing confidence parameters
@@ -1192,7 +1195,7 @@ void wedgebug_init(){
 	edge_found_micro_confidence = 0;		// This is the confidence that an edge was found
 	edge_found_macro_confidence = 0;		// This is the confidence that an edge was found
 	no_edge_found_confidence = 0;			// This is the confidence that no edge was found
-	max_obstacle_confidence = 5;			// This is the max confidence that an obstacle was spotted
+	max_obstacle_confidence = 3;			// This is the max confidence that an obstacle was spotted
 	max_free_path_confidence = 10;			// This is the max confidence that an obstacle was not spotted
 	max_position_confidence = 30;			// This is the max confidence that a specific position was reached
 	max_heading_confidence = 5;				// This is the max confidence that a specific heading was reached
@@ -1259,14 +1262,12 @@ void wedgebug_init(){
 
 	/*
 	enum navigation_state {
-
-
-	  MOVE_TO_GOAL = 4,
-	  POSITION_GOAL = 5,
-	  WEDGEBUG_START = 6,
-	  MOVE_TO_EDGE = 7,
-	  POSITION_EDGE = 8,
-  	  EDGE_SCAN = 9
+	  MOVE_TO_GOAL = 1,
+	  POSITION_GOAL = 2,
+	  WEDGEBUG_START = 3,
+	  MOVE_TO_EDGE = 4,
+	  POSITION_EDGE = 5,
+  	  EDGE_SCAN = 6
 
 	};*/
 
@@ -1357,10 +1358,6 @@ void wedgebug_periodic(){
 
 
 
-
-
-
-
 	/*
 	enum control_mode_state {
 	DIRECT_CONTROL = 1,
@@ -1371,15 +1368,12 @@ void wedgebug_periodic(){
 
 	/*
 	enum navigation_state {
-
-
-
-	  MOVE_TO_GOAL = 4,
-	  POSITION_GOAL = 5,
-	  WEDGEBUG_START = 6,
-	  MOVE_TO_EDGE = 7,
-	  POSITION_EDGE = 8,
-  	  EDGE_SCAN = 9
+	  MOVE_TO_GOAL = 1,
+	  POSITION_GOAL = 2,
+	  WEDGEBUG_START = 3,
+	  MOVE_TO_EDGE = 4,
+	  POSITION_EDGE = 5,
+  	  EDGE_SCAN = 6
 
 	};*/
 	// Finite state machine - Only runs in guided mode
@@ -1391,6 +1385,86 @@ void wedgebug_periodic(){
     case DIRECT_CONTROL:
     {
     	printf("DIRECT_CONTROL = %d\n", DIRECT_CONTROL);
+
+    	// If the mode was just started, then we initialize the FSM with MOVE_TO_GOAL (1)
+    	if(is_mode_changed_flag)
+    	{
+    		set_state(MOVE_TO_GOAL , 1);
+    	}
+
+    	// We do not care about the height of the drone when measuring distance to goal in the DIRECT_CONTROL mode
+    	// So we create this pseudo 2d vector where the z coordinates are the same as the goal. This vector is used
+    	// to check if robot is close to goal
+    	struct FloatVect3 VR2dwned = {.x = VRwned.x, .y = VRwned.y, .z = VGOALwned.z};
+
+
+
+    	switch(current_state)  // Finite state machine - Start
+    	{
+    	case MOVE_TO_GOAL: // 1
+    	{
+    		printf("MOVE_TO_GOAL = %d\n", MOVE_TO_GOAL);
+
+
+    		if (is_setpoint_reached_flag)
+    		{
+    			printf("Goal is reached\n");
+    			set_state(POSITION_GOAL , allow_state_change_MOVE_TO_GOAL);
+    		}
+    		else
+    		{
+    	    	// If this is the first cycle of this mode, then
+    			if(is_mode_changed_flag)
+    	    	{
+    				clock_total_time_current = clock();;
+    	    	}
+
+    			// ############ Metric 2 - Distance traveled (total)
+        		distance_traveled = distance_traveled + float_vect3_norm_two_points(&VDISTANCEPOSITIONwned, &VRwned);
+        		VDISTANCEPOSITIONwned.x = VRwned.x;
+        		VDISTANCEPOSITIONwned.y = VRwned.y;
+        		VDISTANCEPOSITIONwned.z = VRwned.z;
+
+        		// If the Goal is reached, set is_setpoint_reached_flag to 1 and record time
+        		if(is_setpoint_reached(&VGOALwned, &VR2dwned, threshold_distance_to_goal_direct))
+        		{
+        			is_setpoint_reached_flag = 1;
+        			clock_total_time = clock() - clock_total_time_current;
+
+        		}
+
+    		}
+
+
+    	}break;
+
+    	case POSITION_GOAL: // 2
+    	{
+    		printf("POSITION_GOAL = %d\n", POSITION_GOAL);
+    		printf("Total time to reach goal = %f\n", ((double)clock_total_time) / CLOCKS_PER_SEC);
+    		printf("Total distance_traveled = %f\n", distance_traveled);
+
+    	}break;
+        default: // 0 ----------------------------------------------
+        {
+        	printf("default = %d\n", 0);
+        }
+    	}  // Finite state machine - End
+
+
+    	printf("Time elapsed since start = %f\n", (((double)clock()) - ((double)clock_total_time_current)) / CLOCKS_PER_SEC);
+    	printf("distance_traveled = %f\n", distance_traveled);
+
+
+
+
+
+
+
+
+
+
+
     }break;// DIRECT_CONTROL - End
 
     case AUTONOMOUS_GUIDED:
@@ -1517,7 +1591,7 @@ void wedgebug_periodic(){
 
     	switch(current_state)  // Finite state machine - Start
     	    	{
-    	    	case MOVE_TO_GOAL: // 4 ----------------------------------------------
+    	    	case MOVE_TO_GOAL: // 1 ----------------------------------------------
     	    	{
     	    		printf("MOVE_TO_GOAL = %d\n", MOVE_TO_GOAL);
 
@@ -1612,7 +1686,7 @@ void wedgebug_periodic(){
     	    	}break;
 
 
-    	    	case POSITION_GOAL: // 5 ----------------------------------------------
+    	    	case POSITION_GOAL: // 2 ----------------------------------------------
     	    	{
     	    		printf("POSITION_GOAL = %d\n", POSITION_GOAL);
     	    		// Since the drone is at the goal we will swithc bach to the NAV mode
@@ -1633,7 +1707,7 @@ void wedgebug_periodic(){
 
     	    	}break;
 
-    	    	case WEDGEBUG_START: // 6 ----------------------------------------------
+    	    	case WEDGEBUG_START: // 3 ----------------------------------------------
     	    	{
 
 
@@ -1763,7 +1837,7 @@ void wedgebug_periodic(){
     	    		}
     	    	}break;
 
-    	    	case MOVE_TO_EDGE: // 7 ----------------------------------------------
+    	    	case MOVE_TO_EDGE: // 4 ----------------------------------------------
     	    	{
     	    		printf("MOVE_TO_EDGE = %d\n", MOVE_TO_EDGE);
 
@@ -1855,7 +1929,7 @@ void wedgebug_periodic(){
     	    	}break;
 
 
-    	    	case POSITION_EDGE: // 8 ----------------------------------------------
+    	    	case POSITION_EDGE: // 5 ----------------------------------------------
     	    	{
 
     	    		printf("POSITION_EDGE = %d\n", POSITION_EDGE);
@@ -1963,7 +2037,7 @@ void wedgebug_periodic(){
     	    		printf("Free path confidence = %d\n", free_path_confidence);
     	    	}break;
 
-    	    	case EDGE_SCAN: // 9 ----------------------------------------------
+    	    	case EDGE_SCAN: // 6 ----------------------------------------------
     	    	{
     	    		printf("EDGE_SCAN = %d\n", EDGE_SCAN);
 
@@ -2185,7 +2259,7 @@ void wedgebug_periodic(){
 	printf("initial_heading.is_right_reached_flag = %d\n", initial_heading.is_right_reached_flag);
 
 	*/
-    printf("\n");
+    printf("\n\n");
 
 
 
