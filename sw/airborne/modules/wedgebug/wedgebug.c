@@ -192,7 +192,7 @@ enum control_mode_state {
 	AUTONOMOUS_GUIDED = 3
 };
 
-enum control_mode_state current_control_mode;// Default state is 0 i.e. nothing
+enum control_mode_state current_mode;// Default state is 0 i.e. nothing
 
 
 
@@ -1300,10 +1300,10 @@ void wedgebug_periodic(){
 	// own states here
 	switch (autopilot_get_mode())
 	{
-	case (AP_MODE_ATTITUDE_DIRECT):{current_control_mode = DIRECT_CONTROL;}break;
-	case (AP_MODE_ATTITUDE_Z_HOLD):{current_control_mode = DIRECT_CONTROL;}break;
-	case (AP_MODE_GUIDED):{current_control_mode = AUTONOMOUS_GUIDED;}break;
-	case (AP_MODE_NAV):{current_control_mode = AUTONOMOUS_NAV;}break;
+	case (AP_MODE_ATTITUDE_DIRECT):{current_mode = DIRECT_CONTROL;}break;
+	case (AP_MODE_ATTITUDE_Z_HOLD):{current_mode = DIRECT_CONTROL;}break;
+	case (AP_MODE_GUIDED):{current_mode = AUTONOMOUS_GUIDED;}break;
+	case (AP_MODE_NAV):{current_mode = AUTONOMOUS_NAV;}break;
 	default:{printf("Unsupported control mode");}break;
 	}
 
@@ -1311,7 +1311,7 @@ void wedgebug_periodic(){
 
 	// Debugging - setting default state
 	//set_state(MOVE_TO_GOAL ,1);
-	printf("Current control mode %d\n", current_control_mode);
+	printf("Current control mode %d\n", current_mode);
 	printf("Current state %d\n", current_state);
 
 
@@ -1331,6 +1331,26 @@ void wedgebug_periodic(){
 	// Converting goal world NED coordinates into Camera coordinates
 	Va_to_Vb(&VGOALr, &VGOALwned, &Rrwned, &VRwned);
 	Va_to_Vb(&VGOALc, &VGOALr, &Rcr, &VCr);
+
+
+	// Checking is state was changed, if yes then all flags are reset and the is_mode_changed_flag
+	// is set to 1 for this cycle only. Else, the  is_mode_changed_flag is set to 0 again;
+	/*
+	if (current_mode != previous_mode)
+	{
+		// Setting flag signifying that the state was changed
+		is_mode_changed_flag = 1;
+
+	}
+	else if(is_mode_changed_flag == 1)
+	{
+		is_mode_changed_flag = 0;
+	}
+
+	if (is_mode_changed_flag == 1){printf("Mode was changed!!!!!!!!!!!!!!!!!!!1\n");}
+	printf("is_mode_changed_flag = %d\n", is_mode_changed_flag);
+
+	previous_mode = current_mode;*/
 
 
 
@@ -1363,8 +1383,8 @@ void wedgebug_periodic(){
 	// Finite state machine - Only runs in guided mode
     //if ((autopilot_get_mode() == AP_MODE_GUIDED)) // If AP_MODE_GUIDED block - Start
 
-    // Switch-case statement for current_control_mode
-    switch(current_control_mode)
+    // Switch-case statement for current_mode
+    switch(current_mode)
     {
     case DIRECT_CONTROL:
     {
@@ -1443,6 +1463,10 @@ void wedgebug_periodic(){
     		VDISTANCEPOSITIONwned.x = VRwned.x;
     		VDISTANCEPOSITIONwned.y = VRwned.y;
     		VDISTANCEPOSITIONwned.z = VRwned.z;
+
+
+
+
 
 
     	}
