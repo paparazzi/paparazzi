@@ -246,12 +246,14 @@ float safety_distance_front;			// Safety distance in front of drone (meters), wh
 uint8_t allow_state_change_1; // From within state "POSITION_INITIAL"
 uint8_t allow_state_change_2; // From within state "MOVE_TO_START"
 uint8_t allow_state_change_3; // From within state "POSITION_START "
-uint8_t allow_state_change_4; // From within state "MOVE_TO_GOAL"
-uint8_t allow_state_change_5; // From within state "POSITION_GOAL"
-uint8_t allow_state_change_6; // From within state "WEDGEBUG_START"
-uint8_t allow_state_change_7; // From within state "MOVE_TO_EDGE"
-uint8_t allow_state_change_8; // From within state "POSITION_EDGE"
-uint8_t allow_state_change_9; // From within state "EDGE_SCAN"
+
+
+uint8_t allow_state_change_MOVE_TO_GOAL; // From within state "MOVE_TO_GOAL"
+uint8_t allow_state_change_POSITION_GOAL; // From within state "POSITION_GOAL"
+uint8_t allow_state_change_WEDGEBUG_START; // From within state "WEDGEBUG_START"
+uint8_t allow_state_change_MOVE_TO_EDGE; // From within state "MOVE_TO_EDGE"
+uint8_t allow_state_change_POSITION_EDGE; // From within state "POSITION_EDGE"
+uint8_t allow_state_change_EDGE_SCAN; // From within state "EDGE_SCAN"
 
 
 
@@ -1237,12 +1239,12 @@ void wedgebug_init(){
 	allow_state_change_1 = 1; // Allows state change from within state "POSITION_INITIAL"
 	allow_state_change_2 = 1; // Allows state change from within state "MOVE_TO_START"
 	allow_state_change_3 = 1; // Allows state change from within state "POSITION_START "
-	allow_state_change_4 = 1; // Allows state change from within state "MOVE_TO_GOAL"
-	allow_state_change_5 = 1; // Allows state change from within state "POSITION_GOAL"
-	allow_state_change_6 = 1; // Allows state change from within state "WEDGEBUG_START"
-	allow_state_change_7 = 1; // Allows state change from within state "MOVE_TO_EDGE"
-	allow_state_change_8 = 1; // Allows state change from within state "POSITION_EDGE"
-	allow_state_change_9 = 1; // Allows state change from within state "EDGE_SCAN"
+	allow_state_change_MOVE_TO_GOAL = 1; // Allows state change from within state "MOVE_TO_GOAL"
+	allow_state_change_POSITION_GOAL = 1; // Allows state change from within state "POSITION_GOAL"
+	allow_state_change_WEDGEBUG_START = 1; // Allows state change from within state "WEDGEBUG_START"
+	allow_state_change_MOVE_TO_EDGE = 1; // Allows state change from within state "MOVE_TO_EDGE"
+	allow_state_change_POSITION_EDGE = 1; // Allows state change from within state "POSITION_EDGE"
+	allow_state_change_EDGE_SCAN = 1; // Allows state change from within state "EDGE_SCAN"
 
 	// Other initializations
 	previous_state = 0;						// Variable for state machine memory
@@ -1560,7 +1562,7 @@ void wedgebug_periodic(){
     	    		if (is_setpoint_reached_flag)
     	    		{
     	    			printf("Goal is reached\n");
-    	    			set_state(POSITION_GOAL , allow_state_change_4);
+    	    			set_state(POSITION_GOAL , allow_state_change_MOVE_TO_GOAL);
 
     	    		}
     	    		// Else, move to goal and check confidence that goal has been reached.
@@ -1597,7 +1599,7 @@ void wedgebug_periodic(){
     	        			printf("Object detected!!!!!!!!\n");
     	        			// 1. Seting setpoint to current location
     	        			guidance_h_hover_enter();
-    	        			set_state(WEDGEBUG_START , allow_state_change_4);
+    	        			set_state(WEDGEBUG_START , allow_state_change_MOVE_TO_GOAL);
     	        		}
     	        		// Else, check confidence that obstacle is there
     	        		else // This happens continuously, as long as the state is active and the goal has not been reached. It stops when the flag has been set below.
@@ -1751,13 +1753,13 @@ void wedgebug_periodic(){
     	    						VPBESTEDGECOORDINATESwned.y = VEDGECOORDINATESwned.y;
     	    						VPBESTEDGECOORDINATESwned.z = VEDGECOORDINATESwned.z;
 
-    	    						set_state(MOVE_TO_EDGE , allow_state_change_6);
+    	    						set_state(MOVE_TO_EDGE , allow_state_change_WEDGEBUG_START);
     	    		    		}
     	    		    		// Else if no edge is detected
     	    		    		else if (is_no_edge_found_flag)
     	    		    		{
     	    						printf("Edge not found!!!!!!!!!!!!!!!!!\n");
-    	    						set_state(EDGE_SCAN , allow_state_change_6);
+    	    						set_state(EDGE_SCAN , allow_state_change_WEDGEBUG_START);
     	    		    		}
     	    		    		// Else, check for obstacles and free path and check confidence that an obstacle is there or that the path is free
     	    		    		else
@@ -1877,7 +1879,7 @@ void wedgebug_periodic(){
     	    		if (is_heading_reached_flag && is_setpoint_reached_flag)
     	    		{
     	    			printf("Position and Heading are reached\n");
-    	    			set_state(POSITION_EDGE , allow_state_change_7);
+    	    			set_state(POSITION_EDGE , allow_state_change_MOVE_TO_EDGE);
 
     	    		}
     	    		printf("position_confidence = %d\n", position_confidence);
@@ -1939,13 +1941,13 @@ void wedgebug_periodic(){
     	    				VHOLDINGPOINTwned.x = VRwned.x;
     	    				VHOLDINGPOINTwned.y = VRwned.y;
     	    				VHOLDINGPOINTwned.z = VRwned.z;
-    	        			set_state(WEDGEBUG_START, allow_state_change_7);
+    	        			set_state(WEDGEBUG_START, allow_state_change_POSITION_EDGE);
     	        		}
     	        		// Else if the path is clear
     	        		else if (is_path_free_flag)
     	        		{
     	        			printf("Path is free\n");
-    	        			set_state(MOVE_TO_GOAL, allow_state_change_7);
+    	        			set_state(MOVE_TO_GOAL, allow_state_change_POSITION_EDGE);
     	        		}
     	        		// Else, check for obstacles and free path and check confidence that an obstacle is there or that the path is free
     	        		else
@@ -2140,7 +2142,7 @@ void wedgebug_periodic(){
     	    			if(is_edge_found_macro_flag)
     	    			{
     	    				printf("Edge has been found\n");
-    	    				set_state(MOVE_TO_EDGE, allow_state_change_9);
+    	    				set_state(MOVE_TO_EDGE, allow_state_change_EDGE_SCAN);
     	    			}
     	    			else if (is_no_edge_found_flag)
     	    			{
