@@ -1334,132 +1334,7 @@ void wedgebug_periodic(){
 
 
 
-	// Checking is state was changed, if yes then all glas are reset and the is_state_changed_flag
-	// is set to 1 for this cycle only. Else, the  is_state_changed_flag is set to 0 again;
-	if (current_state != previous_state)
-	{
-		// Setting flag signifying that the state was changed
-		is_state_changed_flag = 1;
-		// Reset flags
-		is_start_reached_flag = 0;				// Set to 1 if start position is reached, 0 otherwise
-		is_setpoint_reached_flag = 0;			// Set to 1 if setpoint is reached, 0 otherwise
-		is_obstacle_detected_flag = 0;			// Set to 1 if obstacle is detected, 0 otherwise
-		is_path_free_flag = 0;					// Set to 1 if no obstacle is detected, 0 otherwise
-		is_heading_reached_flag = 0;			// Set to 1 if heading is reached, 0 otherwise
-		is_edge_found_macro_flag = 0; 			// Set to 1 if best edge (according to macro confidence) was found, 0 otherwise
-		is_edge_found_micro_flag = 0; 			// Set to 1 if best edge (according to micro confidence) was found, 0 otherwise
-		is_no_edge_found_flag = 0;				// Set to 1 if no edge was identified, 0 otherwise
-		initial_heading.initiated = 0; 			// 0 = it can be overwritten
-		initial_heading.is_left_reached_flag = 0;// The scan has not reached the left maximum angle yet
-		initial_heading.is_right_reached_flag = 0;// The scan has not reached the right maximum angle yet
-		distance_robot_edge_goal = 99999; //
-	}
-	else if(is_state_changed_flag != 0)
-	{
-		is_state_changed_flag = 0;
-	}
 
-
-
-
-	//printf("mode = %d\n", autopilot_get_mode());
-
-
-
-
-	if ((current_state != 0) && (current_state != POSITION_INITIAL) && (current_state != MOVE_TO_START) && (current_state != POSITION_START)&& (current_state != POSITION_GOAL))
-	{
-
-
-
-		// Recording current time
-		clock_total_time_current = clock();
-		//printf("clock_total_time_current = %f\n", (double)clock_total_time_current);
-		// In case we are in the position start state and the state has changed, initialize clock_total_time_previous
-		if ((current_state == MOVE_TO_GOAL) && is_state_changed_flag && ((previous_state == POSITION_START) || (previous_state == MOVE_TO_START)))
-		{
-			printf("Metric 1 was started\n");
-			//printf("clock_total_time_current set = %f\n", (double)clock_total_time_current);
-			clock_total_time_previous = clock_total_time_current;
-		}
-		//Else check time difference to previous cycle and add to clock_total_time
-		else
-		{
-			clock_total_time = clock_total_time + (clock_total_time_current - clock_total_time_previous);
-			clock_total_time_previous = clock_total_time_current;
-			//printf("clock_total_time_previous = %f\n", (double)clock_total_time_previous);
-		}
-	}
-
-
-	// Initializing previous_state variable for next cycle
-	// This happens here and not above as the metric above depends on the previous state
-	previous_state = current_state;
-
-
-	// ############ Metric 2 - Distance traveled (total)
-	// If the current state is not 0 (default) and position initial and move to start and position goal, record distance traveled
-	if ((current_state != 0) && (current_state != POSITION_INITIAL) && (current_state != MOVE_TO_START) && (current_state != POSITION_START) && (current_state != POSITION_GOAL))
-	{
-		//printf("\n\nSate change!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
-		distance_traveled = distance_traveled + float_vect3_norm_two_points(&VDISTANCEPOSITIONwned, &VRwned);
-
-		VDISTANCEPOSITIONwned.x = VRwned.x;
-		VDISTANCEPOSITIONwned.y = VRwned.y;
-		VDISTANCEPOSITIONwned.z = VRwned.z;
-	}
-
-	// ############ Metric 3 - Runtime average of background processes (see below) - Start:
-	clock_t clock_background_processes; // Creating variable to hold time (number of cycles)
-	clock_background_processes = clock(); // Saving current time, way below it is used to calculate time spent in a cycle
-	counter_cycles++; // Counting how many times a state was activated (needed for average calculation)
-
-
-	//Background processes
-	// 1. Converting left and right image to 8bit grayscale for further processing
-	image_to_grayscale(&img_left, &img_left_int8); // Converting left image from UYVY to gray scale for saving function
-	image_to_grayscale(&img_right, &img_right_int8); // Converting right image from UYVY to gray scale for saving function
-
-
-
-	// 2. Deriving disparity map from block matching (left image is reference image)
-	SBM_OCV(&img_depth_int8_cropped, &img_left_int8, &img_right_int8, N_disparities, block_size_disparities, 1);// Creating cropped disparity map image
-
-
-	/*
-	// Optional thresholding of disparity map
-	uint8_t thresh = 1;
-	for (int32_t i = 0; i < (img_depth_int8_cropped.h*img_depth_int8_cropped.w); i++)
-	{
-		uint8_t disparity = ((uint8_t*)img_depth_int8_cropped)[i];
-		if(disparity < thresh)
-		{
-			((uint8_t*)img_depth_int8_cropped)[i] = 0; // if below disparity assume object is indefinately away
-		}
-	}*/
-
-
-	// 3. Morphological operations 1
-	// Needed to smoove object boundaries and to remove noise removing noise
-	opening_OCV(&img_depth_int8_cropped, &img_middle_int8_cropped, SE_opening_OCV, 1);
-	closing_OCV(&img_middle_int8_cropped, &img_middle_int8_cropped, SE_closing_OCV, 1);
-	dilation_OCV(&img_middle_int8_cropped, &img_middle_int8_cropped,SE_dilation_OCV_1, 1);
-
-	// 4. Sobel edge detection
-	sobel_OCV(&img_middle_int8_cropped, &img_edges_int8_cropped, SE_sobel_OCV, threshold_edge_magnitude);
-
-
-
-
-
-	// ############ Metric 3 - Runtime average of background processes (see below) - End:
-	clock_background_processes = clock_background_processes + (clock() - clock_background_processes);;
-
-
-	// ############ Metric 4 - Runtime average per state - Start:
-	clock_t clock_FSM; // Creating variable to hold time (number of cycles)
-	clock_FSM = clock(); // Saving current time, way below it is used to calculate time spent in a cycle
-    counter_state[current_state]++; // Counting how many times a state was activated (needed for average calculation). This is done here as state may change in FSM
 
 
 
@@ -1499,6 +1374,147 @@ void wedgebug_periodic(){
     case AUTONOMOUS_GUIDED:
     {
     	printf("AUTONOMOUS_GUIDED = %d\n", AUTONOMOUS_GUIDED);
+
+    	// Checking is state was changed, if yes then all glas are reset and the is_state_changed_flag
+    	// is set to 1 for this cycle only. Else, the  is_state_changed_flag is set to 0 again;
+    	if (current_state != previous_state)
+    	{
+    		// Setting flag signifying that the state was changed
+    		is_state_changed_flag = 1;
+    		// Reset flags
+    		is_start_reached_flag = 0;				// Set to 1 if start position is reached, 0 otherwise
+    		is_setpoint_reached_flag = 0;			// Set to 1 if setpoint is reached, 0 otherwise
+    		is_obstacle_detected_flag = 0;			// Set to 1 if obstacle is detected, 0 otherwise
+    		is_path_free_flag = 0;					// Set to 1 if no obstacle is detected, 0 otherwise
+    		is_heading_reached_flag = 0;			// Set to 1 if heading is reached, 0 otherwise
+    		is_edge_found_macro_flag = 0; 			// Set to 1 if best edge (according to macro confidence) was found, 0 otherwise
+    		is_edge_found_micro_flag = 0; 			// Set to 1 if best edge (according to micro confidence) was found, 0 otherwise
+    		is_no_edge_found_flag = 0;				// Set to 1 if no edge was identified, 0 otherwise
+    		initial_heading.initiated = 0; 			// 0 = it can be overwritten
+    		initial_heading.is_left_reached_flag = 0;// The scan has not reached the left maximum angle yet
+    		initial_heading.is_right_reached_flag = 0;// The scan has not reached the right maximum angle yet
+    		distance_robot_edge_goal = 99999; //
+    	}
+    	else if(is_state_changed_flag != 0)
+    	{
+    		is_state_changed_flag = 0;
+    	}
+
+
+
+
+    	//printf("mode = %d\n", autopilot_get_mode());
+
+
+
+
+    	if ((current_state != 0) && (current_state != POSITION_INITIAL) && (current_state != MOVE_TO_START) && (current_state != POSITION_START)&& (current_state != POSITION_GOAL))
+    	{
+
+
+
+    		// ############ Metric 1 - Recording current time
+    		clock_total_time_current = clock();
+    		//printf("clock_total_time_current = %f\n", (double)clock_total_time_current);
+    		// In case we are in the position start state and the state has changed, initialize clock_total_time_previous
+    		if ((current_state == MOVE_TO_GOAL) && is_state_changed_flag && ((previous_state == POSITION_START) || (previous_state == MOVE_TO_START)))
+    		{
+    			printf("Metric 1 was started\n");
+    			//printf("clock_total_time_current set = %f\n", (double)clock_total_time_current);
+    			clock_total_time_previous = clock_total_time_current;
+    		}
+    		//Else check time difference to previous cycle and add to clock_total_time
+    		else
+    		{
+    			clock_total_time = clock_total_time + (clock_total_time_current - clock_total_time_previous);
+    			clock_total_time_previous = clock_total_time_current;
+    			//printf("clock_total_time_previous = %f\n", (double)clock_total_time_previous);
+    		}
+
+
+
+        	// ############ Metric 2 - Distance traveled (total)
+        	// If the current state is not 0 (default) and position initial and move to start and position goal, record distance traveled
+
+
+    		//printf("\n\nSate change!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n");
+    		distance_traveled = distance_traveled + float_vect3_norm_two_points(&VDISTANCEPOSITIONwned, &VRwned);
+
+    		VDISTANCEPOSITIONwned.x = VRwned.x;
+    		VDISTANCEPOSITIONwned.y = VRwned.y;
+    		VDISTANCEPOSITIONwned.z = VRwned.z;
+
+
+    	}
+
+
+    	// Initializing previous_state variable for next cycle
+    	// This happens here and not above as the metric above depends on the previous state
+    	previous_state = current_state;
+
+
+
+
+
+    	// ############ Metric 3 - Runtime average of background processes (see below) - Start:
+    	clock_t clock_background_processes; // Creating variable to hold time (number of cycles)
+    	clock_background_processes = clock(); // Saving current time, way below it is used to calculate time spent in a cycle
+    	counter_cycles++; // Counting how many times a state was activated (needed for average calculation)
+
+
+    	//Background processes
+    	// 1. Converting left and right image to 8bit grayscale for further processing
+    	image_to_grayscale(&img_left, &img_left_int8); // Converting left image from UYVY to gray scale for saving function
+    	image_to_grayscale(&img_right, &img_right_int8); // Converting right image from UYVY to gray scale for saving function
+
+
+
+    	// 2. Deriving disparity map from block matching (left image is reference image)
+    	SBM_OCV(&img_depth_int8_cropped, &img_left_int8, &img_right_int8, N_disparities, block_size_disparities, 1);// Creating cropped disparity map image
+
+
+    	/*
+    	// Optional thresholding of disparity map
+    	uint8_t thresh = 1;
+    	for (int32_t i = 0; i < (img_depth_int8_cropped.h*img_depth_int8_cropped.w); i++)
+    	{
+    		uint8_t disparity = ((uint8_t*)img_depth_int8_cropped)[i];
+    		if(disparity < thresh)
+    		{
+    			((uint8_t*)img_depth_int8_cropped)[i] = 0; // if below disparity assume object is indefinately away
+    		}
+    	}*/
+
+
+    	// 3. Morphological operations 1
+    	// Needed to smoove object boundaries and to remove noise removing noise
+    	opening_OCV(&img_depth_int8_cropped, &img_middle_int8_cropped, SE_opening_OCV, 1);
+    	closing_OCV(&img_middle_int8_cropped, &img_middle_int8_cropped, SE_closing_OCV, 1);
+    	dilation_OCV(&img_middle_int8_cropped, &img_middle_int8_cropped,SE_dilation_OCV_1, 1);
+
+    	// 4. Sobel edge detection
+    	sobel_OCV(&img_middle_int8_cropped, &img_edges_int8_cropped, SE_sobel_OCV, threshold_edge_magnitude);
+
+
+
+
+
+    	// ############ Metric 3 - Runtime average of background processes (see below) - End:
+    	clock_background_processes = clock_background_processes + (clock() - clock_background_processes);;
+
+
+    	// ############ Metric 4 - Runtime average per state - Start:
+    	clock_t clock_FSM; // Creating variable to hold time (number of cycles)
+    	clock_FSM = clock(); // Saving current time, way below it is used to calculate time spent in a cycle
+        counter_state[current_state]++; // Counting how many times a state was activated (needed for average calculation). This is done here as state may change in FSM
+
+
+
+
+
+
+
+
     	switch(current_state)  // Finite state machine - Start
     	    	{
     	    	case POSITION_INITIAL: // 1 ----------------------------------------------
@@ -2150,6 +2166,21 @@ void wedgebug_periodic(){
     	        break;
 
     	    	} // Finite state machine - End
+
+
+
+    	// ############ Metric 4 - Runtime average per state - End:
+    	clock_FSM = clock() - clock_FSM; // Calculating time it took for the FSM to finish running
+        time_state[current_state] += ((double)clock_FSM); // Adding calculated time to total time of current state
+
+
+
+    	printf("Time elapsed since start = %f\n", ((double)clock_total_time) / CLOCKS_PER_SEC);
+    	printf("distance_traveled = %f\n", distance_traveled);
+
+
+
+
     }break;// AUTONOMOUS_GUIDED - End
 
     case AUTONOMOUS_NAV:
@@ -2160,14 +2191,7 @@ void wedgebug_periodic(){
     }
 
 
-	// ############ Metric 4 - Runtime average per state - End:
-	clock_FSM = clock() - clock_FSM; // Calculating time it took for the FSM to finish running
-    time_state[current_state] += ((double)clock_FSM); // Adding calculated time to total time of current state
 
-
-
-	printf("Time elapsed since start = %f\n", ((double)clock_total_time) / CLOCKS_PER_SEC);
-	printf("distance_traveled = %f\n", distance_traveled);
 
 	/*
     // printing flags
