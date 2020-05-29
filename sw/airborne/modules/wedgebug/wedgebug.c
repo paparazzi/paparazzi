@@ -215,8 +215,8 @@ struct ES_angles initial_heading;
 
 
 // Declaring variables for time measurement
-double time_state[NUMER_OF_STATES];	 	// Double array for saving total time (clock cycles) spent in the states (position 0 = state 0 and so on)
-double counter_state[NUMER_OF_STATES];	// A counter to measure the total cycles that each state in the FSM (within the periodic function) went through
+double time_state[NUMBER_OF_STATES];	 	// Double array for saving total time (clock cycles) spent in the states (position 0 = state 0 and so on)
+double counter_state[NUMBER_OF_STATES];	// A counter to measure the total cycles that each state in the FSM (within the periodic function) went through
 double counter_cycles; 					// A counter to measure the total cycles that the periodic function went through
 clock_t clock_total_time; 				// Clock to measure total time (clock cycles)) it took for the robot to fly from start to goal
 clock_t clock_total_time_current; 		// Clock to hold time measured at start of the current cycle of the periodic function
@@ -1192,7 +1192,7 @@ void wedgebug_init(){
 	edge_found_micro_confidence = 0;		// This is the confidence that an edge was found
 	edge_found_macro_confidence = 0;		// This is the confidence that an edge was found
 	no_edge_found_confidence = 0;			// This is the confidence that no edge was found
-	max_obstacle_confidence = 3;			// This is the max confidence that an obstacle was spotted
+	max_obstacle_confidence = 5;			// This is the max confidence that an obstacle was spotted
 	max_free_path_confidence = 10;			// This is the max confidence that an obstacle was not spotted
 	max_position_confidence = 30;			// This is the max confidence that a specific position was reached
 	max_heading_confidence = 5;				// This is the max confidence that a specific heading was reached
@@ -1250,7 +1250,7 @@ void wedgebug_init(){
 	clock_total_time_current = 0; 		// Clock to hold time measured at start of the current cycle of the periodic function
 	clock_total_time_previous = 0; 		// Clock to hold time measured at start of the previous cycle of the periodic function
 	distance_traveled = 0; 					// Variable to hold the distance traveled of the robot (since start and up to the goal)
-	number_of_states = NUMER_OF_STATES;     // Variable to save the total number of states used in the finite state machine
+	number_of_states = NUMBER_OF_STATES;     // Variable to save the total number of states used in the finite state machine
 	distance_robot_edge_goal = 99999; 		// Variable to hold distance from robot to edge to goal (used in EDGE_SCAN (9) state) - initialized with unreasonably high number
 	safety_distance_front = 0.0;			// Safety distance in front of drone (meters), when flying to detected edge (this way the drone does not crash into objects) 0.4 = 2d dimensions of colision zone of robot
 	clock_background_processes = 0;

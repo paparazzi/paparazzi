@@ -74,7 +74,7 @@
       <define name="WEDGEBUG_CAMERA_FOCAL_LENGTH" value  = "112"/>
       <define name="WEDGEBUG_CAMERA_BASELINE" value  = "120"/>
       
-      <define name="NUMER_OF_STATES" value = "10"/>
+      <define name="NUMBER_OF_STATES" value = "10"/>
     </module>
 
 
