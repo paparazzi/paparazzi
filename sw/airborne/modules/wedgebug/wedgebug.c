@@ -145,6 +145,7 @@ uint8_t is_edge_found_macro_flag;	// Set to 1 if best edge (according to macro c
 uint8_t is_edge_found_micro_flag; 	// Set to 1 if best edge (according to micro confidence) was found, 0 otherwise
 uint8_t is_no_edge_found_flag;		// Set to 1 if no edge was identified, 0 otherwise
 uint8_t is_state_changed_flag; 		// Set to 1 if state was changed, 0 otherwise
+uint8_t is_mode_changed_flag;
 
 // Declaring principal points
 struct point_t c_img;				// Principal point of normal camera images
@@ -226,6 +227,7 @@ clock_t clock_total_time_previous; 		// Clock to hold time measured at start of 
 
 // Other declarations
 uint8_t previous_state; 				// Variable that saves previous state the state machine was in, for some memory
+uint8_t previous_mode;
 int N_disparities = 64; 				// Number of disparity levels (0-this number)
 int block_size_disparities = 25;		// Block size used for the block matching (SBM) function
 int min_disparity = 0;//
@@ -1208,6 +1210,7 @@ void wedgebug_init(){
 	is_edge_found_micro_flag = 0; 				// Set to 1 if best edge (according to micro confidence) was found, 0 otherwise
 	is_no_edge_found_flag = 0;				// Set to 1 if no edge was identified, 0 otherwise
 	is_state_changed_flag = 0; 				// Set to 1 if state was changed, 0 otherwise
+	is_mode_changed_flag = 0;
 	initial_heading.is_left_reached_flag = 0;	// The scan has not reached the left maximum angle yet
 	initial_heading.is_right_reached_flag = 0;// The scan has not reached the right maximum angle yet
 
@@ -1241,6 +1244,7 @@ void wedgebug_init(){
 
 	// Other initializations
 	previous_state = 0;						// Variable for state machine memory
+	previous_mode = 0;
 	VDISTANCEPOSITIONwned.x = VSTARTwned.x;	// Initializing a vector to hold the current position, which is needed for calculating the distance traveled
 	VDISTANCEPOSITIONwned.y = VSTARTwned.y;
 	VDISTANCEPOSITIONwned.z = VSTARTwned.z;
@@ -1335,7 +1339,7 @@ void wedgebug_periodic(){
 
 	// Checking is state was changed, if yes then all flags are reset and the is_mode_changed_flag
 	// is set to 1 for this cycle only. Else, the  is_mode_changed_flag is set to 0 again;
-	/*
+
 	if (current_mode != previous_mode)
 	{
 		// Setting flag signifying that the state was changed
@@ -1350,7 +1354,7 @@ void wedgebug_periodic(){
 	if (is_mode_changed_flag == 1){printf("Mode was changed!!!!!!!!!!!!!!!!!!!1\n");}
 	printf("is_mode_changed_flag = %d\n", is_mode_changed_flag);
 
-	previous_mode = current_mode;*/
+	previous_mode = current_mode;
 
 
 
