@@ -1180,7 +1180,7 @@ void wedgebug_init(){
 
 
 	// Setting thresholds
-	threshold_median_disparity = 11; //11		// Above this median disparity, an obstacle is considered to block the way. >60 = close than 35cm
+	threshold_median_disparity = 9; //11		// Above this median disparity, an obstacle is considered to block the way. >60 = close than 35cm
 	threshold_edge_magnitude = 151;//301;  		// Edges with a magnitude above this value are detected. Above this value, edges are given the value 127, otherwise they are given the value zero.
 	threshold_disparity_of_edges = 5; //5		// Above this underlying disparity value, edges are considers eligible for detection
 	threshold_distance_to_goal = 0.25; //0.25		// Above this threshold, the goal is considered reached
@@ -1651,11 +1651,13 @@ void wedgebug_periodic(){
     	        			if(median_disparity_in_front == 0 )
     	        			{
     	        				median_disparity_in_front = (threshold_median_disparity + 1);
+    	        				printf("Median is adjusted\n");
     	        			}
     	        			printf("median_disparity_in_front = %d\n", median_disparity_in_front);
     	        			// If obstacle appears to be detected, increase confidence
-    	        			if ((median_disparity_in_front > threshold_median_disparity) && (float_vect3_norm_two_points(&VGOALwned, &VRwned) > 3)) // NOTE. The second logical operator was added for testing. Delete it after reducing object distance range and integrating the look for edge function
+    	        			if ((median_disparity_in_front > threshold_median_disparity))// && (float_vect3_norm_two_points(&VGOALwned, &VRwned) > 3)) // NOTE. The second logical operator was added for testing. Delete it after reducing object distance range and integrating the look for edge function
     	        			{
+    	        				printf("Increasing confidence\n");
     	        				obstacle_confidence++;
     	        				Bound(obstacle_confidence, 0, max_obstacle_confidence);
     	        			}

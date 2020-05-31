@@ -1,0 +1,25 @@
+<?xml version='1.0'?>
+<sdf version='1.4'>
+  <model name="aluminum _bar_1">
+    <static>true</static>
+    <pose>0 0 0 0 0 0</pose>
+
+    <link name="aluminum _bar_1">
+      <visual name="aluminum_bar_1">
+        <geometry>
+          <mesh>
+            <uri>model://aluminum_bar_1/aluminum_bar_1.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <collision name="aluminum_bar_1">
+        <geometry>
+          <mesh>
+            <uri>model://aluminum_bar_1/aluminum_bar_1.dae</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+
+  </model>
+</sdf>
