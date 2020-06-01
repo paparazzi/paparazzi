@@ -1,0 +1,66 @@
+/*
+ * Copyright (C) 2020 Hector Garcia de Marina <hgarciad@ucm.es>
+ *
+ * This file is part of paparazzi.
+ *
+ * paparazzi is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ *
+ * paparazzi is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * @file modules/guidance/gvf_advanced/trajectories/gvf_advanced_3d_ellipse.h
+ *
+ * Guiding vector field algorithm for 2D and 3D complex trajectories.
+ * 
+ * 3D ellipse (intersection between a cylinder and a tilted plane)
+ */
+
+#ifndef GVF_ADVANCED_3D_ELLIPSE_H
+#define GVF_ADVANCED_3D_ELLIPSE_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <Eigen/Dense>
+#include "modules/guidance/gvf_advanced/gvf_advanced.h"
+
+/** @typedef gvf_3d_ell_par
+* @brief Parameters for the GVF advanced 3D ellipse
+* @param kx Gain defining how agressive is the vector field in x coordinate
+* @param ky Gain defining how agressive is the vector field in y coordinate
+* @param kz Gain defining how agressive is the vector field in z coordinate
+* @param r Radius of the cylinder in meters
+* @param zl Altitude of the lowest point of the ellipse
+* @param zh Altitude of the highest point of the ellipse
+* @param alpha Heading of the lowest point zl in rads
+*/
+typedef struct {
+    float kx;
+    float ky;
+    float kz;
+    float r;
+    float zl;
+    float zh;
+    float alpha;
+} gvf_3d_ell_par;
+
+extern gvf_3d_ell_par gvf_3d_ellipse_par;
+extern void gvf_3d_ellipse_info(Eigen::VectorXd, Eigen::MatrixXd);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // GVF_ADVANCED_3D_ELLIPSE_H

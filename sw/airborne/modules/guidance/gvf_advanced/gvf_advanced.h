@@ -31,11 +31,26 @@
 extern "C" {
 #endif
 
+// Parameters for the trajectories
+
+enum trajectories_advanced {
+    ELLIPSE_3D = 0,
+    NONE_ADVANCED = 255,
+};
+
+typedef struct {
+    enum trajectories_advanced type;
+    float p_advanced[16];
+} gvf_advanced_tra;
+
+extern gvf_advanced_tra gvf_advanced_trajectories;
+
 // Init function
 extern void gvf_advanced_init(void);
 
-void gvf_advanced_control_2D(void);
-void gvf_advanced_control_3D(void);
+// Abstract control routines
+void gvf_advanced_control_2D(uint32_t);
+void gvf_advanced_control_3D(uint32_t);
 
 // 3D Ellipse
 extern bool gvf_advanced_3D_ellipse(void);

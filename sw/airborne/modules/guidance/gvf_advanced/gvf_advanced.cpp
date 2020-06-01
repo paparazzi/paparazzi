@@ -25,28 +25,43 @@
  */
 
 #include <std.h>
+#include <iostream>
+#include <Eigen/Dense>
+
+#include "gvf_advanced.h"
+#include "./trajectories/gvf_advanced_3d_ellipse.h"
 
 #include "subsystems/datalink/telemetry.h"
-#include "gvf_advanced.h"
 #include "autopilot.h"
 #include "std.h"
 
 uint32_t t0 = 0; // We need it for calculting the time lapse delta_T
+
+// Needed for the GVF calculations
+Eigen::VectorXd Xi2d(3);
+Eigen::VectorXd Xi3d(4);
+Eigen::MatrixXd J2d(3,3);
+Eigen::MatrixXd J3d(4,3);
 
 void gvf_advanced_init(void)
 {
 
 }
 
-void gvf_advanced_control_2D(void)
+void gvf_advanced_control_2D(uint32_t delta_T)
 {
+    if(delta_T > 300) // We need at least two iterations for Delta_T
+        return;
 
 }
 
-void gvf_advanced_control_3D(void)
+void gvf_advanced_control_3D(uint32_t delta_T)
 {
-
+    if(delta_T > 300) // We need at least two iterations for Delta_T
+        return;
 }
+
+// 3D ELLIPSE
 
 bool gvf_advanced_3D_ellipse(void)
 {
@@ -54,7 +69,7 @@ bool gvf_advanced_3D_ellipse(void)
   uint32_t delta_T = now - t0;
   t0 = now;
 
-  gvf_advanced_control_3D();
+  gvf_advanced_control_3D(delta_T);
 
   return true;
 }
