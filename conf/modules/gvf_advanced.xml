@@ -1,0 +1,26 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="gvf_advanced" dir="guidance/gvf_advanced">
+  <doc>
+    <description>Guidance algorithm for tracking 2D and 3D smooth trajectories. This algorithm can track self-intersected paths (such as 8-shape). "Advanced" does not mean better but it deals with more complicated trajectories, if you are interested in 2D trajectories that are parallel to the ground, please, use the gvf_module since it works fantastic for such a case. For more details we refer to https://wiki.paparazziuav.org/wiki/Module/guidance_vector_field . This algorithm needs of Eigen library, be sure you have it installed, e.g., git submodule update --init --recursive sw/ext/eigen .
+    </description>
+  </doc>
+
+  <header>
+    <file name="gvf_advanced.h"/>
+  </header>
+
+  <init fun = "gvf_advanced_init()"/>
+
+  <makefile target="ap|nps" firmware="fixedwing">
+    <include name="$(PAPARAZZI_SRC)/sw/ext/eigen"/>
+    <file name="gvf_advanced.c"/>
+    <flag name="LDFLAGS" value="lstdc++" />
+    <define name="EIGEN_NO_MALLOC"/>
+    <define name="EIGEN_NO_AUTOMATIC_RESIZING"/>
+  </makefile>
+
+  <makefile target="ap" firmware="fixedwing">
+    <define name="EIGEN_NO_DEBUG"/>
+  </makefile>
+</module>
