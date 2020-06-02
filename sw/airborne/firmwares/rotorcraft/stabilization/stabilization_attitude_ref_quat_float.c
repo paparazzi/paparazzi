@@ -46,7 +46,7 @@ static const float zeta_q[] = STABILIZATION_ATTITUDE_REF_ZETA_Q;
 static const float omega_r[] = STABILIZATION_ATTITUDE_REF_OMEGA_R;
 static const float zeta_r[] = STABILIZATION_ATTITUDE_REF_ZETA_R;
 
-static inline void reset_psi_ref(struct AttRefQuatFloat *ref, float psi);
+static inline void reset_ref(struct AttRefQuatFloat *ref, struct FloatEulers *state_euler);
 
 /*
  *
@@ -77,9 +77,9 @@ void attitude_ref_quat_float_init(struct AttRefQuatFloat *ref)
   ref->cur_idx = 0;
 }
 
-void attitude_ref_quat_float_enter(struct AttRefQuatFloat *ref, float psi)
+void attitude_ref_quat_float_enter(struct AttRefQuatFloat *ref, struct FloatEulers *state_euler)
 {
-  reset_psi_ref(ref, psi);
+  reset_ref(ref, state_euler);
 }
 
 
@@ -136,9 +136,9 @@ void attitude_ref_quat_float_update(struct AttRefQuatFloat *ref, struct FloatQua
  * Local helper functions.
  *
  */
-static inline void reset_psi_ref(struct AttRefQuatFloat *ref, float psi)
+static inline void reset_ref(struct AttRefQuatFloat *ref, struct FloatEulers *state_euler)
 {
-  ref->euler.psi = psi;
+  EULERS_COPY(ref->euler, *state_euler);
   ref->rate.r = 0;
   ref->accel.r = 0;
 

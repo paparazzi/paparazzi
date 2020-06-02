@@ -192,7 +192,9 @@ void stabilization_attitude_enter(void)
   /* reset psi setpoint to current psi angle */
   stab_att_sp_euler.psi = stabilization_attitude_get_heading_f();
 
-  attitude_ref_quat_float_enter(&att_ref_quat_f, stab_att_sp_euler.psi);
+  struct FloatEulers *state_euler = stateGetNedToBodyEulers_f();
+
+  attitude_ref_quat_float_enter(&att_ref_quat_f, state_euler);
 
   float_quat_identity(&stabilization_att_sum_err_quat);
 }
