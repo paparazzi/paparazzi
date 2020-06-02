@@ -76,6 +76,13 @@ struct image_t img_depth_int8_cropped;	// Image obtained after image is cropped,
 struct image_t img_middle_int8_cropped;	// Image obtained after processing (morphological operations) of previous image
 struct image_t img_edges_int8_cropped;	// Image obtained from the external sobel edge detection function = sobel_OCV
 
+// Declaring images for report
+struct image_t img_post_SBM;			// For report: Image saved after block matching operation
+struct image_t img_post_opening;		// For report: Image saved after opening operation
+struct image_t img_post_closing;		// For report: Image saved after closing operation
+struct image_t img_post_dilation;		// For report: Image saved after dilation operation
+struct image_t img_post_sobel;			// For report: Image saved after Sobel operation
+
 // Declaring crop_t structure for information about the cropped image (after BM)
 struct crop_t img_cropped_info;
 
@@ -147,6 +154,7 @@ uint8_t is_edge_found_micro_flag; 	// Set to 1 if best edge (according to micro 
 uint8_t is_no_edge_found_flag;		// Set to 1 if no edge was identified, 0 otherwise
 uint8_t is_state_changed_flag; 		// Set to 1 if state was changed, 0 otherwise
 uint8_t is_mode_changed_flag;
+uint8_t save_images_flag; 			// For report: Flag to indicate if images should be saved
 
 // Declaring principal points
 struct point_t c_img;				// Principal point of normal camera images
@@ -238,6 +246,7 @@ float distance_traveled;				// Variable to hold the distance traveled of the rob
 uint8_t number_of_states;				// Variable to save the total number of states used in the finite state machine
 float distance_robot_edge_goal;			// Variable to hold distance from robot to edge to goal (used in EDGE_SCAN (9) state)
 float safety_distance_front;			// Safety distance in front of drone (meters), when flying to detected edge (this way the drone does not crash into objects)
+int heat_map_type;
 
 
 // For debugging purpose. Allows for changing of state in simulation if 1. If 0, does not allow for state change. Useful if you want to execute only one state repeatedly
@@ -260,10 +269,12 @@ float threshold_distance_to_goal_manual;
 
 
 // New section: Functions - Declaration ----------------------------------------------------------------------------------------------------------------
+
 // Supporting
 const char* get_img_type(enum image_type img_type); // Function 1: Displays image type
 void show_image_data(struct image_t *img); // Function 2: Displays image data
 void show_image_entry(struct image_t *img, int entry_position, const char *img_name); // Function 3: Displays pixel value of image
+void show_rotation_matrix(struct FloatRMat *R);
 
 // External
 void post_disparity_crop_rect(struct crop_t *img_cropped_info,struct img_size_t *original_img_dims, const int disp_n, const int block_size);
@@ -303,7 +314,7 @@ uint8_t is_setpoint_reached(struct FloatVect3 *VGOAL, struct FloatVect3 *VCURREN
 float float_norm_two_angles(float target_angle, float current_angle);
 uint8_t is_heading_reached(float target_angle, float current_angle, float threshold);
 uint8_t are_setpoint_and_angle_reached(struct FloatVect3 *VGOAL, struct FloatVect3 *VCURRENTPOSITION, float threshold_setpoint, float target_angle, float current_angle, float threshold_angle);
-
+void background_processes(uint8_t save_images_flag);
 
 
 
@@ -351,6 +362,10 @@ void show_rotation_matrix(struct FloatRMat *R)
 	printf(" [%f, %f, %f]]\n", R->m[6], R->m[7], R->m[8]);
 
 }
+
+
+
+
 
 // External:
 
@@ -1055,6 +1070,58 @@ uint8_t are_setpoint_and_angle_reached(
 }
 
 
+// Function 23  - Function that encapsulates all of the background processes. Originally this was in the periodic function,
+// but since it is used in the direct and the guidance navigation modes of the state machine, I made it a callable function
+// for convenience
+void background_processes(uint8_t save_images_flag)
+{
+	//Background processes
+	// 1. Converting left and right image to 8bit grayscale for further processing
+	image_to_grayscale(&img_left, &img_left_int8); // Converting left image from UYVY to gray scale for saving function
+	image_to_grayscale(&img_right, &img_right_int8); // Converting right image from UYVY to gray scale for saving function
+
+	// 2. Deriving disparity map from block matching (left image is reference image)
+	SBM_OCV(&img_depth_int8_cropped, &img_left_int8, &img_right_int8, N_disparities, block_size_disparities, 1);// Creating cropped disparity map image
+
+	// For report: creating image for saving 1
+	if (save_images_flag){image_copy(&img_depth_int8_cropped, &img_post_SBM);}
+
+	/*
+	// Optional thresholding of disparity map
+	uint8_t thresh = 1;
+	for (int32_t i = 0; i < (img_depth_int8_cropped.h*img_depth_int8_cropped.w); i++)
+	{
+		uint8_t disparity = ((uint8_t*)img_depth_int8_cropped)[i];
+		if(disparity < thresh)
+		{
+			((uint8_t*)img_depth_int8_cropped)[i] = 0; // if below disparity assume object is indefinately away
+		}
+	}*/
+
+	// 3. Morphological operations 1
+	// Needed to smoove object boundaries and to remove noise removing noise
+	opening_OCV(&img_depth_int8_cropped, &img_middle_int8_cropped, SE_opening_OCV, 1);
+
+	// For report: creating image for saving 2
+	if (save_images_flag){image_copy(&img_middle_int8_cropped, &img_post_opening);}
+
+	closing_OCV(&img_middle_int8_cropped, &img_middle_int8_cropped, SE_closing_OCV, 1);
+
+	// For report: creating image for saving 3
+	if (save_images_flag){image_copy(&img_middle_int8_cropped, &img_post_closing);}
+
+	dilation_OCV(&img_middle_int8_cropped, &img_middle_int8_cropped,SE_dilation_OCV_1, 1);
+
+	// For report: creating image for saving 4
+	if (save_images_flag){image_copy(&img_middle_int8_cropped, &img_post_dilation);}
+
+	// 4. Sobel edge detection
+	sobel_OCV(&img_middle_int8_cropped, &img_edges_int8_cropped, SE_sobel_OCV, threshold_edge_magnitude);
+
+	// For report: creating image for saving 5
+	if (save_images_flag){image_copy(&img_edges_int8_cropped, &img_post_sobel);}
+}
+
 
 /*
  * a: Coordinate system a (i.e. the coordinate frame a)
@@ -1119,6 +1186,13 @@ void wedgebug_init(){
 	image_create(&img_depth_int8_cropped, img_cropped_dims.w, img_cropped_dims.h, IMAGE_GRAYSCALE);// To store cropped depth - 8 bit
 	image_create(&img_middle_int8_cropped,img_cropped_dims.w, img_cropped_dims.h, IMAGE_GRAYSCALE);// To store intermediate image data from processing - 8 bit
 	image_create(&img_edges_int8_cropped,img_cropped_dims.w, img_cropped_dims.h, IMAGE_GRAYSCALE);// To store edges image data from processing - 8 bit
+
+	// Creating empty images - For report
+	image_create(&img_post_SBM, img_cropped_dims.w, img_cropped_dims.h, IMAGE_GRAYSCALE);		// For report: Image saved after block matching operation
+	image_create(&img_post_opening, img_cropped_dims.w, img_cropped_dims.h, IMAGE_GRAYSCALE);	// For report: Image saved after opening operation
+	image_create(&img_post_closing, img_cropped_dims.w, img_cropped_dims.h, IMAGE_GRAYSCALE);	// For report: Image saved after closing operation
+	image_create(&img_post_dilation, img_cropped_dims.w, img_cropped_dims.h, IMAGE_GRAYSCALE);	// For report: Image saved after dilation operation
+	image_create(&img_post_sobel, img_cropped_dims.w, img_cropped_dims.h, IMAGE_GRAYSCALE);		// For report: Image saved after Sobel operation
 
 
 
@@ -1217,9 +1291,10 @@ void wedgebug_init(){
 	initial_heading.is_left_reached_flag = 0;	// The scan has not reached the left maximum angle yet
 	initial_heading.is_right_reached_flag = 0;// The scan has not reached the right maximum angle yet
 
-
 	is_total_timer_on_flag = 0;
 	threshold_distance_to_goal_manual = 0.5;
+
+	save_images_flag = 0; 			// For report: Flag to indicate if images should be saved
 
 
 
@@ -1258,7 +1333,23 @@ void wedgebug_init(){
 	safety_distance_front = 0.0;			// Safety distance in front of drone (meters), when flying to detected edge (this way the drone does not crash into objects) 0.4 = 2d dimensions of colision zone of robot
 	clock_background_processes = 0;
 	clock_FSM = 0;
+	heat_map_type = 9; // Heat map used when saving image
 
+	/*
+	 * Heat maps:
+	 * 0 = COLORMAP_AUTUMN
+	 * 1 = COLORMAP_BONE
+	 * 2 = COLORMAP_JET
+	 * 3 = COLORMAP_WINTER
+	 * 4 = COLORMAP_RAINBOW
+	 * 5 = COLORMAP_OCEAN
+	 * 6 = COLORMAP_SUMMER
+	 * 7 = COLORMAP_SPRING
+	 * 8 = COLORMAP_COOL
+	 * 9 = COLORMAP_HSV
+	 * 10 = COLORMAP_PINK
+	 * 11 = COLORMAP_HOT
+			 */
 
 	/*
 	enum navigation_state {
@@ -1398,6 +1489,10 @@ void wedgebug_periodic(){
     	struct FloatVect3 VR2dwned = {.x = VRwned.x, .y = VRwned.y, .z = VGOALwned.z};
 
 
+		// Background processes - Includes image processing for use
+    	// Turn on for debugging
+		background_processes(save_images_flag);
+
 
     	switch(current_state)  // Finite state machine - Start
     	{
@@ -1455,17 +1550,12 @@ void wedgebug_periodic(){
     	printf("Time elapsed since start = %f\n", (((double)clock()) - ((double)clock_total_time_current)) / CLOCKS_PER_SEC);
     	printf("distance_traveled = %f\n", distance_traveled);
 
-
-
-
-
-
-
-
-
-
-
     }break;// DIRECT_CONTROL - End
+
+
+
+
+
 
     case AUTONOMOUS_GUIDED:
     {
@@ -1536,40 +1626,9 @@ void wedgebug_periodic(){
     		counter_cycles++; // Counting how many times a state was activated (needed for average calculation)
 
 
-    		//Background processes
-    		// 1. Converting left and right image to 8bit grayscale for further processing
-    		image_to_grayscale(&img_left, &img_left_int8); // Converting left image from UYVY to gray scale for saving function
-    		image_to_grayscale(&img_right, &img_right_int8); // Converting right image from UYVY to gray scale for saving function
 
-
-
-    		// 2. Deriving disparity map from block matching (left image is reference image)
-    		SBM_OCV(&img_depth_int8_cropped, &img_left_int8, &img_right_int8, N_disparities, block_size_disparities, 1);// Creating cropped disparity map image
-
-
-    		/*
-    		// Optional thresholding of disparity map
-    		uint8_t thresh = 1;
-    		for (int32_t i = 0; i < (img_depth_int8_cropped.h*img_depth_int8_cropped.w); i++)
-    		{
-    			uint8_t disparity = ((uint8_t*)img_depth_int8_cropped)[i];
-    			if(disparity < thresh)
-    			{
-    				((uint8_t*)img_depth_int8_cropped)[i] = 0; // if below disparity assume object is indefinately away
-    			}
-    		}*/
-
-
-    		// 3. Morphological operations 1
-    		// Needed to smoove object boundaries and to remove noise removing noise
-    		opening_OCV(&img_depth_int8_cropped, &img_middle_int8_cropped, SE_opening_OCV, 1);
-    		closing_OCV(&img_middle_int8_cropped, &img_middle_int8_cropped, SE_closing_OCV, 1);
-    		dilation_OCV(&img_middle_int8_cropped, &img_middle_int8_cropped,SE_dilation_OCV_1, 1);
-
-    		// 4. Sobel edge detection
-    		sobel_OCV(&img_middle_int8_cropped, &img_edges_int8_cropped, SE_sobel_OCV, threshold_edge_magnitude);
-
-
+    		// Background processes - Includes image processing for use
+    		background_processes(save_images_flag);
 
 
     		// ############ Metric 3 - Runtime average of background processes (see below) - End:
@@ -2270,11 +2329,47 @@ void wedgebug_periodic(){
 
 	save_image_gray(&img_left_int8, "/home/dureade/Documents/paparazzi_images/img_left_int8.bmp");
 	save_image_gray(&img_right_int8, "/home/dureade/Documents/paparazzi_images/img_right_int8.bmp");
-	save_image_gray(&img_depth_int8_cropped, "/home/dureade/Documents/paparazzi_images/img_depth_int8_cropped.bmp");
+	save_image_HM(&img_depth_int8_cropped, "/home/dureade/Documents/paparazzi_images/img_depth_int8_cropped.bmp", heat_map_type);
 	//save_image_gray(&img_left_int8_cropped, "/home/dureade/Documents/paparazzi_images/img_left_int8_cropped.bmp");
-	save_image_gray(&img_middle_int8_cropped, "/home/dureade/Documents/paparazzi_images/img_middle_int8_cropped.bmp");
+	save_image_HM(&img_middle_int8_cropped, "/home/dureade/Documents/paparazzi_images/img_middle_int8_cropped.bmp", heat_map_type);
 	save_image_gray(&img_edges_int8_cropped, "/home/dureade/Documents/paparazzi_images/img_edges_int8_cropped.bmp");
 
+
+
+	// For report: Saving images
+
+	if (save_images_flag)
+	{
+		//save_image_color(&img_left, "/home/dureade/Documents/paparazzi_images/for_report/img_left.bmp");
+		//save_image_color(&img_right, "/home/dureade/Documents/paparazzi_images/for_report/img_left.bmp");
+
+		save_image_HM(&img_post_SBM, "/home/dureade/Documents/paparazzi_images/for_report/img_post_SBM.bmp", heat_map_type);
+		save_image_HM(&img_post_opening, "/home/dureade/Documents/paparazzi_images/for_report/img_post_opening.bmp", heat_map_type);
+		save_image_HM(&img_post_closing, "/home/dureade/Documents/paparazzi_images/for_report/img_post_closing.bmp", heat_map_type);
+		save_image_HM(&img_post_dilation, "/home/dureade/Documents/paparazzi_images/for_report/img_post_dilation.bmp", heat_map_type);
+		save_image_gray(&img_post_sobel, "/home/dureade/Documents/paparazzi_images/for_report/img_post_sobel.bmp");
+
+	}
+
+
+
+
+
+	/*
+	 * Heat maps:
+	 * 0 = COLORMAP_AUTUMN
+	 * 1 = COLORMAP_BONE
+	 * 2 = COLORMAP_JET
+	 * 3 = COLORMAP_WINTER
+	 * 4 = COLORMAP_RAINBOW
+	 * 5 = COLORMAP_OCEAN
+	 * 6 = COLORMAP_SUMMER
+	 * 7 = COLORMAP_SPRING
+	 * 8 = COLORMAP_COOL
+	 * 9 = COLORMAP_HSV
+	 * 10 = COLORMAP_PINK
+	 * 11 = COLORMAP_HOT
+	 */
 
 
 }

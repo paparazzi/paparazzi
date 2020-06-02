@@ -69,6 +69,7 @@ extern uint8_t threshold_disparity_of_edges; 		// Above this underlying disparit
 extern float threshold_distance_to_goal; 		// Above this threshold, the goal is considered reached
 extern float threshold_distance_to_angle;	// Above this threshold, the angle/heading is considered reached
 extern float safety_distance_front;
+extern int heat_map_type; // Heat map used when saving image
 
 
 
@@ -78,6 +79,7 @@ extern void set_state(uint8_t state, uint8_t change_allowed);
 extern void kernel_create(struct kernel_C1 *kernel, uint16_t width, uint16_t height);
 extern void kernel_free(struct kernel_C1 *kernel);
 extern uint8_t getMedian(uint8_t *a, uint32_t n);
+extern int heat_map_type;
 
 
 

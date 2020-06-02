@@ -70,7 +70,9 @@ int save_image_gray(struct image_t *img, char *myString)
 	else if (img->type == IMAGE_GRAYSCALE)
 	{
 		Mat M(img->h, img->w, CV_8UC1, img->buf);
-		imwrite(myString, M);
+
+
+		imwrite(myString,M);
 	}
 	else
 	{
@@ -82,10 +84,10 @@ int save_image_gray(struct image_t *img, char *myString)
 
 
 
-int save_image_color(void *img, int width, int height,char *myString)
+int save_image_color(struct image_t *img, char *myString)
 {
 	// Create a new image, using the original bebop image.
-	Mat M(height, width, CV_8UC2, img); // CV_8UC2 is the openCV format for UYVY images
+	Mat M(img->h, img->w, CV_8UC2, img->buf); // CV_8UC2 is the openCV format for UYVY images
 	// Definition of Mat: Mat::Mat(int _rows, int _cols, int _type, void* _data, size_t _step)
 	// Remember that void takes any data type including char
 	Mat image;
@@ -101,6 +103,59 @@ int save_image_color(void *img, int width, int height,char *myString)
 	//std::cout << "Left1: Min=" << minVal << "; Max=" << maxVal << std::endl;
   return 0;
 }
+
+
+int save_image_HM(struct image_t *img, char *myString, int const heatmap)
+{
+	{
+		// Create a new image, using the original bebop image.
+
+		/*
+		 * Heat maps:
+		 * 0 = COLORMAP_AUTUMN
+		 * 1 = COLORMAP_BONE
+		 * 2 = COLORMAP_JET
+		 * 3 = COLORMAP_WINTER
+		 * 4 = COLORMAP_RAINBOW
+		 * 5 = COLORMAP_OCEAN
+		 * 6 = COLORMAP_SUMMER
+		 * 7 = COLORMAP_SPRING
+		 * 8 = COLORMAP_COOL
+		 * 9 = COLORMAP_HSV
+		 * 10 = COLORMAP_PINK
+		 * 11 = COLORMAP_HOT
+		 */
+
+
+		if (img->type == IMAGE_OPENCV_DISP )
+		{
+			Mat M(img->h, img->w, CV_16SC1, img->buf);
+			Mat M_output;
+
+			applyColorMap(M, M_output, heatmap);
+
+			imwrite(myString, M);
+
+		}
+		else if (img->type == IMAGE_GRAYSCALE)
+		{
+			Mat M(img->h, img->w, CV_8UC1, img->buf);
+			Mat M_output;
+
+			applyColorMap(M, M_output, heatmap);
+
+			imwrite(myString, M_output);
+		}
+		else
+		{
+			std::cout << "This function only worked with images of type IMAGE_GRAYSCALE and IAMGE_OPENCV_DISP. Leaving function." << std::endl;
+			return -1;
+		}
+	  return 0;
+	}
+
+}
+
 
 
 
@@ -193,7 +248,7 @@ int SBM_OCV(struct image_t *img_disp, const struct image_t *img_left, const stru
 
 			// Test code for saving cropped left image
 			Mat img_left_cropped =img_left_OCV(crop_area);
-			//imwrite("/home/dureade/Documents/paparazzi_images/img_left_int8_cropped.bmp", img_left_cropped);
+			imwrite("/home/dureade/Documents/paparazzi_images/for_report/img_left_int8_cropped.bmp", img_left_cropped);
 
 			for (int i = 0; i < (img_cropped.rows * img_cropped.cols); i++)
 			{
@@ -289,19 +344,11 @@ int sobel_OCV(struct image_t *img_input, const struct image_t *img_output, const
 	Sobel(img_input_OCV, img_grad_x, ddepth, 1, 0, kernel_size, scale, delta, BORDER_DEFAULT ); // Horizontal gradient
 
 
-	imwrite("/home/dureade/Documents/paparazzi_images/img_grad_x.bmp", img_grad_x*-1);
+	//imwrite("/home/dureade/Documents/paparazzi_images/img_grad_x.bmp", img_grad_x*-1);
 	Sobel(img_input_OCV, img_grad_y, ddepth, 0, 1, kernel_size, scale, delta, BORDER_DEFAULT ); // Vertical gradient
-	imwrite("/home/dureade/Documents/paparazzi_images/img_grad_y.bmp", img_grad_y);
-
-
-
-
-
+	//imwrite("/home/dureade/Documents/paparazzi_images/img_grad_y.bmp", img_grad_y);
 	magnitude(img_grad_x, img_grad_y, img_grad_mag); // Calculating magnitude
-
-
-	imwrite("/home/dureade/Documents/paparazzi_images/img_grad_mag.bmp", img_grad_mag);
-
+	//imwrite("/home/dureade/Documents/paparazzi_images/for_report/img_grad_mag.bmp", img_grad_mag);
 	threshold(img_grad_mag, img_grad_mag, thr,  127, THRESH_BINARY);
 
 
