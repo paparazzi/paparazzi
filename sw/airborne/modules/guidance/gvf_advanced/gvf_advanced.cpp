@@ -38,8 +38,8 @@
 uint32_t t0 = 0; // We need it for calculting the time lapse delta_T
 
 // Needed for the GVF calculations
-Eigen::VectorXd Xi2d(3);
-Eigen::VectorXd Xi3d(4);
+Eigen::VectorXd Chi2d(3);
+Eigen::VectorXd Chi3d(4);
 Eigen::MatrixXd J2d(3,3);
 Eigen::MatrixXd J3d(4,3);
 

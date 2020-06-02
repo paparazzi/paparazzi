@@ -16,11 +16,11 @@
     <include name="$(PAPARAZZI_SRC)/sw/ext/eigen"/>
     <file name="gvf_advanced.c"/>
     <flag name="LDFLAGS" value="lstdc++" />
-    <define name="EIGEN_NO_MALLOC"/>
-    <define name="EIGEN_NO_AUTOMATIC_RESIZING"/>
   </makefile>
 
   <makefile target="ap" firmware="fixedwing">
     <define name="EIGEN_NO_DEBUG"/>
+    <define name="EIGEN_NO_MALLOC"/>
+    <define name="EIGEN_NO_AUTOMATIC_RESIZING"/>
   </makefile>
 </module>

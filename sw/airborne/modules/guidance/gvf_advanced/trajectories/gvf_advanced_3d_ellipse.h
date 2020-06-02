@@ -54,10 +54,10 @@ typedef struct {
     float zl;
     float zh;
     float alpha;
-} gvf_3d_ell_par;
+} gvf_adv_3d_ell_par;
 
-extern gvf_3d_ell_par gvf_3d_ellipse_par;
-extern void gvf_3d_ellipse_info(Eigen::VectorXd, Eigen::MatrixXd);
+extern gvf_adv_3d_ell_par gvf_advanced_3d_ellipse_par;
+extern void gvf_advanced_3d_ellipse_info(Eigen::VectorXd, Eigen::MatrixXd);
 
 #ifdef __cplusplus
 }
