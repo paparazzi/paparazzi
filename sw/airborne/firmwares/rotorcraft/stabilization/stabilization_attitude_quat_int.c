@@ -165,9 +165,9 @@ void stabilization_attitude_enter(void)
   /* reset psi setpoint to current psi angle */
   stab_att_sp_euler.psi = stabilization_attitude_get_heading_i();
 
-  int32_t state_psi = stateGetNedToBodyEulers_i()->psi;
+  struct Int32Eulers *state_euler = stateGetNedToBodyEulers_i();
 
-  attitude_ref_quat_int_enter(&att_ref_quat_i, state_psi);
+  attitude_ref_quat_int_enter(&att_ref_quat_i, state_euler);
 
   int32_quat_identity(&stabilization_att_sum_err_quat);
 

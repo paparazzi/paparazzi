@@ -36,7 +36,7 @@
 #define TWO_OMEGA_2_RES 7
 
 
-static inline void reset_psi_ref(struct AttRefQuatInt *ref, int32_t psi);
+static inline void reset_ref(struct AttRefQuatInt *ref, struct Int32Eulers *state_euler);
 static void update_ref_model_p(struct AttRefQuatInt *ref);
 static void update_ref_model_q(struct AttRefQuatInt *ref);
 static void update_ref_model_r(struct AttRefQuatInt *ref);
@@ -75,9 +75,9 @@ void attitude_ref_quat_int_init(struct AttRefQuatInt *ref)
   update_ref_model(ref);
 }
 
-void attitude_ref_quat_int_enter(struct AttRefQuatInt *ref, int32_t psi)
+void attitude_ref_quat_int_enter(struct AttRefQuatInt *ref, struct Int32Eulers *state_euler)
 {
-  reset_psi_ref(ref, psi);
+  reset_ref(ref, state_euler);
 
   int32_quat_of_eulers(&ref->quat, &ref->euler);
   int32_quat_wrap_shortest(&ref->quat);
@@ -159,9 +159,9 @@ void attitude_ref_quat_int_update(struct AttRefQuatInt *ref, struct Int32Quat *s
 }
 
 
-static inline void reset_psi_ref(struct AttRefQuatInt *ref, int32_t psi)
+static inline void reset_ref(struct AttRefQuatInt *ref, struct Int32Eulers *state_euler)
 {
-  ref->euler.psi = psi;
+  EULERS_COPY(ref->euler, *state_euler);
   ref->rate.r = 0;
   ref->accel.r = 0;
 }
