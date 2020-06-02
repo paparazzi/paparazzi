@@ -8,13 +8,15 @@
 
   <header>
     <file name="gvf_advanced.h"/>
+    <file name="trajectories/gvf_advanced_3d_ellipse.h"/>
   </header>
 
   <init fun = "gvf_advanced_init()"/>
 
   <makefile target="ap|nps" firmware="fixedwing">
     <include name="$(PAPARAZZI_SRC)/sw/ext/eigen"/>
-    <file name="gvf_advanced.c"/>
+    <file name="gvf_advanced.cpp"/>
+    <file name="trajectories/gvf_advanced_3d_ellipse.c"/>
     <flag name="LDFLAGS" value="lstdc++" />
   </makefile>
 

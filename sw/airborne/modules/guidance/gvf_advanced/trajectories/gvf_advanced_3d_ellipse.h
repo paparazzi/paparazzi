@@ -33,9 +33,6 @@
 extern "C" {
 #endif
 
-#include <Eigen/Dense>
-#include "modules/guidance/gvf_advanced/gvf_advanced.h"
-
 /** @typedef gvf_3d_ell_par
 * @brief Parameters for the GVF advanced 3D ellipse
 * @param kx Gain defining how agressive is the vector field in x coordinate
@@ -50,6 +47,7 @@ typedef struct {
     float kx;
     float ky;
     float kz;
+    float ktheta;
     float r;
     float zl;
     float zh;
@@ -57,7 +55,6 @@ typedef struct {
 } gvf_adv_3d_ell_par;
 
 extern gvf_adv_3d_ell_par gvf_advanced_3d_ellipse_par;
-extern void gvf_advanced_3d_ellipse_info(Eigen::VectorXd, Eigen::MatrixXd);
 
 #ifdef __cplusplus
 }

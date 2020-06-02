@@ -24,54 +24,84 @@
  * Guiding vector field algorithm for 2D and 3D complex trajectories.
  */
 
-#include <std.h>
 #include <iostream>
 #include <Eigen/Dense>
 
 #include "gvf_advanced.h"
 #include "./trajectories/gvf_advanced_3d_ellipse.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "subsystems/datalink/telemetry.h"
 #include "autopilot.h"
-#include "std.h"
+
+#ifdef __cplusplus
+}
+#endif
 
 uint32_t t0 = 0; // We need it for calculting the time lapse delta_T
-
-// Needed for the GVF calculations
-Eigen::VectorXd Chi2d(3);
-Eigen::VectorXd Chi3d(4);
-Eigen::MatrixXd J2d(3,3);
-Eigen::MatrixXd J3d(4,3);
+gvf_advanced_tra gvf_advanced_trajectory;
 
 void gvf_advanced_init(void)
 {
 
 }
 
-void gvf_advanced_control_2D(uint32_t delta_T)
+void gvf_advanced_control_2D(float, Eigen::Vector3f *, Eigen::Matrix3f *);
+void gvf_advanced_control_2D(float ktheta, Eigen::Vector3f *Chi2d, Eigen::Matrix3f *J2d)
 {
-    if(delta_T > 300) // We need at least two iterations for Delta_T
-        return;
 
 }
 
-void gvf_advanced_control_3D(uint32_t delta_T)
+void gvf_advanced_control_3D(float, Eigen::Vector4f *, Eigen::Matrix4f *);
+void gvf_advanced_control_3D(float ktheta, Eigen::Vector4f *Chi3d,
+        Eigen::Matrix4f *J3d)
 {
-    if(delta_T > 300) // We need at least two iterations for Delta_T
-        return;
+
 }
 
 // 3D ELLIPSE
 
-bool gvf_advanced_3D_ellipse(void)
+void gvf_advanced_3d_ellipse_info(Eigen::Vector4f *, Eigen::Matrix4f *);
+void gvf_advanced_3d_ellipse_info(Eigen::Vector4f *Chi3d, Eigen::Matrix4f *J3d)
 {
+
+}
+
+bool gvf_advanced_3D_ellipse(float x, float y, float r, float zl, float zh, float alpha)
+{
+  Eigen::Vector4f Chi3d;
+  Eigen::Matrix4f J3d;
+
+  gvf_advanced_trajectory.type = ELLIPSE_3D;
+  gvf_advanced_trajectory.p_advanced[0] = x;
+  gvf_advanced_trajectory.p_advanced[1] = y;
+  gvf_advanced_trajectory.p_advanced[2] = r;
+  gvf_advanced_trajectory.p_advanced[3] = zl;
+  gvf_advanced_trajectory.p_advanced[4] = zh;
+  gvf_advanced_trajectory.p_advanced[5] = alpha;
+
+  // SAFE MODE
+  if (zl > zh)
+    zl = zh;
+  if (zl < 1 || zh < 1){
+    zl = 10;
+    zh = 10;
+  }
+  if (r < 1)
+    r = 60;
+
   uint32_t now = get_sys_time_msec();
   uint32_t delta_T = now - t0;
   t0 = now;
 
-  gvf_advanced_control_3D(delta_T);
+  if(delta_T > 300) // We need at least two iterations for Delta_T
+    return true;
+
+  gvf_advanced_3d_ellipse_info(&Chi3d, &J3d);
+  gvf_advanced_control_3D(gvf_advanced_3d_ellipse_par.ktheta, &Chi3d, &J3d);
 
   return true;
 }
-
-

@@ -31,8 +31,9 @@
 extern "C" {
 #endif
 
-// Parameters for the trajectories
+#include "modules/guidance/gvf_advanced/trajectories/gvf_advanced_3d_ellipse.h"
 
+// Parameters for the trajectories
 enum trajectories_advanced {
     ELLIPSE_3D = 0,
     NONE_ADVANCED = 255,
@@ -43,20 +44,17 @@ typedef struct {
     float p_advanced[16];
 } gvf_advanced_tra;
 
-extern gvf_advanced_tra gvf_advanced_trajectories;
+extern gvf_advanced_tra gvf_advanced_trajectory;
 
 // Init function
 extern void gvf_advanced_init(void);
 
-// Abstract control routines
-void gvf_advanced_control_2D(uint32_t);
-void gvf_advanced_control_3D(uint32_t);
-
 // 3D Ellipse
-extern bool gvf_advanced_3D_ellipse(void);
+extern bool gvf_advanced_3D_ellipse(float, float, float, float, float, float);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // GVF_ADVANCED
+
+#endif // GVF_ADVANCED_H
