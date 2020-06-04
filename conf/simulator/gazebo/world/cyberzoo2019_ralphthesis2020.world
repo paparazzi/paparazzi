@@ -74,12 +74,12 @@
     
    
    
-       <!-- Brick_cube_1
+    <!-- Brick_cube_1 --> 
     <include>
       <uri>model://brick_cube_1</uri>
       <name>brick cube 1</name>
       <pose>0 6 0 0 0 0</pose> 
-    </include> --> 
+    </include>
 
     
    
@@ -96,71 +96,63 @@
       <uri>model://brick_wall_1</uri>
       <name>brick wall 1</name>
       <pose>0 4 0 0 0 1.57079632679</pose> 
-    </include>
+    </include> -->
 
     
-    <!-- Brick_wall_2 - l:2m, h:2m, t:0.25m -->
+    <!-- Brick_wall_2 - l:2m, h:2m, t:0.25m
 	<include>
       <uri>model://brick_wall_2</uri>
       <name>brick wall 2</name>
       <pose>0 4 0 0 0 1.57079632679</pose> 
-    </include>
+    </include> -->
     
-    <!-- Brick_wall_3 - l:4m, h:2m, t:0.25m -->
-	<!--
+    <!-- Brick_wall_3 - l:4m, h:2m, t:0.25m
 	<include>
       <uri>model://brick_wall_3</uri>
       <name>brick wall 3</name>
       <pose>0 4 0 0 0 1.57079632679</pose> 
-    </include>
-    -->
+    </include> -->
     
-    <!-- Brick_wall_hole_1 - Hole large enough for drone -->
-	<!-- 
+    <!-- Brick_wall_hole_1 - Hole large enough for drone
     <include>
       <uri>model://brick_wall_hole_1</uri>
       <name>brick_wall_hole_1</name>
       <pose>0 4 0 0 0 1.57079632679</pose>
-    </include> 
-    -->
+    </include>  -->
     
     
-    <!-- Brick_wall_hole_2 - Hole too small for drone -->
-	 <!--  
+    <!-- Brick_wall_hole_2 - Hole too small for drone
     <include>
       <uri>model://brick_wall_hole_2</uri>
       <name>brick_wall_hole_2</name>
       <pose>0 4 0 0 0 1.57079632679</pose>
-    </include>
-    -->
+    </include>    -->
+
     
   
-    <!-- Brick_wall_hole_3 - Small and large holes -->
-    <!--
+    <!-- Brick_wall_hole_3 - Small and large holes
     <include>
       <uri>model://brick_wall_hole_3</uri>
       <name>brick_wall_hole_3</name>
       <pose>0 4 0 0 0 1.57079632679</pose>
-    </include>
-    -->
+    </include>  -->
+
     
-    <!-- Brick_wall_hole_4 - Hole large enough for drone -->
-    <!--
+    <!-- Brick_wall_hole_4 - Hole large enough for drone
     <include>
       <uri>model://brick_wall_hole_4</uri>
       <name>brick_wall_hole_4</name>
       <pose>0 4 0 0 0 1.57079632679</pose>
-    </include>
-    -->
+    </include> -->
+
     
-    <!-- Brick_wall_hole_5 - Hole too small for drone -->
-    <!--
+    <!-- Brick_wall_hole_5 - Hole too small for drone
     <include>
       <uri>model://brick_wall_hole_5</uri>
       <name>brick_wall_hole_5</name>
       <pose>0 4 0 0 0 1.57079632679</pose>
-    </include>
-    -->
+    </include>  -->
+
 
     <!-- Brick_wall_lshaped_1 - l-shaped wall to test for local minimum
     <include>

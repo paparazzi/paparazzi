@@ -55,7 +55,8 @@ extern int min_disparity;
 extern int max_disparity;
 
 
-
+extern uint16_t K_median_h;	// Height of kernel for the median kernel
+extern uint16_t K_median_w;	// Width of kernel for the median kernel
 extern int SE_opening_OCV; 	// SE size for the opening operation
 extern int SE_closing_OCV; 	// SE size for the closing operation
 extern int SE_dilation_OCV_1;// SE size for the first dilation operation (Decides where edges are detected, increase to increase drone safety zone NOTE. This functionality should be replaced with c space expansion)

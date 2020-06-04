@@ -100,6 +100,8 @@ int SE_closing_OCV; 	// SE size for the closing operation
 int SE_dilation_OCV_1; 	// SE size for the first dilation operation
 int SE_dilation_OCV_2; 	// SE size for the second dilation operation (see state 6 "WEDGEBUG_START" and state 8 "POSITION_EDGE" )
 int SE_sobel_OCV; 		// SE size for the Sobel operation, to detect edges
+uint16_t K_median_w;	// Width of kernel for the median kernel
+uint16_t K_median_h;	// Height of kernel for the median kernel
 
 
 // Declaring vectors to hold global 3d points
@@ -1199,7 +1201,10 @@ void wedgebug_init(){
 
 	// Creation of kernels:
 	// Creating structure to hold dimensions of kernels
-	kernel_median_dims.w = 11; kernel_median_dims.h = 11;
+	K_median_w = 11;
+	K_median_h = 11;
+
+	kernel_median_dims.w = K_median_w; kernel_median_dims.h = K_median_h;
 	// Creating empty kernel:
 	kernel_create(&median_kernel, kernel_median_dims.w, kernel_median_dims.h);
 

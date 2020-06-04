@@ -23,7 +23,7 @@ inline void setGuided(void){
 </header>
   <waypoints>
     <waypoint lat="51.990631" lon="4.376796" name="HOME"/>
-    <waypoint name="CLIMB" x="1.9" y="1.0"/>
+    <waypoint name="_CLIMB" x="1.9" y="1.0"/>
     <waypoint name="STDBY" x="1.9" y="1.0"/>
     <waypoint name="TD" x="0.8" y="-1.7"/>
     <waypoint name="GOAL" x="1.9" y="1.0"/>
@@ -32,7 +32,7 @@ inline void setGuided(void){
 
     
     
-    <waypoint  name="START1" x="0.0" y="1" alt= "1"/>
+    <waypoint  name="START1" x="0.0" y="0.0" alt= "1"/>
    <!-- <waypoint  name="START2" x="2.0" y="1" alt= "1"/>-->
     <waypoint  name="GOAL1" x="0.0" y="8" alt= "1"/>
     <!--  <waypoint  name="GOAL2" x="2.0" y="8" alt= "1"/>-->
@@ -130,8 +130,8 @@ inline void setGuided(void){
     
     <block key="t" name="Takeoff" strip_button="Takeoff" strip_icon="takeoff.png">
       <exception cond="GetPosAlt() > 0.8" deroute="Standby"/>
-      <call_once fun="NavSetWaypointHere(WP_CLIMB)"/>
-      <stay climb="nav_climb_vspeed" vmode="climb" wp="CLIMB"/>
+      <call_once fun="NavSetWaypointHere(WP__CLIMB)"/>
+      <stay climb="nav_climb_vspeed" vmode="climb" wp="_CLIMB"/>
     </block>
     
     <block key="s" name="Standby" strip_button="Standby" strip_icon="home.png">
@@ -169,12 +169,7 @@ inline void setGuided(void){
       <stay wp="GOAL1"/>
     </block>
     
-    
-        <!-- Mdfd: Same as "5: Position goal" --> 
-    <block name="TESTING">
-      <call_once fun="NavResurrect()"/>
-      <call_once fun="setGuided()"/>  
-    </block>
+ 
     
 
     <block key="l" name="land here" strip_button="land here" strip_icon="land-right.png">
