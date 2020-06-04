@@ -1231,16 +1231,16 @@ void wedgebug_init(){
 	VCr.z = 0;
 
 	// Initializing goal vector in the NED world coordinate system
-	VGOALwenu.x = WaypointX(WP_GOAL1);
-	VGOALwenu.y = WaypointY(WP_GOAL1);
-	VGOALwenu.z = WaypointAlt(WP_GOAL1);
+	VGOALwenu.x = WaypointX(WP_GOAL);
+	VGOALwenu.y = WaypointY(WP_GOAL);
+	VGOALwenu.z = WaypointAlt(WP_GOAL);
 	Va_to_Vb(&VGOALwned, &VGOALwenu, &Rwnedwenu, &VNEDwenu);
 
 
 	// Initializing start vector in the NED world coordinate system
-	VSTARTwenu.x = WaypointX(WP_START1);
-	VSTARTwenu.y = WaypointY(WP_START1);
-	VSTARTwenu.z = WaypointAlt(WP_START1);
+	VSTARTwenu.x = WaypointX(WP_START);
+	VSTARTwenu.y = WaypointY(WP_START);
+	VSTARTwenu.z = WaypointAlt(WP_START);
 	Va_to_Vb(&VSTARTwned, &VSTARTwenu, &Rwnedwenu, &VNEDwenu);
 
 
@@ -1506,6 +1506,16 @@ void wedgebug_periodic(){
     		printf("MOVE_TO_GOAL = %d\n", MOVE_TO_GOAL);
 
 
+			median_disparity_in_front = median_disparity_to_point(&c_img_cropped, &img_depth_int8_cropped, &median_kernel);
+			//In case disparity is 0 (infinite distance or error we set it to one disparity
+			// above the threshold as the likelyhood that the object is too close is large (as opposed to it being infinitely far away)
+			printf("median_disparity_in_front = %d\n", median_disparity_in_front);
+
+
+
+
+
+
     		if (is_setpoint_reached_flag)
     		{
     			printf("Goal is reached\n");
@@ -1672,7 +1682,7 @@ void wedgebug_periodic(){
     	    		else
     	    		{
     					// Sets setpoint to goal position and orientates drones towards the goal as well
-    	    			autopilot_guided_goto_ned(VGOALwned.x, VGOALwned.y, VGOALwned.z, heading_towards_waypoint(WP_GOAL1));
+    	    			autopilot_guided_goto_ned(VGOALwned.x, VGOALwned.y, VGOALwned.z, heading_towards_waypoint(WP_GOAL));
 
 
     	    			// If start appears to be reached increase confidence
@@ -1796,7 +1806,7 @@ void wedgebug_periodic(){
     	    		{
 
     					// Sets setpoint to goal position and orientates drones towards the goal as well
-    					autopilot_guided_goto_ned(VHOLDINGPOINTwned.x, VHOLDINGPOINTwned.y, VHOLDINGPOINTwned.z, heading_towards_waypoint(WP_GOAL1));
+    					autopilot_guided_goto_ned(VHOLDINGPOINTwned.x, VHOLDINGPOINTwned.y, VHOLDINGPOINTwned.z, heading_towards_waypoint(WP_GOAL));
 
     	    			// If holding point appears to be reached increase confidence
     	    			if (is_setpoint_reached(&VHOLDINGPOINTwned, &VRwned, threshold_distance_to_goal))
@@ -1924,7 +1934,7 @@ void wedgebug_periodic(){
     	    		else // This happens continuously, as long as the state is active. It stops when the flag has been set below
     	    		{
     	    			// Set desired heading
-    	    			guidance_h_set_guided_heading(heading_towards_setpoint_WNED(&VPBESTEDGECOORDINATESwned));//   heading_towards_waypoint(WP_GOAL1));
+    	    			guidance_h_set_guided_heading(heading_towards_setpoint_WNED(&VPBESTEDGECOORDINATESwned));//   heading_towards_waypoint(WP_GOAL));
 
     	    			// If heading appears to be reached increase confidence
     	    			if (is_heading_reached(heading_towards_setpoint_WNED(&VPBESTEDGECOORDINATESwned), heading, threshold_distance_to_angle))
@@ -1952,7 +1962,7 @@ void wedgebug_periodic(){
     					if (is_setpoint_reached_flag)
     					{
     						printf("Edge is reached\n");
-    						autopilot_guided_goto_ned(VPBESTEDGECOORDINATESwned.x, VPBESTEDGECOORDINATESwned.y, VPBESTEDGECOORDINATESwned.z, heading_towards_waypoint(WP_GOAL1));
+    						autopilot_guided_goto_ned(VPBESTEDGECOORDINATESwned.x, VPBESTEDGECOORDINATESwned.y, VPBESTEDGECOORDINATESwned.z, heading_towards_waypoint(WP_GOAL));
     					}
     					// Else, move to edge setpoint and check confidence that edge setpoint is reached
     					else // This happens continuously, as long as the state is active. It stops when the flag has been set below.
@@ -2009,16 +2019,16 @@ void wedgebug_periodic(){
     	    		if (is_heading_reached_flag)
     	    		{
     	    			printf("Heading is reached\n");
-    	    			guidance_h_set_guided_heading(heading_towards_waypoint(WP_GOAL1));
+    	    			guidance_h_set_guided_heading(heading_towards_waypoint(WP_GOAL));
     	    		}
     	    		// Else, adjust heading and check confidence that heading is reached
     	    		else // This happens continuously, as long as the state is active. It stops when the flag has been set.
     	    		{
     	    			// Set desired heading
-    	    			guidance_h_set_guided_heading(heading_towards_waypoint(WP_GOAL1));
+    	    			guidance_h_set_guided_heading(heading_towards_waypoint(WP_GOAL));
 
     	    			// If heading appears to be reached increase confidence
-    	    			if (is_heading_reached(heading_towards_waypoint(WP_GOAL1), heading, threshold_distance_to_angle))
+    	    			if (is_heading_reached(heading_towards_waypoint(WP_GOAL), heading, threshold_distance_to_angle))
     	    			{
     	    				heading_confidence++;
     	    				Bound(heading_confidence, 0, max_heading_confidence);

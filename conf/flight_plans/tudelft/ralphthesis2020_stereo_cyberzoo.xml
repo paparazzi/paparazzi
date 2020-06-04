@@ -22,19 +22,20 @@ inline void setGuided(void){
 
 </header>
   <waypoints>
+    <!-- <waypoint lat="51.990631" lon="4.376796" name="HOME"/> -->
     <waypoint lat="51.990631" lon="4.376796" name="HOME"/>
     <waypoint name="_CLIMB" x="1.9" y="1.0"/>
-    <waypoint name="STDBY" x="1.9" y="1.0"/>
-    <waypoint name="TD" x="0.8" y="-1.7"/>
-    <waypoint name="GOAL" x="1.9" y="1.0"/>
-    <waypoint name="TRAJECTORY" x="1.9" y="1.0"/>
+    <waypoint name="_STDBY" x="1.9" y="1.0"/>
+    <waypoint name="_TD" x="0.8" y="-1.7"/>
+    <waypoint name="_GOAL1" x="1.9" y="1.0"/>
+    <waypoint name="_TRAJECTORY" x="1.9" y="1.0"/>
     
 
     
     
-    <waypoint  name="START1" x="0.0" y="0.0" alt= "1"/>
+    <waypoint  name="START" x="0.0" y="0.0" alt= "1"/>
    <!-- <waypoint  name="START2" x="2.0" y="1" alt= "1"/>-->
-    <waypoint  name="GOAL1" x="0.0" y="8" alt= "1"/>
+    <waypoint  name="GOAL" x="0.0" y="8" alt= "1"/>
     <!--  <waypoint  name="GOAL2" x="2.0" y="8" alt= "1"/>-->
     
     
@@ -135,8 +136,8 @@ inline void setGuided(void){
     </block>
     
     <block key="s" name="Standby" strip_button="Standby" strip_icon="home.png">
-      <call_once fun="NavSetWaypointHere(WP_STDBY)"/>
-      <stay wp="STDBY"/>
+      <call_once fun="NavSetWaypointHere(WP__STDBY)"/>
+      <stay wp="_STDBY"/>
     </block>
     
     
@@ -145,8 +146,8 @@ inline void setGuided(void){
     <!-- Mdfd: Same as "2: Move to start" --> 
     <block name="Move to start">
       <call_once fun="NavResurrect()"/>
-      <go wp="START1"/>
-      <stay wp="START1"/>
+      <go wp="START"/>
+      <stay wp="START"/>
     </block>
     
     
@@ -166,19 +167,19 @@ inline void setGuided(void){
     
     <!-- Mdfd: Same as "5: Position goal" --> 
     <block name="Position goal">
-      <stay wp="GOAL1"/>
+      <stay wp="GOAL"/>
     </block>
     
  
     
 
     <block key="l" name="land here" strip_button="land here" strip_icon="land-right.png">
-      <call_once fun="NavSetWaypointHere(WP_TD)"/>
-      <go wp="TD"/>
+      <call_once fun="NavSetWaypointHere(WP__TD)"/>
+      <go wp="_TD"/>
       <deroute block="Flare"/>
     </block>
     <block name="Land">
-      <go wp="TD"/>
+      <go wp="_TD"/>
       <deroute block="Flare"/>
     </block>
     <block name="Flare">
@@ -186,7 +187,7 @@ inline void setGuided(void){
       <exception cond="!nav_is_in_flight()" deroute="Landed"/>
       <exception cond="0.10 > GetPosAlt()" deroute="Landed"/>
       <call_once fun="NavStartDetectGround()"/>
-      <stay climb="nav_descend_vspeed" vmode="climb" wp="TD"/>
+      <stay climb="nav_descend_vspeed" vmode="climb" wp="_TD"/>
     </block>
     <block name="Landed">
       <call_once fun="NavKillThrottle()"/>
