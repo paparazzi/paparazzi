@@ -144,7 +144,7 @@ inline void setGuided(void){
 
     
     <!-- Mdfd: Same as "2: Move to start" --> 
-    <block name="Move to start">
+    <block name="1 - Move to Start">
       <call_once fun="NavResurrect()"/>
       <go wp="START"/>
       <stay wp="START"/>
@@ -152,7 +152,7 @@ inline void setGuided(void){
     
     
     
-    <block key="g" name="START" strip_button="Go" strip_icon="lookfore.png">
+    <block key="g" name="2 - Start Experiment" strip_button="Go" strip_icon="lookfore.png">
       <deroute block="Move to goal"/>
     </block>
     

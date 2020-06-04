@@ -220,9 +220,14 @@ int SBM_OCV(struct image_t *img_disp, const struct image_t *img_left, const stru
 		//std::cout << "uint8_t" << std::endl;
 		typedef uint8_t img_dip_type;
 
-		img_disp_OCV = img_disp_OCV / 16;
+		// THe followig code is to display the depth map with depth capped at 256/
+		// This is for debugging only such that the depth image has moe contrast when observing it
+		imwrite("/home/dureade/Documents/paparazzi_images/img_disp_int8_cropped_capped.bmp", img_disp_OCV);
 
-		img_disp_OCV.convertTo(img_disp_OCV , CV_8UC1);
+
+
+		img_disp_OCV = img_disp_OCV / 16; // We divide by 16 to get actual disparity values
+		img_disp_OCV.convertTo(img_disp_OCV , CV_8UC1); // Now we convert 16bit image to 8 bit image
 
 
 
@@ -359,9 +364,13 @@ int sobel_OCV(struct image_t *img_input, const struct image_t *img_output, const
 
 	transfer(&img_grad_mag, img_output); // Saving image into output images
 
-
-
-
+	/*
+	// Size of variables
+	std::cout << "img_input_OCV = " << img_input_OCV.total() * img_input_OCV.elemSize() << std::endl;
+	std::cout << "img_grad_x = " << img_grad_x.total() * img_grad_x.elemSize() << std::endl;
+	std::cout << "img_grad_y = " << img_grad_y.total() * img_grad_y.elemSize() << std::endl;
+	std::cout << "img_grad_mag = " << img_grad_mag.total() * img_grad_mag.elemSize() << std::endl;
+	*/
 	/*
 	double minVal;
 	double maxVal;

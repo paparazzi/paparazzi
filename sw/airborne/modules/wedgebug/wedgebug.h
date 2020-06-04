@@ -70,6 +70,16 @@ extern uint8_t threshold_disparity_of_edges; 		// Above this underlying disparit
 extern float threshold_distance_to_goal; 		// Above this threshold, the goal is considered reached
 extern float threshold_distance_to_angle;	// Above this threshold, the angle/heading is considered reached
 extern float safety_distance_front;
+extern int16_t max_obstacle_confidence;			// This is the max confidence that an obstacle was spotted
+extern int16_t max_free_path_confidence;			// This is the max confidence that an obstacle was not spotted
+extern int16_t max_position_confidence;			// This is the max confidence that a specific position was reached
+extern int16_t max_heading_confidence;				// This is the max confidence that a specific heading was reached
+extern int16_t max_edge_found_micro_confidence; 	// This is the max confidence that edges (micro-see above) were found
+extern int16_t max_edge_found_macro_confidence; 	// This is the max confidence that edges (macro-see above were found
+extern int16_t max_no_edge_found_confidence;		// This is the max confidence that no edges were found
+
+
+
 extern int heat_map_type; // Heat map used when saving image
 
 

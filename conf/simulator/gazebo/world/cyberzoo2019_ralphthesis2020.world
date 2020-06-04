@@ -74,12 +74,12 @@
     
    
    
-    <!-- Brick_cube_1 --> 
+    <!-- Brick_cube_1-->
     <include>
       <uri>model://brick_cube_1</uri>
       <name>brick cube 1</name>
       <pose>0 6 0 0 0 0</pose> 
-    </include>
+    </include>  
 
     
    
@@ -87,7 +87,7 @@
     <include>
       <uri>model://brick_sphere_1</uri>
       <name>brick sphere 1</name>
-      <pose>0 4 0 0 0 0</pose> 
+      <pose>0 6 0 0 0 0</pose> 
     </include> -->
     
     
@@ -121,12 +121,12 @@
     </include>  -->
     
     
-    <!-- Brick_wall_hole_2 - Hole too small for drone
+    <!-- Brick_wall_hole_2 - Hole too small for drone 
     <include>
       <uri>model://brick_wall_hole_2</uri>
       <name>brick_wall_hole_2</name>
       <pose>0 4 0 0 0 1.57079632679</pose>
-    </include>    -->
+    </include>   -->
 
     
   
@@ -151,7 +151,21 @@
       <uri>model://brick_wall_hole_5</uri>
       <name>brick_wall_hole_5</name>
       <pose>0 4 0 0 0 1.57079632679</pose>
-    </include>  -->
+    </include> --> 
+    
+    <!-- Brick_wall_hole_6 - Hole large enough for drone  - 2m wide  
+    <include>
+      <uri>model://brick_wall_hole_6</uri>
+      <name>brick_wall_hole_6</name>
+      <pose>0 4 0 0 0 1.57079632679</pose>
+    </include>-->
+    
+        <!-- Brick_wall_hole_7 - Hole large enough for drone - 8m wide
+    <include>
+      <uri>model://brick_wall_hole_7</uri>
+      <name>brick_wall_hole_7</name>
+      <pose>0 4 0 0 0 1.57079632679</pose>
+    </include> -->
 
 
     <!-- Brick_wall_lshaped_1 - l-shaped wall to test for local minimum

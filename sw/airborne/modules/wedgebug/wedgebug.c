@@ -66,15 +66,14 @@
 // Define global variables
 
 // Declaring images
-struct image_t img_left;				// Image obtained from left camera (UYVY format)
-struct image_t img_right;				// Image obtained from right camera (UYVY format)
-struct image_t img_left_int8;			// Image obtained from left camera, converted into 8bit gray image
-struct image_t img_left_int8_cropped;			// Image obtained from left camera, converted into 8bit gray image
-struct image_t img_right_int8;			// Image obtained from right camera, converted into 8bit gray image
-struct image_t img_depth_int8;			// Image obtained from the external simple block matching function (SBM) = SBM_OCV
-struct image_t img_depth_int8_cropped;	// Image obtained after image is cropped, to remove the erroneous pixels due to the limitations of
+struct image_t img_left;				//! Image obtained from left camera (UYVY format)
+struct image_t img_right;				//! Image obtained from right camera (UYVY format)
+struct image_t img_left_int8;			//! Image obtained from left camera, converted into 8bit gray image
+struct image_t img_left_int8_cropped;	// Image obtained from left camera, converted into 8bit gray image
+struct image_t img_right_int8;			//! Image obtained from right camera, converted into 8bit gray image
+struct image_t img_depth_int8_cropped;	//! Image obtained after image is cropped, to remove the erroneous pixels due to the limitations of
 struct image_t img_middle_int8_cropped;	// Image obtained after processing (morphological operations) of previous image
-struct image_t img_edges_int8_cropped;	// Image obtained from the external sobel edge detection function = sobel_OCV
+struct image_t img_edges_int8_cropped;	//! Image obtained from the external sobel edge detection function = sobel_OCV
 
 // Declaring images for report
 struct image_t img_post_SBM;			// For report: Image saved after block matching operation
@@ -84,102 +83,102 @@ struct image_t img_post_dilation;		// For report: Image saved after dilation ope
 struct image_t img_post_sobel;			// For report: Image saved after Sobel operation
 
 // Declaring crop_t structure for information about the cropped image (after BM)
-struct crop_t img_cropped_info;
+struct crop_t img_cropped_info; //!
 
 // Declaring dimensions of images and kernels used
-struct img_size_t img_dims; 			// Dimensions of images captured by the camera (left and right have same dimension)
-struct img_size_t img_cropped_dims; 	// Dimension of image after it has been cropped to remove pixel error due to block matching limitations
-struct img_size_t kernel_median_dims;	// Dimensions of the kernel that detect median disparity in front of drone (for obstacle detection)
+struct img_size_t img_dims; 			//! Dimensions of images captured by the camera (left and right have same dimension)
+struct img_size_t img_cropped_dims; 	//! Dimension of image after it has been cropped to remove pixel error due to block matching limitations
+struct img_size_t kernel_median_dims;	//! Dimensions of the kernel that detect median disparity in front of drone (for obstacle detection)
 
 // Declaring empty kernel for obtaining median
-struct kernel_C1 median_kernel;
+struct kernel_C1 median_kernel; // !
 
 // Delcaring structuring element sizes
-int SE_opening_OCV; 	// SE size for the opening operation
-int SE_closing_OCV; 	// SE size for the closing operation
-int SE_dilation_OCV_1; 	// SE size for the first dilation operation
-int SE_dilation_OCV_2; 	// SE size for the second dilation operation (see state 6 "WEDGEBUG_START" and state 8 "POSITION_EDGE" )
-int SE_sobel_OCV; 		// SE size for the Sobel operation, to detect edges
-uint16_t K_median_w;	// Width of kernel for the median kernel
-uint16_t K_median_h;	// Height of kernel for the median kernel
+int SE_opening_OCV; 	//! SE size for the opening operation
+int SE_closing_OCV; 	//! SE size for the closing operation
+int SE_dilation_OCV_1; 	//! SE size for the first dilation operation
+int SE_dilation_OCV_2; 	//! SE size for the second dilation operation (see state 6 "WEDGEBUG_START" and state 8 "POSITION_EDGE" )
+int SE_sobel_OCV; 		//! SE size for the Sobel operation, to detect edges
+uint16_t K_median_w;	//! Width of kernel for the median kernel
+uint16_t K_median_h;	//! Height of kernel for the median kernel
 
 
 // Declaring vectors to hold global 3d points
-struct FloatVect3 VSTARTwenu; 				// Declared vector of coordinates of start position in ENU world coordinate system
-struct FloatVect3 VSTARTwned; 				// Declared vector of coordinates of start position in NED world coordinate system
-struct FloatVect3 VGOALwenu; 				// Declared vector of coordinates of goal in ENU world coordinate system
-struct FloatVect3 VGOALwned; 				// Declared vector of coordinates of goal in NED world coordinate system
-struct FloatVect3 VGOALr;    				// Declared vector of coordinates of goal in robot coordinate system
-struct FloatVect3 VGOALc;    				// Declared vector of coordinates of goal in camera coordinate system
-struct FloatVect3 VEDGECOORDINATESc; 		// Declared vector of coordinates of "best" edge detected in camera coordinate system
-struct FloatVect3 VEDGECOORDINATESr; 		// Declared vector of coordinates of "best" edge detected in robot coordinate system
-struct FloatVect3 VEDGECOORDINATESwned; 	// Declared vector of coordinates of "best" edge detected in NED world coordinate system
-struct FloatVect3 VEDGECOORDINATESwenu;		// Declared vector of coordinates of "best" edge detected in ENU world coordinate system
-struct FloatVect3 VDISTANCEPOSITIONwned;	// Declared a vector to hold the current position, which is needed for calculating the distance traveled
-struct FloatVect3 VHOLDINGPOINTwned;		// Declared a vector to hold the position of a holding point (offten used to make sure drone stays still before stuff happens)
-struct FloatVect3 VPBESTEDGECOORDINATESwned;// Declared vector of coordinates of previous "best" edge detected in NED world coordinate system
+struct FloatVect3 VSTARTwenu; 				//! Declared vector of coordinates of start position in ENU world coordinate system
+struct FloatVect3 VSTARTwned; 				//! Declared vector of coordinates of start position in NED world coordinate system
+struct FloatVect3 VGOALwenu; 				//! Declared vector of coordinates of goal in ENU world coordinate system
+struct FloatVect3 VGOALwned; 				//! Declared vector of coordinates of goal in NED world coordinate system
+struct FloatVect3 VGOALr;    				//! Declared vector of coordinates of goal in robot coordinate system
+struct FloatVect3 VGOALc;    				//! Declared vector of coordinates of goal in camera coordinate system
+struct FloatVect3 VEDGECOORDINATESc; 		//! Declared vector of coordinates of "best" edge detected in camera coordinate system
+struct FloatVect3 VEDGECOORDINATESr; 		//! Declared vector of coordinates of "best" edge detected in robot coordinate system
+struct FloatVect3 VEDGECOORDINATESwned; 	//! Declared vector of coordinates of "best" edge detected in NED world coordinate system
+struct FloatVect3 VEDGECOORDINATESwenu;		//! Declared vector of coordinates of "best" edge detected in ENU world coordinate system
+struct FloatVect3 VDISTANCEPOSITIONwned;	//! Declared a vector to hold the current position, which is needed for calculating the distance traveled
+struct FloatVect3 VHOLDINGPOINTwned;		//! Declared a vector to hold the position of a holding point (offten used to make sure drone stays still before stuff happens)
+struct FloatVect3 VPBESTEDGECOORDINATESwned;//! Declared vector of coordinates of previous "best" edge detected in NED world coordinate system
 
 
 // Declaring thresholds
-int threshold_edge_magnitude;			// Edges with a magnitude above this value are detected. Above this value, edges are given the value 127, otherwise they are given the value zero.
-uint8_t threshold_median_disparity; 	// Above this median disparity, an obstacle is considered to block the way (i.e. the blocking obstacle need to be close)
-uint8_t threshold_disparity_of_edges; 	// Above this disparity edges are eligible for WedgeBug algorithm (i.e. edges cannot be very far away)
-float threshold_distance_to_goal; 		// Below this distance (in meters) it is considered that the robot has reached the goal
-float threshold_distance_to_angle;		// Below this distance (in radians) it is considered that the robot has reached the target angle
-float threshold_distance_to_goal_direct; // Below this distance (in meters) it is considered that the robot has reached the goal, in DIRECT_CONTROL mode
+int threshold_edge_magnitude;			//! Edges with a magnitude above this value are detected. Above this value, edges are given the value 127, otherwise they are given the value zero.
+uint8_t threshold_median_disparity; 	//! Above this median disparity, an obstacle is considered to block the way (i.e. the blocking obstacle need to be close)
+uint8_t threshold_disparity_of_edges; 	//! Above this disparity edges are eligible for WedgeBug algorithm (i.e. edges cannot be very far away)
+float threshold_distance_to_goal; 		//! Below this distance (in meters) it is considered that the robot has reached the goal
+float threshold_distance_to_angle;		//! Below this distance (in radians) it is considered that the robot has reached the target angle
+float threshold_distance_to_goal_direct;//! Below this distance (in meters) it is considered that the robot has reached the goal, in DIRECT_CONTROL mode
 
 // Declaring confidence parameters
-int16_t obstacle_confidence;		// This is the confidence that an obstacle was spotted
-int16_t free_path_confidence;		// This is the confidence that no obstacle was spotted
-int16_t position_confidence;		// This is the confidence that the desired position was reached
-int16_t heading_confidence;			// This is the confidence that the desired heading is reached
+int16_t obstacle_confidence;		//! This is the confidence that an obstacle was spotted
+int16_t free_path_confidence;		//! This is the confidence that no obstacle was spotted
+int16_t position_confidence;		//! This is the confidence that the desired position was reached
+int16_t heading_confidence;			//! This is the confidence that the desired heading is reached
 
-int16_t edge_found_micro_confidence;		// This is the confidence that an edge was found - inside of the find_best_edge_coordinates function
-int16_t edge_found_macro_confidence;		// This is the confidence that an edge was found - outside of the find_best_edge_coordinates function
-int16_t no_edge_found_confidence;			// This is the confidence that no edge was found
-int16_t max_obstacle_confidence;			// This is the max confidence that an obstacle was spotted
-int16_t max_free_path_confidence;			// This is the max confidence that an obstacle was not spotted
-int16_t max_position_confidence;			// This is the max confidence that a specific position was reached
-int16_t max_heading_confidence;				// This is the max confidence that a specific heading was reached
-int16_t max_edge_found_micro_confidence; 	// This is the max confidence that edges (micro-see above) were found
-int16_t max_edge_found_macro_confidence; 	// This is the max confidence that edges (macro-see above were found
-int16_t max_no_edge_found_confidence;		// This is the max confidence that no edges were found
+int16_t edge_found_micro_confidence;		//! This is the confidence that an edge was found - inside of the find_best_edge_coordinates function
+int16_t edge_found_macro_confidence;		//! This is the confidence that an edge was found - outside of the find_best_edge_coordinates function
+int16_t no_edge_found_confidence;			//! This is the confidence that no edge was found
+int16_t max_obstacle_confidence;			//! This is the max confidence that an obstacle was spotted
+int16_t max_free_path_confidence;			//! This is the max confidence that an obstacle was not spotted
+int16_t max_position_confidence;			//! This is the max confidence that a specific position was reached
+int16_t max_heading_confidence;				//! This is the max confidence that a specific heading was reached
+int16_t max_edge_found_micro_confidence; 	//! This is the max confidence that edges (micro-see above) were found
+int16_t max_edge_found_macro_confidence; 	//! This is the max confidence that edges (macro-see above were found
+int16_t max_no_edge_found_confidence;		//! This is the max confidence that no edges were found
 
 // Declaring boolean flags
 uint8_t is_start_reached_flag;		// Set to 1 if start position is reached, 0 otherwise.
-uint8_t is_setpoint_reached_flag;	// Set to 1 if setpoint is reached, 0 otherwise.
-uint8_t is_obstacle_detected_flag;	// Set to 1 if obstacle is detected, 0 otherwise.
-uint8_t is_path_free_flag;			// Set to 1 if no obstacle is detected, 0 otherwise.
-uint8_t is_heading_reached_flag;	// Set to 1 if heading is reached, 0 otherwise.
-uint8_t is_edge_found_macro_flag;	// Set to 1 if best edge (according to macro confidence) was found, 0 otherwise
-uint8_t is_edge_found_micro_flag; 	// Set to 1 if best edge (according to micro confidence) was found, 0 otherwise
-uint8_t is_no_edge_found_flag;		// Set to 1 if no edge was identified, 0 otherwise
-uint8_t is_state_changed_flag; 		// Set to 1 if state was changed, 0 otherwise
-uint8_t is_mode_changed_flag;
+uint8_t is_setpoint_reached_flag;	//! Set to 1 if setpoint is reached, 0 otherwise.
+uint8_t is_obstacle_detected_flag;	//! Set to 1 if obstacle is detected, 0 otherwise.
+uint8_t is_path_free_flag;			//! Set to 1 if no obstacle is detected, 0 otherwise.
+uint8_t is_heading_reached_flag;	//! Set to 1 if heading is reached, 0 otherwise.
+uint8_t is_edge_found_macro_flag;	//! Set to 1 if best edge (according to macro confidence) was found, 0 otherwise
+uint8_t is_edge_found_micro_flag; 	//! Set to 1 if best edge (according to micro confidence) was found, 0 otherwise
+uint8_t is_no_edge_found_flag;		//! Set to 1 if no edge was identified, 0 otherwise
+uint8_t is_state_changed_flag; 		//! Set to 1 if state was changed, 0 otherwise
+uint8_t is_mode_changed_flag;		//! Set to 1 if control mode of drone is changed, 0 otherwise
 uint8_t save_images_flag; 			// For report: Flag to indicate if images should be saved
 
 // Declaring principal points
-struct point_t c_img;				// Principal point of normal camera images
-struct point_t c_img_cropped;		// Principal point of cropped camera images
+struct point_t c_img;				//! Principal point of normal camera images
+struct point_t c_img_cropped;		//! Principal point of cropped camera images
 
 // Declaring edge search area
-struct crop_t edge_search_area; // This structure holds information about the window in which edges are searched in
+struct crop_t edge_search_area; //! This structure holds information about the window in which edges are searched in
 
 
 // Declaring rotation matrices and transition vectors for frame to frame transformations
 // 1) Rotation matrix and transition vector to transform from world ENU frame to world NED frame
-struct FloatRMat Rwnedwenu;
-struct FloatVect3 VNEDwenu;
+struct FloatRMat Rwnedwenu; //!
+struct FloatVect3 VNEDwenu; //!
 // 2) Rotation matrix and transition vector to transform from world ned frame to robot frame
-struct FloatRMat Rrwned;
-struct FloatVect3 VRwned;
+struct FloatRMat Rrwned; 	//!
+struct FloatVect3 VRwned; 	//!
 // 3) Rotation matrix and transition vector to transform from robot frame to camera frame
-struct FloatRMat Rcr;
-struct FloatVect3 VCr;
+struct FloatRMat Rcr;		//!
+struct FloatVect3 VCr;		//!
 
 // Declaration and initialization of camera parameters
-float b = WEDGEBUG_CAMERA_BASELINE / 1000.00;	// Camera baseline, in meters (i.e. horizontal distance between the two cameras of the stereo setup)
-uint16_t f = WEDGEBUG_CAMERA_FOCAL_LENGTH;		// Camera focal length, in pixels (i.e. distance between camera
+float b = WEDGEBUG_CAMERA_BASELINE / 1000.00;	//! Camera baseline, in meters (i.e. horizontal distance between the two cameras of the stereo setup)
+uint16_t f = WEDGEBUG_CAMERA_FOCAL_LENGTH;		//! Camera focal length, in pixels (i.e. distance between camera
 
 
 
@@ -214,19 +213,11 @@ struct ES_angles {
 	uint8_t is_left_reached_flag;	// This is a flag to check whether the left was scanned for an edge already
 	uint8_t is_right_reached_flag;	// This is a flag to check whether the right was scanned for an edge already
 };
-
-// This is a structure to save the initial position a drone is in at the beginning of a state
-struct initial_position{
-	float x;
-	float y;
-	float z;
-	uint8_t initiated; // This is a flag that can be set to check whether the structure is allowed to be overwritten (0=allowed, 1=forbidden)
-};
-struct ES_angles initial_heading;
+struct ES_angles initial_heading; // !
 
 
 // Declaring variables for time measurement
-double time_state[NUMBER_OF_STATES];	 	// Double array for saving total time (clock cycles) spent in the states (position 0 = state 0 and so on)
+double time_state[NUMBER_OF_STATES];	 // Double array for saving total time (clock cycles) spent in the states (position 0 = state 0 and so on)
 double counter_state[NUMBER_OF_STATES];	// A counter to measure the total cycles that each state in the FSM (within the periodic function) went through
 double counter_cycles; 					// A counter to measure the total cycles that the periodic function went through
 clock_t clock_total_time; 				// Clock to measure total time (clock cycles)) it took for the robot to fly from start to goal
@@ -236,17 +227,17 @@ clock_t clock_background_processes;
 clock_t clock_FSM;
 
 // Other declarations
-uint8_t previous_state; 				// Variable that saves previous state the state machine was in, for some memory
-uint8_t previous_mode;
-int N_disparities = 64; 				// Number of disparity levels (0-this number)
-int block_size_disparities = 25;		// Block size used for the block matching (SBM) function
+uint8_t previous_state; 				//! Variable that saves previous state the state machine was in, for some memory
+uint8_t previous_mode;					//! Variable that saves previous mode to control the drone, for some memory
+int N_disparities = 64; 				//! Number of disparity levels (0-this number)
+int block_size_disparities = 25;		//! Block size used for the block matching (SBM) function
 int min_disparity = 0;//
-float heading; 							// Variable for storing the heading of the drone (psi in radians)
-float max_edge_search_angle = M_PI/2;;	// The maximum angle (in adians) to the left and right of the drone, that edges can be detected in. Edges outside of this area are considered to be in a minimum
-uint8_t median_disparity_in_front;		// Variable to hold the median disparity in front of the drone. Needed to see if obstacle is there.
+float heading; 							//! Variable for storing the heading of the drone (psi in radians)
+float max_edge_search_angle = M_PI/2;;	//! The maximum angle (in adians) to the left and right of the drone, that edges can be detected in. Edges outside of this area are considered to be in a minimum
+uint8_t median_disparity_in_front;		//! Variable to hold the median disparity in front of the drone. Needed to see if obstacle is there.
 float distance_traveled;				// Variable to hold the distance traveled of the robot (since start and up to the goal)
 uint8_t number_of_states;				// Variable to save the total number of states used in the finite state machine
-float distance_robot_edge_goal;			// Variable to hold distance from robot to edge to goal (used in EDGE_SCAN (9) state)
+float distance_robot_edge_goal;			//! Variable to hold distance from robot to edge to goal (used in EDGE_SCAN (9) state)
 float safety_distance_front;			// Safety distance in front of drone (meters), when flying to detected edge (this way the drone does not crash into objects)
 int heat_map_type;
 
@@ -262,8 +253,6 @@ uint8_t allow_state_change_WEDGEBUG_START; // From within state "WEDGEBUG_START"
 uint8_t allow_state_change_MOVE_TO_EDGE; // From within state "MOVE_TO_EDGE"
 uint8_t allow_state_change_POSITION_EDGE; // From within state "POSITION_EDGE"
 uint8_t allow_state_change_EDGE_SCAN; // From within state "EDGE_SCAN"
-
-
 
 
 uint8_t is_total_timer_on_flag;
@@ -1201,8 +1190,8 @@ void wedgebug_init(){
 
 	// Creation of kernels:
 	// Creating structure to hold dimensions of kernels
-	K_median_w = 11;
-	K_median_h = 11;
+	K_median_w = 25;
+	K_median_h = 25;
 
 	kernel_median_dims.w = K_median_w; kernel_median_dims.h = K_median_h;
 	// Creating empty kernel:
@@ -1253,13 +1242,13 @@ void wedgebug_init(){
 	// Initializing structuring element sizes
 	SE_opening_OCV = 13; 	// SE size for the opening operation
 	SE_closing_OCV = 13; 	// SE size for the closing operation
-	SE_dilation_OCV_1 = 151;//301;// SE size for the first dilation operation (Decides where edges are detected, increase to increase drone safety zone NOTE. This functionality should be replaced with c space expansion)
+	SE_dilation_OCV_1 = 51;//301;// SE size for the first dilation operation (Decides where edges are detected, increase to increase drone safety zone NOTE. This functionality should be replaced with c space expansion)
 	SE_dilation_OCV_2 = 11; // SE size for the second dilation operation (see state 6 "WEDGEBUG_START" )
 	SE_sobel_OCV = 5; 		// SE size for the sobel operation, to detect edges
 
 
 	// Setting thresholds
-	threshold_median_disparity = 9; //11		// Above this median disparity, an obstacle is considered to block the way. >60 = close than 35cm
+	threshold_median_disparity = 8; //11		// Above this median disparity, an obstacle is considered to block the way. >60 = close than 35cm
 	threshold_edge_magnitude = 151;//301;  		// Edges with a magnitude above this value are detected. Above this value, edges are given the value 127, otherwise they are given the value zero.
 	threshold_disparity_of_edges = 5; //5		// Above this underlying disparity value, edges are considers eligible for detection
 	threshold_distance_to_goal = 0.25; //0.25		// Above this threshold, the goal is considered reached
@@ -1274,8 +1263,8 @@ void wedgebug_init(){
 	edge_found_micro_confidence = 0;		// This is the confidence that an edge was found
 	edge_found_macro_confidence = 0;		// This is the confidence that an edge was found
 	no_edge_found_confidence = 0;			// This is the confidence that no edge was found
-	max_obstacle_confidence = 3;			// This is the max confidence that an obstacle was spotted
-	max_free_path_confidence = 10;			// This is the max confidence that an obstacle was not spotted
+	max_obstacle_confidence = 1;			// This is the max confidence that an obstacle was spotted
+	max_free_path_confidence = 5;			// This is the max confidence that an obstacle was not spotted
 	max_position_confidence = 30;			// This is the max confidence that a specific position was reached
 	max_heading_confidence = 5;				// This is the max confidence that a specific heading was reached
 	max_edge_found_micro_confidence = 50;	// This is the max confidence that edges were found
@@ -1722,18 +1711,22 @@ void wedgebug_periodic(){
 
     	        			//In case disparity is 0 (infinite distance or error we set it to one disparity
     	        			// above the threshold as the likelyhood that the object is too close is large (as opposed to it being infinitely far away)
-    	        			if(median_disparity_in_front == 0 )
-    	        			{
-    	        				median_disparity_in_front = (threshold_median_disparity + 1);
-    	        				printf("Median is adjusted\n");
-    	        			}
+    	        			//if(median_disparity_in_front == 0 )
+    	        			//{
+    	        			//	median_disparity_in_front = (threshold_median_disparity + 1);
+    	        			//	printf("Median is adjusted\n");
+    	        			//}
     	        			printf("median_disparity_in_front = %d\n", median_disparity_in_front);
     	        			// If obstacle appears to be detected, increase confidence
-    	        			if ((median_disparity_in_front > threshold_median_disparity))// && (float_vect3_norm_two_points(&VGOALwned, &VRwned) > 3)) // NOTE. The second logical operator was added for testing. Delete it after reducing object distance range and integrating the look for edge function
+    	        			if ((median_disparity_in_front > threshold_median_disparity) && (float_vect3_norm_two_points(&VGOALwned, &VRwned) > 0.5)) // NOTE. The second logical operator was added for testing. Delete it after reducing object distance range and integrating the look for edge function
     	        			{
     	        				printf("Increasing confidence\n");
     	        				obstacle_confidence++;
     	        				Bound(obstacle_confidence, 0, max_obstacle_confidence);
+    	        			}
+    	        			else
+    	        			{
+    	        				obstacle_confidence = 0;
     	        			}
     	        			// If the obstacle_confidence is high enough, set is_obstacle_detected_flag to 1 and reset obstacle_confidence
     	        			if (obstacle_confidence == max_obstacle_confidence)
@@ -2073,10 +2066,10 @@ void wedgebug_periodic(){
     	        			//In case disparity is 0 (infinite distance or error we set it to one disparity
     	        			// above the threshold as the likelihood that the object is too close (errors are converted
     	        			// to 0s) is large (as opposed to it being infinitely far away)
-    	        			if(median_disparity_in_front == 0 )
-    	        			{
-    	        				median_disparity_in_front = (threshold_median_disparity + 1);
-    	        			}
+    	        			//if(median_disparity_in_front == 0 )
+    	        			//{
+    	        			//	median_disparity_in_front = (threshold_median_disparity + 1);
+    	        			//}
     	        			printf("median_disparity_in_front = %d\n", median_disparity_in_front);
 
     	        			// This if-else statement increase the confidence
@@ -2085,12 +2078,15 @@ void wedgebug_periodic(){
     	        			{
     	        				obstacle_confidence++;
     	        				Bound(obstacle_confidence, 0, max_obstacle_confidence);
+    	        				free_path_confidence = 0;
+
     	        			}
     	        			// If obstacle is not detected, increase free_path_confidence
     	        			else
     	        			{
     	        				free_path_confidence++;
     	        				Bound(free_path_confidence, 0, max_free_path_confidence);
+    	        				obstacle_confidence = 0;
     	        			}
     	        			// If the obstacle_confidence is high enough, set is_obstacle_detected_flag to 1 and reset obstacle_confidence and free_path_confidence
     	        			if (obstacle_confidence == max_obstacle_confidence)
@@ -2344,9 +2340,9 @@ void wedgebug_periodic(){
 
 	save_image_gray(&img_left_int8, "/home/dureade/Documents/paparazzi_images/img_left_int8.bmp");
 	save_image_gray(&img_right_int8, "/home/dureade/Documents/paparazzi_images/img_right_int8.bmp");
-	save_image_HM(&img_depth_int8_cropped, "/home/dureade/Documents/paparazzi_images/img_depth_int8_cropped.bmp", heat_map_type);
+	save_image_HM(&img_depth_int8_cropped, "/home/dureade/Documents/paparazzi_images/img_disp_int8_cropped.bmp", heat_map_type);
 	//save_image_gray(&img_left_int8_cropped, "/home/dureade/Documents/paparazzi_images/img_left_int8_cropped.bmp");
-	save_image_HM(&img_middle_int8_cropped, "/home/dureade/Documents/paparazzi_images/img_middle_int8_cropped.bmp", heat_map_type);
+	save_image_HM(&img_middle_int8_cropped, "/home/dureade/Documents/paparazzi_images/img_intermediate_int8_cropped.bmp", heat_map_type);
 	save_image_gray(&img_edges_int8_cropped, "/home/dureade/Documents/paparazzi_images/img_edges_int8_cropped.bmp");
 
 
@@ -2365,6 +2361,26 @@ void wedgebug_periodic(){
 		save_image_gray(&img_post_sobel, "/home/dureade/Documents/paparazzi_images/for_report/img_post_sobel.bmp");
 
 	}
+
+
+	/*
+	// Size of variables
+	printf("img_left = %d\n", img_left.buf_size);
+	printf("img_right = %d\n", img_right.buf_size);
+	printf("img_left_int8 = %d\n", img_left_int8.buf_size);
+	printf("img_left_int8_cropped = %d\n", img_left_int8_cropped.buf_size);
+	printf("img_right_int8 = %d\n", img_right_int8.buf_size);
+	printf("img_depth_int8_cropped = %d\n", img_depth_int8_cropped.buf_size);
+	printf("img_edges_int8_cropped = %d\n", img_edges_int8_cropped.buf_size);
+	printf("median_kernel = %d\n", median_kernel.buf_size);
+	printf("SE_opening_OCV = %lu\n", sizeof(SE_opening_OCV));
+	printf("VSTARTwenu.x = %lu\n", sizeof(VSTARTwenu.x));
+	printf("current_state = %lu\n", sizeof(current_state));
+	printf("current_mode = %lu\n", sizeof(current_mode));
+	*/
+
+
+
 
 
 
