@@ -34,6 +34,7 @@
 extern "C" {
 #endif
 
+#include "subsystems/navigation/common_nav.h"
 #include "subsystems/datalink/telemetry.h"
 #include "autopilot.h"
 
@@ -56,10 +57,26 @@ void gvf_advanced_control_2D(float ktheta, Eigen::Vector3f *Chi2d, Eigen::Matrix
 }
 
 void gvf_advanced_control_3D(float, Eigen::Vector4f *, Eigen::Matrix4f *);
-void gvf_advanced_control_3D(float ktheta, Eigen::Vector4f *Chi3d,
-        Eigen::Matrix4f *J3d)
+void gvf_advanced_control_3D(float ktheta, Eigen::Vector4f *Chi3d, Eigen::Matrix4f *J3d)
 {
+    float u_theta;
+    Eigen::Matrix2f E;
+    Eigen::Matrix<float, 2, 4> F;
+    Eigen::Matrix<float, 2, 4> Fp;
+    Eigen::Matrix4f G;
+    Eigen::Matrix4f Gp;
 
+    F << 1.0, 0.0, 0.0, 0.0,
+         0.0, 1.0, 0.0, 0.0;
+
+    E << 0.0, -1.0,
+         1.0,  0.0;
+
+    G = F.transpose() * F;
+    Fp = E * F;
+    Gp = F.transpose() * E * F;
+
+    u_theta = - 1/((*Chi3d).transpose() * G * *Chi3d);
 }
 
 // 3D ELLIPSE
