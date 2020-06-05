@@ -74,12 +74,12 @@
     
    
    
-    <!-- Brick_cube_1
+    <!-- Brick_cube_1  -->
     <include>
       <uri>model://brick_cube_1</uri>
       <name>brick cube 1</name>
       <pose>0 6 0 0 0 0</pose> 
-    </include>  -->
+    </include>
 
     
    
@@ -168,12 +168,12 @@
     </include> -->
 
 
-    <!-- Brick_wall_lshaped_1 - l-shaped wall to test for local minimum -->
+    <!-- Brick_wall_lshaped_1 - l-shaped wall to test for local minimum
     <include>
       <uri>model://brick_wall_lshaped_1</uri>
       <name>brick_wall_lshaped_1</name>
       <pose>0 4 0 0 0 3.92699</pose>
-    </include>
+    </include> -->
     
     
 

@@ -40,11 +40,12 @@ extern void wedgebug_periodic(void);
 // Structures
 /* Kernel - processes single channel images */
 struct kernel_C1 {
-	  uint16_t w;           ///< Kernel width
-	  uint16_t h;           ///< Kernel height
-	  uint32_t buf_size;    ///< Size of values of weight buffer and values buffer
-	  void *buf_weights;    ///< Kernel weight buffer
-	  void *buf_values;     ///< Kernel value buffer. These are the values underneath the kernel
+	enum image_type type;		// Type of image on which kernel is laid onto
+	uint16_t w;           //s/< Kernel width
+	uint16_t h;           ///< Kernel height
+	uint32_t buf_size;    ///< Size of values of weight buffer and values buffer
+	void *buf_weights;    ///< Kernel weight buffer
+	void *buf_values;     ///< Kernel value buffer. These are the values underneath the kernel
 };
 
 
@@ -66,6 +67,7 @@ extern int SE_dilation_OCV_2; // SE size for the second dilation operation (see 
 // Setting thresholds
 extern uint8_t threshold_median_disparity; 		// Above this median disparity, an obstacle is considered to block the way. >60 = close than 35cm
 extern int threshold_edge_magnitude;  		// Edges with a magnitude above this value are detected. Above this value, edges are given the value 127, otherwise they are given the value zero.
+extern int threshold_edge_magnitude_16bit;  // Edges with a magnitude above this value are detected. Above this value, edges are given the value 127, otherwise they are given the value zero.
 extern uint8_t threshold_disparity_of_edges; 		// Above this underlying disparity value, edges are considers eligible for detection
 extern float threshold_distance_to_goal; 		// Above this threshold, the goal is considered reached
 extern float threshold_distance_to_angle;	// Above this threshold, the angle/heading is considered reached
@@ -81,13 +83,14 @@ extern int16_t max_no_edge_found_confidence;		// This is the max confidence that
 
 
 extern int heat_map_type; // Heat map used when saving image
+extern uint8_t save_images_flag;
 
 
 
 // Global functions
 extern void post_disparity_crop_rect(struct crop_t *img_cropped_info,struct img_size_t *original_img_dims,const int disp_n,const int block_size);
 extern void set_state(uint8_t state, uint8_t change_allowed);
-extern void kernel_create(struct kernel_C1 *kernel, uint16_t width, uint16_t height);
+void kernel_create(struct kernel_C1 *kernel, uint16_t width, uint16_t height, enum image_type type);
 extern void kernel_free(struct kernel_C1 *kernel);
 extern uint8_t getMedian(uint8_t *a, uint32_t n);
 extern int heat_map_type;

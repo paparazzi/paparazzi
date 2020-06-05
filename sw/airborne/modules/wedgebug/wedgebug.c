@@ -75,6 +75,10 @@ struct image_t img_depth_int8_cropped;	//! Image obtained after image is cropped
 struct image_t img_middle_int8_cropped;	// Image obtained after processing (morphological operations) of previous image
 struct image_t img_edges_int8_cropped;	//! Image obtained from the external sobel edge detection function = sobel_OCV
 
+struct image_t img_disp_int16_cropped;	//!
+struct image_t img_depth_int16_cropped;	//!
+struct image_t img_middle_int16_cropped;//!
+
 // Declaring images for report
 struct image_t img_post_SBM;			// For report: Image saved after block matching operation
 struct image_t img_post_opening;		// For report: Image saved after opening operation
@@ -92,6 +96,7 @@ struct img_size_t kernel_median_dims;	//! Dimensions of the kernel that detect m
 
 // Declaring empty kernel for obtaining median
 struct kernel_C1 median_kernel; // !
+struct kernel_C1 median_kernel16bit; // !
 
 // Delcaring structuring element sizes
 int SE_opening_OCV; 	//! SE size for the opening operation
@@ -121,7 +126,9 @@ struct FloatVect3 VPBESTEDGECOORDINATESwned;//! Declared vector of coordinates o
 
 // Declaring thresholds
 int threshold_edge_magnitude;			//! Edges with a magnitude above this value are detected. Above this value, edges are given the value 127, otherwise they are given the value zero.
+int threshold_edge_magnitude_16bit;		//! Edges with a magnitude above this value are detected. Above this value, edges are given the value 127, otherwise they are given the value zero.
 uint8_t threshold_median_disparity; 	//! Above this median disparity, an obstacle is considered to block the way (i.e. the blocking obstacle need to be close)
+uint16_t threshold_median_depth;
 uint8_t threshold_disparity_of_edges; 	//! Above this disparity edges are eligible for WedgeBug algorithm (i.e. edges cannot be very far away)
 float threshold_distance_to_goal; 		//! Below this distance (in meters) it is considered that the robot has reached the goal
 float threshold_distance_to_angle;		//! Below this distance (in radians) it is considered that the robot has reached the target angle
@@ -233,8 +240,9 @@ int N_disparities = 64; 				//! Number of disparity levels (0-this number)
 int block_size_disparities = 25;		//! Block size used for the block matching (SBM) function
 int min_disparity = 0;//
 float heading; 							//! Variable for storing the heading of the drone (psi in radians)
-float max_edge_search_angle = M_PI;;	//! The maximum angle (in adians) to the left and right of the drone, that edges can be detected in. Edges outside of this area are considered to be in a minimum
+float max_edge_search_angle = M_PI/2;;	//! The maximum angle (in adians) to the left and right of the drone, that edges can be detected in. Edges outside of this area are considered to be in a minimum
 uint8_t median_disparity_in_front;		//! Variable to hold the median disparity in front of the drone. Needed to see if obstacle is there.
+uint16_t median_depth_in_front;			//! Variable to hold the median depth in front of the drone. Needed to see if obstacle is there
 float distance_traveled;				// Variable to hold the distance traveled of the robot (since start and up to the goal)
 uint8_t number_of_states;				// Variable to save the total number of states used in the finite state machine
 float distance_robot_edge_goal;			//! Variable to hold distance from robot to edge to goal (used in EDGE_SCAN (9) state)
@@ -270,7 +278,7 @@ void show_rotation_matrix(struct FloatRMat *R);
 // External
 void post_disparity_crop_rect(struct crop_t *img_cropped_info,struct img_size_t *original_img_dims, const int disp_n, const int block_size);
 void set_state(uint8_t state, uint8_t change_allowed);
-void kernel_create(struct kernel_C1 *kernel, uint16_t width, uint16_t height);
+void kernel_create(struct kernel_C1 *kernel, uint16_t width, uint16_t height, enum image_type type);
 void kernel_free(struct kernel_C1 *kernel);
 uint8_t getMedian(uint8_t *a, uint32_t n);
 
@@ -387,11 +395,28 @@ void set_state(uint8_t state, uint8_t change_allowed)
 
 
 // Function 3 - Creates empty 8bit kernel
-void kernel_create(struct kernel_C1 *kernel, uint16_t width, uint16_t height)
+void kernel_create(struct kernel_C1 *kernel, uint16_t width, uint16_t height, enum image_type type)
 {
+
+	  // Set the variables
+	kernel->type = type;
 	kernel->h = height;
 	kernel->w = width;
-	kernel->buf_size = height * width;
+
+
+	  // Depending on the type the size differs
+	  if (type == IMAGE_YUV422) {
+		  kernel->buf_size = sizeof(uint8_t) * 2 * width * height;
+	  } else if (type == IMAGE_JPEG) {
+		  kernel->buf_size = sizeof(uint8_t) * 2 * width * height;  // At maximum quality this is enough
+	  } else if (type == IMAGE_GRADIENT) {
+		  kernel->buf_size = sizeof(int16_t) * width * height;
+	  } else if (type == IMAGE_OPENCV_DISP) {
+		  kernel->buf_size = sizeof(int16_t) * width * height;
+	  } else {
+		  kernel->buf_size = sizeof(uint8_t) * width * height;
+	  }
+
 	kernel->buf_weights = malloc(kernel->buf_size);
 	kernel->buf_values = malloc(kernel->buf_size);
 }
@@ -441,6 +466,36 @@ uint8_t getMedian(uint8_t *a, uint32_t n)
   return dMedian;
 }
 
+
+// Function 6 - Calculates median of a 16bit image
+uint16_t getMedian16bit(uint16_t *a, uint32_t n)
+{
+  // Allocate an array of the same size and sort it.
+  uint32_t i, j;
+
+  uint16_t dpSorted[n];
+  for (i = 0; i < n; ++i) {
+    dpSorted[i] = a[i];
+  }
+  for (i = n - 1; i > 0; --i) {
+    for (j = 0; j < i; ++j) {
+      if (dpSorted[j] > dpSorted[j + 1]) {
+        uint16_t dTemp = dpSorted[j];
+        dpSorted[j] = dpSorted[j + 1];
+        dpSorted[j + 1] = dTemp;
+      }
+    }
+  }
+
+  // Middle or average of middle values in the sorted array.
+  uint16_t dMedian = 0;
+  if ((n % 2) == 0) {
+    dMedian = (dpSorted[n / 2] + dpSorted[(n / 2) - 1]) / 2.0;
+  } else {
+    dMedian = dpSorted[n / 2];
+  }
+  return dMedian;
+}
 
 
 
@@ -595,11 +650,27 @@ void principal_points(struct point_t *c_output ,const struct point_t *c_old_inpu
 }
 
 
-// Function 8 - Converts disparity to depth using focal length (in pixels) and baseline distance (in meters)
+// Function 8b - Converts disparity to depth using focal length (in pixels) and baseline distance (in meters)
 float disp_to_depth(const uint8_t d, const float b, const uint16_t f)
 {
 	return b * f / d;
 }
+
+//disp_to_depth_16bit
+
+// Function 8b - Converts 16bit fixed number disparity (pixels * 16) to 16bit disparity (pixels)
+float dispfixed_to_disp(const int16_t d)
+{
+	return (d/ 16.00);
+}
+
+
+// Function 8c - Converts 16bit fixed number disparity (pixels * 16) to 16bit depth (cm) using focal length (in pixels) and baseline distance (in meters)
+float disp_to_depth_16bit(const int16_t d, const float b, const uint16_t f)
+{
+	return b * f / dispfixed_to_disp(d);
+}
+
 
 
 // Function 9 - Calculates 3d points in a scene based on the 2d coordinates of the point in the
@@ -1114,6 +1185,176 @@ void background_processes(uint8_t save_images_flag)
 }
 
 
+
+
+// Function 24 - Function to calculate median depth (cm) to a point (Vi) in a 16bit image (img), using a kernel structure (kernel_median)
+uint16_t median_depth_to_point(struct point_t *Vi, struct image_t *img, struct kernel_C1 *kernel_median)
+{
+	// Creating Start and stop coordinates of in the image coordinate system, based on kernel size
+	uint16_t VSTARTi_y = Vi->y  - (kernel_median->h / 2);
+	uint16_t VSTARTi_x = Vi->x - (kernel_median->w/ 2);
+	uint16_t VSTOPi_y = Vi->y + (kernel_median->h / 2);
+	uint16_t VSTOPi_x = Vi->x + (kernel_median->w / 2);
+
+	// In case the upper bounds of the kernel are outside of the image area
+	// (lower bound not important because of uint8_t type converting everything below 0 to 0):
+	if (VSTOPi_y > img->h)
+	{
+		VSTOPi_y = (img->h - 1);
+	}
+	if (VSTOPi_x > img->w)
+	{
+		VSTOPi_x = (img->w - 1);
+	}
+
+
+
+	// Declaring kernel coordinates
+	uint16_t Vk_y;
+	uint16_t Vk_x;
+
+	// Declaring 1d indices (for result of transforming 2d coordinates into 1d coordinate)
+	int32_t index_img;
+	int32_t index_kernel;
+
+	// Declaring variable to store median in
+	uint16_t median;
+
+
+	// Here we get the median value of a block in the middle of an image using a kernel structure
+	for (uint16_t Vi_y = VSTARTi_y; Vi_y < (VSTOPi_y+1); Vi_y++)
+	{
+		for (uint16_t Vi_x = VSTARTi_x; Vi_x < (VSTOPi_x+1); Vi_x++)
+		{
+			// Calculating kernel coordinates
+			Vk_y = Vi_y - VSTARTi_y;
+			Vk_x = Vi_x - VSTARTi_x;
+
+			// Converting 2d indices to 1d indices
+			index_img = indx1d_a(Vi_y , Vi_x, img);
+			index_kernel = indx1d_c(Vk_y, Vk_x, median_kernel.h, median_kernel.w);
+
+
+			// Saving disparity values of image underneath the kernel, into the kernel buffer
+			((uint16_t*) median_kernel.buf_values)[index_kernel] = ((uint16_t*) img->buf)[index_img];
+		}
+	}
+
+	// Calculating median disparity value of values recoded by the kernel
+	median = getMedian16bit(((uint16_t*) median_kernel.buf_values), (median_kernel.h * median_kernel.w)); //
+
+	return median;
+}
+
+
+// Function 25 - Function to convert 16bit disparity (unaltered from OCV output i.e. fixed point 16bit numbers) into 16bit depth values (cm)
+void disp_to_depth_img16bit(struct image_t *img16bit_input, struct image_t *img16bit_output)
+{
+	int n = 89;
+	float disparity;
+
+	printf("C location %d = %d\n", n, ((int16_t*)img16bit_input->buf)[n]);
+
+
+	// Converting disparity values into depth (cm)
+	for (int32_t i = 0; i < (img16bit_input->h * img16bit_input->w); i++ )
+	{
+
+		disparity = disp_to_depth_16bit(((int16_t*)img16bit_input->buf)[i], b, f);
+
+		if(i == n)
+		{
+			printf("Depth in meters at %d = %f\n", n, disparity);
+		}
+
+		disparity = disparity * 100;
+
+		if(i == n)
+		{
+			printf("Depth in cm at %d = %f\n", n, disparity);
+		}
+
+
+		((int16_t*)img16bit_output->buf)[i] = round(disparity);
+	}
+	printf("Depth in cm at %d = %d\n", n, ((int16_t*)img16bit_output->buf)[n]);
+}
+
+
+
+// Function 25  - Function that encapsulates all of the background processes. Originally this was in the periodic function,
+// but since it is used in the direct and the guidance navigation modes of the state machine, I made it a callable function
+// for convenience
+void background_processes2(uint8_t save_images_flag)
+{
+	//Background processes
+	// 1. Converting left and right image to 8bit grayscale for further processing
+	image_to_grayscale(&img_left, &img_left_int8); // Converting left image from UYVY to gray scale for saving function
+	image_to_grayscale(&img_right, &img_right_int8); // Converting right image from UYVY to gray scale for saving function
+
+	// 2. Deriving disparity map from block matching (left image is reference image)
+	//SBM_OCV(&img_depth_int8_cropped, &img_left_int8, &img_right_int8, N_disparities, block_size_disparities, 1);// Creating cropped disparity map image
+	SBM_OCV(&img_disp_int16_cropped, &img_left_int8, &img_right_int8, N_disparities, block_size_disparities, 1);// Creating cropped disparity map image
+
+	// For report: creating image for saving 1
+	if (save_images_flag){save_image_HM(&img_disp_int16_cropped, "/home/dureade/Documents/paparazzi_images/for_report/img_post_SBM_16bit.bmp", heat_map_type);;}
+
+	/*
+	// For report: creating image for saving 1
+	if (save_images_flag){image_copy(&img_depth_int8_cropped, &img_post_SBM);}
+
+	// Optional thresholding of disparity map
+	uint8_t thresh = 1;
+	for (int32_t i = 0; i < (img_depth_int8_cropped.h*img_depth_int8_cropped.w); i++)
+	{
+		uint8_t disparity = ((uint8_t*)img_depth_int8_cropped)[i];
+		if(disparity < thresh)
+		{
+			((uint8_t*)img_depth_int8_cropped)[i] = 0; // if below disparity assume object is indefinately away
+		}
+	}*/
+
+	// 3. Morphological operations 1
+	// Needed to smoove object boundaries and to remove noise removing noise
+	opening_OCV(&img_disp_int16_cropped, &img_middle_int16_cropped, SE_opening_OCV, 1);
+	// For report: creating image for saving 2
+	save_image_HM(&img_middle_int16_cropped, "/home/dureade/Documents/paparazzi_images/for_report/img_post_opening_16bit.bmp", heat_map_type);
+
+	closing_OCV(&img_middle_int16_cropped, &img_middle_int16_cropped, SE_closing_OCV, 1);
+	// For report: creating image for saving 3
+	save_image_HM(&img_middle_int16_cropped, "/home/dureade/Documents/paparazzi_images/for_report/img_post_closing_16bit.bmp", heat_map_type);
+
+	dilation_OCV(&img_middle_int16_cropped, &img_middle_int16_cropped,SE_dilation_OCV_1, 1);
+	// For report: creating image for saving 4
+	save_image_HM(&img_middle_int16_cropped, "/home/dureade/Documents/paparazzi_images/for_report/img_post_dilation_16bit.bmp", heat_map_type);
+
+	disp_to_depth_img16bit(&img_middle_int16_cropped, &img_depth_int16_cropped);
+	// For report: creating image for saving 5
+	if (save_images_flag){save_image_HM(&img_depth_int16_cropped, "/home/dureade/Documents/paparazzi_images/for_report/img_post_depth_16bit.bmp", heat_map_type);}
+
+
+	sobel_OCV(&img_middle_int16_cropped, &img_edges_int8_cropped, SE_sobel_OCV, threshold_edge_magnitude_16bit);
+	// For report: creating image for saving 5
+	if (save_images_flag){save_image_gray(&img_edges_int8_cropped, "/home/dureade/Documents/paparazzi_images/for_report/img_post_sobel_16bit.bmp");}
+	//save_image_gray(&img_edges_int8_cropped, "/home/dureade/Documents/paparazzi_images/img_edges_int16_cropped.bmp");
+
+
+
+	/*
+	// For report: creating image for saving 4
+	if (save_images_flag){image_copy(&img_middle_int8_cropped, &img_post_dilation);}
+
+	// 4. Sobel edge detection
+	sobel_OCV(&img_middle_int8_cropped, &img_edges_int8_cropped, SE_sobel_OCV, threshold_edge_magnitude);
+
+	// For report: creating image for saving 5
+	if (save_images_flag){image_copy(&img_edges_int8_cropped, &img_post_sobel);}
+	*/
+}
+
+
+
+
 /*
  * a: Coordinate system a (i.e. the coordinate frame a)
  * b: Coordinate system b (i.e. the coordinate frame b)
@@ -1172,11 +1413,17 @@ void wedgebug_init(){
 
 	printf("img_cropped_info [w, h, x, y] = [%d, %d, %d, %d]\n",img_cropped_info.w, img_cropped_info.h, img_cropped_info.x, img_cropped_info.y);
 
-	// Creating empty images - cropped
+	// Creating empty images - cropped - 8bit
 	image_create(&img_left_int8_cropped, img_cropped_dims.w, img_cropped_dims.h, IMAGE_GRAYSCALE);// To store cropped depth - 8 bit
 	image_create(&img_depth_int8_cropped, img_cropped_dims.w, img_cropped_dims.h, IMAGE_GRAYSCALE);// To store cropped depth - 8 bit
 	image_create(&img_middle_int8_cropped,img_cropped_dims.w, img_cropped_dims.h, IMAGE_GRAYSCALE);// To store intermediate image data from processing - 8 bit
 	image_create(&img_edges_int8_cropped,img_cropped_dims.w, img_cropped_dims.h, IMAGE_GRAYSCALE);// To store edges image data from processing - 8 bit
+
+	// Creating empty images - cropped - 16bit
+	image_create(&img_disp_int16_cropped, img_cropped_dims.w, img_cropped_dims.h, IMAGE_OPENCV_DISP);// To store cropped disparity - 16 bit
+	image_create(&img_depth_int16_cropped, img_cropped_dims.w, img_cropped_dims.h, IMAGE_OPENCV_DISP);// To store cropped depth - 16 bit
+	image_create(&img_middle_int16_cropped, img_cropped_dims.w, img_cropped_dims.h, IMAGE_OPENCV_DISP);// To store cropped middle image - 16 bit
+
 
 	// Creating empty images - For report
 	image_create(&img_post_SBM, img_cropped_dims.w, img_cropped_dims.h, IMAGE_GRAYSCALE);		// For report: Image saved after block matching operation
@@ -1195,7 +1442,12 @@ void wedgebug_init(){
 
 	kernel_median_dims.w = K_median_w; kernel_median_dims.h = K_median_h;
 	// Creating empty kernel:
-	kernel_create(&median_kernel, kernel_median_dims.w, kernel_median_dims.h);
+	kernel_create(&median_kernel, kernel_median_dims.w, kernel_median_dims.h, IMAGE_GRAYSCALE);
+	kernel_create(&median_kernel16bit, kernel_median_dims.w, kernel_median_dims.h, IMAGE_OPENCV_DISP);
+
+	printf("median_kernel16bit [buf_size, h, w, type]  = [%d, %d, %d, %d]\n", median_kernel16bit.buf_size, median_kernel16bit.h,median_kernel16bit.w,median_kernel16bit.type);
+
+
 
 
 	// Adding callback functions
@@ -1249,7 +1501,9 @@ void wedgebug_init(){
 
 	// Setting thresholds
 	threshold_median_disparity = 8; //11		// Above this median disparity, an obstacle is considered to block the way. >60 = close than 35cm
+	threshold_median_depth = 175; 				// Below this median depth, an obstacle is considered to block the way.
 	threshold_edge_magnitude = 151;//301;  		// Edges with a magnitude above this value are detected. Above this value, edges are given the value 127, otherwise they are given the value zero.
+	threshold_edge_magnitude_16bit = 780;//301;  // Edges with a magnitude above this value are detected. Above this value, edges are given the value 127, otherwise they are given the value zero.
 	threshold_disparity_of_edges = 5; //5		// Above this underlying disparity value, edges are considers eligible for detection
 	threshold_distance_to_goal = 0.25; //0.25		// Above this threshold, the goal is considered reached
 	threshold_distance_to_goal_direct = 1.0; //0.25		// Above this threshold, the goal is considered reached in DIRECT_CONTROL mode
@@ -1399,8 +1653,8 @@ void wedgebug_periodic(){
 
 	// Debugging - setting default state
 	//set_state(MOVE_TO_GOAL ,1);
-	printf("Current control mode %d\n", current_mode);
-	printf("Current state %d\n", current_state);
+	//printf("Current control mode %d\n", current_mode);
+	//printf("Current state %d\n", current_state);
 
 
 
@@ -1485,20 +1739,26 @@ void wedgebug_periodic(){
 
 		// Background processes - Includes image processing for use
     	// Turn on for debugging
-		background_processes(save_images_flag);
+		background_processes2(save_images_flag);
 
 
     	switch(current_state)  // Finite state machine - Start
     	{
     	case MOVE_TO_GOAL: // 1
     	{
-    		printf("MOVE_TO_GOAL = %d\n", MOVE_TO_GOAL);
+    		printf("MOVE_TO_GOAL = %d\n", MOVE_TO_GOAL);// --------------------------------------------------------------------------------------------------------------------
 
 
-			median_disparity_in_front = median_disparity_to_point(&c_img_cropped, &img_depth_int8_cropped, &median_kernel);
+
+    		median_depth_in_front = median_depth_to_point(&c_img_cropped, &img_depth_int16_cropped, &median_kernel16bit);
+
+    		median_disparity_in_front = median_disparity_to_point(&c_img_cropped, &img_depth_int8_cropped, &median_kernel);
+
+
 			//In case disparity is 0 (infinite distance or error we set it to one disparity
 			// above the threshold as the likelyhood that the object is too close is large (as opposed to it being infinitely far away)
 			printf("median_disparity_in_front = %d\n", median_disparity_in_front);
+			printf("median_depth_in_front = %d\n", median_depth_in_front);
 
 
 
@@ -1632,7 +1892,7 @@ void wedgebug_periodic(){
 
 
     		// Background processes - Includes image processing for use
-    		background_processes(save_images_flag);
+    		background_processes2(save_images_flag);
 
 
     		// ############ Metric 3 - Runtime average of background processes (see below) - End:
@@ -1708,17 +1968,18 @@ void wedgebug_periodic(){
     	        		{
     	        			// Calculate median disparity in front
     	        			median_disparity_in_front = median_disparity_to_point(&c_img_cropped, &img_depth_int8_cropped, &median_kernel);
-
-    	        			//In case disparity is 0 (infinite distance or error we set it to one disparity
-    	        			// above the threshold as the likelyhood that the object is too close is large (as opposed to it being infinitely far away)
-    	        			//if(median_disparity_in_front == 0 )
-    	        			//{
-    	        			//	median_disparity_in_front = (threshold_median_disparity + 1);
-    	        			//	printf("Median is adjusted\n");
-    	        			//}
+    	        			median_depth_in_front = median_depth_to_point(&c_img_cropped, &img_depth_int16_cropped, &median_kernel16bit);
     	        			printf("median_disparity_in_front = %d\n", median_disparity_in_front);
+    	        			printf("median_depth_in_front = %d\n", median_depth_in_front);
+
     	        			// If obstacle appears to be detected, increase confidence
-    	        			if ((median_disparity_in_front > threshold_median_disparity) && (float_vect3_norm_two_points(&VGOALwned, &VRwned) > 0.5)) // NOTE. The second logical operator was added for testing. Delete it after reducing object distance range and integrating the look for edge function
+    	        			//if ((median_disparity_in_front > threshold_median_disparity) && (float_vect3_norm_two_points(&VGOALwned, &VRwned) > 0.5)) // NOTE. The second logical operator was added for testing. Delete it after reducing object distance range and integrating the look for edge function
+    	        			//{
+    	        				//printf("Increasing confidence\n");
+    	        				//obstacle_confidence++;
+    	        				//Bound(obstacle_confidence, 0, max_obstacle_confidence);
+    	        			//}
+    	        			if ((median_depth_in_front < threshold_median_depth) && (float_vect3_norm_two_points(&VGOALwned, &VRwned) > 0.5)) // NOTE. The second logical operator was added for testing. Delete it after reducing object distance range and integrating the look for edge function
     	        			{
     	        				printf("Increasing confidence\n");
     	        				obstacle_confidence++;
@@ -2349,6 +2610,7 @@ void wedgebug_periodic(){
 
 	// For report: Saving images
 
+	/*
 	if (save_images_flag)
 	{
 		//save_image_color(&img_left, "/home/dureade/Documents/paparazzi_images/for_report/img_left.bmp");
@@ -2361,6 +2623,7 @@ void wedgebug_periodic(){
 		save_image_gray(&img_post_sobel, "/home/dureade/Documents/paparazzi_images/for_report/img_post_sobel.bmp");
 
 	}
+	*/
 
 
 	/*
