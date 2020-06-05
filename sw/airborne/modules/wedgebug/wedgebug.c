@@ -233,7 +233,7 @@ int N_disparities = 64; 				//! Number of disparity levels (0-this number)
 int block_size_disparities = 25;		//! Block size used for the block matching (SBM) function
 int min_disparity = 0;//
 float heading; 							//! Variable for storing the heading of the drone (psi in radians)
-float max_edge_search_angle = M_PI/2;;	//! The maximum angle (in adians) to the left and right of the drone, that edges can be detected in. Edges outside of this area are considered to be in a minimum
+float max_edge_search_angle = M_PI;;	//! The maximum angle (in adians) to the left and right of the drone, that edges can be detected in. Edges outside of this area are considered to be in a minimum
 uint8_t median_disparity_in_front;		//! Variable to hold the median disparity in front of the drone. Needed to see if obstacle is there.
 float distance_traveled;				// Variable to hold the distance traveled of the robot (since start and up to the goal)
 uint8_t number_of_states;				// Variable to save the total number of states used in the finite state machine
