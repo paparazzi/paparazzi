@@ -81,7 +81,7 @@ int save_image_gray(struct image_t *img, char *myString)
 	if (img->type == IMAGE_OPENCV_DISP )
 	{
 		Mat M(img->h, img->w, CV_16SC1, img->buf);
-		normalize(M, M, 0, 255, NORM_MINMAX);
+		//normalize(M, M, 0, 255, NORM_MINMAX);
 		imwrite(myString, M);
 
 	}
@@ -151,7 +151,7 @@ int save_image_HM(struct image_t *img, char *myString, int const heatmap)
 			Mat M(img->h, img->w, CV_16SC1, img->buf);
 			Mat M_output;
 
-			normalize(M, M, 0, 255, NORM_MINMAX);
+			//normalize(M, M, 0, 255, NORM_MINMAX);
 			M.convertTo(M, CV_8UC1); //Converting image to 8 bit image
 			applyColorMap(M, M_output, heatmap);
 
@@ -229,9 +229,6 @@ int SBM_OCV(struct image_t *img_disp, const struct image_t *img_left, const stru
 				((img_dip_type*)img_disp->buf)[i]  = img_cropped.at<img_dip_type>(i); // Using ".at" here are accessing buffer is problematic with a cropped image as it maintains a connection to oriinal image
 			}
 
-			int i = 89;
-
-			std::cout << "C++ location " << i << " = " << img_cropped.at<img_dip_type>(i) << std::endl;
 		}
 		else {return -1;}
 	}
@@ -432,25 +429,20 @@ int sobel_OCV(struct image_t *img_input, const struct image_t *img_output, const
 
 	if (img_input->type == IMAGE_OPENCV_DISP)
 	{
-		std::cout << "IMAGE_OPEN_DISP" << std::endl;
+		//std::cout << "IMAGE_OPEN_DISP" << std::endl;
 		img_input_OCV = Mat(img_input->h, img_input->w, CV_16S, img_input->buf);
 		Sobel(img_input_OCV, img_grad_x, ddepth, 1, 0, kernel_size, scale, delta, BORDER_DEFAULT ); // Horizontal gradient
 		//imwrite("/home/dureade/Documents/paparazzi_images/img_grad_x.bmp", img_grad_x*-1);
 		Sobel(img_input_OCV, img_grad_y, ddepth, 0, 1, kernel_size, scale, delta, BORDER_DEFAULT ); // Vertical gradient
 		//imwrite("/home/dureade/Documents/paparazzi_images/img_grad_y.bmp", img_grad_y);
 		magnitude(img_grad_x, img_grad_y, img_grad_mag); // Calculating magnitude
-		double minVal;
-		double maxVal;
-		Point minLoc;
-		Point maxLoc;
-		minMaxLoc(img_grad_mag ,&minVal, &maxVal, &minLoc, &maxLoc);
-		std::cout << "grad_x: Min=" << minVal << "; Max=" << maxVal << std::endl;
+
 		//imwrite("/home/dureade/Documents/paparazzi_images/for_report/img_grad_mag.bmp", img_grad_mag);
 		threshold(img_grad_mag, img_grad_mag, thr,  127, THRESH_BINARY);
 	}
 	else if (img_input->type == IMAGE_GRAYSCALE)
 	{
-		std::cout << "IMAGE_GRAYSCALE" << std::endl;
+		//std::cout << "IMAGE_GRAYSCALE" << std::endl;
 		img_input_OCV = Mat(img_input->h, img_input->w, CV_8UC1, img_input->buf);
 		Sobel(img_input_OCV, img_grad_x, ddepth, 1, 0, kernel_size, scale, delta, BORDER_DEFAULT ); // Horizontal gradient
 		//imwrite("/home/dureade/Documents/paparazzi_images/img_grad_x.bmp", img_grad_x*-1);

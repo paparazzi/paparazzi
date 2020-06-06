@@ -130,6 +130,7 @@ int threshold_edge_magnitude_16bit;		//! Edges with a magnitude above this value
 uint8_t threshold_median_disparity; 	//! Above this median disparity, an obstacle is considered to block the way (i.e. the blocking obstacle need to be close)
 uint16_t threshold_median_depth;
 uint8_t threshold_disparity_of_edges; 	//! Above this disparity edges are eligible for WedgeBug algorithm (i.e. edges cannot be very far away)
+uint16_t threshold_depth_of_edges;
 float threshold_distance_to_goal; 		//! Below this distance (in meters) it is considered that the robot has reached the goal
 float threshold_distance_to_angle;		//! Below this distance (in radians) it is considered that the robot has reached the target angle
 float threshold_distance_to_goal_direct;//! Below this distance (in meters) it is considered that the robot has reached the goal, in DIRECT_CONTROL mode
@@ -307,7 +308,17 @@ float heading_towards_waypoint(uint8_t wp);
 float heading_towards_setpoint_WNED(struct FloatVect3 *VSETPOINTwned);
 uint8_t median_disparity_to_point(struct point_t *Vi, struct image_t *img, struct kernel_C1 *kernel_median);
 
-uint8_t find_best_edge_coordinates(struct FloatVect3 *VEDGECOORDINATESc, struct FloatVect3 *VTARGETc, struct image_t *img_edges, struct image_t *img_disparity, struct crop_t *edge_search_area, uint8_t threshold, int16_t confidence, int16_t max_confidence);
+uint8_t find_best_edge_coordinates(
+		struct FloatVect3 *VEDGECOORDINATESc,
+		struct FloatVect3 *VTARGETc,
+		struct image_t *img_edges,
+		struct image_t *img_disparity,
+		struct image_t *img_depth,
+		struct crop_t *edge_search_area,
+		uint16_t threshold,
+		int16_t confidence, 					// Confidence = number of edge pixels found
+		int16_t max_confidence					// if confidence is this, then at least one edge was found
+		);
 uint8_t is_setpoint_reached(struct FloatVect3 *VGOAL, struct FloatVect3 *VCURRENTPOSITION, float threshold);
 
 float float_norm_two_angles(float target_angle, float current_angle);
@@ -673,7 +684,7 @@ float disp_to_depth_16bit(const int16_t d, const float b, const uint16_t f)
 
 
 
-// Function 9 - Calculates 3d points in a scene based on the 2d coordinates of the point in the
+// Function 9a - Calculates 3d points in a scene based on the 2d coordinates of the point in the
 // image plane and the depth. d in in pixels, b is in meters and f is in pixels
 void Vi_to_Vc(struct FloatVect3 *scene_point, int32_t image_point_y, int32_t image_point_x , const uint8_t d, const float b, const uint16_t f)
 {
@@ -692,6 +703,42 @@ void Vi_to_Vc(struct FloatVect3 *scene_point, int32_t image_point_y, int32_t ima
 	else
 	{
 		scene_point->z = disp_to_depth(d, b, f);
+	}
+
+
+	//printf("Z=%f\n", scene_point->Z);
+
+	// Calculating Y
+	scene_point->y = image_point_y * scene_point -> z / f;
+
+	// Calculating X
+	scene_point->x = image_point_x * scene_point -> z / f;
+	//printf("Y (y=%d) =  %f\n", image_point->y, scene_point->Y);
+	//printf("X (x=%d) =  %f\n", image_point->x, scene_point->X);
+	//printf("Z (d=%d) =  %f\n", d, scene_point->Z);
+
+}
+
+
+// Function 9b - Calculates 3d points in a scene based on the 2d coordinates of the point in the
+// image plane and the depth. d in in pixels, b is in meters and f is in pixels
+void Vi_to_Vc16bit(struct FloatVect3 *scene_point, int32_t image_point_y, int32_t image_point_x , const uint16_t d, const float b, const uint16_t f)
+{
+	// Calculating Z
+	// In case disparity is 0 Z will be very very small to avoid detection of algorithm that
+	// calculates closest edge point to target goal
+	//printf("y=%d\n", image_point_y);
+	//printf("x=%d\n", image_point_x);
+	//printf("d=%d\n", d);
+
+
+	if (d==0)
+	{
+		scene_point->z = 0.0001;
+	}
+	else
+	{
+		scene_point->z = disp_to_depth_16bit(d, b, f);
 	}
 
 
@@ -989,8 +1036,9 @@ uint8_t find_best_edge_coordinates(
 		struct FloatVect3 *VTARGETc,
 		struct image_t *img_edges,
 		struct image_t *img_disparity,
+		struct image_t *img_depth,
 		struct crop_t *edge_search_area,
-		uint8_t threshold,
+		uint16_t threshold,
 		int16_t confidence, 					// Confidence = number of edge pixels found
 		int16_t max_confidence					// if confidence is this, then at least one edge was found
 		)
@@ -1010,7 +1058,8 @@ uint8_t find_best_edge_coordinates(
 	float f_distance_robot_to_edge; // Saves distance from robot to goal
 	int32_t indx; // Variable to store 1d index calculated from 2d index
 	uint8_t edge_value; // Variable to store the intensity value of a pixel in the img_edge
-	uint8_t disparity; // variable to store the disparity level of a pixel in the img_disparity
+	uint16_t disparity; // variable to store the disparity level of a pixel in the img_disparity
+	uint16_t depth; // Variable to store the depth (in cm) of a pixel in the img_disparity
 	uint8_t disparity_best = 0;
 
 
@@ -1020,13 +1069,14 @@ uint8_t find_best_edge_coordinates(
 		{
 			indx = indx1d_a(y, x, img_edges); // We convert the 2d index [x,y] into a 1d index
 			edge_value = ((uint8_t*) img_edges->buf)[indx]; // We save the intensity of the current point
-			disparity = ((uint8_t*) img_disparity->buf)[indx]; // We save the disparity of the current point
+			disparity = ((uint16_t*) img_disparity->buf)[indx]; // We save the disparity of the current point
+			depth = ((uint16_t*) img_depth->buf)[indx];
 
 			// Two conditions must be met for an edge to be considered a viable route for the drone:
 			// 1) This disparity of the current coordinate (x,y) must coincide with an edge pixel
 			//    (as all non-edge pixels have been set to 0) - (edge_value != 0)
 			// 2) The disparity of the current coordinate (x, y) must be above a certain threshold. This simulates vision cone - (disparity > threshold_disparity_of_edges)
-			if ((edge_value != 0) && (disparity > threshold))
+			if ((edge_value != 0) && (depth < threshold))
 			{
 				// We increase the confidence for every edge found
 				confidence++;
@@ -1036,7 +1086,8 @@ uint8_t find_best_edge_coordinates(
 				int32_t y_from_c = y - c_img_cropped.y; // NOTE. The variable "c_img_cropped" is a global variable
 				int32_t x_from_c = x - c_img_cropped.x; // NOTE. The variable "c_img_cropped" is a global variable
 				// We derive the 3d scene point using from the disparity saved earlier
-				Vi_to_Vc(&VEDGEc, y_from_c, x_from_c, disparity, b, f); // NOTE. The variables "b" and "f" are a global variables
+				//Vi_to_Vc(&VEDGEc, y_from_c, x_from_c, disparity, b, f); // NOTE. The variables "b" and "f" are a global variables
+				Vi_to_Vc16bit(&VEDGEc, y_from_c, x_from_c, disparity, b, f); // NOTE. The variables "b" and "f" are a global variables
 				// Calculating Euclidean distance (N2) - Edge to goal
 				f_distance_edge_to_goal =  float_vect3_norm_two_points(VTARGETc, &VEDGEc);
 				// Calculating Euclidean distance (N2) - robot to edge
@@ -1237,6 +1288,7 @@ uint16_t median_depth_to_point(struct point_t *Vi, struct image_t *img, struct k
 
 			// Saving disparity values of image underneath the kernel, into the kernel buffer
 			((uint16_t*) median_kernel.buf_values)[index_kernel] = ((uint16_t*) img->buf)[index_img];
+
 		}
 	}
 
@@ -1250,10 +1302,10 @@ uint16_t median_depth_to_point(struct point_t *Vi, struct image_t *img, struct k
 // Function 25 - Function to convert 16bit disparity (unaltered from OCV output i.e. fixed point 16bit numbers) into 16bit depth values (cm)
 void disp_to_depth_img16bit(struct image_t *img16bit_input, struct image_t *img16bit_output)
 {
-	int n = 89;
+	//int n = 89;
 	float disparity;
 
-	printf("C location %d = %d\n", n, ((int16_t*)img16bit_input->buf)[n]);
+	//printf("C location %d = %d\n", n, ((int16_t*)img16bit_input->buf)[n]);
 
 
 	// Converting disparity values into depth (cm)
@@ -1262,22 +1314,23 @@ void disp_to_depth_img16bit(struct image_t *img16bit_input, struct image_t *img1
 
 		disparity = disp_to_depth_16bit(((int16_t*)img16bit_input->buf)[i], b, f);
 
+		/*
 		if(i == n)
 		{
 			printf("Depth in meters at %d = %f\n", n, disparity);
-		}
+		}*/
 
 		disparity = disparity * 100;
 
-		if(i == n)
+		/*if(i == n)
 		{
 			printf("Depth in cm at %d = %f\n", n, disparity);
-		}
+		}*/
 
 
 		((int16_t*)img16bit_output->buf)[i] = round(disparity);
 	}
-	printf("Depth in cm at %d = %d\n", n, ((int16_t*)img16bit_output->buf)[n]);
+	//printf("Depth in cm at %d = %d\n", n, ((int16_t*)img16bit_output->buf)[n]);
 }
 
 
@@ -1295,61 +1348,42 @@ void background_processes2(uint8_t save_images_flag)
 	// 2. Deriving disparity map from block matching (left image is reference image)
 	//SBM_OCV(&img_depth_int8_cropped, &img_left_int8, &img_right_int8, N_disparities, block_size_disparities, 1);// Creating cropped disparity map image
 	SBM_OCV(&img_disp_int16_cropped, &img_left_int8, &img_right_int8, N_disparities, block_size_disparities, 1);// Creating cropped disparity map image
-
 	// For report: creating image for saving 1
-	if (save_images_flag){save_image_HM(&img_disp_int16_cropped, "/home/dureade/Documents/paparazzi_images/for_report/img_post_SBM_16bit.bmp", heat_map_type);;}
+	if (save_images_flag){save_image_HM(&img_disp_int16_cropped, "/home/dureade/Documents/paparazzi_images/for_report/img_post_SBM_16bit.bmp", heat_map_type);}
+	if (save_images_flag){save_image_gray(&img_disp_int16_cropped, "/home/dureade/Documents/paparazzi_images/for_report/img_post_SBM_16bit_gray.bmp");}
 
-	/*
-	// For report: creating image for saving 1
-	if (save_images_flag){image_copy(&img_depth_int8_cropped, &img_post_SBM);}
-
-	// Optional thresholding of disparity map
-	uint8_t thresh = 1;
-	for (int32_t i = 0; i < (img_depth_int8_cropped.h*img_depth_int8_cropped.w); i++)
-	{
-		uint8_t disparity = ((uint8_t*)img_depth_int8_cropped)[i];
-		if(disparity < thresh)
-		{
-			((uint8_t*)img_depth_int8_cropped)[i] = 0; // if below disparity assume object is indefinately away
-		}
-	}*/
 
 	// 3. Morphological operations 1
 	// Needed to smoove object boundaries and to remove noise removing noise
 	opening_OCV(&img_disp_int16_cropped, &img_middle_int16_cropped, SE_opening_OCV, 1);
 	// For report: creating image for saving 2
-	save_image_HM(&img_middle_int16_cropped, "/home/dureade/Documents/paparazzi_images/for_report/img_post_opening_16bit.bmp", heat_map_type);
+	if (save_images_flag){save_image_HM(&img_middle_int16_cropped, "/home/dureade/Documents/paparazzi_images/for_report/img_post_opening_16bit.bmp", heat_map_type);}
+	if (save_images_flag){save_image_gray(&img_middle_int16_cropped, "/home/dureade/Documents/paparazzi_images/for_report/img_post_opening_16bit_gray.bmp");}
 
 	closing_OCV(&img_middle_int16_cropped, &img_middle_int16_cropped, SE_closing_OCV, 1);
 	// For report: creating image for saving 3
-	save_image_HM(&img_middle_int16_cropped, "/home/dureade/Documents/paparazzi_images/for_report/img_post_closing_16bit.bmp", heat_map_type);
+	if (save_images_flag){save_image_HM(&img_middle_int16_cropped, "/home/dureade/Documents/paparazzi_images/for_report/img_post_closing_16bit.bmp", heat_map_type);}
+	if (save_images_flag){save_image_gray(&img_disp_int16_cropped, "/home/dureade/Documents/paparazzi_images/for_report/img_post_closing_16bit_gray.bmp");}
 
 	dilation_OCV(&img_middle_int16_cropped, &img_middle_int16_cropped,SE_dilation_OCV_1, 1);
 	// For report: creating image for saving 4
-	save_image_HM(&img_middle_int16_cropped, "/home/dureade/Documents/paparazzi_images/for_report/img_post_dilation_16bit.bmp", heat_map_type);
+	if (save_images_flag){save_image_HM(&img_middle_int16_cropped, "/home/dureade/Documents/paparazzi_images/for_report/img_post_dilation_16bit.bmp", heat_map_type);}
+	if (save_images_flag){save_image_gray(&img_disp_int16_cropped, "/home/dureade/Documents/paparazzi_images/for_report/img_post_dilation_16bit_gray.bmp");}
 
+	// 4. Obtaining depth image (in cm)
 	disp_to_depth_img16bit(&img_middle_int16_cropped, &img_depth_int16_cropped);
+	//printf("Depth 2 in cm at %d = %d\n", 89, ((int16_t*)img_depth_int16_cropped.buf)[89]);
 	// For report: creating image for saving 5
 	if (save_images_flag){save_image_HM(&img_depth_int16_cropped, "/home/dureade/Documents/paparazzi_images/for_report/img_post_depth_16bit.bmp", heat_map_type);}
+	if (save_images_flag){save_image_gray(&img_disp_int16_cropped, "/home/dureade/Documents/paparazzi_images/for_report/img_post_depth_16bit_gray.bmp");}
 
 
+	// 5. Performing Sobel operation
 	sobel_OCV(&img_middle_int16_cropped, &img_edges_int8_cropped, SE_sobel_OCV, threshold_edge_magnitude_16bit);
 	// For report: creating image for saving 5
 	if (save_images_flag){save_image_gray(&img_edges_int8_cropped, "/home/dureade/Documents/paparazzi_images/for_report/img_post_sobel_16bit.bmp");}
 	//save_image_gray(&img_edges_int8_cropped, "/home/dureade/Documents/paparazzi_images/img_edges_int16_cropped.bmp");
 
-
-
-	/*
-	// For report: creating image for saving 4
-	if (save_images_flag){image_copy(&img_middle_int8_cropped, &img_post_dilation);}
-
-	// 4. Sobel edge detection
-	sobel_OCV(&img_middle_int8_cropped, &img_edges_int8_cropped, SE_sobel_OCV, threshold_edge_magnitude);
-
-	// For report: creating image for saving 5
-	if (save_images_flag){image_copy(&img_edges_int8_cropped, &img_post_sobel);}
-	*/
 }
 
 
@@ -1501,10 +1535,11 @@ void wedgebug_init(){
 
 	// Setting thresholds
 	threshold_median_disparity = 8; //11		// Above this median disparity, an obstacle is considered to block the way. >60 = close than 35cm
-	threshold_median_depth = 175; 				// Below this median depth, an obstacle is considered to block the way.
+	threshold_median_depth = 500; 				// Below this median depth, an obstacle is considered to block the way.
 	threshold_edge_magnitude = 151;//301;  		// Edges with a magnitude above this value are detected. Above this value, edges are given the value 127, otherwise they are given the value zero.
 	threshold_edge_magnitude_16bit = 780;//301;  // Edges with a magnitude above this value are detected. Above this value, edges are given the value 127, otherwise they are given the value zero.
 	threshold_disparity_of_edges = 5; //5		// Above this underlying disparity value, edges are considers eligible for detection
+	threshold_depth_of_edges = 600;
 	threshold_distance_to_goal = 0.25; //0.25		// Above this threshold, the goal is considered reached
 	threshold_distance_to_goal_direct = 1.0; //0.25		// Above this threshold, the goal is considered reached in DIRECT_CONTROL mode
 	threshold_distance_to_angle = 0.0004;	// Above this threshold, the angle/heading is considered reached
@@ -1542,7 +1577,7 @@ void wedgebug_init(){
 	is_total_timer_on_flag = 0;
 	threshold_distance_to_goal_manual = 0.5;
 
-	save_images_flag = 0; 			// For report: Flag to indicate if images should be saved
+	save_images_flag = 1; 			// For report: Flag to indicate if images should be saved
 
 
 
@@ -1618,11 +1653,6 @@ void wedgebug_init(){
 
 
 
-
-
-
-
-
 void wedgebug_periodic(){
   // your periodic code here.
   // freq = 15.0 Hz
@@ -1648,14 +1678,6 @@ void wedgebug_periodic(){
 	case (AP_MODE_NAV):{current_mode = AUTONOMOUS_NAV;}break;
 	default:{printf("Unsupported control mode");}break;
 	}
-
-
-
-	// Debugging - setting default state
-	//set_state(MOVE_TO_GOAL ,1);
-	//printf("Current control mode %d\n", current_mode);
-	//printf("Current state %d\n", current_state);
-
 
 
 	// Cycle-dependent initializations
@@ -1748,20 +1770,11 @@ void wedgebug_periodic(){
     	{
     		printf("MOVE_TO_GOAL = %d\n", MOVE_TO_GOAL);// --------------------------------------------------------------------------------------------------------------------
 
-
-
     		median_depth_in_front = median_depth_to_point(&c_img_cropped, &img_depth_int16_cropped, &median_kernel16bit);
-
-    		median_disparity_in_front = median_disparity_to_point(&c_img_cropped, &img_depth_int8_cropped, &median_kernel);
-
 
 			//In case disparity is 0 (infinite distance or error we set it to one disparity
 			// above the threshold as the likelyhood that the object is too close is large (as opposed to it being infinitely far away)
-			printf("median_disparity_in_front = %d\n", median_disparity_in_front);
 			printf("median_depth_in_front = %d\n", median_depth_in_front);
-
-
-
 
 
 
@@ -2097,9 +2110,10 @@ void wedgebug_periodic(){
     	    							&VEDGECOORDINATESc,
     	    							&VGOALc,//target_point,
     	    							&img_edges_int8_cropped,
-    	    							&img_middle_int8_cropped,
+    	    							&img_middle_int16_cropped,
+										&img_depth_int16_cropped,
     	    							&edge_search_area,
-    	    							threshold_disparity_of_edges,
+										threshold_depth_of_edges,
     									edge_found_micro_confidence,
     									max_edge_found_micro_confidence);
     	    					//printf("was_edge_found?: %d\n", was_edge_found);
@@ -2389,9 +2403,10 @@ void wedgebug_periodic(){
     	    				&VEDGECOORDINATESc,
     	    				&VGOALc,//target_point,
     	    				&img_edges_int8_cropped,
-    	    				&img_middle_int8_cropped,
+    	    				&img_middle_int16_cropped,
+							&img_depth_int16_cropped,
     	    				&edge_search_area,
-    	    				threshold_disparity_of_edges,
+    	    				threshold_depth_of_edges,
     						edge_found_micro_confidence,
     						max_edge_found_micro_confidence);
 
