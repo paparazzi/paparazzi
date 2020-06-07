@@ -45,13 +45,30 @@ int transfer(const Mat *from, const image_t *to);
 // Local functions
 int transfer(const Mat *from, const image_t *to)
 {
-	typedef uint8_t img_dip_type;
-	for (int i = 0; i < (from->rows * from->cols); i++)
+	// Determining type of supplied image
+	// 1) If image is of type uint16_t
+	if (to->type == IMAGE_OPENCV_DISP)
 	{
-		((img_dip_type*)to->buf)[i]  = from->at<img_dip_type>(i); // Using ".at" here are accessing buffer is problematic with a cropped image as it maintains a connection to oriinal image
+		typedef uint16_t img_dip_type;
+		for (int i = 0; i < (from->rows * from->cols); i++)
+		{
+			((img_dip_type*)to->buf)[i]  = from->at<img_dip_type>(i); // Using ".at" here, as accessing buffer is problematic with a cropped image as it maintains a connection to original image
+		}
 	}
+	// 2) If image is of type uint8_t
+	else if (to->type == IMAGE_GRAYSCALE) // If image is of type uint8_t
+	{
+		typedef uint8_t img_dip_type;
+		for (int i = 0; i < (from->rows * from->cols); i++)
+		{
+			((img_dip_type*)to->buf)[i]  = from->at<img_dip_type>(i); // Using ".at" here, as accessing buffer is problematic with a cropped image as it maintains a connection to original image
+		}
+	}
+
 	return 0;
 }
+
+
 
 
 
@@ -64,15 +81,17 @@ int save_image_gray(struct image_t *img, char *myString)
 	if (img->type == IMAGE_OPENCV_DISP )
 	{
 		Mat M(img->h, img->w, CV_16SC1, img->buf);
-		imwrite(myString, M);
+		Mat Mcopy = M.clone();
+		//normalize(M, M, 0, 255, NORM_MINMAX);
+		imwrite(myString, Mcopy);
 
 	}
 	else if (img->type == IMAGE_GRAYSCALE)
 	{
 		Mat M(img->h, img->w, CV_8UC1, img->buf);
+		Mat Mcopy = M.clone();
 
-
-		imwrite(myString,M);
+		imwrite(myString,Mcopy);
 	}
 	else
 	{
@@ -91,6 +110,7 @@ int save_image_color(struct image_t *img, char *myString)
 	// Definition of Mat: Mat::Mat(int _rows, int _cols, int _type, void* _data, size_t _step)
 	// Remember that void takes any data type including char
 	Mat image;
+
 	cvtColor(M, image, CV_YUV2GRAY_Y422);
 	imwrite(myString, image);
 
@@ -130,21 +150,23 @@ int save_image_HM(struct image_t *img, char *myString, int const heatmap)
 		if (img->type == IMAGE_OPENCV_DISP )
 		{
 			Mat M(img->h, img->w, CV_16SC1, img->buf);
-			Mat M_output;
+			Mat Mcopy = M.clone();
 
-			applyColorMap(M, M_output, heatmap);
+			//normalize(Mcopy, Mcopy, 0, 255, NORM_MINMAX);
+			Mcopy.convertTo(Mcopy, CV_8UC1); //Converting image to 8 bit image
+			applyColorMap(Mcopy, Mcopy, heatmap);
 
-			imwrite(myString, M);
+			imwrite(myString, Mcopy);
 
 		}
 		else if (img->type == IMAGE_GRAYSCALE)
 		{
 			Mat M(img->h, img->w, CV_8UC1, img->buf);
-			Mat M_output;
+			Mat Mcopy = M.clone();
 
-			applyColorMap(M, M_output, heatmap);
+			applyColorMap(Mcopy, Mcopy, heatmap);
 
-			imwrite(myString, M_output);
+			imwrite(myString, Mcopy);
 		}
 		else
 		{
@@ -197,17 +219,17 @@ int SBM_OCV(struct image_t *img_disp, const struct image_t *img_left, const stru
 		else if (cropped == 1) // If image should be cropped
 		{
 			struct crop_t img_cropped_info;
-			struct img_size_t original_img_dims = {img_left->h, img_left->w};
+			struct img_size_t original_img_dims = {img_left->w, img_left->h};
 
 			post_disparity_crop_rect(&img_cropped_info, &original_img_dims,  ndisparities, SADWindowSize); // Function from wedebug.h
-
 			Rect crop_area = Rect(img_cropped_info.x, img_cropped_info.y, img_cropped_info.w, img_cropped_info.h);
-			Mat img_cropped = img_disp_OCV(crop_area);
+			Mat img_cropped = img_disp_OCV(crop_area);// <---
 
 			for (int i = 0; i < (img_cropped.rows * img_cropped.cols); i++)
 			{
 				((img_dip_type*)img_disp->buf)[i]  = img_cropped.at<img_dip_type>(i); // Using ".at" here are accessing buffer is problematic with a cropped image as it maintains a connection to oriinal image
 			}
+
 		}
 		else {return -1;}
 	}
@@ -222,7 +244,7 @@ int SBM_OCV(struct image_t *img_disp, const struct image_t *img_left, const stru
 
 		// THe followig code is to display the depth map with depth capped at 256/
 		// This is for debugging only such that the depth image has moe contrast when observing it
-		imwrite("/home/dureade/Documents/paparazzi_images/img_disp_int8_cropped_capped.bmp", img_disp_OCV);
+		//imwrite("/home/dureade/Documents/paparazzi_images/img_disp_int8_cropped_capped.bmp", img_disp_OCV);
 
 
 
@@ -278,9 +300,25 @@ int SBM_OCV(struct image_t *img_disp, const struct image_t *img_left, const stru
 
 int opening_OCV(struct image_t *img_input, const struct image_t *img_output, const int SE_size, const int iteration)
 {
-	Mat img_input_OCV(img_input->h, img_input->w, CV_8UC1, img_input->buf);
+	Mat img_input_OCV;
 	Mat img_output_OCV;
 	Mat kernel = getStructuringElement(MORPH_RECT, Size(SE_size, SE_size));
+
+	if (img_input->type == IMAGE_OPENCV_DISP)
+	{
+		img_input_OCV = Mat(img_input->h, img_input->w, CV_16S, img_input->buf);
+
+	}
+	else if (img_input->type == IMAGE_GRAYSCALE)
+	{
+		img_input_OCV = Mat(img_input->h, img_input->w, CV_8UC1, img_input->buf);
+	}
+	else
+	{
+		std::cout << "This function only worked with images of type IMAGE_GRAYSCALE and IAMGE_OPENCV_DISP. Leaving function." << std::endl;
+		return -1;
+	}
+
 
 	morphologyEx(img_input_OCV, img_output_OCV, CV_MOP_OPEN, kernel, Point(-1,-1), iteration);
 	//erode(img_input_OCV, img_output_OCV, kernel);
@@ -294,9 +332,25 @@ int opening_OCV(struct image_t *img_input, const struct image_t *img_output, con
 
 int closing_OCV(struct image_t *img_input, const struct image_t *img_output, const int SE_size, const int iteration)
 {
-	Mat img_input_OCV(img_input->h, img_input->w, CV_8UC1, img_input->buf);
+	Mat img_input_OCV;
 	Mat img_output_OCV;
 	Mat kernel = getStructuringElement(MORPH_RECT, Size(SE_size, SE_size));
+
+	if (img_input->type == IMAGE_OPENCV_DISP)
+	{
+		img_input_OCV = Mat(img_input->h, img_input->w, CV_16S, img_input->buf);
+
+	}
+	else if (img_input->type == IMAGE_GRAYSCALE)
+	{
+		img_input_OCV = Mat(img_input->h, img_input->w, CV_8UC1, img_input->buf);
+	}
+	else
+	{
+		std::cout << "This function only worked with images of type IMAGE_GRAYSCALE and IAMGE_OPENCV_DISP. Leaving function." << std::endl;
+		return -1;
+	}
+
 
 	morphologyEx(img_input_OCV, img_output_OCV, CV_MOP_CLOSE, kernel, Point(-1,-1), iteration);
 	//erode(img_input_OCV, img_output_OCV, kernel);
@@ -308,11 +362,55 @@ int closing_OCV(struct image_t *img_input, const struct image_t *img_output, con
 
 int dilation_OCV(struct image_t *img_input, const struct image_t *img_output, const int SE_size, const int iteration)
 {
-	Mat img_input_OCV(img_input->h, img_input->w, CV_8UC1, img_input->buf);
+	Mat img_input_OCV;
 	Mat img_output_OCV;
 	Mat kernel = getStructuringElement(MORPH_RECT, Size(SE_size, SE_size));
 
+	if (img_input->type == IMAGE_OPENCV_DISP)
+	{
+		img_input_OCV = Mat(img_input->h, img_input->w, CV_16S, img_input->buf);
+
+	}
+	else if (img_input->type == IMAGE_GRAYSCALE)
+	{
+		img_input_OCV = Mat(img_input->h, img_input->w, CV_8UC1, img_input->buf);
+	}
+	else
+	{
+		std::cout << "This function only worked with images of type IMAGE_GRAYSCALE and IAMGE_OPENCV_DISP. Leaving function." << std::endl;
+		return -1;
+	}
+
 	dilate(img_input_OCV, img_output_OCV, kernel, Point(-1,-1), iteration);
+	//erode(img_input_OCV, img_output_OCV, kernel);
+	transfer(&img_output_OCV, img_output);
+	return 0;
+}
+
+
+
+int erosion_OCV(struct image_t *img_input, const struct image_t *img_output, const int SE_size, const int iteration)
+{
+	Mat img_input_OCV;
+	Mat img_output_OCV;
+	Mat kernel = getStructuringElement(MORPH_RECT, Size(SE_size, SE_size));
+
+	if (img_input->type == IMAGE_OPENCV_DISP)
+	{
+		img_input_OCV = Mat(img_input->h, img_input->w, CV_16S, img_input->buf);
+
+	}
+	else if (img_input->type == IMAGE_GRAYSCALE)
+	{
+		img_input_OCV = Mat(img_input->h, img_input->w, CV_8UC1, img_input->buf);
+	}
+	else
+	{
+		std::cout << "This function only worked with images of type IMAGE_GRAYSCALE and IAMGE_OPENCV_DISP. Leaving function." << std::endl;
+		return -1;
+	}
+
+	erode(img_input_OCV, img_output_OCV, kernel, Point(-1,-1), iteration);
 	//erode(img_input_OCV, img_output_OCV, kernel);
 	transfer(&img_output_OCV, img_output);
 	return 0;
@@ -332,12 +430,28 @@ int sobel_OCV(struct image_t *img_input, const struct image_t *img_output, const
 
 	if (img_input->type == IMAGE_OPENCV_DISP)
 	{
+		//std::cout << "IMAGE_OPEN_DISP" << std::endl;
 		img_input_OCV = Mat(img_input->h, img_input->w, CV_16S, img_input->buf);
+		Sobel(img_input_OCV, img_grad_x, ddepth, 1, 0, kernel_size, scale, delta, BORDER_DEFAULT ); // Horizontal gradient
+		//imwrite("/home/dureade/Documents/paparazzi_images/img_grad_x.bmp", img_grad_x*-1);
+		Sobel(img_input_OCV, img_grad_y, ddepth, 0, 1, kernel_size, scale, delta, BORDER_DEFAULT ); // Vertical gradient
+		//imwrite("/home/dureade/Documents/paparazzi_images/img_grad_y.bmp", img_grad_y);
+		magnitude(img_grad_x, img_grad_y, img_grad_mag); // Calculating magnitude
 
+		//imwrite("/home/dureade/Documents/paparazzi_images/for_report/img_grad_mag.bmp", img_grad_mag);
+		threshold(img_grad_mag, img_grad_mag, thr,  127, THRESH_BINARY);
 	}
 	else if (img_input->type == IMAGE_GRAYSCALE)
 	{
+		//std::cout << "IMAGE_GRAYSCALE" << std::endl;
 		img_input_OCV = Mat(img_input->h, img_input->w, CV_8UC1, img_input->buf);
+		Sobel(img_input_OCV, img_grad_x, ddepth, 1, 0, kernel_size, scale, delta, BORDER_DEFAULT ); // Horizontal gradient
+		//imwrite("/home/dureade/Documents/paparazzi_images/img_grad_x.bmp", img_grad_x*-1);
+		Sobel(img_input_OCV, img_grad_y, ddepth, 0, 1, kernel_size, scale, delta, BORDER_DEFAULT ); // Vertical gradient
+		//imwrite("/home/dureade/Documents/paparazzi_images/img_grad_y.bmp", img_grad_y);
+		magnitude(img_grad_x, img_grad_y, img_grad_mag); // Calculating magnitude
+		//imwrite("/home/dureade/Documents/paparazzi_images/for_report/img_grad_mag.bmp", img_grad_mag);
+		threshold(img_grad_mag, img_grad_mag, thr,  127, THRESH_BINARY);
 	}
 	else
 	{
@@ -346,23 +460,15 @@ int sobel_OCV(struct image_t *img_input, const struct image_t *img_output, const
 	}
 
 
-	Sobel(img_input_OCV, img_grad_x, ddepth, 1, 0, kernel_size, scale, delta, BORDER_DEFAULT ); // Horizontal gradient
-
-
-	//imwrite("/home/dureade/Documents/paparazzi_images/img_grad_x.bmp", img_grad_x*-1);
-	Sobel(img_input_OCV, img_grad_y, ddepth, 0, 1, kernel_size, scale, delta, BORDER_DEFAULT ); // Vertical gradient
-	//imwrite("/home/dureade/Documents/paparazzi_images/img_grad_y.bmp", img_grad_y);
-	magnitude(img_grad_x, img_grad_y, img_grad_mag); // Calculating magnitude
-	//imwrite("/home/dureade/Documents/paparazzi_images/for_report/img_grad_mag.bmp", img_grad_mag);
-	threshold(img_grad_mag, img_grad_mag, thr,  127, THRESH_BINARY);
-
-
 
 	//normalize(img_grad_mag, img_grad_mag,  0, 255, NORM_MINMAX); // Normalizing magnitude between 0 and 255
 
 	img_grad_mag.convertTo(img_grad_mag, CV_8UC1); //Converting image to 8 bit image
 
 	transfer(&img_grad_mag, img_output); // Saving image into output images
+
+	Mat(img_output->h, img_output->w, CV_8UC1, img_output->buf);
+
 
 	/*
 	// Size of variables
@@ -391,6 +497,3 @@ int sobel_OCV(struct image_t *img_input, const struct image_t *img_output, const
 
 	return 1;
 }
-
-
-

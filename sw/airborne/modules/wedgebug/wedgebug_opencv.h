@@ -52,6 +52,7 @@ extern int SBM_OCV(struct image_t *img_disp, const struct image_t *img_left, con
 extern int opening_OCV(struct image_t *img_input, const struct image_t *img_output, const int SE_size, const int iteration);
 extern int closing_OCV(struct image_t *img_input, const struct image_t *img_output, const int SE_size, const int iteration);
 extern int dilation_OCV(struct image_t *img_input, const struct image_t *img_output, const int SE_size, const int iteration);
+extern int erosion_OCV(struct image_t *img_input, const struct image_t *img_output, const int SE_size, const int iteration);
 int sobel_OCV(struct image_t *img_input, const struct image_t *img_output, const int kernel_size, const int thr);
 
 

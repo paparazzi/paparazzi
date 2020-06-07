@@ -22,9 +22,9 @@
         
         <dl_setting var="K_median_w" min="1" step="1" max = "321" shortname="K_med_w"/>
         <dl_setting var="K_median_h" min="1" step="1" max = "321" shortname="K_med_h"/>
-        <dl_setting var="threshold_median_disparity" min="0" step="1" max = "128" shortname="thr_obs_disp"/>
-        <dl_setting var="threshold_edge_magnitude" min="0" step="50" max = "1000" shortname="thr_edge_mag"/>
-        <dl_setting var="threshold_disparity_of_edges" min="0" step="1" max = "128" shortname="thr_edge_disp"/>
+        <dl_setting var="threshold_median_depth" min="0.00" step="0.05" max = "25.00" shortname="thr_obs_disp"/>
+        <dl_setting var="threshold_depth_of_edge" min="0.00" step="0.05" max = "25.00" shortname="thr_edge_disp"/>
+        <dl_setting var="threshold_edge_magnitude" min="0" step="50" max = "50000" shortname="thr_edge_mag"/>
         <dl_setting var="threshold_distance_to_goal" min="0.00" step="0.05" max = "1.00" shortname="thr_goal_dist"/>
         <dl_setting var="threshold_distance_to_angle" min="0.0" step="0.1" max = "3.1" shortname="thr_angle_dist"/>
         
@@ -37,7 +37,6 @@
 		<dl_setting var="max_no_edge_found_confidence" min="0" step="1" max = "50" shortname="conf_no_edge"/>
         
         
-        <!-- <dl_setting var="safety_distance_front" min="0.0" step="0.1" max = "5.0" shortname="safety_distance_front"/> -->
         <dl_setting var="heat_map_type" min="0" step="1" max = "11" shortname="heatmap"/>
         
       </dl_settings>
