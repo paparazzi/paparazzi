@@ -33,6 +33,12 @@ extern "C" {
 
 #include "modules/guidance/gvf_advanced/trajectories/gvf_advanced_3d_ellipse.h"
 
+
+typedef struct {
+    float w;
+    float delta_T;
+} gvf_advanced_con;
+
 // Parameters for the trajectories
 enum trajectories_advanced {
     ELLIPSE_3D = 0,
