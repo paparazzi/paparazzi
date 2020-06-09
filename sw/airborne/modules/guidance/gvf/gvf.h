@@ -32,8 +32,8 @@
 
 #include "std.h"
 
-/** @typedef gvf_conf
-* @brief Parameters for the GVF
+/** @typedef gvf_con
+* @brief Control parameters for the GVF
 * @param ke Gain defining how agressive is the vector field
 * @param kn Gain for making converge the vehile to the vector field
 * @param error Error signal. It does not have any specific units. It depends on how the trajectory has been implemented. Check the specific wiki entry for each trajectory.

@@ -35,8 +35,41 @@ extern "C" {
 #endif
 
 #include "subsystems/navigation/common_nav.h"
-#include "subsystems/datalink/telemetry.h"
 #include "autopilot.h"
+
+#if PERIODIC_TELEMETRY
+#include "subsystems/datalink/telemetry.h"
+static void send_gvf_advanced(struct transport_tx *trans, struct link_device *dev)
+{
+  // Do not know whether is a good idea to do this check here or to include
+  // this plen in gvf_trajectory
+  int plen;
+
+  switch (gvf_trajectory.type) {
+    case ELLIPSE_3D:
+      plen = 6;
+      break;
+    default:
+      plen = 1;
+      break;
+  }
+
+  uint8_t traj_type = (uint8_t)gvf_advanced_trajectory.type;
+
+  pprz_msg_send_GVF_ADVANCED(trans, dev, AC_ID, &traj_type,
+                    &gvf_control.s, plen, gvf_advanced_trajectory.p_advanced);
+}
+
+static void send_circle_advanced(struct transport_tx *trans, struct link_device *dev)
+{
+  if (gvf_advanced_trajectory.type == ELLIPSE_3D){
+    pprz_msg_send_CIRCLE(trans, dev, AC_ID,
+                         &gvf_trajectory.p[0], &gvf_trajectory.p[1],
+                         &gvf_trajectory.p[2]);
+  }
+}
+
+#endif // PERIODIC TELEMETRY
 
 #ifdef __cplusplus
 }
@@ -53,6 +86,13 @@ void gvf_advanced_init(void)
 {
   gvf_advanced_control.w = 0;
   gvf_advanced_control.delta_T = 0;
+  gvf_advanced_control.s = 1;
+
+#if PERIODIC_TELEMETRY
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GVF_ADVANCED, send_gvf_advanced);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_CIRCLE, send_circle_advanced);
+#endif
+
 }
 
 void gvf_advanced_control_2D(float, Eigen::Vector3f *, Eigen::Matrix3f *);
@@ -76,11 +116,11 @@ void gvf_advanced_control_3D(float ktheta, Eigen::Vector4f *Chi3d, Eigen::Matrix
     float w_dot = (ground_speed*X(3)) / sqrtf(X(0)*X(0) + X(1)*X(1));
     gvf_advanced_control.w += w_dot*gvf_advanced_control.delta_T;
 
-    Eigen::Vector4f Chi_dot;
+    Eigen::Vector4f xi_dot;
     struct EnuCoor_f *vel_enu = stateGetSpeedEnu_f();
     float course = stateGetHorizontalSpeedDir_f();
 
-    Chi_dot << vel_enu->x, vel_enu->y, vel_enu->z, w_dot;
+    xi_dot << vel_enu->x, vel_enu->y, vel_enu->z, w_dot;
 
     Eigen::Matrix2f E;
     Eigen::Matrix<float, 2, 4> F;
@@ -96,8 +136,8 @@ void gvf_advanced_control_3D(float ktheta, Eigen::Vector4f *Chi3d, Eigen::Matrix
     I.setIdentity();
     F << 1.0, 0.0, 0.0, 0.0,
          0.0, 1.0, 0.0, 0.0;
-    E << 0.0, -1.0,
-         1.0,  0.0;
+    E << 0.0, -1.0*gvf_advanced_control.s,
+         1.0*gvf_advanced_control.s,  0.0;
     G = F.transpose()*F;
     Fp = E*F;
     Gp = F.transpose()*E*F;
@@ -109,14 +149,17 @@ void gvf_advanced_control_3D(float ktheta, Eigen::Vector4f *Chi3d, Eigen::Matrix
 
     float aux = ht*Fp*X;
 
-    float u_theta = -1/(Xt*G*X)*Xt*Gp*(I-Xh*Xht)*J*Chi_dot - (ktheta*aux/sqrtf(Xt*G*X));
+    float u_theta = -1/(Xt*G*X)*Xt*Gp*(I-Xh*Xht)*J*xi_dot - (ktheta*aux/sqrtf(Xt*G*X));
     float u_zeta = (ground_speed*X(2)) / sqrtf(X(0)*X(0) + X(1)*X(1));
 }
 
 // 3D ELLIPSE
 
-bool gvf_advanced_3D_ellipse(float xo, float yo, float r, float zl, float zh, float alpha)
+bool gvf_advanced_3D_ellipse_XY(float xo, float yo, float r, float zl, float zh, float alpha)
 {
+
+  horizontal_mode = HORIZONTAL_MODE_CIRCLE; // "2D Cylinder" is a circle for the GCS
+
   Eigen::Vector4f Chi3d;
   Eigen::Matrix4f J3d;
 
@@ -186,3 +229,10 @@ bool gvf_advanced_3D_ellipse(float xo, float yo, float r, float zl, float zh, fl
 
   return true;
 }
+
+bool gvf_advanced_3D_ellipse_wp(uint8_t wp, float r, float zl, float zh, float alpha)
+{
+  gvf_advanced_3D_ellipse_XY(waypoints[wp].x, waypoints[wp].y, r, zl, zh, alpha);
+  return true;
+}
+

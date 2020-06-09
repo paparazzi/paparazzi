@@ -33,10 +33,16 @@ extern "C" {
 
 #include "modules/guidance/gvf_advanced/trajectories/gvf_advanced_3d_ellipse.h"
 
-
+/** @typedef gvf_advanced_con
+* @brief Control parameters for the GVF_ADVANCED
+* @param w Virtual coordinate from the parametrization of the trajectory
+* @param delta_T Time between iterations needed for integrating w
+* @param s Defines the direction to be tracked. It takes the values -1 or 1.
+*/
 typedef struct {
     float w;
     float delta_T;
+    int8_t s;
 } gvf_advanced_con;
 
 // Parameters for the trajectories
@@ -56,7 +62,8 @@ extern gvf_advanced_tra gvf_advanced_trajectory;
 extern void gvf_advanced_init(void);
 
 // 3D Ellipse
-extern bool gvf_advanced_3D_ellipse(float, float, float, float, float, float);
+extern bool gvf_advanced_3D_ellipse_XY(float, float, float, float, float, float);
+extern bool gvf_advanced_3D_ellipse_wp(uint8_t, float, float, float, float);
 
 #ifdef __cplusplus
 }
