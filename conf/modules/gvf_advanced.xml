@@ -9,7 +9,11 @@
   <settings name="GVF_ADVANCED">
     <dl_settings>
       <dl_settings NAME="GVF_ADVANCED">
-        <dl_settings NAME="3D_ELLIPSE">
+        <dl_settings NAME="Control">
+          <dl_setting MAX="1" MIN="-1" STEP="2" VAR="gvf_advanced_control.s" shortname = "direction"/>
+        </dl_settings>
+        <dl_settings NAME="3D_ellipse">
+          <dl_setting MAX="5" MIN="0.0" STEP="0.01" VAR="gvf_advanced_3d_ellipse_par.ktheta" shortname="3d_ell_ktheta" param="GVF_ADVANCED_3D_ELLIPSE_KTHETA"/>
           <dl_setting MAX="5" MIN="0.0" STEP="0.01" VAR="gvf_advanced_3d_ellipse_par.kx" shortname="3d_ell_kx" param="GVF_ADVANCED_3D_ELLIPSE_KX"/>
           <dl_setting MAX="5" MIN="0.0" STEP="0.01" VAR="gvf_advanced_3d_ellipse_par.ky" shortname="3d_ell_ky" param="GVF_ADVANCED_3D_ELLIPSE_KY"/>
           <dl_setting MAX="5" MIN="0.0" STEP="0.01" VAR="gvf_advanced_3d_ellipse_par.kz" shortname="3d_ell_kz" param="GVF_ADVANCED_3D_ELLIPSE_KZ"/>
