@@ -27,6 +27,8 @@
 #ifndef GVF_ADVANCED_H
 #define GVF_ADVANCED_H
 
+#define GVF_ADVANCED_GRAVITY 9.806
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -44,6 +46,8 @@ typedef struct {
     float delta_T;
     int8_t s;
 } gvf_advanced_con;
+
+extern gvf_advanced_con gvf_advanced_control;
 
 // Parameters for the trajectories
 enum trajectories_advanced {
