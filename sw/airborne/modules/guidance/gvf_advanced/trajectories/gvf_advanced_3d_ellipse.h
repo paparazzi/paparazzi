@@ -38,6 +38,7 @@ extern "C" {
 * @param kx Gain defining how agressive is the vector field in x coordinate
 * @param ky Gain defining how agressive is the vector field in y coordinate
 * @param kz Gain defining how agressive is the vector field in z coordinate
+* @param k_psi Gain defining how agressive is the controller to be aligned with the vector field
 * @param r Radius of the cylinder in meters
 * @param zl Altitude of the lowest point of the ellipse
 * @param zh Altitude of the highest point of the ellipse
@@ -47,7 +48,7 @@ typedef struct {
     float kx;
     float ky;
     float kz;
-    float ktheta;
+    float k_psi;
     float r;
     float zl;
     float zh;

@@ -29,6 +29,16 @@
 
 #define GVF_ADVANCED_GRAVITY 9.806
 
+/*! Default gain kroll for tuning the "coordinated turn" */
+#ifndef GVF_ADVANCED_KROLL
+#define GVF_ADVANCED_KROLL 1
+#endif
+
+/*! Default gain kclimb for tuning the climbing setting point */
+#ifndef GVF_ADVANCED_KCLIMB
+#define GVF_ADVANCED_KCLIMB 1
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -40,11 +50,15 @@ extern "C" {
 * @param w Virtual coordinate from the parametrization of the trajectory
 * @param delta_T Time between iterations needed for integrating w
 * @param s Defines the direction to be tracked. It takes the values -1 or 1.
+* @param k_roll Gain for tuning the coordinated turn.
+* @param k_climb Gain for tuning the climbing setting point.
 */
 typedef struct {
     float w;
     float delta_T;
     int8_t s;
+    float k_roll;
+    float k_climb;
 } gvf_advanced_con;
 
 extern gvf_advanced_con gvf_advanced_control;
