@@ -43,7 +43,6 @@
 #include "firmwares/rotorcraft/stabilization.h"
 #include "stdio.h"
 #include "filters/low_pass_filter.h"
-#include "filters/high_pass_filter.h"
 #include "subsystems/abi.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
 
@@ -128,16 +127,6 @@ static float guidance_indi_get_liftd(float pitch, float theta);
 
 int16_t update_hp_freq_and_reset = 0;
 
-struct FourthOrderHighPass flap_accel_hp;
-double coef_b1[4] = {0.995201365263607,         -3.98080546105443,          5.97120819158164,         -3.98080546105443}; //0.3 Hz
-double coef_a1[4] = {-3.99037963870238,          5.97118516477772,         -3.97123128331507,         0.990425757422548};
-double coef_b2[4] = {0.992015065636079,         -3.96806026254432,          5.95209039381647,         -3.96806026254432}; //0.5 Hz
-double coef_a2[4] = {-3.98396607231580,          5.95202663534277,         -3.95215445206974,         0.984093890448954};
-double coef_b3[4] = {0.984093803447988,         -3.93637521379195,          5.90456282068793,         -3.93637521379195}; //1 Hz
-double coef_a3[4] = {-3.96793221786345,          5.90430982475928,         -3.90481819856036,         0.968440613984728};
-double coef_b4[4] = {0.968439929009413,         -3.87375971603765,          5.81063957405648,         -3.87375971603765}; //2 Hz
-double coef_a4[4] = {-3.93586502144546,          5.80964371172319,          -3.8116542348822,         0.937875896099758};
-
 /**
  * @brief Init function
  */
@@ -154,7 +143,6 @@ void guidance_indi_init(void)
   init_butterworth_2_low_pass(&pitch_filt, tau, sample_time, 0.0);
   init_butterworth_2_low_pass(&thrust_filt, tau, sample_time, 0.0);
   init_butterworth_2_low_pass(&accely_filt, tau, sample_time, 0.0);
-  init_fourth_order_high_pass(&flap_accel_hp, coef_a2, coef_b2, 0);
 }
 
 /**
@@ -308,67 +296,12 @@ void guidance_indi_run(float *heading_sp) {
   //Invert this matrix
   MAT33_INV(Ga_inv, Ga);
 
-  float accel_x, accel_y, accel_z;
-  if(radio_control.values[INDI_FUNCTIONS_RC_CHANNEL] > 0) {
-    // Calculate acceleration compensated for flap-lift effect
-    /*accel_ned_comp = filt_accel_ned - rot_to_ned*flap_lift_eff*flap_deflection;*/
-    float flap_effectiveness;
-    if(airspeed < 8) {
-      float pitch_interp = DegOfRad(eulers_zxy.theta);
-      Bound(pitch_interp, -70.0, -20.0);
-      float ratio = (pitch_interp + 20.0)/(-50.);
-      flap_effectiveness = FE_LIFT_A_PITCH + FE_LIFT_B_PITCH*ratio;
-    } else {
-      flap_effectiveness = FE_LIFT_A_AS + (airspeed - 8.0)*FE_LIFT_B_AS;
-    }
-    double flap_deflection = -actuator_state_filt_vect[0] + actuator_state_filt_vect[1];
+  struct FloatVect3 accel_filt;
+  accel_filt.x = filt_accel_ned[0].o[0];
+  accel_filt.y = filt_accel_ned[1].o[0];
+  accel_filt.z = filt_accel_ned[2].o[0];
 
-    if(update_hp_freq_and_reset > 0) {
-      double *coef_a;
-      double *coef_b;
-      switch(update_hp_freq_and_reset) {
-        case 1:
-          coef_b = coef_b1;
-          coef_a = coef_a1;
-          break;
-        case 2:
-          coef_b = coef_b2;
-          coef_a = coef_a2;
-          break;
-        case 3:
-          coef_b = coef_b3;
-          coef_a = coef_a3;
-          break;
-        case 4:
-          coef_b = coef_b4;
-          coef_a = coef_a4;
-          break;
-        default:
-          coef_b = coef_b2;
-          coef_a = coef_a2;
-          break;
-      }
-      init_fourth_order_high_pass(&flap_accel_hp, coef_a, coef_b, 0);
-      update_hp_freq_and_reset = 0;
-    }
-
-    // propagate high pass filter, because we don't want steady state offsets in the acceleration
-    update_fourth_order_high_pass(&flap_accel_hp, flap_deflection);
-
-    float flap_accel_body_x = (float) flap_accel_hp.o[0] * flap_effectiveness;
-
-    struct FloatRMat rot_mat;
-    float_rmat_of_quat(&rot_mat, stateGetNedToBodyQuat_f());
-    accel_x = filt_accel_ned[0].o[0] - RMAT_ELMT(rot_mat, 0,0) * flap_accel_body_x;
-    accel_y = filt_accel_ned[1].o[0] - RMAT_ELMT(rot_mat, 0,1) * flap_accel_body_x;
-    accel_z = filt_accel_ned[2].o[0] - RMAT_ELMT(rot_mat, 0,2) * flap_accel_body_x;
-  } else {
-    accel_x = filt_accel_ned[0].o[0];
-    accel_y = filt_accel_ned[1].o[0];
-    accel_z = filt_accel_ned[2].o[0];
-  }
-
-  struct FloatVect3 a_diff = { sp_accel.x - accel_x, sp_accel.y - accel_y, sp_accel.z - accel_z};
+  struct FloatVect3 a_diff = { sp_accel.x - accel_filt.x, sp_accel.y - accel_filt.y, sp_accel.z - accel_filt.z};
 
   //Bound the acceleration error so that the linearization still holds
   Bound(a_diff.x, -6.0, 6.0);
