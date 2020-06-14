@@ -76,24 +76,7 @@
 #define CLOSE_TO_WAYPOINT (15 << INT32_POS_FRAC)
 #define CARROT_DIST (12 << INT32_POS_FRAC)
 
-void scale_two_d(struct FloatVect3 *vect3, float bound) {
-  float norm = FLOAT_VECT2_NORM(*vect3);
-  if(norm>bound) {
-    float scale = bound/norm;
-    vect3->x *= scale;
-    vect3->y *= scale;
-  }
-}
-
 bool force_forward = false;
-void scale_two_d_to_max(struct FloatVect3 *vect3, float max) {
-  float norm = FLOAT_VECT2_NORM(*vect3);
-  if(norm>1.0) {
-    float scale = max/norm;
-    vect3->x *= scale;
-    vect3->y *= scale;
-  }
-}
 
 struct FloatVect2 line_vect, to_end_vect;
 
@@ -464,7 +447,7 @@ struct FloatVect3 nav_get_speed_sp_from_go(struct EnuCoor_i target, float pos_ga
   }
 
   if(force_forward) {
-    scale_two_d_to_max(&speed_sp_return, nav_max_speed);
+    vect_scale(&speed_sp_return, nav_max_speed);
   } else {
     // Calculate distance to waypoint
     float dist_to_wp = FLOAT_VECT2_NORM(pos_error);
@@ -473,7 +456,7 @@ struct FloatVect3 nav_get_speed_sp_from_go(struct EnuCoor_i target, float pos_ga
 
     // Bound the setpoint velocity vector
     float max_h_speed = Min(nav_max_speed, max_speed_decel);
-    scale_two_d(&speed_sp_return, max_h_speed);
+    vect_bound_in_2d(&speed_sp_return, max_h_speed);
   }
 
   // Bound vertical speed setpoint

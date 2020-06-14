@@ -115,8 +115,6 @@ extern void set_exception_flag(uint8_t flag_num);
 
 extern float nav_max_speed;
 extern bool force_forward;
-extern void scale_two_d(struct FloatVect3 *vect3, float bound);
-extern void scale_two_d_to_max(struct FloatVect3 *vect3, float max);
 extern struct FloatVect3 nav_get_speed_sp_from_go(struct EnuCoor_i target, float pos_gain);
 extern struct FloatVect3 nav_get_speed_setpoint(float pos_gain);
 extern struct FloatVect3 nav_get_speed_sp_from_line(struct FloatVect2 line_v, struct FloatVect2 to_end_v, struct EnuCoor_i target, float pos_gain);

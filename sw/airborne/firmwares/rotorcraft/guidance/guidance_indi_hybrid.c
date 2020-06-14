@@ -285,7 +285,7 @@ void guidance_indi_run(float *heading_sp) {
 
   // Bound the acceleration setpoint
   float accelbound = 3.0 + airspeed/guidance_indi_max_airspeed*5.0;
-  scale_two_d(&sp_accel, accelbound);
+  vect_bound_in_2d(&sp_accel, accelbound);
   /*BoundAbs(sp_accel.x, 3.0 + airspeed/guidance_indi_max_airspeed*6.0);*/
   /*BoundAbs(sp_accel.y, 3.0 + airspeed/guidance_indi_max_airspeed*6.0);*/
   BoundAbs(sp_accel.z, 3.0);
