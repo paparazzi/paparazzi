@@ -59,4 +59,13 @@ extern int16_t update_hp_freq_and_reset;
 extern struct FourthOrderHighPass flap_accel_hp;
 extern float guidance_indi_max_airspeed;
 
+struct guidance_indi_hybrid_params {
+  float pos_gain;
+  float pos_gainz;
+  float speed_gain;
+  float speed_gainz;
+};
+
+extern struct guidance_indi_hybrid_params gih_params;
+
 #endif /* GUIDANCE_INDI_HYBRID_H */

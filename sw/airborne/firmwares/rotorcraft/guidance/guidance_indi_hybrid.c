@@ -46,24 +46,35 @@
 #include "subsystems/abi.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
 
+
 // The acceleration reference is calculated with these gains. If you use GPS,
 // they are probably limited by the update rate of your GPS. The default
 // values are tuned for 4 Hz GPS updates. If you have high speed position updates, the
 // gains can be higher, depending on the speed of the inner loop.
-#ifdef GUIDANCE_INDI_POS_GAIN
-float guidance_indi_pos_gain = GUIDANCE_INDI_POS_GAIN;
-float guidance_indi_pos_gainz = GUIDANCE_INDI_POS_GAINZ;
-#else
-float guidance_indi_pos_gain = 0.5;
-float guidance_indi_pos_gainz = 0.5;
+#ifndef GUIDANCE_INDI_SPEED_GAIN
+#define GUIDANCE_INDI_SPEED_GAIN 1.8
+#define GUIDANCE_INDI_SPEED_GAINZ 1.8
 #endif
 
-#ifdef GUIDANCE_INDI_SPEED_GAIN
-float guidance_indi_speed_gain = GUIDANCE_INDI_SPEED_GAIN;
-float guidance_indi_speed_gainz = GUIDANCE_INDI_SPEED_GAINZ;
-#else
-float guidance_indi_speed_gain = 1.8;
-float guidance_indi_speed_gainz = 1.8;
+#ifndef GUIDANCE_INDI_POS_GAIN
+#define GUIDANCE_INDI_POS_GAIN = 0.5;
+#define GUIDANCE_INDI_POS_GAINZ = 0.5;
+#endif
+
+struct guidance_indi_hybrid_params gih_params = {
+  .pos_gain = GUIDANCE_INDI_POS_GAIN,
+  .pos_gainz = GUIDANCE_INDI_POS_GAINZ,
+
+  .speed_gain = GUIDANCE_INDI_SPEED_GAIN,
+  .speed_gainz = GUIDANCE_INDI_SPEED_GAINZ,
+};
+
+#ifdef GUIDANCE_INDI_MAX_AIRSPEED
+#define NAV_MAX_SPEED (GUIDANCE_INDI_MAX_AIRSPEED + 10.0)
+float nav_max_speed = NAV_MAX_SPEED;
+#endif
+#ifndef MAX_DECELERATION
+#define MAX_DECELERATION 1.
 #endif
 
 struct FloatVect3 sp_accel = {0.0,0.0,0.0};
@@ -124,6 +135,9 @@ struct FloatVect3 speed_sp = {0.0, 0.0, 0.0};
 void guidance_indi_propagate_filters(void);
 static void guidance_indi_calcg_wing(struct FloatMat33 *Gmat);
 static float guidance_indi_get_liftd(float pitch, float theta);
+struct FloatVect3 nav_get_speed_sp_from_go(struct EnuCoor_i target, float pos_gain);
+struct FloatVect3 nav_get_speed_sp_from_line(struct FloatVect2 line_v_enu, struct FloatVect2 to_end_v_enu, struct EnuCoor_i target, float pos_gain);
+struct FloatVect3 nav_get_speed_setpoint(float pos_gain);
 
 int16_t update_hp_freq_and_reset = 0;
 
@@ -181,11 +195,11 @@ void guidance_indi_run(float *heading_sp) {
   float pos_z_err = POS_FLOAT_OF_BFP(guidance_v_z_ref - stateGetPositionNed_i()->z);
 
   if(autopilot.mode == AP_MODE_NAV) {
-    speed_sp = nav_get_speed_setpoint(guidance_indi_pos_gain);
+    speed_sp = nav_get_speed_setpoint(gih_params.pos_gain);
   } else{
-    speed_sp.x = pos_x_err * guidance_indi_pos_gain;
-    speed_sp.y = pos_y_err * guidance_indi_pos_gain;
-    speed_sp.z = pos_z_err * guidance_indi_pos_gainz;
+    speed_sp.x = pos_x_err * gih_params.pos_gain;
+    speed_sp.y = pos_y_err * gih_params.pos_gain;
+    speed_sp.z = pos_z_err * gih_params.pos_gainz;
   }
 
   //for rc control horizontal, rotate from body axes to NED
@@ -242,15 +256,15 @@ void guidance_indi_run(float *heading_sp) {
     // In turn acceleration proportional to heading diff
     sp_accel_b.y = atan2(desired_airspeed.y, desired_airspeed.x) - psi;
     FLOAT_ANGLE_NORMALIZE(sp_accel_b.y);
-    sp_accel_b.y *= 15.0;
+    sp_accel_b.y *= GUIDANCE_INDI_HEADING_BANK_GAIN;
 
     // Control the airspeed
-    sp_accel_b.x = (speed_sp_b_x - airspeed) * guidance_indi_speed_gain;
+    sp_accel_b.x = (speed_sp_b_x - airspeed) * gih_params.speed_gain;
 
     sp_accel.x = cosf(psi) * sp_accel_b.x - sinf(psi) * sp_accel_b.y;
     sp_accel.y = sinf(psi) * sp_accel_b.x + cosf(psi) * sp_accel_b.y;
 
-    sp_accel.z = (speed_sp.z - stateGetSpeedNed_f()->z) * guidance_indi_speed_gainz;
+    sp_accel.z = (speed_sp.z - stateGetSpeedNed_f()->z) * gih_params.speed_gainz;
   } else { // Go somewhere in the shortest way
 
     if(airspeed > 10.0) {
@@ -266,9 +280,9 @@ void guidance_indi_run(float *heading_sp) {
     speed_sp.x = cosf(psi) * speed_sp_b_x - sinf(psi) * speed_sp_b_y;
     speed_sp.y = sinf(psi) * speed_sp_b_x + cosf(psi) * speed_sp_b_y;
 
-    sp_accel.x = (speed_sp.x - stateGetSpeedNed_f()->x) * guidance_indi_speed_gain;
-    sp_accel.y = (speed_sp.y - stateGetSpeedNed_f()->y) * guidance_indi_speed_gain;
-    sp_accel.z = (speed_sp.z - stateGetSpeedNed_f()->z) * guidance_indi_speed_gainz;
+    sp_accel.x = (speed_sp.x - stateGetSpeedNed_f()->x) * gih_params.speed_gain;
+    sp_accel.y = (speed_sp.y - stateGetSpeedNed_f()->y) * gih_params.speed_gain;
+    sp_accel.z = (speed_sp.z - stateGetSpeedNed_f()->z) * gih_params.speed_gainz;
   }
 
   // Bound the acceleration setpoint
@@ -335,7 +349,6 @@ void guidance_indi_run(float *heading_sp) {
   //Bound euler angles to prevent flipping
   Bound(guidance_euler_cmd.phi, -GUIDANCE_H_MAX_BANK, GUIDANCE_H_MAX_BANK);
   Bound(guidance_euler_cmd.theta, -RadOfDeg(120.0), RadOfDeg(25.0));
-
 
   float coordinated_turn_roll = guidance_euler_cmd.phi;
 
@@ -482,3 +495,158 @@ float guidance_indi_get_liftd(float airspeed, float theta) {
   return liftd;
 }
 
+/**
+ * @brief function that returns a speed setpoint based on flight plan.
+ *
+ * The routines are meant for a hybrid UAV and assume measurement of airspeed.
+ * Makes the vehicle track a vector field with a sink at a waypoint.
+ * Use force_forward to maintain airspeed and fly 'through' waypoints.
+ *
+ * @return desired speed setpoint FloatVect3
+ */
+struct FloatVect3 nav_get_speed_setpoint(float pos_gain) {
+  struct FloatVect3 speed_sp;
+  if(horizontal_mode == HORIZONTAL_MODE_ROUTE) {
+    speed_sp = nav_get_speed_sp_from_line(line_vect, to_end_vect, navigation_target, pos_gain);
+  } else {
+    speed_sp = nav_get_speed_sp_from_go(navigation_target, pos_gain);
+  }
+  return speed_sp;
+}
+
+/**
+ * @brief follow a line.
+ *
+ * @param line_v_enu 2d vector from beginning (0) line to end in enu
+ * @param to_end_v_enu 2d vector from current position to end in enu
+ * @param target end waypoint in enu
+ *
+ * @return desired speed setpoint FloatVect3
+ */
+struct FloatVect3 nav_get_speed_sp_from_line(struct FloatVect2 line_v_enu, struct FloatVect2 to_end_v_enu, struct EnuCoor_i target, float pos_gain) {
+
+  // enu -> ned
+  struct FloatVect2 line_v = {line_v_enu.y, line_v_enu.x};
+  struct FloatVect2 to_end_v = {to_end_v_enu.y, to_end_v_enu.x};
+
+  struct NedCoor_f ned_target;
+  // Target in NED instead of ENU
+  VECT3_ASSIGN(ned_target, POS_FLOAT_OF_BFP(target.y), POS_FLOAT_OF_BFP(target.x), -POS_FLOAT_OF_BFP(target.z));
+
+  // Calculate magnitude of the desired speed vector based on distance to waypoint
+  float dist_to_target = float_vect2_norm(&to_end_v);
+  float desired_speed;
+  if(force_forward) {
+    desired_speed = nav_max_speed;
+  } else {
+    desired_speed = dist_to_target * pos_gain;
+    Bound(desired_speed, 0.0, nav_max_speed);
+  }
+
+  // Calculate length of line segment
+  float length_line = float_vect2_norm(&line_v);
+  if(length_line < 0.01) {
+    length_line = 0.01;
+  }
+
+  //Normal vector to the line, with length of the line
+  struct FloatVect2 normalv;
+  VECT2_ASSIGN(normalv, -line_v.y, line_v.x);
+  // Length of normal vector is the same as of the line segment
+  float length_normalv = length_line;
+  if(length_normalv < 0.01) {
+    length_normalv = 0.01;
+  }
+
+  // Distance along the normal vector
+  float dist_to_line = (to_end_v.x*normalv.x + to_end_v.y*normalv.y)/length_normalv;
+
+  // Normal vector scaled to be the distance to the line
+  struct FloatVect2 v_to_line, v_along_line;
+  v_to_line.x = dist_to_line*normalv.x/length_normalv;
+  v_to_line.y = dist_to_line*normalv.y/length_normalv;
+
+  // Depending on the normal vector, the distance could be negative
+  float dist_to_line_abs = fabs(dist_to_line);
+
+  // The distance that needs to be traveled along the line
+  /*float dist_along_line = (line_v.x*to_end_v.x + line_v.y*to_end_v.y)/length_line;*/
+  v_along_line.x = line_v.x/length_line*50.0;
+  v_along_line.y = line_v.y/length_line*50.0;
+
+  // Calculate the desired direction to converge to the line
+  struct FloatVect2 direction;
+  VECT2_SMUL(direction, v_along_line, (1.0/(1+dist_to_line_abs*0.05)));
+  VECT2_ADD(direction, v_to_line);
+  float length_direction = float_vect2_norm(&direction);
+  if(length_direction < 0.01) {
+    length_direction = 0.01;
+  }
+
+  // Scale to have the desired speed
+  struct FloatVect2 final_vector;
+  VECT2_SMUL(final_vector, direction, desired_speed/length_direction);
+
+  struct FloatVect3 speed_sp_return = {final_vector.x, final_vector.y, gih_params.pos_gainz*(ned_target.z - stateGetPositionNed_f()->z)};
+  if((guidance_v_mode == GUIDANCE_V_MODE_NAV) && (vertical_mode == VERTICAL_MODE_CLIMB)) {
+    speed_sp_return.z = SPEED_FLOAT_OF_BFP(guidance_v_zd_sp);
+  }
+
+  // Bound vertical speed setpoint
+  if(stateGetAirspeed_f() > 13.0) {
+    Bound(speed_sp_return.z, -4.0, 5.0);
+  } else {
+    Bound(speed_sp_return.z, -nav_climb_vspeed, -nav_descend_vspeed);
+  }
+
+  return speed_sp_return;
+}
+
+/**
+ * @brief Go to a waypoint in the shortest way
+ *
+ * @param target the target waypoint
+ *
+ * @return desired speed FloatVect3
+ */
+struct FloatVect3 nav_get_speed_sp_from_go(struct EnuCoor_i target, float pos_gain) {
+  // The speed sp that will be returned
+  struct FloatVect3 speed_sp_return;
+  struct NedCoor_f ned_target;
+  // Target in NED instead of ENU
+  VECT3_ASSIGN(ned_target, POS_FLOAT_OF_BFP(target.y), POS_FLOAT_OF_BFP(target.x), -POS_FLOAT_OF_BFP(target.z));
+
+  // Calculate position error
+  struct FloatVect3 pos_error;
+  struct NedCoor_f *pos = stateGetPositionNed_f();
+  VECT3_DIFF(pos_error, ned_target, *pos);
+
+  VECT3_SMUL(speed_sp_return, pos_error, pos_gain);
+  speed_sp_return.z = gih_params.pos_gainz*pos_error.z;
+
+  if((guidance_v_mode == GUIDANCE_V_MODE_NAV) && (vertical_mode == VERTICAL_MODE_CLIMB)) {
+    speed_sp_return.z = SPEED_FLOAT_OF_BFP(guidance_v_zd_sp);
+  }
+
+  if(force_forward) {
+    vect_scale(&speed_sp_return, nav_max_speed);
+  } else {
+    // Calculate distance to waypoint
+    float dist_to_wp = FLOAT_VECT2_NORM(pos_error);
+    // Calculate max speed to decelerate from
+    float max_speed_decel = sqrt(2*dist_to_wp*MAX_DECELERATION);
+
+    // Bound the setpoint velocity vector
+    float max_h_speed = Min(nav_max_speed, max_speed_decel);
+    vect_bound_in_2d(&speed_sp_return, max_h_speed);
+  }
+
+  // Bound vertical speed setpoint
+  if(stateGetAirspeed_f() > 13.0) {
+    Bound(speed_sp_return.z, -4.0, 5.0);
+  } else {
+    Bound(speed_sp_return.z, -nav_climb_vspeed, -nav_descend_vspeed);
+  }
+
+  return speed_sp_return;
+}
