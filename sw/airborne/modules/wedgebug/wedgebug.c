@@ -1366,10 +1366,18 @@ void wedgebug_init(){
 
 
 	// Initializing area over which edges are searched in
-	edge_search_area.y = 216/2;//0;//216/2;
-	edge_search_area.h = 1;//img_disparity_int8_cropped.h;//1;////10;
+	// p3DWedgeBug:
+	edge_search_area.y = 0;//216/2;
+	edge_search_area.h = img_disparity_int8_cropped.h;//1;////10;
 	edge_search_area.x = 0;
 	edge_search_area.w = img_disparity_int8_cropped.w;
+
+//	// p2DWedgeBug:
+//	edge_search_area.y = 216/2;
+//	edge_search_area.h = 1;////10;
+//	edge_search_area.x = 0;
+//	edge_search_area.w = img_disparity_int8_cropped.w;
+
 
 	// Initializing Edge scan structure
 	initial_heading.initiated = 0; 			// 0 = it can be overwritten
