@@ -76,19 +76,11 @@ struct image_t img_depth_int16_cropped;	//! Image obtained after image is croppe
 struct image_t img_middle_int8_cropped;	// Image obtained after processing (morphological operations) of previous image
 struct image_t img_edges_int8_cropped;	//! Image obtained from the external sobel edge detection function = sobel_OCV
 
-<<<<<<< HEAD
 struct image_t img_disp_int16_cropped;	//!
 struct image_t img_depth_int16_cropped;	//!
 struct image_t img_middle_int16_cropped;//!
 
-// Declaring images for report
-struct image_t img_post_SBM;			// For report: Image saved after block matching operation
-struct image_t img_post_opening;		// For report: Image saved after opening operation
-struct image_t img_post_closing;		// For report: Image saved after closing operation
-struct image_t img_post_dilation;		// For report: Image saved after dilation operation
-struct image_t img_post_sobel;			// For report: Image saved after Sobel operation
-=======
->>>>>>> wedgeBug
+
 
 // Declaring crop_t structure for information about the cropped image (after BM)
 struct crop_t img_cropped_info; //!
@@ -130,11 +122,8 @@ struct FloatVect3 VPBESTEDGECOORDINATESwned;//! Declared vector of coordinates o
 
 // Declaring thresholds
 int threshold_edge_magnitude;			//! Edges with a magnitude above this value are detected. Above this value, edges are given the value 127, otherwise they are given the value zero.
-int threshold_edge_magnitude_16bit;		//! Edges with a magnitude above this value are detected. Above this value, edges are given the value 127, otherwise they are given the value zero.
 uint8_t threshold_median_disparity; 	//! Above this median disparity, an obstacle is considered to block the way (i.e. the blocking obstacle need to be close)
-uint16_t threshold_median_depth;
 uint8_t threshold_disparity_of_edges; 	//! Above this disparity edges are eligible for WedgeBug algorithm (i.e. edges cannot be very far away)
-uint16_t threshold_depth_of_edges;
 float threshold_distance_to_goal; 		//! Below this distance (in meters) it is considered that the robot has reached the goal
 float threshold_distance_to_angle;		//! Below this distance (in radians) it is considered that the robot has reached the target angle
 float threshold_distance_to_goal_direct;//! Below this distance (in meters) it is considered that the robot has reached the goal, in DIRECT_CONTROL mode
@@ -975,7 +964,7 @@ float heading_towards_setpoint_WNED(struct FloatVect3 *VSETPOINTwned)
 }
 
 
-// Function 17 - Function to calculate median disparity to a point (Vi) in an image (img), using a kernel structure (kernel_median)
+// Function 17a - Function to calculate median disparity to a point (Vi) in an image (img), using a kernel structure (kernel_median)
 uint8_t median_disparity_to_point(struct point_t *Vi, struct image_t *img, struct kernel_C1 *kernel_median)
 {
 	// Creating Start and stop coordinates of in the image coordinate system, based on kernel size
@@ -1035,7 +1024,70 @@ uint8_t median_disparity_to_point(struct point_t *Vi, struct image_t *img, struc
 }
 
 
-// Function 18a - Function to find "best" (vlosest ideal pathwat to goal from robot to edge to goal) edgef
+// Function 17b - Function to calculate median depth (cm) to a point (Vi) in a 16bit image (img), using a kernel structure (kernel_median)
+uint16_t median_depth_to_point(struct point_t *Vi, struct image_t *img, struct kernel_C1 *kernel_median)
+{
+	// Creating Start and stop coordinates of in the image coordinate system, based on kernel size
+	uint16_t VSTARTi_y = Vi->y  - (kernel_median->h / 2);
+	uint16_t VSTARTi_x = Vi->x - (kernel_median->w/ 2);
+	uint16_t VSTOPi_y = Vi->y + (kernel_median->h / 2);
+	uint16_t VSTOPi_x = Vi->x + (kernel_median->w / 2);
+
+	// In case the upper bounds of the kernel are outside of the image area
+	// (lower bound not important because of uint8_t type converting everything below 0 to 0):
+	if (VSTOPi_y > img->h)
+	{
+		VSTOPi_y = (img->h - 1);
+	}
+	if (VSTOPi_x > img->w)
+	{
+		VSTOPi_x = (img->w - 1);
+	}
+
+
+
+	// Declaring kernel coordinates
+	uint16_t Vk_y;
+	uint16_t Vk_x;
+
+	// Declaring 1d indices (for result of transforming 2d coordinates into 1d coordinate)
+	int32_t index_img;
+	int32_t index_kernel;
+
+	// Declaring variable to store median in
+	uint16_t median;
+
+
+	// Here we get the median value of a block in the middle of an image using a kernel structure
+	for (uint16_t Vi_y = VSTARTi_y; Vi_y < (VSTOPi_y+1); Vi_y++)
+	{
+		for (uint16_t Vi_x = VSTARTi_x; Vi_x < (VSTOPi_x+1); Vi_x++)
+		{
+			// Calculating kernel coordinates
+			Vk_y = Vi_y - VSTARTi_y;
+			Vk_x = Vi_x - VSTARTi_x;
+
+			// Converting 2d indices to 1d indices
+			index_img = indx1d_a(Vi_y , Vi_x, img);
+			index_kernel = indx1d_c(Vk_y, Vk_x, median_kernel.h, median_kernel.w);
+
+
+			// Saving disparity values of image underneath the kernel, into the kernel buffer
+			((uint16_t*) median_kernel.buf_values)[index_kernel] = ((uint16_t*) img->buf)[index_img];
+
+		}
+	}
+
+	// Calculating median disparity value of values recoded by the kernel
+	median = getMedian16bit(((uint16_t*) median_kernel.buf_values), (median_kernel.h * median_kernel.w)); //
+
+	return median;
+}
+
+
+
+
+// Function 18a - Function to find "best" (closest ideal pathway to goal from robot to edge to goal) - Using disparity image
 // Returns a 3d Vector to the best "edge" and 1 if any edge is found and 0 if no edge is found.
 uint8_t find_best_edge_coordinates(
 		struct FloatVect3 *VEDGECOORDINATESc,
@@ -1149,124 +1201,10 @@ uint8_t find_best_edge_coordinates(
 }
 
 
-// Function 18a - Function to find "best" (vlosest ideal pathwat to goal from robot to edge to goal) edgef
+
+// Function 18b - Function to find "best" (closest ideal pathway to goal from robot to edge to goal) - Using depth image
 // Returns a 3d Vector to the best "edge" and 1 if any edge is found and 0 if no edge is found.
-uint8_t find_best_edge_coordinates(
-		struct FloatVect3 *VEDGECOORDINATESc,
-		struct FloatVect3 *VTARGETc,
-		struct image_t *img_edges,
-		struct image_t *img_disparity,
-		struct crop_t *edge_search_area,
-		uint8_t threshold,
-		int16_t confidence, 					// Confidence = number of edge pixels found
-		int16_t max_confidence					// if confidence is this, then at least one edge was found
-		)
-{
-
-	// Loop to calculate position (in image) of point closes to hypothetical target - Start
-
-	float distance = 255; // This stores distance from edge to goal. Its initialized with 255 as basically any edge found will be closer than that and will replace 255 meters
-	struct FloatVect3 VEDGEc; // A vector to save the point of an eligible detected edge point in the camera coordinate system.
-	struct FloatVect3 VROBOTCENTERc;// Declaring camera center coordinates vector
-	VROBOTCENTERc.x = 0.0;VROBOTCENTERc.y = 0.0;VROBOTCENTERc.z = 0.0; // Initializing camera center coordinates vector
-	struct point_t VCLOSESTEDGEi; // A vector to save the point of the "best" eligible detected edge point in the image coordinate system.
-	VCLOSESTEDGEi.x = 0;
-	VCLOSESTEDGEi.y = 0;
-
-	float f_distance_edge_to_goal;  // Saves distance from edge to goal
-	float f_distance_robot_to_edge; // Saves distance from robot to goal
-	int32_t indx; // Variable to store 1d index calculated from 2d index
-	uint8_t edge_value; // Variable to store the intensity value of a pixel in the img_edge
-	uint8_t disparity; // variable to store the disparity level of a pixel in the img_disparity
-	uint8_t disparity_best = 0;
-
-
-	for (uint16_t y = edge_search_area->y; y < (edge_search_area->y + edge_search_area->h ); y++)//for (uint32_t y = edge_search_area.y; y < (edge_search_area.y + edge_search_area.h); y++)
-	{
-		for (uint16_t x = edge_search_area->x; x < (edge_search_area->x + edge_search_area->w ); x++)
-		{
-			indx = indx1d_a(y, x, img_edges); // We convert the 2d index [x,y] into a 1d index
-			edge_value = ((uint8_t*) img_edges->buf)[indx]; // We save the intensity of the current point
-			disparity = ((uint8_t*) img_disparity->buf)[indx]; // We save the disparity of the current point
-
-			// Two conditions must be met for an edge to be considered a viable route for the drone:
-			// 1) This disparity of the current coordinate (x,y) must coincide with an edge pixel
-			//    (as all non-edge pixels have been set to 0) - (edge_value != 0)
-			// 2) The disparity of the current coordinate (x, y) must be above a certain threshold. This simulates vision cone - (disparity > threshold_disparity_of_edges)
-			if ((edge_value != 0) && (disparity > threshold))
-			{
-				// We increase the confidence for every edge found
-				confidence++;
-				Bound(confidence, 0, max_confidence);
-
-				// We determine the offset from the principle point
-				int32_t y_from_c = y - c_img_cropped.y; // NOTE. The variable "c_img_cropped" is a global variable
-				int32_t x_from_c = x - c_img_cropped.x; // NOTE. The variable "c_img_cropped" is a global variable
-				// We derive the 3d scene point using from the disparity saved earlier
-				Vi_to_Vc(&VEDGEc, y_from_c, x_from_c, disparity, b, f); // NOTE. The variables "b" and "f" are a global variables
-				// Calculating Euclidean distance (N2) - Edge to goal
-				f_distance_edge_to_goal =  float_vect3_norm_two_points(VTARGETc, &VEDGEc);
-				// Calculating Euclidean distance (N2) - robot to edge
-				f_distance_robot_to_edge =  float_vect3_norm_two_points(&VEDGEc, &VROBOTCENTERc);
-
-
-				// If current distance (using distance vector) is smaller than the previous minimum distance
-				// measure then save new distance and point coordinates associated with it
-				if ((f_distance_robot_to_edge + f_distance_edge_to_goal) < distance)
-				{
-					// Saving closest edge point, in camera coordinate system
-					VEDGECOORDINATESc->x = VEDGEc.x;
-					VEDGECOORDINATESc->y = VEDGEc.y;
-					VEDGECOORDINATESc->z = VEDGEc.z;
-					// Saving disparity at point
-					disparity_best = disparity;
-					// Saving smallest distance
-					distance = (f_distance_robot_to_edge + f_distance_edge_to_goal);
-					// Saving closest edge point, in image coordinate system
-					VCLOSESTEDGEi.y = y;
-					VCLOSESTEDGEi.x = x;
-
-				}
-
-				//printf("x image = %d\n", x);
-				//printf("y image = %d\n", y);
-				//printf("x image from c = %d\n", x_from_c);
-				//printf("y image from c = %d\n", y_from_c);
-				//printf("d  = %d\n", disparity);
-				//printf("X scene from c = %f\n", scene_point.X);
-				//printf("Y scene from c = %f\n", scene_point.Y);
-				//printf("Z scene from c = %f\n", scene_point.Z);
-				//printf("Closest edge [y,x] = [%d, %d]\n", (int)closest_edge.y, (int)closest_edge.x);
-				//printf("Robot center coordinates = [%f, %f, %f]\n", VROBOTCENTERc.x, VROBOTCENTERc.y, VROBOTCENTERc.z);
-				//printf("Edge coordinates = [%f, %f, %f]\n", VEDGEc.x, VEDGEc.y, VEDGEc.z);
-				//printf("Distance to goal (m) = %f\n", distance);
-				//printf("Distance to goal2 (m) = %f + %f\n\n", f_distance_robot_to_edge, f_distance_edge_to_goal);
-			}
-		}
-	}
-
-	if (confidence == max_confidence)
-	{
-		((uint8_t*) img_edges->buf)[indx1d_a(VCLOSESTEDGEi.y, VCLOSESTEDGEi.x, img_edges)] = 255;
-		printf("Viable closest edge found: [%d, %d] (disparity = %d)\n", VCLOSESTEDGEi.y , VCLOSESTEDGEi.x, disparity_best);
-
-		printf("At distance: %f\n", distance);
-		confidence = 0;
-		return 1;
-	}
-	else
-	{
-		printf("No viable edge found\n");
-		confidence = 0;
-		return 0;
-	}
-}
-
-
-
-// Function 18b - Function to find "best" (vlosest ideal pathwat to goal from robot to edge to goal) edgef
-// Returns a 3d Vector to the best "edge" and 1 if any edge is found and 0 if no edge is found.
-uint8_t find_best_edge_coordinates(
+uint8_t find_best_edge_coordinates2(
 		struct FloatVect3 *VEDGECOORDINATESc,
 		struct FloatVect3 *VTARGETc,
 		struct image_t *img_edges,
@@ -1507,67 +1445,6 @@ void background_processes(uint8_t save_images_flag)
 
 
 
-
-
-// Function 24 - Function to calculate median depth (cm) to a point (Vi) in a 16bit image (img), using a kernel structure (kernel_median)
-uint16_t median_depth_to_point(struct point_t *Vi, struct image_t *img, struct kernel_C1 *kernel_median)
-{
-	// Creating Start and stop coordinates of in the image coordinate system, based on kernel size
-	uint16_t VSTARTi_y = Vi->y  - (kernel_median->h / 2);
-	uint16_t VSTARTi_x = Vi->x - (kernel_median->w/ 2);
-	uint16_t VSTOPi_y = Vi->y + (kernel_median->h / 2);
-	uint16_t VSTOPi_x = Vi->x + (kernel_median->w / 2);
-
-	// In case the upper bounds of the kernel are outside of the image area
-	// (lower bound not important because of uint8_t type converting everything below 0 to 0):
-	if (VSTOPi_y > img->h)
-	{
-		VSTOPi_y = (img->h - 1);
-	}
-	if (VSTOPi_x > img->w)
-	{
-		VSTOPi_x = (img->w - 1);
-	}
-
-
-
-	// Declaring kernel coordinates
-	uint16_t Vk_y;
-	uint16_t Vk_x;
-
-	// Declaring 1d indices (for result of transforming 2d coordinates into 1d coordinate)
-	int32_t index_img;
-	int32_t index_kernel;
-
-	// Declaring variable to store median in
-	uint16_t median;
-
-
-	// Here we get the median value of a block in the middle of an image using a kernel structure
-	for (uint16_t Vi_y = VSTARTi_y; Vi_y < (VSTOPi_y+1); Vi_y++)
-	{
-		for (uint16_t Vi_x = VSTARTi_x; Vi_x < (VSTOPi_x+1); Vi_x++)
-		{
-			// Calculating kernel coordinates
-			Vk_y = Vi_y - VSTARTi_y;
-			Vk_x = Vi_x - VSTARTi_x;
-
-			// Converting 2d indices to 1d indices
-			index_img = indx1d_a(Vi_y , Vi_x, img);
-			index_kernel = indx1d_c(Vk_y, Vk_x, median_kernel.h, median_kernel.w);
-
-
-			// Saving disparity values of image underneath the kernel, into the kernel buffer
-			((uint16_t*) median_kernel.buf_values)[index_kernel] = ((uint16_t*) img->buf)[index_img];
-
-		}
-	}
-
-	// Calculating median disparity value of values recoded by the kernel
-	median = getMedian16bit(((uint16_t*) median_kernel.buf_values), (median_kernel.h * median_kernel.w)); //
-
-	return median;
-}
 
 
 
@@ -2031,7 +1908,7 @@ void wedgebug_periodic(){
     		printf("MOVE_TO_GOAL = %d\n", MOVE_TO_GOAL);
 			median_disparity_in_front = median_disparity_to_point(&c_img_cropped, &img_disparity_int8_cropped, &median_kernel);
 			//In case disparity is 0 (infinite distance or error we set it to one disparity
-			// above the threshold as the likelyhood that the object is too close is large (as opposed to it being infinitely far away)
+			// above the threshold as the likelihood that the object is too close is large (as opposed to it being infinitely far away)
 			printf("median_disparity_in_front = %d\n", median_disparity_in_front);
 			printf("median_depth_in_front = %f\n", disp_to_depth(median_disparity_in_front, b, f));
 
@@ -2096,7 +1973,7 @@ void wedgebug_periodic(){
     {
     	printf("AUTONOMOUS_GUIDED = %d\n", AUTONOMOUS_GUIDED);
 
-    	// Checking is state was changed, if yes then all glas are reset and the is_state_changed_flag
+    	// Checking is state was changed, if yes then all flags are reset and the is_state_changed_flag
     	// is set to 1 for this cycle only. Else, the  is_state_changed_flag is set to 0 again;
     	if (current_state != previous_state)
     	{
@@ -2268,7 +2145,7 @@ void wedgebug_periodic(){
     	        			median_disparity_in_front = median_disparity_to_point(&c_img_cropped, &img_disparity_int8_cropped, &median_kernel);
 
     	        			//In case disparity is 0 (infinite distance or error we set it to one disparity
-    	        			// above the threshold as the likelyhood that the object is too close is large (as opposed to it being infinitely far away)
+    	        			// above the threshold as the likelihood that the object is too close is large (as opposed to it being infinitely far away)
     	        			//if(median_disparity_in_front == 0 )
     	        			//{
     	        			//	median_disparity_in_front = (threshold_median_disparity + 1);
