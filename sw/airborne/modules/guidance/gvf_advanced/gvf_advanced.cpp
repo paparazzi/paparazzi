@@ -126,6 +126,8 @@ void gvf_advanced_control_3D(float k_psi, Eigen::Vector4f *Chi3d, Eigen::Matrix4
 
     xi_dot << vel_enu->x, vel_enu->y, vel_enu->z, w_dot;
 
+    std::cout << "xi_dot:" << std::endl << xi_dot << std::endl;
+
     Eigen::Matrix2f E;
     Eigen::Matrix<float, 2, 4> F;
     Eigen::Matrix<float, 2, 4> Fp;
@@ -216,17 +218,19 @@ bool gvf_advanced_3D_ellipse_XY(float xo, float yo, float r, float zl, float zh,
   float z = pos_enu->z;
   float w = gvf_advanced_control.w;
 
+  float alpha_rad = M_PI*alpha/180;
+
   float f1 = r*cosf(w) + xo;
   float f2 = r*sinf(w) + yo;
-  float f3 = 0.5*(zh + zl + (zl-zh)*sinf(alpha-w));
+  float f3 = 0.5*(zh + zl + (zl-zh)*sinf(alpha_rad-w));
 
   float f1d = -r*sinf(w);
   float f2d = r*cosf(w);
-  float f3d = -0.5*(zl-zh)*cosf(alpha-w);
+  float f3d = -0.5*(zl-zh)*cosf(alpha_rad-w);
 
   float f1dd = -r*cosf(w);
   float f2dd = -r*sinf(w);
-  float f3dd = -0.5*(zl-zh)*sinf(alpha-w);
+  float f3dd = -0.5*(zl-zh)*sinf(alpha_rad-w);
 
   float phi1 = x - f1;
   float phi2 = y - f2;
