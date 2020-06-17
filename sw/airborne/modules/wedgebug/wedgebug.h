@@ -65,20 +65,20 @@ extern int SE_dilation_OCV_2; // SE size for the second dilation operation (see 
 
 
 // Setting thresholds
-extern uint8_t threshold_median_disparity; 		// Above this median disparity, an obstacle is considered to block the way. >60 = close than 35cm
-extern int threshold_edge_magnitude;  		// Edges with a magnitude above this value are detected. Above this value, edges are given the value 127, otherwise they are given the value zero.
-extern int threshold_edge_magnitude_16bit;  // Edges with a magnitude above this value are detected. Above this value, edges are given the value 127, otherwise they are given the value zero.
-extern uint8_t threshold_disparity_of_edges; 		// Above this underlying disparity value, edges are considers eligible for detection
+
+extern float threshold_median_depth;		//! Below this median depth (m), an obstacle is considered to block the way (i.e. the blocking obstacle needs to be close)
+extern float threshold_depth_of_edge;	//! Below this depth (m) edges are eligible for the WedgeBug algorith
+
+extern int threshold_edge_magnitude;  			// Edges with a magnitude above this value are detected. Above this value, edges are given the value 127, otherwise they are given the value zero.
 extern float threshold_distance_to_goal; 		// Above this threshold, the goal is considered reached
-extern float threshold_distance_to_angle;	// Above this threshold, the angle/heading is considered reached
-extern float safety_distance_front;
+extern float threshold_distance_to_angle;		// Above this threshold, the angle/heading is considered reached
 extern int16_t max_obstacle_confidence;			// This is the max confidence that an obstacle was spotted
-extern int16_t max_free_path_confidence;			// This is the max confidence that an obstacle was not spotted
+extern int16_t max_free_path_confidence;		// This is the max confidence that an obstacle was not spotted
 extern int16_t max_position_confidence;			// This is the max confidence that a specific position was reached
-extern int16_t max_heading_confidence;				// This is the max confidence that a specific heading was reached
-extern int16_t max_edge_found_micro_confidence; 	// This is the max confidence that edges (micro-see above) were found
-extern int16_t max_edge_found_macro_confidence; 	// This is the max confidence that edges (macro-see above were found
-extern int16_t max_no_edge_found_confidence;		// This is the max confidence that no edges were found
+extern int16_t max_heading_confidence;			// This is the max confidence that a specific heading was reached
+extern int16_t max_edge_found_micro_confidence; // This is the max confidence that edges (micro-see above) were found
+extern int16_t max_edge_found_macro_confidence; // This is the max confidence that edges (macro-see above were found
+extern int16_t max_no_edge_found_confidence;	// This is the max confidence that no edges were found
 
 
 

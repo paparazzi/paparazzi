@@ -81,16 +81,17 @@ int save_image_gray(struct image_t *img, char *myString)
 	if (img->type == IMAGE_OPENCV_DISP )
 	{
 		Mat M(img->h, img->w, CV_16SC1, img->buf);
+		Mat Mcopy = M.clone();
 		//normalize(M, M, 0, 255, NORM_MINMAX);
-		imwrite(myString, M);
+		imwrite(myString, Mcopy);
 
 	}
 	else if (img->type == IMAGE_GRAYSCALE)
 	{
 		Mat M(img->h, img->w, CV_8UC1, img->buf);
+		Mat Mcopy = M.clone();
 
-
-		imwrite(myString,M);
+		imwrite(myString,Mcopy);
 	}
 	else
 	{
@@ -149,23 +150,23 @@ int save_image_HM(struct image_t *img, char *myString, int const heatmap)
 		if (img->type == IMAGE_OPENCV_DISP )
 		{
 			Mat M(img->h, img->w, CV_16SC1, img->buf);
-			Mat M_output;
+			Mat Mcopy = M.clone();
 
-			//normalize(M, M, 0, 255, NORM_MINMAX);
-			M.convertTo(M, CV_8UC1); //Converting image to 8 bit image
-			applyColorMap(M, M_output, heatmap);
+			//normalize(Mcopy, Mcopy, 0, 255, NORM_MINMAX);
+			Mcopy.convertTo(Mcopy, CV_8UC1); //Converting image to 8 bit image
+			applyColorMap(Mcopy, Mcopy, heatmap);
 
-			imwrite(myString, M_output);
+			imwrite(myString, Mcopy);
 
 		}
 		else if (img->type == IMAGE_GRAYSCALE)
 		{
 			Mat M(img->h, img->w, CV_8UC1, img->buf);
-			Mat M_output;
+			Mat Mcopy = M.clone();
 
-			applyColorMap(M, M_output, heatmap);
+			applyColorMap(Mcopy, Mcopy, heatmap);
 
-			imwrite(myString, M_output);
+			imwrite(myString, Mcopy);
 		}
 		else
 		{
@@ -243,7 +244,7 @@ int SBM_OCV(struct image_t *img_disp, const struct image_t *img_left, const stru
 
 		// THe followig code is to display the depth map with depth capped at 256/
 		// This is for debugging only such that the depth image has moe contrast when observing it
-		imwrite("/home/dureade/Documents/paparazzi_images/img_disp_int8_cropped_capped.bmp", img_disp_OCV);
+		//imwrite("/home/dureade/Documents/paparazzi_images/img_disp_int8_cropped_capped.bmp", img_disp_OCV);
 
 
 
@@ -466,6 +467,9 @@ int sobel_OCV(struct image_t *img_input, const struct image_t *img_output, const
 
 	transfer(&img_grad_mag, img_output); // Saving image into output images
 
+	Mat(img_output->h, img_output->w, CV_8UC1, img_output->buf);
+
+
 	/*
 	// Size of variables
 	std::cout << "img_input_OCV = " << img_input_OCV.total() * img_input_OCV.elemSize() << std::endl;
@@ -493,6 +497,3 @@ int sobel_OCV(struct image_t *img_input, const struct image_t *img_output, const
 
 	return 1;
 }
-
-
-
