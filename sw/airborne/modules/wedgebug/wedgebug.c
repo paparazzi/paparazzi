@@ -1361,7 +1361,7 @@ void wedgebug_init(){
 	is_total_timer_on_flag = 0;
 	threshold_distance_to_goal_manual = 0.5;
 
-	save_images_flag = 1; 			// For report: Flag to indicate if images should be saved
+	save_images_flag = 0; 			// For report: Flag to indicate if images should be saved
 
 
 
