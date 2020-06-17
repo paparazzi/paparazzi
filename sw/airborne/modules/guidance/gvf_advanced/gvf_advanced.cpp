@@ -118,9 +118,7 @@ void gvf_advanced_control_3D(float k_psi, Eigen::Vector4f *Chi3d, Eigen::Matrix4
     Eigen::Vector4f X = *Chi3d;
     float ground_speed = stateGetHorizontalSpeedNorm_f();
 
-    ground_speed = 10;
     float w_dot = (ground_speed*X(3)) / sqrtf(X(0)*X(0) + X(1)*X(1));
-    gvf_advanced_control.w += w_dot*gvf_advanced_control.delta_T*1e-3;
 
     Eigen::Vector4f xi_dot;
     struct EnuCoor_f *vel_enu = stateGetSpeedEnu_f();
@@ -159,6 +157,8 @@ void gvf_advanced_control_3D(float k_psi, Eigen::Vector4f *Chi3d, Eigen::Matrix4
     float climbing_rate = (ground_speed*X(2)) / sqrtf(X(0)*X(0) + X(1)*X(1));
 
     // Low-level control
+    gvf_advanced_control.w += w_dot*gvf_advanced_control.delta_T*1e-3;
+
     if (autopilot_get_mode() == AP_MODE_AUTO2) {
     // Vertical
     v_ctl_mode = V_CTL_MODE_AUTO_CLIMB;
@@ -179,6 +179,7 @@ void gvf_advanced_control_3D(float k_psi, Eigen::Vector4f *Chi3d, Eigen::Matrix4
     std::cout << "Heading rate: " << heading_rate << std::endl;
     std::cout << "Climbing rate: " << climbing_rate << std::endl;
     std::cout << "w dot: " << w_dot << std::endl;
+    std::cout << "Delta T: " << gvf_advanced_control.delta_T << std::endl;
 }
 
 // 3D ELLIPSE
@@ -235,27 +236,27 @@ bool gvf_advanced_3D_ellipse_XY(float xo, float yo, float r, float zl, float zh,
   std::cout << "phi2: " << phi2 << std::endl;
   std::cout << "phi3: " << phi3 << std::endl;
 
-  Chi3d(0) = -f1d - gvf_advanced_3d_ellipse_par.kx*phi1*1e-2;
-  Chi3d(1) = -f2d - gvf_advanced_3d_ellipse_par.ky*phi2*1e-2;
-  Chi3d(2) = -f3d - gvf_advanced_3d_ellipse_par.kz*phi3*1e-2;
-  Chi3d(3) =   -1 + (gvf_advanced_3d_ellipse_par.kx*phi1*f1d*1e-2
-      + gvf_advanced_3d_ellipse_par.ky*phi2*f2d*1e-2
-      + gvf_advanced_3d_ellipse_par.kz*phi3*f3d*1e-2);
+  Chi3d(0) = -f1d - gvf_advanced_3d_ellipse_par.kx*phi1;
+  Chi3d(1) = -f2d - gvf_advanced_3d_ellipse_par.ky*phi2;
+  Chi3d(2) = -f3d - gvf_advanced_3d_ellipse_par.kz*phi3;
+  Chi3d(3) =   -1 + (gvf_advanced_3d_ellipse_par.kx*phi1*f1d
+      + gvf_advanced_3d_ellipse_par.ky*phi2*f2d
+      + gvf_advanced_3d_ellipse_par.kz*phi3*f3d);
 
   J3d.setZero();
 
-  J3d(0,0) = -gvf_advanced_3d_ellipse_par.kx*1e-2;
-  J3d(1,1) = -gvf_advanced_3d_ellipse_par.ky*1e-2;
-  J3d(2,2) = -gvf_advanced_3d_ellipse_par.kz*1e-2;
-  J3d(3,0) = gvf_advanced_3d_ellipse_par.kx*f1d*1e-2;
-  J3d(3,1) = gvf_advanced_3d_ellipse_par.ky*f2d*1e-2;
-  J3d(3,2) = gvf_advanced_3d_ellipse_par.kz*f3d*1e-2;
-  J3d(0,3) = -f1dd + gvf_advanced_3d_ellipse_par.kx*f1d*1e-2;
-  J3d(1,3) = -f2dd + gvf_advanced_3d_ellipse_par.ky*f2d*1e-2;
-  J3d(2,3) = -f3dd + gvf_advanced_3d_ellipse_par.kz*f3d*1e-2;
-  J3d(3,3) =  gvf_advanced_3d_ellipse_par.kx*(phi1*f1dd-f1d*f1d)*1e-2
-      + gvf_advanced_3d_ellipse_par.ky*(phi2*f2dd-f2d*f2d)*1e-2
-      + gvf_advanced_3d_ellipse_par.kz*(phi3*f3dd-f3d*f3d)*1e-2;
+  J3d(0,0) = -gvf_advanced_3d_ellipse_par.kx;
+  J3d(1,1) = -gvf_advanced_3d_ellipse_par.ky;
+  J3d(2,2) = -gvf_advanced_3d_ellipse_par.kz;
+  J3d(3,0) = gvf_advanced_3d_ellipse_par.kx*f1d;
+  J3d(3,1) = gvf_advanced_3d_ellipse_par.ky*f2d;
+  J3d(3,2) = gvf_advanced_3d_ellipse_par.kz*f3d;
+  J3d(0,3) = -f1dd + gvf_advanced_3d_ellipse_par.kx*f1d;
+  J3d(1,3) = -f2dd + gvf_advanced_3d_ellipse_par.ky*f2d;
+  J3d(2,3) = -f3dd + gvf_advanced_3d_ellipse_par.kz*f3d;
+  J3d(3,3) =  gvf_advanced_3d_ellipse_par.kx*(phi1*f1dd-f1d*f1d)
+      + gvf_advanced_3d_ellipse_par.ky*(phi2*f2dd-f2d*f2d)
+      + gvf_advanced_3d_ellipse_par.kz*(phi3*f3dd-f3d*f3d);
 
   std::cout << "Chi3d: " << std::endl << Chi3d << std::endl;
   std::cout << "J3d: " << std::endl << J3d << std::endl;
