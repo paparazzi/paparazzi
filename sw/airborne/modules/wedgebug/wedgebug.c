@@ -76,7 +76,7 @@ struct image_t img_depth_int16_cropped;	//! Image obtained after image is croppe
 struct image_t img_middle_int8_cropped;	// Image obtained after processing (morphological operations) of previous image
 struct image_t img_edges_int8_cropped;	//! Image obtained from the external sobel edge detection function = sobel_OCV
 
-struct image_t img_disp_int16_cropped;	//!
+struct image_t img_disparity_int16_cropped;	//!
 struct image_t img_depth_int16_cropped;	//!
 struct image_t img_middle_int16_cropped;//!
 
@@ -609,17 +609,43 @@ void UYVYs_interlacing_H(struct image_t *merged, struct image_t *left, struct im
 // Function 5 - Returns the maximum value in a uint8_t image
 uint32_t maximum_intensity(struct image_t *img)
 {
-	uint32_t max = 0;
-	for (uint32_t i = 0; i < img->buf_size; i++)
+	if(img->type == IMAGE_GRAYSCALE)
 	{
-		uint8_t* intensity = &((uint8_t*)img->buf)[i];
-
-		if (*intensity > max)
+		uint32_t max = 0;
+		for (uint32_t i = 0; i < img->buf_size; i++)
 		{
-			max = *intensity;
+			uint8_t* intensity = &((uint8_t*)img->buf)[i];
+
+			if (*intensity > max)
+			{
+				max = *intensity;
+			}
 		}
+		return max;
 	}
-	return max;
+	else if (img->type == IMAGE_OPENCV_DISP)
+	{
+		uint32_t max = 0;
+		for (uint32_t i = 0; i < (img->w * img->h); i++)
+		{
+			uint16_t* intensity = &((uint16_t*)img->buf)[i];
+
+			if (*intensity > max)
+			{
+				max = *intensity;
+				printf("%d\n", *intensity);
+				printf("location = %d\n", i);
+			}
+		}
+		return max;
+	}
+	else
+	{
+		printf("ERROR: function does not support image type %d. Breaking out of function.", img->type);
+		return 1;
+	}
+
+
 }
 
 
@@ -656,17 +682,10 @@ float disp_to_depth(const uint8_t d, const float b, const uint16_t f)
 }
 
 
-// Function 8b - Converts depth to disparity using focal length (in pixels) and baseline distance (in meters)
-uint8_t depth_to_disp(const float depth, const float b, const uint16_t f)
-{
-	return round(b * f / depth);
-}
-
-
 // Function 8c - Converts 16bit fixed number disparity (pixels * 16) to 16bit disparity (pixels)
 float dispfixed_to_disp(const int16_t d)
 {
-	return (d/ 16.00);
+	return (d / 16.00);
 }
 
 
@@ -675,6 +694,14 @@ float disp_to_depth_16bit(const int16_t d, const float b, const uint16_t f)
 {
 	return b * f / dispfixed_to_disp(d);
 }
+
+
+// Function 8b - Converts depth to disparity using focal length (in pixels) and baseline distance (in meters)
+uint8_t depth_to_disp(const float depth, const float b, const uint16_t f)
+{
+	return round(b * f / depth);
+}
+
 
 
 
@@ -1358,19 +1385,31 @@ uint8_t are_setpoint_and_angle_reached(
 
 
 // Function 23 - Function to convert 16bit disparity (unaltered from OCV output i.e. fixed point 16bit numbers) into 16bit depth values (cm)
-void disp_to_depth_img(struct image_t *img8bit_input, struct image_t *img16bit_output)
+void disp_to_depth_img(struct image_t *img_input, struct image_t *img16bit_output)
 {
 	//int n = 89;
-	float disparity;
+	float disparity = 1;
 
 	//printf("C location %d = %d\n", n, ((int16_t*)img16bit_input->buf)[n]);
 
 
 	// Converting disparity values into depth (cm)
-	for (int32_t i = 0; i < (img8bit_input->h * img8bit_input->w); i++ )
+	for (int32_t i = 0; i < (img_input->h * img_input->w); i++ )
 	{
 
-		disparity = disp_to_depth(((uint8_t*)img8bit_input->buf)[i], b, f);
+		if (img_input->type == IMAGE_GRAYSCALE)
+		{
+			disparity = disp_to_depth(((uint8_t*)img_input->buf)[i], b, f);
+		}
+		else if (img_input->type == IMAGE_OPENCV_DISP)
+		{
+			disparity = disp_to_depth_16bit(((uint16_t*)img_input->buf)[i], b, f);
+		}
+		else
+		{
+			printf("ERROR: function does not support image type %d. Breaking out of function.", img_input->type);
+		}
+
 
 		/*
 		if(i == n)
@@ -1386,7 +1425,7 @@ void disp_to_depth_img(struct image_t *img8bit_input, struct image_t *img16bit_o
 		}*/
 
 
-		((int16_t*)img16bit_output->buf)[i] = round(disparity);
+		((uint16_t*)img16bit_output->buf)[i] = round(disparity);
 	}
 	//printf("Depth in cm at %d = %d\n", n, ((int16_t*)img16bit_output->buf)[n]);
 }
@@ -1404,7 +1443,7 @@ void background_processes(uint8_t save_images_flag)
 	// 2. Deriving disparity map from block matching (left image is reference image)
 	SBM_OCV(&img_disparity_int8_cropped, &img_left_int8, &img_right_int8, N_disparities, block_size_disparities, 1);// Creating cropped disparity map image
 	// For report: creating image for saving 1
-	if (save_images_flag){save_image_HM(&img_disparity_int8_cropped, "/home/dureade/Documents/paparazzi_images/for_report/img_post_SBM.bmp", heat_map_type);}
+	if (save_images_flag){save_image_HM(&img_disparity_int8_cropped, "/home/dureade/Documents/paparazzi_images/for_report/b_img1_post_SBM.bmp", heat_map_type);}
 
 	/*
 	// Optional thresholding of disparity map
@@ -1422,28 +1461,83 @@ void background_processes(uint8_t save_images_flag)
 	// Needed to smoove object boundaries and to remove noise removing noise
 	opening_OCV(&img_disparity_int8_cropped, &img_middle_int8_cropped, SE_opening_OCV, 1);
 	// For report: creating image for saving 2
-	if (save_images_flag){save_image_HM(&img_middle_int8_cropped, "/home/dureade/Documents/paparazzi_images/for_report/img_post_opening_8bit.bmp", heat_map_type);}
+	if (save_images_flag){save_image_HM(&img_middle_int8_cropped, "/home/dureade/Documents/paparazzi_images/for_report/b_img2_post_opening_8bit.bmp", heat_map_type);}
 
 	closing_OCV(&img_middle_int8_cropped, &img_middle_int8_cropped, SE_closing_OCV, 1);
 	// For report: creating image for saving 3
-	if (save_images_flag){save_image_HM(&img_middle_int8_cropped, "/home/dureade/Documents/paparazzi_images/for_report/img_post_closing_8bit.bmp", heat_map_type);}
+	if (save_images_flag){save_image_HM(&img_middle_int8_cropped, "/home/dureade/Documents/paparazzi_images/for_report/b_img3_post_closing_8bit.bmp", heat_map_type);}
 
 	dilation_OCV(&img_middle_int8_cropped, &img_middle_int8_cropped,SE_dilation_OCV_1, 1);
 	// For report: creating image for saving 4
-	if (save_images_flag){save_image_HM(&img_middle_int8_cropped, "/home/dureade/Documents/paparazzi_images/for_report/img_post_dilation_8bit.bmp", heat_map_type);}
+	if (save_images_flag){save_image_HM(&img_middle_int8_cropped, "/home/dureade/Documents/paparazzi_images/for_report/b_img4_post_dilation_8bit.bmp", heat_map_type);}
 
 	// 4. Depth image
 	disp_to_depth_img(&img_middle_int8_cropped, &img_depth_int16_cropped);
 	// For report: creating image for saving 4
-	if (save_images_flag){save_image_HM(&img_depth_int16_cropped, "/home/dureade/Documents/paparazzi_images/for_report/img_post_depth_16bit.bmp", heat_map_type);}
+	if (save_images_flag){save_image_HM(&img_depth_int16_cropped, "/home/dureade/Documents/paparazzi_images/for_report/b_img5_post_depth_16bit.bmp", heat_map_type);}
 
 	// 5. Sobel edge detection
 	sobel_OCV(&img_depth_int16_cropped, &img_edges_int8_cropped, SE_sobel_OCV, threshold_edge_magnitude);
 	// For report: creating image for saving 5
-	if (save_images_flag){save_image_gray(&img_edges_int8_cropped, "/home/dureade/Documents/paparazzi_images/for_report/img_post_sobel_8bit.bmp");}
+	if (save_images_flag){save_image_gray(&img_edges_int8_cropped, "/home/dureade/Documents/paparazzi_images/for_report/b_img6_post_sobel_8bit.bmp");}
 }
 
 
+// Function 25  - Function that encapsulates all of the background processes. Originally this was in the periodic function,
+// but since it is used in the direct and the guidance navigation modes of the state machine, I made it a callable function
+// for convenience
+void background_processes2(uint8_t save_images_flag)
+{
+	//Background processes
+	// 1. Converting left and right image to 8bit grayscale for further processing
+	image_to_grayscale(&img_left, &img_left_int8); // Converting left image from UYVY to gray scale for saving function
+	image_to_grayscale(&img_right, &img_right_int8); // Converting right image from UYVY to gray scale for saving function
+
+	// 2. Deriving disparity map from block matching (left image is reference image)
+	SBM_OCV(&img_disparity_int16_cropped, &img_left_int8, &img_right_int8, N_disparities, block_size_disparities, 1);// Creating cropped disparity map image
+	// For report: creating image for saving 1
+	if (save_images_flag){save_image_HM(&img_disparity_int16_cropped, "/home/dureade/Documents/paparazzi_images/for_report/b2_img1_post_SBM_16bit.bmp", heat_map_type);}
+
+	//printf("maximum_intensity = %d\n", maximum_intensity(&img_disparity_int16_cropped));
+
+	/*
+	// Optional thresholding of disparity map
+	uint8_t thresh = 1;
+	for (int32_t i = 0; i < (img_disparity_int8_cropped.h*img_disparity_int8_cropped.w); i++)
+	{
+		uint8_t disparity = ((uint8_t*)img_disparity_int8_cropped)[i];
+		if(disparity < thresh)
+		{
+			((uint8_t*)img_disparity_int8_cropped)[i] = 0; // if below disparity assume object is indefinately away
+		}
+	}*/
+
+	// 3. Morphological operations 1
+	// Needed to smoove object boundaries and to remove noise removing noise
+	opening_OCV(&img_disparity_int16_cropped, &img_disparity_int16_cropped, SE_opening_OCV, 1);
+	// For report: creating image for saving 2
+	if (save_images_flag){save_image_HM(&img_disparity_int16_cropped, "/home/dureade/Documents/paparazzi_images/for_report/b2_img2_post_opening_16bit.bmp", heat_map_type);}
+
+	closing_OCV(&img_disparity_int16_cropped, &img_disparity_int16_cropped, SE_closing_OCV, 1);
+	// For report: creating image for saving 3
+	if (save_images_flag){save_image_HM(&img_disparity_int16_cropped, "/home/dureade/Documents/paparazzi_images/for_report/b2_img3_post_closing_16bit.bmp", heat_map_type);}
+
+	dilation_OCV(&img_disparity_int16_cropped, &img_disparity_int16_cropped,SE_dilation_OCV_1, 1);
+	// For report: creating image for saving 4
+	if (save_images_flag){save_image_HM(&img_disparity_int16_cropped, "/home/dureade/Documents/paparazzi_images/for_report/b2_img4_post_dilation_16bit.bmp", heat_map_type);}
+
+
+	// 4. Depth image
+	disp_to_depth_img(&img_disparity_int16_cropped, &img_depth_int16_cropped);
+	// For report: creating image for saving 4
+	if (save_images_flag){save_image_HM(&img_depth_int16_cropped, "/home/dureade/Documents/paparazzi_images/for_report/b2_img5_post_depth_16bit.bmp", heat_map_type);}
+
+
+	// 5. Sobel edge detection
+	sobel_OCV(&img_depth_int16_cropped, &img_edges_int8_cropped, SE_sobel_OCV, threshold_edge_magnitude);
+	// For report: creating image for saving 5
+	if (save_images_flag){save_image_gray(&img_edges_int8_cropped, "/home/dureade/Documents/paparazzi_images/for_report/b2_img6_post_sobel_8bit.bmp");}
+}
 
 
 
@@ -1543,7 +1637,7 @@ void wedgebug_init(){
 	image_create(&img_edges_int8_cropped,img_cropped_dims.w, img_cropped_dims.h, IMAGE_GRAYSCALE);// To store edges image data from processing - 8 bit
 
 	// Creating empty images - cropped - 16bit
-	image_create(&img_disp_int16_cropped, img_cropped_dims.w, img_cropped_dims.h, IMAGE_OPENCV_DISP);// To store cropped disparity - 16 bit
+	image_create(&img_disparity_int16_cropped, img_cropped_dims.w, img_cropped_dims.h, IMAGE_OPENCV_DISP);// To store cropped disparity - 16 bit
 	image_create(&img_depth_int16_cropped, img_cropped_dims.w, img_cropped_dims.h, IMAGE_OPENCV_DISP);// To store cropped depth - 16 bit
 	image_create(&img_middle_int16_cropped, img_cropped_dims.w, img_cropped_dims.h, IMAGE_OPENCV_DISP);// To store cropped middle image - 16 bit
 
@@ -1616,9 +1710,9 @@ void wedgebug_init(){
 
 
 	// Setting thresholds - non-calculated
-	threshold_median_depth = 1.50; //1.68  			//! Below this median depth, an obstacle is considered to block the way (i.e. the blocking obstacle needs to be close)
-	threshold_depth_of_edge = 2.69; 			//! Below this depth (m) edges are eligible for the WedgeBug algorithm
-	threshold_edge_magnitude = 15000;			//151;//301;  // Edges with a magnitude (cm^2) above this value are detected. Above this value, edges are given the value 127, otherwise they are given the value zero.
+	threshold_median_depth = 100; //1.50//1.68  			//! Below this median depth, an obstacle is considered to block the way (i.e. the blocking obstacle needs to be close)
+	threshold_depth_of_edge = 100; //2.69; 			//! Below this depth (m) edges are eligible for the WedgeBug algorithm
+	threshold_edge_magnitude = 10000;//30000;//15000;			//151;//301;  // Edges with a magnitude (cm^2) above this value are detected. Above this value, edges are given the value 127, otherwise they are given the value zero.
 	threshold_distance_to_goal = 0.25; 			//0.25 // Above this threshold (m), the goal is considered reached
 	threshold_distance_to_goal_direct = 1.0;	 //0.25 // Above this threshold (m), the goal is considered reached in DIRECT_CONTROL mode
 	threshold_distance_to_angle = 0.0004;		// Above this threshold (radians), the angle/heading is considered reached
@@ -1660,7 +1754,7 @@ void wedgebug_init(){
 	is_total_timer_on_flag = 0;
 	threshold_distance_to_goal_manual = 0.5;
 
-	save_images_flag = 0; 			// For report: Flag to indicate if images should be saved
+	save_images_flag = 1; 			// For report: Flag to indicate if images should be saved
 
 
 
@@ -1898,7 +1992,8 @@ void wedgebug_periodic(){
 
 		// Background processes - Includes image processing for use
     	// Turn on for debugging
-		background_processes(save_images_flag);
+		//background_processes(save_images_flag);
+		background_processes2(save_images_flag);
 
 
     	switch(current_state)  // Finite state machine - Start

@@ -306,6 +306,7 @@ int opening_OCV(struct image_t *img_input, const struct image_t *img_output, con
 
 	if (img_input->type == IMAGE_OPENCV_DISP)
 	{
+		std::cout << "16bit image" << std::endl;
 		img_input_OCV = Mat(img_input->h, img_input->w, CV_16S, img_input->buf);
 
 	}
