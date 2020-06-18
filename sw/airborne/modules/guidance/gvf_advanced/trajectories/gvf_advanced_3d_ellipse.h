@@ -22,7 +22,7 @@
  * @file modules/guidance/gvf_advanced/trajectories/gvf_advanced_3d_ellipse.h
  *
  * Guiding vector field algorithm for 2D and 3D complex trajectories.
- * 
+ *
  * 3D ellipse (intersection between a cylinder and a tilted plane)
  */
 
@@ -44,19 +44,19 @@ extern "C" {
 * @param alpha Heading of the lowest point zl in rads
 */
 typedef struct {
-    float kx;
-    float ky;
-    float kz;
-    float r;
-    float zl;
-    float zh;
-    float alpha;
+  float kx;
+  float ky;
+  float kz;
+  float r;
+  float zl;
+  float zh;
+  float alpha;
 } gvf_adv_3d_ell_par;
 
 extern gvf_adv_3d_ell_par gvf_advanced_3d_ellipse_par;
 
 extern void gvf_advanced_3d_ellipse_info(float *f1, float *f2, float *f3, float *f1d, float *f2d, float *f3d,
-        float *f1dd, float *f2dd, float *f3dd);
+    float *f1dd, float *f2dd, float *f3dd);
 
 #ifdef __cplusplus
 }

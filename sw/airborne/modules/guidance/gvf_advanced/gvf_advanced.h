@@ -70,27 +70,27 @@ extern "C" {
 * @param k_climb Gain for tuning the climbing setting point.
 */
 typedef struct {
-    float w;
-    float delta_T;
-    int8_t s;
-    float k_roll;
-    float k_climb;
-    float k_psi;
-    float L;
-    float beta;
+  float w;
+  float delta_T;
+  int8_t s;
+  float k_roll;
+  float k_climb;
+  float k_psi;
+  float L;
+  float beta;
 } gvf_advanced_con;
 
 extern gvf_advanced_con gvf_advanced_control;
 
 // Parameters for the trajectories
 enum trajectories_advanced {
-    ELLIPSE_3D = 0,
-    NONE_ADVANCED = 255,
+  ELLIPSE_3D = 0,
+  NONE_ADVANCED = 255,
 };
 
 typedef struct {
-    enum trajectories_advanced type;
-    float p_advanced[16];
+  enum trajectories_advanced type;
+  float p_advanced[16];
 } gvf_advanced_tra;
 
 extern gvf_advanced_tra gvf_advanced_trajectory;
@@ -100,7 +100,7 @@ extern void gvf_advanced_init(void);
 
 // Control functions
 extern void gvf_advanced_control_3D(float, float, float, float, float, float, float, float, float,
-        float, float, float);
+                                    float, float, float);
 
 // 3D Ellipse
 extern bool gvf_advanced_3D_ellipse_XY(float, float, float, float, float, float);
