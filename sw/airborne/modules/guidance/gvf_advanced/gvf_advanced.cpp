@@ -114,8 +114,9 @@ void gvf_advanced_control_3D(float k_psi, Eigen::Vector4f *Chi3d, Eigen::Matrix4
     gvf_advanced_control.delta_T = now - t0;
     t0 = now;
 
-    if(gvf_advanced_control.delta_T > 300) // We need at least two iterations for Delta_T
-      return;
+    if(gvf_advanced_control.delta_T > 300){ // We need at least two iterations for Delta_T
+      gvf_advanced.control.w = 0; // Reset w since we assume the algorithm starts
+      return;}
 
     Eigen::Vector4f X = *Chi3d;
     float ground_speed = stateGetHorizontalSpeedNorm_f();
@@ -127,8 +128,6 @@ void gvf_advanced_control_3D(float k_psi, Eigen::Vector4f *Chi3d, Eigen::Matrix4
     float course = stateGetHorizontalSpeedDir_f();
 
     xi_dot << vel_enu->x, vel_enu->y, vel_enu->z, w_dot;
-
-    std::cout << "xi_dot:" << std::endl << xi_dot << std::endl;
 
     Eigen::Matrix2f E;
     Eigen::Matrix<float, 2, 4> F;
@@ -180,18 +179,12 @@ void gvf_advanced_control_3D(float k_psi, Eigen::Vector4f *Chi3d, Eigen::Matrix4
       -gvf_advanced_control.k_roll*atanf(heading_rate * ground_speed / GVF_ADVANCED_GRAVITY / cosf(att->theta));
     BoundAbs(h_ctl_roll_setpoint, h_ctl_roll_max_setpoint);
     }
-
-    std::cout << "Heading rate: " << heading_rate << std::endl;
-    std::cout << "Climbing rate: " << climbing_rate << std::endl;
-    std::cout << "w dot: " << w_dot << std::endl;
-    std::cout << "Delta T: " << gvf_advanced_control.delta_T << std::endl;
 }
 
 // 3D ELLIPSE
 
 bool gvf_advanced_3D_ellipse_XY(float xo, float yo, float r, float zl, float zh, float alpha)
 {
-
   horizontal_mode = HORIZONTAL_MODE_CIRCLE; //  Circle for the 2D GCS
 
   Eigen::Vector4f Chi3d;
@@ -205,7 +198,7 @@ bool gvf_advanced_3D_ellipse_XY(float xo, float yo, float r, float zl, float zh,
   gvf_advanced_trajectory.p_advanced[4] = zh;
   gvf_advanced_trajectory.p_advanced[5] = alpha;
 
-  // SAFE MODE
+  // Safety first! If the asked altitude is low
   if (zl > zh)
     zl = zh;
   if (zl < 1 || zh < 1){
@@ -241,10 +234,6 @@ bool gvf_advanced_3D_ellipse_XY(float xo, float yo, float r, float zl, float zh,
   float phi2 = L*(y - f2);
   float phi3 = L*(z - f3);
 
-  std::cout << "phi1: " << phi1 << std::endl;
-  std::cout << "phi2: " << phi2 << std::endl;
-  std::cout << "phi3: " << phi3 << std::endl;
-
   float kx = gvf_advanced_3d_ellipse_par.kx;
   float ky = gvf_advanced_3d_ellipse_par.ky;
   float kz = gvf_advanced_3d_ellipse_par.kz;
@@ -269,9 +258,6 @@ bool gvf_advanced_3D_ellipse_XY(float xo, float yo, float r, float zl, float zh,
           + kz*(phi3*f3dd-L*f3d*f3d));
   J3d *= L;
 
-  std::cout << "Chi3d: " << std::endl << Chi3d << std::endl;
-  std::cout << "J3d: " << std::endl << J3d << std::endl;
-
   gvf_advanced_control_3D(gvf_advanced_3d_ellipse_par.k_psi, &Chi3d, &J3d);
 
   return true;
@@ -283,3 +269,11 @@ bool gvf_advanced_3D_ellipse_wp(uint8_t wp, float r, float zl, float zh, float a
   return true;
 }
 
+bool gvf_advanced_3D_ellipse_wp_delta(uint8_t wp, float r, float alt_center, float delta, float alpha)
+{
+  float zl = alt_center - delta;
+  float zh = alt_center + delta;
+
+  gvf_advanced_3D_ellipse_XY(waypoints[wp].x, waypoints[wp].y, r, zl, zh, alpha);
+  return true;
+}
