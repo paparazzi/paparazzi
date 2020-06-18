@@ -89,6 +89,8 @@ void gvf_advanced_init(void)
   gvf_advanced_control.s = 1;
   gvf_advanced_control.k_roll = GVF_ADVANCED_KROLL;
   gvf_advanced_control.k_climb = GVF_ADVANCED_KCLIMB;
+  gvf_advanced_control.L = GVF_ADVANCED_L;
+  gvf_advanced_control.beta = GVF_ADVANCED_BETA;
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GVF_ADVANCED, send_gvf_advanced);
@@ -142,8 +144,9 @@ void gvf_advanced_control_3D(float k_psi, Eigen::Vector4f *Chi3d, Eigen::Matrix4
     I.setIdentity();
     F << 1.0, 0.0, 0.0, 0.0,
          0.0, 1.0, 0.0, 0.0;
-    E << 0.0, -1.0*gvf_advanced_control.s,
-         1.0*gvf_advanced_control.s,  0.0;
+    float s = gvf_advanced_control.s;
+    E <<   0.0, -1.0*s,
+         1.0*s,    0.0;
     G = F.transpose()*F;
     Fp = E*F;
     Gp = F.transpose()*E*F;
@@ -189,7 +192,7 @@ void gvf_advanced_control_3D(float k_psi, Eigen::Vector4f *Chi3d, Eigen::Matrix4
 bool gvf_advanced_3D_ellipse_XY(float xo, float yo, float r, float zl, float zh, float alpha)
 {
 
-  horizontal_mode = HORIZONTAL_MODE_CIRCLE; // "2D Cylinder" is a circle for the GCS
+  horizontal_mode = HORIZONTAL_MODE_CIRCLE; //  Circle for the 2D GCS
 
   Eigen::Vector4f Chi3d;
   Eigen::Matrix4f J3d;
@@ -219,48 +222,52 @@ bool gvf_advanced_3D_ellipse_XY(float xo, float yo, float r, float zl, float zh,
   float w = gvf_advanced_control.w;
 
   float alpha_rad = M_PI*alpha/180;
+  float beta = gvf_advanced_control.beta;
+  float L = gvf_advanced_control.L;
 
-  float f1 = r*cosf(w) + xo;
-  float f2 = r*sinf(w) + yo;
-  float f3 = 0.5*(zh + zl + (zl-zh)*sinf(alpha_rad-w));
+  float f1 = r*cosf(w*beta) + xo;
+  float f2 = r*sinf(w*beta) + yo;
+  float f3 = 0.5*(zh + zl + (zl-zh)*sinf(alpha_rad-w*beta));
 
-  float f1d = -r*sinf(w);
-  float f2d = r*cosf(w);
-  float f3d = -0.5*(zl-zh)*cosf(alpha_rad-w);
+  float f1d = -r*sinf(w*beta);
+  float f2d = r*cosf(w*beta);
+  float f3d = -0.5*(zl-zh)*cosf(alpha_rad-w*beta);
 
-  float f1dd = -r*cosf(w);
-  float f2dd = -r*sinf(w);
-  float f3dd = -0.5*(zl-zh)*sinf(alpha_rad-w);
+  float f1dd = -r*cosf(w*beta);
+  float f2dd = -r*sinf(w*beta);
+  float f3dd = -0.5*(zl-zh)*sinf(alpha_rad-w*beta);
 
-  float phi1 = x - f1;
-  float phi2 = y - f2;
-  float phi3 = z - f3;
+  float phi1 = L*(x - f1);
+  float phi2 = L*(y - f2);
+  float phi3 = L*(z - f3);
 
   std::cout << "phi1: " << phi1 << std::endl;
   std::cout << "phi2: " << phi2 << std::endl;
   std::cout << "phi3: " << phi3 << std::endl;
 
-  Chi3d(0) = -f1d - gvf_advanced_3d_ellipse_par.kx*phi1;
-  Chi3d(1) = -f2d - gvf_advanced_3d_ellipse_par.ky*phi2;
-  Chi3d(2) = -f3d - gvf_advanced_3d_ellipse_par.kz*phi3;
-  Chi3d(3) =   -1 + (gvf_advanced_3d_ellipse_par.kx*phi1*f1d
-      + gvf_advanced_3d_ellipse_par.ky*phi2*f2d
-      + gvf_advanced_3d_ellipse_par.kz*phi3*f3d);
+  float kx = gvf_advanced_3d_ellipse_par.kx;
+  float ky = gvf_advanced_3d_ellipse_par.ky;
+  float kz = gvf_advanced_3d_ellipse_par.kz;
+
+  Chi3d(0) = -f1d*L*L*beta - kx*phi1;
+  Chi3d(1) = -f2d*L*L*beta - ky*phi2;
+  Chi3d(2) = -f3d*L*L*beta - kz*phi3;
+  Chi3d(3) = -L*L + beta*(kx*phi1*f1d + ky*phi2*f2d + kz*phi3*f3d);
+  Chi3d *= L;
 
   J3d.setZero();
-
-  J3d(0,0) = -gvf_advanced_3d_ellipse_par.kx;
-  J3d(1,1) = -gvf_advanced_3d_ellipse_par.ky;
-  J3d(2,2) = -gvf_advanced_3d_ellipse_par.kz;
-  J3d(3,0) = gvf_advanced_3d_ellipse_par.kx*f1d;
-  J3d(3,1) = gvf_advanced_3d_ellipse_par.ky*f2d;
-  J3d(3,2) = gvf_advanced_3d_ellipse_par.kz*f3d;
-  J3d(0,3) = -f1dd + gvf_advanced_3d_ellipse_par.kx*f1d;
-  J3d(1,3) = -f2dd + gvf_advanced_3d_ellipse_par.ky*f2d;
-  J3d(2,3) = -f3dd + gvf_advanced_3d_ellipse_par.kz*f3d;
-  J3d(3,3) =  gvf_advanced_3d_ellipse_par.kx*(phi1*f1dd-f1d*f1d)
-      + gvf_advanced_3d_ellipse_par.ky*(phi2*f2dd-f2d*f2d)
-      + gvf_advanced_3d_ellipse_par.kz*(phi3*f3dd-f3d*f3d);
+  J3d(0,0) = -kx*L;
+  J3d(1,1) = -ky*L;
+  J3d(2,2) = -kz*L;
+  J3d(3,0) = kx*f1d*beta*L;
+  J3d(3,1) = ky*f2d*beta*L;
+  J3d(3,2) = kz*f3d*beta*L;
+  J3d(0,3) = -(beta*L)*(beta*L*f1dd - kx*f1d);
+  J3d(1,3) = -(beta*L)*(beta*L*f2dd - ky*f2d);
+  J3d(2,3) = -(beta*L)*(beta*L*f3dd - kz*f3d);
+  J3d(3,3) =  beta*beta*(kx*(phi1*f1dd-L*f1d*f1d) + ky*(phi2*f2dd-L*f2d*f2d)
+          + kz*(phi3*f3dd-L*f3d*f3d));
+  J3d *= L;
 
   std::cout << "Chi3d: " << std::endl << Chi3d << std::endl;
   std::cout << "J3d: " << std::endl << J3d << std::endl;

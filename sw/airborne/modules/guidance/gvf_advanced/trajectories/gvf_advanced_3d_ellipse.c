@@ -30,17 +30,17 @@
 
 /*! Default gain kx for the 3d ellipse trajectory */
 #ifndef GVF_ADVANCED_3D_ELLIPSE_KX
-#define GVF_ADVANCED_3D_ELLIPSE_KX 0.004
+#define GVF_ADVANCED_3D_ELLIPSE_KX 0.001
 #endif
 
 /*! Default gain ky for the 3d ellipse trajectory */
 #ifndef GVF_ADVANCED_3D_ELLIPSE_KY
-#define GVF_ADVANCED_3D_ELLIPSE_KY 0.004
+#define GVF_ADVANCED_3D_ELLIPSE_KY 0.001
 #endif
 
 /*! Default gain kz for the 3d ellipse trajectory */
 #ifndef GVF_ADVANCED_3D_ELLIPSE_KZ
-#define GVF_ADVANCED_3D_ELLIPSE_KZ 0.09
+#define GVF_ADVANCED_3D_ELLIPSE_KZ 0.001
 #endif
 
 /*! Default gain kpsi for the 3d ellipse trajectory */

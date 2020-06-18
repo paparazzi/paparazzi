@@ -39,6 +39,16 @@
 #define GVF_ADVANCED_KCLIMB 1
 #endif
 
+/*! Default scale for the error signals */
+#ifndef GVF_ADVANCED_L
+#define GVF_ADVANCED_L 0.1
+#endif
+
+/*! Default scale for w  */
+#ifndef GVF_ADVANCED_BETA
+#define GVF_ADVANCED_BETA 0.01
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -59,6 +69,8 @@ typedef struct {
     int8_t s;
     float k_roll;
     float k_climb;
+    float L;
+    float beta;
 } gvf_advanced_con;
 
 extern gvf_advanced_con gvf_advanced_control;
