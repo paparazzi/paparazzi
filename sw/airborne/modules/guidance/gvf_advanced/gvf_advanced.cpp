@@ -34,7 +34,6 @@
 extern "C" {
 #endif
 
-#include "subsystems/navigation/common_nav.h"
 #include "autopilot.h"
 
 // Control
@@ -87,10 +86,11 @@ void gvf_advanced_init(void)
   gvf_advanced_control.w = 0;
   gvf_advanced_control.delta_T = 0;
   gvf_advanced_control.s = 1;
-  gvf_advanced_control.k_roll = GVF_ADVANCED_KROLL;
-  gvf_advanced_control.k_climb = GVF_ADVANCED_KCLIMB;
-  gvf_advanced_control.L = GVF_ADVANCED_L;
-  gvf_advanced_control.beta = GVF_ADVANCED_BETA;
+  gvf_advanced_control.k_roll = GVF_ADVANCED_CONTROL_KROLL;
+  gvf_advanced_control.k_climb = GVF_ADVANCED_CONTROL_KCLIMB;
+  gvf_advanced_control.k_psi = GVF_ADVANCED_CONTROL_KPSI;
+  gvf_advanced_control.L = GVF_ADVANCED_CONTROL_L;
+  gvf_advanced_control.beta = GVF_ADVANCED_CONTROL_BETA;
 
 #if PERIODIC_TELEMETRY
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GVF_ADVANCED, send_gvf_advanced);
@@ -107,20 +107,57 @@ void gvf_advanced_control_2D(float ktheta, Eigen::Vector3f *Chi2d, Eigen::Matrix
     (*J2d).setZero();
 }
 
-void gvf_advanced_control_3D(float, Eigen::Vector4f *, Eigen::Matrix4f *);
-void gvf_advanced_control_3D(float k_psi, Eigen::Vector4f *Chi3d, Eigen::Matrix4f *J3d)
+void gvf_advanced_control_3D(float kx, float ky, float kz, float f1, float f2, float f3, float f1d, float f2d, 
+        float f3d, float f1dd, float f2dd, float f3dd)
 {
     uint32_t now = get_sys_time_msec();
     gvf_advanced_control.delta_T = now - t0;
     t0 = now;
 
     if(gvf_advanced_control.delta_T > 300){ // We need at least two iterations for Delta_T
-      gvf_advanced.control.w = 0; // Reset w since we assume the algorithm starts
-      return;}
+      gvf_advanced_control.w = 0; // Reset w since we assume the algorithm starts
+      return;
+    }
 
-    Eigen::Vector4f X = *Chi3d;
+    float L = gvf_advanced_control.L;
+    float beta = gvf_advanced_control.beta;
+
+    Eigen::Vector4f X;
+    Eigen::Matrix4f J;
+
+    // Error signals phi_x phi_y and phi_z
+    struct EnuCoor_f *pos_enu = stateGetPositionEnu_f();
+    float x = pos_enu->x;
+    float y = pos_enu->y;
+    float z = pos_enu->z;
+
+    float phi1 = L*(x - f1);
+    float phi2 = L*(y - f2);
+    float phi3 = L*(z - f3);
+
+    // Chi
+    X(0) = -f1d*L*L*beta - kx*phi1;
+    X(1) = -f2d*L*L*beta - ky*phi2;
+    X(2) = -f3d*L*L*beta - kz*phi3;
+    X(3) = -L*L + beta*(kx*phi1*f1d + ky*phi2*f2d + kz*phi3*f3d);
+    X *= L;
+
+    // Jacobian
+    J.setZero();
+    J(0,0) = -kx*L;
+    J(1,1) = -ky*L;
+    J(2,2) = -kz*L;
+    J(3,0) = kx*f1d*beta*L;
+    J(3,1) = ky*f2d*beta*L;
+    J(3,2) = kz*f3d*beta*L;
+    J(0,3) = -(beta*L)*(beta*L*f1dd - kx*f1d);
+    J(1,3) = -(beta*L)*(beta*L*f2dd - ky*f2d);
+    J(2,3) = -(beta*L)*(beta*L*f3dd - kz*f3d);
+    J(3,3) =  beta*beta*(kx*(phi1*f1dd-L*f1d*f1d) + ky*(phi2*f2dd-L*f2d*f2d)
+            + kz*(phi3*f3dd-L*f3d*f3d));
+    J *= L;
+
     float ground_speed = stateGetHorizontalSpeedNorm_f();
-
     float w_dot = (ground_speed*X(3)) / sqrtf(X(0)*X(0) + X(1)*X(1));
 
     Eigen::Vector4f xi_dot;
@@ -150,34 +187,35 @@ void gvf_advanced_control_3D(float k_psi, Eigen::Vector4f *Chi3d, Eigen::Matrix4
     Fp = E*F;
     Gp = F.transpose()*E*F;
 
-    Eigen::Matrix4f J = *J3d;
     Eigen::Matrix<float, 1, 4> Xt = X.transpose();
     Eigen::Vector4f Xh = X/X.norm();
     Eigen::Matrix<float, 1, 4> Xht = Xh.transpose();
 
     float aux = ht*Fp*X;
 
-    float heading_rate = -1/(Xt*G*X)*Xt*Gp*(I-Xh*Xht)*J*xi_dot - (k_psi*aux/sqrtf(Xt*G*X));
+    float heading_rate = -1/(Xt*G*X)*Xt*Gp*(I-Xh*Xht)*J*xi_dot - (gvf_advanced_control.k_psi*aux/sqrtf(Xt*G*X));
     float climbing_rate = (ground_speed*X(2)) / sqrtf(X(0)*X(0) + X(1)*X(1));
 
     // Low-level control
+    if (autopilot_get_mode() == AP_MODE_AUTO2) {
+
+    // Virtual coordinate
     gvf_advanced_control.w += w_dot*gvf_advanced_control.delta_T*1e-3;
 
-    if (autopilot_get_mode() == AP_MODE_AUTO2) {
-    // Vertical
+    // Vertical Z coordinate
     v_ctl_mode = V_CTL_MODE_AUTO_CLIMB;
     v_ctl_speed_mode = V_CTL_SPEED_THROTTLE;
 
-    v_ctl_climb_setpoint = gvf_advanced_control.k_climb*climbing_rate;
+    v_ctl_climb_setpoint = gvf_advanced_control.k_climb*climbing_rate; // Setting point for vertical speed
 
-    // Lateral
+    // Lateral XY coordinates
     lateral_mode = LATERAL_MODE_ROLL;
 
     struct FloatEulers *att = stateGetNedToBodyEulers_f();
 
     h_ctl_roll_setpoint =
       -gvf_advanced_control.k_roll*atanf(heading_rate * ground_speed / GVF_ADVANCED_GRAVITY / cosf(att->theta));
-    BoundAbs(h_ctl_roll_setpoint, h_ctl_roll_max_setpoint);
+    BoundAbs(h_ctl_roll_setpoint, h_ctl_roll_max_setpoint); // Setting point for roll angle
     }
 }
 
@@ -186,17 +224,6 @@ void gvf_advanced_control_3D(float k_psi, Eigen::Vector4f *Chi3d, Eigen::Matrix4
 bool gvf_advanced_3D_ellipse_XY(float xo, float yo, float r, float zl, float zh, float alpha)
 {
   horizontal_mode = HORIZONTAL_MODE_CIRCLE; //  Circle for the 2D GCS
-
-  Eigen::Vector4f Chi3d;
-  Eigen::Matrix4f J3d;
-
-  gvf_advanced_trajectory.type = ELLIPSE_3D;
-  gvf_advanced_trajectory.p_advanced[0] = xo;
-  gvf_advanced_trajectory.p_advanced[1] = yo;
-  gvf_advanced_trajectory.p_advanced[2] = r;
-  gvf_advanced_trajectory.p_advanced[3] = zl;
-  gvf_advanced_trajectory.p_advanced[4] = zh;
-  gvf_advanced_trajectory.p_advanced[5] = alpha;
 
   // Safety first! If the asked altitude is low
   if (zl > zh)
@@ -208,57 +235,19 @@ bool gvf_advanced_3D_ellipse_XY(float xo, float yo, float r, float zl, float zh,
   if (r < 1)
     r = 60;
 
-  struct EnuCoor_f *pos_enu = stateGetPositionEnu_f();
-  float x = pos_enu->x;
-  float y = pos_enu->y;
-  float z = pos_enu->z;
-  float w = gvf_advanced_control.w;
+  gvf_advanced_trajectory.type = ELLIPSE_3D;
+  gvf_advanced_trajectory.p_advanced[0] = xo;
+  gvf_advanced_trajectory.p_advanced[1] = yo;
+  gvf_advanced_trajectory.p_advanced[2] = r;
+  gvf_advanced_trajectory.p_advanced[3] = zl;
+  gvf_advanced_trajectory.p_advanced[4] = zh;
+  gvf_advanced_trajectory.p_advanced[5] = alpha*M_PI/180; // In the GCS we set degrees
 
-  float alpha_rad = M_PI*alpha/180;
-  float beta = gvf_advanced_control.beta;
-  float L = gvf_advanced_control.L;
+  float f1, f2, f3, f1d, f2d, f3d, f1dd, f2dd, f3dd;
 
-  float f1 = r*cosf(w*beta) + xo;
-  float f2 = r*sinf(w*beta) + yo;
-  float f3 = 0.5*(zh + zl + (zl-zh)*sinf(alpha_rad-w*beta));
-
-  float f1d = -r*sinf(w*beta);
-  float f2d = r*cosf(w*beta);
-  float f3d = -0.5*(zl-zh)*cosf(alpha_rad-w*beta);
-
-  float f1dd = -r*cosf(w*beta);
-  float f2dd = -r*sinf(w*beta);
-  float f3dd = -0.5*(zl-zh)*sinf(alpha_rad-w*beta);
-
-  float phi1 = L*(x - f1);
-  float phi2 = L*(y - f2);
-  float phi3 = L*(z - f3);
-
-  float kx = gvf_advanced_3d_ellipse_par.kx;
-  float ky = gvf_advanced_3d_ellipse_par.ky;
-  float kz = gvf_advanced_3d_ellipse_par.kz;
-
-  Chi3d(0) = -f1d*L*L*beta - kx*phi1;
-  Chi3d(1) = -f2d*L*L*beta - ky*phi2;
-  Chi3d(2) = -f3d*L*L*beta - kz*phi3;
-  Chi3d(3) = -L*L + beta*(kx*phi1*f1d + ky*phi2*f2d + kz*phi3*f3d);
-  Chi3d *= L;
-
-  J3d.setZero();
-  J3d(0,0) = -kx*L;
-  J3d(1,1) = -ky*L;
-  J3d(2,2) = -kz*L;
-  J3d(3,0) = kx*f1d*beta*L;
-  J3d(3,1) = ky*f2d*beta*L;
-  J3d(3,2) = kz*f3d*beta*L;
-  J3d(0,3) = -(beta*L)*(beta*L*f1dd - kx*f1d);
-  J3d(1,3) = -(beta*L)*(beta*L*f2dd - ky*f2d);
-  J3d(2,3) = -(beta*L)*(beta*L*f3dd - kz*f3d);
-  J3d(3,3) =  beta*beta*(kx*(phi1*f1dd-L*f1d*f1d) + ky*(phi2*f2dd-L*f2d*f2d)
-          + kz*(phi3*f3dd-L*f3d*f3d));
-  J3d *= L;
-
-  gvf_advanced_control_3D(gvf_advanced_3d_ellipse_par.k_psi, &Chi3d, &J3d);
+  gvf_advanced_3d_ellipse_info(&f1, &f2, &f3, &f1d, &f2d, &f3d, &f1dd, &f2dd, &f3dd);
+  gvf_advanced_control_3D(gvf_advanced_3d_ellipse_par.kx, gvf_advanced_3d_ellipse_par.ky, gvf_advanced_3d_ellipse_par.kz,
+          f1, f2, f3, f1d, f2d, f3d, f1dd, f2dd, f3dd);
 
   return true;
 }

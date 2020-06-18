@@ -30,24 +30,30 @@
 #define GVF_ADVANCED_GRAVITY 9.806
 
 /*! Default gain kroll for tuning the "coordinated turn" */
-#ifndef GVF_ADVANCED_KROLL
-#define GVF_ADVANCED_KROLL 1
+#ifndef GVF_ADVANCED_CONTROL_KROLL
+#define GVF_ADVANCED_CONTROL_KROLL 1
 #endif
 
 /*! Default gain kclimb for tuning the climbing setting point */
-#ifndef GVF_ADVANCED_KCLIMB
-#define GVF_ADVANCED_KCLIMB 1
+#ifndef GVF_ADVANCED_CONTROL_KCLIMB
+#define GVF_ADVANCED_CONTROL_KCLIMB 1
 #endif
 
 /*! Default scale for the error signals */
-#ifndef GVF_ADVANCED_L
-#define GVF_ADVANCED_L 0.1
+#ifndef GVF_ADVANCED_CONTROL_L
+#define GVF_ADVANCED_CONTROL_L 0.1
 #endif
 
 /*! Default scale for w  */
-#ifndef GVF_ADVANCED_BETA
-#define GVF_ADVANCED_BETA 0.01
+#ifndef GVF_ADVANCED_CONTROL_BETA
+#define GVF_ADVANCED_CONTROL_BETA 0.01
 #endif
+
+/*! Default gain kpsi for tuning the alignment of the vehicle with the vector field */
+#ifndef GVF_ADVANCED_CONTROL_KPSI
+#define GVF_ADVANCED_CONTROL_KPSI 1
+#endif
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -69,6 +75,7 @@ typedef struct {
     int8_t s;
     float k_roll;
     float k_climb;
+    float k_psi;
     float L;
     float beta;
 } gvf_advanced_con;
@@ -91,9 +98,14 @@ extern gvf_advanced_tra gvf_advanced_trajectory;
 // Init function
 extern void gvf_advanced_init(void);
 
+// Control functions
+extern void gvf_advanced_control_3D(float, float, float, float, float, float, float, float, float,
+        float, float, float);
+
 // 3D Ellipse
 extern bool gvf_advanced_3D_ellipse_XY(float, float, float, float, float, float);
 extern bool gvf_advanced_3D_ellipse_wp(uint8_t, float, float, float, float);
+extern bool gvf_advanced_3D_ellipse_wp_delta(uint8_t, float, float, float, float);
 
 #ifdef __cplusplus
 }

@@ -26,6 +26,8 @@
  * 3D ellipse (intersection between a cylinder and a tilted plane)
  */
 
+#include "subsystems/navigation/common_nav.h"
+#include "modules/guidance/gvf_advanced/gvf_advanced.h"
 #include "gvf_advanced_3d_ellipse.h"
 
 /*! Default gain kx for the 3d ellipse trajectory */
@@ -69,4 +71,32 @@
 #endif
 
 gvf_adv_3d_ell_par gvf_advanced_3d_ellipse_par = {GVF_ADVANCED_3D_ELLIPSE_KX,
-GVF_ADVANCED_3D_ELLIPSE_KY, GVF_ADVANCED_3D_ELLIPSE_KZ, GVF_ADVANCED_3D_ELLIPSE_KPSI, GVF_ADVANCED_3D_ELLIPSE_R, GVF_ADVANCED_3D_ELLIPSE_ZL, GVF_ADVANCED_3D_ELLIPSE_ZH, GVF_ADVANCED_3D_ELLIPSE_ALPHA};
+GVF_ADVANCED_3D_ELLIPSE_KY, GVF_ADVANCED_3D_ELLIPSE_KZ, GVF_ADVANCED_3D_ELLIPSE_R, GVF_ADVANCED_3D_ELLIPSE_ZL, GVF_ADVANCED_3D_ELLIPSE_ZH, GVF_ADVANCED_3D_ELLIPSE_ALPHA};
+
+void gvf_advanced_3d_ellipse_info(float *f1, float *f2, float *f3, float *f1d, float *f2d, float *f3d,
+        float *f1dd, float *f2dd, float *f3dd)
+{
+  float xo = gvf_advanced_trajectory.p_advanced[0];
+  float yo = gvf_advanced_trajectory.p_advanced[1];
+  float r = gvf_advanced_trajectory.p_advanced[2];
+  float zl = gvf_advanced_trajectory.p_advanced[3];
+  float zh = gvf_advanced_trajectory.p_advanced[4];
+  float alpha_rad = gvf_advanced_trajectory.p_advanced[5];
+
+  float w = gvf_advanced_control.w;
+  float wb = w*gvf_advanced_control.beta;
+
+  // Parametric equations of the trajectory and the partial derivatives w.r.t. 'w'
+  *f1 = r*cosf(wb) + xo;
+  *f2 = r*sinf(wb) + yo;
+  *f3 = 0.5*(zh + zl + (zl-zh)*sinf(alpha_rad-wb));
+
+  *f1d = -r*sinf(wb);
+  *f2d = r*cosf(wb);
+  *f3d = -0.5*(zl-zh)*cosf(alpha_rad-wb);
+
+  *f1dd = -r*cosf(wb);
+  *f2dd = -r*sinf(wb);
+  *f3dd = -0.5*(zl-zh)*sinf(alpha_rad-wb);
+}
+
