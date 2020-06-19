@@ -50,10 +50,12 @@ static void send_gvf_advanced(struct transport_tx *trans, struct link_device *de
   // Do not know whether is a good idea to do this check here or to include
   // this plen in gvf_trajectory
   int plen;
+  int elen;
 
   switch (gvf_advanced_trajectory.type) {
     case ELLIPSE_3D:
       plen = 6;
+      elen = 3;
       break;
     default:
       plen = 1;
@@ -62,8 +64,7 @@ static void send_gvf_advanced(struct transport_tx *trans, struct link_device *de
 
   uint8_t traj_type = (uint8_t)gvf_advanced_trajectory.type;
 
-  pprz_msg_send_GVF_ADVANCED(trans, dev, AC_ID, &traj_type,
-                             &gvf_advanced_control.s, plen, gvf_advanced_trajectory.p_advanced);
+  pprz_msg_send_GVF_ADVANCED(trans, dev, AC_ID, &traj_type, &gvf_advanced_control.s, plen, gvf_advanced_trajectory.p_advanced, elen, gvf_advanced_trajectory.phi_errors);
 }
 
 static void send_circle_advanced(struct transport_tx *trans, struct link_device *dev)
@@ -105,8 +106,7 @@ void gvf_advanced_control_2D(float ktheta, Eigen::Vector3f *Chi2d, Eigen::Matrix
   (*J2d).setZero();
 }
 
-void gvf_advanced_control_3D(float kx, float ky, float kz, float f1, float f2, float f3, float f1d, float f2d,
-                             float f3d, float f1dd, float f2dd, float f3dd)
+void gvf_advanced_control_3D(float kx, float ky, float kz, float f1, float f2, float f3, float f1d, float f2d, float f3d, float f1dd, float f2dd, float f3dd)
 {
   uint32_t now = get_sys_time_msec();
   gvf_advanced_control.delta_T = now - t0;
@@ -132,6 +132,10 @@ void gvf_advanced_control_3D(float kx, float ky, float kz, float f1, float f2, f
   float phi1 = L * (x - f1);
   float phi2 = L * (y - f2);
   float phi3 = L * (z - f3);
+
+  gvf_advanced_trajectory.phi_errors[0] = phi1; // Error signals for the telemetry
+  gvf_advanced_trajectory.phi_errors[1] = phi2;
+  gvf_advanced_trajectory.phi_errors[2] = phi3;
 
   // Chi
   X(0) = -f1d * L * L * beta - kx * phi1;
@@ -179,8 +183,8 @@ void gvf_advanced_control_3D(float kx, float ky, float kz, float f1, float f2, f
   F << 1.0, 0.0, 0.0, 0.0,
   0.0, 1.0, 0.0, 0.0;
   float s = gvf_advanced_control.s;
-  E <<   0.0, -1.0 * s,
-  1.0 * s,    0.0;
+  E << 0.0, -1.0,
+  1.0, 0.0;
   G = F.transpose() * F;
   Fp = E * F;
   Gp = F.transpose() * E * F;

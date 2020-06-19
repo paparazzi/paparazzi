@@ -91,6 +91,7 @@ enum trajectories_advanced {
 typedef struct {
   enum trajectories_advanced type;
   float p_advanced[16];
+  float phi_errors[3];
 } gvf_advanced_tra;
 
 extern gvf_advanced_tra gvf_advanced_trajectory;
