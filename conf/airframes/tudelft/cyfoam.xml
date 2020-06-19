@@ -64,8 +64,8 @@
   </section>
 
   <section name="BAT">
-    <define name="LOW_BAT_LEVEL" value="10.5" units="V"/>
-    <define name="CATASTROPHIC_BAT_LEVEL" value="9.9" unit="V"/>
+    <define name="LOW_BAT_LEVEL" value="13.9" units="V"/>
+    <define name="CATASTROPHIC_BAT_LEVEL" value="13.2" unit="V"/>
   </section>
 
   <section name="ctrl_eff_scheduling" prefix="FWD_">
@@ -205,7 +205,7 @@
 
   <firmware name="rotorcraft">
     <target name="ap" board="chimera_1.0">
-      <!--<configure name="PERIODIC_FREQUENCY" value="500"/>-->
+      <configure name="PERIODIC_FREQUENCY" value="500"/>
       <module name="radio_control" type="sbus">
         <!--[> Put the mode on channel AUX1<]-->
         <define name="RADIO_KILL_SWITCH" value="5"/>
@@ -317,8 +317,8 @@
       <!--<define name="AHRS_GPS_SPEED_IN_NEGATIVE_Z_DIRECTION" value="TRUE"/>-->
     <!--</module>-->
 
-    <module name="ins" type="ekf2"/>
     <!--<module name="ins"/>-->
+    <module name="ins" type="ekf2"/>
     <!--<module name="ins" type="float_invariant">-->
       <!--<define name="INS_PROPAGATE_FREQUENCY" value="500"/>-->
       <!--<define name="INS_FINV_MAG_ID" value="MAG_HMC58XX_SENDER_ID"/>-->
