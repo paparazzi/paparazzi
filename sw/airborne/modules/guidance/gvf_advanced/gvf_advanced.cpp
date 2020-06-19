@@ -29,6 +29,7 @@
 
 #include "gvf_advanced.h"
 #include "./trajectories/gvf_advanced_3d_ellipse.h"
+#include "./trajectories/gvf_advanced_2d_trefoil.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -53,12 +54,17 @@ static void send_gvf_advanced(struct transport_tx *trans, struct link_device *de
   int elen;
 
   switch (gvf_advanced_trajectory.type) {
+    case TREFOIL_2D:
+      plen = 6;
+      elen = 2;
+      break;
     case ELLIPSE_3D:
       plen = 6;
       elen = 3;
       break;
     default:
       plen = 1;
+      elen = 1;
       break;
   }
 
@@ -98,12 +104,108 @@ void gvf_advanced_init(void)
 
 }
 
-void gvf_advanced_control_2D(float, Eigen::Vector3f *, Eigen::Matrix3f *);
-void gvf_advanced_control_2D(float ktheta, Eigen::Vector3f *Chi2d, Eigen::Matrix3f *J2d)
+void gvf_advanced_control_2D(float kx, float ky, float f1, float f2, float f1d, float f2d, float f1dd, float f2dd)
 {
-  ktheta += ktheta;
-  (*Chi2d).setZero();
-  (*J2d).setZero();
+
+  uint32_t now = get_sys_time_msec();
+  gvf_advanced_control.delta_T = now - t0;
+  t0 = now;
+
+  if (gvf_advanced_control.delta_T > 300) { // We need at least two iterations for Delta_T
+    gvf_advanced_control.w = 0; // Reset w since we assume the algorithm starts
+    return;
+  }
+
+  float L = gvf_advanced_control.L;
+  float beta = gvf_advanced_control.beta;
+
+  Eigen::Vector3f X;
+  Eigen::Matrix3f J;
+
+  // Error signals phi_x and phi_y
+  struct EnuCoor_f *pos_enu = stateGetPositionEnu_f();
+  float x = pos_enu->x;
+  float y = pos_enu->y;
+
+  float phi1 = L * (x - f1);
+  float phi2 = L * (y - f2);
+
+  gvf_advanced_trajectory.phi_errors[0] = phi1; // Error signals for the telemetry
+  gvf_advanced_trajectory.phi_errors[1] = phi2;
+
+  // Chi
+  X(0) = L*beta*f1d - kx*phi1;
+  X(1) = L*beta*f2d - kx*phi2;
+  X(2) = L + beta*(kx*phi1*f1d + ky*phi2*f2d);
+  X *= L;
+
+  // Jacobian
+  J.setZero();
+  J(0, 0) = -kx*L;
+  J(1, 1) = -ky*L;
+  J(2, 0) = beta*L*kx*f1d;
+  J(2, 1) = beta*L*ky*f2d;
+  J(2, 2) = beta*beta*((kx*phi1*f1dd-L*kx*f1d*f1d) + (ky*phi2*f2dd-L*ky*f2d*f2d));
+  J *= L;
+
+  // Guidance algorithm
+  float ground_speed = stateGetHorizontalSpeedNorm_f();
+  float w_dot = (ground_speed * X(2)) / sqrtf(X(0) * X(0) + X(1) * X(1));
+
+  Eigen::Vector3f xi_dot;
+  struct EnuCoor_f *vel_enu = stateGetSpeedEnu_f();
+  float course = stateGetHorizontalSpeedDir_f();
+
+  xi_dot << vel_enu->x, vel_enu->y, w_dot;
+
+  Eigen::Matrix3f G;
+  Eigen::Matrix3f Gp;
+  Eigen::Matrix<float, 2, 3> Fp;
+  Eigen::Vector2f h;
+  Eigen::Matrix<float, 1, 2> ht;
+
+  G << 1, 0, 0,
+       0, 1, 0,
+       0, 0, 0;
+  Fp << 0, -1, 0,
+        1,  0, 0;
+  Gp << 0, -1, 0,
+        1,  0, 0,
+        0,  0, 0;
+
+  h << sinf(course), cosf(course);
+  ht = h.transpose();
+
+  Eigen::Matrix<float, 1, 3> Xt = X.transpose();
+  Eigen::Vector3f Xh = X / X.norm();
+  Eigen::Matrix<float, 1, 3> Xht = Xh.transpose();
+  Eigen::Matrix3f I;
+  I.setIdentity();
+
+  // Prevent to divide by a number close to zero
+  float norm_aux = Xt*G*X;
+  if(norm_aux < 10)
+      norm_aux = 10;
+
+  float aux = ht*Fp*X;
+  float heading_rate = -(1/norm_aux)*Xt*Gp*(I-Xh*Xht)*J*xi_dot - gvf_advanced_control.k_psi*aux/sqrt(norm_aux);
+
+  // Low-level control
+  if (autopilot_get_mode() == AP_MODE_AUTO2) {
+
+    // Virtual coordinate
+    gvf_advanced_control.w += w_dot * gvf_advanced_control.delta_T * 1e-3;
+
+    // Lateral XY coordinates
+    lateral_mode = LATERAL_MODE_ROLL;
+
+    struct FloatEulers *att = stateGetNedToBodyEulers_f();
+
+    h_ctl_roll_setpoint =
+      -gvf_advanced_control.k_roll * atanf(heading_rate * ground_speed / GVF_ADVANCED_GRAVITY / cosf(att->theta));
+    BoundAbs(h_ctl_roll_setpoint, h_ctl_roll_max_setpoint); // Setting point for roll angle
+  }
+
 }
 
 void gvf_advanced_control_3D(float kx, float ky, float kz, float f1, float f2, float f3, float f1d, float f2d, float f3d, float f1dd, float f2dd, float f3dd)
@@ -159,6 +261,7 @@ void gvf_advanced_control_3D(float kx, float ky, float kz, float f1, float f2, f
                             + kz * (phi3 * f3dd - L * f3d * f3d));
   J *= L;
 
+  // Guidance algorithm
   float ground_speed = stateGetHorizontalSpeedNorm_f();
   float w_dot = (ground_speed * X(3)) / sqrtf(X(0) * X(0) + X(1) * X(1));
 
@@ -182,7 +285,6 @@ void gvf_advanced_control_3D(float kx, float ky, float kz, float f1, float f2, f
   I.setIdentity();
   F << 1.0, 0.0, 0.0, 0.0,
   0.0, 1.0, 0.0, 0.0;
-  float s = gvf_advanced_control.s;
   E << 0.0, -1.0,
   1.0, 0.0;
   G = F.transpose() * F;
@@ -221,6 +323,34 @@ void gvf_advanced_control_3D(float kx, float ky, float kz, float f1, float f2, f
   }
 }
 
+/** 2D TRAJECTORIES **/
+// 2D TREFOIL KNOT
+
+bool gvf_advanced_2D_trefoil_XY(float xo, float yo, float w1, float w2, float ratio, float r)
+{
+  gvf_advanced_trajectory.type = TREFOIL_2D;
+  gvf_advanced_trajectory.p_advanced[0] = xo;
+  gvf_advanced_trajectory.p_advanced[1] = yo;
+  gvf_advanced_trajectory.p_advanced[2] = w1;
+  gvf_advanced_trajectory.p_advanced[3] = w2;
+  gvf_advanced_trajectory.p_advanced[4] = ratio;
+  gvf_advanced_trajectory.p_advanced[5] = r;
+
+  float f1, f2, f1d, f2d, f1dd, f2dd;
+
+  gvf_advanced_2d_trefoil_info(&f1, &f2, &f1d, &f2d, &f1dd, &f2dd);
+  gvf_advanced_control_2D(gvf_advanced_2d_trefoil_par.kx, gvf_advanced_2d_trefoil_par.ky, f1, f2, f1d, f2d, f1dd, f2dd);
+
+  return true;
+}
+
+bool gvf_advanced_2D_trefoil_wp(uint8_t wp, float w1, float w2, float ratio, float r)
+{
+  gvf_advanced_2D_trefoil_XY(waypoints[wp].x, waypoints[wp].y, w1, w2, ratio, r);
+  return true;
+}
+
+/** 3D TRAJECTORIES **/
 // 3D ELLIPSE
 
 bool gvf_advanced_3D_ellipse_XY(float xo, float yo, float r, float zl, float zh, float alpha)

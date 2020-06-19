@@ -17,6 +17,14 @@
           <dl_setting MAX="1" MIN="0.001" STEP="0.005" VAR="gvf_advanced_control.beta" shortname="beta" param="GVF_ADVANCED_CONTROL_BETA"/>
           <dl_setting MAX="1.5" MIN="0.5" STEP="0.01" VAR="gvf_advanced_control.k_psi" shortname="k_psi" param="GVF_ADVANCED_CONTROL_KPSI"/>
         </dl_settings>
+        <dl_settings NAME="2D_trefoil">
+          <dl_setting MAX="0.01" MIN="0.0" STEP="0.0005" VAR="gvf_advanced_2d_trefoil_par.kx" shortname="2d_tre_kx" param="GVF_ADVANCED_2D_TREFOIL_KX"/>
+          <dl_setting MAX="0.01" MIN="0.0" STEP="0.0005" VAR="gvf_advanced_2d_trefoil_par.ky" shortname="2d_tre_ky" param="GVF_ADVANCED_2D_TREFOIL_KY"/>
+          <dl_setting MAX="1" MIN="0.0" STEP="0.01" VAR="gvf_advanced_2d_trefoil_par.w1" shortname="2d_tre_w1" param="GVF_ADVANCED_2D_TREFOIL_W1"/>
+          <dl_setting MAX="1" MIN="0.0" STEP="0.01" VAR="gvf_advanced_2d_trefoil_par.w2" shortname="2d_tre_w2" param="GVF_ADVANCED_2D_TREFOIL_W2"/>
+          <dl_setting MAX="200" MIN="10" STEP="5" VAR="gvf_advanced_2d_trefoil_par.ratio" shortname="2d_tre_ratio" param="GVF_ADVANCED_2D_TREFOIL_RATIO"/>
+          <dl_setting MAX="200" MIN="10" STEP="5" VAR="gvf_advanced_2d_trefoil_par.r" shortname="2d_tre_r" param="GVF_ADVANCED_2D_TREFOIL_R"/>
+        </dl_settings>
         <dl_settings NAME="3D_ellipse">
           <dl_setting MAX="0.01" MIN="0.0" STEP="0.0005" VAR="gvf_advanced_3d_ellipse_par.kx" shortname="3d_ell_kx" param="GVF_ADVANCED_3D_ELLIPSE_KX"/>
           <dl_setting MAX="0.01" MIN="0.0" STEP="0.0005" VAR="gvf_advanced_3d_ellipse_par.ky" shortname="3d_ell_ky" param="GVF_ADVANCED_3D_ELLIPSE_KY"/>
@@ -33,6 +41,7 @@
   <header>
     <file name="gvf_advanced.h"/>
     <file name="trajectories/gvf_advanced_3d_ellipse.h"/>
+    <file name="trajectories/gvf_advanced_2d_trefoil.h"/>
   </header>
 
   <init fun = "gvf_advanced_init()"/>
@@ -45,6 +54,7 @@
     <define name="EIGEN_NO_AUTOMATIC_RESIZING"/>
     <file name="gvf_advanced.cpp"/>
     <file name="trajectories/gvf_advanced_3d_ellipse.c"/>
+    <file name="trajectories/gvf_advanced_2d_trefoil.c"/>
     <flag name="LDFLAGS" value="lstdc++" />
   </makefile>
 

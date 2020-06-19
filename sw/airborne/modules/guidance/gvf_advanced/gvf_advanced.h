@@ -84,7 +84,8 @@ extern gvf_advanced_con gvf_advanced_control;
 
 // Parameters for the trajectories
 enum trajectories_advanced {
-  ELLIPSE_3D = 0,
+  TREFOIL_2D = 0,
+  ELLIPSE_3D = 1,
   NONE_ADVANCED = 255,
 };
 
@@ -100,8 +101,13 @@ extern gvf_advanced_tra gvf_advanced_trajectory;
 extern void gvf_advanced_init(void);
 
 // Control functions
+extern void gvf_advanced_control_2D(float, float, float, float, float, float, float, float);
 extern void gvf_advanced_control_3D(float, float, float, float, float, float, float, float, float,
                                     float, float, float);
+
+// 2D Ellipse
+extern bool gvf_advanced_2D_trefoil_XY(float, float, float, float, float, float);
+extern bool gvf_advanced_2D_trefoil_wp(uint8_t, float, float, float, float);
 
 // 3D Ellipse
 extern bool gvf_advanced_3D_ellipse_XY(float, float, float, float, float, float);

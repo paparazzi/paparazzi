@@ -45,11 +45,6 @@
 #define GVF_ADVANCED_3D_ELLIPSE_KZ 0.001
 #endif
 
-/*! Default gain kpsi for the 3d ellipse trajectory */
-#ifndef GVF_ADVANCED_3D_ELLIPSE_KPSI
-#define GVF_ADVANCED_3D_ELLIPSE_KPSI 1
-#endif
-
 /*! Default radius of the cylinder */
 #ifndef GVF_ADVANCED_3D_ELLIPSE_R
 #define GVF_ADVANCED_3D_ELLIPSE_R 80
