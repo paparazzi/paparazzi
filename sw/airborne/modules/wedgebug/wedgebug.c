@@ -98,7 +98,8 @@ struct kernel_C1 median_kernel16bit; // !
 int SE_opening_OCV; 	//! SE size for the opening operation
 int SE_closing_OCV; 	//! SE size for the closing operation
 int SE_dilation_OCV_1; 	//! SE size for the first dilation operation
-int SE_dilation_OCV_2; 	//! SE size for the second dilation operation (see state 6 "WEDGEBUG_START" and state 8 "POSITION_EDGE" )
+int SE_dilation_OCV_2; 	//! SE size for the second dilation operation (see state 3 "WEDGEBUG_START" and state 6 "POSITION_EDGE" )
+int SE_erosion_OCV; 	//! SE size for the erosion operation (see state 3 "WEDGEBUG_START" and state 6 "POSITION_EDGE", its needed to "drag" the depth of the foreground objects over the edges detected)
 int SE_sobel_OCV; 		//! SE size for the Sobel operation, to detect edges
 uint16_t K_median_w;	//! Width of kernel for the median kernel
 uint16_t K_median_h;	//! Height of kernel for the median kernel
@@ -129,7 +130,7 @@ float threshold_distance_to_angle;		//! Below this distance (in radians) it is c
 float threshold_distance_to_goal_direct;//! Below this distance (in meters) it is considered that the robot has reached the goal, in DIRECT_CONTROL mode
 
 uint16_t threshold_median_depth;  		//! Below this median disparity, an obstacle is considered to block the way (i.e. the blocking obstacle need to be close)
-uint16_t threshold_depth_of_edge; 		//! Below this depth (m) edges are eligible for the WedgeBug algorithm (i.e. edges cannot be very far away)
+uint16_t threshold_depth_of_edges; 		//! Below this depth (m) edges are eligible for the WedgeBug algorithm (i.e. edges cannot be very far away)
 
 // Declaring confidence parameters
 int16_t obstacle_confidence;		//! This is the confidence that an obstacle was spotted
@@ -1539,7 +1540,7 @@ void background_processes2(uint8_t save_images_flag)
 	// For report: creating image for saving 3
 	if (save_images_flag){save_image_HM(&img_disparity_int16_cropped, "/home/dureade/Documents/paparazzi_images/for_report/b2_img3_post_closing_16bit.bmp", heat_map_type);}
 
-	dilation_OCV(&img_disparity_int16_cropped, &img_disparity_int16_cropped,SE_dilation_OCV_1, 1);
+	dilation_OCV(&img_disparity_int16_cropped, &img_disparity_int16_cropped, SE_dilation_OCV_1, 1);
 	// For report: creating image for saving 4
 	if (save_images_flag){save_image_HM(&img_disparity_int16_cropped, "/home/dureade/Documents/paparazzi_images/for_report/b2_img4_post_dilation_16bit.bmp", heat_map_type);}
 
@@ -1554,6 +1555,12 @@ void background_processes2(uint8_t save_images_flag)
 	sobel_OCV(&img_depth_int16_cropped, &img_edges_int8_cropped, SE_sobel_OCV, threshold_edge_magnitude);
 	// For report: creating image for saving 5
 	if (save_images_flag){save_image_gray(&img_edges_int8_cropped, "/home/dureade/Documents/paparazzi_images/for_report/b2_img6_post_sobel_8bit.bmp");}
+
+	// 6. Morphological  operations 2
+	// This is needed so that when using the edges as filters (to work on depth values
+	// only found on edges) the underlying depth values are those of the foreground
+	// and not the background
+	erosion_OCV(&img_depth_int16_cropped, &img_depth_int16_cropped,SE_erosion_OCV, 1);
 }
 
 
@@ -1722,13 +1729,14 @@ void wedgebug_init(){
 	SE_opening_OCV = 13; 	// SE size for the opening operation
 	SE_closing_OCV = 13; 	// SE size for the closing operation
 	SE_dilation_OCV_1 = 51;//301;// SE size for the first dilation operation (Decides where edges are detected, increase to increase drone safety zone NOTE. This functionality should be replaced with c space expansion)
-	SE_dilation_OCV_2 = 11; // SE size for the second dilation operation (see state 6 "WEDGEBUG_START" )
+	SE_dilation_OCV_2 = 11; // SE size for the second dilation operation (see state 3 "WEDGEBUG_START" and state 6 "POSITION_EDGE")
+	SE_erosion_OCV = 11;	// SE size for the erosion operation (see state 3 "WEDGEBUG_START" and state 6 "POSITION_EDGE", its needed to "drag" the depth of the foreground objects over the edges detected)
 	SE_sobel_OCV = 5; 		// SE size for the sobel operation, to detect edges
 
 
 	// Setting thresholds - non-calculated
 	threshold_median_depth = 150; //150//168  			//! Below this median depth (cm), an obstacle is considered to block the way (i.e. the blocking obstacle needs to be close)
-	threshold_depth_of_edge = 269; //269; 			//! Below this depth (cm) edges are eligible for the WedgeBug algorithm
+	threshold_depth_of_edges = 269; //269; 			//! Below this depth (cm) edges are eligible for the WedgeBug algorithm
 	threshold_edge_magnitude = 23000;//10000;//30000;//15000;			//151;//301;  // Edges with a magnitude (cm^2) above this value are detected. Above this value, edges are given the value 127, otherwise they are given the value zero.
 	threshold_distance_to_goal = 0.25; 			//0.25 // Above this threshold (m), the goal is considered reached
 	threshold_distance_to_goal_direct = 1.0;	 //0.25 // Above this threshold (m), the goal is considered reached in DIRECT_CONTROL mode
@@ -1736,7 +1744,7 @@ void wedgebug_init(){
 
 	// Setting thresholds - calculated
 	threshold_median_disparity = depth_to_disp((threshold_median_depth / 100.00), b, f); 	//8// Above this median disparity, an obstacle is considered to block the way. >60 = close than 35cm
-	threshold_disparity_of_edges = depth_to_disp((threshold_depth_of_edge / 100.00), b, f);	//5// Above this underlying disparity value, edges are considers eligible for detection
+	threshold_disparity_of_edges = depth_to_disp((threshold_depth_of_edges / 100.00), b, f);	//5// Above this underlying disparity value, edges are considers eligible for detection
 
 	// Initializing confidence parameters
 	obstacle_confidence = 0;				// This is the confidence that an obstacle was spotted
@@ -1990,7 +1998,7 @@ void wedgebug_periodic(){
     // Switch-case statement for current_mode
     switch(current_mode)  // Control mode state machine - Start
     {
-    // State 1 ################################################################################################################################################################### State 1
+    // State 1 ################################################################################################################################################################### State 1: DIRECT_CONTROL
     case DIRECT_CONTROL:
     {
     	printf("DIRECT_CONTROL = %d\n", DIRECT_CONTROL);
@@ -2009,30 +2017,31 @@ void wedgebug_periodic(){
 
 		// Background processes - Includes image processing for use
     	// Turn on for debugging
-		background_processes(save_images_flag);
-		//background_processes2(save_images_flag);
+		//background_processes(save_images_flag);
+		background_processes2(save_images_flag);
 
 
     	switch(current_state)  // Finite state machine - Start
     	{
-    	// State 1 --------------------------------------------------------------------------------------------------------------------------------------------------------------- State 1
+    	// State 1 --------------------------------------------------------------------------------------------------------------------------------------------------------------- State 1: MOVE_TO_GOAL
     	case MOVE_TO_GOAL:
     	{
     		printf("MOVE_TO_GOAL = %d\n", MOVE_TO_GOAL);
-			median_disparity_in_front = median_disparity_to_point(&c_img_cropped, &img_disparity_int8_cropped, &median_kernel);
-			//median_depth_in_front = median_depth_to_point(&c_img_cropped, &img_depth_int16_cropped, &median_kernel16bit);
+			//median_disparity_in_front = median_disparity_to_point(&c_img_cropped, &img_disparity_int8_cropped, &median_kernel);
+			median_depth_in_front = median_depth_to_point(&c_img_cropped, &img_depth_int16_cropped, &median_kernel16bit);
 			//In case disparity is 0 (infinite distance or error we set it to one disparity
 			// above the threshold as the likelihood that the object is too close is large (as opposed to it being infinitely far away)
 			//printf("median_disparity_in_front = %d\n", median_disparity_in_front);
 			//printf("median_depth_in_front = %f\n", disp_to_depth(median_disparity_in_front, b, f));
+			//float depth = disp_to_depth(median_disparity_in_front, b, f);  // median_depth_in_front / 100.00
 
 
-			float depth = disp_to_depth(median_disparity_in_front, b, f);  // median_depth_in_front / 100.00
-			printf("median_depth_in_front = %f\n", depth); //median_depth_in_front / 100.00);
+			float depth = median_depth_in_front / 100.00;
+			printf("median_depth_in_front = %f\n", depth);
 			printf("depth to goal = %f\n", VGOALc.z);
 
 
-			if ((median_disparity_in_front > threshold_median_disparity) && (depth < VGOALc.z))
+			if ((median_depth_in_front < threshold_median_depth) && (depth < VGOALc.z))
 			{
 				printf("Obstacle is in front of goal\n");
 			}else
@@ -2041,17 +2050,30 @@ void wedgebug_periodic(){
 			}
 
 
-
-
 			is_edge_found_micro_flag  =
-					find_best_edge_coordinates(
+					find_best_edge_coordinates2(
 					&VEDGECOORDINATESc,
 					&VGOALc,//target_point,
 					&img_edges_int8_cropped,
-					&img_middle_int8_cropped,
+					&img_depth_int16_cropped,
 					&edge_search_area,
-					threshold_disparity_of_edges,
+					threshold_depth_of_edges,
 					max_edge_found_micro_confidence);
+
+
+//			// c. Checking if edges are located
+//			// Running function to detect and save edge
+//			is_edge_found_micro_flag  =
+//					find_best_edge_coordinates(
+//					&VEDGECOORDINATESc,
+//					&VGOALc,//target_point,
+//					&img_edges_int8_cropped,
+//					&img_middle_int8_cropped,
+//					&edge_search_area,
+//					threshold_disparity_of_edges,
+//					max_edge_found_micro_confidence);
+//
+
 
 
 			if (save_images_flag){save_image_gray(&img_edges_int8_cropped, "/home/dureade/Documents/paparazzi_images/img_edges_int8_cropped_marked.bmp");}
@@ -2087,7 +2109,7 @@ void wedgebug_periodic(){
     	}break;
 
 
-    	// State 2 --------------------------------------------------------------------------------------------------------------------------------------------------------------- State 2
+    	// State 2 --------------------------------------------------------------------------------------------------------------------------------------------------------------- State 2: POSITION_GOAL
     	case POSITION_GOAL:
     	{
     		printf("POSITION_GOAL = %d\n", POSITION_GOAL);
@@ -2111,7 +2133,7 @@ void wedgebug_periodic(){
     }break;// DIRECT_CONTROL - End
 
 
-    // State 2 ################################################################################################################################################################### State 2
+    // State 2 ################################################################################################################################################################### State 2: AUTONOMOUS_GUIDED
     case AUTONOMOUS_GUIDED:
     {
     	printf("AUTONOMOUS_GUIDED = %d\n", AUTONOMOUS_GUIDED);
@@ -2191,7 +2213,7 @@ void wedgebug_periodic(){
 
     	switch(current_state)  // Finite state machine - Start
 		{
-    	// State 1 --------------------------------------------------------------------------------------------------------------------------------------------------------------- State 1
+    	// State 1 --------------------------------------------------------------------------------------------------------------------------------------------------------------- State 1: MOVE_TO_GOAL
     	case MOVE_TO_GOAL:
 		{
 			printf("MOVE_TO_GOAL = %d\n", MOVE_TO_GOAL);
@@ -2293,7 +2315,7 @@ void wedgebug_periodic(){
 		}break;
 
 
-		// State 2 --------------------------------------------------------------------------------------------------------------------------------------------------------------- State 2
+		// State 2 --------------------------------------------------------------------------------------------------------------------------------------------------------------- State 2: POSITION_GOAL
     	case POSITION_GOAL:
 		{
 			printf("POSITION_GOAL = %d\n", POSITION_GOAL);
@@ -2312,7 +2334,7 @@ void wedgebug_periodic(){
 		}break;
 
 
-		// State 3 --------------------------------------------------------------------------------------------------------------------------------------------------------------- State 3
+		// State 3 --------------------------------------------------------------------------------------------------------------------------------------------------------------- State 3: WEDGEBUG_START
     	case WEDGEBUG_START:
 		{
 			printf("WEDGEBUG_START = %d\n", WEDGEBUG_START);
@@ -2374,6 +2396,11 @@ void wedgebug_periodic(){
 						&edge_search_area,
 						threshold_disparity_of_edges,
 						max_edge_found_micro_confidence);
+
+
+
+
+
 				//printf("was_edge_found?: %d\n", was_edge_found);
 
 
@@ -2448,7 +2475,7 @@ void wedgebug_periodic(){
 		}break;
 
 
-		// State 4 --------------------------------------------------------------------------------------------------------------------------------------------------------------- State 4
+		// State 4 --------------------------------------------------------------------------------------------------------------------------------------------------------------- State 4: MOVE_TO_EDGE
     	case MOVE_TO_EDGE:
 		{
 			printf("MOVE_TO_EDGE = %d\n", MOVE_TO_EDGE);
@@ -2535,7 +2562,7 @@ void wedgebug_periodic(){
 		}break;
 
 
-		// State 5 --------------------------------------------------------------------------------------------------------------------------------------------------------------- State 5
+		// State 5 --------------------------------------------------------------------------------------------------------------------------------------------------------------- State 5: POSITION_EDGE
     	case POSITION_EDGE:
 		{
 			printf("POSITION_EDGE = %d\n", POSITION_EDGE);
@@ -2650,7 +2677,7 @@ void wedgebug_periodic(){
 		}break;
 
 
-		// State 6 --------------------------------------------------------------------------------------------------------------------------------------------------------------- State 6
+		// State 6 --------------------------------------------------------------------------------------------------------------------------------------------------------------- State 6: EDGE_SCAN
     	case EDGE_SCAN:
 		{
 			printf("EDGE_SCAN = %d\n", EDGE_SCAN);
@@ -2839,7 +2866,7 @@ void wedgebug_periodic(){
     }break;// AUTONOMOUS_GUIDED - End
 
 
-    // State 3 ################################################################################################################################################################### State 3
+    // State 3 ################################################################################################################################################################### State 3: AUTONOMOUS_NAV
     case AUTONOMOUS_NAV:
     {
     	printf("AUTONOMOUS_NAV = %d\n", AUTONOMOUS_NAV);
