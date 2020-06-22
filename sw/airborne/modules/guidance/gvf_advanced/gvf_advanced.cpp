@@ -135,7 +135,7 @@ void gvf_advanced_control_2D(float kx, float ky, float f1, float f2, float f1d, 
 
   // Chi
   X(0) = L*beta*f1d - kx*phi1;
-  X(1) = L*beta*f2d - kx*phi2;
+  X(1) = L*beta*f2d - ky*phi2;
   X(2) = L + beta*(kx*phi1*f1d + ky*phi2*f2d);
   X *= L;
 
@@ -143,9 +143,9 @@ void gvf_advanced_control_2D(float kx, float ky, float f1, float f2, float f1d, 
   J.setZero();
   J(0, 0) = -kx*L;
   J(1, 1) = -ky*L;
-  J(2, 0) = beta*L*kx*f1d;
-  J(2, 1) = beta*L*ky*f2d;
-  J(2, 2) = beta*beta*((kx*phi1*f1dd-L*kx*f1d*f1d) + (ky*phi2*f2dd-L*ky*f2d*f2d));
+  J(2, 0) = (beta*L)*(beta*f1dd+kx*f1d);
+  J(2, 1) = (beta*L)*(beta*f2dd+ky*f2d);
+  J(2, 2) = beta*beta*(kx*(phi1*f1dd-L*f1d*f1d) + ky*(phi2*f2dd-L*f2d*f2d));
   J *= L;
 
   // Guidance algorithm
@@ -182,13 +182,8 @@ void gvf_advanced_control_2D(float kx, float ky, float f1, float f2, float f1d, 
   Eigen::Matrix3f I;
   I.setIdentity();
 
-  // Prevent to divide by a number close to zero
-  float norm_aux = Xt*G*X;
-  if(norm_aux < 10)
-      norm_aux = 10;
-
-  float aux = ht*Fp*X;
-  float heading_rate = -(1/norm_aux)*Xt*Gp*(I-Xh*Xht)*J*xi_dot - gvf_advanced_control.k_psi*aux/sqrt(norm_aux);
+  float aux = ht * Fp * X;
+  float heading_rate = -1 / (Xt * G * X) * Xt * Gp * (I - Xh * Xht) * J * xi_dot - (gvf_advanced_control.k_psi * aux / sqrtf(Xt * G * X));
 
   // Low-level control
   if (autopilot_get_mode() == AP_MODE_AUTO2) {
