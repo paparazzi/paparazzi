@@ -1189,9 +1189,9 @@ uint8_t find_best_edge_coordinates(
 				// We derive the 3d scene point using from the disparity saved earlier
 				Vi_to_Vc(&VEDGEc, y_from_c, x_from_c, disparity, b, f); // NOTE. The variables "b" and "f" are a global variables
 				// Calculating Euclidean distance (N2) - Edge to goal
-				f_distance_edge_to_goal =  float_vect3_norm_two_points(VTARGETc, &VEDGEc);
+				f_distance_edge_to_goal = float_vect3_norm_two_points(VTARGETc, &VEDGEc);
 				// Calculating Euclidean distance (N2) - robot to edge
-				f_distance_robot_to_edge =  float_vect3_norm_two_points(&VEDGEc, &VROBOTCENTERc);
+				f_distance_robot_to_edge = float_vect3_norm_two_points(&VEDGEc, &VROBOTCENTERc);
 
 
 				// If current distance (using distance vector) is smaller than the previous minimum distance
@@ -1504,7 +1504,7 @@ void background_processes(uint8_t save_images_flag)
 // Function 25  - Function that encapsulates all of the background processes. Originally this was in the periodic function,
 // but since it is used in the direct and the guidance navigation modes of the state machine, I made it a callable function
 // for convenience
-void background_processes2(uint8_t save_images_flag)
+void background_processes_16bit(uint8_t save_images_flag)
 {
 	//Background processes
 	// 1. Converting left and right image to 8bit grayscale for further processing
@@ -1532,13 +1532,17 @@ void background_processes2(uint8_t save_images_flag)
 
 	// 3. Morphological operations 1
 	// Needed to smoove object boundaries and to remove noise removing noise
-	opening_OCV(&img_disparity_int16_cropped, &img_disparity_int16_cropped, SE_opening_OCV, 1);
-	// For report: creating image for saving 2
-	if (save_images_flag){save_image_HM(&img_disparity_int16_cropped, "/home/dureade/Documents/paparazzi_images/for_report/b2_img2_post_opening_16bit.bmp", heat_map_type);}
 
 	closing_OCV(&img_disparity_int16_cropped, &img_disparity_int16_cropped, SE_closing_OCV, 1);
 	// For report: creating image for saving 3
-	if (save_images_flag){save_image_HM(&img_disparity_int16_cropped, "/home/dureade/Documents/paparazzi_images/for_report/b2_img3_post_closing_16bit.bmp", heat_map_type);}
+	if (save_images_flag){save_image_HM(&img_disparity_int16_cropped, "/home/dureade/Documents/paparazzi_images/for_report/b2_img2_post_closing_16bit.bmp", heat_map_type);}
+
+
+	opening_OCV(&img_disparity_int16_cropped, &img_disparity_int16_cropped, SE_opening_OCV, 1);
+	// For report: creating image for saving 2
+	if (save_images_flag){save_image_HM(&img_disparity_int16_cropped, "/home/dureade/Documents/paparazzi_images/for_report/b2_img3_post_opening_16bit.bmp", heat_map_type);}
+
+
 
 	dilation_OCV(&img_disparity_int16_cropped, &img_disparity_int16_cropped, SE_dilation_OCV_1, 1);
 	// For report: creating image for saving 4
@@ -1722,22 +1726,21 @@ void wedgebug_init(){
 	// Calculating principal points of normal image and cropped image
 	c_img.y = img_dims.h / 2;
 	c_img.x = img_dims.w / 2;
-	principal_points(&c_img_cropped,&c_img, &img_cropped_info); // Calculates principal points for cropped image, considering the original dimensions
+	principal_points(&c_img_cropped, &c_img, &img_cropped_info); // Calculates principal points for cropped image, considering the original dimensions
 
 
 	// Initializing structuring element sizes
 	SE_opening_OCV = 13; 	// SE size for the opening operation
 	SE_closing_OCV = 13; 	// SE size for the closing operation
-	SE_dilation_OCV_1 = 51;//301;// SE size for the first dilation operation (Decides where edges are detected, increase to increase drone safety zone NOTE. This functionality should be replaced with c space expansion)
+	SE_dilation_OCV_1 = 25;//51;//301;// SE size for the first dilation operation (Decides where edges are detected, increase to increase drone safety zone NOTE. This functionality should be replaced with c space expansion)
 	SE_dilation_OCV_2 = 11; // SE size for the second dilation operation (see state 3 "WEDGEBUG_START" and state 6 "POSITION_EDGE")
-	SE_erosion_OCV = 11;	// SE size for the erosion operation (see state 3 "WEDGEBUG_START" and state 6 "POSITION_EDGE", its needed to "drag" the depth of the foreground objects over the edges detected)
 	SE_sobel_OCV = 5; 		// SE size for the sobel operation, to detect edges
-
+	SE_erosion_OCV = 11;	// SE size for the erosion operation (see state 3 "WEDGEBUG_START" and state 6 "POSITION_EDGE", its needed to "drag" the depth of the foreground objects over the edges detected)
 
 	// Setting thresholds - non-calculated
-	threshold_median_depth = 150; //150//168  			//! Below this median depth (cm), an obstacle is considered to block the way (i.e. the blocking obstacle needs to be close)
-	threshold_depth_of_edges = 269; //269; 			//! Below this depth (cm) edges are eligible for the WedgeBug algorithm
-	threshold_edge_magnitude = 23000;//10000;//30000;//15000;			//151;//301;  // Edges with a magnitude (cm^2) above this value are detected. Above this value, edges are given the value 127, otherwise they are given the value zero.
+	threshold_median_depth = 700; //150//168  			//! Below this median depth (cm), an obstacle is considered to block the way (i.e. the blocking obstacle needs to be close)
+	threshold_depth_of_edges = 770; //269; 			//! Below this depth (cm) edges are eligible for the WedgeBug algorithm
+	threshold_edge_magnitude = 5000;//23000;//10000;//30000;//15000;			//151;//301;  // Edges with a magnitude (cm^2) above this value are detected. Above this value, edges are given the value 127, otherwise they are given the value zero.
 	threshold_distance_to_goal = 0.25; 			//0.25 // Above this threshold (m), the goal is considered reached
 	threshold_distance_to_goal_direct = 1.0;	 //0.25 // Above this threshold (m), the goal is considered reached in DIRECT_CONTROL mode
 	threshold_distance_to_angle = 0.0004;		// Above this threshold (radians), the angle/heading is considered reached
@@ -1786,7 +1789,7 @@ void wedgebug_init(){
 	// Initializing area over which edges are searched in
 	// p3DWedgeBug:
 	edge_search_area.y = 0;//216/2;
-	edge_search_area.h = img_disparity_int8_cropped.h;//1;////10;
+	edge_search_area.h = 100;//img_disparity_int8_cropped.h;//1;////10;
 	edge_search_area.x = 0;
 	edge_search_area.w = img_disparity_int8_cropped.w;
 
@@ -1926,7 +1929,7 @@ void wedgebug_periodic(){
 	default:{printf("Unsupported control mode");}break;
 	}
 
-	printf("threshold_median_disparity = %d\n", threshold_median_disparity);
+	printf("threshold_median_depth (m) = %f\n", threshold_median_depth /100.00);
 
 	// Debugging - setting default state
 	//set_state(MOVE_TO_GOAL ,1);
@@ -2018,7 +2021,7 @@ void wedgebug_periodic(){
 		// Background processes - Includes image processing for use
     	// Turn on for debugging
 		//background_processes(save_images_flag);
-		background_processes2(save_images_flag);
+		background_processes_16bit(save_images_flag);
 
 
     	switch(current_state)  // Finite state machine - Start
@@ -2028,7 +2031,6 @@ void wedgebug_periodic(){
     	{
     		printf("MOVE_TO_GOAL = %d\n", MOVE_TO_GOAL);
 			//median_disparity_in_front = median_disparity_to_point(&c_img_cropped, &img_disparity_int8_cropped, &median_kernel);
-			median_depth_in_front = median_depth_to_point(&c_img_cropped, &img_depth_int16_cropped, &median_kernel16bit);
 			//In case disparity is 0 (infinite distance or error we set it to one disparity
 			// above the threshold as the likelihood that the object is too close is large (as opposed to it being infinitely far away)
 			//printf("median_disparity_in_front = %d\n", median_disparity_in_front);
@@ -2036,6 +2038,7 @@ void wedgebug_periodic(){
 			//float depth = disp_to_depth(median_disparity_in_front, b, f);  // median_depth_in_front / 100.00
 
 
+			median_depth_in_front = median_depth_to_point(&c_img_cropped, &img_depth_int16_cropped, &median_kernel16bit);
 			float depth = median_depth_in_front / 100.00;
 			printf("median_depth_in_front = %f\n", depth);
 			printf("depth to goal = %f\n", VGOALc.z);
@@ -2197,7 +2200,8 @@ void wedgebug_periodic(){
     		counter_cycles++; // Counting how many times a state was activated (needed for average calculation)
 
     		// Background processes - Includes image processing for use
-    		background_processes(save_images_flag);
+    		//background_processes(save_images_flag);
+    		background_processes_16bit(save_images_flag);
 
     		// ############ Metric 3 - Runtime average of background processes (see below) - End:
     		clock_background_processes = clock_background_processes + (clock() - time);;
@@ -2263,22 +2267,14 @@ void wedgebug_periodic(){
 				// Else, check confidence that obstacle is there
 				else // This happens continuously, as long as the state is active and the goal has not been reached. It stops when the flag has been set below.
 				{
-					// Calculate median disparity in front
-					median_disparity_in_front = median_disparity_to_point(&c_img_cropped, &img_disparity_int8_cropped, &median_kernel);
-
-					//In case disparity is 0 (infinite distance or error we set it to one disparity
-					// above the threshold as the likelihood that the object is too close is large (as opposed to it being infinitely far away)
-					//if(median_disparity_in_front == 0 )
-					//{
-					//	median_disparity_in_front = (threshold_median_disparity + 1);
-					//	printf("Median is adjusted\n");
-					//}
-					printf("median_disparity_in_front = %d\n", median_disparity_in_front);
-					float depth = disp_to_depth(median_disparity_in_front, b, f);
+					// Calculate median depth in front
+					float depth = median_depth_in_front / 100.00;
 					printf("median_depth_in_front = %f\n", depth);
+					printf("depth to goal = %f\n", VGOALc.z);
+
 
 					// If obstacle appears to be detected AND its in front of goal point, increase obstacle_confidence
-					if ((median_disparity_in_front > threshold_median_disparity) && (depth < VGOALc.z)) // NOTE. The second logical operator was added for testing. Delete it after reducing object distance range and integrating the look for edge function
+					if ((median_depth_in_front < threshold_median_depth) && (depth < VGOALc.z)) // NOTE. The first logical statement is in centimeters and the second in meters
 					{
 						printf("Increasing confidence\n");
 						obstacle_confidence++;
@@ -2302,13 +2298,6 @@ void wedgebug_periodic(){
 					}
 				}
 			}
-
-
-
-			// THis code is to see what depth the disparity value is
-			float depth;
-			depth = disp_to_depth(median_disparity_in_front, b, f);
-			printf("depth function = %f\n", depth);
 
 			printf("position_confidence = %d\n", position_confidence);
 			printf("obstacle_confidence = %d\n", obstacle_confidence);
@@ -2379,26 +2368,17 @@ void wedgebug_periodic(){
 				// a. Stopping drone movement (a second time, just to make sure)
 				guidance_h_hover_enter();
 
-				// b. Morphological  operations 2
-				// This is needed so that when using the edges as filters (to work on disparity values
-				// only found on edges) the underlying disparity values are those of the foreground
-				// and not the background
-				dilation_OCV(&img_middle_int8_cropped, &img_middle_int8_cropped,SE_dilation_OCV_2, 1);
-
-				// c. Checking if edges are located
+				// b. Checking if edges are located
 				// Running function to detect and save edge
 				is_edge_found_micro_flag  =
-						find_best_edge_coordinates(
+						find_best_edge_coordinates2(
 						&VEDGECOORDINATESc,
 						&VGOALc,//target_point,
 						&img_edges_int8_cropped,
-						&img_middle_int8_cropped,
+						&img_depth_int16_cropped,
 						&edge_search_area,
-						threshold_disparity_of_edges,
+						threshold_depth_of_edges,
 						max_edge_found_micro_confidence);
-
-
-
 
 
 				//printf("was_edge_found?: %d\n", was_edge_found);
@@ -2625,23 +2605,14 @@ void wedgebug_periodic(){
 				// Else, check for obstacles and free path and check confidence that an obstacle is there or that the path is free
 				else
 				{
-					// Calculate median disparity in front
-					median_disparity_in_front = median_disparity_to_point(&c_img_cropped, &img_disparity_int8_cropped, &median_kernel);
-
-					//In case disparity is 0 (infinite distance or error we set it to one disparity
-					// above the threshold as the likelihood that the object is too close (errors are converted
-					// to 0s) is large (as opposed to it being infinitely far away)
-					//if(median_disparity_in_front == 0 )
-					//{
-					//	median_disparity_in_front = (threshold_median_disparity + 1);
-					//}
-					printf("median_disparity_in_front = %d\n", median_disparity_in_front);
-					float depth = disp_to_depth(median_disparity_in_front, b, f);
-					printf("median_depth_in_front = %f\n", depth);
+					// Calculate median depth in front
+					median_depth_in_front = median_depth_to_point(&c_img_cropped, &img_depth_int16_cropped, &median_kernel16bit); // Median depth in centimeters (cm)
+					printf("Median_depth_in_front (m) = %f\n", (median_depth_in_front / 100.00)); // Median depth in meters (m)
+					printf("Depth to goal = %f\n", VGOALc.z); // Depth in meters (m)
 
 					// This if-else statement increase the confidence
 					// If obstacle appears to be detected AND its in front of goal point, increase obstacle_confidence
-					if ((median_disparity_in_front > threshold_median_disparity) && (depth < VGOALc.z))
+					if ((median_depth_in_front < threshold_median_depth) && ((median_depth_in_front / 100.00) < VGOALc.z)) // NOTE. The first logical statement is in centimeters and the second in meters
 					{
 						obstacle_confidence++;
 						Bound(obstacle_confidence, 0, max_obstacle_confidence);
@@ -2686,24 +2657,21 @@ void wedgebug_periodic(){
 			// Making drone hover, so that it does not drift from its current position
 			guidance_h_set_guided_pos(VHOLDINGPOINTwned.x, VHOLDINGPOINTwned.y); guidance_v_set_guided_z(VHOLDINGPOINTwned.z);
 
-			// 2. Morphological  operations 2 - To ensure maximum disparity is underneath edge
-			dilation_OCV(&img_middle_int8_cropped, &img_middle_int8_cropped,SE_dilation_OCV_2, 1);
-
-			// 3. Checking if edges are located
+			// 2. Checking if edges are located
 			// Running function to detect and save edge
-			is_edge_found_micro_flag = find_best_edge_coordinates(
+			is_edge_found_micro_flag  =
+					find_best_edge_coordinates2(
 					&VEDGECOORDINATESc,
 					&VGOALc,//target_point,
 					&img_edges_int8_cropped,
-					&img_middle_int8_cropped,
+					&img_depth_int16_cropped,
 					&edge_search_area,
-					threshold_disparity_of_edges,
+					threshold_depth_of_edges,
 					max_edge_found_micro_confidence);
 
 
-
-			// 4. The identified best edge is compared to the previous identified best edge, and replace if the total distance (robot-edge-goal)
-			// has decreased (dependent on flag from 3)
+			// 3. The identified best edge is compared to the previous identified best edge, and replace if the total distance (robot-edge-goal)
+			// has decreased (dependent on flag from 2)
 			// If edge was found
 			if(is_edge_found_micro_flag)
 			{
@@ -2738,7 +2706,7 @@ void wedgebug_periodic(){
 			printf("is_edge_found_micro_flag = %d\n", is_edge_found_micro_flag);
 
 
-			// 5. Initializing current heading parameters (if they have not been initialized before)
+			// 4. Initializing current heading parameters (if they have not been initialized before)
 			if (initial_heading.initiated == 0)
 			{
 				initial_heading.heading_initial = heading;
@@ -2750,12 +2718,12 @@ void wedgebug_periodic(){
 			}
 
 
-			// 6. The drone turns right to find any edges
+			// 5. The drone turns right to find any edges
 			// Code for looking left
 			// If left heading has been reached (i.e. if the flag is activated)
 			if (initial_heading.is_left_reached_flag)
 			{
-				printf("Left heading is reached\n");
+				printf("Left heading is/was reached\n");
 			}
 			// Else,  adjust angle to to face more left and check confidence that left heading has been reached
 			else // This happens continuously, as long as the state is active. It stops when the flag has been set below
@@ -2779,14 +2747,14 @@ void wedgebug_periodic(){
 
 
 
-			// 7. The drone turns right to find any edges (dependent on flag from 6)
+			// 6. The drone turns right to find any edges (dependent on flag from 5)
 			// Code for looking right - Only runs if robot has previously looked left (initial_heading.heading_max_left = 1)
 			if (initial_heading.is_left_reached_flag)
 			{
 				// If right heading has been reached (i.e. if the flag is activated)
 				if (initial_heading.is_right_reached_flag)
 				{
-					printf("Right heading is reached\n");
+					printf("Right heading is/was reached\n");
 				}
 				// Else,  adjust angle to to face more right and check confidence that right heading has been reached
 				else
@@ -2810,7 +2778,7 @@ void wedgebug_periodic(){
 			}
 
 
-			// 8. Check if confidence of having found a suitable edge is large enough or not and set next state (dependent on flags from 6 and 7)
+			// 7. Check if confidence of having found a suitable edge is large enough or not and set next state (dependent on flags from 5 and 6)
 			if(initial_heading.is_left_reached_flag && initial_heading.is_right_reached_flag)
 			{
 				if(is_edge_found_macro_flag)
@@ -2871,7 +2839,54 @@ void wedgebug_periodic(){
     {
     	printf("AUTONOMOUS_NAV = %d\n", AUTONOMOUS_NAV);
 		// Background processes - Includes image processing for use
-		background_processes(save_images_flag);
+		background_processes_16bit(save_images_flag);
+
+
+		median_depth_in_front = median_depth_to_point(&c_img_cropped, &img_depth_int16_cropped, &median_kernel16bit);
+		float depth = median_depth_in_front / 100.00;
+		printf("median_depth_in_front = %f\n", depth);
+		printf("depth to goal = %f\n", VGOALc.z);
+
+
+		if ((median_depth_in_front < threshold_median_depth) && (depth < VGOALc.z))
+		{
+			printf("Obstacle is in front of goal\n");
+		}else
+		{
+			printf("The path to the goal is free!\n");
+		}
+
+
+		is_edge_found_micro_flag  =
+				find_best_edge_coordinates2(
+				&VEDGECOORDINATESc,
+				&VGOALc,//target_point,
+				&img_edges_int8_cropped,
+				&img_depth_int16_cropped,
+				&edge_search_area,
+				threshold_depth_of_edges,
+				max_edge_found_micro_confidence);
+
+
+//			// c. Checking if edges are located
+//			// Running function to detect and save edge
+//			is_edge_found_micro_flag  =
+//					find_best_edge_coordinates(
+//					&VEDGECOORDINATESc,
+//					&VGOALc,//target_point,
+//					&img_edges_int8_cropped,
+//					&img_middle_int8_cropped,
+//					&edge_search_area,
+//					threshold_disparity_of_edges,
+//					max_edge_found_micro_confidence);
+//
+
+
+
+		if (save_images_flag){save_image_gray(&img_edges_int8_cropped, "/home/dureade/Documents/paparazzi_images/img_edges_int8_cropped_marked.bmp");}
+
+
+
     }break;// AUTONOMOUS_NAV - End
 
 

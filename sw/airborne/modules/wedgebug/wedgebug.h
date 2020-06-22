@@ -62,6 +62,7 @@ extern int SE_opening_OCV; 	// SE size for the opening operation
 extern int SE_closing_OCV; 	// SE size for the closing operation
 extern int SE_dilation_OCV_1;// SE size for the first dilation operation (Decides where edges are detected, increase to increase drone safety zone NOTE. This functionality should be replaced with c space expansion)
 extern int SE_dilation_OCV_2; // SE size for the second dilation operation (see state 6 "WEDGEBUG_START" )
+extern int SE_erosion_OCV;	// SE size for the erosion operation (see state 3 "WEDGEBUG_START" and state 6 "POSITION_EDGE", its needed to "drag" the depth of the foreground objects over the edges detected)
 
 
 // Setting thresholds
