@@ -60,7 +60,12 @@
 #define GVF_PARAMETRIC_2D_TREFOIL_R 80
 #endif
 
-gvf_par_2d_tre_par gvf_parametric_2d_trefoil_par = {GVF_PARAMETRIC_2D_TREFOIL_KX, GVF_PARAMETRIC_2D_TREFOIL_KY, GVF_PARAMETRIC_2D_TREFOIL_W1, GVF_PARAMETRIC_2D_TREFOIL_W2, GVF_PARAMETRIC_2D_TREFOIL_RATIO, GVF_PARAMETRIC_2D_TREFOIL_R};
+/*! Default orientation for the 2d trefoil trajectory*/
+#ifndef GVF_PARAMETRIC_2D_TREFOIL_ALPHA
+#define GVF_PARAMETRIC_2D_TREFOIL_ALPHA 0
+#endif
+
+gvf_par_2d_tre_par gvf_parametric_2d_trefoil_par = {GVF_PARAMETRIC_2D_TREFOIL_KX, GVF_PARAMETRIC_2D_TREFOIL_KY, GVF_PARAMETRIC_2D_TREFOIL_W1, GVF_PARAMETRIC_2D_TREFOIL_W2, GVF_PARAMETRIC_2D_TREFOIL_RATIO, GVF_PARAMETRIC_2D_TREFOIL_R, GVF_PARAMETRIC_2D_TREFOIL_ALPHA};
 
 void gvf_parametric_2d_trefoil_info(float *f1, float *f2, float *f1d, float *f2d, float *f1dd, float *f2dd)
 {
@@ -70,18 +75,28 @@ void gvf_parametric_2d_trefoil_info(float *f1, float *f2, float *f1d, float *f2d
   float w2 = gvf_parametric_trajectory.p_parametric[3];
   float ratio = gvf_parametric_trajectory.p_parametric[4];
   float r = gvf_parametric_trajectory.p_parametric[5];
+  float alpha_rad = gvf_parametric_trajectory.p_parametric[6]*M_PI/180;
 
   float w = gvf_parametric_control.w;
   float wb = w * gvf_parametric_control.beta;
 
   // Parametric equations of the trajectory and the partial derivatives w.r.t. 'w'
-  *f1 = cosf(wb*w1)*(r*cosf(wb*w2) + ratio) + xo;
-  *f2 = sinf(wb*w1)*(r*cosf(wb*w2) + ratio) + yo;
+  float nrf1 = cosf(wb*w1)*(r*cosf(wb*w2) + ratio) + xo;
+  float nrf2 = sinf(wb*w1)*(r*cosf(wb*w2) + ratio) + yo;
 
-  *f1d = -w1*sinf(wb*w1)*(r*cosf(wb*w2) + ratio) - cosf(wb*w1)*r*w2*sinf(wb*w2);
-  *f2d =  w1*cosf(wb*w1)*(r*cosf(wb*w2) + ratio) - sinf(wb*w1)*r*w2*sinf(wb*w2);
+  float nrf1d = -w1*sinf(wb*w1)*(r*cosf(wb*w2) + ratio) - cosf(wb*w1)*r*w2*sinf(wb*w2);
+  float nrf2d =  w1*cosf(wb*w1)*(r*cosf(wb*w2) + ratio) - sinf(wb*w1)*r*w2*sinf(wb*w2);
 
-  *f1dd = -w1*w1*cosf(wb*w1)*(r*cosf(wb*w2) + ratio) + w1*sinf(wb*w1)*r*w2*sinf(wb*w2) + w1*sinf(wb*w1)*r*w2*sinf(wb*w2) - cosf(wb*w1)*r*w2*w2*cosf(wb*w2);
-  *f2dd = -w1*w1*sinf(wb*w1)*(r*cosf(wb*w2) + ratio) - w1*cosf(wb*w1)*r*w2*sinf(wb*w2) - w1*cosf(wb*w1)*r*w2*sinf(wb*w2) - sinf(wb*w1)*r*w2*w2*cosf(wb*w2);
+  float nrf1dd = -w1*w1*cosf(wb*w1)*(r*cosf(wb*w2) + ratio) + w1*sinf(wb*w1)*r*w2*sinf(wb*w2) + w1*sinf(wb*w1)*r*w2*sinf(wb*w2) - cosf(wb*w1)*r*w2*w2*cosf(wb*w2);
+  float nrf2dd = -w1*w1*sinf(wb*w1)*(r*cosf(wb*w2) + ratio) - w1*cosf(wb*w1)*r*w2*sinf(wb*w2) - w1*cosf(wb*w1)*r*w2*sinf(wb*w2) - sinf(wb*w1)*r*w2*w2*cosf(wb*w2);
+
+  *f1 =  cosf(alpha_rad)*nrf1 + sinf(alpha_rad)*nrf2;
+  *f2 = -sinf(alpha_rad)*nrf1 + cosf(alpha_rad)*nrf2;
+
+  *f1d =  cosf(alpha_rad)*nrf1d + sinf(alpha_rad)*nrf2d;
+  *f2d = -sinf(alpha_rad)*nrf1d + cosf(alpha_rad)*nrf2d;
+
+  *f1dd =  cosf(alpha_rad)*nrf1dd + sinf(alpha_rad)*nrf2dd;
+  *f2dd = -sinf(alpha_rad)*nrf1dd + cosf(alpha_rad)*nrf2dd;
 }
 

@@ -77,7 +77,7 @@ void gvf_parametric_3d_ellipse_info(float *f1, float *f2, float *f3, float *f1d,
   float r = gvf_parametric_trajectory.p_parametric[2];
   float zl = gvf_parametric_trajectory.p_parametric[3];
   float zh = gvf_parametric_trajectory.p_parametric[4];
-  float alpha_rad = gvf_parametric_trajectory.p_parametric[5];
+  float alpha_rad = gvf_parametric_trajectory.p_parametric[5]*M_PI/180;
 
   float w = gvf_parametric_control.w;
   float wb = w * gvf_parametric_control.beta;

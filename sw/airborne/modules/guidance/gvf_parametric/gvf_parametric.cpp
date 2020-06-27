@@ -29,6 +29,7 @@
 
 #include "gvf_parametric.h"
 #include "./trajectories/gvf_parametric_3d_ellipse.h"
+#include "./trajectories/gvf_parametric_3d_lissajous.h"
 #include "./trajectories/gvf_parametric_2d_trefoil.h"
 
 #ifdef __cplusplus
@@ -55,17 +56,20 @@ static void send_gvf_parametric(struct transport_tx *trans, struct link_device *
 
   switch (gvf_parametric_trajectory.type) {
     case TREFOIL_2D:
-      plen = 6;
+      plen = 7;
       elen = 2;
       break;
     case ELLIPSE_3D:
       plen = 6;
       elen = 3;
       break;
+    case LISSAJOUS_3D:
+      plen = 13;
+      elen = 3;
+      break;
     default:
       plen = 1;
       elen = 1;
-      break;
   }
 
   uint8_t traj_type = (uint8_t)gvf_parametric_trajectory.type;
@@ -321,7 +325,7 @@ void gvf_parametric_control_3D(float kx, float ky, float kz, float f1, float f2,
 /** 2D TRAJECTORIES **/
 // 2D TREFOIL KNOT
 
-bool gvf_parametric_2D_trefoil_XY(float xo, float yo, float w1, float w2, float ratio, float r)
+bool gvf_parametric_2D_trefoil_XY(float xo, float yo, float w1, float w2, float ratio, float r, float alpha)
 {
   gvf_parametric_trajectory.type = TREFOIL_2D;
   gvf_parametric_trajectory.p_parametric[0] = xo;
@@ -330,6 +334,7 @@ bool gvf_parametric_2D_trefoil_XY(float xo, float yo, float w1, float w2, float 
   gvf_parametric_trajectory.p_parametric[3] = w2;
   gvf_parametric_trajectory.p_parametric[4] = ratio;
   gvf_parametric_trajectory.p_parametric[5] = r;
+  gvf_parametric_trajectory.p_parametric[6] = alpha;
 
   float f1, f2, f1d, f2d, f1dd, f2dd;
 
@@ -339,16 +344,16 @@ bool gvf_parametric_2D_trefoil_XY(float xo, float yo, float w1, float w2, float 
   return true;
 }
 
-bool gvf_parametric_2D_trefoil_wp(uint8_t wp, float w1, float w2, float ratio, float r)
+bool gvf_parametric_2D_trefoil_wp(uint8_t wp, float w1, float w2, float ratio, float r, float alpha)
 {
-  gvf_parametric_2D_trefoil_XY(waypoints[wp].x, waypoints[wp].y, w1, w2, ratio, r);
+  gvf_parametric_2D_trefoil_XY(waypoints[wp].x, waypoints[wp].y, w1, w2, ratio, r, alpha);
   return true;
 }
 
 /** 3D TRAJECTORIES **/
 // 3D ELLIPSE
 
-bool gvf_parametric_3D_ellipse_XY(float xo, float yo, float r, float zl, float zh, float alpha)
+bool gvf_parametric_3D_ellipse_XYZ(float xo, float yo, float r, float zl, float zh, float alpha)
 {
   horizontal_mode = HORIZONTAL_MODE_CIRCLE; //  Circle for the 2D GCS
 
@@ -370,7 +375,7 @@ bool gvf_parametric_3D_ellipse_XY(float xo, float yo, float r, float zl, float z
   gvf_parametric_trajectory.p_parametric[2] = r;
   gvf_parametric_trajectory.p_parametric[3] = zl;
   gvf_parametric_trajectory.p_parametric[4] = zh;
-  gvf_parametric_trajectory.p_parametric[5] = alpha * M_PI / 180; // In the GCS we set degrees
+  gvf_parametric_trajectory.p_parametric[5] = alpha;
 
   float f1, f2, f3, f1d, f2d, f3d, f1dd, f2dd, f3dd;
 
@@ -382,7 +387,7 @@ bool gvf_parametric_3D_ellipse_XY(float xo, float yo, float r, float zl, float z
 
 bool gvf_parametric_3D_ellipse_wp(uint8_t wp, float r, float zl, float zh, float alpha)
 {
-  gvf_parametric_3D_ellipse_XY(waypoints[wp].x, waypoints[wp].y, r, zl, zh, alpha);
+  gvf_parametric_3D_ellipse_XYZ(waypoints[wp].x, waypoints[wp].y, r, zl, zh, alpha);
   return true;
 }
 
@@ -391,6 +396,43 @@ bool gvf_parametric_3D_ellipse_wp_delta(uint8_t wp, float r, float alt_center, f
   float zl = alt_center - delta;
   float zh = alt_center + delta;
 
-  gvf_parametric_3D_ellipse_XY(waypoints[wp].x, waypoints[wp].y, r, zl, zh, alpha);
+  gvf_parametric_3D_ellipse_XYZ(waypoints[wp].x, waypoints[wp].y, r, zl, zh, alpha);
+  return true;
+}
+
+bool gvf_parametric_3D_lissajous_XYZ(float xo, float yo, float zo, float cx, float cy, float cz, float wx, float wy, float wz, float dx, float dy, float dz, float alpha)
+{
+  // Safety first! If the asked altitude is low
+  if ((zo - cx) < 1) {
+    zo = 10;
+    cx = 0;
+  }
+
+  gvf_parametric_trajectory.type = LISSAJOUS_3D;
+  gvf_parametric_trajectory.p_parametric[0] = xo;
+  gvf_parametric_trajectory.p_parametric[1] = yo;
+  gvf_parametric_trajectory.p_parametric[2] = zo;
+  gvf_parametric_trajectory.p_parametric[3] = cx;
+  gvf_parametric_trajectory.p_parametric[4] = cy;
+  gvf_parametric_trajectory.p_parametric[5] = cz;
+  gvf_parametric_trajectory.p_parametric[6] = wx;
+  gvf_parametric_trajectory.p_parametric[7] = wy;
+  gvf_parametric_trajectory.p_parametric[8] = wz;
+  gvf_parametric_trajectory.p_parametric[9] = dx;
+  gvf_parametric_trajectory.p_parametric[10] = dy;
+  gvf_parametric_trajectory.p_parametric[11] = dz;
+  gvf_parametric_trajectory.p_parametric[12] = alpha;
+
+  float f1, f2, f3, f1d, f2d, f3d, f1dd, f2dd, f3dd;
+
+  gvf_parametric_3d_lissajous_info(&f1, &f2, &f3, &f1d, &f2d, &f3d, &f1dd, &f2dd, &f3dd);
+  gvf_parametric_control_3D(gvf_parametric_3d_lissajous_par.kx, gvf_parametric_3d_lissajous_par.ky, gvf_parametric_3d_lissajous_par.kz, f1, f2, f3, f1d, f2d, f3d, f1dd, f2dd, f3dd);
+
+  return true;
+}
+
+bool gvf_parametric_3D_lissajous_wp(uint8_t wp, float zo, float cx, float cy, float cz, float wx, float wy, float wz, float dx, float dy, float dz, float alpha)
+{
+  gvf_parametric_3D_lissajous_XYZ(waypoints[wp].x, waypoints[wp].y, zo, cx, cy, cz, wx, wy, wz, dx, dy, dz, alpha);
   return true;
 }

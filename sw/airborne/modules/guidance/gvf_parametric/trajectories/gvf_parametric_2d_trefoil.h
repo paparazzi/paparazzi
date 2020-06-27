@@ -41,6 +41,7 @@ extern "C" {
 * @param w2 2nd frequency
 * @param off Off-phase
 * @param r Radius of the "circles"
+* @param alpha Orientation/rotation of the trajectory in the XY plane
 */
 typedef struct {
   float kx;
@@ -49,6 +50,7 @@ typedef struct {
   float w2;
   float ratio;
   float r;
+  float alpha;
 } gvf_par_2d_tre_par;
 
 extern gvf_par_2d_tre_par gvf_parametric_2d_trefoil_par;

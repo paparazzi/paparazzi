@@ -112,7 +112,7 @@ void gvf_parametric_3d_lissajous_info(float *f1, float *f2, float *f3, float *f1
   float deltax = gvf_parametric_trajectory.p_parametric[9];
   float deltay = gvf_parametric_trajectory.p_parametric[10];
   float deltaz = gvf_parametric_trajectory.p_parametric[11];
-  float alpha_rad = gvf_parametric_trajectory.p_parametric[12];
+  float alpha_rad = gvf_parametric_trajectory.p_parametric[12]*M_PI/180;
 
   float w = gvf_parametric_control.w;
   float wb = w * gvf_parametric_control.beta;
