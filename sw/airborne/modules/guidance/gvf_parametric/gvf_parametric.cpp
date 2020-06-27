@@ -69,7 +69,7 @@ static void send_gvf_parametric(struct transport_tx *trans, struct link_device *
       break;
     default:
       plen = 1;
-      elen = 1;
+      elen = 3;
   }
 
   uint8_t traj_type = (uint8_t)gvf_parametric_trajectory.type;
@@ -403,9 +403,9 @@ bool gvf_parametric_3D_ellipse_wp_delta(uint8_t wp, float r, float alt_center, f
 bool gvf_parametric_3D_lissajous_XYZ(float xo, float yo, float zo, float cx, float cy, float cz, float wx, float wy, float wz, float dx, float dy, float dz, float alpha)
 {
   // Safety first! If the asked altitude is low
-  if ((zo - cx) < 1) {
+  if ((zo - cz) < 1) {
     zo = 10;
-    cx = 0;
+    cz = 0;
   }
 
   gvf_parametric_trajectory.type = LISSAJOUS_3D;

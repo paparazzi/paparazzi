@@ -57,7 +57,7 @@
 
 /*! Default amplitude of the trajectory in the Z plane */
 #ifndef GVF_PARAMETRIC_3D_LISSAJOUS_CZ
-#define GVF_PARAMETRIC_3D_LISSAJOUS_CZ 80
+#define GVF_PARAMETRIC_3D_LISSAJOUS_CZ 10
 #endif
 
 /*! Default frequency of the trajectory in the X plane */
@@ -109,9 +109,9 @@ void gvf_parametric_3d_lissajous_info(float *f1, float *f2, float *f3, float *f1
   float wx = gvf_parametric_trajectory.p_parametric[6];
   float wy = gvf_parametric_trajectory.p_parametric[7];
   float wz = gvf_parametric_trajectory.p_parametric[8];
-  float deltax = gvf_parametric_trajectory.p_parametric[9];
-  float deltay = gvf_parametric_trajectory.p_parametric[10];
-  float deltaz = gvf_parametric_trajectory.p_parametric[11];
+  float deltax_rad = gvf_parametric_trajectory.p_parametric[9]*M_PI/180;
+  float deltay_rad = gvf_parametric_trajectory.p_parametric[10]*M_PI/180;
+  float deltaz_rad = gvf_parametric_trajectory.p_parametric[11]*M_PI/180;
   float alpha_rad = gvf_parametric_trajectory.p_parametric[12]*M_PI/180;
 
   float w = gvf_parametric_control.w;
@@ -119,25 +119,25 @@ void gvf_parametric_3d_lissajous_info(float *f1, float *f2, float *f3, float *f1
 
   // Parametric equations of the trajectory and the partial derivatives w.r.t. 'w'
 
-  float nrf1 = cx*cosf(wx*wb + deltax) + xo;
-  float nrf2 = cy*cosf(wy*wb + deltay) + yo;
+  float nrf1 = cx*cosf(wx*wb + deltax_rad) + xo;
+  float nrf2 = cy*cosf(wy*wb + deltay_rad) + yo;
 
   *f1 =  cosf(alpha_rad)*nrf1 + sinf(alpha_rad)*nrf2;
   *f2 = -sinf(alpha_rad)*nrf1 + cosf(alpha_rad)*nrf2;
-  *f3 = cz*cosf(wz*wb + deltaz) + zo;
+  *f3 = cz*cosf(wz*wb + deltaz_rad) + zo;
 
-  float nrf1d = -wx*cx*sinf(wx*wb + deltax);
-  float nrf2d = -wy*cy*sinf(wy*wb + deltay);
+  float nrf1d = -wx*cx*sinf(wx*wb + deltax_rad);
+  float nrf2d = -wy*cy*sinf(wy*wb + deltay_rad);
 
   *f1d =  cosf(alpha_rad)*nrf1d + sinf(alpha_rad)*nrf2d;
   *f2d = -sinf(alpha_rad)*nrf1d + cosf(alpha_rad)*nrf2d;
-  *f3d = -wz*cz*sinf(wz*wb + deltaz);
+  *f3d = -wz*cz*sinf(wz*wb + deltaz_rad);
 
-  float nrf1dd = -wx*wx*cx*cosf(wx*wb + deltax);
-  float nrf2dd = -wy*wy*cy*cosf(wy*wb + deltay);
+  float nrf1dd = -wx*wx*cx*cosf(wx*wb + deltax_rad);
+  float nrf2dd = -wy*wy*cy*cosf(wy*wb + deltay_rad);
 
   *f1dd =  cosf(alpha_rad)*nrf1dd + sinf(alpha_rad)*nrf2dd;
   *f2dd = -sinf(alpha_rad)*nrf1dd + cosf(alpha_rad)*nrf2dd;
-  *f3dd = -wz*wz*cz*cosf(wz*wb + deltaz);
+  *f3dd = -wz*wz*cz*cosf(wz*wb + deltaz_rad);
 }
 
