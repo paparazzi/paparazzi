@@ -19,7 +19,7 @@
  */
 
 /**
- * @file modules/guidance/gvf_advanced/trajectories/gvf_advanced_2d_trefoil.c
+ * @file modules/guidance/gvf_parametric/trajectories/gvf_parametric_2d_trefoil.c
  *
  * Guiding vector field algorithm for 2D and 3D complex trajectories.
  *
@@ -27,52 +27,52 @@
  */
 
 #include "subsystems/navigation/common_nav.h"
-#include "modules/guidance/gvf_advanced/gvf_advanced.h"
-#include "gvf_advanced_2d_trefoil.h"
+#include "modules/guidance/gvf_parametric/gvf_parametric.h"
+#include "gvf_parametric_2d_trefoil.h"
 
 /*! Default gain kx for the 2d trefoil knot trajectory */
-#ifndef GVF_ADVANCED_2D_TREFOIL_KX
-#define GVF_ADVANCED_2D_TREFOIL_KX 0.001
+#ifndef GVF_PARAMETRIC_2D_TREFOIL_KX
+#define GVF_PARAMETRIC_2D_TREFOIL_KX 0.001
 #endif
 
 /*! Default gain ky for the 2d trefoil knot trajectory */
-#ifndef GVF_ADVANCED_2D_TREFOIL_KY
-#define GVF_ADVANCED_2D_TREFOIL_KY 0.001
+#ifndef GVF_PARAMETRIC_2D_TREFOIL_KY
+#define GVF_PARAMETRIC_2D_TREFOIL_KY 0.001
 #endif
 
 /*! Default 1st frequency for the 2d trefoil trajectory*/
-#ifndef GVF_ADVANCED_2D_TREFOIL_W1
-#define GVF_ADVANCED_2D_TREFOIL_W1 0.02
+#ifndef GVF_PARAMETRIC_2D_TREFOIL_W1
+#define GVF_PARAMETRIC_2D_TREFOIL_W1 0.02
 #endif
 
 /*! Default 2nd frequency for the 2d trefoil trajectory*/
-#ifndef GVF_ADVANCED_2D_TREFOIL_W2
-#define GVF_ADVANCED_2D_TREFOIL_W2 0.03
+#ifndef GVF_PARAMETRIC_2D_TREFOIL_W2
+#define GVF_PARAMETRIC_2D_TREFOIL_W2 0.03
 #endif
 
 /*! Default ratio for the 2d trefoil trajectory*/
-#ifndef GVF_ADVANCED_2D_TREFOIL_RATIO
-#define GVF_ADVANCED_2D_TREFOIL_RATIO 160
+#ifndef GVF_PARAMETRIC_2D_TREFOIL_RATIO
+#define GVF_PARAMETRIC_2D_TREFOIL_RATIO 160
 #endif
 
 /*! Default radius of the circles for the 2d trefoil trajectory*/
-#ifndef GVF_ADVANCED_2D_TREFOIL_R
-#define GVF_ADVANCED_2D_TREFOIL_R 80
+#ifndef GVF_PARAMETRIC_2D_TREFOIL_R
+#define GVF_PARAMETRIC_2D_TREFOIL_R 80
 #endif
 
-gvf_adv_2d_tre_par gvf_advanced_2d_trefoil_par = {GVF_ADVANCED_2D_TREFOIL_KX, GVF_ADVANCED_2D_TREFOIL_KY, GVF_ADVANCED_2D_TREFOIL_W1, GVF_ADVANCED_2D_TREFOIL_W2, GVF_ADVANCED_2D_TREFOIL_RATIO, GVF_ADVANCED_2D_TREFOIL_R};
+gvf_par_2d_tre_par gvf_parametric_2d_trefoil_par = {GVF_PARAMETRIC_2D_TREFOIL_KX, GVF_PARAMETRIC_2D_TREFOIL_KY, GVF_PARAMETRIC_2D_TREFOIL_W1, GVF_PARAMETRIC_2D_TREFOIL_W2, GVF_PARAMETRIC_2D_TREFOIL_RATIO, GVF_PARAMETRIC_2D_TREFOIL_R};
 
-void gvf_advanced_2d_trefoil_info(float *f1, float *f2, float *f1d, float *f2d, float *f1dd, float *f2dd)
+void gvf_parametric_2d_trefoil_info(float *f1, float *f2, float *f1d, float *f2d, float *f1dd, float *f2dd)
 {
-  float xo = gvf_advanced_trajectory.p_advanced[0];
-  float yo = gvf_advanced_trajectory.p_advanced[1];
-  float w1 = gvf_advanced_trajectory.p_advanced[2];
-  float w2 = gvf_advanced_trajectory.p_advanced[3];
-  float ratio = gvf_advanced_trajectory.p_advanced[4];
-  float r = gvf_advanced_trajectory.p_advanced[5];
+  float xo = gvf_parametric_trajectory.p_parametric[0];
+  float yo = gvf_parametric_trajectory.p_parametric[1];
+  float w1 = gvf_parametric_trajectory.p_parametric[2];
+  float w2 = gvf_parametric_trajectory.p_parametric[3];
+  float ratio = gvf_parametric_trajectory.p_parametric[4];
+  float r = gvf_parametric_trajectory.p_parametric[5];
 
-  float w = gvf_advanced_control.w;
-  float wb = w * gvf_advanced_control.beta;
+  float w = gvf_parametric_control.w;
+  float wb = w * gvf_parametric_control.beta;
 
   // Parametric equations of the trajectory and the partial derivatives w.r.t. 'w'
   *f1 = cosf(wb*w1)*(r*cosf(wb*w2) + ratio) + xo;

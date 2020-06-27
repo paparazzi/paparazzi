@@ -19,7 +19,7 @@
  */
 
 /**
- * @file modules/guidance/gvf_advanced/gvf_advanced.cpp
+ * @file modules/guidance/gvf_parametric/gvf_parametric.cpp
  *
  * Guiding vector field algorithm for 2D and 3D complex trajectories.
  */
@@ -27,9 +27,9 @@
 #include <iostream>
 #include <Eigen/Dense>
 
-#include "gvf_advanced.h"
-#include "./trajectories/gvf_advanced_3d_ellipse.h"
-#include "./trajectories/gvf_advanced_2d_trefoil.h"
+#include "gvf_parametric.h"
+#include "./trajectories/gvf_parametric_3d_ellipse.h"
+#include "./trajectories/gvf_parametric_2d_trefoil.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,21 +39,21 @@ extern "C" {
 
 // Control
 uint32_t t0 = 0; // We need it for calculting the time lapse delta_T
-gvf_advanced_con gvf_advanced_control;
+gvf_parametric_con gvf_parametric_control;
 
 // Trajectory
-gvf_advanced_tra gvf_advanced_trajectory;
+gvf_parametric_tra gvf_parametric_trajectory;
 
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
-static void send_gvf_advanced(struct transport_tx *trans, struct link_device *dev)
+static void send_gvf_parametric(struct transport_tx *trans, struct link_device *dev)
 {
   // Do not know whether is a good idea to do this check here or to include
   // this plen in gvf_trajectory
   int plen;
   int elen;
 
-  switch (gvf_advanced_trajectory.type) {
+  switch (gvf_parametric_trajectory.type) {
     case TREFOIL_2D:
       plen = 6;
       elen = 2;
@@ -68,15 +68,15 @@ static void send_gvf_advanced(struct transport_tx *trans, struct link_device *de
       break;
   }
 
-  uint8_t traj_type = (uint8_t)gvf_advanced_trajectory.type;
+  uint8_t traj_type = (uint8_t)gvf_parametric_trajectory.type;
 
-  pprz_msg_send_GVF_ADVANCED(trans, dev, AC_ID, &traj_type, &gvf_advanced_control.s, plen, gvf_advanced_trajectory.p_advanced, elen, gvf_advanced_trajectory.phi_errors);
+  pprz_msg_send_GVF_PARAMETRIC(trans, dev, AC_ID, &traj_type, &gvf_parametric_control.s, plen, gvf_parametric_trajectory.p_parametric, elen, gvf_parametric_trajectory.phi_errors);
 }
 
-static void send_circle_advanced(struct transport_tx *trans, struct link_device *dev)
+static void send_circle_parametric(struct transport_tx *trans, struct link_device *dev)
 {
-  if (gvf_advanced_trajectory.type == ELLIPSE_3D) {
-    pprz_msg_send_CIRCLE(trans, dev, AC_ID, &gvf_advanced_trajectory.p_advanced[0], &gvf_advanced_trajectory.p_advanced[1], &gvf_advanced_trajectory.p_advanced[2]);
+  if (gvf_parametric_trajectory.type == ELLIPSE_3D) {
+    pprz_msg_send_CIRCLE(trans, dev, AC_ID, &gvf_parametric_trajectory.p_parametric[0], &gvf_parametric_trajectory.p_parametric[1], &gvf_parametric_trajectory.p_parametric[2]);
   }
 }
 
@@ -86,38 +86,38 @@ static void send_circle_advanced(struct transport_tx *trans, struct link_device 
 }
 #endif
 
-void gvf_advanced_init(void)
+void gvf_parametric_init(void)
 {
-  gvf_advanced_control.w = 0;
-  gvf_advanced_control.delta_T = 0;
-  gvf_advanced_control.s = 1;
-  gvf_advanced_control.k_roll = GVF_ADVANCED_CONTROL_KROLL;
-  gvf_advanced_control.k_climb = GVF_ADVANCED_CONTROL_KCLIMB;
-  gvf_advanced_control.k_psi = GVF_ADVANCED_CONTROL_KPSI;
-  gvf_advanced_control.L = GVF_ADVANCED_CONTROL_L;
-  gvf_advanced_control.beta = GVF_ADVANCED_CONTROL_BETA;
+  gvf_parametric_control.w = 0;
+  gvf_parametric_control.delta_T = 0;
+  gvf_parametric_control.s = 1;
+  gvf_parametric_control.k_roll = GVF_PARAMETRIC_CONTROL_KROLL;
+  gvf_parametric_control.k_climb = GVF_PARAMETRIC_CONTROL_KCLIMB;
+  gvf_parametric_control.k_psi = GVF_PARAMETRIC_CONTROL_KPSI;
+  gvf_parametric_control.L = GVF_PARAMETRIC_CONTROL_L;
+  gvf_parametric_control.beta = GVF_PARAMETRIC_CONTROL_BETA;
 
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GVF_ADVANCED, send_gvf_advanced);
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_CIRCLE, send_circle_advanced);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_GVF_PARAMETRIC, send_gvf_parametric);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_CIRCLE, send_circle_parametric);
 #endif
 
 }
 
-void gvf_advanced_control_2D(float kx, float ky, float f1, float f2, float f1d, float f2d, float f1dd, float f2dd)
+void gvf_parametric_control_2D(float kx, float ky, float f1, float f2, float f1d, float f2d, float f1dd, float f2dd)
 {
 
   uint32_t now = get_sys_time_msec();
-  gvf_advanced_control.delta_T = now - t0;
+  gvf_parametric_control.delta_T = now - t0;
   t0 = now;
 
-  if (gvf_advanced_control.delta_T > 300) { // We need at least two iterations for Delta_T
-    gvf_advanced_control.w = 0; // Reset w since we assume the algorithm starts
+  if (gvf_parametric_control.delta_T > 300) { // We need at least two iterations for Delta_T
+    gvf_parametric_control.w = 0; // Reset w since we assume the algorithm starts
     return;
   }
 
-  float L = gvf_advanced_control.L;
-  float beta = gvf_advanced_control.beta;
+  float L = gvf_parametric_control.L;
+  float beta = gvf_parametric_control.beta;
 
   Eigen::Vector3f X;
   Eigen::Matrix3f J;
@@ -130,8 +130,8 @@ void gvf_advanced_control_2D(float kx, float ky, float f1, float f2, float f1d, 
   float phi1 = L * (x - f1);
   float phi2 = L * (y - f2);
 
-  gvf_advanced_trajectory.phi_errors[0] = phi1; // Error signals for the telemetry
-  gvf_advanced_trajectory.phi_errors[1] = phi2;
+  gvf_parametric_trajectory.phi_errors[0] = phi1; // Error signals for the telemetry
+  gvf_parametric_trajectory.phi_errors[1] = phi2;
 
   // Chi
   X(0) = L*beta*f1d - kx*phi1;
@@ -183,13 +183,13 @@ void gvf_advanced_control_2D(float kx, float ky, float f1, float f2, float f1d, 
   I.setIdentity();
 
   float aux = ht * Fp * X;
-  float heading_rate = -1 / (Xt * G * X) * Xt * Gp * (I - Xh * Xht) * J * xi_dot - (gvf_advanced_control.k_psi * aux / sqrtf(Xt * G * X));
+  float heading_rate = -1 / (Xt * G * X) * Xt * Gp * (I - Xh * Xht) * J * xi_dot - (gvf_parametric_control.k_psi * aux / sqrtf(Xt * G * X));
 
   // Low-level control
   if (autopilot_get_mode() == AP_MODE_AUTO2) {
 
     // Virtual coordinate
-    gvf_advanced_control.w += w_dot * gvf_advanced_control.delta_T * 1e-3;
+    gvf_parametric_control.w += w_dot * gvf_parametric_control.delta_T * 1e-3;
 
     // Lateral XY coordinates
     lateral_mode = LATERAL_MODE_ROLL;
@@ -197,25 +197,25 @@ void gvf_advanced_control_2D(float kx, float ky, float f1, float f2, float f1d, 
     struct FloatEulers *att = stateGetNedToBodyEulers_f();
 
     h_ctl_roll_setpoint =
-      -gvf_advanced_control.k_roll * atanf(heading_rate * ground_speed / GVF_ADVANCED_GRAVITY / cosf(att->theta));
+      -gvf_parametric_control.k_roll * atanf(heading_rate * ground_speed / GVF_PARAMETRIC_GRAVITY / cosf(att->theta));
     BoundAbs(h_ctl_roll_setpoint, h_ctl_roll_max_setpoint); // Setting point for roll angle
   }
 
 }
 
-void gvf_advanced_control_3D(float kx, float ky, float kz, float f1, float f2, float f3, float f1d, float f2d, float f3d, float f1dd, float f2dd, float f3dd)
+void gvf_parametric_control_3D(float kx, float ky, float kz, float f1, float f2, float f3, float f1d, float f2d, float f3d, float f1dd, float f2dd, float f3dd)
 {
   uint32_t now = get_sys_time_msec();
-  gvf_advanced_control.delta_T = now - t0;
+  gvf_parametric_control.delta_T = now - t0;
   t0 = now;
 
-  if (gvf_advanced_control.delta_T > 300) { // We need at least two iterations for Delta_T
-    gvf_advanced_control.w = 0; // Reset w since we assume the algorithm starts
+  if (gvf_parametric_control.delta_T > 300) { // We need at least two iterations for Delta_T
+    gvf_parametric_control.w = 0; // Reset w since we assume the algorithm starts
     return;
   }
 
-  float L = gvf_advanced_control.L;
-  float beta = gvf_advanced_control.beta;
+  float L = gvf_parametric_control.L;
+  float beta = gvf_parametric_control.beta;
 
   Eigen::Vector4f X;
   Eigen::Matrix4f J;
@@ -230,9 +230,9 @@ void gvf_advanced_control_3D(float kx, float ky, float kz, float f1, float f2, f
   float phi2 = L * (y - f2);
   float phi3 = L * (z - f3);
 
-  gvf_advanced_trajectory.phi_errors[0] = phi1; // Error signals for the telemetry
-  gvf_advanced_trajectory.phi_errors[1] = phi2;
-  gvf_advanced_trajectory.phi_errors[2] = phi3;
+  gvf_parametric_trajectory.phi_errors[0] = phi1; // Error signals for the telemetry
+  gvf_parametric_trajectory.phi_errors[1] = phi2;
+  gvf_parametric_trajectory.phi_errors[2] = phi3;
 
   // Chi
   X(0) = -f1d * L * L * beta - kx * phi1;
@@ -292,20 +292,20 @@ void gvf_advanced_control_3D(float kx, float ky, float kz, float f1, float f2, f
 
   float aux = ht * Fp * X;
 
-  float heading_rate = -1 / (Xt * G * X) * Xt * Gp * (I - Xh * Xht) * J * xi_dot - (gvf_advanced_control.k_psi * aux / sqrtf(Xt * G * X));
+  float heading_rate = -1 / (Xt * G * X) * Xt * Gp * (I - Xh * Xht) * J * xi_dot - (gvf_parametric_control.k_psi * aux / sqrtf(Xt * G * X));
   float climbing_rate = (ground_speed * X(2)) / sqrtf(X(0) * X(0) + X(1) * X(1));
 
   // Low-level control
   if (autopilot_get_mode() == AP_MODE_AUTO2) {
 
     // Virtual coordinate
-    gvf_advanced_control.w += w_dot * gvf_advanced_control.delta_T * 1e-3;
+    gvf_parametric_control.w += w_dot * gvf_parametric_control.delta_T * 1e-3;
 
     // Vertical Z coordinate
     v_ctl_mode = V_CTL_MODE_AUTO_CLIMB;
     v_ctl_speed_mode = V_CTL_SPEED_THROTTLE;
 
-    v_ctl_climb_setpoint = gvf_advanced_control.k_climb * climbing_rate; // Setting point for vertical speed
+    v_ctl_climb_setpoint = gvf_parametric_control.k_climb * climbing_rate; // Setting point for vertical speed
 
     // Lateral XY coordinates
     lateral_mode = LATERAL_MODE_ROLL;
@@ -313,7 +313,7 @@ void gvf_advanced_control_3D(float kx, float ky, float kz, float f1, float f2, f
     struct FloatEulers *att = stateGetNedToBodyEulers_f();
 
     h_ctl_roll_setpoint =
-      -gvf_advanced_control.k_roll * atanf(heading_rate * ground_speed / GVF_ADVANCED_GRAVITY / cosf(att->theta));
+      -gvf_parametric_control.k_roll * atanf(heading_rate * ground_speed / GVF_PARAMETRIC_GRAVITY / cosf(att->theta));
     BoundAbs(h_ctl_roll_setpoint, h_ctl_roll_max_setpoint); // Setting point for roll angle
   }
 }
@@ -321,34 +321,34 @@ void gvf_advanced_control_3D(float kx, float ky, float kz, float f1, float f2, f
 /** 2D TRAJECTORIES **/
 // 2D TREFOIL KNOT
 
-bool gvf_advanced_2D_trefoil_XY(float xo, float yo, float w1, float w2, float ratio, float r)
+bool gvf_parametric_2D_trefoil_XY(float xo, float yo, float w1, float w2, float ratio, float r)
 {
-  gvf_advanced_trajectory.type = TREFOIL_2D;
-  gvf_advanced_trajectory.p_advanced[0] = xo;
-  gvf_advanced_trajectory.p_advanced[1] = yo;
-  gvf_advanced_trajectory.p_advanced[2] = w1;
-  gvf_advanced_trajectory.p_advanced[3] = w2;
-  gvf_advanced_trajectory.p_advanced[4] = ratio;
-  gvf_advanced_trajectory.p_advanced[5] = r;
+  gvf_parametric_trajectory.type = TREFOIL_2D;
+  gvf_parametric_trajectory.p_parametric[0] = xo;
+  gvf_parametric_trajectory.p_parametric[1] = yo;
+  gvf_parametric_trajectory.p_parametric[2] = w1;
+  gvf_parametric_trajectory.p_parametric[3] = w2;
+  gvf_parametric_trajectory.p_parametric[4] = ratio;
+  gvf_parametric_trajectory.p_parametric[5] = r;
 
   float f1, f2, f1d, f2d, f1dd, f2dd;
 
-  gvf_advanced_2d_trefoil_info(&f1, &f2, &f1d, &f2d, &f1dd, &f2dd);
-  gvf_advanced_control_2D(gvf_advanced_2d_trefoil_par.kx, gvf_advanced_2d_trefoil_par.ky, f1, f2, f1d, f2d, f1dd, f2dd);
+  gvf_parametric_2d_trefoil_info(&f1, &f2, &f1d, &f2d, &f1dd, &f2dd);
+  gvf_parametric_control_2D(gvf_parametric_2d_trefoil_par.kx, gvf_parametric_2d_trefoil_par.ky, f1, f2, f1d, f2d, f1dd, f2dd);
 
   return true;
 }
 
-bool gvf_advanced_2D_trefoil_wp(uint8_t wp, float w1, float w2, float ratio, float r)
+bool gvf_parametric_2D_trefoil_wp(uint8_t wp, float w1, float w2, float ratio, float r)
 {
-  gvf_advanced_2D_trefoil_XY(waypoints[wp].x, waypoints[wp].y, w1, w2, ratio, r);
+  gvf_parametric_2D_trefoil_XY(waypoints[wp].x, waypoints[wp].y, w1, w2, ratio, r);
   return true;
 }
 
 /** 3D TRAJECTORIES **/
 // 3D ELLIPSE
 
-bool gvf_advanced_3D_ellipse_XY(float xo, float yo, float r, float zl, float zh, float alpha)
+bool gvf_parametric_3D_ellipse_XY(float xo, float yo, float r, float zl, float zh, float alpha)
 {
   horizontal_mode = HORIZONTAL_MODE_CIRCLE; //  Circle for the 2D GCS
 
@@ -364,33 +364,33 @@ bool gvf_advanced_3D_ellipse_XY(float xo, float yo, float r, float zl, float zh,
     r = 60;
   }
 
-  gvf_advanced_trajectory.type = ELLIPSE_3D;
-  gvf_advanced_trajectory.p_advanced[0] = xo;
-  gvf_advanced_trajectory.p_advanced[1] = yo;
-  gvf_advanced_trajectory.p_advanced[2] = r;
-  gvf_advanced_trajectory.p_advanced[3] = zl;
-  gvf_advanced_trajectory.p_advanced[4] = zh;
-  gvf_advanced_trajectory.p_advanced[5] = alpha * M_PI / 180; // In the GCS we set degrees
+  gvf_parametric_trajectory.type = ELLIPSE_3D;
+  gvf_parametric_trajectory.p_parametric[0] = xo;
+  gvf_parametric_trajectory.p_parametric[1] = yo;
+  gvf_parametric_trajectory.p_parametric[2] = r;
+  gvf_parametric_trajectory.p_parametric[3] = zl;
+  gvf_parametric_trajectory.p_parametric[4] = zh;
+  gvf_parametric_trajectory.p_parametric[5] = alpha * M_PI / 180; // In the GCS we set degrees
 
   float f1, f2, f3, f1d, f2d, f3d, f1dd, f2dd, f3dd;
 
-  gvf_advanced_3d_ellipse_info(&f1, &f2, &f3, &f1d, &f2d, &f3d, &f1dd, &f2dd, &f3dd);
-  gvf_advanced_control_3D(gvf_advanced_3d_ellipse_par.kx, gvf_advanced_3d_ellipse_par.ky, gvf_advanced_3d_ellipse_par.kz, f1, f2, f3, f1d, f2d, f3d, f1dd, f2dd, f3dd);
+  gvf_parametric_3d_ellipse_info(&f1, &f2, &f3, &f1d, &f2d, &f3d, &f1dd, &f2dd, &f3dd);
+  gvf_parametric_control_3D(gvf_parametric_3d_ellipse_par.kx, gvf_parametric_3d_ellipse_par.ky, gvf_parametric_3d_ellipse_par.kz, f1, f2, f3, f1d, f2d, f3d, f1dd, f2dd, f3dd);
 
   return true;
 }
 
-bool gvf_advanced_3D_ellipse_wp(uint8_t wp, float r, float zl, float zh, float alpha)
+bool gvf_parametric_3D_ellipse_wp(uint8_t wp, float r, float zl, float zh, float alpha)
 {
-  gvf_advanced_3D_ellipse_XY(waypoints[wp].x, waypoints[wp].y, r, zl, zh, alpha);
+  gvf_parametric_3D_ellipse_XY(waypoints[wp].x, waypoints[wp].y, r, zl, zh, alpha);
   return true;
 }
 
-bool gvf_advanced_3D_ellipse_wp_delta(uint8_t wp, float r, float alt_center, float delta, float alpha)
+bool gvf_parametric_3D_ellipse_wp_delta(uint8_t wp, float r, float alt_center, float delta, float alpha)
 {
   float zl = alt_center - delta;
   float zh = alt_center + delta;
 
-  gvf_advanced_3D_ellipse_XY(waypoints[wp].x, waypoints[wp].y, r, zl, zh, alpha);
+  gvf_parametric_3D_ellipse_XY(waypoints[wp].x, waypoints[wp].y, r, zl, zh, alpha);
   return true;
 }

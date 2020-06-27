@@ -19,39 +19,39 @@
  */
 
 /**
- * @file modules/guidance/gvf_advanced/gvf_advanced.h
+ * @file modules/guidance/gvf_parametric/gvf_parametric.h
  *
  * Guiding vector field algorithm for 2D and 3D complex trajectories.
  */
 
-#ifndef GVF_ADVANCED_H
-#define GVF_ADVANCED_H
+#ifndef GVF_PARAMETRIC_H
+#define GVF_PARAMETRIC_H
 
-#define GVF_ADVANCED_GRAVITY 9.806
+#define GVF_PARAMETRIC_GRAVITY 9.806
 
 /*! Default gain kroll for tuning the "coordinated turn" */
-#ifndef GVF_ADVANCED_CONTROL_KROLL
-#define GVF_ADVANCED_CONTROL_KROLL 1
+#ifndef GVF_PARAMETRIC_CONTROL_KROLL
+#define GVF_PARAMETRIC_CONTROL_KROLL 1
 #endif
 
 /*! Default gain kclimb for tuning the climbing setting point */
-#ifndef GVF_ADVANCED_CONTROL_KCLIMB
-#define GVF_ADVANCED_CONTROL_KCLIMB 1
+#ifndef GVF_PARAMETRIC_CONTROL_KCLIMB
+#define GVF_PARAMETRIC_CONTROL_KCLIMB 1
 #endif
 
 /*! Default scale for the error signals */
-#ifndef GVF_ADVANCED_CONTROL_L
-#define GVF_ADVANCED_CONTROL_L 0.1
+#ifndef GVF_PARAMETRIC_CONTROL_L
+#define GVF_PARAMETRIC_CONTROL_L 0.1
 #endif
 
 /*! Default scale for w  */
-#ifndef GVF_ADVANCED_CONTROL_BETA
-#define GVF_ADVANCED_CONTROL_BETA 0.01
+#ifndef GVF_PARAMETRIC_CONTROL_BETA
+#define GVF_PARAMETRIC_CONTROL_BETA 0.01
 #endif
 
 /*! Default gain kpsi for tuning the alignment of the vehicle with the vector field */
-#ifndef GVF_ADVANCED_CONTROL_KPSI
-#define GVF_ADVANCED_CONTROL_KPSI 1
+#ifndef GVF_PARAMETRIC_CONTROL_KPSI
+#define GVF_PARAMETRIC_CONTROL_KPSI 1
 #endif
 
 
@@ -59,10 +59,10 @@
 extern "C" {
 #endif
 
-#include "modules/guidance/gvf_advanced/trajectories/gvf_advanced_3d_ellipse.h"
+#include "modules/guidance/gvf_parametric/trajectories/gvf_parametric_3d_ellipse.h"
 
-/** @typedef gvf_advanced_con
-* @brief Control parameters for the GVF_ADVANCED
+/** @typedef gvf_parametric_con
+* @brief Control parameters for the GVF_PARAMETRIC
 * @param w Virtual coordinate from the parametrization of the trajectory
 * @param delta_T Time between iterations needed for integrating w
 * @param s Defines the direction to be tracked. It takes the values -1 or 1.
@@ -78,45 +78,45 @@ typedef struct {
   float k_psi;
   float L;
   float beta;
-} gvf_advanced_con;
+} gvf_parametric_con;
 
-extern gvf_advanced_con gvf_advanced_control;
+extern gvf_parametric_con gvf_parametric_control;
 
 // Parameters for the trajectories
-enum trajectories_advanced {
+enum trajectories_parametric {
   TREFOIL_2D = 0,
   ELLIPSE_3D = 1,
-  NONE_ADVANCED = 255,
+  NONE_PARAMETRIC = 255,
 };
 
 typedef struct {
-  enum trajectories_advanced type;
-  float p_advanced[16];
+  enum trajectories_parametric type;
+  float p_parametric[16];
   float phi_errors[3];
-} gvf_advanced_tra;
+} gvf_parametric_tra;
 
-extern gvf_advanced_tra gvf_advanced_trajectory;
+extern gvf_parametric_tra gvf_parametric_trajectory;
 
 // Init function
-extern void gvf_advanced_init(void);
+extern void gvf_parametric_init(void);
 
 // Control functions
-extern void gvf_advanced_control_2D(float, float, float, float, float, float, float, float);
-extern void gvf_advanced_control_3D(float, float, float, float, float, float, float, float, float,
+extern void gvf_parametric_control_2D(float, float, float, float, float, float, float, float);
+extern void gvf_parametric_control_3D(float, float, float, float, float, float, float, float, float,
                                     float, float, float);
 
 // 2D Ellipse
-extern bool gvf_advanced_2D_trefoil_XY(float, float, float, float, float, float);
-extern bool gvf_advanced_2D_trefoil_wp(uint8_t, float, float, float, float);
+extern bool gvf_parametric_2D_trefoil_XY(float, float, float, float, float, float);
+extern bool gvf_parametric_2D_trefoil_wp(uint8_t, float, float, float, float);
 
 // 3D Ellipse
-extern bool gvf_advanced_3D_ellipse_XY(float, float, float, float, float, float);
-extern bool gvf_advanced_3D_ellipse_wp(uint8_t, float, float, float, float);
-extern bool gvf_advanced_3D_ellipse_wp_delta(uint8_t, float, float, float, float);
+extern bool gvf_parametric_3D_ellipse_XY(float, float, float, float, float, float);
+extern bool gvf_parametric_3D_ellipse_wp(uint8_t, float, float, float, float);
+extern bool gvf_parametric_3D_ellipse_wp_delta(uint8_t, float, float, float, float);
 
 #ifdef __cplusplus
 }
 #endif
 
 
-#endif // GVF_ADVANCED_H
+#endif // GVF_PARAMETRIC_H

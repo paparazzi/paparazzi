@@ -19,7 +19,7 @@
  */
 
 /**
- * @file modules/guidance/gvf_advanced/trajectories/gvf_advanced_3d_ellipse.c
+ * @file modules/guidance/gvf_parametric/trajectories/gvf_parametric_3d_ellipse.c
  *
  * Guiding vector field algorithm for 2D and 3D complex trajectories.
  *
@@ -27,60 +27,60 @@
  */
 
 #include "subsystems/navigation/common_nav.h"
-#include "modules/guidance/gvf_advanced/gvf_advanced.h"
-#include "gvf_advanced_3d_ellipse.h"
+#include "modules/guidance/gvf_parametric/gvf_parametric.h"
+#include "gvf_parametric_3d_ellipse.h"
 
 /*! Default gain kx for the 3d ellipse trajectory */
-#ifndef GVF_ADVANCED_3D_ELLIPSE_KX
-#define GVF_ADVANCED_3D_ELLIPSE_KX 0.001
+#ifndef GVF_PARAMETRIC_3D_ELLIPSE_KX
+#define GVF_PARAMETRIC_3D_ELLIPSE_KX 0.001
 #endif
 
 /*! Default gain ky for the 3d ellipse trajectory */
-#ifndef GVF_ADVANCED_3D_ELLIPSE_KY
-#define GVF_ADVANCED_3D_ELLIPSE_KY 0.001
+#ifndef GVF_PARAMETRIC_3D_ELLIPSE_KY
+#define GVF_PARAMETRIC_3D_ELLIPSE_KY 0.001
 #endif
 
 /*! Default gain kz for the 3d ellipse trajectory */
-#ifndef GVF_ADVANCED_3D_ELLIPSE_KZ
-#define GVF_ADVANCED_3D_ELLIPSE_KZ 0.001
+#ifndef GVF_PARAMETRIC_3D_ELLIPSE_KZ
+#define GVF_PARAMETRIC_3D_ELLIPSE_KZ 0.001
 #endif
 
 /*! Default radius of the cylinder */
-#ifndef GVF_ADVANCED_3D_ELLIPSE_R
-#define GVF_ADVANCED_3D_ELLIPSE_R 80
+#ifndef GVF_PARAMETRIC_3D_ELLIPSE_R
+#define GVF_PARAMETRIC_3D_ELLIPSE_R 80
 #endif
 
 /*! Default highest point for the ellipse trajectory */
-#ifndef GVF_ADVANCED_3D_ELLIPSE_ZL
-#define GVF_ADVANCED_3D_ELLIPSE_ZL 40
+#ifndef GVF_PARAMETRIC_3D_ELLIPSE_ZL
+#define GVF_PARAMETRIC_3D_ELLIPSE_ZL 40
 #endif
 
 /*! Default highest point for the ellipse trajectory */
-#ifndef GVF_ADVANCED_3D_ELLIPSE_ZH
-#define GVF_ADVANCED_3D_ELLIPSE_ZH 40
+#ifndef GVF_PARAMETRIC_3D_ELLIPSE_ZH
+#define GVF_PARAMETRIC_3D_ELLIPSE_ZH 40
 #endif
 
 /*! Default orientation in degrees for the lowest point of the ellipse */
-#ifndef GVF_ADVANCED_3D_ELLIPSE_ALPHA
-#define GVF_ADVANCED_3D_ELLIPSE_ALPHA 0
+#ifndef GVF_PARAMETRIC_3D_ELLIPSE_ALPHA
+#define GVF_PARAMETRIC_3D_ELLIPSE_ALPHA 0
 #endif
 
-gvf_adv_3d_ell_par gvf_advanced_3d_ellipse_par = {GVF_ADVANCED_3D_ELLIPSE_KX,
-                                                  GVF_ADVANCED_3D_ELLIPSE_KY, GVF_ADVANCED_3D_ELLIPSE_KZ, GVF_ADVANCED_3D_ELLIPSE_R, GVF_ADVANCED_3D_ELLIPSE_ZL, GVF_ADVANCED_3D_ELLIPSE_ZH, GVF_ADVANCED_3D_ELLIPSE_ALPHA
+gvf_par_3d_ell_par gvf_parametric_3d_ellipse_par = {GVF_PARAMETRIC_3D_ELLIPSE_KX,
+                                                  GVF_PARAMETRIC_3D_ELLIPSE_KY, GVF_PARAMETRIC_3D_ELLIPSE_KZ, GVF_PARAMETRIC_3D_ELLIPSE_R, GVF_PARAMETRIC_3D_ELLIPSE_ZL, GVF_PARAMETRIC_3D_ELLIPSE_ZH, GVF_PARAMETRIC_3D_ELLIPSE_ALPHA
                                                  };
 
-void gvf_advanced_3d_ellipse_info(float *f1, float *f2, float *f3, float *f1d, float *f2d, float *f3d,
+void gvf_parametric_3d_ellipse_info(float *f1, float *f2, float *f3, float *f1d, float *f2d, float *f3d,
                                   float *f1dd, float *f2dd, float *f3dd)
 {
-  float xo = gvf_advanced_trajectory.p_advanced[0];
-  float yo = gvf_advanced_trajectory.p_advanced[1];
-  float r = gvf_advanced_trajectory.p_advanced[2];
-  float zl = gvf_advanced_trajectory.p_advanced[3];
-  float zh = gvf_advanced_trajectory.p_advanced[4];
-  float alpha_rad = gvf_advanced_trajectory.p_advanced[5];
+  float xo = gvf_parametric_trajectory.p_parametric[0];
+  float yo = gvf_parametric_trajectory.p_parametric[1];
+  float r = gvf_parametric_trajectory.p_parametric[2];
+  float zl = gvf_parametric_trajectory.p_parametric[3];
+  float zh = gvf_parametric_trajectory.p_parametric[4];
+  float alpha_rad = gvf_parametric_trajectory.p_parametric[5];
 
-  float w = gvf_advanced_control.w;
-  float wb = w * gvf_advanced_control.beta;
+  float w = gvf_parametric_control.w;
+  float wb = w * gvf_parametric_control.beta;
 
   // Parametric equations of the trajectory and the partial derivatives w.r.t. 'w'
   *f1 = r * cosf(wb) + xo;
