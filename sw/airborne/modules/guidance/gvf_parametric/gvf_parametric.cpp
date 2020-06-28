@@ -431,7 +431,7 @@ bool gvf_parametric_3D_lissajous_XYZ(float xo, float yo, float zo, float cx, flo
   return true;
 }
 
-bool gvf_parametric_3D_lissajous_wp(uint8_t wp, float zo, float cx, float cy, float cz, float wx, float wy, float wz, float dx, float dy, float dz, float alpha)
+bool gvf_parametric_3D_lissajous_wp_center(uint8_t wp, float zo, float cx, float cy, float cz, float wx, float wy, float wz, float dx, float dy, float dz, float alpha)
 {
   gvf_parametric_3D_lissajous_XYZ(waypoints[wp].x, waypoints[wp].y, zo, cx, cy, cz, wx, wy, wz, dx, dy, dz, alpha);
   return true;

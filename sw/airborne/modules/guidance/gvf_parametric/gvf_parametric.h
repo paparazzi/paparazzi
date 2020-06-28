@@ -119,7 +119,7 @@ extern bool gvf_parametric_3D_ellipse_wp_delta(uint8_t, float, float, float, flo
 
 // 3D Lissajous
 extern bool gvf_parametric_3D_lissajous_XYZ(float, float, float, float, float, float, float, float, float, float, float, float, float);
-extern bool gvf_parametric_3D_lissajous_wp(uint8_t, float, float, float, float, float, float, float, float, float, float, float);
+extern bool gvf_parametric_3D_lissajous_wp_center(uint8_t, float, float, float, float, float, float, float, float, float, float, float);
 
 #ifdef __cplusplus
 }
