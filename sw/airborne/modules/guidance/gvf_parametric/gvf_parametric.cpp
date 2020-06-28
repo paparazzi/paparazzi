@@ -234,9 +234,9 @@ void gvf_parametric_control_3D(float kx, float ky, float kz, float f1, float f2,
   float phi2 = L * (y - f2);
   float phi3 = L * (z - f3);
 
-  gvf_parametric_trajectory.phi_errors[0] = phi1; // Error signals for the telemetry
-  gvf_parametric_trajectory.phi_errors[1] = phi2;
-  gvf_parametric_trajectory.phi_errors[2] = phi3;
+  gvf_parametric_trajectory.phi_errors[0] = phi1 / L; // Error signals in meters for the telemetry
+  gvf_parametric_trajectory.phi_errors[1] = phi2 / L;
+  gvf_parametric_trajectory.phi_errors[2] = phi3 / L;
 
   // Chi
   X(0) = -f1d * L * L * beta - kx * phi1;
