@@ -78,7 +78,7 @@ void gvf_parametric_2d_trefoil_info(float *f1, float *f2, float *f1d, float *f2d
   float alpha_rad = gvf_parametric_trajectory.p_parametric[6]*M_PI/180;
 
   float w = gvf_parametric_control.w;
-  float wb = w * gvf_parametric_control.beta;
+  float wb = w * gvf_parametric_control.beta * gvf_parametric_control.s;
 
   // Parametric equations of the trajectory and the partial derivatives w.r.t. 'w'
   float nrf1 = cosf(wb*w1)*(r*cosf(wb*w2) + ratio);
