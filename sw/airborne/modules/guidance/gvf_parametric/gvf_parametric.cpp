@@ -74,7 +74,7 @@ static void send_gvf_parametric(struct transport_tx *trans, struct link_device *
 
   uint8_t traj_type = (uint8_t)gvf_parametric_trajectory.type;
 
-  pprz_msg_send_GVF_PARAMETRIC(trans, dev, AC_ID, &traj_type, &gvf_parametric_control.s, plen, gvf_parametric_trajectory.p_parametric, elen, gvf_parametric_trajectory.phi_errors);
+  pprz_msg_send_GVF_PARAMETRIC(trans, dev, AC_ID, &traj_type, &gvf_parametric_control.s, &gvf_parametric_control.w, plen, gvf_parametric_trajectory.p_parametric, elen, gvf_parametric_trajectory.phi_errors);
 }
 
 static void send_circle_parametric(struct transport_tx *trans, struct link_device *dev)

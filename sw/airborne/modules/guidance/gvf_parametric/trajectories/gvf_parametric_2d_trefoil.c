@@ -81,8 +81,8 @@ void gvf_parametric_2d_trefoil_info(float *f1, float *f2, float *f1d, float *f2d
   float wb = w * gvf_parametric_control.beta;
 
   // Parametric equations of the trajectory and the partial derivatives w.r.t. 'w'
-  float nrf1 = cosf(wb*w1)*(r*cosf(wb*w2) + ratio) + xo;
-  float nrf2 = sinf(wb*w1)*(r*cosf(wb*w2) + ratio) + yo;
+  float nrf1 = cosf(wb*w1)*(r*cosf(wb*w2) + ratio);
+  float nrf2 = sinf(wb*w1)*(r*cosf(wb*w2) + ratio);
 
   float nrf1d = -w1*sinf(wb*w1)*(r*cosf(wb*w2) + ratio) - cosf(wb*w1)*r*w2*sinf(wb*w2);
   float nrf2d =  w1*cosf(wb*w1)*(r*cosf(wb*w2) + ratio) - sinf(wb*w1)*r*w2*sinf(wb*w2);
@@ -90,13 +90,13 @@ void gvf_parametric_2d_trefoil_info(float *f1, float *f2, float *f1d, float *f2d
   float nrf1dd = -w1*w1*cosf(wb*w1)*(r*cosf(wb*w2) + ratio) + w1*sinf(wb*w1)*r*w2*sinf(wb*w2) + w1*sinf(wb*w1)*r*w2*sinf(wb*w2) - cosf(wb*w1)*r*w2*w2*cosf(wb*w2);
   float nrf2dd = -w1*w1*sinf(wb*w1)*(r*cosf(wb*w2) + ratio) - w1*cosf(wb*w1)*r*w2*sinf(wb*w2) - w1*cosf(wb*w1)*r*w2*sinf(wb*w2) - sinf(wb*w1)*r*w2*w2*cosf(wb*w2);
 
-  *f1 =  cosf(alpha_rad)*nrf1 + sinf(alpha_rad)*nrf2;
-  *f2 = -sinf(alpha_rad)*nrf1 + cosf(alpha_rad)*nrf2;
+  *f1 = cosf(alpha_rad)*nrf1 - sinf(alpha_rad)*nrf2 + xo;
+  *f2 = sinf(alpha_rad)*nrf1 + cosf(alpha_rad)*nrf2 + yo;
 
-  *f1d =  cosf(alpha_rad)*nrf1d + sinf(alpha_rad)*nrf2d;
-  *f2d = -sinf(alpha_rad)*nrf1d + cosf(alpha_rad)*nrf2d;
+  *f1d = cosf(alpha_rad)*nrf1d - sinf(alpha_rad)*nrf2d;
+  *f2d = sinf(alpha_rad)*nrf1d + cosf(alpha_rad)*nrf2d;
 
-  *f1dd =  cosf(alpha_rad)*nrf1dd + sinf(alpha_rad)*nrf2dd;
-  *f2dd = -sinf(alpha_rad)*nrf1dd + cosf(alpha_rad)*nrf2dd;
+  *f1dd = cosf(alpha_rad)*nrf1dd - sinf(alpha_rad)*nrf2dd;
+  *f2dd = sinf(alpha_rad)*nrf1dd + cosf(alpha_rad)*nrf2dd;
 }
 

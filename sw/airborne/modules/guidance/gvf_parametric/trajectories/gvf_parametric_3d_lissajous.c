@@ -119,25 +119,25 @@ void gvf_parametric_3d_lissajous_info(float *f1, float *f2, float *f3, float *f1
 
   // Parametric equations of the trajectory and the partial derivatives w.r.t. 'w'
 
-  float nrf1 = cx*cosf(wx*wb + deltax_rad) + xo;
-  float nrf2 = cy*cosf(wy*wb + deltay_rad) + yo;
+  float nrf1 = cx*cosf(wx*wb + deltax_rad);
+  float nrf2 = cy*cosf(wy*wb + deltay_rad);
 
-  *f1 =  cosf(alpha_rad)*nrf1 + sinf(alpha_rad)*nrf2;
-  *f2 = -sinf(alpha_rad)*nrf1 + cosf(alpha_rad)*nrf2;
+  *f1 = cosf(alpha_rad)*nrf1 - sinf(alpha_rad)*nrf2 + xo;
+  *f2 = sinf(alpha_rad)*nrf1 + cosf(alpha_rad)*nrf2 + yo;
   *f3 = cz*cosf(wz*wb + deltaz_rad) + zo;
 
   float nrf1d = -wx*cx*sinf(wx*wb + deltax_rad);
   float nrf2d = -wy*cy*sinf(wy*wb + deltay_rad);
 
-  *f1d =  cosf(alpha_rad)*nrf1d + sinf(alpha_rad)*nrf2d;
-  *f2d = -sinf(alpha_rad)*nrf1d + cosf(alpha_rad)*nrf2d;
+  *f1d = cosf(alpha_rad)*nrf1d - sinf(alpha_rad)*nrf2d;
+  *f2d = sinf(alpha_rad)*nrf1d + cosf(alpha_rad)*nrf2d;
   *f3d = -wz*cz*sinf(wz*wb + deltaz_rad);
 
   float nrf1dd = -wx*wx*cx*cosf(wx*wb + deltax_rad);
   float nrf2dd = -wy*wy*cy*cosf(wy*wb + deltay_rad);
 
-  *f1dd =  cosf(alpha_rad)*nrf1dd + sinf(alpha_rad)*nrf2dd;
-  *f2dd = -sinf(alpha_rad)*nrf1dd + cosf(alpha_rad)*nrf2dd;
+  *f1dd = cosf(alpha_rad)*nrf1dd - sinf(alpha_rad)*nrf2dd;
+  *f2dd = sinf(alpha_rad)*nrf1dd + cosf(alpha_rad)*nrf2dd;
   *f3dd = -wz*wz*cz*cosf(wz*wb + deltaz_rad);
 }
 
