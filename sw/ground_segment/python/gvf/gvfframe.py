@@ -4,6 +4,7 @@ import time
 from scipy import linalg as la
 from matplotlib.path import Path
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
+from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as pl
 import matplotlib.patches as patches
 import numpy as np
@@ -33,7 +34,8 @@ class GVFFrame(wx.Frame):
         self.course = 0
         self.yaw = 0
         self.XY = np.array([0, 0])
-        self.Z = 0
+        self.altitude = 0
+        self.ground_altitude = -1
 
         # Desired trajectory
         self.s = 0
@@ -59,10 +61,12 @@ class GVFFrame(wx.Frame):
         if int(ac_id) == self.ac_id:
             if msg.name == 'GPS':
                 self.course = int(msg.get_field(3))*np.pi/1800
-                self.Z = float(msg.get_field(4))/1000
+                self.altitude = float(msg.get_field(4))/1000
             if msg.name == 'NAVIGATION':
                 self.XY[0] = float(msg.get_field(2))
                 self.XY[1] = float(msg.get_field(3))
+            if msg.name == 'NAVIGATION_REF':
+                self.ground_altitude = float(msg.get_field(3))
             if msg.name == 'ATTITUDE':
                 self.yaw = float(msg.get_field(1))
             if msg.name == 'GVF':
@@ -127,19 +131,34 @@ class GVFFrame(wx.Frame):
                     phi_y = phi[1]
                     self.traj = traj_param_trefoil_2D(np.array([xo, yo]), w1, w2, ratio, r, alpha, self.wb)
 
-                #if int(msg.get_field(0)) == 1: # Ellipse 3D
+                if int(msg.get_field(0)) == 1: # Ellipse 3D
+                    self.s = int(msg.get_field(1))
+                    self.wb = float(msg.get_field(2))
+                    param = [float(x) for x in msg.get_field(3)]
+                    xo = param[0]
+                    yo = param[1]
+                    r = param[2]
+                    zl = param[3]
+                    zh = param[4]
+                    alpha = param[5]
+                    phi = [float(x) for x in msg.get_field(4)]
+                    phi_x = phi[0]
+                    phi_y = phi[1]
+                    phi_z = phi[2]
+                    self.traj = traj_param_ellipse_3D(np.array([xo,yo]), r, zl, zh, alpha, self.wb)
+
                 #if int(msg.get_field(0)) == 2: # Lissajous 3D
 
-    def draw_gvf(self, XY, yaw, course):
+    def draw_gvf(self, XY, yaw, course, altitude):
         if self.traj is not None:
-            self.map_gvf.draw(XY, yaw, course, self.traj)
+            self.map_gvf.draw(XY, yaw, course, altitude, self.traj)
 
     def OnClose(self, event):
         self.interface.shutdown()
         self.Destroy()
 
     def OnRedrawTimer(self, event):
-        self.draw_gvf(self.XY, self.yaw, self.course)
+        self.draw_gvf(self.XY, self.yaw, self.course, self.altitude-self.ground_altitude)
         self.canvas.draw()
 
 class map2d:
@@ -174,7 +193,7 @@ class map2d:
 
         return patches.PathPatch(path, facecolor='red', lw=2)
 
-    def draw(self, XY, yaw, course, traj):
+    def draw(self, XY, yaw, course, altitude, traj):
         self.fig.clf()
         if traj.dim == 2:
             ax = self.fig.add_subplot(111)
@@ -217,6 +236,50 @@ class map2d:
                self.XYoff[1]+0.5*np.sqrt(self.area))
             ax.axis('equal')
             ax.grid()
+
+        if traj.dim == 3:
+            a3d = self.fig.add_subplot(2,2,1, projection='3d')
+            axy = self.fig.add_subplot(2,2,2)
+            axz = self.fig.add_subplot(2,2,3)
+            ayz = self.fig.add_subplot(2,2,4)
+
+            a3d.set_title('3D Map')
+            axy.set_title('XY Map')
+            axz.set_title('XZ Map')
+            ayz.set_title('YZ Map')
+
+            # 3D
+            a3d.plot(traj.traj_points[0, :], traj.traj_points[1, :], traj.traj_points[2, :])
+            if altitude != -1:
+                a3d.plot([XY[0]], [XY[1]], [altitude], marker='o', markerfacecolor='r', markeredgecolor='r')
+                a3d.axis('equal')
+
+            # XY
+            axy.plot(traj.traj_points[0, :], traj.traj_points[1, :])
+            axy.add_patch(self.vehicle_patch(XY, yaw)) # In radians
+            apex = 45*np.pi/180 # 30 degrees apex angle
+            b = np.sqrt(2*(self.area/2000) / np.sin(apex))
+            h = b*np.cos(apex/2)
+            axy.arrow(XY[0], XY[1], \
+                    h*np.sin(course), h*np.cos(course),\
+                    head_width=5, head_length=10, fc='k', ec='k')
+            axy.annotate('HOME', xy = (0, 0))
+            if isinstance(traj, traj_param_ellipse_3D):
+                axy.annotate('ELLIPSE_3D', xy = (traj.XYoff[0], traj.XYoff[1]))
+                axy.plot(0, 0, 'kx', ms=10, mew=2)
+                axy.plot(traj.XYoff[0], traj.XYoff[1], 'kx', ms=10, mew=2)
+            axy.axis('equal')
+
+            # XZ
+            axz.plot(traj.traj_points[0, :], traj.traj_points[2, :])
+            if altitude != -1:
+                axz.plot([XY[0]], [altitude], 'ro')
+            axz.axis('equal')
+            # YZ
+            ayz.plot(traj.traj_points[1, :], traj.traj_points[2, :])
+            if altitude != -1:
+                ayz.plot([XY[1]], [altitude], 'ro')
+            ayz.axis('equal')
 
 class traj_line:
     def float_range(self, start, end, step):
@@ -437,3 +500,39 @@ class traj_param_trefoil_2D:
         y = np.sin(self.alpha)*xnr + np.cos(self.alpha)*ynr
 
         return self.XYoff + np.array([x,y])
+
+class traj_param_ellipse_3D:
+    def float_range(self, start, end, step):
+        while start <= end:
+            yield start
+            start += step
+
+    def __init__(self, XYoff, r, zl, zh, alpha, wb):
+        self.dim = 3
+        self.XYoff, self.r, self.zl, self.zh, self.alpha, self.wb = XYoff, r, zl, zh, alpha, wb
+        self.mapgrad_X = []
+        self.mapgrad_Y = []
+        self.mapgrad_U = []
+        self.mapgrad_V = []
+
+        self.alpha = alpha*np.pi/180
+
+        self.wpoint = self.param_point(self.wb)
+
+        num_points = 100
+        self.traj_points = np.zeros((3, num_points))
+
+        i = 0
+        range_points = 2*np.pi + 0.1
+        for t in self.float_range(0, range_points, range_points/num_points):
+            self.traj_points[:, i] = self.param_point(t)
+            i = i + 1
+            if i >= num_points:
+                break
+
+    def param_point(self, t):
+        x = self.r * np.cos(t) + self.XYoff[0]
+        y = self.r * np.sin(t) + self.XYoff[1]
+        z = 0.5 * (self.zh + self.zl + (self.zl - self.zh) * np.sin(self.alpha - t))
+
+        return np.array([x,y,z])
