@@ -77,8 +77,10 @@ static void send_gvf_parametric(struct transport_tx *trans, struct link_device *
   uint32_t now = get_sys_time_msec();
   uint32_t delta_T = now - gvf_parametric_t0;
 
+  float wb = gvf_parametric_control.w*gvf_parametric_control.beta;
+
   if(delta_T < 200)
-    pprz_msg_send_GVF_PARAMETRIC(trans, dev, AC_ID, &traj_type, &gvf_parametric_control.s, &gvf_parametric_control.w, plen, gvf_parametric_trajectory.p_parametric, elen, gvf_parametric_trajectory.phi_errors);
+    pprz_msg_send_GVF_PARAMETRIC(trans, dev, AC_ID, &traj_type, &gvf_parametric_control.s, &wb, plen, gvf_parametric_trajectory.p_parametric, elen, gvf_parametric_trajectory.phi_errors);
 }
 
 static void send_circle_parametric(struct transport_tx *trans, struct link_device *dev)
