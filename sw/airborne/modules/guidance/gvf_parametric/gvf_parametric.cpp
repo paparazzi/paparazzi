@@ -39,7 +39,7 @@ extern "C" {
 #include "autopilot.h"
 
 // Control
-uint32_t t0 = 0; // We need it for calculting the time lapse delta_T
+uint32_t gvf_parametric_t0 = 0; // We need it for calculting the time lapse delta_T
 gvf_parametric_con gvf_parametric_control;
 
 // Trajectory
@@ -74,13 +74,21 @@ static void send_gvf_parametric(struct transport_tx *trans, struct link_device *
 
   uint8_t traj_type = (uint8_t)gvf_parametric_trajectory.type;
 
-  pprz_msg_send_GVF_PARAMETRIC(trans, dev, AC_ID, &traj_type, &gvf_parametric_control.s, &gvf_parametric_control.w, plen, gvf_parametric_trajectory.p_parametric, elen, gvf_parametric_trajectory.phi_errors);
+  uint32_t now = get_sys_time_msec();
+  uint32_t delta_T = now - gvf_parametric_t0;
+
+  if(delta_T < 200)
+    pprz_msg_send_GVF_PARAMETRIC(trans, dev, AC_ID, &traj_type, &gvf_parametric_control.s, &gvf_parametric_control.w, plen, gvf_parametric_trajectory.p_parametric, elen, gvf_parametric_trajectory.phi_errors);
 }
 
 static void send_circle_parametric(struct transport_tx *trans, struct link_device *dev)
 {
-  if (gvf_parametric_trajectory.type == ELLIPSE_3D) {
-    pprz_msg_send_CIRCLE(trans, dev, AC_ID, &gvf_parametric_trajectory.p_parametric[0], &gvf_parametric_trajectory.p_parametric[1], &gvf_parametric_trajectory.p_parametric[2]);
+  uint32_t now = get_sys_time_msec();
+  uint32_t delta_T = now - gvf_parametric_t0;
+
+  if(delta_T < 200)
+    if (gvf_parametric_trajectory.type == ELLIPSE_3D) {
+      pprz_msg_send_CIRCLE(trans, dev, AC_ID, &gvf_parametric_trajectory.p_parametric[0], &gvf_parametric_trajectory.p_parametric[1], &gvf_parametric_trajectory.p_parametric[2]);
   }
 }
 
@@ -112,8 +120,8 @@ void gvf_parametric_control_2D(float kx, float ky, float f1, float f2, float f1d
 {
 
   uint32_t now = get_sys_time_msec();
-  gvf_parametric_control.delta_T = now - t0;
-  t0 = now;
+  gvf_parametric_control.delta_T = now - gvf_parametric_t0;
+  gvf_parametric_t0 = now;
 
   if (gvf_parametric_control.delta_T > 300) { // We need at least two iterations for Delta_T
     gvf_parametric_control.w = 0; // Reset w since we assume the algorithm starts
@@ -210,8 +218,8 @@ void gvf_parametric_control_2D(float kx, float ky, float f1, float f2, float f1d
 void gvf_parametric_control_3D(float kx, float ky, float kz, float f1, float f2, float f3, float f1d, float f2d, float f3d, float f1dd, float f2dd, float f3dd)
 {
   uint32_t now = get_sys_time_msec();
-  gvf_parametric_control.delta_T = now - t0;
-  t0 = now;
+  gvf_parametric_control.delta_T = now - gvf_parametric_t0;
+  gvf_parametric_t0 = now;
 
   if (gvf_parametric_control.delta_T > 300) { // We need at least two iterations for Delta_T
     gvf_parametric_control.w = 0; // Reset w since we assume the algorithm starts
