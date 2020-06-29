@@ -1732,14 +1732,14 @@ void wedgebug_init(){
 	// Initializing structuring element sizes
 	SE_opening_OCV = 13; 	// SE size for the opening operation
 	SE_closing_OCV = 13; 	// SE size for the closing operation
-	SE_dilation_OCV_1 = 25;//51;//301;// SE size for the first dilation operation (Decides where edges are detected, increase to increase drone safety zone NOTE. This functionality should be replaced with c space expansion)
+	SE_dilation_OCV_1 = 51;//25;//51;//301;// SE size for the first dilation operation (Decides where edges are detected, increase to increase drone safety zone NOTE. This functionality should be replaced with c space expansion)
 	SE_dilation_OCV_2 = 11; // SE size for the second dilation operation (see state 3 "WEDGEBUG_START" and state 6 "POSITION_EDGE")
 	SE_sobel_OCV = 5; 		// SE size for the sobel operation, to detect edges
 	SE_erosion_OCV = 11;	// SE size for the erosion operation (see state 3 "WEDGEBUG_START" and state 6 "POSITION_EDGE", its needed to "drag" the depth of the foreground objects over the edges detected)
 
 	// Setting thresholds - non-calculated
-	threshold_median_depth = 700; //150//168  			//! Below this median depth (cm), an obstacle is considered to block the way (i.e. the blocking obstacle needs to be close)
-	threshold_depth_of_edges = 770; //269; 			//! Below this depth (cm) edges are eligible for the WedgeBug algorithm
+	threshold_median_depth = 150;//700; //150//168  			//! Below this median depth (cm), an obstacle is considered to block the way (i.e. the blocking obstacle needs to be close)
+	threshold_depth_of_edges = 170;//770; //269; 			//! Below this depth (cm) edges are eligible for the WedgeBug algorithm
 	threshold_edge_magnitude = 5000;//23000;//10000;//30000;//15000;			//151;//301;  // Edges with a magnitude (cm^2) above this value are detected. Above this value, edges are given the value 127, otherwise they are given the value zero.
 	threshold_distance_to_goal = 0.25; 			//0.25 // Above this threshold (m), the goal is considered reached
 	threshold_distance_to_goal_direct = 1.0;	 //0.25 // Above this threshold (m), the goal is considered reached in DIRECT_CONTROL mode
@@ -1757,7 +1757,7 @@ void wedgebug_init(){
 	//edge_found_micro_confidence = 0;		// This is the confidence that an edge was found
 	edge_found_macro_confidence = 0;		// This is the confidence that an edge was found
 	no_edge_found_confidence = 0;			// This is the confidence that no edge was found
-	max_obstacle_confidence = 1;			// This is the max confidence that an obstacle was spotted
+	max_obstacle_confidence = 3;			// This is the max confidence that an obstacle was spotted
 	max_free_path_confidence = 5;			// This is the max confidence that an obstacle was not spotted
 	max_position_confidence = 30;			// This is the max confidence that a specific position was reached
 	max_heading_confidence = 5;				// This is the max confidence that a specific heading was reached
@@ -2200,8 +2200,8 @@ void wedgebug_periodic(){
     		counter_cycles++; // Counting how many times a state was activated (needed for average calculation)
 
     		// Background processes - Includes image processing for use
-    		//background_processes(save_images_flag);
-    		background_processes_16bit(save_images_flag);
+    		background_processes(save_images_flag);
+    		//background_processes_16bit(save_images_flag);
 
     		// ############ Metric 3 - Runtime average of background processes (see below) - End:
     		clock_background_processes = clock_background_processes + (clock() - time);;
@@ -2268,6 +2268,7 @@ void wedgebug_periodic(){
 				else // This happens continuously, as long as the state is active and the goal has not been reached. It stops when the flag has been set below.
 				{
 					// Calculate median depth in front
+					median_depth_in_front = median_depth_to_point(&c_img_cropped, &img_depth_int16_cropped, &median_kernel16bit);
 					float depth = median_depth_in_front / 100.00;
 					printf("median_depth_in_front = %f\n", depth);
 					printf("depth to goal = %f\n", VGOALc.z);

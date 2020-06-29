@@ -74,12 +74,12 @@
     
    
    
-    <!-- Brick_cube_1 
+    <!-- Brick_cube_1  -->
     <include>
       <uri>model://brick_cube_1</uri>
       <name>brick cube 1</name>
       <pose>0 6 0 0 0 0</pose> 
-    </include> -->
+    </include>
 
 
     
@@ -100,12 +100,12 @@
     </include> -->
 
     
-    <!-- Brick_wall_2 - l:2m, h:2m, t:0.25m -->
+    <!-- Brick_wall_2 - l:2m, h:2m, t:0.25m
 	<include>
       <uri>model://brick_wall_2</uri>
       <name>brick wall 2</name>
       <pose>0 4 0 0 0 1.57079632679</pose> 
-    </include>
+    </include> -->
     
     
     <!-- Brick_wall_3 - l:4m, h:2m, t:0.25m
