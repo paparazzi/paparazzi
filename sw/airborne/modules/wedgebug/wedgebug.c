@@ -1747,6 +1747,7 @@ void wedgebug_init(){
 
 	// Setting thresholds - calculated
 	threshold_median_disparity = depth_to_disp((threshold_median_depth / 100.00), b, f); 	//8// Above this median disparity, an obstacle is considered to block the way. >60 = close than 35cm
+	threshold_median_depth = (uint16_t) disp_to_depth(threshold_median_disparity, b, f) * 100;
 	threshold_disparity_of_edges = depth_to_disp((threshold_depth_of_edges / 100.00), b, f);	//5// Above this underlying disparity value, edges are considers eligible for detection
 
 	// Initializing confidence parameters
@@ -1757,7 +1758,7 @@ void wedgebug_init(){
 	//edge_found_micro_confidence = 0;		// This is the confidence that an edge was found
 	edge_found_macro_confidence = 0;		// This is the confidence that an edge was found
 	no_edge_found_confidence = 0;			// This is the confidence that no edge was found
-	max_obstacle_confidence = 3;			// This is the max confidence that an obstacle was spotted
+	max_obstacle_confidence = 4;			// This is the max confidence that an obstacle was spotted
 	max_free_path_confidence = 5;			// This is the max confidence that an obstacle was not spotted
 	max_position_confidence = 30;			// This is the max confidence that a specific position was reached
 	max_heading_confidence = 5;				// This is the max confidence that a specific heading was reached
