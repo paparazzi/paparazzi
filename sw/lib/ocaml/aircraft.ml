@@ -236,7 +236,7 @@ let parse_aircraft = fun ?(parse_af=false) ?(parse_ap=false) ?(parse_fp=false) ?
           else
             let autopilots = List.map (fun af_ap ->
               let filename = af_ap.Airframe.Autopilot.name in
-              let filename = if Filename.extension filename = ".xml"
+              let filename = if Filename.check_suffix filename ".xml"
                              then filename
                              else filename^".xml" in
               let filename = Env.paparazzi_conf // "autopilot" // filename in
