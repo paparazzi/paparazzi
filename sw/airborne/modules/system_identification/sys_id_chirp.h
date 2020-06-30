@@ -21,16 +21,16 @@
  * @file "modules/helicopter/sys_id_chirp.h"
  * @author Joost Meulenbeld
  * System identification chirp
- * 
+ *
  * This is the module implementation for the chirp maneuver. The mathematical definition of the chirp
  * can be found in pprz_chirp.h. Use sys_id_chirp by adding the module to your airframe file and
  * adding the following line to the top of the <command_laws> section of your airframe file:
- * 
+ *
  * <call fun="sys_id_chirp_add_values(autopilot_get_motors_on(),FALSE,values)"/>
- * 
+ *
  * In the GCS you can then start and stop the chirp, change frequencies and choose which axis it should
  * be applied to. Documentation of the specific options can be found in the module xml file.
- * 
+ *
  * The axes to which noise is applied is set in the xml file with the variable CHIRP_AXES. The axis that
  * is selected in the GCS to apply the chirp on is the index in the CHIRP_AXES array
  */

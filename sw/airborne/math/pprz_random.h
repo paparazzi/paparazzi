@@ -20,14 +20,14 @@
 /**
  * @file "math/pprz_random.c"
  * @author Joost Meulenbeld
- * 
+ *
  * Functions for getting random numbers. The rand_gaussian() internally uses the rand_uniform().
  * rand_uniform() uses rand() internally which is initialized with the current time on rand_init().
  * This means that the board doesn't need an internal rng but comes at the cost of more computations.
- * 
+ *
  * Usage:
  * rand_init(); // initialize once
- * 
+ *
  * float random_number = rand_uniform();
  */
 

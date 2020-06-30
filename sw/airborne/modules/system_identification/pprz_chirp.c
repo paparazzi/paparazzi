@@ -31,15 +31,16 @@
 
 
 
-void chirp_init(struct chirp_t* chirp, float f0_hz, float f1_hz, float length_s, float current_time_s, bool exponential_chirp, bool fade_in) {
+void chirp_init(struct chirp_t *chirp, float f0_hz, float f1_hz, float length_s, float current_time_s,
+                bool exponential_chirp, bool fade_in)
+{
   chirp->f0_hz = f0_hz;
   chirp->f1_hz = f1_hz;
 
   chirp->length_s = length_s;
   if (fade_in) { // The fade-in takes two of the longest wave-lengths, total_length is including that time
     chirp->total_length_s = length_s + 2 / f0_hz;
-  }
-  else {
+  } else {
     chirp->total_length_s = length_s;
   }
 
@@ -52,7 +53,8 @@ void chirp_init(struct chirp_t* chirp, float f0_hz, float f1_hz, float length_s,
   chirp->percentage_done = 0;
 }
 
-void chirp_reset(struct chirp_t* chirp, float current_time_s) {
+void chirp_reset(struct chirp_t *chirp, float current_time_s)
+{
   chirp->current_time_s = current_time_s;
   chirp->start_time_s = current_time_s;
   chirp->current_frequency_hz = 0;
@@ -60,12 +62,14 @@ void chirp_reset(struct chirp_t* chirp, float current_time_s) {
   chirp->percentage_done = 0;
 }
 
-bool chirp_is_running(struct chirp_t* chirp, float current_time_s) {
+bool chirp_is_running(struct chirp_t *chirp, float current_time_s)
+{
   float t = current_time_s - chirp->start_time_s;
   return (t >= 0) && (t <= chirp->total_length_s);
 }
 
-float chirp_update(struct chirp_t* chirp, float current_time_s) {
+float chirp_update(struct chirp_t *chirp, float current_time_s)
+{
   if (!chirp_is_running(chirp, current_time_s)) { // Outside the chirp interval, return 0
     chirp->current_value = 0.0f;
     return 0;
@@ -98,12 +102,11 @@ float chirp_update(struct chirp_t* chirp, float current_time_s) {
 
     chirp->current_frequency_hz = chirp->f0_hz + K * (chirp->f1_hz - chirp->f0_hz);
 
-    float theta = 2 * M_PI * (chirp->f0_hz*t
-      + (chirp->f1_hz - chirp->f0_hz)*(chirp->length_s / CHIRP_C1 * K - CHIRP_C2 * t));
+    float theta = 2 * M_PI * (chirp->f0_hz * t
+                              + (chirp->f1_hz - chirp->f0_hz) * (chirp->length_s / CHIRP_C1 * K - CHIRP_C2 * t));
 
     chirp->current_value = sinf(theta);
-  }
-  else { // linear-time chirp
+  } else { // linear-time chirp
     float k = (chirp->f1_hz - chirp->f0_hz) / chirp->length_s;
 
     chirp->current_frequency_hz = k * t;

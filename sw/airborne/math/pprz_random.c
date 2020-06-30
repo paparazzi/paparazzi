@@ -58,10 +58,8 @@ double rand_gaussian(void)
   double x1;
 
   nb_call++;
-  if (nb_call % 2)
-  {
-    do
-    {
+  if (nb_call % 2) {
+    do {
       x1 = 2.0 * rand_uniform() - 1.0;
       x2 = 2.0 * rand_uniform() - 1.0;
       w = x1 * x1 + x2 * x2;
@@ -69,9 +67,7 @@ double rand_gaussian(void)
 
     w = sqrt((-2.0 * log(w)) / w);
     return x1 * w;
-  }
-  else
-  {
+  } else {
     return x2 * w;
   }
 }

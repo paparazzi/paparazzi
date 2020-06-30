@@ -46,7 +46,8 @@ static struct FirstOrderLowPass filters[CHIRP_NB_AXES];
 // Chirp and noise values for all axes (indices correspond to the axes given in CHIRP_AXES)
 static pprz_t current_chirp_values[CHIRP_NB_AXES];
 
-static void set_current_chirp_values(void) {
+static void set_current_chirp_values(void)
+{
   if (chirp_active) {
 #if CHIRP_USE_NOISE
 
@@ -54,71 +55,85 @@ static void set_current_chirp_values(void) {
     for (uint8_t i = 0; i < CHIRP_NB_AXES; i++) {
       noise = update_first_order_low_pass(&filters[i], rand_gaussian());
       amplitude = chirp_axis == i ? chirp_noise_stdv_onaxis_ratio * chirp_amplitude : chirp_noise_stdv_offaxis;
-      current_chirp_values[i] = (int32_t) (noise * amplitude);
+      current_chirp_values[i] = (int32_t)(noise * amplitude);
     }
 
 #endif
 
-    current_chirp_values[chirp_axis] += (int32_t) (chirp_amplitude * chirp.current_value);
-  }
-  else {
-    for (uint8_t i = 0; i < CHIRP_NB_AXES; i++)
+    current_chirp_values[chirp_axis] += (int32_t)(chirp_amplitude * chirp.current_value);
+  } else {
+    for (uint8_t i = 0; i < CHIRP_NB_AXES; i++) {
       current_chirp_values[i] = 0;
+    }
   }
 }
 
-static void send_chirp(struct transport_tx *trans, struct link_device *dev) {
-  pprz_msg_send_CHIRP(trans, dev, AC_ID, &chirp_active, &chirp.percentage_done, &chirp.current_frequency_hz, 
-    &chirp_axis, &chirp_amplitude, &chirp_fstart_hz, &chirp_fstop_hz, &chirp_noise_stdv_onaxis_ratio, &chirp_noise_stdv_offaxis);
+static void send_chirp(struct transport_tx *trans, struct link_device *dev)
+{
+  pprz_msg_send_CHIRP(trans, dev, AC_ID, &chirp_active, &chirp.percentage_done, &chirp.current_frequency_hz,
+                      &chirp_axis, &chirp_amplitude, &chirp_fstart_hz, &chirp_fstop_hz, &chirp_noise_stdv_onaxis_ratio,
+                      &chirp_noise_stdv_offaxis);
 }
 
-static void start_chirp(void) {
+static void start_chirp(void)
+{
   chirp_reset(&chirp, get_sys_time_float());
   chirp_active = true;
   set_current_chirp_values();
 }
 
-static void stop_chirp(void) {
+static void stop_chirp(void)
+{
   chirp_reset(&chirp, get_sys_time_float());
   chirp_active = false;
   set_current_chirp_values();
 }
 
-void sys_id_chirp_activate_handler(uint8_t activate) {
+void sys_id_chirp_activate_handler(uint8_t activate)
+{
   chirp_active = activate;
   if (chirp_active) {
-    chirp_init(&chirp, chirp_fstart_hz, chirp_fstop_hz, chirp_length_s, get_sys_time_float(), CHIRP_EXPONENTIAL, CHIRP_FADEIN);
+    chirp_init(&chirp, chirp_fstart_hz, chirp_fstop_hz, chirp_length_s, get_sys_time_float(), CHIRP_EXPONENTIAL,
+               CHIRP_FADEIN);
     start_chirp();
-  }
-  else
+  } else {
     stop_chirp();
+  }
 }
 
-extern void sys_id_chirp_axis_handler(uint8_t axis) {
-  if (axis < CHIRP_NB_AXES)
+extern void sys_id_chirp_axis_handler(uint8_t axis)
+{
+  if (axis < CHIRP_NB_AXES) {
     chirp_axis = axis;
+  }
 }
 
-extern void sys_id_chirp_fstart_handler(float fstart) {
-  if (fstart < chirp_fstop_hz)
+extern void sys_id_chirp_fstart_handler(float fstart)
+{
+  if (fstart < chirp_fstop_hz) {
     chirp_fstart_hz = fstart;
+  }
 }
 
-extern void sys_id_chirp_fstop_handler(float fstop) {
-  if (fstop > chirp_fstart_hz)
+extern void sys_id_chirp_fstop_handler(float fstop)
+{
+  if (fstop > chirp_fstart_hz) {
     chirp_fstop_hz = fstop;
+  }
 }
 
 
 
-void sys_id_chirp_init(void) {
+void sys_id_chirp_init(void)
+{
 #if CHIRP_USE_NOISE
 
   init_random();
 
 #endif
 
-  chirp_init(&chirp, chirp_fstart_hz, chirp_fstop_hz, chirp_length_s, get_sys_time_float(), CHIRP_EXPONENTIAL, CHIRP_FADEIN);
+  chirp_init(&chirp, chirp_fstart_hz, chirp_fstop_hz, chirp_length_s, get_sys_time_float(), CHIRP_EXPONENTIAL,
+             CHIRP_FADEIN);
   set_current_chirp_values();
   register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_CHIRP, send_chirp);
 
@@ -130,18 +145,19 @@ void sys_id_chirp_init(void) {
   }
 }
 
-void sys_id_chirp_run(void) {
+void sys_id_chirp_run(void)
+{
 #if CHIRP_ENABLED
 
   if (chirp_active) {
-    if (!chirp_is_running(&chirp, get_sys_time_float()))
+    if (!chirp_is_running(&chirp, get_sys_time_float())) {
       stop_chirp();
-    else {
+    } else {
       chirp_update(&chirp, get_sys_time_float());
       set_current_chirp_values();
     }
   }
-      
+
 #endif
 }
 

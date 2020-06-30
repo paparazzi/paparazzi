@@ -20,7 +20,7 @@
 /**
  * @file "modules/system_identification/pprz_chirp.c"
  * @author Joost Meulenbeld
- * 
+ *
  * Mathematical implementation of the chirp
  * A "chirp" or frequency sweep is a sine wave with in time increasing frequency, and can be
  * used for system identification purposes. This registers a broad frequency spectrum.
@@ -85,24 +85,25 @@ struct chirp_t {
  * @param exponential_chirp: If true, use exponential-time chirp, otherwise use linear-time chirp (see wikipedia)
  * @param fade_in: If true, begin the chirp with 2 wavelengths of the lowest frequency, with increasing amplitude
  */
-void chirp_init(struct chirp_t* chirp, float f0_hz, float f1_hz, float length_s, float current_time_s, bool exponential_chirp, bool fade_in);
+void chirp_init(struct chirp_t *chirp, float f0_hz, float f1_hz, float length_s, float current_time_s,
+                bool exponential_chirp, bool fade_in);
 
 /**
  * Reset the time of the chirp
  * @param chirp: The chirp struct pointer to reset
  * @param current_time_s: The time to set the chirp start at
  **/
-void chirp_reset(struct chirp_t* chirp, float current_time_s);
+void chirp_reset(struct chirp_t *chirp, float current_time_s);
 
 /**
  * Return if the current_time is within the chirp manoeuvre
  */
-bool chirp_is_running(struct chirp_t* chirp, float current_time_s);
+bool chirp_is_running(struct chirp_t *chirp, float current_time_s);
 
 /**
  * Calculate the value at current_time_s and update the struct with current frequency and value
  * @return Current value chirp->current_value
  */
-float chirp_update(struct chirp_t* chirp, float current_time_s);
+float chirp_update(struct chirp_t *chirp, float current_time_s);
 
 #endif
