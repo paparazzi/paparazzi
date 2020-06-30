@@ -14,8 +14,8 @@
 <!ELEMENT include EMPTY>
 <!ELEMENT call EMPTY>
 <!ELEMENT call_block EMPTY>
-<!ELEMENT modules (load)*>
-<!ELEMENT load (configure|define)*>
+<!ELEMENT modules (module)*>
+<!ELEMENT module (configure|define)*>
 <!ELEMENT define EMPTY>
 <!ELEMENT configure EMPTY>
 <!ELEMENT settings (dl_setting*)>
@@ -72,8 +72,9 @@ name CDATA #REQUIRED>
 
 <!ATTLIST modules>
 
-<!ATTLIST load
+<!ATTLIST module
 name CDATA #REQUIRED
+type CDATA #IMPLIED
 target CDATA #IMPLIED>
 
 <!ATTLIST define

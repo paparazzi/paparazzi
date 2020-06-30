@@ -65,7 +65,7 @@ let aircraft = fun name ->
   let airframe_file = user_conf_path // ExtXml.attrib aircraft_xml "airframe" in
 
   { id = id; name = name;
-    airframe = Gen_common.expand_includes (string_of_int id) (ExtXml.parse_file airframe_file);
+    airframe = Airframe.expand_includes (string_of_int id) (ExtXml.parse_file airframe_file);
     flight_plan = ExtXml.parse_file (user_conf_path // ExtXml.attrib aircraft_xml "flight_plan");
     radio = ExtXml.parse_file (user_conf_path // ExtXml.attrib aircraft_xml "radio")
   }

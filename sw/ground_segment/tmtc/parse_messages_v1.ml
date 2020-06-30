@@ -24,7 +24,7 @@
 
 open Printf
 open Server_globals
-open Aircraft
+open Aircraft_server
 open Latlong
 module LL = Latlong
 module U = Unix
@@ -132,7 +132,7 @@ let hmsl_of_ref = fun nav_ref d_hmsl ->
 
 let heading_from_course = ref false
 
-let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
+let log_and_parse = fun ac_name (a:Aircraft_server.aircraft) msg values ->
   let value = fun x -> try PprzLink.assoc x values with Not_found -> failwith (sprintf "Error: field '%s' not found\n" x) in
 
   let fvalue = fun x ->
@@ -207,7 +207,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
             let desired_east  = foi32value "carrot_east" /. pos_frac
             and desired_north = foi32value "carrot_north" /. pos_frac
             and desired_alt = foi32value "carrot_up" /. pos_frac in
-            a.desired_pos <- Aircraft.add_pos_to_nav_ref nav_ref ~z:desired_alt (desired_east, desired_north);
+            a.desired_pos <- Aircraft_server.add_pos_to_nav_ref nav_ref ~z:desired_alt (desired_east, desired_north);
             a.desired_altitude <- desired_alt +. (hmsl_of_ref nav_ref a.d_hmsl);
             a.desired_course   <- foi32value "carrot_psi" /. angle_frac
             (* a.desired_climb <-  ?? *)
@@ -246,7 +246,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
           Some nav_ref ->
             let x = (try fvalue "x" with _ -> fvalue "desired_x")
             and y = (try fvalue "y" with _ -> fvalue "desired_y") in
-            a.desired_pos <- Aircraft.add_pos_to_nav_ref nav_ref (x, y);
+            a.desired_pos <- Aircraft_server.add_pos_to_nav_ref nav_ref (x, y);
         | None -> ()
       end;
       a.desired_altitude <- (try fvalue "altitude" with _ -> fvalue "desired_altitude");
@@ -401,7 +401,7 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       begin
         match a.nav_ref, a.horizontal_mode with
             Some nav_ref, 2 -> (** FIXME *)
-              a.horiz_mode <- Circle (Aircraft.add_pos_to_nav_ref nav_ref (fvalue "center_east", fvalue "center_north"), truncate (fvalue "radius"));
+              a.horiz_mode <- Circle (Aircraft_server.add_pos_to_nav_ref nav_ref (fvalue "center_east", fvalue "center_north"), truncate (fvalue "radius"));
               if !Kml.enabled then Kml.update_horiz_mode a
           | _ -> ()
       end
@@ -409,8 +409,8 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
       begin
         match a.nav_ref, a.horizontal_mode with
             Some nav_ref, 1 -> (** FIXME *)
-              let p1 = Aircraft.add_pos_to_nav_ref nav_ref (fvalue "segment_east_1", fvalue "segment_north_1")
-              and p2 = Aircraft.add_pos_to_nav_ref nav_ref (fvalue "segment_east_2", fvalue "segment_north_2") in
+              let p1 = Aircraft_server.add_pos_to_nav_ref nav_ref (fvalue "segment_east_1", fvalue "segment_north_1")
+              and p2 = Aircraft_server.add_pos_to_nav_ref nav_ref (fvalue "segment_east_2", fvalue "segment_north_2") in
               a.horiz_mode <- Segment (p1, p2);
               if !Kml.enabled then Kml.update_horiz_mode a
           | _ -> ()
@@ -423,8 +423,8 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
         a.time_since_last_survey_msg <- 0.;
         match a.nav_ref with
             Some nav_ref ->
-              let p1 = Aircraft.add_pos_to_nav_ref nav_ref (fvalue "west", fvalue "south")
-              and p2 = Aircraft.add_pos_to_nav_ref nav_ref (fvalue "east", fvalue "north") in
+              let p1 = Aircraft_server.add_pos_to_nav_ref nav_ref (fvalue "west", fvalue "south")
+              and p2 = Aircraft_server.add_pos_to_nav_ref nav_ref (fvalue "east", fvalue "north") in
               a.survey <- Some (p1, p2)
           | None -> ()
       end

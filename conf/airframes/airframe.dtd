@@ -1,6 +1,6 @@
 <!-- Paparazzi airframe DTD -->
 
-<!ELEMENT airframe (include|servos|commands|rc_commands|auto_rc_commands|ap_only_commands|command_laws|section|makefile|modules|firmware|autopilot|heli_curves|description)*>
+<!ELEMENT airframe (include|servos|commands|rc_commands|auto_rc_commands|ap_only_commands|command_laws|section|modules|firmware|autopilot|heli_curves|description)*>
 <!ELEMENT include EMPTY>
 <!ELEMENT servos (servo)*>
 <!ELEMENT commands (axis)*>
@@ -9,7 +9,7 @@
 <!ELEMENT ap_only_commands (copy)*>
 <!ELEMENT command_laws (let|set|call|ratelimit)*>
 <!ELEMENT heli_curves (curve)*>
-<!ELEMENT section (define|linear|comment)*>
+<!ELEMENT section (define|comment)*>
 <!ELEMENT servo EMPTY>
 <!ELEMENT axis EMPTY>
 <!ELEMENT set EMPTY>
@@ -19,14 +19,10 @@
 <!ELEMENT curve EMPTY>
 <!ELEMENT let EMPTY>
 <!ELEMENT define EMPTY>
-<!ELEMENT linear EMPTY>
-<!ELEMENT makefile (#PCDATA)>
-<!ELEMENT modules (load|module)*>
-<!ELEMENT load (configure|define)*>
+<!ELEMENT modules (module)*>
 <!ELEMENT configure EMPTY>
-<!ELEMENT firmware (target|subsystem|module|autopilot|configure|define|comment)*>
-<!ELEMENT target (subsystem|module|autopilot|configure|define|comment)*>
-<!ELEMENT subsystem (configure|define|comment)*>
+<!ELEMENT firmware (target|module|autopilot|configure|define|comment)*>
+<!ELEMENT target (module|autopilot|configure|define|comment)*>
 <!ELEMENT module (configure|define|comment)*>
 <!ELEMENT autopilot EMPTY>
 <!ELEMENT comment (#PCDATA)>
@@ -44,12 +40,7 @@ freq CDATA #IMPLIED>
 
 <!ATTLIST target
 name CDATA #REQUIRED
-board CDATA #REQUIRED
-processor CDATA #IMPLIED>
-
-<!ATTLIST subsystem
-name CDATA #REQUIRED
-type CDATA #IMPLIED>
+board CDATA #REQUIRED>
 
 <!ATTLIST airframe
 name CDATA #IMPLIED>
@@ -119,25 +110,9 @@ name CDATA #REQUIRED
 value CDATA #REQUIRED
 description CDATA #IMPLIED>
 
-<!ATTLIST linear
-name CDATA #REQUIRED
-arity CDATA #REQUIRED
-coeff1 CDATA #REQUIRED
-coeff2 CDATA #IMPLIED
-coeff3 CDATA #IMPLIED>
-
-<!ATTLIST makefile
-target CDATA #IMPLIED
-location CDATA #IMPLIED>
-
 <!ATTLIST modules
 main_freq CDATA #IMPLIED
 target CDATA #IMPLIED>
-
-<!ATTLIST load
-name CDATA #REQUIRED
-target CDATA #IMPLIED
-dir CDATA #IMPLIED>
 
 <!ATTLIST module
 name CDATA #REQUIRED

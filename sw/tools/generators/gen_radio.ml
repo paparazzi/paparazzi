@@ -2,6 +2,7 @@
  * XML preprocessing for radio-control parameters
  *
  * Copyright (C) 2003 Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2017 Gautier Hattenberger, Cyril Allignol
  *
  * This file is part of paparazzi.
  *
@@ -23,20 +24,9 @@
  *)
 
 open Printf
-open Xml2h
+open Radio
 
 let h_name = "RADIO_H"
-
-let fos = float_of_string
-type us = int
-
-type channel = {
-  name : string;
-  min : us;
-  max : us;
-  neutral : us;
-  averaged : bool }
-
 
 (* Characters used in Gen_airframe.pprz_value *)
 let check_function_name = fun s ->
@@ -47,24 +37,6 @@ let check_function_name = fun s ->
         failwith (sprintf "Character '%c' not allowed in function name '%s'" s.[i] s)
   done
 
-let parse_channel =
-  let no_channel = ref 0 in
-  fun c ->
-    let name = ExtXml.attrib c "function"  in
-    check_function_name name;
-    let ctl = "RADIO_CTL_"^ExtXml.attrib c "ctl"
-    and fct = "RADIO_" ^ name in
-    define ctl (string_of_int !no_channel);
-    define fct ctl;
-    no_channel := !no_channel + 1;
-    let int_attrib = fun x -> int_of_string (ExtXml.attrib c x) in
-    { min = int_attrib "min";
-      neutral = int_attrib "neutral";
-      max = int_attrib "max";
-      averaged = ExtXml.attrib_or_default c "average" "0" <> "0";
-      name = name
-    }
-
 
 let norm1_ppm = fun c ->
   if c.neutral = c.min then
@@ -72,38 +44,38 @@ let norm1_ppm = fun c ->
   else
     sprintf "tmp_radio * (tmp_radio >=0 ? (MAX_PPRZ/(float)(RC_PPM_SIGNED_TICKS_OF_USEC(%d-%d))) : (MIN_PPRZ/(float)(RC_PPM_SIGNED_TICKS_OF_USEC(%d-%d))))" c.max c.neutral c.min c.neutral, "MIN_PPRZ"
 
-let gen_normalize_ppm_fir = fun channels ->
-  printf "#define NormalizePpmFIR(_ppm, _rc) {\\\n";
-  printf "  static uint8_t avg_cpt = 0; /* Counter for averaging */\\\n";
-  printf "  int16_t tmp_radio;\\\n";
+let gen_normalize_ppm_fir = fun out channels ->
+  fprintf out "#define NormalizePpmFIR(_ppm, _rc) {\\\n";
+  fprintf out "  static uint8_t avg_cpt = 0; /* Counter for averaging */\\\n";
+  fprintf out "  int16_t tmp_radio;\\\n";
   List.iter
     (fun c ->
       let value, min_pprz = norm1_ppm c in
-      if c.averaged then begin
-        printf "  _rc.avg_values[RADIO_%s] += _ppm[RADIO_%s];\\\n" c.name c.name
+      if c.average then begin
+        fprintf out "  _rc.avg_values[RADIO_%s] += _ppm[RADIO_%s];\\\n" c.cname c.cname
       end else begin
-        printf "  tmp_radio = _ppm[RADIO_%s] - RC_PPM_TICKS_OF_USEC(%d);\\\n" c.name c.neutral;
-        printf "  _rc.values[RADIO_%s] = %s;\\\n" c.name value;
-        printf "  Bound(_rc.values[RADIO_%s], %s, MAX_PPRZ); \\\n\\\n" c.name min_pprz;
+        fprintf out "  tmp_radio = _ppm[RADIO_%s] - RC_PPM_TICKS_OF_USEC(%d);\\\n" c.cname c.neutral;
+        fprintf out "  _rc.values[RADIO_%s] = %s;\\\n" c.cname value;
+        fprintf out "  Bound(_rc.values[RADIO_%s], %s, MAX_PPRZ); \\\n\\\n" c.cname min_pprz;
       end
     )
     channels;
-  printf "  avg_cpt++;\\\n";
-  printf "  if (avg_cpt == RC_AVG_PERIOD) {\\\n";
-  printf "    avg_cpt = 0;\\\n";
+  fprintf out "  avg_cpt++;\\\n";
+  fprintf out "  if (avg_cpt == RC_AVG_PERIOD) {\\\n";
+  fprintf out "    avg_cpt = 0;\\\n";
   List.iter
     (fun c ->
-      if c.averaged then begin
+      if c.average then begin
         let value, min_pprz = norm1_ppm c in
-        printf "    tmp_radio = _rc.avg_values[RADIO_%s] / RC_AVG_PERIOD -  RC_PPM_TICKS_OF_USEC(%d);\\\n" c.name c.neutral;
-        printf "    _rc.values[RADIO_%s] = %s;\\\n" c.name value;
-        printf "    _rc.avg_values[RADIO_%s] = 0;\\\n" c.name;
-        printf "    Bound(_rc.values[RADIO_%s], %s, MAX_PPRZ); \\\n\\\n" c.name min_pprz;
+        fprintf out "    tmp_radio = _rc.avg_values[RADIO_%s] / RC_AVG_PERIOD -  RC_PPM_TICKS_OF_USEC(%d);\\\n" c.cname c.neutral;
+        fprintf out "    _rc.values[RADIO_%s] = %s;\\\n" c.cname value;
+        fprintf out "    _rc.avg_values[RADIO_%s] = 0;\\\n" c.cname;
+        fprintf out "    Bound(_rc.values[RADIO_%s], %s, MAX_PPRZ); \\\n\\\n" c.cname min_pprz;
       end
     )
     channels;
-  printf " }\\\n";
-  printf "}\n"
+  fprintf out " }\\\n";
+  fprintf out "}\n\n"
 
 let norm1_ppm2 = fun c ->
   if c.neutral = c.min then
@@ -111,81 +83,60 @@ let norm1_ppm2 = fun c ->
   else
     sprintf "(tmp_radio >=0 ? (tmp_radio *  MAX_PPRZ) / (RC_PPM_SIGNED_TICKS_OF_USEC(%d-%d)) : (tmp_radio * MIN_PPRZ) / (RC_PPM_SIGNED_TICKS_OF_USEC(%d-%d)))" c.max c.neutral c.min c.neutral, "MIN_PPRZ"
 
-let gen_normalize_ppm_iir = fun channels ->
-  printf "#define NormalizePpmIIR(_ppm, _rc) {\\\n";
-  printf "  int32_t tmp_radio;\\\n";
-  printf "  int32_t tmp_value;\\\n\\\n";
+let gen_normalize_ppm_iir = fun out channels ->
+  fprintf out "#define NormalizePpmIIR(_ppm, _rc) {\\\n";
+  fprintf out "  int32_t tmp_radio;\\\n";
+  fprintf out "  int32_t tmp_value;\\\n\\\n";
   List.iter
     (fun c ->
       let value, min_pprz = norm1_ppm2 c in
-      printf "  tmp_radio = _ppm[RADIO_%s] - RC_PPM_TICKS_OF_USEC(%d);\\\n" c.name c.neutral;
-      printf "  tmp_value = %s;\\\n" value;
-      printf "  Bound(tmp_value, %s, MAX_PPRZ); \\\n" min_pprz;
-      if c.averaged then
-        printf "  _rc.values[RADIO_%s] = (pprz_t)((RADIO_FILTER * _rc.values[RADIO_%s] + tmp_value) / (RADIO_FILTER + 1));\\\n\\\n" c.name c.name
+      fprintf out "  tmp_radio = _ppm[RADIO_%s] - RC_PPM_TICKS_OF_USEC(%d);\\\n" c.cname c.neutral;
+      fprintf out "  tmp_value = %s;\\\n" value;
+      fprintf out "  Bound(tmp_value, %s, MAX_PPRZ); \\\n" min_pprz;
+      if c.average then
+        fprintf out "  _rc.values[RADIO_%s] = (pprz_t)((RADIO_FILTER * _rc.values[RADIO_%s] + tmp_value) / (RADIO_FILTER + 1));\\\n\\\n" c.cname c.cname
       else
-        printf "  _rc.values[RADIO_%s] = (pprz_t)(tmp_value);\\\n\\\n" c.name
+        fprintf out "  _rc.values[RADIO_%s] = (pprz_t)(tmp_value);\\\n\\\n" c.cname
     )
     channels;
-  (*printf "  rc_values_contains_avg_channels = TRUE;\\\n";*)
-  printf "}\n"
+  fprintf out "}\n\n"
 
 
+let generate = fun radio xml_file out_file ->
+  let out = open_out out_file in
+  fprintf out "/* This file has been generated by gen_radio from %s */\n" xml_file;
+  fprintf out "/* Version %s */\n" (Env.get_paparazzi_version ());
+  fprintf out "/* Please DO NOT EDIT */\n\n";
+  fprintf out "#ifndef %s\n" h_name;
+  fprintf out "#define %s\n\n" h_name;
+  fprintf out "#define RADIO_NAME %s\n\n" radio.name;
+  fprintf out "#define RADIO_CTL_NB %s\n\n" (string_of_int (List.length radio.channels));
+  fprintf out "#define RADIO_FILTER 7\n\n";
 
-let _ =
-  if Array.length Sys.argv < 2 then
-    failwith "Usage: gen_radio xml_file";
-  let xml_file = Sys.argv.(1) in
-  let xml = ExtXml.parse_file xml_file in
+  List.iteri (fun i c ->
+    check_function_name c.cname;
+    fprintf out "#define RADIO_%s %d\n" c.cname i;
+    fprintf out "#define RADIO_%s_NEUTRAL %d\n" c.cname c.neutral;
+    let (mini, maxi) = if c.reverse then (c.max, c.min) else (c.min, c.max) in
+    fprintf out "#define RADIO_%s_MIN %d\n" c.cname mini;
+    fprintf out "#define RADIO_%s_MAX %d\n\n" c.cname maxi;
+  ) radio.channels;
 
-  printf "/* This file has been generated by gen_radio from %s */\n" xml_file;
-  printf "/* Version %s */\n" (Env.get_paparazzi_version ());
-  printf "/* Please DO NOT EDIT */\n\n";
-  printf "#ifndef %s\n" h_name;
-  define h_name "";
-  nl ();
-  let channels = Xml.children xml in
-  let n = ExtXml.attrib xml "name" in
-  (* Xml2h.warning ("RADIO MODEL: "^n); *)
-  define_string "RADIO_NAME" n;
-  nl ();
-  (*define "RADIO_CONTROL_NB_CHANNEL" (string_of_int (List.length channels));*)
-  define "RADIO_CTL_NB" (string_of_int (List.length channels));
-  nl ();
-  define "RADIO_FILTER" "7";
-  nl ();
+  let ppm_pulse_type = match radio.pulse_type with
+  | PositivePulse -> "POSITIVE"
+  | NegativePulse -> "NEGATIVE"
+  in
+  fprintf out "#define PPM_PULSE_TYPE PPM_PULSE_TYPE_%s\n" ppm_pulse_type;
+  fprintf out "#define PPM_DATA_MIN_LEN (%dul)\n" radio.data_min;
+  fprintf out "#define PPM_DATA_MAX_LEN (%dul)\n" radio.data_max;
+  fprintf out "#define PPM_SYNC_MIN_LEN (%dul)\n" radio.sync_min;
+  fprintf out "#define PPM_SYNC_MAX_LEN (%dul)\n\n" radio.sync_max;
 
-  let channels_params = List.map parse_channel channels in
-  nl ();
+  gen_normalize_ppm_fir out radio.channels;
+  gen_normalize_ppm_iir out radio.channels;
 
-  List.iter
-    (fun c ->
-      begin
-        printf "#define RADIO_%s_NEUTRAL %d\n" c.name c.neutral;
-        printf "#define RADIO_%s_MIN %d\n" c.name c.min;
-        printf "#define RADIO_%s_MAX %d\n" c.name c.max;
-      end
-    )
-    channels_params;
-  nl();
+  fprintf out "\n#endif // %s\n" h_name;
 
-  let ppm_pulse_type = ExtXml.attrib xml "pulse_type" in
-  let ppm_data_min = ExtXml.attrib xml "data_min" in
-  let ppm_data_max = ExtXml.attrib xml "data_max" in
-  let ppm_sync_min = ExtXml.attrib xml "sync_min" in
-  let ppm_sync_max = ExtXml.attrib xml "sync_max" in
+  close_out out
 
-  printf "#define PPM_PULSE_TYPE PPM_PULSE_TYPE_%s\n" ppm_pulse_type;
-  printf "#define PPM_DATA_MIN_LEN (%sul)\n" ppm_data_min;
-  printf "#define PPM_DATA_MAX_LEN (%sul)\n" ppm_data_max;
-  printf "#define PPM_SYNC_MIN_LEN (%sul)\n" ppm_sync_min;
-  printf "#define PPM_SYNC_MAX_LEN (%sul)\n" ppm_sync_max;
-  nl ();
-
-  gen_normalize_ppm_fir channels_params;
-  nl ();
-  gen_normalize_ppm_iir channels_params;
-  nl ();
-
-  printf "\n#endif // %s\n" h_name
 

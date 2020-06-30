@@ -23,6 +23,6 @@
  *)
 
 val log_and_parse :
-  string -> Aircraft.aircraft -> PprzLink.message -> PprzLink.values -> unit
+  string -> Aircraft_server.aircraft -> PprzLink.message -> PprzLink.values -> unit
 (** [log_and_parse ac_id ac msg vs] *)
 

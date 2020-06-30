@@ -31,7 +31,6 @@ CONF=$(PAPARAZZI_HOME)/conf
 VAR=$(PAPARAZZI_HOME)/var
 CONF_XML ?= $(CONF)/conf.xml
 AIRBORNE=sw/airborne
-MESSAGES_XML = $(VAR)/messages.xml
 
 # make sure the TARGET variable is set if needed for current make target
 ifneq (,$(findstring $(MAKECMDGOALS),all_ac_h radio_ac_h flight_plan_ac_h))
@@ -50,34 +49,9 @@ endif
 AIRCRAFT_CONF_DIR = $(AIRCRAFT_BUILD_DIR)/conf
 AC_GENERATED = $(AIRCRAFT_BUILD_DIR)/$(TARGET)/generated
 
-AIRFRAME_H=$(AC_GENERATED)/airframe.h
-PERIODIC_H=$(AC_GENERATED)/periodic_telemetry.h
-RADIO_H=$(AC_GENERATED)/radio.h
-FLIGHT_PLAN_H=$(AC_GENERATED)/flight_plan.h
-FLIGHT_PLAN_XML=$(AIRCRAFT_BUILD_DIR)/flight_plan.xml
 SRCS_LIST=$(AIRCRAFT_BUILD_DIR)/$(TARGET)_srcs.list
 TMP_LIST=$(AIRCRAFT_BUILD_DIR)/$(TARGET)_tmp.list
-SETTINGS_H=$(AC_GENERATED)/settings.h
-SETTINGS_XMLS=$(patsubst %,$(CONF)/%,$(SETTINGS))
-SETTINGS_XMLS_DEP=$(filter-out %~,$(SETTINGS_XMLS))
-SETTINGS_XML=$(AIRCRAFT_BUILD_DIR)/settings.xml
-SETTINGS_MODULES=$(AIRCRAFT_BUILD_DIR)/settings_modules.xml
-SETTINGS_TELEMETRY=$(AIRCRAFT_BUILD_DIR)/settings_telemetry.xml
-SETTINGS_AUTOPILOT=$(AIRCRAFT_BUILD_DIR)/settings_autopilot.xml
-SETTINGS_FLIGHTPLAN=$(AIRCRAFT_BUILD_DIR)/settings_flightplan.xml
-MAKEFILE_AC=$(AIRCRAFT_BUILD_DIR)/Makefile.ac
-MODULES_H=$(AC_GENERATED)/modules.h
-MODULES_DIR=$(PAPARAZZI_HOME)/conf/modules/
-AUTOPILOT_DIR=$(AC_GENERATED)/
-AIRCRAFT_MD5=$(AIRCRAFT_CONF_DIR)/aircraft.md5
 GENERATE_KEYS ?= 0
-
-UNAME = $(shell uname -s)
-ifeq ("$(UNAME)","Darwin")
-	MKTEMP = gmktemp
-else
-	MKTEMP = mktemp
-endif
 
 # By default, detect number of processors for parallel compilation
 # same as passing J=AUTO from toplevel make.
@@ -155,7 +129,7 @@ print_version:
 
 all_ac_h: $(SRCS_LIST) qt_project generate_keys build_rust_modules
 
-$(SRCS_LIST) : $(CONF_XML) $(AIRFRAME_H) $(MODULES_H) $(SETTINGS_H) $(MAKEFILE_AC) $(PERIODIC_H)
+$(SRCS_LIST):
 	@echo "TARGET: " $(TARGET) > $(SRCS_LIST)
 	@echo "CFLAGS: " $(CFLAGS) $(IINCDIR) $(TOPT) >> $(SRCS_LIST)
 	@echo "LDFLAGS: " $($(TARGET).LDFLAGS) >> $(SRCS_LIST)
@@ -223,105 +197,26 @@ ifneq ($(PAPARAZZI_QT_GEN),)
 	$(Q)./sw/tools/qt_project.py $(AIRCRAFT) $(CONF_XML) $(SRCS_LIST)
 endif
 
-radio_ac_h : $(RADIO_H)
-
-flight_plan_ac_h : $(FLIGHT_PLAN_H) $(FLIGHT_PLAN_XML)
-
-makefile_ac: $(MAKEFILE_AC)
-
-$(AIRFRAME_H) : $(CONF)/$(AIRFRAME_XML) $(CONF_XML) $(AIRCRAFT_MD5) $(GENERATORS)/gen_airframe.out $(GENERATORS)/gen_autopilot.out $(CONF)/autopilot/*.xml
-	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
-	@echo GENERATE $@ from $(AIRFRAME_XML)
-	$(eval $@_TMP := $(shell $(MKTEMP)))
-	$(Q)$(GENERATORS)/gen_airframe.out $(AC_ID) $(AIRCRAFT) $(MD5SUM) $< > $($@_TMP)
-	$(Q)mv $($@_TMP) $@
-	$(Q)chmod a+r $@
-	$(Q)cp $(CONF)/airframes/airframe.dtd $(AIRCRAFT_CONF_DIR)/airframes
-	@echo GENERATE autopilots in $(AUTOPILOT_DIR)
-	$(Q)$(GENERATORS)/gen_autopilot.out $(CONF)/$(AIRFRAME_XML) $(AUTOPILOT_DIR) $(SETTINGS_AUTOPILOT)
-
-$(RADIO_H) : $(CONF)/$(RADIO) $(CONF_XML) $(GENERATORS)/gen_radio.out
-	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
-	@echo GENERATE $@ from $(RADIO)
-	$(eval $@_TMP := $(shell $(MKTEMP)))
-	$(Q)$(GENERATORS)/gen_radio.out $< > $($@_TMP)
-	$(Q)mv $($@_TMP) $@
-	$(Q)chmod a+r $@
-	$(Q)cp $< $(AIRCRAFT_CONF_DIR)/radios
-
-$(PERIODIC_H) : $(MESSAGES_XML) $(CONF_XML) $(CONF)/$(TELEMETRY) $(MAKEFILE_AC)
-	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
-	@echo GENERATE $@ from $(TELEMETRY)
-	$(eval $@_TMP := $(shell $(MKTEMP)))
-	$(Q)$(GENERATORS)/gen_periodic.out $(MESSAGES_XML) $(CONF)/$(TELEMETRY) $(TELEMETRY_FREQUENCY) $(SETTINGS_TELEMETRY) > $($@_TMP)
-	$(Q)mv $($@_TMP) $@
-	$(Q)chmod a+r $@
-	$(Q)cp $(CONF)/$(TELEMETRY) $(AIRCRAFT_CONF_DIR)/telemetry
-
-$(FLIGHT_PLAN_H) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML) $(GENERATORS)/gen_flight_plan.out
-	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
-	@echo GENERATE $@ from $(FLIGHT_PLAN)
-	$(eval $@_TMP := $(shell $(MKTEMP)))
-	$(Q)$(GENERATORS)/gen_flight_plan.out -settings $(SETTINGS_FLIGHTPLAN) $< > $($@_TMP)
-	$(Q)mv $($@_TMP) $@
-	$(Q)chmod a+r $@
-	$(Q)cp $< $(AIRCRAFT_CONF_DIR)/flight_plans
-
-$(FLIGHT_PLAN_XML) : $(CONF)/$(FLIGHT_PLAN) $(CONF_XML) $(GENERATORS)/gen_flight_plan.out
-	@echo GENERATE $@ from $(FLIGHT_PLAN)
-	$(eval $@_TMP := $(shell $(MKTEMP)))
-	$(Q)$(GENERATORS)/gen_flight_plan.out -dump $< > $($@_TMP)
-	$(Q)mv $($@_TMP) $@
-	$(Q)chmod a+r $@
-
-# split system settings (generated) from user settings with a '--'
-$(SETTINGS_H) : $(SETTINGS_XMLS_DEP) $(CONF_XML) $(SETTINGS_MODULES) $(SETTINGS_TELEMETRY) $(SETTINGS_AUTOPILOT) $(GENERATORS)/gen_settings.out
-	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
-	@echo GENERATE $@
-	$(eval $@_TMP := $(shell $(MKTEMP)))
-	$(Q)$(GENERATORS)/gen_settings.out $(SETTINGS_XML) $(SETTINGS_AUTOPILOT) $(SETTINGS_TELEMETRY) $(SETTINGS_FLIGHTPLAN) $(SETTINGS_MODULES) -- $(SETTINGS_XMLS) > $($@_TMP)
-	$(Q)mv $($@_TMP) $@
-	$(Q)chmod a+r $@
-	$(Q)cp $(SETTINGS_XMLS_DEP) $(AIRCRAFT_CONF_DIR)/settings
-
-$(MODULES_H) : $(CONF)/$(AIRFRAME_XML) $(FLIGHT_PLAN_XML) $(GENERATORS)/gen_modules.out $(CONF)/modules/*.xml
-	$(Q)test -d $(AC_GENERATED) || mkdir -p $(AC_GENERATED)
-	@echo GENERATE $@
-	$(eval $@_TMP := $(shell $(MKTEMP)))
-	$(Q)$(GENERATORS)/gen_modules.out $(AC_ID) $(SETTINGS_MODULES) $(DEFAULT_MODULES_FREQUENCY) $(FLIGHT_PLAN_XML) $< > $($@_TMP)
-	$(Q)mv $($@_TMP) $@
-	$(Q)chmod a+r $@
-
-$(SETTINGS_MODULES) : $(MODULES_H)
-$(SETTINGS_TELEMETRY) : $(PERIODIC_H)
-$(SETTINGS_FLIGHTPLAN) : $(FLIGHT_PLAN_H)
-
 %.ac_h : $(GENERATORS)/gen_aircraft.out
 	$(Q)if (expr "$(AIRCRAFT)") > /dev/null; then : ; else echo "AIRCRAFT undefined: type 'make AIRCRAFT=AircraftName ...'"; exit 1; fi
 	@echo "#######################################"
 	@echo "# BUILD AIRCRAFT=$(AIRCRAFT), TARGET $*"
 	@echo "#######################################"
-	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) PAPARAZZI_QT_GEN=$(PAPARAZZI_QT_GEN) TARGET=$* Q=$(Q) $(GENERATORS)/gen_aircraft.out $(AIRCRAFT) $(CONF_XML)
+	$(Q)PAPARAZZI_SRC=$(PAPARAZZI_SRC) PAPARAZZI_HOME=$(PAPARAZZI_HOME) PAPARAZZI_QT_GEN=$(PAPARAZZI_QT_GEN) TARGET=$* Q=$(Q) $(GENERATORS)/gen_aircraft.out -all -name $(AIRCRAFT) -target $* -conf $(CONF_XML)
 
 %.qt: %.ac_h
 	@echo "GENERATED Qt project"
 
 %.compile: %.ac_h | print_version
+	$(MAKE) TARGET=$* -f Makefile.ac all_ac_h
 	cd $(AIRBORNE); $(MAKE) -j$(NPROCS) TARGET=$* all
 
 %.upload: %.compile
 	cd $(AIRBORNE); $(MAKE) TARGET=$* upload
-
-sim sim.compile: sim.ac_h | print_version
-	cd $(AIRBORNE); $(MAKE) -j$(NPROCS) TARGET=sim ARCHI=sim ARCH=sim all
-
-# Rules for backward compatibility (old guys are used to !)
-fbw : fbw.compile
-ap: ap.compile
 
 clean_ac :
 	$(Q)if (expr "$(AIRCRAFT)") > /dev/null; then : ; else echo "AIRCRAFT undefined: type 'make AIRCRAFT=AircraftName ...'"; exit 1; fi
 	@echo "CLEANING $(AIRCRAFT)"
 	$(Q)rm -fr $(AIRCRAFT_BUILD_DIR)
 
-.PHONY: all_ac_h radio_ac_h flight_plan_ac_h makefile_ac clean_ac print_version generate_keys
+.PHONY: all_ac_h clean_ac print_version generate_keys

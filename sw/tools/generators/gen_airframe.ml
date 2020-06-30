@@ -1,7 +1,7 @@
 (*
- * XML preprocessing for airframe parameters
- *
  * Copyright (C) 2003-2006 Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2017 Gautier Hattenberger <gautier.hattenberger@enac.fr>
+ *                    Cyril Allignol <cyril.allignol@enac.fr>
  *
  * This file is part of paparazzi.
  *
@@ -16,10 +16,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
- *
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
+ *)
+
+(**
+ * XML preprocessing for airframe parameters
  *)
 
 let max_pprz = 9600. (* !!!! MAX_PPRZ From paparazzi.h !!!! *)
@@ -41,6 +43,7 @@ let get_servo_driver = fun servo_name ->
     Hashtbl.find servos_drivers servo_name
   with
       Not_found -> failwith (sprintf "gen_airframe, Unknown servo: %s" servo_name)
+
 let get_list_of_drivers = fun () ->
   let l = ref [] in
   Hashtbl.iter
@@ -49,21 +52,12 @@ let get_list_of_drivers = fun () ->
   !l
 
 
-let define_macro name n x =
-  let a = fun s -> ExtXml.attrib x s in
-  printf "#define %s(" name;
-  match n with   (* Do we really need more ??? *)
-      1 -> printf "x1) (%s*(x1))\n" (a "coeff1")
-    | 2 -> printf "x1,x2) (%s*(x1)+ %s*(x2))\n" (a "coeff1") (a "coeff2")
-    | 3 -> printf "x1,x2,x3) (%s*(x1)+ %s*(x2)+%s*(x3))\n" (a "coeff1") (a "coeff2") (a "coeff3")
-    | _ -> failwith "define_macro"
-
-let define_integer name v n =
+let define_integer out name v n =
   let max_val = 1 lsl n in
   let (v,s) = if v >= 0. then (v, 1) else (-.v, -1) in
   let print = fun name num den ->
-    define (name^"_NUM") (string_of_int num);
-    define (name^"_DEN") (string_of_int den) in
+    define_out out (name^"_NUM") (string_of_int num);
+    define_out out (name^"_DEN") (string_of_int den) in
   let rec continious_frac = fun a x num den s ->
     let x1 = 1. /. (x -. (float_of_int a)) in
     let a1 = truncate x1 in
@@ -132,7 +126,7 @@ let rec string_from_type = fun name v t ->
   | _ -> v
 
 
-let parse_element = fun prefix s ->
+let parse_element = fun out prefix s ->
   match Xml.tag s with
       "define" -> begin
         try
@@ -144,44 +138,40 @@ let parse_element = fun prefix s ->
           in
           let name = (prefix^ExtXml.attrib s "name") in
           let t = ExtXml.attrib_or_default s "type" "" in
-          define name (string_from_type name value t);
-          define_integer name (ExtXml.float_attrib s "value") (ExtXml.int_attrib s "integer");
+          define_out out name (string_from_type name value t);
+          define_integer out name (ExtXml.float_attrib s "value") (ExtXml.int_attrib s "integer");
         with _ -> ();
       end
-    | "linear" ->
-      let name = ExtXml.attrib s "name"
-      and n = int_of_string (ExtXml.attrib s "arity") in
-      define_macro (prefix^name) n s
-    | _ -> xml_error "define|linear"
+    | _ -> xml_error "define"
 
 
-let print_reverse_servo_table = fun driver servos ->
+let print_reverse_servo_table = fun out driver servos ->
   let d = match driver with "Default" -> "" | _ -> "_"^(Compat.uppercase_ascii driver) in
-  printf "static inline int get_servo_min%s(int _idx) {\n" d;
-  printf "  switch (_idx) {\n";
+  fprintf out "static inline int get_servo_min%s(int _idx) {\n" d;
+  fprintf out "  switch (_idx) {\n";
   List.iter (fun c ->
     let name = ExtXml.attrib c "name" in
-    printf "    case SERVO_%s: return SERVO_%s_MIN;\n" name name;
+    fprintf out "    case SERVO_%s: return SERVO_%s_MIN;\n" name name;
   ) servos;
-  printf "    default: return 0;\n";
-  printf "  };\n";
-  printf "}\n\n";
-  printf "static inline int get_servo_max%s(int _idx) {\n" d;
-  printf "  switch (_idx) {\n";
+  fprintf out "    default: return 0;\n";
+  fprintf out "  };\n";
+  fprintf out "}\n\n";
+  fprintf out "static inline int get_servo_max%s(int _idx) {\n" d;
+  fprintf out "  switch (_idx) {\n";
   List.iter (fun c ->
     let name = ExtXml.attrib c "name" in
-    printf "    case SERVO_%s: return SERVO_%s_MAX;\n" name name;
+    fprintf out "    case SERVO_%s: return SERVO_%s_MAX;\n" name name;
   ) servos;
-  printf "    default: return 0;\n";
-  printf "  };\n";
-  printf "}\n\n"
+  fprintf out "    default: return 0;\n";
+  fprintf out "  };\n";
+  fprintf out "}\n\n"
 
-let parse_servo = fun driver c ->
+let parse_servo = fun out driver c ->
   let shortname = ExtXml.attrib c "name" in
   let name = "SERVO_"^shortname
   and no_servo = int_of_string (ExtXml.attrib c "no") in
 
-  define name (string_of_int no_servo);
+  define_out out name (string_of_int no_servo);
 
   let s_min = fos (ExtXml.attrib c "min" )
   and neutral = fos (ExtXml.attrib c "neutral")
@@ -190,18 +180,18 @@ let parse_servo = fun driver c ->
   let travel_up = (s_max-.neutral) /. max_pprz
   and travel_down = (neutral-.s_min) /. max_pprz in
 
-  define (name^"_NEUTRAL") (sof neutral);
-  define (name^"_TRAVEL_UP") (sof travel_up);
-  define_integer (name^"_TRAVEL_UP") travel_up 16;
-  define (name^"_TRAVEL_DOWN") (sof travel_down);
-  define_integer (name^"_TRAVEL_DOWN") travel_down 16;
+  define_out out (name^"_NEUTRAL") (sof neutral);
+  define_out out (name^"_TRAVEL_UP") (sof travel_up);
+  define_integer out (name^"_TRAVEL_UP") travel_up 16;
+  define_out out (name^"_TRAVEL_DOWN") (sof travel_down);
+  define_integer out (name^"_TRAVEL_DOWN") travel_down 16;
 
   let s_min = min s_min s_max
   and s_max = max s_min s_max in
 
-  define (name^"_MAX") (sof s_max);
-  define (name^"_MIN") (sof s_min);
-  nl ();
+  define_out out (name^"_MAX") (sof s_max);
+  define_out out (name^"_MIN") (sof s_min);
+  fprintf out "\n";
 
   (* Memorize the associated driver (if any) and global index (insertion order) *)
   let global_idx = Hashtbl.length servos_drivers in
@@ -215,81 +205,81 @@ let preprocess_value = fun s v prefix ->
   let s = Str.global_replace pprz_value (sprintf "%s[%s_\\1]" v prefix) s in
   Str.global_replace var_value "_var_\\1" s
 
-let print_actuators_idx = fun () ->
+let print_actuators_idx = fun out ->
   Hashtbl.iter (fun s (d, i) ->
-    printf "#define SERVO_%s_IDX %d\n" s i;
+    fprintf out "#define SERVO_%s_IDX %d\n" s i;
     (* Set servo macro *)
-    printf "#define Set_%s_Servo(_v) { \\\n" s;
-    printf "  actuators[SERVO_%s_IDX] = Clip(_v, SERVO_%s_MIN, SERVO_%s_MAX); \\\n" s s s;
-    printf "  Actuator%sSet(SERVO_%s, actuators[SERVO_%s_IDX]); \\\n" d s s;
-    printf "}\n\n"
+    fprintf out "#define Set_%s_Servo(_v) { \\\n" s;
+    fprintf out "  actuators[SERVO_%s_IDX] = Clip(_v, SERVO_%s_MIN, SERVO_%s_MAX); \\\n" s s s;
+    fprintf out "  Actuator%sSet(SERVO_%s, actuators[SERVO_%s_IDX]); \\\n" d s s;
+    fprintf out "}\n\n"
   ) servos_drivers;
-  define "ACTUATORS_NB" (string_of_int (Hashtbl.length servos_drivers));
-  nl ()
+  define_out out "ACTUATORS_NB" (string_of_int (Hashtbl.length servos_drivers));
+  fprintf out "\n"
 
-let parse_command_laws = fun command ->
+let parse_command_laws = fun out command ->
   let a = fun s -> ExtXml.attrib command s in
   match Xml.tag command with
       "set" ->
         let servo = a "servo"
         and value = a "value" in
         let v = preprocess_value value "values" "COMMAND" in
-        printf "  command_value = %s; \\\n" v;
-        printf "  command_value *= command_value>0 ? SERVO_%s_TRAVEL_UP_NUM : SERVO_%s_TRAVEL_DOWN_NUM; \\\n" servo servo;
-        printf "  command_value /= command_value>0 ? SERVO_%s_TRAVEL_UP_DEN : SERVO_%s_TRAVEL_DOWN_DEN; \\\n" servo servo;
-        printf "  servo_value = SERVO_%s_NEUTRAL + command_value; \\\n" servo;
-        printf "  Set_%s_Servo(servo_value); \\\n\\\n" servo
+        fprintf out "  command_value = %s; \\\n" v;
+        fprintf out "  command_value *= command_value>0 ? SERVO_%s_TRAVEL_UP_NUM : SERVO_%s_TRAVEL_DOWN_NUM; \\\n" servo servo;
+        fprintf out "  command_value /= command_value>0 ? SERVO_%s_TRAVEL_UP_DEN : SERVO_%s_TRAVEL_DOWN_DEN; \\\n" servo servo;
+        fprintf out "  servo_value = SERVO_%s_NEUTRAL + command_value; \\\n" servo;
+        fprintf out "  Set_%s_Servo(servo_value); \\\n\\\n" servo
     | "let" ->
       let var = a "var"
       and value = a "value" in
       let v = preprocess_value value "values" "COMMAND" in
-      printf "  int32_t _var_%s = %s; \\\n" var v
+      fprintf out "  int32_t _var_%s = %s; \\\n" var v
     | "call" ->
       let f = a "fun" in
-      printf "  %s; \\\n\\\n" f
+      fprintf out "  %s; \\\n\\\n" f
     | "ratelimit" ->
       let var = a "var"
       and value = a "value"
       and rate_min = a "rate_min"
       and rate_max = a "rate_max" in
       let v = preprocess_value value "values" "COMMAND" in
-      printf "  static int32_t _var_%s = 0; _var_%s += Clip((%s) - (_var_%s), (%s), (%s)); \\\n" var var v var rate_min rate_max
+      fprintf out "  static int32_t _var_%s = 0; _var_%s += Clip((%s) - (_var_%s), (%s), (%s)); \\\n" var var v var rate_min rate_max
     | "define" ->
-      parse_element "" command
+      parse_element out "" command
     | _ -> xml_error "set|let"
 
-let parse_rc_commands = fun rc ->
+let parse_rc_commands = fun out rc ->
   let a = fun s -> ExtXml.attrib rc s in
   match Xml.tag rc with
       "set" ->
         let com = a "command"
         and value = a "value" in
         let v = preprocess_value value "_rc_array" "RADIO" in
-        printf "  _commands_array[COMMAND_%s] = %s;\\\n" com v;
+        fprintf out "  _commands_array[COMMAND_%s] = %s;\\\n" com v;
     | "let" ->
       let var = a "var"
       and value = a "value" in
       let v = preprocess_value value "rc_values" "RADIO" in
-      printf "  int16_t _var_%s = %s;\\\n" var v
+      fprintf out "  int16_t _var_%s = %s;\\\n" var v
     | "define" ->
-      parse_element "" rc
+      parse_element out "" rc
     | _ -> xml_error "set|let"
 
-let parse_ap_only_commands = fun ap_only ->
+let parse_ap_only_commands = fun out ap_only ->
   let a = fun s -> ExtXml.attrib ap_only s in
   match Xml.tag ap_only with
       "copy" ->
         let com = a "command" in
-        printf "  commands[COMMAND_%s] = ap_commands[COMMAND_%s];\\\n" com com
+        fprintf out "  commands[COMMAND_%s] = ap_commands[COMMAND_%s];\\\n" com com
     | _ -> xml_error "copy"
 
-let parse_command = fun command no ->
+let parse_command = fun out command no ->
   let command_name = "COMMAND_"^ExtXml.attrib command "name" in
-  define command_name (string_of_int no);
+  define_out out command_name (string_of_int no);
   let failsafe_value = int_of_string (ExtXml.attrib command "failsafe_value") in
   { failsafe_value = failsafe_value; foo = 0}
 
-let parse_heli_curves = fun heli_curves ->
+let parse_heli_curves = fun out heli_curves ->
   let a = fun s -> ExtXml.attrib heli_curves s in
   match Xml.tag heli_curves with
       "curve" ->
@@ -305,85 +295,85 @@ let parse_heli_curves = fun heli_curves ->
           failwith (Printf.sprintf "Amount of throttle points not the same as collective in throttle curve ('%s', '%s')" throttle collective);
         if nb_throttle <> nb_rpm && nb_rpm <> 0 then
           failwith (Printf.sprintf "Amount of throttle points not the same as rpm in throttle curve ('%s', '%s', '%s')" throttle collective rpm);
-        printf "  {.nb_points = %i, \\\n" nb_throttle;
-        printf "   .throttle = {%s}, \\\n" throttle;
+        fprintf out "  {.nb_points = %i, \\\n" nb_throttle;
+        fprintf out "   .throttle = {%s}, \\\n" throttle;
         if nb_rpm <> 0 then
-          printf "   .rpm = {%s}, \\\n" rpm
+          fprintf out "   .rpm = {%s}, \\\n" rpm
         else
-          printf "   .rpm = {0xFFFF}, \\\n";
-        printf "   .collective = {%s}}, \\\n" collective
+          fprintf out "   .rpm = {0xFFFF}, \\\n";
+        fprintf out "   .collective = {%s}}, \\\n" collective
     | _ -> xml_error "mixer"
 
-let rec parse_section = fun ac_id s ->
+let rec parse_section = fun out ac_id s ->
   match Xml.tag s with
       "section" ->
         let prefix = ExtXml.attrib_or_default s "prefix" "" in
-        define ("SECTION_"^ExtXml.attrib s "name") "1";
-        List.iter (parse_element prefix) (Xml.children s);
-        nl ()
+        define_out out ("SECTION_"^ExtXml.attrib s "name") "1";
+        List.iter (parse_element out prefix) (Xml.children s);
+        fprintf out "\n";
     | "servos" ->
       let driver = ExtXml.attrib_or_default s "driver" "Default" in
       let servos = Xml.children s in
       let nb_servos = List.fold_right (fun s m -> max (int_of_string (ExtXml.attrib s "no")) m) servos min_int + 1 in
 
-      define (sprintf "SERVOS_%s_NB" (Compat.uppercase_ascii driver)) (string_of_int nb_servos);
-      printf "#include \"subsystems/actuators/actuators_%s.h\"\n" (Compat.lowercase_ascii driver);
-      nl ();
-      List.iter (parse_servo driver) servos;
-      print_reverse_servo_table driver servos;
-      nl ()
+      define_out out (sprintf "SERVOS_%s_NB" (Compat.uppercase_ascii driver)) (string_of_int nb_servos);
+      fprintf out "#include \"subsystems/actuators/actuators_%s.h\"\n" (Compat.lowercase_ascii driver);
+      fprintf out "\n";
+      List.iter (parse_servo out driver) servos;
+      print_reverse_servo_table out driver servos;
+      fprintf out "\n"
     | "commands" ->
       let commands = Array.of_list (Xml.children s) in
-      let commands_params = Array.mapi (fun i c -> parse_command c i) commands in
-      define "COMMANDS_NB" (string_of_int (Array.length commands));
-      define "COMMANDS_FAILSAFE" (sprint_float_array (List.map (fun x -> string_of_int x.failsafe_value) (Array.to_list commands_params)));
-      nl (); nl ()
+      let commands_params = Array.mapi (fun i c -> parse_command out c i) commands in
+      define_out out "COMMANDS_NB" (string_of_int (Array.length commands));
+      define_out out "COMMANDS_FAILSAFE" (sprint_float_array (List.map (fun x -> string_of_int x.failsafe_value) (Array.to_list commands_params)));
+      fprintf out "\n\n"
     | "rc_commands" ->
-      printf "#define SetCommandsFromRC(_commands_array, _rc_array) { \\\n";
-      List.iter parse_rc_commands (Xml.children s);
-      printf "}\n\n"
+      fprintf out "#define SetCommandsFromRC(_commands_array, _rc_array) { \\\n";
+      List.iter (parse_rc_commands out) (Xml.children s);
+      fprintf out "}\n\n"
     | "auto_rc_commands" ->
-      printf "#define SetAutoCommandsFromRC(_commands_array, _rc_array) { \\\n";
-      List.iter parse_rc_commands (Xml.children s);
-      printf "}\n\n"
+      fprintf out "#define SetAutoCommandsFromRC(_commands_array, _rc_array) { \\\n";
+      List.iter (parse_rc_commands out) (Xml.children s);
+      fprintf out "}\n\n"
     | "ap_only_commands" ->
-      printf "#define SetApOnlyCommands(ap_commands) { \\\n";
-      List.iter parse_ap_only_commands (Xml.children s);
-      printf "}\n\n"
+      fprintf out "#define SetApOnlyCommands(ap_commands) { \\\n";
+      List.iter (parse_ap_only_commands out) (Xml.children s);
+      fprintf out "}\n\n"
     | "command_laws" ->
       (* print actuators index and set macros *)
-      print_actuators_idx ();
+      print_actuators_idx out;
       (* print init and commit actuators macros *)
       let drivers = get_list_of_drivers () in
-      printf "#define AllActuatorsInit() { \\\n";
-      List.iter (fun d -> printf "  Actuators%sInit();\\\n" d) drivers;
-      printf "}\n\n";
-      printf "#define AllActuatorsCommit() { \\\n";
-      List.iter (fun d -> printf "  Actuators%sCommit();\\\n" d) drivers;
-      printf "}\n\n";
+      fprintf out "#define AllActuatorsInit() { \\\n";
+      List.iter (fun d -> fprintf out "  Actuators%sInit();\\\n" d) drivers;
+      fprintf out "}\n\n";
+      fprintf out "#define AllActuatorsCommit() { \\\n";
+      List.iter (fun d -> fprintf out "  Actuators%sCommit();\\\n" d) drivers;
+      fprintf out "}\n\n";
       (* print actuators from commands macro *)
-      printf "#define SetActuatorsFromCommands(values, AP_MODE) { \\\n";
-      printf "  int32_t servo_value;\\\n";
-      printf "  int32_t command_value;\\\n\\\n";
-      List.iter parse_command_laws (Xml.children s);
-      printf "  AllActuatorsCommit(); \\\n";
-      printf "}\n\n";
+      fprintf out "#define SetActuatorsFromCommands(values, AP_MODE) { \\\n";
+      fprintf out "  int32_t servo_value;\\\n";
+      fprintf out "  int32_t command_value;\\\n\\\n";
+      List.iter (parse_command_laws out) (Xml.children s);
+      fprintf out "  AllActuatorsCommit(); \\\n";
+      fprintf out "}\n\n";
     | "heli_curves" ->
       let default = ExtXml.attrib_or_default s "default" "0" in
       let curves = Xml.children s in
       let nb_points = List.fold_right (fun s m -> max (List.length (Str.split (Str.regexp ",") (ExtXml.attrib s "throttle"))) m) curves 0 in
-      define "THROTTLE_CURVE_MODE_INIT" default;
-      define "THROTTLE_CURVES_NB" (string_of_int (List.length curves));
-      define "THROTTLE_POINTS_NB" (string_of_int nb_points);
-      printf "#define THROTTLE_CURVES { \\\n";
-      List.iter parse_heli_curves curves;
-      printf "}\n\n";
+      define_out out "THROTTLE_CURVE_MODE_INIT" default;
+      define_out out "THROTTLE_CURVES_NB" (string_of_int (List.length curves));
+      define_out out "THROTTLE_POINTS_NB" (string_of_int nb_points);
+      fprintf out "#define THROTTLE_CURVES { \\\n";
+      List.iter (parse_heli_curves out) curves;
+      fprintf out "}\n\n";
     | "include" ->
       let filename = Str.global_replace (Str.regexp "\\$AC_ID") ac_id (ExtXml.attrib s "href") in
       let subxml = ExtXml.parse_file filename in
-      printf "/* XML %s */" filename;
-      nl ();
-      List.iter (parse_section ac_id) (Xml.children subxml)
+      fprintf out "/* XML %s */" filename;
+      fprintf out "\n";
+      List.iter (parse_section out ac_id) (Xml.children subxml)
     | "makefile" ->
       ()
   (** Ignoring this section *)
@@ -404,24 +394,14 @@ let hex_to_bin = fun s ->
   done;
   Bytes.to_string b
 
-let _ =
-  if Array.length Sys.argv <> 5 then
-    failwith (Printf.sprintf "Usage: %s A/C_ident A/C_name MD5SUM xml_file" Sys.argv.(0));
-  let xml_file = Sys.argv.(4)
-  and ac_id = Sys.argv.(1)
-  and ac_name = Sys.argv.(2)
-  and md5sum = Sys.argv.(3) in
-  try
-    let xml = start_and_begin xml_file h_name in
-    (* Xml2h.warning ("AIRFRAME MODEL: "^ ac_name); *)
-    define_string "AIRFRAME_NAME" ac_name;
-    define "AC_ID" ac_id;
-    define "MD5SUM" (sprintf "((uint8_t*)\"%s\")" (hex_to_bin md5sum));
-    nl ();
-    List.iter (parse_section ac_id) (Xml.children xml);
-    finish h_name
-  with
-      Xml.Error e -> fprintf stderr "%s: XML error:%s\n" xml_file (Xml.error e); exit 1
-    | Dtd.Prove_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.prove_error e); exit 1
-    | Dtd.Check_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.check_error e); exit 1
-    | Dtd.Parse_error e -> fprintf stderr "%s: DTD error:%s\n%!" xml_file (Dtd.parse_error e); exit 1
+let generate = fun airframe ac_id ac_name md5sum xml_file out_file ->
+  let out = open_out out_file in
+
+  begin_out out xml_file h_name;
+  define_string_out out "AIRFRAME_NAME" ac_name;
+  define_out out "AC_ID" ac_id;
+  define_out out "MD5SUM" (sprintf "((uint8_t*)\"%s\")" (hex_to_bin md5sum));
+  fprintf out "\n";
+  List.iter (parse_section out ac_id) (Xml.children airframe.Airframe.xml);
+  finish_out out h_name
+

@@ -28,8 +28,13 @@ val paparazzi_home : string
 val paparazzi_src : string
 (** Installation's files directory *)
 
+val paparazzi_conf : string
+
 val flight_plans_path : string
 val flight_plan_dtd : string
+
+val modules_paths : string list
+val modules_ext_paths : string list
 
 val icon_file : string
 (** PNG paparazzi logo icon (48 x 48, 8-bit/color RGBA, non-interlaced) *)
@@ -73,11 +78,6 @@ val filter_settings : string -> string
 (** filter settings (a string separted by white spaces)
  *  and keep the ones without brackets
  *  (return a string of filtered name separate by white spaces) *)
-
-val expand_ac_xml : ?raise_exception:bool -> Xml.xml -> Xml.xml
-(** Expands a conf.xml aircraft entry, adding the XML configuration files
-(listed as attributes) as children. Returns an element containing the error
- message if raise_exception is false (default to true) *)
 
 val get_paparazzi_version : unit -> string
 (** read the current paparazzi_version *)

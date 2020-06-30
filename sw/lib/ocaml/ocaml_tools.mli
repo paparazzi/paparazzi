@@ -2,6 +2,7 @@
  * Utilities
  *
  * Copyright (C) 2004-2009 CENA/ENAC, Yann Le Fablec, Pascal Brisset
+ * Copyright (C) 2017 Gautier Hattenberger <gautier.hattenberger@enac.fr>
  *
  * This file is part of paparazzi.
  *
@@ -16,15 +17,17 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * along with paparazzi; see the file COPYING.  If not, see
+ * <http://www.gnu.org/licenses/>.
  *
  *)
 
 val open_compress : string -> in_channel
 (** [open_compress file] Opens [file] compressed or non-compressed.
     [.gz], [.Z], [.bz2], [.zip] and [.ZIP] recognized *)
+
+val compress : string -> unit
+(** [compress file] Compress [file] with gzip *)
 
 val find_file : string list -> string -> string
 (** [find_file path file] Search for [file] or a compressed extension of it in
@@ -48,3 +51,20 @@ val make_1st_order_noise_generator :
 val shifter : int -> 'a -> ('a -> 'a)
 (* [shifter size init] Returns a shift register containing [size] values
    initialized to [init] *)
+
+val assoc_opt : 'a -> ('a * 'b) list -> 'b option
+(* [assoc_opt a l] Returns the result of [List.assoc a l]
+   or None if [a] not in [l] *)
+
+val assoc_opt_map : 'a -> ('a * 'b) list -> ('b -> 'c) -> 'c option
+(* [assoc_opt_map a l f] Returns the result of [f (List.assoc a l)]
+   or None if [a] not in [l] *)
+
+val assoc_opt_int : 'a -> ('a * string) list -> int option
+(* [assoc_opt_map a l f] Returns the result of [int_of_string (List.assoc a l)]
+   or None if [a] not in [l] *)
+
+val assoc_default : 'a -> ('a * 'b) list -> 'b -> 'b
+(* [assoc_default a l d] Returns the result of [List.assoc a l]
+   or [d] if [a] not in [l] *)
+

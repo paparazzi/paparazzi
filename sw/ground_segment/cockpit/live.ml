@@ -470,7 +470,7 @@ let create_ac = fun ?(confirm_kill=true) alert (geomap:G.widget) (acs_notebook:G
   (* do not check dtd if it is a http url *)
   let via_http = Str.string_match (Str.regexp "http") af_url 0 in
   let af_xml = ExtXml.parse_file ~noprovedtd:via_http af_file in
-  let af_xml = try Gen_common.expand_includes ac_id af_xml with _ -> af_xml in
+  let af_xml = try Airframe.expand_includes ac_id af_xml with _ -> af_xml in
 
   (** Get an alternate speech name if available *)
   let speech_name = get_speech_name af_xml name in
