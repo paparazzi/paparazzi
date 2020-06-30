@@ -44,11 +44,11 @@
 
 <!DOCTYPE radio SYSTEM "radio.dtd">
 <radio name="cockpitMM" data_min="900" data_max="2100" sync_min ="5000" sync_max ="15000" pulse_type="POSITIVE">
- <channel ctl="D" function="ROLL"     min="2000" neutral="1498" max="1000" average="0"/>
- <channel ctl="C" function="PITCH"    min="2000" neutral="1498" max="1000" average="0"/>
- <channel ctl="B" function="YAW"      min="2000" neutral="1498" max="1000" average="0"/>
- <channel ctl="A" function="THROTTLE" min="1120" neutral="1120" max="2000" average="0"/>
- <channel ctl="G" function="GAIN1"    min="2000" neutral="1498" max="1000" average="1"/> <!-- center slider        -->
- <channel ctl="E" function="MODE"     min="2000" neutral="1500" max="1000" average="1"/> <!-- Top right switch     -->
- <channel ctl="F" function="CALIB"    min="2000" neutral="1500" max="1000" average="1"/> <!-- Top left rotary knob -->
+ <channel function="ROLL"     min="2000" neutral="1498" max="1000" average="0"/>
+ <channel function="PITCH"    min="2000" neutral="1498" max="1000" average="0"/>
+ <channel function="YAW"      min="2000" neutral="1498" max="1000" average="0"/>
+ <channel function="THROTTLE" min="1120" neutral="1120" max="2000" average="0"/>
+ <channel function="GAIN1"    min="2000" neutral="1498" max="1000" average="1"/> <!-- center slider        -->
+ <channel function="MODE"     min="2000" neutral="1500" max="1000" average="1"/> <!-- Top right switch     -->
+ <channel function="CALIB"    min="2000" neutral="1500" max="1000" average="1"/> <!-- Top left rotary knob -->
 </radio>
