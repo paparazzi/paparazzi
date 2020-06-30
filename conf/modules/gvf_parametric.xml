@@ -39,8 +39,8 @@
           <dl_setting MAX="0.01" MIN="0.0" STEP="0.0005" VAR="gvf_parametric_3d_lissajous_par.kx" shortname="3d_lis_kx" param="GVF_PARAMETRIC_3D_LISSAJOUS_KX"/>
           <dl_setting MAX="0.01" MIN="0.0" STEP="0.0005" VAR="gvf_parametric_3d_lissajous_par.ky" shortname="3d_lis_ky" param="GVF_PARAMETRIC_3D_LISSAJOUS_KY"/>
           <dl_setting MAX="0.1" MIN="0.0" STEP="0.0005" VAR="gvf_parametric_3d_lissajous_par.kz" shortname="3d_lis_kz" param="GVF_PARAMETRIC_3D_LISSAJOUS_KZ"/>
-          <dl_setting MAX="150" MIN="-150" STEP="5" VAR="gvf_parametric_3d_lissajous_par.cx" shortname="3d_lis_cx" param="GVF_PARAMETRIC_3D_LISSAJOUS_CX"/>
-          <dl_setting MAX="150" MIN="-150" STEP="5" VAR="gvf_parametric_3d_lissajous_par.cy" shortname="3d_lis_cy" param="GVF_PARAMETRIC_3D_LISSAJOUS_CY"/>
+          <dl_setting MAX="250" MIN="-250" STEP="5" VAR="gvf_parametric_3d_lissajous_par.cx" shortname="3d_lis_cx" param="GVF_PARAMETRIC_3D_LISSAJOUS_CX"/>
+          <dl_setting MAX="250" MIN="-250" STEP="5" VAR="gvf_parametric_3d_lissajous_par.cy" shortname="3d_lis_cy" param="GVF_PARAMETRIC_3D_LISSAJOUS_CY"/>
           <dl_setting MAX="50" MIN="-50" STEP="5" VAR="gvf_parametric_3d_lissajous_par.cz" shortname="3d_lis_cz" param="GVF_PARAMETRIC_3D_LISSAJOUS_CZ"/>
           <dl_setting MAX="10" MIN="-10.0" STEP="0.5" VAR="gvf_parametric_3d_lissajous_par.wx" shortname="3d_lis_wx" param="GVF_PARAMETRIC_3D_LISSAJOUS_WX"/>
           <dl_setting MAX="10" MIN="-10" STEP="0.5" VAR="gvf_parametric_3d_lissajous_par.wy" shortname="3d_lis_wy" param="GVF_PARAMETRIC_3D_LISSAJOUS_WY"/>

@@ -85,7 +85,7 @@ class GVFFrame(wx.Frame):
                             self.s, self.ke)
 
                 # Ellipse
-                if int(msg.get_field(1)) == 1:
+                elif int(msg.get_field(1)) == 1:
                     self.s = int(msg.get_field(2))
                     self.ke = float(msg.get_field(3))
                     param = [float(x) for x in msg.get_field(4)]
@@ -99,7 +99,7 @@ class GVFFrame(wx.Frame):
                             self.map_gvf.area, self.s, self.ke)
 
                 # Sin
-                if int(msg.get_field(1)) == 2:
+                elif int(msg.get_field(1)) == 2:
                     self.s = int(msg.get_field(2))
                     self.ke = float(msg.get_field(3))
                     param = [float(x) for x in msg.get_field(4)]
@@ -115,7 +115,8 @@ class GVFFrame(wx.Frame):
                             self.map_gvf.area, self.s, self.ke)
 
             if msg.name == 'GVF_PARAMETRIC':
-                if int(msg.get_field(0)) == 0: # Trefoil 2D
+                # Trefoil 2D
+                if int(msg.get_field(0)) == 0:
                     self.s = int(msg.get_field(1))
                     self.wb = float(msg.get_field(2))
                     param = [float(x) for x in msg.get_field(3)]
@@ -131,7 +132,8 @@ class GVFFrame(wx.Frame):
                     phi_y = phi[1]
                     self.traj = traj_param_trefoil_2D(np.array([xo, yo]), w1, w2, ratio, r, alpha, self.wb)
 
-                if int(msg.get_field(0)) == 1: # Ellipse 3D
+                # Ellipse 3D
+                elif int(msg.get_field(0)) == 1:
                     self.s = int(msg.get_field(1))
                     self.wb = float(msg.get_field(2))
                     param = [float(x) for x in msg.get_field(3)]
@@ -147,7 +149,30 @@ class GVFFrame(wx.Frame):
                     phi_z = phi[2]
                     self.traj = traj_param_ellipse_3D(np.array([xo,yo]), r, zl, zh, alpha, self.wb)
 
-                #if int(msg.get_field(0)) == 2: # Lissajous 3D
+                # Lissajous 3D
+                elif int(msg.get_field(0)) == 2:
+                    self.s = int(msg.get_field(1))
+                    self.wb = float(msg.get_field(2))
+                    param = [float(x) for x in msg.get_field(3)]
+                    xo = param[0]
+                    yo = param[1]
+                    zo = param[2]
+                    cx = param[3]
+                    cy = param[4]
+                    cz = param[5]
+                    wx = param[6]
+                    wy = param[7]
+                    wz = param[8]
+                    dx = param[9]
+                    dy = param[10]
+                    dz = param[11]
+                    alpha = param[12]
+                    phi = [float(x) for x in msg.get_field(4)]
+                    phi_x = phi[0]
+                    phi_y = phi[1]
+                    phi_z = phi[2]
+                    self.traj = traj_param_lissajous_3D(np.array([xo,yo]), zo, cx, cy, cz, \
+                            wx, wy, wz, dx, dy, dz, alpha, self.wb)
 
     def draw_gvf(self, XY, yaw, course, altitude):
         if self.traj is not None:
@@ -252,7 +277,13 @@ class map2d:
             a3d.plot(traj.traj_points[0, :], traj.traj_points[1, :], traj.traj_points[2, :])
             if altitude != -1:
                 a3d.plot([XY[0]], [XY[1]], [altitude], marker='o', markerfacecolor='r', markeredgecolor='r')
-                a3d.axis('equal')
+                a3d.plot([traj.wpoint[0]], [traj.wpoint[1]], [traj.wpoint[2]], marker='x', markerfacecolor='r', markeredgecolor='r')
+
+            a3d.axis('equal')
+            if traj.cz < 0:
+                a3d.set_zlim(traj.zo+1.5*traj.cz, traj.zo-1.5*traj.cz)
+            else:
+                a3d.set_zlim(traj.zo-1.5*traj.cz, traj.zo+1.5*traj.cz)
 
             # XY
             axy.plot(traj.traj_points[0, :], traj.traj_points[1, :])
@@ -264,22 +295,30 @@ class map2d:
                     h*np.sin(course), h*np.cos(course),\
                     head_width=5, head_length=10, fc='k', ec='k')
             axy.annotate('HOME', xy = (0, 0))
+            axy.plot(traj.wpoint[0], traj.wpoint[1], 'rx', ms=10, mew=2)
             if isinstance(traj, traj_param_ellipse_3D):
                 axy.annotate('ELLIPSE_3D', xy = (traj.XYoff[0], traj.XYoff[1]))
                 axy.plot(0, 0, 'kx', ms=10, mew=2)
                 axy.plot(traj.XYoff[0], traj.XYoff[1], 'kx', ms=10, mew=2)
+            elif isinstance(traj, traj_param_lissajous_3D):
+                axy.annotate('LISSA_3D', xy = (traj.XYoff[0], traj.XYoff[1]))
+                axy.plot(0, 0, 'kx', ms=10, mew=2)
+                axy.plot(traj.XYoff[0], traj.XYoff[1], 'kx', ms=10, mew=2)
+
             axy.axis('equal')
 
             # XZ
             axz.plot(traj.traj_points[0, :], traj.traj_points[2, :])
             if altitude != -1:
                 axz.plot([XY[0]], [altitude], 'ro')
-            axz.axis('equal')
+                axz.plot(traj.wpoint[0], traj.wpoint[2], 'rx', ms=10, mew=2)
+            axz.set_ylim(traj.zo-1.5*traj.cz, traj.zo+1.5*traj.cz)
             # YZ
             ayz.plot(traj.traj_points[1, :], traj.traj_points[2, :])
             if altitude != -1:
                 ayz.plot([XY[1]], [altitude], 'ro')
-            ayz.axis('equal')
+                ayz.plot(traj.wpoint[1], traj.wpoint[2], 'rx', ms=10, mew=2)
+            ayz.set_ylim(traj.zo-1.5*traj.cz, traj.zo+1.5*traj.cz)
 
 class traj_line:
     def float_range(self, start, end, step):
@@ -515,7 +554,7 @@ class traj_param_ellipse_3D:
         self.mapgrad_U = []
         self.mapgrad_V = []
 
-        self.alpha = alpha*np.pi/180
+        self.alpha = self.alpha*np.pi/180
 
         self.wpoint = self.param_point(self.wb)
 
@@ -534,5 +573,50 @@ class traj_param_ellipse_3D:
         x = self.r * np.cos(t) + self.XYoff[0]
         y = self.r * np.sin(t) + self.XYoff[1]
         z = 0.5 * (self.zh + self.zl + (self.zl - self.zh) * np.sin(self.alpha - t))
+
+        return np.array([x,y,z])
+
+class traj_param_lissajous_3D:
+    def float_range(self, start, end, step):
+        while start <= end:
+            yield start
+            start += step
+
+    def __init__(self, XYoff, zo, cx, cy, cz, wx, wy, wz, dx, dy, dz, alpha, wb):
+        self.dim = 3
+        self.XYoff, self.zo, self.cx, self.cy, self.cz, self.wx, self.wy, self.wz, self.dx, self.dy, self.dz, \
+                self.alpha, self.wb = XYoff, zo, cx, cy, cz, wx, wy, wz, dx, dy, dz, alpha, wb
+        self.mapgrad_X = []
+        self.mapgrad_Y = []
+        self.mapgrad_U = []
+        self.mapgrad_V = []
+
+        self.alpha = self.alpha*np.pi/180
+        self.dx = self.dx*np.pi/180
+        self.dy = self.dy*np.pi/180
+        self.dz = self.dz*np.pi/180
+
+        self.wpoint = self.param_point(self.wb)
+
+        smallest_w = min([self.wx, self.wy, self.wz])
+
+        num_points = 100
+        self.traj_points = np.zeros((3, num_points))
+
+        i = 0
+        range_points = 3*np.pi / smallest_w
+        for t in self.float_range(0, range_points, range_points/num_points):
+            self.traj_points[:, i] = self.param_point(t)
+            i = i + 1
+            if i >= num_points:
+                break
+
+    def param_point(self, t):
+        xnr = self.cx*np.cos(self.wx*t + self.dx)
+        ynr = self.cy*np.cos(self.wy*t + self.dy)
+        z = self.cz*np.cos(self.wz*t + self.dz) + self.zo
+
+        x = np.cos(self.alpha)*xnr - np.sin(self.alpha)*ynr + self.XYoff[0]
+        y = np.sin(self.alpha)*xnr + np.cos(self.alpha)*ynr + self.XYoff[1]
 
         return np.array([x,y,z])
