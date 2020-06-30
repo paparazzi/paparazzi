@@ -38,7 +38,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
-#include "mcu_periph/sys_time.h"
 
 // Initialize the random number generator (call this before using the other functions)
 void init_random(void);
