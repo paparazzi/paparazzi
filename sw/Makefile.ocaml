@@ -30,8 +30,8 @@ endif
 endif
 
 OCAML = ocaml
-OCAMLC = ocamlfind ocamlc
-OCAMLOPT = ocamlfind ocamlopt
+OCAMLC = ocamlfind ocamlc -safe-string
+OCAMLOPT = ocamlfind ocamlopt -safe-string
 OCAMLDEP = ocamlfind ocamldep
 OCAMLMKLIB = ocamlmklib
 OCAMLLEX=ocamllex

@@ -33,8 +33,8 @@ module UbxProtocol = struct
   let offset_length=4
   let index_start = fun buf ->
     let rec loop = fun i ->
-      let i' = Compat.bytes_index_from buf i sync1 in
-      if Compat.bytes_length buf > i'+1 && buf.[i'+1] = sync2 then
+      let i' = String.index_from buf i sync1 in
+      if String.length buf > i'+1 && buf.[i'+1] = sync2 then
         i'
       else
         loop (i'+1) in
@@ -44,20 +44,20 @@ module UbxProtocol = struct
     Char.code buf.[start+5] lsl 8 + Char.code buf.[start+4] + 4
 
   let length = fun buf start ->
-    let len = Compat.bytes_length buf - start in
+    let len = String.length buf - start in
     if len >= offset_length+2 then
       payload_length buf start + 4
     else
       raise Protocol.Not_enough
 
   let payload = fun buf ->
-    Protocol.payload_of_string (Compat.bytes_sub buf offset_payload (payload_length buf 0))
+    Protocol.payload_of_string (String.sub buf offset_payload (payload_length buf 0))
 
   let uint8_t = fun x -> x land 0xff
   let (+=) = fun r x -> r := uint8_t (!r + x)
   let compute_checksum = fun buf ->
     let ck_a = ref 0 and ck_b = ref 0 in
-    let l = Compat.bytes_length buf in
+    let l = String.length buf in
     for i = offset_payload to l - 1 - 4 do
       ck_a += Char.code buf.[i];
       ck_b += !ck_a
@@ -70,17 +70,17 @@ module UbxProtocol = struct
     ck_a = Char.code buf.[offset_payload+l+1] && ck_b = Char.code buf.[offset_payload+l+2]
 
   let packet = fun payload ->
-    let payload = Protocol.string_of_payload payload in
-    let n = Compat.bytes_length payload in
+    let payload = Protocol.bytes_of_payload payload in
+    let n = Bytes.length payload in
     let msg_length = n + 4 in
-    let m = Compat.bytes_create msg_length in
-    Compat.bytes_set m 0 sync1;
-    Compat.bytes_set m 1 sync2;
-    Compat.bytes_blit payload 0 m 2 n;
-    let (ck_a, ck_b) = compute_checksum m in
-    Compat.bytes_set m (msg_length-2) (Char.chr ck_a);
-    Compat.bytes_set m (msg_length-1) (Char.chr ck_b);
-    m
+    let m = Bytes.create msg_length in
+    Bytes.set m 0 sync1;
+    Bytes.set m 1 sync2;
+    Bytes.blit payload 0 m 2 n;
+    let (ck_a, ck_b) = compute_checksum (Bytes.to_string m) in
+    Bytes.set m (msg_length-2) (Char.chr ck_a);
+    Bytes.set m (msg_length-1) (Char.chr ck_b);
+    Bytes.to_string m
 end
 
 type class_id = int
@@ -135,7 +135,7 @@ type message_spec = Xml.xml
 
 let ubx_payload = fun msg_xml values ->
   let n = int_of_string (ExtXml.attrib msg_xml "length") in
-  let p = Compat.bytes_make n '#' in
+  let p = Bytes.make n '#' in
   let fields = Xml.children msg_xml in
   List.iter
     (fun (label, value) ->
@@ -148,23 +148,23 @@ let ubx_payload = fun msg_xml values ->
       match fmt with
         | "U1" ->
           assert(value >= 0 && value < 0x100);
-          Compat.bytes_set p (pos) (byte value)
+          Bytes.set p (pos) (byte value)
         | "I1" ->
           assert(value >= -0x80 && value <= 0x80);
-          Compat.bytes_set p pos (byte value)
+          Bytes.set p pos (byte value)
         | "I4" | "U4" ->
           assert(fmt <> "U4" || value >= 0);
-          Compat.bytes_set p (pos+3) (byte (value asr 24));
-          Compat.bytes_set p (pos+2) (byte (value lsr 16));
-          Compat.bytes_set p (pos+1) (byte (value lsr 8));
-          Compat.bytes_set p (pos+0) (byte value)
+          Bytes.set p (pos+3) (byte (value asr 24));
+          Bytes.set p (pos+2) (byte (value lsr 16));
+          Bytes.set p (pos+1) (byte (value lsr 8));
+          Bytes.set p (pos+0) (byte value)
         | "U2" | "I2" ->
-          Compat.bytes_set p (pos+1) (byte (value lsr 8));
-          Compat.bytes_set p (pos+0) (byte value)
+          Bytes.set p (pos+1) (byte (value lsr 8));
+          Bytes.set p (pos+0) (byte value)
         | _ -> failwith (Printf.sprintf "Ubx.make_payload: unknown format '%s'" fmt)
     )
     values;
-  p
+  Bytes.to_string p
 
 let message = fun class_name msg_name ->
   let _class = ubx_get_class class_name in
@@ -177,13 +177,14 @@ let message = fun class_name msg_name ->
 let payload = fun class_name msg_name values ->
   let class_id, msg_id, msg = message class_name msg_name in
   let u_payload = ubx_payload msg values in
-  let n = Compat.bytes_length u_payload in
+  let n = String.length u_payload in
 
   (** Just add CLASS_ID, MSG_ID and LENGTH(2) to the ubx payload *)
-  let m = Compat.bytes_create (n+4) in
-  Compat.bytes_set m 0 (Char.chr class_id);
-  Compat.bytes_set m 1 (Char.chr msg_id);
-  Compat.bytes_set m 2 (Char.chr (n land 0xff));
-  Compat.bytes_set m 3 (Char.chr ((n land 0xff00) lsr 8));
-  Compat.bytes_blit u_payload 0 m 4 n;
-  Protocol.payload_of_string m
+  let m = Bytes.create (n+4) in
+  Bytes.set m 0 (Char.chr class_id);
+  Bytes.set m 1 (Char.chr msg_id);
+  Bytes.set m 2 (Char.chr (n land 0xff));
+  Bytes.set m 3 (Char.chr ((n land 0xff00) lsr 8));
+  Bytes.blit_string u_payload 0 m 4 n;
+  Protocol.payload_of_bytes m
+

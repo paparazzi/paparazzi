@@ -43,8 +43,5 @@
       endif
     </raw>
   </makefile>
-  <makefile target="fbw">
-    <define name="USE_GPS"/>
-  </makefile>
 </module>
 

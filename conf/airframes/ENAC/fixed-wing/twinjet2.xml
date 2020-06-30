@@ -10,24 +10,24 @@
   <firmware name="fixedwing">
     <define name="PITCH_TRIM"/>
 
-    <target name="ap" 			board="tiny_2.11"/>
-    <target name="sim" 			board="pc"/>
+    <target name="ap" board="tiny_2.11"/>
+    <target name="sim" board="pc"/>
 
     <module name="radio_control" type="ppm"/>
-    <module name="telemetry"     type="xbee_api"/>
-    <module name="control"       type="adaptive"/>
-    <module name="imu"           type="mpu9250_i2c">
+    <module name="telemetry" type="xbee_api"/>
+    <module name="control" type="adaptive"/>
+    <module name="imu" type="mpu9250_i2c">
       <configure name="IMU_MPU9250_I2C_DEV" value="i2c0"/>
     </module>
-    <module name="ahrs"          type="float_dcm"/>
-    <module name="ins"           type="alt_float"/>
-    <module name="gps"           type="ublox"/>
+    <module name="ahrs" type="float_dcm"/>
+    <module name="ins" type="alt_float"/>
+    <module name="gps" type="ublox"/>
     <module name="navigation"/>
     <module name="light"/>
   </firmware>
 
   <firmware name="setup">
-    <target name="tunnel" 		      board="tiny_2.11" />
+    <target name="tunnel" board="tiny_2.11"/>
   </firmware>
 
   <!-- commands section -->
@@ -152,11 +152,11 @@
     <define name="AUTO_THROTTLE_MAX_CRUISE_THROTTLE" value="0.80"/>
     <define name="AUTO_THROTTLE_LOITER_TRIM" value="1500"/>
     <define name="AUTO_THROTTLE_DASH_TRIM" value="-1000"/>
-    <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.1" unit="%/(m/s)"/>
-    <define name="AUTO_THROTTLE_PGAIN" value="0.035000000149"/>
+    <define name="AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT" value="0.07" unit="%/(m/s)"/>
+    <define name="AUTO_THROTTLE_PGAIN" value="0.027"/>
     <define name="AUTO_THROTTLE_IGAIN" value="0.01"/>
     <define name="AUTO_THROTTLE_DGAIN" value="0"/>
-    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.12"/>
+    <define name="AUTO_THROTTLE_PITCH_OF_VZ_PGAIN" value="0.14"/>
 
     <!-- auto pitch inner loop -->
     <define name="AUTO_PITCH_PGAIN" value="0.035000000149"/>
@@ -177,17 +177,17 @@
   <section name="HORIZONTAL CONTROL" prefix="H_CTL_">
     <define name="COURSE_PGAIN" value="0.995000004768"/>
 
-    <define name="ROLL_MAX_SETPOINT" value="0.6" unit="rad"/>
+    <define name="ROLL_MAX_SETPOINT" value="0.715585" unit="rad"/>
     <define name="PITCH_MAX_SETPOINT" value="0.5" unit="rad"/>
     <define name="PITCH_MIN_SETPOINT" value="-0.5" unit="rad"/>
 
-    <define name="ROLL_ATTITUDE_GAIN" value="3553.89208984"/>
-    <define name="ROLL_RATE_GAIN" value="0."/>
+    <define name="ROLL_ATTITUDE_GAIN" value="7276"/>
+    <define name="ROLL_RATE_GAIN" value="1284"/>
     <define name="ROLL_IGAIN" value="500"/>
     <define name="ROLL_KFFA" value="500"/>
     <define name="ROLL_KFFD" value="500"/>
 
-    <define name="PITCH_PGAIN" value="14522.4716797"/>
+    <define name="PITCH_PGAIN" value="11187"/>
     <define name="PITCH_DGAIN" value="0."/>
     <define name="PITCH_IGAIN" value="500"/>
     <define name="PITCH_KFFA" value="0."/>

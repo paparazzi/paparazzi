@@ -50,39 +50,21 @@ LABLGTK2GNOMECANVAS = $(shell ocamlfind query -p-format lablgtk2.gnomecanvas 2>/
 endif
 
 CAMLP4_DEFS ?=
-NETCLIENT_VER := $(shell ocamlfind query -format '%v' netclient)
-NETCLIENT_MAJOR := $(shell echo $(NETCLIENT_VER) | cut -f1 -d.)
-NETCLIENT_MINOR1 := $(shell echo $(NETCLIENT_VER) | cut -f2 -d.)
-NETCLIENT_MINOR2 := $(shell echo $(NETCLIENT_VER) | cut -f3 -d.)
-ifeq ($(shell test $(NETCLIENT_MAJOR) -ge 4; echo $$?),0)
-CAMLP4_DEFS += -DNETCLIENT_V_4
-NETTLS_GNUTLS = nettls-gnutls
-COMMA_NETTLS_GNUTLS = ,$(NETTLS_GNUTLS)
-ifeq ($(shell test $(NETCLIENT_MINOR2) -ge 4; echo $$?),0)
-CAMLP4_DEFS += -DNETCLIENT_V_404
-else ifeq ($(shell test $(NETCLIENT_MINOR1) -g 0; echo $$?),0)
-CAMLP4_DEFS += -DNETCLIENT_V_404
-endif
-endif
 OCAMLC_VER := $(shell ocamlc -version)
 OCAMLC_MAJOR := $(shell echo $(OCAMLC_VER) | cut -f1 -d.)
 OCAMLC_MINOR := $(shell echo $(OCAMLC_VER) | cut -f2 -d.)
 ifeq ($(shell test $(OCAMLC_MAJOR) -ge 4; echo $$?),0)
-ifeq ($(shell test $(OCAMLC_MINOR) -ge 2; echo $$?),0)
-# the Bytes module is available since OCaml 4.02.0
-CAMLP4_DEFS += -DHAS_BYTES_MODULE
 ifeq ($(shell test $(OCAMLC_MINOR) -ge 4; echo $$?),0)
 CAMLP4_DEFS += -DOCAML_V404
-endif
 endif
 endif
 PP_OPTS = -pp "camlp4o pa_macro.cmo $(CAMLP4_DEFS)"
 
 # which source files to run through caml4p
-PP_SRC =  http.ml compat.ml
+PP_SRC = compat.ml
 
 INCLUDES=
-PKGCOMMON=pprzlink,xml-light,netclient,glibivy,lablgtk2,$(NETTLS_GNUTLS)
+PKGCOMMON=pprzlink,xml-light,netclient,nettls-gnutls,glibivy,lablgtk2
 XINCLUDES=
 XPKGCOMMON=pprzlink,xml-light,glibivy,$(LABLGTK2GNOMECANVAS),lablgtk2.glade
 
@@ -123,7 +105,11 @@ xlib-pprz.cmxa dllxlib-pprz.so: $(XCMX)
 
 # trying to set correct dependencies for parallel build
 # these are order only depedencies
+lib-pprz.cma: | liblib-pprz.a dlllib-pprz.so
+
 lib-pprz.cmxa: | liblib-pprz.a dlllib-pprz.so
+
+xlib-pprz.cma: | libxlib-pprz.a dllxlib-pprz.so
 
 xlib-pprz.cmxa: | libxlib-pprz.a dllxlib-pprz.so
 
@@ -145,7 +131,7 @@ tests : lib-pprz.cma $(TESTS_CMO)
 $(XCMO) $(XCMX): PKGCOMMON=$(XPKGCOMMON)
 
 
-GTKCFLAGS := $(shell pkg-config --cflags gtk+-2.0)
+GTKCFLAGS := $(shell pkg-config --cflags gtk+-2.0) -DGTK_DISABLE_DEPRECATED
 ml_gtk_drag.o : ml_gtk_drag.c
 	@echo OC $<
 	$(Q)$(OCAMLC) $(INCLUDES) -package $(PKGCOMMON) -c -ccopt "$(GTKCFLAGS)" $<
@@ -208,7 +194,7 @@ gtk_papget_led_editor.ml : widgets.glade
 
 META.pprz: META.pprz.template
 	@echo COPY $<
-	$(shell sed -e 's/LABLGTK2GNOMECANVAS/$(LABLGTK2GNOMECANVAS)/g' -e 's/,NETTLS_GNUTLS/$(COMMA_NETTLS_GNUTLS)/g' $< > $@)
+	$(shell sed -e 's/LABLGTK2GNOMECANVAS/$(LABLGTK2GNOMECANVAS)/g' $< > $@)
 
 clean :
 	$(Q)rm -f *~ *.cm* *.out *.opt .depend *.a *.o *.so tests gtk_papget_*.ml expr_parser.ml expr_parser.mli expr_lexer.ml expr_lexer.mli META.pprz

@@ -89,7 +89,7 @@ let buffer_attr = fun indent tab (n,v) ->
   Buffer.add_char tmp ' ';
   Buffer.add_string tmp n;
   Buffer.add_string tmp "=\"";
-  let l = Compat.bytes_length v in
+  let l = String.length v in
   for p = 0 to l-1 do
     match v.[p] with
       | '\\' -> Buffer.add_string tmp "\\\\"

@@ -24,6 +24,7 @@
   </header>
   <init fun="jevois_init()"/>
   <periodic fun="jevois_report()" freq="5" autorun="FALSE"/>
+  <periodic fun="jevois_send_state()" freq="4" autorun="TRUE"/>
   <event fun="jevois_event()"/>
   <makefile>
     <configure name="JEVOIS_UART" case="upper|lower"/>

@@ -320,15 +320,15 @@ uint8_t uart_getch(struct uart_periph *p)
   return ret;
 }
 
-uint16_t uart_char_available(struct uart_periph *p)
+int uart_char_available(struct uart_periph *p)
 {
   pthread_mutex_lock(&uart_mutex);
-  int16_t available = p->rx_insert_idx - p->rx_extract_idx;
+  int available = p->rx_insert_idx - p->rx_extract_idx;
   if (available < 0) {
     available += UART_RX_BUFFER_SIZE;
   }
   pthread_mutex_unlock(&uart_mutex);
-  return (uint16_t)available;
+  return available;
 }
 
 #if USE_UART0

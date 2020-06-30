@@ -69,24 +69,34 @@ uint32_t sonar_bebop_spike_timer;
 static uint8_t mode;
 
 /** SONAR_BEBOP_TRANSITION_HIGH_TO_LOW below this altitude we should use mode 0 */
+#ifndef SONAR_BEBOP_TRANSITION_HIGH_TO_LOW
 #define SONAR_BEBOP_TRANSITION_HIGH_TO_LOW 0.8
+#endif
 
 /** SONAR_BEBOP_TRANSITION_LOW_TO_HIGH above this altitude we should use mode 1 */
+#ifndef SONAR_BEBOP_TRANSITION_LOW_TO_HIGH
 #define SONAR_BEBOP_TRANSITION_LOW_TO_HIGH 1.2
+#endif
 
 /** SONAR_BEBOP_TRANSITION_COUNT number of samples before switching mode */
+#ifndef SONAR_BEBOP_TRANSITION_COUNT
 #define SONAR_BEBOP_TRANSITION_COUNT 7
+#endif
 
 static uint8_t pulse_transition_counter;
 
 /** SONAR_BEBOP_PEAK_THRESHOLD minimum samples from broadcast stop */
-#define SONAR_BEBOP_PEAK_THRESHOLD 100
+#ifndef SONAR_BEBOP_PEAK_THRESHOLD
+#define SONAR_BEBOP_PEAK_THRESHOLD 50
+#endif
 
 /** SONAR_BEBOP_MIN_PEAK_VAL minimum adc value of reflected peak that will be cosidered */
-#define SONAR_BEBOP_MIN_PEAK_VAL 1024 // max value is 4096
+#ifndef SONAR_BEBOP_MIN_PEAK_VAL
+#define SONAR_BEBOP_MIN_PEAK_VAL 512 // max value is 4096
+#endif
 
 /** SONAR_BEBOP_MAX_TRANS_TIME maximum time for a reflection to travel and return in the adc measurement window */
-#define SONAR_BEBOP_MAX_TRANS_TIME 270
+#define SONAR_BEBOP_MAX_TRANS_TIME 370
 
 /** sonar_bebop_spi_d the waveforms emitted by the sonar
  * waveform 0 is long pulse used at high altitude
@@ -146,9 +156,11 @@ void *sonar_bebop_read(void *data __attribute__((unused)))
     /* Start ADC and send sonar output */
     adc_enable(&adc0, 1);
     sonar_bebop_spi_t.status = SPITransDone;
+    usleep(100); //Sonar crashes without the delay once in a while :(
     sonar_bebop_spi_t.output_buf = sonar_bebop_spi_d[mode];
     spi_submit(&spi0, &sonar_bebop_spi_t);
     while (sonar_bebop_spi_t.status != SPITransSuccess);
+    usleep(100); //Sonar crashes without the delay once in a while :(
     adc_read(&adc0, adc_buffer, SONAR_BEBOP_ADC_BUFFER_SIZE);
     adc_enable(&adc0, 0);
 
@@ -181,12 +193,8 @@ void *sonar_bebop_read(void *data __attribute__((unused)))
     uint16_t diff = stop_send - start_send;
     if (diff && diff < SONAR_BEBOP_MAX_TRANS_TIME
         && peak_value > SONAR_BEBOP_MIN_PEAK_VAL) {
-      sonar_bebop.meas = first_peak - (stop_send - diff / 2);
+      sonar_bebop.meas = (uint16_t)(first_peak - (stop_send - diff / 2));
       sonar_bebop.distance = update_median_filter_f(&sonar_filt, (float)sonar_bebop.meas * SONAR_BEBOP_INX_DIFF_TO_DIST);
-
-#if SONAR_BEBOP_FILTER_NARROW_OBSTACLES
-      sonar_bebop.distance = sonar_filter_narrow_obstacles(sonar_bebop.distance);
-#endif
 
       // set sonar pulse mode for next pulse based on altitude
       if (mode == 0 && sonar_bebop.distance > SONAR_BEBOP_TRANSITION_LOW_TO_HIGH) {
@@ -203,27 +211,39 @@ void *sonar_bebop_read(void *data __attribute__((unused)))
         pulse_transition_counter = 0;
       }
 
+#if SONAR_COMPENSATE_ROTATION
+      float phi = stateGetNedToBodyEulers_f()->phi;
+      float theta = stateGetNedToBodyEulers_f()->theta;
+      float gain = (float)fabs( (double) (cosf(phi) * cosf(theta)));
+      sonar_bebop.distance =  sonar_bebop.distance * gain;
+#endif
+
 #else // SITL
       sonar_bebop.distance = stateGetPositionEnu_f()->z;
       Bound(sonar_bebop.distance, 0.1f, 7.0f);
-      sonar_bebop.meas = sonar_bebop.distance / SONAR_BEBOP_INX_DIFF_TO_DIST;
+      sonar_bebop.meas = (uint16_t)(sonar_bebop.distance / SONAR_BEBOP_INX_DIFF_TO_DIST);
 #endif // SITL
+
+#if SONAR_BEBOP_FILTER_NARROW_OBSTACLES
+      sonar_bebop.distance = sonar_filter_narrow_obstacles(sonar_bebop.distance);
+#endif
 
       // Send ABI message
       uint32_t now_ts = get_sys_time_usec();
       AbiSendMsgAGL(AGL_SONAR_ADC_ID, now_ts, sonar_bebop.distance);
+
 #ifdef SENSOR_SYNC_SEND_SONAR
       // Send Telemetry report
       DOWNLINK_SEND_SONAR(DefaultChannel, DefaultDevice, &sonar_bebop.meas, &sonar_bebop.distance);
 #endif
+
 #ifndef SITL
     }
 #endif
-    usleep(10000); //100Hz
+    usleep(10000); //100Hz  FIXME: use SYS_TIME_FREQUENCY and divisor
   }
   return NULL;
 }
-
 
 #if SONAR_BEBOP_FILTER_NARROW_OBSTACLES
 

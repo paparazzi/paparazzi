@@ -62,7 +62,7 @@ let wind_msg_period = 5000 (* ms *)
 let aircraft_alerts_period = 1000 (* ms *)
 let send_aircrafts_msg = fun _asker _values ->
   assert(_values = []);
-  let names = Compat.bytes_concat "," (Hashtbl.fold (fun k _v r -> k::r) aircrafts []) ^ "," in
+  let names = String.concat "," (Hashtbl.fold (fun k _v r -> k::r) aircrafts []) ^ "," in
   ["ac_list", PprzLink.String names]
 
 
@@ -479,9 +479,9 @@ let send_aircraft_msg = fun ac ->
 
 (** Check if it is a replayed A/C (c.f. sw/logalizer/play.ml) *)
 let replayed = fun ac_id ->
-  let n = Compat.bytes_length ac_id in
-  if n > 6 && Compat.bytes_sub ac_id 0 6 = "replay" then
-    (true, Compat.bytes_sub ac_id 6 (n - 6), "/var/replay/", ExtXml.parse_file (Env.paparazzi_home // "var/replay/conf/conf.xml"))
+  let n = String.length ac_id in
+  if n > 6 && String.sub ac_id 0 6 = "replay" then
+    (true, String.sub ac_id 6 (n - 6), "/var/replay/", ExtXml.parse_file (Env.paparazzi_home // "var/replay/conf/conf.xml"))
   else
     (false, ac_id, "", conf_xml)
 
@@ -509,7 +509,7 @@ let check_md5sum = fun ac_name alive_md5sum aircraft_conf_dir ->
     match alive_md5sum with
         PprzLink.Array array ->
           let n = Array.length array in
-          assert(n = Compat.bytes_length md5sum / 2);
+          assert(n = String.length md5sum / 2);
           for i = 0 to n - 1 do
             let x = int_of_string (sprintf "0x%c%c" md5sum.[2*i] md5sum.[2*i+1]) in
             assert (x = PprzLink.int_of_value array.(i))
@@ -520,7 +520,7 @@ let check_md5sum = fun ac_name alive_md5sum aircraft_conf_dir ->
       match alive_md5sum with
           PprzLink.Array array ->
             let n = Array.length array in
-            assert(n = Compat.bytes_length md5sum / 2);
+            assert(n = String.length md5sum / 2);
             for i = 0 to n - 1 do
               let x = 0 in
               assert (x = PprzLink.int_of_value array.(i))
@@ -830,11 +830,11 @@ let jump_block = fun logging _sender vs ->
 (** Got a RAW_DATALINK, send its contents *)
 let raw_datalink = fun logging _sender vs ->
   let ac_id = PprzLink.string_assoc "ac_id" vs
-  and m = PprzLink.string_assoc "message" vs in
-  for i = 0 to Compat.bytes_length m - 1 do
-    if m.[i] = ';' then Compat.bytes_set m i ' '
+  and m = Bytes.of_string (PprzLink.string_assoc "message" vs) in
+  for i = 0 to Bytes.length m - 1 do
+    if Bytes.get m i = ';' then Bytes.set m i ' '
   done;
-  let msg_id, vs = Dl_Pprz.values_of_string m in
+  let msg_id, vs = Dl_Pprz.values_of_string (Bytes.to_string m) in
   let msg = Dl_Pprz.message_of_id msg_id in
   Dl_Pprz.message_send dl_id msg.PprzLink.name vs;
   log logging ac_id msg.PprzLink.name vs

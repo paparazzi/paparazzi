@@ -44,12 +44,12 @@ let run_and_log = fun log exit_cb com ->
   let channel_out_fd = Unix.descr_of_in_channel com_stdout in
   let channel_out = GMain.Io.channel_of_descr channel_out_fd in
   let cb = fun _ ->
-      let buf = Compat.bytes_create buf_size in
+      let buf = Bytes.create buf_size in
       (* loop until input returns zero *)
       let rec log_input = fun out ->
         let n = input out buf 0 buf_size in
         (* split on beginning of new line *)
-        let s = Str.split (Str.regexp "^") (Compat.bytes_sub buf 0 n) in
+        let s = Str.split (Str.regexp "^") (Bytes.to_string (Bytes.sub buf 0 n)) in
         List.iter (fun l -> log l) s;
         if n = buf_size then (log_input out) + n else n
       in
@@ -61,18 +61,18 @@ let run_and_log = fun log exit_cb com ->
   pid, channel_out, com_stdout, io_watch_out
 
 let strip_prefix = fun dir file subdir ->
-  let n = Compat.bytes_length dir in
-  if not (Compat.bytes_length file > n && Compat.bytes_sub file 0 n = dir) then begin
+  let n = String.length dir in
+  if not (String.length file > n && String.sub file 0 n = dir) then begin
     let home = Env.paparazzi_home in
-    let nn = Compat.bytes_length home in
-    if (Compat.bytes_length file > nn && Compat.bytes_sub file 0 nn = home) then begin
-      ".." // Compat.bytes_sub file (nn+1) (Compat.bytes_length file - nn -1)
+    let nn = String.length home in
+    if (String.length file > nn && String.sub file 0 nn = home) then begin
+      ".." // String.sub file (nn+1) (String.length file - nn -1)
     end else
      let msg = sprintf "Selected file '%s' should be in '%s'" file dir in
      GToolbox.message_box ~title:"Error" msg;
      raise Exit
   end else
-    subdir // Compat.bytes_sub file (n+1) (Compat.bytes_length file - n - 1)
+    subdir // String.sub file (n+1) (String.length file - n - 1)
 
 
 let choose_xml_file = fun ?(multiple = false) title subdir cb ->

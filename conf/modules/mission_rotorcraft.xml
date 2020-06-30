@@ -14,18 +14,18 @@
   <init fun="mission_init()"/>
   <periodic fun="mission_status_report()" freq="2" autorun="TRUE"/>
 
-  <datalink message="MISSION_GOTO_WP" fun="mission_parse_GOTO_WP()"/>
-  <datalink message="MISSION_GOTO_WP_LLA" fun="mission_parse_GOTO_WP_LLA()"/>
-  <datalink message="MISSION_CIRCLE" fun="mission_parse_CIRCLE()"/>
-  <datalink message="MISSION_CIRCLE_LLA" fun="mission_parse_CIRCLE_LLA()"/>
-  <datalink message="MISSION_SEGMENT" fun="mission_parse_SEGMENT()"/>
-  <datalink message="MISSION_SEGMENT_LLA" fun="mission_parse_SEGMENT_LLA()"/>
-  <datalink message="MISSION_PATH" fun="mission_parse_PATH()"/>
-  <datalink message="MISSION_PATH_LLA" fun="mission_parse_PATH_LLA()"/>
-  <datalink message="MISSION_CUSTOM" fun="mission_parse_CUSTOM()"/>
-  <datalink message="GOTO_MISSION" fun="mission_parse_GOTO_MISSION()"/>
-  <datalink message="NEXT_MISSION" fun="mission_parse_NEXT_MISSION()"/>
-  <datalink message="END_MISSION" fun="mission_parse_END_MISSION()"/>
+  <datalink message="MISSION_GOTO_WP" fun="mission_parse_GOTO_WP(buf)"/>
+  <datalink message="MISSION_GOTO_WP_LLA" fun="mission_parse_GOTO_WP_LLA(buf)"/>
+  <datalink message="MISSION_CIRCLE" fun="mission_parse_CIRCLE(buf)"/>
+  <datalink message="MISSION_CIRCLE_LLA" fun="mission_parse_CIRCLE_LLA(buf)"/>
+  <datalink message="MISSION_SEGMENT" fun="mission_parse_SEGMENT(buf)"/>
+  <datalink message="MISSION_SEGMENT_LLA" fun="mission_parse_SEGMENT_LLA(buf)"/>
+  <datalink message="MISSION_PATH" fun="mission_parse_PATH(buf)"/>
+  <datalink message="MISSION_PATH_LLA" fun="mission_parse_PATH_LLA(buf)"/>
+  <datalink message="MISSION_CUSTOM" fun="mission_parse_CUSTOM(buf)"/>
+  <datalink message="GOTO_MISSION" fun="mission_parse_GOTO_MISSION(buf)"/>
+  <datalink message="NEXT_MISSION" fun="mission_parse_NEXT_MISSION(buf)"/>
+  <datalink message="END_MISSION" fun="mission_parse_END_MISSION(buf)"/>
 
   <makefile>
     <define name="USE_MISSION"/>

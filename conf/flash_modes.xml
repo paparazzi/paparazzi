@@ -62,6 +62,7 @@
       <board name="chimera_.*"/>
       <board name="tawaki_.*"/>
       <board name="crazybee_f4_.*"/>
+      <board name="crazyflie_.*"/>
     </boards>
   </mode>
   <mode name="STLink (SWD)">
@@ -77,6 +78,7 @@
       <board name="chimera_.*"/>
       <board name="tawaki_.*"/>
       <board name="crazybee_f4_.*"/>
+      <board name="crazyflie_.*"/>
     </boards>
   </mode>
   <mode name="BlackMagic Probe (SWD)">
@@ -97,6 +99,7 @@
       <board name="chimera_.*"/>
       <board name="tawaki_.*"/>
       <board name="vms_ecu_.*"/>
+      <board name="crazyflie_.*"/>
     </boards>
   </mode>
   <mode name="BlackMagic Probe (SWD_NOPWR)">
@@ -104,6 +107,8 @@
     <boards>
       <board name="li[s]?a_mxs_.*"/>
       <board name="li[s]?a_s_.*"/>
+      <board name="px4fmu_.*"/>
+      <board name="px4io_.*"/>
     </boards>
   </mode>
   <mode name="BlackMagic Probe (JTAG)">

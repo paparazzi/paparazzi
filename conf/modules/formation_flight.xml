@@ -21,8 +21,8 @@
     <file name="formation.h"/>
   </header>
   <init fun="formation_init()"/>
-  <datalink message="FORMATION_STATUS" fun="parseFormationStatus()"/>
-  <datalink message="FORMATION_SLOT" fun="parseFormationSlot()"/>
+  <datalink message="FORMATION_STATUS" fun="parseFormationStatus(buf)"/>
+  <datalink message="FORMATION_SLOT" fun="parseFormationSlot(buf)"/>
   <makefile>
     <file name="formation.c"/>
   </makefile>

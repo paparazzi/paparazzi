@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2009  Martin Mueller
+ *               2019  Freek van Tienen <freek.v.tienen@gmail.com>
  *
  * This file is part of paparazzi.
  *
@@ -66,19 +67,36 @@
 #define MSG_NAME    "FLIGHT_PARAM"
 #define MSG_ID		"GCS"
 
-#define TIMEOUT_PERIOD 200
+#define TIMEOUT_PERIOD 10
+
+#if GPSD_API_MAJOR_VERSION <= 6
+#define TIME_T double
+#define TIME_INIT 0.
+// note that this test is stupid
+#define IS_TIME_EQUAL(_a, _b) (_a == _b)
+#define TIME_IN_SEC(_a) (_a)
+#define GPS_READ(_a) gps_read(_a)
+#else
+#define TIME_T timespec_t
+#define TIME_INIT {0}
+#define IS_TIME_EQUAL(_a, _b) ((_a.tv_sec == _b.tv_sec) && (_a.tv_nsec == _b.tv_nsec))
+#define TIME_IN_SEC(_a) ((double)(_a.tv_sec + _a.tv_nsec * 1e-9))
+#define GPS_READ(_a) gps_read(_a, NULL, 0)
+#endif
 
 struct gps_data_t *gpsdata;
 gboolean verbose;
 char* server;
 char* port;
 char* ivy_bus;
+char* ac;
+char* wp;
 
 static void update_gps(struct gps_data_t *gpsdata,
                        char *message,
                        size_t len)
 {
-    static double fix_time = 0;
+    static TIME_T fix_time = TIME_INIT;
     double fix_track = 0;
     double fix_speed = 0;
     double fix_altitude = 0;
@@ -86,9 +104,8 @@ static void update_gps(struct gps_data_t *gpsdata,
 
     if ((isnan(gpsdata->fix.latitude) == 0) &&
         (isnan(gpsdata->fix.longitude) == 0) &&
-        (isnan(gpsdata->fix.time) == 0) &&
         (gpsdata->fix.mode >= MODE_2D) &&
-        (gpsdata->fix.time != fix_time))
+        !IS_TIME_EQUAL(gpsdata->fix.time, fix_time))
     {
         if (!isnan(gpsdata->fix.track))
             fix_track = gpsdata->fix.track;
@@ -104,7 +121,7 @@ static void update_gps(struct gps_data_t *gpsdata,
         }
 
         if (verbose)
-            printf("sending gps info viy Ivy: lat %g, lon %g, speed %g, course %g, alt %g, climb %g\n",
+            printf("sending gps info viy Ivy: lat %f, lon %f, speed %g, course %g, alt %g, climb %g\n",
                    gpsdata->fix.latitude, gpsdata->fix.longitude, fix_speed, fix_track, fix_altitude, fix_climb);
 
         IvySendMsg("%s %s %s %f %f %f %f %f %f %f %f %f %f %f %d %f",
@@ -121,24 +138,37 @@ static void update_gps(struct gps_data_t *gpsdata,
                 fix_altitude,
                 fix_climb,
                 0.0, // agl
-                gpsdata->fix.time,
+                TIME_IN_SEC(gpsdata->fix.time),
                 0, // itow
                 0.0); // airspeed
+
+
+        if(strcmp(ac, "NONE") != 0) {
+            IvySendMsg("%s TARGET_POS %s %s %d %d %d %f %f %f", "0", "0", ac, (int)(gpsdata->fix.latitude * 1e7), (int)(gpsdata->fix.longitude * 1e7), (int)(fix_altitude* 1000), fix_speed, fix_climb, fix_track);
+            if (verbose)
+                printf("sending TARGET_POS for aircraft %s\n", ac);
+        }
+        if(strcmp(ac, "NONE") != 0 && strcmp(wp, "NONE") != 0) {
+		    IvySendMsg("%s MOVE_WP %s %s %d %d %d", "0", wp, ac, (int)(gpsdata->fix.latitude * 1e7), (int)(gpsdata->fix.longitude * 1e7), (int)(20. * 1000));
+            if (verbose)
+                printf("sending waypoint %s for aircraft %s\n", wp, ac);
+        }
 
         fix_time = gpsdata->fix.time;
     }
     else
     {
-        if (verbose)
+        if (verbose) {
             printf("ignoring gps data: lat %f, lon %f, mode %d, time %f\n", gpsdata->fix.latitude,
-                   gpsdata->fix.longitude, gpsdata->fix.mode, gpsdata->fix.time);
+                   gpsdata->fix.longitude, gpsdata->fix.mode, TIME_IN_SEC(gpsdata->fix.time));
+        }
     }
 }
 
 static gboolean gps_periodic(gpointer data __attribute__ ((unused)))
 {
-    if (gps_waiting (gpsdata, 500)) {
-        if (gps_read (gpsdata) == -1) {
+    if (gps_waiting (gpsdata, TIMEOUT_PERIOD)) {
+        if (GPS_READ (gpsdata) == -1) {
             perror("gps read error");
         } else {
             update_gps(gpsdata, NULL, 0);
@@ -152,6 +182,8 @@ gboolean parse_args(int argc, char** argv)
     verbose = FALSE;
     server = "localhost";
     port = DEFAULT_GPSD_PORT;
+    ac = "NONE";
+    wp = "NONE";
 #ifdef __APPLE__
     ivy_bus = "224.255.255.255";
 #else
@@ -165,7 +197,9 @@ gboolean parse_args(int argc, char** argv)
         "   -v --verbose                           Print verbose information\n"
         "   --server <gpsd server>                 e.g. localhost\n"
         "   --port <gpsd port>                     e.g. 2947\n"
-        "   --ivy_bus <ivy bus>                    e.g. 127.255.255.255\n";
+        "   --ivy_bus <ivy bus>                    e.g. 127.255.255.255\n"
+        "   --ac <ac_id>                           e.g. 17\n"
+        "   --wp <wp_id>                           e.g. 2\n";
 
     while (1) {
 
@@ -173,6 +207,8 @@ gboolean parse_args(int argc, char** argv)
             {"ivy_bus", 1, NULL, 0},
             {"server", 1, NULL, 0},
             {"port", 1, NULL, 0},
+            {"ac", 1, NULL, 0},
+            {"wp", 1, NULL, 0},
             {"help", 0, NULL, 'h'},
             {"verbose", 0, NULL, 'v'},
             {0, 0, 0, 0}
@@ -192,6 +228,10 @@ gboolean parse_args(int argc, char** argv)
                         server = strdup(optarg); break;
                     case 2:
                         port = strdup(optarg); break;
+                    case 3:
+                        ac = strdup(optarg); break;
+                    case 4:
+                        wp = strdup(optarg); break;
                     default:
                         break;
                 }

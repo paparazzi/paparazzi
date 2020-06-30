@@ -116,9 +116,9 @@ extern void rotorcraft_cam_set_mode(uint8_t mode);
 #define ROTORCRAFT_CAM_STICK_PAN_INC RadOfDeg(20.)
 #endif
 
-#define ROTORCRAFT_CAM_STICK_PARSE(_dl_buffer) { \
-    rotorcraft_cam_tilt += (int16_t)((ANGLE_BFP_OF_REAL(ROTORCRAFT_CAM_STICK_TILT_INC)/127.)*(float)DL_ROTORCRAFT_CAM_STICK_tilt(_dl_buffer)); \
-    rotorcraft_cam_pan += (int16_t)((ANGLE_BFP_OF_REAL(ROTORCRAFT_CAM_STICK_PAN_INC)/127.)*(float)DL_ROTORCRAFT_CAM_STICK_pan(dl_buffer)); \
+#define ROTORCRAFT_CAM_STICK_PARSE(buf) { \
+    rotorcraft_cam_tilt += (int16_t)((ANGLE_BFP_OF_REAL(ROTORCRAFT_CAM_STICK_TILT_INC)/127.)*(float)DL_ROTORCRAFT_CAM_STICK_tilt(buf)); \
+    rotorcraft_cam_pan += (int16_t)((ANGLE_BFP_OF_REAL(ROTORCRAFT_CAM_STICK_PAN_INC)/127.)*(float)DL_ROTORCRAFT_CAM_STICK_pan(buf)); \
     INT32_COURSE_NORMALIZE(rotorcraft_cam_pan); \
   }
 

@@ -43,7 +43,7 @@ CFLAGS  = $(WARN_FLAGS)
 CFLAGS += $(INCLUDES)
 CFLAGS += $($(TARGET).CFLAGS)
 CFLAGS += $(USER_CFLAGS) $(BOARD_CFLAGS)
-CFLAGS += -O$(OPT)
+CFLAGS += -O$(OPT) -fPIC
 CFLAGS += $(DEBUG_FLAGS)
 CFLAGS += -std=gnu99
 CFLAGS += $(shell pkg-config --cflags-only-I ivy-glib)

@@ -42,6 +42,6 @@ extern void rssi_init(void);
 extern void set_rssi(uint8_t _ac_id, int8_t _rssi, int8_t _tx_strength);
 extern struct rssi_info_  get_rssi(uint8_t _ac_id);
 
-extern void parse_rssi_dl(void);
+extern void parse_rssi_dl(uint8_t *buf);
 
 #endif

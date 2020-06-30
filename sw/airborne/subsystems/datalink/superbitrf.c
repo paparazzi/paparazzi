@@ -66,6 +66,10 @@ PRINT_CONFIG_VAR(SUPERBITRF_DRDY_PIN)
 #endif
 PRINT_CONFIG_VAR(SUPERBITRF_FORCE_DSM2)
 
+#ifndef SUPERBITRF_UPDATE_DL
+#define SUPERBITRF_UPDATE_DL TRUE
+#endif
+
 /* The superbitRF structure */
 struct SuperbitRF superbitrf;
 
@@ -204,13 +208,13 @@ static void send_superbit(struct transport_tx *trans, struct link_device *dev)
 #endif
 
 // Functions for the generic device API
-static bool superbitrf_check_free_space(struct SuperbitRF *p, long *fd __attribute__((unused)), uint16_t len)
+static int superbitrf_check_free_space(struct SuperbitRF *p, long *fd __attribute__((unused)), uint16_t len)
 {
-  int16_t space = p->tx_extract_idx - p->tx_insert_idx;
-  if (space <= 0) {
+  int space = p->tx_extract_idx - p->tx_insert_idx - 1;
+  if (space < 0) {
     space += SUPERBITRF_TX_BUFFER_SIZE;
   }
-  return (uint16_t)(space - 1) >= len;
+  return space >= len ? space : 0;
 }
 
 static void superbitrf_transmit(struct SuperbitRF *p, long fd __attribute__((unused)), uint8_t byte)
@@ -288,7 +292,7 @@ void superbitrf_dl_init(void)
  */
 void superbitrf_dl_event(void)
 {
-  DlCheckAndParse(&DOWNLINK_DEVICE.device, &pprz_srf_tp.trans_tx, dl_buffer, &dl_msg_available);
+  DlCheckAndParse(&DOWNLINK_DEVICE.device, &pprz_srf_tp.trans_tx, dl_buffer, &dl_msg_available, SUPERBITRF_UPDATE_DL);
 }
 
 void superbitrf_set_mfg_id(uint32_t id)

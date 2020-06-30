@@ -142,6 +142,7 @@ uint16_t PolySurveySweepNum;
 uint16_t PolySurveySweepBackNum;
 float EntryRadius;
 
+
 void nav_survey_poly_osam_setup(uint8_t EntryWP, uint8_t Size, float sw, float Orientation)
 {
   SmallestCorner.x = 0;
@@ -177,6 +178,7 @@ void nav_survey_poly_osam_setup(uint8_t EntryWP, uint8_t Size, float sw, float O
 
   SurveyEntryWP = EntryWP;
   SurveySize = Size;
+  Poly_Sweep = sw;
 
   struct Point2D Corners[PolygonSize];
 
@@ -346,6 +348,10 @@ void nav_survey_poly_osam_setup(uint8_t EntryWP, uint8_t Size, float sw, float O
 
 bool nav_survey_poly_osam_run(void)
 {
+  #ifdef NAV_SURVEY_POLY_OSAM_DYNAMIC
+  dSweep = (nav_survey_shift > 0 ? Poly_Sweep : -Poly_Sweep);
+  #endif
+
   struct Point2D C;
   struct Point2D ToP;
   struct Point2D FromP;

@@ -100,7 +100,7 @@ extern void uart_periph_set_mode(struct uart_periph *p, bool tx_enabled, bool rx
 extern void uart_periph_invert_data_logic(struct uart_periph *p, bool invert_rx, bool invert_tx);
 extern void uart_put_byte(struct uart_periph *p, long fd, uint8_t data);
 extern void uart_put_buffer(struct uart_periph *p, long fd, const uint8_t *data, uint16_t len);
-extern bool uart_check_free_space(struct uart_periph *p, long *fd, uint16_t len);
+extern int uart_check_free_space(struct uart_periph *p, long *fd, uint16_t len);
 extern void uart_send_message(struct uart_periph *p, long fd);
 extern uint8_t uart_getch(struct uart_periph *p);
 
@@ -108,7 +108,7 @@ extern uint8_t uart_getch(struct uart_periph *p);
  * Check UART for available chars in receive buffer.
  * @return number of chars in the buffer
  */
-extern uint16_t uart_char_available(struct uart_periph *p);
+extern int uart_char_available(struct uart_periph *p);
 
 
 extern void uart_arch_init(void);

@@ -91,7 +91,7 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) ac_id packing dl_
       1.
   in
   (* get number of digits after decimal dot *)
-  let digits = try Compat.bytes_length (ExtXml.attrib dl_setting "step") - Compat.bytes_index (ExtXml.attrib dl_setting "step") '.' - 1 with _ -> 0 in
+  let digits = try String.length (ExtXml.attrib dl_setting "step") - String.index (ExtXml.attrib dl_setting "step") '.' - 1 with _ -> 0 in
   let page_incr = step_incr
   and page_size = step_incr
   and show_auto = try ExtXml.attrib dl_setting "auto" = "true" with _ -> false in
@@ -231,6 +231,7 @@ let one_setting = fun (i:int) (do_change:int -> float -> unit) ac_id packing dl_
   ignore (commit_but#connect#clicked ~callback);
   tooltips#set_tip commit_but#coerce ~text:"Commit";
   tooltips#set_tip current_value#coerce ~text:"Current value, click to request update.";
+  tooltips#set_tip _l#coerce ~text:text;
 
   (* Undo button *)
   let undo_but = GButton.button ~packing:hbox#pack () in

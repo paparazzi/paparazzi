@@ -14,6 +14,7 @@ You can use:
     <define name="POLY_OSAM_DEFAULT_SWEEP" value="120" description="default distance in m between lines. Can be changed by telemetry"/>
     <define name="POLY_OSAM_MIN_RADIUS" value="30" description="min radius used in U-turns"/>
     <define name="POLY_OSAM_FIRST_SWEEP_DISTANCE" value="4" description="distante between the polygon border and first line.If 0 the distance well be equal to half sweep"/>
+    <define name="NAV_SURVEY_POLY_OSAM_DYNAMIC" value="FALSE|TRUE" description="Set to true to allow changing sweep distance mid polygon survey"/>
   </doc>
 
   <settings>

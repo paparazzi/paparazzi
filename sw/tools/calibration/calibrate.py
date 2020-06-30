@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 #  Copyright (C) 2010 Antoine Drouin
 #
@@ -46,7 +46,7 @@ def main():
                       action="store_true", dest="plot")
     parser.add_option("--noise_threshold",
                       help="specify noise threshold instead of automatically determining it",
-                      action="store", dest="noise_threshold", default=0)
+                      action="store", dest="noise_threshold", default=0, type="float")
     parser.add_option("-v", "--verbose",
                       action="store_true", dest="verbose")
     (options, args) = parser.parse_args()
@@ -123,7 +123,7 @@ def main():
         print("remaining "+str(len(flt_meas))+" after filtering")
     if len(flt_meas) == 0:
         print("Error: found zero IMU_" + options.sensor + "_RAW measurements for aircraft with id " + options.ac_id +
-              " in log file after filtering with noise threshold of " + noise_threshold +
+              " in log file after filtering with noise threshold of " + str(noise_threshold) +
               "!\nMaybe try specifying manually with the --noise_threshold option.")
         if options.plot:
             calibration_utils.plot_measurements(options.sensor, measurements)

@@ -89,11 +89,12 @@ void pipe_periph_init(struct pipe_periph *p, char *read_name, char *write_name)
  * Check if there is enough free space in the transmit buffer.
  * @param p   pointer to PIPE peripheral
  * @param len how many bytes of free space to check for
- * @return TRUE if enough space for len bytes
+ * @return number of bytes available or 0 if not enough
  */
-bool WEAK pipe_check_free_space(struct pipe_periph *p, long *fd __attribute__((unused)), uint16_t len)
+int WEAK pipe_check_free_space(struct pipe_periph *p, long *fd __attribute__((unused)), uint16_t len)
 {
-  return (PIPE_TX_BUFFER_SIZE - p->tx_insert_idx) >= len;
+  int available = PIPE_TX_BUFFER_SIZE - p->tx_insert_idx;
+  return available >= len ? available : 0;
 }
 
 /**

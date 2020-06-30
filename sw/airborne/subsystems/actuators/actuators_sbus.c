@@ -111,7 +111,7 @@ static inline void actuators_sbus_send(struct link_device *dev)
       data[ind + 2] |= (chn << (3 - shift)) &
                        0xff; // Sends remaining 3 + shift - 8 bits = shift-5 bits: left aligned: 8 - (shift-5) = 3-shift
     } else { // (shift <= 5) then it fits in 2 bytes
-      data[ind + 1] |= (chn << (5 - shift))) &
+      data[ind + 1] |= (chn << (5 - shift)) &
       0xff; // Sends remaining 3 + shift bits left aligned: 8 - (3 + shift) = 5 - shift
     }
     bits_sent += SBUS_BIT_PER_CHANNEL;

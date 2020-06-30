@@ -29,13 +29,13 @@ let () =
   let (i, o) = Unix.open_connection sockaddr in
 
   let buffer_size = 256 in
-  let buffer = Compat.bytes_create buffer_size in
+  let buffer = Bytes.create buffer_size in
   let get_message = fun _ ->
     begin
       try
         let n = input i buffer 0 buffer_size in
-        let b = Compat.bytes_sub buffer 0 n in
-        Debug.trace 'x' (Debug.xprint b);
+        let b = Bytes.sub buffer 0 n in
+        Debug.trace 'x' (Debug.xprint (Bytes.to_string b));
 
         let use_tele_message = fun payload ->
           Debug.trace 'x' (Debug.xprint (Protocol.string_of_payload payload));
@@ -43,7 +43,7 @@ let () =
           let msg = Tm_Pprz.message_of_id msg_id in
           Tm_Pprz.message_send (string_of_int ac_id) msg.PprzLink.name values in
 
-        ignore (PprzTransport.parse use_tele_message b)
+        ignore (PprzTransport.parse use_tele_message (Bytes.to_string b))
       with
           exc ->
             prerr_endline (Printexc.to_string exc)

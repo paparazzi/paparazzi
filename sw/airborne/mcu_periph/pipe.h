@@ -50,12 +50,12 @@ struct pipe_periph {
 extern void     pipe_arch_init(void);
 extern void     pipe_arch_periph_init(struct pipe_periph *p, char *read_name, char* write_name);
 extern void     pipe_periph_init(struct pipe_periph *p, char *name, char* write_name);
-extern uint16_t pipe_char_available(struct pipe_periph *p);
+extern int      pipe_char_available(struct pipe_periph *p);
 extern uint8_t  pipe_getch(struct pipe_periph *p);
 extern void     pipe_receive(struct pipe_periph *p);
 extern void     pipe_send_message(struct pipe_periph *p, long fd);
 extern void     pipe_send_raw(struct pipe_periph *p, long fd, uint8_t *buffer, uint16_t size);
-extern bool     pipe_check_free_space(struct pipe_periph *p, long *fd, uint16_t len);
+extern int      pipe_check_free_space(struct pipe_periph *p, long *fd, uint16_t len);
 extern void     pipe_put_byte(struct pipe_periph *p, long fd, uint8_t data);
 extern void     pipe_put_buffer(struct pipe_periph *p, long fd, const uint8_t *data,uint16_t len);
 

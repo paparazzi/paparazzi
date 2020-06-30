@@ -92,7 +92,7 @@ let circle = fun geo radius alt ->
     let wgs84 = of_utm WGS84 utm in
     coordinates wgs84 alt in
   let points = Array.init 360 degree_point in
-  Compat.bytes_concat " " (points.(359) :: Array.to_list points)
+  String.concat " " (points.(359) :: Array.to_list points)
 
 
 let ring_around_home = fun utm0 fp ->
@@ -237,7 +237,7 @@ let update_horiz_mode =
       let alt = ac.desired_altitude in
       match ac.horiz_mode with
           Segment (p1, p2) ->
-            let coordinates = Compat.bytes_concat " " (List.map (fun p -> coordinates p alt) [p1; p2]) in
+            let coordinates = String.concat " " (List.map (fun p -> coordinates p alt) [p1; p2]) in
             let kml_changes = update_linear_ring url_flight_plan "horiz_mode" coordinates in
             print_xml ac.name "route_changes.kml" kml_changes
         | Circle (p, r) ->

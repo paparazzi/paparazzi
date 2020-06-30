@@ -12,6 +12,7 @@ You can use:
     <define name="POLYSURVEY_DEFAULT_SIZE" value="5" description="default number of waypoints/corners used in polygon survey. Can be changed by telemetry"/>
     <define name="POLYSURVEY_DEFAULT_DISTANCE" value="120" description="default distance in m between lines. Can be changed by telemetry"/>
     <define name="POLYSURVEY_ENTRY_DISTANCE" value="4" description="distante between the polygon border and first line.If 0 the distance well be equal to half sweep"/>
+    <define name="NAV_SURVEY_POLY_DYNAMIC" value="FALSE|TRUE" description="Set to true to allow changing sweep distance mid polygon survey"/>
   </doc>
 
   <settings>

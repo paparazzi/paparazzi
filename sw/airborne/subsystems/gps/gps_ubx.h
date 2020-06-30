@@ -35,9 +35,9 @@
 
 #ifdef GPS_I2C
 #include "modules/gps/gps_ubx_i2c.h"
-#endif
-
+#else
 #include "mcu_periph/uart.h"
+#endif
 
 #ifndef PRIMARY_GPS
 #define PRIMARY_GPS GPS_UBX
@@ -48,9 +48,9 @@ extern void gps_ubx_event(void);
 
 #define gps_ubx_periodic_check() gps_periodic_check(&gps_ubx.state)
 
-#define GPS_UBX_NB_CHANNELS 16
+#define GPS_UBX_NB_CHANNELS 40
 
-#define GPS_UBX_MAX_PAYLOAD 255
+#define GPS_UBX_MAX_PAYLOAD 512
 struct GpsUbx {
   bool msg_available;
   uint8_t msg_buf[GPS_UBX_MAX_PAYLOAD] __attribute__((aligned));
@@ -59,7 +59,7 @@ struct GpsUbx {
 
   uint8_t status;
   uint16_t len;
-  uint8_t msg_idx;
+  uint16_t msg_idx;
   uint8_t ck_a, ck_b;
   uint8_t send_ck_a, send_ck_b;
   uint8_t error_cnt;

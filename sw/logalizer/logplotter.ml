@@ -352,7 +352,7 @@ class plot = fun ~width ~height ~packing () ->
 	  let tick = tick_min +. float i *. u in
 	  let y = scale_y tick in
 	  if y < height - bottom_margin then
-	    let s = Printf.sprintf "%.*f" (Pervasives.max 0 (2-truncate scale)) tick in
+	    let s = Printf.sprintf "%.*f" (max 0 (2-truncate scale)) tick in
 	    let (w, h) = renderer#create_text s in
 	    renderer#put_text (left_margin-margin-w) (y-h/2);
 
@@ -366,7 +366,7 @@ class plot = fun ~width ~height ~packing () ->
 	  let tick = tick_min +. float i *. u in
 	  let x = scale_x tick in
 	  if left_margin < x && x < width then
-	    let s = Printf.sprintf "%.*f" (Pervasives.max 0 (2-truncate scale)) tick in
+	    let s = Printf.sprintf "%.*f" (max 0 (2-truncate scale)) tick in
 	    let (w, h) = renderer#create_text s in
 	    let y = y-margin-h in
 	    renderer#put_text (x-w/2) y;

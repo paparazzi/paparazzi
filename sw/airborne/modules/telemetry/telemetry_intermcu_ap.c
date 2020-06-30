@@ -38,7 +38,7 @@
 struct telemetry_intermcu_t telemetry_intermcu;
 
 /* Static functions */
-static bool telemetry_intermcu_check_free_space(struct telemetry_intermcu_t *p, long *fd __attribute__((unused)), uint16_t len);
+static int telemetry_intermcu_check_free_space(struct telemetry_intermcu_t *p, long *fd __attribute__((unused)), uint16_t len);
 static void telemetry_intermcu_put_byte(struct telemetry_intermcu_t *p, long fd __attribute__((unused)), uint8_t data);
 static void telemetry_intermcu_put_buffer(struct telemetry_intermcu_t *p, long fd, uint8_t *data, uint16_t len);
 static void telemetry_intermcu_send_message(struct telemetry_intermcu_t *p, long fd __attribute__((unused)));
@@ -76,9 +76,10 @@ void telemetry_intermcu_on_msg(uint8_t* msg, uint8_t size __attribute__((unused)
   dl_parse_msg(&telemetry_intermcu.dev, &telemetry_intermcu.trans.trans_tx, msg);
 }
 
-static bool telemetry_intermcu_check_free_space(struct telemetry_intermcu_t *p, long *fd __attribute__((unused)), uint16_t len)
+static int telemetry_intermcu_check_free_space(struct telemetry_intermcu_t *p, long *fd __attribute__((unused)), uint16_t len)
 {
-  return ((p->buf_idx + len) < (TELEMERTY_INTERMCU_MSG_SIZE - 1));
+  int available = TELEMERTY_INTERMCU_MSG_SIZE - p->buf_idx;
+  return available >= len ? available : 0;
 }
 
 static void telemetry_intermcu_put_byte(struct telemetry_intermcu_t *p, long fd __attribute__((unused)), uint8_t data)

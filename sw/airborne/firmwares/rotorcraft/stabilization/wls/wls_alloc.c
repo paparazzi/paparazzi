@@ -51,6 +51,17 @@ void print_in_and_outputs(int n_c, int n_free, float** A_free_ptr, float* d, flo
 // provide loop feedback
 #define WLS_VERBOSE FALSE
 
+// Problem size needs to be predefined to avoid having to use VLAs
+#ifndef CA_N_V
+#error CA_N_V needs to be defined!
+#endif
+
+#ifndef CA_N_U
+#error CA_N_U needs to be defined!
+#endif
+
+#define CA_N_C  (CA_N_U+CA_N_V)
+
 /**
  * @brief Wrapper for qr solve
  *
@@ -99,38 +110,41 @@ void qr_solve_wrapper(int m, int n, float** A, float* b, float* x) {
  * @return Number of iterations, -1 upon failure
  */
 int wls_alloc(float* u, float* v, float* umin, float* umax, float** B,
-    int n_u, int n_v, float* u_guess, float* W_init, float* Wv,
-    float* Wu, float* up, float gamma_sq, int imax) {
+    float* u_guess, float* W_init, float* Wv, float* Wu, float* up,
+    float gamma_sq, int imax) {
   // allocate variables, use defaults where parameters are set to 0
   if(!gamma_sq) gamma_sq = 100000;
   if(!imax) imax = 100;
-  int n_c = n_u + n_v;
 
-  float A[n_c][n_u];
-  float A_free[n_c][n_u];
+  int n_c = CA_N_C;
+  int n_u = CA_N_U;
+  int n_v = CA_N_V;
+
+  float A[CA_N_C][CA_N_U];
+  float A_free[CA_N_C][CA_N_U];
 
   // Create a pointer array to the rows of A_free
   // such that we can pass it to a function
-  float * A_free_ptr[n_c];
+  float * A_free_ptr[CA_N_C];
   for(int i = 0; i < n_c; i++)
     A_free_ptr[i] = A_free[i];
 
-  float b[n_c];
-  float d[n_c];
+  float b[CA_N_C];
+  float d[CA_N_C];
 
-  int free_index[n_u];
-  int free_index_lookup[n_u];
+  int free_index[CA_N_U];
+  int free_index_lookup[CA_N_U];
   int n_free = 0;
   int free_chk = -1;
 
   int iter = 0;
-  float p_free[n_u];
-  float p[n_u];
-  float u_opt[n_u];
-  int infeasible_index[n_u] UNUSED;
+  float p_free[CA_N_U];
+  float p[CA_N_U];
+  float u_opt[CA_N_U];
+  int infeasible_index[CA_N_U] UNUSED;
   int n_infeasible = 0;
-  float lambda[n_u];
-  float W[n_u];
+  float lambda[CA_N_U];
+  float W[CA_N_U];
 
   // Initialize u and the working set, if provided from input
   if (!u_guess) {
@@ -170,7 +184,7 @@ int wls_alloc(float* u, float* v, float* umin, float* umax, float** B,
   for (int i = n_v; i < n_c; i++) {
     memset(A[i], 0, n_u * sizeof(float));
     A[i][i - n_v] = Wu ? Wu[i - n_v] : 1.0;
-    b[i] = up ? (Wu ? Wu[i] * up[i] : up[i]) : 0;
+    b[i] = up ? (Wu ? Wu[i-n_v] * up[i-n_v] : up[i-n_v]) : 0;
     d[i] = b[i] - A[i][i - n_v] * u[i - n_v];
   }
 

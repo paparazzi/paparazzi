@@ -19,7 +19,7 @@ let horiz_modes = [|"WAYPOINT";"ROUTE";"CIRCLE";"ATTITUDE";"MANUAL"|]
 let if_modes = [|"OFF";"DOWN";"UP"|]
 
 let string_of_values = fun values ->
-  Compat.bytes_concat " " (List.map (fun (_, v) -> PprzLink.string_of_value v) values)
+  String.concat " " (List.map (fun (_, v) -> PprzLink.string_of_value v) values)
 
 (** get modes from autopilot xml file *)
 let modes_from_autopilot = fun ap_xml ->

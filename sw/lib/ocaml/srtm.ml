@@ -57,7 +57,7 @@ let find = fun tile ->
         try
           let f = open_compressed (tile_name ^".hgt") in
           let n = tile_size*tile_size*2 in
-          let buf = Compat.bytes_create n in
+          let buf = Bytes.create n in
           really_input f buf 0 n;
           Hashtbl.add htiles tile buf;
           buf
@@ -68,7 +68,7 @@ let find = fun tile ->
 let get = fun tile y x ->
   let tile = find tile in
   let pos = (2*((tile_size-y)*tile_size+x)) in
-  (((Char.code tile.[pos] land 127) lsl 8) lor Char.code tile.[pos+1]) - ((Char.code tile.[pos] lsr 7) * 256 * 128)
+  (((Char.code (Bytes.get tile pos) land 127) lsl 8) lor Char.code (Bytes.get tile (pos+1))) - ((Char.code (Bytes.get tile pos) lsr 7) * 256 * 128)
 
 let of_wgs84 = fun geo ->
   let lat = (Rad>>Deg)geo.posn_lat

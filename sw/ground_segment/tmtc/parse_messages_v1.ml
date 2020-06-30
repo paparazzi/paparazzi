@@ -69,13 +69,13 @@ let foi32value = fun x ->
     | _ -> failwith "Receive.log_and_parse: int32 expected"
 
 let format_string_field = fun s ->
-  let s = Compat.bytes_copy s in
-  for i = 0 to Compat.bytes_length s - 1 do
-    match s.[i] with
-        ' ' -> Compat.bytes_set s i '_'
+  let s = Bytes.of_string s in
+  for i = 0 to Bytes.length s - 1 do
+    match Bytes.get s i with
+        ' ' -> Bytes.set s i '_'
       | _ -> ()
   done;
-  s
+  Bytes.to_string s
 
 let check_index = fun i t where ->
   if i < 0 || i >= Array.length t then begin

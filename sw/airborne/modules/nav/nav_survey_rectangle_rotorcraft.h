@@ -41,7 +41,7 @@ extern bool interleave;
 
 
 extern void nav_survey_rectangle_rotorcraft_init(void);
-extern void nav_survey_rectangle_rotorcraft_setup(uint8_t wp1, uint8_t wp2, float grid1, survey_orientation_t so);
+extern void nav_survey_rectangle_rotorcraft_setup(uint8_t wp1, uint8_t wp2, float grid, survey_orientation_t so);
 extern bool nav_survey_rectangle_rotorcraft_run(uint8_t wp1, uint8_t wp2);
 
 #define NavSurveyRectangleInit(_wp1, _wp2, _grid, _orientation) nav_survey_rectangle_rotorcraft_setup(_wp1, _wp2, _grid, _orientation)

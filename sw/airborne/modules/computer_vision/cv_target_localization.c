@@ -241,26 +241,3 @@ void cv_target_localization_report_mark(uint8_t mark)
         &lat_deg, &lon_deg);
 }
 
-
-#if TARGET_LOC_JEVOIS_ALT
-// send current altitude to the jevois camera to help detection algorithm
-// this should be moved to the jevois camera driver as an option
-
-#include "modules/sensors/cameras/jevois.h"
-#include "stdio.h"
-
-void target_localization_send_pos_to_cam(void)
-{
-  char str[32];
-  int alt_mm = (int)(stateGetPositionEnu_f()->z * 1000.f);
-  Bound(alt_mm, 0, 999999);
-  sprintf(str, "alt %d\r\n", alt_mm);
-#ifndef SITL
-  jevois_send_string(str);
-#endif
-}
-
-#else
-void target_localization_send_pos_to_cam(void) {}
-#endif
-

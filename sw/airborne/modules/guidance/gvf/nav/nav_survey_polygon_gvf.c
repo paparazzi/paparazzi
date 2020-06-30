@@ -27,8 +27,6 @@
  *
  */
 
-#include "nav_survey_polygon_gvf.h"
-
 #include "firmwares/fixedwing/nav.h"
 #include "state.h"
 #include "autopilot.h"
@@ -166,7 +164,7 @@ void gvf_nav_survey_polygon_setup(uint8_t first_wp, uint8_t size, float angle, f
     //east
     gvf_survey.dir_vec.x = 1.0;
     gvf_survey.dir_vec.y = 1.0 / tanf(angle_rad);
-    sweep.y = - 1.0;
+    sweep.y = -1.0;
     sweep.x = gvf_survey.dir_vec.y / gvf_survey.dir_vec.x;
   } else if (angle <= 225.0) {
     //south

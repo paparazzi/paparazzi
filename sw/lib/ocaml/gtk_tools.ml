@@ -149,7 +149,7 @@ let tree_values = fun ?(only_checked=true) (tree : tree) ->
   store#foreach (fun _ row ->
     let v = store#get ~row ~column:name
     and c = store#get ~row ~column:check in
-    let space = if Compat.bytes_length !values > 0 then " " else "" in
+    let space = if String.length !values > 0 then " " else "" in
     let v =
       if c then v else
         if only_checked then ""
@@ -172,9 +172,9 @@ let get_selected_in_tree = fun  (tree : tree) ->
 let add_to_tree = fun ?(force_unselect=false) (tree : tree) string ->
   let (store, name, check, _) = tree_model tree in
   let row = store#append () in
-  let l = Compat.bytes_length string in
+  let l = String.length string in
   let checked = not (string.[0] = '[' && string.[l - 1] = ']') in
-  let string = if not checked then Compat.bytes_sub string 1 (l - 2) else string in
+  let string = if not checked then String.sub string 1 (l - 2) else string in
   store#set ~row ~column:check (checked && not force_unselect);
   store#set ~row ~column:name string
 

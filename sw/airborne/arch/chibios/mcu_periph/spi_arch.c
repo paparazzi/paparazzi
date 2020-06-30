@@ -281,7 +281,10 @@ static void handle_spi_thd(struct spi_periph *p)
 
   // Configure SPI bus with the current slave select pin
   spiStart((SPIDriver *)p->reg_addr, &spi_cfg);
-  spiSelect((SPIDriver *)p->reg_addr);
+  // Select the slave after reconfiguration of the peripheral
+  if (t->select == SPISelectUnselect || t->select == SPISelect) {
+    spiSelect((SPIDriver *)p->reg_addr);
+  }
 
   // Run the callback after selecting the slave
   // FIXME warning: done in spi thread
@@ -300,7 +303,9 @@ static void handle_spi_thd(struct spi_periph *p)
 #endif
 
   // Unselect the slave
-  spiUnselect((SPIDriver *)p->reg_addr);
+  if (t->select == SPISelectUnselect || t->select == SPIUnselect) {
+    spiUnselect((SPIDriver *)p->reg_addr);
+  }
 
   chSysLock();
   // end of transaction, handle fifo
@@ -322,6 +327,7 @@ static void handle_spi_thd(struct spi_periph *p)
   if (t->after_cb != 0) {
     t->after_cb(t);
   }
+
 }
 
 /**

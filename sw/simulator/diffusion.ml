@@ -68,10 +68,10 @@ let send_on_ivy = fun () ->
     ys := sprintf "%.6f" ((Rad>>Deg)wgs84.posn_long) :: !ys;
     vs := sprintf "%d" plume.value :: !vs)
     plumes ;
-  let ids = Compat.bytes_concat "," !ids
-  and xs = Compat.bytes_concat "," !xs
-  and ys = Compat.bytes_concat "," !ys
-  and vs = Compat.bytes_concat "," !vs in
+  let ids = Bytes.concat "," !ids
+  and xs = Bytes.concat "," !xs
+  and ys = Bytes.concat "," !ys
+  and vs = Bytes.concat "," !vs in
   Ground_Pprz.message_send my_id "PLUMES"
     [ "ids", PprzLink.String ids;
       "lats", PprzLink.String xs;
@@ -130,7 +130,7 @@ let _ =
 
   let time_scale = object val mutable v = 1. method value = v method set_value x = v <- x end in
 
-  Stdlib.timer ~scale:time_scale dt periodic;
+  Simlib.timer ~scale:time_scale dt periodic;
 
   safe_bind "FLIGHT_PARAM" flight_param_msg;
   safe_bind "WORLD_ENV" (gaia time_scale);

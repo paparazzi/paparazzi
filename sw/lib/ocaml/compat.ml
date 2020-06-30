@@ -22,66 +22,18 @@
  *
  *)
 
- IFDEF HAS_BYTES_MODULE THEN
- module BYTES = Bytes
- ELSE
- module BYTES = String
- END
-
-let bytes_create = fun len ->
-  BYTES.create len
-
-let bytes_contains = fun c s ->
-  BYTES.contains c s
-
-let bytes_length = fun len ->
-  BYTES.length len
-
-let bytes_make = fun n c->
-  BYTES.make n c
-
-let bytes_copy = fun s->
-  BYTES.copy s
-
-let bytes_blit = fun src srcoff dst dstoff len->
-  BYTES.blit src srcoff dst dstoff len
-
-let bytes_sub = fun s start len->
-  BYTES.sub s start len
-
-let bytes_index = fun c s ->
-  BYTES.index c s
-
-let bytes_concat = fun sep sl->
-  BYTES.concat sep sl
-
-let bytes_index_from = fun s i c ->
-  BYTES.index_from s i c
-
-let bytes_get = fun s n->
-  BYTES.get s n
-
-let bytes_compare = fun s1 s2->
-  BYTES.compare s1 s2
-
-let bytes_set = fun s n c->
-  BYTES.set s n c
-
-let bytes_iter = fun f s->
-  BYTES.iter f s
-
 IFDEF OCAML_V404 THEN
-let lowercase_ascii = BYTES.lowercase_ascii
+let lowercase_ascii = String.lowercase_ascii
 
-let uppercase_ascii = BYTES.uppercase_ascii
+let uppercase_ascii = String.uppercase_ascii
 
-let capitalize_ascii = BYTES.capitalize_ascii
+let capitalize_ascii = String.capitalize_ascii
 
 ELSE
-let lowercase_ascii = BYTES.lowercase
+let lowercase_ascii = String.lowercase
 
-let uppercase_ascii = BYTES.uppercase
+let uppercase_ascii = String.uppercase
 
-let capitalize_ascii = BYTES.capitalize
+let capitalize_ascii = String.capitalize
 
 END

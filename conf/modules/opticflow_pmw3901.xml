@@ -1,0 +1,49 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="opticflow_pmw3901" dir="sensors">
+  <doc>
+    <description>Driver for PMW3901 optical flow sensor</description>
+    <configure name="OPTICFLOW_PMW3901_SPI_DEV" value="SPIx" description="SPI device"/>
+    <configure name="OPTICFLOW_PMW3901_SPI_SLAVE_IDX" value="2" description="SPI slave index"/>
+    <define name="OPTICFLOW_PMW3901_SENSOR_ANGLE" value="90" description="Sensor mounting angle in degrees"/>
+    <define name="OPTICFLOW_PMW3901_SUBPIXEL_FACTOR" value="100" description="Subpixel factor"/>
+    <define name="OPTICFLOW_PMW3901_STD_PX" value="50" description="Standard deviation of flow measurement in px"/>
+    <define name="OPTICFLOW_PMW3901_AGL_ID" value="ABI_BROADCAST" description="AGL source to listen to for velocity estimation"/>
+    <define name="OPTICFLOW_PMW3901_AGL_TIMEOUT_US" value="500000" description="Lifetime of AGL measurements"/>
+    <define name="PMW3901_RAD_PER_PX" value="0.002443389" description="Rad-per-px for ALL PMW3901 sensors"/>
+    <define name="PMW3901_SPI_CDIV" value="SPIDiv256" description="SPI Clock divisor to adjust according to PCLK, don't exceeed 2MHz"/>
+    <define name="OPTICFLOW_PMW3901_RAD_PER_PX" value="(undefined)" description="Override rad-per-px only for the PMW3901 used by this module"/>
+    <define name="SENSOR_SYNC_SEND_OPTICFLOW_PMW3901" value="FALSE" description="Send all new measurements over telemetry"/>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings name="OF_PMW3901">
+         <dl_setting shortname="sensor_angle" var="of_pmw.sensor_angle" min="0" step="1" max="360"/>
+         <dl_setting shortname="subpixel_factor" var="of_pmw.subpixel_factor" min="0" step="1" max="500"/>
+         <dl_setting shortname="std_px" var="of_pmw.std_px" min="0.0" max="100.0" step="0.1"/>
+         <dl_setting shortname="agl_timeout" var="of_pmw.agl_timeout" min="0" step="1000" max="1000000"/>
+         <dl_setting shortname="rad_per_px" var="of_pmw.pmw.rad_per_px" min="0.000" max="0.010" step="0.001"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="opticflow_pmw3901.h"/>
+  </header>
+  <init fun="opticflow_pmw3901_init()"/>
+  <periodic fun="opticflow_pmw3901_periodic()" freq="100"/>
+  <event fun="opticflow_pmw3901_event()"/>
+  <makefile>
+    <configure name="OPTICFLOW_PMW3901_SPI_DEV" default="SPI2" case="upper|lower"/>
+    <configure name="OPTICFLOW_PMW3901_SPI_SLAVE_IDX" default="1"/>
+    <define name="USE_$(OPTICFLOW_PMW3901_SPI_DEV_UPPER)"/>
+    <define name="USE_SPI_SLAVE$(OPTICFLOW_PMW3901_SPI_SLAVE_IDX)"/>
+    <define name="OPTICFLOW_PMW3901_SPI_DEV" value="$(OPTICFLOW_PMW3901_SPI_DEV_LOWER)"/>
+    <define name="OPTICFLOW_PMW3901_SPI_SLAVE_IDX" value="$(OPTICFLOW_PMW3901_SPI_SLAVE_IDX)"/>
+    <file name="opticflow_pmw3901.c"/>
+    <file name="pmw3901.c" dir="peripherals"/>
+    <raw>
+      include $(CFG_SHARED)/spi_master.makefile
+    </raw>
+  </makefile>
+</module>
+

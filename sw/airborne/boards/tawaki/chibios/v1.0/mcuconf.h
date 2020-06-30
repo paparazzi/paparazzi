@@ -306,6 +306,11 @@
 #define STM32_PWM4_UP_DMA_IRQ_PRIORITY      6
 #define STM32_PWM4_UP_DMA_PRIORITY          2
 
+#define STM32_PWM5_UP_DMA_STREAM            STM32_DMA_STREAM_ID(1, 0)
+#define STM32_PWM5_UP_DMA_CHANNEL           6
+#define STM32_PWM5_UP_DMA_IRQ_PRIORITY      6
+#define STM32_PWM5_UP_DMA_PRIORITY          2
+
 /*
  * SERIAL driver system settings.
  */

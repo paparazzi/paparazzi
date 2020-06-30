@@ -30,6 +30,8 @@
 #include "subsystems/navigation/nav_survey_rectangle.h"
 #include "state.h"
 
+float nav_survey_sweep;
+
 static struct point survey_from;
 static struct point survey_to;
 static bool survey_uturn __attribute__((unused)) = false;
@@ -82,13 +84,17 @@ void nav_survey_rectangle_init(uint8_t wp1, uint8_t wp2, float grid, survey_orie
     }
   }
   nav_survey_shift = grid;
+  nav_survey_sweep = grid;
   survey_uturn = false;
   LINE_START_FUNCTION;
 }
 
-
 void nav_survey_rectangle(uint8_t wp1, uint8_t wp2)
 {
+  #ifdef NAV_SURVEY_RECTANGLE_DYNAMIC
+  nav_survey_shift = (nav_survey_shift > 0 ? nav_survey_sweep : -nav_survey_sweep);
+  #endif
+
   static float survey_radius;
 
   nav_survey_active = true;

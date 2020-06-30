@@ -5,12 +5,15 @@
   </description>
 
   <firmware name="rotorcraft">
-    <target name="ap" board="bebop"/>
+    <target name="ap" board="bebop">
+      <define name="INDI_RPM_FEEDBACK" value="TRUE"/>
+    </target>
 
-    <!--target name="nps" board="pc">
+    <target name="nps" board="pc">
       <module name="fdm" type="jsbsim"/>
       <module name="udp"/>
-    </target-->
+      <define name="INDI_RPM_FEEDBACK" value="FALSE"/>
+    </target>
 
     <!--define name="USE_SONAR" value="TRUE"/-->
 
@@ -20,9 +23,7 @@
     <module name="actuators" type="bebop"/>
     <module name="imu" type="bebop"/>
     <module name="gps" type="furuno"/>
-    <module name="stabilization" type="indi">
-      <define name="INDI_RPM_FEEDBACK" value="TRUE"/>
-    </module>
+    <module name="stabilization" type="indi"/>
     <module name="stabilization" type="rate_indi"/>
     <module name="ahrs" type="int_cmpl_quat">
       <configure name="USE_MAGNETOMETER" value="TRUE"/>

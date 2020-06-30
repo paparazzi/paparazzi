@@ -15,9 +15,9 @@
   </header>
   <init fun="gps_datalink_init()"/>
   <periodic fun="gps_datalink_periodic_check()" freq="1." autorun="TRUE"/>
-  <datalink message="REMOTE_GPS" fun="gps_datalink_parse_REMOTE_GPS()"/>
-  <datalink message="REMOTE_GPS_SMALL" fun="gps_datalink_parse_REMOTE_GPS_SMALL()"/>
-  <datalink message="REMOTE_GPS_LOCAL" fun="gps_datalink_parse_REMOTE_GPS_LOCAL()"/>
+  <datalink message="REMOTE_GPS" fun="gps_datalink_parse_REMOTE_GPS(buf)"/>
+  <datalink message="REMOTE_GPS_SMALL" fun="gps_datalink_parse_REMOTE_GPS_SMALL(buf)"/>
+  <datalink message="REMOTE_GPS_LOCAL" fun="gps_datalink_parse_REMOTE_GPS_LOCAL(buf)"/>
   <makefile target="ap|fbw">
     <file name="gps_datalink.c" dir="subsystems/gps"/>
     <raw>

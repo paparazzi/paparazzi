@@ -149,6 +149,9 @@
 #define LED_8_GPIO_ON gpio_set
 #define LED_8_GPIO_OFF gpio_clear
 
+/* Power Switch, on PB12 */
+#define POWER_SWITCH_GPIO GPIOB,GPIO12
+
 
 /* Pint to set Uart2 RX polarity, on PB13, output high inverts, low doesn't */
 #define RC_POLARITY_GPIO_PORT GPIOB
@@ -579,6 +582,9 @@
 /**
  * For WS2812
  */
+#define WS2812D1_GPIO GPIOA
+#define WS2812D1_PIN GPIO8
+#define WS2812D1_AF 1
 #define WS2812D1_CFG_DEF { \
   .dma_stream = STM32_PWM1_UP_DMA_STREAM, \
   .dma_channel = STM32_PWM1_UP_DMA_CHANNEL, \

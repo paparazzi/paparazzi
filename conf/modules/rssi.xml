@@ -11,7 +11,7 @@
     <file name="rssi.h"/>
   </header>
   <init fun="rssi_init()"/>
-  <datalink message="RSSI" fun="parse_rssi_dl()"/>
+  <datalink message="RSSI" fun="parse_rssi_dl(buf)"/>
   <makefile>
     <file name="rssi.c"/>
   </makefile>

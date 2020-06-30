@@ -5,6 +5,10 @@
     <description>
       Full INDI stabilization controller for rotorcraft
     </description>
+
+    <configure name="INDI_OUTPUTS" default="4"/>
+    <configure name="INDI_NUM_ACT" default="4"/>
+
     <section name="RC_SETPOINT" prefix="STABILIZATION_ATTITUDE_">
       <define name="SP_MAX_PHI"   value="45." description="max setpoint for roll angle" unit="deg"/>
       <define name="SP_MAX_THETA" value="45." description="max setpoint for pitch angle" unit="deg"/>
@@ -60,6 +64,12 @@
     <file name="wls_alloc.c" dir="$(SRC_FIRMWARE)/stabilization/wls"/>
     <file name="qr_solve.c" dir="math/qr_solve"/>
     <file name="r8lib_min.c" dir="math/qr_solve"/>
+    <configure name="INDI_OUTPUTS" default="4"/>
+    <configure name="INDI_NUM_ACT" default="4"/>
+    <define name="INDI_OUTPUTS" value="$(INDI_OUTPUTS)"/>
+    <define name="INDI_NUM_ACT" value="$(INDI_NUM_ACT)"/>
+    <define name="CA_N_V" value="$(INDI_OUTPUTS)"/>
+    <define name="CA_N_U" value="$(INDI_NUM_ACT)"/>
     <define name="STABILIZATION_ATTITUDE_TYPE_INT"/>
     <define name="STABILIZATION_ATTITUDE_TYPE_H" value="stabilization/stabilization_attitude_quat_indi.h" type="string"/>
     <define name="STABILIZATION_ATTITUDE_INDI_FULL" value="true"/>

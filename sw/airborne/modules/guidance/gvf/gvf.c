@@ -232,9 +232,9 @@ static void gvf_line(float a, float b, float heading)
 
 bool gvf_line_XY_heading(float a, float b, float heading)
 {
-    gvf_set_direction(1);
-    gvf_line(a, b, heading);
-    return true;
+  gvf_set_direction(1);
+  gvf_line(a, b, heading);
+  return true;
 }
 
 bool gvf_line_XY1_XY2(float x1, float y1, float x2, float y2)
@@ -242,19 +242,7 @@ bool gvf_line_XY1_XY2(float x1, float y1, float x2, float y2)
   float zx = x2 - x1;
   float zy = y2 - y1;
 
-  float alpha = atanf(zx / zy);
-
-  float beta = atan2f(zy, zx);
-  float cosb = cosf(-beta);
-  float sinb = sinf(-beta);
-  float zxr = zx * cosb - zy * sinb;
-  if((zxr > 0 && zy > 0) || (zxr < 0 && zy < 0)) {
-      gvf_set_direction(1);
-  } else {
-      gvf_set_direction(-1);
-  }
-
-  gvf_line(x1, y1, alpha);
+  gvf_line_XY_heading(x1, y1, atan2f(zx, zy));
 
   horizontal_mode = HORIZONTAL_MODE_ROUTE;
   gvf_segment.seg = 1;
@@ -324,8 +312,8 @@ bool gvf_segment_XY1_XY2(float x1, float y1, float x2, float y2)
   float zxr = zx * cosb - zy * sinb;
   float pxr = px * cosb - py * sinb;
 
-  if((zxr > 0 && pxr > zxr) || (zxr < 0 && pxr < zxr)) {
-      return false;
+  if ((zxr > 0 && pxr > zxr) || (zxr < 0 && pxr < zxr)) {
+    return false;
   }
 
   return gvf_line_XY1_XY2(x1, y1, x2, y2);

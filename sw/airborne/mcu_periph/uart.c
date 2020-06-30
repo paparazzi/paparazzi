@@ -253,13 +253,13 @@ void uart_periph_init(struct uart_periph *p)
 #endif
 }
 
-bool WEAK uart_check_free_space(struct uart_periph *p, long *fd __attribute__((unused)), uint16_t len)
+int WEAK uart_check_free_space(struct uart_periph *p, long *fd __attribute__((unused)), uint16_t len)
 {
-  int16_t space = p->tx_extract_idx - p->tx_insert_idx;
-  if (space <= 0) {
+  int space = p->tx_extract_idx - p->tx_insert_idx - 1;
+  if (space < 0) {
     space += UART_TX_BUFFER_SIZE;
   }
-  return (uint16_t)(space - 1) >= len;
+  return space >= len ? space : 0;
 }
 
 // Weak implementation of put_buffer, byte by byte
@@ -283,13 +283,13 @@ uint8_t WEAK uart_getch(struct uart_periph *p)
   return ret;
 }
 
-uint16_t WEAK uart_char_available(struct uart_periph *p)
+int WEAK uart_char_available(struct uart_periph *p)
 {
-  int16_t available = p->rx_insert_idx - p->rx_extract_idx;
+  int available = p->rx_insert_idx - p->rx_extract_idx;
   if (available < 0) {
     available += UART_RX_BUFFER_SIZE;
   }
-  return (uint16_t)available;
+  return available;
 }
 
 void WEAK uart_arch_init(void)

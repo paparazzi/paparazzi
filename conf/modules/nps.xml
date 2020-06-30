@@ -63,7 +63,7 @@
     <file name="nps_radio_control_joystick.c" dir="nps"/>
     <file name="nps_radio_control_spektrum.c" dir="nps"/>
     <file name="nps_main_common.c" dir="nps"/>
-    <file name="math/pprz_geodetic_wmm2015.c" dir="math"/>
+    <file name="math/pprz_geodetic_wmm2020.c" dir="math"/>
   </makefile>
 
   <makefile target="nps">

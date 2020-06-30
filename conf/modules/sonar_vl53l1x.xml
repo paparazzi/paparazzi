@@ -1,0 +1,45 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="sonar_vl53l1x" dir="sonar">
+  <doc>
+    <description>
+     VL53L1X laser ranger AGL driver
+    </description>
+    <configure name="SONAR_VL53L1X_I2C_DEV" value="i2c1" description="I2C device to use for the VL53L1X sensor"/>
+    <define name="SONAR_VL53L1X_I2C_ADDR" value="0x52" description="I2C address"/>
+    <define name="SONAR_VL53L1X_OFFSET" value="0"  description="sensor offset in mm - default is 0"/>
+    <define name="SONAR_VL53L1X_TIMINGBUDGET_MS" value="100" description="Timing budget per measurement"/>
+    <define name="SONAR_VL53L1X_INTERMEASUREMENT_MS" value="100" description="Time between measurements"/>
+    <define name="SONAR_VL53L1X_DISTANCEMODE" value="2" description="Sensor distance mode"/>
+    <define name="USE_SONAR" value="" description="activate use of sonar in INS extended filter (only rotorcraft)"/>
+  </doc>
+  
+  <settings>
+    <dl_settings>
+      <dl_settings name="sonar_vl53l1x">
+        <dl_setting var="sonar_vl53l1x.offset_mm" min="-1000" step="1" max="1000" shortname="offset_mm"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <header>
+    <file name="sonar_vl53l1x.h"/>
+  </header>
+
+  <init fun="sonar_vl53l1x_init()"/>
+  <periodic fun="sonar_vl53l1x_read()" freq="50."/>
+  <event fun="sonar_vl53l1x_event()"/>
+
+  <makefile target="ap|sim">
+    <file name="sonar_vl53l1x.c"/>
+  </makefile>
+  <makefile target="ap">
+    <configure name="SONAR_VL53L1X_I2C_DEV" default="i2c1" case="lower|upper"/>
+    <define name="SONAR_VL53L1X_I2C_DEV" value="$(SONAR_VL53L1X_I2C_DEV_LOWER)"/>
+    <define name="USE_$(SONAR_VL53L1X_I2C_DEV_UPPER)"/>
+    <file name="vl53l1_platform.c" dir="peripherals"/>
+    <file name="vl53l1x_api.c" dir="peripherals"/>
+    <file name="vl53l1x_nonblocking.c" dir="peripherals"/>
+  </makefile>
+
+</module>

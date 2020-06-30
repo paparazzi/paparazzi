@@ -1,5 +1,5 @@
 sudo: required
-dist: xenial
+dist: bionic
 language: c
 compiler:
   - gcc
@@ -11,7 +11,7 @@ before_install:
   - wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
   - sudo apt-get update -q
 install:
-  - sudo apt-get install -y --force-yes paparazzi-dev paparazzi-jsbsim gcc-arm-embedded gcc-arm-linux-gnueabi g++-arm-linux-gnueabi libipc-run-perl rustc cargo libgazebo9-dev
+  - sudo apt-get install -y --force-yes paparazzi-dev paparazzi-jsbsim gcc-arm-embedded gcc-arm-linux-gnueabi g++-arm-linux-gnueabi libipc-run-perl rustc cargo libgazebo9-dev libgps-dev
 script:
   - arm-none-eabi-gcc --version
   - if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then if [ "${TRAVIS_EVENT_TYPE}" == "cron" ]; then make test_all_confs; else make test; fi; fi

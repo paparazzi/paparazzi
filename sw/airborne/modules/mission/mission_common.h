@@ -205,18 +205,18 @@ extern void mission_status_report(void);
 
 /** Parsing functions called when a mission message is received
 */
-extern int mission_parse_GOTO_WP(void);
-extern int mission_parse_GOTO_WP_LLA(void);
-extern int mission_parse_CIRCLE(void);
-extern int mission_parse_CIRCLE_LLA(void);
-extern int mission_parse_SEGMENT(void);
-extern int mission_parse_SEGMENT_LLA(void);
-extern int mission_parse_PATH(void);
-extern int mission_parse_PATH_LLA(void);
-extern int mission_parse_CUSTOM(void);
-extern int mission_parse_GOTO_MISSION(void);
-extern int mission_parse_NEXT_MISSION(void);
-extern int mission_parse_END_MISSION(void);
+extern int mission_parse_GOTO_WP(uint8_t *buf);
+extern int mission_parse_GOTO_WP_LLA(uint8_t *buf);
+extern int mission_parse_CIRCLE(uint8_t *buf);
+extern int mission_parse_CIRCLE_LLA(uint8_t *buf);
+extern int mission_parse_SEGMENT(uint8_t *buf);
+extern int mission_parse_SEGMENT_LLA(uint8_t *buf);
+extern int mission_parse_PATH(uint8_t *buf);
+extern int mission_parse_PATH_LLA(uint8_t *buf);
+extern int mission_parse_CUSTOM(uint8_t *buf);
+extern int mission_parse_GOTO_MISSION(uint8_t *buf);
+extern int mission_parse_NEXT_MISSION(uint8_t *buf);
+extern int mission_parse_END_MISSION(uint8_t *buf);
 
 #endif // MISSION_COMMON_H
 

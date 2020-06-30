@@ -55,7 +55,7 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
   let rcommands = ref [||]
   let adj_bat = GData.adjustment ~value:FM.max_bat_level ~lower:0. ~upper:(FM.max_bat_level+.2.) ~step_incr:0.1 ~page_size:0. ()
 
-  external get_commands : Stdlib.pprz_t array -> int = "get_commands"
+  external get_commands : Simlib.pprz_t array -> int = "get_commands"
 (** Returns gaz servo value (us) *)
 
   let energy = ref 0.
@@ -119,7 +119,7 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
     let send_ppm = fun () ->
       if on_off#active then send_ppm () in
 
-    Stdlib.timer rc_period send_ppm; (** FIXME: should use time_scale *)
+    Simlib.timer rc_period send_ppm; (** FIXME: should use time_scale *)
     window#show ()
 
   external sys_time_task : unit -> unit = "sim_sys_time_task"
@@ -189,11 +189,11 @@ module Make (A:Data.MISSION) (FM: FlightModel.SIG) = struct
     ignore (Dl_Pprz.message_bind name (get_message name link_mode))
 
   let boot = fun time_scale ->
-    Stdlib.timer ~scale:time_scale servos_period (update_servos bat_button);
-    Stdlib.timer ~scale:time_scale periodic_period periodic_task;
-    Stdlib.timer ~scale:time_scale nav_period nav_task;
-    Stdlib.timer ~scale:time_scale monitor_period monitor_task;
-    Stdlib.timer ~scale:time_scale sys_time_period sys_time_task;
+    Simlib.timer ~scale:time_scale servos_period (update_servos bat_button);
+    Simlib.timer ~scale:time_scale periodic_period periodic_task;
+    Simlib.timer ~scale:time_scale nav_period nav_task;
+    Simlib.timer ~scale:time_scale monitor_period monitor_task;
+    Simlib.timer ~scale:time_scale sys_time_period sys_time_task;
 
     (* Forward or broacast messages according to "link" mode *)
     Hashtbl.iter

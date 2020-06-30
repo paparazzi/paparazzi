@@ -44,7 +44,7 @@
  * in milliseconds to microseconds (required by pwmEnableChannel())
  */
 #ifndef PWM_CMD_TO_US
-#define PWM_CMD_TO_US(_t) (1000000 * _t / PWM_FREQUENCY)
+#define PWM_CMD_TO_US(_t) (PWM_FREQUENCY * _t / 1000000)
 #endif
 
 int32_t actuators_pwm_values[ACTUATORS_PWM_NB];

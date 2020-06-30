@@ -54,7 +54,7 @@
 #define GPS_VALID_COURSE_BIT   6
 
 #ifndef GPS_NB_CHANNELS
-#define GPS_NB_CHANNELS 16
+#define GPS_NB_CHANNELS 40
 #endif
 
 #define GPS_MODE_AUTO 0
@@ -221,5 +221,23 @@ extern struct UtmCoor_f utm_float_from_gps(struct GpsState *gps_s, uint8_t zone)
  * @return utm position in fixed point (cm), altitude hmsl (mm).
  */
 extern struct UtmCoor_i utm_int_from_gps(struct GpsState *gps_s, uint8_t zone);
+
+/**
+ * Number of days since navigation epoch (6 January 1980)
+ * @param[in] year current year
+ * @param[in] month current month
+ * @param[in] day current day
+ * @return number of days since navigation epoch
+ */
+extern uint16_t gps_day_number(uint16_t year, uint8_t month, uint8_t day);
+
+/**
+ * Number of weeks since navigation epoch (6 January 1980)
+ * @param[in] year current year
+ * @param[in] month current month
+ * @param[in] day current day
+ * @return number of weeks since navigation epoch
+ */
+extern uint16_t gps_week_number(uint16_t year, uint8_t month, uint8_t day);
 
 #endif /* GPS_H */

@@ -626,8 +626,10 @@
 #define CORTEX_VTOR_INIT                    0x00200000U
 
 #elif LUFTBOOT // using LUFTBOOT bootloader
-#if defined STM32F4
+#if defined(STM32F4)
 #define CORTEX_VTOR_INIT                    0x00004000U
+#elif defined(STM32F7)
+#define CORTEX_VTOR_INIT                    0x08008000U
 #else
 #define CORTEX_VTOR_INIT                    0x00002000U
 #endif

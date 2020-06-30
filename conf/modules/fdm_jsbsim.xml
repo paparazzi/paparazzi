@@ -5,28 +5,38 @@
     <description>
       JSBSim FDM backend for NPS simulator
 
-      Use the paparazzi-jsbsim package if it is installed, otherwise look for JSBsim under /opt/jsbsim
+      Use the paparazzi-jsbsim package if it is installed, otherwise look for JSBsim under /usr
 
-      JSBSim doc: http://wiki.paparazziuav.org/wiki/JSBSim
+      JSBSim website: https://jsbsim-team.github.io/jsbsim-reference-manual/
+      JSBSim source: https://github.com/JSBSim-Team/jsbsim
+      JSBSim/PPRZ doc: http://wiki.paparazziuav.org/wiki/JSBSim
       NPS doc: http://wiki.paparazziuav.org/wiki/NPS
     </description>
     <configure name="FIND_JSBSIM_VIA_PKG_CONFIG" value="yes|no" description="enable or disable using pkg-config to get library flags (enabled by default when package exists)"/>
-    <configure name="JSBSIM_ROOT" value="/opt/jsbsim" description="set root directory for JSBSim library when auto-detection (see FIND_JSBSIM_VIA_PKG_CONFIG) is not used (default path: /opt/jsbsim)"/>
+    <configure name="JSBSIM_ROOT" value="/usr" description="set root directory for JSBSim library when auto-detection (see FIND_JSBSIM_VIA_PKG_CONFIG) is not used (default path: /usr)"/>
+    <configure name="JSBSIM_USE_SGPATH" value="FALSE|TRUE" description="old version of jsbsim don't use SGPath module, can be forced to true or false if not found automatically"/>
   </doc>
   <header/>
   <makefile target="nps|hitl">
-    <configure name="JSBSIM_ROOT" default="/opt/jsbsim"/>
+    <configure name="JSBSIM_ROOT" default="/usr"/>
     <configure name="JSBSIM_INC" value="$(JSBSIM_ROOT)/include/JSBSim"/>
     <configure name="JSBSIM_LIB" value="$(JSBSIM_ROOT)/lib"/>
+    <configure name="JSBSIM_USE_SGPATH" value="TRUE"/>
     <configure name="FIND_JSBSIM_VIA_PKG_CONFIG" default="$(shell pkg-config JSBSim --exists && echo 'yes')"/>
     <raw>
       ifeq ($(FIND_JSBSIM_VIA_PKG_CONFIG), yes)
       nps.CFLAGS  += $(shell pkg-config JSBSim --cflags)
       nps.LDFLAGS += $(shell pkg-config JSBSim --libs)
+        ifeq ($(shell pkg-config JSBSim --modversion), 1.0)
+        nps.CFLAGS += -DNPS_JSBSIM_USE_SGPATH=FALSE
+        else
+        nps.CFLAGS += -DNPS_JSBSIM_USE_SGPATH=$(JSBSIM_USE_SGPATH)
+        endif
       else
       FIND_JSBSIM_VIA_PKG_CONFIG = no
       nps.CFLAGS  += -I$(JSBSIM_INC)
       nps.LDFLAGS += -L$(JSBSIM_LIB) -lJSBSim
+      nps.CFLAGS  += -DNPS_JSBSIM_USE_SGPATH=$(JSBSIM_USE_SGPATH)
       endif
     </raw>
     <file name="nps_fdm_jsbsim.cpp" dir="nps"/>

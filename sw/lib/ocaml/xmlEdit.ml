@@ -105,7 +105,7 @@ let string_of_attribs = fun attribs ->
   match attribs with
       ["PCData", data] -> data
     | _ ->
-      Compat.bytes_concat " " (List.map (fun (a,v) -> sprintf "%s=\"%s\"" a v) attribs)
+      String.concat " " (List.map (fun (a,v) -> sprintf "%s=\"%s\"" a v) attribs)
 
 type id = int
 let gen_id =
@@ -132,18 +132,18 @@ let encode_crs =
 *)
 
 let recode_crs = fun s ->
-  let n = Compat.bytes_length s in
-  let s' = Compat.bytes_create n in
+  let n = String.length s in
+  let s' = Bytes.create n in
   let i = ref 0 and j = ref 0 in
   while !i < n do
     if !i < n-1 && s.[!i] == '\\' && s.[!i+1] == 'n' then begin
-      Compat.bytes_set s' (!j)  '\n';
+      Bytes.set s' (!j)  '\n';
       incr i
     end else
-      Compat.bytes_set s' (!j) s.[!i];
+      Bytes.set s' (!j) s.[!i];
     incr i; incr j
   done;
-  Compat.bytes_sub s' 0 !j
+  Bytes.to_string (Bytes.sub s' 0 !j)
 
 
 

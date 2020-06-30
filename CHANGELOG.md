@@ -1,3 +1,77 @@
+Paparazzi v5.16.0_stable
+========================
+
+Stable version release
+
+General
+-------
+- update pprzlink and chibios
+- airframe update (#2380) (#2397) (#2398) (#2458) (#2486) (#2527) (#2525)
+- more explicit calls to Python2 or Python3 (#2373) (#2513)
+- add ROS/Gazebo support with sonar sensor (#2399), camera (#2383)
+- Removal of unused flightplans (#2430)
+- add special keyword to avoid conflict with XML invalid characters (#2434)
+- TU Delft MAVLab course 2019 (#2452)
+- improve bebop scripts
+- fix build dep for tools (#2472)
+- Update for Ubuntu 20.04 (ocaml and python tools) and GCC 9 (airborne code) (#2512)
+- support of more recent jsbsim versions (#2520)
+
+GCS and ground tools
+--------------------
+- bridge between Natnet, Simulink and Paparazzi
+- bluegiga stdma dongle (#2261)
+- fix flight times and kill_throttle display in GCS (#2387)
+- Improved automated python tools for maintenance (#2433) (#2438)
+- add small tool to get A/C conf from server (#2431)
+- python paparazzi center tools impovement (#2445)
+- change the old paparazzi launch script from ocaml to python (#2467)
+- Qt module creator (#2479)
+- Add GPSD to IVY functionalities for follow me (#2499)
+
+Airborne
+--------
+- upgrade voltage and current to float (#2360)
+- driver update (#2379), configurable stack size for mcu periph
+- Restructure bebop camera settings and ISP (#2364)
+- Fix bugs of quat_from_earth_cmd_f() (#2117)
+- add rover holonomic controller (#2388)
+- Add PX4FMU V4 (pixracer) (#2394), TAWAKI board (#2419), Crazyflie v2.1 (#2481), Pixhawk 4 (#2506)
+- new sensor drivers: LIS3MDL, TFMini lidar (#2395), BMP3 (Bosh-Sensortech) baro, LSM6DS33 (gyro/accel) and LPS25H (baro) drivers (#2437), IST8310 magnetometer (#2496), VL53L1X laser ranger driver and sonar module (#2519), pmw3901mb (#2529)
+- convert old joystick input to module
+- add support of DSHOT to chibios
+- Fixed ACT corner bug (#2411)
+- IMU prefiltering using the One Euro filter (#2413)
+- Add EKF2 from the PX4 ECL library (#2402)
+- Fix yaw arming (#2421)
+- don't reset vertical ref in guided mode (#2418)
+- WS2812 led module (#2435)
+- add filter on accel heuristic of DCM AHRS
+- INS invariant filter can use GPS heading instead of magneto
+- fix PRIMARY_GPS check in precompile step
+- Filtering option added to SDP3X airspeed sensor (#2436)
+- Add e-identification module
+- FIX usb_transparent STM32F4 GPIOA clock not enabled (#2461)
+- add target_localization module (#2464)
+- small bug fixes (#2462) (#2518) (#2478) (#2493) (#2492) (#2498)
+- allow to trigger kill mode from RC for fixedwing
+- configurable heading during rotorcraft survey
+- fix bungee takeoff (#2465)
+- Collective tracking control (#2469)
+- make log file closing faster and safer (#2470)
+- Added RTCM moving baseline messages and extended amount of GPS channels (#2477)
+- move some functionnality to jevois cam driver (#2471)
+- Wls update (#2484) (#2523)
+- WMM updated for 2020-2025 period (#2485)
+- Dynamic grid in rectangle surveys (#2488)
+- parse the correct datalink buffer (#2494)
+- add support for UBX PVT message
+- update ubx auto conf module
+- Add software-I2C (#2514)
+- Multi ranger (#2524) and Flow V2 deck integration
+- update ws2812 for apogee and tawaki
+
+
 Paparazzi v5.14.0_stable
 ========================
 

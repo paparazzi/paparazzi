@@ -42,6 +42,12 @@
 #define I2C_THREAD_PRIO 10
 #endif
 
+
+static bool i2c_linux_idle(struct i2c_periph *p __attribute__((unused))) __attribute__((unused));
+static bool i2c_linux_submit(struct i2c_periph *p, struct i2c_transaction *t) __attribute__((unused));
+static void i2c_linux_setbitrate(struct i2c_periph *p  __attribute__((unused)), int bitrate __attribute__((unused))) __attribute__((unused));
+
+
 static void *i2c_thread(void *thread_data);
 
 // private I2C init structure
@@ -66,16 +72,16 @@ void i2c_event(void)
 {
 }
 
-void i2c_setbitrate(struct i2c_periph *p  __attribute__((unused)), int bitrate __attribute__((unused)))
+static void i2c_linux_setbitrate(struct i2c_periph *p  __attribute__((unused)), int bitrate __attribute__((unused)))
 {
 }
 
-bool i2c_idle(struct i2c_periph *p __attribute__((unused)))
+static bool i2c_linux_idle(struct i2c_periph *p __attribute__((unused)))
 {
   return true;
 }
 
-bool i2c_submit(struct i2c_periph *p, struct i2c_transaction *t)
+static bool i2c_linux_submit(struct i2c_periph *p, struct i2c_transaction *t)
 {
   // get mutex lock and condition
   pthread_mutex_t *mutex = &(((struct i2c_thread_t *)(p->init_struct))->mutex);
@@ -204,6 +210,10 @@ struct i2c_thread_t i2c0_thread;
 
 void i2c0_hw_init(void)
 {
+  i2c0.idle = i2c_linux_idle;
+  i2c0.submit = i2c_linux_submit;
+  i2c0.setbitrate = i2c_linux_setbitrate;
+
   i2c0.reg_addr = (void *)open("/dev/i2c-0", O_RDWR);
   i2c0.errors = &i2c0_errors;
 
@@ -224,6 +234,10 @@ struct i2c_thread_t i2c1_thread;
 
 void i2c1_hw_init(void)
 {
+  i2c1.idle = i2c_linux_idle;
+  i2c1.submit = i2c_linux_submit;
+  i2c1.setbitrate = i2c_linux_setbitrate;
+
   i2c1.reg_addr = (void *)open("/dev/i2c-1", O_RDWR);
   i2c1.errors = &i2c1_errors;
 
@@ -244,6 +258,10 @@ struct i2c_thread_t i2c2_thread;
 
 void i2c2_hw_init(void)
 {
+  i2c2.idle = i2c_linux_idle;
+  i2c2.submit = i2c_linux_submit;
+  i2c2.setbitrate = i2c_linux_setbitrate;
+
   i2c2.reg_addr = (void *)open("/dev/i2c-2", O_RDWR);
   i2c2.errors = &i2c2_errors;
 
@@ -264,6 +282,10 @@ struct i2c_thread_t i2c3_thread;
 
 void i2c3_hw_init(void)
 {
+  i2c3.idle = i2c_linux_idle;
+  i2c3.submit = i2c_linux_submit;
+  i2c3.setbitrate = i2c_linux_setbitrate;
+
   i2c3.reg_addr = (void *)open("/dev/i2c-3", O_RDWR);
   i2c3.errors = &i2c3_errors;
 

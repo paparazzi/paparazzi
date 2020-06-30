@@ -3,7 +3,7 @@
 from __future__ import print_function
 
 import lxml.etree as ET
-import StringIO
+from io import StringIO
 
 import xml_common
 
@@ -35,7 +35,7 @@ def find_or_add_group(source, target, search):
 
 
 def reorganize_airframe_xml(airframe_xml):
-    some_file_like_object = StringIO.StringIO("<airframe/>")
+    some_file_like_object = StringIO(u"<airframe/>")
     airframe_xml_tree = ET.parse(some_file_like_object)
     airframe = airframe_xml_tree.getroot()
 

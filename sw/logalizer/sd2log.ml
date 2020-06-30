@@ -83,20 +83,20 @@ let string_of_message = fun log_msg ->
   | 1 -> Dl_Pprz.string_of_message
   | x -> failwith (sprintf "Unexpected source:%d in log msg" x)
 
-let hex_of_array = function
+(*let hex_of_array = function
   | PprzLink.Array array ->
       let n = Array.length array in
       (* One integer -> 2 chars *)
-      let s = Compat.bytes_create (2*n) in
+      let s = Bytes.create (2*n) in
       Array.iteri
         (fun i dec ->
           let hex = sprintf "%02x" (PprzLink.int_of_value array.(i)) in
-          Compat.bytes_blit hex 0 s (2*i) 2)
+          String.blit hex 0 s (2*i) 2)
         array;
       s
   | value ->
       failwith (sprintf "Error: expecting array, found %s" (PprzLink.string_of_value value))
-
+*)
 
 let xml_parse_compressed_file = fun file ->
     Xml.parse_in (Ocaml_tools.open_compress file)
@@ -111,8 +111,8 @@ let search_conf = fun md5 ->
   let files = Sys.readdir dir in
   let rec loop = fun i ->
     if i < Array.length files then begin
-      if Compat.bytes_length files.(i) > (md5_ofs + md5_len)
-      && Compat.bytes_sub files.(i) md5_ofs md5_len = md5 then
+      if String.length files.(i) > (md5_ofs + md5_len)
+      && String.sub files.(i) md5_ofs md5_len = md5 then
         dir // files.(i)
       else
         loop (i+1)
@@ -165,12 +165,12 @@ let convert_file = fun ?(output_dir=None) file ->
                      let unix_time = Latlong.unix_time_of_tow ~week itow in
                      start_unix_time := Some (unix_time -. timestamp)
         | "ALIVE" when !md5 = "" ->
-            md5 := hex_of_array (PprzLink.assoc "md5sum" vs)
+            md5 := PprzLink.hex_of_int_array (PprzLink.assoc "md5sum" vs)
         | _ -> ()
   with _ -> fprintf stderr "Parsing error, skipping message\n"
   in
 
-  let parser = Parser.parse use_payload in
+  let parser = fun b -> Parser.parse use_payload (Bytes.to_string b) in
   let Serial.Closure reader = Serial.input parser in
 
   try

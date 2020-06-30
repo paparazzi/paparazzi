@@ -132,7 +132,7 @@ let tile_of_key = fun keyholeStr ->
   and lat       = ref (-1.)
   and latLonSize = ref 2. in
 
-  for i = 1 to Compat.bytes_length keyholeStr - 1  do
+  for i = 1 to String.length keyholeStr - 1  do
     latLonSize /.= 2.;
 
     match keyholeStr.[i] with
@@ -149,14 +149,14 @@ let tile_of_key = fun keyholeStr ->
 
 
 let is_prefix = fun a b ->
-  Compat.bytes_length b >= Compat.bytes_length a &&
-    a = Compat.bytes_sub b 0 (Compat.bytes_length a)
+  String.length b >= String.length a &&
+    a = String.sub b 0 (String.length a)
 
 (** Get the tile or one which contains it from the cache *)
 let get_from_cache = fun dir f ->
   let files = Sys.readdir dir in
   (* sort files to have the longest names first *)
-  Array.sort (fun a b -> Compat.bytes_length b - Compat.bytes_length a) files;
+  Array.sort (fun a b -> String.length b - String.length a) files;
   let rec loop = fun i ->
     if i < Array.length files then
       let fi = files.(i) in
@@ -173,11 +173,11 @@ let get_from_cache = fun dir f ->
 
 (** Get the tile or one which contains it from the a hash table *)
 let get_from_hashtbl = fun tbl key ->
-  let l = Compat.bytes_length key in
+  let l = String.length key in
   let rec loop = fun i ->
     if i = 0 then raise Not_found;
     try
-      let subkey = Compat.bytes_sub key 0 i in
+      let subkey = String.sub key 0 i in
       let file = Hashtbl.find tbl subkey in
       (tile_of_key subkey, file)
     with _ -> loop (i-1)
@@ -189,7 +189,7 @@ let get_from_hashtbl = fun tbl key ->
 let xyz_of_qsrt = fun s ->
   let x = ref 0
   and y = ref 0
-  and n = Compat.bytes_length s in
+  and n = String.length s in
   for i = 1 to n - 1 do (* Skip the first t *)
     x := !x * 2;
     y := !y * 2;
@@ -203,11 +203,11 @@ let xyz_of_qsrt = fun s ->
   (!x, !y, n-1)
 
 let ms_key = fun key ->
-  let n = Compat.bytes_length key in
+  let n = String.length key in
   if n = 1 then invalid_arg "Gm.ms_key";
-  let ms_key = Compat.bytes_create (n-1) in
+  let ms_key = Bytes.create (n-1) in
   for i = 1 to n - 1 do
-    Compat.bytes_set ms_key (i-1)
+    Bytes.set ms_key (i-1)
       (match key.[i] with
           'q' -> '0'
         | 'r' -> '1'
@@ -215,7 +215,8 @@ let ms_key = fun key ->
         | 't' -> '2'
         | _ -> invalid_arg "Gm.ms_key")
   done;
-  (ms_key, ms_key.[n-2])
+  let s = Bytes.to_string ms_key in
+  (s, s.[n-2])
 
 let google_version = Maps_support.google_version
 
@@ -258,7 +259,7 @@ let set_policy = fun p ->
 let get_policy = fun () ->
   !policy
 
-let remove_last_char = fun s -> Compat.bytes_sub s 0 (Compat.bytes_length s - 1)
+let remove_last_char = fun s -> String.sub s 0 (String.length s - 1)
 
 
 type hashtbl_cache = (string, string) Hashtbl.t
@@ -278,7 +279,7 @@ let get_image = fun ?tbl key ->
   let cache_dir = get_cache_dir !maps_source in
   mkdir cache_dir;
   let rec get_from_http = fun k ->
-    if Compat.bytes_length k >= 1 then
+    if String.length k >= 1 then
       let url = url_of_tile_key !maps_source k in
       let jpg_file = cache_dir // (k ^ ".jpg") in
       try
@@ -302,7 +303,7 @@ let get_image = fun ?tbl key ->
       | Some ht -> get_from_hashtbl ht key
     in
     (* if not exact match from cache, try http if CacheOrHttp policy *)
-    if !policy = CacheOrHttp && (Compat.bytes_length t.key < Compat.bytes_length key) then
+    if !policy = CacheOrHttp && (String.length t.key < String.length key) then
       try get_from_http key with _ -> (t, f)
     else (t, f)
   with

@@ -35,7 +35,7 @@ extern int16_t tableNei[][6];
 extern void ctc_target_init(void);
 extern void ctc_target_send_info_to_nei(void);
 
-extern void parse_ctc_target_RegTable(void);
-extern void parse_ctc_target_CleanTable(void);
+extern void parse_ctc_target_RegTable(uint8_t *buf);
+extern void parse_ctc_target_CleanTable(uint8_t *buf));
 
 #endif // CTC_TARGET_H

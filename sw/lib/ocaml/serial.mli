@@ -56,8 +56,8 @@ val set_dtr : Unix.file_descr -> bool -> unit
 val set_speed : Unix.file_descr -> speed -> unit
 
 val input :
-  ?read:(Unix.file_descr -> string -> int -> int -> int) ->
-  (string -> int) -> (Unix.file_descr -> unit) closure
+  ?read:(Unix.file_descr -> bytes -> int -> int -> int) ->
+  (bytes -> int) -> (Unix.file_descr -> unit) closure
 (** Buffered input. [input ?read f] Returns a closure which must be called when
 characters are available on the stream. These characters are stored in a
 a buffer. [f] is then called on the buffer. [f] must return the number

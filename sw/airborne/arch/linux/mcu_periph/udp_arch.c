@@ -80,15 +80,15 @@ void udp_arch_periph_init(struct udp_periph *p, char *host, int port_out, int po
  * @param p pointer to UDP peripheral
  * @return number of bytes available in receive buffer
  */
-uint16_t udp_char_available(struct udp_periph *p)
+int udp_char_available(struct udp_periph *p)
 {
   pthread_mutex_lock(&udp_mutex);
-  int16_t available = p->rx_insert_idx - p->rx_extract_idx;
+  int available = p->rx_insert_idx - p->rx_extract_idx;
   if (available < 0) {
     available += UDP_RX_BUFFER_SIZE;
   }
   pthread_mutex_unlock(&udp_mutex);
-  return (uint16_t)available;
+  return available;
 }
 
 /**

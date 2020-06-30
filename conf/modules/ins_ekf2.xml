@@ -6,6 +6,14 @@
       simple INS and AHRS using EKF2 from PX4
     </description>
   </doc>
+  <settings>
+	<dl_settings NAME="INS">
+      <!-- EKF2 Configuration parameters -->
+      <dl_settings name="ekf2">
+        <dl_setting var="ekf2_params.mag_fusion_type" min="0" step="1" max="5" shortname="mag_fusion" values="AUTO|HEADING|3D|AUTOFW|INDOOR|NONE" module="subsystems/ins/ins_ekf2" handler="change_param"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
   <header>
     <file name="ins_ekf2.h" dir="subsystems/ins"/>
   </header>

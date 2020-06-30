@@ -84,19 +84,19 @@ void tcas_init(void)
   }
 }
 
-void parseTcasResolve(void)
+void parseTcasResolve(uint8_t *buf)
 {
-  if (DL_TCAS_RESOLVE_ac_id(dl_buffer) == AC_ID) {
-    uint8_t ac_id_conflict = DL_TCAS_RESOLVE_ac_id_conflict(dl_buffer);
-    tcas_acs_status[ti_acs_id[ac_id_conflict]].resolve = DL_TCAS_RESOLVE_resolve(dl_buffer);
+  if (DL_TCAS_RESOLVE_ac_id(buf) == AC_ID) {
+    uint8_t ac_id_conflict = DL_TCAS_RESOLVE_ac_id_conflict(buf);
+    tcas_acs_status[ti_acs_id[ac_id_conflict]].resolve = DL_TCAS_RESOLVE_resolve(buf);
   }
 }
 
-void parseTcasRA(void)
+void parseTcasRA(uint8_t *buf)
 {
-  if (DL_TCAS_RA_ac_id(dl_buffer) == AC_ID && SenderIdOfPprzMsg(dl_buffer) != AC_ID) {
+  if (DL_TCAS_RA_ac_id(buf) == AC_ID && SenderIdOfPprzMsg(buf) != AC_ID) {
     uint8_t ac_id_conflict = SenderIdOfPprzMsg(dl_buffer);
-    tcas_acs_status[ti_acs_id[ac_id_conflict]].resolve = DL_TCAS_RA_resolve(dl_buffer);
+    tcas_acs_status[ti_acs_id[ac_id_conflict]].resolve = DL_TCAS_RA_resolve(buf);
   }
 }
 

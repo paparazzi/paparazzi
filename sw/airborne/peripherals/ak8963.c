@@ -37,10 +37,10 @@ void ak8963_init(struct Ak8963 *ak, struct i2c_periph *i2c_p, uint8_t addr)
   ak->i2c_p = i2c_p;
   /* set i2c address */
   ak->i2c_trans.slave_addr = addr;
-  ak->i2c_trans.status = I2CTransDone;
+  ak->data_available = false;
   ak->initialized = false;
   ak->init_status = AK_CONF_UNINIT;
-  ak->data_available = false;
+  ak->i2c_trans.status = I2CTransDone;
 }
 
 void ak8963_configure(struct Ak8963 *ak)
@@ -51,7 +51,7 @@ void ak8963_configure(struct Ak8963 *ak)
     return;
   }
 
-  // Only when succesfull continue with next
+  // Only when succesfully continue with next
   if (ak->i2c_trans.status == I2CTransSuccess) {
     ak->init_status++;
   }
@@ -114,10 +114,9 @@ void ak8963_event(struct Ak8963 *ak)
         ak->data.vect.x = Int16FromBuf(ak->i2c_trans.buf, 0);
         ak->data.vect.y = Int16FromBuf(ak->i2c_trans.buf, 2);
         ak->data.vect.z = Int16FromBuf(ak->i2c_trans.buf, 4);
-        ak->data_available = true;
 
         // Read second status register to be ready for reading again
-        ak->i2c_trans.buf[0] = AK8963_REG_ST2;
+        ak->i2c_trans.buf[0] = AK8963_REG_ST2; // Data overflow bit 3 and data read error status bit 2
         i2c_transceive(ak->i2c_p, &(ak->i2c_trans), ak->i2c_trans.slave_addr, 1, 1);
         ak->status++;
         break;
@@ -131,11 +130,13 @@ void ak8963_event(struct Ak8963 *ak)
         ak->i2c_trans.status = I2CTransDone;
         ak->status = AK_STATUS_IDLE;
         // check overrun
+        if ((bit_is_set(ak->i2c_trans.buf[0], 3)) || (bit_is_set(ak->i2c_trans.buf[0], 2))) {
         //if (bit_is_set(ak->i2c_trans.buf[0], 3)) {
-        //  ak->data_available = false;
-        //} else {
-        //  ak->data_available = true;
-        //}
+          ak->data_available = false;
+        } else {
+          ak->data_available = true;
+          ak->i2c_trans.status = I2CTransDone;
+        }
       }
       break;
   }

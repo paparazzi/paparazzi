@@ -467,7 +467,7 @@ let font_flags = fun rigid special font hidden ->
     bit hidden 3
 
 let code_string = fun f s ->
-  for i = 0 to Compat.bytes_length s - 1 do
+  for i = 0 to String.length s - 1 do
     if Char.code s.[i] > 0o177 then
       fprintf f "\\%3o" (Char.code s.[i])
     else
@@ -500,8 +500,8 @@ let rec read_comments = fun s ->
   bscanf s " %0c" (fun c ->
     if c = '#' then
       bscanf s " %s@\n" (fun l ->
-        let n = Compat.bytes_length l in
-        Compat.bytes_sub l 2 (n-2) :: read_comments s)
+        let n = String.length l in
+        String.sub l 2 (n-2) :: read_comments s)
     else
       [])
 
@@ -622,9 +622,9 @@ let read_text = fun s ->
   bscanf s " %d %d %d %d %d %d %f %d %f %f" (fun st c depth _ps ft fs angle ff h l ->
     let p = read_point s in
     bscanf s "%c%s@\n" (fun _space text ->
-      let n = Compat.bytes_length text in
-      assert (Compat.bytes_sub text (n-4) 4 = "\\001");
-      let text = Compat.bytes_sub text 0 (n - 4) in
+      let n = String.length text in
+      assert (String.sub text (n-4) 4 = "\\001");
+      let text = String.sub text 0 (n - 4) in
       Text (justification_of_int st, c, depth, font_of_int (bit2 ff) ft, fs, angle, ff, h, l, p,text)))
 
 
@@ -649,7 +649,7 @@ let read = fun file ->
   let s = Scanning.from_file file in
   bscanf s "#FIG %s@\n%s %s@\n %s %s %f %s %d" (fun v o j u p m multi t ->
 
-    if Compat.bytes_sub v 0 3 <> "3.2" then
+    if String.sub v 0 3 <> "3.2" then
       failwith ("Unknown FIG format version: "^v);
 
     let comments = read_comments s in

@@ -597,14 +597,14 @@ int main(int argc, char **argv)
   IvyStart(options.ivy_bus);
 
   // Add Timer
-  gtk_timeout_add(delay / 4, timeout_callback, NULL);
+  g_timeout_add(delay / 4, timeout_callback, NULL);
 
   // GTK Window
   GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title(GTK_WINDOW(window), "SBS2Ivy");
 
-  gtk_signal_connect(GTK_OBJECT(window), "delete_event",
-                     GTK_SIGNAL_FUNC(delete_event), NULL);
+  g_signal_connect(GTK_OBJECT(window), "delete_event",
+                     G_CALLBACK(delete_event), NULL);
 
   GtkWidget *box = gtk_vbox_new(TRUE, 1);
   gtk_container_add(GTK_CONTAINER(window), box);

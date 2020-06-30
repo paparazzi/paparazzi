@@ -158,8 +158,9 @@ static inline float ground_speed_of_course(float x)
 }
 
 /* Compute the ground speed for courses 0, 360/NB_ANGLES, ...
-   (NB_ANGLES-1)360/NB_ANGLES */
-static void compute_ground_speed(float airspeed,
+   (NB_ANGLES-1)360/NB_ANGLES. Return false if wind speed
+   is greater than airspeed */
+static bool compute_ground_speed(float airspeed,
                                  float wind_east,
                                  float wind_north)
 {
@@ -170,9 +171,12 @@ static void compute_ground_speed(float airspeed,
     /* g^2 -2 scal g + c = 0 */
     float scal = wind_east * cos(alpha) + wind_north * sin(alpha);
     float delta = 4 * (scal * scal - c);
+    if (delta < 0)
+      return false;
     ground_speeds[i] = scal + sqrt(delta) / 2.;
     Bound(ground_speeds[i], NOMINAL_AIRSPEED / 4, 2 * NOMINAL_AIRSPEED);
   }
+  return true;
 }
 
 /* Adjusting a circle around CA, tangent in A, to end at snav_desired_tow */
@@ -194,8 +198,10 @@ bool snav_on_time(float nominal_radius)
   /* Recompute ground speeds every 10 s */
   if (ground_speed_timer == 0) {
     ground_speed_timer = 40; /* every 10s, called at 40Hz */
-    compute_ground_speed(airspeed, stateGetHorizontalWindspeed_f()->y,
-                         stateGetHorizontalWindspeed_f()->x); // Wind in NED frame
+    if (!compute_ground_speed(airspeed, stateGetHorizontalWindspeed_f()->y,
+                              stateGetHorizontalWindspeed_f()->x)) { // Wind in NED frame
+      return false; /* return false if the computation of ground speeds fails */
+    }
   }
   ground_speed_timer--;
 

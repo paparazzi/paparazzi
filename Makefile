@@ -144,7 +144,7 @@ static: cockpit tmtc generators sim_static joystick static_h
 
 libpprzlink:
 	$(MAKE) -C $(EXT) pprzlink.update
-	$(Q)Q=$(Q) DESTDIR=$(PPRZLINK_INSTALL) PPRZLINK_LIB_VERSION=${PPRZLINK_LIB_VERSION} $(MAKE) -C $(PPRZLINK_DIR) libpprzlink-install
+	$(Q)Q=$(Q) MAKEFLAGS=-j1 DESTDIR=$(PPRZLINK_INSTALL) PPRZLINK_LIB_VERSION=${PPRZLINK_LIB_VERSION} $(MAKE) -C $(PPRZLINK_DIR) libpprzlink-install
 
 libpprz: libpprzlink _save_build_version
 	$(MAKE) -C $(LIB)/ocaml
@@ -184,7 +184,7 @@ subdirs: $(SUBDIRS)
 
 $(MISC): ext
 
-$(SUBDIRS):
+$(SUBDIRS): libpprz
 	$(MAKE) -C $@
 
 $(PPRZCENTER): libpprz
@@ -193,7 +193,7 @@ $(LOGALIZER): libpprz
 
 static_h: pprzlink_protocol $(GEN_HEADERS)
 
-pprzlink_protocol :
+pprzlink_protocol : libpprz
 	$(Q)test -d $(STATICINCLUDE) || mkdir -p $(STATICINCLUDE)
 	$(Q)test -d $(STATICLIB) || mkdir -p $(STATICLIB)
 ifeq ("$(wildcard $(CUSTOM_MESSAGES_XML))","")

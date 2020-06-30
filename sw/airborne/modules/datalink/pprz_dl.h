@@ -38,6 +38,9 @@
 #if USE_UDP
 #include "mcu_periph/udp.h"
 #endif
+#if USE_SYSLINK
+#include "modules/datalink/bitcraze/syslink_dl.h"
+#endif
 
 /** PPRZ transport structure */
 extern struct pprz_transport pprz_tp;

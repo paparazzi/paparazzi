@@ -31,6 +31,8 @@
 #include "std.h"
 #include "LPC21xx.h"
 
+typedef uint32_t gpio_port_t;
+
 #define GPIOA    0
 #define GPIOB    1
 
@@ -73,7 +75,7 @@
  * @param[in] port
  * @param[in] gpios If multiple pins are to be changed, use logical OR '|' to separate them.
  */
-static inline void gpio_setup_output(uint32_t port, uint32_t gpios)
+static inline void gpio_setup_output(gpio_port_t port, uint32_t gpios)
 {
   if (port == 0) {
     IO0DIR |= gpios;
@@ -87,7 +89,7 @@ static inline void gpio_setup_output(uint32_t port, uint32_t gpios)
  * @param[in] port
  * @param[in] gpios If multiple pins are to be changed, use logical OR '|' to separate them.
  */
-static inline void gpio_setup_input(uint32_t port, uint32_t gpios)
+static inline void gpio_setup_input(gpio_port_t port, uint32_t gpios)
 {
   if (port == 0) {
     IO0DIR &= ~gpios;
@@ -101,7 +103,7 @@ static inline void gpio_setup_input(uint32_t port, uint32_t gpios)
  * @param[in] port
  * @param[in] gpios If multiple pins are to be changed, use logical OR '|' to separate them.
  */
-static inline void gpio_set(uint32_t port, uint32_t gpios)
+static inline void gpio_set(gpio_port_t port, uint32_t gpios)
 {
   if (port == 0) {
     IO0SET = gpios;
@@ -115,7 +117,7 @@ static inline void gpio_set(uint32_t port, uint32_t gpios)
  * @param[in] port
  * @param[in] gpios If multiple pins are to be changed, use logical OR '|' to separate them.
  */
-static inline void gpio_clear(uint32_t port, uint32_t gpios)
+static inline void gpio_clear(gpio_port_t port, uint32_t gpios)
 {
   if (port == 0) {
     IO0CLR = gpios;
@@ -129,7 +131,7 @@ static inline void gpio_clear(uint32_t port, uint32_t gpios)
  * @param[in] port
  * @param[in] gpios If multiple pins are to be changed, use logical OR '|' to separate them.
  */
-static inline void gpio_toggle(uint32_t port, uint32_t gpios)
+static inline void gpio_toggle(gpio_port_t port, uint32_t gpios)
 {
   if (port == 0) {
     uint32_t set_gpios = IO0PIN;
@@ -151,7 +153,7 @@ static inline void gpio_toggle(uint32_t port, uint32_t gpios)
  * @param[in] port  GPIO port (0 or 1)
  * @param[in] gpios GPIO pin(s). If multiple pins are to be changed, use logical OR '|' to separate them.
  */
-static inline uint32_t gpio_get(uint32_t port, uint32_t gpios)
+static inline uint32_t gpio_get(gpio_port_t port, uint32_t gpios)
 {
   if (port == 0) {
     return IO0PIN & gpios;

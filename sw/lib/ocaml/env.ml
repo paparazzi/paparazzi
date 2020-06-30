@@ -81,8 +81,8 @@ let filter_absolute_path = fun path ->
 (* filter settings and keep the ones without brackets *)
 let filter_settings = fun settings ->
   let sl = Str.split (Str.regexp "[ ]+") settings in
-  let sl = List.filter (fun s -> not (s.[0] = '[' && s.[Compat.bytes_length s - 1] = ']')) sl in
-  Compat.bytes_concat " " sl
+  let sl = List.filter (fun s -> not (s.[0] = '[' && s.[String.length s - 1] = ']')) sl in
+  String.concat " " sl
 
 (* filter on modules based on target *)
 let filter_modules_target = fun module_file ->
@@ -171,12 +171,12 @@ let expand_ac_xml = fun ?(raise_exception = true) ac_conf ->
 let read_process command =
   let buffer_size = 2048 in
   let buffer = Buffer.create buffer_size in
-  let string = Compat.bytes_create buffer_size in
+  let bytes_ = Bytes.create buffer_size in
   let in_channel = Unix.open_process_in command in
   let chars_read = ref 1 in
   while !chars_read <> 0 do
-    chars_read := input in_channel string 0 buffer_size;
-    Buffer.add_substring buffer string 0 !chars_read
+    chars_read := input in_channel bytes_ 0 buffer_size;
+    Buffer.add_substring buffer (Bytes.to_string bytes_) 0 !chars_read
   done;
   ignore (Unix.close_process_in in_channel);
   Buffer.contents buffer
@@ -197,4 +197,4 @@ let key_modifiers_of_string = fun key ->
     | "Meta" -> "<Meta>"
     | x -> x
   ) key_split in
-  Compat.bytes_concat "" keys
+  String.concat "" keys

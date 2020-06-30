@@ -38,7 +38,7 @@ SERVERCMO = server_globals.cmo aircraft.cmo wind.cmo airprox.cmo kml.cmo parse_m
 SERVERCMX = $(SERVERCMO:.cmo=.cmx)
 
 
-all: link server messages settings ivy_tcp_aircraft ivy_tcp_controller broadcaster ivy2udp ivy2serial ivy_serial_bridge app_server ivy2nmea
+all: link server messages settings ivy_tcp_aircraft ivy_tcp_controller broadcaster ivy2udp ivy2serial ivy_serial_bridge app_server ivy2nmea gpsd2ivy
 
 opt: server.opt
 
@@ -112,7 +112,7 @@ settings.cmo : ../cockpit/page_settings.cmi
 
 CC = gcc
 
-GTK_CFLAGS  = $(shell pkg-config gtk+-2.0 --cflags)
+GTK_CFLAGS  = $(shell pkg-config gtk+-2.0 --cflags) -DGTK_DISABLE_DEPRECATED
 GTK_LDFLAGS =  $(shell pkg-config gtk+-2.0 --libs) $(shell pcre-config --libs)
 
 GLIBIVY_CFLAGS = -Wall -fPIC $(shell pkg-config --cflags ivy-glib)
@@ -129,27 +129,31 @@ ifeq ("$(UNAME)","Darwin")
 endif
 
 
-app_server: app_server.c
+app_server: app_server.c Makefile
 	@echo OL $@
-	$(Q)$(CC) $(shell pkg-config libxml-2.0 gio-2.0 ivy-glib --cflags) -o $@ $^ -lm -lz $(shell pkg-config libxml-2.0 gio-2.0 ivy-glib libpcre --libs)
+	$(Q)$(CC) $(shell pkg-config libxml-2.0 gio-2.0 ivy-glib --cflags) -o $@ $< -lm -lz $(shell pkg-config libxml-2.0 gio-2.0 ivy-glib libpcre --libs)
 
-gpsd2ivy: gpsd2ivy.c
-	$(CC) $(GLIBIVY_CFLAGS) -o $@ $< $(GLIBIVY_LDFLAGS) -lgps
+gpsd2ivy: gpsd2ivy.c Makefile
+ifeq (, $(shell which gpsd))
+	$(info GPSD not installed)
+else
+	$(Q)$(CC) $(GLIBIVY_CFLAGS) -o $@ $< $(GLIBIVY_LDFLAGS) -lgps
+endif
 
-ivy2nmea: ivy2nmea.c
+ivy2nmea: ivy2nmea.c Makefile
 	@echo OL $@
 	$(Q)$(CC) $(GLIBIVY_CFLAGS) -o $@ $< $(GLIBIVY_LDFLAGS)
 
-c_ivy_client_example_1: c_ivy_client_example_1.c
+c_ivy_client_example_1: c_ivy_client_example_1.c Makefile
 	$(CC) $(GLIBIVY_CFLAGS) -o $@ $< $(GLIBIVY_LDFLAGS)
 
-c_ivy_client_example_2: c_ivy_client_example_2.c
+c_ivy_client_example_2: c_ivy_client_example_2.c Makefile
 	$(CC) $(GLIBIVY_CFLAGS) -o $@ $< $(GLIBIVY_LDFLAGS)
 
-c_ivy_client_example_3: c_ivy_client_example_3.c
+c_ivy_client_example_3: c_ivy_client_example_3.c Makefile
 	$(CC) $(GLIBIVY_CFLAGS) $(GTK_CFLAGS) -o $@ $< $(GLIBIVY_LDFLAGS) $(GTK_LDFLAGS)
 
-ivy_serial_bridge: ivy_serial_bridge.c
+ivy_serial_bridge: ivy_serial_bridge.c Makefile
 	@echo OL $@
 	$(Q)$(CC) $(GLIBIVY_CFLAGS) $(GTK_CFLAGS) -o $@ $< $(GLIBIVY_LDFLAGS) $(GTK_LDFLAGS)
 
