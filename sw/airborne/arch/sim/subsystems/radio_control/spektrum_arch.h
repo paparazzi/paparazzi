@@ -25,9 +25,7 @@
 
 #include "subsystems/radio_control/spektrum_radio.h"
 
-extern void spektrum_event(void (*_received_frame_handler)(void));
 #define RadioControlEventImp spektrum_event
-extern void spektrum_try_bind(void);
 
 #if USE_NPS
 extern void radio_control_feed(void);

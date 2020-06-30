@@ -28,6 +28,7 @@
 
 #include "subsystems/radio_control.h"
 #include "subsystems/radio_control/spektrum_arch.h"
+#include "subsystems/radio_control/spektrum.h"
 #include "std.h"
 #include <inttypes.h>
 
