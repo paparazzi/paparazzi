@@ -18,7 +18,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/system_identification/random.c"
+ * @file "math/pprz_random.c"
  * @author Joost Meulenbeld
  * 
  * Functions for getting random numbers. The rand_gaussian() internally uses the rand_uniform().

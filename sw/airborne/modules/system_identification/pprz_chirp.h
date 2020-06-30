@@ -57,10 +57,6 @@
 #include <stdlib.h>
 #include "mcu_periph/sys_time.h"
 
-// Values for exponential chirp (See [2]). C2 is based on C1 s.t. the frequency range exactly covers the required range
-#define chirp_C1 4.0f
-#define chirp_C2 1.0f / (exp(chirp_C1) - 1)
-
 /**
  * Initialize with chirp_init
  */

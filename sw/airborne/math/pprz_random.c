@@ -18,12 +18,12 @@
  * <http://www.gnu.org/licenses/>.
  */
 /**
- * @file "modules/system_identification/random.c"
+ * @file "math/pprz_random.c"
  * @author Joost Meulenbeld
  * Random number functions
  */
 
-#include "random.h"
+#include "pprz_random.h"
 
 void init_random(void)
 {

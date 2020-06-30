@@ -45,7 +45,7 @@
 #include "generated/airframe.h"
 #include "mcu_periph/sys_time.h"
 #include "filters/low_pass_filter.h"
-#include "random.h"
+#include "math/pprz_random.h"
 
 
 #ifndef CHIRP_AXES
