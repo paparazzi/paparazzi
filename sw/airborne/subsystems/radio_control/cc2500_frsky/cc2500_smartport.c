@@ -6,7 +6,10 @@
 
 #include "subsystems/datalink/downlink.h"
 
+#ifdef UNUSED
+#undef UNUSED
 #define UNUSED(x) (void)(x)
+#endif
 
 #ifdef USE_GPS
 #undef USE_GPS
