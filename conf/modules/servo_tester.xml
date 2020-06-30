@@ -14,8 +14,7 @@
       a high speed recorder device (like a saleae Logic analyzer with analog inputs). This 
       will let you model the response of the servo.
 	  
-      If you set the boolean "IS_SERVO" to False, the program wil run from minimum to maximum
-      value and back, without using negative values.
+      If you set the boolean "is_servo" to False, the programm will NOT use negative deflections.
     </description>
     <define name="TIME_PER_DEFLECTION" value="0.8" description="Time between servo steps for the 'servo_run' feature"/>
   </doc>

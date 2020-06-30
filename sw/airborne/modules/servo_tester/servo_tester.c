@@ -48,10 +48,11 @@ int32_t steps;
 
 int32_t servo_mean;
 
-void servo_tester_init() {
-	
+void servo_tester_init()
+{
+
   steps = 8;
-  
+
   servo_test_val = SERVO_SERVO_TEST_NEUTRAL;
   is_servo = true;
   do_servo_run = false;
@@ -60,25 +61,26 @@ void servo_tester_init() {
   servo_run_step = (SERVO_SERVO_TEST_MAX - SERVO_SERVO_TEST_MIN) / 2 / steps;
 
   servo_mean = SERVO_SERVO_TEST_NEUTRAL;
-  
+
 }
 
 
-void servo_tester_periodic() {
-  
+void servo_tester_periodic()
+{
+
   /*Go up and down with increasing amplitude*/
   if (do_servo_run && (servo_run_counter < steps)) {
-	if (is_servo) {
-	  servo_test_val = servo_mean + servo_run_counter * servo_run_step * ((servo_run_counter % 2) * 2 - 1);
-	} else if (servo_run_counter < steps/2) {
+    if (is_servo) {
+      servo_test_val = servo_mean + servo_run_counter * servo_run_step * ((servo_run_counter % 2) * 2 - 1);
+    } else if (servo_run_counter < steps / 2) {
       servo_test_val = servo_mean + servo_run_counter * servo_run_step * 2;
-	} else {
-	  servo_test_val = servo_mean + abs(servo_run_counter - steps) * servo_run_step * 2;
-	}
+    } else {
+      servo_test_val = servo_mean + abs(servo_run_counter - steps) * servo_run_step * 2;
+    }
     servo_run_timer += 1;
 
     /*Give time to reach the setpoint*/
-    if (servo_run_timer > (TIME_PER_DEFLECTION*SERVO_TESTER_PERIODIC_FREQ)) {
+    if (servo_run_timer > (TIME_PER_DEFLECTION * SERVO_TESTER_PERIODIC_FREQ)) {
       servo_run_timer = 0;
       servo_run_counter += 1;
     }
