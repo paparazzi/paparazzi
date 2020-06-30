@@ -182,7 +182,7 @@ let () =
      *  Parse file if needed
      *)
 
-    let ac = Aircraft.parse_aircraft ~parse_af:!gen_af ~parse_ap:!gen_ap ~parse_fp:!gen_fp ~parse_rc:!gen_rc ~parse_set:!gen_rc ~parse_all:!gen_all ~verbose:true target aircraft_xml in
+    let ac = Aircraft.parse_aircraft ~parse_af:!gen_af ~parse_ap:!gen_ap ~parse_fp:!gen_fp ~parse_rc:!gen_rc ~parse_tl:!gen_tl ~parse_set:!gen_set ~parse_all:!gen_all ~verbose:true target aircraft_xml in
 
     (*
      *  Expands the configuration of the A/C into one single file
