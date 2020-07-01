@@ -78,7 +78,7 @@
 
 /* FIXME to relate this to ifddefs of  PPM config possibilities
  */
-#ifdef USE_LED_STRIP
+#ifndef USE_LED_STRIP
 #define USE_LED_STRIP 1
 #endif
 
