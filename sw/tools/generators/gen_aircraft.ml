@@ -228,7 +228,34 @@ let () =
      *)
 
 
-    Printf.printf "Dumping aircraft header...%!";
+    Printf.printf "Dumping flight plan XML and header...%!";
+    let abs_flight_plan_h = aircraft_gen_dir // flight_plan_h in
+    let abs_flight_plan_dump = aircraft_dir // flight_plan_xml in
+    begin match ac.Aircraft.flight_plan with
+      | None -> Printf.printf "(skip)"
+      | Some flight_plan ->
+        generate_config_element flight_plan
+          (fun e ->
+             Gen_flight_plan.generate
+               e flight_plan.Flight_plan.filename abs_flight_plan_h)
+          [ (abs_flight_plan_h, [flight_plan.Flight_plan.filename]) ];
+        generate_config_element ~verbose:false flight_plan
+          (fun e ->
+             Gen_flight_plan.generate
+               e ~dump:true flight_plan.Flight_plan.filename abs_flight_plan_dump)
+          [ (abs_flight_plan_dump, [flight_plan.Flight_plan.filename]) ];
+          (* save conf file in aircraft conf dir *)
+        begin match Aircraft.get_element_relative_path (!gen_fp || !gen_all) aircraft_xml "flight_plan" with
+          | None -> ()
+          | Some f ->
+              let dir = (aircraft_conf_dir // (Filename.dirname f)) in
+              mkdir dir;
+              copy_file flight_plan.Flight_plan.filename dir;
+        end;
+    end;
+    Printf.printf " done\n%!";
+
+    Printf.printf "Dumping airframe header...%!";
     let abs_airframe_h = aircraft_gen_dir // airframe_h in
     begin match ac.Aircraft.airframe with
       | None -> Printf.printf "(skip)"
@@ -267,33 +294,6 @@ let () =
             generate_config_element autopilot
             (fun e -> Gen_autopilot.generate e freq aircraft_gen_dir) dep
           ) autopilots
-    end;
-    Printf.printf " done\n%!";
-
-    Printf.printf "Dumping flight plan XML and header...%!";
-    let abs_flight_plan_h = aircraft_gen_dir // flight_plan_h in
-    let abs_flight_plan_dump = aircraft_dir // flight_plan_xml in
-    begin match ac.Aircraft.flight_plan with
-      | None -> Printf.printf "(skip)"
-      | Some flight_plan ->
-        generate_config_element flight_plan
-          (fun e ->
-             Gen_flight_plan.generate
-               e flight_plan.Flight_plan.filename abs_flight_plan_h)
-          [ (abs_flight_plan_h, [flight_plan.Flight_plan.filename]) ];
-        generate_config_element ~verbose:false flight_plan
-          (fun e ->
-             Gen_flight_plan.generate
-               e ~dump:true flight_plan.Flight_plan.filename abs_flight_plan_dump)
-          [ (abs_flight_plan_dump, [flight_plan.Flight_plan.filename]) ];
-          (* save conf file in aircraft conf dir *)
-        begin match Aircraft.get_element_relative_path (!gen_fp || !gen_all) aircraft_xml "flight_plan" with
-          | None -> ()
-          | Some f ->
-              let dir = (aircraft_conf_dir // (Filename.dirname f)) in
-              mkdir dir;
-              copy_file flight_plan.Flight_plan.filename dir;
-        end;
     end;
     Printf.printf " done\n%!";
 
