@@ -47,14 +47,14 @@ xo = 0
 yo = 0
 zo = 100
 cx = 150
-cy = 100
+cy = 150
 cz = -10
 deltax = 0
 deltay = np.pi/2
 deltaz = 0
 wx = 1
-wy = 2
-wz = 2
+wy = 1
+wz = 1
 
 alpha = np.pi/4
 
@@ -94,11 +94,11 @@ for t in time[:-1]:
     f1 = np.cos(alpha)*nrf1 - np.sin(alpha)*nrf2 + xo
     f2 = np.sin(alpha)*nrf1 + np.cos(alpha)*nrf2 + yo
 
-    f1d = np.cos(alpha)*nrf1d + np.sin(alpha)*nrf2d
-    f2d = -np.sin(alpha)*nrf1d + np.cos(alpha)*nrf2d
+    f1d = np.cos(alpha)*nrf1d - np.sin(alpha)*nrf2d
+    f2d = np.sin(alpha)*nrf1d + np.cos(alpha)*nrf2d
 
-    f1dd = np.cos(alpha)*nrf1dd + np.sin(alpha)*nrf2dd
-    f2dd = -np.sin(alpha)*nrf1dd + np.cos(alpha)*nrf2dd
+    f1dd = np.cos(alpha)*nrf1dd - np.sin(alpha)*nrf2dd
+    f2dd = np.sin(alpha)*nrf1dd + np.cos(alpha)*nrf2dd
 
     #phi
     phi1 = L*(x - f1)
