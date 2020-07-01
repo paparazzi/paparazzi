@@ -312,13 +312,19 @@ class map2d:
             if altitude != -1:
                 axz.plot([XY[0]], [altitude], 'ro')
                 axz.plot(traj.wpoint[0], traj.wpoint[2], 'rx', ms=10, mew=2)
-            axz.set_ylim(traj.zo-1.5*traj.deltaz, traj.zo+1.5*traj.deltaz)
+            if traj.deltaz < 0:
+                axz.set_ylim(traj.zo+1.5*traj.deltaz, traj.zo-1.5*traj.deltaz)
+            else:
+                axz.set_ylim(traj.zo-1.5*traj.deltaz, traj.zo+1.5*traj.deltaz)
             # YZ
             ayz.plot(traj.traj_points[1, :], traj.traj_points[2, :])
             if altitude != -1:
                 ayz.plot([XY[1]], [altitude], 'ro')
                 ayz.plot(traj.wpoint[1], traj.wpoint[2], 'rx', ms=10, mew=2)
-            ayz.set_ylim(traj.zo-1.5*traj.deltaz, traj.zo+1.5*traj.deltaz)
+            if traj.deltaz < 0:
+                axz.set_ylim(traj.zo+1.5*traj.deltaz, traj.zo-1.5*traj.deltaz)
+            else:
+                ayz.set_ylim(traj.zo-1.5*traj.deltaz, traj.zo+1.5*traj.deltaz)
 
 class traj_line:
     def float_range(self, start, end, step):
