@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="telemetry_transparent_usb" dir="datalink" task="datalink">
+<module name="telemetry_transparent_frsky_x" dir="datalink" task="datalink">
   <doc>
     <description>
       Telemetry using pprzlink protocol over FrSky X SmartPort serial link
