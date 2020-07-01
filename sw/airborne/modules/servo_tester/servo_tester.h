@@ -30,6 +30,7 @@
 #include "generated/airframe.h"
 
 extern int32_t servo_test_val;
+extern bool is_servo;
 extern bool do_servo_run;
 
 void servo_tester_init(void);

@@ -13,6 +13,8 @@
       amplitude. Tip: Open up the servo and measure the voltage on the potmeter with
       a high speed recorder device (like a saleae Logic analyzer with analog inputs). This 
       will let you model the response of the servo.
+	  
+      If you set the boolean "is_servo" to False, the programm will NOT use negative deflections.
     </description>
     <define name="TIME_PER_DEFLECTION" value="0.8" description="Time between servo steps for the 'servo_run' feature"/>
   </doc>
@@ -20,6 +22,7 @@
     <dl_settings NAME="Servo test">
       <dl_settings NAME="Servo tester">
         <dl_setting var="servo_test_val" min="1000" step="1" max="2000" module="modules/servo_tester/servo_tester" shortname="servo_input"/>
+        <dl_setting var="is_servo" min="0" step="1" max="1" module="modules/servo_tester/servo_tester" values="False|True" shortname="is_servo"/>
         <dl_setting var="do_servo_run" min="0" step="1" max="1" module="modules/servo_tester/servo_tester" values="Off|On" shortname="servo_run"/>
       </dl_settings>
     </dl_settings>
