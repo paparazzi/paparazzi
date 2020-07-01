@@ -21,11 +21,14 @@
  * @file "modules/dfu_command/dfu_command.c"
  * @author Tom van Dijk
  * Read USB serial for dfu command
+ *
+ * The reset_to_dfu() function needs to be implemented for the
+ * architecture in use. (sw/airborne/arch/.../mcu_arch.c)
  */
 
 #include "modules/dfu_command/dfu_command.h"
 
-#include "arch/stm32/mcu_arch.h"
+#include "mcu_arch.h"
 
 static const char dfu_command_str[] = "#\nbl\n"; // Note: same command resets betaflight to DFU
 static int dfu_command_state = 0;
