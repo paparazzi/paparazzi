@@ -74,12 +74,12 @@
     
    
    
-    <!-- Brick_cube_1  -->
+    <!-- Brick_cube_1
     <include>
       <uri>model://brick_cube_1</uri>
       <name>brick cube 1</name>
       <pose>0 6 0 0 0 0</pose> 
-    </include>
+    </include>  -->
 
 
     
@@ -108,12 +108,12 @@
     </include> -->
     
     
-    <!-- Brick_wall_3 - l:4m, h:2m, t:0.25m
+    <!-- Brick_wall_3 - l:4m, h:2m, t:0.25m -->
 	<include>
       <uri>model://brick_wall_3</uri>
       <name>brick wall 3</name>
       <pose>0 4 0 0 0 1.57079632679</pose> 
-    </include> -->
+    </include>
     
     <!-- Brick_wall_hole_1 - Hole large enough for drone
     <include>
@@ -176,6 +176,30 @@
       <uri>model://brick_wall_lshaped_1</uri>
       <name>brick_wall_lshaped_1</name>
       <pose>0 4 -0.5 0 0 3.92699</pose>
+    </include> -->
+    
+    
+    
+        <!-- Bush_1 - A bush (cube  = 1m x 1m x 1m)
+    <include>
+      <uri>model://Bush_1</uri>
+      <name>Bush_1</name>
+      <pose>0 4 0 0 0 1.57079632679</pose>
+    </include> -->
+    
+    
+    <!-- Tree_1 - A tree (4.5m x 4.5m)
+    <include>
+      <uri>model://Tree_1</uri>
+      <name>Tree_1</name>
+      <pose>0 4 0 0 0 1.57079632679</pose>
+    </include> -->
+    
+    <!-- Tree_2 - A tree (2m x 2m)
+    <include>
+      <uri>model://Tree_2</uri>
+      <name>Tree_2</name>
+      <pose>0 4 0 0 0 1.57079632679</pose>
     </include> -->
     
     

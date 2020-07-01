@@ -147,8 +147,8 @@ inline void setGuided(void){
     <block name="1 - Move to Start">
       <call_once fun="NavResurrect()"/>
       <go wp="START"/>
-      <!--<stay wp="START"/>-->
-      <deroute block="2 - Start Experiment"/>
+      <stay wp="START"/>
+      <!--  <deroute block="2 - Start Experiment"/>-->
     </block>
     
     

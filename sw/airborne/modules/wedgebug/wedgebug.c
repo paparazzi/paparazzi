@@ -1738,17 +1738,17 @@ void wedgebug_init(){
 	SE_erosion_OCV = 11;	// SE size for the erosion operation (see state 3 "WEDGEBUG_START" and state 6 "POSITION_EDGE", its needed to "drag" the depth of the foreground objects over the edges detected)
 
 	// Setting thresholds - non-calculated
-	threshold_median_depth = 150;//700; //150//168  			//! Below this median depth (cm), an obstacle is considered to block the way (i.e. the blocking obstacle needs to be close)
-	threshold_depth_of_edges = 170;//770; //269; 			//! Below this depth (cm) edges are eligible for the WedgeBug algorithm
+	threshold_median_depth = 700; //150//168  			//! Below this median depth (cm), an obstacle is considered to block the way (i.e. the blocking obstacle needs to be close)
+	threshold_depth_of_edges = 770; //269; 			//! Below this depth (cm) edges are eligible for the WedgeBug algorithm
 	threshold_edge_magnitude = 5000;//23000;//10000;//30000;//15000;			//151;//301;  // Edges with a magnitude (cm^2) above this value are detected. Above this value, edges are given the value 127, otherwise they are given the value zero.
 	threshold_distance_to_goal = 0.25; 			//0.25 // Above this threshold (m), the goal is considered reached
 	threshold_distance_to_goal_direct = 1.0;	 //0.25 // Above this threshold (m), the goal is considered reached in DIRECT_CONTROL mode
 	threshold_distance_to_angle = 0.0004;		// Above this threshold (radians), the angle/heading is considered reached
 
 	// Setting thresholds - calculated
-	threshold_median_disparity = depth_to_disp((threshold_median_depth / 100.00), b, f); 	//8// Above this median disparity, an obstacle is considered to block the way. >60 = close than 35cm
-	threshold_median_depth = (uint16_t) disp_to_depth(threshold_median_disparity, b, f) * 100;
-	threshold_disparity_of_edges = depth_to_disp((threshold_depth_of_edges / 100.00), b, f);	//5// Above this underlying disparity value, edges are considers eligible for detection
+	//threshold_median_disparity = depth_to_disp((threshold_median_depth / 100.00), b, f); 	//8// Above this median disparity, an obstacle is considered to block the way. >60 = close than 35cm
+	//threshold_median_depth = (uint16_t) disp_to_depth(threshold_median_disparity, b, f) * 100;
+	//threshold_disparity_of_edges = depth_to_disp((threshold_depth_of_edges / 100.00), b, f);	//5// Above this underlying disparity value, edges are considers eligible for detection
 
 	// Initializing confidence parameters
 	obstacle_confidence = 0;				// This is the confidence that an obstacle was spotted
@@ -1758,7 +1758,7 @@ void wedgebug_init(){
 	//edge_found_micro_confidence = 0;		// This is the confidence that an edge was found
 	edge_found_macro_confidence = 0;		// This is the confidence that an edge was found
 	no_edge_found_confidence = 0;			// This is the confidence that no edge was found
-	max_obstacle_confidence = 4;			// This is the max confidence that an obstacle was spotted
+	max_obstacle_confidence = 10;			// This is the max confidence that an obstacle was spotted
 	max_free_path_confidence = 5;			// This is the max confidence that an obstacle was not spotted
 	max_position_confidence = 30;			// This is the max confidence that a specific position was reached
 	max_heading_confidence = 5;				// This is the max confidence that a specific heading was reached
@@ -2201,8 +2201,8 @@ void wedgebug_periodic(){
     		counter_cycles++; // Counting how many times a state was activated (needed for average calculation)
 
     		// Background processes - Includes image processing for use
-    		background_processes(save_images_flag);
-    		//background_processes_16bit(save_images_flag);
+    		//background_processes(save_images_flag);
+    		background_processes_16bit(save_images_flag);
 
     		// ############ Metric 3 - Runtime average of background processes (see below) - End:
     		clock_background_processes = clock_background_processes + (clock() - time);;
@@ -2636,7 +2636,7 @@ void wedgebug_periodic(){
 						free_path_confidence = 0;
 					}
 					// If the free_path_confidence is high enough, set is_path_free_flag to 1 and reset free_path_confidence and obstacle_confidence
-					if (free_path_confidence == max_obstacle_confidence)
+					if (free_path_confidence == max_free_path_confidence)
 					{
 						is_path_free_flag = 1;
 						free_path_confidence = 0;

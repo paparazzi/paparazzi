@@ -1,0 +1,25 @@
+<?xml version='1.0'?>
+<sdf version='1.4'>
+  <model name="Tree_2">
+    <static>true</static>
+    <pose>0 0 0 0 0 0</pose>
+
+    <link name="Tree_2">
+      <visual name="Tree_2">
+        <geometry>
+          <mesh>
+            <uri>model://Tree_2/Tree_2.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <collision name="Tree_2">
+        <geometry>
+          <mesh>
+            <uri>model://Tree_2/Tree_2.dae</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+
+  </model>
+</sdf>
