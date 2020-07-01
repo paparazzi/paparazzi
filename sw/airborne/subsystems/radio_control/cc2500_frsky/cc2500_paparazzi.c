@@ -37,9 +37,10 @@ static uint16_t frsky_raw[RADIO_CTL_NB];
 #if PERIODIC_TELEMETRY
 #include "subsystems/datalink/telemetry.h"
 
-static void send_cc2500(struct transport_tx *trans, struct link_device *dev)
+static void send_cc2500_ppm(struct transport_tx *trans, struct link_device *dev)
 {
-  pprz_msg_send_CC2500(trans, dev, AC_ID,
+  pprz_msg_send_PPM(trans, dev, AC_ID,
+      &radio_control.frame_rate,
       (sizeof(frsky_raw) / sizeof(frsky_raw[0])),
       frsky_raw);
 }
@@ -52,7 +53,7 @@ void radio_control_impl_init(void) {
   cc2500Reset();
   rxInit();
 #if PERIODIC_TELEMETRY
-  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_CC2500, send_cc2500);
+  register_periodic_telemetry(DefaultPeriodic, PPRZ_MSG_ID_PPM, send_cc2500_ppm);
 #endif
 }
 
