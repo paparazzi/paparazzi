@@ -280,10 +280,10 @@ class map2d:
                 a3d.plot([traj.wpoint[0]], [traj.wpoint[1]], [traj.wpoint[2]], marker='x', markerfacecolor='r', markeredgecolor='r')
 
             a3d.axis('equal')
-            if traj.cz < 0:
-                a3d.set_zlim(traj.zo+1.5*traj.cz, traj.zo-1.5*traj.cz)
+            if traj.deltaz < 0:
+                a3d.set_zlim(traj.zo+1.5*traj.deltaz, traj.zo-1.5*traj.deltaz)
             else:
-                a3d.set_zlim(traj.zo-1.5*traj.cz, traj.zo+1.5*traj.cz)
+                a3d.set_zlim(traj.zo-1.5*traj.deltaz, traj.zo+1.5*traj.deltaz)
 
             # XY
             axy.plot(traj.traj_points[0, :], traj.traj_points[1, :])
@@ -312,13 +312,13 @@ class map2d:
             if altitude != -1:
                 axz.plot([XY[0]], [altitude], 'ro')
                 axz.plot(traj.wpoint[0], traj.wpoint[2], 'rx', ms=10, mew=2)
-            axz.set_ylim(traj.zo-1.5*traj.cz, traj.zo+1.5*traj.cz)
+            axz.set_ylim(traj.zo-1.5*traj.deltaz, traj.zo+1.5*traj.deltaz)
             # YZ
             ayz.plot(traj.traj_points[1, :], traj.traj_points[2, :])
             if altitude != -1:
                 ayz.plot([XY[1]], [altitude], 'ro')
                 ayz.plot(traj.wpoint[1], traj.wpoint[2], 'rx', ms=10, mew=2)
-            ayz.set_ylim(traj.zo-1.5*traj.cz, traj.zo+1.5*traj.cz)
+            ayz.set_ylim(traj.zo-1.5*traj.deltaz, traj.zo+1.5*traj.deltaz)
 
 class traj_line:
     def float_range(self, start, end, step):
@@ -554,6 +554,8 @@ class traj_param_ellipse_3D:
         self.mapgrad_U = []
         self.mapgrad_V = []
 
+        self.deltaz = self.zh - self.zl # For the 3D plot
+        self.zo = self.zl + self.deltaz # For the 3D plot
         self.alpha = self.alpha*np.pi/180
 
         self.wpoint = self.param_point(self.wb)
@@ -591,6 +593,7 @@ class traj_param_lissajous_3D:
         self.mapgrad_U = []
         self.mapgrad_V = []
 
+        self.deltaz = self.cz # For the 3D plot
         self.alpha = self.alpha*np.pi/180
         self.dx = self.dx*np.pi/180
         self.dy = self.dy*np.pi/180
