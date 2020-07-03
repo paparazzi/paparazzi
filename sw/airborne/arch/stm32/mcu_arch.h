@@ -31,7 +31,13 @@
 
 #include "std.h"
 
+#include BOARD_CONFIG
+
 extern void mcu_arch_init(void);
+
+#ifdef SYSTEM_MEMORY_BASE
+extern void reset_to_dfu(void);
+#endif
 
 
 /* should probably not be here

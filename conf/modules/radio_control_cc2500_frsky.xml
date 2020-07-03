@@ -1,0 +1,71 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="radio_control_cc2500_frsky" dir="radio_control/cc2500_frsky">
+  <doc>
+    <description>
+      Software implementation of Frsky radio control protocol for onboard CC2500 receiver.
+    </description>
+    <configure name="CC2500_SPI_DEV" value="SPIx" description="SPI device"/>
+    <configure name="CC2500_SPI_SLAVE_IDX" value="2" description="SPI slave index"/>
+    <define name="CC2500_GDO0_GPIO" value="GPIOC" description="GDO0 GPIO port"/>
+    <define name="CC2500_GDO0_PIN" value="GPIO14" description="GDO0 GPIO pin"/>
+    <define name="CC2500_RX_LED" value="LED_2|(undefined)" description="FrSky RX LED"/>
+    <define name="CC2500_BIND_BUTTON" value="BIND_BUTTON|(undefined)" description="GPIO button used to enter bind mode"/>
+    <define name="CC2500_RX_SPI_PROTOCOL" value="RX_SPI_FRSKY_X_LBT (default)|RX_SPI_FRSKY_X|RX_SPI_FRSKY_D" description="RX protocol"/>
+    <define name="CC2500_AUTOBIND" value="FALSE" description="Enter BIND mode at startup"/>
+    <define name="CC2500_TELEMETRY_SENSORS" value="(SENSOR_VOLTAGE | SENSOR_CURRENT | SENSOR_FUEL | SENSOR_ALTITUDE | SENSOR_VARIO)" description="List of sensors to send over FrSky telemetry (set to SENSOR_NONE) to disable."/>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="cc2500_frsky">
+        <dl_setting var="cc2500_settings_persistent.bindVars" min="1" step="1" max="1" values="READ_ONLY" shortname="bindVars" persistent="true" type="uint32"/>
+        <dl_setting var="cc2500_settings_persistent.bindHopData[0]" min="1" step="1" max="1" values="READ_ONLY" shortname="bindHopData0" persistent="true" type="uint32"/>
+        <dl_setting var="cc2500_settings_persistent.bindHopData[1]" min="1" step="1" max="1" values="READ_ONLY" shortname="bindHopData1" persistent="true" type="uint32"/>
+        <dl_setting var="cc2500_settings_persistent.bindHopData[2]" min="1" step="1" max="1" values="READ_ONLY" shortname="bindHopData2" persistent="true" type="uint32"/>
+        <dl_setting var="cc2500_settings_persistent.bindHopData[3]" min="1" step="1" max="1" values="READ_ONLY" shortname="bindHopData3" persistent="true" type="uint32"/>
+        <dl_setting var="cc2500_settings_persistent.bindHopData[4]" min="1" step="1" max="1" values="READ_ONLY" shortname="bindHopData4" persistent="true" type="uint32"/>
+        <dl_setting var="cc2500_settings_persistent.bindHopData[5]" min="1" step="1" max="1" values="READ_ONLY" shortname="bindHopData5" persistent="true" type="uint32"/>
+        <dl_setting var="cc2500_settings_persistent.bindHopData[6]" min="1" step="1" max="1" values="READ_ONLY" shortname="bindHopData6" persistent="true" type="uint32"/>
+        <dl_setting var="cc2500_settings_persistent.bindHopData[7]" min="1" step="1" max="1" values="READ_ONLY" shortname="bindHopData7" persistent="true" type="uint32"/>
+        <dl_setting var="cc2500_settings_persistent.bindHopData[8]" min="1" step="1" max="1" values="READ_ONLY" shortname="bindHopData8" persistent="true" type="uint32"/>
+        <dl_setting var="cc2500_settings_persistent.bindHopData[9]" min="1" step="1" max="1" values="READ_ONLY" shortname="bindHopData9" persistent="true" type="uint32"/>
+        <dl_setting var="cc2500_settings_persistent.bindHopData[10]" min="1" step="1" max="1" values="READ_ONLY" shortname="bindHopData10" persistent="true" type="uint32"/>
+        <dl_setting var="cc2500_settings_persistent.bindHopData[11]" min="1" step="1" max="1" values="READ_ONLY" shortname="bindHopData11" persistent="true" type="uint32"/>
+        <dl_setting var="cc2500_settings_persistent.bindHopData[12]" min="1" step="1" max="1" values="READ_ONLY" shortname="bindHopData12" persistent="true" type="uint32"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="cc2500.h" dir="peripherals"/>
+    <file name="cc2500_paparazzi.h" dir="subsystems/radio_control/cc2500_frsky"/>
+    <file name="cc2500_settings.h" dir="subsystems/radio_control/cc2500_frsky"/>
+  </header>
+  <init fun="cc2500_init()"/>
+  <makefile target="ap|fbw|sim|nps">
+    <define name="RADIO_CONTROL_TYPE_H" value="subsystems/radio_control/cc2500_frsky/cc2500_paparazzi.h" type="string"/>
+    <configure name="CC2500_SPI_DEV" default="SPI3" case="upper|lower"/>
+    <configure name="CC2500_SPI_SLAVE_IDX" default="2"/>
+  </makefile>
+  <makefile target="ap|fbw">
+    <define name="RADIO_CONTROL"/>
+    <define name="USE_$(CC2500_SPI_DEV)"/>
+    <define name="USE_SPI_SLAVE$(CC2500_SPI_SLAVE_IDX)"/>
+    <define name="CC2500_SPI_DEV" value="$(CC2500_SPI_DEV_LOWER)"/>
+    <define name="CC2500_SPI_SLAVE_IDX" value="$(CC2500_SPI_SLAVE_IDX)"/>
+    <file name="radio_control.c" dir="subsystems"/>
+    <file name="cc2500.c" dir="peripherals"/>
+    <file name="cc2500_paparazzi.c" dir="subsystems/radio_control/cc2500_frsky"/>
+    <file name="cc2500_settings.c" dir="subsystems/radio_control/cc2500_frsky"/>
+    <file name="cc2500_compat.c" dir="subsystems/radio_control/cc2500_frsky"/>
+    <file name="cc2500_common.c" dir="subsystems/radio_control/cc2500_frsky"/>
+    <file name="cc2500_rx.c" dir="subsystems/radio_control/cc2500_frsky"/>
+    <file name="cc2500_rx_spi.c" dir="subsystems/radio_control/cc2500_frsky"/>
+    <file name="cc2500_rx_spi_common.c" dir="subsystems/radio_control/cc2500_frsky"/>
+    <file name="cc2500_frsky_shared.c" dir="subsystems/radio_control/cc2500_frsky"/>
+    <file name="cc2500_frsky_x.c" dir="subsystems/radio_control/cc2500_frsky"/>
+    <file name="cc2500_smartport.c" dir="subsystems/radio_control/cc2500_frsky"/>
+    <raw>
+      include $(CFG_SHARED)/spi_master.makefile
+    </raw>
+  </makefile>
+</module>

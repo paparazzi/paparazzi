@@ -36,6 +36,8 @@
 #include <libopencm3/stm32/timer.h>
 #include <libopencm3/stm32/flash.h>
 #include <libopencm3/cm3/scb.h>
+#include <libopencm3/stm32/rtc.h>
+#include <libopencm3/stm32/pwr.h>
 
 #include "std.h"
 
@@ -165,8 +167,55 @@ void rcc_clock_setup_in_hse_24mhz_out_24mhz_pprz(void)
 }
 #endif
 
+
+#ifdef SYSTEM_MEMORY_BASE
+void reset_to_dfu(void) {
+  // Request DFU at boot (init_dfu)
+  pwr_disable_backup_domain_write_protect();
+  RTC_BKPXR(0) = 0xFF;
+  pwr_enable_backup_domain_write_protect();
+  // Reset
+  scb_reset_system();
+}
+
+typedef void resetHandler_t(void);
+
+typedef struct isrVector_s {
+    volatile uint32_t    stackEnd;
+    resetHandler_t *resetHandler;
+} isrVector_t;
+
+static isrVector_t *system_isr_vector_table_base = (isrVector_t *) SYSTEM_MEMORY_BASE; // Find in ST AN2606. Defined in board header.
+
+static void init_dfu(void) {
+  /* Reset to DFU if requested */
+  rcc_periph_clock_enable(RCC_RTC);
+  rcc_periph_clock_enable(RCC_PWR);
+  if (RTC_BKPXR(0) == 0xFF) {
+    // DFU request
+    // 0. Reset request
+    pwr_disable_backup_domain_write_protect();
+    RTC_BKPXR(0) = 0x00;
+    pwr_enable_backup_domain_write_protect();
+    // 1. Set MSP to system_isr_vector_table_base.stackEnd
+    // (betaflight system_stm32f4xx.c::75)
+    // (betaflight cmsis_armcc.h::226
+    register uint32_t __regMainStackPointer __asm("msp") __attribute__((unused)); // Note: declared unused to suppress gcc warning, not actually unused!
+    __regMainStackPointer = system_isr_vector_table_base->stackEnd; // = topOfMainStack;
+    // 2. system_isr_vector_table_base.resetHandler() (betaflight system_stm32f4xx.c::76)
+    system_isr_vector_table_base->resetHandler();
+    while (1);
+  }
+}
+#endif // SYSTEM_MEMORY_BASE
+
+
 void mcu_arch_init(void)
 {
+#ifdef SYSTEM_MEMORY_BASE
+  init_dfu();
+#endif
+
 #if LUFTBOOT
   PRINT_CONFIG_MSG("We are running luftboot, the interrupt vector is being relocated.")
 #if defined STM32F4
@@ -222,7 +271,6 @@ void mcu_arch_init(void)
    * FIXME is it really needed ?
    */
   scb_set_priority_grouping(SCB_AIRCR_PRIGROUP_NOGROUP_SUB16);
-
 }
 
 #if defined(STM32F1)

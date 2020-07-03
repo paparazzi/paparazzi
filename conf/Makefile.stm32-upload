@@ -51,6 +51,7 @@ ifdef DFU_PRODUCT
 DFU_PRODUCT_CMD = --product=$(DFU_PRODUCT)
 endif
 upload: $(OBJDIR)/$(TARGET).bin
+	$(DFU_PRE_UPLOAD_CMD)
 	@echo "Using stm32 mem dfu loader"
 	$(PYTHON) $(PAPARAZZI_SRC)/sw/tools/dfu/stm32_mem.py $(DFU_PRODUCT_CMD) $(DFU_ADDR_CMD) $^
 
@@ -72,6 +73,7 @@ DFUSE_VERIFY_ADDRESS = $(DFU_ADDR):$(DFU_SIZE)
 endif
 
 upload: $(OBJDIR)/$(TARGET).bin
+	$(DFU_UTIL_PRE_UPLOAD_CMD)
 	@echo "Using dfu-util at $(DFU_ADDR)"
 	$(Q)dfu-util -d 0483:df11 -c 1 -i 0 -a 0 -s $(DFU_ADDR) -D $^
 ifeq ($(VERIFY),1)

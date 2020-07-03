@@ -1,0 +1,29 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="dfu_command" task="datalink"><!-- task="datalink" to run before telemetry_transparent_usb -->
+  <doc>
+    <description>
+    THIS MODULE MUST BE PLACED ABOVE ANY USB SERIAL CONSUMERS IN THE AIRFRAME!
+    
+    Read USB serial for dfu command. Send '#\n', 'bl\n' to reset to DFU mode.
+    The same command works with betaflight (tested with 4.1.1), allowing
+    paparazzi to be uploaded directly to these boards.
+    
+    The dfu command is automatically sent when uploading with DFU or DFU-UTIL
+    (see configure below).
+    </description>
+  </doc>
+  <header>
+    <file name="dfu_command.h"/>
+  </header>
+  <event fun="dfu_command_event()"/>
+  <makefile target="!fbw|sim|nps|hitl">
+    <configure name="SERIAL_TTY" default="/dev/ttyACM0"/>
+    <configure name="DFU_PRE_UPLOAD_CMD" default="@(printf '\043\012' > $(SERIAL_TTY) && sleep 1 && printf 'bl\012' > $(SERIAL_TTY) && sleep 1) || echo 'Warning: DFU command failed!'"/>
+    <configure name="DFU_UTIL_PRE_UPLOAD_CMD" default="@(printf '\043\012' > $(SERIAL_TTY) && sleep 1 && printf 'bl\012' > $(SERIAL_TTY) && sleep 1) || echo 'Warning: DFU command failed!'"/>
+    <define name="USE_USB_SERIAL"/>
+    <file name="dfu_command.c"/>
+    <file_arch name="usb_ser_hw.c" dir="."/>
+  </makefile>
+</module>
+

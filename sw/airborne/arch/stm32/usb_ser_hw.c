@@ -64,6 +64,7 @@ static fifo_t rxfifo;
 void fifo_init(fifo_t *fifo, uint8_t *buf);
 bool fifo_put(fifo_t *fifo, uint8_t c);
 bool fifo_get(fifo_t *fifo, uint8_t *pc);
+bool fifo_peek(fifo_t *fifo, uint8_t *pc, uint8_t ofs);
 int  fifo_avail(fifo_t *fifo);
 int  fifo_free(fifo_t *fifo);
 int tx_timeout; // tmp work around for usbd_ep_stall_get from, this function does not always seem to work
@@ -374,6 +375,15 @@ int fifo_free(fifo_t *fifo)
   return (VCOM_FIFO_SIZE - 1 - fifo_avail(fifo));
 }
 
+bool fifo_peek(fifo_t *fifo, uint8_t *pc, uint8_t ofs) {
+  if (fifo_avail(fifo) < ofs + 1) {
+    return false;
+  }
+  int index = (fifo->tail + ofs) % VCOM_FIFO_SIZE;
+  *pc = fifo->buf[index];
+  return true;
+}
+
 
 /**
  * Writes one character to VCOM port fifo.
@@ -417,6 +427,19 @@ int VCOM_getchar(void)
   static int result = 0;
   uint8_t c;
   result = fifo_get(&rxfifo, &c) ? c : -1;
+  return result;
+}
+
+/**
+ * Reads one character from VCOM port without removing it from the queue
+ * @param ofs position to read
+ * @returns character read, or -1 if character could not be read
+ */
+int VCOM_peekchar(int ofs)
+{
+  static int result = 0;
+  uint8_t c;
+  result = fifo_peek(&rxfifo, &c, ofs) ? c : -1;
   return result;
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 Pascal Brisset, Antoine Drouin, Michel Gorraz
+ * Copyright (C) 2019 Tom van Dijk <tomvand@users.noreply.github.com>
  *
  * This file is part of paparazzi.
  *
@@ -17,37 +17,24 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
-/** \file usb_serial.h
- *  \brief arch independent USB API
- *
- */
+#ifndef RADIO_CONTROL_CC2500_PAPARAZZI_H
+#define RADIO_CONTROL_CC2500_PAPARAZZI_H
 
-#ifndef USB_S_H
-#define USB_S_H
+#define RC_PPM_TICKS_OF_USEC(_x) (_x)
+#define RC_PPM_SIGNED_TICKS_OF_USEC(_x) (_x)
+#define USEC_OF_RC_PPM_TICKS(_x) (_x)
 
-#include <inttypes.h>
-#include "std.h"
-#include "pprzlink/pprzlink_device.h"
+#include "generated/airframe.h"
+#include "generated/radio.h"
 
-struct usb_serial_periph {
-  /** Generic device interface */
-  struct link_device device;
-};
+#ifndef RADIO_CONTROL_NB_CHANNEL
+#define RADIO_CONTROL_NB_CHANNEL RADIO_CTL_NB
+#endif
 
-extern struct usb_serial_periph usb_serial;
+extern void radio_control_impl_event(void (* _received_frame_handler)(void));
+#define RadioControlEvent(_received_frame_handler) radio_control_impl_event(_received_frame_handler)
 
-void VCOM_init(void);
-int  VCOM_putchar(int c);
-int  VCOM_getchar(void);
-int VCOM_peekchar(int ofs);
-bool VCOM_check_free_space(uint16_t len);
-int VCOM_check_available(void);
-void VCOM_set_linecoding(uint8_t mode);
-void VCOM_allow_linecoding(uint8_t mode);
-void VCOM_send_message(void);
-void VCOM_event(void);
 
-#endif /* USB_S_H */
+#endif // RADIO_CONTROL_CC2500_PAPARAZZI_H
