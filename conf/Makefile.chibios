@@ -79,6 +79,7 @@ endif
 #
 $(TARGET).srcs += c++.cpp pprz_syscalls.c
 $(TARGET).CXXFLAGS += -fno-sized-deallocation
+$(TARGET).CXXFLAGS += $(CXXSTANDARD)
 
 #
 # General rules
