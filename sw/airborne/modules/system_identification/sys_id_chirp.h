@@ -38,35 +38,8 @@
 #ifndef SYS_ID_CHIRP_H
 #define SYS_ID_CHIRP_H
 
-#include <std.h>
-#include <stdbool.h>
 #include "paparazzi.h"
-#include "modules/system_identification/pprz_chirp.h"
-#include "generated/airframe.h"
-#include "mcu_periph/sys_time.h"
-#include "filters/low_pass_filter.h"
-#include "math/pprz_random.h"
 
-
-#ifndef CHIRP_AXES
-#define CHIRP_AXES {COMMAND_ROLL,COMMAND_PITCH,COMMAND_YAW}
-#endif
-
-#ifndef CHIRP_ENABLED
-#define CHIRP_ENABLED TRUE
-#endif
-
-#ifndef CHIRP_USE_NOISE
-#define CHIRP_USE_NOISE TRUE
-#endif
-
-#ifndef CHIRP_EXPONENTIAL
-#define CHIRP_EXPONENTIAL TRUE
-#endif
-
-#ifndef CHIRP_FADEIN
-#define CHIRP_FADEIN TRUE
-#endif
 
 extern uint8_t chirp_active;
 extern pprz_t chirp_amplitude;
@@ -77,7 +50,8 @@ extern float chirp_fstart_hz;
 extern float chirp_fstop_hz;
 extern float chirp_length_s;
 
-extern uint8_t chirp_axis; // Index of chirp axis in ACTIVE_CHIRP_AXES
+// Index of chirp axis in ACTIVE_CHIRP_AXES
+extern uint8_t chirp_axis;
 
 extern void sys_id_chirp_init(void);
 

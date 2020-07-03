@@ -51,11 +51,7 @@
 #ifndef PPRZ_CHIRP_H
 #define PPRZ_CHIRP_H
 
-#include <math.h>
-#include <std.h>
-#include <stdbool.h>
-#include <stdlib.h>
-#include "mcu_periph/sys_time.h"
+#include "std.h"
 
 /**
  * Initialize with chirp_init

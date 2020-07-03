@@ -23,8 +23,38 @@
  * System identification chirp
  */
 
-#include "modules/system_identification/sys_id_chirp.h"
+#include "std.h"
+
+#include "sys_id_chirp.h"
+#include "pprz_chirp.h"
+
 #include "subsystems/datalink/telemetry.h"
+#include "generated/airframe.h"
+#include "mcu_periph/sys_time.h"
+#include "filters/low_pass_filter.h"
+#include "math/pprz_random.h"
+
+
+#ifndef CHIRP_AXES
+#define CHIRP_AXES {COMMAND_ROLL,COMMAND_PITCH,COMMAND_YAW}
+#endif
+
+#ifndef CHIRP_ENABLED
+#define CHIRP_ENABLED TRUE
+#endif
+
+#ifndef CHIRP_USE_NOISE
+#define CHIRP_USE_NOISE TRUE
+#endif
+
+#ifndef CHIRP_EXPONENTIAL
+#define CHIRP_EXPONENTIAL TRUE
+#endif
+
+#ifndef CHIRP_FADEIN
+#define CHIRP_FADEIN TRUE
+#endif
+
 
 static struct chirp_t chirp;
 uint8_t chirp_active = false;

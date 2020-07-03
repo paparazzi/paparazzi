@@ -27,7 +27,7 @@
 
 // Values for exponential chirp (See ref [2] in the header file). C2 is based on C1 s.t. the frequency range exactly covers the required range
 #define CHIRP_C1 4.0f
-#define CHIRP_C2 1.0f / (exp(CHIRP_C1) - 1)
+#define CHIRP_C2 1.0f / (expf(CHIRP_C1) - 1)
 
 
 
@@ -97,7 +97,7 @@ float chirp_update(struct chirp_t *chirp, float current_time_s)
   }
 
   if (chirp->exponential_chirp) { // See the book referenced in the header for the equations
-    float exponential = exp(CHIRP_C1 * t / chirp->length_s);
+    float exponential = expf(CHIRP_C1 * t / chirp->length_s);
     float K = CHIRP_C2 * (exponential - 1);
 
     chirp->current_frequency_hz = chirp->f0_hz + K * (chirp->f1_hz - chirp->f0_hz);
