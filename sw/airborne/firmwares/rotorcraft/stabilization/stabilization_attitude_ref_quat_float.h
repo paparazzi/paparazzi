@@ -59,7 +59,7 @@ struct AttRefQuatFloat {
 
 
 extern void attitude_ref_quat_float_init(struct AttRefQuatFloat *ref);
-extern void attitude_ref_quat_float_enter(struct AttRefQuatFloat *ref, float psi);
+extern void attitude_ref_quat_float_enter(struct AttRefQuatFloat *ref, struct FloatQuat *state_quat);
 extern void attitude_ref_quat_float_update(struct AttRefQuatFloat *ref, struct FloatQuat *sp_quat, float dt);
 
 

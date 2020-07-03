@@ -56,7 +56,7 @@ struct AttRefQuatInt {
 };
 
 extern void attitude_ref_quat_int_init(struct AttRefQuatInt *ref);
-extern void attitude_ref_quat_int_enter(struct AttRefQuatInt *ref, int32_t psi);
+extern void attitude_ref_quat_int_enter(struct AttRefQuatInt *ref, struct Int32Quat *state_quat);
 extern void attitude_ref_quat_int_update(struct AttRefQuatInt *ref, struct Int32Quat *sp_quat, float dt);
 
 extern void attitude_ref_quat_int_set_omega(struct AttRefQuatInt *ref, struct FloatRates *omega);
