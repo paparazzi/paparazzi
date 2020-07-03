@@ -44,6 +44,8 @@
     <module name="geo_mag"/>
     <module name="air_data"/>
 
+    <module name="sys_id_chirp"/>
+
   </firmware>
 
 <!--   COMMANDS    -->
@@ -76,6 +78,7 @@
 <!--   COMMANDS LAWS   -->
 
   <command_laws>
+    <call fun="sys_id_chirp_add_values(autopilot_get_motors_on(),FALSE,values)"/>
     <!-- Switch to command transition to forward flight -->
     <let var="forward_on"     value="@FORWARD_MODE > -4800? 1 : 0"/>
     <let var="forward_only"     value="@FORWARD_MODE > 4800? 1 : 0"/>
