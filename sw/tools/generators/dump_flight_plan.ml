@@ -1,7 +1,7 @@
 (*
- * Air Proximity Alert Module
+ * Dump a flight plan XML file
  *
- * Copyright (C) ENAC, Pascal Brisset, Antoine Drouin
+ * Copyright (C) 2010 Gautier Hattenberger
  *
  * This file is part of paparazzi.
  *
@@ -22,6 +22,14 @@
  *
  *)
 
-type alert_level = string option
-val check_airprox : Aircraft_server.aircraft -> Aircraft_server.aircraft -> alert_level
-(** [check_airprox ac1 ac2] Returns airprox level *)
+let () =
+
+  let fp_xml, dump_out =
+    try Sys.argv.(1), Sys.argv.(2)
+    with _ ->
+      failwith "Dump FP: please choose a flight plan XML and an output file"
+  in
+
+  let fp = Flight_plan.from_file fp_xml in
+  Gen_flight_plan.generate fp ~dump:true fp.Flight_plan.filename dump_out
+

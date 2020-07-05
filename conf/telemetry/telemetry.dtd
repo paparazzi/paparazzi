@@ -14,6 +14,7 @@
 >
 <!ATTLIST message
   name CDATA #REQUIRED
-  period CDATA #REQUIRED
+  period CDATA #IMPLIED
+  freq CDATA #IMPLIED
   phase CDATA #IMPLIED
 >

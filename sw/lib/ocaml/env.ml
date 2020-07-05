@@ -41,10 +41,50 @@ let paparazzi_home =
   with
       _ -> Filename.concat (Sys.getenv "HOME") "paparazzi"
 
+let paparazzi_conf = paparazzi_home // "conf"
 
-let flight_plans_path = paparazzi_home // "conf" // "flight_plans"
-
+let flight_plans_path = paparazzi_conf // "flight_plans"
 let flight_plan_dtd = flight_plans_path // "flight_plan.dtd"
+
+(** Returns the list of directories where to look for modules
+ * Default PAPARAZZI_HOME/conf/modules is always returned
+ * Extra directories can be added with PAPARAZZI_MODULES_PATH
+ * where where items are ':' separated and modules are in subfolders
+ * of a 'modules' folder
+ * ex:
+ *   PAPARAZZI_MODULES_PATH=/home/me/pprz_modules
+ *   - pprz_modules/modules
+ *   -- module1
+ *   --- module1.xml
+ *   --- module1.c
+ *   --- module1.h
+ *   -- module2
+ *   --- module2.xml
+ *   --- module2.c
+ *   --- module2.h
+ *)
+let modules_paths =
+  let default_path = paparazzi_conf // "modules" in
+  try
+    let path = Sys.getenv "PAPARAZZI_MODULES_PATH" in
+    let dirs = Str.split (Str.regexp ":") path in
+    let paths = List.fold_left (fun dl dir ->
+      let sub_dirs = List.fold_left (fun sdl sdir ->
+        let d = dir // "modules" // sdir in
+        if Sys.is_directory d then d :: sdl else sdl
+      ) [] (Array.to_list (Sys.readdir (dir // "modules"))) in
+      dl @ sub_dirs) [] dirs
+    in
+    paths @ [default_path]
+  with
+  | Sys_error _ | Not_found -> [default_path]
+
+(** Returns the list of directories in PAPARAZZI_MODULES_PATH *)
+let modules_ext_paths =
+  try
+    let path = Sys.getenv "PAPARAZZI_MODULES_PATH" in
+    Str.split (Str.regexp ":") path
+  with _ -> []
 
 let icon_file = paparazzi_home // "data/pictures/penguin_icon.png"
 let icon_gcs_file = paparazzi_home // "data/pictures/penguin_icon_gcs.png"
@@ -70,7 +110,7 @@ let get_gcs_icon_path = fun theme icon ->
     (* or raise not found *)
     raise Not_found
 
-let dump_fp = paparazzi_src // "sw" // "tools" // "generators" // "gen_flight_plan.out -dump"
+let dump_fp = paparazzi_src // "sw" // "tools" // "generators" // "dump_flight_plan.out"
 
 let default_module_targets = "ap|sim|nps|hitl"
 
@@ -84,88 +124,6 @@ let filter_settings = fun settings ->
   let sl = List.filter (fun s -> not (s.[0] = '[' && s.[String.length s - 1] = ']')) sl in
   String.concat " " sl
 
-(* filter on modules based on target *)
-let filter_modules_target = fun module_file ->
-  (* get TARGET env *)
-  let target = try Sys.getenv "TARGET" with _ -> "" in
-  (* look for a specific name after settings file (in case of modules) *)
-  let split = Str.split (Str.regexp "~") module_file in
-  let xml_file, name = match split with
-    | [f; n] -> f, n
-    | _ -> module_file, ""
-  in
-  let module_xml = ExtXml.parse_file xml_file in
-  if Xml.tag module_xml = "module"
-  then
-    begin
-      (* test if the module is loaded or not
-       * and if a specific sub-settings is selected *)
-      if List.exists (fun n ->
-        let local_target = ExtXml.attrib_or_default n "target" default_module_targets
-        and tag = Xml.tag n in
-        if tag = "makefile" then
-          Str.string_match (Str.regexp (".*"^target^".*")) local_target 0
-        else false
-        ) (Xml.children module_xml)
-      then Xml.Element ("settings", [],
-        List.filter (fun t ->
-          Xml.tag t = "settings" && ExtXml.attrib_or_default t "name" "" = name)
-        (Xml.children module_xml))
-      else Xml.Element ("settings",[],[])
-    end
-  else module_xml
-
-
-let expand_ac_xml = fun ?(raise_exception = true) ac_conf ->
-  let prefix = fun s -> sprintf "%s/conf/%s" paparazzi_home s in
-  let parse_file = fun ?(parse_filter=(fun x -> ExtXml.parse_file x)) a file ->
-    try
-      parse_filter file
-    with
-        Failure msg ->
-          if raise_exception then
-            failwith msg
-          else begin
-            prerr_endline msg;
-            make_element "parse error" ["file",a; "msg", msg] []
-          end in
-
-  let parse = fun ?(pre_filter=(fun x -> x)) ?(parse_filter=(fun x -> ExtXml.parse_file x)) a ->
-    List.map
-      (fun filename -> parse_file ~parse_filter a (prefix filename))
-      (Str.split space_regexp (pre_filter (ExtXml.attrib ac_conf a))) in
-
-  let parse_opt = fun ?(pre_filter=(fun x -> x)) ?(parse_filter=(fun x -> ExtXml.parse_file x)) a ->
-    try parse ~pre_filter ~parse_filter a with ExtXml.Error _ -> [] in
-
-  (* dump expanded version of flight plan before parsing *)
-  let parse_fp = fun a ->
-    try
-      (* get full path file name *)
-      let fp = prefix (ExtXml.attrib ac_conf a) in
-      if Sys.is_directory fp then raise Not_found;
-      (* create a temporary dump file *)
-      let dump = Filename.temp_file "fp_dump" ".xml" in
-      (* set command then call it *)
-      let c = sprintf "%s %s > %s" dump_fp fp dump in
-      if Sys.command c <> 0 then
-        begin
-          Sys.remove dump;
-          failwith c
-        end;
-      (* parse temp fp file and then remove it *)
-      let fp_xml = parse_file a dump in
-      Sys.remove dump;
-      (* return Xml list *)
-      [fp_xml]
-    with _ -> []
-  in
-
-  let pervasives = parse "airframe" @ parse "telemetry" @ parse ~pre_filter:filter_settings "settings" in
-  let optionals = parse_opt "radio" @ parse_fp "flight_plan" @ parse_opt ~pre_filter:filter_settings ~parse_filter:filter_modules_target "settings_modules"  @ pervasives in
-
-  let children = Xml.children ac_conf@optionals in
-  make_element (Xml.tag ac_conf) (Xml.attribs ac_conf) children
 
 (* Run a command and return its results as a string. *)
 let read_process command =

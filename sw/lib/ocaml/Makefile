@@ -68,7 +68,8 @@ PKGCOMMON=pprzlink,xml-light,netclient,nettls-gnutls,glibivy,lablgtk2
 XINCLUDES=
 XPKGCOMMON=pprzlink,xml-light,glibivy,$(LABLGTK2GNOMECANVAS),lablgtk2.glade
 
-SRC = compat.ml fig.ml debug.ml base64.ml serial.ml ocaml_tools.ml expr_syntax.ml expr_parser.ml expr_lexer.ml extXml.ml env.ml xml2h.ml latlong.ml egm96.ml srtm.ml http.ml maps_support.ml gm.ml iGN.ml geometry_2d.ml cserial.o ubx.ml xmlCom.ml os_calls.ml editAirframe.ml defivybus.ml fp_proc.ml gen_common.ml quaternion.ml
+SRC = compat.ml fig.ml debug.ml base64.ml serial.ml ocaml_tools.ml expr_syntax.ml expr_parser.ml expr_lexer.ml extXml.ml env.ml xml2h.ml latlong.ml egm96.ml srtm.ml http.ml maps_support.ml gm.ml iGN.ml geometry_2d.ml cserial.o ubx.ml xmlCom.ml os_calls.ml editAirframe.ml defivybus.ml fp_proc.ml quaternion.ml
+SRC += gen_common.ml radio.ml settings.ml module.ml flight_plan.ml autopilot.ml airframe.ml telemetry.ml aircraft.ml
 CMO = $(SRC:.ml=.cmo)
 CMX = $(SRC:.ml=.cmx)
 

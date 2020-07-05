@@ -36,6 +36,14 @@ let define = fun n x ->
 let define_string = fun n x ->
   define n ("\""^x^"\"")
 
+let define_out = fun out n x ->
+  match x with
+      "" -> fprintf out "#define %s\n" n
+    | _ -> fprintf out "#define %s %s\n" n x
+
+let define_string_out = fun out n x ->
+  define_out out n ("\""^x^"\"")
+
 
 let xml_error s = failwith ("Bad XML tag: "^s^ " expected")
 
@@ -47,24 +55,24 @@ let sprint_float_array = fun l ->
     | x::xs -> x ^","^ loop xs in
   "{" ^ loop l
 
-let begin_out = fun xml_file h_name out ->
+let begin_out = fun out xml_file h_name ->
   fprintf out "/* This file has been generated from %s */\n" xml_file;
   fprintf out "/* Version %s */\n" (Env.get_paparazzi_version ());
   fprintf out "/* Please DO NOT EDIT */\n\n";
   fprintf out "#ifndef %s\n" h_name;
   fprintf out "#define %s\n\n" h_name
 
-let start_and_begin_out = fun xml_file h_name out ->
+let start_and_begin_out = fun out xml_file h_name ->
   let xml = ExtXml.parse_file xml_file in
-  begin_out xml_file h_name out;
+  begin_out out xml_file h_name;
   xml
 
 let start_and_begin = fun xml_file h_name ->
   let xml = ExtXml.parse_file xml_file in
-  begin_out xml_file h_name stdout;
+  begin_out stdout xml_file h_name;
   xml
 
-let begin_c_out = fun xml_file name out ->
+let begin_c_out = fun out xml_file name ->
   fprintf out "/* This file has been generated from %s */\n" xml_file;
   fprintf out "/* Version %s */\n" (Env.get_paparazzi_version ());
   fprintf out "/* Please DO NOT EDIT */\n\n";
@@ -72,11 +80,14 @@ let begin_c_out = fun xml_file name out ->
 
 let start_and_begin_c = fun xml_file name ->
   let xml = ExtXml.parse_file xml_file in
-  begin_c_out xml_file name stdout;
+  begin_c_out stdout xml_file name;
   xml
 
 let finish = fun h_name ->
   printf "\n#endif // %s\n" h_name
+
+let finish_out = fun out h_name ->
+  fprintf out "\n#endif // %s\n" h_name
 
 let warning s =
   Printf.fprintf stderr "##################################################\n";

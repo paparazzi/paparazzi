@@ -55,9 +55,9 @@ let log_xml = fun ac_id ->
       Not_found ->
         failwith (sprintf "Error: A/C %d not found in conf.xml" ac_id)
   in
-  let expanded_conf_ac = Env.expand_ac_xml ~raise_exception:false conf_ac in
+  let ac = Aircraft.parse_aircraft ~parse_all:true "" conf_ac in
   let expanded_conf =
-    make_element (Xml.tag conf_xml) (Xml.attribs conf_xml) [expanded_conf_ac] in
+    make_element (Xml.tag conf_xml) (Xml.attribs conf_xml) ac.Aircraft.xml in
   make_element
     "configuration"
     []

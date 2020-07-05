@@ -12,9 +12,10 @@
   pulse_type CDATA #REQUIRED>
 
 <!ATTLIST channel
-  ctl CDATA #REQUIRED
+  ctl CDATA #IMPLIED
   function CDATA #REQUIRED
   min CDATA #REQUIRED
   neutral CDATA #REQUIRED
   max CDATA #REQUIRED
-  average CDATA #REQUIRED>
+  average CDATA #IMPLIED
+  reverse CDATA #IMPLIED>

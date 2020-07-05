@@ -35,6 +35,9 @@ separator is [.]). May raise [Not_found]. *)
 val get_attrib : Xml.xml -> string -> string -> string
 (** [get_attrib xml path attrib_name] *)
 
+val sprint_fields : unit -> (string * string) list -> string
+(** [sprint_fields attribs] pretty print attribs *)
+
 val attrib : Xml.xml -> string -> string
 val int_attrib : Xml.xml -> string -> int
 val float_attrib : Xml.xml -> string -> float
@@ -43,7 +46,10 @@ val float_attrib : Xml.xml -> string -> float
 val tag_is : Xml.xml -> string -> bool
 (** [tag_is xml s] Case safe test *)
 
-val attrib_option : Xml.xml -> string -> string option
+val attrib_opt : Xml.xml -> string -> string option
+val attrib_opt_map : Xml.xml -> string -> (string -> 'a) -> 'a option
+val attrib_opt_int : Xml.xml -> string -> int option
+val attrib_opt_float : Xml.xml -> string -> float option
 
 val attrib_or_default : Xml.xml -> string -> string -> string
 (** [get xml attribute_name default_value] *)
@@ -66,6 +72,13 @@ val subst_or_add_child : string -> Xml.xml -> Xml.xml -> Xml.xml
 val remove_child :
     ?select:(Xml.xml -> bool) -> string -> Xml.xml -> Xml.xml
 (** [delete_child ?select child_tag xml] Returns [xml] if not found *)
+
+val parse_children : string -> (Xml.xml -> 'a) -> Xml.xml list -> 'a list
+(** [parse_children tag f children] *)
+
+val parse_children_attribs :
+  string -> ((string * string) list -> 'a) -> Xml.xml list -> 'a list
+(** [parse_children_attribs tag f children] *)
 
 val iter_tag : string -> (Xml.xml -> unit) -> Xml.xml -> unit
 (** [iter_tag f tag xml] applies function [f] to every child of [xml] with

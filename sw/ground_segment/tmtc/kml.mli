@@ -24,8 +24,8 @@
 
 val enabled : bool ref
 val no_http : bool ref
-val build_files : Aircraft.aircraft -> unit
-val update_waypoints : Aircraft.aircraft -> unit
-val update_horiz_mode : Aircraft.aircraft -> unit
-val update_ac : Aircraft.aircraft -> unit
+val build_files : Aircraft_server.aircraft -> unit
+val update_waypoints : Aircraft_server.aircraft -> unit
+val update_horiz_mode : Aircraft_server.aircraft -> unit
+val update_ac : Aircraft_server.aircraft -> unit
 

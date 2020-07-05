@@ -44,17 +44,17 @@
 -->
 
 <!DOCTYPE radio SYSTEM "radio.dtd">
-<radio name="Futaba T14SG with SBUS" data_min="900" data_max="2100" sync_min ="5000" sync_max ="15000" pulse_type="POSTIVE">
- <channel ctl="A" function="ROLL"     min="1000" neutral="1500" max="2000" average="0"/>
- <channel ctl="B" function="PITCH"    min="1000" neutral="1500" max="2000" average="0"/>
- <channel ctl="C" function="THROTTLE" min="1000" neutral="1000" max="2000" average="0"/>
- <channel ctl="D" function="YAW"      min="1000" neutral="1500" max="2000" average="0"/>
- <channel ctl="E" function="UNUSED1"  max="1000"  neutral="1500" min="2000" average="1"/>
- <channel ctl="F" function="KILL"     min="1000"  neutral="1500" max="2000" average="0"/>
- <channel ctl="G" function="AUX2"      min="1000"  neutral="1500" max="2000" average="0"/>
- <channel ctl="H" function="MODE"     min="1000"  neutral="1500" max="2000" average="0"/>
- <channel ctl="I" function="UNUSED3"  min="1000"  neutral="1500" max="2000" average="0"/>
- <channel ctl="J" function="AUX3"     min="1000"  neutral="1500" max="2000" average="0"/>
- <channel ctl="K" function="UNUSED5"  min="1000"  neutral="1500" max="2000" average="0"/>
- <channel ctl="L" function="UNUSED6"  min="1000"  neutral="1500" max="2000" average="0"/>
+<radio name="Futaba T14SG with SBUS" data_min="900" data_max="2100" sync_min ="5000" sync_max ="15000" pulse_type="POSITIVE">
+ <channel function="ROLL"     min="1000" neutral="1500" max="2000" average="0"/>
+ <channel function="PITCH"    min="1000" neutral="1500" max="2000" average="0"/>
+ <channel function="THROTTLE" min="1000" neutral="1000" max="2000" average="0"/>
+ <channel function="YAW"      min="1000" neutral="1500" max="2000" average="0"/>
+ <channel function="UNUSED1"  max="1000"  neutral="1500" min="2000" average="1"/>
+ <channel function="KILL"     min="1000"  neutral="1500" max="2000" average="0"/>
+ <channel function="AUX2"      min="1000"  neutral="1500" max="2000" average="0"/>
+ <channel function="MODE"     min="1000"  neutral="1500" max="2000" average="0"/>
+ <channel function="UNUSED3"  min="1000"  neutral="1500" max="2000" average="0"/>
+ <channel function="AUX3"     min="1000"  neutral="1500" max="2000" average="0"/>
+ <channel function="UNUSED5"  min="1000"  neutral="1500" max="2000" average="0"/>
+ <channel function="UNUSED6"  min="1000"  neutral="1500" max="2000" average="0"/>
 </radio>

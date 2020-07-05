@@ -1,20 +1,9 @@
 <!-- Dataling and RC settings DTD -->
 
-<!ELEMENT settings (rc_settings?,dl_settings?)>
-
-<!ELEMENT rc_settings (rc_mode*)>
-<!ELEMENT rc_mode (rc_setting*)>
-<!ELEMENT rc_setting EMPTY>
-
-<!ATTLIST rc_mode name CDATA #REQUIRED>
-
-<!ATTLIST rc_setting var CDATA #REQUIRED>
-<!ATTLIST rc_setting type (int16|float) #REQUIRED>
-<!ATTLIST rc_setting range CDATA #REQUIRED>
-<!ATTLIST rc_setting rc (gain_1_up|gain_2_up|gain_1_down|gain_2_down) #REQUIRED>
-
-<!ELEMENT dl_settings (dl_setting|dl_settings)+>
+<!ELEMENT settings (dl_settings?)>
+<!ELEMENT dl_settings (dl_setting|dl_settings|include)+>
 <!ELEMENT dl_setting (strip_button|key_press)*>
+<!ELEMENT include EMPTY>
 <!ELEMENT strip_button EMPTY>
 <!ELEMENT key_press EMPTY>
 
@@ -26,6 +15,10 @@ target CDATA #IMPLIED
 name CDATA #IMPLIED
 >
 
+<!ATTLIST include
+header CDATA #REQUIRED
+>
+
 <!ATTLIST dl_setting
 var CDATA #REQUIRED
 min CDATA #REQUIRED
@@ -35,6 +28,7 @@ step CDATA #IMPLIED
 widget CDATA #IMPLIED
 shortname CDATA #IMPLIED
 module CDATA #IMPLIED
+header CDATA #IMPLIED
 handler CDATA #IMPLIED
 param CDATA #IMPLIED
 unit CDATA #IMPLIED

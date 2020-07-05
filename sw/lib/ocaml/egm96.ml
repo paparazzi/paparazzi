@@ -29,12 +29,12 @@ let (//) = Filename.concat
 
 let ncols = 1440
 let nrows = 721
+let n = ncols * nrows * 2
+let buf = Bytes.create n
 let data =
   lazy (
     let path = [Env.paparazzi_home // "data" // "srtm"] in
     let f = Ocaml_tools.open_compress (Ocaml_tools.find_file path "WW15MGH.DAC") in
-    let n = ncols * nrows * 2 in
-    let buf = Bytes.create n in
     really_input f buf 0 n;
     buf)
 

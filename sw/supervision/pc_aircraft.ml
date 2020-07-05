@@ -190,10 +190,10 @@ let save_callback = fun ?user_save gui ac_combo tree tree_modules () ->
 type selected_t = Selected | Unselected | Unknown
 
 (* Get the settings (string list) with current modules *)
-let get_settings_modules = fun ac_id ac_xml fp_xml settings_modules ->
+let get_settings_modules = fun ac_id aircraft_xml settings_modules ->
   (* get modules *)
-  let modules = Gen_common.get_modules_of_config ac_id ac_xml fp_xml in
-  let modules = List.map (fun m -> m.Gen_common.xml, m.Gen_common.file ) modules in
+  let ac = Aircraft.parse_aircraft ~parse_af:true ~parse_ap:true ~parse_fp:true "" aircraft_xml in
+  let modules = List.map (fun m -> (m.Module.xml, m.Module.xml_filename)) ac.Aircraft.all_modules in
   (* get list of settings files *)
   let settings = List.fold_left (fun l (m, f) ->
     (* get list of settings_file xml node if any *)
@@ -330,23 +330,9 @@ let ac_combo_handler = fun gui (ac_combo:Gtk_tools.combo) target_combo flash_com
       let aircraft = Hashtbl.find Utils.aircrafts ac_name in
       let sample = aircraft_sample ac_name "42" in
       (* update list of modules settings *)
-      let af_file = (Env.paparazzi_home // "conf" // (Xml.attrib aircraft "airframe")) in
-      let af_xml = try Xml.parse_file af_file
-      with
-      | Xml.File_not_found x ->
-          gui#label_airframe#set_text "";
-          gui#button_clean#misc#set_sensitive false;
-          gui#button_build#misc#set_sensitive false;
-          (Gtk_tools.combo_widget target_combo)#misc#set_sensitive false;
-          (Gtk_tools.combo_widget flash_combo)#misc#set_sensitive false;
-          log (sprintf "Error airframe file not found: %s\n" x);
-          Xml.Element ("airframe", [], []);
-      in
-      let fp_file = (Env.paparazzi_home // "conf" // (Xml.attrib aircraft "flight_plan")) in
-      let fp_xml = ExtXml.parse_file fp_file in
       let ac_id = ExtXml.attrib aircraft "ac_id" in
       let settings_modules = try
-        get_settings_modules ac_id af_xml fp_xml (ExtXml.attrib_or_default aircraft "settings_modules" "")
+        get_settings_modules ac_id aircraft (ExtXml.attrib_or_default aircraft "settings_modules" "")
       with
       | Failure x -> prerr_endline x; []
       | _ -> []

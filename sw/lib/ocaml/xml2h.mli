@@ -26,12 +26,15 @@ exception Error of string
 val nl : unit -> unit
 val define : string -> string -> unit
 val define_string : string -> string -> unit
+val define_out : out_channel -> string -> string -> unit
+val define_string_out : out_channel -> string -> string -> unit
 val xml_error : string -> 'a
 val sprint_float_array : string list -> string
-val begin_out : string -> string -> out_channel -> unit
-val start_and_begin_out : string -> string -> out_channel -> Xml.xml
+val begin_out : out_channel -> string -> string -> unit
+val start_and_begin_out : out_channel -> string -> string -> Xml.xml
 val start_and_begin : string -> string -> Xml.xml
-val begin_c_out : string -> string -> out_channel -> unit
+val begin_c_out : out_channel -> string -> string -> unit
 val start_and_begin_c : string -> string -> Xml.xml
 val finish : string -> unit
+val finish_out : out_channel -> string -> unit
 val warning : string -> unit

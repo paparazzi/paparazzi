@@ -22,7 +22,7 @@
  *
  *)
 
-open Aircraft
+open Aircraft_server
 open Latlong
 
 module Alerts_Pprz = PprzLink.Messages(struct let name = "alert" end)
