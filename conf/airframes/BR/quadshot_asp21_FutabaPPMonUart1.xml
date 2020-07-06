@@ -306,44 +306,9 @@
     <define name="ADAPTIVE_INDI" value="FALSE"/>
   </section>
 
-  <modules main_freq="512">
-    <load name="gps_ubx_ucenter.xml"/>
-
-    <!-- The the led_safety_status module will make the Quadshot LEDs blink in certain patterns when there are safety violations-->
-    <load name="led_safety_status.xml">
-          <define name="USE_LED_BODY" value="1"/>
-          <define name="SAFETY_WARNING_LED" value="BODY"/>
-    </load>
-
-    <load name="sonar_adc.xml">
-      <configure name="ADC_SONAR" value="ADC_2"/>
-<!--       <define name="USE_SONAR"/> -->
-      <define name="SENSOR_SYNC_SEND_SONAR"/>
-      <define name="SONAR_SCALE" value="0.0032"/>
-    </load>
-
-  <!--Use an airspeed sensor and get the measured airspeed in the messages-->
-<!--    <load name="airspeed_ets.xml">
-      <define name="AIRSPEED_ETS_SYNC_SEND"/>
-    </load>-->
-
-    <module name="logger_spi_link"/>
-
-<!--    <load name="AOA_adc.xml">
-      <configure name="ADC_AOA" value="ADC_2"/>
-      <define name="AOA_OFFSET" value="0"/>
-      <define name="AOA_FILTER" value="0"/>
-      <define name="USE_AOA"/>
-      <define name="AOA_SENS" value="2.0*M_PI/1024/4"/>
-    </load>-->
-
-  <!-- Load this module to use multiple gain sets, which have to be specified in the gain sets section. Does not work with INDI -->
-    <!-- <module name="gain_scheduling"/> -->
-  </modules>
-
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_m_2.0">
-    <module name="radio_control" type="ppm">
+      <module name="radio_control" type="ppm">
 
         <configure name="RADIO_CONTROL_PPM_PIN" value="UART1_RX"/>
 
@@ -358,7 +323,7 @@
     <configure name="FLASH_MODE"   value="SWD"/>
     <configure name="BMP_PORT" value="/dev/ttyACM0" />
 
- <!-- To use an airspeed sensor on I2C, enable I2C2-->
+    <!-- To use an airspeed sensor on I2C, enable I2C2-->
 <!--      <define name="USE_I2C2"/> -->
 
 
@@ -387,5 +352,38 @@
     </module>
 
     <module name="ins"/>
+
+    <module name="gps_ubx_ucenter"/>
+
+    <!-- The the led_safety_status module will make the Quadshot LEDs blink in certain patterns when there are safety violations-->
+    <module name="led_safety_status">
+      <define name="USE_LED_BODY" value="1"/>
+      <define name="SAFETY_WARNING_LED" value="BODY"/>
+    </module>
+
+    <module name="sonar_adc">
+      <configure name="ADC_SONAR" value="ADC_2"/>
+<!--       <define name="USE_SONAR"/> -->
+      <define name="SENSOR_SYNC_SEND_SONAR"/>
+      <define name="SONAR_SCALE" value="0.0032"/>
+    </module>
+
+        <!--Use an airspeed sensor and get the measured airspeed in the messages-->
+<!--    <module name="airspeed_ets">
+      <define name="AIRSPEED_ETS_SYNC_SEND"/>
+    </module>-->
+
+    <module name="logger_spi_link"/>
+
+<!--    <module name="AOA_adc">
+      <configure name="ADC_AOA" value="ADC_2"/>
+      <define name="AOA_OFFSET" value="0"/>
+      <define name="AOA_FILTER" value="0"/>
+      <define name="USE_AOA"/>
+      <define name="AOA_SENS" value="2.0*M_PI/1024/4"/>
+    </module>-->
+
+    <!-- Load this module to use multiple gain sets, which have to be specified in the gain sets section. Does not work with INDI -->
+    <!-- <module name="gain_scheduling"/> -->
   </firmware>
 </airframe>

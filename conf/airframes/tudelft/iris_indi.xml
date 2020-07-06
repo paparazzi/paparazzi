@@ -44,6 +44,24 @@
     <module name="actuators" type="pwm"> <!-- gimbal and buzzer -->
       <define name="SERVO_HZ" value="400" />
     </module>
+    <module name="px4_flash">
+      <configure name="PX4IO_UART" value="uart6"/>
+    </module>
+    <module name="px4_gimbal" />
+    <module name="geo_mag" />
+    <module name="air_data" />
+    <module name="send_imu_mag_current" />
+    <module name="mag" type="hmc58xx">
+      <configure name="MAG_HMC58XX_I2C_DEV" value="i2c1"/>
+      <define name="MODULE_HMC58XX_UPDATE_AHRS" value="TRUE"/>
+      <define name="HMC58XX_CHAN_X" value="1"/>
+      <define name="HMC58XX_CHAN_Y" value="0"/>
+      <define name="HMC58XX_CHAN_Z" value="2"/>
+      <define name="HMC58XX_CHAN_X_SIGN" value="-"/>
+      <define name="HMC58XX_CHAN_Y_SIGN" value="+"/>
+      <define name="HMC58XX_CHAN_Z_SIGN" value="+"/>
+    </module>
+    <!--  <module name="spektrum_soft_bind"/>-->
   </firmware>
   <firmware name="rotorcraft">
     <target name="fbw" board="px4io_2.4" />
@@ -74,26 +92,6 @@
       <configure name="INTERMCU_BAUD" value="B1500000" />
     </module>
   </firmware>
-  <modules main_freq="512">
-    <module name="px4_flash">
-      <configure name="PX4IO_UART" value="uart6"/>
-    </module>
-    <module name="px4_gimbal" />
-    <module name="geo_mag" />
-    <module name="air_data" />
-    <module name="send_imu_mag_current" />
-    <module name="mag" type="hmc58xx">
-      <configure name="MAG_HMC58XX_I2C_DEV" value="i2c1"/>
-      <define name="MODULE_HMC58XX_UPDATE_AHRS" value="TRUE"/>
-      <define name="HMC58XX_CHAN_X" value="1"/>
-      <define name="HMC58XX_CHAN_Y" value="0"/>
-      <define name="HMC58XX_CHAN_Z" value="2"/>
-      <define name="HMC58XX_CHAN_X_SIGN" value="-"/>
-      <define name="HMC58XX_CHAN_Y_SIGN" value="+"/>
-      <define name="HMC58XX_CHAN_Z_SIGN" value="+"/>
-    </module>
-    <!--  <module name="spektrum_soft_bind"/>-->
-  </modules>
 
   <section name="MISC">
     <define name="MilliAmpereOfAdc(adc)" value="((float)adc) * (3.3f / 4096.0f) * (90.0f / 5.0f)" />

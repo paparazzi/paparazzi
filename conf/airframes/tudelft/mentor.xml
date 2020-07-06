@@ -6,52 +6,53 @@
   <description>Mentor</description>
 
   <firmware name="fixedwing">
-    <target name="ap" board="px4fmu_5.0_chibios">
-      <configure name="PERIODIC_FREQUENCY"  value="500"/>
-      <module name="telemetry"     type="transparent">
-        <configure name="MODEM_BAUD" value="B115200"/>
-      </module>
-      <module name="imu" type="mpu6000"/>
-      <module name="gps" type="ublox">
-        <!--configure name="GPS_PORT" value="UART1"/-->
-      </module>
-      <module name="gps"  type="ubx_ucenter"/>
-      <module name="ahrs" type="int_cmpl_quat">
-        <configure name="USE_MAGNETOMETER" value="FALSE"/>
-        <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN"/>
-      </module>
-      <module name="ins" type="alt_float"/>
-
-      <module name="mag_ist8310">
-        <define name="MODULE_IST8310_UPDATE_AHRS" value="TRUE"/>
-        <configure name="MAG_IST8310_I2C_DEV" value="I2C3"/>
-      </module>
-      <!--module name="lidar" type="tfmini"/-->
-
-      <!--module name="airspeed" type="ms45xx_i2c">
-        <define name="USE_I2C4"/>
-        <define name="MS45XX_I2C_DEV" value="i2c4"/>
-      </module-->
-      <module name="air_data"/>
-
-      <module name="control" type="energy"/>
-      <module name="navigation"/>
-      <module name="actuators" type="pwm"/>
-      <module name="radio_control" type="sbus">
-        <configure name="SBUS_PORT" value="UART3"/>
-      </module>
-
-       <!-- Logger -->
-      <!--module name="tlsf"/>
-      <module name="pprzlog"/>
-      <module name="logger" type="sd_chibios"/>
-      <module name="flight_recorder"/-->
-    </target>
+    <target name="ap" board="px4fmu_5.0_chibios"/>
 
     <target name="nps" board="pc">
       <module name="radio_control" type="spektrum"/>
       <module name="fdm" type="jsbsim"/>
     </target>
+
+    <configure name="PERIODIC_FREQUENCY"  value="500"/>
+    <module name="telemetry"     type="transparent">
+      <configure name="MODEM_BAUD" value="B115200"/>
+    </module>
+    <module name="imu" type="mpu6000"/>
+    <module name="gps" type="ublox">
+      <!--configure name="GPS_PORT" value="UART1"/-->
+    </module>
+    <module name="gps"  type="ubx_ucenter"/>
+    <module name="ahrs" type="int_cmpl_quat">
+      <configure name="USE_MAGNETOMETER" value="FALSE"/>
+      <define name="AHRS_GRAVITY_UPDATE_COORDINATED_TURN"/>
+    </module>
+    <module name="ins" type="alt_float"/>
+
+    <module name="mag_ist8310">
+      <define name="MODULE_IST8310_UPDATE_AHRS" value="TRUE"/>
+      <configure name="MAG_IST8310_I2C_DEV" value="I2C3"/>
+    </module>
+    <!--module name="lidar" type="tfmini"/-->
+
+    <!--module name="airspeed" type="ms45xx_i2c">
+        <define name="USE_I2C4"/>
+        <define name="MS45XX_I2C_DEV" value="i2c4"/>
+    </module-->
+    <module name="air_data"/>
+
+    <module name="control" type="energy"/>
+    <module name="navigation"/>
+    <module name="actuators" type="pwm"/>
+    <module name="radio_control" type="sbus">
+      <configure name="SBUS_PORT" value="UART3"/>
+    </module>
+
+    <!-- Logger -->
+    <!--module name="tlsf"/>
+    <module name="pprzlog"/>
+    <module name="logger" type="sd_chibios"/>
+    <module name="flight_recorder"/-->
+
   </firmware>
 
   <servos>

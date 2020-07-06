@@ -90,6 +90,45 @@
         <define name="SERVO_HZ" value="200" />
       </module>
 
+      <!-- allow flashing FBW target through AP -->
+      <module name="px4_flash"/>
+
+      <!-- CPU utilization monitor -->
+      <module name="sys_mon"/>
+
+      <!-- optical flow camera over i2c-->
+      <module name="px4flow_i2c">
+        <configure name="USE_PX4FLOW_AGL" value="0" description="don't send AGL measurements"/>
+        <comment>compensate AGL for body rotation</comment>
+        <configure name="PX4FLOW_COMPENSATE_ROTATION" value="1"/>
+        <configure name="PX4FLOW_NOISE_STDDEV" value="10.0"/> <!-- standard deviation of the optical flow measurements-->
+      </module>
+
+      <!-- laser range finder for precise AGL measurement -->
+      <module name="lidar_lite">
+        <configure name="USE_LIDAR_LITE_AGL" value="1"/> <!-- send AGL measurements -->
+        <configure name="LIDAR_LITE_COMPENSATE_ROTATION" value="1" /> <!-- compensate AGL for body rotation -->
+      </module>
+
+      <!-- laser range finder for precise AGL measurement -->
+      <module name="lidar_sf11">
+        <configure name="USE_LIDAR_SF11_AGL" value="0"/> <!-- dont send AGL measurements -->
+        <configure name="LIDAR_SF11_COMPENSATE_ROTATION" value="1" /> <!-- compensate AGL for body rotation -->
+      </module>
+
+      <!-- external mag for better heading estimate -->
+      <module name="mag" type="hmc58xx">
+        <configure name="MAG_HMC58XX_I2C_DEV" value="i2c1"/>
+        <define name="MODULE_HMC58XX_UPDATE_AHRS" value="TRUE"/>
+        <define name="HMC58XX_CHAN_X" value="1"/>
+        <define name="HMC58XX_CHAN_Y" value="0"/>
+        <define name="HMC58XX_CHAN_Z" value="2"/>
+        <define name="HMC58XX_CHAN_X_SIGN" value="-"/>
+        <define name="HMC58XX_CHAN_Y_SIGN" value="+"/>
+        <define name="HMC58XX_CHAN_Z_SIGN" value="+"/>
+      </module>
+
+      <module name="air_data"/>
 <!--
       <module name="tlsf"/>
       <module name="pprzlog"/>
@@ -120,49 +159,8 @@
         <configure name="INTERMCU_BAUD" value="B1500000" />
       </module>
     </target>
+
   </firmware>
-
-  <modules main_freq="PERIODIC_FREQUENCY">
-    <!-- allow flashing FBW target through AP -->
-    <module name="px4_flash"/>
-
-    <!-- CPU utilization monitor -->
-    <module name="sys_mon"/>
-
-    <!-- optical flow camera over i2c-->
-    <module name="px4flow_i2c">
-      <configure name="USE_PX4FLOW_AGL" value="0" description="don't send AGL measurements"/>
-      <comment>compensate AGL for body rotation</comment>
-      <configure name="PX4FLOW_COMPENSATE_ROTATION" value="1"/>
-      <configure name="PX4FLOW_NOISE_STDDEV" value="10.0"/> <!-- standard deviation of the optical flow measurements-->
-    </module>
-
-    <!-- laser range finder for precise AGL measurement -->
-    <module name="lidar_lite">
-      <configure name="USE_LIDAR_LITE_AGL" value="1"/> <!-- send AGL measurements -->
-      <configure name="LIDAR_LITE_COMPENSATE_ROTATION" value="1" /> <!-- compensate AGL for body rotation -->
-    </module>
-
-    <!-- laser range finder for precise AGL measurement -->
-    <module name="lidar_sf11">
-      <configure name="USE_LIDAR_SF11_AGL" value="0"/> <!-- dont send AGL measurements -->
-      <configure name="LIDAR_SF11_COMPENSATE_ROTATION" value="1" /> <!-- compensate AGL for body rotation -->
-    </module>
-
-    <!-- external mag for better heading estimate -->
-    <module name="mag" type="hmc58xx">
-      <configure name="MAG_HMC58XX_I2C_DEV" value="i2c1"/>
-      <define name="MODULE_HMC58XX_UPDATE_AHRS" value="TRUE"/>
-      <define name="HMC58XX_CHAN_X" value="1"/>
-      <define name="HMC58XX_CHAN_Y" value="0"/>
-      <define name="HMC58XX_CHAN_Z" value="2"/>
-      <define name="HMC58XX_CHAN_X_SIGN" value="-"/>
-      <define name="HMC58XX_CHAN_Y_SIGN" value="+"/>
-      <define name="HMC58XX_CHAN_Z_SIGN" value="+"/>
-    </module>
-
-    <module name="air_data"/>
-  </modules>
 
   <section name="MISC">
     <define name="MilliAmpereOfAdc(adc)" value="((float)adc) * (3.3f / 4096.0f) * (90.0f / 5.0f)" />
