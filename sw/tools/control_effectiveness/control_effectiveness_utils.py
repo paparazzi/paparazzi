@@ -26,9 +26,9 @@ Utility functions for control effectiveness estimation
 import sys
 import numpy as np
 import scipy as sp
-from scipy import optimize, signal
+from scipy import signal
 import matplotlib.pyplot as plt
-from matplotlib.pyplot import figure, show
+from matplotlib.pyplot import show
 
 #
 # functions for actuators model
@@ -77,40 +77,28 @@ def apply_filter(filt_name, params, signal, var):
     apply a filter to an input signal based on the config (name + params)
     '''
     if filt_name == '1st_order':
-        '''
-        params = [tau]
-        '''
+        # params = [tau]
         return first_order_model(signal, get_param(params[0], var))
 
     elif filt_name == 'rate_limit':
-        '''
-        params = [max_rate]
-        '''
+        # params = [max_rate]
         return rate_limit_model(signal, get_param(params[0], var))
 
     elif filt_name == 'diff_signal':
-        '''
-        params = [order]
-        '''
+        # params = [order]
         return diff_signal(signal, var['freq'], get_param(params[0], var))
 
     elif filt_name == 'butter':
-        '''
-        params = [order, Wn]
-        '''
+        # params = [order, Wn]
         b, a = sp.signal.butter(get_param(params[0], var), get_param(params[1], var)/(var['freq']/2))
         return sp.signal.lfilter(b, a, signal, axis=0)
 
     elif filt_name == 'mult':
-        '''
-        params = [factor]
-        '''
+        # params = [factor]
         return signal * get_param(params[0], var)
 
     elif filt_name == 'div':
-        '''
-        params = [factor]
-        '''
+        # params = [factor]
         return signal / get_param(params[0], var)
 
     else:
