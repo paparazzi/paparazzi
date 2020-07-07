@@ -508,8 +508,7 @@ static bool softi2c_process_transaction(struct softi2c_device *d, struct i2c_tra
       // Write address sent
       if (!ack) {
         d->periph->errors->ack_fail_cnt++;
-        t->status = I2CTransFailed;
-        d->periph->status = I2CStopRequested;
+        d->periph->status = I2CFailed;
         return false;
       }
       d->periph->status = I2CSendingByte;
@@ -522,7 +521,6 @@ static bool softi2c_process_transaction(struct softi2c_device *d, struct i2c_tra
         if (t->type == I2CTransTxRx) {
           d->periph->status = I2CRestartRequested;
         } else {
-          t->status = I2CTransSuccess;
           d->periph->status = I2CStopRequested;
         }
         return false;
@@ -532,8 +530,7 @@ static bool softi2c_process_transaction(struct softi2c_device *d, struct i2c_tra
       // Byte sent
       if (!ack) {
         d->periph->errors->ack_fail_cnt++;
-        t->status = I2CTransFailed;
-        d->periph->status = I2CStopRequested;
+        d->periph->status = I2CFailed;
         return true;
       }
       d->periph->idx_buf++;
@@ -553,8 +550,7 @@ static bool softi2c_process_transaction(struct softi2c_device *d, struct i2c_tra
       // Read address sent
       if (!ack) {
         d->periph->errors->ack_fail_cnt++;
-        t->status = I2CTransFailed;
-        d->periph->status = I2CStopRequested;
+        d->periph->status = I2CFailed;
         return true;
       }
       d->periph->status = I2CReadingByte;
@@ -575,7 +571,6 @@ static bool softi2c_process_transaction(struct softi2c_device *d, struct i2c_tra
     case I2CReadingLastByte:
       // Check remaining bytes
       if (d->periph->idx_buf >= t->len_r) {
-        t->status = I2CTransSuccess;
         d->periph->idx_buf = 0;
         d->periph->status = I2CStopRequested;
         return false;
@@ -590,11 +585,16 @@ static bool softi2c_process_transaction(struct softi2c_device *d, struct i2c_tra
       // Send stop bit
       if (!softi2c_write_stop(d)) return false;
       // Stop bit sent
+      t->status = I2CTransSuccess;
       d->periph->status = I2CIdle;
       return true;
 
     default:
-      // Should never happen, something went wrong
+    case I2CFailed:
+      // Something went wrong
+      // Send stop bit
+      if (!softi2c_write_stop(d)) return false;
+      // Stop bit sent
       t->status = I2CTransFailed;
       d->periph->status = I2CIdle;
       return true;
