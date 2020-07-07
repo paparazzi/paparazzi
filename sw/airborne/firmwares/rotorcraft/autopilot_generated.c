@@ -28,6 +28,7 @@
 
 #include "firmwares/rotorcraft/autopilot_generated.h"
 #include "autopilot.h"
+#include "autopilot_arming.h"
 
 #include "subsystems/radio_control.h"
 #include "subsystems/commands.h"
@@ -36,17 +37,6 @@
 #include "subsystems/datalink/telemetry.h"
 
 #include "generated/settings.h"
-
-#if USE_KILL_SWITCH_FOR_MOTOR_ARMING
-#include "autopilot_arming_switch.h"
-PRINT_CONFIG_MSG("Using kill switch for motor arming")
-#elif USE_THROTTLE_FOR_MOTOR_ARMING
-#include "autopilot_arming_throttle.h"
-PRINT_CONFIG_MSG("Using throttle for motor arming")
-#else
-#include "autopilot_arming_yaw.h"
-PRINT_CONFIG_MSG("Using 2 sec yaw for motor arming")
-#endif
 
 
 void autopilot_generated_init(void)

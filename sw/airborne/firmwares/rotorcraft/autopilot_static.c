@@ -28,6 +28,7 @@
  */
 
 #include "autopilot.h"
+#include "autopilot_arming.h"
 
 #include "subsystems/radio_control.h"
 #include "subsystems/commands.h"
@@ -45,7 +46,6 @@
 #include "firmwares/rotorcraft/stabilization/stabilization_rate.h"
 #endif
 
-#include "firmwares/rotorcraft/autopilot_rc_helpers.h"
 #include "firmwares/rotorcraft/autopilot_guided.h"
 
 #include "generated/settings.h"
@@ -58,17 +58,6 @@
 #else
 #define GpsIsLost() TRUE
 #endif
-#endif
-
-#if USE_KILL_SWITCH_FOR_MOTOR_ARMING
-#include "autopilot_arming_switch.h"
-PRINT_CONFIG_MSG("Using kill switch for motor arming")
-#elif USE_THROTTLE_FOR_MOTOR_ARMING
-#include "autopilot_arming_throttle.h"
-PRINT_CONFIG_MSG("Using throttle for motor arming")
-#else
-#include "autopilot_arming_yaw.h"
-PRINT_CONFIG_MSG("Using 2 sec yaw for motor arming")
 #endif
 
 /* Geofence exceptions */
