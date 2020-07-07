@@ -35,8 +35,6 @@
     <module name="bat_voltage_ardrone2"/>
   </firmware>
 
-  <modules main_freq="512"/>
-
   <!-- include common control -->
   <include href="conf/airframes/ENAC/quadrotor/ard2_base_control.xml"/>
   <!-- include arframe calibration -->

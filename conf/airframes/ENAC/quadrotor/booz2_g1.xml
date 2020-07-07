@@ -1,7 +1,5 @@
 <airframe name="BOOZ2_G1">
 
-  <modules main_freq="512"/>
-
   <firmware name="rotorcraft">
     <define name="DEBUG_VFF_EXTENDED"/>
     <define name="USE_INS_NAV_INIT"/>

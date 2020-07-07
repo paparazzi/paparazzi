@@ -179,18 +179,6 @@
     <!-- **************************** set for all *******************************-->
     <define name="RADIO_CONTROL_AUTO1"/>
 
-  </firmware>
-
-  <firmware name="test_progs">
-    <target name="test_can" board="lisa_m_2.0"/>
-  </firmware>
-
-  <firmware name="setup">
-    <target name="tunnel" board="lisa_m_2.0"/>
-  </firmware>
-
-  <!-- ************************* MODULES ************************* -->
-  <modules>
     <module name="auto1_commands" />
     <!-- Baro altitude -->
     <module name="baro_ms5611_spi" >
@@ -271,7 +259,15 @@
     <module name="nav" type="line_border"/>
     <module name="nav" type="flower"/>
     <module name="nav" type="bungee_takeoff"/>
-  </modules>
+  </firmware>
+
+  <firmware name="test_progs">
+    <target name="test_can" board="lisa_m_2.0"/>
+  </firmware>
+
+  <firmware name="setup">
+    <target name="tunnel" board="lisa_m_2.0"/>
+  </firmware>
 
   <!-- ***************************** ACTUATORS ***************************** -->
   <servos>
