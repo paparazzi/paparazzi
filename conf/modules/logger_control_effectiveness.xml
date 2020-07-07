@@ -1,0 +1,25 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="logger_control_effectiveness" dir="loggers">
+  <doc>
+    <description>
+      Logs to a csv file data required to compute control effectiveness
+      Data can be post-processed using the tool in sw/tools/control_effectiveness
+      Based on ChibiOS SD log
+    </description>
+    <section name="CONTROL_EFFECTIVENESS" prefix="LOGGER_CONTROL_EFFECTIVENESS_">
+      <define name="COMMANDS" value="FALSE|TRUE" description="log command vector (true by default)"/>
+      <define name="ACTUATORS" value="FALSE|TRUE" description="log actuator vector"/>
+      <define name="POS" value="FALSE|TRUE" description="log position (ENU frame, integer representation)"/>
+      <define name="SPEED" value="FALSE|TRUE" description="log speed (ENU frame, integer representation)"/>
+      <define name="AIRSPEED" value="FALSE|TRUE" description="log airspeed (float)"/>
+    </section>
+  </doc>
+  <header>
+    <file name="logger_control_effectiveness.h" />
+  </header>
+  <periodic fun="logger_control_effectiveness_periodic()" start="logger_control_effectiveness_start()" autorun="FALSE" />
+  <makefile target="ap">
+    <file name="logger_control_effectiveness.c"/>
+  </makefile>
+</module>
