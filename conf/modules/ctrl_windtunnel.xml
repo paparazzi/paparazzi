@@ -1,0 +1,50 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ctrl_windtunnel" dir="ctrl">
+  <doc>
+    <description>
+        Windtunnel controller for performing step inputs on flaps and throttle.
+    </description>
+
+    <section name="WINDTUNNEL" prefix="CTRL_WINDTUNNEL_">
+      <define name="STEPTIME" value="8.0" description="Time [seconds]"/>
+      <define name="THR_MIN" value="0" description="Minimum throttle in the sequence of steps [MAX_PPRZ]"/>
+      <define name="THR_MAX" value="0" description="Maximum throttle in the sequence of steps"/>
+      <define name="THR_STEP" value="1200" description="Throttle steps"/>
+      <define name="FLAP_MIN" value="-7200" description="Minimum flap in the sequence of steps"/>
+      <define name="FLAP_MAX" value="0" description="Maximum flap in the sequence of steps"/>
+      <define name="FLAP_STEP" value="2400" description="Flaps steps"/>
+    </section>
+
+
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="WindtunnelCtrl">
+        <dl_setting var="ctrl_windtunnel_steptime"        min="0.1" step="0.1" max="120" module="ctrl/ctrl_windtunnel" shortname="steptime" param="CTRL_WINDTUNNEL_STEPTIME"/>
+        
+        <dl_setting var="ctrl_windtunnel_throttle.min"    min="0" step="100" max="9600" module="ctrl/ctrl_windtunnel" shortname="thr_min" param="CTRL_WINDTUNNEL_THR_MIN"/>
+        <dl_setting var="ctrl_windtunnel_throttle.max"    min="0" step="100" max="9600" module="ctrl/ctrl_windtunnel" shortname="thr_max" param="CTRL_WINDTUNNEL_THR_MAX"/>
+        <dl_setting var="ctrl_windtunnel_throttle.step"   min="0" step="100" max="9600" module="ctrl/ctrl_windtunnel" shortname="thr_step" param="CTRL_WINDTUNNEL_THR_STEP"/>
+
+        <dl_setting var="ctrl_windtunnel_flaps.min"    min="-9600" step="100" max="9600" module="ctrl/ctrl_windtunnel" shortname="flaps_min" param="CTRL_WINDTUNNEL_FLAP_MIN"/>
+        <dl_setting var="ctrl_windtunnel_flaps.max"    min="-9600" step="100" max="9600" module="ctrl/ctrl_windtunnel" shortname="flaps_max" param="CTRL_WINDTUNNEL_FLAP_MAX"/>
+        <dl_setting var="ctrl_windtunnel_flaps.step"   min="0" step="100" max="9600" module="ctrl/ctrl_windtunnel" shortname="flaps_step" param="CTRL_WINDTUNNEL_FLAP_STEP"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+
+  <header>
+    <file name="ctrl_windtunnel.h"/>
+  </header>
+
+  <makefile>
+    <file name="ctrl_windtunnel.c"/>
+  </makefile>
+  <makefile target="ap">
+    <define name="GUIDANCE_V_MODE_MODULE_SETTING" value="GUIDANCE_V_MODE_HOVER"/>
+    <define name="DGUIDANCE_H_MODE_MODULE_SETTING" value="GUIDANCE_H_MODE_MODULE"/>
+  </makefile>
+
+</module>
+
