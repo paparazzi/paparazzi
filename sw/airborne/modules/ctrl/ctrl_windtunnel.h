@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015
+ * Copyright (C) 2020 Freek van Tienen
  *
  * This file is part of Paparazzi.
  *
