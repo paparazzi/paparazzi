@@ -139,7 +139,7 @@ void dmaStop(DMADriver *dmap)
  *
  * @api
  */
-bool dmaStartTransfert(DMADriver *dmap, volatile void *periphp, void *mem0p, const size_t size)
+bool dmaStartTransfert(DMADriver *dmap, volatile void *periphp,  volatile void * mem0p, const size_t size)
 {
   osalSysLock();
   const bool statusOk = dmaStartTransfertI(dmap, periphp, mem0p, size);
@@ -164,7 +164,7 @@ bool dmaStartTransfert(DMADriver *dmap, volatile void *periphp, void *mem0p, con
  *
  * @iclass
  */
-bool dmaStartTransfertI(DMADriver *dmap, volatile void *periphp, void *mem0p, const size_t size)
+bool dmaStartTransfertI(DMADriver *dmap, volatile void *periphp,  volatile void *  mem0p, const size_t size)
 {
   osalDbgCheckClassI();
   osalDbgCheck((dmap != NULL) && (mem0p != NULL) && (periphp != NULL) &&
@@ -189,8 +189,18 @@ bool dmaStartTransfertI(DMADriver *dmap, volatile void *periphp, void *mem0p, co
     – ((Msize)/(Psize)) = 1, 2, 4, 1/2 or 1/4 (Msize and Psize represent the MSIZE and
     PSIZE bits in the DMA_SxCR register. They are byte dependent)
     – DMA_SxNDTR = Number of data items to transfer on the AHB peripheral port
+
+    NDTR must also be a multiple of the Peripheral burst size multiplied by the peripheral data
+    size, otherwise this could result in a bad DMA behavior.
+
    */
 # if  STM32_DMA_ADVANCED
+  if (cfg->mburst) {
+    osalDbgAssert((size % (cfg->mburst * cfg->msize / cfg->psize)) == 0,
+		  "mburst alignment rule not respected");
+    osalDbgAssert((((uint32_t) mem0p) % (cfg->mburst * cfg->msize / cfg->psize)) == 0,
+		  "memory address alignment rule not respected");
+  }
   if (cfg->pburst) {
     osalDbgAssert((size % (cfg->pburst * cfg->psize)) == 0,
                   "pburst alignment rule not respected");
@@ -300,7 +310,7 @@ void dmaStopTransfertI(DMADriver *dmap)
  *
  * @api
  */
-msg_t dmaTransfertTimeout(DMADriver *dmap, volatile void *periphp, void *mem0p, const size_t size,
+msg_t dmaTransfertTimeout(DMADriver *dmap, volatile void *periphp, volatile void *mem0p, const size_t size,
                           sysinterval_t timeout)
 {
   msg_t msg;
@@ -653,7 +663,7 @@ forbiddenCombination:
  *
  * @notapi
  */
-bool dma_lld_start_transfert(DMADriver *dmap, volatile void *periphp, void *mem0p, const size_t size)
+bool dma_lld_start_transfert(DMADriver *dmap, volatile void *periphp, volatile void *mem0p, const size_t size)
 {
   dmap->mem0p = mem0p;
   dmap->size = size;
