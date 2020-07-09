@@ -136,7 +136,6 @@ void dshotStart(DSHOTDriver *driver, const DSHOTConfig *config)
 
   driver->config = config;
   // use pburst, mburst only if buffer size satisfy aligmnent requirement
-  const uint8_t burstSize = DSHOT_DMA_BUFFER_SIZE % (timerWidthInBytes * 4) ? 0U : 16U;
   driver->dma_conf = (DMAConfig) {
     .stream = config->dma_stream,
     .channel = config->dma_channel,
@@ -150,8 +149,8 @@ void dshotStart(DSHOTDriver *driver, const DSHOTConfig *config)
     .circular = false,
     .error_cb = NULL,
     .end_cb = NULL,
-    .pburst = burstSize,
-    .mburst = burstSize,
+    .pburst = 0,
+    .mburst = DSHOT_DMA_BUFFER_SIZE % (timerWidthInBytes * 4) ? 0U : 16U,
     .fifo = 0
   };
 

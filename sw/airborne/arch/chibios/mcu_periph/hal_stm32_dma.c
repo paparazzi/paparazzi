@@ -190,7 +190,7 @@ bool dmaStartTransfertI(DMADriver *dmap, volatile void *periphp,  volatile void 
     PSIZE bits in the DMA_SxCR register. They are byte dependent)
     – DMA_SxNDTR = Number of data items to transfer on the AHB peripheral port
 
-    NDTR must also be a multiple of the Peripheral burst size multiplied by the peripheral data
+    NDTR must also be a multiple of the Peripheral  size multiplied by the peripheral data
     size, otherwise this could result in a bad DMA behavior.
 
    */
@@ -204,14 +204,10 @@ bool dmaStartTransfertI(DMADriver *dmap, volatile void *periphp,  volatile void 
   if (cfg->pburst) {
     osalDbgAssert((size % (cfg->pburst * cfg->psize)) == 0,
                   "pburst alignment rule not respected");
-    osalDbgAssert((((uint32_t) periphp) % (cfg->pburst * cfg->psize)) == 0,
-                  "peripheral address alignment rule not respected");
   }
   if (cfg->mburst) {
     osalDbgAssert((size % (cfg->mburst * cfg->msize)) == 0,
                   "mburst alignment rule not respected");
-    osalDbgAssert((((uint32_t) mem0p) % (cfg->mburst * cfg->msize)) == 0,
-                  "memory address alignment rule not respected");
   }
 
 # endif
