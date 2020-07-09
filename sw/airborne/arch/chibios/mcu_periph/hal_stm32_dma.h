@@ -390,7 +390,7 @@ struct DMADriver {
    * @note  for now, only half buffer with one memory pointer is managed
    *            mem1p not yet interfaced
    */
-  void           *mem0p;
+  volatile void           *mem0p;
 
   /**
    * @brief hold DMA CR register for the stream
