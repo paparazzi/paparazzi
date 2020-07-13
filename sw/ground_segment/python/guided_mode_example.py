@@ -161,17 +161,26 @@ class IvyRequester(object):
             self._interface = None
 
     def get_aircrafts(self):
+        wait_step = 0.1
+        timeout = 30 / wait_step  # 30 seconds
+        new_answer = False
 
         def aircrafts_cb(ac_id, msg):
+            global new_answer
             self.ac_list = [int(a) for a in msg['ac_list'].split(',') if a]
             print("aircrafts: {}".format(self.ac_list))
+            new_answer = True
 
-        self._interface.subscribe(aircrafts_cb, "(.*AIRCRAFTS .*)")
-        sender = 'get_aircrafts'
-        request_id = '42_1' # fake request id, should be PID_index
-        self._interface.send("{} {} AIRCRAFTS_REQ".format(sender, request_id))
+        self._interface.send_request('ground', "AIRCRAFTS", aircrafts_cb)
         # hack: sleep briefly to wait for answer
-        sleep(0.1)
+        while not new_answer and timeout > 0:
+            sleep(wait_step)
+            timeout -= 1
+
+        if not new_answer:
+            print("WARNING: Getting the list of aircraft timed out. The results might be outdated.")
+            # Didn't raise an exception or return None in order to not break the API
+
         return self.ac_list
 
 

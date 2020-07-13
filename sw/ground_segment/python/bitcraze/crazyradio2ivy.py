@@ -98,7 +98,12 @@ class RadioBridge:
                         print("Got message {} from {}".format(msg.name, sender_id))
                     # Forward message to Ivy bus
                     if self.is_connected:
-                        self._ivy.send(msg, sender_id=sender_id)
+                        try:
+                            self._ivy.send(msg, sender_id=sender_id)
+                        except RuntimeError as e:
+                            print("Runtime error {}".format(e))
+                        except ValueError as e:
+                            print("Invalid message error {}".format(e))
 
     def _link_quality_cb(self, quality):
         pass
