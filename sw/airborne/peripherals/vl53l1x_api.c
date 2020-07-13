@@ -65,6 +65,13 @@
 #include "vl53l1x_api.h"
 #include <string.h>
 
+#define I2C_1V8 0x00
+#define I2C_2V8 0x01
+#ifndef VL53L1X_I2C_LEVEL
+#define VL53L1X_I2C_LEVEL I2C_2V8
+#endif
+
+
 #if 0
 uint8_t VL51L1X_NVM_CONFIGURATION[] = {
   0x00, /* 0x00 : not user-modifiable */
@@ -106,7 +113,7 @@ uint8_t VL51L1X_NVM_CONFIGURATION[] = {
 
 const uint8_t VL51L1X_DEFAULT_CONFIGURATION[] = {
   0x00, /* 0x2d : set bit 2 and 5 to 1 for fast plus mode (1MHz I2C), else don't touch */
-  0x00, /* 0x2e : bit 0 if I2C pulled up at 1.8V, else set bit 0 to 1 (pull up at AVDD) */
+  VL53L1X_I2C_LEVEL, /* 0x2e : bit 0 if I2C pulled up at 1.8V, else set bit 0 to 1 (pull up at AVDD) */
   0x00, /* 0x2f : bit 0 if GPIO pulled up at 1.8V, else set bit 0 to 1 (pull up at AVDD) */
   0x01, /* 0x30 : set bit 4 to 0 for active high interrupt and 1 for active low (bits 3:0 must be 0x1), use SetInterruptPolarity() */
   0x02, /* 0x31 : bit 1 = interrupt depending on the polarity, use CheckForDataReady() */
