@@ -1,6 +1,6 @@
 <!DOCTYPE module SYSTEM "module.dtd">
 
-<module name="datalink">
+<module name="mavlink" dir="datalink">
   <doc>
     <description>Basic MAVLink implementation</description>
     <configure name="MAVLINK_PORT" value="UARTx|UDPx|UsbS" description="The port device to use for mavlink (default: UART1)"/>
@@ -12,7 +12,7 @@
 
   <init fun="mavlink_init()"/>
   <periodic fun="mavlink_periodic()" freq="10" autorun="TRUE"/>
-  <periodic fun="mavlink_periodic_telemetry()" freq="$TELEMETRY_FREQUENCY" autorun="TRUE"/>
+  <periodic fun="mavlink_periodic_telemetry()" freq="TELEMETRY_FREQUENCY" autorun="TRUE"/>
   <event fun="mavlink_event()"/>
 
   <makefile>
@@ -21,6 +21,8 @@
     <file name="waypoints.c" dir="modules/datalink/missionlib"/>
     <file name="blocks.c" dir="modules/datalink/missionlib"/>
     <configure name="MAVLINK_PORT" default="uart1" case="upper|lower"/>
+    <configure name="TELEMETRY_FREQUENCY" default="$(PERIODIC_FREQUENCY)"/>
+    <define name="TELEMETRY_FREQUENCY" value="$(TELEMETRY_FREQUENCY)"/>
     <raw>
       ifneq (,$(findstring usb,$(MAVLINK_PORT_LOWER)))
       ap.CFLAGS += -DUSE_USB_SERIAL
