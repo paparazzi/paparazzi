@@ -124,7 +124,7 @@ def main():
     ivy.subscribe(worldenv_cb,'(.* WORLD_ENV_REQ .*)')
 
     # wait for ivy to stop
-    from ivy.std_api import IvyMainLoop
+    from ivy.std_api import IvyMainLoop  # noqa
 
     signal.pause()
 
