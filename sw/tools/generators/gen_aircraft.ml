@@ -321,7 +321,7 @@ let () =
     let loaded_modules = Aircraft.get_loaded_modules ac.Aircraft.config_by_target target in
     let abs_modules_h = aircraft_gen_dir // modules_h in
     generate_config_element loaded_modules
-      (fun e -> Gen_modules.generate e !modules_freq "" abs_modules_h)
+      (fun e -> Gen_modules.generate e "" abs_modules_h)
       [ abs_modules_h, List.map (fun m -> m.Module.xml_filename) loaded_modules ];
     Printf.printf " done\n%!";
     
