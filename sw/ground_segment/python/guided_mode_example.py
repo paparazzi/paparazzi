@@ -166,10 +166,7 @@ class IvyRequester(object):
             self.ac_list = [int(a) for a in msg['ac_list'].split(',') if a]
             print("aircrafts: {}".format(self.ac_list))
 
-        self._interface.subscribe(aircrafts_cb, "(.*AIRCRAFTS .*)")
-        sender = 'get_aircrafts'
-        request_id = '42_1' # fake request id, should be PID_index
-        self._interface.send("{} {} AIRCRAFTS_REQ".format(sender, request_id))
+        self._interface.send_request('ground', "AIRCRAFTS", aircrafts_cb)
         # hack: sleep briefly to wait for answer
         sleep(0.1)
         return self.ac_list
