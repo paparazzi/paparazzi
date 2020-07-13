@@ -111,10 +111,10 @@ let get_functions_modulos = fun modules ->
       let p, _ = get_period_and_freq x in
       let d = begin try
         let _d = float_of_string (Xml.attrib x "delay") in
-        if _d > 0.9 then _d /. 65536. else _d (* try to keep some backward compatibility *)
+        if _d > 0.95 then _d /. 65536. else _d (* try to keep some backward compatibility *)
         with _ ->
           delay := !delay +. 0.1;
-          if! delay > 0.9 then delay := 0.;
+          if !delay > 0.9 then delay := 0.;
           !delay
         end
       in
@@ -165,7 +165,6 @@ let print_status = fun out modules ->
     List.iter (fun i ->
       match Xml.tag i with
           "periodic" ->
-            Printf.printf "STATUS %s\n" (get_status_name i module_name);
             if not (is_status_lock i) then begin
               lprintf out "EXTERN_MODULES uint8_t %s;\n" (get_status_name i module_name);
             end
@@ -225,7 +224,6 @@ let print_periodic = fun out functions_modulo task modules ->
   right ();
   let modulos = GC.singletonize (List.map (fun (_, (_, m)) -> m) functions_modulo) in
   (** Print modulos *)
-  Printf.printf "TASK %s %d %d\n" task (List.length modules) (List.length functions_modulo);
   List.iter (fun modulo ->
     let v = sprintf "i%d" modulo in
     lprintf out "static uint32_t %s; %s++; if (%s>=PRESCALER_%d) %s=0;\n" v v v modulo v;)

@@ -40,10 +40,7 @@ let lprintf = fun c f ->
   fprintf c "%s" (String.make !margin ' ');
   fprintf c f
 
-let output_modes = fun out_h process_name telem_type modes freq ->
-  let min_period = 1./.float freq in
-  let max_period = 65536. /. float freq in
-
+let output_modes = fun out_h process_name telem_type modes ->
   (** For each mode in this process *)
   List.iter
     (fun mode ->
@@ -52,39 +49,40 @@ let output_modes = fun out_h process_name telem_type modes freq ->
       right ();
 
       (** Computes the required modulos *)
+      let found_modulos = Hashtbl.create 15 in
+      let idx = ref 0 in
+      let phase = ref 0. in (** Basic balancing: increment with a step of 0.1 *)
       let messages = List.map (fun x ->
-        let p = float_of_string (ExtXml.attrib x "period") in
-        if p < min_period || p > max_period then
-          fprintf stderr "Warning: period is bound between %.3fs and %.3fs for message %s\n%!" min_period max_period (ExtXml.attrib x "name");
-        (x, min 65535 (max 1 (int_of_float (p*.float_of_int freq))))
+        let period = ExtXml.attrib x "period" in
+        let _phase = begin try
+            let _p = float_of_string (ExtXml.attrib x "phase") in
+            if _p > 0.95 then _p /. 65536. else _p  (* try to keep some backward compatibility *)
+          with _ ->
+            phase := !phase +. 0.1;
+            if !phase > 0.9 then phase := 0.;
+            !phase
+          end
+        in
+        try
+          ((x, _phase), (period, Hashtbl.find found_modulos period))
+        with Not_found ->
+          incr idx; (* create new module *)
+          let v = sprintf "i%d" !idx in
+          lprintf out_h "static uint32_t %s = 0; %s++; if (%s>= (uint32_t)(TELEMETRY_FREQUENCY*%s)) %s=0;\n" v v v period v;
+          Hashtbl.add found_modulos period !idx;
+          ((x, _phase), (period, !idx))
       ) (Xml.children mode) in
-      let modulos = GC.singletonize (List.map snd messages) in
-      List.iter (fun m ->
-        let v = sprintf "i%d" m in
-        let _type = if m >= 256 then "uint16_t" else "uint8_t" in
-        lprintf out_h "static %s %s = 0; %s++; if (%s>=%d) %s=0;\n" _type v v v m v;
-      ) modulos;
 
       (* create var to loop trough callbacks if needed *)
       if (List.length messages > 0) then
         lprintf out_h "uint8_t j;\n";
 
       (** For each message in this mode *)
-      let messages = List.sort (fun (_,p) (_,p') -> compare p p') messages in
-      let i = ref 0 in (** Basic balancing:1 message every 10Hz *)
-      let phase = ref 0 in
-      let l = ref [] in
+      let messages = List.sort (fun (_,(p,_)) (_,(p',_)) -> compare p p') messages in
       List.iter
-        (fun (message, p) ->
+        (fun ((message, _phase), (p, i)) ->
           let message_name = ExtXml.attrib message "name" in
-          i := !i mod p;
-          (* if phase attribute is present, use it, otherwise shedule at 10Hz *)
-          let message_phase = try int_of_float (float_of_string (ExtXml.attrib message "phase")*.float_of_int freq) with _ -> !i in
-          phase := message_phase;
-          let else_ = if List.mem_assoc p !l && not (List.mem (p, !phase) !l) then "else " else "" in
-          lprintf out_h "%sif (i%d == %d) {\n" else_ p !phase;
-          l := (p, !phase) :: !l;
-          i := !i + freq/10;
+          lprintf out_h "if (i%d == (uint32_t)(TELEMETRY_FREQUENCY*%s*%f)) {\n" i p _phase;
           right ();
           lprintf out_h "for (j = 0; j < TELEMETRY_NB_CBS; j++) {\n";
           right ();
@@ -141,7 +139,7 @@ let print_message_table = fun out_h xml ->
     fprintf out_h "}\n\n"
   ) telemetry_types
 
-let print_process_send = fun out_h xml freq ->
+let print_process_send = fun out_h xml ->
   (** For each process *)
   List.iter
     (fun process ->
@@ -178,9 +176,9 @@ let print_process_send = fun out_h xml freq ->
       fprintf out_h "extern uint8_t telemetry_mode_%s;\n" process_name;
       fprintf out_h "#endif /* PERIODIC_C_%s */\n" (Compat.uppercase_ascii process_name);
 
-      lprintf out_h "static inline void periodic_telemetry_send_%s(struct periodic_telemetry *telemetry, struct transport_tx *trans, struct link_device *dev) {  /* %dHz */\n" process_name freq;
+      lprintf out_h "static inline void periodic_telemetry_send_%s(struct periodic_telemetry *telemetry, struct transport_tx *trans, struct link_device *dev) {\n" process_name;
       right ();
-      output_modes out_h process_name telem_type modes freq;
+      output_modes out_h process_name telem_type modes;
       left ();
       lprintf out_h "}\n"
     )
@@ -190,7 +188,7 @@ let print_process_send = fun out_h xml freq ->
 (**
  * main generation function
  *)
-let generate = fun telemetry freq out_file ->
+let generate = fun telemetry out_file ->
   let out = open_out out_file in
 
   (** Print header *)
@@ -201,14 +199,22 @@ let generate = fun telemetry freq out_file ->
   fprintf out "#define _VAR_PERIODIC_H_\n\n";
   fprintf out "#include \"std.h\"\n";
   fprintf out "#include \"generated/airframe.h\"\n";
-  fprintf out "#include \"subsystems/datalink/telemetry_common.h\"\n\n";
-  fprintf out "#define TELEMETRY_FREQUENCY %d\n\n" freq;
+  fprintf out "#include \"subsystems/datalink/telemetry_common.h\"\n";
+  fprintf out "\n";
+  fprintf out "#ifndef TELEMETRY_FREQUENCY\n";
+  fprintf out "#ifdef PERIODIC_FREQUENCY\n";
+  fprintf out "#define TELEMETRY_FREQUENCY PERIODIC_FREQUENCY\n";
+  fprintf out "#else\n";
+  fprintf out "#error \"neither TELEMETRY_FREQUENCY or PERIODIC_FREQUENCY are defined\"\n";
+  fprintf out "#endif\n";
+  fprintf out "#endif\n";
+  fprintf out "\n";
 
   (** Print the telemetry table with ID *)
   print_message_table out telemetry.Telemetry.xml;
 
   (** Print process sending functions *)
-  print_process_send out telemetry.Telemetry.xml freq;
+  print_process_send out telemetry.Telemetry.xml;
 
   fprintf out "#endif // _VAR_PERIODIC_H_\n";
 
