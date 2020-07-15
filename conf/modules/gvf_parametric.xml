@@ -65,7 +65,7 @@
 
   <makefile target="ap|nps" firmware="fixedwing">
     <configure name="CXXSTANDARD" value="-std=c++14"/>
-    <flag name="CXXFLAGS" value="Wno-int-in-bool-context"/>
+    <flag name="CXXFLAGS" value="Wno-int-in-bool-context -Wno-deprecated-copy"/>
     <include name="$(PAPARAZZI_SRC)/sw/ext/eigen"/>
     <define name="EIGEN_NO_MALLOC"/>
     <define name="EIGEN_NO_AUTOMATIC_RESIZING"/>
