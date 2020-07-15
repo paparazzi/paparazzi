@@ -1,0 +1,15 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="gpio_ext_common" dir="gpio_ext">
+  <doc>
+    <description>Common external GPIO functions.</description>
+  </doc>
+  <header>
+    <file name="gpio_ext_common.h"/>
+  </header>
+  <init fun="gpio_ext_common_init()"/>
+  <event fun="gpio_ext_common_event()"/>
+  <makefile>
+    <file name="gpio_ext_common.c"/>
+    <flag name="LDFLAGS" value="Wl,-wrap,gpio_set"/>
+  </makefile>
+</module>

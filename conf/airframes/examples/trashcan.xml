@@ -83,6 +83,8 @@
             <define name="IMU_ACCEL_Y_SIGN" value="-1"/>
             <define name="IMU_ACCEL_Z_SIGN" value="-1"/>
         </module>
+        
+        <module name="gpio_ext_common"/>
 
         <!-- not all are tested or tuned -->
        <!-- <module name="stabilization" type="rate"/>--><!-- not working yet..)
