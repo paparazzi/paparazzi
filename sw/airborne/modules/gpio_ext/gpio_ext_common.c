@@ -25,6 +25,11 @@
 
 #include "modules/gpio_ext/gpio_ext_common.h"
 
+#include "mcu_periph/gpio.h"
+#include "led.h"
+
+#include <stdint.h>
+
 void gpio_ext_common_init(void)
 {
   // your init code here
@@ -35,4 +40,16 @@ void gpio_ext_common_event(void)
   // your event code here
 }
 
+// Wrapping functions
+void __wrap_gpio_set(uint32_t port, uint16_t gpios);
+void __real_gpio_set(uint32_t port, uint16_t gpios);
+void __wrap_gpio_set(uint32_t port, uint16_t gpios) {
+  LED_TOGGLE(2);
+  __real_gpio_set(port, gpios);
+}
+
+/*
+on stm32, gpios uint32_t: no telemetry anymore
+on stm32, gpios uint16_t: no telemetry anymore
+*/
 

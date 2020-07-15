@@ -200,12 +200,12 @@
   <aircraft
    name="trashcan"
    ac_id="1"
-   airframe="airframes/examples/trashcan.xml"
+   airframe="airframes/examples/trashcan_with_flowdeck.xml"
    radio="radios/FrSky_Taranis_X9Dplus_TAERMK.xml"
    telemetry="telemetry/default_rotorcraft_slow.xml"
    flight_plan="flight_plans/dummy.xml"
    settings="settings/rotorcraft_basic.xml"
-   settings_modules="[modules/ahrs_float_cmpl_quat.xml] [modules/gps.xml] [modules/guidance_rotorcraft.xml] [modules/imu_common.xml] [modules/ins_extended.xml] [modules/nav_basic_rotorcraft.xml] modules/radio_control_cc2500_frsky.xml [modules/stabilization_int_quat.xml]"
+   settings_modules="[modules/ahrs_float_cmpl_quat.xml] [modules/gps.xml] [modules/guidance_rotorcraft.xml] [modules/imu_common.xml] [modules/ins_extended.xml] [modules/nav_basic_rotorcraft.xml] modules/radio_control_cc2500_frsky.xml modules/sonar_vl53l1x.xml [modules/stabilization_int_quat.xml]"
    gui_color="blue"
   />
 </conf>
