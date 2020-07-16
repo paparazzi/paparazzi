@@ -70,16 +70,16 @@ let fprint_periodic_init = fun ch mod_name p ->
 let fprint_init = fun ch init -> Printf.fprintf ch "%s;\n" init
 *)
 
-let get_period_and_freq = fun f max_freq ->
-  let period = try Some (float_of_string (Xml.attrib f "period")) with _ -> None
-  and freq = try Some (float_of_string (Xml.attrib f "freq")) with _ -> None in
+let get_period_and_freq = fun f ->
+  let period = try Some (Xml.attrib f "period") with _ -> None
+  and freq = try Some (Xml.attrib f "freq") with _ -> None in
   match period, freq with
-    | None, None -> (1. /. max_freq, max_freq)
-    | Some _p, None -> (_p, 1. /. _p)
-    | None, Some _f -> (1. /. _f, _f)
+    | None, None -> ("(1.f / MODULES_FREQUENCY)", "(MODULES_FREQUENCY)")
+    | Some _p, None -> ("("^_p^")", "(1. / ("^_p^"))")
+    | None, Some _f -> ("(1. / ("^_f^"))", "("^_f^")")
     | Some _p, Some _ ->
       fprintf stderr "Warning: both period and freq are defined but only period is used for function %s\n" (ExtXml.attrib f "fun");
-      (_p, 1. /. _p)
+      ("("^_p^")", "(1. / ("^_p^"))")
 
 (*let fprint_period_freq = fun ch max_freq p ->
   let period, freq = match p.period_freq with
@@ -98,20 +98,61 @@ let get_cap_name = fun f ->
     | [Str.Text t; Str.Delim "("; Str.Text _ ; Str.Delim ")"] -> Compat.uppercase_ascii t
     | _ -> failwith "Gen_modules: not a valid function name"
 
-let print_function_freq = fun out freq modules ->
-  let max_freq = float freq in
+
+(** Computes the required modulos *)
+let get_functions_modulos = fun modules ->
+  let found_modulos = Hashtbl.create 10 in
+  let idx = ref 0 in
+  let delay = ref 0. in (** Basic balancing: increment with a step of 0.1 *)
+  let functions_modulo = List.map (fun m ->
+    let periodic = List.filter (fun i -> (String.compare (Xml.tag i) "periodic") == 0) (Xml.children m.Module.xml) in
+    let module_name = m.Module.name in
+    List.map (fun x ->
+      let p, _ = get_period_and_freq x in
+      let d = begin try
+        let _d = float_of_string (Xml.attrib x "delay") in
+        if _d > 0.95 then _d /. 65536. else _d (* try to keep some backward compatibility *)
+        with _ ->
+          delay := !delay +. 0.1;
+          if !delay > 0.9 then delay := 0.;
+          !delay
+        end
+      in
+      try
+        ((x, module_name, d), (p, Hashtbl.find found_modulos p))
+      with Not_found ->
+        incr idx; (* create new modulo *)
+        Hashtbl.add found_modulos p !idx;
+        ((x, module_name, d), (p, !idx))
+    ) periodic
+  ) modules in
+  List.flatten functions_modulo
+
+
+let print_function_freq = fun out modules ->
   fprintf out "\n";
   List.iter (fun m ->
     List.iter (fun i ->
       match Xml.tag i with
           "periodic" ->
             let fname = get_cap_name (Xml.attrib i "fun") in
-            let p, f = get_period_and_freq i max_freq in
-            lprintf out "#define %s_PERIOD %f\n" fname p;
-            lprintf out "#define %s_FREQ %f\n" fname f;
+            let p, f = get_period_and_freq i in
+            lprintf out "#define %s_PERIOD %s\n" fname p;
+            lprintf out "#define %s_FREQ %s\n" fname f;
         | _ -> ())
       (Xml.children m.Module.xml))
     modules
+
+let print_function_prescalers = fun out functions_modulo ->
+  fprintf out "\n";
+  let found_modulos = Hashtbl.create 10 in
+  List.iter (fun (_, (p, m)) ->
+    if not (Hashtbl.mem found_modulos m) then
+      lprintf out "#define PRESCALER_%d (uint32_t)(MODULES_FREQUENCY * %s)\n" m p
+    else
+      Hashtbl.add found_modulos m p
+  ) functions_modulo
+
 
 let is_status_lock = fun p ->
   let mode = ExtXml.attrib_or_default p "autorun" "LOCK" in
@@ -172,45 +213,37 @@ let print_init_functions = fun out modules ->
   lprintf out "}\n"
 
 
-let print_periodic = fun out freq task modules ->
-  let min_period = 1. /. float freq
-  and max_period = 65536. /. float freq
-  and min_freq   = float freq /. 65536.
-  and max_freq   = float freq in
-
+let print_periodic = fun out functions_modulo task modules ->
+  (* filter for a given task *)
+  let functions_modulo = List.filter (fun m ->
+    let (_, name, _), _ = m in
+    List.exists (fun m' -> m'.Module.name = name) modules
+  ) functions_modulo in
+  (* start printing *)
   lprintf out "\nstatic inline void modules_%s_periodic_task(void) {\n" task;
   right ();
-  (** Computes the required modulos *)
-  let functions_modulo = List.flatten (List.map (fun m ->
-    let periodic = List.filter (fun i -> (String.compare (Xml.tag i) "periodic") == 0) (Xml.children m.Module.xml) in
-    let module_name = m.Module.name in
-    List.map (fun x ->
-      let p, _ = get_period_and_freq x max_freq in
-      if p < min_period || p > max_period then
-        fprintf stderr "Warning: period is bound between %.3fs and %.3fs (%fHz and %.1fHz) for function %s\n%!"
-          min_period max_period max_freq min_freq (ExtXml.attrib x "fun");
-      ((x, module_name), min 65535 (max 1 (int_of_float (p *. float_of_int freq))))
-    ) periodic)
-                                         modules) in
-  let modulos = GC.singletonize (List.map snd functions_modulo) in
+  let modulos = GC.singletonize (List.map (fun (_, (_, m)) -> m) functions_modulo) in
   (** Print modulos *)
   List.iter (fun modulo ->
     let v = sprintf "i%d" modulo in
-    let _type = if modulo >= 256 then "uint16_t" else "uint8_t" in
-    lprintf out "static %s %s; %s++; if (%s>=%d) %s=0;\n" _type v v v modulo v;)
+    lprintf out "static uint32_t %s; %s++; if (%s>=PRESCALER_%d) %s=0;\n" v v v modulo v;)
     modulos;
   (** Print start and stop functions *)
   List.iter (fun m ->
     let module_name = m.Module.name in
     let periodic = List.filter (fun i -> (String.compare (Xml.tag i) "periodic") == 0) (Xml.children m.Module.xml) in
-    fprintf out "\n";
     List.iter (fun f ->
       if (is_status_lock f) then begin
-        try lprintf out "%s;\n" (Xml.attrib f "start") with _ -> ();
-          try let stop = Xml.attrib f "stop" in fprintf stderr "Warning: stop %s function will not be called\n" stop with _ -> ();
+        try
+          let start = (Xml.attrib f "start") in
+          fprintf out "\n";
+          lprintf out "%s;\n" start
+        with _ -> ();
+        try let stop = Xml.attrib f "stop" in fprintf stderr "Warning: stop %s function will not be called\n" stop with _ -> ();
       end
       else begin
         let status = get_status_name f module_name in
+        fprintf out "\n";
         lprintf out "if (%s == MODULES_START) {\n" status;
         right ();
         ignore(try lprintf out "%s;\n" (Xml.attrib f "start") with _ -> ());
@@ -224,68 +257,46 @@ let print_periodic = fun out freq task modules ->
         left ();
         lprintf out "}\n";
       end
-    )
-      periodic)
-    modules;
+    ) periodic
+  ) modules;
   (** Print periodic functions *)
   let functions = List.sort (fun (_,p) (_,p') -> compare p p') functions_modulo in
-  let i = ref 0 in (** Basic balancing:1 function every 10Hz FIXME *)
-  let l = ref [] in
   fprintf out "\n";
-  let test_delay = fun x -> try let _ = Xml.attrib x "delay" in true with _ -> false in
-  List.iter (fun ((func, name), p) ->
-    let function_name = ExtXml.attrib func "fun" in
-    if p = 1 then
-      begin
-        if (is_status_lock func) then
-          lprintf out "%s;\n" function_name
-        else begin
-          lprintf out "if (%s == MODULES_RUN) {\n" (get_status_name func name);
+  List.iter (fun ((func, name, delay), (p, m)) ->
+    if (List.exists (fun _module -> _module.Module.name = name) modules) then begin
+      let function_name = ExtXml.attrib func "fun" in
+      let p, f = get_period_and_freq func in
+      if f = "(MODULES_FREQUENCY)" then
+        begin
+          if (is_status_lock func) then
+            lprintf out "%s;\n" function_name
+          else begin
+            lprintf out "if (%s == MODULES_RUN) {\n" (get_status_name func name);
+            right ();
+            lprintf out "%s;\n" function_name;
+            left ();
+            lprintf out "}\n";
+          end
+        end
+      else
+        begin
+          let run = if not (is_status_lock func) then sprintf " && %s == MODULES_RUN" (get_status_name func name)
+            else ""
+          in
+          lprintf out "if (i%d == (uint32_t)(%ff * PRESCALER_%d)%s) {\n" m delay m run;
           right ();
           lprintf out "%s;\n" function_name;
           left ();
-          lprintf out "}\n";
-        end
-      end
-    else
-      begin
-        if (test_delay func) then begin
-          (** Delay is set by user *)
-          let delay = int_of_string (Xml.attrib func "delay") in
-          if delay >= p then fprintf stderr "Warning: delay is bound between 0 and %d for function %s\n" (p-1) function_name;
-          let delay_p = delay mod p in
-          let else_ = if List.mem_assoc p !l && not (List.mem (p, delay_p) !l) then
-              "else " else "" in
-          if (is_status_lock func) then
-            lprintf out "%sif (i%d == %d) {\n" else_ p delay_p
-          else
-            lprintf out "%sif (i%d == %d && %s == MODULES_RUN) {\n" else_ p delay_p (get_status_name func name);
-          l := (p, delay_p) :: !l;
-        end
-        else begin
-          (** Delay is automtically set *)
-          i := !i mod p;
-          let else_ = if List.mem_assoc p !l && not (List.mem (p, !i) !l) then "else " else "" in
-          if (is_status_lock func) then
-            lprintf out "%sif (i%d == %d) {\n" else_ p !i
-          else
-            lprintf out "%sif (i%d == %d && %s == MODULES_RUN) {\n" else_ p !i (get_status_name func name);
-          l := (p, !i) :: !l;
-          let incr = p / ((List.length (List.filter (fun (_,p') -> compare p p' == 0) functions)) + 1) in
-          i := !i + incr;
+          lprintf out "}\n"
         end;
-        right ();
-        lprintf out "%s;\n" function_name;
-        left ();
-        lprintf out "}\n"
-      end;
+    end
   ) functions;
   left ();
   lprintf out "}\n"
 
-let print_periodic_functions = fun out freq modules ->
+let print_periodic_functions = fun out functions_modulo modules ->
   let h = modules_of_task modules in
-  Hashtbl.iter (print_periodic out freq) h;
+  Hashtbl.iter (print_periodic out functions_modulo) h;
   lprintf out "\nstatic inline void modules_periodic_task(void) {\n";
   right ();
   Hashtbl.iter (fun t _ -> lprintf out "modules_%s_periodic_task();\n" t) h;
@@ -337,13 +348,15 @@ let print_datalink_functions = fun out modules ->
   left ();
   lprintf out "}\n"
 
-let parse_modules out freq modules =
+let parse_modules out modules =
   print_headers out modules;
-  print_function_freq out freq modules;
+  print_function_freq out modules;
+  let functions_modulo = get_functions_modulos modules in
+  print_function_prescalers out functions_modulo;
   print_status out modules;
   fprintf out "\n";
   print_init_functions out modules;
-  print_periodic_functions out freq modules;
+  print_periodic_functions out functions_modulo modules;
   print_event_functions out modules;
   fprintf out "\n";
   fprintf out "#ifdef MODULES_DATALINK_C\n";
@@ -408,7 +421,7 @@ let check_dependencies = fun modules names ->
 
 let h_name = "MODULES_H"
 
-let generate = fun modules freq xml_file out_file ->
+let generate = fun modules xml_file out_file ->
   let out = open_out out_file in
 
   begin_out out xml_file h_name;
@@ -418,7 +431,13 @@ let generate = fun modules freq xml_file out_file ->
   define_out out "MODULES_STOP " "3";
   fprintf out "\n";
 
-  define_out out "MODULES_FREQUENCY" (string_of_int freq);
+  fprintf out "#ifndef MODULES_FREQUENCY\n";
+  fprintf out "#ifdef PERIODIC_FREQUENCY\n";
+  fprintf out "#define MODULES_FREQUENCY PERIODIC_FREQUENCY\n";
+  fprintf out "#else\n";
+  fprintf out "#error \"neither MODULES_FREQUENCY or PERIODIC_FREQUENCY are defined\"\n";
+  fprintf out "#endif\n";
+  fprintf out "#endif\n";
   fprintf out "\n";
   fprintf out "#ifdef MODULES_C\n";
   fprintf out "#define EXTERN_MODULES\n";
@@ -426,7 +445,7 @@ let generate = fun modules freq xml_file out_file ->
   fprintf out "#define EXTERN_MODULES extern\n";
   fprintf out "#endif\n";
 
-  parse_modules out freq modules;
+  parse_modules out modules;
 
   finish_out out h_name
 

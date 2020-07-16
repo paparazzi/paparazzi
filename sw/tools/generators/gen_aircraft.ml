@@ -47,8 +47,6 @@ let periodic_h = "periodic_telemetry.h"
 let modules_h = "modules.h"
 let settings_h = "settings.h"
 let settings_xml = "settings.xml"
-let default_periodic_freq = 60
-let default_modules_freq = 60
 
 let get_string_opt = fun x -> match x with Some s -> s | None -> ""
 
@@ -112,9 +110,7 @@ let () =
   and gen_ap = ref false
   and gen_all = ref false
   and gen_ac_dir = ref None
-  and gen_conf_dir = ref None
-  and modules_freq = ref default_modules_freq
-  and tl_freq = ref default_periodic_freq in
+  and gen_conf_dir = ref None in
 
   let options =
     [ "-name", Arg.String (fun x -> ac_name := Some x), " Aircraft name (mandatory)";
@@ -130,8 +126,6 @@ let () =
       "-all", Arg.Set gen_all, " Generate all files";
       "-ac_dir", Arg.String (fun x -> gen_ac_dir := Some x), "Directory for aircraft generated headers";
       "-conf_dir", Arg.String (fun x -> gen_conf_dir := Some x), "Directory for aircraft generated config";
-      "-periodic_freq", Arg.Int (fun x -> tl_freq := x), (sprintf " Periodic telemetry frequency (default %d)" default_periodic_freq);
-      "-modules_freq", Arg.Int (fun x -> modules_freq := x), (sprintf " Modules frequency (default %d)" default_modules_freq);
       ] in
 
   Arg.parse
@@ -313,7 +307,7 @@ let () =
       | None -> Printf.printf "(skip)"
       | Some telemetry ->
         generate_config_element telemetry
-          (fun e -> Gen_periodic.generate e !tl_freq abs_telemetry_h)
+          (fun e -> Gen_periodic.generate e abs_telemetry_h)
           [ (abs_telemetry_h, [telemetry.Telemetry.filename]) ] end;
     Printf.printf " done\n%!";
 
@@ -321,7 +315,7 @@ let () =
     let loaded_modules = Aircraft.get_loaded_modules ac.Aircraft.config_by_target target in
     let abs_modules_h = aircraft_gen_dir // modules_h in
     generate_config_element loaded_modules
-      (fun e -> Gen_modules.generate e !modules_freq "" abs_modules_h)
+      (fun e -> Gen_modules.generate e "" abs_modules_h)
       [ abs_modules_h, List.map (fun m -> m.Module.xml_filename) loaded_modules ];
     Printf.printf " done\n%!";
     

@@ -23,8 +23,10 @@
 
   <makefile target="ap">
     <configure name="EXTRA_DL_PORT" default="uart1" case="upper|lower"/>
+    <configure name="TELEMETRY_FREQUENCY" default="$(PERIODIC_FREQUENCY)"/>
     <define name="EXTRA_DOWNLINK_DEVICE" value="$(EXTRA_DL_PORT_LOWER)"/>
     <define name="USE_$(EXTRA_DL_PORT_UPPER)"/>
+    <define name="TELEMETRY_FREQUENCY" value="$(TELEMETRY_FREQUENCY)"/>
     <raw>
       # Check for UDP port
       ifneq (,$(findstring udp,$(EXTRA_DL_PORT_LOWER)))
