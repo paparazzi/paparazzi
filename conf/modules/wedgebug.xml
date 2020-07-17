@@ -10,11 +10,7 @@
   <settings>
     <dl_settings>
       <dl_settings name="W-Dispariy">
-       <!-- <dl_setting var="N_disparities" min="0" step="16" max = "128" shortname="N_disparities"/>
-        <dl_setting var="block_size_disparities" min="9" step="2" max = "250" shortname="block_size"/>  
-        <dl_setting var="min_disparity" min="-10" step="1" max = "30" shortname="min_disparity"/> -->
-
-        
+       
         <dl_setting var="SE_opening_OCV" min="5" step="1" max = "401" shortname="SE_op"/>
         <dl_setting var="SE_closing_OCV" min="5" step="1" max = "401" shortname="SE_clo"/>
         <dl_setting var="SE_dilation_OCV_1" min="5" step="1" max = "401" shortname="SE_dil_1"/>

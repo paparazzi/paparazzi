@@ -225,7 +225,7 @@
     
     
     <link name="bottom_camera"> <!-- right stereo camera -->
-      <pose> 0.15 -0.06s 0.0 0 0 0</pose>
+      <pose> 0.15 -0.06 0.0 0 0 0</pose>
       <inertial>
         <mass>0.001</mass>
         <inertia>

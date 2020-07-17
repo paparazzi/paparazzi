@@ -30,8 +30,13 @@
  *4. When pressing x on the dual shock 4 controller you activate the manual control mode AP_MODE_ATTITUDE_DIRECT   4
  */
 
+/*
+ *Note. Most variables are initialized in the initialization function. Variables
+ *marked with an "!" were taken into account when calculating the total memory consumption
+ */
 
 
+// New section: Importing headers ----------------------------------------------------------------------------------------------------------------
 
 #include <stdio.h>
 #include "modules/wedgebug/wedgebug.h"
@@ -51,13 +56,13 @@
 #include <time.h> // Needed to measure time
 
 
-// New section ----------------------------------------------------------------------------------------------------------------
+// New section --------------------------------------------------------------------------------------------------------------------------------------
 // Defines
 #ifndef WEDGEBUG_CAMERA_RIGHT_FPS
-#define WEDGEBUG_CAMERA_RIGHT_FPS 0 ///< Default FPS (zero means run at camera fps)
+#define WEDGEBUG_CAMERA_RIGHT_FPS 0 //< Default FPS (zero means run at camera fps)
 #endif
 #ifndef WEDGEBUG_CAMERA_LEFT_FPS
-#define WEDGEBUG_CAMERA_LEFT_FPS 0 ///< Default FPS (zero means run at camera fps)
+#define WEDGEBUG_CAMERA_LEFT_FPS 0 //< Default FPS (zero means run at camera fps)
 #endif
 
 
@@ -76,9 +81,7 @@ struct image_t img_depth_int16_cropped;	//! Image holding depth values (cm) obta
 struct image_t img_middle_int8_cropped;	// Image obtained after processing (morphological operations) of previous image
 struct image_t img_edges_int8_cropped;	//! Image obtained from the external sobel edge detection function = sobel_OCV
 
-struct image_t img_disparity_int16_cropped;	//!
-struct image_t img_depth_int16_cropped;	//!
-struct image_t img_middle_int16_cropped;//!
+// New section: Global variables - Declarations ----------------------------------------------------------------------------------------------------------------
 
 
 
@@ -249,9 +252,6 @@ int heat_map_type;
 
 // For debugging purpose. Allows for changing of state in simulation if 1. If 0, does not allow for state change. Useful if you want to execute only one state repeatedly
 
-
-
-
 uint8_t allow_state_change_MOVE_TO_GOAL; // From within state "MOVE_TO_GOAL"
 uint8_t allow_state_change_POSITION_GOAL; // From within state "POSITION_GOAL"
 uint8_t allow_state_change_WEDGEBUG_START; // From within state "WEDGEBUG_START"
@@ -317,6 +317,7 @@ void background_processes(uint8_t save_images_flag);
 
 
 
+
 // New section: Functions - Definition ----------------------------------------------------------------------------------------------------------------
 
 // Supporting:
@@ -360,8 +361,6 @@ void show_rotation_matrix(struct FloatRMat *R)
 	printf(" [%f, %f, %f]]\n", R->m[6], R->m[7], R->m[8]);
 
 }
-
-
 
 
 
@@ -1605,33 +1604,6 @@ void background_processes_16bit(uint8_t save_images_flag)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // New section: Init and periodic functions ----------------------------------------------------------------------------------------------------------------
 void wedgebug_init(){
 	//printf("Wedgebug init function was called\n");
@@ -1738,12 +1710,12 @@ void wedgebug_init(){
 	SE_erosion_OCV = 11;	// SE size for the erosion operation (see state 3 "WEDGEBUG_START" and state 6 "POSITION_EDGE", its needed to "drag" the depth of the foreground objects over the edges detected)
 
 	// Setting thresholds - non-calculated
-	threshold_median_depth = 700; //150//168  			//! Below this median depth (cm), an obstacle is considered to block the way (i.e. the blocking obstacle needs to be close)
-	threshold_depth_of_edges = 770; //269; 			//! Below this depth (cm) edges are eligible for the WedgeBug algorithm
-	threshold_edge_magnitude = 5000;//23000;//10000;//30000;//15000;			//151;//301;  // Edges with a magnitude (cm^2) above this value are detected. Above this value, edges are given the value 127, otherwise they are given the value zero.
-	threshold_distance_to_goal = 0.25; 			//0.25 // Above this threshold (m), the goal is considered reached
-	threshold_distance_to_goal_direct = 1.0;	 //0.25 // Above this threshold (m), the goal is considered reached in DIRECT_CONTROL mode
-	threshold_distance_to_angle = 0.0004;		// Above this threshold (radians), the angle/heading is considered reached
+	threshold_median_depth = 700; 		//! Below this median depth (cm), an obstacle is considered to block the way (i.e. the blocking obstacle needs to be close)
+	threshold_depth_of_edges = 770; 	//! Below this depth (cm) edges are eligible for the WedgeBug algorithm
+	threshold_edge_magnitude = 5000;	// Edges with a magnitude above this value are detected. Above this value, edges are given the value 127, otherwise they are given the value zero.
+	threshold_distance_to_goal = 0.25;	// Above this threshold (m), the goal is considered reached
+	threshold_distance_to_goal_direct = 1.0;//Above this threshold (m), the goal is considered reached in DIRECT_CONTROL mode
+	threshold_distance_to_angle = 0.0004;	// Above this threshold (radians), the angle/heading is considered reached
 
 	// Setting thresholds - calculated
 	//threshold_median_disparity = depth_to_disp((threshold_median_depth / 100.00), b, f); 	//8// Above this median disparity, an obstacle is considered to block the way. >60 = close than 35cm
@@ -1788,15 +1760,16 @@ void wedgebug_init(){
 
 
 	// Initializing area over which edges are searched in
+
 	// p3DWedgeBug:
-	edge_search_area.y = 0;//216/2;
-	edge_search_area.h = 100;//img_disparity_int8_cropped.h;//1;////10;
+	edge_search_area.y = 0;
+	edge_search_area.h = img_disparity_int8_cropped.h;
 	edge_search_area.x = 0;
 	edge_search_area.w = img_disparity_int8_cropped.w;
 
 //	// p2DWedgeBug:
 //	edge_search_area.y = 216/2;
-//	edge_search_area.h = 1;////10;
+//	edge_search_area.h = 1;
 //	edge_search_area.x = 0;
 //	edge_search_area.w = img_disparity_int8_cropped.w;
 
@@ -1858,47 +1831,7 @@ void wedgebug_init(){
 
 	};*/
 
-
-	//set_state(0 ,1);
-
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

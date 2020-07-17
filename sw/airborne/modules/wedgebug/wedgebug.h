@@ -67,8 +67,8 @@ extern int SE_erosion_OCV;	// SE size for the erosion operation (see state 3 "WE
 
 // Setting thresholds
 
-extern uint16_t threshold_median_depth;		//! Below this median depth (m), an obstacle is considered to block the way (i.e. the blocking obstacle needs to be close)
-extern uint16_t threshold_depth_of_edges;	//! Below this depth (m) edges are eligible for the WedgeBug algorith
+extern uint16_t threshold_median_depth;		//! Below this median depth (cm), an obstacle is considered to block the way (i.e. the blocking obstacle needs to be close)
+extern uint16_t threshold_depth_of_edges;	//! Below this depth (cm) edges are eligible for the WedgeBug algorith
 
 extern int threshold_edge_magnitude;  			// Edges with a magnitude above this value are detected. Above this value, edges are given the value 127, otherwise they are given the value zero.
 extern float threshold_distance_to_goal; 		// Above this threshold, the goal is considered reached

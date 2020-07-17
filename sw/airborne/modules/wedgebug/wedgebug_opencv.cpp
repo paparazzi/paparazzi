@@ -274,8 +274,8 @@ int SBM_OCV(struct image_t *img_disp, const struct image_t *img_left, const stru
 
 
 			// Test code for saving cropped left image
-			Mat img_left_cropped =img_left_OCV(crop_area);
-			imwrite("/home/dureade/Documents/paparazzi_images/for_report/img_left_int8_cropped.bmp", img_left_cropped);
+			//Mat img_left_cropped =img_left_OCV(crop_area);
+			//imwrite("/home/dureade/Documents/paparazzi_images/for_report/img_left_int8_cropped.bmp", img_left_cropped);
 
 			for (int i = 0; i < (img_cropped.rows * img_cropped.cols); i++)
 			{
@@ -485,7 +485,7 @@ int sobel_OCV(struct image_t *img_input, const struct image_t *img_output, const
 	std::cout << "grad_x: Min=" << minVal << "; Max=" << maxVal << std::endl;
 
 
-	imwrite("/home/dureade/Documents/paparazzi_images/img_grad_mag.bmp", img_grad_mag);
+	//imwrite("/home/dureade/Documents/paparazzi_images/img_grad_mag.bmp", img_grad_mag);
 	//imwrite("/home/dureade/Documents/paparazzi_images/abs_grad_y.bmp", abs_grad_y);
 	//imwrite("/home/dureade/Documents/paparazzi_images/grad.bmp", grad);
 	//imwrite("/home/dureade/Documents/paparazzi_images/img_input_OCV.bmp", img_input_OCV);
