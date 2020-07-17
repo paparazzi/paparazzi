@@ -4,12 +4,12 @@
   <doc>
     <description> An integration of the WegdeBug algorithm (Laubach 1999) for path finding, for drones with stereo vision. </description>
     <define name="WEDGEBUG_CAMERA_RIGHT" value="front_camera|bottom_camera" description="Video device to use"/>
-    <define name="WEDGEBUG_CAMERA_RIGHT" value="front_camera|bottom_camera" description="Video device to use"/>
+    <define name="WEDGEBUG_CAMERA_LEFT" value="front_camera|bottom_camera" description="Video device to use"/>
 
   </doc>
   <settings>
     <dl_settings>
-      <dl_settings name="W-Dispariy">
+      <dl_settings name="W-Disparity">
        
         <dl_setting var="SE_opening_OCV" min="5" step="1" max = "401" shortname="SE_op"/>
         <dl_setting var="SE_closing_OCV" min="5" step="1" max = "401" shortname="SE_clo"/>

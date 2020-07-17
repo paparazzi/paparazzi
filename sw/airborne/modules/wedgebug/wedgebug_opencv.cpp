@@ -1,6 +1,4 @@
 /*
- * Copyright (C) C. De Wagter
- *
  * This file is part of paparazzi
  *
  * paparazzi is free software; you can redistribute it and/or modify
@@ -17,11 +15,7 @@
  * along with paparazzi; see the file COPYING.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
-/**
- * @file "modules/computer_vision/opencv_example.cpp"
- * @author C. De Wagter
- * A simple module showing what you can do with opencv on the bebop.
- */
+
 
 
 #include "wedgebug_opencv.h"
