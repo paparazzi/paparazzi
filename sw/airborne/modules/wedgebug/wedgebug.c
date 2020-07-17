@@ -81,6 +81,9 @@ struct image_t img_depth_int16_cropped;	//! Image holding depth values (cm) obta
 struct image_t img_middle_int8_cropped;	// Image obtained after processing (morphological operations) of previous image
 struct image_t img_edges_int8_cropped;	//! Image obtained from the external sobel edge detection function = sobel_OCV
 
+struct image_t img_disparity_int16_cropped;
+struct image_t img_middle_int16_cropped;
+
 // New section: Global variables - Declarations ----------------------------------------------------------------------------------------------------------------
 
 
@@ -314,6 +317,14 @@ uint8_t are_setpoint_and_angle_reached(struct FloatVect3 *VGOAL, struct FloatVec
 void disp_to_depth_img(struct image_t *img8bit_input, struct image_t *img16bit_output);
 void background_processes(uint8_t save_images_flag);
 
+uint16_t getMedian16bit(uint16_t *a, uint32_t n);
+float dispfixed_to_disp(const int16_t d);
+float disp_to_depth_16bit(const int16_t d, const float b, const uint16_t f);
+void Vi_to_Vc_depth(struct FloatVect3 *scene_point, int32_t image_point_y, int32_t image_point_x , const float depth /*depth in m*/, const uint16_t f);
+void Vi_to_Vc16bit(struct FloatVect3 *scene_point, int32_t image_point_y, int32_t image_point_x , const uint16_t d, const float b, const uint16_t f);
+uint16_t median_depth_to_point(struct point_t *Vi, struct image_t *img, struct kernel_C1 *kernel_median);
+uint8_t find_best_edge_coordinates2(struct FloatVect3 *VEDGECOORDINATESc, struct FloatVect3 *VTARGETc, struct image_t *img_edges, struct image_t *img_depth, struct crop_t *edge_search_area, uint16_t threshold, int16_t max_confidence);
+void background_processes_16bit(uint8_t save_images_flag);
 
 
 
