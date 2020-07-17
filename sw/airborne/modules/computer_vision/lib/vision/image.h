@@ -36,7 +36,8 @@ enum image_type {
   IMAGE_YUV422,     ///< UYVY format (uint16 per pixel)
   IMAGE_GRAYSCALE,  ///< Grayscale image with only the Y part (uint8 per pixel)
   IMAGE_JPEG,       ///< An JPEG encoded image (not per pixel encoded)
-  IMAGE_GRADIENT    ///< An image gradient (int16 per pixel)
+  IMAGE_GRADIENT,    ///< An image gradient (int16 per pixel)
+  IMAGE_INT16     ///< An image to hold disparity image data from openCV (int16 per pixel)
 };
 
 /* Main image structure */
@@ -61,6 +62,17 @@ struct point_t {
   uint16_t x_sub;         ///< The x subpixel coordinate of the point
   uint16_t y_sub;         ///< The y subpixel coordinate of the point
 };
+
+
+/* 3d Image point structure */
+struct point3d_t {
+  float X;             ///< The x coordinate of the point
+  float Y;             ///< The y coordinate of the point
+  float Z;             ///< The y coordinate of the point
+
+};
+
+
 
 /* Vector structure for point differences */
 struct flow_t {

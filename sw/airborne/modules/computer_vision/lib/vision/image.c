@@ -54,6 +54,8 @@ void image_create(struct image_t *img, uint16_t width, uint16_t height, enum ima
     img->buf_size = sizeof(uint8_t) * 2 * width * height;  // At maximum quality this is enough
   } else if (type == IMAGE_GRADIENT) {
     img->buf_size = sizeof(int16_t) * width * height;
+  } else if (type == IMAGE_INT16) {
+    img->buf_size = sizeof(int16_t) * width * height;
   } else {
     img->buf_size = sizeof(uint8_t) * width * height;
   }

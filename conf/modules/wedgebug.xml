@@ -1,0 +1,80 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="wedgebug" dir="wedgebug">
+  <doc>
+    <description> An integration of the WegdeBug algorithm (Laubach 1999) for path finding, for drones with stereo vision. </description>
+    <define name="WEDGEBUG_CAMERA_RIGHT" value="front_camera|bottom_camera" description="Video device to use"/>
+    <define name="WEDGEBUG_CAMERA_LEFT" value="front_camera|bottom_camera" description="Video device to use"/>
+
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings name="W-Disparity">
+       
+        <dl_setting var="SE_opening_OCV" min="5" step="1" max = "401" shortname="SE_op"/>
+        <dl_setting var="SE_closing_OCV" min="5" step="1" max = "401" shortname="SE_clo"/>
+        <dl_setting var="SE_dilation_OCV_1" min="5" step="1" max = "401" shortname="SE_dil_1"/>
+        <dl_setting var="SE_dilation_OCV_2" min="5" step="1" max = "101" shortname="SE_dil_2"/>
+        <dl_setting var="SE_erosion_OCV" min="5" step="1" max = "101" shortname="SE_ero"/>
+        
+        <dl_setting var="K_median_w" min="1" step="1" max = "321" shortname="K_med_w"/>
+        <dl_setting var="K_median_h" min="1" step="1" max = "321" shortname="K_med_h"/>
+        <dl_setting var="threshold_median_depth" min="0" step="1" max = "10000" shortname="thr_obs_depth"/>
+        <dl_setting var="threshold_depth_of_edges" min="0" step="1" max = "10000" shortname="thr_edge_depth"/>
+        <dl_setting var="threshold_edge_magnitude" min="0" step="50" max = "50000" shortname="thr_edge_mag"/>
+        <dl_setting var="threshold_distance_to_goal" min="0.00" step="0.05" max = "1.00" shortname="thr_goal_dist"/>
+        <dl_setting var="threshold_distance_to_angle" min="0.0" step="0.1" max = "3.1" shortname="thr_angle_dist"/>
+        
+		<dl_setting var="max_obstacle_confidence" min="0" step="1" max = "50" shortname="conf_obs"/>
+		<dl_setting var="max_free_path_confidence " min="0" step="1" max = "50" shortname="conf_free"/>
+		<dl_setting var="max_position_confidence" min="0" step="1" max = "50" shortname="conf_pos"/>
+		<dl_setting var="max_heading_confidence" min="0" step="1" max = "50" shortname="conf_head"/>
+		<dl_setting var="max_edge_found_micro_confidence" min="0" step="1" max = "50" shortname="conf_edge_mi"/>
+		<dl_setting var="max_edge_found_macro_confidence" min="0" step="1" max = "50" shortname="conf_edge_mac"/>
+		<dl_setting var="max_no_edge_found_confidence" min="0" step="1" max = "50" shortname="conf_no_edge"/>
+        
+        
+        <dl_setting var="heat_map_type" min="0" step="1" max = "11" shortname="heatmap"/>
+        
+        <dl_setting var="save_images_flag" min="0" step="1" max="1" shortname="Save Images">
+          <strip_button name="Start image capture" icon="dcstart.png" value="1" group="cv"/>
+          <strip_button name="Stop image capture" icon="dcstop.png" value="0" group="cv"/>
+        </dl_setting>
+        
+        
+      </dl_settings>
+
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="wedgebug.h"/>
+  </header>
+  <init fun="wedgebug_init()"/>
+  <periodic fun="wedgebug_periodic()" freq="7"/> <!-- originally 4 -->
+  <makefile target="ap|nps">
+    <file name="wedgebug.c"/>
+    <file name="wedgebug_opencv.cpp"/>
+    
+    <flag name="CXXFLAGS" value="I$(PAPARAZZI_SRC)/sw/ext/opencv_bebop/install_pc/include"/> <!-- needed to include headers -->
+    
+    <flag name="LDFLAGS" value="L$(PAPARAZZI_HOME)/sw/ext/opencv_bebop/install_pc/lib"/>
+    <flag name="LDFLAGS" value="lopencv_world"/>
+    <flag name="LDFLAGS" value="L$(PAPARAZZI_HOME)/sw/ext/opencv_bebop/install_pc/share/OpenCV/3rdparty/lib"/>
+    <flag name="LDFLAGS" value="llibprotobuf"/>
+    <flag name="LDFLAGS" value="lquirc"/>
+    <flag name="LDFLAGS" value="L/usr/lib/x86_64-linux-gnu"/>
+    <flag name="LDFLAGS" value="ljpeg"/>
+    <flag name="LDFLAGS" value="lpng"/>
+    <flag name="LDFLAGS" value="ltiff"/>
+    <flag name="LDFLAGS" value="L/usr/lib/x86_64-linux-gnu/hdf5/serial"/>
+    <flag name="LDFLAGS" value="lhdf5"/>
+    <flag name="LDFLAGS" value="lpthread"/>
+    <flag name="LDFLAGS" value="lsz"/>
+    <flag name="LDFLAGS" value="lz"/>
+    <flag name="LDFLAGS" value="ldl"/>
+    <flag name="LDFLAGS" value="lm"/>
+    <flag name="LDFLAGS" value="lfreetype"/>
+    <flag name="LDFLAGS" value="lharfbuzz"/>
+    <flag name="LDFLAGS" value="lrt"/>
+  </makefile>
+</module>
