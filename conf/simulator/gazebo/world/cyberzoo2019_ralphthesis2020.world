@@ -52,6 +52,7 @@
       <uri>model://cyberzoo</uri>
       <pose>0 4 0 0 0 0</pose>
     </include>
+    
 
     
 
@@ -65,24 +66,19 @@
       <pose>0 8 -0.5 0 0 0</pose>
     </include> -->
     
-        <!-- Brick_bar_1 - Acts as goal marker in simulation -->
+	<!-- Brick_bar_1 - Acts as goal marker in simulation -->
     <include>
       <uri>model://aluminum_bar_1</uri>
       <name>aluminum_bar_1</name>
       <pose>0 8 -0.5 0 0 0</pose>
     </include>
     
-   
-   
     <!-- Brick_cube_1
     <include>
       <uri>model://brick_cube_1</uri>
       <name>brick cube 1</name>
       <pose>0 6 0 0 0 0</pose> 
     </include>  -->
-
-
-    
    
     <!-- Brick_sphere_1
     <include>
@@ -91,7 +87,6 @@
       <pose>0 6 0 0 0 0</pose> 
     </include> -->
     
-    
     <!-- Brick_wall_1 - l:1m, h:2m, t:0.25m
 	<include>
       <uri>model://brick_wall_1</uri>
@@ -99,21 +94,19 @@
       <pose>0 4 0 0 0 1.57079632679</pose> 
     </include> -->
 
-    
-    <!-- Brick_wall_2 - l:2m, h:2m, t:0.25m
+    <!-- Brick_wall_2 - l:2m, h:2m, t:0.25m -->
 	<include>
       <uri>model://brick_wall_2</uri>
       <name>brick wall 2</name>
       <pose>0 4 0 0 0 1.57079632679</pose> 
-    </include> -->
+    </include>
     
-    
-    <!-- Brick_wall_3 - l:4m, h:2m, t:0.25m -->
+    <!-- Brick_wall_3 - l:4m, h:2m, t:0.25m
 	<include>
       <uri>model://brick_wall_3</uri>
       <name>brick wall 3</name>
       <pose>0 4 0 0 0 1.57079632679</pose> 
-    </include>
+    </include> -->
     
     <!-- Brick_wall_hole_1 - Hole large enough for drone
     <include>
@@ -122,16 +115,12 @@
       <pose>0 4 0 0 0 1.57079632679</pose>
     </include>  -->
     
-    
-    <!-- Brick_wall_hole_2 - Hole too small for drone - 8m wide 
+    <!-- Brick_wall_hole_2 - Hole too small for drone - 8m wide
     <include>
       <uri>model://brick_wall_hole_2</uri>
       <name>brick_wall_hole_2</name>
       <pose>0 4 0 0 0 1.57079632679</pose>
-    </include>  -->
-
-
-    
+    </include>   -->
   
     <!-- Brick_wall_hole_3 - Small and large holes
     <include>
@@ -139,7 +128,6 @@
       <name>brick_wall_hole_3</name>
       <pose>0 4 0 0 0 1.57079632679</pose>
     </include>  -->
-
     
     <!-- Brick_wall_hole_4 - Hole large enough for drone
     <include>
@@ -148,7 +136,6 @@
       <pose>0 4 0 0 0 1.57079632679</pose>
     </include> -->
 
-    
     <!-- Brick_wall_hole_5 - Hole too small for drone
     <include>
       <uri>model://brick_wall_hole_5</uri>
@@ -170,7 +157,6 @@
       <pose>0 4 0 0 0 1.57079632679</pose>
     </include> -->
 
-
     <!-- Brick_wall_lshaped_1 - l-shaped wall to test for local minimum
     <include>
       <uri>model://brick_wall_lshaped_1</uri>
@@ -178,15 +164,12 @@
       <pose>0 4 -0.5 0 0 3.92699</pose>
     </include> -->
     
-    
-    
-        <!-- Bush_1 - A bush (cube  = 1m x 1m x 1m)
+    <!-- Bush_1 - A bush (cube  = 1m x 1m x 1m)
     <include>
       <uri>model://Bush_1</uri>
       <name>Bush_1</name>
       <pose>0 4 0 0 0 1.57079632679</pose>
     </include> -->
-    
     
     <!-- Tree_1 - A tree (4.5m x 4.5m)
     <include>
@@ -202,117 +185,54 @@
       <pose>0 4 0 0 0 1.57079632679</pose>
     </include> -->
     
-    
-
-    <!-- Stock object for testing: -->
-    
-    <!-- Orange_pole - Stock object for testing -->
-    <!--  
+    <!-- stone_1 - A stone (type 1)
     <include>
-      <uri>model://orange_pole</uri>
-      <name>orange_pole1</name>
-      <pose>0 4 0 0 0 0</pose>
-    </include>
-    -->
-
-    <!-- Metal_panel1 - choose pose -0.30 4 0 0 0 0 for demo
-    <include>
-      <uri>model://metal_panel1</uri>
-      <name>metal_panel1_1</name>
-      <pose>0 4 0 0 0 0</pose>
+      <uri>model://stone_1</uri>
+      <name>stone_1</name>
+      <pose>0 4 0 0 0 1.57079632679</pose>
     </include> -->
-
     
-    <!-- Dronerace_gate -->
-    <!-- 
+    <!-- stone_2 - A stone (type 2)
     <include>
-      <uri>model://dronerace_gate</uri>
-      <pose>0 8 -1.5 0 0 0</pose>
-    </include>
-     -->
-     
-     
-     
-     
-     
-     <!-- Demo for Tom -->
-     
+      <uri>model://stone_2</uri>
+      <name>stone_2</name>
+      <pose>0 4 0 0 0 1.57079632679</pose>
+    </include> -->
     
-
-	<!-- 
+    <!-- stone_3 - A stone (type 3) -->
+    <!-- Used for experiment
     <include>
-      <uri>model://brick_cube_1</uri>
-      <name>brick cube 1</name>
-      <pose>0 -4 0 0 0 0</pose> 
-    </include>
-	
-	
-	
-	<include>
-      <uri>model://brick_sphere_1</uri>
-      <name>brick sphere 1</name>
-      <pose>0 4 0 0 0 0</pose> 
-    </include>
+      <uri>model://stone_3</uri>
+      <name>stone_3</name>
+      <pose>0 4 1.430324 3.141592654 0 -1.57079632679</pose>
+    </include>  -->
+    
+    <!-- stone_4 - A stone (type 4)
+    <include>
+      <uri>model://stone_4</uri>
+      <name>stone_4</name>
+      <pose>0 4 0 0 0 1.57079632679</pose>
+    </include> -->
     
     
-	<include>
-      <uri>model://brick_wall_1</uri>
-      <name>brick wall 1</name>
-      <pose>2 4 0 0 0 1.57079632679</pose> 
-    </include>
-    
+    <!-- Complex scene
 	<include>
       <uri>model://brick_wall_2</uri>
       <name>brick wall 2</name>
-      <pose>5 4 0 0 0 1.57079632679</pose> 
-    </include>
-    
-	<include>
-      <uri>model://brick_wall_3</uri>
-      <name>brick wall 3</name>
-      <pose>10 4 0 0 0 1.57079632679</pose> 
-    </include>
-
-
-    
-    
-    <include>
-      <uri>model://brick_wall_hole_1</uri>
-      <name>brick_wall_hole_1</name>
-      <pose>-6 4 0 0 0 1.57079632679</pose>
-    </include>
-    
-    
-    <include>
-      <uri>model://brick_wall_hole_2</uri>
-      <name>brick_wall_hole_2</name>
-      <pose>-16 4 0 0 0 1.57079632679</pose>
-    </include>
-    
-  
-    <include>
-      <uri>model://brick_wall_hole_3</uri>
-      <name>brick_wall_hole_3</name>
-      <pose>-26 4 0 0 0 1.57079632679</pose>
+      <pose>0.43 1.81 0 0 0 1.57079632679</pose> 
     </include>
     
     <include>
-      <uri>model://brick_wall_hole_4</uri>
-      <name>brick_wall_hole_4</name>
-      <pose>-32 4 0 0 0 1.57079632679</pose>
+      <uri>model://Tree_1</uri>
+      <name>Tree_1</name>
+      <pose>0 4 0 0 0 1.57079632679</pose>
     </include>
     
     <include>
-      <uri>model://brick_wall_hole_5</uri>
-      <name>brick_wall_hole_5</name>
-      <pose>-36 4 0 0 0 1.57079632679</pose>
-    </include>
-
-    <include>
-      <uri>model://brick_wall_lshaped_1</uri>
-      <name>brick_wall_lshaped_1</name>
-      <pose>0 16 0 0 0 3.92699</pose>
-    </include> -->
+      <uri>model://stone_3</uri>
+      <name>stone_3</name>
+      <pose>0.2 6 1.430324 3.141592654 0 -1.57079632679</pose>
+    </include>-->
 
  
   </world>
