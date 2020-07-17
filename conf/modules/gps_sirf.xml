@@ -18,7 +18,7 @@
   <init fun="gps_sirf_init()"/>
   <periodic fun="gps_sirf_periodic_check()" freq="1." autorun="TRUE"/>
   <event fun="gps_sirf_event()"/>
-  <makefile target=target="ap|fbw">
+  <makefile target="ap|fbw">
     <configure name="SIRF_GPS_PORT" default="$(GPS_PORT)" case="upper|lower"/>
     <configure name="SIRF_GPS_BAUD" default="$(GPS_BAUD)"/>
 
