@@ -70,6 +70,7 @@ struct guidance_indi_hybrid_params gih_params = {
 };
 
 #ifdef GUIDANCE_INDI_MAX_AIRSPEED
+// Max ground speed that will be commanded
 #define NAV_MAX_SPEED (GUIDANCE_INDI_MAX_AIRSPEED + 10.0)
 float nav_max_speed = NAV_MAX_SPEED;
 #endif
@@ -138,8 +139,6 @@ static float guidance_indi_get_liftd(float pitch, float theta);
 struct FloatVect3 nav_get_speed_sp_from_go(struct EnuCoor_i target, float pos_gain);
 struct FloatVect3 nav_get_speed_sp_from_line(struct FloatVect2 line_v_enu, struct FloatVect2 to_end_v_enu, struct EnuCoor_i target, float pos_gain);
 struct FloatVect3 nav_get_speed_setpoint(float pos_gain);
-
-int16_t update_hp_freq_and_reset = 0;
 
 /**
  * @brief Init function

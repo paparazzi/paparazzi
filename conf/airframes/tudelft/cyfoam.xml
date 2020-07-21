@@ -173,29 +173,6 @@
     <define name="USE_AIRSPEED" value="TRUE"/>
   </section>
 
-  <modules main_freq="500">
-    <!--<module name="gps" type="ubx_ucenter"/>-->
-    <module name="tlsf"/>
-    <module name="pprzlog">
-      <define name="SDLOG_START_DELAY" value="10"/>
-    </module>
-    <module name="logger" type="sd_chibios"/>
-    <!--<module name="flight_recorder"/>-->
-    <!--<module name="logger_spi_link"/>-->
-
-    <!--Use an airspeed sensor and get the measured airspeed in the messages-->
-    <module name="airspeed" type="ms45xx_i2c">
-      <define name="MS45XX_I2C_DEV" value="i2c1"/>
-      <define name="MS45XX_AIRSPEED_SCALE" value="2.4"/>
-      <define name="USE_AIRSPEED_MS45XX" value="TRUE"/>
-    </module>
-
-    <module name="pwm_meas">
-      <define name="USE_PWM_INPUT1" value="PWM_PULSE_TYPE_ACTIVE_LOW"/>
-      <define name="USE_PWM_INPUT2" value="PWM_PULSE_TYPE_ACTIVE_LOW"/>
-    </module>
-  </modules>
-
   <section name="SIMULATOR" prefix="NPS_">
     <define name="ACTUATOR_NAMES" value="ele_left, ele_right, mot_right, mot_left" type="string[]"/>
     <define name="JSBSIM_MODEL" value="cyclone" type="string"/>
@@ -238,6 +215,27 @@
       <!--Take the mode channel for simulation-->
       <define name="INDI_FUNCTIONS_RC_CHANNEL" value="4"/>
     </target>
+
+    <!--<module name="gps" type="ubx_ucenter"/>-->
+    <module name="tlsf"/>
+    <module name="pprzlog">
+      <define name="SDLOG_START_DELAY" value="10"/>
+    </module>
+    <module name="logger" type="sd_chibios"/>
+    <!--<module name="flight_recorder"/>-->
+    <!--<module name="logger_spi_link"/>-->
+
+    <!--Use an airspeed sensor and get the measured airspeed in the messages-->
+    <module name="airspeed" type="ms45xx_i2c">
+      <define name="MS45XX_I2C_DEV" value="i2c1"/>
+      <define name="MS45XX_AIRSPEED_SCALE" value="2.4"/>
+      <define name="USE_AIRSPEED_MS45XX" value="TRUE"/>
+    </module>
+
+    <module name="pwm_meas">
+      <define name="USE_PWM_INPUT1" value="PWM_PULSE_TYPE_ACTIVE_LOW"/>
+      <define name="USE_PWM_INPUT2" value="PWM_PULSE_TYPE_ACTIVE_LOW"/>
+    </module>
 
     <module name="actuators"     type="pwm">
       <define name="SERVO_HZ" value="400"/>

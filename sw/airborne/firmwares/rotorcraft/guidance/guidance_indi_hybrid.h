@@ -41,24 +41,6 @@ extern void stabilization_attitude_set_setpoint_rp_quat_f(struct FloatEulers* in
 extern void guidance_indi_init(void);
 extern void guidance_indi_propagate_filters(void);
 
-extern float guidance_indi_thrust_specific_force_gain;
-extern struct FloatVect3 euler_cmd;
-extern struct FloatVect3 sp_accel;
-
-extern struct FloatVect3 speed_sp;
-
-extern float lift_pitch_eff;
-
-extern float guidance_indi_pos_gain;
-extern float guidance_indi_speed_gain;
-extern float guidance_indi_pos_gainz;
-extern float guidance_indi_speed_gainz;
-
-extern struct FloatVect2 desired_airspeed;
-extern int16_t update_hp_freq_and_reset;
-extern struct FourthOrderHighPass flap_accel_hp;
-extern float guidance_indi_max_airspeed;
-
 struct guidance_indi_hybrid_params {
   float pos_gain;
   float pos_gainz;
