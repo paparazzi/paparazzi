@@ -98,7 +98,7 @@ typedef struct DMADriver DMADriver;
  * @param[in] buffer    pointer to the most recent samples data
  * @param[in] n         number of buffer rows available starting from @p buffer
  */
-typedef void (*dmacallback_t)(DMADriver *dmap, volatile void *buffer, const size_t n);
+typedef void (*dmacallback_t)(DMADriver *dmap, void *buffer, const size_t n);
 
 
 /**
@@ -390,7 +390,7 @@ struct DMADriver {
    * @note  for now, only half buffer with one memory pointer is managed
    *            mem1p not yet interfaced
    */
-  volatile void           *mem0p;
+  void           *mem0p;
 
   /**
    * @brief hold DMA CR register for the stream
@@ -421,10 +421,10 @@ bool  dmaStart(DMADriver *dmap, const DMAConfig *cfg);
 void  dmaStop(DMADriver *dmap);
 
 #if STM32_DMA_USE_WAIT == TRUE
-msg_t dmaTransfertTimeout(DMADriver *dmap, volatile void *periphp, volatile void * mem0p, const size_t size,
+msg_t dmaTransfertTimeout(DMADriver *dmap, volatile void *periphp, void * mem0p, const size_t size,
 		   sysinterval_t timeout);
 // helper
-static inline msg_t dmaTransfert(DMADriver *dmap, volatile void *periphp, volatile void * mem0p, const size_t size)
+static inline msg_t dmaTransfert(DMADriver *dmap, volatile void *periphp, void * mem0p, const size_t size)
 {
   return dmaTransfertTimeout(dmap, periphp, mem0p, size, TIME_INFINITE);
 }
@@ -433,10 +433,10 @@ static inline msg_t dmaTransfert(DMADriver *dmap, volatile void *periphp, volati
 void dmaAcquireBus(DMADriver *dmap);
 void dmaReleaseBus(DMADriver *dmap);
 #endif
-bool  dmaStartTransfert(DMADriver *dmap, volatile void *periphp, volatile void * mem0p, const size_t size);
+bool  dmaStartTransfert(DMADriver *dmap, volatile void *periphp, void * mem0p, const size_t size);
 void  dmaStopTransfert(DMADriver *dmap);
 
-bool  dmaStartTransfertI(DMADriver *dmap, volatile void *periphp, volatile void *mem0p, const size_t size);
+bool  dmaStartTransfertI(DMADriver *dmap, volatile void *periphp, void *mem0p, const size_t size);
 void  dmaStopTransfertI(DMADriver *dmap);
 
 
@@ -446,7 +446,7 @@ bool  dma_lld_start(DMADriver *dmap);
 void  dma_lld_stop(DMADriver *dmap);
 
 
-bool  dma_lld_start_transfert(DMADriver *dmap, volatile void *periphp, volatile void *mem0p, const size_t size);
+bool  dma_lld_start_transfert(DMADriver *dmap, volatile void *periphp, void *mem0p, const size_t size);
 
 
 void  dma_lld_stop_transfert(DMADriver *dmap);
