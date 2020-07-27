@@ -29,7 +29,7 @@
 #ifndef AUTOPILOT_ARMING_THROTTLE_H
 #define AUTOPILOT_ARMING_THROTTLE_H
 
-#include "autopilot_rc_helpers.h"
+#include "autopilot_arming_common.h"
 #include "autopilot_firmware.h"
 
 #define AUTOPILOT_ARMING_DELAY 10

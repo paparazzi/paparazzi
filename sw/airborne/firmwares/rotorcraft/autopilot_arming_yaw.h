@@ -29,7 +29,7 @@
 #ifndef AUTOPILOT_ARMING_YAW_H
 #define AUTOPILOT_ARMING_YAW_H
 
-#include "autopilot_rc_helpers.h"
+#include "autopilot_arming_common.h"
 #include "autopilot_firmware.h"
 #include "autopilot.h"
 

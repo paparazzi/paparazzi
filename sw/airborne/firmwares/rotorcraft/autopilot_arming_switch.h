@@ -29,7 +29,7 @@
 #ifndef AUTOPILOT_ARMING_SWITCH_H
 #define AUTOPILOT_ARMING_SWITCH_H
 
-#include "autopilot_rc_helpers.h"
+#include "autopilot_arming_common.h"
 
 #ifndef RADIO_KILL_SWITCH
 #error "You need to have a RADIO_KILL_SWITCH configured to arm the motors with the switch!"
