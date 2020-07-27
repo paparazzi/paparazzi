@@ -29,12 +29,16 @@
 #include "firmwares/rotorcraft/guidance/guidance_hybrid.h"
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
 #include "firmwares/rotorcraft/guidance/guidance_flip.h"
-#include "firmwares/rotorcraft/guidance/guidance_indi.h"
 #include "firmwares/rotorcraft/guidance/guidance_module.h"
 #include "firmwares/rotorcraft/stabilization.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_attitude_rc_setpoint.h"
 #include "firmwares/rotorcraft/navigation.h"
 #include "subsystems/radio_control.h"
+#if GUIDANCE_INDI_HYBRID
+#include "firmwares/rotorcraft/guidance/guidance_indi_hybrid.h"
+#else
+#include "firmwares/rotorcraft/guidance/guidance_indi.h"
+#endif
 
 #include "firmwares/rotorcraft/stabilization/stabilization_none.h"
 #include "firmwares/rotorcraft/stabilization/stabilization_rate.h"
@@ -75,6 +79,12 @@ PRINT_CONFIG_VAR(GUIDANCE_H_USE_SPEED_REF)
 
 #ifndef GUIDANCE_INDI
 #define GUIDANCE_INDI FALSE
+#endif
+
+// Navigation can set heading freely
+// This is false if sideslip is a problem
+#ifndef GUIDANCE_HEADING_IS_FREE
+#define GUIDANCE_HEADING_IS_FREE TRUE
 #endif
 
 struct HorizontalGuidance guidance_h;
@@ -598,12 +608,14 @@ void guidance_h_from_nav(bool in_flight)
 
     guidance_h_update_reference();
 
+#if GUIDANCE_HEADING_IS_FREE
     /* set psi command */
     guidance_h.sp.heading = ANGLE_FLOAT_OF_BFP(nav_heading);
     FLOAT_ANGLE_NORMALIZE(guidance_h.sp.heading);
+#endif
 
 #if GUIDANCE_INDI
-    guidance_indi_run(guidance_h.sp.heading);
+    guidance_indi_run(&guidance_h.sp.heading);
 #else
     /* compute x,y earth commands */
     guidance_h_traj_run(in_flight);
@@ -683,7 +695,7 @@ void guidance_h_guided_run(bool in_flight)
   guidance_h_update_reference();
 
 #if GUIDANCE_INDI
-  guidance_indi_run(guidance_h.sp.heading);
+  guidance_indi_run(&guidance_h.sp.heading);
 #else
   /* compute x,y earth commands */
   guidance_h_traj_run(in_flight);

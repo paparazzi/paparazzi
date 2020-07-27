@@ -1,5 +1,35 @@
  <aerodynamics>
 
+  <axis name="YAW">
+    <function name="elevon_yaw" frame="BODY" unit="FT*LBS">
+      <sum>
+      <product>
+        <property>fcs/ele_left_lag</property>
+        <value> -0.35 </value>
+      </product>
+      <product>
+        <property>fcs/ele_right_lag</property>
+        <value> -.35 </value>
+      </product>
+      </sum>
+    </function>
+  </axis>
+
+  <axis name="PITCH">
+    <function name="elevon_pitch" frame="BODY" unit="FT*LBS">
+      <sum>
+      <product>
+        <property>fcs/ele_left_lag</property>
+        <value> -0.0417 </value>
+      </product>
+      <product>
+        <property>fcs/ele_right_lag</property>
+        <value> .0417 </value>
+      </product>
+      </sum>
+    </function>
+  </axis>
+
   <axis name="LIFT">
 
     <function name="aero/force/Lift_alpha">
@@ -12,8 +42,8 @@
             <tableData>
               -1.87 -0.35
               -1.57  0.0
-              -1.27  0.35
-              -0.80  0.25
+              -1.27  0.65
+              -0.80  0.65
                0.00  0.0
                0.80  0.2
                1.27  0.2

@@ -25,6 +25,9 @@
         <define name="CE_YAW_A" value="5.631"/>
         <define name="CE_YAW_B" value="0.0515"/>
       </module>
+
+      <!--Switch advanced INDI scheduling functions on or off-->
+      <define name="INDI_FUNCTIONS_RC_CHANNEL" value="6"/>
     </target>
 
     <target name="nps"          board="pc">
@@ -34,6 +37,10 @@
       <module name="logger_file">
         <define name="FILE_LOGGER_PATH" value="/home/ewoud/Documents"/>
       </module>
+
+      <!--Switch advanced INDI scheduling functions on or off-->
+      <!--Take the mode channel for simulation-->
+      <define name="INDI_FUNCTIONS_RC_CHANNEL" value="4"/>
     </target>
 
     <module name="actuators"     type="pwm">

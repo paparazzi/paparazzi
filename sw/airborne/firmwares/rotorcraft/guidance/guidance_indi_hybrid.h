@@ -20,28 +20,34 @@
  */
 
 /**
- * @file firmwares/rotorcraft/guidance/guidance_indi.h
+ * @file firmwares/rotorcraft/guidance/guidance_indi_hybrid.h
  *
  * A guidance mode based on Incremental Nonlinear Dynamic Inversion
+ * Come to ICRA2016 to learn more!
+ *
  */
 
-#ifndef GUIDANCE_INDI_H
-#define GUIDANCE_INDI_H
+#ifndef GUIDANCE_INDI_HYBRID_H
+#define GUIDANCE_INDI_HYBRID_H
 
 #include "std.h"
 #include "math/pprz_algebra_int.h"
 #include "math/pprz_algebra_float.h"
+#include "filters/high_pass_filter.h"
 
 extern void guidance_indi_enter(void);
 extern void guidance_indi_run(float *heading_sp);
-extern void stabilization_attitude_set_setpoint_rp_quat_f(struct FloatEulers* indi_rp_cmd, bool in_flight, float heading);
+extern void stabilization_attitude_set_setpoint_rp_quat_f(struct FloatEulers* indi_rp_cmd, bool in_flight, int32_t heading);
 extern void guidance_indi_init(void);
+extern void guidance_indi_propagate_filters(void);
 
-extern float guidance_indi_thrust_specific_force_gain;
+struct guidance_indi_hybrid_params {
+  float pos_gain;
+  float pos_gainz;
+  float speed_gain;
+  float speed_gainz;
+};
 
-// settings for guidance INDI
-extern float guidance_indi_pos_gain;
-extern float guidance_indi_speed_gain;
-extern float guidance_indi_max_bank;
+extern struct guidance_indi_hybrid_params gih_params;
 
-#endif /* GUIDANCE_INDI_H */
+#endif /* GUIDANCE_INDI_HYBRID_H */

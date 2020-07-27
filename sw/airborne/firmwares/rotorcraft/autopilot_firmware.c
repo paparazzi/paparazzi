@@ -119,6 +119,13 @@ static void send_fp(struct transport_tx *trans, struct link_device *dev)
   int32_t carrot_up = -guidance_v_z_sp;
   int32_t carrot_heading = ANGLE_BFP_OF_REAL(guidance_h.sp.heading);
   int32_t thrust = (int32_t)autopilot.throttle;
+#if GUIDANCE_INDI_HYBRID
+  struct FloatEulers eulers_zxy;
+  float_eulers_of_quat_zxy(&eulers_zxy, stateGetNedToBodyQuat_f());
+  int32_t state_psi = ANGLE_BFP_OF_REAL(eulers_zxy.psi);
+#else
+  int32_t state_psi = stateGetNedToBodyEulers_i()->psi;
+#endif
   pprz_msg_send_ROTORCRAFT_FP(trans, dev, AC_ID,
                               &(stateGetPositionEnu_i()->x),
                               &(stateGetPositionEnu_i()->y),
@@ -128,7 +135,7 @@ static void send_fp(struct transport_tx *trans, struct link_device *dev)
                               &(stateGetSpeedEnu_i()->z),
                               &(stateGetNedToBodyEulers_i()->phi),
                               &(stateGetNedToBodyEulers_i()->theta),
-                              &(stateGetNedToBodyEulers_i()->psi),
+                              &state_psi,
                               &guidance_h.sp.pos.y,
                               &guidance_h.sp.pos.x,
                               &carrot_up,

@@ -119,6 +119,9 @@ float indi_u[INDI_NUM_ACT];
 float indi_du[INDI_NUM_ACT];
 float g2_times_du;
 
+float q_filt = 0.0;
+float r_filt = 0.0;
+
 // variables needed for estimation
 float g1g2_trans_mult[INDI_OUTPUTS][INDI_OUTPUTS];
 float g1g2inv[INDI_OUTPUTS][INDI_OUTPUTS];
@@ -365,10 +368,13 @@ static void stabilization_indi_calc_cmd(struct Int32Quat *att_err, bool rate_con
 
   struct FloatRates *body_rates = stateGetBodyRates_f();
 
+  q_filt = (q_filt*3+body_rates->q)/4;
+  r_filt = (r_filt*3+body_rates->r)/4;
+
   //calculate the virtual control (reference acceleration) based on a PD controller
   angular_accel_ref.p = (rate_ref.p - body_rates->p) * reference_acceleration.rate_p;
-  angular_accel_ref.q = (rate_ref.q - body_rates->q) * reference_acceleration.rate_q;
-  angular_accel_ref.r = (rate_ref.r - body_rates->r) * reference_acceleration.rate_r;
+  angular_accel_ref.q = (rate_ref.q - q_filt) * reference_acceleration.rate_q;
+  angular_accel_ref.r = (rate_ref.r - r_filt) * reference_acceleration.rate_r;
 
   g2_times_du = 0.0;
   int8_t i;
@@ -417,6 +423,20 @@ static void stabilization_indi_calc_cmd(struct Int32Quat *att_err, bool rate_con
     du_min[i] = -MAX_PPRZ * act_is_servo[i] - actuator_state_filt_vect[i];
     du_max[i] = MAX_PPRZ - actuator_state_filt_vect[i];
     du_pref[i] = act_pref[i] - actuator_state_filt_vect[i];
+
+#ifdef GUIDANCE_INDI_MIN_THROTTLE
+    float airspeed = stateGetAirspeed_f();
+    //limit minimum thrust ap can give
+    if(!act_is_servo[i]) {
+      if((guidance_h.mode == GUIDANCE_H_MODE_HOVER) || (guidance_h.mode == GUIDANCE_H_MODE_NAV)) {
+        if(airspeed < 8.0) {
+          du_min[i] = GUIDANCE_INDI_MIN_THROTTLE - actuator_state_filt_vect[i];
+        } else {
+          du_min[i] = GUIDANCE_INDI_MIN_THROTTLE_FWD - actuator_state_filt_vect[i];
+        }
+      }
+    }
+#endif
   }
 
   // WLS Control Allocator

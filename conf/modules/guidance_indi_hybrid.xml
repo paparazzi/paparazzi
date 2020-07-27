@@ -1,0 +1,28 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="guidance_indi_hybrid" dir="guidance">
+  <doc>
+    <description>
+      Guidance controller for hybrids using INDI
+    </description>
+  </doc>
+  <settings>
+    <dl_settings>
+      <dl_settings NAME="guidance_indi_hybrid">
+        <dl_setting var="gih_params.pos_gain" min="0" step="0.1" max="10.0" shortname="kp" param="GUIDANCE_INDI_POS_GAIN" persistent="true"/>
+        <dl_setting var="gih_params.speed_gain" min="0" step="0.1" max="10.0" shortname="kd" param="GUIDANCE_INDI_SPEED_GAIN" persistent="true"/>
+      </dl_settings>
+    </dl_settings>
+  </settings>
+  <header>
+    <file name="guidance_indi_hybrid.h"/>
+  </header>
+  <init fun="guidance_indi_init()"/>
+  <init fun="guidance_indi_enter()"/>
+  <!--<periodic fun="guidance_indi_propagate_filters()" freq="PERIODIC_FREQUENCY" autorun="TRUE"/>-->
+  <makefile target="ap|nps" firmware="rotorcraft">
+    <file name="guidance_indi_hybrid.c" dir="$(SRC_FIRMWARE)/guidance"/>
+    <define name="GUIDANCE_INDI" value="TRUE"/>
+    <define name="GUIDANCE_INDI_HYBRID" value="TRUE"/>
+  </makefile>
+</module>
