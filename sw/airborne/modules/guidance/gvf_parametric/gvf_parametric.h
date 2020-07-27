@@ -104,6 +104,7 @@ extern gvf_parametric_tra gvf_parametric_trajectory;
 extern void gvf_parametric_init(void);
 
 // Control functions
+extern void gvf_parametric_set_direction(int8_t s);
 extern void gvf_parametric_control_2D(float, float, float, float, float, float, float, float);
 extern void gvf_parametric_control_3D(float, float, float, float, float, float, float, float, float,
                                     float, float, float);

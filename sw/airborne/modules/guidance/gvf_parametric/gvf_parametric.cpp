@@ -118,6 +118,11 @@ void gvf_parametric_init(void)
 
 }
 
+void gvf_parametric_set_direction(int8_t s)
+{
+  gvf_control.s = s;
+}
+
 void gvf_parametric_control_2D(float kx, float ky, float f1, float f2, float f1d, float f2d, float f1dd, float f2dd)
 {
 
@@ -131,7 +136,7 @@ void gvf_parametric_control_2D(float kx, float ky, float f1, float f2, float f1d
   }
 
   float L = gvf_parametric_control.L;
-  float beta = gvf_parametric_control.beta;
+  float beta = gvf_parametric_control.beta*gvf_parametric_control.s;
 
   Eigen::Vector3f X;
   Eigen::Matrix3f J;
@@ -229,7 +234,7 @@ void gvf_parametric_control_3D(float kx, float ky, float kz, float f1, float f2,
   }
 
   float L = gvf_parametric_control.L;
-  float beta = gvf_parametric_control.beta;
+  float beta = gvf_parametric_control.beta*gvf_parametric_control.s;
 
   Eigen::Vector4f X;
   Eigen::Matrix4f J;
