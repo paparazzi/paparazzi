@@ -410,6 +410,8 @@ bool gvf_parametric_3D_ellipse_wp_delta(uint8_t wp, float r, float alt_center, f
   return true;
 }
 
+// 3D Lissajous
+
 bool gvf_parametric_3D_lissajous_XYZ(float xo, float yo, float zo, float cx, float cy, float cz, float wx, float wy, float wz, float dx, float dy, float dz, float alpha)
 {
   // Safety first! If the asked altitude is low
