@@ -6,10 +6,12 @@ Tutorials
 
 TBD
 
-.. toctree ::
-	beginner/index_beginner
-	intermediate/index_intermediate
-	advanced/index_advanced
+.. toctree::
+    :maxdepth: 2
 
+    beginner/index_beginner
+    intermediate/index_intermediate
+    advanced/index_advanced
+    interfacing_with_paparazzi
 	
 
