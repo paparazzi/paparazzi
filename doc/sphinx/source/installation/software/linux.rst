@@ -4,6 +4,10 @@
 Linux
 ======================
 
+.. warning::
+
+    This guide may be outdated. See http://wiki.paparazziuav.org/wiki/Installation.
+
 Paparazzi is very easily installed on any laptop or workstation running Ubuntu, Debian (or any of their derivatives).
 
 The steps required to install the software needed to be able to let your UAS fly
