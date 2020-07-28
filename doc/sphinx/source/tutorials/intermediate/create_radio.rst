@@ -34,11 +34,11 @@ Add as many channel as wanted, based on the following example :
 .. code-block:: xml
 
     <radio name="My own FrSky X9D" data_min="900" data_max="2100" sync_min ="5000" sync_max ="15000" pulse_type="POSITIVE">
-        <channel ctl="D" function="ROLL"     min="987" neutral="1503" max="2011" average="0"/>
-        <channel ctl="C" function="PITCH"    min="2011" neutral="1451" max="987" average="0"/>
-        <channel ctl="B" function="YAW"      min="990" neutral="1500" max="2011" average="0"/>
-        <channel ctl="A" function="THROTTLE" min="998" neutral="998" max="2011" average="0"/>
-        <channel ctl="PHAUX2" function="MODE"    min="2011" neutral="1500" max="987" average="1"/>
+        <channel function="ROLL"     min="987" neutral="1503" max="2011" average="0"/>
+        <channel function="PITCH"    min="987" neutral="1451" max="2011" average="0" reverse="1"/>
+        <channel function="YAW"      min="990" neutral="1500" max="2011" average="0"/>
+        <channel function="THROTTLE" min="998" neutral="998" max="2011" average="0"/>
+        <channel function="MODE"    min="987" neutral="1500" max="2011" average="1"/>
     </radio>
 
 You should at least have these four channels to control your drone. The last one is for the mode selection.
@@ -47,13 +47,19 @@ You should at least have these four channels to control your drone. The last one
 
 It is essential that the order of these lines match the order of the channels in the *Messages* process.
 
-For each channel, move the joystick to its minimum, neutral and maximum position, and look at the values displayed in the *Messages* process. Write these values in the ``min``, ``neutral`` and ``max`` attibutes of the corresponding channel in your radio file.
+For each channel, move the joystick to its neutral position, then to the extremes positions, and look at the values displayed in the *Messages* process. Write these values in the ``neutral``, ``min`` and ``max`` attributes of the corresponding channel in your radio file. The min value shall be inferior to the max value. If the channel needs to be reversed, set the ``reverse`` attribute to ``1``, such as in the *PITCH* channel of the above example.
 
 .. note::
 
-    For the THROTTLE channel, set the neutral value at the minimum value.
+    For the THROTTLE channel, set the neutral position at the minimum throttle position.
+
+.. warning::
+
+    The old way of reversing a channel was to switch the *min* and *max* attributes. This is still working for compatibility reasons, but it is deprecated and will be an error in the next major release. Please use the *reverse* attibute.
     
-    To invert a channel, simply invert the *min* and *max* atribut values like in the *PITCH* of the above example.
+.. warning::
+
+    There used to be a *ctl* attribute. This is now deprecated, and it have never been used anyway, so remove it if you still have it in your file.
 
 Make sure that the *data_min* and *data_max* attributes are respectively lower and higher than the min and max values you picked up.
 
