@@ -26,7 +26,7 @@ If you don't want to work with the latest master branch (it may contain some uns
 OS-specific instructions
 ________________________
 
-After this point, it is required to install the needed libraries. The procedure will depend of the operating system you are using.
+After this point, it is required to install the needed libraries. The procedure depends on the operating system you are using.
 Please follow the instruction below:
 
 .. toctree ::
