@@ -20,7 +20,7 @@ If you don't want to work with the latest master branch (it may contain some uns
 ::
 
     cd paparazzi
-    git checkout v5.12
+    git checkout v5.16
 
 
 OS-specific instructions
@@ -44,4 +44,3 @@ Finally, build the ground station tools:
 ::
 
     make
-
