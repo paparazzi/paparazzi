@@ -32,7 +32,7 @@ Clone the repository:
 
 .. code-block:: bash
 
-	git checkout -b v5.12 upstream/v5.12
+	git checkout -b v5.16 upstream/v5.16
 
 Get the submodules and build Paparazzi. This step might take a long time the first time you launch it:
 
@@ -51,4 +51,3 @@ Finally, launch Paparazzi with
    If it doesn't work, the previous step might have failed. In that case, recompile with with ``make -j1``, then try again to launch Paparazzi.
 
 If all went well the Paparazzi Center should now be running. Please continue to the next page for a guided tour.
-
