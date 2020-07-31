@@ -27,37 +27,38 @@
 
 #include "modules/actuators/actuators_dshot.h"
 #include "modules/actuators/esc_dshot.h"
+#include "mcu_periph/ram_arch.h"
 #include "mcu_periph/gpio.h"
 #include BOARD_CONFIG
 
 uint16_t actuators_dshot_values[ACTUATORS_DSHOT_NB];
 
 #if DSHOT_CONF_TIM1
-static DSHOTDriver DSHOTD1;
+static IN_DMA_SECTION_NOINIT(DSHOTDriver DSHOTD1);
 static DSHOTConfig dshotcfg1 = DSHOT_CONF1_DEF;
 #endif
 #if DSHOT_CONF_TIM2
-static DSHOTDriver DSHOTD2;
+static IN_DMA_SECTION_NOINIT(DSHOTDriver  DSHOTD2);
 static DSHOTConfig dshotcfg2 = DSHOT_CONF2_DEF;
 #endif
 #if DSHOT_CONF_TIM3
-static DSHOTDriver DSHOTD3;
+static IN_DMA_SECTION_NOINIT(DSHOTDriver  DSHOTD3);
 static DSHOTConfig dshotcfg3 = DSHOT_CONF3_DEF;
 #endif
 #if DSHOT_CONF_TIM4
-static DSHOTDriver DSHOTD4;
+static IN_DMA_SECTION_NOINIT(DSHOTDriver  DSHOTD4);
 static DSHOTConfig dshotcfg4 = DSHOT_CONF4_DEF;
 #endif
 #if DSHOT_CONF_TIM5
-static DSHOTDriver DSHOTD5;
+static IN_DMA_SECTION_NOINIT(DSHOTDriver  DSHOTD5);
 static DSHOTConfig dshotcfg5 = DSHOT_CONF5_DEF;
 #endif
 #if DSHOT_CONF_TIM8
-static DSHOTDriver DSHOTD8;
+static IN_DMA_SECTION_NOINIT(DSHOTDriver  DSHOTD8);
 static DSHOTConfig dshotcfg8 = DSHOT_CONF8_DEF;
 #endif
 #if DSHOT_CONF_TIM9
-static DSHOTDriver DSHOTD9;
+static IN_DMA_SECTION_NOINIT(DSHOTDriver  DSHOTD9);
 static DSHOTConfig dshotcfg9 = DSHOT_CONF9_DEF;
 #endif
 

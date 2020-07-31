@@ -43,8 +43,12 @@
 /** DMA buffer size and number of channels
  */
 #define DSHOT_BIT_WIDTHS              16
-#define DSHOT_FRAME_SILENT_SYNC_BITS  4
-#define DSHOT_DMA_BUFFER_SIZE         (DSHOT_BIT_WIDTHS+DSHOT_FRAME_SILENT_SYNC_BITS)
+#define DSHOT_PRE_FRAME_SILENT_SYNC_BITS  2 
+#define DSHOT_POST_FRAME_SILENT_SYNC_BITS 2
+#define DSHOT_DMA_BUFFER_SIZE	      (DSHOT_BIT_WIDTHS + \
+				       DSHOT_PRE_FRAME_SILENT_SYNC_BITS + \
+				       DSHOT_POST_FRAME_SILENT_SYNC_BITS )
+
 #define DSHOT_CHANNELS                4 // depend on the number of channels per timer
 
 /**

@@ -405,7 +405,7 @@ struct DMADriver {
   /**
    * @brief Driver state
    */
-  dmastate_t         state;
+  volatile dmastate_t		     state;
 
 
   /**
@@ -421,10 +421,10 @@ bool  dmaStart(DMADriver *dmap, const DMAConfig *cfg);
 void  dmaStop(DMADriver *dmap);
 
 #if STM32_DMA_USE_WAIT == TRUE
-msg_t dmaTransfertTimeout(DMADriver *dmap, volatile void *periphp, void *mem0p, const size_t size,
-                          sysinterval_t timeout);
+msg_t dmaTransfertTimeout(DMADriver *dmap, volatile void *periphp, void * mem0p, const size_t size,
+		   sysinterval_t timeout);
 // helper
-static inline msg_t dmaTransfert(DMADriver *dmap, volatile void *periphp, void *mem0p, const size_t size)
+static inline msg_t dmaTransfert(DMADriver *dmap, volatile void *periphp, void * mem0p, const size_t size)
 {
   return dmaTransfertTimeout(dmap, periphp, mem0p, size, TIME_INFINITE);
 }
@@ -433,7 +433,7 @@ static inline msg_t dmaTransfert(DMADriver *dmap, volatile void *periphp, void *
 void dmaAcquireBus(DMADriver *dmap);
 void dmaReleaseBus(DMADriver *dmap);
 #endif
-bool  dmaStartTransfert(DMADriver *dmap, volatile void *periphp, void *mem0p, const size_t size);
+bool  dmaStartTransfert(DMADriver *dmap, volatile void *periphp, void * mem0p, const size_t size);
 void  dmaStopTransfert(DMADriver *dmap);
 
 bool  dmaStartTransfertI(DMADriver *dmap, volatile void *periphp, void *mem0p, const size_t size);
