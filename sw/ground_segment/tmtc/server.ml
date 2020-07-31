@@ -68,20 +68,24 @@ let send_aircrafts_msg = fun _asker _values ->
 
 let expand_aicraft x =
   let ac_name = ExtXml.attrib x "name" in
+  let handle_error_message = fun error_type msg ->
+    prerr_endline ("A failure occurred while processing aircraft '"^ac_name^"'");
+    prerr_endline (" - "^error_type^" : "^msg);
+    prerr_endline (" - '"^ac_name^"' will be ignored by the server");
+    prerr_endline " - Please remove it from 'conf.xml' or fix its parameter(s)";
+    flush stderr;
+    Xml.Element ("ignoring_aircraft",["name", ac_name],[])
+  in
   try
     let ac = Aircraft.parse_aircraft ~parse_all:true "" x in
     if List.length ac.Aircraft.xml > 0 then Xml.Element (Xml.tag x, Xml.attribs x, ac.Aircraft.xml)
     else failwith "Nothing to parse"
-  with Failure msg ->
-    begin
-      prerr_endline ("A failure occurred while processing aircraft '"^ac_name^"'");
-      prerr_endline (" - Fail with : "^msg);
-      prerr_endline (" - '"^ac_name^"' will be ignored by the server");
-      prerr_endline " - Please remove it from 'conf.xml' or fix its parameter(s)";
-      flush stderr;
-      (*failwith msg*)
-      Xml.Element ("ignoring_aircraft",["name", ac_name],[])
-    end
+  with
+    | Failure msg -> handle_error_message "Fail with" msg
+    | Xml.File_not_found file -> handle_error_message "File not found" file
+    | Module.Module_not_found m -> handle_error_message "Module not found" m
+    | Dtd.Prove_error err -> handle_error_message "Dtd error" (Dtd.prove_error err)
+    | Not_found -> handle_error_message "Not found" "sorry, something went wrong somewhere"
 
 let make_element = fun t a c -> Xml.Element (t,a,c)
 
@@ -901,7 +905,6 @@ let () =
     "Usage: ";
 
   Srtm.add_path srtm_path;
-
   Ivy.init "Paparazzi server" "READY" (fun _ _ -> ());
   Ivy.start !ivy_bus;
 
