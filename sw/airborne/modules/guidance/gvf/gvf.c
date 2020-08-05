@@ -71,7 +71,7 @@ static void send_gvf(struct transport_tx *trans, struct link_device *dev)
   uint32_t now = get_sys_time_msec();
   uint32_t delta_T = now - gvf_t0;
 
-  if(delta_T < 200)
+  if (delta_T < 200)
     pprz_msg_send_GVF(trans, dev, AC_ID, &gvf_control.error, &traj_type,
                       &gvf_control.s, &gvf_control.ke, plen, gvf_trajectory.p);
 }
@@ -81,13 +81,13 @@ static void send_circle(struct transport_tx *trans, struct link_device *dev)
   uint32_t now = get_sys_time_msec();
   uint32_t delta_T = now - gvf_t0;
 
-  if(delta_T < 200)
-  if (gvf_trajectory.type == ELLIPSE &&
-      (gvf_trajectory.p[2] == gvf_trajectory.p[3])) {
-    pprz_msg_send_CIRCLE(trans, dev, AC_ID,
-                         &gvf_trajectory.p[0], &gvf_trajectory.p[1],
-                         &gvf_trajectory.p[2]);
-  }
+  if (delta_T < 200)
+    if (gvf_trajectory.type == ELLIPSE &&
+        (gvf_trajectory.p[2] == gvf_trajectory.p[3])) {
+      pprz_msg_send_CIRCLE(trans, dev, AC_ID,
+                           &gvf_trajectory.p[0], &gvf_trajectory.p[1],
+                           &gvf_trajectory.p[2]);
+    }
 }
 
 static void send_segment(struct transport_tx *trans, struct link_device *dev)
@@ -95,7 +95,7 @@ static void send_segment(struct transport_tx *trans, struct link_device *dev)
   uint32_t now = get_sys_time_msec();
   uint32_t delta_T = now - gvf_t0;
 
-  if(delta_T < 200)
+  if (delta_T < 200)
     if (gvf_trajectory.type == LINE && gvf_segment.seg == 1) {
       pprz_msg_send_SEGMENT(trans, dev, AC_ID,
                             &gvf_segment.x1, &gvf_segment.y1,
