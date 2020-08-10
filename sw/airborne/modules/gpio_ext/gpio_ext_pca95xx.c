@@ -70,19 +70,19 @@ static uint32_t gpio_ext_pca95xx_get(uint32_t port, uint32_t gpios) {
 static void gpio_ext_pca95xx_set(uint32_t port, uint32_t gpios) {
   int i = port - GPIOEXT1;
   impl[i].output_reg |= gpios;
-  pca95xx_set_output(&impl[i].periph, impl[i].config_reg, impl[i].blocking);
+  pca95xx_set_output(&impl[i].periph, impl[i].output_reg, impl[i].blocking);
 }
 
 static void gpio_ext_pca95xx_clear(uint32_t port, uint32_t gpios) {
   int i = port - GPIOEXT1;
   impl[i].output_reg &= ~gpios;
-  pca95xx_set_output(&impl[i].periph, impl[i].config_reg, impl[i].blocking);
+  pca95xx_set_output(&impl[i].periph, impl[i].output_reg, impl[i].blocking);
 }
 
 static void gpio_ext_pca95xx_toggle(uint32_t port, uint32_t gpios) {
   int i = port - GPIOEXT1;
   impl[i].output_reg ^= gpios;
-  pca95xx_set_output(&impl[i].periph, impl[i].config_reg, impl[i].blocking);
+  pca95xx_set_output(&impl[i].periph, impl[i].output_reg, impl[i].blocking);
 }
 
 
