@@ -74,3 +74,17 @@ bool pca95xx_set_output(struct pca95xx *dev, uint8_t mask, bool blocking)
   }
 }
 
+// Get input function
+bool pca95xx_get_input(struct pca95xx *dev, uint8_t mask, uint8_t *result) {
+  if (dev->i2c_trans.status != I2CTransDone &&
+      dev->i2c_trans.status != I2CTransSuccess &&
+      dev->i2c_trans.status != I2CTransFailed) {
+    return false; // previous transaction not finished
+  }
+  // get input register
+  dev->i2c_trans.buf[0] = PCA95XX_INPUT_REG;
+  bool ret = i2c_blocking_transceive(dev->i2c_p, &dev->i2c_trans, dev->i2c_trans.slave_addr, 1, 1);
+  *result = dev->i2c_trans.buf[0] & mask;
+  return ret;
+}
+

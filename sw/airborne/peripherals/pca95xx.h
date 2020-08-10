@@ -78,5 +78,14 @@ extern bool pca95xx_configure(struct pca95xx *dev, uint8_t val, bool blocking);
  */
 extern bool pca95xx_set_output(struct pca95xx *dev, uint8_t mask, bool blocking);
 
+/** Get input value
+ * @param [in] dev address to pca95xx device
+ * @param [in] mask input pins
+ * @param [out] input register with mask applied
+ * Note: always blocking
+ * @return false if i2c was not ready or transaction submit fails or timeout (blocking)
+ */
+extern bool pca95xx_get_input(struct pca95xx *dev, uint8_t mask, uint8_t *result);
+
 #endif
 

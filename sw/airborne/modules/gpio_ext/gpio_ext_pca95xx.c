@@ -61,10 +61,10 @@ static void gpio_ext_pca95xx_setup_input(uint32_t port, uint32_t gpios) {
 }
 
 static uint32_t gpio_ext_pca95xx_get(uint32_t port, uint32_t gpios) {
-  (void) port;
-  (void) gpios;
-  assert("Not implemented" == 0);
-  return 0;
+  int i = port - GPIOEXT1;
+  uint8_t result;
+  pca95xx_get_input(&impl[i].periph, gpios, &result);
+  return result;
 }
 
 static void gpio_ext_pca95xx_set(uint32_t port, uint32_t gpios) {
@@ -91,7 +91,7 @@ void gpio_ext_pca95xx_init(void)
   int n = sizeof(ports) / sizeof(ports[0]);
   for (int i = 0; i < n; ++i) {
     int ext_i = ports[i] - GPIOEXT1;
-    assert(gpio_ext[ext_i].impl_data == NULL);
+    assert(ports[i] >= GPIOEXT1 && ports[i] < GPIOEXT1 + GPIOEXT_NB);
     /* Set up gpio_periph struct */
     gpio_ext[ext_i].setup_output = gpio_ext_pca95xx_setup_output;
     gpio_ext[ext_i].setup_input = gpio_ext_pca95xx_setup_input;
