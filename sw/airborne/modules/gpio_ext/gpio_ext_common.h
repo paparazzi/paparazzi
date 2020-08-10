@@ -41,7 +41,5 @@ struct gpio_periph_t {
 };
 extern struct gpio_periph_t gpio_ext[GPIOEXT_NB];
 
-extern void gpio_ext_common_init(void);
-extern void gpio_ext_common_event(void);
 
 #endif  // GPIO_EXT_COMMON_H

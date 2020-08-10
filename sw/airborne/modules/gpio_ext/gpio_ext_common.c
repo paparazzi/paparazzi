@@ -39,16 +39,6 @@
 struct gpio_periph_t gpio_ext[GPIOEXT_NB];  // All initialized NULL!
 
 
-void gpio_ext_common_init(void)
-{
-  // your init code here
-}
-
-void gpio_ext_common_event(void)
-{
-  // your event code here
-}
-
 // Wrapping functions
 void __wrap_gpio_setup_output(uint32_t port, uint32_t gpios);
 void __real_gpio_setup_output(uint32_t port, uint32_t gpios);
