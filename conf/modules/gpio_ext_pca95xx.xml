@@ -1,0 +1,14 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="gpio_ext_pca95xx" dir="gpio_ext">
+  <doc>
+    <description>PCA95XX external GPIO peripheral</description>
+  </doc>
+  <autoload name="gpio_ext_common"/>
+  <header>
+    <file name="gpio_ext_pca95xx.h"/>
+  </header>
+  <init fun="gpio_ext_pca95xx_init()"/>
+  <makefile>
+    <file name="gpio_ext_pca95xx.c"/>
+  </makefile>
+</module>

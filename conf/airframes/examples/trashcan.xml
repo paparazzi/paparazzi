@@ -84,7 +84,7 @@
             <define name="IMU_ACCEL_Z_SIGN" value="-1"/>
         </module>
         
-        <module name="gpio_ext_common"/>
+        <module name="gpio_ext" type="pca95xx"/>
         <module name="gpio_flash"/>
 
         <!-- not all are tested or tuned -->
