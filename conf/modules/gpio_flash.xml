@@ -1,0 +1,14 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+<module name="gpio_flash" dir="test">
+  <doc>
+    <description>Toggle GPIO pins for debugging</description>
+  </doc>
+  <header>
+    <file name="gpio_flash.h"/>
+  </header>
+  <init fun="gpio_flash_init()"/>
+  <periodic fun="gpio_flash_periodic()" freq="2.0" autorun="TRUE"/>
+  <makefile>
+    <file name="gpio_flash.c"/>
+  </makefile>
+</module>

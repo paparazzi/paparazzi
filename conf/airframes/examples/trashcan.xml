@@ -54,7 +54,7 @@
         </target>
 
         <module name="radio_control" type="cc2500_frsky">
-            <define name="CC2500_RX_LED" value="LED_2"/>
+            <!-- <define name="CC2500_RX_LED" value="LED_2"/> -->
             <define name="CC2500_BIND_BUTTON" value="BIND_BUTTON"/>
             <define name="CC2500_TELEMETRY_SENSORS" value="SENSOR_NONE"/>
         </module>
@@ -85,6 +85,7 @@
         </module>
         
         <module name="gpio_ext_common"/>
+        <module name="gpio_flash"/>
 
         <!-- not all are tested or tuned -->
        <!-- <module name="stabilization" type="rate"/>--><!-- not working yet..)

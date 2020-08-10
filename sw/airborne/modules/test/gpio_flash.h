@@ -18,37 +18,15 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-/** @file "modules/gpio_ext/gpio_ext_common.c"
+/** @file "modules/test/gpio_flash.h"
  * @author Tom van Dijk <tomvand@users.noreply.github.com>
- * Common external GPIO functions.
+ * Toggle GPIO pins for debugging
  */
 
-#include "modules/gpio_ext/gpio_ext_common.h"
+#ifndef GPIO_FLASH_H
+#define GPIO_FLASH_H
 
-#include "mcu_periph/gpio.h"
-#include "led.h"
+extern void gpio_flash_init(void);
+extern void gpio_flash_periodic(void);
 
-#include <stdint.h>
-
-void gpio_ext_common_init(void)
-{
-  // your init code here
-}
-
-void gpio_ext_common_event(void)
-{
-  // your event code here
-}
-
-// Wrapping functions
-void __wrap_gpio_set(uint32_t port, uint32_t gpios);
-void __real_gpio_set(uint32_t port, uint32_t gpios);
-void __wrap_gpio_set(uint32_t port, uint32_t gpios) {
-  if (port >= GPIOEXT1 && port <= GPIOEXT4) {
-    // Do magic
-  } else {
-    __real_gpio_set(port, gpios);
-  }
-}
-
-
+#endif  // GPIO_FLASH_H
