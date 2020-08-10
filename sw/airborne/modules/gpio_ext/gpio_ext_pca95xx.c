@@ -40,36 +40,49 @@ struct gpio_ext_pca95xx_impl_t {
   uint8_t config_reg;
   bool blocking;
 };
-struct gpio_ext_pca95xx_impl_t gpio_ext_pca95xx_impl[GPIOEXT_NB];
+static struct gpio_ext_pca95xx_impl_t impl[GPIOEXT_NB];
 
 static const uint32_t ports[] = { GPIO_EXT_PCA95XX_PORTS };
-static const struct i2c_periph *i2c_periphs[] = { GPIO_EXT_PCA95XX_I2C_PERIPHS };
+static struct i2c_periph *i2c_periphs[] = { GPIO_EXT_PCA95XX_I2C_PERIPHS };
 static const uint8_t i2c_addrs[] = { GPIO_EXT_PCA95XX_ADDRESSES };
 static const bool blockings[] = { GPIO_EXT_PCA95XX_BLOCKINGS };
 
 
 static void gpio_ext_pca95xx_setup_output(uint32_t port, uint32_t gpios) {
-
+  int i = port - GPIOEXT1;
+  impl[i].config_reg &= ~gpios;
+  pca95xx_configure(&impl[i].periph, impl[i].config_reg, impl[i].blocking);
 }
 
 static void gpio_ext_pca95xx_setup_input(uint32_t port, uint32_t gpios) {
-
+  int i = port - GPIOEXT1;
+  impl[i].config_reg |= gpios;
+  pca95xx_configure(&impl[i].periph, impl[i].config_reg, impl[i].blocking);
 }
 
 static uint32_t gpio_ext_pca95xx_get(uint32_t port, uint32_t gpios) {
+  (void) port;
+  (void) gpios;
+  assert("Not implemented" == 0);
   return 0;
 }
 
 static void gpio_ext_pca95xx_set(uint32_t port, uint32_t gpios) {
-
+  int i = port - GPIOEXT1;
+  impl[i].output_reg |= gpios;
+  pca95xx_set_output(&impl[i].periph, impl[i].config_reg, impl[i].blocking);
 }
 
 static void gpio_ext_pca95xx_clear(uint32_t port, uint32_t gpios) {
-
+  int i = port - GPIOEXT1;
+  impl[i].output_reg &= ~gpios;
+  pca95xx_set_output(&impl[i].periph, impl[i].config_reg, impl[i].blocking);
 }
 
 static void gpio_ext_pca95xx_toggle(uint32_t port, uint32_t gpios) {
-
+  int i = port - GPIOEXT1;
+  impl[i].output_reg ^= gpios;
+  pca95xx_set_output(&impl[i].periph, impl[i].config_reg, impl[i].blocking);
 }
 
 
@@ -86,13 +99,13 @@ void gpio_ext_pca95xx_init(void)
     gpio_ext[ext_i].set = gpio_ext_pca95xx_set;
     gpio_ext[ext_i].clear = gpio_ext_pca95xx_clear;
     gpio_ext[ext_i].toggle  =gpio_ext_pca95xx_toggle;
-    gpio_ext[ext_i].impl_data = &gpio_ext_pca95xx_impl[i];
+    gpio_ext[ext_i].impl_data = &impl[ext_i];
     /* Set up pca95xx impl struct */
-    gpio_ext_pca95xx_impl[i].output_reg = 0x00;
-    gpio_ext_pca95xx_impl[i].config_reg = 0x00;
-    gpio_ext_pca95xx_impl[i].blocking = blockings[i];
+    impl[ext_i].output_reg = 0xFF;
+    impl[ext_i].config_reg = 0xFF;
+    impl[ext_i].blocking = blockings[i];
     /* Set up pca95xx peripheral */
-    pca95xx_init(&gpio_ext_pca95xx_impl[i].periph, i2c_periphs[i], i2c_addrs[i]);
+    pca95xx_init(&impl[ext_i].periph, i2c_periphs[i], i2c_addrs[i]);
   }
 }
 
