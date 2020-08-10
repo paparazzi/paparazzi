@@ -20,7 +20,7 @@
     <define name="USE_$(MULTI_RANGER_I2C_DEV_UPPER)"/>
     <define name="VL53L1X_AUTO_INCR_ADDR"/>
     <file name="cf_deck_multi_ranger.c"/>
-    <file name="pca95x4.c" dir="peripherals"/>
+    <file name="pca95xx.c" dir="peripherals"/>
     <file name="vl53l1_platform.c" dir="peripherals"/>
     <file name="vl53l1x_api.c" dir="peripherals"/>
     <file name="vl53l1x_nonblocking.c" dir="peripherals"/>
